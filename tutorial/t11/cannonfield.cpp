@@ -22,8 +22,7 @@ CannonField::CannonField(QWidget *parent)
     f = 0;
     timerCount = 0;
     autoShootTimer = new QTimer(this);
-    connect(autoShootTimer, SIGNAL(timeout()),
-            this, SLOT(moveShot()));
+    connect(autoShootTimer, SIGNAL(timeout()), this, SLOT(moveShot()));
     shoot_ang = 0;
     shoot_f = 0;
     setPalette(QPalette(QColor(250, 250, 200)));

@@ -15,7 +15,7 @@ public:
 };
 
 MyWidget::MyWidget(QWidget *parent)
-        : QWidget(parent)
+    : QWidget(parent)
 {
     setMinimumSize(200, 120);
     setMaximumSize(200, 120);

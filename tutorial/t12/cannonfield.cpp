@@ -24,8 +24,7 @@ CannonField::CannonField(QWidget *parent)
     f = 0;
     timerCount = 0;
     autoShootTimer = new QTimer(this);
-    connect(autoShootTimer, SIGNAL(timeout()),
-            this, SLOT(moveShot()));
+    connect(autoShootTimer, SIGNAL(timeout()), this, SLOT(moveShot()));
     shoot_ang = 0;
     shoot_f = 0;
     target = QPoint(0, 0);
@@ -33,15 +32,15 @@ CannonField::CannonField(QWidget *parent)
     newTarget();
 }
 
-void CannonField::setAngle(int angles)
+void CannonField::setAngle(int angle)
 {
-    if (angles < 5)
-        angles = 5;
-    if (angles > 70)
-        angles = 70;
-    if (ang == angles)
+    if (angle < 5)
+        angle = 5;
+    if (angle > 70)
+        angle = 70;
+    if (ang == angle)
         return;
-    ang = angles;
+    ang = angle;
     repaint(cannonRect());
     emit angleChanged(ang);
 }
@@ -75,7 +74,7 @@ void CannonField::newTarget()
         QTime midnight(0, 0, 0);
         srand(midnight.secsTo(QTime::currentTime()));
     }
-    QRegion region(targetRect());
+    QRegion region = targetRect();
     target = QPoint(200 + rand() % 190, 10 + rand() % 255);
     repaint(region.unite(targetRect()));
 }
@@ -94,7 +93,7 @@ void CannonField::moveShot()
         autoShootTimer->stop();
         emit missed();
     } else {
-        region = region.unite(QRegion(shotR));
+        region = region.unite(shotR);
     }
 
     repaint(region);
@@ -170,9 +169,9 @@ QRect CannonField::shotRect() const
     double x = x0 + velx * time;
     double y = y0 + vely * time - 0.5 * gravity * time * time;
 
-    QRect rect = QRect(0, 0, 6, 6);
-    rect.moveCenter(QPoint(qRound(x), height() - 1 - qRound(y)));
-    return rect;
+    QRect result(0, 0, 6, 6);
+    result.moveCenter(QPoint(qRound(x), height() - 1 - qRound(y)));
+    return result;
 }
 
 QRect CannonField::targetRect() const

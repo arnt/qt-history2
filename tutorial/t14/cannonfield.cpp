@@ -69,18 +69,18 @@ void CannonField::shoot()
     emit canShoot(false);
 }
 
-void  CannonField::newTarget()
+void CannonField::newTarget()
 {
-    static bool first_time = true;
+    static bool firstTime = true;
 
-    if (first_time) {
-        first_time = false;
+    if (firstTime) {
+        firstTime = false;
         QTime midnight(0, 0, 0);
         srand(midnight.secsTo(QTime::currentTime()));
     }
-    QRegion r(targetRect());
+    QRegion region = targetRect();
     target = QPoint(200 + rand() % 190, 10 + rand() % 255);
-    repaint(r.unite(targetRect()));
+    repaint(region.unite(targetRect()));
 }
 
 void CannonField::setGameOver()
@@ -104,7 +104,7 @@ void CannonField::restartGame()
 
 void CannonField::moveShot()
 {
-    QRegion r(shotRect());
+    QRegion region = shotRect();
     ++timerCount;
 
     QRect shotR = shotRect();
@@ -119,10 +119,10 @@ void CannonField::moveShot()
         emit missed();
         emit canShoot(true);
     } else {
-        r = r.unite(QRegion(shotR));
+        region = region.unite(shotR);
     }
 
-    repaint(r);
+    repaint(region);
 }
 
 void CannonField::mousePressEvent(QMouseEvent *event)
@@ -137,13 +137,13 @@ void CannonField::mouseMoveEvent(QMouseEvent *event)
 {
     if (!barrelPressed)
         return;
-    QPoint pnt = event->pos();
-    if (pnt.x() <= 0)
-        pnt.setX(1);
-    if (pnt.y() >= height())
-        pnt.setY(height() - 1);
-    double rad = atan(((double)rect().bottom()-pnt.y())/pnt.x());
-    setAngle(qRound (rad*180/3.14159265));
+    QPoint pos = event->pos();
+    if (pos.x() <= 0)
+        pos.setX(1);
+    if (pos.y() >= height())
+        pos.setY(height() - 1);
+    double rad = atan(((double)rect().bottom() - pos.y()) / pos.x());
+    setAngle(qRound(rad * 180 / 3.14159265));
 }
 
 void CannonField::mouseReleaseEvent(QMouseEvent *event)
@@ -236,9 +236,9 @@ QRect CannonField::shotRect() const
     double x = x0 + velx * time;
     double y = y0 + vely * time - 0.5 * gravity * time * time;
 
-    QRect r = QRect(0, 0, 6, 6);
-    r.moveCenter(QPoint(qRound(x), height() - 1 - qRound(y)));
-    return r;
+    QRect result(0, 0, 6, 6);
+    result.moveCenter(QPoint(qRound(x), height() - 1 - qRound(y)));
+    return result;
 }
 
 QRect CannonField::targetRect() const

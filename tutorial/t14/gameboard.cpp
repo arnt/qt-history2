@@ -56,10 +56,10 @@ GameBoard::GameBoard(QWidget *parent)
     QPushButton *shoot = new QPushButton("&Shoot", this);
     shoot->setFont(QFont("Times", 18, QFont::Bold));
 
-    connect(shoot, SIGNAL(clicked()), SLOT(fire()));
-
+    connect(shoot, SIGNAL(clicked()),
+            this, SLOT(fire()));
     connect(cannonField, SIGNAL(canShoot(bool)),
-             shoot, SLOT(setEnabled(bool)));
+            shoot, SLOT(setEnabled(bool)));
 
     QPushButton *restart = new QPushButton("&New Game", this);
     restart->setFont(QFont("Times", 18, QFont::Bold));

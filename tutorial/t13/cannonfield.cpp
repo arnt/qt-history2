@@ -76,7 +76,7 @@ void CannonField::newTarget()
         QTime midnight(0, 0, 0);
         srand(midnight.secsTo(QTime::currentTime()));
     }
-    QRegion region(targetRect());
+    QRegion region = targetRect();
     target = QPoint(200 + rand() % 190, 10 + rand() % 255);
     repaint(region.unite(targetRect()));
 }
@@ -162,15 +162,15 @@ void CannonField::paintCannon(QPainter &painter)
     QPixmap pixmap(rect.size());
     pixmap.fill(this, rect.topLeft());
 
-    QPainter tmp(&pixmap);
-    tmp.setBrush(Qt::blue);
-    tmp.setPen(Qt::NoPen);
+    QPainter pixmapPainter(&pixmap);
+    pixmapPainter.setBrush(Qt::blue);
+    pixmapPainter.setPen(Qt::NoPen);
 
-    tmp.translate(0, pixmap.height() - 1);
-    tmp.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
-    tmp.rotate(-ang);
-    tmp.drawRect(barrelRect);
-    tmp.end();
+    pixmapPainter.translate(0, pixmap.height() - 1);
+    pixmapPainter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
+    pixmapPainter.rotate(-ang);
+    pixmapPainter.drawRect(barrelRect);
+    pixmapPainter.end();
 
     painter.drawPixmap(rect.topLeft(), pixmap);
 }

@@ -59,8 +59,7 @@ GameBoard::GameBoard(QWidget *parent)
     QPushButton *restart = new QPushButton("&New Game", this);
     restart->setFont(QFont("Times", 18, QFont::Bold));
 
-    connect(restart, SIGNAL(clicked()),
-            this, SLOT(newGame()));
+    connect(restart, SIGNAL(clicked()), this, SLOT(newGame()));
 
     hits = new QLCDNumber(2, this);
     shotsLeft = new QLCDNumber(2, this);
