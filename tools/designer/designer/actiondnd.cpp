@@ -908,7 +908,7 @@ void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 
 void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !mousePressed ) {
+    if ( !mousePressed || e->state() == NoButton ) {
 	QPopupMenu::mouseMoveEvent( e );
 	return;
     }
