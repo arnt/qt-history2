@@ -3297,11 +3297,13 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updat
 	}
     }
 
-    if ( d->preview && d->preview->isVisible() ) {
-	if ( d->infoPreviewer )
-	    d->infoPreviewer->previewUrl( u );
-	if ( d->contentsPreviewer )
-	    d->contentsPreviewer->previewUrl( u );
+    if ( isDir ) {
+        if ( d->preview && d->preview->isVisible() ) {
+            if ( d->infoPreviewer )
+                d->infoPreviewer->previewUrl( u );
+            if ( d->contentsPreviewer )
+                d->contentsPreviewer->previewUrl( u );
+        }
     }
 
     QString old = d->currentFileName;
@@ -3543,8 +3545,16 @@ void QFileDialog::updateFileNameEdit( QListBoxItem * newItem )
 void QFileDialog::fileNameEditDone()
 {
     QUrlInfo f( d->url, nameEdit->text() );
-    if ( mode() != ExistingFiles )
-	trySetSelection( f.isDir(), QUrlOperator( d->url, nameEdit->text() ), FALSE );
+    if ( mode() != ExistingFiles ) {
+        QUrlOperator u( d->url, nameEdit->text() );
+        trySetSelection( f.isDir(), u, FALSE );
+        if ( d->preview && d->preview->isVisible() ) {
+            if ( d->infoPreviewer )
+                d->infoPreviewer->previewUrl( u );
+            if ( d->contentsPreviewer )
+                d->contentsPreviewer->previewUrl( u );
+        }
+    }
 }
 
 
