@@ -17,12 +17,7 @@
   selection model.
 */
 
-#include <qapplication.h>
-#include <qdirmodel.h>
-#include <qitemselectionmodel.h>
-#include <qlistview.h>
-#include <qsplitter.h>
-#include <qtreeview.h>
+#include <QtGui>
 
 int main(int argc, char *argv[])
 {
