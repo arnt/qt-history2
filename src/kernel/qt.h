@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Wed Sep 20 11:32:09 EST 2000
+** Generated : Wed Sep 20 15:07:33 CEST 2000
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -15,7 +15,7 @@
 
 #ifndef QT_H
 #define QT_H
-#include <qglobal.h>
+#include "qglobal.h"
 #include <qfeatures.h>
 #include "qshared.h"
 #include "qnamespace.h"
@@ -39,7 +39,7 @@
 #include "qregion.h"
 #include "qevent.h"
 #include "qobject.h"
-#include "qlist.h"
+#include <qlist.h>
 #include <qfont.h>
 #include "qfontinfo.h"
 #include "qpalette.h"
@@ -67,7 +67,7 @@
 #include <qfile.h>
 #include "qfileinfo.h"
 #include <qwidget.h>
-#include "qpen.h"
+#include <qpen.h>
 #include "qstringlist.h"
 #include "qdialog.h"
 #include "qbutton.h"
@@ -183,14 +183,14 @@
 #include <qspinbox.h>
 #include <qsplitter.h>
 #include "qsqlerror.h"
+#include "qsqlfield.h"
 #include "qsql.h"
-#include "qsqlresultinfo.h"
 #include "qsqldriverinterface.h"
 #include "qpluginmanager.h"
 #include "qsqlindex.h"
 #include <qsqldriver.h>
-#include <qsqlresult.h>
 #include <qsqldatabase.h>
+#include <qsqlresult.h>
 #include <qstack.h>
 #include <qstatusbar.h>
 #include <qapplicationinterface.h>
@@ -204,9 +204,8 @@
 #include <qtable.h>
 #include <qmultilineedit.h>
 #include <qtabwidget.h>
-#include "qtextedit.h"
-#include <qbig5codec.h>
 #include "qtextview.h"
+#include <qbig5codec.h>
 #include <qtextstream.h>
 #include <qtextbrowser.h>
 #include <qthread.h>
@@ -243,7 +242,7 @@
 #include <qsqldriverplugin.h>
 
 #ifdef _WS_QWS_
-#include "qfontmanager_qws.h"
+#include <qfontmanager_qws.h>
 #include <qfontfactorybdf_qws.h>
 #include <qgfxvoodoodefs_qws.h>
 #include <qgfxmatroxdefs_qws.h>
