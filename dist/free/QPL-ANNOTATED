@@ -1,4 +1,4 @@
-This is not a legal document. For the exact interpretaion of the license
+This is not a legal document. For the exact interpretation of the license
 you must read it and understand it. This text is simply meant to explain
 the license in an easy to understand and informal way.
 
@@ -16,12 +16,12 @@ as long as you include everything in the original distribution.
 3.
 
 You can make and distribute patches. If you find a bug, fix it and
-redistribute the patch. If you miss soemthing, implement it and distribute
+redistribute the patch. If you miss something, implement it and distribute
 the patch.
 
     a
 
-This license apllies to all software that refers to this license in its
+This license applies to all software that refers to this license in its
 copyright statement. You are not allowed to change the copyright statement
 as that might remove the reference to this license.
 
@@ -44,9 +44,9 @@ communication between developers easier.
 
 4.
 
-Distribute executables to anyone you like, includig your bird, as you long
+Distribute executables to anyone you like, including your bird, as you long
 as you tell them about their rights and include any patches. This again is
-to avoid confusion and make sure that poeple know that they are using Open
+to avoid confusion and make sure that people know that they are using Open
 Source software.
 
 6.
@@ -55,6 +55,6 @@ This is a license designed for libraries, therefore we must also talk
 about application programs or other libraries (components) that are
 linked with the software.
 
-In esence this clause says that you may develop programs that link with
+In essence this clause says that you may develop programs that link with
 the software, e.g. Qt, provided that you develop Open Source software.
 
