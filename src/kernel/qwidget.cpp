@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#472 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#473 $
 **
 ** Implementation of QWidget class
 **
@@ -4132,8 +4132,8 @@ bool QWidget::x11Event( XEvent * )
 
 /*!
   Returns the font propagation mode of this widget.  The default
-  font propagation mode is \c NoChildren, but you can set it to \a
-  SameFont or \a AllChildren.
+  font propagation mode is \c SameFont, but you can set it to \a
+  NoChildren or \a AllChildren.
 
   \sa setFontPropagation()
 */
@@ -4147,14 +4147,13 @@ QWidget::PropagationMode QWidget::fontPropagation() const
 /*!
   Sets the font propagation mode to \a m.
 
-  if \a m is \c NoChildren (the default), setFont() does not change
-  any children's fonts.  If it is \c SameFont, setFont() changes the
-  font of the children that have the exact same font as this widget
-  (see \l QFont::isCopyOf() for details).  If it is \c AllChildren,
-  setFont() changes the font of all children.
+  if \a m is \c NoChildren, setFont() does not change any children's
+  fonts.  If it is \c SameFont (the default), setFont() changes the font
+  of the children that have the exact same font as this widget (see \l
+  QFont::isCopyOf() for details).  If it is \c AllChildren, setFont()
+  changes the font of all children.
 
-  \sa fontPropagation() setFont() setPalettePropagation()
-*/
+  \sa fontPropagation() setFont() setPalettePropagation() */
 
 void QWidget::setFontPropagation( PropagationMode m )
 {
@@ -4163,8 +4162,8 @@ void QWidget::setFontPropagation( PropagationMode m )
 
 
 /*!  Returns the palette propagation mode of this widget.  The default
-  palette propagation mode is \c NoChildren, but you can set it to \a
-  SamePalette or \a AllChildren.
+  palette propagation mode is \c SamePalette, but you can set it to \a
+  NoChildren or \a AllChildren.
 
   \sa setPalettePropagation()
 */
@@ -4177,14 +4176,13 @@ QWidget::PropagationMode QWidget::palettePropagation() const
 
 /*!  Sets the palette propagation mode to \a m.
 
-  if \a m is \c NoChildren (the default), setPalette() does not change
-  any children's palettes.  If it is \c SamePalette, setPalette()
-  changes the palette of the children that have the exact same palette
-  as this widget (see \l QPalette::isCopyOf() for details).  If it is
-  \c AllChildren, setPalette() changes the palette of all children.
+  if \a m is \c NoChildren, setPalette() does not change any children's
+  palettes.  If it is \c SamePalette (the default), setPalette() changes
+  the palette of the children that have the exact same palette as this
+  widget (see \l QPalette::isCopyOf() for details).  If it is \c
+  AllChildren, setPalette() changes the palette of all children.
 
-  \sa palettePropagation() setPalette() setFontPropagation()
-*/
+  \sa palettePropagation() setPalette() setFontPropagation() */
 
 void QWidget::setPalettePropagation( PropagationMode m )
 {
