@@ -1280,13 +1280,8 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     ln -s $relpath/mkspecs/* $outpath/mkspecs
     rm -f $outpath/mkspecs/default
 
-    # symlink the linguist/doc directory (to make the assistant happy)
-    mkdir -p $outpath/tools/linguist
-    rm -f $outpath/tools/linguist/doc
-    ln -s $relpath/tools/linguist/doc $outpath/tools/linguist/doc
-
     # symlink the doc directory
-    rm -f $outpath/doc
+    rm -rf $outpath/doc
     ln -s $relpath/doc $outpath/doc
 
     # make sure q3porting.xml can be found
