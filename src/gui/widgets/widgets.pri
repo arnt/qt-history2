@@ -50,6 +50,7 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qspinbox.h \
 	widgets/qsplitter.h \
 	widgets/qstatusbar.h \
+	widgets/qstackedbox.h \
 	widgets/qtabbar.h \
 	widgets/qtabwidget.h \
 	widgets/qtitlebar_p.h \
@@ -113,6 +114,7 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qspinbox.cpp \
 	widgets/qspinwidget.cpp \
 	widgets/qsplitter.cpp \
+	widgets/qstackedbox.cpp \
 	widgets/qstatusbar.cpp \
 	widgets/qtabbar.cpp \
 	widgets/qtabwidget.cpp \

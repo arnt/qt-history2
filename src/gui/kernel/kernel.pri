@@ -28,6 +28,7 @@ HEADERS += \
 	kernel/qshortcutmap_p.h \
 	kernel/qsizepolicy.h \
 	kernel/qsound.h \	
+	kernel/qstackedlayout.h \	
 	kernel/qtooltip.h \
 	kernel/qvariant.h \
 	kernel/qwhatsthis.h \
@@ -52,6 +53,7 @@ SOURCES += \
 	kernel/qshortcut.cpp \
 	kernel/qshortcutmap.cpp \
 	kernel/qsound.cpp \
+	kernel/qstackedlayout.cpp \	
 	kernel/qtooltip.cpp \
 	kernel/qvariant.cpp \
 	kernel/qwhatsthis.cpp \
