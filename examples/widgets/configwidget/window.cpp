@@ -8,6 +8,7 @@ Window::Window()
 {
     contentsWidget = new QWidget;
     QWidgetView *view = new QWidgetView(this);
+    view->setBackgroundRole(QPalette::Light);
     view->setWidget(contentsWidget);
 
     pagesWidget = new QStackedWidget(this);
@@ -42,9 +43,7 @@ void Window::createIcons()
 {
     QPixmap pixmap;
 
-    contentsWidget->setBackgroundRole(QPalette::Base);
-
-    pixmap.load(":/Images/config.png");
+    pixmap.load(":/images/config.png");
     OptionButton *configButton = new OptionButton(104, 104, 0, contentsWidget);
     configButton->setIcon(QIcon(pixmap));
     configButton->setText(tr("Configuration"));
@@ -53,7 +52,7 @@ void Window::createIcons()
     configButton->setChecked(true);
     configButton->move(0, 0);
 
-    pixmap.load(":/Images/update.png");
+    pixmap.load(":/images/update.png");
     OptionButton *updateButton = new OptionButton(104, 104, 1, contentsWidget);
     updateButton->setIcon(QIcon(pixmap));
     updateButton->setText(tr("Update"));
@@ -61,7 +60,7 @@ void Window::createIcons()
     updateButton->setAutoExclusive(true);
     updateButton->move(0, 104);
 
-    pixmap.load(":/Images/query.png");
+    pixmap.load(":/images/query.png");
     OptionButton *queryButton = new OptionButton(104, 104, 2, contentsWidget);
     queryButton->setIcon(QIcon(pixmap));
     queryButton->setText(tr("Query"));

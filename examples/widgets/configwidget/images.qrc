@@ -1,7 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-   <file>Images/config.png</file>
-   <file>Images/query.png</file>
-   <file>Images/update.png</file>
+   <file>images/config.png</file>
+   <file>images/query.png</file>
+   <file>images/update.png</file>
 </qresource>
 </RCC>
