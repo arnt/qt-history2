@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_x11.h#6 $
+** $Id: //depot/qt/main/src/kernel/qt_x11.h#7 $
 **
 ** Includes X11 system header files.
 **
@@ -65,7 +65,7 @@ typedef char *XPointer;
 #elif defined(_OS_AIX_)
 // broken in Xlib up to what?
 #define NO_XIM
-#elif defined(NO_DEBUG) && defined(OS_IRIX) && defined(_CC_EDG_)
+#elif defined(NO_DEBUG) && defined(_OS_IRIX_) && defined(_CC_EDG_)
 // XCreateIC broken when compiling -64 on IRIX 6.5.2
 #define NO_XIM
 #endif
