@@ -492,6 +492,9 @@ QFSFileEngine::caseSensitive() const
 bool
 QFSFileEngine::setCurrentPath(const QString &path)
 {
+    if (!QDir(path).exists())
+        return false;
+    
     int r;
     QT_WA({
         r = ::SetCurrentDirectory((WCHAR*)path.utf16());
@@ -992,10 +995,10 @@ QFSFileEngine::fileFlags(QFileEngine::FileFlags type) const
 		    if(GetFileAttributesA(d->file.local8Bit()) & FILE_ATTRIBUTE_HIDDEN)
 			ret |= HiddenFlag;
 		});
-                if(d->file == "/" || d->file == "//" ||
-                   (d->file[0].isLetter() && d->file.mid(1,d->file.length()) == ":/"))
-                    ret |= RootFlag;
-	    }
+            }
+            if(d->file == "/" || d->file == "//" ||
+               (d->file[0].isLetter() && d->file.mid(1,d->file.length()) == ":/"))
+                ret |= RootFlag;
 	}
     }
     return ret;
@@ -1094,12 +1097,10 @@ QFSFileEngine::fileName(FileName file) const
 bool
 QFSFileEngine::isRelativePath() const
 {
-    if(d->file.length() >= 2) {
-        return !((d->file.at(0).isLetter() && d->file.at(1) == ':') ||
-                 (d->file.at(0) == '\\' && d->file.at(1) == '\\') ||
-                 (d->file.at(0) == '/' && d->file.at(1) == '/'));                // drive, e.g. a:
-    }
-    return true;
+    return !(d->file.startsWith("/") 
+        || (d->file.length() >= 2 
+        && ((d->file.at(0).isLetter() && d->file.at(1) == ':') 
+        || (d->file.at(0) == '/' && d->file.at(1) == '/'))));                // drive, e.g. a:
 }
 
 uint
