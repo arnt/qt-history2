@@ -83,7 +83,7 @@
   Several functions let you change the appearance of a QMainWindow
   globally: <ul>
   <li> setRightJustification() determines whether QMainWindow
-  should ensure that the toolbars fill the available space,
+  should ensure that the toolbars fill the available space (see also QToolBar::setFullWidth()),
   <li>  setUsesBigPixmaps() determines whether QToolButton (and other
   classes) should draw small or large pixmaps (see QIconSet for more
   about that),
