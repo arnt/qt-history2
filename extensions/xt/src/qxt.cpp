@@ -588,8 +588,8 @@ void QXtWidget::moveEvent( QMoveEvent* )
     c.type = ConfigureNotify;
     c.event = winId();
     c.window = winId();
-    c.x = x();
-    c.y = y();
+    c.x = geometry().x();
+    c.y = geometry().y();
     c.width = width();
     c.height = height();
     c.border_width = 0;
@@ -609,8 +609,8 @@ void QXtWidget::resizeEvent( QResizeEvent* )
     c.type = ConfigureNotify;
     c.event = winId();
     c.window = winId();
-    c.x = x();
-    c.y = y();
+    c.x = geometry().x();
+    c.y = geometry().y();
     c.width = width();
     c.height = height();
     c.border_width = 0;
