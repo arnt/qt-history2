@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.35 1999/04/06 19:10:10 warwick Exp $
+** $Id: porting.doc,v 1.36 1999/04/06 19:10:52 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -791,7 +791,7 @@ compile just the same anyway).  This list is here for completeness.
 
 // warwick can regenerate this with his qt-2-report
 
-/*! \page remove20.html
+/*! \page removed20.html
 
 <title>Qt 2.0 - Removed functions</title></head><body bgcolor="#ffffff">
 
