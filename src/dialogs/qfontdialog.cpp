@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#4 $
 **
 ** C++ file skeleton
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#4 $");
 
 
 struct QFontDialogPrivate
@@ -183,13 +183,13 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     mainGrid->addLayout( d->buttonLayout, 1, 6 );
 
     d->ok = new QPushButton( "OK", this, "accept font selection" );
-    connect( d->ok, SIGNAL(clicked()), SLOT(okClicked()) );
+    connect( d->ok, SIGNAL(clicked()), SLOT(accept()) );
     d->buttonLayout->addWidget( d->ok, 0, AlignLeft );
 
     d->buttonLayout->addSpacing( 6 );
 
     d->cancel = new QPushButton( "Cancel", this, "cancel" );
-    connect( d->cancel, SIGNAL(clicked()), SLOT(cancelClicked()) );
+    connect( d->cancel, SIGNAL(clicked()), SLOT(reject()) );
     d->buttonLayout->addWidget( d->cancel, 0, AlignLeft );
 
     d->buttonLayout->addStretch( 1 );
@@ -320,6 +320,18 @@ void QFontDialog::updateFontSizes()
     l->insertItem( "10.0" );
     l->insertItem( "12.0" );
     l->insertItem( "14.0" );
+    l->insertItem( "16.0" );
+    l->insertItem( "18.0" );
+    l->insertItem( "20.0" );
+    l->insertItem( "22.0" );
+    l->insertItem( "24.0" );
+    l->insertItem( "26.0" );
+    l->insertItem( "28.0" );
+    l->insertItem( "30.0" );
+    l->insertItem( "32.0" );
+    l->insertItem( "34.0" );
+    l->insertItem( "36.0" );
+    l->insertItem( "39.0" );
 }
 
 
@@ -397,7 +409,7 @@ void QFontDialog::updateGeometry()
     br.setWidth( QCOORD_MAX );
     d->color->setMaximumSize( br );
 
-    d->sampleEdit->setMinimumSize( d->sampleEdit->sizeHint() );
+    d->sampleEdit->setMinimumHeight( 30 ); // ### deviates from the book
     d->scriptAccel->setFixedSize( d->scriptAccel->sizeHint() );
 
     br = d->script->sizeHint();
