@@ -233,22 +233,22 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     } else {
 	if ( x11DefaultVisual() && x11DefaultColormap() ) {
 	    id = (WId)qt_XCreateSimpleWindow( this, dpy, parentw,
-					 crect.left(), crect.top(),
-					 crect.width(), crect.height(),
-					 0,
-					 black.pixel(),
-					 bg_col.pixel() );
+					      crect.left(), crect.top(),
+					      crect.width(), crect.height(),
+					      0,
+					      black.pixel(),
+					      bg_col.pixel() );
 	} else {
 	    wsa.background_pixel = bg_col.pixel();
 	    wsa.border_pixel = black.pixel();
 	    wsa.colormap = (Colormap)x11Colormap();
 	    id = (WId)qt_XCreateWindow( this, dpy, parentw,
-				   crect.left(), crect.top(),
-				   crect.width(), crect.height(),
-				   0, x11Depth(), InputOutput,
-				   (Visual*)x11Visual(),
-				   CWBackPixel|CWBorderPixel|CWColormap,
-				   &wsa );
+					crect.left(), crect.top(),
+					crect.width(), crect.height(),
+					0, x11Depth(), InputOutput,
+					(Visual*)x11Visual(),
+					CWBackPixel|CWBorderPixel|CWColormap,
+					&wsa );
 	}
 	setWinId( id );				// set widget id/handle + hd
     }
@@ -518,16 +518,19 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     extern void qPRCreate( const QWidget *, Window );
     Display *dpy = x11Display();
     QCursor oldcurs;
-    bool setcurs=testWState(WState_OwnCursor);
+    bool setcurs = testWState(WState_OwnCursor);
     if ( setcurs ) {
 	oldcurs = cursor();
 	unsetCursor();
     }
+    bool topdata_dnd = FALSE;
     bool accept_drops = acceptDrops();
     if ( accept_drops )
 	setAcceptDrops( FALSE ); // dnd unregister (we will register again below)
-    if ( isTopLevel() )
+    if ( isTopLevel() ) {
+	topdata_dnd = topData()->dnd;
 	topData()->dnd = 0; // unregister XDND atom
+    }
 
     QWidget* oldtlw = topLevelWidget();
     WId old_winid = winid;
@@ -537,7 +540,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     setWinId( 0 );
     if ( isTopLevel() )
 	topData()->parentWinId = 0;
-
 
     if ( parentObj ) {				// remove from parent
 	parentObj->removeChild( this );
@@ -557,8 +559,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( isTopLevel() || (!parent || parent->isVisibleTo( 0 ) ) )
 	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
     create();
+
     const QObjectList *chlist = children();
-    QWidget* dndchild = 0; // remember one of the children accepting drops
     if ( chlist ) {				// reparent children
 	QObjectListIt it( *chlist );
 	QObject *obj;
@@ -568,8 +570,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 		if ( !w->isTopLevel() ) {
 		    XReparentWindow( x11Display(), w->winId(), winId(),
 				     w->geometry().x(), w->geometry().y() );
-		    if ( w->acceptDrops() )
-			dndchild = w ;
 		} else if ( w->isPopup()
 			    || w->testWFlags(WStyle_DialogBorder)
 			    || w->testWFlags(WType_Dialog)
@@ -589,6 +589,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	resize( s );
     else
 	setGeometry( p.x(), p.y(), s.width(), s.height() );
+
     setEnabled( enable );
     setFocusPolicy( fp );
     if ( !capt.isNull() ) {
@@ -606,13 +607,12 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
     reparentFocusWidgets( oldtlw );
 
-
+    // re-register dnd
     if ( accept_drops )
 	setAcceptDrops( TRUE );
-    else if ( dndchild ) {
-	dndchild->clearWState(WState_DND); // reset this widget
-	dndchild->setAcceptDrops( TRUE ); // the new top-level will accept drops
-    }
+    if (topdata_dnd)
+	qt_dnd_enable(this, topdata_dnd);
+
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
 }

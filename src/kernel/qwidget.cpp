@@ -4925,6 +4925,7 @@ void QWidget::showFullScreen()
     reparent( 0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop,
 	      QPoint(0,0) );
     topData()->fullscreen = 1;
+    move(0, 0);
     resize( qApp->desktop()->size() );
     raise();
     show();
