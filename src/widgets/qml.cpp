@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#51 $
 **
 ** Implementation of QML classes
 **
@@ -1217,25 +1217,26 @@ QMLImage::QMLImage(const QDict<QString> &attr, QMLProvider &provider)
     QString* imageName = attr["source"];
     if (!imageName)
 	imageName = attr["src"];
-    if (imageName) {
+    if (imageName)
 	pm = provider.image( *imageName );
-	if ( !pm.isNull() ) {
-	  if ( width == 0 )
+
+    if ( !pm.isNull() ) {
+	if ( width == 0 )
 	    width = pm.width();
-	  if ( height == 0 )
+	if ( height == 0 )
 	    height = pm.height();
 
-	  if ( pm.width() != width || pm.height() != height ){
-	    pm.convertFromImage( pm.convertToImage().smoothScale(width, height) );
+	if ( pm.width() != width || pm.height() != height ){
+	    pm.convertFromImage( pm.convertToImage().smoothScale(width,
+								 height) );
 	    width = pm.width();
 	    height = pm.height();
-	  }
+	}
 	
-	  if ( pm.mask() ) {
+	if ( pm.mask() ) {
 	    QRegion mask( *pm.mask() );
 	    QRegion all( 0, 0, pm.width(), pm.height() );
 	    reg = new QRegion( all.subtract( mask ) );
-	  }
 	}
     }
 
@@ -1244,9 +1245,11 @@ QMLImage::QMLImage(const QDict<QString> &attr, QMLProvider &provider)
     }
 }
 
+
 QMLImage::~QMLImage()
 {
 }
+
 
 void QMLImage::draw(QPainter* p, int x, int y,
 		    int ox, int oy, int /*cx*/, int /*cy*/, int /*cw*/, int /*ch*/,
@@ -1272,9 +1275,11 @@ QMLHorizontalLine::QMLHorizontalLine(const QDict<QString>&, QMLProvider&)
     width = 4000;
 }
 
+
 QMLHorizontalLine::~QMLHorizontalLine()
 {
 }
+
 
 void QMLHorizontalLine::draw(QPainter* p, int x, int y,
 			     int ox, int oy, int cx, int cy, int cw, int ch,
@@ -2045,7 +2050,7 @@ void QMLBox::draw(QPainter *p,  int obx, int oby, int ox, int oy, int cx, int cy
 }
 
 
-void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
+void QMLBox::setWidth( QPainter* p, int newWidth, bool forceResize )
 {
     if (newWidth == width && !forceResize) // no need to resize
 	return;
@@ -2081,7 +2086,6 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
     QMLNode* n = nextLayout( this, par);
     QMLRow* row = 0;
 
-
     int margintop = margin( QMLStyle::MarginTop );
     int marginbottom = margin( QMLStyle::MarginBottom );
     int marginleft = margin( QMLStyle::MarginLeft );
@@ -2093,9 +2097,11 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
     QFontMetrics fm = p->fontMetrics();
     while (n) {
 	if (n->isBox){
-	    ((QMLBox*)n)->setWidth(p, colwidth-marginvertical); // todo this can be done in word wrap?!
+	    // ### todo this can be done in word wrap?!
+	    ((QMLBox*)n)->setWidth(p, colwidth-marginvertical);
 	}
-	row = new QMLRow(this, p, fm, n, par, colwidth-marginvertical - label_offset, alignment() );
+	row = new QMLRow(this, p, fm, n, par,
+			 colwidth-marginvertical - label_offset, alignment() );
 	rows.append(row);
 	row->x = marginleft + label_offset;
 	row->y = h;
@@ -2122,21 +2128,22 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
 		
 		if ( old) {
 		    if ( row->start->isBox ) {
-			// do not check a height changes of box rows!
-			if (old->start == row->start && old->end == row->end
-			    && old->width == old->width
-			    && old->x == row->x && old->y == row->y)
-			    {
-				row->dirty = old->dirty;
-			    }
-		    }
-		    else if (old->start == row->start && old->end == row->end
-			     && old->height == row->height && old->width == old->width
-			     && old->x == row->x && old->y == row->y)
-			{
+			// do not check a height change of box rows!
+			if ( old->start == row->start &&
+			     old->end == row->end &&
+			     old->width == old->width &&
+			     old->x == row->x &&
+			     old->y == row->y ) {
 			    row->dirty = old->dirty;
 			}
-		
+		    } else if ( old->start == row->start &&
+				old->end == row->end && 
+				old->height == row->height &&
+				old->width == old->width &&
+				old->x == row->x &&
+				old->y == row->y ) {
+			row->dirty = old->dirty;
+		    }
 		    old = oldRows.next();
 		}
 	    }
@@ -2147,12 +2154,10 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
     // collapse the bottom margin
     if ( isLastSibling && parent && parent->isBox){
 	// ignore bottom margin
-    }
-    else if ( !isLastSibling && next && next->isBox ) {
+    } else if ( !isLastSibling && next && next->isBox ) {
 	// collapse
 	height += QMAX( ((QMLContainer*)next)->style->margin( QMLStyle::MarginTop), marginbottom);
-    }
-    else {
+    } else {
 	// nothing to collapse
         height += marginbottom;
     }
@@ -3636,11 +3641,19 @@ void QMLView::setContents( const QString& doc)
     if ( d->txt.isEmpty() )
 	d->txt = "<p></p>";
     if ( isVisible() ) {
-	{
-	    QPainter p( this );
-	    currentDocument().setWidth(&p, viewport()->width());
-	}
-	resizeContents(currentDocument().width, currentDocument().height);
+	QPainter * p = new QPainter( this );
+	// first try to use the full width of the viewport
+	QSize vs( viewportSize( 1,1 ) );
+	currentDocument().setWidth( p, vs.width() );
+	// if we'll need to scroll vertically, and the only reason we'll
+	// need to scroll horizontally is the vertical scroll bar, try
+	// to reformat so we won't need to scroll horizontally at all
+	if ( currentDocument().height > vs.height() &&
+	     currentDocument().width <= vs.width() &&
+	     currentDocument().width + /*###*/ 16 /*###*/ > vs.width() )
+	    currentDocument().setWidth( p, vs.width()-16 );
+	delete p;
+	resizeContents( currentDocument().width, currentDocument().height );
 	viewport()->update();
 	viewport()->setCursor( arrowCursor );
     }
