@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#7 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#8 $
 **
 ** Definition of QPrinter class
 **
@@ -58,7 +58,7 @@ public:
     bool	abort();
     bool	aborted()	const;
 
-    bool	select( QWidget *parent );
+    bool	setup( QWidget *parent );
 
 protected:
     bool	cmd( int, QPainter *, QPDevCmdParam * );
