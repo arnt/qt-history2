@@ -82,7 +82,7 @@ protected:
     void hexDump()
     {
         *outstrm << "(" << dataSize << " bytes):\n" << prefix;
-        sprintf(sideviewLayout, " [%%-%ds]", wrap);
+        sprintf(sideviewLayout, " [%%-%us]", wrap);
         dataWidth = (2 * wrap) + (wrap / clustering);
 
         dirty = false;
