@@ -455,6 +455,9 @@ public:
 	SH_ScrollBar_MiddleClickAbsolutePosition,
 	SH_ScrollBar_ScrollWhenPointerLeavesControl,
 
+	// QEvent::Type - which mouse event to select a tab
+	SH_TabBar_SelectMouseType,
+
 	SH_TabBar_Alignment,
 
 	SH_Header_ArrowAlignment,

@@ -43,6 +43,7 @@
 #include "qstyle.h"
 #include "qpainter.h"
 #include "qiconset.h"
+#include "qcursor.h"
 
 #include <ctype.h>
 
@@ -218,6 +219,7 @@ struct QTabPrivate {
 #ifndef QT_NO_ACCEL
     QAccel * a;
 #endif
+    QTab *pressed;
     QTabBar::Shape s;
     QToolButton* rightB;
     QToolButton* leftB;
@@ -309,6 +311,7 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
 	       WNoMousePropagation  )
 {
     d = new QTabPrivate;
+    d->pressed = 0;
     d->id = 0;
     d->focus = 0;
     d->toolTips = 0;
@@ -424,6 +427,8 @@ void QTabBar::removeTab( QTab * t )
 	d->a->removeItem( t->id );
 #endif
     // remove the TabBar Reference
+    if(d->pressed == t)
+	d->pressed = NULL;
     t->setTabBar( 0 );
     l->remove( t );
     lstatic->remove( t );
@@ -544,7 +549,11 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	flags |= QStyle::Style_Enabled;
     if ( selected )
 	flags |= QStyle::Style_Selected;
-
+    //selection flags
+    if(t->rect().contains(mapFromGlobal(QCursor::pos())))
+	flags |= QStyle::Style_MouseOver;
+    if(t == d->pressed) 
+	flags |= QStyle::Style_Sunken;
     style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
 			 colorGroup(), flags, QStyleOption(t) );
 
@@ -596,7 +605,6 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	flags |= QStyle::Style_Enabled;
     if (has_focus)
 	flags |= QStyle::Style_HasFocus;
-
     style().drawControl( QStyle::CE_TabBarLabel, p, this, r,
 			 t->isEnabled() ? colorGroup(): palette().disabled(),
 			 flags, QStyleOption(t) );
@@ -695,9 +703,11 @@ void QTabBar::mousePressEvent( QMouseEvent * e )
 	e->ignore();
 	return;
     }
-    QTab * t = selectTab( e->pos() );
-    if ( t != 0 && t->enabled ) {
-	setCurrentTab( t );
+    QTab *t = selectTab( e->pos() );
+    if ( t && t->enabled ) {
+	d->pressed = t;
+	if(e->type() == style().styleHint( QStyle::SH_TabBar_SelectMouseType, this ))
+	    setCurrentTab( t );
     }
 }
 
@@ -709,6 +719,8 @@ void QTabBar::mouseMoveEvent ( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
 	e->ignore();
+    if(d->pressed) 
+	repaint(d->pressed->rect(), FALSE);
 }
 
 /*!\reimp
@@ -718,6 +730,12 @@ void QTabBar::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( e->button() != LeftButton )
 	e->ignore();
+    if(d->pressed) {
+	QTab *t = selectTab( e->pos() ) == d->pressed ? d->pressed : NULL;
+	d->pressed = NULL;
+	if(t && e->type() == style().styleHint( QStyle::SH_TabBar_SelectMouseType, this ))
+	    setCurrentTab( t );
+    }
 }
 
 

@@ -1813,6 +1813,9 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, QStyleHintReturn *d) c
 {
     int ret = 0;
     switch(sh) {
+    case SH_TabBar_SelectMouseType:
+	ret = QEvent::MouseButtonRelease;
+	break;
     case SH_Workspace_FillSpaceOnMaximize:
 	ret = TRUE;
 	break;

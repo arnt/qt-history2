@@ -1416,8 +1416,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_Widget_ShareActivation turn on sharing activation with
     floating modeless dialogs.
 
+    \value SH_TabBar_SelectMouseType which type of mouse event should
+    cause a tab to be selected.
+
     \value SH_Workspace_FillSpaceOnMaximize the workspace should
-    maximize the client area
+    maximize the client area.
 
   \sa styleHint()
 */

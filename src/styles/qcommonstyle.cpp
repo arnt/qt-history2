@@ -2198,6 +2198,10 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget *, QStyleHintReturn *) c
     int ret;
 
     switch (sh) {
+    case SH_TabBar_SelectMouseType:
+	ret = QEvent::MouseButtonPress;
+	break;
+
     case SH_GUIStyle:
 	ret = WindowsStyle;
 	break;
