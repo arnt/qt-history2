@@ -1046,7 +1046,7 @@ void QWin32PrintEngine::setPaperSource(QPrinter::PaperSource src)
         WORD *bins = new WORD[caps];
         bool gotCaps;
         QT_WA( {
-            gotCaps = DeviceCapabilitiesW((TCHAR*)d->name.utf16(), 0, DC_BINS, (ushort*) bins, 0);
+            gotCaps = DeviceCapabilitiesW((wchar_t *)d->name.utf16(), 0, DC_BINS, (wchar_t *) bins, 0);
         }, {
             gotCaps = DeviceCapabilitiesA(d->name.latin1(), 0, DC_BINS, (char*) bins, 0);
         } );
