@@ -2314,27 +2314,7 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
     int para = 0;
     int index = charAt( e->pos(), &para );
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( !d->optimMode ) {
-#endif
-    QTextCursor c1 = *cursor;
-    QTextCursor c2 = *cursor;
-    if ( cursor->index() > 0 && !cursor->paragraph()->at( cursor->index()-1 )->c.isSpace() )
-	c1.gotoPreviousWord();
-    if ( !cursor->paragraph()->at( cursor->index() )->c.isSpace() && !cursor->atParagEnd() )
-	c2.gotoNextWord();
-
-    doc->setSelectionStart( QTextDocument::Standard, c1 );
-    doc->setSelectionEnd( QTextDocument::Standard, c2 );
-
-    *cursor = c2;
-
-    repaintChanged();
-
-    d->trippleClickTimer->start( qApp->doubleClickInterval(), TRUE );
-    d->trippleClickPoint = e->globalPos();
-
-#ifdef QT_TEXTEDIT_OPTIMIZATION
-    } else {
+    if ( d->optimMode ) {
 	QString str = d->od->lines[ para ];
 	int startIdx = index, endIdx = index, i;
 	if ( !str[ index ].isSpace() ) {
@@ -2355,8 +2335,26 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
 	    optimSetSelection( para, startIdx, para, endIdx );
 	    repaintContents( FALSE );
 	}
-    }
+    } else
 #endif
+    {
+	QTextCursor c1 = *cursor;
+	QTextCursor c2 = *cursor;
+	if ( cursor->index() > 0 && !cursor->paragraph()->at( cursor->index()-1 )->c.isSpace() )
+	    c1.gotoPreviousWord();
+	if ( !cursor->paragraph()->at( cursor->index() )->c.isSpace() && !cursor->atParagEnd() )
+	    c2.gotoNextWord();
+
+	doc->setSelectionStart( QTextDocument::Standard, c1 );
+	doc->setSelectionEnd( QTextDocument::Standard, c2 );
+
+	*cursor = c2;
+
+	repaintChanged();
+
+	d->trippleClickTimer->start( qApp->doubleClickInterval(), TRUE );
+	d->trippleClickPoint = e->globalPos();
+    }
     inDoubleClick = TRUE;
     mousePressed = TRUE;
     emit doubleClicked( para, index );
@@ -2687,8 +2685,9 @@ void QTextEdit::formatMore()
 void QTextEdit::doResize()
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( !d->optimMode ) {
+    if ( !d->optimMode )
 #endif
+    {
 	if ( wrapMode == FixedPixelWidth )
 	    return;
 	doc->setMinimumWidth( -1 );
@@ -2698,9 +2697,7 @@ void QTextEdit::doResize()
 	lastFormatted = doc->firstParagraph();
 	interval = 0;
 	formatMore();
-#ifdef QT_TEXTEDIT_OPTIMIZATION
     }
-#endif
     repaintContents( FALSE );
 }
 
@@ -5014,8 +5011,9 @@ void QTextEdit::clear()
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode ) {
 	optimSetText("");
-    } else {
+    } else
 #endif
+    {
 	// make clear undoable
 	doc->selectAll( QTextDocument::Temp );
 	removeSelectedText( QTextDocument::Temp );
@@ -5026,9 +5024,7 @@ void QTextEdit::clear()
 	delete cursor;
 	cursor = new QTextCursor( doc );
 	lastFormatted = 0;
-#ifdef QT_TEXTEDIT_OPTIMIZATION
     }
-#endif
     updateContents();
 
     emit cursorPositionChanged( cursor );
@@ -5346,16 +5342,15 @@ void QTextEdit::sync()
 	QFontMetrics fm( QScrollView::font() );
 	resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() +
 			fm.descent() + 1 );
-    } else {
+    } else
 #endif
-    while ( lastFormatted ) {
-	lastFormatted->format();
-	lastFormatted = lastFormatted->next();
+    {
+	while ( lastFormatted ) {
+	    lastFormatted->format();
+	    lastFormatted = lastFormatted->next();
+	}
+	resizeContents( contentsWidth(), doc->height() );
     }
-    resizeContents( contentsWidth(), doc->height() );
-#ifdef QT_TEXTEDIT_OPTIMIZATION
-    }
-#endif    
     updateScrollBars();
 }
 
