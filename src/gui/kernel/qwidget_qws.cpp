@@ -701,6 +701,10 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
 
     QWidget *tlw = q->window();
     QTLWExtra *topextra = tlw->d->extra->topextra;
+    if (!topextra || !topextra->backingStore) {
+        qWarning("QWidgetPrivate::doPaint no backingStore");
+        return;
+    }
     QPixmap *bs = topextra->backingStore->pixmap();
     QPoint redirectionOffset = topextra->backingStoreOffset + q->mapFrom(tlw,QPoint(0,0));
 
@@ -1038,7 +1042,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         if (q->isWindow()) {
             //### ConfigPending not implemented, do we need it?
             //setAttribute(Qt::WA_WState_ConfigPending);
-            if (isMove && !isResize && data.alloc_region_index >= 0) {
+            if (isMove && !isResize) {
                 q->qwsDisplay()->moveRegion(data.winid, x - oldp.x(), y - oldp.y());
                 toplevelMove = true; //server moves window, but we must send moveEvent, which might trigger painting
             } else {
