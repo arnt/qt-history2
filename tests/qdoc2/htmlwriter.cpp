@@ -149,6 +149,7 @@ void HtmlWriter::flushHead()
     putsMeta( "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0"
 	      " Transitional//EN\">\n" );
     putsMeta( "<html>\n<head>\n" );
+    putsMeta( "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">\n" );
     if ( !t.isEmpty() ) {
 	putsMeta( "<title>" );
 	puts( t.latin1() );
