@@ -37,7 +37,7 @@
 #include "qsimplerichtext.h"
 #include "qstylesheet.h"
 
-// NOT REVISED
+// BEING REVISED: warwick
 /*!
   \class QWhatsThis qwhatsthis.h
 
