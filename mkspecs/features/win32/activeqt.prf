@@ -2,18 +2,18 @@ ACTIVEQT_VERSION = $$VERSION
 isEmpty(ACTIVEQT_VERSION):ACTIVEQT_VERSION = 1.0
 dll {
      !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK += $$quote(\n\t)
-     QMAKE_POST_LINK += $$quote(-$(IDC) $(TARGET) /idl tmp\$${TARGET}.idl -version $$ACTIVEQT_VERSION\n\t)
-     QMAKE_POST_LINK += $$quote(-$(IDL) tmp\$${TARGET}.idl /nologo /o tmp\$${TARGET}.midl /tlb tmp\$${TARGET}.tlb /iid tmp\dump.midl /dlldata tmp\dump.midl /cstub tmp\dump.midl /header tmp\dump.midl /proxy tmp\dump.midl /sstub tmp\dump.midl\n\t)
-     QMAKE_POST_LINK += $$quote(-$(IDC) $(TARGET) /tlb tmp\$${TARGET}.tlb\n\t)
-     QMAKE_POST_LINK += $$quote(-$(IDC) $(TARGET) /regserver)
+     QMAKE_POST_LINK += $$quote(-$(QMAKE_IDC) $(TARGET) /idl $(OBJDIR)\$${TARGET}.idl -version $$ACTIVEQT_VERSION\n\t)
+     QMAKE_POST_LINK += $$quote(-$(QMAKE_IDL) $(OBJDIR)\$${TARGET}.idl /nologo /tlb $(OBJDIR)\$${TARGET}.tlb\n\t)
+     QMAKE_POST_LINK += $$quote(-$(QMAKE_IDC) $(TARGET) /tlb $(OBJDIR)\$${TARGET}.tlb\n\t)
+     QMAKE_POST_LINK += $$quote(-$(QMAKE_IDC) $(TARGET) /regserver)
 } else {
      !isEmpty(QMAKE_POST_LINK):QMAKE_POST_LINK += $$quote(\n\t)
-     QMAKE_POST_LINK += $$quote(-$(TARGET) -dumpidl /idl tmp\$${TARGET}.idl -version $$ACTIVEQT_VERSION\n\t)
-     QMAKE_POST_LINK += $$quote(-$(IDL) tmp\$${TARGET}.idl /nologo /o tmp\$${TARGET}.midl /tlb tmp\$${TARGET}.tlb /iid tmp\dump.midl /dlldata tmp\dump.midl /cstub tmp\dump.midl /header tmp\dump.midl /proxy tmp\dump.midl /sstub tmp\dump.midl\n\t)
-     QMAKE_POST_LINK += $$quote(-$(IDC) $(TARGET) /tlb tmp\$${TARGET}.tlb\n\t)
-     QMAKE_POST_LINK += $$quote(-$(IDC) $(TARGET) /regserver)
+     QMAKE_POST_LINK += $$quote(-$(TARGET) -dumpidl /idl $(OBJDIR)\$${TARGET}.idl -version $$ACTIVEQT_VERSION\n\t)
+     QMAKE_POST_LINK += $$quote(-$(IDL) $(OBJDIR)\$${TARGET}.idl /nologo /tlb $(OBJDIR)\$${TARGET}.tlb\n\t)
+     QMAKE_POST_LINK += $$quote(-$(IDC) $(TARGET) /tlb $(OBJDIR)\$${TARGET}.tlb\n\t)
+     QMAKE_POST_LINK += $$quote(-$(TARGET) /regserver)
 }
-QMAKE_CLEAN += tmp\$$(TARGET).* tmp\dump.*
+QMAKE_CLEAN += $(OBJDIR)\$$(TARGET).* $(OBJDIR)\$${TARGET}.idl $(OBJDIR)\$${TARGET}.tlb
 qt:!target_qt {
    QMAKE_LIBS_QT_ENTRY = qaxserver.lib
    dll:QMAKE_LIBS += $$QMAKE_LIBS_QT_ENTRY
