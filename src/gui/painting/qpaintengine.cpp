@@ -106,6 +106,10 @@ void QPaintEngine::drawTextItem(const QPoint &, const QTextItem &, int)
 {
 }
 
+void QPaintEngine::drawRects(const QList<QRect> &)
+{
+}
+
 QPainter::RenderHints QPaintEngine::supportedRenderHints() const
 {
     return 0;

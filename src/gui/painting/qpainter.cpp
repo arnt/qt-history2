@@ -1161,6 +1161,30 @@ void QPainter::drawRect(const QRect &r)
 }
 
 /*!
+  Draws all the rectangles in the list \a rects using the current pen
+  and brush.
+
+  \sa drawRect
+*/
+void QPainter::drawRects(const QList<QRect> &rects)
+{
+    if (!isActive())
+        return;
+
+    d->engine->updateState(d->state);
+
+    if ((!d->engine->hasCapability(QPaintEngine::DrawRects) ||
+         (d->state->VxF || d->state->WxF)
+         && !d->engine->hasCapability(QPaintEngine::CoordTransform))) {
+        for (int i=0; i<rects.size(); ++i)
+            drawRect(rects.at(i));
+        return;
+    }
+
+    d->engine->drawRects(rects);
+}
+
+/*!
     Draws a single point at position \a p using the current pen's color.
 
     \sa QPen
@@ -1171,7 +1195,8 @@ void QPainter::drawPoint(const QPoint &p)
         return;
     d->engine->updateState(d->state);
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF)
+        && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
         d->engine->drawPoint(xForm(p));
         return;
     }

@@ -49,14 +49,15 @@ class Q_GUI_EXPORT QPaintEngine : public Qt
     Q_DECLARE_PRIVATE(QPaintEngine);
 public:
     enum Capability {
-        CoordTransform          = 0x0001,                // Points are transformed
-        PenWidthTransform        = 0x0002,                 // Pen width is transformed
-        PatternTransform        = 0x0004,                // Brush patterns
+        CoordTransform          = 0x0001,               // Points are transformed
+        PenWidthTransform       = 0x0002,               // Pen width is transformed
+        PatternTransform        = 0x0004,               // Brush patterns
         PixmapTransform         = 0x0008,               // Pixmap transforms
-        CanRenderText           = 0x0010,                // Calls drawTextItem directly
+        CanRenderText           = 0x0010,               // Calls drawTextItem directly
         LinearGradientSupport   = 0x0020,               // Can fill gradient areas.
-        PixmapScale             = 0x0040,               // Can scale pixmaps (without XForm) in drawPixmap
-        UsesFontEngine          = 0x10000000           // Internal use, QWidget and QPixmap
+        PixmapScale             = 0x0040,               // Can scale (w/o XForm) in drawPixmap
+        DrawRects               = 0x0080,               // Can draw rectangles
+        UsesFontEngine          = 0x10000000            // Internal use, QWidget and QPixmap
     };
     Q_DECLARE_FLAGS(GCCaps, Capability);
 
@@ -89,6 +90,7 @@ public:
 
     virtual void drawLine(const QPoint &p1, const QPoint &p2) = 0;
     virtual void drawRect(const QRect &r) = 0;
+    virtual void drawRects(const QList<QRect> &rects);
     virtual void drawPoint(const QPoint &p) = 0;
     virtual void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1) = 0;
     virtual void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor) = 0;

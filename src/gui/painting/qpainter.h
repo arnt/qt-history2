@@ -129,6 +129,7 @@ public:
     void drawLine(const QPoint &p1, const QPoint &p2);
     void drawRect(int x1, int y1, int w, int h);
     void drawRect(const QRect &r);
+    void drawRects(const QList<QRect> &rectangleList);
     void drawPoint(int x, int y);
     void drawPoint(const QPoint &p);
     void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
