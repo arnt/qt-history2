@@ -1,5 +1,5 @@
 %
-% $Id: //depot/qt/main/src/kernel/qpshdr.txt#5 $
+% $Id: //depot/qt/main/src/kernel/qpshdr.txt#6 $
 %
 % Postscript routines for QPSPrinter class
 %
@@ -58,13 +58,18 @@
 
 /QtFill {
     GS
-    BSt 7 ge BSt 12 le and	% fill pattern?
+    BSt 2 ge BSt 8 le and	% dense pattern?
+    { BDArr BSt 2 sub get setgray WFi { fill } { eofill } ifelse } if
+    BSt 9 ge BSt 14 le and	% fill pattern?
     { BF } if
     BSt 1 eq			% solid brush?
     { BCol SC WFi { fill } { eofill } ifelse } if
     GR
 } D 
 
+/BDArr[					% Brush dense patterns:
+    0.94 0.88 0.63 0.50 0.37 0.12 0.6
+] def
 
 /ArcDict 6 dict def
 ArcDict begin
@@ -285,7 +290,7 @@ end
 
 /BFDict 2 dict def
 /BF {				% brush fill
-    BSt 7 ge BSt 12 le and	% valid brush pattern?
+    BSt 9 ge BSt 14 le and	% valid brush pattern?
     {
      BFDict begin
      GS
@@ -310,22 +315,22 @@ end
      } if
      BCol SC
      0.3 SW
-     BSt 7 eq BSt 9 eq or	% horiz or cross pattern
+     BSt 9 eq BSt 11 eq or	% horiz or cross pattern
      { 0 4 h			% draw horiz lines !!! alignment
        { NP dup 0 exch MT w exch LT S } for
      } if
-     BSt 8 eq BSt 9 eq or	% vert or cross pattern
+     BSt 10 eq BSt 11 eq or	% vert or cross pattern
      { 0 4 w			% draw vert lines !!! alignment
        { NP dup 0 MT h LT S } for
      } if
-     BSt 10 eq BSt 12 eq or	% F-diag or diag cross
+     BSt 12 eq BSt 14 eq or	% F-diag or diag cross
      { w h gt
        { 0 6 w h add
 	{ NP dup h MT h sub 0 LT S } for }
        { 0 6 w h add
 	 { NP dup w exch MT w add 0 exch LT S } for } ifelse
      } if
-     BSt 11 eq BSt 12 eq or
+     BSt 13 eq BSt 14 eq or	% B-diag or diag cross
      { w h gt
        { 0 6 w h add
 	 { NP dup 0 MT h sub h LT S } for }
