@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#7 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -71,9 +71,11 @@ void QWorkspace::childEvent( QChildEvent * e)
 	QWorkspaceChild* child = new QWorkspaceChild( w, this );
 	windows.append( child );
 	place( child );
-	if ( doShow )
-	    child->show();
-	activateClient( w );
+	child->raise();
+	if ( TRUE || doShow ) {
+	  child->show();
+	  activateClient( w );
+	}
     } else if (e->removed() ) {
 	if ( windows.contains( (QWorkspaceChild*)e->child() ) )
 	    windows.remove( (QWorkspaceChild*)e->child() );

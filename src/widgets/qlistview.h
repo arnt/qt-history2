@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#70 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#71 $
 **
 ** Definition of QListView widget class
 **
@@ -292,6 +292,8 @@ public:
     enum Type { RadioButton, CheckBox, Controller };
 
     QCheckListItem( QCheckListItem *parent, const QString &text,
+		    Type = Controller );
+    QCheckListItem( QListViewItem *parent, const QString &text,
 		    Type = Controller );
     QCheckListItem( QListView *parent, const QString &text,
 		    Type = Controller );

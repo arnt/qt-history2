@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#201 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#202 $
 **
 ** Implementation of QListView widget class
 **
@@ -3338,6 +3338,23 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, const QString &text,
 	else
 	    exclusive = parent;
     }
+}
+
+/*!
+  Constructs a checkable item with parent \a parent, text \a text and type
+  \a tt. Note that this item must not be a a RadioButton. Radio buttons must
+  be children on a Controller.
+ */
+QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
+				Type tt )
+    : QListViewItem( parent, text, QString::null )
+{
+    myType = tt;
+    if ( myType == RadioButton ) {
+      warning( "QCheckListItem::QCheckListItem(), radio button must be "
+	       "child of a QCheckListItem" );
+    }
+    init();
 }
 
 /*!
