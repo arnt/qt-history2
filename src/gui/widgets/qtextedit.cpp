@@ -1215,9 +1215,9 @@ void QTextEdit::setWrapColumnOrWidth(int w)
     \a flags. Returns true if \a exp was found and changes the cursor
     to select the match; otherwise returns false;
 */
-bool QTextEdit::find(const QString &exp, StringComparison flags)
+bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
 {
-    QTextCursor search = d->doc->find(exp, d->cursor, flags);
+    QTextCursor search = d->doc->find(exp, d->cursor, options);
     if (search.isNull())
         return false;
 

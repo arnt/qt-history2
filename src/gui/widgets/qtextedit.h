@@ -91,7 +91,7 @@ public:
     int wrapColumnOrWidth() const;
     void setWrapColumnOrWidth(int w);
 
-    bool find(const QString &exp, StringComparison flags);
+    bool find(const QString &exp, QTextDocument::FindFlags options);
 
     QString plainText() const;
 
@@ -169,11 +169,11 @@ signals:
 public:
     inline QT_COMPAT bool find(const QString &exp, bool cs, bool wo)
     {
-        StringComparison flags = 0;
-        if (!cs)
-            flags |= IgnoreCase;
+        QTextDocument::FindFlags flags = 0;
+        if (cs)
+            flags |= QTextDocument::SearchCaseSensitive;
         if (wo)
-            flags |= ExactMatch;
+            flags |= QTextDocument::SearchFullWordsOnly;
         return find(exp, flags);
     }
 

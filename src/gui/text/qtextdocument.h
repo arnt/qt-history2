@@ -70,8 +70,16 @@ public:
     QString plainText() const;
     void setPlainText(const QString &text);
 
-    QTextCursor find(const QString &exp, int from = 0, StringComparison flags = 0) const;
-    QTextCursor find(const QString &exp, const QTextCursor &from, StringComparison flags = 0) const;
+    enum FindFlag
+    {
+        SearchCaseSensitive = 0x00001,
+        SearchFullWordsOnly = 0x00002
+        // ### more
+    };
+    Q_DECLARE_FLAGS(FindFlags, FindFlag);
+
+    QTextCursor find(const QString &exp, int from = 0, FindFlags options = 0) const;
+    QTextCursor find(const QString &exp, const QTextCursor &from, FindFlags options = 0) const;
 
     QTextFrame *frameAt(int pos) const;
     QTextFrame *rootFrame() const;

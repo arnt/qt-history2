@@ -5,6 +5,7 @@
 #include "qtexttable.h"
 #include "qtextlist.h"
 #include <qdebug.h>
+#include <qregexp.h>
 #include "qtexthtmlparser_p.h"
 
 #include "qtextdocument_p.h"
@@ -306,46 +307,43 @@ void QTextDocument::setHtml(const QString &html)
     If \a from is 0 (the default) the search begins from the beginning
     of the document; otherwise from the specified position.
 */
-QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison flags) const
+#include <qdebug.h>
+QTextCursor QTextDocument::find(const QString &_expr, int from, FindFlags options) const
 {
-    if (expr.isEmpty())
+    if (_expr.isEmpty())
         return QTextCursor();
+
+    QString expr;
+    if (options & SearchFullWordsOnly) {
+        expr = QRegExp::escape(_expr);
+        expr.prepend("\\b");
+        expr.append("\\b");
+    } else {
+        expr = _expr;
+    }
+    QRegExp re(expr);
 
     int pos = from;
 
     QString::CaseSensitivity cs;
-    if (flags & CaseSensitive)
+    if (options & SearchCaseSensitive) {
         cs = QString::CaseSensitive;
-    else
+        re.setCaseSensitive(true);
+    } else {
         cs = QString::CaseInsensitive;
+        re.setCaseSensitive(false);
+    }
 
     QTextBlock block = d->blocksFind(pos);
     while (block.isValid()) {
         const int blockOffset = qMax(0, pos - block.position());
         QString text = block.text();
         int idx = -1;
-        QTextLayout *layout = block.layout();
 
-        if ((flags & ExactMatch) == 0) {
+        if (options & SearchFullWordsOnly)
+            idx = text.indexOf(re, blockOffset);
+        else
             idx = text.indexOf(expr, blockOffset, cs);
-        } else {
-            int i = blockOffset;
-            while (i < text.length() && idx == -1) {
-                int nextWordPos = layout->nextCursorPosition(i, QTextLayout::SkipWords);
-                QString word = text.mid(i, nextWordPos - i).trimmed();
-                if ((flags & BeginsWith) && word.startsWith(expr, cs)) {
-                    idx = i;
-                } else if ((flags & EndsWith) && word.endsWith(expr, cs)) {
-                    idx = i + word.length() - expr.length();
-                } else if ((flags & ExactMatch) == ExactMatch
-                           && (((cs == QString::CaseSensitive) && word == expr)
-                               || (cs == QString::CaseInsensitive) && word.toLower() == expr.toLower())) {
-                        idx = i;
-                } else {
-                    i = nextWordPos;
-                }
-            }
-        }
 
         if (idx >= 0) {
             QTextCursor cursor(docHandle(), block.position() + blockOffset + idx);
@@ -369,10 +367,10 @@ QTextCursor QTextDocument::find(const QString &expr, int from, StringComparison 
 
     By default the search is case-sensitive, and can match anywhere.
 */
-QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, StringComparison flags) const
+QTextCursor QTextDocument::find(const QString &expr, const QTextCursor &from, FindFlags options) const
 {
     const int pos = (from.isNull() ? 0 : from.selectionEnd());
-    return find(expr, pos, flags);
+    return find(expr, pos, options);
 }
 
 
