@@ -165,9 +165,9 @@
 */
 
 /*!
-    \fn void QLineF::operator+=(const QPointF &other)
+    \fn void QLineF::operator+=(const QPointF &point)
 
-    Performs a vector addition of this line with the \a other line given.
+    Translates this line with the \a point given.
 */
 
 /*!
@@ -292,9 +292,15 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
 
 
 /*!
-    \fn void QLineF::moveBy(const QLineF &line)
+    \fn void QLineF::translate(const QLineF &line)
 
     Translates this line by the vector specified by the \a line given.
+*/
+
+/*!
+    \fn void QLineF::translate(const QPointF &point)
+
+    Translates this line with the \a point given.
 */
 
 /*!

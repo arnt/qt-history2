@@ -51,7 +51,8 @@ public:
 
     QPointF pointAt(float t) const;
 
-    inline void moveBy(const QLineF &p);
+    inline void translate(const QLineF &p);
+    inline void translate(const QPointF &p);
 
     inline void operator+=(const QPointF &d);
     inline bool operator==(const QLineF &d) const;
@@ -125,10 +126,17 @@ inline QLineF QLineF::normalVector() const
     return QLineF(start(), start() + QPointF(vy(), -vx()));
 }
 
-inline void QLineF::moveBy(const QLineF &l)
+inline void QLineF::translate(const QLineF &l)
 {
-    QPointF pf(l.vx(), l.vy());
-    *this += pf;
+    QPointF point(l.vx(), l.vy());
+    p1 += point;
+    p2 += point;
+}
+
+inline void QLineF::translate(const QPointF &point)
+{
+    p1 += point;
+    p2 += point;
 }
 
 inline void QLineF::setLength(float len)
@@ -146,10 +154,10 @@ inline QPointF QLineF::pointAt(float t) const
     return QPointF(p1.x() + vx * t, p1.y() + vy * t);
 }
 
-inline void QLineF::operator+=(const QPointF &d)
+inline void QLineF::operator+=(const QPointF &point)
 {
-    p1 += d;
-    p2 += d;
+    p1 += point;
+    p2 += point;
 }
 
 inline bool QLineF::operator==(const QLineF &d) const

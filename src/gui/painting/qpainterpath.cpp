@@ -1381,7 +1381,7 @@ void QPainterPathStrokerPrivate::strokeLine(const QLineF &line,
         return;
     normal.setLength(offset);
     QLineF ml(line);
-    ml.moveBy(normal);
+    ml.translate(normal);
 
     if (!path->isEmpty()) {
         joinPoints(ml, path, joinMethod);
