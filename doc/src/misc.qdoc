@@ -267,15 +267,16 @@ Please send the bug report to
 
 /*! \page license.html
 
-\title Qt Free Edition License Agreement
+\title Qt Open Source Edition License Agreement
 
-The Qt Free Edition is distributed under the Q Public License (QPL).
-It allows free use of Qt Free Edition for running software developed by
-others, and free use of Qt Free Edition for development of free/Open Source
-software. There is \link http://www.trolltech.com/qpl/ more information
-about the QPL\endlink at the Trolltech web site.
+The Qt Open Source Edition is distributed under the Q Public License (QPL).
+It allows free use of Qt Open Source Edition for running software developed
+by others, and free use of Qt Open Source Edition for development of
+Free/Open Source software. There is
+\link http://www.trolltech.com/qpl/ more information about the QPL\endlink
+at the Trolltech web site.
 
-Note that the Qt/Embedded Free Edition is \bold not distributed
+Note that the Qt/Embedded Open Source Edition is \bold not distributed
 under the QPL, but under the \link gpl.html GNU General Public
 License (GPL)\endlink.
 
@@ -421,8 +422,8 @@ by Oslo City Court.
 
  The Qt GUI Toolkit is Copyright (C) 1994-$THISYEAR$ Trolltech AS.
 
- The Qt Free Editions (X11 and Mac) and the Qt/Embedded Free Edition
- are available under the GPL. The Qt Free Edition (X11) is
+ The Qt Open Source Editions (X11 and Mac) and the Qt/Embedded Open Source
+ Edition are available under the GPL. The Qt Open Source Edition (X11) is
  also available under the \link license.html QPL\endlink.
 
 \code

@@ -59,9 +59,9 @@
     \endlist
 
     \list
-    \i The \bold{\l{freeeditions.html}{Qt Free Edition}} is
-    available for Unix/X11, Mac OS X and Embedded Linux. The Free Edition
-    is for the development of \e {Free and Open
+    \i The \bold{\l{freeeditions.html}{Qt Open Source Edition}} is
+    available for Unix/X11, Mac OS X and Embedded Linux. The Open Source
+    Edition is for the development of \e {Free and Open
     Source software} only. It is provided free of charge under the terms
     of both the \l{license.html}{Q Public License} and the \link
     gpl.html GNU General Public License\endlink.

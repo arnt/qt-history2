@@ -23,7 +23,7 @@
 \title Qt Reference Documentation (Technology Preview)
 \endif
 \if !defined(commercial) && !defined(noncommercial) && !defined(preview)
-\title Qt Reference Documentation (Free Edition)
+\title Qt Reference Documentation (Open Source Edition)
 \endif
 
 \if defined(noncommercial)
@@ -85,7 +85,7 @@ General
 <ul>
 <li><a href="aboutqt.html">About Qt</a>
 <li><a href="commercialeditions.html">Commercial Editions</a>
-<li><a href="freeeditions.html">Free Edition</a>
+<li><a href="freeeditions.html">Open Source Edition</a>
 <li><a href="http://www.trolltech.com/developer/changes/">Change History</a>
 <li><a href="troll.html">About Trolltech</a>
 </ul>

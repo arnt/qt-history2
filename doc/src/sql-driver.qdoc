@@ -47,8 +47,8 @@ The drivers shipped with Qt are:
 \i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
 \endlist
 
-Note that not all of the plugins are shipped with the Qt Free Edition
-due to license incompatibilities with the GPL.
+Note that not all of the plugins are shipped with the Qt Open Source
+Edition due to license incompatibilities with the GPL.
 
 \target building
 \section1 Building the drivers using configure
@@ -535,9 +535,9 @@ server.
 You need the Interbase/Firebird development headers and libraries
 to build this plugin.
 
-Due to the GPL, users of the Qt Free Edition are not allowed to link
-this plugin to the commercial editions of Interbase. Please use Firebird
-or the free edition of Interbase.
+Due to license incompatibilities with the GPL, users of the Qt Open Source
+Edition are not allowed to link this plugin to the commercial editions of
+Interbase. Please use Firebird or the free edition of Interbase.
 
 \section3 How to build the plugin on Unix/Linux
 

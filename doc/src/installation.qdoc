@@ -101,8 +101,8 @@ where you choose to install Qt.
     \c qt32castcompat script found in \c $QTDIR/bin before compiling Qt.
 
 \i  Install your license file as \c $HOME/.qt-license.
-    For the free edition and evaluation version, you do not need a license
-    file.
+    For the Open Source Edition and the evaluation version, you do not need
+    a license file.
 
 \i  Compile the Qt library, and build the example programs,
     the tutorial and the tools (e.g. \link designer-manual.book Qt

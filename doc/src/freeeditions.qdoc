@@ -14,7 +14,7 @@
 
 /*! \page freeeditions.html
 
-\title Qt Free Editions
+\title Qt Open Source Editions
 
 Free (or open source) software is software that comes with a license
 that gives users certain rights. In particular the right to use the
@@ -26,13 +26,13 @@ of free in this context as in "free speech", not as in "no cost".
 Trolltech supports the free software concept by providing the Qt Free
 Editions. You can use these editions of Qt to create free software, i.e.
 software that is licensed under the GNU GPL or a similarly recognized
-open source license. Trolltech's support of open source with the Qt Free
-Editions has enabled large successful software projects like KDE to
-thrive, with thousands of developers around the world using Qt Free
-Editions at no cost to themselves. Qt Free Editions are available for
-Unix/X11, Mac OS X and Linux/Embedded.
+open source license. Trolltech's support of open source with the Qt Open
+Source Editions has enabled large successful software projects like KDE to
+thrive, with thousands of developers around the world using Qt Open Source
+Editions at no cost to themselves. Qt Open Source Editions are available
+for Unix/X11, Mac OS X, and Linux/Embedded.
 
-The Free Editions can be downloaded from here:
+The Open Source Editions can be downloaded from here:
 \l http://www.trolltech.com/dl/qtfree-dl.html.
 
 It is also possible to develop commercial software using Qt: but to do
@@ -42,7 +42,7 @@ you buy a commercial edition of Qt you can sell your software for any
 price and with any license you like. Thousands of commercial companies
 use commercial editions of Qt to develop the products they sell.
 
-If you use the Qt Free Edition, there are certain licensing
+If you use the Qt Open Source Edition, there are certain licensing
 conditions that the GNU GPL imposes on you, to ensure that your users
 enjoy the freedoms guaranteed by the GPL. Users are entitled to:
 
@@ -63,7 +63,7 @@ definition files, and even include the scripts and control files used
 to control compilation and installation of the executable; otherwise
 users could not exercise their rights.
 
-This means that you cannot use a Qt Free Edition if your software
+This means that you cannot use a Qt Open Source Edition if your software
 must be built with any modules that impose conditions on you that
 contradict the conditions of the GNU GPL, including, but not limited
 to, software patents, commercial license agreements, copyrighted
@@ -72,7 +72,7 @@ these circumstances you must use a commercial edition of Qt.
 
 See the
 \l{http://www.trolltech.com/developer/faqs/license_gpl.html}{License
-FAQ} for answers to frequently asked questions on Qt Free Edition
+FAQ} for answers to frequently asked questions on Qt Open Source Edition
 licensing and its implications.
 
 More information on Free and Open Source software is available online:
