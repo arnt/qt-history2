@@ -991,7 +991,7 @@ void TabOrderCommand::unexecute()
 // ------------------------------------------------------------
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-bool PopulateListBoxCommand::Item::operator==( const PopulateListBoxCommandItem& ) const
+bool PopulateListBoxCommand::Item::operator==( const PopulateListBoxCommand::Item& ) const
 {
     return FALSE;
 }
@@ -1038,7 +1038,7 @@ void PopulateListBoxCommand::unexecute()
 // ------------------------------------------------------------
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-bool PopulateIconViewCommand::Item::operator==( const PopulateIconViewCommand& ) const
+bool PopulateIconViewCommand::Item::operator==( const PopulateIconViewCommand::Item& ) const
 {
     return FALSE;
 }
