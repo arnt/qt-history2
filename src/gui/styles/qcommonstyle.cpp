@@ -28,6 +28,10 @@
 #include "qtabbar.h"
 #include "qtoolbutton.h"
 
+#ifndef QT_NO_DEBUG
+#include <QtCore/qdebug.h>
+#endif
+
 #include <limits.h>
 
 /*!
@@ -787,46 +791,26 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         }
     case PE_IndicatorSpinPlus:
     case PE_IndicatorSpinMinus: {
-        p->save();
         QRect r = opt->rect;
         int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
-        QRect br;
-        br.setRect(r.x() + fw, r.y() + fw, r.width() - fw*2,
-                   r.height() - fw*2);
+        QRect br = r.adjusted(fw, fw, -fw, -fw);
 
-        p->fillRect(br, opt->palette.brush(QPalette::Button));
-        QPen pen(opt->palette.buttonText().color());
-        if (opt->rect.height() > 30)
-            pen.setWidth(opt->rect.height() / 20);
-
-        p->setPen(pen);
-        p->setBrush(opt->palette.buttonText());
-
-        int length;
-        int x = r.x(), y = r.y(), w = r.width(), h = r.height();
-        if (w <= 8 || h <= 6)
-            length = qMin(w-2, h-2);
-        else
-            length = qMin(2*w / 3, 2*h / 3);
-
-        if (!(length & 1))
-            length -=1;
-        int xmarg = (w - length) / 2;
-        int ymarg = (h - length) / 2;
-
-        p->drawLine(x + xmarg, (y + h / 2 - 1),
-                    x + xmarg + length - 1, (y + h / 2 - 1));
+        int offset = (opt->state & State_Sunken) ? 1 : 0;
+        int step = (br.width() + 4) / 5;
+        p->fillRect(br.x() + offset, br.y() + offset +br.height() / 2 - step / 2,
+                    br.width(), step,
+                    opt->palette.buttonText());
         if (pe == PE_IndicatorSpinPlus)
-            p->drawLine((x+w / 2) - 1, y + ymarg,
-                        (x+w / 2) - 1, y + ymarg + length - 1);
-        p->restore();
+            p->fillRect(br.x() + br.width() / 2 - step / 2 + offset, br.y() + offset,
+                        step, br.height(),
+                        opt->palette.buttonText());
+
         break; }
     case PE_IndicatorSpinUp:
     case PE_IndicatorSpinDown: {
         QRect r = opt->rect;
         int fw = pixelMetric(PM_DefaultFrameWidth, opt, widget);
         QRect br = r.adjusted(fw, fw, -fw, -fw);
-        p->fillRect(br, opt->palette.brush(QPalette::Button));
         int x = r.x(), y = r.y(), w = r.width(), h = r.height();
         int sw = w-4;
         if (sw < 3)
@@ -836,8 +820,11 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         sw -= (sw / 7) * 2;        // Empty border
         int sh = sw/2 + 2;      // Must have empty row at foot of arrow
 
-        int sx = x + w / 2 - sw / 2 - 1;
-        int sy = y + h / 2 - sh / 2 - 1;
+        int sx = x + w / 2 - sw / 2;
+        int sy = y + h / 2 - sh / 2;
+
+        if (pe == PE_IndicatorSpinUp && fw)
+            --sy;
 
         QPolygon a;
         if (pe == PE_IndicatorSpinDown)
@@ -1890,6 +1877,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                        subControlRect(CC_SpinBox, sb, SC_SpinBoxUp,
                                                               widget));
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
+                copy.rect.addCoords(3, 0, -4, 0);
                 drawPrimitive(pe, &copy, p, widget);
             }
 
@@ -1916,6 +1904,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                        subControlRect(CC_SpinBox, sb, SC_SpinBoxDown,
                                                               widget));
                 drawPrimitive(PE_PanelButtonBevel, &copy, p, widget);
+                copy.rect.addCoords(3, 0, -4, 0);
                 drawPrimitive(pe, &copy, p, widget);
             }
 
@@ -2399,7 +2388,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
 
             bs.setHeight(qMax(8, spinbox->rect.height()/2 - fw));
             // 1.6 -approximate golden mean
-            bs.setWidth(qMax(14, qMin(bs.height() * 8 / 5, spinbox->rect.width() / 4)));
+            bs.setWidth(qMax(16, qMin(bs.height() * 8 / 5, spinbox->rect.width() / 4)));
             bs = bs.expandedTo(QApplication::globalStrut());
             int y = fw;
             int x, lx, rx;
