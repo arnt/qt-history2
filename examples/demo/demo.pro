@@ -1,4 +1,3 @@
-REQUIRES	= opengl sql
 TEMPLATE 	= app
 CONFIG		+= qt warn_on debug
 HEADERS		= frame.h \
