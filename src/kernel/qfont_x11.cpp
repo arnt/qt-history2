@@ -108,14 +108,16 @@ static const char * const katakana_encodings[] = { JP_ENCODINGS,  0 };
 static const char * const hangul_encodings[] = { KR_ENCODINGS, 0 };
 static const char * const bopomofo_encodings[] = { CN_ENCODINGS, 0 };
 static const char * const unicode_encodings[] = { "iso10646-1", "unicode-*", 0 };
-static const char * const hanx11_encodings[] = { CN_ENCODINGS, TW_ENCODINGS, HK_ENCODINGS };
+static const char * const hanx11_encodings[] =
+    { CN_ENCODINGS, TW_ENCODINGS, HK_ENCODINGS, 0 };
 static const char * const latinA2_encodings[] = { "iso8859-2", 0 };
 static const char * const latinA3_encodings[] = { "iso8859-3", 0 };
 static const char * const latinA4_encodings[] = { "iso8859-4", 0 };
 static const char * const latinA14_encodings[] = { "iso8859-14", 0 };
 static const char * const latinA15_encodings[] = { "iso8859-15", 0 };
 static const char * const jisx0201_encodings[] = { "jisx0201*-0", 0 };
-static const char * const gb18030_encodings[] = { "gb18030-0", "gb18030.2000-0" };
+static const char * const gb18030_encodings[] = { "gb18030-0", "gb18030.2000-0", 0 };
+static const char * const lao_encodings[] = { "mulelao-1", 0 };
 
 // we select one of these at initialization time for Han use
 static const char * const hancn_encodings[] =
@@ -205,7 +207,7 @@ static struct
     // Thai
     { 0, thai_encodings },
     // Lao
-    { 0, empty_encodings },
+    { 0, lao_encodings },
     // Tibetan
     { 0, gb18030_encodings },
     // Myanmar
@@ -2386,7 +2388,7 @@ static QChar sampleCharacter(QFont::Script script)
     case QFont::Malayalam:                 ch = 0x0d10; break;
     case QFont::Sinhala:                   ch = 0x0d90; break;
     case QFont::Thai:                      ch = 0x0e10; break;
-    case QFont::Lao:                       ch = 0xe081; break;
+    case QFont::Lao:                       ch = 0x0e81; break;
     case QFont::Tibetan:                   ch = 0x0f00; break;
     case QFont::Myanmar:                   ch = 0x1000; break;
     case QFont::Khmer:                     ch = 0x1780; break;
@@ -2883,6 +2885,7 @@ void QFont::initialize()
 	(void) new QFontBig5Codec;
 	(void) new QFontBig5hkscsCodec;
 	(void) new QFontArabic68Codec;
+	(void) new QFontLaoCodec;
 	codecs_once = TRUE;
     }
 #endif // QT_NO_BIG_CODECS

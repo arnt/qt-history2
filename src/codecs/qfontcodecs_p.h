@@ -340,6 +340,28 @@ public:
 };
 
 
+class QFontLaoCodec : public QTextCodec
+{
+public:
+    QFontLaoCodec();
+
+    const char *name() const;
+
+    int mibEnum() const;
+
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::fromUnicode;
+#endif
+    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    int heuristicContentMatch(const char *, int) const;
+
+#if !defined(Q_NO_USING_KEYWORD)
+    using QTextCodec::canEncode;
+#endif
+    bool canEncode( QChar ) const;
+};
+
 #endif // QT_NO_BIG_CODECS
 #endif // QT_NO_CODECS
 
