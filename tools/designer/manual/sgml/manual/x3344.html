@@ -1,0 +1,323 @@
+<HTML
+><HEAD
+><TITLE
+>The Form Settings Dialog</TITLE
+><META
+NAME="GENERATOR"
+CONTENT="Modular DocBook HTML Stylesheet Version 1.57"><LINK
+REL="HOME"
+HREF="book1.html"><LINK
+REL="UP"
+TITLE="The Dialogs"
+HREF="c2954.html"><LINK
+REL="PREVIOUS"
+TITLE="The Edit Slots Dialog"
+HREF="x3312.html"><LINK
+REL="NEXT"
+TITLE="The Help Dialog"
+HREF="x3400.html"></HEAD
+><BODY
+CLASS="SECT1"
+><DIV
+CLASS="NAVHEADER"
+><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TH
+COLSPAN="3"
+ALIGN="center"
+></TH
+></TR
+><TR
+><TD
+WIDTH="10%"
+ALIGN="left"
+VALIGN="bottom"
+><A
+HREF="x3312.html"
+>Prev</A
+></TD
+><TD
+WIDTH="80%"
+ALIGN="center"
+VALIGN="bottom"
+>Chapter 9. The Dialogs</TD
+><TD
+WIDTH="10%"
+ALIGN="right"
+VALIGN="bottom"
+><A
+HREF="x3400.html"
+>Next</A
+></TD
+></TR
+></TABLE
+><HR
+ALIGN="LEFT"
+WIDTH="100%"></DIV
+><DIV
+CLASS="SECT1"
+><H1
+CLASS="SECT1"
+><A
+NAME="AEN3344"
+>The Form Settings Dialog</A
+></H1
+><DIV
+CLASS="FIGURE"
+><A
+NAME="AEN3346"
+></A
+><P
+><B
+>Figure 9-10. The form settings dialog</B
+></P
+><P
+><IMG
+SRC="images/formsettings-dlg.png"
+ALIGN="center"></P
+></DIV
+><P
+>	The form settings dialog lets you specify some things that
+	apply to the form as a whole. Most of these settings are used
+	when generating the code with <B
+CLASS="COMMAND"
+>uic</B
+>.
+	</P
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>Class Name</DT
+><DD
+><P
+>		Enter here the name that the generated class should
+		have. Choose a name that describes the purpose of the
+		form well, i.e., follow the same rules you follow for
+		other class names.
+		</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>Comment</DT
+><DD
+><P
+>		Here you can enter a comment about the form. The
+		comment will be saved in the XML <TT
+CLASS="FILENAME"
+>.ui</TT
+> file
+		but will not show up in the generated code.
+		</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>Author</DT
+><DD
+><P
+>		This field is similar to the <SPAN
+CLASS="GUILABEL"
+>Comment</SPAN
+>
+		field. You can enter your name or your employer's name
+		here.
+		</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>Save Inline</DT
+><DD
+><P
+>		If you check this option, any pixmaps that are used in
+		the dialog (e.g., in pixmap labels) will be stored
+		inline in the generated code. The advantage is that
+		there cannot be any problems with loading the pixmaps
+		at runtime because they will be compiled into the
+		executable. But the disadvantage is that it increases
+		the size of your executable and thus the startup time
+		of the application.
+		</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>Use Function</DT
+><DD
+><P
+>		This option is the opposite of the <SPAN
+CLASS="GUILABEL"
+>Save
+		Inline</SPAN
+> option. If you check it, no pixmaps will be
+		saved with the source code&mdash;but <B
+CLASS="COMMAND"
+>uic</B
+>
+		will insert calls to a function that you specify in
+		the edit field of this option whenever it needs to
+		access a pixmap. This function should return a
+		<TT
+CLASS="CLASSNAME"
+>QPixmap</TT
+> object.
+		</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>Includes</DT
+><DD
+><P
+>		The <SPAN
+CLASS="GUILABEL"
+>Includes</SPAN
+> list box shows all the
+		header files that will be included in the generated
+		source code in addition to the header files needed
+		anyway, such as to provide widget class definitions.
+		Thus, it is not necessary to add any header files here
+		unless you have specific needs.
+		</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>New Include</DT
+><DD
+><P
+>		Click on this button to insert a new entry in the
+		include list. By default the header file will be
+		called <TT
+CLASS="FILENAME"
+>include.h</TT
+> and will be included
+		globally. You can change the filename and the
+		inclusion locality in the fields below. Globally means
+		that the header file name will be surrounded with
+		<TT
+CLASS="LITERAL"
+>&lt;&gt;</TT
+>; locally means that it will be
+		surrounded with <TT
+CLASS="LITERAL"
+>&ldquo;&rdquo;</TT
+>.
+		</P
+></DD
+></DL
+></DIV
+><P
+></P
+><DIV
+CLASS="VARIABLELIST"
+><DL
+><DT
+>Delete Include</DT
+><DD
+><P
+>		Click on this button to delete the currently selected
+		header file from the list.
+		</P
+></DD
+></DL
+></DIV
+></DIV
+><DIV
+CLASS="NAVFOOTER"
+><HR
+ALIGN="LEFT"
+WIDTH="100%"><TABLE
+WIDTH="100%"
+BORDER="0"
+CELLPADDING="0"
+CELLSPACING="0"
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+><A
+HREF="x3312.html"
+>Prev</A
+></TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="book1.html"
+>Home</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+><A
+HREF="x3400.html"
+>Next</A
+></TD
+></TR
+><TR
+><TD
+WIDTH="33%"
+ALIGN="left"
+VALIGN="top"
+>The Edit Slots Dialog</TD
+><TD
+WIDTH="34%"
+ALIGN="center"
+VALIGN="top"
+><A
+HREF="c2954.html"
+>Up</A
+></TD
+><TD
+WIDTH="33%"
+ALIGN="right"
+VALIGN="top"
+>The Help Dialog</TD
+></TR
+></TABLE
+></DIV
+></BODY
+></HTML
+>
