@@ -176,8 +176,11 @@ void QAquaFocusWidget::setFocusedWidget(QWidget *widget)
         mFocusedWidget->installEventFilter(this);
         mFocusedWidget->parentWidget()->installEventFilter(this); //we do this so we can trap the ChildAdded event
         QPoint p(widget->mapTo(parentWidget(), QPoint(0, 0)));
+        int focusWidgetWidth = widget->width();
+        if (qt_cast<QLineEdit *>(widget) && qt_cast<QComboBox *>(widget->parentWidget()))
+            focusWidgetWidth += 16 ; // This is a cheat/optimization, really should query for it.
         setGeometry(p.x() - focusOutset(), p.y() - focusOutset(),
-                    widget->width() + (focusOutset() * 2), widget->height() + (focusOutset() * 2));
+                    focusWidgetWidth + (focusOutset() * 2), widget->height() + (focusOutset() * 2));
         setPalette(widget->palette());
         setMask(QRegion(rect()) - focusRegion());
         stackUnder(mFocusedWidget);
@@ -2310,8 +2313,8 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             QRect comborect(cmb->rect);
-            bdi.adornment = opt->state & QStyle::Style_HasFocus
-                                ? kThemeAdornmentFocus : kThemeAdornmentNone;
+            bdi.adornment = opt->state & QStyle::Style_HasFocus ? kThemeAdornmentFocus
+                                                                : kThemeAdornmentNone;
             bdi.state = opt->activeSubControls & QStyle::SC_ComboBoxArrow
                                 ? ThemeDrawState(kThemeStatePressed) : tds;
             if (cmb->editable) {
@@ -2767,20 +2770,6 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
                 HIThemeGetWindowShape(&titleRect, &wdi, wrc, &region);
                 HIShapeGetBounds(region, &titleRect);
                 ret = qt_qrectForHIRect(titleRect);
-            }
-        }
-        break;
-    case QStyle::CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
-            if (cmb->editable) {
-                if (sc == QStyle::SC_ComboBoxEditField)
-                    ret.setRect(0, 0, cmb->rect.width() - 20, cmb->rect.height());
-                else if (sc == QStyle::SC_ComboBoxArrow)
-                    ret.setRect(cmb->rect.width() - 24, 0, 24, cmb->rect.height());
-            } else {
-                ret = q->QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
-                if (sc == QStyle::SC_ComboBoxEditField)
-                    ret.setWidth(ret.width()-5);
             }
         }
         break;
@@ -4108,13 +4097,6 @@ QStyle::SubControl QMacStylePrivate::AppManQuerySubControl(QStyle::ComplexContro
 
         }
         break;
-    case QStyle::CC_ComboBox:
-        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
-            sc = q->QWindowsStyle::querySubControl(cc, cmb, pt, widget);
-            if (!cmb->editable && sc != QStyle::SC_None)
-                sc = QStyle::SC_ComboBoxArrow;  // A bit of a lie, but what we want
-        }
-        break;
 /*
     I don't know why, but we only get kWindowContentRgn here, which isn't what we want at all.
     It would be very nice if this would work.
@@ -4278,17 +4260,6 @@ QRect QMacStylePrivate::AppManQuerySubControlMetrics(QStyle::ComplexControl cc,
             }
         }
         break;
-    case QStyle::CC_ComboBox:
-        if(const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
-            if (cmb->editable) {
-                if (sc == QStyle::SC_ComboBoxEditField)
-                    ret.setRect(0, 0, cmb->rect.width() - 20, cmb->rect.height());
-                else if (sc == QStyle::SC_ComboBoxArrow)
-                    ret.setRect(cmb->rect.width() - 24, 0, 24, cmb->rect.height());
-                break;
-            }
-        }
-        // Fall through to default!
     default:
         ret = q->QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
     }
@@ -5001,18 +4972,53 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
 QStyle::SubControl QMacStyle::querySubControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                               const QPoint &pt, const QWidget *w) const
 {
-    if (d->useHITheme)
-	return d->HIThemeQuerySubControl(cc, opt, pt, w);
-    return d->AppManQuerySubControl(cc, opt, pt, w);
+    SubControl sc;
+    switch (cc) {
+    case CC_ComboBox:
+        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
+            sc = QWindowsStyle::querySubControl(cc, cmb, pt, w);
+            if (!cmb->editable && sc != QStyle::SC_None)
+                sc = SC_ComboBoxArrow;  // A bit of a lie, but what we want
+        }
+        break;
+    default:
+        if (d->useHITheme)
+            sc = d->HIThemeQuerySubControl(cc, opt, pt, w);
+        else
+            sc = d->AppManQuerySubControl(cc, opt, pt, w);
+        break;
+    }
+    return sc;
 }
 
 /*! \reimp */
 QRect QMacStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionComplex *opt,
                                         SubControl sc, const QWidget *w) const
 {
-    if (d->useHITheme)
-	return d->HIThemeQuerySubControlMetrics(cc, opt, sc, w);
-    return d->AppManQuerySubControlMetrics(cc, opt, sc, w);
+    QRect ret;
+    switch (cc) {
+    case CC_ComboBox:
+        if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt)) {
+            if (cmb->editable) {
+                if (sc == SC_ComboBoxEditField)
+                    ret.setRect(0, 0, cmb->rect.width() - 20, cmb->rect.height());
+                else if (sc == SC_ComboBoxArrow)
+                    ret.setRect(cmb->rect.width() - 24, 0, 24, cmb->rect.height());
+            } else {
+                ret = QWindowsStyle::querySubControlMetrics(cc, opt, sc, w);
+                if (sc == SC_ComboBoxEditField)
+                    ret.setWidth(ret.width() - 5);
+            }
+        }
+        break;
+    default:
+        if (d->useHITheme)
+            ret = d->HIThemeQuerySubControlMetrics(cc, opt, sc, w);
+        else
+            ret = d->AppManQuerySubControlMetrics(cc, opt, sc, w);
+        break;
+    }
+    return ret;
 }
 
 /*! \reimp */
