@@ -548,7 +548,7 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     if ( currentSelection && currentSelection->active &&
 	 ( currentSelection->anchorCol != curCol || currentSelection->anchorRow != curRow ) )
 	setCurrentCell( currentSelection->anchorRow, currentSelection->anchorCol );
-    
+
     if ( ( e->state() & ShiftButton ) == ShiftButton ) {
 	if ( !currentSelection ) {
 	    currentSelection = new SelectionRange();
@@ -624,7 +624,7 @@ void QTable::doAutoScroll()
 
     if ( pos.x() < 0 || pos.x() > visibleWidth() || pos.y() < 0 || pos.y() > visibleHeight() )
 	autoScrollTimer->start( 100, TRUE );
-    
+
     setCurrentCell( curRow, curCol );
 }
 
@@ -698,7 +698,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
     int curCol = QTable::curCol;
     int oldRow = curRow;
     int oldCol = curCol;
-    
+
     bool navigationKey = FALSE;
     switch ( e->key() ) {
     case Key_Left:
@@ -744,7 +744,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	    repaintSelections( &oldSelection, currentSelection );
 	} else {
 	    clearSelections();
-	}	    
+	}	
     }
 }
 
@@ -802,7 +802,7 @@ void QTable::updateCell( int row, int col )
 {
     QRect cg = cellGeometry( row, col );
     QRect r( cg.x() - 2, cg.y() - 2, cg.width() + 4, cg.height() + 4 );
-    updateContents( r );
+    repaintContents( r, FALSE );
 }
 
 /*!  This function is called if the width of the column \a col has
