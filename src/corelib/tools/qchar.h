@@ -23,7 +23,7 @@ struct QLatin1Char
 public:
     inline explicit QLatin1Char(char c) : ch(c) {}
     inline const char toLatin1() const { return ch; }
-    inline const ushort unicode() const { return ushort(ch); }
+    inline const ushort unicode() const { return ushort(uchar(ch)); }
 
 private:
     const char ch;
