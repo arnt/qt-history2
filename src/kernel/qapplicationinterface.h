@@ -8,7 +8,7 @@
 
 #ifndef QT_NO_PLUGIN
 
-class QComponentInterface;
+class QApplicationComponentInterface;
 
 class Q_EXPORT QApplicationInterface : public QObject
 {
@@ -18,16 +18,16 @@ public:
     QApplicationInterface();
     ~QApplicationInterface() {}
     
-    virtual QComponentInterface* queryInterface( const QString& request ) = 0;
+    virtual QApplicationComponentInterface* queryInterface( const QString& request ) = 0;
 };
 
-class Q_EXPORT QComponentInterface : public QApplicationInterface
+class Q_EXPORT QApplicationComponentInterface : public QApplicationInterface
 {
     Q_OBJECT
     
 public:
-    QComponentInterface( QObject* o );
-    ~QComponentInterface() {}
+    QApplicationComponentInterface( QObject* o );
+    ~QApplicationComponentInterface() {}
     
 #ifndef QT_NO_PROPERTIES
     virtual QVariant requestProperty( const QCString& p );
@@ -37,7 +37,7 @@ public:
     virtual bool requestConnect( QObject *sender, const char* signal, const char* slot );
     virtual bool requestEvents( QObject* o );
 
-    QComponentInterface* queryInterface( const QString& );
+    QApplicationComponentInterface* queryInterface( const QString& );
 
 protected:
     QObject* object() { return QObject::parent(); }

@@ -35,7 +35,7 @@ QApplicationInterface::QApplicationInterface()
 */
 
 /*!
-  \class QComponentInterface qapplicationinterface.h
+  \class QApplicationComponentInterface qapplicationinterface.h
 
   \brief This class provides an interface to give runtime access to application components.
 
@@ -43,12 +43,12 @@ QApplicationInterface::QApplicationInterface()
 */
 
 /*!
-  Creates a QComponentInterface that provides an interface to the application component
+  Creates a QApplicationComponentInterface that provides an interface to the application component
   \a object.
   As the interface depends on the passed object it gets deleted when the object gets
   destroyed. It's not valid to pass null for the same reason.
 */
-QComponentInterface::QComponentInterface( QObject* o )
+QApplicationComponentInterface::QApplicationComponentInterface( QObject* o )
 {
 #ifdef CHECK_RANGE
     if ( !o )
@@ -73,7 +73,7 @@ QComponentInterface::QComponentInterface( QObject* o )
 
   The default implementation returns the \a value of the property of the handled object.
 */
-QVariant QComponentInterface::requestProperty( const QCString& p )
+QVariant QApplicationComponentInterface::requestProperty( const QCString& p )
 {
     return object()->property( p );
 }
@@ -84,7 +84,7 @@ QVariant QComponentInterface::requestProperty( const QCString& p )
 
   The default implementation sets the property \a p of the handled object to \a value.
 */
-bool QComponentInterface::requestSetProperty( const QCString& p, const QVariant& v )
+bool QApplicationComponentInterface::requestSetProperty( const QCString& p, const QVariant& v )
 {
     return object()->setProperty( p, v );
 }
@@ -99,7 +99,7 @@ bool QComponentInterface::requestSetProperty( const QCString& p, const QVariant&
   The default implementation connects the \a signal of the handled object to the \a slot of \a target and
   returns the result.
 */
-bool QComponentInterface::requestConnect( const char* signal, QObject* target, const char* slot )
+bool QApplicationComponentInterface::requestConnect( const char* signal, QObject* target, const char* slot )
 {
     return connect( object(), signal, target, slot );
 }
@@ -110,7 +110,7 @@ bool QComponentInterface::requestConnect( const char* signal, QObject* target, c
   Reimplement this function for advanced processing.
 */
 
-bool QComponentInterface::requestConnect( QObject *sender, const char* signal, const char* slot )
+bool QApplicationComponentInterface::requestConnect( QObject *sender, const char* signal, const char* slot )
 {
     return connect( sender, signal, object(), slot );
 }
@@ -122,7 +122,7 @@ bool QComponentInterface::requestConnect( QObject *sender, const char* signal, c
 
   The default implementation installes the event filter on for the handled object and returns TRUE.
 */
-bool QComponentInterface::requestEvents( QObject* f )
+bool QApplicationComponentInterface::requestEvents( QObject* f )
 {
     object()->installEventFilter( f );
 
@@ -133,7 +133,7 @@ bool QComponentInterface::requestEvents( QObject* f )
   Reimplement this function for to process interface requests for your application. The default
   implementation returns NULL.
 */
-QComponentInterface* QComponentInterface::queryInterface( const QString& )
+QApplicationComponentInterface* QApplicationComponentInterface::queryInterface( const QString& )
 {
     return 0;
 }
