@@ -801,7 +801,7 @@ bool QProcess::start( QStringList *env )
 	    ::write( fd[1], &buf, 1 );
 	    ::close( fd[1] );
 	}
-	::exit( -1 );
+	::_exit( -1 );
     } else if ( pid == -1 ) {
 	// error forking
 	goto error;
