@@ -180,10 +180,13 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             out << "QAxObject(parent";
         out << ")" << endl;
         out << "    {" << endl;
-        if (category & SubObject)
+        if (category & SubObject) {
+            out << "        Q_ASSERT_X(subobject, \"Sub object constructor\","
+                   "\"Objects of type '" << className << "' cannot be created directly\");" << endl;
             out << "        internalRelease();" << endl;
-        else
+        } else {
             out << "        setControl(\"" << controlID << "\");" << endl;
+        }
         out << "    }" << endl;
         out << endl;
 
