@@ -1,18 +1,17 @@
 TEMPLATE = app
 TARGET	 = qutlook
 
-exists("c:\program files\Microsoft Office\Office10\msoutl.olb") {
-    TYPELIBS = "c:\program files\Microsoft Office\Office10\msoutl.olb"
+!exists("c:\program files\Microsoft Office\Office10\msoutl.olb") {
+    message("Microsoft Outlook type library not found at standard location!")
+    REQUIRES += Outlook
 } else {
-    message("Microsoft Outlook not installed at standard location!")
-    DEFINES += NO_OUTLOOK_TLB
+    TYPELIBS = "c:\program files\Microsoft Office\Office10\msoutl.olb"
+    CONFIG	+= dumpcpp
+    LIBS    += -lqaxcontainer
+
+    HEADERS  = centralwidget.h \
+	       mainwindow.h
+    SOURCES  = centralwidget.cpp \
+	       main.cpp \
+	       mainwindow.cpp
 }
-
-CONFIG	+= dumpcpp
-LIBS    += -lqaxcontainer
-
-HEADERS	 = centralwidget.h \
-	   mainwindow.h
-SOURCES	 = centralwidget.cpp \
-	   main.cpp \
-	   mainwindow.cpp
