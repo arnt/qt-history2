@@ -2341,7 +2341,6 @@ bool QOpenType::loadTables( FT_ULong script)
     qDebug("script %s has script index %d", tag_to_string(script), script_index );
 #endif
 
-
 #ifdef OT_DEBUG
     {
 	TTO_FeatureList featurelist = gsub->FeatureList;
