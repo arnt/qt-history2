@@ -53,6 +53,7 @@ DesignerProject *DesignerInterfaceImpl::currentProject() const
 
 QList<DesignerProject> DesignerInterfaceImpl::projectList() const
 {
+    return QList<DesignerProject>();
 }
 
 void DesignerInterfaceImpl::showStatusMessage( const QString & ) const
@@ -61,10 +62,12 @@ void DesignerInterfaceImpl::showStatusMessage( const QString & ) const
 
 DesignerDock *DesignerInterfaceImpl::createDock() const
 {
+    return 0;
 }
 
 DesignerOutputDock *DesignerInterfaceImpl::outputDock() const
 {
+    return 0;
 }
 
 
@@ -80,10 +83,12 @@ DesignerProjectImpl::DesignerProjectImpl( Project *pr )
 
 DesignerFormWindow *DesignerProjectImpl::currentForm() const
 {
+    return 0;
 }
 
 QList<DesignerFormWindow> DesignerProjectImpl::formList() const
 {
+    return QList<DesignerFormWindow>();
 }
 
 void DesignerProjectImpl::addForm( DesignerFormWindow * )
@@ -96,6 +101,7 @@ void DesignerProjectImpl::removeForm( DesignerFormWindow * )
 
 QString DesignerProjectImpl::fileName() const
 {
+    return QString::null;
 }
 
 void DesignerProjectImpl::setFileName( const QString & )
@@ -104,6 +110,7 @@ void DesignerProjectImpl::setFileName( const QString & )
 
 QString DesignerProjectImpl::projectName() const
 {
+    return QString::null;
 }
 
 void DesignerProjectImpl::setProjectName( const QString & )
@@ -112,6 +119,7 @@ void DesignerProjectImpl::setProjectName( const QString & )
 
 QString DesignerProjectImpl::databaseFile() const
 {
+    return QString::null;
 }
 
 void DesignerProjectImpl::setDatabaseFile( const QString & )
@@ -203,11 +211,11 @@ void DesignerDatabaseImpl::setPassword( const QString & )
 
 QString DesignerDatabaseImpl::hostName() const
 {
+    return db->hostname;
 }
 
 void DesignerDatabaseImpl::setHostName( const QString & )
 {
-    return db->hostname;
 }
 
 QStringList DesignerDatabaseImpl::tables() const
@@ -248,6 +256,7 @@ DesignerFormWindowImpl::DesignerFormWindowImpl( FormWindow *fw )
 
 QString DesignerFormWindowImpl::fileName() const
 {
+    return QString::null;
 }
 
 void DesignerFormWindowImpl::setFileName( const QString & )
@@ -275,6 +284,7 @@ void DesignerFormWindowImpl::removeWidget( QWidget * )
 
 QWidgetList DesignerFormWindowImpl::widgets() const
 {
+    return QWidgetList();
 }
 
 void DesignerFormWindowImpl::undo()
@@ -359,14 +369,17 @@ void DesignerFormWindowImpl::clearSelection()
 
 bool DesignerFormWindowImpl::isWidgetSelected( QWidget * ) const
 {
+    return FALSE;
 }
 
 QWidgetList DesignerFormWindowImpl::selectedWidgets() const
 {
+    return QWidgetList();
 }
 
 QWidget *DesignerFormWindowImpl::currentWidget() const
 {
+    return 0;
 }
 
 void DesignerFormWindowImpl::setCurrentWidget( QWidget * )
@@ -375,6 +388,7 @@ void DesignerFormWindowImpl::setCurrentWidget( QWidget * )
 
 QList<QAction> DesignerFormWindowImpl::actionList() const
 {
+    return QList<QAction>();
 }
 
 void DesignerFormWindowImpl::addAction( QAction * )
@@ -436,6 +450,7 @@ DesignerDockImpl::DesignerDockImpl()
 
 QDockWindow *DesignerDockImpl::dockWindow() const
 {
+    return 0;
 }
 
 
@@ -448,8 +463,9 @@ DesignerOutputDockImpl::DesignerOutputDockImpl( OutputWindow *ow )
 {
 }
 
-QWidget *DesignerOutputDockImpl::addView( const QString &pageName )
+QWidget *DesignerOutputDockImpl::addView( const QString & )
 {
+    return 0;
 }
 
 void DesignerOutputDockImpl::appendDebug( const QString &s )
