@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qvaluestack.doc,v 1.3 1999/09/25 14:54:23 ettrich Exp $
+** $Id: qvaluestack.doc,v 1.4 1999/09/25 15:01:43 ettrich Exp $
 **
 ** QValueStack class documentation
 **
@@ -73,9 +73,9 @@
 
   Technically, QValueStack is a specialized QValueList provided for
   convenience. All of QValueList's functionality applies also to
-  QStack, for example the facility to iterate over all elements.
+  QStack, for example the facility to iterate over all elements using
+  QValueStack<T>::Iterator. See QValueListIterator for further details.
 
-  \sa QValueListIterator
 */
 
 
