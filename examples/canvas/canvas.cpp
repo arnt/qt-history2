@@ -44,7 +44,7 @@ void FigureEditor::contentsMouseMoveEvent(QMouseEvent* e)
 
 SpaceShip::SpaceShip()
 {
-    static QCanvasPixmapSequence spaceship("sprites/spaceship%02d.png");
+    static QCanvasPixmapArray spaceship("sprites/spaceship%1.png",32);
     setSequence(&spaceship);
     setAnimated(TRUE);
 }
