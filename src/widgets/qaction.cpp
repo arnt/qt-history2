@@ -187,8 +187,10 @@ QActionPrivate::~QActionPrivate()
 	delete tb;
 	if ( parent->inherits( "QToolBar" ) ) {
 	    QToolBar* toolbar = (QToolBar*) parent;
-	    if ( toolbar->queryList( "QToolButton" )->isEmpty() )
-		delete toolbar;
+        QObjectList* lst = toolbar->queryList( "QToolButton" );
+        if ( lst->isEmpty() )
+		    delete toolbar;
+        delete lst;
 	}
     }
 
