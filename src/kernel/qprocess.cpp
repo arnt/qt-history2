@@ -456,6 +456,10 @@ QByteArray QProcess::readStderr()
     newline or carriage return characters, and returns it. Returns
     QString::null if canReadLineStdout() returns FALSE.
 
+    By default, the text is interpreted to be in Latin-1 encoding. If you need
+    other codecs, you can set a different codec with
+    QTextCodec::setCodecForCStrings().
+
     \sa canReadLineStdout() readyReadStdout() readStdout() readLineStderr()
 */
 QString QProcess::readLineStdout()
@@ -484,6 +488,10 @@ QString QProcess::readLineStdout()
     Reads a line of text from standard error, excluding any trailing
     newline or carriage return characters and returns it. Returns
     QString::null if canReadLineStderr() returns FALSE.
+
+    By default, the text is interpreted to be in Latin-1 encoding. If you need
+    other codecs, you can set a different codec with
+    QTextCodec::setCodecForCStrings().
 
     \sa canReadLineStderr() readyReadStderr() readStderr() readLineStdout()
 */
