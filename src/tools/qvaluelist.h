@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#24 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#25 $
 **
 ** Definition of QValueList class
 **
@@ -418,7 +418,7 @@ template<class T>
 QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
 {
     s << l.count();
-    QValueList<T>::ConstIterator it = l.begin();
+    QValueListConstIterator<T> it = l.begin();
     for( ; it != l.end(); ++it )
 	s << *it;
     return s;
