@@ -105,10 +105,11 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
     w->createTLExtra();
     w->extra->topextra->resizer += up;
     if(w->extra->topextra->resizer ||
-       (w->extra->maxw && w->extra->maxh && w->extra->maxw == w->extra->minw && w->extra->maxh == w->extra->minh))
+       (w->extra->maxw && w->extra->maxh && w->extra->maxw == w->extra->minw && w->extra->maxh == w->extra->minh)) {
 	ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowResizableAttribute);
-    else
+    } else {
 	ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute, 0);
+    }
     return TRUE;
 }
 

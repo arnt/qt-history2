@@ -133,6 +133,7 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
     tlw = qt_sizegrip_topLevelWidget( this );
     if ( tlw )
 	tlw->installEventFilter( this );
+    installEventFilter( this ); //for binary compatibility fix in 4.0 with an event()
 }
 
 
@@ -262,6 +263,22 @@ bool QSizeGrip::eventFilter( QObject *o, QEvent *e )
 	default:
 	    break;
 	}
+    } else if(o == this) {
+#if defined(Q_WS_MAC)
+	switch(e->type()) {
+	case QEvent::Hide:
+	case QEvent::Show:
+	      if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
+		  if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
+		      if(w->isTopLevel()) 
+			  qt_mac_update_sizer(w, e->type() == QEvent::Hide ? -1 : 1);
+		  }
+	      }
+	      break;
+	default:
+	    break;
+	}
+ #endif	    
     }
     return FALSE;
 }
