@@ -2656,7 +2656,7 @@ void QTextEdit::contentsContextMenuEvent(QContextMenuEvent *e)
         popup = createPopupMenu();
     if (!popup)
         return;
-    int r = popup->exec(e->globalPos());
+    int r = popup->exec(e->globalPos(), -1);
     delete popup;
 
     if (r == d->id[IdClear])
@@ -5031,7 +5031,7 @@ QByteArray QTextEdit::pickSpecial(QMimeSource* ms, bool always_ask, const QPoint
             if(n ==1 && !always_ask)
                 i = popup.idAt(0);
             else
-                i = popup.exec(pt);
+                i = popup.exec(pt, -1);
             if (i >= 0)
                 return popup.text(i).toLatin1();
         }
