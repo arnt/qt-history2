@@ -73,7 +73,7 @@ static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value)
         break;
     case QCoreVariant::List:
     case QCoreVariant::StringList:
-    case QCoreVariant::PointArray:
+    case QCoreVariant::Polygon:
         result = macList(value.toList());
         break;
     case QCoreVariant::Map:
