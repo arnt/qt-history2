@@ -53,7 +53,7 @@ QMap<int, int> QTextFormatCollectionState::insertIntoOtherCollection(QTextFormat
     for (FormatMap::ConstIterator it = formats.begin(); it != formats.end(); ++it) {
         QTextFormat format = it.value();
 
-        const int groupIndex = format.groupIndex();
+        int groupIndex = format.groupIndex();
         if (groupIndex != -1) {
             groupIndex = insertedGroups.value(groupIndex, -1);
             format.setGroupIndex(groupIndex);
