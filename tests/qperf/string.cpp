@@ -152,7 +152,6 @@ static int string_set_double()
     return i;    
 }
 
-
 static int string_append()
 {
     int i;
