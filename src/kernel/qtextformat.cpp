@@ -217,7 +217,7 @@ void QTextFormat::merge(const QTextFormat &other)
 	return;
     }
 
-    Q_FOREACH(int propId, other.d->propertyMap().keys()) {
+    Q_FOREACH(int propId, other.allPropertyIds()) {
 	const QTextFormatProperty prop = other.d->property(propId, QTextFormat::Undefined);
 	Q_ASSERT(prop.isValid());
 	d->setProperty(propId, prop);
