@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#24 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#25 $
 #
 # this is a massive hack, written very quickly
 #
@@ -107,11 +107,6 @@ sub processdocs {
 	$class = $name{$url};
 	$class =~ s/::.*/::/;
 
-	if ($type{$url} eq "class") {
-	    $anchor{$class . "::" . $1} = $class . "#" . $1
-		while($def{$url} =~ /\benum\s*(\w+)\b/s);
-	}
-
 	$doc = $doc{$url};
 
 	$doc =~ s/\\\&/&amp;/gs;
@@ -126,9 +121,6 @@ sub processdocs {
 		(?:(?:\n\s*?\n\s*)|(?:$ ))/\n/sx);
 	$doc =~ s/\s*$/\n/s;
 	$doc =~ s/^\s*//s;
-	$brief{$url} = $1
-	    if ($doc =~ s/\s*\\brief\s+(.*?)\n\s*\n//s);
-
 	$doc =~ s/\\internal\s.*//s if (!$internal);
 
 	$doc =~ s-\\link\s+(\S+)\s*(.+?)\s*\\endlink-
@@ -193,6 +185,9 @@ sub processdocs {
 	    }
 	-egsx;
 
+	$brief{$url} = $1
+	    if ($doc =~ s/\s*\\brief\s+(.*?)(?:(?:\n\s*\n)|$)//s);
+
 	$doc{$url} = $doc;
     }
 }
@@ -244,6 +239,16 @@ sub manglefn {
 	s/\s+/-/g;
 	s/-+$//;
 	s/^-+//;
+# qualify enums
+	s/\w+/
+	    if (defined($anchor{$class . "::" . $&})
+		&& $type{$anchor{$class . "::" . $&}} eq "enum") {
+		sprintf("%s::%s", $class, $&);
+	    } else {
+		sprintf("%s", %&);
+	    }
+	/egsx;
+
 # finally add it to the url
 	$url = join($d, $url, $_);
 	$d = ",";
@@ -276,6 +281,11 @@ sub storeclass {
     $def =~ s/Q_OBJECT//;
     $def =~ s/(\)\s*\b(?:const\s*))\{.*?\}/$1;/gs;
     $def =~ s/;\s*$//s;
+
+    while ($def =~ /(?:\b|^)enum\s+(\w+)\b/gs) {
+	$type{$url . "#" . $1} = "enum";
+	$name{$url . "#" . $1} = $name . "::" . $1;
+    }
 
     $members{$url} = $def;
 }
@@ -356,7 +366,7 @@ sub readc {
 			  (?:\s+delete))))\s*
 	     \(\s*([^\)]*?)\s*\) (?# arg list
 				  )
-	     \s*(const)?\s*(?::[\s\w,\(\)]+)?$@gsx)) {
+	     \s*(const)?\s*(?::[\s\w,\(\)]+)?$@gsxo)) {
 	    my ($type, $class, $name, $args, $const);
 	    $type = $1;
 	    $class = $2;
@@ -468,24 +478,27 @@ sub makenames {
     foreach ( sort keys %name ) {
 	$anchor{$name{$_}} = $_ unless (defined($anchor{$name{$_}}));
     }
+#   foreach ( sort keys %anchor ) { print $_, ": ", $anchor{$_}, "\n"; }
 }
 
 #
 # add links and escapes to a string
 #
 sub al {
-    local (@o, $_,);
+    local ($_, $class) = @_;
 
-    @o = split(/\b/, $_[0]);
-    foreach ( 0..$#o ) {
-	if (defined($anchor{$o[$_]})) {
-	    $o[$_] = join ("", "<a href=", $anchor{$o[$_]}, ">", 
-			   &html($o[$_]), "</a>");
+    s-[\w:]+-
+	if (defined($anchor{$class . "::" . $&}) &&
+	    $type{$anchor{$class."::".$&}} ne "fn") {
+	    sprintf("<a href=%s>%s</a>", $anchor{$class."::".$&}, &html($&));
+	} elsif (defined($anchor{$&}) &&
+		 $type{$anchor{$&}}) {
+	    sprintf("<a href=%s>%s</a>", $anchor{$&}, &html($&));
 	} else {
-	    $o[$_] = &html($o[$_]);
+	    &html($&);
 	}
-    }
-    join("", @o);
+    -egs;
+    $_;
 }
 
 #
@@ -507,10 +520,12 @@ sub makearglinks {
 	    if (defined($anchor{$class})) {
 		$anchor = $anchor{$class};
 		undef $anchor{$class};
-		$def{$_} = join(" ", &al($pre), &html($name), &al($post));
+		$def{$_} = join(" ", &al($pre, $class), &html($name), 
+				&al($post, $class));
 		$anchor{$class} = $anchor;
 	    } else {
-		$def{$_} = join(" ", &al($pre), &html($name), &al($post));
+		$def{$_} = join(" ", &al($pre, $class), &html($name), 
+				&al($post, $class));
 	    }
 	}
     }
@@ -631,7 +646,7 @@ sub printout {
 	    }
 
 	    if (defined($members{$url})) {
-		my (%m, $mode, %enums);
+		my (%m, $mode);
 		print O "<p>\n", $brief{$url}, "\n"
 		    if (defined($brief{$url}));
 		undef %m;
@@ -650,8 +665,6 @@ sub printout {
 		    } else {
 			$m{$mode} .= $_ . ";";
 		    }
-		    $enums{$1}++
-			if (/^\s*enum\s+(\w+)/);
 		}
 		foreach $mode ('Public', 'Static Public',
 			       'Signals', 'Slots',
@@ -675,18 +688,13 @@ sub printout {
 			    ((?:(?:operator[^\(\s]{1,3})|(?:\~?\w+))) (?# name
 								   )
 			    \s*\(([^\(\)]*)\)\s*(const)?\s*(?:[\{=].*)?$/x) {
-			    my ($u,$t,$mt,$f,$a,$ma,$c, $enum);
+			    my ($u,$t,$mt,$f,$a,$ma,$c);
 			    $t = $mt = $1;
 			    $f = $2;
 			    $a = $ma = $3;
 			    $c = $4;
 
-			    foreach $enum ( sort keys %enums ) {
-				$mt =~ s/^$enum\b/$name{$url}:\:$enum/gs;
-				$ma =~ s/(?:(?:\b)|(?:(^)))$enum\b/$name{$url}:\:$enum/gs;
-			    }
-
-			    $u = &manglefn($mt, $name{$url}, $f, $ma, $c);
+			    $u = &manglefn($t, $name{$url}, $f, $a, $c);
 			    &fixdefvalues($u, $a) if ($type{$u} eq "fn");
 			    next unless ($internal || 
 					 ($mode =~ /public/) ||
@@ -704,10 +712,10 @@ sub printout {
 			    $_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
 				if (defined($capt{$u}));
 			} else {
-			    if (/^\s*enum\s+(\w*)/ && 
-				   defined($anchor{$name{$url} . "#" . $1})) {
+			    if (/^\s*enum\s+(\w+)/s &&
+				defined($anchor{$name{$url} . "::" . $1})) {
 				my($name);
-				$name = $anchor{$name{$url} . "#" . $1};
+				$name = $1;
 				$_ = &html($_);
 				s;(\w+[^:\(\{]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
 			    } else {
