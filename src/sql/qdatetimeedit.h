@@ -11,28 +11,9 @@
 
 #ifndef QT_NO_SQL
 
-
-class Q_EXPORT NumEdit : public QLineEdit
-{
-    Q_OBJECT
-public:
-    NumEdit( QWidget * parent, const char * name = 0 )
-	: QLineEdit( parent, name )
-    {
-	setFrame( FALSE );
-	setAlignment( AlignRight );
-    }
-
-    void setRange( int min, int max )
-    {
-	QIntValidator * v = new QIntValidator( this );
-	v->setRange( min, max );
-	setValidator( v );
-    }
-};
-
+class ArrowButton;
+class NumEdit;
 class QLabel;
-class QToolButton;
 
 class Q_EXPORT QDateTimeEditBase : public QWidget
 {
@@ -45,7 +26,7 @@ protected:
 
     NumEdit     * e[3];
     QLabel      * sep[2];
-    QToolButton * up, * down;
+    ArrowButton * up, * down;
 
 protected slots:
     void increase();
@@ -57,7 +38,7 @@ protected slots:
 class Q_EXPORT QDateEdit : public QDateTimeEditBase
 {
     Q_OBJECT
-    Q_PROPERTY( QDate dateValue READ date WRITE setDate )
+    Q_PROPERTY( QDate date READ date WRITE setDate )
 public:
     QDateEdit( QWidget * parent = 0, const char * name = 0 );
     void  setDate( const QDate & d );
@@ -70,7 +51,7 @@ protected:
 class Q_EXPORT QTimeEdit : public QDateTimeEditBase
 {
     Q_OBJECT
-    Q_PROPERTY( QTime timeValue READ time WRITE setTime )
+    Q_PROPERTY( QTime time READ time WRITE setTime )
 public:
     QTimeEdit( QWidget * parent = 0, const char * name = 0 );
     void  setTime( const QTime & t );

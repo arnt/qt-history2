@@ -60,6 +60,7 @@ QWidget * QSqlEditorFactory::createEditor( QWidget * parent, const QVariant & v 
 	    break;
 	case QVariant::Time:
 	    w = new QTimeEdit( parent );
+	    break;
 	case QVariant::DateTime:	    
 	    break;
 	case QVariant::Palette:

@@ -4,11 +4,68 @@
 
 #include "qlayout.h"
 #include "qtoolbutton.h"
+#include "qpainter.h"
 #include "qpushbutton.h"
-#include "qapplication.h"
 #include "qframe.h"
 #include "qlabel.h"
 
+class NumEdit : public QLineEdit
+{
+public:
+    NumEdit( QWidget * parent, const char * name = 0 )
+	: QLineEdit( parent, name )
+    {
+	setFrame( FALSE );
+	setAlignment( AlignRight );
+    }
+
+    void setRange( int min, int max )
+    {
+	QIntValidator * v = new QIntValidator( this );
+	v->setRange( min, max );
+	setValidator( v );
+    }
+};
+
+class ArrowButton : public QToolButton
+{
+//    Q_OBJECT
+public:
+    typedef enum Direction { Up, Down };
+    
+    ArrowButton( Direction  dir = Up, QWidget * parent = 0, 
+		 const char * name = 0) 
+	: QToolButton( parent, name ), d( dir ){};
+    
+protected:
+    void paintEvent( QPaintEvent * e )
+    {
+	QPainter p;
+	QPointArray a;
+	
+	QToolButton::paintEvent( e );
+	if( p.begin( this ) ){
+	    switch( d ){
+		case Up:
+		    a.setPoints( 4, width()/2,2, width()-4,height()-4,
+				 3,height()-4, width()/2,2 );
+		    break;
+		case Down:
+		    a.setPoints( 4, 3,2, width()-4,2,
+				 width()/2,height()-4, 3,2 );
+		    break;
+		default: 
+		    break;		    
+	    }
+	    p.setPen( palette().active().buttonText() );
+	    p.setBrush( QBrush( palette().active().buttonText() ) );
+	    p.drawPolygon( a );
+	    p.end();
+	}
+    }
+    
+    Direction d;
+};
 
 QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
     : QWidget( parent, name )
@@ -28,17 +85,19 @@ QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
     sep[1]->setBackgroundColor( e[0]->backgroundColor() );
     setBackgroundColor( e[0]->backgroundColor() );
 
-    up = new QToolButton( this );
-    up->setText( "." );
+    up = new ArrowButton( ArrowButton::Up, this );
+//    up->setText( "." );
     up->setAutoRepeat( TRUE );
-    down = new QToolButton( this );
-    down->setText( "." );
+    down = new ArrowButton( ArrowButton::Down, this );
+  //  down->setText( "." );
     down->setAutoRepeat( TRUE );
 
     connect( up, SIGNAL( clicked() ), SLOT( increase() ) );
     connect( down, SIGNAL( clicked() ), SLOT( decrease() ) );
-
-    qApp->installEventFilter( this );
+    setFocusProxy( e[0] );
+    e[0]->installEventFilter( this );
+    e[1]->installEventFilter( this );
+    e[2]->installEventFilter( this );
 }
 
 void QDateTimeEditBase::increase()
@@ -91,6 +150,7 @@ bool QDateTimeEditBase::eventFilter( QObject *, QEvent * ev )
     if( ev->type() == QEvent::KeyPress ){
 	QKeyEvent * k = (QKeyEvent *) ev;
 	if( k->key() == Qt::Key_Tab ){
+	    qDebug("foo");
 	    QWidget * focus = focusWidget();
 	    int i = 0;
 	    if( focus == e[0] ){
@@ -132,6 +192,9 @@ void QDateEdit::setDate( const QDate & d )
     e[0]->setText( QString().setNum( d.year() ) );
     e[1]->setText( QString().setNum( d.month() ) );
     e[2]->setText( QString().setNum( d.day() ) );
+
+    e[0]->selectAll();
+    e[0]->setFocus();
 }
 
 QDate QDateEdit::date() const
@@ -142,25 +205,24 @@ QDate QDateEdit::date() const
 
 void QDateEdit::resizeEvent( QResizeEvent * )
 {
-    int msize = 6;
+    int mSize = 6;
+    int numSize = (width() - 15) / 10;
     int h = height();
-    int numSize  = fontMetrics().width( "xxxx" );
-    int yearSize = fontMetrics().width( "xxxxxx" );
+    
+    e[0]->resize( numSize*4, h );
 
-    e[0]->resize( yearSize, h );
+    e[1]->resize( numSize*2, h );
+    e[1]->move( e[0]->x() + e[0]->width() + mSize, 0 );
 
-    e[1]->resize( numSize, h );
-    e[1]->move( e[0]->x() + e[0]->width() + msize, 0 );
+    e[2]->resize( numSize*2, h );
+    e[2]->move( e[1]->x() + e[1]->width() + mSize, 0 );
 
-    e[2]->resize( numSize, h );
-    e[2]->move( e[1]->x() + e[1]->width() + msize, 0 );
-
-    sep[0]->resize( msize, h );
-    sep[1]->resize( msize, h );
+    sep[0]->resize( mSize, h );
+    sep[1]->resize( mSize, h );
     sep[0]->move( e[0]->x() + e[0]->width() + 1, -2 );
     sep[1]->move( e[1]->x() + e[1]->width() + 1, -2 );
 
-    up->resize( 15, h/2);
+    up->resize( 15, h/2 );
     down->resize( 15, h/2 );
 
     up->move( width() - 15, 0 );
@@ -186,6 +248,9 @@ void QTimeEdit::setTime( const QTime & t )
     e[0]->setText( QString().setNum( t.hour() ) );
     e[1]->setText( QString().setNum( t.minute() ) );
     e[2]->setText( QString().setNum( t.second() ) );
+    
+    e[0]->selectAll();
+    e[0]->setFocus();
 }
 
 QTime QTimeEdit::time() const
@@ -196,21 +261,20 @@ QTime QTimeEdit::time() const
 
 void QTimeEdit::resizeEvent( QResizeEvent * )
 {
-    int msize = 6;
+    int mSize = 6;
+    int numSize = (width() - 15) / 8;
     int h = height();
-    int w;
-//    int numSize  = fontMetrics().width( "xxxx" );
-    w = (width() - up->width()) / 3;
-    e[0]->resize( w - msize, h );
+        
+    e[0]->resize( numSize*2, h );
 
-    e[1]->resize( w - msize, h );
-    e[1]->move( e[0]->x() + e[0]->width() + msize, 0 );
+    e[1]->resize( numSize*2, h );
+    e[1]->move( e[0]->x() + e[0]->width() + mSize, 0 );
 
-    e[2]->resize( w, h);
-    e[2]->move( e[1]->x() + e[1]->width() + msize, 0 );
+    e[2]->resize( numSize*2, h);
+    e[2]->move( e[1]->x() + e[1]->width() + mSize, 0 );
 
-    sep[0]->resize( msize, h );
-    sep[1]->resize( msize, h );
+    sep[0]->resize( mSize, h );
+    sep[1]->resize( mSize, h );
     sep[0]->move( e[0]->x() + e[0]->width() + 1, -2 );
     sep[1]->move( e[1]->x() + e[1]->width() + 1, -2 );
 
