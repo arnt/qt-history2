@@ -568,7 +568,7 @@ accept focus, and gives the focus to that widget.
 void QGroupBox::fixFocus()
 {
     QFocusData * fd = focusData();
-    QWidget * orig = fd->focusWidget();
+    QWidget * orig = fd->home();
     QWidget * best = 0;
     QWidget * candidate = 0;
     QWidget * w = orig;
