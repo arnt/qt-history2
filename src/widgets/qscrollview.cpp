@@ -1844,8 +1844,7 @@ void QScrollView::viewportContextMenuEvent( QContextMenuEvent *e )
 
 /*!
     Returns the component horizontal scroll bar. It is made available
-    to allow accelerators, autoscrolling, etc., and to allow changing
-    arrow scroll rates, e.g. bar->setSteps( rate, bar->pageStep() ).
+    to allow accelerators, autoscrolling, etc.
 
     It should not be used for other purposes.
 
@@ -1858,8 +1857,7 @@ QScrollBar* QScrollView::horizontalScrollBar() const
 
 /*!
     Returns the component vertical scroll bar. It is made available to
-    allow accelerators, autoscrolling, etc. and to allow changing
-    arrow scroll rates, e.g. bar->setSteps( rate, bar->pageStep() ).
+    allow accelerators, autoscrolling, etc.
 
     It should not be used for other purposes.
 
