@@ -2038,9 +2038,15 @@ void FormWindow::setEditMode(EditMode mode)
     m_editMode = mode;
 
     switch (m_editMode) {
-        case WidgetEditMode:
+        case WidgetEditMode: {
             m_mainContainer->raise();
+            
+            QList<QWidget*> sel = selectedWidgets();
+            foreach (QWidget *w, sel)
+                raiseSelection(w);
+            
             break;
+        }
 
         case ConnectionEditMode:
             m_signalSlotEditor->updateBackground();
