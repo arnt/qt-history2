@@ -211,15 +211,15 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
         if (leftHeader->isSectionHidden(r))
             continue;
         int rowp = rowViewportPosition(r);
-        int rowh = rowHeight(r);
+        int rowh = rowHeight(r) - gridSize;
         for (int c = colfirst; c <= collast; ++c) {
             if (topHeader->isSectionHidden(c))
                 continue;
             int colp = columnViewportPosition(c);
-            int colw = columnWidth(c);
+            int colw = columnWidth(c) - gridSize;
             QModelIndex item = model()->index(r, c, root());
             if (item.isValid()) {
-                options.itemRect = QRect(colp, rowp, colw - gridSize, rowh - gridSize);
+                options.itemRect = QRect(colp, rowp, colw, rowh);
                 options.selected = sels->isSelected(item);
                 options.focus = (focus && item == current);
                 painter.fillRect(colp, rowp, colw, rowh,
@@ -227,15 +227,18 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
                                   options.palette.base()));
                 itemDelegate()->paint(&painter, options, item);
             }
-            if (showGrid) {
+            if (r == rowfirst && showGrid) {
                 QPen old = painter.pen();
                 painter.setPen(gridPen);
-                int v = QApplication::reverseLayout() ? colp : colp + colw - gridSize;
-                painter.drawLine(v, rowp, v, rowp + rowh - gridSize);
-                painter.drawLine(colp, rowp + rowh - 1,
-                                 colp + colw - gridSize, rowp + rowh - gridSize);
+                painter.drawLine(colp + colw, area.top(), colp + colw, area.bottom());
                 painter.setPen(old);
             }
+        }
+        if (showGrid) {
+            QPen old = painter.pen();
+            painter.setPen(gridPen);
+            painter.drawLine(area.left(), rowp + rowh, area.right(), rowp + rowh);
+            painter.setPen(old);
         }
     }
 
