@@ -122,7 +122,7 @@ public:
         ShowSign = 0x4,
         UppercaseBase = 0x8
     };
-    Q_DECLARE_FLAGS(NumberDisplayFlags, NumberDisplayFlag);
+    Q_DECLARE_FLAGS(NumberDisplayFlags, NumberDisplayFlag)
 
     void setPadMode(PadMode mode);
     PadMode padMode() const;
