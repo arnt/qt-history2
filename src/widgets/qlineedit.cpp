@@ -1902,6 +1902,10 @@ void QLineEdit::updateOffset()
 	    d->offset = cursorPos;
 	else if ( cursorPos > d->offset + w )
 	    d->offset = cursorPos - w;
+	// the 4 pixels are a bit magic. It's the border QRichrText adds. Makes right aligned
+	// lineedits work without having a moving right border
+	if ( d->parag->alignment() & Qt::AlignRight && textWidth < w + 4 + d->offset ) 
+	    d->offset = QMAX( 0, textWidth - w - 4 );
     } else {
 	d->offset = 0;
     }
