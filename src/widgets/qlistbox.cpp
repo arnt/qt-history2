@@ -4034,12 +4034,12 @@ void QListBox::paintCell( QPainter * p, int row, int col )
 	} else {
 	    int iw = i->width( this );
 	    p->fillRect( 0, 0, iw, ch, pal.brush( QPalette::Highlight ) );
-	    p->fillRect( iw, 0, cw - iw + 1, ch, viewport()->background() );
+	    p->fillRect( iw, 0, cw - iw + 1, ch, viewport()->palette().brush(viewport()->backgroundRole()));
 	    p->setPen( pal.highlightedText() );
 	    p->setBackgroundColor( pal.highlight() );
 	}
     } else {
-	p->fillRect( 0, 0, cw, ch, viewport()->background());
+	p->fillRect( 0, 0, cw, ch, viewport()->palette().brush(viewport()->backgroundRole()));
     }
 
     i->paint( p );

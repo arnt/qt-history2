@@ -550,15 +550,7 @@ QPainter::~QPainter()
     This version opens the painter on a paint device \a pd and sets
     the initial pen, background color and font from \a copyAttributes,
     painting over the paint device's children when \a unclipped is
-    TRUE. This is equivalent to:
-
-    \code
-	QPainter p;
-	p.begin( pd );
-	p.setPen( copyAttributes->foregroundColor() );
-	p.setBackgroundColor( copyAttributes->backgroundColor() );
-	p.setFont( copyAttributes->font() );
-    \endcode
+    TRUE.
 
     This begin function is convenient for double buffering. When you
     draw in a pixmap instead of directly in a widget (to later bitBlt
@@ -589,9 +581,9 @@ bool QPainter::begin( const QPaintDevice *pd, const QWidget *copyAttributes, boo
 	return FALSE;
     }
     if ( begin( pd, unclipped ) ) {
-	setPen( copyAttributes->foregroundColor() );
-	setBackgroundColor( copyAttributes->backgroundColor() );
-	setFont( copyAttributes->font() );
+	setPen(copyAttributes->palette().color(copyAttributes->foregroundRole()));
+	setBackgroundColor(copyAttributes->palette().color(copyAttributes->backgroundRole()));
+	setFont(copyAttributes->font());
 	return TRUE;
     }
     return FALSE;

@@ -419,8 +419,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 }
 
 
-void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
-			   bool showIt )
+void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool showIt )
 {
     QWidget* oldtlw = topLevelWidget();
     WId old_winid = winid;
@@ -532,9 +531,7 @@ void QWidget::resetInputContext()
     QInputContext::accept();
 }
 
-void QWidgetPrivate::setBackgroundBrush( const QBrush & )
-{
-}
+void QWidgetPrivate::updateSystemBackground() {}
 
 extern void qt_set_cursor( QWidget *, const QCursor & ); // qapplication_win.cpp
 

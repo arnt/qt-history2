@@ -319,9 +319,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 					      crect.width(), crect.height(),
 					      0,
 					      black.pixel(x11Screen()),
-					      background().color().pixel(x11Screen()) );
+					      white.pixel(x11Screen()) );
 	} else {
-	    wsa.background_pixel = background().color().pixel(x11Screen());
+	    wsa.background_pixel = white.pixel(x11Screen());
 	    wsa.border_pixel = black.pixel(x11Screen());
 	    wsa.colormap = (Colormap)x11Colormap();
 	    id = (WId)qt_XCreateWindow( this, dpy, parentw,
@@ -651,7 +651,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     }
 }
 
-void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool showIt )
+void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool showIt )
 {
     extern void qPRCreate( const QWidget *, Window );
 
@@ -695,7 +695,6 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
-    QBrush bgb = background();                 // save colors
     QString capt= caption();
     widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
@@ -730,10 +729,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
 	}
     }
     qPRCreate( this, old_winid );
-    if ( bgb.pixmap() )
-	XSetWindowBackgroundPixmap( dpy, winid, bgb.pixmap()->handle() );
-    else
-	XSetWindowBackground( dpy, winid, bgb.color().pixel(x11Screen()) );
+    d->updateSystemBackground();
 
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
@@ -857,8 +853,9 @@ void QWidget::setFontSys( QFont * )
     // Nothing
 }
 
-void QWidgetPrivate::setBackgroundBrush( const QBrush &brush )
+void QWidgetPrivate::updateSystemBackground()
 {
+    QBrush brush = q->palette().brush(q->backgroundRole());
     if (brush.style() == Qt::NoBrush || q->testAttribute(QWidget::WA_NoErase))
 	XSetWindowBackgroundPixmap(q->x11Display(), q->winId(), None);
     else if (brush.pixmap() && q->backgroundOrigin() == QWidget::WidgetOrigin)

@@ -989,8 +989,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     setWinId(0);
 }
 
-void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
-			bool showIt)
+void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool showIt)
 {
     if(isVisible() && !isTopLevel())
 	qt_dirty_wndw_rgn("reparent1", parentWidget() ? parentWidget() : this,
@@ -1113,8 +1112,9 @@ void QWidget::setFontSys(QFont *)
 {
 }
 
-void QWidgetPrivate::setBackgroundBrush( const QBrush &brush )
+void QWidgetPrivate::updateSystemBackground()
 {
+    QBrush = q->palette().brush(q->backgroundRole());
     if(!brush.pixmap() && q->isTopLevel()) {
 	QMacSavedPortInfo savedInfo(q);
 	RGBColor f;

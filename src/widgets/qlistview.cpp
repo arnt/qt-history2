@@ -2044,7 +2044,7 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
     int r = marg;
     const QPixmap * icon = pixmap( column );
 
-    if (pal.foreground() != lv->foreground())
+    if (pal.foreground() != lv->palette().color(lv->foregroundRole()))
 	p->fillRect( 0, 0, width, height(), pal.foreground());
     else
 	lv->paintEmptyArea( p, QRect( 0, 0, width, height() ) );

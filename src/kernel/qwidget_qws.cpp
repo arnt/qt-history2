@@ -338,8 +338,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 }
 
 
-void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
-			bool showIt )
+void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool showIt )
 {
 #ifndef QT_NO_CURSOR
     QCursor oldcurs;
@@ -448,9 +447,7 @@ void QWidget::setFontSys( QFont * )
 {
 }
 
-void QWidgetPrivate::setBackgroundBrush( const QBrush &brush )
-{
-}
+void QWidgetPrivate::updateSystemBackground() {}
 
 #ifndef QT_NO_CURSOR
 

@@ -49,7 +49,7 @@ public:
     enum ColorRole { Foreground, Button, Light, Midlight, Dark, Mid,
 		     Text, BrightText, ButtonText, Base, Background, Shadow,
 		     Highlight, HighlightedText, Link, LinkVisited,
-		     NColorRoles, Invalid };
+		     NColorRoles };
 
     inline ColorGroup currentColorGroup() const { return current_group; }
     inline void setCurrentColorGroup(ColorGroup cg) { current_group = cg; }

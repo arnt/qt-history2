@@ -150,7 +150,7 @@ public:
     void deleteSysExtra();
     void createTLSysExtra();
     void deleteTLSysExtra();
-    void setBackgroundBrush(const QBrush &);
+    void updateSystemBackground();
     void propagatePaletteChange();
 
     bool isForegroundInherited() const;
@@ -166,8 +166,6 @@ public:
     QWExtra *extra;
     QWidget *focus_next;
     QWidget *focus_child;
-    QColor fg_color;
-    QBrush bg_brush;
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif
