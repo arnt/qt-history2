@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#66 $
 **
 ** Definition of QIconView widget class
 **
@@ -2086,7 +2086,7 @@ int QIconView::maxItemTextLength() const
 }
 
 /*!
-  If \a b is TRUE, the user can rearrange icons in the iconview (moving them with the mouse),
+  If \a b is TRUE, the user is allowed to rearrange icons in the iconview (moving them with the mouse),
   if \a b is FALSE, the user is not allowed to do that.
 */
 
