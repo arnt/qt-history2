@@ -831,7 +831,7 @@ static void loadXft()
                      (const char *)0,
                      XFT_FAMILY, XFT_WEIGHT, XFT_SLANT,
                      XFT_SPACING, XFT_FILE, XFT_INDEX,
-                     FC_CHARSET, FC_FOUNDRY, FC_SCALABLE, FC_PIXEL_SIZE,
+                     FC_CHARSET, FC_FOUNDRY, FC_SCALABLE, FC_PIXEL_SIZE, FC_WEIGHT,
                      (const char *)0);
 
     for (int i = 0; i < fonts->nfont; i++) {
@@ -897,6 +897,11 @@ static void loadXft()
         styleKey.italic = (slant_value == XFT_SLANT_ITALIC);
         styleKey.oblique = (slant_value == XFT_SLANT_OBLIQUE);
         styleKey.weight = getXftWeight(weight_value);
+        if (!scalable) {
+            int width = 100;
+	    XftPatternGetInteger (fonts->fonts[i], FC_WIDTH, 0, &width);
+            styleKey.stretch = width;
+        }
 
         QtFontFoundry *foundry
             = family->foundry(foundry_value ? QString::fromUtf8(foundry_value) : QString::null,  true);
@@ -1119,7 +1124,7 @@ static void initializeDb()
 #define MAXFONTSIZE_XFT 256
 #define MAXFONTSIZE_XLFD 128
 #ifndef QT_NO_XFT
-static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, bool fakeOblique,
+static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, bool fakeOblique, bool smoothScalable,
                               const QFontPrivate *fp, const QFontDef &request, QFont::Script script)
 {
     int weight_value = XFT_WEIGHT_BLACK;
@@ -1161,8 +1166,12 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
     size_value = size_value*72./QX11Info::appDpiY(fp->screen);
     XftPatternAddDouble(pattern, XFT_SIZE, size_value);
 
-#  ifdef XFT_MATRIX
-    if ((request.stretch > 0 && request.stretch != 100) ||
+    if (!smoothScalable) {
+        int stretch = request.stretch;
+        if (!stretch)
+            stretch = 100;
+	XftPatternAddInteger(pattern, FC_WIDTH, stretch);
+    } else if ((request.stretch > 0 && request.stretch != 100) ||
         (key.oblique && fakeOblique)) {
         XftMatrix matrix;
         XftMatrixInit(&matrix);
@@ -1174,7 +1183,6 @@ static double addPatternProps(XftPattern *pattern, const QtFontStyle::Key &key, 
 
         XftPatternAddMatrix(pattern, XFT_MATRIX, &matrix);
     }
-#  endif // XFT_MATRIX
 
     if (request.styleStrategy & (QFont::PreferAntialias|QFont::NoAntialias)) {
         XftPatternAddBool(pattern, XFT_ANTIALIAS,
@@ -1243,7 +1251,7 @@ QFontEngine *loadEngine(QFont::Script script,
                              (encoding->pitch == 'm' ? XFT_MONO : XFT_PROPORTIONAL));
         XftPatternAddInteger(pattern, XFT_SPACING, pitch_value);
 
-        double scale = addPatternProps(pattern, style->key, style->fakeOblique, fp, request, script);
+        double scale = addPatternProps(pattern, style->key, style->fakeOblique, style->smoothScalable, fp, request, script);
 
  	if (!symbol) {
  	    FcCharSet *cs = FcCharSetCreate();
@@ -1430,7 +1438,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
     key.weight = request.weight;
     key.stretch = request.stretch;
 
-    double scale = addPatternProps(pattern, key, false, fp, request, script);
+    double scale = addPatternProps(pattern, key, false, true, fp, request, script);
 #ifdef FONT_MATCH_DEBUG
     qDebug("original pattern contains:");
     FcPatternPrint(pattern);
@@ -1528,7 +1536,7 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
 
         XftPattern *pattern = XftPatternDuplicate(font);
         // add properties back in as the font selected from the list doesn't contain them.
-        addPatternProps(pattern, key, false, fp, request, script);
+        addPatternProps(pattern, key, false, true, fp, request, script);
 
         XftPattern *result =
             XftFontMatch(QX11Info::display(), fp->screen, pattern, &res);
