@@ -87,7 +87,7 @@
 
     The underlying clipboards of the X Window system and MS Windows
     differ. The X Window system has a concept of selection -- when text
-    is selected it is immediately available in the selection buffer; MS
+    is selected, it is immediately available in the selection buffer; MS
     Windows only adds text to the clipboard when an explicit copy or cut
     is made. The X Window system also has a concept of ownership; if you
     change the selection within a window, X11 will only notify the owner
@@ -232,7 +232,7 @@ void QClipboard::setImage( const QImage &image )
   Returns the clipboard pixmap, or null if the clipboard does not
   contain a pixmap. Note that this can lose information. For
   example, if the image is 24-bit and the display is 8-bit, the result is
-  converted to 8 bits, and if the image has an alpha channel the
+  converted to 8 bits, and if the image has an alpha channel, the
   result just has a mask.
 
   \sa setPixmap() image() data() QPixmap::convertFromImage().

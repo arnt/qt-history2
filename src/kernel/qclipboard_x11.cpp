@@ -212,7 +212,8 @@ void QClipboard::clear()
 
 
 /*!
-  Returns TRUE if the clipboard supports mouse selection, FALSE otherwise.
+  Returns TRUE if the clipboard supports mouse selection, otherwise, it
+  returns FALSE.
 */
 bool QClipboard::supportsSelection() const
 {
@@ -222,7 +223,7 @@ bool QClipboard::supportsSelection() const
 
 /*!
   Returns TRUE if this clipboard object owns the mouse selection data,
-  FALSE otherwise.
+  otherwise, it returns FALSE.
 */
 bool QClipboard::ownsSelection() const
 {

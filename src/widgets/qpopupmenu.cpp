@@ -945,12 +945,13 @@ void QPopupMenu::updateSize()
 	max_width = maxWidgetWidth - tab;
 
     if ( ncols == 1 ) {
-	setFixedSize( QMAX( minimumWidth(), max_width + tab + 2*frameWidth() ),
+	setMaximumSize( QMAX( minimumWidth(), max_width + tab + 2*frameWidth() ),
 		      QMAX( minimumHeight() , height + 2*frameWidth() ) );
     }
     else {
-	setFixedSize( QMAX( minimumWidth(), (ncols*(max_width + tab)) + 2*frameWidth() ),
-		      QMAX( minimumHeight(), dh ) );
+	setMaximumSize( QMAX( minimumWidth(),
+			      (ncols*(max_width + tab)) + 2*frameWidth() ),
+			QMAX( minimumHeight(), dh ) );
     }
 
     badSize = FALSE;

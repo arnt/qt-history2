@@ -5954,7 +5954,10 @@ void QListView::ensureItemVisible( const QListViewItem * i )
 	updateGeometries();
     int y = itemPos( i );
     int h = i->height();
-    ensureVisible( contentsX(), y + h / 2, 0, h / 2 );
+    if ( isVisible() && y + h > contentsY() + visibleHeight() )
+	setContentsPos( contentsX(), y - visibleHeight() + h );
+    else if ( !isVisible() || y < contentsY() )
+	setContentsPos( contentsX(), y );
 }
 
 

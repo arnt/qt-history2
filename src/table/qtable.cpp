@@ -4647,28 +4647,26 @@ void QTable::hideColumn( int col )
     columnWidthChanged( col );
 }
 
-/*! Show row \a row.
+/*! Shows row \a row.
 
   \sa hideRow() showColumn()
 */
 
 void QTable::showRow( int row )
 {
-    leftHeader->resizeSection( row, 100 );
+    adjustRow( row );
     leftHeader->setResizeEnabled( TRUE, row );
-    rowHeightChanged( row );
 }
 
-/*! Show column \a col.
+/*! Shows column \a col.
 
   \sa hideColumn() showRow()
 */
 
 void QTable::showColumn( int col )
 {
-    topHeader->resizeSection( col, 100 );
+    adjustColumn( col );
     topHeader->setResizeEnabled( TRUE, col );
-    columnWidthChanged( col );
 }
 
 /*! Resizes column \a col to be \a w pixels wide.
