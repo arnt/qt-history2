@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#41 $
+** $Id: //depot/qt/main/src/moc/moc.y#42 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#41 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#42 $";
 #endif
 
 
@@ -931,6 +931,15 @@ void moc_err( char *s )
         exit( -1 );
 }
 
+void moc_err( char *s1, char *s2 )
+{
+    static char tmp[1024];
+    sprintf( tmp, s1, s2 );
+    yyerror( tmp );
+    if ( errorControl )
+        exit( -1 );
+}
+
 void moc_warn( char *msg )
 {
     if ( displayWarnings )
@@ -1044,8 +1053,14 @@ void generateClass()                  // generate C++ source code for a class
         if ( signals.count() == 0 && slots.count() == 0 )
             return;
         if ( displayWarnings )
-            warning("The declaration of the class \"%s\" contains slots "
-                   "and/or signals but no Q_OBJECT macro!", className.data() );
+            moc_err("The declaration of the class \"%s\" contains slots "
+                    "and/or signals\n\t but no Q_OBJECT macro!", className.data());
+    } else {
+        if ( !superclassName )
+            moc_err("The declaration of the class \"%s\" contains the\n"
+                    "\tQ_OBJECT macro but does not inherit from any class!\n"
+                    "\tInherit from QObject or one of its descendants"
+                    " or remove Q_OBJECT. ", className.data() );
     }
     if ( gen_count++ == 0 ) {                   // first class to be generated
 	QDateTime dt = QDateTime::currentDateTime();
