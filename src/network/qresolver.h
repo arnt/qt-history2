@@ -11,7 +11,7 @@ public:
     enum Error { NoError, HostNotFound, UnknownError };
 
     static void getHostByName(const QString &name,
-                              const QObject *receiver, const char *resultsReady );
+                              QObject *receiver, const char *member);
 };
 
 struct Q_NETWORK_EXPORT QResolverHostInfo
