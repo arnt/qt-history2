@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#112 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#111 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#112 $");
 
 
 /*!
@@ -773,21 +773,23 @@ static void objSearch( QObjectList *result,
     // inherit QButton (i.e. QPushButton, QCheckBox, QRadioButton).
     //
     QObjectList	 *list = myWidget->queryList( "QButton" );
-    QObjectListIt it( *list );			// iterate over the buttons
+    QObjectListIt it( *list );		// iterate over the buttons
     QFont	  newFont( "Courier", 24 );
-    while ( it.current() ) {
+    while ( it.current() ) {		// for each found object...
 	it.current()->setFont( newFont );
 	++it;
     }
-    delete list;				// delete the search results
+    delete list;			// delete the list, not the objects
   \endcode
 
   The QObjectList class is defined in the qobjcoll.h header file.
 
   \warning
-  Throw the list away as soon you have finished using it.
+  Delete the list away as soon you have finished using it.
   You can get in serious trouble if you for instance try to access
   an object that has been deleted.
+
+  \sa children(), parent(), inherits(), name(), QRegExp
 */
 
 QObjectList *QObject::queryList( const char *inheritsClass,
@@ -795,18 +797,17 @@ QObjectList *QObject::queryList( const char *inheritsClass,
 				 bool regexpMatch,
 				 bool recursiveSearch )
 {
-    QObjectList *result = new QObjectList;
-
+    QObjectList *list = new QObjectList;
+    CHECK_PTR( list );
     if ( regexpMatch && objName ) {		// regexp matching
 	QRegExp rx = objName;
-	objSearch( result, (QObjectList *)children(), inheritsClass,
+	objSearch( list, (QObjectList *)children(), inheritsClass,
 		   0, &rx, recursiveSearch );
-    }
-    else {
-	objSearch( result, (QObjectList *)children(), inheritsClass,
+    } else {
+	objSearch( list, (QObjectList *)children(), inheritsClass,
 		   objName, 0, recursiveSearch );
     }
-    return result;
+    return list;
 }
 
 
@@ -823,9 +824,9 @@ QConnectionList *QObject::receivers( const char *signal ) const
 	if ( *signal == '2' ) {			// tag == 2, i.e. signal
 	    QString s = rmWS( signal+1 );
 	    return connections->find( s );
-	}
-	else
+	} else {
 	    return connections->find( signal );
+	}
     }
     return 0;
 }
