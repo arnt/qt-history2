@@ -315,8 +315,8 @@ void QDockWidget::updatePosition( const QPoint &globalPos )
 	if ( dockArea )
 	    dockArea->removeDockWidget( this, TRUE, startOrientation != Horizontal );
 	dockArea = 0;
-	show();
 	move( currRect.topLeft() );
+	show();
     }
     curPlace = state;
     updateGui();
