@@ -51,8 +51,8 @@ $(TARGET): $(OBJECTS) $(OBJMOC)
 
 tmake: Makefile
 
-Makefile: nsplugin.pro
-	tmake nsplugin.pro -nodepend -o Makefile
+Makefile: qnp.pro
+	tmake qnp.pro -nodepend -o Makefile
 
 moc: $(SRCMOC)
 
