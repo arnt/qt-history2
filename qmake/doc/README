@@ -121,6 +121,14 @@ functions can be used for this:
    #not exit the parse completely.
    farm:contains(PIG, moo):message(Umm.. I don't thinks pigs moo):
 
+Other test functions are:
+   count(PIG, 2):message(I only know two pigs..) #if PIG only contains two
+                                                 #values message will be 
+						 #shown
+   isEmpty(PIG):message(I know no pigs..) #if PIG is an empty variable the 
+                                          #message will be shown 
+					  #(same as count(PIG, 0))
+
 Finally you may also block your scopes so you dont' have to continually
 type the same test for example:
 

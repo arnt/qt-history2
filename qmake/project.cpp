@@ -393,6 +393,18 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	    return FALSE;
 	}
 	return vars[args[0]].findIndex(args[1]) != -1;
+    } else if(func == "count") {
+	if(args.count() != 2) {
+	    fprintf(stderr, "%d: count(var, count) requires two argument.\n", line_count);
+	    return FALSE;
+	}
+	return vars[args[0]].count() == args[1].toInt();
+    } else if(func == "isEmpty") {
+	if(args.count() != 1) {
+	    fprintf(stderr, "%d: isEmpty(var) requires one argument.\n", line_count);
+	    return FALSE;
+	}
+	return vars[args[0]].isEmpty();
     } else if(func == "include") {
 	if(args.count() != 1) {
 	    fprintf(stderr, "%d: include(file) requires one argument.\n", line_count);
