@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#26 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#27 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -572,8 +572,8 @@ QtFileIconView::QtFileIconView( const QString &dir, bool isdesktop,
 	iconLink = new QIconSet( pix );
     }
 
-    setRastX( 100 );
-    setRastY( 75 );
+    setGridX( 100 );
+    setGridY( 75 );
     setResizeMode( Adjust );
 
     connect( this, SIGNAL( doubleClicked( QIconViewItem * ) ), this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
