@@ -473,7 +473,7 @@ int MainWindow::currentTool() const
     return QString::fromLatin1(actionCurrentTool->name()).toInt();
 }
 
-QObjectList *MainWindow::runProject()
+QObjectList *MainWindow::runProject( bool execMain )
 {
     static QWidget *invisibleGroupLeader = 0;
     if ( !invisibleGroupLeader ) {
@@ -652,7 +652,7 @@ QObjectList *MainWindow::runProject()
 	    }
 	}
 
-	if ( hasForms )
+	if ( execMain )
 	    iiface->exec( 0, "main" );
 
 	for ( QObject *o = l->first(); o; o = l->next() ) {

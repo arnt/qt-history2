@@ -154,7 +154,7 @@ public:
     void slotsChanged();
     void updateFunctionList();
     void updateWorkspace();
-    QObjectList *runProject();
+    QObjectList *runProject( bool execMain );
 
     void formNameChanged( FormWindow *fw );
 

@@ -66,7 +66,7 @@ public:
     QPtrList<DesignerFormWindow> formList() const;
     QStringList formNames() const;
     QString formFileName( const QString &form ) const;
-    QObjectList *run();
+    QObjectList *run( bool execMain );
     void addForm( DesignerFormWindow * );
     void removeForm( DesignerFormWindow * );
     QString fileName() const;

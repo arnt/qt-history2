@@ -185,9 +185,9 @@ QStringList DesignerProjectImpl::formNames() const
     return l;
 }
 
-QObjectList *DesignerProjectImpl::run()
+QObjectList *DesignerProjectImpl::run( bool execMain )
 {
-    return MainWindow::self->runProject();
+    return MainWindow::self->runProject( execMain );
 }
 
 void DesignerProjectImpl::addForm( DesignerFormWindow * )
