@@ -1036,12 +1036,21 @@ void QTextView::contentsMouseMoveEvent( QMouseEvent *e )
 	    dragStartTimer->stop();
 	    if ( ( e->pos() - dragStartPos ).manhattanLength() > QApplication::startDragDistance() )
 		startDrag();
+	    if ( !isReadOnly() )
+		viewport()->setCursor( ibeamCursor );
 	    return;
 	}
 #endif
 	mousePos = e->pos();
 	doAutoScroll();
 	oldMousePos = mousePos;
+    }
+
+    if ( !isReadOnly() && !mousePressed && doc->hasSelection( QTextDocument::Standard ) ) {
+	if ( doc->inSelection( QTextDocument::Standard, e->pos() ) )
+	    viewport()->setCursor( arrowCursor );
+	else
+	    viewport()->setCursor( ibeamCursor );
     }
 
     if ( isReadOnly() && linksEnabled() ) {

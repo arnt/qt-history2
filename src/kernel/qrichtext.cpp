@@ -2202,7 +2202,14 @@ bool QTextDocument::inSelection( int selId, const QPoint &pos ) const
     QRect r = startParag->rect();
     r = r.unite( endParag->rect() );
 
-    return r.contains( pos );
+    if ( r.contains( pos ) ) {
+	if ( startParag->rect().contains( pos ) && pos.x() < startParag->at( startParag->selectionStart( selId ) )->x )
+	    return FALSE;
+	if ( endParag->rect().contains( pos ) && pos.x() > endParag->at( endParag->selectionEnd( selId ) )->x )
+	    return FALSE;
+	return TRUE;
+    }
+    return FALSE;
 }
 
 void QTextDocument::doLayout( QPainter *p, int w )
