@@ -477,7 +477,6 @@ void HelpDialog::buildContentDict()
     QStringList docuFiles = settings.readListEntry( DocuParser::DocumentKey
 						    + "AdditionalDocFiles" );
 
-    qApp->processEvents();
     Q_UINT32 fileAges = 0;
     for( QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); it++ ) {
 	DocuParser handler;
