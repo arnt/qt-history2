@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#15 $
+** $Id: //depot/qt/main/src/moc/moc.y#16 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -29,6 +29,7 @@
 ** Don't panic if you get 7 shift/reduce conflicts. That is perfectly normal.
 **
 ** TODO:
+**    Figure out what to do with public/method
 **    Better grammer. int as def. return value.
 **    Clean up memory.
 *****************************************************************************/
@@ -41,7 +42,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#16 $";
 #endif
 
 
@@ -400,9 +401,7 @@ obj_member_list:	  obj_member_list obj_member_area
 			| obj_member_area
 			;
 
-obj_member_area:	  METHODS		{ BEGIN CLASS_DEF; }
-			  opt_method_declarations
-			| SIGNALS		{ BEGIN CLASS_DEF; }
+obj_member_area:	  SIGNALS		{ BEGIN CLASS_DEF; }
 			  opt_signal_declarations
 			| SLOTS			{ BEGIN CLASS_DEF; }
 			  opt_slot_declarations
