@@ -3701,6 +3701,8 @@ void QTextEdit::append( const QString &text )
 	*cursor = oldc;
 	formatMore();
 	repaintChanged();
+	ensureCursorVisible();
+	drawCursor( TRUE );
 	if ( !scrollToEnd )
 	    blockEnsureCursorVisible = FALSE;
 	emit textChanged();
