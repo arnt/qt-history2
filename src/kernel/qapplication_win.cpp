@@ -1268,15 +1268,15 @@ static void drawTile( HDC hdc, int x, int y, int w, int h,
 Q_EXPORT
 void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap )
 {
-    bitBlt( tile, 0, 0, &pixmap, 0, 0, -1, -1, Qt::CopyROP, TRUE );
+    copyBlt( tile, 0, 0, &pixmap, 0, 0, -1, -1);
     int x = pixmap.width();
     while ( x < tile->width() ) {
-	bitBlt( tile, x, 0, tile, 0, 0, x, pixmap.height(), Qt::CopyROP, TRUE);
+	copyBlt( tile, x, 0, tile, 0, 0, x, pixmap.height() );
 	x *= 2;
     }
     int y = pixmap.height();
     while ( y < tile->height() ) {
-	bitBlt( tile, 0, y, tile, 0, 0, tile->width(), y, Qt::CopyROP, TRUE );
+	copyBlt( tile, 0, y, tile, 0, 0, tile->width(), y );
 	y *= 2;
     }
 }
