@@ -177,7 +177,6 @@ protected:
     virtual QMenu *createContextMenu(const QPoint &pos);
 
 private:
-    Q_PRIVATE_SLOT(void trippleClickTimeout())
     Q_PRIVATE_SLOT(void update(const QRect &r))
     Q_PRIVATE_SLOT(void updateCurrentCharFormatAndSelection())
     Q_PRIVATE_SLOT(void adjustScrollbars());

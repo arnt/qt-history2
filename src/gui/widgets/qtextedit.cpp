@@ -116,7 +116,7 @@ class QTextEditPrivate : public QViewportPrivate
 public:
     inline QTextEditPrivate()
         : doc(0), cursorOn(false), readOnly(false),
-          autoFormatting(QTextEdit::AutoAll), tabChangesFocus(false), trippleClickTimerActive(false),
+          autoFormatting(QTextEdit::AutoAll), tabChangesFocus(false),
           mousePressed(false), mightStartDrag(false), wordWrap(QTextEdit::WidgetWidth), wrapColumnOrWidth(0),
           lastSelectionState(false), textFormat(Qt::AutoText)
     {}
@@ -136,9 +136,6 @@ public:
     void startDrag();
 
     void paste(const QMimeSource *source);
-
-    inline void trippleClickTimeout()
-    { trippleClickTimerActive = false; }
 
     void setCursorPosition(const QPoint &pos);
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
@@ -177,7 +174,7 @@ public:
 
     QBasicTimer cursorBlinkTimer;
 
-    bool trippleClickTimerActive;
+    QBasicTimer trippleClickTimer;
     QPoint trippleClickPoint;
 
     bool mousePressed;
@@ -966,6 +963,8 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
     } else if (ev->timerId() == d->dragStartTimer.timerId()) {
         d->dragStartTimer.stop();
         d->startDrag();
+    } else if (ev->timerId() == d->trippleClickTimer.timerId()) {
+        d->trippleClickTimer.stop();
     }
 }
 
@@ -1228,12 +1227,13 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
     d->mousePressed = true;
     d->mightStartDrag = false;
 
-    if (d->trippleClickTimerActive
+    if (d->trippleClickTimer.isActive()
         && ((ev->globalPos() - d->trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
 
         d->cursor.movePosition(QTextCursor::StartOfLine);
         d->cursor.movePosition(QTextCursor::EndOfLine, QTextCursor::KeepAnchor);
-        d->trippleClickTimerActive = false;
+
+        d->trippleClickTimer.stop();
     } else {
         int cursorPos = d->doc->documentLayout()->hitTest(pos, QText::FuzzyHit);
         if (cursorPos != -1) {
@@ -1322,9 +1322,8 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
     d->selectionChanged();
     d->viewport->update();
 
-    d->trippleClickTimerActive = true;
     d->trippleClickPoint = ev->globalPos();
-    QTimer::singleShot(qApp->doubleClickInterval(), this, SLOT(trippleClickTimeout()));
+    d->trippleClickTimer.start(qApp->doubleClickInterval(), this);
 }
 
 bool QTextEdit::focusNextPrevChild(bool next)
