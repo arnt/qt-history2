@@ -1963,9 +1963,11 @@ void QComboBox::setEditable( bool y )
 	    setUpListBox();
 	setUpLineEdit();
 	d->ed->show();
+	setFocusPolicy( StrongFocus );
     } else {
 	delete d->ed;
 	d->ed = 0;
+	setFocusPolicy( TabFocus );
     }
     updateGeometry();
     update();
