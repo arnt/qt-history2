@@ -2081,6 +2081,14 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 	if ( e->type() == QEvent::FocusIn ) {
 	    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 	    drawCursor( TRUE );
+
+	    // make sure the micro focus hint is updated...
+	    QFont f = cursor->parag()->at( cursor->index() )->format()->font();
+	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
+			       cursor->y() + cursor->parag()->rect().y() -
+			       contentsY() + frameWidth(), 0,
+			       cursor->parag()->lineHeightOfChar( cursor->index() ),
+			       TRUE, &f );
 	} else if ( e->type() == QEvent::FocusOut ) {
 	    blinkTimer->stop();
 	    drawCursor( FALSE );

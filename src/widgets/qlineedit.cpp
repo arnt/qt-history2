@@ -1767,24 +1767,24 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
     // okay, it succeeded
     if ( t != old ) {
-        // contents of setText() with one addition
-        QString text = t;
-            QString oldText = this->text();
-            d->parag->truncate( 0 );
-            d->parag->append( text );
-            d->cursor->setIndex( d->parag->length() - 1 );
-            if ( hasFocus() )
-                setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
-            deselect();
-            update();
-            d->cursor->setIndex( newPos ); // put the cursor back where its meant to be before emitting the signal
-            if ( oldText != text ) {
-                emit textChanged( text );
-        #if defined(QT_ACCESSIBILITY_SUPPORT)
-                QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
-        #endif
-        // end of setText contents
-        }
+	// contents of setText() with one addition
+	QString text = t;
+	    QString oldText = this->text();
+	    d->parag->truncate( 0 );
+	    d->parag->append( text );
+	    d->cursor->setIndex( d->parag->length() - 1 );
+	    if ( hasFocus() )
+		setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+	    deselect();
+	    update();
+	    d->cursor->setIndex( newPos ); // put the cursor back where its meant to be before emitting the signal
+	    if ( oldText != text ) {
+		emit textChanged( text );
+	#if defined(QT_ACCESSIBILITY_SUPPORT)
+		QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
+	#endif
+	// end of setText contents
+	}
     }
 
     d->cursor->setIndex( newPos );
@@ -2272,15 +2272,15 @@ void QLineEdit::delOrBackspace( bool backspace )
 		d->cursor->remove();
 
 		if ( d->validator ) {
-		    if ( newText != text() )
-			setText( newText );
+		    if ( newText != text() ) 
+			setText( newText ); 
 		    d->cursor->setIndex( newPos );
 		}
 		d->selectionStart = d->cursor->index();
 		d->ed = TRUE;
 		update();
 		setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
-		emit textChanged( text() );
+		emit textChanged( text() ); 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 		QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
 #endif
