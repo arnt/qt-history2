@@ -151,7 +151,6 @@ static QStyleOptionSpinBox getStyleOption(const Q3SpinWidget *spin)
     opt.init(spin);
     opt.subControls = 0;
     opt.buttonSymbols = (QAbstractSpinBox::ButtonSymbols)spin->buttonSymbols();
-    opt.percentage = 0; // no way to get this information as it is in QRangeControl.
     opt.stepEnabled = 0;
     if (spin->isUpEnabled())
         opt.stepEnabled |= QAbstractSpinBox::StepUpEnabled;
