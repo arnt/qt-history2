@@ -19,7 +19,7 @@
 #include "qstring.h"
 #include "qlist.h"
 #include "qptrvector.h"
-#include "qdict.h"
+#include "qhash.h"
 #include "qobject.h"
 #include "qmime.h"
 #endif // QT_H
@@ -204,7 +204,7 @@ public:
 
 private:
     void init();
-    QDict<QStyleSheetItem> styles;
+    QHash<QString, QStyleSheetItem *> styles;
     QStyleSheetItem* nullstyle;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -30,7 +30,7 @@
 #ifndef QT_H
 #include "qapplication.h"
 #include "qcolor.h"
-#include "qdict.h"
+#include "qhash.h"
 #include "qfont.h"
 #include "qfontmetrics.h"
 #include "qintdict.h"
@@ -1526,7 +1526,7 @@ private:
 
 private:
     QTextFormat *defFormat, *lastFormat, *cachedFormat;
-    QDict<QTextFormat> cKey;
+    QHash<QString, QTextFormat *> cKey;
     QTextFormat *cres;
     QFont cfont;
     QColor ccol;

@@ -5993,7 +5993,7 @@ QTextIndent::QTextIndent()
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextFormatCollection::QTextFormatCollection()
-    : cKey( 307 ), paintdevice( 0 )
+    : paintdevice( 0 )
 {
     defFormat = new QTextFormat( QApplication::font(),
 				 QApplication::palette().color( QPalette::Active, QPalette::Text ) );
@@ -6024,10 +6024,9 @@ void QTextFormatCollection::setPaintDevice( QPaintDevice *pd )
     defFormat->fn.x11SetScreen( scr );
     defFormat->update();
 
-    QDictIterator<QTextFormat> it( cKey );
-    QTextFormat *format;
-    while ( ( format = it.current() ) != 0 ) {
-	++it;
+    QHash<QString, QTextFormat *>::Iterator it = cKey.begin();
+    for (; it != cKey.end(); ++it) {
+	QTextFormat *format = *it;
 	format->fn.x11SetScreen( scr );
 	format->update();
     }
@@ -6047,7 +6046,7 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 	return lastFormat;
     }
 
-    QTextFormat *fm = cKey.find( f->key() );
+    QTextFormat *fm = cKey.value(f->key(), 0);
     if ( fm ) {
 	lastFormat = fm;
 	lastFormat->addRef();
@@ -6098,7 +6097,7 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, in
 	cres->ha = nf->ha;
     cres->update();
 
-    QTextFormat *fm = cKey.find( cres->key() );
+    QTextFormat *fm = cKey.value(cres->key(),0);
     if ( !fm ) {
 	cres->collection = this;
 	cKey.insert( cres->key(), cres );
@@ -6119,7 +6118,7 @@ QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
     }
 
     QString key = QTextFormat::getKey( f, c, FALSE,  QTextFormat::AlignNormal );
-    cachedFormat = cKey.find( key );
+    cachedFormat = cKey.value( key, 0 );
     cfont = f;
     ccol = c;
 
@@ -6147,7 +6146,7 @@ void QTextFormatCollection::remove( QTextFormat *f )
 	cres = 0;
     if ( cachedFormat == f )
 	cachedFormat = 0;
-    if (cKey.find(f->key()) == f)
+    if (cKey.value(f->key(), 0) == f)
 	cKey.remove( f->key() );
 }
 
@@ -6157,14 +6156,13 @@ void QTextFormatCollection::remove( QTextFormat *f )
 
 void QTextFormatCollection::updateDefaultFormat( const QFont &font, const QColor &color, QStyleSheet *sheet )
 {
-    QDictIterator<QTextFormat> it( cKey );
-    QTextFormat *fm;
     bool usePixels = font.pointSize() == -1;
     bool changeSize = usePixels ? font.pixelSize() != defFormat->fn.pixelSize() :
 	font.pointSize() != defFormat->fn.pointSize();
     int base = usePixels ? font.pixelSize() : font.pointSize();
-    while ( ( fm = it.current() ) ) {
-	++it;
+    QHash<QString, QTextFormat *>::Iterator it = cKey.begin();
+    for (; it != cKey.end(); ++it) {
+	QTextFormat *fm = *it;
 	UPDATE( F, f, amily );
 	UPDATE( W, w, eight );
 	UPDATE( B, b, old );
@@ -6201,11 +6199,10 @@ void QTextFormatCollection::updateKeys()
     cKey.setAutoDelete( FALSE );
     QTextFormat** formats = new QTextFormat*[ cKey.count() + 1 ];
     QTextFormat **f = formats;
-    QDictIterator<QTextFormat> it( cKey );
-    while ( ( *f = it.current() ) ) {
-       ++it;
-       ++f;
-    }
+    QHash<QString, QTextFormat *>::Iterator it = cKey.begin();
+    for (; it != cKey.end(); ++it, ++f)
+	*f = *it;
+
     cKey.clear();
     for ( f = formats; *f; f++ )
        cKey.insert( (*f)->key(), *f );

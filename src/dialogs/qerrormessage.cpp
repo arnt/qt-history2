@@ -152,7 +152,6 @@ QErrorMessage::QErrorMessage( QWidget * parent, const char * name )
     grid->setColStretch( 1, 42 );
     grid->setRowStretch( 0, 42 );
     pending = new QStringList;
-    doNotShow = new QDict<int>;
 }
 
 
@@ -170,7 +169,6 @@ QErrorMessage::~QErrorMessage()
     }
 
     delete pending;
-    delete doNotShow;
 }
 
 
@@ -178,9 +176,8 @@ QErrorMessage::~QErrorMessage()
 
 void QErrorMessage::done( int a )
 {
-    int dummy = 0;
     if ( !again->isChecked() )
-	doNotShow->insert( errors->text(), &dummy );
+	doNotShow.insert( errors->text(), 0 );
     if ( !nextPending() ) {
 	QDialog::done( a );
 	if ( this == qtMessageHandler && metFatal )
@@ -216,7 +213,7 @@ bool QErrorMessage::nextPending()
     while ( !pending->isEmpty() ) {
 	QString p = *pending->begin();
 	pending->remove( pending->begin() );
-	if ( !p.isEmpty() && !doNotShow->find( p ) ) {
+	if ( !p.isEmpty() && !doNotShow.contains( p ) ) {
 	    errors->setText( p );
 	    return TRUE;
 	}
@@ -234,7 +231,7 @@ bool QErrorMessage::nextPending()
 
 void QErrorMessage::message( const QString & m )
 {
-    if ( doNotShow->find( m ) )
+    if ( doNotShow.contains( m ) )
 	return;
     pending->append( m );
     if ( !isVisible() && nextPending() )

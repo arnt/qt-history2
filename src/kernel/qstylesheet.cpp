@@ -1292,7 +1292,7 @@ QStyleSheetItem* QStyleSheet::item( const QString& name)
 {
     if ( name.isNull() )
 	return 0;
-    return styles[name];
+    return styles.value(name, 0);
 }
 
 /*!
@@ -1305,7 +1305,7 @@ const QStyleSheetItem* QStyleSheet::item( const QString& name) const
 {
     if ( name.isNull() )
 	return 0;
-    return styles[name];
+    return styles.value(name, 0);
 }
 
 

@@ -17,6 +17,7 @@
 
 #ifndef QT_H
 #include "qdialog.h"
+#include "qhash.h"
 #endif // QT_H
 
 #ifndef QT_NO_ERRORMESSAGE
@@ -25,8 +26,6 @@ class QCheckBox;
 class QLabel;
 class QTextView;
 class QStringList;
-template<class type> class QDict;
-
 
 class Q_GUI_EXPORT QErrorMessage: public QDialog {
     Q_OBJECT
@@ -48,7 +47,7 @@ private:
     QTextView * errors;
     QLabel * icon;
     QStringList * pending;
-    QDict<int> * doNotShow;
+    QHash<QString, int> doNotShow;
 
     bool nextPending();
 

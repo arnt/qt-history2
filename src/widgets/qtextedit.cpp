@@ -2075,7 +2075,7 @@ void QTextEdit::drawCursor( bool visible )
 	 ( !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) &&
 	   ( d->optimMode ? optimHasSelection() : doc->hasSelection( QTextDocument::Standard, TRUE ))) ||
 	 ( visible && !hasFocus() && !viewport()->hasFocus() && !inDnD ) ||
-	 isReadOnly() ) 
+	 isReadOnly() )
 	return;
 
     QPainter p( viewport() );
@@ -4982,15 +4982,15 @@ QByteArray QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoin
 	QPopupMenu popup( this, "qt_pickspecial_menu" );
 	QString fmt;
 	int n = 0;
-	QDict<void> done;
+	QHash<QString, bool> done;
 	for (int i = 0; !( fmt = ms->format( i ) ).isNull(); i++) {
 	    int semi = fmt.find( ";" );
 	    if ( semi >= 0 )
 		fmt = fmt.left( semi );
 	    if ( fmt.left( 5 ) == "text/" ) {
 		fmt = fmt.mid( 5 );
-		if ( !done.find( fmt ) ) {
-		    done.insert( fmt,(void*)1 );
+		if ( !done.contains( fmt ) ) {
+		    done.insert( fmt,true );
 		    popup.insertItem( fmt, i );
 		    n++;
 		}
