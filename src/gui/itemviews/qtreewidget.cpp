@@ -1,3 +1,4 @@
+//depot/qt/main/src/gui/itemviews/qtreewidget.cpp#39 - edit change 150339 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -27,6 +28,7 @@ public:
     QTreeModel(int columns = 0, QObject *parent = 0);
     ~QTreeModel();
 
+    void clear();
     void setColumnCount(int columns);
 
     QTreeWidgetItem *item(const QModelIndex &index) const;
@@ -47,6 +49,8 @@ public:
 
     bool isSortable() const;
     void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
+
+    void itemChanged(QTreeWidgetItem *item);
 
 protected:
     void append(QTreeWidgetItem *item);
@@ -89,12 +93,22 @@ QTreeModel::QTreeModel(int columns, QObject *parent)
 
 QTreeModel::~QTreeModel()
 {
+    clear();
+}
+
+/*!
+  ###
+*/
+
+void QTreeModel::clear()
+{
     for (int i = 0; i < tree.count(); ++i) {
         tree.at(i)->par = 0;
         tree.at(i)->view = 0;
         delete tree.at(i);
     }
     delete header;
+    emit reset();
 }
 
 /*!
@@ -364,6 +378,12 @@ void QTreeModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order
     emit dataChanged(index(0, 0, parent), index(count - 1, columnCount() - 1, parent));
 }
 
+void QTreeModel::itemChanged(QTreeWidgetItem *item)
+{
+    QModelIndex idx = index(item);
+    emit dataChanged(idx, idx);
+}
+
 /*!
   \internal
 
@@ -423,8 +443,7 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 
   Items are usually constructed with a parent that is either a QTreeWidget
   (for top-level items) or a QTreeWidgetItem (for items on lower levels of
-  the tree). Items can be constructed without a parent, and they can be
-  inserted into either a QTreeWidget or a QTreeWidgetItem afterwards.
+  the tree).
 
   Each column in an item can have its own background color which is set with
   the setBackgroundColor() function. The current background color can be
@@ -433,7 +452,6 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
   color. These are specified with the setFont() and setTextColor() functions,
   and read with font() and textColor().
 
-  If the item is selected (highlighted) or checked
 */
 
 /*!
@@ -534,8 +552,6 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 
 /*!
     \fn int QTreeWidgetItem::checkedState(int column) const
-
-    Returns whether the item is checked. ###
 */
 
 /*!
@@ -560,10 +576,6 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 
 /*!
     \fn int QTreeWidgetItem::childCount() const
-
-    Returns the number of child items that this item has.
-
-    \sa child()
 */
 
 /*!
@@ -676,6 +688,10 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
         }
     }
     values[column].append(Data(role, value));
+    if (view) {
+        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+        model->itemChanged(this);
+    }
 }
 
 /*!
@@ -706,7 +722,11 @@ public:
     inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q_func()->model()); }
     void emitClicked(const QModelIndex &index, int button);
     void emitDoubleClicked(const QModelIndex &index, int button);
-
+    void emitReturnPressed(const QModelIndex &index);
+    void emitSpacePressed(const QModelIndex &index);
+    void emitExpanded(const QModelIndex &index);
+    void emitCollapsed(const QModelIndex &index);
+    void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
 };
 
 void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, int button)
@@ -717,6 +737,31 @@ void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, int button)
 void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
 {
     emit q->doubleClicked(model()->item(index), index.column(), button);
+}
+
+void QTreeWidgetPrivate::emitReturnPressed(const QModelIndex &index)
+{
+    emit q->returnPressed(model()->item(index), index.column());
+}
+
+void QTreeWidgetPrivate::emitSpacePressed(const QModelIndex &index)
+{
+    emit q->spacePressed(model()->item(index), index.column());
+}
+
+void QTreeWidgetPrivate::emitExpanded(const QModelIndex &index)
+{
+    emit q->expanded(model()->item(index));
+}
+
+void QTreeWidgetPrivate::emitCollapsed(const QModelIndex &index)
+{
+    emit q->collapsed(model()->item(index));
+}
+
+void QTreeWidgetPrivate::emitCurrentChanged(const QModelIndex &current, const QModelIndex &previous)
+{
+    emit q->currentChanged(model()->item(current), model()->item(previous));
 }
 
 /*!
@@ -784,6 +829,20 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SLOT(emitClicked(const QModelIndex&, int)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
             SLOT(emitDoubleClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(returnPressed(const QModelIndex&)),
+            SLOT(emitReturnPressed(const QModelIndex&)));
+    connect(this, SIGNAL(spacePressed(const QModelIndex&)),
+            SLOT(emitSpacePressed(const QModelIndex&)));
+    connect(this, SIGNAL(expanded(const QModelIndex&)),
+            SLOT(emitExpanded(const QModelIndex&)));
+    connect(this, SIGNAL(collapsed(const QModelIndex&)),
+            SLOT(emitCollapsed(const QModelIndex&)));
+    connect(selectionModel(),
+            SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+            this, SLOT(emitCurrentChanged(const QModelIndex&, const QModelIndex&)));
+    connect(selectionModel(),
+            SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+            this, SIGNAL(selectionChanged()));
 }
 
 /*!
@@ -815,17 +874,17 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
     d->model()->header = item;
 }
 
-QTreeWidgetItem *QTreeWidget::currentTreeItem() const
+QTreeWidgetItem *QTreeWidget::currentItem() const
 {
-    return d->model()->item(currentItem());
+    return d->model()->item(currentIndex());
 }
 
-void QTreeWidget::setCurrentTreeItem(QTreeWidgetItem *item)
+void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 {
     if (item)
-        setCurrentItem(d->model()->index(item));
+        setCurrentIndex(d->model()->index(item));
     else
-        setCurrentItem(QModelIndex());
+        setCurrentIndex(QModelIndex());
 }
 
 void QTreeWidgetItem::openPersistentEditor(int column)
@@ -841,22 +900,27 @@ void QTreeWidgetItem::closePersistentEditor(int column)
 /*!
 */
 
-bool QTreeWidgetItem::isSelected()
+bool QTreeWidgetItem::isSelected() const
 {
     return view->isSelected(this);
+}
+
+void QTreeWidgetItem::setSelected(bool select)
+{
+    view->setSelected(this, select);
 }
 
 void QTreeWidget::openPersistentEditor(QTreeWidgetItem *item, int column)
 {
     Q_ASSERT(item);
-    QModelIndex index = d->model()->index(item);
+    QModelIndex index = d->model()->index(item, column);
     QAbstractItemView::openPersistentEditor(index);
 }
 
 void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
 {
     Q_ASSERT(item);
-    QModelIndex index = d->model()->index(item);
+    QModelIndex index = d->model()->index(item, column);
     QAbstractItemView::closePersistentEditor(index);
 }
 
@@ -868,6 +932,38 @@ bool QTreeWidget::isSelected(const QTreeWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
     return selectionModel()->isSelected(index);
+}
+
+/*!
+  ###
+*/
+
+void QTreeWidget::setSelected(const QTreeWidgetItem *item, bool select)
+{
+    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
+    selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
+}
+
+/*!
+  Returns a list of all selected items.
+*/
+
+QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
+{
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    QList<QTreeWidgetItem*> items;
+    for (int i = 0; i < indexes.count(); ++i)
+        items.append(d->model()->item(indexes.at(i)));
+    return items;
+}
+
+/*!
+  ###
+*/
+
+void QTreeWidget::clear()
+{
+    d->model()->clear();
 }
 
 /*!
