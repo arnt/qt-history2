@@ -1094,11 +1094,11 @@ void QTabBar::layoutTabs()
 	r = r.unite( t->r );
     }
     x += overlap;
-    if (offset > 0)
-	offset = 0;
     int w = (d->scrolls) ? d->leftB->x() : width();
     if (x + offset < w)
 	offset = w - x;
+    if (offset > 0)
+	offset = 0;
 
     for (int i=0; i<d->lstatic.size(); ++i) {
 	d->lstatic.at(i)->r.setHeight( r.height() );
