@@ -3652,6 +3652,8 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 				      QTextFormat *lastFormat, int i, const QMemArray<int> &selectionStarts,
 				      const QMemArray<int> &selectionEnds, const QColorGroup &cg, bool rightToLeft )
 {
+    if ( start + len == length() )
+	len--;
     QString str( s );
     if ( str[ (int)str.length() - 1 ].unicode() == 0xad )
 	str.remove( str.length() - 1, 1 );
