@@ -341,7 +341,11 @@ QString QSqlField::name() const
 }
 
 /*!
-    Returns the field's variant type.
+    Returns the field's type as stored in the database.
+    Note that the actual value might have a different type,
+    Numerical values that are too large to store in a long
+    int or double are usually stored as strings to prevent
+    precision loss.
 
     \sa setType()
 */
