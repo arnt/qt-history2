@@ -4,7 +4,8 @@ class UnpackDlgImpl : public UnpackDlg
 {
     Q_OBJECT;
 public:
-    UnpackDlgImpl( QWidget* pParent = NULL, const char* pName = NULL, WFlags f = 0 );
+    UnpackDlgImpl( QString key = QString::null, 
+		   QWidget* pParent = NULL, const char* pName = NULL, WFlags f = 0 );
 
     virtual void clickedDestButton();
     virtual void clickedUnpack();

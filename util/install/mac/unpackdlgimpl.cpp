@@ -8,9 +8,30 @@
 #include <qmessagebox.h>
 #include "keyinfo.h"
 
-UnpackDlgImpl::UnpackDlgImpl( QWidget* pParent, const char* pName, WFlags f ) : 
+UnpackDlgImpl::UnpackDlgImpl( QString key, QWidget* pParent, const char* pName, WFlags f ) : 
     UnpackDlg( pParent, pName, f )
 {
+    destPath->setText( QDir::currentDirPath() );
+    if(!key.isNull()) {
+	srcKey->setText(key);
+    } else if(QFile::exists( QDir::homeDirPath() + "/" + ".qt-license")) {
+	QFile lic( QDir::homeDirPath() + "/" + ".qt-license");
+	if( lic.open( IO_ReadOnly ) ) {
+	    QString buffer;
+	    while( lic.readLine( buffer, 1024 ) != -1 ) {
+		if( buffer[ 0 ] != '#' ) {
+		    QStringList components = QStringList::split( '=', buffer );
+		    QStringList::Iterator it = components.begin();
+		    QString key = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null );
+		    if(key.upper() == "LICENSEID") {
+			QString value = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null );
+			srcKey->setText(value);
+		    }
+		}
+	    }
+	    lic.close();
+	}
+    }
 }
 
 void UnpackDlgImpl::clickedDestButton()
@@ -20,13 +41,9 @@ void UnpackDlgImpl::clickedDestButton()
 
 void UnpackDlgImpl::clickedUnpack()
 {
-
     QArchive archive;
-
     connect( &archive, SIGNAL( operationFeedback( const QString& ) ), this, SLOT( updateProgress( const QString& ) ) );
-
     unpackButton->setDisabled( true );
-
     archive.setVerbosity( QArchive::Destination | QArchive::Verbose );
 
     QString dest = destPath->text(), src="qtmac.arq";

@@ -50,6 +50,21 @@ public:
 public slots:
     void updateProgress( const QString& str) {	qDebug("%s", str.latin1());   }
 };
+#include "main.moc"
+
+static int usage(const char *argv0, const char *un=NULL) {
+    if(un)
+	fprintf(stderr, "Unknown command: %s\n", un);
+    else
+	fprintf(stderr, "Usage:\n");
+    fprintf(stderr, "%s [options] files...\n", argv0);
+
+    fprintf(stderr, "\nOptions:\n");
+    fprintf(stderr, " -k [k]     : Use k as the key to open provided files\n");
+    fprintf(stderr, " -s         : Quiet mode, will not output process\n");
+    fprintf(stderr, " -h         : This help\n");
+    return 665;
+}
 
 int main( int argc, char** argv )
 {
@@ -57,13 +72,19 @@ int main( int argc, char** argv )
     bool output = TRUE;
     QStringList files;
     for(int i = 1; i < argc; i++) {
-	if(!strcmp(argv[i], "-s")) {
+	//options
+	if(!strcmp(argv[i], "-s")) 
 	    output = FALSE;
-	} else if(!strcmp(argv[i], "-k")) {
+	else if(!strcmp(argv[i], "-k")) 
 	    key = argv[++i];
-	} else {
-	    files.append(argv[i]);
-	}
+	else if(!strcmp(argv[i], "-h"))
+	    return usage(argv[0]);
+	//files
+	else if(*(argv[i]) != '-')  
+	    files.append(argv[i]); 
+	//unknown
+	else 
+	    return usage(argv[0], argv[i]); 
     }
     if(!files.isEmpty()) {
 	QArchive archive;
@@ -84,10 +105,9 @@ int main( int argc, char** argv )
 	}
     } else {
 	QApplication app( argc, argv );
-	UnpackDlgImpl dlg;
+	UnpackDlgImpl dlg(key);
 	dlg.exec();
     }
     return 0;
 }
 
-#include "main.moc"
