@@ -1601,10 +1601,14 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
                     return;
             }
 #endif
-            d->setCursorPosition(cursorPos);
+            if (ev->modifiers() & Qt::ShiftModifier) {
+                d->setCursorPosition(cursorPos, QTextCursor::KeepAnchor);
+            } else {
+                d->setCursorPosition(cursorPos);
+            }
+        } else {
+            d->cursor.clearSelection();
         }
-
-        d->cursor.clearSelection();
     }
 
     d->updateCurrentCharFormatAndSelection();
