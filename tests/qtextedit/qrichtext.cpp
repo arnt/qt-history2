@@ -2289,7 +2289,7 @@ bool QTextDocument::focusNextPrevChild( bool next )
 QTextString::QTextString()
 {
     textChanged = FALSE;
-    bidi = TRUE;
+    bidi = FALSE;
 }
 
 void QTextString::insert( int index, const QString &s, QTextFormat *f )
@@ -2361,6 +2361,22 @@ void QTextString::setFormat( int index, QTextFormat *f, bool useCollection )
     if ( useCollection && data[ index ].format() )
 	data[ index ].format()->removeRef();
     data[ index ].setFormat( f );
+}
+
+void QTextString::checkBidi() const
+{
+    int len = data.size();
+    const Char *c = data.data();
+    ((QTextString *)this)->bidi = false;
+    while( len ) {
+	unsigned char row = c->c.row();
+	if( (row > 0x04 && row < 0x09) || row > 0xfa ) {
+	    ((QTextString *)this)->bidi = true;
+	    return;
+	}
+	len--;
+	++c;
+    }
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -3091,6 +3107,606 @@ QTextFormatter::QTextFormatter( QTextDocument *d )
 {
 }
 
+/* only used for bidi or complex text reordering
+ */
+QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextParag::LineStart *line, 
+				 QTextString::Char *start, QTextString::Char *last )
+{
+    if( string->isBidi() )
+	return bidiReorderLine( string, line, start, last );
+    return new QTextParag::LineStart();
+}
+
+struct QTextBidiRun {
+    QTextBidiRun(int _start, int _stop, QTextBidiContext *context, QChar::Direction dir) {
+	start = _start;
+	stop = _stop;
+	if(dir == QChar::DirON) dir = context->dir;
+
+	level = context->level;
+
+	// add level of run (cases I1 & I2)
+	if( level % 2 ) {
+	    if(dir == QChar::DirL || dir == QChar::DirAN)
+		level++;
+	} else {
+	    if( dir == QChar::DirR )
+		level++;
+	    else if( dir == QChar::DirAN )
+		level += 2;
+	}
+	printf("new run: level = %d\n", level);
+    }
+
+    int start;
+    int stop;
+    // explicit + implicit levels here
+    uchar level;
+};
+
+static QChar::Direction basicDirection(const QTextString &text)
+{
+    int pos = 0;
+    while( pos < text.length() ) {
+	switch( text.at(pos).c.direction() )
+	{
+	case QChar::DirL:
+	case QChar::DirLRO:
+	case QChar::DirLRE:
+	    return QChar::DirL;
+	case QChar::DirR:
+	case QChar::DirAL:
+	case QChar::DirRLO:
+	case QChar::DirRLE:
+	    return QChar::DirR;
+	default:
+	    break;
+	}
+	++pos;
+    }
+    return QChar::DirL;
+}
+
+#define BIDI_DEBUG 1
+#include <iostream>
+
+// collects one line of the paragraph and transforms it to visual order
+QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QTextParag::LineStart *line, 
+				 QTextString::Char *startChar, QTextString::Char *lastChar )
+{
+    int start = (startChar - &text->at(0));
+    int last = (lastChar - &text->at(0) - 2);
+    printf("doing BiDi reordering from %d to %d!\n", start, last);
+    int len = last - start -1;
+
+    QList<QTextBidiRun> runs;
+    runs.setAutoDelete(true);
+
+    QTextBidiContext *context = line->context();
+    if ( !context ) { 
+	// first line
+	if( start != 0 )
+	    qDebug( "bidiReorderLine::internal error");
+	if( basicDirection(*text) == QChar::DirL )
+	    context = new QTextBidiContext( 0, QChar::DirL );
+	else
+	    context = new QTextBidiContext( 1, QChar::DirR );
+    }
+    context->ref();
+
+    QTextBidiStatus status = line->status;
+    QChar::Direction dir = QChar::DirON;
+
+    int sor = start;
+    int eor = start;
+
+    int current = start;
+    while(current < start + len - 1) {
+	QChar::Direction dirCurrent;
+	if(current == text->length()) {
+	    QTextBidiContext *c = context;
+	    while ( c->parent )
+		c = c->parent;
+	    dirCurrent = c->dir;
+	} else
+	    dirCurrent = text->at(current).c.direction();
+
+	
+#if BIDI_DEBUG > 1
+	cout << "directions: dir=" << dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << context->dir << " level =" << (int)context->level << endl;
+#endif
+	
+	switch(dirCurrent) {
+
+	    // embedding and overrides (X1-X9 in the BiDi specs)
+	case QChar::DirRLE:
+	    {
+		unsigned char level = context->level;
+		if(level%2) // we have an odd level
+		    level += 2;
+		else
+		    level++;
+		if(level < 61) {
+		    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    context = new QTextBidiContext(level, QChar::DirR, context);
+		    context->ref();
+		    status.last = QChar::DirR;
+		    status.lastStrong = QChar::DirR;
+		}
+		break;
+	    }
+	case QChar::DirLRE:
+	    {
+		unsigned char level = context->level;
+		if(level%2) // we have an odd level
+		    level++;
+		else
+		    level += 2;
+		if(level < 61) {
+		    runs.append( new QTextBidiRun(sor, eor, context, dir) );	
+		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    context = new QTextBidiContext(level, QChar::DirL, context);
+		    context->ref();
+		    status.last = QChar::DirL;
+		    status.lastStrong = QChar::DirL;
+		}
+		break;
+	    }
+	case QChar::DirRLO:
+	    {
+		unsigned char level = context->level;
+		if(level%2) // we have an odd level
+		    level += 2;
+		else
+		    level++;
+		if(level < 61) {
+		    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    context = new QTextBidiContext(level, QChar::DirR, context, true);
+		    context->ref();
+		    dir = QChar::DirR;
+		    status.last = QChar::DirR;
+		    status.lastStrong = QChar::DirR;
+		}
+		break;
+	    }
+	case QChar::DirLRO:
+	    {
+		unsigned char level = context->level;
+		if(level%2) // we have an odd level
+		    level++;
+		else
+		    level += 2;
+		if(level < 61) {
+		    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    context = new QTextBidiContext(level, QChar::DirL, context, true);
+		    context->ref();
+		    dir = QChar::DirL;
+		    status.last = QChar::DirL;
+		    status.lastStrong = QChar::DirL;
+		}
+		break;
+	    }
+	case QChar::DirPDF:
+	    {
+		QTextBidiContext *c = context->parent;
+		if(c) {
+		    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    status.last = context->dir;
+		    context->deref();
+		    context = c;
+		    if(context->override)
+			dir = context->dir;
+		    else
+			dir = QChar::DirON;
+		    status.lastStrong = context->dir;
+		}		
+		break;
+	    }
+	
+	    // strong types
+	case QChar::DirL:
+	    if(dir == QChar::DirON)
+		dir = QChar::DirL;
+	    switch(status.last)
+		{
+		case QChar::DirL:
+		    eor = current; status.eor = QChar::DirL; break;
+		case QChar::DirR:
+		case QChar::DirAL:
+		case QChar::DirEN:
+		case QChar::DirAN:
+		    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    break;
+		case QChar::DirES:
+		case QChar::DirET:
+		case QChar::DirCS:
+		case QChar::DirBN:
+		case QChar::DirB:
+		case QChar::DirS:
+		case QChar::DirWS:
+		case QChar::DirON:
+		    if(dir != QChar::DirL) {
+			//last stuff takes embedding dir
+			if( context->dir == QChar::DirR ) {
+			    if(status.eor != QChar::DirR) {
+				// AN or EN
+				runs.append( new QTextBidiRun(sor, eor, context, dir) );
+				++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+				dir = QChar::DirR;
+			    }
+			    else
+				eor = current - 1;
+			    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+			    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+			} else {
+			    if(status.eor == QChar::DirR) {
+				runs.append( new QTextBidiRun(sor, eor, context, dir) );
+				++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+				dir = QChar::DirL;
+			    } else {
+				eor = current; status.eor = QChar::DirL; break;
+			    }
+			}
+		    } else {
+			eor = current; status.eor = QChar::DirL;
+		    }
+		default:
+		    break;
+		}
+	    status.lastStrong = QChar::DirL;
+	    break;
+	case QChar::DirAL:
+	case QChar::DirR:
+	    if(dir == QChar::DirON) dir = QChar::DirR;
+	    switch(status.last)
+		{
+		case QChar::DirR:
+		case QChar::DirAL:
+		    eor = current; status.eor = QChar::DirR; break;
+		case QChar::DirL:
+		case QChar::DirEN:
+		case QChar::DirAN:
+		    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    break;
+		case QChar::DirES:
+		case QChar::DirET:
+		case QChar::DirCS:
+		case QChar::DirBN:
+		case QChar::DirB:
+		case QChar::DirS:
+		case QChar::DirWS:
+		case QChar::DirON:
+		    if( status.eor != QChar::DirR && status.eor != QChar::DirAL ) {
+			//last stuff takes embedding dir
+			if(context->dir == QChar::DirR || status.lastStrong == QChar::DirR) {
+			    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+			    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+			    dir = QChar::DirR;
+			    eor = current;
+			} else {
+			    eor = current - 1;
+			    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+			    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+			    dir = QChar::DirR;
+			}
+		    } else {
+			eor = current; status.eor = QChar::DirR;
+		    }
+		default:
+		    break;
+		}
+	    status.lastStrong = dirCurrent;
+	    break;
+
+	    // weak types:
+
+	case QChar::DirNSM:
+	    // ### if @sor, set dir to dirSor
+	    break;
+	case QChar::DirEN:
+	    if(status.lastStrong != QChar::DirAL) {
+		// if last strong was AL change EN to AL
+		if(dir == QChar::DirON) {
+		    if(status.lastStrong == QChar::DirL)
+			dir = QChar::DirL;
+		    else
+			dir = QChar::DirAN;
+		}
+		switch(status.last)
+		    {
+		    case QChar::DirEN:
+		    case QChar::DirL:
+		    case QChar::DirET:
+			eor = current;
+			status.eor = dirCurrent;
+			break;
+		    case QChar::DirR:
+		    case QChar::DirAL:
+		    case QChar::DirAN:
+			runs.append( new QTextBidiRun(sor, eor, context, dir) );
+			++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+			dir = QChar::DirAN; break;
+		    case QChar::DirES:
+		    case QChar::DirCS:
+			if(status.eor == QChar::DirEN) {
+			    eor = current; status.eor = QChar::DirEN; break;
+			}
+		    case QChar::DirBN:
+		    case QChar::DirB:
+		    case QChar::DirS:
+		    case QChar::DirWS:
+		    case QChar::DirON:		
+			if(status.eor == QChar::DirR) {
+			    // neutrals go to R
+			    eor = current - 1;
+			    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+			    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+			    dir = QChar::DirAN;
+			}
+			else if( status.eor == QChar::DirL ||
+				 (status.eor == QChar::DirEN && status.lastStrong == QChar::DirL)) {
+			    eor = current; status.eor = dirCurrent;
+			} else {
+			    // numbers on both sides, neutrals get right to left direction
+			    if(dir != QChar::DirL) {
+				runs.append( new QTextBidiRun(sor, eor, context, dir) );
+				++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+				eor = current - 1;
+				dir = QChar::DirR;
+				runs.append( new QTextBidiRun(sor, eor, context, dir) );
+				++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+				dir = QChar::DirAN;
+			    } else {
+				eor = current; status.eor = dirCurrent;
+			    }
+			}
+		    default:
+			break;
+		    }
+		break;
+	    }
+	case QChar::DirAN:
+	    dirCurrent = QChar::DirAN;
+	    if(dir == QChar::DirON) dir = QChar::DirAN;
+	    switch(status.last)
+		{
+		case QChar::DirL:
+		case QChar::DirAN:
+		    eor = current; status.eor = QChar::DirAN; break;
+		case QChar::DirR:
+		case QChar::DirAL:
+		case QChar::DirEN:
+		    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+		    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+		    break;
+		case QChar::DirCS:
+		    if(status.eor == QChar::DirAN) {
+			eor = current; status.eor = QChar::DirR; break;
+		    }
+		case QChar::DirES:
+		case QChar::DirET:
+		case QChar::DirBN:
+		case QChar::DirB:
+		case QChar::DirS:
+		case QChar::DirWS:
+		case QChar::DirON:		
+		    if(status.eor == QChar::DirR) {
+			// neutrals go to R
+			eor = current - 1;
+			runs.append( new QTextBidiRun(sor, eor, context, dir) );
+			++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+			dir = QChar::DirAN;
+		    } else if( status.eor == QChar::DirL ||
+			       (status.eor == QChar::DirEN && status.lastStrong == QChar::DirL)) {
+			eor = current; status.eor = dirCurrent;
+		    } else {
+			// numbers on both sides, neutrals get right to left direction
+			if(dir != QChar::DirL) {
+			    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+			    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+			    eor = current - 1;
+			    dir = QChar::DirR;
+			    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+			    ++eor; sor = eor; dir = QChar::DirON; status.eor = QChar::DirON;
+			    dir = QChar::DirAN;
+			} else {
+			    eor = current; status.eor = dirCurrent;
+			}
+		    }
+		default:
+		    break;
+		}
+	    break;
+	case QChar::DirES:
+	case QChar::DirCS:
+	    break;
+	case QChar::DirET:
+	    if(status.last == QChar::DirEN) {
+		dirCurrent = QChar::DirEN;
+		eor = current; status.eor = dirCurrent;
+		break;
+	    }
+	    break;
+
+	    // boundary neutrals should be ignored
+	case QChar::DirBN:
+	    break;
+	    // neutrals
+	case QChar::DirB:
+	    // ### what do we do with newline and paragraph separators that come to here?
+	    break;
+	case QChar::DirS:
+	    // ### implement rule L1
+	    break;
+	case QChar::DirWS:
+	case QChar::DirON:
+	    break;
+	default:
+	    break;
+	}
+
+	//cout << "     after: dir=" << //        dir << " current=" << dirCurrent << " last=" << status.last << " eor=" << status.eor << " lastStrong=" << status.lastStrong << " embedding=" << context->dir << endl;
+
+	if(current >= text->length()) break;
+	
+	// set status.last as needed.
+	switch(dirCurrent)
+	    {
+	    case QChar::DirET:
+	    case QChar::DirES:
+	    case QChar::DirCS:
+	    case QChar::DirS:
+	    case QChar::DirWS:
+	    case QChar::DirON:
+		switch(status.last)
+		    {
+		    case QChar::DirL:
+		    case QChar::DirR:
+		    case QChar::DirAL:
+		    case QChar::DirEN:
+		    case QChar::DirAN:
+			status.last = dirCurrent;
+			break;
+		    default:
+			status.last = QChar::DirON;
+		    }
+		break;
+	    case QChar::DirNSM:
+	    case QChar::DirBN:
+		// ignore these
+		break;
+	    default:
+		status.last = dirCurrent;
+	    }
+
+	++current;
+    }
+
+#ifdef BIDI_DEBUG
+    cout << "reached end of line current=" << current << ", eor=" << eor << endl;
+#endif
+    eor = current;
+
+    runs.append( new QTextBidiRun(sor, eor, context, dir) );
+
+    // reorder line according to run structure...
+
+    // first find highest and lowest levels
+    uchar levelLow = 128;
+    uchar levelHigh = 0;
+    QTextBidiRun *r = runs.first();
+    while ( r ) {
+	//printf("level = %d\n", r->level);
+	if ( r->level > levelHigh )
+	    levelHigh = r->level;
+	if ( r->level < levelLow )
+	    levelLow = r->level;
+	r = runs.next();
+    }
+
+    // implements reordering of the line (L2 according to BiDi spec):
+    // L2. From the highest level found in the text to the lowest odd level on each line,
+    // reverse any contiguous sequence of characters that are at that level or higher.
+
+    // reversing is only done up to the lowest odd level
+    if(!levelLow%2) levelLow++;
+
+#ifdef BIDI_DEBUG
+    cout << "reorderLine: lineLow = " << (uint)levelLow << ", lineHigh = " << (uint)levelHigh << endl;
+    cout << "logical order is:" << endl;
+    QListIterator<QTextBidiRun> it2(runs);
+    QTextBidiRun *r2;
+    for ( ; (r2 = it2.current()); ++it2 )
+	cout << "    " << r2 << "  start=" << r2->start << "  stop=" << r2->stop << "  level=" << (uint)r2->level << endl;
+#endif
+
+    int count = runs.count() - 1;
+
+    while(levelHigh >= levelLow)
+    {
+	int i = 0;
+	while ( i < count )
+	{
+	    while(i < count && runs.at(i)->level < levelHigh) i++;
+	    int start = i;
+	    while(i <= count && runs.at(i)->level >= levelHigh) i++;
+	    int end = i-1;
+
+	    if(start != end)
+	    {
+		//cout << "reversing from " << start << " to " << end << endl;
+		for(int j = 0; j < (end-start+1)/2; j++)
+		{
+		    QTextBidiRun *first = runs.take(start+j);
+		    QTextBidiRun *last = runs.take(end-j-1);
+		    runs.insert(start+j, last);
+		    runs.insert(end-j, first);
+		}
+	    }
+	    i++;
+	    if(i >= count) break;
+	}
+	levelHigh--;
+    }
+
+#ifdef BIDI_DEBUG
+    cout << "visual order is:" << endl;
+    QListIterator<QTextBidiRun> it3(runs);
+    QTextBidiRun *r3;
+    for ( ; (r3 = it3.current()); ++it3 )
+    {
+	cout << "    " << r3 << endl;
+    }
+#endif
+
+    // now construct the reordered string out of the runs...
+
+    r = runs.first();
+    int x = 0;
+    while ( r ) {
+	if(r->level %2) {
+	    // odd level, need to reverse the string
+	    int pos = r->stop;
+	    while(pos >= r->start) {
+		QTextString::Char *c = &text->at(pos);
+		c->x = x;
+		int ww = 0;
+		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
+		    ww = c->width();
+		} else {
+		    ww = c->format()->width( ' ' );
+		}
+		x += ww;
+		pos--;
+	    }
+	} else {
+	    int pos = r->start;
+	    while(pos <= r->stop) {
+		QTextString::Char* c = &text->at(pos);
+		c->x = x;
+		int ww = 0;
+		if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
+		    ww = c->width();
+		} else {
+		    ww = c->format()->width( ' ' );
+		}
+		x += ww;
+		pos++;
+	    }
+	}
+	r = runs.next();
+    }
+    QTextParag::LineStart *ls = new QTextParag::LineStart( context, status );
+    context->deref();
+    return ls;
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextFormatterBreakInWords::QTextFormatterBreakInWords( QTextDocument *d )
@@ -3101,6 +3717,7 @@ QTextFormatterBreakInWords::QTextFormatterBreakInWords( QTextDocument *d )
 int QTextFormatterBreakInWords::format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts )
 {
     QTextString::Char *c = 0;
+    QTextString::Char *firstChar = 0;
     int left = parag->leftMargin();
     int x = left;
     int dw = doc->width();
@@ -3132,6 +3749,7 @@ int QTextFormatterBreakInWords::format( QTextParag *parag, int start, const QMap
 	    c->lineStart = 0;
 	} else {
 	    c->lineStart = 1;
+	    firstChar = c;
 	}
 	int ww = 0;
 	if ( c->c.unicode() >= 32 || c->c == '\t' || c->isCustom ) {
@@ -3154,6 +3772,7 @@ int QTextFormatterBreakInWords::format( QTextParag *parag, int start, const QMap
 	    lineStart = new QTextParag::LineStart( y, h, h );
 	    parag->lineStartList().insert( i, lineStart );
 	    c->lineStart = 1;
+	    firstChar = c;
 	    x = 0xffffff;
 	    continue;
 	}
@@ -3165,11 +3784,13 @@ int QTextFormatterBreakInWords::format( QTextParag *parag, int start, const QMap
 	    w = dw;
 	    y += h;
 	    h = c->height();
-	    lineStart = new QTextParag::LineStart( y, 0, 0 );
+	    lineStart = formatLine( parag->string(), lineStart, firstChar, c );
+	    lineStart->y = y;
 	    parag->lineStartList().insert( i, lineStart );
 	    lineStart->baseLine = c->ascent();
 	    lineStart->h = c->height();
 	    c->lineStart = 1;
+	    firstChar = c;
 	} else if ( lineStart ) {
 	    lineStart->baseLine = QMAX( lineStart->baseLine, c->ascent() );
 	    h = QMAX( h, c->height() );
@@ -3198,6 +3819,7 @@ QTextFormatterBreakWords::QTextFormatterBreakWords( QTextDocument *d )
 int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts )
 {
     QTextString::Char *c = 0;
+    QTextString::Char *firstChar = 0;
     int left = parag->leftMargin();
     int x = left;
     int curLeft = left;
@@ -3234,6 +3856,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 	    c->lineStart = 0;
 	} else {
 	    c->lineStart = 1;
+	    firstChar = c;
 	}
 
 	if ( c->isCustom && c->customItem()->placement() != QTextCustomItem::PlaceInline )
@@ -3263,6 +3886,7 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 	    lineStart = new QTextParag::LineStart( y, h, h );
 	    parag->lineStartList().insert( i, lineStart );
 	    c->lineStart = 1;
+	    firstChar = c;
 	    tmpBaseLine = lineStart->baseLine;
 	    lastSpace = -1;
 	    x = 0xffffff;
@@ -3284,11 +3908,13 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 		y += h;
 		tmph = c->height();
 		h = 0;
-		lineStart = new QTextParag::LineStart( y, 0, 0 );
+		lineStart = formatLine( parag->string(), lineStart, firstChar, c );
+		lineStart->y = y;
 		parag->lineStartList().insert( i, lineStart );
 		lineStart->baseLine = c->ascent();
 		lineStart->h = c->height();
 		c->lineStart = 1;
+		firstChar = c;
 		tmpBaseLine = lineStart->baseLine;
 		lastSpace = -1;
 	    } else {
@@ -3301,11 +3927,13 @@ int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<i
 		y += h;
 		tmph = c->height();
 		h = tmph;
-		lineStart = new QTextParag::LineStart( y, 0, 0 );
+		lineStart = formatLine( parag->string(), lineStart, firstChar, c );
+		lineStart->y = y;
 		parag->lineStartList().insert( i + 1, lineStart );
 		lineStart->baseLine = c->ascent();
 		lineStart->h = c->height();
 		c->lineStart = 1;
+		firstChar = c;
 		tmpBaseLine = lineStart->baseLine;
 		lastSpace = -1;
 		continue;
@@ -4854,30 +5482,6 @@ void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const Q
 }
 
 
-static QChar::Direction basicDirection(const QTextString &text)
-{
-    int pos = 0;
-    while( pos < text.length() ) {
-	switch( text.at(pos).c.direction() )
-	{
-	case QChar::DirL:
-	case QChar::DirLRO:
-	case QChar::DirLRE:
-	    return QChar::DirL;
-	case QChar::DirR:
-	case QChar::DirAL:
-	case QChar::DirRLO:
-	case QChar::DirRLE:
-	    return QChar::DirR;
-	default:
-	    break;
-	}
-	++pos;
-    }
-    return QChar::DirL;
-}
-
-
 /* a small helper class used internally to resolve Bidi embedding levels.
    Each line of text caches the embedding level at the start of the line for faster
    relayouting
@@ -4885,10 +5489,9 @@ static QChar::Direction basicDirection(const QTextString &text)
 QTextBidiContext::QTextBidiContext(unsigned char l, QChar::Direction e, QTextBidiContext *p, bool o)
     : level(l) , override(o), dir(e)
 {
-    if(p) {
+    if(p) 
 	p->ref();
-	parent = p;
-    }
+    parent = p;
     count = 0;
 }
 

@@ -18,6 +18,7 @@
 
 //#define CPP_EDITOR
 //#define SPELL_CHECKER
+#define TEST_BIDI
 
 #if defined(CPP_EDITOR) || defined(SPELL_CHECKER)
 #define QTEXTEDIT_OPEN_API
@@ -345,14 +346,33 @@ private:
 int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
+    QFont fnt;
+    fnt.setFamily("tahoma");
+    fnt.setCharSet( QFont::Unicode );
+    a.setFont( fnt );
+    MainWindow mw;
 
+#ifdef TEST_BIDI
+    QString fn = "bidi.txt";
+    if ( argc > 1 )
+	fn = argv[ 1 ];
+    if ( !QFile::exists( fn ) )
+	fn = "bidi.txt";
+    QFile f( fn );
+    f.open( IO_ReadOnly );
+    QByteArray array = f.readAll();
+    QString text = QString::fromUtf8( array.data() );
+    QTextEdit ed ( &mw );
+    ed.setText( text );
+    mw.setCentralWidget( &ed );
+    mw.setEdit( &ed );
+#else    
     QString fn = "qtextedit.cpp";
     if ( argc > 1 )
 	fn = argv[ 1 ];
     if ( !QFile::exists( fn ) )
 	fn = "qtextedit.cpp";
 
-    MainWindow mw;
 
 #ifndef CPP_EDITOR
     QTextEdit ed( &mw );
@@ -372,6 +392,7 @@ int main( int argc, char ** argv )
     mw.setCentralWidget( &ed );
     ed.document()->setFormatter( new QTextFormatterBreakInWords( ed.document() ) );
     mw.setEdit( &ed );
+#endif
 #endif
 
     ed.viewport()->setFocus();

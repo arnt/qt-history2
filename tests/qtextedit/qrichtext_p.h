@@ -56,6 +56,27 @@ struct QTextBidiStatus {
     QChar::Direction last		: 5;
 };
 
+class QTextBidiContext {
+public:
+    QTextBidiContext(unsigned char level, QChar::Direction embedding, QTextBidiContext *parent = 0, bool override = false);
+    ~QTextBidiContext();
+
+    void ref() const;
+    void deref() const;
+
+    unsigned char level;
+    bool override : 1;
+    QChar::Direction dir : 5;
+
+    QTextBidiContext *parent;
+
+
+    // refcounting....
+    mutable int count;
+};
+
+// +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 class QTextCursor
 {
 public:
@@ -486,9 +507,11 @@ public:
     void setTextChanged( bool b ) { textChanged = b; }
     void setBidi( bool b ) { bidi = b; }
     bool isTextChanged() const { return textChanged; }
-    bool isBidi() const { return bidi; }
+    bool isBidi() const;
 
 private:
+    void checkBidi() const;
+    
     QArray<Char> data;
     QString cache;
     uint textChanged : 1;
@@ -496,16 +519,37 @@ private:
 
 };
 
+inline bool QTextString::isBidi() const
+{
+    if ( textChanged )
+	checkBidi();
+    return bidi;
+}
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 class QTextParag
 {
 public:
     struct LineStart {
-	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ) {}
-	LineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ) {}
+	LineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {}
+	LineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
+	    bidicontext(0) {}
+	LineStart( QTextBidiContext *c, QTextBidiStatus s ) : y(0), baseLine(0), h(0),
+	    bidicontext( c ), status( s ) { if(bidicontext) bidicontext->ref(); }
+	~LineStart() { if(bidicontext) bidicontext->deref(); }
+	void setContext( QTextBidiContext *c ) 
+	{
+	    if ( c == bidicontext ) return;;
+	    if ( bidicontext ) bidicontext->deref();
+	    bidicontext = c;
+	    if ( bidicontext ) bidicontext->ref();
+	}
+	QTextBidiContext *context() const { return bidicontext; }
+    public:
 	ushort y, baseLine, h;
-	QTextBidiContext *context;
+    private:
+	QTextBidiContext *bidicontext;
+    public:
 	QTextBidiStatus status;
     };
 
@@ -683,7 +727,8 @@ public:
 
 protected:
     QTextDocument *doc;
-
+    QTextParag::LineStart *formatLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start, QTextString::Char *last );
+    QTextParag::LineStart *bidiReorderLine( QTextString *string, QTextParag::LineStart *line, QTextString::Char *start, QTextString::Char *last );
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1044,25 +1089,6 @@ private:
     Placement place;
 };
 
-
-class QTextBidiContext {
-public:
-    QTextBidiContext(unsigned char level, QChar::Direction embedding, QTextBidiContext *parent = 0, bool override = false);
-    ~QTextBidiContext();
-
-    void ref() const;
-    void deref() const;
-
-    unsigned char level;
-    bool override : 1;
-    QChar::Direction dir : 5;
-
-    QTextBidiContext *parent;
-
-
-    // refcounting....
-    mutable int count;
-};
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
