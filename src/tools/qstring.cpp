@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#283 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#284 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10952,7 +10952,7 @@ QString::QString( int size, bool /*dummy*/ )
 	d = new QStringData( uc, 0, l );
     } else {
 	Q2HELPER(stat_construct_null++);
-	d = shared_null ? shared_null : shared_null=new QStringData;
+	d = shared_null ? shared_null : (shared_null=new QStringData);
 	d->ref();
     }
 }
@@ -11448,18 +11448,20 @@ QString &QString::sprintf( const char* cformat, ... )
 		int p = num.match(f,0,&nlen);
 		if ( p >= 0 ) {
 		    width = f.mid(p,nlen).toInt();
-		    /* not used
-		    p = num.match(f,p+1,&nlen);
+		    p = num.match(f,p+nlen,&nlen);
+		    //"decimals" is used to specify string truncation
 		    if ( p >= 0 ) {
 			decimals = f.mid(p,nlen).toInt();
 		    }
-		    */
 		}
 	    }
 
 	    if ( format[pos+len] == 's' ) {
 		QString s = QString::fromUtf8(va_arg(ap, char*));
-		replacement = s;
+		if ( decimals <= 0 )
+		    replacement = s;
+		else
+		    replacement = s.left(decimals);
 	    } else {
 		int ch = va_arg(ap, int);
 		replacement = QChar((ushort)ch);
@@ -12959,7 +12961,7 @@ const char* QString::latin1() const
 }
 
 /*! \obsolete
-  
+
   This functions simply calls latin1() and returns the result.
 */
 const char* QString::ascii() const
