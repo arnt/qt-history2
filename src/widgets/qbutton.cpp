@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#131 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#132 $
 **
 ** Implementation of QButton widget class
 **
@@ -770,8 +770,10 @@ void QButton::paintEvent( QPaintEvent *event )
 	paint.begin( drawpm, this );
 	drawButton( &paint );
 	paint.end();
-	
-	bitBlt( this, event->rect().topLeft(), drawpm, event->rect() );
+
+	paint.begin( this );
+	paint.setClipRegion( event->region() );
+	paint.drawPixmap( 0, 0, *drawpm );
     } else {
 	erase( event ? event->rect() : rect() );
 	QPainter paint( this );
@@ -900,13 +902,13 @@ void QButton::setToggleType( ToggleType type )
 
 /*!
   Returns TRUE if this button behaves exclusively inside a QButtonGroup.
-  In that case, this button can only be toggled off by another buton 
+  In that case, this button can only be toggled off by another buton
   beinhg toggled on.
 */
 
 bool QButton::isExclusiveToggle() const
 {
-    return group() && ( group()->isExclusive() || 
+    return group() && ( group()->isExclusive() ||
 			group()->isRadioButtonExclusive() &&
 			inherits( "QRadioButton" ) );
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#182 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#183 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -402,9 +402,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		emit returnPressed();
 	}
 #if defined(_CC_GNU_)
-#warning "Arnt: must fix this" // fix what?
+#warning "QDialog still spews Enter/Escape requirements over all other widgets.  How do we fix it?"
 #endif
-	// ### 2.0 must fix this
 	e->ignore();
 	return;
     }
@@ -661,11 +660,12 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	d->cursorRepaintRect.setRect( curXPos-2, curYPos, 5, fm.height() );
 	d->pmDirty = FALSE;
     }
-	
-    bitBlt( this, e->rect().topLeft(), d->pm, e->rect() );
+
+    QPainter p( this );
+    p.setClipRegion( e->region() );
+    p.drawPixmap( 0, 0, *d->pm );
     if ( hasFocus() ) {
 	if ( cursorOn && d->cursorRepaintRect.intersects( e->rect() ) ) {
-	    QPainter p( this );
 	    int curYTop = d->cursorRepaintRect.y();
 	    int curYBot = d->cursorRepaintRect.bottom();
 	    int curXPos = d->cursorRepaintRect.x() + 2;
