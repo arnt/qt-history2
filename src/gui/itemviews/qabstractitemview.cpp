@@ -437,6 +437,8 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
 
     if (d->model) {
         // view
+        disconnect(d->model, SIGNAL(destroyed(QObject*)),
+                   this, SLOT(modelDestroyed()));
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                    this, SLOT(dataChanged(QModelIndex,QModelIndex)));
         disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
@@ -450,6 +452,8 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
 
     if (d->model) {
         // view
+        connect(d->model, SIGNAL(destroyed(QObject*)),
+                this, SLOT(modelDestroyed()));
         connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                 this, SLOT(dataChanged(QModelIndex,QModelIndex)));
         connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
@@ -1506,6 +1510,14 @@ void QAbstractItemView::horizontalScrollbarAction(int)
 void QAbstractItemView::selectionModelDestroyed()
 {
     d->selectionModel = 0;
+}
+
+/*!
+  \internal
+*/
+void QAbstractItemView::modelDestroyed()
+{
+    d->model = 0;
 }
 
 /*!

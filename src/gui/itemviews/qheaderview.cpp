@@ -209,23 +209,29 @@ void QHeaderView::setModel(QAbstractItemModel *model)
                                 this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
                                 this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
-            QObject::connect(model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-                             this, SLOT(sectionsInserted(QModelIndex,int,int)));
-            QObject::connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
-                             this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
         } else {
             QObject::disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                                 this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                                 this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
+        }
+        QObject::disconnect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
+                            this, SLOT(headerDataChanged(Orientation,int,int)));
+    }
+    
+    if (model) {
+        if (d->orientation == Qt::Horizontal) {
+            QObject::connect(model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+                this, SLOT(sectionsInserted(QModelIndex,int,int)));
+            QObject::connect(model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
+        } else {
             QObject::connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                              this, SLOT(sectionsInserted(QModelIndex,int,int)));
             QObject::connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                              this, SLOT(sectionsAboutToBeRemoved(QModelIndex,int,int)));
         }
-        QObject::disconnect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
-                            this, SLOT(headerDataChanged(Orientation,int,int)));
-        QObject::connect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
+        QObject::connect(model, SIGNAL(headerDataChanged(Orientation,int,int)),
                          this, SLOT(headerDataChanged(Orientation,int,int)));
     }
 
