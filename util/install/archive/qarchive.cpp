@@ -323,6 +323,7 @@ bool QArchive::readArchive( QString outpath )
 	    inStream.readRawBytes( inBuffer.data(), entryLength );
 	    totalRead += entryLength;
 	    entryName = inBuffer.data();
+	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
 
 	    inStream >> entryLength;
 	    totalRead += sizeof( entryLength );
@@ -333,9 +334,9 @@ bool QArchive::readArchive( QString outpath )
 	    if( verbosityMode & Source )
 		emit operationFeedback( "Linking " + symName + "... " );
 	    else if( verbosityMode & Destination )
-		emit operationFeedback( "Linking " + entryName + "... " );
+		emit operationFeedback( "Linking " + fileName + "... " );
 
-	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
+
 #ifdef Q_OS_UNIX
 	    symlink( symName.latin1(), fileName.latin1() );
 #else
