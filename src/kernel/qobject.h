@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#21 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#22 $
 **
 ** Definition of QObject class
 **
@@ -48,6 +48,10 @@ public:
     void	killTimers();			// kill all timers for object
 
     const QObjectList *children() const { return childObjects; }
+    const QObjectList *queryList( const char *inheritsClass = 0,
+				  const char *objName = 0,
+				  bool regexpMatch = TRUE,
+				  bool recursiveSearch = TRUE );
 
     void	insertChild( QObject * );	// add child object
     void	removeChild( QObject * );	// remove child object
