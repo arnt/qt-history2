@@ -591,4 +591,20 @@ void QGroupBox::fontChange( const QFont & oldFont )
     setTextSpacer();
     QWidget::fontChange( oldFont );
 }
+
+/*!
+  \reimp
+*/
+
+QSize QGroupBox::sizeHint() const
+{
+    if ( layout() )
+	return QFrame::sizeHint();
+    
+    QRect r = childrenRect();
+    if ( r.isNull() )
+	return QSize( 100, 50 );
+    return QSize( 100, 50 ).expandedTo( QSize( r.width() + 2 * r.x(), r.height()+ 2 * r.y() ) );
+}
+
 #endif

@@ -71,6 +71,7 @@ public:
     void setOrientation( Orientation );
 
     void addSpace( int );
+    QSize sizeHint() const;
 
 protected:
     bool event( QEvent * );
