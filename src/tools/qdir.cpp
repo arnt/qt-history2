@@ -443,8 +443,12 @@ bool QDir::cd( const QString &dirName, bool acceptAbsPath )
     if ( acceptAbsPath && !isRelativePath(dirName) ) {
 	dPath = cleanDirPath( dirName );
     } else {
-	if ( !isRoot() )
+	if ( !isRoot() ) {
 	    dPath += '/';
+	} else if ( dirName == ".." ) {
+	    dPath = old;
+	    return FALSE;
+	}
 	dPath += dirName;
 	if ( dirName.find('/') >= 0
 		|| old == QString::fromLatin1(".")
