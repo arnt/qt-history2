@@ -119,7 +119,6 @@ void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
     else
         p.setY(state->offset.y() + p.y());
 
-    qDebug("dragging toolbar %p in mainwindow %p, layout %p", toolBar, mainWindow, layout);
     // re-position toolbar
     layout->dropToolBar(toolBar, event->globalPos(), p);
 }
