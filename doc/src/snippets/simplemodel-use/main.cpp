@@ -48,7 +48,6 @@ int main(int argc, char *argv[])
     layout->addWidget(title);
     
     QDirModel *model = new QDirModel(QDir(), window);
-    model->setFilter(QDir::All);
     int numRows = model->rowCount(QModelIndex::Null);
 
     for (int row = 0; row < numRows; ++row) {
