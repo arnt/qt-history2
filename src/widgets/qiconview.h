@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#31 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#32 $
 **
 ** Definition of QIconView widget class
 **
@@ -257,7 +257,11 @@ public:
 	Fixed = 0,
 	Adjust
     };
-
+    enum ItemTextPos {
+	Bottom = 0,
+	Right
+    };
+    
     QIconView( QWidget *parent = 0, const char *name = 0 );
     virtual ~QIconView();
 
@@ -299,13 +303,12 @@ public:
     int gridY() const;
     virtual void setSpacing( int sp );
     int spacing() const;
-
+    virtual void setItemTextPos( ItemTextPos pos );
+    ItemTextPos itemTextPos() const;
     virtual void setAlignMode( AlignMode am );
     AlignMode alignMode() const;
-
     virtual void setResizeMode( ResizeMode am );
     ResizeMode resizeMode() const;
-
     virtual void setMaxItemWidth( int w );
     int maxItemWidth() const;
     virtual void setMaxItemTextLength( int w );

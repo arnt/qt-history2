@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#72 $
 **
 ** Definition of QIconView widget class
 **
@@ -126,6 +126,7 @@ struct QIconViewPrivate
     QMap< QString, QIconViewItem* > nameMap;
     QString currInputString;
     bool dirty, rearrangeEnabled;
+    QIconView::ItemTextPos itemTextPos;
 };
 
 /*****************************************************************************
@@ -161,7 +162,8 @@ QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *pare
     : QMultiLineEdit( parent, name ), item( theItem ), startText( text )
 {
     setWordWrap( QMultiLineEdit::FixedWidthWrap | QMultiLineEdit::BreakWithinWords );
-    setWrapColumnOrWidth( item->iconView()->maxItemWidth() );
+    setWrapColumnOrWidth( item->iconView()->maxItemWidth() - ( item->iconView()->itemTextPos() == QIconView::Bottom ? 
+			  0 : item->iconRect().width() ) );
     setMaxLength( item->iconView()->maxItemTextLength() );
     setAlignment( Qt::AlignCenter );
     setText( text );
@@ -1113,38 +1115,57 @@ void QIconViewItem::calcRect( const QString &text_ )
     if ( !fm )
 	return;
 
+    int pw = 0;
+    int ph = 0;
+    
+    pw = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).width() + 2;
+    ph = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).height() + 2;
+
+    itemIconRect.setWidth( pw );
+    itemIconRect.setHeight( ph );
+
     QString t = text_;
     if ( t.isEmpty() )
 	t = itemText;
 
-    int h = 0;
-    int w = 0;
-    QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth(),
+    int tw = 0;
+    int th = 0;
+    QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth() - ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
+			       iconRect().width() ),
 			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak, t ) );
-    w = r.width();
-    h = r.height();
-    if ( w < fm->width( "X" ) )
-	w = fm->width( "X" );
+    tw = r.width();
+    th = r.height();
+    if ( tw < fm->width( "X" ) )
+	tw = fm->width( "X" );
 
-    itemTextRect.setWidth( w );
-    itemTextRect.setHeight( h );
+    itemTextRect.setWidth( tw );
+    itemTextRect.setHeight( th );
 
-    w = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).width() + 2;
-    h = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).height() + 2;
+    int w = 0;
+    int h = 0;
+    if ( view->itemTextPos() == QIconView::Bottom ) {
+	w = QMAX( itemTextRect.width(), itemIconRect.width() );
+	h = itemTextRect.height() + itemIconRect.height() + 1;
 
-    itemIconRect.setWidth( w );
-    itemIconRect.setHeight( h );
+	itemRect.setWidth( w );
+	itemRect.setHeight( h );
 
-    w = QMAX( itemTextRect.width(), itemIconRect.width() );
-    h = itemTextRect.height() + itemIconRect.height() + 1;
+	itemTextRect = QRect( ( width() - itemTextRect.width() ) / 2, height() - itemTextRect.height(),
+			      itemTextRect.width(), itemTextRect.height() );
+	itemIconRect = QRect( ( width() - itemIconRect.width() ) / 2, 0,
+			      itemIconRect.width(), itemIconRect.height() );
+    } else {
+	h = QMAX( itemTextRect.height(), itemIconRect.height() );
+	w = itemTextRect.width() + itemIconRect.width() + 1;
 
-    itemRect.setWidth( w );
-    itemRect.setHeight( h );
+	itemRect.setWidth( w );
+	itemRect.setHeight( h );
 
-    itemTextRect = QRect( ( width() - itemTextRect.width() ) / 2, height() - itemTextRect.height(),
-			  itemTextRect.width(), itemTextRect.height() );
-    itemIconRect = QRect( ( width() - itemIconRect.width() ) / 2, 0,
-			  itemIconRect.width(), itemIconRect.height() );
+	itemTextRect = QRect( width() - itemTextRect.width(), ( height() - itemTextRect.height() ) / 2,
+			      itemTextRect.width(), itemTextRect.height() );
+	itemIconRect = QRect( 0, ( height() - itemIconRect.height() ) / 2,
+			      itemIconRect.width(), itemIconRect.height() );
+    }
 }
 
 /*!
@@ -1161,24 +1182,45 @@ void QIconViewItem::paintItem( QPainter *p )
     else if ( !isSelectable() )
 	m = QIconSet::Disabled;
 
-    int w = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).width();
+    if ( view->itemTextPos() == QIconView::Bottom ) {
+	int w = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).width();
 
-    if ( isSelected() )
-	p->fillRect( iconRect( FALSE ), view->colorGroup().highlight() );
-    p->drawPixmap( x() + ( width() - w ) / 2, y(), itemIcon.pixmap( itemViewMode, m ) );
+	if ( isSelected() )
+	    p->fillRect( iconRect( FALSE ), view->colorGroup().highlight() );
+	p->drawPixmap( x() + ( width() - w ) / 2, y(), itemIcon.pixmap( itemViewMode, m ) );
 
 
-    p->save();
-    if ( isSelected() ) {
-	p->fillRect( textRect( FALSE ), view->colorGroup().highlight() );
-	p->setPen( QPen( view->colorGroup().highlightedText() ) );
+	p->save();
+	if ( isSelected() ) {
+	    p->fillRect( textRect( FALSE ), view->colorGroup().highlight() );
+	    p->setPen( QPen( view->colorGroup().highlightedText() ) );
+	}
+	else
+	    p->setPen( view->colorGroup().text() );
+
+	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, itemText );
+
+	p->restore();
+    } else {
+	int h = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).height();
+
+	if ( isSelected() )
+	    p->fillRect( iconRect( FALSE ), view->colorGroup().highlight() );
+	p->drawPixmap( x() , y() + ( height() - h ) / 2, itemIcon.pixmap( itemViewMode, m ) );
+
+
+	p->save();
+	if ( isSelected() ) {
+	    p->fillRect( textRect( FALSE ), view->colorGroup().highlight() );
+	    p->setPen( QPen( view->colorGroup().highlightedText() ) );
+	}
+	else
+	    p->setPen( view->colorGroup().text() );
+
+	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, itemText );
+
+	p->restore();
     }
-    else
-	p->setPen( view->colorGroup().text() );
-
-    p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, itemText );
-
-    p->restore();
 }
 
 /*!
@@ -1393,7 +1435,8 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->currInputString = QString::null;
     d->dirty = FALSE;
     d->rearrangeEnabled = TRUE;
-
+    d->itemTextPos = Bottom;
+    
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
@@ -1948,7 +1991,7 @@ int QIconView::gridX() const
 
 /*!
   Returns the vertica grid.
-  
+
   \sa setGridY
 */
 
@@ -1973,6 +2016,25 @@ void QIconView::setSpacing( int sp )
 int QIconView::spacing() const
 {
     return d->spacing;
+}
+
+void QIconView::setItemTextPos( ItemTextPos pos )
+{
+    if ( pos == d->itemTextPos )
+	return;
+
+    d->itemTextPos = pos;
+
+    QIconViewItem *item = d->firstItem;
+    for ( ; item; item = item->next )
+	item->calcRect();
+
+    repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
+}
+
+QIconView::ItemTextPos QIconView::itemTextPos() const
+{
+    return d->itemTextPos;
 }
 
 /*!
@@ -2856,7 +2918,10 @@ void QIconView::insertInGrid( QIconViewItem *item )
 		xpos = d->spacing;
 		nextRow = TRUE;
 	    }
-	    xpos += ( d->rastX - item->width() ) / 2 + d->spacing;
+	    if ( d->itemTextPos == Bottom )
+		xpos += ( d->rastX - item->width() ) / 2 + d->spacing;
+	    else
+		xpos += d->spacing;
 	}
 
 	if ( d->rastY == -1 ) {
@@ -2930,7 +2995,8 @@ void QIconView::insertInGrid( QIconViewItem *item )
 		xpos = fact * d->rastX;
 	    else
 		xpos = ( fact + 1 ) * d->rastX;
-	    xpos += ( d->rastX - item->width() ) / 2;
+	    if ( d->itemTextPos == Bottom )
+		xpos += ( d->rastX - item->width() ) / 2;
 	}
     }
 
