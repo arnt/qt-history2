@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "propertyeditor.h"
+#include "findicondialog.h"
 #include "qpropertyeditor_model_p.h"
 
 #include <qextensionmanager.h>
@@ -19,14 +20,16 @@
 #include <container.h>
 #include <abstracticoncache.h>
 
-#include <QVBoxLayout>
-#include <QMetaObject>
-#include <QMetaProperty>
-#include <qdebug.h>
-#include <QHBoxWidget>
-#include <QLineEdit>
-#include <QToolButton>
-#include <QFileDialog>
+#include <QtGui/QVBoxLayout>
+#include <QtCore/QMetaObject>
+#include <QtCore/QMetaProperty>
+#include <QtCore/qdebug.h>
+#include <QtGui/QHBoxWidget>
+#include <QtGui/QLineEdit>
+#include <QtGui/QToolButton>
+#include <QtGui/QFileDialog>
+#include <QtGui/qevent.h>
+#include <QtCore/QTimer>
 
 using namespace QPropertyEditor;
 
@@ -49,6 +52,7 @@ public:
 
     void setValue(const QVariant &value);
     QString toString() const;
+    QVariant decoration() const;
 
     QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
@@ -57,69 +61,54 @@ private:
     AbstractFormEditor *m_core;
 };
 
-class IconPropertyEditor : public QHBoxWidget
+class IconPropertyEditor : public QLabel
 {
     Q_OBJECT
 public:
     IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm, QWidget *parent);
 
-    QString path() const { return m_edit->text(); }
     void setIcon(const QIcon &pm);
     QIcon icon() const { return m_icon; }
 
+protected:
+    virtual void mousePressEvent(QMouseEvent *);
+    
 signals:
     void iconChanged(const QIcon &pm);
 
 public slots:
-    void setPath(const QString &path);
     void showDialog();
 
 private:
-    QToolButton *m_button;
-    QLineEdit *m_edit;
     AbstractFormEditor *m_core;
     QIcon m_icon;
 };
 
 IconPropertyEditor::IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm,
                                                 QWidget *parent)
-    : QHBoxWidget(parent)
+    : QLabel(parent)
 {
     m_core = core;
-    m_button = new QToolButton(this);
-    m_button->setText("...");
-    m_edit = new QLineEdit(this);
-
+    setText(tr("<no icon>"));
+    
     setIcon(pm);
-
-    connect(m_edit, SIGNAL(textChanged(const QString&)), this, SLOT(setPath(const QString&)));
-    connect(m_button, SIGNAL(clicked()), this, SLOT(showDialog()));
 }
 
 void IconPropertyEditor::showDialog()
 {
-    QString name = QFileDialog::getOpenFileName(0, tr("Designer"), QString(),
-                                                QLatin1String("Images (*.png *.gif *.xpm *.jpg);;All files (*)"));
-    if (!name.isEmpty())
-        setPath(name);
+    FindIconDialog dialog(0);
+    dialog.setPaths(QString(), m_core->iconCache()->iconToFilePath(m_icon));
+    if (dialog.exec()) {
+        QString name = dialog.filePath();
+        if (!name.isEmpty())
+            setIcon(m_core->iconCache()->nameToIcon(name));
+    }
 }
 
-void IconPropertyEditor::setPath(const QString &path)
+void IconPropertyEditor::mousePressEvent(QMouseEvent *e)
 {
-    m_edit->blockSignals(true);
-    m_edit->setText(path);
-    m_edit->blockSignals(false);
-
-    QIcon pm = m_core->iconCache()->nameToIcon(path);
-
-    if (pm.isNull() && m_icon.isNull())
-        return;
-    if (pm.serialNumber() == m_icon.serialNumber())
-        return;
-
-    m_icon = pm;
-    m_button->setIcon(m_icon);
-    emit iconChanged(m_icon);
+    e->accept();
+    showDialog();
 }
 
 void IconPropertyEditor::setIcon(const QIcon &pm)
@@ -129,15 +118,14 @@ void IconPropertyEditor::setIcon(const QIcon &pm)
     if (pm.serialNumber() == m_icon.serialNumber())
         return;
 
-    QString path = m_core->iconCache()->iconToFilePath(pm);
-    if (!path.isEmpty()) {
-        m_edit->blockSignals(true);
-        m_edit->setText(path);
-        m_edit->blockSignals(false);
-    }
-
     m_icon = pm;
-    m_button->setIcon(m_icon);
+
+    if (m_icon.isNull()) {
+        setText(tr("<no icon>"));
+    } else {
+        QString path = m_core->iconCache()->iconToFilePath(pm);
+        setText(QFileInfo(path).fileName());
+    }
     emit iconChanged(m_icon);
 }
 
@@ -154,7 +142,19 @@ void IconProperty::setValue(const QVariant &value)
 
 QString IconProperty::toString() const
 {
-    return m_core->iconCache()->iconToFilePath(m_value);
+    QString path = m_core->iconCache()->iconToFilePath(m_value);
+    return QFileInfo(path).fileName();
+}
+
+QVariant IconProperty::decoration() const
+{
+    static QIcon empty_icon;
+    if (empty_icon.isNull())
+        empty_icon = QIcon(QLatin1String(":/trolltech/formeditor/images/emptyicon.png"));
+
+    if (m_value.isNull())
+        return qVariant(empty_icon);
+    return qVariant(m_value);
 }
 
 QWidget *IconProperty::createEditor(QWidget *parent, const QObject *target,
