@@ -688,7 +688,7 @@ same group.
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( QInternal::Widget )
 {
-    fstrut.left = fstrut.right = fstrut.top = fstrut.bottom = 0;
+    fleft = fright = ftop = fbottom = 0;
 
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
@@ -1407,10 +1407,10 @@ void QWidget::enabledChange( bool )
 
 QRect QWidget::frameGeometry() const
 {
-    return QRect(crect.x() - fstrut.left,
-		 crect.y() - fstrut.top,
-		 crect.width() + fstrut.left + fstrut.right,
-		 crect.height() + fstrut.top + fstrut.bottom);
+    return QRect(crect.x() - fleft,
+		 crect.y() - ftop,
+		 crect.width() + fleft + fright,
+		 crect.height() + ftop + fbottom);
 }
 
 
@@ -2964,16 +2964,16 @@ QSize QWidget::frameSize() const
 void QWidget::setFRect( const QRect &r )
 {
     if ( extra && extra->topextra ) {
-	fstrut.left   = crect.left() - r.left();
-	fstrut.right  = r.right()    - crect.right();
-	fstrut.top    = crect.top()  - r.top();
-	fstrut.bottom = r.bottom()   - crect.bottom();
+	fleft   = crect.left() - r.left();
+	fright  = r.right()    - crect.right();
+	ftop    = crect.top()  - r.top();
+	fbottom = r.bottom()   - crect.bottom();
 
-	extra->topextra->fsize = QSize(crect.width() + fstrut.left + fstrut.right,
-				       crect.height() + fstrut.top + fstrut.bottom);
+	extra->topextra->fsize = QSize(crect.width() + fleft + fright,
+				       crect.height() + ftop + fbottom);
     } else {
 	// One rect is both the same.
-	fstrut.left = fstrut.right = fstrut.top = fstrut.bottom = 0;
+	fleft = fright = ftop = fbottom = 0;
 	crect = r;
     }
 }
@@ -2993,10 +2993,10 @@ void QWidget::setCRect( const QRect &r )
 {
     crect = r;
     if (extra && extra->topextra)
-	extra->topextra->fsize = QSize(crect.width() + fstrut.left + fstrut.right,
-				       crect.height() + fstrut.top + fstrut.bottom);
+	extra->topextra->fsize = QSize(crect.width() + fleft + fright,
+				       crect.height() + ftop + fbottom);
     else
-	fstrut.left = fstrut.right = fstrut.top = fstrut.bottom = 0;
+	fleft = fright = ftop = fbottom = 0;
 }
 
 

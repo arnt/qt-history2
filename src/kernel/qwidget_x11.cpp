@@ -1455,7 +1455,7 @@ void QWidget::hideWindow()
 	if ( winId() ) // in nsplugin, may be 0
 	    XWithdrawWindow( x11Display(), winId(), x11Screen() );
 
-	crect.moveTopLeft( QPoint(crect.x() - fstrut.left, crect.y() - fstrut.top ));
+	crect.moveTopLeft( QPoint(crect.x() - fleft, crect.y() - ftop ));
 	topData()->fsize = crect.size();
     } else {
 	if ( winId() ) // in nsplugin, may be 0
