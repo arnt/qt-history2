@@ -120,9 +120,13 @@
     this would make it necessary to reflect changes in the object 
     hierarchy (ie. when objects are destroyed, or due to calls to 
     QWidget::reparent()) in the .NET-copy of the object hierarchy.
-    Since C++ that is compiled into bytecode doesn't support standard
-    features like default parameters it would be too much trouble to 
-    implement this for the purpose of this example.
+
+    Notifying the .NET wrapper of such changes from within Qt would 
+    require some native Qt object that can communicate to the
+    respective .NET object. Bytecode objects however cannot be 
+    referenced in native code (the garbage collector can after all
+    delete the object living in bytecode any moment), so there is no 
+    simple way to communicate in that direction.
 
     \printuntil }
 
@@ -141,6 +145,9 @@
     emits signals based on internal status changes, which is of course
     how signals usually work.
 
+    The inability of .NET classes to live in native code makes it again
+    very difficult to provide a generic solution.
+
     That wrapper can now be used in .NET code, e.g. using C++, C#, 
     Visual Basic or any other programming language available for .NET.
 
@@ -151,9 +158,9 @@
     \printuntil }
 
     This is clearly a big effort already for a simple class, and we
-    haven't even completely modelled important Qt concepts like
-    parent/child relations or signals and slots in the .NET wrapper
-    class.
+    haven't even been able to completely model important Qt concepts
+    like parent/child relations or signals and slots in the .NET 
+    wrapper class.
 
     And all this effort is necessary to be able to support your code
     on a single additional platform - Microsoft .NET - and is useless for
@@ -283,7 +290,8 @@
     scripting solution for Qt applications, and to COM clients in general.
 
     When using the "IJW" method the only limitation is that it's error
-    prone as a lot of code is copied, and is very time consuming to do. 
+    prone as a lot of code is copied, and that it is very time consuming 
+    to do, especially if you have custom datatypes to support.
     Additionally it is difficult to model concepts like signals and slots
     in the .NET wrapper, and the parent/child hierarchies in Qt are
     difficult to combine with the garbage collected world of CLR 
