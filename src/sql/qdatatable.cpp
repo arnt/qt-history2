@@ -1796,7 +1796,7 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 			setNumCols( numCols() + 1 );
 			d->colIndex.append( cur->position( field->name() ) );
 			setColumnReadOnly( numCols()-1, field->isReadOnly() );
-2			QHeader* h = horizontalHeader();
+			QHeader* h = horizontalHeader();
 			QString label = d->fldLabel[ i ];
 			QIconSet icons = d->fldIcon[ i ];
 			h->setLabel( numCols()-1, icons, label );
