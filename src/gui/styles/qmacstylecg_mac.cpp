@@ -16,6 +16,7 @@
 #include <qrubberband.h>
 #include <qscrollbar.h>
 #include <qslider.h>
+#include <qrangecontrol.h>
 #include <qt_mac.h>
 #include <qtabbar.h>
 
@@ -25,6 +26,7 @@
 QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
 
 const int qt_mac_hitheme_version = 0; //the HITheme version we speak
+const int macSpinBoxSep        = 5;    // distance between spinwidget and the lineedit
 // Utility to generate correct rectangles for AppManager internals
 static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice * =0,
 					    bool off=true, const QRect &rect=QRect())
@@ -113,6 +115,23 @@ static inline HIThemeTrackDrawInfo *getTrackDrawInfo(QStyle::ComplexControl cont
             tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
     }
     return &tdi;
+}
+
+static inline ThemeDrawState getDrawState(QStyle::SFlags flags, const QPalette &pal)
+{
+    ThemeDrawState tds = kThemeStateActive;
+    if (flags & QStyle::Style_Down) {
+	tds = kThemeStatePressed;
+    } else if (qAquaActive(pal)) {
+	if (!(flags & QStyle::Style_Enabled))
+	    tds = kThemeStateUnavailable;
+    } else {
+	if (flags & QStyle::Style_Enabled)
+	    tds = kThemeStateInactive;
+	else
+	    tds = kThemeStateUnavailableInactive;
+    }
+    return tds;
 }
 
 //utility to figure out the size (from the painter)
@@ -240,19 +259,7 @@ void QMacStyleCG::polish(QApplication *app)
 void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r,
 				const QPalette &pal, SFlags flags, const QStyleOption &opt) const
 {
-    ThemeDrawState tds = kThemeStateActive;
-    if (flags & Style_Down) {
-	tds = kThemeStatePressed;
-    } else if (qAquaActive(pal)) {
-	if (!(flags & Style_Enabled))
-	    tds = kThemeStateUnavailable;
-    } else {
-	if (flags & Style_Enabled)
-	    tds = kThemeStateInactive;
-	else
-	    tds = kThemeStateUnavailableInactive;
-    }
-
+    ThemeDrawState tds = getDrawState(flags, pal);
     switch (pe) {
     case PE_RubberBandMask:
 	p->fillRect(r, color1);
@@ -314,8 +321,8 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
 	}
 	break; }
     case PE_FocusRect:
-        //HIThemeDrawFocusRect(qt_glb_mac_rect(r, p), true, static_cast<CGContextRef>(p->handle()),
-        //                     kHIThemeOrientationNormal);
+//        HIThemeDrawFocusRect(qt_glb_mac_rect(r, p), true, static_cast<CGContextRef>(p->handle()),
+//                             kHIThemeOrientationNormal);
 	break;
     case PE_Splitter: {
         HIThemeSplitterDrawInfo sdi;
@@ -482,17 +489,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
 			      const QRect &r, const QPalette &pal, SFlags how,
 			      const QStyleOption &opt) const
 {
-    ThemeDrawState tds = kThemeStateActive;
-    if (qAquaActive(pal)) {
-	if (!(how & Style_Enabled))
-	    tds = kThemeStateUnavailable;
-    } else {
-	if (how & Style_Enabled)
-	    tds = kThemeStateInactive;
-	else
-	    tds = kThemeStateUnavailableInactive;
-    }
-
+    ThemeDrawState tds = getDrawState(how, pal);
     switch(element) {
     case CE_PushButton: {
         if (!widget)
@@ -741,6 +738,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
 				     const QRect &r, const QPalette& pal, SFlags flags, SCFlags sub,
 				     SCFlags subActive, const QStyleOption &opt) const
 {
+    ThemeDrawState tds = getDrawState(flags, pal);
     switch (control) {
     case CC_Slider:
     case CC_ScrollBar: {
@@ -793,6 +791,40 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                                           kHIThemeOrientationNormal);
                 
             }
+        }
+        break; }
+    case CC_SpinWidget: {
+        const QSpinWidget *sw = static_cast<const QSpinWidget *>(w);
+        if (sub & SC_SpinWidgetFrame)
+            drawPrimitive(PE_PanelLineEdit, p,
+                          querySubControlMetrics(CC_SpinWidget, sw, SC_SpinWidgetFrame), pal,
+                          Style_Sunken);
+        if (sub & SC_SpinWidgetUp || sub & SC_SpinWidgetDown) {
+            HIThemeButtonDrawInfo bdi;
+            bdi.version = qt_mac_hitheme_version;
+            if (qt_aqua_size_constrain(sw) == QAquaSizeSmall)
+                bdi.kind = kThemeIncDecButtonSmall;
+            else
+                bdi.kind = kThemeIncDecButton;
+            if (!sw->isUpEnabled() && !sw->isDownEnabled())
+                tds = kThemeStateUnavailable;
+            if (subActive == SC_SpinWidgetDown)
+                tds = kThemeStatePressedDown;
+            else if (subActive == SC_SpinWidgetUp)
+                tds = kThemeStatePressedUp;
+            bdi.state = tds;
+            bdi.value = kThemeButtonOff;
+            if (flags & Style_HasFocus && QMacStyle::focusRectPolicy(sw) != QMacStyle::FocusDisabled)
+                bdi.adornment = kThemeAdornmentFocus;
+            else
+                bdi.adornment = kThemeAdornmentNone;
+            QRect updown = sw->upRect() | sw->downRect();
+	    if (sw->palette().brush(sw->backgroundRole()).pixmap())
+		p->drawPixmap(updown, *sw->palette().brush(sw->backgroundRole()).pixmap());
+	    else
+		p->fillRect(updown, sw->palette().color(sw->backgroundRole()));
+            HIThemeDrawButton(qt_glb_mac_rect(updown, p), &bdi,
+                              static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal, 0);
         }
         break; }
     default:
@@ -860,6 +892,10 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_TabBarBaseOverlap:
 	GetThemeMetric(kThemeMetricTabFrameOverlap, &ret);
 	break;
+    case PM_SpinBoxFrameWidth:
+	GetThemeMetric(kThemeMetricEditTextFrameOutset, &ret);
+	ret += 2;
+	break;
     default:
 	ret = QWindowsStyle::pixelMetric(metric, widget);
 	break;
@@ -893,7 +929,7 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
             break;
         }
         break; }
-    case CC_ScrollBar : {
+    case CC_ScrollBar: {
         const QScrollBar *scrollbar = static_cast<const QScrollBar *>(widget);
         HIThemeTrackDrawInfo tdi = *getTrackDrawInfo(control, scrollbar);
         HIRect macRect;
@@ -912,6 +948,34 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
             break;
         }
         break; }
+    case CC_SpinWidget: {
+        const int spinner_w = 10,
+                spinner_h = 15;
+	int fw = pixelMetric(PM_SpinBoxFrameWidth, widget),
+            y = fw,
+            x = widget->width() - fw - spinner_w;
+	switch(sc) {
+            case SC_SpinWidgetUp:
+                rect = QRect(x, y + ((widget->height() - fw * 2) / 2 - spinner_h),
+                             spinner_w, spinner_h);
+                break;
+            case SC_SpinWidgetDown:
+                rect = QRect(x, y + (widget->height() - fw * 2) / 2, spinner_w, spinner_h);
+                break;
+            case SC_SpinWidgetButtonField:
+                rect = QRect(x, y, spinner_w, widget->height() - fw * 2);
+                break;
+            case SC_SpinWidgetEditField:
+                rect = QRect(fw, fw, widget->width() - spinner_w - fw * 2 - macSpinBoxSep,
+                             widget->height() - fw * 2);
+                break;
+            case SC_SpinWidgetFrame:
+                rect = QRect(0, 0, widget->width() - spinner_w - macSpinBoxSep, widget->height());
+                break;
+            default:
+                break;
+	}
+	break; }
     default:
         rect = QWindowsStyle::querySubControlMetrics(control, widget, sc, opt);
     }
@@ -1028,6 +1092,19 @@ QSize QMacStyleCG::sizeFromContents(ContentsType contents, const QWidget *widget
 {
     QSize sz;
     switch (contents) {
+    case CT_SpinBox:
+        sz.setWidth(sz.width() + macSpinBoxSep); //leave space between the spinner and the editor
+        break;
+    case CT_TabWidget:
+        sz.setWidth(sz.width() + 15); //leave a little bit of space around the tabs.
+        break;
+    case CT_TabBarTab: {
+        SInt32 lth = kThemeLargeTabHeightMax;
+        if (qt_aqua_size_constrain(widget) == QAquaSizeSmall)
+            lth = kThemeSmallTabHeightMax;
+        if(sz.height() > lth)
+            sz.setHeight(lth);
+        break; }
     default:
         sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
     }
