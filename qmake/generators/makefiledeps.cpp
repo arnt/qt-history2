@@ -115,7 +115,7 @@ SourceFile *SourceFiles::lookupMocFile(const QString &mocfile)
 {
     for(register int n = 0; n < num_nodes; n++) {
         if(nodes[n]) {
-            for(SourceFileNode *next = nodes[n]; next; nodes[n]->next) {
+            for(SourceFileNode *next = nodes[n]; next; next = nodes[n]->next) {
                 if (next->file->mocable
                     && mocfile == next->file->mocfile.local()) {
                     return next->file;
