@@ -226,10 +226,10 @@ const int end = nSamples;
 
 static void timeSpeed()
 {
-#if QT_VERSION < 0x030200
-    QFont fnt("Tahoma");
-#else
-    QFont fnt("Tahoma,Mangal");
+    QFont fnt = QApplication::font();
+#if QT_VERSION >= 0x030200
+    // Qt >= 3.2 supports CSS style family lists
+    fnt.setFamily(fnt.family() + ",Mangal");
 #endif
     QFontMetrics fm( fnt );
 
