@@ -297,8 +297,10 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 	line.descent = qMax(line.descent, current.descent);
 
 	if (current.isObject) {
-	    if (line.length && line.textWidth + current.width > line.width && !(d->textFlags & Qt::SingleLine))
-		goto found;
+	    if (line.length && !(d->textFlags & Qt::SingleLine)) {
+		if (line.textWidth + current.width > line.width || d->string[current.position] == QChar_linesep)
+		    goto found;
+	    }
 
 	    line.textWidth += current.width;
 	    line.length++;
@@ -351,9 +353,6 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 	    line.textWidth += tmpw + spacew;
 	    spacew = nextspacew;
 	    line.length += next - pos + 1;
-
-	    if (d->string[current.position+pos] == QChar_linesep)
-		goto found;
 
 	    pos = next + 1;
 	} while (pos < length);
