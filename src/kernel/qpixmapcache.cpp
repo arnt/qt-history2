@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#2 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -14,7 +14,7 @@
 #include "qcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#2 $";
 #endif
 
 
@@ -33,9 +33,9 @@ the first pixmap. The QDict and QCache classes do exactly the same.
 
 The cache becomes full when the total size of all pixmaps in the cache
 exceeds the cache limit.  The initial cache limit is 1024 KByte (1 MByte).
-A pixmap takes roughly with*height*depth/8 bytes of memory.
+A pixmap takes roughly width*height*depth/8 bytes of memory.
 
-See the QCache documentation for a more details about cache mechanism.
+See the QCache documentation for a more details about the cache mechanism.
 */
 
 typedef declare(QCacheM,QPixmap) QPMCache;
@@ -57,6 +57,17 @@ QPixmap *QPixmapCache::find( const char *key )
 /*!
 Inserts the pixmap \e pm associated with \e key into the cache.
 Returns TRUE if successful, or FALSE if the pixmap is too big for the cache.
+
+All pixmaps inserted by the Qt library has a key starting with "$qt.."
+(so let your keys start with something else).
+
+When a pixmap is inserted and the cache is about to exceed its limit,
+it removes pixmaps until there is enough room for the pixmap to be inserted.
+
+The oldest pixmaps (least recently accessed in the cache) will be thrown
+away when more space is needed.
+
+\sa setCacheLimit().
 */
 
 bool QPixmapCache::insert( const char *key, QPixmap *pm )
@@ -71,6 +82,7 @@ bool QPixmapCache::insert( const char *key, QPixmap *pm )
 
 /*!
 Returns the cache limit (in kilobytes).
+
 \sa setCacheLimit().
 */
 
@@ -81,7 +93,9 @@ int QPixmapCache::cacheLimit()
 
 /*!
 Sets the cache limit to \e n kilobytes.
-The default setting is 400 kilobytes.
+
+The default setting is 1024 kilobytes.
+
 \sa cacheLimit().
 */
 
