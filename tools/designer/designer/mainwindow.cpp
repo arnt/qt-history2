@@ -3477,8 +3477,11 @@ static QString fixArgs( const QString &s2 )
 void MainWindow::writeConfig()
 {
     QSettings config;
-    QString keybase = DesignerApplication::settingsKey();
 
+    // No search path for unix, only needs application name
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+
+    QString keybase = DesignerApplication::settingsKey();
     config.writeEntry( keybase + "RestoreWorkspace", restoreConfig );
     config.writeEntry( keybase + "SplashScreen", splashScreen );
     config.writeEntry( keybase + "DocPath", docPath );
@@ -3570,6 +3573,7 @@ void MainWindow::readConfig()
 {
     QString keybase = DesignerApplication::settingsKey();
     QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     bool ok;
     restoreConfig = config.readBoolEntry( keybase + "RestoreWorkspace", TRUE, &ok );

@@ -42,7 +42,7 @@ public:
 
     QLabel *showSplash();
 
-    static QString settingsKey() { return "/Trolltech/Qt Designer/3.0/"; }
+    static QString settingsKey() { return "/Qt Designer/3.0/"; }
 
 protected:
     QDateTime lastMod;

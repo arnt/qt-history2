@@ -59,6 +59,8 @@ QLabel *DesignerApplication::showSplash()
 {
     QRect screen = QApplication::desktop()->screenGeometry();
     QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+
     QRect mainRect;
     QString keybase = settingsKey();
     bool show = config.readBoolEntry( keybase + "SplashScreen", TRUE );
