@@ -140,16 +140,16 @@ public:
 */
 
 #ifndef QT_NO_PICTURE
-QPicture *QLabel::picture() const
-{
-    return d->lpicture;
-}
-#endif
 /*!
     Returns the label's picture or 0 if the label doesn't have a
     picture.
 */
 
+QPicture *QLabel::picture() const
+{
+    return d->lpicture;
+}
+#endif
 
 
 /*!
