@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#4 $
+** $Id: //depot/qt/main/src/xml/qxml.h#14 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **

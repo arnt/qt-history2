@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#46 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#47 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -5778,7 +5778,12 @@ QDomNodeList QDomDocument::elementsByTagNameNS( const QString& nsURI, const QStr
 }
 
 /*!
-  fnord
+  Returns the element whose ID is equal to \a elementId. If no element with the
+  ID was found, this function returns a null element.
+
+  Since the actual version of the QDomClasses does not know which attributes
+  are element IDs, this function returns always a null element. This may change
+  in a future version.
 */
 QDomElement QDomDocument::elementById( const QString& /*elemntId*/ )
 {
