@@ -115,8 +115,8 @@ public:
 	GenerateMipmap 		= 0x00000004,
 	TextureCompression 	= 0x00000008
     };
-    Q_DECLARE_FLAGS(Extensions, Extension);
-    
+    Q_DECLARE_FLAGS(Extensions, Extension)
+
     static Extensions glExtensions;
     static void init();
 };
