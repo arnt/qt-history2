@@ -276,7 +276,8 @@ static const char *getSegments(char ch)               // gets list of segments f
 }
 
 
-/*!
+#ifdef QT_COMPAT
+/*! \obsolete
     Constructs an LCD number, sets the number of digits to 5, the base
     to decimal, the decimal point mode to 'small' and the frame style
     to a raised box. The segmentStyle() is set to \c Outline.
@@ -295,7 +296,7 @@ QLCDNumber::QLCDNumber(QWidget *parent, const char *name)
 }
 
 
-/*!
+/*! \obsolete
     Constructs an LCD number, sets the number of digits to \a
     numDigits, the base to decimal, the decimal point mode to 'small'
     and the frame style to a raised box. The segmentStyle() is set to
@@ -309,6 +310,43 @@ QLCDNumber::QLCDNumber(QWidget *parent, const char *name)
 
 QLCDNumber::QLCDNumber(uint numDigits, QWidget *parent, const char *name)
         : QFrame(parent, name)
+{
+    ndigits = numDigits;
+    init();
+}
+#endif //QT_COMPAT
+
+/*!
+    Constructs an LCD number, sets the number of digits to 5, the base
+    to decimal, the decimal point mode to 'small' and the frame style
+    to a raised box. The segmentStyle() is set to \c Outline.
+
+    The \a parent argument is passed to the QFrame constructor.
+
+    \sa setNumDigits(), setSmallDecimalPoint()
+*/
+
+QLCDNumber::QLCDNumber(QWidget *parent)
+        : QFrame(parent)
+{
+    ndigits = 5;
+    init();
+}
+
+
+/*!
+    Constructs an LCD number, sets the number of digits to \a
+    numDigits, the base to decimal, the decimal point mode to 'small'
+    and the frame style to a raised box. The segmentStyle() is set to
+    \c Outline.
+
+    The \a parent argument is passed to the QFrame constructor.
+
+    \sa setNumDigits(), setSmallDecimalPoint()
+*/
+
+QLCDNumber::QLCDNumber(uint numDigits, QWidget *parent)
+        : QFrame(parent)
 {
     ndigits = numDigits;
     init();

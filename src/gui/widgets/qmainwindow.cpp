@@ -189,16 +189,16 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWindowArea area)
 {
     bool valid = false;
     switch (corner) {
-    case Qt::TopLeft:
+    case Qt::TopLeftCorner:
         valid = (area == Qt::DockWindowAreaTop || area == Qt::DockWindowAreaLeft);
         break;
-    case Qt::TopRight:
+    case Qt::TopRightCorner:
         valid = (area == Qt::DockWindowAreaTop || area == Qt::DockWindowAreaRight);
         break;
-    case Qt::BottomLeft:
+    case Qt::BottomLeftCorner:
         valid = (area == Qt::DockWindowAreaBottom || area == Qt::DockWindowAreaLeft);
         break;
-    case Qt::BottomRight:
+    case Qt::BottomRightCorner:
         valid = (area == Qt::DockWindowAreaBottom || area == Qt::DockWindowAreaRight);
         break;
     }

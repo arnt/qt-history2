@@ -38,10 +38,10 @@ class Q_GUI_EXPORT QLabel : public QFrame
 
 public:
 #ifdef QT_COMPAT
-    QLabel(QWidget *parent, const char* name, Qt::WFlags f=0);
-    QLabel(const QString &text, QWidget *parent, const char* name,
+    QT_COMPAT_CONSTRUCTOR QLabel(QWidget *parent, const char* name, Qt::WFlags f=0);
+    QT_COMPAT_CONSTRUCTOR QLabel(const QString &text, QWidget *parent, const char* name,
            Qt::WFlags f=0);
-    QLabel(QWidget *buddy, const QString &,
+    QT_COMPAT_CONSTRUCTOR QLabel(QWidget *buddy, const QString &,
            QWidget *parent=0, const char* name=0, Qt::WFlags f=0);
 #endif
     QLabel(QWidget *parent=0, Qt::WFlags f=0);

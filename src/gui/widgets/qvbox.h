@@ -25,7 +25,10 @@ class Q_GUI_EXPORT QVBox : public QHBox
 {
     Q_OBJECT
 public:
-    QVBox(QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QVBox(QWidget* parent, const char* name, Qt::WFlags f=0);
+#endif
+    QVBox(QWidget* parent=0, Qt::WFlags f=0);
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

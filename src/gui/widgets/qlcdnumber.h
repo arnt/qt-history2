@@ -37,8 +37,12 @@ class Q_GUI_EXPORT QLCDNumber : public QFrame                // LCD number widge
     Q_PROPERTY(int intValue READ intValue WRITE display)
 
 public:
-    QLCDNumber(QWidget* parent=0, const char* name=0);
-    QLCDNumber(uint numDigits, QWidget* parent=0, const char* name=0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QLCDNumber(QWidget* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QLCDNumber(uint numDigits, QWidget* parent, const char* name);
+#endif
+    QLCDNumber(QWidget* parent = 0);
+    QLCDNumber(uint numDigits, QWidget* parent = 0);
     ~QLCDNumber();
 
     enum Mode { Hex, Dec, Oct, Bin, HEX = Hex, DEC = Dec, OCT = Oct,

@@ -499,6 +499,7 @@ int QLineEdit::cursorPositionAt(const QPoint &pos)
 }
 
 
+#ifdef QT_COMPAT
 /*! \obsolete
 
     Use setText(), setCursorPosition() and setSelection() instead.
@@ -523,7 +524,7 @@ bool QLineEdit::validateAndSet(const QString &newText, int newPos,
     }
     return false;
 }
-
+#endif //QT_COMPAT
 
 /*!
     \property QLineEdit::alignment
@@ -1513,7 +1514,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
                     QChar *c = (QChar *)t.unicode();
                     int l = t.length();
                     while(l--) {
-                        if (c->mirrored())
+                        if (c->hasMirrored())
                             *c = c->mirroredChar();
                         c++;
                     }

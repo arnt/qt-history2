@@ -35,12 +35,25 @@
 */
 
 
-/*!
+#ifdef QT_COMPAT
+/*! \obsolete
     Constructs a vbox widget called \a name with parent \a parent and
     widget flags \a f.
  */
 QVBox::QVBox(QWidget *parent, const char *name, Qt::WFlags f)
-    :QHBox(false, parent, name, f)
+    :QHBox(Qt::Vertical, parent, f)
+{
+    setObjectName(name);
+}
+#endif //QT_COMPAT
+
+/*!
+    Constructs a vbox widget with parent \a parent and
+    widget flags \a f.
+ */
+QVBox::QVBox(QWidget *parent, Qt::WFlags f)
+    :QHBox(Qt::Vertical, parent, f)
 {
 }
+
 #endif

@@ -43,7 +43,8 @@
 */
 
 
-/*!
+#ifdef QT_COMPAT
+/*! \obsolete
     Constructs an hbox widget with parent \a parent, called \a name.
     The parent, name and widget flags, \a f, are passed to the QFrame
     constructor.
@@ -52,11 +53,23 @@ QHBox::QHBox(QWidget *parent, const char *name, Qt::WFlags f)
     :QFrame(parent, name, f)
 {
     lay = new QHBoxLayout(this);
-    lay->setObjectName(name);
     lay->setMargin(frameWidth());
     lay->setSpacing(frameWidth());
 }
+#endif
 
+/*!
+    Constructs an hbox widget with parent \a parent.
+    The parent and widget flags, \a f, are passed to the QFrame
+    constructor.
+*/
+QHBox::QHBox(QWidget *parent, Qt::WFlags f)
+    :QFrame(parent, f)
+{
+    lay = new QHBoxLayout(this);
+    lay->setMargin(frameWidth());
+    lay->setSpacing(frameWidth());
+}
 
 /*!
     Constructs a horizontal hbox if \a horizontal is true, otherwise
@@ -69,14 +82,14 @@ QHBox::QHBox(QWidget *parent, const char *name, Qt::WFlags f)
     QFrame constructor.
 */
 
-QHBox::QHBox(bool horizontal, QWidget *parent , const char *name, Qt::WFlags f)
-    :QFrame(parent, name, f)
+QHBox::QHBox(Qt::Orientation orientation, QWidget *parent , Qt::WFlags f)
+    :QFrame(parent, f)
 {
-    lay = new QBoxLayout(horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down, this);
-    lay->setObjectName(name);
+    lay = new QBoxLayout(orientation == Qt::Horizontal
+                         ? QBoxLayout::LeftToRight
+                         : QBoxLayout::Down, this);
     lay->setMargin(frameWidth());
     lay->setSpacing(frameWidth());
-
 }
 
 /*! \reimp
@@ -125,8 +138,10 @@ void QHBox::setSpacing(int space)
 
 QSize QHBox::sizeHint() const
 {
+#ifdef QT_COMPAT
     QWidget *mThis = (QWidget*)this;
     QApplication::sendPostedEvents(mThis, QEvent::ChildInserted);
+#endif
     return QFrame::sizeHint();
 }
 
@@ -138,8 +153,10 @@ QSize QHBox::sizeHint() const
 */
 bool QHBox::setStretchFactor(QWidget* w, int stretch)
 {
+#ifdef QT_COMPAT
     QWidget *mThis = (QWidget*)this;
     QApplication::sendPostedEvents(mThis, QEvent::ChildInserted);
+#endif
     return lay->setStretchFactor(w, stretch);
 }
 #endif

@@ -182,7 +182,8 @@ QLabel::QLabel(const QString &text, QWidget *parent, Qt::WFlags f)
 }
 
 
-/*!
+#ifdef QT_COMPAT
+/*! \obsolete
     Constructs an empty label.
 
     The \a parent, \a name and widget flag \a f, arguments are passed
@@ -200,7 +201,7 @@ QLabel::QLabel(QWidget *parent, const char *name, Qt::WFlags f)
 }
 
 
-/*!
+/*! \obsolete
     Constructs a label that displays the text, \a text.
 
     The \a parent, \a name and widget flag \a f, arguments are passed
@@ -220,7 +221,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
 }
 
 
-/*!
+/*! \obsolete
     Constructs a label that displays the text \a text. The label has a
     buddy widget, \a buddy.
 
@@ -245,6 +246,7 @@ QLabel::QLabel(QWidget *buddy,  const QString &text,
     setBuddy(buddy);
     setText(text);
 }
+#endif //QT_COMPAT
 
 /*!
     Destroys the label.
