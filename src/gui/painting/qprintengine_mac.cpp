@@ -586,7 +586,7 @@ void QMacPrintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
     d->paintEngine->updateClipRegion(region, clipEnabled);
 }
 
-void QMacPrintEngnine::updateRenderHints(QPainter::RenderHints hints)
+void QMacPrintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->updateRenderHints(hints);
