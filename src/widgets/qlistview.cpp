@@ -7789,6 +7789,8 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 {
     if ( !from || !to )
 	return;
+    if ( from == to && !includeFirst )
+	return;
     bool swap = FALSE;
     if ( to == from->itemAbove() )
 	swap = TRUE;

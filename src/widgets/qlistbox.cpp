@@ -4564,6 +4564,8 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
 {
     if ( !from || !to )
 	return;
+    if ( from == to && !includeFirst )
+	return;
     QListBoxItem *i = 0;
     int index =0;
     int f_idx = -1, t_idx = -1;
