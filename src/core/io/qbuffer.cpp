@@ -252,7 +252,7 @@ void QBuffer::flush()
 /*!
     \reimp
 */
-inline QIODevice::Offset QBuffer::at() const
+QIODevice::Offset QBuffer::at() const
 {
     return ioIndex;
 }
