@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#85 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#84 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#85 $";
 #endif
 
 
@@ -2827,10 +2827,10 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    QRect bbox = fm.boundingRect( str, len );
 	    int w=bbox.width(), h=bbox.height();
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
-	    Q2DMatrix mat( wm11/65536.0, wm12/65536.0,
+	    Q2DMatrix mat1( wm11/65536.0, wm12/65536.0,
 			   wm21/65536.0, wm22/65536.0,
 			   wdx/65536.0,  wdy/65536.0 );
-	    mat = QPixmap::trueMatrix( mat, w, h );
+	    Q2DMatrix mat = QPixmap::trueMatrix( mat1, w, h );
 	    QPixmap *wx_bm = get_text_bitmap( mat, cfont, str, len );
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm ) {		// no such cached bitmap
@@ -2847,10 +2847,11 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		    return;
 		}
 	    }
-	    WXFORM_P(x,y);
-	    int dx, dy;
-	    mat.map( tx, ty, &dx, &dy );	// compute position of bitmap
-	    x -= dx;  y -= dy;
+	    float fx=x, fy=y, nfx, nfy;
+	    mat1.map( fx,fy, &nfx,&nfy );
+	    float tfx=tx, tfy=ty, dx, dy;
+	    mat.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
+	    x = int(nfx-dx);  y = int(nfy-dy);
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		QPointArray a(5);
 		int m, n;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#15 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#15 $";
 #endif
 
 
@@ -167,6 +167,45 @@ If \e depth is negative, then the hardware depth will be used.
 QPixmap::QPixmap( int w, int h, int depth )
     : QPaintDevice( PDT_PIXMAP )
 {
+    init();
+    int dd = DefaultDepth( dpy, qt_xscreen() );
+    bool make_null = w == 0 || h == 0;		// create null pixmap
+    if ( depth == 1 )				// monocrome pixmap
+	data->d = 1;
+    else if ( depth < 0 || depth == dd )	// compatible pixmap
+	data->d = dd;
+    else
+	data->d = 0;
+    if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
+	data->w = data->h = 0;
+	data->d = 0;
+	hd = 0;
+#if defined(CHECK_RANGE)
+	if ( !make_null )			// invalid parameters
+	    warning( "QPixmap: Invalid pixmap parameters" );
+#endif
+	return;
+    }
+    data->w = w;
+    data->h = h;
+    hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
+}
+
+/*!
+Constructs a pixmap with size \e sz and of \e depth bits per pixels.
+
+The contents of the pixmap is uninitialized.
+
+The \e depth can be either 1 (monochrome) or the default depth
+supported by the hardware (normally 8 bits).
+If \e depth is negative, then the hardware depth will be used.
+*/
+
+QPixmap::QPixmap( QSize sz, int depth )
+    : QPaintDevice( PDT_PIXMAP )
+{
+    int w = sz.width();
+    int h = sz.height();
     init();
     int dd = DefaultDepth( dpy, qt_xscreen() );
     bool make_null = w == 0 || h == 0;		// create null pixmap
@@ -1041,17 +1080,20 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
     ws = width();
     hs = height();
 
-    int x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    matrix.map(   0,  0, &x1, &y1 );
-    matrix.map(  ws,  0, &x2, &y2 );
-    matrix.map(  ws, hs, &x3, &y3 );
-    matrix.map(   0, hs, &x4, &y4 );
+    float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
+    float xx = (float)ws - 0.5;
+    float yy = (float)hs - 0.5;
+    
+    matrix.map( 0.0, 0.0, &x1, &y1 );
+    matrix.map(  xx, 0.0, &x2, &y2 );
+    matrix.map(  xx,  yy, &x3, &y3 );
+    matrix.map( 0.0,  yy, &x4, &y4 );
 
-    int ymin = y1;				// lowest y value
+    float ymin = y1;				// lowest y value
     if ( y2 < ymin ) ymin = y2;
     if ( y3 < ymin ) ymin = y3;
     if ( y4 < ymin ) ymin = y4;
-    int xmin = x1;				// lowest x value
+    float xmin = x1;				// lowest x value
     if ( x2 < xmin ) xmin = x2;
     if ( x3 < xmin ) xmin = x3;
     if ( x4 < xmin ) xmin = x4;
@@ -1059,12 +1101,12 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
     Q2DMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
     mat = matrix * mat;
 
-    int h13 = QABS(y3-y1);
-    int w13 = QABS(x3-x1);
-    int h24 = QABS(y4-y2);
-    int w24 = QABS(x4-x2);
-    h = QMAX(h13,h24);				// size of target pixmap
-    w = QMAX(w13,w24);
+    int h13 = d2i_round( QABS(y3-y1) );
+    int w13 = d2i_round( QABS(x3-x1) );
+    int h24 = d2i_round( QABS(y4-y2) );
+    int w24 = d2i_round( QABS(x4-x2) );
+     h = QMAX(h13,h24);                         // size of target pixmap
+     w = QMAX(w13,w24);
 
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
