@@ -202,7 +202,7 @@ public:
     }
 
 private:
-    const QUuid &interfaceId;
+    QUuid interfaceId;
     QDict<QLibrary> plugDict;	    // Dict to match feature with library
     QDict<QLibrary> libDict;	    // Dict to match library file with library
 
