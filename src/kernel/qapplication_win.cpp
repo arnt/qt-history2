@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id$
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#543 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2935,6 +2935,44 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 
     if ( sm_blockUserInput ) //block user interaction during session management
 	return TRUE;
+
+    if ( msg.message == WM_MOUSEMOVE ) {
+	// Process only the most current mouse move event. Otherwise you
+	// end up queueing events in certain situations. Very bad for graphics 
+	// applications. Just grabbing the million poly model and moving the 
+	// mouse an inch queues redraws for 30+ seconds.
+	//
+	// (Patch submitted by: Steve Williams)
+	
+	bool keepLooking = true;
+	bool messageFound = false;
+	MSG mouseMsg1;
+	MSG mouseMsg2;
+	
+	while ( winPeekMessage( &mouseMsg1, msg.hwnd, WM_MOUSEFIRST, WM_MOUSELAST,
+			       PM_NOREMOVE) && keepLooking ) 
+	{
+	    // Check to make sure that the message is a mouse move message
+	    if ( mouseMsg1.message == WM_MOUSEMOVE ) {
+		 mouseMsg2 = mouseMsg1;
+		 messageFound = true;
+		
+		// Remove the mouse move message
+		winPeekMessage( &mouseMsg1, msg.hwnd, WM_MOUSEMOVE, WM_MOUSEMOVE,
+			       PM_REMOVE );
+	    } else
+		keepLooking = false;
+	}
+	
+	if ( messageFound ) {
+	    MSG *msgPtr = (MSG *)(&msg);
+
+	    // Update the passed in MSG structure with the
+	    // most current one.
+	    msgPtr->lParam = mouseMsg2.lParam;
+	    msgPtr->wParam = mouseMsg2.wParam;
+	}
+    }
 
     for ( i=0; (UINT)mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3 )
 	;
