@@ -146,7 +146,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap((GWorldPtr)hd)), *drow;
     unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
 
-    QRgb q;
+    QRgb q=0;
     int sdpt = image.depth();
     unsigned short sbpr = image.bytesPerLine();
     uchar *sptr = image.bits(), *srow;
