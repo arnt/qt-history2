@@ -220,7 +220,6 @@ void QTextDocument::setDocumentLayout(QAbstractTextDocumentLayout *layout)
 QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 {
     if (!d->lout) {
-        qDebug("auto creating layout");
         QTextDocument *that = const_cast<QTextDocument *>(this);
         that->d->setLayout(new QTextDocumentLayout(that));
     }
