@@ -8,6 +8,9 @@ been renamed or the arguments have changed.  We keep the old functions
 until the next release.  Compile with -DOBSOLETE to compile programs that
 depend on the obsoleted functions.
 
+moc
+----------
+    Gives a warning if no output is generated.
 
 qglobal.h:
 ----------
@@ -27,12 +30,14 @@ QApplication:
   cursor(), setCursor() and restoreCursor() obsoleted.
   Use overrideCursor(), setOverrideCursor() and restoreOverrideCursor()
   instead.
+  clipboard() is new.
 
 
 QBitmap:
 --------
   Constructor takes "const uchar *bits" instead of "const char *"
-  because of sign problems (uchar = unsigned char).
+  because of sign problems (uchar = unsigned char). Old constructors are
+  obsolete.
 
 
 QButton:
@@ -43,7 +48,7 @@ QButton:
 QButtonGroup:
 -------------
   Exclusive group setting added (isExclusive and setExclusive).
-
+  find() is new.
 
 QCache/QIntCache:
 -----------------
@@ -89,13 +94,23 @@ QIODevice/QBuffer/QFile:
   Using int/uint instead of long/ulong.
 
 
+QKeyEvent:
+----------
+  ascii() now returns int (previously uchar).
+
+
 QLCDNumber:
 ----------
   longValue() is obsolete, use intValue() instead.
 
+QLineEdit:
+----------
+  You can now mark text, and copy and paste to/from the clipboard.
+
 
 QListbox:
 ---------
+  The macro LBI_String is obsolete, use LBI_text instead.
   string() obsolete, use text() instead.
   stringCopy() and setStringCopy() obsolete.
 
@@ -109,6 +124,12 @@ QMenuData:
   Use setItemChecked(TRUE/FALSE) instead.
 
 
+QPaintDevice:
+---------
+  The bitblt function now takes an ignoreMask parameter. It has a default
+  value, so no old code will be broken.
+
+
 QPainter:
 ---------
   drawBezier draws cubic bezier, requires 4 control points.
@@ -117,6 +138,11 @@ QPainter:
 QPointArray:
 ------------
   move() is obsolete, use translate() instead.
+
+
+QPrinter:
+------------
+  fixed minor bugs in handling of polygons and beziers.
 
 
 QRect:
@@ -133,6 +159,10 @@ QSocketNotifier:
 ----------------
   enabled() is obsolete. Use isEnabled() instead.
 
+
+QTableView:
+------------
+  uint used instead of ulong (tableFlags() etc.)
 
 QTextStream:
 ------------
@@ -156,3 +186,6 @@ QWidget:
   determine the mouse tracking state.
 
   id() is obsolete, it has been renamed to winId().
+
+  The destroyed() signal has been moved to QObject.
+
