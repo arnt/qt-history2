@@ -441,7 +441,7 @@ bool QFileInfo::permission( int p ) const
     {
 	// just check if it's ReadOnly
 #if defined(UNICODE)
-	if ( qt_winver & Qt::WV_NT_based ) {
+	if ( qWinVersion() & Qt::WV_NT_based ) {
 	    if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
 		DWORD attr = GetFileAttributes( (TCHAR*)qt_winTchar( fn, TRUE ) );
 		if ( attr & FILE_ATTRIBUTE_READONLY )
