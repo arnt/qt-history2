@@ -4,7 +4,7 @@
 **
 ** Created : 000607
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the table module of the Qt GUI Toolkit.
 **
@@ -61,6 +61,7 @@
 #include "qstyle.h"
 
 #include <stdlib.h>
+#include <limits.h>
 
 static bool qt_update_cell_widget = TRUE;
 
