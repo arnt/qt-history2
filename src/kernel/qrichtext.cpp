@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#35 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -2232,7 +2232,7 @@ QMap<QCString, QChar> *htmlMap()
 	html_map->insert("copy", 0x00a9U);
 	html_map->insert("deg", 0x00b0U);
 	html_map->insert("micro", 0x00b5U);
-	html_map->insert("plusmn", 0x00b1U);                                   
+	html_map->insert("plusmn", 0x00b1U);
     }
     return html_map;
 }
@@ -2368,7 +2368,7 @@ QString QRichText::parseOpenTag(const QString& doc, int& pos,
 			&& pos < int(doc.length()) )
 		pos++;
 	    if ( valid && hasPrefix(doc, pos, pref ) ) {
-		pos += 4;
+		pos += 3;
 		eatSpace(doc, pos, TRUE);
 	    }
 	    else
