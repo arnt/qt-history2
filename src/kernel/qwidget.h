@@ -525,6 +525,7 @@ protected:
 #endif
     virtual void fontChange( const QFont & );
     virtual void windowActivationChange( bool oldActive );
+    virtual void languageChange();
 
     int		 metric( int )	const;
 

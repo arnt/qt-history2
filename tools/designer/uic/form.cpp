@@ -69,8 +69,10 @@ static QByteArray unzipXPM( QString data, ulong& length )
 }
 
 #if QT_VERSION >= 0x040000
-#error Add this functionality to QDir (relativePathTo() maybe?) and \
+#  ifdef Q_CC_GNU
+#    warning Add this functionality to QDir (relativePathTo() maybe?) and \
 remove it from here and from moc
+#  endif
 #endif
 
 QCString combinePath( const char *infile, const char *outfile )
@@ -562,6 +564,7 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     out << "protected:" << endl;
+    out << "    virtual void languageChange();" << endl;
     if ( !protectedVars.isEmpty() ) {
 	for ( it = protectedVars.begin(); it != protectedVars.end(); ++it )
 	    out << indent << *it << endl;
@@ -574,14 +577,8 @@ void Uic::createFormDecl( const QDomElement &e )
     registerLayouts( e );
     out << endl;
 
-#if QT_VERSION >= 0x040000
-#error Make languageChange() a virtual protected non-slot member of QWidget
-#endif
-
-    out << "protected slots:" << endl;
-    out << "    virtual void languageChange();" << endl;
     if ( !protectedSlots.isEmpty() ) {
-	out << endl;
+	out << "protected slots:" << endl;
 	writeFunctionsDecl( protectedSlots, protectedSlotTypes, protectedSlotSpecifier );
     }
     out << endl;

@@ -1606,6 +1606,22 @@ void QWidget::windowActivationChange( bool )
 }
 
 /*!
+    This virtual function is called when the application language has
+    changed.
+
+    Reimplement this function if your widget needs to know when the
+    language changes.  You will typically need to retranslate all user
+    visible strings in your reimplementation.
+
+    The default implementation does nothing.
+
+    \sa QTranslator
+*/
+void QWidget::languageChange()
+{
+}
+
+/*!
     \property QWidget::frameGeometry
     \brief geometry of the widget relative to its parent including any
     window frame
@@ -4617,6 +4633,8 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::LanguageChange:
+	    languageChange();
+	    // fall through
 	case QEvent::LocaleChange:
 	    if ( children() ) {
 		QObjectListIterator it( *children() );
@@ -4626,13 +4644,9 @@ bool QWidget::event( QEvent *e )
 		    QApplication::sendEvent( o, e );
 		}
 	    }
-	    if ( e->type() == QEvent::LanguageChange ) {
-		int index = metaObject()->findSlot( "languageChange()", TRUE );
-		if ( index >= 0 )
-		    qt_invoke( index, 0 );
-	    }
 	    update();
 	    break;
+
 #ifndef QT_NO_LAYOUT
 	case QEvent::LayoutDirectionChange:
 	    if ( layout() ) {
