@@ -52,6 +52,108 @@
 */
 
 /*!
+    \fn QLineFloat::QLineFloat()
+
+    Constructs a null line.
+*/
+
+/*!
+    \fn QLineFloat::QLineFloat(const QPointFloat &pt1, const QPointFloat &pt2)
+
+    Constructs a line object that represents the line between \a pt1 and
+    \a pt2.
+*/
+
+/*!
+    \fn QLineFloat::QLineFloat(float x1, float y1, float x2, float y2)
+
+    Constructs a line object that represents the line between (\a x1, \a y1) and
+    (\a x2, \a y2).
+*/
+
+/*!
+    \fn bool QLineFloat::isNull() const
+
+    Returns true if the line is not set up with valid start and end point;
+    otherwise returns false.
+*/
+
+/*!
+    \fn QPointFloat QLineFloat::start() const
+
+    Returns the line's start point.
+*/
+
+/*!
+    \fn QPointFloat QLineFloat::end() const
+
+    Returns the line's end point.
+*/
+
+/*!
+    \fn float QLineFloat::startX() const
+
+    Returns the x-coordinate of the line's start point.
+*/
+
+/*!
+    \fn float QLineFloat::startY() const
+
+    Returns the y-coordinate of the line's start point.
+*/
+
+/*!
+    \fn float QLineFloat::endX() const
+
+    Returns the x-coordinate of the line's end point.
+*/
+
+/*!
+    \fn float QLineFloat::endY() const
+
+    Returns the y-coordinate of the line's end point.
+*/
+
+/*!
+    \fn float QLineFloat::vx() const
+
+    Returns the horizontal component of the line's vector.
+*/
+
+/*!
+    \fn float QLineFloat::vy() const
+
+    Returns the vertical component of the line's vector.
+*/
+
+/*!
+    \fn QLineFloat::setLength(float len)
+*/
+
+/*!
+    \fn QLineFloat QLineFloat::normalVector() const
+
+    Returns a line that is perpendicular to this line with the same starting
+    point and length.
+
+    \img qlinefloat-normalvector.png
+*/
+
+/*!
+    \fn bool QLineFloat::intersects(const QLineFloat &l, IntersectMode mode = Unbounded)
+
+    Returns true if this line intersects the line specified by \a l for the
+    given intersection \a mode; otherwise returns false.
+*/
+
+/*!
+    \fn void QLineFloat::operator+=(const QPointFloat &other)
+
+    Performs a vector addition of this line with the \a other line given.
+*/
+
+
+/*!
     Returns the length of the line.
 */
 float QLineFloat::length() const
