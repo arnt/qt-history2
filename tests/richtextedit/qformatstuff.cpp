@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#3 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#4 $
 **
 ** Definition of the QtTextView class
 **
@@ -104,7 +104,7 @@ ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
 {
     if ( cKey.contains( format.key ) ) {
         cKey[ format.key ]->addRef();
-        qDebug( "registerFormat (%s): found at %d", format.key.latin1(), cKeyIndex[ format.key ] ); 
+        qDebug( "registerFormat (%s): found at index %d", format.key.latin1(), cKeyIndex[ format.key ] );
         return cKeyIndex[ format.key ];
     } else {
         QtTextCharFormat *f = new QtTextCharFormat( format );
@@ -112,7 +112,7 @@ ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
         int i = cIndex.count();
         cIndex[ i ] = f;
         cKeyIndex[ f->key ] = i;
-        qDebug( "registerFormat (%s): added at %d", format.key.latin1(), i );
+        qDebug( "registerFormat (%s): added at index %d", format.key.latin1(), i );
         return i;
     }
 }
@@ -126,7 +126,8 @@ void QtTextFormatCollection::unregisterFormat( ushort index )
         cKey.remove( key );
         cIndex.remove( index );
         cKeyIndex.remove( key );
-        qDebug( "unregisterFormat (%s): removed at %d, refcount: %d", f->key.latin1(), index, ref );
+        qDebug( "unregisterFormat (%s): removed index %d, refcount of format: %d", 
+                f->key.latin1(), index, ref );
         if ( ref <= 0 )
             delete f;
     }
