@@ -62,12 +62,11 @@ void QBufferPrivate::emitSignals()
     \ingroup io
 
     QBuffer allows you to access a QByteArray using the QIODevice
-    interface. The QByteArray is treated as a FIFO queue (First In,
-    First Out), so the first data you write to the buffer is the
-    first data you will read. For example:
+    interface. The QByteArray is treated just as a standard random-accessed
+    file. Example:
 
     \quotefromfile snippets/buffer/buffer.cpp
-    \skipto fifo_snippet
+    \skipto main_snippet
     \skipto QBuffer buffer
     \printto /^\}$/
 

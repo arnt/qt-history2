@@ -2,13 +2,14 @@
 #include <QBuffer>
 #include <QPalette>
 
-static void fifo_snippet()
+static void main_snippet()
 {
     QBuffer buffer;
     char ch;
 
     buffer.open(QBuffer::ReadWrite);
     buffer.write("Qt rocks!");
+    buffer.seek(0);
     buffer.getChar(&ch);  // ch == 'Q'
     buffer.getChar(&ch);  // ch == 't'
     buffer.getChar(&ch);  // ch == ' '
@@ -64,7 +65,7 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    fifo_snippet();
+    main_snippet();
     bytearray_ptr_ctor_snippet();
     write_datastream_snippets();
     read_datastream_snippets();
