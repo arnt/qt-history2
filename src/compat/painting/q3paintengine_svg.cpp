@@ -949,7 +949,8 @@ bool Q3SVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
         {
             QString pts = attr.namedItem("points").nodeValue();
             pts = pts.simplified();
-            QStringList sl = pts.split(QRegExp(QString::fromLatin1("[,]")));
+            QStringList sl = pts.split(QRegExp(QString::fromLatin1("[,]"),
+                                               QString::SkipEmptyParts));
             Q3PointArray ptarr((uint) sl.count() / 2);
             for (int i = 0; i < (int) sl.count() / 2; i++) {
                 double dx = sl[2*i].toDouble();
@@ -1174,7 +1175,8 @@ void Q3SVGPaintEnginePrivate::setTransform(const QString &tr, QPainter *pt)
     while ((index = reg.indexIn(t, index)) >= 0) {
         QString command = reg.cap(1);
         QString params = reg.cap(2);
-        QStringList plist = params.split(QRegExp(QString::fromLatin1("[,\\s]")));
+        QStringList plist = params.split(QRegExp(QString::fromLatin1("[,\\s]")),
+                                         QString::SkipEmptyParts);
         if (command == "translate") {
             double tx = 0, ty = 0;
             tx = plist[0].toDouble();
@@ -1240,7 +1242,7 @@ void Q3SVGPaintEnginePrivate::restoreAttributes(QPainter *pt)
 
 void Q3SVGPaintEnginePrivate::setStyle(const QString &s, QPainter *pt)
 {
-    QStringList rules = s.split(QChar(';'));
+    QStringList rules = s.split(QChar(';'), QString::SkipEmptyParts);
 
     QPen pen = pt->pen();
     QFont font = pt->font();
@@ -1255,7 +1257,6 @@ void Q3SVGPaintEnginePrivate::setStyle(const QString &s, QPainter *pt)
             setStyleProperty(prop, val, &pen, &font, &d->curr->textalign, pt);
         }
     }
-
     pt->setPen(pen);
     pt->setFont(font);
 }
@@ -1435,8 +1436,8 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
             // if possible, reflect last control point if smooth shorthand
             if (mode == 6 || mode == 8) {         // smooth 'S' and 'T'
                 bool cont = mode == lastMode ||
-                     mode == 6 && lastMode == 5 ||         // 'S' and 'C'
-                     mode == 8 && lastMode == 7;        // 'T' and 'Q'
+                            mode == 6 && lastMode == 5 ||         // 'S' and 'C'
+                            mode == 8 && lastMode == 7;        // 'T' and 'Q'
                 x = cont ? 2*x-controlX : x;
                 y = cont ? 2*y-controlY : y;
                 quad.setPoint(1, int(x), int(y));
@@ -1493,16 +1494,19 @@ void Q3SVGPaintEnginePrivate::drawPath(const QString &data, QPainter *pt)
         pt->drawPolygon(path, false, 0, pcount);
         pt->setPen(pen);
     }
+
     // draw each subpath stroke seperately
-    QList<int>::ConstIterator it = subIndex.begin();
-    QList<int>::ConstIterator end = --subIndex.end();
-    int start = 0;
-    while (it != end) {
-        int next = *++it;
-        // ### always joins ends if first and last point coincide.
-        // ### 'Z' can't have the desired effect
-        pt->drawPolyline(path, start, next-start);
-        start = next;
+    if (pt->pen().style() != Qt::NoPen) {
+        int i = 0;
+        int start = 0;
+        while (i < subIndex.size()-1) {
+            int next = subIndex.at(++i);
+            // ### always joins ends if first and last point coincide.
+            // ### 'Z' can't have the desired effect
+            if (next-start > 0)
+                pt->drawPolyline(path, start, next-start);
+            start = next;
+        }
     }
 }
 
