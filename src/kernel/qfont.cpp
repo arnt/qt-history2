@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#2 $
 **
 ** Implementation of QFont and QFontMetrics classes
 **
@@ -11,9 +11,10 @@
 *****************************************************************************/
 
 #include "qfont.h"
+#include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#2 $";
 #endif
 
 QFont::QFont( const QFont &font )
@@ -40,7 +41,7 @@ QFont &QFont::operator=( const QFont &font )
 
 QFont QFont::copy() const
 {
-    QFont f( data->name );
+    QFont f( data->family );
     return f;
 }
 
@@ -49,22 +50,24 @@ void QFont::setFamily( const char *family )
 {
     if ( data->family != family ) {
         data->family = family;
-	dirty = TRUE;
+	data->dirty = TRUE;
+        QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
 void QFont::setPointSize( int tenTimesPointSize )
 {
+    if ( tenTimesPointSize <= 0 ) {
 #if defined(CHECK_RANGE)
-    if ( tenTimesPointSize < 0 ) {
-        warning( "QFont::setPointSize: Negative point size (%i)",
+        warning( "QFont::setPointSize: Point size <= 0 (%i)",
                  tenTimesPointSize );
+#endif
         return;
     }
-#endif
     if ( data->pointSize != tenTimesPointSize ) {
         data->pointSize = tenTimesPointSize;
-	dirty = TRUE;
+	data->dirty = TRUE;
+        QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -72,7 +75,8 @@ void QFont::setItalic( bool i )
 {
     if ( data->italic != i ) {
         data->italic = i;
-	dirty = TRUE;
+	data->dirty = TRUE;
+        QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -84,9 +88,10 @@ void QFont::setWeight( int w )
         return;
     }
 #endif
-    if ( data->weigt != w ) {
-        data->weigt = w;
-	dirty = TRUE;
+    if ( data->weight != w ) {
+        data->weight = w;
+	data->dirty = TRUE;
+        QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -94,7 +99,8 @@ void QFont::setFixedPitch( bool b )
 {
     if ( data->fixedPitch != b ) {
         data->fixedPitch = b;
-	dirty = TRUE;
+	data->dirty = TRUE;
+        QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -103,7 +109,8 @@ void QFont::setStyleHint( StyleHint h )
     if ( data->styleHint != h ) {
         data->styleHint     = h;
         data->hintSetByUser = TRUE;
-	dirty = TRUE;
+	data->dirty = TRUE;
+        QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
@@ -111,28 +118,30 @@ void QFont::setCharSet( CharSet c )
 {
     if ( data->charSet != c ) {
         data->charSet = c;
-	dirty = TRUE;
+	data->dirty = TRUE;
+        QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
 bool QFont::exactMatch()
 {
-    if ( dirty )
+    if ( data->dirty )
         loadFont();
-    return exactMatch;
+    return data->exactMatch;
 }
 
 void QFont::setRawMode( bool b )
 {
     if ( data->rawMode != b ) {
         data->rawMode = b;
-	dirty = TRUE;
+	data->dirty = TRUE;
+        QPainter::changedFont( this, TRUE );	// tell painter about new font
     }
 }
 
 bool QFont::operator==( const QFont &f ) const
 {
-    return (f.data == data) || (f.data->name == data->name);
+    return (f.data == data) || (f.data->family == data->family);
 }
 
 void QFont::init()
@@ -174,7 +183,7 @@ QDataStream &operator<<( QDataStream &s, const QFont &f )
              << (UINT8) f.data->styleHint
              << (UINT8) f.data->charSet
              << (UINT8) f.data->weight
-             << bits
+             << bits;
 
 }
 
@@ -194,6 +203,7 @@ QDataStream &operator>>( QDataStream &s, QFont &f )
     f.data->hintSetByUser = ( bits && 0x4 ) ? TRUE : FALSE;
     f.data->rawMode       = ( bits && 0x8 ) ? TRUE : FALSE;
     f.data->dirty         = TRUE;
+    QPainter::changedFont( &f, TRUE );	// tell painter about new font
 
     return s;
 }

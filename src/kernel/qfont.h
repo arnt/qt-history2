@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#7 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#8 $
 **
 ** Definition of QFont class
 **
@@ -34,8 +34,6 @@ public:
     QFont &operator=( const QFont & );
 
     QFont	copy() const;
-
-    const char *name() const;			    // get font name
 
     void        setFamily( const char * );
     void        setPointSize( int tenTimesPointSize );
