@@ -365,7 +365,7 @@ bool QRfbClientCutText::read( QSocket *s )
 /*
  */
 QVNCServer::QVNCServer()
-    : QServerSocket( 5900, 0, 0 )
+    : QServerSocket( (unsigned short)5900, (int)0, (QObject*)0 )
 {
     qDebug( "QVNCServer created" );
     handleMsg = FALSE;
