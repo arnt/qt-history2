@@ -730,8 +730,10 @@ void QApplication::initialize( int argc, char **argv )
 	QString style;
 #if defined(Q_WS_WIN)
 	style = "Windows";		// default style for Windows
+#elif defined(Q_WS_X11) && defined(Q_OS_SOLARIS)
+	style = "CDE";			// default style for X11 on Solaris
 #elif defined(Q_WS_X11) && defined(Q_OS_IRIX)
-	style = "SGI";			// default comment
+	style = "SGI";			// default style for X11 on IRIX
 #elif defined(Q_WS_X11)
 	style = "Motif";		// default style for X11
 #elif defined(Q_WS_MAC9)
