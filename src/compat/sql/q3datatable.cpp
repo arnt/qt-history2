@@ -2224,6 +2224,14 @@ void Q3DataTable::showColumn( int col )
 }
 
 /*!
+  \reimp
+*/
+void  Q3DataTable::selectRow(int row)
+{
+    setCurrentCell(row, currentColumn());
+}
+
+/*!
     \fn void Q3DataTable::currentChanged( QSqlRecord* record )
 
     This signal is emitted whenever a new row is selected in the

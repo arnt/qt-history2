@@ -265,8 +265,8 @@ public:
     virtual int currentSelection() const;
 
     void selectCells(int start_row, int start_col, int end_row, int end_col);
-    void selectRow(int row);
-    void selectColumn(int col);
+    virtual void selectRow(int row);
+    virtual void selectColumn(int col);
 
     bool showGrid() const;
 

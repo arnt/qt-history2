@@ -120,6 +120,9 @@ public:
 
     void	 hideColumn( int col );
     void	 showColumn( int col );
+    int          indexOf( uint i ) const;
+    void selectRow(int row);
+
 signals:
     void         currentChanged( QSqlRecord* record );
     void         primeInsert( QSqlRecord* buf );
@@ -162,7 +165,6 @@ protected:
     void         endEdit( int row, int col, bool accept, bool replace );
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
     void         activateNextCell();
-    int          indexOf( uint i ) const; // ### make this public in 4.0
     void         reset();
     void         setSize( Q3SqlCursor* sql );
     void         repaintCell( int row, int col );

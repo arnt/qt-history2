@@ -1376,7 +1376,7 @@ int Q3ComboTableItem::count() const
     QComboBox *cb = ::qt_cast<QComboBox*>(w);
     if (cb)
 	return cb->count();
-    return (int)entries.count();    //### size_t/int cast
+    return (int)entries.count();
 }
 
 /*!
@@ -3558,22 +3558,13 @@ void Q3Table::selectCells(int start_row, int start_col, int end_row, int end_col
   \sa Q3TableSelection
 */
 
-// ### Make this virtual in 4.0 and remove hack for Q3DataTable
 void Q3Table::selectRow(int row)
 {
     row = QMIN(numRows()-1, row);
     if (row < 0)
 	return;
-    bool isDataTable = false;
-#ifndef QT_NO_SQL
-    isDataTable = ::qt_cast<Q3DataTable*>(this) != 0;
-#endif
-    if (isDataTable && selectionMode() == SingleRow) {
-	setCurrentCell(row, currentColumn());
-    } else {
-	Q3TableSelection sel(row, 0, row, numCols() - 1);
-	addSelection(sel);
-    }
+    Q3TableSelection sel(row, 0, row, numCols() - 1);
+    addSelection(sel);
 }
 
 /*! Selects the column \a col.
@@ -3581,7 +3572,6 @@ void Q3Table::selectRow(int row)
   \sa Q3TableSelection
 */
 
-// ### Make this virtual in 4.0
 void Q3Table::selectColumn(int col)
 {
     col = QMIN(numCols()-1, col);
