@@ -1232,7 +1232,7 @@ quotefile:
 		    }
 		    if ( briefEnd == INT_MAX )
 			briefEnd = yyOut.length();
-		    yyOut += QString( "<p>" );
+		    yyOut += QString( "<p> " );
 		    metNL = FALSE;
 		}
 	    }
@@ -2356,6 +2356,18 @@ QString Doc::finalHtml() const
 		substr = getRestOfLine( yyIn, yyPos );
 		yyOut += walk.printuntil( substr, location() );
 		break;
+	    case hash( 'q', 9 ):
+		consume( "quotefile" );
+		fileName = getWord( yyIn, yyPos );
+		skipRestOfLine( yyIn, yyPos );
+
+		if ( !fileName.isEmpty() ) {
+		    walk.startPass2( fileName, resolver(),
+				     walkthroughLinkMaps[fileName] );
+		    dependsOn.insert( walk.filePath() );
+		    /// ### put dependsOn in first pass
+		}
+		break;
 	    case hash( 's', 2 ):
 		consume( "sa" );
 		yyOut += htmlSeeAlso();
@@ -2378,18 +2390,6 @@ QString Doc::finalHtml() const
 	    case hash( 'v', 7 ):
 		consume( "version" );
 		yyOut += config->version();
-		break;
-	    case hash( 'w', 11 ):
-		consume( "walkthrough" );
-		fileName = getWord( yyIn, yyPos );
-		skipRestOfLine( yyIn, yyPos );
-
-		if ( !fileName.isEmpty() ) {
-		    walk.startPass2( fileName, resolver(),
-				     walkthroughLinkMaps[fileName] );
-		    dependsOn.insert( walk.filePath() );
-		    /// ### put dependsOn in first pass
-		}
 	    }
 	    if ( !consumed ) {
 		yyOut += QString( "\\" );
