@@ -90,11 +90,11 @@
   return the appropriate value. Alternatively you can connect to the
   done() slot, passing it \c Accepted or \c Rejected.
 
-  \i A <b>modeless</b> dialog is a dialog that operates independently of
+  \i A <b>non-modal</b> dialog is a dialog that operates independently of
   other windows in the same application.  Find and replace dialogs in
   word-processors are often modeless to allow the user to interact with
   both the application's main window and the dialog. Call show() to
-  display a modeless dialog. show() returns immediately so the flow of
+  display a non-modal dialog. show() returns immediately so the flow of
   control will continue in the calling code. In practice you will often
   call show() and come to the end of the function in which show() is
   called with control returning to the main event loop.
@@ -134,7 +134,8 @@
     Cancel. A dialog can be closed by calling the accept() or the
     reject() slots, and exec() will return \c Accepted or \c Rejected as
     appropriate. After the exec() call has returned the result is
-    available from result().
+    available from result(). Note that if the WDestructiveClose flag
+    is set, then when accept() returns the dialog is deleted.
 
 
     <a name="examples"><b>Examples</b><br>
@@ -897,7 +898,7 @@ void QDialog::setSizeGripEnabled(bool enabled)
 	    d->resizer->adjustSize();
 	    if ( QApplication::reverseLayout() )
 		d->resizer->move( rect().bottomLeft() -d->resizer->rect().bottomLeft() );
-	    else		
+	    else
 		d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
 	    d->resizer->raise();
 	    d->resizer->show();

@@ -527,13 +527,14 @@ void QDir::setNameFilter( const QString &nameFilter )
   NoSymLinks flags.
   \value  Readable  List files for which the application has read access.
   \value  Writable  List files for which the application has write access.
-  \value  Executable  List files for which the application has execute access.
-  \value RWEMask A mask for the Readable, Writable and Executable flags.
+  \value  Executable  List files for which the application has execute
+  access. Executables needs to be combined with Dirs or Files.
+  \value  RWEMask A mask for the Readable, Writable and Executable flags.
   \value  Modified  Only list files that have been modified (ignored
-  under Unix).
-  \value  Hidden  List hidden files (on Unix, files starting with a .).
-  \value  System  List system files (on Unix, FIFOs, sockets and device files)
-  \value AccessMask A mask for the Readable, Writable, Executable Modified, Hidden and System flags
+  under Unix). \value  Hidden  List hidden files (on Unix, files
+  starting with a .). \value  System  List system files (on Unix,
+  FIFOs, sockets and device files) \value AccessMask A mask for the
+  Readable, Writable, Executable Modified, Hidden and System flags
   \value DefaultFilter Internal flag.
 
   If you do not set any of \c Readable, \c Writable or \c Executable,

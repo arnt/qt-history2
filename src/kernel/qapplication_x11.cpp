@@ -4054,7 +4054,8 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 {
     if ( qApp->activePopupWidget() )
 	return TRUE;
-    if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
+    // allow tool windows; on Windows, we do not allow undocked docking windows.
+    if ( widget->testWFlags(Qt::WStyle_Tool) )
 	return TRUE;
 
     QWidget *modal=0, *top=QApplication::activeModalWidget();
