@@ -230,14 +230,14 @@ void Project::setFileName( const QString &fn, bool doClear )
     if ( fn == filename )
 	return;
     filename = fn;
-    
+
     if ( !filename.endsWith( ".pro" ) )
 	filename += ".pro";
     proName = filename;
-    
+
     if ( proName.contains( '.' ) )
 	proName = proName.left( proName.find( '.' ) );
-    
+
     if ( !doClear )
 	return;
     clear();
@@ -411,7 +411,7 @@ void Project::parse()
 	    QStringList lst = parse_multiline_part( contents, *spit );
 	    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 		SourceFile *f = new SourceFile( makeAbsolute( *it ) );
-		f->setOriginalFileName( *it );
+		f->setFileName( *it );
 		sources.append( f );
 		MetaDataBase::addEntry( f );
 	    }
@@ -598,7 +598,7 @@ void Project::save()
 	return;
 
     modified = FALSE;
-    
+
     QFile f( filename );
     QString contents;
     if ( f.open( IO_ReadOnly ) ) {
@@ -607,7 +607,7 @@ void Project::save()
 	f.close();
     } else {
 	// initial contents
-	contents = 
+	contents =
 	    "unix {\n"
 	    "  UI_DIR = .ui\n"
 	    "  MOC_DIR = .moc\n"
@@ -624,7 +624,7 @@ void Project::save()
 	    contents += *it + " ";
 	contents += "\n";
     }
-    
+
     remove_multiline_contents( contents, "IMAGES" );
     if ( !pixCollection->isEmpty() ) {
 	contents += "IMAGES\t= ";
@@ -663,19 +663,16 @@ void Project::save()
     contents += "LANGUAGE\t= " + lang + "\n";
 
     if ( !sources.isEmpty() && iface ) {
-	QMap<QString, QStringList> soureToKey;
+	QMap<QString, QStringList> sourceToKey;
 	for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
 	    QString key = iface->projectKeyForExtension( QFileInfo( f->fileName() ).extension() );
-	    QStringList lst = soureToKey[ key ];
-	    QString s = f->originalFileName();
-	    if ( s == f->fileName() )
-		s = makeRelative( s );
-	    lst << s;
-	    soureToKey.replace( key, lst );
+	    QStringList lst = sourceToKey[ key ];
+	    lst << makeRelative( f->fileName() );
+	    sourceToKey.replace( key, lst );
 	}
 	
-	for ( QMap<QString, QStringList>::Iterator skit = soureToKey.begin();
-	      skit != soureToKey.end(); ++skit ) {
+	for ( QMap<QString, QStringList>::Iterator skit = sourceToKey.begin();
+	      skit != sourceToKey.end(); ++skit ) {
 	    QString part = skit.key() + "\t+= ";
 	    QStringList lst = *skit;
 	    for ( QStringList::Iterator sit = lst.begin(); sit != lst.end(); ++sit ) {
@@ -1005,7 +1002,7 @@ DesignerProject *Project::iFace()
 
 void Project::setLanguage( const QString &l )
 {
-    if ( l == lang ) 
+    if ( l == lang )
 	return;
     lang = l;
     updateCustomSettings();

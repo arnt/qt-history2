@@ -45,9 +45,6 @@ public:
 
     DesignerSourceFile *iFace();
 
-    void setOriginalFileName( const QString &f ) { ofn = f; }
-    QString originalFileName() const { return ofn.isEmpty() ? filename : ofn; }
-
     void setEditor( SourceEditor *e );
     SourceEditor *editor() const { return ed; }
     bool isModified() const;
@@ -56,7 +53,6 @@ private:
     QString filename;
     QString txt;
     DesignerSourceFile *iface;
-    QString ofn;
     SourceEditor *ed;
 
 };
