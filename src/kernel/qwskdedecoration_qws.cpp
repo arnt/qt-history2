@@ -95,7 +95,7 @@ void QWSKDEDecoration::paint(QPainter *painter, const QWidget *widget)
 
 #ifndef QT_NO_PALETTE
     //QPalette pal = QApplication::palette();
-    QPalette pal = w->palette();
+    QPalette pal = widget->palette();
     pal.setCurrentColorGroup(QPalette::Active);
 
 #if !defined(QT_NO_DRAWUTIL)
@@ -174,7 +174,7 @@ void QWSKDEDecoration::paintButton(QPainter *painter, const QWidget *w,
 	    qDrawShadePanel(painter, brect.x(), brect.y(), brect.width()-1,
 			    brect.height()-1, pal, TRUE, 2,
 			    &pal.brush(QPalette::Background));
-#endif	
+#endif
 	    if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, *pm);
 	} else {
 	    painter->fillRect(brect.x(), brect.y(), brect.width()-1,

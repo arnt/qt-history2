@@ -654,7 +654,6 @@ private:
     QRegion allocatedRegion() const;
     QRegion paintableRegion() const;
 
-    void updateGraphicsContext( QGfx *qgfx_qws, bool clip_children ) const;
 #ifndef QT_NO_CURSOR
     void updateCursor( const QRegion &r ) const;
 #endif

@@ -432,7 +432,8 @@ void QWidget::setMicroFocusHint( int x, int y, int width, int height,
 				 bool text, QFont *)
 {
     if ( QRect( x, y, width, height ) != microFocusHint() )
-	d->extraData()->micro_focus_hint.setRect( x, y, width, height );
+	d->createExtra();
+	d->extra->micro_focus_hint.setRect( x, y, width, height );
 #ifndef QT_NO_QWS_IM
     if ( text ) {
 	QPoint p( x, y + height );
@@ -1132,7 +1133,7 @@ void QWidget::erase( const QRegion& reg )
     clearWFlags( WPaintUnclipped );
     QPainter p(this);
     p.setClipRegion( reg );
-    QBrush bg = background();
+    QBrush bg = palette().brush(backgroundRole());
     if ( bg.pixmap() ) {
 	if ( !bg.pixmap()->isNull() ) {
 	    QPoint offset = backgroundOffset();
@@ -1140,7 +1141,7 @@ void QWidget::erase( const QRegion& reg )
 	    int yoff = offset.y();
 
 	    p.drawTiledPixmap(rect(),*bg.pixmap(),
-			      QPoint(xoff%d->bg.pixmap()->width(), yoff%d->bg.pixmap()->height()));
+			      QPoint(xoff%bg.pixmap()->width(), yoff%bg.pixmap()->height()));
 	}
     } else {
 	p.fillRect(rect(),bg.color());
@@ -1553,13 +1554,7 @@ QGfx * QWidget::graphicsContext(bool clip_children) const
 {
     QGfx * qgfx_qws;
     qgfx_qws=qwsDisplay()->screenGfx();
-    updateGraphicsContext( qgfx_qws, clip_children );
 
-    return qgfx_qws;
-}
-
-void QWidget::updateGraphicsContext( QGfx *qgfx_qws, bool clip_children ) const
-{
     QPoint offset=mapToGlobal(QPoint(0,0));
     QRegion r; // empty if not visible
     if ( isVisible() && topLevelWidget()->isVisible() ) {
@@ -1594,6 +1589,8 @@ void QWidget::updateGraphicsContext( QGfx *qgfx_qws, bool clip_children ) const
     if ( d->extra && d->extra->topextra && d->extra->topextra->qwsManager )
 	qgfx_qws->setClipRegion(rect());
 #endif
+
+    return qgfx_qws;
 }
 
 /*!

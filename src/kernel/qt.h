@@ -227,7 +227,6 @@
 #include <qapplication.h>
 #include "qurl.h"
 #include <qstrvec.h>
-#include <qinterlacestyle.h>
 #include <qstylefactory.h>
 #include <qstyleplugin.h>
 #include "qtextedit.h"
@@ -280,6 +279,7 @@
 #include <qworkspace.h>
 #include <qprocess.h>
 #include <qxml.h>
+#include <qpagesetupdialog.h>
 
 #if defined( QT_MOC_CPP ) || defined( QT_H_CPP )
 #include <private/qcom_p.h>

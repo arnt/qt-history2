@@ -103,7 +103,7 @@ void QWSKDE2Decoration::paint(QPainter *painter, const QWidget *widget)
 
 #ifndef QT_NO_PALETTE
     //QPalette pal = QApplication::palette();
-    QPalette pal = w->palette();
+    QPalette pal = widget->palette();
     pal.setCurrentColorGroup(QPalette::Active);
 
 #if !defined(QT_NO_STYLE)
@@ -194,7 +194,7 @@ void QWSKDE2Decoration::paintButton(QPainter *painter, const QWidget *w,
 	    qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1,
 			brect.height()-1, pal, TRUE,
 			&pal.brush(QPalette::Background));
-#endif	
+#endif
 	    if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, *pm);
 	} else {
 	    painter->fillRect(brect.x(), brect.y(), brect.width()-1,
