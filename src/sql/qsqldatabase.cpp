@@ -110,7 +110,6 @@ public:
 
 protected:
     static QSqlDatabaseManager* instance();
-    QSqlDatabaseManager();
     QDict< QSqlDatabase > dbDict;
 };
 
@@ -154,7 +153,7 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
 		      "instantiated in order to use the SQL module." );
 	    return 0;
 	}
-        sqlConnection = new QSqlDatabaseManager( qApp, "database manager" );
+	sqlConnection = new QSqlDatabaseManager( qApp, "database manager" );
     }
     return sqlConnection;
 }
@@ -210,7 +209,7 @@ bool QSqlDatabaseManager::contains( const QString& name )
 QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString & name )
 {
     QSqlDatabaseManager* sqlConnection = instance();
-    if( sqlConnection == 0 ) 
+    if( sqlConnection == 0 )
 	return 0;
     sqlConnection->removeDatabase( name );
     sqlConnection->dbDict.insert( name, db );
@@ -406,8 +405,8 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 
 #ifndef QT_NO_COMPONENT
     if ( !d->driver ) {
-        d->plugIns = new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface, QString((char*)getenv( "QTDIR" )) + "/plugins" );
-        QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
+	d->plugIns = new QInterfaceManager<QSqlDriverInterface>( IID_QSqlDriverInterface, QString((char*)getenv( "QTDIR" )) + "/plugins" );
+	QSqlDriverInterface *iface = d->plugIns->queryInterface( type );
 	if( iface ){
 	    d->driver = iface->create( type );
 	    iface->release();
@@ -419,8 +418,8 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 #ifdef QT_CHECK_RANGE
 	qWarning("QSqlDatabase warning: %s driver not loaded", type.data());
 #endif
-        d->driver = new QNullDriver();
-        d->driver->setLastError( QSqlError( "Driver not loaded", "Driver not loaded" ) );
+	d->driver = new QNullDriver();
+	d->driver->setLastError( QSqlError( "Driver not loaded", "Driver not loaded" ) );
     }
 }
 
