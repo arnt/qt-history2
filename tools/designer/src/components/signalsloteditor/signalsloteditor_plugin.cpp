@@ -20,7 +20,6 @@
 #include <abstractformwindow.h>
 #include <abstractformwindowmanager.h>
 
-
 SignalSlotEditorPlugin::SignalSlotEditorPlugin()
     : m_initialized(false), m_action(0)
 {
@@ -41,9 +40,10 @@ void SignalSlotEditorPlugin::initialize(AbstractFormEditor *core)
 
     m_action = new QAction(tr("Edit Signals/Slots"), this);
     m_action->setShortcut(tr("F3"));
-    m_action->setIcon(QIcon(":/trolltech/formeditor/images/signalslottool.png"));
+    QIcon icon(QIcon(core->resourceLocation() + QLatin1String("/signalslottool.png")));
+    m_action->setIcon(icon);
     m_action->setEnabled(false);
-    
+
     setParent(core);
     m_core = core;
     m_initialized = true;

@@ -40,7 +40,8 @@ void BuddyEditorPlugin::initialize(AbstractFormEditor *core)
     Q_ASSERT(!isInitialized());
 
     m_action = new QAction(tr("Edit Buddies"), this);
-    m_action->setIcon(QIcon(":/trolltech/formeditor/images/buddytool.png"));
+    m_action->setIcon(QIcon(core->resourceLocation() + QLatin1String("/buddytool.png")));
+    m_action->setIcon(QIcon(core->resourceLocation() + QLatin1String("/buddytool.png")));
     m_action->setEnabled(false);
 
     setParent(core);

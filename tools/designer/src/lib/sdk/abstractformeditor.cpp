@@ -111,3 +111,11 @@ PluginManager *AbstractFormEditor::pluginManager() const
 void AbstractFormEditor::setPluginManager(PluginManager *pluginManager)
 { m_pluginManager = pluginManager; }
 
+QString AbstractFormEditor::resourceLocation() const
+{
+#ifdef Q_WS_MAC
+    return QLatin1String(":/trolltech/formeditor/images/mac");
+#else
+    return QLatin1String(":/trolltech/formeditor/images/win");
+#endif
+}

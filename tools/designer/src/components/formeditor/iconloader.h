@@ -25,6 +25,16 @@ inline QIcon createIconSet(const QString &name)
     if (!pix.isNull())
         return pix;
 
+    const QString ResouceString =
+#ifdef Q_WS_MAC
+        QLatin1String(":/trolltech/formeditor/images/mac/");
+#else
+        QLatin1String(":/trolltech/formeditor/images/win/");
+#endif
+    pix = QPixmap(ResouceString + name);
+    if (!pix.isNull())
+        return pix;
+
     return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/designer_") + name);
 }
 

@@ -40,7 +40,7 @@ void TabOrderEditorPlugin::initialize(AbstractFormEditor *core)
     Q_ASSERT(!isInitialized());
 
     m_action = new QAction(tr("Edit Tab Order"), this);
-    m_action->setIcon(QIcon(":/trolltech/formeditor/images/tabordertool.png"));
+    m_action->setIcon(QIcon(core->resourceLocation() + QLatin1String("/tabordertool.png")));
     m_action->setEnabled(false);
 
     setParent(core);

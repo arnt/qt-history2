@@ -53,6 +53,7 @@ public:
     AbstractWidgetFactory *widgetFactory() const;
     AbstractIconCache *iconCache() const;
     PluginManager *pluginManager() const;
+    QString resourceLocation() const; // ### Remove me!!!
 
     void setTopLevel(QWidget *topLevel);
     void setWidgetBox(AbstractWidgetBox *widgetBox);

@@ -151,7 +151,7 @@ const QPixmap TrWindow::pageCurl()
     return pixmap;
 }
 
-#if 0//def Q_WS_MAC
+#ifdef Q_WS_MAC
 const QString rsrcString = ":/images/mac";
 #else
 const QString rsrcString = ":/images/win";
