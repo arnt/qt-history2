@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#350 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#351 $
 **
 ** Implementation of QListView widget class
 **
@@ -2871,16 +2871,15 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	if ( !i ) {
 	    clearSelection();
 	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
-	    return;
 	}
 
 	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
 	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
-	return;
     }
 
-    if ( e->button() != LeftButton )
-	return;
+// ##### Why???
+//     if ( e->button() != LeftButton )
+// 	return;
 
     d->ignoreDoubleClick = FALSE;
     d->buttonDown = TRUE;

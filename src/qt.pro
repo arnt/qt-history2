@@ -56,6 +56,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
 		  $$DIALOGS_H/qwizard.h \
+		  $$DIALOGS_H/qlinedialog.h \
 		  $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
@@ -186,7 +187,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_H/qcommonstyle.h \
-        	  $$WIDGETS_H/qdial.h \
+	        	  $$WIDGETS_H/qdial.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgrid.h \
 		  $$WIDGETS_H/qgroupbox.h \
@@ -194,7 +195,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qheader.h \
 		  $$WIDGETS_H/qhgroupbox.h \
 		  $$WIDGETS_H/qhbox.h \
-	          $$WIDGETS_H/qiconview.h \
+		  $$WIDGETS_H/qiconview.h \
 		  $$WIDGETS_H/qlabel.h \
 		  $$WIDGETS_H/qlcdnumber.h \
 		  $$WIDGETS_H/qlineedit.h \
@@ -366,7 +367,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
 		  widgets/qcommonstyle.cpp \
-        	  widgets/qdial.cpp \
+	        	  widgets/qdial.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgrid.cpp \
 		  widgets/qgroupbox.cpp \
@@ -374,7 +375,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qheader.cpp \
 		  widgets/qhgroupbox.cpp \
 		  widgets/qhbox.cpp \
-	          widgets/qiconview.cpp \
+		  widgets/qiconview.cpp \
 		  widgets/qlabel.cpp \
 		  widgets/qlcdnumber.cpp \
 		  widgets/qlineedit.cpp \
@@ -421,6 +422,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
 		  dialogs/qwizard.cpp \
+		  dialogs/qlinedialog.cpp
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
 		  $$KERNEL_H/qpsprinter.h \
