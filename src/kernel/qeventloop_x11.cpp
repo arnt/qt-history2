@@ -195,6 +195,12 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 
     QApplication::sendPostedEvents();
 
+    const uint exclude_all = ExcludeSocketNotifiers | 0x08;
+    if ( nevents > 0 && ( flags & exclude_all ) == exclude_all &&
+	 ( flags & WaitForMore ) ) {
+	return TRUE;
+    }
+
     // don't block if exitLoop() or exit()/quit() has been called.
     bool canWait = d->exitloop || d->quitnow ? FALSE : (flags & WaitForMore);
 
@@ -202,12 +208,15 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 
     // return the maximum time we can wait for an event.
     static timeval zerotm;
-    timeval *tm = qt_wait_timer();		// wait for timer or X event
-    if ( !canWait ) {
-	if ( !tm )
-	    tm = &zerotm;
-	tm->tv_sec  = 0;			// no time to wait
-	tm->tv_usec = 0;
+    timeval *tm = 0;
+    if ( ! ( flags & 0x08 ) ) {			// 0x08 == ExcludeTimers from 3.2
+	tm = qt_wait_timer();			// wait for timer or X event
+	if ( !canWait ) {
+	    if ( !tm )
+		tm = &zerotm;
+	    tm->tv_sec  = 0;			// no time to wait
+	    tm->tv_usec = 0;
+	}
     }
 
     int highest = 0;
@@ -325,7 +334,10 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     }
 
     // activate timers
-    nevents += activateTimers();
+    if ( ! ( flags & 0x08 ) ) {
+	// 0x08 == ExcludeTimers in 3.2
+	nevents += activateTimers();
+    }
 
     // color approx. optimization - only on X11
     qt_reset_color_avail();

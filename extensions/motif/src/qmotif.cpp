@@ -588,7 +588,8 @@ bool QMotif::processEvents( ProcessEventsFlags flags )
 	d->pending_socknots = 0;
     }
 
-    if ( d->activate_timers ) {
+    if ( ! ( flags & 0x08 ) && d->activate_timers ) {
+	// 0x08 == ExcludeTimers in 3.2
 	nevents += activateTimers();
     }
     d->activate_timers = FALSE;

@@ -50,6 +50,7 @@
 #ifndef QT_NO_CLIPBOARD
 
 #include "qapplication.h"
+#include "qeventloop.h"
 #include "qbitmap.h"
 #include "qdatetime.h"
 #include "qdragobject.h"
@@ -80,6 +81,13 @@ static QWidget * owner = 0;
 static bool inSelectionMode_obsolete = FALSE; // ### remove 4.0
 static bool timer_event_clear = FALSE;
 static int timer_id = 0;
+
+static int pending_timer_id = 0;
+static bool pending_clipboard_changed = FALSE;
+static bool pending_selection_changed = FALSE;
+static bool waiting_for_data = FALSE;
+static bool caught_selection_notify = FALSE;
+static XEvent selnot_event;
 
 class QClipboardWatcher; // forward decl
 static QClipboardWatcher *selection_watcher = 0;
@@ -326,29 +334,38 @@ void QClipboard::clobber()
 bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
 			     int timeout )
 {
+    if ( waiting_for_data )
+	qFatal( "QClipboard: internal error, qt_xclb_wait_for_event recursed" );
+
+    waiting_for_data = TRUE;
+
     QTime started = QTime::currentTime();
     QTime now = started;
-    bool flushed = FALSE;
+
+    caught_selection_notify = FALSE;
 
     do {
-	if ( XCheckTypedWindowEvent(dpy,win,type,event) )
+	if ( XCheckTypedWindowEvent(dpy,win,type,event) ) {
+	    waiting_for_data = FALSE;
 	    return TRUE;
+	}
 
 	now = QTime::currentTime();
 	if ( started > now )			// crossed midnight
 	    started = now;
 
-	if(!flushed) {
-	    XFlush( dpy );
-	    flushed = TRUE;
-	}
+	qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput |
+					  QEventLoop::ExcludeSocketNotifiers |
+					  QEventLoop::WaitForMore | 0x08 );
 
-	// sleep 50ms, so we don't use up CPU cycles all the time.
-	struct timeval usleep_tv;
-	usleep_tv.tv_sec = 0;
-	usleep_tv.tv_usec = 50000;
-	select(0, 0, 0, 0, &usleep_tv);
+	if ( caught_selection_notify ) {
+	    waiting_for_data = FALSE;
+	    *event = selnot_event;
+	    return TRUE;
+	}
     } while ( started.msecsTo(now) < timeout );
+
+    waiting_for_data = FALSE;
 
     return FALSE;
 }
@@ -523,7 +540,7 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 
     for (;;) {
 	if ( !qt_xclb_wait_for_event(dpy,win,PropertyNotify,
-				     (XEvent*)&event,1000) )
+				     (XEvent*)&event,5000) )
 	    break;
 	XFlush( dpy );
 	if ( event.xproperty.atom != property ||
@@ -579,8 +596,11 @@ void QClipboard::connectNotify( const char * )
  */
 bool QClipboard::event( QEvent *e )
 {
-    if (e->type() == QEvent::Timer) {
+    if ( e->type() == QEvent::Timer ) {
 	QTimerEvent *te = (QTimerEvent *) e;
+
+	if ( waiting_for_data ) // should never happen
+	    return FALSE;
 
 	if (te->timerId() == timer_id) {
 	    killTimer(timer_id);
@@ -594,10 +614,30 @@ bool QClipboard::event( QEvent *e )
 	    timer_event_clear = FALSE;
 
 	    return TRUE;
-	} else
+	} else if ( te->timerId() == pending_timer_id ) {
+	    // I hate klipper
+	    killTimer( pending_timer_id );
+	    pending_timer_id = 0;
+
+	    if ( pending_clipboard_changed ) {
+		pending_clipboard_changed = FALSE;
+		clipboardData()->clear();
+		emit dataChanged();
+	    }
+
+	    if ( pending_selection_changed ) {
+		pending_selection_changed = FALSE;
+		selectionData()->clear();
+		emit selectionChanged();
+	    }
+
+	    return TRUE;
+	} else {
 	    return QObject::event( e );
-    } else if ( e->type() != QEvent::Clipboard )
+	}
+    } else if ( e->type() != QEvent::Clipboard ) {
 	return QObject::event( e );
+    }
 
     XEvent *xevent = (XEvent *)(((QCustomEvent *)e)->data());
     Display *dpy = qt_xdisplay();
@@ -615,8 +655,14 @@ bool QClipboard::event( QEvent *e )
 	    qDebug("qclipboard_x11.cpp: new selection owner 0x%lx",
 		   XGetSelectionOwner(dpy, XA_PRIMARY));
 #endif
-	    selectionData()->clear();
-	    emit selectionChanged();
+	    if ( ! waiting_for_data ) {
+		selectionData()->clear();
+		emit selectionChanged();
+	    } else {
+		pending_selection_changed = TRUE;
+		if ( ! pending_timer_id )
+		    pending_timer_id = QApplication::clipboard()->startTimer( 0 );
+	    }
 	} else {
 
 #if defined (QCLIPBOARD_DEBUG)
@@ -624,8 +670,14 @@ bool QClipboard::event( QEvent *e )
 		   XGetSelectionOwner(dpy, qt_xa_clipboard));
 #endif
 
-	    clipboardData()->clear();
-	    emit dataChanged();
+	    if ( ! waiting_for_data ) {
+		clipboardData()->clear();
+		emit dataChanged();
+	    } else {
+		pending_clipboard_changed = TRUE;
+		if ( ! pending_timer_id )
+		    pending_timer_id = QApplication::clipboard()->startTimer( 0 );
+	    }
 	}
 
 	break;
@@ -641,6 +693,10 @@ bool QClipboard::event( QEvent *e )
 	  Note: *emacs seems to like to send 2 SelectionNotify events
 	  for every ConvertSelection request.  fun fun...
 	*/
+	if ( waiting_for_data ) {
+	    selnot_event = *xevent;
+	    caught_selection_notify = TRUE;
+	}
 	break;
 
     case SelectionRequest:
@@ -1002,6 +1058,11 @@ const char* QClipboardWatcher::format( int n ) const
 		that->formatList.append(qt_xdnd_atom_to_str(target[i]));
 	}
 	delete []target;
+
+#ifdef QCLIPBOARD_DEBUG
+	qDebug( "QClipboardWatcher::format: %d formats available",
+		that->formatList.count() );
+#endif // QCLIPBOARD_DEBUG
     }
 
     if (n >= 0 && n < (signed) formatList.count())
@@ -1015,6 +1076,10 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 {
     if ( !fmt || empty() )
 	return QByteArray( 0 );
+
+#ifdef QCLIPBOARD_DEBUG
+    qDebug( "QClipboardWatcher::encodedData: fetching format '%s'", fmt );
+#endif // QCLIPBOARD_DEBUG
 
     Atom fmtatom = 0;
 
@@ -1075,17 +1140,29 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 
 #ifdef QCLIPBOARD_DEBUG
     qDebug( "QClipboardWatcher::getDataInFormat: format %s",
-	    XGetAtomName( dpy, fmtatom ) );
+	    qt_xdnd_atom_to_str( fmtatom ) );
 #endif // QCLIPBOARD_DEBUG
 
     XConvertSelection( dpy, atom,
 		       fmtatom, qt_selection_property, win, qt_x_time );
     XFlush( dpy );
 
+#ifdef QCLIPBOARD_DEBUG
+    qDebug( "QClipboardWatcher::getDataInFormat: waiting for SelectionNotify event" );
+#endif // QCLIPBOARD_DEBUG
+
     XEvent xevent;
-    if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,1000) ||
-	 xevent.xselection.property == None )
+    if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,5000) ||
+	 xevent.xselection.property == None ) {
+#ifdef QCLIPBOARD_DEBUG
+	qDebug( "QClipboardWatcher::getDataInFormat: format not available" );
+#endif // QCLIPBOARD_DEBUG
 	return buf;
+    }
+
+#ifdef QCLIPBOARD_DEBUG
+    qDebug( "QClipboardWatcher::getDataInFormat: fetching data..." );
+#endif // QCLIPBOARD_DEBUG
 
     Atom   type;
 
@@ -1098,6 +1175,10 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 						     nbytes, FALSE );
 	}
     }
+
+#ifdef QCLIPBOARD_DEBUG
+    qDebug( "QClipboardWatcher::getDataInFormat: %d bytes received", buf.size() );
+#endif // QCLIPBOARD_DEBUG
 
     return buf;
 }
@@ -1243,8 +1324,16 @@ bool qt_check_selection_sentinel( XEvent* )
 	}
     }
 
-    if (doIt)
-	selectionData()->setSource(0);
+    if (doIt) {
+	if ( waiting_for_data ) {
+	    pending_selection_changed = TRUE;
+	    if ( ! pending_timer_id )
+		pending_timer_id = QApplication::clipboard()->startTimer( 0 );
+	    doIt = FALSE;
+	} else {
+	    selectionData()->clear();
+	}
+    }
 
     return doIt;
 }
@@ -1276,8 +1365,16 @@ bool qt_check_clipboard_sentinel( XEvent* )
 	}
     }
 
-    if (doIt)
-	clipboardData()->setSource(0);
+    if (doIt) {
+	if ( waiting_for_data ) {
+	    pending_clipboard_changed = TRUE;
+	    if ( ! pending_timer_id )
+		pending_timer_id = QApplication::clipboard()->startTimer( 0 );
+	    doIt = FALSE;
+	} else {
+	    clipboardData()->clear();
+	}
+    }
 
     return doIt;
 }
