@@ -51,7 +51,7 @@ if you have queries.}
 When compiling for this platform, the macro \c{Q_WS_MACX} is defined.
 
 \list
- \i \link mac-differences.html Qt/Mac differences\endlink
+ \i \link mac-differences.html Qt/Mac issues\endlink
 \endlist
 
 \target qws
