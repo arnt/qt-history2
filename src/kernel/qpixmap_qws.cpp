@@ -333,6 +333,10 @@ QImage QPixmap::convertToImage() const
 	image.setNumColors( 2 );
 	image.setColor( 0, qRgb(255,255,255) );
 	image.setColor( 1, qRgb(0,0,0) );
+    } else if ( d <= 8 ) {
+	image.setNumColors( numCols() );
+	for ( int i = 0; i < numCols(); i++ )
+	    image.setColor( i, clut()[i] );
     }
 
     return image;
