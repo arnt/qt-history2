@@ -114,6 +114,9 @@ QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
 QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac file dialog)
+#if defined(QT_DEBUG)
+static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
+#endif
 
 static EventLoopTimerRef mac_select_timer = NULL;
 static EventLoopTimerUPP mac_select_timerUPP = NULL;
@@ -131,6 +134,15 @@ void qt_mac_destroy_widget(QWidget *w)
 	qt_button_down = NULL;
     if(qt_mouseover == w)
 	qt_mouseover = NULL;
+}
+
+bool qt_nograb()				// application no-grab option
+{
+#if defined(QT_DEBUG)
+    return appNoGrab;
+#else
+    return FALSE;
+#endif
 }
 
 // Paint event clipping magic
@@ -248,8 +260,32 @@ static EventTypeSpec events[] = {
 };
 
 /* platform specific implementations */
-void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
+void qt_init( int* argcptr, char **argv, QApplication::Type )
 {
+#if defined(QT_DEBUG)
+    int argc = *argcptr;
+    int i, j;
+
+  // Get command line params
+
+    j = 1;
+    for ( i=1; i<argc; i++ ) {
+	if ( argv[i] && *argv[i] != '-' ) {
+	    argv[j++] = argv[i];
+	    continue;
+	}
+	QCString arg = argv[i];
+	if ( arg == "-nograb" )
+	    appNoGrab = !appNoGrab;
+	else
+	    argv[j++] = argv[i];
+    }
+    *argcptr = j;
+#else
+    Q_UNUSED( argcptr );
+    Q_UNUSED( argv );
+#endif // QT_DEBUG
+
     // Set application name
     char *p = strrchr( argv[0], '/' );
     appName = p ? p + 1 : argv[0];
