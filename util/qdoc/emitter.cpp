@@ -212,6 +212,8 @@ void DocEmitter::nailDownDocs()
     root.destructSymbolTables();
     root.buildPlainSymbolTables( TRUE );
 
+    BinaryWriter headerfilesynonyms( QString("headerfilesynonyms") );
+
     /*
       Extract miscellaneous information about classes.
     */
@@ -244,8 +246,15 @@ void DocEmitter::nailDownDocs()
 	    /*
 	      Add header files to list.
 	    */
-	    if ( !classDecl->headerFile().isEmpty() )
+	    if ( !classDecl->headerFile().isEmpty() ) {
 		hlist.insert( classDecl->headerFile() );
+
+		QString got = classDecl->headerFile();
+		QString expected = classDecl->name().lower() + ".h";
+		if ( expected != got && expected != "qt.h" )
+		    headerfilesynonyms.puts( (expected + " " + got + "\n")
+					    .latin1() );
+	    }
 	    if ( classDecl->classDoc() != 0 &&
 		 !classDecl->classDoc()->headers().isEmpty() )
 		hlist = reunion( hlist, classDecl->classDoc()->headers() );
