@@ -1957,7 +1957,10 @@ void QSettings::beginGroup( const QString &group )
 */
 void QSettings::endGroup()
 {
-    d->groupStack.pop();
+    if (d->groupStack.isEmpty())
+        qWarning("Cannot end more groups than previously started.");
+    else
+        d->groupStack.pop();
     d->groupDirty = true;
 }
 
