@@ -25,10 +25,6 @@ class QWSDisplay;
 class QGfx;
 #endif
 
-#if defined(Q_WS_X11)
-class QX11Info;
-#endif
-
 class QPaintEngine;
 
 class Q_GUI_EXPORT QPaintDevice                                // device for QPainter
