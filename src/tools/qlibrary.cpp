@@ -434,6 +434,9 @@ bool QLibrary::unload( bool force )
 	    if ( can || force ) {
 		d->libIface = 0;
 	    } else {
+#if defined(QT_DEBUG_COMPONENT)
+		qWarning( "%s prevents unloading!", library().latin1() );
+#endif
 		d->libIface->addRef();
 		return FALSE;
 	    }
