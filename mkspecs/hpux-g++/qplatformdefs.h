@@ -35,9 +35,6 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
-// explicitly for HP-UX 9
-#include <limits.h>
-
 // DNS header files are not fully covered by X/Open specifications.
 // In particular nothing is said about res_* :/
 #include <netinet/in.h>
