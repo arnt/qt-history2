@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#462 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#463 $
 **
 ** Implementation of QWidget class
 **
@@ -3038,7 +3038,9 @@ void QWidget::hide()
     QHideEvent e(FALSE);
     QApplication::sendEvent( this, &e );
 
-    if ( !isTopLevel() )
+    // post layout hint for non toplevels. The parent widget check is
+    // necessary since the function is called in the destructor    
+    if ( !isTopLevel() && parentWidget() ) 
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint) );
 
@@ -3156,12 +3158,12 @@ bool QWidget::close( bool alsoDelete )
 	}
     }
 
-    if ( isMain )
-	qApp->quit();
-
     if ( accept && checkLastWindowClosed ) {	// last window closed?
 	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noMoreToplevels() )
 	    emit qApp->lastWindowClosed();
+	if ( isMain )
+	    qApp->quit();
+
     }
 
     return accept;
