@@ -999,7 +999,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     if ( !lv )
 	return;
 
-    if ( lv && lv->hasFocus() && !lv->d->focusItem ) {
+    if ( lv && !lv->d->focusItem ) {
 	lv->d->focusItem = lv->firstChild();
 	lv->repaintItem( lv->d->focusItem );
     }
@@ -3856,11 +3856,6 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     if ( d->startEdit && i != currentItem() )
 	d->startEdit = FALSE;
     QListViewItem *oldCurrent = currentItem();
-    if ( !oldCurrent && !i && firstChild() ) {
-	d->focusItem = firstChild();
-	repaintItem( d->focusItem );
-	oldCurrent = currentItem();
-    }
 
     if ( !i ) {
 	if ( !( e->state() & ControlButton ) )
