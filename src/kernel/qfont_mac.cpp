@@ -52,7 +52,6 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 
 int QFontMetrics::width(QChar c) const
 {
-    qObsolete( "QFontMetrics", "width" );
     // Grr. How do we force the Mac to speak Unicode?
     // This currently won't work outside of ASCII
     TextFont(FI->fin->fnum);
@@ -270,7 +269,14 @@ QString QFontPrivate::lastResortFont() const
 
 QRect QFontPrivate::boundingRect( const QChar &ch )
 {
-    return QRect(0, 0, 1204, 768); //take that
+    // Grr. How do we force the Mac to speak Unicode?
+    // This currently won't work outside of ASCII
+    TextFont(fin->fnum);
+    TextSize(request.pointSize / 10);
+    int char_width=CharWidth(ch);
+    TextFont(QFontStruct::currentFnum);
+    TextSize(QFontStruct::currentFsize);
+    return QRect( 0,-(fin->ascent()),char_width+5,fin->ascent() + fin->descent()+5);
 }
 
 int QFontPrivate::textWidth( const QString &str, int pos, int len )
