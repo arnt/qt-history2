@@ -13,6 +13,9 @@
 
 #include <qvbox.h>
 
+class QCheckBox;
+class QDial;
+
 class RangeControls : public QVBox
 {
     Q_OBJECT
@@ -20,6 +23,14 @@ class RangeControls : public QVBox
 public:
     RangeControls( QWidget *parent = 0, const char *name = 0 );
 
+private slots:
+    void toggleShowNotches();
+    void toggleWrapping();
+    
+private:
+    QCheckBox *notches, *wrapping;
+    QDial *dial;
+    
 };
 
 #endif

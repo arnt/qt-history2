@@ -17,6 +17,7 @@
 #include <qlabel.h>
 #include <qstring.h>
 #include <qslider.h>
+#include <qcheckbox.h>
 
 #include <limits.h>
 
@@ -28,7 +29,17 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
     QVBox *cell1 = new QVBox( row1 );
     cell1->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
     cell1->setMargin( 10 );
-    QDial *dial = new QDial( -5, 20, 5, 0, cell1 );
+    QHBox *dr = new QHBox( cell1 );
+    dial = new QDial( -5, 20, 5, 0, dr );
+    QVBox *checks = new QVBox( dr );
+    notches = new QCheckBox( "Show &notches", checks );
+    connect( notches, SIGNAL( clicked() ),
+	     this, SLOT( toggleShowNotches() ) );
+    wrapping = new QCheckBox( "&Wrapping", checks );
+    connect( wrapping, SIGNAL( clicked() ),
+	     this, SLOT( toggleWrapping() ) );
+    dial->setWrapping( FALSE );
+    dial->setShowNotches( FALSE );
     QLCDNumber *lcd1 = new QLCDNumber( 3, cell1 );
     connect( dial, SIGNAL( valueChanged( int ) ), lcd1, SLOT( display( int ) ) );
 
@@ -74,4 +85,14 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
     QLCDNumber *lcd3 = new QLCDNumber( 3, cell4 );
     lcd3->display( 8 );
     connect( vslider, SIGNAL( valueChanged( int ) ), lcd3, SLOT( display( int ) ) );
+}
+
+void RangeControls::toggleShowNotches()
+{
+    dial->setShowNotches( notches->isChecked() );
+}
+
+void RangeControls::toggleWrapping()
+{
+    dial->setWrapping( wrapping->isChecked() );
 }

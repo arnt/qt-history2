@@ -263,7 +263,7 @@ void QDial::repaintScreen( const QRect *cr )
     // erase background of dial
     if ( !d->onlyFocus )
 	p.drawEllipse( br );
-    
+
     // erase remaining space around the dial
     p.save();
     QRegion remaining( 0, 0, width(), height() );
@@ -556,6 +556,7 @@ void QDial::setWrapping( bool enable )
 	return;
     d->lines.resize( 0 );
     d->wrapping = enable;
+    d->eraseAreaValid = FALSE;
     repaintScreen();
 }
 
@@ -612,6 +613,7 @@ void QDial::setNotchTarget( double target )
 {
     d->lines.resize( 0 );
     d->target = target;
+    d->eraseAreaValid = FALSE;
     repaintScreen();
 }
 
@@ -686,6 +688,7 @@ void QDial::subtractPage()
 void QDial::setShowNotches( bool b )
 {
     d->showNotches = b;
+    d->eraseAreaValid = FALSE;
     repaintScreen();
 }
 
