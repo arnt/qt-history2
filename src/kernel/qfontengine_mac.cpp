@@ -239,7 +239,27 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
 		return 0;
 	    }
 	}
+
+#ifdef USE_CORE_GRAPHICS
+	{ //we need to flip the translation here because we flip it internally
+	    int height = 0;
+	    if(p->device()->devType() == QInternal::Widget)
+		height = ((QWidget*)p->device())->topLevelWidget()->height();
+	    else
+		height = p->device()->metric(QPaintDeviceMetrics::PdmHeight);
+	    const ATSUAttributeTag tag = kATSUFontMatrixTag;
+	    CGAffineTransform transform = CGAffineTransformTranslate(CGAffineTransformIdentity, 0, height);
+	    transform = CGAffineTransformScale(transform, 1, -1);
+	    ByteCount size = sizeof(transform);
+	    ATSUAttributeValuePtr value = &transform;
+	    if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
+		qDebug("Qt: internal: %ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+		return 0;
+	    }
+	}
+#endif
     }
+
     if((task & WIDTH)) {
  	bool use_cached_width = TRUE;
  	for(int i = 0; i < use_len; i++) {
@@ -295,7 +315,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     values[arr] = &layopts;
     arr++;
 
-    tags[arr] = kATSUCGContextTag; //cgcontext
+    tags[arr] = kATSUCGContextTag;
     CGContextRef ctx = NULL;
 #ifdef USE_CORE_GRAPHICS
     if(p && p->device()) {
@@ -342,6 +362,7 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
     valueSizes[arr] = sizeof(ctx);
     values[arr] = &ctx;
     arr++;
+
     if(arr > arr_guess) //this won't really happen, just so I will not miss the case
 	qDebug("Qt: internal: %d: WH0A, arr_guess underflow %d", __LINE__, arr);
     if(OSStatus e = ATSUSetLayoutControls(alayout, arr, tags, valueSizes, values)) {
@@ -377,13 +398,17 @@ QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar 
  	if(use_len == 1 && s->unicode() < widthCacheSize)
  	    widthCache[s->unicode()] = ret;
     }
-    if(p && (task & DRAW)) {
+    if(task & DRAW) {
+	int drawy = y;
+#ifndef USE_CORE_GRAPHICS
 	int height = 0;
 	if(p->device()->devType() == QInternal::Widget)
 	    height = ((QWidget*)p->device())->topLevelWidget()->height();
 	else
 	    height = p->device()->metric(QPaintDeviceMetrics::PdmHeight);
-	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1), FixRatio(height-y, 1));
+	drawy = height-drawy;
+#endif
+	ATSUDrawText(alayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1), FixRatio(drawy, 1));
     }
     //cleanup
     ATSUDisposeTextLayout(alayout);
