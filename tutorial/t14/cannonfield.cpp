@@ -11,8 +11,8 @@
 #include <QPixmap>
 #include <QTimer>
 
-#include <cmath>
-#include <cstdlib>
+#include <math.h>
+#include <stdlib.h>
 
 #include "cannonfield.h"
 

@@ -9,7 +9,7 @@
 #include <QPixmap>
 #include <QTimer>
 
-#include <cmath>
+#include <math.h>
 
 #include "cannonfield.h"
 
