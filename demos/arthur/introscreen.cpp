@@ -66,7 +66,7 @@ void IntroScreen::paintEvent(QPaintEvent *)
     ctx.palette = palette();
 
     for ( ; ypos < h; ypos += blockHeight) {
-        ctx.rect = QRect(0, -ypos, w-200, h);
+        ctx.clip = QRect(0, -ypos, w-200, h);
         textDocument->documentLayout()->draw(&p, ctx);
         p.translate(0, blockHeight);
     }
