@@ -1621,6 +1621,8 @@ void CustomWidget::paintEvent( QPaintEvent *e )
     } else {
 	QPainter p( this );
 	p.fillRect( rect(), colorGroup().dark() );
+	p.setPen( colorGroup().light() );
+	p.drawText( 2, 2, width() - 4, height() - 4, Qt::AlignAuto | Qt::AlignTop, cusw->className );
 	p.drawPixmap( ( width() - cusw->pixmap->width() ) / 2,
 		      ( height() - cusw->pixmap->height() ) / 2,
 		      *cusw->pixmap );
