@@ -127,6 +127,13 @@ void qt_mac_set_modal_state(MenuRef menu, bool b)
 
 void qt_mac_clear_menubar()
 {
+    MenuRef clear_menu = 0;
+    if(CreateNewMenu(0, 0, &clear_menu) == noErr) {
+        SetRootMenu(clear_menu);
+        ReleaseMenu(clear_menu);
+    } else {
+        qWarning("Unknown error! %s:%d", __FILE__, __LINE__);
+    }
     ClearMenuBar();
     qt_mac_command_set_enabled(0, kHICommandPreferences, false);
     InvalMenuBar();
