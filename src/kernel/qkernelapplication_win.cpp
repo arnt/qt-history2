@@ -5,11 +5,11 @@
 
 
 // ############### DONT EXPORT HERE!!!
-Q_EXPORT char	 appFileName[256];		// application file name
-Q_EXPORT char	 appName[256];			// application name
-Q_EXPORT HINSTANCE appInst	= 0;		// handle to app instance
-Q_EXPORT HINSTANCE appPrevInst	= 0;		// handle to prev app instance
-Q_EXPORT int appCmdShow = 0;
+Q_KERNEL_EXPORT char	 appFileName[256];		// application file name
+Q_KERNEL_EXPORT char	 appName[256];			// application name
+Q_KERNEL_EXPORT HINSTANCE appInst	= 0;		// handle to app instance
+Q_KERNEL_EXPORT HINSTANCE appPrevInst	= 0;		// handle to prev app instance
+Q_KERNEL_EXPORT int appCmdShow = 0;
 
 static void	msgHandler( QtMsgType, const char* );
 
@@ -35,12 +35,12 @@ void set_winapp_name()
     }
 }
 
-Q_EXPORT const char *qAppFileName()		// get application file name
+Q_KERNEL_EXPORT const char *qAppFileName()		// get application file name
 {
     return appFileName;
 }
 
-Q_EXPORT const char *qAppName()			// get application name
+Q_KERNEL_EXPORT const char *qAppName()			// get application name
 {
     if ( !appName[0] )
 	set_winapp_name();
@@ -95,10 +95,10 @@ static void msgHandler( QtMsgType t, const char* str )
  *****************************************************************************/
 
 #if defined( Q_OS_TEMP )
-Q_EXPORT void __cdecl qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
+Q_KERNEL_EXPORT void __cdecl qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 	       int cmdShow, int &argc, QVector<pchar> &argv )
 #else
-Q_EXPORT
+Q_KERNEL_EXPORT
 void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 	       int cmdShow, int &argc, QVector<pchar> &argv )
 #endif

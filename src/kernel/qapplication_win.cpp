@@ -652,7 +652,6 @@ void qt_init( QApplicationPrivate *priv, int )
 #endif // QT_DEBUG
 
     // Get the application name/instance if qWinMain() was not invoked
-    set_winapp_name();
 #ifndef Q_OS_TEMP
     // No message boxes but important ones
     SetErrorMode(SetErrorMode(0) | SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
