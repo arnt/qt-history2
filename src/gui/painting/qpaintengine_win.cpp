@@ -517,7 +517,7 @@ bool QWin32PaintEngine::end()
     d->txop = QPainterPrivate::TxNone;
 
     // Restore features set in case GDI+ has been used.
-    d->gccaps = oldFeatureSet;
+    gccaps = d->oldFeatureSet;
     setActive(false);
     return true;
 }
