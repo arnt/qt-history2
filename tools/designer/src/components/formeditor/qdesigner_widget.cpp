@@ -510,7 +510,8 @@ void QLayoutSupport::insertWidget(QWidget *widget)
         } break;
 
         default: {
-            Q_ASSERT(0);
+            qWarning("expected a layout here!");
+            //Q_ASSERT(0);
         }
     } // end switch
 }

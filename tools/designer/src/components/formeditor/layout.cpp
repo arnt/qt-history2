@@ -843,12 +843,7 @@ void GridLayout::doLayout()
         }
     }
 
-    for (int r=0; r<layout->rowCount(); ++r) {
-        for (int c=0; c<layout->columnCount(); ++c) {
-            if (!widgetAt(layout, r, c))
-                layout->addItem(new QSpacerItem(0, 0), r, c);
-        }
-    }
+    QLayoutSupport::createEmptyCells(layout);
 
     finishLayout(needMove, layout);
 }
