@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#91 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#91 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -1224,14 +1224,14 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 }
 
 /*!
-  Handles mouse move events.  Scrolls the list box is auto-scroll
+  Handles mouse move events.  Scrolls the list box if auto-scroll
   is enabled.
   \sa autoScroll()
 */
 
 void QListBox::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( doDrag ) {
+    if ( doDrag && (e->state() & (RightButton|LeftButton|MidButton)) != 0 ) {
 	int itemClicked = findItem( e->pos().y() );
 	if ( itemClicked != -1 ) {
 	    if ( isTiming ) {
