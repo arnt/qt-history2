@@ -981,7 +981,13 @@ bool QSettings::sync()
 	    QFileInfo fi((*pit++) + "/" + filebase + "rc");
 
 	    if ((fi.exists() && fi.isFile() && fi.isWritable()) ||
-		(! fi.exists() && di.isDir() && di.isWritable())) {
+		(! fi.exists() && di.isDir() 
+#ifndef Q_WS_WIN
+		&& di.isWritable()
+#else
+		&& (qWinVersion() == Qt::WV_XP || di.isWritable())
+#endif
+		)) {
 		filename = fi.filePath();
 		break;
 	    }
