@@ -54,6 +54,7 @@ public:
 	PatternTransform        = 0x0004,		// Brush patterns
 	PixmapTransform         = 0x0008,               // Pixmap transforms
 	CanRenderText           = 0x0010,		// Calls drawTextItem directly
+	LinearGradientSupport   = 0x0020,               // Can fill gradient areas.
 	UsesFontEngine          = 0x10000000           // Internal use, QWidget and QPixmap
     };
     Q_DECLARE_FLAGS(GCCaps, Capability);

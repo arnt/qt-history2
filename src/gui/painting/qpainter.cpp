@@ -15,24 +15,24 @@
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qpaintdevice.h"
+#include "qpaintdevicemetrics.h"
 #include "qpaintengine.h"
 #include "qpainter.h"
 #include "qpainter_p.h"
 #include "qpicture.h"
 #include "qwidget.h"
-
-#ifdef Q_WS_WIN
-#include "qpaintengine_win.h"
-#endif
-#include "qpaintdevicemetrics.h"
-#include <private/qwidget_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qtextengine_p.h>
+#include <private/qwidget_p.h>
+#include <qdebug.h>
 #include <qtextlayout.h>
+
+#include <math.h>
 
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
 		    int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
 		    QPainter* painter);
+void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brush);
 
 /*!
     \class QPainter qpainter.h
@@ -1123,6 +1123,21 @@ void QPainter::drawRect(const QRect &r)
     d->engine->updateState(d->state);
 
     QRect rect = r.normalize();
+
+    if (d->state->brush.style() == LinearGradientPattern
+	&& !d->engine->hasCapability(QPaintEngine::LinearGradientSupport)) {
+	QPixmap pm(r.width(), r.height());
+	qt_fill_linear_gradient(r, &pm, d->state->brush);
+	drawPixmap(r.x(), r.y(), pm);
+	if (d->state->pen.style() != NoPen) {
+	    save();
+	    setBrush(NoBrush);
+	    // Watch out for recursion...
+	    drawRect(r);
+	    restore();
+	}
+	return;
+    }
 
     if ((d->state->VxF || d->state->WxF)
 	&& !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
@@ -3227,4 +3242,94 @@ void qt_format_text( const QFont& font, const QRect &_r,
 
     if ( underlinePositions != underlinePositionStack )
 	delete [] underlinePositions;
+}
+
+template <class T> void qt_swap(T &a, T &b) { T tmp=a; a=b; b=tmp; }
+
+void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brush)
+{
+    Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
+
+    QPoint gstart = brush.gradientStart();
+    QPoint gstop = brush.gradientStop();
+
+    QColor gcol1 = brush.color();
+    QColor gcol2 = brush.gradientColor();
+
+    int dx = gstop.x() - gstart.x();
+    int dy = gstop.y() - gstart.y();
+
+    int rx = r.x();
+    int ry = r.y();
+    int rw = r.width();
+    int rh = r.height();
+
+    QPainter p(pixmap);
+
+    if (QABS(dx) > QABS(dy)) { // Fill horizontally
+	int xtop1, xtop2, xbot1;
+	if (dy == 0) {
+	    xtop1 = xbot1 = rx;
+	    xtop2 = rx+rw;
+	} else {
+	    // Make sure we fill left to right...
+	    if (gstop.x() < gstart.x()) {
+		qt_swap(gstart, gstop);
+		qt_swap(dx, dy);
+	    }
+	    double gamma = double(dx) / double(-dy);
+	    xtop1 = (ry - gstart.y() + gamma * gstart.x()) / gamma;
+	    xtop2 = (rx - gstop.y() + gamma * gstop.x()) / gamma;
+	    xbot1 = ((ry+rh) - gstart.y() + gamma*gstart.x()) / gamma;
+	    Q_ASSERT(xtop2 > xtop1);
+	}
+
+	double r = gcol1.red();
+	double g = gcol1.green();
+	double b = gcol1.blue();
+	int steps = (xtop2-xtop1);
+	double rinc = (gcol2.red()-r) / steps;
+	double ginc = (gcol2.green()-g) / steps;
+	double binc = (gcol2.blue()-b) / steps;
+	for (int x=0; x<steps; ++x) {
+	    p.setPen(QColor(int(r), int(g), int(b)));
+	    p.drawLine(x+xtop1-rx, 0, x+xbot1-rx, rh);
+	    r += rinc;
+	    g += ginc;
+	    b += binc;
+	}
+
+    } else {
+	int yleft1, yleft2, yright1;
+	if (dx == 0) {
+	    yleft1 = yright1 = ry;
+	    yleft2 = ry+rh;
+	} else {
+	    // Make sure we fill left to right...
+	    if (gstop.y() < gstart.y()) {
+		qt_swap(gstart, gstop);
+		qt_swap(dx, dy);
+	    }
+	    double gamma = double(dy) / double(-dx);
+	    yleft1 = (rx - gstart.x() + gamma * gstart.y()) / gamma;
+	    yleft2 = (rx - gstop.x() + gamma * gstop.y()) / gamma;
+	    yright1 = ((rx+rw) - gstart.x() + gamma*gstart.y()) / gamma;
+	    Q_ASSERT(yleft2 > yleft1);
+	}
+
+	double r = gcol1.red();
+	double g = gcol1.green();
+	double b = gcol1.blue();
+	int steps = (yleft2-yleft1);
+	double rinc = (gcol2.red()-r) / steps;
+	double ginc = (gcol2.green()-g) / steps;
+	double binc = (gcol2.blue()-b) / steps;
+	for (int y=0; y<steps; ++y) {
+	    p.setPen(QColor(int(r), int(g), int(b)));
+	    p.drawLine(0, y+yleft1-ry, rw, y+yright1-ry);
+	    r += rinc;
+	    g += ginc;
+	    b += binc;
+	}
+    }
 }
