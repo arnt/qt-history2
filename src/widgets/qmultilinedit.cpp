@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#97 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -27,6 +27,7 @@
 #include "qkeycode.h"
 #include "qclipboard.h"
 #include "qpixmap.h"
+#include "qregexp.h"
 #include "qapplication.h"
 #include <ctype.h>
 
@@ -1840,6 +1841,12 @@ void QMultiLineEdit::paste()
 	if ( hasMarkedText() )
 	    turnMarkOff();
 
+#if defined(_OS_WIN32_)
+	// Need to convert CRLF to NL
+	QRegExp crlf("\\r\\n");
+	t.replace( crlf, "\n" );
+#endif
+
 	uchar *p = (uchar *) t.data();
 	while ( *p ) {		// unprintable becomes space
 	    if ( *p < 32 && *p != '\n' && *p != '\t' )
@@ -1953,6 +1960,11 @@ void QMultiLineEdit::copyText()
     if ( !t.isEmpty() ) {
 #if defined(_WS_X11_)
 	disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
+#endif
+#if defined(_OS_WIN32_)
+	// Need to convert NL to CRLF
+	QRegExp nl("\\n");
+	t.replace( nl, "\r\n" );
 #endif
 	QApplication::clipboard()->setText( t );
 #if defined(_WS_X11_)

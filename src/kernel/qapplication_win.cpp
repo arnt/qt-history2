@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#153 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2111,7 +2111,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	QSize oldSize = size();
 	QSize newSize( a, b );
 	r.setSize( newSize );
-	setCRect( r );
+	if ( msg.wParam != SIZE_MINIMIZED )
+	    setCRect( r );
 	if ( isTopLevel() ) {			// update caption/icon text
 #if 0
 	    //### This needs more work!
@@ -2136,15 +2137,19 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	update();
     } else if ( msg.message == WM_MOVE ) {	// move event
 	QPoint oldPos = pos();
-	QPoint newPos( a, b );
-	r.moveTopLeft( newPos );
-	setCRect( r );
-	if ( isVisible() ) {
-	    cancelMove();
-	    QMoveEvent e( newPos, oldPos );
-	    QApplication::sendEvent( this, &e );
-	} else {
-	    deferMove( oldPos );
+	// Ignore silly Windows move event to wild pos after iconify.
+	if ( a <= QCOORD_MAX && a >= QCOORD_MIN &&
+	     b <= QCOORD_MAX && b >= QCOORD_MIN ) {
+	    QPoint newPos( a, b );
+	    r.moveTopLeft( newPos );
+	    setCRect( r );
+	    if ( isVisible() ) {
+		cancelMove();
+		QMoveEvent e( newPos, oldPos );
+		QApplication::sendEvent( this, &e );
+	    } else {
+		deferMove( oldPos );
+	    }
 	}
     }
     clearWFlags( WConfigPending );		// clear config flag
