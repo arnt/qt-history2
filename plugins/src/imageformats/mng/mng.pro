@@ -12,6 +12,7 @@ win32-borland {
 	QMAKE_CFLAGS_WARN_ON	+= -w-par
 	QMAKE_CXXFLAGS_WARN_ON	+= -w-par
 }
+win32: CONFIG-=zlib system-zlib jpeg system-jpeg
 
 SOURCES += main.cpp \
 	../../../../src/3rdparty/libmng/libmng_callback_xs.c \

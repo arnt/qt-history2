@@ -6,6 +6,7 @@ DESTDIR = ../../../imageformats
 INCLUDEPATH += $(QTDIR)/src/3rdparty/libpng
 INCLUDEPATH += $(QTDIR)/src/3rdparty/zlib
 REQUIRES += !png
+win32: CONFIG-=zlib system-zlib
 
 SOURCES += main.cpp \
     	../../../../src/3rdparty/libpng/png.c \
@@ -22,9 +23,9 @@ SOURCES += main.cpp \
 	../../../../src/3rdparty/libpng/pngwio.c \
 	../../../../src/3rdparty/libpng/pngwrite.c \
 	../../../../src/3rdparty/libpng/pngwtran.c \
-	../../../../src/3rdparty/libpng/pngwutil.c \
+	../../../../src/3rdparty/libpng/pngwutil.c
 
-	../../../../src/3rdparty/zlib/adler32.c \
+!zlib:!system-zlib:SOURCES+= ../../../../src/3rdparty/zlib/adler32.c \
 	../../../../src/3rdparty/zlib/compress.c \
 	../../../../src/3rdparty/zlib/crc32.c \
 	../../../../src/3rdparty/zlib/deflate.c \
