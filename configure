@@ -1852,8 +1852,14 @@ Configure options:
                                 to at run time.
     -no-sql-<driver> .......... Disable SQL <driver> entirely.
 
-                                Possible values for <driver>: [ $CFG_SQL_AVAILABLE ]
-                                Auto-Detected on this system: [$CFG_SQL_AUTODETECTED ]
+                                Possible values for <driver>: 
+				[ $CFG_SQL_AVAILABLE ]
+
+                                Auto-Detected on this system:
+				[ $CFG_SQL_AUTODETECTED ]
+
+    By default none of the SQL drivers are built, even if they are
+    auto-detected.
 
     -qt-style-<style> ......... Enable a GUI <style> in the Qt Library, by
                                 default all available are on.
