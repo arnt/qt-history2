@@ -5,7 +5,7 @@
 **
 ** Created : 950628
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -37,9 +37,9 @@
 
 #include "qplatformdefs.h"
 #include "qfileinfo.h"
+#include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
-#include "qfiledefs_p.h"
 
 #include <limits.h>
 
@@ -201,23 +201,23 @@ bool QFileInfo::permission( int permissionSpec ) const
 	doStat();
     if ( fic ) {
 	uint mask = 0;
-	if ( permissionSpec & ReadUser)
+	if ( permissionSpec & ReadUser )
 	    mask |= S_IRUSR;
-	if ( permissionSpec & WriteUser)
+	if ( permissionSpec & WriteUser )
 	    mask |= S_IWUSR;
-	if ( permissionSpec & ExeUser)
+	if ( permissionSpec & ExeUser )
 	    mask |= S_IXUSR;
-	if ( permissionSpec & ReadGroup)
+	if ( permissionSpec & ReadGroup )
 	    mask |= S_IRGRP;
-	if ( permissionSpec & WriteGroup)
+	if ( permissionSpec & WriteGroup )
 	    mask |= S_IWGRP;
-	if ( permissionSpec & ExeGroup)
+	if ( permissionSpec & ExeGroup )
 	    mask |= S_IXGRP;
-	if ( permissionSpec & ReadOther)
+	if ( permissionSpec & ReadOther )
 	    mask |= S_IROTH;
-	if ( permissionSpec & WriteOther)
+	if ( permissionSpec & WriteOther )
 	    mask |= S_IWOTH;
-	if ( permissionSpec & ExeOther)
+	if ( permissionSpec & ExeOther )
 	    mask |= S_IXOTH;
 	if ( mask ) {
 	   return (fic->st.st_mode & mask) == mask;
@@ -237,21 +237,30 @@ void QFileInfo::doStat() const
     QFileInfo *that = ((QFileInfo*)this);	// mutable function
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
-    QT_STATBUF *b = &that->fic->st;
     that->symLink = FALSE;
-
+#if defined(QT_LARGE_FILE_SUPPORT)
+    struct stat64 *b = &that->fic->st;
+#else
+    struct stat *b = &that->fic->st;
+#endif
 #if defined(Q_OS_UNIX) && defined(S_IFLNK)
-    if ( ::lstat(QFile::encodeName(fn),b) == 0 ) {
+#if defined(QT_LARGE_FILE_SUPPORT)
+    if ( ::lstat64( QFile::encodeName(fn), b ) == 0 ) {
+#else
+    if ( ::lstat( QFile::encodeName(fn), b ) == 0 ) {
+#endif
 	if ( S_ISLNK( b->st_mode ) )
 	    that->symLink = TRUE;
 	else
 	    return;
     }
 #endif
-    int r;
 
-    r = QT_STAT( QFile::encodeName(fn), b );
-
+#if defined(QT_LARGE_FILE_SUPPORT)
+    int r = ::stat64( QFile::encodeName(fn), b );
+#else
+    int r = ::stat( QFile::encodeName(fn), b );
+#endif
     if ( r != 0 && !that->symLink ) {
 	delete that->fic;
 	that->fic = 0;
@@ -275,7 +284,7 @@ QString QFileInfo::dirPath( bool absPath ) const
 	s = fn;
     int pos = s.findRev( '/' );
     if ( pos == -1 ) {
-	return QString::fromLatin1(".");
+	return QString::fromLatin1( "." );
     } else {
 	if ( pos == 0 )
 	    return QString::fromLatin1( "/" );
@@ -302,6 +311,6 @@ QString QFileInfo::fileName() const
     if ( p == -1 ) {
 	return fn;
     } else {
-	return fn.mid(p+1);
+	return fn.mid( p + 1 );
     }
 }

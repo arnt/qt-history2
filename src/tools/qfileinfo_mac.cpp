@@ -5,7 +5,7 @@
 **
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
-** This file is part of the kernel module of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Macintosh may use this file in accordance with the Qt Commercial
@@ -25,14 +25,12 @@
 **
 **********************************************************************/
 
-#include "qglobal.h"
-
-#include "qfileinfo.h"
 #include "qplatformdefs.h"
+#include "qfileinfo.h"
 #include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
-#include <qt_mac.h>
+#include "qt_mac.h"
 
 #ifdef Q_OS_MACX
 #include <pwd.h>
@@ -125,23 +123,23 @@ bool QFileInfo::permission( int permissionSpec ) const
 	doStat();
     if ( fic ) {
 	uint mask = 0;
-	if ( permissionSpec & ReadUser)
+	if ( permissionSpec & ReadUser )
 	    mask |= S_IRUSR;
-	if ( permissionSpec & WriteUser)
+	if ( permissionSpec & WriteUser )
 	    mask |= S_IWUSR;
-	if ( permissionSpec & ExeUser)
+	if ( permissionSpec & ExeUser )
 	    mask |= S_IXUSR;
-	if ( permissionSpec & ReadGroup)
+	if ( permissionSpec & ReadGroup )
 	    mask |= S_IRGRP;
-	if ( permissionSpec & WriteGroup)
+	if ( permissionSpec & WriteGroup )
 	    mask |= S_IWGRP;
-	if ( permissionSpec & ExeGroup)
+	if ( permissionSpec & ExeGroup )
 	    mask |= S_IXGRP;
-	if ( permissionSpec & ReadOther)
+	if ( permissionSpec & ReadOther )
 	    mask |= S_IROTH;
-	if ( permissionSpec & WriteOther)
+	if ( permissionSpec & WriteOther )
 	    mask |= S_IWOTH;
-	if ( permissionSpec & ExeOther)
+	if ( permissionSpec & ExeOther )
 	    mask |= S_IXOTH;
 	if ( mask ) {
 	   return (fic->st.st_mode & mask) == mask;
@@ -161,14 +159,19 @@ void QFileInfo::doStat() const
     QFileInfo *that = ((QFileInfo*)this);	// mutable function
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
-    QT_STATBUF *b = &that->fic->st;
 #if defined(Q_OS_UNIX)
     that->symLink = FALSE;
 #endif
-    int r = QT_STAT( QFile::encodeName(QDir::convertSeparators(fn)), b );
+#if defined(QT_LARGE_FILE_SUPPORT)
+    struct stat64 *b = &that->fic->st;
+    int r = ::stat64( QFile::encodeName(QDir::convertSeparators(fn)), b );
+#else
+    struct stat *b = &that->fic->st;
+    int r = ::stat( QFile::encodeName(QDir::convertSeparators(fn)), b );
+#endif
     if ( r != 0 ) {
-		delete that->fic;
-		that->fic = 0;
+	delete that->fic;
+	that->fic = 0;
     }
 }
 
@@ -182,7 +185,7 @@ QString QFileInfo::dirPath( bool absPath ) const
 	s = fn;
     int pos = s.findRev( '/' );
     if ( pos == -1 ) {
-	return QString::fromLatin1(".");
+	return QString::fromLatin1( "." );
     } else {
 	if ( pos == 0 )
 	    return QString::fromLatin1( "/" );

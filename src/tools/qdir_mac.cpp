@@ -7,7 +7,7 @@
 **
 ** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
-** This file is part of the kernel module of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
 ** licenses for Macintosh may use this file in accordance with the Qt Commercial
@@ -27,17 +27,18 @@
 **
 **********************************************************************/
 
+#include "qplatformdefs.h"
 #include "qdir.h"
+
 #ifndef QT_NO_DIR
 
-#include "qglobal.h"
 #include "qdir_p.h"
 #include "qfileinfo.h"
-#include "qplatformdefs.h"
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
 #include "qt_mac.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -47,21 +48,21 @@ const unsigned char * p_str(const char * c, int len=-1); //qglobal_mac.cpp
 
 FSSpec *QDir::make_spec(const QString &f)
 {
-	static FSSpec ret;
-	const unsigned char *p = p_str(QFile::encodeName(QDir::convertSeparators(f)) + ":");
-	if(FSMakeFSSpec(0, 0, p, &ret) != noErr)
-		return NULL;
-	return &ret;
+    static FSSpec ret;
+    const unsigned char *p = p_str(QFile::encodeName(QDir::convertSeparators(f)) + ":");
+    if(FSMakeFSSpec(0, 0, p, &ret) != noErr)
+	return NULL;
+    return &ret;
 }
 	
 void QDir::slashify( QString& n )
 {
-	if( n.isNull() )
-		return;
-	for ( int i = 0; i < (int)n.length(); i++) {
-		if( n[i] == ':' )
-			n[i] = '/';
-	}
+    if( n.isNull() )
+	return;
+    for ( int i = 0; i < (int)n.length(); i++) {
+	if( n[i] == ':' )
+	    n[i] = '/';
+    }
 }
 
 QString QDir::homeDirPath()
@@ -70,44 +71,44 @@ QString QDir::homeDirPath()
     d = QFile::decodeName(getenv("HOME"));
     slashify( d );
     if ( d.isNull() )
-		d = rootDirPath();
+	d = rootDirPath();
     return d.isEmpty() ? QString::null : d;
 }
 
 QString QDir::canonicalPath() const
 {
-	return absPath();
+    return absPath();
 }
 
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
-	FSSpec *spec = make_spec(filePath(dirName, acceptAbsPath));
-	if(!spec) 
-		return FALSE;
-	long int d;
-	if(DirCreate(spec->vRefNum, spec->parID, spec->name, &d) != noErr)
-		return FALSE;
-	return TRUE;
+    FSSpec *spec = make_spec(filePath(dirName, acceptAbsPath));
+    if(!spec) 
+	return FALSE;
+    long int d;
+    if(DirCreate(spec->vRefNum, spec->parID, spec->name, &d) != noErr)
+	return FALSE;
+    return TRUE;
 }
 
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
-	FSSpec *spec = make_spec(filePath(dirName, acceptAbsPath));
-	if(!spec) 
-		return FALSE;
-	if(HDelete(spec->vRefNum, spec->parID, spec->name) != noErr)
-		return FALSE;
-	return TRUE;
+    FSSpec *spec = make_spec(filePath(dirName, acceptAbsPath));
+    if(!spec) 
+	return FALSE;
+    if(HDelete(spec->vRefNum, spec->parID, spec->name) != noErr)
+	return FALSE;
+    return TRUE;
 }
 
 bool QDir::isReadable() const
 {
-	if(!make_spec(filePath(dPath, TRUE)))
-		return FALSE;
+    if(!make_spec(filePath(dPath, TRUE)))
+	return FALSE;
 #ifdef Q_OS_MACX
     return ACCESS( QFile::encodeName(dPath), R_OK | X_OK ) == 0; //let macx do an additional check
 #else
-	return TRUE;
+    return TRUE;
 #endif
 }
 
@@ -133,13 +134,13 @@ bool QDir::rename( const QString &name, const QString &newName,
 
 bool QDir::setCurrent( const QString &path )
 {
- 	qt_cwd = path;
- 	FSSpec *spec = make_spec(path);
- 	if(!spec)
- 		return FALSE;
- 	if(HSetVol(0, spec->vRefNum, spec->parID) != noErr)
- 		return FALSE;
- 	return TRUE;
+    qt_cwd = path;
+    FSSpec *spec = make_spec(path);
+    if(!spec)
+	return FALSE;
+    if(HSetVol(0, spec->vRefNum, spec->parID) != noErr)
+	return FALSE;
+    return TRUE;
 }
 
 QString QDir::currentDirPath()
@@ -158,10 +159,10 @@ QString QDir::rootDirPath()
 
 bool QDir::isRelativePath( const QString &path )
 {
-	int len = path.length();
-	if( len == 0)
-		return TRUE;
-	return path[0] != '/';
+    int len = path.length();
+    if( len == 0)
+	return TRUE;
+    return path[0] != '/';
 }
 
 bool QDir::readDirEntries( const QString &nameFilter,
@@ -235,30 +236,30 @@ bool QDir::readDirEntries( const QString &nameFilter,
     
     // Sort...
     if(fiList->count()) {
-		QDirSortItem* si= new QDirSortItem[fiList->count()];
-		QFileInfo* itm;
-		i=0;
-		for (itm = fiList->first(); itm; itm = fiList->next())
-	    	si[i++].item = itm;
-		qt_cmp_si_sortSpec = sortSpec;
-		qsort( si, i, sizeof(si[0]), qt_cmp_si );
-		// put them back in the list
-		fiList->setAutoDelete( FALSE );
-		fiList->clear();
-		int j;
-		for ( j=0; j<i; j++ ) {
-	    	fiList->append( si[j].item );
-	    	fList->append( si[j].item->fileName() );
-		}
-		delete [] si;
-		fiList->setAutoDelete( TRUE );
+	QDirSortItem* si= new QDirSortItem[fiList->count()];
+	QFileInfo* itm;
+	i=0;
+	for (itm = fiList->first(); itm; itm = fiList->next())
+	    si[i++].item = itm;
+	qt_cmp_si_sortSpec = sortSpec;
+	qsort( si, i, sizeof(si[0]), qt_cmp_si );
+	// put them back in the list
+	fiList->setAutoDelete( FALSE );
+	fiList->clear();
+	int j;
+	for ( j=0; j<i; j++ ) {
+	    fiList->append( si[j].item );
+	    fList->append( si[j].item->fileName() );
+	}
+	delete [] si;
+	fiList->setAutoDelete( TRUE );
     }
 
     if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
-	 		nameFilter == nameFilt )
-			dirty = FALSE;
+	 nameFilter == nameFilt )
+	dirty = FALSE;
     else
-			dirty = TRUE;
+	dirty = TRUE;
     return TRUE;
 }
 
@@ -268,9 +269,9 @@ const QFileInfoList * QDir::drives()
     static QFileInfoList * knownMemoryLeak = 0;
 
     if ( !knownMemoryLeak ) {
-    		//FIXME
-		knownMemoryLeak = new QFileInfoList;
-		knownMemoryLeak->append( new QFileInfo( ":MacOS 9:" ) );
+	//FIXME
+	knownMemoryLeak = new QFileInfoList;
+	knownMemoryLeak->append( new QFileInfo( ":MacOS 9:" ) );
     }
 
     return knownMemoryLeak;

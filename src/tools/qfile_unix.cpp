@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Implementation of QFileInfo class
+** Implementation of QFile class
 **
 ** Created : 950628
 **
@@ -64,7 +64,6 @@ bool QFile::remove( const QString &fileName )
 	return FALSE;
     }
     return unlink( QFile::encodeName(fileName) ) == 0;
-    // unlink more common in UNIX
 }
 
 #if defined(O_NONBLOCK)
@@ -160,7 +159,7 @@ bool QFile::open( int m )
 #else
     struct stat st;
 #endif
-    if ( isRaw() ) {				// raw file I/O
+    if ( isRaw() ) {
 	int oflags = O_RDONLY;
 	if ( isReadable() && isWritable() )
 	    oflags = O_RDWR;
@@ -264,10 +263,10 @@ bool QFile::open( int m )
 	    // non-seekable
 	    setType( IO_Sequential );
 	    length = INT_MAX;
-	    ioIndex  = 0;
+	    ioIndex = 0;
 	} else {
 	    length = (Offset)st.st_size;
-	    ioIndex  = (flags() & IO_Append) == 0 ? 0 : length;
+	    ioIndex = (flags() & IO_Append) == 0 ? 0 : length;
 	    if ( !(flags()&IO_Truncate) && length == 0 && isReadable() ) {
 		// try if you can read from it (if you can, it's a sequential
 		// device; e.g. a file in the /proc filesystem)
@@ -276,7 +275,7 @@ bool QFile::open( int m )
 		    ungetch(c);
 		    setType( IO_Sequential );
 		    length = INT_MAX;
-		    ioIndex  = 0;
+		    ioIndex = 0;
 		}
 	    }
 	}
@@ -333,17 +332,17 @@ bool QFile::open( int m, FILE *f )
     ext_f = TRUE;
 #if defined(QT_LARGE_FILE_SUPPORT)
     struct stat64 st;
-    fstat64( fileno(fh), &st );
+    ::fstat64( fileno(fh), &st );
 #else
     struct stat st;
-    fstat( fileno(fh), &st );
+    ::fstat( fileno(fh), &st );
 #endif
     ioIndex = (Offset)ftell( fh );
     if ( (st.st_mode & S_IFMT) != S_IFREG || f == stdin ) { //stdin is non seekable
 	// non-seekable
 	setType( IO_Sequential );
 	length = INT_MAX;
-	ioIndex  = 0;
+	ioIndex = 0;
     } else {
 	length = (Offset)st.st_size;
 	if ( !(flags()&IO_Truncate) && length == 0 && isReadable() ) {
@@ -354,7 +353,7 @@ bool QFile::open( int m, FILE *f )
 		ungetch(c);
 		setType( IO_Sequential );
 		length = INT_MAX;
-		ioIndex  = 0;
+		ioIndex = 0;
 	    }
 	}
     }
@@ -397,17 +396,17 @@ bool QFile::open( int m, int f )
 #if defined(QT_LARGE_FILE_SUPPORT)
     struct stat64 st;
     ::fstat64( fd, &st );
-    ioIndex  = (Offset)::lseek64(fd, 0, SEEK_CUR);
+    ioIndex = (Offset)::lseek64(fd, 0, SEEK_CUR);
 #else
     struct stat st;
     ::fstat( fd, &st );
-    ioIndex  = (Offset)::lseek(fd, 0, SEEK_CUR);
+    ioIndex = (Offset)::lseek(fd, 0, SEEK_CUR);
 #endif
     if ( (st.st_mode & S_IFMT) != S_IFREG || f == 0 ) { // stdin is not seekable...
 	// non-seekable
 	setType( IO_Sequential );
 	length = INT_MAX;
-	ioIndex  = 0;
+	ioIndex = 0;
     } else {
 	length = (Offset)st.st_size;
 	if ( length == 0 && isReadable() ) {
@@ -418,7 +417,7 @@ bool QFile::open( int m, int f )
 		ungetch(c);
 		setType( IO_Sequential );
 		length = INT_MAX;
-		ioIndex  = 0;
+		ioIndex = 0;
 	    }
 	    resetStatus();
 	}
@@ -497,9 +496,9 @@ bool QFile::at( Offset pos )
 	ok = ( (long int) pos != -1 );		// ### fix this bad hack!
     } else {					// buffered file
 #if defined(QT_LARGE_FILE_SUPPORT)
-	ok = ( fseek64(fh, pos, SEEK_SET) == 0 );
+	ok = ( ::fseek64(fh, pos, SEEK_SET) == 0 );
 #else
-	ok = ( fseek(fh, pos, SEEK_SET) == 0 );
+	ok = ( ::fseek(fh, pos, SEEK_SET) == 0 );
 #endif
     }
     if ( ok )
@@ -626,9 +625,9 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 #endif
 	    else
 #if defined(QT_LARGE_FILE_SUPPORT)
-		ioIndex = fseek64( fh, 0, SEEK_CUR );
+		ioIndex = ::fseek64( fh, 0, SEEK_CUR );
 #else
-		ioIndex = fseek( fh, 0, SEEK_CUR );
+		ioIndex = ::fseek( fh, 0, SEEK_CUR );
 #endif
 	}
     } else {
@@ -696,7 +695,7 @@ void QFile::close()
 	init();					// restore internal state
     }
     if (!ok)
-	setStatus (IO_UnspecifiedError);
+	setStatus( IO_UnspecifiedError );
 
     return;
 }
