@@ -1325,7 +1325,17 @@ MakefileGenerator::writeLibtoolFile(const QString &target)
     t << var("TARGET_x") << " " << var("TARGET_") << "'\n\n";
 
     // ### t << "# The name of the static archive.\n";
-    // ### t << "# Libraries that this one depends upon.\n";
+
+    t << "# Libraries that this one depends upon.\n";
+    QStringList libs;
+    if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
+	libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];
+    else
+	libs << "QMAKE_LIBS"; //obvious one
+    t << "dependency_libs = ";
+    for(QStringList::ConstIterator it = libs.begin(); it != libs.end(); ++it)
+	t << project->variables()[(*it)].join(" ") << " ";
+    t << "\n\n";
 
     t << "# Version information for " << lname << "\n";
     int maj = project->first("VER_MAJ").toInt();
@@ -1421,8 +1431,7 @@ MakefileGenerator::write()
     if((Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE || //write prl
        Option::qmake_mode == Option::QMAKE_GENERATE_PRL) &&
        project->isActiveConfig("libtool") &&
-       project->first("TEMPLATE") == "lib" &&
-       !project->isActiveConfig("plugin")) {
+       project->first("TEMPLATE") == "lib") {
 	writeLibtoolFile(var("TARGET"));
     }
 
