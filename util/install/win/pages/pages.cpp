@@ -162,16 +162,13 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
     // ### the replace for Windows is done because qmake has problems with
     // spaces and Borland has problems with "-" in the filenames -- I don't
     // think that there is a need for this on Mac (rms)
-    installPath->setText(
+    QString base("QtMac-");
 #if defined(EVAL) 
-	    QString( QDir::homeDirPath() + "/QtEval" ) +
+    base += "Eval-";
 #elif defined(EDU)
-	    QString( QDir::homeDirPath() + "/QtEdu" ) +
-#else
-	    QString( QDir::homeDirPath() + "/Qt" ) +
+    base += "Edu-";
 #endif
-	    QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" )
-	    );
+    installPath->setText(base + QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" ));
     sysGroup->hide();
 #endif
 }
