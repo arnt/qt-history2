@@ -493,7 +493,7 @@ void QMotifWidget::realize( Widget w )
 	// save the window title
 	QString wtitle = windowTitle();
 	if (wtitle.isEmpty()) {
-	    char *t;
+	    char *t = 0;
 	    XtVaGetValues(w, XtNtitle, &t, NULL);
 	    wtitle = QString::fromLocal8Bit(t);
 	}
@@ -501,7 +501,7 @@ void QMotifWidget::realize( Widget w )
 
         QString icontext = windowIconText();
         if (icontext.isEmpty()) {
- 	    char *iconName;
+ 	    char *iconName = 0;
  	    XtVaGetValues(w, XtNiconName, &iconName, NULL);
  	    icontext = QString::fromLocal8Bit(iconName);
         }
