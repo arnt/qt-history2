@@ -73,7 +73,7 @@ public:
 	numRows( 1 ), numColumns( 1 ),
 	currentRow( 0 ), currentColumn( 0 ),
 	mousePressRow( -1 ), mousePressColumn( -1 ),
-	mouseMoveRow( -1 ), mouseMoveColumn( -1 ),
+	mouseMoveRow( -1 ), mouseMoveColumn( -1 ), mouseInternalPress( FALSE ),
 	scrollTimer( 0 ), updateTimer( 0 ), visibleTimer( 0 ),
 	selectionMode( QListBox::Single ),
 	count( 0 ),
@@ -110,6 +110,7 @@ public:
     int mousePressColumn;
     int mouseMoveRow;
     int mouseMoveColumn;
+    BOOL mouseInternalPress;
 
     QTimer * scrollTimer;
     QTimer * updateTimer;
@@ -1940,6 +1941,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 
 void QListBox::mousePressEventEx( QMouseEvent *e )
 {
+    d->mouseInternalPress = TRUE;
     QListBoxItem * i = itemAt( e->pos() );
 
     if ( !i && !d->current && d->head ) {
@@ -2109,6 +2111,7 @@ void QListBox::mouseReleaseEvent( QMouseEvent *e )
     d->pressedItem = 0;
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
+    d->mouseInternalPress = FALSE;
     if ( emitClicked ) {
 	emit clicked( i );
 	emit clicked( i, e->globalPos() );
@@ -2243,7 +2246,7 @@ void QListBox::updateSelection()
 	QListBoxItem * i = item( d->mouseMoveColumn * numRows() +
 				 d->mouseMoveRow );
 	if ( selectionMode() == Single || selectionMode() == NoSelection ) {
-	    if ( i )
+	    if ( i && d->mouseInternalPress )
 		setCurrentItem( i );
 	} else {
 	    if ( d->selectionMode == Extended && (
