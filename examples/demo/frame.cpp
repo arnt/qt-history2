@@ -137,6 +137,7 @@ Frame::Frame( QWidget *parent, const char *name )
     QFont f = categories->font();
     f.setWeight( QFont::Bold );
     categories->setFont( f );
+    categories->setHScrollBarMode( QScrollView::AlwaysOff );
     splitter->setResizeMode( categories, QSplitter::KeepSize );
 
     connect( categories, SIGNAL( clicked( QListBoxItem *) ),
