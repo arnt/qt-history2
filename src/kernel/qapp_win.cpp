@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#88 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#88 $");
 
 
 /*****************************************************************************
@@ -1128,7 +1128,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
   A modal widget with a parent becomes modal to its parent and grandparents..
 
   qt_enter_modal()
-	Enters modal state and returns when the widget is hidden/closed
+	Enters modal state
 	Arguments:
 	    QWidget *widget	A modal widget
 
@@ -1153,7 +1153,6 @@ void qt_enter_modal( QWidget *widget )
     releaseAutoCapture();
     modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
-    qApp->enter_loop();
 }
 
 
@@ -1164,7 +1163,6 @@ void qt_leave_modal( QWidget *widget )
 	    delete modal_stack;
 	    modal_stack = 0;
 	}
-	qApp->exit_loop();
     }
     app_do_modal = modal_stack != 0;
 }
@@ -1182,6 +1180,24 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 	modal = widget;
     if ( modal == top )				// don't block event
 	return TRUE;
+
+#ifdef ALLOW_NON_APPLICATION_MODAL
+    if ( top && top->parentWidget() ) {
+	// Not application-modal
+	// Does widget have a child in modal_stack?
+	bool unrelated = TRUE;
+	modal = modal_stack->first();
+	while (modal && unrelated) {
+	    QWidget* p = modal->parentWidget();
+	    while ( p && p != widget ) {
+		p = p->parentWidget();
+	    }
+	    modal = modal_stack->next();
+	    if ( p ) unrelated = FALSE;
+	}
+	if ( unrelated ) return TRUE;		// don't block event
+    }
+#endif
 
     bool block_event = FALSE;
     int	 type  = msg->message;

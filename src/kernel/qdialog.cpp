@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#37 $
 **
 ** Implementation of QDialog class
 **
@@ -15,7 +15,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#37 $");
 
 
 /*!
@@ -171,6 +171,50 @@ void QDialog::done( int r )
 }
 
 /*!
+  Hides the widget, cancelling any modality.
+*/
+
+void QDialog::hide()
+{
+    bool was_hidden = !testWFlags(WState_Visible);
+        
+    QWidget::hide();
+
+    if (!was_hidden) qApp->exit_loop();
+}
+
+/*!
+  Shows the widget, \e without entering an event loop.
+  \sa show()
+*/
+
+void QDialog::showNoLoop()
+{
+    if ( !did_resize )
+	adjustSize();
+    if ( !did_move ) {
+	QWidget *w = parentWidget();
+	QPoint p( 0, 0 );
+	if ( w )
+	    p = w->mapToGlobal( p );
+	else
+	    w = QApplication::desktop();
+	move( p.x() + w->width()/2  - width()/2,
+	      p.y() + w->height()/2 - height()/2 );
+    }
+    QWidget::show();
+}
+
+/*!
+  Hides the widget, \e without leaving an event loop.
+*/
+
+void QDialog::hideNoLoop()
+{
+    QWidget::hide();
+}
+
+/*!
   Closes the dialog and sets the result code to \c Accepted.
 
   Equivalent to done(Accepted);
@@ -271,19 +315,10 @@ void QDialog::closeEvent( QCloseEvent *e )
 
 void QDialog::show()
 {
-    if ( !did_resize )
-	adjustSize();
-    if ( !did_move ) {
-	QWidget *w = parentWidget();
-	QPoint p( 0, 0 );
-	if ( w )
-	    p = w->mapToGlobal( p );
-	else
-	    w = QApplication::desktop();
-	move( p.x() + w->width()/2  - width()/2,
-	      p.y() + w->height()/2 - height()/2 );
-    }
-    QWidget::show();
+    if ( testWFlags(WState_Visible) )
+	return;
+    showNoLoop();
+    qApp->enter_loop();
 }
 
 
