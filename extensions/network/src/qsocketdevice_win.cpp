@@ -304,8 +304,9 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
 		e = ConnectionRefused;
 		break;
 	    case WSAEISCONN:
-		e = Impossible; // ### ?
-		break;
+		//e = Impossible; // ### ?
+		//break;
+		goto successful;
 	    case WSAENETUNREACH:
 	    case WSAETIMEDOUT:
 		e = NetworkFailure;
@@ -325,6 +326,7 @@ bool QSocketDevice::connect( const QHostAddress &addr, uint port )
 	}
 	return FALSE;
     }
+successful:
     fetchConnectionParameters();
     return TRUE;
 }
@@ -722,7 +724,7 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 		case WSAEFAULT:
 		case WSAEOPNOTSUPP:
 		case WSAEAFNOSUPPORT:
-		    e = bug;
+		    e = Bug;
 		    break;
 		case WSAENOBUFS:
 		case WSAEMSGSIZE:

@@ -417,7 +417,8 @@ void QFtp::readyRead()
 	return;
 
 #ifdef QFTP_DEBUG
-    qDebug( "QFtp: readyRead; %s", s.data() );
+    if ( s.size() < 400 )
+	qDebug( "QFtp: readyRead; %s", s.data() );
 #endif
 
     if ( s.left( 1 ) == "1" )
@@ -434,14 +435,12 @@ void QFtp::readyRead()
 }
 
 /*!
-  Handles responses from the server which which say that
+  Handles responses from the server which say that
   currently something couldn't be done and it should be tried later again.
 */
 
 void QFtp::okButTryLater( int code, const QCString & )
 {
-    switch ( code ) {
-    }
 }
 
 /*!
@@ -600,8 +599,6 @@ void QFtp::okButNeedMoreInfo( int code, const QCString & )
 
 void QFtp::errorForNow( int code, const QCString & )
 {
-    switch ( code ) {
-    }
 }
 
 /*!

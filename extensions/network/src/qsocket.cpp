@@ -347,8 +347,10 @@ void QSocket::tryConnecting()
     // ### hack: just use the first address
     d->state = Connecting;
     if ( d->socket->connect( l[0], d->port ) == FALSE ) {
-	if ( d->socket->error() == QSocketDevice::NoError )
+	if ( d->socket->error() == QSocketDevice::NoError ) {
+	    d->wsn->setEnabled( TRUE );
 	    return; // not serious, try again later
+	}
 	d->state = Idle;
 	emit error( ErrConnectionRefused );
     }
