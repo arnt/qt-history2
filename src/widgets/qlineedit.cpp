@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#244 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#245 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -34,8 +34,19 @@
 #include "qdragobject.h"
 #include "qtimer.h"
 #include "qpopupmenu.h"
+#include "qstringlist.h"
 
 #include <ctype.h>
+
+
+struct QLineEditUndoItem
+{
+    QLineEditUndoItem(){pos=0;};
+    QLineEditUndoItem( const QString& s, int p )
+	: str(s),pos(p){}
+    QString str;
+    int pos;
+};
 
 struct QLineEditPrivate {
     QLineEditPrivate( QLineEdit * l ):
@@ -43,7 +54,8 @@ struct QLineEditPrivate {
 	pm(0), pmDirty( TRUE ),
 	blinkTimer( l, "QLineEdit blink timer" ),
 	dragTimer( l, "QLineEdit drag timer" ),
-	inDoubleClick( FALSE ), offsetDirty( FALSE ) {}
+	inDoubleClick( FALSE ), offsetDirty( FALSE ),
+	undo(TRUE), needundo( FALSE ) {}
 
     bool frame;
     QLineEdit::EchoMode mode;
@@ -57,6 +69,10 @@ struct QLineEditPrivate {
     bool offsetDirty;
     QPopupMenu *popup;
     int id[ 5 ];
+    QValueList<QLineEditUndoItem> undoList;
+    QValueList<QLineEditUndoItem> redoList;
+    bool undo;
+    bool needundo;
 };
 
 
@@ -223,6 +239,11 @@ void QLineEdit::setText( const QString &text )
     d->pmDirty = TRUE;
 
     repaint( FALSE );
+    if ( d->undo ) {
+	d->undoList.clear();
+	d->redoList.clear();
+	d->needundo = TRUE;
+     }
     if ( oldText != tbuf )
 	emit textChanged( tbuf );
 }
@@ -379,6 +400,8 @@ void QLineEdit::setMaxLength( int m )
   <li><i> Control-H </i> Delete the character to the left of the cursor
   <li><i> Control-V </i> Paste the clipboard text into line edit.
   <li><i> Control-X </i> Cut the marked text, copy to clipboard.
+  <li><i> Control-Z </i> Undo the last operation.
+  <li><i> Control-Y </i> Redo the last operation.
   </ul>
 
   All other keys with valid ASCII codes insert themselves into the line.
@@ -409,6 +432,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	insert( t );
 	return;
     }
+    bool needundo = d->needundo;
+    d->needundo = TRUE;
     int unknown = 0;
     if ( e->state() & ControlButton ) {
 	switch ( e->key() ) {
@@ -459,6 +484,12 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Insert:
 	    copy();
 #endif	
+	case Key_Z:
+	    undoInternal();
+	    break;
+	case Key_Y:
+	    redoInternal();
+	    break;
 	default:
 	    unknown++;
 	}
@@ -502,6 +533,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
     }
 
     if ( unknown ) {				// unknown key
+	d->needundo = needundo;
 	e->ignore();
 	return;
     }
@@ -1334,8 +1366,15 @@ void QLineEdit::insert( const QString &newText )
 	if ( t[i] < ' ' )  // unprintable/linefeed becomes space
 	    t[i] = ' ';
 
-    QString test( tbuf.copy() );
+    QString test( tbuf );
     int cp = cursorPos;
+    if ( d->undo && ( d->needundo || hasMarkedText() ) ) {
+	if ( d->undoList.isEmpty() || d->undoList.last().str != tbuf ) {
+	    d->undoList += QLineEditUndoItem(tbuf, cursorPos );
+	    d->redoList.clear();
+	    d->needundo = FALSE;
+	}
+    }
     if ( hasMarkedText() ) {
 	test.remove( minMark(), maxMark() - minMark() );
 	cp = minMark();
@@ -1617,4 +1656,34 @@ void QLineEdit::makePixmap() const
 	return;
     d->pm = new QPixmap(frame()?QSize(width()-4,height()-4):size());
     d->pmDirty = TRUE;
+}
+
+
+void QLineEdit::undoInternal()
+{
+    if ( d->undoList.isEmpty() )
+	return;
+    d->undo = FALSE;	
+    
+    d->redoList += QLineEditUndoItem(tbuf, cursorPos );
+    setText( d->undoList.last().str );
+    setCursorPosition( d->undoList.last().pos );
+    d->undoList.remove( d->undoList.fromLast() );
+    if ( d->undoList.count() > 10 )
+	d->undoList.remove( d->undoList.begin() );
+    d->undo = TRUE;
+    d->needundo = FALSE;
+}
+
+void QLineEdit::redoInternal()
+{
+    if ( d->redoList.isEmpty() )
+	return;
+    d->undo = FALSE;	
+    d->undoList += QLineEditUndoItem(tbuf, cursorPos );
+    setText( d->redoList.last().str );
+    setCursorPosition( d->redoList.last().pos );
+    d->redoList.remove( d->redoList.fromLast() );
+    d->undo = TRUE;
+    d->needundo = FALSE;
 }

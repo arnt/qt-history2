@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#77 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#78 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -161,6 +161,8 @@ private:
     int xPosToCursorPos( int ) const;
     void blinkOn();
     void makePixmap() const;
+    void undoInternal();
+    void redoInternal();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
