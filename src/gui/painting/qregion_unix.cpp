@@ -348,10 +348,10 @@ static void OffsetRegion(register QRegionPrivate &region, register int x, regist
     nbox = region.numRects;
 
     while (nbox--) {
-        pbox->moveBy(x, y);
+        pbox->translate(x, y);
         ++pbox;
     }
-    region.extents.moveBy(x, y);
+    region.extents.translate(x, y);
 }
 
 /*======================================================================

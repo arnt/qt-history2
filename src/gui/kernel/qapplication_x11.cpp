@@ -4883,7 +4883,7 @@ bool translateBySips(QWidget* that, QRect& paintRect)
         }
     }
     if (sips > 1) {
-        paintRect.moveBy(dx, dy);
+        paintRect.translate(dx, dy);
         return true;
     }
     return false;

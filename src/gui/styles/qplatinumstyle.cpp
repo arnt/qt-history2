@@ -1089,7 +1089,7 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
                     QRect ir(x + 3, y + 3,
                               w - 6 - 16, h - 6);
                     if (QApplication::reverseLayout())
-                        ir.moveBy(16, 0);
+                        ir.translate(16, 0);
                     // end comboButtonRect...
                     ir.setRect(ir.left() - 1, ir.top() - 1, ir.width() + 2,
                                 ir.height() + 2);

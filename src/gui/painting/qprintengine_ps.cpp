@@ -5013,7 +5013,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
             boundingBox.setRect(0, 0, width, height);
         if (orientation == QPrinter::Landscape) {
             if (!fullPage)
-                boundingBox.moveBy(-mleft, -mtop);
+                boundingBox.translate(-mleft, -mtop);
             outStream << " EPSF-3.0\n%%BoundingBox: "
                       << (int)(m.height() - boundingBox.bottom())*scale << " " // llx
                       << (int)(m.width() - boundingBox.right())*scale - 1 << " " // lly
@@ -5021,7 +5021,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
                       << (int)(m.width() - boundingBox.left())*scale; // ury
         } else {
             if (!fullPage)
-                boundingBox.moveBy(mleft, -mtop);
+                boundingBox.translate(mleft, -mtop);
             outStream << " EPSF-3.0\n%%BoundingBox: "
                       << (int)(boundingBox.left())*scale << " "
                       << (int)(m.height() - boundingBox.bottom())*scale - 1 << " "
