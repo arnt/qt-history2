@@ -191,7 +191,13 @@ void vtSwitchHandler(int /*sig*/)
 
 QWSTtyKeyboardHandler::QWSTtyKeyboardHandler() : QWSKeyboardHandler()
 {
+
+#if defined(QT_DEMO_SINGLE_FLOPPY)
+    terminalName = "/dev/tty0";
+#else
     terminalName = "/dev/tty";
+#endif
+
     kbdFD = -1;
     notifier = 0;
 
