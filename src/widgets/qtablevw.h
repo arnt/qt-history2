@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.h#14 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.h#15 $
 **
 ** Definition of QTableView class
 **
@@ -109,6 +109,8 @@ protected:
     int		maxColOffset();
     int		maxRowOffset();
 
+    int		minViewX()	const;
+    int		minViewY()	const;
     int		maxViewX()	const;
     int		maxViewY()	const;
     int		viewWidth()	const;
