@@ -56,11 +56,11 @@ public:
     QCString	leftJustify(uint width, char fill=' ', bool trunc=FALSE)const;
     QCString	rightJustify(uint width, char fill=' ',bool trunc=FALSE)const;
 
-    QCString	lower() const { return QByteArray::lower(); }
-    QCString	upper() const { return QByteArray::upper(); }
+    QCString	lower() const { return QByteArray::toLower(); }
+    QCString	upper() const { return QByteArray::toUpper(); }
 
-    QCString	stripWhiteSpace()	const { return QByteArray::stripWhiteSpace(); }
-    QCString	simplifyWhiteSpace()	const { return QByteArray::simplifyWhiteSpace(); }
+    QCString	stripWhiteSpace()	const { return QByteArray::trimmed(); }
+    QCString	simplifyWhiteSpace()	const { return QByteArray::simplified(); }
 
     QCString    &insert(uint index, const char *c) { QByteArray::insert(index, c); return *this; }
     QCString    &insert(uint index, char c) { QByteArray::insert(index, c); return *this; }
