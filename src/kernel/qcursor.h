@@ -66,6 +66,7 @@ public:
     QCursor( HCURSOR );
 #elif defined(Q_WS_X11)
     HANDLE	  handle()  const;
+    QCursor( HANDLE );
 #elif defined(Q_WS_MAC)
     HANDLE handle() const;
 #elif defined(Q_WS_QWS)

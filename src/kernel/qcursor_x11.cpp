@@ -163,6 +163,23 @@ QCursor::QCursor( int shape )
     data = c->data;
 }
 
+/*!
+    Constructs a cursor from the window system cursor \a cursor.
+
+    \warning Using this function is not portable. This function is only
+    available on X11 and Windows.
+*/
+QCursor::QCursor( HANDLE cursor )
+{
+    if ( !initialized )
+	initialize();
+
+    data = new QCursorData;
+    Q_CHECK_PTR( data );
+    data->hcurs = cursor;
+}
+
+
 
 void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 			 int hotX, int hotY )

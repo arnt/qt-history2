@@ -201,6 +201,7 @@ IRIX MIPSpro o32 mode.
 
 - QCursor
 	Added new enum value Qt::BusyCursor.
+	X11 only: Added QCursor constructor taking a X11 cursor handle.
 
 - QDom
 	The QDom classes are now reentrant.
