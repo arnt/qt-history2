@@ -12,6 +12,8 @@
 #include <qsqlcursor.h>
 #include <qregexp.h>
 #include <qpushbutton.h>
+#include <qmultilineedit.h>
+#include <qlistview.h>
 
 #define Q_GUIDIMPL
 #include "../designerinterface.h"
@@ -21,7 +23,10 @@ SqlFormWizard::SqlFormWizard( QComponentInterface *aIface, QWidget *w,
     : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), appIface( aIface )
 {
     setFinishEnabled( databasePage, FALSE );
-    setFinishEnabled( navigPage, TRUE );
+    setFinishEnabled( sqlPage, TRUE );
+
+    if ( widget->inherits( "QSqlTable" ) )
+	setAppropriate( navigPage, FALSE );
 
     connect( checkBoxAutoPopulate, SIGNAL( toggled(bool) ), this, SLOT( autoPopulate(bool) ) );
     setupPage1();
@@ -54,6 +59,7 @@ void SqlFormWizard::tableSelected( const QString & )
 void SqlFormWizard::autoPopulate( bool populate )
 {
     listBoxField->clear();
+    listBoxSortField->clear();
     listBoxSelectedField->clear();
     if ( populate ) {
 	DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
@@ -70,6 +76,7 @@ void SqlFormWizard::autoPopulate( bool populate )
 	}
 	proIface->closeDatabase( editConnection->text() );
 	listBoxSelectedField->insertStringList( lst );
+	listBoxSortField->insertStringList( lst );
     }
 }
 
@@ -116,6 +123,64 @@ void SqlFormWizard::addField()
     if ( !f.isEmpty() )
 	listBoxSelectedField->insertItem( f );
     listBoxField->removeItem( i );
+}
+
+void SqlFormWizard::addSortField()
+{
+    int i = listBoxSortField->currentItem();
+    if ( i == -1 )
+	return;
+    QString f = listBoxSortField->currentText();
+    if ( !f.isEmpty() )
+	listBoxSortedField->insertItem( f + " ASC" );
+}
+
+void SqlFormWizard::reSortSortField()
+{
+    int i = listBoxSortedField->currentItem();
+    if ( i != -1 ) {
+	QString text = listBoxSortedField->currentText();
+	if ( text.mid( text.length() - 3 ) == "ASC" )
+	    text = text.mid( 0, text.length() - 3 ) + "DESC";
+	else if ( text.mid( text.length() - 4 ) == "DESC" )
+	    text = text.mid( 0, text.length() - 4 ) + "ASC";
+	listBoxSortedField->removeItem( i );
+	listBoxSortedField->insertItem( text, i );
+	listBoxSortedField->setCurrentItem( i );
+    }
+}
+
+void SqlFormWizard::removeSortField()
+{
+    int i = listBoxSortedField->currentItem();
+    if ( i != -1 ) {
+	listBoxSortedField->removeItem( i );
+    }
+}
+
+void SqlFormWizard::sortFieldUp()
+{
+    if ( listBoxSortedField->currentItem() <= 0 ||
+	 listBoxSortedField->count() < 2 )
+	return;
+    int index = listBoxSortedField->currentItem() - 1;
+    QListBoxItem *i = listBoxSortedField->item( listBoxSortedField->currentItem() );
+    listBoxSortedField->takeItem( i );
+    listBoxSortedField->insertItem( i, index );
+    listBoxSortedField->setCurrentItem( i );
+}
+
+void SqlFormWizard::sortFieldDown()
+{
+    if ( listBoxSortedField->currentItem() == -1 ||
+	 listBoxSortedField->currentItem() == (int)listBoxSortedField->count() - 1 ||
+	 listBoxSortedField->count() < 2 )
+	return;
+    int index = listBoxSortedField->currentItem() + 1;
+    QListBoxItem *i = listBoxSortedField->item( listBoxSortedField->currentItem() );
+    listBoxSortedField->takeItem( i );
+    listBoxSortedField->insertItem( i, index );
+    listBoxSortedField->setCurrentItem( i );
 }
 
 void SqlFormWizard::setupDatabaseConnections()
@@ -230,7 +295,7 @@ void SqlFormWizard::accept()
 	lst << conn << table << field->name();
 	mdbIface->setFakeProperty( editor, "database", lst );
 	mdbIface->setPropertyChanged( editor, "database", TRUE );
-	
+
 	row += SPACING + 5;
 
     }
@@ -274,6 +339,19 @@ void SqlFormWizard::accept()
 					     QRect( SPACING * 16, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
 	    mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "deleteRecord()" );
 	}
+    }
+
+    if ( !editFilter->text().isEmpty() ) {
+	mdbIface->setFakeProperty( widget, "filter", editFilter->text() );
+	mdbIface->setPropertyChanged( widget, "filter", TRUE );
+    }
+
+    if ( listBoxSortedField->count() ) {
+	QStringList lst;
+	for ( uint i = 0; i < listBoxSortedField->count(); ++i )
+	    lst << listBoxSortedField->text( i );
+	mdbIface->setFakeProperty( widget, "sort", lst );
+	mdbIface->setPropertyChanged( widget, "sort", TRUE );
     }
 
     proIface->closeDatabase( editConnection->text() );

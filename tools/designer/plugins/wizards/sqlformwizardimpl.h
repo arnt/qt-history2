@@ -24,6 +24,11 @@ protected slots:
     void addField();
     void setupDatabaseConnections();
     void accept();
+    void addSortField();
+    void reSortSortField();
+    void removeSortField();
+    void sortFieldUp();
+    void sortFieldDown();
 
 private:
     void setupPage1();
