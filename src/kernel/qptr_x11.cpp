@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#167 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#168 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#167 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#168 $")
 
 
 /*****************************************************************************
@@ -2330,9 +2330,31 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     }
 
     QBitmap *mask = (QBitmap *)pixmap.mask();
+    bool mono = pixmap.depth() == 1;
 
-    if ( mask && !hasClipping() ) {		// the simple way
-	bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
+    if ( mask && !hasClipping() ) {
+	if ( mono ) {				// needs GCs pen color
+	    bool selfmask = mask->handle() == pixmap.handle();
+	    if ( selfmask ) {
+		XSetFillStyle( dpy, gc, FillStippled );
+		XSetStipple( dpy, gc, pixmap.handle() );
+	    } else {
+		XSetFillStyle( dpy, gc, FillOpaqueStippled );
+		XSetStipple( dpy, gc, pixmap.handle() );
+		XSetClipMask( dpy, gc, mask->handle() );
+		XSetClipOrigin( dpy, gc, x-sx, y-sy );
+	    }
+	    XSetTSOrigin( dpy, gc, x-sx, y-sy );
+	    XFillRectangle( dpy, hd, gc, x, y, sw, sh );
+	    XSetTSOrigin( dpy, gc, 0, 0 );
+	    XSetFillStyle( dpy, gc, FillSolid );
+	    if ( selfmask ) {
+		XSetClipOrigin( dpy, gc, 0, 0 );
+		XSetClipMask( dpy, gc, None );
+	    }
+	} else {
+	    bitBlt( pdev, x, y, &pixmap, sx, sy, sw, sh, (RasterOp)rop );
+	}
 	return;
     }
 
@@ -2363,7 +2385,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	XSetClipOrigin( dpy, gc, x, y );
     }
 
-    if ( pixmap.depth() == 1 ) {
+    if ( mono ) {
 	XSetBackground( dpy, gc, bg_col.pixel() );
 	XSetFillStyle( dpy, gc, FillOpaqueStippled );
 	XSetStipple( dpy, gc, pixmap.handle() );
