@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#201 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#202 $
 #
 # this is a massive hack, written very quickly
 #
@@ -516,7 +516,7 @@ sub processdocs {
 		    sprintf("<a href=\"%s\">%s</a>",
 			    $anchor{"::" . $1}, &html($1 . $2));
 		} else {
-		    print "No link to '$1'\n";
+		    print "No link to '$1' (processing $name{$url})\n";
 		    sprintf("%s", $1 . $2);
 		}
 	    }
@@ -536,7 +536,7 @@ sub processdocs {
 		} else {
 		    my ( $target, $string ) = ( $1, $2 );
 		    $string =~ s/\s+/ /gs;
-		    print "No link to '$target' for '$string'\n";
+		    print "No link to '$target' for '$string' (processing $name{$url})\n";
 		    sprintf("%s", $2);
 		}
 	    }
@@ -674,7 +674,7 @@ sub writepages {
 			sprintf("<a href=\"%s\">%s</a>",
 				$anchor{"::" . $1}, &html($1 . $2));
 		    } else {
-			print "No link to '", $1, "'\n";
+			print "No link to '$1' (during write of $file)\n";
 			sprintf("%s", $1 . $2);
 		    }
 		}
@@ -1738,7 +1738,7 @@ sub printclass {
 		$c = $2;
 		$u = &manglefn($r, $name{$url},
 			       "_cast", "", $c);
-		if ($type{$u} eq "fn") {
+		if ($type{$u} eq "fn" && $doc{$u} =~ /[a-z]/si ) {
 		    $_ = join("", "operator <a href=", $u, "><b>",
 			      &html($r), "</b></a> ()", $c);
 		    $fndocs{$u} = $mode;
@@ -1771,7 +1771,7 @@ sub printclass {
 		$t =~ s/^(?:virtual\s*)?/virtual /
 		    if ( defined($virtual{$u}) );
 		&fixdefvalues($u, $a) if ($type{$u} eq "fn");
-		if ($type{$u} eq "fn") {
+		if ($type{$u} eq "fn" && $doc{$u} =~ /[a-z]/si ) {
 		    # only for templates: promote the .cpp variable names
 		    if ( defined( $templatecookie{$url} ) ) {
 			$a = $def{$u};
