@@ -257,6 +257,11 @@ void QGenericListView::setMovement(Movement movement)
         startItemsLayout();
 }
 
+QGenericListView::Movement QGenericListView::movement() const
+{
+    return d->movement;
+}
+
 void QGenericListView::setFlow(Flow flow)
 {
     d->flow = flow;
@@ -265,12 +270,22 @@ void QGenericListView::setFlow(Flow flow)
         startItemsLayout();
 }
 
-void QGenericListView::setWrapping(Wrap wrap)
+QGenericListView::Flow QGenericListView::flow() const
 {
-    d->wrap = wrap;
+    return d->flow;
+}
+
+void QGenericListView::setWrapping(bool enable)
+{
+    d->wrap = enable;
     d->prepareItemsLayout();
     if (isVisible())
         startItemsLayout();
+}
+
+bool QGenericListView::isWrapping() const
+{
+    return d->wrap;
 }
 
 void QGenericListView::setIconSize(Size size)
@@ -280,6 +295,21 @@ void QGenericListView::setIconSize(Size size)
         startItemsLayout();
 }
 
+QGenericListView::Size QGenericListView::iconSize() const
+{
+    return d->size;
+}
+
+void QGenericListView::setResizeMode(ResizeMode mode)
+{
+    d->resizeMode = mode;
+}
+
+QGenericListView::ResizeMode QGenericListView::resizeMode() const
+{
+    return d->resizeMode;
+}
+
 void QGenericListView::setSpacing(int space)
 {
     d->spacing = space;
@@ -287,11 +317,21 @@ void QGenericListView::setSpacing(int space)
         startItemsLayout();
 }
 
+int QGenericListView::spacing() const
+{
+    return d->spacing;
+}
+
 void QGenericListView::setGridSize(const QSize &size)
 {
     d->gridSize = size;
     if (isVisible())
         startItemsLayout();
+}
+
+QSize QGenericListView::gridSize() const
+{
+    return d->gridSize;
 }
 
 void QGenericListView::setSelection(const QRect &rect, int selectionCommand)
@@ -361,12 +401,23 @@ void QGenericListView::contentsRemoved(const QModelIndex &parent,
         startItemsLayout();
 
     bool needMore = false;
-    if ((d->flow == TopToBottom && d->wrap == Off) || (d->flow == LeftToRight && d->wrap == On))
+    if ((d->flow == TopToBottom && !d->wrap) || (d->flow == LeftToRight && d->wrap))
         needMore = viewport()->height() >= d->contentsSize.height();
     else
         needMore = viewport()->width() >= d->contentsSize.width();
     if (needMore)
         emit this->needMore();
+}
+
+void QGenericListView::resizeEvent(QResizeEvent *e)
+{
+    QAbstractItemView::resizeEvent(e);
+    if (d->resizeMode == Adjust) {
+        QSize delta = e->size() - e->oldSize();
+        if ((d->flow == LeftToRight && delta.width() != 0) ||
+            (d->flow == TopToBottom && delta.height() != 0))
+            startItemsLayout();
+    }
 }
 
 void QGenericListView::dragMoveEvent(QDragMoveEvent *e)
@@ -444,7 +495,7 @@ void QGenericListView::startDrag()
 void QGenericListView::getViewOptions(QItemOptions *options) const
 {
     QAbstractItemView::getViewOptions(options);
-    bool small = (d->size == Automatic ? d->wrap == On : d->size == Small);
+    bool small = (d->size == Automatic ? d->wrap : d->size == Small);
     options->smallItem = small;
     options->iconAlignment = (small ? Qt::AlignVCenter|Qt::AlignAuto : Qt::AlignTop|Qt::AlignHCenter);
     options->textAlignment = (small ? Qt::AlignVCenter|Qt::AlignAuto : Alignment(Qt::AlignCenter));
@@ -616,7 +667,7 @@ QRect QGenericListView::itemViewportRect(const QModelIndex &item) const
     QRect rect = itemRect(item);
     rect.moveLeft(rect.left() - horizontalScrollBar()->value());
     rect.moveTop(rect.top() - verticalScrollBar()->value());
-    if (d->wrap == QGenericListView::Off && d->movement == QGenericListView::Static)
+    if (!d->wrap && d->movement == QGenericListView::Static)
         if (d->flow == QGenericListView::TopToBottom)
             rect.setWidth(d->viewport->width());
         else
@@ -662,7 +713,7 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
     items.clear();
     rect.moveLeft(rect.left() - horizontalScrollBar()->value());
     rect.moveTop(rect.top() - verticalScrollBar()->value());
-    if (d->wrap == QGenericListView::Off && d->movement == QGenericListView::Static)
+    if (!d->wrap && d->movement == QGenericListView::Static)
         if (d->flow == QGenericListView::TopToBottom)
             rect.setWidth(d->viewport->width());
         else
@@ -765,7 +816,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
     QSize hint;
     QRect rect = bounds;
 
-    if (d->movement == QGenericListView::Static && d->wrap == QGenericListView::Off)
+    if (d->movement == QGenericListView::Static && !wrap)
         if (d->flow == QGenericListView::LeftToRight)
              rect.setHeight(qMin(d->contentsSize.height(), rect.height()));
         else

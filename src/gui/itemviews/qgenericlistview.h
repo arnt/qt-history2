@@ -15,19 +15,34 @@ class Q_GUI_EXPORT QGenericListView : public QAbstractItemView
 
 public:
     enum Flow { LeftToRight, TopToBottom };
-    enum Wrap { Off, On };
     enum Movement { Static, Free, Snap };
     enum Size { Automatic, Small, Large };
+    enum ResizeMode { Fixed, Adjust };
 
     QGenericListView(QAbstractItemModel *model, QWidget *parent = 0);
     ~QGenericListView();
 
     void setMovement(Movement movement);
+    Movement movement() const;
+    
     void setFlow(Flow flow);
-    void setWrapping(Wrap wrap);
+    QGenericListView::Flow flow() const;
+    
+    void setWrapping(bool enable);
+    bool isWrapping() const;
+    
     void setIconSize(Size size);
+    QGenericListView::Size iconSize() const;
+
+    void setResizeMode(ResizeMode mode);
+    QGenericListView::ResizeMode resizeMode() const;
+    
     void setSpacing(int space);
+    int spacing() const;
+    
     void setGridSize(const QSize &size);
+    QSize gridSize() const;
+    
     void setSelection(const QRect &rect, int selectionCommand);
 
 protected:
@@ -43,6 +58,7 @@ protected:
     bool doItemsLayout(int num);
     void stopItemsLayout();
 
+    void resizeEvent(QResizeEvent *e);
     void dragMoveEvent(QDragMoveEvent *e);
     void dragLeaveEvent(QDragLeaveEvent *e);
     void dropEvent(QDropEvent *e);

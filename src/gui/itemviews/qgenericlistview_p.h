@@ -97,10 +97,11 @@ class QGenericListViewPrivate: public QAbstractItemViewPrivate
 public:
     QGenericListViewPrivate()
         : QAbstractItemViewPrivate(),
+            wrap(false),
             flow(QGenericListView::TopToBottom),
-            wrap(QGenericListView::Off),
             movement(QGenericListView::Static),
             size(QGenericListView::Small),
+            resizeMode(QGenericListView::Fixed),
             spacing(5),
             arrange(false),
             layoutStart(0),
@@ -129,9 +130,10 @@ public:
     QPoint snapToGrid(const QPoint &pos) const;
 
     QGenericListView::Flow flow;
-    QGenericListView::Wrap wrap;
     QGenericListView::Movement movement;
     QGenericListView::Size size;
+    QGenericListView::ResizeMode resizeMode;
+    bool wrap;
     uint spacing : 16;
     uint arrange : 1;
     int layoutStart;
