@@ -290,7 +290,7 @@ bool QItemSelectionModel::isSelected(const QModelIndex &item) const
     // check  currentSelection
     if (d->currentSelection.count()) {
         if (d->currentCommand & Deselect && selected)
-            selected != d->currentSelection.contains(item, model());
+            selected = !d->currentSelection.contains(item, model());
         else if (d->currentCommand & Toggle)
             selected ^= d->currentSelection.contains(item, model());
         else if (d->currentCommand & Select && !selected)
