@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.2 1997/09/25 17:21:40 warwick Exp $
+** $Id: examples.doc,v 1.3 1997/09/26 17:39:11 warwick Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.2 1997/09/25 17:21:40 warwick Exp $";
+static char ident[] = "$Id: examples.doc,v 1.3 1997/09/26 17:39:11 warwick Exp $";
 #endif
 
 
@@ -555,6 +555,14 @@ A6ADoAOgA+A/A+AfEHi7mjvJcdAAAAAASUVORK5CYII=
   This example is extremely trivial, and thus useful for
   investigating problems you might have installing the
   extension.
+  <p>
+  To build the example, you must first build the
+  <a href=index.html>Qt Netscape Plugin Extension</a> library.
+  Then type <tt>make</tt> in <tt>extensions/nsplugin/examples/trivial/</tt>
+  and copy the resulting <tt>trivial.so</tt> or <tt>nptrivial.dll</tt>
+  to the Plugins directory of your WWW browser.
+  <p>
+  <EMBED TYPE=trivial/very WIDTH=100 HEIGHT=100>
 */
 
 
