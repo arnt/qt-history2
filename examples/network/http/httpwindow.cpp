@@ -93,6 +93,7 @@ void HttpWindow::cancelDownload()
     statusLabel->setText(tr("Download canceled."));
     httpRequestAborted = true;
     http->abort();
+    downloadButton->setEnabled(true);
 }
 
 void HttpWindow::httpRequestFinished(int requestId, bool error)
