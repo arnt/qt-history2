@@ -684,6 +684,28 @@ bool QSqlQuery::isSelect() const
     return d->sqlResult->isSelect();
 }
 
+/*! Returns TRUE when you can only scroll forward through a result set
+    otherwise FALSE
+*/
+bool QSqlQuery::isForwardOnly() const
+{
+    if ( !d->sqlResult )
+	return FALSE;
+    return d->sqlResult->isForwardOnly();
+}
+
+/*! Sets forward only mode to \a forward. If forward is TRUE only next() and
+    seek() with positive values are allowed for navigating the results.
+    Forward only mode needs far less memory since results do not have to be cached.
+    Forward only mode is off by default.
+    \sa next(), seek()
+*/
+void QSqlQuery::setForwardOnly( bool forward )
+{
+    if ( d->sqlResult ) 
+	d->sqlResult->setForwardOnly( forward );
+}
+
 /*!
   \internal
 */

@@ -84,6 +84,8 @@ public:
     int                 size() const;
     const QSqlDriver*   driver() const;
     const QSqlResult*   result() const;
+    bool		isForwardOnly() const;
+    void		setForwardOnly( bool forward );
 
     virtual bool	exec ( const QString& query );
     virtual QVariant    value( int i ) const;
