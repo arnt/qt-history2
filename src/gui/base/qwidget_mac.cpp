@@ -846,7 +846,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	Rect r;
 	SetRect(&r, data->crect.left(), data->crect.top(), data->crect.left(), data->crect.top());
 	WindowClass wclass = kSheetWindowClass;
-	if(popup || testWFlags(WStyle_Tool))
+	if(popup)
 	    wclass = kModalWindowClass;
 	else if(testWFlags(WShowModal))
 	    wclass = kMovableModalWindowClass;
@@ -854,7 +854,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	else if(qt_mac_is_macdrawer(this))
 	    wclass = kDrawerWindowClass;
 #endif
-	else if (dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop())
+	else if(testWFlags(WStyle_Tool) || (dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
 	    wclass = kFloatingWindowClass;
 	else if (dialog)
 	    wclass = kToolbarWindowClass;
@@ -875,7 +875,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		    if (wclass == kDocumentWindowClass)
 			wclass = kPlainWindowClass;
 		    else if (wclass == kFloatingWindowClass)
-			wclass = kToolbarWindowClass;
+			wclass = kModalWindowClass;
 		} else {
 		    if (wclass != kModalWindowClass)
 			wattr |= kWindowResizableAttribute;
@@ -902,6 +902,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	}
 	if(testWFlags(Qt::WMacMetal))
 	    wattr |= kWindowMetalAttribute;
+	if(testWFlags(WStyle_Tool))
+	    wattr |= kWindowHideOnSuspendAttribute;
 	wattr |= kWindowLiveResizeAttribute;
 
 #ifdef DEBUG_WINDOW_CREATE
@@ -911,6 +913,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    const char *name;
 	} known_attribs[] = {
 	    ADD_DEBUG_WINDOW_NAME(kWindowMetalAttribute),
+	    ADD_DEBUG_WINDOW_NAME(kWindowHideOnSuspendAttribute),
 	    ADD_DEBUG_WINDOW_NAME(kWindowStandardHandlerAttribute),
 	    ADD_DEBUG_WINDOW_NAME(kWindowCollapseBoxAttribute),
 	    ADD_DEBUG_WINDOW_NAME(kWindowHorizontalZoomAttribute),
@@ -934,7 +937,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    { 0, 0 }
 	};
 #undef ADD_DEBUG_WINDOW_NAME
-	qDebug("Qt: internal: ************* Creating new window (%s::%s)", className(), name());
+	qDebug("Qt: internal: ************* Creating new window (%s::%s)", className(), objectName());
 	bool found_class = false;
 	for(int i = 0; known_classes[i].name; i++) {
 	    if(wclass == known_classes[i].tag) {
