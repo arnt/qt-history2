@@ -1926,17 +1926,17 @@ void QTable::updateHeaderStates()
     QTableSelection *s;
     while ( ( s = it.current() ) != 0 ) {
 	++it;
-	if ( s->isActive() &&
-	     s->leftCol() == 0 &&
-	     s->rightCol() == numCols() - 1 ) {
-	    for ( int i = 0; i < s->bottomRow() - s->topRow() + 1; ++i )
-		leftHeader->setSectionState( s->topRow() + i, QTableHeader::Selected );
-	}
-	if ( s->isActive() &&
-	     s->topRow() == 0 &&
-	     s->bottomRow() == numRows() - 1 ) {
-	    for ( int i = 0; i < s->rightCol() - s->leftCol() + 1; ++i )
-		topHeader->setSectionState( s->leftCol() + i, QTableHeader::Selected );
+	if ( s->isActive() ) {
+	    if ( s->leftCol() == 0 &&
+		 s->rightCol() == numCols() - 1 ) {
+		for ( int i = 0; i < s->bottomRow() - s->topRow() + 1; ++i )
+		    leftHeader->setSectionState( s->topRow() + i, QTableHeader::Selected );
+	    }
+	    if ( s->topRow() == 0 &&
+		 s->bottomRow() == numRows() - 1 ) {
+		for ( int i = 0; i < s->rightCol() - s->leftCol() + 1; ++i )
+		    topHeader->setSectionState( s->leftCol() + i, QTableHeader::Selected );
+	    }
 	}
     }
 
