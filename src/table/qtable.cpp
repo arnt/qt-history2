@@ -3885,7 +3885,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 			    break;
 			--cc;
 		    }
-		    setCurrentCell( currentRow(), qMax( 0, currentColumn() - 1 ) );
+		    setCurrentCell( currentRow(), cc );
 		}
 		itm = item( curRow, curCol );
 		if ( beginEdit( curRow, curCol, FALSE ) )
@@ -4066,7 +4066,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 		    break;
 		--cc;
 	    }
-	    setCurrentCell( currentRow(), qMax( 0, currentColumn() - 1 ) );
+	    setCurrentCell( currentRow(), cc );
 	}
 	return;
     case Key_Escape:
