@@ -67,6 +67,7 @@ bool QDesignerAction::addTo( QWidget *w )
 	return FALSE;
 
     widgetToInsert->reparent( w, QPoint( 0, 0 ), FALSE );
+    widgetToInsert->show();
     addedTo( widgetToInsert, w );
     return TRUE;
 }
