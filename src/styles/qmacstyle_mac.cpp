@@ -51,7 +51,6 @@ public:
 #include <qdrawutil.h>
 #include <qlineedit.h>
 #include <qregexp.h>
-#include "qwidgetlist.h"
 #include <qguardedptr.h>
 #include "qmainwindow.h"
 #include "private/qaquastyle_p.h"

@@ -21,7 +21,6 @@
 #include "private/qcolor_p.h"
 #include "qwidget.h"
 #include "private/qwidget_p.h"
-#include "qwidgetlist.h"
 #include "qbitarray.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
@@ -1320,7 +1319,7 @@ void qt_enter_modal(QWidget *widget)
 
 void qt_leave_modal(QWidget *widget)
 {
-    if(qt_modal_stack && qt_modal_stack->removeRef(widget)) {
+    if(qt_modal_stack && qt_modal_stack->remove(widget)) {
 #ifdef DEBUG_MODAL_EVENTS
 	qDebug("Leaving modal state with %s::%s::%p (%d)", widget->className(), widget->name(),
 	       widget, qt_modal_stack->count());
@@ -1495,12 +1494,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventQtRequestPropagateWindowUpdates) {
 	    request_updates_pending = NULL;
 	    QApplication::sendPostedEvents();
-	    if(QWidgetList *list   = qApp->topLevelWidgets()) {
-		for(QWidget *widget = list->first(); widget; widget = list->next()) {
-		    if(!widget->isHidden())
-			widget->propagateUpdates();
-		}
-		delete list;
+	    QWidgetList tlws = qApp->topLevelWidgets();
+	    for(int i = 0; i < tlws.size(); i++) {
+		QWidget *tlw = tlws.at(i);
+		if(!tlw->isHidden())
+		    tlw->propagateUpdates();
 	    }
 	} else if(ekind == kEventQtRequestShowSheet) {
 	    QWidget *widget = NULL;
@@ -2503,7 +2501,7 @@ void QApplication::closePopup(QWidget *popup)
     if(!popupWidgets)
 	return;
 
-    popupWidgets->removeRef(popup);
+    popupWidgets->remove(popup);
     if(popup == popupOfPopupButtonFocus) {
 	popupButtonFocus = 0;
 	popupOfPopupButtonFocus = 0;
@@ -2529,7 +2527,7 @@ void QApplication::closePopup(QWidget *popup)
 	// first popup grabbed the keyboard), so we have to do that
 	// manually: A popup was closed, so the previous popup gets
 	// the focus.
-	active_window = popupWidgets->getLast();
+	active_window = popupWidgets->last();
 	QFocusEvent::setReason(QFocusEvent::Popup);
 	if(active_window->focusWidget())
 	    active_window->focusWidget()->setFocus();
@@ -2626,36 +2624,35 @@ void QApplication::flush()
 {
 //    sendPostedEvents();
     if(qApp) {
-	if(QWidgetList *list = qApp->topLevelWidgets()) {
-	    for(QWidget *tlw = list->first(); tlw; tlw = list->next()) {
-		if(tlw->isVisible()) {
-		    for(QValueList<WId>::Iterator it = request_updates_pending_list.begin();
-			it != request_updates_pending_list.end(); ++it) {
-			QWidget *widget = QWidget::find((*it));
-			if(widget && widget->extra && widget->extra->has_dirty_area &&
-			   widget->topLevelWidget() == tlw) {
-			    widget->extra->has_dirty_area = FALSE;
-			    QRegion r = widget->extra->dirty_area;
-			    widget->extra->dirty_area = QRegion();
-			    QRegion cr = widget->clippedRegion();
-			    if(!widget->isTopLevel()) {
-				QPoint point(posInWindow(widget));
-				cr.translate(-point.x(), -point.y());
-			    }
-			    r &= cr;
-			    if(!r.isEmpty())
-				widget->repaint(r, !widget->testWFlags(WRepaintNoErase));
-
-			    it = request_updates_pending_list.remove(it);
-			    if(it == request_updates_pending_list.end())
-				break;
+	QWidgetList tlws = qApp->topLevelWidgets();
+	for(int i = 0; i < tlws.size(); i++) {
+	    QWidget *tlw = tlws.at(i);
+	    if(tlw->isVisible()) {
+		for(QValueList<WId>::Iterator it = request_updates_pending_list.begin();
+		    it != request_updates_pending_list.end(); ++it) {
+		    QWidget *widget = QWidget::find((*it));
+		    if(widget && widget->extra && widget->extra->has_dirty_area &&
+		       widget->topLevelWidget() == tlw) {
+			widget->extra->has_dirty_area = FALSE;
+			QRegion r = widget->extra->dirty_area;
+			widget->extra->dirty_area = QRegion();
+			QRegion cr = widget->clippedRegion();
+			if(!widget->isTopLevel()) {
+			    QPoint point(posInWindow(widget));
+			    cr.translate(-point.x(), -point.y());
 			}
+			r &= cr;
+			if(!r.isEmpty())
+			    widget->repaint(r, !widget->testWFlags(WRepaintNoErase));
+			
+			it = request_updates_pending_list.remove(it);
+			if(it == request_updates_pending_list.end())
+			    break;
 		    }
-		    tlw->propagateUpdates();
-		    QMacSavedPortInfo::flush(tlw);
 		}
+		tlw->propagateUpdates();
+		QMacSavedPortInfo::flush(tlw);
 	    }
-	    delete list;
 	}
     }
 }

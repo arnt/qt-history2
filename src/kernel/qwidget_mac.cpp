@@ -21,7 +21,6 @@
 #include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qbitmap.h"
-#include "qwidgetlist.h"
 #include "qaccel.h"
 #include "qdragobject.h"
 #include "qfocusdata.h"
@@ -1963,7 +1962,8 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 	    }
 	}
         //now send move events (do not do this in the above loop, breaks QAquaFocusWidget)
-	for(QWidget *w = moved.first(); w; w = moved.next()) {
+	for(int i = 0; i < moved.size(); i++) {
+	    QWidget *w = moved.at(i);
 	    QMoveEvent e(w->pos(), w->pos() - pd);
 	    QApplication::sendEvent(w, &e);
 	}
