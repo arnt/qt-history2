@@ -159,12 +159,12 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
     false.
 */
 
-/*! \fn void QAbstractEventDispatcher::registerSocketNotifier(QSocketNotifier *notifier)
+/*! 
+    \fn void QAbstractEventDispatcher::registerSocketNotifier(QSocketNotifier *notifier)
 
     Registers \a notifier with the event loop. Subclasses must
-    reimplement this method to tie a socket notifier into another
-    event loop. Reimplementations <b>must</b> call the base
-    implementation.
+    implement this method to tie a socket notifier into another
+    event loop.
 */
 
 /*! \fn void QAbstractEventDispatcher::unregisterSocketNotifier(QSocketNotifier *notifier)
