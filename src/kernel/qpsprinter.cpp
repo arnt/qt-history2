@@ -1899,7 +1899,8 @@ class QPSPrinterFontPrivate;
 class QPSPrinterPrivate {
 public:
     QPSPrinterPrivate( QPrinter *prt, int filedes );
-
+    ~QPSPrinterPrivate();
+    
     void matrixSetup( QPainter * );
     void clippingSetup( QPainter * );
     void setClippingOff( QPainter * );
@@ -2437,6 +2438,8 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
         vector += line + "] def\n";
         s << vector;
     }
+    
+    delete [] inverse;
 
     // DEFINE BASE FONTS
 
@@ -4044,9 +4047,9 @@ static void PSConvert(QTextStream& s, charproc_data* cd)
   s << "_cl";           /* "closepath eofill" */
 
   /* Free our work arrays. */
-  delete cd->area_ctr;
-  delete cd->check_ctr;
-  delete cd->ctrset;
+  delete [] cd->area_ctr;
+  delete [] cd->check_ctr;
+  delete [] cd->ctrset;
 }
 
 
@@ -4418,10 +4421,10 @@ void QPSPrinterFontTTF::charproc(int charindex, QTextStream& s)
   /* otherwise, close the stack business. */
   if( cd.num_ctr > 0 ) {        // simple
     PSConvert(s,&cd);
-    delete cd.tt_flags;
-    delete cd.xcoor;
-    delete cd.ycoor;
-    delete cd.epts_ctr;
+    delete [] cd.tt_flags;
+    delete [] cd.xcoor;
+    delete [] cd.ycoor;
+    delete [] cd.epts_ctr;
   } else if( cd.num_ctr < 0 ) { // composite
     charprocComposite(glyph,s);
   }
@@ -5246,6 +5249,11 @@ QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
     currentFontFile = 0;
     scale = 1.;
     scriptUsed = -1;
+}
+
+QPSPrinterPrivate::~QPSPrinterPrivate()
+{
+    delete pageBuffer;
 }
 
 void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
