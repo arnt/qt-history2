@@ -36,6 +36,7 @@ public:
 
     bool supportsMetaBuild() { return false; }
     bool openOutput(QFile &file, const QString &build) const;
+    bool hasBuiltinCompiler(const QString &filename) const;
 
 protected:
     virtual void processPrlVariable(const QString &, const QStringList &);
@@ -47,6 +48,36 @@ protected:
     QString platform;
     QStringList configurations;
     bool usePCH;
+
+    struct BuildStep {
+        BuildStep() {}
+        BuildStep(int configurations) {
+            configs = configurations;
+            while (configurations--) {
+                deps << QString();
+                buildSteps << QString();
+                buildNames << QString();
+                buildOutputs << QStringList();
+            }
+        }
+
+        BuildStep &operator<<(const BuildStep &other) {
+            for (int i = 0; i < configs; ++i) {
+                deps << other.deps;
+                buildSteps[i] += other.buildSteps[i];
+                buildNames[i] += other.buildNames[i];
+                buildOutputs[i] += other.buildOutputs[i];
+            }
+            return *this;
+        }
+
+        QStringList deps;
+        QStringList buildSteps;
+        QStringList buildNames;
+        QList<QStringList> buildOutputs;
+        int configs;
+    };
+    QMap<QString, BuildStep> swappedBuildSteps;
 };
 
 inline DspMakefileGenerator::~DspMakefileGenerator()

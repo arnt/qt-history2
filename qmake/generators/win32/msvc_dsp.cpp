@@ -68,6 +68,14 @@ for (int iconfig = 0; iconfig < configurations.count(); ++iconfig) { \
         t << "!ELSEIF"; \
 } \
 
+bool DspMakefileGenerator::hasBuiltinCompiler(const QString &filename) const
+{
+    for (int i = 0; i < Option::cpp_ext.count(); ++i)
+        if (filename.endsWith(Option::cpp_ext.at(i)))
+            return true;
+    return filename.endsWith(".c");
+}
+
 bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &file)
 {
     if (usePCH) {
@@ -94,104 +102,109 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
     QString fileBase = file.left(file.lastIndexOf('.'));
     fileBase = fileBase.mid(fileBase.lastIndexOf('\\') + 1);
 
-    bool hasBuildStep = false;
-    QStringList buildSteps;
-    QStringList buildNames;
-    QList<QStringList> buildOutputs;
-    int i;
-    for (i = 0; i < configurations.count(); ++i) {
-        QString config = configurations.at(i);
-        buildSteps << QString();
-        buildNames << QString();
-        buildOutputs << QStringList();
-    }
+    bool hasBuiltin = hasBuiltinCompiler(file);
+    BuildStep allSteps(configurations.count());
 
-    QStringList compilers = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    QStringList dependencies;
-    for (i = 0; i < compilers.count(); ++i) {
-        QString compiler = compilers.at(i);
-        if (project->variables()[compiler + ".input"].isEmpty())
-            continue;
-        QString input = project->variables()[compiler + ".input"].first();
-        QStringList inputList = project->variables()[input];
-        if (!inputList.contains(file))
-            continue;
-
-        QStringList compilerCommands = project->variables()[compiler + ".commands"];
-        QStringList compilerOutput = project->variables()[compiler + ".output"];
-        if (compilerCommands.isEmpty() || compilerOutput.isEmpty())
-            continue;
-        hasBuildStep = true;
-
-        QStringList compilerName = project->variables()[compiler + ".name"];
-        if (compilerName.isEmpty())
-            compilerName << compiler;
-        QStringList compilerDepends = project->variables()[compiler + ".depends"];
-        QStringList compilerConfig = project->variables()[compiler + ".CONFIG"];
-        
-        if (compilerConfig.contains("moc_verify"))
-            if (!verifyExtraCompiler(compiler, file))
+    if (!swappedBuildSteps.contains(file)) {
+        QStringList compilers = project->variables()["QMAKE_EXTRA_COMPILERS"];
+        for (int i = 0; i < compilers.count(); ++i) {
+            QString compiler = compilers.at(i);
+            if (project->variables()[compiler + ".input"].isEmpty())
+                continue;
+            QString input = project->variables()[compiler + ".input"].first();
+            QStringList inputList = project->variables()[input];
+            if (!inputList.contains(file))
                 continue;
 
-        bool combineAll = compilerConfig.contains("combine");
-        if (combineAll && inputList.first() != file)
-            continue;
+            QStringList compilerCommands = project->variables()[compiler + ".commands"];
+            QStringList compilerOutput = project->variables()[compiler + ".output"];
+            if (compilerCommands.isEmpty() || compilerOutput.isEmpty())
+                continue;
 
-        QString fileIn("$(InputPath)");
+            QStringList compilerName = project->variables()[compiler + ".name"];
+            if (compilerName.isEmpty())
+                compilerName << compiler;
+            QStringList compilerDepends = project->variables()[compiler + ".depends"];
+            QStringList compilerConfig = project->variables()[compiler + ".CONFIG"];
+            
+            if (compilerConfig.contains("moc_verify"))
+                if (!verifyExtraCompiler(compiler, file))
+                    continue;
 
-        if (combineAll && !inputList.isEmpty()) {
-            fileIn = inputList.join(" ");
-            compilerDepends += inputList;
+            bool combineAll = compilerConfig.contains("combine");
+            if (combineAll && inputList.first() != file)
+                continue;
+
+            QString fileIn("$(InputPath)");
+
+            if (combineAll && !inputList.isEmpty()) {
+                fileIn = inputList.join(" ");
+                compilerDepends += inputList;
+            }
+
+            QString fileOut(compilerOutput.first());
+            fileOut.replace("${QMAKE_FILE_BASE}", fileBase);
+            fileOut.replace('/', '\\');
+
+            BuildStep step(configurations.count());
+            for (int i2 = 0; i2 < compilerDepends.count(); ++i2) {
+                QString dependency = compilerDepends.at(i2);
+                dependency.replace("${QMAKE_FILE_BASE}", fileBase);
+                dependency.replace('/', '\\');
+                if (!step.deps.contains(dependency, Qt::CaseInsensitive))
+                    step.deps << dependency;
+            }
+
+            QString mappedFile;
+            if (hasBuiltin) {
+                mappedFile = fileOut;
+                fileOut = fileIn;
+                fileIn = file;
+            }
+
+            for (int iconfig = 0; iconfig < configurations.count(); ++iconfig) {
+                QString config(configurations.at(iconfig));
+                QString &buildName = step.buildNames[iconfig];
+                QString &buildStep = step.buildSteps[iconfig];
+                QStringList &buildOutput = step.buildOutputs[iconfig];
+
+                if (buildStep.isEmpty())
+                    buildStep = "BuildCmds= \\\n\t";
+                else
+                    buildStep += " \\\n\t";
+                QString command(compilerCommands.join(" "));
+                command.replace("${QMAKE_FILE_OUT}", fileOut);
+                command.replace("${QMAKE_FILE_IN}", fileIn);
+                command.replace("${QMAKE_FILE_BASE}", fileBase);
+                command.replace("$(INCPATH)", varGlue("INCLUDES", " -I", " -I", ""));
+                command.replace("$(DEFINES)", varGlue("DEFINES", " -D", " -D", ""));
+
+                buildName = compilerName.first();
+                buildStep += command;
+                buildOutput += fileOut;
+            }
+            if (hasBuiltin) {
+                step.deps << fileIn;
+                swappedBuildSteps[mappedFile] = step;
+            } else {
+                allSteps << step;
+            }
         }
-
-        QString fileOut(compilerOutput.first());
-        fileOut.replace("${QMAKE_FILE_BASE}", fileBase);
-        fileOut.replace('/', '\\');
-
-        int i2;
-        for (i2 = 0; i2 < compilerDepends.count(); ++i2) {
-            QString dependency = compilerDepends.at(i2);
-            dependency.replace("${QMAKE_FILE_BASE}", fileBase);
-            dependency.replace('/', '\\');
-            if (!dependencies.contains(dependency, Qt::CaseInsensitive))
-                dependencies << dependency;
-        }
-
-        for (int iconfig = 0; iconfig < configurations.count(); ++iconfig) {
-            QString config(configurations.at(iconfig));
-            QString &buildName = buildNames[iconfig];
-            QString &buildStep = buildSteps[iconfig];
-            QStringList &buildOutput = buildOutputs[iconfig];
-
-            if (buildStep.isEmpty())
-                buildStep = "BuildCmds= \\\n\t";
-            else
-                buildStep += " \\\n\t";
-            QString command(compilerCommands.join(" "));
-            command.replace("${QMAKE_FILE_OUT}", fileOut);
-            command.replace("${QMAKE_FILE_IN}", fileIn);
-            command.replace("${QMAKE_FILE_BASE}", fileBase);
-            command.replace("$(INCPATH)", varGlue("INCLUDES", " -I", " -I", ""));
-            command.replace("$(DEFINES)", varGlue("DEFINES", " -D", " -D", ""));
-
-            buildName = compilerName.first();
-            buildStep += command;
-            buildOutput += fileOut;
-        }
+    } else {
+        allSteps << swappedBuildSteps.value(file);
     }
 
-    if (!hasBuildStep)
+    if (allSteps.buildSteps.at(0).isEmpty())
         return true;
 
     QStringList dependencyList;
     // remove dependencies that are also output
-    for (i = 0; i < configurations.count(); ++i) {
+    for (int i = 0; i < configurations.count(); ++i) {
         QString config = configurations.at(i);
-        QStringList buildOutput(buildOutputs.at(configurations.indexOf(config)));
+        QStringList buildOutput(allSteps.buildOutputs.at(configurations.indexOf(config)));
 
-        int i2;
-        for (i2 = 0; i2 < dependencies.count(); ++i2) {
-            QString dependency = dependencies.at(i2);
+        for (int i2 = 0; i2 < allSteps.deps.count(); ++i2) {
+            QString dependency = allSteps.deps.at(i2);
             if (!buildOutput.contains(dependency) && !dependencyList.contains(dependency))
                 dependencyList << dependency;
         }
@@ -199,9 +212,9 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
     QString allDependencies = valGlue(dependencyList, "\"", "\"\t\"", "\"");
     t << "USERDEP_" << file << "=" << allDependencies << endl;
     begin_configs(config);
-        QString buildName(buildNames.at(iconfig));
-        QString buildStep(buildSteps.at(iconfig));
-        QStringList buildOutputList(buildOutputs.at(iconfig));
+        QString buildName(allSteps.buildNames.at(iconfig));
+        QString buildStep(allSteps.buildSteps.at(iconfig));
+        QStringList buildOutputList(allSteps.buildOutputs.at(iconfig));
         t << "# Begin Custom Build - Running " << buildName << " on " << file << endl;
         t << "InputPath=" << file << endl;
         t << buildStep << endl;
@@ -355,7 +368,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
         endGroups(t);
     }
 
-    writeFileGroup(t, project->variables()["GENERATED"], "Generated", "");
+    writeFileGroup(t, project->variables()["GENERATED"] 
+                      + swappedBuildSteps.keys(), "Generated", "");
 
     t << "# End Target" << endl;
     t << "# End Project" << endl;
