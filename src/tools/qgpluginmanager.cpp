@@ -310,7 +310,7 @@ QGPluginManager::~QGPluginManager()
 
 void QGPluginManager::addLibraryPath( const QString& path )
 {
-    if ( !QDir( path ).exists( ".", TRUE ) )
+    if ( !enabled() || !QDir( path ).exists( ".", TRUE ) )
 	return;
 
 #if defined(Q_OS_WIN32)
@@ -334,7 +334,7 @@ void QGPluginManager::addLibraryPath( const QString& path )
 
 const QLibrary* QGPluginManager::library( const QString& feature ) const
 {
-    if ( feature.isEmpty() )
+    if ( !enabled() || feature.isEmpty() )
 	return 0;
 
     // We already have a QLibrary object for this feature
@@ -411,6 +411,11 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 
 QStringList QGPluginManager::featureList() const
 {
+    QStringList features;
+
+    if ( !enabled() )
+	return features;
+
     QGPluginManager *that = (QGPluginManager*)this;
     QStringList theLibs = libList;
     QStringList phase2Libs;
@@ -437,7 +442,6 @@ QStringList QGPluginManager::featureList() const
 	if ( !phase2Deny.contains( QFileInfo( *it ).baseName() ) )
 	    that->addLibrary( new QComLibrary( *it ) );
 
-    QStringList features;
     for ( QDictIterator<QLibrary> pit( plugDict ); pit.current(); ++pit )
 	features << pit.currentKey();
 
@@ -446,10 +450,10 @@ QStringList QGPluginManager::featureList() const
 
 bool QGPluginManager::addLibrary( QLibrary* lib )
 {
-    QComLibrary* plugin = (QComLibrary*)lib;
-    if ( !plugin )
+    if ( !enabled() || !lib )
 	return FALSE;
 
+    QComLibrary* plugin = (QComLibrary*)lib;
     bool useful = FALSE;
 
     QUnknownInterface* iFace = 0;
