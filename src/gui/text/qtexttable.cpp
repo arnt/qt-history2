@@ -305,7 +305,7 @@ void QTextTable::removeRows(int pos, int num)
     Q_ASSERT(end.blockFormat().tableCellEndOfRow());
 
 //     qDebug("removing from %d length %d", start.position(), end.position()+end.length()-start.position());
-    d->pieceTable()->remove(start.position()-1, end.position()+end.length()-start.position());
+    d->pieceTable()->remove(start.position(), end.position()+end.length()-start.position());
 
     Q_ASSERT(d->dirty);
     d->pieceTable()->endEditBlock();
@@ -376,7 +376,7 @@ void QTextTable::removeCols(int pos, int num)
 	    // remove cell
 // 	    qDebug("    removing block %d", cell.n);
 	    QTextBlockIterator end = d->blocks.at(d->blocks.indexOf(cell)+1);
-	    d->pieceTable()->remove(cell.position()-1, end.position() - cell.position());
+	    d->pieceTable()->remove(cell.position(), end.position() - cell.position());
 	    p += span;
 	}
     }
