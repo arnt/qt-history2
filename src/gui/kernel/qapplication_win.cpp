@@ -2525,7 +2525,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
         }
 
         if (type == QEvent::MouseButtonRelease &&
-             (state & (~button) & (Qt::MouseButtonMask)) == 0) {
+             (state & Qt::MouseButtonMask) == 0) {
             qt_button_down = 0;
         }
 
