@@ -62,10 +62,17 @@ sql {
 	              sql/connect.ui
 }
 
+table {
+	INTERFACES += widgets/widgetsbase.ui
+}
+
+!table {
+	INTERFACES += widgets/widgetsbase_pro.ui
+}
+
 TARGET		= demo
 INCLUDEPATH	+= .
 DEPENDPATH	= ../../include
-INTERFACES	+= dnd/dndbase.ui \
-		   widgets/widgetsbase.ui
+INTERFACES	+= dnd/dndbase.ui
 unix:LIBS += -lm
 REQUIRES=full-config nocrosscompiler

@@ -17,18 +17,22 @@
 #include "textdrawing/helpwindow.h"
 #include "dnd/dnd.h"
 #include "i18n/i18n.h"
-#include "widgets/widgetsbase.h"
-
 
 #include <qmodules.h>
+
+#if defined(QT_MODULE_OPENGL)
+#include "opengl/glworkspace.h"
+#include "opengl/gllandscapeviewer.h"
+#endif
 
 #if defined(QT_MODULE_CANVAS)
 #include "qasteroids/toplevel.h"
 #endif
 
-#if defined(QT_MODULE_OPENGL)
-#include "opengl/glworkspace.h"
-#include "opengl/gllandscapeviewer.h"
+#if defined(QT_MODULE_TABLE)
+#include "widgets/widgetsbase.h"
+#else
+#include "widgets/widgetsbase_pro.h"
 #endif
 
 #include <stdlib.h>
@@ -84,12 +88,14 @@ int main( int argc, char **argv )
     frame.addCategory( tab, dbpix, dbpix_sel, "Database" );
 #endif
 
+#if defined(QT_MODULE_CANVAS)
     // 2D Graphics
     tab = new QTabWidget();
     w = new GraphWidget( tab );
     tab->addTab( w, "Graph Drawing" );
     tab->addTab( new DisplayWidget(), "Display" );
     frame.addCategory( tab, twodpix, twodpix_sel, "2D Graphics" );
+#endif
 
 #if defined(QT_MODULE_OPENGL)
     // 3D Graphics
