@@ -103,6 +103,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qsignal.h \
 		  $$KERNEL_H/qsignalmapper.h \
 		  $$KERNEL_H/qsignalslotimp.h \
+		  $$KERNEL_H/qsimpletextdocument.h \
 		  $$KERNEL_H/qsize.h \
 		  $$KERNEL_H/qsizegrip.h \
 		  $$KERNEL_H/qsizepolicy.h \
@@ -110,6 +111,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qsocketdevice.h \
 		  $$KERNEL_H/qsocketnotifier.h \
 		  $$KERNEL_H/qstyle.h \
+		  $$KERNEL_H/qstylesheet.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qwidget.h \
 		  $$KERNEL_H/qwidgetintdict.h \
@@ -199,6 +201,8 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qtabbar.h \
 		  $$WIDGETS_H/qtabwidget.h \
 		  $$WIDGETS_H/qtableview.h \
+		  $$WIDGETS_H/qtextbrowser.h \
+		  $$WIDGETS_H/qtextview.h \
 		  $$WIDGETS_H/qtoolbar.h \
 		  $$WIDGETS_H/qtoolbutton.h \
 		  $$WIDGETS_H/qtooltip.h \
@@ -319,15 +323,18 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qprinter.cpp \
 		  kernel/qrect.cpp \
 		  kernel/qregion.cpp \
+		  kernel/qrichtext.cpp \
 		  kernel/qsemimodal.cpp \
 		  kernel/qsignal.cpp \
 		  kernel/qsignalmapper.cpp \
+		  kernel/qsimpletextdocument.cpp \
 		  kernel/qsize.cpp \
 		  kernel/qsizegrip.cpp \
 		  kernel/qsocket.cpp \
 		  kernel/qsocketdevice.cpp \
 		  kernel/qsocketnotifier.cpp \
 		  kernel/qstyle.cpp \
+		  kernel/qstylesheet.cpp \
 		  kernel/qtimer.cpp \
 		  kernel/qwidget.cpp \
 		  kernel/qwindowsstyle.cpp \
@@ -367,6 +374,8 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qtabbar.cpp \
 		  widgets/qtabwidget.cpp \
 		  widgets/qtableview.cpp \
+		  widgets/qtextbrowser.cpp \
+		  widgets/qtextview.cpp \
 		  widgets/qtoolbar.cpp \
 		  widgets/qtoolbutton.cpp \
 		  widgets/qtooltip.cpp \

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#45 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -34,7 +34,8 @@
 #include "qcursor.h"
 #include "qbitmap.h"
 #include "qtooltip.h"
-#include "qml.h"
+#include "qsimpletextdocument.h"
+#include "qstylesheet.h"
 
 /*!
   \class QWhatsThis qwhatsthis.h
@@ -404,10 +405,10 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     QPainter p( whatsThat );
 
     QRect r;
-    QMLSimpleDocument* qmlDoc = 0;
+    QSimpleTextDocument* qmlDoc = 0;
 
     if ( QWhatsThis::styleSheet() ) {
-	qmlDoc = new QMLSimpleDocument( text, whatsThat, QWhatsThis::styleSheet() );
+	qmlDoc = new QSimpleTextDocument( text, whatsThat, QWhatsThis::styleSheet() );
 	qmlDoc->setWidth( &p, w );
 	r.setRect( 0, 0, qmlDoc->width(), qmlDoc->height() );
     }
@@ -489,7 +490,7 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 		    text );
     }
     p.setPen( whatsThat->colorGroup().shadow() );
-    
+
     p.drawPoint( w + 5, 6 );
     p.drawLine( w + 3, 6,
 		w + 5, 8 );
@@ -800,7 +801,7 @@ void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos )
 	wt->say( 0, text, pos );
 }
 
-static QMLStyleSheet* whatsThisStyleSheet = 0;
+static QStyleSheet* whatsThisStyleSheet = 0;
 static bool whatsThisStyleSheetSet = FALSE;
 
 /*!
@@ -808,22 +809,22 @@ static bool whatsThisStyleSheetSet = FALSE;
 
   \sa setStyleSheet()
 */
-QMLStyleSheet* QWhatsThis::styleSheet()
+QStyleSheet* QWhatsThis::styleSheet()
 {
-    return whatsThisStyleSheetSet ? whatsThisStyleSheet : QMLStyleSheet::defaultSheet() ;
+    return whatsThisStyleSheetSet ? whatsThisStyleSheet : QStyleSheet::defaultSheet() ;
 }
 
 /*!
   Sets a style sheet for all What's This help windows.
 
-  Usually What's This uses the QMLStyleSheet::defaultSheet() to render
+  Usually What's This uses the QStyleSheet::defaultSheet() to render
   the help texts.  You can, however, set a different stylesheet with
-  this function. If \a styleSheet is 0, no QML rendering is done at
+  this function. If \a styleSheet is 0, no rich text rendering is done at
   all.
 
   \sa styleSheet()
 */
-void QWhatsThis::setStyleSheet( QMLStyleSheet* styleSheet )
+void QWhatsThis::setStyleSheet( QStyleSheet* styleSheet )
 {
     whatsThisStyleSheet = styleSheet;
     whatsThisStyleSheetSet = TRUE;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#116 $
 **
 ** Implementation of QLabel widget class
 **
@@ -33,7 +33,7 @@
 #include "qimage.h"
 #include "qbitmap.h"
 #include "qapplication.h"
-#include "qml.h"
+#include "qsimpletextdocument.h"
 
 
 class QLabelPrivate
@@ -186,8 +186,8 @@ void QLabel::init()
     align = AlignLeft | AlignVCenter | ExpandTabs;
     extraMargin= -1;
     autoresize = FALSE;
-    isqml = FALSE;
-    qmlDoc = 0;
+    textformat = Qt::AutoText;
+    doc = 0;
     d = 0;
 }
 
@@ -213,15 +213,15 @@ void QLabel::init()
 
 void QLabel::setText( const QString &text )
 {
+    //########## todo take care of the text format
     unsetMovie();
-    if ( !isqml && ltext == text )
+    if ( !doc && ltext == text )
 	return;
     ltext = text;
-    isqml = FALSE;
 
-    if (qmlDoc ) {
-	delete qmlDoc;
-	qmlDoc = 0;
+    if (doc ) {
+	delete doc;
+	doc = 0;
     }
     if ( lpixmap ) {
 	delete lpixmap;
@@ -479,16 +479,14 @@ QSize QLabel::sizeForWidth( int w ) const
     } else if ( mov ) {
 	br = QRect( 0, 0, mov->framePixmap().width(),
 		    mov->framePixmap().height() );
-    } else if (isqml ){
-	if ( qmlDoc ) {
-	    //QRect cr = contentsRect();
-	    if ( w < 0 )
-		w = contentsRect().width();
+    } else if (doc ){
+	//QRect cr = contentsRect();
+	if ( w < 0 )
+	    w = contentsRect().width();
 
-	    w -= 2*frameWidth();
-	    qmlDoc->setWidth(&p, w);
-	    br = QRect( 0, 0, qmlDoc->width(), qmlDoc->height() );
-	}
+	w -= 2*frameWidth();
+	doc->setWidth(&p, w);
+	br = QRect( 0, 0, doc->width(), doc->height() );
     } else {
 	bool tryWidth = w < 0 && align&WordBreak;
 	QFontMetrics fm = fontMetrics();
@@ -525,7 +523,7 @@ QSize QLabel::sizeForWidth( int w ) const
 */
 int QLabel::heightForWidth(int w) const
 {
-    if (isqml && qmlDoc || align & WordBreak ) {
+    if (doc  || align & WordBreak ) {
 	return sizeForWidth( w ).height();
     }
     return QWidget::heightForWidth(w);
@@ -552,7 +550,7 @@ QSize QLabel::sizeHint() const
 
 QSizePolicy QLabel::sizePolicy() const
 {
-    if ( isqml || align & WordBreak )
+    if ( doc || align & WordBreak )
 	return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred,
 			    TRUE );
     else
@@ -595,11 +593,9 @@ void QLabel::drawContents( QPainter *p )
 	// ### could resize movie frame at this point
 	p->drawPixmap(r.x(), r.y(), mov->framePixmap() );
     }
-    else if ( isqml ) {
-	if (qmlDoc) {
-	    qmlDoc->setWidth(p, cr.width() );
-	    qmlDoc->draw(p, cr.x(), cr.y(), cr, colorGroup(), 0);
-	}
+    else if ( doc ) {
+	doc->setWidth(p, cr.width() );
+	doc->draw(p, cr.x(), cr.y(), cr, colorGroup(), 0);
     } else {
 	// ordinary text label
 	qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
@@ -860,30 +856,49 @@ QMovie* QLabel::movie() const
 
   \sa text(), setText(), setPixmap(), setAutoResize(), QMLView
 */
-void QLabel::setQML( const QString & qml )
+//##################
+// void QLabel::setQML( const QString & qml )
+// {
+//     unsetMovie();
+//     if ( qml && ltext == qml )
+// 	return;
+//     ltext = qml;
+//     if ( lpixmap ) {
+// 	delete lpixmap;
+// 	lpixmap = 0;
+//     }
+//     delete doc;
+//     doc = new QSimpleTextDocument( ltext, this );
+//     if ( accel )
+// 	accel->clear();
+//     if ( autoresize ) {
+// 	QSize s = sizeHint();
+// 	if ( s.isValid() && s != size() )
+// 	    resize( s );
+// 	else
+// 	    repaint();
+//     } else {
+// 	updateLabel();
+//     }
+//     updateGeometry();
+// }
+
+
+
+/*!
+  Returns the current text format
+ */
+Qt::TextFormat QLabel::textFormat() const
 {
-    unsetMovie();
-    if ( qml && ltext == qml )
-	return;
-    ltext = qml;
-    isqml = TRUE;
-    if ( lpixmap ) {
-	delete lpixmap;
-	lpixmap = 0;
-    }
-    delete qmlDoc;
-    qmlDoc = new QMLSimpleDocument( ltext, this );
-    if ( accel )
-	accel->clear();
-    if ( autoresize ) {
-	QSize s = sizeHint();
-	if ( s.isValid() && s != size() )
-	    resize( s );
-	else
-	    repaint();
-    } else {
-	updateLabel();
-    }
-    updateGeometry();
+    return textformat;
 }
 
+/*!
+  Sets the text format to \a format
+ */
+void QLabel::setTextFormat( Qt::TextFormat format )
+{
+    textformat = format;
+    
+    //###### TODO create qml when required
+}

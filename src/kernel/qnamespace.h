@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#24 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#25 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -509,6 +509,7 @@ public:
 	WV_32s
     };
 
+    
     // Global cursors
 
     QT_STATIC_CONST QCursor & arrowCursor;	// standard arrow cursor
@@ -527,6 +528,13 @@ public:
     QT_STATIC_CONST QCursor & splitHCursor;	// horizontal bar with up-down
 						// arrows
     QT_STATIC_CONST QCursor & pointingHandCursor;	// pointing hand
+    
+    
+    enum TextFormat {
+	PlainText,
+	RichText,
+	AutoText
+    };
 
 };
 
