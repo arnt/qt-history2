@@ -369,7 +369,7 @@ QPixmap QPixmap::copy(bool ignoreMask) const
     QPixmap pm(data->w, data->h, data->d, data->bitmap, data->optim);
 
     QPainter painter(&pm);
-    painter.drawPixmap(0, 0, *this, ignoreMask ? Qt::SourceCopy : Qt::AlphaBlend);
+    painter.drawPixmap(QPoint(0, 0), *this, Qt::IgnoreMask);
     painter.end();
 
 #if defined(Q_WS_X11)

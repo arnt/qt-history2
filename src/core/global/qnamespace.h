@@ -1003,9 +1003,11 @@ public:
         ShortcutOnApplication
     };
 
+    // Documented in qpainter.cpp
     enum BlendMode {
-        AlphaBlend,
-        SourceCopy
+        Composite,
+        SourceCopy,
+	IgnoreMask
     };
 
     enum RectangleEdge {

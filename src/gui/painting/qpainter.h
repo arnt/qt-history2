@@ -167,14 +167,14 @@ public:
 #endif
 
     void drawPixmap(const QRect &targetRect, const QPixmap &pixmap,
-                    const QRect &sourceRect = QRect(), Qt::BlendMode mode = Qt::AlphaBlend);
+                    const QRect &sourceRect = QRect(), Qt::BlendMode mode = Qt::Composite);
     void drawPixmap(int x, int y, int w, int h, const QPixmap &,
-                    int sx=0, int sy=0, int sw=-1, int sh=-1, Qt::BlendMode mode = Qt::AlphaBlend);
+                    int sx=0, int sy=0, int sw=-1, int sh=-1, Qt::BlendMode mode = Qt::Composite);
     void drawPixmap(int x, int y, const QPixmap &pm, int sx=0, int sy=0, int sw=-1, int sh=-1,
-                    Qt::BlendMode mode = Qt::AlphaBlend);
+                    Qt::BlendMode mode = Qt::Composite);
     void drawPixmap(const QPoint &, const QPixmap &, const QRect &sr,
-                    Qt::BlendMode mode = Qt::AlphaBlend);
-    void drawPixmap(const QPoint &p, const QPixmap &pm, Qt::BlendMode mode = Qt::AlphaBlend);
+                    Qt::BlendMode mode = Qt::Composite);
+    void drawPixmap(const QPoint &p, const QPixmap &pm, Qt::BlendMode mode = Qt::Composite);
 
     void drawText(int x, int y, const QString &, TextDirection dir = Auto);
     inline void drawText(const QPoint &p, const QString &s, TextDirection dir = Auto)

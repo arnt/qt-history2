@@ -1099,7 +1099,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         }
     }
 
-    if (pixmap.hasAlphaChannel() && mode == Qt::AlphaBlend) {
+    if (pixmap.hasAlphaChannel() && mode == Qt::Composite) {
         BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
                              0,                 // BlendFlags, must be zero
                              255,               // SourceConstantAlpha, we use pr pixel
@@ -1111,7 +1111,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             qSystemWarning("QWin32PaintEngine::drawPixmap, AlphaBlend failed...");
             return;
         }
-    } else if (mask && mode == Qt::AlphaBlend) {
+    } else if (mask && mode == Qt::Composite) {
         if (stretch) {
             QImage imageData(pixmap);
             QImage imageMask = imageData.createAlphaMask();

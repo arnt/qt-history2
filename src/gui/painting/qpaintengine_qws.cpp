@@ -556,7 +556,7 @@ void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRe
         qDebug("QWSPaintEngine::drawPixmap offset stretch notimplemented");
 
     d->gfx->setSource(&pixmap);
-    if(mode == Qt::AlphaBlend && pixmap.mask()) {
+    if(mode == Qt::Composite && pixmap.mask()) {
         QBitmap * mymask=((QBitmap *)pixmap.mask());
         unsigned char * thebits=mymask->scanLine(0);
         int ls=mymask->bytesPerLine();

@@ -129,6 +129,20 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
         return
 
 /*!
+    \enum Qt::BlendMode
+
+    \value Composite This mode will merge the source with the
+    destination, including the alpha channels.
+
+    \value SourceCopy Copies the source to the destination, including
+    the mask. If the destination is not a pixmap, this operation is
+    undefined.
+
+    \value IgnoreMask Draws the source onto the destination, ignoring
+    the source mask.
+*/
+
+/*!
     \class QPainter qpainter.h
     \brief The QPainter class does low-level painting e.g. on widgets.
 
@@ -2328,12 +2342,15 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index)
 
 /*!
     Draws the rectanglular portion \a sr, of pixmap \a pm, into rectangle
-    \a r in the paint device. The painting will be \c{AlphaBlend}-ed or
-    \c{SourceCopy}-ed depending on the \a mode.
+    \a r in the paint device. The blend mode \a mode decides how the
+    pixmap is merged with the target paint device.
+
+    \sa Qt::BlendMode
 */
 void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::BlendMode mode)
 {
-    if (!isActive() || pm.isNull())
+    if (!isActive() || pm.isNull()
+	|| (mode == Qt::SourceCopy && d->device->devType() != QInternal::Pixmap))
         return;
     d->engine->updateState(d->state);
 
@@ -2679,7 +2696,7 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
             if (xPos + drawW > x + w)           // Cropping last column
                 drawW = x + w - xPos;
             gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH),
-                           Qt::AlphaBlend);
+                           Qt::Composite);
             xPos += drawW;
             xOff = 0;
         }
@@ -3696,7 +3713,7 @@ static void bitBlt_helper(QPaintDevice *dst, const QPoint &dp,
     if (src->devType() == QInternal::Pixmap) {
         const QPixmap *pixmap = static_cast<const QPixmap *>(src);
         QPainter pt(dst);
-        pt.drawPixmap(dp, *pixmap, sr, imask ? Qt::SourceCopy : Qt::AlphaBlend);
+        pt.drawPixmap(dp, *pixmap, sr, imask ? Qt::IgnoreMask : Qt::SourceCopy);
     } else {
         qWarning("::bitBlt only works when source is of type pixmap");
     }

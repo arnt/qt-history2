@@ -376,9 +376,9 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close)
 
     PolyHandle polyHandle = OpenPoly();
     MoveTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
-    for(int x = 1; x < pa.size(); x++) 
+    for(int x = 1; x < pa.size(); x++)
         LineTo(pa[x].x()+d->offx, pa[x].y()+d->offy);
-    if(close) 
+    if(close)
         LineTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
     ClosePoly();
 
@@ -618,7 +618,7 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, co
             if(xPos + drawW > r.right())    // Cropping last column
                 drawW = r.right() - xPos;
             drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH),
-                       Qt::AlphaBlend);
+                       Qt::Composite);
             xPos += drawW;
             xOff = 0;
         }
@@ -679,7 +679,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     //get pixmap bits
     const BitMap *srcbitmap = GetPortBitMapForCopyBits(qt_macQDHandle(&pixmap));
     const QPixmap *srcmask=0;
-    if(mode == Qt::AlphaBlend) {
+    if(mode == Qt::Composite) {
         if(pixmap.data->alphapm)
             srcmask = pixmap.data->alphapm;
         else
@@ -1518,7 +1518,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
                                  qt_mac_convert_color_to_cg(col.blue()),
                                  qt_mac_convert_color_to_cg(col.alpha()));
     }
-    QRegion rgn(r); 
+    QRegion rgn(r);
     qt_mac_clip_cg(d->hd, rgn, 0);
 
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();

@@ -1531,7 +1531,7 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
                 // which have a common mask will be optimized at no extra cost.
                 gc = XCreateGC(dpy, qt_x11Handle(dst), 0, 0);
                 XSetGraphicsExposures(dpy, gc, False);
-                XSetClipMask(dpy, gc, mask->handle());
+		XSetClipMask(dpy, gc, mask->handle());
                 if (src_pm->optimization() == QPixmap::BestOptim) {
                     mask->data->maskgc = gc;
                 } else {
@@ -1648,7 +1648,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     QPixmap::x11SetDefaultScreen(pixmap.x11Info()->screen());
 
     QBitmap *mask = 0;
-    if(mode == Qt::AlphaBlend)
+    if(mode == Qt::Composite)
         mask = (QBitmap *)pixmap.mask();
     bool mono = pixmap.depth() == 1;
 
@@ -1676,7 +1676,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
                 }
             }
         } else {
-            qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh);
+            qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::IgnoreMask ? true : false );
         }
         return;
     }
@@ -1718,8 +1718,8 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     }
 
     if (mono) {
- 	XSetClipMask(d->dpy, d->gc, pixmap.handle());
- 	XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
+  	XSetClipMask(d->dpy, d->gc, pixmap.handle());
+  	XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
         XSetBackground(d->dpy, d->gc, d->bg_brush.color().pixel(d->scrn));
         XSetFillStyle(d->dpy, d->gc, FillOpaqueStippled);
         XSetStipple(d->dpy, d->gc, pixmap.handle());
@@ -1727,8 +1727,8 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
         XFillRectangle(d->dpy, d->hd, d->gc, x, y, sw, sh);
         XSetTSOrigin(d->dpy, d->gc, 0, 0);
         XSetFillStyle(d->dpy, d->gc, FillSolid);
-        XSetClipMask(d->dpy, d->gc, XNone);
- 	XSetClipOrigin(d->dpy, d->gc, 0, 0);
+	XSetClipMask(d->dpy, d->gc, XNone);
+  	XSetClipOrigin(d->dpy, d->gc, 0, 0);
     } else {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture pict = d->xft_hd ? XftDrawPicture((XftDraw *) d->xft_hd) : 0;

@@ -5816,7 +5816,7 @@ void QPSPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &
 {
     QImage img = pm;
     QImage mask;
-    if (mode == Qt::AlphaBlend && pm.mask())
+    if (mode == Qt::Composite && pm.mask())
         mask = *pm.mask();
     d->drawImage(r.x(), r.y(), r.width(), r.height(), img.copy(sr), mask.copy(sr));
 }
