@@ -100,7 +100,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glTranslatef(0.375, 0.375, 0.0);
-    
+
     // init any GL extensions we use
     if (init_gl_exts) {
 	QString exts((const char *) glGetString(GL_EXTENSIONS));
@@ -124,6 +124,10 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     dgl->makeCurrent();
     dgl->qglColor(pen.color());
     d->cpen = pen;
+    if (pen.color().alpha() != 255) {
+ 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+    }
     if (pen.width() == 0)
         glLineWidth(1);
     else
@@ -376,6 +380,11 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 
     dgl->makeCurrent();
     d->cbrush = brush;
+    if (brush.color().alpha() != 255) {
+ 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+    }
+
     int bs = d->cbrush.style();
     if (bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
         glEnable(GL_POLYGON_STIPPLE);
@@ -477,11 +486,12 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     dgl->makeCurrent();
     if (hints & QPainter::LineAntialiasing) {
+  	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+ 	glEnable(GL_POLYGON_SMOOTH);
 	glEnable(GL_LINE_SMOOTH);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glHint(GL_LINE_SMOOTH_HINT, GL_DONT_CARE);
     } else { // i.e. !LineAntialiasing
+	glDisable(GL_POLYGON_SMOOTH);
 	glDisable(GL_LINE_SMOOTH);
     }
 }
@@ -500,8 +510,6 @@ void QOpenGLPaintEngine::drawLine(const QLineF &line)
 void QOpenGLPaintEngine::drawRect(const QRectF &r)
 {
     dgl->makeCurrent();
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
 
     float x = r.x();
     float y = r.y();
