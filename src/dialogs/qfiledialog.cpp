@@ -2930,16 +2930,6 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     return result;
 }
 
-
-/*!\overload
- */
-QString QFileDialog::getOpenFileName( const QString & startWith,
-				      const QString& filter,
-				      QWidget *parent, const char* name )
-{
-    return getOpenFileName( startWith, filter, parent, name, QString::null  );
-}
-
 /*!
   Opens a modal file dialog and returns the name of the file to be
   saved.
@@ -3037,15 +3027,6 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     }
     delete dlg;
     return result;
-}
-
-/*!\overload
- */
-QString QFileDialog::getSaveFileName( const QString & startWith,
-				      const QString& filter,
-				      QWidget *parent, const char* name )
-{
-    return getSaveFileName( startWith, filter, parent, name, QString::null );
 }
 
 /*!
@@ -3844,25 +3825,6 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 	result += "/";
 
     return result;
-}
-
-/*!\overload
- */
-QString QFileDialog::getExistingDirectory( const QString & dir,
-					   QWidget *parent,
-					   const char* name )
-{
-    return getExistingDirectory( dir, parent, name, QString::null );
-}
-
-/*!\overload
- */
-QString QFileDialog::getExistingDirectory( const QString & dir,
-					   QWidget *parent,
-					   const char* name,
-					   const QString &caption )
-{
-    return getExistingDirectory( dir, parent, name, caption, FALSE );
 }
 
 /*!  Sets this file dialog to \a newMode, which can be one of \c
@@ -4766,19 +4728,6 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
     delete dlg;
     return lst;
 }
-
-
-/*!\overload
- */
-QStringList QFileDialog::getOpenFileNames( const QString & filter,
-					   const QString& dir,
-					   QWidget *parent,
-					   const char* name )
-{
-    return getOpenFileNames( filter, dir, parent, name, QString::null );
-}
-
-
 
 /*!  Updates the line edit to match the speed-key usage in QListView. */
 

@@ -385,13 +385,6 @@ int QFile::getch()
 }
 
 /*!
-  \fn int QFile::writeBlock( const QByteArray& data )
-  \reimp
-  \internal
-  Should be removed in 3.0
-*/
-
-/*!
   Writes the character \e ch to the file.
 
   Returns \e ch, or -1 if some error occurred.

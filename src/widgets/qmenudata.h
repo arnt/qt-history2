@@ -265,7 +265,6 @@ private:
     int		insertAny( const QString *, const QPixmap *, QPopupMenu *,
 			   const QIconSet*, int, int, QWidget* = 0, QCustomMenuItem* = 0);
     void	removePopup( QPopupMenu * );
-    virtual void	setAllDirty( bool );
     void	changeItemIconSet( int id, const QIconSet &icon );
 
     QMenuDataData *d;

@@ -297,16 +297,6 @@ void QMenuData::removePopup( QPopupMenu *popup )
 
 
 /*!
-  does nothing, but that virtual ### remove 3.0
-*/
-
-void QMenuData::setAllDirty( bool  )
-{
-}
-
-
-
-/*!
   The family of insertItem() functions inserts menu items into a
   popup menu or a menu bar.
 

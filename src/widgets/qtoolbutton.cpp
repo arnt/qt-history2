@@ -190,46 +190,6 @@ void QToolButton::init()
 /*!  Constructs a tool button that is a child of \a parent (which must be
   a QToolBar) and named \a name.
 
-  The tool button will display \a pm, with text label or tool tip \a
-  textLabel and status-bar message \a grouptext, connected to \a slot
-  in object \a receiver, and returns the button.
-*/
-
-QToolButton::QToolButton( const QPixmap &pm, const QString &textLabel,
-			  const QString &grouptext,
-			  QObject * receiver, const char *slot,
-			  QToolBar * parent, const char *name )
-    : QButton( parent, name )
-{
-    init();
-    setAutoRaise( TRUE );
-    setPixmap( pm );
-    setTextLabel( textLabel );
-    if ( receiver && slot )
-	connect( this, SIGNAL(clicked()), receiver, slot );
-    if ( parent->mainWindow() ) {
-	connect( parent->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
-		 this, SLOT(setUsesBigPixmap(bool)) );
-	setUsesBigPixmap( parent->mainWindow()->usesBigPixmaps() );
-	connect( parent->mainWindow(), SIGNAL(usesTextLabelChanged(bool)),
-		 this, SLOT(setUsesTextLabel(bool)) );
-	setUsesTextLabel( parent->mainWindow()->usesTextLabel() );
-    } else {
-	setUsesBigPixmap( FALSE );
-    }
-    if ( !textLabel.isEmpty() ) {
-	if ( !grouptext.isEmpty() )
-	    QToolTip::add( this, textLabel,
-			   parent->mainWindow()->toolTipGroup(), grouptext );
-	else
-	    QToolTip::add( this, textLabel );
-    }
-}
-
-
-/*!  Constructs a tool button that is a child of \a parent (which must be
-  a QToolBar) and named \a name.
-
   The tool button will display \a iconSet, with text label or tool tip \a
   textLabel and status-bar message \a grouptext, connected to \a slot
   in object \a receiver, and returns the button.

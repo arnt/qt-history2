@@ -111,39 +111,22 @@ public:
 
     static QString getOpenFileName( const QString &initially = QString::null,
 				    const QString &filter = QString::null,
-				    QWidget *parent = 0, const char* name = 0 ); // ## merge 3.0
-    static QString getOpenFileName( const QString &initially,
-				    const QString &filter,
-				    QWidget *parent, const char* name, const QString& caption );
+				    QWidget *parent = 0, const char* name = 0,
+				    const QString &caption = QString::null );
     static QString getSaveFileName( const QString &initially = QString::null,
 				    const QString &filter = QString::null,
-				    QWidget *parent = 0, const char* name = 0);// ## merge 3.0
-    static QString getSaveFileName( const QString &initially,
-				    const QString &filter,
-				    QWidget *parent, const char* name,
-				    const QString& caption);
+				    QWidget *parent = 0, const char* name = 0,
+				    const QString &caption = QString::null );
     static QString getExistingDirectory( const QString &dir = QString::null,
 					 QWidget *parent = 0,
-					 const char* name = 0 );// ## merge 3.0
-    static QString getExistingDirectory( const QString &dir,
-					 QWidget *parent,
-					 const char* name,
-					 const QString& caption );
-    static QString getExistingDirectory( const QString &dir,
-					 QWidget *parent,
-					 const char* name,
-					 const QString& caption,
-					 bool dirOnly );
+					 const char* name = 0,
+					 const QString &caption = QString::null, 
+					 bool dirOnly = TRUE );
     static QStringList getOpenFileNames( const QString &filter= QString::null,
 					 const QString &dir = QString::null,
 					 QWidget *parent = 0,
-					 const char* name = 0);// ## merge 3.0
-    static QStringList getOpenFileNames( const QString &filter,
-					 const QString &dir,
-					 QWidget *parent,
-					 const char* name,
-					 const QString& caption);
-
+					 const char* name = 0,
+					 const QString &caption = QString::null );
 
     // other static functions
 

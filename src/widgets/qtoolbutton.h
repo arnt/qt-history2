@@ -69,10 +69,6 @@ class Q_EXPORT QToolButton: public QButton
 
 public:
     QToolButton( QWidget * parent, const char *name = 0 );
-    QToolButton( const QPixmap & pm, const QString &textLabel, //### fjern 3.0
-		 const QString& grouptext,
-		 QObject * receiver, const char* slot,
-		 QToolBar * parent, const char* name = 0 );
     QToolButton( const QIconSet& s, const QString &textLabel,
 		 const QString& grouptext,
 		 QObject * receiver, const char* slot,
@@ -107,9 +103,9 @@ public slots:
     virtual void setUsesTextLabel( bool enable );
     virtual void setTextLabel( const QString &, bool );
 
-    virtual void setToggleButton( bool enable ); //### fjern virtual 3.0
+    virtual void setToggleButton( bool enable );
 
-    virtual void setOn( bool enable ); //### fjern virtual 3.0
+    virtual void setOn( bool enable );
     void toggle();
     void setTextLabel( const QString & );
 
