@@ -984,7 +984,6 @@ void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
     p->setMouseTracking( TRUE );
     if ( !p->testWState( WState_Polished ) )
         p->setCheckable( TRUE );
-    p->setLineWidth( 2 );
 #endif
 }
 

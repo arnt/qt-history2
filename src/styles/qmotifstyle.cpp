@@ -1677,11 +1677,9 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 */
 void QMotifStyle::polishPopupMenu( QPopupMenu* p)
 {
-    p->setLineWidth( pixelMetric( PM_DefaultFrameWidth ) );
     p->setMouseTracking( FALSE );
     if ( !p->testWState( WState_Polished ) )
         p->setCheckable( FALSE );
-    p->setLineWidth( 2 );
 }
 
 
