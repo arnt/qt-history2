@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#52 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -452,7 +452,6 @@ STDAPI_(LPENUMFORMATETC)
 STDMETHODIMP
 QOleDropSource::QueryInterface(REFIID iid, void FAR* FAR* ppv)
 {
-debug("QueryInterface");
     if(iid == IID_IUnknown || iid == IID_IDropSource)
     {
       *ppv = this;
@@ -467,7 +466,6 @@ debug("QueryInterface");
 STDMETHODIMP_(ULONG)
 QOleDropSource::AddRef(void)
 {
-debug("AddRef");
     return ++m_refs;
 }
 
@@ -475,7 +473,6 @@ debug("AddRef");
 STDMETHODIMP_(ULONG)
 QOleDropSource::Release(void)
 {
-debug("Release");
     if(--m_refs == 0)
     {
       delete this;
@@ -491,7 +488,6 @@ debug("Release");
 STDMETHODIMP
 QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {
-debug("QueryContinueDrag");
      if (fEscapePressed)
         return ResultFromScode(DRAGDROP_S_CANCEL);
     else if (!(grfKeyState & MK_LBUTTON))
@@ -503,21 +499,17 @@ debug("QueryContinueDrag");
 STDMETHODIMP
 QOleDropSource::GiveFeedback(DWORD dwEffect)
 {
-debug("GiveFeedback");
     if ( cursor ) {
 	int c = -1;
 	switch ( dwEffect ) {
 	  case DROPEFFECT_MOVE:
 	    c = 0;
-debug("move pm");
 	    break;
 	  case DROPEFFECT_COPY:
 	    c = 1;
-debug("copy pm");
 	    break;
 	  case DROPEFFECT_LINK:
 	    c = 2;
-debug("link pm");
 	    break;
 	}
 	if ( c >= 0 ) {
@@ -536,7 +528,6 @@ debug("link pm");
 QOleDataObject::QOleDataObject( QDragObject* o ) :
     object(o)
 {
-debug("QOleDataObject");
     m_refs = 1;
 }
 
@@ -548,7 +539,6 @@ debug("QOleDataObject");
 STDMETHODIMP
 QOleDataObject::QueryInterface(REFIID iid, void FAR* FAR* ppv)
 {
-debug("QOleDataObject::QueryInterface");
     if(iid == IID_IUnknown || iid == IID_IDataObject)
     {
       *ppv = this;
@@ -563,7 +553,6 @@ debug("QOleDataObject::QueryInterface");
 STDMETHODIMP_(ULONG)
 QOleDataObject::AddRef(void)
 {
-debug("QOleDataObject::AddRef");
     return ++m_refs;
 }
 
@@ -571,7 +560,6 @@ debug("QOleDataObject::AddRef");
 STDMETHODIMP_(ULONG)
 QOleDataObject::Release(void)
 {
-debug("QOleDataObject::Release");
     if(--m_refs == 0)
     {
       delete this;
@@ -597,7 +585,6 @@ debug("QOleDataObject::Release");
 STDMETHODIMP
 QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 {
-debug("QOleDataObject::GetData");
     // This method is called by the drag-drop target to obtain the data
     // that is being dragged.
 
@@ -606,8 +593,6 @@ debug("QOleDataObject::GetData");
     pmedium->hGlobal = NULL;
 
     QWindowsMime *wm;
-
-debug("aspect=%d tymed=%d", pformatetc->dwAspect,pformatetc->tymed);
 
     const char* fmt;
     for (int i=0; (fmt=object->format(i)); i++) {
@@ -621,7 +606,6 @@ debug("aspect=%d tymed=%d", pformatetc->dwAspect,pformatetc->tymed);
 	    if ( data.size() ) {
 		HGLOBAL hData = GlobalAlloc(GMEM_SHARE, data.size());
 		if (!hData) {
-debug("QOleDataObject ERROR on size %d",data.size());
 		    return ResultFromScode(E_OUTOFMEMORY);
 		}
 		void* out = GlobalLock(hData);
@@ -629,29 +613,23 @@ debug("QOleDataObject ERROR on size %d",data.size());
 		GlobalUnlock(hData);
 		pmedium->tymed = TYMED_HGLOBAL;
 		pmedium->hGlobal = hData;
-debug("QOleDataObject -> size %d",data.size());
 		return ResultFromScode(S_OK);
 	    } else {
-debug("QOleDataObject ZERO SIZE");
 	    }
 	}
     }
-debug("QOleDataObject NO CONVERSION TO %d",pformatetc->cfFormat);
     return ResultFromScode(DATA_E_FORMATETC);
 }
 
 STDMETHODIMP
 QOleDataObject::GetDataHere(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 {
-debug("GET DATA HERE???");
     return ResultFromScode(DATA_E_FORMATETC);
 }
 
 STDMETHODIMP
 QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
 {
-debug("QOleDataObject::QueryGetData({%d,%d,%d}",
-pformatetc->cfFormat,pformatetc->dwAspect,pformatetc->tymed);
     // This method is called by the drop target to check whether the source
     // provides data in a format that the target accepts.
 
@@ -670,7 +648,6 @@ pformatetc->cfFormat,pformatetc->dwAspect,pformatetc->tymed);
 STDMETHODIMP
 QOleDataObject::GetCanonicalFormatEtc(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut)
 {
-debug("QOleDataObject::GetCanonicalFormatEtc");
     pformatetcOut->ptd = NULL;
     return ResultFromScode(E_NOTIMPL);
 }
@@ -678,7 +655,6 @@ debug("QOleDataObject::GetCanonicalFormatEtc");
 STDMETHODIMP
 QOleDataObject::SetData(LPFORMATETC pformatetc, STGMEDIUM *pmedium, BOOL fRelease)
 {
-debug("QOleDataObject::SetData");
     // A data transfer object that is used to transfer data
     //    (either via the clipboard or drag/drop does NOT
     //    accept SetData on ANY format.
@@ -689,7 +665,6 @@ debug("QOleDataObject::SetData");
 STDMETHODIMP
 QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc)
 {
-debug("QOleDataObject::EnumFormatEtc");
     // A standard implementation is provided by OleStdEnumFmtEtc_Create
     // which can be found in \ole2\samp\ole2ui\enumfetc.c in the OLE 2 SDK.
     // This code from ole2ui is copied to the enumfetc.c file in this sample.
@@ -725,7 +700,6 @@ STDMETHODIMP
 QOleDataObject::DAdvise(FORMATETC FAR* pFormatetc, DWORD advf,
                        LPADVISESINK pAdvSink, DWORD FAR* pdwConnection)
 {
-debug("QOleDataObject::DAdvise");
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
 
@@ -733,14 +707,12 @@ debug("QOleDataObject::DAdvise");
 STDMETHODIMP
 QOleDataObject::DUnadvise(DWORD dwConnection)
 {
-debug("QOleDataObject::DUnadvise");
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
 
 STDMETHODIMP
 QOleDataObject::EnumDAdvise(LPENUMSTATDATA FAR* ppenumAdvise)
 {
-debug("QOleDataObject::EnumDAdvise");
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
 
@@ -900,10 +872,8 @@ QOleDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
         // No modifier keys used by user while dragging. Try in order: MOVE, COPY.
         if (DROPEFFECT_MOVE & dwOKEffects) {
             *pdwEffect = DROPEFFECT_MOVE;
-debug("move in");
         } else if (DROPEFFECT_COPY & dwOKEffects) {
             *pdwEffect = DROPEFFECT_COPY;
-debug("copy in");
 	}
         else goto dropeffect_none;
     }

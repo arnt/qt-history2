@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#356 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#357 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -580,7 +580,6 @@ XFontSet xic_fontset(void* qfs, int pt)
 		pt*10,
 		pt*10
 	);
-debug("Default fontset: %s",n.data());
 	fixed_fontset =
 		    XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
 			    &missing, &nmissing, 0 );

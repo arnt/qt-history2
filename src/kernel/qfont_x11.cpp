@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#155 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#156 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -1022,7 +1022,6 @@ QCString QFont_Private::findFont( bool *exact )
 		slant, wt, size,
 		slant, size,
 		size );
-debug("Font set: %s",s.data());
 	return s;
     } else {
 	int score;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#2 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -253,11 +253,8 @@ bool QWindowsMimeText::canConvert( const char* mime, int cf )
 
 QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* mime, int cf )
 {
-    if ( cf == CF_TEXT ) {
-	QByteArray r(strlen(data));
-	memcpy(r.data(),data.data(),r.size());
-	return r;
-    }
+    if ( cf == CF_TEXT )
+	return data;
 
     // Windows uses un-marked little-endian nul-terminated Unicode
     int ms = data.size();
@@ -293,7 +290,6 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	memcpy(r.data(),data.data()+2,data.size()-2);
 	r[(int)data.size()-2] = 0;
 	r[(int)data.size()-1] = 0;
-debug("E");
 	return r;
     } else {
 	// Wrong way - reorder.
@@ -318,7 +314,6 @@ debug("E");
 	}
 	r[(int)r.size()-2] = 0;
 	r[(int)r.size()-1] = 0;
-debug("F");
 	return r;
     }
 }

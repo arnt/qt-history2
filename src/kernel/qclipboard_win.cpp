@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#33 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -97,7 +97,6 @@ public:
 	    }
 	    CloseClipboard();
 	}
-debug("provides(%s) == %s",mime,r?"TRUE":"FALSE");
 	return r;
     }
 
@@ -105,7 +104,6 @@ debug("provides(%s) == %s",mime,r?"TRUE":"FALSE");
     const char* format( int n ) const
     {
 	const char* mime = 0;
-int on=n;
 	if ( n >= 0 ) {
 	    if ( OpenClipboard( clipboardOwner()->winId() ) ) {
 		int cf = 0;
@@ -122,7 +120,6 @@ int on=n;
 		CloseClipboard();
 	    }
 	}
-debug("format(%d) == %s",on,mime);
 	return mime;
     }
 
@@ -140,8 +137,6 @@ debug("format(%d) == %s",on,mime);
 			int s = GlobalSize(h);
 			r.setRawData(src,s);
 			QByteArray tr = c->convertToMime(r,mime,cf);
-debug("got %d bytes of CF %d, converted to %d bytes of %s",
-s,cf,tr.size(),mime);
 			tr.detach();
 			r.resetRawData(src,s);
 			GlobalUnlock(h);
@@ -150,7 +145,6 @@ s,cf,tr.size(),mime);
 		    }
 		}
 	    }
-debug("encodedData(%s) == %d bytes",mime,r.size());
 	    CloseClipboard();
 	}
 	return r;
@@ -263,7 +257,6 @@ bool QClipboard::event( QEvent *e )
 
 	case WM_DRAWCLIPBOARD:
 	    propagate = TRUE;
-debug("WM_DRAWCLIPBOARD - emit dataChanged");
 	    emit dataChanged();
 	    break;
 
@@ -307,7 +300,6 @@ void QClipboard::setData( QMimeSource* src )
 {
     if ( !OpenClipboard(clipboardOwner()->winId()) )
 	return;
-debug("QClipboard::setData {");
 
     QClipboardData *d = clipboardData();
     d->setSource( src );
@@ -324,7 +316,6 @@ debug("QClipboard::setData {");
 		    int cf = c->cf(j);
 		    if ( c->canConvert(mime,cf) ) {
 			SetClipboardData( cf, 0 ); // 0 == ask me later
-debug("Register %s (%d)", mime, cf);
 		    }
 		}
 	    }
@@ -332,6 +323,5 @@ debug("Register %s (%d)", mime, cf);
     }
 
     CloseClipboard();
-debug("} QClipboard::setData");
 }
 
