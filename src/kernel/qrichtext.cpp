@@ -6179,6 +6179,275 @@ bool QTextDocument::eat(const QString& doc, int& pos, QChar c)
 }
 /*****************************************************************/
 
+struct Entity {
+    const char * name;
+    Q_UINT16 code;
+};
+
+static const Entity entitylist [] = {
+{ "AElig", 0x00c6 },
+{ "Aacute", 0x00c1 },
+{ "Acirc", 0x00c2 },
+{ "Agrave", 0x00c0 },
+{ "Alpha", 0x0391 },
+{ "AMP", 38 },
+{ "Aring", 0x00c5 },
+{ "Atilde", 0x00c3 },
+{ "Auml", 0x00c4 },
+{ "Beta", 0x0392 },
+{ "Ccedil", 0x00c7 },
+{ "Chi", 0x03a7 },
+{ "Dagger", 0x2021 },
+{ "Delta", 0x0394 },
+{ "ETH", 0x00d0 },
+{ "Eacute", 0x00c9 },
+{ "Ecirc", 0x00ca },
+{ "Egrave", 0x00c8 },
+{ "Epsilon", 0x0395 },
+{ "Eta", 0x0397 },
+{ "Euml", 0x00cb },
+{ "Gamma", 0x0393 },
+{ "GT", 62 },
+{ "Iacute", 0x00cd },
+{ "Icirc", 0x00ce },
+{ "Igrave", 0x00cc },
+{ "Iota", 0x0399 },
+{ "Iuml", 0x00cf },
+{ "Kappa", 0x039a },
+{ "Lambda", 0x039b },
+{ "LT", 60 },
+{ "Mu", 0x039c },
+{ "Ntilde", 0x00d1 },
+{ "Nu", 0x039d },
+{ "OElig", 0x0152 },
+{ "Oacute", 0x00d3 },
+{ "Ocirc", 0x00d4 },
+{ "Ograve", 0x00d2 },
+{ "Omega", 0x03a9 },
+{ "Omicron", 0x039f },
+{ "Oslash", 0x00d8 },
+{ "Otilde", 0x00d5 },
+{ "Ouml", 0x00d6 },
+{ "Phi", 0x03a6 },
+{ "Pi", 0x03a0 },
+{ "Prime", 0x2033 },
+{ "Psi", 0x03a8 },
+{ "QUOT", 34 },
+{ "Rho", 0x03a1 },
+{ "Scaron", 0x0160 },
+{ "Sigma", 0x03a3 },
+{ "THORN", 0x00de },
+{ "Tau", 0x03a4 },
+{ "Theta", 0x0398 },
+{ "Uacute", 0x00da },
+{ "Ucirc", 0x00db },
+{ "Ugrave", 0x00d9 },
+{ "Upsilon", 0x03a5 },
+{ "Uuml", 0x00dc },
+{ "Xi", 0x039e },
+{ "Yacute", 0x00dd },
+{ "Yuml", 0x0178 },
+{ "Zeta", 0x0396 },
+{ "aacute", 0x00e1 },
+{ "acirc", 0x00e2 },
+{ "acute", 0x00b4 },
+{ "aelig", 0x00e6 },
+{ "agrave", 0x00e0 },
+{ "alefsym", 0x2135 },
+{ "alpha", 0x03b1 },
+{ "amp", 38 },
+{ "and", 0x22a5 },
+{ "ang", 0x2220 },
+{ "apos", 0x0027 },
+{ "aring", 0x00e5 },
+{ "asymp", 0x2248 },
+{ "atilde", 0x00e3 },
+{ "auml", 0x00e4 },
+{ "bdquo", 0x201e },
+{ "beta", 0x03b2 },
+{ "brvbar", 0x00a6 },
+{ "bull", 0x2022 },
+{ "cap", 0x2229 },
+{ "ccedil", 0x00e7 },
+{ "cedil", 0x00b8 },
+{ "cent", 0x00a2 },
+{ "chi", 0x03c7 },
+{ "circ", 0x02c6 },
+{ "clubs", 0x2663 },
+{ "cong", 0x2245 },
+{ "copy", 0x00a9 },
+{ "crarr", 0x21b5 },
+{ "cup", 0x222a },
+{ "curren", 0x00a4 },
+{ "dArr", 0x21d3 },
+{ "dagger", 0x2020 },
+{ "darr", 0x2193 },
+{ "deg", 0x00b0 },
+{ "delta", 0x03b4 },
+{ "diams", 0x2666 },
+{ "divide", 0x00f7 },
+{ "eacute", 0x00e9 },
+{ "ecirc", 0x00ea },
+{ "egrave", 0x00e8 },
+{ "empty", 0x2205 },
+{ "emsp", 0x2003 },
+{ "ensp", 0x2002 },
+{ "epsilon", 0x03b5 },
+{ "equiv", 0x2261 },
+{ "eta", 0x03b7 },
+{ "eth", 0x00f0 },
+{ "euml", 0x00eb },
+{ "euro", 0x20ac },
+{ "exist", 0x2203 },
+{ "fnof", 0x0192 },
+{ "forall", 0x2200 },
+{ "frac12", 0x00bd },
+{ "frac14", 0x00bc },
+{ "frac34", 0x00be },
+{ "frasl", 0x2044 },
+{ "gamma", 0x03b3 },
+{ "ge", 0x2265 },
+{ "gt", 62 },
+{ "hArr", 0x21d4 },
+{ "harr", 0x2194 },
+{ "hearts", 0x2665 },
+{ "hellip", 0x2026 },
+{ "iacute", 0x00ed },
+{ "icirc", 0x00ee },
+{ "iexcl", 0x00a1 },
+{ "igrave", 0x00ec },
+{ "image", 0x2111 },
+{ "infin", 0x221e },
+{ "int", 0x222b },
+{ "iota", 0x03b9 },
+{ "iquest", 0x00bf },
+{ "isin", 0x2208 },
+{ "iuml", 0x00ef },
+{ "kappa", 0x03ba },
+{ "lArr", 0x21d0 },
+{ "lambda", 0x03bb },
+{ "lang", 0x2329 },
+{ "laquo", 0x00ab },
+{ "larr", 0x2190 },
+{ "lceil", 0x2308 },
+{ "ldquo", 0x201c },
+{ "le", 0x2264 },
+{ "lfloor", 0x230a },
+{ "lowast", 0x2217 },
+{ "loz", 0x25ca },
+{ "lrm", 0x200e },
+{ "lsaquo", 0x2039 },
+{ "lsquo", 0x2018 },
+{ "lt", 60 },
+{ "macr", 0x00af },
+{ "mdash", 0x2014 },
+{ "micro", 0x00b5 },
+{ "middot", 0x00b7 },
+{ "minus", 0x2212 },
+{ "mu", 0x03bc },
+{ "nabla", 0x2207 },
+{ "nbsp", 0x00a0 },
+{ "ndash", 0x2013 },
+{ "ne", 0x2260 },
+{ "ni", 0x220b },
+{ "not", 0x00ac },
+{ "notin", 0x2209 },
+{ "nsub", 0x2284 },
+{ "ntilde", 0x00f1 },
+{ "nu", 0x03bd },
+{ "oacute", 0x00f3 },
+{ "ocirc", 0x00f4 },
+{ "oelig", 0x0153 },
+{ "ograve", 0x00f2 },
+{ "oline", 0x203e },
+{ "omega", 0x03c9 },
+{ "omicron", 0x03bf },
+{ "oplus", 0x2295 },
+{ "or", 0x22a6 },
+{ "ordf", 0x00aa },
+{ "ordm", 0x00ba },
+{ "oslash", 0x00f8 },
+{ "otilde", 0x00f5 },
+{ "otimes", 0x2297 },
+{ "ouml", 0x00f6 },
+{ "para", 0x00b6 },
+{ "part", 0x2202 },
+{ "percnt", 0x0025 },
+{ "permil", 0x2030 },
+{ "perp", 0x22a5 },
+{ "phi", 0x03c6 },
+{ "pi", 0x03c0 },
+{ "piv", 0x03d6 },
+{ "plusmn", 0x00b1 },
+{ "pound", 0x00a3 },
+{ "prime", 0x2032 },
+{ "prod", 0x220f },
+{ "prop", 0x221d },
+{ "psi", 0x03c8 },
+{ "quot", 34 },
+{ "rArr", 0x21d2 },
+{ "radic", 0x221a },
+{ "rang", 0x232a },
+{ "raquo", 0x00bb },
+{ "rarr", 0x2192 },
+{ "rceil", 0x2309 },
+{ "rdquo", 0x201d },
+{ "real", 0x211c },
+{ "reg", 0x00ae },
+{ "rfloor", 0x230b },
+{ "rho", 0x03c1 },
+{ "rlm", 0x200f },
+{ "rsaquo", 0x203a },
+{ "rsquo", 0x2019 },
+{ "sbquo", 0x201a },
+{ "scaron", 0x0161 },
+{ "sdot", 0x22c5 },
+{ "sect", 0x00a7 },
+{ "shy", 0x00ad },
+{ "sigma", 0x03c3 },
+{ "sigmaf", 0x03c2 },
+{ "sim", 0x223c },
+{ "spades", 0x2660 },
+{ "sub", 0x2282 },
+{ "sube", 0x2286 },
+{ "sum", 0x2211 },
+{ "sup1", 0x00b9 },
+{ "sup2", 0x00b2 },
+{ "sup3", 0x00b3 },
+{ "sup", 0x2283 },
+{ "supe", 0x2287 },
+{ "szlig", 0x00df },
+{ "tau", 0x03c4 },
+{ "there4", 0x2234 },
+{ "theta", 0x03b8 },
+{ "thetasym", 0x03d1 },
+{ "thinsp", 0x2009 },
+{ "thorn", 0x00fe },
+{ "tilde", 0x02dc },
+{ "times", 0x00d7 },
+{ "trade", 0x2122 },
+{ "uArr", 0x21d1 },
+{ "uacute", 0x00fa },
+{ "uarr", 0x2191 },
+{ "ucirc", 0x00fb },
+{ "ugrave", 0x00f9 },
+{ "uml", 0x00a8 },
+{ "upsih", 0x03d2 },
+{ "upsilon", 0x03c5 },
+{ "uuml", 0x00fc },
+{ "weierp", 0x2118 },
+{ "xi", 0x03be },
+{ "yacute", 0x00fd },
+{ "yen", 0x00a5 },
+{ "yuml", 0x00ff },
+{ "zeta", 0x03b6 },
+{ "zwj", 0x200d },
+{ "zwnj", 0x200c },
+{ "", 0x0000 }
+    };
+
+
+
 
 
 static QMap<QCString, QChar> *html_map = 0;
@@ -6188,276 +6457,17 @@ static void qt_cleanup_html_map()
     html_map = 0;
 }
 
-// just done this way to save 38K of bloated template expansion
-static void html_map_insert(const char* tag, const QChar& val)
-{
-    html_map->insert( tag, val );
-}
-
 static QMap<QCString, QChar> *htmlMap()
 {
     if ( !html_map ) {
 	html_map = new QMap<QCString, QChar>;
 	qAddPostRoutine( qt_cleanup_html_map );
 
-	html_map_insert( "AElig", 0x00c6 );
-	html_map_insert( "Aacute", 0x00c1 );
-	html_map_insert( "Acirc", 0x00c2 );
-	html_map_insert( "Agrave", 0x00c0 );
-	html_map_insert( "Alpha", 0x0391 );
-	html_map_insert( "AMP", 38 );
-	html_map_insert( "Aring", 0x00c5 );
-	html_map_insert( "Atilde", 0x00c3 );
-	html_map_insert( "Auml", 0x00c4 );
-	html_map_insert( "Beta", 0x0392 );
-	html_map_insert( "Ccedil", 0x00c7 );
-	html_map_insert( "Chi", 0x03a7 );
-	html_map_insert( "Dagger", 0x2021 );
-	html_map_insert( "Delta", 0x0394 );
-	html_map_insert( "ETH", 0x00d0 );
-	html_map_insert( "Eacute", 0x00c9 );
-	html_map_insert( "Ecirc", 0x00ca );
-	html_map_insert( "Egrave", 0x00c8 );
-	html_map_insert( "Epsilon", 0x0395 );
-	html_map_insert( "Eta", 0x0397 );
-	html_map_insert( "Euml", 0x00cb );
-	html_map_insert( "Gamma", 0x0393 );
-	html_map_insert( "GT", 62 );
-	html_map_insert( "Iacute", 0x00cd );
-	html_map_insert( "Icirc", 0x00ce );
-	html_map_insert( "Igrave", 0x00cc );
-	html_map_insert( "Iota", 0x0399 );
-	html_map_insert( "Iuml", 0x00cf );
-	html_map_insert( "Kappa", 0x039a );
-	html_map_insert( "Lambda", 0x039b );
-	html_map_insert( "LT", 60 );
-	html_map_insert( "Mu", 0x039c );
-	html_map_insert( "Ntilde", 0x00d1 );
-	html_map_insert( "Nu", 0x039d );
-	html_map_insert( "OElig", 0x0152 );
-	html_map_insert( "Oacute", 0x00d3 );
-	html_map_insert( "Ocirc", 0x00d4 );
-	html_map_insert( "Ograve", 0x00d2 );
-	html_map_insert( "Omega", 0x03a9 );
-	html_map_insert( "Omicron", 0x039f );
-	html_map_insert( "Oslash", 0x00d8 );
-	html_map_insert( "Otilde", 0x00d5 );
-	html_map_insert( "Ouml", 0x00d6 );
-	html_map_insert( "Phi", 0x03a6 );
-	html_map_insert( "Pi", 0x03a0 );
-	html_map_insert( "Prime", 0x2033 );
-	html_map_insert( "Psi", 0x03a8 );
-	html_map_insert( "QUOT", 34 );
-	html_map_insert( "Rho", 0x03a1 );
-	html_map_insert( "Scaron", 0x0160 );
-	html_map_insert( "Sigma", 0x03a3 );
-	html_map_insert( "THORN", 0x00de );
-	html_map_insert( "Tau", 0x03a4 );
-	html_map_insert( "Theta", 0x0398 );
-	html_map_insert( "Uacute", 0x00da );
-	html_map_insert( "Ucirc", 0x00db );
-	html_map_insert( "Ugrave", 0x00d9 );
-	html_map_insert( "Upsilon", 0x03a5 );
-	html_map_insert( "Uuml", 0x00dc );
-	html_map_insert( "Xi", 0x039e );
-	html_map_insert( "Yacute", 0x00dd );
-	html_map_insert( "Yuml", 0x0178 );
-	html_map_insert( "Zeta", 0x0396 );
-	html_map_insert( "aacute", 0x00e1 );
-	html_map_insert( "acirc", 0x00e2 );
-	html_map_insert( "acute", 0x00b4 );
-	html_map_insert( "aelig", 0x00e6 );
-	html_map_insert( "agrave", 0x00e0 );
-	html_map_insert( "alefsym", 0x2135 );
-	html_map_insert( "alpha", 0x03b1 );
-	html_map_insert( "amp", 38 );
-	html_map_insert( "and", 0x22a5 );
-	html_map_insert( "ang", 0x2220 );
-	html_map_insert( "apos", 0x0027 );
-	html_map_insert( "aring", 0x00e5 );
-	html_map_insert( "asymp", 0x2248 );
-	html_map_insert( "atilde", 0x00e3 );
-	html_map_insert( "auml", 0x00e4 );
-	html_map_insert( "bdquo", 0x201e );
-	html_map_insert( "beta", 0x03b2 );
-	html_map_insert( "brvbar", 0x00a6 );
-	html_map_insert( "bull", 0x2022 );
-	html_map_insert( "cap", 0x2229 );
-	html_map_insert( "ccedil", 0x00e7 );
-	html_map_insert( "cedil", 0x00b8 );
-	html_map_insert( "cent", 0x00a2 );
-	html_map_insert( "chi", 0x03c7 );
-	html_map_insert( "circ", 0x02c6 );
-	html_map_insert( "clubs", 0x2663 );
-	html_map_insert( "cong", 0x2245 );
-	html_map_insert( "copy", 0x00a9 );
-	html_map_insert( "crarr", 0x21b5 );
-	html_map_insert( "cup", 0x222a );
-	html_map_insert( "curren", 0x00a4 );
-	html_map_insert( "dArr", 0x21d3 );
-	html_map_insert( "dagger", 0x2020 );
-	html_map_insert( "darr", 0x2193 );
-	html_map_insert( "deg", 0x00b0 );
-	html_map_insert( "delta", 0x03b4 );
-	html_map_insert( "diams", 0x2666 );
-	html_map_insert( "divide", 0x00f7 );
-	html_map_insert( "eacute", 0x00e9 );
-	html_map_insert( "ecirc", 0x00ea );
-	html_map_insert( "egrave", 0x00e8 );
-	html_map_insert( "empty", 0x2205 );
-	html_map_insert( "emsp", 0x2003 );
-	html_map_insert( "ensp", 0x2002 );
-	html_map_insert( "epsilon", 0x03b5 );
-	html_map_insert( "equiv", 0x2261 );
-	html_map_insert( "eta", 0x03b7 );
-	html_map_insert( "eth", 0x00f0 );
-	html_map_insert( "euml", 0x00eb );
-	html_map_insert( "euro", 0x20ac );
-	html_map_insert( "exist", 0x2203 );
-	html_map_insert( "fnof", 0x0192 );
-	html_map_insert( "forall", 0x2200 );
-	html_map_insert( "frac12", 0x00bd );
-	html_map_insert( "frac14", 0x00bc );
-	html_map_insert( "frac34", 0x00be );
-	html_map_insert( "frasl", 0x2044 );
-	html_map_insert( "gamma", 0x03b3 );
-	html_map_insert( "ge", 0x2265 );
-	html_map_insert( "gt", 62 );
-	html_map_insert( "hArr", 0x21d4 );
-	html_map_insert( "harr", 0x2194 );
-	html_map_insert( "hearts", 0x2665 );
-	html_map_insert( "hellip", 0x2026 );
-	html_map_insert( "iacute", 0x00ed );
-	html_map_insert( "icirc", 0x00ee );
-	html_map_insert( "iexcl", 0x00a1 );
-	html_map_insert( "igrave", 0x00ec );
-	html_map_insert( "image", 0x2111 );
-	html_map_insert( "infin", 0x221e );
-	html_map_insert( "int", 0x222b );
-	html_map_insert( "iota", 0x03b9 );
-	html_map_insert( "iquest", 0x00bf );
-	html_map_insert( "isin", 0x2208 );
-	html_map_insert( "iuml", 0x00ef );
-	html_map_insert( "kappa", 0x03ba );
-	html_map_insert( "lArr", 0x21d0 );
-	html_map_insert( "lambda", 0x03bb );
-	html_map_insert( "lang", 0x2329 );
-	html_map_insert( "laquo", 0x00ab );
-	html_map_insert( "larr", 0x2190 );
-	html_map_insert( "lceil", 0x2308 );
-	html_map_insert( "ldquo", 0x201c );
-	html_map_insert( "le", 0x2264 );
-	html_map_insert( "lfloor", 0x230a );
-	html_map_insert( "lowast", 0x2217 );
-	html_map_insert( "loz", 0x25ca );
-	html_map_insert( "lrm", 0x200e );
-	html_map_insert( "lsaquo", 0x2039 );
-	html_map_insert( "lsquo", 0x2018 );
-	html_map_insert( "lt", 60 );
-	html_map_insert( "macr", 0x00af );
-	html_map_insert( "mdash", 0x2014 );
-	html_map_insert( "micro", 0x00b5 );
-	html_map_insert( "middot", 0x00b7 );
-	html_map_insert( "minus", 0x2212 );
-	html_map_insert( "mu", 0x03bc );
-	html_map_insert( "nabla", 0x2207 );
-	html_map_insert( "nbsp", 0x00a0 );
-	html_map_insert( "ndash", 0x2013 );
-	html_map_insert( "ne", 0x2260 );
-	html_map_insert( "ni", 0x220b );
-	html_map_insert( "not", 0x00ac );
-	html_map_insert( "notin", 0x2209 );
-	html_map_insert( "nsub", 0x2284 );
-	html_map_insert( "ntilde", 0x00f1 );
-	html_map_insert( "nu", 0x03bd );
-	html_map_insert( "oacute", 0x00f3 );
-	html_map_insert( "ocirc", 0x00f4 );
-	html_map_insert( "oelig", 0x0153 );
-	html_map_insert( "ograve", 0x00f2 );
-	html_map_insert( "oline", 0x203e );
-	html_map_insert( "omega", 0x03c9 );
-	html_map_insert( "omicron", 0x03bf );
-	html_map_insert( "oplus", 0x2295 );
-	html_map_insert( "or", 0x22a6 );
-	html_map_insert( "ordf", 0x00aa );
-	html_map_insert( "ordm", 0x00ba );
-	html_map_insert( "oslash", 0x00f8 );
-	html_map_insert( "otilde", 0x00f5 );
-	html_map_insert( "otimes", 0x2297 );
-	html_map_insert( "ouml", 0x00f6 );
-	html_map_insert( "para", 0x00b6 );
-	html_map_insert( "part", 0x2202 );
-	html_map_insert( "percnt", 0x0025 );
-	html_map_insert( "permil", 0x2030 );
-	html_map_insert( "perp", 0x22a5 );
-	html_map_insert( "phi", 0x03c6 );
-	html_map_insert( "pi", 0x03c0 );
-	html_map_insert( "piv", 0x03d6 );
-	html_map_insert( "plusmn", 0x00b1 );
-	html_map_insert( "pound", 0x00a3 );
-	html_map_insert( "prime", 0x2032 );
-	html_map_insert( "prod", 0x220f );
-	html_map_insert( "prop", 0x221d );
-	html_map_insert( "psi", 0x03c8 );
-	html_map_insert( "quot", 34 );
-	html_map_insert( "rArr", 0x21d2 );
-	html_map_insert( "radic", 0x221a );
-	html_map_insert( "rang", 0x232a );
-	html_map_insert( "raquo", 0x00bb );
-	html_map_insert( "rarr", 0x2192 );
-	html_map_insert( "rceil", 0x2309 );
-	html_map_insert( "rdquo", 0x201d );
-	html_map_insert( "real", 0x211c );
-	html_map_insert( "reg", 0x00ae );
-	html_map_insert( "rfloor", 0x230b );
-	html_map_insert( "rho", 0x03c1 );
-	html_map_insert( "rlm", 0x200f );
-	html_map_insert( "rsaquo", 0x203a );
-	html_map_insert( "rsquo", 0x2019 );
-	html_map_insert( "sbquo", 0x201a );
-	html_map_insert( "scaron", 0x0161 );
-	html_map_insert( "sdot", 0x22c5 );
-	html_map_insert( "sect", 0x00a7 );
-	html_map_insert( "shy", 0x00ad );
-	html_map_insert( "sigma", 0x03c3 );
-	html_map_insert( "sigmaf", 0x03c2 );
-	html_map_insert( "sim", 0x223c );
-	html_map_insert( "spades", 0x2660 );
-	html_map_insert( "sub", 0x2282 );
-	html_map_insert( "sube", 0x2286 );
-	html_map_insert( "sum", 0x2211 );
-	html_map_insert( "sup1", 0x00b9 );
-	html_map_insert( "sup2", 0x00b2 );
-	html_map_insert( "sup3", 0x00b3 );
-	html_map_insert( "sup", 0x2283 );
-	html_map_insert( "supe", 0x2287 );
-	html_map_insert( "szlig", 0x00df );
-	html_map_insert( "tau", 0x03c4 );
-	html_map_insert( "there4", 0x2234 );
-	html_map_insert( "theta", 0x03b8 );
-	html_map_insert( "thetasym", 0x03d1 );
-	html_map_insert( "thinsp", 0x2009 );
-	html_map_insert( "thorn", 0x00fe );
-	html_map_insert( "tilde", 0x02dc );
-	html_map_insert( "times", 0x00d7 );
-	html_map_insert( "trade", 0x2122 );
-	html_map_insert( "uArr", 0x21d1 );
-	html_map_insert( "uacute", 0x00fa );
-	html_map_insert( "uarr", 0x2191 );
-	html_map_insert( "ucirc", 0x00fb );
-	html_map_insert( "ugrave", 0x00f9 );
-	html_map_insert( "uml", 0x00a8 );
-	html_map_insert( "upsih", 0x03d2 );
-	html_map_insert( "upsilon", 0x03c5 );
-	html_map_insert( "uuml", 0x00fc );
-	html_map_insert( "weierp", 0x2118 );
-	html_map_insert( "xi", 0x03be );
-	html_map_insert( "yacute", 0x00fd );
-	html_map_insert( "yen", 0x00a5 );
-	html_map_insert( "yuml", 0x00ff );
-	html_map_insert( "zeta", 0x03b6 );
-	html_map_insert( "zwj", 0x200d );
-	html_map_insert( "zwnj", 0x200c );
+	const Entity *ent = entitylist;
+	while( ent->code ) {
+	    html_map->insert( ent->name, QChar(ent->code) );
+	    ent++;
+	}
     }
     return html_map;
 }
