@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#22 $
 **
 ** Implementation of QFont and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#22 $";
 #endif
 
 // #define DEBUG_FONT
@@ -205,12 +205,12 @@ public:
 void QFontCache::deleteItem( GCI d ) 
 { 
     QXFontData *xfd = (QXFontData *)d;
-    if ( xfd->dirty() )
+    if ( !xfd->dirty() )
+        XFreeFont( qXDisplay(), xfd->f );
 #if defined(DEBUG)
+    else
         debug("QFontCache::deleteItem: dirty delete!!!!");
 #endif
-    else
-        XFreeFont( qXDisplay(), xfd->f );
     xfd->f = 0;
 #if defined (DEBUG_FONT)
     debug("+++ XFreeFont [%s]",xfd->name.data());
@@ -957,7 +957,7 @@ int QFontMetrics::height() const
 {
     if ( DIRTY_METRICS )
         f.loadFont();
-    return f.d->xfd->f->max_bounds.ascent + f.d->xfd->f->max_bounds.descent;
+    return f.d->xfd->f->max_bounds.ascent + f.d->xfd->f->max_bounds.descent +1;
 }
 
 int QFontMetrics::leading() const
@@ -972,7 +972,7 @@ int QFontMetrics::lineSpacing() const
 {
     if ( DIRTY_METRICS )
         f.loadFont();
-    return f.d->xfd->f->ascent + f.d->xfd->f->descent;
+    return f.d->xfd->f->ascent + f.d->xfd->f->descent + 1;
 }
 
 int QFontMetrics::width( const char *str, int len ) const
