@@ -187,7 +187,7 @@ private:
 };
 
 typedef QList<QVariant> QVariantList;
-typedef QMap<QVariant> QVariantMap;
+typedef QMap<QString, QVariant> QVariantMap;
 
 // Copied from qcorevariant.h
 inline QVariant::QVariant(Type type, void *v) : QCoreVariant(type, v) { }
