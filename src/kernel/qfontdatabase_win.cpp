@@ -678,7 +678,8 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 #endif
 
     }
-
+    if( !paintdevice && (qt_winver & Qt::WV_DOS_based) ) 
+	hdc = 0;
     QFontEngine *fe = new QFontEngineWin( family->name, hdc, hfont, stockFont, lf );
     if ( paintdevice )
 	fe->paintDevice = TRUE;
