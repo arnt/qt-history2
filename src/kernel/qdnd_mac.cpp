@@ -473,20 +473,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
     QWidget *widget = QApplication::widgetAt( globalMouse, TRUE );
     while ( widget && (!widget->acceptDrops()) )
 	widget = widget->parentWidget(TRUE);
-
-    if ( !noDropCursor ) {
-	noDropCursor = new QCursor( QCursor::ForbiddenCursor );
-#if 0 //need to make our own cursors, FIXME!
-	if ( !pm_cursor[0].isNull() )
-	    moveCursor = new QCursor(pm_cursor[0], 0,0);
-	if ( !pm_cursor[1].isNull() )
-	    copyCursor = new QCursor(pm_cursor[1], 0,0);
-	if ( !pm_cursor[2].isNull() )
-	    linkCursor = new QCursor(pm_cursor[2], 0,0);
-#endif
-	qAddPostRoutine( qt_mac_dnd_cleanup );
-    }
-    const QCursor *cursor = NULL;
+    //Dispatch events
     if (widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget ) {
         QDragMoveEvent de( widget->mapFromGlobal( globalMouse ) );
 	de.setAction(current_drag_action);
@@ -503,12 +490,6 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 	    current_drag_widget = 0;
 	}
 	if ( widget ) {
-	    if(current_drag_action == QDropEvent::Move)
-		cursor = moveCursor;
-	    else if(current_drag_action == QDropEvent::Copy)
-		cursor = copyCursor;
-	    else if(current_drag_action == QDropEvent::Link)
-		cursor = linkCursor;
 	    current_dropobj = theDrag;
 	    if(widget != current_drag_widget) {
 		QDragEnterEvent de( widget->mapFromGlobal( globalMouse ) );
@@ -518,9 +499,32 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 		macDndExtra->acceptact = de.isActionAccepted();
 		current_drag_widget = widget;
 	    }
-	} else {
-	    cursor = noDropCursor;
-	}
+	} 
+    }
+
+    //set the cursor
+    if ( !noDropCursor ) {
+	noDropCursor = new QCursor( QCursor::ForbiddenCursor );
+#if 0 //need to make our own cursors, FIXME!
+	if ( !pm_cursor[0].isNull() )
+	    moveCursor = new QCursor(pm_cursor[0], 0,0);
+	if ( !pm_cursor[1].isNull() )
+	    copyCursor = new QCursor(pm_cursor[1], 0,0);
+	if ( !pm_cursor[2].isNull() )
+	    linkCursor = new QCursor(pm_cursor[2], 0,0);
+#endif
+	qAddPostRoutine( qt_mac_dnd_cleanup );
+    }
+    const QCursor *cursor = NULL;
+    if(widget && macDndExtra->acceptfmt) {
+	if(current_drag_action == QDropEvent::Move)
+	    cursor = moveCursor;
+	else if(current_drag_action == QDropEvent::Copy)
+	    cursor = copyCursor;
+	else if(current_drag_action == QDropEvent::Link)
+	    cursor = linkCursor;
+    } else {
+	cursor = noDropCursor;
     }
     if(!cursor) {
 	if(qApp && qApp->overrideCursor())
@@ -528,7 +532,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 	else
 	    cursor = &Qt::arrowCursor;
     }
-    qt_mac_set_cursor(cursor, &mouse); //finally set the cursor
+    qt_mac_set_cursor(cursor, &mouse); 
 
     //idle things
     if(qGlobalPostedEventsCount()) {
