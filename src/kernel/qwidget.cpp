@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#321 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#322 $
 **
 ** Implementation of QWidget class
 **
@@ -674,6 +674,11 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 
 QWidget::~QWidget()
 {
+#if (CHECK_STATE)
+    if ( paintingActive() )
+	warning( "%s (%s): deleted while being painted", className(), name() );
+#endif
+
     // remove myself from the can-take-focus list
     QFocusData *f = focusData( FALSE );
     if ( f )
