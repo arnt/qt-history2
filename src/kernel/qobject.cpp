@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#219 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#220 $
 **
 ** Implementation of QObject class
 **
@@ -603,7 +603,7 @@ void QObject::setName( const char *name )
   If multiple widgets with the same name and type are found then it is undefined
   which one of them is returned.
 
-  If \e type is set to 0 then the only criterion is the objects name.
+  If \e type is set to 0 then the only criterion is the object's name.
 
   This function is useful if you need a widget of a dialog that was created from a ressource file.
 */

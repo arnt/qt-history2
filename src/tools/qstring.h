@@ -1,8 +1,8 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#133 $
+** $Id: //depot/qt/main/src/tools/qstring.h#134 $
 **
-** Definition of the QString class, extended char array operations,
-** and QByteArray and QCString classes
+** Definition of the QString class, and related Unicode
+** functions.
 **
 ** Created : 920609
 **
@@ -386,7 +386,7 @@ public:
     QString    &setNum( ulong, int base=10 );
     QString    &setNum( float, char f='g', int prec=6 );
     QString    &setNum( double, char f='g', int prec=6 );
-    
+
     static QString number( long, int base=10 );
     static QString number( ulong, int base=10);
     static QString number( int, int base=10 );

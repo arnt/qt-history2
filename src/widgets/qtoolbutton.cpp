@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#59 $
 **
 ** Implementation of QToolButton class
 **
@@ -185,7 +185,7 @@ QToolButton::~QToolButton()
   Toggle buttons have an on/off state similar to \link QCheckBox check
   boxes. \endlink A tool button is initially not a toggle button.
 
-  \sa setOn(), toggle(), toggleButton() toggled()
+  \sa setOn(), toggle(), isToggleButton() toggled()
 */
 
 void QToolButton::setToggleButton( bool enable )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#90 $
 **
 ** Implementation of QMenuData class
 **
@@ -1000,7 +1000,7 @@ bool QMenuData::isItemChecked( int id ) const
 
 /*!
   Checks the menu item with id \a id if \a check is TRUE, or unchecks
-  it if \a check is FALSE, and calls setCheckable( TRUE ) if
+  it if \a check is FALSE, and calls QPopupMenu::setCheckable( TRUE ) if
   necessary.
 
   \sa isItemChecked()
@@ -1119,7 +1119,7 @@ void QMenuData::setId( int index, int id )
   param.
 
   If any receiver takes an integer parameter, this value is passed.
-  
+
   \sa connectItem(), disconnectItem(), itemParameter()
  */
 bool QMenuData::setItemParameter( int id, int param ) {
@@ -1137,10 +1137,10 @@ bool QMenuData::setItemParameter( int id, int param ) {
 
 /*!
   Returns the parameter of the activation signal of item \a id.
-  
+
   If no parameter has been specified for this item with
   setItemParameter(), the value defaults to \a id.
-  
+
   \sa connectItem(), disconnectItem(), setItemParameter()
  */
 int QMenuData::itemParameter( int id ) const
@@ -1179,7 +1179,7 @@ bool QMenuData::connectItem( int id, const QObject *receiver,
   Disconnects a receiver/member from a menu item.
 
   All connections are removed when the menu data object is destroyed.
-  
+
   \sa connectItem(), setItemParameter()
 */
 

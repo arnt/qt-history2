@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.h#7 $
+** $Id: //depot/qt/main/src/tools/qcstring.h#8 $
 **
-** Definition of the QString class, extended char array operations,
+** Definition of the extended char array operations,
 ** and QByteArray and QCString classes
 **
 ** Created : 920609

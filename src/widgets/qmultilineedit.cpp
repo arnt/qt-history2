@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#73 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -325,7 +325,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
   If \a on is FALSE, this multi line edit accepts text input.
   Scrolling and cursor movements are accepted in any case.
 
-  \sa inputEnabled() QWidget::setEnabled()
+  \sa isReadOnly() QWidget::setEnabled()
 */
 
 void QMultiLineEdit::setReadOnly( bool on )
@@ -1454,7 +1454,7 @@ void QMultiLineEdit::cursorUp( bool mark, bool clear_mark )
 /*!
   Moves the cursor one line down.  If \a mark is TRUE, the text
   is marked.
-  \sa cursorDown() cursorLeft() cursorRight()
+  \sa cursorUp() cursorLeft() cursorRight()
 */
 
 void QMultiLineEdit::cursorDown( bool mark )

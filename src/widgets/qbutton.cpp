@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#150 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#151 $
 **
 ** Implementation of QButton widget class
 **
@@ -575,7 +575,7 @@ void QButton::setDown( bool enable )
   \fn bool QButton::isOn() const
   Returns TRUE if this toggle button is switched on, or FALSE if it is
   switched off.
-  \sa setOn(), toggleButton()
+  \sa setOn(), isToggleButton()
 */
 
 /*!
@@ -583,7 +583,7 @@ void QButton::setDown( bool enable )
 
   Switches a toggle button on if \e enable is TRUE or off if \e enable is
   FALSE.  This function should be called only for toggle buttons.
-  \sa isOn(), toggleButton()
+  \sa isOn(), isToggleButton()
 */
 
 void QButton::setState( ToggleState s )
@@ -915,7 +915,7 @@ void QButton::setToggleType( ToggleType type )
 
 /*!
   Returns TRUE if this button behaves exclusively inside a QButtonGroup.
-  In that case, this button can only be toggled off by another buton
+  In that case, this button can only be toggled off by another button
   being toggled on.
 */
 

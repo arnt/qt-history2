@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#52 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -49,7 +49,7 @@
   <li>Light (lighter than button color, for shadow effects)
   <li>Midlight (between Button and Light, for shadow effects)
   <li>Dark (darker than the button color, for shadow effects)
-  <li>Medium (between button color  and dark, used for shadow and contrast
+  <li>Mid (between button color  and dark, used for shadow and contrast
     effects)
   <li>Text (usually the same as the foreground color, but sometimes text
     and other foreground are not the same)

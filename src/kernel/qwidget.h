@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#241 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#242 $
 **
 ** Definition of QWidget class
 **
@@ -401,8 +401,8 @@ private:
     void	 setWinId( WId );
     void	 showWindow();
     void	 hideWindow();
-    void	 sendShowEventsToChildren( bool sponaneous );
-    void	 sendHideEventsToChildren( bool sponaneous );
+    void	 sendShowEventsToChildren( bool spontaneous );
+    void	 sendHideEventsToChildren( bool spontaneous );
     void	 createTLExtra();
     void	 createExtra();
     void	 deleteExtra();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#463 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#464 $
 **
 ** Implementation of QWidget class
 **
@@ -3049,7 +3049,7 @@ void QWidget::hide()
 }
 
 
-void QWidget::sendShowEventsToChildren( bool sponaneous )
+void QWidget::sendShowEventsToChildren( bool spontaneous )
 {
      if ( children() ) {
 	QObjectListIt it(*children());
@@ -3062,8 +3062,8 @@ void QWidget::sendShowEventsToChildren( bool sponaneous )
 		widget = (QWidget*)object;
 		if ( !widget->isVisible() && !widget->testWState(WState_ForceHide) ) {
 		    widget->setWState( WState_Visible );
-		    widget->sendShowEventsToChildren( sponaneous );
-		    QShowEvent e( sponaneous );
+		    widget->sendShowEventsToChildren( spontaneous );
+		    QShowEvent e( spontaneous );
 		    QApplication::sendEvent( widget, &e );
 		}
 	    }
@@ -3071,7 +3071,7 @@ void QWidget::sendShowEventsToChildren( bool sponaneous )
     }
 }
 
-void QWidget::sendHideEventsToChildren( bool sponaneous )
+void QWidget::sendHideEventsToChildren( bool spontaneous )
 {
      if ( children() ) {
 	QObjectListIt it(*children());
@@ -3084,8 +3084,8 @@ void QWidget::sendHideEventsToChildren( bool sponaneous )
 		widget = (QWidget*)object;
 		if ( widget->isVisible() ) {
 		    widget->clearWState( WState_Visible );
-		    widget->sendHideEventsToChildren( sponaneous );
-		    QHideEvent e( sponaneous );
+		    widget->sendHideEventsToChildren( spontaneous );
+		    QHideEvent e( spontaneous );
 		    QApplication::sendEvent( widget, &e );
 		}
 	    }
