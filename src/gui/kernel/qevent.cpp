@@ -455,21 +455,6 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, 
 
 
 /*!
-    \enum Qt::Modifier
-
-    This enum describes the keyboard modifier keys supported by Qt.
-
-    \value SHIFT The Shift keys provided on all standard keyboards.
-    \value META The Meta keys.
-    \value CTRL The Ctrl keys.
-    \value ALT The normal Alt keys, but not keys like AltGr.
-    \value UNICODE_ACCEL The shortcut is specified as a Unicode code
-    point, not as a Qt Key.
-    \omitvalue ASCII_ACCEL
-    \omitvalue MODIFIER_MASK
-*/
-
-/*!
     \class QKeyEvent qevent.h
     \brief The QKeyEvent class contains describes a key event.
 

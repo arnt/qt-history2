@@ -54,31 +54,6 @@
 
 
 /*!
-    \enum Qt::ButtonState
-
-    This enum type describes the state of the mouse and the modifier
-    buttons.
-
-    \value NoButton        The button state does not refer to any
-    button (see QMouseEvent::button()).
-    \value LeftButton      The left button is pressed, or an event refers
-    to the left button. (The left button may be the right button on
-    left-handed mice.)
-    \value RightButton     The right button.
-    \value MidButton       The middle button.
-    \value XButton1        The first X button.
-    \Value XButton2        The second X button.
-    \value ShiftButton     A Shift key on the keyboard is pressed.
-    \value ControlButton   A Ctrl key on the keyboard is pressed.
-    \value AltButton       An Alt key on the keyboard is pressed.
-    \value MetaButton      A Meta key on the keyboard is pressed.
-    \value Keypad          A keypad button is pressed.
-
-    \omitvalue KeyButtonMask
-    \omitvalue MouseButtonMask
-*/
-
-/*!
     \enum QEvent::Type
 
     This enum type defines the valid event types in Qt. The event
