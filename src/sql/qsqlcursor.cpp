@@ -278,7 +278,7 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
 }
 
 /*!
-  Selects all fields in the cursor.  The order in which the data is returned
+  Selects all fields in the cursor.  The order in which the rows are returned
   is database-specific.
 
 */
