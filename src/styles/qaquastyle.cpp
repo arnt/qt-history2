@@ -9859,6 +9859,372 @@ static const char * const aqua_progress_xpm[] = {
 "1.2.3.4.4.5.6.7.8.9.0.a.a.b.c.d.",
 "e.f.g.h.i.j.k.l.m.n.o.p.q.q.r.s.",
 "t.t.t.t.t.t.t.t.t.t.t.t.t.t.t.t."};
+/* XPM */
+static const char * const aqua_spinbtn_down_on_xpm[] = {
+"14 11 81 1",
+"       c None",
+".      c #626262",
+"+      c #1F64BD",
+"@      c #4388DD",
+"#      c #5DA1F1",
+"$      c #6DACF7",
+"%      c #78B6FD",
+"&      c #7AB6F8",
+"*      c #7FBBFD",
+"=      c #256AC4",
+"-      c #4D93E9",
+";      c #66A9F7",
+">      c #74B2FC",
+",      c #80C0FE",
+"'      c #87C4FE",
+")      c #8CC9FE",
+"!      c #2B72CC",
+"~      c #5499ED",
+"{      c #6EB3FE",
+"]      c #7CBDFE",
+"^      c #88C9FE",
+"/      c #8ECCFE",
+"(      c #537B9C",
+"_      c #17222A",
+":      c #000000",
+"<      c #2F76D2",
+"[      c #589FF6",
+"}      c #74BBFE",
+"|      c #85CAFE",
+"1      c #7EB7E5",
+"2      c #273843",
+"3      c #3079D3",
+"4      c #5FA9FE",
+"5      c #79C2FE",
+"6      c #89CFFE",
+"7      c #96DAFE",
+"8      c #84B8D5",
+"9      c #24333A",
+"0      c #636363",
+"a      c #3373C0",
+"b      c #62ABFE",
+"c      c #7CC5FE",
+"d      c #91D8FE",
+"e      c #9ADEFE",
+"f      c #A1E3FE",
+"g      c #719CAD",
+"h      c #3C7CC9",
+"i      c #676767",
+"j      c #385F91",
+"k      c #64AFFE",
+"l      c #82CCFE",
+"m      c #97E0FE",
+"n      c #9EE3FE",
+"o      c #A4E7FE",
+"p      c #A9EBFE",
+"q      c #567DAF",
+"r      c #6C6C6C",
+"s      c #465365",
+"t      c #5E95D6",
+"u      c #82CFFE",
+"v      c #99E1FE",
+"w      c #A4ECFE",
+"x      c #ACF1FE",
+"y      c #B1F7FE",
+"z      c #7D8A9C",
+"A      c #737373",
+"B      c #606060",
+"C      c #738191",
+"D      c #6A92B2",
+"E      c #88C5E1",
+"F      c #9FE4FE",
+"G      c #A9EDFE",
+"H      c #B1B1B1",
+"I      c #7A7A7A",
+"J      c #6F6F6F",
+"K      c #B6B6B6",
+"L      c #9A9A9A",
+"M      c #868686",
+"N      c #7B7B7B",
+"O      c #787878",
+"P      c #D3D3D3",
+".+@#$%&*&%$#@+",
+".=-;>,')',>;-=",
+".!~{]^///^]{~!",
+".!~{](_:_(]{~!",
+".<[}|12:21|}[<",
+".3456789876543",
+"0abcdefgfedcbh",
+"ijklmnoponmlkq",
+"rstuvwxyxwvutz",
+"ABCDEFGxGFEDCH",
+"IJKLMNOOONMLKP"};
+/* XPM */
+static const char * const aqua_spinbtn_down_off_xpm[] = {
+"14 11 70 1",
+"       c None",
+".      c #666666",
+"+      c #919191",
+"@      c #B4B4B4",
+"#      c #C8C8C8",
+"$      c #D3D3D3",
+"%      c #DCDCDC",
+"&      c #DADADA",
+"*      c #DEDEDE",
+"=      c #979797",
+"-      c #BBBBBB",
+";      c #CECECE",
+">      c #D6D6D6",
+",      c #E1E1E1",
+"'      c #E4E4E4",
+")      c #E3E3E3",
+"!      c #9C9C9C",
+"~      c #C0C0C0",
+"{      c #D8D8D8",
+"]      c #E0E0E0",
+"^      c #E8E8E8",
+"/      c #ECECEC",
+"(      c #EEEEEE",
+"_      c #A0A0A0",
+":      c #C5C5C5",
+"<      c #E9E9E9",
+"[      c #282828",
+"}      c #000000",
+"|      c #A4A4A4",
+"1      c #CDCDCD",
+"2      c #E2E2E2",
+"3      c #EDEDED",
+"4      c #414141",
+"5      c #A5A5A5",
+"6      c #F4F4F4",
+"7      c #F9F9F9",
+"8      c #D4D4D4",
+"9      c #3B3B3B",
+"0      c #676767",
+"a      c #969696",
+"b      c #D1D1D1",
+"c      c #FAFAFA",
+"d      c #FDFDFD",
+"e      c #FFFFFF",
+"f      c #AEAEAE",
+"g      c #9F9F9F",
+"h      c #6A6A6A",
+"i      c #7C7C7C",
+"j      c #C9C9C9",
+"k      c #EAEAEA",
+"l      c #FBFBFB",
+"m      c #9A9A9A",
+"n      c #6E6E6E",
+"o      c #656565",
+"p      c #ABABAB",
+"q      c #DDDDDD",
+"r      c #747474",
+"s      c #646464",
+"t      c #929292",
+"u      c #C6C6C6",
+"v      c #B5B5B5",
+"w      c #7A7A7A",
+"x      c #717171",
+"y      c #BABABA",
+"z      c #A1A1A1",
+"A      c #8E8E8E",
+"B      c #848484",
+"C      c #818181",
+"D      c #828282",
+"E      c #D5D5D5",
+".+@#$%&*&%$#@+",
+".=-;>,')',>;-=",
+".!~{]^/(/^]{~!",
+"._:%<+[}[+<%:_",
+".|123*4}4*321|",
+".5;'6789876';5",
+"0ab/cdefedc/bg",
+"hijkleeeeelkjm",
+"nopq6ceeec6qp!",
+"rst_u'k/k'u_tv",
+"wxyzABCDCBAzyE"};
+/* XPM */
+static const char * const aqua_spinbtn_up_on_xpm[] = {
+"14 11 85 1",
+"       c None",
+".      c #7D7D7D",
+"+      c #7A7A7A",
+"@      c #A0A2BC",
+"#      c #52639F",
+"$      c #1E4597",
+"%      c #0B459E",
+"&      c #0D4EA3",
+"*      c #1256A8",
+"=      c #E0E0E0",
+"-      c #54556F",
+";      c #274091",
+">      c #2058AB",
+",      c #538AC6",
+"'      c #80AAD6",
+")      c #96B9DC",
+"!      c #9FC0E0",
+"~      c #A0A1BB",
+"{      c #737373",
+"]      c #273472",
+"^      c #06429F",
+"/      c #588EC7",
+"(      c #9CBDE0",
+"_      c #AFCAE6",
+":      c #B4CEE7",
+"<      c #BAD2EA",
+"[      c #4F5C9A",
+"}      c #6C6C6C",
+"|      c #0A2F87",
+"1      c #0F54AB",
+"2      c #7BA6D8",
+"3      c #A5C4E4",
+"4      c #ACC8E6",
+"5      c #AFCAE7",
+"6      c #B4CFEA",
+"7      c #133890",
+"8      c #676767",
+"9      c #003C9C",
+"0      c #2067B9",
+"a      c #77A5D8",
+"b      c #92B8DF",
+"c      c #98BCE3",
+"d      c #9CC0E4",
+"e      c #6E859C",
+"f      c #636363",
+"g      c #0147A5",
+"h      c #266CBD",
+"i      c #5B94D0",
+"j      c #6EA2DA",
+"k      c #74A5DA",
+"l      c #6890BA",
+"m      c #1C2733",
+"n      c #626262",
+"o      c #0D55AE",
+"p      c #3075C4",
+"q      c #4F8DD3",
+"r      c #5F9ADA",
+"s      c #5E92C5",
+"t      c #1D2C3B",
+"u      c #000000",
+"v      c #165FB4",
+"w      c #3B7ECC",
+"x      c #5593D8",
+"y      c #629EDE",
+"z      c #43658B",
+"A      c #131C26",
+"B      c #2068BD",
+"C      c #468AD5",
+"D      c #609FE3",
+"E      c #70AAE9",
+"F      c #79B1EB",
+"G      c #7FB5EE",
+"H      c #296FC3",
+"I      c #5093DB",
+"J      c #6AA7EA",
+"K      c #79B1EE",
+"L      c #81B9F4",
+"M      c #88BDF5",
+"N      c #1F64BD",
+"O      c #4388DD",
+"P      c #5DA1F1",
+"Q      c #6DACF7",
+"R      c #78B6FD",
+"S      c #7AB6F8",
+"T      c #7FBBFD",
+".+@#$%&*&%$#@=",
+"+-;>,')!)',>;~",
+"{]^/(_:<:_(/^[",
+"}|123456543217",
+"890abcdedcba09",
+"fghijklmlkjihg",
+"nopqrstutsrqpo",
+"nvwxyzAuAzyxwv",
+"nBCDEFGGGFEDCB",
+"nHIJKLMMMLKJIH",
+"nNOPQRSTSRQPON"};
+/* XPM */
+static const char * const aqua_spinbtn_up_off_xpm[] = {
+"14 11 72 1",
+"       c None",
+".      c #7D7D7D",
+"+      c #7A7A7A",
+"@      c #A8A8A8",
+"#      c #707070",
+"$      c #585858",
+"%      c #616161",
+"&      c #646464",
+"*      c #E0E0E0",
+"=      c #5B5B5B",
+"-      c #515151",
+";      c #6B6B6B",
+">      c #9D9D9D",
+",      c #BCBCBC",
+"'      c #CDCDCD",
+")      c #D0D0D0",
+"!      c #A7A7A7",
+"~      c #747474",
+"{      c #434343",
+"]      c #565656",
+"^      c #A1A1A1",
+"/      c #DEDEDE",
+"(      c #E1E1E1",
+"_      c #E3E3E3",
+":      c #6E6E6E",
+"<      c #414141",
+"[      c #686868",
+"}      c #B9B9B9",
+"|      c #D7D7D7",
+"1      c #DBDBDB",
+"2      c #DDDDDD",
+"3      c #4A4A4A",
+"4      c #6A6A6A",
+"5      c #505050",
+"6      c #777777",
+"7      c #CACACA",
+"8      c #CFCFCF",
+"9      c #D3D3D3",
+"0      c #909090",
+"a      c #676767",
+"b      c #5A5A5A",
+"c      c #7F7F7F",
+"d      c #A6A6A6",
+"e      c #B3B3B3",
+"f      c #B8B8B8",
+"g      c #9F9F9F",
+"h      c #2C2C2C",
+"i      c #666666",
+"j      c #878787",
+"k      c #AAAAAA",
+"l      c #313131",
+"m      c #000000",
+"n      c #717171",
+"o      c #A5A5A5",
+"p      c #B0B0B0",
+"q      c #1F1F1F",
+"r      c #7B7B7B",
+"s      c #9B9B9B",
+"t      c #AEAEAE",
+"u      c #C0C0C0",
+"v      c #C5C5C5",
+"w      c #C8C8C8",
+"x      c #828282",
+"y      c #A4A4A4",
+"z      c #C3C3C3",
+"A      c #C9C9C9",
+"B      c #8A8A8A",
+"C      c #ABABAB",
+"D      c #BFBFBF",
+"E      c #D1D1D1",
+"F      c #D5D5D5",
+"G      c #D6D6D6",
+".+@#$$%&%$$#@*",
+"+=-;>,')',>;-!",
+"~{]^)/(_(/)^];",
+":<[}|12*21|}[3",
+"456}7890987}65",
+"abcdefghgfedcb",
+"i[jgkglmlgkgj[",
+"in0op#qmq#po0n",
+"irstfuvwvuftsr",
+"ixy}zA')'Az}yx",
+"iBCDAEFGFEADCB"};
+
+
 
 #include "qapplication.h"
 #include "qpainter.h"
@@ -10634,6 +11000,43 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
         im = prog;
         px = im.smoothScale( prog.width(), size );
         QPixmapCache::insert( "$qt_aqua_progress_" + sizestr, px );
+    }
+
+    // Spinbox buttons
+    if( s.contains("spinbtn_") ){
+	QPixmap down_on( (const char **) aqua_spinbtn_down_on_xpm );
+	QPixmap down_off( (const char **) aqua_spinbtn_down_off_xpm );
+	QPixmap up_on( (const char **) aqua_spinbtn_up_on_xpm );
+	QPixmap up_off( (const char **) aqua_spinbtn_up_off_xpm );
+
+        int width = 0, height = 0, j;
+        i = s.findRev( '_' );
+        if( i != -1 ){
+            height = s.right( (s.length() - 1) - i ).toInt();
+        }
+        j = s.findRev( '_', i - 1 );
+        if( j != -1 ){
+            width = s.mid( j + 1, i - j - 1 ).toInt();
+        }
+        QString wstr = QString::number( width );
+        QString hstr = QString::number( height );
+	
+        im = down_on;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_spinbtn_down_on_" + wstr + "_" + hstr,
+			      px );
+        im = down_off;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_spinbtn_down_off_" + wstr + "_" + hstr,
+			      px );
+        im = up_on;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_spinbtn_up_on_" + wstr + "_" + hstr,
+			      px );
+        im = up_off;
+        px = im.smoothScale( width, height );
+        QPixmapCache::insert( "$qt_aqua_spinbtn_up_off_" + wstr + "_" + hstr,
+			      px );
     }
     
     QPixmapCache::find( str, p );
@@ -12311,8 +12714,39 @@ void QAquaStyle::drawItem( QPainter *p, int x, int y, int w, int h,
 			   int len, const QColor* penColor )
 {
     flags |= NoAccel;
-    QWindowsStyle::drawItem( p, x, y, w, h, flags, g, enabled, pixmap, text, len,
-			     penColor );
+    QWindowsStyle::drawItem( p, x, y, w, h, flags, g, enabled, pixmap, text, 
+			     len, penColor );
+}
+
+int QAquaStyle::spinboxFrameWidth() const
+{
+    return 1;
+}
+
+void QAquaStyle::drawRangeControlWidgetButton( QPainter * p, int x, int y,
+	  int w, int h, const QColorGroup & g, QRangeControlWidget * rc, 
+	  bool downbtn, bool enabled, bool down )
+{
+    QString wstr = QString::number( w );
+    QString hstr = QString::number( h );
+    QPixmap btn;
+    
+    if ( !down && downbtn )
+	qAquaPixmap( "spinbtn_down_off_" + wstr + "_" + hstr, btn );
+    else if ( !down && !downbtn )
+	qAquaPixmap( "spinbtn_up_off_" + wstr + "_" + hstr, btn );
+    else if ( down && downbtn )
+	qAquaPixmap( "spinbtn_down_on_" + wstr + "_" + hstr, btn );
+    else if (down && !downbtn )
+	qAquaPixmap( "spinbtn_up_on_" + wstr + "_" + hstr, btn );
+
+    p->drawPixmap( x, y, btn );
+}
+
+void QAquaStyle::drawRangeControlWidgetSymbol( QPainter *, int, int,
+	  int, int, const QColorGroup &, QRangeControlWidget *, 
+	  bool, bool, bool )
+{
 }
 
 #endif

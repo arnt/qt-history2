@@ -177,7 +177,14 @@ public:
     int  progressChunkWidth() const;
     void drawProgressChunk( QPainter *p, int x, int y, int w, int h,
 			    const QColorGroup &g );
+    int  spinboxFrameWidth() const;
+    void drawRangeControlWidgetButton ( QPainter * p, int x, int y,
+	        int w, int h, const QColorGroup & g, QRangeControlWidget * rc, 
+		bool downbtn, bool enabled, bool down );
 
+    void drawRangeControlWidgetSymbol ( QPainter * p, int x, int y,
+	        int w, int h, const QColorGroup & g, QRangeControlWidget * rc, 
+		bool downbtn, bool enabled, bool down );
 protected:
     bool eventFilter( QObject *, QEvent * );
     void timerEvent( QTimerEvent * );

@@ -305,7 +305,7 @@ void QDateTimeEditBase::layout( const QSize& s )
     }
 
     d->buttons->move( x, y );
-    d->buttons->resize( bs.width(), height() - y );
+    d->buttons->resize( bs.width(), height() - fw*2 );
     QSize pmSize( s.width(), s.height() );
     d->resize( pmSize );
 }

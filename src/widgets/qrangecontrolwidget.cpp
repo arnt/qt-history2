@@ -136,23 +136,16 @@ void QRangeControlWidget::mousePressEvent( QMouseEvent *e )
 void QRangeControlWidget::arrange()
 {
     QSize bs;
-    const int fw = 0; //style().spinBoxFrameWidth();
-    setFrameStyle( fw ? ( WinPanel | Sunken ) : NoFrame );
-    setLineWidth( fw );
 
-    bs.setHeight( height()/2 - fw );
-    bs.setWidth( width() - fw );
+    bs.setHeight( height()/2 );
+    bs.setWidth( width() );
 
     if ( bs.height() < 8 )
 	bs.setHeight( 8 );
-    //    bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
     bs = bs.expandedTo( QApplication::globalStrut() );
 
-    int y = fw;
-    int x = fw;
-
-    d->up = QRect( x, y, bs.width(), bs.height() );
-    d->down = QRect( x, height() - fw - bs.height(), bs.width(), bs.height() );
+    d->up = QRect( 0, 0, bs.width(), bs.height() );
+    d->down = QRect( 0, bs.height(), bs.width(), bs.height() );
 }
 
 void QRangeControlWidget::stepUp()
