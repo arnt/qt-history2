@@ -371,7 +371,7 @@ JPEG=no
 MNG=no
 XRENDER=auto
 XFTFREETYPE=auto
-XINPUT=auto
+TABLET=auto
 STL=auto
 FT=yes
 NAS_SOUND=no
@@ -533,11 +533,11 @@ do
    -xinerama)
 	XINERAMA=yes
 	;;
-   -no-xinput)
-	XINPUT=no
+   -no-tablet)
+	TABLET=no
 	;;
-   -xinput)
-	XINPUT=yes
+   -tablet)
+	TABLET=yes
 	;;
    -stl)
 	STL=yes
@@ -966,19 +966,19 @@ then
 	XINERAMA=yes
 	$x11tests/xinerama.test $XQMAKESPEC $VERBOSE && XINERAMA=no
     fi
-    # Auto-detect XInput support (currenlty only in IRIX)
+    # Auto-detect Tablet support (currenlty only in IRIX)
     case $PLATFORM in
     irix-*)
-	if [ $XINPUT = auto ]
+	if [ $TABLET = auto ]
 	then
-	    XINPUT=yes
-	    $x11tests/xinput.test $XQMAKESPEC $VERBOSE && XINPUT=no
+	    TABLET=yes
+	    $x11tests/xinput.test $XQMAKESPEC $VERBOSE && TABLET=no
 	fi
 	;;
     *)
-	if [ $XINPUT = auto ]
+	if [ $TABLET = auto ]
 	then
-	    XINPUT=no
+	    TABLET=no
 	fi
 	;;
     esac
@@ -1148,7 +1148,7 @@ if [ "$X11_PLATFORM" = "yes" ]; then
 	XRY="*"
 	XRN=" "
     fi
-    if [ "x$XINPUT" = "xno" ]
+    if [ "x$TABLET" = "xno" ]
     then
 	XIY=" "
 	XIN="*"
@@ -1175,8 +1175,8 @@ Qt/X11 only:
  $XFTY  -xft ............... Compile XftFreeType support.
 			 Requires X11/Xft/XftFreetype.h and libXft.
 
- $XIY  -no-xinput ......... Do not compile XInput support.
- $XIN  -xinput ............ Compile XInput support (currently only on IRIX).
+ $XIY  -no-tablet ......... Do not compile Tablet support.
+ $XIN  -tablet ............ Compile Tablet support (currently only on IRIX).
 
 EOF
 fi
@@ -1496,9 +1496,9 @@ then
 	# libfreetype as well as libXt to the program/lib link command
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXft -lfreetype\""
     fi
-    if [ "x$XINPUT" = "xyes" ]
+    if [ "x$TABLET" = "xyes" ]
     then
-	QMAKE_CONFIG="$QMAKE_CONFIG xinput"
+	QMAKE_CONFIG="$QMAKE_CONFIG tablet"
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lXi\""
     fi
 fi
@@ -1697,7 +1697,7 @@ if [ "$X11_PLATFORM" = "yes" ]
 then
     echo "Session management... $SM"
     echo "Xinerama support..... $XINERAMA"
-    echo "XInput support ...... $XINPUT"
+    echo "Tablet support ...... $TABLET"
     echo "XRender support ..... $XRENDER"
     echo "XftFreeType support . $XFTFREETYPE"
 fi
