@@ -2497,10 +2497,10 @@ void QWidgetFactory::loadPopupMenu( QPopupMenu *p, const QDomElement &e )
 		popup->setName( n2.attribute( "name" ) );
 		if ( a ) {
 		    p->setAccel( a->accel(), p->insertItem( a->iconSet(),
-					     translate( n2.attribute( "text" ).utf8() ),
+					     translate( n2.attribute( "text" ).utf8().data() ),
 					     popup ) );
 		} else {
-		    p->insertItem( translate( n2.attribute( "text" ).utf8() ), popup );
+		    p->insertItem( translate( n2.attribute( "text" ).utf8().data() ), popup );
 		}
 		loadPopupMenu( popup, n2 );
 		n = n2;
