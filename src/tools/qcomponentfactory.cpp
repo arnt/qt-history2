@@ -108,16 +108,27 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
     if ( !ok )
 	return QE_NOCOMPONENT;
 
-    QLibrary library( file, QLibrary::Manual );
+    QLibrary *library = new QLibrary( file, QLibrary::Manual );
 
     QComponentFactoryInterface *cfIface =0;
-    library.queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );
+    library->queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );
+    QRESULT res;
     if ( cfIface ) {
 	QRESULT res = cfIface->createInstance( uuid, iid, iface, outer );
 	cfIface->release();
-	return res;
+    } else {
+	res = library->queryInterface( iid, iface );
     }
-    return library.queryInterface( iid, iface );
+    QLibraryInterface *libiface = 0;
+    if ( library->queryInterface( IID_QLibrary, (QUnknownInterface**)&libiface ) != QS_OK ) {
+	delete library;
+    } else {
+	library->setPolicy( QLibrary::Delayed );
+	libiface->release();
+	// ### TODO: insert library into some magic dict that is deleted on exit rather than
+	delete library;
+    }
+    return res;
 }
 
 /*!
