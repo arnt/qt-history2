@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#175 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#176 $
 **
 ** Implementation of QFileDialog class
 **
@@ -43,6 +43,7 @@
 #include "qtimer.h"
 #include "qvbox.h"
 #include "qhbox.h"
+#include "qtooltip.h"
 
 #include <time.h>
 #include <ctype.h>
@@ -619,11 +620,13 @@ void QFileDialog::init()
     makeVariables();
 
     d->cdToParent = new QPushButton( this, "cd to parent" );
+    QToolTip::add( d->cdToParent, tr( "One Directory Up" ) );
     d->cdToParent->setPixmap( *cdToParentIcon );
     connect( d->cdToParent, SIGNAL(clicked()),
              this, SLOT(cdUpClicked()) );
 
     d->newFolder = new QPushButton( this, "new folder" );
+    QToolTip::add( d->newFolder, tr( "Create New Folder" ) );
     d->newFolder->setPixmap( *newFolderIcon );
     connect( d->newFolder, SIGNAL(clicked()),
              this, SLOT(newFolderClicked()) );
@@ -636,10 +639,12 @@ void QFileDialog::init()
              d->stack, SLOT(raiseWidget(int)) );
 
     d->detailView = new QPushButton( this, "list view" );
+    QToolTip::add( d->detailView, tr( "Detail View" ) );
     d->detailView->setPixmap( *detailViewIcon );
     d->detailView->setToggleButton( TRUE );
     d->stack->addWidget( files, d->modeButtons->insert( d->detailView ) );
     d->mcView = new QPushButton( this, "mclistbox view" );
+    QToolTip::add( d->mcView, tr( "Multicolumn View" ) );
     d->mcView->setPixmap( *multiColumnListViewIcon );
     d->mcView->setToggleButton( TRUE );
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
