@@ -1993,7 +1993,9 @@ void QWorkspaceChild::titleBarDoubleClicked()
 
 void QWorkspaceChild::adjustToFullscreen()
 {
+    qApp->sendPostedEvents( this, QEvent::Resize );
     qApp->sendPostedEvents( childWidget, QEvent::Resize );
+    qApp->sendPostedEvents( childWidget, QEvent::Move );
     if(style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
 	setGeometry( 0, 0, parentWidget()->width(), parentWidget()->height());
     } else {
