@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#27 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#28 $
 **
 ** Definition of QPainter class
 **
@@ -37,7 +37,6 @@ class QPainter					// painter class
 friend class QFont;
 friend class QPen;
 friend class QBrush;
-friend class QIntPainter;
 public:
     QPainter();
    ~QPainter();
@@ -196,6 +195,9 @@ public:
     void	setTabStops( int );
     int	       *tabArray() const	{ return tabarray; }
     void	setTabArray( int * );
+
+    static void	initialize();
+    static void	cleanup();
 
 private:
     static void changedPen( const QPen *, int );
