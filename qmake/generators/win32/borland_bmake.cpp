@@ -83,10 +83,6 @@ BorlandMakefileGenerator::init()
 
     processVars();
 
-    if (!project->variables()["RES_FILE"].isEmpty()) {
-        project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
-    }
-
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
 
     MakefileGenerator::init();
