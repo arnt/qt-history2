@@ -60,7 +60,7 @@
 
   \ingroup helpsystem
 
-  What's This? help is part of an application's online help system
+  "What's this?" help is part of an application's online help system
   that provides users with information about functionality, usage,
   background etc. in various levels of detail between tool tips and
   full text browsing windows.
@@ -74,7 +74,7 @@
   (Note that if there is an accelerator for Shift-F1, this mechanism
   will not work.)
 
-  To add What's This? text to a widget you simply call
+  To add "What's this?" text to a widget you simply call
   QWhatsThis::add() for the widget. To assign text to a menu item,
   call QMenuData::setWhatsThis(); for a global accelerator key, call
   QAccel::setWhatsThis() and If you're using actions
@@ -93,10 +93,10 @@
   <A HREF="simple-application-action.html">Simple Application Walkthrough
   featuring QAction</A>.)
 
-  An alternative way to enter What's This? mode is to use the
+  An alternative way to enter "What's this?" mode is to use the
   ready-made tool bar tool button from QWhatsThis::whatsThisButton().
   By invoking this context help button (in the below picture the first
-  one from the right) the user switches into What's this? mode.  If
+  one from the right) the user switches into "What's this?" mode.  If
   now he or she clicks on a widget the appropriate help text is shown.
   The mode is left when help is given or when the user presses the
   Escape key.
@@ -112,7 +112,7 @@
   position of the mouse click. By reimplementing QWhatsThis::clicked()
   it is possible to have hyperlinks inside the help texts.
 
-  If you wish to control the What's This? behaviour of a widget manually see
+  If you wish to control the "What's this?" behavior of a widget manually see
   QWidget::customWhatsThis().
 
   Added help text might be removed using QWhatsThis::remove(). This
@@ -382,7 +382,7 @@ void QWhatsThat::paintEvent( QPaintEvent* ) {
 QWhatsThisPrivate::WhatsThisItem::~WhatsThisItem()
 {
     if ( count )
-	qFatal( "Internal error #10%d in What's This", count );
+	qFatal( "QWhatsThis: Internal error (%d)", count );
     delete whatsthis;
 }
 
@@ -757,7 +757,7 @@ void QWhatsThisPrivate::add( QWidget * widget, const QString &text )
 
 // and finally the What's This class itself
 
-/*!  Adds \a text as <i>What's This</i> help for \a widget. If the
+/*!  Adds \a text as "What's this" help for \a widget. If the
   text is rich text formatted (i.e., it contains markup) it will be
   rendered with the default stylesheet QStyleSheet::defaultSheet().
 
@@ -776,7 +776,7 @@ void QWhatsThis::add( QWidget * widget, const QString &text )
 
 
 /*!
-  Removes the What's This? help for \a widget. This happens
+  Removes the "What's this?" help for \a widget. This happens
   automatically if the widget is destroyed.
   \sa add()
 */
@@ -797,7 +797,7 @@ void QWhatsThis::remove( QWidget * widget )
 
 /*!
   Returns the text for widget \a w or a null string if there
-  is no What's This? help for widget. \a pos contains the mouse
+  is no "What's this?" help for widget. \a pos contains the mouse
   position.
 
   If \a includeParents is TRUE, parent widgets are taken into
@@ -829,7 +829,7 @@ QString QWhatsThis::textFor( QWidget * w, const QPoint& pos, bool includeParents
 
 /*!
   Creates a QToolButton preconfigured
-  to enter What's This? mode when clicked. You
+  to enter "What's this?" mode when clicked. You
   will often use this with a tool bar as \a parent:
   \code
      (void)QWhatsThis::whatsThisButton( my_help_tool_bar );
@@ -842,80 +842,8 @@ QToolButton * QWhatsThis::whatsThisButton( QWidget * parent )
 				 "automatic what's this? button" );
 }
 
-
-/*! \base64 whatsthis.png
-
-iVBORw0KGgoAAAANSUhEUgAAARwAAAD2CAMAAAAzgsiCAAACmlBMVEX////FxsWlpaXCw8LA
-wcC+vr67vLu5ubm3t7e0tLSysrKwsLCtra2rq6upqKmmpqako6SioaJzdXODmcWfn59ziayd
-nJ2bmps5RFLAwMB0iq2FmcCIncNgYGDExMTBwcG8vLyysbGvr6+srKyqqqqnp6elpKSioqKg
-n5+dnZ27u7u5uLi2trazs7Oura2rqqqoqKijoqIAAH8AAH4AAH0AAHwAAHsAAHoAAHkAAHgA
-AHcAAHYAAHUAAHQAAHMAAHIAAHEAAHAAAG8AAG4AAG0AAGwAAGsAAGoAAGkAAGgAAGcAAGYA
-AGUAAGQAAGMAAGIAAGEAAGAAAF8AAF4AAF0AAFwAAFsAAFoAAFkAAFgAAFcAAFYAAFUAAFQA
-AFMAAFIAAFGampqHnMKryv+oyfKpx/t2j62Yl5eHm8JabIpleptwh6t8lLuHocuSrtyeu+yp
-yPxWbIeVlZWXl5eGm8FabYtZbYqTkpKVlJSGmsGQj49aa4lidZVqfqFyh616kbiBmsSSkZGF
-msClzvqOjY2Jo9CPj49hdZVpfqB4kLaAmMGHocyPqteLioqRrduNjIyEmb9fc5JnfJ1uhKh2
-jbN+lr6Fn8mNqNSVsN+IiIiZtueKiYmDmL5keZpsgqV0i7B7k7uDnMaLpdGat+eGhYWhv/OH
-hoaDl75qf6JyiK15kbiBmsOJo86Qq9mYtOSgve+Dg4OpyP+Eg4OCl71vhqp3jrV/l8CGoMuO
-qdaWsuGduuylw/eBgICBgYGClr11jLJ9lb2EnsiMptOUr96buOmjwfSqyf9+fX1/fn6Blrx8
-e3uBlbx5eHh7enqAlbt3dnbs7OwAAACAgIAAAIAEBASAgwS/wr/z9wTz9/PGw8aEgoT//wDw
-8PD//9xFzc+JAAAK1klEQVR4nO2diaMVVR3HD5RZaWUgxQPCNE2xXR48eQ94D9/zsQiyCoIg
-4CRolpZ6M2mxlFYjl9TErTLK9ijbI9sjEdGDF9mc/6VzZjvLnPm9mcu9c8557/e5PO7cWe6b
-+dzv2WbmAiEIgiAIgiAIgiAIgiAIUsA4nfG298ghxo173etPe8Ppb3zTm8848y1vfdtZb58w
-0WnqlaO5OXvCJKepV47m5h0oR5KjuXknypHkcDcTZCY7Tb1yeG4mdE0pSZdt6pXDyxSTk/uI
-pk7Jz5vG5LzLLvXK4fUNlzP9nNPezVJ07nnvOf+C91540QwuZ/p0Nvfi973/A2d88EMfHv+R
-iyI5l1wyc+bM7u7uWbNmz57d09Nz6aVz5szp7e3t65s7d+68efPmz+/v7x8YGFiwYMFllw0O
-Dg4NDV1++fDw8MKFCxctWrx48ZIlS664YunSpcuWLbvyyuXLl69YsWLlypWrVq1evXrNmjVX
-XbV27dp169ZdffX69es3bNhwzTUbN27ctGnTtddu3rx5y5Yt9crhdTGXo7nZGstR3My4bqzJ
-4e0Ul8PcBB+9PojYNmPr9kiO6mbrDWNNDm/DuRyWm+DGj9308U/cfMsnP7V1+61cjubmtttT
-OdGm1eUQksohRJPD39A9Obx/w+WwMrWtkfDp7bfeweVwN0EWpts+c6eQ091NSMty+C9W5RCy
-ajUhzsmJxlNMjlzfMDc7uByem+Czn/v8F+76YoO5+dLdspxZ3A5/CyaHP/X1ETJ3HiHzST97
-NcB+mBy+YGiIkGFCuBtux5ycVU7KicZTTA5zk4QkuGfbHTt2cjm8TAWRmy83mJuvTNXlENLT
-Qwhz09vL7KRySD/TM7CAEOZmcJDZIZkdY7EihMuJihUhTsmJxlNMDstNcONXv3bT179x7zcb
-O3bu4nJ4fRNEbr7VYG7uux+Q09sHyRkulkO4m5XcDa9z2CuH5ETjKSaHlanggQe//dDDj3zn
-0cbOXbu5HF4XB5GbxxrMzeNPVJfDAeUQklTIaWvF7LgiZ3w0nmJyWH0TPPnUd7/3/adv/kFj
-1+49XA5vp4LIzQ8bzM2PnmklOUNDJZLDK2T3kkMmsqHuZCaH1cXBj3/y05/9/Be//FVj9569
-XA5vw4PIza8bzM1vntVbq1ydQ0YqVsRc56Ry3KpzMjmsnQp++7vf/+GPf/rzXxp79u7jcnj/
-Jm3fmZu/Ppfr5/DnrLViarTkiNYqkrOosLWK98W11iqTw9rw4G9//8c///Xv//y3sXfffi4n
-6fvxupi7+d/zY6yHnMlh/ZusE9jYt/8Al6O5OfDCWJWT9P1YO8XK1P4DB7kc1c2LBw+NVTma
-m5e4HDU3B18aq3Km5pgyZdq06264/c67p97/xDPPPvf8C4cOcTn17p1lEjl4mrRYjjfYkPOy
-L6AcADtybJeXkqAcAJQDgHIAUA4AygFAOQAoB8CyHBrBnqM/rmFbTpdp0hUckZMkJ0qROzgl
-h3a5FSDbcuIqB+UY5YhnKlS5glty7DgoxDk5LglySg62VthDLimHUupaJSxjV47joBwAlAOA
-cgBQDgDKAUA5AFbkHPYEG3JsH3NpbMjxBhty6rlF4rCncpLffbijFTPKAfBYDv9BOSY5L8f7
-3j452TmPVzjxpK9ykh0H5TQVVBW500DpJDeT2vFWjqlYaQqaR5qvJjRfVZbQ9N1kOTR1k/7t
-rRxTsWpGP8KCLKepyYliI7npSmKUZMZvOYXFqmmWc0SWYwhOesFrdMiRi5WUi2Y5OUlwpEon
-rYJeid14LUcuVs2jx46aat0iOSI4x9lDkRO/8r5ClopV89jR5FFKTtZSRW40OVRy468cqVg1
-UzdHdTlH0nb8iJBDj2cYksPsZG68laMUq2OiXMlliykRCDkyx1U50ZT/cpRixd3kLcjJaeaS
-c+LEieNScHgnMHdp0Fs5crEyuxFylDonkXPy5EkmR2qttH6gz3LU1sropkiOUqyUrGj1sbdy
-lGJldlMgR6qRNTe5cuWtHLlYFYwu1ZGn4qDg9gNtjq9y2n7KImKUyClzyuKU8VZOsvsoB+VU
-klPTJTmU01GsyKGeYEfOa36AcgBQDgDKAUA5ACgHAOUAoBwAlAOAcgBQDgDKAUA5ACgHAOUA
-oBwAlAOAcgBQDgDKAQCPxfYJ7tZBOQC1yAm9BOUAoBwAlAOAcgCYnPiBcvJQ/tUIcurxqS6n
-2WzWfrQVid2cup3KcprRj9t+7CWH43h46k+OVJxcL1m1J0f6XpS2H3wlGv1J58lTVJ+nv1C3
-LVyrCrUnR/pelH4A+tGZ5ACH3Qk5FpKTfC/KsP/JAWox4i/ZI5kXZm8nzwvjkaLYNl1Lmlld
-jo3kSDfcm+RkZqg0m0pLs+NWV5dfKCWRyr+jihwbdY74Dke2/7qcUEpIzoCYXSgnbIuc+pOT
-c1NNjlysOi2n9uTk3RTJUYpVKC2Smq7RlRyDG6W1MhUhk4FQqYdGSXK0uljsh1Jw0sOhqQVz
-sYon48U0fqlvG3rUWvmE3bGV42ByADA5AJgcAEwOgL/JodLwqUN4mxylq9whLCRHPaegn2FQ
-OmxSLy9Uunbp6YlQHoF1QE7dyUm7umpvXxkqiDGVNCrQ+sz5wUQn5NSdnNxo0TD4kTxlWhSF
-+lCqU3JsJSd5ksqH2CUlRNkqVIzTszjR1kZNZeXYT06oyMlNZi9McjomJpbjRp1jkqNnTFS+
-9ZQqd1orpViltU3aHuVWEWZoB/1Y6+d0tkC0B2s9ZD/kYHIK8XdsVQPejq3qAJMDgMkBwOQA
-YHIAMDkAmBwATA4AJgcAkwOAyQHA5ABgcgAwOQCYHABMDgAmB8DOdasWz5KOuFFuBeVSTvXf
-Z+W6lTdy6r9ule60+ZKVtEC/8yK+UCWtGGozqPYe0jTNb1lCTu11DlV/8hc71Wui6oLchU79
-wqn2HmKlFi6R2mit1AuamhxhkJrmiEKpbGOUoxtsQY6F1ko/IF1O0Z0XWbFSFyXLEzliVaOc
-KrdlWOnnjCAHLG+Gz5/qEkzvqCaqrBwHkkONVoxyWq9zTFpHlGMtOaItkUtP+kSV45DmUGnF
-UJtB1ffItFPprjm3Wyt/wLEVACYHAJMDgMkBwOQA2EhOZ+4dFt/8LHzz6p1AC3eTQgfQMnJP
-smgV53vIoueX/lMUydkF+bOXF8Q9QG1S20psnXUXs/MeSqez0pkLC2cChZxMkHiVriEv0Ofk
-t8qUhdlwhGaTogcuFpUbRdhNjsFBGJodaZPG98gMhPnhmLqorByLyUk/fNqCHGWr6nJKNQpu
-JEeoKCunMHblkzMyFlsrvc4psFJSDq0sx8XkxJkW4Qmzdkd8+NSwIF+s1BU0OWF2EkOSU/HM
-hcUecpnds4vFsZUPcjA5heCoHABH5QCYHAAbPWRxAc7aYZfD1l0W+qST2Lo/R/RTqZih999o
-1mWrzYeCveSIkiX1X6ncxc+tUTeW6pzQJEebV2kY1BGsJ4dqI0YxzwU5dusctXrWx9DW5bhT
-5xQWK1v9JNvJUVordZ44u2CrT4Q9ZAAcWwFgcgAwOQCYHABMDgAmBwCTA4DJAagpOd5SR3J8
-pYbkJIra95hIJ9HJ9HAb3xF6dDY57bcziT26sk/WdTuYHEwOJqfdbmwl57V6HjXIaR+j6X+6
-RzkopxCUA4ByAFAOAMoBQDkAKAcA5QCgHACUA4ByAP4PEPjyFx6Cy2AAAAAASUVORK5CYII=
-
-*/
-
-
 /*!
-  Constructs a dynamic What's This? object for \a widget. The object
+  Constructs a dynamic "What's this?" object for \a widget. The object
   is deleted when the passed widget is destroyed.
 
   When the widget is queried by the user the text() function of
@@ -939,8 +867,8 @@ QWhatsThis::~QWhatsThis()
 
 /*!
   This virtual function returns the text for position \e p in the
-  widget that this What's This? object documents.  If there is no
-  What's This? text for a position, QString::null is returned.
+  widget that this "What's this?" object documents.  If there is no
+  "What's this?" text for a position, QString::null is returned.
 
   The default implementation returns QString::null.
 */
@@ -952,10 +880,10 @@ QString QWhatsThis::text( const QPoint & )
 /*!  \fn bool QWhatsThis::clicked( const QString& href )
 
   This virtual function is called when the user clicks inside the
-  What's This? window. \a href is the link the user clicked on, or
+  "What's this?" window. \a href is the link the user clicked on, or
   QString::null if there was no link.
 
-  If the function returns TRUE (the default), the What's This? window
+  If the function returns TRUE (the default), the "What's this?" window
   is closed, otherwise it remains visible.
 
   The default implementation ignores \a href and returns TRUE.
@@ -968,15 +896,15 @@ bool QWhatsThis::clicked( const QString& )
 
 
 /*!
-  Enters What's This? mode and returns immediately.
+  Enters "What's this?" mode and returns immediately.
 
   Qt will install a special cursor and take over mouse input
   until the user clicks somewhere. It then shows any help available and
-  switches out of What's This? mode.  Finally, Qt
+  switches out of "What's this?" mode.  Finally, Qt
   removes the special cursor and help window and then restores ordinary event
   processing, at which point the left mouse button is not pressed.
 
-  The user can also use the Escape key to leave What's This? mode.
+  The user can also use the Escape key to leave "What's this?" mode.
 
 \sa inWhatsThisMode(), leaveWhatsThisMode()
 */
@@ -996,7 +924,7 @@ void QWhatsThis::enterWhatsThisMode()
 
 
 /*!
-  Returns whether the application is in What's This? mode.
+  Returns whether the application is in "What's this?" mode.
 
   \sa enterWhatsThisMode(), leaveWhatsThisMode()
  */
@@ -1009,15 +937,15 @@ bool QWhatsThis::inWhatsThisMode()
 
 
 /*!
-  Leaves What's This? question mode.
+  Leaves "What's this?" question mode.
 
   This function is used internally by widgets that support
   QWidget::customWhatsThis(); applications do not usually call
   it.  An example of this widget is QPopupMenu: menus still
-  work normally in What's This? mode but provide help texts for single
+  work normally in "What's this?" mode but provide help texts for single
   menu items instead.
 
-  If \a text is not a null string, a What's This? help window is
+  If \a text is not a null string, a "What's this?" help window is
   displayed at the global screen position \a pos.  If widget \a w is
   not NULL and has its own dedicated QWhatsThis object, this object
   will receive clicked() messages when the user clicks on hyperlinks

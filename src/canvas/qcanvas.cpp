@@ -3324,7 +3324,7 @@ void QCanvasView::setCanvas(QCanvas* canvas)
 /*!
   Returns a reference to the canvas view's current transformation matrix.
 
-  \sa setWorldMatrix() inverseWordMatrix()
+  \sa setWorldMatrix() inverseWorldMatrix()
 */
 const QWMatrix &QCanvasView::worldMatrix() const
 {
@@ -3353,7 +3353,7 @@ const QWMatrix &QCanvasView::inverseWorldMatrix() const
 
   Returns FALSE in case \a wm is not invertable; otherwise returns TRUE.
 
-  \sa worldMatrix() inverseWorldMatrix() QWMatrix::invertible()
+  \sa worldMatrix() inverseWorldMatrix() QWMatrix::isInvertible()
 */
 bool QCanvasView::setWorldMatrix( const QWMatrix & wm )
 {
@@ -4339,8 +4339,7 @@ void QCanvasRectangle::drawShape(QPainter & p)
   setSize(), and the angles can be changed (if you're displaying an
   ellipse segment rather than a whole ellipse) with setAngles().
 
-    Note that angles are specified in
-    <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.
+    Note that angles are specified in 16ths of a degree.
 
     \target anglediagram
     <center><img src="qcanvasellipse.png" width="300" height="200" alt="Ellipse"></center>
@@ -4355,48 +4354,12 @@ void QCanvasRectangle::drawShape(QPainter & p)
 
   The ellipse can be drawn on a painter with drawShape().
 
-  Like any other canvas item ellipses can be moved with
-  QCanvasItem::move() and QCanvasItem::moveBy(), or by setting coordinates
-  with QCanvasItem::setX(), QCanvasItem::setY() and QCanvasItem::setZ().
-*/
-/*! \base64 qcanvasellipse.png
-
-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
-
+  Like any other canvas item ellipses can be moved with move() and
+  moveBy(), or by setting coordinates with setX(), setY() and setZ().
 */
 
 /*!
-  Constructs a 32x32 ellipse, centered at (0,0) on \a canvas.
+  Constructs a 32x32 ellipse, centered at (0, 0) on \a canvas.
 */
 QCanvasEllipse::QCanvasEllipse(QCanvas* canvas) :
     QCanvasPolygonalItem(canvas),
@@ -4475,8 +4438,7 @@ void QCanvasEllipse::setSize(int width, int height)
 /*!
   \fn int QCanvasEllipse::angleStart() const
 
-  Returns the start angle in
-  <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.  Initially
+  Returns the start angle in 16ths of a degree.  Initially
   this will be 0.
 
   \sa setAngles(), angleLength()
@@ -4486,8 +4448,8 @@ void QCanvasEllipse::setSize(int width, int height)
   \fn int QCanvasEllipse::angleLength() const
 
   Returns the length angle (the extent of the ellipse segment) in
-  <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.  Initially
-  this will be 360*16 -- ie. a complete ellipse.
+  16ths of a degree.  Initially this will be 360 * 16 (a complete
+  ellipse).
 
   \sa setAngles(), angleStart()
 */
@@ -4495,10 +4457,9 @@ void QCanvasEllipse::setSize(int width, int height)
 /*!
   Sets the angles for the ellipse. The start angle is \a start and the
   extent of the segment is \a length (the angle length) from the \a
-  start. The angles are specified in
-  <small><sup>1</sup>/<sub>16</sub></small>ths of a degree. By default
-  the ellipse will start at 0 and have an angle length of 360*16 -- ie.
-  a complete ellipse.
+  start. The angles are specified in 16ths of a degree. By default
+  the ellipse will start at 0 and have an angle length of 360 * 16
+  (a complete ellipse).
 
   \sa angleStart(), angleLength()
 */
