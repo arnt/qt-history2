@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#83 $
 **
 ** Definition of QIconView widget class
 **
@@ -3384,13 +3384,19 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 	    while ( TRUE ) {
 		int r = calcGridNum( item->width(), d->rastX );
 		if ( item == begin ) {
-		    item->move( d->spacing + ( r * d->rastX - item->width() ) / 2, y + h - item->height() );
+		    if ( d->itemTextPos == Bottom )
+			item->move( d->spacing + ( r * d->rastX - item->width() ) / 2, y + h - item->height() );
+		    else
+			item->move( d->spacing, y + h - item->height() );
 		    i += r;
 		    sp += r;
 		} else {
 		    sp += r;
 		    int x = i * d->rastX + sp * d->spacing;
-		    item->move( x + ( r * d->rastX - item->width() ) / 2, y + h - item->height() );
+		    if ( d->itemTextPos == Bottom )
+			item->move( x + ( r * d->rastX - item->width() ) / 2, y + h - item->height() );
+		    else
+			item->move( x, y + h - item->height() );
 		    i += r;
 		}
 		if ( item == end )
