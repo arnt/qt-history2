@@ -1391,10 +1391,12 @@ void MainWindow::fileNew()
 	}
     }
 
+#if 0
     if ( formWindow()->project() != emptyProject() ) {
 	formWindow()->setSavePixmapInProject( TRUE );
 	formWindow()->setSavePixmapInline( FALSE );
     }
+#endif
 
     statusBar()->clear();
 }
