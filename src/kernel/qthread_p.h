@@ -117,6 +117,7 @@ public:
 	int ret = pthread_mutex_init( &mutex, &attr );
 	pthread_mutexattr_destroy(&attr);
 #else // !Q_SET_MUTEX_TYPE
+	Q_UNUSED( recursive );
 	int ret = pthread_mutex_init( &mutex, 0 );
 #endif // Q_SET_MUTEX_TYPE
 
