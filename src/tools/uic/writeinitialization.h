@@ -116,6 +116,9 @@ private:
 
     bool m_externPixmap;
     QString m_generatedClass;
+
+    QString m_delayedInitialization;
+    QTextStream refreshOut;
 };
 
 

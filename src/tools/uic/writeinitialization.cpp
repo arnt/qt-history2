@@ -22,7 +22,8 @@
 
 WriteInitialization::WriteInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option()),
-      m_defaultMargin(0), m_defaultSpacing(0), m_externPixmap(true)
+      m_defaultMargin(0), m_defaultSpacing(0), m_externPixmap(true),
+      refreshOut(&m_delayedInitialization, IO_WriteOnly)
 {
     this->uic = uic;
 }
@@ -93,10 +94,17 @@ void WriteInitialization::accept(DomUI *node)
     if (node->elementTabStops())
         accept(node->elementTabStops());
 
+    output << option.indent << "refreshUi(" << varName << ");\n";
+
     if (option.autoConnection)
         output << "\n" << option.indent << "QMetaObject::connectSlotsByName(" << varName << ");\n";
 
     output << "}\n\n";
+
+    output << "inline void " << className << "::refreshUi(" << widgetClassName << " *" << varName << ")\n"
+           << "{\n"
+           << m_delayedInitialization
+           << "}\n\n";
 
     m_layoutChain.pop();
     m_widgetChain.pop();
@@ -614,10 +622,11 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
         }
 
         if (propertyValue.size()) {
-            output << option.indent << varName << setFunction << propertyValue;
+            QTextStream *o = (p->kind() == DomProperty::String) ? &refreshOut : &output;
+            (*o) << option.indent << varName << setFunction << propertyValue;
             if (!stdset)
-                output << ")";
-            output << ");\n";
+                (*o) << ")";
+            (*o) << ");\n";
         }
     }
 }
@@ -705,6 +714,8 @@ void WriteInitialization::initializeListBox(DomWidget *w)
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
 
+    refreshOut << option.indent << varName << "->clear();\n";
+
     QList<DomItem*> items = w->elementItem();
     for (int i=0; i<items.size(); ++i) {
         DomItem *item = items.at(i);
@@ -715,14 +726,14 @@ void WriteInitialization::initializeListBox(DomWidget *w)
         if (!(text || pixmap))
             continue;
 
-        output << option.indent << varName << "->insertItem(";
+        refreshOut << option.indent << varName << "->insertItem(";
         if (pixmap) {
-            output << pixCall(pixmap->elementPixmap());
+            refreshOut << pixCall(pixmap->elementPixmap());
 
             if (text)
                 output << ", ";
         }
-        output << trCall(text->elementString(), className) << ");\n";
+        refreshOut << trCall(text->elementString(), className) << ");\n";
     }
 }
 
@@ -730,6 +741,8 @@ void WriteInitialization::initializeIconView(DomWidget *w)
 {
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
+
+    refreshOut << option.indent << varName << "->clear();\n";
 
     QList<DomItem*> items = w->elementItem();
     for (int i=0; i<items.size(); ++i) {
@@ -742,15 +755,15 @@ void WriteInitialization::initializeIconView(DomWidget *w)
             continue;
 
         QString itemName = driver->unique("__item");
-        output << "\n";
-        output << option.indent << "QIconViewItem *" << itemName << " = new QIconViewItem(" << varName << ");\n";
+        refreshOut << "\n";
+        refreshOut << option.indent << "QIconViewItem *" << itemName << " = new QIconViewItem(" << varName << ");\n";
 
         if (pixmap) {
-            output << option.indent << itemName << "->setPixmap(" << pixCall(pixmap->elementPixmap()) << ");\n";
+            refreshOut << option.indent << itemName << "->setPixmap(" << pixCall(pixmap->elementPixmap()) << ");\n";
         }
 
         if (text) {
-            output << option.indent << itemName << "->setText(" << trCall(text->elementString(), className) << ");\n";
+            refreshOut << option.indent << itemName << "->setText(" << trCall(text->elementString(), className) << ");\n";
         }
     }
 }
@@ -759,6 +772,8 @@ void WriteInitialization::initializeListView(DomWidget *w)
 {
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
+
+    refreshOut << option.indent << varName << "->clear();\n";
 
     // columns
     QList<DomColumn*> columns = w->elementColumn();
@@ -773,6 +788,7 @@ void WriteInitialization::initializeListView(DomWidget *w)
 
         QString txt = trCall(text->elementString(), className);
         output << option.indent << varName << "->addColumn(" << txt << ");\n";
+        refreshOut << option.indent << varName << "->header()->setLabel(" << i << ", " << txt << ");\n";
 
         if (pixmap) {
             output << option.indent << varName << "->header()->setLabel("
@@ -798,24 +814,24 @@ void WriteInitialization::initializeListViewItems(const QString &className, cons
         DomItem *item = items.at(i);
 
         QString itemName = driver->unique("__item");
-        output << "\n";
-        output << option.indent << "Q3ListViewItem *" << itemName << " = new Q3ListViewItem(" << varName << ");\n";
+        refreshOut << "\n";
+        refreshOut << option.indent << "Q3ListViewItem *" << itemName << " = new Q3ListViewItem(" << varName << ");\n";
 
         int textCount = 0, pixCount = 0;
         QList<DomProperty*> properties = item->elementProperty();
         for (int i=0; i<properties.size(); ++i) {
             DomProperty *p = properties.at(i);
             if (p->attributeName() == QLatin1String("text"))
-                output << option.indent << itemName << "->setText(" << textCount++ << ", "
-                       << trCall(p->elementString(), className) << ");\n";
+                refreshOut << option.indent << itemName << "->setText(" << textCount++ << ", "
+                           << trCall(p->elementString(), className) << ");\n";
 
             if (p->attributeName() == QLatin1String("pixmap"))
-                output << option.indent << itemName << "->setPixmap(" << pixCount++ << ", "
-                       << pixCall(p->elementPixmap()) << ");\n";
+                refreshOut << option.indent << itemName << "->setPixmap(" << pixCount++ << ", "
+                           << pixCall(p->elementPixmap()) << ");\n";
         }
 
         if (item->elementItem().size()) {
-            output << option.indent << itemName << "->setOpen(true);\n";
+            refreshOut << option.indent << itemName << "->setOpen(true);\n";
             initializeListViewItems(className, itemName, item->elementItem());
         }
     }
@@ -837,16 +853,16 @@ void WriteInitialization::initializeTable(DomWidget *w)
         DomProperty *text = properties.value("text");
         DomProperty *pixmap = properties.value("pixmap");
 
-        output << option.indent << varName << "->horizontalHeader()->setLabel(" << i << ", ";
+        refreshOut << option.indent << varName << "->horizontalHeader()->setLabel(" << i << ", ";
         if (pixmap) {
-            output << pixCall(pixmap->elementPixmap()) << ", ";
+            refreshOut << pixCall(pixmap->elementPixmap()) << ", ";
         }
-        output << trCall(text->elementString(), className) << ");\n";
+        refreshOut << trCall(text->elementString(), className) << ");\n";
     }
 
     // rows
     QList<DomRow*> rows = w->elementRow();
-    output << option.indent << varName << "->setNumRows(" << rows.size() << ");\n";
+    refreshOut << option.indent << varName << "->setNumRows(" << rows.size() << ");\n";
 
     for (int i=0; i<rows.size(); ++i) {
         DomRow *row = rows.at(i);
@@ -855,11 +871,11 @@ void WriteInitialization::initializeTable(DomWidget *w)
         DomProperty *text = properties.value("text");
         DomProperty *pixmap = properties.value("pixmap");
 
-        output << option.indent << varName << "->verticalHeader()->setLabel(" << i << ", ";
+        refreshOut << option.indent << varName << "->verticalHeader()->setLabel(" << i << ", ";
         if (pixmap) {
-            output << pixCall(pixmap->elementPixmap()) << ", ";
+            refreshOut << pixCall(pixmap->elementPixmap()) << ", ";
         }
-        output << trCall(text->elementString(), className) << ");\n";
+        refreshOut << trCall(text->elementString(), className) << ");\n";
     }
 
 

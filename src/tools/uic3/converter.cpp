@@ -266,7 +266,6 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
 QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties)
 {
     QString name;
-    DomProperty *textProperty = 0;
     QString text;
 
     QListMutableIterator<DomProperty*> it(properties);

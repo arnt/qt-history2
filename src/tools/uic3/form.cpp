@@ -404,17 +404,25 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         out << endl;
     }
 
-    out << "protected:" << endl;
     if (!protectedVars.isEmpty()) {
+        out << "protected:" << endl;
         for (it = protectedVars.begin(); it != protectedVars.end(); ++it)
             out << indent << *it << endl;
         out << endl;
     }
-    if (!protectedFuncts.isEmpty())
+
+    if (!protectedFuncts.isEmpty()) {
+        if (protectedVars.isEmpty())
+            out << "protected:" << endl;
+
         writeFunctionsDecl(protectedFuncts, protectedFunctRetTyp, protectedFunctSpec);
+    }
+
+    out << "protected slots:" << endl;
+    out << "    virtual void languageChange();" << endl;
 
     if (!protectedSlots.isEmpty()) {
-        out << "protected slots:" << endl;
+        out << endl;
         writeFunctionsDecl(protectedSlots, protectedSlotTypes, protectedSlotSpecifier);
     }
     out << endl;
@@ -776,6 +784,16 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         if (needFontEventHandler && needSqlTableEventHandler && needSqlDataBrowserEventHandler)
             break;
     }
+
+    out << "/*" << endl;
+    out << " *  Sets the strings of the subwidgets using the current" << endl;
+    out << " *  language." << endl;
+    out << " */" << endl;
+    out << "void " << nameOfClass << "::languageChange()" << endl;
+    out << "{" << endl;
+    out << "    refreshUi(this);" << endl;
+    out << "}" << endl;
+    out << endl;
 
     // create stubs for additional slots if necessary
     if (!extraFuncts.isEmpty() && writeFunctImpl) {
