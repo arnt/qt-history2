@@ -14,7 +14,7 @@ bool CppEditorCompletion::doObjectCompletion( const QString &object )
     if ( !ths )
 	return FALSE;
     QObject *obj = 0;
-    if ( ths->name() == object ) {
+    if ( ths->name() == object || object == "this" ) {
 	obj = ths;
     } else {
 	obj = ths->child( object );
@@ -43,8 +43,10 @@ bool CppEditorCompletion::doObjectCompletion( const QString &object )
 	    lst << f;
     }
 
-    for ( QObjectListIt cit( *obj->children() ); cit.current(); ++cit )
-	lst << cit.current()->name();
+    if ( obj->children() ) {
+	for ( QObjectListIt cit( *obj->children() ); cit.current(); ++cit )
+	    lst << cit.current()->name();
+    }
     lst = lst.grep( QRegExp( "[^unnamed]" ) ); // filter out unnamed objects
     if ( lst.isEmpty() )
 	return FALSE;
@@ -113,7 +115,7 @@ QStringList CppEditorCompletion::functionParameters( const QString &expr, QChar 
     }
 
     QObject *obj = 0;
-    if ( ths->name() == objName ) {
+    if ( ths->name() == objName || objName == "this" ) {
 	obj = ths;
     } else {
 	obj = ths->child( objName );

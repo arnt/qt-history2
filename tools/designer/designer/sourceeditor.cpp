@@ -44,7 +44,7 @@ void SourceEditor::setForm( FormWindow *fw )
     setCaption( tr( "Edit %1" ).arg( formWindow->name() ) );
     iFace->setText( sourceOfForm( formWindow, lang, iFace, lIface ) );
     if ( fw->project() )
-	iFace->setContext( fw->project()->formList(), fw );
+	iFace->setContext( fw->project()->formList(), fw ->mainContainer() );
 }
 
 QString SourceEditor::sourceOfForm( FormWindow *fw, const QString &lang, EditorInterface *, LanguageInterface *lIface )
