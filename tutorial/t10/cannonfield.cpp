@@ -46,6 +46,7 @@ void CannonField::paintEvent(QPaintEvent * /* event */)
 
     painter.setPen(Qt::NoPen);
     painter.setBrush(Qt::blue);
+
     painter.translate(0, height());
     painter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
     painter.rotate(-ang);
