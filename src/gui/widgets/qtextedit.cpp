@@ -480,10 +480,12 @@ void QTextEditPrivate::startDrag()
 {
     mousePressed = false;
     QRichTextDrag *drag = new QRichTextDrag(cursor, viewport);
-    if (readOnly)
+    if (readOnly) {
         drag->dragCopy();
-    else
-        drag->drag();
+    } else {
+        if (drag->drag() && QDragObject::target() != q && QDragObject::target() != viewport)
+            cursor.removeSelectedText();
+    }
 }
 
 void QTextEditPrivate::paste(const QMimeSource *source)
@@ -1394,10 +1396,14 @@ void QTextEdit::dragMoveEvent(QDragMoveEvent *ev)
 
 void QTextEdit::dropEvent(QDropEvent *ev)
 {
-    if (d->readOnly || !QRichTextDrag::canDecode(ev)) {
+    if (d->readOnly || !QRichTextDrag::canDecode(ev))
         return;
-    }
+
     ev->acceptAction();
+
+    if (ev->action() == QDropEvent::Move 
+        && (ev->source() == this || ev->source() == d->viewport))
+        d->cursor.removeSelectedText();
 
     d->setCursorPosition(d->translateCoordinates(ev->pos()));
     d->paste(ev);
