@@ -173,8 +173,8 @@ how to programmatically link your database to the user interface. In
 this section we introduce the \l QSqlTable, \l QSqlForm, and \l
 QSqlPropertyMap classes and demonstrate how to use custom data-aware
 widgets. <em>Qt Designer</em> provides an easy visual way of achieving
-the same thing.  See the <em>Qt Designer</em> manual for more
-information.
+the same thing.  See the <em>Qt Designer</em> manual, \l QSqlDialog and
+\l QSqlWidget for more information.
 
 <a href="#Subclassing_QSqlCursor">Subclassing QSqlCursor</a>. This
 section gives examples of subclassing QSqlCursor. Subclassing can be
