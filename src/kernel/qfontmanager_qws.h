@@ -162,6 +162,26 @@ public:
     QDiskFontPrivate * p;
 };
 
+class QCachePolicy {
+
+public:
+
+    virtual void cache(QRenderedFont *)=0;
+    virtual void uncache(QRenderedFont *)=0;
+
+};
+
+// Exposed here so the default policy can be reset
+
+class QDefaultCachePolicy : public QCachePolicy {
+
+public:
+
+    virtual void cache(QRenderedFont *);
+    virtual void uncache(QRenderedFont *);
+
+};
+
 class QFontManager {
 
 public:
@@ -181,6 +201,16 @@ public:
 
     static void initialize();
     static void cleanup();
+
+    void setPolicy(QCachePolicy *);
+
+    void cache(QRenderedFont * f) { policy->cache(f); }
+    void uncache(QRenderedFont * f) { policy->uncache(f); }
+
+private:
+
+    QCachePolicy * policy;
+
 };
 
 class QFontFactory {

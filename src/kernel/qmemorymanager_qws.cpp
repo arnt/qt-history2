@@ -555,6 +555,7 @@ public:
 	if ( tree ) {
 	    if ( renderer ) {
 		tree->clear();
+		qt_fontmanager->uncache(renderer);
 	    }
 	    delete tree;
 	}
@@ -878,6 +879,9 @@ QMemoryManager::FontID QMemoryManager::refFont(const QFontDef& font)
 void QMemoryManager::derefFont(FontID id)
 {
     QMemoryManagerFont* font = (QMemoryManagerFont*)id;
+    if ( font->renderer ) {
+        font->renderer->deref();
+    } 
     if ( font->deref() ) {
 	QString key = fontKey(font->def);
 	font_map.remove(key);

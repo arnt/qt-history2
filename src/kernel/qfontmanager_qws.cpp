@@ -198,8 +198,8 @@ information in the file. It also constructs any defined font factories.
 QFontManager::QFontManager()
 {
     factories.setAutoDelete(true);
-    //######## memory leak instead of segfault:
-    //diskfonts.setAutoDelete(true);
+    diskfonts.setAutoDelete(true);
+    cachedfonts.setAutoDelete(true);
 
 #ifndef QT_NO_FREETYPE
     factories.append(new QFontFactoryFT());
@@ -250,6 +250,7 @@ QFontManager::QFontManager()
 	fgets(buf,200,fontdef);
     }
     fclose(fontdef);
+    policy = new QDefaultCachePolicy();
 }
 
 /*!
@@ -259,6 +260,8 @@ Destroys the QFontManager and sets qt_fontmanager to 0.
 
 QFontManager::~QFontManager()
 {
+    delete policy;
+
     if ( qt_fontmanager == this )
 	qt_fontmanager = 0;
 }
@@ -309,13 +312,34 @@ QDiskFont * QFontManager::get(const QFontDef & f)
     return bestmatch;
 }
 
+void QFontManager::setPolicy(QCachePolicy * p)
+{
+    delete policy;
+    policy=p;
+}
+
+void QDefaultCachePolicy::cache(QRenderedFont * f)
+{
+    if( !qt_fontmanager->cachedfonts.findRef( f ) ) {
+        qt_fontmanager->cachedfonts.append(f);
+    } 
+}
+
+void QDefaultCachePolicy::uncache(QRenderedFont * f)
+{
+    qt_fontmanager->cachedfonts.removeRef( f );
+    delete f;
+}
+
 /*!
   Loads the disk font, \a f as a rendered font.
 */
 QRenderedFont* QDiskFont::load(const QFontDef & f)
 {
     factory->load(this);
-    return factory->get(f,this);
+    QRenderedFont * ret=factory->get(f,this);
+    qt_fontmanager->cache(ret);
+    return ret;
 }
 
 /*!
