@@ -11,7 +11,6 @@
 QSqlConnection::QSqlConnection( QObject* parent, const char* name )
     : QObject( parent, name ), dbDict( 1 )
 {
-    dbDict.setAutoDelete( TRUE );
 }
 
 /*!
@@ -90,11 +89,9 @@ QSqlDatabase* QSqlConnection::addDatabase( const QString& type,
 						  const QString & host,
 						  const QString & name )
 {
-    QSqlDatabase* database = new QSqlDatabase( type, db, user, password, host );
-    QSqlConnection* sqlConnection = instance();
-    qDebug("adding database:" + type + " " + db + " " + user + " " + password + " " + host );
+    QSqlConnection* sqlConnection = instance();    
+    QSqlDatabase* database = new QSqlDatabase( type, db, user, password, host, sqlConnection, name.local8Bit().data() );
     sqlConnection->dbDict.insert( name, database );
-    qDebug("database added");
     return database;
 }
 
@@ -109,9 +106,10 @@ QSqlDatabase* QSqlConnection::addDatabase( const QString& type,
 void QSqlConnection::removeDatabase( const QString& name )
 {
     QSqlConnection* sqlConnection = instance();
+    sqlConnection->dbDict.setAutoDelete( TRUE );    
     sqlConnection->dbDict.remove( name );
+    sqlConnection->dbDict.setAutoDelete( FALSE );    
 }
-
 
 /*!
   Deletes all open database connections and frees all connection resources.
