@@ -1076,7 +1076,7 @@ echo
 if [ '!' -f "$outpath/bin/qmake" ]
 then
     echo Creating qmake...
-    [ -e $outpath/qmake/GNUmakefile ] && chmod 666 $outpath/qmake/GNUmakefile
+    [ -f $outpath/qmake/GNUmakefile ] && chmod 666 $outpath/qmake/GNUmakefile
     sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" $relpath/qmake/GNUmakefile.in >$outpath/qmake/GNUmakefile
     (cd $outpath/qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
