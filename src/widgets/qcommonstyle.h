@@ -86,6 +86,10 @@ public:
     // popups
     int popupSubmenuIndicatorWidth( const QFontMetrics& fm  );
 
+    void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+				    QMenuItem* mi, QColorGroup& g,
+				    bool enabled );
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QCommonStyle( const QCommonStyle & );

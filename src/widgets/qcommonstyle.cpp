@@ -294,7 +294,13 @@ int QCommonStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  )
     return fm.ascent() + motifArrowHMargin;
 }
 
-
+void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
+				    QMenuItem* mi, QColorGroup& g,
+				    bool enabled )
+{
+    drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine, 
+	    g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
+}
 
 // doesn't really belong here... fix 3.0
 QRect QStyle::pushButtonContentsRect( QPushButton* btn )
@@ -344,6 +350,7 @@ void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
     drawToolButton( p, x, y, w, h, g, sunken, &fill );
 #endif
 }
+
 //### remove in Version 3.0
 void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,

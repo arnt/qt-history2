@@ -1063,13 +1063,6 @@ void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, in
     }
 }
 
-void QMotifStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h, 
-				  QMenuItem* mi, QColorGroup& g, bool enabled )
-{
-    drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine, 
-	    g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
-}
-
 static int get_combo_extra_width( int h, int *return_awh=0 )
 {
     int awh;
