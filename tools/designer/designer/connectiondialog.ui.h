@@ -261,7 +261,6 @@ void ConnectionDialog::deleteClicked()
 void ConnectionDialog::editSlots()
 {
     EditFunctions dlg( this, MainWindow::self->formWindow(), TRUE );
-    dlg.functionAdd( QString::null, "slot" );
     dlg.exec();
     int currentCol = connectionsTable->currentColumn();
     connectionsTable->setCurrentCell( connectionsTable->currentRow(), 0 );
