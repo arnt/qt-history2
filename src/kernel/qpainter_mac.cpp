@@ -699,11 +699,10 @@ void QPainter::drawPoint( int x, int y )
         map( x, y, &x, &y );
     }
 
-    // FIXME: This is a bit silly
     initPaintDevice();
     updatePen();
-    MoveTo(x+offx,y+offy);
-    LineTo(x+offx,y+offy);
+    ::RGBColor r = { 0, 0, 0 };
+    SetCPixel(x+offx,y+offy,&r);
 }
 
 
