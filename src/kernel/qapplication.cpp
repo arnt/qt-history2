@@ -2972,15 +2972,9 @@ int QApplication::enter_loop()
     if ( !loop_level ) {
 	quit_now = FALSE;
 	emit aboutToQuit();
-	//### qt-bugs/arc-09/18433
-//	QWidgetList *list = topLevelWidgets();
-//	QWidgetListIt it(*list);
-//	QWidget * w;
-//	while( (w=it.current()) != 0 ) {
-//	    ++it;
-//	    if ( w->testWFlags( WDestructiveClose ) )
-//		delete w;
-//	}
+
+	// send deferred deletes
+	sendPostedEvents( 0, QEvent::DeferredDelete );
     }
 
     return 0;
