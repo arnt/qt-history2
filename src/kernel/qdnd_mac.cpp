@@ -613,7 +613,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler(DragTrackingMessage theMessage,
 		macDndExtra->acceptact = de.isActionAccepted();
 		acceptfmt = macDndExtra->acceptfmt;
 		acceptact = macDndExtra->acceptact;
-		if(de.isAccepted())
+		if(1 || de.isAccepted())
 		    current_drag_widget = widget;
 	    }
 	}
