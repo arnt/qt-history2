@@ -2,7 +2,7 @@
 ** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
 **
 ** Implementation of QGfxvfb (virtual frame buffer driver)
-** 
+**
 ** Created : 940721
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
@@ -115,7 +115,7 @@ public:
 
 template <const int depth, const int type>
 QGfxVFb<depth,type>::QGfxVFb(unsigned char *b,int w,int h)
-    : QGfxRaster( b, w, h )
+    : QGfxRaster<depth,type>( b, w, h )
 {
 }
 
@@ -236,7 +236,7 @@ QVFbScreen::~QVFbScreen()
 bool QVFbScreen::connect()
 {
     key_t key = ftok( QT_VFB_MOUSE_PIPE, 'b' );
-     
+
     int shmId = shmget( key, 0, 0 );
     if ( shmId != -1 )
 	shmrgn = (unsigned char *)shmat( shmId, 0, 0 );
