@@ -885,14 +885,15 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
     td->cellPadding = fmt.cellPadding();
     const qreal margin = td->margin + td->border + td->padding;
 
-    qreal initialTotalWidth = fmt.width().value(td->contentsWidth);
-    qreal totalWidth = initialTotalWidth;
+    qreal totalWidth = fmt.width().value(td->contentsWidth);
     // two (vertical) borders per cell per column
     totalWidth -= columns * 2 * td->border;
     // inter-cell spacing
     totalWidth -= (columns - 1) * cellSpacing;
     // cell spacing at the left and right hand side
     totalWidth -= 2 * cellSpacing;
+    // remember the width used to distribute to percentaged columns
+    qreal initialTotalWidth = totalWidth;
 
     td->widths.resize(columns);
     td->widths.fill(0);
