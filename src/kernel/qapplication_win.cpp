@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#411 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#412 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -55,6 +55,8 @@
 #endif
 
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* ); // qapplication.cpp
+
+static int WM95_MOUSEWHEEL = 0;
 
 /*
   Internal functions.
@@ -619,6 +621,12 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     if ( QApplication::desktopSettingsAware() )
 	qt_set_windows_resources();
 
+#if defined(UNICODE)
+    if ( qt_winver & Qt::WV_NT_based )
+	WM95_MOUSEWHEEL = RegisterWindowMessage(L"MSWHEEL_ROLLMSG");
+    else
+#endif
+	WM95_MOUSEWHEEL = RegisterWindowMessageA("MSWHEEL_ROLLMSG");
 }
 
 /*****************************************************************************
@@ -1533,6 +1541,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		}
 	    }
 	    widget->translateMouseEvent( msg );	// mouse event
+	} else if ( message == WM95_MOUSEWHEEL ) { 
+	    result = widget->translateWheelEvent( msg ); // win95 mousewheel support
 	} else
 	    switch ( message ) {
 	    case WM_KEYDOWN:			// keyboard event
@@ -2798,7 +2808,12 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     if ( GetKeyState(VK_MENU) < 0 )
 	state |= QMouseEvent::AltButton;
 
-    int delta =	(short) HIWORD ( msg.wParam );
+    int delta;
+    if ( msg.message == WM_MOUSEWHEEL )
+        delta = (short) HIWORD ( msg.wParam );
+    else
+	delta = (int) msg.wParam;
+
     QPoint globalPos;
 
     globalPos.rx() = LOWORD ( msg.lParam );
