@@ -64,6 +64,9 @@ public:
     int aInt;
 };
 
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+static bool inMenu = FALSE;
+#endif
 
 /*!
   \class QMenuBar qmenubar.h
@@ -550,6 +553,13 @@ void QMenuBar::goodbye( bool cancelled )
 
 void QMenuBar::openActPopup()
 {
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    if ( !inMenu ) {
+	emit accessibilityChanged( QAccessible::MenuStart );
+	inMenu = TRUE;
+    }
+#endif
+    
     if ( actItem < 0 )
 	return;
     QPopupMenu *popup = mitems->at(actItem)->popup();
@@ -601,14 +611,22 @@ void QMenuBar::openActPopup()
 
 void QMenuBar::hidePopups()
 {
+    bool anyVisible = FALSE;
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
 	++it;
-	if ( mi->popup() ) {
+	if ( mi->popup() && mi->popup()->isVisible() ) {
+	    anyVisible = TRUE;
 	    mi->popup()->hide();
 	}
     }
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    if ( !popupvisible && anyVisible && inMenu ) {
+	emit accessibilityChanged( QAccessible::MenuEnd );
+	inMenu = FALSE;
+    }
+#endif
 }
 
 
@@ -1195,6 +1213,16 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 
 void QMenuBar::setAltMode( bool enable )
 {
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    if ( inMenu && !enable ) {
+	emit accessibilityChanged( QAccessible::MenuEnd );
+	inMenu = FALSE;
+    } else if ( !inMenu && enable ) {
+	emit accessibilityChanged( QAccessible::MenuStart );
+	inMenu = TRUE;
+    }
+#endif
+
     waitforalt = 0;
     actItemDown = FALSE;
     if ( enable ) {

@@ -1073,15 +1073,15 @@ void QPopupMenu::hide()
 
     actItem = popupActive = -1;
     mouseBtDn = FALSE;				// mouse button up
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    emit accessibilityChanged( QAccessible::PopupMenuEnd );
+#endif
     hidePopups();
     QWidget::hide();
     if ( syncMenu == this && qApp ) {
 	qApp->exit_loop();
 	syncMenu = 0;
     }
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    emit accessibilityChanged( QAccessible::PopupMenuEnd );
-#endif
 }
 
 
