@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#100 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#100 $");
 
 
 static const int fontFields = 14;
@@ -1011,7 +1011,8 @@ int QFontMetrics::leftBearing(char ch) const
     XFontStruct *f = FS;
     if ( !inFont(ch) )
 	ch = f->default_char;
-    XCharStruct* cs = f->per_char + (ch - f->min_char_or_byte2);
+    XCharStruct* cs = f->per_char ? f->per_char + (ch - f->min_char_or_byte2)
+			: &f->max_bounds;
     return printerAdjusted(cs->lbearing);
 }
 
@@ -1032,7 +1033,8 @@ int QFontMetrics::rightBearing(char ch) const
     XFontStruct *f = FS;
     if ( !inFont(ch) )
 	ch = f->default_char;
-    XCharStruct* cs = f->per_char + (ch - f->min_char_or_byte2);
+    XCharStruct* cs = f->per_char ? f->per_char + (ch - f->min_char_or_byte2)
+			: &f->max_bounds;
     return printerAdjusted(cs->width - cs->rbearing);
 }
 
@@ -1065,15 +1067,19 @@ int QFontMetrics::minRightBearing() const
 
     if ( def->rbearing == SHRT_MIN ) {
 	XFontStruct *f = FS;
-	XCharStruct *c = f->per_char;
-	int nc = f->max_char_or_byte2 - f->min_char_or_byte2 + 1;
-	int mx = c->width - c->rbearing;
-	for ( int i=1; i < nc; i++ ) {
-	    int nmx = c[i].width - c[i].rbearing;
-	    if ( nmx < mx )
-		mx = nmx;
+	if ( f->per_char ) {
+	    XCharStruct *c = f->per_char;
+	    int nc = f->max_char_or_byte2 - f->min_char_or_byte2 + 1;
+	    int mx = c->width - c->rbearing;
+	    for ( int i=1; i < nc; i++ ) {
+		int nmx = c[i].width - c[i].rbearing;
+		if ( nmx < mx )
+		    mx = nmx;
+	    }
+	    def->rbearing = mx;
+	} else {
+	    def->rbearing = f->max_bounds.width - f->max_bounds.rbearing;
 	}
-	def->rbearing = mx;
     }
 
     return printerAdjusted(def->rbearing);
@@ -1151,7 +1157,8 @@ int QFontMetrics::width( char ch ) const
     XFontStruct *f = FS;
     if ( !inFont(ch) )
 	ch = f->default_char;
-    XCharStruct* cs = f->per_char + (ch - f->min_char_or_byte2);
+    XCharStruct* cs = f->per_char ? f->per_char + (ch - f->min_char_or_byte2)
+			: &f->max_bounds;
     return printerAdjusted(cs->width);
 }
 
