@@ -52,8 +52,11 @@ int main( int argc, char **argv )
 #if defined(Q_OS_OSF)
     printf("Operating system: Q_OS_OSF\n");
 #endif
-#if defined(Q_OS_QNX)
-    printf("Operating system: Q_OS_QNX\n");
+#if defined(Q_OS_QNX6)
+    printf("Operating system: Q_OS_QNX6\n");
+#endif
+#if defined(Q_OS_QNX4)
+    printf("Operating system: Q_OS_QNX4\n");
 #endif
 #if defined(Q_OS_SCO)
     printf("Operating system: Q_OS_SCO\n");
