@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#133 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#134 $
 **
 ** Implementation of QFileDialog class
 **
@@ -262,7 +262,10 @@ QString QFileDialogPrivate::File::text( int column ) const
 	*tmpString = info.fileName();
 	break;
     case 1:
-	tmpString->sprintf( "%d", info.size() );
+	if ( info.isFile() )
+	    tmpString->sprintf( "%d", info.size() );
+	else
+	    *tmpString = "";
 	break;
     case 2:
 	if ( info.isFile() && info.isSymLink() )
@@ -731,15 +734,6 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
     init();
     cwd.convertToAbs();
     rereadDir();
-    QSize s( files->sizeHint() );
-    s = QSize( s.width() + 50, s.height() + 80 );
-    if ( s.width() * 3 > QApplication::desktop()->width() * 2 )
-	s.setWidth( QApplication::desktop()->width() * 2 / 3 );
-    if ( s.height() * 3 > QApplication::desktop()->height() * 2 )
-	s.setHeight( QApplication::desktop()->height() * 2 / 3 );
-    else if ( s.height() * 2 < QApplication::desktop()->height() )
-	s.setHeight( QApplication::desktop()->height() / 2 );
-    resize( s );
 }
 
 
@@ -765,15 +759,6 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 
     cwd.convertToAbs();
     rereadDir();
-    QSize s( files->sizeHint() );
-    s = QSize( s.width() + 50, s.height() + 80 );
-    if ( s.width() * 3 > QApplication::desktop()->width() * 2 )
-	s.setWidth( QApplication::desktop()->width() * 2 / 3 );
-    if ( s.height() * 3 > QApplication::desktop()->height() * 2 )
-	s.setHeight( QApplication::desktop()->height() * 2 / 3 );
-    else if ( s.height() * 2 < QApplication::desktop()->height() )
-	s.setHeight( QApplication::desktop()->height() / 2 );
-    resize( s );
 }
 
 
@@ -882,10 +867,10 @@ void QFileDialog::init()
     d->mcView->setToggleButton( TRUE );
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
 
-    d->stack->raiseWidget( files );
-    d->detailView->setOn( TRUE );
+    d->stack->raiseWidget( d->moreFiles );
+    d->mcView->setOn( TRUE );
 
-    d->topLevelLayout = new QVBoxLayout( this, 6 );
+    d->topLevelLayout = new QVBoxLayout( this, 5 );
     d->extraWidgetsLayout = 0;
     d->extraLabel = 0;
     d->extraWidget = 0;
@@ -896,13 +881,14 @@ void QFileDialog::init()
     h = new QHBoxLayout( 0 );
     d->topLevelLayout->addLayout( h );
     h->addWidget( d->pathL );
-    h->addSpacing( 6 );
+    h->addSpacing( 8 );
     h->addWidget( d->paths );
-    h->addSpacing( 6 );
+    h->addSpacing( 8 );
     h->addWidget( d->cdToParent );
-    h->addSpacing( 6 );
+    h->addSpacing( 8 );
     h->addWidget( d->detailView );
     h->addWidget( d->mcView );
+    h->addSpacing( 16 );
 
     d->topLevelLayout->addWidget( d->stack, 3 );
 
@@ -910,12 +896,14 @@ void QFileDialog::init()
     d->topLevelLayout->addLayout( h );
     h->addWidget( d->fileL );
     h->addWidget( nameEdit );
+    h->addSpacing( 15 );
     h->addWidget( okB );
 
     h = new QHBoxLayout();
     d->topLevelLayout->addLayout( h );
     h->addWidget( d->typeL );
     h->addWidget( d->types );
+    h->addSpacing( 15 );
     h->addWidget( cancelB );
 
     cwd.setMatchAllDirs( TRUE );
@@ -950,6 +938,24 @@ void QFileDialog::init()
     d->file = tr( "File" );
     d->dir = tr( "Dir" );
     d->special = tr( "Special" );
+
+    if ( QApplication::desktop()->width() < 1024 ||
+	 QApplication::desktop()->height() < 768 ) {
+	resize( 420, 236 );
+    } else {
+	QSize s( files->sizeHint() );
+	s = QSize( s.width() + 50, s.height() + 80 );
+
+	if ( s.width() * 3 > QApplication::desktop()->width() * 2 )
+	    s.setWidth( QApplication::desktop()->width() * 2 / 3 );
+
+	if ( s.height() * 3 > QApplication::desktop()->height() * 2 )
+	    s.setHeight( QApplication::desktop()->height() * 2 / 3 );
+	else if ( s.height() * 3 < QApplication::desktop()->height() )
+	    s.setHeight( QApplication::desktop()->height() / 3 );
+
+	resize( s );
+    }
 }
 
 /*!
@@ -1601,6 +1607,7 @@ void QFileDialog::updateGeometry()
     RM;
     t = d->types->sizeHint();
     RM;
+    r.setWidth( t.width() * 2 / 3 );
     if ( d->extraWidget ) {
 	t = d->extraWidget->sizeHint();
 	RM;
@@ -1620,17 +1627,17 @@ void QFileDialog::updateGeometry()
 
     // buttons on top row
     r = QSize( 0, d->paths->minimumSize().height() );
-    t = QSize( 20, 20 );
+    t = QSize( 21, 20 );
     RM;
-    if ( r.height() > r.width() )
-	r.setWidth( r.height() );
+    if ( r.height()+1 > r.width() )
+	r.setWidth( r.height()+1 );
     d->cdToParent->setFixedSize( r );
     d->mcView->setFixedSize( r );
     d->detailView->setFixedSize( r );
     // ...
 
     // open/save, cancel
-    r = QSize( 75, 0 );
+    r = QSize( 75, 20 );
     t = okB->sizeHint();
     RM;
     t = cancelB->sizeHint();
@@ -2018,6 +2025,14 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	    i = i->nextSibling();
 	if ( i )
 	    return TRUE;
+    } else if ( e->type() == QEvent::KeyPress &&
+		((QKeyEvent *)e)->key() == Key_Backspace && 
+		( o == files ||
+		  o == d->moreFiles ||
+		  o == files->viewport() ) ) {
+	cdUpClicked();
+	((QKeyEvent *)e)->accept();
+	return TRUE;
     } else if ( o == files && e->type() == QEvent::FocusOut &&
 	 files->currentItem() && mode() != ExistingFiles ) {
 	files->setSelected( files->currentItem(), FALSE );
