@@ -696,9 +696,9 @@ MakefileGenerator::writeProjectMakefile()
 {
     usePlatformDir();
     QTextStream t(&Option::output);
-    
+
     //header
-    writeHeader(t); 
+    writeHeader(t);
 
     QList<SubTarget*> targets;
     {
@@ -1541,16 +1541,21 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
     writeSubTargets(t, targets, true);
 
     if (project->isActiveConfig("ordered")) {         // generate dependencies
-        for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end();) {
+        QStringList targs;
+        targs << "" << "-make_first" << "-all" << "-install_subtargets" << "-uninstall_subtargets";
+
+        for(QList<SubTarget*>::ConstIterator it = targets.constBegin(); it != targets.constEnd();) {
             QString tar = (*it)->target;
             ++it;
-            if (it != targets.end())
-                t << (*it)->target << ": " << tar << endl;
+            for (QStringList::ConstIterator tit = targs.constBegin(); tit != targs.constEnd(); ++tit) {
+                if (it != targets.end())
+                    t << (*it)->target << *tit << ": " << tar << *tit << endl;
+            }
         }
         t << endl;
     }
 }
-    
+
 void
 MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubTarget*> targets, bool installs)
 {
@@ -1576,9 +1581,9 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     t << endl << endl;
 
     QStringList targs;
-    targs << "make_first" << "all" << "clean" << "distclean" << "mocables" << "uicables" 
-          << QString(installs ? "install_subtargets" : "install") 
-          << QString(installs ? "uninstall_subtargets" : "uninstall") 
+    targs << "make_first" << "all" << "clean" << "distclean" << "mocables" << "uicables"
+          << QString(installs ? "install_subtargets" : "install")
+          << QString(installs ? "uninstall_subtargets" : "uninstall")
           << "uiclean" << "mocclean";
 
     // generate target rules
@@ -1599,7 +1604,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         } else {
             cdin = "\n\t";
         }
-        
+
         //qmake it
         if(!(*it)->profile.isEmpty()) {
             QString out, in = (*it)->profile;
@@ -1648,7 +1653,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     t << "qmake_all:";
     if(!targets.isEmpty()) {
         for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it) {
-            if(!(*it)->profile.isEmpty()) 
+            if(!(*it)->profile.isEmpty())
                 t << " " << (*it)->target << "-" << "qmake_all";
         }
         if(project->isActiveConfig("no_empty_targets"))
@@ -1659,7 +1664,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     for(QStringList::Iterator targ_it = targs.begin(); targ_it != targs.end(); ++targ_it) {
         t << (*targ_it) << ":";
         QString targ = (*targ_it);
-        for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it) 
+        for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it)
             t << " " << (*it)->target << "-" << (*targ_it);
         t << endl;
         if(targ == "clean")
@@ -1682,7 +1687,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                 dep = (*dep_it);
             deps += " " + dep;
         }
-        if(!project->variables()["QMAKE_NOFORCE"].isEmpty() && 
+        if(!project->variables()["QMAKE_NOFORCE"].isEmpty() &&
            project->variables()[(*qut_it) + ".CONFIG"].indexOf("phony") != -1)
             deps += " FORCE";
         t << "\n\n" << targ << ":" << deps << "\n\t"
@@ -1726,7 +1731,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
             const QStringList &included = project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
             t << included.join(" \\\n\t\t") << "\n\t"
               << qmake << endl;
-            for(QStringList::ConstIterator it = included.begin(); it != included.end(); ++it) 
+            for(QStringList::ConstIterator it = included.begin(); it != included.end(); ++it)
                 t << (*it) << ":" << endl;
         }
         if(project->first("QMAKE_ORIG_TARGET") != "qmake") {
