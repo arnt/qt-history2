@@ -72,7 +72,7 @@ QStyleOption QFocusFramePrivate::getStyleOption() const
 {
     Q_Q(const QFocusFrame);
     QStyleOption opt;
-    opt.init(widget);
+    opt.init(q);
     opt.rect = q->rect();
     return opt;
 }
