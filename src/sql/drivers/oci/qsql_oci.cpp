@@ -241,12 +241,14 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
                                      SQLT_LNG, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                      (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
                 } else if (isOutValue(i)) {
-                    QByteArray ba((char*)s.utf16(), s.capacity() * sizeof(QChar));
+                    QByteArray ba((char*)s.utf16(), (s.length() + 1) * sizeof(QChar));
+                    ba.reserve((s.capacity() + 1) * sizeof(QChar));
+                    ub2 cap = ba.size();
                     r = OCIBindByPos(sql, &hbnd, err,
                                      i + 1,
                                      (dvoid *)ba.constData(),
-                                     ba.size(),
-                                     SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
+                                     ba.capacity(),
+                                     SQLT_STR, (dvoid *) indPtr, &cap, (ub2*) 0,
                                      (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
                     tmpStorage.append(ba);
                 } else {
@@ -260,7 +262,8 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
                                      SQLT_STR, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                      (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
                 }
-                setCharset(hbnd);
+                if (r == OCI_SUCCESS)
+                    setCharset(hbnd);
                 break; }
         }
         if (r != OCI_SUCCESS)
