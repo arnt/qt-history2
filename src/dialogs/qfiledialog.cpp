@@ -2354,12 +2354,14 @@ void QFileDialog::init()
     QFileInfo *fi;
     makeVariables();
 
-    if ( !!QDir::homeDirPath() )
-	d->paths->insertItem( *openFolderIcon, QDir::homeDirPath() );
-
     while ( (fi = it.current()) != 0 ) {
 	++it;
 	d->paths->insertItem( *openFolderIcon, fi->absFilePath() );
+    }
+
+    if ( !!QDir::homeDirPath() ) {
+	if ( !d->paths->listBox()->findItem( QDir::homeDirPath() ) )
+	    d->paths->insertItem( *openFolderIcon, QDir::homeDirPath() );
     }
 
     connect( d->paths, SIGNAL(activated(const QString&)),
