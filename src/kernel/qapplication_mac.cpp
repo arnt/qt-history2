@@ -462,7 +462,7 @@ int qStartTimer( int interval, QObject *obj )
 	initTimers();
     TimerInfo *t = new TimerInfo;		// create timer
     Q_CHECK_PTR( t );
-    EventTimerInterval mint = ((EventTimerInterval)interval) / 1000;
+    EventTimerInterval mint = (((EventTimerInterval)interval) / 1000) + 0.00001;
     if(! InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
 			       qt_activate_timers, t, &t->id) ) {
 	t->obj = obj;
