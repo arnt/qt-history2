@@ -3725,6 +3725,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
       numSubParag( -1 ), tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ),
       tArray(0), tabStopWidth(0), eData( 0 )
 {
+    listS = QStyleSheetItem::ListDisc;
     if ( ! (hasdoc = docOrPseudo != 0 ) )
 	docOrPseudo = new QTextParagPseudoDocument;
     bgcol = 0;
