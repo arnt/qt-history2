@@ -3,13 +3,6 @@
 
 #include <qshared.h>
 
-// #define DEBUG
-
-#ifdef DEBUG
-// HACK
-#include <iostream>
-#endif
-
 struct QMapNodeBase
 {
   enum Color { Red, Black };
