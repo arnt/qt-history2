@@ -15,6 +15,6 @@ dll {
 }
 QMAKE_CLEAN += $(OBJDIR)\$$(TARGET).* $(OBJDIR)\$${TARGET}.idl $(OBJDIR)\$${TARGET}.tlb
 qt:!target_qt {
-   QMAKE_LIBS_QT_ENTRY = qaxserver.lib
+   QMAKE_LIBS_QT_ENTRY = -lqaxserver
    dll:QMAKE_LIBS += $$QMAKE_LIBS_QT_ENTRY
 }

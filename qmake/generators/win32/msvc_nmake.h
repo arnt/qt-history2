@@ -21,7 +21,7 @@ class NmakeMakefileGenerator : public Win32MakefileGenerator
 {
     bool init_flag;
     void writeNmakeParts(QTextStream &);
-
+    void writeLibDirPart(QTextStream &t);
     bool writeMakefile(QTextStream &);
     void init();
 

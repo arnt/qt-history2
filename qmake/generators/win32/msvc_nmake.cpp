@@ -303,3 +303,8 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_CLEAN"].append("vc*.idb");
     }
 }
+
+void NmakeMakefileGenerator::writeLibDirPart(QTextStream &t)
+{
+    t << varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\"") << " ";
+}

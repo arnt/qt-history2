@@ -44,7 +44,7 @@ for(QCONF, QCONFIG) {
       } else {
          target_qt:DEFINES *= $$upper(QT_$${QCONF}_WIN_IMPORT)
          DEFINES *= $$upper(QT_$${QCONF}_LIB)
-         LIBS   += $${qlib}.lib
+         LIBS   += -l$${qlib}
       }
    }
 }

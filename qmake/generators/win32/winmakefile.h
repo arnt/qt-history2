@@ -36,15 +36,18 @@ protected:
     virtual void writeExtraTargetParts(QTextStream &t);
     virtual void writeCleanParts(QTextStream &t);
     virtual void writeStandardParts(QTextStream &t);
+    virtual void writeLibDirPart(QTextStream &t);
+    virtual void writeLibsPart(QTextStream &t);
+
     int findHighestVersion(const QString &dir, const QString &stem);
     bool findLibraries(const QString &);
     QString findDependency(const QString &);
     virtual bool findLibraries();
+    
     virtual void processPrlFiles();
     virtual void processVars();
     virtual void processLibsVar();
     virtual void fixTargetExt();
-    virtual void processRttiConfig();
     virtual void processMocConfig();
     virtual void processRcFileVar();
     virtual void processExtraWinCompilersVar();

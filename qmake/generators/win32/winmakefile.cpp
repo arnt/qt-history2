@@ -482,17 +482,6 @@ void Win32MakefileGenerator::fixTargetExt()
     }
 }
 
-void Win32MakefileGenerator::processRttiConfig()
-{
-    if(project->isActiveConfig("rtti")) {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_ON"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_ON"];
-    } else {
-	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_RTTI_OFF"];
-	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RTTI_OFF"];
-    }
-}
-
 void Win32MakefileGenerator::processMocConfig()
 {
     if(project->isActiveConfig("moc"))
@@ -698,9 +687,6 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
 
 void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 {
-    // Needed for slight difference in lflags line
-    bool isBorland = (project->first("MAKEFILE_GENERATOR") == "BMAKE");
-
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC		=	" << var("QMAKE_CC") << endl;
     t << "CXX		=	" << var("QMAKE_CXX") << endl;
@@ -714,7 +700,6 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
       << varGlue("DEFINES","-D"," -D","") << endl;
     t << "LEXFLAGS	=" << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS	=" << var("QMAKE_YACCFLAGS") << endl;
-
     t << "INCPATH	=	";
     QStringList &incs = project->variables()["INCLUDEPATH"];
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
@@ -726,21 +711,8 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << " -I\"" << specdir() << "\""
       << endl;
 
-    if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
-	t << "LINK	=	" << var("QMAKE_LINK") << endl;
-	t << "LFLAGS	=	";
-	if(!project->variables()["QMAKE_LIBDIR"].isEmpty()) {
-	    if (isBorland)
-		t << varGlue("QMAKE_LIBDIR","-L\"","\" -L\"","\"") << " ";
-	    else
-		t << varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\"") << " ";
-	}
-	t << var("QMAKE_LFLAGS") << endl;
-	t << "LIBS	=	" << var("QMAKE_LIBS") << endl;
-    } else {
-	t << "LIB	=	" << var("QMAKE_LIB") << endl;
-    }
-
+    writeLibsPart(t);
+ 
     t << "MOC	=	" << (project->isEmpty("QMAKE_MOC") ? QString("moc") :
 			      Option::fixPathToTargetOS(var("QMAKE_MOC"), FALSE)) << endl;
     t << "UIC	=	" << (project->isEmpty("QMAKE_UIC") ? QString("uic") :
@@ -783,4 +755,23 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "UICIMPLS =	" << varList("UICIMPLS") << endl;
     t << "SRCMOC =	" << varList("SRCMOC") << endl;
     t << "OBJMOC =	" << varList("OBJMOC") << endl;
+}
+
+void Win32MakefileGenerator::writeLibsPart(QTextStream &t)
+{
+    if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
+	t << "LINK	=	" << var("QMAKE_LINK") << endl;
+	t << "LFLAGS	=	";
+	if(!project->variables()["QMAKE_LIBDIR"].isEmpty())
+	    writeLibDirPart(t);
+	t << var("QMAKE_LFLAGS") << endl;
+	t << "LIBS	=	" << var("QMAKE_LIBS") << endl;
+    } else {
+	t << "LIB	=	" << var("QMAKE_LIB") << endl;
+    }
+}
+
+void Win32MakefileGenerator::writeLibDirPart(QTextStream &t)
+{
+    t << varGlue("QMAKE_LIBDIR","-L\"","\" -L\"","\"") << " ";
 }
