@@ -51,6 +51,7 @@
 #include <qfile.h>
 #include <qstring.h>
 #include <qstringlist.h>
+#include <qstack.h>
 #include <qvaluestack.h>
 #include <qmap.h>
 #endif // QT_H
@@ -90,7 +91,7 @@ class QXmlDefaultHandlerPrivate;
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
 template class QM_EXPORT QMap<QString, QString>;
-template class QM_EXPORT QValueStack<QMap<QString, QString> >;
+template class QM_EXPORT QStack<QMap<QString, QString> >;
 template class QM_EXPORT QValueStack<QString>;
 // MOC_SKIP_END
 #endif
@@ -114,8 +115,8 @@ public:
     void popContext();
     void reset();
 private:
-    QValueStack<QMap<QString, QString> > nsStack;
-    QMap<QString, QString> ns;
+    QStack<QMap<QString, QString> > nsStack;
+    QMap<QString, QString> *ns;
 
     QXmlNamespaceSupportPrivate *d;
 };

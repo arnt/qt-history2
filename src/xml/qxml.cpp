@@ -416,6 +416,7 @@ int QXmlLocator::lineNumber()
 */
 QXmlNamespaceSupport::QXmlNamespaceSupport()
 {
+    ns = 0;
     reset();
 }
 
@@ -424,6 +425,9 @@ QXmlNamespaceSupport::QXmlNamespaceSupport()
 */
 QXmlNamespaceSupport::~QXmlNamespaceSupport()
 {
+    nsStack.setAutoDelete( TRUE );
+    nsStack.clear();
+    delete ns;
 }
 
 /*!
@@ -440,9 +444,9 @@ QXmlNamespaceSupport::~QXmlNamespaceSupport()
 void QXmlNamespaceSupport::setPrefix( const QString& pre, const QString& uri )
 {
     if( pre.isNull() ) {
-	ns.insert( "", uri );
+	ns->insert( "", uri );
     } else {
-	ns.insert( pre, uri );
+	ns->insert( pre, uri );
     }
 }
 
@@ -458,8 +462,8 @@ void QXmlNamespaceSupport::setPrefix( const QString& pre, const QString& uri )
 */
 QString QXmlNamespaceSupport::prefix( const QString& uri ) const
 {
-    QMap<QString, QString>::ConstIterator itc, it = ns.begin();
-    while ( (itc=it) != ns.end() ) {
+    QMap<QString, QString>::ConstIterator itc, it = ns->begin();
+    while ( (itc=it) != ns->end() ) {
 	++it;
 	if ( itc.data() == uri && !itc.key().isEmpty() )
 	    return itc.key();
@@ -473,7 +477,7 @@ QString QXmlNamespaceSupport::prefix( const QString& uri ) const
 */
 QString QXmlNamespaceSupport::uri( const QString& prefix ) const
 {
-    const QString& returi = ns[ prefix ];
+    const QString& returi = (*ns)[ prefix ];
     return returi;
 }
 
@@ -550,8 +554,8 @@ QStringList QXmlNamespaceSupport::prefixes() const
 {
     QStringList list;
 
-    QMap<QString, QString>::ConstIterator itc, it = ns.begin();
-    while ( (itc=it) != ns.end() ) {
+    QMap<QString, QString>::ConstIterator itc, it = ns->begin();
+    while ( (itc=it) != ns->end() ) {
 	++it;
 	if ( !itc.key().isEmpty() )
 	    list.append( itc.key() );
@@ -574,8 +578,8 @@ QStringList QXmlNamespaceSupport::prefixes( const QString& uri ) const
 {
     QStringList list;
 
-    QMap<QString, QString>::ConstIterator itc, it = ns.begin();
-    while ( (itc=it) != ns.end() ) {
+    QMap<QString, QString>::ConstIterator itc, it = ns->begin();
+    while ( (itc=it) != ns->end() ) {
 	++it;
 	if ( itc.data() == uri && !itc.key().isEmpty() )
 	    list.append( itc.key() );
@@ -593,7 +597,7 @@ QStringList QXmlNamespaceSupport::prefixes( const QString& uri ) const
 */
 void QXmlNamespaceSupport::pushContext()
 {
-    nsStack.push( ns );
+    nsStack.push( new QMap<QString, QString>(*ns) );
 }
 
 /*!
@@ -605,6 +609,7 @@ void QXmlNamespaceSupport::pushContext()
 */
 void QXmlNamespaceSupport::popContext()
 {
+    delete ns;
     if( !nsStack.isEmpty() )
 	ns = nsStack.pop();
 }
@@ -614,9 +619,13 @@ void QXmlNamespaceSupport::popContext()
 */
 void QXmlNamespaceSupport::reset()
 {
+    nsStack.setAutoDelete( TRUE );
     nsStack.clear();
-    ns.clear();
-    ns.insert( "xml", "http://www.w3.org/XML/1998/namespace" ); // the XML namespace
+    nsStack.setAutoDelete( FALSE );
+
+    delete ns;
+    ns = new QMap<QString, QString>;
+    ns->insert( "xml", "http://www.w3.org/XML/1998/namespace" ); // the XML namespace
 }
 
 
