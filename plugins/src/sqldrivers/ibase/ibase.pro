@@ -1,34 +1,29 @@
-TEMPLATE	= lib
-CONFIG		+= qt plugin
-HEADERS		= ../../../../src/sql/drivers/ibase/qsql_ibase.h 
+# Project ID used by some IDEs
+GUID 	 = {1793df1e-dd51-4d23-bf8e-bf99aef757db}
+TEMPLATE = lib
+TARGET	 = qsqlibase
+
+CONFIG	+= qt plugin
+DESTDIR	 = ../../../sqldrivers
+
+HEADERS		= ../../../../src/sql/drivers/ibase/qsql_ibase.h
 SOURCES		= main.cpp \
-		  ../../../../src/sql/drivers/ibase/qsql_ibase.cpp \
-		  ../../../../src/sql/drivers/cache/qsqlcachedresult.cpp
+		  ../../../../src/sql/drivers/ibase/qsql_ibase.cpp
 
 unix {
 	OBJECTS_DIR = .obj
-	
-	!contains( LIBS, .*gds.* ) {
+
+	!contains( LIBS, .*gds.* ):!contains( LIBS, .*libfb.* ) {
 	    LIBS    *= -lgds
 	}
 }
 win32 {
 	OBJECTS_DIR = obj
-#	LIBS	*= libmysql.lib
-#	win32-msvc: { 
-#		LIBS *= delayimp.lib
-#		QMAKE_LFLAGS += /DELAYLOAD:libmysql.dll
-#	}
-#	win32-borland: {
-#		QMAKE_LFLAGS += /dlibmysql.dll
-#	}		
+	!win32-borland:LIBS *= gds32_ms.lib
+	win32-borland:LIBS  += gds32.lib
 }
 
 REQUIRES	= sql
-
-TARGET		= qsqlibase
-DESTDIR		= ../../../sqldrivers
-
 
 target.path += $$plugins.path/sqldrivers
 INSTALLS += target
