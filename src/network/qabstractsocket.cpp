@@ -8,9 +8,10 @@
 #include "qabstractsocket.h"
 #include "qabstractsocket_p.h"
 #include "qdatetime.h"
-#include "qsocketlayer.h"
 #include "qhostaddress.h"
+#include "qpointer.h"
 #include "qsignal.h"
+#include "qsocketlayer.h"
 
 #include <time.h>
 
@@ -151,11 +152,12 @@ void QAbstractSocketPrivate::canReadNotification(int)
         }
     }
 
+    QPointer<QAbstractSocket> that = q;
     emit q->readyRead();
 
     // Anything might have happened in whatever is connected to the
     // readyRead() slot.
-    if (!this)
+    if (!that)
         return;
 
     // if bytesAvailable is the same after readRead was emitted, don't
