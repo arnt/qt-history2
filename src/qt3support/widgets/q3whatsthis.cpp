@@ -152,7 +152,7 @@ bool Q3WhatsThis::clicked(const QString & /* href */)
     will receive clicked() messages when the user clicks on hyperlinks
     inside the help text.
 
-    \sa inWhatsThisMode(), enterWhatsThisMode(), QWhatsThis::clicked()
+    \sa inWhatsThisMode(), enterWhatsThisMode(), clicked()
 */
 
 /*!
@@ -165,7 +165,7 @@ bool Q3WhatsThis::clicked(const QString & /* href */)
     object, this object will receive clicked() messages when the user
     clicks on hyperlinks inside the help text.
 
-    \sa QWhatsThis::clicked()
+    \sa clicked()
 */
 
 /*!

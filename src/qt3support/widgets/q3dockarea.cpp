@@ -1225,8 +1225,6 @@ bool Q3DockArea::isLastDockWindow(Q3DockWindow *dw)
 
     Writes the layout of the dock windows in dock area \a dockArea to
     the text stream \a ts.
-
-    \sa operator>>()
 */
 
 QTextStream &operator<<(QTextStream &ts, const Q3DockArea &dockArea)
@@ -1252,8 +1250,6 @@ QTextStream &operator<<(QTextStream &ts, const Q3DockArea &dockArea)
     dockArea from the text stream \a ts and restores it. The layout
     description must have been previously written by the operator<<()
     function.
-
-    \sa operator<<()
 */
 
 QTextStream &operator>>(QTextStream &ts, Q3DockArea &dockArea)

@@ -1718,9 +1718,6 @@ int Q3Header::sectionAt(int pos) const
 /*!
     Returns the number of the section that is displayed at index
     position \a index.
-
-    For more explanation see the \link #mapexample mapTo
-    example\endlink.
 */
 
 int Q3Header::mapToSection(int index) const
@@ -1731,9 +1728,6 @@ int Q3Header::mapToSection(int index) const
 /*!
     Returns the index position at which section \a section is
     displayed.
-
-    For more explanation see the \link #mapexample mapTo
-    example\endlink.
 */
 
 int Q3Header::mapToIndex(int section) const

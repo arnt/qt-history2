@@ -337,7 +337,7 @@ void Q3WidgetStack::setChildGeometries()
 
 
 /*!
-    \reimp
+    \internal
 */
 void Q3WidgetStack::show()
 {
@@ -409,10 +409,10 @@ QWidget * Q3WidgetStack::visibleWidget() const
 
 
 /*!
-    \fn void Q3WidgetStack::aboutToShow(int)
+    \fn void Q3WidgetStack::aboutToShow(int id)
 
     This signal is emitted just before a managed widget is shown if
-    that managed widget has an ID != -1. The argument is the numeric
+    that managed widget has an ID != -1. The \a id parameter is the numeric
     ID of the widget.
 
     If you call visibleWidget() in a slot connected to aboutToShow(),
@@ -422,12 +422,12 @@ QWidget * Q3WidgetStack::visibleWidget() const
 
 
 /*!
-    \fn void Q3WidgetStack::aboutToShow(QWidget *)
+    \fn void Q3WidgetStack::aboutToShow(QWidget *widget)
 
     \overload
 
     This signal is emitted just before a managed widget is shown. The
-    argument is a pointer to the widget.
+    argument is a pointer to the \a widget.
 
     If you call visibleWidget() in a slot connected to aboutToShow(),
     the widget returned is the one that is currently visible, not the

@@ -402,7 +402,6 @@ void Q3ScrollViewData::viewportResized(int w, int h)
 
     \section1 Using a Very Big View with Many Widgets
 
-    \target enableclipper
     \img qscrollview-cl.png
 
     The final usage of Q3ScrollView (depicted above) is appropriate
@@ -458,11 +457,9 @@ void Q3ScrollViewData::viewportResized(int w, int h)
     the frame; everything else is covered up by the viewport, clipper
     or scroll bars.
 
-    When you construct a Q3ScrollView, some of the widget flags apply
+    When you construct a Q3ScrollView, some of the window flags apply
     to the viewport() instead of being sent to the QWidget constructor
-    for the Q3ScrollView. This applies to \c WNoAutoErase, \c
-    WStaticContents, and \c WPaintClever. See \l Qt::WidgetFlags for
-    documentation about these flags. Here are some examples:
+    for the Q3ScrollView.
 
     \list
 
@@ -1056,7 +1053,7 @@ void Q3ScrollView::updateScrollBars()
 
 
 /*!
-    \reimp
+    \internal
 */
 void Q3ScrollView::show()
 {
@@ -1574,8 +1571,11 @@ void Q3ScrollView::contentsMouseMoveEvent(QMouseEvent* e)
     This event handler is called whenever the Q3ScrollView receives a
     dragEnterEvent(): the drag position is translated to be a point
     on the contents.
+
+    The default implementation does nothing. The \a event parameter is
+    ignored.
 */
-void Q3ScrollView::contentsDragEnterEvent(QDragEnterEvent *)
+void Q3ScrollView::contentsDragEnterEvent(QDragEnterEvent * /* event */)
 {
 }
 
@@ -1583,8 +1583,11 @@ void Q3ScrollView::contentsDragEnterEvent(QDragEnterEvent *)
     This event handler is called whenever the Q3ScrollView receives a
     dragMoveEvent(): the drag position is translated to be a point on
     the contents.
+
+    The default implementation does nothing. The \a event parameter is
+    ignored.
 */
-void Q3ScrollView::contentsDragMoveEvent(QDragMoveEvent *)
+void Q3ScrollView::contentsDragMoveEvent(QDragMoveEvent * /* event */)
 {
 }
 
@@ -1592,8 +1595,11 @@ void Q3ScrollView::contentsDragMoveEvent(QDragMoveEvent *)
     This event handler is called whenever the Q3ScrollView receives a
     dragLeaveEvent(): the drag position is translated to be a point
     on the contents.
+
+    The default implementation does nothing. The \a event parameter is
+    ignored.
 */
-void Q3ScrollView::contentsDragLeaveEvent(QDragLeaveEvent *)
+void Q3ScrollView::contentsDragLeaveEvent(QDragLeaveEvent * /* event */)
 {
 }
 
@@ -1601,8 +1607,12 @@ void Q3ScrollView::contentsDragLeaveEvent(QDragLeaveEvent *)
     This event handler is called whenever the Q3ScrollView receives a
     dropEvent(): the drop position is translated to be a point on the
     contents.
+
+    The default implementation does nothing. The \a event parameter is
+    ignored.
 */
-void Q3ScrollView::contentsDropEvent(QDropEvent *)
+
+void Q3ScrollView::contentsDropEvent(QDropEvent * /* event */)
 {
 }
 
@@ -1673,9 +1683,12 @@ void Q3ScrollView::viewportPaintEvent(QPaintEvent* pe)
     To provide simple processing of events on the contents, this
     function receives all resize events sent to the viewport.
 
+    The default implementation does nothing. The \a event parameter is
+    ignored.
+
     \sa QWidget::resizeEvent()
 */
-void Q3ScrollView::viewportResizeEvent(QResizeEvent*)
+void Q3ScrollView::viewportResizeEvent(QResizeEvent * /* event */)
 {
 }
 
@@ -2501,9 +2514,6 @@ bool Q3ScrollView::focusNextPrevChild(bool next)
 
     Note that you may only call enableClipper() prior to adding
     widgets.
-
-    For a full discussion, see this class's \link #enableclipper
-    detailed description\endlink.
 */
 void Q3ScrollView::enableClipper(bool y)
 {

@@ -21,9 +21,8 @@
     \compat
 
     The Q3PtrCollection class is an abstract base class for the Qt
-    \link collection.html collection classes\endlink QDict, Q3PtrList,
-    etc. Qt also includes value based collections, e.g. QValueList,
-    QMap, etc.
+    collection classes QDict, Q3PtrList,
+    etc.
 
     A Q3PtrCollection only knows about the number of objects in the
     collection and the deletion strategy (see setAutoDelete()).

@@ -188,8 +188,6 @@ void Q3ProgressBar::reset()
 
     If totalSteps is 0, the progress bar will display a busy
     indicator.
-
-    \sa totalSteps()
 */
 
 void Q3ProgressBar::setTotalSteps(int totalSteps)
@@ -294,9 +292,6 @@ QSize Q3ProgressBar::minimumSizeHint() const
 /*!
     \property Q3ProgressBar::centerIndicator
     \brief whether the indicator string should be centered
-
-    Changing this property sets \l Q3ProgressBar::indicatorFollowsStyle
-    to false. The default is true.
 */
 
 void Q3ProgressBar::setCenterIndicator(bool on)
@@ -313,7 +308,7 @@ void Q3ProgressBar::setCenterIndicator(bool on)
 
     The default is true.
 
-    \sa centerIndicator, indicatorFollowsStyle
+    \sa centerIndicator
 */
 void Q3ProgressBar::setPercentageVisible(bool on)
 {

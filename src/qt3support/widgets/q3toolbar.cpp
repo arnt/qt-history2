@@ -233,9 +233,8 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
     (top, left, right and bottom). When you create a new toolbar (as
     in the example above) as a child of a Q3MainWindow the toolbar will
     be added to the top dock area. You can move it to another dock
-    area (or float it) by calling Q3MainWindow::moveDockWindow(). QDock
-    areas lay out their windows in \link qdockarea.html#lines
-    Lines\endlink.
+    area (or float it) by calling Q3MainWindow::moveDockWindow(). Dock
+    areas lay out their windows in lines.
 
     If the main window is resized so that the area occupied by the
     toolbar is too small to show all its widgets a little arrow button
@@ -263,7 +262,7 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
     \img qdockwindow.png Toolbar (dock window)
     \caption A floating QToolbar (dock window)
 
-    \sa QToolButton Q3MainWindow \link http://www.iarchitect.com/visual.htm Parts of Isys on Visual Design\endlink \link guibooks.html#fowler GUI Design Handbook: Tool Bar\endlink.
+    \sa QToolButton Q3MainWindow \link http://www.iarchitect.com/visual.htm Parts of Isys on Visual Design\endlink \link guibooks.html#fowler GUI Design Handbook: Tool Bar\endlink
 */
 
 /*!
@@ -399,7 +398,7 @@ void Q3ToolBar::styleChange(QStyle &oldStyle)
 }
 
 /*!
-    \reimp.
+    \internal
 */
 
 void Q3ToolBar::show()
@@ -412,7 +411,7 @@ void Q3ToolBar::show()
 
 
 /*!
-    \reimp
+    \internal
 */
 
 void Q3ToolBar::hide()

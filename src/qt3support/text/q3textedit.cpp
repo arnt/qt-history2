@@ -487,11 +487,6 @@ static bool block_set_alignment = false;
     The signals undoAvailable() and redoAvailable() indicate whether
     the undo and redo operations can be executed.
 
-    The indent() function is used to reindent a paragraph. It is
-    useful for code editors, for example in \link designer-manual.book
-    Qt Designer\endlink's code editor \e{Ctrl+I} invokes the indent()
-    function.
-
     \section2 Editing key bindings
 
     The list of key-bindings which are implemented for editing:

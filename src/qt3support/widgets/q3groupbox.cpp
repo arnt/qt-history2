@@ -271,7 +271,7 @@ void Q3GroupBox::setTitle(const QString &title)
 
     The default alignment is \c Qt::AlignAuto.
 
-    \sa Qt::AlignmentFlags
+    \sa Qt::Alignment
 */
 
 void Q3GroupBox::setAlignment(int alignment)
@@ -854,9 +854,7 @@ bool Q3GroupBox::isChecked() const
     \property Q3GroupBox::checked
     \brief Whether the group box's checkbox is checked.
 
-    If the group box has a check box (see \l isCheckable()), and the
-    check box is checked (see \l isChecked()), the group box's children
-    are enabled. If the checkbox is unchecked the children are
+    If the checkbox is unchecked the children are
     disabled.
 */
 #ifndef QT_NO_CHECKBOX

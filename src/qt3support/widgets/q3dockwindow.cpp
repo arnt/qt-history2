@@ -760,9 +760,7 @@ void Q3DockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
     yourself with setOrientation().
 
     Although a common use of dock windows is for toolbars, they can be
-    used with any widgets. (See the \link designer-manual.book Qt
-    Designer\endlink and \link linguist-manual.book Qt
-    Linguist\endlink applications, for example.) When using larger
+    used with any widgets. When using larger
     widgets it may make sense for the dock window to be resizable by
     calling setResizeEnabled(). Resizable dock windows are given
     splitter-like handles to allow the user to resize them within
@@ -779,13 +777,12 @@ void Q3DockWindowTitleBar::mouseDoubleClickEvent(QMouseEvent *)
     A dock window can have some preferred settings, for example, you
     can set a preferred offset from the left edge (or top edge for
     vertical dock areas) of the dock area using setOffset(). If you'd
-    prefer a dock window to start on a new \link qdockarea.html#lines
-    line\endlink when it is docked use setNewLine(). The
-    setFixedExtentWidth() and setFixedExtentHeight() functions can be
-    used to define the dock window's preferred size, and the
-    setHorizontallyStretchable() and setVerticallyStretchable()
+    prefer a dock window to start on a new line when it is docked use
+    setNewLine(). The setFixedExtentWidth() and setFixedExtentHeight()
+    functions can be used to define the dock window's preferred size,
+    and the setHorizontallyStretchable() and setVerticallyStretchable()
     functions set whether the dock window can be stretched or not.
-    Qt::Dock windows can be moved by default, but this can be changed with
+    Dock windows can be moved by default, but this can be changed with
     setMovingEnabled(). When a dock window is moved it is shown as a
     rectangular outline, but it can be shown normally using
     setOpaqueMoving().

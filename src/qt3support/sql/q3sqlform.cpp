@@ -94,9 +94,6 @@ public:
     fields, you must install a custom Q3SqlPropertyMap. The form
     uses this object to get or set the value of a widget.
 
-    Note that \link designer-manual.book Qt Designer\endlink provides
-    a visual means of creating data-aware forms.
-
     \sa installPropertyMap(), Q3SqlPropertyMap
 */
 

@@ -604,11 +604,6 @@ QIcon Q3Action::iconSet() const
     \property Q3Action::text
     \brief the action's descriptive text
 
-    If \l QMainWindow::usesTextLabel is true, the text appears as a
-    label in the relevant tool button. It also serves as the default
-    text in menus and tool tips if these have not been specifically
-    defined. There is no default text.
-
     \sa setMenuText() setToolTip() setStatusTip()
 */
 void Q3Action::setText(const QString& text)
@@ -689,15 +684,16 @@ QString Q3Action::toolTip() const
 
     There is no default statusTip text.
 
-    \sa setStatusTip() setToolTip()
+    \sa statusTip(), setToolTip()
 */
-//#### Please reimp for Q3ActionGroup!
-//#### For consistency reasons even action groups should show
-//#### status tips (as they already do with tool tips)
-//#### Please change Q3ActionGroup class doc appropriately after
-//#### reimplementation.
 void Q3Action::setStatusTip(const QString& tip)
 {
+    // Old comment: ### Please reimp for Q3ActionGroup!
+    // For consistency reasons even action groups should show
+    // status tips (as they already do with tool tips)
+    // Please change Q3ActionGroup class doc appropriately after
+    // reimplementation.
+
     if (d->statustip == tip)
         return;
 
@@ -1552,8 +1548,7 @@ bool Q3ActionGroup::isExclusive() const
     in a combobox with the action's \l Q3Action::text and \l
     Q3Action::iconSet properties shown. Non-exclusive groups are
     represented by a tool button showing their \l Q3Action::iconSet and
-    -- depending on \l QMainWindow::usesTextLabel() -- text()
-    property.
+    text() property.
 
     In a popup menu the member actions are displayed in a submenu.
 

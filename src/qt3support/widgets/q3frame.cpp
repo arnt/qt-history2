@@ -137,7 +137,7 @@ void Q3Frame::frameChanged()
 
     The default value is 0.
 
-    \sa setMargin(), lineWidth(), frameWidth()
+    \sa lineWidth(), frameWidth()
 */
 
 void Q3Frame::setMargin(int w)
@@ -150,7 +150,8 @@ void Q3Frame::setMargin(int w)
 }
 
 /*!
-    Returns the frame's contents rectangle (including the margins).
+    \property Q3Frame::contentsRect
+    \brief the frame's contents rectangle (including the margins)
 */
 QRect Q3Frame::contentsRect() const
 {

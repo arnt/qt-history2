@@ -80,7 +80,6 @@
     also supports some more obscure functions, e.g. sprintf(),
     setStr() and setExpand().
 
-    \target asciinotion
     \sidebar Note on Character Comparisons
 
     In Q3CString the notion of uppercase and lowercase and of which
@@ -226,8 +225,6 @@
     \fn Q3CString::Q3CString(const Q3CString &s)
 
     Constructs a shallow copy \a s.
-
-    \sa assign()
 */
 
 /*! \fn Q3CString::Q3CString(int size)
@@ -905,8 +902,6 @@ bool Q3CString::setExpand(uint index, char c)
     Returns true if \a s1 is less than \a s2; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \< 0.
-
-    \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -918,8 +913,6 @@ bool Q3CString::setExpand(uint index, char c)
     Returns true if \a s1 is less than \a s2; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \< 0.
-
-    \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -931,8 +924,6 @@ bool Q3CString::setExpand(uint index, char c)
     returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \<= 0.
-
-    \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -945,8 +936,6 @@ bool Q3CString::setExpand(uint index, char c)
     returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \<= 0.
-
-    \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -957,8 +946,6 @@ bool Q3CString::setExpand(uint index, char c)
     Returns true if \a s1 is greater than \a s2; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \> 0.
-
-    \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -970,8 +957,6 @@ bool Q3CString::setExpand(uint index, char c)
     Returns true if \a s1 is greater than \a s2; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \> 0.
-
-    \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -983,8 +968,6 @@ bool Q3CString::setExpand(uint index, char c)
     returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \>= 0.
-
-    \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!
@@ -997,8 +980,6 @@ bool Q3CString::setExpand(uint index, char c)
     returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \>= 0.
-
-    \sa \link #asciinotion Note on character comparisons \endlink
 */
 
 /*!

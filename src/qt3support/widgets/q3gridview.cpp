@@ -63,7 +63,7 @@ using namespace Qt;
   The \a parent, \a name and widget flag, \a f, arguments are passed
   to the Q3ScrollView constructor.
 */
-Q3GridView::Q3GridView(QWidget *parent, const char *name, WFlags f)
+Q3GridView::Q3GridView(QWidget *parent, const char *name, Qt::WFlags f)
     : Q3ScrollView(parent, name, f | WStaticContents),
       nrows(5), ncols(5), cellw(12), cellh(12)
 {

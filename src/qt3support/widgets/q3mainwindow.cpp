@@ -1684,8 +1684,6 @@ void Q3MainWindow::whatsThis()
 
     If you want to save and restore dock window positions then use
     operator>>() and operator<<().
-
-    \sa operator>>() operator<<()
 */
 
 bool Q3MainWindow::getLocation(Q3DockWindow *dw, Qt::Dock &dock, int &index, bool &nl, int &extraOffset) const
@@ -2221,7 +2219,7 @@ static void saveDockArea(QTextStream &ts, Q3DockArea *a)
     save the user's layout when the \a mainWindow receives a
     close event.
 
-    \sa operator>>() closeEvent()
+    \sa QWidget::closeEvent()
 */
 
 QTextStream &operator<<(QTextStream &ts, const Q3MainWindow &mainWindow)
@@ -2338,8 +2336,6 @@ static void loadDockArea(const QStringList &names, Q3DockArea *a, Qt::Dock dl, Q
 
     This can be used, for example, in conjunction with QSettings to
     restore the user's layout.
-
-    \sa operator<<()
 */
 
 QTextStream &operator>>(QTextStream &ts, Q3MainWindow &mainWindow)
