@@ -410,7 +410,7 @@ QString Config::copyFile( const Location& location,
 
     char buffer[1024];
     int len;
-    while ( (len = inFile.readBlock(buffer, sizeof(buffer))) != 0 ) {
+    while ( (len = inFile.readBlock(buffer, sizeof(buffer))) > 0 ) {
 	outFile.writeBlock( buffer, len );
     }
     return outFileName;
