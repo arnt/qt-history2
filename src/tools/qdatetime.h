@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qstring.h"
+#include "qnamespace.h"
 #endif // QT_H
 
 
@@ -52,7 +53,7 @@ class Q_EXPORT QDate
 public:
     QDate()  { jd=0; }				// set null date
     QDate( int y, int m, int d );		// set date
-
+    
     bool   isNull()	 const { return jd == 0; }
     bool   isValid()	 const;			// valid date
 
@@ -67,7 +68,7 @@ public:
     virtual QString monthName( int month ) const;
     virtual QString dayName( int weekday ) const;
 
-    QString toString()	 const;
+    QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
 
     bool   setYMD( int y, int m, int d );
 
@@ -82,6 +83,8 @@ public:
     bool   operator>=( const QDate &d ) const { return jd >= d.jd; }
 
     static QDate currentDate();
+    static QDate fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );
+    
     static bool	 isValid( int y, int m, int d );
     static bool	 leapYear( int year );
 
@@ -118,7 +121,7 @@ public:
     int	   second()	 const;			// 0..59
     int	   msec()	 const;			// 0..999
 
-    QString toString()	 const;
+    QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
 
     bool   setHMS( int h, int m, int s, int ms=0 );
 
@@ -135,6 +138,7 @@ public:
     bool   operator>=( const QTime &d ) const { return ds >= d.ds; }
 
     static QTime currentTime();
+    static QTime fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );    
     static bool	 isValid( int h, int m, int s, int ms=0 );
 
     void   start();
@@ -173,7 +177,7 @@ public:
     void   setTime( const QTime &time ) { t=time; }
     void   setTime_t( uint secsSince1Jan1970UTC );
 
-    QString toString()	const;
+    QString toString( Qt::DateFormat f = Qt::TextDate )	const;
 
     QDateTime addDays( int days )	const;
     QDateTime addSecs( int secs )	const;
@@ -188,6 +192,7 @@ public:
     bool   operator>=( const QDateTime &dt ) const;
 
     static QDateTime currentDateTime();
+    static QDateTime fromString( const QString& s, Qt::DateFormat f = Qt::TextDate );        
 
 private:
     QDate  d;

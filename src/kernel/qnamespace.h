@@ -210,7 +210,7 @@ public:
 	OpaqueMode
     };
 
-#ifndef QT_NO_COMPAT    
+#ifndef QT_NO_COMPAT
     enum PaintUnit {				// paint unit
 	PixelUnit,
 	LoMetricUnit, // OBSOLETE
@@ -220,7 +220,7 @@ public:
 	TwipsUnit // OBSOLETE
     };
 #endif
-    
+
 #ifdef QT_NO_COMPAT
     enum GUIStyle {
 	WindowsStyle,
@@ -235,7 +235,7 @@ public:
 	MotifStyle
     };
 #endif
-    
+
     enum Modifier {		// accelerator modifiers
 	SHIFT         = 0x00200000,
 	CTRL          = 0x00400000,
@@ -608,6 +608,13 @@ public:
     };
 
     enum ToolBarDock { Unmanaged, TornOff, Top, Bottom, Right, Left, Minimized };
+    
+    enum DateFormat {
+	TextDate,      // default Qt
+	ISODate,       // ISO 8601
+	LocalDate      // locale dependant
+    };
+
 };
 
 

@@ -64,6 +64,9 @@ class QBitmap;
 class QCursor;
 class QStringList;
 class QSizePolicy;
+class QDate;
+class QTime;
+class QDateTime;
 // Relevant header files rejected after QVariant declaration
 // for GCC 2.7.* compatibility
 class QVariant;
@@ -104,7 +107,10 @@ public:
 	Region,
 	Bitmap,
 	Cursor,
-	SizePolicy
+	SizePolicy,
+	Date,
+	Time,
+	DateTime
     };
 
     QVariant();
@@ -131,6 +137,9 @@ public:
     QVariant( const QRegion& );
     QVariant( const QBitmap& );
     QVariant( const QCursor& );
+    QVariant( const QDate& );
+    QVariant( const QTime& );
+    QVariant( const QDateTime& );
     QVariant( const QValueList<QVariant>& );
     QVariant( const QMap<QString,QVariant>& );
     QVariant( int );
@@ -152,7 +161,7 @@ public:
     bool isValid() const;
 
     void clear();
-
+    
     const QString toString() const;
     const QCString toCString() const;
     const QStringList toStringList() const;
@@ -171,10 +180,13 @@ public:
     const QBitmap toBitmap() const;
     const QRegion toRegion() const;
     const QCursor toCursor() const;
-    int toInt() const;
-    uint toUInt() const;
+    const QDate toDate() const;
+    const QTime toTime() const;
+    const QDateTime toDateTime() const;
+    int toInt( bool * ok=0 ) const;
+    uint toUInt( bool * ok=0 ) const;
     bool toBool() const;
-    double toDouble() const;
+    double toDouble( bool * ok=0 ) const;
     const QValueList<QVariant> toList() const;
     const QMap<QString,QVariant> toMap() const;
     QSizePolicy toSizePolicy() const;
@@ -205,6 +217,9 @@ public:
     QBitmap& asBitmap();
     QRegion& asRegion();
     QCursor& asCursor();
+    QDate& asDate();
+    QTime& asTime();
+    QDateTime& asDateTime();
     int& asInt();
     uint& asUInt();
     bool& asBool();

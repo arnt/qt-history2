@@ -55,6 +55,7 @@
 #include "qpointarray.h"
 #include "qbitmap.h"
 #include "qcursor.h"
+#include "qdatetime.h"
 #include "qsizepolicy.h"
 #include "qshared.h"
 
@@ -147,6 +148,15 @@ QVariantPrivate::QVariantPrivate( QVariantPrivate* d )
 	    break;
 	case QVariant::List:
 	    value.ptr = new QValueList<QVariant>( *((QValueList<QVariant>*)d->value.ptr) );
+	    break;
+	case QVariant::Date:
+	    value.ptr = new QDate( *((QDate*)d->value.ptr) );
+	    break;
+	case QVariant::Time:
+	    value.ptr = new QTime( *((QTime*)d->value.ptr) );
+	    break;
+	case QVariant::DateTime:
+	    value.ptr = new QDateTime( *((QDateTime*)d->value.ptr) );
 	    break;
 	case QVariant::Int:
 	    value.i = d->value.i;
@@ -241,6 +251,15 @@ void QVariantPrivate::clear()
 	    break;
 	case QVariant::SizePolicy:
 	    delete (QSizePolicy*)value.ptr;
+	    break;
+	case QVariant::Date:
+	    delete (QDate*)value.ptr;
+	    break;
+	case QVariant::Time:
+	    delete (QTime*)value.ptr;
+	    break;
+	case QVariant::DateTime:
+	    delete (QDateTime*)value.ptr;
 	    break;
 	case QVariant::Invalid:
 	case QVariant::Int:
@@ -346,12 +365,15 @@ void QVariantPrivate::clear()
   <li> \c Int - an int
   <li> \c UInt - an unsigned int
   <li> \c Bool - a bool
-  <li> \c Double - a doublea
+  <li> \c Double - a double
   <li> \c CString - a QCString
   <li> \c PointArray - a QPointArray
   <li> \c Region - a QRegion
   <li> \c Bitmap - a QBitmap
   <li> \c Cursor - a QCursor
+  <li> \c Date - a QDate
+  <li> \c Time - a QTime
+  <li> \c DateTime - a QDateTime
   <li> \c SizePolicy - a QSizePolicy
 
   </ul>
@@ -621,6 +643,36 @@ QVariant::QVariant( const QPointArray& val )
 }
 
 /*!
+  Constructs a new variant with a date value.
+*/
+QVariant::QVariant( const QDate& val )
+{
+    d = new QVariantPrivate;
+    d->typ = Date;
+    d->value.ptr = new QDate( val );
+}
+
+/*!
+  Constructs a new variant with a time value.
+*/
+QVariant::QVariant( const QTime& val )
+{
+    d = new QVariantPrivate;
+    d->typ = Time;
+    d->value.ptr = new QTime( val );
+}
+
+/*!
+  Constructs a new variant with a date/time value.
+*/
+QVariant::QVariant( const QDateTime& val )
+{
+    d = new QVariantPrivate;
+    d->typ = DateTime;
+    d->value.ptr = new QDateTime( val );
+}
+
+/*!
   Constructs a new variant with an integer value.
 */
 QVariant::QVariant( int val )
@@ -748,7 +800,7 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in moc.y.)
 */
-static const int ntypes = 26;
+static const int ntypes = 29;
 static const char* const type_map[ntypes] =
 {
     0,
@@ -776,7 +828,10 @@ static const char* const type_map[ntypes] =
     "QRegion",
     "QBitmap",
     "QCursor",
-    "QSizePolicy"
+    "QSizePolicy",
+    "QDate",
+    "QTime",
+    "QDateTime"
 };
 
 
@@ -1001,8 +1056,28 @@ void QVariant::load( QDataStream& s )
 					    (bool) hfw);
 	}
 	break;
+    case Date:
+	{
+	    QDate* x = new QDate;
+	    s >> *x;
+	    d->value.ptr = x;
+	}
+	break;
+    case Time:
+	{
+	    QTime* x = new QTime;
+	    s >> *x;
+	    d->value.ptr = x;
+	}
+	break;
+    case DateTime:
+	{
+	    QDateTime* x = new QDateTime;
+	    s >> *x;
+	    d->value.ptr = x;
+	}
+	break;
     }
-
     d->typ = t;
 }
 
@@ -1094,6 +1169,15 @@ void QVariant::save( QDataStream& s ) const
 	    s << (int) p.horData() << (int) p.verData()
 	      << (Q_INT8) p.hasHeightForWidth();
 	}
+	break;
+    case Date:
+	s << *((QDate*)d->value.ptr);
+	break;
+    case Time:
+	s << *((QTime*)d->value.ptr);
+	break;
+    case DateTime:
+	s << *((QDateTime*)d->value.ptr);
 	break;
     case Invalid:
 	s << QString(); // ### looks wrong.
@@ -1200,7 +1284,8 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
 
 /*!
   Returns the variant as a QString if the variant has type()
-  String or CString, or QString::null otherwise.
+  String, CString, Int, Uint, Bool, Double, Date, Time, or DateTime, 
+  or QString::null otherwise.
 
   \sa asString()
 */
@@ -1208,15 +1293,26 @@ const QString QVariant::toString() const
 {
     if ( d->typ == CString )
 	return QString::fromLatin1( toCString() );
+    if ( d->typ == Int )
+	return QString::number( toInt() );
+    if ( d->typ == UInt )
+	return QString::number( toUInt() );
+    if ( d->typ == Double )
+	return QString::number( toDouble() );
+    if ( d->typ == Date )
+	return toDate().toString( Qt::ISODate );
+    if ( d->typ == Time )
+	return toTime().toString( Qt::ISODate );
+    if ( d->typ == DateTime )
+	return toDateTime().toString( Qt::ISODate );
     if ( d->typ != String )
 	return QString::null;
-
     return *((QString*)d->value.ptr);
 }
 
 /*!
   Returns the variant as a QCString if the variant has type()
-  CString, or a 0 otherwise.
+  CString or String, or a 0 otherwise.
 
   \sa asCString()
 */
@@ -1481,13 +1577,67 @@ const QCursor QVariant::toCursor() const
 }
 
 /*!
-  Returns the variant as an int if the variant has type()
-  Int, UInt, Double or Bool, or 0 otherwise.
+  Returns the variant as a QDate if the variant has type()
+  Date, or an invalid date otherwise.
 
+  \sa asDate()
+*/
+const QDate QVariant::toDate() const
+{
+    if ( d->typ == Date )
+	return *((QDate*)d->value.ptr);	
+    if ( d->typ == String )
+	return QDate::fromString( *((QString*)d->value.ptr), Qt::ISODate );
+    return QDate();
+}
+
+/*!
+  Returns the variant as a QTime if the variant has type()
+  Time, or an invalid time otherwise.
+
+  \sa asTime()
+*/
+const QTime QVariant::toTime() const
+{
+    if ( d->typ == Time )
+	return *((QTime*)d->value.ptr);
+    if ( d->typ == String )
+	return QTime::fromString( *((QString*)d->value.ptr), Qt::ISODate );
+    return QTime();    
+}
+
+/*!
+  Returns the variant as a QDateTime if the variant has type()
+  DateTime, or an invalid date/time otherwise.
+
+  \sa asDateTime()
+*/
+const QDateTime QVariant::toDateTime() const
+{
+    if ( d->typ == DateTime )
+	return *((QDateTime*)d->value.ptr);	
+    if ( d->typ == String )
+	return QDateTime::fromString( *((QString*)d->value.ptr), Qt::ISODate );
+    return QDateTime();
+}
+
+/*!
+  Returns the variant as an int if the variant has type()
+  String, CString, Int, UInt, Double or Bool, or 0 otherwise.
+
+  If \a ok is non-null, \a*ok is set to TRUE if there are no conceivable errors, 
+  and FALSE if the conversion could not be done.
+  
   \sa asInt()
 */
-int QVariant::toInt() const
+int QVariant::toInt( bool * ok=0 ) const
 {
+    if( d->typ == String )
+	return ((QString*)d->value.ptr)->toInt( ok );
+    if ( d->typ == CString )
+	return ((QCString*)d->value.ptr)->toInt( ok ); 
+    if ( ok )
+	*ok = canCast( UInt );
     if( d->typ == Int )
 	return d->value.i;
     if( d->typ == UInt )
@@ -1497,21 +1647,26 @@ int QVariant::toInt() const
     if ( d->typ == Bool )
 	return (int)d->value.b;
 
-    /* if ( d->typ == String )
-	return ((QString*)d->value.ptr)->toInt();
-    if ( d->typ == CString )
-    return ((QCString*)d->value.ptr)->toInt(); */
     return 0;
 }
 
 /*!
   Returns the variant as an unsigned int if the variant has type()
-  UInt, Int, Double or Bool, or 0 otherwise.
+  String, CString, UInt, Int, Double or Bool, or 0 otherwise.
 
+  If \a ok is non-null, \a*ok is set to TRUE if there are no conceivable errors, 
+  and FALSE if the conversion could not be done.
+  
   \sa asUInt()
 */
-uint QVariant::toUInt() const
+uint QVariant::toUInt( bool * ok=0 ) const
 {
+    if( d->typ == String )
+	return ((QString*)d->value.ptr)->toUInt( ok );
+    if ( d->typ == CString )
+	return ((QCString*)d->value.ptr)->toUInt( ok ); 
+    if ( ok )
+	*ok = canCast( UInt );
     if( d->typ == Int )
 	return d->value.i;
     if( d->typ == UInt )
@@ -1548,12 +1703,21 @@ bool QVariant::toBool() const
 
 /*!
   Returns the variant as a double if the variant has type()
-  Double, Int, UInt or Bool, or 0.0 otherwise.
+  String, CString, Double, Int, UInt or Bool, or 0.0 otherwise.
+
+  If \a ok is non-null, \a*ok is set to TRUE if there are no conceivable errors, 
+  and FALSE if the conversion could not be done.
 
   \sa asDouble()
 */
-double QVariant::toDouble() const
+double QVariant::toDouble( bool * ok=0 ) const
 {
+    if( d->typ == String )
+	return ((QString*)d->value.ptr)->toDouble( ok );
+    if ( d->typ == CString )
+	return ((QCString*)d->value.ptr)->toDouble( ok ); 
+    if ( ok )
+	*ok = canCast( Double );
     if ( d->typ == Double )
 	return d->value.d;
     if ( d->typ == Int )
@@ -1622,6 +1786,9 @@ Q_VARIANT_AS(Bitmap)
 Q_VARIANT_AS(Region)
 Q_VARIANT_AS(Cursor)
 Q_VARIANT_AS(SizePolicy)
+Q_VARIANT_AS(Date)
+Q_VARIANT_AS(Time)
+Q_VARIANT_AS(DateTime)
 
 /*! \fn QString& QVariant::asString()
 
@@ -1811,6 +1978,36 @@ Q_VARIANT_AS(SizePolicy)
   \sa toCursor()
 */
 
+/*! \fn QDate& QVariant::asDate()
+
+  Tries to convert the variant to hold a QDate value. If that
+  is not possible then the variant is set to an invalid date.
+
+  Returns a reference to the stored date.
+
+  \sa toDate()
+*/
+
+/*! \fn QTime& QVariant::asTime()
+
+  Tries to convert the variant to hold a QTime value. If that
+  is not possible then the variant is set to an invalid time.
+
+  Returns a reference to the stored time.
+
+  \sa toTime()
+*/
+
+/*! \fn QDateTime& QVariant::asDateTime()
+
+  Tries to convert the variant to hold a QDateTime value. If that
+  is not possible then the variant is set to an invalid date/time.
+
+  Returns a reference to the stored date/time.
+
+  \sa toDateTime()
+*/
+
 /*!
   Returns the variant's value as int reference.
 */
@@ -1891,11 +2088,14 @@ QMap<QString, QVariant>& QVariant::asMap()
   The following casts are done automatically:
   <ul>
   <li> Bool -> Double, Int, UInt
-  <li> Double -> Int, Bool, UInt
-  <li> Int -> Double, Bool, UInt
-  <li> UInt -> Double, Bool, Int
-  <li> String -> CString
+  <li> Double -> String, Int, Bool, UInt
+  <li> Int -> String, Double, Bool, UInt
+  <li> UInt -> String, Double, Bool, Int
+  <li> String -> CString, Int, Uint, Double, Date, Time, DateTime
   <li> CString -> String
+  <li> Date -> String
+  <li> Time -> String
+  <li> DateTime -> String
   <li> List -> StringList (if the list contains strings or something
        that can be cast to a string).
   <li> StringList -> List
@@ -1907,15 +2107,21 @@ bool QVariant::canCast( Type t ) const
 	return TRUE;
     if ( t == Bool && ( d->typ == Double || d->typ == Int || d->typ == UInt ) )
 	 return TRUE;
-    if ( t == Int && ( d->typ == Double || d->typ == Bool || d->typ == UInt ) )
+    if ( t == Int && ( d->typ == String || d->typ == Double || d->typ == Bool || d->typ == UInt ) )
 	return TRUE;
-    if ( t == UInt && ( d->typ == Double || d->typ == Bool || d->typ == Int ) )
+    if ( t == UInt && ( d->typ == String || d->typ == Double || d->typ == Bool || d->typ == Int ) )
 	return TRUE;
-    if ( t == Double && ( d->typ == Int || d->typ == Bool || d->typ == UInt ) )
+    if ( t == Double && ( d->typ == String || d->typ == Int || d->typ == Bool || d->typ == UInt ) )
 	return TRUE;
     if ( t == CString && d->typ == String )
 	return TRUE;
-    if ( t == String && d->typ == CString )
+    if ( t == String && ( d->typ == CString || d->typ == Int || d->typ == UInt || d->typ == Double || d->typ == Date || d->typ == Time || d->typ == DateTime ) )
+	return TRUE;
+    if ( t == Date && d->typ == String )
+	return TRUE;
+    if ( t == Time && d->typ == String )
+	return TRUE;
+    if ( t == DateTime && d->typ == String )
 	return TRUE;
     if ( t == List && d->typ == StringList )
 	return TRUE;
@@ -1929,7 +2135,6 @@ bool QVariant::canCast( Type t ) const
 	}
 	return TRUE;
     }
-
     return FALSE;
 }
 
@@ -2000,6 +2205,12 @@ bool QVariant::operator==( const QVariant &v ) const
 	return v.toDouble() == toDouble();
     case SizePolicy:
 	return v.toSizePolicy() == toSizePolicy();
+    case Date:
+	return v.toDate() == toDate();
+    case Time:
+	return v.toTime() == toTime();
+    case DateTime:
+	return v.toDateTime() == toDateTime();
     case Invalid:
 	break;
     }
