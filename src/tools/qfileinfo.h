@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#5 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#6 $
 **
 ** Definition of QFileInfo class
 **
@@ -32,7 +32,7 @@ public:
     QFileInfo( const QFileInfo & );
     QFileInfo( const QFile & );
     QFileInfo( const QDir &, const char *fileName );
-    QFileInfo( const char *relativeOrAbsoluteFileName );
+    QFileInfo( const char *relativeOrAbsFilePath );
    ~QFileInfo();
 
     QFileInfo &operator=( const QFileInfo & );
@@ -44,23 +44,23 @@ public:
 
     void setFile( const QFile & );
     void setFile( const QDir &, const char *fileName );
-    void setFile( const char *relativeOrAbsoluteFileName );
+    void setFile( const char *relativeOrAbsFilePath );
 
-    const char *name()       const;
+    const char *filePath()   const;
     QString fileName()       const;
-    QString fullPathName()   const;
+    QString absFilePath()    const;
     QString baseName()       const;
     QString extension()      const;
 
-    QString dirName( bool fullPath = FALSE )  const;
-    QDir    dir( bool fullPath = FALSE )      const;
+    QString dirPath( bool absPath = FALSE )  const;
+    QDir    dir( bool absPath = FALSE )      const;
 
     bool    isReadable()     const;
     bool    isWritable()     const;
     bool    isExecutable()   const;
 
     bool    isRelative()     const;
-    bool    convertToAbsolute();
+    bool    convertToAbs();
 
     bool    isFile()         const;
     bool    isDir()	     const;
