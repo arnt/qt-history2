@@ -219,12 +219,12 @@ QSqlError QSqlResult::lastError() const
 }
 
 /*! \fn int QSqlResult::size()
-    Returns the size of the result.
+    Returns the size of the result or -1 if it cannot be determined.
 */
 
 /*! \fn int QSqlResult::numRowsAffected()
 
-  Returns the number of rows affected by the last query executed. 
+  Returns the number of rows affected by the last query executed.
 */
 
 /*! \fn QVariant QSqlResult::data( int i )
