@@ -83,7 +83,10 @@ static const int aquaCheckMarkHMargin  = 2;    // horiz. margins of check mark
 static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
 static QColor qt_aqua_highlight_active_color = QColor(0xC2, 0xC2, 0xC2); //color of highlighted text
-static QColor qt_aqua_highlight_inactive_color = qt_aqua_highlight_active_color.light();
+// the color below is actually light() of the active color.
+// DON'T use the QColor copy constructor or similar here, as it leads to undefined initialization order for
+// the static colors in qcolor.cpp (and might lead to all of them being black)
+static QColor qt_aqua_highlight_inactive_color = QColor( 0xff, 0xff, 0xff );
 #ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
 static QColor qt_aqua_text_active_color = Qt::black;
 static QColor qt_aqua_text_inactive_color = Qt::black;
@@ -96,7 +99,7 @@ class QAquaStyleFocusWidget : public QAquaFocusWidget
 public:
     QAquaStyleFocusWidget() : QAquaFocusWidget(FALSE) { }
 
-protected: 
+protected:
     virtual void paintEvent(QPaintEvent *);
 };
 
@@ -140,14 +143,14 @@ public:
     int progressOff;
     //big focus rects
     QGuardedPtr<QAquaStyleFocusWidget> focusWidget;
-    
+
 protected:
     bool doAnimate(QAquaAnimate::Animates);
     void doFocus(QWidget *);
 };
 bool QAquaStylePrivate::doAnimate(QAquaAnimate::Animates as)
 {
-    if(as == QAquaAnimate::AquaProgressBar) 
+    if(as == QAquaAnimate::AquaProgressBar)
 	progressOff--;
     return TRUE;
 }
@@ -247,18 +250,18 @@ void QAquaStyle::polish(QApplication* app)
 /*! \reimp */
 void QAquaStyle::polish(QWidget * w)
 {
-    if(!w->isTopLevel() && !w->inherits("QSplitter") && 
-       w->backgroundPixmap() && 
+    if(!w->isTopLevel() && !w->inherits("QSplitter") &&
+       w->backgroundPixmap() &&
        qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap() &&
-	w->backgroundPixmap()->serialNumber() == 
-       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber()) 
+	w->backgroundPixmap()->serialNumber() ==
+       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber())
 	w->setBackgroundOrigin(QWidget::WindowOrigin);
     d->addWidget(w);
 #ifdef Q_WS_MAC
     if(w->inherits("QPopupMenu"))
 	QMacSavedPortInfo::setAlphaTransparancy(w, 0.9);
 #endif
-    if(w->inherits("QLineEdit")) 
+    if(w->inherits("QLineEdit"))
 	((QLineEdit *)w)->setLineWidth(3);
 
     if(w->inherits("QToolButton")) {
@@ -392,7 +395,7 @@ void QAquaStyle::drawPrimitive(PrimitiveElement pe,
 		clr = lightGray;
 	}
 	enum { HORIZ, VERT, SQUARE, NONE } kind = SQUARE;
-	if(w && w->parentWidget() && w->parentWidget()->layout() && 
+	if(w && w->parentWidget() && w->parentWidget()->layout() &&
 	   w->inherits("QGroupBox") && ((QGroupBox*)w)->title().isEmpty()) {
 	    QPtrStack<QLayout> lays;
 	    QLayoutItem *last = NULL;
@@ -403,21 +406,21 @@ void QAquaStyle::drawPrimitive(PrimitiveElement pe,
 		    QLayoutIterator it = blay->iterator();
 		    for(QLayoutItem *child; (child = it.current()); ++it) {
 			if(child->widget() == w) {
-			    if(last && last->widget() && 
-			       last->widget()->inherits("QGroupBox") && 
+			    if(last && last->widget() &&
+			       last->widget()->inherits("QGroupBox") &&
 			       ((QGroupBox*)last->widget())->title().isEmpty()) {
-				if(blay->direction() == QBoxLayout::LeftToRight || 
-				   blay->direction() == QBoxLayout::TopToBottom) 
+				if(blay->direction() == QBoxLayout::LeftToRight ||
+				   blay->direction() == QBoxLayout::TopToBottom)
 				    kind = (blay->direction() == QBoxLayout::LeftToRight) ? VERT : HORIZ;
 				else
 				    kind = NONE;
 			    } else {
 				++it;
-				if((child = it.current()) && child->widget() && 
+				if((child = it.current()) && child->widget() &&
 				   child->widget()->inherits("QGroupBox") &&
 				    ((QGroupBox*)child->widget())->title().isEmpty()) {
-				    if(blay->direction() == QBoxLayout::LeftToRight || 
-				       blay->direction() == QBoxLayout::TopToBottom) 
+				    if(blay->direction() == QBoxLayout::LeftToRight ||
+				       blay->direction() == QBoxLayout::TopToBottom)
 					kind = NONE;
 				    else
 					kind = (blay->direction() == QBoxLayout::RightToLeft) ? VERT : HORIZ;
@@ -475,7 +478,7 @@ void QAquaStyle::drawPrimitive(PrimitiveElement pe,
 	QString nstr = QString::number(r.height()), mod;
 	if(flags & Style_Down)
 	    mod += "down_";
-	if((flags & Style_Sunken) && qAquaActive(cg)) 
+	if((flags & Style_Sunken) && qAquaActive(cg))
 	    mod += "act_";
 	qAquaPixmap("hdr_" + mod + nstr, px);
 	p->drawTiledPixmap(r, px);
@@ -744,7 +747,7 @@ void QAquaStyle::drawControl(ControlElement element,
     switch(element) {
     case CE_PopupMenuScroller: {
 	p->fillRect(r.x(), r.y(), r.width(), r.height(), cg.brush(QColorGroup::Button));
-	const int w = 10, x = (r.width() / 2) - (w / 2), 
+	const int w = 10, x = (r.width() / 2) - (w / 2),
 		  h = 10, y = (r.height() / 2) - (h / 2);
 	drawPrimitive((how & Style_Down) ? PE_ArrowDown : PE_ArrowUp, p,
 		      QRect(r.x() + x, r.y() + y, w, h), cg, flags, opt);
@@ -1159,14 +1162,14 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	break;
     case PM_DefaultFrameWidth:
 	if(widget &&
-	   (widget->isTopLevel() || !widget->parentWidget() || 
-	    (widget->parentWidget()->inherits("QMainWindow") && 
+	   (widget->isTopLevel() || !widget->parentWidget() ||
+	    (widget->parentWidget()->inherits("QMainWindow") &&
 	     ((QMainWindow*)widget->parentWidget())->centralWidget() == widget)) &&
 	    (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild")))
 	    ret = 0;
-	else if(widget && widget->inherits("QLineEdit")) 
+	else if(widget && widget->inherits("QLineEdit"))
 	    ret = 2;
-	else 
+	else
 	    ret = QWindowsStyle::pixelMetric(metric, widget);
 	break;
     case PM_TitleBarHeight:
@@ -1533,7 +1536,7 @@ void QAquaStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	break; }
 
     case CC_SpinWidget: {
-	if(sub & SC_SpinWidgetFrame) 
+	if(sub & SC_SpinWidgetFrame)
 	    drawPrimitive(PE_PanelLineEdit, p, r, cg, Style_Sunken);
 
 	QPixmap btn;
@@ -1875,7 +1878,7 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &op
 	ret = Qt::AlignTop;
 	break;
     case SH_ScrollView_FrameOnlyAroundContents:
-	if(w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel()) &&  
+	if(w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel()) &&
 	   (w->inherits("QScrollView") || w->inherits("QWorkspaceChild")))
 	    ret = TRUE;
 	else
