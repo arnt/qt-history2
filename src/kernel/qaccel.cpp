@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QAccel class
 **
 ** Created : 950419
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -891,7 +891,7 @@ same dialog), you must decide for yourself.
 \i <b><u>P</u></b>rint Here
 \i P<b><u>r</u></b>operties
 \i <b><u>Q</u></b>uick View
-\i <b><u>R</u></b>edo (CDE: Ctrl+Y, Alt+Backspace)
+\i <b><u>R</u></b>edo (CDE: Ctrl+Y, Shift+Alt+Backspace)
 \i <b><u>R</u></b>epeat
 \i <b><u>R</u></b>estore
 \i <b><u>R</u></b>esume
