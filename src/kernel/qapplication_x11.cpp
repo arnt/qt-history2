@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#532 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#533 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2326,43 +2326,60 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	}
 	else if (!QWidget::find((WId)event->xreparent.parent) )
 	    {
-		XWindowAttributes a1, a2;
 		while ( XCheckTypedWindowEvent( widget->x11Display(),
 						widget->winId(),
 						ReparentNotify,
 						event ) )
 		    ;				// skip old reparent events
 		Window parent = event->xreparent.parent;
-		// ### this causes two round trips for every top-level
-		// ### window being shown.  to be avoided if possible.
 		
 		// We can drop the entire crect calculation here (it's
 		// already done in translateConfigEvent()
 		// anyway). QWidget::frameGeometry() should do this
 		// calculation instead - Matthias
 
-		XGetWindowAttributes( widget->x11Display(),
-				      widget->winId(), &a1 );
+		int x = event->xreparent.x;
+		int y = event->xreparent.y;
+		XWindowAttributes a;
 		qt_ignore_badwindow();
 		XGetWindowAttributes( widget->x11Display(), parent,
-				      &a2 );
+				      &a );
 		if (qt_badwindow())
 		    break;
 		
 		QRect& r = widget->crect;
-		XWindowAttributes *a;
-		if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0)
-		     && a2.x + a2.y < r.left() + r.top())
-		    a = &a2;			// typical for mwm, fvwm
-		else
-		    a = &a1;			// typical for twm, olwm
-		a->x += a2.border_width;
-		a->y += a2.border_width;
+		QRect frect ( r );
 		
-		QRect frect(QPoint(r.left()	- a->x,
-				   r.top()	- a->y),
-			    QPoint(r.right()	+ a->x,
-				   r.bottom() + a->x) );
+		if ( x == 0 && y == 0 && a.width == r.width() && a.height == r.height() ) {
+		    // multi reparenting window manager, parent is just a shell		    
+		    Window root_return, parent_return, *children_return;
+		    unsigned int nchildren;
+		    if ( XQueryTree( widget->x11Display(), parent, 
+				     &root_return, &parent_return, 
+				     &children_return, &nchildren) ) {
+			if ( children_return )
+			    XFree( (void*) children_return );
+			XWindowAttributes a2;
+			qt_ignore_badwindow();
+			XGetWindowAttributes( widget->x11Display(), parent_return,
+					      &a2 );
+			if (qt_badwindow())
+			    break;
+			x += a.x;
+			y += a.y;
+			frect.setRect(r.left() - x - a2.border_width,
+				      r.top() - y - a2.border_width,
+				      a2.width + 2*a2.border_width,
+				      a2.height + 2*a2.border_width);
+		    }
+		} else {
+		    // single reparenting window manager
+		    frect.setRect(r.left() - x - a.border_width,
+				  r.top() - y - a.border_width,
+				  a.width + 2*a.border_width,
+				  a.height + 2*a.border_width);
+		}
+		
 		widget->createTLExtra();
 		widget->fpos = frect.topLeft();
 		widget->extra->topextra->fsize = frect.size();
@@ -3056,7 +3073,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		       RightButton );
     } else if (	 event->type == EnterNotify || event->type == LeaveNotify) {
 	XEvent *xevent = (XEvent *)event;
-	unsigned int xstate = event->xcrossing.state;
+	//unsigned int xstate = event->xcrossing.state;
 	type = QEvent::MouseMove;
 	pos.rx() = xevent->xcrossing.x;
 	pos.ry() = xevent->xcrossing.y;
