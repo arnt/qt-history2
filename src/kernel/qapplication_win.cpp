@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#377 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#378 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -425,6 +425,11 @@ static void qt_set_windows_resources()
 		 QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
     cg.setColor( QColorGroup::HighlightedText,
 		 QColor(colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
+
+    if ( QApplication::winVersion() == Qt::WV_2000 || QApplication::winVersion() == Qt::WV_98 ) {
+	if ( cg.midlight() == cg.button() )
+	    cg.setColor( QColorGroup::Midlight, cg.button().light(110) );
+    }
 
     QColor disabled( (cg.foreground().red()+cg.button().red())/2,
 		     (cg.foreground().green()+cg.button().green())/2,

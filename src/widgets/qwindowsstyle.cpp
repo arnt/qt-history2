@@ -53,7 +53,9 @@
   plattform. Naturally it is also Qt's default GUI style on Windows.
 */
 
+#if defined(_WS_WIN32_)
 extern Qt::WindowsVersion qt_winver;
+#endif
 
 /*!
     Constructs a QWindowsStyle
@@ -68,19 +70,6 @@ QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
 */
 QWindowsStyle::~QWindowsStyle()
 {
-}
-
-
-/*! \reimp */
-
-void QWindowsStyle::polish( QApplication* app )
-{
-    QPalette pal = app->palette();
-
-    if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
-	pal.setColor( QColorGroup::Midlight, pal.active().button().light( 110 ) );
-	app->setPalette( pal );
-    }
 }
 
 /*! \reimp */
@@ -1182,10 +1171,12 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, 
     QColorGroup itemg = dis ? pal.disabled() : pal.active();
 
     if ( checkable ) {
+#if defined(_WS_WIN32_)
 	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 )
 	    maxpmw = QMAX( maxpmw, 16);
 	else
-	    maxpmw = QMAX( maxpmw, 16 ); // space for the checkmarks
+#endif
+	    maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
     }
 
     int checkcol	  =     maxpmw;
