@@ -194,3 +194,994 @@ void **QListData::erase(void **xi)
     remove(i);
     return d->array + d->begin + i;
 }
+
+/*! \class QList
+    \brief The QList class is a generic container that provides lists.
+
+    QList\<T\> is one of Qt's generic \l{container classes}. It
+    stores a list of values and provides fast index-based access as
+    well as fast insertions.
+
+    QList\<T\>, QLinkedList\<T\>, and QVector\<T\> provide similar
+    functionality.
+    ### time constraints
+
+    Here's an example QList that stores QDate values:
+
+    \code
+	QList<QDate> list;
+    \endcode
+
+    ### operator<<()
+*/
+
+/*! \fn QList::QList()
+
+    Constructs an empty list.
+*/
+
+/*! \fn QList::QList(const QList &other)
+
+    Constructs a copy of \a other.
+
+    This operation occurs in \l{constant time}, because QList is
+    \l{implicitly shared}. This makes returning a QList from a
+    function very fast. If a shared instance is modified, it will be
+    copied (copy-on-write), and this takes \l{linear time}.
+
+    \sa operator=()
+*/
+
+/*! \fn QList::~QList()
+
+    Destroys the list. References to the values in the list and all
+    iterators of this list become invalid.
+*/
+
+/*! \fn QList &QList::operator=(const QList &other)
+
+    Assigns \a other to this list and returns a reference to this
+    list.
+
+    This operation occurs in \l{constant time}, because QList is
+    \l{implicitly shared}.
+*/
+
+/*! \fn bool QList::operator==(const QList &other) const
+
+    Returns true if \a other is equal to this list; otherwise returns
+    false.
+
+    Two lists are considered equal if they contain the same values in
+    the same order.
+
+    \sa operator!=()
+*/
+
+/*! \fn bool QList::operator!=(const QList &other) const
+
+    Returns true if \a other is not equal to this list; otherwise
+    returns false.
+
+    \sa operator==()
+*/
+
+/*! \fn int QList::size() const
+
+    Returns the number of items in the list.
+
+    \sa isEmpty(), count()
+*/
+
+/*! \fn void QList::detach()
+
+    \internal
+*/
+
+/*! \fn bool QList::isDetached() const
+
+    \internal
+*/
+
+/*! \fn bool QList::isEmpty() const
+
+    Returns true if the list contains no items; otherwise returns
+    false.
+
+    \sa size()
+*/
+
+/*! \fn bool QList::operator!() const
+
+    \internal
+*/
+
+/*! \fn QList::operator QSafeBool() const
+
+    Returns true if the map contains at least one items; otherwise
+    returns false.
+
+    Example:
+    \code
+	static QList<QString> list;
+        ...
+        if (list)
+	    do_something(list);
+    \endcode
+
+    This is the same as \c{!list.isEmpty()}.
+
+    \sa isEmpty()
+*/
+
+/*! \fn void QList::clear()
+
+    Removes all items from the list.
+
+    \sa remove()
+*/
+
+/*! \fn const T &QList::at(int i) const
+
+    Returns the item at index \a i in the list.
+
+    \a i must be a valid index to an item in the list (i.e., 0 <= \a
+    i < size()).
+
+    \sa value(), operator[]()
+*/
+
+/*! \fn T &QList::operator[](int i)
+
+    Returns the item at index \a i as a modifiable reference.
+
+    \a i must be a valid index to an item in the list (i.e., 0 <= \a
+    i < size()).
+
+    \sa at(), value()
+*/
+
+/*! \fn const T &QList::operator[](int i) const
+
+    \overload
+
+    Same as at().
+*/
+
+/*! \fn void QList::append(const T &t)
+
+    Inserts \a t at the end of the list.
+
+    Example:
+    \code
+	QList<QString> list;
+        list.append("one");
+        list.append("two");
+        list.append("three");
+        // list: [ "one", "two", "three" ]
+    \endcode
+
+    This is the same as list.insert(size(), \a t).
+
+    \sa operator<<(), prepend(), insert()
+*/
+
+/*! \fn void QList::prepend(const T &t)
+
+    Inserts \a at the beginning of the list.
+
+    Example:
+    \code
+	QList<QString> list;
+        list.prepend("one");
+        list.prepend("two");
+        list.prepend("three");
+        // list: [ "three", "two", "one" ]
+    \endcode
+
+    This is the same as list.insert(0, \a t).
+
+    \sa append(), insert()
+*/
+
+/*! \fn void QList::insert(int i, const T &t)
+
+    Inserts the value \a t at index \a i in the list. If \a i is 0,
+    the value is prepended to the list. If \a i is size(), the value
+    is appended to the list.
+
+    Example:
+    \code
+	QList<QString> list;
+        list << "alpha" << "beta" << "delta";
+        list.insert(2, "gamma");
+        // list: [ "alpha", "beta", "gamma", "delta" ]
+    \endcode
+
+    \sa append(), prepend(), replace(), removeAt()
+*/
+
+/*! \fn QList::iterator QList::insert(iterator before, const T &t)
+
+    \overload
+
+    Inserts the value \a t in front of the item pointed to by the
+    iterator \a before. Returns an iterator pointing at the inserted
+    item.
+*/
+
+/*! \fn void QList::replace(int i, const T &t)
+
+    Replaces the item at index \a i with \a t.
+
+    \a i must be a valid index to an item in the list (i.e., 0 <= \a
+    i < size()).
+
+    \sa operator[](), removeAt()
+*/
+
+/*! \fn int QList::remove(const T &t)
+
+    Removes all occurrences of item \a t in the list.
+
+    Example:
+    \code
+	QList<QString> list;
+        list << "sun" << "cloud" << "sun" << "rain";
+        list.remove("sun");
+        // list: [ "cloud", "rain" ]
+    \endcode
+
+    \sa removeAt(), takeAt(), replace()
+*/
+
+/*! \fn void QList::removeAt(int i)
+
+    Removes the item at index \a i.
+
+    \a i must be a valid index to an item in the list (i.e., 0 <= \a
+    i < size()).
+
+    \sa takeAt(), removeFirst(), removeLast()
+*/
+
+/*! \fn T QList::takeAt(int i)
+
+    Removes the item at index \a i and returns it.
+
+    \a i must be a valid index to an item in the list (i.e., 0 <= \a
+    i < size()).
+
+    \sa removeAt(), takeFirst(), takeLast()
+*/
+
+/*! \fn T QList::takeFirst()
+
+    Removes the first item in the list and returns it.
+
+    This is the same as takeAt(0).
+
+    \sa takeLast(), takeAt(), removeFirst()
+*/
+
+/*! \fn T QList::takeLast()
+
+    Removes the last item in the list and returns it.
+
+    This is the same as takeAt(size() - 1).
+
+    \sa takeFirst(), takeAt(), removeLast()
+*/
+
+/*! \fn void QList::move(int from, int to)
+
+    Moves a the item at index \a from to index \a to, moving all
+    items in between by one position.
+
+    Example:
+    \code
+	QList list;
+        list << "A" << "B" << "C" << "D" << "E" << "F";
+        list.move(1, 4);
+        // list: [ "A", "C", "D", "E", "B", "F" ]
+    \endcode
+
+    This is the same as insert(\a{to}, takeAt(\a{from})).
+
+    \sa swap(), insert(), takeAt()
+*/
+
+/*! \fn void QList::swap(int i, int j)
+
+    Exchange the item at index \a i with the item at index \a j. The
+    items in between stay at the same positions.
+
+    Example:
+    \code
+	QList list;
+        list << "A" << "B" << "C" << "D" << "E" << "F";
+        list.swap(1, 4);
+        // list: [ "A", "E", "C", "D", "B", "F" ]
+    \endcode
+
+    \sa move()
+*/
+
+/*! \fn int QList::indexOf(const T &t, int from = 0) const
+
+    Finds the first occurrence of the value \a t in the list, starting at
+    index \a from. Returns -1 if no item matched.
+
+    Example:
+    \code
+	QList list;
+        list << "A" << "B" << "C" << "B" << "A";
+        list.indexOf("B");          // returns 1
+        list.indexOf("B", 1);       // returns 1
+        list.indexOf("B", 2);       // returns 3
+    \endcode
+
+    This function requires the value type to implement operator==().
+
+    \sa lastIndexOf(), contains()
+*/
+
+/*! \fn int QList::lastIndexOf(const T &t, int from = -1) const
+
+    Finds the first occurrence of the value \a t in the list, starting
+    at index \a from and searching backward. If \a from is -1, the
+    search starts at the last item. Returns -1 if no item matched.
+
+    Example:
+    \code
+	QList list;
+        list << "A" << "B" << "C" << "B" << "A";
+        list.lastIndexOf("B");      // returns 3
+        list.lastIndexOf("B", 3);   // returns 3
+        list.lastIndexOf("B", 2);   // returns 1
+    \endcode
+
+    This function requires the value type to implement operator==().
+
+    \sa indexOf()
+*/
+
+/*! \fn QBool QList::contains(const T &t) const
+
+    Returns true if the list contains an occurrence of the value \a
+    t; otherwise returns false.
+
+    This function requires the value type to implement operator==().
+
+    \sa indexOf(), count()
+*/
+
+/*! \fn int QList::count(const T &t) const
+
+    Returns the number of occurrences of the value \a t in the list.
+
+    \sa contains(), indexOf()
+*/
+
+/*! \fn QList::iterator QList::begin()
+
+    Returns an \l{STL-style iterator} pointing to the first item in
+    the list.
+
+    \sa constBegin(), end()
+*/
+
+/*! \fn QList::const_iterator QList::begin() const
+
+    \overload
+*/
+
+/*! \fn QList::const_iterator QList::constBegin() const
+
+    Returns a const \l{STL-style iterator} pointing to the first item
+    in the list.
+
+    \sa begin(), constEnd()
+*/
+
+/*! \fn QList::iterator QList::end()
+
+    Returns an \l{STL-style iterator} pointing to the imaginary item
+    after the last item in the list.
+
+    \sa begin(), constEnd()
+*/
+
+/*! \fn const_iterator QList::end() const
+
+    \overload
+*/
+
+/*! \fn QList::const_iterator QList::constEnd() const
+
+    Returns a const \l{STL-style iterator} pointing to the imaginary
+    item after the last item in the map.
+
+    \sa constBegin(), end()
+*/
+
+/*! \fn QList::iterator QList::erase(iterator pos)
+
+    Removes the item associated with the iterator \a pos from the
+    list, and returns an iterator to the next item in the list.
+
+    \sa remove()
+*/
+
+/*! \fn QList::iterator QList::erase(iterator begin, iterator end)
+
+    \overload
+
+    Removes all items from \a begin to \a end (not including \a end).
+*/
+
+/*! \typedef QList::Iterator
+
+    Qt-style synonym for QList::iterator.
+*/
+
+/*! \typedef QList::ConstIterator
+
+    Qt-style synonym for QList::const_iterator.
+*/
+
+/*! \fn int QList::count() const
+
+    Same as size().
+*/
+
+/*! \fn T& QList::first()
+
+    Returns a reference to the first item in the list. This function
+    assumes that the list isn't empty.
+
+    \sa last()
+*/
+
+/*! \fn const T& QList::first() const
+
+    \overload
+*/
+
+/*! \fn T& QList::last()
+
+    Returns a reference to the last item in the list. This function
+    assumes that the list isn't empty.
+
+    \sa first()
+*/
+
+/*! \fn const T& QList::last() const
+
+    \overload
+*/
+
+/*! \fn void QList::removeFirst()
+
+    Removes the first item in the list.
+
+    This is the same as removeAt(0).
+
+    \sa removeAt(), takeFirst()
+*/
+
+/*! \fn void QList::removeLast()
+
+    Removes the last item in the list.
+
+    This is the same as removeAt(size() - 1).
+
+    \sa removeAt(), takeLast()
+*/
+
+/*! \fn T QList::value(int i) const
+
+    Returns the value at index \a i in the list.
+
+    If the index \a i is out of bounds, the function returns a
+    \l{default-constructed value}. If you already know that the index
+    is going to be within bounds, you can use at() instead, which is
+    slightly faster.
+
+    \sa at(), operator[]()
+*/
+
+/*! \fn T QList::value(int i, const T &defaultValue) const
+
+    \overload
+
+    If the index \a i is out of bounds, the function returns
+    \a defaultValue.
+*/
+
+/*! \fn void QList::push_back(const T &t)
+
+    This function is provided for STL compatibility. It is equivalent
+    to append().
+*/
+
+/*! \fn void QList::push_front(const T &t)
+
+    This function is provided for STL compatibility. It is equivalent
+    to prepend().
+*/
+
+/*! \fn T& QList::front()
+
+    This function is provided for STL compatibility. It is equivalent
+    to first().
+*/
+
+/*! \fn const T& QList::front() const
+
+    \overload
+*/
+
+/*! \fn T& QList::back()
+
+    This function is provided for STL compatibility. It is equivalent
+    to last().
+*/
+
+/*! \fn const T& QList::back() const
+
+    \overload
+*/
+
+/*! \fn void QList::pop_front()
+
+    This function is provided for STL compatibility. It is equivalent
+    to removeFirst().
+*/
+
+/*! \fn void QList::pop_back()
+
+    This function is provided for STL compatibility. It is equivalent
+    to removeLast().
+*/
+
+/*! \fn bool QList::empty() const
+
+    This function is provided for STL compatibility. It is equivalent
+    to isEmpty().
+*/
+
+/*! \fn QList &QList::operator+=(const QList &other)
+
+    Appends the items of \a other to this list and returns a
+    reference to this list.
+
+    \sa operator+(), append()
+*/
+
+/*! \fn void QList::operator+=(const T &t)
+
+    \overload
+
+    Appends the value \a t to the list.
+
+    \sa append(), operator<<()
+*/
+
+/*! \fn QList QList::operator+(const QList &other) const
+
+    Returns a list that contains all the items in this list followed
+    by all the items in \a other.
+
+    \sa operator+=()
+*/
+
+/*! \fn QList &QList::operator<<(const T &t)
+
+    Appends the value \a t to the lis t and returns a reference to
+    this list.
+
+    \sa append(), operator+=()
+*/
+
+/*! \fn bool QList::ensure_constructed()
+
+    \internal
+*/
+
+/*! \class QList::iterator
+    \brief The QList::iterator class provides an STL-style non-const iterator for QList.
+
+    QList provides both \l{STL-style iterators} and \l{Java-style
+    iterators}. The STL-style iterators are more low-level and more
+    cumbersome to use; on the other hand, they are slightly faster
+    and, for developers who already know STL, have the advantage of
+    familiarity.
+
+    QList::iterator allows you to iterate over a QList and to modify
+    the list item associated with the iterator. If you want to
+    iterate over a const QList, you should use QList::const_iterator.
+    It is generally good practice to use QList::const_iterator on a
+    non-const QList as well, unless you need to change the QList
+    through the iterator. Const iterators are slightly faster, and
+    can improve code readability.
+
+    The default QList::iterator constructor creates an uninitialized
+    iterator. You must initialize it using a QList function like
+    QList::begin(), QList::end(), or QList::insert() before you can
+    start iterating. Here's a typical loop that prints all the items
+    stored in a list:
+
+    \code
+	QList<QString> list;
+        list.append("January");
+        list.append("February");
+        ...
+        list.append("December");
+
+        QList<QString, int>::iterator i;
+        for (i = list.begin(); i != list.end(); ++i)
+	    cout << *i << endl;
+    \endcode
+
+    Let's see a few examples of things we can do with a
+    QList::iterator that we cannot do with a QList::const_iterator.
+    Here's an example that increments every value stored in a
+    QList\<int\> by 2:
+
+    \code
+	QList<int>::iterator i;
+        for (i = list.begin(); i != list.end(); ++i)
+	    *i += 2;
+    \endcode
+
+    QList::iterator and the other iterator clas
+
+    For QList, we recommend that you use QList::at() and QList::replace()
+    to acce
+
+    Most QList functions accept an integer index rather than an
+    iterator. For that reason, iterators are rarely useful in
+    connection with QList. One place where STL-style iterators do
+    make sense is as arguments to \l{generic algorithms}.
+
+    For example, here's how to delete all the widgets stored in a
+    QList\<QWidget *\>:
+
+    \code
+	QList<QWidget *> list;
+        ...
+	qDeleteAll(list.begin(), list.end());
+    \endcode
+
+    Multiple iterators can be used on the same list. However, be
+    aware that any non-const function call performed on the QList
+    will render all existing iterators undefined. If you need to keep
+    iterators over a long period of time, we recommend that you use
+    QLinkedList rather than QList.
+
+    \sa QList::const_iterator, QListMutableIterator
+*/
+
+/*! \fn QList::iterator::iterator()
+
+    Creates an unitialized iterator.
+
+    Functions like operator*() and operator++() should not be called
+    on an unitialized iterartor. Use operator=() to assign a value to
+    it before using it.
+*/
+
+/*! \fn QList::iterator::iterator(Node *n)
+
+    \internal
+*/
+
+/*! \fn QList::iterator::iterator(const iterator &other)
+
+    Creates a copy of \a other.
+*/
+
+/*! \fn T &QList::iterator::operator*()
+
+    Returns a modifiable reference to the current item.
+
+    You can change the value of an item by using operator*() on the
+    left side of an assignment, for example:
+
+    \code
+	if (*it == "Hello")
+	    *it = "Bonjour";
+    \endcode
+*/
+
+/*! \fn T &QList::iterator::operator[](int j)
+
+    Returns a modifiable reference to the item at position *this +
+    \a{j}.
+
+    This function is provided to make QList iterators behave like C++
+    pointers.
+
+    \sa operator+()
+*/
+
+/*! \fn bool QList::iterator::operator==(const iterator &other) const
+
+    Returns true if \a other points to the same item as this
+    iterator; otherwise returns false.
+
+    \sa operator!=()
+*/
+
+/*! \fn bool QList::iterator::operator!=(const iterator &other) const
+
+    Returns true if \a other points to a different item than this
+    iterator; otherwise returns false.
+
+    \sa operator==()
+*/
+
+/*! \fn QList::iterator QList::iterator::operator++()
+
+    The prefix ++ operator (\c{++it}) advances the iterator to the
+    next item in the list and returns an iterator to the new current
+    item.
+
+    Calling this function on QList::end() leads to undefined results.
+
+    \sa operator--()
+*/
+
+/*! \fn QList::iterator QList::iterator::operator++(int)
+
+    \overload
+
+    The postfix ++ operator (\c{it++}) advances the iterator to the
+    next item in the list and returns an iterator to the previously
+    current item.
+*/
+
+/*! \fn QList::iterator QList::iterator::operator--()
+
+    The prefix -- operator (\c{--it}) makes the preceding item
+    current and returns an iterator to the new current item.
+
+    Calling this function on QList::begin() leads to undefined results.
+
+    \sa operator++()
+*/
+
+/*! \fn QList::iterator QList::iterator::operator--(int)
+
+    \overload
+
+    The postfix -- operator (\c{it--}) makes the preceding item
+    current and returns an iterator to the previously current item.
+*/
+
+/*! \fn QList::iterator &QList::iterator::operator+=(int j)
+
+    Advances the iterator by \a j items. (If \a j is negative, the
+    iterator goes backward.)
+
+    \sa operator-=(), operator+()
+*/
+
+/*! \fn QList::iterator &QList::iterator::operator-=(int j)
+
+    Makes the iterator go back by \a j items. (If \a j is negative,
+    the iterator goes forward.)
+
+    \sa operator+=(), operator-()
+*/
+
+/*! \fn QList::iterator QList::iterator::operator+(int j) const
+
+    Returns an iterator to the item at \a j positions forward from
+    this iterator.
+
+    \sa operator-(), operator+=()
+*/
+
+/*! \fn QList::iterator QList::iterator::operator-(int j) const
+
+    Returns an iterator to the item at \a j positions backward from
+    this iterator.
+
+    \sa operator+(), operator-=()
+*/
+
+/*! \fn int QList::iterator::operator-(iterator other) const
+
+    Returns the distance between the item pointed to by \a other and
+    the item pointed to by this iterator.
+*/
+
+/*! \class QList::const_iterator
+    \brief The QList::iterator class provides an STL-style const iterator for QList.
+
+    QList provides both \l{STL-style iterators} and \l{Java-style
+    iterators}. The STL-style iterators are more low-level and more
+    cumbersome to use; on the other hand, they are slightly faster
+    and, for developers who already know STL, have the advantage of
+    familiarity.
+
+    QList::const_iterator allows you to iterate over a QList. If you want to
+    modify the QList as you iterate over it, you must use QList::iterator
+    instead. It is generally good practice to use QList::const_iterator on a
+    non-const QList as well, unless you need to change the QList
+    through the iterator. Const iterators are slightly faster, and
+    can improve code readability.
+
+    The default QList::const_iterator constructor creates an
+    uninitialized iterator. You must initialize it using a QList
+    function like QList::constBegin(), QList::constEnd(), or
+    QList::insert() before you can start iterating. Here's a typical
+    loop that prints all the items stored in a list:
+
+    \code
+	QList<QString> list;
+        list.append("January");
+        list.append("February");
+        ...
+        list.append("December");
+
+        QList<QString, int>::const_iterator i;
+        for (i = list.constBegin(); i != list.constEnd(); ++i)
+	    cout << *i << endl;
+    \endcode
+
+    Most QList functions accept an integer index rather than an
+    iterator. For that reason, iterators are rarely useful in
+    connection with QList. One place where STL-style iterators do
+    make sense is as arguments to \l{generic algorithms}.
+
+    For example, here's how to delete all the widgets stored in a
+    QList\<QWidget *\>:
+
+    \code
+	QList<QWidget *> list;
+        ...
+	qDeleteAll(list.constBegin(), list.constEnd());
+    \endcode
+
+    Multiple iterators can be used on the same list. However, be
+    aware that any non-const function call performed on the QList
+    will render all existing iterators undefined. If you need to keep
+    iterators over a long period of time, we recommend that you use
+    QLinkedList rather than QList.
+
+    \sa QList::iterator, QListIterator
+*/
+
+/*! \fn QList::const_iterator::const_iterator()
+
+    Creates an unitialized iterator.
+
+    Functions like operator*() and operator++() should not be called
+    on an unitialized iterartor. Use operator=() to assign a value to
+    it before using it.
+*/
+
+/*! \fn QList::const_iterator::const_iterator(Node *n)
+
+    \internal
+*/
+
+/*! \fn QList::const_iterator::const_iterator(const const_iterator &other)
+
+    Creates a copy of \a other.
+*/
+
+/*! \fn QList::const_iterator::const_iterator(const iterator &other)
+
+    Creates a copy of \a other.
+*/
+
+/*! \fn const T &QList::const_iterator::operator*() const
+
+    Returns the current item.
+*/
+
+/*! \fn const T &QList::const_iterator::operator[](int j) const
+
+    Returns the item at position *this + \a{j}.
+
+    This function is provided to make QList iterators behave like C++
+    pointers.
+
+    \sa operator+()
+*/
+
+/*! \fn bool QList::const_iterator::operator==(const const_iterator &other) const
+
+    Returns true if \a other points to the same item as this
+    iterator; otherwise returns false.
+
+    \sa operator!=()
+*/
+
+/*! \fn bool QList::const_iterator::operator!=(const const_iterator &other) const
+
+    Returns true if \a other points to a different item than this
+    iterator; otherwise returns false.
+
+    \sa operator==()
+*/
+
+/*! \fn QList::const_iterator QList::const_iterator::operator++()
+
+    The prefix ++ operator (\c{++it}) advances the iterator to the
+    next item in the list and returns an iterator to the new current
+    item.
+
+    Calling this function on QList::end() leads to undefined results.
+
+    \sa operator--()
+*/
+
+/*! \fn QList::const_iterator QList::const_iterator::operator++(int)
+
+    \overload
+
+    The postfix ++ operator (\c{it++}) advances the iterator to the
+    next item in the list and returns an iterator to the previously
+    current item.
+*/
+
+/*! \fn QList::const_iterator QList::const_iterator::operator--()
+
+    The prefix -- operator (\c{--it}) makes the preceding item
+    current and returns an iterator to the new current item.
+
+    Calling this function on QList::begin() leads to undefined results.
+
+    \sa operator++()
+*/
+
+/*! \fn QList::const_iterator QList::const_iterator::operator--(int)
+
+    \overload
+
+    The postfix -- operator (\c{it--}) makes the preceding item
+    current and returns an iterator to the previously current item.
+*/
+
+/*! \fn QList::const_iterator &QList::const_iterator::operator+=(int j)
+
+    Advances the iterator by \a j items. (If \a j is negative, the
+    iterator goes backward.)
+
+    \sa operator-=(), operator+()
+*/
+
+/*! \fn QList::const_iterator &QList::const_iterator::operator-=(int j)
+
+    Makes the iterator go back by \a j items. (If \a j is negative,
+    the iterator goes forward.)
+
+    \sa operator+=(), operator-()
+*/
+
+/*! \fn QList::const_iterator QList::const_iterator::operator+(int j) const
+
+    Returns an iterator to the item at \a j positions forward from
+    this iterator.
+
+    \sa operator-(), operator+=()
+*/
+
+/*! \fn QList::const_iterator QList::const_iterator::operator-(int j) const
+
+    Returns an iterator to the item at \a j positions backward from
+    this iterator.
+
+    \sa operator+(), operator-=()
+*/
+
+/*! \fn int QList::const_iterator::operator-(const_iterator other) const
+
+    Returns the distance between the item pointed to by \a other and
+    the item pointed to by this iterator.
+*/

@@ -114,7 +114,7 @@ public:
     QList<T> values(const Key &key) const;
     int count(const Key &key) const;
 
-    class Iterator
+    class iterator
     {
 	QMapData::Node *i;
     public:
@@ -125,8 +125,8 @@ public:
         typedef T &reference;
 
 	inline operator QMapData::Node *() const { return i; }
-	inline Iterator() : i(0) { }
-	inline Iterator(QMapData::Node *node) : i(node) { }
+	inline iterator() : i(0) { }
+	inline iterator(QMapData::Node *node) : i(node) { }
 
 	inline const Key &key() const { return concrete(i)->key; }
 	inline T &value() const { return concrete(i)->value; }
@@ -134,31 +134,31 @@ public:
 	inline QT_COMPAT T &data() const { return concrete(i)->value; }
 #endif
 	inline T &operator*() const { return concrete(i)->value; }
-	inline bool operator==(const Iterator &o) { return i == o.i; }
-	inline bool operator!=(const Iterator &o) { return i != o.i; }
+	inline bool operator==(const iterator &o) { return i == o.i; }
+	inline bool operator!=(const iterator &o) { return i != o.i; }
 
-	inline Iterator &operator++() {
+	inline iterator &operator++() {
 	    i = i->forward[0];
 	    return *this;
 	}
-	inline Iterator operator++(int) {
-	    Iterator r = *this;
+	inline iterator operator++(int) {
+	    iterator r = *this;
 	    i = i->forward[0];
 	    return r;
 	}
-        inline Iterator &operator--() {
+        inline iterator &operator--() {
             i = i->backward;
             return *this;
         }
-        inline Iterator operator--(int) {
-	    Iterator r = *this;
+        inline iterator operator--(int) {
+	    iterator r = *this;
             i = i->backward;
             return r;
         }
     };
-    friend class Iterator;
+    friend class iterator;
 
-    class ConstIterator
+    class const_iterator
     {
 	QMapData::Node *i;
     public:
@@ -169,10 +169,10 @@ public:
         typedef T &reference;
 
 	inline operator QMapData::Node *() const { return i; }
-	inline ConstIterator() : i(0) { }
-	inline ConstIterator(QMapData::Node *node) : i(node) { }
-	inline ConstIterator(const Iterator &o)
-        { i = reinterpret_cast<const ConstIterator &>(o).i; }
+	inline const_iterator() : i(0) { }
+	inline const_iterator(QMapData::Node *node) : i(node) { }
+	inline const_iterator(const iterator &o)
+        { i = reinterpret_cast<const const_iterator &>(o).i; }
 
 	inline const Key &key() const { return concrete(i)->key; }
 	inline const T &value() const { return concrete(i)->value; }
@@ -180,65 +180,65 @@ public:
 	inline QT_COMPAT const T &data() const { return concrete(i)->value; }
 #endif
 	inline const T &operator*() const { return concrete(i)->value; }
-	inline bool operator==(const ConstIterator &o) { return i == o.i; }
-	inline bool operator!=(const ConstIterator &o) { return i != o.i; }
+	inline bool operator==(const const_iterator &o) { return i == o.i; }
+	inline bool operator!=(const const_iterator &o) { return i != o.i; }
 
-	inline ConstIterator &operator++() {
+	inline const_iterator &operator++() {
 	    i = i->forward[0];
 	    return *this;
 	}
-	inline ConstIterator operator++(int) {
-	    ConstIterator r = *this;
+	inline const_iterator operator++(int) {
+	    const_iterator r = *this;
 	    i = i->forward[0];
 	    return r;
 	}
-        inline ConstIterator &operator--() {
+        inline const_iterator &operator--() {
             i = i->backward;
             return *this;
         }
-        inline ConstIterator operator--(int) {
-	    Iterator r = *this;
+        inline const_iterator operator--(int) {
+	    iterator r = *this;
             i = i->backward;
             return r;
         }
     };
-    friend class ConstIterator;
+    friend class const_iterator;
 
     // STL style
-    inline Iterator begin() { detach(); return Iterator(e->forward[0]); }
-    inline ConstIterator begin() const { return ConstIterator(e->forward[0]); }
-    inline ConstIterator constBegin() const { return ConstIterator(e->forward[0]); }
-    inline Iterator end() {
+    inline iterator begin() { detach(); return iterator(e->forward[0]); }
+    inline const_iterator begin() const { return const_iterator(e->forward[0]); }
+    inline const_iterator constBegin() const { return const_iterator(e->forward[0]); }
+    inline iterator end() {
 	detach();
-        return Iterator(e);
+        return iterator(e);
     }
-    inline ConstIterator end() const { return ConstIterator(e); }
-    inline ConstIterator constEnd() const { return ConstIterator(e); }
-    Iterator erase(Iterator it);
+    inline const_iterator end() const { return const_iterator(e); }
+    inline const_iterator constEnd() const { return const_iterator(e); }
+    iterator erase(iterator it);
 #ifdef QT_COMPAT
-    inline QT_COMPAT Iterator remove(Iterator it) { return erase(it); }
+    inline QT_COMPAT iterator remove(iterator it) { return erase(it); }
 #endif
-    // ### QPair<Iterator, bool> insert(const value_type &x);
+    // ### QPair<iterator, bool> insert(const value_type &x);
 
     // more Qt
+    typedef iterator Iterator;
+    typedef const_iterator ConstIterator;
     inline int count() const { return d->size; }
-    Iterator find(const Key &key);
-    ConstIterator find(const Key &key) const;
-    Iterator insert(const Key &key, const T &value);
+    iterator find(const Key &key);
+    const_iterator find(const Key &key) const;
+    iterator insert(const Key &key, const T &value);
 #ifdef QT_COMPAT
-    QT_COMPAT Iterator insert(const Key &key, const T &value, bool overwrite);
+    QT_COMPAT iterator insert(const Key &key, const T &value, bool overwrite);
 #endif
-    Iterator insertMulti(const Key &key, const T &value);
+    iterator insertMulti(const Key &key, const T &value);
 #ifdef QT_COMPAT
-    inline QT_COMPAT Iterator replace(const Key &key, const T &value) { return insert(key, value); }
+    inline QT_COMPAT iterator replace(const Key &key, const T &value) { return insert(key, value); }
 #endif
     QMap<Key, T> &operator+=(const QMap<Key, T> &other);
     inline QMap<Key, T> operator+(const QMap<Key, T> &other) const
     { QMap<Key, T> result = *this; result += other; return result; }
 
     // STL compatibility
-    typedef Iterator iterator;
-    typedef ConstIterator const_iterator;
     inline bool empty() const { return isEmpty(); }
 
     inline bool ensure_constructed()
@@ -368,7 +368,7 @@ Q_INLINE_TEMPLATE bool QMap<Key, T>::contains(const Key &key) const
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::insert(const Key &key,
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insert(const Key &key,
 								       const T &value)
 {
     detach();
@@ -380,12 +380,12 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::insert(const Key
     } else {
 	concrete(node)->value = value;
     }
-    return Iterator(node);
+    return iterator(node);
 }
 
 #ifdef QT_COMPAT
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::insert(const Key &key,
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insert(const Key &key,
 								       const T &value,
                                                                        bool overwrite)
 {
@@ -399,38 +399,38 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::insert(const Key
 	if (overwrite)
 	    concrete(node)->value = value;
     }
-    return Iterator(node);
+    return iterator(node);
 }
 #endif
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::insertMulti(const Key &key,
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::insertMulti(const Key &key,
 									    const T &value)
 {
     detach();
 
     QMapData::Node *update[QMapData::LastLevel + 1];
     mutableFindNode(update, key);
-    return Iterator(node_create(d, update, key, value));
+    return iterator(node_create(d, update, key, value));
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::ConstIterator QMap<Key, T>::find(const Key &key) const
+Q_INLINE_TEMPLATE typename QMap<Key, T>::const_iterator QMap<Key, T>::find(const Key &key) const
 {
-    return ConstIterator(findNode(key));
+    return const_iterator(findNode(key));
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::find(const Key &key)
+Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::find(const Key &key)
 {
     detach();
-    return Iterator(findNode(key));
+    return iterator(findNode(key));
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator+=(const QMap<Key, T> &other)
 {
-    typename QMap<Key, T>::ConstIterator it = other.end();
+    const_iterator it = other.end();
     while (it != other.begin()) {
 	--it;
 	insertMulti(it.key(), it.value());
@@ -514,13 +514,13 @@ Q_OUTOFLINE_TEMPLATE T QMap<Key, T>::take(const Key &key)
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::erase(Iterator it)
+Q_OUTOFLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::erase(iterator it)
 {
     QMapData::Node *update[QMapData::LastLevel + 1];
     QMapData::Node *cur = e;
     QMapData::Node *next = e;
 
-    if (it == Iterator(e))
+    if (it == iterator(e))
 	return it;
 
     for (int i = d->topLevel; i >= 0; i--) {
@@ -536,7 +536,7 @@ Q_OUTOFLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::erase(Iterato
 	    concrete(cur)->key.~Key();
 	    concrete(cur)->value.~T();
 	    d->node_delete(update, sizeof(Payload), cur);
-            return Iterator(next);
+            return iterator(next);
 	}
 
         for (int i = 0; i <= d->topLevel; ++i) {
@@ -593,7 +593,7 @@ template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key, T>::keys() const
 {
     QList<Key> res;
-    ConstIterator i = begin();
+    const_iterator i = begin();
     while (i != end()) {
 	res.append(i.key());
         ++i;
@@ -605,7 +605,7 @@ template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values() const
 {
     QList<T> res;
-    ConstIterator i = begin();
+    const_iterator i = begin();
     while (i != end()) {
 	res.append(i.value());
         ++i;
@@ -635,11 +635,11 @@ Q_OUTOFLINE_TEMPLATE bool QMap<Key, T>::operator==(const QMap<Key, T> &other) co
     if (d == other.d)
 	return true;
 
-    Iterator it1 = begin();
-    Iterator it2 = other.begin();
+    iterator it1 = begin();
+    iterator it2 = other.begin();
 
     while (it1 != end()) {
-	if (it1.key() != it2.key() || it1.value() != it2.value())
+	if (!(it1.value() == it2.value()) || it1.key() < it2.key() || it2.key() < it1.key())
 	    return false;
 	++it2;
 	++it1;

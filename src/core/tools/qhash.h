@@ -212,7 +212,7 @@ public:
 	inline bool operator==(const iterator &o) { return i == o.i; }
 	inline bool operator!=(const iterator &o) { return i != o.i; }
 
-	inline iterator &operator++() {
+	inline iterator operator++() {
 	    i = QHashData::nextNode(i);
 	    return *this;
 	}
@@ -221,7 +221,7 @@ public:
 	    i = QHashData::nextNode(i);
 	    return r;
 	}
-	inline iterator &operator--() {
+	inline iterator operator--() {
 	    i = QHashData::prevNode(i);
 	    return *this;
 	}
@@ -265,7 +265,7 @@ public:
 	    i = QHashData::nextNode(i);
 	    return r;
 	}
-	inline const_iterator &operator--() {
+	inline const_iterator operator--() {
 	    i = QHashData::prevNode(i);
 	    return *this;
 	}
@@ -335,7 +335,7 @@ QHash<Key, T>::createNode(uint h, const Key &key, const T &value, Node **nextNod
 template <class Key, class T>
 Q_INLINE_TEMPLATE QHash<Key, T> &QHash<Key, T>::operator+=(const QHash<Key, T> &other)
 {
-    typename QHash<Key, T>::const_iterator it = other.end();
+    const_iterator it = other.end();
     while (it != other.begin()) {
 	--it;
 	insertMulti(it.key(), it.value());
@@ -626,7 +626,7 @@ Q_OUTOFLINE_TEMPLATE bool QHash<Key, T>::operator==(const QHash<Key, T> &other) 
     iterator it2 = other.begin();
 
     while (it1 != end()) {
-	if (it1.key() != it2.key() || it1.value() != it2.value())
+	if (!(it1.key() == it2.key()) || !(it1.value() == it2.value()))
 	    return false;
 	++it2;
 	++it1;

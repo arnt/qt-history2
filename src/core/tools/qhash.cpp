@@ -363,9 +363,8 @@ void QHashData::free()
 	    cout << values.at(i) << endl;
     \endcode
 
-    Alternatively, you can call find()
-    to get the STL-style iterator for the first item with a key
-    and iterate from there:
+    Alternatively, you can call find() to get the STL-style iterator
+    for the first item with a key and iterate from there:
 
     \code
 	QHash<QString, int>::iterator it = hash.find("plenty");
@@ -460,7 +459,7 @@ void QHashData::free()
     necessary to obtain good performance. You can also call capacity()
     to retrieve the hash table's size.
 
-    \sa QMap
+    \sa QMap, QHashIterator, QHashMutableIterator
 */
 
 /*! \fn QHash::QHash()
@@ -494,9 +493,6 @@ void QHashData::free()
 
     This operation occurs in \l{constant time}, because QHash is
     \l{implicitly shared}.
-
-    All iterators in the current hash are invalidated by this
-    operation.
 */
 
 /*! \fn bool QHash::operator==(const QHash<Key, T> &other) const
@@ -506,6 +502,8 @@ void QHashData::free()
 
     Two hashes are considered equal if they contain the same (key,
     value) pairs.
+
+    This function requires the value type to implement \c operator==().
 
     \sa operator!=()
 */
@@ -517,6 +515,8 @@ void QHashData::free()
 
     Two hashes are considered equal if they contain the same (key,
     value) pairs.
+
+    This function requires the value type to implement \c operator==().
 
     \sa operator==()
 */
@@ -787,7 +787,8 @@ void QHashData::free()
 /*! \fn QHash::iterator QHash::erase(iterator it)
 
     Removes the (key, value) pair associated with the iterator \a it
-    from the hash.
+    from the hash, and returns an iterator to the next item in the
+    hash.
 
     \sa remove()
 */
@@ -855,7 +856,7 @@ void QHashData::free()
     key is common to both hashes, the resulting hash will contain the
     key multiple times.
 
-    \sa insertMulti()
+    \sa operator+=(), insertMulti()
 */
 
 /*! \fn QHash<Key, T> QHash::operator+(const QHash<Key, T> &other) const
@@ -864,22 +865,23 @@ void QHashData::free()
     addition to all the items in \a other. If a key is common to both
     hashes, the resulting hash will contain the key multiple times.
 
-    \sa insertMulti()
+    \sa operator+(), insertMulti()
 */
 
-/*! \typedef iterator
+/*! \typedef QHash::Iterator
 
-    STL-compatibility typedef.
+    Qt-style synonym for QHash::iterator.
 */
 
-/*! \typedef const_iterator
+/*! \typedef QHash::ConstIterator
 
-    STL-compatibility typedef.
+    Qt-style synonym for QHash::const_iterator.
 */
 
 /*! \fn bool QHash::empty() const
 
-    STL-compatibility function. Same as isEmpty().
+    This function is provided for STL compatibility. It is equivalent
+    to isEmpty().
 */
 
 /*! \fn bool QHash::ensure_constructed()
@@ -892,7 +894,7 @@ void QHashData::free()
 
     QHash provides both \l{STL-style iterators} and \l{Java-style
     iterators}. The STL-style iterators are more low-level and more
-    cumbersome to use; but on the other hand, they are slightly faster
+    cumbersome to use; on the other hand, they are slightly faster
     and, for developers who already know STL, have the advantage of
     familiarity.
 
@@ -1002,7 +1004,7 @@ void QHashData::free()
 
     Creates an unitialized iterator.
 
-    Functions like key(), value(), and operator*() should not be
+    Functions like key(), value(), and operator++() must not be
     called on an unitialized iterator. Use operator=() to assign a
     value to it before using it.
 */
@@ -1025,7 +1027,7 @@ void QHashData::free()
 
 /*! \fn T &QHash::iterator::value() const
 
-    Returns a non-const reference to the current item's value.
+    Returns a modifiable reference to the current item's value.
 
     You can change the value of an item by using value() on
     the left side of an assignment, for example:
@@ -1040,7 +1042,7 @@ void QHashData::free()
 
 /*! \fn T &QHash::iterator::operator*() const
 
-    Returns a non-const reference to the current item's value.
+    Returns a modifiable reference to the current item's value.
 
     Same as value().
 
@@ -1063,7 +1065,7 @@ void QHashData::free()
     \sa operator==()
 */
 
-/*! \fn QHash::iterator &QHash::iterator::operator++()
+/*! \fn QHash::iterator QHash::iterator::operator++()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
     next item in the hash and returns an iterator to the new current
@@ -1077,9 +1079,13 @@ void QHashData::free()
 /*! \fn QHash::iterator QHash::iterator::operator++(int)
 
     \overload
+
+    The postfix ++ operator (\c{it++}) advances the iterator to the
+    next item in the hash and returns an iterator to the previously
+    current item.
 */
 
-/*! \fn QHash::iterator &QHash::iterator::operator--()
+/*! \fn QHash::iterator QHash::iterator::operator--()
 
     The prefix -- operator (\c{--it}) makes the preceding item
     current and returns an iterator pointing to the new current item.
@@ -1093,15 +1099,18 @@ void QHashData::free()
 /*! \fn QHash::iterator QHash::iterator::operator--(int)
 
     \overload
+
+    The postfix -- operator (\c{it--}) makes the preceding item
+    current and returns an iterator pointing to the previously
+    current item.
 */
 
 /*! \class QHash::const_iterator
-
     \brief The QHash::const_iterator class provides an STL-style const iterator for QHash.
 
     QHash provides both \l{STL-style iterators} and \l{Java-style
     iterators}. The STL-style iterators are more low-level and more
-    cumbersome to use; but on the other hand, they are slightly faster
+    cumbersome to use; on the other hand, they are slightly faster
     and, for developers who already know STL, have the advantage of
     familiarity.
 
@@ -1155,7 +1164,7 @@ void QHashData::free()
 
     Creates an uinitialized iterator.
 
-    Functions like key(), value(), and operator*() should not be
+    Functions like key(), value(), and operator++() must not be
     called on an unitialized iterator. Use operator=() to assign a
     value to it before using it.
 */
@@ -1223,6 +1232,10 @@ void QHashData::free()
 /*! \fn QHash::const_iterator QHash::const_iterator::operator++(int)
 
     \overload
+
+    The postfix ++ operator (\c{it++}) advances the iterator to the
+    next item in the hash and returns an iterator to the previously
+    current item.
 */
 
 /*! \fn QHash::const_iterator &QHash::const_iterator::operator--()
@@ -1239,6 +1252,10 @@ void QHashData::free()
 /*! \fn QHash::const_iterator QHash::const_iterator::operator--(int)
 
     \overload
+
+    The postfix -- operator (\c{it--}) makes the preceding item
+    current and returns an iterator pointing to the previously
+    current item.
 */
 
 /*! \fn uint qHash(char key)

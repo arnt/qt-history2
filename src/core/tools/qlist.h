@@ -92,7 +92,7 @@ public:
     QBool contains(const T &t) const;
     int count(const T &t) const;
 
-    class Iterator {
+    class iterator {
     public:
         typedef std::random_access_iterator_tag  iterator_category;
 	typedef ptrdiff_t  difference_type;
@@ -101,26 +101,27 @@ public:
 	typedef T &reference;
 
 	Node *i;
-	inline Iterator(Node *n = 0): i(n){}
-	inline Iterator(const Iterator &o): i(o.i){}
-	inline T &operator*() { return i->t(); }
-	inline T &operator[](int j) { return i[j].t(); }
-	inline bool operator==(const Iterator &o) const { return i == o.i; }
-	inline bool operator!=(const Iterator &o) const { return i != o.i; }
-	inline Iterator operator++() { ++i; return *this; }
-	inline Iterator operator++(int) { Node *n = i; ++i; return n; }
-	inline Iterator operator--() { i--; return *this; }
-	inline Iterator operator--(int) { Node *n = i; i--; return n; }
-	inline Iterator &operator+=(int j) { i+=j; return *this; }
-	inline Iterator &operator-=(int j) { i-=j; return *this; }
-	inline Iterator operator+(int j) const { return Iterator(i+j); }
-	inline Iterator operator-(int j) const { return Iterator(i-j); }
-	inline int operator-(Iterator j) const { return i - j.i; }
+	inline iterator() : i(0) {}
+	inline iterator(Node *n) : i(n) {}
+	inline iterator(const iterator &o): i(o.i){}
+	inline T &operator*() const { return i->t(); }
+	inline T &operator[](int j) const { return i[j].t(); }
+	inline bool operator==(const iterator &o) const { return i == o.i; }
+	inline bool operator!=(const iterator &o) const { return i != o.i; }
+	inline iterator operator++() { ++i; return *this; }
+	inline iterator operator++(int) { Node *n = i; ++i; return n; }
+	inline iterator operator--() { i--; return *this; }
+	inline iterator operator--(int) { Node *n = i; i--; return n; }
+	inline iterator &operator+=(int j) { i+=j; return *this; }
+	inline iterator &operator-=(int j) { i-=j; return *this; }
+	inline iterator operator+(int j) const { return iterator(i+j); }
+	inline iterator operator-(int j) const { return iterator(i-j); }
+	inline int operator-(iterator j) const { return i - j.i; }
 	friend class QList;
     };
-    friend class Iterator;
+    friend class iterator;
 
-    class ConstIterator {
+    class const_iterator {
     public:
 	typedef std::random_access_iterator_tag  iterator_category;
 	typedef ptrdiff_t difference_type;
@@ -129,38 +130,41 @@ public:
  	typedef T &reference;
 
 	Node *i;
-	inline ConstIterator(Node *n = 0): i(n){}
-	inline ConstIterator(const ConstIterator &o): i(o.i){}
-	inline ConstIterator(const Iterator &o): i(((ConstIterator&) o).i){}
+	inline const_iterator() : i(0) {}
+	inline const_iterator(Node *n) : i(n) {}
+	inline const_iterator(const const_iterator &o): i(o.i){}
+	inline const_iterator(const iterator &o): i(((const_iterator&) o).i){}
 	inline const T &operator*() const { return i->t(); }
 	inline const T &operator[](int j) const { return i[j].t(); }
-	inline bool operator==(const ConstIterator &o) const { return i == o.i; }
-	inline bool operator!=(const ConstIterator &o) const { return i != o.i; }
-	inline ConstIterator operator++() { ++i; return *this; }
-	inline ConstIterator operator++(int) { Node *n = i; ++i; return n; }
-	inline ConstIterator operator--() { i--; return *this; }
-	inline ConstIterator operator--(int) { Node *n = i; i--; return n; }
-	inline ConstIterator &operator+=(int j) { i+=j; return *this; }
-	inline ConstIterator &operator-=(int j) { i+=j; return *this; }
-	inline ConstIterator operator+(int j) const { return ConstIterator(i+j); }
-	inline ConstIterator operator-(int j) const { return ConstIterator(i-j); }
-	inline int operator-(ConstIterator j) const { return i - j.i; }
+	inline bool operator==(const const_iterator &o) const { return i == o.i; }
+	inline bool operator!=(const const_iterator &o) const { return i != o.i; }
+	inline const_iterator operator++() { ++i; return *this; }
+	inline const_iterator operator++(int) { Node *n = i; ++i; return n; }
+	inline const_iterator operator--() { i--; return *this; }
+	inline const_iterator operator--(int) { Node *n = i; i--; return n; }
+	inline const_iterator &operator+=(int j) { i+=j; return *this; }
+	inline const_iterator &operator-=(int j) { i+=j; return *this; }
+	inline const_iterator operator+(int j) const { return const_iterator(i+j); }
+	inline const_iterator operator-(int j) const { return const_iterator(i-j); }
+	inline int operator-(const_iterator j) const { return i - j.i; }
 	friend class QList;
     };
-    friend class ConstIterator;
+    friend class const_iterator;
 
     // stl style
-    inline Iterator begin() { detach(); return (Node*) p.begin(); }
-    inline ConstIterator begin() const { return (Node*) p.begin(); }
-    inline ConstIterator constBegin() const { return (Node*) p.begin(); }
-    inline Iterator end() { detach(); return (Node*) p.end(); }
-    inline ConstIterator end() const { return (Node*) p.end(); }
-    inline ConstIterator constEnd() const { return (Node*) p.end(); }
-    Iterator insert(Iterator before, const T &t);
-    Iterator erase(Iterator pos);
-    Iterator erase(Iterator first, Iterator last);
+    inline iterator begin() { detach(); return (Node*) p.begin(); }
+    inline const_iterator begin() const { return (Node*) p.begin(); }
+    inline const_iterator constBegin() const { return (Node*) p.begin(); }
+    inline iterator end() { detach(); return (Node*) p.end(); }
+    inline const_iterator end() const { return (Node*) p.end(); }
+    inline const_iterator constEnd() const { return (Node*) p.end(); }
+    iterator insert(iterator before, const T &t);
+    iterator erase(iterator pos);
+    iterator erase(iterator first, iterator last);
 
     // more Qt
+    typedef iterator Iterator;
+    typedef const_iterator ConstIterator;
     inline int count() const { return p.size(); }
     inline T& first() { Q_ASSERT(!isEmpty()); return *begin(); }
     inline const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
@@ -173,8 +177,6 @@ public:
     T value(int i, const T &defaultValue) const;
 
     // stl compatibility
-    typedef Iterator iterator;
-    typedef ConstIterator const_iterator;
     inline void push_back(const T &t) { append(t); }
     inline void push_front(const T &t) { prepend(t); }
     inline T& front() { return first(); }
@@ -188,15 +190,15 @@ public:
 
 #ifdef QT_COMPAT
     // compatibility
-    inline QT_COMPAT Iterator remove(Iterator pos) { return erase(pos); }
+    inline QT_COMPAT iterator remove(iterator pos) { return erase(pos); }
     inline QT_COMPAT int findIndex( const T& t ) const { return indexOf(t); }
-    inline QT_COMPAT Iterator find(const T& t)
+    inline QT_COMPAT iterator find(const T& t)
     { int i = indexOf(t); return (i == -1 ? end() : (begin()+i)); }
-    inline QT_COMPAT ConstIterator find (const T& t) const
+    inline QT_COMPAT const_iterator find (const T& t) const
     { int i = indexOf(t); return (i == -1 ? end() : (begin()+i)); }
-    inline QT_COMPAT Iterator find(Iterator from, const T& t)
+    inline QT_COMPAT iterator find(iterator from, const T& t)
     { int i = indexOf(t, from - begin()); return i == -1 ? end() : begin()+i; }
-    inline QT_COMPAT ConstIterator find(ConstIterator from, const T& t) const
+    inline QT_COMPAT const_iterator find(const_iterator from, const T& t) const
     { int i = indexOf(t, from - begin()); return i == -1 ? end() : begin()+i; }
 #endif
 
@@ -276,11 +278,11 @@ Q_INLINE_TEMPLATE QList<T> &QList<T>::operator=(const QList<T> &l)
     return *this;
 }
 template <typename T>
-inline typename QList<T>::Iterator QList<T>::insert(Iterator before, const T &t)
+inline typename QList<T>::iterator QList<T>::insert(iterator before, const T &t)
 { Node *n = (Node*) p.insert(before.i-(Node*)p.begin());
  node_construct(n,t); return n; }
 template <typename T>
-inline typename QList<T>::Iterator QList<T>::erase(Iterator it)
+inline typename QList<T>::iterator QList<T>::erase(iterator it)
 { node_destruct(it.i);
  return (Node*) p.erase((void**)it.i); }
 template <typename T>
@@ -427,13 +429,13 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::remove(const T &t)
 }
 
 template <typename T>
-Q_OUTOFLINE_TEMPLATE typename QList<T>::Iterator QList<T>::erase( typename QList<T>::Iterator first,
-					     typename QList<T>::Iterator last )
+Q_OUTOFLINE_TEMPLATE typename QList<T>::iterator QList<T>::erase( typename QList<T>::iterator first,
+								  typename QList<T>::iterator last )
 {
-    for ( Node *n = first.i; n <= last.i; ++n)
+    for ( Node *n = first.i; n < last.i; ++n)
 	node_destruct(n);
     int idx = first - begin();
-    p.remove(idx, last - first + 1);
+    p.remove(idx, last - first);
     return begin()+idx;
 }
 

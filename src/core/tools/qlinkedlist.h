@@ -60,7 +60,7 @@ public:
     bool contains(const T &t) const;
     int count(const T &t) const;
 
-    class Iterator
+    class iterator
     {
     public:
 	typedef std::bidirectional_iterator_tag  iterator_category;
@@ -69,21 +69,21 @@ public:
 	typedef T *pointer;
 	typedef T &reference;
 	Node *i;
-	inline Iterator(Node *n = 0): i(n){}
-	inline Iterator(const Iterator &o): i(o.i){}
-	inline T &operator*() { return i->t; }
-	inline bool operator==(const Iterator &o) const { return i == o.i; }
-	inline bool operator!=(const Iterator &o) const { return i != o.i; }
-	inline Iterator operator++() { i = i->n; return *this; }
-	inline Iterator operator++(int) { Node *n = i; i = i->n; return n; }
-	inline Iterator operator--() { i = i->p; return *this; }
-	inline Iterator operator--(int) { Node *n = i; i = i->p; return n; }
-	inline Iterator operator+(int j) const { Node *n = i; while (j--) n = n->n; return n; }
-	inline Iterator operator-(int j) const { Node *n = i; while (j--) n = n->p; return n; }
+	inline iterator(Node *n = 0): i(n){}
+	inline iterator(const iterator &o): i(o.i){}
+	inline T &operator*() const { return i->t; }
+	inline bool operator==(const iterator &o) const { return i == o.i; }
+	inline bool operator!=(const iterator &o) const { return i != o.i; }
+	inline iterator operator++() { i = i->n; return *this; }
+	inline iterator operator++(int) { Node *n = i; i = i->n; return n; }
+	inline iterator operator--() { i = i->p; return *this; }
+	inline iterator operator--(int) { Node *n = i; i = i->p; return n; }
+	inline iterator operator+(int j) const { Node *n = i; while (j--) n = n->n; return n; }
+	inline iterator operator-(int j) const { Node *n = i; while (j--) n = n->p; return n; }
     };
-    friend class Iterator;
+    friend class iterator;
 
-    class ConstIterator
+    class const_iterator
     {
     public:
 	typedef std::bidirectional_iterator_tag  iterator_category;
@@ -92,33 +92,35 @@ public:
 	typedef T *pointer;
 	typedef T &reference;
 	Node *i;
-	inline ConstIterator(Node *n = 0): i(n){}
-	inline ConstIterator(const ConstIterator &o): i(o.i){}
-	inline ConstIterator(Iterator ci): i(ci.i){}
+	inline const_iterator(Node *n = 0): i(n){}
+	inline const_iterator(const const_iterator &o): i(o.i){}
+	inline const_iterator(iterator ci): i(ci.i){}
 	inline const T &operator*() const { return i->t; }
-	inline bool operator==(const ConstIterator &o) const { return i == o.i; }
-	inline bool operator!=(const ConstIterator &o) const { return i != o.i; }
-	inline ConstIterator operator++() { i = i->n; return *this; }
-	inline ConstIterator operator++(int) { Node *n = i; i = i->n; return n; }
-	inline ConstIterator operator--() { i = i->p; return *this; }
-	inline ConstIterator operator--(int) { Node *n = i; i = i->p; return n; }
-	inline ConstIterator operator+(int j) const { Node *n = i; while (j--) n = n->n; return n; }
-	inline ConstIterator operator-(int j) const { Node *n = i; while (j--) n = n->p; return n; }
+	inline bool operator==(const const_iterator &o) const { return i == o.i; }
+	inline bool operator!=(const const_iterator &o) const { return i != o.i; }
+	inline const_iterator operator++() { i = i->n; return *this; }
+	inline const_iterator operator++(int) { Node *n = i; i = i->n; return n; }
+	inline const_iterator operator--() { i = i->p; return *this; }
+	inline const_iterator operator--(int) { Node *n = i; i = i->p; return n; }
+	inline const_iterator operator+(int j) const { Node *n = i; while (j--) n = n->n; return n; }
+	inline const_iterator operator-(int j) const { Node *n = i; while (j--) n = n->p; return n; }
     };
-    friend class ConstIterator;
+    friend class const_iterator;
 
     // stl style
-    inline Iterator begin() { detach(); return e->n; }
-    inline ConstIterator begin() const { return e->n; }
-    inline ConstIterator constBegin() const { return e->n; }
-    inline Iterator end() { detach(); return e; }
-    inline ConstIterator end() const { return e; }
-    inline ConstIterator constEnd() const { return e; }
-    Iterator insert(Iterator before, const T &t);
-    Iterator erase(Iterator pos);
-    Iterator erase(Iterator first, Iterator last);
+    inline iterator begin() { detach(); return e->n; }
+    inline const_iterator begin() const { return e->n; }
+    inline const_iterator constBegin() const { return e->n; }
+    inline iterator end() { detach(); return e; }
+    inline const_iterator end() const { return e; }
+    inline const_iterator constEnd() const { return e; }
+    iterator insert(iterator before, const T &t);
+    iterator erase(iterator pos);
+    iterator erase(iterator first, iterator last);
 
     // more Qt
+    typedef iterator Iterator;
+    typedef const_iterator ConstIterator;
     inline int count() const { return d->size; }
     inline T& first() { Q_ASSERT(!isEmpty()); return *begin(); }
     inline const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
@@ -128,8 +130,6 @@ public:
     inline void removeLast() { Q_ASSERT(!isEmpty()); erase( --end() ); }
 
     // stl compatibility
-    typedef Iterator iterator;
-    typedef ConstIterator const_iterator;
     inline void push_back(const T &t) { append(t); }
     inline void push_front(const T &t) { prepend(t); }
     inline T& front() { return first(); }
@@ -143,16 +143,16 @@ public:
 
 #ifdef QT_COMPAT
     // compatibility
-    inline QT_COMPAT Iterator remove(Iterator pos) { return erase(pos); }
+    inline QT_COMPAT iterator remove(iterator pos) { return erase(pos); }
     inline QT_COMPAT int findIndex( const T& t ) const
-    { int i=0; for (ConstIterator it = begin(); it != end(); ++it, ++i) if(*it == t) return i; return -1;}
-    inline QT_COMPAT Iterator find(Iterator from, const T& t)
+    { int i=0; for (const_iterator it = begin(); it != end(); ++it, ++i) if(*it == t) return i; return -1;}
+    inline QT_COMPAT iterator find(iterator from, const T& t)
     { while (from != end() && !(*from == t)) ++from; return from; }
-    inline QT_COMPAT Iterator find(const T& t)
+    inline QT_COMPAT iterator find(const T& t)
     { return find(begin(), t); }
-    inline QT_COMPAT ConstIterator find(ConstIterator from, const T& t) const
+    inline QT_COMPAT const_iterator find(const_iterator from, const T& t) const
     { while (from != end() && !(*from == t)) ++from; return from; }
-    inline QT_COMPAT ConstIterator find(const T& t) const
+    inline QT_COMPAT const_iterator find(const T& t) const
     { return find(begin(), t); }
 #endif
 
@@ -340,7 +340,7 @@ int QLinkedList<T>::count(const T &t) const
 
 
 template <typename T>
-typename QLinkedList<T>::Iterator QLinkedList<T>::insert(Iterator before, const T &t)
+typename QLinkedList<T>::iterator QLinkedList<T>::insert(iterator before, const T &t)
 {
     Node *i = before.i;
     Node *m = new Node(t);
@@ -353,8 +353,8 @@ typename QLinkedList<T>::Iterator QLinkedList<T>::insert(Iterator before, const 
 }
 
 template <typename T>
-typename QLinkedList<T>::Iterator QLinkedList<T>::erase( typename QLinkedList<T>::Iterator first,
-							 typename QLinkedList<T>::Iterator last )
+typename QLinkedList<T>::iterator QLinkedList<T>::erase( typename QLinkedList<T>::iterator first,
+							 typename QLinkedList<T>::iterator last )
 {
     while (first != last)
 	erase(first++);
@@ -363,7 +363,7 @@ typename QLinkedList<T>::Iterator QLinkedList<T>::erase( typename QLinkedList<T>
 
 
 template <typename T>
-typename QLinkedList<T>::Iterator QLinkedList<T>::erase(Iterator pos)
+typename QLinkedList<T>::iterator QLinkedList<T>::erase(iterator pos)
 {
     detach();
     Node *i = pos.i;
