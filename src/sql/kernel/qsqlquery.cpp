@@ -768,15 +768,41 @@ void QSqlQuery::setForwardOnly(bool forward)
 }
 
 /*!
-    Returns a QSqlRecord containing the data for the query's current
-    record; the query must be active (isActive() returns true), and there
-    must be a current record, i.e. a navigation function (e.g., next())
-    must have been called and isValid() must return true. Normally,
-    data is retrieved field-by-field using value() or boundValue().
+    Returns a QSqlRecord containing the field information for the
+    current query. If the query points to a valid row (isValid()
+    returns true), the record is populated with the row's values.
+    An empty record is returned when there is no active query
+    (isActive() returns false).
+
+    To retrieve values from a query, value() should be used since
+    its index-based lookup is faster.
+
+    In the following example, a \c{SELECT * FROM} query is executed.
+    Since the order of the columns is not defined, QSqlRecord::indexOf()
+    is used to obtain the index of a column.
+
+    \code
+    QSqlQuery q("select * from employees");
+    QSqlRecord rec = q.record();
+
+    qDebug() << "Number of columns: " << rec.count();
+
+    int nameCol = rec.indexOf("name"); // index of the field "name"
+    while (q.next())
+        qDebug() << q.value(nameCol).toString(); // output all names
+    \endcode
+
+    \sa value()
 */
 QSqlRecord QSqlQuery::record() const
 {
-    return d->sqlResult->record();
+    QSqlRecord rec = d->sqlResult->record();
+
+    if (isValid()) {
+        for (int i = 0; i < rec.count(); ++i)
+            rec.setValue(i, value(i));
+    }
+    return rec;
 }
 
 /*!
