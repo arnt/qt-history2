@@ -289,39 +289,56 @@ void QSimpleRichText::adjustSize()
     }
 }
 
-/*!
+/*!  
+  
   Draws the formatted text with painter \a p, at position (\a x, \a
-  y), clipped to \a clipRegion.  Colors from the color group \a cg are
-  used as needed, and if not 0, \a *paper is used as the background
-  brush.
+  y), clipped to \a clipRect.  The clipping rectangle is given in the
+  document's coordinates translated by (\a x, \a y). Colors from the
+  color group \a cg are used as needed, and if not 0, \a *paper is
+  used as the background brush.
 
   Note that the display code is highly optimized to reduce flicker, so
   passing a brush for \a paper is preferable to simply clearing the area
   to be painted and then calling this without a brush.
-
-  This is a convenience function if there's no palette but just a
-  color group available. If you have a palette, pass this instead of \a cg.
 */
 
-void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegion,
+void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRect& clipRect,
 			    const QColorGroup& cg, const QBrush* paper ) const
 {
-    QRegion reg = clipRegion;
-    if ( reg.rects().count() == 1 ) {
-	QRect r = reg.boundingRect();
-	r.moveBy( 0, -y );
-	reg = r;
-    }
+    QRect r = clipRect;
+    if ( !r.isNull() )
+	r.moveBy( -x, -y );
+
     if ( paper )
 	d->doc->setPaper( new QBrush( *paper ) );
     QColorGroup g = cg;
     if ( d->doc->paper() )
 	g.setBrush( QColorGroup::Base, *d->doc->paper() );
 
+    p->save();
+    QRect cr = clipRect;
+    if ( !cr.isNull() ) {
+	cr.moveBy( int( p->translationX() ), int( p->translationY() ) );
+	p->setClipRect( cr );
+    }
     p->translate( x, y );
-    d->doc->draw( p, reg, g, paper );
+    d->doc->draw( p, r, g, paper );
     p->translate( -x, -y );
+    p->restore();
 }
+
+
+/*! \fn void QSimpleRichText::draw( QPainter *p,  int x, int y, const QRegion& clipRegion,
+  const QColorGroup& cg, const QBrush* paper ) const
+  
+  \obsolete
+  
+  Use the version with clipRect instead. The region version has
+  problems with larger documents on some platforms (on X11 regions
+  internally are represented with 16bit coordinates).
+*/
+
+
 
 /*!
   Returns the context of the rich text document. If no context has
