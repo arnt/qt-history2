@@ -117,7 +117,7 @@ QCppSyntaxHighlighter::QCppSyntaxHighlighter()
 void QCppSyntaxHighlighter::createFormats()
 {
     int normalSize =  qApp->font().pointSize();
-    QString normalFamily = "helvetica";
+    QString normalFamily = qApp->font().family();
     QString commentFamily = "times";
     int normalWeight = qApp->font().weight();
     addFormat( Standard,
