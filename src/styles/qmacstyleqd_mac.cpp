@@ -281,7 +281,7 @@ void QMacStyleQDPrivate::doFocus(QWidget *w)
 
 static int mac_count = 0;
 
-QMacStyleQD::QMacStyleQD()  : QWindowsStyle()
+QMacStyleQD::QMacStyleQD() : QCommonStyle()
 {
     d = new QMacStyleQDPrivate;
     if(!mac_count++)
@@ -444,7 +444,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 	    else
 		DrawThemeListBoxFrame(rect, tds);
 	} else {
-	    QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
+	    QCommonStyle::drawPrimitive(pe, p, r, pal, flags, opt);
 	}
 	break; }
     case PE_PanelGroupBox: {
@@ -641,7 +641,7 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 	p->fillRect(r, pal.highlight());
 	break;
     default:
-	QWindowsStyle::drawPrimitive(pe, p, r, pal, flags, opt);
+	QCommonStyle::drawPrimitive(pe, p, r, pal, flags, opt);
 	break;
     }
 }
@@ -1065,7 +1065,7 @@ void QMacStyleQD::drawControl(ControlElement element,
     }
 #endif // QT_NO_HEADER
     default:
-	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
+	QCommonStyle::drawControl(element, p, widget, r, pal, how, opt);
     }
 }
 
@@ -1158,7 +1158,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	break; }
     case CC_ListView: {
 	if(sub & SC_ListView)
-	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
+	    QCommonStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
 	if(sub & (SC_ListViewBranch | SC_ListViewExpand)) {
 	    if(opt.isDefault())
 		break;
@@ -1476,7 +1476,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	}
 	break; }
     default:
-	QWindowsStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
+	QCommonStyle::drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
     }
 }
 
@@ -1534,7 +1534,7 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
 		&& (::qt_cast<QScrollView*>(widget) || widget->inherits("QWorkspaceChild")))
 	    ret = 0;
 	else
-	    ret = QWindowsStyle::pixelMetric(metric, widget);
+	    ret = QCommonStyle::pixelMetric(metric, widget);
 	break;
     case PM_MaximumDragDistance:
 	ret = -1;
@@ -1621,7 +1621,7 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	ret = 4;
 	break;
     default:
-	ret = QWindowsStyle::pixelMetric(metric, widget);
+	ret = QCommonStyle::pixelMetric(metric, widget);
 	break;
     }
     return ret;
@@ -1796,7 +1796,7 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
     default:
 	break;
     }
-    return QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
+    return QCommonStyle::querySubControlMetrics(control, w, sc, opt);
 }
 
 QRect QMacStyleQD::subRect(SubRect r, const QWidget *w) const
@@ -1901,7 +1901,7 @@ QRect QMacStyleQD::subRect(SubRect r, const QWidget *w) const
 	ret = w->rect();
 	break;
     default:
-	ret = QWindowsStyle::subRect(r, w);
+	ret = QCommonStyle::subRect(r, w);
 	break;
     }
     return ret;
@@ -1956,7 +1956,7 @@ QStyle::SubControl QMacStyleQD::querySubControl(ComplexControl control,
 	}
 	break; }
     default:
-	ret = QWindowsStyle::querySubControl(control, widget, pos, opt);
+	ret = QCommonStyle::querySubControl(control, widget, pos, opt);
 	break;
     }
     return ret;
@@ -2000,7 +2000,7 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
             && (::qt_cast<QScrollView*>(w) || w->inherits("QWorkspaceChild")))
 	    ret = TRUE;
 	else
-	    ret = QWindowsStyle::styleHint(sh, w, opt, d);
+	    ret = QCommonStyle::styleHint(sh, w, opt, d);
 	break;
     case SH_PopupMenu_Scrollable:
 	ret = TRUE;
@@ -2037,7 +2037,7 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
 	ret = FALSE;
 	break;
     default:
-        ret = QWindowsStyle::styleHint(sh, w, opt, d);
+        ret = QCommonStyle::styleHint(sh, w, opt, d);
         break;
     }
     return ret;
@@ -2168,7 +2168,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
 	sz = QSize(sz.width() + 16, sz.height()); //###
 	break;
     default:
-	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
+	sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, opt);
 	break;
     }
     {
@@ -2261,7 +2261,7 @@ QPixmap QMacStyleQD::stylePixmap(StylePixmap stylepixmap,  const QWidget *widget
 	ReleaseIconRef(icon);
 	return ret;
     }
-    return QWindowsStyle::stylePixmap(stylepixmap, widget, opt);
+    return QCommonStyle::stylePixmap(stylepixmap, widget, opt);
 }
 
 #endif
