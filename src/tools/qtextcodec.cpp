@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#81 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#82 $
 **
 ** Implementation of QTextCodec class
 **
@@ -534,7 +534,7 @@ QTextCodec* QTextCodec::codecForLocale()
 	    localeMapper = codecForName( "ISO 8859-15" );
 	else if ( try_locale_list( koi8_rlocales, lang ) )
 	    localeMapper = codecForName( "KOI8-R" );
-	else
+	else if (!lang || !(localeMapper = codecForName(lang) ))
 	    localeMapper = codecForName( "ISO 8859-1" );
     }
     delete[] lang;
