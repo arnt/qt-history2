@@ -36,7 +36,7 @@
 #include <errno.h>
 #include <termios.h>
 
-#include <qgfx_qws.h>
+#include <qscreen_qws.h>
 
 /*
  * Automatic-detection mouse driver

@@ -18,7 +18,7 @@
 #ifndef QT_H
 #include "qwindowsystem_qws.h"
 #include "qwsutils_qws.h"
-#include "qgfx_qws.h"
+#include "qscreen_qws.h"
 #endif // QT_H
 
 #include <qapplication.h>

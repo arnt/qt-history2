@@ -16,7 +16,7 @@
 
 #ifndef QT_NO_QWS_KEYBOARD
 
-#include "qgfx_qws.h"
+#include "qscreen_qws.h"
 
 #include "qwindowsystem_qws.h"
 #include "qapplication.h"

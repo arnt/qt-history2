@@ -19,7 +19,7 @@
 #include "qsocketnotifier.h"
 #include "qtimer.h"
 #include "qapplication.h"
-#include "qgfx_qws.h"
+#include "qscreen_qws.h"
 
 #include <unistd.h>
 #include <stdlib.h>

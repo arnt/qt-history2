@@ -31,7 +31,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <qgfx_qws.h>
+#include <qscreen_qws.h>
 
 #ifdef Q_OS_QNX6
 

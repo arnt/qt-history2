@@ -18,7 +18,7 @@
 
 #include "qwindowsystem_qws.h"
 #include "qwsutils_qws.h"
-#include "qgfx_qws.h"
+#include "qscreen_qws.h"
 
 #include "qapplication.h"
 #include "qnamespace.h"

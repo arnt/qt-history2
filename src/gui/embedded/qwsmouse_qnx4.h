@@ -28,7 +28,7 @@
 
 #include <qapplication.h>
 #include <qpointarray.h>
-#include <qgfx_qws.h>
+#include <qscreen_qws.h>
 
 
 #ifndef QQNX4MOUSEHANDLERPRIVATEIMPL

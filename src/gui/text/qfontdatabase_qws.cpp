@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qdir.h"
-#include "qgfx_qws.h" //for qt_screen so we can check for rotation
+#include "qscreen_qws.h" //so we can check for rotation
 
 static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bool italic, int pixelSize, const char *file)
 {

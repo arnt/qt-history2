@@ -67,7 +67,6 @@
 #endif
 #endif
 
-#include "qgfx_qws.h"
 #include "qkbddriverfactory_qws.h"
 #include "qmousedriverfactory_qws.h"
 

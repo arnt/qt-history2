@@ -25,10 +25,6 @@
 
 #ifndef QT_NO_MOVIE
 
-#ifdef Q_WS_QWS
-#include "qgfx_qws.h"
-#endif
-
 #include "qasyncimageio.h"
 
 #include <stdlib.h>
