@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#134 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1138,6 +1138,7 @@ static void set_font_bits( Q_UINT8 bits, QFontDef *f )
 }
 
 
+/* NOT USED
 static void hex2( uchar n, char *s )
 {
     uchar b = (n >> 4) & 0x0f;
@@ -1152,6 +1153,7 @@ static void hex4( ushort n, char *s )
     hex2( (n >> 8) & 0xff, s );
     hex2( n & 0xff, s+2 );
 }
+*/
 
 
 /*!
