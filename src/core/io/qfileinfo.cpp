@@ -277,10 +277,45 @@ QFileInfo::~QFileInfo()
 }
 
 /*!
+    Compares two QFileInfo's for equality based on the two file
+    locations pointing to the same place.
+
+    \warning This will not compare two different symbolic links
+    pointing to the same file.
+*/
+
+bool
+QFileInfo::operator==(const QFileInfo &fileinfo)
+{
+    if(fileinfo.d->data == d->data)
+        return true;
+    Q_ASSERT(d->data->fileEngine && fileinfo.d->data->fileEngine);
+    if(d->data->fileEngine->type() != fileinfo.d->data->fileEngine->type() ||
+       d->data->fileEngine->caseSensitive() != fileinfo.d->data->fileEngine->caseSensitive())
+        return false;
+    if(fileinfo.size() == size()) { //if the size isn't the same...
+        QString file1 = absoluteFilePath(), 
+                file2 = fileinfo.absoluteFilePath();
+        if(file1.length() == file2.length()) {
+            if(!fileinfo.d->data->fileEngine->caseSensitive()) {
+                for(int i = 0; i < file1.length(); i++) {
+                    if(file1.at(i).toLower() != file2.at(i).toLower())
+                        return false;
+                }
+                return true;
+            }
+            return (file1 == file2);
+        }
+    }
+    return false;
+}
+
+/*!
     Makes a copy of the given \a fileinfo and assigns it to this QFileInfo.
 */
 
-QFileInfo &QFileInfo::operator=(const QFileInfo &fileinfo)
+QFileInfo 
+&QFileInfo::operator=(const QFileInfo &fileinfo)
 {
     qAtomicAssign(d->data, fileinfo.d->data);
     return *this;

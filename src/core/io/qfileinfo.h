@@ -46,6 +46,8 @@ public:
     ~QFileInfo();
 
     QFileInfo  &operator=(const QFileInfo &fileinfo);
+    bool operator==(const QFileInfo &fileinfo);
+    inline bool operator!=(const QFileInfo &fileinfo) { return !(operator==(fileinfo)); }
 
     void setFile(const QString &file);
     void setFile(const QFile &file);
