@@ -201,9 +201,9 @@ QString QClipboard::text(QCString& subtype) const
 
 #endif
 
-void QClipboard::clear()
+void QClipboard::clear( Mode mode )
 {
-    setText( QString::null );
+    setText( QString::null, mode );
 }
 
 
