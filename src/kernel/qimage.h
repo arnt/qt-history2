@@ -74,7 +74,7 @@ public:
 	    Endian bitOrder=IgnoreEndian );
 #ifndef QT_NO_IMAGEIO
     QImage( const QString &fileName, const char* format=0 );
-    QImage( const char *xpm[] );
+    QImage( const char * const xpm[] );
     QImage( const QByteArray &data );
 #endif
     QImage( uchar* data, int w, int h, int depth,

@@ -386,7 +386,7 @@ QImage::QImage( const QString &fileName, const char* format )
 
 #ifndef QT_NO_IMAGEIO_XPM
 // helper
-static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
+static void read_xpm_image_or_array( QImageIO *, const char * const *, QImage & );
 #endif
 /*!
   Constructs an image from \a xpm, which must be a valid XPM image.
@@ -411,7 +411,7 @@ static void read_xpm_image_or_array( QImageIO *, const char **, QImage & );
   back to \c {const char **} when you create the QImage.
 */
 
-QImage::QImage( const char *xpm[] )
+QImage::QImage( const char * const xpm[] )
 {
     init();
 #ifndef QT_NO_IMAGEIO_XPM
@@ -5340,7 +5340,7 @@ static void write_xbm_image( QImageIO *iio )
 // Returns FALSE on error, TRUE on success
 
 static bool read_xpm_string( QCString &buf, QIODevice *d,
-			     const char **source, int &index )
+			     const char * const *source, int &index )
 {
     if ( source ) {
 	buf = source[index++];
@@ -5381,7 +5381,7 @@ static bool read_xpm_string( QCString &buf, QIODevice *d,
 // One of the two HAS to be 0, the other one is used.
 //
 
-static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
+static void read_xpm_image_or_array( QImageIO * iio, const char * const * source,
 				     QImage & image)
 {
     QCString buf;
