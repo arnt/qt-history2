@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
 <class>LicenseAgreementPage</class>
 <widget class="QWidget">
     <property name="name">
@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>440</width>
-            <height>281</height>
+            <height>284</height>
         </rect>
     </property>
     <property name="caption">
@@ -27,18 +27,79 @@
         </property>
         <widget class="QLayoutWidget">
             <property name="name">
-                <cstring>Layout27</cstring>
+                <cstring>layout4</cstring>
             </property>
             <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <property name="margin">
-                    <number>0</number>
-                </property>
-                <property name="spacing">
-                    <number>6</number>
-                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>countryLayout</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer4</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>31</width>
+                                    <height>21</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>countryLabel</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Please choose your region:</string>
+                            </property>
+                        </widget>
+                        <widget class="QComboBox">
+                            <item>
+                                <property name="text">
+                                    <string>North or South America</string>
+                                </property>
+                            </item>
+                            <item>
+                                <property name="text">
+                                    <string>Other</string>
+                                </property>
+                            </item>
+                            <property name="name">
+                                <cstring>countryCombo</cstring>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer3</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>51</width>
+                                    <height>21</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </hbox>
+                </widget>
                 <widget class="QTextView">
                     <property name="name">
                         <cstring>introText</cstring>
@@ -74,7 +135,7 @@ Please contact support@trolltech.com to resolve the problem.</string>
                             </property>
                             <property name="sizeHint">
                                 <size>
-                                    <width>20</width>
+                                    <width>156</width>
                                     <height>20</height>
                                 </size>
                             </property>
@@ -126,7 +187,7 @@ Please contact support@trolltech.com to resolve the problem.</string>
                             </property>
                             <property name="sizeHint">
                                 <size>
-                                    <width>20</width>
+                                    <width>155</width>
                                     <height>20</height>
                                 </size>
                             </property>

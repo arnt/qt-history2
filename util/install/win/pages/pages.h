@@ -99,6 +99,7 @@ public:
 
 private slots:
     void licenseAction(int);
+    void countryChanged(int);
 
 public:
     QString titleStr;

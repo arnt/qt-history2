@@ -16,6 +16,10 @@
 #include <qmessagebox.h>
 #include <setupwizardimpl.h>
 #include <qtextbrowser.h>
+#include <qtextview.h>
+#include <qlayout.h>
+
+#include "resource.h"
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -97,6 +101,13 @@ LicenseAgreementPageImpl::LicenseAgreementPageImpl( QWidget* parent, const char*
     : LicenseAgreementPage( parent, name, fl ),
       titleStr("License agreement")
 {
+#if !defined(NON_COMMERCIAL)
+    countryLabel->hide();
+    countryCombo->hide();
+    delete countryLayout;
+#else
+    connect( countryCombo, SIGNAL(activated(int)), SLOT(countryChanged(int)) );
+#endif
     connect( licenceButtons, SIGNAL(clicked(int)), SLOT(licenseAction(int)));
 }
 
@@ -106,6 +117,22 @@ void LicenseAgreementPageImpl::licenseAction(int act)
 	wizard->setNextEnabled( this, false );
     else
 	wizard->setNextEnabled( this, true );
+}
+
+void LicenseAgreementPageImpl::countryChanged(int index)
+{
+    ResourceLoader *rcLoader;
+    if ( index == 0 )
+	rcLoader = new ResourceLoader( "LICENSE-US" );
+    else
+	rcLoader = new ResourceLoader( "LICENSE" );
+
+    if ( rcLoader->isValid() ) {
+	introText->setText( rcLoader->data() );
+    } else {
+	QMessageBox::critical( this, tr("Package corrupted"),
+		tr("Could not find the LICENSE file in the package.\nThe package might be corrupted.") );
+    }
 }
 
 LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )

@@ -1501,8 +1501,13 @@ void SetupWizardImpl::showPageProgress()
 	QFile licenseFile( installDir.filePath( LICENSE_DEST ) );
 	if ( licenseFile.open( IO_WriteOnly ) ) {
 	    ResourceLoader *rcLoader;
-#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
+#if defined(EVAL) || defined(EDU)
 	    rcLoader = new ResourceLoader( "LICENSE" );
+#elif defined(NON_COMMERCIAL)
+	    if ( licenseAgreementPage->countryCombo->currentItem() == 0 )
+		rcLoader = new ResourceLoader( "LICENSE-US" );
+	    else
+		rcLoader = new ResourceLoader( "LICENSE" );
 #else
 	    if ( usLicense ) {
 		rcLoader = new ResourceLoader( "LICENSE-US" );
@@ -2521,9 +2526,15 @@ void SetupWizardImpl::readLicenseAgreement()
 	lap = licenseAgreementPage;
 	rcLoader = new ResourceLoader( "LICENSE" );
     }
-#elif defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
+#elif defined(EVAL) || defined(EDU)
     LicenseAgreementPageImpl *lap = licenseAgreementPage;
     rcLoader = new ResourceLoader( "LICENSE" );
+#elif defined(NON_COMMERCIAL)
+    LicenseAgreementPageImpl *lap = licenseAgreementPage;
+    if ( lap->countryCombo->currentItem() == 0 )
+	rcLoader = new ResourceLoader( "LICENSE-US" );
+    else
+	rcLoader = new ResourceLoader( "LICENSE" );
 #else
     LicenseAgreementPageImpl *lap = licenseAgreementPage;
     if ( usLicense ) {
