@@ -67,7 +67,10 @@ public:
     QX11Info *x11Info() const;
     Qt::HANDLE xftPictureHandle() const;
     Qt::HANDLE xftDrawHandle() const;
+#elif defined(Q_WS_MAC)
+    Qt::HANDLE macCGHandle() const;
 #endif
+
 protected:
     QPaintDevice(uint devflags);
     virtual int metric(int) const;
@@ -108,6 +111,8 @@ public:
 #endif
     friend class QPainter;
     friend class QPaintDeviceMetrics;
+    friend class QQuickDrawPaintEngine;
+    friend class QFontEngineMac;
     friend void bitBlt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
 

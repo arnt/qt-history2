@@ -67,6 +67,8 @@ QWidgetPrivate::QWidgetPrivate() :
 #if defined(Q_WS_X11)
         ,xinfo(0)
         ,xft_hd(0)
+#elif defined(Q_WS_MAC)
+        ,cg_hd(0)
 #endif
 {
     isWidget = true;

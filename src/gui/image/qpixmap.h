@@ -223,6 +223,7 @@ protected:
 #elif defined(Q_WS_MAC)
         ColorTable *clut;
         QPixmap *alphapm;
+        Qt::HANDLE cg_hd;
 #elif defined(Q_WS_QWS)
         int id; // ### should use QPaintDevice::hd, since it is there
         QRgb * clut;

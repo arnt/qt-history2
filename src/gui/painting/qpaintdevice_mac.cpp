@@ -44,8 +44,6 @@ QPaintDevice::QPaintDevice(uint devflags)
     }
     devFlags = devflags;
     painters = 0;
-    hd = 0;
-    cg_hd = 0;
 }
 
 QPaintDevice::~QPaintDevice()
@@ -114,10 +112,18 @@ void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt)
 */
 Qt::HANDLE QPaintDevice::macCGHandle() const
 {
-    return cg_hd;
+    if (devType() == QInternal::Widget)
+        return static_cast<const QWidget *>(this)->macCGHandle();
+    else if (devType() == QInternal::Pixmap);
+        return static_cast<const QPixmap *>(this)->macCGHandle();
+    return 0;
 }
 
 Qt::HANDLE QPaintDevice::handle() const
 {
-    return hd;
+    if (devType() == QInternal::Widget)
+        return static_cast<const QWidget *>(this)->handle();
+    else if (devType() == QInternal::Pixmap)
+        return static_cast<const QPixmap *>(this)->handle();
+    return 0;
 }

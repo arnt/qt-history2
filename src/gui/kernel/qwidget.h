@@ -461,8 +461,11 @@ public:
     QX11Info *x11Info() const;
     Qt::HANDLE xftPictureHandle() const;
     Qt::HANDLE xftDrawHandle() const;
+#elif defined(Q_WS_MAC)
+    Qt::HANDLE macCGHandle() const;
 #endif
     Qt::HANDLE handle() const;
+
 
     void setAttribute(Qt::WidgetAttribute, bool = true);
     inline bool testAttribute(Qt::WidgetAttribute) const;

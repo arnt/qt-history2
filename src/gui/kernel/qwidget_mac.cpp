@@ -330,7 +330,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                 //update cg context
                 CGContextRef cgref;
                 GetEventParameter(event, kEventParamCGContextRef, typeCGContextRef, NULL, sizeof(cgref), NULL, &cgref);
-                widget->cg_hd = cgref;
+                widget->d->cg_hd = cgref;
 #if 0
                 for(QWidget *w = widget; w && !w->isTopLevel(); w = w->parentWidget()) {
                     if(w->inherits("QWorkspaceChild")) {
@@ -345,7 +345,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                 if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, NULL, sizeof(qdref), NULL, &qdref) != noErr)
                     GetGWorld(&qdref, 0); //just use the global port..
                 if(qdref)
-                    widget->hd = GetWindowFromPort(qdref);
+                    widget->d->hd = GetWindowFromPort(qdref);
 
 #if 0
                 qDebug("asked to draw %p [%s::%s] %p (%p/%p)", hiview, widget->metaObject()->className(), widget->objectName().local8Bit(),
@@ -405,8 +405,8 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                 //remove the old pointers (this is just a hack of course..) --Sam
                 widget->d->clp_serial++;
                 widget->d->clp = QRegion();
-                widget->cg_hd = 0;
-                widget->hd = 0;
+                widget->d->cg_hd = 0;
+                widget->d->hd = 0;
             }
         } else if(ekind == kEventControlInitialize) {
             UInt32 features = kControlSupportsDragAndDrop;
@@ -713,8 +713,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     if(!testWFlags(Qt::WStyle_Customize) && !(desktop || popup) && !testWFlags(Qt::WShowModal))
         setWFlags(Qt::WStyle_Customize | Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu);
 
-    hd = 0;
-    cg_hd = 0;
+    d->hd = 0;
+    d->cg_hd = 0;
     if(window) {                                // override the old window
         data->fstrut_dirty = true; // we'll re calculate this later
         if(destroyOldWindow)
@@ -2048,4 +2048,9 @@ QPaintEngine *QWidget::paintEngine() const
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
     }
     return qt_widget_paintengine;
+}
+
+Qt::HANDLE QWidget::macCGHandle() const
+{
+    return d->cg_hd;
 }
