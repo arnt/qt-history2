@@ -998,8 +998,10 @@ void Configure::generateMakefiles()
 	    args << QDir::convertSeparators( qtDir + "/bin/qmake" );
 	    args << projectName;
 	    args << dictionary[ "QMAKE_ALL_ARGS" ];
-	    args << "-o";
-	    args << makefileName;
+	    if ( makefileName.right( 4 ) != ".dsp" ) {
+		args << "-o";
+		args << makefileName;
+	    }
 	    args << "-spec";
 	    args << dictionary[ "QMAKESPEC" ];
 	    if( dictionary[ "DEPENDENCIES" ] == "no" )
