@@ -2824,3 +2824,26 @@ void QTextView::zoomOut()
     f.setPointSize( QMAX( 1, f.pointSize() - 1 ) );
     setFont( f );
 }
+
+/* As the engine of QTextView is optimized for large amounts text, it
+   is not sure that after e.g. calling setText() the whole document is
+   formatted, as only the visible part is formatted immediately, and
+   the rest delayed or on demand if needed.
+
+   If you need some information (like contentsHeight() to get the
+   height of the document) to be correct after e.g. calling setText(),
+   call this function to ensure that the whole document has been
+   formatted properly.
+*/
+
+void QTextView::sync()
+{
+    if ( !lastFormatted )
+	return;
+    QTextParag *p = lastFormatted;
+    while ( p ) {
+	p->format();
+	p = p->next();
+    }
+    resizeContents( contentsWidth(), doc->height() );
+}
