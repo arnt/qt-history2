@@ -1305,7 +1305,7 @@ QList<Q3DnsRR *> *Q3DnsDomain::cached(const Q3Dns *r)
             // anyway.
             Q3DnsRR *rrTmp = new Q3DnsRR(r->label());
             rrTmp->t = Q3Dns::A;
-            rrTmp->address = QHostAddress::LocalHostAddress;
+            rrTmp->address = QHostAddress::LocalHost;
             rrTmp->current = true;
             l->append(rrTmp);
             return l;
