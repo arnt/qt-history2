@@ -87,6 +87,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     }
     QTextStream dsp(&file);
 
+    QString platform = "Win32";
+    if ( !project->variables()["QMAKE_PLATFORM"].isEmpty() )
+	platform = varGlue("QMAKE_PLATFORM", "", " ", "");
+
     int rep;
     QString line;
     while ( !dsp.eof() ) {
@@ -124,8 +128,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 			t << "USERDEP_" << base << "=\".\\" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
 
-			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
-			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
+			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\""
 			  << build << "!ENDIF " << endl << endl;
 		    }
 		    t << "# End Source File" << endl;
@@ -162,8 +166,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 			t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
 
-			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
-			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
+			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\""
 			  << build << "!ENDIF " << endl << endl;
 		    }
 		    t << "# End Source File" << endl;
@@ -265,8 +269,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 			t << "USERDEP_" << base << "=\".\\" << findMocSource((*it)) << "\" \"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
 
-			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
-			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
+			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\""
 			  << build << "!ENDIF " << endl << endl;
 		    }
 		    t << "# End Source File" << endl;
@@ -322,8 +326,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			}
 			t << endl << endl;
 
-			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
-			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
+			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\"" << build
 			  << "!ENDIF \n\n" << endl;
 		    }
 
@@ -398,8 +402,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		    build.append("# End Custom Build\n\n");
 
-		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
-		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
+		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\"" << build
 		      << "!ENDIF \n\n" << "# End Source File" << endl;
 		}
 //		endGroups(t);
@@ -429,8 +433,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				    "\tdel " + fname + "\\\n"
 				    "\tcopy lex.yy.c " + fname + "\n\n" +
 				    "# End Custom Build\n\n";
-		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
-		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
+		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\"" << build
 		      << "!ENDIF \n\n" << build
 
 		      << "# End Source File" << endl;
@@ -465,8 +469,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 				    "\tmove y.tab.c " + fname + Option::cpp_ext.first() + "\n\n" +
 				    "# End Custom Build\n\n";
 
-		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
-		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
+		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Release\"" << build
+		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - " << platform << " Debug\"" << build
 		      << "!ENDIF \n\n"
 		      << "# End Source File" << endl;
 		}
