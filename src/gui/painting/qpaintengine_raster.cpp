@@ -589,6 +589,7 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
         Q_ASSERT(target);
         switch (target->format()) {
         case QImage::Format_Mono:
+        case QImage::Format_MonoLSB:
             d->rasterBuffer->flushTo1BitImage(target);
             break;
 
@@ -645,10 +646,9 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->penMatrix = d->matrix;
     }
 
-    if (flags & DirtyBrush) {
+    if ((flags & DirtyBrush) || (flags & DirtyBrushOrigin)) {
         QBrush brush = state.brush();
         QPointF offset = state.brushOrigin();
-        Q_D(QRasterPaintEngine);
         d->brush = brush;
         d->brushMatrix = d->matrix;
         d->brushOffset = offset;
@@ -657,8 +657,11 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         d->brushMatrix.translate(offset.x(), offset.y());
     }
 
-    if (flags & DirtyBackground) {
+    if (flags & DirtyBackgroundMode) {
         d->opaqueBackground = (state.backgroundMode() == Qt::OpaqueMode);
+    }
+
+    if (flags & DirtyBackground) {
         d->bgBrush = state.backgroundBrush();
     }
 
@@ -1604,8 +1607,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
             extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert);
             QPixmap pixmap = qt_pixmapForBrush(brush.style(), true);
 
-            if (pixmap.isNull())
-                break;
+            Q_ASSERT(!pixmap.isNull());
 
             QImage *image = qt_image_for_pixmap(pixmap);
             image = colorizeBitmap(image, brush.color());
