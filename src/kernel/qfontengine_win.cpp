@@ -803,7 +803,7 @@ glyph_metrics_t QFontEngineWin::boundingBox( glyph_t glyph )
 	    res = GetGlyphOutlineA( dc(), glyph, GGO_METRICS|GGO_GLYPH_INDEX, &gm, 0, 0, &mat );
 	} );
 	if ( res != GDI_ERROR )
-	    return glyph_metrics_t( gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y-gm.gmBlackBoxY,
+	    return glyph_metrics_t( gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y,
 				  gm.gmBlackBoxX, gm.gmBlackBoxY, gm.gmCellIncX, gm.gmCellIncY );
     }
 #endif
