@@ -15,6 +15,7 @@
 #include <qvector.h>
 #include <qobject.h>
 #include <qdragobject.h>
+#include <qdatetime.h>
 #include <qevent.h>
 #include <private/qabstractitemmodel_p.h>
 
@@ -248,7 +249,7 @@ QIconSet QFileIconProvider::icons(const QFileInfo &fileInfo) const
 
 QString QFileIconProvider::type(const QFileInfo &info) const
 {
-    return info.isDir() ? "Directory" : info.extension() + " File";
+    return info.isDir() ? "Directory" : info.suffix() + " File";
 }
 
 class QDirModelPrivate : public QAbstractItemModelPrivate
@@ -605,7 +606,7 @@ bool QDirModel::equal(const QModelIndex &left, const QModelIndex &right) const
         return left == right;
     QDirModelPrivate::QDirNode *l = static_cast<QDirModelPrivate::QDirNode*>(left.data());
     QDirModelPrivate::QDirNode *r = static_cast<QDirModelPrivate::QDirNode*>(right.data());
-    return l->info.absFilePath() == r->info.absFilePath();
+    return l->info.absoluteFilePath() == r->info.absoluteFilePath();
 }
 
 /*!
@@ -855,8 +856,8 @@ QString QDirModel::path(const QModelIndex &index) const
 {
     QString pth;
     if (!index.isValid())
-        pth = d->root.absPath();
-    pth = fileInfo(index).absFilePath();
+        pth = d->root.path();
+    pth = fileInfo(index).absoluteFilePath();
     if (pth.isEmpty()) // FIXME: this is a wokraround for a bug in QDir
         return "/";
     return pth;
@@ -920,7 +921,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
     int r;
     d->savePersistentIndexes();
     if (p) {
-        QDir dir(p->info.absFilePath());
+        QDir dir(p->info.absoluteFilePath());
         if (!dir.mkdir(name)) {
             d->restorePersistentIndexes();
             return QModelIndex();
@@ -962,7 +963,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
     }
     emit rowsRemoved(par, index.row(), 1);
     d->savePersistentIndexes();
-    QString path = n->info.absFilePath();
+    QString path = n->info.absoluteFilePath();
     if (!n->info.dir().rmdir(path)) {
         d->restorePersistentIndexes();
         return false;
@@ -998,7 +999,7 @@ bool QDirModel::remove(const QModelIndex &index)
     d->savePersistentIndexes();
     QDirModelPrivate::QDirNode *p = d->parent(n);
     QDir dir = p ? p->info.dir() : d->root;
-    if (!dir.remove(n->info.absFilePath())) {
+    if (!dir.remove(n->info.absoluteFilePath())) {
         d->restorePersistentIndexes();
         return false;
     }
