@@ -10,14 +10,18 @@ ChangeItem::~ChangeItem()
 {
 }
 
-QString ChangeItem::key( int column, bool ascending ) const
+int ChangeItem::compare( QListViewItem *i, int col, bool ascending ) const
 {
-    if ( column == 0 ) { 
-	QString tmpString;
-	tmpString.sprintf( "%08d", text(0).toInt() ); 
-	return tmpString; 
+    if ( col == 0 ) { 
+	int myValue = text(0).toInt();
+	int hisValue = i->text(0).toInt();
+	if ( myValue == hisValue )
+	    return 0;
+	else if ( myValue > hisValue )
+	    return 1;
+	return -1;
     }
-    return QListViewItem::key( column, ascending );
+    return QListViewItem::compare( i, col, ascending );
 }
 
 void ChangeItem::paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align )

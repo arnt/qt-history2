@@ -13,7 +13,7 @@ public:
     bool isVisited() const;
 
     // reimplemented functions
-    QString key( int column, bool ascending ) const;
+    int compare( QListViewItem *i, int col, bool ascending ) const ;
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
 
 private:
