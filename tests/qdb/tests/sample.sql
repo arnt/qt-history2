@@ -36,6 +36,9 @@
 --
 --        xdb.sourceforge.net
 
+-- ## need this
+--drop table alltypes;
+
 create table alltypes (
 n1 numeric,
 n2 numeric( 19, 3 ),
@@ -78,4 +81,3 @@ update alltypes set c1 = 'mass update' where n1 > 1;
 -- complex where clause
 -- ## jasmin: parens seem to generate wrong code
 update alltypes set c1 = 'complex update' where n1 = 91 OR ( n1+n2 > 189 );
-
