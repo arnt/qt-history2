@@ -1,50 +1,61 @@
 #include <qapplication.h>
 #include <qmessagebox.h>
 #include <qpushbutton.h>
+#include <qlayout.h>
 #include <windows.h>
 
 HINSTANCE hInst;
 static WCHAR wndclass[] = L"qtest";
 static WCHAR apptitle[] = L"qtest - left click to see \"modal\" QDialog";
 
-class HwndWidget : public QWidget
+class QWinWidget : public QWidget
 {
-    HWND hParentWnd;
 public:
-    HwndWidget(HWND hWnd)
-	: QWidget(0, 0, WStyle_NoBorder | WStyle_Customize)
-	, hParentWnd(hWnd)
+    QWinWidget( HWND hParentWnd, QObject *parent = 0, const char *name = 0 )
+	: QWidget( 0, name ), hParent( hParentWnd )
     {
+	if ( parent )
+	    parent->insertChild( this );
 	// make the widget window style be WS_CHILD so SetParent will work
-	SetWindowLong(winId(), GWL_STYLE, GetWindowLong(winId(), GWL_STYLE) | WS_CHILD);
+	SetWindowLong(winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
 	SetParent(winId(), hParentWnd);
-	// don't want the widget to actually draw anything
-	setBackgroundMode(NoBackground);
-	// make widget cover the parent window so owned dialgs will be properly positioned
-	RECT r;
-	GetWindowRect(hParentWnd, &r);
-	setGeometry((r.right-r.left)/2, (r.bottom-r.top)/2,0,0);
-	// disable the parent window so dialog will be modal
-	EnableWindow(hParentWnd, FALSE);
-	// pretent to be visible so that child dialogs are placed correctly
-	setWState( WState_Visible );
-    }
-    ~HwndWidget()
-    {
-	// re-enable parent window now that dialog is done
-	EnableWindow(hParentWnd, TRUE);
-	// for some reason, focus is lost, so get it back
-	SetFocus(hParentWnd);
-    }
-
-    void resetFstrut()
-    {
 	topData()->ftop = 0;
 	topData()->fleft = 0;
 	topData()->fbottom = 0;
 	topData()->fright = 0;
+	
+	setBackgroundMode( QWidget::NoBackground );
     }
+
+    void childEvent( QChildEvent *e )
+    {
+	QObject *obj = e->child();
+	if ( e->inserted() ) {
+	    if ( obj->isWidgetType() ) {
+		QWidget *w = (QWidget*)obj;
+		if ( w->isModal() ) {
+		    EnableWindow( hParent, FALSE );
+		    w->installEventFilter( this );
+		}
+	    }
+	} else {
+	    EnableWindow( hParent, TRUE );
+	}
+    }
+
+protected:
+    bool eventFilter( QObject *o, QEvent *e )
+    {
+	if ( e->type() == QEvent::Hide )
+	    EnableWindow( hParent, TRUE );
+
+	return QWidget::eventFilter( o, e );
+    }
+
+private:
+    HWND hParent;
 };
+
 
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -52,7 +63,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     {
     case WM_LBUTTONUP:
 	{
-	    HwndWidget w(hWnd);
+	    HWND oldFocus = GetFocus();
+	    QWinWidget w( hWnd, 0, 0 );
+
+	    RECT r;
+	    GetWindowRect(hWnd, &r);
+	    w.setGeometry((r.right-r.left)/2, (r.bottom-r.top)/2,0,0);
+	    w.show();
+
 	    QMessageBox mb( "qtest",
 		"Is this dialog modal?",
 		QMessageBox::NoIcon,
@@ -60,11 +78,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		QMessageBox::No  | QMessageBox::Escape,
 		QMessageBox::NoButton, &w);
 	    int result = mb.exec();
+
+	    SetFocus( oldFocus );
 	}
 	break;
+
     case WM_DESTROY:
 	PostQuitMessage(0);
 	break;
+
     default:
 	return DefWindowProc(hWnd, message, wParam, lParam);
     }
@@ -106,13 +128,14 @@ int APIENTRY wWinMain(HINSTANCE hInstance,
     
     int argc = 0;
     QApplication a( argc, 0 );
-    
-    QPushButton *pb = new QPushButton( "Qt command button", 0 );
-    ::SetWindowLong( pb->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
-    ::SetParent( pb->winId(), hWnd );
-    ((HwndWidget*)pb)->resetFstrut();
-    pb->move( 0, 0 );
-    pb->show();
+
+    QWinWidget win( hWnd );
+    QHBoxLayout hbox( &win );
+    hbox.setAutoAdd( TRUE );
+
+    win.move( 0, 0 );
+    QPushButton *pb = new QPushButton( "Qt command button", &win );
+    win.show();
     
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
