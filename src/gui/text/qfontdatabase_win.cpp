@@ -806,6 +806,22 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
         lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
 
         QString fam = family->rawName;
+        if (fam.isEmpty()) {
+            switch ( request.styleHint ) {
+	    case QFont::SansSerif:
+		fam = "MS Sans Serif";
+		break;
+	    case QFont::Serif:
+		fam = "Times New Roman";
+		break;
+	    case QFont::TypeWriter:
+		fam = "Courier New";
+		break;
+	    default:
+		break;
+            }
+        }
+
         if ((fam == "MS Sans Serif") && (request.italic || (-lf.lfHeight > 18 && -lf.lfHeight != 24)))
             fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
 
