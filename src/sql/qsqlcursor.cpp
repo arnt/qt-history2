@@ -1052,9 +1052,9 @@ QSqlRecord* QSqlCursor::primeUpdate()
     QSqlRecord* buf = editBuffer( TRUE );
     QSqlIndex idx = primaryIndex( FALSE );
     if ( !idx.isEmpty() )
-	d->editIndex = toString( primaryIndex( FALSE ), buf, d->nm, "=", "and" );
+	d->editIndex = toString( primaryIndex( FALSE ), buf, QString::null, "=", "and" );
     else
-	d->editIndex = toString( buf, d->nm, "=", "and" );
+	d->editIndex = toString( buf, QString::null, "=", "and" );
     return buf;
 }
 
