@@ -290,8 +290,8 @@ bool QSocketNotifier::event(QEvent *e)
 //### for want of a better place
 
 /*
-This class is menat for use with Windows Wait functions. 
-witht MsgWaitForMultipleObjectsEx now used in the windows event loop it should be 
+This class is menat for use with Windows Wait functions.
+witht MsgWaitForMultipleObjectsEx now used in the windows event loop it should be
 possible to use this class in a similar way to QSocketNotifier. It will enable the use
  of overlapped io true async qProcess on windows
 
@@ -316,9 +316,9 @@ long  QWinEventNotifier::handle() const
 
 bool QWinEventNotifier::isEnabled() const
 {
-    return enabled; 
+    return enabled;
 }
-    
+
 void QWinEventNotifier::setEnabled(bool enable)
 {
 }
