@@ -66,7 +66,9 @@ public:
     static QAction *exec(QList<QAction*> actions, const QPoint &pos, QAction *at=0);
 
     QSize sizeHint() const;
-    QRect itemGeometry(QAction *);
+
+    QRect itemGeometry(QAction *); 
+    QAction *itemAtPos(const QPoint &, bool ignoreSeparator = true);
 
 #ifdef Q_WS_MAC
     MenuRef macMenu(MenuRef merge=0);
@@ -185,14 +187,19 @@ public:
     inline QT_COMPAT void setItemChecked(int id, bool check) { findActionForId(id)->setCheckable(check); }
     inline QT_COMPAT bool isItemVisible(int id) const { return findActionForId(id)->isVisible(); }
     inline QT_COMPAT void setItemVisible(int id, bool visible) { findActionForId(id)->setVisible(visible); }
-    inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT QRect itemGeometry(int index) { 
         verifyPlatformCanCastPointerToInt();
         return itemGeometry(findActionForIndex(index)); 
     }
+    inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT int idAt(int index) const { 
         verifyPlatformCanCastPointerToInt();
         return (int)findActionForIndex(index);
+    }
+    inline QT_COMPAT void activateItemAt(int index) {
+        verifyPlatformCanCastPointerToInt();
+        if(QAction *ret = findActionForIndex(index))
+            ret->activate(QAction::Trigger);
     }
     inline QT_COMPAT bool connectItem(int id, const QObject *receiver, const char* member) {
         QObject::connect(findActionForId(id), SIGNAL(triggered()), receiver, member);
@@ -301,6 +308,9 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
     int heightForWidth(int) const;
+
+    QAction *itemAtPos(const QPoint &);
+    QRect itemGeometry(QAction *); 
 
 #ifdef QT_COMPAT
     inline QT_COMPAT uint count() const { return actions().count(); }
@@ -413,10 +423,19 @@ public:
     inline QT_COMPAT void setItemChecked(int id, bool check) { findActionForId(id)->setCheckable(check); }
     inline QT_COMPAT bool isItemVisible(int id) const { return findActionForId(id)->isVisible(); }
     inline QT_COMPAT void setItemVisible(int id, bool visible) { findActionForId(id)->setVisible(visible); }
+    inline QT_COMPAT QRect itemRect(int index) { 
+        verifyPlatformCanCastPointerToInt();
+        return itemGeometry(findActionForIndex(index)); 
+    }
     inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT int idAt(int index) const { 
         verifyPlatformCanCastPointerToInt();
         return (int)actions()[index];
+    }
+    inline QT_COMPAT void activateItemAt(int index) {
+        verifyPlatformCanCastPointerToInt();
+        if(QAction *ret = findActionForIndex(index))
+            ret->activate(QAction::Trigger);
     }
     inline QT_COMPAT bool connectItem(int id, const QObject *receiver, const char* member) {
         QObject::connect(findActionForId(id), SIGNAL(triggered()), receiver, member);

@@ -44,7 +44,7 @@ public:
 
     //item calculations
     mutable uint itemsDirty : 1, maxIconWidth : 8, tabWidth : 8;
-    QRect actionRect(QMenuAction *);
+    QRect actionRect(QMenuAction *) const;
     QList<QMenuAction*> actionItems;
     QList<QMenuAction*> calcActionRects() const;
     void updateActions();
@@ -53,7 +53,7 @@ public:
     //selection
     uint mouseDown : 1;
     QMenuAction *currentAction;
-    QMenuAction *actionAt(QPoint p);
+    QMenuAction *actionAt(QPoint p) const;
     void setFirstActionActive();
     void setCurrentAction(QMenuAction *, int =-1, bool =false);
     void popupAction(QMenuAction *, int, bool);
@@ -83,8 +83,8 @@ public:
     void hideUpToMenuBar();
 
     //index mappings
-    inline QAction *actionAt(int i) { return q_func()->actions().at(i); }
-    inline int indexOf(QAction *act) { return q_func()->actions().indexOf(act); }
+    inline QAction *actionAt(int i) const { return q_func()->actions().at(i); }
+    inline int indexOf(QAction *act) const { return q_func()->actions().indexOf(act); }
 
     //tear off support
     uint tearoff : 1, tornoff : 1, tearoffHighlighted : 1;
@@ -154,13 +154,13 @@ public:
 #endif
     QList<QMenuAction*> actionItems;
     QList<QMenuAction*> calcActionRects(int width) const;
-    QRect actionRect(QMenuAction *);
+    QRect actionRect(QMenuAction *) const;
     void updateActions();
 
     //selection
     QMenuAction *currentAction;
     uint mouseDown : 1, closePopupMode : 1;
-    QMenuAction *actionAt(QPoint p);
+    QMenuAction *actionAt(QPoint p) const;
     void setCurrentAction(QMenuAction *, bool =false, bool =false);
     void popupAction(QMenuAction *, bool);
 

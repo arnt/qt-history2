@@ -184,7 +184,7 @@ void QMenuPrivate::updateActions()
     itemsDirty = 0;
 }
 
-QRect QMenuPrivate::actionRect(QMenuAction *act)
+QRect QMenuPrivate::actionRect(QMenuAction *act) const
 {
     QRect ret = act->rect;
     if(scroll)
@@ -282,7 +282,7 @@ void QMenuPrivate::setCurrentAction(QMenuAction *action, int popup, bool activat
     }
 }
 
-QMenuAction *QMenuPrivate::actionAt(QPoint p)
+QMenuAction *QMenuPrivate::actionAt(QPoint p) const
 {
     if(!q->rect().contains(p))     //sanity check
        return 0;
@@ -603,8 +603,19 @@ void QMenu::clear()
     qWarning("Must implement QMenu::clear()");
 }
 
+QAction *QMenu::itemAtPos(const QPoint &pt, bool ignoreSeparator)
+{
+    d->updateActions();
+    if(QMenuAction *ret = d->actionAt(pt)) {
+        if(!ignoreSeparator || !ret->action->isSeparator())
+            return ret->action;
+    }
+    return 0;
+}
+
 QRect QMenu::itemGeometry(QAction *act)
 {
+    d->updateActions();
     for(QList<QMenuAction*>::Iterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {
         if((*it)->action == act)
             return (*it)->rect;
@@ -1294,7 +1305,7 @@ void QMenu::internalDelayedPopup()
 }
 
 /* QMenubar code */
-QMenuAction *Q4MenuBarPrivate::actionAt(QPoint p)
+QMenuAction *Q4MenuBarPrivate::actionAt(QPoint p) const
 {
     for(int i = 0; i < actionItems.count(); i++) {
         QMenuAction *act = actionItems[i];
@@ -1326,7 +1337,7 @@ void Q4MenuBarPrivate::updateActions()
     itemsDirty = 0;
 }
 
-QRect Q4MenuBarPrivate::actionRect(QMenuAction *act)
+QRect Q4MenuBarPrivate::actionRect(QMenuAction *act) const
 {
     QRect ret = act->rect;
     const int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
@@ -1881,6 +1892,24 @@ Q4MenuBar::eventFilter(QObject *object, QEvent *event)
         }
     }
     return false;
+}
+
+QAction *Q4MenuBar::itemAtPos(const QPoint &pt)
+{
+    d->updateActions();
+    if(QMenuAction *ret = d->actionAt(pt)) 
+        return ret->action;
+    return 0;
+}
+
+QRect Q4MenuBar::itemGeometry(QAction *act)
+{
+    d->updateActions();
+    for(QList<QMenuAction*>::Iterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {
+        if((*it)->action == act)
+            return (*it)->rect;
+    }
+    return QRect();
 }
 
 QSize Q4MenuBar::sizeHint() const
