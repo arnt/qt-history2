@@ -1045,7 +1045,8 @@ uint QDomNodeList::length() const
  *
  **************************************************************/
 
-inline void QDomNodePrivate::setOwnerDocument( QDomDocumentPrivate* doc ) {
+inline void QDomNodePrivate::setOwnerDocument( QDomDocumentPrivate* doc )
+{
     ownerNode = doc;
     hasParent = FALSE;
 }
