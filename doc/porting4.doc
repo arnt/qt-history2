@@ -444,10 +444,3 @@ in the widget's size policy to get equivalent functionality.
 
 The obsolete function drawSplitter() has been removed. Use
 QStyle::drawPrimitive() to acheive similar functionality.
-
-\section1 QDial
-
-The trusty QDial uses the QAbstractSlider API. Use signals sliderPressed(),
-sliderMoved(), and sliderReleased() instead of dialPressed(), dialMoved(), and
-dialReleased() which have been removed.
-

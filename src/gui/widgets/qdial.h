@@ -70,6 +70,11 @@ public:
     QDial(int minValue, int maxValue, int pageStep, int value, QWidget* parent = 0,
           const char* name = 0);
     QDial(QWidget *parent, const char *name);
+
+signals:
+    QT_MOC_COMPAT void dialPressed();
+    QT_MOC_COMPAT void dialMoved(int value);
+    QT_MOC_COMPAT void dialReleased();
 #endif
 
 private: // Disabled copy constructor and operator=

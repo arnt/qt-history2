@@ -76,6 +76,11 @@ void QDialPrivate::init()
     showNotches = false;
     onlyOutside = false;
     q->setFocusPolicy(Qt::WheelFocus);
+#ifdef QT_COMPAT
+    QObject::connect(q, SIGNAL(sliderPressed()), q, SIGNAL(dialPressed()));
+    QObject::connect(q, SIGNAL(sliderMoved(int)), q, SIGNAL(dialMoved(int)));
+    QObject::connect(q, SIGNAL(sliderReleased()), q, SIGNAL(dialReleased()));
+#endif
 }
 
 void QDialPrivate::repaintScreen(const QRect &cr)
