@@ -4631,9 +4631,10 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    if ( chr->lineStart ) {
 		++line;
 		lineInfo( line, cy, h, baseLine );
+ 		if ( clipy != -1 && cliph != 0 && cy + r.y() - lasth > clipy + cliph ) { // outside clip area, leave
+ 		    break;
+		}
 		lasth = h;
-		if ( clipy != -1 && cy > clipy - r.y() + cliph ) // outside clip area, leave
-		    break;
 		if ( lastBaseLine == 0 )
 		    lastBaseLine = baseLine;
 		if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
@@ -4733,7 +4734,10 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		lastY = cy;
 	    } else {
 		if ( chr->customItem()->placement() == QTextCustomItem::PlaceInline ) {
-		    chr->customItem()->draw( &painter, chr->x, cy, clipx - r.x(), clipy - r.y(), clipw, cliph, cg,
+		    chr->customItem()->draw( &painter, chr->x, cy,
+					     clipx == -1 ? clipx : (clipx - r.x()),
+					     clipy == -1 ? clipy : (clipy - r.y()),
+					     clipw, cliph, cg,
 					     nSels && selectionStarts[ 0 ] <= i && selectionEnds[ 0 ] > i );
 		    paintStart = i+1;
 		    paintEnd = -1;
