@@ -288,6 +288,7 @@ private:
     QCanvasItem* ptr;
 };
 
+Q_DECLARE_TYPEINFO(QCanvasItemPtr, Q_PRIMITIVE_TYPE);
 
 /*!
     \class QCanvasItemList
@@ -312,7 +313,7 @@ private:
 */
 void QCanvasItemList::sort()
 {
-    qHeapSort(*((QLinkedList<QCanvasItemPtr>*)this));
+    qHeapSort(*((QList<QCanvasItemPtr>*)this));
 }
 
 /*!
