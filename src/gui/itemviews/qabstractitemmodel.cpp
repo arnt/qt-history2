@@ -350,21 +350,13 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 */
 
 /*!
-    \enum QModelIndex::SpecialValue
+    \fn QModelIndex::QModelIndex()
 
-    This enum describes a special type of model index:
+    Creates a new empty model index.
+    This type of model index is used to indicate
+    that the position in the model is invalid.
 
-    \value Null A model index to represent the parent of top-level table items.
-*/
-
-/*!
-    \fn QModelIndex::QModelIndex(SpecialValue type = Null)
-
-    Creates a new empty model index of the given \a type. By default, a
-    \c Null model index is created. This type of model index is used as the
-    parent index for top-level items in a model.
-
-    \sa QAbstractItemModel
+    \sa isValid() QAbstractItemModel
 */
 
 /*!
@@ -501,8 +493,8 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 
     The model emits signals to indicate changes. For example,
     dataChanged() is emitted whenever the contents of the model are
-    changed; rowsInserted(), columnsInserted(), rowsRemoved(),
-    and columnsRemoved() are emitted when the model's dimensions
+    changed; rowsInserted(), columnsInserted(), rowsAboutToBeRemoved(),
+    and columnsAboutToBeRemoved() are emitted when the model's dimensions
     are changed.
 
     If the model isSortable(), it can be sorted with sort(). To

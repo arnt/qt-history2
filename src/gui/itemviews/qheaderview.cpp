@@ -1362,7 +1362,8 @@ int QHeaderView::verticalOffset() const
 }
 
 /*!
-    \internal
+  \reimpl
+  \internal
 */
 
 void QHeaderView::updateGeometries()
@@ -1372,6 +1373,7 @@ void QHeaderView::updateGeometries()
 }
 
 /*!
+  \reimpl
   \internal
 
   Empty implementation because the header doesn't show QModelIndex items.
@@ -1382,6 +1384,7 @@ void QHeaderView::dataChanged(const QModelIndex &, const QModelIndex &)
 }
 
 /*!
+  \reimpl
   \internal
 
   Empty implementation because the header doesn't show QModelIndex items.
@@ -1392,6 +1395,7 @@ void QHeaderView::rowsInserted(const QModelIndex &, int, int)
 }
 
 /*!
+  \reimpl
   \internal
 
   Empty implementation because the header doesn't show QModelIndex items.
@@ -1403,6 +1407,7 @@ QRect QHeaderView::itemViewportRect(const QModelIndex &) const
 }
 
 /*!
+  \reimpl
   \internal
 
   Empty implementation because the header doesn't show QModelIndex items.
@@ -1414,6 +1419,7 @@ void QHeaderView::ensureVisible(const QModelIndex &)
 }
 
 /*!
+  \reimpl
   \internal
 
   Empty implementation because the header doesn't show QModelIndex items.
@@ -1425,6 +1431,7 @@ QModelIndex QHeaderView::itemAt(int, int) const
 }
 
 /*!
+  \reimpl
   \internal
 
   Empty implementation because the header doesn't show QModelIndex items.
@@ -1436,9 +1443,10 @@ bool QHeaderView::isIndexHidden(const QModelIndex &) const
 }
 
 /*!
-    \internal
+  \reimpl
+  \internal
 
-    Empty implementation because the header doesn't show QModelIndex items.
+  Empty implementation because the header doesn't show QModelIndex items.
 */
 
 QModelIndex QHeaderView::moveCursor(QAbstractItemView::CursorAction, Qt::KeyboardModifiers)
@@ -1447,6 +1455,7 @@ QModelIndex QHeaderView::moveCursor(QAbstractItemView::CursorAction, Qt::Keyboar
 }
 
 /*!
+  \reimpl
   \internal
 
   Empty implementation because the header doesn't have selections.

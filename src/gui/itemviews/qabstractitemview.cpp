@@ -276,21 +276,21 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-  \fn void QAbstractItemView::itemEntered(const QModelIndex &index, const QMouseEvent *event)
+  \fn void QAbstractItemView::itemEntered(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
   This signal is emitted when the mouse cursor enters the item
   specified by \a index.
 */
 
 /*!
-  \fn void QAbstractItemView::viewportEntered(QMouseEvent *event)
+  \fn void QAbstractItemView::viewportEntered(Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
   This signal is emitted when the mouse cursor enters the
   viewport.
 */
 
 /*!
-    \fn void QAbstractItemView::pressed(const QModelIndex &index, const QMouseEvent *event)
+    \fn void QAbstractItemView::pressed(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
     This signal is emitted when a mouse button is pressed. The item the
     mouse was pressed on is specified by \a index (which may be invalid if
@@ -298,7 +298,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::clicked(const QModelIndex &index, const QMouseEvent *event)
+    \fn void QAbstractItemView::clicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
     This signal is emitted when a mouse button is clicked. The item the
     mouse was clicked on is specified by \a index (which may be invalid if
@@ -306,7 +306,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::doubleClicked(const QModelIndex &index, const QMouseEvent *event)
+    \fn void QAbstractItemView::doubleClicked(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
     This signal is emitted when a mouse button is double-clicked. The
     item the mouse was double-clicked on is specified by \a index (which
@@ -314,7 +314,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::keyPressed(const QModelIndex &index, const QKeyEvent *event)
+    \fn void QAbstractItemView::keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers)
 
     This signal is emitted if keyTracking is enabled and a key is
     pressed in the view.  The item \a index is the current item.
@@ -337,7 +337,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn QModelIndex QAbstractItemView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state) = 0
+    \fn QModelIndex QAbstractItemView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers) = 0
 
     Moves the cursor in the view in accordance with the given \a
     cursorAction and button \a state.
