@@ -221,7 +221,7 @@ void QAssistantClient::procError(QProcess::ProcessError err)
 void QAssistantClient::readPort()
 {
     QString p = proc->readAllStandardOutput();
-    Q_UINT16 port = p.toUShort();
+    quint16 port = p.toUShort();
     if ( port == 0 ) {
         emit error( tr( "Cannot connect to Qt Assistant." ) );
         return;

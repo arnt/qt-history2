@@ -54,7 +54,7 @@ private slots:
 private:
     QTcpSocket *socket;
     QProcess *proc;
-    Q_UINT16 port;
+    quint16 port;
     QString host, assistantCommand, pageBuffer;
     bool opened;
 };
