@@ -47,15 +47,21 @@
 
    \mainclass
 
-   A splash screen is a widget that is typically displayed when an application is being
-   started.  This provides feedback to the user and potential advertising space to the
-   software makers.  The splash screen will be on top of all the windows and centered
-   on the screen.  Note: some X11 window managers do not support the "stays on top" flag,
-   in such cases it may be necessary to set up a timer that periodically calls raise()
-   on the splash screen to enforce such behavior.
+   A splash screen is a widget that is usually displayed when an
+   application is being started. Splash screens are often used for
+   applications that have long start up times (e.g. database or
+   networking applications that take time to establish connections) to
+   provide the user with feedback that the application is loading.
 
-   The most common case is to show a splash screen before the main widget is
-   displayed on the screen.  This is illustrated in the following code snippet.
+   The splash screen will be on top of all the windows and centered on
+   the screen. Some X11 window managers do not support the "stays on
+   top" flag, in such cases it may be necessary to set up a timer that
+   periodically calls raise() on the splash screen to get the "stays
+   on top" effect.
+
+   The most common usage is to show a splash screen before the main
+   widget is displayed on the screen. This is illustrated in the
+   following code snippet.
 
    \code
    int main( int argc, char **argv )
@@ -73,28 +79,32 @@
    }
    \endcode
 
-   Additionally, it is also possible to display messages on the splash screen
-   informing users what is going on with the setStatus() function.
+   It is sometimes useful to update the splash screen with messages,
+   for example, announcing connections established or modules loaded
+   as the application starts up. QSplashScreen supports this with the
+   setStatus() function.
 
-   The user can hide the splash screen by clicking on it with the mouse.  Since
-   the splash screen is typically displayed when there is not an event loop running,
-   it is necessary to periodically call QApplication::processEvents() to receive the
-   mouse button press.
+   The user can hide the splash screen by clicking on it with the
+   mouse. Since the splash screen is typically displayed before the
+   event loop has started running, it is necessary to periodically
+   call QApplication::processEvents() to receive the mouse clicks.
 
    \code
    QSplashScreen *splash = new QSplashScreen( "splash.png" );
    ... // Loading some items
+   splash->setStatus( "Loaded modules" );
    qApp->processEvents();
-   ... // Reading settings
+   ... // Establishing connections
+   splash->setStatus( "Established connections" );
    qApp->processEvents();
    \endcode
 
-   It is always possible to have other behavior by reimplementing mousePressEvent() or
-   any other QWidget event functions.
 */
 
 /*!
-  Construct a splash screen that will display \a pixmap.
+    Construct a splash screen that will display \a pixmap.
+
+    There should be no need to set the widget flags, \a f.
 */
 
 QSplashScreen::QSplashScreen( const QPixmap &pixmap, WFlags f )
@@ -109,7 +119,7 @@ QSplashScreen::QSplashScreen( const QPixmap &pixmap, WFlags f )
 }
 
 /*!
-  \reimp
+    \reimp
 */
 
 void QSplashScreen::mousePressEvent( QMouseEvent * )
@@ -118,9 +128,10 @@ void QSplashScreen::mousePressEvent( QMouseEvent * )
 }
 
 /*!
-  This is an override of QWidget::repaint().  It differs from the
-  standard repaint function in that it additionally calls QApplication::flush()
-  to ensure the updates are displayed when there is no event loop present.
+    This is an override of QWidget::repaint(). It differs from the
+    standard repaint function in that it additionally calls
+    QApplication::flush() to ensure the updates are displayed when
+    there is no event loop present.
 */
 void QSplashScreen::repaint()
 {
@@ -129,9 +140,10 @@ void QSplashScreen::repaint()
 }
 
 /*!
-  Paints \a message onto the splash screen with color \a color and aligns the text
-  according to the flags in \a alignment.
-  \sa Qt::AlignmentFlags
+    Draws the \a message text onto the splash screen with color \a
+    color and aligns the text according to the flags in \a alignment.
+
+    \sa Qt::AlignmentFlags
 */
 void QSplashScreen::setStatus( const QString &message, int alignment,
 			       const QColor &color )
@@ -147,8 +159,8 @@ void QSplashScreen::setStatus( const QString &message, int alignment,
 }
 
 /*!
-  Makes the splash screen wait until the widget \a mainWin is displayed before
-  calling close() on itself.
+    Makes the splash screen wait until the widget \a mainWin is
+    displayed before calling close() on itself.
 */
 void QSplashScreen::finish( QWidget *mainWin )
 {
