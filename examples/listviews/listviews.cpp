@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/listviews/listviews.cpp#5 $
+** $Id: //depot/qt/main/examples/listviews/listviews.cpp#6 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -125,7 +125,7 @@ ListViews::ListViews( QWidget *parent, const char *name )
     message = new QLabel( vsplitter );
     message->setAlignment( Qt::AlignTop );
     message->setBackgroundMode( PaletteBase );
-    
+
     connect( folders, SIGNAL( selectionChanged( QListViewItem* ) ), this, SLOT( slotFolderChanged( QListViewItem* ) ) );
     connect( messages, SIGNAL( selectionChanged( QListViewItem* ) ), this, SLOT( slotMessageChanged( QListViewItem* ) ) );
 
@@ -218,7 +218,7 @@ void ListViews::slotMessageChanged( QListViewItem *i )
     QString tmp = msg->header().sender();
     tmp = tmp.replace( QRegExp( "[<]" ), "&lt;" );
     tmp = tmp.replace( QRegExp( "[>]" ), "&gt;" );
-    text = QString( "<b><i>From:</i></b> <font color=blue>%1</font><br>"
+    text = QString( "<b><i>From:</i></b> <a href=\"mailto:info@troll.no\">%1</a><br>"
 		    "<b><i>Subject:</i></b> <big><big><b>%2</b></big></big><br>"
 		    "<b><i>Date:</i></b> %3<br><br>"
 		    "%4" ).
