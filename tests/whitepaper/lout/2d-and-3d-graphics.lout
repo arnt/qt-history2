@@ -230,10 +230,10 @@ bar-graph example.
     @Title { Canvas }
     @Tag { canvas }
 @Begin
-@PP
 @Figure
     @Caption { The KAsteroids game written with @Class QCanvas }
 0.5 @Scale @IncludeGraphic { "images/canvas.eps" }
+@PP
 The @Class QCanvas class provides a high-level interface to 2D
 graphics. It can handle a very large number of `canvas items' that
 represent lines, rectangles, ellipses, texts, pixmaps, animated
