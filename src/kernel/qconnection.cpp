@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnection.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qconnection.cpp#14 $
 **
 ** Implementation of QConnection class
 **
@@ -11,7 +11,7 @@
 
 #include "qconnect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qconnection.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qconnection.cpp#14 $");
 
 
 /*!
@@ -34,4 +34,13 @@ QConnection::QConnection( const QObject *object, QMember member,
     obj = (QObject *)object;
     mbr = member;
     mbr_name = memberName;
+    nargs = 0;
+    if ( strstr(memberName,"()") == 0 ) {
+        const char *p = memberName;
+	nargs++;
+	while ( *p ) {
+	    if ( *p++ == ',' )
+		nargs++;
+	}
+    }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#115 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#114 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#115 $");
 
 
 /*!
@@ -163,7 +163,7 @@ inline bool isSpace( char x )
 #endif
 }
 
-QString rmWS( const char *src )
+static QString rmWS( const char *src )
 {
     QString result( strlen(src)+1 );
     char *d = result.data();
@@ -1223,7 +1223,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
 #endif
     member++;					// skip code
-    QMetaData *rm = 0;
+    QMetaData   *rm = 0;
     QMetaObject *rmeta = r->queryMetaObject();
     if ( !rmeta )				// no meta object
 	return FALSE;
@@ -1256,7 +1256,9 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	clist->setAutoDelete( TRUE );
 	s->connections->insert( signal, clist );
     }
-    clist->append( new QConnection( r, rm->ptr, rm->name ) );
+    QConnection *c = new QConnection(r, rm->ptr, rm->name);
+    CHECK_PTR( c );
+    clist->append( c );
     if ( !r->senderObjects ) {			// create list of senders
 	r->senderObjects = new QObjectList;
 	CHECK_PTR( r->senderObjects );
@@ -1384,16 +1386,15 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 		if ( r == 0 ) {			// remove all receivers
 		    removeObjFromList( c->object()->senderObjects, s );
 		    c = clist->next();
-		}
-		else if ( r == c->object() &&
-			  (member == 0 ||
-			   strcmp(member,c->memberName()) == 0) ) {
+		} else if ( r == c->object() &&
+			    (member == 0 ||
+			     strcmp(member,c->memberName()) == 0) ) {
 		    removeObjFromList( c->object()->senderObjects, s );
 		    clist->remove();
 		    c = clist->current();
-		}
-		else
+		} else {
 		    c = clist->next();
+		}
 	    }
 	    if ( r == 0 )			// disconnect all receivers
 		s->connections->remove( curkey );
@@ -1426,15 +1427,14 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	    if ( r == 0 ) {			// remove all receivers
 		removeObjFromList( c->object()->senderObjects, s, TRUE );
 		c = clist->next();
-	    }
-	    else if ( r == c->object() && (member == 0 ||
-				       strcmp(member,c->memberName()) == 0) ) {
+	    } else if ( r == c->object() && (member == 0 ||
+				      strcmp(member,c->memberName()) == 0) ) {
 		removeObjFromList( c->object()->senderObjects, s, TRUE );
 		clist->remove();
 		c = clist->current();
-	    }
-	    else
+	    } else {
 		c = clist->next();
+	    }
 	}
 	if ( r == 0 )				// disconnect all receivers
 	    s->connections->remove( signal );
@@ -1531,15 +1531,15 @@ void QObject::activate_signal( const char *signal )
 	return;
     typedef void (QObject::*RT)();
     typedef RT *PRT;
-    QConnectionListIt it(*clist);
     RT r;
+    QConnectionListIt it(*clist);
     register QConnection *c;
     register QObject *object;
     while ( (c=it.current()) ) {
 	++it;
-	r = *((PRT)(c->member()));
 	object = c->object();
 	object->sigSender = this;
+	r = *((PRT)(c->member()));
 	(object->*r)();
     }
 }
@@ -1552,18 +1552,26 @@ void QObject::activate_signal( const char *signal, TYPE param )		      \
     QConnectionList *clist = connections->find( signal );		      \
     if ( !clist || signalsBlocked() )					      \
 	return;								      \
-    typedef void (QObject::*RT)( TYPE );				      \
-    typedef RT *PRT;							      \
+    typedef void (QObject::*RT0)();					      \
+    typedef RT0 *PRT0;							      \
+    typedef void (QObject::*RT1)( TYPE );				      \
+    typedef RT1 *PRT1;							      \
+    RT0 r0;								      \
+    RT1 r1;								      \
     QConnectionListIt it(*clist);					      \
-    RT r;								      \
     register QConnection *c;						      \
     register QObject *object;						      \
     while ( (c=it.current()) ) {					      \
 	++it;								      \
-	r = *((PRT)(c->member()));					      \
 	object = c->object();						      \
 	object->sigSender = this;					      \
-	(object->*r)( param );						      \
+	if ( c->numArgs() ) {						      \
+	    r1 = *((PRT1)(c->member()));				      \
+	    (object->*r1)( param );					      \
+	} else {							      \
+	    r0 = *((PRT0)(c->member()));				      \
+	    (object->*r0)();						      \
+	}								      \
     }									      \
 }
 
