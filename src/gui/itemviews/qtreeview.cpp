@@ -493,17 +493,19 @@ void QTreeView::paintEvent(QPaintEvent *e)
     QPainter painter(d->viewport);
 
     d->left = d->header->visualIndexAt(area.left());
-    d->right = d->header->visualIndexAt(area.right() - 1);
+    d->right = d->header->visualIndexAt(area.right());
 
-    if (d->left == -1)
-        d->left = 0;
-    if (d->right == -1)
-        d->right = d->header->count() - 1;
-    if (d->left > d->right) {
-        int tmp = d->left;
-        d->left = d->right;
-        d->right = tmp;
+    if (QApplication::reverseLayout()) {
+        d->left = (d->left == -1 ? d->header->count() - 1 : d->left);
+        d->right = (d->right == -1 ? 0 : d->right);
+    } else {
+        d->left = (d->left == -1 ? 0 : d->left);
+        d->right = (d->right == -1 ? d->header->count() - 1 : d->right);
     }
+
+    int tmp = d->left;
+    d->left = qMin(d->left, d->right);
+    d->right = qMax(tmp, d->right);
 
     QModelIndex current = selectionModel()->currentIndex();
     QStyle::SFlags state = option.state;
@@ -538,11 +540,18 @@ void QTreeView::paintEvent(QPaintEvent *e)
     int w = d->viewport->width();
     int x = d->header->length();
     QRect bottom(0, y, w, h - y);
-    QRect left(x, 0, w - x, h);
     if (y < h && area.intersects(bottom))
         painter.fillRect(bottom, base);
-    if (x < w && area.intersects(left))
-        painter.fillRect(left, base);
+    if (QApplication::reverseLayout()) {
+        QRect right(0, 0, w - x, h);
+        if (x > 0 && area.intersects(right))
+            painter.fillRect(right, base);
+    } else {
+        QRect left(x, 0, w - x, h);
+        if (x < w && area.intersects(left))
+            painter.fillRect(left, base);
+    }
+
 }
 
 /*!

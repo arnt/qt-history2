@@ -340,8 +340,6 @@ void QTableView::paintEvent(QPaintEvent *e)
     int colfirst = columnAt(area.left());
     int collast = columnAt(area.right());
 
-//    qDebug() << "paintEvent" << colfirst << collast << area;
-
     if (QApplication::reverseLayout()) {
         colfirst = (colfirst == -1 ? model()->columnCount(root()) - 1 : colfirst);
         collast = (collast == -1 ? 0 : collast);
