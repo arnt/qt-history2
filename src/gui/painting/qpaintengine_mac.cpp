@@ -22,6 +22,7 @@
 #include <qtextcodec.h>
 #include <qtextcodec.h>
 #include <qwidget.h>
+#include <qvarlengtharray.h>
 
 #include <private/qfontdata_p.h>
 #include <private/qfontengine_p.h>
@@ -365,9 +366,8 @@ QQuickDrawPaintEngine::drawPoints(const QPointF *points, int pointCount)
         if(d->clip.paintable.isEmpty())
             return;
         setupQDPen();
-        QPolygon pa = p.toPolygon();
         for(int i=0; i < pointCount; i++) {
-            MoveTo(points[i].x()+d->offx, points[i].y()+d->offy);
+            MoveTo(qRound(points[i].x())+d->offx, qRound(points[i].y())+d->offy);
             Line(0, 0);
         }
     }
@@ -451,6 +451,16 @@ void
 QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
+
+    // Make an int based version, since we have to go through this conversion at least twice
+    // in any of these branches, which is "bad" on G5s.
+    QVarLengthArray<QPoint> fixedPoints(pointCount);
+    for (int i = 0; i < pointCount; ++i) {
+        fixedPoints[i].rx() = qRound(points[i].x());
+        fixedPoints[i].ry() = qRound(points[i].y());
+    }
+
+
     if (mode == PolylineMode) {
         if(pointCount)
             return;
@@ -469,11 +479,11 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
         for(int chunk = 0; chunk < pointCount;) {
             //make a region of it
             PolyHandle poly = OpenPoly();
-            MoveTo(points[chunk].x()+d->offx+penPoint.x(), points[chunk].y()+d->offy+penPoint.y());
+            MoveTo(fixedPoints[chunk].x()+d->offx+penPoint.x(), fixedPoints[chunk].y()+d->offy+penPoint.y());
             for(int last_chunk=chunk+5000; chunk < last_chunk; chunk++) {
                 if(chunk == pointCount)
                     break;
-                LineTo(points[chunk].x()+d->offx+penPoint.x(), points[chunk].y()+d->offy+penPoint.y());
+                LineTo(fixedPoints[chunk].x()+d->offx+penPoint.x(), fixedPoints[chunk].y()+d->offy+penPoint.y());
             }
             ClosePoly();
             //now draw it
@@ -486,10 +496,10 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
             return;
 
         PolyHandle polyHandle = OpenPoly();
-        MoveTo(points[0].x()+d->offx, points[0].y()+d->offy);
+        MoveTo(fixedPoints[0].x()+d->offx, fixedPoints[0].y()+d->offy);
         for(int x = 1; x < pointCount; x++)
-            LineTo(points[x].x()+d->offx, points[x].y()+d->offy);
-        LineTo(points[0].x()+d->offx, points[0].y()+d->offy);
+            LineTo(fixedPoints[x].x()+d->offx, fixedPoints[x].y()+d->offy);
+        LineTo(fixedPoints[0].x()+d->offx, fixedPoints[0].y()+d->offy);
         ClosePoly();
 
         if(d->current.brush.style() != Qt::NoBrush) {
@@ -1412,7 +1422,7 @@ QCoreGraphicsPaintEngine::drawPoint(const QPointF &p)
 }
 
 void
-QCoreGraphicsPaintEngine::drawPoints(const QPointF points, int pointCount)
+QCoreGraphicsPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
     Q_ASSERT(isActive());
 

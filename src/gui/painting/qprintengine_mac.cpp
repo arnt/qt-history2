@@ -626,10 +626,10 @@ void QMacPrintEngine::drawPoint(const QPointF &p)
     d->paintEngine->drawPoint(p);
 }
 
-void QMacPrintEngine::drawPoints(const QPolygonF &p)
+void QMacPrintEngine::drawPoints(const QPointF *points, int pointCount)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawPoints(p);
+    d->paintEngine->drawPoints(points, pointCount);
 }
 
 void QMacPrintEngine::drawEllipse(const QRectF &r)
@@ -638,10 +638,10 @@ void QMacPrintEngine::drawEllipse(const QRectF &r)
     d->paintEngine->drawEllipse(r);
 }
 
-void QMacPrintEngine::drawLines(const QList<QLineF> &lines)
+void QMacPrintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawLines(lines);
+    d->paintEngine->drawLines(lines, lineCount);
 }
 
 void QMacPrintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
