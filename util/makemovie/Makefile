@@ -1,4 +1,4 @@
-CXXFLAGS=-I$(QTDIR)/include -Wall -O2
+CXXFLAGS=-I$(QTDIR)/include -Wall -O2 -g
 LDFLAGS=-L$(QTDIR)/lib
 LDLIBS=-lqt
 
