@@ -273,13 +273,15 @@ bool QProcess::start(QStringList *env)
     // CreateProcess()
     bool success;
     d->newPid();
+    DWORD startupFlags = (d->pipeStdin[0] || d->pipeStdout[1] || d->pipeStderr[1]) ? STARTF_USESTDHANDLES : 0;
+
 #ifdef UNICODE
     if(!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
         STARTUPINFOW startupInfo = {
             sizeof(STARTUPINFO), 0, 0, 0,
             (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
             0, 0, 0,
-            STARTF_USESTDHANDLES,
+            startupFlags,
             0, 0, 0,
             d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1]
         };
@@ -333,7 +335,7 @@ bool QProcess::start(QStringList *env)
         STARTUPINFOA startupInfo = { sizeof(STARTUPINFOA), 0, 0, 0,
             (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
             0, 0, 0,
-            STARTF_USESTDHANDLES,
+            startupFlags,
             0, 0, 0,
             d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1]
         };
