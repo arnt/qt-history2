@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#140 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#141 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -2474,7 +2474,15 @@ const QStrList &QFontDatabase::familyNames() const
 
 const QFontFamily &QFontDatabase::family( const QString &familyName ) const
 {
-    return *d->familyDict.find( familyName );
+    // ### Eirik, please check this, is it possible that the name does not exist? (Kalle)
+    QFontFamily* ret = d->familyDict.find( familyName );
+    if( ret )
+	return *ret;
+    else {
+	static QFontFamily dummy;
+	return dummy;
+    }
+    //    return *d->familyDict.find( familyName );
 }
 
 
