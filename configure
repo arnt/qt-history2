@@ -11,67 +11,52 @@
 relconf=`basename $0`
 relpath=`dirname $0`
 relpath=`(cd $relpath; pwd)`
+outpath=$relpath
 
-if [ "$relpath" != `pwd` ]; then
-    echo "Producing build tree.."
-    for a in `find $relpath`; do
-       my_a=`echo $a | sed "s,^${relpath}/,,"`
-       [ -f $my_a ] && continue
-       echo "Creating $my_a.."
-       if [ -d $a ]; then
-	    mkdir -p $my_a
-       else
-           a_dir=`dirname $my_a`
-	   [ ! -d $a_dir ] && mkdir -p $a_dir
-	   case `basename $a` in
-	   *.xml|*.png|*.gif|*.html|*.doc|*.txt|*.o|moc_*.cpp) ;;
-	   qconfig.h|qmodules.h|qfeatures.h) cp $a $a_dir ;;
-	   *) ln -sf $a $my_a ;;
-	   esac
-       fi
-    done
-    relpath=`pwd`
-    QTDIR="$relpath" #this is internal, therefore safe
-fi
-
+#internal variables
+CONFIG_CMDLINE="$@" #cache the commandline for config.status
 QMAKE_SWITCHES=""
 QMAKE_VARS=""
 QMAKE_CONFIG=""
-CONFIG_CMDLINE="$relpath/$relconf $@"
 HELP=
+
+if [ "$relpath" != `pwd` ]; then
+    outpath=`pwd`
+    QMAKE_VARS="$QMAKE_VARS \"DEPENDPATH=$outpath/src/tools\"" #let qmake see it for qconfig/qmodules.h
+else
+    touch .test.qt.
+    if [ '!' -f ${QTDIR}/.test.qt. ];
+    then
+	rm .test.qt.
+	echo
+	echo
+	echo '   The environment variable $QTDIR is not set correctly. It is currently'
+	echo '   set to "'$QTDIR'", but it should be set to this directory,'
+	echo '   which is "'`pwd`'".'
+	echo
+	echo '   Please read the INSTALL file for instructions on how to set $QTDIR'
+	echo '   correctly. If you have set $QTDIR in your .profile or .login, you '
+	echo '   will need to log out and log in again to make the setting effective.'
+	echo
+	echo
+	exit 1
+    fi
+    rm .test.qt.
+fi
 
 if [ "$1" = -h -o "$1" = -help -o "$1" = --help ]
 then
     HELP=yes
 else
 
-touch .test.qt.
-if [ '!' -f ${QTDIR}/.test.qt. ];
-then
-    rm .test.qt.
-    echo
-    echo
-    echo '   The environment variable $QTDIR is not set correctly. It is currently'
-    echo '   set to "'$QTDIR'", but it should be set to this directory,'
-    echo '   which is "'`pwd`'".'
-    echo
-    echo '   Please read the INSTALL file for instructions on how to set $QTDIR'
-    echo '   correctly. If you have set $QTDIR in your .profile or .login, you '
-    echo '   will need to log out and log in again to make the setting effective.'
-    echo
-    echo
-    exit 1
-fi
-rm .test.qt.
-
 # Find a make command
-if ( make /dev/null ) >/dev/null 2>/dev/null
+if ( gmake /dev/null ) >/dev/null 2>/dev/null
 then
-    MAKE=make
+    MAKE=gmake
 else
-    if ( gmake /dev/null ) >/dev/null 2>/dev/null
+    if ( make /dev/null ) >/dev/null 2>/dev/null
     then
-	MAKE=gmake
+	MAKE=make
     else
 	echo "You don't seem to have 'make' or 'gmake' in your PATH."
 	echo "Cannot proceed."
@@ -83,7 +68,7 @@ fi
 MODULES="tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql styles"
 
 # Free edition - may only be used under the terms of the QPL or GPL.
-if [ -f LICENSE.QPL -a -f LICENSE.GPL ]
+if [ -f $relpath/LICENSE.QPL -a -f $relpath/LICENSE.GPL ]
 then
     Edition=free
     Licensee=you
@@ -114,15 +99,15 @@ then
 		exit 0
 	    elif [ "$acceptance" = G -o "$acceptance" = g ]
 	    then
-		more LICENSE.GPL
+		more $relpath/LICENSE.GPL
 	    elif [ "$acceptance" = Q -o "$acceptance" = q ]
 	    then
-		more LICENSE.QPL
+		more $relpath/LICENSE.QPL
 	    fi
 	fi
     done
 # Internal Trolltech edition.
-elif [ -f LICENSE.TROLL ]
+elif [ -f $relpath/LICENSE.TROLL ]
 then
     Edition=troll
     echo
@@ -130,7 +115,7 @@ then
     echo
     EMB="/Embedded" #fixme
 else
-    if [ -f LICENSE ]
+    if [ -f $relpath/LICENSE ]
     then
 	echo
 	if [ -d $relpath/mkspecs/qws/ ] #fixme
@@ -208,7 +193,7 @@ else
 		    echo
 		    exit 0
 		fi
-		more LICENSE
+		more $relpath/LICENSE
 	    fi
 	done
     else
@@ -223,7 +208,7 @@ else
 fi
 
 # Remove the build options file
-[ -f .qmake.cache ] && rm .qmake.cache
+[ -f $outpath/.qmake.cache ] && rm $outpath/.qmake.cache
 
 fi # help
 
@@ -278,15 +263,15 @@ while [ -n "$1" ]; do
 	;;
    -make)
 	shift
-	if [ -f $1 ]
+	if [ -f $relpath/$1 ]
 	then
-	    QMAKE_PROJECTS="$QMAKE_PROJECTS $1"
+	    QMAKE_PROJECTS="$QMAKE_PROJECTS $relpath/$1"
 	else
-	    if [ -d $1 ]
+	    if [ -d $relpath/$1 ]
 	    then
-		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $1 -name '*.pro' -print | sort`"
+		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/$1 -name '*.pro' -print`"
             else
-		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/$1 -name '*.pro' -print | sort`"
+		QMAKE_PROJECTS="$QMAKE_PROJECTS `find $relpath/$1 -name '*.pro' -print`"
 	    fi
 	fi
 	;;
@@ -470,13 +455,13 @@ then
 	# This is a Qt/Embedded distribution
 	SM=no
 	MODULES=`echo $MODULES | sed -e 's/\<opengl\>//'`
-	PLATFORMS=`find $QTDIR/mkspecs/qws | sed "s,$QTDIR/mkspecs/qws/,,"`
+	PLATFORMS=`find $relpath/mkspecs/qws | sed "s,$relpath/mkspecs/qws/,,"`
 	case "$UNAME_MACHINE" in
 	 *86) ARCH=x86-
 	;; *) ARCH=generic-
 	esac
     else
-	PLATFORMS=`find $QTDIR/mkspecs/ -type f | xargs grep -v qws | sed "s,$QTDIR/mkspecs/qws/,,"`
+	PLATFORMS=`find $relpath/mkspecs/ -type f | xargs grep -v qws | sed "s,$relpath/mkspecs/qws/,,"`
     fi
 
     PLATFORM_NOTES=""
@@ -703,25 +688,26 @@ case "$QCONFIG" in
     echo >&2 "No such configuration: $QCONFIG"
     HELP=yes
 esac
-rm -f src/tools/qconfig.h.new   # KLUDGE - shouldn't be in p4 depot
+[ ! -d $outpath/src/tools ] && mkdir -p $outpath/src/tools
+rm -f $outpath/src/tools/qconfig.h.new   # KLUDGE - shouldn't be in p4 depot
 case "$QCONFIG" in
   full)
-    echo "// Everything" >src/tools/qconfig.h.new
+    echo "// Everything" >$outpath/src/tools/qconfig.h.new
     ;;
   *)
     QCONFIGFILE=qconfig-$QCONFIG.h
-    echo "// Copied from $QCONFIGFILE" >src/tools/qconfig.h.new
-    cat src/tools/$QCONFIGFILE >>src/tools/qconfig.h.new
+    echo "// Copied from $QCONFIGFILE" >$outpath/src/tools/qconfig.h.new
+    cat $outpath/src/tools/$QCONFIGFILE >>$outpath/src/tools/qconfig.h.new
     ;;
 esac
-QCONF_CHANGES=`diff src/tools/qconfig.h src/tools/qconfig.h.new 2>&1 | wc -l | sed "s, ,,g"`
-if [ -f src/tools/qconfig.h ] && [ "x$QCONF_CHANGES" = "x0" ]
+QCONF_CHANGES=`diff $outpath/src/tools/qconfig.h $outpath/src/tools/qconfig.h.new 2>&1 | wc -l | sed "s, ,,g"`
+if [ -f $outpath/src/tools/qconfig.h ] && [ "x$QCONF_CHANGES" = "x0" ]
 then
-    rm -f src/tools/qconfig.h.new
+    rm -f $outpath/src/tools/qconfig.h.new
 else
-    [ -f src/tools/qconfig.h ] && chmod +w src/tools/qconfig.h
-    mv src/tools/qconfig.h.new src/tools/qconfig.h
-    chmod -w src/tools/qconfig.h
+    [ -f $outpath/src/tools/qconfig.h ] && chmod +w $outpath/src/tools/qconfig.h
+    mv $outpath/src/tools/qconfig.h.new $outpath/src/tools/qconfig.h
+    chmod -w $outpath/src/tools/qconfig.h
 fi
 
 # Next, emit a usage message if something failed.
@@ -877,13 +863,14 @@ then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-mt"
     QMAKE_CONFIG="$QMAKE_CONFIG thread"
 fi
-# QMAKE_OUTDIR="${QMAKE_OUTDIR}-`uname -n`"
 
 if [ "x$EMBEDDED" != "xno" ]
 then
     QMAKE_OUTDIR="${QMAKE_OUTDIR}-emb-$EMBEDDED"
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$QTDIR/lib-e-$EMBEDDED\" \"DEFINES+=QWS\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib-e-$EMBEDDED\" \"DEFINES+=QWS\""
     QMAKE_CONFIG="$QMAKE_CONFIG embedded"
+else
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_QT=$outpath/lib\""
 fi
 QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE_OUTDIR\""
 
@@ -898,23 +885,7 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$ZLIB" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG zlib"
 [ "x$LIBPNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG png"
 [ "x$KDE" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG kde"
-[ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sort | sed 's-/\./-/-'`
-
-# Make sure QMAKE_PROJECTS contains src/qt.pro and src/moc/moc.pro
-echo "${MODULES}" | grep "src/qt.pro"
-if [ '!' $? ]
-then
-    echo "Adding src/qt.pro to list of projects"
-    QMAKE_PROJECTS="src/qt.pro ${QMAKE_PROJECTS}"
-fi
-
-echo "${MODULES}" | grep "src/moc/moc.pro"
-if [ '!' $? ]
-then
-    echo "Adding src/moc/moc.pro to list of projects"
-    QMAKE_PROJECTS="src/moc/moc.pro ${QMAKE_PROJECTS}"
-fi
-
+[ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sed 's-/\./-/-'`
 [ '!' -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
 if [ '!' -z "$l_FLAGS" ] || [ '!' -z "$L_FLAGS" ]
 then
@@ -928,54 +899,55 @@ then
 fi
 
 #do modules.h
-rm -f src/tools/qmodules.h.new
-cat >src/tools/qmodules.h.new << EOF
+[ ! -d $outpath/src/tools ] && mkdir -p $outpath/src/tools
+rm -f $outpath/src/tools/qmodules.h.new
+cat >$outpath/src/tools/qmodules.h.new << EOF
 // These modules are licensed to $Licensee
 EOF
 for MODULE in $MODULES
 do
-    if [ -d "src/$MODULE" ]
+    if [ -d "$relpath/src/$MODULE" ]
     then
 	M=`echo $MODULE | tr '[a-z]' '[A-Z]'`
-	echo "#define QT_MODULE_$M" >>src/tools/qmodules.h.new
+	echo "#define QT_MODULE_$M" >>$outpath/src/tools/qmodules.h.new
 	QMAKE_CONFIG="$QMAKE_CONFIG $MODULE"
     fi
 done
 #because things depend on qmodules.h, I conditionally copy
 #so I don't rebuild them when I configure but change nothing..
-QMOD_CHANGES=`diff src/tools/qmodules.h src/tools/qmodules.h.new 2>&1 | wc -l | sed "s, ,,g"`
-if [ -f src/tools/qmodules.h ] && [ "x$QMOD_CHANGES" = "x0" ]
+QMOD_CHANGES=`diff $outpath/src/tools/qmodules.h $outpath/src/tools/qmodules.h.new 2>&1 | wc -l | sed "s, ,,g"`
+if [ -f $outpath/src/tools/qmodules.h ] && [ "x$QMOD_CHANGES" = "x0" ]
 then
-    rm -f src/tools/qmodules.h.new
+    rm -f $outpath/src/tools/qmodules.h.new
 else
-    [ -f src/tools/qmodules.h ] && chmod +w src/tools/qmodules.h
-    mv src/tools/qmodules.h.new src/tools/qmodules.h
-    chmod -w src/tools/qmodules.h
+    [ -f $outpath/src/tools/qmodules.h ] && chmod +w $outpath/src/tools/qmodules.h
+    mv $outpath/src/tools/qmodules.h.new $outpath/src/tools/qmodules.h
+    chmod -w $outpath/src/tools/qmodules.h
 fi
 
 # Create the .qmake.cache file
-[ -f .qmake.cache ] && rm -f .qmake.cache
+[ -f $outpath/.qmake.cache ] && rm -f $outpath/.qmake.cache
 quoted=no
 tmp=""
 for i in $QMAKE_VARS; do
   if [ "$quoted" = "no" ]
   then 
     case "$i" in 
-      \"*\")   echo $i | sed 's,^",,' | sed 's,"$,,' >>.qmake.cache;   ;; 
+      \"*\")   echo $i | sed 's,^",,' | sed 's,"$,,' >>$outpath/.qmake.cache;   ;; 
       \"*)   quoted=yes ; tmp=$i;   ;; 
-      *)   echo $i; ;; 
+      *)   echo $i >>.qmake.cache ;; 
     esac
   else 
     case "$i" in 
       *\") quoted=no
-           echo $tmp $i | sed 's,^",,' | sed 's,"$,,' >>.qmake.cache
-           tmp=""; ;; 
-      *) tmp="$tmp $i"; ;;
+           echo $tmp $i | sed 's,^",,' | sed 's,"$,,' >>$outpath/.qmake.cache
+           tmp="" ;; 
+      *) tmp="$tmp $i" >>$outpath/.qmake.cache ;;
     esac
   fi
 #    echo $a
 done
-cat >>.qmake.cache <<EOF
+cat >>$outpath/.qmake.cache <<EOF
 CONFIG = $QMAKE_CONFIG
 MKSPEC = $XPLATFORM
 EOF
@@ -1019,11 +991,11 @@ echo "Session management... $SM"
 echo
 
 #do the qmake..
-[ -x "$QTDIR/bin/syncqt" ] && $QTDIR/bin/syncqt
-if [ '!' -f "$QTDIR/bin/qmake" ]
+[ -x "$relpath/bin/syncqt" ] && $relpath/bin/syncqt
+if [ '!' -f "$relpath/bin/qmake" ]
 then
     echo Creating qmake...
-    (cd qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
+    (cd $relpath/qmake; /bin/sh -c $MAKE || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
 fi
 
 QMAKE_ALL_ARGS="\"CONFIG+=$QMAKE_CONFIG\" $QMAKE_VARS $QMAKE_SWITCHES"
@@ -1032,21 +1004,18 @@ sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
 PROCS=1
 PIPE=""
 EXEC=""
-for a in $QMAKE_PROJECTS ; do
-    dir=`dirname $a`
-    file=`basename $a`
-    buildpath=`echo "$dir" | sed -e "s;$sepath;.;g"`
-    test -d $buildpath || mkdir $buildpath
-    MFILE=Makefile
-    N=$buildpath/$MFILE
-
+for a in `echo $QMAKE_PROJECTS | sort | uniq`; do
     case $a in
     *-kde.pro|*qtmain.pro) continue ;;
     *moc*) CONF=$MKSPEC ;;
     *) CONF=$XMKSPEC
     esac
-
-    PIPE="$QTDIR/bin/qmake $QMAKE_ALL_ARGS -o $dir/$MFILE -mkspec $CONF $a"
+    file=`basename $a`
+    dir=`dirname $a | sed -e "s;$sepath;.;g"`
+    test -d $dir || mkdir -p $dir
+    N=$outpath/$dir/Makefile
+    QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$outpath/$dir\""
+    PIPE="$relpath/bin/qmake $QMAKE_ALL_ARGS $QMAKE_EXTRA_ARGS -o $N -mkspec $CONF $a"
     if [ "x$CONCURRENT" = "x0" ] || [ "x$CONCURRENT" = "x1" ]
     then
 	EXEC=$PIPE
@@ -1068,8 +1037,7 @@ for a in $QMAKE_PROJECTS ; do
     fi
     echo 
 
-    [ -f $dir/$MFILE ] && chmod +w $dir/$MFILE
-
+    [ -f $N ] && chmod +w $N
     if [ "x$PROCS" = "x1" ]
     then
 	/bin/sh -c "$EXEC"
@@ -1079,7 +1047,7 @@ done
 #this is just incase the concurrant task is not a multiple of the number of tasks
 [ '!' -z "$EXEC" ] && /bin/sh -c "$EXEC wait"
 
-if echo $LD_LIBRARY_PATH | grep >/dev/null $QTDIR/lib
+if echo $LD_LIBRARY_PATH | grep >/dev/null $outpath/lib
 then
     if grep >/dev/null QMAKE_RPATH $XMKSPEC
     then
@@ -1088,7 +1056,7 @@ then
 	if [ -n "$FROMMAKE" ]
 	then
 	    echo
-	    echo "WARNING: \$LD_LIBRARY_PATH does not contain \$QTDIR/lib"
+	    echo "WARNING: \$LD_LIBRARY_PATH does not contain \$outpath/lib"
 	    echo "         many platforms require this."
 	    echo
 	fi
@@ -1096,13 +1064,13 @@ then
 fi
 
 #finally put the executed command to another script..
-[ -f config.status ] && rm -f config.status
-cat >$relpath/config.status << EOF
+[ -f $outpath/config.status ] && rm -f $outpath/config.status
+cat >$outpath/config.status << EOF
 #!/bin/sh
 
-yes yes | $CONFIG_CMDLINE \$@
+yes yes | $relpath/$relconf $CONFIG_CMDLINE \$@
 EOF
-chmod +x $relpath/config.status
+chmod +x $outpath/config.status
 
 echo
 echo Qt is now configured for building. Just run $MAKE.

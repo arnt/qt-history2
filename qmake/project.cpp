@@ -270,7 +270,14 @@ QMakeProject::read(const char *project)
 	    QString cachefile = Option::cachefile;
 	    if(cachefile.find(QDir::separator()) == -1) {
 		/* find the cache file, otherwise return false */
-			QString dir = QDir::convertSeparators(QDir::currentDirPath());
+		QString dir = QDir::convertSeparators(QDir::currentDirPath());
+		QString ofile = Option::output.name();
+		if(ofile.findRev(Option::dir_sep) != -1) {
+		    dir = ofile.left(ofile.findRev(Option::dir_sep));
+		    if(QDir::isRelativePath(dir))
+			dir.prepend(QDir::convertSeparators(QDir::currentDirPath()));
+		}
+
 		while(!QFile::exists((cachefile = dir + QDir::separator() + Option::cachefile))) {
 		    dir = dir.left(dir.findRev(QDir::separator()));
 			if(dir.isEmpty() || dir.find(QDir::separator()) == -1) {

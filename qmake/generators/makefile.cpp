@@ -71,7 +71,8 @@ MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc
 
 	    if ( !QDir::isRelativePath( path ) )
 		d.cd( path.left( 2 ) );
-
+	    else if(!project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
+		path = project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].first() + Option::dir_sep + path;
 	    if(path.left(1) == Option::dir_sep) 
 	      d.cd(Option::dir_sep);
 
@@ -137,8 +138,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 		mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
 		depends[fn_target].append(mocFile);
 		project->variables()["_SRCMOC"].append(mocFile);
-	    }
-	    else if(fn_target.right(ext_len) == Option::h_ext &&
+	    } else if(fn_target.right(ext_len) == Option::h_ext &&
 		    project->variables()["HEADERS"].findIndex(fn_target) != -1) {
 		mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
 		project->variables()["_HDRMOC"].append(mocFile);
@@ -159,6 +159,10 @@ MakefileGenerator::generateMocList(QString fn_target)
 bool
 MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 {
+    bool absolute = !project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty();
+    if(absolute) 
+	fileAbsolute(fn);
+    
     QStringList &fndeps = depends[fn];
     if(!fndeps.isEmpty())
 	return TRUE;
@@ -202,6 +206,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		*(big_buffer + x + inc_len) = '\0';
 		
 		QString fqn, inc = big_buffer + x;
+
 		if(!stat(fndir + inc, &fst))
 		    fqn = fndir + inc;
 		else if((Option::mode == Option::WIN_MODE && inc[1] != ':') || 
@@ -237,6 +242,8 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		}
 
 		fqn = Option::fixPathToTargetOS(fqn);
+		if(absolute)
+		    fileAbsolute(fqn);
 
 		if(fndeps.findIndex(fqn) == -1)
 		    fndeps.append(fqn);
@@ -317,6 +324,10 @@ MakefileGenerator::generateMocList(QString fn_target)
 bool
 MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 {
+    bool absolute = !project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty();
+    if(absolute) 
+	fileAbsolute(fn);
+    
     int pos;
     int end;
     int l;
@@ -413,6 +424,8 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 		    continue;
 	    }
 	    fqn = Option::fixPathToTargetOS(fqn);
+	    if(absolute)
+		fileAbsolute(fqn);
 
 	    if(fndeps.findIndex(fqn) == -1)
 		fndeps.append(fqn);
@@ -445,11 +458,24 @@ MakefileGenerator::init()
     init_already = TRUE;
 
     QMap<QString, QStringList> &v = project->variables();
+
+    if(!v["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) {
+	QString paths[] = { QString("SOURCES"), QString("INTERFACES"), QString("YACCSOURCES"), QString("INCLUDEPATH"),
+				QString("HEADERS"),
+				QString("LEXSOURCES"), QString("QMAKE_INTERNAL_INCLUDED_FILES"), QString::null };
+	for(int y = 0; paths[y] != QString::null; y++) {
+	    QStringList &l = v[paths[y]];
+	    if(!l.isEmpty()) 
+		fileAbsolute(l);
+	}
+    }
+
     /* get deps and mocables */
     {
 	QStringList incDirs;
 	if(Option::do_deps) {
-	    QString dirs[] = { QString("DEPENDPATH"), QString("INCLUDEPATH"), QString::null };
+	    QString dirs[] = { QString("QMAKE_ABSOLUTE_SOURCE_PATH"),
+				   QString("DEPENDPATH"), QString("INCLUDEPATH"), QString::null };
 	    for(int y = 0; dirs[y] != QString::null; y++) {
 		QStringList &l = v[dirs[y]];
 		for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
@@ -467,7 +493,6 @@ MakefileGenerator::init()
 	    if(Option::debug_level)
 		printf("Dependancy Directories: %s\n", incDirs.join(" :: ").latin1());
 	}
-
 
 	QString sources[] = { QString("LEXSOURCES"), QString("YACCSOURCES"),
 				  QString("HEADERS"), QString("SOURCES"), QString("INTERFACES"), QString::null };
@@ -807,12 +832,47 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
     if(ofile.findRev(Option::dir_sep) != -1)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
 
-    t << "qmake " << ofile << ": " << project->projectFile() << " \\\n\t\t"
+    QString pfile = project->projectFile();
+    QString args;
+    if(!project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty()) {
+	args += "QMAKE_ABSOLUTE_SOURCE_PATH=\"" + project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].first() + "\"";
+	fileAbsolute(pfile);
+    }
+
+    t << "qmake " << ofile << ": " << pfile << " \\\n\t\t"
       << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
-      << "qmake " << project->projectFile();
+      << "qmake " << args << " " << pfile;
     if (!ofile.isEmpty())
 	t << " -o " << ofile;
     t << endl << endl;
     
+    return TRUE;
+}
+
+bool
+MakefileGenerator::fileAbsolute(QStringList &files)
+{
+    if(files.isEmpty())
+	return FALSE;
+    int ret = 0;
+    for(QStringList::Iterator it = files.begin(); it != files.end(); ++it) 
+	if(!(*it).isEmpty()) 
+	    ret += (int)fileAbsolute(*it);
+    return ret != 0;
+}
+
+bool
+MakefileGenerator::fileAbsolute(QString &file)
+{
+    if(file.isEmpty())
+	return FALSE;
+    file = Option::fixPathToTargetOS(file);
+    if(!QDir::isRelativePath(file)) //already absolute
+	return FALSE;
+    QFileInfo fi(file);
+    if(fi.convertToAbs()) //strange
+	return FALSE;
+    file = fi.filePath();
+
     return TRUE;
 }
