@@ -655,7 +655,7 @@ void QColor::setHsv( int h, int s, int v )
 
 
 /*!
-    QRgb QColor::rgb() const
+    \fn QRgb QColor::rgb() const
 
     Returns the RGB value.
 
@@ -665,14 +665,6 @@ void QColor::setHsv( int h, int s, int v )
     unspecified.
 
     \sa setRgb(), hsv(), qRed(), qBlue(), qGreen(), isValid()
-*/
-
-/*!
-    Sets the contents pointed to by \a r, \a g and \a b to the red,
-    green and blue components of the RGB value respectively. The value
-    range for a component is 0..255.
-
-    \sa setRgb(), hsv()
 */
 
 /*! \fn void QColor::getRgb( int *r, int *g, int *b ) const

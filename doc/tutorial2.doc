@@ -1177,15 +1177,12 @@ the same way as we set the value color.
 \section1 The Slots
 
 \skipto ::currentChanged(
-\printuntil popup
+\printuntil setEnabled
 \printline
 
 As the user navigates through the table currentChanged() signals are
 emitted. If the user enters column 1 or 4 (value color or label color)
 we enable the colorPushButton; otherwise we disable it.
-
-To make things easier for keyboard users we popup the pattern combobox
-if the user navigates to it.
 
 \skipto ::valueChanged(
 \printuntil ?

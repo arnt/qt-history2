@@ -1852,9 +1852,11 @@ QFontMetrics::QFontMetrics( const QFont &font )
     d->ref();
 }
 
-/*! \overload
+/*!
+    \overload
 
-    Constructs a font metrics object for \a font.
+    Constructs a font metrics object for \a font using the given \a
+    script.
 */
 QFontMetrics::QFontMetrics( const QFont &font, QFont::Script script )
     : d( font.d ), painter( 0 ), fscript( script )
@@ -2160,6 +2162,8 @@ int QFontMetrics::rightBearing(QChar ch) const
 }
 #endif // !Q_WS_WIN
 
+
+#ifndef Q_WS_QWS
 /*!
     Returns the width in pixels of the first \a len characters of \a
     str. If \a len is negative (the default), the entire string is
@@ -2172,7 +2176,6 @@ int QFontMetrics::rightBearing(QChar ch) const
 
     \sa boundingRect()
 */
-#ifndef Q_WS_QWS
 int QFontMetrics::width( const QString &str, int len ) const
 {
     if (len < 0)
@@ -2227,7 +2230,6 @@ int QFontMetrics::width( const QString &str, int len ) const
 #endif
 
 /*! \fn int QFontMetrics::width( QChar ch ) const
-    \overload
 
     <img src="bearings.png" align=right>
 
@@ -2272,6 +2274,7 @@ int QFontMetrics::width( const QString &str, int len ) const
     account.
 */
 
+#ifndef Q_WS_QWS
 /*!
     Returns the bounding rectangle of the first \a len characters of
     \a str, which is the set of pixels the text would cover if drawn
@@ -2291,7 +2294,6 @@ int QFontMetrics::width( const QString &str, int len ) const
 
     \sa width(), QPainter::boundingRect()
 */
-#ifndef Q_WS_QWS
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
     if (len < 0)
@@ -2307,8 +2309,6 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 #endif
 
 /*!
-    \overload
-
     Returns the bounding rectangle of the character \a ch relative to
     the left-most point on the base line.
 
@@ -2341,8 +2341,8 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 /*!
     \overload
 
-    Returns the bounding rectangle of the first \e len characters of
-    \e str, which is the set of pixels the text would cover if drawn
+    Returns the bounding rectangle of the first \a len characters of
+    \a str, which is the set of pixels the text would cover if drawn
     at (0, 0). The drawing, and hence the bounding rectangle, is
     constrained to the rectangle (\a x, \a y, \a w, \a h).
 
@@ -2586,7 +2586,8 @@ QFontInfo::QFontInfo( const QFont &font )
 }
 
 /*!
-    Constructs a font info object for \a font.
+    Constructs a font info object for \a font using the specified \a
+    script.
 */
 QFontInfo::QFontInfo( const QFont &font, QFont::Script script )
     : d( font.d ), painter( 0 ), fscript( script )
