@@ -778,7 +778,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
 	}
         HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, static_cast<CGContextRef>(p->handle()),
                          kHIThemeOrientationNormal);
-        if (sub && SC_SliderTickmarks) {
+        if (sub & SC_SliderTickmarks) {
             int numMarks = slider->maximum() / slider->pageStep();
             HIThemeDrawTrackTickMarks(&tdi, numMarks, static_cast<CGContextRef>(p->handle()),
                                       kHIThemeOrientationNormal);
