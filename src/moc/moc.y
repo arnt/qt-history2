@@ -2915,9 +2915,9 @@ void generateClass()		      // generate C++ source code for a class
     fprintf(out, "    %4d, %4d, // classinfo\n", g->infos.count(), index);
     index += g->infos.count() * 2;
     fprintf(out, "    %4d, %4d, // signals\n", g->signals.count(), index);
-    index += g->signals.count() * 4;
+    index += g->signals.count() * 5;
     fprintf(out, "    %4d, %4d, // slots\n", g->slots.count(), index);
-    index += g->slots.count() * 4;
+    index += g->slots.count() * 5;
     fprintf(out, "    %4d, %4d, // properties\n", g->props.count(), index);
     index += g->props.count() * 3;
     fprintf(out, "    %4d, %4d, // enums/sets\n", g->enums.count(), index);
