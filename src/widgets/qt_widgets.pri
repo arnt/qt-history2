@@ -5,7 +5,7 @@ widgets {
 
 	HEADERS += $$WIDGETS_H/qbuttongroup.h \
 		  $$WIDGETS_H/qbutton.h \
-		  $$WIDGETS_H/qdialogbuttons_p.h \
+		  $$WIDGETS_P/qdialogbuttons_p.h \
 		  $$WIDGETS_H/qcheckbox.h \
 		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_P/qwidgetresizehandler_p.h \
