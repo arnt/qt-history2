@@ -22,7 +22,10 @@ sql {
 		    $$SQL_H/qsqlindex.h \
 		    $$SQL_H/qsqltable.h \
 		    $$SQL_H/qsqlpropertymap.h \
-		    $$SQL_H/qdatetimeedit.h
+		    $$SQL_H/qdatetimeedit.h \
+		    $$SQL_H/qsqlnavigator.h \
+		    $$SQL_H/qsqlwidget.h \
+		    $$SQL_H/qsqldialog.h
 
 	SOURCES     += $$SQL_CPP/qsqlquery.cpp \
 		    $$SQL_CPP/qsqldatabase.cpp \
@@ -38,7 +41,10 @@ sql {
 		    $$SQL_CPP/qsqlindex.cpp \
 		    $$SQL_CPP/qdatetimeedit.cpp \
 		    $$SQL_CPP/qsqlpropertymap.cpp \
-		    $$SQL_CPP/qsqltable.cpp
+		    $$SQL_CPP/qsqltable.cpp \
+		    $$SQL_CPP/qsqlnavigator.cpp \
+		    $$SQL_CPP/qsqlwidget.cpp \
+		    $$SQL_CPP/qsqldialog.cpp
 
 	contains(sql-driver, all ) {
 		sql-driver += postgres mysql odbc oci
