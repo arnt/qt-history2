@@ -19,3 +19,8 @@ to override the existing file.
 
 Cosmetic
 --------
+
+QMsDev
+    Support not only .h header files
+    Adding an UIC step produces two MOC steps
+    Adding Moc to a CPP file doesn't work as expected
