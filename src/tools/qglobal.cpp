@@ -321,7 +321,7 @@ QCString p2qstring(const unsigned char *c) {
 #endif
 
 
-#ifdef Q_OS_MAC9
+#ifdef Q_CC_MWERKS
 
 #include "qt_mac.h"
 
@@ -351,7 +351,7 @@ void qDebug( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
     } else {
-#if defined(Q_OS_MAC9)
+#if defined(Q_CC_MWERKS)
 	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
@@ -378,7 +378,7 @@ void debug( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
     } else {
-#ifdef Q_OS_MAC9
+#ifdef Q_CC_MWERKS
 	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
@@ -404,7 +404,7 @@ void qWarning( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
     } else {
-#ifdef Q_OS_MAC9
+#ifdef Q_CC_MWERKS
 	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
@@ -432,7 +432,7 @@ void warning( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
     } else {
-#ifdef Q_OS_MAC9
+#ifdef Q_CC_MWERKS
 	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
@@ -458,7 +458,7 @@ void qFatal( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
     } else {
-#ifdef Q_OS_MAC9
+#ifdef Q_CC_MWERKS
 	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
@@ -490,7 +490,7 @@ void fatal( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
     } else {
-#ifdef Q_OS_MAC9
+#ifdef Q_CC_MWERKS
 	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
         mac_default_handler(buf);
