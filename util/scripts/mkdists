@@ -918,7 +918,7 @@ for plat in mac win x11 embedded; do
 	    for fl in `find "${PLATNAME}"`; do
 		extn=`echo $fl | sed "s,.*\.,,"`
 		case $extn in
-		dll|gif|png|jpg|bmp|any|pic|ppm|exe|zip|qm) binfiles="$fl $binfiles" ;;
+		dll|gif|png|mng|jpg|bmp|any|pic|ppm|exe|zip|qm) binfiles="$fl $binfiles" ;;
 		*)  txtfiles="$fl $txtfiles" ;;
 		esac
 	    done
