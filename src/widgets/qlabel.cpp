@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#11 $
 **
 ** Implementation of QLabel widget class
 **
@@ -12,9 +12,10 @@
 
 #include "qlabel.h"
 #include "qpainter.h"
+#include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#11 $";
 #endif
 
 
@@ -81,5 +82,6 @@ void QLabel::updateLabel()			// update label, not frame
 
 void QLabel::drawContents( QPainter *p )
 {
+    p->setPen( colorGroup().text() );
     p->drawText( contentsRect(), align, str );
 }
