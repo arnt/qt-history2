@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#142 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -2004,27 +2004,49 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	}
 	if ( txop >= TxScale && !nat_xf ) {
 	    // Draw scaled, rotated and shared text on Windows 95, 98
+
 	    const QFontMetrics & fm = fontMetrics();
 	    QFontInfo	 fi = fontInfo();
 	    QRect bbox = fm.boundingRect( str, len );
 	    int w=bbox.width(), h=bbox.height();
+	    int aw, ah;
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
-	    bool empty = w == 0 || h == 0;
-	    QWMatrix mat1( m11(), m12(),
-			   m21(), m22(),
-			   dx(),  dy());
-	    QWMatrix mat = QPixmap::trueMatrix( mat1, w, h );
-	    QBitmap *wx_bm = get_text_bitmap( mat, cfont, str, len );
+	    QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
+	    QFont dfont( cfont );
+	    QWMatrix mat2;
+	    if ( txop == TxScale ) {
+		int newSize = qRound( m22() * (double)cfont.pointSize() ) - 1;
+		newSize = QMAX( 6, QMIN( newSize, 72 ) ); // empirical values
+		dfont.setPointSize( newSize );
+		QFontMetrics fm2( dfont );
+		QRect abbox = fm2.boundingRect( str, len );
+		aw = abbox.width();
+		ah = abbox.height();
+		tx = -abbox.x();
+		ty = -abbox.y();	// text position - off-by-one?
+		if ( aw == 0 || ah == 0 )
+		    return;
+		double rx = (double)bbox.width() * mat1.m11() / (double)aw; 
+		double ry = (double)bbox.height() * mat1.m22() /(double)ah; 
+		mat2 = QWMatrix( rx, 0, 0, ry, 0, 0 );
+	    }
+	    else {
+		mat2 = QPixmap::trueMatrix( mat1, w, h );
+		aw = w;
+		ah = h;
+	    }
+	    bool empty = aw == 0 || ah == 0;
+	    QBitmap *wx_bm = get_text_bitmap( mat2, dfont, str, len );
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm && !empty ) {	// no such cached bitmap
-		QBitmap bm( w, h );		// create bitmap
+		QBitmap bm( aw, ah );		// create bitmap
 		bm.fill( color0 );
 		QPainter paint;
 		paint.begin( &bm );		// draw text in bitmap
-		paint.setFont( cfont );
+		paint.setFont( dfont );
 		paint.drawText( tx, ty, str, len );
 		paint.end();
-		wx_bm = new QBitmap( bm.xForm(mat) ); // transform bitmap
+		wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
 		if ( wx_bm->isNull() ) {
 		    delete wx_bm;		// nothing to draw
 		    return;
@@ -2058,7 +2080,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    double fx=x, fy=y, nfx, nfy;
 	    mat1.map( fx,fy, &nfx,&nfy );
 	    double tfx=tx, tfy=ty, dx, dy;
-	    mat.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
+	    mat2.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
 	    x = qRound(nfx-dx);
 	    y = qRound(nfy-dy);
 	    if ( testf(ExtDev) ) {		// to printer
@@ -2080,7 +2102,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		DeleteObject( SelectObject(hdc, b) );
 	    }
 	    if ( create_new_bm )
-		ins_text_bitmap( mat, cfont, str, len, wx_bm );
+		ins_text_bitmap( mat2, dfont, str, len, wx_bm );
 	    return;
 	}
 	if ( nat_xf )
