@@ -35,7 +35,7 @@ class EventInterface : public QUnknownInterface
 public:
     virtual QStringList featureList() const = 0;
     virtual QStringList events( QObject *obj ) const = 0;
-    virtual void setEventHandler( QObject *obj, const QString &event, const QString &function ) = 0;
+    virtual void setEventHandler( QObject *obj, QObject *form, const QString &event, const QString &function ) = 0;
 
 };
 

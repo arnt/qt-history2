@@ -281,7 +281,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 			for ( eit = (*it).events.begin(), fit = (*it).functions.begin(); eit != (*it).events.end(); ++eit, ++fit ) {
 			    QString func = *fit;
 			    if ( widgetFactory->languageSlots.find( func ) != widgetFactory->languageSlots.end() )
-				eventInterface->setEventHandler( it.key(), *eit, func );
+				eventInterface->setEventHandler( it.key(), widgetFactory->toplevel, *eit, func );
 			}
 		    }
 		}
