@@ -91,7 +91,6 @@
 #include <qatomic.h>
 #include <qbytearray.h>
 #include <qlist.h>
-#include <qmap.h>
 #include <qregexp.h>
 #include <qstring.h>
 #include <qstringlist.h>
@@ -1827,7 +1826,7 @@ void QUrl::setEncodedQuery(const QByteArray &query)
 
     \sa setQueryDelimiters(), queryItems()
 */
-void QUrl::setQueryItems(const QMap<QString, QString> &query)
+void QUrl::setQueryItems(const QList<QPair<QString, QString> > &query)
 {
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
     detach();
@@ -1837,40 +1836,14 @@ void QUrl::setQueryItems(const QMap<QString, QString> &query)
     alsoEncode += d->pairDelimiter;
 
     QByteArray queryTmp;
-    QMap<QString, QString>::ConstIterator i = query.constBegin();
-    bool first = true;
-    while (i != query.constEnd()) {
-        if (first) first = false;
-        else queryTmp += d->pairDelimiter;
-
-        queryTmp += QUrl::toPercentEncoding(i.key(), alsoEncode);
+    for (int i = 0; i < query.size(); i++) {
+        if (i) queryTmp += d->pairDelimiter;
+        queryTmp += QUrl::toPercentEncoding(query.at(i).first, alsoEncode);
         queryTmp += d->valueDelimiter;
-        queryTmp += QUrl::toPercentEncoding(i.value(), alsoEncode);
-        ++i;
+        queryTmp += QUrl::toPercentEncoding(query.at(i).second, alsoEncode);
     }
 
     d->query = queryTmp;
-}
-
-/*!
-    Returns the query string of the URL, as a map of keys and values.
-
-    \sa setQueryItems(), setEncodedQuery()
-*/
-QMap<QString, QString> QUrl::queryItems() const
-{
-    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
-
-    QMap<QString, QString> itemMap;
-
-    QList<QByteArray> items = d->query.split(d->pairDelimiter);
-    for (int i = 0; i < items.count(); ++i) {
-        QList<QByteArray> keyValuePair = items.at(i).split(d->valueDelimiter);
-        itemMap.insert(QUrl::fromPercentEncoding(keyValuePair.at(0)),
-                       QUrl::fromPercentEncoding(keyValuePair.at(1)));
-    }
-
-    return itemMap;
 }
 
 /*!
@@ -1895,19 +1868,132 @@ void QUrl::addQueryItem(const QString &key, const QString &value)
 }
 
 /*!
-    Removes the query string pair whose key is equal to \a key from
-    the URL.
+    Returns the query string of the URL, as a map of keys and values.
+
+    \sa setQueryItems(), setEncodedQuery()
+*/
+QList<QPair<QString, QString> > QUrl::queryItems() const
+{
+    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
+
+    QList<QPair<QString, QString> > itemMap;
+
+    QList<QByteArray> items = d->query.split(d->pairDelimiter);
+    for (int i = 0; i < items.count(); ++i) {
+        QList<QByteArray> keyValuePair = items.at(i).split(d->valueDelimiter);
+        itemMap += qMakePair(QUrl::fromPercentEncoding(keyValuePair.at(0)),
+                             QUrl::fromPercentEncoding(keyValuePair.at(1)));
+    }
+
+    return itemMap;
+}
+
+/*!
+    Returns true if there is a query string pair whose key is equal
+    to \a key from the URL.
+*/
+bool QUrl::hasQueryItem(const QString &key) const
+{
+    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
+    
+    QList<QPair<QString, QString> > items = queryItems();
+    QList<QPair<QString, QString> >::ConstIterator it = items.constBegin();
+    while (it != items.constEnd()) {
+        if ((*it).first == key)
+            return true;
+        ++it;
+    }
+
+    return false;
+}
+
+/*!
+    Returns the first query string value whose key is equal to \a key
+    from the URL.
+
+    \sa allQueryItemValues()
+*/
+QString QUrl::queryItemValue(const QString &key) const
+{
+    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
+    
+    QList<QPair<QString, QString> > items = queryItems();
+    QList<QPair<QString, QString> >::ConstIterator it = items.constBegin();
+    while (it != items.constEnd()) {
+        if ((*it).first == key)
+            return (*it).second;
+        ++it;
+    }
+
+    return QString();
+}
+
+/*!
+    Returns the a list of query string values whose key is equal to
+    \a key from the URL.
+
+    \sa queryItemValue()
+*/
+QStringList QUrl::allQueryItemValues(const QString &key) const
+{
+    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
+
+    QStringList values;
+
+    QList<QPair<QString, QString> > items = queryItems();
+    QList<QPair<QString, QString> >::ConstIterator it = items.constBegin();
+    while (it != items.constEnd()) {
+        if ((*it).first == key)
+            values += (*it).second;
+        ++it;
+    }
+
+    return values;
+}
+
+/*!
+    Removes the first query string pair whose key is equal to \a key
+    from the URL.
+
+    \sa removeAllQueryItems()
 */
 void QUrl::removeQueryItem(const QString &key)
 {
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
     detach();
 
-    QMap<QString, QString> items = queryItems();
-    if (!items.contains(key))
-        return;
+    QList<QPair<QString, QString> > items = queryItems();
+    QList<QPair<QString, QString> >::Iterator it = items.begin();
+    while (it != items.end()) {
+        if ((*it).first == key) {
+            items.remove(it);
+            break;
+        }
+        ++it;
+    }
+    setQueryItems(items);
+}
 
-    items.remove(key);
+/*!
+    Removes all the query string pairs whose key is equal to \a key
+    from the URL.
+
+   \sa removeQueryItem()
+*/
+void QUrl::removeAllQueryItems(const QString &key)
+{
+    if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
+    detach();
+
+    QList<QPair<QString, QString> > items = queryItems();
+    QList<QPair<QString, QString> >::Iterator it = items.begin();
+    while (it != items.end()) {
+        if ((*it).first == key) {
+            it = items.remove(it);
+            continue;
+        }
+        ++it;
+    }
     setQueryItems(items);
 }
 

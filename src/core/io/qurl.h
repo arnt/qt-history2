@@ -15,7 +15,7 @@
 #define QURL_H
 
 #include <QtCore/qobjectdefs.h>
-#include <QtCore/qmap.h>
+#include <QtCore/qpair.h>
 #include <QtCore/qstring.h>
 
 class QByteArray;
@@ -84,10 +84,15 @@ public:
     char queryValueDelimiter() const;
     char queryPairDelimiter() const;
 
-    void setQueryItems(const QMap<QString, QString> &query);
+    void setQueryItems(const QList<QPair<QString, QString> > &query);
     void addQueryItem(const QString &key, const QString &value);
+    QList<QPair<QString, QString> > queryItems() const;
+    bool hasQueryItem(const QString &key) const;
+    QString queryItemValue(const QString &key) const;
+    QStringList allQueryItemValues(const QString &key) const;
     void removeQueryItem(const QString &key);
-    QMap<QString, QString> queryItems() const;
+    void removeAllQueryItems(const QString &key);
+    
 
     void setFragment(const QString &fragment);
     QString fragment() const;
