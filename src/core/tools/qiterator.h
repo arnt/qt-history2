@@ -49,21 +49,21 @@ public: \
     { c = &container; i = c->begin(); n = c->end(); } \
     inline void toFront() { i = c->begin(); n = c->end(); } \
     inline void toBack() { i = c->end(); n = i; } \
-    inline bool hasNext() const { return c && i != c->constEnd(); } \
+    inline bool hasNext() const { return c && c->constEnd() != i; } \
     inline T &next() { n = i++; return *n; } \
     inline T &peekNext() const { return *i; } \
-    inline bool hasPrev() const { return c && i != c->constBegin(); } \
+    inline bool hasPrev() const { return c && c->constBegin() != i; } \
     inline T &prev() { n = --i; return *n; } \
     inline T &peekPrev() const { iterator p = i; return *--p; } \
     inline void remove() \
-    { if (n != c->constEnd()) { i = c->erase(n); n = c->end(); } } \
-    inline void setValue(const T &t) const { if (n != c->constEnd()) *n = t; } \
+    { if (c->constEnd() != n) { i = c->erase(n); n = c->end(); } } \
+    inline void setValue(const T &t) const { if (c->constEnd() != n) *n = t; } \
     inline const T &value() const { Q_ASSERT(item_exists()); return *n; } \
     inline void insert(const T &t) { n = i = c->insert(i, t); ++i; } \
     inline bool findNext(const T &t) \
-    { while (c && (n=i) != c->constEnd()) if (*i++ == t) return true; return false; } \
+    { while (c && c->constEnd() != (n=i)) if (*i++ == t) return true; return false; } \
     inline bool findPrev(const T &t) \
-    { while (c && i != c->constBegin()) if (*(n=--i) == t) return true; \
+    { while (c && c->constBegin() != i) if (*(n=--i) == t) return true; \
       n = c->end(); return false;  } \
 };
 
