@@ -1080,6 +1080,8 @@ then
     #   	we should disable XKB support on Solaris + Xsun only, not on
     #   	Solaris + XFree86. But then how to detect Xsun vs. XFree86?
     [ `uname -s` = "SunOS" -a `uname -r` = "5.7" ] && XKB=no
+    #   Link-time problems with XKB on Tru64
+    [ `uname -s` = "OSF1" ] && XKB=no
     if [ $XKB != no ]
     then
         XKB=yes
