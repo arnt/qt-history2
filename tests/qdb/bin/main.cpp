@@ -196,7 +196,7 @@ int main( int argc, char** argv )
 	env.setPath( dbdirname );
 	uint i = 0;
 	env.addFileDriver( 0, tablename );
-	localsql::FileDriver* driver = env.fileDriver( 0 );
+	LocalSQLFileDriver* driver = env.fileDriver( 0 );
 	if ( !driver->open() )
 	    die( "unable to open table:" + tablename );
 	if ( !suppressheader ) {
@@ -271,7 +271,7 @@ int main( int argc, char** argv )
 	die( env.lastError() );
 
     /* output results */
-    localsql::ResultSet* rs = env.resultSet( 0 ); //## what about more than one result set?
+    LocalSQLResultSet* rs = env.resultSet( 0 ); //## what about more than one result set?
     if ( rs->size() ) {
 	uint fieldcount = rs->count();
 	uint i = 0;

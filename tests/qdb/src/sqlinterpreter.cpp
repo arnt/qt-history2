@@ -40,11 +40,11 @@ using namespace std;
 class Program::Private
 {
 public:
-    QList< localsql::Op > ops;
+    QList< LocalSQLOp > ops;
     int pc;
     int pendingLabel;
     QArray< int > counters;
-    localsql::ColumnKey sortKey;
+    ColumnKey sortKey;
     bool dirty;
 };
 
@@ -82,7 +82,7 @@ ownership of the pointer.
 
 */
 
-void Program::append( localsql::Op* op )
+void Program::append( LocalSQLOp* op )
 {
     d->ops.append( op );
     d->dirty = TRUE;
@@ -133,7 +133,7 @@ void Program::setCounter( int i )
 	      numbers. If the instruction is a goto, make the label
 	      map to the target of the goto.
 	    */
-	    localsql::Op *op = d->ops.first();
+	    LocalSQLOp *op = d->ops.first();
 	    while ( op != 0 ) {
 		if ( op->label() < 0 ) {
 		    int n = -( op->label() + 1 );
@@ -193,7 +193,7 @@ int Program::counter()
 
 */
 
-localsql::Op* Program::next()
+LocalSQLOp* Program::next()
 {
     ++d->pc;
     if ( d->pc < (int)d->ops.count() )
@@ -232,7 +232,7 @@ QStringList Program::listing() const
     ((Program*)this)->resetCounter();
     QStringList l;
     int i = 0;
-    localsql::Op* op = 0;
+    LocalSQLOp* op = 0;
     while( (op = ((Program*)this)->next() ) ) {
 	QString s;
 	if ( op->label() != 0 )
@@ -278,7 +278,7 @@ public:
 
 */
 
-ResultSet::ResultSet( localsql::Environment* environment )
+ResultSet::ResultSet( LocalSQLEnvironment* environment )
     : env( environment )
 {
     head = new Header();
@@ -288,7 +288,7 @@ ResultSet::ResultSet( localsql::Environment* environment )
 }
 
 ResultSet::ResultSet( const ResultSet& other )
-    : localsql::ResultSet()
+    : LocalSQLResultSet()
 {
     *this = other;
 }
@@ -368,7 +368,7 @@ bool ResultSet::field( uint i, QVariant& v )
 
 */
 
-bool ResultSet::setHeader( const localsql::List& list )
+bool ResultSet::setHeader( const List& list )
 {
     if ( !list.count() ) {
 	env->setLastError( "No fields defined" );
@@ -376,7 +376,7 @@ bool ResultSet::setHeader( const localsql::List& list )
     }
     for ( int i = 0; i < (int)list.count(); ++i ) {
 	if ( list[i].type() == QVariant::List ) { /* field description */
-	    localsql::List fieldDescription = list[i].toList();
+	    List fieldDescription = list[i].toList();
 	    if ( fieldDescription.count() != 4 ) {
 		env->setLastError( "Internal error: Bad field description" );
 		return FALSE;
@@ -395,7 +395,7 @@ bool ResultSet::setHeader( const localsql::List& list )
 
 */
 
-bool ResultSet::append( const localsql::Record& buf )
+bool ResultSet::append( const Record& buf )
 {
     if ( !env ) {
 	qWarning( "Fatal internal error: No environment" );
@@ -591,7 +591,7 @@ static void reverse( localsql::ColumnKey& colkey, uint elements )
 
 */
 
-bool ResultSet::sort( const localsql::List& index )
+bool ResultSet::sort( const List& index )
 {
     if ( !env ) {
 	env->setLastError( "Internal error: No environment" );
@@ -612,8 +612,8 @@ bool ResultSet::sort( const localsql::List& index )
     QMap<int,bool> desc; /* indicates fields with a descending sort */
     Header sortIndex;
     for ( uint i = 0; i < index.count(); ++i ) {
-	localsql::List indexData = index[i].toList();
-	localsql::List fieldDescription = indexData[0].toList();
+	List indexData = index[i].toList();
+	List fieldDescription = indexData[0].toList();
 	if ( fieldDescription.count() != 4 ) {
 	    env->setLastError("Internal error: Bad field description");
 	    return 0;
@@ -678,12 +678,12 @@ bool ResultSet::sort( const localsql::List& index )
     if ( sortIndex.fields.count() == 1 && desc[ 0 ] )
 	reverse( sortKey, data.count() );
 
-    localsql::ColumnKey::Iterator it;
+    ColumnKey::Iterator it;
     if ( sortIndex.fields.count() > 1 ) {
 	/* sort rest of fields */
 	for ( int idx = sortIndex.fields.count()-2; idx >= 0; --idx ) {
 	    int sortField = head->position( sortIndex.fields[idx].name );
-	    localsql::ColumnKey subSort;
+	    ColumnKey subSort;
 	    for ( it = sortKey.begin();
 		  it != sortKey.end();
 		  ++it ) {

@@ -261,7 +261,7 @@ QSqlIndex LocalSQLDriver::primaryIndex( const QString& tablename ) const
     LocalSQL env;
     env.setPath( databasePath );
     env.addFileDriver( 0, tablename );
-    localsql::FileDriver* driver = env.fileDriver( 0 );
+    LocalSQLFileDriver* driver = env.fileDriver( 0 );
     if ( !driver->open() ) {
 	qWarning( "LocalSQLDriver::record: Unable to open table:" + tablename );
 	return QSqlIndex();
@@ -286,7 +286,7 @@ QSqlRecord LocalSQLDriver::record( const QString& tablename ) const
     LocalSQL env;
     env.setPath( databasePath );
     env.addFileDriver( 0, tablename );
-    localsql::FileDriver* driver = env.fileDriver( 0 );
+    LocalSQLFileDriver* driver = env.fileDriver( 0 );
     if ( !driver->open() ) {
 	qWarning( "LocalSQLDriver::record: Unable to open table:" + tablename );
 	return QSqlRecord();

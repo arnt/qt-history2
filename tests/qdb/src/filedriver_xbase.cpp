@@ -210,7 +210,7 @@ public:
     bool dopack;
 };
 
-FileDriver::FileDriver( localsql::Environment* environment, const QString& name = QString::null )
+FileDriver::FileDriver( LocalSQLEnvironment* environment, const QString& name = QString::null )
     : nm( name ), env( environment )
 {
     d = new Private();
@@ -223,7 +223,7 @@ FileDriver::~FileDriver()
 }
 
 FileDriver::FileDriver( const FileDriver& other )
-    : localsql::FileDriver(), nm( other.nm ), env( other.env )
+    : LocalSQLFileDriver(), nm( other.nm ), env( other.env )
 {
     *d = *other.d;
     setIsOpen( FALSE );
@@ -238,7 +238,7 @@ FileDriver& FileDriver::operator=( const FileDriver& other )
     return *this;
 }
 
-bool FileDriver::create( const localsql::List& data )
+bool FileDriver::create( const List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::create..." << flush;
@@ -258,7 +258,7 @@ bool FileDriver::create( const localsql::List& data )
     xbSchema x;
     uint i = 0;
     for ( i = 0; i < data.count(); ++i ) {
-	localsql::List fieldDescription = data[i].toList();
+	List fieldDescription = data[i].toList();
 	if ( fieldDescription.count() != 4 ) {
 	    ERROR_RETURN( "Internal error: Bad field description" );
 	}
@@ -417,7 +417,7 @@ bool FileDriver::close()
     return TRUE;
 }
 
-bool FileDriver::insert( const localsql::List& data )
+bool FileDriver::insert( const List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::insert..." << flush;
@@ -434,7 +434,7 @@ bool FileDriver::insert( const localsql::List& data )
     d->file.BlankRecord();
     uint i = 0;
     for ( ; i < data.count(); ++i ) {
-	localsql::List insertData = data[i].toList();
+	List insertData = data[i].toList();
 	if ( !insertData.count() ) {
 	    ERROR_RETURN( "Internal error: No insert data" );
 	}
@@ -624,7 +624,7 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
     if ( i == -1 || i > d->file.FieldCount()-1 ) {
 	ERROR_RETURN( UNKNOWN_FIELD_NUM + QString::number(i));
     }
-    localsql::List field;
+    List field;
     QString name = QString( d->file.GetFieldName( i ) ).simplifyWhiteSpace();
     QVariant::Type type = xbaseTypeToVariant( d->file.GetFieldType( i ) );
     int len = d->file.GetFieldLen( i );
@@ -640,7 +640,7 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
     return TRUE;
 }
 
-bool FileDriver::updateMarked( const localsql::List& data )
+bool FileDriver::updateMarked( const List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::updateMarked..." << flush;
@@ -661,7 +661,7 @@ bool FileDriver::updateMarked( const localsql::List& data )
     }
     uint i = 0;
     for ( ; i < data.count(); ++i ) {
-	localsql::List updateData = data[i].toList();
+	List updateData = data[i].toList();
 	if ( !updateData.count() ) {
 	    ERROR_RETURN( "Internal error: No update data" );
 	}
@@ -680,7 +680,7 @@ bool FileDriver::updateMarked( const localsql::List& data )
 	}
 	uint j = 0;
 	for ( j = 0; j < data.count(); ++j ) {
-	    localsql::List updateData = data[i].toList();
+	    List updateData = data[i].toList();
 	    xbShort fieldnum = d->file.GetFieldNo( updateData[0].toString().latin1() );
 	    xbShort rc = d->putField( fieldnum, updateData[1] );
 	    if ( rc != XB_NO_ERROR ) {
@@ -733,7 +733,7 @@ bool FileDriver::nextMarked()
     return TRUE;
 }
 
-bool FileDriver::update( const localsql::List& data )
+bool FileDriver::update( const List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::update..." << flush;
@@ -751,11 +751,11 @@ bool FileDriver::update( const localsql::List& data )
     xbShort rc;
     uint i = 0;
     for ( ;  i < data.count(); ++i ) {
-	localsql::List updateData = data[i].toList();
+	List updateData = data[i].toList();
 	if ( updateData.count() != 2 ) {
 	    ERROR_RETURN( "Internal error: Bad field description" );
 	}
-	localsql::List fieldDesc = updateData[0].toList();
+	List fieldDesc = updateData[0].toList();
 	QString name = fieldDesc[0].toString();
 	xbShort pos = d->file.GetFieldNo( name.latin1() );
 	if ( pos == -1 ) {
@@ -786,8 +786,8 @@ bool FileDriver::update( const localsql::List& data )
     return TRUE;
 }
 
-bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* cols,
-			      localsql::ResultSet* result )
+bool FileDriver::rangeAction( const List* data, const List* cols,
+			      LocalSQLResultSet* result )
 {
     if ( !data ) {
 	ERROR_RETURN( "Internal error: no data" );
@@ -817,11 +817,11 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
     uint i = 0;
     /* metadata check and build index string */
     for ( i = 0; i < data->count(); ++i ) {
-	localsql::List rangeMarkFieldData = (*data)[i].toList();
+	List rangeMarkFieldData = (*data)[i].toList();
 	if ( rangeMarkFieldData.count() != 2 ) {
 	    ERROR_RETURN( "Internal error: Bad range data");
 	}
-	localsql::List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
+	List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
 	if ( rangeMarkFieldDesc.count() != 4 ) {
 	    ERROR_RETURN( "Internal error: Bad field description");
 	}
@@ -879,8 +879,8 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
 		    for ( ; rc == XB_NO_ERROR ; ) {
 			bool actionOK = TRUE;
 			for ( uint k = 0; k < data->count(); ++k ) {
-			    localsql::List rangeMarkFieldData = (*data)[k].toList();
-			    localsql::List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
+			    List rangeMarkFieldData = (*data)[k].toList();
+			    List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
 			    QString name = rangeMarkFieldDesc[0].toString();
 			    QVariant value = rangeMarkFieldData[1];
 			    xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
@@ -914,8 +914,8 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
 	while ( rc == XB_NO_ERROR ) {
 	    bool actionOK = TRUE;
 	    for ( i = 0; i < data->count(); ++i ) {
-		localsql::List rangeMarkFieldData = (*data)[i].toList();
-		localsql::List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
+		List rangeMarkFieldData = (*data)[i].toList();
+		List rangeMarkFieldDesc = rangeMarkFieldData[0].toList();
 		QString name = rangeMarkFieldDesc[0].toString();
 		QVariant value = rangeMarkFieldData[1];
 		xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
@@ -947,7 +947,7 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
     return TRUE;
 }
 
-bool FileDriver::saveResult( const localsql::List* cols, localsql::ResultSet* result )
+bool FileDriver::saveResult( const List* cols, LocalSQLResultSet* result )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::saveResult..." << flush;
@@ -955,10 +955,10 @@ bool FileDriver::saveResult( const localsql::List* cols, localsql::ResultSet* re
     if ( !cols || !result ) {
 	ERROR_RETURN( "Internal error: no cols or result" );
     }
-    /* build a localsql::Record from cols, which may be a field desc
+    /* build a Record from cols, which may be a field desc
        or a literal value
      */
-    localsql::Record rec;
+    Record rec;
     for ( uint i = 0; i < cols->count(); ++i ) {
 	QVariant v;
 	if ( (*cols)[i].type() == QVariant::List ) { /* field desc */
@@ -979,12 +979,12 @@ bool FileDriver::saveResult( const localsql::List* cols, localsql::ResultSet* re
     return TRUE;
 }
 
-bool FileDriver::rangeSave( const localsql::List& data, const localsql::List& cols, localsql::ResultSet* result )
+bool FileDriver::rangeSave( const List& data, const List& cols, LocalSQLResultSet* result )
 {
     return rangeAction( &data, &cols, result );
 }
 
-bool FileDriver::rangeMark( const localsql::List& data )
+bool FileDriver::rangeMark( const List& data )
 {
     return rangeAction( &data, 0 , 0 );
 }
@@ -1009,7 +1009,7 @@ bool FileDriver::markAll()
      return TRUE;
 }
 
-bool FileDriver::createIndex( const localsql::List& data, bool unique )
+bool FileDriver::createIndex( const List& data, bool unique )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::createIndex..." << flush;
@@ -1025,7 +1025,7 @@ bool FileDriver::createIndex( const localsql::List& data, bool unique )
     QString indexDesc;
     QVariant::Type indexType = QVariant::Invalid;
     for ( ; i < data.count(); ++i ) {
-	localsql::List createIndexData = data[i].toList();
+	List createIndexData = data[i].toList();
 	if ( createIndexData.count() != 4 ) {
 	    ERROR_RETURN( "Internal error: Bad index data");
 	}

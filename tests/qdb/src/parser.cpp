@@ -64,7 +64,7 @@ inline void Parser::readChar()
     }
 }
 
-bool Parser::parse( const QString& commands, localsql::Environment *env )
+bool Parser::parse( const QString& commands, LocalSQLEnvironment *env )
 {
     startTokenizer( commands );
     yyTok = getToken();
@@ -583,7 +583,7 @@ void Parser::emitExpr( const QVariant& expr, bool fieldValues, int trueLab,
     if ( expr.type() == QVariant::List ) {
 	QValueList<QVariant>::ConstIterator v = expr.listBegin();
 	int tok = (*v).toInt();
-	localsql::Op *op = 0;
+	LocalSQLOp *op = 0;
 	int tableId;
 	QString field;
 	int nextCond;

@@ -33,10 +33,10 @@
 #include <qstack.h>
 #include <qtextstream.h>
 
-class FileDriver : public localsql::FileDriver
+class FileDriver : public LocalSQLFileDriver
 {
 public:
-    FileDriver( localsql::Environment* environment = 0,
+    FileDriver( LocalSQLEnvironment* environment = 0,
 		const QString& name = QString::null );
     virtual ~FileDriver();
     FileDriver( const FileDriver& other );
@@ -44,11 +44,11 @@ public:
 
     QString name() const { return nm; }
 
-    bool create( const localsql::List& data );
+    bool create( const List& data );
     bool open();
     bool close();
     bool isOpen() const { return opened; }
-    bool insert( const localsql::List& data );
+    bool insert( const List& data );
     int at() const { return internalAt; }
     bool next();
     bool mark();
@@ -57,14 +57,14 @@ public:
     bool commit();
     bool field( uint i, QVariant& v );
     bool field( const QString& name, QVariant& v );
-    bool updateMarked( const localsql::List& data );
+    bool updateMarked( const List& data );
     bool rewindMarked();
     bool nextMarked();
-    bool update( const localsql::List& data );
-    bool rangeMark( const localsql::List& data );
-    bool rangeSave( const localsql::List& data, const localsql::List& cols, localsql::ResultSet* result );
+    bool update( const List& data );
+    bool rangeMark( const List& data );
+    bool rangeSave( const List& data, const List& cols, LocalSQLResultSet* result );
     bool markAll();
-    bool createIndex( const localsql::List& data, bool unique );
+    bool createIndex( const List& data, bool unique );
     bool drop();
     bool fieldDescription( const QString& name, QVariant& v );
     bool fieldDescription( int i, QVariant& v );
@@ -83,8 +83,8 @@ protected:
     int markedAt() const { return internalMarkedAt; }
     void setMarkedAt( int at ) { internalMarkedAt = at; }
 
-    bool rangeAction( const localsql::List* data, const localsql::List* cols, localsql::ResultSet* result );
-    bool saveResult( const localsql::List* cols, localsql::ResultSet* result );
+    bool rangeAction( const List* data, const List* cols, LocalSQLResultSet* result );
+    bool saveResult( const List* cols, LocalSQLResultSet* result );
 
 private:
     QString nm;
@@ -93,26 +93,26 @@ private:
     bool opened;
     int internalAt;
     int internalMarkedAt;
-    localsql::Environment* env;
+    LocalSQLEnvironment* env;
 };
 
-class ResultSet : public localsql::ResultSet
+class ResultSet : public LocalSQLResultSet
 {
 public:
-    ResultSet( localsql::Environment* environment = 0 );
+    ResultSet( LocalSQLEnvironment* environment = 0 );
     virtual ~ResultSet();
     ResultSet( const ResultSet& other );
     ResultSet& operator=( const ResultSet& other );
 
-    bool setHeader( const localsql::List& list );
-    bool append( const localsql::Record& buf );
+    bool setHeader( const List& list );
+    bool append( const Record& buf );
     void clear();
-    bool sort( const localsql::List& index );
+    bool sort( const List& index );
     bool first();
     bool last();
     bool next();
     bool prev();
-    localsql::Record& currentRecord();
+    Record& currentRecord();
     uint size() const { return data.count(); }
     uint count() const;
     QStringList columnNames() const;
@@ -123,11 +123,11 @@ public:
 private:
     class Header;
     Header* head;
-    localsql::Data data;
-    localsql::Environment* env;
-    localsql::ColumnKey sortKey;
-    localsql::ColumnKey::ConstIterator keyit;
-    localsql::Data::Iterator datait;
+    Data data;
+    LocalSQLEnvironment* env;
+    ColumnKey sortKey;
+    ColumnKey::ConstIterator keyit;
+    Data::Iterator datait;
     int j;
     enum Pos {
 	BeforeFirst = -1,
@@ -137,13 +137,13 @@ private:
     Pos pos;
 };
 
-class Parser : public localsql::Parser
+class Parser : public LocalSQLParser
 {
 public:
     Parser();
     virtual ~Parser();
 
-    bool parse( const QString& commands, localsql::Environment *env );
+    bool parse( const QString& commands, LocalSQLEnvironment *env );
 
 private:
     QString yyIn;
@@ -168,8 +168,8 @@ private:
     int getToken();
 
     int yyTok;
-    localsql::Environment *yyEnv;
-    localsql::Program *yyProg;
+    LocalSQLEnvironment *yyEnv;
+    LocalSQLProgram *yyProg;
     int yyNextLabel;
     bool yyOK;
     QMap<QString, int> yyOpenedTableMap;
@@ -234,20 +234,20 @@ private:
     void matchSql();
 };
 
-class Program : public localsql::Program
+class Program : public LocalSQLProgram
 {
 public:
     Program();
     virtual ~Program();
 
     void appendLabel( int lab );
-    void append( localsql::Op* op );
+    void append( LocalSQLOp* op );
     void remove( uint i );
     void clear();
     void setCounter( int i );
     void resetCounter();
     int counter();
-    localsql::Op* next();
+    LocalSQLOp* next();
     QStringList listing() const;
 
 private:

@@ -41,7 +41,7 @@ public:
     QMap<int,FileDriver> drivers;
     QMap<int,ResultSet> results;
     QMap<int,int> driverAlias;
-    localsql::Stack stck;
+    Stack stck;
     Program pgm;
     Parser prs;
     QTextStream stdOut;
@@ -133,7 +133,7 @@ void LocalSQL::addResultSet( int id )
 
 */
 
-localsql::FileDriver* LocalSQL::fileDriver( int id )
+LocalSQLFileDriver* LocalSQL::fileDriver( int id )
 {
     if ( id < 0 )
 	id = d->driverAlias[id];
@@ -157,7 +157,7 @@ localsql::Stack* LocalSQL::stack()
 
 */
 
-localsql::Program* LocalSQL::program()
+LocalSQLProgram* LocalSQL::program()
 {
     return &d->pgm;
 }
@@ -188,7 +188,7 @@ bool LocalSQL::execute( bool verbose )
 {
     if ( verbose )
 	output() << "executing..." << endl;
-    localsql::Op* op = 0;
+    LocalSQLOp* op = 0;
     d->pgm.resetCounter();
     while( (op = d->pgm.next() ) ) {
 	if ( !op->exec( this ) ) {
@@ -227,7 +227,7 @@ void LocalSQL::reset()
 
 */
 
-localsql::ResultSet* LocalSQL::resultSet( int id )
+LocalSQLResultSet* LocalSQL::resultSet( int id )
 {
     return &d->results[id];
 }
@@ -275,7 +275,7 @@ QString LocalSQL::lastError() const
     return d->err;
 }
 
-bool LocalSQL::addFileDriverAlias( const localsql::List& drivers, const QString fieldname, int alias )
+bool LocalSQL::addFileDriverAlias( const List& drivers, const QString fieldname, int alias )
 {
     if ( alias >= 0 ) {
 	setLastError( "Internal error: bad alias:" + QString::number( alias ) );
@@ -283,7 +283,7 @@ bool LocalSQL::addFileDriverAlias( const localsql::List& drivers, const QString 
     }
     int aliasedFile = -1;
     for ( uint i = 0; i < drivers.count(); ++i ) {
-	localsql::FileDriver* drv = fileDriver( drivers[i].toInt() );
+	LocalSQLFileDriver* drv = fileDriver( drivers[i].toInt() );
 	if ( !drv ) {
 	    setLastError( "Internal error: unknown file id:" + drivers[i].toString() );
 	    return FALSE;

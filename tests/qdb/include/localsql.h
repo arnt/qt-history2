@@ -27,7 +27,7 @@
 
 #include "environment.h"
 
-class LocalSQL : public localsql::Environment
+class LocalSQL : public LocalSQLEnvironment
 {
 public:
     LocalSQL();
@@ -40,13 +40,13 @@ public:
     void reset();
     void addFileDriver( int id, const QString& fileName );
     int addFileDriver( const QString& fileName );
-    bool addFileDriverAlias( const localsql::List& drivers, const QString fieldname, int alias );
+    bool addFileDriverAlias( const List& drivers, const QString fieldname, int alias );
     void removeFileDriver( int id );
     void addResultSet( int id );
-    localsql::FileDriver* fileDriver( int id );
-    localsql::Stack* stack();
-    localsql::Program* program();
-    localsql::ResultSet* resultSet( int id );
+    LocalSQLFileDriver* fileDriver( int id );
+    Stack* stack();
+    LocalSQLProgram* program();
+    LocalSQLResultSet* resultSet( int id );
     void setLastError( const QString& error );
     QString lastError() const;
     void setPath( const QString& path );
