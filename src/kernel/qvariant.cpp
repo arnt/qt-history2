@@ -1559,7 +1559,7 @@ const QString QVariant::toString() const
 #endif
     case Bool:
 	return QString::number( toInt() );
-#ifndef QT_NO_ACCEL    
+#ifndef QT_NO_ACCEL
     case KeySequence:
 	return (QString) *( (QKeySequence*)d->value.ptr );
 #endif
@@ -1668,7 +1668,7 @@ const QMap<QString, QVariant> QVariant::toMap() const
 const QFont QVariant::toFont() const
 {
     switch ( d->typ ) {
-    case String: 
+    case String:
 	{
 	    QFont fnt;
 	    fnt.fromString( toString() );
@@ -2947,7 +2947,14 @@ void* QVariant::rawAccess( void* ptr, Type typ, bool deepCopy )
 	    d = p;
 	}
     }
-    return d->value.ptr;
+
+    if ( !deepCopy )
+	return d->value.ptr;
+    QVariant::Private* p = new Private( d );
+    void *ret = (void*)p->value.ptr;
+    p->typ = Invalid;
+    delete p;
+    return ret;
 }
 
 #endif //QT_NO_VARIANT
