@@ -232,7 +232,7 @@ void qDebug( const char *msg, ... )
 {
     mac_debug=fopen( "debug.txt", "a+" );
     if(mac_debug) {
-	char buf[512];
+	char buf[65556];
 	va_list ap;
 	va_start( ap, msg );			// use variable arg list
 	if ( handler ) {
@@ -369,7 +369,7 @@ void fatal( const char *msg, ... )
 Q_EXPORT
 void qDebug( const char *msg, ... )
 {
-    char buf[512];
+    char buf[65556];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
