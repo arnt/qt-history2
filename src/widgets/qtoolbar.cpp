@@ -188,7 +188,7 @@ void QToolBarSeparator::styleChange( QStyle& )
 
 QSize QToolBarSeparator::sizeHint() const
 {
-    int extent = style().pixelMetric( QStyle::PM_DockWindowSeparatorExtent, 
+    int extent = style().pixelMetric( QStyle::PM_DockWindowSeparatorExtent,
 				      this );
     if ( orient == Horizontal )
 	return QSize( extent, 0 );
@@ -200,12 +200,12 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
     QStyle::PFlags flags = QStyle::PStyle_Default;
-    
+
     if ( orientation() == Horizontal )
 	flags |= QStyle::PStyle_Horizontal;
     else
 	flags |= QStyle::PStyle_Vertical;
-    
+
     style().drawPrimitive( QStyle::PO_DockWindowSeparator, &p, rect(),
 			   colorGroup(), flags );
 }
@@ -226,7 +226,7 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
   can drag toolbars within and between the dock areas. Toolbars can also
   be dragged out of any dock area to float freely as top level windows.
 
-  QToolBar is a specialization of QDockWindow, and so provides 
+  QToolBar is a specialization of QDockWindow, and so provides
   all the functionality of a QDockWindow.
 
   To use QToolBar you simply create a QToolBar as a child of a
@@ -268,7 +268,7 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
   The toolbar arranges its buttons either horizontally or vertically (see
   orientation() for details). Generally, QDockArea will set the
   orientation correctly for you, but you can set it yourself with
-  setOrientation() and track any changes by connecting to the 
+  setOrientation() and track any changes by connecting to the
   orientationChanged() signal.
 
   You can use the clear() method to remove all items from a toolbar.
@@ -278,6 +278,12 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
   <a href="guibooks.html#fowler">GUI Design Handbook: Tool Bar</a>.
 */
 
+/*!
+    \fn QToolBar( const QString &label,
+	      QMainWindow *, ToolBarDock = Top,
+	      bool newLine = FALSE, const char * name = 0 );
+    \obsolete
+*/
 
 /*!  Constructs an empty toolbar.
 
@@ -300,7 +306,7 @@ QToolBar::QToolBar( const QString &label,
 }
 
 
-/*!  
+/*!
     \overload
 
     Constructs an empty horizontal toolbar.
@@ -327,9 +333,9 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 }
 
 
-/*!  
+/*!
     \overload
-    
+
     Constructs an empty toolbar, with parent \a parent and name \a name,
     in its \a parent's top dock area, without any label and without
     requiring a newline.
@@ -396,7 +402,7 @@ void QToolBar::setOrientation( Orientation o )
 	    w->setOrientation( o );
         }
     }
-    delete childs;    
+    delete childs;
 }
 
 /*!  Adds a separator to the end of the toolbar. */
@@ -510,7 +516,7 @@ bool QToolBar::event( QEvent * e )
 }
 
 
-/*!  
+/*!
   \property QToolBar::label
   \brief the label of the toolbar.
 

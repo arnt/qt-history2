@@ -67,7 +67,7 @@ What´s New
 \i \link installation.html Installation \endlink
 \i \link tutorial.html Tutorial \endlink
 \i \link examples.html Examples \endlink
-\i \link walkthroughs.html Step-by-step Examples \endlink
+\i \link step-by-step-examples.html Step-by-step Examples \endlink
 \endlist
 </td>
 <td valign=top>
@@ -218,7 +218,7 @@ Framework
       \link abstractwidgets.html   Abstract Widgets \endlink
 </td><td> Abstract widget classes available for subclassing.
 </td></tr><tr><td>
-      \link drawing.html   Drawing And Printing \endlink
+      \link graphics.html   Graphics and Printing \endlink
 </td><td> Classes providing drawing (and thus printing) primitives
 </td></tr><tr><td>
       \link draganddrop.html   Drag and Drop \endlink
@@ -499,7 +499,7 @@ and Qt basics, and some of them simply want to show you what's possible.
 
 Note that most of the examples assume that you have some experience with C++ 
 and Qt and therefore are not commented extensively. If you are interested
-in a line-by-line coverage please refer to the \link walkthroughs.html Walkthroughs \endlink
+in a line-by-line coverage please refer to the \link step-by-step-examples.html Walkthroughs \endlink
 provided.
 
 <table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>

@@ -311,7 +311,10 @@ QSize QWorkspace::sizeHint() const
     return QSize( s.width()*2/3, s.height()*2/3);
 }
 
-
+/*!
+    \fn void QWorkspace::setBackgroundMode( BackgroundMode )
+    \internal
+*/
 
 /*! \reimp */
 void QWorkspace::setBackgroundColor( const QColor & c )
