@@ -17,9 +17,8 @@
 #include <QDateTime>
 #include <QPainterPath>
 #include <QMatrix>
-
 #include <stdlib.h>
-
+#include <qdebug.h>
 #include "items.h"
 
 class Item
@@ -94,6 +93,15 @@ public:
         return r;
     }
 
+    bool contains(const QPoint &p) const {
+        QRect br = boundingRect();
+        if (shape == Circle) {
+            QPoint p2 = p - br.center();
+            return p2.x() * p2.x() + p2.y() * p2.y() < br.width()/2 * br.height()/2;
+        }
+        return br.contains(p);
+    }
+
     void setSelected(bool sel) {
         selected = sel;
     }
@@ -152,7 +160,7 @@ void Items::paintEvent(QPaintEvent *)
 void Items::mousePressEvent(QMouseEvent *event)
 {
     for (int i = items.size()-1; i >= 0; --i) {
-        if (items.at(i)->boundingRect().contains(event->pos())) {
+        if (items.at(i)->contains(event->pos())) {
             items.last()->setSelected(false);
             items[i]->setSelected(true);
             items[i]->setOffset(event->pos());
