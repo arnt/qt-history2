@@ -1857,16 +1857,16 @@ void QApplication::closeAllWindows()
   Sends event \a e to \a receiver: \a {receiver}->event(\a e).
   Returns the value that is returned from the receiver's event handler.
 
-  If the receiver is not interested in the event (i.e. it returns FALSE)
+  For certain types of events (e.g. mouse and key events),
   the event will be propagated to the receiver's parent and so on up to
-  the top level widget. All events are propagated in this way including
-  mouse, wheel and key events.
+  the top-level object if the receiver is not interested in the event
+  (i.e., it returns FALSE).
 
   Reimplementing this virtual function is one of five ways to process
   an event:
   \list 1
   \i Reimplementing this function.  Very powerful,
-  you get \e complete control, but of course only one subclass can be
+  you get complete control, but of course only one subclass can be
   qApp.
 
   \i Installing an event filter on qApp.  Such an event filter gets
