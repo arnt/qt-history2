@@ -48,7 +48,7 @@
 //
 
 #include <qglobal.h>
-#include <qvariant.h>
+#include <qcorevariant.h>
 #include <qvector.h>
 #include <qsqlresult.h>
 
