@@ -935,7 +935,7 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         if (slider)
             h += q->style().pixelMetric(QStyle::PM_SpinBoxSliderHeight, q);
         cachedminimumsizehint = QSize(w, h).expandedTo(QApplication::globalStrut());
-        sizehintdirty = false;
+        const_cast<QAbstractSpinBoxPrivate *>(this)->sizehintdirty = false;
     }
 }
 
@@ -1085,7 +1085,7 @@ void QAbstractSpinBoxPrivate::updateEdit() const
     }
     e->blockSignals(sb);
 
-    dirty = false;
+    const_cast<QAbstractSpinBoxPrivate *>(this)->dirty = false;
 }
 
 /*!
