@@ -257,13 +257,13 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 
 /*!
     \fn bool QEventLoop::processEvents( ProcessEventsFlags flags )
-
     \overload
 
-    Processes pending events that match \a flags. If no
-    events matching \a flags are available, this function will wait
-    for the next event if the \c WaitForMore flag is set in \a flags,
-    otherwise it returns immediately.
+    Processes pending events that match \a flags until there are no
+    more events to process.. If no events matching \a flags are
+    available, this function will wait for the next event if the \c
+    WaitForMore flag is set in \a flags, otherwise it returns
+    immediately.
 
     Returns TRUE if an event was processed; otherwise returns FALSE.
 
