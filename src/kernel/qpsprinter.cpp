@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#9 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -20,7 +20,7 @@
 #include "qbuffer.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#9 $";
 #endif
 
 
@@ -390,7 +390,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		break;
 	    int depth = p[1].pixmap->depth();
 	    if ( depth == 1 ) {
-		warning( "QPrinter: Sorry, pixmaps with depth 1 are not ",
+		warning( "QPrinter: Sorry, pixmaps with depth 1 are not "
 			 "supported in Qt 0.92 - Try an 8 bit pixmap." );
 		return FALSE;
 	    }
