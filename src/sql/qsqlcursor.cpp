@@ -61,6 +61,8 @@ public:
     int               md;         //mode
     QSqlIndex         priIndx;    //primary index
     QSqlRecord        editBuffer;
+    // the primary index as it was before the user changed the values in editBuffer
+    QString           editIndex;
     QSqlRecordInfo    infoBuffer;
 };
 
@@ -996,7 +998,10 @@ QSqlRecord* QSqlCursor::editBuffer( bool copy )
 
 QSqlRecord* QSqlCursor::primeUpdate()
 {
-    return editBuffer( TRUE );
+    // memorize the primary keys as they were before the user changed the values in editBuffer
+    QSqlRecord* buf = editBuffer( TRUE );
+    d->editIndex = toString( primaryIndex(), buf, d->nm, "=", "and" );
+    return buf;
 }
 
 /*!  'Primes' the field values of the edit buffer for delete and
@@ -1068,9 +1073,9 @@ QSqlRecord* QSqlCursor::primeInsert()
 
 int QSqlCursor::update( bool invalidate )
 {
-    if ( primaryIndex().isEmpty() )
+    if ( d->editIndex.isEmpty() )
 	return 0;
-    return update( toString( primaryIndex(), this, d->nm, "=", "and" ), invalidate );
+    return update( d->editIndex, invalidate );
 }
 
 /*!  \overload
