@@ -257,7 +257,7 @@ bool KAsteroidsView::readSprites()
     int i = 0;
     while ( kas_animations[i].id )
     {
-	QCanvasPixmapArray *anim = 
+	QCanvasPixmapArray *anim =
 	    new QCanvasPixmapArray( sprites_prefix + kas_animations[i].path,
 				    kas_animations[i].frames );
 	if ( !anim->isValid() )
@@ -429,7 +429,7 @@ void KAsteroidsView::wrapSprite( QCanvasItem *s )
 void KAsteroidsView::rockHit( QCanvasItem *hit )
 {
     KPowerup *nPup = 0;
-    int rnd = static_cast<int>(randDouble()*30.0) % 30;
+    int rnd = int(randDouble()*30.0) % 30;
     switch( rnd )
     {
       case 4:
