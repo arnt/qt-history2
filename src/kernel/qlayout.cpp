@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#38 $
 **
 ** Implementation of layout classes
 **
@@ -196,7 +196,7 @@ void QLayout::addChildLayout( QLayout *l )
 
 bool QLayout::activate()
 {
-    if ( topLevel )
+    if ( topLevel && bm )
 	return bm->activate();
 #if defined(DEBUG)
     warning("QLayout::activate() for child layout");
