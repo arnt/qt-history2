@@ -240,7 +240,7 @@
     \row
     \i QPixmap
     \i IPictureDisp*
-   \footnote
+    \footnote
     COM cannot marshal IPictureDisp accross process boundaries,
     so QPixmap properties cannot be called for out-of-process servers. You
     can however marshal the image data via e.g. temporary files. See the
@@ -251,6 +251,9 @@
     \row
     \i QValueList
     \i SAFEARRAY(VARIANT)
+    \row
+    \i QByteArray
+    \i SAFEARRAY(BYTE)
     \endtable
     
     The Qt data types that are supported for parameters in signals and
@@ -331,6 +334,12 @@
     \row
     \i QValueList\<QVariant\>&
     \i [in, out] SAFEARRAY(VARIANT)*
+    \row	
+    \i QByteArray, const QByteArray&
+    \i [in] SAFEARRAY(BYTE)
+    \row
+    \i QByteArray&
+    \i [in, out] SAFEARRAY(BYTE)*
     \row
     \i QObject*
     \i [in] IDispatch*
