@@ -63,20 +63,20 @@ void DropSite::dragEnterEvent( QDragEnterEvent *e )
 	}
     }
     emit message( t );
-    setBackgroundColor(white);
+    setBackgroundColor(Qt::white);
 }
 
 void DropSite::dragLeaveEvent( QDragLeaveEvent * )
 {
     // Give the user some feedback...
     emit message("");
-    setBackgroundColor(lightGray);
+    setBackgroundColor(Qt::lightGray);
 }
 
 
 void DropSite::dropEvent( QDropEvent * e )
 {
-    setBackgroundColor(lightGray);
+    setBackgroundColor(Qt::lightGray);
 
     // Try to decode to the data you understand...
     QList<QByteArray> strings;

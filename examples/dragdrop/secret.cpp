@@ -48,10 +48,10 @@ bool SecretDrag::decode( QDropEvent* e, QString& str )
 SecretSource::SecretSource( int secret, QWidget *parent, const char * name )
     : QLabel( "Secret", parent, name )
 {
-    setBackgroundColor( QColor(blue).light() );
+    setBackgroundColor( QColor(Qt::blue).light() );
     setFrameStyle( Box | Sunken );
     setMinimumHeight( sizeHint().height()*2 );
-    setAlignment( AlignCenter );
+    setAlignment( Qt::AlignCenter );
     mySecret = secret;
 }
 
