@@ -9,11 +9,13 @@ class QtService
 {
     friend class QtServicePrivate;
 public:
-    QtService( const QString &name, bool canPause = FALSE );
+    QtService( const QString &name, bool canPause = FALSE, bool useGui = TRUE );
     virtual ~QtService();
 
     bool isInstalled() const;
     bool isRunning() const;
+    bool isInteractive() const;
+    bool canPause() const;
 
     virtual bool install();
     virtual bool uninstall();

@@ -3,6 +3,7 @@
 #include "sidedecoration.h"
 #include "pages.h"
 #include <qpixmap.h>
+#include <qlabel.h>
 
 class SideDecorationImpl : public SideDecoration
 { 

@@ -102,7 +102,7 @@ void QtServicePrivate::setStatus( DWORD state )
     ::SetServiceStatus( serviceStatus, &status);
 }
 
-QtService::QtService( const QString &name, bool canPause )
+QtService::QtService( const QString &name, bool canPause, bool useGui )
 {
     d = new QtServicePrivate;
     d->servicename = name;
@@ -131,7 +131,9 @@ QtService::QtService( const QString &name, bool canPause )
     instance = this;
 
     d->serviceStatus			    = NULL;
-    d->status.dwServiceType		    = SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS;
+    d->status.dwServiceType		    = SERVICE_WIN32_OWN_PROCESS;
+    if ( useGui )
+	d->status.dwServiceType		    |= SERVICE_INTERACTIVE_PROCESS;
     d->status.dwCurrentState		    = SERVICE_STOPPED;
     d->status.dwControlsAccepted	    = SERVICE_ACCEPT_STOP;
     if ( canPause )
@@ -244,6 +246,16 @@ bool QtService::isRunning() const
     ::CloseServiceHandle(hSCM);
 
     return result;
+}
+
+bool QtService::isInteractive() const
+{
+    return d->status.dwServiceType & SERVICE_INTERACTIVE_PROCESS;
+}
+
+bool QtService::canPause() const
+{
+    return d->status.dwControlsAccepted & SERVICE_ACCEPT_PAUSE_CONTINUE;
 }
 
 bool QtService::start()

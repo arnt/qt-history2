@@ -6,10 +6,10 @@
 SHELL=/bin/sh
 
 init: FORCE
-	@$(MAKE) QTDIR=`pwd` all
+	@$(MAKE) all
 
 install: FORCE
-	@$(MAKE) QTDIR=`pwd` qt.install
+	@$(MAKE) qt.install
 
 all: symlinks src-qmake src-moc sub-src sub-tools \
 		sub-tutorial sub-examples
@@ -84,5 +84,3 @@ doc: FORCE
 	@test ! /bin/true
 
 FORCE:
-
-

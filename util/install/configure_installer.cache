@@ -1,3 +1,11 @@
+-disable-table
+-disable-iconview
+-disable-workspace
+-disable-xml
+-disable-network
+-disable-canvas
+-disable-opengl
+-disable-sql
 -release
 -static
 -no-dsp
@@ -12,5 +20,4 @@
 -no-jpeg
 -no-png
 -spec win32-msvc
--saveconfig
-installer
+-saveconfig installer

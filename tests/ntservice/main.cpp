@@ -3,11 +3,11 @@
 #include <qwidget.h>
 #include <qmessagebox.h>
 
-class AService : public QtService
+class AService : public QObject, public QtService
 {
 public:
     AService( const QString &name )
-	: QtService( name, TRUE )
+	: QtService( name, TRUE, TRUE )
     {
     }
 
@@ -21,13 +21,9 @@ protected:
 int AService::run( int argc, char **argv )
 {
     QApplication app( argc, argv );
-    for ( int i = 0; i < argc; i++ ) {
-	QMessageBox::information( 0, QString("arg %1").arg(i), argv[i] );
-    }
     QWidget widget;
-    app.setMainWidget( &widget );
     widget.show();
-
+    app.setMainWidget( &widget );
     return app.exec();
 }
 

@@ -135,6 +135,7 @@ static QCString aTitle;
 static QCString aFilter;
 // Use ANSI strings and API
 
+// If you change this, then make sure you change makeOFN (below) too
 static
 OPENFILENAMEA* makeOFNA( QWidget* parent,
 			 const QString& initialSelection,
@@ -178,6 +179,7 @@ OPENFILENAMEA* makeOFNA( QWidget* parent,
     ofn->nMaxFile	= maxLen;
     ofn->lpstrInitialDir = aInitDir.data();
     ofn->lpstrTitle	= aTitle.data();
+    ofn->lpstrDefExt    = aFilter.data();
     ofn->Flags		= ( OFN_NOCHANGEDIR | OFN_HIDEREADONLY );
 
     if ( mode == QFileDialog::ExistingFile ||
@@ -202,7 +204,7 @@ static TCHAR* tTitle;
 static TCHAR* tInitDir;
 static TCHAR* tInitSel;
 static TCHAR* tFilter;
-
+// If you change this, then make sure you change makeOFNA (above) too
 static
 OPENFILENAME* makeOFN( QWidget* parent,
 		       const QString& initialSelection,
@@ -249,6 +251,7 @@ OPENFILENAME* makeOFN( QWidget* parent,
     ofn->nMaxFile	= maxLen;
     ofn->lpstrInitialDir = tInitDir;
     ofn->lpstrTitle	= tTitle;
+    ofn->lpstrDefExt    = tFilter;
     ofn->Flags		= ( OFN_NOCHANGEDIR | OFN_HIDEREADONLY );
 
     if ( mode == QFileDialog::ExistingFile ||

@@ -153,7 +153,7 @@ bool QFileInfo::isSymLink() const
 
 QString QFileInfo::readLink() const
 {
-#ifndef Q_OS_TEMP
+#ifndef Q_OS_TEMP // ### What's this about, does this need supporting on CE?
     IShellLink *psl;                            // pointer to IShellLink i/f
     HRESULT hres;
     WIN32_FIND_DATA wfd;

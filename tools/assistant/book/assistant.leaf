@@ -18,12 +18,12 @@ The documentation for the Qt library is written in-line in the \File
 revises the documentation to ensure that it is accurate and usable,
 and to provide quality control. The documentation team also writes the
 larger texts, such as the class descriptions that introduce a class
-along with the concepts the class uses as well as introducing the
+along with the concepts the class uses, as well as introducing the
 functions and properties that the class provides. 
 
 The documentation focuses on the API rather than the internals, since
 we make great efforts to keep our API consistent and compatible with
-each new version, but may change the internals considerably to improve
+each new version, but we may change the internals considerably to improve
 performance and enhance functionality.
 
 The Qt Reference Documentation consists of almost 1,500 HTML pages
@@ -34,21 +34,21 @@ documentation set:
 
 \list
 
-\i The \link classes.html All Classes\endlink page lists every class
+\i The \link classes.html \e {All Classes}\endlink page lists every class
 in Qt's public API, and consists of several hundred classes.
 
-\i The \link mainclasses.html Main Classes\endlink page lists the
+\i The \link mainclasses.html \e {Main Classes}\endlink page lists the
 classes you're most likely to use most often, and provides a much
 shorter and more managable list than the All Classes list.
 
-\i The \link groups.html Grouped Classes\endlink page presents a list
+\i The \link groups.html \e {Grouped Classes}\endlink page presents a list
 of groups, each of which leads to a list of related classes, for
 example, the \link advanced.html Advanced Widgets\endlink list.
 
-\i The \link hierarchy.html Inheritance Hierarchy\endlink page
+\i The \link hierarchy.html \e {Inheritance Hierarchy}\endlink page
 presents a list of classes in terms of the hierarchy of Qt classes.
 
-\i The \link functions.html All Functions\endlink page lists all the
+\i The \link functions.html \e {All Functions}\endlink page lists all the
 functions provided by Qt classes, each one with links to the class(es)
 in which it appears.
 
@@ -68,18 +68,18 @@ programs in $QTDIR/examples.
 
 \chapter The 1 Minute Guide to using Qt Assistant
 
-Under Windows \QA is available as a menu option on the Qt menu. On
-Unix run \c{$QTDIR/bin/assistant} from an xterm.
+Under Windows, \QA is available as a menu option on the Qt menu. On
+Unix, run \c{$QTDIR/bin/assistant} from an xterm.
 
-When you start up \QA you will be presented with a standard
+When you start up \QA, you will be presented with a standard
 main-window style application, with a menu bar and toolbar. Below
 these, on the left hand side is a navigation window called the \e
 Sidebar, and on the right, taking up most of the space, is the
-documentation window. By default the Qt Reference Documentation's home
+documentation window. By default, the Qt Reference Documentation's home
 page is shown in the documentation window.
 
 \QA works in a similar way to a web browser. If you click underlined
-text (which signifies a cross-reference) the documentation window will
+text (which signifies a cross-reference), the documentation window will
 present the relevant page. You can bookmark pages of particular
 interest and you can click the \Toolbutton Previous and \Toolbutton
 Next toolbar buttons to navigate within the pages you've visited. 
@@ -116,7 +116,7 @@ documentation window.
 The sidebar provides three ways of navigating documentation:
 \list 1
 \i The \Toolbutton Contents tab presents a tree view of the
-documentation sets that are available. If you click an item its
+documentation sets that are available. If you click an item, its
 documentation will appear in the documentation window. If you double
 click an item or click a '+' sign to the left of an item, the item's
 sub-items will appear. Click a sub-item to make its page appear in the
@@ -135,7 +135,7 @@ documentation window. Click a bookmark in the list, then click
 \endlist
 
 If you want the documentation window to use as much space as possible,
-you can easily hide and show the Sidebar. If the Sidebar is showing,
+you can easily hide or show the Sidebar. If the Sidebar is showing,
 press \Key Ctrl+T, \Key Ctrl+I or \Key Ctrl+B to hide it. If the
 Sidebar is hidden, press \Key Ctrl+T to show it on the Contents tab,
 or press \Key Ctrl+I to show it on the Index tab (with the focus in
@@ -249,7 +249,7 @@ combobox. You can choose a new fixed-width font, e.g. used to show
 code snippets, by choosing a new font from the 'Fixed font' combobox.
 You can change the color of hypertext links by clicking the 'Link
 color' color button. Uncheck the 'Underline links' checkbox if you
-don't want underlined links. Click \OK to confirm your changes or
+don't want underlined links. Click \Button OK to confirm your changes or
 click \Button Cancel to keep the previous settings.
 
 \QA will remember your settings between sessions, including window

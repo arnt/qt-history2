@@ -459,19 +459,23 @@ Dialog}.
 
 \section3 C++ Tab
 
-Click the C++ Tab to change the \Cmd qmake options. See the qmake
-documentation for details on what these options mean. Click the
-'Template' combobox and choose application or library to create
-makefiles for building applications or libraries. Click the 'Config'
-combobox to select the project configuration and compiler options for
-all platforms, or specific platforms. Type the Config value in the
-line edit. Click the 'Libs' combobox to select a platform. Type the
-libraries in the line edit. Click the 'Defines' combobox and
-select a platform. 'Defines' values are added as compiler pre-processor
-macros. Type the 'Defines' values in the line edit. Click the
-'Includepath' combobox to select a platform. Includepath specifies the
-directories that should be searched for include files when compiling
-the project. Type the 'Includepath' values in the line edit.   
+Click the C++ Tab to change the \Cmd qmake options. See the \link
+qmake-manual-5.html#2-4 qmake documentation \endlink for details on
+what these options mean. Click the 'Template' combobox and choose
+application or library to create makefiles for building applications
+or libraries. Click the 'Config' combobox to select the project
+configuration and compiler options for all platforms, or specific
+platforms. Type the Config value in the line edit. Note: Unix defaults
+to a shared library. If you want a shared library in Windows, type
+'dll' at the end of the default config command and make sure you
+select lib from the Template combobox. Click the 'Libs' combobox to
+select a platform. Type the libraries in the line edit. Click the
+'Defines' combobox and select a platform. 'Defines' values are added
+as compiler pre-processor macros. Type the 'Defines' values in the
+line edit. Click the 'Includepath' combobox to select a platform.
+Includepath specifies the directories that should be searched for
+include files when compiling the project. Type the 'Includepath'
+values in the line edit.   
 
 Cick \OK to accept changes to the project settings. Click
 \CANCEL to exit the dialog without making any changes to the project

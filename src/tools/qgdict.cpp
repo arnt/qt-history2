@@ -88,7 +88,7 @@ int QGDict::hashKeyString( const QString &key )
 {
 #if defined(QT_CHECK_NULL)
     if ( key.isNull() )
-	qWarning( "QGDict::hashStringKey: Invalid null key" );
+	qWarning( "QGDict::hashKeyString: Invalid null key" );
 #endif
     int i;
     register uint h=0;

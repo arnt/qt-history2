@@ -606,7 +606,8 @@ void Configure::generateOutputVars()
 	qmakeConfig += "jpeg";
     else if( dictionary[ "JPEG" ] == "plugin" )
 	qmakeFormatPlugins += "jpeg";
-    else if( dictionary[ "LIBJPEG" ] == "system" )
+    
+    if( dictionary[ "LIBJPEG" ] == "system" )
 	qmakeConfig += "system-jpeg";
 
     if( dictionary[ "MNG" ] == "no" )
@@ -615,7 +616,8 @@ void Configure::generateOutputVars()
 	qmakeConfig += "mng";
     else if( dictionary[ "MNG" ] == "plugin" )
 	qmakeFormatPlugins += "mng";
-    else if( dictionary[ "LIBMNG" ] == "system" )
+    
+    if( dictionary[ "LIBMNG" ] == "system" )
 	qmakeConfig += "system-mng";
 
     if( dictionary[ "PNG" ] == "no" )
@@ -624,7 +626,8 @@ void Configure::generateOutputVars()
 	qmakeConfig += "png";
     else if( dictionary[ "PNG" ] == "plugin" )
 	qmakeFormatPlugins += "png";
-    else if( dictionary[ "LIBPNG" ] == "system" )
+    
+    if( dictionary[ "LIBPNG" ] == "system" )
 	qmakeConfig += "system-png";
 
     if( dictionary[ "BIG_CODECS" ] == "yes" )

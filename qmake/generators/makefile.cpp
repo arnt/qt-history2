@@ -1467,7 +1467,7 @@ QString MakefileGenerator::buildArgs()
 		ret += " \"" + (*it) + "\"";
 	}
 	if(Option::after_user_vars.count()) {
-	    ret += "-after ";
+	    ret += " -after ";
 	    for(QStringList::Iterator it = Option::after_user_vars.begin();
 		it != Option::after_user_vars.end(); ++it) {
 		if((*it).left(qstrlen("QMAKE_ABSOLUTE_SOURCE_PATH")) != "QMAKE_ABSOLUTE_SOURCE_PATH")

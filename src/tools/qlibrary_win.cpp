@@ -27,6 +27,7 @@
 **
 **********************************************************************/
 
+#include <qmap.h>
 #include <private/qlibrary_p.h>
 
 #ifndef QT_NO_COMPONENT
@@ -34,7 +35,13 @@
 #ifndef QT_H
 #include "qfile.h"
 #endif // QT_H
+struct LibInstance {
+    LibInstance() { instance = 0; refCount = 0; }
+    HINSTANCE instance;
+    int refCount;
+};
 
+static QMap<QString, LibInstance*> *map = 0;
 /*
   The platform dependent implementations of
   - loadLibrary
@@ -51,23 +58,37 @@ bool QLibraryPrivate::loadLibrary()
     if ( pHnd )
 	return TRUE;
 
-    QString filename = library->library();
+    if ( !map )
+	map = new QMap<QString, LibInstance*>;
 
+    QString filename = library->library();
+    if ( map->find(filename) != map->end() ) {
+	LibInstance *lib = (*map)[filename];
+	lib->refCount++;
+	pHnd = lib->instance;	
+    }
+    else {
 #ifdef Q_OS_TEMP
 	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar( filename, TRUE) );
 #else
 #if defined(UNICODE)
-    if ( qWinVersion() & Qt::WV_NT_based )
-	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar( filename, TRUE) );
-    else
+	if ( qWinVersion() & Qt::WV_NT_based )
+	    pHnd = LoadLibraryW( (TCHAR*)qt_winTchar( filename, TRUE) );
+	else
 #endif
-	pHnd = LoadLibraryA(QFile::encodeName( filename ).data());
+	    pHnd = LoadLibraryA(QFile::encodeName( filename ).data());
 #endif
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    if ( !pHnd )
-	qSystemWarning( QString("Failed to load library %1!").arg( filename ) );
+	if ( !pHnd )
+	    qSystemWarning( QString("Failed to load library %1!").arg( filename ) );
 #endif
-
+	if ( pHnd ) {
+	    LibInstance *lib = new LibInstance;
+	    lib->instance = pHnd;
+	    lib->refCount++;
+	    map->insert( filename, lib );
+	}
+    }
     return pHnd != 0;
 }
 
@@ -75,14 +96,32 @@ bool QLibraryPrivate::freeLibrary()
 {
     if ( !pHnd )
 	return TRUE;
-    bool ok = FreeLibrary( pHnd );
+    bool ok = FALSE;
+    QMap<QString, LibInstance*>::iterator it;
+    for ( it = map->begin(); it != map->end(); ++it ) {
+	LibInstance *lib = *it;
+	if ( lib->instance == pHnd ) {
+	    lib->refCount--;
+	    if ( lib->refCount == 0 ) {
+		ok = FreeLibrary( pHnd );
+		if ( ok ) {
+		    map->remove( it );
+		    if ( map->count() == 0 ) {
+			delete map;
+			map = 0;
+		    }
+		}
+	    } else
+		ok = TRUE;
+	    break;
+	}
+    }   
     if ( ok )
-	pHnd = 0;
+	pHnd = 0;   
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     else
 	qSystemWarning( "Failed to unload library!" );
-#endif
-
+#endif   
     return ok;
 }
 
