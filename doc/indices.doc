@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 1.8 1996/02/22 11:15:15 hanord Exp $
+** $Id: indices.doc,v 1.9 1996/04/07 15:41:59 agulbra Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 1.8 1996/02/22 11:15:15 hanord Exp $";
+static char ident[] = "$Id: indices.doc,v 1.9 1996/04/07 15:41:59 agulbra Exp $";
 #endif
 
 /*! \page index.html
@@ -18,7 +18,7 @@ static char ident[] = "$Id: indices.doc,v 1.8 1996/02/22 11:15:15 hanord Exp $";
 
 <h1>Qt Documentation Home Page</h1>
 
-<strong>The documentation covers Qt version 0.94.</strong>
+<strong>The documentation covers Qt version 0.96.</strong>
 
 <p>
 
