@@ -3573,7 +3573,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	switch (*c) {
 	    case 'd':
 	    case 'i': {
-	    	Q_LLONG i = 0;
+	    	Q_LLONG i;
 		switch (length_mod) {
 		    case lm_none: i = va_arg(ap, int); break;
 		    case lm_hh: i = va_arg(ap, int); break;
@@ -3583,7 +3583,7 @@ QString &QString::sprintf( const char* cformat, ... )
 		    case lm_j: i = va_arg(ap, long int); break;
 		    case lm_z: i = va_arg(ap, size_t); break;
 		    case lm_t: i = va_arg(ap, int); break;
-		    default: break;
+		    default: i = 0; break;
 		}
 		subst = locale.d->longLongToString(i, precision, 10, width, flags);
 		++c;
@@ -3593,14 +3593,14 @@ QString &QString::sprintf( const char* cformat, ... )
 	    case 'u':
 	    case 'x':
 	    case 'X': {
-	    	Q_ULLONG u = 0;
+	    	Q_ULLONG u;
 		switch (length_mod) {
 		    case lm_none: u = va_arg(ap, unsigned int); break;
 		    case lm_hh: u = va_arg(ap, unsigned int); break;
 		    case lm_h: u = va_arg(ap, unsigned int); break;
 		    case lm_l: u = va_arg(ap, unsigned long int); break;
 		    case lm_ll: u = va_arg(ap, Q_ULLONG); break;
-		    default: break;
+		    default: u = 0; break;
 		}
 
 		if (qIsUpper(*c))
