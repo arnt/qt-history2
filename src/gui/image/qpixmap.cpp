@@ -360,7 +360,7 @@ QPixmap::~QPixmap()
     \sa operator=()
 */
 
-QPixmap QPixmap::copy(bool ignoreMask) const
+QPixmap QPixmap::copy(bool) const
 {
 #if defined(Q_WS_X11)
     int old = x11SetDefaultScreen(data->xinfo->screen());

@@ -1649,8 +1649,13 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
 
     QBitmap *mask = 0;
     if(mode == Qt::Composite)
-        mask = (QBitmap *)pixmap.mask();
+        mask = const_cast<QBitmap *>(pixmap.mask());
     bool mono = pixmap.depth() == 1;
+
+    if (mono && mode == Qt::IgnoreMask) {
+	qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::IgnoreMask ? true : false);
+        return;
+    }
 
     if (mask && !hasClipping() && d->pdev != paintEventDevice) {
         if (mono) {                           // needs GCs pen // color
@@ -1676,7 +1681,7 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
                 }
             }
         } else {
-            qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::IgnoreMask ? true : false );
+            qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, mode == Qt::IgnoreMask ? true : false);
         }
         return;
     }
