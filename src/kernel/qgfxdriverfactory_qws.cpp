@@ -47,6 +47,7 @@
 #include "qgfxvnc_qws.h"
 #include "qgfxvga16_qws.h"
 #include "qgfxshadowfb_qws.h"
+#include "qwsgfx_qnx6.h"
 #include <stdlib.h>
 
 #if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
@@ -104,6 +105,10 @@ QGfxDriverFactoryPrivate::~QGfxDriverFactoryPrivate()
 QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
 {
     QString driver = key.lower();
+#ifdef Q_OS_QNX6
+    if ( driver == "qnxfb" || driver.isEmpty() )
+	return new QQnxScreen( displayId );
+#endif
 #ifndef QT_NO_QWS_VFB
     if ( driver == "qvfb" || driver.isEmpty() )
 	return new QVFbScreen( displayId );
@@ -167,6 +172,10 @@ QStringList QGfxDriverFactory::keys()
 {
     QStringList list;
 
+#ifdef Q_OS_QNX6
+    if ( !list.contains( "QnxFb" ) )
+	list << "QnxFb";
+#endif
 #ifndef QT_NO_QWS_VFB
     if ( !list.contains( "QVFb" ) )
 	list << "QVFb";

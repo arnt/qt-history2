@@ -5881,52 +5881,13 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
     return TRUE;
 }
 
-// Accelerated drivers implement qt_get_screen which returns a QScreen
-// that does accelerated mode stuff and returns accelerated QGfxen where
-// appropriate. This is stored in qt_screen
-
 /*
-#if defined(Q_OS_QNX6)
-#include "qwsgfx_qnx.cpp"
-#endif
-
-#if !defined(QT_NO_QWS_MATROX)
-# include "qgfxmatrox_qws.cpp"
-#endif
-
-#if !defined(QT_NO_QWS_REPEATER)
-#include "qgfxrepeater_qws.cpp"
-#endif
-
-#if defined(QT_QWS_EE)
-# include "qgfxee_qws.cpp"
-#endif
-*/
-
-/*
-struct DriverTable
-{
-    char *name;
-    QScreen *(*qt_get_screen)(int);
-    int accel;
-} driverTable [] = {
-#if defined(Q_OS_QNX6)
-    { "QnxFb", qt_get_screen_qnxfb, 0 },
-#endif
 #if !defined(QT_NO_QWS_REPEATER)
     { "Repeater", qt_get_screen_repeater, 0 },
-#endif
-#if !defined(QT_NO_QWS_MATROX)
-    { "Matrox", qt_get_screen_matrox, 1 },
 #endif
 #if defined(QT_QWS_EE)
     { "EE", qt_get_screen_ee, 0 },
 #endif
-//#if !defined(QT_NO_QWS_SVGALIB)
-//    { "SVGALIB", qt_get_screen_svgalib, 1 },
-//#endif
-    { 0, 0, 0 },
-};
 
 */
 

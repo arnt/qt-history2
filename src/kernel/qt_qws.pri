@@ -169,8 +169,10 @@ embedded {
 	INCLUDEPATH += 3rdparty/freetype2/include 3rdparty/libpng 3rdparty/zlib
 
 	qnx { 
-	SOURCES+= qwskeyboard_qnx.cpp \
-		    qwsmouse_qnx.cpp
+		HEADERS += qwsgfx_qnx6.h
+		SOURCES += qwskeyboard_qnx.cpp \
+			   qwsmouse_qnx.cpp \
+			   qwsgfx_qnx6.cpp
 	}
 }
 

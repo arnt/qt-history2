@@ -31,6 +31,8 @@
 #ifndef QWSQNXFB_H
 #define QWSQNXFB_H
 
+#ifdef Q_OS_QNX6
+
 #include <display.h>
 #include <disputil.h>
 #include <qgfxraster_qws.h>
@@ -107,5 +109,6 @@ private:
 };
 #endif // QT_NO_QWS_CURSOR
 
+#endif // Q_OS_QNX6
 
-#endif
+#endif // QWSQNXFB_H
