@@ -28,8 +28,7 @@
 //
 #ifndef QT_H
 #include "qnamespace.h"
-#include "qrect.h"
-#include "qptrlist.h"
+#include "qlist.h"
 #include "qiodevice.h"
 #include "qbytearray.h"
 #endif // QT_H
@@ -37,35 +36,6 @@
 class QWidget;
 class QPainter;
 class QPixmap;
-
-class QVirtualDestructor {
-public:
-    virtual ~QVirtualDestructor() {}
-};
-
-template <class T>
-class QAutoDeleter : public QVirtualDestructor {
-public:
-    QAutoDeleter( T* p ) : ptr( p ) {}
-    ~QAutoDeleter() { delete ptr; }
-    T* data() const { return ptr; }
-private:
-    T* ptr;
-};
-
-template <class T>
-T* qAutoDeleterData( QAutoDeleter<T>* ad )
-{
-    if ( !ad )
-	return 0;
-    return ad->data();
-}
-
-template <class T>
-QAutoDeleter<T>* qAutoDeleter( T* p )
-{
-    return new QAutoDeleter<T>( p );
-}
 
 class Q_EXPORT QMembuf
 {
@@ -87,16 +57,16 @@ public:
 
 private:
 
-    QPtrList<QByteArray> *buf;
+    QList<QByteArray *> buf;
     QIODevice::Offset _size;
     QIODevice::Offset _index;
 };
 
 inline void QMembuf::append( QByteArray *ba )
-{ buf->append( ba ); _size += ba->size(); }
+{ buf.append( ba ); _size += ba->size(); }
 
 inline void QMembuf::clear()
-{ buf->clear(); _size=0; _index=0; }
+{ buf.clear(); _size=0; _index=0; }
 
 inline QByteArray QMembuf::readAll()
 { QByteArray ba(_size); consumeBytes(_size,ba.data()); return ba; }

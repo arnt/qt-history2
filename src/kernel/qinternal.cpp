@@ -31,13 +31,11 @@
 
 QMembuf::QMembuf() : _size(0), _index(0)
 {
-    buf = new QPtrList<QByteArray>;
-    buf->setAutoDelete( TRUE );
+    buf.setAutoDelete( TRUE );
 }
 
 QMembuf::~QMembuf()
 {
-    delete buf;
 }
 
 /*! \internal
@@ -50,8 +48,8 @@ bool QMembuf::consumeBytes( Q_ULONG nbytes, char *sink )
     if ( nbytes <= 0 || nbytes > _size )
 	return FALSE;
     _size -= nbytes;
-    for ( ;; ) {
-	QByteArray *a = buf->first();
+    while (!buf.isEmpty()) {
+	QByteArray *a = buf.first();
 	if ( (int)(_index + nbytes) >= a->size() ) {
 	    // Here we skip the whole byte array and get the next later
 	    int len = a->size() - _index;
@@ -60,7 +58,7 @@ bool QMembuf::consumeBytes( Q_ULONG nbytes, char *sink )
 		sink += len;
 	    }
 	    nbytes -= len;
-	    buf->remove();
+	    buf.takeAt(0);
 	    _index = 0;
 	    if ( nbytes == 0 )
 		break;
@@ -90,19 +88,15 @@ bool QMembuf::scanNewline( QByteArray *store )
     QByteArray *a = 0;
     char *p;
     int n;
-    for ( ;; ) {
-	if ( !a ) {
-	    a = buf->first();
-	    if ( !a || a->size() == 0 )
-		return FALSE;
-	    p = a->data() + _index;
-	    n = a->size() - _index;
-	} else {
-	    a = buf->next();
-	    if ( !a || a->size() == 0 )
-		return FALSE;
-	    p = a->data();
-	    n = a->size();
+    bool retval = false;
+    for (int j = 0; j < buf.size(); ++j) {
+	a = buf.at(j);
+	p = a->data();
+	n = a->size();
+	if (!j) {
+	    // first buffer
+	    p += _index;
+	    n -= _index;
 	}
 	if ( store ) {
 	    while ( n-- > 0 ) {
@@ -110,41 +104,37 @@ bool QMembuf::scanNewline( QByteArray *store )
 		if ( ++i == (int)store->size() )
 		    store->resize( store->size() < 256
 				   ? 1024 : store->size()*4 );
-		switch ( *p ) {
-		    case '\0':
-			store->resize( i );
-			return FALSE;
-		    case '\n':
-			*(store->data()+i) = '\0';
-			store->resize( i );
-			return TRUE;
+		if (*p == '\n') {
+		    retval = true;
+		    goto end;
 		}
 		p++;
 	    }
 	} else {
 	    while ( n-- > 0 ) {
-		switch ( *p++ ) {
-		    case '\0':
-			return FALSE;
-		    case '\n':
-			return TRUE;
-		}
+		if(*p == '\n')
+		    return true;
+		p++;
 	    }
 	}
     }
+ end:
+    if (store)
+	store->resize(i);
+    return retval;
 }
 
 int QMembuf::ungetch( int ch )
 {
-    if ( buf->isEmpty() || _index==0 ) {
+    if ( buf.isEmpty() || _index==0 ) {
 	// we need a new QByteArray
 	QByteArray *ba = new QByteArray( 1 );
-	buf->insert( 0, ba );
+	buf.insert( 0, ba );
 	_size++;
 	(*ba)[0] = ch;
     } else {
 	// we can reuse a place in the buffer
-	QByteArray *ba = buf->first();
+	QByteArray *ba = buf.first();
 	_index--;
 	_size++;
 	(*ba)[(int)_index] = ch;
