@@ -36,7 +36,7 @@ ListDnd::ListDnd( QScrollView * eventSource, const char * name )
     line->hide();
 }
 
-void ListDnd::setDragMode( const int mode )
+void ListDnd::setDragMode( int mode )
 {
     dMode = mode;
 }
@@ -77,7 +77,7 @@ bool ListDnd::dragEnterEvent( QDragEnterEvent * event )
     bool ok = ( ( ( dMode & Both ) == Both ) ||
 		( ( dMode & Internal ) && ( event->source() == src ) ) ||
 		( ( dMode & External ) && ( event->source() != src ) ) );
-    
+
     if ( ok && canDecode( event ) ) {
 	event->accept();
 	dragInside = TRUE;
