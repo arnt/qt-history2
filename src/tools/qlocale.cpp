@@ -13,31 +13,63 @@
 #include <float.h>
 #define isinf(d) (!_finite(d) && !_isnan(d))
 #define isnan(d) _isnan(d)
-const uchar NaN_Bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
-const uchar Inf_Bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
-#define NAN      (*(const double*) NaN_Bytes)
-#define INFINITY (*(const double*) Inf_Bytes)
 #define ULONG_LONG_MAX _UI64_MAX
 #define LONG_LONG_MAX _I64_MAX
 #define LONG_LONG_MIN _I64_MIN
+#endif // Q_WS_WIN
 
-
-#if defined(QT_DEBUG)
-// Verify assumption about little endian on windows. Pretty sure it's safe,
-// but this doesn't hurt...
-class QVerifyEndianessOnWindows
-{
+#ifndef NAN
+const unsigned char NaN_Bytes_bigEndian[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
+const unsigned char NaN_Bytes_littleEndian[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
+class QSetNanBytes
+{    
 public:
-    QVerifyEndianessOnWindows() {
+    QSetNanBytes() {
 	bool bigEndian = false;
 	int wordSize = 0;
 	qSysInfo(&wordSize, &bigEndian);
-	Q_ASSERT(bigEndian==false);
+	if ( bigEndian )
+	    NaN_Bytes = (const unsigned char *)NaN_Bytes_bigEndian;
+	else
+	    NaN_Bytes = (const unsigned char *)NaN_Bytes_littleEndian;
     }
+    const unsigned char *NaN_Bytes;
 };
-static QVerifyEndianessOnWindows q_verify_endian;
-#endif // QT_DEBUG
+static QSetNanBytes q_set_nan_bytes;
+#define NAN (*(const double*) q_set_nan_bytes.NaN_Bytes)
+#endif //NAN
 
+#ifndef INFINITY
+const unsigned char Inf_Bytes_bigEndian[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
+const unsigned char Inf_Bytes_littleEndian[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
+class QSetInfBytes
+{    
+
+public:
+    QSetInfBytes() {
+	bool bigEndian = false;
+	int wordSize = 0;
+	qSysInfo(&wordSize, &bigEndian);
+	if ( bigEndian )
+	    Inf_Bytes = (const unsigned char *)Inf_Bytes_bigEndian;
+	else
+	    Inf_Bytes = (const unsigned char *)Inf_Bytes_littleEndian;
+    }
+    const unsigned char *Inf_Bytes;
+};
+static QSetInfBytes q_set_inf_bytes;
+#define INFINITY (*(const double*) q_set_inf_bytes.Inf_Bytes)
+#endif //INFINITY
+
+// Sizes as defined by the ISO C99 standard
+#ifndef LONG_LONG_MAX
+#define LONG_LONG_MAX 9223372036854775807LL
+#endif
+#ifndef LONG_LONG_MIN
+#define LONG_LONG_MIN -9223372036854775807LL
+#endif
+#ifndef ULONG_LONG_MAX
+#define ULONG_LONG_MAX 18446744073709551615ULL
 #endif
 
 static char *qdtoa(double d, int mode, int ndigits, int *decpt,
