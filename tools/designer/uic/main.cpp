@@ -270,13 +270,13 @@ int main( int argc, char * argv[] )
     QString errMsg;
     int errLine;
     if ( !doc.setContent( &file, &errMsg, &errLine ) ) {
-	qWarning( QString("uic: Failed to parse %s: ") + errMsg + QString (" in line %d"), fileName, errLine );
+	qWarning( "uic: Failed to parse %s: %s in line %d", fileName, errMsg.latin1(), errLine );
 	return 1;
     }
 
     QDomElement e = doc.firstChild().toElement();
     if ( e.hasAttribute("version") && e.attribute("version").toDouble() > 3.3 ) {
-	qWarning( QString("uic: File generated with too recent version of Qt Designer (%s vs. %s)"),
+	qWarning( "uic: File generated with too recent version of Qt Designer (%s vs. %s)",
 		  e.attribute("version").latin1(), QT_VERSION_STR );
 	return 1;
     }

@@ -841,7 +841,7 @@ void Uic::createFormImpl( const QDomElement &e )
     QString uiDotH = fileName + ".h";
     if ( QFile::exists( uiDotH ) ) {
 	if ( !outputFileName.isEmpty() )
-	    uiDotH = combinePath( uiDotH, outputFileName );
+	    uiDotH = combinePath(uiDotH.latin1(), outputFileName);
 	out << "#include \"" << uiDotH << "\"" << endl;
 	writeFunctImpl = FALSE;
     }
