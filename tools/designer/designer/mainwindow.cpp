@@ -2797,6 +2797,13 @@ void MainWindow::setCurrentProjectByFilename( const QString& proFilename )
 void MainWindow::recentlyFilesMenuActivated( int id )
 {
     if ( id != -1 ) {
+	if ( !QFile::exists( *recentlyFiles.at( id ) ) ) {
+	    QMessageBox::warning( this, tr( "Open File" ),
+				  tr( "Could not open '%1'. File does not exist." ).
+				  arg( *recentlyFiles.at( id ) ) );
+	    recentlyFiles.remove( recentlyFiles.at( id ) );
+	    return;
+	}
 	fileOpen( "", "", *recentlyFiles.at( id ) );
 	QString fn( *recentlyFiles.at( id ) );
 	addRecentlyOpened( fn, recentlyFiles );
@@ -2806,6 +2813,13 @@ void MainWindow::recentlyFilesMenuActivated( int id )
 void MainWindow::recentlyProjectsMenuActivated( int id )
 {
     if ( id != -1 ) {
+	if ( !QFile::exists( *recentlyProjects.at( id ) ) ) {
+	    QMessageBox::warning( this, tr( "Open Project" ),
+				  tr( "Could not open '%1'. File does not exist." ).
+				  arg( *recentlyProjects.at( id ) ) );
+	    recentlyProjects.remove( recentlyProjects.at( id ) );
+	    return;
+	}
 	openProject( *recentlyProjects.at( id ) );
 	QString fn( *recentlyProjects.at( id ) );
 	addRecentlyOpened( fn, recentlyProjects );
