@@ -488,6 +488,9 @@ public:
 	PM_TabBarTabShiftVertical,
 	PM_TabBarScrollButtonWidth,
 
+	PM_MenuBarItemSpacing,
+	PM_ToolBarItemSpacing,
+
 	// do not add any values below/greater than this
 	PM_CustomBase =		0xf0000000
     };

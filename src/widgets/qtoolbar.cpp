@@ -357,6 +357,7 @@ void QToolBar::init()
     setBackgroundRole( QPalette::Button);
     setFocusPolicy( NoFocus );
     setFrameStyle( QFrame::ToolBarPanel | QFrame::Raised);
+    boxLayout()->setSpacing(style().pixelMetric(QStyle::PM_ToolBarItemSpacing));
 }
 
 /*!
@@ -393,6 +394,15 @@ void QToolBar::setOrientation( Orientation o )
 void QToolBar::addSeparator()
 {
     (void) new QToolBarSeparator( orientation(), this, "toolbar separator" );
+}
+
+/*!
+    \reimp
+*/
+
+void QToolBar::styleChange( QStyle& )
+{
+    boxLayout()->setSpacing(style().pixelMetric(QStyle::PM_ToolBarItemSpacing));
 }
 
 /*!

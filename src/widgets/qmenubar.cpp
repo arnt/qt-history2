@@ -880,6 +880,8 @@ int QMenuBar::calculateRects( int max_width )
 
     int i = 0;
     int separator = -1;
+    const int itemSpacing = style().pixelMetric(QStyle::PM_MenuBarItemSpacing);
+    const int lastItem = reverse ? 0 : mitems->count() - 1;
 
     while ( i < (int)mitems->count() ) {	// for each menu item...
 	QMenuItem *mi = mitems->at(i);
@@ -926,7 +928,7 @@ int QMenuBar::calculateRects( int max_width )
 #endif
 
 	    if ( ( ( !reverse && x + w + frameWidth() - max_width > 0 ) ||
-		 ( reverse && x - w -frameWidth() < 0 ) )
+		 ( reverse && x - w - itemSpacing - frameWidth() < 0 ) )
 		 && nlitems > 0 ) {
 		nlitems = 0;
 		x = frameWidth();
@@ -936,7 +938,7 @@ int QMenuBar::calculateRects( int max_width )
 		    y += motifBarVMargin;
 		}
 		if ( reverse )
-		    x = max_width - x;
+		    x = max_width - x + itemSpacing;
 		if ( style().styleHint(QStyle::SH_GUIStyle) == MotifStyle )
 		    separator = -1;
 	    }
@@ -945,13 +947,22 @@ int QMenuBar::calculateRects( int max_width )
 	    if ( h > max_item_height )
 		max_item_height = h;
 	}
-	if( reverse )
+
+	const bool isLast = (i == lastItem);
+
+	if( reverse ) {
 	    x -= w;
+	    if (!isLast && !mi->isSeparator())
+		x -= itemSpacing;
+	}
 	if ( update ) {
 	    irects[i].setRect( x, y, w, h );
 	}
-	if ( !reverse )
+	if ( !reverse ) {
 	    x += w;
+	    if (!isLast && !mi->isSeparator())
+		x += itemSpacing;
+	}
 	nlitems++;
 	i++;
     }
