@@ -36,7 +36,7 @@ is supported for the development of licensed components, and
 QAxFactory supports the creation of non-visual COM objects.  Class
 specific information can be provided directly in the C++ class
 declaration using the Q_CLASSINFO macro to control how objects and
-controls are registered and exposed.  New helper classes and macros
+controls are registered and exposed. New helper classes and macros
 are avialable to make it even easier to expose object classes (see the
 QAxServer documentation for details).
 
@@ -45,7 +45,10 @@ of clients, including Microsoft Office applications and .NET. Examples
 that demonstrate how to use the Qt objects from the examples in .NET
 languages like C# are included. QStringList is supported as a type,
 and QRect, QSize and QPoint are now supported datatypes for control
-properties and as reference parameters.
+properties and as reference parameters. Saving the controls to a
+storage or stream now includes the version number of the QDataStream
+used for the serialization (note that this might break existing 
+storages).
 
 The QAxContainer library is now static even for shared configurations
 of Qt, which simplifies deployment and allows using both QAxServer and
