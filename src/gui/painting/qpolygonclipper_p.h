@@ -25,44 +25,7 @@
 // We mean it.
 //
 
-
-template <typename Type> class QPolygonClipperBuffer
-{
-public:
-    QPolygonClipperBuffer()
-    {
-        capacity = 64;
-        buffer = (Type*) qMalloc(capacity * sizeof(Type));
-        siz = 0;
-    }
-
-    ~QPolygonClipperBuffer()
-    {
-        qFree(buffer);
-    }
-
-    void reset() { siz = 0; }
-
-    int size() const { return siz; }
-    Type *data() const { return buffer; }
-
-    const Type &at(int i) const { Q_ASSERT(i >= 0 && i < siz); return buffer[i]; }
-
-    void add(const Type &t) {
-        if (siz >= capacity) {
-            capacity *= 2;
-            buffer = (Type*) qRealloc(buffer, capacity * sizeof(Type));
-        }
-        buffer[siz] = t;
-        ++siz;
-    }
-
-private:
-    int capacity;
-    int siz;
-    Type *buffer;
-};
-
+#include "qdatabuffer_p.h"
 
 /* based on sutherland-hodgman line-by-line clipping, as described in
    Computer Graphics and Principles */
@@ -145,8 +108,8 @@ public:
         buffer1.reset();
         buffer2.reset();
 
-        QPolygonClipperBuffer<OutType> *source = &buffer1;
-        QPolygonClipperBuffer<OutType> *clipped = &buffer2;
+        QDataBuffer<OutType> *source = &buffer1;
+        QDataBuffer<OutType> *clipped = &buffer2;
 
         // Gather some info since we are iterating through the points anyway..
         bool doLeft = false, doRight = false, doTop = false, doBottom = false;
@@ -166,7 +129,7 @@ public:
         }
 
         if (doLeft) {
-            QPolygonClipperBuffer<OutType> *tmp = source;
+            QDataBuffer<OutType> *tmp = source;
             source = clipped;
             clipped = tmp;
             clipped->reset();
@@ -190,7 +153,7 @@ public:
         }
 
         if (doRight) {
-            QPolygonClipperBuffer<OutType> *tmp = source;
+            QDataBuffer<OutType> *tmp = source;
             source = clipped;
             clipped = tmp;
             clipped->reset();
@@ -216,7 +179,7 @@ public:
         }
 
         if (doTop) {
-            QPolygonClipperBuffer<OutType> *tmp = source;
+            QDataBuffer<OutType> *tmp = source;
             source = clipped;
             clipped = tmp;
             clipped->reset();
@@ -241,7 +204,7 @@ public:
         }
 
         if (doBottom) {
-            QPolygonClipperBuffer<OutType> *tmp = source;
+            QDataBuffer<OutType> *tmp = source;
             source = clipped;
             clipped = tmp;
             clipped->reset();
@@ -276,8 +239,8 @@ public:
 
 private:
     int x1, x2, y1, y2;
-    QPolygonClipperBuffer<OutType> buffer1;
-    QPolygonClipperBuffer<OutType> buffer2;
+    QDataBuffer<OutType> buffer1;
+    QDataBuffer<OutType> buffer2;
 };
 
 #endif // QPOLYGONCLIPPER_P_H
