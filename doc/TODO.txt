@@ -92,6 +92,7 @@ QCursor
   QCursor::QCursor(const QPixmap & pixmap, ...) should do colored cursors on
   systems where color cursors are supported.
 
+
 New functionality
 -----------------
 
@@ -146,6 +147,15 @@ SSL (rms)
 Validating XML parser (rms)
     ... would be nice to have one in addition to the well-formed parser we
     already have.
+
+DOM2 support (rms)
+    ... would also be nice.
+
+XML Query mechanism (rms?)
+    Suggestion by Warwick: "BTW, would it be painful to co-opt the new regexp
+    engine as a query mechanism for QDom trees? (Ask Matthias about the
+    marketting power of XML database queries!)"
+    Also consider the possibility to use XPath.
 
 
 Extending existing functionality
