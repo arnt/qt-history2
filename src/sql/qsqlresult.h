@@ -16,7 +16,6 @@
 #define QSQLRESULT_H
 
 #ifndef QT_H
-#include "qsqlerror.h"
 #include "qsql.h"
 #endif // QT_H
 
@@ -35,6 +34,7 @@ class QCoreVariant;
 
 
 class QSqlDriver;
+class QSqlError;
 class QSql;
 class QSqlResultPrivate;
 
