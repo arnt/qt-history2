@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#299 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#300 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -471,23 +471,6 @@ void qt_init( int *argcptr, char **argv )
     QPainter::initialize();
     qApp->setName( appName );
 
-    if ( qApp->desktopSettingsAware() )
-	qt_set_windows_resources();
-
-#if defined(USE_HEARTBEAT)
-    /*
-      ########
-      The heartbeat timer should be slowed down if we get no user input
-      for some time and we should wake it up immediately when we get the
-      first user event (any mouse or keyboard event).
-      ########
-    */
-    heartBeat = SetTimer( 0, 0, 200,
-	qt_win_use_simple_timers ?
-	(TIMERPROC)qt_simple_timer_func : 0 );
-#endif
-    // QFont::locale_init();  ### Uncomment when it does something on Windows
-
     // default font
     {
 	HFONT hfont = (HFONT)GetStockObject( DEFAULT_GUI_FONT );
@@ -512,6 +495,24 @@ void qt_init( int *argcptr, char **argv )
 	    size = 8;
 	QApplication::setFont( name, size );
     }
+
+    if ( qApp->desktopSettingsAware() )
+	qt_set_windows_resources();
+
+#if defined(USE_HEARTBEAT)
+    /*
+      ########
+      The heartbeat timer should be slowed down if we get no user input
+      for some time and we should wake it up immediately when we get the
+      first user event (any mouse or keyboard event).
+      ########
+    */
+    heartBeat = SetTimer( 0, 0, 200,
+	qt_win_use_simple_timers ?
+	(TIMERPROC)qt_simple_timer_func : 0 );
+#endif
+    // QFont::locale_init();  ### Uncomment when it does something on Windows
+
 }
 
 /*****************************************************************************
