@@ -829,7 +829,7 @@ bool QFSFileEngine::link(const QString &newName)
                 IPersistFile *ppf;
                 hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
                 if (SUCCEEDED(hres)) {
-                    hres = ppf->Save((LPOLESTR)linkName.utf16(), TRUE);
+                    hres = ppf->Save((LPOLESTR)linkName.local8Bit(), TRUE);
                     if (SUCCEEDED(hres))
                          ret = true;
                     ppf->Release();
