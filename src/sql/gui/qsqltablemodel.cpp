@@ -402,22 +402,34 @@ bool QSqlTableModel::update(int row, const QSqlRecord &values)
 
 bool QSqlTableModel::insert(const QSqlRecord &values)
 {
-    const QString stmt(insertStatement());
+    bool prepStatement = d->db.driver()->hasFeature(QSqlDriver::PreparedQueries);
+    QString stmt = d->db.driver()->sqlStatement(QSqlDriver::InsertStatement, d->tableName,
+                                                values, prepStatement);
     if (stmt.isEmpty())
         return false;
 
-    if (d->editQuery.lastQuery() != stmt) {
-        if (!d->editQuery.prepare(stmt)) {
+    if (prepStatement) {
+        if (d->editQuery.lastQuery() != stmt) {
+            if (!d->editQuery.prepare(stmt)) {
+                d->error = d->editQuery.lastError();
+                return false;
+            }
+        }
+
+        for (int i = 0; i < values.count(); ++i) {
+            if (values.isGenerated(i))
+                d->editQuery.addBindValue(values.value(i));
+        }
+
+        if (!d->editQuery.exec()) {
             d->error = d->editQuery.lastError();
             return false;
         }
-    }
-
-    for (int i = 0; i < values.count(); ++i)
-        d->editQuery.addBindValue(values.value(i)); // ### generated
-    if (!d->editQuery.exec()) {
-        d->error = d->editQuery.lastError();
-        return false;
+    } else {
+        if (!d->editQuery.exec(stmt)) {
+            d->error = d->editQuery.lastError();
+            return false;
+        }
     }
     qDebug("executed: %s", d->editQuery.executedQuery().ascii());
     return true;
@@ -674,19 +686,6 @@ QString QSqlTableModel::deleteStatement() const
     stmt.reserve(0xff);
     stmt.append("delete from ").append(d->tableName);
     stmt.append(d->whereClause());
-    return stmt;
-}
-
-QString QSqlTableModel::insertStatement() const
-{
-    QString stmt;
-    stmt.reserve(0xff);
-    stmt.append("insert into ").append(d->tableName);
-    stmt.append(" (").append(d->rec.toString());
-    stmt.append(") values ( ");
-    for (int i = 0; i < d->rec.count(); ++i)
-        stmt.append("?,");
-    stmt[stmt.length() - 1] = ')'; // chop off tailing comma
     return stmt;
 }
 

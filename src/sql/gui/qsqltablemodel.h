@@ -84,7 +84,6 @@ protected:
     virtual QString orderByStatement() const;
     virtual QString selectStatement() const;
     virtual QString deleteStatement() const;
-    virtual QString insertStatement() const;
 
     void setPrimaryKey(const QSqlIndex &key);
     void setQuery(const QSqlQuery &query);
