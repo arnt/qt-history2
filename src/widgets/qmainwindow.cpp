@@ -129,7 +129,7 @@ public:
 	    : t(tb), nl(n), oldDock( QMainWindow::Top ), oldIndex( 0 ), extraOffset( -1 )  {}
 	QToolBar * t;
 	bool isStretchable( Qt::Orientation o ) const
-	    { return t->isStretchable( o ); }
+	    { return o == Qt::Horizontal ? t->isHorizontalStretchable() : t->isVerticalStretchable(); }
 	bool nl;
 	QValueList<int> disabledDocks;
 	QMainWindow::ToolBarDock oldDock;
@@ -416,28 +416,28 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 		    int ext = t2->t->sizeHint().width();
 		    if ( p + ext > r.width() && p == t2->extraOffset )
 			p = QMAX( p - space, r.width() - ext );
-		    if ( p > oldPos && tmp && ( tmp->t->isStretchable( Qt::Horizontal ) || fill ) ) {
+		    if ( p > oldPos && tmp && ( tmp->t->isHorizontalStretchable() || fill ) ) {
 			QRect r = rects.last();
 			int d = p - ( r.x() + r.width() );
 			rects.last().setWidth( r.width() + d );
 		    }
-		    if ( t2->t->isStretchable( Qt::Horizontal ) || fill )
-			ext += QMAX( 0, ( t2->t->isStretchable( Qt::Horizontal ) || fill ? s : 0 ) );
-		    if ( p + ext > r.width() && ( t2->t->isStretchable( Qt::Horizontal ) || fill ) )
+		    if ( t2->t->isHorizontalStretchable() || fill )
+			ext += QMAX( 0, ( t2->t->isHorizontalStretchable() || fill ? s : 0 ) );
+		    if ( p + ext > r.width() && ( t2->t->isHorizontalStretchable() || fill ) )
 			ext = r.width() - p;
 		    g = QRect( p, pos, ext , lineExtend );
 		} else {
 		    int ext = t2->t->sizeHint().height();
 		    if ( p + ext > r.y() + r.height() && p == t2->extraOffset )
 			p = QMAX( p - space, ( r.y() + r.height() ) - ext );
-		    if ( p > oldPos && tmp && ( tmp->t->isStretchable( Qt::Vertical ) || fill ) ) {
+		    if ( p > oldPos && tmp && ( tmp->t->isVerticalStretchable() || fill ) ) {
 			QRect r = rects.last();
 			int d = p - ( r.y() + r.height() );
 			rects.last().setHeight( r.height() + d );
 		    }
-		    if ( t2->t->isStretchable( Qt::Vertical ) || fill )
-			ext += QMAX( 0, ( t2->t->isStretchable( Qt::Vertical ) || fill ? s : 0 ) );
-		    if ( p + ext > r.y() + r.height() && ( t2->t->isStretchable( Qt::Vertical ) || fill ) )
+		    if ( t2->t->isVerticalStretchable() || fill )
+			ext += QMAX( 0, ( t2->t->isVerticalStretchable() || fill ? s : 0 ) );
+		    if ( p + ext > r.y() + r.height() && ( t2->t->isVerticalStretchable() || fill ) )
 			ext = ( r.y() + r.height() ) - p;
 		    g = QRect( pos, p, lineExtend, ext );
 		}
@@ -467,7 +467,8 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	e = nx + size_extend( sh, o );
 	lineExtend = QMAX( lineExtend, size_extend( sh, o, TRUE ) );
 	row.append( t );
-	if ( t->t->isStretchable( o ) || fill )
+	if ( ( o == Qt::Horizontal && t->t->isHorizontalStretchable() ||
+	       o == Qt::Vertical && t->t->isVerticalStretchable() ) || fill )
 	    ++stretchs;
 	t = dock->next();
     }

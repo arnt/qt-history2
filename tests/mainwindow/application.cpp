@@ -264,6 +264,7 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 	(void)new QToolButton( printIcon2, "Print File", QString::null,
 			       this, SLOT(print2()), fileTools4, "print file2" );
 
+	fileTools4->setVerticalStretchable( TRUE );
 	addToolBar( fileTools4, "Toolbar 4", Top, FALSE );
 	return fileTools4;
     }

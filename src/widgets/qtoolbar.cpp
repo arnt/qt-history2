@@ -340,8 +340,12 @@ void QToolBar::setStretchableWidget( QWidget * w )
     sw = w;
     b->setStretchFactor( w, 1 );
 
-    if ( !isStretchable( Horizontal ) && !isStretchable( Vertical ) )
-	setStretchable( TRUE, orientation() );
+    if ( !isHorizontalStretchable() && !isVerticalStretchable() ) {
+	if ( orientation() == Horizontal )
+	    setHorizontalStretchable( TRUE );
+	else
+	    setVerticalStretchable( TRUE );
+    }
 }
 
 
@@ -435,7 +439,7 @@ void QToolBar::endMoving( QToolBar *tb )
   Sets the toolbar to be stretchable if \a stretchable is TRUE, or
   non-stretchable otherwise, if the toolbar is in the orientation \a o.
 
-  A stretchable toolbar fills the available width or height 
+  A stretchable toolbar fills the available width or height
   (depending on the orientation) in a toolbar dock. A
   non-stretchable toolbar usually gets just the space it needs.
 
@@ -444,13 +448,19 @@ void QToolBar::endMoving( QToolBar *tb )
   \sa QMainWindow::setRightJustification(), isStretchable()
 */
 
-void QToolBar::setStretchable( bool b, Orientation o )
+void QToolBar::setHorizontalStretchable( bool b )
 {
-    int i = 0;
-    if ( o == Vertical )
-	i = 1;
-    if ( d->stretchable[ i ] != b ) {
-	d->stretchable[ i ] = b;
+    if ( d->stretchable[ 0 ] != b ) {
+	d->stretchable[ 0 ] = b;
+	if ( mw )
+	    mw->triggerLayout( FALSE );
+    }
+}
+
+void QToolBar::setVerticalStretchable( bool b )
+{
+    if ( d->stretchable[ 1 ] != b ) {
+	d->stretchable[ 1 ] = b;
 	if ( mw )
 	    mw->triggerLayout( FALSE );
     }
@@ -460,21 +470,22 @@ void QToolBar::setStretchable( bool b, Orientation o )
   Returns whether the toolbar is stretchable or not in the orientation
   \a o.
 
-  A stretchable toolbar fills all available width or height 
+  A stretchable toolbar fills all available width or height
   (depending on the orientation) in a toolbar dock. A
   non-stretchable toolbar usually gets just the space it needs.
 
   \sa setStretchable()
 */
 
-bool QToolBar::isStretchable( Orientation o ) const
+bool QToolBar::isHorizontalStretchable() const
 {
-    int i = 0;
-    if ( o == Vertical )
-	i = 1;
-    return d->stretchable[ i ];
+    return d->stretchable[ 0 ];
 }
 
+bool QToolBar::isVerticalStretchable() const
+{
+    return d->stretchable[ 1 ];
+}
 
 /*!
   \fn void QToolBar::orientationChanged( Orientation newOrientation )

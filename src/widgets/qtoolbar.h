@@ -39,7 +39,8 @@ class Q_EXPORT QToolBar: public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( QString, "label", label, setLabel )
-    Q_PROPERTY( bool, "stretchable", isStretchable, setStretchable )
+    Q_PROPERTY( bool, "hStretchable", isHorizontalStretchable, setHorizontalStretchable )
+    Q_PROPERTY( bool, "vStretchable", isVerticalStretchable, setVerticalStretchable )
     // ####### Should support Orientation, too!
 public:
     QToolBar( const QString &label,
@@ -60,8 +61,10 @@ public:
     QMainWindow * mainWindow();
 
     virtual void setStretchableWidget( QWidget * );
-    void setStretchable( bool b, Orientation o = Vertical );
-    bool isStretchable( Orientation o ) const;
+    void setHorizontalStretchable( bool b );
+    void setVerticalStretchable( bool b );
+    bool isHorizontalStretchable() const;
+    bool isVerticalStretchable() const;
 
     bool event( QEvent * e );
     bool eventFilter( QObject *, QEvent * );
