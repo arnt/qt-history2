@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG	= qt warn_on release
+CONFIG	= qt warn_on debug
 TARGET	= assistant
 SOURCES	= main.cpp helpwindow.cpp topicchooserimpl.cpp helpdialogimpl.cpp
 HEADERS	= helpwindow.h topicchooserimpl.h helpdialogimpl.h
