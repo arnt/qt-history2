@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#117 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#116 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#117 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -78,22 +78,22 @@ bool QWidget::create()
 
     bg_col = pal.normal().background();		// default background color
 
-    if ( modal || popup ) {			// these are top level, too
+    if ( modal || popup || desktop ) {		// these are top level, too
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
     }
 
     if ( desktop ) {				// desktop widget
 	frect.setRect( 0, 0, sw, sh );
-	topLevel = popup = FALSE;		// force these flags off
+	modal = popup = FALSE;			// force these flags off
     }
-    else if ( topLevel )			// parentless widget
+    else if ( topLevel )			// calc pos/size from screen
 	frect.setRect( sw/2 - sw/4, sh/2 - sh/5, sw/2, 2*sh/5 );
     else					// child widget
 	frect.setRect( 10, 10, 100, 30 );
     crect = frect;				// default client rect
 
-    parentw = topLevel || desktop ? RootWindow(dpy,scr) : parentWidget()->id();
+    parentw = topLevel ? RootWindow(dpy,scr) : parentWidget()->id();
 
     if ( desktop ) {				// desktop widget
 	id = parentw;				// id = root window
@@ -125,7 +125,7 @@ bool QWidget::create()
 				 CWOverrideRedirect | CWSaveUnder,
 				 &v );
     }
-    else if ( topLevel ) {			// top level widget
+    else if ( topLevel && !desktop ) {		// top level widget
 	if ( modal ) {
 	    QWidget *p = parentWidget();	// real parent
 	    QWidget *pp = p ? p->parentWidget() : 0;
@@ -173,7 +173,9 @@ bool QWidget::create()
 	XChangeWindowAttributes( dpy, id, CWBitGravity, &v );
     }
     setMouseTracking( FALSE );			// also sets event mask
-    if ( topLevel ) {				// set X cursor
+    if ( desktop ) {
+	setWFlags( WState_Visible );
+    } else if if ( topLevel ) {			// set X cursor
 	QCursor *appc = QApplication::cursor();
 	XDefineCursor( dpy, ident, appc ? appc->handle() : curs.handle() );
 	setWFlags( WCursorSet );
@@ -188,7 +190,7 @@ bool QWidget::create()
   Usually called from the QWidget destructor.
  ----------------------------------------------------------------------------*/
 
-bool QWidget::destroy()				// destroy widget
+bool QWidget::destroy()
 {
     if ( qApp->focus_widget == this )
 	qApp->focus_widget = 0;			// reset focus widget
@@ -244,7 +246,7 @@ void QWidget::recreate( QWidget *parent, WFlags f, const QPoint &p,
 	parentObj->removeChild( this );
     if ( (parentObj = parent) )
 	parentObj->insertChild( this );
-    bool     enable = isEnabled();		// remember some 
+    bool     enable = isEnabled();		// remember status
     QSize    s      = size();
     QPixmap *bgp    = (QPixmap *)backgroundPixmap();
     QColor   bgc    = bg_col;			// save colors
@@ -860,10 +862,10 @@ void QWidget::show()
   \sa show(), isVisible()
  ----------------------------------------------------------------------------*/
 
-void QWidget::hide()				// hide widget
+void QWidget::hide()
 {
     setWFlags( WExplicitHide );
-    if ( !testWFlags(WState_Visible) )		// not visible
+    if ( !testWFlags(WState_Visible) )
 	return;
     if ( qApp->focus_widget == this )
 	qApp->focus_widget = 0;			// reset focus widget

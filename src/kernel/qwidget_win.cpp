@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#29 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#29 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -35,30 +35,29 @@ void	    qt_close_popup( QWidget * );
  *****************************************************************************/
 
 
-bool QWidget::create()				// create widget
+bool QWidget::create()
 {
     if ( testWFlags(WState_Created) )		// already created
 	return FALSE;
     setWFlags( WState_Created );		// set created flag
 
     if ( !parentWidget() )
-	setWFlags( WType_Overlap );		// overlapping widget
+	setWFlags( WType_TopLevel );		// overlapping widget
 
-    QWidget *parent = parentWidget();
-    bool   overlap = testWFlags(WType_Overlap);
-    bool   popup   = testWFlags(WType_Popup);
-    bool   modal   = testWFlags(WType_Modal);
-    bool   desktop = testWFlags(WType_Desktop);
-    HANDLE appinst = qWinAppInst();
+    bool   topLevel = testWFlags(WType_TopLevel);
+    bool   popup    = testWFlags(WType_Popup);
+    bool   modal    = testWFlags(WType_Modal);
+    bool   desktop  = testWFlags(WType_Desktop);
+    HANDLE appinst  = qWinAppInst();
     const char *wcln = qt_reg_winclass( popup ? 1 : 0 );
     HANDLE parentw;
     WId	   id;
 
     bg_col = pal.normal().background();		// default background color
 
-    if ( modal || popup ) {			// these are overlapping, too
-	overlap = TRUE;
-	setWFlags( WType_Overlap );
+    if ( modal || popup || desktop ) {		// these are top level, too
+	topLevel = TRUE;
+	setWFlags( WType_TopLevel );
     }
 
     if ( desktop ) {				// desktop widget
@@ -66,10 +65,10 @@ bool QWidget::create()				// create widget
 	int sh = GetSystemMetrics( SM_CYSCREEN );
 	frect.setRect( 0, 0, sw, sh );
 	crect = frect;
-	overlap = popup = FALSE;		// force these flags off
+	modal = popup = FALSE;			// force this flags off
     }
 
-    parentw = (!overlap && parent) ? parent->id() : 0;
+    parentw = topLevel ? 0 : parentWidget()->id();
 
     char *title = 0;
     DWORD style = WS_CHILD;
@@ -77,7 +76,7 @@ bool QWidget::create()				// create widget
 	style = WS_POPUP;
     else if ( modal )
 	style = WS_DLGFRAME;
-    else if ( overlap ) {
+    else if ( topLevel && !desktop ) {
 	style = WS_OVERLAPPEDWINDOW;
 	setWFlags(WStyle_Border);
 	setWFlags(WStyle_Title);
@@ -114,7 +113,7 @@ bool QWidget::create()				// create widget
 	else
 	    set_id( id );
     }
-    else if ( overlap ) {			// create overlapped widget
+    else if ( topLevel ) {			// create top level widget
 	if ( popup )
 	    id = CreateWindowEx( WS_EX_TOOLWINDOW, wcln, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
@@ -145,7 +144,9 @@ bool QWidget::create()				// create widget
 	set_id( id );
     }
 
-    if ( !desktop ) {
+    if ( desktop ) {
+	setWFlags( WState_Visible );
+    } else {
 	RECT  fr, cr;
 	POINT pt;
 	GetWindowRect( id, &fr );		// update rects
@@ -280,7 +281,6 @@ void QWidget::setIcon( const QPixmap &pixmap )
     else
 	createExtra();
     extra->icon = new QPixmap( pixmap );
-    warning( "QWidget::setIcon: Not implemented" );
 }
 
 void QWidget::setIconText( const char *iconText )
@@ -436,24 +436,24 @@ bool QWidget::focusPrevChild()
 
 bool QWidget::enableUpdates( bool enable )
 {
-    bool last = !testWFlags( WState_NoUpdates );
+    bool last = !testWFlags( WState_DisUpdates );
     if ( enable )
-	clearWFlags( WState_NoUpdates );
+	clearWFlags( WState_DisUpdates );
     else
-	setWFlags( WState_NoUpdates );
+	setWFlags( WState_DisUpdates );
     return last;
 }
 
 
 void QWidget::update()
 {
-    if ( (flags & (WState_Visible|WState_NoUpdates)) == WState_Visible )
+    if ( (flags & (WState_Visible|WState_DisUpdates)) == WState_Visible )
 	InvalidateRect( id(), 0, TRUE );
 }
 
 void QWidget::update( int x, int y, int w, int h )
 {
-    if ( (flags & (WState_Visible|WState_NoUpdates)) == WState_Visible ) {
+    if ( (flags & (WState_Visible|WState_DisUpdates)) == WState_Visible ) {
 	RECT r;
 	r.left = x;
 	r.top  = y;
@@ -472,7 +472,7 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-    if ( (flags & (WState_Visible|WState_NoUpdates)) == WState_Visible ) {
+    if ( (flags & (WState_Visible|WState_DisUpdates)) == WState_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -518,7 +518,8 @@ void QWidget::show()
 	qt_open_popup( this );
 }
 
-void QWidget::hide()				// hide widget
+
+void QWidget::hide()
 {
     setWFlags( WExplicitHide );
     if ( !testWFlags(WState_Visible) )		// not visible
@@ -538,14 +539,12 @@ void QWidget::hide()				// hide widget
 
 void QWidget::raise()
 {
-    SetWindowPos( id(), HWND_TOP, 0, 0, 0, 0,
-		  SWP_NOMOVE | SWP_NOSIZE );
+    SetWindowPos( id(), HWND_TOP, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 }
 
 void QWidget::lower()
 {
-    SetWindowPos( id(), HWND_BOTTOM, 0, 0, 0, 0,
-		  SWP_NOMOVE | SWP_NOSIZE );
+    SetWindowPos( id(), HWND_BOTTOM, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 }
 
 
