@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#36 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#37 $
 **
 ** Definition of event classes
 **
@@ -40,6 +40,9 @@
 #define Event_Accel		   30		// accelerator event
 #define Event_Clipboard		   40		// internal clipboard event
 #define Event_SockAct		   50		// socket activation
+#define Event_DragMove		   60		// drag moves (into) widget
+#define Event_DragLeave		   61		// drag leaves or is cancelled
+#define	Event_Drop		   62		// actual drop
 #define Event_User		 1000		// first user event id
 
 
