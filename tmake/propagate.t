@@ -5,6 +5,10 @@
 #! Actually, it will be trivial to make app vs. lib a config option.
 #!
 #${
+    $project{"TMAKE_CXXFLAGS"} = "";
+    $project{"TMAKE_LFLAGS"} = "";
+    $project{"TMAKE_LIBS"} = "";
+
     if ( Config("qt") || Config("opengl") ) {
 	Project('CONFIG *= x11lib');
 	if ( Config("opengl") ) {
@@ -17,7 +21,7 @@
     }
     if ( Config("qt") ) {
 	$moc_aware = 1;
-	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_QT)');
+	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_QT)');
 	if ( Config("opengl") ) {
 	    Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_QT)');
 	    if ( Project("TARGET") ne "qgl" ) {
@@ -29,15 +33,15 @@
 	    Project('TMAKE_LIBS *= $(SYSCONF_LIBS_QT)');
 	}
     } elsif ( Config("qtinc") ) {
-	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_QT)');
+	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_QT)');
     }
     if ( Config("opengl") ) {
-	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_OPENGL)');
+	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_OPENGL)');
 	Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_OPENGL)');
 	Project('TMAKE_LIBS *= $(SYSCONF_LIBS_OPENGL)');
     }
     if ( Config("x11inc") ) {
-	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_X11)');
+	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_X11)');
     }
     if ( Config("x11lib") ) {
 	Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_X11)');
@@ -46,11 +50,11 @@
     Project('TMAKE_LIBS += $$LIBS'); # Misc. project-specific extras
 
     ##### These may still need replacing
-    if ( !Project('TMAKE_COMPILE') ) {
-	Project('TMAKE_COMPILE = $(CC) -c $(CFLAGS) -o $obj $src');
+    if ( !Project("TMAKE_RUN_CXX") ) {
+	Project('TMAKE_RUN_CXX = $(CXX) -c $(CXXFLAGS) $(INCPATH) -o $obj $src');
     }
-    if ( !Project('TMAKE_COMPILE_IMP') ) {
-	Project('TMAKE_COMPILE_IMP = $(CC) -c $(CFLAGS) -o $@ $<');
+    if ( !Project("TMAKE_RUN_CXX_IMP") ) {
+	Project('TMAKE_RUN_CXX_IMP = $(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<');
     }
 
     Project('TMAKE_FILETAGS = HEADERS SOURCES TARGET DESTDIR $$FILETAGS');
@@ -65,17 +69,17 @@
     $project{"VER_MIN"} = $project{"VERSION"};
     $project{"VER_MIN"} =~ s/^\d+\.//;
     if ( Config("dll") ) {
-	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_SHOBJ)' );
+	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_SHOBJ)' );
 	Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS_SHOBJ)');
     }
     if ( Config("yacc") ) {
-	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_YACC)' );
+	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_YACC)' );
 	Project('TMAKE_LIBS *= $(SYSCONF_LIBS_YACC)' );
     }
-    Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS)' );
+    Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS)' );
     Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS)' );
     if ( Project('TEMPLATE') eq "lib" ) {
-	Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS_LIB)' );
+	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_LIB)' );
     } else {
 	Project('TMAKE_LIBS *= $(SYSCONF_LIBS)' );
     }
@@ -96,8 +100,8 @@ build_error:
 
 ####### Compiler, tools and options
 
-CC	=	$(SYSCONF_CC)
-CFLAGS	=	#$ Expand("TMAKE_CFLAGS"); ExpandGlue("DEFINES","-D"," -D","");
+CXX	=	$(SYSCONF_CXX)
+CXXFLAGS=	#$ Expand("TMAKE_CXXFLAGS"); ExpandGlue("DEFINES","-D"," -D","");
 LFLAGS	=	#$ Expand("TMAKE_LFLAGS");
 LIBS	=	#$ Expand("TMAKE_LIBS");
 MOC	=	$(SYSCONF_MOC)
@@ -122,19 +126,19 @@ OBJMOC	=	#$ ExpandList("OBJMOC");
 .SUFFIXES: .cpp .cxx .cc .C .c
 
 .cpp.o:
-	#$ Expand("TMAKE_COMPILE_IMP");
+	#$ Expand("TMAKE_RUN_CXX_IMP");
 
 .cxx.o:
-	#$ Expand("TMAKE_COMPILE_IMP");
+	#$ Expand("TMAKE_RUN_CXX_IMP");
 
 .cc.o:
-	#$ Expand("TMAKE_COMPILE_IMP");
+	#$ Expand("TMAKE_RUN_CXX_IMP");
 
 .C.o:
-	#$ Expand("TMAKE_COMPILE_IMP");
+	#$ Expand("TMAKE_RUN_CXX_IMP");
 
 .c.o:
-	#$ Expand("TMAKE_COMPILE_IMP");
+	#$ Expand("TMAKE_RUN_CXX_IMP");
 
 ####### Build rules
 

@@ -1,4 +1,6 @@
 # Compiling application source
-SYSCONF_CFLAGS		= #$ Expand('TMAKE_CFLAGS'); Expand('TMAKE_CFLAGS_DEBUG');
+SYSCONF_CXXFLAGS	= #$ Expand('TMAKE_CXXFLAGS'); Expand('TMAKE_CXXFLAGS_DEBUG');
+# Compiling library source
+SYSCONF_CXXFLAGS_LIB	= #$ Expand('TMAKE_CXXFLAGS_DEBUG');  Expand('TMAKE_CXXFLAGS_SHLIB');
 # Compiling shared-object source
-SYSCONF_CFLAGS_SHOBJ	= #$ Expand('TMAKE_CFLAGS_DEBUG'); Expand('TMAKE_CFLAGS_SHLIB');
+SYSCONF_CXXFLAGS_SHOBJ	= #$ Expand('TMAKE_CXXFLAGS_DEBUG'); Expand('TMAKE_CXXFLAGS_SHLIB');

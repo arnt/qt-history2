@@ -1,13 +1,13 @@
 # Compiling
-SYSCONF_CC		= #$ Expand('TMAKE_CC');
+SYSCONF_CXX		= #$ Expand('TMAKE_CXX');
 
 # Compiling with support libraries
-SYSCONF_CFLAGS_X11	= #$ ExpandGlue('TMAKE_INCDIR_X11', '-I', ' -I', '');
-SYSCONF_CFLAGS_QT	= #$ ExpandGlue('TMAKE_INCDIR_QT', '-I', ' -I', '');
-SYSCONF_CFLAGS_OPENGL	= #$ ExpandGlue('TMAKE_INCDIR_OPENGL', '-I', ' -I', '');
+SYSCONF_CXXFLAGS_X11	= #$ ExpandGlue('TMAKE_INCDIR_X11', '-I', ' -I', '');
+SYSCONF_CXXFLAGS_QT	= #$ ExpandGlue('TMAKE_INCDIR_QT', '-I', ' -I', '');
+SYSCONF_CXXFLAGS_OPENGL	= #$ ExpandGlue('TMAKE_INCDIR_OPENGL', '-I', ' -I', '');
 
 # Compiline YACC output
-SYSCONF_CFLAGS_YACC     = #$ Expand('TMAKE_CFLAGS_YACC');
+SYSCONF_CXXFLAGS_YACC     = #$ Expand('TMAKE_CXXFLAGS_YACC');
 
 # Linking with support libraries
 # X11
@@ -90,9 +90,9 @@ SYSCONF_LINK_LIB_STATIC	= #${
             $project{"TMAKE_AR_CMD"} =~ s/\$\(TARGETA\)/\$(DESTDIR)$targ/g;
         } else {
             $project{"TMAKE_AR_CMD"} =
-                '$(SYSCONF_AR) $(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC) $(OBJECTS) $(OBJMOC)';
+                '$(SYSCONF_AR) $(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC) $(OBJECTS) $(OBJMOC) ';
         }
-	$text .= 'rm -f $(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC)';
+	$text .= 'rm -f $(DESTDIR)$(SYSCONF_LINK_TARGET_STATIC) ';
 	if ( $project{"TMAKE_AR_CMD"} ) {
 	    $text .= "; \\\n\t\t\t\t";
 	    Expand("TMAKE_AR_CMD");
