@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#22 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#23 $ 
 **
 ** Global type declarations and definitions
 **
@@ -50,7 +50,7 @@
 #define _OS_LINUX_
 #define HAS_VSNPRINTF
 #else
-#error Qt has not been ported to this OS - talk to qt-bugs@troll.no
+#error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
 
 #if defined(_OS_SUN_) || defined(_OS_SOLARIS_) || defined(_OS_HPUX_) || defined(_OS_ULTRIX_) || defined(_OS_LINUX_)
@@ -87,7 +87,7 @@
 #elif defined(_OS_SUN_)
 #define _CC_SUN_
 #else
-#error Qt does not recognize this compiler - talk to qt-bugs@troll.no
+#error "Qt does not recognize this compiler - talk to qt-bugs@troll.no"
 #endif
 
 
@@ -218,6 +218,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #endif
 #if defined(NO_WARNINGS)
 #if defined(_CC_MSC_)
+#pragma warning(disable: 4244)
 #pragma warning(disable: 4759)
 #elif defined(_CC_BOR_)
 #pragma warn -inl
@@ -229,14 +230,15 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #endif // NO_WARNINGS
 
 //
-// So, sometimes we don't use an argument.
+// Avoid compiler warning "argument defined but not used"
 //
-#if !defined(UNUSED)
-#define UNUSED(argument) argument=argument;
+
+#if !defined(NOT_USED)
+#define NOT_USED(argument) argument=argument;
 #endif
 
 //
-// we like RCS but do not like 'char ident[54] defined but not used'
+// Avoid "char ident[54] defined but not used" for the RCS tag
 //
 
 #if !defined(DEBUG)
