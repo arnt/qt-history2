@@ -2922,10 +2922,10 @@ void QDOM_AttrPrivate::save( QTextStream& s, int ) const
 
   \code
   QDomElement e = ....;
-  QDomAttribute a = e.attributeNode( "href" );
+  QDomAttr a = e.attributeNode( "href" );
   cout << a.value() << endl // gives "http://www.trolltech.com"
   a.setValue( "http://doc.trolltech.com" );
-  QDomAttribute a2 = e.attributeNode( "href" );
+  QDomAttr a2 = e.attributeNode( "href" );
   cout << a2.value() << endl // gives "http://doc.trolltech.com"
   \endcode
 

@@ -1,3 +1,4 @@
+//depot/qt/main/src/xml/qxml.h#5 - integrate change 29186 (text)
 /****************************************************************************
 ** $Id: //depot/qt/main/src/xml/qxml.h#4 $
 **
