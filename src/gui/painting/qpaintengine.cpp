@@ -480,15 +480,23 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     if (testDirty(DirtyBrush)) {
         updateBrush(s->brush, s->bgOrigin);
         clearDirty(DirtyBrush);
+
         if (s->brush.style() == Qt::LinearGradientPattern && !hasFeature(LinearGradients))
             emulationSpecifier |= LinearGradients;
         else
             emulationSpecifier &= ~LinearGradients;
+
         if (s->brush.style() != Qt::LinearGradientPattern
             && s->brush.color().alpha() != 255 && !hasFeature(AlphaFill))
             emulationSpecifier |= AlphaFill;
         else
             emulationSpecifier &= ~AlphaFill;
+
+        if (s->brush.style() > Qt::SolidPattern && s->brush.style() < Qt::LinearGradientPattern
+            && s->txop > QPainterPrivate::TxTranslate && !hasFeature(PatternTransform))
+            emulationSpecifier |= PatternTransform;
+        else
+            emulationSpecifier &= ~PatternTransform;
     }
 
     if (testDirty(DirtyFont)) {
@@ -523,15 +531,24 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     if (testDirty(DirtyTransform)) {
         updateMatrix(s->matrix);
         clearDirty(DirtyTransform);
+
         if (state->txop >= QPainterPrivate::TxTranslate && !hasFeature(CoordTransform))
             emulationSpecifier |= CoordTransform;
         else
             emulationSpecifier &= ~CoordTransform;
+
         if (state->txop >= QPainterPrivate::TxTranslate
             && s->pen.width() != 0 && !hasFeature(PenWidthTransform))
             emulationSpecifier |= PenWidthTransform;
         else
             emulationSpecifier &= ~PenWidthTransform;
+
+        if (s->brush.style() > Qt::SolidPattern && s->brush.style() < Qt::LinearGradientPattern
+            && s->txop > QPainterPrivate::TxTranslate && !hasFeature(PatternTransform))
+            emulationSpecifier |= PatternTransform;
+        else
+            emulationSpecifier &= ~PatternTransform;
+
     }
 
     if (testDirty(DirtyHints)) {

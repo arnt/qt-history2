@@ -40,6 +40,8 @@
 
 // #define QT_DEBUG_DRAW
 
+extern QPixmap qt_pixmapForBrush(int style, bool invert);
+
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
                     int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
                     QPainter* painter);
@@ -93,12 +95,13 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
     // Do the filling for gradients or alpha.
     if (op & FillDraw) {
         if ((emulationSpecifier & QPaintEngine::LinearGradients)
-            || (emulationSpecifier & QPaintEngine::AlphaFill)) {
+            || (emulationSpecifier & QPaintEngine::AlphaFill)
+            || (emulationSpecifier & QPaintEngine::PatternTransform)) {
             if (((emulationSpecifier & QPaintEngine::LinearGradients)
                  && engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
                 || ((emulationSpecifier & QPaintEngine::AlphaFill)
                     && engine->hasFeature(QPaintEngine::AlphaFillPolygon)))
-            {
+                {
                 if (shape == PathShape) {
                     q->drawPath(*reinterpret_cast<const QPainterPath *>(data));
                 } else {
@@ -142,13 +145,19 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                 q->setClipRegion(clip);
                 if (emulationSpecifier & QPaintEngine::LinearGradients) {
                     qt_fill_linear_gradient(bounds.toRect(), q, state->brush);
-                } else { // AlphaFill
+                } else if (emulationSpecifier & QPaintEngine::AlphaFill) { // AlphaFill
                     const int BUFFERSIZE = 16;
                     QImage image(BUFFERSIZE, BUFFERSIZE, 32);
                     image.fill(state->brush.color().rgb());
                     image.setAlphaBuffer(true);
                     QPixmap pm(image);
                     q->drawTiledPixmap(bounds.toRect(), pm);
+                } else { // PatternTransform
+                    QPixmap pattern = qt_pixmapForBrush(state->brush.style(), true);
+                    if (state->bgMode == Qt::TransparentMode)
+                        pattern.setMask(*static_cast<QBitmap *>(&pattern));
+                    q->setPen(state->brush.color());
+                    q->drawTiledPixmap(bounds.toRect(), pattern);
                 }
                 q->restore();
             }
@@ -220,7 +229,6 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                     pathCopy = pathCopy * state->matrix;
                 engine->drawPath(pathCopy);
             } else {
-                QPolygon xformed = draw_helper_xpolygon(data, shape);
                 QPaintEngine::PolygonDrawMode mode;
                 if (shape == LineShape)
                     mode = QPaintEngine::PolylineMode;
@@ -228,7 +236,19 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                     mode = QPaintEngine::WindingMode;
                 else
                     mode = QPaintEngine::OddEvenMode;
-                engine->drawPolygon(xformed, mode);
+                if (!engine->hasFeature(QPaintEngine::CoordTransform)) {
+                    // Engine cannot transform
+                    QPolygon xformed = draw_helper_xpolygon(data, shape);
+                    engine->drawPolygon(xformed, mode);
+                } else {
+                    // Engine does transformation
+                    if (shape == EllipseShape)
+                        engine->drawEllipse(*reinterpret_cast<const QRectF *>(data));
+                    else if (shape == RectangleShape)
+                        engine->drawRect(*reinterpret_cast<const QRectF *>(data));
+                    else
+                        engine->drawPolygon(*reinterpret_cast<const QPolygon *>(data), mode);
+                }
             }
             q->setBrush(originalBrush);
         } else if (outlineMode == PathBased) {

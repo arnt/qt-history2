@@ -17,7 +17,6 @@
 #include "qdatastream.h"
 #include "qdebug.h"
 
-#ifndef Q_WS_WIN
 #include "qpixmapcache.h"
 #include "qbitmap.h"
 
@@ -75,7 +74,6 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
 
     return pm;
 }
-#endif
 
 
 /*!
