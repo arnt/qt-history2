@@ -471,8 +471,14 @@ void P4Interface::p4Sync()
     if ( !appInterface )
 	return;
 
+    QString fileName;
+    DesignerSourceFile *sfIface = appInterface->currentSourceFile();
     DesignerFormWindow *fwIface = appInterface->currentForm();
-    if ( !fwIface )
+    if ( sfIface )
+	fileName = sfIface->fileName();
+    else if ( fwIface )
+	fileName = fwIface->fileName();
+    else
 	return;
 
     P4Sync *sync = new P4Sync( fwIface->fileName() );
@@ -487,11 +493,17 @@ void P4Interface::p4Edit()
     if ( !appInterface )
 	return;
 
+    QString fileName;
+    DesignerSourceFile *sfIface = appInterface->currentSourceFile();
     DesignerFormWindow *fwIface = appInterface->currentForm();
-    if ( !fwIface )
+    if ( sfIface )
+	fileName = sfIface->fileName();
+    else if ( fwIface )
+	fileName = fwIface->fileName();
+    else
 	return;
 
-    P4Edit *edit = new P4Edit( fwIface->fileName(), TRUE );
+    P4Edit *edit = new P4Edit( fileName, TRUE );
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( edit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     connect( edit, SIGNAL( fileChanged( const QString & ) ), this, SLOT( reloadFile( const QString & ) ) );
@@ -503,11 +515,17 @@ void P4Interface::p4Submit()
     if ( !appInterface )
 	return;
 
+    QString fileName;
+    DesignerSourceFile *sfIface = appInterface->currentSourceFile();
     DesignerFormWindow *fwIface = appInterface->currentForm();
-    if ( !fwIface )
+    if ( sfIface )
+	fileName = sfIface->fileName();
+    else if ( fwIface )
+	fileName = fwIface->fileName();
+    else
 	return;
 
-    P4Submit *submit = new P4Submit( fwIface->fileName() );
+    P4Submit *submit = new P4Submit( fileName );
     connect( submit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( submit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     submit->execute();
@@ -518,11 +536,17 @@ void P4Interface::p4Revert()
     if ( !appInterface )
 	return;
 
+    QString fileName;
+    DesignerSourceFile *sfIface = appInterface->currentSourceFile();
     DesignerFormWindow *fwIface = appInterface->currentForm();
-    if ( !fwIface )
+    if ( sfIface )
+	fileName = sfIface->fileName();
+    else if ( fwIface )
+	fileName = fwIface->fileName();
+    else
 	return;
 
-    P4Revert *revert = new P4Revert( fwIface->fileName() );
+    P4Revert *revert = new P4Revert( fileName );
     connect( revert, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( revert, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     connect( revert, SIGNAL( fileChanged( const QString & ) ), this, SLOT( reloadFile( const QString & ) ) );
@@ -534,11 +558,17 @@ void P4Interface::p4Add()
     if ( !appInterface )
 	return;
 
+    QString fileName;
+    DesignerSourceFile *sfIface = appInterface->currentSourceFile();
     DesignerFormWindow *fwIface = appInterface->currentForm();
-    if ( !fwIface )
+    if ( sfIface )
+	fileName = sfIface->fileName();
+    else if ( fwIface )
+	fileName = fwIface->fileName();
+    else
 	return;
 
-    P4Add *add = new P4Add( fwIface->fileName() );
+    P4Add *add = new P4Add( fileName );
     connect( add, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( add, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     add->execute();
@@ -549,11 +579,17 @@ void P4Interface::p4Delete()
     if ( !appInterface )
 	return;
 
+    QString fileName;
+    DesignerSourceFile *sfIface = appInterface->currentSourceFile();
     DesignerFormWindow *fwIface = appInterface->currentForm();
-    if ( !fwIface )
+    if ( sfIface )
+	fileName = sfIface->fileName();
+    else if ( fwIface )
+	fileName = fwIface->fileName();
+    else
 	return;
 
-    P4Delete *del = new P4Delete( fwIface->fileName() );
+    P4Delete *del = new P4Delete( fileName );
     connect( del, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( del, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     del->execute();
@@ -564,11 +600,17 @@ void P4Interface::p4Diff()
     if ( !appInterface )
 	return;
 
+    QString fileName;
+    DesignerSourceFile *sfIface = appInterface->currentSourceFile();
     DesignerFormWindow *fwIface = appInterface->currentForm();
-    if ( !fwIface )
+    if ( sfIface )
+	fileName = sfIface->fileName();
+    else if ( fwIface )
+	fileName = fwIface->fileName();
+    else
 	return;
 
-    P4Diff *diff = new P4Diff( fwIface->fileName() );
+    P4Diff *diff = new P4Diff( fileName );
     connect( diff, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( diff, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     diff->execute();
@@ -609,14 +651,20 @@ void P4Interface::p4MightEdit( bool b )
     if ( !aware || !b || !appInterface )
 	return;
 
+    QString fileName;
+    DesignerSourceFile *sfIface = appInterface->currentSourceFile();
     DesignerFormWindow *fwIface = appInterface->currentForm();
-    if ( !fwIface )
+    if ( sfIface )
+	fileName = sfIface->fileName();
+    else if ( fwIface )
+	fileName = fwIface->fileName();
+    else
 	return;
 
-    if ( fwIface->fileName().isEmpty() )
+    if ( fileName.isEmpty() )
 	return;
 
-    P4Edit *edit = new P4Edit( fwIface->fileName(), FALSE );
+    P4Edit *edit = new P4Edit( fileName, FALSE );
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( edit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
     edit->execute();
@@ -630,7 +678,10 @@ void P4Interface::formChanged()
 	return;
 
     QString filename;
-    if ( ( fwIface = appInterface->currentForm() ) ) {
+    DesignerSourceFile *sfIface = appInterface->currentSourceFile();
+    if ( sfIface ) {
+	filename = sfIface->fileName();
+    } else if ( ( fwIface = appInterface->currentForm() ) ) {
 	filename = fwIface->fileName();
 	fwIface->onModificationChange( this, SLOT( p4MightEdit( bool ) ) );
     }
@@ -692,39 +743,39 @@ void P4Interface::p4Info( const QString &filename, P4Info *p4i )
 	statusMessage( QString( "No form for file %1" ).arg( filename ) );
 
     if ( p4i->controlled ) {
-	if ( pix.isNull() ) {
-	    pix = QPixmap( 22,22,32 );
-	    pix.fill( Qt::color0 );
-	}
-	QPainter paint( &pix );
-	paint.setRasterOp( AndROP );
-	paint.fillRect( 0, 0, pix.width() - 1 , pix.height() - 1, p4i->uptodate ? gray : red );
-	paint.setRasterOp( CopyROP );
+// 	if ( pix.isNull() ) {
+// 	    pix = QPixmap( 22,22,32 );
+// 	    pix.fill( Qt::color0 );
+// 	}
+// 	QPainter paint( &pix );
+// 	paint.setRasterOp( AndROP );
+// 	paint.fillRect( 0, 0, pix.width() - 1 , pix.height() - 1, p4i->uptodate ? gray : red );
+// 	paint.setRasterOp( CopyROP );
 	actionAdd->setEnabled( FALSE );
 	actionDelete->setEnabled( TRUE );
 	if ( p4i->action != P4Info::None ) {
-	    switch ( p4i->action ) {
-	    case P4Info::Edit:
-		{
-		    QPixmap check( (const char**)editmark_xpm );
-		    paint.drawPixmap( ( pix.width() - check.width() ) / 2, ( pix.height() - check.height() ) / 2, check );
-		}
-		break;
-	    case P4Info::Add:
-		{
-		    QPixmap add( (const char**)addmark_xpm );
-		    paint.drawPixmap( ( pix.width() - add.width() ) / 2, ( pix.height() - add.height() ) / 2, add );
-		}
-		break;
-	    case P4Info::Delete:
-		{
-		    QPixmap del( (const char**)deletemark_xpm );
-		    paint.drawPixmap( ( pix.width() - del.width() ) / 2, ( pix.height() - del.height() ) / 2, del );
-		}
-		break;
-	    default:
-		break;
-	    }
+// 	    switch ( p4i->action ) {
+// 	    case P4Info::Edit:
+// 		{
+// 		    QPixmap check( (const char**)editmark_xpm );
+// 		    paint.drawPixmap( ( pix.width() - check.width() ) / 2, ( pix.height() - check.height() ) / 2, check );
+// 		}
+// 		break;
+// 	    case P4Info::Add:
+// 		{
+// 		    QPixmap add( (const char**)addmark_xpm );
+// 		    paint.drawPixmap( ( pix.width() - add.width() ) / 2, ( pix.height() - add.height() ) / 2, add );
+// 		}
+// 		break;
+// 	    case P4Info::Delete:
+// 		{
+// 		    QPixmap del( (const char**)deletemark_xpm );
+// 		    paint.drawPixmap( ( pix.width() - del.width() ) / 2, ( pix.height() - del.height() ) / 2, del );
+// 		}
+// 		break;
+// 	    default:
+// 		break;
+// 	    }
 
 	    actionSync->setEnabled( FALSE );
 	    actionEdit->setEnabled( FALSE );
@@ -779,7 +830,7 @@ QRESULT P4Interface::queryInterface( const QUuid &uuid, QUnknownInterface **ifac
 	*iface = (ActionInterface*)this;
     else if ( uuid == IID_QLibrary )
 	*iface = (QLibraryInterface*)this;
-    else 
+    else
 	return QE_NOINTERFACE;
 
     (*iface)->addRef();
@@ -809,10 +860,6 @@ void P4Interface::cleanup()
 {
     delete P4Info::_files;
     P4Info::_files = 0;
-    delete P4Info::userName;
-    P4Info::userName = 0;
-    delete P4Info::clientName;
-    P4Info::clientName = 0;
     actions.clear();
     delete outputPage;
 }

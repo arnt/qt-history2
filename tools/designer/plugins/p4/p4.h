@@ -33,8 +33,8 @@ struct P4Info
     bool uptodate : 1;
     bool ignoreEdit : 1;
 
-    static QString *userName;
-    static QString *clientName;
+    static QString userName;
+    static QString clientName;
     static QDict<P4Info> *_files;
 
     static QDict<P4Info> *files();
@@ -125,7 +125,7 @@ private slots:
     void fSyncResults( const QString&, P4Info* );
 
 private:
-    bool silent;    
+    bool silent;
 };
 
 

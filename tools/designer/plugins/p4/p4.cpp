@@ -11,8 +11,8 @@
 #include "submitdialog.h"
 
 QDict<P4Info> *P4Info::_files = 0;
-QString *P4Info::userName = 0;
-QString *P4Info::clientName = 0;
+QString P4Info::userName = "";
+QString P4Info::clientName = "";
 
 QDict<P4Info> *P4Info::files()
 {
@@ -95,9 +95,9 @@ void P4Init::processExited()
 
     QStringList entries = QStringList::split( '\n', data() );
     QStringList userEntry = entries.grep( "user name:", FALSE );
-    P4Info::userName = new QString( QStringList::split( ' ', userEntry[0] )[2] );
+    P4Info::userName = QString( QStringList::split( ' ', userEntry[0] )[2] );
     QStringList clientEntry = entries.grep( "client name:", FALSE );
-    P4Info::clientName = new QString( QStringList::split( ' ', clientEntry[0] )[2] );
+    P4Info::clientName = QString( QStringList::split( ' ', clientEntry[0] )[2] );
 
     delete this;
 }
@@ -343,8 +343,8 @@ bool P4Submit::execute()
     QString description = dialog.description->text().replace( QRegExp("\\n"), "\n\t" );
 
     QString buffer = "Change:\tnew\n\n";
-    buffer += "Client:\t" + *P4Info::clientName + "\n\n";
-    buffer += "User:\t" + *P4Info::userName + "\n\n";
+    buffer += "Client:\t" + P4Info::clientName + "\n\n";
+    buffer += "User:\t" + P4Info::userName + "\n\n";
     buffer += "Status:\tnew\n\n";
     buffer += "Description:\n\t";
     buffer += description + "\n\n";
