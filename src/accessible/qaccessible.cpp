@@ -435,14 +435,6 @@ QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectH
     return old;
 }
 
-#ifdef Q_WS_MAC
-#warning "queryAccessibleObject is obsolete"
-QObject *QAccessible::queryAccessibleObject(QAccessibleInterface *o)
-{
-    return o ? o->object() : 0;
-}
-#endif
-
 /*!
     Sets \a iface to point to the implementation of the
     QAccessibleInterface for \a object, and returns TRUE if

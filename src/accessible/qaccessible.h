@@ -30,7 +30,6 @@ class Q_EXPORT QAccessible
 private:
 #ifdef Q_WS_MAC
     static QMAC_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
-    static QObject *queryAccessibleObject(QAccessibleInterface *);
 #endif
 public:
     enum Event {

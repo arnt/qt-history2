@@ -101,10 +101,8 @@ AXUIElementRef qt_mac_find_uielement(QObject *o)
 	    OSStatus err = HIObjectRegisterSubclass(qt_mac_class_str(), NULL, 
 						    0, access_proc_handlerUPP, GetEventTypeCount(events), 
 						    events, NULL, &widget_create_class);
-	    if(err != noErr) {
-		qDebug("That shouldn't happen! %ld", err);
+	    if(err != noErr) 
 		return 0;
-	    }
 	}
 	EventRef event;
         CreateEvent(NULL, kEventClassHIObject, kEventHIObjectInitialize, GetCurrentEventTime(),
@@ -220,17 +218,22 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    if(QAccessible::queryAccessibleInterface(object, &iface) == QS_OK) {
 			QPoint p(where.h, where.v);
 			if(object->isWidgetType())
-			    ((QWidget*)object)->mapFromGlobal(p);
+			    p = ((QWidget*)object)->mapFromGlobal(p);
 			object = NULL;
 			int child = iface->childAt(p.x(), p.y());
 			if(child > 0) {
 			    QAccessibleInterface *child_iface;
 			    if(iface->navigate(Child, child, &child_iface) != -1) {
-				object = QAccessible::queryAccessibleObject(child_iface);
+				object = child_iface->object();
 				child_iface->release();
 			    }
 			}
 			iface->release();
+		    } else if(object->isWidgetType()) {
+			QWidget *widget = (QWidget*)object;
+			object = widget->childAt(widget->mapFromGlobal(QPoint(where.h, where.v)));
+		    } else {
+			object = NULL;
 		    }
 		} else {
 		    object = QApplication::widgetAt(where.h, where.v);
@@ -284,7 +287,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			AXUIElementRef *children = (AXUIElementRef *)malloc(sizeof(AXUIElementRef) * children_count);
 			for(int i = 0; i < children_count; i++) {
 			    if(iface->navigate(Child, i, &child_iface) != -1) {
-				QObject *child = QAccessible::queryAccessibleObject(child_iface);
+				QObject *child = child_iface->object();
 				children[i] = qt_mac_find_uielement(child);
 				child_iface->release();
 			    }
@@ -294,7 +297,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    } else if(CFStringCompare(str, kAXParentAttribute, 0) == kCFCompareEqualTo) {
 			QAccessibleInterface *parent_iface;
 			if(iface->navigate(Ancestor, 1, &parent_iface) != -1) {
-			    QObject *parent = QAccessible::queryAccessibleObject(parent_iface);
+			    QObject *parent = parent_iface->object();
 			    AXUIElementRef element = qt_mac_find_uielement(parent);
 			    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef, sizeof(element), &element);
 			    parent_iface->release();
@@ -430,7 +433,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			for(int i = 0; i < sel.count(); i++) {
 			    QAccessibleInterface *child_iface;
 			    if(iface->navigate(Child, sel[i], &child_iface) != -1) {
-				arr[i] = qt_mac_find_uielement(QAccessible::queryAccessibleObject(child_iface));
+				arr[i] = qt_mac_find_uielement(child_iface->object());
 				child_iface->release();
 			    }
 			}
@@ -474,7 +477,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			    SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, sizeof(val), &val);
 			}
 		    } else {
-			qDebug("Unknown [kEventAccessibleGetNamedAttribute]: %s", cfstring2qstring(str).latin1());
+			qWarning("Unknown [kEventAccessibleGetNamedAttribute]: %s", cfstring2qstring(str).latin1());
 		    }
 		    iface->release();
 		}
@@ -507,7 +510,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 				iface->doAction(0, SetFocus);
 			}
 		    } else {
-			qDebug("Unknown [kEventAccessibleSetNamedAttribute]: %s", cfstring2qstring(str).latin1());
+			qWarning("Unknown [kEventAccessibleSetNamedAttribute]: %s", cfstring2qstring(str).latin1());
 		    }
 		    iface->release();
 		}
@@ -569,7 +572,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			    }
 			}
 			if(!found_act)
-			    qDebug("Unknown [kEventAccessiblePerformNamedAction]: %s", qAct.latin1());
+			    qWarning("Unknown [kEventAccessiblePerformNamedAction]: %s", qAct.latin1());
 		    }
 		    iface->release();			
 		}
@@ -604,7 +607,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 			    }
 			}
 			if(!found_act)
-			    qDebug("Unknown [kEventAccessibleGetNamedActionDescription]: %s", qAct.latin1());
+			    qWarning("Unknown [kEventAccessibleGetNamedActionDescription]: %s", qAct.latin1());
 		    }
 		    if(!actDesc.isNull()) {
 			CFStringRef cfActDesc = qstring2cfstring(actDesc);
