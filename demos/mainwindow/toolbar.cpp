@@ -158,12 +158,7 @@ ToolBar::ToolBar(QWidget *parent)
     connect(movableAction, SIGNAL(checked(bool)), allowedAreasActions, SLOT(setEnabled(bool)));
 
     menu = new QMenu(tr("&Toolbar"), this);
-
-    // change default text of the toggle view action
-    QAction *toggleViewAction = this->toggleViewAction();
-    toggleViewAction->setText(tr("Visible"));
-    menu->addAction(toggleViewAction);
-
+    menu->addAction(toggleViewAction());
     menu->addSeparator();
     menu->addAction(orderAction);
     menu->addAction(randomizeAction);
@@ -294,7 +289,7 @@ void ToolBar::place(Qt::ToolBarArea area, bool p)
     QMainWindow *mainWindow = qt_cast<QMainWindow *>(parentWidget());
     Q_ASSERT(mainWindow != 0);
 
-    mainWindow->addToolBar(this, area);
+    mainWindow->addToolBar(area, this);
 
     if (allowedAreasActions->isEnabled()) {
         allowLeftAction->setEnabled(area != Qt::ToolBarAreaLeft);

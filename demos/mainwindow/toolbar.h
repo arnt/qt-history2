@@ -54,7 +54,6 @@ public:
 
 protected:
     virtual void polishEvent(QEvent *);
-    void contextMenuEvent(QContextMenuEvent *event) { QWidget::contextMenuEvent(event); }
 
 private:
     void allow(Qt::ToolBarArea area, bool allow);
