@@ -344,6 +344,7 @@ public:
         SC_TitleBarNormalButton =  0x00000020,
         SC_TitleBarShadeButton =   0x00000040,
         SC_TitleBarUnshadeButton = 0x00000080,
+        SC_TitleBarContextHelpButton = 0x00000100,
 
         SC_ListView =              0x00000001,
         SC_ListViewBranch =        0x00000002,

@@ -965,6 +965,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value SC_TitleBarNormalButton  Normal (restore) button
     \value SC_TitleBarShadeButton  Shade button
     \value SC_TitleBarUnshadeButton  Unshade button
+    \value SC_TitleBarContextHelp  Context Help button
 
     \value SC_ListView  The list view area
     \value SC_ListViewExpand  Expand item (i.e., show/hide child items)
