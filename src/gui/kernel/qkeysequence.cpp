@@ -493,7 +493,7 @@ QString QKeySequence::encodeString(int key)
 #endif
 
 
-    key &= ~(Qt::SHIFT | Qt::CTRL | Qt::ALT | Qt::META);
+    key &= ~(Qt::ShiftModifier | Qt::ControlModifier | Qt::AltModifier | Qt::MetaModifier);
     QString p;
 
     if (key && key < Qt::Key_Escape) {

@@ -51,12 +51,12 @@ public:
     // documented in qevent.cpp
     enum KeyboardModifier {
         NoModifier           = 0x00000000,
-        ShiftModifier        = 0x01000000,
-        ControlModifier      = 0x02000000,
-        AltModifier          = 0x04000000,
-        MetaModifier         = 0x08000000,
-        KeypadModifier       = 0x10000000,
-        KeyboardModifierMask = 0xff000000
+        ShiftModifier        = 0x02000000,
+        ControlModifier      = 0x04000000,
+        AltModifier          = 0x08000000,
+        MetaModifier         = 0x10000000,
+        KeypadModifier       = 0x20000000,
+        KeyboardModifierMask = 0x3e000000
     };
     Q_DECLARE_FLAGS(KeyboardModifiers, KeyboardModifier)
 
