@@ -5,6 +5,10 @@
 
 \section1 The One Minute Guide to Using Qt Linguist
 
+\index Linguist
+\index Qt Linguist
+\index Contexts!for Translation
+
 \e {Qt Linguist} is a tool for adding translations to Qt
 applications. It introduces the concept of a translation "context"
 which means a group of phrases that appear together on the screen
@@ -41,9 +45,11 @@ phrase or guess to move it into the Translation area.) At the end of
 the session choose \Menu File|Save from the menu bar and then
 \Menu File|Exit to quit.
 
-\section1 \e {Qt Linguist}'s Main Window
+\section1 Qt Linguist's Main Window
 
 \section2 Context List
+
+\index Contexts!for Translation
 
 This appears at the left hand side of the main window by default. The
 first column, 'Done', identifies whether or not the translations for the
@@ -79,7 +85,7 @@ exclamation mark indicates that the translation has failed validation.
 The second column 'Source text' shows the text that must be translated.
 The third column shows the translation.
 
-\e{Qt Linguist} provides three kinds of validation, accelerator,
+\e{Qt Linguist} provides three kinds of validation: accelerator,
 punctuation and phrase. If the source text contains an accelerator
 i.e. an ampersand, '\&' and the translated text does not contain an
 ampersand the translation will fail the accelerator validation.
@@ -104,6 +110,9 @@ section is labelled 'Translation' and this is where you enter the
 translation of the source text.
 
 \section2 Phrases and Guesses Area
+
+\index Phrases!in Qt Linguist
+\index Guesses!in Qt Linguist
 
 This area appears at the bottom right of the main window by default.
 When you move to a new phrase if the phrase is in one of the phrase
@@ -134,6 +143,9 @@ list, then click the source text in the Source Text area.
 
 \section2 Phrases That Require Multiple Translations Depending on Context
 
+\index Contexts!for Translation
+\index Comments!for Translators
+
 The same phrase may occur in two or more contexts without conflict. Once
 a phrase has been translated in one context, \e {Qt Linguist} notes
 that the translation has been made and when the translator reaches a
@@ -154,9 +166,14 @@ the translation area on a light blue background.
 
 \section2 Changing Keyboard Accelerators
 
+\index Accelerators
+\index Keyboard Accelerators
+
 A keyboard accelerator is a key combination that when pressed will
 cause an application to perform an action. Keyboard accelerators
 normally come in two forms: Alt key and Ctrl key accelerators.
+
+\index Alt Key
 
 Alt key accelerators are used for menus and buttons.  The underlining
 signifies that pressing the Alt key with the underlined letter is the
@@ -176,6 +193,8 @@ accelerators using the same letter in the same context, must be avoided.
 Note that some Alt key accelerators, usually those on the menu bar, may
 apply in other contexts.
 
+\index Ctrl Key
+
 Ctrl key accelerators can exist independently of any visual control.
 They are often used to invoke actions in menus that would otherwise
 take several keystrokes or mouse clicks. They may also be used to
@@ -188,6 +207,7 @@ since these letters are underlined. But the same thing can be
 achieved simply by pressing \Key Ctrl+Enter. Accelerators that use
 the Ctrl key are shown literally in the source text, e.g. \Key
 Ctrl+Enter. Ctrl key accelerators have no phrase so the translator
+\index Comments!for Translators
 must rely on the programmer to add a "comment" which appears in the
 top right hand pane. This comment should explain what action the Ctrl
 key accelerator performs. Ideally Ctrl key accelerators are
@@ -229,6 +249,9 @@ books and similar or identical phrases that have already been translated
 in the Phrases and guesses area.
 
 \section1 Creating and Using Phrase Books
+
+\index Phrases!in Qt Linguist
+\index Phrase Books
 
 \img phrasebookdialog.png
 \caption Phrase Book Dialog
@@ -277,6 +300,11 @@ double click the target phrase.
 
 \section1 Validation
 
+\index Validation of Translations
+\index Accelerators!Validation
+\index Punctuation!Validation
+\index Phrases!Validation
+
 \e {Qt Linguist} provides three kinds of validation on translated
 phrases.
 
@@ -304,7 +332,7 @@ If any phrase in a context is invalid then the context itself will be
 marked with a question mark; if all the phrases in a context are done
 and are valid the context will be marked with a tick.
 
-Note that only phrases which are marked as done, (with a tick), will
+Note that only phrases which are marked as done (with a tick) will
 appear in the application. Invalid phrases and phrases which are
 translated but not marked as done are kept in the translation source
 file but are not used by the application.
@@ -314,6 +342,13 @@ file but are not used by the application.
 \section2 File Types
 
 \e {Qt Linguist} makes use of three kinds of file:
+
+\index .ts Files
+\index Translation Source Files
+\index .qm Files
+\index Qt Message Files
+\index .qph Files
+\index Qt Phrase Book Files
 
 \list
 \i \c .ts \e {translation source files} \BR are human-readable XML

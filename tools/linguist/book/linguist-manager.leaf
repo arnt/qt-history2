@@ -1,15 +1,23 @@
 \chapter Release Manager
 
+\index Release Manager
+
 Two tools are provided for the release manager, \l lupdate and \l
 lrelease. These tools depend on \e qmake project files. You don't
-have to use \e qmake, though. All you need to know is told here.
+have to use \e qmake, though.
 
 \section1 Qt Project Files
+
+\index .pro Files
+\index Project Files
+\index qmake!Project Files
 
 \l lupdate and \l lrelease depend on information in the application's
 \c .pro Qt project file. There must be an entry in the \c TRANSLATIONS
 section of the project file for each language that is additional to
 the native language. A typical entry looks like this:
+
+\index TRANSLATIONS!in Project Files
 
 \quotefile tt2/tt2.pro
 \skipto TRANSLATIONS
@@ -19,6 +27,11 @@ the native language. A typical entry looks like this:
 Using a locale within the translation file name is useful for
 determining which language to load at runtime. This is explained in
 \link Programmers Chapter 4: Programmers \endlink.
+
+\index HEADERS!in Project Files
+\index SOURCES!in Project Files
+\index INTERFACES!in Project Files
+\index TRANSLATIONS!in Project Files
 
 An example of a complete \c .pro file with four translation source files:
 \code
@@ -34,6 +47,10 @@ An example of a complete \c .pro file with four translation source files:
 		      superapp_se.ts
 \endcode
 
+\index QApplication!defaultCodec()
+\index defaultCodec()!QApplication
+\index CODEC!in Project Files
+
 If you use the \l QApplication::defaultCodec() mechanism in your
 application, you will also need to set the \c CODEC entry, like this:
 
@@ -45,6 +62,8 @@ Otherwise, source texts containing non-Latin characters will be
 displayed incorrectly in \e {Qt Linguist}.
 
 \section1 lupdate
+
+\index lupdate
 
 Usage: \c {lupdate myproject.pro}
 
@@ -68,12 +87,21 @@ the translator detects may easily be included with those found during
 the initial test phase. The second and any subsequent \l lupdate runs
 would probably take place during the final beta phase.
 
+\index .ts Files
+\index Translation Source Files
+\index XML
+
 The \c .ts file format is a simple human-readable XML format that can
 be used with version control systems if required.
 
 \section1 lrelease
 
+\index lrelease
+
 Usage: \c {lrelease myproject.pro}
+
+\index .qm Files
+\index Qt Message Files
 
 This is another simple command line tool. It reads a Qt \c .pro
 project file and produces the \c .qm files used by the application,
@@ -91,10 +119,9 @@ detect them and use them automatically.
 
 Note that \l lrelease will only incorporate translations that are
 marked as "done". If a translation is missing, or has failed
-validation, or is not marked as done, the original text will be used
-instead.
+validation, the original text will be used instead.
 
-\section1 Incomplete Translations
+\section1 Missing Translations
 
 Both \l lupdate and \l lrelease may be used with \c .ts translation
 source files which are incomplete. Missing translations will be replaced

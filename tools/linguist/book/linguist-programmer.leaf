@@ -33,16 +33,22 @@ the translator.
 
 \section2 Creating Translation Files
 
+\index .ts Files
+\index Translation Source Files
+
 Translation files consist of all the user-visible text and Ctrl key
 accelerators in an application and translations of that text.
 Translation files are created as follows:
+
+\index lupdate
+\index lrelease
 
 \list 1
 \i Run \l lupdate initially to generate the first set of \c .ts
 translation source files with all the user-visible text but no
 translations.
 \i The \c .ts files are given to the translator who adds translations
-using \e{Qt Linguist}. \e{Qt Linguist} takes care of any changed
+using \e {Qt Linguist}. \e {Qt Linguist} takes care of any changed
 or deleted source text.
 \i Run \l lupdate to incorporate any new text added to the
 application. \l lupdate synchronizes the user-visible text from the
@@ -52,6 +58,10 @@ application with the translations; it does not destroy any data.
 read the \c .ts files and produce the \c .qm files used by the
 application at runtime.
 \endlist
+
+\index .pro Files
+\index Project Files
+\index qmake!Project Files
 
 For \l lupdate to work successfully, it must know which translation
 files to produce. The files are simply listed in the application's \c
@@ -71,7 +81,14 @@ See the \link lupdate "lupdate" \endlink and \link lrelease
 \printline main(
 \printuntil QApplication
 
+\index main()
+
 This is how a simple \c main() function of a Qt application begins.
+
+\index QTranslator!load()
+\index load()!QTranslator
+\index QApplication!installTranslator()
+\index installTranslator()!QApplication
 
 \quotefile tt1/main.cpp
 \skipto main(
@@ -98,6 +115,9 @@ will fall back to using the original source text.
 
 \section2 Making the Application Translate User-Visible Strings
 
+\index tr()
+\index QObject!tr()
+
 User-visible strings are marked as translation targets by wrapping them
 in a \c tr() call, for example:
 \code
@@ -110,12 +130,14 @@ would become
     button = new QPushButton( tr( "&Quit" ), this);
 \endcode
 
-All QObject subclasses that use the Q_OBJECT macro have a
+\index Q_OBJECT
+
+All \l QObject subclasses that use the \c Q_OBJECT macro have a
 reimplementation of the \c tr() function.
 
-Although the \c tr() call is normally made directly since it is usually
-called as a member function of a QObject subclass, in other cases an
-explicit class name can be supplied, for example:
+Although the \c tr() call is normally made directly since it is
+usually called as a member function of a \l QObject subclass, in
+other cases an explicit class name can be supplied, for example:
 
 \code
     QPushButton::tr( "&Quit" )
@@ -129,6 +151,10 @@ or
 
 \section2 Distinguishing Identical Strings That Require Different
 Translations
+
+\index Translation Contexts
+\index Contexts!for Translation
+\index lupdate
 
 The \l lupdate program automatically provides a \e context for every
 source text. This context is the class name of the class that contains
@@ -150,6 +176,8 @@ and
     rbh = new QRadioButton( tr( "Enabled", "Hue frame" ), this);
 \endcode
 
+\index Ctrl Key
+
 Ctrl key accelerators are also translatable:
 
 \quotefile tt3/mainwindow.cpp
@@ -162,6 +190,10 @@ for Ctrl key accelerators. The second argument is the only clue the
 translator has as to the function performed by the accelerator.
 
 \section2 Helping The Translator With Navigation Information
+
+\index TRANSLATOR!in Comments
+\index Translator Comments
+\index Comments!for Translators
 
 In large complex applications it may be difficult for the translator to
 see where a particular source text comes from. This problem can be
@@ -180,11 +212,19 @@ These comments are particularly useful for widget classes.
 
 \section2 Coping With C++ Namespaces
 
+\index Namespaces
+\index C++!Namespaces
+\index lupdate
+
 C++ namespaces and the \c {using namespace} statement can confuse
 \l lupdate. It will interpret \c MyClass::tr() as meaning just
 that, not as \c MyNamespace::MyClass::tr(), even if \c MyClass is
 defined in the \c MyNamespace namespace. Run-time translation of
 these strings will fail because of that.
+
+\index TRANSLATOR!in Comments
+\index Translator Comments
+\index Comments!for Translators
 
 You can work around this limitation by putting a \e TRANSLATOR
 comment at the beginning of the source files that use \c
@@ -234,24 +274,33 @@ shows the English version.
 \skipto qtranslator
 \printline qtranslator
 
+\index QTranslator
+
 This line includes the definition of the \l QTranslator class. 
 Objects of this class provide translations for user-visible text.
 
 \skipto QTranslator
 \printuntil tor
 
-Creates a QTranslator object without a parent.
+Creates a \l QTranslator object without a parent.
 
 \printline load
+
+\index tt1_la.qm
 
 Try to load a file called \c tt1_la.qm (the \c .qm file extension is
 implicit) that contains Latin translations for the source texts used in
 the program. No error will occur if the file is not found.
 
+\index QApplication!installTranslator()
+\index installTranslator()!QApplication
+
 \printline installTranslator
 
 Add the translations from \c tt1_la.qm to the pool of translations used
 by the program. No error will occur if the file is not found.
+
+\index Hello World
 
 \printline hello
 
@@ -259,12 +308,17 @@ Creates a push button that displays "Hello world!".  If \c tt1_la.qm was
 found and contains a translation for "Hello world!", the translation
 appears; if not, the source text appears.
 
+\index tr()
+\index QObject!tr()
+
 All classes that inherit \l QObject have a \c tr() function.  Inside
-a member function of a QObject class, we simply write \c tr("Hello
+a member function of a \l QObject class, we simply write \c tr("Hello
 world!") instead of \c QPushButton::tr("Hello world!") or \c
 QObject::tr("Hello world!").
 
 \section3 Running the Application in English
+
+\index English Language
 
 Since we haven't made the translation file \c tt1_la.qm, the source text
 is shown when we run the application:
@@ -274,12 +328,18 @@ is shown when we run the application:
 
 \section3 Creating a Latin Message File
 
-The first step is to create a project file, tt1.pro, that lists all
-the source files for the project.  The project file can be a qmake
-project file, or even an ordinary makefile.  Any file that contains
+\index tt1.pro
+\index Latin
+
+The first step is to create a project file, \c tt1.pro, that lists
+all the source files for the project.  The project file can be a
+qmake project file, or even an ordinary makefile.  Any file that
+contains
+
+\index SOURCES!in Project Files
+\index TRANSLATIONS!in Project Files
 
 \quotefile tt1/tt1.pro
-
 \skipto SOURCES
 \printline SOURCES
 \skipto TRANSLATIONS
@@ -289,6 +349,11 @@ will work. \e TRANSLATIONS specifies the message files we want to
 maintain. In this example, we just maintain one set of translations,
 namely Latin.
 
+\index .ts Files
+\index Translation Source Files
+\index .qm Files
+\index Qt Message Files
+
 Note that the file extension is \c .ts, not \c .qm.  The \c .ts
 translation source format is designed for use during the
 application's development. Programmers or release managers run the \l
@@ -296,6 +361,8 @@ lupdate program to generate and update \c .ts files with the source
 text that is extracted from the source code. Translators read and
 update the \c .ts files using \e {Qt Linguist} adding and editing
 their translations.
+
+\index XML
 
 The \c .ts format is human-readable XML that can be emailed directly
 and is easy to put under version control. If you edit this file
@@ -312,6 +379,8 @@ project's source and header files (as specified in the HEADERS and
 SOURCES lines of the project file) and extract the strings that
 appear in \c tr() function calls.
 
+\index lupdate
+
 \l lupdate is used to create and update the message files (\c tt1_la.ts
 in this case) to keep them in sync with the source code. It is safe to
 run \l lupdate at any time, as \l lupdate does not remove any
@@ -323,6 +392,10 @@ Try running \l lupdate right now, like this:
 \code
     lupdate tt1.pro
 \endcode
+
+\index .ts Files
+\index Translation Source Files
+\index XML
 
 You should now have a file \c tt1_la.ts in the current directory,
 containing this
@@ -344,6 +417,9 @@ You don't need to understand the file format since it is read and
 updated using tools, e.g. \l lupdate and \e {Qt Linguist}.
 
 \section3 Translating to Latin with Qt Linguist
+
+\index Qt Linguist
+\index Linguist
 
 We will use \e {Qt Linguist} to provide the translation, although
 you can use any XML or plain text editor to enter a translation into a
@@ -375,6 +451,9 @@ but instead will have
 
 \section3 Running the Application in Latin
 
+\index Latin
+\index lrelease
+
 To see the application running in Latin, we have to generate a \c .qm
 file from the \c .ts file. Generating a \c .qm file can be achieved
 either from within \e {Qt Linguist} (for a single \c .ts file), or
@@ -389,26 +468,36 @@ saluto!".
 \img tt1_la.png
 \caption Tutorial 1 Screenshot, Latin version
 
-
 \section2 Tutorial 2: Using Two or More Languages
 
 \img tt2_en.png
 \caption Tutorial 2 Screenshot, English version
 
+\index .pro Files
+\index Project Files
+\index qmake!Project Files
+
 \include tt2/tt2.pro
 \caption tt2.pro
+
+\index Translation Contexts
+\index Contexts!for Translation
 
 This example is a slightly more involved and introduces a key
 \e {Qt Linguist} concept: "contexts".
 
 \list
-\i \c arrowpad.h contains the definition of ArrowPad, a custom widget;
-\i \c arrowpad.cpp contains the implementation of ArrowPad;
-\i \c mainwindow.h contains the definition of MainWindow, a subclass of
-   QMainWindow 
-\i \c mainwindow.cpp contains the implementation of MainWindow;
+\i \c arrowpad.h contains the definition of \c ArrowPad, a custom widget;
+\i \c arrowpad.cpp contains the implementation of \c ArrowPad;
+\i \c mainwindow.h contains the definition of \c MainWindow, a subclass of
+   \l QMainWindow
+\i \c mainwindow.cpp contains the implementation of \c MainWindow;
 \i \c main.cpp contains main().
 \endlist
+
+\index tt2.pro
+\index French Language
+\index Dutch Language
 
 We will use two translations, French and Dutch, although there is no
 effective limit on the number of possible translations that can be used
@@ -418,25 +507,42 @@ with an application. The relevant lines of \c tt2.pro are
 \skipto HEADERS
 \printuntil tt2_nl.ts
 
+\index lupdate
+\index tt2_fr.ts
+\index tt2_nl.ts
+
 Run \l lupdate; it should produce two identical message files
 \c tt2_fr.ts and \c tt2_nl.ts. These files will contain all the source
 texts marked for translation with \c tr() calls and their contexts.
 
 \section3 Line by Line Walk-through
 
-In \c arrowpad.h we define the ArrowPad subclass which is a subclass
-of \l QWidget.  In the \e {Tutorial 2 Screenshot, English version},
-above, the central widget with the four buttons is an ArrowPad.
+\index ArrowPad!in Translation Tutorial
+\index English Language
+
+In \c arrowpad.h we define the \c ArrowPad subclass which is a
+subclass of \l QWidget.  In the \e {Tutorial 2 Screenshot, English
+version}, above, the central widget with the four buttons is an
+\c ArrowPad.
 
 \quotefile tt2/arrowpad.h
 \skipto class ArrowPad
 \printline class ArrowPad
 
-When \l lupdate is run it not only extracts the source texts but it also
-groups them into contexts. A context is the name of the class in which
-the source text appears. Thus, in this example, "ArrowPad" is a context:
-it is the context of the texts in the ArrowPad class.  The Q_OBJECT
-macro defines \c tr(x) in ArrowPad like this
+\index Q_OBJECT
+\index tr()
+\index QObject!tr()
+\index Translation Contexts
+\index Contexts!for Translation
+
+When \l lupdate is run it not only extracts the source texts but it
+also groups them into contexts. A context is the name of the class in
+which the source text appears. Thus, in this example, "ArrowPad" is a
+context: it is the context of the texts in the \c ArrowPad class. 
+The \c Q_OBJECT macro defines \c tr(x) in \c ArrowPad like this
+
+\index QApplication!translate()
+\index translate()!QApplication
 
 \code
     qApp->translate( "ArrowPad", x )
@@ -453,7 +559,7 @@ particular context (class) grouped together makes it easier for the
 translator to perform any accelerator changes without introducing
 conflicts.
 
-In \c arrowpad.cpp we implement the ArrowPad class.
+In \c arrowpad.cpp we implement the \c ArrowPad class.
 
 \quotefile tt2/arrowpad.cpp
 \skipto QPushButton
@@ -465,25 +571,33 @@ user-visible text.
 \img tt2_en.png
 \caption Tutorial 2 Screenshot, English version
 
+\index Q_OBJECT
+\index MainWindow!in Translation Tutorial
+
 \quotefile tt2/mainwindow.h
 \skipto QMainWindow
 \printline QMainWindow
 \printuntil Q_OBJECT
 
 In the \e {Tutorial 2 Screenshot, English version}, above, the whole
-window is a MainWindow.  This is defined in the \c mainwindow.h
-header file. Here too, we use Q_OBJECT, so that MainWindow will
+window is a \c MainWindow.  This is defined in the \c mainwindow.h
+header file. Here too, we use \c Q_OBJECT, so that \c MainWindow will
 become a context in \e {Qt Linguist}.
 
-In the implementation of MainWindow, \c mainwindow.cpp, we create an
-instance of our ArrowPad class
+In the implementation of \c MainWindow, \c mainwindow.cpp, we create
+an instance of our \c ArrowPad class
 
 \quotefile tt2/mainwindow.cpp
 \skipto arrow pad
 \printline arrow pad
 
-We also call MainWindow::tr() twice, once for the menu item and once for
-the accelerator.
+We also call \c MainWindow::tr() twice, once for the menu item and
+once for the accelerator.
+
+\index QAccel!stringToKey()
+\index stringToKey()!QAccel
+\index Ctrl Key
+\index Alt Key
 
 \skipto quit()
 \printline quit()
@@ -496,12 +610,19 @@ German translator "Strg+E" (for Beenden). When using \c tr() for Ctrl
 key accelerators the two argument form should be used with the second
 argument describing the function that the accelerator performs.
 
+\index main()
+
 Our \c main() function is defined in \c main.cpp as usual.
 
 \quotefile tt2/main.cpp
 \skipto QTranslator
 \printline QTranslator
 \printuntil install
+
+\index QTextCodec!locale()
+\index locale()!QTextCodec
+\index LANG!Environment Variable
+\index Environment Variables!LANG
 
 We choose which translation to use according to the current locale.
 \l QTextCodec::locale() can be influenced by setting the \c LANG
@@ -523,14 +644,14 @@ texts ("\&Up", "\&Left", etc.) grouped in two contexts ("ArrowPad" and
 Now, enter the following translations:
 
 \list
-\i ArrowPad
+\i \c ArrowPad
      \list
      \i \&Up - \&Haut
      \i \&Left - \&Gauche
      \i \&Right - \&Droite
      \i \&Down - \&Bas
      \endlist
-\i MainWindow
+\i \c MainWindow
      \list
      \i E\&xit - \&Quitter
      \i Ctrl+Q - Ctrl+Q
@@ -538,21 +659,21 @@ Now, enter the following translations:
      \endlist
 \endlist
 
-It's quickest to press Alt+D (which clicks the \e {Done \& Next}
-button) after typing each translation, since this marks the translation
-as done and moves on to the next source text.
+It's quickest to press \Key Alt+D (which clicks the \e {Done \& Next}
+button) after typing each translation, since this marks the
+translation as done and moves on to the next source text.
 
 Save the file and do the same for Dutch working with \c tt2_nl.ts:
 
 \list
-\i ArrowPad
+\i \c ArrowPad
      \list
      \i \&Up - \&Boven
      \i \&Left - \&Links
      \i \&Right - \&Rechts
      \i \&Down - \&Onder
      \endlist
-\i MainWindow
+\i \c MainWindow
      \list
      \i E\&xit - \&Afsluiten
      \i Ctrl+Q - Ctrl+A
@@ -581,6 +702,10 @@ Type
     lrelease tt2.pro
 \endcode
 
+\index LANG!Environment Variable
+\index export!Unix Command
+\index setenv!Unix Command
+
 This should create both \c tt2_fr.qm and \c tt2_nl.qm.  Set the \c
 LANG environment variable to \c fr.  In Unix, one of the two
 following commands should work
@@ -590,12 +715,16 @@ following commands should work
     setenv LANG fr
 \endcode
 
-In Windows, either modify autoexec.bat or run
+\index
+
+\index autoexec.bat
+\index set!Windows Command
+
+In Windows, either modify \c autoexec.bat or run
 
 \code
     set LANG=fr
 \endcode
-
 
 When you run the program, you should now see the French version:
 
@@ -614,6 +743,9 @@ Mark one of the translations in \e {Qt Linguist} as not done, i.e.
 by unchecking the "done" checkbox; run \l lupdate, then \l lrelease,
 then the example. What effect did this change have?
 
+\index Canada
+\index French Canada
+
 Set \c LANG=fr_CA (French Canada) and run the example program again. 
 Explain why the result is the same as with \c LANG=fr.
 
@@ -629,8 +761,13 @@ conflict between \e \&Bestand and \e \&Boven.
 \include tt3/tt3.pro
 \caption \c tt3.pro
 
+\index Portuguese Language
+\index Brazilian Language
+
 We've included a translation file, \c tt3_pt.ts, which contains some
 Portuguese translations for this example.
+
+\index Troll Print
 
 We will consider two releases of the same application: Troll Print 1.0
 and 1.1.  We will learn to reuse the translations created for one
@@ -643,11 +780,14 @@ printer settings.  It comes in two versions: English and Portuguese.
 
 Version 1.0 consists of these files:
 
+\index tt3.pro
+\index tt3_pt.ts
+
 \list
 \i \c printpanel.h contains the definition of PrintPanel;
 \i \c printpanel.cpp contains the implementation of PrintPanel;
-\i \c mainwindow.h contains the definition of MainWindow;
-\i \c mainwindow.cpp contains the implementation of MainWindow;
+\i \c mainwindow.h contains the definition of \c MainWindow;
+\i \c mainwindow.cpp contains the implementation of \c MainWindow;
 \i \c main.cpp contains main();
 \i \c tt3.pro is the \e qmake project file.
 \i \c tt3_pt.ts is the Portuguese message file.
@@ -662,8 +802,12 @@ The PrintPanel is defined in \c printpanel.h.
 \printline QVBox
 \printuntil Q_OBJECT
 
-PrintPanel is a \l QWidget.  It needs the Q_OBJECT macro for \c tr()
-to work properly.
+\index Q_OBJECT
+
+\index PrintPanel!in Translation Tutorial
+
+PrintPanel is a \l QWidget.  It needs the \c Q_OBJECT macro for \c
+tr() to work properly.
 
 The implementation file is \c printpanel.cpp.
 
@@ -675,6 +819,7 @@ The implementation file is \c printpanel.cpp.
 \printline
 \printline
 
+\index Troll Print
 
 Some of the code is commented out in Troll Print 1.0; you will uncomment
 it later, for Troll Print 1.1.
@@ -695,7 +840,9 @@ Portuguese, the second occurrence requires a separate translation. We
 will see how \e {Qt Linguist} can be made to display all the
 occurrences for separate translation shortly.
 
-The header file for the mainwindow, \c mainwindow.h, contains no
+\index MainWindow!in Translation Tutorial
+
+The header file for \c MainWindow, \c mainwindow.h, contains no
 surprises. In the implementation, \c mainwindow.cpp, we have some
 user-visible source texts that must be marked for translation.
 
@@ -710,13 +857,15 @@ We must translate the window's caption.
 \printuntil Help
 
 We also need to translate the menu items. Note that the two argument
-form of \c tr() is used for the keyboard accelerator, Ctrl+Q, since the
-second argument is the only clue the translator has to indicate what
-function that accelerator will perform.
+form of \c tr() is used for the keyboard accelerator, "Ctrl+Q", since
+the second argument is the only clue the translator has to indicate
+what function that accelerator will perform.
 
 \quotefile tt3/main.cpp
 \skipto QTranslator
 \printuntil installTranslator
+
+\index main()
 
 The \c main() function in \c main.cpp is the same as the one in \link
 {Tutorial 2...} Tutorial 2 \endlink. In particular it chooses a
@@ -770,6 +919,9 @@ for the second pair of radio buttons:
     but = new QRadioButton( tr("Disabled", "colors"), colors );
 \endcode
 
+\index lupdate
+\index tt3_pt.ts
+
 Now run \l lupdate and open \c tt3_pt.ts with \e {Qt Linguist}.  You
 should now see two changes.
 
@@ -795,12 +947,19 @@ rather Troll Imprimir).
 \img tt3_10_pt_good.png
 \caption Tutorial 3 Screenshot, "Troll Imprimir 1.0", (Good) Portuguese version
 
+\index Translator Comments
+\index Comments!for Translators
+
 The second argument to \c tr() calls, called "comments" in \e {Qt
 Linguist}, distinguish between identical source texts that occur in
 the same context (class). They are also useful in other cases to give
 clues to the translator, and in the case of Ctrl key accelerators are
 the only means of conveying the function performed by the accelerator to
 the translator.
+
+\index TRANSLATOR!in Comments
+\index Translator Comments
+\index Comments!for Translators
 
 An additional way of helping the translator is to provide information on
 how to navigate to the particular part of the application that contains
@@ -849,7 +1008,7 @@ We'll now prepare release 1.1 of Troll Print.  Start your favorite text
 editor and follow these steps:
 
 \list
-\i Uncomment the two lines that create a QLabel with the text
+\i Uncomment the two lines that create a \l QLabel with the text
      "\<b\>TROLL PRINT\</b\>" in \c printpanel.cpp.
 \i Word-tidying: Replace "2-sided" by "Two-sided" in \c printpanel.cpp.
 \i Replace "1.0" with "1.1" everywhere it occurs in \c mainwindow.cpp.
@@ -863,7 +1022,7 @@ Once finished, run \l lupdate, then open \c tt3_pt.ts in \e {Qt
 Linguist}.  The following items are of special interest:
 
 \list
-\i MainWindow
+\i \c MainWindow
      \list
      \i Troll Print 1.0 - marked "(obs.)", obsolete
      \i About Troll Print 1.0 - marked "(obs.)", obsolete
@@ -877,7 +1036,7 @@ Linguist}.  The following items are of special interest:
 	  Inc. - automatically translated as "Troll Imprimir 1.1.
 	  Copyright 1999-2000 Macroshaft, Inc."
      \endlist
-\i PrintPanel
+\i \c PrintPanel
      \list
      \i 2-sided - marked "(obs.)", obsolete
      \i \<b\>TROLL PRINT\</b\> - unmarked, i.e. untranslated
@@ -888,7 +1047,7 @@ Linguist}.  The following items are of special interest:
 Notice that \l lupdate works hard behind the scenes to make revisions
 easier, and it's pretty smart with numbers.
 
-Go over the translations in MainWindow and mark these as "done".
+Go over the translations in \c MainWindow and mark these as "done".
 Translate "\<b\>TROLL PRINT\</b\>" as "\<b\>TROLL IMPRIMIR\</b\>".
 When you're translating "Two-sided", press the \e {Guess Again}
 button to translate "Two-sided", but change the "2" into "Dois".
@@ -903,6 +1062,10 @@ Choose \e{Ajuda|Sobre}, (\e{Help|About}), to see the about box
 
 \img tt3_11_about_pt.png
 \caption Tutorial 3 Screenshot, About box, Portuguese version
+
+\index English Language
+\index Translating Qt
+\index Qt!Translating Qt
 
 If you choose \e {Ajuda|Sobre Qt}, (\e {Help|About Qt}), you'll
 get an English dialog... oops! Qt itself needs to be translated.  See
