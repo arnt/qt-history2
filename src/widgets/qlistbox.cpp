@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#63 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#62 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#63 $")
 
 
 declare(QListM, QListBoxItem);
@@ -77,13 +77,13 @@ static inline bool checkIndex( const char *method, int count, int index )
 class MyListBoxItem : public QListBoxItem
 {
 public:
-    MyListBoxItem( const char *s, const QPixmap p ) : QListBoxItem(), pm(p) 
+    MyListBoxItem( const char *s, const QPixmap p ) : QListBoxItem(), pm(p)
     { setText( s ); }
 
 protected:
     virtual void paint( QPainter * );
     virtual int height( const QListBox * ) const;
-    virtual int width( const QListBox * ) const; 
+    virtual int width( const QListBox * ) const;
     virtual const QPixmap *pixmap() { return &pm; }
 
 private:
@@ -109,7 +109,7 @@ int MyListBoxItem::height(const QListBox *lb ) const
 
 int MyListBoxItem::width(const QListBox *lb ) const
 {
-    return pm.width() + lb->fontMetrics().width( text() ) + 6; 
+    return pm.width() + lb->fontMetrics().width( text() ) + 6;
 }
   \endcode
   \sa QListBox
@@ -131,9 +131,9 @@ int MyListBoxItem::width(const QListBox *lb ) const
 /*!
    \fn void QListBoxItem::paint( QPainter *p )
 
-   Implement this function to draw your item. 
+   Implement this function to draw your item.
 
-   \sa height(), width() 
+   \sa height(), width()
    */
 
 /*!
@@ -142,11 +142,11 @@ int MyListBoxItem::width(const QListBox *lb ) const
    Implement this function to return the height of your item
 
    \sa paint(), width()
-   */  
+   */
 
 /*!
-  \fn int QListBoxItem::width(  const QListBox* ) const
-  
+  \fn int QListBoxItem::width(	const QListBox* ) const
+
   Implement this function to return the width of your item
 
   \sa paint(), height()
@@ -209,7 +209,7 @@ QListBoxText::~QListBoxText()
 /*!
 
   Draws the text using painter \e p.
-  
+
   */
 
 void QListBoxText::paint( QPainter *p )
@@ -227,7 +227,7 @@ void QListBoxText::paint( QPainter *p )
 int QListBoxText::height(const QListBox *lb ) const
 {
     if (!lb) {
- 	return -1;
+	return -1;
     }
     return lb->fontMetrics().lineSpacing() + 2;
 }
@@ -276,8 +276,8 @@ QListBoxPixmap::~QListBoxPixmap()
 
 
 /*!
-  Draws the pixmap using painter \e p. 
-  */  
+  Draws the pixmap using painter \e p.
+  */
 
 void QListBoxPixmap::paint( QPainter *p )
 {
@@ -331,10 +331,10 @@ int QListBoxPixmap::width( const QListBox * ) const
   specific policy.
 
   If you need to insert other types than texts and pixmaps, you must
-  define new classes which inherit QListBoxItem.  
+  define new classes which inherit QListBoxItem.
 
   \warning The list box assumes ownership of all list box items
-  and will delete them when they are not needed. 
+  and will delete them when they are not needed.
 */
 
 
@@ -590,14 +590,14 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
 
 void QListBox::inSort( const QListBoxItem *lbi )
 {
-    if ( !text ) {
-#if defined ( CHECK_NULL )
-	ASSERT( text != 0 );
+    if ( !lbi->text() ) {
+#if defined (CHECK_NULL)
+	ASSERT( lbi->text() != 0 );
 #endif
 	return;
     }
 
-    itemList->inSort(lbi);
+    itemList->inSort( lbi );
     int index = itemList->at();
     itemList->remove();
     insertItem( lbi, index );
@@ -1121,17 +1121,17 @@ void QListBox::paintCell( QPainter *p, int row, int col )
     QListBoxItem *lbi = itemList->at( row );
     if ( !lbi )
 	return;
-    
+
     //debug( "painting cell %d, focus %u, select %u, %s", row, hasFocus(),
-    //        row == current, lbi->text() );
+    //	      row == current, lbi->text() );
 
     QColorGroup g = colorGroup();
     if ( current == row ) {
- 	QColor	 fc;				// fill color
- 	if ( style() == WindowsStyle )
- 	    fc = darkBlue;			// !!!hardcoded
- 	else
- 	    fc = g.text();
+	QColor	 fc;				// fill color
+	if ( style() == WindowsStyle )
+	    fc = darkBlue;			// !!!hardcoded
+	else
+	    fc = g.text();
 	if ( hasFocus() ) {
 	    //bool clip =  p->hasClipping();
 	    //p->setClipping( FALSE );
@@ -1140,15 +1140,15 @@ void QListBox::paintCell( QPainter *p, int row, int col )
 	}
 	else
 	    p->fillRect( 1, 1, cellWidth(col) - 2, cellHeight(row) - 2, fc );
- 	p->setPen( g.base() );
+	p->setPen( g.base() );
 	p->setBackgroundColor( g.text() );
     } else {
 	p->setBackgroundColor( g.base() );
- 	p->setPen( g.text() );
+	p->setPen( g.text() );
     }
     lbi->paint( p );
     if ( current == row && hasFocus() ) {
- 	p->setPen( g.base() );
+	p->setPen( g.base() );
 	p->setBrush( NoBrush );
 	p->drawRect( 1, 1, viewWidth()-2 , cellHeight(row)-2 );
     }
@@ -1256,7 +1256,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    if ( currentItem() > 0 ) {
 		setCurrentItem( currentItem() - 1 );
 		//debug("Current item is %d", currentItem() );
-		if ( currentItem() < topItem()  )
+		if ( currentItem() < topItem()	)
 		    setTopItem( currentItem() );
 	    }
 	    break;
