@@ -351,6 +351,9 @@ void **QListData::erase(void **xi)
 /*! \fn QList::QList(const QVector<T> &vector)
 
     Constructs a copy of \a vector.
+
+    This constructor makes a deep copy of the data stored in
+    \a vector.
 */
 
 /*! \fn QList::~QList()

@@ -614,6 +614,23 @@ QTextStream::QTextStream(QByteArray *a, int mode)
     d->sourceType = QTextStreamPrivate::ByteArray;
 }
 
+QTextStream::QTextStream(const QByteArray &a, int mode)
+{
+    init();
+    QBuffer *buf = new QBuffer;
+    buf->setData(a);
+    buf->open(mode);
+    dev = buf;
+    d->owndev = true;
+    setEncoding(Latin1); //### Locale???
+    reset();
+    d->sourceType = QTextStreamPrivate::ByteArray;
+
+    if (buf->isWritable())
+        qWarning("QTextStream::QTextStream: Use the QTextStream(QByteArray *, int) constructor "
+                 "instead");
+}
+
 /*!
     Constructs a text stream that operates on an existing file handle
     \a fh through an internal QFile device. The \a mode argument is

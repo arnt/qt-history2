@@ -32,6 +32,7 @@ public:
     QDataStream();
     QDataStream(QIODevice *);
     QDataStream(QByteArray *, int mode);
+    QDataStream(const QByteArray &, int mode);
     virtual ~QDataStream();
 
     QIODevice *device() const;
@@ -91,14 +92,14 @@ public:
     QDataStream &writeRawBytes(const char *, uint len);
 
 private:
-    QIODevice        *dev;
-    bool         owndev;
-    bool         printable;
-    bool         noswap;
-    ByteOrder    byteorder;
-    int                 ver;
+    QIODevice *dev;
+    bool owndev;
+    bool printable;
+    bool noswap;
+    ByteOrder byteorder;
+    int ver;
 
-private:        // Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QDataStream(const QDataStream &);
     QDataStream &operator=(const QDataStream &);

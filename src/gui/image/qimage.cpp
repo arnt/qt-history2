@@ -3385,7 +3385,7 @@ bool QImage::load(const QString &fileName, const char* format)
 
 bool QImage::loadFromData(const uchar *buf, uint len, const char *format)
 {
-    QConstByteArray a((char *)buf, len);
+    QByteArray a = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), len);
     return loadFromData(a, format);
 }
 

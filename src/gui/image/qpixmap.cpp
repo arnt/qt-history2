@@ -871,7 +871,7 @@ bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
 
 bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, int conversion_flags)
 {
-    QConstByteArray a(reinterpret_cast<const char *>(buf), len);
+    QByteArray a = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), len);
     QBuffer b(&a);
     b.open(IO_ReadOnly);
     QImageIO io(&b, format);

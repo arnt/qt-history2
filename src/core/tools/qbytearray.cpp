@@ -479,7 +479,7 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     QByteArray makes a deep copy of the \c{const char *} data, so you
     can modify it later without experiencing side effects. (If for
     performance reasons you don't want to take a deep copy of the
-    character data, use QConstByteArray instead.)
+    character data, use QByteArray::fromRawData() instead.)
 
     Another approach is to set the size of the array using resize()
     and to initialize the data byte per byte. QByteArray uses 0-based
@@ -606,7 +606,7 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     and QByteArray() compares equal to QByteArray(""). We recommend
     that you always use isEmpty() and avoid isNull().
 
-    \sa QConstByteArray, QBitArray, QString
+    \sa QString, QBitArray
 */
 
 /*! \fn QByteArray::iterator QByteArray::begin()
@@ -1697,7 +1697,7 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
 QByteArray &QByteArray::replace(char before, const QByteArray &after)
 {
     char b[2] = { before, '\0' };
-    QConstByteArray cb(b, 1);
+    QByteArray cb = fromRawData(b, 1);
     return replace(cb, after);
 }
 
@@ -3392,11 +3392,13 @@ QByteArray QByteArray::number(double n, char f, int prec)
     return s;
 }
 
-/*! \class QConstByteArray
-    \brief The QConstByteArray class provides a QByteArray object using constant byte data.
+/*!
+    Constructs a QConstByteArray that uses the first \a size characters
+    in the array \a bytes.
 
-    \ingroup tools
-    \reentrant
+    Only a pointer to the data in \a bytes is copied. The caller must
+    be able to guarantee that \a bytes will not be delete or modified
+    during the QConstByteArray's lifetime.
 
     To minimize copying, highly optimized applications can use
     QConstByteArray to create a QByteArray-compatible object from
@@ -3430,20 +3432,12 @@ QByteArray QByteArray::number(double n, char f, int prec)
     \endcode
 */
 
-/*!
-    Constructs a QConstByteArray that uses the first \a size characters
-    in the array \a bytes.
-
-    Only a pointer to the data in \a bytes is copied. The caller must
-    be able to guarantee that \a bytes will not be delete or modified
-    during the QConstByteArray's lifetime.
-*/
-
-QConstByteArray::QConstByteArray(const char *bytes, int size)
-    : QByteArray((Data *)qMalloc(sizeof(Data)), 0)
+QByteArray QByteArray::fromRawData(const char *bytes, int size)
 {
-    d->ref = 1;
-    d->alloc = d->size = size;
-    d->data = bytes ? (char *)bytes : d->array;
-    *d->array = '\0';
+    Data *x = static_cast<Data *>(qMalloc(sizeof(Data)));
+    x->ref = 1;
+    x->alloc = x->size = size;
+    x->data = bytes ? const_cast<char *>(bytes) : x->array;
+    *x->array = '\0';
+    return QByteArray(x, 0);
 }

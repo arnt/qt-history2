@@ -223,6 +223,7 @@ public:
     static QByteArray number(Q_LLONG, int base = 10);
     static QByteArray number(Q_ULLONG, int base = 10);
     static QByteArray number(double, char f = 'g', int prec = 6);
+    static QByteArray fromRawData(const char *, int size);
 
     typedef char *iterator;
     typedef const char *const_iterator;
@@ -255,9 +256,9 @@ public:
     QT_COMPAT QByteArray& duplicate(const char *a, uint n)
     { *this = QByteArray(a, n); return *this; }
     QT_COMPAT QByteArray& setRawData(const char *a, uint n)
-    { detach(); d->data = (char *)a; d->size = n; return *this; }
+    { *this = fromRawData(a, n); return *this; }
     QT_COMPAT void resetRawData(const char *, uint)
-    { detach(); d->data = d->array; d->size = 0; }
+    { clear(); }
     inline QT_COMPAT QByteArray lower() const { return toLower(); }
     inline QT_COMPAT QByteArray upper() const { return toUpper(); }
     inline QT_COMPAT QByteArray stripWhiteSpace() const { return trimmed(); }
@@ -292,13 +293,6 @@ private:
     void expand(int i);
     friend class QByteRef;
     friend class QString;
-    friend class QConstByteArray;
-};
-
-class Q_CORE_EXPORT QConstByteArray : public QByteArray
-{
-public:
-    QConstByteArray(const char *chars, int length);
 };
 
 inline int QByteArray::size() const
@@ -465,19 +459,21 @@ inline const QByteArray operator+(const char *a1, const QByteArray &a2)
 inline const QByteArray operator+(char a1, const QByteArray &a2)
 { return QByteArray(&a1, 1) += a2; }
 inline int QByteArray::indexOf(const char *c, int i) const
-{ QConstByteArray cb(c, strlen(c)); return indexOf(cb, i); }
+{ QByteArray cb = fromRawData(c, strlen(c)); return indexOf(cb, i); }
 inline int QByteArray::lastIndexOf(const char *c, int i) const
-{ QConstByteArray cb(c, strlen(c)); return lastIndexOf(cb, i); }
+{ QByteArray cb = fromRawData(c, strlen(c)); return lastIndexOf(cb, i); }
 inline QBool QByteArray::contains(const char *c) const
-{ QConstByteArray cb(c, strlen(c)); return contains(cb); }
+{ QByteArray cb = fromRawData(c, strlen(c)); return contains(cb); }
 inline QByteArray &QByteArray::replace(int index, int len, const char *s)
-{ QConstByteArray cb(s, strlen(s)); return replace(index, len, cb); }
+{ QByteArray cb = fromRawData(s, strlen(s)); return replace(index, len, cb); }
 inline QByteArray &QByteArray::replace(char before, const char *after)
-{ QConstByteArray cb(after, strlen(after)); return replace(before, cb); }
+{ QByteArray cb = fromRawData(after, strlen(after)); return replace(before, cb); }
 inline QByteArray &QByteArray::replace(const QByteArray &before, const char *after)
-{ QConstByteArray cb(after, strlen(after)); return replace(before, cb); }
+{ QByteArray cb = fromRawData(after, strlen(after)); return replace(before, cb); }
 inline QByteArray &QByteArray::replace(const char *before, const char *after)
-{ QConstByteArray cb(before, strlen(before)); QConstByteArray ca(after, strlen(after)); return replace(cb, ca); }
+{ QByteArray cb = fromRawData(before, strlen(before));
+  QByteArray ca = fromRawData(after, strlen(after));
+  return replace(cb, ca); }
 
 inline QByteArray &QByteArray::setNum(short n, int base)
 { return setNum((Q_LLONG)n, base); }

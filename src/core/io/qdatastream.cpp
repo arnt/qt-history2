@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 /*!
-    \class QDataStream qdatastream.h
+    \class QDataStream
     \reentrant
     \brief The QDataStream class provides serialization of binary data
     to a QIODevice.
@@ -255,15 +255,15 @@ QDataStream::QDataStream(QIODevice *d)
 
     Example:
     \code
-    static char bindata[] = { 231, 1, 44, ... };
-    QByteArray a;
-    a.setRawData(bindata, sizeof(bindata));    // a points to bindata
-    QDataStream stream(a, IO_ReadOnly);        // open on a's data
-    stream >> [something];                     // read raw bindata
-    a.resetRawData(bindata, sizeof(bindata));  // finished
+        static char bindata[] = { 231, 1, 44, ... };
+        QByteArray a;
+        a.setRawData(bindata, sizeof(bindata));    // a points to bindata
+        QDataStream stream(a, IO_ReadOnly);        // open on a's data
+        stream >> [something];                     // read raw bindata
+        a.resetRawData(bindata, sizeof(bindata));  // finished
     \endcode
 
-    The QByteArray::setRawData() function is not for the inexperienced.
+    ### don't mention setRawData
 */
 
 QDataStream::QDataStream(QByteArray *a, int mode)
@@ -272,10 +272,27 @@ QDataStream::QDataStream(QByteArray *a, int mode)
     buf->open(mode);
     dev = buf;
     owndev = true;
-    byteorder = BigEndian;                     // default byte order
+    byteorder = BigEndian;
     printable = false;
     ver = DefaultStreamVersion;
     noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
+}
+
+QDataStream::QDataStream(const QByteArray &a, int mode)
+{
+    QBuffer *buf = new QBuffer;
+    buf->setData(a);
+    buf->open(mode);
+    dev = buf;
+    owndev = true;
+    byteorder = BigEndian;
+    printable = false;
+    ver = DefaultStreamVersion;
+    noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
+
+    if (buf->isWritable())
+        qWarning("QDataStream::QDataStream: Use the QDataStream(QByteArray *, int) constructor "
+                 "instead");
 }
 
 /*!

@@ -44,6 +44,7 @@ public:
     QTextStream(QIODevice *);
     QTextStream(QString *, int mode);
     QTextStream(QByteArray *, int mode);
+    QTextStream(const QByteArray &, int mode);
     QTextStream(FILE *, int mode);
     virtual ~QTextStream();
 
