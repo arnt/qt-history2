@@ -30,11 +30,13 @@ public:
     ~QSqlView();
 
     QVariant          value( int i );
+    QVariant          value( const QString& name );    
     QSqlIndex         primaryIndex( bool prime = FALSE ) const;
     QSqlIndex         index( const QStringList& fieldNames ) const;
-    QSqlIndex         index( const QString& fieldName ) const;    
-    QSqlIndex         index( const char* fieldName ) const;        
+    QSqlIndex         index( const QString& fieldName ) const;
+    QSqlIndex         index( const char* fieldName ) const;
     void              setPrimaryIndex( QSqlIndex idx );
+    
     virtual int       insert( bool invalidate = TRUE );
     virtual int       update( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );
     virtual int       del( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );

@@ -32,6 +32,7 @@ public:
     virtual QSqlIndex     primaryIndex( const QString& tablename ) const;
     virtual QSqlFieldList fields( const QString& tablename ) const;
     virtual QString       nullText() const;
+    virtual QString       formatDate( const QDate& date ) const;
     QSqlError	          lastError() const;
 
     bool    	          hasTransactionSupport() const;

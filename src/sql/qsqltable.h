@@ -112,7 +112,7 @@ protected:
     int          fieldAlignment( const QSqlField* field );
     void         columnClicked ( int col );
     void         resizeData ( int len );
-    void         refresh( bool seekPrimary = FALSE );    
+    void         refresh( QSqlIndex idx = QSqlIndex() );
 
     QTableItem * item ( int row, int col ) const;
     void         setItem ( int row, int col, QTableItem * item );
@@ -126,7 +126,7 @@ private slots:
 
 private:
     QWidget*     beginEdit ( int row, int col, bool replace );
-    void         refresh( QSqlView* view, bool seekPrimary = FALSE );
+    void         refresh( QSqlView* view, QSqlIndex idx = QSqlIndex() );
     void         setNumCols ( int r );
     void         updateRow( int row );
     void         endInsert();

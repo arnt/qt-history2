@@ -1,4 +1,5 @@
 #include "qsqldriver.h"
+#include "qdatetime.h"
 
 #ifndef QT_NO_SQL
 
@@ -287,6 +288,20 @@ QSqlFieldList QSqlDriver::fields( const QString&  ) const
 QString QSqlDriver::nullText() const
 {
     return "NULL";
+}
+
+/*!  Returns a string representation of the \a date value for the
+  database.  This is used, for example, when constructing INSERT and
+  UPDATE statements.  The default implementation returns the date
+  formatted according to the ISO specification.
+  
+  \sa QDate::toString().
+
+*/
+
+QString QSqlDriver::formatDate( const QDate& date ) const
+{
+    return date.toString( Qt::ISODate );
 }
 
 #endif // QT_NO_SQL

@@ -29,7 +29,7 @@ class QSqlTablePrivate
 {
 public:
     QSqlTablePrivate()
-	: nullTxt( qApp->tr( "NULL" ) ),
+	: nullTxt(),
 	  haveAllRows(FALSE),
 	  continuousEdit(FALSE),
 	  ro(TRUE),
@@ -344,8 +344,8 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 
 void QSqlTable::resizeEvent ( QResizeEvent * e )
 {
-    
-    if ( d->view && !d->view->driver()->hasQuerySizeSupport() ) 
+
+    if ( d->view && !d->view->driver()->hasQuerySizeSupport() )
 	loadNextPage();
     QTable::resizeEvent( e );
 }
@@ -602,17 +602,19 @@ void QSqlTable::insertCurrent()
     if ( confirmEdits() )
 	conf = confirmEdit( QSqlTable::Insert );
     switch ( conf ) {
-    case Yes:
+    case Yes: {
 	QApplication::setOverrideCursor( Qt::waitCursor );
 	b = d->editBuffer.insert();
 	QApplication::restoreOverrideCursor();
 	if ( !b )
 	    handleError( d->editBuffer.lastError() );
+	QSqlIndex idx = d->editBuffer.primaryIndex( TRUE );
 	endInsert();
 	setEditMode( NotEditing, -1, -1 );
-	refresh( d->view );
+	refresh( d->view, idx );
 	setCurrentCell( currentRow(), currentColumn() );
 	break;
+    }
     case No:
 	endInsert();
 	setEditMode( NotEditing, -1, -1 );
@@ -679,7 +681,7 @@ void QSqlTable::updateCurrent()
     if ( confirmEdits() )
 	conf = confirmEdit( QSqlTable::Update );
     switch ( conf ) {
-    case Yes:
+    case Yes: {
 	if ( !primeUpdate( &d->editBuffer ) )
 	    return;
 	qt_debug_buffer("updateCurrent: edit buffer (before update)", &d->editBuffer);
@@ -688,11 +690,15 @@ void QSqlTable::updateCurrent()
 	QApplication::restoreOverrideCursor();
 	if ( !b )
 	    handleError( d->editBuffer.lastError() );
+	qDebug("edit buffer id:" + d->editBuffer["id"].toString());
+	QSqlIndex idx = d->editBuffer.primaryIndex( TRUE );
+	qDebug("idx:" + idx.field(0)->value().toString());
 	endUpdate();
-	refresh( d->view );
+	refresh( d->view, idx );
 	setCurrentSelection( currentRow(), currentColumn() );
 	break;
-    case No:
+    }
+    case No: 
 	endUpdate();
 	setEditMode( NotEditing, -1, -1 );
 	break;
@@ -825,17 +831,40 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
   \sa QSqlView
 */
 
-void QSqlTable::refresh( QSqlView* view, bool seekPrimary )
+void QSqlTable::refresh( QSqlView* view, QSqlIndex idx )
 {
     //    qDebug("QSqlTable::refresh");
+    bool seekPrimary = (idx.count() ? TRUE : FALSE );
     QSqlIndex pi;
     if ( seekPrimary )
-	pi = view->primaryIndex( TRUE );
+	pi = idx;
     QApplication::setOverrideCursor( Qt::waitCursor );
     view->select( view->filter(), view->sort() );
-    QApplication::restoreOverrideCursor();
-    setSize( view );
-    //    viewport()->repaint();
+    setSize( view );   
+    if ( seekPrimary ) {
+	// ###
+	/* brute force for the moment */
+	view->first();
+	for ( ;; ) {
+	    bool indexEquals = FALSE;
+	    for ( uint i = 0; i < pi.count(); ++i ) {
+		const QString fn( pi.field(i)->name() );
+		if ( pi.field(i)->value() == view->value( fn ) )
+		    indexEquals = TRUE;
+		else {
+		    indexEquals = FALSE;
+		    break;
+		}
+	    }
+	    if ( indexEquals ) {
+		setCurrentCell( view->at(), currentColumn() );
+		break;
+	    }
+	    if ( !view->next() )
+		break;
+	}
+    }
+    QApplication::restoreOverrideCursor();    
 }
 
 /*!
@@ -1297,9 +1326,11 @@ void QSqlTable::setSize( const QSql* sql )
 
   Displays the \a view in the table.  If autopopulate is TRUE, columns
   are automatically created based upon the fields in the \a view.  If
-  the \a view is read only, the table becomes read only.
+  the \a view is read only, the table becomes read only.  The table
+  adopts the view's driver's definition representin NULL values as
+  strings.
 
-  \sa isReadOnly() setReadOnly()
+  \sa isReadOnly() setReadOnly() QSqlDriver::nullText()
 
 */
 
@@ -1313,6 +1344,7 @@ void QSqlTable::setView( QSqlView* view, bool autoPopulate )
 	    addColumns( *d->view );
 	setSize( d->view );
 	setReadOnly( d->view->isReadOnly() );
+	setNullText(d->view->driver()->nullText() );
     }
     setUpdatesEnabled( TRUE );
 }
@@ -1408,10 +1440,10 @@ void QSqlTable::takeItem ( QTableItem * )
 
 }
 
-void QSqlTable::refresh( bool seekPrimary )
+void QSqlTable::refresh( QSqlIndex idx )
 {
     if ( d->view )
-	refresh( d->view, seekPrimary );
+	refresh( d->view, idx );
 }
 
 /*!

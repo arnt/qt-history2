@@ -1,6 +1,7 @@
 #include "qsqlview.h"
 #include "qsqldriver.h"
 #include "qsqlresult.h"
+#include "qdatetime.h"
 
 #ifndef QT_NO_SQL
 
@@ -47,7 +48,7 @@ QSqlView::QSqlView( const QString & name, bool autopopulate, const QString& data
     : QSqlFieldList(), QSql( QSqlConnection::database( databaseName )->driver()->createResult() )
 {
     d = new QSqlViewPrivate( name );
-    setMode( SQL_ReadOnly );
+    setMode( SQL_Writable );
     if ( !d->nm.isNull() )
 	setName( d->nm, autopopulate );
 }
@@ -190,7 +191,7 @@ QSqlIndex QSqlView::index( const QStringList& fieldNames ) const
 	    break;
 	}
 	idx.append( f );
-    } 
+    }
     return idx;
 }
 
@@ -204,13 +205,13 @@ QSqlIndex QSqlView::index( const QString& fieldName ) const
 {
     QSqlIndex idx;
     const QSqlField* f = field( fieldName );
-    if ( f ) 
+    if ( f )
 	idx.append( f );
     return idx;
 }
 
 /*
-    
+
 */
 
 QSqlIndex QSqlView::index( const char* fieldName ) const
@@ -447,9 +448,12 @@ int QSqlView::insert( bool invalidate )
 	if( j > 0 )
 	    vals += ",";
 	if ( !field(j)->isNull() ) {
-	    if( qIsQuoted( type ) )
-		vals += "'" + val.toString() + "'";
-	    else
+	    if( qIsQuoted( type ) ) {
+		if ( type == QVariant::Date )
+		    vals += "'" + driver()->formatDate( val.toDate() ) + "'";
+		else
+		    vals += "'" + val.toString() + "'";
+	    } else
 		vals += val.toString();
 	} else {
 	    vals += driver()->nullText();
@@ -624,6 +628,15 @@ void QSqlView::postSeek()
 QVariant QSqlView::value( int i )
 {
     return QSqlFieldList::value( i );
+}
+
+/*!
+  \reimpl
+*/
+
+QVariant QSqlView::value( const QString& name )
+{
+    return QSqlFieldList::value( name );
 }
 
 #endif
