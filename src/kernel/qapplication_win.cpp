@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#105 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#104 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#105 $");
 
 
 /*****************************************************************************
@@ -1433,8 +1433,7 @@ static void cleanupTimers()			// remove pending timers
 // Main timer functions for starting and killing timers
 //
 
-void CALLBACK qt_simple_timer_func( HWND hwnd, UINT uMsg, UINT idEvent,
-				    DWORD dwTime )
+void CALLBACK qt_simple_timer_func( HWND, UINT, UINT idEvent, DWORD )
 {
     activateTimer( idEvent );
 }
