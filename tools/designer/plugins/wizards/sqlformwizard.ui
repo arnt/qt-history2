@@ -1,6 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>SqlFormWizardBase</class>
-<pixmapinproject/>
 <widget class="QWizard">
     <property name="name">
         <cstring>SqlFormWizardBase</cstring>
@@ -10,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>577</width>
-            <height>393</height>
+            <height>395</height>
         </rect>
     </property>
     <property name="caption">
@@ -48,6 +47,8 @@
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>7</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="text">
@@ -185,6 +186,8 @@
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>7</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="text">
@@ -388,6 +391,8 @@
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>7</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="palette">
@@ -686,6 +691,8 @@
                             <sizepolicy>
                                 <hsizetype>5</hsizetype>
                                 <vsizetype>7</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                         <property name="title">
@@ -796,6 +803,8 @@
                             <sizepolicy>
                                 <hsizetype>5</hsizetype>
                                 <vsizetype>7</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                         <property name="title">
@@ -910,6 +919,8 @@
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>7</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="palette">
@@ -1341,6 +1352,8 @@
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>7</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="palette">
@@ -1895,9 +1908,6 @@ name like "qt%"
                         <property name="text">
                             <string>Resort</string>
                         </property>
-                        <property name="pixmap">
-                            <pixmap></pixmap>
-                        </property>
                         <property name="toolTip" stdset="0">
                             <string>Change field sort from ASC to DESC and back</string>
                         </property>
@@ -1966,6 +1976,8 @@ name like "qt%"
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>7</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="palette">
@@ -2284,6 +2296,8 @@ name like "qt%"
                             <sizepolicy>
                                 <hsizetype>3</hsizetype>
                                 <vsizetype>1</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                         <property name="text">
@@ -2298,6 +2312,8 @@ name like "qt%"
                             <sizepolicy>
                                 <hsizetype>3</hsizetype>
                                 <vsizetype>1</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                         <property name="text">
@@ -2471,6 +2487,8 @@ name like "qt%"
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>7</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="palette">
@@ -2801,7 +2819,7 @@ name like "qt%"
                 </property>
                 <property name="whatsThis" stdset="0">
                     <string>This property holds whether the table automatically applies edits. When the user begins an insert or update in the table there are two possible outcomes when they navigate to another record
-1.the insert or update is is performed -- this occurs if AutoEditing is on 
+1.the insert or update is is performed -- this occurs if AutoEditing is on
 2.the insert or update is abandoned -- this occurs if AutoEditing is off</string>
                 </property>
             </widget>
@@ -2809,173 +2827,115 @@ name like "qt%"
     </widget>
 </widget>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>PushButton5</sender>
         <signal>clicked()</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>setupDatabaseConnections()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>checkBoxNavig</sender>
         <signal>toggled(bool)</signal>
         <receiver>GroupBox2</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>checkBoxEdit</sender>
         <signal>toggled(bool)</signal>
         <receiver>GroupBox3</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonReSortField</sender>
         <signal>clicked()</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>reSortSortField()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonRemoveSortField</sender>
         <signal>clicked()</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>removeSortField()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonAddSortField</sender>
         <signal>clicked()</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>addSortField()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonUpSortField</sender>
         <signal>clicked()</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>sortFieldUp()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonDownSortField</sender>
         <signal>clicked()</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>sortFieldDown()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>listBoxSortField</sender>
         <signal>doubleClicked(QListBoxItem*)</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>addSortField()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>listBoxSortedField</sender>
         <signal>doubleClicked(QListBoxItem*)</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>removeSortField()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>listBoxSortedField</sender>
         <signal>rightButtonClicked(QListBoxItem*,const QPoint&amp;)</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>reSortSortField()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>checkBoxReadOnly</sender>
         <signal>toggled(bool)</signal>
         <receiver>GroupBox4</receiver>
         <slot>setDisabled(bool)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>listBoxConnection</sender>
         <signal>highlighted(const QString&amp;)</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>connectionSelected(const QString&amp;)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>listBoxTable</sender>
         <signal>highlighted(const QString&amp;)</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>tableSelected(const QString&amp;)</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonAddField_2</sender>
         <signal>released()</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>addField()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonRemoveField_2</sender>
         <signal>clicked()</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>removeField()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonFieldUp_2</sender>
         <signal>clicked()</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>fieldUp()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonFieldDown_2</sender>
         <signal>clicked()</signal>
         <receiver>SqlFormWizardBase</receiver>
         <slot>fieldDown()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="protected" language="C++" returnType="void">addField()</slot>
-    <slot access="protected" language="C++" returnType="void">addSortField()</slot>
-    <slot access="protected" language="C++" returnType="void">fieldDown()</slot>
-    <slot access="protected" language="C++" returnType="void">fieldUp()</slot>
-    <slot access="protected" language="C++" returnType="void">reSortSortField()</slot>
-    <slot access="protected" language="C++" returnType="void">removeField()</slot>
-    <slot access="protected" language="C++" returnType="void">removeSortField()</slot>
-    <slot access="protected" language="C++" returnType="void">setupDatabaseConnections()</slot>
-    <slot access="protected" language="C++" returnType="void">sortFieldDown()</slot>
-    <slot access="protected" language="C++" returnType="void">sortFieldUp()</slot>
-    <slot access="protected" language="C++" returnType="void">connectionSelected( const QString &amp; )</slot>
-    <slot access="protected" language="C++" returnType="void">tableSelected( const QString &amp; )</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-    
-}</function>
-    <function name="destroy()" >{
-    
-}</function>
-    <function name="addField()" >{
-    
-}</function>
-    <function name="addSortField()" >{
-    
-}</function>
-    <function name="fieldDown()" >{
-    
-}</function>
-    <function name="fieldUp()" >{
-    
-}</function>
-    <function name="reSortSortField()" >{
-    
-}</function>
-    <function name="removeField()" >{
-    
-}</function>
-    <function name="removeSortField()" >{
-    
-}</function>
-    <function name="setupDatabaseConnections()" >{
-    
-}</function>
-    <function name="sortFieldDown()" >{
-    
-}</function>
-    <function name="sortFieldUp()" >{
-    
-}</function>
-    <function name="connectionSelected(const QString&amp;)" >{
-    
-}</function>
-    <function name="tableSelected(const QString&amp;)" >{
-    
-}</function>
-</functions>
 <tabstops>
     <tabstop>PushButton5</tabstop>
     <tabstop>listBoxConnection</tabstop>
@@ -3010,4 +2970,24 @@ name like "qt%"
     <tabstop>checkCreateButtonLayout</tabstop>
     <tabstop>checkCreateLayouts</tabstop>
 </tabstops>
+<includes>
+</includes>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+    <slot access="protected">addField()</slot>
+    <slot access="protected">addSortField()</slot>
+    <slot access="protected">fieldDown()</slot>
+    <slot access="protected">fieldUp()</slot>
+    <slot access="protected">reSortSortField()</slot>
+    <slot access="protected">removeField()</slot>
+    <slot access="protected">removeSortField()</slot>
+    <slot access="protected">setupDatabaseConnections()</slot>
+    <slot access="protected">sortFieldDown()</slot>
+    <slot access="protected">sortFieldUp()</slot>
+    <slot access="protected">connectionSelected( const QString &amp; )</slot>
+    <slot access="protected">tableSelected( const QString &amp; )</slot>
+</slots>
+<pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
