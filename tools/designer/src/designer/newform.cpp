@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "newform.h"
+#include "qdesigner.h"
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
 #include "qdesigner_settings.h"
@@ -88,7 +89,6 @@ void NewForm::on_createButton_clicked()
                 editor->setContents(&f);
                 f.close();
             } else {
-                qWarning() << "template not found:" << formTemplateName;
                 editor->setContents(QString());
             }
         }
@@ -123,6 +123,8 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
         widget->show();
         f.close();
 
+        qDesigner->processEvents();
+
         widget->ensurePolished();
 
         QPixmap pix = QPixmap::grabWidget(widget);
@@ -156,8 +158,6 @@ void NewForm::loadFrom(const QString &path)
     foreach(QFileInfo fi, list) {
         if (!fi.isFile())
             continue;
-
-        qApp->processEvents();
 
         QTreeWidgetItem *item = new QTreeWidgetItem(root);
         item->setText(0, fi.baseName());
