@@ -43,6 +43,8 @@
 #include <errno.h>
 #include <math.h>
 
+//#define QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+
 QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
 		    const char *name, WFlags flags )
     : QScrollView( parent, name, flags ), emulateTouchscreen(FALSE), qwslock(NULL)
@@ -393,6 +395,19 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 	    unsigned char *sptr = data + hdr->dataoffset + (r.y()+row)*hdr->linestep;
 	    sptr += r.x()/2;
 	    int col = 0;
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+	    if ( r.x() & 1 ) {
+		*dptr++ = *sptr++ & 0x0f;
+		col++;
+	    }
+	    for ( ; col < r.width()-1; col+=2 ) {
+		unsigned char s = *sptr++;
+		*dptr++ = s >> 4;
+		*dptr++ = s & 0x0f;
+	    }
+	    if ( !(r.right() & 1) )
+		*dptr = *sptr >> 4;
+#else
 	    if ( r.x() & 1 ) {
 		*dptr++ = *sptr++ >> 4;
 		col++;
@@ -404,6 +419,7 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
 	    }
 	    if ( !(r.right() & 1) )
 		*dptr = *sptr & 0x0f;
+#endif
 	}
 	leading = 0;
 	return img;
