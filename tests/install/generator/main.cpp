@@ -192,39 +192,6 @@ void buildInstaller( QString distname )
     qDebug( "Copied setup program" );
 }
 
-void buildConfigurator( void )
-{
-    QStringList args;
-    QProcess extproc;
-
-    args += QString( getenv( "QTDIR" ) ) + "\\bin\\qmake";
-    args += "CONFIG+=windows release";
-    args += QString( getenv( "QTDIR" ) ) + "\\tests\\build\\configurator\\configurator.pro";
-    args += QString( "-o" );
-    args += QString( getenv( "QTDIR" ) ) + "\\tests\\build\\configurator\\Makefile";
-    extproc.setWorkingDirectory( QString( getenv( "QTDIR" ) ) + "\\tests\\build\\configurator" );
-    extproc.setArguments( args );
-    extproc.start();
-    while( extproc.isRunning() )
-	Sleep( 100 );
-    qDebug( "qmake is done" );
-    args.clear();
-    args += makeCmd;
-    args += QString( "clean" );
-    extproc.setArguments( args );
-    extproc.start();
-    while( extproc.isRunning() )
-	Sleep( 100 );
-    qDebug( "make clean is done" );
-    args.clear();
-    args += makeCmd;
-    extproc.setArguments( args );
-    extproc.start();
-    while( extproc.isRunning() )
-	Sleep( 100 );
-    qDebug( "make is done" );
-}
-
 int main( int argc, char** argv )
 {
     QDir distdir;
@@ -245,8 +212,10 @@ int main( int argc, char** argv )
     distdir.mkdir( distname );
 
     fileList << QString( getenv( "QTDIR" ) ) + "\\dist\\commercial\\LICENSE";
-    fileList << QString( getenv( "QTDIR" ) ) + "\\tests\\build\\configurator\\configurator.exe";
     fileList << QString( getenv( "QTDIR" ) ) + "\\tests\\install\\INSTALL_DONE.TXT";
+    fileList << QString( getenv( "QTDIR" ) ) + "\\tests\\install\\integrate_msvc.bat";
+    fileList << QString( getenv( "QTDIR" ) ) + "\\tests\\install\\integrate_borland.bat";
+    fileList << QString( getenv( "QTDIR" ) ) + "\\tests\\install\\integrate_gcc.bat";
     generateFileArchive( distname + "\\sys.arq", fileList );
 
     fileList.clear();
@@ -270,7 +239,6 @@ int main( int argc, char** argv )
     generateArchive( distname + "\\examples.arq", dirList );
 
     buildInstaller( argv[ 1 ] );
-    buildConfigurator();
 
     return 0;
 }

@@ -1,6 +1,7 @@
 #include <qprocess.h>
 
 #include "setupwizard.h"
+#include "shell.h"
 
 class QCheckListItem;
 
@@ -13,33 +14,51 @@ public:
     virtual void clickedPath();
     virtual void clickedSystem( int );
     virtual void licenseAccepted();
+    virtual void clickedFolderPath();
+    virtual void clickedDevSysPath();
 
+    virtual void showPage( QWidget* );
     QApplication* app;
 protected:
-    virtual void pageChanged( const QString& );
+//    virtual void pageChanged( const QString& );
 private:
     int sysID;
-    QByteArray tmpPath;
 
     QProcess configure;
     QProcess make;
+    QProcess integrator;
     QCheckListItem* debugMode;
     QCheckListItem* buildType;
     QCheckListItem* threadModel;
     QCheckListItem* modules;
     QCheckListItem* sqldrivers;
 
+    QString programsFolder;
+    QString devSysFolder;
+    QString tmpPath;
+
+    WinShell shell;
+
     void saveSettings();
     void saveSet( QListView* list );
 protected slots:
     void configDone();
-    void readConfigureOutput();
     void makeDone();
+    void integratorDone();
+    void readConfigureOutput();
     void readMakeOutput();
+    void readIntegratorOutput();
 
 private:
     void readArchive( QString arcname, QString installPath );
     bool createDir( QString fullPath );
     int totalRead;
 
+    bool filesCopied;
+    int filesToCompile;
+    int filesCompiled;
+
+    QString currentLine;
+
+    void updateOutputDisplay( QProcess* );
 };

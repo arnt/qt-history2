@@ -1,11 +1,11 @@
 #include "setupwizardimpl.h"
+#include "environment.h"
 #include <qfiledialog.h>
 #include <qlineedit.h>
 #include <qlabel.h>
 #include <qprogressbar.h>
 #include <qtextview.h>
 #include <qmultilineedit.h>
-#include <windows.h>
 #include <qbuttongroup.h>
 #include <qsettings.h>
 #include <qlistview.h>
@@ -14,37 +14,63 @@
 #include <qcheckbox.h>
 #include <zlib/zlib.h>
 #include <qtextstream.h>
+#include <qpushbutton.h>
+#include <qcombobox.h>
 
 #define BUFFERSIZE 65536
 
-SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags f ) : SetupWizard( pParent, pName, modal, f ), tmpPath( 256 )
+SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags f ) :
+    SetupWizard( pParent, pName, modal, f ),
+    filesCopied( false ),
+    filesToCompile( 0 ),
+    filesCompiled( 0 ),
+    sysID( 0 ),
+    app( NULL ),
+    tmpPath( QEnvironment::getTempPath() )
 {
-    sysID = 0;
-    app = NULL;
     setNextEnabled( introPage, false );
 //    setFinishEnabled( finishPage, true );
     setBackEnabled( progressPage, false );
 //    setBackEnabled( finishPage, false );
     setNextEnabled( progressPage, false );
+    setBackEnabled( buildPage, false );
+    setNextEnabled( buildPage, false );
 
-    // Read the installation control files
-    GetTempPath( tmpPath.size(), tmpPath.data() );
-
-    readArchive( "sys.arq", tmpPath.data() );
+    readArchive( "sys.arq", tmpPath );
 }
 
 void SetupWizardImpl::clickedPath()
 {
     QFileDialog dlg;
-    QDir installDir( installPath->text() );
+    QDir dir( installPath->text() );
 
-    if( !installDir.exists() )
-	installDir.setPath( "C:\\" );
+    if( !dir.exists() )
+	dir.setPath( "C:\\" );
 
-    dlg.setDir( installDir );
+    dlg.setDir( dir );
     dlg.setMode( QFileDialog::DirectoryOnly );
     if( dlg.exec() ) {
 	installPath->setText( dlg.dir()->absPath() );
+    }
+}
+
+void SetupWizardImpl::clickedFolderPath()
+{
+    folderPath->setText( shell.selectFolder( folderPath->text(), ( folderGroups->currentItem() == 1 ) ) );
+}
+
+void SetupWizardImpl::clickedDevSysPath()
+{
+    QFileDialog dlg;
+    QDir dir( devSysPath->text() );
+
+    if( !dir.exists() )
+	dir.setPath( devSysFolder );
+
+    dlg.setDir( dir );
+    dlg.setMode( QFileDialog::DirectoryOnly );
+    if( dlg.exec() ) {
+	devSysPath->setText( dlg.dir()->absPath() );
     }
 }
 
@@ -60,18 +86,80 @@ void SetupWizardImpl::licenseAccepted( )
 
 void SetupWizardImpl::readConfigureOutput()
 {
-    outputDisplay->append( QString( configure.readStdout() ) );
-    outputDisplay->append( QString( configure.readStderr() ) );
+    updateOutputDisplay( &configure );
 }
 
 void SetupWizardImpl::readMakeOutput()
 {
-    outputDisplay->append( QString( make.readStdout() ) );
-    outputDisplay->append( QString( make.readStderr() ) );
+    updateOutputDisplay( &make );
+}
+
+void SetupWizardImpl::readIntegratorOutput()
+{
+    updateOutputDisplay( &integrator );
+}
+
+void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
+{
+    QString outbuffer;
+
+    outbuffer = QString( proc->readStdout() ) + QString( proc->readStderr() );
+    
+    for( int i = 0; i < outbuffer.length(); i++ ) {
+	QChar c = outbuffer[ i ];
+	switch( char( c ) ) {
+	case '\r':
+	case 0x00:
+	    break;
+	case '\t':
+	    currentLine += "    ";  // Simulate a TAB by using 4 spaces
+	    break;
+	case '\n':
+	    if( currentLine.length() ) {
+		if( currentLine.right( 4 ) == ".cpp" ) {
+		    filesCompiled++;
+		    compileProgress->setProgress( filesCompiled );
+		}
+		outputDisplay->insertItem( currentLine );
+		outputDisplay->setBottomItem( outputDisplay->count() - 1 );
+		currentLine = "";
+	    }
+	    break;
+	default:
+	    currentLine += c;
+	    break;
+	}
+    }
+}
+
+void SetupWizardImpl::integratorDone()
+{
+    QString dirName;
+    /*
+    ** Set up our icon folder and populate it with shortcuts.
+    ** Then move to the next page.
+    */
+    dirName = shell.createFolder( folderPath->text(), ( folderGroups->currentItem() == 1 ) );
+
+    next();
 }
 
 void SetupWizardImpl::makeDone()
 {
+    QStringList args;
+    QStringList integrators = QStringList::split( ' ', "integrate_msvc.bat integrate_borland.bat integrate_gcc.bat" );
+
+    connect( &integrator, SIGNAL( processExited() ), this, SLOT( integratorDone() ) );
+    connect( &integrator, SIGNAL( readyReadStdout() ), this, SLOT( readIntegratorOutput() ) );
+    connect( &integrator, SIGNAL( readyReadStderr() ), this, SLOT( readIntegratorOutput() ) );
+
+    args << tmpPath + QString( "\\" ) + integrators[ sysID ];
+    args << devSysPath->text() + "\\Common\\MsDev98\\Addins";
+
+    integrator.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
+    integrator.setArguments( args );
+    integrator.start();
+    setNextEnabled( buildPage, true );
 }
 
 void SetupWizardImpl::configDone()
@@ -85,7 +173,7 @@ void SetupWizardImpl::configDone()
 
     args << makeCmds[ sysID ];
 
-    make.setWorkingDirectory( QString( getenv( "QTDIR" ) ) );
+    make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
     make.setArguments( args );
 
     make.start();
@@ -102,7 +190,7 @@ void SetupWizardImpl::saveSettings()
 void SetupWizardImpl::saveSet( QListView* list )
 {
     QSettings settings;
-    settings.writeEntry( "/Software/Trolltech/Qt/ResetDefaults", "FALSE" );
+    settings.writeEntry( "/Trolltech/Qt/ResetDefaults", "FALSE" );
     // radios
     QListViewItem* config = list->firstChild();
     while ( config ) {
@@ -110,7 +198,7 @@ void SetupWizardImpl::saveSet( QListView* list )
 	while( item != 0 ) {
 	    if ( item->type() == QCheckListItem::RadioButton ) {
 		if ( item->isOn() ) {
-		    settings.writeEntry( "/Software/Trolltech/Qt/" + config->text(0), item->text() );
+		    settings.writeEntry( "/Trolltech/Qt/" + config->text(0), item->text() );
 		    break;
 		}
 	    }
@@ -134,17 +222,17 @@ void SetupWizardImpl::saveSet( QListView* list )
 	    item = (QCheckListItem*)item->nextSibling();
 	}
 	if ( foundChecks )
-	    settings.writeEntry( "/Software/Trolltech/Qt/" + config->text(0), lst, ',' );
+	    settings.writeEntry( "/Trolltech/Qt/" + config->text(0), lst, ',' );
 	config = config->nextSibling();
 	lst.clear();
     }
 }
 
-void SetupWizardImpl::pageChanged( const QString& pageName )
+void SetupWizardImpl::showPage( QWidget* newPage )
 {
-    HKEY environmentKey;
+    SetupWizard::showPage( newPage );
 
-    if( pageName == title( introPage ) ) {
+    if( newPage == introPage ) {
 	QFile licenseFile( QString( tmpPath.data() ) + "\\LICENSE" );
 	if( licenseFile.open( IO_ReadOnly ) ) {
 	    QByteArray fileData;
@@ -156,65 +244,83 @@ void SetupWizardImpl::pageChanged( const QString& pageName )
 	    introText->setText( QString( fileData.data() ) );
 	}
     }
-    else if( pageName == title( optionsPage ) ) {
-	installPath->setText( QString( "C:\\Qt\\" ) + QString( DISTVER ) );
+    else if( newPage == optionsPage ) {
+	installPath->setText( QString( "C:\\Qt\\" ) + DISTVER );
 	sysGroup->setButton( 0 );
     }
-    else if( pageName == title( progressPage ) ) {
+    else if( newPage == foldersPage ) {
+	QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
+
+	folderPath->setText( QString( "Qt " ) + DISTVER );
+	devSysLabel->setText( devSys[ sysID ] );
+	devSysPath->setEnabled( sysID == 0 );
+	devSysPathButton->setEnabled( sysID == 0 );
+	if( sysID == 0 )
+	    devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
+	if( int( qWinVersion ) & int( Qt::WV_NT_based ) )   // On NT we also have a common folder
+	    folderGroups->setEnabled( true );
+	else
+	    folderGroups->setEnabled( false );
+    }
+    else if( newPage == progressPage ) {
 	int totalSize( 0 );
 	QFileInfo fi;
 	totalRead = 0;
 
-	fi.setFile( "qt.arq" );
-	if( fi.exists() )
-	    totalSize = fi.size();
+	if( !filesCopied ) {
+	    fi.setFile( "qt.arq" );
+	    if( fi.exists() )
+		totalSize = fi.size();
 
-	fi.setFile( "build.arq" );
-	if( fi.exists() )
-	    totalSize += fi.size();
-
-	if( installDocs->isChecked() ) {
-	    fi.setFile( "doc.arq" );
-	    if( fi.exists() ) 
-		totalSize += fi.size();
-	}
-
-	if( installExamples->isChecked() ) {
-	    fi.setFile( "examples.arq" );
+	    fi.setFile( "build.arq" );
 	    if( fi.exists() )
 		totalSize += fi.size();
+
+	    if( installDocs->isChecked() ) {
+		fi.setFile( "doc.arq" );
+		if( fi.exists() ) 
+		    totalSize += fi.size();
+	    }
+
+	    if( installExamples->isChecked() ) {
+		fi.setFile( "examples.arq" );
+		if( fi.exists() )
+		    totalSize += fi.size();
+	    }
+
+	    if( installTutorials->isChecked() ) {
+		fi.setFile( "tutorial.arq" );
+		if( fi.exists() )
+		    totalSize += fi.size();
+	    }
+
+	    operationProgress->setTotalSteps( totalSize );
+
+	    readArchive( "build.arq", installPath->text() );
+
+	    readArchive( "qt.arq", installPath->text() );
+	    if( installDocs->isChecked() )
+		readArchive( "doc.arq", installPath->text() );
+	    if( installExamples->isChecked() )
+		readArchive( "examples.arq", installPath->text() );
+	    if( installTutorials->isChecked() )
+		readArchive( "tutorial.arq", installPath->text() );
+	    filesCopied = true;
 	}
-
-	if( installTutorials->isChecked() ) {
-	    fi.setFile( "tutorial.arq" );
-	    if( fi.exists() )
-		totalSize += fi.size();
-	}
-
-	operationProgress->setTotalSteps( totalSize );
-
-/*
-	readArchive( "qt.arq", installPath->text() );
-	readArchive( "build.arq", installPath->text() );
-	if( installDocs->isChecked() )
-	    readArchive( "doc.arq", installPath->text() );
-	if( installExamples->isChecked() )
-	    readArchive( "examples.arq", installPath->text() );
-	if( installTutorials->isChecked() )
-	    readArchive( "tutorial.arq", installPath->text() );
-*/
-	next();
+	setNextEnabled( progressPage, true );
     }
-    else if( pageName == title( configPage ) ) {
+    else if( newPage == configPage ) {
 	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
+	QByteArray pathBuffer;
+	QString path;
 
-	putenv( QString( "QTDIR=" ) + installPath->text().latin1() );
-	putenv( QString( "MKSPEC=" ) + mkSpecs[ sysID ].latin1() );
+	QEnvironment::putEnv( "QTDIR", installPath->text(), QEnvironment::LocalEnv | QEnvironment::DefaultEnv );
+	QEnvironment::putEnv( "MKSPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::DefaultEnv );
+	QEnvironment::putEnv( "PATH", QString( "%QTDIR%\\bin;%QTDIR%\\lib;" ) + QEnvironment::getEnv( "PATH", QEnvironment::LocalEnv ), QEnvironment::LocalEnv );
+	QEnvironment::putEnv( "PATH2", QString( "%QTDIR%\\bin;%QTDIR%\\lib;" ) + QEnvironment::getEnv( "PATH", QEnvironment::DefaultEnv ), QEnvironment::DefaultEnv );
 
-	if( ( RegOpenKeyEx( HKEY_CURRENT_USER, "Environment", 0, KEY_WRITE, &environmentKey ) ) == ERROR_SUCCESS ) {
-	    RegSetValueEx( environmentKey, "QTDIR", 0, REG_SZ, (const unsigned char*)installPath->text().latin1(), installPath->text().length() + 1 );
-	    RegSetValueEx( environmentKey, "MKSPEC", 0, REG_SZ, (const unsigned char*)mkSpecs[ sysID ].latin1(), mkSpecs[ sysID ].length() + 1 );
-	}
+	configList->clear();
+	advancedList->clear();
 	configList->setSorting( -1 );
 	advancedList->setSorting( -1 );
 	QCheckListItem* item;
@@ -222,10 +328,10 @@ void SetupWizardImpl::pageChanged( const QString& pageName )
 	connect( &configure, SIGNAL( readyReadStdout() ), this, SLOT( readConfigureOutput() ) );
 	connect( &configure, SIGNAL( readyReadStderr() ), this, SLOT( readConfigureOutput() ) );
 
-	QString qtdir = getenv( "QTDIR" );
+	QString qtdir = QEnvironment::getEnv( "QTDIR" );
 
 	QString mkspecsdir = qtdir + "/mkspecs";
-	QString mkspecsenv = getenv( "MKSPEC" );
+	QString mkspecsenv = QEnvironment::getEnv( "MKSPEC" );
 	QFileInfo mkspecsenvdirinfo( mkspecsenv );
 	QString srcdir = qtdir + "/src";
 	QFileInfo* fi;
@@ -283,7 +389,7 @@ void SetupWizardImpl::pageChanged( const QString& pageName )
 	    --sqlsrcDirIterator;
 	}
     }
-    else if( pageName == title( buildPage ) ) {
+    else if( newPage == buildPage ) {
 	QStringList args;
 	QStringList entries;
 	QSettings settings;
@@ -293,41 +399,38 @@ void SetupWizardImpl::pageChanged( const QString& pageName )
 	QTextStream tmpStream;
 	bool settingsOK;
 
-	settings.writeEntry( "/Software/Microsoft/Command Processor/DelayedExpansion", 1 );
-	saveSettings();
-    
-	outputDisplay->setText( "Execute configure...\n" );
+	outputDisplay->insertItem( "Execute configure...\n" );
 
-	args << QString( getenv( "QTDIR" ) ) + "\\configure.bat";
-	entry = settings.readEntry( "/Software/Trolltech/Qt/Mode", &settingsOK );
+	args << QEnvironment::getEnv( "QTDIR" ) + "\\configure.bat";
+	entry = settings.readEntry( "/Trolltech/Qt/Mode", &settingsOK );
 	if ( entry == "Debug" )
 	    args += "-debug";
 	else
 	    args += "-release";
 
-	entry = settings.readEntry( "/Software/Trolltech/Qt/Build", &settingsOK );
+	entry = settings.readEntry( "/Trolltech/Qt/Build", &settingsOK );
 	if ( entry == "Static" )
 	    args += "-static";
 	else
 	    args += "-shared";
 
-	entry = settings.readEntry( "/Software/Trolltech/Qt/Threading", &settingsOK );
+	entry = settings.readEntry( "/Trolltech/Qt/Threading", &settingsOK );
 	if ( entry == "Threaded" )
 	    args += "-thread";
 
-	entries = settings.readListEntry( "/Software/Trolltech/Qt/Modules", ',', &settingsOK );
+	entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',', &settingsOK );
 	for( it = entries.begin(); it != entries.end(); ++it ) {
 	    entry = *it;
 	    args += QString( "-enable-" ) + entry;
 	}
 
-	entries = settings.readListEntry( "/Software/Trolltech/Qt/SQL Drivers", ',', &settingsOK );
+	entries = settings.readListEntry( "/Trolltech/Qt/SQL Drivers", ',', &settingsOK );
 	for( it = entries.begin(); it != entries.end(); ++it ) {
 	    entry = *it;
 	    args += QString( "-sql-" ) + entry;
 	}
 
-	tmpFile.setName( QString( getenv( "QTDIR" ) ) + "\\configcmd.bat" );
+	tmpFile.setName( QEnvironment::getEnv( "QTDIR" ) + "\\configcmd.bat" );
 	if( tmpFile.open( IO_WriteOnly ) ) {
 	    tmpStream.setDevice( &tmpFile );
 	    tmpStream << args.join( " " );
@@ -337,15 +440,16 @@ void SetupWizardImpl::pageChanged( const QString& pageName )
 	    tmpFile.close();
 	}
 
-	outputDisplay->append( args.join( " " ) + "\n" );
-	configure.setWorkingDirectory( QString( getenv( "QTDIR" ) ) );
+	outputDisplay->insertItem( args.join( " " ) + "\n" );
+	configure.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	configure.setArguments( args );
+
 	// Start the configure process
 	configure.start();
-	// The configuration is now started.
-	// The build will be done in the configDone() slot
+	compileProgress->setTotalSteps( filesToCompile );
     }
 }
+
 bool SetupWizardImpl::createDir( QString fullPath )
 {
     QStringList hierarchy = QStringList::split( QString( "\\" ), fullPath );
@@ -375,7 +479,19 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
     int entryLength;
 
     inFile.setName( arcname );
-    outDir.setPath( QDir::convertSeparators( installPath ) );
+    // Set up the initial directory.
+    // If the dir does not exist, try to create it
+    dirName = QDir::convertSeparators( installPath );
+    outDir.setPath( dirName );
+    if( outDir.exists( dirName ) )
+	outDir.cd( dirName );
+    else {
+	if( createDir( dirName ) )
+	    outDir.cd( dirName );
+	else
+	    return;
+    }
+
     if( inFile.open( IO_ReadOnly ) ) {
 	inStream.setDevice( &inFile );
 	while( !inStream.atEnd() ) {
@@ -413,6 +529,10 @@ void SetupWizardImpl::readArchive( QString arcname, QString installPath )
 			operationProgress->setProgress( totalRead );
 			filesDisplay->append( fileName );
 		    }
+		    // Try to count the files to get some sort of idea of compilation progress
+		    if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".h" ) )
+			filesToCompile++;
+
 		    outStream.setDevice( &outFile );
 		    inStream >> entryLength;
 		    totalRead += sizeof( entryLength );

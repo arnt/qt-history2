@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>526</width>
-            <height>340</height>
+            <width>537</width>
+            <height>347</height>
         </rect>
     </property>
     <property name="caption">
@@ -49,6 +49,12 @@
                 <property name="name">
                     <cstring>page1Pixmap</cstring>
                 </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>0</hsizetype>
+                        <vsizetype>1</vsizetype>
+                    </sizepolicy>
+                </property>
                 <property name="pixmap">
                     <pixmap>image1</pixmap>
                 </property>
@@ -59,6 +65,14 @@
                     <set>AlignAuto|AlignTop</set>
                 </property>
                 <property name="vAlign" stdset="0">
+                </property>
+            </widget>
+            <widget class="QPushButton" row="1" column="2">
+                <property name="name">
+                    <cstring>rejectButton</cstring>
+                </property>
+                <property name="text">
+                    <string>Reject license</string>
                 </property>
             </widget>
             <widget class="QTextView" row="0" column="1" rowspan="1" colspan="2">
@@ -82,14 +96,6 @@
                     <string>Accept license</string>
                 </property>
             </widget>
-            <widget class="QPushButton" row="1" column="2">
-                <property name="name">
-                    <cstring>rejectButton</cstring>
-                </property>
-                <property name="text">
-                    <string>Reject license</string>
-                </property>
-            </widget>
         </grid>
     </widget>
     <widget class="QWidget">
@@ -109,9 +115,15 @@
             <property name="spacing">
                 <number>6</number>
             </property>
-            <widget class="QLabel" row="0" column="0" rowspan="2" colspan="1">
+            <widget class="QLabel" row="0" column="0" rowspan="3" colspan="1">
                 <property name="name">
                     <cstring>page2Pixmap</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>0</hsizetype>
+                        <vsizetype>1</vsizetype>
+                    </sizepolicy>
                 </property>
                 <property name="pixmap">
                     <pixmap>image1</pixmap>
@@ -251,14 +263,31 @@
                     </widget>
                 </vbox>
             </widget>
+            <spacer row="2" column="1">
+                <property name="name" stdset="0">
+                    <cstring>Spacer1</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Vertical</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>20</height>
+                    </size>
+                </property>
+            </spacer>
         </grid>
     </widget>
     <widget class="QWidget">
         <property name="name">
-            <cstring>progressPage</cstring>
+            <cstring>foldersPage</cstring>
         </property>
         <attribute name="title">
-            <string>Installing</string>
+            <string>Folders</string>
         </attribute>
         <grid>
             <property name="name">
@@ -270,9 +299,15 @@
             <property name="spacing">
                 <number>6</number>
             </property>
-            <widget class="QLabel" row="0" column="0">
+            <widget class="QLabel" row="0" column="0" rowspan="2" colspan="1">
                 <property name="name">
                     <cstring>page3Pixmap</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>0</hsizetype>
+                        <vsizetype>1</vsizetype>
+                    </sizepolicy>
                 </property>
                 <property name="pixmap">
                     <pixmap>image1</pixmap>
@@ -286,9 +321,219 @@
                 <property name="vAlign" stdset="0">
                 </property>
             </widget>
+            <spacer row="1" column="1">
+                <property name="name" stdset="0">
+                    <cstring>Spacer2</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Vertical</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>20</height>
+                    </size>
+                </property>
+            </spacer>
             <widget class="QGroupBox" row="0" column="1">
                 <property name="name">
-                    <cstring>currentGroup</cstring>
+                    <cstring>folderBox</cstring>
+                </property>
+                <property name="title">
+                    <string>Folders and paths</string>
+                </property>
+                <grid>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QLabel" row="0" column="0">
+                        <property name="name">
+                            <cstring>folderLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Icon folder</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="0" column="1">
+                        <property name="name">
+                            <cstring>Layout2</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>folderPath</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>folderPathButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image2</pixmap>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget class="QLayoutWidget" row="1" column="1">
+                        <property name="name">
+                            <cstring>Layout3</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QLineEdit">
+                                <property name="name">
+                                    <cstring>devSysPath</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>devSysPathButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="pixmap">
+                                    <pixmap>image2</pixmap>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                    <widget class="QLabel" row="1" column="0">
+                        <property name="name">
+                            <cstring>devSysLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>path</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="2" column="0">
+                        <property name="name">
+                            <cstring>groupLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Folder group</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="2" column="1">
+                        <property name="name">
+                            <cstring>Layout4</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>0</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QComboBox">
+                                <item>
+                                    <property name="text">
+                                        <string>Current user</string>
+                                    </property>
+                                </item>
+                                <item>
+                                    <property name="text">
+                                        <string>All users</string>
+                                    </property>
+                                </item>
+                                <property name="name">
+                                    <cstring>folderGroups</cstring>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name" stdset="0">
+                                    <cstring>Spacer1_2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </hbox>
+                    </widget>
+                </grid>
+            </widget>
+        </grid>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>progressPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Installing</string>
+        </attribute>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
+                <number>11</number>
+            </property>
+            <property name="spacing">
+                <number>6</number>
+            </property>
+            <widget class="QLabel">
+                <property name="name">
+                    <cstring>page4Pixmap</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>0</hsizetype>
+                        <vsizetype>1</vsizetype>
+                    </sizepolicy>
+                </property>
+                <property name="pixmap">
+                    <pixmap>image1</pixmap>
+                </property>
+                <property name="scaledContents">
+                    <bool>false</bool>
+                </property>
+                <property name="alignment">
+                    <set>AlignAuto|AlignTop</set>
+                </property>
+                <property name="vAlign" stdset="0">
+                </property>
+            </widget>
+            <widget class="QGroupBox">
+                <property name="name">
+                    <cstring>progressBox</cstring>
                 </property>
                 <property name="title">
                     <string>Copying files</string>
@@ -300,31 +545,22 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
+                    <widget class="QTextView">
+                        <property name="name">
+                            <cstring>filesDisplay</cstring>
+                        </property>
+                    </widget>
                     <widget class="QProgressBar">
                         <property name="name">
                             <cstring>operationProgress</cstring>
                         </property>
-                        <property name="progress">
-                            <number>0</number>
-                        </property>
                         <property name="centerIndicator">
                             <bool>false</bool>
-                        </property>
-                        <property name="indicatorFollowsStyle">
-                            <bool>true</bool>
-                        </property>
-                    </widget>
-                    <widget class="QMultiLineEdit">
-                        <property name="name">
-                            <cstring>filesDisplay</cstring>
-                        </property>
-                        <property name="readOnly">
-                            <bool>true</bool>
                         </property>
                     </widget>
                 </vbox>
             </widget>
-        </grid>
+        </hbox>
     </widget>
     <widget class="QWidget">
         <property name="name">
@@ -345,7 +581,13 @@
             </property>
             <widget class="QLabel">
                 <property name="name">
-                    <cstring>page4Pixmap</cstring>
+                    <cstring>page5Pixmap</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>0</hsizetype>
+                        <vsizetype>1</vsizetype>
+                    </sizepolicy>
                 </property>
                 <property name="pixmap">
                     <pixmap>image1</pixmap>
@@ -455,7 +697,13 @@
             </property>
             <widget class="QLabel">
                 <property name="name">
-                    <cstring>page5Pixmap</cstring>
+                    <cstring>page6Pixmap</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>0</hsizetype>
+                        <vsizetype>1</vsizetype>
+                    </sizepolicy>
                 </property>
                 <property name="pixmap">
                     <pixmap>image1</pixmap>
@@ -483,29 +731,66 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QMultiLineEdit">
+                    <widget class="QListBox">
                         <property name="name">
                             <cstring>outputDisplay</cstring>
                         </property>
-                        <property name="lineWidth">
-                            <number>2</number>
+                    </widget>
+                    <widget class="QProgressBar">
+                        <property name="name">
+                            <cstring>compileProgress</cstring>
                         </property>
-                        <property name="resizePolicy">
-                            <enum>Manual</enum>
+                        <property name="progress">
+                            <number>50</number>
                         </property>
-                        <property name="vScrollBarMode">
-                            <enum>Auto</enum>
-                        </property>
-                        <property name="hScrollBarMode">
-                            <enum>Auto</enum>
-                        </property>
-                        <property name="readOnly">
-                            <bool>true</bool>
+                        <property name="percentageVisible">
+                            <bool>false</bool>
                         </property>
                     </widget>
                 </vbox>
             </widget>
         </hbox>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
+            <cstring>page</cstring>
+        </property>
+        <attribute name="title">
+            <string>Page</string>
+        </attribute>
+        <grid>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
+                <number>11</number>
+            </property>
+            <property name="spacing">
+                <number>6</number>
+            </property>
+            <widget class="QLabel" row="0" column="0">
+                <property name="name">
+                    <cstring>page7Pixmap</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>0</hsizetype>
+                        <vsizetype>1</vsizetype>
+                    </sizepolicy>
+                </property>
+                <property name="pixmap">
+                    <pixmap>image1</pixmap>
+                </property>
+                <property name="scaledContents">
+                    <bool>false</bool>
+                </property>
+                <property name="alignment">
+                    <set>AlignAuto|AlignTop</set>
+                </property>
+                <property name="vAlign" stdset="0">
+                </property>
+            </widget>
+        </grid>
     </widget>
 </widget>
 <images>
@@ -520,12 +805,6 @@
     </image>
 </images>
 <connections>
-    <connection>
-        <sender>installPathButton</sender>
-        <signal>clicked()</signal>
-        <receiver>SetupWizard</receiver>
-        <slot>clickedPath()</slot>
-    </connection>
     <connection>
         <sender>sysGroup</sender>
         <signal>clicked(int)</signal>
@@ -550,10 +829,31 @@
         <receiver>SetupWizard</receiver>
         <slot>pageChanged(const QString&amp;)</slot>
     </connection>
+    <connection>
+        <sender>installPathButton</sender>
+        <signal>clicked()</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>clickedPath()</slot>
+    </connection>
+    <connection>
+        <sender>folderPathButton</sender>
+        <signal>clicked()</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>clickedFolderPath()</slot>
+    </connection>
+    <connection>
+        <sender>devSysPathButton</sender>
+        <signal>clicked()</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>clickedDevSysPath()</slot>
+    </connection>
     <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
+    <slot access="public" language="C++">clickedFolderPath()</slot>
     <slot access="public" language="C++">clickedPath()</slot>
     <slot access="public" language="C++">clickedSystem(int)</slot>
     <slot access="public" language="C++">licenseAccepted()</slot>
+    <slot access="public" language="C++">clickedDevSysPath()</slot>
     <slot access="public" language="C++">pageChanged(const QString&amp;)</slot>
 </connections>
 <tabstops>
@@ -568,5 +868,12 @@
     <tabstop>sysMsvc</tabstop>
     <tabstop>sysBorland</tabstop>
     <tabstop>sysGcc</tabstop>
+    <tabstop>configList</tabstop>
+    <tabstop>advancedList</tabstop>
+    <tabstop>folderPath</tabstop>
+    <tabstop>folderPathButton</tabstop>
+    <tabstop>devSysPath</tabstop>
+    <tabstop>devSysPathButton</tabstop>
+    <tabstop>configTabs</tabstop>
 </tabstops>
 </UI>

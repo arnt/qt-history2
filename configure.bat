@@ -306,7 +306,7 @@ call tmp.bat
 rem *************************************
 rem   Clean up
 rem *************************************
-rem del tmp.bat
+del tmp.bat
 
 set LASTCONFIG=lastconfig.bat
 if exist %LASTCONFIG% del %LASTCONFIG%
