@@ -310,7 +310,7 @@ void QThread::start()
 
 void QThread::terminate()
 {
-    TerminateThread( handle, 0 );
+    TerminateThread( d->handle, 0 );
     d->running = FALSE;
     d->finished = TRUE;
 }
