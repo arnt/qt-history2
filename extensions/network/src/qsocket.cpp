@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#6 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.cpp#7 $
 **
 ** Implementation of Network Extension Library
 **
@@ -951,6 +951,7 @@ void QSocket::sn_read()
 #endif
 	QByteArray *a = new QByteArray( nbytes );
 	int nread = d->socket->readBlock( a->data(), nbytes );
+	//a->resize( nread );
 	if ( nread != nbytes ) {		// unexpected
 #if defined(CHECK_RANGE)
 	    qWarning( "QSocket::sn_read: Unexpected short read" );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qhttp.cpp#4 $
+** $Id: //depot/qt/main/extensions/network/src/qhttp.cpp#5 $
 **
 ** Implementation of Network Extension Library
 **
@@ -130,7 +130,7 @@ void QHttp::closed()
 
 void QHttp::readyRead()
 {
-    QCString s;
+    QByteArray s;
     s.resize( commandSocket->bytesAvailable() );
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
     emit data( s, operationInProgress() );

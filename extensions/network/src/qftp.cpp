@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#33 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#34 $
 **
 ** Implementation of Network Extension Library
 **
@@ -205,7 +205,7 @@ void QFtp::readyRead()
     QCString s;
     s.resize( commandSocket->bytesAvailable() );
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
-
+    
     if ( !url() )
 	return;
 
@@ -365,7 +365,7 @@ void QFtp::dataReadyRead()
     if ( !operationInProgress() )
 	return;
 
-    QCString s;
+    QByteArray s;
     s.resize( dataSocket->bytesAvailable() );
     dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#3 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.cpp#4 $
 **
 ** Implementation of Network Extension Library
 **
@@ -225,7 +225,7 @@ bool QSocketAddress::operator==( const QSocketAddress &a )
   not particularly easy to understand or use.
 
   The basic purpose of the class is to provide a QIODevice that works
-  on sockets.  As such, it reimplements the 
+  on sockets.  As such, it reimplements the
 
   \sa QSocket, QSocketNotifier, QSocketAddress
 */
@@ -816,7 +816,10 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 #if defined(_OS_WIN32_)
     return ::recv( sock_fd, data, maxlen, 0 );
 #elif defined(UNIX)
-    return ::read( sock_fd, data, maxlen );
+    int nread = ::read( sock_fd, data, maxlen );
+//     if ( maxlen )
+// 	*( data + maxlen - 1 ) = '\0';
+    return nread;
 #else
     #error "This OS is not supported"
 #endif
