@@ -1310,8 +1310,8 @@ enum { ntypes = 36 };
 static const char* const type_map[ntypes] =
 {
     0,
-    "QMap<QString,QCoreVariant>",
-    "QCoreVariantList",
+    "QVariantMap",
+    "QVariantList",
     "QString",
     "QStringList",
     "QFont",
