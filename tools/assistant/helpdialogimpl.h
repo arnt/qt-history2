@@ -80,6 +80,7 @@ public:
     QString titleOfLink( const QString &link );
     bool eventFilter( QObject *, QEvent * );
     bool lastWindowClosed() { return lwClosed; }
+    static void removeDocFile( const QString &absFileName );
 
 protected slots:
     void loadIndexFile();
@@ -126,7 +127,6 @@ private:
 			 HelpNavigationContentsItem *newEntry );
     bool isValidCategory( QString category );
     void showInitDoneMessage();
-    void removeNotFoundFile( const QString &fileName );
 
     QMap<QString, QString> titleMap;
     QMap<QString, uint> categoryMap;

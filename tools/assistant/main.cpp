@@ -33,6 +33,7 @@
 #include "assistant.h"
 #include "mainwindow.h"
 #include "docuparser.h"
+#include "helpdialogimpl.h"
 
 class AssistantSocket : public QSocket
 {
@@ -119,20 +120,21 @@ void AssistantServer::newConnection( int socket )
 
 
 
-class AddDoc
+class EditDocs
 {
 public:
-    AddDoc();
+    EditDocs();
     bool addDocFile( const QString &file );
+    void removeDocFile( const QString &file );
 private:
     void addItemToList( const QString &rcEntry, const QString &item );
 };
 
-AddDoc::AddDoc()
+EditDocs::EditDocs()
 {
 }
 
-bool AddDoc::addDocFile( const QString &file )
+bool EditDocs::addDocFile( const QString &file )
 {
     QFileInfo fi( file );
     if ( !fi.isReadable() ) {
@@ -168,7 +170,7 @@ bool AddDoc::addDocFile( const QString &file )
     return TRUE;
 }
 
-void AddDoc::addItemToList( const QString &rcEntry, const QString &item )
+void EditDocs::addItemToList( const QString &rcEntry, const QString &item )
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
@@ -183,6 +185,13 @@ void AddDoc::addItemToList( const QString &rcEntry, const QString &item )
     settings.writeEntry( "/Qt Assistant/3.1/NewDoc", TRUE );
 }
 
+void EditDocs::removeDocFile( const QString &file )
+{
+    if ( file.isEmpty() )
+	return;
+    QFileInfo fi( file );
+    HelpDialog::removeDocFile( fi.absFilePath() );
+}
 
 #if defined(Q_OS_MACX)
 #include <stdlib.h>
@@ -213,25 +222,32 @@ int main( int argc, char ** argv )
 		catlist << QString(a.argv()[i]).lower();
 	    } else if ( QString( a.argv()[i] ).lower() == "-addcontentfile" ) {
 		i++;
-		AddDoc ad;
-		if ( !ad.addDocFile( a.argv()[i] ) )
+		EditDocs ed;
+		if ( !ed.addDocFile( a.argv()[i] ) )
 		    exit( 1 );
+		exit( 0 );
+	    } else if ( QString( a.argv()[i] ).lower() == "-removecontentfile" ) {
+		i++;
+		EditDocs ed;
+		ed.removeDocFile( a.argv()[i] );
 		exit( 0 );
 	    } else if ( QString( a.argv()[i] ) == "-help" ) {
 		printf( "Usage: assistant [option]\n" );
 		printf( "Options:\n" );
-		printf( " -file Filename       assistant opens the specified file\n" );
-		printf( " -category Category   displays all documentations which\n" );
-		printf( "                      belong to this category. This\n" );
-		printf( "                      option can be set serveral times\n" );
-		printf( " -server              reads commands from a socket after\n" );
-		printf( "                      assistant has started\n" );
-		printf( " -addContentFile File adds the documentation found in the\n" );
-		printf( "                      specified file. Make sure that this\n" );
-		printf( "                      file has the right format. For further\n" );
-		printf( "                      informations have a look at the\n" );
-		printf( "                      assistant online help.\n" );
-		printf( " -help                shows this help\n" );
+		printf( " -file Filename          assistant opens the specified file\n" );
+		printf( " -category Category      displays all documentations which\n" );
+		printf( "                         belong to this category. This\n" );
+		printf( "                         option can be set serveral times\n" );
+		printf( " -server                 reads commands from a socket after\n" );
+		printf( "                         assistant has started\n" );
+		printf( " -addContentFile File    adds the documentation found in the\n" );
+		printf( "                         specified file. Make sure that this\n" );
+		printf( "                         file has the right format. For further\n" );
+		printf( "                         informations have a look at the\n" );
+		printf( "                         assistant online help.\n" );
+		printf( " -removeContentFile File removes the specified documentation\n" );
+		printf( "                         file.\n" );
+		printf( " -help                   shows this help\n" );
 		exit( 0 );
 	    }
 	    else {

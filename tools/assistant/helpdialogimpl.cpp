@@ -392,7 +392,7 @@ void HelpDialog::buildKeywordDB()
 	    QMessageBox::warning( this, tr( "Warning" ),
 		tr( "Documentation file %1 does not exist!\n"
 		    "Skipping file." ).arg( QFileInfo( file ).absFilePath() ) );
-	    removeNotFoundFile( *i );
+	    HelpDialog::removeDocFile( *i );
 	    continue;
         }
 	fileAges += QFileInfo( file ).lastModified().toTime_t();
@@ -486,7 +486,7 @@ void HelpDialog::buildTitlemapDB()
 	    QMessageBox::warning( this, tr( "Warning" ),
 	    tr( "Documentation file %1 does not exist!\n"
 	        "Skipping file." ).arg( QFileInfo( file ).absFilePath() ) );
-	    removeNotFoundFile( *it );
+	    HelpDialog::removeDocFile( *it );
 	    continue;
         }
 	fileAges += QFileInfo( file ).lastModified().toTime_t();
@@ -754,7 +754,7 @@ void HelpDialog::insertContents()
 	    QMessageBox::warning( this, tr( "Warning" ),
 	    tr( "Documentation file %1 does not exist!\n"
 	        "Skipping file." ).arg( fi.absFilePath() ) );
-	    removeNotFoundFile( *i );
+	    HelpDialog::removeDocFile( *i );
 	    continue;
         }
 	mime->addFilePath( fi.dirPath( TRUE ) );
@@ -886,7 +886,7 @@ void HelpDialog::toggleSearch()
 	parentWidget()->hide();
 }
 
-void HelpDialog::removeNotFoundFile( const QString &fileName )
+void HelpDialog::removeDocFile( const QString &fileName )
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
