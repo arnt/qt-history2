@@ -37,8 +37,9 @@ public:
         BeforeCurrent
     };
 
-    QGenericComboBox(QAbstractItemModel *model, QWidget *parent = 0);
     QGenericComboBox(QWidget *parent = 0);
+    QGenericComboBox(bool rw, QWidget *parent=0);
+    QGenericComboBox(QAbstractItemModel *model, QWidget *parent = 0);
     ~QGenericComboBox();
 
     int sizeLimit() const;

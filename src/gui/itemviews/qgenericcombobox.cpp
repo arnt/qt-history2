@@ -184,7 +184,8 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
 }
 
 /*!
-    Constructs a combobox widget with parent \a parent using a default model.
+    Constructs a non-editable combobox widget with parent \a parent
+    using a default model.
 */
 QGenericComboBox::QGenericComboBox(QWidget *parent) :
     QWidget(*new QGenericComboBoxPrivate(), parent, 0)
@@ -194,7 +195,20 @@ QGenericComboBox::QGenericComboBox(QWidget *parent) :
 }
 
 /*!
-    Constructs a combobox widget with parent \a parent using the item model \a model
+  Constructs a combobox widget with parent \a parent using a
+  default model. The combobox is editable if the \a rw is true.
+*/
+QGenericComboBox::QGenericComboBox(bool rw, QWidget *parent) :
+    QWidget(*new QGenericComboBoxPrivate(), parent, 0)
+{
+    d->model = new ComboModel();
+    d->init();
+    setEditable(rw);
+}
+
+/*!
+    Constructs a non-editable combobox widget with parent \a parent
+    using the item model \a model.
 */
 QGenericComboBox::QGenericComboBox(QAbstractItemModel *model, QWidget *parent) :
     QWidget(*new QGenericComboBoxPrivate(), parent, 0)
