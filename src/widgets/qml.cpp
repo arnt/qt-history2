@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#23 $
 **
 ** Implementation of QML classes
 **
@@ -549,7 +549,7 @@ public:
 class QMLHorizontalLine : public QMLCustomNode
 {
 public:
-    QMLHorizontalLine(const QDict<QString>&attr, const QMLProvider& provider);
+    QMLHorizontalLine(const QDict<QString>&attr, QMLProvider& provider);
     ~QMLHorizontalLine();
 
     void draw(QPainter* p, int x, int y,
@@ -562,7 +562,7 @@ public:
 class QMLImage : public QMLCustomNode
 {
 public:
-    QMLImage(const QDict<QString>&attr, const QMLProvider& provider);
+    QMLImage(const QDict<QString>&attr, QMLProvider& provider);
     ~QMLImage();
 
     void draw(QPainter* p, int x, int y,
@@ -1044,11 +1044,11 @@ const QMLStyle* QMLStyleSheet::style( const QString& name) const
 */
 QMLNode* QMLStyleSheet::tag( const QString& name,
 			     const QDict<QString> &attr,
-			     const QMLProvider& provider ) const
+			     QMLProvider& provider ) const
 {
     QMLStyle* style = styles[name];
     if ( !style ) {
-	warning( "QML Warning: unknown tag '%s'", name.ascii() );
+      // HACK Torben warning( "QML Warning: unknown tag '%s'", name.ascii() );
 	style = nullstyle;
     }
 
@@ -1083,8 +1083,8 @@ class QMLDocument : public QMLBox
 {
 public:
     QMLDocument( const QString &doc, const QWidget* w = 0);
-    QMLDocument( const QString &doc, const QMLProvider& provider, const QWidget* w = 0);
-    QMLDocument( const QString &doc,  const QMLProvider& provider, const QMLStyleSheet& sheet, const QWidget* w = 0);
+    QMLDocument( const QString &doc, QMLProvider& provider, const QWidget* w = 0);
+    QMLDocument( const QString &doc,  QMLProvider& provider, const QMLStyleSheet& sheet, const QWidget* w = 0);
     ~QMLDocument();
 
 
@@ -1108,7 +1108,7 @@ private:
     bool hasPrefix(const QString& doc, int pos, const QString& s);
     bool valid;
     const QMLStyleSheet* sheet_;
-    const QMLProvider* provider_;
+    QMLProvider* provider_;
     QMLStyle* base;
 
 };
@@ -1151,7 +1151,7 @@ QMLCustomNode::~QMLCustomNode()
 }
 
 
-QMLImage::QMLImage(const QDict<QString> &attr, const QMLProvider &provider)
+QMLImage::QMLImage(const QDict<QString> &attr, QMLProvider &provider)
     : QMLCustomNode()
 {
     reg = 0;
@@ -1196,7 +1196,7 @@ void QMLImage::draw(QPainter* p, int x, int y,
 
 
 
-QMLHorizontalLine::QMLHorizontalLine(const QDict<QString>&, const QMLProvider&)
+QMLHorizontalLine::QMLHorizontalLine(const QDict<QString>&, QMLProvider&)
 {
     height = 8;
     width = 4000;
@@ -2813,7 +2813,7 @@ void QMLProvider::setImage(const QString& name, const QPixmap& pm)
 
   \sa setImage()
 */
-QPixmap QMLProvider::image(const QString &name) const
+QPixmap QMLProvider::image(const QString &name)
 {
     QPixmap* p = images[name];
     if (p)
@@ -2836,7 +2836,7 @@ void QMLProvider::setDocument(const QString &name, const QString& doc)
   Returns the document contents corresponding to \a name.
   \sa setDocument()
 */
-QString QMLProvider::document(const QString &name) const
+QString QMLProvider::document(const QString &name)
 {
     QString* s = documents[name];
     if (s)
@@ -2920,7 +2920,7 @@ QMLDocument::QMLDocument( const QString &doc, const QWidget* w)
     provider_ = 0;
 }
 
-QMLDocument::QMLDocument( const QString &doc, const QMLProvider& provider, const QWidget* w)
+QMLDocument::QMLDocument( const QString &doc, QMLProvider& provider, const QWidget* w)
     :QMLBox( (base = new QMLStyle(0, "")) )
 {
     provider_ = &provider; // for access during parsing only
@@ -2928,7 +2928,7 @@ QMLDocument::QMLDocument( const QString &doc, const QMLProvider& provider, const
     init( doc, w );
 }
 
-QMLDocument::QMLDocument(const QString &doc,  const QMLProvider& provider,
+QMLDocument::QMLDocument(const QString &doc,  QMLProvider& provider,
 			 const QMLStyleSheet& sheet, const QWidget* w )
     :QMLBox( (base = new QMLStyle(0, "")) )
 {
@@ -3005,8 +3005,8 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	
 	    const QMLStyle* nstyle = sheet_->style(tagname);
 	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
-		warning( "QML Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
-			 tagname.ascii(), current->style->name().ascii(), pos);
+	      // HACK Torben warning( "QML Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
+	      // HACK Torben tagname.ascii(), current->style->name().ascii(), pos);
 		pos = beforePos;
 		return FALSE;
 	    }
@@ -3298,13 +3298,14 @@ bool QMLDocument::eatCloseTag(const QString& doc, int& pos, const QString& open)
     eatSpace(doc, pos);
     eat(doc, pos, '>');
     if (!valid) {
-	warning( "QML Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
+      // HACK Torben warning( "QML Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
+      
 	valid = TRUE;
     }
     valid &= tag == open;
     if (!valid) {
-	warning( "QML Warning: Document not valid ( '%s' not closed before '%s' #%d)",
-		 open.ascii(), tag.ascii(), pos);
+      // HACK Torben warning( "QML Warning: Document not valid ( '%s' not closed before '%s' #%d)",
+      // HACK Torben open.ascii(), tag.ascii(), pos);
     }
     return valid;
 }

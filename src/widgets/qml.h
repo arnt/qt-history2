@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#8 $
+** $Id: //depot/qt/main/src/widgets/qml.h#9 $
 **
 ** Definition of QML classes
 **
@@ -107,8 +107,8 @@ public:
     static QMLProvider* defaultProvider();
     static void setDefaultProvider( QMLProvider* );
 
-    virtual QPixmap image(const QString &name) const;
-    virtual QString document(const QString &name) const;
+    virtual QPixmap image(const QString &name);
+    virtual QString document(const QString &name);
 
     virtual void setImage(const QString& name, const QPixmap& pm);
     virtual void setDocument(const QString& name, const QString& contents);
@@ -146,7 +146,7 @@ public:
 
     virtual QMLNode* tag( const QString& name,
 			  const QDict<QString>&attr,
-			  const QMLProvider& provider ) const;
+			  QMLProvider& provider ) const;
 
 
 private:
