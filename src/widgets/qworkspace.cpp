@@ -1392,8 +1392,6 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
     buttonDown = FALSE;
     imode = iconMode;
     act = TRUE;
-    titleHeight = 18;
-    border = 2;
 
     titleL = new QWorkspaceChildTitleLabel( this, "__workspace_child_title_bar" );
     closeB = new QToolButton( this, "close" );
@@ -1425,6 +1423,15 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 
     if ( window ) {
 	if ( !window->testWFlags( WStyle_Tool ) ) {
+            border = 2;
+#ifdef _WS_WIN_
+	    titleHeight = GetSystemMetrics( SM_CYCAPTION );
+	    if ( !titleHeight )
+		titleHeight = 18;
+#else
+	    titleHeight = 18;
+#endif
+	    border = 2;
 	    closeB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	    maxB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	    iconB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
@@ -1441,8 +1448,14 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 		iconB->hide();
 	    }
 	} else {
-	    titleHeight = 14;
 	    border = 1;
+#ifdef _WS_WIN_
+	    titleHeight = GetSystemMetrics( SM_CYSMCAPTION )-2;
+	    if ( !titleHeight )
+		titleHeight = 14;
+#else
+	    titleHeight = 14;
+#endif
 	    if (win32) {
    		closeB->resize( titleHeight-2, titleHeight-2 );
 		maxB->resize( titleHeight-2, titleHeight-2 );
@@ -1461,7 +1474,13 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* win, Q
 		shadeB->hide();
         }
     } else if ( iconMode ) {
-        titleHeight = 18;
+#ifdef _WS_WIN_
+	    titleHeight = GetSystemMetrics( SM_CYCAPTION );
+	    if ( !titleHeight )
+		titleHeight = 18;
+#else
+	    titleHeight = 18;
+#endif
 	closeB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	maxB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
 	iconB->resize(BUTTON_WIDTH, BUTTON_HEIGHT);
