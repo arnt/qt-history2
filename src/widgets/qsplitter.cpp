@@ -28,6 +28,16 @@
 #include "qlist.h"
 #include "qtextstream.h"
 
+static QSize verySmartMinSize(QWidget *widget)
+{
+    QSize ret = qSmartMinSize(widget);
+    if (ret.width() == 1)
+	ret.setWidth(0);
+    if (ret.height() == 1)
+	ret.setHeight(0);
+    return ret;
+}
+
 class QSplitterHandle : public QWidget
 {
     Q_OBJECT
@@ -575,10 +585,10 @@ void QSplitter::moveSplitter( QCOORD p, int id )
     int farMax;
 
     p = adjustPos( p, id, &farMin, &min, &max, &farMax );
-    int oldP = pick( s->wid->pos() );
+    int oldP = pick(s->rect.topLeft());
 
     if ( QApplication::reverseLayout() && orient == Horizontal ) {
-	int q = p + s->wid->width();
+	int q = p + s->rect.width();
 	doMove( false, q, id - 1, -1, (q > oldP), (p > max) );
 	doMove( true, q, id, -1, (q > oldP), (p < min) );
     } else {
@@ -587,7 +597,6 @@ void QSplitter::moveSplitter( QCOORD p, int id )
     }
     storeSizes();
 }
-
 
 void QSplitter::setGeo( QSplitterLayoutStruct *sls, int p, int s, bool splitterMoved )
 {
@@ -607,16 +616,16 @@ void QSplitter::setGeo( QSplitterLayoutStruct *sls, int p, int s, bool splitterM
       Hide the child widget, but without calling hide() so that the
       splitter handle is still shown.
     */
-    if ( !w->isHidden() && s <= 0 && pick(qSmartMinSize(w)) > 0 ) {
-	sls->collapsed = pick(qSmartMinSize(w)) != 1;
-	r.moveTopLeft(QPoint(-QWIDGETSIZE_MAX, -QWIDGETSIZE_MAX));
+    int minSize = pick(verySmartMinSize(w));
+    if ( !w->isHidden() && s <= 0 && minSize > 0 ) {
+	sls->collapsed = (minSize > 1);
+	r.setX(-QWIDGETSIZE_MAX);
+	r.setY(-QWIDGETSIZE_MAX);
     }
     w->setGeometry( r );
 }
 
-
-void QSplitter::doMove( bool backwards, int pos, int id, int delta, bool upLeft,
-			bool mayCollapse )
+void QSplitter::doMove(bool backwards, int pos, int id, int delta, bool upLeft, bool mayCollapse)
 {
     if (id < 0 || id >= d->list.count())
 	return;
@@ -639,8 +648,8 @@ void QSplitter::doMove( bool backwards, int pos, int id, int delta, bool upLeft,
 	    int dd = backwards ? pos - pick( s->rect.topLeft() )
 			       : pick( s->rect.bottomRight() ) - pos + 1;
 	    if ( dd > 0 || (!s->collapsed && !mayCollapse) ) {
-		dd = qMax( pick(qSmartMinSize(w)),
-			   qMin(dd, pick(w->maximumSize())) );
+		dd = qMin(dd, pick(w->maximumSize()));
+		dd = qMax(dd, pick(verySmartMinSize(w)));
 	    } else {
 		dd = 0;
 	    }
@@ -658,7 +667,7 @@ int QSplitter::findWidgetJustBeforeOrJustAfter( int id, int delta, int &collapsi
 	QWidget *w = d->list.at( id )->wid;
 	if ( !w->isHidden() ) {
             if ( collapsible(d->list.at(id)) )
-                collapsibleSize = pick( qSmartMinSize(w) );
+                collapsibleSize = pick(verySmartMinSize(w));
 	    return id;
 	}
 	id += 2 * delta; // go to previous (or next) widget, skip the handle
@@ -792,10 +801,8 @@ int QSplitter::adjustPos( int pos, int id, int *farMin, int *min, int *max,
 
 bool QSplitter::collapsible( QSplitterLayoutStruct *s )
 {
-    if (pick(qSmartMinSize(s->wid)) == 1)
-        return false;
     if ( s->collapsible != Default ) {
-	return (bool) s->collapsible;
+	return (bool)s->collapsible;
     } else {
 	return d->childrenCollapsible;
     }
@@ -806,12 +813,12 @@ void QSplitter::doResize()
     QRect r = contentsRect();
     int n = d->list.count();
     QVector<QLayoutStruct> a( n );
+    int numAutoWithStretch = 0;
+    int numAutoWithoutStretch = 0;
+    int i;
 
     for ( int pass = 0; pass < 2; pass++ ) {
-	int numAutoWithStretch = 0;
-	int numAutoWithoutStretch = 0;
-
-	for ( int i = 0; i < n; i++ ) {
+	for (i = 0; i < n; ++i) {
 	    a[i].init();
 	    QSplitterLayoutStruct *s = d->list.at( i );
 	    if ( s->wid->isHidden() || s->collapsed ) {
@@ -828,7 +835,7 @@ void QSplitter::doResize()
 			    pick( QSize(p.horStretch(), p.verStretch()) );
 		    if ( sizePolicyStretch > 0 ) {
 			mode = Stretch;
-			numAutoWithStretch++;
+			++numAutoWithStretch;
 		    } else {
 			/*
 			  Do things differently on the second pass,
@@ -840,21 +847,18 @@ void QSplitter::doResize()
 			  3.0-compatible behavior.
 			*/
 			mode = ( pass == 0 ) ? KeepSize : Stretch;
-			numAutoWithoutStretch++;
+			++numAutoWithoutStretch;
 		    }
 		}
 
-		a[i].minimumSize = pick( qSmartMinSize(s->wid) );
-		a[i].maximumSize = pick( s->wid->maximumSize() );
+		a[i].minimumSize = pick(verySmartMinSize(s->wid));
+		a[i].maximumSize = pick(s->wid->maximumSize());
 		a[i].empty = false;
 
-		if ( mode == Stretch ) {
-		    int stretch = 1;
-		    if ( s->getSizer(orient) > 1 )
-			stretch *= s->getSizer( orient );
-		    a[i].stretch = stretch;
+		if (mode == Stretch) {
+		    a[i].stretch = s->getSizer(orient);
 		    a[i].sizeHint = a[i].minimumSize;
-		} else if ( mode == KeepSize ) {
+		} else if (mode == KeepSize) {
 		    a[i].sizeHint = s->getSizer( orient );
 		} else { // mode == FollowSizeHint
 		    a[i].sizeHint = pick( s->wid->sizeHint() );
@@ -863,13 +867,28 @@ void QSplitter::doResize()
 	}
 
 	// a second pass would yield the same results
-	if ( numAutoWithStretch > 0 || numAutoWithoutStretch == 0 )
+	if (numAutoWithStretch > 0 || numAutoWithoutStretch == 0)
 	    break;
+    }
+
+    Q_LLONG total = 0;
+    for (i = 0; i < n; ++i) {
+	if (a[i].stretch == 0) {
+	    total += a[i].sizeHint;
+	} else {
+	    total += a[i].maximumSize;
+	}
+    }
+    if (total < (Q_LLONG)pick(r.size())) {
+	for (i = 0; i < n; i += 2) {
+	    if (a[i].stretch == 0)
+		a[i].stretch = 1;
+	}
     }
 
     qGeomCalc( a, 0, n, pick( r.topLeft() ), pick( r.size() ), 0 );
 
-    for ( int i = 0; i < n; i++ ) {
+    for (i = 0; i < n; ++i) {
 	QSplitterLayoutStruct *s = d->list.at(i);
 	setGeo( s, a[i].pos, a[i].size, false );
     }
@@ -914,7 +933,7 @@ void QSplitter::recalc( bool update )
 		minl += s->getSizer( orient );
 		maxl += s->getSizer( orient );
 	    } else {
-		QSize minS = qSmartMinSize( s->wid );
+		QSize minS = verySmartMinSize(s->wid);
 		minl += pick( minS );
 		maxl += pick( s->wid->maximumSize() );
 		mint = qMax( mint, trans(minS) );
@@ -1006,6 +1025,7 @@ void QSplitter::setOpaqueResize( bool on )
 
 void QSplitter::moveToFirst( QWidget *w )
 {
+    // ### Jasmin 4.0: use QList::move() instead of that stuff, and do the same with moveToLast()
     processChildEvents();
     bool found = false;
     QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
@@ -1106,8 +1126,8 @@ QSize QSplitter::minimumSizeHint() const
     QObjectList childs = children();
     for (int i = 0; i < childs.size(); ++i) {
 	QObject * o = childs.at(i);
-	if ( o->isWidgetType() && !((QWidget*)o)->isHidden() ) {
-	    QSize s = qSmartMinSize( (QWidget*)o );
+	if (o->isWidgetType() && !static_cast<QWidget *>(o)->isHidden()) {
+	    QSize s = verySmartMinSize(static_cast<QWidget *>(o));
 	    if ( s.isValid() ) {
 		l += pick( s );
 		t = qMax( t, trans( s ) );
@@ -1123,7 +1143,7 @@ void QSplitter::storeSizes()
     QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
     while ( it != d->list.end() ) {
 	if ( !(*it)->isHandle )
-	    (*it)->sizer = pick( (*it)->wid->size() );
+	    (*it)->sizer = pick( (*it)->rect.size() );
 	++it;
     }
 }
@@ -1139,7 +1159,7 @@ void QSplitter::addContribution( int id, int *min, int *max,
 	    *max += s->getSizer( orient );
 	} else {
 	    if ( mayCollapse || !s->collapsed )
-		*min += pick( qSmartMinSize(s->wid) );
+		*min += pick( verySmartMinSize(s->wid) );
 	    *max += pick( s->wid->maximumSize() );
 	}
     }
@@ -1201,27 +1221,26 @@ QList<int> QSplitter::sizes() const
     \sa sizes()
 */
 
-void QSplitter::setSizes( QList<int> list )
+void QSplitter::setSizes(QList<int> list)
 {
     processChildEvents();
     QList<int>::Iterator it = list.begin();
     QList<QSplitterLayoutStruct*>::iterator it2 = d->list.begin();
     while ( it2 != d->list.end() && it != list.end() ) {
 	if ( !(*it2)->isHandle ) {
+	    (*it2)->collapsed = false;
 	    (*it2)->sizer = qMax( *it, 0 );
-	    int smartMinSize = pick( qSmartMinSize((*it2)->wid) );
+	    int smartMinSize = pick(verySmartMinSize((*it2)->wid));
 	    // Make sure that we reset the collapsed state.
 	    if ( (*it2)->sizer == 0 ) {
 		if ( collapsible(*it2) && smartMinSize > 0 ) {
-		    (*it2)->wid->move( -1, -1 );
+		    (*it2)->collapsed = true;
 		} else {
 		    (*it2)->sizer = smartMinSize;
-		    (*it2)->wid->move( 0, 0 );
 		}
 	    } else {
 		if ( (*it2)->sizer < smartMinSize )
 		    (*it2)->sizer = smartMinSize;
-		(*it2)->wid->move( 0, 0 );
 	    }
 	    ++it;
 	}
