@@ -3,10 +3,10 @@
 
 #include <qglobal.h>
 #include <qstring.h>
-#include <stdlib.h>
 #include <qnamespace.h>
 #include <private/qfontdata_p.h>
 
+#include <stdlib.h>
 #include <assert.h>
 
 
