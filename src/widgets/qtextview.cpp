@@ -2773,7 +2773,7 @@ void QTextView::setFont( const QFont &f )
     // ### that is a bit hacky
     static short diff = 1;
     diff *= -1;
-    doc->setWidth( doc->width() + diff );
+    doc->setWidth( visibleWidth() + diff );
 
     doc->updateFontSizes( f.pointSize() );
     lastFormatted = doc->firstParag();
