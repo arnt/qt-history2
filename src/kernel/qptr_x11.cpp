@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#76 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#75 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#76 $";
 #endif
 
 
@@ -577,11 +577,32 @@ const double Q_2PI  = 6.28318530717958647693;	// 2*pi
 const double Q_PI2  = 1.57079632679489661923;	// pi/2
 const double Q_3PI2 = 4.71238898038468985769;	// 3*pi/2
 
+#if defined(_OS_LINUX_) && defined(_CC_GNU_)
+
+inline double qcos( double a ) {
+    double r;
+    __asm__ (
+	"fcos"
+	: "=t" (r) : "0" (a) );
+    return(r);
+}
+
+inline double qsin( double a ) {
+    double r;
+    __asm__ (
+	"fsin"
+	: "=t" (r) : "0" (a) );
+    return(r);
+}
+
+double qsincos( double a, bool calcCos=FALSE ) {
+    return calcCos ? qcos(a) : qsin(a);
+}
+
+#else
+
 double qsincos( double a, bool calcCos=FALSE )
 {
-#if 0
-    return calcCos ? __builtin_cos(a) : __builtin_sin(a);
-#endif
     if ( calcCos )				// calculate cosine
 	a -= Q_PI2;
     if ( a >= Q_2PI || a <= -Q_2PI ) {		// fix range: -2*pi < a < 2*pi
@@ -608,6 +629,8 @@ double qsincos( double a, bool calcCos=FALSE )
 
 inline double qsin( double a ) { return qsincos(a,FALSE); }
 inline double qcos( double a ) { return qsincos(a,TRUE); }
+
+#endif
 
 
 // --------------------------------------------------------------------------
