@@ -1052,7 +1052,7 @@ void QMenuBar::drawContents( QPainter *p )
     QColorGroup g = colorGroup();
     bool e;
 
-    // ### this shouldn't happen.
+    // this shouldn't happen
     if ( !irects )
 	return;
 
@@ -1094,8 +1094,9 @@ void QMenuBar::drawContents( QPainter *p )
     p->restore();
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-    if ( !mac_eaten_menubar ) {
+    if ( !mac_eaten_menubar )
 #endif
+    {
 	Qt::GUIStyle gs = (Qt::GUIStyle) style().styleHint(QStyle::SH_GUIStyle);
 	if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {
 	    p->setPen( g.light() );
@@ -1103,9 +1104,7 @@ void QMenuBar::drawContents( QPainter *p )
 	    p->setPen( g.dark() );
 	    p->drawLine( 0, height()-2, width()-1, height()-2 );
 	}
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     }
-#endif
 }
 
 
