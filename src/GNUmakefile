@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/src/GNUmakefile#6 $
+# $Id: //depot/qt/main/src/GNUmakefile#7 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -10,3 +10,6 @@
 PROJECT = qt
 LIBTARGET = 1
 include $(QTDIR)/GNUmakefile.inc
+
+qpim:
+	$(MAKE) CONFIG=QPIM static-release
