@@ -31,7 +31,7 @@ public:
         ReadOwner = 0x4000, WriteOwner = 0x2000, ExeOwner = 0x1000,
         ReadUser  = 0x0400, WriteUser  = 0x0200, ExeUser  = 0x0100,
         ReadGroup = 0x0040, WriteGroup = 0x0020, ExeGroup = 0x0010,
-        ReadOther = 0x0004, WriteOther = 0x0002, ExeOther = 0x0001 
+        ReadOther = 0x0004, WriteOther = 0x0002, ExeOther = 0x0001
     };
 
     QFile();
@@ -49,7 +49,7 @@ public:
     typedef QString (*DecoderFn)(const QByteArray &localfileName);
     static QByteArray encodeName(const QString &fileName);
     static QString decodeName(const QByteArray &localFileName);
-    inline static QString decodeName(const char *localFileName) 
+    inline static QString decodeName(const char *localFileName)
         { return decodeName(QByteArray(localFileName)); };
     static void setEncodingFunction(EncoderFn);
     static void setDecodingFunction(DecoderFn);
@@ -78,7 +78,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QIODevice::at;
 #else
-    inline QT_COMPAT bool at(Q_LLONG off) { QIODevice::at(off); }
+    inline QT_COMPAT bool at(Q_LLONG off) { return QIODevice::at(off); }
 #endif
 #endif
 

@@ -39,7 +39,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QIODevice::at;
 #else
-    inline QT_COMPAT bool at(Q_LLONG off) { QIODevice::at(off); }
+    inline QT_COMPAT bool at(Q_LLONG off) { return QIODevice::at(off); }
 #endif
 #endif
 
