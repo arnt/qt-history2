@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.h#1 $
+** $Id: //depot/qt/main/src/kernel/qtimer.h#2 $
 **
 ** Definition of QTimer class
 **
 ** Author  : Haavard Nord
 ** Created : 931111
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -30,7 +30,7 @@ public:
     void stop();				// stop timer
 
 signals:
-    void timeout( int );			// timer expires
+    void timeout();				// timer expires
 
 private:
     bool event( QEvent * );
