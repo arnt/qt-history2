@@ -74,6 +74,9 @@ static const char* default_pm[] = {
 QWidget *recursive_match(QWidget *widg, int x, int y); //qapplication_mac.cpp
 static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage, WindowPtr,
 						  void *handlerRefCon, DragReference theDrag );
+void qt_macdnd_unregister( QWidget *widget, QWExtra *extra );
+void qt_macdnd_register( QWidget *widget, QWExtra *extra );
+
 
 
 bool QDropEvent::provides( const char *fmt ) const
@@ -338,8 +341,10 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     qt_mac_in_drag = TRUE;
     //kick off the drag by calling the callback ourselves first..
     QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, FALSE);
+    if(!widget->extraData()->macDndExtra) //never too late I suppose..
+	qt_macdnd_register( widget,  widget->extraData());
     qt_mac_tracking_handler( kDragTrackingEnterWindow, (WindowPtr)widget->hd,
-			     (void *)widget->extra->macDndExtra, theDrag );
+			     (void *)widget->extraData()->macDndExtra, theDrag );
     result = TrackDrag( theDrag, &fakeEvent, (RgnHandle)dragRegion.handle() );     //now let the mac take control..
     DisposeDrag( theDrag );
     qt_mac_in_drag = FALSE;
