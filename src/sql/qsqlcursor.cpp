@@ -429,6 +429,7 @@ QString QSqlCursor::fieldEqualsValue( QSqlRecord* rec, const QString& prefix, co
 {
     QString filter;
     int k = i.count();
+    int actualFields = 0;
 
     if ( k ) { /* use index */
 	for( int j = 0; j < k; ++j ){
@@ -441,9 +442,10 @@ QString QSqlCursor::fieldEqualsValue( QSqlRecord* rec, const QString& prefix, co
     } else { /* use all fields */
  	for ( uint j = 0; j < count(); ++j ) {
 	    if ( !rec->field(j)->isCalculated() ) {
-		if ( j > 0 )
+		if ( actualFields > 0 )
 		    filter += " " + fieldSep + " " ;
 		filter += qMakeFieldValue( driver(), prefix, rec->field( j ) );
+		actualFields++;
 	    }
 	}
     }
@@ -495,6 +497,8 @@ void QSqlCursor::primeInsert( QSqlRecord* )
 
 int QSqlCursor::insert( bool invalidate )
 {
+    int actualFields = 0;
+    
     if ( ( d->md & Insert ) != Insert )
 	return FALSE;
     int k = d->editBuffer.count();
@@ -505,9 +509,10 @@ int QSqlCursor::insert( bool invalidate )
     QString vals;
     for( int j = 0; j < k; ++j ){
 	if ( !d->editBuffer.field(j)->isCalculated() ) {
-	    if( j > 0 )
+	    if( actualFields > 0 )
 		vals += ",";
 	    vals += driver()->formatValue( d->editBuffer.field(j) );
+	    actualFields++;
 	}
     }
     str += vals + ");";
