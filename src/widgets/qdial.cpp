@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#14 $
 **
 ** Implementation of something useful.
 **
@@ -402,13 +402,28 @@ int QDial::valueFromPoint( const QPoint & p ) const
 {
     double a = atan2( height()/2 - p.y(), p.x() - width()/2 );
     if ( a < m_pi/-2 )
-	a = a + m_pi*2;
+        a = a + m_pi*2;
 
-    int r = maxValue()-minValue();
+    int dist = 0;
+    int minv = minValue(), maxv = maxValue();
+    
+    if ( minValue() < 0 ) {
+        dist = -minValue();
+        minv = 0;
+        maxv = maxValue() + dist;
+    }
+    
+    int r = maxv - minv;
+    int v;
     if ( d->wrapping )
-	return bound((int)(0.5 + minValue() + r*(m_pi*3/2-a)/(2*m_pi)));
+        v =  (int)(0.5 + minv + r*(m_pi*3/2-a)/(2*m_pi));
     else
-	return bound((int)(0.5 + minValue() + r*(m_pi*4/3-a)/(m_pi*10/6)));
+        v =  (int)(0.5 + minv + r*(m_pi*4/3-a)/(m_pi*10/6)); 
+
+    if ( dist > 0 )
+        v -= dist;
+    
+    return bound( v );
 }
 
 
