@@ -16,8 +16,9 @@ const validSwitches = ["branch", "version"];
 const user = System.getenv("USER");
 
 var options = [];	// list of all package options
-var tmpDir;		// directory for all intermediate files
-var distDir;		// directory for P4 checkout
+var tmpDir;		// directory for system temporary files
+var distDir;		// parent directory for all temp package and checkout dirs
+var checkoutDir;	// directory for P4 checkout
 var p4Port;
 var p4Command;
 
@@ -28,14 +29,19 @@ const tabSize = 4;
  * Purging filters that will be moved into files later
  */
 
-var depotRemove = [ new RegExp("/qt/tools/designer/manual"),
-		    new RegExp("/qt/tools/designer/doc"),
-		    new RegExp("/qt/tools/designer/plugins/designer_interface_roadmap"),
-		    new RegExp("/qt/tools/designer/plugins/extrawidgets"),
-		    new RegExp("/qt/tools/designer/plugins/p4"),
-		    new RegExp("/qt/tools/designer/plugins/qvim"),
-		    new RegExp("/qt/tools/designer/plugins/designer_interface_roadmap"),
-		    new RegExp("/qt/tools/inspector") ];
+var depotRemove = [ new RegExp("^gif"),
+		    new RegExp("^tests"),
+		    new RegExp("^tmake"),
+		    new RegExp("^util"),
+		    
+		    new RegExp("^tools/designer/manual"),
+		    new RegExp("^tools/designer/doc"),
+		    new RegExp("^tools/designer/plugins/designer_interface_roadmap"),
+		    new RegExp("^tools/designer/plugins/extrawidgets"),
+		    new RegExp("^tools/designer/plugins/p4"),
+		    new RegExp("^tools/designer/plugins/qvim"),
+		    new RegExp("^tools/designer/plugins/designer_interface_roadmap"),
+		    new RegExp("^tools/inspector") ];
 var depotKeep = [ /./ ];
 
 var platformRemove = new Array();
@@ -62,39 +68,40 @@ buildQdoc();
 print("Checkout from P4...");
 checkout();
 print("Purging before packaging...");
-purgeFiles(getFileList(distDir), depotRemove, depotKeep);
+purgeFiles(checkoutDir, getFileList(checkoutDir), depotRemove, depotKeep);
 indentation+=tabSize;
 for (var p in validPlatforms) {
     for (var e in validEditions) {
-	var platform = validPlatforms[p];
-	var edition = validEditions[e];
-	if (options[platform] && options[edition]) {
-	    print("Packaging %1-%2...".arg(platform).arg(edition));
-	    indentation+=tabSize;
+  	var platform = validPlatforms[p];
+  	var edition = validEditions[e];
+  	if (options[platform] && options[edition]) {
+  	    print("Packaging %1-%2...".arg(platform).arg(edition));
+  	    indentation+=tabSize;
 
-	    // copy distDir/qt to platDir
-	    print("Copying depot...");
-	    var platName = "qt-%1-%2-%3".arg(platform).arg(edition).arg(options["version"]);
-	    var platDir = distDir + "/" + platName;
-	    Process.execute(["cp", "-r", distDir+"/qt", platDir]);
+  	    // copy checkoutDir to platDir
+  	    print("Copying depot...");
+  	    var platName = "qt-%1-%2-%3".arg(platform).arg(edition).arg(options["version"]);
+  	    var platDir = distDir + "/" + platName;
+  	    Process.execute(["cp", "-r", checkoutDir, platDir]);
 
-	    // run syncqt
-	    print("Running syncqt...");
-	    syncqt(platDir, platform);
+  	    // run syncqt
+  	    print("Running syncqt...");
+  	    syncqt(platDir, platform);
 
-	    // run qdoc
-	    print("Running qdoc...");
-	    qdoc(platDir);
+  	    // run qdoc
+  	    print("Running qdoc...");
+  	    qdoc(platDir);
 
-	    // purge platform and edition files
-	    print("Purging platform and edition spesific files...");
-	    purgeFiles(getFileList(platDir),
-		       [].concat(platformRemove[platform]).concat(editionRemove[edition]),
-		       [].concat(platformKeep[platform]).concat(editionKeep[edition]));
+  	    // purge platform and edition files
+  	    print("Purging platform and edition specific files...");
+  	    purgeFiles(platDir,
+		       getFileList(platDir),
+  		       [].concat(platformRemove[platform]).concat(editionRemove[edition]),
+  		       [].concat(platformKeep[platform]).concat(editionKeep[edition]));
 
-	    // package directory
-	    indentation-=tabSize;
-	}
+  	    // package directory
+  	    indentation-=tabSize;
+  	}
     }
 }
 
@@ -173,12 +180,13 @@ function initialize()
 	else
 	    throw "Unable to find tmp directory";
     }
-    // creates distDir
+    // creates distDir and sets checkoutDir
     distDir = tmpDir + "/qt-" + options["branch"] + "-" + user + "-" + Date().getTime();
     var dir = new Dir(distDir);
     if (dir.exists)
 	dir.rmdirs();
     dir.mkdir();
+    checkoutDir = distDir + "/qt";
 
     // setting up p4
     if (p4Port == undefined)
@@ -240,7 +248,7 @@ function buildQpkg()
 }
 
 /************************************************************
- * checkouts from P4 and puts everything in distDir
+ * checkouts from P4 and puts everything in checkoutDir
  */
 function checkout()
 {
@@ -269,25 +277,32 @@ function checkout()
     clientSpec = clientSpec.join("\n");
     Process.execute([p4Command, "client", "-i"], clientSpec);
 
-    // checkout to distDir
+    // checkout
     Process.execute([p4Command, "-c", tmpClient, "-d", distDir, "sync", "-f", "...@" + label]);
-}
 
+    // test for checkoutDir
+    if (!File.exists(checkoutDir))
+	throw "Checkout failed, checkout dir %1 does not exist.".arg(checkoutDir);
+}
 
 /************************************************************
  * iterates over the fileList and removes any files found in the
  * remove patterns and keeps any files found in the keep pattern, any
  * file not found in any of the patterns throws an exception
  */
-function purgeFiles(fileList, remove, keep)
+function purgeFiles(rootDir, fileList, remove, keep)
 {
-    var doRemove;
-    var doKeep;
+    var doRemove = false;
+    var doKeep = false;
+    var fileName = new String();
+    var absFileName = new String();
+
     for (var i in fileList) {
 	doRemove = false;
 	doKeep = false;
-	// check if the file should be removed
 	fileName = fileList[i];
+	absFileName = rootDir + "/" + fileName;
+	// check if the file should be removed
 	for (var r in remove) {
 	    if (fileName.find(remove[r]) != -1) {
 		doRemove = true;
@@ -297,11 +312,11 @@ function purgeFiles(fileList, remove, keep)
 
 	// remove file
 	if (doRemove) {
-	    if (File.exists(fileName)) {
-		if (File.isFile(fileName)) {
-		    File.remove(fileName);
-		} else if (File.isDir(fileName)) {
-		    var dir = new Dir(fileName);
+	    if (File.exists(absFileName)) {
+		if (File.isFile(absFileName)) {
+		    File.remove(absFileName);
+		} else if (File.isDir(absFileName)) {
+		    var dir = new Dir(absFileName);
 		    dir.rmdirs();
 		}
 	    }
@@ -318,23 +333,24 @@ function purgeFiles(fileList, remove, keep)
 
 	// bail out
 	if (!doKeep)
-	    throw "File: %1 not found in remove nor keep filter, bailing out.".arg(fileName);
+	    throw "File: %1 not found in remove nor keep filter, bailing out.".arg(absFileName);
     }
 }
 
 /************************************************************
- * gets a list of all files and subdirectories from the specified directory
+ * gets a list of all files and subdirectories relative to the specified directory (not absolutePath)
  */
-function getFileList(dir)
+function getFileList(rootDir)
 {
-    var dir = new Dir(dir);
+    var dir = new Dir(rootDir);
     dir.setCurrent();
+    var rootLength = dir.absPath.length + 1; // +1 because "/" is not included in absPath
     var result = new Array();
 
-    // add files expanded to absolutepath to result
+    // add files to result
     var files = dir.entryList("*", Dir.Files);
     for (var f in files)
-	result.push(dir.absFilePath(files[f]));
+	result.push(files[f]);
 
     // expand dirs to absolute path
     var dirs = new Array();
@@ -347,12 +363,12 @@ function getFileList(dir)
     for (var i=0; i<dirs.length; ++i) {
  	// cd to directory and add directory to result
  	dir.cd(dirs[i]);
- 	result.push(dirs[i]);
+ 	result.push(dirs[i].right(dirs[i].length - rootLength));
 
-	// add files expanded to absolutepath to result
+	// add files
 	var files = dir.entryList("*", Dir.Files);
 	for (var f in files)
-	    result.push(dir.absFilePath(files[f]));
+	    result.push(dir.absFilePath(files[f]).right(dir.absFilePath(files[f]).length - rootLength));
 
 	// adds subDirs to dirs
 	tempDirs = dir.entryList("*", Dir.Dirs);
