@@ -4,5 +4,5 @@ HEADERS		= structureparser.h
 SOURCES		= tagreader.cpp \
                   structureparser.cpp
 INTERFACES	=
-TARGET          = tagreader
+TARGET          = tagreader-with-features
 REQUIRES	= xml large-config
