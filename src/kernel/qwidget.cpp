@@ -238,7 +238,8 @@
 	enabledChange(),
 	fontChange(),
 	paletteChange(),
-	styleChange().
+	styleChange(),
+	windowActivationChange().
 
   <li> System functions:
 	parentWidget(),
@@ -1284,7 +1285,7 @@ void QWidget::setEnabled( bool enable )
 	if ( testWState(WState_Disabled) ) {
 	    clearWState( WState_Disabled );
 	    setBackgroundFromMode();
-	    enabledChange( TRUE );
+	    enabledChange( !enable );
 	    if ( children() ) {
 		QObjectListIt it( *children() );
 		QWidget *w;
@@ -1302,7 +1303,7 @@ void QWidget::setEnabled( bool enable )
 		focusNextPrevChild( TRUE );
 	    setWState( WState_Disabled );
 	    setBackgroundFromMode();
-	    enabledChange( FALSE );
+	    enabledChange( !enable );
 	    if ( children() ) {
 		QObjectListIt it( *children() );
 		QWidget *w;
@@ -1349,6 +1350,49 @@ void QWidget::setDisabled( bool disable )
 void QWidget::enabledChange( bool )
 {
     update();
+}
+
+/*!
+  \fn void QWidget::windowActivationChange( bool oldActive )
+
+  This virtual function is called when its window is activated or deactivated
+  by the windows system. \a oldActive is the previous state; you can get the 
+  new setting from isActiveWindow().
+
+  Reimplement this function if your widget needs to know when its window becomes
+  activated or deactivated.
+
+  The default implementation updates the visible part of the widget if the inactive
+  and the active colorgroup are different for colors other than the highlight and link 
+  colors.
+
+  \sa setActiveWindow(), isActiveWindow(), update(), palette()
+*/
+
+void QWidget::windowActivationChange( bool )
+{
+#ifndef QT_NO_PALETTE
+    if ( !isVisible() )
+	return;
+
+    const QColorGroup acg = palette().active();
+    const QColorGroup icg = palette().inactive();
+    
+    if ( acg != icg && 
+       ( acg.background() != icg.background() ||
+	 acg.base() != icg.base() ||
+	 acg.text() != icg.text() ||
+	 acg.foreground() != icg.foreground() ||
+	 acg.button() != icg.button() ||	 
+	 acg.buttonText() != icg.buttonText() ||
+	 acg.brightText() != icg.brightText() ||	 
+	 acg.dark() != icg.dark() ||
+	 acg.light() != icg.light() ||
+	 acg.mid() != icg.mid() ||
+	 acg.midlight() != icg.midlight() ||
+	 acg.shadow() != icg.shadow() ) )
+	update();
+#endif
 }
 
 /*! \property QWidget::frameGeometry
@@ -4075,15 +4119,14 @@ bool QWidget::event( QEvent *e )
 #endif
 	case QEvent::WindowActivate:
 	case QEvent::WindowDeactivate:
-	    {
-		QObjectList *cl = queryList( "QWidget", 0, FALSE, FALSE );
-		QObjectListIt it (*cl );
-		QObject *obj = 0;
-		while ( (obj=it.current() ) ) {
+	    windowActivationChange( e->type() == QEvent::WindowActivate );
+	    if ( children() ) {
+		QObjectListIt it( *children() );
+		QObject *o;
+		while( ( o = it.current() ) != 0 ) {
 		    ++it;
-		    QApplication::sendEvent( obj, e );
+		    QApplication::sendEvent( o, e );
 		}
-		delete cl;
 	    }
 	    break;
 	default:

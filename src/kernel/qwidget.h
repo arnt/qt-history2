@@ -489,13 +489,14 @@ protected:
 #ifndef QT_NO_STYLE
     virtual void styleChange( QStyle& );
 #endif
-    virtual void enabledChange( bool );
+    virtual void enabledChange( bool oldEnabled );
     virtual void backgroundColorChange( const QColor & );
     virtual void backgroundPixmapChange( const QPixmap & );
 #ifndef QT_NO_PALETTE
     virtual void paletteChange( const QPalette & );
 #endif
     virtual void fontChange( const QFont & );
+    virtual void windowActivationChange( bool oldActive );
 
     int		 metric( int )	const;
 
