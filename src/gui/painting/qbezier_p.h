@@ -26,6 +26,7 @@
 //
 
 #include <qpoint.h>
+#include <qline.h>
 
 class QPolygonF;
 
@@ -49,11 +50,11 @@ public:
     QPointF controlPoint2() const { Q_ASSERT(valid); return QPointF(x3, y3); }
     QPointF endPoint() const { Q_ASSERT(valid); return QPointF(x4, y4); }
 
-    void split(QBezier *firstHalf, QBezier *secondHalf);
+    inline QPointF midPoint() const;
+    inline QLineF midTangent() const;
 
-#if 0
+    void split(QBezier *firstHalf, QBezier *secondHalf);
     int offsetted(QBezier *curveSegments, int maxSegmets, float offset);
-#endif
 
 private:
     void init();
@@ -62,6 +63,19 @@ private:
     qreal x1, y1, x2, y2, x3, y3, x4, y4;
     qreal ax, bx, cx, dx, ay, by, cy, dy;
 };
+
+inline QPointF QBezier::midPoint() const
+{
+    return QPointF(ax/8 + bx/4 + cx/2 + dx, ay/8 + by/4 + cy/2 + dy);
+}
+
+inline QLineF QBezier::midTangent() const
+{
+    QPointF mid = midPoint();
+    QLineF dir(QLineF(x1, y1, x2, y2).pointAt(0.5), QLineF(x3, y3, x4, y4).pointAt(0.5));
+    return QLineF(mid.x() - dir.vx(), mid.y() - dir.vy(),
+                  mid.x() + dir.vx(), mid.y() + dir.vy());
+}
 
 #ifdef QT_USE_FIXED_POINT
 inline QPointF QBezier::pointAt(QFixedPointLong _t) const
