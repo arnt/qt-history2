@@ -48,13 +48,13 @@ clean:
 ####### Meta classes
 
 mlcdrang.cpp: lcdrange.h
-	$(MOC) -o $@ $<
+	$(MOC) -o $@ lcdrange.h
 
 mcannon.cpp: cannon.h
-	$(MOC) -o $@ $<
+	$(MOC) -o $@ cannon.h
 
 mgamebr.cpp: gamebrd.h
-	$(MOC) -o $@ $<
+	$(MOC) -o $@ gamebrd.h
 
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
