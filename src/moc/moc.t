@@ -32,3 +32,4 @@ $(MOCGEN): $(YACCIN) $(LEXOUT)
 	$(YACC) $(YACCIN)
 	#$ $text = ($is_unix ? "-rm -f " : "-del ") . '$(MOCGEN)';
 	#$ $text = ($is_unix ? "-mv " : "-ren ") . '$(YACCOUT) $(MOCGEN)'; 
+	#$ if ( ! $is_unix ) { $text = 'echo // empty > unistd.h'; }
