@@ -2787,6 +2787,10 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &e, bool cs, bool w
     removeSelection( Standard );
     QTextParagraph *p = 0;
     QString expr = e;
+    // if we search for 'word only' than we have to be sure that
+    // the expression contains no space or punct character at the
+    // beginning or in the end. Otherwise we would run into a 
+    // endlessloop.    
     if ( wo ) {
 	for ( ;; ) {
 	    if ( expr[ 0 ].isSpace() || expr[ 0 ].isPunct() )
