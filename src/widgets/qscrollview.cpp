@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#127 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#128 $
 **
 ** Implementation of QScrollView class
 **
@@ -397,7 +397,7 @@ as well as \c WNorthWestGravity is propagated to the viewport() widget.
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
     QFrame( parent, name, f & ~WNorthWestGravity, FALSE )
 {
-    d = new QScrollViewData(this,WResizeNoErase|WRepaintNoErase| (f&WPaintClever) | (f&WNorthWestGravity));
+    d = new QScrollViewData(this,WResizeNoErase| (f&WPaintClever) | (f&WNorthWestGravity));
 
     connect( &d->hbar, SIGNAL( valueChanged( int ) ),
 	this, SLOT( hslide( int ) ) );
