@@ -2424,7 +2424,7 @@ bool QPopupMenu::focusNextPrevChild( bool next )
 	    else if ( i < 0 )
 		i = c - 1;
 	    mi = mitems->at( i );
-	    if ( !mi->isSeparator() &&
+	    if ( mi && !mi->isSeparator() &&
 		 ( style().styleHint(QStyle::SH_PopupMenu_AllowActiveAndDisabled, this)
 		   || mi->isEnabledAndVisible() ) )
 		break;
