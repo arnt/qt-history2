@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#204 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#205 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -61,6 +61,12 @@
 #include "qt_x11.h"
 
 
+
+/*!
+  \class QPixmap::QPixmapData
+  \brief The QPixmap::QPixmapData class is an internal class.
+  \internal
+*/
 
 
 // For thread-safety:

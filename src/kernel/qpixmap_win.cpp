@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#126 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#127 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -46,6 +46,11 @@ extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 static bool mcp_system_unstable = FALSE;
 
+/*!
+  \class QPixmap::QMCPI
+  \brief The QPixmap::QMCPI class is an internal class.
+  \internal
+*/
 
 /*
   The QMultiCellPixmap class is strictly internal and used to
@@ -934,16 +939,30 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 }
 
 
+/*!
+  \fn bool QPixmap::isMultiCellPixmap() const
+  \internal
+*/
+
+/*!
+  \internal
+*/
 HDC QPixmap::multiCellHandle() const
 {
     return data->mcp ? DATA_MCPI_MCP->handle() : 0;
 }
 
+/*!
+  \internal
+*/
 HBITMAP QPixmap::multiCellBitmap() const
 {
     return data->mcp ? DATA_MCPI_MCP->hbm() : 0;
 }
 
+/*!
+  \internal
+*/
 int QPixmap::multiCellOffset() const
 {
     return data->mcp ? DATA_MCPI_OFFSET : 0;
@@ -1089,6 +1108,9 @@ static int index_of_mcp_list( int width, bool mono, int *size=0 )
 }
 
 
+/*!
+  \internal
+*/
 int QPixmap::allocCell()
 {
     if ( qt_winver & WV_NT_based )		// only for NT based systems
@@ -1140,6 +1162,9 @@ int QPixmap::allocCell()
 }
 
 
+/*!
+  \internal
+*/
 void QPixmap::freeCell( bool terminate )
 {
     if ( !mcp_lists_init || !data->mcp )
