@@ -1810,12 +1810,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    registerCustomItem( custom, curpar );
 		    hasNewPar = FALSE;
 		} else if ( !emptyTag ) {
-		    /* ignore whitespace for inline elements if there
-		       was already one*/
-		    if ( !textEditMode && nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal
-			 && ( space || nstyle->displayMode() != QStyleSheetItem::DisplayInline ) )
-			eatSpace( doc, length, pos );
-
 		    /* if we do nesting, push curtag on the stack,
 		       otherwise reinint curag. */
  		    if ( curtag.style->name() != tagname || nstyle->selfNesting() ) {
@@ -1831,8 +1825,15 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curtag.style = nstyle;
 		    curtag.name = tagname;
 		    curtag.style = nstyle;
-		    if ( nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal )
+		    if ( int(nstyle->whiteSpaceMode())  != QStyleSheetItem::Undefined )
 			curtag.wsm = nstyle->whiteSpaceMode();
+		
+		    /* ignore whitespace for inline elements if there
+		       was already one*/
+		    if ( !textEditMode && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal
+			 && ( space || nstyle->displayMode() != QStyleSheetItem::DisplayInline ) )
+			eatSpace( doc, length, pos );
+
 		
 		    curtag.format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
 		    if ( nstyle->isAnchor() ) {
@@ -1923,6 +1924,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 				    curpar->ulm = 1+style.mid(12, style.length() - 14).toInt(&ok);
 				else if ( style.startsWith("margin-right:" ) && style.endsWith("px") )
 				    curpar->urm = 1+style.mid(13, style.length() - 15).toInt(&ok);
+				else if ( style.startsWith("text-indent:" ) && style.endsWith("px") )
+				    curpar->uflm = 1+style.mid(12, style.length() - 14).toInt(&ok);
 			    }
 			    if ( !ok ) // be pressmistic
 				curpar->utm = curpar->ubm = curpar->urm = curpar->ulm = 0;
@@ -2083,7 +2086,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    m = stylesPar->utm-1;
 	    stylesPar->utm = 0;
 	} else {
-	    m = item->margin( QStyleSheetItem::MarginTop );
+	    m = QMAX(0, item->margin( QStyleSheetItem::MarginTop ) );
 	}
 	for ( i = (int)curStyle->size() - 2 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
@@ -2095,7 +2098,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
  	    if ( int(item->listStyle()) != QStyleSheetItem::Undefined  &&
 		 ( (  i> 0 && (*curStyle)[ i-1 ] == item ) || (*curStyle)[i+1] == item ) )
 		continue;
-	    mar = item->margin( QStyleSheetItem::MarginTop );
+	    mar = QMAX( 0, item->margin( QStyleSheetItem::MarginTop ) );
 	    m = QMAX( m, mar );
 	}
 	stylesPar->utm = m - stylesPar->topMargin();
@@ -2106,7 +2109,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    m = stylesPar->ubm-1;
 	    stylesPar->ubm = 0;
 	} else {
-	    m = item->margin( QStyleSheetItem::MarginBottom );
+	    m = QMAX(0, item->margin( QStyleSheetItem::MarginBottom ) );
 	}
 	for ( i = (int)curStyle->size() - 2 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
@@ -2118,7 +2121,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
  	    if ( int(item->listStyle()) != QStyleSheetItem::Undefined  &&
 		 ( (  i> 0 && (*curStyle)[ i-1 ] == item ) || (*curStyle)[i+1] == item ) )
 		continue;
-	    mar = item->margin( QStyleSheetItem::MarginBottom );
+	    mar = QMAX(0, item->margin( QStyleSheetItem::MarginBottom ) );
 	    m = QMAX( m, mar );
 	}
 	stylesPar->ubm = m - stylesPar->bottomMargin();
@@ -2129,11 +2132,11 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    m = stylesPar->ulm-1;
 	    stylesPar->ulm = 0;
 	} else {
-	    m = item->margin( QStyleSheetItem::MarginLeft );
+	    m = QMAX( 0, item->margin( QStyleSheetItem::MarginLeft ) );
 	}
 	for ( i = (int)curStyle->size() - 2 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
-	    mar = item->margin( QStyleSheetItem::MarginLeft );
+	    mar = QMAX( 0, item->margin( QStyleSheetItem::MarginLeft ) );
 	    m = QMAX( m, mar );
 	}
 	stylesPar->ulm = m - stylesPar->leftMargin();
@@ -2144,24 +2147,30 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	    m = stylesPar->urm-1;
 	    stylesPar->urm = 0;
 	} else {
-	    m = item->margin( QStyleSheetItem::MarginRight );
+	    m = QMAX( 0, item->margin( QStyleSheetItem::MarginRight ) );
 	}
 	for ( i = (int)curStyle->size() - 2 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
-	    mar = item->margin( QStyleSheetItem::MarginRight );
+	    mar = QMAX( 0, item->margin( QStyleSheetItem::MarginRight ) );
 	    m = QMAX( m, mar );
 	}
 	stylesPar->urm = m - stylesPar->rightMargin();
 
-	// do the first-line-margin, non standard anyway
+	// do the first line margin, which really should be called text-indent
 	item = mainStyle;
-	m = 0;
-	for ( i = (int)curStyle->size() - 1 ; i >= 0; --i ) {
+	if (stylesPar->uflm > 0 ) {
+	    m = stylesPar->uflm-1;
+	    stylesPar->uflm = 0;
+	} else {
+	    m = QMAX( 0, item->margin( QStyleSheetItem::MarginFirstLine ) );
+	}
+	for ( i = (int)curStyle->size() - 2 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
-	    mar = item->margin( QStyleSheetItem::MarginFirstLine );
+	    mar = QMAX( 0, item->margin( QStyleSheetItem::MarginFirstLine ) );
 	    m = QMAX( m, mar );
 	}
-	stylesPar->uflm = m - stylesPar->firstLineMargin();
+	stylesPar->uflm =m - stylesPar->firstLineMargin();
+	qDebug("set the flm to %d", stylesPar->uflm );
 
 	// do the bogus line "spacing", which really is just an extra margin
 	item = mainStyle;
@@ -2275,17 +2284,19 @@ static inline bool list_is_ordered( int v )
 }
 
 
-static QString margin_to_string( QStyleSheetItem* style, int t, int b, int l, int r )
+static QString margin_to_string( QStyleSheetItem* style, int t, int b, int l, int r, int fl )
 {
     QString s;
     if ( l > 0 )
-	s += QString(!!s?";":"") + "margin-left:" + QString::number( l + style->margin( QStyleSheetItem::MarginLeft ) ) + "px";
+	s += QString(!!s?";":"") + "margin-left:" + QString::number(l+QMAX(0,style->margin(QStyleSheetItem::MarginLeft))) + "px";
     if ( r > 0 )
-	s += QString(!!s?";":"") + "margin-right:" + QString::number( r + style->margin( QStyleSheetItem::MarginRight ) ) + "px";
+	s += QString(!!s?";":"") + "margin-right:" + QString::number(r+QMAX(0,style->margin(QStyleSheetItem::MarginRight))) + "px";
     if ( t > 0 )
-	s += QString(!!s?";":"") + "margin-top:" + QString::number( t + style->margin( QStyleSheetItem::MarginTop ) ) + "px";
+	s += QString(!!s?";":"") + "margin-top:" + QString::number(t+QMAX(0,style->margin(QStyleSheetItem::MarginTop))) + "px";
     if ( b > 0 )
-	s += QString(!!s?";":"") + "margin-bottom:" + QString::number( b + style->margin( QStyleSheetItem::MarginBottom ) ) + "px";
+	s += QString(!!s?";":"") + "margin-bottom:" + QString::number(b+QMAX(0,style->margin(QStyleSheetItem::MarginBottom))) + "px";
+    if ( fl > 0 )
+	s += QString(!!s?";":"") + "text-indent:" + QString::number(fl+QMAX(0,style->margin(QStyleSheetItem::MarginFirstLine))) + "px";
     if ( !!s )
 	return " style=\"" + s + "\"";
     return QString::null;
@@ -2351,7 +2362,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 	    if ( p->listStyle() != listStyles[listDepth] )
 		s += " type=" + list_style_to_string( p->listStyle() );
 	    s +=align_to_string( p->alignment() );
-	    s += margin_to_string( item_li, p->utm, p->ubm, p->ulm, p->urm );
+	    s += margin_to_string( item_li, p->utm, p->ubm, p->ulm, p->urm, p->uflm );
 	    s +=  list_value_to_string( p->listValue() );
 	    s += direction_to_string( p->direction() );
 	    s +=">";
@@ -2361,7 +2372,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 	    // normal paragraph item
 	    s += "<p";
 	    s += align_to_string( p->alignment() );
-	    s += margin_to_string( item_p, p->utm, p->ubm, p->ulm, p->urm );
+	    s += margin_to_string( item_p, p->utm, p->ubm, p->ulm, p->urm, p->uflm );
 	    s +=direction_to_string( p->direction() );
 	    s += ">";
 	    s += ps;

@@ -224,13 +224,13 @@ void QStyleSheetItem::init()
     d->anchor = FALSE;
     d->align = Undefined;
     d->valign = VAlignBaseline;
-    d->margin[0] = 0;
-    d->margin[1] = 0;
-    d->margin[2] = 0;
-    d->margin[3] = 0;
-    d->margin[4] = 0;
+    d->margin[0] = Undefined;
+    d->margin[1] = Undefined;
+    d->margin[2] = Undefined;
+    d->margin[3] = Undefined;
+    d->margin[4] = Undefined;
     d->list = (ListStyle) Undefined;
-    d->whitespacemode = QStyleSheetItem::WhiteSpaceNormal;
+    d->whitespacemode = (WhiteSpaceMode) Undefined;
     d->selfnest = TRUE;
     d->lineSpacing = Undefined;
 }
