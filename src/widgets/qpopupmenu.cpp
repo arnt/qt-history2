@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#268 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#269 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -820,7 +820,6 @@ void QPopupMenu::hide()
     actItem = popupActive = -1;
     mouseBtDn = FALSE;				// mouse button up
     hidePopups();
-    killTimers();
     QWidget::hide();
     if ( syncMenu == this && qApp ) {
 	qApp->exit_loop();
@@ -1261,7 +1260,7 @@ void  QPopupMenu::styleChange( QStyle& old )
 /*! This private slot handles the delayed submenu effects */
 
 void QPopupMenu::subMenuTimer() {
-    
+
     if ( !isVisible() || (actItem < 0 && popupActive < 0) || actItem == popupActive )
 	return;
 
