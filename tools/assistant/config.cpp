@@ -27,6 +27,12 @@
 
 static Config *static_configuration = 0;
 
+static inline QString getVersionString()
+{
+    return QString::number( (QT_VERSION >> 16) & 0xff )
+	+ "." + QString::number( (QT_VERSION >> 8) & 0xff );
+}
+
 Config::Config()
     : hideSidebar( FALSE ), profil( 0 ), maximized(FALSE)
 {
@@ -83,9 +89,7 @@ Config *Config::configuration()
 
 void Config::load()
 {
-    const QString verString = QString::number( (QT_VERSION >> 16) & 0xff ) + 
-	"." + QString::number( (QT_VERSION >> 8) & 0xff );
-    const QString key = "/Qt Assistant/" + verString + "/";
+    const QString key = "/Qt Assistant/" + getVersionString() + "/";
     const QString profkey = key + "Profile/" + profil->props["name"] + "/";
 
     QSettings settings;
@@ -127,9 +131,7 @@ void Config::save()
 
 void Config::saveSettings()
 {
-    const QString verString = QString::number( (QT_VERSION >> 16) & 0xff ) + 
-	"." + QString::number( (QT_VERSION >> 8) & 0xff );
-    const QString key = "/Qt Assistant/" + verString + "/";
+    const QString key = "/Qt Assistant/" + getVersionString() + "/";
     const QString profkey = key + "Profile/" + profil->props["name"] + "/";
 
     QSettings settings;
@@ -173,7 +175,7 @@ void Config::loadDefaultProfile()
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/Profile";
+    const QString key = "/Qt Assistant/" + getVersionString() + "/Profile";
     const QString profKey = key + "/default/";
 
     if( settings.entryList( key + "/default" ).count() == 0 ) {
@@ -221,7 +223,7 @@ void Config::saveProfile( Profile *profile )
 	return;
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
+    const QString key = "/Qt Assistant/" + getVersionString() + "/";
     const QString profKey = key + "Profile/" + profile->props["name"] + "/";
 
     QStringList indexes, icons, imgDirs, dcfs;
