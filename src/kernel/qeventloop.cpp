@@ -167,8 +167,8 @@ void QEventLoop::exit( int retcode )
     if ( d->quitnow ) // preserve existing quitcode
 	return;
     d->quitcode = retcode;
-    d->quitnow = true;
-    d->exitloop = true;
+    d->quitnow = TRUE;
+    d->exitloop = TRUE;
 }
 
 
@@ -188,7 +188,7 @@ int QEventLoop::enterLoop()
 	processNextEvent( AllEvents, TRUE );
     d->looplevel--;
 
-    // restore the exitloop state, but if quitnow is true, we need to keep
+    // restore the exitloop state, but if quitnow is TRUE, we need to keep
     // exitloop set so that all other event loops drop out.
     d->exitloop = old_exitloop || d->quitnow;
 
@@ -245,7 +245,7 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 
 /*! \fn bool QEventLoop::hasPendingEvents() const
 
-    Returns true if there is an event waiting, otherwise it returns false.
+    Returns TRUE if there is an event waiting, otherwise it returns FALSE.
 */
 
 /*! \fn void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
@@ -322,7 +322,7 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 
     Processes the next event received that matches \a flags. If no
     events matching \a flags are available, this function will wait
-    for the next event if \a canWait is true, otherwise it returns
+    for the next event if \a canWait is TRUE, otherwise it returns
     immediately.
 
     Returns TRUE if an event was processed, otherwise returns FALSE.
