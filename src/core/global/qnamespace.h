@@ -1220,6 +1220,7 @@ public:
         Printer = 0x03,
         Picture = 0x04,
         System = 0x05,
+        Image = 0x06,
         DeviceTypeMask = 0x0f,
         ExternalDevice = 0x10,
         // used to emulate some of the behavior different between Qt2 and Qt3 (mainly for printing)
