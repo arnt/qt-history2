@@ -165,7 +165,7 @@ QCString uTypeExtra( QCString ctype )
 	if ( isVariantType( referencePlainUType(ctype) ) )
 	    typeExtra.sprintf("qt_variant_types+%d", qvariant_nameToType( referencePlainUType(ctype) ) );
 	else
-	    typeExtra.sprintf( "\"%s\"", ctype.data() );
+	    typeExtra.sprintf( "\"%s\"", referencePlainUType(ctype).data() );
 	return typeExtra;
     }
     if ( ctype.left(6) == "const " )
