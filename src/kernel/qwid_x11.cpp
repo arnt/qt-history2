@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#172 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#171 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#172 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1212,7 +1212,7 @@ void QWidget::setMinimumSize( int w, int h )
     extra->minh = h;
     int minw = QMAX(w,crect.width());
     int minh = QMAX(h,crect.height());
-    if ( isVisible() && (minw > w || minh > h) )
+    if ( minw > w || minh > h )
 	resize( minw, minh );
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
@@ -1247,7 +1247,7 @@ void QWidget::setMaximumSize( int w, int h )
     extra->maxh = h;
     int maxw = QMIN(w,crect.width());
     int maxh = QMIN(h,crect.height());
-    if ( isVisible() && (maxw < w || maxh < h) )
+    if ( maxw < w || maxh < h )
 	resize( maxw, maxh );
     if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
