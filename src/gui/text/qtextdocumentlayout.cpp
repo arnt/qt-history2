@@ -380,13 +380,13 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
         const int w = fd->boundingRect.width() - 2*margin;
         const int h = fd->boundingRect.height() - 2*margin;
         // left
-        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin, fd->border, h);
+        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin + fd->border, fd->border, h);
         // top
-        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin, w, fd->border);
+        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin, w + 2 * fd->border, fd->border);
         // right
-        painter->drawRect(off.x() + fd->margin + w, off.y() + fd->margin, fd->border, h);
+        painter->drawRect(off.x() + fd->margin + fd->border + w, off.y() + fd->margin + fd->border, fd->border, h);
         // bottom
-        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin + h, w + fd->border, fd->border);
+        painter->drawRect(off.x() + fd->margin, off.y() + fd->margin + fd->border + h, w + 2 * fd->border, fd->border);
         /*
         if (table) {
             QTextTableData *td = static_cast<QTextTableData *>(fd);
@@ -930,10 +930,10 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
     }
 
     // - margin to compensate the + margin in columnPositions[0]
-    // (same for height and rowPositions)
-    td->contentsWidth = qMax(td->contentsWidth, td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin);
+    td->contentsWidth = qMax(td->contentsWidth,
+                             td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin);
     int height = td->contentsHeight == -1
-                 ? td->rowPositions.last() + td->heights.last() + td->padding + td->border + cellSpacing - margin
+                 ? td->rowPositions.last() + td->heights.last() + td->padding + td->border + cellSpacing + margin
                  : td->contentsHeight + 2*margin;
     td->boundingRect = QRect(0, 0, td->contentsWidth + 2*margin, height);
     td->dirty = false;
