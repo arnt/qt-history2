@@ -2040,7 +2040,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             XPThemeData theme(widget, p, "WINDOW");
             if (sub & SC_TitleBarLabel) {
                 theme.rec = option->rect;
-                partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_SMALLCAPTION :
+                partId = titlebar->testWFlags(Qt::WA_WState_Tool) ? WP_SMALLCAPTION :
                         (titlebar->window() && titlebar->window()->isMinimized() ? WP_MINCAPTION : WP_CAPTION);
                 if (titlebar->inherits("QDockWindowTitle"))
                     partId = WP_SMALLCAPTION;
@@ -2065,7 +2065,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             }
             if (sub & SC_TitleBarSysMenu) {
                 theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarSysMenu, widget));
-                partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_SYSBUTTON : WP_SYSBUTTON;
+                partId = titlebar->testWFlags(Qt::WA_WState_Tool) ? WP_SYSBUTTON : WP_SYSBUTTON;
                 if (!widget->isEnabled())
                     stateId = SBS_DISABLED;
                 else if (option->activeSubControls == SC_TitleBarSysMenu)
@@ -2081,7 +2081,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             if (titlebar->window()) {
                 if (sub & SC_TitleBarMinButton) {
                     theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarMinButton, widget));
-                    partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_MINBUTTON : WP_MINBUTTON;
+                    partId = titlebar->testWFlags(Qt::WA_WState_Tool) ? WP_MINBUTTON : WP_MINBUTTON;
                     if (!widget->isEnabled())
                         stateId = MINBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarMinButton)
@@ -2094,7 +2094,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 }
                 if (sub & SC_TitleBarMaxButton) {
                     theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarMaxButton, widget));
-                    partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_MAXBUTTON : WP_MAXBUTTON;
+                    partId = titlebar->testWFlags(Qt::WA_WState_Tool) ? WP_MAXBUTTON : WP_MAXBUTTON;
                     if (!widget->isEnabled())
                         stateId = MAXBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarMaxButton)
@@ -2107,7 +2107,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 }
                 if (sub & SC_TitleBarNormalButton) {
                     theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarNormalButton, widget));
-                    partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_RESTOREBUTTON : WP_RESTOREBUTTON;
+                    partId = titlebar->testWFlags(Qt::WA_WState_Tool) ? WP_RESTOREBUTTON : WP_RESTOREBUTTON;
                     if (!widget->isEnabled())
                         stateId = RBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarNormalButton)
@@ -2120,7 +2120,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 }
                 if (sub & SC_TitleBarShadeButton) {
                     theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarShadeButton, widget));
-                    partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_MINBUTTON : WP_MINBUTTON;
+                    partId = titlebar->testWFlags(Qt::WA_WState_Tool) ? WP_MINBUTTON : WP_MINBUTTON;
                     if (!widget->isEnabled())
                         stateId = MINBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarShadeButton)
@@ -2133,7 +2133,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                 }
                 if (sub & SC_TitleBarUnshadeButton) {
                     theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarUnshadeButton, widget));
-                    partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_RESTOREBUTTON : WP_RESTOREBUTTON;
+                    partId = titlebar->testWFlags(Qt::WA_WState_Tool) ? WP_RESTOREBUTTON : WP_RESTOREBUTTON;
                     if (!widget->isEnabled())
                         stateId = RBS_DISABLED;
                     else if (option->activeSubControls == SC_TitleBarUnshadeButton)
@@ -2147,7 +2147,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
             }
             if (sub & SC_TitleBarCloseButton) {
                 theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_TitleBar, option, SC_TitleBarCloseButton, widget));
-                partId = titlebar->testWFlags(Qt::WState_Tool) ? WP_SMALLCLOSEBUTTON : WP_CLOSEBUTTON;
+                partId = titlebar->testWFlags(Qt::WA_WState_Tool) ? WP_SMALLCLOSEBUTTON : WP_CLOSEBUTTON;
                 if (!widget->isEnabled())
                     stateId = CBS_DISABLED;
                 else if (option->activeSubControls == SC_TitleBarCloseButton)
@@ -2473,24 +2473,24 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
 //    case CC_TitleBar: {
 //#ifndef QT_NO_TITLEBAR
 //        const QTitleBar *titlebar = (const QTitleBar *) widget;
-//        const int controlTop = widget->testWFlags(Qt::WState_Tool) ? 4 : 6;
+//        const int controlTop = widget->testWFlags(Qt::WA_WState_Tool) ? 4 : 6;
 //        const int controlHeight = widget->height() - controlTop - 3;
 //
 //        switch (sc) {
 //        case SC_TitleBarLabel: {
 //            const QTitleBar *titlebar = (QTitleBar*)widget;
 //            QRect ir(0, 0, titlebar->width(), titlebar->height());
-//            if (titlebar->testWFlags(Qt::WState_Tool)) {
-//                if (titlebar->testWFlags(Qt::WState_SysMenu))
+//            if (titlebar->testWFlags(Qt::WA_WState_Tool)) {
+//                if (titlebar->testWFlags(Qt::WA_WState_SysMenu))
 //                    ir.addCoords(0, 0, -controlHeight-3, 0);
-//                if (titlebar->testWFlags(Qt::WState_MinMax))
+//                if (titlebar->testWFlags(Qt::WA_WState_MinMax))
 //                    ir.addCoords(0, 0, -controlHeight-2, 0);
 //            } else {
-//                if (titlebar->testWFlags(Qt::WState_SysMenu))
+//                if (titlebar->testWFlags(Qt::WA_WState_SysMenu))
 //                    ir.addCoords(controlHeight+3, 0, -controlHeight-3, 0);
-//                if (titlebar->testWFlags(Qt::WState_Minimize))
+//                if (titlebar->testWFlags(Qt::WA_WState_Minimize))
 //                    ir.addCoords(0, 0, -controlHeight-2, 0);
-//                if (titlebar->testWFlags(Qt::WState_Maximize))
+//                if (titlebar->testWFlags(Qt::WA_WState_Maximize))
 //                    ir.addCoords(0, 0, -controlHeight-2, 0);
 //            }
 //            return ir; }
@@ -2509,7 +2509,7 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
 //        case SC_TitleBarMinButton:
 //        case SC_TitleBarNormalButton: {
 //            int offset = controlHeight + 1;
-//            if (!titlebar->testWFlags(Qt::WState_Maximize))
+//            if (!titlebar->testWFlags(Qt::WA_WState_Maximize))
 //                offset *= 2;
 //            else
 //                offset *= 3;

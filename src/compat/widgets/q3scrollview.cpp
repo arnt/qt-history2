@@ -2155,7 +2155,7 @@ void Q3ScrollView::resizeContents(int w, int h)
 */
 void Q3ScrollView::updateContents(int x, int y, int w, int h)
 {
-    if (testWState(WState_Visible|WState_BlockUpdates) != WState_Visible)
+    if (!isVisible() || !isUpdatesEnabled())
         return;
 
     QWidget* vp = viewport();
@@ -2244,7 +2244,7 @@ void Q3ScrollView::repaintContents(bool erase)
 */
 void Q3ScrollView::repaintContents(int x, int y, int w, int h, bool erase)
 {
-    if (testWState(WState_Visible|WState_BlockUpdates) != WState_Visible)
+    if (!isVisible() || !isUpdatesEnabled())
         return;
 
     QWidget* vp = viewport();

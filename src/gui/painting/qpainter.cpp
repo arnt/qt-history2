@@ -1000,7 +1000,7 @@ bool QPainter::begin(QPaintDevice *pd)
 
             if(!d->engine->hasFeature(QPaintEngine::PaintOutsidePaintEvent)
                && !widget->testAttribute(Qt::WA_PaintOutsidePaintEvent)
-               && !widget->testWState(Qt::WState_InPaintEvent)) {
+               && !widget->testAttribute(Qt::WA_WState_InPaintEvent)) {
                 qWarning("QPainter::begin: Widget painting can only begin as a "
                          "result of a paintEvent");
                 return false;

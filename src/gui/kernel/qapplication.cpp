@@ -1174,7 +1174,7 @@ void QApplication::setStyle(QStyle *style)
             for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
                 register QWidget *w = *it;
                 if (!w->testWFlags(Qt::WType_Desktop) &&        // except desktop
-                     w->testWState(Qt::WState_Polished)) { // has been polished
+                     w->testAttribute(Qt::WA_WState_Polished)) { // has been polished
                     old->unpolish(w);
                 }
             }
@@ -1199,7 +1199,7 @@ void QApplication::setStyle(QStyle *style)
             for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
                 register QWidget *w = *it;
                 if (!w->testWFlags(Qt::WType_Desktop)) {        // except desktop
-                    if (w->testWState(Qt::WState_Polished))
+                    if (w->testAttribute(Qt::WA_WState_Polished))
                         QApplicationPrivate::app_style->polish(w);                // repolish
                     QEvent e(QEvent::StyleChange);
                     QApplication::sendEvent(w, &e);

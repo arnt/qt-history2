@@ -178,39 +178,6 @@ public:
 
     // Widget flags; documented in qwidget.cpp
 
-    // QWidget state flags (internal, barely documented in qwidget.cpp)
-    enum WStateFlag {
-        WState_Created          = 0x00000001,
-        WState_Reserved3        = 0x00000002, // was Disabled
-        WState_Visible          = 0x00000004,
-        WState_Hidden           = 0x00000008,
-        WState_ForceHide        = WState_Hidden,
-        WState_Reserve6         = 0x00000010,
-        WState_Reserve5         = 0x00000020, // was MouseTracking
-        WState_CompressKeys     = 0x00000040,
-        WState_BlockUpdates     = 0x00000080,
-        WState_InPaintEvent     = 0x00000100,
-        WState_Reparented       = 0x00000200,
-        WState_ConfigPending    = 0x00000400,
-        WState_Reserved7        = 0x00000800, // was Resized
-        WState_AutoMask         = 0x00001000,
-        WState_Polished         = 0x00002000,
-        WState_DND              = 0x00004000,
-        WState_Reserved0        = 0x00008000,
-        WState_FullScreen       = 0x00010000,
-        WState_OwnSizePolicy    = 0x00020000,
-        WState_ExplicitShowHide = 0x00040000,
-        WState_Maximized        = 0x00080000,
-        WState_Minimized        = 0x00100000,
-        WState_Reserved4        = 0x00200000, // was ForceDisabled
-        WState_Exposed          = 0x00400000,
-        WState_Reserved2        = 0x00800000 // was HasMouse
-    };
-
-    Q_DECLARE_FLAGS(WState, WStateFlag)
-
-    // Widget flags2; documented in qwidget.cpp
-
     // documented in qwidget.cpp
     enum WFlag {
         WType_TopLevel          = 0x00000001,        // widget type flags
@@ -316,6 +283,8 @@ public:
         WA_MacNoClickThrough, //mac only
         WA_PaintOutsidePaintEvent,
         WA_InputMethodEnabled,
+        WA_WState_Visible,
+        WA_WState_Hidden ,
 
         WA_ForceDisabled = 32,
         WA_KeyCompression,
@@ -345,6 +314,17 @@ public:
         WA_SetLayoutDirection,
         WA_NoChildEventsForParent,
         WA_ForceUpdatesDisabled,
+
+        WA_WState_Created,
+        WA_WState_CompressKeys,
+        WA_WState_InPaintEvent,
+        WA_WState_Reparented,
+        WA_WState_ConfigPending,
+        WA_WState_AutoMask,
+        WA_WState_Polished,
+        WA_WState_DND,
+        WA_WState_OwnSizePolicy,
+        WA_WState_ExplicitShowHide,
 
         // Add new attributes above this!
         WA_AttributeCount
@@ -1206,7 +1186,6 @@ public:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MouseButtons)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::KeyboardModifiers)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WState)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ImageConversionFlags)

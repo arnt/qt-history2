@@ -249,11 +249,11 @@ QAbstractSlider::~QAbstractSlider()
 void QAbstractSlider::setOrientation(Qt::Orientation orientation)
 {
     d->orientation = orientation;
-    if (!testWState(Qt::WState_OwnSizePolicy)) {
+    if (!testAttribute(Qt::WA_WState_OwnSizePolicy)) {
         QSizePolicy sp = sizePolicy();
         sp.transpose();
         setSizePolicy(sp);
-        clearWState(Qt::WState_OwnSizePolicy);
+        setAttribute(Qt::WA_WState_OwnSizePolicy, false);
     }
     update();
     updateGeometry();

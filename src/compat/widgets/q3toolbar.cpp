@@ -492,8 +492,8 @@ bool Q3ToolBar::event(QEvent * e)
             if (isVisible()) {
                 // toolbar compatibility: we auto show widgets that
                 // are not explicitly hidden
-                if (((QWidget*)child)->testWState(Qt::WState_Hidden|Qt::WState_ExplicitShowHide)
-                     == Qt::WState_Hidden)
+                if (((QWidget*)child)->testAttribute(Qt::WA_WState_Hidden)
+                    && !((QWidget*)child)->testAttribute(Qt::WA_WState_ExplicitShowHide))
                     ((QWidget*)child)->show();
                 checkForExtension(size());
             }

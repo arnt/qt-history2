@@ -330,7 +330,7 @@ void QSplitterPrivate::init()
     if (orient == Qt::Vertical)
         sp.transpose();
     q->setSizePolicy(sp);
-    q->clearWState(Qt::WState_OwnSizePolicy);
+    q->setAttribute(Qt::WA_WState_OwnSizePolicy, false);
 }
 
 void QSplitterPrivate::recalc(bool update)
@@ -959,11 +959,11 @@ void QSplitter::setOrientation(Qt::Orientation o)
     if (d->orient == o)
         return;
 
-    if (!testWState(Qt::WState_OwnSizePolicy)) {
+    if (!testAttribute(Qt::WA_WState_OwnSizePolicy)) {
         QSizePolicy sp = sizePolicy();
         sp.transpose();
         setSizePolicy(sp);
-        clearWState(Qt::WState_OwnSizePolicy);
+        setAttribute(Qt::WA_WState_OwnSizePolicy, false);
     }
 
     d->orient = o;

@@ -50,6 +50,7 @@
 #include "qpainter.h"
 #include "qtooltip.h"
 #include "qwhatsthis.h"
+#include "qdebug.h"
 #if defined(Q_WS_X11)
 #include <private/qpaintengine_x11_p.h>
 #include "qx11info_x11.h"
@@ -511,20 +512,18 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 /*
     Widget state flags:
   \list
-  \i Qt::WState_Created The widget has a valid winId().
-  \i Qt::WState_Visible The widget is currently visible.
-  \i Qt::WState_Hidden The widget is hidden, i.e. it won't
-  become visible unless you call show() on it. Qt::WState_Hidden
-  implies !Qt::WState_Visible.
-  \i Qt::WState_CompressKeys Compress keyboard events.
-  \i Qt::WState_BlockUpdates Repaints and updates are disabled.
-  \i Qt::WState_InPaintEvent Currently processing a paint event.
-  \i Qt::WState_Reparented The widget has been reparented.
-  \i Qt::WState_ConfigPending A configuration (resize/move) event is pending.
-  \i Qt::WState_AutoMask The widget has an automatic mask, see setAutoMask().
-  \i Qt::WState_DND The widget supports drag and drop, see setAcceptDrops().
-  \i Qt::WState_Exposed the widget was finally exposed (X11 only,
-      helps avoid paint event doubling).
+  \i Qt::WA_WState_Created The widget has a valid winId().
+  \i Qt::WA_WState_Visible The widget is currently visible.
+  \i Qt::WA_WState_Hidden The widget is hidden, i.e. it won't
+  become visible unless you call show() on it. Qt::WA_WState_Hidden
+  implies !Qt::WA_WState_Visible.
+  \i Qt::WA_WState_CompressKeys Compress keyboard events.
+  \i Qt::WA_WState_BlockUpdates Repaints and updates are disabled.
+  \i Qt::WA_WState_InPaintEvent Currently processing a paint event.
+  \i Qt::WA_WState_Reparented The widget has been reparented.
+  \i Qt::WA_WState_ConfigPending A configuration (resize/move) event is pending.
+  \i Qt::WA_WState_AutoMask The widget has an automatic mask, see setAutoMask().
+  \i Qt::WA_WState_DND The widget supports drag and drop, see setAcceptDrops().
   \endlist
 */
 
@@ -686,7 +685,6 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     \value WState_Created
     \value WState_DND
     \value WState_ExplicitShowHide
-    \value WState_Exposed
     \value WState_FullScreen
     \value WState_Hidden
     \value WState_InPaintEvent
@@ -800,9 +798,8 @@ void QWidgetPrivate::init(Qt::WFlags f)
     if (f & Qt::WDestructiveClose)
 	q->setAttribute(Qt::WA_DeleteOnClose);
 #endif
-    data.widget_state = 0;
-    data.widget_flags = f;
-
+    data.window_type = f;
+    data.window_state = 0;
     data.focus_policy = 0;
     data.context_menu_policy = Qt::DefaultContextMenu;
 
@@ -824,9 +821,9 @@ void QWidgetPrivate::init(Qt::WFlags f)
 #ifdef Q_WS_MAC
         extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
         if(!qt_mac_is_macdrawer(q)) //special case
-            q->setWState(Qt::WState_Hidden);
+            q->setAttribute(Qt::WA_WState_Hidden);
 #else
-        q->setWState(Qt::WState_Hidden);
+        q->setAttribute(Qt::WA_WState_Hidden);
 #endif
         createTLExtra();
     } else {
@@ -848,7 +845,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
             q->setAttribute(Qt::WA_RightToLeft);
         // new widgets do not show up in already visible parents
         if (parentWidget->isVisible())
-            q->setWState(Qt::WState_Hidden);
+            q->setAttribute(Qt::WA_WState_Hidden);
     }
 
     if (q->isTopLevel()) {
@@ -957,7 +954,7 @@ void QWidgetPrivate::setWinId(WId id)                // set widget identifier
     if (data.winid)
         mapper->remove(data.winid);
 
-    q->data->winid = id;
+    data.winid = id;
 #if defined(Q_WS_X11)
     hd = id; // X11: hd == ident
 #endif
@@ -1513,7 +1510,7 @@ QStyle* QWidget::setStyle(const QString &style)
     \sa showMinimized(), visible, show(), hide(), showNormal(), maximized
 */
 bool QWidget::isMinimized() const
-{ return testWState(Qt::WState_Minimized); }
+{ return data->window_state & Qt::WindowMinimized; }
 
 /*!
     Shows the widget minimized, as an icon.
@@ -1529,11 +1526,15 @@ void QWidget::showMinimized()
     bool isMin = isMinimized();
     if (isMin && isVisible()) return;
 
+    ensurePolished();
+#ifdef QT_COMPAT
+    if (parent())
+        QApplication::sendPostedEvents(parent(), QEvent::ChildInserted);
+#endif
+
     if (!isMin)
         setWindowState((windowState() & ~Qt::WindowActive) | Qt::WindowMinimized);
     show();
-    if (!isTopLevel())
-        QApplication::sendPostedEvents(this, QEvent::ShowMinimized);
 }
 
 /*!
@@ -1551,7 +1552,7 @@ void QWidget::showMinimized()
     \sa windowState(), showMaximized(), visible, show(), hide(), showNormal(), minimized
 */
 bool QWidget::isMaximized() const
-{ return testWState(Qt::WState_Maximized); }
+{ return data->window_state & Qt::WindowMaximized; }
 
 
 
@@ -1563,20 +1564,21 @@ bool QWidget::isMaximized() const
  */
 Qt::WindowStates QWidget::windowState() const
 {
-    Qt::WindowStates state = 0;
-    if (testWState(Qt::WState_Minimized))
-        state |= Qt::WindowMinimized;
-    if (testWState(Qt::WState_Maximized))
-        state |= Qt::WindowMaximized;
-    if (testWState(Qt::WState_FullScreen))
-        state |= Qt::WindowFullScreen;
-    if (isActiveWindow())
-        state |= Qt::WindowActive;
-    return state;
+    return (Qt::WindowStates)data->window_state;
+}
+
+/*!\internal
+
+   The function sets the window state without sending any events. It
+   exists mainly to keep Q3Workspace working.
+ */
+void QWidget::overrideWindowState(Qt::WindowStates newstate)
+{
+    data->window_state  = newstate;
 }
 
 /*!
-  \fn void QWidget::setWindowState(uint windowState)
+  \fn void QWidget::setWindowState(Qt::WindowStates windowState)
 
   Sets the window state to \a windowState. The window state is a OR'ed
   combination of Qt::WindowState: \c Qt::WindowMinimized, \c
@@ -1611,7 +1613,7 @@ Qt::WindowStates QWidget::windowState() const
     \sa windowState(), minimized, maximized
 */
 bool QWidget::isFullScreen() const
-{ return testWState(Qt::WState_FullScreen); }
+{ return data->window_state & Qt::WindowFullScreen; }
 
 /*!
     Shows the widget in full-screen mode.
@@ -1648,11 +1650,15 @@ void QWidget::showFullScreen()
     if (isFull && isVisible())
 	return;
 
+    ensurePolished();
+#ifdef QT_COMPAT
+    if (parent())
+        QApplication::sendPostedEvents(parent(), QEvent::ChildInserted);
+#endif
+
     if (!isFull)
 	setWindowState(windowState() | Qt::WindowFullScreen);
     show();
-    if (!isTopLevel())
-	QApplication::sendPostedEvents(this, QEvent::ShowFullScreen);
     activateWindow();
 }
 
@@ -1673,10 +1679,14 @@ void QWidget::showMaximized()
     if (isMaximized() && isVisible() && !isMinimized())
 	return;
 
+    ensurePolished();
+#ifdef QT_COMPAT
+    if (parent())
+        QApplication::sendPostedEvents(parent(), QEvent::ChildInserted);
+#endif
+
     setWindowState((windowState() & ~Qt::WindowMinimized) | Qt::WindowMaximized);
     show();
-    if (!isTopLevel())
-        QApplication::sendPostedEvents(this, QEvent::ShowMaximized);
 }
 
 /*!
@@ -1689,10 +1699,14 @@ void QWidget::showMaximized()
 */
 void QWidget::showNormal()
 {
+    ensurePolished();
+#ifdef QT_COMPAT
+    if (parent())
+        QApplication::sendPostedEvents(parent(), QEvent::ChildInserted);
+#endif
+
     setWindowState(Qt::WindowNoState);
     show();
-    if (!isTopLevel())
-        QApplication::sendPostedEvents(this, QEvent::ShowNormal);
 }
 
 /*!
@@ -3847,7 +3861,7 @@ void QWidget::setUpdatesEnabled(bool enable)
 
 void QWidget::show()
 {
-    if (testWState(Qt::WState_ExplicitShowHide|Qt::WState_Hidden) == Qt::WState_ExplicitShowHide)
+    if (testAttribute(Qt::WA_WState_ExplicitShowHide) && !testAttribute(Qt::WA_WState_Hidden))
         return;
 
     bool wasResized = testAttribute(Qt::WA_Resized);
@@ -3863,18 +3877,17 @@ void QWidget::show()
     ensurePolished();
 
     // remember that show was called explicitly
-    setWState(Qt::WState_ExplicitShowHide);
+    setAttribute(Qt::WA_WState_ExplicitShowHide);
     // whether we need to inform the parent widget immediately
-    bool needUpdateGeometry = !isTopLevel() && testWState(Qt::WState_Hidden);
+    bool needUpdateGeometry = !isTopLevel() && testAttribute(Qt::WA_WState_Hidden);
     // we are no longer hidden
-    clearWState(Qt::WState_Hidden);
+    setAttribute(Qt::WA_WState_Hidden, false);
 
     if (needUpdateGeometry)
         updateGeometry();
 
 #ifdef QT3_SUPPORT
-    if(d->sendChildEvents)
-        QApplication::sendPostedEvents(this, QEvent::ChildInserted);
+    QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 #endif
 #ifndef QT_NO_LAYOUT
     if (!isTopLevel() && parentWidget()->d_func()->layout)
@@ -3951,7 +3964,7 @@ void QWidgetPrivate::show_helper()
     }
 
     // become visible before showing all children
-    q->setWState(Qt::WState_Visible);
+    q->setAttribute(Qt::WA_WState_Visible);
 
     // finally show all children recursively
     showChildren(false);
@@ -4047,15 +4060,15 @@ void QWidgetPrivate::show_helper()
 
 void QWidget::hide()
 {
-    if (testWState(Qt::WState_ExplicitShowHide|Qt::WState_Hidden) == (Qt::WState_ExplicitShowHide|Qt::WState_Hidden))
+    if (testAttribute(Qt::WA_WState_ExplicitShowHide) && testAttribute(Qt::WA_WState_Hidden))
         return;
 
     Q_D(QWidget);
-    setWState(Qt::WState_Hidden);
-    if (testWState(Qt::WState_ExplicitShowHide))
+    setAttribute(Qt::WA_WState_Hidden);
+    if (testAttribute(Qt::WA_WState_ExplicitShowHide))
         d->hide_helper();
     else
-        setWState(Qt::WState_ExplicitShowHide);
+        setAttribute(Qt::WA_WState_ExplicitShowHide);
     QEvent hideToParentEvent(QEvent::HideToParent);
     QApplication::sendEvent(this, &hideToParentEvent);
 }
@@ -4082,10 +4095,10 @@ void QWidgetPrivate::hide_helper()
     q->setAttribute(Qt::WA_Mapped, false);
     hide_sys();
 
-    bool wasVisible = q->testWState(Qt::WState_Visible);
+    bool wasVisible = q->testAttribute(Qt::WA_WState_Visible);
 
     if (wasVisible) {
-        q->clearWState(Qt::WState_Visible);
+        q->setAttribute(Qt::WA_WState_Visible, false);
 
         // next bit tries to move the focus if the focus widget is now
         // hidden.
@@ -4138,7 +4151,7 @@ void QWidgetPrivate::showChildren(bool spontaneous)
         QWidget *widget = static_cast<QWidget*>(object);
         if (widget->isTopLevel() )
             continue;
-        if (widget->testWState(Qt::WState_Hidden))
+        if (widget->testAttribute(Qt::WA_WState_Hidden))
             continue;
         if (spontaneous) {
             widget->setAttribute(Qt::WA_Mapped);
@@ -4146,7 +4159,7 @@ void QWidgetPrivate::showChildren(bool spontaneous)
             QShowEvent e;
             QApplication::sendSpontaneousEvent(widget, &e);
         } else {
-            if (widget->testWState(Qt::WState_ExplicitShowHide))
+            if (widget->testAttribute(Qt::WA_WState_ExplicitShowHide))
                 widget->d_func()->show_recursive();
             else
                 widget->show();
@@ -4162,12 +4175,12 @@ void QWidgetPrivate::hideChildren(bool spontaneous)
         if (!object->isWidgetType())
             continue;
         QWidget *widget = static_cast<QWidget*>(object);
-        if (widget->isTopLevel() || widget->testWState(Qt::WState_Hidden))
+        if (widget->isTopLevel() || widget->testAttribute(Qt::WA_WState_Hidden))
             continue;
         if (spontaneous)
             widget->setAttribute(Qt::WA_Mapped, false);
         else
-            widget->clearWState(Qt::WState_Visible);
+            widget->setAttribute(Qt::WA_WState_Visible, false);
         widget->d_func()->hideChildren(spontaneous);
         QHideEvent e;
         if (spontaneous)
@@ -4511,38 +4524,6 @@ QSize QWidget::minimumSizeHint() const
     \sa getWFlags(), setWFlags(), clearWFlags()
 */
 
-/*!
-  \fn Qt::WState QWidget::testWState(Qt::WState s) const
-  \internal
-
-  Returns the bitwise AND of the widget states and \a s.
-*/
-
-/*!
-  \fn uint QWidget::getWState() const
-
-  \internal
-
-  Returns the current widget state.
-*/
-
-/*!
-    \fn void QWidget::setWState(Qt::WState f)
-
-    \internal
-
-    ORs the widget's state with state \a f.
-*/
-
-/*!
-    \fn void QWidget::clearWState(Qt::WState f)
-
-    \internal
-
-    ANDs the widget's state with state NOT \a f.
-*/
-
-
 
 /*****************************************************************************
   QWidget event handling
@@ -4657,7 +4638,7 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::Polish: {
         style()->polish(this);
-        setWState(Qt::WState_Polished);
+        setAttribute(Qt::WA_WState_Polished);
         if (!testAttribute(Qt::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
             d->resolveFont();
         if (!QApplication::palette(this).isCopyOf(QApplication::palette()))
@@ -4787,6 +4768,7 @@ bool QWidget::event(QEvent *e)
     case QEvent::ModifiedChange:
     case QEvent::MouseTrackingChange:
     case QEvent::ParentChange:
+    case QEvent::WindowStateChange:
         changeEvent(e);
         break;
 
@@ -4861,24 +4843,6 @@ bool QWidget::event(QEvent *e)
         repaint(static_cast<QWSUpdateEvent*>(e)->region());
         break;
 #endif
-
-    case QEvent::WindowStateChange:
-        {
-            changeEvent(e);
-
-            QEvent::Type type;
-            if (isMinimized())
-                type = QEvent::ShowMinimized;
-            else if (isFullScreen())
-                type = QEvent::ShowFullScreen;
-            else if (isMaximized())
-                type = QEvent::ShowMaximized;
-            else
-                type = QEvent::ShowNormal;
-
-            QApplication::postEvent(this, new QEvent(type));
-            break;
-        }
 
     case QEvent::WindowBlocked:
     case QEvent::WindowUnblocked:
@@ -5180,7 +5144,7 @@ void QWidget::focusInEvent(QFocusEvent *)
 {
     if (focusPolicy() != Qt::NoFocus || !isTopLevel()) {
         update();
-        if (testWState(Qt::WState_AutoMask))
+        if (testAttribute(Qt::WA_WState_AutoMask))
             updateMask();
     }
 }
@@ -5208,7 +5172,7 @@ void QWidget::focusOutEvent(QFocusEvent *)
 {
     if (focusPolicy() != Qt::NoFocus || !isTopLevel()){
         update();
-        if (testWState(Qt::WState_AutoMask))
+        if (testAttribute(Qt::WA_WState_AutoMask))
             updateMask();
     }
 }
@@ -5334,7 +5298,7 @@ void QWidget::moveEvent(QMoveEvent *)
 
 void QWidget::resizeEvent(QResizeEvent *)
 {
-    if (testWState(Qt::WState_AutoMask))
+    if (testAttribute(Qt::WA_WState_AutoMask))
         updateMask();
 }
 
@@ -5729,7 +5693,7 @@ void QWidget::ensurePolished() const
 
 bool QWidget::autoMask() const
 {
-    return testWState(Qt::WState_AutoMask);
+    return testAttribute(Qt::WA_WState_AutoMask);
 }
 
 void QWidget::setAutoMask(bool enable)
@@ -5738,10 +5702,10 @@ void QWidget::setAutoMask(bool enable)
         return;
 
     if (enable) {
-        setWState(Qt::WState_AutoMask);
+        setAttribute(Qt::WA_WState_AutoMask);
         updateMask();
     } else {
-        clearWState(Qt::WState_AutoMask);
+        setAttribute(Qt::WA_WState_AutoMask, false);
         clearMask();
     }
 }
@@ -5819,7 +5783,7 @@ QSizePolicy QWidget::sizePolicy() const
 
 void QWidget::setSizePolicy(QSizePolicy policy)
 {
-    setWState(Qt::WState_OwnSizePolicy);
+    setAttribute(Qt::WA_WState_OwnSizePolicy);
     if (policy == sizePolicy())
         return;
 
@@ -5931,6 +5895,9 @@ void QWidget::updateGeometry()
     old parent, setting the parent doesn't change the tab order or
     keyboard focus.
 
+    If the "new" parent widget is the old parent widget, this function
+    does nothing.
+
     \warning It is extremely unlikely that you will ever need this
     function. If you have a widget that changes its content
     dynamically, it is far easier to use \l QWidgetStack or \l
@@ -5939,6 +5906,8 @@ void QWidget::updateGeometry()
 */
 void QWidget::setParent(QWidget *parent)
 {
+    if (parent == parentWidget())
+        return;
     setParent((QWidget*)parent, getWFlags() & ~Qt::WType_Mask);
 }
 
@@ -6085,7 +6054,7 @@ void QWidget::repaint(const QRect &r)
 */
 void QWidget::erase_helper(int x, int y, int w, int h)
 {
-    if (testAttribute(Qt::WA_NoSystemBackground) || testAttribute(Qt::WA_UpdatesDisabled) ||  !testWState(Qt::WState_Visible))
+    if (testAttribute(Qt::WA_NoSystemBackground) || testAttribute(Qt::WA_UpdatesDisabled) ||  !testAttribute(Qt::WA_WState_Visible))
         return;
     if (w < 0)
         w = data->crect.width()  - x;
@@ -6108,7 +6077,7 @@ void QWidget::erase_helper(int x, int y, int w, int h)
 */
 void QWidget::erase(const QRegion& rgn)
 {
-    if (testAttribute(Qt::WA_NoSystemBackground) || testAttribute(Qt::WA_UpdatesDisabled) || !testWState(Qt::WState_Visible))
+    if (testAttribute(Qt::WA_NoSystemBackground) || testAttribute(Qt::WA_UpdatesDisabled) || !testAttribute(Qt::WA_WState_Visible))
         return;
 
     QPainter p(this);
@@ -6118,7 +6087,7 @@ void QWidget::erase(const QRegion& rgn)
 
 void QWidget::drawText_helper(int x, int y, const QString &str)
 {
-    if(!testWState(Qt::WState_Visible))
+    if(!testAttribute(Qt::WA_WState_Visible))
         return;
     QPainter paint(this);
     paint.drawText(x, y, str);

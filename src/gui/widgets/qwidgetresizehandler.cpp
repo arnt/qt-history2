@@ -184,7 +184,7 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
     if (buttonDown && !isMovingEnabled() && mode == Center && !moveResizeMode)
         return;
 
-    if (widget->testWState(Qt::WState_ConfigPending))
+    if (widget->testAttribute(Qt::WA_WState_ConfigPending))
         return;
 
 

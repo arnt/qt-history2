@@ -59,7 +59,7 @@ QDesktopWidget::QDesktopWidget()
 : QWidget(*new QDesktopWidgetPrivate, 0, Qt::WType_Desktop)
 {
     setObjectName("desktop");
-    setWState(Qt::WState_Visible);
+    setAttribute(Qt::WA_WState_Visible);
 }
 
 QDesktopWidget::~QDesktopWidget()

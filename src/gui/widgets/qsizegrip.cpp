@@ -210,7 +210,7 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 
     Q_D(QSizeGrip);
     QWidget* tlw = qt_sizegrip_topLevelWidget(this);
-    if (tlw->testWState(Qt::WState_ConfigPending))
+    if (tlw->testAttribute(Qt::WA_WState_ConfigPending))
         return;
 
     QPoint np(e->globalPos());

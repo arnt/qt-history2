@@ -747,7 +747,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             } else if(CFStringCompare(var, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     QWidget *widget = (QWidget*)req_iface->object();
-                    Boolean val = (widget->testWState(Qt::WState_Minimized)) ? true : false;
+                    Boolean val = (widget->testAttribute(Qt::WA_WState_Minimized)) ? true : false;
                     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
                                       sizeof(val), &val);
                 }

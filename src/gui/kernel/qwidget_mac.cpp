@@ -421,7 +421,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                            region_rects[i].width(), region_rects[i].height());
 #endif
                 if (widget->isVisible() && widget->isUpdatesEnabled()) { //process the actual paint event.
-                    if(widget->testWState(Qt::WState_InPaintEvent))
+                    if(widget->testAttribute(Qt::WA_WState_InPaintEvent))
                         qWarning("QWidget::repaint: recursive repaint detected.");
 
 
@@ -433,7 +433,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     }
 
                     //setup the context
-                    widget->setWState(Qt::WState_InPaintEvent);
+                    widget->setAttribute(Qt::WA_WState_InPaintEvent);
                     qt_set_paintevent_clipping(widget, qrgn);
 
                     //handle the erase
@@ -471,7 +471,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 
                     //cleanup
                     qt_clear_paintevent_clipping(widget);
-                    widget->clearWState(Qt::WState_InPaintEvent);
+                    widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
                     if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
                         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
                 }
@@ -614,11 +614,11 @@ void QWidgetPrivate::toggleDrawers(bool visible)
         QWidget *widget = static_cast<QWidget*>(object);
         if(qt_mac_is_macdrawer(widget)) {
             if(visible) {
-                if (!widget->testWState(Qt::WState_ExplicitShowHide))
+                if (!widget->testAttribute(Qt::WA_WState_ExplicitShowHide))
                     widget->show();
             } else {
                 widget->hide();
-                widget->clearWState(Qt::WState_ExplicitShowHide);
+                widget->setAttribute(Qt::WA_WState_ExplicitShowHide, false);
             }
         }
     }
@@ -782,7 +782,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 {
     d->window_event = 0;
     WId destroyid = 0;
-    setWState(Qt::WState_Created);                        // set created flag
+    setAttribute(Qt::WA_WState_Created);                        // set created flag
 
     if(!parentWidget() || parentWidget()->isDesktop())
         setWFlags(Qt::WType_TopLevel);            // top-level widget
@@ -801,7 +801,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             h = qMax(h, (*g)->gdRect.bottom);
         }
         dskr = QRect(0, 0, w, h);
-        setWState(Qt::WState_Visible);
+        setAttribute(Qt::WA_WState_Visible);
     } else {
         if(QDesktopWidget *dsk = QApplication::desktop()) {
             int deskn = dsk->primaryScreen();
@@ -809,7 +809,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
                 deskn = dsk->screenNumber(parentWidget());
             dskr = dsk->screenGeometry(deskn);
         }
-        clearWState(Qt::WState_Visible);
+        setAttribute(Qt::WA_WState_Visible, false);
     }
     if(desktop)                             // desktop widget
         data->crect.setRect(0, 0, dskr.width(), dskr.height());
@@ -849,9 +849,9 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         HIRect bounds;
         HIViewGetFrame(hiview, &bounds);
         if(HIViewIsVisible(hiview))
-            setWState(Qt::WState_Visible);
+            setAttribute(Qt::WA_WState_Visible);
         else
-            clearWState(Qt::WState_Visible);
+            setAttribute(Qt::WA_WState_Visible, false);
         data->crect.setRect((int)bounds.origin.x, (int)bounds.origin.y, (int)bounds.size.width, (int)bounds.size.height);
         d->setWinId((WId)hiview);
     } else if(desktop) {                        // desktop widget
@@ -1091,8 +1091,8 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
     qt_mac_unicode_cleanup(this);
     if(isDesktop() && destroyWindow)
         qt_root_win_widgets.removeAll(this);
-    if(testWState(Qt::WState_Created)) {
-        clearWState(Qt::WState_Created);
+    if(testAttribute(Qt::WA_WState_Created)) {
+        setAttribute(Qt::WA_WState_Created, false);
         QObjectList chldrn = children();
         for(int i = 0; i < chldrn.size(); i++) {  // destroy all widget children
             QObject *obj = chldrn.at(i);
@@ -1151,11 +1151,14 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     Qt::FocusPolicy fp = q->focusPolicy();
     QSize    s = q->size();
     QString capt = q->windowTitle();
-    data.widget_flags = f;
-    q->clearWState(Qt::WState_Created | Qt::WState_Visible | Qt::WState_Hidden | Qt::WState_ExplicitShowHide);
+    data.window_type = f;
+    q->setAttribute(Qt::WA_WState_Created, false);
+    q->setAttribute(Qt::WA_WState_Visible, false);
+    q->setAttribute(Qt::WA_WState_Hidden, false);
+    q->setAttribute(Qt::WA_WState_ExplicitShowHide, false);
     q->create();
     if(q->isTopLevel() || (!parent || parent->isVisible()))
-        q->setWState(Qt::WState_Hidden);
+        q->setAttribute(Qt::WA_WState_Hidden);
     if(dropable)
         q->setAcceptDrops(false);
 
@@ -1534,6 +1537,8 @@ void QWidgetPrivate::hide_sys()
 void QWidget::setWindowState(Qt::WindowStates newstate)
 {
     Qt::WindowStates oldstate = windowState();
+    if (oldstate == newstate)
+        return;
 
     bool needShow = false;
     if(isTopLevel()) {
@@ -1642,13 +1647,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
         }
     }
 
-    data->widget_state &= ~(Qt::WState_Minimized | Qt::WState_Maximized | Qt::WState_FullScreen);
-    if(newstate & Qt::WindowMinimized)
-        data->widget_state |= Qt::WState_Minimized;
-    if(newstate & Qt::WindowMaximized)
-        data->widget_state |= Qt::WState_Maximized;
-    if(newstate & Qt::WindowFullScreen)
-        data->widget_state |= Qt::WState_FullScreen;
+    data->window_state = newstate;
 
     if(needShow)
         show();
@@ -1876,7 +1875,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     if(!q->isTopLevel() && !isResize && QPoint(x, y) == oldp)
         return;
     if(isResize && q->isMaximized())
-        q->clearWState(Qt::WState_Maximized);
+        q->setAttribute(Qt::WA_WState_Maximized, false);
     const bool visible = q->isVisible();
     data.crect = QRect(x, y, w, h);
 

@@ -580,7 +580,7 @@ bool QDialog::event(QEvent *e)
 
 void QDialog::show()
 {
-    if (testWState(Qt::WState_Visible))
+    if (testAttribute(Qt::WA_WState_Visible))
         return;
 
 #ifdef Q_OS_TEMP
@@ -811,7 +811,7 @@ void QDialog::showExtension(bool showIt)
     d->doShowExtension = showIt;
     if (!d->extension)
         return;
-    if (!testWState(Qt::WState_Visible))
+    if (!testAttribute(Qt::WA_WState_Visible))
         return;
     if (d->extension->isVisible() == showIt)
         return;

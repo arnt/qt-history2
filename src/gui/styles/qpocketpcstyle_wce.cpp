@@ -671,7 +671,7 @@ int QPocketPCStyle::pixelMetric(PixelMetric pixelmetric, const QStyleOption * /*
 
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
-        if (widget && (widget->testWFlags(Qt::WState_Tool) || ::qt_cast<QDockWindow*>(widget))) {
+        if (widget && (widget->testWFlags(Qt::WA_WState_Tool) || ::qt_cast<QDockWindow*>(widget))) {
             // MS always use one less than they say
             ret = GetSystemMetrics(SM_CYCAPTION) - 1;
         } else {
@@ -1411,12 +1411,12 @@ QStyle::SubControl QPocketPCStyle::hitTestComplexControl(ComplexControl      com
                 ctrl <<= 1;
             }
             if (titlebar->window()) {
-                if (ret == SC_TitleBarMaxButton && titlebar->testWFlags(Qt::WState_Tool)) {
+                if (ret == SC_TitleBarMaxButton && titlebar->testWFlags(Qt::WA_WState_Tool)) {
                     if (titlebar->window()->isMinimized())
                         ret = SC_TitleBarUnshadeButton;
                     else
                         ret = SC_TitleBarShadeButton;
-                } else if (ret == SC_TitleBarMinButton && !titlebar->testWFlags(Qt::WState_Tool)) {
+                } else if (ret == SC_TitleBarMinButton && !titlebar->testWFlags(Qt::WA_WState_Tool)) {
                     if (titlebar->window()->isMinimized())
                         ret = QStyle::SC_TitleBarNormalButton;
                 }
@@ -1623,17 +1623,17 @@ QRect QPocketPCStyle::subControlRect(ComplexControl         complex,
             case SC_TitleBarLabel: {
                 const QTitleBar *titlebar = (QTitleBar*)widget;
                 QRect ir(0, 0, titlebar->width(), titlebar->height());
-                if (titlebar->testWFlags(Qt::WState_Tool)) {
-                    if (titlebar->testWFlags(Qt::WState_SysMenu))
+                if (titlebar->testWFlags(Qt::WA_WState_Tool)) {
+                    if (titlebar->testWFlags(Qt::WA_WState_SysMenu))
                         ir.addCoords(0, 0, -controlHeight-3, 0);
-                    if (titlebar->testWFlags(Qt::WState_MinMax))
+                    if (titlebar->testWFlags(Qt::WA_WState_MinMax))
                         ir.addCoords(0, 0, -controlHeight-2, 0);
                 } else {
-                    if (titlebar->testWFlags(Qt::WState_SysMenu))
+                    if (titlebar->testWFlags(Qt::WA_WState_SysMenu))
                         ir.addCoords(controlHeight+3, 0, -controlHeight-3, 0);
-                    if (titlebar->testWFlags(Qt::WState_Minimize))
+                    if (titlebar->testWFlags(Qt::WA_WState_Minimize))
                         ir.addCoords(0, 0, -controlHeight-2, 0);
-                    if (titlebar->testWFlags(Qt::WState_Maximize))
+                    if (titlebar->testWFlags(Qt::WA_WState_Maximize))
                         ir.addCoords(0, 0, -controlHeight-2, 0);
                 }
                 return ir; }
@@ -1651,7 +1651,7 @@ QRect QPocketPCStyle::subControlRect(ComplexControl         complex,
             case SC_TitleBarMinButton:
             case SC_TitleBarNormalButton: {
                 int offset = controlHeight + controlTop;
-                if (!titlebar->testWFlags(Qt::WState_Maximize))
+                if (!titlebar->testWFlags(Qt::WA_WState_Maximize))
                     offset *= 2;
                 else
                     offset *= 3;
@@ -3727,7 +3727,7 @@ void QPocketPCStyle::drawComplexControl(ComplexControl            complex,
             if (sub & SC_TitleBarCloseButton) {
                 ir = visualRect(subControlRect(CC_TitleBar, widget, SC_TitleBarCloseButton), widget);
                 down = subActive & SC_TitleBarCloseButton;
-                if (widget->testWFlags(Qt::WState_Tool)
+                if (widget->testWFlags(Qt::WA_WState_Tool)
 #ifndef QT_NO_MAINWINDOW
                      || ::qt_cast<QDockWindow*>(widget)
 #endif

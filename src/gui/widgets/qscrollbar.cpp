@@ -335,7 +335,7 @@ void QScrollBarPrivate::init()
     if (orientation == Qt::Vertical)
         sp.transpose();
     q->setSizePolicy(sp);
-    q->clearWState(Qt::WState_OwnSizePolicy);
+    q->setAttribute(Qt::WA_WState_OwnSizePolicy, false);
 }
 
 

@@ -239,8 +239,8 @@ class QWSKeyEvent;
 class QETWidget : public QWidget                 // event translator widget
 {
 public:
-    void setWState(Qt::WState f) { QWidget::setWState(f); }
-    void clearWState(Qt::WState f) { QWidget::clearWState(f); }
+    void setAttribute(Qt::WState f) { QWidget::setAttribute(f); }
+    void setAttribute(Qt::WState f, false) { QWidget::setAttribute(f, false); }
     void setWFlags(Qt::WFlags f) { QWidget::setWFlags(f); }
     void clearWFlags(Qt::WFlags f) { QWidget::clearWFlags(f); }
     bool translateMouseEvent(const QWSMouseEvent *, int oldstate);
@@ -1374,7 +1374,7 @@ void QWSDisplay::setTransformation(int t)
 
         if (w->testWFlags(Qt::WType_Desktop)) {
             //nothing
-        } else if (w->testWState(Qt::WState_FullScreen)) {
+        } else if (w->testAttribute(Qt::WA_WState_FullScreen)) {
             w->resize(qt_screen->width(), qt_screen->height());
         } else {
             QETWidget *etw = static_cast<QETWidget*>(w);

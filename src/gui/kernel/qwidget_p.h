@@ -251,13 +251,6 @@ public:
     static int instanceCounter;  // Current number of widget instances
     static int maxInstances;     // Maximum number of widget instances
 
-    inline Qt::WState testWState(Qt::WState s) const
-        { return QFlag(data.widget_state & s); }
-
-    inline Qt::WFlags testWFlags(Qt::WFlags f) const
-        { return QFlag(data.widget_flags & f); }
-
-
 
     QWidgetData data;
 
@@ -283,7 +276,7 @@ public:
     QPalette::ColorRole fg_role : 8;
     QPalette::ColorRole bg_role : 8;
 #endif
-    uint high_attributes[1]; // the low ones are in QWidget::widget_attributes
+    uint high_attributes[2]; // the low ones are in QWidget::widget_attributes
     Qt::HANDLE hd;
 #if defined(Q_WS_X11)
     QX11Info xinfo;

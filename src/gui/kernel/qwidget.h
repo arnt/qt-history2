@@ -64,15 +64,15 @@ class QWidgetData
 {
 public:
     WId winid;
-    uint widget_state; // will go away, eventually
     uint widget_attributes;
-    uint widget_flags;
+    uint window_type;
+    uint window_state : 4;
     uint focus_policy : 4;
     uint sizehint_forced :1;
     uint is_closing :1;
     uint in_show : 1;
     uint in_set_window_state : 1;
-    uint fstrut_dirty : 1;
+    mutable uint fstrut_dirty : 1;
     uint im_enabled : 1;
     uint context_menu_policy : 3;
     QRect crect;
@@ -400,6 +400,7 @@ public:
 
     Qt::WindowStates windowState() const;
     void setWindowState(Qt::WindowStates state);
+    void overrideWindowState(Qt::WindowStates state);
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
@@ -450,7 +451,6 @@ public:
 
     QWidget *parentWidget() const;
 
-    Qt::WState testWState(Qt::WState s) const;
     Qt::WFlags testWFlags(Qt::WFlags f) const;
     static QWidget *find(WId);
 #ifdef QT3_SUPPORT
@@ -555,10 +555,6 @@ protected:
                          bool destroyOldWindow = true);
     void destroy(bool destroyWindow = true,
                  bool destroySubWindows = true);
-
-    Qt::WState getWState() const;
-    void setWState(Qt::WState f);
-    void clearWState(Qt::WState f);
 
     inline Qt::WFlags getWFlags() const;
     void setWFlags(Qt::WFlags f);
@@ -723,11 +719,8 @@ template <> inline const QWidget *qt_cast<const QWidget*>(const QObject *o)
 }
 #endif
 
-inline Qt::WState QWidget::testWState(Qt::WState s) const
-{ return QFlag(data->widget_state & s); }
-
 inline Qt::WFlags QWidget::testWFlags(Qt::WFlags f) const
-{ return QFlag(data->widget_flags & f); }
+{ return QFlag(data->window_type & f); }
 
 inline WId QWidget::winId() const
 { return data->winid; }
@@ -802,13 +795,13 @@ inline void QWidget::update(int x, int y, int w, int h)
 { update(QRect(x, y, w, h)); }
 
 inline bool QWidget::isVisible() const
-{ return testWState(Qt::WState_Visible); }
+{ return testAttribute(Qt::WA_WState_Visible); }
 
 inline bool QWidget::isHidden() const
-{ return testWState(Qt::WState_Hidden); }
+{ return testAttribute(Qt::WA_WState_Hidden); }
 
 inline bool QWidget::isShown() const
-{ return !testWState(Qt::WState_Hidden); }
+{ return !testAttribute(Qt::WA_WState_Hidden); }
 
 inline void QWidget::move(int x, int y)
 { move(QPoint(x, y)); }
@@ -837,23 +830,14 @@ inline int QWidget::height() const
 inline QWidget *QWidget::parentWidget() const
 { return static_cast<QWidget *>(QObject::parent()); }
 
-inline Qt::WState QWidget::getWState() const
-{ return QFlag(data->widget_state); }
-
-inline void QWidget::setWState(Qt::WState f)
-{ data->widget_state |= f; }
-
-inline void QWidget::clearWState(Qt::WState f)
-{ data->widget_state &= ~f; }
-
 inline Qt::WFlags QWidget::getWFlags() const
-{ return QFlag(data->widget_flags); }
+{ return QFlag(data->window_type); }
 
 inline void QWidget::setWFlags(Qt::WFlags f)
-{ data->widget_flags |= f; }
+{ data->window_type |= f; }
 
 inline void QWidget::clearWFlags(Qt::WFlags f)
-{ data->widget_flags &= ~f; }
+{ data->window_type &= ~f; }
 
 inline void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver)
 { setSizePolicy(QSizePolicy(hor, ver)); }

@@ -54,14 +54,10 @@ public:
 #ifdef QT3_SUPPORT
         Reparent = ParentChange,
 #endif
-        ShowMinimized = 22,                     // widget is shown minimized
-        ShowNormal = 23,                        // widget is shown normal
         WindowActivate = 24,                    // window was activated
         WindowDeactivate = 25,                  // window was deactivated
         ShowToParent = 26,                      // widget is shown to parent
         HideToParent = 27,                      // widget is hidden to parent
-        ShowMaximized = 28,                     // widget is shown maximized
-        ShowFullScreen = 29,                    // widget is shown full-screen
         Wheel = 31,                             // wheel event
         WindowTitleChange = 33,                 // window title changed
         WindowIconChange = 34,                  // icon changed

@@ -369,8 +369,6 @@ extern void qt_create_std_palette();
 class QETWidget : public QWidget                // event translator widget
 {
 public:
-    void setWState(Qt::WState f)                { QWidget::setWState(f); }
-    void clearWState(Qt::WState f)        { QWidget::clearWState(f); }
     void setWFlags(Qt::WFlags f)                { QWidget::setWFlags(f); }
     void clearWFlags(Qt::WFlags f)        { QWidget::clearWFlags(f); }
     bool translateMouseEvent(const XEvent *);
@@ -2406,19 +2404,19 @@ void qPRCreate(const QWidget *widget, Window oldwin)
 
     QETWidget *w = static_cast<QETWidget *>(const_cast<QWidget *>(widget));
     wPRmapper->insert((int)oldwin, w);        // add old window to mapper
-    w->setWState(Qt::WState_Reparented);        // set reparented flag
+    w->setAttribute(Qt::WA_WState_Reparented);        // set reparented flag
 }
 
 void qPRCleanup(QWidget *widget)
 {
     QETWidget *etw = static_cast<QETWidget *>(const_cast<QWidget *>(widget));
-    if (!(wPRmapper && widget->testWState(Qt::WState_Reparented)))
+    if (!(wPRmapper && widget->testAttribute(Qt::WA_WState_Reparented)))
         return;                                        // not a reparented widget
     for (QWidgetMapper::ConstIterator it = wPRmapper->constBegin(); it != wPRmapper->constEnd(); ++it) {
         QWidget *w = *it;
         int key = it.key();
         if (w == etw) {                       // found widget
-            etw->clearWState(Qt::WState_Reparented); // clear flag
+            etw->setAttribute(Qt::WA_WState_Reparented, false); // clear flag
             wPRmapper->remove(key);// old window no longer needed
             if (wPRmapper->size() == 0) {        // became empty
                 delete wPRmapper;                // then reset alt mapper
@@ -2561,7 +2559,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 break;
             }
         }
-        else if (widget->testWState(Qt::WState_Reparented))
+        else if (widget->testAttribute(Qt::WA_WState_Reparented))
             qPRCleanup(widget);                // remove from alt mapper
     }
 
@@ -3818,20 +3816,20 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
         if (qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
             && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))) {
             if (max && !isMaximized()) {
-                setWState(Qt::WState_Maximized);
+                this->data->window_state |= Qt::WindowMaximized;
                 send_event = true;
             } else if (!max && isMaximized()) {
-                clearWState(Qt::WState_Maximized);
+                this->data->window_state &= !Qt::WindowMaximized;
                 send_event = true;
             }
         }
 
         if (qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
             if (full && !isFullScreen()) {
-                setWState(Qt::WState_FullScreen);
+                this->data->window_state |= Qt::WindowFullScreen;
                 send_event = true;
             } else if (!full && isFullScreen()) {
-                clearWState(Qt::WState_FullScreen);
+                this->data->window_state &= ~Qt::WindowFullScreen;
                 send_event = true;
             }
         }
@@ -3886,7 +3884,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                 case IconicState:
                     if (!isMinimized()) {
                         // window was minimized
-                        setWState(Qt::WState_Minimized);
+                        this->data->window_state |= Qt::WindowMinimized;
                         QEvent e(QEvent::WindowStateChange);
                         QApplication::sendSpontaneousEvent(this, &e);
                     }
@@ -3895,7 +3893,7 @@ bool QETWidget::translatePropertyEvent(const XEvent *event)
                 default:
                     if (isMinimized()) {
                         // window was un-minimized
-                        clearWState(Qt::WState_Minimized);
+                        this->data->window_state &= ~Qt::WindowMinimized;
                         QEvent e(QEvent::WindowStateChange);
                         QApplication::sendSpontaneousEvent(this, &e);
                     }
@@ -4886,9 +4884,8 @@ void QWidgetPrivate::removePendingPaintEvents()
 
 void QETWidget::translatePaintEvent(const XEvent *event)
 {
-    setWState(Qt::WState_Exposed);
-    QRect  paintRect(event->xexpose.x,           event->xexpose.y,
-                      event->xexpose.width, event->xexpose.height);
+    QRect  paintRect(event->xexpose.x, event->xexpose.y,
+                     event->xexpose.width, event->xexpose.height);
     XEvent xevent;
     PaintEventInfo info;
     info.window = winId();
@@ -4954,7 +4951,7 @@ bool QETWidget::translateScrollDoneEvent(const XEvent *event)
 
 bool QETWidget::translateConfigEvent(const XEvent *event)
 {
-    clearWState(Qt::WState_ConfigPending);
+    setAttribute(Qt::WA_WState_ConfigPending, false);
 
     if (isTopLevel()) {
         QPoint newCPos(geometry().topLeft());
@@ -5029,7 +5026,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
                     ! x11Event(&xevent)) // send event through filter
                 ;
             if (!testAttribute(Qt::WA_StaticContents))
-                testWState(Qt::WState_InPaintEvent)?update():repaint();
+                testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
         }
     } else {
         XEvent xevent;

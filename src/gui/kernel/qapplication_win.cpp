@@ -305,8 +305,8 @@ class QETWidget : public QWidget                // event translator widget
 public:
     void        setWFlags(Qt::WFlags f)        { QWidget::setWFlags(f); }
     void        clearWFlags(Qt::WFlags f) { QWidget::clearWFlags(f); }
-    void        setWState(Qt::WState f)        { QWidget::setWState(f); }
-    void        clearWState(Qt::WState f) { QWidget::clearWState(f); }
+    void        setAttribute(Qt::WState f)        { QWidget::setAttribute(f); }
+    void        setAttribute(Qt::WState f, false) { QWidget::setAttribute(f, false); }
     QWExtra    *xtra()                        { return d->extraData(); }
     QTLWExtra  *topData()                     { return d->topData(); }
     bool        winEvent(MSG *m, long *r)        { return QWidget::winEvent(m, r); }
@@ -903,7 +903,7 @@ Q_GUI_EXPORT void qWinProcessConfigRequests()                // perform requests
         delete r;
 
 	if ( w ) {				// widget exists
-	    if (w->testWState(Qt::WState_ConfigPending))
+	    if (w->testAttribute(Qt::WA_WState_ConfigPending))
 		return;				// biting our tail
 	    if (req == 0)
 		w->move(rect.topLeft());
@@ -1626,13 +1626,13 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 #endif
             case SC_MAXIMIZE:
                 window_state_change = true;
-                widget->clearWState(Qt::WState_Minimized);
-                widget->setWState(Qt::WState_Maximized);
+                widget->data->window_state &= ~Qt::WindowMinimized;
+                widget->data->window_state |= Qt::WindowMaximized;
                 result = false;
                 break;
             case SC_MINIMIZE:
                 window_state_change = true;
-                widget->setWState(Qt::WState_Minimized);
+                widget->data->window_state |= Qt::WindowMinimized;
                 if (widget->isVisible()) {
                     QHideEvent e;
                     qt_sendSpontaneousEvent(widget, &e);
@@ -1643,12 +1643,12 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             case SC_RESTORE:
                 window_state_change = true;
                 if (widget->isMinimized()) {
-                    widget->clearWState(Qt::WState_Minimized);
+                    widget->data->window_state &= ~Qt::WindowMinimized;
                     widget->showChildren(true);
                     QShowEvent e;
                     qt_sendSpontaneousEvent(widget, &e);
                 } else {
-                    widget->clearWState(Qt::WState_Maximized);
+                    widget->data->window_state &= ~Qt::WindowMaximized;
                 }
                 result = false;
                 break;
@@ -1684,10 +1684,10 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                 bool window_state_changed = false;
                 if (widget->isMaximized()) {
                     window_state_changed = true;
-                    widget->clearWState(Qt::WState_Maximized);
+                    widget->setAttribute(Qt::WA_WState_Maximized, false);
                 } else if (widget->testWFlags(Qt::WStyle_Maximize)){
                     window_state_changed = true;
-                    widget->setWState(Qt::WState_Maximized);
+                    widget->setAttribute(Qt::WA_WState_Maximized);
                 }
 
                 if (window_state_changed) {
@@ -1764,7 +1764,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             case WM_SHOWWINDOW:
 #ifndef Q_OS_TEMP
                 if (lParam == SW_PARENTOPENING) {
-                    if (widget->testWState(Qt::WState_ForceHide))
+                    if (widget->testAttribute(Qt::WA_WState_ForceHide))
                         RETURN(0);
                 }
 #endif
@@ -1939,10 +1939,10 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                                                          || qApp->type() == QApplication::Tty)
                 break;
 
-            if (widget->testWState(Qt::WState_Polished))
+            if (widget->testAttribute(Qt::WA_WState_Polished))
                 qApp->style()->unpolish(widget);
 
-            if (widget->testWState(Qt::WState_Polished))
+            if (widget->testAttribute(Qt::WA_WState_Polished))
                 qApp->style()->polish(widget);
             widget->repolishStyle(*qApp->style());
             if (widget->isVisible())
@@ -3319,13 +3319,13 @@ bool QETWidget::translatePaintEvent(const MSG &)
 
 bool QETWidget::translateConfigEvent(const MSG &msg)
 {
-    if (!testWState(Qt::WState_Created))                // in QWidget::create()
+    if (!testAttribute(Qt::WA_WState_Created))                // in QWidget::create()
         return true;
-    if (testWState(Qt::WState_ConfigPending))
+    if (testAttribute(Qt::WA_WState_ConfigPending))
         return true;
     if (!isTopLevel())
         return true;
-    setWState(Qt::WState_ConfigPending);                // set config flag
+    setAttribute(Qt::WA_WState_ConfigPending);                // set config flag
     QRect cr = geometry();
     if (msg.message == WM_SIZE) {                // resize event
         WORD a = LOWORD(msg.lParam);
@@ -3339,49 +3339,49 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
             d->createTLExtra();
             // Capture SIZE_MINIMIZED without preceding WM_SYSCOMMAND
             // (like Windows+M)
-            if (msg.wParam == SIZE_MINIMIZED && !testWState(Qt::WState_Minimized)) {
-                setWState(Qt::WState_Minimized);
-                if (isVisible()) {
-                    QHideEvent e;
-                    QApplication::sendSpontaneousEvent(this, &e);
-                    hideChildren(true);
-                }
-            } else if (msg.wParam != SIZE_MINIMIZED && testWState(Qt::WState_Minimized)) {
-                clearWState(Qt::WState_Minimized);
-                showChildren(true);
-                QShowEvent e;
+            if (msg.wParam == SIZE_MINIMIZED && !isMinimized())) {
+            data->window_state |= Qt::WindowMinimized;
+            if (isVisible()) {
+                QHideEvent e;
                 QApplication::sendSpontaneousEvent(this, &e);
+                hideChildren(true);
             }
-            QString txt;
+        } else if (msg.wParam != SIZE_MINIMIZED && isMinimized()) {
+            data->window_state &= ~Qt::WindowMinimized;
+            showChildren(true);
+            QShowEvent e;
+            QApplication::sendSpontaneousEvent(this, &e);
+        }
+        QString txt;
 #ifndef Q_OS_TEMP
-            if (IsIconic(winId()) && windowIconText().size())
-                txt = windowIconText();
-            else
+        if (IsIconic(winId()) && windowIconText().size())
+            txt = windowIconText();
+        else
 #endif
-                if (!windowTitle().isNull())
-                    txt = windowTitle();
-            if(isWindowModified())
-                txt += " *";
-            if (txt.size()) {
-                QT_WA({
+            if (!windowTitle().isNull())
+                txt = windowTitle();
+        if(isWindowModified())
+            txt += " *";
+        if (txt.size()) {
+            QT_WA({
                     SetWindowText(winId(), (TCHAR*)txt.utf16());
                 } , {
-                    SetWindowTextA(winId(), txt.toLocal8Bit());
-                });
-            }
+                      SetWindowTextA(winId(), txt.toLocal8Bit());
+                  });
         }
-        if (msg.wParam != SIZE_MINIMIZED && oldSize != newSize) {
-            if (isVisible()) {
-                QResizeEvent e(newSize, oldSize);
-                QApplication::sendSpontaneousEvent(this, &e);
-                if (!testAttribute(Qt::WA_StaticContents))
-                    testWState(Qt::WState_InPaintEvent)?update():repaint();
-            } else {
-                QResizeEvent *e = new QResizeEvent(newSize, oldSize);
-                QApplication::postEvent(this, e);
-            }
+    }
+    if (msg.wParam != SIZE_MINIMIZED && oldSize != newSize) {
+        if (isVisible()) {
+            QResizeEvent e(newSize, oldSize);
+            QApplication::sendSpontaneousEvent(this, &e);
+            if (!testAttribute(Qt::WA_StaticContents))
+                testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
+        } else {
+            QResizeEvent *e = new QResizeEvent(newSize, oldSize);
+            QApplication::postEvent(this, e);
         }
-    } else if (msg.message == WM_MOVE) {        // move event
+    }
+} else if (msg.message == WM_MOVE) {        // move event
         int a = (int) (short) LOWORD(msg.lParam);
         int b = (int) (short) HIWORD(msg.lParam);
         QPoint oldPos = geometry().topLeft();
@@ -3399,7 +3399,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
             }
         }
     }
-    clearWState(Qt::WState_ConfigPending);                // clear config flag
+    setAttribute(Qt::WA_WState_ConfigPending, false);                // clear config flag
     return true;
 }
 
@@ -3433,13 +3433,13 @@ void QETWidget::eraseWindowBackground(HDC hdc)
     GetClientRect(data->winid, &r);
 
     QWidget *that = const_cast<QWidget*>(w);
-    that->setWState(Qt::WState_InPaintEvent);
+    that->setAttribute(Qt::WA_WState_InPaintEvent);
     qt_erase_background
         (hdc, r.left, r.top,
           r.right-r.left, r.bottom-r.top,
           data->pal.brush(w->d->bg_role),
           offset.x(), offset.y(), const_cast<QWidget*>(w));
-    that->clearWState(Qt::WState_InPaintEvent);
+    that->setAttribute(Qt::WA_WState_InPaintEvent, false);
 }
 
 

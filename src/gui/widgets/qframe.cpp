@@ -251,7 +251,7 @@ void QFrame::setFrameShadow(QFrame::Shadow s)
 
 void QFrame::setFrameStyle(int style)
 {
-    if (!testWState(Qt::WState_OwnSizePolicy)) {
+    if (!testAttribute(Qt::WA_WState_OwnSizePolicy)) {
         switch (style & MShape) {
         case HLine:
             setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -263,7 +263,7 @@ void QFrame::setFrameStyle(int style)
             if ((d->frameStyle & MShape) == HLine || (d->frameStyle & MShape) == VLine)
                 setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         }
-        clearWState(Qt::WState_OwnSizePolicy);
+        setAttribute(Qt::WA_WState_OwnSizePolicy, false);
     }
     d->frameStyle = (short)style;
     d->updateFrameWidth();

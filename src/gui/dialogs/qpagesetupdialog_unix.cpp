@@ -155,7 +155,7 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
 
     layout->addItem(buttonLayout);
 
-    clearWState(Qt::WState_Polished);
+    setAttribute(Qt::WA_WState_Polished, false);
 
     for (int i=0; pageSizeNames[i]; ++i)
         d->pageSize->addItem(pageSizeNames[i]);

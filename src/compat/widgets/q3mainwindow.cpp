@@ -1330,8 +1330,8 @@ void Q3MainWindow::show()
     if (!isVisible()) {
         for (int i = 0; i < d->dockWindows.size(); ++i) {
             Q3DockWindow *dw = d->dockWindows.at(i);
-            if (dw->isTopLevel() && !dw->isVisible() && !dw->testWState(Qt::WState_ForceHide)) {
-                reinterpret_cast<Q3MainWindow *>(dw)->setWState(Qt::WState_ForceHide);
+            if (dw->isTopLevel() && !dw->isVisible() && !dw->testAttribute(Qt::WA_WState_Hidden)) {
+                reinterpret_cast<Q3MainWindow *>(dw)->setAttribute(Qt::WA_WState_Hidden);
                 dw->show();
             }
         }
@@ -1351,7 +1351,7 @@ void Q3MainWindow::hide()
             Q3DockWindow *dw = d->dockWindows.at(i);
             if (dw->isTopLevel() && dw->isVisible()) {
                 dw->hide(); // implicit hide, so clear forcehide
-                reinterpret_cast<Q3MainWindow *>(dw)->clearWState(Qt::WState_ForceHide);
+                reinterpret_cast<Q3MainWindow *>(dw)->setAttribute(Qt::WA_WState_Hidden, false);
             }
         }
     }

@@ -385,9 +385,9 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
     if (!d->managed->isVisible())
         return result;
     QDecoration &dec = QApplication::qwsDecoration();
-    if (d->managed->testWState(Qt::WState_InPaintEvent))
+    if (d->managed->testAttribute(Qt::WA_WState_InPaintEvent))
         qWarning("QWSManager::paintEvent() recursive paint event detected");
-    d->managed->setWState(Qt::WState_InPaintEvent);
+    d->managed->setAttribute(Qt::WA_WState_InPaintEvent);
     QPainter painter(d->managed);
 
     // Adjust our widget region to contain the window
@@ -416,7 +416,7 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
     painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
     result = dec.paint(&painter, d->managed, decorationRegion, state);
 
-    d->managed->clearWState(Qt::WState_InPaintEvent);
+    d->managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
     return result;
 }
 
