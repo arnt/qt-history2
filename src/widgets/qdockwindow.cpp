@@ -1071,7 +1071,7 @@ void QDockWindow::setOrientation( Orientation o )
 	// Set up the new layout as
 	//   3 3 3      1 = vHandleLeft   4 = hHandleBottom
 	//   1 X 2      2 = vHandleRight  X = Inner Layout
-	//   4 4 4      3 = hHandleTop     
+	//   4 4 4      3 = hHandleTop
 	glayout->addMultiCellWidget( hHandleTop,    0, 0, 0, 2 );
 	glayout->addMultiCellWidget( hHandleBottom, 2, 2, 0, 2 );
 	glayout->addMultiCellWidget( vHandleLeft,   1, 1, 0, 0 );
@@ -1080,7 +1080,7 @@ void QDockWindow::setOrientation( Orientation o )
 	// Set up the new layout as
 	//   1 3 2      1 = vHandleLeft   4 = hHandleBottom
 	//   1 X 2      2 = vHandleRight  X = Inner Layout
-	//   1 4 2      3 = hHandleTop     
+	//   1 4 2      3 = hHandleTop
 	glayout->addMultiCellWidget( hHandleTop,    0, 0, 1, 1 );
 	glayout->addMultiCellWidget( hHandleBottom, 2, 2, 1, 1 );
 	glayout->addMultiCellWidget( vHandleLeft,   0, 2, 0, 0 );
@@ -1143,8 +1143,7 @@ void QDockWindow::swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, Q
 
 QWidget *QDockWindow::areaAt( const QPoint &gp )
 {
-    QWidget *w =
-	topLevelWidget()->childAt( topLevelWidget()->mapFromGlobal( gp ), TRUE );
+    QWidget *w = qApp->widgetAt( gp, TRUE );
 
     if ( w && ( w == this || w == titleBar ) && parentWidget() )
 	w = parentWidget()->childAt( parentWidget()->mapFromGlobal( gp ) );
