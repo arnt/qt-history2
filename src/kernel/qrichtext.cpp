@@ -7802,7 +7802,8 @@ QSize QTextTableCell::minimumSize() const
 
 QSize QTextTableCell::maximumSize() const
 {
-    return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+    return QSize( QMAX( richtext->widthUsed(), maxw), QWIDGETSIZE_MAX );
+//     return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
 }
 
 QSizePolicy::ExpandData QTextTableCell::expanding() const
