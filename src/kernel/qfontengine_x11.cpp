@@ -701,6 +701,12 @@ int QFontEngineXLFD::minLeftBearing() const
 	    int mx = cs->lbearing;
 
 	    for (int c = 1; c < nc; c++) {
+		// ignore the bearings for characters whose ink is
+		// completely outside the normal bounding box
+		if ((cs[c].lbearing <= 0 && cs[c].rbearing <= 0) ||
+		    (cs[c].lbearing >= cs[c].width && cs[c].rbearing >= cs[c].width))
+		    continue;
+
 		int nmx = cs[c].lbearing;
 
 		if (nmx < mx)
@@ -723,6 +729,12 @@ int QFontEngineXLFD::minRightBearing() const
 	    int mx = cs->rbearing;
 
 	    for (int c = 1; c < nc; c++) {
+		// ignore the bearings for characters whose ink is
+		// completely outside the normal bounding box
+		if ((cs[c].lbearing <= 0 && cs[c].rbearing <= 0) ||
+		    (cs[c].lbearing >= cs[c].width && cs[c].rbearing >= cs[c].width))
+		    continue;
+
 		int nmx = cs[c].rbearing;
 
 		if (nmx < mx)
