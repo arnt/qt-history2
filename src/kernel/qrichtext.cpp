@@ -2765,6 +2765,8 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    tw = 0;
 	    ++line;
 	    lineInfo( line, cy, h, baseLine );
+	    if ( clipy != -1 && cy > clipy - r.y() + cliph ) // outside clip area, leave
+		break;
 	    if ( lastBaseLine == 0 )
 		lastBaseLine = baseLine;
 	}
