@@ -7,7 +7,7 @@
 #include <qwidget.h>
 
 class QGenericTreeView;
-
+class QSqlDatabase;
 
 class ConnectionModel: public QAbstractItemModel
 {
@@ -38,6 +38,8 @@ class ConnectionWidget: public QWidget
 public:
     ConnectionWidget(QWidget *parent = 0);
     virtual ~ConnectionWidget();
+
+    QSqlDatabase currentDatabase() const;
 
 public slots:
     void refresh();

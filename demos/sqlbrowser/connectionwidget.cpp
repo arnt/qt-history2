@@ -1,6 +1,7 @@
 #include "connectionwidget.h"
 
 #include <qsqldatabase.h>
+#include <qgenericheader.h>
 #include <qgenerictreeview.h>
 #include <qlayout.h>
 
@@ -33,7 +34,7 @@ bool ConnectionModel::hasChildren(const QModelIndex &parent) const
 
 QVariant ConnectionModel::data(const QModelIndex &index, int role) const
 {
-    if (role != Role_Display || index.column() > 0)
+    if (role != Role_Display || index.column() > 0 || index.row() < 0)
         return QVariant();
 
     if (index.type() == QModelIndex::View) {
@@ -43,7 +44,7 @@ QVariant ConnectionModel::data(const QModelIndex &index, int role) const
                 return QVariant();
             return tableNames.at(row).value(index.row());
         }
-        if (index.row() > connections.count())
+        if (index.row() >= connections.count())
             return QVariant();
         return connections.at(index.row()).label;
     }
@@ -78,7 +79,7 @@ void ConnectionModel::refresh()
         QSqlDatabase db = QSqlDatabase::database(cn);
         CData data;
         data.cname = cn;
-        data.label = cn;
+        data.label = db.driverName() + "." + db.databaseName();
         connections.append(data);
         tableNames.append(db.tables());
     }
@@ -101,6 +102,7 @@ ConnectionWidget::ConnectionWidget(QWidget *parent)
     tree = new QGenericTreeView(this);
     model = new ConnectionModel(tree);
     tree->setModel(model);
+    tree->header()->setResizeMode(QGenericHeader::Stretch);
     layout->addWidget(tree);
 }
 
@@ -111,5 +113,10 @@ ConnectionWidget::~ConnectionWidget()
 void ConnectionWidget::refresh()
 {
     model->refresh();
+}
+
+QSqlDatabase ConnectionWidget::currentDatabase() const
+{
+    return QSqlDatabase::database(QSqlDatabase::connectionNames().first());
 }
 
