@@ -17,6 +17,7 @@
 #include "qabstractprintdialog.h"
 
 class QPrintDialogPrivate;
+class QAbstractButton;
 class QPrinter;
 
 class Q_GUI_EXPORT QPrintDialog : public QAbstractPrintDialog
@@ -41,14 +42,14 @@ private:
 // #if defined (Q_OS_UNIX) && !defined (Q_OS_MAC)
     Q_PRIVATE_SLOT(d, void browseClicked())
     Q_PRIVATE_SLOT(d, void okClicked())
-    Q_PRIVATE_SLOT(d, void printerOrFileSelected(int))
+    Q_PRIVATE_SLOT(d, void printerOrFileSelected(QAbstractButton *))
     Q_PRIVATE_SLOT(d, void landscapeSelected(int))
     Q_PRIVATE_SLOT(d, void paperSizeSelected(int))
     Q_PRIVATE_SLOT(d, void orientSelected(int))
-    Q_PRIVATE_SLOT(d, void pageOrderSelected(int))
-    Q_PRIVATE_SLOT(d, void colorModeSelected(int))
+    Q_PRIVATE_SLOT(d, void pageOrderSelected(QAbstractButton *))
+    Q_PRIVATE_SLOT(d, void colorModeSelected(QAbstractButton *))
     Q_PRIVATE_SLOT(d, void setNumCopies(int))
-    Q_PRIVATE_SLOT(d, void printRangeSelected(int))
+    Q_PRIVATE_SLOT(d, void printRangeSelected(QAbstractButton *))
     Q_PRIVATE_SLOT(d, void setFirstPage(int))
     Q_PRIVATE_SLOT(d, void setLastPage(int))
     Q_PRIVATE_SLOT(d, void fileNameEditChanged(const QString &text))
