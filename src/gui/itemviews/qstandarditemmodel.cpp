@@ -163,7 +163,7 @@ QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 /*!
     Sets the data for the given \a index and \a role to the \a value specified.
 */
-bool QStandardItemModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (index.isValid()) {
