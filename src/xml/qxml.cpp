@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#94 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#95 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -6975,7 +6975,9 @@ void QXmlSimpleReader::initData()
 bool QXmlSimpleReader::entityExist( const QString& e ) const
 {
     if (  d->parameterEntities.find(e) == d->parameterEntities.end() &&
-	    d->externParameterEntities.find(e) == d->externParameterEntities.end() ) {
+	  d->externParameterEntities.find(e) == d->externParameterEntities.end() &&
+	  d->externEntities.find(e) == d->externEntities.end() &&
+	  d->entities.find(e) == d->entities.end() ) {
 	return FALSE;
     } else {
 	return TRUE;
