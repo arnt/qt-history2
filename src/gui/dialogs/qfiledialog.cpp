@@ -1359,8 +1359,7 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
 
     treeView->viewport()->setAcceptDrops(true);
     treeView->setRootIsDecorated(false);
-    treeView->header()->setResizeMode(QHeaderView::Custom);
-    treeView->header()->setResizeMode(QHeaderView::Stretch, 0);
+    treeView->header()->setResizeMode(QHeaderView::Stretch, treeView->header()->count() - 1);
     treeView->header()->setSortIndicator(0, Qt::DescendingOrder);
     treeView->header()->setSortIndicatorShown(true);
     treeView->hide();
