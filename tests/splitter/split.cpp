@@ -1,6 +1,8 @@
 #include <qapplication.h>
 #include <qlabel.h>
 #include <qsplitter.h>
+#include <qfile.h>
+#include <qdatastream.h>
 
 #include <qlineedit.h>
 
@@ -9,43 +11,49 @@ int main( int argc, char ** argv )
     QApplication a( argc, argv );
 
 
-    QSplitter f( QSplitter::Vertical );
+    QSplitter top;
 
-    
-    QSplitter top( &f );
-    
     QLabel l( "Label", &top );
     l.setBackgroundColor( Qt::blue.light() );
+
+    (new QLabel( "Hei", &top))->setBackgroundColor( Qt::red );
+    (new QLabel( "Hallo", &top))->setBackgroundColor( Qt::yellow );
+    (new QLabel( "Hei", &top))->setBackgroundColor( Qt::magenta );
+    (new QLabel( "Hei Hei", &top))->setBackgroundColor( Qt::white );
+
+    a.setMainWidget( &top );
+
     
-    QLineEdit led( &top );
-    top.setResizeMode( &l, QSplitter::FollowSizeHint );
+    {
+	QFile f( "split.dat" );
+	if ( f.open( IO_ReadOnly ) ) {
+	    QDataStream s( &f );
+	    QValueList<int> sizes;
+	    s >> sizes;
+	    top.setSizes( sizes );
+	}
+    }
     
     
-    QObject::connect( &led, SIGNAL(textChanged(const QString&)),
-		      &l, SLOT(setText(const QString&)) );
+    top.show();
+    int r = a.exec();
+    QValueList<int> sizes = top.sizes();
 
-    QSplitter m( &f );
+    QValueListIterator<int> it;
+      int i=0;
+      for ( it = sizes.begin(); it != sizes.end(); ++it )
+      debug( "size[%d]= %d", i++, *it );    
 
+    {
+	QFile f( "split.dat" );
+	f.open( IO_WriteOnly );
+	QDataStream s( &f );
+	s << sizes;
 
-
-    //m.setFrameStyle( QFrame::Panel | QFrame::Sunken );
-
-    QLabel l1( "Judean People's Front", &m );
-    //    l1.setBackgroundColor( white );
-    l1.setMinimumSize( l1.sizeHint() );
-
-
-    QLabel l2( "Judean Popular Front", &m );
-    //    l2.setBackgroundColor( white );
-    l2.setAlignment( Qt::AlignCenter );
-
-    l2.setMaximumHeight( 250 );
-    l2.setMinimumSize( l2.sizeHint().width(), 100 );
-
-
-
-    a.setMainWidget( &f );
-
-    f.show();
-    return a.exec();
+    }
+	sizes = top.sizes();
+      for ( it = sizes.begin(); it != sizes.end(); ++it )
+      debug( "size %d", *it );
+                                                                                
+    return r;
 }
