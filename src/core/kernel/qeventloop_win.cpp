@@ -16,7 +16,7 @@
 #include "qcoreapplication.h"
 #include "qhash.h"
 #include "qsocketnotifier.h"
-#include <private/qinputcontext_p.h>
+#include "qt_windows.h"
 #define d d_func()
 #define q q_func()
 
@@ -26,6 +26,7 @@ static LRESULT CALLBACK win_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp);
 static HWND qt_create_sn_window();
 
 extern uint qGlobalPostedEventsCount();
+extern HINSTANCE qWinAppInst();
 
 static DWORD qt_gui_thread = 0;
 // Simpler timers are needed when Qt does not have the event loop,
