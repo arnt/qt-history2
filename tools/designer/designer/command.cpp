@@ -476,7 +476,7 @@ bool SetPropertyCommand::canMerge( Command *c )
     if ( p.isReadable() ) {
 	if ( propName == "toolTip" || propName == "whatsThis" )
 	    return TRUE;
-	if ( qt_cast<CustomWidget*>(widget) ) {
+	if ( qt_cast<CustomWidget*>((QObject *)widget) ) {
 	    MetaDataBase::CustomWidget *cw = ((CustomWidget*)(QObject*)widget)->customWidget();
 	    if ( !cw )
 		return FALSE;
@@ -620,10 +620,10 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	    if ( formWindow()->isMainContainer( widget ) )
 		formWindow()->setName( v.toCString() );
 	}
-	if ( propName == "name" && qt_cast<QAction*>(widget) && qt_cast<QMainWindow*>(formWindow()->mainContainer()) ) {
+	if ( propName == "name" && qt_cast<QAction*>((QObject *)widget) && qt_cast<QMainWindow*>(formWindow()->mainContainer()) ) {
 	    formWindow()->mainWindow()->actioneditor()->updateActionName( (QAction*)(QObject *)widget );
 	}
-	if ( propName == "iconSet" && qt_cast<QAction*>(widget) && qt_cast<QMainWindow*>(formWindow()->mainContainer()) ) {
+	if ( propName == "iconSet" && qt_cast<QAction*>((QObject *)widget) && qt_cast<QMainWindow*>(formWindow()->mainContainer()) ) {
 	    formWindow()->mainWindow()->actioneditor()->updateActionIcon( (QAction*)(QObject *)widget );
 	}
 	if ( propName == "caption" ) {
