@@ -802,6 +802,42 @@ void SetupWizardImpl::clickedSystem( int sys )
 				      "difficulties finding the file, or if you don't know how to\n"
 				      "modify the environment settings on your system." );
 	    }
+	    bool foundCommonDll = false;
+	    QString commonDll;
+	    QString commonDllText;
+	    QString presentFileText = "Make sure the path to this file is present in the PATH environment\n";
+	    if (globalInformation.sysId() == GlobalInformation::MSVC) {
+		commonDll = "mspdb60.dll";
+		foundCommonDll = findFile(commonDll);
+		commonDllText = "The file 'mspdb60.dll' ";
+	    } else if(globalInformation.sysId() == GlobalInformation::MSVCNET) {
+		commonDll = "mspdb70.dll";
+		foundCommonDll = findFile(commonDll);
+		if (!foundCommonDll) {
+		    commonDll = "mspdb71.dll";
+		    foundCommonDll = findFile(commonDll);
+		    commonDllText = "The files 'mspdb70.dll' and 'mspdb71.dll' "; // VC 7.0 or VC 7.1
+		    presentFileText = "Make sure the path to one of these files is present in the PATH environment\n";
+		}
+	    } else {
+		foundCommonDll = true;
+	    }
+	    if(!foundCommonDll) {
+		environment = getDirectoryList("PATH");
+		// ### try to adjust environment
+		QMessageBox::critical( this, "Environment problems",
+				       commonDllText + "could not be located in any\n"
+				       "directory listed in the 'PATH' environment variable:"
+				       "\n\n" + environment + "\n\n"
+				       + presentFileText +
+				       "variable and restart the installation.\n"
+				       "\n"
+				       "You can find the path to the tool using the 'Find' tool\n"
+				       "and add the location to the environment settings of your\n"
+				       "system. Please contact your local system administration if\n"
+				       "you have difficulties finding the files, or if you don't\n"
+				       "know how to modifiy the environment settings of your system." );
+	    }
 	}
 	if (globalInformation.sysId() == GlobalInformation::Intel && !findFile("icl.exe")) {
 	    environment = getDirectoryList("PATH");
