@@ -457,11 +457,13 @@ void QTreeView::setExpanded(const QModelIndex &index, bool expanded)
 /*!
   Returns the rectangle on the viewport occupied by the item at \a
   index.
+  If the index is not visible or explicitly hidden, the returned rectangle is invalid.
 */
 QRect QTreeView::visualRect(const QModelIndex &index) const
 {
     Q_D(const QTreeView);
-    if (!index.isValid() || !isVisible())
+
+    if (!index.isValid() || !isVisible() || isIndexHidden(index))
         return QRect();
 
     int x = columnViewportPosition(index.column());
@@ -487,9 +489,6 @@ void QTreeView::scrollTo(const QModelIndex &index)
 {
     Q_D(QTreeView);
     // check if we really need to do anything
-    
-    if (columnCount() == 0 || isIndexHidden(index))
-        return;
     QRect rect = visualRect(index);
     if (rect.isEmpty())
         return;
