@@ -61,6 +61,7 @@ private:
     RootDecl root;
     DeclResolver *res;
     QMap<QString, DefgroupDoc *> groupdefs;
+    QMap<QString, QString> grmap;
     QMap<QString, QMap<QString, Doc *> > groupiemap;
     QValueList<PageDoc *> pages;
     QValueList<ExampleDoc *> examples;

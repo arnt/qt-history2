@@ -1363,6 +1363,7 @@ QMap<QString, QString> Doc::keywordLinks;
 StringSet Doc::hflist;
 QMap<QString, QString> Doc::clist;
 QMap<QString, StringSet> Doc::findex;
+QMap<QString, QString> Doc::grmap;
 QMap<QString, StringSet> Doc::chierarchy;
 StringSet Doc::extlist;
 QMap<QString, QString> Doc::classext;
@@ -1433,6 +1434,11 @@ void Doc::setClassList( const QMap<QString, QString>& classList )
 void Doc::setFunctionIndex( const QMap<QString, StringSet>& index )
 {
     findex = index;
+}
+
+void Doc::setGroupMap( const QMap<QString, QString>& groupMap )
+{
+    grmap = groupMap;
 }
 
 void Doc::setClassHierarchy( const QMap<QString, StringSet>& hierarchy )
@@ -1960,11 +1966,22 @@ void Doc::setLink( const QString& link, const QString& title )
 
 QString Doc::htmlSeeAlso() const
 {
-    QValueStack<QString> seps = separators( sa.count(), QString(".\n") );
+    QStringList see = sa;
+
+    StringSet::ConstIterator g = groups().begin();
+    while ( g != groups().end() ) {
+	QString groupTitle;
+	if ( grmap.contains(*g) && !grmap[*g].isEmpty() )
+	    see.append( QString("&#92;link %1.html %2").arg(*g)
+						       .arg(grmap[*g]) );
+	++g;
+    }
+
+    QValueStack<QString> seps = separators( see.count(), QString(".\n") );
     QString html( "<p>See also " );
 
-    QStringList::ConstIterator s = sa.begin();
-    while ( s != sa.end() ) {
+    QStringList::ConstIterator s = see.begin();
+    while ( s != see.end() ) {
 	QString name = *s;
 	QString text;
 

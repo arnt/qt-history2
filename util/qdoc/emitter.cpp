@@ -202,6 +202,7 @@ void DocEmitter::start()
 void DocEmitter::addGroup( DefgroupDoc *doc )
 {
     groupdefs.insert( doc->name(), doc );
+    grmap.insert( doc->name(), doc->title() );
     addHtmlFile( doc->fileName() );
 }
 
@@ -352,6 +353,7 @@ void DocEmitter::emitHtml() const
     Doc::setHeaderFileList( hlist );
     Doc::setClassList( clist );
     Doc::setFunctionIndex( findex );
+    Doc::setGroupMap( grmap );
     Doc::setClassHierarchy( chierarchy );
 
     /*

@@ -60,9 +60,10 @@ public:
     static Doc *create( const Location& loc, const QString& text );
 
     static void setResolver( const Resolver *resolver ) { res = resolver; }
-    static void setHeaderFileList( const StringSet& headerFiles ); // ### need?
-    static void setClassList( const QMap<QString, QString>& classList ); // ###
+    static void setHeaderFileList( const StringSet& headerFiles );
+    static void setClassList( const QMap<QString, QString>& classList );
     static void setFunctionIndex( const QMap<QString, StringSet>& index );
+    static void setGroupMap( const QMap<QString, QString>& groupMap );
     static void setClassHierarchy( const QMap<QString, StringSet>& hierarchy );
     static void printHtmlIncludeHeader( HtmlWriter& out,
 					const QString& fileName );
@@ -156,6 +157,7 @@ private:
     static StringSet hflist;
     static QMap<QString, QString> clist;
     static QMap<QString, StringSet> findex;
+    static QMap<QString, QString> grmap;
     static QMap<QString, StringSet> chierarchy;
 
     // QMap<example file, LinkMap>
