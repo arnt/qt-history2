@@ -124,8 +124,6 @@
     <property name="name">
         <cstring>menuBar</cstring>
     </property>
-    <item text="File" name="fileMenu">
-    </item>
 </menubar>
 <toolbars>
 </toolbars>

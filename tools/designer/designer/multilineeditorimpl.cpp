@@ -560,8 +560,6 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
     QPopupMenu *stylesMenu = new QPopupMenu( this );
     menuBar->insertItem( tr( "Styles" ), stylesMenu );
 
-    fileMenu->insertItem( tr( "Close" ), this, SLOT( okClicked() ) );
-
     basicToolBar = new QToolBar( tr( "Basics" ), this, DockTop );
 
     ToolBarItem *it = new ToolBarItem( this, basicToolBar, tr( "Italic" ),
