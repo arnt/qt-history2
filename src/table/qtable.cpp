@@ -3650,6 +3650,8 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 {
     if ( pressedRow == curRow && pressedCol == curCol )
 	emit clicked( curRow, curCol, e->button(), e->pos() );
+    
+    mousePressed = FALSE;
     if ( e->button() != LeftButton )
 	return;
     if ( shouldClearSelection ) {
@@ -3672,7 +3674,6 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 	}
 	shouldClearSelection = FALSE;
     }
-    mousePressed = FALSE;
     autoScrollTimer->stop();
 
     if ( d->redirectMouseEvent && pressedRow == curRow && pressedCol == curCol &&
