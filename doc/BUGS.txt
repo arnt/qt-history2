@@ -32,7 +32,6 @@ Dual Monitor support (Win32)
 
 QFileDialog
     Heed the ExistingFile flag (#if 0ed out for 2.2)
-    Look In: history combo does not summarize correctly (qt-bugs/arc-07/15215)
 
 QToolButton (for 3.0)
     Should use QColorRole::ButtonText to draw the text, not foreground!
