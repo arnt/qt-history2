@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#25 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -479,11 +479,10 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text )
     p.setPen( QApplication::palette()->normal().mid() );
     p.setBrush( QColor( 255, 255, 240 ) );
     p.drawRect( 1, 1, w-2, h-2 );
-    p.setPen( QApplication::palette()->normal().text() );
+    p.setPen( black );
     p.drawText( leftMargin, normalMargin, r.width(), r.height(),
 		AlignLeft + AlignTop + WordBreak + ExpandTabs,
 		text );
-    p.setPen( black );
     p.drawPoint( w + 5, 6 );
     p.drawLine( w + 3, 6,
 		w + 5, 8 );
