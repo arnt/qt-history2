@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#78 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#77 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#78 $")
 
 
 /*----------------------------------------------------------------------------
@@ -289,7 +289,7 @@ QObject::QObject( QObject *parent, const char *name )
 QObject::~QObject()
 {
     if ( objname )
-	delete objname;
+	delete[] objname;
     if ( pendTimer )				// might be pending timers
 	qKillTimer( this );
     if ( pendEvent )				// pending posted events
