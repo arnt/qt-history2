@@ -234,7 +234,9 @@ class QTextDeleteCommand : public QTextCommand
 {
 public:
     QTextDeleteCommand( QTextDocument *d, int i, int idx, const QString &str )
-	: QTextCommand( d ), id( i ), index( idx ), text( str ) {}
+	: QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str ) {}
+    QTextDeleteCommand( QTextParag *p, int idx, const QString &str )
+	: QTextCommand( 0 ), id( -1 ), index( idx ), parag( p ), text( str ) {}
     virtual Commands type() const { return Delete; };
 
     virtual QTextCursor *execute( QTextCursor *c );
@@ -242,6 +244,7 @@ public:
 
 protected:
     int id, index;
+    QTextParag *parag;
     QString text;
 
 };
@@ -251,6 +254,8 @@ class QTextInsertCommand : public QTextDeleteCommand
 public:
     QTextInsertCommand( QTextDocument *d, int i, int idx, const QString &str )
 	: QTextDeleteCommand( d, i, idx, str ) {}
+    QTextInsertCommand( QTextParag *p, int idx, const QString &str )
+	: QTextDeleteCommand( p, idx, str ) {}
     Commands type() const { return Insert; };
 
     virtual QTextCursor *execute( QTextCursor *c ) { return QTextDeleteCommand::unexecute( c ); }
@@ -805,7 +810,7 @@ private:
     void *eData;
     QPainter *pntr;
     QTextCommandHistory *commandHistory;
-    
+
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

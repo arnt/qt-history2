@@ -147,7 +147,7 @@ bool QTextCommandHistory::isRedoAvailable()
 
 QTextCursor *QTextDeleteCommand::execute( QTextCursor *c )
 {
-    QTextParag *s = doc->paragAt( id );
+    QTextParag *s = doc ? doc->paragAt( id ) : parag;
     if ( !s ) {
 	qWarning( "can't locate parag at %d, last parag: %d", id, doc->lastParag()->paragId() );
 	return 0;
@@ -156,12 +156,16 @@ QTextCursor *QTextDeleteCommand::execute( QTextCursor *c )
     cursor.setParag( s );
     cursor.setIndex( index );
     int len = text.length();
-    doc->setSelectionStart( QTextDocument::Temp, &cursor );
-    for ( int i = 0; i < len; ++i )
-	cursor.gotoRight();
-    doc->setSelectionEnd( QTextDocument::Temp, &cursor );
-    doc->removeSelectedText( QTextDocument::Temp, &cursor );
-
+    if ( doc ) {
+	doc->setSelectionStart( QTextDocument::Temp, &cursor );
+	for ( int i = 0; i < len; ++i )
+	    cursor.gotoRight();
+	doc->setSelectionEnd( QTextDocument::Temp, &cursor );
+	doc->removeSelectedText( QTextDocument::Temp, &cursor );
+    } else {
+	s->remove( index, len );
+    }
+    
     if ( c ) {
 	c->setParag( s );
 	c->setIndex( index );
@@ -172,7 +176,7 @@ QTextCursor *QTextDeleteCommand::execute( QTextCursor *c )
 
 QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
 {
-    QTextParag *s = doc->paragAt( id );
+    QTextParag *s = doc ? doc->paragAt( id ) : parag;
     if ( !s ) {
 	qWarning( "can't locate parag at %d, last parag: %d", id, doc->lastParag()->paragId() );
 	return 0;

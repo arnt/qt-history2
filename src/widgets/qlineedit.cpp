@@ -53,6 +53,29 @@
 #include "../kernel/qrichtext_p.h"
 
 
+struct UndoRedoInfo {
+    enum Type { Invalid, Insert, Delete, Backspace, RemoveSelected };
+    UndoRedoInfo( QTextParag *p ) : type( Invalid ), parag( p ) { 
+	text = QString::null; index = -1; 
+    }
+    void clear() {
+	if ( valid() ) {
+	    if ( type == Insert )
+		parag->addCommand( new QTextInsertCommand( parag, index, text ) );
+	    else if ( type != Invalid )
+		parag->addCommand( new QTextDeleteCommand( parag, index, text ) );
+	}
+	text = QString::null;
+	index = -1;
+    }
+    bool valid() const { return !text.isEmpty() && index >= 0; }
+
+    QString text;
+    int index;
+    Type type;
+    QTextParag *parag;
+};
+
 struct QLineEditPrivate {
     QLineEditPrivate( QLineEdit * l ):
 	frame(TRUE), readonly( FALSE ),
@@ -65,14 +88,15 @@ struct QLineEditPrivate {
 	validator( 0 ),
 	pm(0),
 	blinkTimer( l, "QLineEdit blink timer" ),
-	dndTimer( l, "DnD Timer" )
+	dndTimer( l, "DnD Timer" ),
+	parag( new QTextParag( 0, 0, 0, FALSE ) ),
+	undoRedoInfo( parag )
 #if 0
     dragTimer( l, "QLineEdit drag timer" ),
 	inDoubleClick( FALSE ), offsetDirty( FALSE ),
 	undo(TRUE), needundo( FALSE ), ignoreUndoWithDel( FALSE ),
 #endif
     {
-	parag = new QTextParag( 0, 0, 0, FALSE);
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
 	cursor->setParag( parag );
@@ -125,6 +149,15 @@ struct QLineEditPrivate {
 	return res;
     }
 
+    void checkUndoRedoInfo( UndoRedoInfo::Type t ) {
+	if ( undoRedoInfo.valid() && t != undoRedoInfo.type ) {
+	    undoRedoInfo.clear();
+// 	emitUndoAvailable( doc->commands()->isUndoAvailable() );
+// 	emitRedoAvailable( doc->commands()->isRedoAvailable() );
+	}
+	undoRedoInfo.type = t;
+    }
+
     bool frame 			: 1;
     bool readonly 			: 1;
     bool cursorOn 			: 1;
@@ -140,10 +173,10 @@ struct QLineEditPrivate {
     QPixmap *pm;
     QTimer blinkTimer;
 
+    QTimer dndTimer;
     QTextParag *parag;
     QTextCursor *cursor;
     QPoint dnd_startpos;
-    QTimer dndTimer;
 #if 0
     QTimer dragTimer;
     QRect cursorRepaintRect;
@@ -152,6 +185,8 @@ struct QLineEditPrivate {
     bool needundo;
     bool ignoreUndoWithDel;
 #endif
+    UndoRedoInfo undoRedoInfo;
+
 };
 
 
@@ -558,12 +593,12 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    cursorWordBackward( e->state() & ShiftButton );
 	    break;
 	case Key_Z:
-// 	    if ( !d->readonly )
-// 		undoInternal();
+ 	    if ( !d->readonly )
+ 		undo();
 	    break;
 	case Key_Y:
-// 	    if ( !d->readonly )
-// 		redoInternal();
+ 	    if ( !d->readonly )
+ 		redo();
 	    break;
 	default:
 	    unknown = TRUE;
@@ -578,7 +613,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 	case Key_Backspace:
 	    if ( !d->readonly ) {
-// 		d->ignoreUndoWithDel = ignoreUndoWithDel;
 		backspace();
 	    }
 	    break;
@@ -596,7 +630,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		    break;
 		}
 #endif
-// 		d->ignoreUndoWithDel = ignoreUndoWithDel;
 		del();
 	    }
 	    break;
@@ -609,8 +642,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 #endif
 	case Key_F14: // Undo key on Sun keyboards
-// 	    if ( !d->readonly )
-// 		undoInternal();
+ 	    if ( !d->readonly )
+ 		undo();
 	    break;
 #ifndef QT_NO_CLIPBOARD
 	case Key_F16: // Copy key on Sun keyboards
@@ -770,16 +803,18 @@ enum {
     IdClear = 5,
     IdSelectAll = 6
 };
+
 /*! \reimp
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
+    d->undoRedoInfo.clear();
     if ( e->button() == RightButton ) {
 	QGuardedPtr<QPopupMenu> popup = new QPopupMenu( this );
 	int id[ 7 ];
-// 	id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
-// 	id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
-//	popup->insertSeparator();
+ 	id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
+ 	id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
+	popup->insertSeparator();
 #ifndef QT_NO_CLIPBOARD
 	id[ IdCut ] = popup->insertItem( tr( "Cut" ) );
 	id[ IdCopy ] = popup->insertItem( tr( "Copy" ) );
@@ -788,10 +823,10 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
 	popup->insertSeparator();
 	id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
-// 	popup->setItemEnabled( id[ IdUndo ],
-// 				  !this->d->readonly && !this->d->undoList.isEmpty() );
-// 	popup->setItemEnabled( id[ IdRedo ],
-// 				  !this->d->readonly && !this->d->redoList.isEmpty() );
+ 	popup->setItemEnabled( id[ IdUndo ],
+ 				  !d->readonly && d->parag->commands()->isUndoAvailable() );
+ 	popup->setItemEnabled( id[ IdRedo ],
+ 				  !d->readonly && d->parag->commands()->isUndoAvailable() );
 #ifndef QT_NO_CLIPBOARD
 	popup->setItemEnabled( id[ IdCut ],
 				  !d->readonly && hasMarkedText() );
@@ -813,10 +848,10 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	    clear();
 	else if ( r == id[ IdSelectAll ] )
 	    selectAll();
-// 	else if ( r == id[ IdUndo ] )
-// 	    undoInternal();
-// 	else if ( r == id[ IdRedo ] )
-// 	    redoInternal();
+ 	else if ( r == id[ IdUndo ] )
+ 	    undo();
+ 	else if ( r == id[ IdRedo ] )
+ 	    redo();
 #ifndef QT_NO_CLIPBOARD
 	else if ( r == id[ IdCut ] )
 	    cut();
@@ -1041,10 +1076,17 @@ void QLineEdit::cursorForward( bool mark, int steps )
 
 void QLineEdit::backspace()
 {
-    if( hasMarkedText() )
+    if ( hasMarkedText() ) {
 	removeSelectedText();
-    else {
+    } else {
+	d->checkUndoRedoInfo( UndoRedoInfo::Delete );
+	if ( !d->undoRedoInfo.valid() ) {
+	    d->undoRedoInfo.index = d->cursor->index();
+	    d->undoRedoInfo.text = QString::null;
+	}
 	d->cursor->gotoLeft();
+	d->undoRedoInfo.text.prepend( QString( d->cursor->parag()->at( d->cursor->index() )->c ) );
+	d->undoRedoInfo.index = d->cursor->index();
 	d->cursor->remove();
     }
     d->selectionStart = d->cursor->index();
@@ -1060,10 +1102,17 @@ void QLineEdit::backspace()
 
 void QLineEdit::del()
 {
-    if ( hasMarkedText() )
+    if ( hasMarkedText() ) {
 	removeSelectedText();
-    else
+    } else {
+	d->checkUndoRedoInfo( UndoRedoInfo::Delete );
+	if ( !d->undoRedoInfo.valid() ) {
+	    d->undoRedoInfo.index = d->cursor->index();
+	    d->undoRedoInfo.text = QString::null;
+	}
+	d->undoRedoInfo.text += d->cursor->parag()->at( d->cursor->index() )->c;
 	d->cursor->remove();
+    }
     d->selectionStart = d->cursor->index();
     update();
 }
@@ -1497,6 +1546,12 @@ void QLineEdit::insert( const QString &newText )
     if ( t.isEmpty() )
 	return;
 
+    d->checkUndoRedoInfo( UndoRedoInfo::Insert );
+    if ( !d->undoRedoInfo.valid() ) {
+	d->undoRedoInfo.index = d->cursor->index();
+	d->undoRedoInfo.text = QString::null;
+    }
+
     d->ed = TRUE;
 
     for ( int i=0; i<(int)t.length(); i++ )
@@ -1521,6 +1576,7 @@ void QLineEdit::insert( const QString &newText )
     }
     update();
     d->selectionStart = d->cursor->index();
+    d->undoRedoInfo.text += t;
 }
 
 
@@ -1718,11 +1774,36 @@ void QLineEdit::updateSelection()
 
 void QLineEdit::removeSelectedText()
 {
+    d->checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
     int start = d->parag->selectionStart( 0 );
     int len = d->parag->selectionEnd( 0 ) - start;
+    if ( !d->undoRedoInfo.valid() ) {
+	d->undoRedoInfo.index = start;
+	d->undoRedoInfo.text = QString::null;
+    }
+    d->undoRedoInfo.text = d->parag->string()->toString().mid( start, len );
     d->parag->remove( start, len );
     d->cursor->setIndex( start );
     deselect();
+    d->undoRedoInfo.clear();
+}
+
+/*! Undoes the last operation */
+
+void QLineEdit::undo()
+{
+    d->undoRedoInfo.clear();
+    d->parag->undo( d->cursor );
+    update();
+}
+
+/*! Redoes the last operation */
+
+void QLineEdit::redo()
+{
+    d->undoRedoInfo.clear();
+    d->parag->redo( d->cursor );
+    update();
 }
 
 #endif

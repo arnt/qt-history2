@@ -75,104 +75,100 @@ public:
 
     QString displayText() const;
 
-    int		maxLength()	const;
-    virtual void setMaxLength( int );
+    int maxLength() const;
 
-    virtual void setFrame( bool );
-    bool	frame() const;
+    bool frame() const;
 
-    enum	EchoMode { Normal, NoEcho, Password };
-    virtual void setEchoMode( EchoMode );
-    EchoMode 	echoMode() const;
+    enum EchoMode { Normal, NoEcho, Password };
+    EchoMode echoMode() const;
 
-    virtual void setReadOnly( bool );
     bool isReadOnly() const;
 
-    virtual void setValidator( const QValidator * );
     const QValidator * validator() const;
 
-    QSize	sizeHint() const;
-    QSize	minimumSizeHint() const;
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
+    int cursorPosition() const;
+
+    bool validateAndSet( const QString &, int, int, int );
+
+    int alignment() const;
+
+#ifndef QT_NO_COMPAT
+    void cursorLeft( bool mark, int steps = 1 );
+    void cursorRight( bool mark, int steps = 1 );
+#endif
+    void cursorForward( bool mark, int steps = 1 );
+    void cursorBackward( bool mark, int steps = 1 );
+    void cursorWordForward( bool mark );
+    void cursorWordBackward( bool mark );
+    void backspace();
+    void del();
+    void home( bool mark );
+    void end( bool mark );
+
+    void setEdited( bool );
+    bool edited() const;
+
+    bool hasMarkedText() const;
+    QString markedText() const;
+
+public slots:
+    virtual void setText( const QString &);
+    virtual void selectAll();
+    virtual void deselect();
+    virtual void clearValidator();
+    virtual void insert( const QString &);
+    virtual void clear();
+    virtual void undo();
+    virtual void redo();
+    virtual void setMaxLength( int );
+    virtual void setFrame( bool );
+    virtual void setEchoMode( EchoMode );
+    virtual void setReadOnly( bool );
+    virtual void setValidator( const QValidator * );
     virtual void setEnabled( bool );
     virtual void setFont( const QFont & );
     virtual void setPalette( const QPalette & );
     virtual void setSelection( int, int );
-
     virtual void setCursorPosition( int );
-    int		cursorPosition() const;
-
-    bool	validateAndSet( const QString &, int, int, int );
-
-#ifndef QT_NO_CLIPBOARD
-    void	cut();
-    void	copy() const;
-    void	paste();
-#endif
-
     void setAlignment( int flag );
-    int alignment() const;
-
-#ifndef QT_NO_COMPAT    
-    void	cursorLeft( bool mark, int steps = 1 );
-    void	cursorRight( bool mark, int steps = 1 );
-#endif
-    void	cursorForward( bool mark, int steps = 1 );
-    void	cursorBackward( bool mark, int steps = 1 );
-    void	cursorWordForward( bool mark );
-    void	cursorWordBackward( bool mark );
-    void	backspace();
-    void	del();
-    void	home( bool mark );
-    void	end( bool mark );
-
-    void	setEdited( bool );
-    bool	edited() const;
-
-    bool	hasMarkedText() const;
-    QString	markedText() const;
-
-public slots:
-    virtual void setText( const QString &);
-
-    void	selectAll();
-    void	deselect();
-
-    void	clearValidator();
-
-    void	insert( const QString &);
-
-    void	clear();
-
-signals:
-    void	textChanged( const QString &);
-    void	returnPressed();
-
-protected:
-    bool	event( QEvent * );
-    void	mousePressEvent( QMouseEvent * );
-    void	mouseMoveEvent( QMouseEvent * );
-    void	mouseReleaseEvent( QMouseEvent * );
-    void	mouseDoubleClickEvent( QMouseEvent * );
-    void	keyPressEvent( QKeyEvent * );
-    void	focusInEvent( QFocusEvent * );
-    void	focusOutEvent( QFocusEvent * );
-    void	paintEvent( QPaintEvent * );
-    void	resizeEvent( QResizeEvent * );
-#ifndef QT_NO_DRAGANDDROP
-    void	dragEnterEvent( QDragEnterEvent * );
-    void	dropEvent( QDropEvent * );
-#endif
-
-#ifndef QT_NO_COMPAT    
-    void	repaintArea( int, int );
+#ifndef QT_NO_CLIPBOARD
+    void cut();
+    void copy() const;
+    void paste();
 #endif
     
-private slots:
-    void	clipboardChanged();
-    void	blinkSlot();
+signals:
+    void textChanged( const QString &);
+    void returnPressed();
+
+protected:
+    bool event( QEvent * );
+    void mousePressEvent( QMouseEvent * );
+    void mouseMoveEvent( QMouseEvent * );
+    void mouseReleaseEvent( QMouseEvent * );
+    void mouseDoubleClickEvent( QMouseEvent * );
+    void keyPressEvent( QKeyEvent * );
+    void focusInEvent( QFocusEvent * );
+    void focusOutEvent( QFocusEvent * );
+    void paintEvent( QPaintEvent * );
+    void resizeEvent( QResizeEvent * );
 #ifndef QT_NO_DRAGANDDROP
-    void 	doDrag();
+    void dragEnterEvent( QDragEnterEvent * );
+    void dropEvent( QDropEvent * );
+#endif
+
+#ifndef QT_NO_COMPAT
+    void repaintArea( int, int );
+#endif
+
+private slots:
+    void clipboardChanged();
+    void blinkSlot();
+#ifndef QT_NO_DRAGANDDROP
+    void doDrag();
 #endif
 
 private:
@@ -181,9 +177,9 @@ private:
     void updateOffset();
     void updateSelection();
     void removeSelectedText();
-    
+
     QLineEditPrivate * d;
-    
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QLineEdit( const QLineEdit & );
