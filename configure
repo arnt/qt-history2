@@ -27,6 +27,13 @@ X11_PLATFORM=no
 MAC_PLATFORM=no
 QWS_PLATFORM=no
 
+if [ -d mkspecs/qws ]
+then
+    QWS_CANDIDATE="yes"
+else
+    QWS_CANDIDATE="no"
+fi
+
 if [ "$relpath" != `pwd` ]
 then
     #setup the magic variable
@@ -133,24 +140,40 @@ else
 fi
 
 # Free edition - may only be used under the terms of the QPL or GPL.
-if [ -f $relpath/LICENSE.QPL -a -f $relpath/LICENSE.GPL ]
+if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]
 then
+    if [ "$QWS_CANDIDATE" = "yes" ]
+    then
+	EMB="/Embedded"
+	QWS_PLATFORM=yes
+    else
+	EMB=""
+    fi
     Edition=free
     Licensee=you
     while true
     do
 	echo
-	echo "This is the Qt Free Edition."
+	echo "This is the Qt$EMB Free Edition."
 	echo
-	echo "You are licensed to use this software under the terms of either"
-	echo "the Q Public License (QPL) or the GNU General Public License (GPL)."
-	echo
-	echo "Type 'Q' to view the Q Public License."
+	if [ -n "$EMB" ]
+	then
+	    echo "You are licensed to use this software under the terms of"
+	    echo "the GNU General Public License (GPL)."
+	    echo
+	    QWS_EITHER="the"
+	else
+	    echo "You are licensed to use this software under the terms of either"
+	    echo "the Q Public License (QPL) or the GNU General Public License (GPL)."
+	    echo
+	    echo "Type 'Q' to view the Q Public License."
+	    QWS_EITHER="either"
+	fi    
 	echo "Type 'G' to view the GNU General Public License."
 	echo "Type 'yes' to accept this license offer."
 	echo "Type 'no' to decline this license offer."
 	echo
-	echo "Do you accept the terms of either license?"
+	echo "Do you accept the terms of $QWS_EITHER license?"
 	read acceptance
 	if [ "$acceptance" = yes ]
 	then
@@ -167,7 +190,10 @@ then
 		more $relpath/LICENSE.GPL
 	    elif [ "$acceptance" = Q -o "$acceptance" = q ]
 	    then
-		more $relpath/LICENSE.QPL
+		if [ -z "$EMB" ]
+		    then
+			more $relpath/LICENSE.QPL
+		    fi
 	    fi
 	fi
     done
@@ -182,7 +208,7 @@ then
     echo
     Licensee="Trolltech"
     Products="qt-internal"
-    EMB="/Embedded" #fixme
+    EMB="/Embedded"       ### fixme again
 else
     if [ -f $relpath/LICENSE ]
     then
@@ -290,7 +316,12 @@ fi # help
 # Defaults
 DO_INCREMENT=auto
 QCONFIG=full
-EMBEDDED=no
+if [ "$QWS_PLATFORM" = "yes" ]
+then
+    EMBEDDED=auto
+else
+    EMBEDDED=no
+fi
 KDE=no
 VERBOSE=
 DEBUG=no
@@ -622,6 +653,18 @@ do
     esac
     shift
 done
+
+if [ "$EMBEDDED" = "auto" ]
+then
+    UNAME_MACHINE=`(uname -m) 2>/dev/null` || UNAME_MACHINE=unknown
+    case "$UNAME_MACHINE" in
+	*86) ARCH=x86 ;;
+	*) ARCH=generic ;;
+    esac
+    EMBEDDED=$ARCH
+    PLATFORM=qws/linux-generic-g++
+    XPLATFORM=qws/linux-${EMBEDDED}-g++
+fi
 
 if [ -z "$PLATFORM" ]
 then
@@ -1054,7 +1097,7 @@ Qt/X11 only:
 EOF
 fi
 
-if [ "$QWS_PLATFORM" = "yes" ]; then
+if [ "$QWS_CANDIDATE" = "yes" ]; then
     cat << EOF
 
 Qt/Embedded only:
