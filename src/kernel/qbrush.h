@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#14 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#15 $
 **
 ** Definition of QBrush class
 **
@@ -66,14 +66,14 @@ private:
 	QBitmap	 *bitmap;
 #if defined(_WS_WIN_)
 	HANDLE	  hbrush;
-	HANDLE	  hbmp;
+	HANDLE	  hbm;
 	uint	  invalid    : 1;
 	uint	  stockBrush : 1;
 #elif defined(_WS_PM_)
 	uint	  invalid    : 2;
 #elif defined(_WS_X11_)
 	Display	 *dpy;
-	Pixmap	  pixmap;
+	HANDLE	  pixmap;
 #endif
     } *data;
 };
