@@ -701,7 +701,7 @@
     <forward>class ChangeProperties;</forward>
     <forward>class InvokeMethod;</forward>
     <forward>class AmbientProperties;</forward>
-    <forward>class QAxScript;</forward>
+    <forward>class QAxScriptManager;</forward>
 </forwards>
 <variables>
     <variable>AmbientProperties *dlgAmbient;</variable>
@@ -709,7 +709,7 @@
     <variable>ChangeProperties *dlgProperties;</variable>
     <variable>QtMsgHandler oldDebugHandler;</variable>
     <variable>QWorkspace *workspace;</variable>
-    <variable>QAxScript *script;</variable>
+    <variable>QAxScriptManager *scripts;</variable>
 </variables>
 <slots>
     <slot>changeProperties()</slot>

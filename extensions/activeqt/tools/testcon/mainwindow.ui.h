@@ -30,13 +30,13 @@ static void redirectDebugOutput( QtMsgType type, const char*msg )
 
 void MainWindow::init()
 {
-    QAxScript::registerEngine("PerlScript", ".pl");
-    QAxScript::registerEngine("Python", ".py");
+    QAxScriptManager::registerEngine("PerlScript", ".pl");
+    QAxScriptManager::registerEngine("Python", ".py");
 
     dlgInvoke = 0;
     dlgProperties = 0;
     dlgAmbient = 0;
-    script = 0;
+    scripts = 0;
     debuglog = logDebug;
     oldDebugHandler = qInstallMsgHandler( redirectDebugOutput );
     QHBoxLayout *layout = new QHBoxLayout( Workbase );
@@ -317,51 +317,42 @@ void MainWindow::renderPixmap()
 
 void MainWindow::runMacro()
 {
-    if (!script)
+    if (!scripts)
 	return;
 
     // If we have only one script loaded we can use the cool dialog
-    QStringList scripts = script->scriptNames();
-    if (scripts.count() == 1) {
+    QStringList scriptList = scripts->scriptNames();
+    if (scriptList.count() == 1) {
 	InvokeMethod scriptInvoke( this, 0, TRUE );
 	scriptInvoke.setCaption("Execute Script Function");
-	scriptInvoke.setControl(script->scriptEngine(scripts[0]));
+	scriptInvoke.setControl(scripts->script(scriptList[0])->scriptEngine());
 	scriptInvoke.exec();
 	return;
     }
 
     bool ok = FALSE;
-    QStringList macroList = script->functions(QAxScript::FunctionNames);
+    QStringList macroList = scripts->functions(QAxScript::FunctionNames);
     QString macro = QInputDialog::getItem("Select Macro", "Macro:", macroList, 0, TRUE, &ok, this);
 
     if (!ok)
 	return;
 
-    QVariant result = script->call(macro);
+    QVariant result = scripts->call(macro);
     if (result.isValid())
 	logMacros->append(QString("Return value of %1: %2").arg(macro).arg(result.asString()));
 }
 
 void MainWindow::loadScript()
 {
-    QString file = QFileDialog::getOpenFileName(QString::null, QAxScript::scriptFileFilter(),
+    QString file = QFileDialog::getOpenFileName(QString::null, QAxScriptManager::scriptFileFilter(),
 						this, 0, "Open Script");
 
     if (file.isEmpty())
 	return;
 
-    if (!script) {
-	script = new QAxScript(this);
-	connect(script, SIGNAL(error(int, const QString&, int, const QString&)),
-		this,   SLOT(logMacro(int,  const QString&, int, const QString&)));
-
-	IDispatch *mainWindowDispatch = 0;
-	qAxFactory()->createObjectWrapper(this, &mainWindowDispatch);
-	if (mainWindowDispatch) {
-	    ax_mainWindow = new QAxObject(mainWindowDispatch, this, "MainWindow");
-	    mainWindowDispatch->Release();
-	}
-	script->addObject(ax_mainWindow);
+    if (!scripts) {
+	scripts = new QAxScriptManager(this);
+	scripts->addObject(this);
     }
 
     QWidgetList widgets = workspace->windowList();
@@ -371,16 +362,18 @@ void MainWindow::loadScript()
 	++it;
 	if (!ax)
 	    continue;
-	script->addObject(ax);
+	scripts->addObject(ax);
     }
 
-    QAxScriptEngine *scriptlet = script->load(file, file);
-    if (scriptlet) {
+    QAxScript *script = scripts->load(file, file);
+    if (script) {
+	connect(script, SIGNAL(error(int, const QString&, int, const QString&)),
+		this,   SLOT(logMacro(int,  const QString&, int, const QString&)));
 	actionScriptingRun->setEnabled(TRUE);
     }
 }
 
-void MainWindow::logMacro( int code, const QString &description, int sourcePosition, const QString &sourceText )
+void MainWindow::logMacro(int code, const QString &description, int sourcePosition, const QString &sourceText )
 {
     QString message = "Script: ";
     if (code)
