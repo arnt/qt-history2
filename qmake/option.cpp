@@ -97,6 +97,7 @@ QString Option::mkfile::cachefile;
 QStringList Option::mkfile::project_files;
 QString Option::mkfile::qmakespec_commandline;
 
+QString project_builtin_regx();
 bool usage(const char *a0)
 {
     fprintf(stdout, "Usage: %s [mode] [options] [files]\n"
@@ -110,7 +111,7 @@ bool usage(const char *a0)
 	    "\t-project       Put qmake into project file generation mode\n"
 	    "\t               In this mode qmake interprets files as files to\n"
 	    "\t               be built,\n"
-	    "\t               defaults to *.cpp; *.l; *.y; *.ui\n"
+	    "\t               defaults to %s\n"
 	    "\t-makefile      Put qmake into makefile generation mode (default)\n"
 	    "\t               In this mode qmake interprets files as project files to\n"
 	    "\t               be processed, if skipped qmake will try to find a project\n"
@@ -144,7 +145,7 @@ bool usage(const char *a0)
 	    "\t-nomoc         Don't generate moc targets  [makefile mode only]\n"
 	    "\t-nopwd         Don't look for files in pwd [ project mode only]\n"
 	    "\t-norecursive   Don't do a recursive search [ project mode only]\n"
-	    ,a0);
+	    ,a0, project_builtin_regx().latin1());
     return FALSE;
 }
 static Option::QMAKE_MODE default_mode(QString progname)
@@ -161,6 +162,18 @@ static Option::QMAKE_MODE default_mode(QString progname)
 bool
 Option::parseCommandLine(int argc, char **argv)
 {
+    Option::moc_mod = "moc_";
+    Option::lex_mod = "_lex";
+    Option::yacc_mod = "_yacc";
+    Option::prl_ext = ".prl";
+    Option::prf_ext = ".prf";
+    Option::ui_ext = ".ui";
+    Option::h_ext << ".h" << ".hpp" << ".hh" << ".H" << ".hxx";
+    Option::moc_ext = ".moc";
+    Option::cpp_ext << ".cpp" << ".cc" << ".cxx" << ".C";
+    Option::lex_ext = ".l";
+    Option::yacc_ext = ".y";
+
     bool before = TRUE;
     for(int x = 1; x < argc; x++) {
 	if(*argv[x] == '-' && strlen(argv[x]) > 1) { /* options */
@@ -299,17 +312,6 @@ Option::parseCommandLine(int argc, char **argv)
     }
 
     //defaults for globals
-    Option::moc_mod = "moc_";
-    Option::lex_mod = "_lex";
-    Option::yacc_mod = "_yacc";
-    Option::prl_ext = ".prl";
-    Option::prf_ext = ".prf";
-    Option::ui_ext = ".ui";
-    Option::h_ext << ".h" << ".hpp" << ".hh" << ".H" << ".hxx";
-    Option::moc_ext = ".moc";
-    Option::cpp_ext << ".cpp" << ".cc" << ".cxx" << ".C";
-    Option::lex_ext = ".l";
-    Option::yacc_ext = ".y";
     if(Option::target_mode == Option::TARG_WIN_MODE) {
 	Option::dir_sep = "\\";
 	Option::obj_ext =  ".obj";

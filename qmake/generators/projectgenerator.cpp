@@ -42,6 +42,22 @@
 #include <qfileinfo.h>
 #include <qregexp.h>
 
+QString project_builtin_regx() //calculate the builtin regular expression..
+{ 
+    QString ret;
+    QStringList builtin_exts(".c");
+    builtin_exts << Option::ui_ext << Option::yacc_ext << Option::lex_ext;
+    builtin_exts += Option::h_ext + Option::cpp_ext;
+    for(QStringList::Iterator ext_it = builtin_exts.begin(); 
+	ext_it != builtin_exts.end(); ++ext_it) {
+	if(!ret.isEmpty())
+	    ret += "; ";
+	ret += QString("*") + (*ext_it);
+    }
+    return ret;
+}
+
+
 
 ProjectGenerator::ProjectGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE)
 {
@@ -67,18 +83,7 @@ ProjectGenerator::init()
 
     //the scary stuff
     if(project->first("TEMPLATE_ASSIGN") != "subdirs") {
-	QString builtin_regex;
-	{ //calculate the builtin regular expression..
-	    QStringList builtin_exts(".c");
-	    builtin_exts << Option::ui_ext << Option::yacc_ext << Option::lex_ext;
-	    builtin_exts += Option::h_ext + Option::cpp_ext;
-	    for(QStringList::Iterator ext_it = builtin_exts.begin(); 
-		ext_it != builtin_exts.end(); ++ext_it) {
-		if(!builtin_regex.isEmpty())
-		    builtin_regex += "; ";
-		builtin_regex += QString("*") + (*ext_it);
-	    }
-	}
+	QString builtin_regex = project_builtin_regx();
 	QStringList dirs = Option::projfile::project_dirs;
 	if(Option::projfile::do_pwd) {
 	    if(!v["INCLUDEPATH"].contains("."))
