@@ -375,8 +375,6 @@ public:
     int ascent() const { return (int)info->ascent; }
     int descent() const { return (int)info->descent; }
     int leading() const { return (int)info->leading; }
-    int lineThickness() const;
-    int underlinePosition() const;
 #if 0
     int maxCharWidth() const { return (int)info->maxAdvanceWidth; }
 #else

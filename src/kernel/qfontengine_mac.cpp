@@ -23,6 +23,25 @@ QFontEngine::~QFontEngine()
 
 }
 
+int QFontEngine::lineThickness() const
+{
+  // ad hoc algorithm
+  int score = fontDef.pixelSize * fontDef.weight;
+  int lth = score / 700;
+
+  // looks better with thicker line for small pointsizes
+  if( lth < 2 && score >= 1050 ) lth = 2;
+  if( lth == 0 ) lth = 1;
+
+  return lth;
+}
+
+int QFontEngine::underlinePosition() const
+{
+  int pos = ( ( lineThickness() * 2 ) + 3 ) / 6;
+  return pos ? pos : 1;
+}
+
 //Mac (ATSUI) engine
 QFontEngine::Error
 QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs) const
