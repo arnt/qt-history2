@@ -1605,7 +1605,7 @@ QDir::cleanDirPath(const QString &in)
         ret = name;
     else
 	ret = QString(out, used);
-    delete out;
+    delete [] out;
     return ret;
 }
 
