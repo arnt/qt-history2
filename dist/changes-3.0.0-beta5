@@ -14,12 +14,13 @@ Documentation
 
 The extensive revision of Qt classes' documentation is complete. The
 front page of the Qt documentation (index.html) has been redesigned
-to provide better access to the non-class documentation.
+to provide better access to other documentation than class
+documentation.
 
 OpenGL Module
 -------------
 
-The beta5 provides some fixes which will make rendering GL widgets to
+Qt beta 5 provides some fixes which will make rendering GL widgets to
 pixmaps work on a wider range of X servers.
 
 QDateTimeEdit
@@ -70,6 +71,16 @@ QComboBox
  - Never inserts empty strings in the list.
  - Use the drop-down listbox's size hint in the combobox if the
    listbox has been set manually.
+
+QComponentInterface
+-------------------
+
+ - This class has been renamed QComponentInformationInterface.
+
+QComponentServerInterface
+-------------------------
+
+ - This class has been renamed QComponentRegistrationInterface.
 
 QDataBrowser
 ------------
@@ -171,10 +182,24 @@ QPrinter
    documentation.
  - Work around a display-context bug on Windows 95 and 98.
 
+QProcess
+--------
+
+New functions:
+	void clearArguments();
+	int communication() const;
+	void setCommunication( int c );
+
 QProgressBar
 ------------
 
  - Fixed bug in repainting when a background pixmap is set.
+
+QPtrList
+--------
+
+ - Reverted a semantics change introduced in beta 4 when deleting the
+   current item.
 
 QRegExp
 -------
@@ -226,6 +251,7 @@ QTextEdit
  - Moved eventFilter() from the public slots section to the public
    section of the class definition.
  - Reformat after changing tab-stop size.
+ - Implemented undo for clear().
 
 New function:
 	void zoomTo( int size );
