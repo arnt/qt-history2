@@ -1709,19 +1709,20 @@ void QString::setLength( uint newLen )
     \a a is padded to. A positive value will produce right-aligned
     text, whereas a negative value will produce left-aligned text.
 
+    The following example shows how we could create a 'status' string
+    when processing a list of files:
     \code
-	QString firstName( "James" );
-	QString lastName( "Bond" );
-	QString fullName = QString( "My name is %2, %1 %2" )
-			   .arg( firstName )
-			   .arg( lastName );
-	// fullName == "My name is Bond, James Bond"
+    QString status = QString( "Processing file %1 of %2: %3" )
+			.arg( i )         // current file's number
+			.arg( total )     // number of files to process
+			.arg( fileName ); // current file's name
     \endcode
 
-    Note that using arg() to construct sentences as we've done in the
-    example above does not usually translate well into other languages
-    because sentence structure and word order often differ between
-    languages.
+    It is generally fine to use filenames and numbers as we have done
+    in the example above. But note that using arg() to construct
+    natural language sentences does not usually translate well into
+    other languages because sentence structure and word order often
+    differ between languages.
 
     If there is no place marker (\c %1 or \c %2, etc.), a warning
     message (qWarning()) is output and the result is undefined.
@@ -2257,6 +2258,9 @@ QString& QString::fill( QChar c, int len )
 
 int QString::find( QChar c, int index, bool cs ) const
 {
+#ifdef MACOSX_101
+    return find( QString( c ), index, cs );
+#else
     const uint l = length();
     if ( index < 0 )
 	index += l;
@@ -2275,6 +2279,7 @@ int QString::find( QChar c, int index, bool cs ) const
     if ( uint(uc - unicode()) >= l )
 	return -1;
     return (int)(uc - unicode());
+#endif
 }
 
 /* an implementation of the Boyer-Moore search algorithm
@@ -2403,8 +2408,10 @@ int QString::find( const QString& str, int index, bool cs ) const
     if ( !sl )
 	return index;
 
+#ifndef MACOSX_101
     if ( sl == 1 )
 	return find( *str.unicode(), index, cs );
+#endif
 
     // we use the Boyer-Moore algorithm in cases where the overhead
     // for the hash table should pay off, otherwise we use a simple
@@ -2500,6 +2507,9 @@ int QString::find( const QString& str, int index, bool cs ) const
 
 int QString::findRev( QChar c, int index, bool cs ) const
 {
+#ifdef MACOSX_101
+    return findRev( QString( c ), index, cs );
+#else
     const uint l = length();
     if ( index < 0 )
 	index += l;
@@ -2516,6 +2526,7 @@ int QString::findRev( QChar c, int index, bool cs ) const
 	    uc--;
     }
     return uc - end;
+#endif
 }
 
 /*!
@@ -2552,8 +2563,10 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     if ( index > delta )
 	index = delta;
 
+#ifndef MACOSX_101
     if ( sl == 1 )
 	return findRev( *str.unicode(), index, cs );
+#endif
 
     const QChar* needle = str.unicode();
     const QChar* haystack = unicode() + index;
