@@ -508,7 +508,7 @@ while [ -n "$1" ]; do
 	    PLATFORM=irix-cc-o32
 	    ;;
 	irix-n32)
-	    PLATFORM=irix-cc-n32
+	    PLATFORM=irix-cc
 	    ;;
 	irix-64)
 	    PLATFORM=irix-cc-n64
@@ -1100,9 +1100,9 @@ if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
      AIX*)
 	#PLATFORM=aix-g++
 	PLATFORM=aix-xlc
-	#PLATFORM=aix-xlc64
+	#PLATFORM=aix-xlc-64
 	PLATFORM_NOTES="
-	    - Also available for AIX: aix-g++
+	    - Also available for AIX: aix-g++ aix-xlc-64
 	"
 	;;
      QNX:*)
@@ -1131,21 +1131,21 @@ if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
 	;;
      IRIX*)
 	#PLATFORM=irix-g++
-	PLATFORM=irix-n32
-	#PLATFORM=irix-n64
-	#PLATFORM=irix-o32
+	PLATFORM=irix-cc
+	#PLATFORM=irix-cc-n64
+	#PLATFORM=irix-cc-o32
 	PLATFORM_NOTES="
-	    - Also available for IRIX: irix-g++ irix-n64 irix-o32
+	    - Also available for IRIX: irix-g++ irix-cc-n64 irix-cc-o32
 	"
 	;;
      HP-UX:*)
 	#PLATFORM=hpux-g++
 	PLATFORM=hpux-acc
-	#PLATFORM=hpux-n64
+	#PLATFORM=hpux-acc-n64
 	#PLATFORM=hpux-cc
-	#PLATFORM=hpux-o64
+	#PLATFORM=hpux-acc-o64
 	PLATFORM_NOTES="
-	    - Also available for HP-UX: hpux-g++ hpux-n64 hpux-o64
+	    - Also available for HP-UX: hpux-g++ hpux-acc-n64 hpux-acc-o64
 	"
 	;;
      OSF1:*)
@@ -1166,7 +1166,7 @@ if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
 	PLATFORM=solaris-cc
 	#PLATFORM=solaris-cc64
 	PLATFORM_NOTES="
-	    - Also available for Solaris: solaris-g++ solaris-cc64
+	    - Also available for Solaris: solaris-g++ solaris-cc-64
 	"
 	;;
      SunOS:4*)
@@ -1174,9 +1174,9 @@ if [ "$CFG_EMBEDDED" != "yes" -a -z "$PLATFORM" ]; then
 	;;
      ReliantUNIX-*|SINIX-*)
 	PLATFORM=reliant-cds
-	#PLATFORM=reliant-cds64
+	#PLATFORM=reliant-cds-64
 	PLATFORM_NOTES="
-	    - Also available for Reliant UNIX: reliant-cds64
+	    - Also available for Reliant UNIX: reliant-cds-64
 	"
 	;;
      CYGWIN*:*)
