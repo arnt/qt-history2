@@ -57,7 +57,7 @@ public:
     Qt::PenStyle gridStyle() const;
     void setGridStyle(Qt::PenStyle style);
 
-    QRect itemViewportRect(const QModelIndex &index) const;
+    QRect viewportRectForIndex(const QModelIndex &index) const;
     void ensureVisible(const QModelIndex &index);
     QModelIndex indexAt(int x, int y) const;
 
@@ -97,8 +97,8 @@ protected:
 
     void updateGeometries();
 
-    int rowSizeHint(int row) const;
-    int columnSizeHint(int column) const;
+    int sizeHintForRow(int row) const;
+    int sizeHintForColumn(int column) const;
 
     void verticalScrollbarAction(int action);
     void horizontalScrollbarAction(int action);

@@ -1463,7 +1463,7 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SLOT(emitExpanded(QModelIndex)));
     connect(this, SIGNAL(collapsed(QModelIndex)),
             SLOT(emitCollapsed(QModelIndex)));
-    connect(this, SIGNAL(itemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
+    connect(this, SIGNAL(entered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
             SLOT(emitItemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));
@@ -1784,7 +1784,7 @@ bool QTreeWidget::isItemVisible(const QTreeWidgetItem *item) const
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
-    QRect rect = itemViewportRect(index);
+    QRect rect = viewportRectForIndex(index);
     return rect.isValid() && d->viewport->rect().contains(rect);
 }
 

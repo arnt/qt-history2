@@ -121,7 +121,7 @@ void QAbstractItemViewPrivate::init()
     columnsInserted(), columnsRemoved(),
     selectionChanged(), and currentChanged().
 
-    The root item is returned by root(), and the current item by
+    The root item is returned by rootIndex(), and the current item by
     currentIndex(). To make sure that an item is visible use
     ensureVisible().
 
@@ -234,7 +234,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn QRect QAbstractItemView::itemViewportRect(const QModelIndex &index) const = 0
+    \fn QRect QAbstractItemView::viewportRectForIndex(const QModelIndex &index) const = 0
     Returns the rectangle on the viewport occupied by the item at \a
     index.
 
@@ -278,7 +278,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-  \fn void QAbstractItemView::itemEntered(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
+  \fn void QAbstractItemView::entered(const QModelIndex &index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers)
 
   This signal is emitted when the mouse cursor enters the item
   specified by \a index. The state of the mouse buttons and keyboard modifiers
@@ -449,7 +449,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         connect(d->model, SIGNAL(reset()), this, SLOT(reset()));
     }
 
-    setRoot(QModelIndex());// triggers layout
+    setRootIndex(QModelIndex());// triggers layout
     setSelectionModel(new QItemSelectionModel(d->model));
 }
 
@@ -627,9 +627,9 @@ void QAbstractItemView::reset()
 /*!
     Sets the root item to the item at \a index.
 
-    \sa root()
+    \sa rootIndex()
 */
-void QAbstractItemView::setRoot(const QModelIndex &index)
+void QAbstractItemView::setRootIndex(const QModelIndex &index)
 {
     QModelIndex old = d->root;
     d->root = index;
@@ -642,9 +642,9 @@ void QAbstractItemView::setRoot(const QModelIndex &index)
     Returns the model index of the model's root item. The root item is
     the parent item to the views toplevel items. The root can be invalid.
 
-    \sa setRoot()
+    \sa setrootIndex()
 */
-QModelIndex QAbstractItemView::root() const
+QModelIndex QAbstractItemView::rootIndex() const
 {
     return QModelIndex(d->root);
 }
@@ -655,10 +655,10 @@ QModelIndex QAbstractItemView::root() const
 void QAbstractItemView::selectAll()
 {
     QItemSelection selection;
-    QModelIndex tl = model()->index(0, 0, root());
-    QModelIndex br = model()->index(model()->rowCount(root()) - 1,
-                                    model()->columnCount(root()) - 1,
-                                    root());
+    QModelIndex tl = model()->index(0, 0, rootIndex());
+    QModelIndex br = model()->index(model()->rowCount(rootIndex()) - 1,
+                                    model()->columnCount(rootIndex()) - 1,
+                                    rootIndex());
     selection.append(QItemSelectionRange(tl, br));
     selectionModel()->select(selection, QItemSelectionModel::ClearAndSelect);
 }
@@ -973,7 +973,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     if (d->enteredIndex != index) {
         if (index.isValid())
-            emit itemEntered(index, e->button(), e->modifiers());
+            emit entered(index, e->button(), e->modifiers());
         else
             emit viewportEntered(e->button(), e->modifiers());
         d->enteredIndex = index;
@@ -1087,7 +1087,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
     if (d->canDecode(e)) {
         if (index.isValid()) {
             // update the drag indicator geometry
-            QRect rect = itemViewportRect(index);
+            QRect rect = viewportRectForIndex(index);
             QRect global(d->viewport->mapToGlobal(rect.topLeft()), rect.size());
             switch (d->position(e->pos(), rect, 2)) {
             case QAbstractItemViewPrivate::Above: {
@@ -1157,7 +1157,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
         index = indexAt(pos);
         index = model()->sibling(index.row(), 0, index);
         if (!index.isValid())
-            index = root(); // drop on viewport
+            index = rootIndex(); // drop on viewport
     }
     // if we are allowed to do the drop
     if (model()->supportedDropActions() & e->proposedAction()) {
@@ -1165,7 +1165,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
         int row = -1; // prepend
         if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled
             || model()->flags(index.parent()) & QAbstractItemModel::ItemIsDropEnabled) {
-            switch(d->position(pos, itemViewportRect(index), 2)) {
+            switch(d->position(pos, viewportRectForIndex(index), 2)) {
             case QAbstractItemViewPrivate::Above:
                 row = index.row();
                 index = index.parent();
@@ -1195,7 +1195,7 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
     QViewport::focusInEvent(e);
     QModelIndex index = currentIndex();
     if (index.isValid())
-        d->viewport->update(itemViewportRect(index));
+        d->viewport->update(viewportRectForIndex(index));
 }
 
 /*!
@@ -1207,7 +1207,7 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *e)
     QViewport::focusOutEvent(e);
     QModelIndex index = currentIndex();
     if (index.isValid())
-        d->viewport->update(itemViewportRect(index));
+        d->viewport->update(viewportRectForIndex(index));
 }
 
 /*!
@@ -1270,12 +1270,12 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
             if (command & QItemSelectionModel::Current) {
                 selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
                 QPoint offset(horizontalOffset(), verticalOffset());
-                QRect rect(d->pressedPosition - offset, itemViewportRect(newCurrent).center());
+                QRect rect(d->pressedPosition - offset, viewportRectForIndex(newCurrent).center());
                 setSelection(rect.normalize(), command);
             } else {
                 selectionModel()->setCurrentIndex(newCurrent, command);
                 QPoint offset(horizontalOffset(), verticalOffset());
-                d->pressedPosition = itemViewportRect(newCurrent).center() + offset;
+                d->pressedPosition = viewportRectForIndex(newCurrent).center() + offset;
             }
             return;
         }
@@ -1380,7 +1380,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
     QModelIndex buddy = model()->buddy(index);
 
     QStyleOptionViewItem options = viewOptions();
-    options.rect = itemViewportRect(buddy);
+    options.rect = viewportRectForIndex(buddy);
     options.state |= (buddy == currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_None);
 
     if (event && itemDelegate()->editorEvent(event, model(), options, buddy))
@@ -1422,7 +1422,7 @@ void QAbstractItemView::updateEditorGeometries()
     QStyleOptionViewItem option = viewOptions();
     QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it) {
-        option.rect = itemViewportRect(it.key());
+        option.rect = viewportRectForIndex(it.key());
         if (option.rect.isValid())
             it.value()->show();
         else
@@ -1452,7 +1452,7 @@ void QAbstractItemView::updateGeometries()
 void QAbstractItemView::verticalScrollbarValueChanged(int value)
 {
     if (verticalScrollBar()->maximum() == value)
-        model()->fetchMore(root());
+        model()->fetchMore(rootIndex());
 }
 
 /*!
@@ -1461,7 +1461,7 @@ void QAbstractItemView::verticalScrollbarValueChanged(int value)
 void QAbstractItemView::horizontalScrollbarValueChanged(int value)
 {
     if (horizontalScrollBar()->maximum() == value)
-        model()->fetchMore(root());
+        model()->fetchMore(rootIndex());
 }
 
 /*!
@@ -1605,7 +1605,7 @@ int QAbstractItemView::verticalFactor() const
 void QAbstractItemView::keyboardSearch(const QString &search)
 {
     QModelIndex start = currentIndex().isValid() ? currentIndex()
-                        : model()->index(0, 0, root());
+                        : model()->index(0, 0, rootIndex());
     QTime now(QTime::currentTime());
     bool skipRow = false;
     if (d->keyboardInputTime.msecsTo(now) > keyboardInputInterval()) {
@@ -1647,7 +1647,7 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 /*!
     Returns the size hint for the item with the specified \a index.
 */
-QSize QAbstractItemView::itemSizeHint(const QModelIndex &index) const
+QSize QAbstractItemView::sizeHintForIndex(const QModelIndex &index) const
 {
     return itemDelegate()->sizeHint(viewOptions(), index);
 }
@@ -1655,15 +1655,15 @@ QSize QAbstractItemView::itemSizeHint(const QModelIndex &index) const
 /*!
     Returns the height size hint for the specified \a row.
 */
-int QAbstractItemView::rowSizeHint(int row) const
+int QAbstractItemView::sizeHintForRow(int row) const
 {
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int height = 0;
-    int colCount = model()->columnCount(root());
+    int colCount = model()->columnCount(rootIndex());
     QModelIndex index;
     for (int c = 0; c < colCount; ++c) {
-        index = model()->index(row, c, root());
+        index = model()->index(row, c, rootIndex());
         height = qMax(height, delegate->sizeHint(option, index).height());
     }
     return height;
@@ -1672,15 +1672,15 @@ int QAbstractItemView::rowSizeHint(int row) const
 /*!
     Returns the width size hint for the specified \a column.
 */
-int QAbstractItemView::columnSizeHint(int column) const
+int QAbstractItemView::sizeHintForColumn(int column) const
 {
     QStyleOptionViewItem option = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = 0;
-    int rows = model()->rowCount(root());
+    int rows = model()->rowCount(rootIndex());
     QModelIndex index;
     for (int r = 0; r < rows; ++r) {
-        index = model()->index(r, column, root());
+        index = model()->index(r, column, rootIndex());
         width = qMax(width, delegate->sizeHint(option, index).width());
     }
     return width;
@@ -1693,7 +1693,7 @@ int QAbstractItemView::columnSizeHint(int column) const
 void QAbstractItemView::openPersistentEditor(const QModelIndex &index)
 {
     QStyleOptionViewItem options = viewOptions();
-    options.rect = itemViewportRect(index);
+    options.rect = viewportRectForIndex(index);
     options.state |= (index == currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_None);
 
     QWidget *editor = d->editor(index, options);
@@ -1742,7 +1742,7 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
         if (d->editors.contains(topLeft))
             itemDelegate()->setEditorData(d->editors.value(topLeft), topLeft);
         else
-            d->viewport->update(itemViewportRect(topLeft));
+            d->viewport->update(viewportRectForIndex(topLeft));
         return;
     }
     updateEditorData(); // we are counting on having relatively few editors
@@ -1750,8 +1750,8 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     bool sameRow = topLeft.row() == bottomRight.row() && topLeft.isValid();
     bool sameCol = topLeft.column() == bottomRight.column() && topLeft.isValid();
     if (sameRow || sameCol) {
-        QRect tl = itemViewportRect(topLeft);
-        QRect br = itemViewportRect(bottomRight);
+        QRect tl = viewportRectForIndex(topLeft);
+        QRect br = viewportRectForIndex(bottomRight);
         d->viewport->update(tl.unite(br));
         return;
     }
@@ -1810,7 +1810,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
     if (previous.isValid()) {
         // repaint the previous item; if it is not selected, this is the only place to do this
         int behavior = selectionBehavior();
-        QRect rect = itemViewportRect(previous);
+        QRect rect = viewportRectForIndex(previous);
         if (behavior & SelectRows) {
             rect.setLeft(0);
             rect.setRight(d->viewport->width());
@@ -1846,10 +1846,10 @@ void QAbstractItemView::startDrag(QDrag::DropActions supportedActions)
     QModelIndexList indexes = selectionModel()->selectedIndexes();
     if (indexes.count() > 0) {
         // setup pixmap
-        QRect rect = itemViewportRect(indexes.at(0));
+        QRect rect = viewportRectForIndex(indexes.at(0));
         QList<QRect> rects;
         for (int i = 0; i < indexes.count(); ++i) {
-            rects.append(itemViewportRect(indexes.at(i)));
+            rects.append(viewportRectForIndex(indexes.at(i)));
             rect |= rects.at(i);
         }
         rect = rect.intersect(d->viewport->rect());
@@ -2120,7 +2120,7 @@ void QAbstractItemViewPrivate::fetchMore()
     if (last < 0)
         return;
     QModelIndex index = model->index(last, 0, root);
-    QRect rect = q->itemViewportRect(index);
+    QRect rect = q->viewportRectForIndex(index);
     if (viewport->rect().contains(rect))
         model->fetchMore(root);
 }

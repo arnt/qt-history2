@@ -87,7 +87,7 @@ public:
     QAbstractItemView::SelectionBehavior selectionBehavior() const;
 
     QModelIndex currentIndex() const;
-    QModelIndex root() const;
+    QModelIndex rootIndex() const;
 
     void setEditTriggers(EditTriggers triggers);
     EditTriggers editTriggers() const;
@@ -120,21 +120,21 @@ public:
     void setKeyboardInputInterval(int msec);
     int keyboardInputInterval() const;
 
-    virtual QRect itemViewportRect(const QModelIndex &index) const = 0;
+    virtual QRect viewportRectForIndex(const QModelIndex &index) const = 0;
     virtual void ensureVisible(const QModelIndex &index) = 0;
     inline QModelIndex indexAt(const QPoint &p) const { return indexAt(p.x(), p.y()); }
     virtual QModelIndex indexAt(int x, int y) const = 0;
 
-    QSize itemSizeHint(const QModelIndex &index) const;
-    virtual int rowSizeHint(int row) const;
-    virtual int columnSizeHint(int column) const;
+    QSize sizeHintForIndex(const QModelIndex &index) const;
+    virtual int sizeHintForRow(int row) const;
+    virtual int sizeHintForColumn(int column) const;
 
     void openPersistentEditor(const QModelIndex &index);
     void closePersistentEditor(const QModelIndex &index);
 
 public slots:
     virtual void reset();
-    virtual void setRoot(const QModelIndex &index);
+    virtual void setRootIndex(const QModelIndex &index);
     virtual void doItemsLayout();
     virtual void selectAll();
     void edit(const QModelIndex &index);
@@ -167,7 +167,7 @@ signals:
     void keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
     void returnPressed(const QModelIndex &index);
     void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
-    void itemEntered(const QModelIndex &index, Qt::MouseButton button,
+    void entered(const QModelIndex &index, Qt::MouseButton button,
                      Qt::KeyboardModifiers modifiers);
     void viewportEntered(Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 

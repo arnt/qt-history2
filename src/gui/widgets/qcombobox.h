@@ -86,8 +86,8 @@ public:
     QAbstractItemModel *model() const;
     void setModel(QAbstractItemModel *model);
 
-    QModelIndex root() const;
-    void setRoot(const QModelIndex &index);
+    QModelIndex rootIndex() const;
+    void setRootIndex(const QModelIndex &index);
 
     int currentItem() const;
     void setCurrentItem(int row);

@@ -143,7 +143,7 @@ protected:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void rowsInserted(const QModelIndex &parent, int start, int end);
 
-    QRect itemViewportRect(const QModelIndex &index) const;
+    QRect viewportRectForIndex(const QModelIndex &index) const;
     void ensureVisible(const QModelIndex &index);
 
     QModelIndex indexAt(int x, int y) const;

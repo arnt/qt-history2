@@ -896,11 +896,11 @@ void QHeaderView::resizeSections()
             QAbstractItemView *par = ::qt_cast<QAbstractItemView*>(parent());
             if (orientation() == Qt::Horizontal) {
                 if (par)
-                    secSize = par->columnSizeHint(i);
+                    secSize = par->sizeHintForColumn(i);
                 secSize = qMax(secSize, sectionSizeHint(secs.at(i).logical));
             } else {
                 if (par)
-                    secSize = par->rowSizeHint(i);
+                    secSize = par->sizeHintForRow(i);
                 secSize = qMax(secSize, sectionSizeHint(secs.at(i).logical));
             }
         }
@@ -936,12 +936,12 @@ void QHeaderView::resizeSections()
 
 void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, int)
 {
-    if (parent != root())
+    if (parent != rootIndex())
         return; // we only handle changes in the top level
     if (d->orientation == Qt::Horizontal)
-        initializeSections(logicalFirst, d->model->columnCount(root()) - 1);
+        initializeSections(logicalFirst, d->model->columnCount(rootIndex()) - 1);
     else
-        initializeSections(logicalFirst, d->model->rowCount(root()) - 1);
+        initializeSections(logicalFirst, d->model->rowCount(rootIndex()) - 1);
 }
 
 /*!
@@ -954,14 +954,14 @@ void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, 
 void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
                                            int logicalFirst, int logicalLast)
 {
-    if (parent != root())
+    if (parent != rootIndex())
         return; // we only handle changes in the top level
     // the sections have not been removed from the model yet
     int count = logicalLast - logicalFirst + 1;
     if (d->orientation == Qt::Horizontal)
-        initializeSections(logicalFirst, d->model->columnCount(root()) - count - 1);
+        initializeSections(logicalFirst, d->model->columnCount(rootIndex()) - count - 1);
     else
-        initializeSections(logicalFirst, d->model->rowCount(root()) - count - 1);
+        initializeSections(logicalFirst, d->model->rowCount(rootIndex()) - count - 1);
 }
 
 /*!
@@ -973,11 +973,11 @@ void QHeaderView::initializeSections()
     if (!model())
         return;
     if (d->orientation == Qt::Horizontal) {
-        int c = model()->columnCount(root());
+        int c = model()->columnCount(rootIndex());
         if (c != count())
             initializeSections(0, c > 0 ? c - 1 : 0);
     } else {
-        int r = model()->rowCount(root());
+        int r = model()->rowCount(rootIndex());
         if (r != count())
             initializeSections(0, r > 0 ? r - 1 : 0);
     }
@@ -1127,10 +1127,10 @@ void QHeaderView::paintEvent(QPaintEvent *e)
         logical = sections.at(i).logical;
         if (orientation() == Qt::Horizontal) {
             rect.setRect(sectionViewportPosition(logical), 0, sectionSize(logical), height);
-            highlight = d->selectionModel->columnIntersectsSelection(logical, root());
+            highlight = d->selectionModel->columnIntersectsSelection(logical, rootIndex());
         } else {
             rect.setRect(0, sectionViewportPosition(logical), width, sectionSize(logical));
-            highlight = d->selectionModel->rowIntersectsSelection(logical, root());
+            highlight = d->selectionModel->rowIntersectsSelection(logical, rootIndex());
         }
         if (d->highlightSelected && highlight && active) {
             QFont bf(fnt);
@@ -1424,7 +1424,7 @@ void QHeaderView::rowsInserted(const QModelIndex &, int, int)
   Empty implementation because the header doesn't show QModelIndex items.
 */
 
-QRect QHeaderView::itemViewportRect(const QModelIndex &) const
+QRect QHeaderView::viewportRectForIndex(const QModelIndex &) const
 {
     return QRect();
 }
@@ -1500,7 +1500,7 @@ void QHeaderView::setSelection(const QRect&, QItemSelectionModel::SelectionFlags
 QRect QHeaderView::selectionViewportRect(const QItemSelection &selection) const
 {
     if (orientation() == Qt::Horizontal) {
-        int left = d->model->columnCount(root()) - 1;
+        int left = d->model->columnCount(rootIndex()) - 1;
         int right = 0;
         int rangeLeft, rangeRight;
 
@@ -1526,7 +1526,7 @@ QRect QHeaderView::selectionViewportRect(const QItemSelection &selection) const
         return QRect(leftPos, 0, rightPos - leftPos, height());
     }
     // orientation() == Qt::Vertical
-    int top = d->model->rowCount(root()) - 1;
+    int top = d->model->rowCount(rootIndex()) - 1;
     int bottom = 0;
     int rangeTop, rangeBottom;
 

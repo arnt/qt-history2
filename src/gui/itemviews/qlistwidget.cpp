@@ -1070,7 +1070,7 @@ bool QListWidget::isItemVisible(const QListWidgetItem *item) const
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
-    QRect rect = itemViewportRect(index);
+    QRect rect = viewportRectForIndex(index);
     return rect.isValid() && d->viewport->rect().contains(rect);
 }
 
@@ -1118,7 +1118,7 @@ void QListWidget::setup()
             SLOT(emitKeyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
     connect(this, SIGNAL(returnPressed(QModelIndex)),
             SLOT(emitReturnPressed(QModelIndex)));
-    connect(this, SIGNAL(itemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
+    connect(this, SIGNAL(entered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
             SLOT(emitItemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));

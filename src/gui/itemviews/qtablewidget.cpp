@@ -1414,12 +1414,12 @@ void QTableWidget::setSelected(const QTableWidgetItem *item, bool select)
 */
 void QTableWidget::setSelected(const QTableWidgetSelectionRange &range, bool select)
 {
-    if (!model()->hasIndex(range.topRow(), range.leftColumn(), root()) ||
-        !model()->hasIndex(range.bottomRow(), range.rightColumn(), root()))
+    if (!model()->hasIndex(range.topRow(), range.leftColumn(), rootIndex()) ||
+        !model()->hasIndex(range.bottomRow(), range.rightColumn(), rootIndex()))
         return;
 
-    QModelIndex topLeft = model()->index(range.topRow(), range.leftColumn(), root());
-    QModelIndex bottomRight = model()->index(range.bottomRow(), range.rightColumn(), root());
+    QModelIndex topLeft = model()->index(range.topRow(), range.leftColumn(), rootIndex());
+    QModelIndex bottomRight = model()->index(range.bottomRow(), range.rightColumn(), rootIndex());
 
     selectionModel()->select(QItemSelection(topLeft, bottomRight),
                              select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
@@ -1519,7 +1519,7 @@ bool QTableWidget::isItemVisible(const QTableWidgetItem *item) const
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
-    QRect rect = itemViewportRect(index);
+    QRect rect = viewportRectForIndex(index);
     if (rect.isValid())
         return d->viewport->rect().contains(rect);
     return false;
@@ -1611,7 +1611,7 @@ void QTableWidget::setup()
             SLOT(emitKeyPressed(QModelIndex,Qt::Key,Qt::KeyboardModifiers)));
     connect(this, SIGNAL(returnPressed(QModelIndex)),
             SLOT(emitReturnPressed(QModelIndex)));
-    connect(this, SIGNAL(itemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
+    connect(this, SIGNAL(entered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)),
             SLOT(emitItemEntered(QModelIndex,Qt::MouseButton,Qt::KeyboardModifiers)));
     connect(this, SIGNAL(aboutToShowContextMenu(QMenu*,QModelIndex)),
             SLOT(emitAboutToShowContextMenu(QMenu*,QModelIndex)));

@@ -428,7 +428,7 @@ bool QTreeView::isOpen(const QModelIndex &index) const
   Returns the rectangle on the viewport occupied by the item at \a
   index.
 */
-QRect QTreeView::itemViewportRect(const QModelIndex &index) const
+QRect QTreeView::viewportRectForIndex(const QModelIndex &index) const
 {
     if (!index.isValid())
         return QRect();
@@ -457,7 +457,7 @@ void QTreeView::ensureVisible(const QModelIndex &index)
     // check if we really need to do anything
     if (isIndexHidden(index))
         return;
-    QRect rect = itemViewportRect(index);
+    QRect rect = viewportRectForIndex(index);
     if (rect.isEmpty())
         return;
     QRect area = d->viewport->rect();
@@ -750,7 +750,7 @@ void QTreeView::doItemsLayout()
 {
     d->viewItems.clear(); // prepare for new layout
     QStyleOptionViewItem option = viewOptions();
-    QModelIndex parent = root();
+    QModelIndex parent = rootIndex();
     if (model() && model()->rowCount(parent) > 0 && model()->columnCount(parent) > 0) {
         QModelIndex index = model()->index(0, 0, parent);
         d->itemHeight = itemDelegate()->sizeHint(option, index).height();
@@ -786,7 +786,7 @@ int QTreeView::verticalOffset() const
 {
     // gives an estimate
     int item = verticalScrollBar()->value() / d->verticalFactor;
-    if (model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0)
+    if (model()->rowCount(rootIndex()) > 0 && model()->columnCount(rootIndex()) > 0)
         return item * d->itemHeight;
     return item * 30;
 }
@@ -832,7 +832,7 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     case MovePageDown:
         return d->modelIndex(d->pageDown(vi));
     case MoveHome:
-        return model()->index(0, 0, root());
+        return model()->index(0, 0, rootIndex());
     case MoveEnd:
         return d->modelIndex(d->viewItems.count() - 1);
     }
@@ -1033,7 +1033,7 @@ void QTreeView::columnCountChanged(int, int)
 */
 void QTreeView::resizeColumnToContents(int column)
 {
-    int contents = columnSizeHint(column);
+    int contents = sizeHintForColumn(column);
     int header = d->header->isHidden() ? 0 : d->header->sectionSizeHint(column);
     d->header->resizeSection(column, qMax(contents, header));
 }
@@ -1097,7 +1097,7 @@ void QTreeView::updateGeometries()
     }
 
     // update scrollbars
-    if (model() && model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0) {
+    if (model() && model()->rowCount(rootIndex()) > 0 && model()->columnCount(rootIndex()) > 0) {
         d->updateVerticalScrollbar();
         d->updateHorizontalScrollbar();
     }
@@ -1110,7 +1110,7 @@ void QTreeView::updateGeometries()
 
   \sa QWidget::sizeHint
 */
-int QTreeView::columnSizeHint(int column) const
+int QTreeView::sizeHintForColumn(int column) const
 {
     if (d->viewItems.count() <= 0)
         return 0;
@@ -1265,7 +1265,7 @@ void QTreeViewPrivate::layout(int i)
     if (hidden > 0)
         qCollapse<QTreeViewItem>(viewItems, last, hidden);
 
-    QModelIndex root = q->root();
+    QModelIndex root = q->rootIndex();
     while (parent != root) {
         Q_ASSERT(i > -1);
         viewItems[i].total += count;

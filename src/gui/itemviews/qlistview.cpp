@@ -528,9 +528,9 @@ void QListView::setRowHidden(int row, bool hide)
 /*!
   \reimp
 */
-QRect QListView::itemViewportRect(const QModelIndex &index) const
+QRect QListView::viewportRectForIndex(const QModelIndex &index) const
 {
-    return d->mapToViewport(itemRect(index));
+    return d->mapToViewport(rectForIndex(index));
 }
 
 /*!
@@ -539,9 +539,9 @@ QRect QListView::itemViewportRect(const QModelIndex &index) const
 void QListView::ensureVisible(const QModelIndex &index)
 {
     QRect area = d->viewport->rect();
-    QRect rect = itemViewportRect(index);
+    QRect rect = viewportRectForIndex(index);
 
-    if (index.parent() != root() || index.column() != d->column)
+    if (index.parent() != rootIndex() || index.column() != d->column)
         return;
 
     if (area.contains(rect)) {
@@ -615,8 +615,8 @@ void QListView::resizeContents(int width, int height)
 */
 void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
-    // if the parent is above root() in the tree, nothing will happen
-    if (parent == root() && isVisible())
+    // if the parent is above rootIndex() in the tree, nothing will happen
+    if (parent == rootIndex() && isVisible())
         doItemsLayout();
     else
         d->doDelayedItemsLayout();
@@ -628,7 +628,7 @@ void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
 */
 void QListView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 {
-    // if the parent is above root() in the tree, nothing will happen
+    // if the parent is above rootIndex() in the tree, nothing will happen
     d->doDelayedItemsLayout();
     d->prepareItemsLayout();
     QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
@@ -779,13 +779,13 @@ void QListView::internalDrop(QDropEvent *e)
     QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex index = indexes.at(i);
-        QRect rect = itemRect(index);
+        QRect rect = rectForIndex(index);
         d->viewport->update(d->mapToViewport(rect));
         QPoint dest = rect.topLeft() + delta;
         if (isRightToLeft())
             dest.setX(d->flipX(dest.x()) - rect.width());
         d->moveItem(index.row(), dest);
-        d->viewport->update(itemViewportRect(index));
+        d->viewport->update(viewportRectForIndex(index));
     }
     stopAutoScroll();
     d->draggedItems.clear();
@@ -855,7 +855,7 @@ void QListView::paintEvent(QPaintEvent *e)
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
         Q_ASSERT((*it).isValid());
-        option.rect = itemViewportRect(*it);
+        option.rect = viewportRectForIndex(*it);
         option.state = state;
         option.state |= (selections && selections->isSelected(*it)
                          ? QStyle::Style_Selected : QStyle::Style_None);
@@ -883,7 +883,7 @@ QModelIndex QListView::indexAt(int x, int y) const
     d->intersectingSet(rect);
     QModelIndex index = d->intersectVector.count() > 0
                         ? d->intersectVector.first() : QModelIndex();
-    if (index.isValid() && itemViewportRect(index).contains(QPoint(x, y)))
+    if (index.isValid() && viewportRectForIndex(index).contains(QPoint(x, y)))
         return index;
     return QModelIndex();
 }
@@ -915,7 +915,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     Q_UNUSED(modifiers);
 
     QModelIndex current = currentIndex();
-    QRect rect = itemRect(current);
+    QRect rect = rectForIndex(current);
     QSize contents = d->contentsSize;
     QPoint pos = rect.center();
     d->intersectVector.clear();
@@ -980,9 +980,9 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         }
         return d->closestIndex(pos, d->intersectVector);
     case MoveHome:
-        return model()->index(0, d->column, root());
+        return model()->index(0, d->column, rootIndex());
     case MoveEnd:
-        return model()->index(d->batchStartRow - 1, d->column, root());
+        return model()->index(d->batchStartRow - 1, d->column, rootIndex());
     }
 
     return current;
@@ -992,9 +992,9 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     Returns the rectangle of the item at position \a index in the
     model. The rectangle is in contents coordinates.
 */
-QRect QListView::itemRect(const QModelIndex &index) const
+QRect QListView::rectForIndex(const QModelIndex &index) const
 {
-    if (!index.isValid() || index.parent() != root() || index.column() != d->column)
+    if (!index.isValid() || index.parent() != rootIndex() || index.column() != d->column)
         return QRect();
     QListViewItem item = d->indexToListViewItem(index);
     return d->viewItemRect(item);
@@ -1046,7 +1046,7 @@ QRect QListView::selectionViewportRect(const QItemSelection &selection) const
         int column = selection.at(0).left();
         QModelIndex parent = selection.at(0).parent();
         QModelIndex single = model()->index(row, column, parent);
-        return itemViewportRect(single);
+        return viewportRectForIndex(single);
     }
     // otherwise, just update the whole viewport
     return d->viewport->rect();
@@ -1061,7 +1061,7 @@ QModelIndexList QListView::selectedIndexes() const
     QModelIndexList modelSelected = selectionModel()->selectedIndexes();
     for (int i=0; i<modelSelected.count(); ++i) {
         QModelIndex index = modelSelected.at(i);
-        if (!isIndexHidden(index) && index.parent() == root()
+        if (!isIndexHidden(index) && index.parent() == rootIndex()
             && index.column() == d->column)
             viewSelected.append(index);
     }
@@ -1076,9 +1076,9 @@ QModelIndexList QListView::selectedIndexes() const
 void QListView::doItemsLayout()
 {
     d->prepareItemsLayout();
-    if (model() && model()->columnCount(root()) > 0) { // no columns means no contents
+    if (model() && model()->columnCount(rootIndex()) > 0) { // no columns means no contents
         if (layoutMode() == SinglePass)
-            d->doItemsLayout(model()->rowCount(root())); // layout everything
+            d->doItemsLayout(model()->rowCount(rootIndex())); // layout everything
         else
             d->batchLayoutTimer = startTimer(0); // do a new batch as fast as possible
     }
@@ -1090,11 +1090,11 @@ void QListView::doItemsLayout()
 */
 void QListView::updateGeometries()
 {
-    if (!model() || model()->rowCount(root()) <= 0 || model()->columnCount(root()) <= 0) {
+    if (!model() || model()->rowCount(rootIndex()) <= 0 || model()->columnCount(rootIndex()) <= 0) {
         horizontalScrollBar()->setRange(0, 0);
         verticalScrollBar()->setRange(0, 0);
     } else {
-        QModelIndex index = model()->index(0, d->column, root());
+        QModelIndex index = model()->index(0, d->column, rootIndex());
         QStyleOptionViewItem option = viewOptions();
         QSize size = itemDelegate()->sizeHint(option, index);
 
@@ -1115,7 +1115,7 @@ void QListView::updateGeometries()
 bool QListView::isIndexHidden(const QModelIndex &index) const
 {
     return d->hiddenRows.contains(index.row())
-        && (index.parent() == root())
+        && (index.parent() == rootIndex())
         && index.column() == d->column;
 }
 
@@ -1538,7 +1538,7 @@ void QListViewPrivate::createItems(int to)
     int count = tree.itemCount();
     QSize size;
     QStyleOptionViewItem option = q->viewOptions();
-    QModelIndex root = q->root();
+    QModelIndex root = q->rootIndex();
     for (int row = count; row < to; ++row) {
         size = delegate->sizeHint(option, model->index(row, d->column, root));
         QListViewItem item(QRect(0, 0, size.width(), size.height()), row); // default pos

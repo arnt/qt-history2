@@ -57,7 +57,7 @@ public:
 
     bool isOpen(const QModelIndex &index) const;
 
-    QRect itemViewportRect(const QModelIndex &index) const;
+    QRect viewportRectForIndex(const QModelIndex &index) const;
     void ensureVisible(const QModelIndex &index);
     QModelIndex indexAt(int x, int y) const;
     QModelIndex indexAbove(const QModelIndex &index) const;
@@ -113,7 +113,7 @@ protected:
 
     void updateGeometries();
 
-    int columnSizeHint(int column) const;
+    int sizeHintForColumn(int column) const;
     int indexRowSizeHint(const QModelIndex &left) const;
 
     bool isIndexHidden(const QModelIndex &index) const;

@@ -133,8 +133,8 @@ public:
 
     // other
     void updateButtons(const QModelIndex &index);
-    void setRoot(const QModelIndex &index);
-    QModelIndex root() const;
+    void setRootIndex(const QModelIndex &index);
+    QModelIndex rootIndex() const;
     void setDirSorting(QDir::SortFlags sort);
     void setDirFilter(QDir::Filters filter);
     QDir::Filters filterForMode(QFileDialog::FileMode mode);
@@ -482,7 +482,7 @@ QFileDialog::~QFileDialog()
 void QFileDialog::setDirectory(const QString &directory)
 {
     QModelIndex index = d->model->index(directory);
-    d->setRoot(index);
+    d->setRootIndex(index);
     d->updateButtons(index);
 }
 
@@ -492,7 +492,7 @@ void QFileDialog::setDirectory(const QString &directory)
 
 QDir QFileDialog::directory() const
 {
-    QDir dir(d->model->filePath(d->root()));
+    QDir dir(d->model->filePath(d->rootIndex()));
     dir.setNameFilters(d->model->nameFilters());
     dir.setSorting(d->model->sorting());
     dir.setFilter(d->model->filter());
@@ -509,12 +509,12 @@ void QFileDialog::selectFile(const QString &filename)
     QString text = filename;
     if (QFileInfo(filename).isAbsolute()) {
         index = d->model->index(filename);
-        QString current = d->model->filePath(d->root());
+        QString current = d->model->filePath(d->rootIndex());
         text.remove(current);
     } else { // faster than asking for model()->index(currentPath + filename)
         QStringList entries = directory().entryList(d->model->filter(), d->model->sorting());
         int r = entries.indexOf(filename);
-        index = (r >= 0 ? d->model->index(r, 0, d->root()) : QModelIndex());
+        index = (r >= 0 ? d->model->index(r, 0, d->rootIndex()) : QModelIndex());
     }
     if (index.isValid()) {
         d->selections->select(index, QItemSelectionModel::Select);
@@ -924,7 +924,7 @@ void QFileDialogPrivate::backClicked()
 {
     QModelIndex root = history.back();
     history.pop_back();
-    setRoot(root);
+    setRootIndex(root);
     updateButtons(root);
 }
 
@@ -937,12 +937,12 @@ void QFileDialogPrivate::backClicked()
 
 void QFileDialogPrivate::upClicked()
 {
-    QModelIndex index = root();
+    QModelIndex index = rootIndex();
     if (!index.isValid())
         return;
     history.push_back(index);
     QModelIndex parent = model->parent(index);
-    setRoot(parent);
+    setRootIndex(parent);
     updateButtons(parent);
 }
 
@@ -954,7 +954,7 @@ void QFileDialogPrivate::upClicked()
 
 void QFileDialogPrivate::mkdirClicked()
 {
-    QModelIndex parent = root();
+    QModelIndex parent = rootIndex();
     listView->clearSelection();
 
     QModelIndex index = model->mkdir(parent, "New Folder");
@@ -1013,8 +1013,8 @@ void QFileDialogPrivate::showDetailClicked()
 void QFileDialogPrivate::enterSubdir(const QModelIndex &index)
 {
     if (model->isDir(index)) {
-        history.push_back(root());
-        setRoot(index);
+        history.push_back(rootIndex());
+        setRootIndex(index);
         updateButtons(index);
     } else {
         q->accept();
@@ -1117,7 +1117,7 @@ void QFileDialogPrivate::fileNameChanged(const QString &text)
     else // otherwise, do completion from the currently selected file
         first = selections->currentIndex(); // optimization to we don't search from start
     if (!first.isValid())
-        first = model->index(0, 0, d->root());
+        first = model->index(0, 0, d->rootIndex());
     QModelIndex result = matchName(info.fileName(), first);
     // did we find a valid autocompletion ?
     if (result.isValid()) {
@@ -1202,9 +1202,9 @@ void QFileDialogPrivate::useFilter(const QString &filter)
 
 void QFileDialogPrivate::setCurrentDir(const QString &path)
 {
-    history.push_back(root());
+    history.push_back(rootIndex());
     QModelIndex index = model->index(path);
-    setRoot(index);
+    setRootIndex(index);
     updateButtons(index);
 }
 
@@ -1273,7 +1273,7 @@ void QFileDialogPrivate::deleteCurrent()
 
 void QFileDialogPrivate::reload()
 {
-    model->refresh(root());
+    model->refresh(rootIndex());
 }
 
 /*!
@@ -1287,7 +1287,7 @@ void QFileDialogPrivate::lookInReturnPressed()
 {
     QString path = toInternal(lookIn->currentText());
     QModelIndex index = model->index(path);
-    setRoot(index);
+    setRootIndex(index);
     updateButtons(index);
 }
 
@@ -1483,7 +1483,7 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
     listView->setSelectionModel(selections);
     listView->setSelectionMode(selectionMode(fileMode));
     listView->setSelectionBehavior(QAbstractItemView::SelectRows);
-    listView->setRoot(current);
+    listView->setRootIndex(current);
     listView->setKeyTracking(true);
 
     listView->setWrapping(true);
@@ -1508,7 +1508,7 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
     treeView->setModel(model);
     treeView->setSelectionModel(selections);
     treeView->setSelectionMode(selectionMode(fileMode));
-    treeView->setRoot(current);
+    treeView->setRootIndex(current);
     treeView->setKeyTracking(true);
 
     treeView->viewport()->setAcceptDrops(true);
@@ -1655,21 +1655,21 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     lookIn->blockSignals(block);
 }
 
-void QFileDialogPrivate::setRoot(const QModelIndex &index)
+void QFileDialogPrivate::setRootIndex(const QModelIndex &index)
 {
     bool block = selections->blockSignals(true);
     selections->clear();
     fileName->clear();
-    listView->setRoot(index);
-    treeView->setRoot(index);
+    listView->setRootIndex(index);
+    treeView->setRootIndex(index);
     treeView->resizeColumnToContents(0);
     selections->blockSignals(block);
     selections->setCurrentIndex(QModelIndex(), QItemSelectionModel::SelectCurrent);
 }
 
-QModelIndex QFileDialogPrivate::root() const
+QModelIndex QFileDialogPrivate::rootIndex() const
 {
-    return listView->root();
+    return listView->rootIndex();
 }
 
 void QFileDialogPrivate::setDirSorting(QDir::SortFlags sort)
