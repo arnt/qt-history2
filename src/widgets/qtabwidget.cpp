@@ -827,7 +827,11 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 */
 QWidget *QTabWidget::page( int index ) const
 {
-    return d->stack->widget( index );
+    QTab *t = d->tabs->tabAt(index);
+    if ( t )
+	return d->stack->widget( t->id );
+    // else
+    return 0;
 }
 
 /*!
@@ -835,7 +839,11 @@ QWidget *QTabWidget::page( int index ) const
 */
 QString QTabWidget::label( int index ) const
 {
-    return d->tabs->tabAt( index )->label;
+    QTab *t = d->tabs->tabAt( index );
+    if ( t )
+ 	return t->label;
+    // else
+    return QString::null;
 }
 
 /*! \property QTabWidget::count
@@ -891,7 +899,7 @@ void QTabWidget::setTabIconSet( QWidget * w, const QIconSet & iconset )
     setUpLayout();
 }
 
-/*! 
+/*!
   Sets the tab tool tip for page \a w to \a tip.
   \sa removeTabToolTip(), tabToolTip()
  */
@@ -903,7 +911,7 @@ void QTabWidget::setTabToolTip( QWidget * w, const QString & tip )
     d->tabs->setToolTip( id, tip );
 }
 
-/*! 
+/*!
   Returns the tab tool tip for page \a w.
   \sa setTabToolTip(), removeTabToolTip()
  */
