@@ -27,6 +27,9 @@ class QT_FORMEDITOR_EXPORT OrderIndicator : public QWidget
 public:
     OrderIndicator(int i, QWidget* w, FormWindow* fw);
     ~OrderIndicator();
+    
+    inline QWidget *widget() const
+    { return m_widget; }
 
     void setOrder(int i, QWidget* w);
     void reposition();
@@ -38,7 +41,7 @@ protected:
 
 private:
     int order;
-    QWidget* widget;
+    QWidget* m_widget;
     FormWindow *formWindow;
 };
 

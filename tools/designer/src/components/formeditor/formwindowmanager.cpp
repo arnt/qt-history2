@@ -16,6 +16,7 @@
 #include "iconloader.h"
 #include "sizehandle.h"
 #include "connectionedit.h"
+#include "orderindicator.h"
 
 #include <abstractwidgetfactory.h>
 #include <abstractformeditor.h>
@@ -132,7 +133,14 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
         return false;
     }
 
-    w = findManagedWidget(fw, w);
+    if (!qt_cast<OrderIndicator*>(w)) {
+        w = findManagedWidget(fw, w);
+    } else {
+        if (fw->editMode() != FormWindow::TabOrderEditMode) {
+            qWarning("unexpected event: %d for the order indicator", e->type());
+        }
+    }
+        
     if (!w)
         return false;
 

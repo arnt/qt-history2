@@ -437,6 +437,11 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
 
     case TabOrderEditMode:
         if (!isMainContainer(w)) { // press on a child widget
+        
+            if (OrderIndicator *i = qt_cast<OrderIndicator*>(w)) {
+                w = i->widget();
+            }
+            
             int idx = orderedWidgets.indexOf(w);
             orderedWidgets.removeAt(idx);
             orderedWidgets.append(w);

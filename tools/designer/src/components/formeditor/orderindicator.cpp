@@ -24,7 +24,7 @@ OrderIndicator::OrderIndicator(int i, QWidget* w, FormWindow *fw)
 {
     setObjectName("order_indicator");
     order = -1;
-    widget = w;
+    m_widget = w;
     setAttribute(Qt::WA_NoBackground);
     setAutoMask(true);
     setOrder(i, w);
@@ -38,7 +38,7 @@ OrderIndicator::~OrderIndicator()
 
 void OrderIndicator::setOrder(int i, QWidget* wid)
 {
-    if (widget != wid)
+    if (m_widget != wid)
         return;
     if (!wid->isVisibleTo(formWindow)) {
         hide();
@@ -65,7 +65,7 @@ void OrderIndicator::setOrder(int i, QWidget* wid)
 
 void OrderIndicator::reposition()
 {
-    QPoint p =parentWidget()->mapFromGlobal(widget->mapToGlobal(widget->rect().topLeft()));
+    QPoint p =parentWidget()->mapFromGlobal(m_widget->mapToGlobal(m_widget->rect().topLeft()));
     move(p - QPoint(width()/3, height()/3));
 }
 
@@ -95,5 +95,5 @@ void OrderIndicator::updateMask()
 
 void OrderIndicator::mousePressEvent(QMouseEvent *e)
 {
-    QApplication::sendEvent(widget, e);
+    QApplication::sendEvent(m_widget, e);
 }
