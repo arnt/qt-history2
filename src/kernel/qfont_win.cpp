@@ -212,6 +212,8 @@ bool QFont::dirty() const
 
 QRect QFontPrivate::boundingRect( const QChar &ch )
 {
+
+
 #ifndef Q_OS_TEMP
     GLYPHMETRICS gm;
 
@@ -242,9 +244,21 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
     if ( chr ) {
 	DWORD res = 0;
 	QT_WA( {
-	    res = GetGlyphOutlineW( fin->dc(), chr, GGO_METRICS, &gm, 0, 0, mat );
+	    if( !(fin->textMetricW()->tmPitchAndFamily & TMPF_TRUETYPE) ) {
+		SIZE s;
+		BOOL res = GetTextExtentPoint32W( fin->dc(), (WCHAR*) &ch, 1, &s );
+		return QRect( 0, -fin->textMetricW()->tmAscent, s.cx, s.cy );
+	    } else {
+		res = GetGlyphOutlineW( fin->dc(), chr, GGO_METRICS, &gm, 0, 0, mat );
+	    }
 	} , {
-	    res = GetGlyphOutlineA( fin->dc(), chr, GGO_METRICS, &gm, 0, 0, mat );
+	    if( !(fin->textMetricA()->tmPitchAndFamily & TMPF_TRUETYPE) ) {
+		SIZE s;
+		BOOL res = GetTextExtentPoint32W( fin->dc(), (WCHAR*) &ch, 1, &s );
+		return QRect( 0, -fin->textMetricA()->tmAscent, s.cx, s.cy );
+	    } else {
+		res = GetGlyphOutlineA( fin->dc(), chr, GGO_METRICS, &gm, 0, 0, mat );
+	    }
 	} );
 
 	if ( res != GDI_ERROR )
