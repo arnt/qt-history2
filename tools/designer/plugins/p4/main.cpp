@@ -133,4 +133,4 @@ void P4Interface::p4MightEdit( bool b, const QString &s )
 
 #include "main.moc"
 
-QtExportInterface(ActionInterface, P4Interface)
+Q_EXPORT_INTERFACE(ActionInterface, P4Interface)
