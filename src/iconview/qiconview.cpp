@@ -155,7 +155,7 @@ static QPixmap *get_qiv_buffer_pixmap( const QSize &s )
 
 /*****************************************************************************
  *
- * Struct QIconViewPrivate
+ * Class QIconViewPrivate
  *
  *****************************************************************************/
 
@@ -189,8 +189,9 @@ public:
     bool operator== ( const QIconDragDataItem& ) const;
 };
 
-struct QIconDragPrivate
+class QIconDrag::QIconDragPrivate
 {
+public:
     QValueList<QIconDragDataItem> items;
     static bool decode( QMimeSource* e, QValueList<QIconDragDataItem> &lst );
 };
@@ -199,7 +200,7 @@ struct QIconDragPrivate
 
 class QIconViewToolTip;
 
-class QIconViewPrivate
+class QIconView::QIconViewPrivate
 {
 public:
     QIconViewItem *firstItem, *lastItem;
@@ -267,7 +268,28 @@ public:
     struct SortableItem {
 	QIconViewItem *item;
     };
+
+    //    friend int cmpIconViewItems( const void *n1, const void *n2 );
 };
+
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
+static int cmpIconViewItems( const void *n1, const void *n2 )
+{
+    if ( !n1 || !n2 )
+	return 0;
+
+    QIconView::QIconViewPrivate::SortableItem *i1 = (QIconView::QIconViewPrivate::SortableItem *)n1;
+    QIconView::QIconViewPrivate::SortableItem *i2 = (QIconView::QIconViewPrivate::SortableItem *)n2;
+
+    return i1->item->compare( i2->item );
+}
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 /*****************************************************************************
  *
@@ -310,13 +332,14 @@ void QIconViewToolTip::maybeTip( const QPoint &pos )
 
 /*****************************************************************************
  *
- * Struct QIconViewItemPrivate
+ * Class QIconViewItemPrivate
  *
  *****************************************************************************/
 
-struct QIconViewItemPrivate
+class QIconViewItem::QIconViewItemPrivate
 {
-    QIconViewPrivate::ItemContainer *container1, *container2;
+public:
+    QIconView::QIconViewPrivate::ItemContainer *container1, *container2;
 };
 
 /*****************************************************************************
@@ -629,7 +652,7 @@ bool QIconDrag::canDecode( QMimeSource* e )
   TRUE if there was some data, FALSE otherwise.
 */
 
-bool QIconDragPrivate::decode( QMimeSource* e, QValueList<QIconDragDataItem> &lst )
+bool QIconDrag::QIconDragPrivate::decode( QMimeSource* e, QValueList<QIconDragDataItem> &lst )
 {
     QByteArray ba = e->encodedData( "application/x-qiconlist" );
     if ( ba.size() ) {
@@ -1830,7 +1853,7 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg )
 		buffer->setMask( mask );
 		p2.begin( buffer );
 #if defined(Q_WS_X11)
- 		p2.fillRect( pix->rect(), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
+		p2.fillRect( pix->rect(), QBrush( cg.highlight(), QBrush::Dense4Pattern) );
 #else // in WIN32 Dense4Pattern doesn't work correctly (transparency problem), so work around it
 		if ( !qiv_selection )
 		    createSelectionPixmap( cg );
@@ -3044,8 +3067,8 @@ void QIconView::doAutoScroll()
 		}
 	    }
 	} else {
- 	    if ( alreadyIntersected )
- 		break;
+	    if ( alreadyIntersected )
+		break;
 	}
     }
     viewport()->setUpdatesEnabled( TRUE );
@@ -4431,7 +4454,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	QValueList<QIconDragItem> lst;
 	if ( QIconDrag::canDecode( e ) ) {
 	    QValueList<QIconDragDataItem> l;
-	    QIconDragPrivate::decode( e, l );
+	    QIconDrag::QIconDragPrivate::decode( e, l );
 	    QValueList<QIconDragDataItem>::Iterator it = l.begin();
 	    for ( ; it != l.end(); ++it )
 		lst << ( *it ).data;
@@ -4441,7 +4464,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	QValueList<QIconDragItem> lst;
 	if ( QIconDrag::canDecode( e ) ) {
 	    QValueList<QIconDragDataItem> l;
-	    QIconDragPrivate::decode( e, l );
+	    QIconDrag::QIconDragPrivate::decode( e, l );
 	    QValueList<QIconDragDataItem>::Iterator it = l.begin();
 	    for ( ; it != l.end(); ++it )
 		lst << ( *it ).data;
@@ -4807,7 +4830,7 @@ QDragObject *QIconView::dragObject()
     QIconDrag *drag = new QIconDrag( viewport() );
     drag->setPixmap( ( d->currentItem->pixmap() ?
 		     *d->currentItem->pixmap() : QPixmap() ), // ### QPicture
- 		     QPoint( d->currentItem->pixmapRect().width() / 2,
+		     QPoint( d->currentItem->pixmapRect().width() / 2,
 			     d->currentItem->pixmapRect().height() / 2 ) );
 
     if ( d->selectionMode == NoSelection ) {
@@ -5024,7 +5047,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 void QIconView::initDragEnter( QDropEvent *e )
 {
     if ( QIconDrag::canDecode( e ) ) {
-	QIconDragPrivate::decode( e, d->iconDragData );
+	QIconDrag::QIconDragPrivate::decode( e, d->iconDragData );
 	d->isIconDrag = TRUE;
     } else if ( QUriDrag::canDecode( e ) ) {
 	QStrList lst;
@@ -5369,25 +5392,6 @@ QIconViewItem *QIconView::rowBegin( QIconViewItem * ) const
     return d->firstItem;
 }
 
-#if defined(Q_C_CALLBACKS)
-extern "C" {
-#endif
-
-static int cmpIconViewItems( const void *n1, const void *n2 )
-{
-    if ( !n1 || !n2 )
-	return 0;
-
-    QIconViewPrivate::SortableItem *i1 = (QIconViewPrivate::SortableItem *)n1;
-    QIconViewPrivate::SortableItem *i2 = (QIconViewPrivate::SortableItem *)n2;
-
-    return i1->item->compare( i2->item );
-}
-
-#if defined(Q_C_CALLBACKS)
-}
-#endif
-
 /*! Sorts and rearranges all items in the icon view. If \a ascending
   is TRUE, the items are sorted in increasing order, otherwise they
   are sorted in decreasing order.
@@ -5408,14 +5412,14 @@ void QIconView::sort( bool ascending )
 	return;
 
     d->sortDirection = ascending;
-    QIconViewPrivate::SortableItem *items = new QIconViewPrivate::SortableItem[ count() ];
+    QIconView::QIconViewPrivate::SortableItem *items = new QIconView::QIconViewPrivate::SortableItem[ count() ];
 
     QIconViewItem *item = d->firstItem;
     int i = 0;
     for ( ; item; item = item->next )
 	items[ i++ ].item = item;
 
-    qsort( items, count(), sizeof( QIconViewPrivate::SortableItem ), cmpIconViewItems );
+    qsort( items, count(), sizeof( QIconView::QIconViewPrivate::SortableItem ), cmpIconViewItems );
 
     QIconViewItem *prev = 0;
     item = 0;
@@ -5520,7 +5524,7 @@ void QIconView::updateItemContainer( QIconViewItem *item )
     }
     item->d->container2 = 0;
 
-    QIconViewPrivate::ItemContainer *c = d->firstContainer;
+    QIconView::QIconViewPrivate::ItemContainer *c = d->firstContainer;
     if ( !c ) {
 	appendItemContainer();
 	c = d->firstContainer;
@@ -5576,14 +5580,14 @@ void QIconView::appendItemContainer()
 	s = QSize( RECT_EXTENSION, INT_MAX - 1 );
 
     if ( !d->firstContainer ) {
-	d->firstContainer = new QIconViewPrivate::ItemContainer( 0, 0, QRect( QPoint( 0, 0 ), s ) );
+	d->firstContainer = new QIconView::QIconViewPrivate::ItemContainer( 0, 0, QRect( QPoint( 0, 0 ), s ) );
 	d->lastContainer = d->firstContainer;
     } else {
 	if ( d->arrangement == LeftToRight )
-	    d->lastContainer = new QIconViewPrivate::ItemContainer(
+	    d->lastContainer = new QIconView::QIconViewPrivate::ItemContainer(
 		d->lastContainer, 0, QRect( d->lastContainer->rect.bottomLeft(), s ) );
 	else
-	    d->lastContainer = new QIconViewPrivate::ItemContainer(
+	    d->lastContainer = new QIconView::QIconViewPrivate::ItemContainer(
 		d->lastContainer, 0, QRect( d->lastContainer->rect.topRight(), s ) );
     }
 }
@@ -5598,7 +5602,7 @@ void QIconView::appendItemContainer()
 
 void QIconView::rebuildContainers()
 {
-    QIconViewPrivate::ItemContainer *c = d->firstContainer, *tmpc;
+    QIconView::QIconViewPrivate::ItemContainer *c = d->firstContainer, *tmpc;
     while ( c ) {
 	tmpc = c->n;
 	delete c;

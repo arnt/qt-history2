@@ -67,8 +67,6 @@ class QKeyEvent;
 class QFocusEvent;
 class QShowEvent;
 
-class QIconViewPrivate;
-struct QIconViewItemPrivate;
 class QIconViewItem;
 class QIconViewItemLineEdit;
 
@@ -103,8 +101,6 @@ private:
  *
  *****************************************************************************/
 
-struct QIconDragPrivate;
-
 class QM_EXPORT QIconDrag : public QDragObject
 {
     Q_OBJECT
@@ -119,6 +115,7 @@ public:
     virtual QByteArray encodedData( const char* mime ) const;
 
 private:
+    class QIconDragPrivate;
     QIconDragPrivate *d;
     QChar endMark;
 
@@ -263,6 +260,7 @@ private:
     QIconViewItemLineEdit *renameBox;
     QRect oldRect;
 
+    class QIconViewItemPrivate;
     QIconViewItemPrivate *d;
 
 };
@@ -490,6 +488,7 @@ private:
     void rebuildContainers();
     QBitmap mask( QPixmap *pix ) const;
 
+    class QIconViewPrivate;
     QIconViewPrivate *d;
 
 private:	// Disabled copy constructor and operator=
