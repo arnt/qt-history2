@@ -39,8 +39,8 @@ public:
     void setTable( int i, const QString& table );
     void setJoinCondition( int i, const QString& condition );
     
-    void setFieldList( const QStringList& fields );
-    void addField( const QString& field );
+    void setFieldList( const QString& table, const QStringList& fields );
+    void addField( const QString& table, const QString& field );
     
 private:
     QSqlQueryBuilderPrivate* d;
