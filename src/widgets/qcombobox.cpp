@@ -1285,7 +1285,6 @@ void QComboBox::paintEvent( QPaintEvent * )
 		item->paint( &p );
 	    }
 	} else if ( d->listBox() && d->listBox()->item( d->current ) ) {
-	    p.setClipping( FALSE );
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    const QPixmap *pix = item->pixmap();
 	    if ( pix ) {
