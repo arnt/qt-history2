@@ -121,7 +121,7 @@ void QLocalFs::operationListChildren(QNetworkOperation *op)
 
     emit start(op);
 
-    QFileInfoList filist = dir.entryInfoList(QDir::All | QDir::Hidden | QDir::System);
+    QFileInfoList filist = dir.entryInfoList(QDir::Filters(QDir::All | QDir::Hidden | QDir::System));
     QList<QUrlInfo> infos;
     for (int i = 0; i < filist.size(); ++i) {
         QFileInfo fi = filist.at(i);

@@ -71,7 +71,7 @@ public:
 
     virtual bool setSize(QIODevice::Offset size) = 0;
 
-    virtual QStringList entryList(int filterSpec, const QStringList &filters) const = 0;
+    virtual QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const = 0;
 
     virtual bool caseSensitive() const = 0;
 
@@ -171,7 +171,7 @@ public:
 
     virtual bool setSize(QIODevice::Offset size);
 
-    virtual QStringList entryList(int filterSpec, const QStringList &filters) const;
+    virtual QStringList entryList(QDir::Filters filters, const QStringList &filterNames) const;
 
     virtual bool caseSensitive() const;
 

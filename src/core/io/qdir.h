@@ -27,44 +27,65 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QDir)
 public:
-    enum FilterSpec { Dirs        = 0x001,
-                      Files       = 0x002,
-                      Drives      = 0x004,
-                      NoSymLinks  = 0x008,
-                      All         = 0x007,
-                      TypeMask    = 0x00F,
+    enum Filter { Dirs        = 0x001,
+                  Files       = 0x002,
+                  Drives      = 0x004,
+                  NoSymLinks  = 0x008,
+                  TypeMask    = 0x00f,
+#ifdef QT_COMPAT
+                  All         = TypeMask,
+#endif
 
-                      Readable    = 0x010,
-                      Writable    = 0x020,
-                      Executable  = 0x040,
-                      RWEMask     = 0x070,
+                  Readable    = 0x010,
+                  Writable    = 0x020,
+                  Executable  = 0x040,
+                  PermissionMask    = 0x070,
+#ifdef QT_COMPAT
+                  RWEMask     = 0x070,
+#endif
 
-                      Modified    = 0x080,
-                      Hidden      = 0x100,
-                      System      = 0x200,
-                      AccessMask  = 0x3F0,
+                  Modified    = 0x080,
+                  Hidden      = 0x100,
+                  System      = 0x200,
+                  AccessMask  = 0x3F0,
 
-                      AllDirs       = 0x400,
-                      CaseSensitive = 0x800,
+                  AllDirs       = 0x400,
+                  CaseSensitive = 0x800,
 
-                      DefaultFilter = -1 };
+                  NoFilter = -1
+#ifdef QT_COMPAT
+                  ,DefaultFilter = NoFilter
+#endif
+    };
+    Q_DECLARE_FLAGS(Filters, Filter)
+#ifdef QT_COMPAT
+    typedef Filters FilterSpec;
+#endif
 
-    enum SortSpec   { Name        = 0x00,
-                      Time        = 0x01,
-                      Size        = 0x02,
-                      Unsorted    = 0x03,
-                      SortByMask  = 0x03,
+    enum SortFlag { Name        = 0x00,
+                    Time        = 0x01,
+                    Size        = 0x02,
+                    Unsorted    = 0x03,
+                    SortByMask  = 0x03,
 
-                      DirsFirst   = 0x04,
-                      Reversed    = 0x08,
-                      IgnoreCase  = 0x10,
-                      DirsLast    = 0x20,
-                      DefaultSort = -1 };
+                    DirsFirst   = 0x04,
+                    Reversed    = 0x08,
+                    IgnoreCase  = 0x10,
+                    DirsLast    = 0x20,
+                    NoSort = -1 
+#ifdef QT_COMPAT
+                  ,DefaultSort = NoSort
+#endif
+    };
+    Q_DECLARE_FLAGS(SortFlags, SortFlag)
+#ifdef QT_COMPAT
+    typedef SortFlags SortSpec;
+#endif
 
     QDir(const QDir &);
     QDir(const QString &path = QString());
     QDir(const QString &path, const QString &nameFilter,
-         int sortSpec = Name | IgnoreCase, int filterSpec = All);
+         SortFlags sort = SortFlags(Name | IgnoreCase), Filters filter = TypeMask);
     ~QDir();
 
     QDir &operator=(const QDir &);
@@ -97,16 +118,21 @@ public:
     QStringList nameFilters() const;
     void setNameFilters(const QStringList &nameFilters);
 
-    FilterSpec filter() const;
-    void setFilter(int filterSpec);
-    SortSpec sorting() const;
-    void setSorting(int sortSpec);
+    Filters filter() const;
+    void setFilter(Filters filter);
+    SortFlags sorting() const;
+    void setSorting(SortFlags sort);
 
 #ifdef QT_COMPAT
     inline bool QT_COMPAT matchAllDirs() const
         { return filter() & AllDirs; }
     inline void QT_COMPAT setMatchAllDirs(bool on)
-        { setFilter((filter() & ~AllDirs) | (on ? AllDirs : 0)); }
+    { 
+        if(on)
+            setFilter(filter() | AllDirs);
+        else
+            setFilter(filter() & ~(int)AllDirs);
+    }
 #endif
 
     uint count() const;
@@ -114,22 +140,23 @@ public:
 
     static QStringList nameFiltersFromString(const QString &nameFilter);
 
-    QStringList entryList(int filterSpec = DefaultFilter, int sortSpec = DefaultSort) const;
-    QStringList entryList(const QStringList &nameFilters, int filterSpec = DefaultFilter,
-                          int sortSpec = DefaultSort) const;
+    QStringList entryList(Filters filters = NoFilter, SortFlags sort = NoSort) const;
+    QStringList entryList(const QStringList &nameFilters, Filters filters = NoFilter,
+                          SortFlags sort = NoSort) const;
 #ifdef QT_COMPAT
-    inline QT_COMPAT QStringList entryList(const QString &nameFilter, int filterSpec = DefaultFilter,
-                                           int sortSpec = DefaultSort) const
-      { return entryList(nameFiltersFromString(nameFilter), filterSpec, sortSpec); }
+    inline QT_COMPAT QStringList entryList(const QString &nameFilter, Filters filters = NoFilter,
+                                           SortFlags sort = NoSort) const
+    { return entryList(nameFiltersFromString(nameFilter), filters, sort); }
 #endif
 
-    QFileInfoList entryInfoList(int filterSpec = DefaultFilter, int sortSpec = DefaultSort) const;
-    QFileInfoList entryInfoList(const QStringList &nameFilters, int filterSpec = DefaultFilter,
-                                int sortSpec = DefaultSort) const;
+    QFileInfoList entryInfoList(Filters filters = NoFilter, SortFlags sort = NoSort) const;
+    QFileInfoList entryInfoList(const QStringList &nameFilters, Filters filters = NoFilter,
+                                SortFlags sort = NoSort) const;
 #ifdef QT_COMPAT
-    inline QT_COMPAT QFileInfoList entryInfoList(const QString &nameFilter, int filterSpec = DefaultFilter,
-                                                 int sortSpec = DefaultSort) const
-       { return entryInfoList(nameFiltersFromString(nameFilter), filterSpec, sortSpec); }
+    inline QT_COMPAT QFileInfoList entryInfoList(const QString &nameFilter, 
+                                                 Filters filters = NoFilter,
+                                                 SortFlags sort = NoSort) const
+    { return entryInfoList(nameFiltersFromString(nameFilter), filters, sort); }
 #endif
 
 #ifdef QT_COMPAT

@@ -45,8 +45,8 @@ class Q_GUI_EXPORT QDirModel : public QAbstractItemModel
 public:
     QDirModel(const QString &path = QString::null,
               const QStringList &nameFilters = QStringList(),
-              int filter = QDir::DefaultFilter,
-              int sorting = QDir::DefaultSort,
+              QDir::Filters filters = QDir::NoFilter,
+              QDir::SortFlags sort = QDir::NoSort,
               QObject *parent = 0);
     QDirModel(const QDir &directory, QObject *parent = 0);
     ~QDirModel();
@@ -83,10 +83,10 @@ public:
 
     void setNameFilters(const QStringList &filters);
     QStringList nameFilters() const;
-    void setFilter(int spec);
-    QDir::FilterSpec filter() const;
-    void setSorting(int spec);
-    QDir::SortSpec sorting() const;
+    void setFilter(QDir::Filters filters);
+    QDir::Filters filter() const;
+    void setSorting(QDir::SortFlags sort);
+    QDir::SortFlags sorting() const;
 
     void setResolveSymlinks(bool enable);
     bool resolveSymlinks() const;

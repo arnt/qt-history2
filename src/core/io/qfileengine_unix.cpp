@@ -132,16 +132,16 @@ QFSFileEngine::rmdir(const QString &name, QDir::Recursion recurse) const
 }
 
 QStringList
-QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
+QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
-    const bool doDirs     = (filterSpec & QDir::Dirs) != 0;
-    const bool doFiles    = (filterSpec & QDir::Files) != 0;
-    const bool doSymLinks = (filterSpec & QDir::NoSymLinks) == 0;
-    const bool doReadable = (filterSpec & QDir::Readable) != 0;
-    const bool doWritable = (filterSpec & QDir::Writable) != 0;
-    const bool doExecable = (filterSpec & QDir::Executable) != 0;
-    const bool doHidden   = (filterSpec & QDir::Hidden) != 0;
-    const bool doSystem   = (filterSpec & QDir::System) != 0;
+    const bool doDirs     = (filters & QDir::Dirs) != 0;
+    const bool doFiles    = (filters & QDir::Files) != 0;
+    const bool doSymLinks = (filters & QDir::NoSymLinks) == 0;
+    const bool doReadable = (filters & QDir::Readable) != 0;
+    const bool doWritable = (filters & QDir::Writable) != 0;
+    const bool doExecable = (filters & QDir::Executable) != 0;
+    const bool doHidden   = (filters & QDir::Hidden) != 0;
+    const bool doSystem   = (filters & QDir::System) != 0;
 
     QStringList ret;
     DIR *dir = opendir(QFile::encodeName(d->file));
@@ -163,11 +163,11 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
         QString fn = QFile::decodeName(QByteArray(file->d_name));
         fi.setFile(d->file + QLatin1Char('/') + fn);
 #ifndef QT_NO_REGEXP
-        if(!((filterSpec & QDir::AllDirs) && fi.isDir())) {
+        if(!((filters & QDir::AllDirs) && fi.isDir())) {
             bool matched = false;
-            for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
+            for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
                 QRegExp rx(*sit,
-                           (filterSpec & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
+                           (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive,
                            QRegExp::Wildcard);
                 if(rx.exactMatch(fn))
                     matched = true;
@@ -176,12 +176,12 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
                 continue;
         }
 #else
-        Q_UNUSED(filters);
+        Q_UNUSED(filterNames);
 #endif
         if  ((doDirs && fi.isDir()) || (doFiles && fi.isFile()) ||
               (doSystem && (!fi.isFile() && !fi.isDir())) ||
               (doSymLinks && fi.isSymLink())) {
-            if((filterSpec & QDir::RWEMask) != 0)
+            if((filters & QDir::PermissionMask) != 0)
                 if((doReadable && !fi.isReadable()) ||
                      (doWritable && !fi.isWritable()) ||
                      (doExecable && !fi.isExecutable()))

@@ -412,7 +412,7 @@ void QFileEngine::unmap(uchar * /* data */)
 */
 
 /*!
-    \fn QStringList QFileEngine::entryList(int filterSpec, const QStringList &filters) const
+    \fn QStringList QFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 
     Requests that a list of all the files matching the \a filters list
     based on the \a filterSpec in the file engine's directory are

@@ -197,8 +197,8 @@ public:
     bool rootIsVirtual;
     bool resolveSymlinks;
 
-    int filterSpec;
-    int sortSpec;
+    QDir::Filters filters;
+    QDir::SortFlags sort;
     QStringList nameFilters;
 
     QFileIconProvider *iconProvider;
@@ -260,16 +260,16 @@ public:
 
 QDirModel::QDirModel(const QString &path,
                      const QStringList &nameFilters,
-                     int filter,
-                     int sorting,
+                     QDir::Filters filters,
+                     QDir::SortFlags sort,
                      QObject *parent)
     : QAbstractItemModel(*new QDirModelPrivate, parent)
 {
     // the empty path means that we start with QDir::drives()
     if (path.isEmpty()) {
         d->nameFilters = nameFilters.isEmpty() ? QStringList("*") : nameFilters;
-        d->filterSpec = filter;
-        d->sortSpec = sorting;
+        d->filters = filters;
+        d->sort = sort;
         d->rootIsVirtual = true;
         d->root.parent = 0;
         d->root.info = QFileInfo();
@@ -277,8 +277,8 @@ QDirModel::QDirModel(const QString &path,
     } else {
         QDir dir(path);
         dir.setNameFilters(nameFilters);
-        dir.setFilter(filter);
-        dir.setSorting(sorting);
+        dir.setFilter(filters);
+        dir.setSorting(sort);
         d->init(dir);
     }
 }
@@ -572,27 +572,29 @@ bool QDirModel::isSortable() const
 void QDirModel::sort(int column, const QModelIndex &, Qt::SortOrder order)
 {
     // FIXME: parent is ignored
-    int spec = (order == Qt::DescendingOrder ? QDir::Reversed : 0);
+    QDir::SortFlags sort = 0;
+    if(order == Qt::DescendingOrder)
+        sort |= QDir::Reversed;
 
     switch (column) {
     case 0:
-        spec |= QDir::Name;
+        sort |= QDir::Name;
         break;
     case 1:
-        spec |= QDir::Size;
+        sort |= QDir::Size;
         break;
     case 2:
         // FIXME: we should sort on the type string
-        spec |= QDir::DirsFirst;
+        sort |= QDir::DirsFirst;
         break;
     case 3:
-        spec |= QDir::Time;
+        sort |= QDir::Time;
         break;
     default:
         break;
     };
 
-    setSorting(spec);
+    setSorting(sort);
 }
 
 /*!
@@ -763,14 +765,14 @@ QStringList QDirModel::nameFilters() const
 /*!
   Sets the directory model's filter to that specified by \a spec.
 
-  \sa QDir::FilterSpec
+  \sa QDir::Filters
 */
 
-void QDirModel::setFilter(int spec)
+void QDirModel::setFilter(QDir::Filters filters)
 {
     d->savePersistentIndexes();
     emit rowsRemoved(QModelIndex::Null, 0, rowCount(QModelIndex::Null) - 1);
-    d->filterSpec = spec;
+    d->filters = filters;
     d->root.children = d->children(0);
     d->restorePersistentIndexes();
     emit rowsInserted(QModelIndex::Null, 0, rowCount(QModelIndex::Null) - 1);
@@ -779,28 +781,28 @@ void QDirModel::setFilter(int spec)
 /*!
   Returns the filter specification for the directory model.
 
-  \sa QDir::FilterSpec
+  \sa QDir::Filters
 
 */
 
-QDir::FilterSpec QDirModel::filter() const
+QDir::Filters QDirModel::filter() const
 {
-    return static_cast<QDir::FilterSpec>(d->filterSpec);
+    return d->filters;
 }
 
 /*!
   Sets the directory model's sorting order to that specified by \a
   spec.
 
-  \sa QDir::SortSpec
+  \sa QDir::SortFlags
 */
 
-void QDirModel::setSorting(int spec)
+void QDirModel::setSorting(QDir::SortFlags sort)
 {
     QModelIndex parent;
     d->savePersistentIndexes();
     emit rowsRemoved(parent, 0, rowCount(parent) - 1);
-    d->sortSpec = spec;
+    d->sort = sort;
     d->root.children = d->children(0);
     d->restorePersistentIndexes();
     emit rowsInserted(parent, 0, rowCount(parent) - 1);
@@ -809,11 +811,11 @@ void QDirModel::setSorting(int spec)
 /*!
   Returns the sorting method used for the directory model.
 
-  \sa QDir::SortSpec */
+  \sa QDir::SortFlags */
 
-QDir::SortSpec QDirModel::sorting() const
+QDir::SortFlags QDirModel::sorting() const
 {
-    return static_cast<QDir::SortSpec>(d->sortSpec);
+    return d->sort;
 }
 
 /*!
@@ -910,13 +912,13 @@ QModelIndex QDirModel::index(const QString &path) const
             // FIXME: workaround for problem in QDir
 #if 1
             QDir dir(absPath);
-            QFileInfoList info = dir.entryInfoList(d->nameFilters, d->filterSpec, d->sortSpec);
+            QFileInfoList info = dir.entryInfoList(d->nameFilters, d->filters, d->sort);
 //            qDebug("index: fileinfo count %d", info.count());
             entries.clear();
             for (int fi = 0; fi < info.count(); ++fi)
                 entries << info.at(fi).fileName();
 #else
-            entries = QDir(absPath).entryList(d->nameFilters, d->filterSpec, d->sortSpec);
+            entries = QDir(absPath).entryList(d->nameFilters, d->filters, d->sort);
 //            qDebug("index: got %d entries", entries.count());
 #endif
         }
@@ -1049,7 +1051,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 
     d->restorePersistentIndexes();
 
-    int r = dir.entryList(d->nameFilters, d->filterSpec, d->sortSpec).indexOf(name);
+    int r = dir.entryList(d->nameFilters, d->filters, d->sort).indexOf(name);
     QModelIndex i = index(r, 0, parent); // return an invalid index
     emit rowsInserted(parent, r, 1);
     return i;
@@ -1158,8 +1160,8 @@ void QDirModelPrivate::init(const QDir &directory)
 {
     rootIsVirtual = false;
 
-    filterSpec = directory.filter();
-    sortSpec = directory.sorting();
+    filters = directory.filter();
+    sort = directory.sorting();
     nameFilters = directory.nameFilters();
 
     root.parent = 0;
@@ -1208,7 +1210,7 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
         info = rootChildren();
     } else if (parent->info.isDir()) {
         QDir dir = QDir(parent->info.filePath());
-        info = dir.entryInfoList(nameFilters, filterSpec, sortSpec);
+        info = dir.entryInfoList(nameFilters, filters, sort);
     }
 
 //    qDebug("children: info count %d", info.count());
@@ -1257,7 +1259,7 @@ void QDirModelPrivate::refresh(QDirNode *parent)
         info = rootChildren();
     } else if (parent->info.isDir()) {
         QDir dir = QDir(parent->info.filePath());
-        info = dir.entryInfoList(nameFilters, filterSpec, sortSpec);
+        info = dir.entryInfoList(nameFilters, filters, sort);
     }
 
     QVector<QDirNode> *nodes = parent ? &(parent->children) : &(root.children);
@@ -1316,5 +1318,5 @@ QFileInfoList QDirModelPrivate::rootChildren() const
     if (rootIsVirtual)
         return QDir::drives();
     QDir dir = QDir(root.info.absoluteFilePath());
-    return dir.entryInfoList(nameFilters, filterSpec, sortSpec);
+    return dir.entryInfoList(nameFilters, filters, sort);
 }

@@ -306,10 +306,10 @@ public:
     void setRoot(const QModelIndex &index);
     QModelIndex root() const;
 
-    void setDirSorting(int spec);
-    void setDirFilter(int spec);
+    void setDirSorting(QDir::SortFlags sort);
+    void setDirFilter(QDir::Filters filter);
 
-    int filterSpec(QFileDialog::FileMode mode);
+    QDir::Filters filterForMode(QFileDialog::FileMode mode);
     QAbstractItemView::SelectionMode selectionMode(QFileDialog::FileMode mode);
 
     inline QString tr(const char *text) const { return QObject::tr(text); }
@@ -823,7 +823,7 @@ void QFileDialog::setFileMode(FileMode mode)
     QAbstractItemView::SelectionMode selectionMode = d->selectionMode(mode);
     d->lview->setSelectionMode(selectionMode);
     d->tview->setSelectionMode(selectionMode);
-    d->model->setFilter(d->filterSpec(mode));
+    d->model->setFilter(d->filterForMode(mode));
     if (mode == DirectoryOnly) {
         d->fileType->clear();
         d->fileType->insertItem(QFileDialog::tr("Directories"));
@@ -1244,19 +1244,19 @@ void QFileDialog::populateContextMenu(QMenu *menu, const QModelIndex &index) con
 
 void QFileDialog::headerPressed(int section)
 {
-    int spec = -1;
+    QDir::SortFlags sort = QDir::NoSort;
     switch (section) {
     case 0:
-        spec = QDir::Name;
+        sort = QDir::Name;
         break;
     case 1:
-        spec = QDir::Size;
+        sort = QDir::Size;
         break;
     case 2:
         qDebug("sorting on type is not implemented yet");
         return;
     case 3:
-        spec = QDir::Time;
+        sort = QDir::Time;
         break;
     default:
         return;
@@ -1265,19 +1265,19 @@ void QFileDialog::headerPressed(int section)
     Qt::SortOrder order = (header->sortIndicatorSection() == section
                        && header->sortIndicatorOrder() == Qt::DescendingOrder)
                       ? Qt::AscendingOrder : Qt::DescendingOrder;
-    bool sortByName = (spec & QDir::SortByMask) == QDir::Name;
+    bool sortByName = (sort & QDir::SortByMask) == QDir::Name;
     bool reverse = (order == Qt::AscendingOrder ? sortByName : !sortByName);
     if (reverse) {
-        spec |= QDir::Reversed;
-        spec |= QDir::DirsLast;
-        spec &= ~QDir::DirsFirst;
+        sort |= QDir::Reversed;
+        sort |= QDir::DirsLast;
+        sort &= ~QDir::DirsFirst;
     } else {
-        spec &= ~QDir::Reversed;
-        spec &= ~QDir::DirsLast;
-        spec |= QDir::DirsFirst;
+        sort &= ~QDir::Reversed;
+        sort &= ~QDir::DirsLast;
+        sort |= QDir::DirsFirst;
     }
 
-    d->setDirSorting(spec);
+    d->setDirSorting(sort);
     header->setSortIndicator(section, order);
 }
 
@@ -1339,7 +1339,10 @@ void QFileDialog::lookIn()
 
 void QFileDialog::sortByName()
 {
-    d->setDirSorting(QDir::Name|QDir::DirsFirst|(d->model->filter() & QDir::Reversed));
+    QDir::SortFlags sort = QDir::SortFlags(QDir::Name|QDir::DirsFirst);
+    if(d->model->filter() & QDir::Reversed)
+        sort |= QDir::Reversed;
+    d->setDirSorting(sort);
 }
 
 /*!
@@ -1350,7 +1353,10 @@ void QFileDialog::sortByName()
 
 void QFileDialog::sortBySize()
 {
-    d->setDirSorting(QDir::Size|QDir::DirsFirst|(d->model->filter() & QDir::Reversed));
+    QDir::SortFlags sort = QDir::SortFlags(QDir::Size|QDir::DirsFirst);
+    if(d->model->filter() & QDir::Reversed)
+        sort |= QDir::Reversed;
+    d->setDirSorting(sort);
 }
 
 /*!
@@ -1361,7 +1367,10 @@ void QFileDialog::sortBySize()
 
 void QFileDialog::sortByDate()
 {
-    d->setDirSorting(QDir::Time|QDir::DirsFirst|(d->model->filter() & QDir::Reversed));
+    QDir::SortFlags sort = QDir::SortFlags(QDir::Time|QDir::DirsFirst);
+    if(d->model->filter() & QDir::Reversed)
+        sort |= QDir::Reversed;
+    d->setDirSorting(sort);
 }
 
 /*!
@@ -1374,7 +1383,10 @@ void QFileDialog::sortByDate()
 
 void QFileDialog::setUnsorted()
 {
-    d->setDirSorting(QDir::Unsorted|QDir::DirsFirst|(d->model->filter() & QDir::Reversed));
+    QDir::SortFlags sort = QDir::SortFlags(QDir::Unsorted|QDir::DirsFirst);
+    if(d->model->filter() & QDir::Reversed)
+        sort |= QDir::Reversed;
+    d->setDirSorting(sort);
 }
 
 /*!
@@ -1386,10 +1398,12 @@ void QFileDialog::setUnsorted()
 
 void QFileDialog::showHidden()
 {
-    int filter = (d->showHiddenAction->isChecked()
-                  ? d->model->filter() & ~QDir::Hidden
-                  : d->model->filter() | QDir::Hidden);
-    d->setDirFilter(filter);
+    QDir::Filters filters = d->model->filter();
+    if(d->showHiddenAction->isChecked())
+        filters &= ~(int)QDir::Hidden;
+    else
+        filters |= QDir::Hidden;
+    d->setDirFilter(filters);
 }
 
 void QFileDialogPrivate::setup(const QString &directory,
@@ -1401,11 +1415,11 @@ void QFileDialogPrivate::setup(const QString &directory,
     grid->setSpacing(6);
 
     // Model
-    int filter = filterSpec(fileMode);
-    int sorting = QDir::Name|QDir::IgnoreCase|QDir::DirsFirst;
+    QDir::Filters filters = filterForMode(fileMode);
+    QDir::SortFlags sort = QDir::SortFlags(QDir::Name|QDir::IgnoreCase|QDir::DirsFirst);
     QAbstractItemView::SelectionMode selMode = selectionMode(fileMode);
     QStringList cleanedFilter = qt_clean_filter_list(nameFilter.first());
-    model = new QDirModel(QString::null, cleanedFilter, filter, sorting, q);
+    model = new QDirModel(QString::null, cleanedFilter, filters, sort, q);
     selections = new QItemSelectionModel(model, model);
     QModelIndex current = directory.isEmpty() ? QModelIndex::Null : model->index(directory);
 
@@ -1647,27 +1661,27 @@ QModelIndex QFileDialogPrivate::root() const
     return lview->root();
 }
 
-void QFileDialogPrivate::setDirSorting(int spec)
+void QFileDialogPrivate::setDirSorting(QDir::SortFlags sort)
 {
-    int sortBy = spec & QDir::SortByMask;
+    int sortBy = sort & QDir::SortByMask;
     sortByNameAction->setChecked(sortBy == QDir::Name);
     sortBySizeAction->setChecked(sortBy == QDir::Size);
     sortByDateAction->setChecked(sortBy == QDir::Time);
     unsortedAction->setChecked(sortBy == QDir::Unsorted);
-    model->setSorting(spec);
+    model->setSorting(sort);
 }
 
-void QFileDialogPrivate::setDirFilter(int spec)
+void QFileDialogPrivate::setDirFilter(QDir::Filters filters)
 {
-    showHiddenAction->setChecked(spec & QDir::Hidden);
-    model->setFilter(spec);
+    showHiddenAction->setChecked(filters & QDir::Hidden);
+    model->setFilter(filters);
 }
 
-int QFileDialogPrivate::filterSpec(QFileDialog::FileMode mode)
+QDir::Filters QFileDialogPrivate::filterForMode(QFileDialog::FileMode mode)
 {
     if (mode == QFileDialog::DirectoryOnly)
-        return QDir::AllDirs|QDir::Drives|QDir::Dirs;
-    return QDir::AllDirs|QDir::Drives|QDir::All;
+        return QDir::Filters(QDir::AllDirs|QDir::Drives|QDir::Dirs);
+    return QDir::Filters(QDir::AllDirs|QDir::Drives|QDir::All);
 }
 
 QAbstractItemView::SelectionMode QFileDialogPrivate::selectionMode(QFileDialog::FileMode mode)

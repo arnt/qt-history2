@@ -337,23 +337,23 @@ QFSFileEngine::rmdir(const QString &name, QDir::Recursion recurse) const
 }
 
 QStringList
-QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
+QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
     QStringList ret;
 
-    bool doDirs     = (filterSpec & QDir::Dirs)!= 0;
-    bool doFiles    = (filterSpec & QDir::Files) != 0;
-    bool noSymLinks = (filterSpec & QDir::NoSymLinks) != 0;
-    bool doReadable = (filterSpec & QDir::Readable) != 0;
-    bool doWritable = (filterSpec & QDir::Writable) != 0;
-    bool doExecable = (filterSpec & QDir::Executable) != 0;
-    bool doModified = (filterSpec & QDir::Modified) != 0;
-    bool doSystem   = (filterSpec & QDir::System) != 0;
-    bool doHidden   = (filterSpec & QDir::Hidden) != 0;
+    bool doDirs     = (filters & QDir::Dirs)!= 0;
+    bool doFiles    = (filters & QDir::Files) != 0;
+    bool noSymLinks = (filters & QDir::NoSymLinks) != 0;
+    bool doReadable = (filters & QDir::Readable) != 0;
+    bool doWritable = (filters & QDir::Writable) != 0;
+    bool doExecable = (filters & QDir::Executable) != 0;
+    bool doModified = (filters & QDir::Modified) != 0;
+    bool doSystem   = (filters & QDir::System) != 0;
+    bool doHidden   = (filters & QDir::Hidden) != 0;
     // show hidden files if the user asks explicitly for e.g. .*
-    if(!doHidden && !filters.size()) {
-        QStringList::ConstIterator sit = filters.begin();
-        while (sit != filters.end()) {
+    if(!doHidden && !filterNames.size()) {
+        QStringList::ConstIterator sit = filterNames.begin();
+        while (sit != filterNames.end()) {
             if((*sit)[0] == '.') {
                 doHidden = true;
                 break;
@@ -434,9 +434,9 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
         });
 
 #ifndef QT_NO_REGEXP
-        if(!(filterSpec & QDir::AllDirs && isDir)) {
+        if(!(filters & QDir::AllDirs && isDir)) {
             bool matched = false;
-            for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
+            for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
                 QRegExp rx(*sit, Qt::CaseInsensitive, QRegExp::Wildcard);
                 if(rx.exactMatch(fname))
                     matched = true;
@@ -445,7 +445,7 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
                 continue;
         }
 #else
-        Q_UNUSED(filters);
+        Q_UNUSED(filterNames);
 #endif
         if  ((doDirs && isDir) || (doFiles && isFile)) {
             QString name = QFSFileEnginePrivate::fixToQtSlashes(fname);
@@ -458,7 +458,7 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
 
             if(noSymLinks && isSymLink)
                 continue;
-            if((filterSpec & QDir::RWEMask) != 0)
+            if((filters & QDir::PermissionMask) != 0)
                 if((doReadable && !isReadable) ||
                      (doWritable && !isWritable) ||
                      (doExecable && !isExecable))

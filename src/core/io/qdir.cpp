@@ -34,7 +34,7 @@ protected:
     void initFileEngine(const QString &file);
 
     void updateFileLists() const;
-    void sortFileList(int, QStringList &, QStringList *, QFileInfoList *) const;
+    void sortFileList(QDir::SortFlags, QStringList &, QStringList *, QFileInfoList *) const;
 
 private:
 #ifdef QT_COMPAT
@@ -67,7 +67,8 @@ private:
 
         QString path;
         QStringList nameFilters;
-        int sortSpec, filterSpec;
+        QDir::SortFlags sort;
+        QDir::Filters filters;
 
         mutable QFileEngine *fileEngine;
 
@@ -118,7 +119,7 @@ struct QDirSortItem {
     QString filename_cache;
     QFileInfo item;
 };
-static int qt_cmp_si_sortSpec;
+static int qt_cmp_si_sort_flags;
 
 #if defined(Q_C_CALLBACKS)
 extern "C" {
@@ -137,14 +138,14 @@ static int qt_cmp_si(const void *n1, const void *n2)
     QDirSortItem* f2 = (QDirSortItem*)n2;
 
     if (f1->item.isDir() != f2->item.isDir()) {
-        if (qt_cmp_si_sortSpec & QDir::DirsFirst)
+        if (qt_cmp_si_sort_flags & QDir::DirsFirst)
             return f1->item.isDir() ? -1 : 1;
-        if (qt_cmp_si_sortSpec & QDir::DirsLast)
+        if (qt_cmp_si_sort_flags & QDir::DirsLast)
             return f1->item.isDir() ? 1 : -1;
     }
 
     int r = 0;
-    int sortBy = qt_cmp_si_sortSpec & QDir::SortByMask;
+    int sortBy = qt_cmp_si_sort_flags & QDir::SortByMask;
 
     switch (sortBy) {
       case QDir::Time:
@@ -159,7 +160,7 @@ static int qt_cmp_si(const void *n1, const void *n2)
 
     if (r == 0 && sortBy != QDir::Unsorted) {
         // Still not sorted - sort by name
-        bool ic = qt_cmp_si_sortSpec & QDir::IgnoreCase;
+        bool ic = qt_cmp_si_sort_flags & QDir::IgnoreCase;
 
         if (f1->filename_cache.isNull())
             f1->filename_cache = ic ? f1->item.fileName().toLower()
@@ -174,7 +175,7 @@ static int qt_cmp_si(const void *n1, const void *n2)
     if (r == 0) // Enforce an order - the order the items appear in the array
         r = (char*)n1 - (char*)n2;
 
-    if (qt_cmp_si_sortSpec & QDir::Reversed)
+    if (qt_cmp_si_sort_flags & QDir::Reversed)
         return -r;
     return r;
 }
@@ -183,8 +184,8 @@ static int qt_cmp_si(const void *n1, const void *n2)
 }
 #endif
 
-inline void QDirPrivate::sortFileList(int sortSpec, QStringList &l,
-                                       QStringList *names, QFileInfoList *infos) const
+inline void QDirPrivate::sortFileList(QDir::SortFlags sort, QStringList &l,
+                                      QStringList *names, QFileInfoList *infos) const
 {
     if(names)
         names->clear();
@@ -199,7 +200,7 @@ inline void QDirPrivate::sortFileList(int sortSpec, QStringList &l,
 		path += QLatin1Char('/');
             si[i].item = QFileInfo(path + l.at(i));
 	}
-        qt_cmp_si_sortSpec = sortSpec;
+        qt_cmp_si_sort_flags = sort;
         qsort(si, i, sizeof(si[0]), qt_cmp_si);
         // put them back in the list(s)
         for (int j = 0; j<i; j++) {
@@ -215,8 +216,8 @@ inline void QDirPrivate::sortFileList(int sortSpec, QStringList &l,
 inline void QDirPrivate::updateFileLists() const
 {
     if(data->listsDirty) {
-        QStringList l = data->fileEngine->entryList(data->filterSpec, data->nameFilters);
-        sortFileList(data->sortSpec, l, &data->files, &data->fileInfos);
+        QStringList l = data->fileEngine->entryList(data->filters, data->nameFilters);
+        sortFileList(data->sort, l, &data->files, &data->fileInfos);
         data->listsDirty = 0;
     }
 }
@@ -238,8 +239,8 @@ QDirPrivate::detach()
         data = new QDirPrivate::Data;
         data->path = x->path;
         data->nameFilters = x->nameFilters;
-        data->sortSpec = x->sortSpec;
-        data->filterSpec = x->filterSpec;
+        data->sort = x->sort;
+        data->filters = x->filters;
         initFileEngine(data->path);
         --x->ref;
     }
@@ -387,18 +388,18 @@ QDir::QDir(const QString &path) : d_ptr(new QDirPrivate(this))
     Q_D(QDir);
     d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
     d->data->nameFilters = QStringList(QString::fromLatin1("*"));
-    d->data->filterSpec = All;
-    d->data->sortSpec = SortSpec(Name | IgnoreCase);
+    d->data->filters = TypeMask;
+    d->data->sort = SortFlags(Name | IgnoreCase);
 }
 
 /*!
     Constructs a QDir with path \a path, that filters its entries by
-    name using \a nameFilter and by attributes using \a filterSpec. It
-    also sorts the names using \a sortSpec.
+    name using \a nameFilter and by attributes using \a filters. It
+    also sorts the names using \a sort.
 
     The default \a nameFilter is an empty string, which excludes
-    nothing; the default \a filterSpec is \c All, which also means
-    exclude nothing. The default \a sortSpec is \c Name|IgnoreCase,
+    nothing; the default \a filters is \c TypeMask, which also means
+    exclude nothing. The default \a sort is \c Name|IgnoreCase,
     i.e. sort by name case-insensitively.
 
     Example that lists all the files in "/tmp":
@@ -418,15 +419,15 @@ QDir::QDir(const QString &path) : d_ptr(new QDirPrivate(this))
 */
 
 QDir::QDir(const QString &path, const QString &nameFilter,
-             int sortSpec, int filterSpec)  : d_ptr(new QDirPrivate(this))
+           QDir::SortFlags sort, QDir::Filters filters)  : d_ptr(new QDirPrivate(this))
 {
     Q_D(QDir);
     d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
     d->data->nameFilters = QDir::nameFiltersFromString(nameFilter);
     if (d->data->nameFilters.isEmpty())
         d->data->nameFilters = QStringList(QString::fromLatin1("*"));
-    d->data->sortSpec = sortSpec;
-    d->data->filterSpec = filterSpec;
+    d->data->sort = sort;
+    d->data->filters = filters;
 }
 
 /*!
@@ -778,15 +779,15 @@ void QDir::setNameFilters(const QStringList &nameFilters)
     Returns the value set by setFilter()
 */
 
-QDir::FilterSpec QDir::filter() const
+QDir::Filters QDir::filter() const
 {
     Q_D(const QDir);
 
-    return (FilterSpec)d->data->filterSpec;
+    return d->data->filters;
 }
 
 /*!
-    \enum QDir::FilterSpec
+    \enum QDir::Filter
 
     This enum describes the filtering options available to QDir; e.g.
     for entryList() and entryInfoList(). The filter value is specified
@@ -831,36 +832,36 @@ QDir::FilterSpec QDir::filter() const
 
 /*!
     Sets the filter used by entryList() and entryInfoList() to \a
-    filterSpec. The filter is used to specify the kind of files that
+    filters. The filter is used to specify the kind of files that
     should be returned by entryList() and entryInfoList(). See
-    \l{QDir::FilterSpec}.
+    \l{QDir::Filter}.
 
     \sa filter(), setNameFilters()
 */
 
-void QDir::setFilter(int filterSpec)
+void QDir::setFilter(QDir::Filters filters)
 {
     Q_D(QDir);
 
     d->detach();
-    d->data->filterSpec = filterSpec;
+    d->data->filters = filters;
 }
 
 /*!
     Returns the value set by setSorting()
 
-    \sa setSorting() SortSpec
+    \sa setSorting() SortFlag
 */
 
-QDir::SortSpec QDir::sorting() const
+QDir::SortFlags QDir::sorting() const
 {
     Q_D(const QDir);
 
-    return (SortSpec)d->data->sortSpec;
+    return d->data->sort;
 }
 
 /*!
-    \enum QDir::SortSpec
+    \enum QDir::SortFlag
 
     This enum describes the sort options available to QDir, e.g. for
     entryList() and entryInfoList(). The sort value is specified by
@@ -889,18 +890,18 @@ QDir::SortSpec QDir::sorting() const
 /*!
     Sets the sort order used by entryList() and entryInfoList().
 
-    The \a sortSpec is specified by OR-ing values from the enum
-    \l{QDir::SortSpec}.
+    The \a sort is specified by OR-ing values from the enum
+    \l{QDir::SortFlag}.
 
-    \sa sorting() SortSpec
+    \sa sorting() SortFlag
 */
 
-void QDir::setSorting(int sortSpec)
+void QDir::setSorting(QDir::SortFlags sort)
 {
     Q_D(QDir);
 
     d->detach();
-    d->data->sortSpec = sortSpec;
+    d->data->sort = sort;
 }
 
 
@@ -946,7 +947,7 @@ QString QDir::operator[](int pos) const
     filtered in accordance with setFilter() and setNameFilters().
 
     The filter and sorting specifications can be overridden using the
-    \a filterSpec and \a sortSpec arguments.
+    \a filters and \a sort arguments.
 
     Returns an empty list if the directory is unreadable or does not
     exist or if nothing matches the specification.
@@ -954,11 +955,11 @@ QString QDir::operator[](int pos) const
     \sa entryInfoList(), setNameFilters(), setSorting(), setFilter()
 */
 
-QStringList QDir::entryList(int filterSpec, int sortSpec) const
+QStringList QDir::entryList(QDir::Filters filters, QDir::SortFlags sort) const
 {
     Q_D(const QDir);
 
-    return entryList(d->data->nameFilters, filterSpec, sortSpec);
+    return entryList(d->data->nameFilters, filters, sort);
 }
 
 
@@ -971,7 +972,7 @@ QStringList QDir::entryList(int filterSpec, int sortSpec) const
     setNameFilters().
 
     The filter and sorting specifications can be overridden using the
-    \a filterSpec and \a sortSpec arguments.
+    \a filters and \a sort arguments.
 
     Returns an empty list if the directory is unreadable or does not
     exist or if nothing matches the specification.
@@ -979,11 +980,11 @@ QStringList QDir::entryList(int filterSpec, int sortSpec) const
     \sa entryList(), setNameFilters(), setSorting(), setFilter(), isReadable(), exists()
 */
 
-QFileInfoList QDir::entryInfoList(int filterSpec, int sortSpec) const
+QFileInfoList QDir::entryInfoList(QDir::Filters filters, QDir::SortFlags sort) const
 {
     Q_D(const QDir);
 
-    return entryInfoList(d->data->nameFilters, filterSpec, sortSpec);
+    return entryInfoList(d->data->nameFilters, filters, sort);
 }
 
 /*!
@@ -993,7 +994,7 @@ QFileInfoList QDir::entryInfoList(int filterSpec, int sortSpec) const
 
     The name filter, file attributes filter, and the sorting
     specifications can be overridden using the \a nameFilters, \a
-    filterSpec and \a sortSpec arguments.
+    filters and \a sort arguments.
 
     Returns an empty list if the directory is unreadable or does not
     exist or if nothing matches the specification.
@@ -1001,20 +1002,21 @@ QFileInfoList QDir::entryInfoList(int filterSpec, int sortSpec) const
     \sa entryInfoList(), setNameFilters(), setSorting(), setFilter()
 */
 
-QStringList QDir::entryList(const QStringList &nameFilters, int filterSpec, int sortSpec) const
+QStringList QDir::entryList(const QStringList &nameFilters, QDir::Filters filters, 
+                            QDir::SortFlags sort) const
 {
     Q_D(const QDir);
 
-    if (filterSpec == (int)DefaultFilter)
-        filterSpec = d->data->filterSpec;
-    if (sortSpec == (int)DefaultSort)
-        sortSpec = d->data->sortSpec;
-    if (filterSpec == (int)DefaultFilter && sortSpec == (int)DefaultSort && nameFilters == d->data->nameFilters) {
+    if (filters == NoFilter)
+        filters = d->data->filters;
+    if (sort == NoSort)
+        sort = d->data->sort;
+    if (filters == NoFilter && sort == NoSort && nameFilters == d->data->nameFilters) {
         d->updateFileLists();
         return d->data->files;
     }
-    QStringList l = d->data->fileEngine->entryList(filterSpec, nameFilters), ret;
-    d->sortFileList(sortSpec, l, &ret, 0);
+    QStringList l = d->data->fileEngine->entryList(filters, nameFilters), ret;
+    d->sortFileList(sort, l, &ret, 0);
     return ret;
 }
 
@@ -1026,7 +1028,7 @@ QStringList QDir::entryList(const QStringList &nameFilters, int filterSpec, int 
 
     The name filter, file attributes filter, and sorting
     specifications can be overridden using the \a nameFilters, \a
-    filterSpec, and \a sortSpec arguments.
+    filters, and \a sort arguments.
 
     Returns an empty list if the directory is unreadable or does not
     exist or if nothing matches the specification.
@@ -1034,21 +1036,22 @@ QStringList QDir::entryList(const QStringList &nameFilters, int filterSpec, int 
     \sa entryList(), setNameFilters(), setSorting(), setFilter(), isReadable(), exists()
 */
 
-QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, int filterSpec, int sortSpec) const
+QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, QDir::Filters filters, 
+                                  QDir::SortFlags sort) const
 {
     Q_D(const QDir);
 
-    if (filterSpec == (int)DefaultFilter)
-        filterSpec = d->data->filterSpec;
-    if (sortSpec == (int)DefaultSort)
-        sortSpec = d->data->sortSpec;
-    if (filterSpec == (int)DefaultFilter && sortSpec == (int)DefaultSort && nameFilters == d->data->nameFilters) {
+    if (filters == NoFilter)
+        filters = d->data->filters;
+    if (sort == NoSort)
+        sort = d->data->sort;
+    if (filters == NoFilter && sort == NoSort && nameFilters == d->data->nameFilters) {
         d->updateFileLists();
         return d->data->fileInfos;
     }
     QFileInfoList ret;
-    QStringList l = d->data->fileEngine->entryList(filterSpec, nameFilters);
-    d->sortFileList(sortSpec, l, 0, &ret);
+    QStringList l = d->data->fileEngine->entryList(filters, nameFilters);
+    d->sortFileList(sort, l, 0, &ret);
     return ret;
 }
 
@@ -1137,7 +1140,10 @@ bool QDir::isReadable() const
 
     if(!d->data->fileEngine)
         return false;
-    return d->data->fileEngine->fileFlags(QFileEngine::PermsMask) & QFileEngine::ReadUserPerm;
+    const QFileEngine::FileFlags info = d->data->fileEngine->fileFlags(QFileEngine::PermsMask);
+    if(!(info & QFileEngine::DirectoryType))
+        return false;
+    return info & QFileEngine::ReadUserPerm;
 }
 
 /*!
@@ -1156,7 +1162,10 @@ bool QDir::exists() const
 
     if(!d->data->fileEngine)
         return false;
-    return d->data->fileEngine->fileFlags(QFileEngine::FlagsMask) & QFileEngine::ExistsFlag;
+    const QFileEngine::FileFlags info = d->data->fileEngine->fileFlags(QFileEngine::PermsMask);
+    if(!(info & QFileEngine::DirectoryType))
+        return false;
+    return info & QFileEngine::ExistsFlag;
 }
 
 /*!
@@ -1272,8 +1281,8 @@ bool QDir::operator==(const QDir &dir) const
     if(d->data->fileEngine->type() != other->data->fileEngine->type() ||
        d->data->fileEngine->caseSensitive() != other->data->fileEngine->caseSensitive())
         return false;
-    if(d->data->filterSpec == other->data->filterSpec
-       && d->data->sortSpec == other->data->sortSpec
+    if(d->data->filters == other->data->filters
+       && d->data->sort == other->data->sort
        && d->data->nameFilters == other->data->nameFilters) {
         QString dir1 = absolutePath(), dir2 = dir.absolutePath();
         if(!other->data->fileEngine->caseSensitive()) {
@@ -1816,14 +1825,14 @@ void QDir::setNameFilter(const QString &nameFilter)
 */
 
 /*!
-    \fn QStringList QDir::entryList(const QString &nameFilter, int filterSpec, int sortSpec) const
+    \fn QStringList QDir::entryList(const QString &nameFilter, QDir::Filters filters, QDir::SortFlags sort) const
 
     Use the overload that takes a name filter string list as first
     argument instead.
 */
 
 /*!
-    \fn QFileInfoList QDir::entryInfoList(const QString &nameFilter, int filterSpec, int sortSpec) const
+    \fn QFileInfoList QDir::entryInfoList(const QString &nameFilter, QDir::Filters filters, QDir::SortFlags sort) const
 
     Use the overload that takes a name filter string list as first
     argument instead.

@@ -64,16 +64,16 @@ bool QResourceFileEngine::setSize(QIODevice::Offset)
     return false;
 }
 
-QStringList QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
+QStringList QResourceFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
     Q_D(const QResourceFileEngine);
 
-    const bool doDirs     = (filterSpec & QDir::Dirs) != 0;
-    const bool doFiles    = (filterSpec & QDir::Files) != 0;
-    const bool doReadable = (filterSpec & QDir::Readable) != 0;
+    const bool doDirs     = (filters & QDir::Dirs) != 0;
+    const bool doFiles    = (filters & QDir::Files) != 0;
+    const bool doReadable = (filters & QDir::Readable) != 0;
 
     QStringList ret;
-    if((!doDirs && !doFiles) || ((filterSpec & QDir::RWEMask) && !doReadable))
+    if((!doDirs && !doFiles) || ((filters & QDir::PermissionMask) && !doReadable))
         return ret;
     if(!d->resource)
         d->resource = qt_find_resource(d->file);
@@ -84,11 +84,11 @@ QStringList QResourceFileEngine::entryList(int filterSpec, const QStringList &fi
     for(int i = 0; i < entries.size(); i++) {
         QString fn = entries[i]->name();
 #ifndef QT_NO_REGEXP
-        if(!(filterSpec & QDir::AllDirs && d->resource->isContainer())) {
+        if(!(filters & QDir::AllDirs && d->resource->isContainer())) {
             bool matched = false;
-            for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
+            for(QStringList::ConstIterator sit = filterNames.begin(); sit != filterNames.end(); ++sit) {
                 QRegExp rx(*sit, 
-                           (filterSpec & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive, 
+                           (filters & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive, 
                            QRegExp::Wildcard);
                 if (rx.exactMatch(fn)) {
                     matched = true;

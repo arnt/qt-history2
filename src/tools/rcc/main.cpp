@@ -80,7 +80,7 @@ listResourceFile(const QString &resource)
                         QDir dir;
                         if(!file.exists()) {
                             dir = QDir(file.path(), file.fileName());
-                            dir.setFilter(QDir::Files|QDir::AllDirs);
+                            dir.setFilter(QDir::Filters(QDir::Files|QDir::AllDirs));
                         } else {
                             dir = QDir(file.filePath(), "*");
                         }
