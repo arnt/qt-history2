@@ -780,12 +780,12 @@ while [ -n "$1" ]; do
 	;;
     v|verbose)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    # takes two verboses to turn on qmake debugs
+	    [ "$VAL" = "yes" ] && [ "$OPT_VERBOSE" = "yes" ] && QMAKE_SWITCHES="$QMAKE_SWITCHES -d"
 	    OPT_VERBOSE="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
-	# takes two verboses to turn on qmake debugs
-	[ "$OPT_VERBOSE" = "yes" ] && QMAKE_SWITCHES="$QMAKE_SWITCHES -d"
 	;;
     fast)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
@@ -2649,7 +2649,6 @@ echo
 
 sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
 PROCS=1
-PIPE=""
 EXEC=""
 
 
@@ -2825,39 +2824,33 @@ FORCE:
 
 EOF
 	else
-	    PIPE="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_SPEC_ARGS -o $N $a"
+	    EXEC="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_SPEC_ARGS -o $N $a"
 	    if [ "$OPT_VERBOSE" = "yes" ]; then
 		echo " (`basename $SPEC`)"
 		if echo '\c' | grep '\c' >/dev/null; then
-		    echo -n "$PIPE"
+		    echo -n "$EXEC"
 		else
-		    echo "$PIPE\c"
+		    echo "$EXEC\c"
 		fi
 	    fi
 	    echo
 	
+	    [ -f "$N" ] && chmod +w $N
 	    if [ "$OPT_CONCURRENT" = "0" ] || [ "$OPT_CONCURRENT" = "1" ]; then
-		EXEC=$PIPE
+		/bin/sh -c "$EXEC"
 	    else
-		EXEC="$EXEC ($PIPE & ) ;"
+		/bin/sh -c "$EXEC" &
 		if [ "$PROCS" != "$OPT_CONCURRENT" ]; then
 		    PROCS=`expr $PROCS + 1`
 		else
 		    PROCS=1
-		    EXEC="$EXEC wait"
+		    [ "$OPT_VERBOSE" = "yes" ] && echo "Waiting.."
+		    wait #wait for the processes to end
 		fi
-	    fi
-	    [ -f "$N" ] && chmod +w $N
-	    if [ "$PROCS" = "1" ]; then
-		/bin/sh -c "$EXEC"
-		EXEC=""
 	    fi
        fi
     done
 done
-# this is just in case the concurrent task is not a multiple of the number of tasks
-[ '!' -z "$EXEC" ] && /bin/sh -c "$EXEC wait"
-
 rm -f .projects .projects.3
 
 
