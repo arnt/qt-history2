@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#6 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#7 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -33,6 +33,7 @@
 #endif // QT_H
 
 struct QMultiLineData;
+class QValidator;
 
 class Q_EXPORT QMultiLineEdit : public QTableView
 {
@@ -63,6 +64,30 @@ public:
 
     int 	maxLineWidth() const;
 
+    void setAlignment( int flags );
+    int alignment() const;
+
+    virtual void setValidator( const QValidator * );
+    const QValidator * validator() const;
+
+    void setEdited( bool );
+    bool edited() const;
+
+    void cursorLeft( bool mark, long steps );
+    void cursorRight( bool mark, long steps );
+
+    enum EchoMode { Normal, NoEcho, Password };
+    virtual void setEchoMode( EchoMode );
+    EchoMode echoMode() const;
+
+    virtual void setMaxLineLength(int);
+    int maxLineLength() const;
+    virtual void setMaxLines(int);
+    int maxLines() const;
+    virtual void setHMargin(int);
+    int hMargin() const;
+    virtual void setSelection( int row_from, int col_from, int row_to, int col_t );
+
 q_properties:
     bool	autoUpdate()	const;
     virtual void	setAutoUpdate( bool );
@@ -81,8 +106,10 @@ public slots:
     void       deselect();
     void       selectAll();
     void       paste();
-    void       copyText();
+    void       copyText() const;
+    void       copy() const;
     void       cut();
+    void       insert( const QString& );
 
 signals:
     void	textChanged();
@@ -115,7 +142,7 @@ protected:
     QPoint	cursorPoint() const;
 
 protected:
-    virtual void insert( const QString&, bool mark=FALSE );
+    virtual void insert( const QString&, bool mark );
     virtual void newLine();
     virtual void killLine();
     virtual void pageUp( bool mark=FALSE );
@@ -133,6 +160,7 @@ protected:
 				 int *line2, int *col2 ) const;
     int		lineLength( int row ) const;
     QString	*getString( int row ) const;
+    QString     stringShown( int row ) const;
 
 protected:
     bool	cursorOn;	
