@@ -50,7 +50,6 @@ public:
     QStringList featureList() const
     {
 	QStringList list;
-	list << "QButton";
 	list << "QCheckBox";
 	list << "QRadioButton";
 	list << "QPushButton";
@@ -59,8 +58,6 @@ public:
     }
     QWidget *create( const QString &key, QWidget *parent, const char *name )
     {
-	if ( key == "QButton" )
-	    return new QButton( parent, name );
 	if ( key == "QCheckBox" )
 	    return new QCheckBox( parent, name );
 	if ( key == "QRadioButton" )
@@ -75,25 +72,21 @@ public:
 
 	return 0;
     }
-    QMetaObject *metaObject( const QString &key ) const
+    const QMetaObject *metaObject( const QString &key ) const
     {
-	if ( key == "QButton" )
-	    return QButton::staticMetaObject();
 	if ( key == "QCheckBox" )
-	    return QCheckBox::staticMetaObject();
+	    return &QCheckBox::staticMetaObject;
 	if ( key == "QRadioButton" )
-	    return QRadioButton::staticMetaObject();
+	    return &QRadioButton::staticMetaObject;
 	if ( key == "QPushButton" )
-	    return QPushButton::staticMetaObject();
+	    return &QPushButton::staticMetaObject;
 	if ( key == "QToolButton" )
-	    return QToolButton::staticMetaObject();
+	    return &QToolButton::staticMetaObject;
 
 	return 0;
     }
     QUuid classID( const QString &key ) const
     {
-	if ( key == "QButton" )
-	    return "{23F5012A-7333-43D3-BCA8-836AABC61B4A}";
 	if ( key == "QCheckBox" )
 	    return "{6E795DE9-872D-43CF-A831-496EF9D86C68}";
 	if ( key == "QRadioButton" )
@@ -107,8 +100,6 @@ public:
     }
     QUuid interfaceID( const QString &key ) const
     {
-	if ( key == "QButton" )
-	    return "{6DA689FB-928F-423C-8632-678C3D3606DB}";
 	if ( key == "QCheckBox" )
 	    return "{4FD39DD7-2DE0-43C1-A8C2-27C51A052810}";
 	if ( key == "QRadioButton" )
@@ -122,8 +113,6 @@ public:
     }
     QUuid eventsID( const QString &key ) const
     {
-	if ( key == "QButton" )
-	    return "{73A5D03F-8ADE-4D84-9AE0-A93B4F85A130}";
 	if ( key == "QCheckBox" )
 	    return "{FDB6FFBE-56A3-4E90-8F4D-198488418B3A}";
 	if ( key == "QRadioButton" )
