@@ -436,11 +436,8 @@ bool QTextStreamPrivate::fillReadBuffer(bool toEndOfLine)
     qDebug("QTextStreamPrivate::fillReadBuffer(), device->read(\"%s\", %d) == %d",
            qt_prettyDebug(buf, qMin(32,int(bytesRead)) , int(bytesRead)).constData(), sizeof(buf), int(bytesRead));
 #endif
-    if (bytesRead <= 0) {
-        if (device->isSequential())
-            device->close();
+    if (bytesRead <= 0)
         return false;
-    }
 
 #ifndef QT_NO_TEXTCODEC
     // codec auto detection, explicitly defaults to locale encoding if
