@@ -61,9 +61,9 @@ public:
     Type type() const;
 
 #ifndef QT_NO_STYLE
-    static QStyle  &style();
-    static void            setStyle(QStyle*);
-    static QStyle*  setStyle(const QString&);
+    static QStyle &style();
+    static void setStyle(QStyle*);
+    static QStyle *setStyle(const QString&);
 #endif
     enum ColorSpec { NormalColor=0, CustomColor=1, ManyColor=2 };
     static int colorSpec();
@@ -76,40 +76,40 @@ public:
 #endif
 
 #ifndef QT_NO_CURSOR
-    static QCursor  *overrideCursor();
-    static void             setOverrideCursor(const QCursor &, bool replace=false);
-    static void             restoreOverrideCursor();
+    static QCursor *overrideCursor();
+    static void setOverrideCursor(const QCursor &, bool replace=false);
+    static void restoreOverrideCursor();
 #endif
 #ifndef QT_NO_PALETTE
-    static QPalette  palette();
-    static QPalette  palette(const QWidget *);
-    static QPalette  palette(const char *className);
-    static void             setPalette(const QPalette &, const char* className = 0);
+    static QPalette palette();
+    static QPalette palette(const QWidget *);
+    static QPalette palette(const char *className);
+    static void setPalette(const QPalette &, const char* className = 0);
 #endif
-    static QFont     font(const QWidget* = 0);
-    static void             setFont(const QFont &, const char* className = 0);
+    static QFont font(const QWidget* = 0);
+    static void setFont(const QFont &, const char* className = 0);
     static QFontMetrics fontMetrics();
 
     static void setWindowIcon(const QPixmap &);
     static const QPixmap &windowIcon();
 
 
-    QWidget            *mainWidget()  const;
-    virtual void     setMainWidget(QWidget *);
-    virtual void     polish(QWidget *);
+    QWidget *mainWidget()  const;
+    virtual void setMainWidget(QWidget *);
+    virtual void polish(QWidget *);
 
     static QWidgetList allWidgets();
     static QWidgetList topLevelWidgets();
 
-    static QDesktopWidget   *desktop();
+    static QDesktopWidget *desktop();
 
-    static QWidget     *activePopupWidget();
-    static QWidget     *activeModalWidget();
+    static QWidget *activePopupWidget();
+    static QWidget *activeModalWidget();
 #ifndef QT_NO_CLIPBOARD
-    static QClipboard  *clipboard();
+    static QClipboard *clipboard();
 #endif
-    QWidget               *focusWidget() const;
-    QWidget               *activeWindow() const;
+    QWidget *focusWidget() const;
+    QWidget *activeWindow() const;
 
     static QWidget *widgetAt(int x, int y);
     static inline QWidget *widgetAt(const QPoint &p) { return widgetAt(p.x(), p.y()); }
@@ -119,20 +119,20 @@ public:
     static void syncX();
     static void beep();
 
-    static void      setDesktopSettingsAware(bool);
-    static bool      desktopSettingsAware();
+    static void setDesktopSettingsAware(bool);
+    static bool desktopSettingsAware();
 
-    static void      setCursorFlashTime(int);
-    static int       cursorFlashTime();
+    static void setCursorFlashTime(int);
+    static int cursorFlashTime();
 
-    static void      setDoubleClickInterval(int);
-    static int       doubleClickInterval();
+    static void setDoubleClickInterval(int);
+    static int doubleClickInterval();
 #ifndef QT_NO_WHEELEVENT
-    static void      setWheelScrollLines(int);
-    static int       wheelScrollLines();
+    static void setWheelScrollLines(int);
+    static int wheelScrollLines();
 #endif
-    static void             setGlobalStrut(const QSize &);
-    static QSize     globalStrut();
+    static void setGlobalStrut(const QSize &);
+    static QSize globalStrut();
 
     static void setStartDragTime(int ms);
     static int startDragTime();
@@ -144,21 +144,21 @@ public:
 
     static Qt::Alignment horizontalAlignment(Qt::Alignment align);
 
-    static bool            isEffectEnabled(Qt::UIEffect);
-    static void            setEffectEnabled(Qt::UIEffect, bool enable = true);
+    static bool isEffectEnabled(Qt::UIEffect);
+    static void setEffectEnabled(Qt::UIEffect, bool enable = true);
 
 #if defined(Q_WS_MAC)
-    virtual bool     macEventFilter(EventHandlerCallRef, EventRef);
+    virtual bool macEventFilter(EventHandlerCallRef, EventRef);
 #endif
 #if defined(Q_WS_X11)
-    virtual bool     x11EventFilter(XEvent *);
-    virtual int             x11ClientMessage(QWidget*, XEvent*, bool passive_only);
-    int              x11ProcessEvent(XEvent*);
+    virtual bool x11EventFilter(XEvent *);
+    virtual int x11ClientMessage(QWidget*, XEvent*, bool passive_only);
+    int x11ProcessEvent(XEvent*);
 #endif
 #if defined(Q_WS_QWS)
-    virtual bool     qwsEventFilter(QWSEvent *);
-    int              qwsProcessEvent(QWSEvent*);
-    void             qwsSetCustomColors(QRgb *colortable, int start, int numColors);
+    virtual bool qwsEventFilter(QWSEvent *);
+    int qwsProcessEvent(QWSEvent*);
+    void qwsSetCustomColors(QRgb *colortable, int start, int numColors);
 #ifndef QT_NO_QWS_MANAGER
     static QDecoration &qwsDecoration();
     static void qwsSetDecoration(QDecoration *);
@@ -175,17 +175,17 @@ public:
 #endif
 #endif
 #if defined(Q_WS_WIN)
-    void             winFocus(QWidget *, bool);
-    static void             winMouseButtonUp();
+    void winFocus(QWidget *, bool);
+    static void winMouseButtonUp();
 #endif
 
 #ifndef QT_NO_SESSIONMANAGER
     // session management
-    bool             isSessionRestored() const;
-    QString         sessionId() const;
-    QString         sessionKey() const;
-    virtual void     commitData(QSessionManager& sm);
-    virtual void     saveState(QSessionManager& sm);
+    bool isSessionRestored() const;
+    QString sessionId() const;
+    QString sessionKey() const;
+    virtual void commitData(QSessionManager& sm);
+    virtual void saveState(QSessionManager& sm);
 #endif
 #if defined(Q_WS_X11)
     static void create_xim();
@@ -198,11 +198,11 @@ public:
 
 
 signals:
-    void             lastWindowClosed();
+    void lastWindowClosed();
 
 public slots:
-    void             closeAllWindows();
-    void             aboutQt();
+    void closeAllWindows();
+    void aboutQt();
 
 protected:
 #if defined(Q_WS_QWS)
@@ -262,24 +262,24 @@ private:
 #ifndef QT_NO_PALETTE
     static QPalette *app_pal;
 #endif
-    static QFont    *app_font;
-    static QWidget  *main_widget;
-    static QWidget  *focus_widget;
-    static QWidget  *active_window;
-    static QPixmap    *app_icon;
-    static bool             obey_desktop_settings;
-    static int             cursor_flash_time;
-    static int             mouse_double_click_time;
-    static int             wheel_scroll_lines;
+    static QFont *app_font;
+    static QWidget *main_widget;
+    static QWidget *focus_widget;
+    static QWidget *active_window;
+    static QPixmap *app_icon;
+    static bool obey_desktop_settings;
+    static int  cursor_flash_time;
+    static int  mouse_double_click_time;
+    static int  wheel_scroll_lines;
 
-    static bool             animate_ui;
-    static bool             animate_menu;
-    static bool             animate_tooltip;
-    static bool             animate_combo;
-    static bool             fade_menu;
-    static bool             fade_tooltip;
-    static bool             animate_toolbox;
-    static bool             widgetCount; // Coupled with -widgetcount switch
+    static bool animate_ui;
+    static bool animate_menu;
+    static bool animate_tooltip;
+    static bool animate_combo;
+    static bool fade_menu;
+    static bool fade_tooltip;
+    static bool animate_toolbox;
+    static bool widgetCount; // Coupled with -widgetcount switch
 
 #if defined(Q_WS_X11) && !defined (QT_NO_STYLE)
     static void x11_initialize_style();
@@ -288,9 +288,9 @@ private:
     static QSize     app_strut;
 
     static QWidgetList *popupWidgets;
-    bool             inPopupMode() const;
-    void             closePopup(QWidget *popup);
-    void             openPopup(QWidget *popup);
+    bool inPopupMode() const;
+    void closePopup(QWidget *popup);
+    void openPopup(QWidget *popup);
 
 public:
     void setActiveWindow(QWidget* act);

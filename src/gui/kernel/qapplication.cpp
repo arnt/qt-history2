@@ -333,40 +333,40 @@ void qt_init(QApplicationPrivate *priv, int type
 void qt_cleanup();
 bool qt_tryModalHelper(QWidget *widget, QWidget **rettop);
 
-QStyle   *QApplication::app_style      = 0;        // default application style
-bool      qt_explicit_app_style               = false; // style explicitly set by programmer
+QStyle *QApplication::app_style = 0;        // default application style
+bool qt_explicit_app_style = false; // style explicitly set by programmer
 
-int          QApplication::app_cspec      = QApplication::NormalColor;
+int QApplication::app_cspec = QApplication::NormalColor;
 #ifndef QT_NO_PALETTE
-QPalette *QApplication::app_pal               = 0;        // default application palette
+QPalette *QApplication::app_pal = 0;        // default application palette
 #endif
-QFont         *QApplication::app_font       = 0;        // default application font
-bool          qt_app_has_font               = false;
+QFont *QApplication::app_font = 0;        // default application font
+bool qt_app_has_font = false;
 QPixmap *QApplication::app_icon = 0;
-QWidget         *QApplication::main_widget    = 0;        // main application widget
-QWidget         *QApplication::focus_widget   = 0;        // has keyboard input focus
-QWidget         *QApplication::active_window  = 0;        // toplevel with keyboard focus
-bool          QApplication::obey_desktop_settings = true;        // use winsys resources
-int          QApplication::cursor_flash_time = 1000;        // text caret flash time
-int          QApplication::mouse_double_click_time = 400;        // mouse dbl click limit
+QWidget *QApplication::main_widget = 0;        // main application widget
+QWidget *QApplication::focus_widget = 0;        // has keyboard input focus
+QWidget *QApplication::active_window = 0;        // toplevel with keyboard focus
+bool QApplication::obey_desktop_settings = true;        // use winsys resources
+int QApplication::cursor_flash_time = 1000;        // text caret flash time
+int QApplication::mouse_double_click_time = 400;        // mouse dbl click limit
 #ifndef QT_NO_WHEELEVENT
-int          QApplication::wheel_scroll_lines = 3;                // number of lines to scroll
+int QApplication::wheel_scroll_lines = 3;                // number of lines to scroll
 #endif
-bool          qt_is_gui_used;
-bool      Q_GUI_EXPORT qt_tab_all_widgets  = true;
+bool qt_is_gui_used;
+bool Q_GUI_EXPORT qt_tab_all_widgets = true;
 QRect qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;
 static bool reverse_layout = false;
-QSize     QApplication::app_strut        = QSize(0,0); // no default application strut
-bool          QApplication::animate_ui        = true;
-bool          QApplication::animate_menu        = false;
-bool          QApplication::fade_menu        = false;
-bool          QApplication::animate_combo        = false;
-bool          QApplication::animate_tooltip        = false;
-bool          QApplication::fade_tooltip        = false;
-bool          QApplication::animate_toolbox        = false;
-bool          QApplication::widgetCount        = false;
+QSize QApplication::app_strut = QSize(0,0); // no default application strut
+bool QApplication::animate_ui = true;
+bool QApplication::animate_menu = false;
+bool QApplication::fade_menu = false;
+bool QApplication::animate_combo = false;
+bool QApplication::animate_tooltip = false;
+bool QApplication::fade_tooltip = false;
+bool QApplication::animate_toolbox = false;
+bool QApplication::widgetCount = false;
 
 #if defined(QT_TABLET_SUPPORT)
 bool chokeMouse = false;
@@ -586,8 +586,8 @@ void QApplication::process_cmdline()
   The documentation for argv() contains a detailed description of how
   to process command line arguments.
 
-  Qt debugging options (not available if Qt was compiled with the
-  QT_NO_DEBUG flag defined):
+  Qt debugging options (not available if Qt was compiled without the
+  QT_DEBUG flag defined):
   \list
   \i -nograb, tells Qt that it must never grab the mouse or the keyboard.
   \i -dograb (only under X11), running under a debugger can cause

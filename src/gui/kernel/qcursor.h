@@ -69,10 +69,10 @@ public:
     Qt::HANDLE handle() const;
 #endif
     static QPoint pos();
-    static void        setPos(int x, int y);
+    static void setPos(int x, int y);
     inline static void setPos(const QPoint &p) { setPos(p.x(), p.y()); }
-    static void        initialize();
-    static void        cleanup();
+    static void initialize();
+    static void cleanup();
 private:
     void setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY);
     void update() const;

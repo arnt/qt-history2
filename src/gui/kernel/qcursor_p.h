@@ -46,18 +46,18 @@ struct QCursorData {
     QCursorData(int s = 0);
     ~QCursorData();
     QAtomic ref;
-    int              cshape;
+    int cshape;
     QBitmap  *bm, *bmm;
     short     hx, hy;
 #if defined (Q_WS_MAC) || defined(Q_WS_QWS)
     int id;
 #endif
 #if defined (Q_WS_WIN)
-    HCURSOR   hcurs;
+    HCURSOR hcurs;
 #elif defined (Q_WS_X11)
-    XColor    fg, bg;
-    Cursor    hcurs;
-    Pixmap    pm, pmm;
+    XColor fg, bg;
+    Cursor hcurs;
+    Pixmap pm, pmm;
 #elif defined (Q_WS_MAC)
     enum { TYPE_None, TYPE_CursorImage, TYPE_CursPtr, TYPE_ThemeCursor, TYPE_FakeCursor, TYPE_BigCursor } type;
     union {

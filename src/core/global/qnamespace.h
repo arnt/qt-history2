@@ -51,16 +51,16 @@ public:
     // documented in qevent.cpp
     enum ButtonState {                                // mouse/keyboard state values
         NoButton        = 0x0000,
-        LeftButton        = 0x0001,
-        RightButton        = 0x0002,
-        MidButton        = 0x0004,
+        LeftButton      = 0x0001,
+        RightButton     = 0x0002,
+        MidButton       = 0x0004,
         MouseButtonMask = 0x0007,
-        ShiftButton        = 0x0100,
+        ShiftButton     = 0x0100,
         ControlButton   = 0x0200,
-        AltButton        = 0x0400,
-        MetaButton        = 0x0800,
-        KeyButtonMask        = 0x0f00,
-        Keypad                = 0x4000
+        AltButton       = 0x0400,
+        MetaButton      = 0x0800,
+        KeyButtonMask   = 0x0f00,
+        Keypad          = 0x4000
     };
 
     // documented in qobject.cpp
@@ -95,17 +95,17 @@ public:
 
     // documented in qpainter.cpp
     enum AlignmentFlag {
-        AlignAuto                = 0x0000,         // text alignment
-        AlignLeft                = 0x0001,
-        AlignRight                = 0x0002,
-        AlignHCenter                = 0x0004,
-        AlignJustify                = 0x0008,
-        AlignHorizontal_Mask        = AlignLeft | AlignRight | AlignHCenter | AlignJustify,
+        AlignAuto               = 0x0000,         // text alignment
+        AlignLeft               = 0x0001,
+        AlignRight              = 0x0002,
+        AlignHCenter            = 0x0004,
+        AlignJustify            = 0x0008,
+        AlignHorizontal_Mask    = AlignLeft | AlignRight | AlignHCenter | AlignJustify,
         AlignTop                = 0x0010,
-        AlignBottom                = 0x0020,
-        AlignVCenter                = 0x0040,
-        AlignVertical_Mask         = AlignTop | AlignBottom | AlignVCenter,
-        AlignCenter                = AlignVCenter | AlignHCenter
+        AlignBottom             = 0x0020,
+        AlignVCenter            = 0x0040,
+        AlignVertical_Mask      = AlignTop | AlignBottom | AlignVCenter,
+        AlignCenter             = AlignVCenter | AlignHCenter
     };
 
     Q_DECLARE_FLAGS(Alignment, AlignmentFlag)
@@ -144,30 +144,30 @@ public:
 
     // QWidget state flags (internal, barely documented in qwidget.cpp)
     enum WStateFlag {
-        WState_Created                = 0x00000001,
+        WState_Created          = 0x00000001,
         WState_Reserved3        = 0x00000002, // was Disabled
-        WState_Visible                = 0x00000004,
-        WState_Hidden                = 0x00000008,
+        WState_Visible          = 0x00000004,
+        WState_Hidden           = 0x00000008,
         WState_ForceHide        = WState_Hidden,
-        WState_Reserve6                = 0x00000010,
-        WState_Reserve5                = 0x00000020, // was MouseTracking
-        WState_CompressKeys        = 0x00000040,
-        WState_BlockUpdates        = 0x00000080,
-        WState_InPaintEvent        = 0x00000100,
-        WState_Reparented        = 0x00000200,
-        WState_ConfigPending        = 0x00000400,
+        WState_Reserve6         = 0x00000010,
+        WState_Reserve5         = 0x00000020, // was MouseTracking
+        WState_CompressKeys     = 0x00000040,
+        WState_BlockUpdates     = 0x00000080,
+        WState_InPaintEvent     = 0x00000100,
+        WState_Reparented       = 0x00000200,
+        WState_ConfigPending    = 0x00000400,
         WState_Reserved7        = 0x00000800, // was Resized
-        WState_AutoMask                = 0x00001000,
-        WState_Polished                = 0x00002000,
-        WState_DND                = 0x00004000,
+        WState_AutoMask         = 0x00001000,
+        WState_Polished         = 0x00002000,
+        WState_DND              = 0x00004000,
         WState_Reserved0        = 0x00008000,
-        WState_FullScreen        = 0x00010000,
-        WState_OwnSizePolicy        = 0x00020000,
-        WState_ExplicitShowHide        = 0x00040000,
+        WState_FullScreen       = 0x00010000,
+        WState_OwnSizePolicy    = 0x00020000,
+        WState_ExplicitShowHide = 0x00040000,
         WState_Maximized        = 0x00080000,
         WState_Minimized        = 0x00100000,
         WState_Reserved4        = 0x00200000, // was ForceDisabled
-        WState_Exposed                = 0x00400000,
+        WState_Exposed          = 0x00400000,
         WState_Reserved2        = 0x00800000 // was HasMouse
     };
 
@@ -199,11 +199,11 @@ public:
         WStyle_Mask             = 0x0000fff0,
 
         // misc flags
-        WPaintDesktop            = 0x00020000,
+        WPaintDesktop           = 0x00020000,
         // reserved WPaintUnclipped = 0x00040000,
         // reserved WPaintClever  = 0x00080000,
         // reserved WResizeNoErase= 0x00100000,
-        WMouseNoMask             = 0x00200000,
+        WMouseNoMask            = 0x00200000,
 
 #if defined(Q_WS_X11)
         WX11BypassWM            = 0x01000000,
@@ -254,11 +254,11 @@ public:
     Q_DECLARE_FLAGS(WFlags, WFlag)
 
     enum WindowState {
-        WindowNoState   = 0x00000000,
-        WindowMinimized = 0x00000001,
-        WindowMaximized = 0x00000002,
+        WindowNoState    = 0x00000000,
+        WindowMinimized  = 0x00000001,
+        WindowMaximized  = 0x00000002,
         WindowFullScreen = 0x00000004,
-        WindowActive = 0x00000008
+        WindowActive     = 0x00000008
     };
 
     // documented in qwidget.cpp
@@ -752,21 +752,21 @@ public:
 #if defined(Q_OS_WIN) && defined(QT_COMPAT)
     // documented in qapplication_win.cpp
     enum WindowsVersion {
-        WV_32s                 = QSysInfo::WV_32s,
-        WV_95                 = QSysInfo::WV_95,
-        WV_98                = QSysInfo::WV_98,
-        WV_Me                = QSysInfo::WV_Me,
-        WV_DOS_based        = QSysInfo::WV_DOS_based,
+        WV_32s           = QSysInfo::WV_32s,
+        WV_95            = QSysInfo::WV_95,
+        WV_98            = QSysInfo::WV_98,
+        WV_Me            = QSysInfo::WV_Me,
+        WV_DOS_based     = QSysInfo::WV_DOS_based,
 
-        WV_NT                 = QSysInfo::WV_NT,
-        WV_2000         = QSysInfo::WV_2000,
-        WV_XP                = QSysInfo::WV_XP,
-        WV_2003                = QSysInfo::WV_2003,
-        WV_NT_based        = QSysInfo::WV_NT_based,
+        WV_NT            = QSysInfo::WV_NT,
+        WV_2000          = QSysInfo::WV_2000,
+        WV_XP            = QSysInfo::WV_XP,
+        WV_2003          = QSysInfo::WV_2003,
+        WV_NT_based      = QSysInfo::WV_NT_based,
 
-        WV_CE           = QSysInfo::WV_CE,
-        WV_CENET        = QSysInfo::WV_CENET,
-        WV_CE_based        = QSysInfo::WV_CE_based
+        WV_CE            = QSysInfo::WV_CE,
+        WV_CENET         = QSysInfo::WV_CENET,
+        WV_CE_based      = QSysInfo::WV_CE_based
     };
 #endif
 

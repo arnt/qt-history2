@@ -41,8 +41,8 @@ public:
     QCoreApplication(QCoreApplicationPrivate &p);
     ~QCoreApplication();
 
-    int                    argc()        const;
-    char          **argv()        const;
+    int argc() const;
+    char **argv() const;
 
     void setProductInfo(const QString &organization, const QString &application = QString());
     QString organization() const;
@@ -51,27 +51,27 @@ public:
     static QCoreApplication *instance() { return self; }
     static QEventLoop *eventLoop();
 
-    virtual int      exec();
-    void             processEvents();
-    void             processEvents(int maxtime);
-    void             processOneEvent();
-    bool             hasPendingEvents();
-    int                     enter_loop();
-    void             exit_loop();
-    int                     loopLevel() const;
-    static void             exit(int retcode=0);
+    virtual int exec();
+    void processEvents();
+    void processEvents(int maxtime);
+    void processOneEvent();
+    bool hasPendingEvents();
+    int enter_loop();
+    void exit_loop();
+    int loopLevel() const;
+    static void exit(int retcode=0);
 
-    static bool             sendEvent(QObject *receiver, QEvent *event);
-    static void             postEvent(QObject *receiver, QEvent *event);
-    static void             sendPostedEvents(QObject *receiver, int event_type);
-    static void             sendPostedEvents();
+    static bool sendEvent(QObject *receiver, QEvent *event);
+    static void postEvent(QObject *receiver, QEvent *event);
+    static void sendPostedEvents(QObject *receiver, int event_type);
+    static void sendPostedEvents();
 
-    static void      removePostedEvents(QObject *receiver);
+    static void removePostedEvents(QObject *receiver);
 
-    virtual bool     notify(QObject *, QEvent *);
+    virtual bool notify(QObject *, QEvent *);
 
-    static bool             startingUp();
-    static bool             closingDown();
+    static bool startingUp();
+    static bool closingDown();
 
 #ifndef QT_NO_DIR
     QString   applicationDirPath();
@@ -79,44 +79,44 @@ public:
 #endif
 
 #ifndef QT_NO_COMPONENT
-    static void      setLibraryPaths(const QStringList &);
+    static void setLibraryPaths(const QStringList &);
     static QStringList libraryPaths();
-    static void      addLibraryPath(const QString &);
-    static void      removeLibraryPath(const QString &);
+    static void addLibraryPath(const QString &);
+    static void removeLibraryPath(const QString &);
 #endif // QT_NO_COMPONENT
 
 #ifndef QT_NO_TRANSLATION
 # ifndef QT_NO_TEXTCODEC
-    void             setDefaultCodec(QTextCodec *);
-    QTextCodec*             defaultCodec() const;
+    void setDefaultCodec(QTextCodec *);
+    QTextCodec *defaultCodec() const;
 # endif
-    void             installTranslator(QTranslator *);
-    void             removeTranslator(QTranslator *);
+    void installTranslator(QTranslator *);
+    void removeTranslator(QTranslator *);
 #endif
     enum Encoding { DefaultCodec, UnicodeUTF8 };
     static QString translate(const char * context,
-                                const char * key,
-                                const char * comment = 0,
-                                Encoding encoding = DefaultCodec);
+                             const char * key,
+                             const char * comment = 0,
+                             Encoding encoding = DefaultCodec);
 
     static void flush();
 
 #if defined(QT_COMPAT)
-    QT_COMPAT void             lock();
-    QT_COMPAT void             unlock(bool wakeUpGui = true);
-    QT_COMPAT bool             locked();
-    QT_COMPAT bool             tryLock();
+    QT_COMPAT void lock();
+    QT_COMPAT void unlock(bool wakeUpGui = true);
+    QT_COMPAT bool locked();
+    QT_COMPAT bool tryLock();
 #endif
 
 #if defined(Q_WS_WIN)
-    virtual bool     winEventFilter(MSG *);
+    virtual bool winEventFilter(MSG *);
 #endif
 
 public slots:
-    void             quit();
+    void quit();
 
 signals:
-    void             aboutToQuit();
+    void aboutToQuit();
 
 protected:
     bool event(QEvent *);
@@ -125,8 +125,8 @@ protected:
 
 private:
     void init();
-    static bool      sendSpontaneousEvent(QObject *receiver, QEvent *event);
-    static void      removePostedEvent(QEvent *);
+    static bool sendSpontaneousEvent(QObject *receiver, QEvent *event);
+    static void removePostedEvent(QEvent *);
     bool notify_helper(QObject *, QEvent *);
 
     static bool is_app_running;
