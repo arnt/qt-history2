@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#30 $
 **
 ** Implementation of event classes
 **
@@ -12,7 +12,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#30 $")
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -526,7 +526,7 @@ void QEvent::peErrMsg()				// posted event error message
 
 /*----------------------------------------------------------------------------
   \class QCustomEvent qevent.h
-  \brief The QCustomEvent class provides support for user-defined events.
+  \brief The QCustomEvent class provides support for custom events.
 
   \ingroup event
 
