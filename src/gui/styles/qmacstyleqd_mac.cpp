@@ -28,6 +28,9 @@
 #include "qrubberband.h"
 #include "qstyleoption.h"
 
+extern QRegion qt_mac_convert_mac_region(RgnHandle rgn);
+extern QRegion qt_mac_convert_mac_region(HIShapeRef shape);
+
 class QMacStyleQDPainter : public QPainter
 {
 public:
