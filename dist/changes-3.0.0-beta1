@@ -85,14 +85,22 @@ Designer.
 Component model - plugins
 -------------------------
 
-### needs some more work
-
 The QLibrary class provides a platform independent wrapper for
 runtime loading of shared libraries and accessing of functionality
-using a COM-like interface concept. QInterfaceManager makes it
-trivial to implement plugin support in applications.
+using a COM-like interface concept. QPluginManager makes it trivial to 
+implement plugin support in applications.
+The Qt library is capable to load additional styles, database drivers and 
+text codecs from plugins implementing interfaces QStyleFactoryInterface,
+QSqlDriverInterface or QTextCodecInterface. Thus it is both possible
+to remove unused components from the Qt library, and easy to extend any
+application with 3rd party styles or text codecs.
 
-Pluggable style interface, database driver, custom widgets
+The Qt Designer supports custom widgets in plugins, and will use the
+widgets both when designing and previewing forms. 
+
+QComponentFactory makes it easy to register any kind of component in a 
+global database (e.g. the Windows Registry) and to use any registered 
+component.
 
 
 Rich text engine and editor
@@ -177,18 +185,20 @@ the started program as for example redirection of input and output of console
 applications.
 
 
-acessibility
-------------
+Accessibility
+-------------
 
-Qt-3.0 features better support for accessibility features, .....
+Accessibility means making software usable and accessible to a wide range of
+users, including those with disabilities. In Qt 3.0, most widgets provide 
+accessibility information for assistive tools that can be used by a wide range
+of handicapped users. Qt standard widgets like buttons or range controls are
+fully supported. Support for complex widgets, like e.g. QListView, is in development.
+Existing applications that make use of standard widgets will become accessible just
+by using Qt 3.0.
 
-### Volker, some words?
-
-
-Narrator, Windows accessibility
--------------------------------
-
-########
+Qt uses the Active Accessibility infrastructure on Windows, and needs the MSAA SDK, 
+which is part of most Platform SDKs. With improving standardization of accessibility 
+on other platforms, Qt will support assistive technologies on other systems, too.
 
 
 XML Improvements
@@ -220,7 +230,7 @@ Multihead support
 -----------------
 
 Many professional applications as eg. DTP or CAD software use the
-possibility to display data on two or more monitors. In Qt 3.0 the the
+possibility to display data on two or more monitors. In Qt 3.0 the
 QDesktopWidget class provides the application with runtime information
 about number and geometry of the desktops on the different monitors
 and such allows applications to efficiently use a multi monitor setup.
@@ -674,7 +684,7 @@ New function:
 
 QListView
 
-It was never really hard to implement drag and drop with QIconView,
+It was never really hard to implement drag and drop with QListView,
 but since many applications demand this functionality today, we
 decided to add it to the listview itself.
 
@@ -752,7 +762,7 @@ New functions:
 
 QMainWindow
 
-Added a dock window architecture. Previous verions of QMainWindow
+Added a dock window architecture. Previous versions of QMainWindow
 could only deal with toolbars, now they handle generalized dock
 windows. QToolBar inherits QDockWindow.
 
