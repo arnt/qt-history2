@@ -74,6 +74,7 @@ Provide virtual functions for all new Event_* types.
 All QApplication statics should be virtual methods - use qApp->... to
  access them.  This allows for overriding, and paves the way for supporting
  multiple QApplication objects.
+Add the "auto completion" concept to the validator concept.
 
 
 GERMAN THINGS:
