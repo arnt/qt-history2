@@ -8,7 +8,7 @@ QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastr
 
 CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I@OUT_QTDIR@/include \
 	-I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DQT_LITE_COMPONENT -DUSE_GROSS_BIG_BUFFER_THING
-LFLAGS=-ldl
+LFLAGS=@QMAKE_LIBRARIES@
 
 qmake: $(OBJS) $(QOBJS)
 	$(CXX) -o $@ $^ $(LFLAGS)

@@ -10,7 +10,7 @@ vpath %.cpp @REL_QTDIR@/src/tools @REL_QTDIR@/src/codecs @REL_QTDIR@/src/kernel
 
 CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I@OUT_QTDIR@/include \
 	-I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DQT_NO_COMPONENT -DUSE_GROSS_BIG_BUFFER_THING
-LFLAGS=-ldl
+LFLAGS=@QMAKE_LIBRARIES@
 
 #if cc isn't gcc I need to use the bad makefile
 ifeq ($(CC),gcc)
