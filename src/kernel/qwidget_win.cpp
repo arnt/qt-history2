@@ -444,7 +444,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 
 
 void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
-			bool showIt )
+			   bool showIt )
 {
     QWidget* oldtlw = topLevelWidget();
     WId old_winid = winid;
@@ -517,6 +517,8 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 
 QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 {
+    if ( !isVisible() || isMinimized() )
+	return mapTo( topLevelWidget(), pos ) + topLevelWidget()->pos();
     POINT p;
     p.x = pos.x();
     p.y = pos.y();
@@ -526,6 +528,8 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 
 QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 {
+    if ( !isVisible() || isMinimized() )
+	return mapFrom( topLevelWidget(), pos - topLevelWidget()->pos() );
     POINT p;
     p.x = pos.x();
     p.y = pos.y();
