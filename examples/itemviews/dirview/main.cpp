@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
     tree->setModel(model);
 
     tree->setWindowTitle(QObject::tr("Dir View"));
-    app.setMainWidget(tree);
     tree->resize(640, 480);
     tree->show();
 

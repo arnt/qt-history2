@@ -13,7 +13,6 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     GameBoard board;
     board.setGeometry(100, 100, 500, 355);
-    app.setMainWidget(&board);
     board.show();
     return app.exec();
 }

@@ -340,11 +340,6 @@
 
     \include mainwindows/application/main.cpp
 
-    The QApplication::setMainWidget() call ensures that the
-    application will terminate when the user closes the main window.
-    Without this line, the application would continue running in the
-    background, unaccessible to the user.
-
     \section1 The Resource File
 
     As you will probably recall, for some of the actions, we

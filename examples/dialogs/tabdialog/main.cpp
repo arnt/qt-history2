@@ -14,6 +14,5 @@ int main(int argc, char *argv[])
 
     TabDialog tabdialog(fileName);
     tabdialog.show();
-    app.setMainWidget(&tabdialog);
     return app.exec();
 }

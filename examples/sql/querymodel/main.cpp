@@ -42,6 +42,5 @@ int main(int argc, char *argv[])
     createView(QObject::tr("Editable Query Model"), &editableModel);
     createView(QObject::tr("Custom Query Model"), &customModel);
 
-    QObject::connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
     return app.exec();
 }

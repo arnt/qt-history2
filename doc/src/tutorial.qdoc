@@ -146,11 +146,6 @@
     screen position to the widget, but instead we let the windowing
     system choose a position.
 
-    \printline setMainWidget
-
-    The push button is chosen as the main widget for the application.
-    When the user closes the main widget, the application exits.
-
     \printline show
 
     A widget is never visible when you create it. You must call

@@ -51,7 +51,8 @@ MainWindow::MainWindow()
     statusBar();
     setCentralWidget(table);
 
-    setWindowTitle("Chart");
+    setWindowTitle(tr("Chart"));
+    resize(640, 480);
 }
 
 void MainWindow::setupModel()

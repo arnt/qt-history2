@@ -21,7 +21,6 @@ int main(int argc, char *argv[])
 
     QObject::connect(&quit, SIGNAL(clicked()), &app, SLOT(quit()));
 
-    app.setMainWidget(&vbox);
     vbox.show();
     return app.exec();
 }

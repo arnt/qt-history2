@@ -18,7 +18,6 @@ int main(int argc, char *argv[])
 
     QObject::connect(&quit, SIGNAL(clicked()), &app, SLOT(quit()));
 
-    app.setMainWidget(&quit);
     quit.show();
     return app.exec();
 }
