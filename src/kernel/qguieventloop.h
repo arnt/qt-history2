@@ -16,8 +16,9 @@ public:
     QGuiEventLoop( QObject *parent = 0, const char *name = 0 );
     ~QGuiEventLoop();
 
-#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     virtual bool processEvents( ProcessEventsFlags flags );
+
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
     virtual bool hasPendingEvents() const;
 #elif defined(Q_WS_MAC)
     int registerTimer(int interval, QObject *obj);
@@ -27,7 +28,6 @@ public:
     void unregisterSocketNotifier(QSocketNotifier *notifier);
     bool hasPendingEvents() const;
     int  activateTimers();
-    bool processEvents(ProcessEventsFlags flags);
     void wakeUp();
 #endif
 

@@ -1,6 +1,5 @@
 #include <qkernelapplication.h>
 #include <qeventloop.h>
-#include <qevent.h>
 #include <qvector.h>
 #include <qfile.h>
 #include <qtextcodec.h>
@@ -10,14 +9,13 @@
 # include <qthread.h>
 #endif
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-# include <qaccessible.h>
-#endif
-
 #include "qkernelapplication_p.h"
 #define d d_func()
 #define q q_func()
 
+#ifdef Q_WS_WIN
+extern const char *qAppFileName(); // Declared in qapplication_win.cpp
+#endif
 
 typedef void (*VFPTR)();
 typedef QList<VFPTR> QVFuncList;
@@ -105,10 +103,10 @@ QKernelApplication::QKernelApplication(QKernelApplicationPrivate *p, QEventLoop 
     \sa sendPostedEvents() QPainter::flush()
 */
 void QKernelApplication::flush()
-{ 
+{
     if(self)
-	self->eventLoop()->flush(); 
-}	
+	self->eventLoop()->flush();
+}
 
 /*!
     Constructs a Qt kernel application. Kernel applications are
@@ -124,9 +122,16 @@ QKernelApplication::QKernelApplication( int &argc, char **argv )
     init();
 }
 
+extern void set_winapp_name();
+
 // ### move to QKernelApplicationPrivate constructor?
 void QKernelApplication::init()
 {
+#ifdef Q_WS_WIN
+    // Get the application name/instance if qWinMain() was not invoked
+    set_winapp_name();
+#endif
+
     is_app_closing = FALSE;
 
     if (self)
@@ -520,10 +525,11 @@ void QKernelApplication::postEvent( QObject *receiver, QEvent *event )
 #endif
 		 || cur.event->type() == QEvent::UpdateRequest ) {
 		;
-	    } else if ( cur.event->type() == QEvent::Resize ) {
-		((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
-	    } else if ( cur.event->type() == QEvent::Move ) {
-		((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
+// 	    }
+// 	    else if ( cur.event->type() == QEvent::Resize ) {
+// 		((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
+// 	    } else if ( cur.event->type() == QEvent::Move ) {
+// 		((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
 #ifdef Q_WS_QWS
 	    } else if ( cur.event->type() == QEvent::QWSUpdate ) {
 		QPaintEvent * p = (QPaintEvent*)(cur.event);

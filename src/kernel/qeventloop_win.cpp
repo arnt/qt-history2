@@ -13,9 +13,7 @@
 ****************************************************************************/
 #include "qeventloop_p.h"
 #include "qeventloop.h"
-#include "qapplication.h"
-#include "qwidget.h"
-#include "qevent.h"
+#include "qkernelapplication.h"
 #include "qhash.h"
 #include <private/qinputcontext_p.h>
 #define d d_func()
@@ -26,7 +24,6 @@
 #endif // QT_THREAD_SUPPORT
 
 extern uint qGlobalPostedEventsCount();
-extern bool qt_winEventFilter( MSG* msg, long &result );
 
 static DWORD qt_gui_thread = 0;
 // Simpler timers are needed when Qt does not have the event loop,
@@ -42,12 +39,12 @@ static TimerVec  *timerVec = 0;
 static TimerDict *timerDict = 0;
 
 static bool	dispatchTimer( uint, MSG * );
-static bool	activateTimer( uint );
-static void	activateZeroTimers();
+Q_EXPORT bool	activateTimer( uint );
+Q_EXPORT void	activateZeroTimers();
 
-static int	 numZeroTimers	= 0;		// number of full-speed timers
+Q_EXPORT int	 numZeroTimers	= 0;		// number of full-speed timers
 
-bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+Q_EXPORT bool winPeekMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax, UINT wRemoveMsg )
 {
     QT_WA( {
@@ -66,7 +63,7 @@ bool winPostMessage( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam )
     } );
 }
 
-static bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
+Q_EXPORT bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 		     UINT wMsgFilterMax )
 {
     QT_WA( {
@@ -74,60 +71,6 @@ static bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
     } , {
 	return GetMessageA( msg, hWnd, wMsgFilterMin, wMsgFilterMax );
     } );
-}
-
-
-/*****************************************************************************
-  Safe configuration (move,resize,setGeometry) mechanism to avoid
-  recursion when processing messages.
- *****************************************************************************/
-
-struct QWinConfigRequest {
-    WId	 id;					// widget to be configured
-    int	 req;					// 0=move, 1=resize, 2=setGeo
-    int	 x, y, w, h;				// request parameters
-};
-
-static QList<QWinConfigRequest*> *configRequests = 0;
-
-void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
-{
-    if (!configRequests)			// create queue
-	configRequests = new QList<QWinConfigRequest*>;
-    QWinConfigRequest *r = new QWinConfigRequest;
-    r->id = id;					// create new request
-    r->req = req;
-    r->x = x;
-    r->y = y;
-    r->w = w;
-    r->h = h;
-    configRequests->append(r);		// store request in queue
-}
-
-Q_EXPORT void qWinProcessConfigRequests()		// perform requests in queue
-{
-    if ( !configRequests )
-	return;
-    QWinConfigRequest *r;
-    for ( ;; ) {
-	if ( configRequests->isEmpty() )
-	    break;
-	r = configRequests->takeLast();
-	QWidget *w = QWidget::find( r->id );
-	if ( w ) {				// widget exists
-	    if ( w->testWState(Qt::WState_ConfigPending) )
-		return;				// biting our tail
-	    if ( r->req == 0 )
-		w->move( r->x, r->y );
-	    else if ( r->req == 1 )
-		w->resize( r->w, r->h );
-	    else
-		w->setGeometry( r->x, r->y, r->w, r->h );
-	}
-	delete r;
-    }
-    delete configRequests;
-    configRequests = 0;
 }
 
 
@@ -145,8 +88,7 @@ void CALLBACK qt_simple_timer_func( HWND, UINT, UINT idEvent, DWORD )
 
 static bool dispatchTimer( uint timerId, MSG *msg )
 {
-    long res = 0;
-    if ( !msg || !qApp || !qt_winEventFilter(msg,res) )
+    if ( !msg || !QKernelApplication::instance() )
 	return activateTimer( timerId );
     return TRUE;
 }
@@ -164,7 +106,7 @@ static bool activateTimer( uint id )		// activate timer
     if ( !t )					// no such timer id
 	return FALSE;
     QTimerEvent e( t->ind + 1 );
-    QApplication::sendEvent( t->obj, &e );	// send event
+    QKernelApplication::sendEvent( t->obj, &e );	// send event
     return TRUE;				// timer event was processed
 }
 
@@ -184,7 +126,7 @@ static void activateZeroTimers()		// activate full-speed timers
 		return;
 	}
 	QTimerEvent e( t->ind + 1 );
-	QApplication::sendEvent( t->obj, &e );
+	QKernelApplication::sendEvent( t->obj, &e );
     }
 }
 
@@ -285,43 +227,43 @@ static QSNDict *sn_except = 0;
 static QSNDict**sn_vec[3] = { &sn_read, &sn_write, &sn_except };
 
 uint	qt_sn_msg	  = 0;			// socket notifier message
-static QWidget *sn_win	  = 0;			// win msg via this window
+// static HWND sn_win	  = 0;			// win msg via this window
 
 
 static void sn_cleanup()
 {
-    delete sn_win;
-    sn_win = 0;
-    for ( int i=0; i<3; i++ ) {
-	delete *sn_vec[i];
-	*sn_vec[i] = 0;
-    }
+//     delete sn_win;
+//     sn_win = 0;
+//     for ( int i=0; i<3; i++ ) {
+// 	delete *sn_vec[i];
+// 	*sn_vec[i] = 0;
+//     }
 }
 
 static void sn_init()
 {
-    if ( sn_win )
-	return;
-    qAddPostRoutine( sn_cleanup );
-#ifdef Q_OS_TEMP
-    qt_sn_msg = RegisterWindowMessage(L"QtSNEvent");
-#else
-    qt_sn_msg = RegisterWindowMessageA( "QtSNEvent" );
-#endif
-    sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
+//     if ( sn_win )
+// 	return;
+//     qAddPostRoutine( sn_cleanup );
+// #ifdef Q_OS_TEMP
+//     qt_sn_msg = RegisterWindowMessage(L"QtSNEvent");
+// #else
+//     qt_sn_msg = RegisterWindowMessageA( "QtSNEvent" );
+// #endif
+//     sn_win = new QWidget(0,"QtSocketNotifier_Internal_Widget");
     for ( int i=0; i<3; i++ ) {
 	*sn_vec[i] = new QSNDict;
 	(*sn_vec[i])->setAutoDelete( TRUE );
     }
 }
 
-void qt_sn_activate_fd( int sockfd, int type )
+void qt_sn_activate_fd( int, int )
 {
-    QSNDict  *dict = *sn_vec[type];
-    QSockNot *sn   = dict ? (*dict)[sockfd] : 0;
-    if ( sn ) {
-	QApplication::eventLoop()->setSocketNotifierPending( sn->obj );
-    }
+//     QSNDict  *dict = *sn_vec[type];
+//     QSockNot *sn   = dict ? (*dict)[sockfd] : 0;
+//     if ( sn ) {
+// 	QKernelApplication::eventLoop()->setSocketNotifierPending( sn->obj );
+//     }
 }
 
 /*****************************************************************************
@@ -361,6 +303,7 @@ void QEventLoop::cleanup()
 
 void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 {
+    qDebug("%s : %d - broken", __FILE__, __LINE__);
     int sockfd = notifier->socket();
     int type = notifier->type();
     if ( sockfd < 0 || type < 0 || type > 2 || notifier == 0 ) {
@@ -370,14 +313,15 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 
     QSNDict  *dict = *sn_vec[type];
 
-    if ( !dict && QApplication::closingDown() )
+    if ( !dict && QKernelApplication::closingDown() )
 	return; // after sn_cleanup, don't reinitialize.
 
     QSockNot *sn;
-    if ( sn_win == 0 ) {
-	sn_init();
-	dict = *sn_vec[type];
-    }
+//     if ( sn_win == 0 ) {
+// 	sn_init();
+// 	dict = *sn_vec[type];
+//     }
+
     sn = new QSockNot;
     sn->obj = notifier;
     sn->fd  = sockfd;
@@ -398,23 +342,22 @@ void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
 	sn_event |= FD_OOB;
     // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
     // This is a BoundsChecker bug and not a Qt bug
-    WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? qt_sn_msg : 0, sn_event );
+//     WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? qt_sn_msg : 0, sn_event );
 #else
 /*
-	fd_set	rd,wt,ex;
-	FD_ZERO(&rd);
-	FD_ZERO(&wt);
-	FD_ZERO(&ex);
+    fd_set	rd,wt,ex;
+    FD_ZERO(&rd);
+    FD_ZERO(&wt);
+    FD_ZERO(&ex);
     if ( sn_read && sn_read->find(sockfd) )
-		FD_SET( sockfd, &rd );
+	FD_SET( sockfd, &rd );
     if ( sn_write && sn_write->find(sockfd) )
-		FD_SET( sockfd, &wt );
+	FD_SET( sockfd, &wt );
     if ( sn_except && sn_except->find(sockfd) )
-		FD_SET( sockfd, &ex );
-//	select( 1, &rd, &wt, &ex, NULL );
+	FD_SET( sockfd, &ex );
+    select( 1, &rd, &wt, &ex, NULL );
 */
 #endif
-
 }
 
 void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
@@ -428,7 +371,7 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
 
     QSNDict  *dict = *sn_vec[type];
 
-    if ( !dict && QApplication::closingDown() )
+    if ( !dict && QKernelApplication::closingDown() )
 	return; // after sn_cleanup, don't reinitialize.
 
     if ( dict == 0 )
@@ -442,34 +385,30 @@ void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
     if ( !dict->remove(sockfd) )		// did not find sockfd
 	return;
 
-#ifndef Q_OS_TEMP // ### This probably needs fixing
-    int sn_event = 0;
+// #ifndef Q_OS_TEMP // ### This probably needs fixing
+//     int sn_event = 0;
+//     if ( sn_read && sn_read->find(sockfd) )
+// 	sn_event |= FD_READ | FD_CLOSE | FD_ACCEPT;
+//     if ( sn_write && sn_write->find(sockfd) )
+// 	sn_event |= FD_WRITE | FD_CONNECT;
+//     if ( sn_except && sn_except->find(sockfd) )
+// 	sn_event |= FD_OOB;
+//     // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
+//     // This is a BoundsChecker bug and not a Qt bug
+//     WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? qt_sn_msg : 0, sn_event );
+// #else
+    fd_set	rd,wt,ex;
+    FD_ZERO(&rd);
+    FD_ZERO(&wt);
+    FD_ZERO(&ex);
     if ( sn_read && sn_read->find(sockfd) )
-	sn_event |= FD_READ | FD_CLOSE | FD_ACCEPT;
+	FD_SET( sockfd, &rd );
     if ( sn_write && sn_write->find(sockfd) )
-	sn_event |= FD_WRITE | FD_CONNECT;
+	FD_SET( sockfd, &wt );
     if ( sn_except && sn_except->find(sockfd) )
-	sn_event |= FD_OOB;
-    // BoundsChecker may emit a warning for WSAAsyncSelect when sn_event == 0
-    // This is a BoundsChecker bug and not a Qt bug
-    WSAAsyncSelect( sockfd, sn_win->winId(), sn_event ? qt_sn_msg : 0, sn_event );
-#else
-/*
-	fd_set	rd,wt,ex;
-	FD_ZERO(&rd);
-	FD_ZERO(&wt);
-	FD_ZERO(&ex);
-    if ( sn_read && sn_read->find(sockfd) )
-		FD_SET( sockfd, &rd );
-    if ( sn_write && sn_write->find(sockfd) )
-		FD_SET( sockfd, &wt );
-    if ( sn_except && sn_except->find(sockfd) )
-		FD_SET( sockfd, &ex );
-//	select( 1, &rd, &wt, &ex, NULL );
-*/
-#endif
-
-
+	FD_SET( sockfd, &ex );
+    select( 1, &rd, &wt, &ex, NULL );
+// #endif
 }
 
 void QEventLoop::setSocketNotifierPending( QSocketNotifier *notifier )
@@ -502,11 +441,11 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     MSG	 msg;
 
 #if defined(QT_THREAD_SUPPORT)
-    QMutexLocker locker( QApplication::qt_mutex );
+    QMutexLocker locker( QKernelApplication::qt_mutex );
 #endif
     emit awake();
 
-    QApplication::sendPostedEvents();
+    QKernelApplication::sendPostedEvents();
 
     if ( flags & ExcludeUserInput ) {
 	while ( winPeekMessage(&msg,0,0,0,PM_NOREMOVE) ) {
@@ -562,14 +501,9 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     if ( msg.message == WM_TIMER ) {		// timer message received
 	if ( dispatchTimer( msg.wParam, &msg ) )
 	    return TRUE;
-    } else if ( msg.message && (!msg.hwnd || !QWidget::find(msg.hwnd)) ) {
-	long res = 0;
-	handled = qt_winEventFilter( &msg, res );
     }
 
     if ( !handled ) {
-	QInputContext::TranslateMessage( &msg );			// translate to WM_CHAR
-
 	QT_WA( {
 	    DispatchMessage( &msg );		// send to QtWndProc
 	} , {
@@ -580,9 +514,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     if ( !(flags & ExcludeSocketNotifiers ) )
 	activateSocketNotifiers();
 
-    if ( configRequests )			// any pending configs?
-	qWinProcessConfigRequests();
-    QApplication::sendPostedEvents();
+    QKernelApplication::sendPostedEvents();
 
     return TRUE;
 }
@@ -616,7 +548,7 @@ int QEventLoop::activateSocketNotifiers()
     QEvent event( QEvent::SockAct );
     while (!d->sn_pending_list.isEmpty()) {
 	QSockNot *sn = d->sn_pending_list.takeAt(0);
-	QApplication::sendEvent( sn->obj, &event );
+	QKernelApplication::sendEvent( sn->obj, &event );
 	n_act++;
     }
 

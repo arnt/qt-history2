@@ -149,5 +149,4 @@ inline QString QKernelApplication::translate( const char *, const char *sourceTe
 }
 #endif
 
-
 #endif

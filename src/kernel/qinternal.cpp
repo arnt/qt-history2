@@ -13,12 +13,7 @@
 ****************************************************************************/
 
 #include "private/qinternal_p.h"
-#include "qwidget.h"
-#include "qpixmap.h"
-#include "qpainter.h"
 #include "qcleanuphandler.h"
-#include "qevent.h"
-
 
 // *******************************************************************
 // QMembuf declaration and implementation

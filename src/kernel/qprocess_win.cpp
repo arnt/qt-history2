@@ -17,7 +17,6 @@
 
 #ifndef QT_NO_PROCESS
 
-#include "qapplication.h"
 #include "qlist.h"
 #include "qtimer.h"
 #include "qregexp.h"
@@ -46,8 +45,8 @@ public:
 	exitValuesCalculated = FALSE;
 
 	lookup = new QTimer( proc );
-	qApp->connect( lookup, SIGNAL(timeout()),
-		proc, SLOT(timeout()) );
+	QObject::connect(lookup, SIGNAL(timeout()),
+			 proc, SLOT(timeout()) );
 
 	pid = 0;
     }

@@ -13,8 +13,7 @@
 ****************************************************************************/
 
 #include "qsocketnotifier.h"
-#include "qapplication.h"
-#include "qevent.h"
+#include "qkernelapplication.h"
 #include "qeventloop.h"
 
 
@@ -133,7 +132,7 @@ QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
     sockfd = socket;
     sntype = type;
     snenabled = TRUE;
-    QApplication::eventLoop()->registerSocketNotifier( this );
+    QKernelApplication::eventLoop()->registerSocketNotifier( this );
 }
 
 /*!
@@ -217,7 +216,7 @@ void QSocketNotifier::setEnabled( bool enable )
 	return;
     snenabled = enable;
 
-    QEventLoop *eventloop = QApplication::eventLoop();
+    QEventLoop *eventloop = QKernelApplication::eventLoop();
     if ( ! eventloop ) // perhaps application is shutting down
 	return;
 

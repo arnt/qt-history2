@@ -29,8 +29,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #ifndef QT_NO_TRANSLATION
 
 #include "qfileinfo.h"
-#include "qwidget.h"
-#include "qintdict.h"
 #include "qstring.h"
 #include "qkernelapplication.h"
 #include "qfile.h"
@@ -38,6 +36,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qdatastream.h"
 #include "qmap.h"
 #include "qtl.h"
+#include "qhash.h"
 
 #if defined(Q_OS_UNIX)
 #define QT_USE_MMAP
@@ -58,7 +57,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 
 #include <stdlib.h>
 
-#include "qapplication_p.h"
+#include "qobject_p.h"
 #define d d_func()
 #define q q_func()
 
@@ -703,11 +702,11 @@ void QTranslator::squeeze( SaveMode mode )
     }
 
     if ( mode == Stripped ) {
-	QAsciiDict<int> contextSet( 1511 );
+	QHash<const char *,int*> contextSet;
 	int baudelaire;
 
 	for ( it = messages->begin(); it != messages->end(); ++it )
-	    contextSet.replace( it.key().context(), &baudelaire );
+	    contextSet[it.key().context()] = &baudelaire;
 
 	Q_UINT16 hTableSize;
 	if ( contextSet.count() < 200 )
@@ -717,11 +716,10 @@ void QTranslator::squeeze( SaveMode mode )
 	else
 	    hTableSize = 15013;
 
-	QIntDict<char> hDict( hTableSize );
-	QAsciiDictIterator<int> c = contextSet;
-	while ( c.current() != 0 ) {
-	    hDict.insert( (long) (elfHash(c.currentKey()) % hTableSize),
-			  c.currentKey() );
+	QHash<long, const char *> hDict;
+	QHash<const char *, int*>::ConstIterator c = contextSet.begin();
+	while (*c) {
+	    hDict[elfHash(c.key())] = c.key();
 	    ++c;
 	}
 
@@ -759,7 +757,7 @@ void QTranslator::squeeze( SaveMode mode )
 	uint upto = 2;
 
 	for ( int i = 0; i < hTableSize; i++ ) {
-	    const char *con = hDict.find( i );
+	    const char *con = hDict[i];
 	    if ( con == 0 ) {
 		hTable[i] = 0;
 	    } else {
@@ -771,7 +769,7 @@ void QTranslator::squeeze( SaveMode mode )
 		    t.writeRawBytes( con, len );
 		    upto += 1 + len;
 		    hDict.remove( i );
-		} while ( (con = hDict.find(i)) != 0 );
+		} while ( (con = hDict[i]) != 0 );
 		do {
 		    t << (Q_UINT8) 0; // empty string (at least one)
 		    upto++;

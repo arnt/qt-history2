@@ -14,10 +14,9 @@
 
 #include "qplatformdefs.h"
 #include "qeventloop.h"
-#include "qapplication.h"
 #include "qdatetime.h"
 #include "qeventloop_p.h"
-#include "qapplication_p.h"
+#include "qkernelapplication.h"
 #define d d_func()
 #define q q_func()
 
@@ -79,12 +78,12 @@
 QEventLoop::QEventLoop( QObject *parent, const char *name )
     : QObject( new QEventLoopPrivate(), parent, name )
 {
-    if (QApplication::eventloop)
+    if (QKernelApplication::eventloop)
 	qFatal( "QEventLoop: there must be only one event loop object. \nConstruct it before QApplication." );
     // for now ;)
 
     init();
-    QApplication::eventloop = this;
+    QKernelApplication::eventloop = this;
 }
 
 
@@ -93,12 +92,12 @@ QEventLoop::QEventLoop( QObject *parent, const char *name )
 QEventLoop::QEventLoop(QEventLoopPrivate *priv, QObject *parent, const char *name)
     : QObject(priv, parent, name )
 {
-    if (QApplication::eventloop)
+    if (QKernelApplication::eventloop)
 	qFatal( "QEventLoop: there must be only one event loop object. \nConstruct it before QApplication." );
     // for now ;)
 
     init();
-    QApplication::eventloop = this;
+    QKernelApplication::eventloop = this;
 }
 
 
@@ -108,7 +107,7 @@ QEventLoop::QEventLoop(QEventLoopPrivate *priv, QObject *parent, const char *nam
 QEventLoop::~QEventLoop()
 {
     cleanup();
-    QApplication::eventloop = 0;
+    QKernelApplication::eventloop = 0;
 }
 
 /*!
@@ -200,10 +199,10 @@ int QEventLoop::enterLoop()
 	d->quitnow  = FALSE;
 	d->exitloop = FALSE;
 	d->shortcut = FALSE;
-	emit qApp->aboutToQuit();
+	emit QKernelApplication::instance()->aboutToQuit();
 
 	// send deferred deletes
-	QApplication::sendPostedEvents( 0, QEvent::DeferredDelete );
+	QKernelApplication::sendPostedEvents( 0, QEvent::DeferredDelete );
     }
 
     return d->looplevel;

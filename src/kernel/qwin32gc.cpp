@@ -16,7 +16,7 @@
 
 #include <math.h>
 
-// #define NO_NATIVE_XFORM
+#define NO_NATIVE_XFORM
 
 #define MY_DEBUG() printf("%s:%d\n", __FILE__, __LINE__);
 
@@ -1143,6 +1143,8 @@ void QWin32GC::updateBrush(QPainterState *state)
 	if (hbrushbm_old && !pixmapBrush_old)
 	    DeleteObject(hbrushbm_old);	// delete last brush pixmap
     }
+
+    SetBkColor(d->hdc, COLOR_VALUE(state->bgColor));
 }
 
 
@@ -1215,7 +1217,8 @@ void QWin32GC::updateClipRegion(QPainterState *state)
 // 	if ( pdev == dirty_hack_paintDevice() )
 // 	rgn = rgn.intersect( *(QPainter::dirty_hack_paintRegion()) );
 
-	rgn = state->worldMatrix * rgn;
+	if (state->VxF || state->WxF)
+	    rgn = state->worldMatrix * rgn;
 
 	// Setting an empty region as clip region on Win just dmainisables clipping completely.
 	// To workaround this and get the same semantics on Win and Unix, we set a 1x1 pixel
@@ -1225,8 +1228,8 @@ void QWin32GC::updateClipRegion(QPainterState *state)
 	SelectClipRgn(d->hdc, rgn.handle());
     }
     else {
-// 	if (pdev == dirty_hack_paintDevice())
-// 	    SelectClipRgn(d->hdc, dirty_hack_paintRegion()->handle());
+// 	if (pdev == paintEventDevice)
+// 	SelectClipRgn(d->hdc, paintEventClipRegion->handle());
 // 	else
 	    SelectClipRgn(d->hdc, 0);
     }

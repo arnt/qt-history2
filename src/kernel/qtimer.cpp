@@ -12,11 +12,10 @@
 **
 ****************************************************************************/
 
-#include "qapplication.h"
+#include "qkernelapplication.h"
 #include "qeventloop.h"
 #include "qtimer.h"
 #include "qsignal.h"
-#include "qevent.h"
 
 /*!
     \class QTimer qtimer.h
@@ -242,13 +241,13 @@ bool QSingleShotTimer::start( int msec, QObject *r, const char *m )
 {
     timerId = 0;
     if ( signal.connect(r, m) )
-	timerId = QApplication::eventLoop()->registerTimer(msec, (QObject *)this);
+	timerId = QKernelApplication::eventLoop()->registerTimer(msec, (QObject *)this);
     return timerId != 0;
 }
 
 bool QSingleShotTimer::event( QEvent * )
 {
-    QApplication::eventLoop()->unregisterTimer(timerId);	// no more timeouts
+    QKernelApplication::eventLoop()->unregisterTimer(timerId);	// no more timeouts
     signal.activate();				// emit the signal
     signal.disconnect( 0, 0 );
     timerId = 0;                                // mark as inactive

@@ -18,7 +18,9 @@
 #include "qsettings.h"
 #include <private/qcomlibrary_p.h>
 #include "qdir.h"
-#include "qapplication.h"
+#include "qkernelapplication.h"
+
+// extern void qAddPostRoutine( QtCleanUpFunction p);
 
 /*!
   \class QComponentFactory qcomponentfactory.h
@@ -154,7 +156,8 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
 	res = library->queryInterface( iid, iface );
     }
     QLibraryInterface *libiface = 0;
-    if ( library->queryInterface( IID_QLibrary, (QUnknownInterface**)&libiface ) != QS_OK || !qApp ) {
+    if (library->queryInterface(IID_QLibrary, (QUnknownInterface**)&libiface) != QS_OK
+	 || !QKernelApplication::instance()) {
 	delete library; // only deletes the object, thanks to QLibrary::Manual
     } else {
 	libiface->release();

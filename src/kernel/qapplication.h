@@ -43,7 +43,6 @@ class QApplication;
 class QApplicationPrivate;
 #define qApp (static_cast<QApplication *>(QKernelApplication::instance()))
 
-
 class Q_EXPORT QApplication : public QKernelApplication
 {
     Q_OBJECT

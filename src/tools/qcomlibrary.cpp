@@ -15,7 +15,6 @@
 #include "qcomlibrary_p.h"
 
 #ifndef QT_NO_COMPONENT
-#include <qapplication.h>
 #include <qsettings.h>
 #include <qfileinfo.h>
 #include <qdatetime.h>

@@ -15,13 +15,13 @@
 #include "qvariant.h"
 #ifndef QT_NO_VARIANT
 #include "qbitarray.h"
-#include "qbitmap.h"
 #include "qbytearray.h"
 #include "qdatastream.h"
 #include "qdatetime.h"
 #include "qlist.h"
 #include "qmap.h"
 #include "qstring.h"
+#include "qstringlist.h"
 
 #include <float.h>
 

@@ -19,7 +19,6 @@
 
 #ifndef QT_NO_PROCESS
 
-#include "qapplication.h"
 #include "private/qinternal_p.h"
 
 

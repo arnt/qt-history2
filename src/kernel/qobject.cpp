@@ -14,18 +14,12 @@
 
 #include "qvariant.h"
 #include "qeventloop.h"
-#include "qapplication.h"
-#include "qevent.h"
+#include "qkernelapplication.h"
 #include "qregexp.h"
 #include "qmetaobject.h"
-#include "qdesktopwidget.h" // used in reparent()
 
 #include <ctype.h>
 #include <limits.h>
-
-#if defined(QT_DEBUG)
-#include "qwidget.h"
-#endif
 
 #include "qobject_p.h"
 #define d d_func()

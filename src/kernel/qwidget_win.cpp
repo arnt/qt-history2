@@ -28,6 +28,7 @@
 #include "qstack.h"
 #include "qwidget.h"
 #include "qwidget_p.h"
+#include "qlibrary.h"
 
 #ifdef Q_Q4PAINTER
 #include "qwin32gc.h"
@@ -37,7 +38,6 @@
 #define PACKETDATA  ( PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
 		      PK_ORIENTATION | PK_CURSOR )
 #define PACKETMODE  0
-#include "qlibrary.h"
 #include <wintab.h>
 #include <pktdef.h>
 
@@ -1668,11 +1668,11 @@ void QWidget::setWindowTransparency(int level)
 
     level = QMIN(QMAX(level, 0), 255);
     (*ptrSetLayeredWindowAttributes)(winId(), 0, level, Q_LWA_ALPHA);
-    topData()->transparency = level;
+    d->topData()->transparency = level;
 
 }
 
 int QWidget::windowTransparency() const
 {
-    return isTopLevel() ? ((QWidget*)this)->topData()->transparency : 255;
+    return isTopLevel() ? d->topData()->transparency : 255;
 }

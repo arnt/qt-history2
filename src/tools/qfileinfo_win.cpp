@@ -19,7 +19,6 @@
 #include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
-#include "qapplication.h"
 
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>

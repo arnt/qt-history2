@@ -19,7 +19,7 @@
 #include "qfileinfo.h"
 #include "qfile.h"
 #include "qurlinfo.h"
-#include "qapplication.h"
+#include "qkernelapplication.h"
 #include "qurloperator.h"
 
 //#define QLOCALFS_DEBUG
@@ -284,7 +284,7 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 		    emit dataTransferProgress( f.size() - remaining, f.size(), op );
 		    remaining -= remaining;
 		}
-		qApp->processEvents();
+		QKernelApplication::instance()->processEvents();
 	    }
 #ifdef QLOCALFS_DEBUG
 	    qDebug( "QLocalFs: got all %d bytes step by step", f.size() );
@@ -334,7 +334,7 @@ void QLocalFs::operationPut( QNetworkOperation *op )
 	    f.flush();
 	    emit dataTransferProgress( i + blockSize, ba.size(), op );
 	    i += blockSize;
-	    qApp->processEvents();
+	    QKernelApplication::instance()->processEvents();
 	}
 	if ( i < (int)ba.size() - 1 )
 	    f.writeBlock( &ba.constData()[ i ], ba.size() - i );

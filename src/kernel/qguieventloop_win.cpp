@@ -13,6 +13,22 @@
 ****************************************************************************/
 
 #include "qguieventloop_p.h"
+#include "qkernelapplication.h"
+#include "qeventloop_p.h"
+#include "qmutex.h"
+#include "qwidget.h"
+#include "qinputcontext_p.h"
+
+#define d d_func()
+#define q q_func()
+
+extern bool qt_winEventFilter( MSG* msg, long &result );
+extern bool activateTimer( uint id );		// activate timer
+extern void activateZeroTimers();
+extern bool winPeekMessage( MSG*, HWND, UINT, UINT, UINT);
+extern bool winGetMessage( MSG*, HWND, UINT, UINT);
+
+extern int numZeroTimers;
 
 void QGuiEventLoop::init()
 {
@@ -23,3 +39,157 @@ void QGuiEventLoop::cleanup()
 {
 
 }
+
+static bool dispatchTimer( uint timerId, MSG *msg )
+{
+    long res = 0;
+    if ( !msg || !QKernelApplication::instance() || !qt_winEventFilter(msg,res) )
+	return activateTimer( timerId );
+    return TRUE;
+}
+
+
+/*****************************************************************************
+  Safe configuration (move,resize,setGeometry) mechanism to avoid
+  recursion when processing messages.
+ *****************************************************************************/
+
+struct QWinConfigRequest {
+    WId	 id;					// widget to be configured
+    int	 req;					// 0=move, 1=resize, 2=setGeo
+    int	 x, y, w, h;				// request parameters
+};
+
+static QList<QWinConfigRequest*> *configRequests = 0;
+
+void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
+{
+    if (!configRequests)			// create queue
+	configRequests = new QList<QWinConfigRequest*>;
+    QWinConfigRequest *r = new QWinConfigRequest;
+    r->id = id;					// create new request
+    r->req = req;
+    r->x = x;
+    r->y = y;
+    r->w = w;
+    r->h = h;
+    configRequests->append(r);		// store request in queue
+}
+
+Q_EXPORT void qWinProcessConfigRequests()		// perform requests in queue
+{
+    if ( !configRequests )
+	return;
+    QWinConfigRequest *r;
+    for ( ;; ) {
+	if ( configRequests->isEmpty() )
+	    break;
+	r = configRequests->takeLast();
+	QWidget *w = QWidget::find( r->id );
+	if ( w ) {				// widget exists
+	    if ( w->testWState(Qt::WState_ConfigPending) )
+		return;				// biting our tail
+	    if ( r->req == 0 )
+		w->move( r->x, r->y );
+	    else if ( r->req == 1 )
+		w->resize( r->w, r->h );
+	    else
+		w->setGeometry( r->x, r->y, r->w, r->h );
+	}
+	delete r;
+    }
+    delete configRequests;
+    configRequests = 0;
+}
+
+bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
+{
+    MSG	 msg;
+
+#if defined(QT_THREAD_SUPPORT)
+    QMutexLocker locker( QKernelApplication::qt_mutex );
+#endif
+    emit awake();
+
+    QKernelApplication::sendPostedEvents();
+
+    if ( flags & ExcludeUserInput ) {
+	while ( winPeekMessage(&msg,0,0,0,PM_NOREMOVE) ) {
+	    if ( (msg.message >= WM_KEYFIRST &&
+		 msg.message <= WM_KEYLAST) ||
+		 (msg.message >= WM_MOUSEFIRST &&
+		 msg.message <= WM_MOUSELAST) ) {
+		winPeekMessage(&msg,0,0,0,PM_REMOVE);
+		continue;
+	    }
+	    break;
+	}
+    }
+
+    bool canWait = d->exitloop || d->quitnow ? FALSE : (flags & WaitForMore);
+
+    if ( canWait ) {				// can wait if necessary
+	if ( numZeroTimers ) {			// activate full-speed timers
+	    int ok = FALSE;
+	    while ( numZeroTimers &&
+		!(ok=winPeekMessage(&msg,0,0,0,PM_REMOVE)) ) {
+		activateZeroTimers();
+	    }
+	    if ( !ok )	{			// no event
+		return FALSE;
+	    }
+	} else {
+	    emit aboutToBlock();
+#ifdef QT_THREAD_SUPPORT
+	    locker.mutex()->unlock();
+#endif // QT_THREAD_SUPPORT
+	    if ( !winGetMessage(&msg,0,0,0) ) {
+#ifdef QT_THREAD_SUPPORT
+		locker.mutex()->lock();
+#endif // QT_THREAD_SUPPORT
+		exit( 0 );				// WM_QUIT received
+		return FALSE;
+	    }
+#ifdef QT_THREAD_SUPPORT
+	    locker.mutex()->lock();
+#endif // QT_THREAD_SUPPORT
+	}
+    } else {					// no-wait mode
+	if ( !winPeekMessage(&msg,0,0,0,PM_REMOVE) ) { // no pending events
+	    if ( numZeroTimers > 0 ) {		// there are 0-timers
+		activateZeroTimers();
+	    }
+	    return FALSE;
+	}
+    }
+
+    bool handled = FALSE;
+    if ( msg.message == WM_TIMER ) {		// timer message received
+	if ( dispatchTimer( msg.wParam, &msg ) )
+	    return TRUE;
+    } else if ( msg.message && (!msg.hwnd || !QWidget::find(msg.hwnd)) ) {
+	long res = 0;
+	handled = qt_winEventFilter( &msg, res );
+    }
+
+    if ( !handled ) {
+	QInputContext::TranslateMessage( &msg );			// translate to WM_CHAR
+
+	QT_WA( {
+	    DispatchMessage( &msg );		// send to QtWndProc
+	} , {
+	    DispatchMessageA( &msg );		// send to QtWndProc
+	} );
+    }
+
+    if ( !(flags & ExcludeSocketNotifiers ) )
+	activateSocketNotifiers();
+
+    if ( configRequests )			// any pending configs?
+ 	qWinProcessConfigRequests();
+    QKernelApplication::sendPostedEvents();
+
+    return TRUE;
+}
+
+
