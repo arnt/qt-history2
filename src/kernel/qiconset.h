@@ -49,44 +49,49 @@ class QIconSetPrivate;
 class Q_EXPORT QIconSet
 {
 public:
+    // the implementation makes assumptions about the value of these
     enum Size { Automatic, Small, Large };
-
     enum Mode { Normal, Disabled, Active };
-
     enum State { On, Off };
 
     QIconSet();
-    QIconSet( const QPixmap &, Size = Automatic );
-    QIconSet( const QPixmap &smallPix, const QPixmap &largePix );
-    QIconSet( const QIconSet & );
+    QIconSet( const QPixmap& pixmap, Size size = Automatic );
+    QIconSet( const QPixmap& smallPix, const QPixmap& largePix );
+    QIconSet( const QIconSet& other );
     virtual ~QIconSet();
 
-    void reset( const QPixmap &, Size );
+    void reset( const QPixmap& pixmap, Size size );
 
-    virtual void setPixmap( const QPixmap &, Size, Mode = Normal, State = Off );
-    virtual void setPixmap( const QString &, Size, Mode = Normal, State = Off );
-    QPixmap pixmap( Size, Mode, State = Off ) const;
-    QPixmap pixmap( Size s, bool enabled, State = Off ) const;
+    virtual void setPixmap( const QPixmap& pixmap, Size size,
+			    Mode mode = Normal, State state = Off );
+    virtual void setPixmap( const QString& fileName, Size size,
+			    Mode mode = Normal, State state = Off );
+    QPixmap pixmap( Size size, Mode mode, State state = Off ) const;
+    QPixmap pixmap( Size size, bool enabled, State state = Off ) const;
     QPixmap pixmap() const;
-    bool isGenerated( Size, Mode, State = Off ) const;
+    bool isGenerated( Size size, Mode mode, State state = Off ) const;
     void clearGenerated();
 
     bool isNull() const;
 
     void detach();
 
-    QIconSet &operator=( const QIconSet & );
+    QIconSet& operator=( const QIconSet& other );
 
     // static functions
-    static void setIconSize( Size, const QSize & );
-    static const QSize & iconSize( Size );
+    static void setIconSize( Size which, const QSize& size );
+    static const QSize& iconSize( Size which );
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QIconSet& ) const { return FALSE; }
 #endif
 
 private:
-    QIconSetPrivate * d;
+    void normalize( Size& which, const QSize& pixSize );
+    QPixmap *createScaled( Size size, const QPixmap *suppliedPix ) const;
+    QPixmap *createDisabled( Size size, State state ) const;
+
+    QIconSetPrivate *d;
 };
 
 #endif // QT_NO_ICONSET
