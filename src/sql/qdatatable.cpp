@@ -56,7 +56,8 @@ class QDataTablePrivate
 {
 public:
     QDataTablePrivate()
-	: haveAllRows( FALSE ),
+	: nullTxtChanged( FALSE ),
+	  haveAllRows( FALSE ),
 	  continuousEdit( FALSE ),
 	  editorFactory( 0 ),
 	  propertyMap( 0 ),
@@ -69,11 +70,12 @@ public:
     {}
     ~QDataTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
-    QString      nullTxt;
-    typedef      QValueList< uint > ColIndex;
-    ColIndex     colIndex;
-    bool         haveAllRows;
-    bool         continuousEdit;
+    QString nullTxt;
+    bool nullTxtChanged;
+    typedef QValueList< uint > ColIndex;
+    ColIndex colIndex;
+    bool haveAllRows;
+    bool continuousEdit;
     QSqlEditorFactory* editorFactory;
     QSqlPropertyMap* propertyMap;
     QString trueTxt;
@@ -1424,6 +1426,7 @@ bool QDataTable::autoEdit() const
 void QDataTable::setNullText( const QString& nullText )
 {
     d->nullTxt = nullText;
+    d->nullTxtChanged = TRUE;
 }
 
 QString QDataTable::nullText() const
@@ -1838,7 +1841,7 @@ void QDataTable::setSqlCursor( QSqlCursor* cursor, bool autoPopulate, bool autoD
 	}
 	if ( sqlCursor()->isReadOnly() )
 	    setReadOnly( TRUE );
-	if ( sqlCursor()->driver() )
+	if ( sqlCursor()->driver() && !d->nullTxtChanged )
 	    setNullText(sqlCursor()->driver()->nullText() );
 	setAutoDelete( autoDelete );
     } else {
