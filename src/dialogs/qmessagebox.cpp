@@ -393,6 +393,9 @@ switch( mb.exec() ) {
   \value Information an icon indicating that
   the message is nothing out of the ordinary.
 
+  \value Question an icon indicating that
+  the message is asking a question.
+
   \value Warning an icon indicating that the
   message is a warning, but can be dealt with.
 
@@ -734,7 +737,6 @@ QMessageBox::Icon QMessageBox::icon() const
     return mbd->icon;
 }
 
-//#### Bad API (see QWidget::setIcon). Should be setMessageIcon in 3.0 (same for setIconPixmap and friends)
 void QMessageBox::setIcon( Icon icon )
 {
     setIconPixmap( standardIcon(icon) );
@@ -771,14 +773,16 @@ QPixmap QMessageBox::standardIcon( Icon icon )
     QPixmap pm;
     switch ( icon ) {
     case Information:
-	pm = QApplication::style().stylePixmap(QStyle::SP_MessageBoxInformation);
+	pm = QApplication::style().stylePixmap( QStyle::SP_MessageBoxInformation );
         break;
     case Warning:
-	pm = QApplication::style().stylePixmap(QStyle::SP_MessageBoxWarning);
+	pm = QApplication::style().stylePixmap( QStyle::SP_MessageBoxWarning );
         break;
     case Critical:
-	pm = QApplication::style().stylePixmap(QStyle::SP_MessageBoxCritical);
+	pm = QApplication::style().stylePixmap( QStyle::SP_MessageBoxCritical );
         break;
+    case Question:
+	pm = QApplication::style().stylePixmap( QStyle::SP_MessageBoxQuestion );
     default:
 	break;
     }
@@ -991,7 +995,7 @@ void QMessageBox::showEvent( QShowEvent *e )
   \obsolete
   Opens a modal message box directly using the specified parameters.
 
-  Please use information(), warning() or critical() instead.
+  Please use information(), warning(), question(), or critical() instead.
 */
 
 /*! \fn bool QMessageBox::query( const QString &,const QString&,const QString&,const QString&,QWidget *, const char * )
@@ -999,7 +1003,7 @@ void QMessageBox::showEvent( QShowEvent *e )
   Queries the user using a modal message box with two buttons.
   Note that \a caption is not always shown, it depends on the window manager.
 
-  Please use information(), warning() or critical() instead.
+  Please use information(), question(), warning(), or critical() instead.
 */
 
 /*!
@@ -1031,7 +1035,7 @@ void QMessageBox::showEvent( QShowEvent *e )
   modal dialog box.  If \a parent is a widget, the message box becomes
   modal relative to \a parent.
 
-  \sa warning(), critical()
+  \sa question(), warning(), critical()
 */
 
 int QMessageBox::information( QWidget *parent,
@@ -1039,6 +1043,50 @@ int QMessageBox::information( QWidget *parent,
                               int button0, int button1, int button2 )
 {
     QMessageBox *mb = new QMessageBox( caption, text, Information,
+                                       button0, button1, button2,
+                                       parent, "qt_msgbox_information", TRUE,
+				       WDestructiveClose);
+    Q_CHECK_PTR( mb );
+    return mb->exec();
+}
+
+/*!
+  Opens an question message box with the caption \a caption and the
+  text \a text. The dialog may have up to three buttons. Each of the
+  buttons, \a button0, \a button1 and \a button2 may be set to
+  one of the following values:
+
+  \list
+  \i QMessageBox::NoButton
+  \i QMessageBox::Ok
+  \i QMessageBox::Cancel
+  \i QMessageBox::Yes
+  \i QMessageBox::No
+  \i QMessageBox::Abort
+  \i QMessageBox::Retry
+  \i QMessageBox::Ignore
+  \i QMessageBox::YesAll
+  \i QMessageBox::NoAll
+  \endlist
+
+  If you don't want all three buttons, set the last button, or last two
+  buttons to QMessageBox::NoButton.
+
+  Returns the identity (QMessageBox::Ok, or QMessageBox::No, etc.) of
+  the button that was clicked.
+
+  If \a parent is 0, the message box becomes an application-global
+  modal dialog box.  If \a parent is a widget, the message box becomes
+  modal relative to \a parent.
+
+  \sa information(), warning(), critical()
+*/
+
+int QMessageBox::question( QWidget *parent,
+                           const QString& caption, const QString& text,
+                           int button0, int button1, int button2 )
+{
+    QMessageBox *mb = new QMessageBox( caption, text, Question,
                                        button0, button1, button2,
                                        parent, "qt_msgbox_information", TRUE,
 				       WDestructiveClose);
@@ -1076,7 +1124,7 @@ int QMessageBox::information( QWidget *parent,
   modal dialog box.  If \a parent is a widget, the message box becomes
   modal relative to \a parent.
 
-  \sa information(), critical()
+  \sa information(), question(), critical()
 */
 
 int QMessageBox::warning( QWidget *parent,
@@ -1121,7 +1169,7 @@ int QMessageBox::warning( QWidget *parent,
   modal dialog box.  If \a parent is a widget, the message box becomes
   modal relative to \a parent.
 
-  \sa information(), warning()
+  \sa information(), question(), warning()
 */
 
 int QMessageBox::critical( QWidget *parent,
@@ -1259,7 +1307,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
   modal dialog box.  If \a parent is a widget, the message box becomes
   modal relative to \a parent.
 
-  \sa warning(), critical()
+  \sa question(), warning(), critical()
 */
 
 int QMessageBox::information( QWidget *parent, const QString &caption,
@@ -1271,6 +1319,43 @@ int QMessageBox::information( QWidget *parent, const QString &caption,
                               int escapeButtonNumber )
 {
     return textBox( parent, Information, caption, text,
+                    button0Text, button1Text, button2Text,
+                    defaultButtonNumber, escapeButtonNumber );
+}
+
+/*!
+    \overload
+  Displays an question message box with caption \a caption, text \a
+  text and one, two or three buttons. Returns the index of the button
+  that was clicked (0, 1 or 2).
+
+  \a button0Text is the text of the first button, and is optional.  If
+  \a button0Text is not supplied, "OK" (translated) will be used.
+  \a button1Text is the text of the second button, and is optional.
+  \a button2Text is the text of the third button, and is optional.  \a
+  defaultButtonNumber (0, 1 or 2) is the index of the default button;
+  pressing Return or Enter is the same as clicking the default button.
+  It defaults to 0 (the first button).  \a escapeButtonNumber is the
+  index of the Escape button; pressing Escape is the same as clicking
+  this button.  It defaults to -1 (pressing Escape does nothing);
+  supply 0, 1 or 2 to make pressing Escape equivalent to clicking
+  the relevant button.
+
+  If \a parent is 0, the message box becomes an application-global
+  modal dialog box.  If \a parent is a widget, the message box becomes
+  modal relative to \a parent.
+
+  \sa information(), warning(), critical()
+*/
+int QMessageBox::question( QWidget *parent, const QString &caption,
+                           const QString& text,
+                           const QString& button0Text,
+                           const QString& button1Text,
+                           const QString& button2Text,
+                           int defaultButtonNumber,
+                           int escapeButtonNumber )
+{
+    return textBox( parent, Question, caption, text,
                     button0Text, button1Text, button2Text,
                     defaultButtonNumber, escapeButtonNumber );
 }
@@ -1298,7 +1383,7 @@ int QMessageBox::information( QWidget *parent, const QString &caption,
   modal dialog box.  If \a parent is a widget, the message box becomes
   modal relative to \a parent.
 
-  \sa information(), critical()
+  \sa information(), question(), critical()
 */
 
 int QMessageBox::warning( QWidget *parent, const QString &caption,
@@ -1337,7 +1422,7 @@ int QMessageBox::warning( QWidget *parent, const QString &caption,
   modal dialog box.  If \a parent is a widget, the message box becomes
   modal relative to \a parent.
 
-  \sa information() warning()
+  \sa information(), question(), warning()
 */
 
 int QMessageBox::critical( QWidget *parent, const QString &caption,

@@ -58,7 +58,8 @@ class Q_EXPORT QMessageBox : public QDialog
     Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
 
 public:
-    enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3 };
+    enum Icon { NoIcon = 0, Information = 1, Warning = 2, Critical = 3,
+		Question = 4 };
 
     QMessageBox( QWidget* parent=0, const char* name=0 );
     QMessageBox( const QString& caption, const QString &text, Icon icon,
@@ -81,6 +82,17 @@ public:
 			    const QString& button2Text = QString::null,
 			    int defaultButtonNumber = 0,
 			    int escapeButtonNumber = -1 );
+
+    static int question( QWidget *parent, const QString &caption,
+			 const QString& text,
+			 int button0, int button1=0, int button2=0 );
+    static int question( QWidget *parent, const QString &caption,
+			 const QString& text,
+			 const QString& button0Text = QString::null,
+			 const QString& button1Text = QString::null,
+			 const QString& button2Text = QString::null,
+			 int defaultButtonNumber = 0,
+			 int escapeButtonNumber = -1 );
 
     static int warning( QWidget *parent, const QString &caption,
 			const QString& text,
@@ -137,7 +149,6 @@ public:
 
     Icon	icon() const;
 
-    // ### the next four functions will probably be renamed in 3.0.
     void	setIcon( Icon );
     void	setIcon( const QPixmap & );
 

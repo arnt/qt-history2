@@ -1183,12 +1183,6 @@ static const char * dock_window_close_xpm[] = {
 "........",
 "........"};
 
-// Message box icons, from page 210 of the Windows style guide.
-
-// Hand-drawn to resemble Microsoft's icons, but in the Mac/Netscape
-// palette.  The "question mark" icon, which Microsoft recommends not
-// using but a lot of people still use, is left out.
-
 /* XPM */
 static const char * const information_xpm[]={
 "32 32 5 1",
@@ -1307,7 +1301,47 @@ static const char* const critical_xpm[]={
 ".........aa********aaaaa........",
 "...........aaaaaaaaaaa..........",
 ".............aaaaaaa............"};
-
+/* XPM */
+static const char *const question_xpm[] = {
+"32 32 5 1",
+". c None",
+"c c #000000",
+"* c #999999",
+"a c #ffffff",
+"b c #0000ff",
+"...........********.............",
+"........***aaaaaaaa***..........",
+"......**aaaaaaaaaaaaaa**........",
+".....*aaaaaaaaaaaaaaaaaa*.......",
+"....*aaaaaaaaaaaaaaaaaaaac......",
+"...*aaaaaaaabbbbbbaaaaaaaac.....",
+"..*aaaaaaaabaaabbbbaaaaaaaac....",
+".*aaaaaaaabbaaaabbbbaaaaaaaac...",
+".*aaaaaaaabbbbaabbbbaaaaaaaac*..",
+"*aaaaaaaaabbbbaabbbbaaaaaaaaac*.",
+"*aaaaaaaaaabbaabbbbaaaaaaaaaac*.",
+"*aaaaaaaaaaaaabbbbaaaaaaaaaaac**",
+"*aaaaaaaaaaaaabbbaaaaaaaaaaaac**",
+"*aaaaaaaaaaaaabbaaaaaaaaaaaaac**",
+"*aaaaaaaaaaaaabbaaaaaaaaaaaaac**",
+"*aaaaaaaaaaaaaaaaaaaaaaaaaaaac**",
+".*aaaaaaaaaaaabbaaaaaaaaaaaac***",
+".*aaaaaaaaaaabbbbaaaaaaaaaaac***",
+"..*aaaaaaaaaabbbbaaaaaaaaaac***.",
+"...caaaaaaaaaabbaaaaaaaaaac****.",
+"....caaaaaaaaaaaaaaaaaaaac****..",
+".....caaaaaaaaaaaaaaaaaac****...",
+"......ccaaaaaaaaaaaaaacc****....",
+".......*cccaaaaaaaaccc*****.....",
+"........***cccaaaac*******......",
+"..........****caaac*****........",
+".............*caaac**...........",
+"...............caac**...........",
+"................cac**...........",
+".................cc**...........",
+"..................***...........",
+"...................**...........",
+};
 #endif //QT_NO_IMAGEIO_XPM
 
 /*!
@@ -1320,25 +1354,27 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
 #ifndef QT_NO_IMAGEIO_XPM
     switch (stylepixmap) {
     case SP_TitleBarShadeButton:
-	return QPixmap((const char **)qt_shade_xpm);
+	return QPixmap( (const char **)qt_shade_xpm );
     case SP_TitleBarUnshadeButton:
-	return QPixmap((const char **)qt_unshade_xpm);
+	return QPixmap( (const char **)qt_unshade_xpm );
     case SP_TitleBarNormalButton:
-	return QPixmap((const char **)qt_normalizeup_xpm);
+	return QPixmap( (const char **)qt_normalizeup_xpm );
     case SP_TitleBarMinButton:
-	return QPixmap((const char **)qt_minimize_xpm);
+	return QPixmap( (const char **)qt_minimize_xpm );
     case SP_TitleBarMaxButton:
-	return QPixmap((const char **)qt_maximize_xpm);
+	return QPixmap( (const char **)qt_maximize_xpm );
     case SP_TitleBarCloseButton:
-	return QPixmap((const char **)qt_close_xpm);
+	return QPixmap( (const char **)qt_close_xpm );
     case SP_DockWindowCloseButton:
-	return QPixmap((const char **)dock_window_close_xpm );
+	return QPixmap( (const char **)dock_window_close_xpm );
     case SP_MessageBoxInformation:
-	return QPixmap((const char **)information_xpm);
+	return QPixmap( (const char **)information_xpm);
     case SP_MessageBoxWarning:
-	return QPixmap((const char **)warning_xpm);
+	return QPixmap( (const char **)warning_xpm );
     case SP_MessageBoxCritical:
-	return QPixmap((const char **)critical_xpm);
+	return QPixmap( (const char **)critical_xpm );
+    case SP_MessageBoxQuestion:
+	return QPixmap( (const char **)question_xpm );
     default:
 	break;
     }

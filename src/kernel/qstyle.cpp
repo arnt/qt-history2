@@ -1736,6 +1736,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SP_MessageBoxInformation the 'information' icon.
     \value SP_MessageBoxWarning the 'warning' icon.
     \value SP_MessageBoxCritical the 'critical' icon.
+    \value SP_MessageBoxQuestion the 'question' icon.
 
 
     \value SP_DockWindowCloseButton  close button on dock windows;

@@ -2049,10 +2049,9 @@ static const char * dock_window_close_xpm[] = {
 
 // Message box icons, from page 210 of the Windows style guide.
 
-// Hand-drawn to resemble Microsoft's icons, but in the Mac/Netscape
-// palette.  The "question mark" icon, which Microsoft recommends not
-// using but a lot of people still use, is left out.
-
+// Hand-drawn to resemble Microsoft's icons, but in the Mac/Netscape palette.
+// Thanks to TrueColor displays, it is slightly more efficient to have
+// them duplicated.
 /* XPM */
 static const char * const information_xpm[]={
 "32 32 5 1",
@@ -2171,6 +2170,47 @@ static const char* const critical_xpm[]={
 ".........aa********aaaaa........",
 "...........aaaaaaaaaaa..........",
 ".............aaaaaaa............"};
+/* XPM */
+static const char *const question_xpm[] = {
+"32 32 5 1",
+". c None",
+"c c #000000",
+"* c #999999",
+"a c #ffffff",
+"b c #0000ff",
+"...........********.............",
+"........***aaaaaaaa***..........",
+"......**aaaaaaaaaaaaaa**........",
+".....*aaaaaaaaaaaaaaaaaa*.......",
+"....*aaaaaaaaaaaaaaaaaaaac......",
+"...*aaaaaaaabbbbbbaaaaaaaac.....",
+"..*aaaaaaaabaaabbbbaaaaaaaac....",
+".*aaaaaaaabbaaaabbbbaaaaaaaac...",
+".*aaaaaaaabbbbaabbbbaaaaaaaac*..",
+"*aaaaaaaaabbbbaabbbbaaaaaaaaac*.",
+"*aaaaaaaaaabbaabbbbaaaaaaaaaac*.",
+"*aaaaaaaaaaaaabbbbaaaaaaaaaaac**",
+"*aaaaaaaaaaaaabbbaaaaaaaaaaaac**",
+"*aaaaaaaaaaaaabbaaaaaaaaaaaaac**",
+"*aaaaaaaaaaaaabbaaaaaaaaaaaaac**",
+"*aaaaaaaaaaaaaaaaaaaaaaaaaaaac**",
+".*aaaaaaaaaaaabbaaaaaaaaaaaac***",
+".*aaaaaaaaaaabbbbaaaaaaaaaaac***",
+"..*aaaaaaaaaabbbbaaaaaaaaaac***.",
+"...caaaaaaaaaabbaaaaaaaaaac****.",
+"....caaaaaaaaaaaaaaaaaaaac****..",
+".....caaaaaaaaaaaaaaaaaac****...",
+"......ccaaaaaaaaaaaaaacc****....",
+".......*cccaaaaaaaaccc*****.....",
+"........***cccaaaac*******......",
+"..........****caaac*****........",
+".............*caaac**...........",
+"...............caac**...........",
+"................cac**...........",
+".................cc**...........",
+"..................***...........",
+"...................**...........",
+};
 #endif
 
 /*!
@@ -2200,6 +2240,7 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
     case SP_MessageBoxInformation:
     case SP_MessageBoxWarning:
     case SP_MessageBoxCritical:
+    case SP_MessageBoxQuestion:
 	{
 	    const char * const * xpm_data;
 	    switch ( sp ) {
@@ -2212,6 +2253,9 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 	    case SP_MessageBoxCritical:
 		xpm_data = critical_xpm;
 		break;
+	    case SP_MessageBoxQuestion:
+		xpm_data = question_xpm;
+		break;
 	    default:
 		xpm_data = 0;
 		break;
@@ -2223,6 +2267,7 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 		QColorGroup g = QApplication::palette().active();
 		switch ( sp ) {
 		case SP_MessageBoxInformation:
+		case SP_MessageBoxQuestion:
 		    image.setColor( 2, 0xff000000 | g.dark().rgb() );
 		    image.setColor( 3, 0xff000000 | g.base().rgb() );
 		    image.setColor( 4, 0xff000000 | g.text().rgb() );
@@ -2237,8 +2282,6 @@ QPixmap QMotifStyle::stylePixmap(StylePixmap sp,
 		    image.setColor( 2, 0xff000000 | g.text().rgb() );
 		    image.setColor( 3, 0xff000000 | g.base().rgb() );
 		    break;
-		default:
-		    break; // Can't happen
 		}
 		pm.convertFromImage(image);
 	    }
