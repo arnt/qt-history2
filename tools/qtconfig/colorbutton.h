@@ -21,8 +21,8 @@ class ColorButton : public QAbstractButton
     Q_OBJECT
 
 public:
-    ColorButton(QWidget *, const char * = 0);
-    ColorButton(const QColor &, QWidget *, const char * = 0);
+    ColorButton(QWidget *);
+    ColorButton(const QColor &, QWidget *);
 
     const QColor &color() const { return col; }
 

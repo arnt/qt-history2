@@ -18,10 +18,10 @@
 #include <qpainter.h>
 #include <qdragobject.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 
-
-ColorButton::ColorButton(QWidget *parent, const char *name)
-    : QAbstractButton(parent, name), mousepressed(FALSE)
+ColorButton::ColorButton(QWidget *parent)
+    : QAbstractButton(parent), mousepressed(FALSE)
 {
     setAcceptDrops(TRUE);
     col = Qt::black;
@@ -29,8 +29,8 @@ ColorButton::ColorButton(QWidget *parent, const char *name)
 }
 
 
-ColorButton::ColorButton(const QColor &c, QWidget *parent, const char *name)
-    : QAbstractButton(parent, name)
+ColorButton::ColorButton(const QColor &c, QWidget *parent)
+    : QAbstractButton(parent)
 {
     setAcceptDrops(TRUE);
     col = c;
@@ -70,24 +70,30 @@ QSize ColorButton::minimumSizeHint() const
 
 void ColorButton::drawButton(QPainter *p)
 {
-    style().drawPrimitive(QStyle::PE_ButtonBevel, p, rect(), palette(),
-                          isDown() ? QStyle::Style_Down : QStyle::Style_Raised);
+    QStyleOptionButton buttonOptions(0);
+    buttonOptions.init(this);
+    buttonOptions.features = QStyleOptionButton::None;
+    buttonOptions.rect = rect();
+    buttonOptions.palette = palette();
+    buttonOptions.state = (isDown() ? QStyle::Style_Down : QStyle::Style_Raised);
+    style().drawPrimitive(QStyle::PE_ButtonBevel, &buttonOptions, p, this);
+
     drawButtonLabel(p);
 
+    QStyleOptionFocusRect frectOptions(0);
+    frectOptions.init(this);
+    frectOptions.rect = style().subRect(QStyle::SR_PushButtonFocusRect, &buttonOptions, this);
     if (hasFocus())
-        style().drawPrimitive(QStyle::PE_FocusRect, p,
-                              style().subRect(QStyle::SR_PushButtonFocusRect, this),
-                              palette(), QStyle::Style_Default);
+        style().drawPrimitive(QStyle::PE_FocusRect, &frectOptions, p, this);
 }
 
 
 void ColorButton::drawButtonLabel(QPainter *p)
 {
-    QColor pen = (isEnabled() ?
-                  (hasFocus() ? palette().active().buttonText() :
-                   palette().inactive().buttonText())
-                  : palette().disabled().buttonText());
-    p->setPen( pen );
+    QPalette::ColorGroup cg =
+        (isEnabled() ? (hasFocus() ? QPalette::Active : QPalette::Inactive) : QPalette::Disabled);
+
+    p->setPen(palette().color(cg, QPalette::ButtonText));
     p->setBrush(col);
     p->drawRect(width() / 4, height() / 4, width() / 2, height() / 2);
 }
@@ -156,7 +162,7 @@ void ColorButton::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-void ColorButton::paintEvent(QPaintEvent *e)
+void ColorButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     drawButton(&p);
