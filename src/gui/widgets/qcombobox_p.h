@@ -172,7 +172,8 @@ public:
     void emitHighlighted(const QModelIndex&);
     void resetButton();
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void rowsChanged(const QModelIndex & parent, int start, int end);
+    void rowsInserted(const QModelIndex & parent, int start, int end);
+    void rowsAboutToBeRemoved(const QModelIndex & parent, int start, int end);
     bool updateHoverControl(const QPoint &pos);
     QStyle::SubControl newHoverControl(const QPoint &pos);
 
