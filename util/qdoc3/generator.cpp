@@ -55,6 +55,7 @@ void Generator::initialize(const Config &config)
 	outDir = config.getString(CONFIG_OUTPUTDIR);
 	if ( outDir.isEmpty() )
 	    config.lastLocation().fatal(tr("No output directory specified in configuration file"));
+
 	QDir dirInfo;
 	if ( dirInfo.exists(outDir) ) {
 	    if ( !Config::removeDirContents(outDir) )
@@ -63,6 +64,10 @@ void Generator::initialize(const Config &config)
 	    if ( !dirInfo.mkdir(outDir) )
 		config.lastLocation().fatal(tr("Cannot create output directory '%1'").arg(outDir));
 	}
+
+        if ( !dirInfo.mkdir(outDir + "/images") )
+            config.lastLocation().fatal(tr("Cannot create output directory '%1'")
+                                        .arg(outDir + "/images"));
     }
 
     imageFiles = config.getStringList(CONFIG_IMAGES);
@@ -88,7 +93,7 @@ void Generator::initialize(const Config &config)
 						imgFileExts[(*g)->format()], userFriendlyFilePath);
 	    if (!filePath.isEmpty())
 	        Config::copyFile(config.lastLocation(), filePath, userFriendlyFilePath,
-		    	         (*g)->outputDir());
+		    	         (*g)->outputDir() + "/images");
 	    ++e;
 	}
 	++g;
@@ -512,7 +517,8 @@ QString Generator::imageFileName( const Location& location,
     if (filePath.isEmpty())
 	return "";
 
-    return Config::copyFile(location, filePath, userFriendlyFilePath, outputDir());
+    return "images/"
+           + Config::copyFile(location, filePath, userFriendlyFilePath, outputDir() + "/images");
 }
 
 void Generator::setImageFileExtensions( const QStringList& extensions )

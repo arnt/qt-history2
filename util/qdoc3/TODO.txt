@@ -1,6 +1,5 @@
 From Jasmin:
 
-  * put images in "/images"
   * implement \target and \keyword
   * expand QObjectList -> QList<QObject *>
   * Drop return type in "List of all members" pages.
