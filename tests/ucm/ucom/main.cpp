@@ -31,6 +31,46 @@ void getName( QString& s )
     s = "Universal Component Model";
 }
 
+
+static UParameter ParamFoo[] = {
+    { 0, pUType_double, 0, 2 },
+    { "i", pUType_int, 0, 1 },
+    { "d", pUType_double, 0, 1 }
+};
+
+static UParameter ParamBar[] = {
+    { 0, pUType_QString, 0, 2 },
+    { "c", pUType_charstar, 0, 1 },
+    { "i", pUType_int, 0, 1 }
+};
+
+static UParameter ParamGetXY[] = {
+    { "x", pUType_int, 0, 3 },
+    { "y", pUType_int, 0, 3 }
+};
+
+static UParameter ParamGetXYPtr[] = {
+    { "x", pUType_ptr, 0, 1 },
+    { "y", pUType_ptr, 0, 1 }
+};
+
+static UParameter ParamGetName[] = {
+    { "s", pUType_QString, 0, 3 }
+};
+
+static UMethod ExampleMethods[] = {
+    {"foo", 3,  ParamFoo},
+    {"bar", 3,  ParamBar},
+    {"getXY", 2,  ParamGetXY},
+    {"getXYPtr", 2,  ParamGetXYPtr},
+    {"getName", 1,  ParamGetName},
+};
+
+static UInterfaceDescription  ExampleDescription = {
+    5, ExampleMethods, 
+    0, 0
+};
+
 URESULT invoke( int id, UObject *o )
 {
     bool ok = true;
@@ -107,8 +147,9 @@ int main( int /*argc*/, char** /*argv*/ )
  	invoke( 4, o );
  	const char* s = pUType_charstar->get( o );
 	
-	qDebug( "invoke(3) : %s", s );
+	qDebug( "invoke(4) : %s", s );
     }
-
+    
+    
     return 0;
 }

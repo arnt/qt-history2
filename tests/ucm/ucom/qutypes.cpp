@@ -22,7 +22,7 @@ QString &UType_QString::get( UObject *o, bool *ok )
 bool UType_QString::convertFrom( UObject *o, UType *t )
 {
     QString *str = 0;
-    if ( isEqual( t, pUType_charstar ) ) 
+    if ( isEqual( t, pUType_charstar ) )
 	str = new QString( o->payload.charstar );
     else if ( isEqual( t, pUType_double ) )
 	str = new QString( QString::number( o->payload.d ) );
@@ -30,9 +30,9 @@ bool UType_QString::convertFrom( UObject *o, UType *t )
 	str = new QString( QString::number( o->payload.i ) );
     else
 	return t->convertTo( o, this );
-    
+
     o->type->clear( o );
-    o->payload.ptr = str; 
+    o->payload.ptr = str;
     o->type = this;
     return true;
 }

@@ -154,6 +154,6 @@ void UType_charstar::clear( UObject *o )
 static UParameter param = {
     "nase",
     pUType_ptr,
-    pUType_ptr->desc(),
+    0,
     UParameter::In
 } ;

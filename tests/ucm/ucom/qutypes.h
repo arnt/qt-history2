@@ -12,6 +12,7 @@ struct UType_QString : public UType
 
     void set( UObject *, const QString & );
     QString &get( UObject *, bool * = 0 );
+    void  fetch( UObject*, void**);
 
     bool convertFrom( UObject *, UType * );
     bool convertTo( UObject *, UType * );

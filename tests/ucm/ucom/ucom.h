@@ -71,6 +71,7 @@ struct UType
     virtual void clear( UObject * );
     virtual void copy( UObject *, const UObject * );
 
+
     static bool isEqual( const UType *t1, const UType *t2 ) {
 	return t1 == t2 ||
 	       t1->uuid() == t2->uuid() ||
@@ -88,9 +89,9 @@ extern UType *pUType_Null;
 // The magic UObject
 struct UObject
 {
-    UObject();
-    ~UObject();
- 
+    UObject() : type( pUType_Null ) {}
+    ~UObject() { type->clear( this ); }
+
     UType *type;
 
     // the unavoidable union
@@ -136,17 +137,16 @@ struct UParameter
 {
     const char* name;
     UType *type;
-    const char* desc; // most often type->desc() but may be different for generic types like UType_ptr
+    const void* typeExtra; //type dependend. Usually 0, but UEnum for UType_enum or const char* for UType_ptr
     enum { In = 1, Out = 2, InOut = In | Out };
     int inOut;
 };
 
-// A method description describes one method. A method has a name, an
-// id and an array of parameters.
+// A method description describes one method. A method has a name and
+// an array of parameters.
 struct UMethod
 {
     const char* name;
-    int id;
     int count;
     const UParameter* parameter;
 };
@@ -156,6 +156,8 @@ struct UProperty
 {
     const char* name;
     UType* type;
+    const void* typeExtra; //type dependend. Usually 0, but UEnum for UType_enum or const char* for UType_ptr
+    
     int set; // -1 undefined
     int get; // -1 undefined
 
@@ -174,31 +176,23 @@ struct UInterfaceDescription
 };
 
 
-struct UKeyValueItem
+// {261D70EB-047D-40B1-BEDE-DAF1EEC273BF}
+extern const UUid TID_UType_enum;
+extern UType *pUType_enum;
+
+
+struct UEnumItem 				// - a name/value pair
 {
-     // #### cannot we just embed this as UEnumType::Item ? Mangling issue?
-    const char* key;
+    const char *key;
     int value;
 };
 
-struct UEnumType : public UType
-{
-    const UUid *uuid() const;
-    const char *desc() const;
-
-    void set( UObject *, int );
-    int &get( UObject *, bool * = 0 );
-    bool convertFrom( UObject *, UType * );
-    bool convertTo( UObject *, UType * );
-
-    void clear( UObject * );
-    void copy( UObject *, const UObject * );
-    
-    const char *scope() const; 				// - enumerator scope
-    const char *name() const;				// - enumerator name
-    
-    unsigned int count() const;					// - number of values
-    const UKeyValueItem *items() const;				// - the name/value pairs
+struct UEnum 
+{			
+    const char *name;			// - enumerator name
+    unsigned int count;			// - number of values
+    const UEnumItem *items;		// - the name/value pairs
+    bool set;				// whether enum has to be treated as a set
 };
 
 
