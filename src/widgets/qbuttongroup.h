@@ -31,6 +31,7 @@ class Q_EXPORT QButtonGroup : public QGroupBox
     Q_OBJECT
     Q_PROPERTY( bool exclusive READ isExclusive WRITE setExclusive )
     Q_PROPERTY( bool radioButtonExclusive READ isRadioButtonExclusive WRITE setRadioButtonExclusive )
+    Q_PROPERTY( int selectedId READ selectedId WRITE setButton )
 
 public:
     QButtonGroup( QWidget* parent=0, const char* name=0 );
