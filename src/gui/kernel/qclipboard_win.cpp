@@ -20,81 +20,10 @@
 #include "qeventloop.h"
 #include "qwidget.h"
 #include "qevent.h"
-#include "qpixmap.h"
-#include "qdatetime.h"
-#include "qimage.h"
 #include "qmime.h"
 #include "qt_windows.h"
+#include "qdnd_p.h"
 
-
-/*****************************************************************************
-  Internal QClipboard functions for Win32.
- *****************************************************************************/
-
-static HWND nextClipboardViewer = 0;
-static bool inClipboardChain = false;
-static QWidget *qt_cb_owner = 0;
-
-static QWidget *clipboardOwner()
-{
-    if (!qt_cb_owner) {
-        qt_cb_owner = new QWidget(0);
-        qt_cb_owner->setObjectName("internal clipboard owner");
-    }
-    return qt_cb_owner;
-}
-
-
-typedef uint ClipboardFormat;
-
-#define CFText            CF_TEXT
-#define CFPixmap    CF_BITMAP
-#define CFNothing   0
-
-
-/*****************************************************************************
-  QClipboard member functions for Win32.
- *****************************************************************************/
-
-bool QClipboard::supportsSelection() const
-{
-    return false;
-}
-
-
-bool QClipboard::ownsSelection() const
-{
-    return false;
-}
-
-
-bool QClipboard::ownsClipboard() const
-{
-    return qt_cb_owner && GetClipboardOwner() == qt_cb_owner->winId();
-}
-
-void QClipboard::ownerDestroyed()
-{
-    if (inClipboardChain) {
-        QWidget *owner = (QWidget *)sender();
-        ChangeClipboardChain(owner->winId(), nextClipboardViewer);
-    }
-}
-
-
-void QClipboard::connectNotify(const char *signal)
-{
-    if (qstrcmp(signal,SIGNAL(dataChanged())) == 0 && !inClipboardChain) {
-        QWidget *owner = clipboardOwner();
-        inClipboardChain = true;
-        nextClipboardViewer = SetClipboardViewer(owner->winId());
-#ifndef QT_NO_DEBUG
-        if (!nextClipboardViewer)
-            qErrnoWarning("QClipboard::connectNotify: Failed to set clipboard viewer");
-#endif
-        connect(owner, SIGNAL(destroyed()), SLOT(ownerDestroyed()));
-    }
-}
 
 class QClipboardWatcher : public QMimeData {
 public:
@@ -111,224 +40,138 @@ public:
 
 bool QClipboardWatcher::hasFormat(const QString &mime) const
 {
-    bool r = false;
-    if (OpenClipboard(clipboardOwner()->winId())) {
-        int cf = 0;
-        while (!r && (cf = EnumClipboardFormats(cf))) {
-            if (QWindowsMime::convertor(mime,cf))
-                r = true;
-        }
-        if (!CloseClipboard())
-            qErrnoWarning("QClipboardWatcher::provides: Failed to close clipboard");
-    } else {
-        qErrnoWarning("QClipboardWatcher::provides: Failed to open clipboard");
-    }
+    IDataObject * pDataObj = 0;
 
-    return r;
+    if (OleGetClipboard(&pDataObj) != S_OK && !pDataObj) // Sanity
+        return false;
+
+    bool has = QWindowsMime::converterToMime(mime, pDataObj) != 0;
+    
+    pDataObj->Release();
+    
+    return has;
 }
 
-    // Not efficient to iterate over this (so we provide provides() above).
-
-    // In order to be able to use UniCode characters, we have to give
-    // it a higher priority than single-byte characters.  To do this, we
-    // treat CF_TEXT as a special case and postpone its processing until
-    // we're sure we do not have CF_UNICODETEXT
 QStringList QClipboardWatcher::formats() const
 {
     QStringList fmts;
+    IDataObject * pDataObj = 0;
 
-    if (OpenClipboard(clipboardOwner()->winId())) {
-        int cf = 0;
-        while ((cf = EnumClipboardFormats(cf))) {
-            QString mime = QWindowsMime::cfToMime(cf);
-            if (!mime.isEmpty())
-                fmts.append(mime);
-        }
-        CloseClipboard();
-    }
+    if (OleGetClipboard(&pDataObj) != S_OK && !pDataObj) // Sanity
+        return false;
+
+    fmts = QWindowsMime::allMimesForFormats(pDataObj);
+    
+    pDataObj->Release();
+
     return fmts;
 }
 
 QVariant QClipboardWatcher::retrieveData(const QString &mime, QVariant::Type type) const
 {
-    if (!OpenClipboard(clipboardOwner()->winId())) {
-        qErrnoWarning("QClipboardWatcher::retrieveData: Failed to open Clipboard");
-        return QVariant();
-    }
+    QVariant result;
+    IDataObject * pDataObj = 0;
 
-    QByteArray r;
+    if (OleGetClipboard(&pDataObj) != S_OK && !pDataObj) // Sanity
+        return result;
 
-    QList<QWindowsMime*> all = QWindowsMime::all();
-    for (int i = 0; i<all.size(); ++i) {
-        QWindowsMime *c = all[i];
-        int cf = c->cfFor(mime);
-        if (cf) {
-            HANDLE h = GetClipboardData(cf);
-            if (h) {
-                const QByteArray cr = QByteArray::fromRawData((char *)GlobalLock(h), GlobalSize(h));
-                r = c->convertToMime(cr,mime,cf);
-                GlobalUnlock(h);
-                break;
-            } else {
-                qErrnoWarning("QClipboardWatcher::encodedData: Failed to read clipboard data");
-            }
-        }
-    }
-    CloseClipboard();
-    return r;
+    QWindowsMime *converter = QWindowsMime::converterToMime(mime, pDataObj);
+
+    if (converter)
+        result = converter->convertToMime(mime, type, pDataObj);
+    
+    pDataObj->Release();
+
+    return result;
 }
-
-
 
 class QClipboardData
 {
 public:
-    QClipboardData();
-   ~QClipboardData();
-
-    void setSource(QMimeData* s)
+    QClipboardData() 
+        : iData(0)
+        , nextClipboardViewer(0) 
     {
-        delete src;
-        src = s;
-    }
-    QMimeData* source()
-    {
-        return src;
-    }
-    QMimeData* provider()
-    {
-        if (!prov)
-            prov = new QClipboardWatcher();
-        return prov;
+        clipBoardViewer = new QWidget();
+        clipBoardViewer->setObjectName("internal clipboard owner");
     }
 
-private:
-    QMimeData *src;
-    QMimeData *prov;
+    ~QClipboardData()
+    {
+        ChangeClipboardChain(clipBoardViewer->winId(), nextClipboardViewer);
+        delete clipBoardViewer;
+        releaseIData();
+    }
+
+    void releaseIData()
+    {
+        if (iData) {
+            iData->releaseQt();
+            iData->Release();
+            iData = 0;
+        }
+    }
+
+    QOleDataObject * iData;
+    QWidget *clipBoardViewer;
+    HWND nextClipboardViewer;
+    QClipboardWatcher watcher;
 };
 
-QClipboardData::QClipboardData()
-{
-    src = 0;
-    prov = 0;
-}
-
-QClipboardData::~QClipboardData()
-{
-    delete src;
-    delete prov;
-}
-
-static QClipboardData *internalCbData = 0;
-
-static void cleanupClipboardData()
-{
-    delete internalCbData;
-    internalCbData = 0;
-}
+static QClipboardData *ptrClipboardData = 0;
 
 static QClipboardData *clipboardData()
 {
-    if (internalCbData == 0) {
-        internalCbData = new QClipboardData;
-        qAddPostRoutine(cleanupClipboardData);
+    if (ptrClipboardData == 0) {
+        ptrClipboardData = new QClipboardData;
+        // this needs to be done here to avoid recursion
+        ptrClipboardData->nextClipboardViewer = SetClipboardViewer(ptrClipboardData->clipBoardViewer->winId());
     }
-    return internalCbData;
+    return ptrClipboardData;
 }
 
-
-//#define QT_DEBUG_CB
-
-static void setClipboardData(int cf, const QString &mime, QWindowsMime *c, QMimeData *s)
+static void cleanupClipboardData()
 {
-    QByteArray md = s->data(mime);
-#if defined(QT_DEBUG_CB)
-    qDebug("source is %d bytes of %s",md.size(),mime);
-#endif
-    md = c->convertFromMime(md, mime, cf);
-    int len = md.size();
-#if defined(QT_DEBUG_CB)
-    qDebug("rendered %d bytes of CF %d by %s",len,cf,c->convertorName());
-#endif
-    HANDLE h = GlobalAlloc(GHND, len);
-    char *d = (char *)GlobalLock(h);
-    memcpy(d, md.data(), len);
-    if (!SetClipboardData(cf, h))
-        qErrnoWarning("setClipboardData: Failed to write data");
-    GlobalUnlock(h);
-}
-
-static void renderFormat(int cf)
-{
-#if defined(QT_DEBUG_CB)
-    qDebug("renderFormat(%d)",cf);
-#endif
-    if (!internalCbData)                        // Spurious Windows message
-        return;
-    QMimeData *s = internalCbData->source();
-    if (!s)                                        // Spurious Windows message
-        return;
-    QString mime;
-    QStringList fmts = s->formats();
-    for (int i=0; i < fmts.size(); i++) {
-        QString mime = fmts.at(i);
-        QWindowsMime* c = QWindowsMime::convertor(mime, cf);
-        if (c) {
-            setClipboardData(cf, mime, c, s);
-            return;
-        }
-    }
-}
-
-static bool ignore_empty_clipboard = false;
-
-static void renderAllFormats()
-{
-#if defined(QT_DEBUG_CB)
-    qDebug("renderAllFormats");
-#endif
-    if (!internalCbData)                        // Spurious Windows message
-        return;
-    QMimeData *s = internalCbData->source();
-    if (!s)                                        // Spurious Windows message
-        return;
-
-    if (!qt_cb_owner)
-        return;
-    if (!OpenClipboard(qt_cb_owner->winId())) {
-        qErrnoWarning("renderAllFormats: couldn't open clipboard");
-        return;
-    }
-
-    ignore_empty_clipboard = true;
-    EmptyClipboard();
-    ignore_empty_clipboard = false;
-
-    QList<QWindowsMime*> all = QWindowsMime::all();
-    QStringList fmts = s->formats();
-    for (int i = 0; i < fmts.size(); i++) {
-        QString mime = fmts.at(i);
-        for (int pos = 0; pos < all.size(); ++pos) {
-            QWindowsMime* c = all[pos];
-            if (c->cfFor(mime)) {
-                for (int j = 0; j < c->countCf(); j++) {
-                    int cf = c->cf(j);
-                    if (c->canConvert(mime,cf)) {
-                        setClipboardData(cf, mime, c, s);
-                    }
-                }
-            }
-        }
-    }
-
-    CloseClipboard();
+    delete ptrClipboardData;
+    ptrClipboardData = 0;
 }
 
 QClipboard::~QClipboard()
 {
-    renderAllFormats();
-    delete qt_cb_owner;
-    qt_cb_owner = 0;
+    cleanupClipboardData();
+}
+
+void QClipboard::setMimeData(QMimeData *src, Mode mode)
+{
+    if (mode != Clipboard)
+        return;
+
+    QClipboardData *d = clipboardData();
+
+    d->releaseIData();
+
+    d->iData = new QOleDataObject(src);
+
+    if (OleSetClipboard(d->iData) != S_OK) {
+        d->releaseIData();
+        qErrnoWarning("QClipboard::setMimeData: Failed to set data on clipboard");
+        return;
+    }
+        
+}
+
+void QClipboard::clear(Mode mode)
+{
+    if (mode != Clipboard) return;
+
+    QClipboardData *d = clipboardData();
+
+    d->releaseIData();
+
+    if (OleSetClipboard(0) != S_OK) {
+        qErrnoWarning("QClipboard::clear: Failed to clear data on clipboard");
+        return;
+    }
 }
 
 bool QClipboard::event(QEvent *e)
@@ -336,45 +179,39 @@ bool QClipboard::event(QEvent *e)
     if (e->type() != QEvent::Clipboard)
         return QObject::event(e);
 
+    QClipboardData *d = clipboardData();
+
     MSG *m = (MSG *)((QCustomEvent*)e)->data();
     if (!m) {
-        renderAllFormats();
+        // this is sent to render all formats at app shut down
+        if (ownsClipboard()) {
+            OleFlushClipboard();
+            d->releaseIData();
+        }
         return true;
     }
 
-    bool propagate=false;
-    switch (m->message) {
+    bool propagate = false;
 
-        case WM_CHANGECBCHAIN:
-            if ((HWND)m->wParam == nextClipboardViewer)
-                nextClipboardViewer = (HWND)m->lParam;
-            else
-                propagate = true;
-            break;
-
-        case WM_DRAWCLIPBOARD:
+    if (m->message == WM_CHANGECBCHAIN) {
+        if ((HWND)m->wParam == d->nextClipboardViewer)
+            d->nextClipboardViewer = (HWND)m->lParam;
+        else
             propagate = true;
-            emit dataChanged();
-            break;
-
-        case WM_DESTROYCLIPBOARD:
-            if (!ignore_empty_clipboard)
-                cleanupClipboardData();
-            break;
-
-        case WM_RENDERFORMAT:
-            renderFormat(m->wParam);
-            break;
-        case WM_RENDERALLFORMATS:
-            renderAllFormats();
-            break;
+    } else if (m->message == WM_DRAWCLIPBOARD) {
+        emit dataChanged();
+        if (!ownsClipboard() && d->iData)
+            // clean up the clipboard object if we no longer own the clipboard
+            d->releaseIData();
+        propagate = true;
     }
-    if (propagate && nextClipboardViewer) {
+
+    if (propagate && d->nextClipboardViewer) {
         QT_WA({
-            SendMessage(nextClipboardViewer, m->message,
+            SendMessage(d->nextClipboardViewer, m->message,
                          m->wParam, m->lParam);
         } , {
-            SendMessageA(nextClipboardViewer, m->message,
+            SendMessageA(d->nextClipboardViewer, m->message,
                          m->wParam, m->lParam);
         });
     }
@@ -382,71 +219,42 @@ bool QClipboard::event(QEvent *e)
     return true;
 }
 
-
-void QClipboard::clear(Mode mode)
+void QClipboard::connectNotify(const char *signal)
 {
-    if (mode != Clipboard) return;
-
-    if (OpenClipboard(clipboardOwner()->winId())) {
-        EmptyClipboard();
-        CloseClipboard();
+    if (qstrcmp(signal,SIGNAL(dataChanged())) == 0) {
+        // ensure we are up and running
+        QClipboardData *d = clipboardData();
     }
 }
-
 
 const QMimeData *QClipboard::mimeData(Mode mode) const
 {
     if (mode != Clipboard)
         return 0;
 
-    QClipboardData *d = clipboardData();
-    return d->provider();
+    QClipboardData *data = clipboardData();
+    return &data->watcher;
 }
 
-extern bool qt_CF_HDROP_valid(const QString &mime, int cf, QMimeData * src);
-
-void QClipboard::setMimeData(QMimeData *src, Mode mode)
+bool QClipboard::ownsClipboard() const
 {
-    if (mode != Clipboard)
-        return;
-
-    if (!OpenClipboard(clipboardOwner()->winId())) {
-        qErrnoWarning("QClipboard::setData: Failed to open clipboard");
-        return;
-    }
-
     QClipboardData *d = clipboardData();
-    d->setSource(src);
+    
+    return d->iData && OleIsCurrentClipboard(d->iData) == S_OK;
+}
 
-    ignore_empty_clipboard = true;
-    if (!EmptyClipboard())
-        qErrnoWarning("QClipboard::setData: Failed to empty clipboard");
+bool QClipboard::supportsSelection() const
+{
+    return false;
+}
 
-    ignore_empty_clipboard = false;
-    // Register all the formats of src that we can render.
-    QList<QWindowsMime*> all = QWindowsMime::all();
-    QStringList fmts = src->formats();
-    for (int i = 0; i < fmts.size(); i++) {
-        QString mime = fmts.at(i);
-        for (int pos = 0; pos < all.size(); ++pos) {
-            QWindowsMime* c = all[pos];
-            if (c->cfFor(mime)) {
-                for (int j = 0; j < c->countCf(); j++) {
-                    UINT cf = c->cf(j);
-                    if (c->canConvert(mime,cf) /*&& qt_CF_HDROP_valid(mime, cf, src) ####### */) {
-#ifndef Q_OS_TEMP
-                        if (qApp && !(qApp->startingUp() || qApp->closingDown()))
-                            SetClipboardData(cf, 0); // 0 == ask me later
-                        else // write now if we can't process data requests
-#endif
-                            setClipboardData(cf, mime, c, src);
-                    }
-                }
-            }
-        }
-    }
+bool QClipboard::ownsSelection() const
+{
+    return false;
+}
 
-    CloseClipboard();
+void QClipboard::ownerDestroyed()
+{
 }
 
 #endif // QT_NO_CLIPBOARD

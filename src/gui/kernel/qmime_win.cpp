@@ -151,7 +151,7 @@ bool QWindowsMime::setData(const QByteArray &data, STGMEDIUM * pmedium) const
     GlobalUnlock(hData);
     pmedium->tymed = TYMED_HGLOBAL;
     pmedium->hGlobal = hData;
-    return ResultFromScode(S_OK);
+    return true;
 }
 
 QByteArray QWindowsMime::getData(int cf, struct IDataObject *pDataObj) const
@@ -243,7 +243,7 @@ bool WindowsAnyMime::convertFromMime(const FORMATETC &formatetc, const QMimeData
     if ((getCf(formatetc) == CF_TEXT || getCf(formatetc) == CF_UNICODETEXT) && !mimeData->text().isEmpty()) {
         return convertFromString(getCf(formatetc), mimeData, pmedium);
     } else if (getCf(formatetc) == CF_HDROP) {
-        return convertFromString(getCf(formatetc), mimeData, pmedium);
+        return convertFromUrls(getCf(formatetc), mimeData, pmedium);
     }
 
     return false;
@@ -554,20 +554,7 @@ QWindowsMime::~QWindowsMime()
 }
 
 
-
-struct QWindowsRegisteredMimeType {
-    QWindowsRegisteredMimeType(int c, const QString &m) :
-        cf(c), mime(m) {}
-    int cf;
-    QString mime;
-};
-
-static QList<QWindowsRegisteredMimeType> mimetypes;
-static int registeredMimeType;
-
 /*!
-    \internal
-  This is an internal function.
 */
 int QWindowsMime::registerMimeType(const QString &mime)
 {
@@ -579,19 +566,10 @@ int QWindowsMime::registerMimeType(const QString &mime)
     if (!f)
         qErrnoWarning("QWindowsMime::registerMimeType: Failed to register clipboard format");
 
-    int pos;
-    for (pos = 0; pos < mimetypes.size() && mimetypes[pos].cf != f; ++pos)
-        ;
-    if (pos >= mimetypes.size()) {
-        mimetypes.append(QWindowsRegisteredMimeType(f, mime));
-        registeredMimeType = mimetypes.size()-1;
-    } else {
-        registeredMimeType = -1;
-    }
     return f;
 }
 
-
+#if 0
 class QWindowsMimeAnyMime : public QWindowsMime {
 public:
     int                countCf();
@@ -665,7 +643,7 @@ QByteArray QWindowsMimeAnyMime::convertFromMime(const QByteArray &data, const QS
     return data;
 }
 
-
+#endif
 
 /*
 int QWindowsMimeText::cfFor(const QString &mime)
@@ -813,8 +791,10 @@ QByteArray QWindowsMimeHtml::convertFromMime(QByteArray _data, const char* mime,
     return result;
 }
 
+
 #endif
 
+#if 0
 class QWindowsMimeImage : public QWindowsMime {
 public:
     int                countCf();
@@ -921,7 +901,7 @@ QByteArray QWindowsMimeImage::convertFromMime(const QByteArray &data, const QStr
 #endif
     return QByteArray();
 }
-
+#endif
 
 
 static
@@ -929,8 +909,6 @@ void cleanup_mimes()
 {
     while (mimes.size())
         delete mimes.first();
-
-    mimetypes.clear();
 }
 
 /*!
@@ -940,16 +918,8 @@ void QWindowsMime::initialize()
 {
     if (mimes.isEmpty()) {
         new WindowsAnyMime;
-        /*
-        new QWindowsMimeImage;
-        new QWindowsMimeText;
-#if 0
-        new QWindowsMimeHtml;
-#endif
-        new QWindowsMimeAnyMime;
-        new QWindowsMimeUri;
-*/
-       // qAddPostRoutine(cleanup_mimes);
+        
+        qAddPostRoutine(cleanup_mimes);
     }
 }
 
@@ -958,52 +928,8 @@ void QWindowsMime::initialize()
   between the \a mime and \a cf formats.  Returns 0 if no such convertor
   exists.
 */
-QWindowsMime*
-QWindowsMime::convertor(const QString &mime, int cf)
-{
-    // return nothing for illegal requests
-    if (!cf)
-        return 0;
-
-    for (int pos=0; pos<mimes.size(); ++pos) {
-        if (mimes[pos]->canConvert(mime,cf)) {
-            return mimes[pos];
-        }
-    }
-    return 0;
-}
 
 
-/*
-  Check if the uri-list actual contains files as this is all the CF_HDROP supports
-*/
-bool qt_CF_HDROP_valid(const QString &mime, int cf, QMimeData *src)
-{
-    if (cf != CF_HDROP || mime != QLatin1String("text/uri-list"))
-        return true; // retrun true if this check is not for CF_HDROP and text/uri-list
-    Q_UNUSED(mime);
-
-#if 0 // #######
-    // we should only provide CF_HDROP if the uri list contains local files
-    QStringList fn;
-    QUriDrag::decodeLocalFiles(src, fn);
-    if (fn.count() == 0)
-        return false;
-    else
-#endif
-        return true;
-}
-
-
-
-
-/*!
-  Returns a list of all currently defined QWindowsMime objects.
-*/
-QList<QWindowsMime*> QWindowsMime::all()
-{
-    return mimes;
-}
 
 /*!
   \fn const char* QWindowsMime::convertorName()

@@ -98,35 +98,6 @@ private:
 };
 
 
-class QOleDataObject : public IDataObject
-{
-public:
-    QOleDataObject(QMimeData *mimeData);
-
-    // IUnknown methods 
-    STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
-    STDMETHOD_(ULONG,AddRef)(void);
-    STDMETHOD_(ULONG,Release)(void);
-
-    // IDataObject methods 
-    STDMETHOD(GetData)(LPFORMATETC pformatetcIn,  LPSTGMEDIUM pmedium);
-    STDMETHOD(GetDataHere)(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium);
-    STDMETHOD(QueryGetData)(LPFORMATETC pformatetc);
-    STDMETHOD(GetCanonicalFormatEtc)(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut);
-    STDMETHOD(SetData)(LPFORMATETC pformatetc, STGMEDIUM FAR * pmedium,
-                       BOOL fRelease);
-    STDMETHOD(EnumFormatEtc)(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc);
-    STDMETHOD(DAdvise)(FORMATETC FAR* pFormatetc, DWORD advf,
-                      LPADVISESINK pAdvSink, DWORD FAR* pdwConnection);
-    STDMETHOD(DUnadvise)(DWORD dwConnection);
-    STDMETHOD(EnumDAdvise)(LPENUMSTATDATA FAR* ppenumAdvise);
-
-private:
-    ULONG m_refs;
-    QMimeData *data;
-    int CF_PREFEREDDROPEFFECT;
-};
-
 class QOleDropTarget : public IDropTarget
 {
 public:
@@ -259,24 +230,29 @@ QOleDataObject::QOleDataObject(QMimeData *mimeData)
     CF_PREFEREDDROPEFFECT = RegisterClipboardFormat(CFSTR_PREFERREDDROPEFFECT);
 }
 
+void QOleDataObject::releaseQt()
+{
+    if (data) {
+        data->deleteLater();
+        data = 0;
+    }
+}
+
 //---------------------------------------------------------------------
 //                    IUnknown Methods
 //---------------------------------------------------------------------
 
-
 STDMETHODIMP
 QOleDataObject::QueryInterface(REFIID iid, void FAR* FAR* ppv)
 {
-    if(iid == IID_IUnknown || iid == IID_IDataObject)
-    {
-      *ppv = this;
-      AddRef();
-      return NOERROR;
+    if (iid == IID_IUnknown || iid == IID_IDataObject) {
+        *ppv = this;
+        AddRef();
+        return NOERROR;
     }
     *ppv = NULL;
     return ResultFromScode(E_NOINTERFACE);
 }
-
 
 STDMETHODIMP_(ULONG)
 QOleDataObject::AddRef(void)
@@ -284,14 +260,13 @@ QOleDataObject::AddRef(void)
     return ++m_refs;
 }
 
-
 STDMETHODIMP_(ULONG)
 QOleDataObject::Release(void)
 {
-    if(--m_refs == 0)
-    {
-      delete this;
-      return 0;
+    if (--m_refs == 0) {
+        releaseQt();
+        delete this;
+        return 0;
     }
     return m_refs;
 }
@@ -310,14 +285,18 @@ QOleDataObject::Release(void)
 //                     (NOTE: must set pformatetcOut->ptd = NULL)
 //---------------------------------------------------------------------
 
-extern bool qt_CF_HDROP_valid(const QString &mime, int cf, QMimeData *src);
-
 STDMETHODIMP
 QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 {
 #ifdef QDND_DEBUG
     qDebug("QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)");
+    char buf[256] = {0};
+    GetClipboardFormatNameA(pformatetc->cfFormat, buf, 255);
+    qDebug("CF = %d : %s", pformatetc->cfFormat, buf);
 #endif
+
+    if (!data)
+        return ResultFromScode(DATA_E_FORMATETC);
 
     QWindowsMime *converter = QWindowsMime::converterFromMime(*pformatetc, data);
 
@@ -339,6 +318,10 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
 #ifdef QDND_DEBUG
     qDebug("QOleDataObject::QueryGetData(LPFORMATETC pformatetc)");
 #endif
+
+    if (!data)
+        return ResultFromScode(DATA_E_FORMATETC);
+
     if (QWindowsMime::converterFromMime(*pformatetc, data))
         return ResultFromScode(S_OK);
     return ResultFromScode(S_FALSE);
@@ -367,6 +350,10 @@ QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumForm
 #ifdef QDND_DEBUG
     qDebug("QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc)");
 #endif
+
+    if (!data)
+        return ResultFromScode(DATA_E_FORMATETC);
+
     SCODE sc = S_OK;
     
     QVector<FORMATETC> fmtetcs = QWindowsMime::allFormatsForMime(data);
@@ -398,11 +385,12 @@ QOleDataObject::EnumDAdvise(LPENUMSTATDATA FAR*)
 }
 
 
+//---------------------------------------------------------------------
+//                    QOleDropTarget
+//---------------------------------------------------------------------
 
-
-
-QOleDropTarget::QOleDropTarget(QWidget* w) :
-    widget(w)
+QOleDropTarget::QOleDropTarget(QWidget* w) 
+:   widget(w)
 {
    m_refs = 1;
 }
@@ -447,7 +435,6 @@ QOleDropTarget::Release(void)
 //---------------------------------------------------------------------
 //                    IDropTarget Methods
 //---------------------------------------------------------------------
-
 
 STDMETHODIMP
 QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
@@ -583,6 +570,9 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 ///### test this        QApplication::winMouseButtonUp();
 }
 
+//---------------------------------------------------------------------
+//                    QDropData
+//---------------------------------------------------------------------
 
 bool QDropData::hasFormat(const QString &mimeType) const
 {
@@ -603,10 +593,9 @@ QStringList QDropData::formats() const
     return fmts;
 }
 
-
 QVariant QDropData::retrieveData(const QString &format, QVariant::Type type) const
 {
-    QByteArray result;
+    QVariant result;
 
     if (!currentDataObject) // Sanity
         return result;
@@ -615,11 +604,10 @@ QVariant QDropData::retrieveData(const QString &format, QVariant::Type type) con
     QWindowsMime *converter = QWindowsMime::converterToMime(format, currentDataObject);
 
     if (converter)
-        return converter->convertToMime(format, type, currentDataObject);
-    else
-        return QVariant();
+        result = converter->convertToMime(format, type, currentDataObject);
+    
+    return result;
 }
-
 
 QDrag::DropAction QDragManager::drag(QDrag *o)
 
@@ -673,10 +661,12 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
         dragPrivate()->target = 0;
     }
 
-    // clean up                                     
+    // clean up
+    obj->releaseQt();
     obj->Release();        // Will delete obj if refcount becomes 0
     src->Release();        // Will delete src if refcount becomes 0
     object = 0;
+    delete o;
 
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropEnd);
@@ -709,6 +699,7 @@ void QDragManager::cancel(bool /* deleteSource */)
 void qt_olednd_unregister(QWidget* widget, QOleDropTarget *dst)
 {
     dst->releaseQt();
+    dst->Release();
 #ifndef Q_OS_TEMP
     CoLockObjectExternal(dst, false, true);
     RevokeDragDrop(widget->winId());

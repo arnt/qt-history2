@@ -107,4 +107,39 @@ private:
     Q_DISABLE_COPY(QDragManager)
 };
 
+
+#if defined(Q_WS_WIN)
+class QOleDataObject : public IDataObject
+{
+public:
+    QOleDataObject(QMimeData *mimeData);
+
+    void releaseQt();
+
+    // IUnknown methods 
+    STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
+    STDMETHOD_(ULONG,AddRef)(void);
+    STDMETHOD_(ULONG,Release)(void);
+
+    // IDataObject methods 
+    STDMETHOD(GetData)(LPFORMATETC pformatetcIn,  LPSTGMEDIUM pmedium);
+    STDMETHOD(GetDataHere)(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium);
+    STDMETHOD(QueryGetData)(LPFORMATETC pformatetc);
+    STDMETHOD(GetCanonicalFormatEtc)(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut);
+    STDMETHOD(SetData)(LPFORMATETC pformatetc, STGMEDIUM FAR * pmedium,
+                       BOOL fRelease);
+    STDMETHOD(EnumFormatEtc)(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc);
+    STDMETHOD(DAdvise)(FORMATETC FAR* pFormatetc, DWORD advf,
+                      LPADVISESINK pAdvSink, DWORD FAR* pdwConnection);
+    STDMETHOD(DUnadvise)(DWORD dwConnection);
+    STDMETHOD(EnumDAdvise)(LPENUMSTATDATA FAR* ppenumAdvise);
+
+private:
+    ULONG m_refs;
+    QMimeData *data;
+    int CF_PREFEREDDROPEFFECT;
+};
+
+#endif
+
 #endif
