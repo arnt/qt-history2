@@ -1009,6 +1009,7 @@ bool QSplitter::isHidden( QWidget *w ) const
 
 QValueList<int> QSplitter::sizes() const
 {
+    polish();
     QValueList<int> list;
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
