@@ -122,6 +122,11 @@ static QString keywordRef( const QString& str )
     return t;
 }
 
+static bool isLongDoc( Doc::Kind k )
+{
+    return k == Doc::Class || k == Doc::Page || k == Doc::Defgroup;
+}
+
 /*
   This function makes sure no two automatic links for the same
   identifier are too close to each other. It returns TRUE if it's OK
@@ -626,12 +631,12 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		yyOut += QString( "<!-- index %1 -->" ).arg( x );
 
 		/*
-		  The <a name="..."> for '\page's is put right here,
-		  because a page can contain many topics. Otherwise,
-		  no new <a name="..."> is created; the link given by
-		  setLink() is used.
+		  The <a name="..."> for '\page's and similar docs is
+		  put right here, because a page can contain many
+		  topics. Otherwise, no new <a name="..."> is
+		  created; the link given by setLink() is used.
 		*/
-		if ( kindIs == Doc::Page )
+		if ( isLongDoc(kindIs) )
 		    yyOut += QString( "<a name=\"%1\"></a>" )
 			     .arg( keywordRef(x) );
 		break;
@@ -1916,7 +1921,7 @@ void Doc::setLink( const QString& link, const QString& title )
 	QString base = linkBase( link );
 	StringSet::ConstIterator s = kwords.begin();
 	while ( s != kwords.end() ) {
-	    if ( kind() == Page )
+	    if ( isLongDoc(kind()) )
 		kwordLnk = base + QChar( '#' ) + keywordRef( *s );
 	    else
 		kwordLnk = link;
