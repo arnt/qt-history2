@@ -338,7 +338,7 @@ bool QDir::isRelativePath( const QString &path )
 	return TRUE;
 
     int i = 0;
-    if ( path[0].isLetter() && path[1] == ':' )		// drive, e.g. a:
+    if ( len > 2 && path[0].isLetter() && path[1] == ':' )		// drive, e.g. a:
 	i = 2;
     return path[i] != '/' && path[i] != '\\';
 }
