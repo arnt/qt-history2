@@ -260,6 +260,18 @@ static short qt_mac_window_at(int x, int y, QWidget **w=0)
     return wpc;
 }
 
+void qt_mac_set_app_icon(const QPixmap &pixmap)
+{
+    if(pixmap.isNull()) {
+        RestoreApplicationDockTileImage();
+    } else {
+        QPixmap scaled_pixmap = pixmap.toImage().scale(40, 40);
+        CGImageRef ir = qt_mac_create_cgimage(scaled_pixmap, Qt::CopyPixmap, false);
+        SetApplicationDockTileImage(ir);
+        CGImageRelease(ir);
+    }
+}
+
 void qt_mac_set_press_and_hold_context(bool b) { qt_mac_press_and_hold_context = b; } //backdoor to enable press and hold
 
 void qt_mac_secure_keyboard(bool b)

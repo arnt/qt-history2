@@ -1579,6 +1579,10 @@ void QApplication::setWindowIcon(const QPixmap &pixmap)
     else
         *QApplicationPrivate::app_icon = pixmap;
     if (is_app_running && !is_app_closing) {
+#ifdef Q_WS_MAC
+        void qt_mac_set_app_icon(const QPixmap &); //qapplication_mac.cpp
+        qt_mac_set_app_icon(pixmap);
+#endif
         QEvent e(QEvent::ApplicationWindowIconChange);
         for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
              it != QWidget::mapper->constEnd(); ++it) {

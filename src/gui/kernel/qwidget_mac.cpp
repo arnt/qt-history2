@@ -317,6 +317,7 @@ static EventTypeSpec widget_events[] = {
     { kEventClassControl, kEventControlDraw },
     { kEventClassControl, kEventControlInitialize },
     { kEventClassControl, kEventControlGetPartRegion },
+    { kEventClassControl, kEventControlGetClickActivation },
     { kEventClassControl, kEventControlDragEnter },
     { kEventClassControl, kEventControlDragWithin },
     { kEventClassControl, kEventControlDragLeave },
@@ -448,22 +449,28 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 widget->d->hd = 0;
             }
         } else if(ekind == kEventControlInitialize) {
-            UInt32 features = kControlSupportsDragAndDrop;
+            UInt32 features = kControlSupportsDragAndDrop | kControlSupportsClickActivation;
             if(QSysInfo::MacintoshVersion < QSysInfo::MV_PANTHER)
                 features |= (kControlSupportsEmbedding|kControlSupportsGetRegion);
             SetEventParameter(event, kEventParamControlFeatures, typeUInt32, sizeof(features), &features);
+        } else if(ekind == kEventControlGetClickActivation) {
+            ClickActivationResult clickT = kActivateAndIgnoreClick;
+            SetEventParameter(event, kEventParamClickActivation, typeClickActivationResult, 
+                              sizeof(clickT), &clickT);
         } else if(ekind == kEventControlGetPartRegion) {
             handled_event = false;
             if(widget && !widget->isTopLevel()) {
                 ControlPartCode part;
-                GetEventParameter(event, kEventParamControlPart, typeControlPartCode, 0, sizeof(part), 0, &part);
+                GetEventParameter(event, kEventParamControlPart, typeControlPartCode, 0, 
+                                  sizeof(part), 0, &part);
                 if(part == kControlStructureMetaPart
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                    || part == kControlClickableMetaPart
 #endif
                     ) {
                     RgnHandle rgn;
-                    GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, NULL, sizeof(rgn), NULL, &rgn);
+                    GetEventParameter(event, kEventParamControlRegion, typeQDRgnHandle, NULL, 
+                                      sizeof(rgn), NULL, &rgn);
                     SetRectRgn(rgn, 0, 0, widget->width(), widget->height());
                     if(QWidgetPrivate::qt_widget_rgn(widget, kWindowStructureRgn, rgn, false))
                         handled_event = true;
@@ -481,7 +488,8 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                 if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
                     if(ekind == kEventControlDragEnter)
-                        SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean, sizeof(handled_event), &handled_event);
+                        SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean, 
+                                          sizeof(handled_event), &handled_event);
                 }
 #endif
             }
@@ -499,7 +507,8 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
 {
     if(!widget_class) {
         if(HIObjectRegisterSubclass(kObjectQWidget, kHIViewClassID, 0, make_widget_eventUPP(),
-                                    GetEventTypeCount(widget_events), widget_events, NULL, &widget_class) != noErr)
+                                    GetEventTypeCount(widget_events), widget_events, 
+                                    NULL, &widget_class) != noErr)
             qWarning("That cannot happen!!! %d", __LINE__);
     }
     HIViewRef ret = 0;
@@ -1267,16 +1276,6 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
     if(!pixmap.isNull())
         x->icon = new QPixmap(pixmap);
     if(q->isTopLevel()) {
-        if(qApp && qApp->mainWidget() == q) {
-            if(pixmap.isNull()) {
-                RestoreApplicationDockTileImage();
-            } else {
-                QPixmap scaled_pixmap = pixmap.toImage().scale(40, 40);
-                CGImageRef ir = qt_mac_create_cgimage(scaled_pixmap, Qt::CopyPixmap, false);
-                SetApplicationDockTileImage(ir);
-                CGImageRelease(ir);
-            }
-        }
         if(pixmap.isNull()) {
             RemoveWindowProxy(qt_mac_window_for(q));
         } else {
