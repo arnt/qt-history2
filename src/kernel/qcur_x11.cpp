@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#24 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#24 $";
 #endif
 
 
@@ -104,6 +104,10 @@ static QCursor *find_cur( int shape )		// find predefined cursor
 
 /*!
   Internal function that initializes the predefined cursors.
+
+  \todo protecion
+
+  \sa cleanup()
 */
 
 void QCursor::initialize()
@@ -117,6 +121,10 @@ void QCursor::initialize()
 
 /*!
   Internal function that cleans up the predefined cursors.
+
+  \todo protecion
+
+  \sa initialize()
 */
 
 void QCursor::cleanup()
@@ -212,7 +220,7 @@ QCursor::~QCursor()
 
 
 /*!
-  Assigns \e c to this cursor and returns a reference to the cursor.
+  Assigns \e c to this cursor and returns a reference to this cursor.
 */
 
 QCursor &QCursor::operator=( const QCursor &c )
@@ -318,13 +326,12 @@ QPoint QCursor::pos()				// get cursor position
     return QPoint( root_x, root_y );
 }
 
-/*!
-  Warps the cursor (hot spot) to the global screen position \e (x,y).
+/*!  Immediately moves the cursor (hot spot) to the global screen
+  position \e (x,y).
 
   You can call QWidget::mapToGlobal() to translate widget coordinates
   to global screen coordinates.
-  \sa pos(), QWidget::mapFromGlobal(), QWidget::mapToGlobal()
-*/
+  \sa pos(), QWidget::mapFromGlobal(), QWidget::mapToGlobal() */
 
 void QCursor::setPos( int x, int y )		// set cursor position
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#9 $
 **
 ** Implementation of QCursor class
 **
@@ -15,22 +15,27 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#9 $";
 #endif
 
 
 /*!
   \class QCursor qcursor.h
+
   \brief The QCursor class provides a mouse cursor with an arbitrary shape.
+
+  \ingroup drawing
+  \ingroup shared
 
   This class is used for mainly two things; to create mouse cursors to be
   associated with widgets and to get and set the position of the mouse
   cursor.
 
-  Qt has a number of standard cursor shapes, but you can also make a custom
-  cursor shape based on a bitmap, a mask and a hotspot.
+  Qt has a number of standard cursor shapes, but you can also make
+  custom cursor shapes based on a \link QBitmap bitmap \endlink, a
+  mask and a hotspot.
 
-  To associate a cursor with a widget, use QWidget::setCursor(). <br>
+  To associate a cursor with a widget, use QWidget::setCursor().
   To associate a cursor with all widgets (maybe for a short period of time),
   use QApplication::setCursor().
 
@@ -48,8 +53,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qcursor.cpp#8 $";
   <dt> sizeAllCursor <dd> all directions resize
   </dl>
 
-  QCursor objects make use of implicit sharing.
-*/
+  \todo convert cursor numbers to an enum inside the class
+
+  \sa QPainter QWidget */
 
 
 // --------------------------------------------------------------------------

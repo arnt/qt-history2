@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#15 $
 **
 ** Implementation of QDataStream class
 **
@@ -22,7 +22,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#15 $";
 #endif
 
 
@@ -41,11 +41,10 @@ The QDataStream class implements serialization of primitive types,
 like \c char, \c short, \c int, \c char* etc.  Serialization of more
 complex data is accomplished by breaking up the data into primitive units.
 
-The programmer can select which byte order to use when serializing data.
-The default setting is big endian (MSB first). Changing it to little
-endian (LSB first) breaks the portability.
-We therefore recommend keeping this setting unless you have special needs or
-requirements.
+The programmer can select which byte order to use when serializing
+data.  The default setting is big endian (MSB first). Changing it to
+little endian breaks the portability.  We therefore recommend keeping
+this setting unless you have special needs or requirements.
 
 A data stream cooperates closely with a QIODevice. A QIODevice represents
 an input/output medium one can read data from and write data to.
@@ -73,8 +72,11 @@ Example of how to read data from a stream:
   delete str;				\/ delete string
 \endcode
 
-\sa QTextStream.
-*/
+Note particularly that the application programmer needs to delete \e
+str in the example above: Reading from a string creates objects that
+have to be deleted.
+
+\sa QTextStream. */
 
 // --------------------------------------------------------------------------
 // QDataStream member functions
@@ -406,7 +408,9 @@ QDataStream &QDataStream::operator>>( double &f)// read 64-bit floating point
 Reads the '\0'-terminated string \e s from the stream and returns
 a reference to the stream.
 
-The string is read using readBytes().
+The string is read using readBytes(), which allocates space using \c
+new.
+
 */
 
 QDataStream &QDataStream::operator>>( char *&s )// read char array
@@ -420,18 +424,15 @@ QDataStream &QDataStream::operator>>( char *&s )// read char array
 Reads the buffer \e s from the stream and returns a reference to the
 stream.
 
-The buffer \e s will be allocated with \c new. Destroy it with the
-\c delete operator.
-If \e s cannot be allocated, \e s will be set to 0.
+The buffer \e s is allocated using \c new. Destroy it with the \c
+delete operator.  If \e s cannot be allocated, \e s is set to 0.
 
 The \e l parameter will be set to the length of the buffer.
 
 The serialization format is an UINT32 length specifier first, then
 the data (\e length bytes).
 
-
-\sa readRawBytes().
-*/
+\sa readRawBytes(). */
 
 QDataStream &QDataStream::readBytes( char *&s, uint &l )
 {						// read length-encoded bytes
@@ -662,6 +663,8 @@ QDataStream &QDataStream::operator<<( const char *s )
 /*!
 Writes the length specifier \e len and the buffer \e s to the stream and
 returns a reference to the stream.
+
+\internal
 
 The \e len is serialized as an UINT32, followed by \e len bytes from
 \e s.
