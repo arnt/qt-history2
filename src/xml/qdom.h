@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#14 $
+** $Id: //depot/qt/main/src/xml/qdom.h#15 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -470,11 +470,11 @@ public:
     virtual QDomNodeList elementsByTagName( const QString& tagname ) const;
     bool hasAttribute( const QString& name ) const;
 
-    QString attributesNS( const QString nsURI, const QString& localName ) const;
-    void setAttributesNS( const QString nsURI, const QString& qName, const QString& value );
-    void setAttributesNS( const QString nsURI, const QString& qName, int value );
-    void setAttributesNS( const QString nsURI, const QString& qName, uint value );
-    void setAttributesNS( const QString nsURI, const QString& qName, double value );
+    QString attributeNS( const QString nsURI, const QString& localName ) const;
+    void setAttributeNS( const QString nsURI, const QString& qName, const QString& value );
+    void setAttributeNS( const QString nsURI, const QString& qName, int value );
+    void setAttributeNS( const QString nsURI, const QString& qName, uint value );
+    void setAttributeNS( const QString nsURI, const QString& qName, double value );
     void removeAttributeNS( const QString& nsURI, const QString& localName );
     QDomAttr attributeNodeNS( const QString& nsURI, const QString& localName );
     QDomAttr setAttributeNodeNS( const QDomAttr& newAttr );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#39 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#40 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -1808,11 +1808,16 @@ void QDomNode::normalize()
 }
 
 /*!
-  fnord
+  Returns TRUE if the DOM implementation implements the feature \a feature and that
+  feature is supported by this node in the version \a version. Otherwise this
+  function returns FALSE.
+
+  \sa QDomImplementation::hasFeature()
 */
-bool QDomNode::isSupported( const QString& /*feature*/, const QString& /*version*/ ) const
+bool QDomNode::isSupported( const QString& feature, const QString& version ) const
 {
-    return FALSE;
+    QDomImplementation i;
+    return i.hasFeature( feature, version );
 }
 
 /*!
@@ -1896,7 +1901,9 @@ QString QDomNode::localName() const
 }
 
 /*!
-  fnord
+  Returns TRUE if the node has attributes, otherwise it returns FALSE.
+
+  \sa attributes()
 */
 bool QDomNode::hasAttributes() const
 {
@@ -2406,7 +2413,7 @@ bool QDomNamedNodeMapPrivate::contains( const QString& name ) const
        described in the DTD.
   <li> QDomDocumentType::notations() returns a map of all notations
        described in the DTD.
-  <li> QDomElement::attributes() returns a map of all attributes of the
+  <li> QDomNode::attributes() returns a map of all attributes of the
        element.
   </ul>
 
@@ -3908,7 +3915,7 @@ bool QDomElement::hasAttribute( const QString& name ) const
 /*!
   fnord
 */
-QString QDomElement::attributesNS( const QString /*nsURI*/, const QString& /*localName*/ ) const
+QString QDomElement::attributeNS( const QString /*nsURI*/, const QString& /*localName*/ ) const
 {
     return QString::null;
 }
@@ -3916,28 +3923,28 @@ QString QDomElement::attributesNS( const QString /*nsURI*/, const QString& /*loc
 /*!
   fnord
 */
-void QDomElement::setAttributesNS( const QString /*nsURI*/, const QString& /*qName*/, const QString& /*value*/ )
+void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, const QString& /*value*/ )
 {
 }
 
 /*!
   fnord
 */
-void QDomElement::setAttributesNS( const QString /*nsURI*/, const QString& /*qName*/, int /*value*/ )
+void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, int /*value*/ )
 {
 }
 
 /*!
   fnord
 */
-void QDomElement::setAttributesNS( const QString /*nsURI*/, const QString& /*qName*/, uint /*value*/ )
+void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, uint /*value*/ )
 {
 }
 
 /*!
   fnord
 */
-void QDomElement::setAttributesNS( const QString /*nsURI*/, const QString& /*qName*/, double /*value*/ )
+void QDomElement::setAttributeNS( const QString /*nsURI*/, const QString& /*qName*/, double /*value*/ )
 {
 }
 
