@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/validator/motor.h#2 $
+** $Id: //depot/qt/main/examples/validator/motor.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -28,7 +28,7 @@ public:
     int top() { return t; }
     int step() { return s; }
 
-    QValidator::State validate( QString &, int & );
+    QValidator::State validate( QString &, int & ) const;
 
 private:
     int b, t, s;

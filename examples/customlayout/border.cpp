@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/border.cpp#4 $
+** $Id: //depot/qt/main/examples/customlayout/border.cpp#5 $
 **
 ** Implementing your own layout: flow example
 **
@@ -123,10 +123,10 @@ QLayoutIterator BorderLayout::iterator()
 void BorderLayout::setGeometry( const QRect &rect )
 {
     QLayout::setGeometry( rect );
-    layout( rect );
+    doLayout( rect );
 }
 
-void BorderLayout::layout( const QRect &rect, bool /*testonly*/ )
+void BorderLayout::doLayout( const QRect &rect, bool /*testonly*/ )
 {
     int ew = 0, ww = 0, nh = 0, sh = 0;
     int h = 0;

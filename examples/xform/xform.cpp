@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/xform/xform.cpp#6 $
+** $Id: //depot/qt/main/examples/xform/xform.cpp#7 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -284,8 +284,6 @@ void XFormControl::changeMode(int m)
     }
     qApp->flushX();
 }
-
-const int yOff = 35;
 
 ShowXForm::ShowXForm( QWidget *parent, const char *name )
 	: QWidget( parent, name, WResizeNoErase )

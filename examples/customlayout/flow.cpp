@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/flow.cpp#3 $
+** $Id: //depot/qt/main/examples/customlayout/flow.cpp#4 $
 **
 ** Implementing your own layout: flow example
 **
@@ -55,7 +55,7 @@ int SimpleFlow::heightForWidth( int w ) const
     if ( cached_width != w ) {
 	//Not all C++ compilers support "mutable" yet:
 	SimpleFlow * mthis = (SimpleFlow*)this;
-	int h = mthis->layout( QRect(0,0,w,0), TRUE );
+	int h = mthis->doLayout( QRect(0,0,w,0), TRUE );
 	mthis->cached_hfw = h;
 	return h;
     }
@@ -90,10 +90,10 @@ QLayoutIterator SimpleFlow::iterator()
 void SimpleFlow::setGeometry( const QRect &r )
 {
     QLayout::setGeometry( r );
-    layout( r );
+    doLayout( r );
 }
 
-int SimpleFlow::layout( const QRect &r, bool testonly )
+int SimpleFlow::doLayout( const QRect &r, bool testonly )
 {
     int x = r.x();
     int y = r.y();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/border.h#4 $
+** $Id: //depot/qt/main/examples/customlayout/border.h#5 $
 **
 ** Definition of simple flow layout for custom layout example
 **
@@ -90,7 +90,7 @@ protected:
     void setGeometry( const QRect &rect );
 
 private:
-    void layout( const QRect &rect, bool testonly = FALSE );
+    void doLayout( const QRect &rect, bool testonly = FALSE );
     void calcSize( SizeType st );
 
     QList<BorderLayoutStruct> list;

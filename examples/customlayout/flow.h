@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/customlayout/flow.h#4 $
+** $Id: //depot/qt/main/examples/customlayout/flow.h#5 $
 **
 ** Definition of simple flow layout for custom layout example
 **
@@ -43,7 +43,7 @@ protected:
     void setGeometry( const QRect& );
 
 private:
-    int layout( const QRect&, bool testonly = FALSE );
+    int doLayout( const QRect&, bool testonly = FALSE );
     QList<QLayoutItem> list;
     int cached_width;
     int cached_hfw;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/validator/motor.cpp#2 $
+** $Id: //depot/qt/main/examples/validator/motor.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -40,14 +40,14 @@ void MotorValidator::setRange( int bottom, int top, int step )
 // integer in the range b to t which can be described as n*s+b for
 // some integer n.
 
-QValidator::State MotorValidator::validate( QString & motorSize, int & )
+QValidator::State MotorValidator::validate( QString & motorSize, int & ) const
 {
     bool ok;
     long int tmp = motorSize.toLong( &ok );
     if ( !ok )
-	return QValidator::Invalid;
+        return QValidator::Invalid;
     else if ( tmp < b || tmp > t || ((tmp-b)%s) != 0 )
-	return QValidator::Valid;
+        return QValidator::Valid;
     else
-	return QValidator::Acceptable;
+        return QValidator::Acceptable;
 }

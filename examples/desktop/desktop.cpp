@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/desktop/desktop.cpp#2 $
+** $Id: //depot/qt/main/examples/desktop/desktop.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -186,7 +186,7 @@ void drawShadeText( QPainter *p, int x, int y, const char *text,
 
 // NOTE: desktop drag/drop is experimental
 
-class DesktopWidget : public QWidget, QDropSite
+class DesktopWidget : public QWidget, private QDropSite
 {
 public:
     DesktopWidget( const char *s, QWidget *parent=0, const char *name=0 );

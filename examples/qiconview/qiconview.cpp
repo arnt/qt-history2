@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#4 $
+** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -1400,7 +1400,6 @@ void QtIconView::selectByRubber( QRect oldRubber )
     oldRubber = oldRubber.normalize();
     int minx = contentsWidth(), miny = contentsHeight();
     int maxx = 0, maxy = 0;
-    bool ensureV = FALSE;
     int selected = 0;
 
     QtIconViewItem *item = d->firstItem;
@@ -1415,8 +1414,6 @@ void QtIconView::selectByRubber( QRect oldRubber )
             miny = QMIN( miny, item->y() - 1 );
             maxx = QMAX( maxx, item->x() + item->width() + 1 );
             maxy = QMAX( maxy, item->y() + item->height() + 1 );
-
-            ensureV = TRUE;
         }
     }
     emit selectionChanged();
