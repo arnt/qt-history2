@@ -47,10 +47,10 @@ sql {
 		    $$SQL_CPP/qsqldialog.cpp
 
 	contains(sql-driver, all ) {
-		sql-driver += postgres mysql odbc oci
+		sql-driver += psql mysql odbc oci
 	}			
 
-	contains(sql-driver, postgres) {
+	contains(sql-driver, psql) {
 		HEADERS += $$SQL_H/src/p$$SQL_CPP/qsql_psql.h
 		SOURCES += $$SQL_CPP/src/p$$SQL_CPP/qsql_psql.cpp
 		DEFINES += QT_SQL_POSTGRES
@@ -96,4 +96,3 @@ sql {
 	}
 
 }
-!sql:DEFINES    += QT_NO_SQL
