@@ -1,7 +1,7 @@
 TEMPLATE = app
 LANGUAGE = C++
-CONFIG        += qt warn_on
 
+CONFIG        += qt warn_on uic3
 
 SOURCES        += finddialog.cpp \
         main.cpp \
