@@ -261,20 +261,20 @@ void Generator::generateCode()
 //
 // Generate smart cast function
 //
-    fprintf(out, "\nvoid *%s::qt_metacast(const char *clname) const\n{\n", cdef->qualified.constData());
-    fprintf(out, "    if (!clname) return 0;\n");
-    fprintf(out, "    if (!strcmp(clname, qt_meta_stringdata_%s))\n"
+    fprintf(out, "\nvoid *%s::qt_metacast(const char *_clname) const\n{\n", cdef->qualified.constData());
+    fprintf(out, "    if (!_clname) return 0;\n");
+    fprintf(out, "    if (!strcmp(_clname, qt_meta_stringdata_%s))\n"
 		  "\treturn static_cast<void*>(const_cast<%s*>(this));\n",
 	    qualifiedClassNameIdentifier.constData(),  qualifiedClassNameIdentifier.constData());
     for (i = 1; i < cdef->superclassList.size(); ++i) { // for all superclasses but the first one
 	const char *cname = cdef->superclassList.at(i);
-	fprintf(out, "    if (!strcmp(clname, \"%s\"))\n\treturn static_cast<%s*>(const_cast<%s*>(this));\n",
+	fprintf(out, "    if (!strcmp(_clname, \"%s\"))\n\treturn static_cast<%s*>(const_cast<%s*>(this));\n",
 		cname, cname,   qualifiedClassNameIdentifier.constData());
     }
     for (i = 0; i < cdef->interfaceList.size(); ++i) {
 	const QList<QByteArray> &iface = cdef->interfaceList.at(i);
 	for (int j = 0; j < iface.size(); ++j) {
-	    fprintf(out, "    if (!strcmp(clname, %s::iid()))\n\treturn ", iface.at(j).constData());
+	    fprintf(out, "    if (!strcmp(_clname, %s::iid()))\n\treturn ", iface.at(j).constData());
 	    for (int k = j; k >= 0; --k)
 		fprintf(out, "static_cast<%s*>(", iface.at(k).constData());
 	    fprintf(out, "const_cast<%s*>(this)%s;\n",
@@ -282,7 +282,7 @@ void Generator::generateCode()
 	}
     }
     if (purestSuperClass.size() && !isQObject)
-	fprintf(out, "    return %s::qt_metacast(clname);\n", purestSuperClass.constData());
+	fprintf(out, "    return %s::qt_metacast(_clname);\n", purestSuperClass.constData());
     else
 	fprintf(out, "    return 0;\n");
     fprintf(out, "}\n");
