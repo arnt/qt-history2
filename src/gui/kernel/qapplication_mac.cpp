@@ -1,3 +1,4 @@
+//depot/qt/main/src/gui/kernel/qapplication_mac.cpp#118 - edit change 157749 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -386,7 +387,7 @@ void qt_mac_update_os_settings()
                   (f_style & ::bold) ? QFont::Bold : QFont::Normal,
                   (bool)(f_style & ::italic));
 #ifdef DEBUG_PLATFORM_SETTINGS
-        qDebug("qt-internal: Font for Application [%s::%d::%d::%d]",
+        qDebug("qt-internal: Font for Application [%s::%d::%d::%d]", 
                fnt.family().latin1(), fnt.pointSize(), fnt.bold(), fnt.italic());
 #endif
         QApplication::setFont(fnt);
@@ -525,12 +526,14 @@ enum {
     kEventParamQWidget = 'qwid',   /* typeQWidget */
     kEventParamQEventDispatcherMac = 'qevd', /* typeQEventDispatcherMac */
     //events
+    kEventQtRequestSelect = 12,
     kEventQtRequestContext = 13,
     kEventQtRequestMenubarUpdate = 14,
     kEventQtRequestTimer = 15,
     kEventQtRequestWakeup = 16,
     kEventQtRequestShowSheet = 17,
     kEventQtRequestActivate = 18,
+    kEventQtRequestSocketAct = 19,
     kEventQtRequestWindowChange = 20
 };
 static void qt_mac_event_release(EventRef &event)
@@ -560,6 +563,40 @@ static bool qt_mac_event_remove(EventRef &event)
         return true;
     }
     return false;
+}
+
+/* socket notifiers */
+static EventRef request_select_pending = 0;
+void qt_event_request_select(QEventDispatcherMac *loop) {
+    if(request_select_pending) {
+        if(IsEventInQueue(GetMainEventQueue(), request_select_pending))
+            return;
+#ifdef DEBUG_DROPPED_EVENTS
+        qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+#endif
+    }
+
+    CreateEvent(0, kEventClassQt, kEventQtRequestSelect, GetCurrentEventTime(),
+                kEventAttributeUserEvent, &request_select_pending);
+    SetEventParameter(request_select_pending,
+                      kEventParamQEventDispatcherMac, typeQEventDispatcherMac, sizeof(loop), &loop);
+    PostEventToQueue(GetMainEventQueue(), request_select_pending, kEventPriorityStandard);
+}
+static EventRef request_sockact_pending = 0;
+void qt_event_request_sockact(QEventDispatcherMac *loop) {
+    if(request_sockact_pending) {
+        if(IsEventInQueue(GetMainEventQueue(), request_sockact_pending))
+            return;
+#ifdef DEBUG_DROPPED_EVENTS
+        qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+#endif
+    }
+
+    CreateEvent(0, kEventClassQt, kEventQtRequestSocketAct, GetCurrentEventTime(),
+                kEventAttributeUserEvent, &request_sockact_pending);
+    SetEventParameter(request_sockact_pending,
+                      kEventParamQEventDispatcherMac, typeQEventDispatcherMac, sizeof(loop), &loop);
+    PostEventToQueue(GetMainEventQueue(), request_sockact_pending, kEventPriorityStandard);
 }
 
 /* sheets */
@@ -765,10 +802,12 @@ static EventTypeSpec app_events[] = {
     { kEventClassQt, kEventQtRequestTimer },
     { kEventClassQt, kEventQtRequestWakeup },
     { kEventClassQt, kEventQtRequestWindowChange },
+    { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestShowSheet },
     { kEventClassQt, kEventQtRequestContext },
     { kEventClassQt, kEventQtRequestActivate },
     { kEventClassQt, kEventQtRequestMenubarUpdate },
+    { kEventClassQt, kEventQtRequestSocketAct },
 
     { kEventClassWindow, kEventWindowInit },
     { kEventClassWindow, kEventWindowDispose },
@@ -1570,6 +1609,14 @@ bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, Win
                 return false;
             }
         }
+        if(flags & QEventLoop::ExcludeSocketNotifiers) {
+            switch(eclass) {
+            case kEventClassQt:
+                if(ekind == kEventQtRequestSelect || ekind == kEventQtRequestSocketAct)
+                    return false;
+                break;
+            }
+        }
     }
     if(pt && SendEventToWindow(event, pt) != eventNotHandledErr)
         return true;
@@ -1619,6 +1666,18 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         } else if(ekind == kEventQtRequestMenubarUpdate) {
             qt_mac_event_release(request_menubarupdate_pending);
             QMenuBar::macUpdateMenuBar();
+        } else if(ekind == kEventQtRequestSelect) {
+            qt_mac_event_release(request_select_pending);
+            QEventDispatcherMac *l = 0;
+            GetEventParameter(event, kEventParamQEventDispatcherMac, typeQEventDispatcherMac, 0, sizeof(l), 0, &l);
+            timeval tm;
+            memset(&tm, '\0', sizeof(tm));
+            l->d->doSelect(QEventLoop::AllEvents, &tm);
+        } else if(ekind == kEventQtRequestSocketAct) {
+            qt_mac_event_release(request_sockact_pending);
+            QEventDispatcherMac *l = 0;
+            GetEventParameter(event, kEventParamQEventDispatcherMac, typeQEventDispatcherMac, 0, sizeof(l), 0, &l);
+            l->activateSocketNotifiers();
         } else if(ekind == kEventQtRequestActivate) {
             qt_mac_event_release(request_activate_pending.event);
             if(request_activate_pending.widget) {

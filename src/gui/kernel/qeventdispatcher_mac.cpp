@@ -1,3 +1,4 @@
+//depot/qt/main/src/gui/kernel/qeventdispatcher_mac.cpp#3 - edit change 157883 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -44,6 +45,7 @@ extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern bool qt_is_gui_used; //qapplication.cpp
 
 static EventLoopTimerUPP timerUPP = 0;
+static EventLoopTimerUPP mac_select_timerUPP = 0;
 
 /*****************************************************************************
   Timers stuff
@@ -168,14 +170,14 @@ bool QEventDispatcherMac::unregisterTimers(QObject *obj)
 
 QEventDispatcherMacPrivate::QEventDispatcherMacPrivate()
 {
-    interrupt = false;
     macSockets = 0;
     macTimerList = 0;
+    select_timer = 0;
     zero_timer_count = 0;
 }
 
 QEventDispatcherMac::QEventDispatcherMac(QObject *parent)
-    : QAbstractEventDispatcher(*new QEventDispatcherMacPrivate, parent)
+    : QEventDispatcherUNIX(*new QEventDispatcherMacPrivate, parent)
 { }
 
 QEventDispatcherMac::~QEventDispatcherMac()
@@ -201,6 +203,13 @@ QEventDispatcherMac::~QEventDispatcherMac()
         DisposeEventLoopTimerUPP(timerUPP);
         timerUPP = 0;
     }
+    //select cleanup
+    if(d->select_timer) {
+        RemoveEventLoopTimer(d->select_timer);
+        d->select_timer = 0;
+    }
+    DisposeEventLoopTimerUPP(mac_select_timerUPP);
+    mac_select_timerUPP = 0;
     if(d->macSockets) {
         for(QHash<QSocketNotifier *, MacSocketInfo *>::Iterator it = d->macSockets->begin();
             it != d->macSockets->end(); ++it) {
@@ -223,79 +232,107 @@ QEventDispatcherMac::~QEventDispatcherMac()
 /**************************************************************************
     Socket Notifiers
  *************************************************************************/
-static void qt_mac_select_read_callbk(CFReadStreamRef, CFStreamEventType, void *me)
+void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
 {
-    QEvent event(QEvent::SockAct);
-    QApplication::sendEvent(static_cast<QSocketNotifier *>(me), &event);
+    QEventDispatcherMac *eloop = (QEventDispatcherMac*)me;
+    if(QMacBlockingFunction::blocking()) { //just send it immediately
+        timeval tm;
+        memset(&tm, '\0', sizeof(tm));
+        eloop->d->doSelect(QEventLoop::AllEvents, &tm);
+    } else {
+        qt_event_request_select(eloop);
+    }
 }
-
-static void qt_mac_select_write_callbk(CFWriteStreamRef, CFStreamEventType, void *me)
+void qt_mac_internal_select_callbk(int, int, QEventDispatcherMac *eloop)
 {
-    QEvent event(QEvent::SockAct);
-    QApplication::sendEvent(static_cast<QSocketNotifier *>(me), &event);
+     qt_mac_select_timer_callbk(0, eloop);
+}
+static void qt_mac_select_read_callbk(CFReadStreamRef stream, CFStreamEventType type, void *me)
+{
+    if(type == kCFStreamEventOpenCompleted) {
+        CFStreamClientContext ctx;
+        memset(&ctx, '\0', sizeof(ctx));
+        ctx.info = me;
+        CFReadStreamSetClient(stream, kCFStreamEventHasBytesAvailable, qt_mac_select_read_callbk, &ctx);
+    }
+    int in_sock;
+    QCFType<CFDataRef> data = static_cast<CFDataRef>(CFReadStreamCopyProperty(stream,
+                                                            kCFStreamPropertySocketNativeHandle));
+    CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
+    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Read, (QEventDispatcherMac*)me);
+}
+static void qt_mac_select_write_callbk(CFWriteStreamRef stream, CFStreamEventType type, void *me)
+{
+    if(type == kCFStreamEventOpenCompleted) {
+        CFStreamClientContext ctx;
+        memset(&ctx, '\0', sizeof(ctx));
+        ctx.info = me;
+        CFWriteStreamSetClient(stream, kCFStreamEventCanAcceptBytes, qt_mac_select_write_callbk, &ctx);
+    }
+    int in_sock;
+    QCFType<CFDataRef> data = static_cast<CFDataRef>(CFWriteStreamCopyProperty(stream,
+                                                            kCFStreamPropertySocketNativeHandle));
+    CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
+    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Write, (QEventDispatcherMac*)me);
 }
 
 void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
 {
+    QEventDispatcherUNIX::registerSocketNotifier(notifier);
     MacSocketInfo *mac_notifier = 0;
     if(notifier->type() == QSocketNotifier::Read) {
         mac_notifier = new MacSocketInfo;
-        CFStreamCreatePairWithSocket(kCFAllocatorDefault, notifier->socket(),
-                                     &mac_notifier->read_not, 0);
+        CFStreamCreatePairWithSocket(kCFAllocatorDefault, notifier->socket(), &mac_notifier->read_not, 0);
         CFStreamClientContext ctx;
         memset(&ctx, '\0', sizeof(ctx));
-        ctx.info = notifier;
-        CFReadStreamSetClient(mac_notifier->read_not,
-                kCFStreamEventHasBytesAvailable
-                | kCFStreamEventErrorOccurred | kCFStreamEventEndEncountered,
-                qt_mac_select_read_callbk, &ctx);
-        CFReadStreamScheduleWithRunLoop(mac_notifier->read_not, CFRunLoopGetCurrent(),
-                                        kCFRunLoopCommonModes);
+        ctx.info = this;
+        CFReadStreamSetClient(mac_notifier->read_not, kCFStreamEventOpenCompleted, qt_mac_select_read_callbk, &ctx);
+        CFReadStreamScheduleWithRunLoop(mac_notifier->read_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
         CFReadStreamOpen(mac_notifier->read_not);
     } else if(notifier->type() == QSocketNotifier::Write) {
         mac_notifier = new MacSocketInfo;
-        CFStreamCreatePairWithSocket(kCFAllocatorDefault, notifier->socket(), 0,
-                                     &mac_notifier->write_not);
+        CFStreamCreatePairWithSocket(kCFAllocatorDefault, notifier->socket(), 0, &mac_notifier->write_not);
         CFStreamClientContext ctx;
         memset(&ctx, '\0', sizeof(ctx));
-        ctx.info = notifier;
-        CFWriteStreamSetClient(mac_notifier->write_not,
-                kCFStreamEventOpenCompleted | kCFStreamEventCanAcceptBytes
-                | kCFStreamEventErrorOccurred | kCFStreamEventEndEncountered,
-                qt_mac_select_write_callbk, &ctx);
-        CFWriteStreamScheduleWithRunLoop(mac_notifier->write_not, CFRunLoopGetCurrent(),
-                                         kCFRunLoopCommonModes);
+        ctx.info = this;
+        CFWriteStreamSetClient(mac_notifier->write_not, kCFStreamEventOpenCompleted, qt_mac_select_write_callbk, &ctx);
+        CFWriteStreamScheduleWithRunLoop(mac_notifier->write_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
         CFWriteStreamOpen(mac_notifier->write_not);
-    } else if (notifier->type() == QSocketNotifier::Exception) {
-        qWarning("Qt/Mac: QSocketNotifier::Exception is not implemented.");
     }
     if(mac_notifier) {
         if(!d->macSockets)
             d->macSockets = new QHash<QSocketNotifier *, MacSocketInfo *>;
         d->macSockets->insert(notifier, mac_notifier);
     }
+    if(!d->select_timer) {
+        if(!mac_select_timerUPP)
+            mac_select_timerUPP = NewEventLoopTimerUPP(qt_mac_select_timer_callbk);
+        InstallEventLoopTimer(GetMainEventLoop(), 0.1, 0.1,
+                              mac_select_timerUPP, (void *)this, &d->select_timer);
+    }
 }
 
 void QEventDispatcherMac::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
+    QEventDispatcherUNIX::unregisterSocketNotifier(notifier);
     if(d->macSockets) {
         if(MacSocketInfo *mac_notifier = d->macSockets->value(notifier)) {
             d->macSockets->remove(notifier);
             if(notifier->type() == QSocketNotifier::Read) {
-                CFReadStreamSetClient(mac_notifier->read_not, kCFStreamEventNone, 0, 0);
-                CFReadStreamUnscheduleFromRunLoop(mac_notifier->read_not, CFRunLoopGetCurrent(),
-                                                  kCFRunLoopCommonModes);
+                CFReadStreamUnscheduleFromRunLoop(mac_notifier->read_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
                 CFReadStreamClose(mac_notifier->read_not);
                 CFRelease(mac_notifier->read_not);
             } else if(notifier->type() == QSocketNotifier::Write) {
-                CFWriteStreamSetClient(mac_notifier->write_not, kCFStreamEventNone, 0, 0);
-                CFWriteStreamUnscheduleFromRunLoop(mac_notifier->write_not, CFRunLoopGetCurrent(),
-                                                   kCFRunLoopCommonModes);
+                CFWriteStreamUnscheduleFromRunLoop(mac_notifier->write_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
                 CFWriteStreamClose(mac_notifier->write_not);
                 CFRelease(mac_notifier->write_not);
             }
             delete mac_notifier;
         }
+    }
+    if(d->sn_highest == -1 && d->select_timer) {
+        RemoveEventLoopTimer(d->select_timer);
+        d->select_timer = 0;
     }
 }
 
@@ -339,6 +376,11 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         QApplication::sendPostedEvents();
     } while(!d->interrupt && GetNumEventsInQueue(GetMainEventQueue()));
 
+    if (d->interrupt) {
+        d->interrupt = false;
+        return false;
+    }
+
     QApplication::sendPostedEvents();
 
     QThreadData *data = QThreadData::current();
@@ -349,6 +391,7 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
         d->interrupt = false;
         return false;
     }
+
     if(canWait && !d->zero_timer_count) {
         emit aboutToBlock();
         while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);
@@ -393,12 +436,6 @@ void QEventDispatcherMac::flush()
             }
         }
     }
-}
-
-void QEventDispatcherMac::interrupt()
-{
-    qt_event_request_wakeup();
-    d->interrupt = true;
 }
 
 /* This allows the eventloop to block, and will keep things going - including keeping away
