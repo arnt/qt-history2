@@ -2087,7 +2087,7 @@ static QStringList makeFiltersList( const QString &filter )
 		    "/home",
 		    "Images (*.png *.xpm *.jpg)",
 		    this,
-		    "open file dialog"
+		    "open file dialog",
 		    "Choose a file" );
   \endcode
 
@@ -3427,7 +3427,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
                     "/home",
 		    "Images (*.png *.xpm *.jpg)",
 		    this,
-		    "save file dialog"
+		    "save file dialog",
 		    "Choose a filename to save under" );
   \endcode
 
@@ -5442,7 +5442,7 @@ void QFileDialog::modeButtonsDestroyed()
 			    "Images (*.png *.xpm *.jpg)",
 			    "/home",
 			    this,
-			    "open files dialog"
+			    "open files dialog",
 			    "Select one or more files to open" );
   \endcode
 
