@@ -32,10 +32,10 @@ static void initializeDb()
         FMFontFamily fam;
         QString fam_name;
         while(!FMGetNextFontFamily(&it, &fam)) {
-            static Str255 n;
-            if(FMGetFontFamilyName(fam, n) != noErr)
+            static Str255 fam_pstr;
+            if(FMGetFontFamilyName(fam, fam_pstr) != noErr)
                 qDebug("Qt: internal: WH0A, %s %d", __FILE__, __LINE__);
-            if(!n[0] || n[1] == '.') //throw out ones starting with a .
+            if(!fam_pstr[0] || fam_pstr[1] == '.') //throw out ones starting with a .
                 continue;
 
             TextEncoding encoding;
@@ -43,18 +43,14 @@ static void initializeDb()
             TextToUnicodeInfo uni_info;
             CreateTextToUnicodeInfoByEncoding(encoding, &uni_info);
 
-            unsigned long len = n[0] * 2;
+            unsigned long len = fam_pstr[0] * 2;
             unsigned char *buff = (unsigned char *)malloc(len);
-            ConvertFromPStringToUnicode(uni_info, n, len, &len, (UniCharArrayPtr)buff);
+            ConvertFromPStringToUnicode(uni_info, fam_pstr, len, &len, (UniCharArrayPtr)buff);
             fam_name = "";
             for(unsigned long x = 0; x < len; x+=2)
                 fam_name += QChar(buff[x+1], buff[x]);
             free(buff);
             DisposeTextToUnicodeInfo(&uni_info);
-
-            //sanity check the font, and see if we can use it at all! --Sam
-            if(!ATSFontFindFromName(QCFString(fam_name), kATSOptionFlagsDefault))
-                continue;
 
             QtFontFamily *family = db->family(fam_name, true);
             for(int script = 0; script < QFont::LastPrivateScript; ++script)
@@ -68,6 +64,10 @@ static void initializeDb()
                 FMFontSize font_size;
 
                 while(!FMGetNextFontFamilyInstance(&fit, &font, &font_style, &font_size)) {
+                    //sanity check the font, and see if we can use it at all! --Sam
+                    if(!FMGetATSFontRefFromFont(font)) 
+                        continue;
+
                     bool italic = (bool)(font_style & ::italic);
                     int weight = ((font_style & ::bold) ? QFont::Bold : QFont::Normal);
                     QtFontStyle::Key styleKey;
