@@ -82,8 +82,13 @@ QString DeclResolver::relatedProperty( const QString& name ) const
 
     if ( y != 0 && y->kind() == Decl::Function ) {
 	FunctionDecl *func = (FunctionDecl *) y;
-	if ( func->relatedProperty() != 0 )
-	    return func->relatedProperty()->name();
+	if ( func->relatedProperty() != 0 ) {
+	    QString prefix;
+	    int k = name.findRev( QChar(':') );
+	    if ( k != -1 )
+		prefix = name.left( k + 1 );
+	    return prefix + func->relatedProperty()->name();
+	}
     }
     return QString::null;
 }

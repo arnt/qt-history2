@@ -81,7 +81,7 @@ void HighScore::addContribution( bool inInclude, int lineNo, int contribution )
 void Walkthrough::includePass1( const QString& fileName,
 				const Resolver *resolver )
 {
-    QString t = start( TRUE, TRUE, fileName, resolver, LinkMap(), LinkMap() );
+    start( TRUE, TRUE, fileName, resolver, LinkMap(), LinkMap() );
 }
 
 QString Walkthrough::includePass2( const QString& fileName,
@@ -89,9 +89,8 @@ QString Walkthrough::includePass2( const QString& fileName,
 				   const LinkMap& includeLinkMap,
 				   const LinkMap& walkthroughLinkMap )
 {
-    QString t = start( TRUE, FALSE, fileName, resolver, includeLinkMap,
-		       walkthroughLinkMap );
-    return t;
+    return start( TRUE, FALSE, fileName, resolver, includeLinkMap,
+		  walkthroughLinkMap );
 }
 
 void Walkthrough::startPass1( const QString& fileName,

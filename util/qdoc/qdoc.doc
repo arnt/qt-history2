@@ -130,9 +130,9 @@
     in a C-style comment:
     <pre>
     /*!
-      This function sets the label to allow the \\c HLine
-      and \\c VLine shapes if \\a <u>enable</u> is TRUE,
-      and to disallow these shapes if it's FALSE.
+      This function sets the label to allow the HLine and
+      VLine shapes if \\a <u>enable</u> is TRUE, and to
+      disallow these shapes if it's FALSE.
 
       In Qt 3.0 and later, this function does nothing: These
       shapes are always allowed. The function is kept for
@@ -839,9 +839,8 @@
    \i <a name="walkthrough"></a>
     <b>\\walkthrough</b> enables use of walkthrough commands
     (\link #printline \\printline \endlink and friends) to explain the
-    example code chunk by chunk:
-    <pre>
-    /*! <u>\\walkthrough</u> hello/main.cpp *&#47;</pre>
+    example code chunk by chunk. See
+    \link #printline \\printline \endlink below for an example.
 
    \i <a name="printline"></a>
     <b>\\printline</b> expands to the next non-blank source code line
@@ -856,14 +855,18 @@
 
       <u>\\printline</u> qapp
     *&#47;</pre>
-    If "qapp" is not a substring of the first line of hello/main.cpp
-    (presumably "#include&nbsp;\<qapplication.h\>"), a warning is
-    emitted. This applies to all the other walkthough commands as
-    well: \link #printto \\printto \endlink,
+    If "qapp" is not a substring of the first non-blank line of
+    hello/main.cpp (presumably "#include&nbsp;\<qapplication.h\>"),
+    a warning is emitted. This applies to all the other walkthough
+    commands as well: \link #printto \\printto \endlink,
     \link #printuntil \\printuntil \endlink,
     \link #skipline \\skipline \endlink,
      \link #skipto \\skipto \endlink and
     \link #skipuntil \\skipuntil \endlink.
+
+    qdoc ignores all meaningless white space C++ senso when looking
+    for a substring. This makes the documentation more independent to 
+    stylistic changes in the examples source code.
 
    \i <a name="printto"></a>
     <b>\\printto</b> expands to all the lines from the current
@@ -1246,7 +1249,7 @@
 
     For example, to get warnings like "qmembuf.cpp:335: New
     documentation at
-    file:///home/warwick/qt/doc/html/qmembuf.cpp#pullup (257 bytes)",
+    file:/home/warwick/qt/doc/html/qmembuf.cpp#pullup (257 bytes)",
     set
     <pre>
     BASE = file://$QTDIR/doc/html/</pre>
@@ -1374,7 +1377,7 @@
 
   Both long and short options are provided, to please both the casual
   user and the lazy typists. However, since the author of this manual
-  is a lazy typist, only long options are listed here:
+  is a lazy typist, only long options are listed here.
 
   \list
    \i <a name="--auto-hrefs"></a>
@@ -1386,7 +1389,7 @@
     <b>--base</b> (cf. \link #BASE BASE \endlink) sets the URL prefix
     to use when emitting editorial warnings. To get a
     Netscape-friendly prefix, pass
-    "--base=file:///home/warwick/qt/doc/html" to qdoc (assuming that
+    "--base=file:/home/warwick/qt/doc/html" to qdoc (assuming that
     the documentation is in /home/warwick/qt/doc/html).
 
    \i <a name="--define"></a>
@@ -1422,13 +1425,12 @@
     sets a limit on the number of similar warnings.
 
    \i <a name="--max-warnings"></a>
-    <b>--max-warnings</b> is equivalent to
-    \link #MAXWARNINGS MAXWARNINGS \endlink. It sets a global limit on
-    the number of warnings emitted.
+    <b>--max-warnings</b> (cf. \link #MAXWARNINGS MAXWARNINGS) sets a
+    global limit on the number of warnings emitted.
 
    \i <a name="--only"></a>
-    <b>--only</b> is equivalent to \link #ONLY ONLY \endlink. It
-    allows you to generate a subset of the HTML files. For example,
+    <b>--only</b> (cf. \link #ONLY ONLY \endlink) allows you to
+    generate a subset of the HTML files. For example,
     "--only=qpushbutton,tutorial" makes qdoc run much faster by
     generating only qpushbutton.html and tutorial.html (and related
     files).
@@ -1439,6 +1441,7 @@
 
     The generated files have the same quality as usual, because all
     the include files and source files are read anyway.
+
    \i <a name="--output-dir"></a>
     <b>--output-dir</b> sets the directory where qdoc puts the
     generated documentation. Example:
@@ -1489,7 +1492,7 @@
   <blockquote>
     Badegakk<br>
     Trolltech AS<br>
-    Waldemar Thranes 98<br>
+    Waldemar Thranes gate 98<br>
     N-0175 Oslo<br>
     Norway
   </blockquote>

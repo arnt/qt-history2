@@ -22,6 +22,7 @@
 #include "stringset.h"
 
 static QString parenParen( QString("()") );
+static QRegExp hashHashHash( QString("#" "##") );
 
 /*
   These three macros are used so often that all-upper-case names are
@@ -412,6 +413,7 @@ private:
 
     QStringList getStringList();
     bool somethingAheadPreventingNewParagraph();
+    bool valueIsDocumented();
     void enterWalkthroughSnippet();
     void leaveWalkthroughSnippet();
 
@@ -1111,10 +1113,16 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    value = value.mid( k + 2 );
 		}
 		yyOut += QString( "<a name=\"%1\"></a>" ).arg( value );
-		yyOut += QString( "<tt>" );
-		yyOut += enumPrefix + value;
-		yyOut += QString( "</tt> - " );
+		yyOut += QString( "<tt>%1</tt>" ).arg( enumPrefix + value );
+		if ( valueIsDocumented() )
+		    yyOut += QString( " - " );
 		documentedValues.insert( value );
+		skipSpaces( yyIn, yyPos );
+
+		// skip any needless hyphen
+		if ( yyPos < yyLen + 2 && yyIn[yyPos] == QChar('-') &&
+		     yyIn[yyPos + 1].isSpace() )
+		    yyPos += 2;
 		break;
 	    case hash( 'w', 7 ):
 		consume( "warning" );
@@ -1458,18 +1466,30 @@ QStringList DocParser::getStringList()
 
 bool DocParser::somethingAheadPreventingNewParagraph()
 {
-    int inPos0 = yyPos;
+    int pos = yyPos;
     bool something = FALSE;
 
-    skipSpaces( yyIn, yyPos );
-    if ( yyPos < yyLen - 4 ) {
-	QString lookahead = yyIn.mid( yyPos, 4 );
+    skipSpaces( yyIn, pos );
+    if ( pos < yyLen - 4 ) {
+	QString lookahead = yyIn.mid( pos, 4 );
 	if ( lookahead == QString("<li>") || lookahead == QString("\\bug") ||
 	     lookahead == QString("\\val") )
 	    something = TRUE;
     }
-    yyPos = inPos0;
     return something;
+}
+
+bool DocParser::valueIsDocumented()
+{
+    int pos = yyPos;
+    int numNLs = 0;
+
+    while ( pos < yyLen && yyIn[pos].isSpace() ) {
+	if ( yyIn[pos] == QChar('\n') )
+	    numNLs++;
+	pos++;
+    }
+    return numNLs < 2 && yyIn.mid( pos, 6 ) != QString( "\\value" );
 }
 
 void DocParser::enterWalkthroughSnippet()
@@ -2239,11 +2259,15 @@ QString Doc::finalHtml() const
 
 		if ( !fileName.isEmpty() ) {
 		    yyOut += QString( "<pre>" );
+		    begin = yyPos;
 		    yyOut += walk.includePass2( fileName, resolver(),
 						includeLinkMaps[fileName],
 						walkthroughLinkMaps[fileName] );
 		    yyOut += QString( "</pre>" );
 		    dependsOn.insert( walk.filePath() );
+		    if ( yyOut.find(hashHashHash, begin) != -1 )
+			warning( 2, Location(fileName),
+				 "Met '#" "##' in example" );
 		}
 		break;
 	    case hash( 'l', 1 ):

@@ -48,7 +48,8 @@
 static void setLink( Emitter *emitter, Doc *doc, const QString& link,
 		     const QString& text )
 {
-    emitter->addLink( link, text );
+    if ( !doc->internal() && !doc->obsolete() )
+	emitter->addLink( link, text );
     doc->setLink( link, text );
 }
 
