@@ -1388,19 +1388,24 @@ void QTextDocument::setPlainText( const QString &text )
     clear();
     preferRichText = FALSE;
 
-    QString s;
-    lParag = 0;
-    QStringList lst = QStringList::split( '\n', text, TRUE );
-    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+    int lastNl = 0;
+    int nl = text.find( '\n' );
+    while ( TRUE ) {
 	lParag = createParag( this, lParag, 0 );
 	if ( !fParag )
 	    fParag = lParag;
-	s = *it;
+	QString s = text.mid( lastNl, nl - lastNl );
 	if ( !s.isEmpty() ) {
 	    if ( s[ (int)s.length() - 1 ] == '\r' )
 		s.remove( s.length() - 1, 1 );
 	    lParag->append( s );
 	}
+	if ( nl == 0xffffff )
+	    break;
+	lastNl = nl + 1;
+	nl = text.find( '\n', nl + 1 );
+	if ( nl == -1 )
+	    nl = 0xffffff;
     }
 
     if ( !lParag )
