@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#185 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#186 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -532,7 +532,7 @@ const char* qt_reg_winclass( int type )		// register window class
 #endif
 	className = "";
     }
-    TCHAR* tcn = className ? qt_winTchar(className,TRUE) : 0;
+    const TCHAR* tcn = className ? qt_winTchar(className,TRUE) : 0;
     if ( style != 0 ) {
 	WNDCLASS wc;
 	wc.style	 = style;
