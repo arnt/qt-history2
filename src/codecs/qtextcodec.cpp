@@ -949,10 +949,7 @@ bool QTextCodec::canEncode( QChar ch ) const
 }
 
 /*!
-  Returns TRUE if the unicode string \a s can be fully encoded
-  with this codec.  The default implementation tests if the result of
-  toUnicode(fromUnicode(s)) is the original \a s. Subclasses may be
-  able to improve the efficiency.
+    \overload
 */
 bool QTextCodec::canEncode( const QString& s ) const
 {

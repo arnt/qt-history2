@@ -866,15 +866,17 @@ void QFontDialog::emitSelectedFont()
 }
 
 /*!
-  \fn void QFontDialog::fontSelected( const QFont & )
+  \fn void QFontDialog::fontSelected( const QFont & font )
 
-  This signal is emitted when the user has chosen a font and clicked ok.
+  This signal is emitted when the user has chosen a font and clicked ok,
+  the font that was selected is passed in \a font.
 */
 
 /*!
-  \fn void QFontDialog::fontHighlighted( const QFont & )
+  \fn void QFontDialog::fontHighlighted( const QFont & font )
 
-  This signal is emitted when the user changed a setting in the dialog.
+  This signal is emitted when the user changed a setting in the dialog,
+  the font that was highlighted is passed in \a font.
 */
 
 #endif
