@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#227 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#228 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2082,14 +2082,14 @@ void QListBox::ensureCurrentVisible()
 	return;
 
     doLayout();
-    
+
     int h = (d->current->height( this ) + 1) / 2;
     int w = (d->current->width( this ) + 1) / 2;
     int row = currentRow();
     int column = currentColumn();
 
     ensureVisible( d->columnPos[column] + w, d->rowPos[row] + h, w, h);
-    
+
 //     int row = currentRow();
 //     int column = currentColumn();
 
@@ -2442,10 +2442,11 @@ void QListBox::inSort( const QString& text )
 void QListBox::resizeEvent( QResizeEvent * e )
 {
     if ( d->layoutDirty ||
-	 rowMode() == FitToHeight || columnMode() == FitToWidth ) {
-	d->layoutDirty = TRUE;
-	d->updateTimer->stop();
-	doLayout();
+         rowMode() == FitToHeight || columnMode() == FitToWidth ) {
+        d->layoutDirty = TRUE;
+        d->updateTimer->stop();
+        doLayout();
+        repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight(), FALSE );
     }
     QScrollView::resizeEvent( e );
 }
