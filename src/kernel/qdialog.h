@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#35 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#36 $
 **
 ** Definition of QDialog class
 **
@@ -59,8 +59,8 @@ public:
 
 protected slots:
     virtual void done( int );
-    void	accept();
-    void	reject();
+    virtual void accept();
+    virtual void reject();
 
 protected:
     void	setResult( int r )	{ rescode = r; }
