@@ -29,6 +29,7 @@
 #include "qdatetime.h"
 #include "qcursor.h"
 #include "qtimer.h"
+#include "qpointer.h"
 
 //#define QT_DEBUG_DATATABLE
 
@@ -758,7 +759,7 @@ void Q3DataTable::contentsContextMenuEvent( QContextMenuEvent* e )
 	    IdUpdate,
 	    IdDelete
 	};
-	Q3GuardedPtr<Q3PopupMenu> popup = new Q3PopupMenu( this, "qt_datatable_menu" );
+	QPointer<Q3PopupMenu> popup = new Q3PopupMenu( this, "qt_datatable_menu" );
 	int id[ 3 ];
 	id[ IdInsert ] = popup->insertItem( tr( "Insert" ) );
 	id[ IdUpdate ] = popup->insertItem( tr( "Update" ) );

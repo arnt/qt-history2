@@ -20,7 +20,6 @@
 #include "q3header.h"
 #include "q3memarray.h"
 #include "q3ptrlist.h"
-#include "q3guardedptr.h"
 #include "q3shared.h"
 #include "q3intdict.h"
 #include "qstringlist.h"
