@@ -975,10 +975,8 @@ QVariant QDB2Result::data( int field )
 	    v = new QVariant( qGetStringData( d->hStmt, field, info.length(), isNull ) );
 	    break;
     }
-    if ( isNull ) {
-	*v = QVariant();
-	v->cast( info.type() );
-    }
+    if ( isNull )
+	*v = QVariant(info.type());
     d->valueCache.insert( field, v );
     return *v;
 }

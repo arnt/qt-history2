@@ -184,9 +184,7 @@ void QSqlField::clear( bool nullify )
 {
     if ( isReadOnly() )
 	return;
-    QVariant v;
-    v.cast( type() );
-    val = v;
+    val = QVariant(type());
     if ( nullify )
 	nul = TRUE;
 }

@@ -1131,9 +1131,7 @@ bool QODBCResult::exec()
 	    tmpStorage.removeFirst();
 
 	    if ( isNull ) {
-		QVariant v;
-		v.cast( values[i].type() );
-		values[ i ] = v;
+		values[ i ] = QVariant(values[i].type());
 		if ( values[ i ].type() != QVariant::ByteArray )
 		    tmpStorage.removeFirst();
 		continue;

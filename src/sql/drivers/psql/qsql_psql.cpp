@@ -215,11 +215,8 @@ QVariant QPSQLResult::data( int i )
     const QString val = ( d->isUtf8 && ptype != BYTEAOID ) ?
 			QString::fromUtf8( PQgetvalue( d->result, at(), i ) ) :
 			QString::fromLocal8Bit( PQgetvalue( d->result, at(), i ) );
-    if ( PQgetisnull( d->result, at(), i ) ) {
-	QVariant v;
-	v.cast( type );
-	return v;
-    }
+    if ( PQgetisnull( d->result, at(), i ) )
+	return QVariant(type);
     switch ( type ) {
     case QVariant::Bool:
 	{
