@@ -1289,7 +1289,6 @@ void QLineEdit::copy() const
 
 void QLineEdit::paste()
 {
-    d->removeSelectedText();
     insert( QApplication::clipboard()->text( QClipboard::Clipboard ) );
 }
 
