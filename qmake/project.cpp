@@ -1787,9 +1787,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
             if(prop)
                 replacement = prop->value(val);
         } else if(args.isEmpty()) {
-            if(val.left(1) == ".") { //variables starting with a . are not available
-                replacement = "";
-            } else if(val == "LITERAL_WHITESPACE") { //a real space in a token)
+            if(val == "LITERAL_WHITESPACE") { //a real space in a token)
                 replacement = "\t";
             } else if(val == "LITERAL_DOLLAR") { //a real $ (not a variable replace)
                 replacement = "$";
