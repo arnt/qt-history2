@@ -330,7 +330,8 @@ QString qMakeFieldValue( const QSqlDriver* driver, const QString& prefix, QSqlFi
 {
     QString f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
     if ( !field->isNull() ) {
-	if( (field->type() == QVariant::String) || (field->type() == QVariant::CString) )
+	if( (field->type() == QVariant::String) || (field->type() == QVariant::CString) \
+	    || (field->type() == QVariant::Date) || (field->type() == QVariant::Time) || (field->type() == QVariant::DateTime) )
 	    f += " " + op + " '" + field->value().toString() + "'";
 	else
 	    f += " " + op + " " + field->value().toString();
