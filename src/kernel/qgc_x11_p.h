@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Definition of QPainter class.
+** Definition of QAbstractGC(for X11) private data.
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
 **
