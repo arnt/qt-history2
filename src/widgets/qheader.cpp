@@ -1218,15 +1218,13 @@ QSize QHeader::sizeHint() const
 	width = 0;
 	height = qMax( height, d->height );
 	for ( int i = 0; i < count(); i++ )
-	    width += d->fullSize < -1 ? d->sizes[i] :
-		     sectionSizeHint( mapToSection( i ), fm ).width();
+	    width += d->sizes[i];
     } else {
 	width = fm.width( ' ' );
 	height = 0;
 	width = qMax( width, d->height );
 	for ( int i = 0; i < count(); i++ )
-	    height += d->fullSize < -1 ? d->sizes[i] :
-		      sectionSizeHint( mapToSection( i ), fm ).height();
+	    height += d->sizes[i];
     }
     return (style().sizeFromContents(QStyle::CT_Header, this,
 				     QSize(width, height)).expandedTo(QApplication::globalStrut()));

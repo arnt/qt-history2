@@ -6615,7 +6615,8 @@ QSize QListView::sizeHint() const
 	buildDrawableList();
 
     QSize s( d->h->sizeHint() );
-    s.setWidth( s.width() + style().pixelMetric(QStyle::PM_ScrollBarExtent) );
+    if ( verticalScrollBar()->isVisible() )
+	s.setWidth( s.width() + style().pixelMetric(QStyle::PM_ScrollBarExtent) );
     s += QSize(frameWidth()*2,frameWidth()*2);
     QListViewItem * l = d->r;
     while( l && !l->height() )
