@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
   QApplication app(argc, argv);
 
   QTreeWidget *view = new QTreeWidget;
+  view->setAttribute(Qt::WA_DeleteOnClose);
   view->setAlternatingRowColors(true);
   view->setRootIsDecorated(false);
   view->setSortingEnabled(true);
@@ -133,7 +134,6 @@ int main(int argc, char *argv[])
   }
 
   view->setWindowIcon(QPixmap(":/images/interview.png"));
-  app.setMainWidget(view);
   view->resize(500, 150);
   view->show();
   return app.exec();
