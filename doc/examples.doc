@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.23 1999/05/31 21:43:46 reggie Exp $
+** $Id: examples.doc,v 2.24 1999/06/02 20:19:26 paul Exp $
 **
 ** Documentation for the examples
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.23 1999/05/31 21:43:46 reggie Exp $";
+static char ident[] = "$Id: examples.doc,v 2.24 1999/06/02 20:19:26 paul Exp $";
 #endif
 
 
@@ -1173,55 +1173,6 @@ static char ident[] = "$Id: examples.doc,v 2.23 1999/05/31 21:43:46 reggie Exp $
   Implementation:
 
   \include scribble/scribble.cpp
-
-  <hr>
-
-  Main:
-
-*/	
-
-/*! \example sheet/main.cpp
-
-  <h1 align=center>Sheet</h1><br clear="all">
-
-  In this example you can enter values in a table and then
-  a pie chart is drawn.
-
-  <hr>
-
-  Header file of the table parser:
-
-  \include sheet/parser.h
-
-  <hr>
-
-  Implementation of the table parser:
-
-  \include sheet/parser.cpp
-
-  <hr>
-
-  Header file of the sheet:
-
-  \include sheet/sheet.h
-
-  <hr>
-
-  Implementation of the sheet:
-
-  \include sheet/sheet.cpp
-
-  <hr>
-
-  Header file of the pie chart:
-
-  \include sheet/pie.h
-
-  <hr>
-
-  Implementation of the pie chart:
-
-  \include sheet/pie.cpp
 
   <hr>
 
