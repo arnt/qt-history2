@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#5 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#5 $";
 #endif
 
 
@@ -67,17 +67,17 @@ void QColor::getHSV( int *h, int *s, int *v ) const
     int b = (int)((rgb >> 16) & 0xff);
     uint max = r;				// maximum RGB component
     int whatmax = 0;				// r=>0, g=>1, b=>2
-    if ( g > max ) {
+    if ( (uint)g > max ) {
 	max = g;
 	whatmax = 1;
     }
-    if ( b > max ) {
+    if ( (uint)b > max ) {
 	max = b;
 	whatmax = 2;
     }
     uint min = r;				// find minimum value
-    if ( g < min ) min = g;
-    if ( b < min ) min = b;
+    if ( (uint)g < min ) min = g;
+    if ( (uint)b < min ) min = b;
     int delta = max-min;
     *v = max;					// calc value
     *s = max ? (int)((long)(510L*delta+max)/(2L*max)) : 0;
