@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#2 $
 **
 ** Implementation of QSignalMapper class
 **
@@ -93,7 +93,7 @@ void QSignalMapper::setMapping( const QObject* sender, const char* identifier )
   Removes all mappings for \a sender.  This is done automatically
   when mapped objects are destroyed.
 */
-void QSignalMapper::removeMapping( const QObject* sender )
+void QSignalMapper::removeMappings( const QObject* sender )
 {
     d->dict.remove((void*)sender);
 }
