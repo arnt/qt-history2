@@ -124,10 +124,8 @@
 #  define Q_OS_SCO
 #elif defined(__USLC__)                  /* all SCO platforms + UDK or OUDK */
 #  define Q_OS_UNIXWARE
-#  define Q_OS_UNIXWARE7
 #elif defined(__svr4__) && defined(i386) /* Open UNIX 8 + GCC */
 #  define Q_OS_UNIXWARE
-#  define Q_OS_UNIXWARE7
 #elif defined(__MAKEDEPEND__)
 #else
 #  error "Qt has not been ported to this OS - talk to qt-bugs@trolltech.com"
