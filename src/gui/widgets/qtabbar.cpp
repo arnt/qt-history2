@@ -90,14 +90,15 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     bool isCurrent = tab == currentIndex;
     opt.state = QStyle::Style_Default;
     opt.row = 0;
-    // must handle mouse down...
+    if (tab == pressedIndex)
+        opt.state |= QStyle::Style_Sunken;
     if (isCurrent)
         opt.state |= QStyle::Style_Selected;
     if (isCurrent && q->hasFocus())
         opt.state |= QStyle::Style_HasFocus;
     if (q->isEnabled() && ptab->enabled)
         opt.state |= QStyle::Style_Enabled;
-    if (opt.rect.contains(QCursor::pos()))
+    if (opt.rect.contains(q->mapFromGlobal(QCursor::pos())))
         opt.state |= QStyle::Style_MouseOver;
     opt.shape = shape;
     opt.text = ptab->text;
@@ -738,7 +739,7 @@ void QTabBar::mouseReleaseEvent (QMouseEvent *e)
         e->ignore();
 
     int i = d->indexAtPos(e->pos()) == d->pressedIndex ? d->pressedIndex : -1;
-    d->pressedIndex = 0;
+    d->pressedIndex = -1;
     if (e->type() == style().styleHint(QStyle::SH_TabBar_SelectMouseType, this))
         setCurrentIndex(i);
 }

@@ -1403,7 +1403,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 tts = kThemeTabNonFrontUnavailable;
             } else if (!(tab->state & Style_Enabled)) {
                 tts = kThemeTabNonFrontInactive;
-            } else if (tab->state & (Style_Sunken | Style_MouseOver)
+            } else if ((tab->state & (Style_Sunken | Style_MouseOver))
                        == (Style_Sunken | Style_MouseOver)) {
                 tts = kThemeTabNonFrontPressed;
             }
