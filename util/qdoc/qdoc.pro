@@ -71,7 +71,8 @@ SOURCES		= binarywriter.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qstring.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qstringlist.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qtextstream.cpp \
-		  $$QT_SOURCE_TREE/src/tools/qlibrary.cpp
+		  $$QT_SOURCE_TREE/src/tools/qlibrary.cpp \
+                  $$QT_SOURCE_TREE/src/tools/qunicodetables.cpp
 unix:SOURCES	+= $$QT_SOURCE_TREE/src/tools/qdir_unix.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qfile_unix.cpp \
 		  $$QT_SOURCE_TREE/src/tools/qfileinfo_unix.cpp
