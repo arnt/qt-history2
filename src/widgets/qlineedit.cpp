@@ -914,7 +914,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
 
 void QLineEdit::drawContents( QPainter *painter )
 {
-    int marg = frameWidth() + 1;
+    int marg = frameWidth();
     painter->translate( marg, 0 );
     const QColorGroup & g = colorGroup();
 
