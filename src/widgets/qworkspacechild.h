@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#2 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#3 $
 **
 ** Definition of the QChildWindow class
 **
@@ -44,17 +44,65 @@ class QToolButton;
 class QLabel;
 class QWorkspace;
 
+
+class QWorkspaceChildTitelBar : public QWidget
+{
+    Q_OBJECT
+public:
+    QWorkspaceChildTitelBar (QWorkspace* w, QWidget* parent, const char* name=0, bool iconMode = FALSE );
+    ~QWorkspaceChildTitelBar();
+
+    bool isActive() const;
+    
+ public slots:
+    void setActive( bool );
+
+signals:
+    void doActivate();
+    void doNormal();
+    void doClose();
+    void doMaximize();
+    void doMinimize();
+
+protected:
+    void resizeEvent( QResizeEvent * );
+    void mousePressEvent( QMouseEvent * );
+    void mouseReleaseEvent( QMouseEvent * );
+    void mouseMoveEvent( QMouseEvent * );
+    bool eventFilter( QObject *, QEvent * );
+
+private:
+    QToolButton* closeB;
+    QToolButton* maxB;
+    QToolButton* iconB;
+    QLabel* titleL;
+    bool buttonDown;
+    int mode;
+    QPoint moveOffset;
+    QWorkspace* workspace;
+    bool imode;
+    bool act;
+};
+
+
 class QWorkspaceChild : public QFrame
 {
     Q_OBJECT
 public:
     QWorkspaceChild( QWidget* client, QWorkspace *parent=0, const char *name=0 );
     ~QWorkspaceChild();
-    
+
     void setActive( bool );
     bool isActive() const;
-    
+
     QWidget* clientWidget() const;
+    QWidget* iconWidget() const;
+
+ public slots:
+    void activate();
+    void showMinimized();
+    void showNormal();
+    bool close( bool forceKill );
 
 protected:
     void mousePressEvent( QMouseEvent * );
@@ -65,17 +113,17 @@ protected:
 
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
-    
+
 private:
     QWidget* clientw;
     bool buttonDown;
     int mode;
     QPoint moveOffset;
-    QToolButton* closeB;
-    QToolButton* maxB;
-    QToolButton* iconB;
-    QLabel* titleL;
     bool act;
+    QWorkspaceChildTitelBar* titlebar;
+    QWorkspaceChildTitelBar* iconw;
+    QSize clientSize;
+    bool inCloseHandler;
 
 };
 #endif

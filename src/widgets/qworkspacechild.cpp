@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#3 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -30,6 +30,7 @@
 #include <qlayout.h>
 #include "qworkspacechild.h"
 #include "qworkspace.h"
+#include "qvbox.h"
 
 //
 //  W A R N I N G
@@ -67,7 +68,7 @@ static const char * close_xpm[] = {
 "  .XX      .XX  ",
 "  .X        .X  ",
 "                ",
-"                "};        
+"                "};
 
 static const char * maximize_xpm[] = {
 /* width height num_colors chars_per_pixel */
@@ -124,9 +125,172 @@ static const char * minimize_xpm[] = {
 
 
 #define TITLEBAR_HEIGHT 18
+#define TITLEBAR_SEPARATION 2
 #define BUTTON_SIZE 18
+#define TITLE_HEIGHT 18
 #define BORDER 2
 #define RANGE 6
+
+
+QWorkspaceChildTitelBar::QWorkspaceChildTitelBar (QWorkspace* w, QWidget* parent, const char* name, bool iconMode )
+    : QWidget( parent, name )
+{
+    workspace = w;
+    buttonDown = FALSE;
+    imode = iconMode;
+    act = FALSE;
+
+    closeB = new QToolButton( this, "close" );
+    closeB->setFocusPolicy( NoFocus );
+    closeB->setIconSet( QPixmap( close_xpm ) );
+    closeB->resize(BUTTON_SIZE, BUTTON_SIZE);
+    connect( closeB, SIGNAL( clicked() ),
+	     this, SIGNAL( doClose() ) ) ;
+    maxB = new QToolButton( this, "maximize" );
+    maxB->setFocusPolicy( NoFocus );
+    maxB->setIconSet( QPixmap( maximize_xpm ));
+    maxB->resize(BUTTON_SIZE, BUTTON_SIZE);
+    connect( maxB, SIGNAL( clicked() ),
+	     this, SIGNAL( doMaximize() ) );
+    iconB = new QToolButton( this, "iconify" );
+    iconB->setFocusPolicy( NoFocus );
+    iconB->setIconSet( QPixmap( minimize_xpm ) );
+    iconB->resize(BUTTON_SIZE, BUTTON_SIZE);
+    connect( iconB, SIGNAL( clicked() ),
+	     this, SIGNAL( doMinimize() ) );
+
+    titleL = new QLabel( this );
+
+    titleL->setMouseTracking( TRUE );
+    titleL->installEventFilter( this );
+    titleL->setAlignment( AlignVCenter );
+    titleL->setFont( QFont("helvetica", 12, QFont::Bold) );
+
+    resize( 256, TITLEBAR_HEIGHT );
+
+}
+
+QWorkspaceChildTitelBar::~QWorkspaceChildTitelBar()
+{
+}
+
+void QWorkspaceChildTitelBar::mousePressEvent( QMouseEvent * e)
+{
+    if ( e->button() == LeftButton ) {
+	buttonDown = TRUE;
+	moveOffset = mapToParent( e->pos() );
+	emit doActivate();
+    }
+}
+
+void QWorkspaceChildTitelBar::mouseReleaseEvent( QMouseEvent * e)
+{
+    if ( e->button() == LeftButton ) {
+	buttonDown = FALSE;
+	releaseMouse();
+    }
+}
+
+void QWorkspaceChildTitelBar::mouseMoveEvent( QMouseEvent * e)
+{
+    if ( !buttonDown )
+	return;
+    QPoint p = workspace->mapFromGlobal( e->globalPos() );
+    if ( !workspace->rect().contains(p) ) {
+	if ( p.x() < 0 )
+	    p.rx() = 0;
+	if ( p.y() < 0 )
+	    p.ry() = 0;
+	if ( p.x() > workspace->width() )
+	    p.rx() = workspace->width();
+	if ( p.y() > workspace->height() )
+	    p.ry() = workspace->height();
+    }
+	
+    QPoint pp = p - moveOffset;
+
+    parentWidget()->move( pp );
+}
+
+
+
+bool QWorkspaceChildTitelBar::eventFilter( QObject * o, QEvent * e)
+{
+    titleL->setText( caption() );
+    if ( o == titleL ) {
+	if ( e->type() == QEvent::MouseButtonPress
+	     || e->type() == QEvent::MouseButtonRelease
+	     || e->type() == QEvent::MouseMove) {
+	    QMouseEvent* me = (QMouseEvent*) e;
+	    QMouseEvent ne( me->type(), titleL->mapToParent(me->pos()), me->button(), me->state() );
+	
+	    if (e->type() == QEvent::MouseButtonPress )
+		mousePressEvent( &ne );
+	    else if (e->type() == QEvent::MouseButtonRelease )
+		mouseReleaseEvent( &ne );
+	    else
+		mouseMoveEvent( &ne );
+	}
+	else if ( e->type() == QEvent::MouseButtonDblClick )
+	    emit doNormal();
+    }
+    return FALSE;
+}
+
+
+void QWorkspaceChildTitelBar::resizeEvent( QResizeEvent * )
+{
+    int bo = ( height()- BUTTON_SIZE) / 2;
+    closeB->move( width() - BUTTON_SIZE - bo, bo  );
+    maxB->move( closeB->x() - BUTTON_SIZE - bo, closeB->y() );
+    iconB->move( maxB->x() - BUTTON_SIZE, maxB->y() );
+
+    int to = ( height()- TITLE_HEIGHT) / 2;
+    
+    if (imode && !isActive() ) 
+	titleL->setGeometry( QRect( QPoint( BUTTON_SIZE + bo, 0 ),
+				    rect().bottomRight() ) );
+    else
+	titleL->setGeometry( QRect( QPoint( BUTTON_SIZE + bo, to ),
+				    QPoint( iconB->geometry().left() - bo, to + TITLE_HEIGHT ) ) );
+
+}
+
+
+void QWorkspaceChildTitelBar::setActive( bool active )
+{
+    titleL->setText( caption() );
+    act = active;
+    if ( active ) {
+	if ( imode ){
+	    iconB->show();
+	    maxB->show();
+	    closeB->show();
+	}
+	QColorGroup g = colorGroup();
+	g.setBackground( darkBlue );
+	g.setText( white );
+	titleL->setPalette( QPalette( g, g, g), TRUE );
+	titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
+    }
+    else {
+	if ( imode ){
+	    iconB->hide();
+	    closeB->hide();
+	    maxB->hide();
+	}
+	QColorGroup g = colorGroup();
+	titleL->setPalette( QPalette( g, g, g), TRUE );
+	titleL->setFrameStyle( QFrame::NoFrame );
+    }
+    if ( imode )
+	resizeEvent(0);
+}
+
+bool QWorkspaceChildTitelBar::isActive() const
+{
+    return act;
+}
 
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent=0, const char *name=0 )
     : QFrame( parent, name )
@@ -135,44 +299,32 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent=0, const c
     buttonDown = FALSE;
     setMouseTracking( TRUE );
     act = FALSE;
-    
-    closeB = new QToolButton( this, "close" );
-    closeB->setFocusPolicy( NoFocus );
-    closeB->setIconSet( QPixmap( close_xpm ) );
-    closeB->resize(BUTTON_SIZE, BUTTON_SIZE);
-    connect( closeB, SIGNAL( clicked() ), 
+    iconw = 0;
+
+    titlebar = new QWorkspaceChildTitelBar( parent, this );
+    connect( titlebar, SIGNAL( doActivate() ),
+	     this, SLOT( activate() ) );
+    connect( titlebar, SIGNAL( doClose() ),
 	     this, SLOT( close() ) );
-    maxB = new QToolButton( this, "maximize" );
-    maxB->setFocusPolicy( NoFocus );
-    maxB->setIconSet( QPixmap( maximize_xpm ));
-    maxB->resize(BUTTON_SIZE, BUTTON_SIZE);
-    iconB = new QToolButton( this, "iconify" );
-    iconB->setFocusPolicy( NoFocus );
-    iconB->setIconSet( QPixmap( minimize_xpm ) );
-    iconB->resize(BUTTON_SIZE, BUTTON_SIZE);
-    
-    titleL = new QLabel( this );
-    
-    titleL->setMouseTracking( TRUE );
-    titleL->installEventFilter( this );
-    titleL->setAlignment( AlignVCenter );
-    titleL->setFont( QFont("helvetica", 12, QFont::Bold) );
-    
+    connect( titlebar, SIGNAL( doMinimize() ),
+	     this, SLOT( showMinimized() ) );
+
     setFrameStyle( QFrame::WinPanel | QFrame::Raised );
     setMinimumSize( 128, 96 );
-    
+
     clientw = window;
-    if (!clientw) 
+    if (!clientw)
 	return;
-    
-    
+
+
     clientw->reparent( this, 0, QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ) );
     clientw->show();
- 
+
     resize( clientw->width() + 2*frameWidth() + 2*BORDER, clientw->height() + 2*frameWidth() + TITLEBAR_HEIGHT +2*BORDER);
-    
+
+    inCloseHandler = FALSE;
     clientw->installEventFilter( this );
-    
+
     setActive( TRUE );
 }
 
@@ -183,57 +335,41 @@ QWorkspaceChild::~QWorkspaceChild()
 
 void QWorkspaceChild::resizeEvent( QResizeEvent * )
 {
-    int bo = (BORDER + TITLEBAR_HEIGHT - BUTTON_SIZE) / 2;
-    closeB->move( width() - frameWidth() - BUTTON_SIZE - bo, frameWidth()+ bo  );
-    maxB->move( closeB->x() - BUTTON_SIZE - bo, closeB->y() );
-    iconB->move( maxB->x() - BUTTON_SIZE, maxB->y() );
-    
-    titleL->setGeometry( QRect( QPoint( frameWidth() + BORDER + BUTTON_SIZE + bo, closeB->y() ),
-			 QPoint( iconB->geometry().left() - bo, iconB->geometry().bottom() ) ) );
-			 
 
-    
+    QRect r = contentsRect();
+    titlebar->setGeometry( r.x() + BORDER, r.y() + BORDER, r.width() - 2*BORDER, TITLEBAR_HEIGHT+1);
+
     if (!clientw)
 	return;
-    
-    QRect r = contentsRect();
-    clientw->setGeometry( r.x() + BORDER, r.y() + BORDER + TITLEBAR_HEIGHT, 
-			r.width() - 2*BORDER, r.height() - 2*BORDER - TITLEBAR_HEIGHT);
+
+    QRect cr( r.x() + BORDER, r.y() + BORDER + TITLEBAR_SEPARATION + TITLEBAR_HEIGHT,
+			r.width() - 2*BORDER, 
+			  r.height() - 2*BORDER - TITLEBAR_SEPARATION - TITLEBAR_HEIGHT);
+    clientSize = cr.size();
+    clientw->setGeometry( cr );
+}
+
+void QWorkspaceChild::activate()
+{
+    setActive( TRUE );
 }
 
 
 bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 {
-    if ( o == titleL ) {
-	if ( e->type() == QEvent::MouseButtonPress
-	     || e->type() == QEvent::MouseButtonRelease
-	     || e->type() == QEvent::MouseMove) {
-	    QMouseEvent* me = (QMouseEvent*) e;
-	    QMouseEvent ne( me->type(), titleL->mapToParent(me->pos()), me->button(), me->state() );
-	    
-	    if (e->type() == QEvent::MouseButtonPress )
-		mousePressEvent( &ne );
-	    else if (e->type() == QEvent::MouseButtonRelease )
-		mouseReleaseEvent( &ne );
-	    else
-		mouseMoveEvent( &ne );
-	}
-	return FALSE;
-    }
-    
+
+    titlebar->setCaption( clientw->caption() );
+
     if ( !isActive() ) {
 	if ( e->type() == QEvent::MouseButtonPress) {
-	    raise();
 	    setActive( TRUE );
 	}
 	return FALSE;
     }
-    
+
     if (o != clientw)
 	return FALSE;
 
-    titleL->setText( clientw->caption() );
-    
     switch ( e->type() ) {
     case QEvent::Show:
 	show();
@@ -242,17 +378,22 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	hide();
 	break;
     case QEvent::Resize:
-	{ 
+	{
 	    QResizeEvent* re = (QResizeEvent*)e;
-	    QSize s( re->size().width() + 2*frameWidth() + 2*BORDER, re->size().height() + 2*frameWidth() + TITLEBAR_HEIGHT +2*BORDER );
-	    if ( s != size() ){
+	    if ( re->size() != clientSize ){
+		QSize s( re->size().width() + 2*frameWidth() + 2*BORDER, 
+			 re->size().height() + 3*frameWidth() + TITLEBAR_HEIGHT +TITLEBAR_SEPARATION+2*BORDER );
 		resize( s );
 	    }
 	}
 	break;
     case QEvent::Close:
-	close();
-	return TRUE;
+	if ( !inCloseHandler && clientw->close( FALSE  ) ) {
+	    clientw = 0;
+	    close( TRUE );
+	    return TRUE;
+	}
+	return FALSE;
     default:
 	break;
     }
@@ -264,12 +405,10 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 void QWorkspaceChild::mousePressEvent( QMouseEvent * e)
 {
     if ( e->button() == LeftButton ) {
-	raise();
-	setActive( TRUE );
+	activate();
 	mouseMoveEvent( e );
 	buttonDown = TRUE;
 	moveOffset = e->pos();
-	grabMouse( cursor() );
     }
 }
 
@@ -314,10 +453,10 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 	}
 	return;
     }
-    
-    
-    QPoint p = e->globalPos() - parentWidget()->mapToGlobal(QPoint(0,0));
-    
+
+
+    QPoint p = parentWidget()->mapFromGlobal( e->globalPos() );
+
     if ( !parentWidget()->rect().contains(p) ) {
 	if ( p.x() < 0 )
 	    p.rx() = 0;
@@ -329,11 +468,11 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 	    p.ry() = parentWidget()->height();
     }
 	
-    
+
     QPoint pp = p - moveOffset;
     QPoint mp( QMIN( pp.x(), geometry().right() - minimumWidth() ),
 	       QMIN( pp.y(), geometry().bottom() - minimumHeight() ) );
-    
+
 
     switch ( mode ) {
     case 1:
@@ -384,15 +523,14 @@ void QWorkspaceChild::setActive( bool b)
 {
     if ( b == act || !clientw)
 	return;
-    
+
     act = b;
+
+    titlebar->setActive( act );
+    if (iconw )
+	iconw->setActive( act );
+
     if (act) {
-	QColorGroup g = colorGroup();
-	g.setBackground( darkBlue );
-	g.setText( white );
-	titleL->setPalette( QPalette( g, g, g), TRUE );
-	titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-	
 	QObjectList* ol = clientw->queryList( "QWidget" );
 	for (QObject* o = ol->first(); o; o = ol->next() )
 	    o->removeEventFilter( this );
@@ -400,9 +538,6 @@ void QWorkspaceChild::setActive( bool b)
 	((QWorkspace*)parentWidget())->activateClient( clientWidget() );
     }
     else {
-	QColorGroup g = colorGroup();
-	titleL->setPalette( QPalette( g, g, g), TRUE );
-	titleL->setFrameStyle( QFrame::NoFrame );
 	QObjectList* ol = clientw->queryList( "QWidget" );
 	for (QObject* o = ol->first(); o; o = ol->next() ) {
 	    o->removeEventFilter( this );
@@ -420,4 +555,50 @@ bool QWorkspaceChild::isActive() const
 QWidget* QWorkspaceChild::clientWidget() const
 {
     return clientw;
+}
+
+
+QWidget* QWorkspaceChild::iconWidget() const
+{
+    if ( !iconw ) {
+	QWorkspaceChild* that = (QWorkspaceChild*) this;
+	QVBox* vbox = new QVBox;
+	vbox->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
+	vbox->resize( 196+2*vbox->frameWidth(), 20 + 2*vbox->frameWidth() );
+	that->iconw = new QWorkspaceChildTitelBar( (QWorkspace*)parentWidget(), vbox, 0, TRUE );
+	iconw->setActive( isActive() );
+	connect( iconw, SIGNAL( doActivate() ),
+		 this, SLOT( activate() ) );
+	connect( iconw, SIGNAL( doClose() ),
+		 this, SLOT( close() ) );
+	connect( iconw, SIGNAL( doNormal() ),
+		 this, SLOT( showNormal() ) );
+    }
+    iconw->setCaption( clientWidget()->caption() );
+    return iconw->parentWidget();
+}
+
+void QWorkspaceChild::showMinimized()
+{
+    ((QWorkspace*)parentWidget())->minimizeClient( clientWidget() );
+}
+
+void QWorkspaceChild::showNormal()
+{
+    ((QWorkspace*)parentWidget())->normalizeClient( clientWidget() );
+}
+
+bool QWorkspaceChild::close( bool forceKill )
+{
+    if (clientw) {
+	inCloseHandler = TRUE;
+	if (!clientw->close( forceKill ) )
+	    return FALSE;
+	inCloseHandler = FALSE;
+    }
+    if (iconw) {
+	delete iconw->parentWidget();
+	iconw = 0;
+    }
+    return QWidget::close( forceKill );
 }

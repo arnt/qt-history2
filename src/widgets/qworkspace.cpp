@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#3 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -47,7 +47,7 @@ QWorkspace::QWorkspace( QWidget *parent=0, const char *name=0 )
 {
     manage = TRUE;
     active = 0;
-    
+
     px = 0;
     py = 0;
 
@@ -80,20 +80,27 @@ void QWorkspace::setAutoManage( bool m)
 void QWorkspace::childEvent( QChildEvent * e)
 {
 
-    if (e->type() == QEvent::ChildInserted && e->child()->isWidgetType()) {
+    if (e->inserted() && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
-	if ( !manage || w->inherits("QWorkspaceChild") )
+	if ( !manage || w->inherits("QWorkspaceChild") || icons.contains( w ) )
 	    return; 	    // already here
 	
 	bool doShow = w->isVisible();
+	
 	QWorkspaceChild* child = new QWorkspaceChild( w, this );
 	windows.append( child );
 	place( child );
 	if ( doShow )
 	    child->show();
 	activateClient( w );
+    } else if (e->removed() ) {
+	if ( windows.contains( (QWorkspaceChild*)e->child() ) )
+	    windows.remove( (QWorkspaceChild*)e->child() );
+	if ( icons.contains( (QWidget*)e->child() ) ){
+	    icons.remove( (QWidget*)e->child() );
+	    layoutIcons();
+	}
     }
-
 }
 
 
@@ -103,11 +110,13 @@ void QWorkspace::activateClient( QWidget* w)
 	c->setActive( c->clientWidget() == w );
 	if (c->clientWidget() == w)
 	    active = c;
-
     }
-
+    
     if (!active)
 	return;
+
+    active->raise();
+
     QObjectList* ol = active->queryList( "QWidget" );
     bool hasFocus = FALSE;
     for (QObject* o = ol->first(); o; o = ol->next() ) {
@@ -159,4 +168,71 @@ void QWorkspace::place( QWorkspaceChild* c)
 	py =  maxRect.y();
     }
     c->move( tx, ty );
+}
+
+void QWorkspace::insertIcon( QWidget* w )
+{
+    if (icons.contains(w) )
+	return;
+    icons.append( w );
+    if (w->parentWidget() != this )
+	w->reparent( this, 0, QPoint(0,0), FALSE);
+    layoutIcons();
+    if (isVisible())
+	w->show();
+
+}
+
+void QWorkspace::removeIcon( QWidget* w)
+{
+    if (!icons.contains( w ) )
+	return;
+    icons.remove( w );
+    w->hide();
+ }
+
+void QWorkspace::resizeEvent( QResizeEvent * )
+{
+    layoutIcons();
+}
+
+void QWorkspace::layoutIcons()
+{
+    int x = 0;
+    for (QWidget* w = icons.first(); w ; w = icons.next() ) {
+	w->move(x, height()-w->height());
+	x = w->geometry().right();
+    }
+}
+
+void QWorkspace::maximizeClient( QWidget* )
+{
+}
+
+void QWorkspace::minimizeClient( QWidget* w)
+{
+    QWorkspaceChild* c = findChild( w );
+    if ( c ) {
+	c->hide();
+	insertIcon( c->iconWidget() );
+    }
+}
+
+void QWorkspace::normalizeClient( QWidget* w)
+{
+    QWorkspaceChild* c = findChild( w );
+    if ( c ) {
+	removeIcon( c->iconWidget() );
+	c->show();
+    }
+}
+
+QWorkspaceChild* QWorkspace::findChild( QWidget* w)
+{
+    for (QWorkspaceChild* c = windows.first(); c; c = windows.next() ) {
+	c->setActive( c->clientWidget() == w );
+	if (c->clientWidget() == w)
+	    return c;
+    }
+    return 0;
 }
