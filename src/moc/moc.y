@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#16 $
+** $Id: //depot/qt/main/src/moc/moc.y#17 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -42,7 +42,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#17 $";
 #endif
 
 
@@ -72,6 +72,7 @@ struct Function					// member function meta data
     QString  ptrType;
     int	     lineNo;
     ArgList *args;
+    Function() { args=0; }
    ~Function() { delete args; }
 };
 
