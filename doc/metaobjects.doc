@@ -23,13 +23,7 @@
 
 /*! \page metaobjects.html
 
-<title>
-Qt Toolkit - Meta Object System description
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Meta Object System</h1><br clear="all">
+\title Meta Object System
 
 The Meta Object System in Qt is responsible for the signal/slot
 mechanism for communication between objects, runtime type information

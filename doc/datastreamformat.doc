@@ -1,10 +1,6 @@
 /*! \page datastreamformat.html
 
-<title>Format of the QDataStream operators</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Format of the QDataStream operators</h1><br clear="all">
+\title Format of the QDataStream operators
 
 The \l QDataStream allows you to serialize some of the Qt data types. In
 the following table you find for these data types the format of the

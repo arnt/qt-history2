@@ -2,11 +2,7 @@
 
 /*! \page unicode.html
   
-<title>About Unicode</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align="center">About Unicode</h1>
+\title About Unicode
 
 Unicode is a 16-bit character set, portable across all major computing
 platforms and with decent coverage of almost all of the world.  It is

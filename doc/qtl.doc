@@ -24,12 +24,7 @@
 /*!
 \page qtl.html
 
-<title>Qt Template library</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Qt Template Library</h1><br clear="all">
+\title Qt Template library
 
 Thq Qt Template Library is a set of templates within Qt dealing with
 containers of objects.  It provides a list of objects, a stack of

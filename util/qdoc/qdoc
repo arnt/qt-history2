@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#229 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#230 $
 #
 # this is a massive hack, written very quickly
 #
@@ -720,6 +720,8 @@ sub writepages {
 	    $doc =~ s@\\version\b@$version@gs;
 
 	    $doc =~ s@\\postheader\b@$postheader@gs;
+	    $doc =~ s@\\style\b@$style@gs;
+	    $doc =~ s@\\title([^\n]*)\n@<title>$module_long - $1</title>$style<body bgcolor=\"#ffffff\">\n$postheader<h1 align=center>$1</h1><br clear="all">@gs;
 	
 	    $doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 	    $doc =~ s!\\c\s+(\S+)!<code>$1</code>!gs;

@@ -24,13 +24,8 @@
 /*!
 \page primes.html
 
-<title>Table of Prime Numbers</title>
-</head><body bgcolor="#ffffff">
-<a name=primenumbers></a>
+\title Table of Prime Numbers 2-9999
 
-\postheader
-
-<h1 align=center>Table of Prime Numbers 2 - 9999</h1><br clear="all">
 <hr>
 
 <pre>

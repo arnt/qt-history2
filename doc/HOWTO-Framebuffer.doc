@@ -27,10 +27,7 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 
 /*! \page HOWTO-framebuffer.html
 
-<title>Enabling the uinux framebuffer</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
+\title Enabling the Linux framebuffer
 
 <h1>How to enable framebuffer support in the Linux kernel</h1>
 

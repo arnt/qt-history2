@@ -27,13 +27,7 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 
 /*! \page installation.html
 
-<title>Qt Installation</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1>Installing Qt</h1>
-
+\title Installation
 
 <p>
 The installation procedure is different for the different Qt platforms:

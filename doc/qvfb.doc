@@ -23,12 +23,7 @@
  
 /*! \page qvfb-qws.html
 
-<title>Qt/Embedded Virtual Framebuffer</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Qt/Embedded Virtual Framebuffer</h1><br clear="all">
+\title Qt/Embedded Virtual Framebuffer
 
 The virtual framebuffer allows Qt/Embedded programs to be developed on your
 desktop machine, without switching between consoles and X11.

@@ -29,12 +29,7 @@ static char ident[] = "$Id: classes.doc,v 1.8 1999/04/28 09:53:43 aavit Exp $";
 /*!
 \page classes.html
 
-<title>Qt Documentation</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Class Index</h1><br clear="all">
+\title Class Index
 
   \classlist
 

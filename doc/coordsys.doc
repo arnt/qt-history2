@@ -24,12 +24,7 @@
 /*!
 \page coordsys.html
 
-<title>The Coordinate System</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>The Coordinate System</h1><br clear="all">
+\title The Coordinate System
 
 A \link QPaintDevice paint device\endlink in Qt is a drawable 2D
 surface. \l QWidget, \l QPixmap, \l QPicture and \l QPrinter are all

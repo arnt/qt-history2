@@ -1,11 +1,6 @@
 /*! \page install-qws.html
-<title>Qt/Embedded Installation</title>
-</head><body bgcolor="#ffffff">
 
-\postheader
-
-<h1>Installing Qt/Embedded</h1>
-
+\title Installing Qt/Embedded
 
 <p>
 This installation procedure is written for Linux/i386. It may need
@@ -167,12 +162,8 @@ Linux platforms is a trivial matter - see the files in <tt>configs/</tt>.
 */
 
 /*! \page fonts-qws.html
-<title>Qt/Embedded Fonts</title>
-</head><body bgcolor="#ffffff">
 
-\postheader
-
-<h1>Fonts in Qt/Embedded</h1>
+\title Fonts in Qt/Embedded
 
 <h2>Supported formats</h2>
 
@@ -330,12 +321,8 @@ TrueType and Type1 support.
 */
 
 /*! \page running-qws.html
-<title>Running Qt/Embedded applications</title>
-</head><body bgcolor="#ffffff">
 
-\postheader
-
-<h1>Running Qt/Embedded applications</h1>
+\title Running Qt/Embedded applications
 
 A Qt/Embedded application requires a master application to be running
 or to be a master application itself.  The
@@ -380,12 +367,8 @@ i.e. without the <i>-qws</i> option.
 */
 
 /*! \page porting-qws.html
-<title>Porting your applications to Qt/Embedded</title>
-</head><body bgcolor="#ffffff">
 
-\postheader
-
-<h1>Porting your applications to Qt/Embedded</h1>
+\title Porting your applications to Qt/Embedded
 
 Existing Qt applications should require no porting provided there is no
 platform dependant code.  Platform dependant code includes system calls,
@@ -407,12 +390,7 @@ using #ifdef directives:
 
 
 /*! \page pointer-qws.html
-<title>Qt/Embedded Pointer Handling</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1>Qt/Embedded Pointer Handling</h1>
+\title Qt/Embedded Pointer Handling
 
 Pointer handling in Qt/Embedded works for any mouse-like device such as
 a touchpanel, a trackball, or real mouse.

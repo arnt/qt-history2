@@ -23,13 +23,7 @@
 
 /*! \page layout.html
 
-<title>
-Qt Toolkit - Layout
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Qt Layout Classes</h1><br clear="all">
+\title Layout Classes
 
 The Qt layout system provides a simple and powerful way of specifying
 the layout of child widgets.
@@ -218,13 +212,7 @@ to be notified of \c LayoutHint events.
 
 /*!  \page customlayout.html
 
-<title>
-Qt Toolkit - Custom Layouts
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Writing your own layout manager</h1><br clear="all">
+\title Writing your own layout manager
 
 Here we go through an example in detail. The class \c
 CardLayout is inspired by the Java layout manager of the same name. It

@@ -23,11 +23,7 @@
 
 /*! \page porting.html
 
-<title>Qt 2.0 - Porting</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center> Porting to Qt 2.0 </h1><br clear="all">
+\title Porting to Qt 2.0
 
 <p>
 You're probably looking at this page because you want to port
@@ -1086,11 +1082,7 @@ compile just the same anyway).  This list is provided for completeness.
 
 /*! \page removed20.html
 
-<title>Qt 2.0 - Removed functions</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Functions removed in  Qt 2.0 </h1><br clear="all">
+\title Functions removed in  Qt 2.0
 
 <pre>
 

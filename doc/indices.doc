@@ -28,19 +28,20 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 /*! \page index.html
 
 <title>Qt Reference Documentation</title>
+\style
 </head><body bgcolor="#ffffff">
 
 \postheader
 
-<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#EEEEFF>
+<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
 <tr>
-<th bgcolor=#D0D0FF width=33%>
+<th bgcolor=#A2C511 width=33%>
 General
 </th>
-<th bgcolor=#D0D0FF width=33%>
+<th bgcolor=#A2C511 width=33%>
 Getting Started
 </th>
-<th bgcolor=#D0D0FF width=33%>
+<th bgcolor=#A2C511 width=33%>
 What´s New
 </th>
 </tr>
@@ -71,10 +72,10 @@ What´s New
 </td>
 </tr>
 <tr>
-<th  bgcolor=#D0D0FF>
+<th  bgcolor=#A2C511>
 API Reference
 </th>
-<th colspan=2 bgcolor=#D0D0FF>
+<th colspan=2 bgcolor=#A2C511>
 Overviews
 </tr>
 <tr>
@@ -107,13 +108,13 @@ Overviews
 </td>
 </tr>
 <tr>
-<th bgcolor=#D0D0FF>
+<th bgcolor=#A2C511>
 Troll Tech
 </th>
-<th bgcolor=#D0D0FF>
+<th bgcolor=#A2C511>
 Products For Qt
 </th>
-<th bgcolor=#D0D0FF>
+<th bgcolor=#A2C511>
 Appendix
 </th>
 </tr>
@@ -146,16 +147,11 @@ Appendix
 
 /*! \page topicals.html
 
-<title>Qt API Structure Overview</title>
-</head><body bgcolor="#ffffff">
+\title API Structure Overview
 
-\postheader
-
-<h1 align="center">API Structure Overview</h1><br clear="all">
-
-<table bgcolor=#EEEEFF>
+<table bgcolor=#E5E5E5>
 <tr>
-<th cellpadding=2 cellspacing=1 border=0 colspan=2 bgcolor=#D0D0FF>
+<th cellpadding=2 cellspacing=1 border=0 colspan=2 bgcolor=#A2C511>
 Components
 </th>
 </tr><tr>
@@ -184,7 +180,7 @@ event handling, access to system settings, internationalization, etc.
 </td><td> Classes providing for all forms of online-help in your application.
 </td></tr>
 <tr>
-<th colspan=2 bgcolor=#D0D0FF>
+<th colspan=2 bgcolor=#A2C511>
 Framework
 </th>
 </tr><tr>
@@ -210,7 +206,7 @@ encoding and decoding.
 of composing complex dialogs.
 </td></tr>
 <tr>
-<th colspan=2 bgcolor=#D0D0FF>
+<th colspan=2 bgcolor=#A2C511>
 Utilities
 </th>
 </tr><tr>

@@ -25,9 +25,7 @@
 
 /*! \page pictures.html
 
-<title>Pictures of Most Widgets</title>
-</head><body bgcolor="#ffffff">
-\postheader
+\title Pictures of Most Widgets
 
 <p>Most of these widgets are pictured in either Motif or Windows
 style.  All widgets are supported in both styles (plus other

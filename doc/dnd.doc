@@ -23,13 +23,7 @@
 
 /*! \page dnd.html
 
-<title>
-Qt Toolkit - Drag and Drop
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Drag and Drop with Qt</h1><br clear="all">
+\title Drag and Drop
 
   Drag-and-drop is a direct-manipulation model for allowing the user to
   transfer information between and within applications. It is similar

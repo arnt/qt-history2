@@ -23,13 +23,7 @@
 
 /*! \page signalsandslots.html
 
-<title>
-Qt Toolkit - Signals and Slots
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Signals and  Slots</h1><br clear="all">
+\title Signals and Slots
 
 Signals and slots are used for communication between objects.  The
 signal/slot mechanism is a central feature of Qt and probably the

@@ -24,12 +24,7 @@
 /*!
 \page shclass.html
 
-<title>Qt Shared Classes</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Shared Classes</h1><br clear="all">
+\title Shared Classes
 
 Many C++ classes in Qt utilize a data sharing mechanism to maximize
 resource usage and minimize copying of data. We use two techniques:

@@ -24,12 +24,7 @@
 /*!
 \page collection.html
 
-<title>Qt Collection Classes</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Collection Classes</h1><br clear="all">
+\title Collection Classes
 
 A collection class is a class that can contain a number of items in a
 certain data structure and perform operations on the contained items;

@@ -24,12 +24,7 @@
 /*!
 \page session.html
 
-<title>Session Management</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Session Management</h1><br clear="all">
+\title Session Management
 
 <h2> Definitions </h2>
 

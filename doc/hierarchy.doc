@@ -29,12 +29,7 @@ static char ident[] = "$Id: hierarchy.doc,v 1.6 1999/04/28 09:53:54 aavit Exp $"
 /*!
 \page hierarchy.html
 
-<title>Qt Documentation</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Class Inheritance Hierarchy</h1><br clear="all">
+\title Class Inheritance Hierarchy
 
 This list shows the C++ class inheritance relations between the
 classes in the Qt API.

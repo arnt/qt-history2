@@ -23,13 +23,7 @@
 
 /*! \page object.html
 
-<title>
-Qt Toolkit - Qt Object Model
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Qt Object Model</h1><br clear="all">
+\title Qt Object Model
 
 The standard C++ Object Model provides very efficient runtime support
 of the object paradigm. On the negative side, its static nature shows
@@ -73,13 +67,7 @@ better suited for true component GUI programming.
 
 /*! \page timers.html
 
-<title>
-Qt Toolkit - Timers
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Timers</h1><br clear="all">
+\title Timers
 
 \l QObject, the base class of all Qt objects, provides the basic timer
 support in Qt. With \l QObject::startTimer(), you start a timer with
@@ -204,13 +192,7 @@ in a single-threaded application without blocking the user interface.
 
 /*! \page properties.html
 
-<title>
-Qt Toolkit - Properties
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Properties</h1><br clear="all">
+\title Properties
 
 Qt provides a sophisticated property system similar to those shipped
 by some compiler vendors. However, as a compiler- and
@@ -377,13 +359,7 @@ through the meta object, see \l QMetaObject::classInfo() for details.
 
 /*! \page eventsandfilters.html
 
-<title>
-Qt Toolkit - Events and Event Filters
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Events and Event Filters</h1><br clear="all">
+\title Events and Event Filters
 
 An event, in Qt, is an object that inherits \l QEvent.  Events are
 delivered to objects that inherit \l QObject through calling \l
@@ -506,13 +482,7 @@ details.
 
 /*! \page objecttrees.html
 
-<title>
-Qt Toolkit - Object Trees and Object Ownership
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Object Trees and Object Ownership</h1><br clear="all">
+\title Object Trees and Object Ownership
 
 \link QObject QObjects\endlink organize themselves in object trees.
 When you create a QObject with another object as parent, it's added to

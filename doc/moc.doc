@@ -23,13 +23,7 @@
 
 /*! \page moc.html
 
-<title>
-Qt Toolkit - Using the Meta Object Compiler
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Using the Meta Object Compiler</h1><br clear="all">
+\title Using the Meta Object Compiler
 
 The Meta Object Compiler, moc among friends, is the program which
 handles the <a href="metaobjects.html">C++ extensions in Qt.</a>

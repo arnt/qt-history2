@@ -23,12 +23,7 @@
 
 /*! \page design.html
 
-<title>Qt Design Principles</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Design Principles</h1><br clear="all">
+\title Design Principles
 
 Here are the design principles behind Qt.  These are guiding principles,
 not rules, but they're <em>good</em> principles, and we've stuck to

@@ -1,11 +1,8 @@
 // $Id: application.doc,v 2.8 1999/10/01 11:37:51 arnt Exp $
 
 /*! \page simple-application.html
-<title>Qt Simple Application</title>
-</head><body bgcolor="#ffffff">
-\postheader
 
-<h1 align=center>Walkthrough: A Simple Application</h1><br clear="all">
+\title Walkthrough: A Simple Application
 
 This walkthrough shows simple use of \l QMainWindow, \l QMenuBar, \l
 QPopupMenu, \l QToolBar and \l QStatusBar - the classes that every

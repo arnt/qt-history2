@@ -22,11 +22,7 @@
 *****************************************************************************/
 
 /*! \page aboutqt.html
-<title>About Qt</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>About Qt</h1>
+\title About Qt
 
 <p>Qt is a cross-platform C++ GUI application framework. It provides
 application developers with all the functionality needed to build
@@ -59,11 +55,7 @@ href="http://www.trolltech.com/dl/qtfree-dl.html">download</a>.
 */
 
 /*! \page commonproblems.html
-<title>Common Problems</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>Common Problems</h1>
+\title Common Problems
 
 <h2>Link error, complaining about a lack of \c vtbl, \c _vtbl, \c
 __vtbl or similar </h2>
@@ -239,11 +231,7 @@ X Input Focus to a widget's toplevel window.
 */
 
 /*! \page keyfeatures21.html
-<title>Key Features in Qt 2.1</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>Key Features in Qt 2.1</h1>
+\title Key Features in Qt 2.1
 
 As usual, large sections of the documentation have been revised and
 lots of new documentation has been added.
@@ -306,12 +294,7 @@ memory consumption while improving execution speed and features.
 */
 
 /*! \page changes211.html
-<title>Change Notes for Qt 2.1.1</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>Change Notes for Qt 2.1.1</h1>
-
+\title Change Notes for Qt 2.1.1
 
 <p>Qt 2.1.1 is a bugfix release. It keeps both forward and backward
 compatibility (source and binary) with Qt 2.1.
@@ -386,11 +369,7 @@ fixed
 */
 
 /*! \page changes21.html
-<title>Change Notes Qt 2.1</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>Change Notes Qt 2.1</h1>
+\title Change Notes Qt 2.1
 
 <h2>New major features in existing classes</h2>
 <ul>
@@ -619,11 +598,7 @@ QUrlOperator	- provides an easy way to work with URLs.
 */
 
 /*! \page bughowto.html
-<title>How-To Report A Bug</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>How-To Report A Bug</h1>
+\title How-To Report A Bug
 
 <p>If you think you have found a bug in Qt, we would like to hear
 about it so we can fix it.
@@ -651,11 +626,7 @@ of the many example programs in the <tt>qt/examples</tt> directory.
 */
 
 /*! \page buyhowto.html
-<title>How-To Buy Qt</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>How-To Buy Qt</h1>
+\title How-To Buy Qt
 
 You can order Qt Professional Edition by printing out an
 <a href="http://www.trolltech.com/purchase/orderform.html">order form</a>
@@ -690,11 +661,7 @@ NORWAY<br>
 
 /*! \page license.html
 
-<title>Qt Free Edition License Agreement</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>Qt Free Edition License Agreement</h1><br clear="all">
+\title Qt Free Edition License Agreement
 
 <p>Qt Free Edition version 2.0 is distributed under the Q Public
 License (QPL). It allows free use of Qt Free Edition for running
@@ -856,14 +823,8 @@ by Oslo City Court.
 
 /*! \page troll.html
 
-<title>About Troll Tech</title>
-</head>
-<body bgcolor="#ffffff">
-\postheader
+\title Company Information
 
-<center>
-<h1>Company Information</h1>
-</center>
 <p>Troll Tech AS is a computer software company. We provide software development tools and libraries, as well as expert consultancy services.</p>
 <p>Our flagship product is <a href="http://www.trolltech.com/products/qt.html">Qt</a>, the multi-platform, C++ Graphical User Interfaces toolkit. Qt enables you to build professional, efficient, portable and maintainable GUI applications quickly and easily.</p>
 <h2>Software that makes Sense</h2>
@@ -876,7 +837,7 @@ by Oslo City Court.
 
 <h2>Contact Information</h2><br clear="all">
 
-<table cellpadding=3 cellspacing=0 border="0" width=100% bgcolor=#EEEEFF>
+<table cellpadding=3 cellspacing=0 border="0" width=100% bgcolor=#E5E5E5>
 <tr><th colspan=6 valign=top bgcolor=#D0D0FF>Email</th></tr>
 <tr>
 <td width=3% rowspan=4><br></td>
@@ -928,9 +889,7 @@ Sales department: +47 21 60 48 91</td>
 
 /*! \page mailinglists.html
 
-<title>Qt Mailing Lists Information</title></head><body bgcolor="#ffffff">
-\postheader
-<h1 align=center>Mailing Lists</h1><br clear="all">
+\title Mailing Lists
 
 Troll Tech operates two mailing lists for Qt users:
 <code>qt-announce</code> and <code>qt-interest</code>.
@@ -1077,11 +1036,7 @@ Amen!
 
 /*! \page guibooks.html
 
-<title>Books about GUI</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>Books about GUI</h1><br clear="all">
+\title Books about GUI
 
 <p>This is not a comprehensive list of books, there are many other
 books worth buying.  This is just a few GUI/UI books that don't gather
@@ -1307,11 +1262,7 @@ below just covers this HTML page.)
 
 
 /*! \page licenses.html
-<title>Licenses for Code Used in Qt</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>Licenses for Code Used in Qt</h1>
+\title Licenses for Code Used in Qt
 
 Qt contains a little code that is not QPL'd. This page lists the
 licenses used for that code, names the authors, and links to the
@@ -1328,11 +1279,7 @@ to the documentation.
 
 
 /*! \page geometry.html
-<title>Window Geometry</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>Window Geometry</h1>
+\title Window Geometry
 
 <h2> Overview</h2>
 

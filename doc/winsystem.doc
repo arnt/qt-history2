@@ -27,12 +27,7 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 
 /*! \page winsystem.html
 
-<title>Qt Window System Notes</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align="center">Windowsystem-specific Notes</h1><br clear="all">
+\title Windowsystem-specific Notes
 
 Qt is a cross-platform GUI toolkit, so almost the entire API is the
 same on all platforms and windowsystems. However some tasks

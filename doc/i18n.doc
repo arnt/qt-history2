@@ -23,13 +23,7 @@
 
 /*! \page i18n.html
 
-<title>
-Qt Toolkit - Internationalization
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Internationalization with Qt</h1><br clear="all">
+\title Internationalization
 
 Internationalization of software is the process of allowing the
 software to be used efficiently by all people of the world.  This

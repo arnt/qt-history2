@@ -23,11 +23,7 @@
 
 /*! \page tutorial.html
 
-<title>Qt Tutorial</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Tutorial: The 14 Steps</h1><br clear="all">
+\title Tutorial: The 14 Steps
 
 This tutorial gives an introduction to GUI programming using the Qt
 toolkit \version .  It doesn't cover everything: The emphasis is on
@@ -72,13 +68,7 @@ on-line help, printing, a couple of dialogs) in detail.
 
 /*! \page t1.html
 
-<title>
-Qt Tutorial - Chapter 1
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 1: Hello, World!</h1><br clear="all">
+\title Chapter 1: Hello, World!
 
 <center><img src="t1.png" alt="Screenshot of tutorial one"></center>
 
@@ -199,13 +189,7 @@ You may now go on to \link t2.html chapter two.  \endlink
 
 /*! \page t2.html
 
-<title>
-Qt Tutorial - Chapter 2
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 2: Calling it Quits</h1><br clear="all">
+\title Chapter 2: Calling it Quits
 
 <center><img src="t2.png" alt="Screenshot of tutorial two"></center>
 
@@ -292,13 +276,7 @@ You may now go on to \link t3.html chapter three.  \endlink
 
 /*! \page t3.html
 
-<title>
-Qt Tutorial - Chapter 3
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 3: Family Values</h1><br clear="all">
+\title Chapter 3: Family Values
 
 <center><img src="t3.png" alt="Screenshot of tutorial three"></center>
 
@@ -372,13 +350,7 @@ You may now go on to \link t4.html chapter four.  \endlink
 
 /*! \page t4.html
 
-<title>
-Qt Tutorial - Chapter 4
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 4: Let There Be Widgets</h1><br clear="all">
+\title Chapter 4: Let There Be Widgets
 
 <center><img src="t4.png" alt="Screenshot of tutorial four"></center>
 
@@ -487,13 +459,7 @@ You may now go on to \link t5.html chapter five.  \endlink
 
 /*! \page t5.html
 
-<title>
-Qt Tutorial - Chapter 5
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 5: Building Blocks</h1><br clear="all">
+\title Chapter 5: Building Blocks
 
 <center><img src="t5.png" alt="Screenshot of tutorial five"></center>
 
@@ -586,13 +552,7 @@ You may now go on to \link t6.html chapter six.  \endlink
 
 /*! \page t6.html
 
-<title>
-Qt Tutorial - Chapter 6
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 6: Building Blocks Galore!</h1><br clear="all">
+\title Chapter 6: Building Blocks Galore!
 
 <center><img src="t6.png" alt="Screenshot of tutorial six"></center>
 
@@ -723,13 +683,7 @@ Qt Tutorial - t7/lcdrange.h
 
 /*! \page t7.html
 
-<title>
-Qt Tutorial - Chapter 7
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 7: One Thing Leads to Another</h1><br clear="all">
+\title Chapter 7: One Thing Leads to Another
 
 <center><img src="t7.png" alt="Screenshot of tutorial seven"></center>
 
@@ -973,13 +927,7 @@ You may now go on to \link t8.html chapter eight.  \endlink
 
 /*! \page t8.html
 
-<title>
-Qt Tutorial - Chapter 8
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 8: Preparing for Battle</h1><br clear="all">
+\title Chapter 8: Preparing for Battle
 
 <center><img src="t8.png" alt="Screenshot of tutorial eight"></center>
 
@@ -1328,13 +1276,7 @@ You may now go on to \link t9.html chapter nine.  \endlink
 
 /*! \page t9.html
 
-<title>
-Qt Tutorial - Chapter 9
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 9: With Cannon You Can</h1><br clear="all">
+\title Chapter 9: With Cannon You Can
 
 <center><img src="t9.png" alt="Screenshot of tutorial nine"></center>
 
@@ -1546,13 +1488,7 @@ You may now go on to \link t10.html chapter ten.  \endlink
 
 /*! \page t10.html
 
-<title>
-Qt Tutorial - Chapter 10
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 10: Smooth as Silk</h1><br clear="all">
+\title Chapter 10: Smooth as Silk
 
 <center><img src="t10.png" alt="Screenshot of tutorial ten"></center>
 
@@ -1814,13 +1750,7 @@ You may now go on to \link t11.html chapter eleven.  \endlink
 
 /*! \page t11.html
 
-<title>
-Qt Tutorial - Chapter 11
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 11: Giving It a Shot</h1><br clear="all">
+\title Chapter 11: Giving It a Shot
 
 <center><img src="t11.png" alt="Screenshot of tutorial eleven"></center>
 
@@ -2086,13 +2016,7 @@ You may now go on to \link t12.html chapter twelve.  \endlink
 
 /*! \page t12.html
 
-<title>
-Qt Tutorial - Chapter 12
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 12: Hanging in the Air the Way Bricks Don't</h1><br clear="all">
+\title Chapter 12: Hanging in the Air the Way Bricks Don't
 
 <center><img src="t12.png" alt="Screenshot of tutorial twelve"></center>
 
@@ -2494,13 +2418,7 @@ You may now go on to \link t13.html chapter thirteen.  \endlink
 
 /*! \page t13.html
 
-<title>
-Qt Tutorial - Chapter 13
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 13: Game Over</h1><br clear="all">
+\title Chapter 13: Game Over
 
 <center><img src="t13.png" alt="Screenshot of tutorial thirteen"></center>
 
@@ -2924,13 +2842,7 @@ You may now go on to \link t14.html chapter fourteen.  \endlink
 
 /*! \page t14.html
 
-<title>
-Qt Tutorial - Chapter 14
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Chapter 14: Facing the Wall</h1><br clear="all">
+\title Chapter 14: Facing the Wall
 
 <center><img src="t14.png" alt="Screenshot of tutorial fourteen"></center>
 

@@ -24,12 +24,7 @@
 /*!
 \page appicon.html
 
-<title>Setting the Application Icon</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Setting the Application Icon</h1><br clear="all">
+\title Setting the Application Icon
 
 The application icon, typically displayed in the upper left corner of the
 application top-level windows, can in Qt be set by using the

@@ -29,13 +29,7 @@ static char ident[] = "$Id: credits.doc,v 2.17 1999/06/07 09:58:55 reggie Exp $"
 
 /*! \page credits.html
 
-<title>Qt Toolkit - Credits</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align="center">
-Thanks!
-</h1><br clear="all">
+\title Thanks!
 
 <p>The following (and probably many others) have provided bug reports,
 suggestions, patches, beta testing, or done us other favors.  We thank

@@ -1,11 +1,6 @@
 /*! \page features.html
 
-<title>Qt Feature Definition File</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1>The Feature Definition File</h1>
+\title The Feature Definition File
 
 The file <tt>src/tools/qfeatures.h</tt> can be modified to define a subset
 of the full Qt functionality that you wish to have available on your

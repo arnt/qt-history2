@@ -2,13 +2,7 @@
 
 /*! \page focus.html
 
-<title>
-Qt Toolkit - Keyboard Focus Overview
-</title></head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Keyboard Focus Overview</h1><br clear="all">
+\title Keyboard Focus Overview
 
 Keyboard focus, like much else on the human end of a GUI, tends to be
 full of exceptions and not at all neat.

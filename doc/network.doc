@@ -29,12 +29,7 @@ static char ident[] = "$Id: classes.doc,v 1.8 1999/04/28 09:53:43 aavit Exp $";
 /*!
 \page network.html
 
-<title>Qt Documentation</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Network Programming with Qt</h1><br clear="all">
+\title Network Programming with Qt
 
 Since version 2.1 Qt offers classes to make network programming
 easier and portable. Basically there are three sets of classes, first very

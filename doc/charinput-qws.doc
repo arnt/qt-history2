@@ -27,13 +27,7 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 
 /*! \page charinput-qws.html
 
-<title>Character input</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-
-<h1 align="center">Qt/Embedded keyboard support</h1><br clear="all">
+\title Character input in Qt/Embedded
 
 Internally in the client/server protocol, each key press and key
 release is sent as a <tt>QWSKeyEvent</tt>. A QWSKeyEvent contains the

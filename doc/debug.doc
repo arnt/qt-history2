@@ -24,11 +24,7 @@
 /*!
 \page debug.html
 
-<title>Qt Debugging Techniques</title>
-</head><body bgcolor="#ffffff">
-\postheader
-
-<h1 align=center>Debugging Techniques</h1><br clear="all">
+\title Debugging Techniques
 
 Here we present some useful hints to debugging your Qt-based software.
 

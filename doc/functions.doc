@@ -29,12 +29,7 @@ static char ident[] = "$Id: functions.doc,v 1.6 1999/04/28 09:53:52 aavit Exp $"
 /*!
 \page functions.html
 
-<title>Qt Documentation</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Member Function Index</h1><br clear="all">
+\title Member Function Index
 
 Here is a list of all of the documented member functions in the Qt
 API with links to the class documentation for each function.

@@ -29,12 +29,7 @@ static char ident[] = "$Id: headers.doc,v 1.8 1999/10/25 14:49:28 arnt Exp $";
 /*!
 \page headers.html
 
-<title>Qt Documentation</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align=center>Header File Index</h1><br clear="all">
+\title Header File Index
 
 <p>Here are the header files that make up the Qt API:
 

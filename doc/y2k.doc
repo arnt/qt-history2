@@ -23,12 +23,7 @@
 
 /*! \page y2k.html
 
-<title>Year 2000 Compliance Statement for Qt</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-
-<h1 align="center">Year 2000 Compliance Statement</h1><br clear="all">
+\title Year 2000 Compliance Statement
 
 Troll Tech defines <i>Year 2000 Compliance</i> as a requirement that a
 product or part of product does not contain errors related to
