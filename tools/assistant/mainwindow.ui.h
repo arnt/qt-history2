@@ -539,7 +539,7 @@ void MainWindow::showSettingsDialog()
 {
     if ( !settings ){
 	settings = new SettingsDialog( this );
-	connect( settings, SIGNAL( pathChanged() ), helpDock, SLOT( generateNewDocu() ));
+	connect( settings, SIGNAL( docuFilesChanged() ), helpDock, SLOT( generateNewDocu() ));
 	connect( settings, SIGNAL( categoryChanged() ), helpDock, SLOT( showChangedDocu() ));
     }
     QFontDatabase fonts;

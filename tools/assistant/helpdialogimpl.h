@@ -54,7 +54,6 @@ public:
 
 private:
     QString theLink;
-
 };
 
 class HelpDialog : public HelpDialogBase
@@ -100,7 +99,7 @@ private:
     void setupTitleMap();
     void saveBookmarks();
     void showContentsTopic();
-    bool insertContents( QString additionalPath, const QString &filename, 
+    bool insertContents( const QString &filename, 
 			 HelpNavigationContentsItem *newEntry );
     void insertContents( const QString &filename, const QString &title,
 			 HelpNavigationContentsItem *lastItem,

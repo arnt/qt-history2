@@ -113,25 +113,25 @@ void SettingsDialog::init()
 {
     QSettings settings;
     changed = FALSE;
+    selectionChanged = FALSE;
     
     QString b = settings.readEntry( "/Qt Assistant/3.1/Webbrowser/", "" );
     browserApp->setText( b );
     
-    docuPathBox->clear();
-    pathList = settings.readListEntry( "/Qt Assistant/additionalDocu/Path/" );
-    QStringList::iterator i = pathList.begin();
-    for ( ; i != pathList.end(); ++i )
-	docuPathBox->insertItem( *i );
+    docuFileBox->clear();
+    docuFileList = settings.readListEntry( "/Qt Assistant/additionalDoc/File/" );
+    QStringList::iterator i = docuFileList.begin();
+    for ( ; i != docuFileList.end(); ++i )
+	docuFileBox->insertItem( *i );
+    
+    catListAvail = settings.readListEntry( "/Qt Assistant/categories/available/" );
+    catListSel = settings.readListEntry( "/Qt Assistant/categories/selected/" );    
+    
     insertCategories();    
 }
 
 void SettingsDialog::insertCategories()
 {
-    QSettings settings;
-            
-    catListAvail = settings.readListEntry( "/Qt Assistant/categories/available/" );
-    catListSel = settings.readListEntry( "/Qt Assistant/categories/selected/" );
-    
     if ( catListAvail.isEmpty() ) 
 	catListSel << "all";
     
@@ -150,7 +150,6 @@ void SettingsDialog::insertCategories()
 	QString str( *it );
 	int pos = str.findRev( '/' );
 	QString sn = str.right( str.length() - pos - 1 );
-	sn.replace( 0, 1, sn[0].lower() );
 	listItem *li = new listItem( str, sn, str.contains( '/' ) );
 	itemList.append( li );
     }     
@@ -227,47 +226,56 @@ void SettingsDialog::selectColor()
     colorButton->setPaletteBackgroundColor( c );
 }
 
-void SettingsDialog::addPath()
+void SettingsDialog::addDocuFile()
 {
-    QFileDialog *fd = new QFileDialog( this );
-    fd->setMode( QFileDialog::DirectoryOnly );    
-    fd->setDir( QDir::homeDirPath() );
+    QFileDialog *fd = new QFileDialog ( QDir::homeDirPath(), "xml Files (*.xml)", this );
     
     if ( fd->exec() == QDialog::Accepted ) {
-	QString dir = fd->selectedFile();
-	if ( newFilesExist( dir ) ) {
-	    docuPathBox->insertItem( dir );
-	    pathList << dir;
-	    changed = TRUE;
-       
-	    DocuIndexParser handler;
-	    QString filename( dir + "/index.xml" );
-	    QFileInfo fi( filename );
-	    if ( !fi.isReadable() ) 
-		return;    
-    
-	    QFile f( filename );    
-	    QXmlInputSource source( f );
-	    QXmlSimpleReader reader;
-	    reader.setContentHandler( &handler );
-	    reader.setErrorHandler( &handler );
-	    reader.parse( source );
-	    f.close();
-	    catListAvail << handler.getCategory();
-	    catListSel << handler.getCategory();
+	QString file = fd->selectedFile();
+	QFileInfo fi( file );
+	if ( !fi.isReadable() ) {
+	    QMessageBox::warning( this, tr( "Qt Assistant" ),
+			tr( "File " + file + " is not readable!" ) );
+	    return;
+	}		
+	DocuParser handler;    
+	QFile f( file );    
+	QXmlInputSource source( f );
+        QXmlSimpleReader reader;
+	reader.setContentHandler( &handler );
+	reader.setErrorHandler( &handler );
+	bool ok = reader.parse( source );
+	f.close();
+	if ( !ok ) {
+	    QMessageBox::warning( this, tr( "Qt Assistant" ),
+			tr( "File " + file + " has not the right format!" ) );
+	    return;
 	}
+	docuFileBox->insertItem( file );
+	docuFileList << file;
+	changed = TRUE;
+	QString cat = handler.getCategory();
+	if ( cat.isEmpty() )
+	    return;
+	if ( catListAvail.find( cat ) == catListAvail.end() ) 
+	    catListAvail << cat;
+	if ( catListSel.find( cat ) == catListSel.end() ) {
+	    catListSel << cat;
+	    selectionChanged = TRUE;
+	}
+	insertCategories();	
     }        
 }
 
-void SettingsDialog::deletePath()
+void SettingsDialog::removeDocuFile()
 {
-    QStringList::iterator it = pathList.begin();
+    QStringList::iterator it = docuFileList.begin();
     bool deleted = FALSE;
-    for ( ; it != pathList.end(); ++it ) {
-	if ( (*it == docuPathBox->currentText()) && !deleted ) {
-	    docuPathBox->removeItem( docuPathBox->currentItem() );	    
-	    it = pathList.remove( it );
-	    if ( it != pathList.begin() )
+    for ( ; it != docuFileList.end(); ++it ) {
+	if ( (*it == docuFileBox->currentText()) && !deleted ) {
+	    docuFileBox->removeItem( docuFileBox->currentItem() );	    
+	    it = docuFileList.remove( it );
+	    if ( it != docuFileList.begin() )
 		it--;
 	    changed = TRUE;
 	    deleted = TRUE;
@@ -277,7 +285,7 @@ void SettingsDialog::deletePath()
 
 void SettingsDialog::addCategory()
 {
-    QString cat = catName->text().lower();
+    QString cat = catName->text(); 
     catName->clear();
     if( cat.isEmpty() || cat.find( '/' ) > -1  )
 	return;
@@ -289,11 +297,12 @@ void SettingsDialog::addCategory()
 	return;
        
     QString fullcat = item->getFullCategory() + "/" + cat;
-    catListAvail << fullcat;
-    
-    CheckListItem *cl = new CheckListItem( item, cat, fullcat );
-    item->stateChange( item->isOn() );    
-    catItemList.append( cl );    
+    if ( catListAvail.find( fullcat ) == catListAvail.end() ) {
+	catListAvail << fullcat;    
+	CheckListItem *cl = new CheckListItem( item, cat, fullcat );
+	item->stateChange( item->isOn() );    
+	catItemList.append( cl );
+    }    
 }
 
 void SettingsDialog::deleteCategory()
@@ -316,7 +325,7 @@ void SettingsDialog::deleteCategory()
     QStringList::iterator it = catListAvail.begin();
     bool deleted = FALSE;
     for ( ; it != catListAvail.end(); ++it ) {
-	if ( ( *it == item->getFullCategory().lower() ) && !deleted ) {
+	if ( ( (*it).lower() == item->getFullCategory().lower() ) && !deleted ) {
 	    delete item;
 	    catListSel.remove( *it );
 	    it = catListAvail.remove( it );
@@ -343,7 +352,7 @@ void SettingsDialog::browseWebApp()
 void SettingsDialog::accept()
 {
     QSettings *settings = new QSettings();    
-    settings->writeEntry( "/Qt Assistant/additionalDocu/Path/", pathList );    
+    settings->writeEntry( "/Qt Assistant/additionalDoc/File/", docuFileList );    
     settings->writeEntry( "/Qt Assistant/categories/available/", catListAvail );
     
     settings->writeEntry( "/Qt Assistant/3.1/Webbrowser/", browserApp->text() );
@@ -353,7 +362,7 @@ void SettingsDialog::accept()
     bool changedCategory = FALSE;    
     catListSel.sort();
     QStringList newCatListSel = getCheckedItemList();    
-    if ( catListSel != newCatListSel ) {
+    if ( catListSel != newCatListSel || selectionChanged ) {	
 	catListSel = newCatListSel;
 	settings->writeEntry( "/Qt Assistant/categories/selected/", catListSel );
 	changedCategory = TRUE;
@@ -367,7 +376,7 @@ void SettingsDialog::accept()
     
     if ( changed ) {
 	changed = FALSE;
-	emit pathChanged();
+	emit docuFilesChanged();
     }
     done( Accepted );
 }
@@ -376,21 +385,6 @@ void SettingsDialog::reject()
 {    
     init();
     done( Rejected );
-}
-
-bool SettingsDialog::newFilesExist( QString dir )
-{
-    if ( !QFile::exists( dir + "contents.xml" )) {
-        QMessageBox::warning( this, tr( "Qt Assistant" ), 
-		     tr( "File " + dir + "content.xml does not exist!" ) );
-        return FALSE;
-    }
-    if ( !QFile::exists( dir + "index.xml" )) {
-        QMessageBox::warning( this, tr( "Qt Assistant" ), 
-		     tr( "File " + dir + "index.xml does not exist!" ) );
-        return FALSE;
-    }
-    return TRUE;
 }
 
 QStringList SettingsDialog::getCheckedItemList()

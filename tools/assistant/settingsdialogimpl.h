@@ -72,15 +72,15 @@ public:
 
 protected slots:
     void selectColor();
-    void addPath();
-    void deletePath();
+    void addDocuFile();
+    void removeDocuFile();
     void addCategory();
     void deleteCategory();
     void browseWebApp();
     void accept();
     void reject();
 signals:
-    void pathChanged();
+    void docuFilesChanged();
     void categoryChanged();
 
 private:
@@ -88,10 +88,9 @@ private:
     void insertCategories();
     void makeCategoryList();
     void checkItem( CheckListItem* );
-    bool newFilesExist( QString dir );
     QStringList getCheckedItemList();
-    bool changed;
-    QStringList pathList, catListAvail, catListSel;
+    bool changed, selectionChanged;
+    QStringList docuFileList, catListAvail, catListSel;
     QPtrList<CheckListItem> catItemList;
     CheckListItem *allItem;
 };

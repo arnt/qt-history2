@@ -270,12 +270,12 @@ web browser you would like to select. Click \OK to accept the
 selection. Alternatively, type in the line edit to set your favorite
 browser.
 
-\i Documentation Paths
+\i Documentation Files 
 
 To add your own documentation to \QA, click \Button Add to invoke the
-\Widget Assistant dialog. Navigate through the directories until you find
+\Widget Assistant dialog. Navigate through the files until you find
 the documentation you want to add and then click \OK. Click \Button
-Delete to remove obselete documentation from the Documentation Paths
+Delete to remove obselete documentation from the Documentation Files
 list box. Read more about adding your own documentation in the next
 chapter, \l {Adding Documentation to \QA}. 
 
@@ -294,92 +294,70 @@ categories read the next chapter, \l {Adding Documentation to \QA}.
 \chapter Adding Documentation to \QA
 
 New documentation can be added to \QA by following some basic steps.
-To add documentation, you must specify where the new documentation is
-located and whether it belongs to a new category. Furthermore, \QA
-requires two special xml files, one for the contents (contents.xml) and
-one for the indexwords (index.xml) of the new documentation. The names
-of these files are fixed. 
+To add documentation, you must specify where the new documentation is 
+located, i.e. you must specify a special xml file which contains this
+information.
 
 \section1 Add Documentation
 
-The following steps show how to add
-documentation to \QA: 
+The following steps show how to add documentation to \QA:
 
 \list
 
-\i Set documentation path
+\i Set documentation file
 
-To set the documentation path, open the \Widget Settings dialog and 
-add or remove search paths for additional documentation. Be sure that
-this path contains the files content.xml and index.xml.  
+To set the documentation file, open the \Widget Settings dialog and 
+add or remove files for additional documentation. Be sure that
+these files have the right format.  
 
 \i Adding categories
 
 If the new documentation belongs to a category which does not appear
-in the Categories list box, add the category in the \Widget Settings
-dialog. The spelling has to be the same as specified in the xml files.
+in the Categories list box yet, add the category in the \Widget Settings
+dialog. Usually you can skip this step because \QA will do it 
+automatically. 
 
-\i Fileformats
+\i Fileformat
 
-\QA needs one file for the contents and one for the index keywords.
-Be sure that the category in these two files is the the same. The
-sections that follow explain the Content and Index files in more
-detail.
+\QA needs a special xml file where all contents and index words for
+the new documentation are listed. The section below explain the format
+in more detail.
 
 \endlist
 
-\section2 Content file
+\section2 Content file 
 
-The content file contains the table of contents of the documentation.
-The sections can be nested as deep as necessary. All references should
-be related. An example of a content file with all avialable tags is
+The file has to contain the table of contents of the documentation and 
+all important keywords for the index. Furthermore, it should inherit a
+category specification for this documentation.
+An example of a content file with all avialable tags is
 displayed below:
 
-content.xml:
+demodoc.xml:
 \code
-<docu>
-<title ref="index.html" category="development">Development Demo Handbook</title>
-<section>
-    <title ref="./chap1/chap1.html">Chapter 1</title>
-    <section>
-        <title ref="./chap1/chap1.html#section1">Section 1</title>
-        <section>
-            <title ref="./chap1/chap1.html#subsection1">Subsecton 1</title>
-        </section>
-        <section>
-            <title ref="./chap1/chap1.html#subsection2">Subsection 2</title>
-        </section>
+<!DOCTYPE DOC>
+<DOC ref="demo.html" category="qt/development" title="Development Demo Handbook">
+<section ref="./chap1/chap1.html" title="Chapter1">
+    <section ref="./chap1/section1.html" title="Section1">
+	<keyword ref="./chap1/section1.html#foo">foo</keyword>
+	<keyword ref="./chap1/section1.html#bla">bla</keyword>
+	<section ref="./chap1/section1.html#subsection1" title="Subsection 1"/>
+	<section ref="./chap1/section1.html#subsection2" title="Subsection 2"/>
+	<section ref="./chap1/section1.html#subsection3" title="Subsection 3"/>
+    </section>
+    <section ref="./chap1/section2" title="Section2">
+	<section ref="./chap1/section2.html#subsection1" title="Subsection 1"/>
+	<section ref="./chap1/section2.html#subsection2" title="Subsection 2"/>
+	<section ref="./chap1/section2.html#subsection3" title="Subsection 3"/>
     </section>
 </section>
-<section>
-    <title ref="./chap2.html">Chapter 2</title>
-    <section>
-        <title ref="./chap2.html#section1">Section 1</title>
-    </section>
+<section ref="./chap2/chap2.html" title="Chapter2">
+    <keyword ref="./chap2/chap2.html#foo">foo</keyword>
+    <section ref="./chap2/section1.html" title="Section1"/>
 </section>
-</docu>
+</DOC>
 \endcode
 
-
-\section2 Index file
-
-The index file contains all important keywords. Since one keyword
-may have more than one reference, add to each reference a description.
-This description appears later in the topic chooser. The following
-example shows the structure of the index file:
-
-index.xml
-\code
-<docindex category="development">
-<item keyword="demofunction">
-    <link descr="Example for Democlass">./examples/democlass.html</link>
-    <link descr="Class">./democlass.html</link>
-    <link descr="Header">./headers/democlass.html</link>
-</item>
-<item keyword="another demo">
-    <link descr="Class">./anotherclass.html</link>
-    <link descr="Header">./headers/anotherclass.html</link>
-</item>
-</docindex>
-\endcode
-
+The sections can be nested as deep as necessary. All references should be 
+related. Note: Within a section the keyword tag has to be defined before
+an other subsection!
