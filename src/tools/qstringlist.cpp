@@ -151,8 +151,8 @@ QStringList QStringList::split( const QChar &sep, const QString &str,
   If \a is an empty string, the return value is a list of
   one-character string: split( QString( "" ), "mfc" ) returns the
   three-item list "m", "f", "c".
-  
-  If \a sep is an empty string, 
+
+  If \a sep is an empty string,
 */
 
 QStringList QStringList::split( const QString &sep, const QString &str,
@@ -164,14 +164,14 @@ QStringList QStringList::split( const QString &sep, const QString &str,
     int i = str.find( sep, j );
 
     while ( i != -1 ) {
-	if ( i == j ) // for separators that match zero-length strings
-	    i = str.find( sep, j+1 );
 	if ( str.mid( j, i - j ).length() > 0 )
 	    lst << str.mid( j, i - j );
 	else if ( allowEmptyEntries )
 	    lst << QString::null;
 	j = i + sep.length();
 	i = str.find( sep, j );
+	if ( i == j ) // for separators that match zero-length strings
+	    i = str.find( sep, j+1 );
     }
 
     int l = str.length() - 1;
@@ -204,21 +204,22 @@ QStringList QStringList::split( const QString &sep, const QString &str,
 QStringList QStringList::split( const QRegExp &sep, const QString &str,
 				bool allowEmptyEntries )
 {
-    QRegExp tep = sep;
     QStringList lst;
+
+    QRegExp tep = sep;
 
     int j = 0;
     int i = tep.search( str, j );
 
     while ( i != -1 ) {
-	if ( i == j ) // for separators that match zero-length strings
-	    i = tep.search( str, j+1 );
 	if ( str.mid( j, i - j ).length() > 0 )
 	    lst << str.mid( j, i - j );
 	else if ( allowEmptyEntries )
 	    lst << QString::null;
 	j = i + tep.matchedLength();
 	i = tep.search( str, j );
+	if ( i == j ) // for separators that match zero-length strings
+	    i = tep.search( str, j+1 );
     }
 
     int l = str.length() - 1;
