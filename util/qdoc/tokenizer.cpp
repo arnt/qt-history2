@@ -343,8 +343,8 @@ int Tokenizer::getToken()
 
 Tokenizer::Tokenizer()
 {
-    yyLexBuf1 = new char[yyLexBufSize];
-    yyLexBuf2 = new char[yyLexBufSize];
+    yyLexBuf1 = new char[(int)yyLexBufSize];
+    yyLexBuf2 = new char[(int)yyLexBufSize];
     yyPrevLex = yyLexBuf1;
     yyPrevLex[0] = '\0';
     yyLex = yyLexBuf2;
