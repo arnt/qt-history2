@@ -78,32 +78,34 @@
   precisely <tt>begin</tt>.  (We will use bold to distinguish regular
   expressions from ordinary strings.)
 
-  But regular expressions are much more general; they can specify a whole family
-  of strings.  For example, <b>Bill|William</b> (read "Bill or William") denotes
-  the family consisting of <tt>Bill</tt> and <tt>William</tt>, and
-  <b>\w+tion</b> denotes the infinite family of all the words ending in
-  <tt>tion</tt> (such as <tt>information</tt> and <tt>xyzzyzwtion</tt>).
-  Idiomatically, we can say that <b>Bill|William</b> matches <tt>Bill</tt>.  It
-  also matches <tt>William</tt>, but it doesn't match <tt>Frank</tt>.
+  But regular expressions are much more general; they can specify a
+  whole family of strings.  For example, <b>Bill|William</b> (read
+  "Bill or William") denotes the family consisting of <tt>Bill</tt>
+  and <tt>William</tt>, and <b>\w+tion</b> denotes the infinite family
+  of all the words ending in <tt>tion</tt> (such as
+  <tt>information</tt> and <tt>xyzzyzwtion</tt>).  Idiomatically, we
+  can say that <b>Bill|William</b> matches <tt>Bill</tt>.  It also
+  matches <tt>William</tt>, but it doesn't match <tt>Frank</tt>.
 
-  QRegExp's regular expression flavor combines Perl's power and Unicode support.
-  QRegExp also supports the weaker wildcard notation (as in <b>*.cpp</b> and
-  <b>chapter[1-5].tex</b>) found in many command interpreters.  More on this
-  later.
+  QRegExp's regular expression flavor combines Perl's power and
+  Unicode support.  QRegExp also supports the weaker wildcard notation
+  (as in <b>*.cpp</b> and <b>chapter[1-5].tex</b>) found in many
+  command interpreters.  More on this later.
 
-  Now to the nitty-gritty of regular expression syntax.  You can use any of
-  these atoms to match a single character:
+  Now to the nitty-gritty of regular expression syntax.  You can use
+  any of these atoms to match a single character:
 
   <ul plain>
   <li> <b><em>c</em></b> matches the normal character <tt><em>c</em></tt>
-  <li> <b>\\e c </b> matches the special character <tt><em>c</em></tt>, one of
-       <tt>$</tt>, <tt>(</tt>. <tt>)</tt>, <tt>*</tt>, <tt>+</tt>, <tt>-</tt>,
-       <tt>.</tt>, <tt>?</tt>, <tt>[</tt>, <tt>&#92</tt>, <tt>]</tt>,
-       <tt>^</tt>, <tt>{</tt>, <tt>|</tt> and <tt>}</tt>
+  <li> <b>&#92;c</b> matches the character <tt><em>c</em></tt>, even
+       if it is one that QRegExp normally assigns meaning to, such as 
+       <tt>$</tt> or <tt>\</tt>.  (Note that in C++, this must be
+       written as <tt>&#92;&#92;c</tt> since the preprocessor
+       transforms <tt>&#92;&#92;c</tt> into <tt>&#92;c</tt>.)
   <li> <b>\a</b> matches the ASCII bell character (BEL, 0x07)
   <li> <b>\f</b> matches the ASCII form feed character (FF, 0x0C)
-  <li> <b>\n</b> matches the ASCII line feed character (LF, 0x0A), also known as
-       Unix newline
+  <li> <b>\n</b> matches the ASCII line feed character (LF, 0x0A), also known
+       as Unix newline
   <li> <b>\r</b> matches the ASCII carriage return character (CR, 0x0D)
   <li> <b>\t</b> matches the ASCII horizontal tabulation character (HT, 0x09)
   <li> <b>\v</b> matches the ASCII vertical tabulation character (VT, 0x0B)
@@ -121,13 +123,34 @@
   <li> <b>\W</b> matches a non-word character.
   </ul>
 
-  There is also the atom <b>[</b>...<b>]</b> that matches one of the characters
-  within brackets.  For instance, <b>[BSD]</b> matches any of <tt>B</tt>,
-  <tt>D</tt> and <tt>S</tt>.  Within a character set, most special characters
-  lose their usual meaning.  The following characters are treated specially:
+  To count backslashes in a string:
+
+  \code
+    QRegExp rx( "&#92;&#92;&#92;&#92;" ); // is &#92;&#92; after preprocessing
+    int pos = 0;
+    int count = 0;
+    do {
+        pos = rx.search( string, pos );   // search for next backslash
+	if ( pos >= 0 ) {                 // and count it if it exists
+	    pos++;
+	    count++;
+	}
+    } while( pos >= 0 );
+  \endcode  
+  
+  \code
+    QRegExp rx( "[1-9][0-9][0-9]" );    // matches "100", "101", ..., "999"
+    rx.match( "476" );                  // returns TRUE
+    rx.match( "1492" );                 // returns FALSE
+  \endcode
+  
+  The atom <b>[</b>...<b>]</b> that matches one of the characters
+  within the brackets.  For instance, <b>[BSD]</b> matches any of
+  <tt>B</tt>, <tt>D</tt> and <tt>S</tt>.  Only the following characters
+  have special meaning in a set:
 
   <ul plain>
-  <li> <b>&#92</b> behaves the same way as elsewhere
+  <li> <b>&#92;</b> behaves the same way as elsewhere
   <li> <b>^</b> negates the character set so that it matches any character
        not in the set, when it is placed first in the list
   <li> <b>-</b> defines a range of characters
@@ -242,16 +265,18 @@
   <!-- If you doubt this claim, write to Jasmin Blanchette
   (jasmin@trolltech.com). -->
 
-  If <b><em>E</em></b> and <b><em>F</em></b> are two regular expressions, you
-  can also write <b><em>E</em>|<em>F</em></b> to match either <b><em>E</em></b>
-  or <b><em>F</em></b>.  Thus, a mathematician <!-- or a lunatic --> might write
-  <b>(min|max|opt)imum</b> to match <tt>minimum</tt>, <tt>maximum</tt> or
-  <tt>optimum</tt>.
+  If <b><em>E</em></b> and <b><em>F</em></b> are two regular
+  expressions, you can also write <b><em>E</em>|<em>F</em></b> to
+  match either <b><em>E</em></b> or <b><em>F</em></b>.  Thus, a
+  mathematician <!-- or a lunatic --> might write
+  <b>(min|max|opt)imum</b> to match <tt>minimum</tt>, <tt>maximum</tt>
+  or <tt>optimum</tt>.
 
-  When writing regular expressions in C++ code, remember that C++ processes
-  <tt>&#92;</tt> characters.  To match a <tt>$</tt> character, you must write
-  <tt>"\\$"</tt> in C++ source, not <tt>"\$"</tt>.  To match a <tt>&#92;</tt>
-  character, you must write <tt>"&#92;&#92;&#92;&#92;</tt>.
+  When writing regular expressions in C++ code, remember that the C++
+  transforms <tt>&#92;</tt> characters.  For example, to match a
+  <tt>$</tt> character, you must write <tt>"&#92;&#92;$"</tt> in C++
+  source, not <tt>"&#92;$"</tt>.  To match a <tt>&#92;</tt> character,
+  you must write <tt>"&#92;&#92;&#92;&#92;</tt>.
 
   If you want to know more about regular expressions, read Jeffrey Friedl's
   <em>Mastering Regular Expressions</em> (O'Reilly).
@@ -3202,7 +3227,7 @@ QStringList QRegExp::capturedTexts()
 
   If the subexpression is used several times, cap() returns the text
   it matched last time:
-  
+
   \code
     QRegExp rx( "([a-z])+" );           // matches a lower-case word
     int pos = rx.search( "X pizza chianti Y" );
