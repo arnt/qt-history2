@@ -18,6 +18,7 @@
 
 #include "qdatetime.h"
 #include "qlist.h"
+#include <qcorevariant.h>
 
 class QDateTimePrivate
 {
@@ -34,7 +35,7 @@ public:
     void getUTC(QDate &outDate, QTime &outTime) const;
 };
 
-class Section
+class FormatSection
 {
 public:
     enum SectionType {
@@ -85,10 +86,10 @@ public:
         LastSection = 0x0800000
     };
 
-    Section(int ind, const QString &sep);
-    Section(int ind = -1, SectionType typ = Section::NoSection);
+    FormatSection(int ind, const QString &sep);
+    FormatSection(int ind = -1, SectionType typ = FormatSection::NoSection);
     int length() const;
-    static int length(Section::SectionType t);
+    static int length(FormatSection::SectionType t);
     bool variableLength() const;
 
     int index;
@@ -104,21 +105,21 @@ public:
         SkipForward,
         SkipBackward
     };
-    QDateTimeParser(const QString &f = QString(), uint t = Section::NoSection);
+    QDateTimeParser(const QString &f = QString(), QCoreVariant::Type t = QCoreVariant::DateTime);
     bool isSpecial(const QChar &c) const;
-    Section findNextFormat(const QString &str, const int start);
+    FormatSection findNextFormat(const QString &str, const int start);
     void parseFormat(const QString &format);
     bool fromString(const QString &string, QDate *dateIn, QTime *timeIn);
-    Section sectionAt(const QString &string, int pos, QDateTimeParserSkipMode skip = SkipNone) const;
+    FormatSection sectionAt(const QString &string, int pos, QDateTimeParserSkipMode skip = SkipNone) const;
 
-    static bool bounds(Section::SectionType t, int num);
+    static bool bounds(FormatSection::SectionType t, int num);
     static int getNumber(int index, const QString &str, int mindigits, int maxdigits, bool *ok, int *digits);
 
-    static Section firstSection;
-    static Section lastSection;
+    static FormatSection firstSection;
+    static FormatSection lastSection;
 
-    uint types;
-    QList<Section> sect;
+    QCoreVariant::Type type;
+    QList<FormatSection> sect;
     QString format;
 };
 
