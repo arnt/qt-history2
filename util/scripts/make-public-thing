@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#44 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#45 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
@@ -193,6 +193,7 @@ rm -rf src/*.pro
 # Real source should be packaged and deleted by now, but
 # this gets anything left in the Attic, etc.
 find $base/cvs/qt -name '*_win*' | xargs rm -f
+find $base/cvs/qt -name '*_os2*' | xargs rm -f
 chmod a+x $base/cvs/qt/bin/*,v
 find $base/cvs/qt -type d -print | xargs -r chmod 1777
 ";
