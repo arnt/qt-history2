@@ -633,16 +633,22 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if (mwmhints.flags != 0l)
             XChangeProperty(dpy, id, ATOM(_MOTIF_WM_HINTS), ATOM(_MOTIF_WM_HINTS), 32,
                             PropModeReplace, (unsigned char *) &mwmhints, 5);
+        else
+            XDeleteProperty(dpy, id, ATOM(_MOTIF_WM_HINTS));
 
         // set _NET_WM_WINDOW_TYPE
         if (curr_wintype > 0)
             XChangeProperty(dpy, id, ATOM(_NET_WM_WINDOW_TYPE), XA_ATOM, 32, PropModeReplace,
                             (unsigned char *) net_wintypes, curr_wintype);
+        else
+            XDeleteProperty(dpy, id, ATOM(_NET_WM_WINDOW_TYPE));
 
         // set _NET_WM_WINDOW_STATE
         if (curr_winstate > 0)
             XChangeProperty(dpy, id, ATOM(_NET_WM_STATE), XA_ATOM, 32, PropModeReplace,
                             (unsigned char *) net_winstates, curr_winstate);
+        else
+            XDeleteProperty(dpy, id, ATOM(_NET_WM_STATE));
 
         // set _NET_WM_PID
         long curr_pid = getpid();
@@ -851,7 +857,16 @@ void QWidget::reparent_sys(QWidget *parent, WFlags f, const QPoint &p, bool show
     qPRCreate(this, old_winid);
     d->updateSystemBackground();
 
-    setGeometry(p.x(), p.y(), s.width(), s.height());
+    if (isTopLevel()) {
+        uint save_state = data->widget_state & (WState_Maximized | WState_FullScreen);
+        const QRect r = d->topData()->normalGeometry;
+        setGeometry(p.x(), p.y(), s.width(), s.height());
+        data->widget_state |= save_state;
+        d->topData()->normalGeometry = r;
+    } else {
+        setGeometry(p.x(), p.y(), s.width(), s.height());
+    }
+
     setEnabled(enable);
     setFocusPolicy(fp);
     if (!capt.isNull()) {
@@ -1635,34 +1650,38 @@ void QWidget::setWindowState(uint newstate)
     bool needShow = false;
     uint oldstate = windowState();
     if (isTopLevel()) {
+        QTLWExtra *top = d->topData();
+
         if ((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
             if (qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
                 && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))) {
                 qt_net_change_wm_state(this, (newstate & WindowMaximized),
                                        ATOM(_NET_WM_STATE_MAXIMIZED_HORZ),
                                        ATOM(_NET_WM_STATE_MAXIMIZED_VERT));
-            } else {
-		if (newstate & WindowMaximized) {
-		    QTLWExtra *top = d->topData();
+            } else if (! (newstate & WindowFullScreen)) {
+                if (newstate & WindowMaximized) {
+                    // save original geometry
+                    const QRect normalGeometry = geometry();
 
-		    // save original geometry
-		    if (top->normalGeometry.width() < 0)
-			top->normalGeometry = geometry();
+                    if (isVisible()) {
+                        updateFrameStrut();
+                        const QRect maxRect = QApplication::desktop()->availableGeometry(this);
+                        const QRect r = top->normalGeometry;
+                        setGeometry(maxRect.x() + top->fleft,
+                                    maxRect.y() + top->ftop,
+                                    maxRect.width() - top->fleft - top->fright,
+                                    maxRect.height() - top->ftop - top->fbottom);
+                        top->normalGeometry = r;
+                    }
 
-		    if (isVisible()) {
-			updateFrameStrut();
-			QRect maxRect = QApplication::desktop()->availableGeometry(this);
-			setGeometry(maxRect.x() + top->fleft,
-				    maxRect.y() + top->ftop,
-				    maxRect.width() - top->fleft - top->fright,
-				    maxRect.height() - top->ftop - top->fbottom);
-		    }
-		} else {
-		    // restore original geometry
-		    setGeometry(d->topData()->normalGeometry);
-		}
-	    }
-	}
+                    if (top->normalGeometry.width() < 0)
+                        top->normalGeometry = normalGeometry;
+                } else {
+                    // restore original geometry
+                    setGeometry(top->normalGeometry);
+                }
+            }
+        }
 
         if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
             if (qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN))) {
@@ -1671,27 +1690,36 @@ void QWidget::setWindowState(uint newstate)
             } else {
                 needShow = isVisible();
 
-                QTLWExtra *top = d->topData();
                 if (newstate & WindowFullScreen) {
-                    if (top->normalGeometry.width() < 0)
-                        top->normalGeometry = QRect(pos(), size());
+                    const QRect normalGeometry = QRect(pos(), size());
+
                     top->savedFlags = getWFlags();
-		    setParent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
-			      // preserve some widget flags
-			      (getWFlags() & 0xffff0000));
-		    move(mapToGlobal(QPoint(0, 0)));
-                    QRect r = qApp->desktop()->screenGeometry(this);
-                    move(r.topLeft());
-                    resize(r.size());
+                    setParent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
+                              // preserve some widget flags
+                              (getWFlags() & 0xffff0000));
+
+                    const QRect r = top->normalGeometry;
+                    setGeometry(qApp->desktop()->screenGeometry(this));
+                    top->normalGeometry = r;
+
+                    if (top->normalGeometry.width() < 0)
+                        top->normalGeometry = normalGeometry;
                 } else {
-		    setParent(0, top->savedFlags);
-		    move(QPoint(0, 0));
-                    QRect r = top->normalGeometry;
-                    if (r.width() >= 0) {
-                        // the widget has been maximized
-                        top->normalGeometry = QRect(0,0,-1,-1);
-                        move(r.topLeft());
-                        resize(r.size());
+                    setParent(0, top->savedFlags);
+
+                    if (newstate & WindowMaximized) {
+                        // from fullscreen to maximized
+                        updateFrameStrut();
+                        const QRect maxRect = QApplication::desktop()->availableGeometry(this);
+                        const QRect r = top->normalGeometry;
+                        setGeometry(maxRect.x() + top->fleft,
+                                    maxRect.y() + top->ftop,
+                                    maxRect.width() - top->fleft - top->fright,
+                                    maxRect.height() - top->ftop - top->fbottom);
+                        top->normalGeometry = r;
+                    } else {
+                        // restore original geometry
+                        setGeometry(top->normalGeometry);
                     }
                 }
             }
@@ -1776,8 +1804,9 @@ void QWidget::show_sys()
             return;
         }
 
-        if (isMaximized() && !(qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
-                               && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT)))) {
+        if (isMaximized() && !isFullScreen()
+            && !(qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ))
+                 && qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT)))) {
 	    XMapWindow( x11Info()->display(), winId() );
  	    qt_wait_for_window_manager(this);
 
