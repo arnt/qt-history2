@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#58 $
 **
 ** Definition of QIconView widget class
 **
@@ -1298,6 +1298,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->maxItemWidth = 200;
     d->maxItemTextLength = 255;
     d->inputTimer = new QTimer( this );
+    d->currInputString = QString::null;
     
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
@@ -1715,7 +1716,7 @@ QIconViewItem *QIconView::findItem( const QString &text ) const
     for ( ; item; item = item->next )
 	if ( item->text().left( text.length() ) == text )
 	    return item;
-    
+
     return 0;
 }
 
@@ -2302,8 +2303,23 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 {
     if ( !d->firstItem )
 	return;
-
+    
     if ( !d->currentItem ) {
+	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
+	    if ( d->inputTimer->isActive() )
+		d->inputTimer->stop();
+	    d->inputTimer->start( 500, TRUE );
+	    d->currInputString += e->text();
+	    QIconViewItem *item = findItem( d->currInputString );
+	    if ( item ) {
+		QIconViewItem *i = d->currentItem;
+		setCurrentItem( item );
+		repaintItem( i );
+		repaintItem( d->currentItem );
+	    }
+	    return;
+	}
+	
 	if ( e->key() == Key_Control )
 	    return;
 
