@@ -508,9 +508,16 @@ static void qt_mac_select_cleanup()
     DisposeEventLoopTimerUPP(mac_select_timerUPP);
     mac_select_timerUPP = NULL;
 }
-static QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
+QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
 {
-    qt_event_request_select((QEventLoop *)me);
+    QEventLoop *eloop = (QEventLoop *)me;
+    if(QMacBlockingFunction::blocking()) { //just send it immediately
+	timeval tm;
+	memset(&tm, '\0', sizeof(tm));
+	eloop->macHandleSelect(&tm);
+    } else {
+	qt_event_request_select(eloop);
+    }
 }
 
 int QEventLoop::macHandleSelect(timeval *tm)
