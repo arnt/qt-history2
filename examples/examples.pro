@@ -72,7 +72,9 @@ opengl:SUBDIRS +=   opengl/box \
 nas:SUBDIRS += 	    sound
 
 iconview:SUBDIRS += fileiconview \
-		    iconview
+		    iconview \
+		    iconview/simple_dd
+			
 
 network:SUBDIRS +=  network/clientserver/client \
 		    network/clientserver/server \
