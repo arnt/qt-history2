@@ -438,6 +438,16 @@ QString QAccessibleLineEdit::text(Text t, int child) const
 }
 
 /*! \reimp */
+void QAccessibleLineEdit::setText(Text t, int control, const QString &text)
+{
+    if (t != Value || control) {
+        QAccessibleWidget::setText(t, control, text);
+        return;
+    }
+    lineEdit()->setText(text);
+}
+
+/*! \reimp */
 int QAccessibleLineEdit::state(int child) const
 {
     int state = QAccessibleWidget::state(child);

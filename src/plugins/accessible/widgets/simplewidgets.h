@@ -70,6 +70,7 @@ public:
     QAccessibleLineEdit(QWidget *o, const QString &name = QString());
 
     QString	text(Text t, int child) const;
+    void        setText(Text t, int control, const QString &text);
     int		state(int child) const;
 
 protected:

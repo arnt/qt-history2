@@ -120,6 +120,7 @@ public:
     int		itemCount() const;
 
     QString	text(Text t, int child) const;
+    void        setText(Text t, int control, const QString &text);
     Role	role(int child) const;
 
 protected:

@@ -781,9 +781,26 @@ int QAccessibleTextEdit::itemCount() const
 /*! \reimp */
 QString QAccessibleTextEdit::text(Text t, int child) const
 {
-    if (!child || t != Name)
-	return QAccessibleScrollView::text(t, child);
-    return textEdit()->text(child-1);
+    if (t == Name && child > 0)
+        return textEdit()->text(child - 1);
+    if (t == Value) {
+        if (child > 0)
+            return textEdit()->text(child - 1);
+        else
+            return textEdit()->text();
+    }
+
+    return QAccessibleScrollView::text(t, child);
+}
+
+/*! \reimp */
+void QAccessibleTextEdit::setText(Text t, int control, const QString &text)
+{
+    if (t != Value || control) {
+        QAccessibleScrollView::setText(t, control, text);
+        return;
+    }
+    textEdit()->setText(text);
 }
 
 /*! \reimp */
