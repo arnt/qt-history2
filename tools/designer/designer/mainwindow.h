@@ -125,6 +125,7 @@ protected:
 
 private slots:
     void fileNew();
+    void fileNewProject();
     void fileOpen();
     bool fileSave();
     bool fileSaveAs();
@@ -188,7 +189,7 @@ private slots:
     void closeAllForms();
     void createNewTemplate();
     void projectSelected( QAction *a );
-    
+
 private:
     void setupMDI();
     void setupMenuBar();
@@ -227,7 +228,7 @@ private:
     void checkTempFiles();
     void openHelpForDialog( const QString &dia );
     void openProject( const QString &fn );
-    
+
 private:
     PropertyEditor *propertyEditor;
     HierarchyView *hierarchyView;

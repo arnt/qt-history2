@@ -96,6 +96,7 @@
 #include "actioneditorimpl.h"
 #include "actiondnd.h"
 #include "project.h"
+#include "projectsettingsimpl.h"
 
 static int forms = 0;
 
@@ -666,9 +667,19 @@ void MainWindow::setupFileActions()
     a->setAccel( CTRL + Key_N );
     a->setStatusTip( tr( "Creates a new form" ) );
     a->setWhatsThis( tr("<b>Create a new form</b>"
-		        "<p>Select a template for the new form or start with an empty form.</p>") );
+		        "<p>Select a template for the new form or start with an empty form. This form is added to the current project.</p>") );
     connect( a, SIGNAL( activated() ), this, SLOT( fileNew() ) );
     a->addTo( tb );
+    a->addTo( menu );
+
+    a = new QAction( this, 0 );
+    a->setText( tr( "New Project" ) );
+    a->setMenuText( tr( "New &Project" ) );
+    a->setIconSet( createIconSet("filenew.xpm") );
+    a->setStatusTip( tr( "Creates a new project" ) );
+    a->setWhatsThis( tr("<b>Create a new project</b>"
+		        "<p>Creates a new Qt project</p>") );
+    connect( a, SIGNAL( activated() ), this, SLOT( fileNewProject() ) );
     a->addTo( menu );
 
     a = new QAction( this, 0 );
@@ -724,12 +735,12 @@ void MainWindow::setupFileActions()
 
     QActionGroup *ag = new QActionGroup( this, 0 );
     ag->setText( tr( "Project" ) );
-    ag->setMenuText( tr( "&Project" ) );
+    ag->setMenuText( tr( "Project" ) );
     ag->setExclusive( TRUE );
     ag->setUsesDropDown( TRUE );
     connect( ag, SIGNAL( selected( QAction * ) ), this, SLOT( projectSelected( QAction * ) ) );
-    a = new QAction( tr( "No Project" ), tr( "No Project" ), 0, ag, 0, TRUE );
-    projects.insert( a, new Project( "", tr( "No Project" ) ) );
+    a = new QAction( tr( "<No Project>" ), tr( "<No Project>" ), 0, ag, 0, TRUE );
+    projects.insert( a, new Project( "", tr( "<No Project>" ) ) );
     a->setOn( TRUE );
     ag->addTo( menu );
     ag->addTo( tb );
@@ -1156,6 +1167,27 @@ void MainWindow::fileNew()
 	}
     }
     statusBar()->clear();
+}
+
+void MainWindow::fileNewProject()
+{
+    Project *pro = new Project( "" );
+    ProjectSettings dia( pro, this, 0, TRUE );
+    if ( dia.exec() != QDialog::Accepted ) {
+	delete pro;
+	return;
+    }
+    
+    if ( !pro->isValid() ) {
+	// #### error
+	delete pro;
+	return;
+    }
+    
+    QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
+    projects.insert( a, pro );
+    a->setOn( TRUE );
+    projectSelected( a );
 }
 
 void MainWindow::fileOpen()

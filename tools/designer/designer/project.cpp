@@ -27,10 +27,12 @@ Project::Project( const QString &fn, const QString &pName )
 {
     setFileName( fn );
 }
-    
-void Project::setFileName( const QString &fn )
+
+void Project::setFileName( const QString &fn, bool doClear )
 {
     filename = fn;
+    if ( !doClear )
+	return;
     clear();
     if ( QFile::exists( fn ) )
 	parse();
@@ -40,7 +42,7 @@ QString Project::fileName() const
 {
     return filename;
 }
-    
+
 QStringList Project::uiFiles() const
 {
     return uifiles;
@@ -50,7 +52,12 @@ QString Project::databaseDescription() const
 {
     return dbFile;
 }
-    
+
+void Project::setProjectName( const QString &n )
+{
+    proName = n;
+}
+
 QString Project::projectName() const
 {
     return proName;
@@ -101,6 +108,7 @@ void Project::clear()
     dbFile = "";
     proName = "unnamed";
     loadedForms.clear();
+    desc = "";
 }
 
 void Project::addUiFile( const QString &f )
@@ -119,4 +127,29 @@ void Project::setFormLoaded( const QString &form, bool loaded )
 	loadedForms << form;
     else if ( !loaded )
 	loadedForms.remove( form );
+}
+
+void Project::setDatabaseDescription( const QString &db )
+{
+    dbFile = db;
+}
+
+void Project::setDescription( const QString &s )
+{
+    desc = s;
+}
+
+QString Project::description() const
+{
+    return desc;
+}
+
+void Project::setUiFiles( const QStringList &lst )
+{
+    uifiles = lst;
+}
+
+bool Project::isValid() const
+{
+    return TRUE; // #### do actual checking here....
 }

@@ -28,29 +28,38 @@ class Project
 {
 public:
     Project( const QString &fn, const QString &pName = QString::null );
-    
-    void setFileName( const QString &fn );
+
+    void setFileName( const QString &fn, bool doClear = TRUE );
     QString fileName() const;
+    void setProjectName( const QString &n );
     QString projectName() const;
-    
-    QStringList uiFiles() const;
+
+    void setDatabaseDescription( const QString &db );
     QString databaseDescription() const;
 
+    void setDescription( const QString &s );
+    QString description() const;
+    
+    QStringList uiFiles() const;
     void addUiFile( const QString &f );
-
+    void setUiFiles( const QStringList &lst );
+    
     bool isFormLoaded( const QString &form );
     void setFormLoaded( const QString &form, bool loaded );
+
+    bool isValid() const;
     
 private:
     void parse();
     void clear();
-    
+
 private:
     QString filename;
     QStringList uifiles;
     QString dbFile;
     QString proName;
     QStringList loadedForms;
+    QString desc;
     
 };
 

@@ -46,7 +46,8 @@ HEADERS	= command.h \
 		  actionlistview.h \
 		  actiondnd.h \
 		  database.h \
-		  project.h
+		  project.h \
+		  projectsettingsimpl.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -91,7 +92,8 @@ SOURCES	= command.cpp \
 		  actionlistview.cpp \
 		  actiondnd.cpp \
 		  database.cpp \
-		  project.cpp
+		  project.cpp \
+		  projectsettingsimpl.cpp
 
 INTERFACES	= listboxeditor.ui \
 		  connectioneditor.ui \
@@ -115,7 +117,8 @@ INTERFACES	= listboxeditor.ui \
 		  about.ui \
 		  pixmapfunction.ui \
 		  createtemplate.ui \
-		  actioneditor.ui
+		  actioneditor.ui \
+		  projectsettings.ui
 		
 TARGET	= designer
 INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
