@@ -830,7 +830,7 @@ class QDataStream;
 
 #ifdef Q_OS_DARWIN
 #  ifdef MACOSX_VERSION_MIN_REQUIRED
-#    undef MACOSX_VERSION_MIN_REQUIRED
+#    undef MAC_OS_X_VERSION_MIN_REQUIRED
 #  endif
 #  define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_2
 #  include <AvailabilityMacros.h>
