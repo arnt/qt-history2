@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#3 $
 **
 ** Implementation of QScrollBar class
 **
@@ -16,7 +16,7 @@
 #include "qwxfmat.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#3 $";
 #endif
 
 
@@ -299,8 +299,8 @@ int QScrollBar_Private::rangeValueToSliderPos( int val ) const
 	   (sliderMax - sliderMin)*2*( val - minValue() + 1 )/
 	   ( ( maxValue() - minValue() )*2 ) + sliderMin);
 #endif
-    return (sliderMax - sliderMin)*2*(val - minValue() + 1)/
-		(2*(maxValue() - minValue())) + sliderMin;
+    return ( ( sliderMax - sliderMin )*2*( val - minValue() ) + 1 )/
+		( 2*( maxValue() - minValue() ) ) + sliderMin;
 }
 
 int QScrollBar_Private::sliderPosToRangeValue( int pos ) const
@@ -311,8 +311,8 @@ int QScrollBar_Private::sliderPosToRangeValue( int pos ) const
 	return minValue();
     if ( pos >= sliderMax )
 	return maxValue();
-    return (maxValue() - minValue())*2*(pos - sliderMin + 1)/
-		(2*(sliderMax - sliderMin)) + minValue();
+    return ( maxValue() - minValue() + 1 )*( pos - sliderMin ) /
+		( sliderMax - sliderMin ) + minValue();
 }
 
 
@@ -320,17 +320,21 @@ void QScrollBar_Private::action( ScrollControl control )
 {
     switch( control ) {
 	case ADD_LINE:
-		 addLine();
-		 break;
+	    addLine();
+	    break;
 	case SUB_LINE:
-		 subtractLine();
-		 break;
+	    subtractLine();
+	    break;
 	case ADD_PAGE:
-		 addPage();
-		 break;
+	    addPage();
+	    break;
 	case SUB_PAGE:
-		 subtractPage();
-		 break;
+	    subtractPage();
+	    break;
+	default:
+#if defined(CHECK_RANGE)
+	    warning( "QScrollBar: Internal action error" );
+#endif
     }
 }
 
@@ -423,10 +427,9 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 			bLeft.resize( 4 );
 		    else
 			bLeft.resize( 2 );
-		}
-		else {
-		    bTop .resize( 2 );
-		    bBot .resize( 2 );
+		} else {
+		    bTop.resize( 2 );
+		    bBot.resize( 2 );
 		    if ( dimB == 3 )
 			bLeft.resize( 4 );
 		    else
@@ -491,11 +494,10 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		QWXFMatrix m;
 		if ( VERTICAL ) {
 		    m.rotate( -90 );
-		    m.translate( 0, addB.height()-1 );
-		}
-		else {
+		    m.translate( 0, addB.height() - 1 );
+		} else {
 		    m.rotate( 180 );
-		    m.translate( addB.width()-1, addB.height()-1 );
+		    m.translate( addB.width() - 1, addB.height() - 1 );
 		}
 		m.translate( subB.x(), subB.y() );
 		p.setWxfMatrix( m );
@@ -507,26 +509,23 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		    cmid = downC;
 		    if ( HORIZONTAL ) {
 			cleft = lightC;
-			ctop = lightC;
-			cbot = shadowC;
-		    }
-		    else {
+			ctop  = lightC;
+			cbot  = shadowC;
+		    } else {
 			cleft = lightC;
-			ctop = shadowC;
-			cbot = shadowC;
+			ctop  = shadowC;
+			cbot  = lightC;
 		    }
-		}
-		else {
+		} else {
 		    cmid = upC;
 		    if ( HORIZONTAL ) {
 			cleft = shadowC;
-			ctop = shadowC;
-			cbot = lightC;
-		    }
-		    else {
+			ctop  = shadowC;
+			cbot  = lightC;
+		    } else {
 			cleft = shadowC;
-			ctop = lightC;
-			cbot = lightC;
+			ctop  = lightC;
+			cbot  = shadowC;
 		    }
 		}
 		QPen pen( NoPen );
@@ -563,26 +562,23 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		    cmid = downC;
 		    if ( HORIZONTAL ) {
 			cleft = shadowC;
-			ctop = shadowC;
-			cbot = lightC;
-		    }
-		    else {
+			ctop  = shadowC;
+			cbot  = lightC;
+		    } else {
 			cleft = shadowC;
-			ctop = lightC;
-			cbot = lightC;
+			ctop  = lightC;
+			cbot  = shadowC;
 		    }
-		}
-		else {
+		} else {
 		    cmid = upC;
 		    if ( HORIZONTAL ) {
 			cleft = lightC;
-			ctop = lightC;
-			cbot = shadowC;
-		    }
-		    else {
+			ctop  = lightC;
+			cbot  = shadowC;
+		    } else {
 			cleft = lightC;
-			ctop = shadowC;
-			cbot = shadowC;
+			ctop  = shadowC;
+			cbot  = lightC;
 		    }
 		}
 		QPen pen( NoPen );
@@ -616,4 +612,6 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	    break;
 	}
     }
+#undef ADD_LINE_ACTIVE
+#undef SUB_LINE_ACTIVE
 }
