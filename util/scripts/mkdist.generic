@@ -148,6 +148,8 @@ else
   mv -f ${DISTDIR}/qt/gif/*.gif ${DISTDIR}/qt/html
   mv -f ${DISTDIR}/qt/gif/*.jpg ${DISTDIR}/qt/html
 #   mv -f ${DISTDIR}/qt/doc/.qdoc-links ${DISTDIR}
+  mv -f ${DISTDIR}/qt/doc ${DISTDIR}/qt/src
+  mv -f ${DISTDIR}/qt/html ${DISTDIR}/qt/doc
 fi
 
 echo "Removing local files..." >&2
@@ -162,7 +164,6 @@ find qt -name .cvsignore -o -name doc.conf | xargs rm -f
 rm -f qt/src/qtinternal.pro
 rm -f qt/make.help qt/variables
 rm -rf qt/bugs qt/etc qt/gif qt/reqs qt/tests
-rm -rf qt/doc/html
 cd qt/examples
 rm -rf network qfd rot13 sheet
 
