@@ -612,7 +612,7 @@ void QWidget::update(int x, int y, int w, int h)
 	    h = crect.height() - y;
 	if ( w != 0 && h != 0 )
 	    QApplication::postEvent(this,
-		    new QPaintEvent( clipRegion().intersect(QRect(x,y,w,h)));
+		    new QPaintEvent( clipRegion().intersect(QRect(x,y,w,h))));
     }
 }
 
@@ -1010,7 +1010,8 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 	}
 #ifndef QT_NO_QWS_MANAGER
 	if (isResize && d->extra && d->extra->topextra && d->extra->topextra->qwsManager) {
-	    d->topData()->qwsManager->update(clipRegion());
+	    QApplication::postEvent(d->topData()->qwsManager,
+				    new QPaintEvent( clipRegion()) );
 	}
 #endif
 	isSettingGeometry = FALSE;
@@ -1140,7 +1141,7 @@ void QWidgetPrivate::erase_helper( const QRegion& rgn )
 	    QPainter::setRedirected(w, q, offset);
   	    QRect rr = q->rect();
  	    rr.moveBy(offset);
-	    QPaintEvent e(rr, true);
+	    QPaintEvent e(rr);
 	    QApplication::sendEvent(w, &e);
 	    QPainter::restoreRedirected(w);
 	}
