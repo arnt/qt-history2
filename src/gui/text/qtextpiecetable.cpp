@@ -274,6 +274,7 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
 {
     Q_ASSERT(pos >= 0 && pos+length <= fragments.length());
     Q_ASSERT(blocks.length() == fragments.length());
+    Q_ASSERT(frameAt(pos) == frameAt(pos+length-1));
 
     beginEditBlock();
     truncateUndoStack();
@@ -359,7 +360,6 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
         UndoCommand c = { UndoCommand::CharFormatChanged, true, UndoCommand::MoveCursor, oldFormat,
                           0, pos, { length } };
         appendUndoItem(c);
-        Q_ASSERT(undoPosition == undoStack.size());
 
         pos += length;
         Q_ASSERT(pos == (int)(it.position() + fragment->size) || pos >= endPos);
@@ -421,7 +421,6 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QText
         UndoCommand c = { UndoCommand::BlockFormatChanged, true, UndoCommand::MoveCursor, oldFormat,
                               0, it.position(), { 1 } };
         appendUndoItem(c);
-        Q_ASSERT(undoPosition == undoStack.size());
 
         if (group != oldGroup) {
             if (oldGroup)
@@ -617,6 +616,7 @@ void QTextPieceTable::appendUndoItem(const UndoCommand &c)
 {
     if (!undoEnabled)
         return;
+    Q_ASSERT(undoPosition == undoStack.size());
 
     if (!undoStack.isEmpty()) {
         UndoCommand &last = undoStack[undoPosition - 1];
@@ -791,7 +791,6 @@ void QTextPieceTable::changeGroupFormat(QTextGroup *group, int format)
                       0, 0, { 1 } };
     c.group = group;
     appendUndoItem(c);
-    Q_ASSERT(undoPosition == undoStack.size());
 
     emit contentsChanged();
     endEditBlock();
