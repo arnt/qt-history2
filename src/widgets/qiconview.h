@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#47 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#48 $
 **
 ** Definition of QIconView widget class
 **
@@ -282,6 +282,7 @@ public:
 
     QIconViewItem *firstItem() const;
     QIconViewItem *lastItem() const;
+    QIconViewItem *selectedItem() const;
     QIconViewItem *currentItem() const;
     virtual void setCurrentItem( QIconViewItem *item );
 
@@ -362,9 +363,11 @@ signals:
     void selectionChanged( int numItems );
     void currentChanged();
     void currentChanged( QIconViewItem *item );
+    // ###### HACK for builder. Torben will remove it!
+    void rightButtonPressed( QIconViewItem* item, const QPoint& pos );
     void itemRenamed( QIconViewItem *item, const QString & );
     void itemRenamed( QIconViewItem *item );
-    
+
 protected slots:
     virtual void doAutoScroll();
     virtual void adjustItems();
@@ -401,7 +404,7 @@ protected:
     void emitSelectionChanged();
     void emitNewSelectionNumber();
     void emitRenamed( QIconViewItem *item );
-    
+
     void setDragObjectIsKnown( bool b );
     void setIconDragData( const QValueList<QIconDragItem> &lst );
     void setNumDragItems( int num );

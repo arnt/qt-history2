@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#74 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#75 $
 **
 ** Definition of QMenuData class
 **
@@ -156,8 +156,11 @@ public:
 			    int id=-1, int index=-1 );
 
 
-
+#ifdef QT_BUILDER
+    int		insertSeparator( int index=-1 );
+#else
     void	insertSeparator( int index=-1 );
+#endif // QT_BUILDER
 
     void	removeItem( int id )		{ removeItemAt(indexOf(id)); }
     void	removeItemAt( int index );
@@ -203,7 +206,7 @@ public:
 
     bool	setItemParameter( int id, int param );
     int	itemParameter( int id ) const;
-    
+
     QMenuItem  *findItem( int id )	const;
     QMenuItem  *findItem( int id, QMenuData ** parent )	const;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#83 $
 **
 ** Implementation of QMainWindow class
 **
@@ -45,6 +45,7 @@
 
 #ifdef QT_BUILDER
 #include "qdom.h"
+#include "qaction.h"
 #endif
 
 /*! \class QMainWindow qmainwindow.h
@@ -1350,6 +1351,9 @@ void QMainWindow::styleChange( QStyle& old )
 #ifdef QT_BUILDER
 bool QMainWindow::setConfiguration( const QDomElement& element )
 {
+    QActionCollection* col = 0;
+    QDomElement ecol;
+
     QDomElement r = element.firstChild().toElement();
     for( ; !r.isNull(); r = r.nextSibling().toElement() )
     {
@@ -1384,12 +1388,40 @@ bool QMainWindow::setConfiguration( const QDomElement& element )
 	    else
 		return FALSE;
 	}
+	else if ( r.tagName() == "Actions" )
+        {
+	    ecol = r.firstChild().toElement();
+	
+	    QObject* o = ecol.toObject( this );
+	    if ( !o )
+		return FALSE;
+	    if ( o->inherits("QActionCollection") )
+	    {
+		col = (QActionCollection*)o;
+		col->setName( "qt_actions" );
+	    }
+	}
     }
 
     // Dont call QWidget configure since we do not accept layouts or
     // or direct child widget except for bars and the central widget
     if ( !QObject::setConfiguration( element ) )
 	return FALSE;
+
+    // Lets connect the actions with their components
+    // This can not be done earlier since the components, which are
+    // children of the QMainWindow have to be created first.
+    if ( col )
+    {
+	QDomElement it = ecol.firstChild().toElement();
+	for( ; !it.isNull(); it = it.nextSibling().toElement() )
+        {
+	    QAction* action = col->action( it.attribute("name") );
+	    QObject* component = child( it.attribute("component") );
+	    if ( action && component )
+		action->setComponent( component );
+	}
+    }
 
     return TRUE;
 }

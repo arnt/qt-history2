@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#92 $
 **
 ** Implementation of QMenuData class
 **
@@ -31,6 +31,8 @@
 #ifdef QT_BUILDER
 #include "qdom.h"
 #include "qvariant.h"
+#include "qaction.h"
+#include "qmenubar.h"
 #endif // QT_BUILDER
 
 // Not used yet...
@@ -670,12 +672,18 @@ int QMenuData::insertItem( const QIconSet& icon,
   menubar, all separator are ignored (to comply with the Windows style
   guide).
 */
-
+#ifdef QT_BUILDER
+int QMenuData::insertSeparator( int index )
+{
+    return insertAny( 0, 0, 0, 0, 0, index );
+}
+#else
 void QMenuData::insertSeparator( int index )
 {
     insertAny( 0, 0, 0, 0, 0, index );
 }
-
+#endif // QT_BUILDER
+    
 /*!
   \fn void QMenuData::removeItem( int id )
   Removes the menu item which has the identifier \a id.
@@ -1276,6 +1284,43 @@ bool QMenuData::setConfiguration( QWidget* _this, const QDomElement& element )
 	if ( !v.isEmpty() )
 	  changeItem( id, QIconSet( v.pixmapValue() ), text );
       }
+    }
+    else if ( r.tagName() == "Separator" )
+    {
+	insertSeparator();
+    }
+    else if ( r.tagName() == "Action" )
+    {
+	// Find the toplevel widget that is NOT a QPopupMenu in
+	// order of finding the QActionCollection
+	QWidget* top = _this->topLevelWidget();
+	while( top && top->parent() && top->inherits("QPopupMenu") )
+	    top = top->parentWidget()->topLevelWidget();	
+
+	// Find the collection
+	QActionCollection* col = 0;
+	if ( top )
+	    col = (QActionCollection*)top->child( "qt_actions", "QActionCollection" );
+	if ( !col )
+        {
+	    qDebug("QMenuData: The toplevel widget does not have a QActionCollection." );
+	    return FALSE;
+	}
+	
+	// Find the action
+	QString aname = r.attribute( "name" );
+	QAction* action = col->action( aname );
+	if ( action )
+        {
+	    if ( _this->inherits( "QMenuBar" ) && action->inherits("QActionMenu" ) )
+		((QActionMenu*)action)->plug( (QMenuBar*)_this );
+	    else if ( _this->inherits( "QPopupMenu" ) )
+		action->plug( (QPopupMenu*)_this );
+	    else
+		ASSERT( 0 );
+	}
+	else
+	    qDebug("QMenuData: A QAction of name %s is not available.", aname.latin1() );
     }
   }
   return TRUE;

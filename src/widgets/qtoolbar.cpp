@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#54 $
 **
 ** Implementation of QToolBar class
 **
@@ -40,6 +40,7 @@
 #include "qdom.h"
 #include "qtoolbutton.h"
 #include "qwhatsthis.h"
+#include "qaction.h"
 #endif
 
 /*! \class QToolBar qtoolbar.h
@@ -425,43 +426,59 @@ void QToolBar::clear()
 #ifdef QT_BUILDER
 bool QToolBar::setConfiguration( const QDomElement& element )
 {
-  // When this code changes then the code in the builder
-  // must be changed, too. Unfortunately it had to be copied.
-  QDomElement r = element.firstChild().toElement();
-  for( ; !r.isNull(); r = r.nextSibling().toElement() )
-  {
-    if ( r.tagName() == "Widget" )
+    // When this code changes then the code in the builder
+    // must be changed, too. Unfortunately it had to be copied.
+    QDomElement r = element.firstChild().toElement();
+    for( ; !r.isNull(); r = r.nextSibling().toElement() )
     {
-      if ( !r.firstChild().toElement().toWidget( this ) )
+	if ( r.tagName() == "Widget" )
+        {
+	    if ( !r.firstChild().toElement().toWidget( this ) )
+		return FALSE;
+	}
+	else if ( r.tagName() == "Separator" )
+	    addSeparator();
+	else if ( r.tagName() == "WhatsThis" )
+        {
+	    QToolButton *tb = QWhatsThis::whatsThisButton( this );
+	    // Changing that name would break the builder
+	    tb->setName( "whatsthis button" );
+	}
+        else if ( r.tagName() == "Action" )
+        {
+	    // Find the collection
+	    QActionCollection* col = (QActionCollection*)mainWindow()->child( "qt_actions", "QActionCollection" );
+	    if ( !col )
+            {
+		qDebug("DGridLayout: The toplevel widget does not have a QActionCollection." );
+		return FALSE;
+	    }
+
+	    // Find the action
+	    QString aname = r.attribute( "name" );
+	    QAction* action = col->action( aname );
+	    if ( action )
+		action->plug( this );
+	}
+    }
+
+    // Dont call QWidget configure: For example we dont
+    // allow for layouts
+    if ( !QObject::setConfiguration( element ) )
 	return FALSE;
-    }
-    else if ( r.tagName() == "Separator" )
-      addSeparator();
-    else if ( r.tagName() == "WhatsThis" )
-    {
-      QToolButton *tb = QWhatsThis::whatsThisButton( this );
-      // Changing that name would break the builder
-      tb->setName( "whatsthis button" );
-    }
-  }
 
-  // Dont call QWidget configure: For example we dont
-  // allow for layouts
-  if ( !QObject::setConfiguration( element ) )
-    return FALSE;
-
-  return TRUE;
+    return TRUE;
 }
 
 QObject* QToolBar::factory( QObject* parent )
 {
-  if ( !parent || !parent->inherits("QMainWindow") )
-  {
-    qDebug( "The parent of a toolbar must always be a QMainWindow.\n" );
-    return 0;
-  }
+    if ( !parent || !parent->inherits("QMainWindow") )
+    {
+	qDebug( "The parent of a toolbar must always be a QMainWindow.\n" );
+	return 0;
+    }
 
-  return new QToolBar( (QMainWindow*)parent );
+    return new QToolBar( (QMainWindow*)parent );
 }
 
 #endif // QT_BUILDER

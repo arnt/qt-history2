@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#105 $
 **
 ** Definition of QIconView widget class
 **
@@ -873,9 +873,7 @@ int QIconViewItem::index() const
 void QIconViewItem::setSelected( bool s, bool cb )
 {
     if ( selectable && s != selected ) {
-	if ( !s )
-	    selected = FALSE;
-	else {
+	if ( s ) {
 	    if ( view->d->selectionMode == QIconView::Single && view->d->currentItem )
 		view->d->currentItem->setSelected( FALSE );
 	    else if ( view->d->selectionMode == QIconView::StrictMulti && !cb )
@@ -1826,6 +1824,19 @@ int QIconView::index( const QIconViewItem *item ) const
     }
 }
 
+QIconViewItem *QIconView::selectedItem() const
+{
+    if ( selectionMode() != Single )
+	return 0;
+    
+    QIconViewItem* item = firstItem();
+    for( ; item; item = item->nextItem() )
+	if ( item->isSelected() )
+	    return item;
+    
+    return 0;
+}
+
 /*!
   Returns a pointer to the first item fo the iconview, or NULL, if there
   are no items in the iconview.
@@ -2656,10 +2667,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	d->mousePressed = TRUE;
     } else if ( e->button() == RightButton ) {
 	QIconViewItem *item = findItem( e->pos() );
-	if ( item )
-	    emit itemRightClicked( item );
-	else
-	    emit viewportRightClicked();
+	emit rightButtonPressed( item, e->globalPos() );
     }
 }
 
