@@ -1,10 +1,5 @@
 \chapter Plugins and Dynamic Libraries
 
-  \index codecs
-  \index database drivers
-  \index image formats
-  \index styles
-
 \quote
 Qt can access functions from dynamic libraries platform-independently.
 Qt also supports plugins, which allow developers to create and
@@ -53,10 +48,10 @@ they would create a subclass like this:
     class HeavenlyStylePlugin : public QStylePlugin
     {
     public:
-	HeavenlyStylePlugin() { }
-	~HeavenlyStylePlugin() { }
+	HeavenlyStylePlugin() {}
+	~HeavenlyStylePlugin();
 
-	QStringList keys() const {
+	QStringList keys() { 
 	    return QStringList() << "HeavenlyStyle"; 
 	}
 
@@ -70,16 +65,8 @@ they would create a subclass like this:
     Q_EXPORT_PLUGIN( HeavenlyStylePlugin )
 \endcode
 
-The new style can be set like this:
+To load the new style, use code like this:
 \code
-    QApplication::setStyle( QStyleFactory::create("MyStyle") );
+    ### Help!    
 \endcode
-Database drivers, codecs, custom widgets and image formats that are
-supplied as plugins are detected and used by the application
-automatically.
 
-Companies already provide Qt components in source form, as
-precompiled dynamic libraries and as plugins.
-
-  \img klaralvdalen.png Calendar widget
-  \caption One of \KALLE's many commercial components
