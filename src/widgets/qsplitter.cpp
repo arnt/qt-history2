@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#49 $
 **
 **  Splitter widget
 **
@@ -312,6 +312,8 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
 	    data->list.insert( 0, s );
 	else
 	    data->list.append( s );
+	if ( isVisible() )
+	    sh->show();
     }
     s = new QSplitterLayoutStruct;
     s->wid = w;
@@ -450,11 +452,11 @@ void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD 
 void QSplitter::moveSplitter( QCOORD p, int id )
 {
     p = adjustPos( p, id );
-    
+
     QSplitterLayoutStruct *s = data->list.at(id);
     int oldP = orient == Horizontal? s->wid->x() : s->wid->y();
     bool upLeft = p < oldP;
-    
+
     moveAfter( p, id, upLeft );
     moveBefore( p-1, id-1, upLeft );
 

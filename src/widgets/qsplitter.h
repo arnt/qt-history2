@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#20 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#21 $
 **
 ** Defintion of  QSplitter class
 **
@@ -99,15 +99,8 @@ private:
     QCOORD trans( const QSize &s ) const
     { return orient == Vertical ? s.width() : s.height(); }
 
-
-#if 0
-    QWidget *w1;
-    QWidget *w2;
-    QWidget *fixedWidget;
-    QSplitterHandle *d;
-#else
     QSplitterData *data;
-#endif
+
     Orientation orient;
     QCOORD bord; //half border
     friend class QSplitterHandle;
