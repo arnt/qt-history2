@@ -216,7 +216,7 @@ public:
 #if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
     bool	     do_mouse_down(Point *);
     virtual bool     macEventFilter( EventRef );
-    static pascal OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
+    static Q_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
     friend void qt_mac_destroy_widget(QWidget *);
 #elif defined(Q_WS_WIN)
     virtual bool     winEventFilter( MSG * );

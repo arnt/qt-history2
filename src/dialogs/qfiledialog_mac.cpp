@@ -53,7 +53,7 @@ static QList<QRegExp> makeFiltersList( const QString &filter )
     return ret;
 }
 
-pascal static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info, 
+Q_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info, 
 				 void *myd, NavFilterModes)
 {	
     QList<QRegExp> *filt = (QList<QRegExp> *)myd;
@@ -91,7 +91,7 @@ pascal static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 }
 
 const unsigned char * p_str(const char *);
-pascal OSErr FSpLocationFromFullPath( short fullPathLength,
+Q_PASCAL OSErr FSpLocationFromFullPath( short fullPathLength,
 				      const void *fullPath,
 				      FSSpec *spec);
 

@@ -344,7 +344,7 @@ struct QMacDndExtra {
 };
 
 
-pascal OSErr MyReceiveHandler(WindowPtr, void *handlerRefCon,
+Q_PASCAL OSErr MyReceiveHandler(WindowPtr, void *handlerRefCon,
 		       DragReference theDrag)
 { 
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;
@@ -396,7 +396,7 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
     return widg;
 }
 
-pascal OSErr MyTrackingHandler( DragTrackingMessage theMessage, WindowPtr,
+Q_PASCAL OSErr MyTrackingHandler( DragTrackingMessage theMessage, WindowPtr,
 			 void *handlerRefCon, DragReference theDrag )
 {
     QMacDndExtra *macDndExtra = (QMacDndExtra*) handlerRefCon;

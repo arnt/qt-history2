@@ -57,13 +57,13 @@
 #if defined(Q_CC_MWERKS)
 # include <stdlib.h>
 # include <stat.h>
-#elif !defined(Q_OS_MAC)
+#else
 # include <sys/types.h>
 # include <sys/stat.h>
 #endif
 #include <fcntl.h>
 #include <errno.h>
-#if defined(Q_OS_UNIX)
+#if defined(Q_OS_UNIX) || defined(Q_OS_MACX)
 # include <dirent.h>
 # include <unistd.h>
 #endif
