@@ -639,11 +639,11 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             tdi.adornment = kHIThemeTabAdornmentNone;
         QRect tabrect = r;
         tabrect.setHeight(tabrect.height() + pixelMetric(PM_TabBarBaseOverlap, widget));
-	p->save();
+        QRegion oldRegion(p->clipRegion());
 	p->setClipRect(tabrect);
         HIThemeDrawTab(qt_glb_mac_rect(tabrect, p), &tdi, static_cast<CGContextRef>(p->handle()),
                        kHIThemeOrientationNormal, 0);
-	p->restore();
+        p->setClipRegion(oldRegion);
         // If the tab is not selected, we have to redraw a portion of the pane.
         if (!(how & Style_Selected)) {
             HIThemeTabPaneDrawInfo tpdi;
@@ -658,7 +658,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
                            pixelMetric(PM_TabBarBaseHeight, widget));
             if (tdi.direction == kThemeTabSouth)
                 panerect.moveBy(0, (-r.height() + 2));
-            QRegion oldRegion = p->clipRegion();
+            oldRegion = p->clipRegion();
             p->setClipRect(r.x(), panerect.y(), r.width(), panerect.height());
             HIThemeDrawTabPane(qt_glb_mac_rect(panerect, p), &tpdi,
                                static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal);
