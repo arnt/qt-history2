@@ -373,15 +373,16 @@ protected:
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
 #elif defined(Q_WS_MAC)
-    QRegion clippedreg;
+    QRegion clippedreg, paintreg;
     QMacSavedPortInfo *saved;
 
     void initPaintDevice(bool force=FALSE);
+    void updateClipRegion();
 
     int offx, offy;
     void * hd;
     QPixmap *brush_style_pix;
-    bool unclipped;
+    bool unclipped, locked;
 #elif defined(Q_WS_QWS)
     QGfx * gfx;
 #endif

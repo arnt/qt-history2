@@ -207,7 +207,8 @@ void QPainter::init()
     hd = 0;
     saved = 0;
     brush_style_pix = 0;
-    unclipped = FALSE;
+    locked = unclipped = FALSE;
+    paintreg = QRegion();
 }
 
 
@@ -532,8 +533,10 @@ bool QPainter::end()				// end painting
         QFontInfo::reset( this );
 
 #ifndef ONE_PIXEL_LOCK
-    if ( pdev->devType() == QInternal::Pixmap )
+    if ( locked ) {
 	UnlockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle()));
+	locked = FALSE;
+    }
 #endif
 
     //reset the value we got in begin()
@@ -665,23 +668,12 @@ void QPainter::setClipping( bool b )
 	return;
     }
 
-    initPaintDevice();
-    QRegion reg;
-    if(b) {
+    if(b) 
 	setf(ClipOn);
-	if(!crgn.isNull())
-	    reg = crgn;
-    } else {
+    else
 	clearf(ClipOn);
-    }
-
-    if(!clippedreg.isNull()) {
-	if(reg.isNull())
-	    reg = clippedreg;
-	else 
-	    reg &= clippedreg;
-    }
-    SetClip((RgnHandle)reg.handle());
+    paintreg = QRegion();
+    initPaintDevice(); //reset the clip region
 }
 
 
@@ -699,18 +691,10 @@ void QPainter::setClipRegion( const QRegion &r )
 	return;
     }
 
-    initPaintDevice();
-    QRegion rset(crgn = r);
-    rset.translate(offx, offy);
-
-    if(!clippedreg.isNull()) {
-	if(r.isNull())
-	    rset = clippedreg;
-	else 
-	    rset &= clippedreg;
-    }
+    crgn = r;
     setf( ClipOn );
-    SetClip((RgnHandle)rset.handle());
+    paintreg = QRegion();
+    initPaintDevice(); //reset clip region
 }
 
 void QPainter::drawPolyInternal( const QPointArray &a, bool close )
@@ -1771,13 +1755,17 @@ int ldev = QInternal::UndefinedDevice;
 #endif
 void QPainter::initPaintDevice(bool force) {
 #ifdef TRY_CACHE
-    if(!force) {
-	if(ldev != QInternal::UndefinedDevice && pdev->devType() == ldev) {
+    if(!force && ldev != QInternal::UndefinedDevice) {
+	if(pdev->devType() == ldev) {
+#ifndef ONE_PIXEL_LOCK
+	    bool need_unlock = FALSE;
+#endif
 	    bool use_cache = FALSE;
 	    switch(pdev->devType()) {
 	    case QInternal::Pixmap:
 #ifndef ONE_PIXEL_LOCK
-		Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+		need_unlock = TRUE;
+		Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle())));
 		//fallthrough..
 #endif
 	    case QInternal::Printer:
@@ -1800,13 +1788,21 @@ void QPainter::initPaintDevice(bool force) {
 	    default:
 		break;
 	    }
-	    if(use_cache) 
+#ifndef ONE_PIXEL_LOCK
+	    if(need_unlock) 
+		Q_ASSERT(UnlockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle())));
+#endif
+	    if(use_cache) {
+		updateClipRegion();
 		return;
+	    }
 	}
     }
+#else
+    Q_UNUSED(force);
 #endif
     
-    clippedreg = QRegion(); //empty
+    paintreg = clippedreg = QRegion(); //empty    
     if( pdev->devType() == QInternal::Printer ) {
 	if(pdev->handle()) {
 	    SetGWorld((GrafPtr)pdev->handle(), 0); //set the gworld
@@ -1832,36 +1828,49 @@ void QPainter::initPaintDevice(bool force) {
 	    clippedreg = paintevents.current()->region();
 	else 
 	    clippedreg = w->clippedRegion();
-
     } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;
 
 	//setup the gworld
 	SetGWorld((GWorldPtr)pm->handle(),0);
 #ifndef ONE_PIXEL_LOCK
-	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+	if(!locked) {
+	    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+	    locked = TRUE;
+	}
 #endif
 
 	//clip out my bounding rect
 	clippedreg = QRegion(0, 0, pm->width(), pm->height());
     } 
 
-    QRegion reg; 
-    if(testf(ClipOn) && !crgn.isNull()) {
-	reg = crgn;
-	reg.translate(offx, offy);
-    }
-    if(!clippedreg.isNull()) {
-	if(reg.isNull())
-	    reg = clippedreg;
-	else
-	    reg &= clippedreg;
-    }
-    SetClip((RgnHandle)reg.handle());
-
-#ifdef TRY_CACHE
-    //save it
+    updateClipRegion();
+#ifdef TRY_CACHE  //save to cache
     ldev = pdev->devType();
 #endif
 }
 
+void QPainter::updateClipRegion()
+{
+    if(paintreg.isNull()) {
+	if(testf(ClipOn) && !crgn.isNull()) {
+	    paintreg = crgn;
+	    paintreg.translate(offx, offy);
+	    if(!clippedreg.isNull()) 
+		paintreg &= clippedreg;
+	} else {
+	    paintreg = clippedreg;
+	}
+    }
+#ifdef TRY_CACHE 
+    else { //!paintreg.isNull()
+	static RgnHandle cclip = NULL;
+	if(!cclip) 
+	    cclip = NewRgn();
+	GetClip(cclip);
+	if(EqualRgn(cclip, (RgnHandle)paintreg.handle())) 
+	    return;
+    }
+#endif    
+    SetClip((RgnHandle)paintreg.handle());
+}
