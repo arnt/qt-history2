@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#30 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#30 $")
 
 
 // --------------------------------------------------------------------------
@@ -896,8 +896,7 @@ void qt_enter_modal( QWidget *widget )		// enter modal state
 
 void qt_leave_modal( QWidget *widget )		// leave modal state
 {
-    if ( modal_stack && modal_stack->findRef(widget) >= 0 ) {
-	modal_stack->remove();
+    if ( modal_stack && modal_stack->removeRef(widget) ) {
 	if ( modal_stack->isEmpty() ) {
 	    delete modal_stack;
 	    modal_stack = 0;

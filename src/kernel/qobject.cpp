@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#79 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#78 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#79 $")
 
 
 /*----------------------------------------------------------------------------
@@ -289,7 +289,7 @@ QObject::QObject( QObject *parent, const char *name )
 QObject::~QObject()
 {
     if ( objname )
-	delete[] objname;
+	delete [] objname;
     if ( pendTimer )				// might be pending timers
 	qKillTimer( this );
     if ( pendEvent )				// pending posted events
@@ -819,12 +819,10 @@ void QObject::insertChild( QObject *obj )	// add object object
 
 void QObject::removeChild( QObject *obj )
 {
-    if ( childObjects && childObjects->findRef(obj) >= 0 ) {
-	childObjects->remove();			// remove object from list
-	if ( childObjects->isEmpty() ) {	// list becomes empty
-	    delete childObjects;
-	    childObjects = 0;			// reset children list
-	}
+    if ( childObjects && childObjects->removeRef(obj) &&
+	 childObjects->isEmpty() ) {
+	delete childObjects;			// last child removed
+	childObjects = 0;			// reset children list
     }
 }
 
@@ -900,12 +898,10 @@ void QObject::installEventFilter( const QObject *obj )
 
 void QObject::removeEventFilter( const QObject *obj )
 {
-    if ( eventFilters && eventFilters->findRef(obj) >= 0 ) {
-	eventFilters->remove();			// remove object from list
-	if ( eventFilters->isEmpty() ) {
-	    delete eventFilters;
-	    eventFilters = 0;			// reset event filter list
-	}
+    if ( eventFilters && eventFilters->removeRef(obj) &&
+	 eventFilters->isEmpty() ) {
+	delete eventFilters;			// last event filter removed
+	eventFilters = 0;			// reset event filter list
     }
 }
 

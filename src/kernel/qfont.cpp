@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#41 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#40 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#41 $")
 
 
 /*----------------------------------------------------------------------------
@@ -954,6 +954,7 @@ void QFontMetrics::reset( const void *obj )
   \class QFontMetrics qfontmet.h
   \brief The QFontMetrics class provides font metrics information about
   the current font for a widget or a painter.
+
   \ingroup font
 
   QFontMetrics functions calculate size of characters and strings for a given
@@ -1001,7 +1002,8 @@ QFontMetrics::QFontMetrics( const QPainter *painter )
     data.p = (QPainter *)painter;
 #if defined(CHECK_STATE)
     if ( !data.p->isActive() )
-	warning( "QFontMetrics: Get font metrics after QPainter::begin()" );
+	warning( "QFontMetrics: Get font metrics between QPainter::begin() "
+		 "and QPainter::end()" );
 #endif
     data.p->setf( QPainter::FontMet );
     insertFontMetrics( this );			// register this object
@@ -1082,13 +1084,15 @@ static void insertFontInfo( QFontInfo *fi )
 
 static void removeFontInfo( QFontInfo *fi )
 {
-    ASSERT( fi_list );
-    if ( fi_list->findRef( fi ) >= 0 ) {
-	fi_list->remove();
-	if ( fi_list->count() == 0 ) {
-	    delete fi_list;
-	    fi_list = 0;
-	}
+    if ( !fi_list ) {
+#if defined(CHECK_NULL)
+	warning( "QFontInfo::~QFontInfo: Internal error" );
+#endif
+	return;
+    }
+    if ( fi_list->removeRef(fi) && fi_list->isEmpty() ) {
+	delete fi_list;
+	fi_list = 0;
     }
 }
 
@@ -1164,7 +1168,8 @@ QFontInfo::QFontInfo( const QPainter *painter )
     data.p = (QPainter *)painter;
 #if defined(CHECK_STATE)
     if ( !data.p->isActive() )
-	warning( "QFontInfo: Get font info after QPainter::begin()" );
+	warning( "QFontInfo: Get font info between QPainter::begin() "
+		 "and QPainter::end()" );
 #endif
     data.p->setf( QPainter::FontInf );
     insertFontInfo( this );			// register this object

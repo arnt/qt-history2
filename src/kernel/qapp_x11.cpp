@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#134 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#133 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#134 $")
 
 
 /*****************************************************************************
@@ -1410,8 +1410,7 @@ void qt_enter_modal( QWidget *widget )		// enter modal state
 
 void qt_leave_modal( QWidget *widget )		// leave modal state
 {
-    if ( modal_stack && modal_stack->findRef(widget) >= 0 ) {
-	modal_stack->remove();
+    if ( modal_stack && modal_stack->removeRef(widget) ) {
 	if ( modal_stack->isEmpty() ) {
 	    delete modal_stack;
 	    modal_stack = 0;
