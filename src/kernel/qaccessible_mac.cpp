@@ -137,6 +137,10 @@ void QAccessible::initialize()
 			    GetEventTypeCount(events), events, NULL, &access_proc_handler);
     }
 }
+void QAccessible::setRootObject(QObject*)
+{
+    qDebug("Not implemented yet!!!!!!");
+}
 void QAccessible::cleanup()
 {
     if(access_proc_handler) {
