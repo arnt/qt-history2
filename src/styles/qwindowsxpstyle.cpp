@@ -963,7 +963,7 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    name = "BUTTON";
 	    partId = BP_PUSHBUTTON;
 	    QPushButton *pb = (QPushButton*)widget;
-	    if ( !(flags & Style_Enabled) )
+	    if ( !(flags & Style_Enabled) && !pb->isFlat() )
 		stateId = PBS_DISABLED;
 	    else if ( pb->isFlat() && !(flags & Style_Down) )
 		return;
