@@ -1593,7 +1593,7 @@ int LightStyleV3::pixelMetric( PixelMetric metric,
 	{
 	    const QSlider * sl = (const QSlider *) widget;
 	    int space = (sl->orientation() == Horizontal) ? sl->height()
-			: sl->width();
+		: sl->width();
 	    int ticks = sl->tickmarks();
 	    int n = 0;
 	    if ( ticks & QSlider::Above ) n++;
@@ -1612,6 +1612,10 @@ int LightStyleV3::pixelMetric( PixelMetric metric,
 	    ret = thick;
 	    break;
 	}
+
+    case PM_MaximumDragDistance:
+	ret = -1;
+	break;
 
     default:
 	ret = QCommonStyle::pixelMetric(metric, widget);
