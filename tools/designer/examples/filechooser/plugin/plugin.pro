@@ -1,6 +1,6 @@
-SOURCES	+= plugin.cpp ../widget/filechooser.cpp 
-HEADERS	+= plugin.h ../widget/filechooser.h 
-DESTDIR		= ../../../../../../../plugins/designer
+SOURCES	+= plugin.cpp ../widget/filechooser.cpp
+HEADERS	+= plugin.h ../widget/filechooser.h
+DESTDIR		= ../../../../../plugins/designer
 TARGET		= filechooser
 
 target.path=$$plugins.path
