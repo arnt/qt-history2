@@ -277,11 +277,7 @@ public:
     int itemIndex(const QListViewItem item) const;
     static void addLeaf(QVector<int> &leaf, const QRect &area,
                         uint visited, QBinTree<QListViewItem>::Data data);
-    void createStaticRow(int &x, int &y, int &dy, int &wraps, int i,
-                         const QRect &bounds, int spacing, int delta);
-    void createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
-                            const QRect &bounds, int spacing, int delta);
-    QPoint initStaticLayout(int first, const QRect &bounds, int spacing);
+    QPoint initStaticLayout(const QRect &bounds, int spacing, int first);
 
     void insertItem(int index, QListViewItem &item);
     void removeItem(int index);

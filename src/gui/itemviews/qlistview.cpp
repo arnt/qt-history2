@@ -1125,28 +1125,14 @@ void QListView::doItemsLayout(const QRect &bounds,
 */
 void QListView::doStaticLayout(const QRect &bounds, int first, int last)
 {
-    int spacing = d->gridSize.isEmpty() ? d->spacing : 0;
-    QPoint topLeft = d->initStaticLayout(first, bounds, spacing);
-    int x = topLeft.x();
-    int y = topLeft.y();
-    QSize grid = d->gridSize;
-    int delta = last - first + 1;
-    int layoutWraps = d->layoutWraps;
     bool wrap = d->wrap;
-    QModelIndex index;
-    QSize hint = grid;
-    QRect rect = bounds;
-    QStyleOptionViewItem option = viewOptions();
-    QAbstractItemDelegate *delegate = itemDelegate();
-    QAbstractItemModel *model = this->model();
+    int layoutWraps = d->layoutWraps;
     QVector<int> hiddenRows = d->hiddenRows;
 
-    if (!wrap) {
-        if (d->flow == QListView::LeftToRight)
-            rect.setHeight(qMin(d->contentsSize.height(), rect.height()));
-        else
-            rect.setWidth(qMin(d->contentsSize.width(), rect.width()));
-    }
+    bool useItemSize = !d->gridSize.isValid();
+    int spacing = useItemSize ? d->spacing : 0; // if we are using a grid ,we don't use spacing
+    QPoint topLeft = d->initStaticLayout(bounds, spacing, first);
+    QStyleOptionViewItem option = viewOptions();
 
     // The static layout data structures are as follows:
     // One vector of positions along an axis for each item
@@ -1155,65 +1141,98 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
     // A third vector containing the index (model row) of the first item
     // in this layout row/column (refered to as a wrap)
 
-    if (d->flow == LeftToRight) {
-        int dx = grid.isValid() ? grid.width() : 0;
-        int dy = grid.isValid() ? grid.height() : d->translate;
-        for (int row = first; row <= last; ++row) {
-            if (hiddenRows.contains(row)) {
-                d->xposVector.append(x);
-            } else {
-                index = model->index(row, d->column, root());
-                if (!grid.isValid()) {
-                    hint = delegate->sizeHint(option, index);
-                    dx = hint.width();
-                }
-                if (wrap && (x + spacing >= bounds.width()))
-                    d->createStaticRow(x, y, dy, layoutWraps, row, bounds, spacing, delta);
-                d->xposVector.append(x);
-                dy = (hint.height() > dy ? hint.height() : dy);
-                x += spacing + dx;
-            }
-        }
-        // used when laying out next batch
-        d->xposVector.append(x);
-        d->translate = dy;
-        rect.setBottom(y + dy);
-        if (layoutWraps == 0)
-            rect.setRight(x);
-    } else { // d->flow == TopToBottom
-        int dx = grid.isValid() ? grid.width() : d->translate;
-        int dy = grid.isValid() ? grid.height() : 0;
-        for (int row = first; row <= last; ++row) {
-            if (hiddenRows.contains(row)) {
-                d->yposVector.append(y);
-            } else {
-                index = model->index(row, d->column, root());
-                if (!grid.isValid()) {
-                    hint = delegate->sizeHint(option, index);
-                    dy = hint.height();
-                }
-                if (wrap && (y + spacing >= bounds.height()))
-                    d->createStaticColumn(x, y, dx, layoutWraps, row, bounds, spacing, delta);
-                d->yposVector.append(y);
-                dx = (hint.width() > dx ? hint.width() : dx);
-                y += spacing + dy;
-            }
-        }
-        // used when laying out next batch
-        d->yposVector.append(y);
-        d->translate = dx;
-        rect.setRight(x + dx);
-        if (layoutWraps == 0)
-            rect.setBottom(y);
-    }
+    QVector<int> *flowPositions;
+    QVector<int> *wrappingPositions;
+    QVector<int> *wrappingStartRows;
+    int wrapStartPosition;
+    int wrapEndPosition;
+    int flowPosition;
+    int wrapPosition;
+    int deltaFlowPosition;
+    int deltaWrapPosition;
+    int deltaWrapHint;
 
+    if (d->flow == LeftToRight) {
+        flowPositions = &d->xposVector;
+        wrappingPositions = &d->yposVector;
+        wrappingStartRows = &d->wrapVector;
+        wrapStartPosition = bounds.left();
+        wrapEndPosition = bounds.width();
+        flowPosition = topLeft.x();
+        wrapPosition = topLeft.y();
+        deltaFlowPosition = d->gridSize.width(); // dx
+        deltaWrapPosition = useItemSize ? d->translate : d->gridSize.height(); // dy
+        deltaWrapHint = d->gridSize.height();
+    } else { // d->flow == TopToBottom
+        flowPositions = &d->yposVector;
+        wrappingPositions = &d->xposVector;
+        wrappingStartRows = &d->wrapVector;
+        wrapStartPosition = bounds.top();
+        wrapEndPosition = bounds.height();
+        flowPosition = topLeft.y();
+        wrapPosition = topLeft.x();
+        deltaFlowPosition = d->gridSize.height(); // dy
+        deltaWrapPosition = useItemSize ? d->translate : d->gridSize.width(); // dx
+        deltaWrapHint = d->gridSize.width();
+    }
+    
+    for (int row = first; row <= last; ++row) {
+        if (hiddenRows.contains(row)) {
+            flowPositions->append(flowPosition);
+        } else {
+            // if we are not using a grid, we need to find the deltas
+            if (useItemSize) {
+                QModelIndex index = model()->index(row, d->column, root());
+                QSize hint = itemDelegate()->sizeHint(option, index);
+                if (d->flow == LeftToRight) {
+                    deltaFlowPosition = hint.width();
+                    deltaWrapHint = hint.height();
+                } else {
+                    deltaFlowPosition = hint.height();
+                    deltaWrapHint = hint.width();
+                }
+            }
+            // create static wrap
+            if (wrap && (flowPosition >= wrapEndPosition)) {
+                flowPosition = spacing + wrapStartPosition;
+                wrapPosition += spacing + deltaWrapPosition;
+                ++layoutWraps;
+                if (wrappingPositions->size() < (layoutWraps + 2)) {
+                    int delta = last - first + 1;
+                    int size = wrappingPositions->size() + delta;
+                    wrappingPositions->resize(size);
+                    wrappingStartRows->resize(size);
+                }
+                (*wrappingPositions)[layoutWraps] = wrapPosition;
+                (*wrappingStartRows)[layoutWraps] = row;
+                deltaWrapPosition = 0;
+            }
+            // save the flow positon of this row
+            flowPositions->append(flowPosition);
+            // prepare for the next row
+            deltaWrapPosition = (deltaWrapHint > deltaWrapPosition
+                                 ? deltaWrapHint : deltaWrapPosition);
+            flowPosition += spacing + deltaFlowPosition;
+        }
+    }
+    // used when laying out next batch
+    flowPositions->append(flowPosition);
+    d->translate = deltaWrapPosition;
     if (d->layoutWraps < layoutWraps) {
         d->layoutWraps = layoutWraps;
         d->wrapVector.append(last + 1);
     }
-
-    resizeContents(rect.width(), rect.height());
-
+    // set the contents size
+    QRect rect = bounds;
+    if (d->flow == LeftToRight) {
+        rect.setRight(layoutWraps == 0 ? flowPosition : bounds.right());
+        rect.setBottom(wrapPosition + deltaWrapPosition);
+    } else {
+        rect.setRight(wrapPosition + deltaWrapPosition);
+        rect.setBottom(layoutWraps == 0 ? flowPosition : bounds.bottom());
+    }
+    resizeContents(rect.right(), rect.bottom());
+    // if the new items are visble, repaint the viewport
     QRect changedRect(topLeft, rect.bottomRight());
     if (clipRegion().boundingRect().intersects(changedRect))
         d->viewport->update();
@@ -1619,41 +1638,7 @@ void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
     }
 }
 
-void QListViewPrivate::createStaticRow(int &x, int &y, int &dy, int &wraps, int row,
-                                       const QRect &bounds, int spacing, int delta)
-{
-    x = bounds.left() + spacing;
-    y += spacing + dy;
-    ++wraps;
-    if (yposVector.size() < (wraps + 2)) {
-        int s = yposVector.size() + delta;
-        yposVector.resize(s);
-        wrapVector.resize(s);
-    }
-    yposVector[wraps] = y;
-    wrapVector[wraps] = row;
-    dy = 0;
-}
-
-void QListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &wraps, int row,
-                                          const QRect &bounds, int spacing, int delta)
-{
-    y = bounds.top() + spacing;
-    x += spacing + dx;
-    ++wraps;
-    if (xposVector.size() < (wraps + 2)) {
-        int s = xposVector.size() + delta;
-        xposVector.resize(s);
-        wrapVector.resize(s);
-    }
-    xposVector[wraps] = x;
-    wrapVector[wraps] = row;
-    dx = 0;
-}
-
-QPoint QListViewPrivate::initStaticLayout(int first,
-                                          const QRect &bounds,
-                                          int spacing)
+QPoint QListViewPrivate::initStaticLayout(const QRect &bounds, int spacing, int first)
 {
     int x, y;
     if (first == 0) {
