@@ -2293,11 +2293,13 @@ QFileInfo
 MakefileGenerator::fileInfo(QString file) const
 {
     static QHash<FileInfoCacheKey, QFileInfo> *cache = 0;
+    static QFileInfo noInfo = QFileInfo();
     if(!cache)
         cache = new QHash<FileInfoCacheKey, QFileInfo>;
     FileInfoCacheKey cacheKey(file);
-    if(cache->contains(cacheKey))
-        return cache->value(cacheKey);
+    QFileInfo value = cache->value(cacheKey, noInfo);
+    if (value != noInfo)
+        return value;
 
     QFileInfo fi(file);
     cache->insert(cacheKey, fi);
