@@ -277,7 +277,7 @@ QObject::QObject(QObject *parent)
     : d_ptr(new QObjectPrivate)
 {
     d_ptr->q_ptr = this;
-    d->thread = parent ? parent->thread() : QThread::currentQThread();
+    d->thread = parent ? parent->d->thread : QThread::currentQThread();
     setParent(parent);
 }
 
@@ -290,7 +290,7 @@ QObject::QObject(QObject *parent, const char *name)
     : d_ptr(new QObjectPrivate)
 {
     d_ptr->q_ptr = this;
-    d->thread = parent ? parent->thread() : QThread::currentQThread();
+    d->thread = parent ? parent->d->thread : QThread::currentQThread();
     setParent(parent);
     setObjectName(QString::fromAscii(name));
 }
@@ -302,15 +302,15 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
     : d_ptr(&dd)
 {
     d_ptr->q_ptr = this;
-    d->thread = parent ? parent->thread() : QThread::currentQThread();
     if (d->isWidget) {
+        d->thread = 0;
         if (parent) {
             d->parent = parent;
             d->parent->d->children.append(this);
-            d->thread = 0;
         }
         // no events sent here, this is done at the end of the QWidget constructor
     } else {
+        d->thread = parent ? parent->d->thread : QThread::currentQThread();
         setParent(parent);
     }
 }
@@ -402,7 +402,7 @@ QObject::~QObject()
     }
 
     // might have pending timers
-    QEventLoop *eventloop = QEventLoop::instance(thread());
+    QEventLoop *eventloop = QEventLoop::instance(d->thread);
     if (eventloop && d->pendTimer)
         eventloop->unregisterTimers(this);
 
@@ -800,12 +800,7 @@ bool QObject::blockSignals(bool block)
 /*!
  */
 QThread *QObject::thread() const
-{
-    const QObject *toplevel = this;
-    for (; toplevel && toplevel->d->parent; toplevel = toplevel->d->parent)
-        ;
-    return toplevel->d->thread;
-}
+{ return d->thread; }
 
 //
 // The timer flag hasTimer is set when startTimer is called.
@@ -871,7 +866,7 @@ QThread *QObject::thread() const
 int QObject::startTimer(int interval)
 {
     d->pendTimer = true;                                // set timer flag
-    QEventLoop *eventloop = QEventLoop::instance(thread());
+    QEventLoop *eventloop = QEventLoop::instance(d->thread);
     Q_ASSERT_X(eventloop, "QObject::startTimer", "Cannot start timer without an event loop");
     return eventloop->registerTimer(interval, (QObject *)this);
 }
@@ -887,7 +882,7 @@ int QObject::startTimer(int interval)
 
 void QObject::killTimer(int id)
 {
-    QEventLoop *eventloop = QEventLoop::instance(thread());
+    QEventLoop *eventloop = QEventLoop::instance(d->thread);
     if (eventloop) eventloop->unregisterTimer(id);
 }
 
@@ -1140,13 +1135,11 @@ void QObject::setParent_helper(QObject *parent)
         QChildEvent e(QEvent::ChildRemoved, this);
         QCoreApplication::sendEvent(d->parent, &e);
     }
-    QThread *thr = thread();
     d->parent = parent;
     if (d->parent) {
         // object heirarchies are constrained to a single thread
-        Q_ASSERT_X(thr == d->parent->thread(), "QObject::setParent",
+        Q_ASSERT_X(d->thread == d->parent->d->thread, "QObject::setParent",
                    "New parent must be in the same thread as the previous parent");
-        d->thread = 0;
         d->parent->d->children.append(this);
         if (!d->isWidget) {
             QChildEvent e(QEvent::ChildAdded, this);
@@ -1160,10 +1153,6 @@ void QObject::setParent_helper(QObject *parent)
             QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));
         }
 #endif
-    } else {
-        // keep the same thread id as the (former) parent when
-        // reparenting to zero
-        d->thread = thr;
     }
 }
 
@@ -1731,7 +1720,7 @@ void QObjectPrivate::setActive(Connections *connections, bool *was_active)
     Resets the active flag on \a connections.  \a connections is
     destroyed if it is no longer active and has been orphaned.
 
-    Note: The connections lock MUST be LOCKED before calling this
+    Note: The connections lock MUST BE LOCKED before calling this
     function.  The lock will be UNLOCKED when this function returns.
 */
 void QObjectPrivate::resetActive(Connections *connections, bool was_active)
@@ -2330,14 +2319,41 @@ void QMetaObject::connectSlotsByName(QObject *o)
     }
 }
 
+static void queued_activate(QObject *obj, QObjectPrivate::Connections::Connection *c, void **argv)
+{
+    if (!c->types && c->types != &DIRECT_CONNECTION_ONLY) {
+        QMetaMember m = obj->metaObject()->signal(c->signal);
+        c->types = QObjectPrivate::queuedConnectionTypes(m.signature());
+        if (!c->types) // cannot queue arguments
+            c->types = &DIRECT_CONNECTION_ONLY;
+    }
+    if (c->types == &DIRECT_CONNECTION_ONLY) // cannot activate
+        return;
+    int nargs = 1; // include return type
+    while (c->types[nargs-1]) { ++nargs; }
+    int *types = (int *) qMalloc(nargs*sizeof(int));
+    void **args = (void **) qMalloc(nargs*sizeof(void *));
+    types[0] = 0; // return type
+    args[0] = 0; // return value
+    for (int n = 1; n < nargs; ++n)
+        args[n] = QMetaType::copy((types[n] = c->types[n-1]), argv[n]);
+    QCoreApplication::postEvent(c->receiver,
+                                new QMetaCallEvent((c->member & 1)
+                                                   ? QEvent::EmitSignal
+                                                   : QEvent::InvokeSlot,
+                                                   c->member >> 1, obj,
+                                                   nargs, types, args));
+}
+
 /*!\internal
  */
 void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
 {
-    QObjectPrivate::Connections *connections = obj->d->connections;
-
+    QObjectPrivate::Connections * const connections = obj->d->connections;
     if (obj->d->blockSig || !connections)
         return;
+
+    const QThread * const currentQThread = QThread::currentQThread();
 
     bool was_connections_active;
     QObjectPrivate::setActive(connections, &was_connections_active);
@@ -2354,59 +2370,37 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
 
         // determine if this connection should be sent immediately or
         // put into the event queue
-        const bool queued = (c->type == Qt::QueuedConnection
-                             || (c->type == Qt::AutoConnection
-                                 && (QThread::currentQThread() != obj->thread()
-                                     || c->receiver->thread() != obj->thread())));
-        if (queued && !c->types && c->types != &DIRECT_CONNECTION_ONLY) {
-            QMetaMember m = obj->metaObject()->signal(signal_index);
-            c->types = QObjectPrivate::queuedConnectionTypes(m.signature());
-            if (!c->types) // cannot queue arguments
-                c->types = &DIRECT_CONNECTION_ONLY;
-            if (c->types == &DIRECT_CONNECTION_ONLY) // cannot activate
-                continue;
+        if ((c->type == Qt::AutoConnection
+             && (currentQThread != obj->d->thread
+                 || c->receiver->d->thread != obj->d->thread))
+            || (c->type == Qt::QueuedConnection)) {
+            ::queued_activate(obj, c, argv);
+            continue;
         }
 
-        if (queued) { // Qt::QueuedConnection
-            int nargs = 1; // include return type
-            while (c->types[nargs-1]) { ++nargs; }
-            int *types = (int *) qMalloc(nargs*sizeof(int));
-            void **args = (void **) qMalloc(nargs*sizeof(void *));
-            types[0] = 0; // return type
-            args[0] = 0; // return value
-            for (int n = 1; n < nargs; ++n)
-                args[n] = QMetaType::copy((types[n] = c->types[n-1]), argv[n]);
-            QCoreApplication::postEvent(c->receiver,
-                                        new QMetaCallEvent((c->member & 1)
-                                                           ? QEvent::EmitSignal
-                                                           : QEvent::InvokeSlot,
-                                                           c->member >> 1, obj,
-                                                           nargs, types, args));
-        } else { // Qt::DirectConnection
-            connections->lock.release();
+        connections->lock.release();
 
-            QObjectPrivate::Senders *senders = c->receiver->d->senders;
-            bool was_senders_active;
-            QObject *sender = QObjectPrivate::setCurrentSender(senders, obj, &was_senders_active);
+        QObjectPrivate::Senders *senders = c->receiver->d->senders;
+        bool was_senders_active;
+        QObject *sender = QObjectPrivate::setCurrentSender(senders, obj, &was_senders_active);
 #if defined(QT_NO_EXCEPTIONS)
-            c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
+        c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
 #else
-            try {
-                c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
-            } catch (...) {
-                QObjectPrivate::resetCurrentSender(senders, sender, was_senders_active);
-                connections->lock.acquire();
-                QObjectPrivate::resetActive(connections, was_connections_active);
-
-                throw;
-            }
-#endif
-
+        try {
+            c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
+        } catch (...) {
             QObjectPrivate::resetCurrentSender(senders, sender, was_senders_active);
             connections->lock.acquire();
-            if (connections->orphaned)
-                break;
+            QObjectPrivate::resetActive(connections, was_connections_active);
+
+            throw;
         }
+#endif
+
+        QObjectPrivate::resetCurrentSender(senders, sender, was_senders_active);
+        connections->lock.acquire();
+        if (connections->orphaned)
+            break;
     }
 
     QObjectPrivate::resetActive(connections, was_connections_active);
