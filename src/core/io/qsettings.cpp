@@ -1510,7 +1510,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     return !writeError;
 }
 
-/*! \class QSettings
+/*! 
+    \class QSettings
     \brief The QSettings class provides persistent platform-independent application settings.
 
     \ingroup io
@@ -1528,10 +1529,9 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     enabling you to save and restore application settings in a
     portable manner.
 
-    If your application links against the QtGui library, you can use
-    QSettings rather than QSettings. QSettings's API is based on
-    QVariant instead of QCoreVariant, which allows you to save
-    GUI-related types such as QRect, QSize, and QColor.
+    QSettings's API is based on QVariant, allowing you to save
+    most value-based types, such as QRect, QSize, and QColor,
+    with the minimum of effort.
 
     \tableofcontents section1
 
@@ -1566,7 +1566,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \printline QSettings settings;
 
     QSettings stores settings. Each setting consists of a QString
-    that specifies the setting's name (the \e key) and a QCoreVariant
+    that specifies the setting's name (the \e key) and a QVariant
     that stores the data associated with the key. To write a setting,
     use setValue(). For example:
 
@@ -1582,7 +1582,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \printline settings.value(
 
     If there is no setting with the specified name, QSettings
-    returns a null QCoreVariant (which converts to the integer 0).
+    returns a null QVariant (which can be converted to the integer 0).
     You can specify another default value by passing a second
     argument to value():
 
@@ -1749,8 +1749,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     QSettings is often used to store the state of a GUI
     application. The following example will illustrate how to use we
-    will use QSettings (actually, QSettings) to save and restore
-    the geometry of an application's main window.
+    will use QSettings to save and restore the geometry of an
+    application's main window.
 
     \skipto ::writeSettings
     \printuntil /^\}$/
@@ -1815,7 +1815,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         setFallbackEnabled(false).
     \endlist
 
-    \sa QSettings, QSessionManager
+    \sa QVariant, QSessionManager
 */
 
 /*! \enum QSettings::Status
