@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#22 $
 **
 ** Implementation of QML classes
 **
@@ -1207,11 +1207,11 @@ QMLHorizontalLine::~QMLHorizontalLine()
 }
 
 void QMLHorizontalLine::draw(QPainter* p, int x, int y,
-			     int ox, int oy, int cx, int cy, int cw, int /* ch */ ,
+			     int ox, int oy, int cx, int cy, int cw, int ch,
 			     QRegion&, const QColorGroup&, const QBrush* paper)
 {
     QRect rm( x-ox, y-oy, width, height);
-    QRect ra( cx-ox, cy-oy, cw,  cw);
+    QRect ra( cx-ox, cy-oy, cw,  ch);
     QRect r = rm.intersect( ra );
     if (paper) {
 	if ( paper->pixmap() )
@@ -2054,7 +2054,19 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
 	}
 	height = QMAX( height, colheight );
     }
-    height += marginbottom; //TODO ##### collapsing
+    
+    // collapse the bottom margin
+    if ( isLastSibling && parent && parent->isBox){
+	// ignore bottom margin
+    }
+    else if ( !isLastSibling && next && next->isBox ) {
+	// collapse
+	height += QMAX( ((QMLContainer*)next)->style->margin( QMLStyle::MarginTop), marginbottom);
+    }
+    else {
+	// nothing to collapse
+        height += marginbottom;
+    }
 }
 
 
@@ -2968,21 +2980,23 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	int beforePos = pos;
 	if (hasPrefix(doc, pos, QChar('<')) ){
 	    if (hasPrefix(doc, pos+1, QChar('/'))) {
-		if (current->isBox){ // todo this inserts a hitable null character
-		    QMLNode* n = new QMLNode;
-		    n->c = QChar::null;
-		    QMLNode* l = lastChild;
-		    if (!l)
-			current->child = n;
-		    else {
-			l->isLastSibling = 0;
-			l->next = n;
-		    }
-		    n->next = current;
-		    n->isLastSibling = 1;
-		    lastChild = n;
-		    l = n;
-		}
+		
+// 		// only in editor mode!
+// 		if (current->isBox){ // todo this inserts a hitable null character
+// 		    QMLNode* n = new QMLNode;
+// 		    n->c = QChar::null;
+// 		    QMLNode* l = lastChild;
+// 		    if (!l)
+// 			current->child = n;
+// 		    else {
+// 			l->isLastSibling = 0;
+// 			l->next = n;
+// 		    }
+// 		    n->next = current;
+// 		    n->isLastSibling = 1;
+// 		    lastChild = n;
+// 		    l = n;
+// 		}
 		return TRUE;
 	    }
 	    QDict<QString> attr;
@@ -2991,11 +3005,15 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	
 	    const QMLStyle* nstyle = sheet_->style(tagname);
 	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
-		warning( "QML Warning: Document not valid ( '%s' not allowed in %s #%d)", 
+		warning( "QML Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
 			 tagname.ascii(), current->style->name().ascii(), pos);
 		pos = beforePos;
 		return FALSE;
 	    }
+// 	    if (tagname == "p"  && current->style->name() == tagname ) {
+// 		pos = beforePos;
+// 		return FALSE;
+// 	    }
 	
 	    QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
 	    if (tag->isContainer ) {
