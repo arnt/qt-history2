@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinf.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qfileinf.cpp#17 $
 **
 ** Implementation of QFileInfo class
 **
@@ -19,7 +19,7 @@
 # include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#16 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinf.cpp#17 $")
 
 
 struct QFileInfoCache
@@ -413,7 +413,11 @@ QString QFileInfo::extension() const
 
 QString QFileInfo::dirPath( bool absPath ) const
 {
-    QString s = absPath ? absFilePath() : fn;
+    QString s;
+    if ( absPath )
+	s = absFilePath();
+    else
+	s = fn;
     int pos = s.findRev( QDir::separator() );
     if ( pos == -1 )
 	return ".";
@@ -499,7 +503,7 @@ bool QFileInfo::isRelative() const
 
 bool QFileInfo::convertToAbs()
 {
-    if ( isRelative )
+    if ( isRelative() )
 	fn = absFilePath();
     return QDir::isRelativePath( fn.data() );
 }
