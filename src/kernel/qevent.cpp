@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#112 $
 **
 ** Implementation of event classes
 **
@@ -129,6 +129,7 @@
   <li> \c ActivateControl -
   <li> \c DeactivateControl -
   <li> \c User -
+</ul>
 */
 /*!
   \fn QEvent::QEvent( Type type )
