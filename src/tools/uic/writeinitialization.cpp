@@ -1082,20 +1082,12 @@ void WriteInitialization::initializeMenu(DomWidget *w, const QString &parentWidg
 {
     QHash<QString, DomProperty*> attributes = propertyMap(w->elementAttribute());
 
-    QString title = QLatin1String("Menu");
-    if (attributes.contains(QLatin1String("title")))
-        title = toString(attributes.value(QLatin1String("title"))->elementString());
-
     QString menuName = driver->findOrInsertWidget(w);
     QString menuAction = menuName + QLatin1String("Action");
 
     DomAction *action = driver->actionByName(menuAction);
     if (action && action->hasAttributeMenu()) {
-        output << option.indent << menuAction << " = new QAction("
-            << trCall(title, w->attributeClass())
-            << ", " << parentWidget << ");\n";
-
-        output << option.indent << menuAction << "->setMenu(" << menuName << ");\n";
+        output << option.indent << menuAction << " = " << menuName << "->menuAction();\n";
     }
 }
 
