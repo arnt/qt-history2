@@ -686,6 +686,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PE_TabBarBase  area below tabs in a tab widget, for example,
 	QTab.
 
+    \value PE_MenuFrame frame displayed in a QMenu
+    \value PE_MenuBarFrmae frame displayed in a QMenuBar
 
     \value PE_HeaderSection  section of a list or table header; see also
 	QHeader.
@@ -903,12 +905,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value CE_ToolBoxTab the toolbox's tab area
     \value CE_HeaderLabel the header's label
-
-    \value CE_Q3PopupMenuItem  a menu item in a Q3PopupMenu.
-    \value CE_Q3PopupMenuScroller scrolling areas in a popumenu when the
-	style supports scrolling.
-    \value CE_Q3MenuBarItem  a menu item in a Q3MenuBar.
-    \value CE_Q3MenuBarEmptyArea the empty area of a Q3MenuBar.
 
     \value CE_CustomBase  base value for custom ControlElements. All values above
 	    this are reserved for custom use. Therefore, custom values must be
@@ -1565,6 +1561,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CT_SpinBox
     \value CT_SizeGrip
     \value CT_TabWidget
+    \value CT_Menu
     \value CT_DialogButtons
 
     \value CT_Q3PopupMenuItem

@@ -259,6 +259,8 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
 	    p->fillRect(r, pal.brush(QPalette::Button));
 	break;
 
+    case PE_MenuBarFrame:
+    case PE_MenuFrame:
     case PE_Panel:
     case PE_PanelPopup:
     case PE_PanelMenuBar:

@@ -1782,6 +1782,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 	    break;
 	}
 
+    case PE_MenuBarFrame:
     case PE_PanelMenuBar:
 	{
 	    switch (findLocation( p )) {
@@ -1823,6 +1824,7 @@ void QPocketPCStyle::drawPrimitive(PrimitiveElement    primitive,
 	    break;
 	}
 
+    case PE_MenuFrame:
     case PE_PanelLineEdit:
     case PE_PanelPopup:
     case PE_PanelGroupBox:

@@ -773,6 +773,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	partId = TABP_PANE;
 	break;
 
+    case PE_MenuFrame:
     case PE_PanelPopup:
 	p->save();
 	p->setPen( pal.dark() );
@@ -780,6 +781,7 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	p->restore();
 	return;
 
+    case PE_MenuBarFrame:
     case PE_PanelMenuBar:
 	break;
 
@@ -2345,6 +2347,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 	}
 	break;
 
+    case PM_MenuFrameWidth:
     case PM_DefaultFrameWidth:
     case PM_SpinBoxFrameWidth:
 	return 1;

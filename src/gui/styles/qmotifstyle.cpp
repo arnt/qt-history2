@@ -964,6 +964,22 @@ void QMotifStyle::drawControl(ControlElement element,
 	}
 
 #ifndef QT_NO_MENU
+    case CE_MenuTearoff: {
+	if(flags & Style_Active) {
+	    if(pixelMetric(PM_MenuFrameWidth) > 1)
+		qDrawShadePanel(p, r.x(), r.y(), r.width(), r.height(), pal, false, motifItemFrame,
+				 &pal.brush(QPalette::Button));
+	    else
+		qDrawShadePanel(p, r.x()+1, r.y()+1, r.width()-2, r.height()-2, pal, true, 1, &pal.brush(QPalette::Button));
+	} else {
+	    p->fillRect( r, pal.brush(QPalette::Button) );
+	}
+	p->setPen( QPen( pal.dark(), 1, DashLine ) );
+	p->drawLine( r.x()+2, r.y()+r.height()/2-1, r.x()+r.width()-4, r.y()+r.height()/2-1 );
+	p->setPen( QPen( pal.light(), 1, DashLine ) );
+	p->drawLine( r.x()+2, r.y()+r.height()/2, r.x()+r.width()-4, r.y()+r.height()/2 );
+	break; }
+
     case CE_MenuItem: {
 	if (!widget || opt.isDefault())
 	    break;
@@ -996,7 +1012,7 @@ void QMotifStyle::drawControl(ControlElement element,
 
 	int pw = motifItemFrame;
 	if(act && !dis) {                        // active item frame
-	    if(pixelMetric(PM_DefaultFrameWidth) > 1)
+	    if(pixelMetric(PM_MenuFrameWidth) > 1)
 		qDrawShadePanel(p, x, y, w, h, pal, FALSE, pw,
 				 &pal.brush(QPalette::Button));
 	    else

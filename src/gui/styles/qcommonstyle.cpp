@@ -463,6 +463,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	qDrawShadeLine( p, p1, p2, pal, 1, 1, 0 );
 	break; }
 
+    case PE_MenuFrame:
     case PE_Panel:
     case PE_PanelPopup: {
 	int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth)
@@ -478,6 +479,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	qDrawShadePanel(p, r, pal, FALSE, lw);
 	break; }
 
+    case PE_MenuBarFrame:
     case PE_PanelMenuBar: {
 	int lw = opt.isDefault() ? pixelMetric(PM_MenuBarFrameWidth)
 		    : opt.lineWidth();
@@ -2318,6 +2320,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 	ret = 0;
 	break;
 
+    case PM_MenuFrameWidth:
     case PM_SpinBoxFrameWidth:
     case PM_DefaultFrameWidth:
 	ret = 2;
@@ -2694,6 +2697,8 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	}
 #endif
 
+    case CT_MenuBar:
+    case CT_Menu:
     case CT_MenuBarItem: 
     case CT_LineEdit:
     case CT_Header:

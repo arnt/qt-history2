@@ -470,6 +470,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
 	    break;
 	}
 
+    case PE_MenuFrame:
     case PE_Panel:
     case PE_PanelPopup:
 	{

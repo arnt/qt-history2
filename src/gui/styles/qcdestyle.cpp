@@ -66,6 +66,7 @@ int QCDEStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
     int ret;
 
     switch( metric ) {
+    case PM_MenuFrameWidth:
     case PM_DefaultFrameWidth:
 	ret = 1;
 	break	;

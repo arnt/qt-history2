@@ -256,6 +256,9 @@ public:
 
 	PE_TreeBranch,
 
+	PE_MenuFrame,
+	PE_MenuBarFrame,
+
 	// do not add any values below/greater this
 	PE_CustomBase =			0xf000000
     };
@@ -478,8 +481,6 @@ public:
 	PM_DockWindowHandleExtent,
 	PM_DockWindowFrameWidth,
 
-	PM_MenuBarFrameWidth,
-
 	PM_TabBarTabOverlap,
 	PM_TabBarTabHSpace,
 	PM_TabBarTabVSpace,
@@ -494,8 +495,12 @@ public:
 	PM_MenuScrollerHeight,
 	PM_MenuFrameHorizontalExtra,
 	PM_MenuFrameVerticalExtra,
+	PM_MenuFrameWidth,
 	PM_MenuTearoffHeight,
 	PM_MenuDesktopFrameWidth,
+
+	PM_MenuBarFrameWidth,
+	PM_MenuBarItemSpacing,
 
 	PM_IndicatorWidth,
 	PM_IndicatorHeight,
@@ -517,7 +522,6 @@ public:
 	PM_TabBarTabShiftVertical,
 	PM_TabBarScrollButtonWidth,
 
-	PM_MenuBarItemSpacing,
 	PM_ToolBarItemSpacing,
 
 #ifdef QT_COMPAT

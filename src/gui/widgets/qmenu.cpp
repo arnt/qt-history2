@@ -175,6 +175,8 @@ QRect Q4MenuPrivate::actionRect(Q4MenuAction *act)
 	ret.moveBy(0, scroll->scrollOffset);
     if(tearoff)
 	ret.moveBy(0, q->style().pixelMetric(QStyle::PM_MenuTearoffHeight, q));
+     const int fw = q->style().pixelMetric(QStyle::PM_MenuFrameWidth, q);
+     ret.moveBy(fw, fw);
     return ret;
 }
 
@@ -539,6 +541,10 @@ QSize Q4Menu::sizeHint() const
     }
     if(d->tearoff)
 	s.setHeight(s.height()+style().pixelMetric(QStyle::PM_MenuTearoffHeight, this));
+    if(const int fw = q->style().pixelMetric(QStyle::PM_MenuFrameWidth, q)) {
+	s.setWidth(s.width()+(fw*2));
+	s.setHeight(s.height()+(fw*2));
+    }
     return style().sizeFromContents(QStyle::CT_Menu, this, s.expandedTo(QApplication::globalStrut()));
 }
 
@@ -678,9 +684,21 @@ void Q4Menu::paintEvent(QPaintEvent *e)
 
     QPainter p(this);
     QRegion emptyArea = QRegion(rect());
+    const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, this);
+
+    //draw border
+    if(fw) {
+ 	QRegion borderReg;
+ 	borderReg += QRect(0, 0, fw, height()); //left
+ 	borderReg += QRect(width()-fw, 0, fw, height()); //right
+ 	borderReg += QRect(0, 0, width(), fw); //top
+ 	borderReg += QRect(0, height()-fw, width(), fw); //bottom
+ 	p.setClipRegion(borderReg);
+	emptyArea -= borderReg;
+ 	style().drawPrimitive(QStyle::PE_MenuFrame, &p, rect(), palette(), QStyle::Style_Default);
+    }
 
     //draw the items that need updating..
-
     for(int i=0; i<(int)d->actionItems.count(); i++) {
 	Q4MenuAction *action = d->actionItems.at(i);
 	QRect adjustedActionRect = d->actionRect(action);
@@ -710,7 +728,7 @@ void Q4Menu::paintEvent(QPaintEvent *e)
     if(d->scroll) {
 	const int scrollerHeight = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
 	if(d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp) {
-	    QRect topScroll(0, 0, width(), scrollerHeight);
+	    QRect topScroll(fw, fw, width()-(fw*2), scrollerHeight);
 	    emptyArea -= QRegion(topScroll);
 	    p.setClipRect(topScroll);
 	    QStyle::SFlags flags = QStyle::Style_Default;
@@ -719,7 +737,7 @@ void Q4Menu::paintEvent(QPaintEvent *e)
 	    style().drawControl(QStyle::CE_MenuScroller, &p, this, topScroll, palette(), flags);
 	}
 	if(d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollDown) {
-	    QRect bottomScroll(0, height()-scrollerHeight, width(), scrollerHeight);
+	    QRect bottomScroll(0, height()-scrollerHeight-fw, width()-(fw*2), scrollerHeight);
 	    emptyArea -= QRegion(bottomScroll);
 	    p.setClipRect(bottomScroll);
 	    QStyle::SFlags flags = QStyle::Style_Down;
@@ -730,7 +748,7 @@ void Q4Menu::paintEvent(QPaintEvent *e)
     }
     //paint the tear off..
     if(d->tearoff) {
-	QRect tearRect(0, 0, width(), style().pixelMetric(QStyle::PM_MenuTearoffHeight, this));
+	QRect tearRect(fw, fw, width()-(fw*2), style().pixelMetric(QStyle::PM_MenuTearoffHeight, this));
 	if(d->scroll && d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp)
 	    tearRect.moveBy(0, style().pixelMetric(QStyle::PM_MenuScrollerHeight, this));
 	emptyArea -= QRegion(tearRect);
@@ -1167,7 +1185,7 @@ Q4MenuAction *Q4MenuBarPrivate::actionAt(QPoint p)
 {
     for(int i = 0; i < actionItems.count(); i++) {
 	Q4MenuAction *act = actionItems[i];
-	if(act->rect.contains(p))
+	if(actionRect(act).contains(p))
 	    return act;
     }
     return 0;
@@ -1175,7 +1193,7 @@ Q4MenuAction *Q4MenuBarPrivate::actionAt(QPoint p)
 
 void Q4MenuBarPrivate::updateActions()
 {
-    int q_width = q->width();
+    int q_width = q->width()-(q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2);
     if(!itemsDirty && itemsWidth == q_width)
 	return;
     actionItems = calcActionRects(q_width);
@@ -1195,12 +1213,12 @@ void Q4MenuBarPrivate::updateActions()
     itemsDirty = 0;
 }
 
-/* I may not really need this function, but I've added it for now so that it
-   is easy to translate code from the menu - I will probably end up removing it
-   later */
 QRect Q4MenuBarPrivate::actionRect(Q4MenuAction *act)
 {
-    return act->rect;
+    QRect ret = act->rect;
+    const int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
+    ret.moveBy(fw, fw);
+    return ret;
 }
 
 void Q4MenuBarPrivate::setKeyboardMode(bool b)
@@ -1386,6 +1404,18 @@ void Q4MenuBar::paintEvent(QPaintEvent *e)
 
     QPainter p(this);
     QRegion emptyArea(rect());
+
+     //draw border
+    if(int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)) {
+ 	QRegion borderReg;
+ 	borderReg += QRect(0, 0, fw, height()); //left
+ 	borderReg += QRect(width()-fw, 0, fw, height()); //right
+ 	borderReg += QRect(0, 0, width(), fw); //top
+ 	borderReg += QRect(0, height()-fw, width(), fw); //bottom
+	p.setClipRegion(borderReg);
+ 	emptyArea -= borderReg;
+ 	style().drawPrimitive(QStyle::PE_MenuBarFrame, &p, rect(), palette(), QStyle::Style_Default);
+    }
 
     //draw the items
     for(int i=0; i<(int)d->actionItems.count(); i++) {
@@ -1696,14 +1726,18 @@ Q4MenuBar::eventFilter(QObject *object, QEvent *event)
 
 QSize Q4MenuBar::sizeHint() const
 {
+    QSize s(0, 0);
     const_cast<Q4MenuBar*>(this)->d->updateActions();
-    QSize s(0, height());
     for(int i = 0; i < d->actionItems.count(); ++i) {
 	QRect actionRect(d->actionItems[i]->rect);
 	if(actionRect.right() > s.width())
 	    s.setWidth(actionRect.right());
 	if(actionRect.bottom() > s.height())
 	    s.setHeight(actionRect.bottom());
+    }
+    if(const int fw = q->style().pixelMetric(QStyle::PM_MenuFrameWidth, q)) {
+	s.setWidth(s.width()+(fw*2));
+	s.setHeight(s.height()+(fw*2));
     }
     return (style().sizeFromContents(QStyle::CT_MenuBar, this, 
 				     s.expandedTo(QApplication::globalStrut())));
@@ -1712,8 +1746,7 @@ QSize Q4MenuBar::sizeHint() const
 QSize Q4MenuBar::minimumSizeHint() const
 {
 #ifndef QT_NO_TOOLBAR
-    QToolBar *tb = qt_cast<QToolBar*>(parent());
-    if(tb)
+    if(qt_cast<QToolBar*>(parentWidget()))
 	return sizeHint();
 #endif
     return QWidget::minimumSizeHint();
@@ -1725,7 +1758,8 @@ int Q4MenuBar::heightForWidth(int max_width) const
     int height = 0;
     for(int i = 0; i < actions.count(); ++i)
 	height = qMax(height, actions[i]->rect.bottom());
-    return height;
+    const int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
+    return height + (fw*2);
 }
 
 void Q4MenuBar::internalShortcutActivated(int id)

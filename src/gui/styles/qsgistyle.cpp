@@ -393,6 +393,7 @@ static const int sgiCheckMarkSpace      = 20;
 int QSGIStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     switch (metric) {
+    case PM_MenuFrameWidth:
     case PM_DefaultFrameWidth:
 	return 2;
 
@@ -599,6 +600,7 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe,
 	}
 	break;
 
+    case PE_MenuFrame:
     case PE_PanelPopup:
     case PE_ButtonBevel:
     case PE_ButtonTool:
