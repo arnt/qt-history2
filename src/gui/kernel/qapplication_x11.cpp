@@ -2596,7 +2596,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
 	    keywidget->translateKeyEventInternal(event, count, text,
                                                  modifiers, code, type,
-						  false, false);
+                                                 false, false);
 
 	    // both key press/release is required for some complex
 	    // input methods. don't eliminate anything.
@@ -2607,52 +2607,12 @@ int QApplication::x11ProcessEvent(XEvent* event)
     } else
 #endif // QT_NO_IM
     {
-	if (XFilterEvent(event, XNone))
-	    return true;
+        if (XFilterEvent(event, XNone))
+            return true;
     }
 
     if (qt_x11EventFilter(event))                // send through app filter
         return 1;
-
-    if (event->type == MappingNotify) {        // keyboard mapping changed
-        XRefreshKeyboardMapping(&event->xmapping);
-        return 0;
-    }
-
-    if (event->type == PropertyNotify) {        // some properties changed
-        if (event->xproperty.window == QX11Info::appRootWindow(0)) {
-            // root properties for the first screen
-            if (event->xproperty.atom == ATOM(_QT_CLIPBOARD_SENTINEL)) {
-                if (qt_check_clipboard_sentinel())
-                    emit clipboard()->dataChanged();
-            } else if (event->xproperty.atom == ATOM(_QT_SELECTION_SENTINEL)) {
-                if (qt_check_selection_sentinel())
-                    emit clipboard()->selectionChanged();
-            } else if (QApplicationPrivate::obey_desktop_settings) {
-                if (event->xproperty.atom == ATOM(RESOURCE_MANAGER))
-                    qt_set_x11_resources();
-                else if (event->xproperty.atom == ATOM(_QT_SETTINGS_TIMESTAMP))
-                    QApplication::x11_apply_settings();
-            }
-        }
-        if (event->xproperty.window == QX11Info::appRootWindow()) {
-            // root properties for the default screen
-            if (event->xproperty.atom == ATOM(_QT_INPUT_ENCODING)) {
-                qt_set_input_encoding();
-            } else if (event->xproperty.atom == ATOM(_NET_SUPPORTED)) {
-                qt_get_net_supported();
-            } else if (event->xproperty.atom == ATOM(_NET_VIRTUAL_ROOTS)) {
-                qt_get_net_virtual_roots();
-            } else if (event->xproperty.atom == ATOM(_NET_WORKAREA)) {
-                qt_desktopwidget_update_workarea();
-            }
-        } else if (widget) {
-            widget->translatePropertyEvent(event);
-        }  else {
-            return -1; // don't know this window
-        }
-        return 0;
-    }
 
     if (!widget) {                                // don't know this windows
         QWidget* popup = QApplication::activePopupWidget();
@@ -2759,13 +2719,13 @@ int QApplication::x11ProcessEvent(XEvent* event)
         qt_net_update_user_time(widget->topLevelWidget());
         // fallthrough intended
     case XKeyRelease:
-    {
-        if (keywidget && keywidget->isEnabled()) { // should always exist
-            // qDebug("sending key event");
-            keywidget->translateKeyEvent(event, grabbed);
+        {
+            if (keywidget && keywidget->isEnabled()) { // should always exist
+                // qDebug("sending key event");
+                keywidget->translateKeyEvent(event, grabbed);
+            }
+            break;
         }
-        break;
-    }
 
     case GraphicsExpose:
     case Expose:                                // paint event
@@ -2849,8 +2809,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
         QWidget* enter = 0;
         XEvent ev;
-        while (XCheckMaskEvent(X11->display, EnterWindowMask
-                               | LeaveWindowMask , &ev)
+        while (XCheckMaskEvent(X11->display, EnterWindowMask | LeaveWindowMask , &ev)
                && !qt_x11EventFilter(&ev)) {
             QWidget* event_widget = QWidget::find(ev.xcrossing.window);
             if(event_widget && event_widget->x11Event(&ev))
@@ -2861,8 +2820,8 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 break;
             }
             if (ev.xcrossing.mode != NotifyNormal ||
-                 ev.xcrossing.detail == NotifyVirtual  ||
-                 ev.xcrossing.detail == NotifyNonlinearVirtual)
+                ev.xcrossing.detail == NotifyVirtual  ||
+                ev.xcrossing.detail == NotifyNonlinearVirtual)
                 continue;
             enter = event_widget;
             if (ev.xcrossing.focus &&
@@ -2878,7 +2837,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if ((! enter || enter->isDesktop()) &&
             event->xcrossing.focus && widget == QApplicationPrivate::active_window &&
             X11->focus_model == QX11Data::FM_PointerRoot // PointerRoot mode
-           ) {
+            ) {
             setActiveWindow(0);
         }
 
@@ -2992,6 +2951,46 @@ int QApplication::x11ProcessEvent(XEvent* event)
         }
         break;
     }
+
+    case MappingNotify:
+        // keyboard mapping changed
+        XRefreshKeyboardMapping(&event->xmapping);
+        break;
+
+    case PropertyNotify:
+        // some properties changed
+        if (event->xproperty.window == QX11Info::appRootWindow(0)) {
+            // root properties for the first screen
+            if (event->xproperty.atom == ATOM(_QT_CLIPBOARD_SENTINEL)) {
+                if (qt_check_clipboard_sentinel())
+                    emit clipboard()->dataChanged();
+            } else if (event->xproperty.atom == ATOM(_QT_SELECTION_SENTINEL)) {
+                if (qt_check_selection_sentinel())
+                    emit clipboard()->selectionChanged();
+            } else if (QApplicationPrivate::obey_desktop_settings) {
+                if (event->xproperty.atom == ATOM(RESOURCE_MANAGER))
+                    qt_set_x11_resources();
+                else if (event->xproperty.atom == ATOM(_QT_SETTINGS_TIMESTAMP))
+                    QApplication::x11_apply_settings();
+            }
+        }
+        if (event->xproperty.window == QX11Info::appRootWindow()) {
+            // root properties for the default screen
+            if (event->xproperty.atom == ATOM(_QT_INPUT_ENCODING)) {
+                qt_set_input_encoding();
+            } else if (event->xproperty.atom == ATOM(_NET_SUPPORTED)) {
+                qt_get_net_supported();
+            } else if (event->xproperty.atom == ATOM(_NET_VIRTUAL_ROOTS)) {
+                qt_get_net_virtual_roots();
+            } else if (event->xproperty.atom == ATOM(_NET_WORKAREA)) {
+                qt_desktopwidget_update_workarea();
+            }
+        } else if (widget) {
+            widget->translatePropertyEvent(event);
+        }  else {
+            return -1; // don't know this window
+        }
+        break;
 
     default:
         break;
