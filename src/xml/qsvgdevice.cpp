@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#12 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#13 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -281,6 +281,21 @@ bool QSVGDevice::play( const QDomNode &node )
 	    break;
 	case PolylineElement:
 	case PolygonElement:
+	    {
+		QString pts = attr.namedItem( "points" ).nodeValue();
+		pts = pts.simplifyWhiteSpace();
+		QStringList sl = QStringList::split( QRegExp( "[ ,]" ), pts );
+		QPointArray ptarr( sl.count() / 2);
+		for ( int i = 0; i < (int)sl.count() / 2; i++ ) {
+		    double dx = sl[2*i].toDouble();
+		    double dy = sl[2*i+1].toDouble();
+		    ptarr.setPoint( i, int(dx), int(dy) );
+		}
+  		if ( t == PolylineElement )
+  		    pt->drawPolyline( ptarr ); // ### can be filled in SVG
+  		else
+		    pt->drawPolygon( ptarr );
+	    }
 	    break;
 	case GroupElement:
 	    play( child );
