@@ -147,9 +147,17 @@ bool qIsPrimaryIndex( QPSQLDriver::Protocol protocol, const QSqlDriver* driver, 
     QString pIdx;
     switch( protocol ) {
     case QPSQLDriver::Version6:
-	Q_ASSERT(FALSE);
+	pIdx = "select count(*) "
+		  "from pg_attribute a, pg_class c1, pg_class c2, pg_index x "
+		  "where c1.relname='%1' "
+		  "and a.attname='%2' "
+		  "and a.attnum > 0 "
+		  "and c1.oid=x.indrelid "
+		  "and c2.oid=a.attrelid "
+		  "and (x.indexrelid=c2.oid "
+		  "and a.attrelid=c2.oid);";
 	break;
-    case QPSQLDriver::Version7:	
+    case QPSQLDriver::Version7:
 	pIdx = "select count(1) "
 		  "from pg_attribute a, pg_class c1, pg_class c2, pg_index x "
 		  "where c1.relname='%1' "
@@ -173,9 +181,16 @@ QSqlField qMakeField( QPSQLDriver::Protocol protocol, const QSqlDriver* driver, 
     QString stmt;
     switch( protocol ) {
     case QPSQLDriver::Version6:
-	Q_ASSERT(FALSE);
+	stmt = "select int(a.atttypid) "
+		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
+		   "where c.relname = '%1' "
+		   "and a.attname = '%2' "
+		   "and int4out(u.usesysid) = int4out(c.relowner) "
+		   "and c.oid= a.attrelid "
+		   "and a.atttypid = t.oid "
+		   "and (a.attnum > 0);";
 	break;
-    case QPSQLDriver::Version7:	
+    case QPSQLDriver::Version7:
 	stmt = "select a.atttypid::int "
 		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
 		   "where c.relname = '%1' "
@@ -553,19 +568,20 @@ bool QPSQLDriver::open( const QString & db,
         setOpenError( TRUE );
         return FALSE;
     }
+    PGresult* dateResult;
     switch( pro ) {
     case QPSQLDriver::Version6:
-	Q_ASSERT(FALSE);
+	dateResult = PQexec( d->connection, "SET DATESTYLE TO 'ISO';" );	
 	break;
-    case QPSQLDriver::Version7:	
-	PGresult* dateResult = PQexec( d->connection, "SET DATESTYLE=ISO;" );
-#ifdef QT_CHECK_RANGE
-	int status =  PQresultStatus( dateResult );
-	if ( status != PGRES_COMMAND_OK )
-	    qWarning( PQerrorMessage( d->connection ) );
-#endif
+    case QPSQLDriver::Version7:
+	dateResult = PQexec( d->connection, "SET DATESTYLE=ISO;" );
 	break;
     }
+#ifdef QT_CHECK_RANGE
+    int status =  PQresultStatus( dateResult );
+    if ( status != PGRES_COMMAND_OK )
+	qWarning( PQerrorMessage( d->connection ) );
+#endif
     setOpen( TRUE );
     return TRUE;
 }
@@ -627,9 +643,7 @@ QStringList QPSQLDriver::tables( const QString& user ) const
     QString stmt;
     switch( pro ) {
     case QPSQLDriver::Version6:
-	Q_ASSERT(FALSE);
-	break;
-    case QPSQLDriver::Version7:	
+    case QPSQLDriver::Version7:
 	stmt = "select relname from pg_class, pg_user "
 		  "where usename like '%1'"
 		  "and relkind = 'r' "
@@ -651,9 +665,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
     QString stmt;
     switch( pro ) {
     case QPSQLDriver::Version6:
-	Q_ASSERT(FALSE);
-	break;
-    case QPSQLDriver::Version7:	
+    case QPSQLDriver::Version7:
 	stmt = "select a.attname from pg_attribute a, pg_class c1,"
 		  "pg_class c2, pg_index i where c1.relname = '%1' "
 		  "and c1.oid = i.indrelid and i.indexrelid = c2.oid "
@@ -675,16 +687,15 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
     QString stmt;
     switch( pro ) {
     case QPSQLDriver::Version6:
-	Q_ASSERT(FALSE);
-	break;
-    case QPSQLDriver::Version7:	
+    case QPSQLDriver::Version7:
 	stmt = "select a.attname "
-		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
-		   "where c.relname = '%1' "
-		   "and int4out(u.usesysid) = int4out(c.relowner) "
-		   "and c.oid= a.attrelid "
-		   "and a.atttypid = t.oid "
-		   "and (a.attnum > 0);";
+	       "from pg_user u, pg_class c, pg_attribute a, pg_type t "
+               "where c.relname = '%1' "
+               "and int4out(u.usesysid) = int4out(c.relowner) "
+               "and c.oid= a.attrelid "
+	       "and a.atttypid = t.oid "
+	       "and (a.attnum > 0) "
+	       "order by a.attrelid;";
 	break;
     }
     QSqlQuery fi = createQuery();
