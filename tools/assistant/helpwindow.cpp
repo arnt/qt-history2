@@ -180,7 +180,9 @@ void HelpWindow::openLinkInNewPage(const QString &link)
 QMenu *HelpWindow::createPopupMenu(const QPoint& pos)
 {
     QMenu *m = new QMenu(0);
-    lastAnchor = document()->documentLayout()->anchorAt(pos);
+    QPoint p = pos + QPoint(horizontalScrollBar()->value(), verticalScrollBar()->value());
+    lastAnchor = document()->documentLayout()->anchorAt(p);
+    lastAnchor = source().resolved(lastAnchor);
     if (!lastAnchor.isEmpty()) {
         if (lastAnchor.at(0) == QLatin1Char('#')) {
             QString src = source().toString();
