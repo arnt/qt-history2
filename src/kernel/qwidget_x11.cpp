@@ -854,7 +854,12 @@ void QWidget::unsetCursor()
 static XTextProperty*
 qstring_to_xtp( const QString& s )
 {
-    static XTextProperty tp;
+    static XTextProperty tp = { 0, 0, 0, 0 };
+    if ( tp.value ) {
+	XFree( tp.value );
+	tp.value = 0;
+    }
+
     static const QTextCodec* mapper = QTextCodec::codecForLocale();
     int errCode = 0;
     if ( mapper ) {
@@ -1146,8 +1151,12 @@ QWidget *QWidget::keyboardGrabber()
 void QWidget::setActiveWindow()
 {
     QWidget *tlw = topLevelWidget();
-    if ( tlw->isVisible() && !tlw->topData()->embedded )
+    if ( tlw->isVisible() && !tlw->topData()->embedded ) {
 	XSetInputFocus( x11Display(), tlw->winId(), RevertToNone, qt_x_time);
+	
+	if (extra->topextra->xic)
+	    XSetICFocus((XIC) extra->topextra->xic);
+    }
 }
 
 
@@ -1378,6 +1387,7 @@ void QWidget::showMinimized()
 	    topData()->showMode = 1;
 	    show();
 	    clearWState( WState_Visible );
+	    sendHideEventsToChildren(TRUE);
 	}
     }
     QEvent e( QEvent::ShowMinimized );

@@ -3264,11 +3264,11 @@ void QWidget::show()
 	    exp =  layout()->expanding();
 	} else
 #endif
-	{
-	    if ( sizePolicy().hasHeightForWidth() )
-		s.setHeight( heightForWidth( s.width() ) );
-	    exp = sizePolicy().expanding();
-	}
+	    {
+		if ( sizePolicy().hasHeightForWidth() )
+		    s.setHeight( heightForWidth( s.width() ) );
+		exp = sizePolicy().expanding();
+	    }
  	if ( exp & QSizePolicy::Horizontal )
 	    s.setWidth( QMAX( s.width(), 200 ) );
  	if ( exp & QSizePolicy::Vertical )
@@ -3284,10 +3284,10 @@ void QWidget::show()
     QApplication::sendPostedEvents( this, QEvent::Resize );
 
     setWState( WState_Visible );
-
-     if ( parentWidget() )
-	 QApplication::sendPostedEvents( parentWidget(),
-					 QEvent::ChildInserted );
+    
+    if ( parentWidget() )
+	QApplication::sendPostedEvents( parentWidget(),
+					QEvent::ChildInserted );
 
     if ( extra ) {
 	int w = crect.width();
@@ -3310,7 +3310,7 @@ void QWidget::show()
     if ( !testWState(WState_Polished) )
 	polish();
 
-     if ( children() ) {
+    if ( children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
 	QWidget *widget;
@@ -3326,9 +3326,9 @@ void QWidget::show()
     }
 
 
-     bool sendShowWindowRequest = FALSE;
+    bool sendShowWindowRequest = FALSE;
 
-     if ( !isTopLevel() && !parentWidget()->isVisible() ) {
+    if ( !isTopLevel() && !parentWidget()->isVisible() ) {
 	// we should become visible, but somehow our parent is not
 	// visible, so we can't do that. Since it is not explicitly
 	// hidden (that we checked above with isVisibleTo(0) ), our
@@ -3337,33 +3337,33 @@ void QWidget::show()
 	// for simply receiving a show event without show() beeing
 	// called again (see the call to sendShowEventsToChildren() in
 	// qapplication).
-	 showWindow();
-	 clearWState( WState_Visible );
-	 if ( sendLayoutHint ) {
-	     QEvent e( QEvent::ShowToParent );
-	     QApplication::sendEvent( this, &e );
-	 }
-     } else {
+	showWindow();
+	clearWState( WState_Visible );
+	if ( sendLayoutHint ) {
+	    QEvent e( QEvent::ShowToParent );
+	    QApplication::sendEvent( this, &e );
+	}
+    } else {
 
-	 QShowEvent e(FALSE);
-	 QApplication::sendEvent( this, &e );
+	QShowEvent e(FALSE);
+	QApplication::sendEvent( this, &e );
 
-	 if ( testWFlags(WType_Modal) ) {
-	     // qt_enter_modal *before* show, otherwise the initial
-	     // stacking might be wrong
-	     qt_enter_modal( this );
-	 }
+	if ( testWFlags(WType_Modal) ) {
+	    // qt_enter_modal *before* show, otherwise the initial
+	    // stacking might be wrong
+	    qt_enter_modal( this );
+	}
 
-	 // do not show the window directly, but post a showWindow
-	 // request to reduce flicker with laid out widgets
-	 if ( !isTopLevel() && !parentWidget()->in_show )
-	     sendShowWindowRequest = TRUE;
-	 else
-	     showWindow();
+	// do not show the window directly, but post a showWindow
+	// request to reduce flicker with laid out widgets
+	if ( !isTopLevel() && !parentWidget()->in_show )
+	    sendShowWindowRequest = TRUE;
+	else
+	    showWindow();
 
-	 if ( testWFlags(WType_Popup) )
-	     qApp->openPopup( this );
-     }
+	if ( testWFlags(WType_Popup) )
+	    qApp->openPopup( this );
+    }
 
     if ( sendLayoutHint )
 	QApplication::postEvent( parentWidget(),
