@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#145 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#146 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -934,18 +934,15 @@ void QComboBox::paintEvent( QPaintEvent *event )
     QColorGroup g  = colorGroup();
 
     if ( width() < 5 || height() < 5 ) {
-	QBrush fill( g.button() );
-	qDrawShadePanel( &p, rect(), g, FALSE, 2, &fill );
+	qDrawShadePanel( &p, rect(), g, FALSE, 2, &g.fillButton() );
 	return;
     }
 
     if ( !d->usingListBox ) {			// motif 1.x style
 	int dist, buttonH, buttonW;
-	QBrush fill( g.button() );
-
 	getMetrics( &dist, &buttonW, &buttonH );
 	int xPos = width() - dist - buttonW - 1;
-	qDrawShadePanel( &p, rect(), g, FALSE, 2, &fill );
+	qDrawShadePanel( &p, rect(), g, FALSE, 2, &g.fillButton() );
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
 			 buttonW, buttonH, g, FALSE, 2 );
 	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
@@ -966,7 +963,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 
     } else if ( style() == MotifStyle ) {	// motif 2.0 style
 	int awh, ax, ay, sh, sy;
-	QBrush fill( g.button() );
+	QBrush fill = g.fillButton();
 
 	if ( height() < 6 ) {
 	    awh = height();
@@ -1038,7 +1035,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 	QColor bg = isEnabled() ? g.base() : g.button();
 	QString str = d->listBox->text( d->current );
 
-	QBrush fill( bg );
+	QBrush fill = isEnabled() ? g.fillBase() : g.fillBase();
 	qDrawWinPanel( &p, 0, 0, width(), height(), g, TRUE, &fill );
 
 	QRect arrowR = arrowRect();

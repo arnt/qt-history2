@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#29 $
 **
 ** Implementation of QToolBar class
 **
@@ -85,6 +85,7 @@ QToolBar::QToolBar( const QString &label,
     o = (dock == QMainWindow::Left || dock == QMainWindow::Right )
 	? Vertical : Horizontal;
     parent->addToolBar( this, label, dock, newLine );
+    setBackgroundMode( PaletteButton);
 }
 
 
@@ -108,6 +109,7 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
     sw = 0;
     o = Horizontal;
     mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
+    setBackgroundMode( PaletteButton);
 }
 
 
@@ -124,6 +126,7 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
     sw = 0;
     mw = parent;
     parent->addToolBar( this, 0, QMainWindow::Top );
+    setBackgroundMode( PaletteButton);
 }
 
 

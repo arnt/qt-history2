@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#80 $
 **
 ** Implementation of QCheckBox class
 **
@@ -181,12 +181,11 @@ void QCheckBox::drawButton( QPainter *paint )
 #endif
 
     if ( gs == WindowsStyle ) {			// Windows check box
-	QColor fillColor;
+	QBrush fill;
 	if ( isDown() )
-	    fillColor = g.button();
+	    fill = g.fillButton();
 	else
-	    fillColor = g.base();
-	QBrush fill( fillColor );
+	    fill = g.fillBase();
 	qDrawWinPanel( p, x, y, sz.width(), sz.height(), g, TRUE, &fill );
 	if ( isOn() ) {
 	    QPointArray a( 7*2 );
@@ -210,7 +209,7 @@ void QCheckBox::drawButton( QPainter *paint )
     }
     if ( gs == MotifStyle ) {			// Motif check box
 	bool showUp = !(isDown() ^ isOn());
-	QBrush fill( showUp ? g.button() : g.mid() );
+	QBrush fill =  showUp ? g.fillButton() : g.fillMid();
 	qDrawShadePanel( p, x, y, sz.width(), sz.height(), g, !showUp, 2, &fill );
     }
 

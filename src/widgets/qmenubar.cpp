@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#121 $
 **
 ** Implementation of QMenuBar class
 **
@@ -694,25 +694,30 @@ void QMenuBar::drawContents( QPainter *p )
 		g = palette().disabled();
 		
 	    if ( gs == WindowsStyle ) {
-		p->fillRect( r, palette().normal().button() );
+		p->fillRect( r, palette().normal().fillButton() );
 		if ( i == actItem ) {
-		    QBrush b( palette().normal().button() );
+		    QBrush b = palette().normal().fillButton() ;
 		    bool sunken = !windowsaltactive ||
 				  (mi->popup() && mi->popup()->isVisible());
+		    if (sunken)
+			p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
 		    qDrawShadeRect( p,
 				    r.left(), r.top(), r.width(), r.height(),
 				    g, sunken, 1, 0, &b );
-		    if ( sunken )
+		    if ( sunken ) {
 			r.setRect( r.left()+2, r.top()+2,
 				   r.width()-2, r.height()-2 );
+			p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+		    }
 		}
 	    } else { // motif
 		if ( i == actItem ) // active item
 		    qDrawShadePanel( p, r, palette().normal(), FALSE,
-				     motifItemFrame );
+				     motifItemFrame, &palette().normal().fillButton() );
 		else // other item
-		    qDrawPlainRect( p, r, palette().normal().button(),
-				    motifItemFrame );
+		    p->fillRect(r, palette().normal().fillButton());
+// 		    qDrawPlainRect( p, r, palette().normal().button(),
+// 				    motifItemFrame, &palette().normal().fillButton() );
 	    }
 
 	    qDrawItem( p, gs, r.left(), r.top(), r.width(), r.height(),

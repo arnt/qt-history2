@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#275 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#276 $
 **
 ** Implementation of QWidget class
 **
@@ -921,7 +921,7 @@ QWidget *QWidget::find( WId id )
 
 QStyle& QWidget::style() const
 {
-    return qApp->style(); 
+    return qApp->style();
 }
 
 
@@ -1055,7 +1055,7 @@ void QWidget::setEnabled( bool enable )
     if ( enable ) {
 	if ( testWFlags(WState_Disabled) ) {
 	    clearWFlags( WState_Disabled );
-	    setBackgroundColorFromMode();
+	    setBackgroundFromMode();
 	    enabledChange( TRUE );
 	}
     } else {
@@ -1063,7 +1063,7 @@ void QWidget::setEnabled( bool enable )
 	    if ( focusWidget() == this )
 		focusNextPrevChild( TRUE );
 	    setWFlags( WState_Disabled );
-	    setBackgroundColorFromMode();
+	    setBackgroundFromMode();
 	    enabledChange( FALSE );
 	}
     }
@@ -1403,7 +1403,7 @@ QWidget *QWidget::topLevelWidget() const
     return w;
 }
 
-void QWidget::setBackgroundColorFromMode()
+void QWidget::setBackgroundFromMode()
 {
     switch (extra ? (BackgroundMode)extra->bg_mode : PaletteBackground) {
       case FixedColor:
@@ -1414,13 +1414,19 @@ void QWidget::setBackgroundColorFromMode()
 	setBackgroundColorDirect( colorGroup().foreground() );
 	break;
       case PaletteButton:
-	setBackgroundColorDirect( colorGroup().button() );
+	  if ( colorGroup().fillButton().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillButton().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().button() );
 	break;
       case PaletteBackground:
 	setBackgroundColorDirect( colorGroup().background() );
 	break;
       case PaletteLight:
-	setBackgroundColorDirect( colorGroup().light() );
+	  if ( colorGroup().fillLight().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillLight().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().light() );
 	break;
       case PaletteMidlight:
 	setBackgroundColorDirect( colorGroup().midlight() );
@@ -1429,13 +1435,19 @@ void QWidget::setBackgroundColorFromMode()
 	setBackgroundColorDirect( colorGroup().dark() );
 	break;
       case PaletteMid:
-	setBackgroundColorDirect( colorGroup().mid() );
+	  if ( colorGroup().fillMid().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillMid().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().mid() );
 	break;
       case PaletteText:
 	setBackgroundColorDirect( colorGroup().text() );
 	break;
       case PaletteBase:
-	setBackgroundColorDirect( colorGroup().base() );
+	  if ( colorGroup().fillBase().pixmap() )
+	      setBackgroundPixmap( *colorGroup().fillBase().pixmap() );
+	  else
+	      setBackgroundColorDirect( colorGroup().base() );
 	break;
     }
 }
@@ -1536,7 +1548,7 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
     createExtra();
     if (extra->bg_mode != m) {
 	extra->bg_mode = m;
-	setBackgroundColorFromMode();
+	setBackgroundFromMode();
     }
 }
 
@@ -1672,7 +1684,7 @@ void QWidget::setPalette( const QPalette &p )
 {
     QPalette old = pal;
     pal = p;
-    setBackgroundColorFromMode();
+    setBackgroundFromMode();
     paletteChange( old );
     PropagationMode m = palettePropagation();
     if ( m != NoChildren && children() ) {

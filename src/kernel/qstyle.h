@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#5 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#6 $
 **
 ** Definition of QStyle class
 **
@@ -33,6 +33,8 @@ public:
 #endif
 
     GUIStyle guiStyle() const { return gs; }
+
+    virtual void initialize( QApplication*);
 
     virtual void polish( QWidget* );
 
@@ -90,6 +92,7 @@ class Q_EXPORT QHStyle : public QStyle
 {
 public:
     QHStyle(GUIStyle);
+    void initialize( QApplication*);
     void polish( QWidget* );
 };
 

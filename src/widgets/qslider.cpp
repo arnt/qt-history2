@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#60 $
 **
 ** Implementation of QSlider class
 **
@@ -373,7 +373,7 @@ static void drawWinPointedSlider( QPainter *p,
 
     const QColor c0 = g.foreground();
     const QColor c1 = g.dark();
-    const QColor c2 = g.button();
+    //    const QColor c2 = g.button();
     const QColor c3 = g.midlight();
     const QColor c4 = g.light();
 
@@ -384,7 +384,7 @@ static void drawWinPointedSlider( QPainter *p,
 
 
     QBrush oldBrush = p->brush();
-    p->setBrush( c2 );
+    p->setBrush( g.fillButton() );
     p->setPen( NoPen );
     p->drawRect( r );
     p->setBrush( oldBrush );
@@ -494,8 +494,10 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
 
 void QSlider::paintSlider( QPainter *p, const QColorGroup &g, const QRect &r )
 {
-    QBrush fill( g.button() );
+    QBrush fill = g.fillButton();
 
+    QPoint bo = p->brushOrigin();
+    p->setBrushOrigin(r.topLeft());
     switch ( style() ) {
     case WindowsStyle:
 	if ( ticks == NoMarks || ticks == Both ) {
@@ -521,6 +523,7 @@ void QSlider::paintSlider( QPainter *p, const QColorGroup &g, const QRect &r )
 	}
 	break;
     }
+    p->setBrushOrigin(bo);
 }
 
 /*!

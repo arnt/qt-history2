@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#150 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#151 $
 **
 ** Implementation of QApplication class
 **
@@ -198,11 +198,11 @@ QApplication::QApplication( int &argc, char **argv )
     if ( qApp )
 	warning( "QApplication: There should be only one application object" );
 #endif
-    
+
 #if defined(_WS_WIN_)
     app_style = new QStyle(WindowsStyle);// default style for Windows
 #elif defined(_WS_X11_)
-    app_style = new QStyle(MotifStyle);// default style for X Windows
+    app_style = new QHStyle(MotifStyle);// default style for X Windows
 #endif
     qApp = this;
     static char *empty = "";
@@ -212,6 +212,7 @@ QApplication::QApplication( int &argc, char **argv )
     }
     qt_init( &argc, argv );
     initialize( argc, argv );
+    app_style->initialize( this );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#121 $
 **
 ** Implementation of QPushButton class
 **
@@ -311,7 +311,7 @@ void QPushButton::drawButton( QPainter *paint )
 		p->setPen( g.dark() );
 		p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
 	    } else {
-		qDrawWinButton( p, x1, y1, w, h, g, TRUE );
+		qDrawWinButton( p, x1, y1, w, h, g, TRUE, &g.fillButton() );
 	    }
 	} else {
 	    if ( defButton ) {
@@ -325,12 +325,16 @@ void QPushButton::drawButton( QPainter *paint )
 		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
 		clearButton = FALSE;
 	    } else {
-		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, isOn() );
+		qDrawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, isOn(), &g.fillButton() );
 	    }
 	}
-	if ( clearButton )
-	    // TODO erase(x1+2, y1+2, x2-x1-3, y2-y1-3);
-	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.button() );
+	if ( clearButton ) {
+	    if (isDown())
+		p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.fillButton() );
+	    if (isDown())
+		p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
+	}
 	if ( hasMenuArrow ) {
 	    dx = (y2-y1) / 3;
 	    qDrawArrow( p, DownArrow, style(), FALSE,
@@ -340,11 +344,11 @@ void QPushButton::drawButton( QPainter *paint )
     } else if ( gs == MotifStyle ) {		// Motif push button
 	QBrush fill;
 	if ( isDown() )
-	    fill = QBrush( g.mid() );
+	    fill = g.fillMid();
 	else if ( isOn() )
 	    fill = QBrush( g.mid(), Dense4Pattern );
 	else
-	    fill = QBrush( g.button() );
+	    fill = g.fillButton();	
 
 	if ( defButton ) {
 	    QPointArray a;

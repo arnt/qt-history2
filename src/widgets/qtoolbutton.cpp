@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#35 $
 **
 ** Implementation of QToolButton class
 **
@@ -79,6 +79,8 @@ void QToolButton::init()
     ubp = TRUE;
 
     s = 0;
+
+    setBackgroundMode( PaletteButton);
 }
 
 

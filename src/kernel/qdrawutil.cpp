@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#34 $
 **
 ** Implementation of draw utilities
 **
@@ -697,7 +697,11 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool down,
     }
 
     QPen savePen = p->pen();			// save current pen
-    p->fillRect( x, y, w, h, g.button() );
+    if (down)
+	p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
+    p->fillRect( x, y, w, h, g.fillButton() );
+    if (down)
+	p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
     if ( enabled ) {
 	a.translate( x+w/2, y+h/2 );
 	p->setPen( g.foreground() );
@@ -821,7 +825,7 @@ static void qDrawMotifArrow( QPainter *p, ArrowType type, bool down,
     QBrush   saveBrush = p->brush();		// save current brush
     QWMatrix wxm = p->worldMatrix();
     QPen     pen( NoPen );
-    QBrush   brush( CMID );
+    QBrush brush = g.fillButton();
 
     p->setPen( pen );
     p->setBrush( brush );

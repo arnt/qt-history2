@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#166 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#167 $
 **
 ** Definition of QWidget class
 **
@@ -257,7 +257,7 @@ public:
 
     virtual void setAutoMask(bool);
     bool autoMask() const;
-    
+
 				
 public:
     QWidget	*parentWidget() const;
@@ -369,7 +369,7 @@ private:
     void	 sendDeferredEvents();
     void 	 reparentFocusWidgets( QWidget *parent );
     QFocusData  *focusData( bool create );
-    virtual void	 setBackgroundColorFromMode();
+    virtual void	 setBackgroundFromMode();
     virtual void	 setBackgroundColorDirect( const QColor & );
     virtual void	 setBackgroundModeDirect( BackgroundMode );
     virtual void	 setBackgroundEmpty();
@@ -384,7 +384,7 @@ private:
     QCursor	 curs;
     QWExtra	*extra;
     uint automask : 1;
-    
+
     QWidget	*focusChild; // ### unused now
     static void	 createMapper();
     static void	 destroyMapper();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#22 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -23,6 +23,7 @@
 
 #include "qpalette.h"
 #include "qdatastream.h"
+#include "qpixmap.h"
 
 /*****************************************************************************
   QColorGroup member functions
@@ -77,7 +78,11 @@ QColorGroup::QColorGroup()
 QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
 			  const QColor &light, const QColor &dark,
 			  const QColor &mid,
-			  const QColor &text, const QColor &base, const QColor &background )
+			  const QColor &text, const QColor &base, const QColor &background,
+			  const QPixmap& button_pixmap, 
+			  const QPixmap& light_pixmap, 
+			  const QPixmap& mid_pixmap, 
+			  const QPixmap& base_pixmap )
 {
     fg_col    = foreground;
     button_col    = button;
@@ -87,6 +92,45 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
     text_col  = text;
     base_col  = base;
     bg_col    = background;
+    
+    if (button_pixmap.isNull())
+	button_brush = QBrush( button);
+    else
+	button_brush = QBrush(button, button_pixmap);
+    
+    if (light_pixmap.isNull())
+	light_brush = QBrush( light);
+    else
+	light_brush = QBrush(light, light_pixmap);
+    
+    if (mid_pixmap.isNull())
+	mid_brush = QBrush( mid);
+    else
+	mid_brush = QBrush(mid, mid_pixmap);
+    
+    if (base_pixmap.isNull())
+	base_brush = QBrush( base);
+    else
+	base_brush = QBrush(base, base_pixmap);
+}
+
+QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
+			  const QColor &light, const QColor &dark,
+			  const QColor &mid,
+			  const QColor &text, const QColor &base, const QColor &background)
+{
+    fg_col    = foreground;
+    button_col    = button;
+    light_col = light;
+    dark_col  = dark;
+    mid_col   = mid;
+    text_col  = text;
+    base_col  = base;
+    bg_col    = background;
+    button_brush = QBrush( button);
+    light_brush = QBrush( light);
+    mid_brush = QBrush( mid);
+    base_brush = QBrush( base);
 }
 
 /*!\obsolete
@@ -107,6 +151,10 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
     text_col  = text;
     base_col  = base;
     bg_col    = button;
+    button_brush = QBrush( button);
+    light_brush = QBrush( light);
+    mid_brush = QBrush( mid);
+    base_brush = QBrush( base);
 }
 
 /*!
@@ -268,7 +316,7 @@ QPalette::QPalette( const QColor &button )
 
 /*!
   Constructs a palette from a \e button color and a background. The other colors are
-  automatically calculated, based on this color. 
+  automatically calculated, based on this color.
 */
 
 QPalette::QPalette( const QColor &button, const QColor &background )

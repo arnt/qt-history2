@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#101 $
 **
 ** Implementation of QScrollBar class
 **
@@ -842,7 +842,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 	if ( controls & ADD_LINE ) {
 	    qDrawWinPanel( p, addB.x(), addB.y(),
 			   addB.width(), addB.height(), g,
-			   ADD_LINE_ACTIVE );
+			   ADD_LINE_ACTIVE, &g.fillButton() );
 	    qDrawArrow( p, VERTICAL ? DownArrow : RightArrow,
 			WindowsStyle, ADD_LINE_ACTIVE, addB.x()+2, addB.y()+2,
 			addB.width()-4, addB.height()-4, g, !maxedOut );
@@ -855,7 +855,7 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 			WindowsStyle, SUB_LINE_ACTIVE, subB.x()+2, subB.y()+2,
 			subB.width()-4, subB.height()-4, g, !maxedOut );
 	}
-	p->setBrush( QBrush(white,Dense4Pattern) );
+	p->setBrush( g.fillLight().pixmap()?g.fillLight():QBrush(white,Dense4Pattern) );
 	p->setPen( NoPen );
 	p->setBackgroundMode( OpaqueMode );
 	if ( maxedOut ) {
@@ -867,10 +867,12 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		p->drawRect( addPageR );
 	    if ( controls & SLIDER ) {
 		if ( !maxedOut ) {
-		    QBrush fill( g.button() );
+		    QPoint bo = p->brushOrigin();
+		    p->setBrushOrigin(sliderR.topLeft());
 		    qDrawWinPanel( p, sliderR.x(), sliderR.y(),
 				   sliderR.width(), sliderR.height(), g,
-				   FALSE, &fill );
+				   FALSE, &g.fillButton() );
+		    p->setBrushOrigin(bo);
 		}
 	    }
 	}
@@ -889,19 +891,22 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 			SUB_LINE_ACTIVE, subB.x(), subB.y(),
 			subB.width(), subB.height(), g, value()>minValue() );
 
-	QBrush fill( g.mid() );
-	if (backgroundPixmap() )
+	QBrush fill = g.fillMid();
+	if (backgroundPixmap() ){
 	    fill = QBrush( g.mid(), *backgroundPixmap() );
+	}
 
-	if ( controls & SUB_PAGE ) 
+	if ( controls & SUB_PAGE )
 	    p->fillRect( subPageR, fill );
 	
-	if ( controls & ADD_PAGE ) 
+	if ( controls & ADD_PAGE )
 	    p->fillRect( addPageR, fill );
 
 	if ( controls & SLIDER ) {
-	    QBrush fill( g.button() );
-	    qDrawShadePanel( p, sliderR, g, FALSE, 2, &fill );
+	    QPoint bo = p->brushOrigin();
+	    p->setBrushOrigin(sliderR.topLeft());
+	    qDrawShadePanel( p, sliderR, g, FALSE, 2, &g.fillButton() );
+	    p->setBrushOrigin(bo);
 	}
 
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#32 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#33 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -28,6 +28,7 @@
 #include "qwindowdefs.h"
 #include "qcolor.h"
 #include "qshared.h"
+#include "qbrush.h"
 #endif // QT_H
 
 
@@ -41,6 +42,13 @@ public:
     QColorGroup( const QColor &foreground, const QColor &button,
 		 const QColor &light, const QColor &dark, const QColor &mid,
 		 const QColor &text, const QColor &base, const QColor &background );
+    QColorGroup( const QColor &foreground, const QColor &button,
+		 const QColor &light, const QColor &dark, const QColor &mid,
+		 const QColor &text, const QColor &base, const QColor &background,
+		 const QPixmap& button_pixmap, 
+		 const QPixmap& light_pixmap, 
+		 const QPixmap& mid_pixmap, 
+		 const QPixmap& base_pixmap);
    ~QColorGroup();
 
     const QColor &foreground()	const	{ return fg_col; }
@@ -53,6 +61,11 @@ public:
     const QColor &base()	const	{ return base_col; }
     const QColor &background()	const	{ return bg_col; }
 
+    const QBrush &fillButton() const {return button_brush; }
+    const QBrush &fillMid() const {return mid_brush; }
+    const QBrush &fillLight() const {return light_brush; }
+    const QBrush &fillBase() const {return base_brush; }
+    
     bool	operator==( const QColorGroup &g ) const;
     bool	operator!=( const QColorGroup &g ) const
 					{ return !(operator==(g)); }
@@ -65,6 +78,10 @@ private:
     QColor text_col;
     QColor base_col;
     QColor bg_col;
+    QBrush button_brush;
+    QBrush light_brush;
+    QBrush mid_brush;
+    QBrush base_brush;
 };
 
 

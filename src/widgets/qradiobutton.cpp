@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#84 $
 **
 ** Implementation of QRadioButton class
 **
@@ -263,7 +263,7 @@ void QRadioButton::drawIndicator( GUIStyle gs, QPainter& p, const QColorGroup& c
 	a.translate( x, y );
 	QColor fillColor = isDown() ? cg.button() : cg.base();
 	p.setPen( fillColor );
-	p.setBrush( fillColor );
+	p.setBrush( isDown()?  cg.fillButton() : cg.fillBase() );
 	p.drawPolygon( a );
 	if ( isOn() ) {
 	    p.setPen( NoPen );
@@ -282,7 +282,7 @@ void QRadioButton::drawIndicator( GUIStyle gs, QPainter& p, const QColorGroup& c
 	QPointArray a( QCOORDARRLEN(inner_pts), inner_pts );
 	p.eraseRect( x, y, w, h );
 	p.setPen( NoPen );
-	p.setBrush( showUp ? cg.button() : cg.mid() );
+	p.setBrush( showUp?  cg.fillButton() : cg.fillMid() );
 	a.translate( x, y );
 	p.drawPolygon( a );			// clear inner area
 	p.setPen( showUp ? cg.light() : cg.dark() );
