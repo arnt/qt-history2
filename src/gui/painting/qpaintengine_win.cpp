@@ -1042,8 +1042,6 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
     printf(" - QWin32PaintEngine::updateBrush(), style=%d, color=%p, calls=%d\n",
            brush.style(), brush.color().rgba(), ++counter);
 #endif
-    QColor c = brush.color();
-    printf("updateBrush: %d, %d, %d, %d\n", c.red(), c.green(), c.blue(), c.alpha());
     d->brush = brush;
     d->brushStyle = brush.style();
     d->forceGdiplus |= (d->brushStyle != Qt::NoBrush
