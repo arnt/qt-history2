@@ -761,6 +761,9 @@ QSqlRecord* QSqlCursor::primeInsert()
 
   \endcode
 
+  Note that if the primary index does not uniquely distinguish records
+  the database may be changed into an inconsistent state. 
+
   \sa setMode() lastError()
 */
 
