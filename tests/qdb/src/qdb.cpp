@@ -23,7 +23,7 @@ public:
 };
 
 
-/*!  Constructs an empty environment
+/*!  Constructs an empty database environment
 
 */
 
@@ -43,12 +43,24 @@ QDb::~QDb()
     delete d;
 }
 
-void QDb::addDriver( int id, const QString& fileName )
+/*! Adds a driver to the environment with the name \a fileName
+ identified by \a id.
+
+ \sa fileFriver()
+*/
+
+void QDb::addFileDriver( int id, const QString& fileName )
 {
     d->drivers[id] = FileDriver( this, fileName );
 }
 
-void QDb::addResult( int id )
+/*! Adds a result to the environment with the name \a fileName
+ identified by \a id.
+
+ \sa resultSet()
+*/
+
+void QDb::addResultSet( int id )
 {
     d->results[id] = ResultSet( this );
 }

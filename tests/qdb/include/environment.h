@@ -95,8 +95,8 @@ namespace qdb {
 	virtual void reset() = 0;
 	virtual Stack* stack() = 0;
 	virtual Program* program() = 0;
-	virtual void addDriver( int id, const QString& fileName ) = 0;
-	virtual void addResult( int id ) = 0;
+	virtual void addFileDriver( int id, const QString& fileName ) = 0;
+	virtual void addResultSet( int id ) = 0;
 	virtual FileDriver* fileDriver( int id ) = 0;
 	virtual ResultSet* resultSet( int id ) = 0;
 	virtual bool save( QIODevice *dev ) = 0;

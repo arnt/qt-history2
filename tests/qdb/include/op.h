@@ -456,7 +456,7 @@ public:
 	    QSqlField field( name, type );
 	    rec.append( field );
 	}
-	env->addDriver( 0, p1.toString() );
+	env->addFileDriver( 0, p1.toString() );
 	qdb::FileDriver* drv = env->fileDriver( 0 );
 	return drv->create( &rec );
     }
@@ -475,7 +475,7 @@ public:
     QString name() const { return "Open"; }
     int exec( qdb::Environment* env )
     {
-	env->addDriver( p1.toInt(), p2.toString() );
+	env->addFileDriver( p1.toInt(), p2.toString() );
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->open() ) {
 	    env->setLastError("Open: unable to open file:" + p2.toString() );
@@ -832,7 +832,7 @@ public:
 	    QSqlField field( name, type );
 	    rec.append( field );
 	}
-	env->addResult( p1.toInt() );
+	env->addResultSet( p1.toInt() );
 	return env->resultSet( p1.toInt() )->setHeader( rec );
     }
 };
@@ -1078,7 +1078,7 @@ public:
     QString name() const { return "Drop"; }
     int exec( qdb::Environment* env )
     {
-	env->addDriver( p1.toInt(), p2.toString() );
+	env->addFileDriver( p1.toInt(), p2.toString() );
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->drop() ) {
 	    env->setLastError("Drop: unable to drop file:" + p2.toString() );
