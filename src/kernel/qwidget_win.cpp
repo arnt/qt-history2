@@ -65,6 +65,13 @@ extern bool qt_tablet_tilt_support;
 static QWidget *qt_tablet_widget = 0;
 #endif
 
+typedef BOOL    ( WINAPI *PtrSetLayeredWindowAttributes )(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
+typedef BOOL    ( WINAPI *PtrGetLayeredWindowAttributes )(HWND hwnd, COLORREF *crKey, BYTE *bAlpha, DWORD *dwFlags);
+static PtrSetLayeredWindowAttributes ptrSetLayeredWindowAttributes = 0;
+static PtrGetLayeredWindowAttributes ptrGetLayeredWindowAttributes = 0;
+#define Q_WS_EX_LAYERED           0x00080000 // copied from WS_EX_LAYERED in winuser.h
+#define Q_LWA_ALPHA               0x00000002 // copied from LWA_ALPHA in winuser.h
+
 #ifdef Q_OS_TEMP
 #include "sip.h"
 #endif
@@ -1626,3 +1633,35 @@ static void qt_tablet_cleanup()
     qt_tablet_widget = 0;
 }
 #endif
+
+
+void QWidget::setWindowTransparency(int level)
+{
+    if (!isTopLevel())
+	return;
+
+    static bool function_resolved = false;
+    if (!function_resolved) {
+	ptrSetLayeredWindowAttributes =
+	    (PtrSetLayeredWindowAttributes) QLibrary::resolve("user32",
+							      "SetLayeredWindowAttributes");
+	function_resolved = true;
+    }
+
+    if (!ptrSetLayeredWindowAttributes)
+	return;
+
+    int wl = GetWindowLong(winId(), GWL_EXSTYLE);
+    if ((wl&Q_WS_EX_LAYERED) == 0)
+	SetWindowLong(winId(), GWL_EXSTYLE, Q_WS_EX_LAYERED);
+
+    level = QMIN(QMAX(level, 0), 255);
+    (*ptrSetLayeredWindowAttributes)(winId(), 0, level, Q_LWA_ALPHA);
+    topData()->transparency = level;
+
+}
+
+int QWidget::windowTransparency() const
+{
+    return isTopLevel() ? ((QWidget*)this)->topData()->transparency : 255;
+}

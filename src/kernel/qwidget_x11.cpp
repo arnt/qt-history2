@@ -274,14 +274,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
 #else
 	setX11Data( xd );
-#endif	
+#endif
     } else if ( parentWidget() &&  parentWidget()->x11Screen() != x11Screen() ) {
 	// if we have a parent widget, move to its screen if necessary
 #ifdef Q_Q4PAINTER
 	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
 #else
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
-#endif	
+#endif
 	xd->x_screen = parentWidget()->x11Screen();
 	xd->x_depth = QPaintDevice::x11AppDepth( xd->x_screen );
 	xd->x_cells = QPaintDevice::x11AppCells( xd->x_screen );
@@ -293,7 +293,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
 #else
 	setX11Data( xd );
-#endif	
+#endif
     }
 
     //get display, screen number, root window and desktop geometry for
@@ -335,7 +335,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	QX11GCData* xd = static_cast<QX11GC *>(deviceGC)->getX11Data(true);
 #else
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
-#endif	
+#endif
 
 	// find which screen the window is on...
 	xd->x_screen = QPaintDevice::x11AppScreen(); // by default, use the default :)
@@ -358,7 +358,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	static_cast<QX11GC *>(deviceGC)->setX11Data(xd);
 #else
 	setX11Data( xd );
-#endif	
+#endif
     } else if ( desktop ) {			// desktop widget
 	id = (WId)parentw;			// id = root window
 	QWidget *otherDesktop = find( id );	// is there another desktop?
@@ -1429,7 +1429,7 @@ void QWidget::repaint(const QRegion& r)
 
 #ifdef Q_Q4PAINTER // won't work yet...
     double_buffer = false;
-#endif    
+#endif
     HANDLE old_hd = hd;
     HANDLE old_rendhd = rendhd;
 
@@ -2512,4 +2512,13 @@ void QWidgetPrivate::focusInputContext()
 	qic->setFocus();
     }
 #endif // QT_NO_XIM
+}
+
+void QWidget::setWindowTransparency(int)
+{
+}
+
+int QWidget::windowTransparency() const
+{
+    return 255;
 }

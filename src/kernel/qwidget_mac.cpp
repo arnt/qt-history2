@@ -200,7 +200,7 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
 	return false;
     w->d->createTLExtra();
     w->d->extra->topextra->resizer += up;
-    
+
     bool remove_grip = (w->d->extra->topextra->resizer ||
 			(w->d->extra->maxw && w->d->extra->maxh && w->d->extra->maxw == w->d->extra->minw && w->d->extra->maxh == w->d->extra->minh));
     WindowAttributes attr;
@@ -210,13 +210,13 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
 	    ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowResizableAttribute);
 	    w->dirtyClippedRegion(true);
 	    ReshapeCustomWindow((WindowPtr)w->handle());
-	    qt_dirty_wndw_rgn("Remove size grip", w, w->rect()); 
+	    qt_dirty_wndw_rgn("Remove size grip", w, w->rect());
 	}
     } else if(!(attr & kWindowResizableAttribute)) {
 	ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute, 0);
 	w->dirtyClippedRegion(true);
 	ReshapeCustomWindow((WindowPtr)w->handle());
-	qt_dirty_wndw_rgn("Add size grip", w, w->rect()); 
+	qt_dirty_wndw_rgn("Add size grip", w, w->rect());
     }
     return true;
 }
@@ -434,7 +434,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = false)
 		    if(!rin.isEmpty()) {
 			QPoint rin_tl = rin.boundingRect().topLeft(); //in offset
 			rin.translate(-rin_tl.x(), -rin_tl.y()); //bring into same space as below
-			
+
 			QRegion mask = widget->d->extra->mask;
 			if(!widget->testWFlags(Qt::WStyle_Customize) || !widget->testWFlags(Qt::WStyle_NoBorder)) {
 			    qDebug("has a title..");
@@ -2116,7 +2116,7 @@ void QWidget::setMask(const QRegion &region)
 	clp ^= clippedRegion(false);
 	qt_dirty_wndw_rgn("setMask", this, clp);
     }
-    if(isTopLevel()) 
+    if(isTopLevel())
 	ReshapeCustomWindow((WindowPtr)hd); //now let the wdef take it
 }
 
@@ -2293,7 +2293,7 @@ Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 	CGContextTranslateCTM((CGContextRef)cg_hd, 0, (port_rect.bottom - port_rect.top));
 	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);
     }
-    qt_mac_clip_cg_handle((CGContextRef)cg_hd, ((QWidget*)this)->clippedRegion(do_children), 
+    qt_mac_clip_cg_handle((CGContextRef)cg_hd, ((QWidget*)this)->clippedRegion(do_children),
 			  QPoint(0, 0), false);
     return cg_hd;
 }
@@ -2490,3 +2490,11 @@ void QWidget::macWidgetChangedWindow()
 {
 }
 
+void QWidget::setWindowTransparency(int)
+{
+}
+
+int QWidget::windowTransparency() const
+{
+    return 255;
+}
