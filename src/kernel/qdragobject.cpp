@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Drag and Drop support
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -33,6 +33,13 @@
 **
 **********************************************************************/
 
+#include "qplatformdefs.h"
+
+// POSIX Large File Support redefines open -> open64
+#if defined(open)
+# undef open
+#endif
+
 #include "qtextcodec.h"
 
 #ifndef QT_NO_MIME
@@ -45,10 +52,6 @@
 #include "qgif.h"
 #include "qregexp.h"
 #include <ctype.h>
-
-#ifdef Q_WS_X11
-#include <unistd.h> // gethostname()
-#endif
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
 // the name space
