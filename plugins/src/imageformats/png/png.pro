@@ -1,4 +1,4 @@
-TEMPLATE += lib
+TEMPLATE = lib
 CONFIG += qt plugin
 TARGET += qpng
 VERSION = 1.0.0
