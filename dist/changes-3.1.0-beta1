@@ -7,10 +7,10 @@ available at http://doc.trolltech.com/.
 The Qt version 3.1 series is binary compatible with the 3.0.x series:
 applications compiled for 3.0 will continue to run with 3.1.
 
-****************************************************************************
-*			    General					   *
-****************************************************************************
 
+****************************************************************************
+*                                 General                                  *
+****************************************************************************
 
 Qt Script for Applications
 --------------------------
@@ -81,8 +81,8 @@ Qt/Embedded
 Graphics, mouse and keyboard drivers can now be compiled as plugins.
 
 
-Qt API
-------
+Qt library
+----------
 In addition to the new additions and enhancements referred to above,
 as with all major Qt releases, Qt 3.1 includes hundreds of
 improvements in the existing class library. Here is a brief summary of
@@ -136,8 +136,15 @@ the most significant changes:
   strings to SQL Server databases.
 
 
+Build process
+-------------
+The build process has been improved:
+
+- The configure script does not need QTDIR to be set anymore.
+
+
 ****************************************************************************
-*			   Library					   *
+*                                 Library                                  *
 ****************************************************************************
 
 New classes
