@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -29,10 +29,10 @@ Screen::Screen(  QWidget *parent, const char *name )
     setFrameStyle( Panel | Sunken );
     setBackgroundMode( PaletteBase );
     setFixedSize( MaxSamples+2*FrameWidth, Range+2*FrameWidth );
-    setBackgroundColor(black);
-    setForegroundColor(blue);
+    setPaletteBackgroundColor( black );
+    setPaletteForegroundColor( blue );
 
-    memset( yval, 0, sizeof( yval ));
+    memset( yval, 0, sizeof(yval) );
     pos0 = 0;
     t0 = 0;
     step = 0;
@@ -100,8 +100,8 @@ Curve::Curve( QWidget *parent, const char *name )
     setLineWidth( FrameWidth );
     setFrameStyle( Panel | Sunken );
     setBackgroundMode( PaletteBase );
-    setBackgroundColor(black);
-    setForegroundColor(red);
+    setPaletteBackgroundColor(black);
+    setPaletteForegroundColor(red);
     setFixedSize( 2*(Radius+FrameWidth), 2*(Radius+FrameWidth) );
 
     shift = 0;
