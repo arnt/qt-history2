@@ -503,8 +503,10 @@ void QPrinter::readPdlgA( void* pdv )
     }
 }
 
-static void setDefaultPrinter(const QString &printerName, HANDLE hdevmode, HANDLE hdevnames)
+static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE *hnames)
 {
+    HANDLE hdevmode = *hmode;
+    HANDLE hdevnames = *hnames;
     // Open the printer by name, to get a HANDLE
     HANDLE hPrinter;
     if (! OpenPrinter((TCHAR *)qt_winTchar(printerName,TRUE),&hPrinter,NULL)) {
@@ -549,7 +551,7 @@ static void setDefaultPrinter(const QString &printerName, HANDLE hdevmode, HANDL
     DWORD   lPortName = lstrlen(pinf2->pPortName) + 1;
     if ( hdevnames ) {
         GlobalFree( hdevnames );
-            hdevnames = 0;
+        hdevnames = 0;
     }
     hdevnames = GlobalAlloc(GHND,(lDrvrName + lPrntName + lPortName) * sizeof(TCHAR) + sizeof(DEVNAMES));
     Q_ASSERT(hdevnames != 0);
@@ -578,6 +580,8 @@ static void setDefaultPrinter(const QString &printerName, HANDLE hdevmode, HANDL
     // Clean up
     GlobalUnlock(hdevnames);
     GlobalFree(pinf2);
+    *hnames = hdevnames;
+    *hmode = hdevmode;
 }
 
 void QPrinter::setPrinterName( const QString &name )
@@ -589,7 +593,7 @@ void QPrinter::setPrinterName( const QString &name )
         return;
     }
     printer_name = name;
-    setDefaultPrinter( name, hdevmode, hdevnames );
+    setDefaultPrinter( name, &hdevmode, &hdevnames );
 }
 
 bool QPrinter::setup( QWidget *parent )
