@@ -115,14 +115,14 @@ class QMetaObjectPrivate
 {
 public:
     QMetaObjectPrivate() :
-	enumData(0), numEnumData(0),
 #ifndef QT_NO_PROPERTIES
+	enumData(0), numEnumData(0),
 	propData(0),numPropData(0),
 #endif
 	classInfo(0), numClassInfo(0) {}
+#ifndef QT_NO_PROPERTIES
     const QMetaEnum     *enumData;			// enumeration types
     int		   numEnumData;
-#ifndef QT_NO_PROPERTIES
     const QMetaProperty *propData;                    // property meta data
     int            numPropData;
 #endif
@@ -184,8 +184,8 @@ QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
 			  const QMetaData *signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
 			  const QMetaProperty *prop_data, int n_props,
-#endif
 			  const QMetaEnum *enum_data, int n_enums,
+#endif
 			  const QClassInfo *class_info, int n_info )
 {
     classname = class_name;			// set meta data
@@ -200,9 +200,9 @@ QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
 #ifndef QT_NO_PROPERTIES
     d->propData = prop_data;
     d->numPropData = n_props;
-#endif
     d->enumData = enum_data;
     d->numEnumData = n_enums;
+#endif
     d->classInfo = class_info;
     d->numClassInfo = n_info;
 
@@ -385,16 +385,16 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 					  const QMetaData *signal_data,int n_signals,
 #ifndef QT_NO_PROPERTIES
 					  const QMetaProperty *prop_data, int n_props,
-#endif
 					  const QMetaEnum *enum_data, int n_enums,
+#endif
 					  const QClassInfo * class_info, int n_info )
 {
     return new QMetaObject( classname, superclassobject, slot_data, n_slots,
 			    signal_data, n_signals,
 #ifndef QT_NO_PROPERTIES
 			    prop_data, n_props,
-#endif
 			    enum_data, n_enums,
+#endif
 			    class_info, n_info );
 }
 

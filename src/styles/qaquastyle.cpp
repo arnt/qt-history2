@@ -29,9 +29,10 @@
 **
 **********************************************************************/
 
+#include "qcheckbox.h"
+
 #ifndef QT_NO_STYLE_AQUA
 
-#include "qcheckbox.h"
 #include "qaquastyle.h"
 #include "qapplication.h"
 #include "qpainter.h"

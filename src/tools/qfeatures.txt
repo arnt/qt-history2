@@ -4,6 +4,24 @@ Requires: SCROLLBAR VBOX TITLEBAR RESIZEHANDLER POPUPMENU LABEL TOOLBUTTON
 Name: QWorkSpace
 SeeAlso: ???
 
+Feature: WHEELEVENT
+Section: Kernel
+Requires:
+Name: Wheel-mouse events
+SeeAlso: ???
+
+Feature: WMATRIX
+Section: Data structures
+Requires:
+Name: QWMatrix
+SeeAlso: ???
+
+Feature: STL
+Section: Data structures
+Requires:
+Name: Standard template library compatiblity
+SeeAlso: ???
+
 Feature: CANVAS
 Section: Widgets
 Requires: SCROLLVIEW BEZIER
@@ -34,9 +52,15 @@ Requires:
 Name: QStringList
 SeeAlso: ???
 
-Feature: REGEXP_CAPTURE
+Feature: REGEXP
 Section: Data structures
 Requires: STRINGLIST
+Name: Regular expression capture
+SeeAlso: ???
+
+Feature: REGEXP_CAPTURE
+Section: Data structures
+Requires: REGEXP
 Name: Regular expression capture
 SeeAlso: ???
 
@@ -52,10 +76,52 @@ Requires:
 Name: QVariant
 SeeAlso: ???
 
+Feature: REGEXP_OPTIM
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression optimization
+SeeAlso: ???
+
+Feature: REGEXP_LOOKAHEAD
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression lookahead
+SeeAlso: ???
+
+Feature: REGEXP_INTERVAL
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression interval
+SeeAlso: ???
+
+Feature: REGEXP_ESCAPE
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression escape
+SeeAlso: ???
+
+Feature: REGEXP_CCLASS
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression character-class
+SeeAlso: ???
+
+Feature: REGEXP_BACKREF
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression back-reference
+SeeAlso: ???
+
+Feature: REGEXP_ANCHOR_ALT
+Section: Data structures
+Requires: REGEXP
+Name: Regular expression anchors
+SeeAlso: ???
+
 Feature: REGEXP_WILDCARD
 Section: Data structures
-Requires: STRINGLIST
-Name: Regular expression wildcard support
+Requires: REGEXP
+Name: Regular expression wildcard
 SeeAlso: ???
 
 Feature: SPRINTF
@@ -259,7 +325,7 @@ SeeAlso: ???
 Feature: COMPLEXTEXT
 Section: Internationalization
 Requires: RICHTEXT
-Name: Complex script support (eg. BiDi)
+Name: Complex scripts (eg. BiDi)
 SeeAlso: ???
 
 Feature: DOM
@@ -289,7 +355,7 @@ SeeAlso: ???
 Feature: NETWORK
 Section: Networking
 Requires: 
-Name: Network support
+Name: Networking
 SeeAlso: ???
 
 Feature: DNS
@@ -325,7 +391,7 @@ SeeAlso: ???
 Feature: QWS_MULTIPROCESS
 Section: Qt/Embedded-specific
 Requires: NETWORK
-Name: Multi-process support.
+Name: Multi-process architecture
 SeeAlso: ???
 
 Feature: COP
@@ -337,7 +403,7 @@ SeeAlso: ???
 Feature: QWS_KEYBOARD
 Section: Qt/Embedded-specific
 Requires: 
-Name: Console keyboard support
+Name: Console keyboard
 SeeAlso: ???
 
 Feature: QWS_CURSOR
@@ -380,6 +446,12 @@ Feature: QWS_TRANSFORMED
 Section: Qt/Embedded-specific
 Requires: 
 Name: Transformed frame buffer
+SeeAlso: ???
+
+Feature: QWS_LINUXFB
+Section: Qt/Embedded-specific
+Requires:
+Name: Linux framebuffer
 SeeAlso: ???
 
 Feature: QWS_VNC
@@ -434,6 +506,12 @@ Feature: QWS_DEPTH_32
 Section: Qt/Embedded-specific
 Requires: 
 Name: 32-bit color
+SeeAlso: ???
+
+Feature: QWS_DEPTH_32_BGR
+Section: Qt/Embedded-specific
+Requires: QWS_DEPTH_32
+Name: 32-bit color, BGR order
 SeeAlso: ???
 
 Feature: QWS_MANAGER
@@ -582,14 +660,20 @@ SeeAlso: ???
 
 Feature: TRANSFORMATIONS
 Section: Painting
-Requires: 
+Requires: WMATRIX
 Name: Scaling and rotation
 SeeAlso: ???
 
 Feature: PIXMAP_TRANSFORMATION
 Section: Painting
-Requires: TRANSFORMATIONS
+Requires: WMATRIX
 Name: Pixmap transformations
+SeeAlso: ???
+
+Feature: IMAGE_TRANSFORMATION
+Section: Painting
+Requires: WMATRIX
+Name: Image transformations
 SeeAlso: ???
 
 Feature: SVG
@@ -982,6 +1066,12 @@ Requires: SCROLLVIEW HEADER LINEEDIT
 Name: QListView
 SeeAlso: ???
 
+Feature: STYLE_POCKETPC
+Section: Widgets
+Requires: STYLE_WINDOWS
+Name: Windows style
+SeeAlso: ???
+
 Feature: STYLE_WINDOWS
 Section: Widgets
 Requires: STYLE IMAGEIO_XPM
@@ -1014,7 +1104,7 @@ SeeAlso: ???
 
 Feature: STYLE_AQUA
 Section: Widgets
-Requires: STYLE_WINDOWS
+Requires: STYLE_WINDOWS IMAGE_TRANSFORMATION
 Name: Aqua style
 SeeAlso: ???
 
@@ -1099,6 +1189,6 @@ SeeAlso: ???
 Feature: SESSIONMANAGER
 Section: Kernel
 Requires: STRINGLIST
-Name: Session management support
+Name: Session management
 SeeAlso: ???
 

@@ -50,7 +50,7 @@
 // Automatic widget layout
 //#define QT_NO_LAYOUT
 
-// Network support
+// Networking
 //#define QT_NO_NETWORK
 
 // Palettes
@@ -83,8 +83,11 @@
 // Favour code size over graphics speed
 //#define QT_NO_QWS_GFX_SPEED
 
-// Console keyboard support
+// Console keyboard
 //#define QT_NO_QWS_KEYBOARD
+
+// Linux framebuffer
+//#define QT_NO_QWS_LINUXFB
 
 // Mach64 acceleration
 //#define QT_NO_QWS_MACH64
@@ -131,6 +134,9 @@
 // QString::sprintf()
 //#define QT_NO_SPRINTF
 
+// Standard template library compatiblity
+//#define QT_NO_STL
+
 // QStringList
 //#define QT_NO_STRINGLIST
 
@@ -140,9 +146,6 @@
 // QTextStream
 //#define QT_NO_TEXTSTREAM
 
-// Scaling and rotation
-//#define QT_NO_TRANSFORMATIONS
-
 // Unicode property tables
 //#define QT_NO_UNICODETABLES
 
@@ -151,6 +154,12 @@
 
 // QVariant
 //#define QT_NO_VARIANT
+
+// Wheel-mouse events
+//#define QT_NO_WHEELEVENT
+
+// QWMatrix
+//#define QT_NO_WMATRIX
 
 // Keyboard accelerators and shortcuts
 #if !defined(QT_NO_ACCEL) && (defined(QT_NO_SPRINTF))
@@ -217,8 +226,13 @@
 #define QT_NO_IMAGE_TEXT
 #endif
 
+// Image transformations
+#if !defined(QT_NO_IMAGE_TRANSFORMATION) && (defined(QT_NO_WMATRIX))
+#define QT_NO_IMAGE_TRANSFORMATION
+#endif
+
 // Pixmap transformations
-#if !defined(QT_NO_PIXMAP_TRANSFORMATION) && (defined(QT_NO_TRANSFORMATIONS))
+#if !defined(QT_NO_PIXMAP_TRANSFORMATION) && (defined(QT_NO_WMATRIX))
 #define QT_NO_PIXMAP_TRANSFORMATION
 #endif
 
@@ -242,6 +256,11 @@
 #define QT_NO_QWS_CURSOR
 #endif
 
+// 32-bit color, BGR order
+#if !defined(QT_NO_QWS_DEPTH_32_BGR) && (defined(QT_NO_QWS_DEPTH_32))
+#define QT_NO_QWS_DEPTH_32_BGR
+#endif
+
 // The "Hydro" style
 #if !defined(QT_NO_QWS_HYDRO_WM_STYLE) && (defined(QT_NO_QWS_MANAGER))
 #define QT_NO_QWS_HYDRO_WM_STYLE
@@ -257,7 +276,7 @@
 #define QT_NO_QWS_KDE_WM_STYLE
 #endif
 
-// Multi-process support.
+// Multi-process architecture
 #if !defined(QT_NO_QWS_MULTIPROCESS) && (defined(QT_NO_NETWORK))
 #define QT_NO_QWS_MULTIPROCESS
 #endif
@@ -273,13 +292,8 @@
 #endif
 
 // Regular expression capture
-#if !defined(QT_NO_REGEXP_CAPTURE) && (defined(QT_NO_STRINGLIST))
-#define QT_NO_REGEXP_CAPTURE
-#endif
-
-// Regular expression wildcard support
-#if !defined(QT_NO_REGEXP_WILDCARD) && (defined(QT_NO_STRINGLIST))
-#define QT_NO_REGEXP_WILDCARD
+#if !defined(QT_NO_REGEXP) && (defined(QT_NO_STRINGLIST))
+#define QT_NO_REGEXP
 #endif
 
 // Semi-modal dialogs
@@ -287,7 +301,7 @@
 #define QT_NO_SEMIMODAL
 #endif
 
-// Session management support
+// Session management
 #if !defined(QT_NO_SESSIONMANAGER) && (defined(QT_NO_STRINGLIST))
 #define QT_NO_SESSIONMANAGER
 #endif
@@ -295,6 +309,11 @@
 // Month and day names in dates
 #if !defined(QT_NO_TEXTDATE) && (defined(QT_NO_STRINGLIST))
 #define QT_NO_TEXTDATE
+#endif
+
+// Scaling and rotation
+#if !defined(QT_NO_TRANSFORMATIONS) && (defined(QT_NO_WMATRIX))
+#define QT_NO_TRANSFORMATIONS
 #endif
 
 // Translations via QObject::tr()
@@ -325,6 +344,51 @@
 // QPicture
 #if !defined(QT_NO_PICTURE) && (defined(QT_NO_DATASTREAM) || defined(QT_NO_IMAGEIO))
 #define QT_NO_PICTURE
+#endif
+
+// Regular expression anchors
+#if !defined(QT_NO_REGEXP_ANCHOR_ALT) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_ANCHOR_ALT
+#endif
+
+// Regular expression back-reference
+#if !defined(QT_NO_REGEXP_BACKREF) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_BACKREF
+#endif
+
+// Regular expression capture
+#if !defined(QT_NO_REGEXP_CAPTURE) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_CAPTURE
+#endif
+
+// Regular expression character-class
+#if !defined(QT_NO_REGEXP_CCLASS) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_CCLASS
+#endif
+
+// Regular expression escape
+#if !defined(QT_NO_REGEXP_ESCAPE) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_ESCAPE
+#endif
+
+// Regular expression interval
+#if !defined(QT_NO_REGEXP_INTERVAL) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_INTERVAL
+#endif
+
+// Regular expression lookahead
+#if !defined(QT_NO_REGEXP_LOOKAHEAD) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_LOOKAHEAD
+#endif
+
+// Regular expression optimization
+#if !defined(QT_NO_REGEXP_OPTIM) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_OPTIM
+#endif
+
+// Regular expression wildcard
+#if !defined(QT_NO_REGEXP_WILDCARD) && (defined(QT_NO_REGEXP))
+#define QT_NO_REGEXP_WILDCARD
 #endif
 
 // Template classes in QVariant
@@ -397,11 +461,6 @@
 #define QT_NO_TITLEBAR
 #endif
 
-// XML
-#if !defined(QT_NO_XML) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_TEXTCODEC) || defined(QT_NO_REGEXP_CAPTURE))
-#define QT_NO_XML
-#endif
-
 // Check-boxes
 #if !defined(QT_NO_CHECKBOX) && (defined(QT_NO_BUTTON) || defined(QT_NO_STYLE))
 #define QT_NO_CHECKBOX
@@ -467,6 +526,11 @@
 #define QT_NO_WIDGETSTACK
 #endif
 
+// XML
+#if !defined(QT_NO_XML) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_TEXTCODEC) || defined(QT_NO_REGEXP_CAPTURE))
+#define QT_NO_XML
+#endif
+
 // Cut and paste
 #if !defined(QT_NO_CLIPBOARD) && (defined(QT_NO_QWS_PROPERTIES) || defined(QT_NO_MIME))
 #define QT_NO_CLIPBOARD
@@ -502,21 +566,6 @@
 #define QT_NO_SPLITTER
 #endif
 
-// CDE style
-#if !defined(QT_NO_STYLE_CDE) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS))
-#define QT_NO_STYLE_CDE
-#endif
-
-// Motif-plus style
-#if !defined(QT_NO_STYLE_MOTIFPLUS) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS))
-#define QT_NO_STYLE_MOTIFPLUS
-#endif
-
-// SGI style
-#if !defined(QT_NO_STYLE_SGI) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS))
-#define QT_NO_STYLE_SGI
-#endif
-
 // Table-like widgets
 #if !defined(QT_NO_TABLEVIEW) && (defined(QT_NO_SCROLLBAR))
 #define QT_NO_TABLEVIEW
@@ -540,6 +589,21 @@
 // Properties
 #if !defined(QT_NO_PROPERTIES) && (defined(QT_NO_VARIANT) || defined(QT_NO_STRINGLIST) || defined(QT_NO_ICONSET))
 #define QT_NO_PROPERTIES
+#endif
+
+// CDE style
+#if !defined(QT_NO_STYLE_CDE) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS))
+#define QT_NO_STYLE_CDE
+#endif
+
+// Motif-plus style
+#if !defined(QT_NO_STYLE_MOTIFPLUS) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS))
+#define QT_NO_STYLE_MOTIFPLUS
+#endif
+
+// SGI style
+#if !defined(QT_NO_STYLE_SGI) && (defined(QT_NO_STYLE_MOTIF) || defined(QT_NO_TRANSFORMATIONS))
+#define QT_NO_STYLE_SGI
 #endif
 
 // Vertical box layout widgets
@@ -582,11 +646,6 @@
 #define QT_NO_NETWORKPROTOCOL_HTTP
 #endif
 
-// Aqua style
-#if !defined(QT_NO_STYLE_AQUA) && (defined(QT_NO_STYLE_WINDOWS))
-#define QT_NO_STYLE_AQUA
-#endif
-
 // Compact Windows style
 #if !defined(QT_NO_STYLE_COMPACT) && (defined(QT_NO_STYLE_WINDOWS))
 #define QT_NO_STYLE_COMPACT
@@ -597,9 +656,9 @@
 #define QT_NO_STYLE_PLATINUM
 #endif
 
-// Document Object Model
-#if !defined(QT_NO_DOM) && (defined(QT_NO_XML) || defined(QT_NO_MIME))
-#define QT_NO_DOM
+// Windows style
+#if !defined(QT_NO_STYLE_POCKETPC) && (defined(QT_NO_STYLE_WINDOWS))
+#define QT_NO_STYLE_POCKETPC
 #endif
 
 // Drag and drop
@@ -622,9 +681,14 @@
 #define QT_NO_VBUTTONGROUP
 #endif
 
-// Complex script support (eg. BiDi)
+// Complex scripts (eg. BiDi)
 #if !defined(QT_NO_COMPLEXTEXT) && (defined(QT_NO_RICHTEXT))
 #define QT_NO_COMPLEXTEXT
+#endif
+
+// Document Object Model
+#if !defined(QT_NO_DOM) && (defined(QT_NO_XML) || defined(QT_NO_MIME))
+#define QT_NO_DOM
 #endif
 
 // FTP file access
@@ -635,6 +699,11 @@
 // Scrollable view widgets
 #if !defined(QT_NO_SCROLLVIEW) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_FRAME))
 #define QT_NO_SCROLLVIEW
+#endif
+
+// Aqua style
+#if !defined(QT_NO_STYLE_AQUA) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGE_TRANSFORMATION))
+#define QT_NO_STYLE_AQUA
 #endif
 
 // Tab-bars
@@ -667,11 +736,6 @@
 #define QT_NO_MENUBAR
 #endif
 
-// Scalable Vector Graphics (SVG)
-#if !defined(QT_NO_SVG) && (defined(QT_NO_DOM) || defined(QT_NO_TRANSFORMATIONS) || defined(QT_NO_SPRINTF))
-#define QT_NO_SVG
-#endif
-
 // Hebrew Codec
 #if !defined(QT_NO_CODEC_HEBREW) && (defined(QT_NO_CODECS) || defined(QT_NO_COMPLEXTEXT))
 #define QT_NO_CODEC_HEBREW
@@ -685,6 +749,11 @@
 // Big Codecs (eg. CJK)
 #if !defined(QT_NO_BIG_CODECS) && (defined(QT_NO_CODEC_HEBREW))
 #define QT_NO_BIG_CODECS
+#endif
+
+// Scalable Vector Graphics (SVG)
+#if !defined(QT_NO_SVG) && (defined(QT_NO_DOM) || defined(QT_NO_TRANSFORMATIONS) || defined(QT_NO_SPRINTF))
+#define QT_NO_SVG
 #endif
 
 // Single-line edits

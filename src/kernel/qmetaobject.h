@@ -61,6 +61,7 @@ struct QMetaData				// - member function meta data
 };
 
 
+#ifndef QT_NO_PROPERTIES
 struct QMetaEnum				// enumerator meta data
 {						//  for properties
     const char *name;				// - enumerator name
@@ -73,6 +74,7 @@ struct QMetaEnum				// enumerator meta data
     const Item *items;				// - the name/value pairs
     bool set;					// whether enum has to be treated as a set
 };
+#endif
 
 #ifndef QT_NO_PROPERTIES
 
@@ -140,8 +142,8 @@ public:
 		 const QMetaData *signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
 		 const QMetaProperty *prop_data, int n_props,
-#endif
 		 const QMetaEnum *enum_data, int n_enums,
+#endif
 		 const QClassInfo *class_info, int n_info );
 
 
@@ -189,8 +191,8 @@ public:
 					const QMetaData *, int,
 #ifndef QT_NO_PROPERTIES
 					const QMetaProperty *prop_data, int n_props,
-#endif
 					const QMetaEnum *enum_data, int n_enums,
+#endif
 					const QClassInfo * class_info, int n_info );
 #ifndef QT_NO_PROPERTIES
     const QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;

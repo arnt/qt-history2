@@ -119,11 +119,12 @@ public:
 	       const QString & search_delimiters = QString::null,
 	       const QString & suffix = QString::null );
 
+    void clear();
+
+#ifndef QT_NO_TRANSLATION_BUILDER
     enum SaveMode { Everything, Stripped };
 
     bool save( const QString & filename, SaveMode mode = Everything );
-
-    void clear();
 
     void insert( const QTranslatorMessage& );
     void insert( const char *context, const char *sourceText, const QString &translation ) {
@@ -139,6 +140,7 @@ public:
     void unsqueeze();
 
     QValueList<QTranslatorMessage> messages() const;
+#endif
 
 private:
     QTranslatorPrivate * d;

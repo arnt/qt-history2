@@ -169,10 +169,16 @@ QCString uTypeExtra( QCString ctype )
 
     } else if ( isEnumType( ctype ) ) {
 	int idx = enumIndex( ctype );
-	if ( idx >= 0 )
+	if ( idx >= 0 ) {
 	    typeExtra.sprintf( "&enum_tbl[%d]", enumIndex( ctype ) );
-	else
+	} else {
 	    typeExtra.sprintf( "(UEnum*)parentObject->enumerator(\"%s\", TRUE )", ctype.data() );
+	}
+	typeExtra =
+	    "\n#ifndef QT_NO_PROPERTIES\n\t  " + typeExtra +
+	    "\n#else"
+	    "\n\t  0"
+	    "\n#endif // QT_NO_PROPERTIES\n\t  ";
     }
     return typeExtra;
 }
@@ -2426,6 +2432,7 @@ int generateEnums()
     if ( g->enums.count() == 0 )
 	return 0;
 
+    fprintf( out, "#ifndef QT_NO_PROPERTIES\n" );
     int i = 0;
     for ( QPtrListIterator<Enum> it( g->enums ); it.current(); ++it, ++i ) {
 	fprintf( out, "    static const QMetaEnum::Item enum_%i[] = {\n", i );
@@ -2449,6 +2456,7 @@ int generateEnums()
 		 it2.current()->set ? "TRUE" : "FALSE" );
     }
     fprintf( out, "\n    };\n" );
+    fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
 
     return g->enums.count();
 }
@@ -2898,7 +2906,7 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "    else\n" );
     fprintf( out, "\treturn QString::fromLatin1( s );\n");
     fprintf( out, "}\n" );
-    fprintf( out, "#ifndef QT_NO_TEXTCODEC\n" );
+    fprintf( out, "#ifdef QT_NO_TRANSLATION_UTF8\n" );
     fprintf( out, "QString %s::trUtf8( const char *s, const char *c )\n{\n",
 	     (const char*)qualifiedClassName() );
     fprintf( out, "    if ( qApp )\n" );
@@ -2907,7 +2915,7 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "    else\n" );
     fprintf( out, "\treturn QString::fromUtf8( s );\n" );
     fprintf( out, "}\n" );
-    fprintf( out, "#endif // QT_NO_TEXTCODEC\n\n" );
+    fprintf( out, "#endif // QT_NO_TRANSLATION_UTF8\n\n" );
     fprintf( out, "#endif // QT_NO_TRANSLATION\n\n" );
 
 //
@@ -2988,11 +2996,11 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\tprops_tbl, %d,\n", n_props );
     else
 	fprintf( out, "\t0, 0,\n" );
-    fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
     if ( n_enums )
 	fprintf( out, "\tenum_tbl, %d,\n", n_enums );
     else
 	fprintf( out, "\t0, 0,\n" );
+    fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
 
     if ( n_infos )
 	fprintf( out, "\tclassinfo_tbl, %d );\n", n_infos );

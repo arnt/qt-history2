@@ -187,8 +187,11 @@ public:
 
     QTranslatorPrivate() :
 	unmapPointer( 0 ), unmapLength( 0 ),
-	messageArray( 0 ), offsetArray( 0 ), contextArray( 0 ),
-	messages( 0 ) { }
+	messageArray( 0 ), offsetArray( 0 ), contextArray( 0 )
+#ifndef QT_NO_TRANSLATION_BUILDER
+	,messages( 0 )
+#endif
+    { }
     // QTranslator must finalize this before deallocating it.
 
     // for mmap'ed files, this is what needs to be unmapped.
@@ -201,8 +204,9 @@ public:
     QByteArray * offsetArray;
     QByteArray * contextArray;
 
+#ifndef QT_NO_TRANSLATION_BUILDER
     QMap<QTranslatorMessage, void *> * messages;
-
+#endif
 };
 
 
@@ -531,6 +535,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     return TRUE;
 }
 
+#ifndef QT_NO_TRANSLATION_BUILDER
 
 /*!  Saves this message file to \a filename, overwriting the previous
   contents of \a filename.  If \a mode is \c Everything (the
@@ -574,6 +579,7 @@ bool QTranslator::save( const QString & filename, SaveMode mode )
     return FALSE;
 }
 
+#endif
 
 /*!  Empties this translator of all contents.
 
@@ -606,10 +612,13 @@ void QTranslator::clear()
     d->offsetArray = 0;
     delete d->contextArray;
     d->contextArray = 0;
+#ifndef QT_NO_TRANSLATION_BUILDER
     delete d->messages;
     d->messages = 0;
+#endif
 }
 
+#ifndef QT_NO_TRANSLATION_BUILDER
 
 /*! Converts this message file to the compact format used to store
   message files on disk.
@@ -842,6 +851,7 @@ void QTranslator::remove( const QTranslatorMessage& message )
   Removes the translation associated to the key (\a context, \a sourceText,
   "") from this translator.
 */
+#endif
 
 /*!
   \fn QString QTranslator::find( const char*, const char*, const char* ) const
@@ -868,6 +878,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
     if ( comment == 0 )
 	comment = "";
 
+#ifndef QT_NO_TRANSLATION_BUILDER
     if ( d->messages ) {
 	QMap<QTranslatorMessage, void *>::ConstIterator it
 	    = d->messages->find( QTranslatorMessage(context, sourceText,
@@ -876,6 +887,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 	    return QTranslatorMessage();
 	return it.key();
     }
+#endif
 
     if ( !d->offsetArray )
 	return QTranslatorMessage();
@@ -952,6 +964,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
     return QTranslatorMessage();
 }
 
+#ifndef QT_NO_TRANSLATION_BUILDER
 
 /*!  Returns a list of the messages in the translator.  This function is
   rather slow; because it is seldom called, it's optimized for simplicity and
@@ -968,6 +981,7 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
     return result;
 }
 
+#endif
 
 /*! \class QTranslatorMessage qtranslator.h
 

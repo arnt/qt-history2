@@ -1901,6 +1901,7 @@ QMetaObject* QObject::staticQtMetaObject()
     if ( qtMetaObject )
 	return qtMetaObject;
 
+#ifndef QT_NO_PROPERTIES
     static const QMetaEnum::Item enum_0[] = {
 	{ "AlignLeft",  (int) Qt::AlignLeft },
 	{ "AlignRight",  (int) Qt::AlignRight },
@@ -1962,14 +1963,15 @@ QMetaObject* QObject::staticQtMetaObject()
 	{ "BackgroundMode", 18, enum_3, FALSE },
 	{ "DateFormat", 3, enum_4, FALSE }
     };
+#endif
 
     qtMetaObject = new QMetaObject( "Qt", 0,
 			  0, 0,
 			  0, 0,
 #ifndef QT_NO_PROPERTIES
 			  0, 0,
-#endif
 			  enum_tbl, 5,
+#endif
 			  0, 0 );
     cleanUp_Qt.setMetaObject( qtMetaObject );
 

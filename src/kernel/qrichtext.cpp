@@ -6112,40 +6112,46 @@ static void qt_cleanup_html_map()
     html_map = 0;
 }
 
+// just done this way to save 38K of bloated template expansion
+static void html_map_insert(const char* tag, const QChar& val)
+{
+    html_map->insert( tag, val );
+}
+
 static QMap<QCString, QChar> *htmlMap()
 {
     if ( !html_map ) {
 	html_map = new QMap<QCString, QChar>;
 	qAddPostRoutine( qt_cleanup_html_map );
-	html_map->insert( "lt", '<');
-	html_map->insert( "gt", '>');
-	html_map->insert( "amp", '&');
-	html_map->insert( "nbsp", 0x00a0U);
-	html_map->insert( "bull", 0x2022U);
-	html_map->insert( "aring", '\xe5');
-	html_map->insert( "oslash", '\xf8');
-	html_map->insert( "ouml", '\xf6');
-	html_map->insert( "auml", '\xe4');
-	html_map->insert( "uuml", '\xfc');
-	html_map->insert( "Ouml", '\xd6');
-	html_map->insert( "Auml", '\xc4');
-	html_map->insert( "Uuml", '\xdc');
-	html_map->insert( "szlig", '\xdf');
-	html_map->insert( "copy", '\xa9');
-	html_map->insert( "deg", '\xb0');
-	html_map->insert( "micro", '\xb5');
-	html_map->insert( "plusmn", '\xb1');
-	html_map->insert( "middot", '*');
-	html_map->insert( "quot", '\"');
-	html_map->insert( "commat", '@');
-	html_map->insert( "num", '#');
-	html_map->insert( "dollar", '$');
-	html_map->insert( "ldquo", '`');
-	html_map->insert( "rdquo", '\'');
-	html_map->insert( "sol", '/' );
-	html_map->insert( "bsol", '\\');
-	html_map->insert( "lowbar", '_');
-	html_map->insert( "shy", '\xad');
+	html_map_insert( "lt", '<');
+	html_map_insert( "gt", '>');
+	html_map_insert( "amp", '&');
+	html_map_insert( "nbsp", 0x00a0U);
+	html_map_insert( "bull", 0x2022U);
+	html_map_insert( "aring", '\xe5');
+	html_map_insert( "oslash", '\xf8');
+	html_map_insert( "ouml", '\xf6');
+	html_map_insert( "auml", '\xe4');
+	html_map_insert( "uuml", '\xfc');
+	html_map_insert( "Ouml", '\xd6');
+	html_map_insert( "Auml", '\xc4');
+	html_map_insert( "Uuml", '\xdc');
+	html_map_insert( "szlig", '\xdf');
+	html_map_insert( "copy", '\xa9');
+	html_map_insert( "deg", '\xb0');
+	html_map_insert( "micro", '\xb5');
+	html_map_insert( "plusmn", '\xb1');
+	html_map_insert( "middot", '*');
+	html_map_insert( "quot", '\"');
+	html_map_insert( "commat", '@');
+	html_map_insert( "num", '#');
+	html_map_insert( "dollar", '$');
+	html_map_insert( "ldquo", '`');
+	html_map_insert( "rdquo", '\'');
+	html_map_insert( "sol", '/' );
+	html_map_insert( "bsol", '\\');
+	html_map_insert( "lowbar", '_');
+	html_map_insert( "shy", '\xad');
     }
     return html_map;
 }
