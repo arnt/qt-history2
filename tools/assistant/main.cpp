@@ -95,7 +95,7 @@ void AssistantSocket::connectionClosed()
 }
 
 AssistantServer::AssistantServer( QObject *parent )
-    : QServerSocket( QHostAddress::LocalHostAddress, 0, 1, parent )
+    : QServerSocket( QHostAddress::LocalHost, 0, 1, parent )
 {
     if ( !ok() ) {
         QMessageBox::critical( 0, tr( "Qt Assistant" ),
@@ -225,7 +225,7 @@ int main( int argc, char ** argv )
                                   " -hideSidebar               assistant will hide the sidebar.\n"
                                   " -help                      shows this help.");
 #ifdef Q_WS_WIN
-                QMessageBox::information( 0, QLatin1String("Qt Assistant"), 
+                QMessageBox::information( 0, QLatin1String("Qt Assistant"),
                     QLatin1String("<pre>") + helpText + QLatin1String("</pre>") );
 #else
                 printf( "%s\n", helpText.latin1() );
