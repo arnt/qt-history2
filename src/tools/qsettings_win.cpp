@@ -194,11 +194,17 @@ HKEY QSettingsSysPrivate::openKey( const QString &key, bool write, bool remove )
     LONG res = ERROR_FILE_NOT_FOUND;
 
     // if we write and there is a user specific setting, overwrite that
-    if ( write && user ) {
+    if ( (write||remove) && user ) {
 	QT_WA( {
-	    res = RegOpenKeyExW( user, (TCHAR*)f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
+	    if ( remove )
+		res = RegOpenKeyExW( user, (TCHAR*)f.ucs2(), 0, KEY_ALL_ACCESS, &handle );
+	    else
+		res = RegOpenKeyExW( user, (TCHAR*)f.ucs2(), 0, KEY_WRITE, &handle );
 	} , {
-	    res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
+	    if ( remove )
+		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
+	    else
+		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_WRITE, &handle );
 	} );
     }
 
