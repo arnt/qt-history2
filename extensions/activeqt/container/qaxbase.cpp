@@ -2367,7 +2367,7 @@ QString QAxBase::generateDocumentation()
 			    detail += " ).to" + QCString(QVariant::typeToName(rettype)) + "();\n";
 			}
 		    } else if ( retval ) {
-			detail += "User querySubObject to get the returning COM object";
+			detail += "\tUse querySubObject to get the returning COM object";
 		    } else { // no return value
 			if ( outparams ) {
 			    detail += "\tQValueList<QVariant> params;\n";
