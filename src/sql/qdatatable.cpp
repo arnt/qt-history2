@@ -1801,6 +1801,7 @@ void QDataTable::setSize( QSqlCursor* sql )
  		 this, SLOT( sliderReleased() ) );
 	connect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
 		 this, SLOT( loadNextPage() ) );
+	setNumRows(0);
 	loadNextPage();
     }
 }
