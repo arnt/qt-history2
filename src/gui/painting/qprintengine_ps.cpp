@@ -5205,11 +5205,12 @@ static QByteArray compress(const QImage & image, bool gray) {
             }
         }
     } else {
+        bool alpha = image.hasAlphaBuffer();
         for(int y=0; y < height; y++) {
             QRgb * s = (QRgb*)(image.scanLine(y));
             for(int x=0; x < width; x++) {
                 QRgb rgb = (*s++);
-                if (qAlpha(rgb) < 0x40) // 25% alpha, convert to white -
+                if (alpha && qAlpha(rgb) < 0x40) // 25% alpha, convert to white -
                     rgb = qRgb(0xff, 0xff, 0xff);
                 if (gray) {
                     pixel[i] = (unsigned char) qGray(rgb);
