@@ -2309,8 +2309,18 @@ RenameMenuCommand::RenameMenuCommand( const QString &n,
 
 QString RenameMenuCommand::makeLegal( const QString &str )
 {
-    return ( name.remove( "." ).remove( "," ).remove( "&" ).replace( '-', '_' ).replace( ' ', '_' ) +
-	     "Menu" );
+    // remove illegal characters
+    QString d;
+    char c = 0, i = 0;
+    while ( !str.at(i).isNull() ) {
+	c = str.at(i).latin1();
+	if ( c == '-' || c == ' ' )
+	    d += '_';
+	else if ( ( c > 47 && c < 91 ) || c == 95 || ( c > 96 && c < 123 ) )
+	    d += c;
+	++i;
+    }
+    return d;
 }
 
 void RenameMenuCommand::execute()
