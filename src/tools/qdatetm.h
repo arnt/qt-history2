@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#11 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#12 $
 **
 ** Definition of date and time classes
 **
@@ -22,9 +22,6 @@
 
 class QDate
 {
-friend class QDateTime;
-friend QDataStream &operator<<( QDataStream &, const QDate & );
-friend QDataStream &operator>>( QDataStream &, QDate & );
 public:
     QDate()  { jd=0; }				// set null date
     QDate( int y, int m, int d );		// set date
@@ -43,10 +40,10 @@ public:
     virtual const char *monthName( int month ) const;
     virtual const char *dayName( int weekday ) const;
 
-    QString toString()	 const;			// date to string
+    QString toString()	 const;
 
-    bool   setYMD( int y, int m, int d );	// set year, month, day
-    void   setTime_t( ulong secsSince1Jan1970UTC ); // set date
+    bool   setYMD( int y, int m, int d );
+    void   setTime_t( ulong secsSince1Jan1970UTC );
 
     QDate  addDays( long days )		const;	// add days
     long   daysTo( const QDate & )	const;	// days difference
@@ -58,16 +55,19 @@ public:
     bool   operator>( const QDate &d )	const { return jd > d.jd; }
     bool   operator>=( const QDate &d ) const { return jd >= d.jd; }
 
-    static QDate currentDate();			// get current date
+    static QDate currentDate();
     static bool	 isValid( int y, int m, int d );
     static bool	 leapYear( int year );
 
 protected:
     static ulong greg2jul( int y, int m, int d );
     static void	 jul2greg( ulong jd, int &y, int &m, int &d );
-    ulong  jd;					// julian date
+    ulong  	 jd;
     static const char *monthNames[];
     static const char *weekdayNames[];
+    friend class QDateTime;
+    friend QDataStream &operator<<( QDataStream &, const QDate & );
+    friend QDataStream &operator>>( QDataStream &, QDate & );
 };
 
 
@@ -77,9 +77,6 @@ protected:
 
 class QTime
 {
-friend class QDateTime;
-friend QDataStream &operator<<( QDataStream &, const QTime & );
-friend QDataStream &operator>>( QDataStream &, QTime & );
 public:
     QTime() { ds=0; }				// set null time
     QTime( int h, int m, int s=0, int ms=0 );	// set time
@@ -92,15 +89,15 @@ public:
     int	   second()	 const;			// 0..59
     int	   msec()	 const;			// 0..999
 
-    QString toString()	 const;			// time to string
+    QString toString()	 const;
 
-    bool   setHMS( int h, int m, int s, int ms=0 ); // set time of day
-    void   setTime_t( ulong secsSince1Jan1970UTC ); // set time of day
+    bool   setHMS( int h, int m, int s, int ms=0 );
+    void   setTime_t( ulong secsSince1Jan1970UTC );
 
-    QTime  addSecs( long secs )		const;	// add seconds
-    long   secsTo( const QTime & )	const;	// seconds difference
-    QTime  addMSecs( long ms )		const;	// add milliseconds
-    long   msecsTo( const QTime & )	const;	// milliseconds difference
+    QTime  addSecs( long secs )		const;
+    long   secsTo( const QTime & )	const;
+    QTime  addMSecs( long ms )		const;
+    long   msecsTo( const QTime & )	const;
 
     bool   operator==( const QTime &d ) const { return ds == d.ds; }
     bool   operator!=( const QTime &d ) const { return ds != d.ds; }
@@ -109,18 +106,21 @@ public:
     bool   operator>( const QTime &d )	const { return ds > d.ds; }
     bool   operator>=( const QTime &d ) const { return ds >= d.ds; }
 
-    static QTime currentTime();			// get current time
+    static QTime currentTime();
     static bool	 isValid( int h, int m, int s, int ms=0 );
 
-    void   start();				// start clock
-    long   restart();				// restart clock
-    long   elapsed();				// msecs since start/restart
+    void   start();
+    long   restart();
+    long   elapsed();
 
 private:
     static bool currentTime( QTime * );
 
 protected:
-    ulong  ds;					// seconds
+    ulong  ds;
+    friend class QDateTime;
+    friend QDataStream &operator<<( QDataStream &, const QTime & );
+    friend QDataStream &operator>>( QDataStream &, QTime & );
 };
 
 
@@ -130,28 +130,26 @@ protected:
 
 class QDateTime
 {
-friend QDataStream &operator<<( QDataStream &, const QDateTime & );
-friend QDataStream &operator>>( QDataStream &, QDateTime & );
 public:
     QDateTime() {}				// set null date and null time
-    QDateTime( const QDate & );			// set date and null time
-    QDateTime( const QDate &, const QTime & );	// set date and time
+    QDateTime( const QDate & );
+    QDateTime( const QDate &, const QTime & );
 
     bool   isNull()	const { return d.isNull() && t.isNull(); }
     bool   isValid()	const { return d.isValid() && t.isValid(); }
 
-    QDate  date()	const { return d; }	// get date
-    QTime  time()	const { return t; }	// get time
-    void   setDate( QDate date ) { d=date; }	// set date
-    void   setTime( QTime time ) { t=time; }	// set time
-    void   setTime_t( ulong secsSince1Jan1970UTC );// set date and time
+    QDate  date()	const { return d; }
+    QTime  time()	const { return t; }
+    void   setDate( QDate date ) { d=date; }
+    void   setTime( QTime time ) { t=time; }
+    void   setTime_t( ulong secsSince1Jan1970UTC );
 
-    QString toString()	const;			// datetime to string
+    QString toString()	const;
 
-    QDateTime addDays( long days )	const;	// add days
-    QDateTime addSecs( long secs )	const;	// add seconds (wrap date)
-    long   daysTo( const QDateTime & )	const;	// day difference
-    long   secsTo( const QDateTime & )	const;	// second difference
+    QDateTime addDays( long days )	const;
+    QDateTime addSecs( long secs )	const;
+    long   daysTo( const QDateTime & )	const;
+    long   secsTo( const QDateTime & )	const;
 
     bool   operator==( const QDateTime &dt ) const;
     bool   operator!=( const QDateTime &dt ) const;
@@ -160,16 +158,18 @@ public:
     bool   operator>( const QDateTime &dt )  const;
     bool   operator>=( const QDateTime &dt ) const;
 
-    static QDateTime currentDateTime();		// get current datetime
+    static QDateTime currentDateTime();
 
 private:
-    QDate  d;					// date part
-    QTime  t;					// time part
+    QDate  d;
+    QTime  t;
+    friend QDataStream &operator<<( QDataStream &, const QDateTime & );
+    friend QDataStream &operator>>( QDataStream &, QDateTime & );
 };
 
 
 // --------------------------------------------------------------------------
-// Date/time stream functions
+// Date and time stream functions
 //
 
 QDataStream &operator<<( QDataStream &, const QDate & );
