@@ -245,7 +245,7 @@ void QAssistantClient::showPage( const QString &page )
     if ( !opened ) {
 	pageBuffer = page;
 	openAssistant();
-	pageBuffer = QString::null;	
+	pageBuffer = QString::null;
 	return;
     }
     QTextStream os( socket );
@@ -294,7 +294,7 @@ void QAssistantClient::readStdError()
 	errmsg += "\n";
     }
     if (!errmsg.isEmpty())
-	emit error( tr( errmsg.simplifyWhiteSpace() ) );
+	emit error( tr( errmsg.simplified() ) );
 }
 
 /*!
