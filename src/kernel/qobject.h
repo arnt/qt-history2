@@ -115,12 +115,13 @@ public:
 			  const QObject *receiver, const char *member );
     bool	 connect( const QObject *sender, const char *signal,
 			  const char *member ) const;
-    bool 	connect( const QObject *receiver );
     static bool  disconnect( const QObject *sender, const char *signal,
 			     const QObject *receiver, const char *member );
     bool	 disconnect( const char *signal=0,
 			     const QObject *receiver=0, const char *member=0 );
     bool	 disconnect( const QObject *receiver, const char *member=0 );
+    static void 	 connectInternal( const QObject *sender, int signal_index, const QObject *receiver,
+				  int membcode, int member_index );
 
     void	 dumpObjectTree();
     void	 dumpObjectInfo();
@@ -138,19 +139,17 @@ public:
 
 private slots:
     void	 cleanupEventFilter();
-    void receiverDestroyed();
 
 protected:
     bool	 activate_filters( QEvent * );
     QConnectionList *receivers( const char* signal ) const;
     QConnectionList *receivers( int signal ) const;
-    QObjectList *receivers() const;
     void	activate_signal( int signal );
     void	activate_signal( int signal, int );
     void	activate_signal( int signal, double );
     void	activate_signal( int signal, QString );
     void	activate_signal_bool( int signal, bool );
-    void 	activate_signal( int signal, UObject *o );
+    void 	activate_signal( QConnectionList *clist, UObject *o );
 
     const QObject *sender();
 

@@ -56,10 +56,6 @@
 
 class QObject::QObjectPrivate
 {
-public:
-    QObjectPrivate() : receivers( 0 ) {}
-
-    QObjectList *receivers;
 };
 
 // NOT REVISED
@@ -1558,6 +1554,19 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 		 s->className(), signal,
 		 r->className(), member );
 #endif
+    connectInternal( sender, signal_index, receiver, membcode, rm->ptr );
+    s->connectNotify( signal_name );
+    return TRUE;
+}
+
+/*! \internal */
+
+void QObject::connectInternal( const QObject *sender, int signal_index, const QObject *receiver,
+			       int membcode, int member_index )
+{
+    QObject *s = (QObject*)sender;
+    QObject *r = (QObject*)receiver;
+
     if ( !s->connections ) {			// create connections dict
 	s->connections = new QSignalVec( 7 );
 	Q_CHECK_PTR( s->connections );
@@ -1571,7 +1580,20 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	clist->setAutoDelete( TRUE );
 	s->connections->insert( signal_index, clist );
     }
-    QConnection *c = new QConnection(r, rm->ptr, rm->name, membcode );
+
+    QMetaObject *rmeta = r->metaObject();
+    const QMetaData *rm = 0;
+
+    switch ( membcode ) {			// get receiver member
+	case SLOT_CODE:
+	    rm = rmeta->slot( member_index, TRUE );
+	    break;
+	case SIGNAL_CODE:
+	    rm = rmeta->signal( member_index, TRUE );
+	    break;
+    }
+
+    QConnection *c = new QConnection( r, member_index, rm ? rm->name : "qt_invoke", membcode );
     Q_CHECK_PTR( c );
     clist->append( c );
     if ( !r->senderObjects ) {			// create list of senders
@@ -1579,8 +1601,6 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	Q_CHECK_PTR( r->senderObjects );
     }
     r->senderObjects->append( s );		// add sender to list
-    s->connectNotify( signal_name );
-    return TRUE;
 }
 
 
@@ -1883,17 +1903,12 @@ QMetaObject* QObject::staticMetaObject()
 	{ "TextFormat", 3, enum_2, FALSE }
     };
 
-    QMetaData *slot_tbl = new QMetaData[2];
+    QMetaData *slot_tbl = new QMetaData[1];
     static const UMethod method_slot_1 = {"cleanupEventFilter", 0,  0 };
-    static const UMethod method_slot_2 = {"receiverDestroyed", 0,  0 };
     slot_tbl[0].name = "cleanupEventFilter()";
     slot_tbl[0].ptr = 0;
     slot_tbl[0].method = &method_slot_1;
     slot_tbl[0].access = QMetaData::Private;
-    slot_tbl[1].name = "receiverDestroyed()";
-    slot_tbl[1].ptr = 1;
-    slot_tbl[1].method = &method_slot_2;
-    slot_tbl[1].access = QMetaData::Private;
     QMetaData *signal_tbl = new QMetaData[1];
     static const UMethod method_signal_0 = {"destroyed", 0,  0 };
     signal_tbl[0].name = "destroyed()";
@@ -1908,7 +1923,7 @@ QMetaObject* QObject::staticMetaObject()
     props_tbl[0].setFlags(QMetaProperty::Readable|QMetaProperty::Writable|QMetaProperty::StdSet);
 #endif
     metaObj = new QMetaObject( "QObject", 0,
-	slot_tbl, 2,
+	slot_tbl, 1,
 	signal_tbl, 1,
 	props_tbl, 1,
 #ifndef QT_NO_PROPERTIES
@@ -1930,11 +1945,6 @@ QMetaObject* QObject::staticMetaObject()
   */
 void QObject::activate_signal( int signal )
 {
-    if ( d && d->receivers ) {
-	UObject o[1];
-	activate_signal( signal, o );
-    }
-
     if ( !connections || signalsBlocked() || signal < 0 )
 	return;
     QConnectionList *clist = connections->at( signal );
@@ -1965,16 +1975,34 @@ void QObject::activate_signal( int signal )
     }
 }
 
-void QObject::activate_signal( int signal, UObject *o )
+/*! \internal */
+
+void QObject::activate_signal( QConnectionList *clist, UObject *o )
 {
-    if ( !d || !d->receivers )
+    if ( !clist )
 	return;
 
-    QObjectListIt it( *d->receivers );
-    QObject *r;
-    while ( ( r = it.current() ) ) {
-	++it;
-	r->qt_invoke( signal, o );
+    QObject *object;
+    QConnection *c;
+    if ( clist->count() == 1 ) { // save iterator
+	c = clist->first();
+	object = c->object();
+	sigSender = this;
+	if ( c->memberType() == SIGNAL_CODE )
+	    object->qt_emit( c->member(), o );
+	else
+	    object->qt_invoke( c->member(), o );
+    } else {
+	QConnectionListIt it(*clist);
+	while ( (c=it.current()) ) {
+	    ++it;
+	    object = c->object();
+	    sigSender = this;
+	    if ( c->memberType() == SIGNAL_CODE )
+		object->qt_emit( c->member(), o );
+	    else
+		object->qt_invoke( c->member(), o );
+	}
     }
 }
 
@@ -2172,31 +2200,19 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	return FALSE;
 
     if ( p->isEnumType() ) {
-	if ( v.type() == QVariant::String || v.type() == QVariant::CString ||
-	     v.type() == QVariant::Int || v.type() == QVariant::UInt ) {
+	if ( v.type() == QVariant::String || v.type() == QVariant::CString ) {
 	    if ( p->isSetType() ) {
-		int val = 0;
-		if ( v.type() == QVariant::String || v.type() == QVariant::CString ) {
-		    QString s = value.toString();
-		    // QStrList does not support split, use QStringList for that.
-		    QStringList l = QStringList::split( '|', s );
-		    QStrList keys;
-		    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
-			keys.append( (*it).stripWhiteSpace().latin1() );
-		    val = p->keysToValue( keys );
-		} else {
-		    val = v.toInt();
-		}
-		v = QVariant( val );
+		QString s = value.toString();
+		// QStrList does not support split, use QStringList for that.
+		QStringList l = QStringList::split( '|', s );
+		QStrList keys;
+		for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
+		    keys.append( (*it).stripWhiteSpace().latin1() );
+		v = QVariant( p->keysToValue( keys ) );
 	    } else {
-		int val = 0;
-		if ( v.type() == QVariant::String || v.type() == QVariant::CString )
-		    val = p->keyToValue( value.toCString().data() );
-		else
-		    val = value.toInt();
-		v = QVariant( val );
+		v = QVariant( p->keyToValue( value.toCString().data() ) );
 	    }
-	} else {
+	} else if ( v.type() != QVariant::Int && v.type() != QVariant::UInt ) {
 	    return FALSE;
 	}
 	return qt_property( p, 0, &v );
@@ -2245,9 +2261,6 @@ bool QObject::qt_invoke( int _id, UObject* )
     case 0:
 	cleanupEventFilter();
 	break;
-    case 1:
-	receiverDestroyed();
-	break;
      default:
         return FALSE;
     }
@@ -2283,30 +2296,4 @@ bool QObject::qt_property( const QMetaProperty* _p, int _f, QVariant* _v)
 	return FALSE;
     }
     return TRUE;
-}
-
-bool QObject::connect( const QObject *receiver )
-{
-    if ( !d )
-	d = new QObjectPrivate;
-    if ( !d->receivers )
-	d->receivers = new QObjectList;
-    if ( d->receivers->findRef( receiver ) != -1 )
-	return FALSE;
-    d->receivers->append( receiver );
-    connect( receiver, SIGNAL( destroyed() ), this, SLOT( receiverDestroyed() ) );
-    return TRUE;
-}
-
-void QObject::receiverDestroyed()
-{
-    if ( d && d->receivers )
-	d->receivers->removeRef( sender() );
-}
-
-QObjectList *QObject::receivers() const
-{
-    if ( !d || !d->receivers )
-	return 0;
-    return d->receivers;
 }
