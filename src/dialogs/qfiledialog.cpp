@@ -5926,6 +5926,8 @@ void QFileDialog::doMimeTypeLookup()
 
     if ( d->pendingItems.count() )
 	d->mimeTypeTimer->start( 0 );
+    else if ( d->moreFiles->isVisible() )
+	d->moreFiles->triggerUpdate( TRUE );
 }
 
 /*!
