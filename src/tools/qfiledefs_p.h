@@ -269,7 +269,6 @@
 struct QFileInfoCache
 {
     STATBUF st;
-    bool isSymLink;
 };
 
 #endif

@@ -83,9 +83,13 @@ bool QFileInfo::isDir() const
 
 bool QFileInfo::isSymLink() const
 {
+#if defined(Q_OS_UNIX)
     if ( !fic || !cache )
 	doStat();
-    return fic ? fic->isSymLink : FALSE;
+    return symLink;
+#else
+    return FALSE;
+#endif
 }
 
 QString QFileInfo::readLink() const
@@ -93,7 +97,7 @@ QString QFileInfo::readLink() const
 #if defined(Q_OS_MACX)
     char s[PATH_MAX+1];
     if ( !isSymLink() )
-		return QString();
+	return QString();
     int len = readlink( QFile::encodeName(QDir::convertSeparators(fn)).data(), s, PATH_MAX );
     if ( len >= 0 ) {
 		s[len] = '\0';
@@ -218,8 +222,9 @@ void QFileInfo::doStat() const
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
     STATBUF *b = &that->fic->st;
-    that->fic->isSymLink = FALSE;
-
+#if defined(Q_OS_UNIX)
+    that->symLink = FALSE;
+#endif
     int r = STAT( QFile::encodeName(QDir::convertSeparators(fn)), b );
     if ( r != 0 ) {
 		delete that->fic;

@@ -84,6 +84,9 @@ QFileInfo::QFileInfo()
 {
     fic	  = 0;
     cache = TRUE;
+#if defined(Q_OS_UNIX)
+    symLink = FALSE;
+#endif
 }
 
 /*!
@@ -100,6 +103,9 @@ QFileInfo::QFileInfo( const QString &file )
     slashify( fn );
     fic	  = 0;
     cache = TRUE;
+#if defined(Q_OS_UNIX)
+    symLink = FALSE;
+#endif
 }
 
 /*!
@@ -116,6 +122,9 @@ QFileInfo::QFileInfo( const QFile &file )
     slashify( fn );
     fic	  = 0;
     cache = TRUE;
+#if defined(Q_OS_UNIX)
+    symLink = FALSE;
+#endif
 }
 
 /*!
@@ -133,6 +142,9 @@ QFileInfo::QFileInfo( const QDir &d, const QString &fileName )
     slashify( fn );
     fic	  = 0;
     cache = TRUE;
+#if defined(Q_OS_UNIX)
+    symLink = FALSE;
+#endif
 }
 #endif
 /*!
@@ -149,6 +161,9 @@ QFileInfo::QFileInfo( const QFileInfo &fi )
 	fic = 0;
     }
     cache = fi.cache;
+#if defined(Q_OS_UNIX)
+    symLink = fi.symLink;
+#endif
 }
 
 /*!
@@ -179,6 +194,9 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
 	*fic = *fi.fic;
     }
     cache = fi.cache;
+#if defined(Q_OS_UNIX)
+    symLink = fi.symLink;
+#endif
     return *this;
 }
 

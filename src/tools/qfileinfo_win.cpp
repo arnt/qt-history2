@@ -77,13 +77,13 @@ void QFileInfo::slashify( QString &s )
 void QFileInfo::makeAbs( QString &s )
 {
     if ( s[ 1 ] != ':' && s[ 1 ] != '/' ) {
- 	s.prepend( ":" );
- 	s.prepend( _getdrive() + 'A' - 1 );
+	s.prepend( ":" );
+	s.prepend( _getdrive() + 'A' - 1 );
     }
     if ( s[ 1 ] == ':' && s.length() > 3 && s[ 2 ] != '/' ) {
-  	QString d = currentDirOfDrive( (char)s[ 0 ].latin1() );
-  	slashify( d );
-  	s = d + "/" + s.mid( 2, 0xFFFFFF );
+	QString d = currentDirOfDrive( (char)s[ 0 ].latin1() );
+	slashify( d );
+	s = d + "/" + s.mid( 2, 0xFFFFFF );
     }
 }
 
@@ -107,9 +107,7 @@ bool QFileInfo::isDir() const
 
 bool QFileInfo::isSymLink() const
 {
-    if ( !fic || !cache )
-	doStat();
-    return fic ? fic->isSymLink : FALSE;
+    return FALSE;
 }
 
 
@@ -188,7 +186,6 @@ void QFileInfo::doStat() const
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
     STATBUF *b = &that->fic->st;
-    that->fic->isSymLink = FALSE;
 
     int r;
     if ( qt_winunicode )

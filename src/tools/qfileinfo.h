@@ -122,10 +122,14 @@ private:
     void	doStat() const;
     static void slashify( QString & );
     static void makeAbs( QString & );
-    
+
     QString	fn;
     QFileInfoCache *fic;
     bool	cache;
+#if defined(Q_OS_UNIX)
+    bool        symLink;
+#endif
+
 };
 
 

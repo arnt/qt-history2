@@ -101,11 +101,10 @@ bool QFileInfo::isSymLink() const
 {
     if ( !fic || !cache )
 	doStat();
-    return fic ? fic->isSymLink : FALSE;
+    return symLink;
 }
 
-
-/*! 
+/*!
   Returns the name a symlink points to, or a null QString if the
   object does not refer to a symbolic link.
 
@@ -327,12 +326,12 @@ void QFileInfo::doStat() const
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
     STATBUF *b = &that->fic->st;
-    that->fic->isSymLink = FALSE;
+    that->symLink = FALSE;
 
 #if defined(Q_OS_UNIX) && defined(S_IFLNK)
     if ( ::lstat(QFile::encodeName(fn),b) == 0 ) {
 	if ( S_ISLNK( b->st_mode ) )
-	    that->fic->isSymLink = TRUE;
+	    that->symLink = TRUE;
 	else
 	    return;
     }
