@@ -511,15 +511,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    if (testWFlags(WStyle_Tool)) {
 		wsa.save_under = True;
 		wsa_mask |= CWSaveUnder;
-
-		// utility netwm type
-		net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_UTILITY);
 	    }
 	} else if (testWFlags(WType_Dialog)) {
 	    setWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu | WStyle_ContextHelp);
-
-	    // dialog netwm type
-            net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_DIALOG);
 	} else {
 	    setWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
 
@@ -537,8 +531,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	} else if (inherits("QToolBar")) {
 	    // toolbar netwm type
 	    net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_TOOLBAR);
+	} else if (testWFlags(WStyle_Customize) && testWFlags(WStyle_Tool)) {
+ 	    // utility netwm type
+	    net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_UTILITY);
 	}
 
+	if (dialog) // dialog netwm type
+ 	    net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_DIALOG);
 	// normal netwm type - default
 	net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_NORMAL);
 
