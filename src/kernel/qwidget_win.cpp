@@ -894,7 +894,7 @@ void QWidget::stackUnder( QWidget* w)
     if ( !w || isTopLevel() || p != w->parentWidget() || this == w )
 	return;
     if ( p && p->childObjects && p->childObjects->findRef(w) >= 0 && p->childObjects->findRef(this) >= 0 ) {
-	p->childObjects->take( (uint) this );
+	p->childObjects->take();
 	p->childObjects->insert( p->childObjects->findRef(w), this );
     }
     SetWindowPos( winId(), w->winId() , 0, 0, 0, 0, SWP_NOMOVE |
