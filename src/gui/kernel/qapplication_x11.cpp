@@ -5333,9 +5333,6 @@ int QApplication::cursorFlashTime()
     On Microsoft Windows, calling this function sets the
     double click interval for all windows.
 
-    On Mac OS X, there is no way to programmatically set the double click
-    interval, use the Mouse pane of System Preferences to set the interval.
-
     \sa doubleClickInterval()
 */
 

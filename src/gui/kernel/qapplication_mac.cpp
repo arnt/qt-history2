@@ -86,20 +86,22 @@ QStack<EventRef> QMacMouseEvent::events;
   Internal variables and functions
  *****************************************************************************/
 static struct {
+    bool use_qt_time_limit;
     int last_modifiers, last_button;
     EventTime last_time;
     bool active;
-} qt_mac_dblclick = { 0, 0, -2, 0 };
+} qt_mac_dblclick = { false, 0, 0, -2, 0 };
+static bool qt_mac_use_scroller_time_limit = false;
 #if defined(QT_TABLET_SUPPORT)
 static int tablet_button_state = 0;
 #endif
 static int mouse_button_state = 0;
 static int keyboard_modifiers_state = 0;
-static bool        app_do_modal        = false;        // modal mode
-extern QWidgetList *qt_modal_stack;                // stack of modal widgets
-extern bool qt_mac_in_drag; //qdnd_mac.cpp
-extern bool qt_resolve_symlinks; // from qapplication.cpp
-extern bool qt_tab_all_widgets; // from qapplication.cpp
+static bool app_do_modal = false;       // modal mode
+extern QWidgetList *qt_modal_stack;     // stack of modal widgets
+extern bool qt_mac_in_drag;             //qdnd_mac.cpp
+extern bool qt_resolve_symlinks;        // from qapplication.cpp
+extern bool qt_tab_all_widgets;         // from qapplication.cpp
 bool qt_mac_app_fullscreen = false;
 bool qt_scrollbar_jump_to_pos = false;
 static bool qt_mac_collapse_on_dblclick = true;
@@ -302,17 +304,19 @@ void qt_mac_update_os_settings()
             needToPolish = false;
         }
     }
-    /* I just reverse engineered this, I'm not so sure how well it will hold up but it works as of now */
     { //focus mode
+        /* First worked as of 10.2.3 */
         bool ok;
         int i = qt_mac_get_global_setting("AppleKeyboardUIMode", "0").toInt(&ok);
         qt_tab_all_widgets = !ok || (i & 0x2);
     }
     { //paging mode
+        /* First worked as of 10.2.3 */
         QString paging = qt_mac_get_global_setting("AppleScrollerPagingBehavior", "FALSE");
         qt_scrollbar_jump_to_pos = (paging == "TRUE");
     }
     { //collapse
+        /* First worked as of 10.3.3 */
 	QString collapse = qt_mac_get_global_setting("AppleMiniaturizeOnDoubleClick", "TRUE");
 	qt_mac_collapse_on_dblclick = (collapse == "TRUE");
     }
@@ -1679,12 +1683,19 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         {
             etype = QEvent::MouseButtonPress;
             if(qt_mac_dblclick.active) {
-                UInt32 count;
-                GetEventParameter(event, kEventParamClickCount, typeUInt32, 0,
-                                  sizeof(count), 0, &count);
-                if(!(count % 2) && qt_mac_dblclick.last_modifiers == keys &&
-                   qt_mac_dblclick.last_button == button)
-                    etype = QEvent::MouseButtonDblClick;
+                if(qt_mac_dblclick.use_qt_time_limit) {
+                    EventTime now = GetEventTime(event);
+                    if(qt_mac_dblclick.last_time != -2 &&
+                       now - qt_mac_dblclick.last_time <= ((double)mouse_double_click_time)/1000)
+                        etype = QEvent::MouseButtonDblClick;
+                } else {
+                    UInt32 count;
+                    GetEventParameter(event, kEventParamClickCount, typeUInt32, 0,
+                                      sizeof(count), 0, &count);
+                    if(!(count % 2) && qt_mac_dblclick.last_modifiers == keys &&
+                       qt_mac_dblclick.last_button == button)
+                        etype = QEvent::MouseButtonDblClick;
+                }
                 if(etype == QEvent::MouseButtonDblClick)
                     qt_mac_dblclick.active = false;
             }
@@ -2590,29 +2601,40 @@ int QApplication::cursorFlashTime()
     return cursor_flash_time;
 }
 
-void QApplication::setDoubleClickInterval(int)
+void QApplication::setDoubleClickInterval(int ms)
 {
-    qWarning("Please use the Mouse pane of System Preferences to set the double click interval");
+    qt_mac_dblclick.use_qt_time_limit = true;
+    mouse_double_click_time = ms;
 }
 
 int QApplication::doubleClickInterval()
 {
-    bool ok;
-    int ret = mouse_double_click_time;
-    float dci = qt_mac_get_global_setting("com.apple.mouse.doubleClickThreshold", "0.5").toFloat(&ok);
-    if (ok) {
-        ret = int(dci * 1000);
+    if(!qt_mac_dblclick.use_qt_time_limit) { //get it from the system
+        bool ok;
+        /* First worked as of 10.3.3 */
+        float dci = qt_mac_get_global_setting("com.apple.mouse.doubleClickThreshold", "0.5").toFloat(&ok);
+        if (ok) 
+            return int(dci * 1000);
     }
-    return ret;
+    return mouse_double_click_time;
 }
 
 void QApplication::setWheelScrollLines(int n)
 {
+    qt_mac_use_scroller_time_limit = true;
     wheel_scroll_lines = n;
 }
 
 int QApplication::wheelScrollLines()
 {
+    if(!qt_mac_use_scroller_time_limit) {
+        bool ok;
+        /* First worked as of 10.3.3 */
+        float scroll = qt_mac_get_global_setting("com.apple.scrollwheel.scaling", 
+                                                 QString::number(wheel_scroll_lines)).toFloat(&ok);
+        if (ok) 
+            return scroll ? int(3 * scroll) : 1;
+    }
     return wheel_scroll_lines;
 }
 
