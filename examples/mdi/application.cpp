@@ -33,7 +33,6 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
-#include <qobjectlist.h>
 #include <qvbox.h>
 
 #include "filesave.xpm"
