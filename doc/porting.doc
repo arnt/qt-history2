@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.32 1999/03/18 02:56:13 warwick Exp $
+** $Id: porting.doc,v 1.33 1999/03/26 19:05:13 agulbra Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -119,7 +119,7 @@ in the collective conscious that is the Qt Developer Community!
 
 <h3><a name=Namespace>Namespace</a></h3>
 
-<p> Qt 2.0 is totally namespace-clean, unlike 1.x. Qt now uses very few
+<p> Qt 2.0 is namespace-clean, unlike 1.x. Qt now uses very few
 global identifiers. Identifiers like <code>red, blue, LeftButton,
 AlignRight, Key_Up, Key_Down, NoBrush</code> etc. are now part of a
 special class <code>Qt</code> (defined in qnamespace.h),
@@ -250,9 +250,9 @@ This function is now called reparent().
 <h4>QWidget::setAcceptFocus(bool)</h4>
 <p>
 This function is removed.
-Calls like QWidget::setAcceptFocus(TRUE) should be replaced by 
+Calls like QWidget::setAcceptFocus(TRUE) should be replaced by
     QWidget::setFocusPolicy(StrongFocus), and
-calls like QWidget::setAcceptFocus(FALSE) should be replaced by 
+calls like QWidget::setAcceptFocus(FALSE) should be replaced by
     QWidget::setFocusPolicy(NoFocus).
 Additional policies are TabFocus and ClickFocus.
 
@@ -310,13 +310,13 @@ functionality in Qt 2.0, the following steps are required:
             "const QString&" - this can often be done mechanically, eg.
             using Perl.  Convert usage of char[] for temporary string
             building to QString (much software already uses QString for
-            this purpose as it offers many more facilities).  
+            this purpose as it offers many more facilities).
 	    ##### shoudl we provide a script?
      <li> Put a breakpoint in QString::ascii() to catch places where
 	    Unicode information is being converted to ASCII (loosing
 	    information if your user in not using Latin1).  Qt has
 	    a small number of calls to this - ignore those.
-     <li> See the Qt \link i18n.html Internationalization page\endlink 
+     <li> See the Qt \link i18n.html Internationalization page\endlink
 	    for information about the full process of internationalizing
 	    your software.
     </ul>
@@ -525,7 +525,7 @@ the appropriate language (the default being to just make a QString out
 of the text, of course - you're not <em>forced</em> to use any of these
 features), and that <em>same</em> memory mapped Unicode will be passed
 though the system.  All occurrences of the translation of "Okay" will
-be shared.  
+be shared.
 
 </dl>
 
@@ -615,7 +615,7 @@ setPen( palette().disabled().foreground() ) instead.
         NorROP, LastROP
 ) is now part of the Qt namespace class, so if you
 use it outside a member function, you'll need to prefix with Qt::.
- 
+
 
 <h3><a name=QPixmap>QPixmap</a></h3>
 
@@ -673,7 +673,7 @@ with this.
 
 This class (which was just QWidget under a different name) has been
 removed.  If you used it, do a global search-and-replace of the word
-"QWindow" with "QWidget".  
+"QWindow" with "QWidget".
 
 
 <h3><a name=QEvent>QEvent</a></h3>
@@ -742,11 +742,12 @@ much testing of its values.
 All these functions have been removed in Qt 2.0.  Most are simply
 cases where "const char*" has changed to "const QString&", or when
 an enumeration type has moved into the Qt:: namespace (which, technically,
-is a new name, but you're code will compile just the same anyway).  This
+is a new name, but your code will compile just the same anyway).  This
 list is here for completeness.
 
 <!-- warwick can regenerate this with his qt-2-report -->
-\code
+<blockquote><pre>
+
 QFileDialog::fileHighlighted(const char *)
 QFileDialog::fileSelected(const char *)
 QFileDialog::dirEntered(const char *)
@@ -1098,6 +1099,7 @@ QWhatsThis::add(QWidget *, const QPixmap &, const char *, const char *, bool)
 QWhatsThis::add(QWidget *, const char *, bool)
 QWhatsThis::textFor(QWidget *)
 QWidgetStack::event(QEvent *)
-\endcode
+
+</pre></blockquote>
 
 */
