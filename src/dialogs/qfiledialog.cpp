@@ -4818,15 +4818,19 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	files->clear();
 	files->setSorting( -1 );
 
-	QString cp( d->url );
-	int i = d->paths->count() - 1;
-	while( i >= 0 && d->paths->text( i ) <= cp )
-	    i--;
-	if ( i < d->paths->count() )
-	    i++;
-	if ( i == d->paths->count() || d->paths->text( i ) != cp )
-	    d->paths->insertItem( *openFolderIcon, d->url.toString( FALSE, FALSE ), i );
-	d->paths->setCurrentItem( i );
+	QString s = d->url.toString( FALSE, FALSE );
+	bool found = FALSE;
+	for ( int i = 0; i < d->paths->count(); ++i ) {
+	    if ( d->paths->text( i ) == s ) {
+		found = TRUE;
+		d->paths->setCurrentItem( i );
+		break;
+	    }
+	}
+	if ( !found ) {
+	    d->paths->insertItem( *openFolderIcon, s, -1 );
+	    d->paths->setCurrentItem( d->paths->count() - 1 );
+	}
 	d->last = 0;
 	d->hadDotDot = FALSE;
 
@@ -5036,7 +5040,7 @@ void QFileDialog::itemChanged( QNetworkOperation *op )
 	if ( ok1 && ok2 )
 	    break;
     }
-    
+
     i = 0;
     QListViewItemIterator it( files );
     ok1 = FALSE;
