@@ -131,8 +131,8 @@ void QDockWidgetHandle::updateGui()
 QSize QDockWidgetHandle::minimumSizeHint() const
 {
     if ( dockWidget->orientation() == Horizontal )
-	return QSize( 14, 0 );
-    return QSize( 0, 14 );
+	return QSize( dockWidget->isCloseEnabled() ? 18 : 14, 0 );
+    return QSize( 0, dockWidget->isCloseEnabled() ? 18 : 14 );
 }
 
 
