@@ -185,19 +185,23 @@ static bool isRowSelection( QTable::SelectionMode selMode )
 
   The selection is a rectangular set of cells in a QTable.  One of the
   rectangle's cells is called the anchor cell; this is the cell that
-  was selected first. The init() function sets the anchor and the
-  selection rectangle to exactly this cell; the expandTo() function
-  expands the selection rectangle to include additional cells.
+  was selected first (\e start_row, \e start_col).
+
+  A selection can be expanded with expandTo().
 
   There are various access functions to find out about the area:
   anchorRow() and anchorCol() return the anchor's position; leftCol(),
   rightCol(), topRow() and bottomRow() return the rectangle's four
   edges. All four are part of the selection.
 
-  A newly created QTableSelection is inactive -- isActive() returns
-  FALSE.  You must use init() and expandTo() to activate it.
+  If you use the QTableSelection::QTableSelection() constructor, the
+  newly created QTableSelection is inactive -- isActive() returns
+  FALSE. You must call init() and then expandTo() to activate it. The
+  QTableSelection::QTableSelection(int,int,int,int) constructor
+  creates an active selection.
 
-  \sa QTable QTable::addSelection() QTable::selection().
+  \sa QTable QTable::addSelection() QTable::selection()
+  QTable::selectCells() QTable::selectRow() QTable::selectColumn()
 */
 
 /*! Creates an inactive selection. Use init() and expandTo() to
@@ -1599,12 +1603,18 @@ int QCheckTableItem::rtti() const
     isRowSelected() and isColumnSelected() to see if a row or column is
     selected.
 
-    QTable's support multiple selections. You can programmatically
-    select cells with addSelection(). The number of selections is given
-    by numSelections(). The current selection is returned by
-    currentSelection(). You can remove a selection with
-    removeSelection() and remove all selections with clearSelection().
-    Selections are QTableSelection objects.
+    To easily add a new selection use selectCells(), selectRow() or
+    selectColumn().
+
+    Alternatively, use addSelection() to add new selections using
+    QTableSelection objects. The advantage of using QTableSelection
+    objects is that you can call QTableSelection::expandTo() to resize
+    the selection and can query and compare them.
+
+    The number of selections is given by numSelections(). The current
+    selection is returned by currentSelection(). You can remove a
+    selection with removeSelection() and remove all selections with
+    clearSelection().
 
     \target signals
     \section1 Signals
@@ -3056,7 +3066,8 @@ QTableSelection QTable::selection( int num ) const
 
  Remember to call QTableSelection::init() and
  QTableSelection::expandTo() to make the selection valid (see also
- QTableSelection::isActive()).
+ QTableSelection::isActive(), or use the
+ QTableSelection(int,int,int,int) constructor).
 
  \sa numSelections() removeSelection() clearSelection()
 */
@@ -3126,8 +3137,10 @@ int QTable::currentSelection() const
 }
 
 /*! Selects the range starting at \a start_row and \a start_col and
-  edning at \a end_row and \a end_col.
- */
+  ending at \a end_row and \a end_col.
+
+  \sa QTableSelection
+*/
 
 void QTable::selectCells( int start_row, int start_col, int end_row, int end_col )
 {
@@ -3135,7 +3148,10 @@ void QTable::selectCells( int start_row, int start_col, int end_row, int end_col
     addSelection( sel );
 }
 
-/*! Selects the row \a row */
+/*! Selects the row \a row
+
+  \sa QTableSelection
+*/
 
 void QTable::selectRow( int row )
 {
@@ -3143,7 +3159,10 @@ void QTable::selectRow( int row )
     addSelection( sel );
 }
 
-/*! Selects the column \a col */
+/*! Selects the column \a col
+
+  \sa QTableSelection
+*/
 
 void QTable::selectColumn( int col )
 {
