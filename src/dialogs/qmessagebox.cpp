@@ -1487,6 +1487,7 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     mb->setCaption( c );
 #endif
     mb->setText( *translatedTextAboutQt );
+#ifndef QT_NO_IMAGEIO
     QPixmap pm;
     QImage logo( (const char **)qtlogo_xpm);
     if ( qGray(mb->palette().active().text().rgb()) >
@@ -1505,6 +1506,7 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     }
     if ( pm.convertFromImage( logo ) )
         mb->setIconPixmap( pm );
+#endif
     mb->setButtonText( 0, tr("OK") );
     if ( mb->mbd && mb->mbd->pb[0] ) {
         mb->mbd->pb[0]->setAutoDefault( TRUE );

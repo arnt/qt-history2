@@ -683,6 +683,7 @@ void QToolBar::createPopup()
 		    d->extensionPopup->setItemChecked( id, b->isOn() );
 		if ( !b->isEnabled() )
 		    d->extensionPopup->setItemEnabled( id, FALSE );
+#ifndef QT_NO_COMBOBOX
 	    } else if ( w->inherits( "QComboBox" ) ) {
 		QComboBox *c = (QComboBox*)w;
 		if ( c->count() != 0 ) {
@@ -715,6 +716,7 @@ void QToolBar::createPopup()
 			}
 		    }
 		}
+#endif //QT_NO_COMBOBOX
 	    }
 	}
         ++it;

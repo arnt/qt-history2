@@ -517,6 +517,11 @@
 #define QT_NO_LCDNUMBER
 #endif
 
+// Single-line edits
+#if !defined(QT_NO_LINEEDIT) && (defined(QT_NO_FRAME))
+#define QT_NO_LINEEDIT
+#endif
+
 // MIME
 #if !defined(QT_NO_MIME) && (defined(QT_NO_DIR) || defined(QT_NO_IMAGEIO) || defined(QT_NO_TEXTCODEC))
 #define QT_NO_MIME
@@ -782,11 +787,6 @@
 #define QT_NO_COMPONENT
 #endif
 
-// Single-line edits
-#if !defined(QT_NO_LINEEDIT) && (defined(QT_NO_FRAME) || defined(QT_NO_RICHTEXT))
-#define QT_NO_LINEEDIT
-#endif
-
 // QListBox
 #if !defined(QT_NO_LISTBOX) && (defined(QT_NO_SCROLLVIEW) || defined(QT_NO_STRINGLIST))
 #define QT_NO_LISTBOX
@@ -805,6 +805,11 @@
 // FTP file access
 #if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
 #define QT_NO_NETWORKPROTOCOL_FTP
+#endif
+
+// Spin boxes
+#if !defined(QT_NO_SPINBOX) && (defined(QT_NO_RANGECONTROL) || defined(QT_NO_SPINWIDGET) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR))
+#define QT_NO_SPINBOX
 #endif
 
 // RichText (HTML) tables and images
@@ -887,11 +892,6 @@
 #define QT_NO_TEXTVIEW
 #endif
 
-// Spin boxes
-#if !defined(QT_NO_SPINBOX) && (defined(QT_NO_RANGECONTROL) || defined(QT_NO_SPINWIDGET) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR))
-#define QT_NO_SPINBOX
-#endif
-
 // Tool box
 #if !defined(QT_NO_TOOLBOX) && (defined(QT_NO_ICONSET) || defined(QT_NO_SCROLLVIEW) || defined(QT_NO_TOOLTIP))
 #define QT_NO_TOOLBOX
@@ -942,11 +942,6 @@
 #define QT_NO_ACTION
 #endif
 
-// QWorkSpace
-#if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_VBOX) || defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_POPUPMENU) || defined(QT_NO_LABEL) || defined(QT_NO_TOOLBUTTON))
-#define QT_NO_WORKSPACE
-#endif
-
 // QTable
 #if !defined(QT_NO_TABLE) && (defined(QT_NO_COMBOBOX) || defined(QT_NO_HEADER) || defined(QT_NO_CHECKBOX))
 #define QT_NO_TABLE
@@ -965,6 +960,11 @@
 // SQL value editor widgets
 #if !defined(QT_NO_SQL_EDIT_WIDGETS) && (defined(QT_NO_SQL) || defined(QT_NO_SPINBOX) || defined(QT_NO_COMBOBOX) || defined(QT_NO_CHECKBOX) || defined(QT_NO_DATETIMEEDIT))
 #define QT_NO_SQL_EDIT_WIDGETS
+#endif
+
+// QWorkSpace
+#if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_VBOX) || defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_POPUPMENU) || defined(QT_NO_LABEL) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_MAINWINDOW))
+#define QT_NO_WORKSPACE
 #endif
 
 // QPrintDialog

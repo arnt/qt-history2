@@ -1,6 +1,6 @@
 Feature: WORKSPACE
 Section: Widgets
-Requires: SCROLLBAR VBOX TITLEBAR RESIZEHANDLER POPUPMENU LABEL TOOLBUTTON
+Requires: SCROLLBAR VBOX TITLEBAR RESIZEHANDLER POPUPMENU LABEL TOOLBUTTON MAINWINDOW
 Name: QWorkSpace
 SeeAlso: ???
 
@@ -1029,7 +1029,7 @@ SeeAlso: ???
 
 Feature: LINEEDIT
 Section: Widgets
-Requires: FRAME RICHTEXT
+Requires: FRAME
 Name: Single-line edits
 SeeAlso: ???
 
