@@ -278,7 +278,7 @@ public slots:
     virtual void setUndoDepth( int d );
     virtual void setFormat( QTextFormat *f, int flags );
     virtual void ensureCursorVisible();
-    virtual void placeCursor( const QPoint &pos, QTextCursor *c = 0 ) { placeCursor( pos, c, FALSE ); }
+    virtual void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
     virtual void moveCursor( CursorAction action, bool select );
     virtual void doKeyboardAction( KeyboardAction action );
     virtual void removeSelectedText( int selNum = 0 );

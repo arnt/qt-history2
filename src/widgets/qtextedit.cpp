@@ -4734,6 +4734,11 @@ void QTextEdit::updateCursor( const QPoint & pos )
     }
 }
 
+void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c = 0 )
+{
+    placeCursor( pos, c, FALSE );
+}
+
 /*! \property QTextEdit::allowTabs
   \brief whether the textedit accepts TAB as input
 
