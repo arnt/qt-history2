@@ -18,8 +18,10 @@
 class TestInterface : public QWidgetInterface
 {
 public:
-    QString name() { return "Test Interface"; }
-    QString description() { return "Test implementation of the QDefaultInterface"; }
+    QString queryInterface() { return "QWidgetInterface"; }
+
+    QString name() { return "Test Widgetplugin"; }
+    QString description() { return "Test implementation of the QWidgetInterface"; }
     QString author() { return "vohi"; }
 
     QStringList widgets();
