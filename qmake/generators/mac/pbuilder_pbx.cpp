@@ -279,7 +279,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	QString phase_key = keyFor("QMAKE_PBX_MAKEQMAKE_BUILDPHASE");
 	mkfile = fileFixify(mkfile, QDir::currentDirPath());
-	project->variables()["QMAKE_PBX_SCRIPT_BUILDPHASES"].append(phase_key);
+	project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(phase_key);
 	t << "\t\t" << phase_key << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
 	  << "\t\t\t" << "files = (" << "\n"
@@ -478,10 +478,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    writeImageSrc(mkt, "QMAKE_IMAGE_COLLECTION");
 	    mkf.close();
 	}
-	QString target_key = keyFor("QMAKE_PBX_PREPROCESS_TARGET");
 	mkfile = fileFixify(mkfile, QDir::currentDirPath());
-	project->variables()["QMAKE_PBX_SCRIPT_BUILDPHASES"].append(target_key);
-	t << "\t\t" << target_key << " = {" << "\n"
+	project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(keyFor("QMAKE_PBX_PREPROCESS_TARGET"));
+	t << "\t\t" << keyFor("QMAKE_PBX_PREPROCESS_TARGET") << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
 	  << "\t\t\t" << "files = (" << "\n"
 	  << "\t\t\t" << ");" << "\n"
@@ -497,7 +496,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "shellScript = \"make -C " << QDir::currentDirPath() <<
 	    " -f " << mkfile << "\";" << "\n"
 	  << "\t\t" << "};" << "\n";
-    }
+   }
+
     //SOURCE BUILDPHASE
     if(!project->isEmpty("QMAKE_PBX_OBJ")) {
 	QString grp = "Build Sources", key = keyFor(grp);
@@ -644,7 +644,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	QString phase_key = keyFor("QMAKE_PBX_SUBLIBS_BUILDPHASE");
 	mkfile = fileFixify(mkfile, QDir::currentDirPath());
-	project->variables()["QMAKE_PBX_SCRIPT_BUILDPHASES"].append(phase_key);
+	project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].append(phase_key);
 	t << "\t\t" << phase_key << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
 	  << "\t\t\t" << "files = (" << "\n"
@@ -699,56 +699,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << ");" << "\n"
 	  << "\t\t\t" << "isa = PBXResourcesBuildPhase;" << "\n"
 	  << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
-	  << "\t\t" << "};" << "\n";
-    }
-    if(ideType() == MAC_XCODE && !project->isEmpty("QMAKE_PBX_SCRIPT_BUILDPHASES")) {
-	// build reference
-	t << "\t\t" << keyFor("QMAKE_PBX_PREPROCESS_BUILDREFERENCE") << " = {" << "\n"
-	  << "\t\t\t" << "includeInIndex = 0;" << "\n"
-	  << "\t\t\t" << "isa = PBXFileReference;" << "\n"
-	  << "\t\t\t" << "path = preprocessor.out;" << "\n"
-	  << "\t\t\t" << "refType = 3;" << "\n"
-	  << "\t\t\t" << "sourceTree = BUILT_PRODUCTS_DIR;" << "\n"
-	  << "\t\t" << "};" << "\n";
-	project->variables()["QMAKE_PBX_GROUPS"].append(keyFor("QMAKE_PBX_PREPROCESS_BUILDREFERENCE"));
-	//build phase
-	t << "\t\t" << keyFor("QMAKE_PBX_PREPROCESS_BUILDPHASE") << " = {" << "\n"
-	  << "\t\t\t" << "buildPhases = (" << "\n"
-	  << varGlue("QMAKE_PBX_SCRIPT_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
-	  << "\t\t\t" << ");" << "\n"
-	  << "\t\t\t" << "buildRules = (" << "\n"
-	  << "\t\t\t" << ");" << "\n"
-	  << "\t\t\t" << "buildSettings = {" << "\n"
-	  << "\t\t\t" << "};" << "\n"
-	  << "\t\t\t" << "dependencies = (" << "\n"
-	  << "\t\t\t" << ");" << "\n"
-	  << "\t\t\t" << "isa = PBXNativeTarget;" << "\n"
-	  << "\t\t\t" << "name = \"Qt Preprocessor Steps\";" << "\n"
-	  << "\t\t\t" << "productName = \"Qt Preprocessor Steps\";" << "\n"
-	  << "\t\t\t" << "productReference = " << keyFor("QMAKE_PBX_PREPROCESS_BUILDREFERENCE") << ";" << "\n"
-	  << "\t\t\t" << "productType = \"com.apple.product-type.tool\";" << "\n"
-	  << "\t\t" << "};" << "\n";
-	//dependency
-	t << "\t\t" << keyFor("QMAKE_PBX_PREPROCESS_DEPENDENCY") << " = {" << "\n"
-	  << "\t\t\t" << "isa = PBXTargetDependency;" << "\n"
-	  << "\t\t\t" << "target = QMAKE_PBX_PREPROCESS_BUILDPHASE;" << "\n"
-	  << "\t\t" << "};" << "\n";
-	project->variables()["QMAKE_PBX_TARGET_DEPENDS"].append(keyFor("QMAKE_PBX_PREPROCESS_DEPENDENCY"));
-	project->variables()["QMAKE_PBX_SCRIPT_BUILDPHASES"].clear(); //these are already consumed above
-    }
-
-    //DUMP EVERYTHING THAT TIES THE ABOVE TOGETHER
-    //PRODUCTS
-    {
-	QString grp("Products"), key = keyFor(grp);
-	project->variables()["QMAKE_PBX_GROUPS"].append(key);
-	t << "\t\t" << key << " = {" << "\n"
-	  << "\t\t\t" << "children = (" << "\n"
-	  << "\t\t\t\t" << keyFor(pbx_dir + "QMAKE_PBX_REFERENCE") << "\n"
-	  << "\t\t\t" << ");" << "\n"
-	  << "\t\t\t" << "isa = PBXGroup;" << "\n"
-	  << "\t\t\t" << "name = Products;" << "\n"
-	  << "\t\t\t" << "refType = 4;" << "\n"
 	  << "\t\t" << "};" << "\n";
     }
     { //INSTALL BUILDPHASE (sh script)
@@ -823,7 +773,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 #endif
 	    QString phase_key = keyFor("QMAKE_PBX_INSTALL_BUILDPHASE");
 	    script = fileFixify(script, QDir::currentDirPath());
-	    project->variables()["QMAKE_PBX_SCRIPT_BUILDPHASES"].append(phase_key);
+	    project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
 	    t << "\t\t" << phase_key << " = {" << "\n"
 	      << "\t\t\t" << "buildActionMask = 8;" << "\n" //only on install!
 	      << "\t\t\t" << "files = (" << "\n"
@@ -839,6 +789,43 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << "\t\t" << "};" << "\n";
 	}
     }
+    if(/*ideType() == MAC_XCODE &&*/ !project->isEmpty("QMAKE_PBX_PRESCRIPT_BUILDPHASES")) {
+	// build reference
+	t << "\t\t" << keyFor("QMAKE_PBX_PRESCRIPT_BUILDREFERENCE") << " = {" << "\n"
+	  << "\t\t\t" << "includeInIndex = 0;" << "\n"
+	  << "\t\t\t" << "isa = PBXFileReference;" << "\n"
+	  << "\t\t\t" << "path = preprocessor.out;" << "\n"
+	  << "\t\t\t" << "refType = 3;" << "\n"
+	  << "\t\t\t" << "sourceTree = BUILT_PRODUCTS_DIR;" << "\n"
+	  << "\t\t" << "};" << "\n";
+	project->variables()["QMAKE_PBX_PRODUCTS"].append(keyFor("QMAKE_PBX_PRESCRIPTS_BUILDREFERENCE"));
+	//build phase
+	t << "\t\t" << keyFor("QMAKE_PBX_PRESCRIPTS_BUILDPHASE") << " = {" << "\n"
+	  << "\t\t\t" << "buildPhases = (" << "\n"
+	  << varGlue("QMAKE_PBX_PRESCRIPT_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "buildRules = (" << "\n"
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "buildSettings = {" << "\n"
+	  << "\t\t\t" << "};" << "\n"
+	  << "\t\t\t" << "dependencies = (" << "\n"
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "isa = PBXNativeTarget;" << "\n"
+	  << "\t\t\t" << "name = \"Qt Preprocessor Steps\";" << "\n"
+	  << "\t\t\t" << "productName = \"Qt Preprocessor Steps\";" << "\n"
+	  << "\t\t\t" << "productReference = " << keyFor("QMAKE_PBX_PRESCRIPTS_BUILDREFERENCE") << ";" << "\n"
+	  << "\t\t\t" << "productType = \"com.apple.product-type.tool\";" << "\n"
+	  << "\t\t" << "};" << "\n";
+	//dependency
+	t << "\t\t" << keyFor("QMAKE_PBX_PRESCRIPTS_DEPENDENCY") << " = {" << "\n"
+	  << "\t\t\t" << "isa = PBXTargetDependency;" << "\n"
+	  << "\t\t\t" << "target = QMAKE_PBX_PRESCRIPTS_BUILDPHASE;" << "\n"
+	  << "\t\t" << "};" << "\n";
+	project->variables()["QMAKE_PBX_TARGET_DEPENDS"].append(keyFor("QMAKE_PBX_PRESCRIPTS_DEPENDENCY"));
+	project->variables()["QMAKE_PBX_PRESCRIPT_BUILDPHASES"].clear(); //these are already consumed above
+    }
+
+    //DUMP EVERYTHING THAT TIES THE ABOVE TOGETHER
     //ROOT_GROUP
     t << "\t\t" << keyFor("QMAKE_PBX_ROOT_GROUP") << " = {" << "\n"
       << "\t\t\t" << "children = (" << "\n"
@@ -850,6 +837,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "refType = 4;" << "\n"
       << "\t\t" << "};" << "\n";
     //REFERENCE
+    project->variables()["QMAKE_PBX_PRODUCTS"].append(keyFor(pbx_dir + "QMAKE_PBX_REFERENCE"));
     t << "\t\t" << keyFor(pbx_dir + "QMAKE_PBX_REFERENCE") << " = {" << "\n"
       << "\t\t\t" << "fallbackIsa = PBXFileReference;" << "\n";
     if(project->first("TEMPLATE") == "app") {
@@ -885,11 +873,23 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "sourceTree = BUILT_PRODUCTS_DIR" << ";" << "\n";
     }
     t << "\t\t" << "};" << "\n";
+    { //Products group
+	QString grp("Products"), key = keyFor(grp);
+	project->variables()["QMAKE_PBX_GROUPS"].append(key);
+	t << "\t\t" << key << " = {" << "\n"
+	  << "\t\t\t" << "children = (" << "\n"
+	  << varGlue("QMAKE_PBX_PRODUCTS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "isa = PBXGroup;" << "\n"
+	  << "\t\t\t" << "name = Products;" << "\n"
+	  << "\t\t\t" << "refType = 4;" << "\n"
+	  << "\t\t" << "};" << "\n";
+    }
     //TARGET
     t << "\t\t" << keyFor("QMAKE_PBX_TARGET") << " = {" << "\n"
       << "\t\t\t" << "buildPhases = (" << "\n"
-      << varGlue("QMAKE_PBX_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", ",\n")
-      << varGlue("QMAKE_PBX_SCRIPT_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+      << varGlue("QMAKE_PBX_PRESCRIPT_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", ",\n")
+      << varGlue("QMAKE_PBX_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "buildSettings = {" << "\n"
       << "\t\t\t\t" << "CC = \"" << fixEnvsList("QMAKE_CC") << "\";" << "\n"
