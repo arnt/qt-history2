@@ -2466,6 +2466,8 @@ const char* QImage::imageFormat( const QString &fileName )
 
 /*!
   Returns a list of image formats which are supported for image input.
+
+  \sa inputFormatList()
 */
 QStrList QImage::inputFormats()
 {
@@ -2473,11 +2475,29 @@ QStrList QImage::inputFormats()
 }
 
 /*!
+  Returns a list of image formats which are supported for image input.
+*/
+QStringList QImage::inputFormatList()
+{
+    return QStringList::fromStrList(QImageIO::inputFormats());
+}
+
+/*!
   Returns a list of image formats which are supported for image output.
+
+  \sa QImage::outputFormatList()
 */
 QStrList QImage::outputFormats()
 {
     return QImageIO::outputFormats();
+}
+
+/*!
+  Returns a list of image formats which are supported for image output.
+*/
+QStringList QImage::outputFormatList()
+{
+    return QStringList::fromStrList(QImageIO::outputFormats());
 }
 
 

@@ -133,6 +133,8 @@ public:
     static const char* imageFormat( const QString &fileName );
     static QStrList inputFormats();
     static QStrList outputFormats();
+    static QStringList inputFormatList();
+    static QStringList outputFormatList();
 
     bool	load( const QString &fileName, const char* format=0 );
     bool	loadFromData( const uchar *buf, uint len,
