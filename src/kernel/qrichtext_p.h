@@ -844,6 +844,8 @@ public:
     void setAddMargins( bool b ) { addMargs = b; }
     int addMargins() const { return addMargs; }
 
+    bool hasFocusParagraph() const;
+
 signals:
     void minimumWidthChanged( int );
 

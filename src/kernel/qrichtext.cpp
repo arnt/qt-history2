@@ -2737,6 +2737,11 @@ void QTextDocument::unregisterCustomItem( QTextCustomItem *i, QTextParag *p )
     customItems.removeRef( i );
 }
 
+bool QTextDocument::hasFocusParagraph() const
+{
+    return !!focusIndicator.parag;
+}
+
 bool QTextDocument::focusNextPrevChild( bool next )
 {
     if ( !focusIndicator.parag ) {
@@ -2771,6 +2776,41 @@ bool QTextDocument::focusNextPrevChild( bool next )
 			focusIndicator.len++;
 			i++;
 		    }
+		} else if ( p->at( i )->isCustom() ) {
+		    if ( p->at( i )->customItem()->isNested() ) {
+			QTextTable *t = (QTextTable*)p->at( i )->customItem();
+			QPtrList<QTextTableCell> cells = t->tableCells();
+			// first try to continue
+			QTextTableCell *c;
+			bool resetCells = TRUE;
+			for ( c = cells.first(); c; c = cells.next() ) {
+			    if ( c->richText()->hasFocusParagraph() ) {
+				if ( c->richText()->focusNextPrevChild( next ) ) {
+				    p->setChanged( TRUE );
+				    focusIndicator.parag = p;
+				    focusIndicator.start = i;
+				    focusIndicator.len = 0;
+				    return TRUE;
+				} else {
+				    resetCells = FALSE;
+				    c = cells.next();
+				    break;
+				}
+			    }
+			}
+			// now really try
+			if ( resetCells )
+			    c = cells.first();
+			for ( ; c; c = cells.next() ) {
+			    if ( c->richText()->focusNextPrevChild( next ) ) {
+				p->setChanged( TRUE );
+				focusIndicator.parag = p;
+				focusIndicator.start = i;
+				focusIndicator.len = 0;
+				return TRUE;
+			    }
+			}
+		    }
 		}
 	    }
 	    index = 0;
@@ -2798,6 +2838,45 @@ bool QTextDocument::focusNextPrevChild( bool next )
 			focusIndicator.start--;
 			i--;
 		    }
+		} else if ( p->at( i )->isCustom() ) {
+		    if ( p->at( i )->customItem()->isNested() ) {
+			QTextTable *t = (QTextTable*)p->at( i )->customItem();
+			QPtrList<QTextTableCell> cells = t->tableCells();
+			// first try to continue
+			QTextTableCell *c;
+			bool resetCells = TRUE;
+			for ( c = cells.last(); c; c = cells.prev() ) {
+			    if ( c->richText()->hasFocusParagraph() ) {
+				if ( c->richText()->focusNextPrevChild( next ) ) {
+				    p->setChanged( TRUE );
+				    focusIndicator.parag = p;
+				    focusIndicator.start = i;
+				    focusIndicator.len = 0;
+				    return TRUE;
+				} else {
+				    resetCells = FALSE;
+				    c = cells.prev();
+				    break;
+				}
+			    }
+			    if ( cells.at() == 0 )
+				break;
+			}
+			// now really try
+			if ( resetCells )
+			    c = cells.last();
+			for ( ; c; c = cells.prev() ) {
+			    if ( c->richText()->focusNextPrevChild( next ) ) {
+				p->setChanged( TRUE );
+				focusIndicator.parag = p;
+				focusIndicator.start = i;
+				focusIndicator.len = 0;
+				return TRUE;
+			    }
+			    if ( cells.at() == 0 )
+				break;
+			}
+		    }
 		}
 	    }
 	    p = p->prev();
@@ -2805,6 +2884,8 @@ bool QTextDocument::focusNextPrevChild( bool next )
 		index = p->length() - 1;
 	}
     }
+
+    focusIndicator.parag = 0;
 
     return FALSE;
 }
