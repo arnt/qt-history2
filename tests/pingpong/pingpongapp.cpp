@@ -75,7 +75,7 @@ void PingPongApp::init()
     QPopupMenu * menu = new QPopupMenu( this );
     menu->insertSeparator();
     menu->insertItem( "Edit &Players", this, SLOT( editPlayer() ), CTRL+Key_P );
-    menu->insertItem( "Edit &Teams", this, SLOT( editTeam() ), CTRL+Key_T );    
+    menu->insertItem( "Edit &Teams", this, SLOT( editTeam() ), CTRL+Key_T );
     menu->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
     menuBar()->insertItem( "&File", menu );
 
@@ -174,29 +174,31 @@ void PingPongApp::deleteMatch()
 
 void PingPongApp::editPlayer()
 {
-    QDialog* dlg = new QDialog( this, "playerdialog", TRUE );
-    dlg->setMinimumSize( 320, 240 );
-    dlg->setCaption( "Edit Players" );
-    QGridLayout* gl = new QGridLayout( dlg );
-    QSqlTable* t = new QSqlTable( dlg );
-    gl->addWidget( t, 0, 0);
-    QSqlCursor player( "player" );
-    player.select( player.index( "name" ) );
-    t->setCursor( &player );
-    dlg->exec();
-    delete dlg;
+    editWindow( "player", "name", "Edit Players" );    
 }
 
 void PingPongApp::editTeam()
 {
-    QDialog* dlg = new QDialog( this, "teamdialog", TRUE );
-    dlg->setMinimumSize( 320, 240 );    
-    dlg->setCaption( "Edit Teams" );    
+    editWindow( "team", "name", "Edit Teams" );
+}
+
+void PingPongApp::editWindow( const QString& cursor, const QString& sortField, const QString& caption )
+{
+    QDialog* dlg = new QDialog( this, "dlg", TRUE );
+    dlg->setMinimumSize( 320, 240 );
+    dlg->setCaption( caption );
     QGridLayout* gl = new QGridLayout( dlg );
     QSqlTable* t = new QSqlTable( dlg );
     gl->addWidget( t, 0, 0);
-    QSqlCursor team( "team" );
-    team.select( team.index( "name" ) );
+    QPushButton* close = new QPushButton( dlg );
+    close->setText( "&Close" );
+    close->setDefault( TRUE );
+    gl->addWidget( close, 1, 0 );
+    connect( close, SIGNAL( clicked() ),
+	     dlg, SLOT( accept() ) );
+    t->viewport()->setFocus();
+    QSqlCursor team( cursor );
+    team.select( team.index( sortField ) );
     t->setCursor( &team );
     dlg->exec();
     delete dlg;

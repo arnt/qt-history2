@@ -39,6 +39,9 @@ protected slots:
     void editPlayer();
     void editTeam();
 
+protected:
+    void editWindow( const QString& cursor, const QString& sortField, const QString& caption );
+    
 private:
     QSqlTable * matchTable;
     MatchCursor matchCr;
