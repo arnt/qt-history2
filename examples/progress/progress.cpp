@@ -300,9 +300,9 @@ private:
 		p.fillRect(x,y,w,h,c);
 	    }
 
-	    lpb->setProgress(n);
-
 	    p.fillRect(0, 0, width(), height(), backgroundColor());
+
+	    delete lpb;
 	}
     }
 
