@@ -1404,6 +1404,14 @@ void QPrinter::setCollateCopiesEnabled(bool enable)
 }
 
 /*!
+    \enum PrintRange
+    \compat
+    \value AllPages
+    \value Selection
+    \value PageRange
+*/
+
+/*!
     \compat
 
     Use QPrintDialog instead.
@@ -1438,6 +1446,14 @@ QPrinter::PrintRange QPrinter::printRange() const
         const_cast<QPrinter*>(this)->d->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     return PrintRange(const_cast<QPrinter*>(this)->d->printDialog->printRange());
 }
+
+/*!
+    \enum PrinterOption
+    \compat
+    \value PrintToFile
+    \value PrintSelection
+    \value PrintPageRange
+*/
 
 /*!
     \compat
