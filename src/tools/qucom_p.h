@@ -187,7 +187,7 @@ struct Q_EXPORT QUParameter
 {
     const char* name;
     QUType *type;
-    const void* typeExtra; //type dependend. Usually 0, but UEnum for QUTypeenum or const char* for QUTypeptr
+    const void* typeExtra; //Usually 0, UEnum* for QUType_enum, const char* for QUType_ptr, int* for QUType_varptr
     enum { In = 1, Out = 2, InOut = In | Out };
     int inOut;
 };
