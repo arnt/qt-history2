@@ -390,7 +390,7 @@ QSqlError QSqlResult::lastError() const
     value. Return true to indicate success, or false to signify
     failure.
 
-    \sa isActive()
+    \sa isActive(), fetchFirst(), fetchLast(), fetchNext(), fetchPrevious()
 */
 
 /*!
