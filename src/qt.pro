@@ -7,6 +7,9 @@ CONFIG		+= png zlib
 # Uncomment the next line if you want to use the standard png/zlib libs
 # unix:LIBS	+= -lpng -lz
 
+# Qt should compile with this restriction.
+#DEFINES += QT_NO_ASCII_CAST
+
 unix:CONFIG	+= x11inc
 unix:TMAKE_CXXFLAGS   += -DQT_FATAL_ASSERT
 

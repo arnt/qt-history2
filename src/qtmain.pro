@@ -6,3 +6,6 @@ DEFINES		= QT_DLL
 TARGET		= qtmain
 VERSION		= 1.41
 DESTDIR		= ../lib
+
+#win32:TMAKE_CFLAGS     += -MT
+#win32:TMAKE_CXXFLAGS   += -MT
