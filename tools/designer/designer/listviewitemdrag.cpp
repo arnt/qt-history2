@@ -8,7 +8,8 @@ QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
 
     Q_UINT8 b = 0;
 
-    for ( int i = 0; i < columns; i++ ) {
+    int i;
+    for ( i = 0; i < columns; i++ ) {
 	b = (Q_UINT8) ( item.text( i ) != QString::null ); // column i has string ?
 	stream << b;
 	if ( b ) {
@@ -16,7 +17,7 @@ QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
 	}
     }
     
-    for ( int i = 0; i < columns; i++ ) {
+    for ( i = 0; i < columns; i++ ) {
 	b = (Q_UINT8) ( !!item.pixmap( i ) ); // column i has pixmap ?
 	stream << b;
 	if ( b ) {
@@ -31,7 +32,7 @@ QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
     stream << (Q_UINT8) item.dropEnabled();
     stream << (Q_UINT8) item.isVisible();
 
-    for ( int i = 0; i < columns; i++ ) {
+    for ( i = 0; i < columns; i++ ) {
 	stream << (Q_UINT8) item.renameEnabled( i );
     }
 
@@ -59,7 +60,8 @@ QDataStream & operator>> ( QDataStream & stream, QListViewItem & item )
     Q_UINT8 b = 0;
 
     QString text;
-    for ( int i = 0; i < columns; i++ ) {
+    int i;
+    for ( i = 0; i < columns; i++ ) {
 	stream >> b;
 	if ( b ) { // column i has string ?
 	    stream >> text;
@@ -68,7 +70,7 @@ QDataStream & operator>> ( QDataStream & stream, QListViewItem & item )
     }
 
     QPixmap pixmap;
-    for ( int i = 0; i < columns; i++ ) {
+    for ( i = 0; i < columns; i++ ) {
 	stream >> b; // column i has pixmap ?
 	if ( b ) {
 	    stream >> pixmap;
@@ -94,7 +96,7 @@ QDataStream & operator>> ( QDataStream & stream, QListViewItem & item )
     stream >> b;
     item.setVisible( b );
 
-    for ( int i = 0; i < columns; i++ ) {
+    for ( i = 0; i < columns; i++ ) {
 	stream >> b;
 	item.setRenameEnabled( i, b );
     }
@@ -108,7 +110,7 @@ QDataStream & operator>> ( QDataStream & stream, QListViewItem & item )
     stream >> childCount;
 
     QListViewItem * child;
-    for ( int i = 0; i < childCount; i++ ) {
+    for ( i = 0; i < childCount; i++ ) {
 	child = new QListViewItem( &item );
 	stream >> ( *child );
 	item.insertItem( child );
