@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#132 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#133 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -70,7 +70,7 @@ struct QLineEditPrivate {
   be customized except by inheriting the class.
 
   <img src=qlined-m.gif> <img src=qlined-w.gif>
-  
+
   \sa QMultiLineEdit QLabel QComboBox
   <a href="guibooks.html#fowler">GUI Design Handbook: Field, Entry,</a>
   <a href="guibooks.html#fowler">GUI Design Handbook: Field, Required.</a>
@@ -1340,11 +1340,8 @@ void QLineEdit::insert( const char * newText )
 	return;
 
     t.detach();
-    int i = t.find( '\n' );	// no multiline text
-    if ( i >= 0 )
-	t.truncate( i );
     uchar *p = (uchar *) t.data();
-    while ( *p ) {		// unprintable becomes space
+    while ( *p ) {		// unprintable/nl becomes space
 	if ( *p < 32 )
 	    *p = 32;
 	p++;
