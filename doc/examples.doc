@@ -531,18 +531,6 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 */
 
-/*! \example qiconview/main.cpp
-
-  <h1 align=center>Iconview</h1><br clear="all">
-
-  This example implements a flexible icon view which can store
-  lots of icon items. It supports Drag'n'Drop, different selection modes,
-  view modes, rubberband selection, etc.
-
-  Main:
-
-*/
-
 /*! \example rangecontrols/main.cpp
 
   <h1 align=center>Rangecontrols</h1><br clear="all">
