@@ -87,7 +87,8 @@ that is the Qt Developer Community!
  <li><b><a href="#Namespace">Namespace</a></b>
  <li><b><a href="#Removed">Removed functions</a></b>
  <ul>
-  <li>setFontPropagation, setPalettePropagation
+  <li>QWidget::setFontPropagation, QWidget::setPalettePropagation
+  <li>QMenuBar::setActItem, QMenuBar::setWindowsAltMode
  </ul>
 </ul>
 
