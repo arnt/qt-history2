@@ -25,7 +25,7 @@
 #include <qframe.h>
 
 class QWidgetView;
-class QList;
+template <typename T> class QList;
 class QSplitter;
 class QDockWindow;
 class QLabel;

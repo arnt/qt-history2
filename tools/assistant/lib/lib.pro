@@ -2,7 +2,7 @@ TEMPLATE        = lib
 TARGET                = qassistantclient
 VERSION                = 1.0
 
-CONFIG                += qt warn_on release
+CONFIG                += qt warn_on
 CONFIG                += staticlib
 CONFIG                -= dll
 
