@@ -5421,8 +5421,8 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
 QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
     : buffer( 0 ), outDevice( 0 ), fd( filedes ), pageBuffer( 0 ), fonts(27, FALSE), fontBuffer(0), savedImage( 0 ),
-      dirtypen( FALSE ), dirtybrush( FALSE ), dirtyBkColor( FALSE ), bkMode( Qt::OpaqueMode ),
-      dirtyBkMode( FALSE ), currentFontCodec( 0 ), fm( QFont() ), textY( 0 )
+      dirtypen( FALSE ), dirtybrush( FALSE ), dirtyBkColor( FALSE ), bkMode( Qt::TransparentMode ), dirtyBkMode( FALSE ),
+      currentFontCodec( 0 ), fm( QFont() ), textY( 0 )
 {
     printer = prt;
     headerFontNames.setAutoDelete( TRUE );
