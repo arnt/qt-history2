@@ -473,7 +473,7 @@ void QPainterPrivate::updateInvMatrix()
         else
             m = state->worldMatrix;
     }
-    invMatrix = m.invert(&invertible);                // invert matrix
+    invMatrix = m.inverted(&invertible);                // invert matrix
 }
 
 /*!
