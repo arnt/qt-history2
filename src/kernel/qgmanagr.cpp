@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#31 $
 **
 ** Implementation of QGGeometry class
 **
@@ -15,8 +15,7 @@
 #include "qapp.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#30 $");
-
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#31 $");
 
 
 /*!
@@ -122,6 +121,7 @@ public:
 
     virtual int maxSize() = 0;
     virtual int minSize() = 0;
+    virtual bool isEmpty() = 0;
     int stretch() { return sstretch; }
     void setStretch( int s ) { sstretch = s; }
     virtual void recalc() {}
@@ -156,6 +156,7 @@ public:
 
     int maxSize() { return maxsize; }
     int minSize() { return minsize; }
+    bool isEmpty() { return FALSE; }
 
 private:
     int minsize;
@@ -166,12 +167,12 @@ class QWidChain : public QChain
 {
 public:
     QWidChain( QGManager::Direction d,  QWidget * w )
-	: QChain( d ), widget ( w ) {}
+	: QChain( d ), widget ( w )/*, collapse(FALSE)*/ {}
     bool addC( QChain * ) { return FALSE; }
 
     int minSize()
     {
-	if ( !widget )
+	if ( isEmpty() )
 	    return 0;
 	QSize s = widget->minimumSize();
 	if ( horz( direction() ) )
@@ -181,8 +182,8 @@ public:
     }
     int maxSize()
     {
-	if ( !widget )
-	    return QGManager::unlimited;
+	if ( isEmpty() )
+	    return 0;
 	QSize s = widget->maximumSize();
 	if ( horz( direction() ) )
 	    return s.width();
@@ -203,16 +204,23 @@ public:
 	if ( widget ) setWinfo( widget, wd, direction(),  pos, space );
     }
 
+    bool isEmpty() { return !widget; } //#|| autoCollapse && !widget->isVisible(); }
+#if 0
+    bool autoCollapse() const { return collapse; }
+    void setAutoCollapse( bool b  ) { collapse = b; }
+#endif
+    
 private:
     QWidget * widget;
-
+    //    bool collapse;
 };
+
 class QParChain : public QChain
 {
 public:
 
     QParChain( QGManager::Direction d )
-	: QChain( d )
+	: QChain( d ), empty(TRUE)
     {
     }
 
@@ -224,13 +232,17 @@ public:
     void distribute( wDict &, int, int );
     bool removeWidget( QWidget *w );
 
-    int maxSize() { return maxsize; }
-    int minSize() { return minsize; }
+    int maxSize() { return isEmpty() ? 0 : maxsize; }
+    int minSize() { return isEmpty() ? 0 : minsize; }
+
+    bool isEmpty() { return empty; } //###DANGER
+
 
 private:
     int maxsize;
     int minsize;
     int sstretch;
+    bool empty;
 
     QList<QChain> chain;
 
@@ -255,21 +267,27 @@ class QSerChain : public QChain
 {
 public:
 
-    QSerChain( QGManager::Direction d ) : QChain( d ) {}
+    QSerChain( QGManager::Direction d ) : QChain( d ), empty(TRUE) {}
     ~QSerChain();
 
     bool addC( QChain *s );
     bool addBranch( QChain*, int, int );
 
+#if 0
+    void setBorder( int b ) { autoBorder = b; }
+#endif
     void recalc();
     void distribute( wDict &, int, int);
     bool removeWidget( QWidget *w );
-    int maxSize() { return maxsize; }
-    int minSize() { return minsize; }
+    int maxSize() { return isEmpty() ? 0 : maxsize; }
+    int minSize() { return isEmpty() ? 0 : minsize; }
+    bool isEmpty() { return empty; } //###DANGER
 
 private:
     int maxsize;
     int minsize;
+    //    int autoBorder;
+    bool empty;
 
     QList<QChain> chain;
     QList<QBranchData> branches;
@@ -540,8 +558,11 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 
 void QParChain::recalc()
 {
-    for ( int i = 0; i < (int)chain.count(); i ++ )
+    empty = TRUE;
+    for ( int i = 0; i < (int)chain.count(); i ++ ) {
 	chain.at(i)->recalc();
+	empty = empty && chain.at(i)->isEmpty();
+    }
     maxsize = minMax();
     minsize = maxMin();
 }
@@ -562,9 +583,12 @@ int QParChain::minMax()
 {
     int min = QGManager::unlimited;
     for ( int i = 0; i < (int)chain.count(); i ++ ) {
-	int m = chain.at(i)->maxSize();
-	if ( m < min )
-	    min = m;
+	QChain *c = chain.at(i);
+	if ( !c->isEmpty() ) {
+	    int m = chain.at(i)->maxSize();
+	    if ( m < min )
+		min = m;
+	}
     }
     return min;
 }
@@ -572,8 +596,11 @@ int QParChain::minMax()
 void QSerChain::recalc()
 {
     int i;
-    for ( i = 0; i < (int)chain.count(); i ++ )
+    empty = TRUE;
+    for ( i = 0; i < (int)chain.count(); i ++ ) {
 	chain.at(i)->recalc();
+	empty = empty && chain.at(i)->isEmpty();
+    }
     for ( i = 0; i < (int)branches.count(); i ++ )
 	branches.at(i)->chain->recalc();
     minsize = sumMin();
@@ -636,7 +663,7 @@ bool QParChain::addC( QChain *s )
 }
 
 /*!
-  Creates a new QGManager which manages \e parent's children.
+  Creates a new QGManager which manages \a parent's children.
 */
 QGManager::QGManager( QWidget *parent, const char *name )
     : QObject( parent, name )
@@ -693,7 +720,7 @@ QGManager::~QGManager()
 /*!
   \fn void QGManager::setBorder( int b )
 
-  Sets the border around the edge of the widget. \e b is the number of
+  Sets the border around the edge of the widget. \a b is the number of
   pixels between the edge of the widget and the area controlled by the
   manager.
 */
@@ -731,8 +758,22 @@ QChain * QGManager::newSerChain( Direction d )
     return c;
 }
 
+
+#if 0
 /*!
-  Adds the chain \e source to the chain \e destination.
+  Creates a new serial QChain with border \a autoBorder.
+*/
+
+QChain * QGManager::newSerChain( Direction d, int autoBorder )
+{
+    QSerChain * c = new QSerChain( d );
+    CHECK_PTR(c);
+    c->setBorder( autoBorder );
+    return c;
+}
+#endif
+/*!
+  Adds the chain \a source to the chain \a destination.
 */
 
 bool QGManager::add( QChain *destination, QChain *source, int stretch )
@@ -742,7 +783,7 @@ bool QGManager::add( QChain *destination, QChain *source, int stretch )
 
 
 /*!
-  Adds the widget  \e w to the chain \e d.
+  Adds the widget  \a w to the chain \a d.
 */
 
 bool QGManager::addWidget( QChain *d, QWidget *w, int stretch )
@@ -754,9 +795,30 @@ bool QGManager::addWidget( QChain *d, QWidget *w, int stretch )
     return d->add( new QWidChain( d->direction(), w) , stretch );
 }
 
+
+#if 0
 /*!
-  Adds the spacing  \e w to the chain \e d. If \e d is a serial chain, this
-  means screen space between widgets. If \e d is parallel, this influences
+  Adds the widget  \a w to the chain \a d with \a space pixels of padding 
+  before it. If \a autoCollapse is TRUE, the space will be reclaimed when
+  the widget is hidden.
+*/
+
+bool QGManager::addWidget( QChain *d, QWidget *w, int stretch, 
+			   int space, bool autoCollapse )
+{
+    QWidChain *c = new QWidChain( d->direction(), w);
+    c->setAutoCollapse( autoCollapse );
+    c->setExtraSpace( space );
+    bool ok = d->add( c, stretch );
+    //###??? if (!ok) delete c;
+	
+    return ok;
+}
+#endif
+
+/*!
+  Adds the spacing  \a w to the chain \a d. If \a d is a serial chain, this
+  means screen space between widgets. If \a d is parallel, this influences
   the maximum and minimum size.
 */
 
@@ -806,6 +868,8 @@ void QGManager::resizeHandle( QWidget *, const QSize & )
 
 bool QGManager::activate()
 {
+
+    //    debug( "QGManager::activate" );
     if ( frozen )
 	return FALSE;
 
