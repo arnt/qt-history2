@@ -1287,7 +1287,7 @@ bool QVNCScreen::connect( const QString &displaySpec )
     hdr = (QVNCHeader *) shmrgn;
 
     if ( virtualBuffer )
-        data = shmrgn + ( sizeof(QVNCHeader) + 7 );
+        data = shmrgn + (( sizeof(QVNCHeader) + 7 ) & ~7 );
     return TRUE;
 }
 
