@@ -504,6 +504,7 @@ public:
 private:
     int tmpheight;
     QColor color;
+    bool shade;
 
 };
 #endif

@@ -1680,7 +1680,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    curtag.style = nstyle;
 		    if ( int(nstyle->whiteSpaceMode())  != QStyleSheetItem::Undefined )
 			curtag.wsm = nstyle->whiteSpaceMode();
-		
+
 		    /* netscape compatibility: eat a newline and only a newline if a pre block starts */
 		    if ( curtag.wsm == QStyleSheetItem::WhiteSpacePre &&
 			 nstyle->displayMode() == QStyleSheetItem::DisplayBlock )
@@ -1852,7 +1852,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			    tabExpansionColumn = 0;
 			else
 			    tabExpansionColumn++;
-			
+
 		    }
 		    if ( c == ' ' || c == QChar_linesep ) {
 			/* avoid overlong paragraphs by forcing a new
@@ -6412,6 +6412,7 @@ QTextHorizontalLine::QTextHorizontalLine( QTextDocument *p, const QMap<QString, 
     height = tmpheight = 8;
     if ( attr.find( "color" ) != attr.end() )
 	color = QColor( *attr.find( "color" ) );
+    shade = attr.find( "noshade" ) == attr.end();
 }
 
 QTextHorizontalLine::~QTextHorizontalLine()
@@ -6426,12 +6427,12 @@ QString QTextHorizontalLine::richText() const
 void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int , const QColorGroup& cg, bool selected )
 {
     QRect r( x, y, width, height);
-    if ( is_printer( p ) ) {
+    if ( is_printer( p ) || !shade ) {
 	QPen oldPen = p->pen();
 	if ( !color.isValid() )
-	    p->setPen( QPen( cg.text(), height/8 ) );
+	    p->setPen( QPen( cg.text(), is_printer( p ) ? height/8 : QMAX( 2, height/4 ) ) );
 	else
-	    p->setPen( QPen( color, height/8 ) );
+	    p->setPen( QPen( color, is_printer( p ) ? height/8 : QMAX( 2, height/4 ) ) );
 	p->drawLine( r.left()-1, y + height / 2, r.right() + 1, y + height / 2 );
 	p->setPen( oldPen );
     } else {
