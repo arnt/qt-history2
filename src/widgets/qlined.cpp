@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#110 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#111 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#110 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#111 $");
 
 
 struct QLineEditPrivate {
@@ -129,6 +129,10 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     d = new QLineEditPrivate( this );
+    connect( &d->blinkTimer, SIGNAL(timeout()),
+	     this, SLOT(blinkSlot()) );
+    connect( &d->dragTimer, SIGNAL(timeout()),
+	     this, SLOT(dragScrollSlot()) );
     cursorPos = 0;
     offset = 0;
     maxLen = 32767;
@@ -453,7 +457,6 @@ void QLineEdit::focusOutEvent( QFocusEvent * )
 	   qApp->focusWidget()->topLevelWidget() != topLevelWidget() ) )
 	deselect();
     d->dragTimer.stop();
-    d->blinkTimer.stop();
     if ( cursorOn )
 	blinkSlot();
 }
@@ -555,24 +558,26 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	int curXPos = margin;
 	if ( echoMode() != NoEcho )
 	    curXPos += fm.width( displayText, cursorPos - offset ) - 1;
-	d->cursorRepaintRect.setRect( curXPos-2, margin,
-				      5, height()-2*margin );
-	if ( cursorOn && hasFocus() ) {
-	    int curYPos   = ypos - fm.ascent();
-	    p.drawLine( curXPos, curYPos,
-			curXPos, curYPos + fm.height() - 1);
-	    if ( style() != WindowsStyle ) {
-		p.drawLine( curXPos - 2, curYPos,
-			    curXPos + 2, curYPos );
-		p.drawLine( curXPos - 2, curYPos + fm.height() - 1,
-			    curXPos + 2, curYPos + fm.height() - 1);
-	    }
-	}
+	int curYPos   = ypos - fm.ascent();
+	d->cursorRepaintRect.setRect( curXPos-2, curYPos, 5, fm.height() );
 	d->pmDirty = FALSE;
 	p.end();
     }
 	
     bitBlt( this, e->rect().topLeft(), d->pm, e->rect() );
+    if ( cursorOn && hasFocus() &&
+	 d->cursorRepaintRect.intersects( e->rect() ) ) {
+	QPainter p( this );
+	int curYTop = d->cursorRepaintRect.y();
+	int curYBot = d->cursorRepaintRect.bottom();
+	int curXPos = d->cursorRepaintRect.x() + 2;
+	p.drawLine( curXPos, curYTop, curXPos, curYBot );
+	if ( style() != WindowsStyle ) {
+	    p.drawLine( curXPos - 2, curYTop, curXPos + 2, curYTop );
+	    p.drawLine( curXPos - 2, curYBot, curXPos + 2, curYBot );
+	}
+    }
+
 }
 
 /*!
@@ -639,13 +644,15 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	return;
     }
 
+    int m1 = minMark();
+    int m2 = maxMark();
     markAnchor = cursorPos;
     newMark( markAnchor, FALSE );
-    if ( hasFocus() ) {
-	cursorOn = FALSE;
-	d->blinkTimer.stop();
-	blinkSlot();
-    }
+    if ( cursorPos > m2 )
+	m2 = cursorPos;
+    else if ( cursorPos < m1 )
+	m1 = cursorPos;
+    repaintArea( m1, m2 );
     dragScrolling = FALSE;
 }
 
@@ -683,7 +690,9 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 						 fontMetrics(),
 						 e->pos().x() - margin,
 						 width() - margin - margin );
+	int m1 = markDrag;
 	newMark( mousePos, FALSE );
+	repaintArea( m1, mousePos );
     }
 }
 
@@ -697,22 +706,22 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 	copyText();
     if ( dragScrolling )
 	dragScrolling = FALSE;
+    if ( e->button() != LeftButton )
+	return;
 
     int margin = frame() ? 4 : 2;
     if ( !QRect( margin, margin,
-		width() - 2*margin,
-		height() - 2*margin ).contains( e->pos() ) )
+		 width() - 2*margin,
+		 height() - 2*margin ).contains( e->pos() ) )
 	return;
 
     int mousePos = offset + xPosToCursorPos( &tbuf[(int)offset],
 					     fontMetrics(),
 					     e->pos().x() - margin,
 					     width() - margin - margin );
+    int m1 = markDrag;
     newMark( mousePos, FALSE );
-    if ( hasFocus() ) {
-	cursorOn = FALSE;
-	blinkSlot();
-    }
+    repaintArea( m1, mousePos );
 }
 
 
@@ -726,7 +735,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 	dragScrolling = FALSE;
 
     markWord( cursorPos );
-    repaint( FALSE );
+    repaint( FALSE ); // should use repaintArea()...
 }
 
 /*!
@@ -1239,19 +1248,18 @@ bool QLineEdit::validateAndSet( const char * newText, int newPos,
 	minP = QMIN( minP, QMIN( cursorPos, minMark() ) );
 	maxP = QMAX( maxP, QMAX( cursorPos, maxMark() ) );
 	
-	if ( hasFocus() ) {
-	    d->blinkTimer.start( blinkTime );
-	    cursorOn = TRUE;
-	}
-
-	if ( tbuf == t ) {
+	if ( tbuf == t || tbuf == t.right( tbuf.length() ) ) {
 	    int i = 0;
 	    while( i < minP && t[i] == tbuf[i] )
 		i++;
 	    minP = i;
 	    i = t.length();
-	    while( i > maxP && t[i] == tbuf[i] )
-		i--;
+	    if ( i > (int) tbuf.length() ) {
+		tbuf = t;
+	    } else {
+		while( i > maxP && t[i] == tbuf[i] )
+		    i--;
+	    }
 	    maxP = i;
 	    repaintArea( minP, maxP );
 	} else {
@@ -1306,7 +1314,8 @@ void QLineEdit::insert( const char * newText )
 	cp = minMark();
     }
     test.insert( cp, t );
-    validateAndSet( test, cp+1, cp+1, cp+1 );
+    cp += t.length();
+    validateAndSet( test, cp, cp, cp );
     return;
 }
 
@@ -1326,10 +1335,6 @@ void QLineEdit::repaintArea( int from, int to )
     }
 
     if ( offset > cursorPos ) {
-	if ( hasFocus() ) {
-	    d->blinkTimer.start( blinkTime );
-	    cursorOn = TRUE;
-	}
 	offset = cursorPos;
 	d->pmDirty = TRUE;
 	repaint( FALSE );
@@ -1370,4 +1375,22 @@ void QLineEdit::repaintArea( int from, int to )
     if ( x2 > width() - margin + 2 )
 	x2 = width() - margin + 2;
     repaint( x1, margin, x2-x1, height() - 2*margin, FALSE );
+}
+
+
+/*!  \reimplemented */
+
+void QLineEdit::setEnabled( bool e )
+{
+    d->pmDirty = TRUE;
+    QWidget::setEnabled( e );
+}
+
+
+/*! \reimplemented */
+
+void QLineEdit::setFont( const QFont & f )
+{
+    d->pmDirty = TRUE;
+    QWidget::setFont( f );
 }

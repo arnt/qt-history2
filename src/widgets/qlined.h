@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.h#45 $
+** $Id: //depot/qt/main/src/widgets/qlined.h#46 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -45,6 +45,9 @@ public:
 
     QSize	sizeHint() const;
 
+    void	setEnabled( bool );
+    void	setFont( const QFont & );
+
 public slots:
     void	setText( const char * );
     void	selectAll();
@@ -72,9 +75,9 @@ protected:
 
     bool	hasMarkedText() const;
     QString	markedText() const;
-    
+
     bool	validateAndSet( const char *, int, int, int );
-    
+
     void	insert( const char * );
 
     void	repaintArea( int, int );
