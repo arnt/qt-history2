@@ -89,6 +89,7 @@ public:
     QProc *proc;
 
     bool exitValuesCalculated;
+    bool socketReadCalled;
 
     static QProcessManager *procManager;
 };
@@ -348,6 +349,7 @@ QProcessPrivate::QProcessPrivate()
     notifierStderr = 0;
 
     exitValuesCalculated = FALSE;
+    socketReadCalled = FALSE;
 
     proc = 0;
 }
@@ -800,6 +802,12 @@ void QProcess::closeStdin()
 */
 void QProcess::socketRead( int fd )
 {
+    if ( d->socketReadCalled ) {
+	// the slots that are connected to the readyRead...() signals might
+	// trigger a recursive call of socketRead(). Avoid this since you get a
+	// blocking read otherwise.
+	return;
+    }
 #if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcess::socketRead(): %d", fd );
 #endif
@@ -859,6 +867,7 @@ void QProcess::socketRead( int fd )
 	    buffer->resize( oldSize + n );
     }
 
+    d->socketReadCalled = TRUE;
     if ( fd == d->proc->socketStdout ) {
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::socketRead(): %d bytes read from stdout (%d)",
@@ -872,6 +881,7 @@ void QProcess::socketRead( int fd )
 #endif
 	emit readyReadStderr();
     }
+    d->socketReadCalled = FALSE;
 }
 
 
