@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#58 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#58 $");
 
 
 /*!
@@ -27,8 +27,9 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qscrollbar.cpp#57 $");
   program-definable range, and to give the user visible indication of
   the current value of a \link QRangeControl range control \endlink.
 
-  QScrollBar only offers integer ranges, and at present only Motif
-  look and feel is implemented.
+  QScrollBar only offers integer ranges.
+
+  The recommended thickness of a scroll bar is 16 pixels.
 
   \ingroup realwidgets
 */
@@ -402,9 +403,9 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	PRIV->sliderMinMax( &sliderMin, &sliderMax );
 	QRect r = rect();
 	if ( orientation() == Horizontal )
-	    r.setRect( r.x(), r.y() - 30, r.width(), r.height() + 60 );
+	    r.setRect( r.x() - 20, r.y() - 30, r.width() + 40, r.height() + 60 );
 	else
-	    r.setRect( r.x() - 30, r.y(), r.width() + 60, r.height() );
+	    r.setRect( r.x() - 30, r.y() - 20, r.width() + 60, r.height() + 40 );
 	if ( style() == WindowsStyle && !r.contains( e->pos() ) )
 	    newSliderPos = sliderStartPos;
         else
