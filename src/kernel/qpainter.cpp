@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#112 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#111 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#112 $");
 
 
 /*!
@@ -48,7 +48,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#111 $");
   <li> Destroy the painter.
   </ol>
 
-  Example:
+  This example uses a convenience constructor that calls begin(), and
+  relies on the destructor to call end():
+
   \code
     void MyWidget::paintEvent()
     {
@@ -59,8 +61,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#111 $");
 			"The Text" );
     }
   \endcode
-
-  You can also use the begin() and end() functions to start and end
+  
+  You can also use the begin() and end() functions to begin and end
   painting explicitly:
 
   \code
@@ -76,15 +78,15 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#111 $");
     }
   \endcode
 
-  This can be useful, since it is not legal to have two painters active
+  This is useful since it is not possible to have two painters active
   on the same paint device at a time.
 
   QPainter is almost never used outside \link QWidget::paintEvent()
   paintEvent()\endlink.  Any widget <em>must</em> be able to repaint
-  itself at any time via paintEvent(), therefore the only sane design
-  is to do the painting in paintEvent() and use either
-  QWidget::update() or QWidget::repaint() force a paint event as
-  necessary.
+  itself at any time via paintEvent(), therefore it's almost always
+  best to design the widget so that it does all the painting in
+  paintEvent() and use either QWidget::update() or QWidget::repaint()
+  force a paint event as necessary.
 
   Note that both painters and some paint devices have attributes such
   as current font, current foreground colors and so on.
@@ -653,7 +655,7 @@ QRect QPainter::window() const
       QPainter p;
       p.begin( icon );
       p.setWindow( 0, 0, 100, 100 );
-      p.drawLine( 50, 0, 50, 100 );		// draw center line 
+      p.drawLine( 50, 0, 50, 100 );		// draw center line
   \endcode
 
   The setWindow() method is often used in conjunction with
@@ -714,11 +716,11 @@ QRect QPainter::viewport() const		// get viewport
   enables view transformation.
 
   The viewport rectangle is part of the view transformation. The viewport
-  specifies the device coordinate system. 
+  specifies the device coordinate system.
 
   The viewport and the \link setWindow() window\endlink are initially set
   to \e (0,0,width,height), where \e (width,height) is the pixel size of
-  the paint device. 
+  the paint device.
 
   You can use this method to normalize the coordinate system of the
   painter when drawing on a part of a paint device. The following example
@@ -727,7 +729,7 @@ QRect QPainter::viewport() const		// get viewport
 
   \code
       QPrinter page;
-      int margin, pageWidth, pageHeight; 
+      int margin, pageWidth, pageHeight;
       ...
       QPainter p;
       p.begin( page );
@@ -1576,7 +1578,7 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
   Horizontal alignment defaults to AlignLeft and vertical alignment
   defaults to AlignTop.
 
-  If several of the horizontal or several of the vertical alignment flags   
+  If several of the horizontal or several of the vertical alignment flags
   are set, the resulting alignment is undefined.
 
   If ExpandTabs is set and no \link setTabStops() tab stops \endlink or
@@ -1881,7 +1883,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     if ( (tf & AlignLeft ) == AlignLeft )
 	hAlignFlags++;
 
-    if ( hAlignFlags > 1 ) 
+    if ( hAlignFlags > 1 )
 	warning("QPainter::drawText: More than one of AlignRight, AlignLeft\n"
 		"                    and AlignHCenter set in the tf parameter."
 		);
@@ -1980,14 +1982,14 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
 	if ( (tf & AlignRight) == AlignRight ) {
 	    xp = w - tw;			// right aligned
-	    xc = xp + fm.minRightBearing(); 
+	    xc = xp + fm.minRightBearing();
 	} else if ( (tf & AlignHCenter) == AlignHCenter ) {
 	    xp = w/2 - tw/2;			// centered text
 	    xc = w/2 - (tw-fm.minLeftBearing()-fm.minRightBearing())/2
 		     - fm.minLeftBearing();
 	} else {
 	    xp = 0;				// left aligned
-	    xc = -fm.minLeftBearing(); 
+	    xc = -fm.minLeftBearing();
 	}
 
 	if ( pp )				// erase pixmap if gray text
@@ -2484,7 +2486,7 @@ QBrush::QBrush( const QColor &color, const QPixmap &pixmap )
 }
 
 /*!
-  Constructs a brush which is a 
+  Constructs a brush which is a
   \link shclass.html shallow copy\endlink of \e b.
 */
 
@@ -2540,7 +2542,7 @@ QBrush &QBrush::operator=( const QBrush &b )
 
 
 /*!
-  Returns a 
+  Returns a
   \link shclass.html deep copy\endlink of the brush.
 */
 
