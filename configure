@@ -1624,6 +1624,12 @@ AIX:*:00????????00)
         ;;
     esac
     ;;
+HP-UX:*:9000*)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    HP PA-RISC (parisc)"
+    fi
+    ARCH=parisc
+    ;;
 *:*:i?86)
     if [ "$OPT_VERBOSE" = "yes" ]; then
 	echo "    32-bit Intel 80x86 (i386)"
