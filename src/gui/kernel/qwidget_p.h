@@ -191,7 +191,6 @@ public:
 #ifndef QT_NO_LAYOUT
     QLayout *layout;
 #endif
-    QPaintEngine *paintEngine;
 
     int leftmargin, topmargin, rightmargin, bottommargin;
     // ### TODO: reorganize private/extra/topextra to save memory

@@ -27,6 +27,7 @@
 #include "qcursor.h"
 #include "qinputcontext_p.h"
 #include "qdesktopwidget.h"
+#include "qcleanuphandler.h"
 
 #include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
@@ -1756,9 +1757,14 @@ double QWidget::windowOpacity() const
 }
 
 /*! \internal */
+static QSingleCleanupHandler<QWSPaintEngine> qt_paintengine_cleanup_handler;
+static QWSPaintEngine *qt_widget_paintengine = 0;
 QPaintEngine *QWidget::engine() const
 {
-    if (!d->paintEngine)
-        const_cast<QWidget *>(this)->d->paintEngine = new QWSPaintEngine(const_cast<QWidget *>(this));
-    return d->paintEngine;
+    if (!qt_widget_paintengine) {
+        qt_widget_paintengine = new QQWSPaintEngine(const_cast<QWidget*>(this));
+        qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
+
+    }
+    return qt_widget_paintengine;
 }

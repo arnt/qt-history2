@@ -57,7 +57,6 @@ QWidgetPrivate::QWidgetPrivate() :
 #ifndef QT_NO_LAYOUT
         ,layout(0)
 #endif
-        ,paintEngine(0)
         ,leftmargin(0), topmargin(0), rightmargin(0), bottommargin(0)
 #ifndef QT_NO_PALETTE
         ,fg_role(QPalette::Foreground)

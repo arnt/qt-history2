@@ -29,8 +29,8 @@
 #include "qwidget_p.h"
 #include "qlibrary.h"
 #include "qdesktopwidget.h"
-
 #include "qpaintengine_win.h"
+#include "qcleanuphandler.h"
 
 #if defined(QT_TABLET_SUPPORT)
 #define PACKETDATA  (PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
@@ -400,11 +400,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     d->setFont_sys();
     QInputContext::enable(this, data->im_enabled & isEnabled());
-
-    if (destroyOldWindow && d->paintEngine) {
-        delete d->paintEngine;
-        d->paintEngine = 0;
-    }
 }
 
 
@@ -431,8 +426,6 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             DestroyWindow(winId());
         }
         setWinId(0);
-       delete d->paintEngine;
-       d->paintEngine = 0;
     }
 }
 
@@ -1945,11 +1938,14 @@ double QWidget::windowOpacity() const
     return isTopLevel() ? (d->topData()->opacity / 255.0) : 0.0;
 }
 
+static QSingleCleanupHandler<QWin32PaintEngine> qt_paintengine_cleanup_handler;
+static QWin32PaintEngine *qt_widget_paintengine = 0;
 QPaintEngine *QWidget::engine() const
 {
-    if (!d->paintEngine) {
-        const_cast<QWidget *>(this)->d->paintEngine =
-            new QWin32PaintEngine(const_cast<QWidget *>(this));
+    if (!qt_widget_paintengine) {
+        qt_widget_paintengine = new QWin32PaintEngine(const_cast<QWidget*>(this));
+        qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
+
     }
-    return d->paintEngine;
+    return qt_widget_paintengine;
 }

@@ -26,6 +26,7 @@
 #include "qdatetime.h"
 #include "qcursor.h"
 #include "qstack.h"
+#include "qcleanuphandler.h"
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
@@ -323,11 +324,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     // always initialize
     if (!window)
         initializeWindow = true;
-
-    if (destroyOldWindow) {
-        delete d->paintEngine;
-        d->paintEngine = 0;
-    }
 
     if (!d->xinfo)
         d->xinfo = new QX11Info;
@@ -771,8 +767,6 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
         extern void qPRCleanup(QWidget *widget); // from qapplication_x11.cpp
         if (testWState(WState_Reparented))
             qPRCleanup(this);
-        delete d->paintEngine;
-        d->paintEngine = 0;
         delete d->xinfo;
         d->xinfo = 0;
     }
@@ -2758,10 +2752,15 @@ void QWidgetPrivate::setWindowRole(const char *role)
                     (unsigned char *)role, qstrlen(role));
 }
 
+static QSimpleCleanupHandler<QX11PaintEngine *> qt_paintengine_cleanup_handler;
+static QX11PaintEngine *qt_widget_paintengine = 0;
 QPaintEngine *QWidget::engine() const
 {
-    if (!d->paintEngine)
-        const_cast<QWidget*>(this)->d->paintEngine = new QX11PaintEngine(const_cast<QWidget*>(this));
-    return d->paintEngine;
+    if (!qt_widget_paintengine) {
+        qt_widget_paintengine = new QX11PaintEngine(this);
+        qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
+
+    }
+    return qt_widget_paintengine;
 }
 

@@ -30,6 +30,7 @@
 #include "qstyle.h"
 #include "qtextcodec.h"
 #include "qtimer.h"
+#include "qcleanuphandler.h"
 
 #include <ApplicationServices/ApplicationServices.h>
 #include <limits.h>
@@ -1356,7 +1357,7 @@ void QWidget::show_sys()
                 if (!object->isWidgetType())
                     continue;
                 QWidget *widget = static_cast<QWidget*>(object);
-                if (qt_mac_is_macdrawer(widget) && !widget->testWState(WState_Hidden)) 
+                if (qt_mac_is_macdrawer(widget) && !widget->testWState(WState_Hidden))
                     widget->show_helper();
             }
         }
@@ -2018,6 +2019,10 @@ double QWidget::windowOpacity() const
 {
     return isTopLevel() ? ((QWidget*)this)->d->topData()->opacity / 255.0 : 0.0;
 }
+
+
+static QSingleCleanupHandler<QPaintEngine> qt_paintengine_cleanup_handler;
+static QPaintEngine *qt_widget_paintengine = 0;
 
 QPaintEngine *QWidget::engine() const
 {

@@ -19,6 +19,7 @@
 #include "qcleanuphandler.h"
 #include "qgl_p.h"
 #include "qpaintengine_opengl.h"
+#include "qcleanuphandler.h"
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
@@ -2245,11 +2246,16 @@ bool QGLWidget::autoBufferSwap() const
 }
 
 /*! \internal */
+static QSingleCleanupHandler<QOpenGLPaintEngine> qt_paintengine_cleanup_handler;
+static QOpenGLPaintEngine *qt_widget_paintengine = 0;
 QPaintEngine *QGLWidget::engine() const
 {
-    if (!d->paintEngine)
-        const_cast<QGLWidget *>(this)->d->paintEngine = new QOpenGLPaintEngine(this);
-    return d->paintEngine;
+    if (!qt_widget_paintengine) {
+        qt_widget_paintengine = new QOpenGLPaintEngine(const_cast<QGLWidget*>(this));
+        qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
+
+    }
+    return qt_widget_paintengine;
 }
 
 /*****************************************************************************
