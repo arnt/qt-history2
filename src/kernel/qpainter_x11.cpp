@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#153 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#152 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#153 $")
 
 
 /*****************************************************************************
@@ -2278,8 +2278,8 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 
 
 /*----------------------------------------------------------------------------
-  Draws a pixmap at \e (x,y) by copying a part of the pixmap into
-  the paint device.
+  Draws a pixmap at \e (x,y) by copying a part of the pixmap into the
+  paint device.
 
   \arg \e (x,y) specify the point in the paint device.
   \arg \e (sx,sy) specify an offset in the pixmap.
@@ -2287,12 +2287,10 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
   be copied.  The value -1 means to the right/bottom of the
   pixmap.
 
-  Notice that drawing 1-bit depth (monochrome) pixmaps using
-  \e TransparentMode background mode might be slow on some X servers,
-  because a clip mask has to be set up.	 Using \e OpaqueMode will
-  draw faster.
+  The pixmap is clipped if a \link QPixmap::setMask() mask\endlink has
+  been set.
 
-  \sa bitBlt(), setBackgroundMode()
+  \sa bitBlt(), QPixmap::setMask()
  ----------------------------------------------------------------------------*/
 
 void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
@@ -2310,13 +2308,11 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		 sw != pixmap.width() || sh != pixmap.height() ) {
 		QPixmap tmp( sw, sh, pixmap.depth() );
 		bitBlt( &tmp, 0, 0, &pixmap, sx, sy, sw, sh );
-#if 0
 		if ( pixmap.mask() ) {
 		    QBitmap mask( sw, sh );
 		    bitBlt( &mask, 0, 0, pixmap.mask(), sx, sy, sw, sh );
 		    tmp.setMask( mask );
 		}
-#endif
 		drawPixmap( x, y, tmp );
 		return;
 	    }
@@ -2331,7 +2327,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 						// world transform
 	    QWMatrix mat( wm11/65536.0, wm12/65536.0,
 			  wm21/65536.0, wm22/65536.0,
-			  wdx/65536.0,	 wdy/65536.0 );
+			  wdx/65536.0,	wdy/65536.0 );
 	    mat = QPixmap::trueMatrix( mat, sw, sh );
 	    QPixmap pm = pixmap.xForm( mat );
 	    QBitmap bm;
@@ -2340,39 +2336,16 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    else {				// generate full mask
 		QBitmap bm_clip( sw, sh, 1 );
 		bm_clip.fill( color1 );
-		bm = bm_clip.xForm( mat );
+		pm.setMask( bm_clip.xForm(mat) );
 	    }
 	    WXFORM_P( x, y );
 	    int dx, dy;
 	    mat.map( 0, 0, &dx, &dy );		// compute position of pixmap
 	    x -= dx;  y -= dy;
-	    bool do_clip = hasClipping();
-	    QPixmap *draw_pm;
-	    if ( do_clip ) {
-		draw_pm = new QPixmap( sw, sh, pm.depth() );
-		QPainter paint;
-		paint.begin( draw_pm );
-		QRegion rgn( crgn );
-		rgn.move( -x, -y );
-		paint.setClipRegion( rgn );
-		paint.drawPixmap( 0, 0, pm );
-		paint.end();
-	    }
-	    else
-		draw_pm = &pm;
-	    XSetClipMask( dpy, gc, bm.handle() );
-	    XSetClipOrigin( dpy, gc, x, y );
 	    ushort save_flags = flags;
-	    flags = IsActive;
+	    flags = IsActive | (save_flags & ClipOn);
 	    drawPixmap( x, y, pm );
 	    flags = save_flags;
-	    XSetClipOrigin( dpy, gc, 0, 0 );
-	    if ( do_clip ) {
-		delete draw_pm;
-		XSetRegion( dpy, gc, crgn.handle() );
-	    }
-	    else
-		XSetClipMask( dpy, gc, None );
 	    return;
 	}
 	if ( testf(VxF) )
