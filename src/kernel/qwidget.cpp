@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#293 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#294 $
 **
 ** Implementation of QWidget class
 **
@@ -2986,6 +2986,10 @@ bool QWidget::event( QEvent *e )
 	case QEvent::Hide:
 	    hideEvent( (QHideEvent*) e);
 	    break;
+	case QEvent::ChildInserted:
+	case QEvent::ChildRemoved:
+	    childEvent( (QChildEvent*) e);
+	    break;
 	default:
 	    return FALSE;
     }
@@ -3658,7 +3662,7 @@ void QWidget::setLayout( QLayout *l )
   widget.
   
   The default implementation returns the layout's size policy if there
-  is a layout for this widget, otherwis it gives a widget that can be
+  is a layout for this widget, otherwise it gives a widget that can be
   freely resized, but that prefers to be of the size specified by
   sizeHint().
 */
