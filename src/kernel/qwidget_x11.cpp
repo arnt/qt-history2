@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#224 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#225 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -29,7 +29,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#224 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#225 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -615,7 +615,8 @@ void QWidget::setBackgroundEmpty()
   Sets the widget cursor shape to \e cursor.
 
   The mouse cursor will assume this shape when it's over this widget.
-  See a list of cursor shapes in the QCursor documentation.
+  See a list of predefined cursor objects with a range of useful
+  shapes in the QCursor documentation.
 
   An editor widget would for example use an I-beam cursor:
   \code
