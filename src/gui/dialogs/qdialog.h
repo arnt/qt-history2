@@ -28,8 +28,10 @@ class QDialogPrivate;
 
 class Q_GUI_EXPORT QDialog : public QWidget
 {
-friend class QPushButton;
     Q_OBJECT
+    Q_DECLARE_PRIVATE( QDialog );
+    friend class QPushButton;
+
     Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )
     Q_PROPERTY( bool modal READ isModal WRITE setModal )
 
@@ -93,8 +95,6 @@ private:
 
     int		rescode;
     uint	in_loop: 1;
-    Q_DECL_PRIVATE( QDialog );
-
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

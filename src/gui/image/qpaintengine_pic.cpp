@@ -25,7 +25,7 @@ static const Q_UINT16 mfhdr_min = 0;		// minor version #
 
 class QPicturePaintEnginePrivate : public QPaintEnginePrivate
 {
-    Q_DECL_PUBLIC(QPicturePaintEngine);
+    Q_DECLARE_PUBLIC(QPicturePaintEngine);
 
 public:
     QBuffer *pictb;

@@ -75,7 +75,7 @@ extern bool qt_tryModalHelper( QWidget *, QWidget ** = 0 );
 
 class QApplicationPrivate : public QCoreApplicationPrivate
 {
-    Q_DECL_PUBLIC(QApplication);
+    Q_DECLARE_PUBLIC(QApplication);
 public:
     QApplicationPrivate(int &argc, char **argv);
     ~QApplicationPrivate() {}

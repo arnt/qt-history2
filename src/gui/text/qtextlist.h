@@ -14,6 +14,7 @@ class QTextCursor;
 class QTextList : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QTextList);
 public:
     ~QTextList();
 
@@ -33,7 +34,6 @@ private:
     friend class QTextListManager;
     friend class QTextListItem;
     QTextPieceTable *tbl;
-    Q_DECL_PRIVATE(QTextList);
 
 #if defined(Q_DISABLE_COPY)
     QTextList(const QTextList &rhs);

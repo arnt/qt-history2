@@ -26,6 +26,8 @@ class QPainterState;
 
 class QQuickDrawPaintEngine : public QPaintEngine
 {
+    Q_DECLARE_PRIVATE(QQuickDrawPaintEngine);
+
 public:
     QQuickDrawPaintEngine(const QPaintDevice *);
     ~QQuickDrawPaintEngine();
@@ -83,8 +85,6 @@ protected:
     friend class QMacStyleQDPainter;
     friend class QFontEngineMac;
 
-    Q_DECL_PRIVATE(QQuickDrawPaintEngine);
-
 private:
 #if defined(Q_DISABLE_COPY)
     QQuickDrawPaintEngine(const QQuickDrawPaintEngine &);
@@ -95,6 +95,8 @@ private:
 class QCoreGraphicsPaintEnginePrivate;
 class QCoreGraphicsPaintEngine : public QQuickDrawPaintEngine //for now we include QuickDraw to get things working, we *must* remove it later ### --Sam
 {
+    Q_DECLARE_PRIVATE(QCoreGraphicsPaintEngine);
+
 public:
     QCoreGraphicsPaintEngine(const QPaintDevice *);
     ~QCoreGraphicsPaintEngine();
@@ -141,8 +143,6 @@ public:
 protected:
     QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *);
     void drawPolyInternal(const QPointArray &a, bool close=true);
-
-    Q_DECL_PRIVATE(QCoreGraphicsPaintEngine);
 
 private:
 #if defined(Q_DISABLE_COPY)

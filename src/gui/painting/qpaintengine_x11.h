@@ -21,6 +21,8 @@ class QPainterState;
 
 class QX11PaintEngine : public QPaintEngine
 {
+    Q_DECLARE_PRIVATE(QX11PaintEngine);
+
 public:
     QX11PaintEngine(const QPaintDevice *);
     ~QX11PaintEngine();
@@ -77,8 +79,6 @@ protected:
     friend class QFontEngineXLFD;
 
 private:
-    Q_DECL_PRIVATE(QX11PaintEngine);
-
 #if defined(Q_DISABLE_COPY)
     QX11PaintEngine(const QX11PaintEngine &);
     QX11PaintEngine &operator=(const QX11PaintEngine &);

@@ -10,8 +10,8 @@ class QGridLayout;
 
 class QGroupBoxPrivate : public QWidgetPrivate
 {
+    Q_DECLARE_PUBLIC(QGroupBox);
 public:
-    Q_DECL_PUBLIC(QGroupBox);
 
     QGroupBoxPrivate():
 	spacer( 0 ),

@@ -58,7 +58,7 @@ struct MacSocketInfo {
 
 class Q_GUI_EXPORT QGuiEventLoopPrivate : public QEventLoopPrivate
 {
-    Q_DECL_PUBLIC(QGuiEventLoop);
+    Q_DECLARE_PUBLIC(QGuiEventLoop);
 public:
 #ifdef Q_WS_MAC
     int zero_timer_count;

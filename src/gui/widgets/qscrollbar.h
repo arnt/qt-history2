@@ -25,6 +25,7 @@ class QScrollBarPrivate;
 class Q_GUI_EXPORT QScrollBar : public QAbstractSlider
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QScrollBar);
 public:
     QScrollBar( QWidget *parent=0);
     QScrollBar( Orientation, QWidget *parent=0);
@@ -44,10 +45,6 @@ protected:
 
     void     changeEvent( QEvent * );
     void sliderChange(SliderChange change);
-
-private:
-
-    Q_DECL_PRIVATE(QScrollBar);
 
 #ifdef QT_COMPAT
 public:

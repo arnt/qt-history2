@@ -32,6 +32,8 @@ class QWheelEvent;
 class Q_GUI_EXPORT QComboBox : public QWidget
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QComboBox);
+
     Q_ENUMS( Policy )
     Q_PROPERTY( bool editable READ editable WRITE setEditable )
     Q_PROPERTY( int count READ count )
@@ -154,7 +156,6 @@ protected:
     void	updateMask();
 
 private:
-    Q_DECL_PRIVATE(QComboBox);
 
 #if defined(Q_DISABLE_COPY)
     QComboBox( const QComboBox & );

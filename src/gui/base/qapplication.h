@@ -48,6 +48,7 @@ class QApplicationPrivate;
 class Q_GUI_EXPORT QApplication : public QCoreApplication
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QApplication);
 public:
     QApplication( int &argc, char **argv );
     QApplication( int &argc, char **argv, bool GUIenabled );
@@ -307,8 +308,6 @@ private: // Disabled copy constructor and operator=
     QApplication( const QApplication & );
     QApplication &operator=( const QApplication & );
 #endif
-
-    Q_DECL_PRIVATE(QApplication);
 };
 
 inline QWidget *QApplication::mainWidget() const

@@ -26,6 +26,8 @@ class QFramePrivate;
 class Q_GUI_EXPORT QFrame : public QWidget
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QFrame);
+
     Q_ENUMS(Shape Shadow)
     QDOC_PROPERTY(int frameWidth READ frameWidth)
     Q_PROPERTY(Shape frameShape READ frameShape WRITE setFrameShape)
@@ -98,7 +100,6 @@ protected:
     void        changeEvent(QEvent *);
 
 private:
-    Q_DECL_PRIVATE(QFrame);
 
 #if defined(Q_DISABLE_COPY)
     QFrame(const QFrame &);

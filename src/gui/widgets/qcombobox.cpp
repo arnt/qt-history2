@@ -352,7 +352,7 @@ void QComboBoxPopupItem::paint( QPainter* p, const QPalette&, bool,
 class QComboBoxPrivate : public QWidgetPrivate
 {
 public:
-    Q_DECL_PUBLIC(QComboBox);
+    Q_DECLARE_PUBLIC(QComboBox);
 
     QComboBoxPrivate(): ed( 0 ), usingLBox( FALSE ), pop( 0 ), lBox( 0 )
     {

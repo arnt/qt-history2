@@ -27,6 +27,8 @@ class QApplicationPrivate;
 
 class QWSPaintEngine : public QPaintEngine
 {
+    Q_DECLARE_PRIVATE(QWSPaintEngine);
+
 public:
     QWSPaintEngine(const QPaintDevice *);
     ~QWSPaintEngine();
@@ -94,8 +96,6 @@ protected:
     friend class QFontEngineBox;
     friend class QFontEngineXft;
     friend class QFontEngineXLFD;
-
-    Q_DECL_PRIVATE(QWSPaintEngine);
 
 private:
 //    friend class QWidget;

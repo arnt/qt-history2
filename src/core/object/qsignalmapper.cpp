@@ -29,7 +29,7 @@ struct Rec {
 
 
 class QSignalMapperPrivate : public QObjectPrivate {
-    Q_DECL_PUBLIC(QSignalMapper);
+    Q_DECLARE_PUBLIC(QSignalMapper);
 public:
 
 

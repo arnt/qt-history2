@@ -74,6 +74,7 @@ class Q_CORE_EXPORT QObject: public Qt
 {
     Q_OBJECT
     Q_PROPERTY( QByteArray objectName READ objectName WRITE setObjectName )
+    Q_DECLARE_PRIVATE( QObject );
 
 public:
     QObject(QObject *parent=0);
@@ -229,7 +230,6 @@ private:
 
 protected:
     QObjectData *d_ptr;
-    Q_DECL_PRIVATE( QObject );
 
     static const QMetaObject staticQtMetaObject;
 

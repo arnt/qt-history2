@@ -29,7 +29,7 @@ static int ropCodes[] = {			// ROP translation table
 class paintevent_item;
 class QQuickDrawPaintEnginePrivate : public QPaintEnginePrivate
 {
-    Q_DECL_PUBLIC(QQuickDrawPaintEngine);
+    Q_DECLARE_PUBLIC(QQuickDrawPaintEngine);
 public:
     QQuickDrawPaintEnginePrivate()
 	: QPaintEnginePrivate()
@@ -75,7 +75,7 @@ public:
  *****************************************************************************/
 class QCoreGraphicsPaintEnginePrivate : public QQuickDrawPaintEnginePrivate
 {
-    Q_DECL_PUBLIC(QQuickDrawPaintEngine);
+    Q_DECLARE_PUBLIC(QQuickDrawPaintEngine);
 public:
     QCoreGraphicsPaintEnginePrivate()
     {

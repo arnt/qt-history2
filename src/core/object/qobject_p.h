@@ -39,8 +39,7 @@
 #  include <private/qspinlock_p.h>
 #endif
 
-#define Q_DECL_PUBLIC( Class ) \
-private: \
+#define Q_DECLARE_PUBLIC(Class) \
     inline Class##Private* d_func() { return this; } \
     inline const Class##Private* d_func() const { return this; } \
     inline Class* q_func() { return static_cast<Class *>(q_ptr); } \
@@ -53,7 +52,7 @@ inline QObjectData::~QObjectData() {}
 
 class Q_CORE_EXPORT QObjectPrivate : public QObjectData, public Qt
 {
-    Q_DECL_PUBLIC( QObject );
+    Q_DECLARE_PUBLIC( QObject );
 
 public:
 

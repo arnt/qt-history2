@@ -80,7 +80,7 @@ private:
 class Q_CORE_EXPORT QTranslator : public QObject
 {
     Q_OBJECT
-    Q_DECL_PRIVATE(QTranslator);
+    Q_DECLARE_PRIVATE(QTranslator);
 public:
     QTranslator(QObject *parent = 0);
     QTranslator( QObject * parent, const char * name); // deprecated

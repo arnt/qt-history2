@@ -113,7 +113,7 @@
 
 class QScrollBarPrivate : public QAbstractSliderPrivate
 {
-    Q_DECL_PUBLIC(QScrollBar);
+    Q_DECLARE_PUBLIC(QScrollBar);
 public:
     uint pressedControl;
     bool pointerLeftControl;

@@ -30,6 +30,8 @@ class QLineEditPrivate;
 class Q_GUI_EXPORT QLineEdit : public QWidget
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QLineEdit);
+
     Q_ENUMS( EchoMode )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( int maxLength READ maxLength WRITE setMaxLength )
@@ -179,7 +181,6 @@ public:
     QChar passwordChar() const; // obsolete internal
 
 private:
-    Q_DECL_PRIVATE(QLineEdit);
 
 #if defined(Q_DISABLE_COPY)
     QLineEdit( const QLineEdit & );

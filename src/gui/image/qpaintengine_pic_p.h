@@ -19,6 +19,7 @@ class QPicturePaintEnginePrivate;
 class QBuffer;
 
 class QPicturePaintEngine : public QPaintEngine {
+    Q_DECLARE_PRIVATE(QPicturePaintEngine);
 public:
     QPicturePaintEngine(QBuffer *buf);
     ~QPicturePaintEngine();
@@ -133,8 +134,6 @@ private:
 
     friend class QPicture;
     friend QDataStream &operator>>( QDataStream &s, QPicture &r );
-
-    Q_DECL_PRIVATE(QPicturePaintEngine);
 
 #if defined(Q_DISABLE_COPY)
     QPicturePaintEngine(const QPicturePaintEngine &);

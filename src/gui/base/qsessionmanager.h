@@ -28,6 +28,7 @@ class QSessionManagerPrivate;
 class Q_GUI_EXPORT  QSessionManager : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE( QSessionManager );
     QSessionManager( QApplication *app, QString &id, QString &key );
     ~QSessionManager();
 public:
@@ -67,7 +68,6 @@ private:
     friend class QApplication;
     friend class QApplicationPrivate;
     friend class QBaseApplication;
-    Q_DECL_PRIVATE( QSessionManager );
 };
 
 #endif // QT_NO_SESSIONMANAGER

@@ -32,6 +32,7 @@ class QWidget;
 class Q_GUI_EXPORT QAccel : public QObject			// accelerator class
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QAccel);
 public:
     QAccel( QWidget *parent, const char *name=0 );
     QAccel( QWidget* watch, QObject *parent, const char *name=0 );
@@ -69,9 +70,6 @@ public:
 signals:
     void activated( int id );
     void activatedAmbiguously( int id );
-
-private:
-    Q_DECL_PRIVATE(QAccel);
 
 private:
 #if defined(Q_DISABLE_COPY)

@@ -15,15 +15,14 @@
 #ifndef QPAINTENGINE_P_H
 #define QPAINTENGINE_P_H
 
-// Used to get Q_DECL_PUBLIC
+// Used to get Q_DECLARE_PUBLIC
 #include "private/qobject_p.h"
 
 class QPaintEngine;
 
-class QPaintEnginePrivate {
-
-    Q_DECL_PUBLIC(QPaintEngine);
-
+class QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QPaintEngine);
 public:
     QPaintEnginePrivate() :
 	q_ptr(0)

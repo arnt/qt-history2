@@ -26,6 +26,8 @@ class QSliderPrivate;
 class Q_GUI_EXPORT QSlider : public QAbstractSlider
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QSlider);
+
     Q_ENUMS(TickSetting)
     Q_PROPERTY(TickSetting tickmarks READ tickmarks WRITE setTickmarks)
     Q_PROPERTY(int tickInterval READ tickInterval WRITE setTickInterval)
@@ -53,9 +55,6 @@ protected:
     void mousePressEvent(QMouseEvent *ev);
     void mouseReleaseEvent(QMouseEvent *ev);
     void mouseMoveEvent(QMouseEvent *ev);
-
-private:
-    Q_DECL_PRIVATE(QSlider);
 
 #ifdef QT_COMPAT
 public:

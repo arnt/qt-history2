@@ -26,6 +26,7 @@ class QTextEngine;
 
 class QWin32PaintEngine : public QPaintEngine
 {
+    Q_DECLARE_PRIVATE(QWin32PaintEngine);
 public:
     QWin32PaintEngine(const QPaintDevice *target);
     ~QWin32PaintEngine();
@@ -81,7 +82,6 @@ protected:
     QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, const QPaintDevice *target);
 
 private:
-    Q_DECL_PRIVATE(QWin32PaintEngine);
     void drawPolyInternal( const QPointArray &a, bool close );
 
 protected:

@@ -9,6 +9,7 @@ class QGuiEventLoopPrivate;
 class QGuiEventLoop : public QEventLoop
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QGuiEventLoop);
 public:
     QGuiEventLoop(QObject *parent = 0);
     ~QGuiEventLoop();
@@ -44,7 +45,6 @@ private:
     friend class QApplication;
     friend QMAC_PASCAL void qt_mac_select_timer_callbk(EventLoopTimerRef, void *);
 #endif
-    Q_DECL_PRIVATE(QGuiEventLoop);
 };
 
 

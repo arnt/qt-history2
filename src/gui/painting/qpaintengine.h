@@ -47,6 +47,7 @@ Q_DECLARE_TYPEINFO(QTextItem, Q_PRIMITIVE_TYPE);
 
 class Q_GUI_EXPORT QPaintEngine : public Qt
 {
+    Q_DECLARE_PRIVATE(QPaintEngine);
 public:
     enum Capability {
 	CoordTransform          = 0x0001,		// Points are transformed
@@ -184,7 +185,6 @@ protected:
     GCCaps gccaps;
 
     QPaintEnginePrivate *d_ptr;
-    Q_DECL_PRIVATE(QPaintEngine);
 
     friend class QWrapperPaintEngine;
     friend class QPainter;

@@ -93,6 +93,8 @@ class QWidgetPrivate;
 class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE( QWidget );
+
     Q_ENUMS( BackgroundMode FocusPolicy )
     Q_PROPERTY( bool isTopLevel READ isTopLevel )
     Q_PROPERTY( bool isDialog READ isDialog )
@@ -626,7 +628,7 @@ private:
     friend class QLayout;
     friend class QWidgetItem;
     friend class QGuiEventLoop;
-    
+
     // These two friends are needed because of the limitations of QuickDraw.
     friend class QMacSavedPortInfo;
     friend class QQuickDrawPaintEngine;
@@ -637,7 +639,6 @@ private:	// Disabled copy constructor and operator=
     QWidget &operator=( const QWidget & );
 #endif
 
-    Q_DECL_PRIVATE( QWidget );
     QWidgetData *data;
 
 #ifdef QT_COMPAT

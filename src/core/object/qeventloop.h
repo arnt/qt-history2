@@ -27,6 +27,7 @@ class QEventLoopPrivate;
 class Q_CORE_EXPORT QEventLoop : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QEventLoop);
 
 public:
     QEventLoop( QObject *parent = 0);
@@ -83,7 +84,6 @@ private:
     void init();
     void cleanup();
 
-    Q_DECL_PRIVATE(QEventLoop);
     friend class QApplication;
     friend class QCoreApplication;
 };

@@ -8,8 +8,8 @@
 
 class QLineEditPrivate : public QWidgetPrivate
 {
+    Q_DECLARE_PUBLIC(QLineEdit);
 public:
-    Q_DECL_PUBLIC(QLineEdit);
 
     QLineEditPrivate()
 	: cursor(0), cursorTimer(0), frame(1),

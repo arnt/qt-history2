@@ -31,6 +31,8 @@ class QSpacerItem;
 class Q_GUI_EXPORT QGroupBox : public QWidget
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QGroupBox);
+
     Q_PROPERTY( QString title READ title WRITE setTitle )
     Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false )
@@ -100,7 +102,6 @@ private slots:
     void setChildrenEnabled( bool b );
 
 private:
-    Q_DECL_PRIVATE(QGroupBox);
 
 #if defined(Q_DISABLE_COPY)
     QGroupBox( const QGroupBox & );

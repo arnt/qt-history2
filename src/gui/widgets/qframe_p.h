@@ -5,6 +5,7 @@
 
 class QFramePrivate : public QWidgetPrivate
 {
+    Q_DECLARE_PUBLIC(QFrame);
 public:
     QFramePrivate();
 
@@ -17,7 +18,6 @@ public:
     short       midLineWidth;
     short       frameWidth;
 
-    Q_DECL_PUBLIC(QFrame);
 };
 
 #endif
