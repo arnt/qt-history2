@@ -49,14 +49,15 @@ the directories where you choose to install Qt.
 	setenv MANPATH $QTDIR/doc/man:$MANPATH
 	setenv DYLD_LIBRARY_PATH $QTDIR/lib:$DYLD_LIBRARY_PATH
 
-        Some versions of tcsh do not understand the expansion of empty
-        variables. If you experience any error messages with the above
-        instructions, you may want to replace them with:
-
-	setenv QTDIR /usr/local/qt
-	setenv PATH $QTDIR/bin:$PATH
-	setenv MANPATH $QTDIR/doc/man:$MANPATH
-	setenv DYLD_LIBRARY_PATH $QTDIR/lib
+        ***************************WARNING******************************
+        * Some versions of tcsh do not understand the expansion of empty
+        * variables. If you experience any error messages with the above
+        * instructions, you may want to replace them with:
+        *
+	*  setenv QTDIR /usr/local/qt
+	*  setenv PATH $QTDIR/bin:$PATH
+	*  setenv MANPATH $QTDIR/doc/man:$MANPATH
+	*  setenv DYLD_LIBRARY_PATH $QTDIR/lib:$DYLD_LIBRARY_PATH
 
     After you have done this, you will need to login again, or
     re-source the profile before continuing.
