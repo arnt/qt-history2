@@ -263,19 +263,48 @@ public:
     }
 };
 
-/* Pop the top two elements from the stack.  If second element (next
- on stack) is less than or equal to the first (top of stack), then
- jump to instruction P1. In other words, jump if NOS<=TOS.
-*/
-class Le : public CompOp
+class In : public CompOp
 {
 public:
-    Le( int trueLab, int falseLab )
+    In( int trueLab, int falseLab )
 	: CompOp( trueLab, falseLab ) {}
-    QString name() const { return "le"; }
+    QString name() const { return "in"; }
     bool pred( const QVariant& v1, const QVariant& v2 )
     {
-	return v1.toDouble() <= v2.toDouble();
+	localsql::List set = v2.toList();
+	return set.find( v1 ) != set.end();
+    }
+};
+
+class Like : public Op
+{
+public:
+    Like( const QString& wildcard, int trueLab, int falseLab )
+	: Op( QString::null, trueLab, falseLab )
+    {
+	static QString metas( "$()*+.?[\\]^{|}" );
+	QString regexp;
+
+	for ( int i = 0; i < (int) wildcard.length(); i++ ) {
+	    QString ch = wildcard[i];
+	    if ( ch == QChar('_') )
+		ch = QChar( '.' );
+	    else if ( ch == QChar('%') )
+		ch = QString( ".*" );
+	    else if ( metas.find(ch) >= 0 )
+		ch.prepend( QChar('\\') );
+	    regexp += ch;
+	}
+	p1 = regexp;
+    }
+    QString name() const { return "like"; }
+    int exec( localsql::Environment* env )
+    {
+	QString str = env->stack()->pop().toString();
+	QRegExp regexp( p1.toString() );
+	env->program()->setCounter( regexp.exactMatch(str) ? p2.toInt()
+				    : p3.toInt() );
+	return 1;
     }
 };
 

@@ -29,6 +29,7 @@
 #include "environment.h"
 #include <qarray.h>
 #include <qlist.h>
+#include <qregexp.h>
 #include <qstack.h>
 #include <qtextstream.h>
 
@@ -203,6 +204,9 @@ private:
     QVariant matchScalarExpr();
     QVariant matchAtom();
     QVariant matchAtomList();
+    QVariant matchBetween( const QVariant& left );
+    QVariant matchIn( const QVariant& left );
+    QVariant matchLike( const QVariant& left );
     QVariant matchPredicate( QValueList<QVariant> *constants = 0 );
     QVariant matchPrimarySearchCondition( QValueList<QVariant> *constants = 0 );
     QVariant matchAndSearchCondition( QValueList<QVariant> *constants = 0 );

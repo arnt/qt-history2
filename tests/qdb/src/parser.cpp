@@ -600,6 +600,15 @@ void Parser::emitExpr( const QVariant& expr, bool fieldValues, int trueLab,
 	    yyProg->appendLabel( nextCond );
 	    emitExpr( *++v, fieldValues, trueLab, falseLab );
 	    break;
+	case Tok_in:
+	    emitExpr( *++v, fieldValues );
+	    yyProg->append( new Push(*++v) );
+	    yyProg->append( new In(trueLab, falseLab) );
+	    break;
+	case Tok_like:
+	    emitExpr( *++v, fieldValues );
+	    yyProg->append( new Like((*++v).toString(), trueLab, falseLab) );
+	    break;
 	case Tok_not:
 	    emitExpr( *++v, fieldValues, falseLab, trueLab );
 	    break;
@@ -927,10 +936,9 @@ QVariant Parser::matchPrimaryExpr()
 	uminusExp.append( (int) Tok_Minus );
 	uminusExp.append( 0 );
 	uminusExp.append( right );
-	return uminusExp;
-    } else {
-	return right;
+	right = uminusExp;
     }
+    return right;
 }
 
 QVariant Parser::matchMultiplicativeExpr()
@@ -995,13 +1003,59 @@ QVariant Parser::matchAtomList()
     return atoms;
 }
 
+QVariant Parser::matchBetween( const QVariant& left )
+{
+    QValueList<QVariant> pred;
+    QValueList<QVariant> subPred;
+
+    pred.append( (int) Tok_and );
+    yyTok = getToken();
+    subPred.append( (int) Tok_GreaterEq );
+    subPred.append( left );
+    subPred.append( matchScalarExpr() );
+    subPred.append( pred );
+    matchOrInsert( Tok_and, "'and'" );
+
+    subPred.clear();
+    subPred.append( (int) Tok_GreaterEq );
+    subPred.append( matchScalarExpr() );
+    subPred.append( left );
+    pred.append( subPred );
+    return pred;
+}
+
+QVariant Parser::matchIn( const QVariant& left )
+{
+    QValueList<QVariant> pred;
+
+    pred.append( yyTok );
+    yyTok = getToken();
+    matchOrInsert( Tok_LeftParen, "'('" );
+    pred.append( left );
+    pred.append( matchAtomList() );
+    matchOrInsert( Tok_RightParen, "')'" );
+    return pred;
+}
+
+QVariant Parser::matchLike( const QVariant& left )
+{
+    QValueList<QVariant> pred;
+
+    pred.append( yyTok );
+    yyTok = getToken();
+    pred.append( left );
+    pred.append( matchAtom() );
+    return pred;
+}
+
 QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 {
     QValueList<QVariant> pred;
-    QValueList<QVariant> between;
+    QValueList<QVariant> subPred;
     QVariant left;
     QVariant right;
     bool leftIsColumnRef = ( yyTok == Tok_Name );
+    bool unot = FALSE;
 
     left = matchScalarExpr();
 
@@ -1039,27 +1093,10 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	pred.append( left );
 	break;
     case Tok_between:
-	between.append( (int) Tok_and );
-
-	yyTok = getToken();
-	pred.append( (int) Tok_GreaterEq );
-	pred.append( left );
-	pred.append( matchScalarExpr() );
-	between.append( pred );
-	matchOrInsert( Tok_and, "'and'" );
-
-	pred.clear();
-	pred.append( (int) Tok_GreaterEq );
-	pred.append( matchScalarExpr() );
-	pred.append( left );
-	between.append( pred );
-	pred = between;
+	pred = matchBetween( left ).toList();
 	break;
     case Tok_in:
-	yyTok = getToken();
-	matchOrInsert( Tok_LeftParen, "'('" );
-	matchAtomList();
-	matchOrInsert( Tok_RightParen, "')'" );
+	pred = matchIn( left ).toList();
 	break;
     case Tok_is:
 	if ( !leftIsColumnRef )
@@ -1068,41 +1105,39 @@ QVariant Parser::matchPredicate( QValueList<QVariant> *constants )
 	yyTok = getToken();
 	if ( yyTok == Tok_not ) {
 	    yyTok = getToken();
-	    matchOrSkip( Tok_null, "'null'" );
-	} else {
-	    matchOrSkip( Tok_null, "'null'" );
+	    unot = TRUE;
 	}
+	matchOrSkip( Tok_null, "'null'" );
 	break;
     case Tok_like:
-	yyTok = getToken();
-	matchAtom();
+	pred = matchLike( left ).toList();
 	break;
     case Tok_not:
 	yyTok = getToken();
+	unot = TRUE;
 
 	switch ( yyTok ) {
 	case Tok_between:
-	    yyTok = getToken();
-	    // ###
-	    matchScalarExpr();
-	    matchOrInsert( Tok_and, "'and'" );
-	    matchScalarExpr();
+	    pred = matchBetween( left ).toList();
 	    break;
 	case Tok_in:
-	    yyTok = getToken();
-	    matchOrInsert( Tok_LeftParen, "'('" );
-	    matchAtomList();
-	    matchOrInsert( Tok_RightParen, "')'" );
+	    pred = matchIn( left ).toList();
 	    break;
 	case Tok_like:
-	    yyTok = getToken();
-	    matchAtom();
+	    pred = matchLike( left ).toList();
 	    break;
 	default:
 	    error( "Expected 'between', 'in' or 'like' after 'not'" );
 	}
     default:
 	error( "Unexpected '%s' in predicate", yyLex );
+    }
+
+    if ( unot ) {
+	QValueList<QVariant> unotExp;
+	unotExp.append( (int) Tok_not );
+	unotExp.append( pred );
+	pred = unotExp;
     }
     return pred;
 }
@@ -1385,10 +1420,13 @@ void Parser::matchCreateStatement()
 
 void Parser::matchDeleteStatement()
 {
+    QString table;
+
     yyTok = getToken();
     matchOrInsert( Tok_from, "'from'" );
-    matchTable();
+    int tableId = activateTable( matchTable() );
     matchOptWhereClause();
+    yyProg->append( new DeleteMarked(tableId) );
 }
 
 void Parser::matchDropStatement()
