@@ -181,6 +181,12 @@ QColorGroup& QColorGroup::operator =(const QColorGroup& other)
     return *this;
 }
 
+static QColor qt_mix_colors( QColor a, QColor b)
+{
+    return QColor( (a.red() + b.red()) / 2, (a.green() + b.green()) / 2, (a.blue() + b.blue()) / 2 );
+}
+
+
 /*!
 Constructs a color group. You can pass either brushes, pixmaps or
 plain colors for each parameter.
@@ -207,7 +213,7 @@ Such long lists of arguments are rather error-prone.
     br[ButtonText] 	= text;
     br[Base] 		= base;
     br[Background] 	= background;
-    br[Midlight] 	= QBrush( br[Button].color().light(115));
+    br[Midlight] 	= qt_mix_colors( br[Button].color(), br[Light].color() );
     br[Shadow]          = Qt::black;
     br[Highlight]       = Qt::darkBlue;
     br[HighlightedText] = Qt::white;
@@ -236,7 +242,7 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &background,
     br[ButtonText]      = br[Text];
     br[Base]            = QBrush(base);
     br[Background]      = QBrush(background);
-    br[Midlight]        = QBrush(br[Button].color().light(115));
+    br[Midlight] 	= qt_mix_colors( br[Button].color(), br[Light].color() );
     br[Shadow]          = Qt::black;
     br[Highlight]       = Qt::darkBlue;
     br[HighlightedText] = Qt::white;
