@@ -54,7 +54,6 @@ public:
 
     void setMenu(QMenu* menu);
     QMenu* menu() const;
-    void showMenu();
 
     void setPopupMode(ToolButtonPopupMode mode);
     ToolButtonPopupMode popupMode() const;
@@ -65,6 +64,7 @@ public:
     bool autoRaise() const;
 
 public slots:
+    void showMenu();
     void setIconSize(const QSize &size);
     void setToolButtonStyle(Qt::ToolButtonStyle style);
     void setDefaultAction(QAction *);
