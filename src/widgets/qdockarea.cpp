@@ -511,7 +511,10 @@ QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const ch
 /*!  Destructor. Destroys all the dock windows docked in this dock area.
 
     Does not affect floating dock windows or dock windows in other dock
-    areas, even if they first appeared in this dock area.
+    areas, even if they first appeared in this dock area. Floating dock
+    windows are effectively top level windows and are not child windows
+    of the dock area. When a floating dock window is dragged into a dock
+    area its parent becomes the dock area.
  */
 
 QDockArea::~QDockArea()
