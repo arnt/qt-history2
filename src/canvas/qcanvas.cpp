@@ -1109,6 +1109,7 @@ void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, boo
 	p->setWorldMatrix( wm*twm );
 #else
 #endif
+	p->setBrushOrigin(tl.x(), tl.y());
 	drawCanvasArea(ivr,p,FALSE);
     }
 }
