@@ -222,7 +222,7 @@ LightStyle::LightStyle()
 
 LightStyle::~LightStyle()
 {
-    if (singleton && singleton->ref-- <= 0) {
+    if (singleton && --singleton->ref <= 0) {
 	delete singleton;
 	singleton = 0;
     }
@@ -231,8 +231,10 @@ LightStyle::~LightStyle()
 
 void LightStyle::unPolish(QWidget *widget)
 {
-    if (widget->inherits("QPopupMenu"))
+    if (widget->inherits("QPopupMenu")) {
 	widget->removeEventFilter(singleton->filter);
+	widget->unsetPalette();
+    }
 
     QWindowsStyle::unPolish(widget);
 }
@@ -915,7 +917,11 @@ void LightStyle::drawComplexControl( ComplexControl control,
     case CC_ComboBox:
 	{
 	    const QComboBox *combobox = (const QComboBox *) widget;
-	    QRect arrow, field;
+	    QRect frame, arrow, field;
+	    frame =
+		QStyle::visualRect(querySubControlMetrics(CC_ComboBox, widget,
+							  SC_ComboBoxFrame, data),
+				   widget);
 	    arrow =
 		QStyle::visualRect(querySubControlMetrics(CC_ComboBox, widget,
 							  SC_ComboBoxArrow, data),
@@ -925,10 +931,12 @@ void LightStyle::drawComplexControl( ComplexControl control,
 							  SC_ComboBoxEditField, data),
 				   widget);
 
-	    if (controls == SC_All)
-		drawLightBevel(p, r, cg, flags | Style_Raised);
+	    if ((controls & SC_ComboBoxFrame) && frame.isValid())
+		drawLightBevel(p, frame, cg, flags | Style_Raised);
 
 	    if ((controls & SC_ComboBoxArrow) && arrow.isValid()) {
+		if (active == SC_ComboBoxArrow)
+		    p->fillRect(arrow, cg.brush(QColorGroup::Mid));
 		arrow.addCoords(4, 2, -2, -2);
 		drawPrimitive(PE_ArrowDown, p, arrow, cg, flags);
 	    }
