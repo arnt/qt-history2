@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#17 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -22,7 +22,7 @@
   All its children will be placed beside each other and sized
   according to their sizeHint()s.
 
-  Use setMargin() to add space around the edge, and use addSpacing to
+  Use setMargin() to add space around the edge, and use setSpacing() to
   add space between the widgets.
 
   <img src=qhbox-m.png>
