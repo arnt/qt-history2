@@ -986,6 +986,13 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
     if(x.isEmpty())
         return true;
 
+    //magic types for easy flipping
+    if(x == "true")
+        return true;
+    else if(x == "false")
+        return false;
+
+    //mkspecs
     if((Option::target_mode == Option::TARG_MACX_MODE || Option::target_mode == Option::TARG_QNX6_MODE ||
         Option::target_mode == Option::TARG_UNIX_MODE) && x == "unix")
         return true;
@@ -1000,8 +1007,6 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
         return true;
     else if(Option::target_mode == Option::TARG_WIN_MODE && x == "win32")
         return true;
-
-
     QRegExp re(x, Qt::CaseSensitive, QRegExp::Wildcard);
     QString spec = Option::mkfile::qmakespec.right(Option::mkfile::qmakespec.length() -
                                                    (Option::mkfile::qmakespec.lastIndexOf(QDir::separator())+1));
@@ -1024,7 +1029,7 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
     }
 #endif
 
-
+    //simple matching
     QStringList &configs = (place ? (*place)["CONFIG"] : vars["CONFIG"]);
     for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) {
         if((regex && re.exactMatch((*it))) || (!regex && (*it) == x))
@@ -1286,6 +1291,23 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         bool ret = read(t, place);
         parser = pi;
         return ret;
+    } else if(func == "isConfig") {
+        if(args.count() < 1 || args.count() > 2) {
+            fprintf(stderr, "%s:%d: isConfig(config) requires one argument.\n", parser.file.latin1(),
+                    parser.line_no);
+            return false;
+        }
+        if(args.count() == 1)
+            return isActiveConfig(args[0]);
+        const QStringList mutuals = args[1].split('|');
+        const QStringList &configs = place["CONFIG"];
+        for(int i = configs.size()-1; i >= 0; i--) {
+            for(int mut = 0; mut < mutuals.count(); mut++) {
+                if(configs[i] == mutuals[mut].trimmed())
+                    return (configs[i] == args[0]);
+            }
+        }
+        return false;
     } else if(func == "system") {
         if(args.count() != 1) {
             fprintf(stderr, "%s:%d: system(exec) requires one argument.\n", parser.file.latin1(),
