@@ -92,48 +92,19 @@ void QDockWidgetResizeHandle::mouseMoveEvent( QMouseEvent *e )
 
 void QDockWidgetResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 {
-#if 0
     if ( mousePressed ) {
 	drawLine( lastPos );
 	endLineDraw();
 	if ( orientation() == Horizontal ) {
 	    int dy = e->globalPos().y() - firstPos.y();
-	    if ( s->orientation() == orientation() ) {
-		for ( QWidget *w = widgetList.first(); w; w = widgetList.next() ) {
-		    ( (QDockWidget*)w )->unsetSizeHint();
-		    ( (QDockWidget*)w )->setSizeHint( QSize( w->width(), w->height() + dy ) );
-		}
-	    } else {
-		int dy = e->globalPos().y() - firstPos.y();
-		QDockWidget *dw = (QDockWidget*)widgetList.first();
-		dw->unsetSizeHint();
-		dw->setSizeHint( QSize( dw->width(), dw->height() + dy ) );
-		dw = (QDockWidget*)widgetList.next();
-		if ( dw )
-		    dw->setSizeHint( QSize( dw->width(), dw->height() - dy ) );
-	    }
+	    dockWidget->setFixedExtendHeight( dockWidget->height() + dy );
 	} else {
 	    int dx = e->globalPos().x() - firstPos.x();
-	    if ( s->orientation() == orientation() ) {
-		for ( QWidget *w = widgetList.first(); w; w = widgetList.next() ) {
-		    ( (QDockWidget*)w )->unsetSizeHint();
-		    ( (QDockWidget*)w )->setSizeHint( QSize( w->width() + dx, w->height() ) );
-		}
-	    } else {
-		int dx = e->globalPos().x() - firstPos.x();
-		QDockWidget *dw = (QDockWidget*)widgetList.first();
-		dw->unsetSizeHint();
-		dw->setSizeHint( QSize( dw->width() + dx, dw->height() ) );
-		dw = (QDockWidget*)widgetList.next();
-		if ( dw )
-		    dw->setSizeHint( QSize( dw->width() - dx, dw->height() ) );
-	    }
+	    dockWidget->setFixedExtendWidth( dockWidget->width() + dx );
 	}
     }
 
-    s->QWidget::layout()->invalidate();
-    s->QWidget::layout()->activate();
-#endif
+    QApplication::postEvent( dockWidget->area(), new QEvent( QEvent::LayoutHint ) );
     mousePressed = FALSE;
 }
 
@@ -385,6 +356,10 @@ QDockWidget::QDockWidget( QWidget *parent, const char *name )
 {
     titleBar = new QDockWidgetTitleBar( this );
     handle = new QDockWidgetHandle( this );
+    hHandle = new QDockWidgetResizeHandle( Qt::Horizontal, this, this, "horz. handle" );
+    vHandle = new QDockWidgetResizeHandle( Qt::Vertical, this, this, "vert. handle" );
+    hHandle->hide();
+    vHandle->hide();
     setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     setLineWidth( 2 );
     updateGui();
@@ -471,15 +446,29 @@ void QDockWidget::updateGui()
 	addY += titleBar->height();
     } else {
 	titleBar->hide();
+	int dw = 0;
+	int dh = 0;
+	if ( isResizeEnabled() ) {
+	    hHandle->setGeometry( handle->sizeHint().width(), height() - hHandle->sizeHint().height(),
+				  width() - handle->sizeHint().width() - vHandle->sizeHint().width(),
+				  hHandle->sizeHint().height() );
+	    vHandle->setGeometry( width() - vHandle->sizeHint().width(), 0, vHandle->sizeHint().width(), height() - hHandle->height() );
+	    addX += vHandle->width();
+	    dw = vHandle->width();
+	    addY += hHandle->height();
+	    dh = hHandle->height();
+	    hHandle->show();
+	    vHandle->show();
+	}
 	if ( dockArea && orientation() == Horizontal ) {
 	    handle->setGeometry( 1, 1, handle->sizeHint().width() - 2, height() - 2 );
 	    if ( wid )
-		wid->setGeometry( handle->width() + 1, 1, width() - handle->width() - 2, height() - 2);
+		wid->setGeometry( handle->width() + 1, 1, width() - handle->width() - 2 - dw, height() - 2 - dh );
 	    addX += handle->width();
 	} else {
 	    handle->setGeometry( 1, 1, width() - 2, handle->sizeHint().height() - 2 );
 	    if ( wid )
-		wid->setGeometry( 1, handle->height() + 1, width() - 2, height() - handle->height() - 2 );
+		wid->setGeometry( 1, handle->height() + 1, width() - 2 - dw, height() - handle->height() - 2 - dh );
 	    addY += handle->height();
 	}
 	handle->show();
@@ -557,6 +546,7 @@ void QDockWidget::endRectDraw()
 void QDockWidget::setResizeEnabled( bool b )
 {
     resizeEnabled = b;
+    updateGui();
 }
 
 bool QDockWidget::isResizeEnabled() const

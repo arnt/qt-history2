@@ -7,6 +7,7 @@ class QDockWidgetHandle;
 class QDockWidgetTitleBar;
 class QPainter;
 class QDockArea;
+class QDockWidgetResizeHandle;
 
 class QDockWidget : public QFrame
 {
@@ -48,7 +49,7 @@ public:
 
     void setNewLine( bool b );
     bool newLine() const;
-    
+
     QSize sizeHint() const;
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
@@ -88,6 +89,7 @@ private:
     int offs;
     QSize fExtend;
     bool nl;
+    QDockWidgetResizeHandle *hHandle, *vHandle;
     
 };
 
