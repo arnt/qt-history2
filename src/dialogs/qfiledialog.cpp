@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#152 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#153 $
 **
 ** Implementation of QFileDialog class
 **
@@ -228,11 +228,11 @@ struct QFileDialogPrivate {
 
     struct File: public QListViewItem {
 	File( QFileDialogPrivate * dlgp,
-	      const QFileInfo * fi, QListViewItem * parent, int h )
-	    : QListViewItem( parent ), info( *fi ), d(dlgp) { setHeight( h ); }
+	      const QFileInfo * fi, QListViewItem * parent )
+	    : QListViewItem( parent ), info( *fi ), d(dlgp) { setup(); }
 	File( QFileDialogPrivate * dlgp,
-	      const QFileInfo * fi, QListView * parent, int h  )
-	    : QListViewItem( parent ), info( *fi ), d(dlgp) { setHeight( h ); }
+	      const QFileInfo * fi, QListView * parent )
+	    : QListViewItem( parent ), info( *fi ), d(dlgp) { setup(); }
 
 	QString text( int column ) const;
 	QString key( int column, bool ) const;
@@ -1189,8 +1189,6 @@ void QFileDialog::rereadDir()
 
     const QFileInfoList *filist = 0;
 
-    int itemHeight = fontMetrics().height() + 6;
-
     while ( !filist ) {
 	filist = cwd.entryInfoList();
 	if ( !filist &&
@@ -1223,7 +1221,7 @@ void QFileDialog::rereadDir()
 	if ( fi->fileName() != "." &&
 	     ( !cwd.isRoot() || fi->fileName() != ".." ) ) {
 	    QListViewItem * i
-		= new QFileDialogPrivate::File( d, fi, files, itemHeight );
+		= new QFileDialogPrivate::File( d, fi, files );
 	    if ( mode() == ExistingFiles && fi->isDir() )
 		i->setSelectable( FALSE );
 	}
