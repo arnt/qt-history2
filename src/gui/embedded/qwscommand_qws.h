@@ -212,7 +212,7 @@ struct QWSRegionCommand : public QWSCommand
 struct QWSSetOpacityCommand : public QWSCommand
 {
     QWSSetOpacityCommand() :
-        QWSCommand(QWSCommand::Region, sizeof(simpleData),
+        QWSCommand(QWSCommand::SetOpacity, sizeof(simpleData),
                     reinterpret_cast<char*>(&simpleData)) {}
 
     struct SimpleData {
