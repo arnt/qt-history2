@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#135 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#136 $
 **
 ** Definition of QWidget class
 **
@@ -80,6 +80,9 @@ public:
     void	 setFixedSize( int w, int h );
     void	 setFixedWidth( int w );
     void	 setFixedHeight( int h );
+    
+    void	 setAutoMinimumSize( bool );
+    bool	 autoMinimumSize() const;
 
   // Widget coordinate mapping
 
@@ -133,7 +136,7 @@ public slots:
   // Keyboard input focus functions
 
 public:
-    enum FocusPolicy 
+    enum FocusPolicy
     { NoFocus = 0, TabFocus = 0x1, ClickFocus = 0x2, StrongFocus = 0x3 };
 
     bool	 isActiveWindow() const;

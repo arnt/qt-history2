@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#224 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#225 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#224 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#225 $");
 
 
 /*!
@@ -109,10 +109,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#224 $");
 	setMaximumSize(),
 	setMinimumSize(),
 	setSizeIncrement(),
-	setFixedSize().
+	setFixedSize(),
+	setAutoMinimumSize(),
+	autoMinimumSize().
 
   <li> Mode:
-	isVisible()
+	isVisible(),
+	isVisibleToTLW,
 	isDesktop(),
 	isEnabled(),
 	isModal(),
@@ -329,12 +332,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#224 $");
 
   When writing a widget, there are a few more things to look out for.
   In the constructor, be sure to set up your member variables early
-  on, before there's any chance that you might receive an event.  You
-  may want to call setMinimumSize() and perhaps setMaximumSize() or
-  setSizeIncrement() to ensure that your widget will not be resized
-  ridiculously (but neither give you any guarantee, so write
-  carefully!)  If your widget is a top-level window, setCaption() and
-  setIcon() set the title bar and icon respectively.
+  on, before there's any chance that you might receive an event.
+  
+  It is often a good idea to reimplement sizeHint(), so users of your
+  class can set up layout management more easily.  If you do, consider
+  offering size management using autoMinimumSize() too.
+
+  If your widget is a top-level window, setCaption() and setIcon() set
+  the title bar and icon respectively.
 
   \sa QEvent, QPainter, QGridLayout, QBoxLayout
 */
@@ -821,6 +826,7 @@ void QWidget::createExtra()
 #if defined(_WS_X11_)
 	extra->xic = 0;
 #endif
+	extra->automin = 0;
     }
 }
 
@@ -1154,7 +1160,7 @@ QRect QWidget::childrenRect() const
   The widget cannot be resized to a smaller size than the minimum widget
   size.
 
-  \sa setMinimumSize(), maximumSize(), sizeIncrement()
+  \sa setMinimumSize(), setAutoMinimumSize() maximumSize(), sizeIncrement()
 */
 
 QSize QWidget::minimumSize() const
@@ -1193,7 +1199,7 @@ QSize QWidget::sizeIncrement() const
   Sets both the minimum and maximum sizes of the widget to \e s,
   thereby preventing it from ever growing or shrinking.
 
-  \sa setMaximumSize() setMinimumSize()
+  \sa setMaximumSize() setMinimumSize() setAutoMinimumSize() 
 */
 
 void QWidget::setFixedSize( const QSize & s)
@@ -1220,7 +1226,8 @@ void QWidget::setFixedSize( int w, int h )
   Sets the minimum width of the widget to \a w without changing the
   height.  Provided for convenience.
 
-  \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
+  \sa sizeHint() setAutoMinimumSize() minimumSize() maximumSize()
+  setFixedSize() and more
 */
 
 void QWidget::setMinimumWidth( int w )
@@ -1272,7 +1279,7 @@ void QWidget::setMaximumHeight( int h )
   Sets both the minimum and maximum width of the widget to \a w
   without changing the heights.  Provided for convenience.
 
-  \sa sizeHint() minimumSize() maximumSize() setFixedSize() and more
+  \sa sizeHint() minimumSize() setAutoMinimumSize() maximumSize() setFixedSize() and more
 */
 
 void QWidget::setFixedWidth( int w )
@@ -1293,6 +1300,54 @@ void QWidget::setFixedHeight( int h )
 {
     setMinimumSize( minimumSize().width(), h );
     setMaximumSize( maximumSize().width(), h );
+}
+
+
+/*!  Sets this widget to manage its own minimum size (if supported).
+
+  The only effect of this call is to change the value returned by
+  autoMinimumSize().  Some subclasses use code like this:
+  
+  \code
+    if ( autoMinimumSize() )
+	setMinimumSize( sizeHint() );
+  \endcode
+  
+  in functions such as setFont(), setStyle(), QButton::setPixmap() and
+  QLabel::setText().
+
+  By default, widgets do not manage their own minimum sizes.
+
+  \sa autoMinimumSize(), minimumSize()
+*/
+
+void QWidget::setAutoMinimumSize( bool enable )
+{
+    createExtra();
+    extra->automin = enable;
+}
+
+
+/*!  Returns TRUE if this widget has been configured to manage it own
+  minimum size, and FALSE if it has not.
+  
+  The default is FALSE.
+  
+  If this function returns TRUE, some widgets ensure that
+  setMinimumSize() is called when appropriate, for example by
+  including this code in access functions like QLabel::setText():
+
+  \code
+    if ( autoMinimumSize() )
+	setMinimumSize( sizeHint() );
+  \endcode
+
+  \sa setAutoMinimumSize(), setMinimumSize()
+*/
+
+bool QWidget::autoMinimumSize() const
+{
+    return (extra && extra->automin) ? TRUE : FALSE;
 }
 
 
@@ -2204,7 +2259,7 @@ void QWidget::setCRect( const QRect &r )
   QWidget::StrongFocus if it accepts both and \c QWidget::NoFocus if it
   does not accept focus at all.
 
-  \sa isFocusEnabled(), setFocusPolicy(), focusInEvent(), focusOutEvent(), 
+  \sa isFocusEnabled(), setFocusPolicy(), focusInEvent(), focusOutEvent(),
   keyPressEvent(), keyReleaseEvent(), isEnabled()
 */
 
@@ -2691,7 +2746,7 @@ bool QWidget::event( QEvent *e )
 	case Event_KeyPress: {
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    bool res = FALSE;
-	    if ( k->key() == Key_Backtab || 
+	    if ( k->key() == Key_Backtab ||
 		 (k->key() == Key_Tab && (k->state() & ShiftButton)) )
 		res = focusNextPrevChild( FALSE );
 	    else if ( k->key() == Key_Tab )
