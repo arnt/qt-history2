@@ -461,6 +461,14 @@ static const char * const ps_header[] = {
 "    /BSt ED",
 "} D",
 "",
+"/WB {",				// set white solid brush
+"    1 W BR",
+"} D",
+"",
+"/NB {",				// set nobrush
+"    0 W BR",
+"} D",
+"",
 "/PE {",				// PdcSetPen [style width R G B]
 "    CRGB",
 "    PCol astore pop",
@@ -2238,7 +2246,7 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 #define INT_ARG(index)	p[index].ival << ' '
 
 static char returnbuffer[13];
-static const char * color( const QColor &c ) 
+static const char * color( const QColor &c )
 {
     if ( c == Qt::black )
 	qstrcpy( returnbuffer, "B " );
@@ -2246,7 +2254,7 @@ static const char * color( const QColor &c )
 	qstrcpy( returnbuffer, "W " );
     else if ( c.red() == c.green() && c.red() == c.blue() )
 	sprintf( returnbuffer, "%d d2 ", c.red() );
-    else 
+    else
 	sprintf( returnbuffer, "%d %d %d ",
 		 c.red(), c.green(), c.blue() );
     return returnbuffer;
@@ -2314,6 +2322,32 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		stream << (int)d->cpen.style() << ' ' << d->cpen.width()
 		       << ' ' << color( d->cpen.color() ) << "PE\n";
 	    d->dirtypen = FALSE;
+	}
+	if ( d->dirtypen ) {
+	    // we special-case for narrow solid lines
+	    if ( d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 )
+		stream << color( d->cpen.color() ) << "P1\n";
+	    else
+		stream << (int)d->cpen.style() << ' ' << d->cpen.width()
+		       << ' ' << color( d->cpen.color() ) << "PE\n";
+	    d->dirtypen = FALSE;
+	}
+	if ( d->dirtybrush ) {
+	    // we special-case for nobrush and solid white, since
+	    // those are the two most common brushes
+	    if ( d->cbrush.style() == Qt::NoBrush )
+		stream << "NB\n";
+	    else if ( d->cbrush.style() == Qt::SolidPattern &&
+		      d->cbrush.color() == Qt::white )
+		stream << "WB\n";
+	    else
+		stream << (int)p[0].brush->style() << ' '
+		       << color( p[0].brush->color() ) << "BR\n";
+	    d->dirtybrush = FALSE;
+#if 0
+	stream << (int)p[0].brush->style()	 << ' '
+	       << color( p[0].brush->color() ) << "BR\n";
+#endif
 	}
     }
 
@@ -2476,10 +2510,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     case PdcSetPen:
 	d->dirtypen = TRUE;
 	d->cpen = *(p[0].pen);
-#if 0
-	stream << (int)p[0].pen->style() << ' ' << p[0].pen->width()
-	       << ' ' << color( p[0].pen->color() ) << "PE\n";
-#endif
 	break;
     case PdcSetBrush:
 	if ( p[0].brush->style() == Qt::CustomPattern ) {
@@ -2488,8 +2518,12 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 #endif
 	    return FALSE;
 	}
+	d->dirtybrush = TRUE;
+	d->cbrush = *(p[0].brush);
+#if 0
 	stream << (int)p[0].brush->style()	 << ' '
 	       << color( p[0].brush->color() ) << "BR\n";
+#endif
 	break;
     case PdcSetTabStops:
     case PdcSetTabArray:
@@ -2905,7 +2939,7 @@ void QPSPrinter::emitHeader( bool finished )
 
 void QPSPrinter::newPageSetup( QPainter *paint )
 {
-    if ( d->buffer && 
+    if ( d->buffer &&
 	 ( d->pagesInBuffer++ > 32 ||
 	   ( d->pagesInBuffer > 4 && d->buffer->size() > 131072 ) ) )
 	emitHeader( FALSE );
