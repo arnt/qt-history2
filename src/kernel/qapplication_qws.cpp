@@ -1405,12 +1405,21 @@ void qt_init_display()
     init_display();
 }
 
+static bool read_bool_env_var( const char *var, bool defaultvalue )
+{
+    // returns TRUE if env variable is set to non-zero
+    // returns FALSE if env var is set to zero
+    // returns defaultvalue if env var not set
+    char *x = getenv(var);
+    return (x && *x) ? (strcmp(x,"0") != 0) : defaultvalue;
+}
+
 void qt_init( int *argcptr, char **argv, QApplication::Type type )
 {
     if ( type == QApplication::GuiServer )
 	qt_is_gui_used = FALSE; //we'll turn it on in a second
-    qws_sw_cursor = getenv("QWS_SW_CURSOR") != 0;
-    qws_screen_is_interlaced = getenv("QWS_INTERLACE") != 0;
+    qws_sw_cursor = read_bool_env_var("QWS_SW_CURSOR",qws_sw_cursor);
+    qws_screen_is_interlaced = read_bool_env_var("QWS_INTERLACE",FALSE);
 
     const char *display = getenv("QWS_DISPLAY");
     if ( display )

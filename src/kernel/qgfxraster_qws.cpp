@@ -42,6 +42,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+extern bool qws_sw_cursor;
+
 // #define QT_QWS_REVERSE_BYTE_ENDIANNESS
 
 // Pull this private function in from qglobal.cpp
@@ -305,18 +307,24 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 
 void QScreenCursor::move( int x, int y )
 {
+    bool save = FALSE;
+    if ( qws_sw_cursor ) {
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
+	QWSDisplay::grab( TRUE );
 #endif
-    bool save = restoreUnder(data->bound);
+	save = restoreUnder(data->bound);
+    }
     data->x = x;
     data->y = y;
     data->bound = QRect( data->x - data->hotx, data->y - data->hoty,
-		   data->width+1, data->height+1 );
-    if (save) saveUnder();
+			data->width+1, data->height+1 );
+    if ( qws_sw_cursor ) {
+	if ( save )
+	    saveUnder();
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::ungrab();
+	QWSDisplay::ungrab();
 #endif
+    }
 }
 
 /*!
@@ -331,6 +339,9 @@ void QScreenCursor::move( int x, int y )
 
 bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 {
+    if ( !qws_sw_cursor )
+	return FALSE;
+
     int depth = qt_screen->depth();
 
     if (!data || !data->enable) {
@@ -409,6 +420,9 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 
 void QScreenCursor::saveUnder()
 {
+    if ( !qws_sw_cursor )
+	return;
+
     int depth = qt_screen->depth();
     int x = data->x - data->hotx;
     int y = data->y - data->hoty;
