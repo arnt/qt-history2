@@ -831,8 +831,8 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		top = newtop;
 
 		// Sanity check frame size - must fit on "screen".
-		if (left >= swidth) left=swidth-1;
-		if (top >= sheight) top=sheight-1;
+		if (left >= swidth) left=QMAX(0, swidth-1);
+		if (top >= sheight) top=QMAX(0, sheight-1);
 		if (left+width >= swidth) {
 		    if ( width <= swidth )
 			left=swidth-width;
@@ -846,8 +846,8 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 			height=sheight-top;
 		}
 
-		right=left+width-1;
-		bottom=top+height-1;
+		right=QMAX( 0, left+width-1);
+		bottom=QMAX(0, top+height-1);
 		lcmap=!!(hold[9]&0x80);
 		interlace=!!(hold[9]&0x40);
 		//bool lcmsortflag=!!(hold[9]&0x20);
@@ -985,9 +985,9 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 			firstcode=oldcode=code;
 			if (!out_of_bounds) {
 			    if (firstcode==trans) {
-				if ( !preserve_trans )
+				if ( !preserve_trans && line )
 				    line[y][x] = trans_index;
-			    } else {
+			    } else if ( line ) {
 				line[y][x] = firstcode;
 			    }
 			}
