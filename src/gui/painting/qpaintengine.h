@@ -73,7 +73,7 @@ public:
         DirtyClip               = 0x0020,
         DirtyHints              = 0x0040,
 
-        AllDirty                = 0xffff
+        AllDirty                = 0x007f
     };
 
     QPaintEngine(PaintEngineFeatures features=0);

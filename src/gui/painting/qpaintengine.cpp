@@ -16,6 +16,8 @@
 #include "qpaintengine_p.h"
 #include "qpainter_p.h"
 
+#include <qdebug.h>
+
 #include <private/qfontengine_p.h>
 
 /*! \class QPaintEngine qpaintengine.h
@@ -182,7 +184,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     }
     if (testDirty(DirtyClip)) {
         updateClipRegion(s->txop > QPainter::TxNone && !hasFeature(ClipTransform)
-                         ? s->clipRegionXFormed
+                         ? s->clipRegionMatrix * s->clipRegion
                          : s->clipRegion,
                          s->clipEnabled);
         clearDirty(DirtyClip);

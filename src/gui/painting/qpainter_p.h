@@ -37,6 +37,7 @@ public:
         bgOrigin = s->bgOrigin;
         bgBrush = QBrush(s->bgBrush);
         clipRegion = QRegion(s->clipRegion);
+        clipRegionMatrix = s->clipRegionMatrix;
         clipEnabled = s->clipEnabled;
         bgMode = s->bgMode;
         VxF = s->VxF;
@@ -73,7 +74,7 @@ public:
     QBrush brush;
     QBrush bgBrush;             // background brush
     QRegion clipRegion;
-    QRegion clipRegionXFormed;
+    QWMatrix clipRegionMatrix;
 #ifndef QT_NO_TRANSFORMATIONS
     QWMatrix worldMatrix;       // World transformation matrix, not window and viewport
     QWMatrix matrix;            // Complete transformation matrix, including win and view.

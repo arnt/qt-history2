@@ -763,7 +763,11 @@ void QPainter::setClipping(bool enable)
 
 QRegion QPainter::clipRegion() const
 {
-    return d->state->clipRegion;
+    if (!isActive()) {
+        qWarning("QPainter::clipRegion(), painter not active");
+        return QRegion();
+    }
+    return (d->state->clipRegionMatrix * d->state->matrix.invert()) * d->state->clipRegion;
 }
 
 /*!
@@ -803,11 +807,8 @@ void QPainter::setClipRegion(const QRegion &r)
     }
 
     d->engine->updateState(d->state);
-
     d->state->clipRegion = r;
-    if (d->state->txop > TxNone && !d->engine->hasFeature(QPaintEngine::ClipTransform)) {
-	d->state->clipRegionXFormed = d->state->matrix * r;
-    }
+    d->state->clipRegionMatrix = d->state->matrix;
     d->state->clipEnabled = true;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyClip);
@@ -874,8 +875,14 @@ bool QPainter::hasWorldXForm() const
 
 void QPainter::setWindow(int x, int y, int w, int h)
 {
-    if (!isActive())
-        qWarning("QPainter::setWindow: Will be reset by begin()");
+    if (!isActive()) {
+        qWarning("QPainter::setWindow(), painter not active");
+        return;
+    }
+
+    // Must update clip before changing matrix.
+    d->engine->updateState(d->state);
+
     d->state->wx = x;
     d->state->wy = y;
     d->state->ww = w;
@@ -924,8 +931,14 @@ QRect QPainter::window() const
 
 void QPainter::setViewport(int x, int y, int w, int h)
 {
-    if (!isActive())
-        qWarning("QPainter::setViewport: Will be reset by begin()");
+    if (!isActive()) {
+        qWarning("QPainter::setViewport(), painter not active");
+        return;
+    }
+
+    // Must update clip before changing matrix.
+    d->engine->updateState(d->state);
+
     d->state->vx = x;
     d->state->vy = y;
     d->state->vw = w;
@@ -957,10 +970,16 @@ QRect QPainter::viewport() const
 
 void QPainter::setViewXForm(bool enable)
 {
-    if (!isActive())
-        qWarning("QPainter::setViewXForm: Will be reset by begin()");
-    if (!isActive() || enable == d->state->VxF)
+    if (!isActive()) {
+        qWarning("QPainter::setViewXForm(), painter not active");
         return;
+    }
+    if (enable == d->state->VxF)
+        return;
+
+    // Must update clip before changing matrix.
+    d->engine->updateState(d->state);
+
     d->state->VxF = enable;
     updateXForm();
 }
@@ -1016,8 +1035,14 @@ void QPainter::setViewXForm(bool enable)
 
 void QPainter::setWorldMatrix(const QWMatrix &wm, bool combine)
 {
-    if (!isActive())
-        qWarning("QPainter::setWorldMatrix: Will be reset by begin()");
+   if (!isActive()) {
+        qWarning("QPainter::setWorldMatrix(), painter not active ");
+        return;
+    }
+
+    // Must update clip before changing matrix.
+    d->engine->updateState(d->state);
+
     if (combine)
         d->state->worldMatrix = wm * d->state->worldMatrix;                        // combines
     else
@@ -1054,10 +1079,16 @@ const QWMatrix &QPainter::worldMatrix() const
 
 void QPainter::setWorldXForm(bool enable)
 {
-    if (!isActive())
-        qWarning("QPainter::setWorldXForm: Will be reset by begin()");
-    if (!isActive() || enable == d->state->WxF)
+    if (!isActive()) {
+        qWarning("QPainter::setWorldXForm(), painter not active");
         return;
+    }
+    if (enable == d->state->WxF)
+        return;
+
+    // Must update clip before changing matrix.
+    d->engine->updateState(d->state);
+
     d->state->WxF = enable;
     updateXForm();
 }
@@ -1116,8 +1147,11 @@ void QPainter::rotate(double a)
 
 void QPainter::resetXForm()
 {
-    if (!isActive())
+    if (!isActive()) {
+        qWarning("QPainter::resetXForm(), painter not active");
         return;
+    }
+
     d->state->wx = d->state->wy = d->state->vx = d->state->vy = 0;                        // default view origins
     d->state->ww = d->state->vw = d->device->metric(QPaintDeviceMetrics::PdmWidth);
     d->state->wh = d->state->vh = d->device->metric(QPaintDeviceMetrics::PdmHeight);
