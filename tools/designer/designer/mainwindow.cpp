@@ -68,12 +68,6 @@
 #include <qbuffer.h>
 #include <qdir.h>
 #include <qstyle.h>
-#include <qmotifstyle.h>
-#include <qcdestyle.h>
-#include <qplatinumstyle.h>
-#include <qwindowsstyle.h>
-#include <qsgistyle.h>
-#include <qmotifplusstyle.h>
 #include <qlabel.h>
 #include <qcombobox.h>
 #include <qstatusbar.h>
@@ -2093,7 +2087,9 @@ void MainWindow::editPreferences()
 void MainWindow::searchFind()
 {
     if ( !workSpace()->activeWindow() ||
-	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) );
+	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+	 return;
+
     if ( !findDialog )
 	findDialog = new FindDialog( this, 0, FALSE );
     findDialog->show();
@@ -2113,7 +2109,9 @@ void MainWindow::searchIncremetalFindMenu()
 void MainWindow::searchIncremetalFind()
 {
     if ( !workSpace()->activeWindow() ||
-	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) );
+	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+	 return;
+
     ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
 									     FALSE, FALSE, TRUE, FALSE );
 }
@@ -2121,7 +2119,9 @@ void MainWindow::searchIncremetalFind()
 void MainWindow::searchIncremetalFindNext()
 {
     if ( !workSpace()->activeWindow() ||
-	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) );
+	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+	 return;
+
     ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
 									     FALSE, FALSE, TRUE, TRUE );
 }
