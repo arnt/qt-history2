@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#85 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#86 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -1994,6 +1994,10 @@ private:
     // used to build the attribute list
     QXmlAttributes attList;
 
+    // used in QXmlSimpleReader::parseContent() to decide whether character
+    // data was read
+    bool contentCharDataRead;
+
     // helper classes
     QXmlLocator *locator;
     QXmlNamespaceSupport namespaceSupport;
@@ -3161,8 +3165,6 @@ bool QXmlSimpleReader::processElementAttribute()
 */
 bool QXmlSimpleReader::parseContent()
 {
-    static bool charDataRead;
-
     const signed char Init             =  0;
     const signed char ChD              =  1; // CharData
     const signed char ChD1             =  2; // CharData help state
@@ -3229,7 +3231,7 @@ bool QXmlSimpleReader::parseContent()
     signed char input;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
-	charDataRead = FALSE;
+	d->contentCharDataRead = FALSE;
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
@@ -3315,7 +3317,7 @@ bool QXmlSimpleReader::parseContent()
 	    case Done:
 		// call the handler for CharData
 		if ( contentHnd ) {
-		    if ( charDataRead ) {
+		    if ( d->contentCharDataRead ) {
 			if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
 			    if ( !contentHnd->characters( string() ) ) {
 				reportParseError( contentHnd->errorString() );
@@ -3352,17 +3354,34 @@ bool QXmlSimpleReader::parseContent()
 		break;
 	    case ChD:
 		// on first call: clear string
-		if ( !charDataRead ) {
-		    charDataRead = TRUE;
+		if ( !d->contentCharDataRead ) {
+		    d->contentCharDataRead = TRUE;
 		    stringClear();
 		}
 		stringAddC();
 		next();
+#if 0
+	    if ( d->reportEntities ) {
+		if ( contentHnd ) {
+		    if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
+			if ( !contentHnd->characters( string() ) ) {
+			    // ### missing reportParseError( contentHnd->errorString() );
+			}
+		    }
+		}
+		stringClear();
+		if ( lexicalHnd ) {
+		    if ( !lexicalHnd->endEntity(d->xmlRefName.top()) ) {
+			// ### missing reportParseError( lexicalHnd->errorString() );
+		    }
+		}
+	    }
+#endif
 		break;
 	    case ChD1:
 		// on first call: clear string
-		if ( !charDataRead ) {
-		    charDataRead = TRUE;
+		if ( !d->contentCharDataRead ) {
+		    d->contentCharDataRead = TRUE;
 		    stringClear();
 		}
 		stringAddC();
@@ -3373,7 +3392,7 @@ bool QXmlSimpleReader::parseContent()
 		next();
 		break;
 	    case Ref:
-		if ( !charDataRead) {
+		if ( !d->contentCharDataRead) {
 		    // reference may be CharData; so clear string to be safe
 		    stringClear();
 		    d->parseReference_context = InContent;
@@ -3381,7 +3400,7 @@ bool QXmlSimpleReader::parseContent()
 			parseFailed( &QXmlSimpleReader::parseContent, state );
 			return FALSE;
 		    }
-		    charDataRead = d->parseReference_charDataRead;
+		    d->contentCharDataRead = d->parseReference_charDataRead;
 		} else {
 		    if ( d->reportEntities ) {
 			// report character data in chunks
@@ -3405,7 +3424,7 @@ bool QXmlSimpleReader::parseContent()
 	    case Lt:
 		// call the handler for CharData
 		if ( contentHnd ) {
-		    if ( charDataRead ) {
+		    if ( d->contentCharDataRead ) {
 			if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
 			    if ( !contentHnd->characters( string() ) ) {
 				reportParseError( contentHnd->errorString() );
@@ -3414,7 +3433,7 @@ bool QXmlSimpleReader::parseContent()
 			}
 		    }
 		}
-		charDataRead = FALSE;
+		d->contentCharDataRead = FALSE;
 		next();
 		break;
 	    case PI:
@@ -3447,7 +3466,6 @@ bool QXmlSimpleReader::parseContent()
 		}
 		break;
 	    case CDS1:
-		// read one character and add it
 		stringAddC();
 		next();
 		break;
@@ -6375,12 +6393,12 @@ bool QXmlSimpleReader::parseNmtoken()
 /*
   Parse a Reference [67].
 
-  charDataRead is set to TRUE if the reference must not be parsed. The
-  character(s) which the reference mapped to are appended to string. The
-  head stands on the first character after the reference.
+  parseReference_charDataRead is set to TRUE if the reference must not be
+  parsed. The character(s) which the reference mapped to are appended to
+  string. The head stands on the first character after the reference.
 
-  charDataRead is set to FALSE if the reference must be parsed. The
-  charachter(s) which the reference mapped to are inserted at the reference
+  parseReference_charDataRead is set to FALSE if the reference must be parsed.
+  The charachter(s) which the reference mapped to are inserted at the reference
   position. The head stands on the first character of the replacement).
 */
 bool QXmlSimpleReader::parseReference()
@@ -6803,7 +6821,7 @@ bool QXmlSimpleReader::insertXmlRef( const QString &data, const QString &name, b
 void QXmlSimpleReader::next()
 {
     int count = d->xmlRef.count();
-    if ( count != 0 ) {
+    while ( count != 0 ) {
 	if ( d->xmlRef.top().isEmpty() ) {
 	    if ( d->reportEntities ) {
 		if ( contentHnd ) {
@@ -6823,8 +6841,7 @@ void QXmlSimpleReader::next()
 	    d->xmlRef.pop();
 	    d->xmlRefName.pop();
 	    count--;
-	}
-	if ( count != 0 ) {
+	} else {
 	    c = d->xmlRef.top()[0];
 	    d->xmlRef.top().remove( 0, 1 );
 	    return;
