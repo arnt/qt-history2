@@ -353,18 +353,6 @@ bool QBuffer::atEnd() const
 Q_LONGLONG QBuffer::readData(char *data, Q_LONGLONG len)
 {
     Q_D(QBuffer);
-    if (len <= 0) // nothing to do
-        return 0;
-    Q_CHECK_PTR(data);
-    if (!isOpen()) {
-        qWarning("QIODevice::read: File not open");
-        return -1;
-    }
-    if (!isReadable()) {
-        qWarning("QIODevice::read: Read operation not permitted");
-        return -1;
-    }
-
     if (d->ioIndex + len > d->buf->size()) {   // overflow
         if ((int)d->ioIndex >= d->buf->size()) {
             return 0;
@@ -383,7 +371,6 @@ Q_LONGLONG QBuffer::readData(char *data, Q_LONGLONG len)
 Q_LONGLONG QBuffer::writeData(const char *data, Q_LONGLONG len)
 {
     Q_D(QBuffer);
-    Q_CHECK_PTR(data);
     if (d->ioIndex + len > d->buf->size()) {             // overflow
         d->buf->resize(d->ioIndex + len);
         if (d->buf->size() != (int)(d->ioIndex + len)) {           // could not resize
