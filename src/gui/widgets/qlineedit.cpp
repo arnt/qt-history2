@@ -1037,7 +1037,7 @@ void QLineEdit::redo()
     \brief whether the line edit is read only.
 
     In read-only mode, the user can still copy the text to the
-    clipboard or drag-and-drop the text (if echoMode() is \c Normal),
+    clipboard, or drag and drop the text (if echoMode() is \c Normal),
     but cannot edit it.
 
     QLineEdit does not show a cursor in read-only mode.

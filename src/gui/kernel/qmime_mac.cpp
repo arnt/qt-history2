@@ -60,9 +60,9 @@ OSErr qt_mac_create_fsspec(const QString &path, FSSpec *spec); //qglobal_mac.cpp
   \ingroup draganddrop
   \ingroup misc
 
-  Qt's drag-and-drop and clipboard facilities use the MIME standard.
-  On X11, this maps trivially to the Xdnd protocol, but on Mac
-  although some applications use MIME types to describe clipboard
+  Qt's drag and drop support and clipboard facilities use the MIME
+  standard. On X11, this maps trivially to the Xdnd protocol, but on
+  Mac although some applications use MIME types to describe clipboard
   formats, others use arbitrary non-standardized naming conventions,
   or unnamed built-in Mac formats.
 
