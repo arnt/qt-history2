@@ -1532,8 +1532,45 @@ void QListViewItem::enforceSortOrder() const
 
 void QListViewItem::setSelected( bool s )
 {
-    selected = s && isSelectable() ? 1 : 0;
-}
+    QListView* view = listView();
+    if ( !view )
+	return;
+    if ( view->selectionMode() != QListView::NoSelection && isSelectable() && s != isSelected() ) {
+	if ( view->selectionMode() == QListView::Single && this != view->currentItem() ) {
+	    QListViewItem *o = view->currentItem();
+	    if ( o && o->isSelected() )
+		o->selected = FALSE;
+	    view->setCurrentItem( this );
+	    if ( o )
+		o->repaint();
+	    emit view->currentChanged( this );
+	}
+
+	if ( !s ) {
+	    selected = FALSE;	    
+	} else {
+	    if ( view->selectionMode() == QListView::Single && view->currentItem() ) {
+		view->currentItem()->selected = FALSE;
+	    }
+	    if ( view->selectionMode() == QListView::Single ) {
+		bool b = view->signalsBlocked();
+		view->blockSignals( TRUE );
+		view->selectAll( FALSE );
+		view->blockSignals( b );
+	    }
+	    selected = s;
+	}
+
+	repaint();
+	if ( !view->signalsBlocked() ) {
+	    bool emitIt = view->selectionMode() == QListView::Single && s;
+	    QListView *v = listView();
+	    emit v->selectionChanged();
+	    if ( emitIt )
+		emit v->selectionChanged( this );
+	}
+    }
+}  
 
 
 /*!  Returns the total height of this object, including any visible
