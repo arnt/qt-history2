@@ -29,7 +29,7 @@ typedef version_1_0_11 Your_png_h_is_not_version_1_0_11;
 
 #ifdef PNG_USE_GLOBAL_ARRAYS
 /* png_libpng_ver was changed to a function in version 1.0.5c */
-C_EXTERN const char png_libpng_ver[18] = "1.0.11";
+C_EXTERN const char png_libpng_ver[18] = "1.0.12";
 
 /* png_sig was changed to a function in version 1.0.5c */
 /* Place to hold the signature string for a PNG file. */

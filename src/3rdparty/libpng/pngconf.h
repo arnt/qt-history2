@@ -1139,7 +1139,11 @@ typedef z_stream FAR *  png_zstreamp;
 	  ) && !defined(__CYGWIN__))
 
 #  if defined(__GNUC__) || (defined (_MSC_VER) && (_MSC_VER >= 800))
+#ifdef _WIN32_WCE
+#    define PNGAPI
+#else
 #    define PNGAPI __cdecl
+#endif
 #  else
 #    define PNGAPI _cdecl
 #  endif

@@ -13,30 +13,7 @@
 
 #define PNG_INTERNAL
 #include "png.h"
-
-#if defined(_WIN32_WCE)
-/* strtod() function is not supported on WindowsCE */
-#  ifdef PNG_FLOATING_POINT_SUPPORTED
-__inline double strtod(const char *nptr, char **endptr)
-{
-   double result = 0;
-   int len;
-   wchar_t *str, *end;
-
-   len = MultiByteToWideChar(CP_ACP, 0, nptr, -1, NULL, 0);
-   str = (wchar_t *)malloc(len * sizeof(wchar_t));
-   if ( NULL != str )
-   {
-      MultiByteToWideChar(CP_ACP, 0, nptr, -1, str, len);
-      result = wcstod(str, &end);
-      len = WideCharToMultiByte(CP_ACP, 0, end, -1, NULL, 0, NULL, NULL);
-      *endptr = (char *)nptr + (png_strlen(nptr) - len + 1);
-      free(str);
-   }
-   return result;
-}
-#  endif
-#endif
+#include "qwinfunctions.h"
 
 #ifndef PNG_READ_BIG_ENDIAN_SUPPORTED
 /* Grab an unsigned 32-bit integer from a buffer in big-endian format. */
