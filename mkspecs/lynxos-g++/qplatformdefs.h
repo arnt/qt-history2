@@ -73,7 +73,7 @@
 #endif
 
 #define QT_SIGNAL_RETTYPE	void
-#define QT_SIGNAL_ARGS		int
+#define QT_SIGNAL_ARGS		void
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
 #if defined(__GLIBC__) && (__GLIBC__ >= 2)
