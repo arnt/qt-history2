@@ -1234,33 +1234,24 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->visual = reinterpret_cast<Visual *>(visual);
     X11->colormap = colormap;
 
-    if (display) {
+    int argc = priv->argc;
+    char **argv = priv->argv;
+
+    if (X11->display) {
         // Qt part of other application
 
         // Set application name and class
         appName = qstrdup("Qt-subapplication");
         char *app_class = 0;
-        if (priv->argv) {
-            const char* p = strrchr(priv->argv[0], '/');
-            app_class = qstrdup(p ? p + 1 : priv->argv[0]);
+        if (argv) {
+            const char* p = strrchr(argv[0], '/');
+            app_class = qstrdup(p ? p + 1 : argv[0]);
             if (app_class[0])
                 app_class[0] = toupper(app_class[0]);
         }
         appClass = app_class;
-
-        // Install default error handlers
-        original_x_errhandler = XSetErrorHandler(qt_x_errhandler);
-        original_xio_errhandler = XSetIOErrorHandler(qt_xio_errhandler);
     } else {
         // Qt controls everything (default)
-
-        int argc = priv->argc;
-        char **argv = priv->argv;
-        int j;
-
-        // Install default error handlers
-        original_x_errhandler = XSetErrorHandler(qt_x_errhandler);
-        original_xio_errhandler = XSetIOErrorHandler(qt_xio_errhandler);
 
         // Set application name and class
         char *app_class = 0;
@@ -1272,145 +1263,151 @@ void qt_init(QApplicationPrivate *priv, int,
                 app_class[0] = toupper(app_class[0]);
         }
         appClass = app_class;
+    }
 
-        // Get command line params
-        j = argc ? 1 : 0;
-        for (int i=1; i<argc; i++) {
-            if (argv[i] && *argv[i] != '-') {
-                argv[j++] = argv[i];
-                continue;
-            }
-            QByteArray arg(argv[i]);
-            if (arg == "-display") {
-                if (++i < argc)
-                    X11->displayName = argv[i];
-            } else if (arg == "-fn" || arg == "-font") {
-                if (++i < argc)
-                    appFont = argv[i];
-            } else if (arg == "-bg" || arg == "-background") {
-                if (++i < argc)
-                    appBGCol = argv[i];
-            } else if (arg == "-btn" || arg == "-button") {
-                if (++i < argc)
-                    appBTNCol = argv[i];
-            } else if (arg == "-fg" || arg == "-foreground") {
-                if (++i < argc)
-                    appFGCol = argv[i];
-            } else if (arg == "-name") {
-                if (++i < argc)
-                    appName = argv[i];
-            } else if (arg == "-title") {
-                if (++i < argc)
-                    mwTitle = argv[i];
-            } else if (arg == "-geometry") {
-                if (++i < argc)
-                    mwGeometry = argv[i];
-            } else if (arg == "-im") {
-                if (++i < argc)
-                    qt_ximServer = argv[i];
-#if 0
-            } else if (arg == "-noxim") {
-                noxim=true;
-#endif
-            } else if (arg == "-iconic") {
-                mwIconic = !mwIconic;
-            } else if (arg == "-ncols") {   // xv and netscape use this name
-                if (++i < argc)
-                    X11->color_count = qMax(0,atoi(argv[i]));
-            } else if (arg == "-visual") {  // xv and netscape use this name
-                if (++i < argc) {
-                    QString s = QString(argv[i]).toLower();
-                    if (s == "staticgray")
-                        X11->visual_class = StaticGray;
-                    else if (s == "grayscale")
-                        X11->visual_class = XGrayScale;
-                    else if (s == "staticcolor")
-                        X11->visual_class = StaticColor;
-                    else if (s == "pseudocolor")
-                        X11->visual_class = PseudoColor;
-                    else if (s == "truecolor")
-                        X11->visual_class = TrueColor;
-                    else if (s == "directcolor")
-                        X11->visual_class = DirectColor;
-                    else
-                        X11->visual_id = static_cast<int>(strtol(argv[i], 0, 0));
-                }
-#ifndef QT_NO_XIM
-            } else if (arg == "-inputstyle") {
-                if (++i < argc) {
-                    QString s = QString(argv[i]).toLower();
-                    if (s == "onthespot")
-                        qt_xim_preferred_style = XIMPreeditCallbacks |
-                                              XIMStatusNothing;
-                    else if (s == "overthespot")
-                        qt_xim_preferred_style = XIMPreeditPosition |
-                                              XIMStatusNothing;
-                    else if (s == "offthespot")
-                        qt_xim_preferred_style = XIMPreeditArea |
-                                              XIMStatusArea;
-                    else if (s == "root")
-                        qt_xim_preferred_style = XIMPreeditNothing |
-                                              XIMStatusNothing;
-                }
-#endif
-            } else if (arg == "-cmap") {    // xv uses this name
-                X11->custom_cmap = true;
-            }
-#if defined(QT_DEBUG)
-            else if (arg == "-sync")
-                appSync = !appSync;
-            else if (arg == "-nograb")
-                appNoGrab = !appNoGrab;
-            else if (arg == "-dograb")
-                appDoGrab = !appDoGrab;
-#endif
-            else
-                argv[j++] = argv[i];
+    // Install default error handlers
+    original_x_errhandler = XSetErrorHandler(qt_x_errhandler);
+    original_xio_errhandler = XSetIOErrorHandler(qt_xio_errhandler);
+
+    // Get command line params
+    int j = argc ? 1 : 0;
+    for (int i=1; i<argc; i++) {
+        if (argv[i] && *argv[i] != '-') {
+            argv[j++] = argv[i];
+            continue;
         }
+        QByteArray arg(argv[i]);
+        if (arg == "-display") {
+            if (++i < argc && !X11->display)
+                X11->displayName = argv[i];
+        } else if (arg == "-fn" || arg == "-font") {
+            if (++i < argc)
+                appFont = argv[i];
+        } else if (arg == "-bg" || arg == "-background") {
+            if (++i < argc)
+                appBGCol = argv[i];
+        } else if (arg == "-btn" || arg == "-button") {
+            if (++i < argc)
+                appBTNCol = argv[i];
+        } else if (arg == "-fg" || arg == "-foreground") {
+            if (++i < argc)
+                appFGCol = argv[i];
+        } else if (arg == "-name") {
+            if (++i < argc)
+                appName = argv[i];
+        } else if (arg == "-title") {
+            if (++i < argc)
+                mwTitle = argv[i];
+        } else if (arg == "-geometry") {
+            if (++i < argc)
+                mwGeometry = argv[i];
+        } else if (arg == "-im") {
+            if (++i < argc)
+                qt_ximServer = argv[i];
+#if 0
+        } else if (arg == "-noxim") {
+            noxim=true;
+#endif
+        } else if (arg == "-iconic") {
+            mwIconic = !mwIconic;
+        } else if (arg == "-ncols") {   // xv and netscape use this name
+            if (++i < argc)
+                X11->color_count = qMax(0,atoi(argv[i]));
+        } else if (arg == "-visual") {  // xv and netscape use this name
+            if (++i < argc && !X11->visual) {
+                QString s = QString(argv[i]).toLower();
+                if (s == "staticgray")
+                    X11->visual_class = StaticGray;
+                else if (s == "grayscale")
+                    X11->visual_class = XGrayScale;
+                else if (s == "staticcolor")
+                    X11->visual_class = StaticColor;
+                else if (s == "pseudocolor")
+                    X11->visual_class = PseudoColor;
+                else if (s == "truecolor")
+                    X11->visual_class = TrueColor;
+                else if (s == "directcolor")
+                    X11->visual_class = DirectColor;
+                else
+                    X11->visual_id = static_cast<int>(strtol(argv[i], 0, 0));
+            }
+#ifndef QT_NO_XIM
+        } else if (arg == "-inputstyle/") {
+            if (++i < argc) {
+                QString s = QString(argv[i]).toLower();
+                if (s == "onthespot")
+                    qt_xim_preferred_style = XIMPreeditCallbacks |
+                                             XIMStatusNothing;
+                else if (s == "overthespot")
+                    qt_xim_preferred_style = XIMPreeditPosition |
+                                             XIMStatusNothing;
+                else if (s == "offthespot")
+                    qt_xim_preferred_style = XIMPreeditArea |
+                                             XIMStatusArea;
+                else if (s == "root")
+                    qt_xim_preferred_style = XIMPreeditNothing |
+                                             XIMStatusNothing;
+            }
+#endif
+        } else if (arg == "-cmap") {    // xv uses this name
+            if (!X11->colormap)
+                X11->custom_cmap = true;
+        }
+#if defined(QT_DEBUG)
+        else if (arg == "-sync")
+            appSync = !appSync;
+        else if (arg == "-nograb")
+            appNoGrab = !appNoGrab;
+        else if (arg == "-dograb")
+            appDoGrab = !appDoGrab;
+#endif
+        else
+            argv[j++] = argv[i];
+    }
 
-        priv->argc = j;
+    priv->argc = j;
 
 #if defined(QT_DEBUG) && defined(Q_OS_LINUX)
-        if (!appNoGrab && !appDoGrab) {
-            QString s;
-            s.sprintf("/proc/%d/cmdline", getppid());
-            QFile f(s);
-            if (f.open(QIODevice::ReadOnly)) {
-                s.clear();
-                char c;
-                while (f.getChar(&c)) {
-                    if (c == '/')
-                        s.clear();
-                    else
-                        s += c;
-                }
-                if (s == "gdb") {
-                    appNoGrab = true;
-                    qDebug("Qt: gdb: -nograb added to command-line options.\n"
-                            "\t Use the -dograb option to enforce grabbing.");
-                }
-                f.close();
+    if (!appNoGrab && !appDoGrab) {
+        QString s;
+        s.sprintf("/proc/%d/cmdline", getppid());
+        QFile f(s);
+        if (f.open(QIODevice::ReadOnly)) {
+            s.clear();
+            char c;
+            while (f.getChar(&c)) {
+                if (c == '/')
+                    s.clear();
+                else
+                    s += c;
             }
-        }
-#endif
-        // Connect to X server
-
-        if(qt_is_gui_used) {
-            if ((X11->display = XOpenDisplay(X11->displayName)) == 0) {
-                qWarning("%s: cannot connect to X server %s", appName,
-                          XDisplayName(X11->displayName));
-                exit(1);
+            if (s == "gdb") {
+                appNoGrab = true;
+                qDebug("Qt: gdb: -nograb added to command-line options.\n"
+                       "\t Use the -dograb option to enforce grabbing.");
             }
-
-            if (appSync)                                // if "-sync" argument
-                XSynchronize(X11->display, true);
+            f.close();
         }
     }
+#endif
+
+    // Connect to X server
+    if (qt_is_gui_used && !X11->display) {
+        if ((X11->display = XOpenDisplay(X11->displayName)) == 0) {
+            qWarning("%s: cannot connect to X server %s", appName,
+                     XDisplayName(X11->displayName));
+            exit(1);
+        }
+
+        if (appSync)                                // if "-sync" argument
+            XSynchronize(X11->display, true);
+    }
+
     // Common code, regardless of whether display is foreign.
 
     // Get X parameters
 
-    if(qt_is_gui_used) {
+    if (qt_is_gui_used) {
         X11->defaultScreen = DefaultScreen(X11->display);
         X11->screenCount = ScreenCount(X11->display);
 
@@ -1508,11 +1505,11 @@ void qt_init(QApplicationPrivate *priv, int,
                         KeySym sym =
                             XKeycodeToKeysym(X11->display, map->modifiermap[mapIndex], 0);
                         if (qt_alt_mask == 0 &&
-                             (sym == XK_Alt_L || sym == XK_Alt_R)) {
+                            (sym == XK_Alt_L || sym == XK_Alt_R)) {
                             qt_alt_mask = 1 << maskIndex;
                         }
                         if (qt_meta_mask == 0 &&
-                             (sym == XK_Meta_L || sym == XK_Meta_R)) {
+                            (sym == XK_Meta_L || sym == XK_Meta_R)) {
                             qt_meta_mask = 1 << maskIndex;
                         }
                     }
@@ -1527,7 +1524,7 @@ void qt_init(QApplicationPrivate *priv, int,
             mapIndex = 0;
             for (maskIndex = 0; maskIndex < 8; maskIndex++) {
                 if (qt_alt_mask  != (1 << maskIndex) &&
-                     qt_meta_mask != (1 << maskIndex)) {
+                    qt_meta_mask != (1 << maskIndex)) {
                     for (i = 0; i < map->max_keypermod; i++)
                         mapIndex++;
                     continue;
@@ -1641,7 +1638,7 @@ void qt_init(QApplicationPrivate *priv, int,
                 }
 #else
                 if (devName.startsWith(XFREENAMEPEN)
-                              || devName.startsWith(XFREENAMESTYLUS)) {
+                    || devName.startsWith(XFREENAMESTYLUS)) {
                     deviceType = QTabletEvent::Stylus;
                     gotStylus = true;
                 } else if (devName.startsWith(XFREENAMEERASER)) {
@@ -1670,29 +1667,29 @@ void qt_init(QApplicationPrivate *priv, int,
 
                     if (dev->num_classes > 0) {
                         for (ip = dev->classes, j = 0; j < devs->num_classes;
-                                ip++, j++) {
+                             ip++, j++) {
                             switch (ip->input_class) {
                             case KeyClass:
                                 DeviceKeyPress(dev, device_data.xinput_key_press,
-                                                device_data.eventList[device_data.eventCount]);
+                                               device_data.eventList[device_data.eventCount]);
                                 ++device_data.eventCount;
                                 DeviceKeyRelease(dev, device_data.xinput_key_release,
-                                                    device_data.eventList[device_data.eventCount]);
+                                                 device_data.eventList[device_data.eventCount]);
                                 ++device_data.eventCount;
                                 break;
                             case ButtonClass:
                                 DeviceButtonPress(dev, device_data.xinput_button_press,
-                                                    device_data.eventList[device_data.eventCount]);
+                                                  device_data.eventList[device_data.eventCount]);
                                 ++device_data.eventCount;
                                 DeviceButtonRelease(dev, device_data.xinput_button_release,
-                                                        device_data.eventList[device_data.eventCount]);
+                                                    device_data.eventList[device_data.eventCount]);
                                 ++device_data.eventCount;
                                 break;
                             case ValuatorClass:
                                 // I'm only going to be interested in motion when the
                                 // stylus is already down anyway!
                                 DeviceMotionNotify(dev, device_data.xinput_motion,
-                                                    device_data.eventList[device_data.eventCount]);
+                                                   device_data.eventList[device_data.eventCount]);
                                 ++device_data.eventCount;
                                 break;
                             default:
@@ -1745,8 +1742,8 @@ void qt_init(QApplicationPrivate *priv, int,
 
             // read library (ie. plugin) path list
             QString libpathkey = QString(QLatin1String("%1.%2/libraryPath"))
-                                    .arg(QT_VERSION >> 16)
-                                    .arg((QT_VERSION & 0xff00) >> 8);
+                                 .arg(QT_VERSION >> 16)
+                                 .arg((QT_VERSION & 0xff00) >> 8);
             QStringList pathlist =
                 settings.value(libpathkey).toString().split(QLatin1Char(':'));
             if (! pathlist.isEmpty()) {
@@ -1756,7 +1753,7 @@ void qt_init(QApplicationPrivate *priv, int,
             }
 
             QString defaultcodec = settings.value(QLatin1String("defaultCodec"),
-                                                    QVariant(QLatin1String("none"))).toString();
+                                                  QVariant(QLatin1String("none"))).toString();
             if (defaultcodec != QLatin1String("none")) {
                 QTextCodec *codec = QTextCodec::codecForName(defaultcodec.toLatin1());
                 if (codec)

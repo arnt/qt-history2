@@ -70,7 +70,7 @@ public:
     QApplication(int &argc, char **argv, Type);
 #if defined(Q_WS_X11)
     QApplication(Display* dpy, Qt::HANDLE visual = 0, Qt::HANDLE cmap = 0);
-    QApplication(Display *dpy, int argc, char **argv, Qt::HANDLE visual = 0, Qt::HANDLE cmap= 0);
+    QApplication(Display *dpy, int &argc, char **argv, Qt::HANDLE visual = 0, Qt::HANDLE cmap= 0);
 #endif
     virtual ~QApplication();
 

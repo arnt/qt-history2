@@ -754,7 +754,7 @@ QApplication::QApplication(Display* dpy, Qt::HANDLE visual, Qt::HANDLE colormap)
   This is available only on X11.
 
 */
-QApplication::QApplication(Display *dpy, int argc, char **argv,
+QApplication::QApplication(Display *dpy, int &argc, char **argv,
                            Qt::HANDLE visual, Qt::HANDLE colormap)
     : QCoreApplication(*new QApplicationPrivate(argc, argv, GuiClient))
 {
