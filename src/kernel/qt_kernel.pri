@@ -77,7 +77,7 @@ kernel {
 		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qstylesheet.h \
 		  $$KERNEL_H/qthread.h \
-		  $$KERNEL_P/qthread_p.h \
+		  $$KERNEL_P/qthread_unix_p.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qurl.h \
 		  $$KERNEL_H/qlocalfs.h \
