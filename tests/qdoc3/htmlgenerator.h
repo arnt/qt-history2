@@ -60,6 +60,7 @@ private:
     void generateCompactList(const Node *relative, CodeMarker *marker,
 			     const QMap<QString, const Node *> &classMap);
     void generateFunctionIndex(const Node *relative, CodeMarker *marker);
+    void generateLegaleseList(const Node *relative, CodeMarker *marker);
     void generateSynopsis(const Node *node, const InnerNode *relative, CodeMarker *marker,
 			  CodeMarker::SynopsisStyle style);
     void generateClassSectionList(const ClassSection& section, const ClassNode *relative,
@@ -78,6 +79,7 @@ private:
     QString linkForNode( const Node *node, const Node *relative );
     void findAllClasses(const InnerNode *node);
     void findAllFunctions(const InnerNode *node);
+    void findAllLegaleseTexts(const InnerNode *node);
     static int hOffset(const Node *node);
 
 #if 0
@@ -96,6 +98,7 @@ private:
     QMap<QString, const Node *> allClasses;
     QMap<QString, const Node *> mainClasses;
     QMap<QString, QMap<QString, const Node *> > funcIndex;
+    QMap<Text, const Node *> legaleseTexts;
 };
 
 #define HTMLGENERATOR_ADDRESS           "address"

@@ -159,3 +159,29 @@ void Text::clear()
     first = 0;
     last = 0;
 }
+
+int Text::compare(const Text &text1, const Text &text2)
+{
+    if (text1.isEmpty())
+	return text2.isEmpty() ? 0 : -1;
+    if (text2.isEmpty())
+	return 1;
+
+    const Atom *atom1 = text1.firstAtom();
+    const Atom *atom2 = text2.firstAtom();
+
+    for (;;) {
+	if (atom1->type() != atom2->type())
+	    return (int)atom1->type() - (int)atom2->type();
+	int cmp = QString::compare(atom1->string(), atom2->string());
+        if (cmp != 0)
+	    return cmp;
+
+    	if (atom1 == text1.lastAtom())
+	    return atom2 == text2.lastAtom() ? 0 : -1;
+	if (atom2 == text2.lastAtom())
+	    return 1;
+	atom1 = atom1->next();
+        atom2 = atom2->next();
+    }
+}

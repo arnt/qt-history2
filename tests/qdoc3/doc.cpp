@@ -3,9 +3,9 @@
 */
 
 #include <qdatetime.h>
-#include <qdict.h>
 #include <qfile.h>
 #include <qfileinfo.h>
+#include <qhash.h>
 #include <qregexp.h>
 
 #include "codemarker.h"
@@ -17,9 +17,13 @@
 #include "text.h"
 #include "tokenizer.h"
 
+static Set<QString> null_Set_QString;
+static QList<Text> null_QList_Text;
+
 struct Macro
 {
     QString defaultDef;
+    Location defaultDefLocation;
     QMap<QString, QString> otherDefs;
     int numParams;
 };
@@ -30,11 +34,12 @@ enum {
     CMD_ENDIF, CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART, CMD_ENDQUOTATION, CMD_ENDSECTION1,
     CMD_ENDSECTION2, CMD_ENDSECTION3, CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE,
     CMD_FOOTNOTE, CMD_GENERATELIST, CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IF, CMD_IMAGE,
-    CMD_INCLUDE, CMD_INDEX, CMD_KEYWORD, CMD_L, CMD_LIST, CMD_O, CMD_OMIT, CMD_OMITVALUE, CMD_PART,
-    CMD_PRINTLINE, CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION, CMD_QUOTEFILE, CMD_QUOTEFROMFILE,
-    CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SECTION1, CMD_SECTION2, CMD_SECTION3, CMD_SECTION4,
-    CMD_SIDEBAR, CMD_SKIPLINE, CMD_SKIPTO, CMD_SKIPUNTIL, CMD_SUB, CMD_SUP, CMD_TABLE,
-    CMD_TABLEOFCONTENTS, CMD_TARGET, CMD_TT, CMD_UNDERLINE, CMD_VALUE, CMD_WARNING, UNKNOWN_COMMAND
+    CMD_INCLUDE, CMD_INDEX, CMD_KEYWORD, CMD_L, CMD_LEGALESE, CMD_LIST, CMD_O, CMD_OMIT,
+    CMD_OMITVALUE, CMD_PART, CMD_PRINTLINE, CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION,
+    CMD_QUOTEFILE, CMD_QUOTEFROMFILE, CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SECTION1,
+    CMD_SECTION2, CMD_SECTION3, CMD_SECTION4, CMD_SIDEBAR, CMD_SKIPLINE, CMD_SKIPTO, CMD_SKIPUNTIL,
+    CMD_SUB, CMD_SUP, CMD_TABLE, CMD_TABLEOFCONTENTS, CMD_TARGET, CMD_TT, CMD_UNDERLINE, CMD_VALUE,
+    CMD_WARNING, UNKNOWN_COMMAND
 };
 
 static struct {
@@ -80,6 +85,7 @@ static struct {
     { "index", CMD_INDEX, 0 },
     { "keyword", CMD_KEYWORD, 0 },
     { "l", CMD_L, 0 },
+    { "legalese", CMD_LEGALESE, 0 },
     { "list", CMD_LIST, 0 },
     { "o", CMD_O, 0 },
     { "omit", CMD_OMIT, 0 },
@@ -114,9 +120,9 @@ static struct {
     { 0, 0, 0 }
 };
 
-static QMap<QString, QString> *aliasMap = 0;
-static QDict<int> *commandDict = 0;
-static QDict<Macro> *macroDict = 0;
+static QMap<QString, QString> aliasMap;
+static QHash<QString, int> commandHash;
+static QHash<QString, Macro> macroHash;
 
 class DocPrivateExtra
 {
@@ -153,38 +159,31 @@ public:
     Location loc;
     QString src;
     Text text;
-    Set<QString> *params;
-    QList<Text> *alsoList;
-    Set<QString> *enumItemSet;
-    Set<QString> *omitEnumItemSet;
-    Set<QString> *metaCommandSet;
-    QMap<QString, QStringList> *metaCommandMap;
+    Set<QString> params;
+    QList<Text> alsoList;
+    Set<QString> enumItemSet;
+    Set<QString> omitEnumItemSet;
+    Set<QString> metaCommandSet;
+    QMap<QString, QStringList> metaCommandMap;
+    bool hasLegalese : 8;
     DocPrivateExtra *extra;
 };
 
-DocPrivate::DocPrivate( const Location& location, const QString& source )
-    : loc( location ), src( source ), params( 0 ), alsoList( 0 ),
-      enumItemSet( 0 ), omitEnumItemSet( 0 ), metaCommandSet( 0 ),
-      metaCommandMap( 0 ), extra( 0 )
+DocPrivate::DocPrivate(const Location &location, const QString &source)
+    : loc(location), src(source), hasLegalese(false), extra(0)
 {
+    null_Set_QString.ensure_constructed();
+    null_QList_Text.ensure_constructed();
 }
 
 DocPrivate::~DocPrivate()
 {
-    delete params;
-    delete alsoList;
-    delete enumItemSet;
-    delete omitEnumItemSet;
-    delete metaCommandSet;
-    delete metaCommandMap;
     delete extra;
 }
 
 void DocPrivate::addAlso( const Text& also )
 {
-    if ( alsoList == 0 )
-	alsoList = new QList<Text>;
-    alsoList->append( also );
+    alsoList.append( also );
 }
 
 void DocPrivate::constructExtra()
@@ -232,7 +231,7 @@ private:
     CodeMarker *quoteFromFile( int command );
     void expandMacro( const QString& name, const QString& def, int numParams );
     Doc::SectioningUnit getSectioningUnit();
-    QString getArgument( bool verbatim = FALSE );
+    QString getArgument( bool verbatim = false );
     QString getOptionalArgument();
     QString getRestOfLine();
     QString getUntilEnd(int command);
@@ -296,7 +295,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     priv->text << Atom::Nop;
 
     paraState = OutsidePara;
-    indexStartedPara = FALSE;
+    indexStartedPara = false;
     pendingParaLeftType = Atom::Nop;
     pendingParaRightType = Atom::Nop;
 
@@ -307,13 +306,13 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     quoter.reset();
 
     CodeMarker *marker;
-    Macro *macro;
     QString link;
     QString x;
     int begin;
     int indent;
     QStack<bool> preprocessorSkipping;
     int numPreprocessorSkipping = 0;
+    bool inLegalese = false;
 
     while ( pos < len ) {
 	QChar ch = in[pos];
@@ -342,8 +341,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    }
 		}
 	    } else {
-		int *entry = commandDict->find( commandStr );
-		int command = ( entry != 0 ) ? *entry : UNKNOWN_COMMAND;
+		int command = commandHash.value(commandStr, UNKNOWN_COMMAND);
 
 		switch ( command ) {
 		case CMD_A:
@@ -352,9 +350,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    append( Atom::FormattingLeft, ATOM_FORMATTING_PARAMETER );
 		    append( Atom::String, x );
 		    append( Atom::FormattingRight, ATOM_FORMATTING_PARAMETER );
-		    if ( priv->params == 0 )
-			priv->params = new Set<QString>;
-		    priv->params->insert( x );
+		    priv->params.insert( x );
 		    break;
 		case CMD_ABSTRACT:
 		    if ( openCommand(command) ) {
@@ -378,7 +374,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_C:
 		    enterPara();
-		    x = untabifyEtc( getArgument(TRUE) );
+		    x = untabifyEtc( getArgument(true) );
 		    marker = CodeMarker::markerForCode( x );
 		    append( Atom::C, marker->markedUpCode(x, 0, "") );
 		    break;
@@ -534,13 +530,13 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		case CMD_INDEX:
 		    if ( paraState == OutsidePara ) {
 			enterPara();
-			indexStartedPara = TRUE;
+			indexStartedPara = true;
 		    } else {
 			const Atom *last = priv->text.lastAtom();
 			if ( indexStartedPara &&
 			     (last->type() != Atom::FormattingRight ||
 			      last->string() != ATOM_FORMATTING_INDEX) )
-			    indexStartedPara = FALSE;
+			    indexStartedPara = false;
 		    }
 		    startFormat( ATOM_FORMATTING_INDEX, command );
 		    break;
@@ -569,6 +565,14 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			append( Atom::String, x );
 			append( Atom::FormattingRight, ATOM_FORMATTING_LINK );
 		    }
+		    break;
+		case CMD_LEGALESE:
+		    leavePara();
+		    if (!inLegalese) {
+			append(Atom::LegaleseLeft);
+			inLegalese = true;
+		    }
+                    docPrivate->hasLegalese = true;
 		    break;
 		case CMD_LIST:
 		    if ( openCommand(command) ) {
@@ -607,12 +611,8 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		case CMD_OMITVALUE:
 		    leaveValue();
 		    x = getArgument();
-		    if ( priv->enumItemSet == 0 )
-			priv->enumItemSet = new Set<QString>;
-		    priv->enumItemSet->insert( x );
-		    if ( priv->omitEnumItemSet == 0 )
-			priv->omitEnumItemSet = new Set<QString>;
-		    priv->omitEnumItemSet->insert( x );
+		    priv->enumItemSet.insert( x );
+		    priv->omitEnumItemSet.insert( x );
 		    break;
 		case CMD_PART:
 		    startSection( Doc::Part, command );
@@ -733,9 +733,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    leaveValue();
 		    if ( openedLists.top().style() == OpenedList::Value ) {
 			x = getArgument();
-			if ( priv->enumItemSet == 0 )
-			    priv->enumItemSet = new Set<QString>;
-			priv->enumItemSet->insert( x );
+			priv->enumItemSet.insert( x );
 
 			openedLists.top().next();
 			append( Atom::ListTagLeft, ATOM_LIST_VALUE );
@@ -762,43 +760,37 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case UNKNOWN_COMMAND:
 		    if ( metaCommandSet.contains(commandStr) ) {
-			if ( priv->metaCommandSet == 0 ) {
-			    priv->metaCommandSet = new Set<QString>;
-			    priv->metaCommandMap =
-				    new QMap<QString, QStringList>;
-			}
-			priv->metaCommandSet->insert( commandStr );
-			(*priv->metaCommandMap)[commandStr].append(
-				getRestOfLine() );
-		    } else if ( (macro = macroDict->find(commandStr)) != 0 ) {
+			priv->metaCommandSet.insert( commandStr );
+			priv->metaCommandMap[commandStr].append(getRestOfLine());
+		    } else if (macroHash.contains(commandStr)) {
+			const Macro &macro = macroHash.value(commandStr);
 			int numPendingFi = 0;
-			QMap<QString, QString>::ConstIterator d =
-				macro->otherDefs.begin();
-			while ( d != macro->otherDefs.end() ) {
+			QMap<QString, QString>::ConstIterator d = macro.otherDefs.begin();
+			while ( d != macro.otherDefs.end() ) {
 			    append( Atom::FormatIf, d.key() );
-			    expandMacro( commandStr, *d, macro->numParams );
+			    expandMacro( commandStr, *d, macro.numParams );
 			    ++d;
-			    if ( macro->defaultDef.isEmpty() &&
-				 d == macro->otherDefs.end() ) {
+			    if (macro.defaultDef.isEmpty() && d == macro.otherDefs.end()) {
 				append( Atom::FormatEndif );
 			    } else {
 				append( Atom::FormatElse );
 				numPendingFi++;
 			    }
 			}
-			if ( !macro->defaultDef.isEmpty() ) {
-			    // ### VERY EVIL HACK
-			    parse(macro->defaultDef, docPrivate, metaCommandSet);
+			if (!macro.defaultDef.isEmpty()) {
+	                    location().push(macro.defaultDefLocation.filePath()); // ###
+	                    in.insert(pos, macro.defaultDef);
+	                    len = in.length();
+	                    openedInputs.push(pos + macro.defaultDef.length());
 			}
 			while ( numPendingFi-- > 0 )
 			    append( Atom::FormatEndif );
 		    } else {
 			location().warning(
 				tr("Unknown command '\\%1'").arg(commandStr),
-				detailsUnknownCommand(metaCommandSet,
-						      commandStr) );
+				detailsUnknownCommand(metaCommandSet, commandStr));
 			enterPara();
-			append( Atom::UnknownCommand, commandStr );
+			append(Atom::UnknownCommand, commandStr);
 		    }
 		}
 	    }
@@ -844,6 +836,9 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
     }
     leaveValueList();
 
+    if (inLegalese)
+	append(Atom::LegaleseRight);
+
     if (openedCommands.top() != CMD_OMIT) {
 	location().warning(tr("Missing '\\%1'").arg(endCommandName(openedCommands.top())));
     } else if (preprocessorSkipping.count() > 0) {
@@ -874,10 +869,10 @@ QString DocParser::detailsUnknownCommand(const Set<QString> &metaCommandSet, con
 	i++;
     }
 
-    if ( aliasMap->contains(str) )
+    if ( aliasMap.contains(str) )
 	return tr( "The command '\\%1' was renamed '\\%2' by the configuration"
 		   " file. Use the new name." )
-	       .arg( str ).arg( (*aliasMap)[str] );
+	       .arg(str).arg(aliasMap[str]);
 
     QString best = nearestName( str, commandSet );
     if ( best.isEmpty() ) {
@@ -1009,7 +1004,7 @@ void DocParser::startFormat( const QString& format, int command )
 	append( Atom::FormattingRight, format );
 	if ( format == ATOM_FORMATTING_INDEX && indexStartedPara ) {
 	    skipAllSpaces();
-	    indexStartedPara = FALSE;
+	    indexStartedPara = false;
 	}
     }
 }
@@ -1017,7 +1012,7 @@ void DocParser::startFormat( const QString& format, int command )
 bool DocParser::openCommand( int command )
 {
     int top = openedCommands.top();
-    bool ok = TRUE;
+    bool ok = true;
 
     if ( top != CMD_OMIT && top != CMD_LIST ) {
 	QList<int> ordering;
@@ -1039,13 +1034,13 @@ bool DocParser::closeCommand( int endCommand )
 {
     if ( endCommandFor(openedCommands.top()) == endCommand ) {
 	openedCommands.pop();
-	return TRUE;
+	return true;
     } else {
-	bool contains = FALSE;
+	bool contains = false;
 	QStack<int> opened2 = openedCommands;
 	while ( !opened2.isEmpty() ) {
 	    if ( endCommandFor(opened2.top()) == endCommand ) {
-		contains = TRUE;
+		contains = true;
 		break;
 	    }
 	    opened2.pop();
@@ -1062,7 +1057,7 @@ bool DocParser::closeCommand( int endCommand )
 	    location().warning( tr("Missing '\\%1'")
 				.arg(commandName(endCommand)) );
 	}
-	return FALSE;
+	return false;
     }
 }
 
@@ -1195,7 +1190,7 @@ void DocParser::enterPara( Atom::Type leftType, Atom::Type rightType,
     if ( paraState == OutsidePara ) {
 	leaveValueList();
 	append( leftType, string );
-	indexStartedPara = FALSE;
+	indexStartedPara = false;
 	pendingParaLeftType = leftType;
 	pendingParaRightType = rightType;
 	pendingParaString = string;
@@ -1230,7 +1225,7 @@ void DocParser::leavePara()
 	    append( pendingParaRightType, pendingParaString );
 	}
 	paraState = OutsidePara;
-	indexStartedPara = FALSE;
+	indexStartedPara = false;
 	pendingParaRightType = Atom::Nop;
 	pendingParaString = "";
     }
@@ -1301,7 +1296,7 @@ void DocParser::expandMacro( const QString& name, const QString& def,
 
 	for ( int i = 0; i < numParams; i++ ) {
 	    if ( numParams == 1 || isLeftBraceAhead() ) {
-		args << getArgument( TRUE );
+		args << getArgument( true );
 	    } else {
 		location().warning( tr("Macro '\\%1' invoked with too few"
 				       " arguments (expected %2, got %3)")
@@ -1516,10 +1511,10 @@ bool DocParser::isBlankLine()
 
     while ( i < len && in[i].isSpace() ) {
 	if ( in[i] == '\n' )
-	    return TRUE;
+	    return true;
 	i++;
     }
-    return FALSE;
+    return false;
 }
 
 bool DocParser::isLeftBraceAhead()
@@ -1695,6 +1690,8 @@ QString DocParser::slashed( const QString& str )
     return "/" + result + "/";
 }
 
+#define COMMAND_BRIEF                   Doc::alias("brief")
+
 Doc::Doc( const Location& location, const QString& source,
 	  const Set<QString>& metaCommandSet )
 {
@@ -1753,6 +1750,65 @@ Text Doc::briefText() const
     return body().subText( Atom::BriefLeft, Atom::BriefRight );
 }
 
+Text Doc::trimmedBriefText(const QString &className) const
+{
+    Text text = briefText();
+    Atom *atom = text.firstAtom();
+    if (atom && atom->type() == Atom::String) {
+        QString whats;
+        bool standardWording = true;
+
+        QStringList w = QStringList::split(" ", atom->string(), true);
+        if (!w.isEmpty() && w.first() == "The")
+	    w.removeFirst();
+        else
+	    standardWording = false;
+
+        if (!w.isEmpty() && w.first() == className)
+	    w.removeFirst();
+        else
+	    standardWording = false;
+
+        if (!w.isEmpty() && (w.first() == "class" || w.first() == "widget"))
+	    w.removeFirst();
+        else
+	    standardWording = false;
+
+        if (!w.isEmpty() && (w.first() == "is" || w.first() == "provides" || w.first() == "contains"
+			     || w.first() == "specifies"))
+	    w.removeFirst();
+
+        if (!w.isEmpty() && (w.first() == "a" || w.first() == "an"))
+	    w.removeFirst();
+
+        whats = w.join(" ");
+        if (whats.endsWith("."))
+	    whats.truncate(whats.length() - 1);
+
+        if (whats.isEmpty())
+	    standardWording = false;
+        else
+	    whats[0] = whats[0].upper();
+
+	// ### move this once \brief is abolished for properties
+        if (!standardWording) {
+	    location().warning(tr("Nonstandard wording in '\\%1' text for '%2'")
+			       .arg(COMMAND_BRIEF).arg(className));
+	} else {
+	    atom->setString(whats);
+        }
+    }
+    return text;
+}
+
+Text Doc::legaleseText() const
+{
+    if (priv == 0 || !priv->hasLegalese)
+	return Text();
+    else
+	return body().subText(Atom::LegaleseLeft, Atom::LegaleseRight);
+}
+
 const QString& Doc::baseName() const
 {
     static QString null;
@@ -1783,38 +1839,38 @@ Doc::SectioningUnit Doc::sectioningUnit() const
 }
 #endif
 
-const Set<QString> *Doc::parameterNames() const
+const Set<QString> &Doc::parameterNames() const
 {
-    return priv == 0 ? 0 : priv->params;
+    return priv == 0 ? null_Set_QString : priv->params;
 }
 
-const Set<QString> *Doc::enumItemNames() const
+const Set<QString> &Doc::enumItemNames() const
 {
-    return priv == 0 ? 0 : priv->enumItemSet;
+    return priv == 0 ? null_Set_QString : priv->enumItemSet;
 }
 
-const Set<QString> *Doc::omitEnumItemNames() const
+const Set<QString> &Doc::omitEnumItemNames() const
 {
-    return priv == 0 ? 0 : priv->omitEnumItemSet;
+    return priv == 0 ? null_Set_QString : priv->omitEnumItemSet;
 }
 
-const Set<QString> *Doc::metaCommandsUsed() const
+const Set<QString> &Doc::metaCommandsUsed() const
 {
-    return priv == 0 ? 0 : priv->metaCommandSet;
+    return priv == 0 ? null_Set_QString : priv->metaCommandSet;
 }
 
 QStringList Doc::metaCommandArgs( const QString& metaCommand ) const
 {
-    if ( priv == 0 || priv->metaCommandMap == 0 ) {
+    if ( priv == 0 ) {
 	return QStringList();
     } else {
-	return (*priv->metaCommandMap)[metaCommand];
+	return priv->metaCommandMap.value(metaCommand);
     }
 }
 
-const QList<Text> *Doc::alsoList() const
+const QList<Text> &Doc::alsoList() const
 {
-    return priv == 0 ? 0 : priv->alsoList;
+    return priv == 0 ? null_QList_Text : priv->alsoList;
 }
 
 #if notyet // ###
@@ -1833,10 +1889,10 @@ Doc Doc::propertyFunctionDoc( const Doc& propertyDoc, const QString& role,
 
 	if ( role == "getter" ) {
 	    if ( whether ) {
-		doc.priv->text << "Returns TRUE if"
+		doc.priv->text << "Returns true if"
 			       << brief.firstAtom()->string().mid( 7 )
 			       << brief.subText( brief.firstAtom()->next() )
-			       << "; otherwise returns FALSE.";
+			       << "; otherwise returns false.";
 	    } else {
 		doc.priv->text << "Returns " << brief << ".";
 	    }
@@ -1872,8 +1928,8 @@ void Doc::initialize( const Config& config )
 
     QMap<QString, QString> reverseAliasMap;
 
-    aliasMap = new QMap<QString, QString>;
-    commandDict = new QDict<int>( 251 );
+    aliasMap.ensure_constructed();
+    commandHash.ensure_constructed();
 
     Set<QString> commands = config.subVars( CONFIG_ALIAS );
     Set<QString>::ConstIterator c = commands.begin();
@@ -1888,48 +1944,49 @@ void Doc::initialize( const Config& config )
 	} else {
 	    reverseAliasMap.insert( alias, *c );
 	}
-	aliasMap->insert( *c, alias );
+	aliasMap.insert(*c, alias);
 	++c;
     }
 
     int i = 0;
-    while ( cmds[i].english != 0 ) {
+    while ( cmds[i].english ) {
 	cmds[i].alias = alias( cmds[i].english );
-	commandDict->replace( cmds[i].alias, &cmds[i].no );
+	commandHash.insert(cmds[i].alias, cmds[i].no);
 
 	if ( cmds[i].no != i )
 	    Location::internalError( tr("command %1 missing").arg(i) );
 	i++;
     }
 
-    macroDict = new QDict<Macro>( 251 );
-    macroDict->setAutoDelete( TRUE );
+    macroHash.ensure_constructed();
 
     Set<QString> macroNames = config.subVars( CONFIG_MACRO );
     Set<QString>::ConstIterator n = macroNames.begin();
     while ( n != macroNames.end() ) {
 	QString macroDotName = CONFIG_MACRO + Config::dot + *n;
-	Macro *macro = new Macro;
-	macro->numParams = -1;
-	macro->defaultDef = config.getString( macroDotName );
-	if ( !macro->defaultDef.isEmpty() )
-	    macro->numParams = Config::numParams( macro->defaultDef );
-	bool silent = FALSE;
+	Macro macro;
+	macro.numParams = -1;
+	macro.defaultDef = config.getString( macroDotName );
+	if ( !macro.defaultDef.isEmpty() ) {
+	    macro.defaultDefLocation = config.lastLocation();
+	    macro.numParams = Config::numParams( macro.defaultDef );
+	}
+	bool silent = false;
 
 	Set<QString> formats = config.subVars( macroDotName );
 	Set<QString>::ConstIterator f = formats.begin();
 	while ( f != formats.end() ) {
 	    QString def = config.getString( macroDotName + Config::dot + *f );
 	    if ( !def.isEmpty() ) {
-		macro->otherDefs.insert( *f, def );
-		int m = Config::numParams( macro->defaultDef );
-		if ( macro->numParams == -1 ) {
-		    macro->numParams = m;
-		} else if ( macro->numParams != m ) {
+		macro.otherDefs.insert( *f, def );
+		int m = Config::numParams( macro.defaultDef );
+		if ( macro.numParams == -1 ) {
+		    macro.numParams = m;
+		} else if ( macro.numParams != m ) {
 		    if ( !silent ) {
 			QString other = tr( "default" );
-			if ( macro->defaultDef.isEmpty() )
-			    other = macro->otherDefs.begin().key();
+			if ( macro.defaultDef.isEmpty() )
+			    other = macro.otherDefs.begin().key();
 			config.lastLocation().warning( tr("Macro '\\%1' takes"
 							  " inconsistent number"
 							  " of arguments (%2"
@@ -1938,21 +1995,18 @@ void Doc::initialize( const Config& config )
 						       .arg(*f)
 						       .arg(m)
 						       .arg(other)
-						       .arg(macro->numParams) );
-			silent = TRUE;
+						       .arg(macro.numParams) );
+			silent = true;
 		    }
-		    if ( macro->numParams < m )
-			macro->numParams = m;
+		    if ( macro.numParams < m )
+			macro.numParams = m;
 		}
 	    }
 	    ++f;
 	}
 
-	if ( macro->numParams == -1 ) {
-	    delete macro;
-	} else {
-	    macroDict->insert( *n, macro );
-	}
+	if (macro.numParams != -1)
+	    macroHash.insert(*n, macro);
 	++n;
     }
 }
@@ -1963,29 +2017,21 @@ void Doc::terminate()
     DocParser::exampleDirs.clear();
     DocParser::sourceFiles.clear();
     DocParser::sourceDirs.clear();
-    delete aliasMap;
-    aliasMap = 0;
-    delete commandDict;
-    commandDict = 0;
-    delete macroDict;
-    macroDict = 0;
+    aliasMap.clear();
+    commandHash.clear();
+    macroHash.clear();
 }
 
-QString Doc::alias( const QString& english )
+QString Doc::alias(const QString &english)
 {
-    QMap<QString, QString>::ConstIterator a = aliasMap->find( english );
-    if ( a == aliasMap->end() ) {
-	return english;
-    } else {
-	return *a;
-    }
+    return aliasMap.value(english, english);
 }
 
 void Doc::trimCStyleComment( Location& location, QString& str )
 {
     QString cleaned;
     Location m = location;
-    bool metAsterColumn = TRUE;
+    bool metAsterColumn = true;
     int asterColumn = location.columnNo() + 1;
     int i;
 
@@ -1994,12 +2040,12 @@ void Doc::trimCStyleComment( Location& location, QString& str )
 	    if ( str[i] != '*' )
 		break;
 	    cleaned += ' ';
-	    metAsterColumn = TRUE;
+	    metAsterColumn = true;
 	} else {
 	    if ( str[i] == '\n' ) {
 		if ( !metAsterColumn )
 		    break;
-		metAsterColumn = FALSE;
+		metAsterColumn = false;
 	    }
 	    cleaned += str[i];
 	}

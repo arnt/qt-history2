@@ -733,8 +733,7 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc,
 	quickFunc->setOverload( FALSE );
     }
 
-    if ( doc.metaCommandsUsed() != 0 &&
-	 doc.metaCommandsUsed()->contains(COMMAND_QUICKIFY) ) {
+    if (doc.metaCommandsUsed().contains(COMMAND_QUICKIFY)) {
 	QString source = doc.source();
 	int pos = source.find( quickifyCommand );
 	if ( pos != -1 ) {

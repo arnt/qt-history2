@@ -34,14 +34,16 @@ public:
     const QString& source() const;
     const Text& body() const;
     Text briefText() const;
+    Text trimmedBriefText(const QString &className) const;
+    Text legaleseText() const;
     const QString& baseName() const;
     SectioningUnit granularity() const;
-    const Set<QString> *parameterNames() const;
-    const Set<QString> *enumItemNames() const;
-    const Set<QString> *omitEnumItemNames() const;
-    const Set<QString> *metaCommandsUsed() const;
+    const Set<QString> &parameterNames() const;
+    const Set<QString> &enumItemNames() const;
+    const Set<QString> &omitEnumItemNames() const;
+    const Set<QString> &metaCommandsUsed() const;
     QStringList metaCommandArgs( const QString& metaCommand ) const;
-    const QList<Text> *alsoList() const;
+    const QList<Text> &alsoList() const;
 
     static void initialize( const Config& config );
     static void terminate();

@@ -220,10 +220,7 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	        ++it;
 	    }
 
-	    Set<QString> documentedItems;
-	    if ( enume->doc().enumItemNames() != 0 )
-	        documentedItems = *enume->doc().enumItemNames();
-
+	    Set<QString> documentedItems = enume->doc().enumItemNames();
 	    Set<QString> allItems = reunion( definedItems, documentedItems );
 	    if ( allItems.count() > definedItems.count() ||
 	         allItems.count() > documentedItems.count() ) {
@@ -257,10 +254,7 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	        ++p;
 	    }
 
-	    Set<QString> documentedParams;
-	    if ( func->doc().parameterNames() != 0 )
-	        documentedParams = *func->doc().parameterNames();
-
+	    Set<QString> documentedParams = func->doc().parameterNames();
 	    Set<QString> allParams = reunion( definedParams, documentedParams );
 	    if (allParams.count() > definedParams.count()
 		    || allParams.count() > documentedParams.count()) {
@@ -292,14 +286,14 @@ void Generator::generateAlsoList( const Node *node, CodeMarker *marker )
     QList<Text>::ConstIterator a;
     int index;
 
-    if ( node->doc().alsoList() != 0 && !node->doc().alsoList()->isEmpty() ) {
+    if ( !node->doc().alsoList().isEmpty() ) {
 	Text text;
 	text << Atom::ParaLeft << "See also ";
 
-	a = node->doc().alsoList()->begin();
+	a = node->doc().alsoList().begin();
 	index = 0;
-        while ( a != node->doc().alsoList()->end() ) {
-	    text << *a << separator( index++, node->doc().alsoList()->count() );
+        while ( a != node->doc().alsoList().end() ) {
+	    text << *a << separator( index++, node->doc().alsoList().count() );
             ++a;
         }
         text << Atom::ParaRight;
@@ -307,8 +301,7 @@ void Generator::generateAlsoList( const Node *node, CodeMarker *marker )
     }
 }
 
-void Generator::generateInherits( const ClassNode *classe,
-				  CodeMarker *marker )
+void Generator::generateInherits(const ClassNode *classe, CodeMarker *marker)
 {
     QList<RelatedClass>::ConstIterator r;
     int index;

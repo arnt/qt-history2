@@ -1,5 +1,3 @@
-# qt-with-extensions.qdoc
-
 include( qt.qdoc )
 
 project		= Qt with Extensions

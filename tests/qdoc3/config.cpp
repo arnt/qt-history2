@@ -520,7 +520,7 @@ void Config::load( Location location, const QString& fileName )
 		    location.fatal( tr("Bad include syntax") );
 		SKIP_CHAR();
 		SKIP_SPACES();
-		while ( !text[i].isSpace() && text[i] != '#' ) {
+		while ( !text[i].isSpace() && text[i] != '#' && text[i] != ')' ) {
 		    includeFile += text[i];
 		    SKIP_CHAR();
 		}
@@ -604,9 +604,7 @@ void Config::load( Location location, const QString& fileName )
 			if ( !var.isEmpty() ) {
 			    char *val = getenv( var.latin1() );
 			    if ( val == 0 ) {
-				location.fatal( tr("Environment variable '%1'"
-						   " undefined")
-						.arg(var) );
+				location.fatal(tr("Environment variable '%1' undefined").arg(var));
 			    } else {
 				word += QString( val );
 			    }

@@ -1,6 +1,4 @@
-# qt.qdoc
-
-include( compat.qdoc )
+include(compat.qdoc)
 
 project			= Qt
 language		= Cpp

@@ -275,18 +275,16 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 
 void CppCodeParser::processOtherMetaCommands( const Doc& doc, Node *node )
 {
-    const Set<QString> *metaCommands = doc.metaCommandsUsed();
-    if ( metaCommands != 0 ) {
-	Set<QString>::ConstIterator c = metaCommands->begin();
-	while ( c != metaCommands->end() ) {
-	    QStringList args = doc.metaCommandArgs( *c );
-	    QStringList::ConstIterator a = args.begin();
-	    while ( a != args.end() ) {
-		processOtherMetaCommand( doc, *c, *a, node );
-		++a;
-	    }
-	    ++c;
+    const Set<QString> metaCommands = doc.metaCommandsUsed();
+    Set<QString>::ConstIterator c = metaCommands.begin();
+    while ( c != metaCommands.end() ) {
+	QStringList args = doc.metaCommandArgs(*c);
+	QStringList::ConstIterator a = args.begin();
+	while ( a != args.end() ) {
+	    processOtherMetaCommand( doc, *c, *a, node );
+	    ++a;
 	}
+	++c;
     }
 }
 
@@ -895,15 +893,11 @@ bool CppCodeParser::matchDocsAndStuff()
 	    QString command;
 	    QStringList args;
 
-	    if ( doc.metaCommandsUsed() != 0 ) {
-		Set<QString> topicsUsed =
-			intersection( topicsAvailable,
-				      *doc.metaCommandsUsed() );
-		if ( topicsUsed.count() > 0 ) {
-		    command = topicsUsed.first();
-		    args = doc.metaCommandArgs( command );
-		    // ### what if topicsUsed.count() > 1 ?
-		}
+	    Set<QString> topicsUsed = intersection(topicsAvailable, doc.metaCommandsUsed());
+	    if ( topicsUsed.count() > 0 ) {
+		command = topicsUsed.first();
+		args = doc.metaCommandArgs( command );
+		// ### what if topicsUsed.count() > 1 ?
 	    }
 
 	    NodeList nodes;

@@ -1,5 +1,3 @@
-# compat.qdoc
-
 alias.also			= sa
 alias.group			= ingroup
 alias.i				= e
@@ -13,10 +11,11 @@ alias.private			= internal
 alias.related			= relates
 
 macro.annotatedclasslist	= "\\generatelist annotatedclasses"
-macro.classlist			= "\\generatelist classes"
 macro.classhierarchy		= "\\generatelist classhierarchy"
-macro.mainclasslist		= "\\generatelist mainclasses"
+macro.classlist			= "\\generatelist classes"
 macro.functionindex		= "\\generatelist functionindex"
+macro.legaleselist		= "\\generatelist legalese"
+macro.mainclasslist		= "\\generatelist mainclasses"
 
 spurious			= "Missing comma in .*" \
 				  "Unknown command '\\\\(endlink|link|mainclass)'"

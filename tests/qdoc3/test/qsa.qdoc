@@ -1,5 +1,3 @@
-# qsa.qdoc
-
 include( compat.qdoc )
 
 project		= QSA

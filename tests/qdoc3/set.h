@@ -151,13 +151,16 @@ public:
     }
 
     /*
-      These are used by reunion(), intersection() and difference(),
+      These are used by reunion(), intersection(), and difference(),
       which cannot be made friends of this class because of a gcc
       2.91.66 bug. The same bug is responsible for the ackward access
       to 'list'.
     */
     QMap<T, int> map;
     QList<T> list;
+
+    bool ensure_constructed()
+    { if (map.ensure_constructed()) return true; return list.ensure_constructed(); }
 
 private:
     void toMap() const {

@@ -69,8 +69,10 @@ void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
     allClasses.clear();
     mainClasses.clear();
     funcIndex.clear();
+    legaleseTexts.clear();
     findAllClasses(tree->root());
     findAllFunctions(tree->root());
+    findAllLegaleseTexts(tree->root());
     PageGenerator::generateTree(tree, marker);
 }
 
@@ -157,15 +159,17 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	}
 	break;
     case Atom::GeneratedList:
-	if ( atom->string() == "annotatedclasses" ) {
+	if (atom->string() == "annotatedclasses") {
 	    generateAnnotatedList(relative, marker, allClasses);
-	} else if ( atom->string() == "classes" ) {
+	} else if (atom->string() == "classes") {
 	    generateCompactList(relative, marker, allClasses);
-	} else if ( atom->string() == "classhierarchy" ) {
+	} else if (atom->string() == "classhierarchy") {
 	    generateClassHierarchy(relative, marker, allClasses);
-	} else if ( atom->string() == "functionindex" ) {
+	} else if (atom->string() == "functionindex") {
 	    generateFunctionIndex(relative, marker);
-	} else if ( atom->string() == "mainclasses" ) {
+	} else if (atom->string() == "legalese") {
+	    generateLegaleseList(relative, marker);
+	} else if (atom->string() == "mainclasses") {
 	    generateCompactList(relative, marker, mainClasses);
 	}
 	break;
@@ -187,6 +191,10 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	}
 	break;
     case Atom::ImageText:
+	break;
+    case Atom::LegaleseLeft:
+	break;
+    case Atom::LegaleseRight:
 	break;
     case Atom::Link:
 	link = linkForNode( marker->resolveTarget(atom->string(), relative),
@@ -369,8 +377,8 @@ void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marke
     QList<ClassSection>::ConstIterator s;
 
     QString title = classe->name() + " Class Reference";
-    generateHeader( title, classe );
-    generateTitle( title );
+    generateHeader(title, classe);
+    generateTitle(title);
 
     Text brief = classe->doc().briefText();
     if ( !brief.isEmpty() ) {
@@ -459,7 +467,7 @@ void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marke
 			section.members.append(const_cast<FunctionNode *>(property->resetter()));
 
 		    if (!section.members.isEmpty()) {
-			out() << "<p>Access functions:</p>\n";
+			out() << "<p>Accessor functions:</p>\n";
 			generateClassSectionList(section, classe, marker, CodeMarker::Summary);
 		    }
                 }
@@ -664,7 +672,7 @@ void HtmlGenerator::generateAnnotatedList(const Node *relative, CodeMarker *mark
 	out() << "<td><b>";
 	generateFullName(*c, relative, marker);
 	out() << "</b>";
-        Text brief = (*c)->doc().briefText();
+        Text brief = (*c)->doc().trimmedBriefText((*c)->name());
         if (!brief.isEmpty()) {
 	    out() << "<td>";
             generateText(brief, *c, marker);
@@ -833,6 +841,24 @@ void HtmlGenerator::generateFunctionIndex(const Node *relative, CodeMarker *mark
 	++f;
     }
     out() << "</ul>\n";
+}
+
+void HtmlGenerator::generateLegaleseList(const Node *relative, CodeMarker *marker)
+{
+    QMap<Text, const Node *>::ConstIterator it = legaleseTexts.begin();
+    while (it != legaleseTexts.end()) {
+	Text text = it.key();
+	out() << "<hr>\n";
+        generateText(text, relative, marker);
+        out() << "<ul>\n";
+        do {
+	    out() << "<li>";
+            generateFullName(it.value(), relative, marker);
+            out() << "</li>\n";
+	    ++it;
+        } while (it != legaleseTexts.end() && it.key() == text);
+        out() << "</ul>\n";
+    }
 }
 
 void HtmlGenerator::generateSynopsis(const Node *node, const InnerNode *relative,
@@ -1132,6 +1158,20 @@ void HtmlGenerator::findAllFunctions(const InnerNode *node)
 		    funcIndex[(*c)->name()].insert((*c)->parent()->name(), *c);
 		}
             }
+        }
+	++c;
+    }
+}
+
+void HtmlGenerator::findAllLegaleseTexts(const InnerNode *node)
+{
+    NodeList::ConstIterator c = node->childNodes().begin();
+    while (c != node->childNodes().end()) {
+	if ((*c)->access() != Node::Private) {
+	    if (!(*c)->doc().legaleseText().isEmpty())
+		legaleseTexts.insertMulti((*c)->doc().legaleseText(), *c);
+	    if ((*c)->isInnerNode())
+		findAllLegaleseTexts(static_cast<const InnerNode *>(*c));
         }
 	++c;
     }

@@ -103,6 +103,8 @@ static const struct {
     { "GeneratedList", Atom::GeneratedList },
     { "Image", Atom::Image },
     { "ImageText", Atom::ImageText },
+    { "LegaleseLeft", Atom::LegaleseLeft },
+    { "LegaleseRight", Atom::LegaleseRight },
     { "Link", Atom::Link },
     { "LinkNode", Atom::LinkNode },
     { "ListLeft", Atom::ListLeft },

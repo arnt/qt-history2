@@ -1,14 +1,16 @@
 MISC:
+  * remove getter/setter functions from list for properties
   * get rid of spurious 'global' functions
-
   * make \enum work also for typedefs
-
-  * implement \legalese
 
   * implement \ingroup
   * implement \inmodule
   * implement \table
   * implement qbook
+
+  * implement \legalesefile
+
+  * move operators() at the end
 
 LINKS:
   * make types be links in Detailed synopses
@@ -21,3 +23,4 @@ NICE FEATURES:
 
 OTHER:
   * make qdoc run faster
+  * \annotated: specify which library
