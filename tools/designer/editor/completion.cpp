@@ -298,7 +298,10 @@ bool EditorCompletion::doCompletion()
 							   contentsToViewport( QPoint( x, y - completionPopup->height() ) ) ) );
 	completionPopup->show();
     } else if ( lst.count() == 1 ) {
-	curEditor->insert( lst.first().text.mid( completionOffset, 0xFFFFFF ), TRUE );
+	curEditor->insert( lst.first().text.mid( completionOffset, 0xFFFFFF ),
+ 			   (uint) ( QTextEdit::RedoIndentation |
+				    QTextEdit::CheckNewLines |
+				    QTextEdit::RemoveSelected ) );
     } else {
 	return FALSE;
     }
@@ -334,7 +337,7 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    }
 	}
-	
+
 	if ( functionLabel->isVisible() ) {
 	    if ( ke->key() == Key_Up && ( ke->state() & ControlButton ) == ControlButton ) {
 		functionLabel->gotoPrev();
@@ -344,7 +347,7 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    }
 	}
-	
+
 	if ( ke->text().length() && !( ke->state() & AltButton ) &&
 	     ( !ke->ascii() || ke->ascii() >= 32 ) ||
 	     ( ke->text() == "\t" && !( ke->state() & ControlButton ) ) ) {
@@ -427,7 +430,9 @@ void EditorCompletion::completeCompletion()
 {
     int idx = curEditor->textCursor()->index();
     QString s = completionListBox->currentText().mid( searchString.length() );
-    curEditor->insert( s, TRUE );
+    curEditor->insert( s, (uint) ( QTextEdit::RedoIndentation |
+				   QTextEdit::CheckNewLines |
+				   QTextEdit::RemoveSelected ) );
     int i = s.find( '(' );
     completionPopup->close();
     curEditor->setFocus();
