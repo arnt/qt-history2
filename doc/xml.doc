@@ -315,9 +315,7 @@ tagreader with features example. \endlink
 \target sax2NamespacesSummary
 \section3 Summary
 
-\l QXmlSimpleReader implements the following behavior (the value in 
-parentheses denotes to the SAX2 requirements if they differ from the
-Qt implementation:
+\l QXmlSimpleReader implements the following behavior:
 <table border="1">
 <tr>
     <th>namespaces</th>
@@ -331,7 +329,7 @@ Qt implementation:
     <td>TRUE</td>
     <td>FALSE</td>
     <td>Yes</td>
-    <td>Yes <font color="#808080">(Unknown)</font></td>
+    <td>Yes \footnote SAX does not require a certain behvior.\endfootnote </td>
     <td>Yes</td>
     <td>No</td>
 </tr>
@@ -346,15 +344,15 @@ Qt implementation:
 <tr>
     <td>FALSE</td>
     <td>TRUE</td>
-    <td>No <font color="#808080">(Unknown)</font></td>
+    <td>No \footnote SAX does not require a certain behvior.\endfootnote </td>
     <td>Yes</td>
-    <td>No <font color="#808080">(Unknown)</font></td>
+    <td>No \footnote SAX does not require a certain behvior.\endfootnote </td>
     <td>Yes</td>
 </tr>
 <tr>
     <td>FALSE</td>
     <td>FALSE</td>
-    <td colspan=4 align=center><font color="#808080">(Illegal)</font></td>
+    <td colspan=4 align=center>Illegal</td>
 </table>
  
 
