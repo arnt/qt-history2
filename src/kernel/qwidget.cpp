@@ -1026,6 +1026,7 @@ void QWidget::createTLExtra()
 #if defined(Q_WS_X11)
 	x->embedded = 0;
 	x->parentWinId = 0;
+	x->spont_unmapped = 0;
 	x->dnd = 0;
 	x->uspos = 0;
 	x->ussize = 0;
@@ -3783,9 +3784,8 @@ void QWidget::showChildren( bool spontaneous )
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->isTopLevel() && !widget->isHidden() ) {
+		if ( !widget->isTopLevel() && widget->isShown() ) {
 		    if ( spontaneous ) {
-			widget->setWState( WState_Visible );
 			widget->showChildren( spontaneous );
 			QShowEvent e;
 			QApplication::sendSpontaneousEvent( widget, &e );
@@ -3809,8 +3809,7 @@ void QWidget::hideChildren( bool spontaneous )
 	    ++it;
 	    if ( object->isWidgetType() ) {
 		widget = (QWidget*)object;
-		if ( !widget->isTopLevel() && widget->isVisible() ) {
-		    widget->clearWState( WState_Visible );
+		if ( !widget->isTopLevel() && widget->isShown() ) {
 		    widget->hideChildren( spontaneous );
 		    QHideEvent e;
 		    if ( spontaneous )
