@@ -3658,6 +3658,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 	qt_dispatchEnterLeave( enter, widget );
 	curWin = enter ? enter->winId() : 0;
+	if ( enter )  //we don't get MotionNotify, emulate it
+	    ((QETWidget*) enter)->translateMouseEvent( event );
     }
 	break;
 
@@ -4095,17 +4097,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    qt_button_down = 0;
 	if ( !qt_button_down )
 	    state = state & ~(LeftButton | MidButton | RightButton );
-
-	// throw away mouse move events that are sent multiple times to the same
-	// position
-	bool throw_away = FALSE;
-	if ( x_root_save == globalPos.x() &&
-	     y_root_save == globalPos.y() )
-	    throw_away = TRUE;
-	x_root_save = globalPos.x();
-	y_root_save = globalPos.y();
-	if ( throw_away )
-	    return TRUE;
     } else {					// button press or release
 	pos.rx() = event->xbutton.x;
 	pos.ry() = event->xbutton.y;
