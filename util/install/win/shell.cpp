@@ -130,6 +130,7 @@ static QPixmap* openImage = NULL;
 static QPixmap* fileImage = NULL;
 static QPixmap* infoImage = NULL;
 
+#if defined(Q_OS_WIN32)
 typedef BOOL (WINAPI *PtrSHGetPathFromIDListW)(LPITEMIDLIST,LPWSTR);
 static PtrSHGetPathFromIDListW ptrSHGetPathFromIDListW = 0;
 
@@ -146,6 +147,7 @@ static void resolveLibs()
 	}
     }
 }
+#endif
 
 WinShell::WinShell()
 {

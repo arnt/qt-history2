@@ -1036,6 +1036,7 @@ void SetupWizardImpl::showPageBuild()
     nextButton()->setText( "Next >" );
     saveSettings();
 
+#if defined(Q_OS_WIN32)
     if( globalInformation.reconfig() && configPage->rebuildInstallation->isChecked() && qWinVersion() & WV_NT_based ) {
 	QStringList args;
 	QStringList makeCmds = QStringList::split( ' ', "nmake make gmake make nmake mingw32-make nmake make" );
@@ -1055,6 +1056,7 @@ void SetupWizardImpl::showPageBuild()
 	    emit wizardPageFailed( indexOf(currentPage()) );
 	}
     } else
+#endif
 	cleanDone();	// We're not doing a reconfig, so skip the clean step
 
 }
