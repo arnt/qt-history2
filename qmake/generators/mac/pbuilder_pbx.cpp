@@ -74,7 +74,7 @@ bool
 ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 {
     QStringList tmp, tmp_out;
-
+    int i;
     //HEADER
     t << "// !$*UTF8*$!" << "\n" 
       << "{" << "\n"
@@ -85,7 +85,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     //DUMP SOURCES
     QString srcs[] = { "SOURCES", "SRCMOC", "UICIMPLS", QString::null };
-    for(int i = 0; !srcs[i].isNull(); i++) {
+    for(i = 0; !srcs[i].isNull(); i++) {
 	tmp = project->variables()[srcs[i]];
 	for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
 	    QString file = (*it);
@@ -169,7 +169,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     //DUMP LIBRARIES
     QStringList &libdirs = project->variables()["QMAKE_PBX_LIBPATHS"];
     QString libs[] = { "SUBLIBS", "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
-    for(int i = 0; !libs[i].isNull(); i++) {
+    for(i = 0; !libs[i].isNull(); i++) {
 	tmp = project->variables()[libs[i]];
 	for(QStringList::Iterator it = tmp.begin(); it != tmp.end();) {
 	    bool remove = FALSE;
@@ -340,7 +340,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t" << "};" << "\n";
     //DEBUG-RELEASE
     QString builds[] = { "DEBUG", "RELEASE", QString::null };
-    for(int i = 0; !builds[i].isNull(); i++) {
+    for(i = 0; !builds[i].isNull(); i++) {
 	QString key = keyFor("QMAKE_PBX_" + builds[i]);
 	project->variables()["QMAKE_PBX_BUILDSTYLES"].append(key);
 	bool as_debug = (builds[i] == "DEBUG");
