@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#19 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#20 $
 **
 ** Definition of QLabel widget class
 **
@@ -30,7 +30,6 @@ public:
 
     int		alignment()	const	{ return align; }
     void	setAlignment( int );
-
     int		margin()	const	{ return marg; }
     void	setMargin( int );
 

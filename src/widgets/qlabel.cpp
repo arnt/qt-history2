@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#35 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#35 $")
 
 
 /*----------------------------------------------------------------------------
@@ -48,11 +48,11 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#34 $")
 
 /*----------------------------------------------------------------------------
   Constructs an empty label which is left-aligned, vertically centered and
-  without automatic resizing.
+  without automatic resizing. The default margin is -1.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \e parent and \e name arguments are passed to the QFrame constructor.
 
-  See QFrame for details about the label's frame.
+  \sa setAlignment(), setFrameStyle(), setMargin(), setAutoResize()
  ----------------------------------------------------------------------------*/
 
 QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
@@ -61,17 +61,17 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
     initMetaObject();
     lpixmap    = 0;
     align      = AlignLeft | AlignVCenter | ExpandTabs;
-    marg       = 0;
+    marg       = -1;
     autoresize = FALSE;
 }
 
 /*----------------------------------------------------------------------------
   Constructs a label with a text. The label is left-aligned, vertically
-  centered and without automatic resizing.
+  centered and without automatic resizing. The default margin is -1.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \e parent and \e name arguments are passed to the QFrame constructor.
 
-  See QFrame for details about the label's frame.
+  \sa setAlignment(), setFrameStyle(), setMargin(), setAutoResize()
  ----------------------------------------------------------------------------*/
 
 QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
@@ -80,7 +80,7 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
     initMetaObject();
     lpixmap    = 0;
     align      = AlignLeft | AlignVCenter | ExpandTabs;
-    marg       = 0;
+    marg       = -1;
     autoresize = FALSE;
 }
 
@@ -146,25 +146,24 @@ void QLabel::setPixmap( const QPixmap &pixmap )
     if ( lpixmap ) {
 	w = lpixmap->width();
 	h = lpixmap->height();
-    }
-    else {
+    } else {
 	lpixmap = new QPixmap;
 	w = h = -1;
     }
     *lpixmap = pixmap;
     if ( !ltext.isNull() )
 	ltext.resize( 0 );
-    if ( autoresize && (w != lpixmap->width() || h != lpixmap->height()) )
+    if ( autoresize && (w != lpixmap->width() || h != lpixmap->height()) ) {
 	adjustSize();
-    else {
+    } else {
 	if ( w >= 0 && w <= lpixmap->width() && h <= lpixmap->height() ) {
 	    QPainter paint;
 	    paint.begin( this );
 	    drawContents( &paint );		// don't erase contentsRect()
 	    paint.end();
-	}
-	else
+	} else {
 	    updateLabel();
+	}
     }
 }
 
@@ -253,30 +252,33 @@ void QLabel::setAlignment( int alignment )
 /*----------------------------------------------------------------------------
   \fn int QLabel::margin() const
 
-  Returns the margin of the label in pixels.
-
-  The margin applies to the left edge if alignment() is \c AlignLeft,
-  to the right edge if alignment() is \c AlignRight, to the top edge
-  if alignment() is \c AlignTop, and to to the bottom edge if
-  alignment() is \c AlignBottom.
+  Returns the margin of the label.
 
   \sa setMargin()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Sets the margin of the label to \e pixels.
+  Sets the margin of the label to \e margin.
 
   The margin applies to the left edge if alignment() is \c AlignLeft,
   to the right edge if alignment() is \c AlignRight, to the top edge
   if alignment() is \c AlignTop, and to to the bottom edge if
   alignment() is \c AlignBottom.
 
-  \sa margin()
+  The default margin value is -1. This special value makes the label
+  calculate a suitable margin. If the \link frameWidth() frame
+  width\endlink is zero, the effective margin becomes 0. If the frame style
+  is greater than zero, the effective margin becomes half the width of the
+  "x" character (of the widget's current \link font() font\endlink.
+
+  Setting a non-negative margin gives the specified margin in pixels.
+  
+  \sa margin(), frameWidth(), font()
  ----------------------------------------------------------------------------*/
 
-void QLabel::setMargin( int pixels )
+void QLabel::setMargin( int margin )
 {
-    marg = pixels >= 0 ? pixels : 0;
+    marg = margin;
 }
 
 
@@ -290,7 +292,7 @@ void QLabel::setMargin( int pixels )
   \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------  
+/*----------------------------------------------------------------------------
   Enables auto-resizing if \e enable is TRUE, or disables it if \e
   enable is FALSE.
 
@@ -327,9 +329,17 @@ void QLabel::adjustSize()
     QPainter p;
     p.begin( this );
     QRect br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
+    int m  = 2*margin();
+    int fw = frameWidth();
+    if ( m < 0 ) {
+	if ( fw > 0 )
+	    m = p.fontMetrics().width( "x" );
+	else
+	    m = 0;
+    }
+    int w = br.width()	+ m + 2*fw;
+    int h = br.height() + m + 2*fw;
     p.end();
-    int w = br.width()	+ 4 + frameWidth();
-    int h = br.height() + 4 + frameWidth();
     if ( w == width() && h == height() )
 	updateLabel();
     else
@@ -345,16 +355,23 @@ void QLabel::drawContents( QPainter *p )
 {
     p->setPen( colorGroup().text() );
     QRect cr = contentsRect();
+    int fw = frameWidth();
+    int m  = margin();
+    if ( m < 0 ) {
+	if ( fw > 0 )
+	    m = p->fontMetrics().width("x")/2;
+	else
+	    m = 0;
+    }
     if ( align & AlignLeft )
-	cr.setLeft( cr.left() + marg );
+	cr.setLeft( cr.left() + m );
     if ( align & AlignRight )
-	cr.setRight( cr.right() - marg );
+	cr.setRight( cr.right() - m );
     if ( align & AlignTop )
-	cr.setTop( cr.top() + marg );
+	cr.setTop( cr.top() + m );
     if ( align & AlignBottom )
-	cr.setBottom( cr.bottom() - marg );
+	cr.setBottom( cr.bottom() - m );
     if ( lpixmap ) {
-	int fw = frameWidth();
 	int x, y, w, h;
 	cr.rect( &x, &y, &w, &h );
 	int pmw=lpixmap->width(), pmh=lpixmap->height();
