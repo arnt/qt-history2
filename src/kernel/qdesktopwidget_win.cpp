@@ -111,27 +111,19 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
     }
     rects = new QMemArray<QRect>();
     workrects = new QMemArray<QRect>();
+#ifndef Q_OS_TEMP
     if ( qt_winver != Qt::WV_95 && qt_winver != Qt::WV_NT ) {
-	screenCount = 0;  // SM_CMONITORS
+	screenCount = 0;
 	// Trying to get the function pointers to Win98/2000 only functions
-#ifdef Q_OS_TEMP
-	user32hnd = LoadLibraryW( L"user32.dll" );
-#else
 	user32hnd = LoadLibraryA( "user32.dll" );
-#endif
 	if ( !user32hnd )
 	    return;
-#ifdef Q_OS_TEMP
-	enumDisplayMonitors = (EnumFunc)GetProcAddress( user32hnd, L"EnumDisplayMonitors" );
-	getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, L"GetMonitorInfoW" );
-#else
 	enumDisplayMonitors = (EnumFunc)GetProcAddress( user32hnd, "EnumDisplayMonitors" );
 	QT_WA( {
 	    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, "GetMonitorInfoW" );
 	} , {
 	    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, "GetMonitorInfoA" );
 	} );
-#endif
 
 	if ( !enumDisplayMonitors || !getMonitorInfo ) {
 	    screenCount = GetSystemMetrics( 80 );  // SM_CMONITORS
@@ -151,6 +143,41 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 	workrects->resize( 1 );
 	workrects->at( 0 ) = that->rect();
     }
+#else
+    screenCount = 0;
+    user32hnd = LoadLibrary( L"user32.dll" );
+
+    // CE < 4.0 case
+    if ( !user32hnd ) {
+	RECT r;
+	SystemParametersInfo( SPI_GETWORKAREA, 0, &r, 0 );
+	QRect qr = QRect( QPoint( r.left, r.top ), QPoint( r.right - 1, r.bottom - 1 ) );
+	rects->resize( 1 );
+	rects->at( 0 ) = that->rect();
+	workrects->resize( 1 );
+	workrects->at( 0 ) = qr;
+	screenCount = 1;
+	return;
+    }
+
+    // CE >= 4.0 case
+    enumDisplayMonitors = (EnumFunc)GetProcAddress( user32hnd, L"EnumDisplayMonitors" );
+    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, L"GetMonitorInfoW" );
+
+    if ( !enumDisplayMonitors || !getMonitorInfo ) {
+	screenCount = GetSystemMetrics( 80 );  // SM_CMONITORS, only in CE >= 4.0
+	rects->resize( screenCount );
+	for ( int i = 0; i < screenCount; ++i )
+	    rects->at( i ) = that->rect();
+	return;
+    }
+
+    // Calls enumCallback
+    enumDisplayMonitors( 0, 0, enumCallback, 0 );
+    enumDisplayMonitors = 0;
+    getMonitorInfo = 0;
+    FreeLibrary( user32hnd );
+#endif // Q_OS_TEMP
     refcount++;
 }
 
