@@ -1453,7 +1453,7 @@ private slots:
     void npListInfo(const QUrlInfo &);
     void npDone(bool);
     void npStateChanged(int);
-    void npDataTransferProgress(Q_LLONG, Q_LLONG);
+    void npDataTransferProgress(Q_LONGLONG, Q_LONGLONG);
     void npReadyRead();
 
 private:
@@ -1532,8 +1532,8 @@ bool QFtpProtocol::checkConnection(QNetworkOperation *op)
                 this, SLOT(npDone(bool)));
         connect(&ftp, SIGNAL(stateChanged(int)),
                 this, SLOT(npStateChanged(int)));
-        connect(&ftp, SIGNAL(dataTransferProgress(Q_LLONG,Q_LLONG)),
-                this, SLOT(npDataTransferProgress(Q_LLONG,Q_LLONG)));
+        connect(&ftp, SIGNAL(dataTransferProgress(Q_LONGLONG,Q_LONGLONG)),
+                this, SLOT(npDataTransferProgress(Q_LONGLONG,Q_LONGLONG)));
         connect(&ftp, SIGNAL(readyRead()),
                 this, SLOT(npReadyRead()));
 
@@ -1644,8 +1644,8 @@ void QFtpProtocol::npDone(bool err)
                     this, SLOT(npDone(bool)));
         disconnect(&ftp, SIGNAL(stateChanged(int)),
                     this, SLOT(npStateChanged(int)));
-        disconnect(&ftp, SIGNAL(dataTransferProgress(Q_LLONG,Q_LLONG)),
-                    this, SLOT(npDataTransferProgress(Q_LLONG,Q_LLONG)));
+        disconnect(&ftp, SIGNAL(dataTransferProgress(Q_LONGLONG,Q_LONGLONG)),
+                    this, SLOT(npDataTransferProgress(Q_LONGLONG,Q_LONGLONG)));
         disconnect(&ftp, SIGNAL(readyRead()),
                     this, SLOT(npReadyRead()));
     }
@@ -1674,7 +1674,7 @@ void QFtpProtocol::npStateChanged(int state)
     }
 }
 
-void QFtpProtocol::npDataTransferProgress(Q_LLONG bDone, Q_LLONG bTotal)
+void QFtpProtocol::npDataTransferProgress(Q_LONGLONG bDone, Q_LONGLONG bTotal)
 {
     emit QNetworkProtocol::dataTransferProgress((int) bDone, (int) bTotal, operationInProgress());
 }
