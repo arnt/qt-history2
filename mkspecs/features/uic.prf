@@ -1,9 +1,13 @@
-win32 {
-        uic.commands = $(QTDIR)\bin\uic ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
-} else {
-        uic.commands = $(QTDIR)/bin/uic ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
+### QMAKE_UIC4 -> QMAKE_UIC
+isEmpty(QMAKE_UIC4) {
+   win32:QMAKE_UIC4 = $(QTDIR)\bin\uic.exe
+   else:QMAKE_UIC4 = $(QTDIR)/bin/uic
 }
-uic.output  = ui_${QMAKE_FILE_BASE}.h
-uic.input = UI_SOURCES
+
+uic.commands = $$QMAKE_UIC4 ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
 uic.CONFIG += no_link
+uic.output = ${UI_DIR}ui_${QMAKE_FILE_BASE}.h
+uic.depends = $$QMAKE_UIC4
+uic.input = UI_SOURCES
+uic.variable_out = HEADERS          ### UICDECLS??
 QMAKE_EXTRA_COMPILERS += uic
