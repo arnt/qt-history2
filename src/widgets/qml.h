@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#7 $
+** $Id: //depot/qt/main/src/widgets/qml.h#8 $
 **
 ** Definition of QML classes
 **
@@ -86,9 +86,10 @@ public:
 
     ListStyle listStyle() const;
     void setListStyle( ListStyle );
-    
-    bool selfNesting() const;
-    void setSelfNesting(bool);
+
+    QString contexts() const;
+    void setContexts( const QString& );
+    bool allowedInContext( const QMLStyle* ) const;
 
 
 private:
@@ -139,6 +140,8 @@ public:
 
 
     QMLStyle* style( const QString& name);
+    const QMLStyle* style( const QString& name) const;
+    
     void insert( QMLStyle* style);
 
     virtual QMLNode* tag( const QString& name,

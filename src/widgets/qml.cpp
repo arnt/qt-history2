@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#20 $
 **
 ** Implementation of QML classes
 **
@@ -53,7 +53,7 @@ public:
     int margin[4];
     QMLStyle::ListStyle list;
     QMLStyle::WhiteSpaceMode whitespacemode;
-    bool selfnesting;
+    QString contxt;
 };
 
 /*!
@@ -116,7 +116,6 @@ void QMLStyle::init()
     d->margin[3] = Undefined;
     d->list = QMLStyle::ListDisc;
     d->whitespacemode = QMLStyle::WhiteSpaceNormal;
-    d->selfnesting = TRUE;
 }
 
 /*!
@@ -457,22 +456,43 @@ void QMLStyle::setListStyle( QMLStyle::ListStyle s)
 }
 
 
-
 /*!
-  Handle with care
+  Returns a space separated list of names of styles that may contain
+  elements of this style. As default, contexs() returns an empty
+  string, which indicates that this style can be nested everywhere.
+  
+  \sa setContexts()
  */
-void QMLStyle::setSelfNesting(bool sn)
+QString QMLStyle::contexts() const
 {
-    d->selfnesting = sn;
+    return d->contxt;
 }
 
 /*!
-  Handle with care
+  Sets a space separated list of names of styles that may contain
+  elements of this style. If \a c is empty, the style can be nested
+  everywhere.
+  
+  \sa contexts()
  */
-bool QMLStyle::selfNesting() const
+void QMLStyle::setContexts( const QString& c)
 {
-    return d->selfnesting;
+    d->contxt = QString(" ") + c + " ";
 }
+
+/*!
+  Returns whether this style can be nested into an element 
+  of style \a s .
+  
+  \sa contxts(), setContexts()
+ */
+bool QMLStyle::allowedInContext( const QMLStyle* s) const
+{
+    if ( d->contxt.isEmpty() )
+	return TRUE;
+    return d->contxt.find( QString(" ")+s->name()+" ") != -1;
+}
+
 
 //************************************************************************
 
@@ -939,6 +959,7 @@ void QMLStyleSheet::init()
 
     style = new QMLStyle( this, "li" );
     style->setDisplayMode(QMLStyle::DisplayListItem);
+    style->setContexts("ol ul");
     //    style-> setMargin(QMLStyle::MarginVertical, 4);
 
     style = new QMLStyle( this, "code" );
@@ -1001,6 +1022,14 @@ void QMLStyleSheet::insert( QMLStyle* style )
   Returns the style with name \a name or 0 if there is no such style.
  */
 QMLStyle* QMLStyleSheet::style( const QString& name)
+{
+    return styles[name];
+}
+
+/*!
+  Returns the style with name \a name or 0 if there is no such style (const version)
+ */
+const QMLStyle* QMLStyleSheet::style( const QString& name) const
 {
     return styles[name];
 }
@@ -2960,9 +2989,8 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	    attr.setAutoDelete( TRUE );
 	    QString tagname = parseOpenTag(doc, pos, attr);
 	
-	    QString curname = current->style->name();
-
-	    if ( curname == tagname && !current->style->selfNesting() ) {
+	    const QMLStyle* nstyle = sheet_->style(tagname);
+	    if ( nstyle && !nstyle->allowedInContext( current->style ) ) {
 		pos = beforePos;
 		return FALSE;
 	    }
@@ -2970,9 +2998,7 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	    QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
 	    if (tag->isContainer ) {
 		QMLContainer* ctag = (QMLContainer*) tag;
-		bool cpre = ctag->whiteSpaceMode() != QMLStyle::WhiteSpacePre;
-		if (!cpre)
-		    sep = eatSpace(doc, pos);
+		bool cpre = ctag->whiteSpaceMode() == QMLStyle::WhiteSpacePre;
 		if (current == this && !attr.isEmpty() ) {
 		    setAttributes( attr );
 		}
@@ -2993,6 +3019,8 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		    ctag->isLastSibling = 1;
 		    lastChild = ctag;
 
+		    eatSpace(doc, pos); // no whitespace within an unknown container or box
+		    
 		    bool ctagUnknown = ctag->style->name().isEmpty() ;
 		    if ( !cpre && (ctagUnknown || ctag->isBox) )
 			eatSpace(doc, pos); // no whitespace within an unknown container or box
