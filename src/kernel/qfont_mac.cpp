@@ -147,7 +147,7 @@ static const UnicodeToTextFallbackUPP make_font_fallbackUPP()
 }
 
 const unsigned char * p_str(const QString &); //qglobal.cpp
-enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02 };
+enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02, GIMME_EXISTS=0x04 };
 static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uchar task, bool no_optim=FALSE)
 {
     QMacSetFontInfo fi(d);
@@ -214,6 +214,12 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, uch
 	    free(buf);
 	    return 0;
 	}
+	if(task & GIMME_EXISTS) {
+	    if(task != GIMME_EXISTS)
+		qWarning("GIMME_EXISTS must appear by itself!");
+	    ret = (err != kTECUsedFallbacksStatus);
+	    break;
+	}
 	read_so_far += read;
 
 	for(ItemCount i = 0; i < run_len; i++) {
@@ -258,6 +264,11 @@ static inline int do_text_task( const QFontPrivate *d, const QChar &c, uchar tas
 	return do_text_task(d, QString(c), 0, 1, task, TRUE);
     QMacSetFontInfo fi(d);
     int ret = 0; //latin1 optimization
+    if(task & GIMME_EXISTS) {
+	if(task != GIMME_EXISTS)
+	    qWarning("GIMME_EXISTS must appear by itself!");
+	return TRUE;
+    }
     if(task & GIMME_WIDTH)
 	ret = CharWidth((char)c.cell());
     if(task & GIMME_DRAW) 
@@ -293,6 +304,11 @@ int QFontMetrics::ascent() const
 int QFontMetrics::descent() const
 {
     return FI->fin->descent();
+}
+
+bool QFontMetrics::inFont(QChar ch) const
+{
+    return do_text_task(FI, ch, GIMME_EXISTS);
 }
 
 int QFontMetrics::width(QChar c) const
