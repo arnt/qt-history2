@@ -46,7 +46,7 @@ void LCDRange::setRange( int minVal, int maxVal )
     sBar->setRange( minVal, maxVal );
 }
 
-void LCDRange::resizeEvent( QResizeEvent *e )
+void LCDRange::resizeEvent( QResizeEvent * )
 {
     lcd->resize( width(), height() - 16 - 5 );
     sBar->setGeometry( 0, lcd->height() + 5, width(), 16 );

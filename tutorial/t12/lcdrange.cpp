@@ -71,7 +71,7 @@ void LCDRange::setText( const char *s )
     label->setText( s );
 }
 
-void LCDRange::resizeEvent( QResizeEvent *e )
+void LCDRange::resizeEvent( QResizeEvent * )
 {
     lcd->resize( width(), height() - 41 - 5 );
     sBar->setGeometry( 0, lcd->height() + 5, width(), 16 );

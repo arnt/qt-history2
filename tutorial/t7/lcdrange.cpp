@@ -34,7 +34,7 @@ void LCDRange::setValue( int value )
     sBar->setValue( value );
 }
 
-void LCDRange::resizeEvent( QResizeEvent *e )
+void LCDRange::resizeEvent( QResizeEvent * )
 {
     lcd->resize( width(), height() - 16 - 5 );
     sBar->setGeometry( 0, lcd->height() + 5, width(), 16 );

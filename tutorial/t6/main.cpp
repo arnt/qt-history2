@@ -69,7 +69,7 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
 	value[i] = new LCDRange( this );
 }
 
-void MyWidget::resizeEvent( QResizeEvent *e )
+void MyWidget::resizeEvent( QResizeEvent * )
 {
     int startx      = 10;
     int starty      = quit->y() + quit->height() + 10;
