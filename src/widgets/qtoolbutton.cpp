@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#136 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#137 $
 **
 ** Implementation of QToolButton class
 **
@@ -877,6 +877,15 @@ bool QToolButton::isOnAndNoOnPixmap()
 	    (s->isGenerated(QIconSet::Small, QIconSet::Normal, QIconSet::On) &&
 	     s->isGenerated(QIconSet::Large, QIconSet::Normal, QIconSet::On)) );
 }
+
+#ifndef QT_NO_PALETTE
+/*! \reimp */
+void QToolButton::paletteChange( const QPalette & )
+{
+    if ( s )
+	s->clearGenerated();
+}
+#endif
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 /*!

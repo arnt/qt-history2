@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#52 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#53 $
 **
 ** Definition of QToolButton class
 **
@@ -125,6 +125,9 @@ protected:
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessibleInterface *accessibleInterface();
+#endif
+#ifndef QT_NO_PALETTE
+    void paletteChange( const QPalette & );
 #endif
 
 private slots:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#75 $
 **
 ** Implementation of QIconSet class
 **
@@ -926,6 +926,28 @@ bool QIconSet::isGenerated( Size size, Mode mode, State state ) const
     return FALSE;
 }
 
+/*!
+  Clears all generated pixmaps.
+*/
+void QIconSet::clearGenerated()
+{
+    if ( !d )
+	return;
+
+    d->vsmall.clearGenerate();
+    d->vlarge.clearGenerate();
+    d->smallActive.clearGenerate();
+    d->largeActive.clearGenerate();
+    d->smallDisabled.clearGenerate();
+    d->largeDisabled.clearGenerate();
+
+    d->on_vsmall.clearGenerate();
+    d->on_vlarge.clearGenerate();
+    d->on_smallActive.clearGenerate();
+    d->on_largeActive.clearGenerate();
+    d->on_smallDisabled.clearGenerate();
+    d->on_largeDisabled.clearGenerate();
+}
 
 /*!
   Returns the pixmap originally provided to the constructor or
@@ -951,8 +973,7 @@ QPixmap QIconSet::pixmap() const
 */
 void QIconSet::detach()
 {
-    if ( !d )
-    {
+    if ( !d ) {
 	d = new QIconSetPrivate;
 	return;
     }
