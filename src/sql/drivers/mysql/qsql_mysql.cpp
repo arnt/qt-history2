@@ -192,7 +192,12 @@ QCoreVariant QMYSQLResult::data( int field )
 	qWarning( "QMYSQLResult::data: column %d out of range", field );
 	return QCoreVariant();
     }
-    
+ 
+    if (d->row[field] == NULL) {
+        // NULL value
+        return QCoreVariant(d->fieldTypes.at(field));
+    }
+   
     QString val;
     if (d->fieldTypes.at(field) != QCoreVariant::ByteArray)
 	val = d->tc->toUnicode(d->row[field]);
