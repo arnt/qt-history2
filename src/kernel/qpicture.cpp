@@ -110,14 +110,14 @@ static const Q_UINT16 mfhdr_min = 0;		// minor version #
   needs no special coding; the format is automatically detected.
 */
 
-QPicture::QPicture( int formatVer )
+QPicture::QPicture( int formatVersion )
     : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice )
     // set device type
 {
     d = new QPicturePrivate;
 
-    if ( formatVer != (int)mfhdr_maj ) {
-	d->formatMajor = formatVer;
+    if ( formatVersion != (int)mfhdr_maj ) {
+	d->formatMajor = formatVersion;
 	d->formatMinor = 0;
 	d->formatOk = FALSE;
     }

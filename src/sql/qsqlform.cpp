@@ -43,11 +43,10 @@
 /*!
 
   \class QSqlForm qsqlform.h
-  \brief Class used for managing and creating data entry forms tied to SQL databases
+  \brief The QSqlForm class creates and manages data entry forms tied to SQL
+  databases.
 
   \module sql
-
-  This class is used to create and manage data entry forms tied to SQL databases.
 
   Typical use of a QSqlForm consists of the following steps:
 
@@ -60,7 +59,7 @@
   <li>Use writeFields() to update the database's field values with the values in the editor widgets.
   </ol>
 
-  Note that a QSqlForm does \a not access the database directly, but
+  Note that a QSqlForm does not access the database directly, but
   most often via QSqlFields which are part of a QSqlCursor. A
   QSqlCursor::insert(), QSqlCursor::update() or QSqlCursor::del() call
   is needed to actually write values to the database.

@@ -18,8 +18,8 @@ Q_UUID(IID_QComponentInterface,
 0x5f3968a5, 0xf451, 0x45b1, 0x96, 0xfb, 0x6, 0x1a, 0xd9, 0x8f, 0x92, 0x6e);
 
 /*!
-  \interface QUnknownInterface qcomponentinterface.h
-  \brief This class serves as a base class for interfaces.
+  \class QUnknownInterface qcomponentinterface.h
+  \brief The QUnknownInterface class serves as a base class for interfaces.
 */
 
 /*!
@@ -55,9 +55,8 @@ Q_UUID(IID_QComponentInterface,
 */
 
 /*!
-  \interface QComponentInterface qcomponentinterface.h
-
-  \brief This interface provides functions to get information about components.
+  \class QComponentInterface qcomponentinterface.h
+  \brief The QComponentInterface class provides functions to get information about components.
 */
 
 /*!

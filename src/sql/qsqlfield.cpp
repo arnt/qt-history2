@@ -40,7 +40,8 @@
 
 /*!
     \class QSqlField qsqlfield.h
-    \brief Manipulates the fields in SQL database tables and views
+    \brief The QSqlField class manipulates the fields in SQL database tables
+    and views.
 
     \module sql
 

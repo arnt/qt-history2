@@ -56,7 +56,7 @@ public:
 
 /*!
   \class QSqlNavigator qsqlnavigator.h
-  \brief Navigate a database cursor
+  \brief The QSqlNavigator class navigates a database cursor.
 
   \module sql
 
@@ -344,7 +344,7 @@ bool QSqlNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 
 /*!
   \class QSqlFormNavigator qsqlnavigator.h
-  \brief Navigate a database cursor/form
+  \brief The QSqlFormNavigator class navigates a database cursor/form.
 
   \module sql
 

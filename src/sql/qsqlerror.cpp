@@ -40,7 +40,7 @@
 
 /*! \class QSqlError qsqlerror.h
 
-    \brief SQL database error information.
+    \brief The QSqlError class provides SQL database error information.
 
     \module sql
 

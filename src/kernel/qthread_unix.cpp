@@ -251,7 +251,7 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 
 /*!
   \class QThread qthread.h
-  \brief The QThread class provides platform-independent threads
+  \brief The QThread class provides platform-independent threads.
 
   \ingroup environment
 
@@ -492,7 +492,7 @@ bool QThread::running() const
 /*!
   \class QWaitCondition qthread.h
   \brief The QWaitCondition class allows waiting/waking for conditions
-         between threads
+         between threads.
 
   \ingroup environment
 
