@@ -120,8 +120,18 @@ static const uint qt_meta_data_QSignalEmitter[] = {
 };
 
 QSignalEmitter::QSignalEmitter(const char *type)
-    :stringdata("QSignalEmitter\0\0activated(", 26)
 {
+    static const char *signalData = "QSignalEmitter\0\0activated(";
+    static const int signalDataLen = 26; /* don't use sizeof()! */
+
+    /* We can't use QByteArray's 'const char *s, int size' ctor as it
+     * calls strlen() and uses the minimum length, which breaks with
+     * our string deliberately having a zero termination inbetween
+     */
+    stringdata.resize(signalDataLen + 1);
+    qMemCopy(stringdata.data(), signalData, signalDataLen);
+    stringdata[signalDataLen] = '\0';
+
     if (type)
 	stringdata += type;
     stringdata += ')';
