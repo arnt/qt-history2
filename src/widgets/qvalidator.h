@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.h#8 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.h#9 $
 **
 ** Definition of validator classes.
 **
@@ -25,7 +25,7 @@ public:
 
     enum State { Invalid, Valid, Acceptable };
 
-    virtual State isValid( const char * ) = 0;
+    virtual State validate( QString &, int & ) = 0;
     virtual void fixup( QString & );
 };
 
@@ -39,7 +39,7 @@ public:
 		   QWidget * parent, const char * name = 0 );
     ~QIntValidator();
 
-    QValidator::State isValid( const char * );
+    QValidator::State validate( QString &, int & );
 
     virtual void setRange( int bottom, int top );
 
@@ -60,7 +60,7 @@ public:
 		      QWidget * parent, const char * name = 0 );
     ~QDoubleValidator();
 
-    QValidator::State isValid( const char * );
+    QValidator::State validate( QString &, int & );
 
     virtual void setRange( double bottom, double top, int decimals = 0 );
 

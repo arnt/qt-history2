@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#10 $
 **
 ** Implementation of validator classes.
 **
@@ -14,7 +14,7 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#10 $");
 
 
 /*!
@@ -61,13 +61,16 @@ QValidator::~QValidator()
 
 
 /*!
-  \fn QValidator::State QValidator::isValid( const char * input )
+  \fn QValidator::State QValidator::validate( QString & input, int & pos )
 
   This pure virtual function returns \c Invalid if \a input is valid
   according to this validator's rules, \c Valid if it is likely that a
   little more editing will make the input acceptable (e.g. the user
   types '4' into a widget which accepts 10-99) and \a Acceptable if
   the input is completely acceptable.
+
+  The function can change \a input and \a pos (the cursor position) if
+  it wants to.
 */
 
 
@@ -154,11 +157,10 @@ QIntValidator::~QIntValidator()
   input is not an integer.
 */
 
-QValidator::State QIntValidator::isValid( const char * input )
+QValidator::State QIntValidator::validate( QString & input, int & )
 {
     bool ok;
-    QString s( input );
-    long int tmp = s.toLong( &ok );
+    long int tmp = input.toLong( &ok );
     if ( !ok )
 	return QValidator::Invalid;
     else if ( tmp < b || tmp > t )
@@ -261,11 +263,10 @@ QDoubleValidator::~QDoubleValidator()
   \a input is not a number.
 */
 
-QValidator::State QDoubleValidator::isValid( const char * input )
+QValidator::State QDoubleValidator::validate( QString & input, int & )
 {
     bool ok;
-    QString s( input );
-    double tmp = s.toDouble( &ok );
+    double tmp = input.toDouble( &ok );
     // check the number of decimals here!
     if ( !ok )
 	return QValidator::Invalid;

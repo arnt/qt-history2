@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#97 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#98 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#97 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#98 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -215,9 +215,9 @@ void QLineEdit::setText( const char *text )
     markAnchor = 0;
     markDrag = 0;
     end( FALSE );
-    repaint( !hasFocus() );
     if ( validator() )
-	(void)validator()->isValid( tbuf ); // so the validator will know
+	(void)validator()->validate( tbuf, cursorPos );
+    repaint( !hasFocus() );
     if ( oldText != tbuf )
 	emit textChanged( tbuf );
 }
@@ -367,11 +367,11 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Enter || e->key() == Key_Return ) {
 	QValidator * v = validator();
-	if ( !v || v->isValid( tbuf ) == QValidator::Acceptable ) {
+	if ( !v || v->validate( tbuf, cursorPos ) == QValidator::Acceptable ) {
 	    emit returnPressed();
 	} else if ( v ) {
 	    v->fixup( tbuf );
-	    if ( v->isValid( tbuf ) == QValidator::Acceptable )
+	    if ( v->validate( tbuf, cursorPos ) == QValidator::Acceptable )
 		 emit returnPressed();
 	}
 	e->ignore();
@@ -388,8 +388,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	if ( (int)test.length() < maxLen )
 	    test.insert( cp, e->ascii() );
 	if ( v &&
-	     v->isValid( test ) == QValidator::Invalid &&
-	     v->isValid( tbuf ) != QValidator::Invalid ) {
+	     v->validate( test, cp ) == QValidator::Invalid &&
+	     v->validate( tbuf, cursorPos ) != QValidator::Invalid ) {
 	    // add stuff to indicate the error here and suggest remedies
 	    return;
 	}
@@ -445,10 +445,16 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		}
 		int tlen = t.length();
 		int blen;
+		int cp = cursorPos;
 		// do a test run without hurting tbuf and stuf
 		QString test( tbuf.copy() );
-		if ( hasMarkedText() )
+		if ( hasMarkedText() ) {
 		    test.remove( minMark(), maxMark() - minMark() );
+		    if ( cp > maxMark() )
+			cp -= (maxMark() - minMark());
+		    else if ( cp > minMark() )
+			cp = minMark();
+		}
 		blen = test.length();
 		if ( tlen+blen >= maxLen ) {
 		    if ( blen >= maxLen )
@@ -458,16 +464,18 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		    t.truncate( maxLen-blen+1 );
 		    t[maxLen-blen] = '\0';
 		}
-		test.insert( cursorPos, t );
+		test.insert( cp, t );
+		cp += t.length();
+
 		if ( v &&
-		     v->isValid( test ) == QValidator::Invalid &&
-		     v->isValid( tbuf ) != QValidator::Invalid )
+		     v->validate( test, cp ) == QValidator::Invalid &&
+		     v->validate( tbuf, cursorPos ) != QValidator::Invalid )
 		    break;
 
 		// okay, it succeeded, so use those changes.
 		tbuf = test;
+		cursorPos = cp;
 		repaint( FALSE );
-		cursorRight( FALSE, tlen );
 		emit textChanged( tbuf );
 	    }
 	}
@@ -948,12 +956,13 @@ void QLineEdit::del()
 
     if ( hasMarkedText() ) {
 	test.remove( minMark(), maxMark() - minMark() );
+	int cp = minMark();
 	if ( v &&
-	     v->isValid( test ) == QValidator::Invalid &&
-	     v->isValid( tbuf ) != QValidator::Invalid )
+	     v->validate( test, cp ) == QValidator::Invalid &&
+	     v->validate( tbuf, cursorPos ) != QValidator::Invalid )
 	    return;
 	tbuf = test;
-	cursorPos  = minMark();
+	cursorPos = cp;
 	markAnchor = cursorPos;
 	markDrag   = cursorPos;
 	if ( cursorPos < offset )
@@ -962,11 +971,13 @@ void QLineEdit::del()
 	emit textChanged( tbuf );
     } else if ( cursorPos != (int)strlen(tbuf) ) {
 	test.remove( cursorPos, 1 );
+	int cp = cursorPos - 1;
 	if ( v &&
-	     v->isValid( test ) == QValidator::Invalid &&
-	     v->isValid( tbuf ) != QValidator::Invalid )
+	     v->validate( test, cp ) == QValidator::Invalid &&
+	     v->validate( tbuf, cursorPos ) != QValidator::Invalid )
 	    return;
 	tbuf = test;
+	cursorPos = cp;
 	repaint( !hasFocus() );
 	emit textChanged( tbuf );
     }
