@@ -140,7 +140,11 @@ public:
 	UnknownScript = NScripts
     };
 
-    static const int egcshack = NScripts;
+    // stupid stupid egcs - It can't use NScripts below for the x11data.fontstruct
+    // array size because it thinks QFontPrivate is still incomplete.  If you change
+    // the above enum you *MUST* update this number to be equal to the new NScripts
+    // value, lest you suffer firey death at the hand of qFatal().
+#define NSCRIPTSEGCSHACK 19
     
     static Script scriptForChar(const QChar &c);
 
@@ -272,8 +276,8 @@ public:
     class QFontX11Data {
     public:
 	// X fontstruct handles for each character set
-	QFontStruct *fontstruct[QFontPrivate::egcshack];
-
+	QFontStruct *fontstruct[NSCRIPTSEGCSHACK];
+	
 	QFontX11Data()
 	{
 	    for (int i = 0; i < QFontPrivate::NScripts; i++) {
@@ -317,11 +321,11 @@ public:
 	    }
 	}
     } x11data;
-    
+
     // QFontX11Data x11data;
-    
+
     static QFontPrivate::Script defaultScript;
-    
+
 #endif // Q_WS_X11
 
 

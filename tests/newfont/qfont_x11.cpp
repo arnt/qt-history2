@@ -85,9 +85,9 @@ static char *qt_x11encodings[][QFontPrivate::NScripts + 1] = {
     { "iso8859-8"        , 0 }, // HEBREW
 
     { "tscii-*"          , 0 }, // TAMIL
-    { "tis620-*",
+    { "tis620-0",
       "iso8859-11"       , 0 }, // THAI
-    
+
     { "gb2312.1980-0",
       "big5-0",
       "jisx0208.1983-0",
@@ -561,19 +561,19 @@ QCString QFontPrivate::findFont(QFontPrivate::Script script, bool *exact) const
     }
 
     int score;
-    
+
     QCString bestName;
     bool done = FALSE;
     int start_index = qt_x11indices[script];
-    
+
     while (! done) {
 	bestName = bestFamilyMember(script, foundry, familyName, &score);
-	
+
 	if (bestName.isNull()) {
 	    if (! qt_x11encodings[script][++qt_x11indices[script]]) {
 		qt_x11indices[script] = 0;
 	    }
-	    
+
 	    if (qt_x11indices[script] == start_index) {
 		done = TRUE;
 	    }
@@ -581,10 +581,10 @@ QCString QFontPrivate::findFont(QFontPrivate::Script script, bool *exact) const
 	    done = TRUE;
 	}
     }
-    
+
     if ( score < exactScore )
 	*exact = FALSE;
-    
+
     // qDebug("QFP::findFont: try 1 %s", (const char *) bestName);
 
     if (script == QFontPrivate::UNICODE) {
@@ -592,24 +592,24 @@ QCString QFontPrivate::findFont(QFontPrivate::Script script, bool *exact) const
     } else if (! bestName.isNull()) {
 	return bestName;
     }
-    
+
     // try substitution
     QStringList list = QFont::substitutes( request.family );
     QStringList::Iterator sit = list.begin();
-    
+
     while (sit != list.end() && bestName.isNull()) {
 	if (familyName != *sit) {
 	    done = FALSE;
 	    qt_x11indices[script] = start_index;
-	    
+
 	    while (! done) {
 		bestName = bestFamilyMember(script, foundry, *sit, &score);
-		
+
 		if (bestName.isNull()) {
 		    if (! qt_x11encodings[script][++qt_x11indices[script]]) {
 			qt_x11indices[script] = 0;
 		    }
-	    
+
 		    if (qt_x11indices[script] == start_index) {
 			done = TRUE;
 		    }
@@ -618,30 +618,30 @@ QCString QFontPrivate::findFont(QFontPrivate::Script script, bool *exact) const
 		}
 	    }
 	}
-		
+
 	++sit;
     }
-    
+
     // qDebug("QFP::findFont: try 2 %s", (const char *) bestName);
-    
+
     if (! bestName.isNull()) return bestName;
-    
+
     // try default family for style
     QString f = defaultFamily();
-    
+
     if ( familyName != f ) {
 	familyName = f;
 	done = FALSE;
 	qt_x11indices[script] = start_index;
-	    
+
 	while (! done) {
 	    bestName = bestFamilyMember(script, foundry, familyName, &score);
-	
+
 	    if (bestName.isNull()) {
 		if (! qt_x11encodings[script][++qt_x11indices[script]]) {
 		    qt_x11indices[script] = 0;
 		}
-	    
+
 		if (qt_x11indices[script] == start_index) {
 		    done = TRUE;
 		}
@@ -654,23 +654,23 @@ QCString QFontPrivate::findFont(QFontPrivate::Script script, bool *exact) const
     // qDebug("QFP::findFont: try 3 %s", (const char *) bestName);
 
     if (! bestName.isNull()) return bestName;
-    
+
     // try system default family
     f = lastResortFamily();
-	
+
     if ( familyName != f ) {
 	familyName = f;
 	done = FALSE;
 	qt_x11indices[script] = start_index;
-	    
+
 	while (! done) {
 	    bestName = bestFamilyMember(script, foundry, familyName, &score);
-	
+
 	    if (bestName.isNull()) {
 		if (! qt_x11encodings[script][++qt_x11indices[script]]) {
 		    qt_x11indices[script] = 0;
 		}
-	    
+
 		if (qt_x11indices[script] == start_index) {
 		    done = TRUE;
 		}
@@ -679,27 +679,27 @@ QCString QFontPrivate::findFont(QFontPrivate::Script script, bool *exact) const
 	    }
 	}
     }
-    
+
     // qDebug("QFP::findFont: try 4 %s", (const char *) bestName);
 
     if (! bestName.isNull()) return bestName;
-    
+
     // try *any* family
     f = "*";
-    
+
     if (familyName != f) {
 	familyName = f;
 	done = FALSE;
 	qt_x11indices[script] = start_index;
-	    
+
 	while (! done) {
 	    bestName = bestFamilyMember(script, foundry, familyName, &score);
-	    
+
 	    if (bestName.isNull()) {
 		if (! qt_x11encodings[script][++qt_x11indices[script]]) {
 		    qt_x11indices[script] = 0;
 		}
-	    
+
 		if (qt_x11indices[script] == start_index) {
 		    done = TRUE;
 		}
@@ -708,16 +708,16 @@ QCString QFontPrivate::findFont(QFontPrivate::Script script, bool *exact) const
 	    }
 	}
     }
-    
+
     // qDebug("QFP::findFont: try 5 %s", (const char *) bestName);
 
     // no matching fonts found
     if (bestName.isNull()) {
 	bestName = lastResortFont().latin1();
     }
-    
+
     // qDebug("QFP::findFont: done trying %s", (const char *) bestName);
-    
+
     return bestName;
 }
 
@@ -773,7 +773,7 @@ QCString QFontPrivate::bestFamilyMember(QFontPrivate::Script script,
 
     if ( score )
 	*score = bestScore;
-    
+
     return result;
 }
 
@@ -1372,6 +1372,11 @@ QFontPrivate::Script QFontPrivate::defaultScript = QFontPrivate::AnyScript;
 */
 void QFont::initialize()
 {
+    if (QFontPrivate::NScripts != NSCRIPTSEGCSHACK) {
+	qFatal("The QFontPrivate::Script enum has changed, but the x11data.fontstruct\n"
+	       "member array size wasn't updated");
+    }
+    
     QCString oldlctime = setlocale(LC_TIME, 0);
     QCString lctime = setlocale(LC_TIME, "");
 
