@@ -1,6 +1,5 @@
 /****************************************************************************
-**
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**  (C) 1992-2003 Trolltech AS. All rights reserved.
 **
 ** This file is part of an example program for Qt.
 ** EDITIONS: NOLIMITS
@@ -37,7 +36,7 @@
 #include <qtooltip.h>
 #include <qspinbox.h>
 #include <qstatusbar.h>
-#include <qwhatsthis.h>
+#include <q3whatsthis.h>
 #include <qtoolbutton.h>
 #include <qvbox.h>
 #include <qtabbar.h>
@@ -70,11 +69,11 @@
 #include "../application/fileprint.xpm"
 
 
-class MyWhatsThis : public QWhatsThis
+class MyWhatsThis : public Q3WhatsThis
 {
 public:
     MyWhatsThis( QListBox* lb)
-	: QWhatsThis( lb ) { listbox = lb; };
+	: Q3WhatsThis( lb ) { listbox = lb; };
     ~MyWhatsThis(){};
 
 
