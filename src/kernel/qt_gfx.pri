@@ -92,7 +92,7 @@ jpeg {
 		  3rdparty/libjpeg/jquant1.c \
 		  3rdparty/libjpeg/jquant2.c \
 		  3rdparty/libjpeg/jutils.c \
-		  3rdparty/libjpeg/jmemansi.c
+		  3rdparty/libjpeg/jmemnobs.c
         }
 }
 else:DEFINES += QT_NO_IMAGEIO_JPEG
