@@ -60,9 +60,13 @@
     mouse clicks. A header also emits sectionCountChanged() and
     sectionAutoResize().
 
-    You can identify a section by its ID, using the section() and sectionAt()
+    You can identify a section using the section() and sectionAt()
     functions, or by its index position, using the index() and indexAt()
     functions. Note that the index can change if a section is moved.
+
+    For a horizontal header the section is equivalent to a column in the
+    model, and for a vertical header the section is equivalent to a row
+    in the model.
 
     \sa \link model-view-programming.html Model/View Programming\endlink QListView QTableView QTreeView QHeaderWidget
 
@@ -101,6 +105,13 @@
     This signal is emitted when a section is resized. The section's
     number is specified by \a section, the old size by \a oldSize, and the
     new size by \a newSize.
+*/
+
+/*!
+  \fn void QHeaderView::sectionPressed(int section, Qt::ButtonState state);
+
+  This signal is emitted when a section is pressed. The section's
+  number is specified by \a section, and the button by \a state.
 */
 
 /*!
@@ -410,6 +421,10 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int section
     }
 }
 
+/*!
+  Returns the size of the contents of the give \a section.
+*/
+
 QSize QHeaderView::sectionSizeFromContents(int section) const
 {
     QSize size(100, 30);
@@ -500,6 +515,22 @@ int QHeaderView::sectionPosition(int section) const
         return length() - d->sections.at(index(section)).position - sectionSize(section);
     return d->sections.at(index(section)).position;
 }
+
+/*!
+  \fn QHeaderView::sectionAt(int x, int y) const
+
+  Returns the section at the given coordinate.
+  If the header is horizontal \a x will be used, otherwise \a y
+  will be used to find the section.
+*/
+
+/*!
+  \fn QHeaderView::sectionAt(const QPoint pos) const
+
+  Returns the section at the position given in \a pos.
+  If the header is horizontal \a x will be used, otherwise \a y
+  will be used to find the section.
+*/
 
 /*!
   \internal
@@ -962,14 +993,14 @@ void QHeaderView::resizeSection(int section, int size)
 }
 
 /*!
-  \fn void hideSection(int section)
+  \fn void QHeaderView::hideSection(int section)
     Hides the specified \a section.
 
     \sa showSection()
 */
 
 /*!
-  \fn void showSection(int section)
+  \fn void QHeaderView::showSection(int section)
    Shows the specified \a section.
 
    \sa hideSection()
