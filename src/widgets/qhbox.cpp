@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#4 $
 **
 ** Implementation of hbox layout widget
 **
@@ -38,15 +38,15 @@ QHBox::QHBox( QWidget *parent, const char *name )
   Constructs a horizontal hbox if \a horizontal is TRUE, otherwise
   constructs a vertical hbox (also known as a vbox). 
 
-  This function is provided for the QVBox class. You should never need
-  to use it.  
+  This constructor is provided for the QVBox class. You should never need
+  to use it directly.
 */
 
  QHBox::QHBox( bool horizontal, QWidget *parent , const char *name )
     :QWidget( parent, name )
 {
     lay = new QBoxLayout( this, 
-			  horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,
+		       horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,
 			  parent?0:5, 5, name ); //### border
 }
 
