@@ -154,7 +154,7 @@ static inline void qstring_to_pstring(QString s, int len, Str255 str, TextEncodi
 	return;
     }
     const int unilen = len * 2;
-    const UniChar *unibuf = (UniChar *)s.unicode(); //don't use pos here! FIXME
+    const UniChar *unibuf = (UniChar *)s.unicode(); 
     ConvertFromUnicodeToPString(info, unilen, unibuf, str);
     DisposeUnicodeToTextInfo(&info);
 }
@@ -277,7 +277,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 
 #if defined( QMAC_FONT_ATSUI )
 	//Create a cacheable ATSUStyle
-	const int arr_guess = 6;
+	const int arr_guess = 7;
 	int arr = 0;
 	ATSUAttributeTag tags[arr_guess];
 	ByteCount valueSizes[arr_guess];
@@ -289,14 +289,19 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	arr++;
 	tags[arr] = kATSUFontTag;  //font
 	ATSUFontID fond;
-	ATSUFONDtoFontID(d->fin->fnum, face, &fond);
+	if(OSStatus e = ATSUFONDtoFontID(d->fin->fnum, face, &fond)) 
+	    qDebug("%ld: Didn't think that would happen! %s:%d (%d)", e, __FILE__, __LINE__, d->fin->fnum);
 	valueSizes[arr] = sizeof(fond);
 	values[arr] = &fond;
 	arr++;
         tags[arr] = kATSUQDItalicTag;
         valueSizes[arr] = sizeof(Boolean);
-        Boolean boolVar = d->request.italic ? true : false;
-        values[arr] = &boolVar;
+        Boolean italicBool = d->request.italic ? true : false;
+        values[arr] = &italicBool;
+        tags[arr] = kATSUQDBoldfaceTag;
+        valueSizes[arr] = sizeof(Boolean);
+        Boolean boldBool = ((d->request.weight == QFont::Bold) ? true : false);
+        values[arr] = &boldBool;
         arr++;
 	if(arr > arr_guess) //this won't really happen, just so I will not miss the case
 	    qDebug("%d: Whoa!! you forgot to increase arr_guess! %d", __LINE__, arr);
@@ -309,8 +314,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	    qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
 	    delete st;
 	    st = NULL;
-	}
-	{
+	} else {
 	    int feat_guess=5, feats=0;
 	    ATSUFontFeatureType feat_types[feat_guess];
 	    ATSUFontFeatureSelector feat_values[feat_guess];
@@ -961,7 +965,7 @@ void QFontPrivate::load()
 							kTextEncodingDefaultVariant, 
 							kTextEncodingDefaultFormat);
 	    qstring_to_pstring(request.family, request.family.length(), str, encoding);
-	    GetFNum(str, &fin->fnum);
+	    fin->fnum = FMGetFontFamilyFromName(str);
 	}
 	if(!fin->info) {
 #if defined( QMAC_FONT_ATSUI ) && 0
