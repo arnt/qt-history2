@@ -73,8 +73,8 @@ int main( int argc, char **argv )
   // Embed data for all input files
 
     long l = rand();
-    out << "#ifndef _" << l << endl;
-    out << "#define _" << l << endl;
+    out << "#ifndef _QEMBED_" << l << endl;
+    out << "#define _QEMBED_" << l << endl;
 
     for ( int i=1; i<argc; i++ ) {
 	QString arg = argv[i];
