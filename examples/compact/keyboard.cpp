@@ -109,7 +109,7 @@ void Keyboard::paintEvent(QPaintEvent* e)
     p.setClipRect(e->rect());
 
     
-    int d = fm.lineSpacing();
+    int d = fm.lineSpacing() - 1;
     
     //    int h = d*5;
     //int wid = 240;
@@ -163,7 +163,6 @@ void Keyboard::paintEvent(QPaintEvent* e)
 	    p.drawLine( 0, y, x, y );
 	p.drawLine( 0, y+d, x, y+d );
     }
-    
 }
 
 
@@ -178,7 +177,7 @@ static void doKey( unsigned int unicode, int mod = 0 )
 void Keyboard::mousePressEvent(QMouseEvent *e)
 {
     QFontMetrics fm=fontMetrics();
-    int d = fm.lineSpacing();
+    int d = fm.lineSpacing() - 1;
 
     int i2 = (e->x() * 2) / d;
     int j = e->y() / d;
@@ -223,6 +222,6 @@ void Keyboard::mouseReleaseEvent(QMouseEvent*)
 QSize Keyboard::sizeHint() const
 {
     QFontMetrics fm=fontMetrics();
-    int d = fm.lineSpacing();
+    int d = fm.lineSpacing() - 1;
     return QSize( 15*d, 5*d );
 }

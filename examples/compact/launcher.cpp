@@ -194,6 +194,7 @@ private:
     QLabel* clock;
     QPopupMenu *launchMenu;
     QPushButton *launchButton;
+    QPushButton *kbdButton;
     QWidget * keyboard;
     enum KeyMode { Pen, Key, Unicode } keyMode;
 };
@@ -217,7 +218,7 @@ TaskBar::TaskBar()
     }
     connect( launchMenu, SIGNAL(activated(int)), this, SLOT(execute(int)));
 
-    QPushButton *kbdButton = new QPushButton( "Kbd", this );
+    kbdButton = new QPushButton( "Kbd", this );
     kbdButton->setToggleButton( TRUE );
     hbox->addWidget( kbdButton );
     connect( kbdButton, SIGNAL(toggled(bool)), this, SLOT(showKbd(bool)) );
@@ -234,22 +235,7 @@ TaskBar::TaskBar()
     hbox->addWidget( clock );
 }
 
-void TaskBar::chooseKbd()
-{
-    QPopupMenu pop( this );
-    pop.insertItem( "Handwriting", Pen );
-    pop.insertItem( "Keyboard", Key );
-    pop.insertItem( "Unicode", Unicode );
-    pop.setItemChecked( keyMode, TRUE );
-    int h = pop.sizeHint().height();
-    int i = pop.exec( mapToGlobal(QPoint(0,-h)));
-    if ( i == -1 )
-	return;
-    if ( i != keyMode && keyboard && keyboard->isVisible() )
-	keyboard->hide();
-    keyMode = (KeyMode)i;
-    showKbd( TRUE );
-}
+
 
 void TaskBar::execute( int i )
 {
@@ -269,7 +255,27 @@ void TaskBar::launch()
 }
 
 
-
+void TaskBar::chooseKbd()
+{
+    QPopupMenu pop( this );
+#ifdef PEN_INPUT    
+    pop.insertItem( "Handwriting", Pen );
+#endif
+    pop.insertItem( "Keyboard", Key );
+    pop.insertItem( "Unicode", Unicode );
+    pop.setItemChecked( keyMode, TRUE );
+    int h = pop.sizeHint().height();
+    int i = pop.exec( mapToGlobal(QPoint(0,-h)));
+    if ( i == -1 )
+	return;
+    if ( i != keyMode && keyboard && keyboard->isVisible() )
+	keyboard->hide();
+    keyMode = (KeyMode)i;
+    if ( !kbdButton->isOn() )
+	kbdButton->setOn( TRUE );
+    else
+	showKbd( TRUE );
+}
 
 void TaskBar::showKbd( bool on ) 
 {
@@ -289,9 +295,10 @@ void TaskBar::showKbd( bool on )
     case Pen:
 #ifdef PEN_INPUT    
 	if ( !pi ) {
-	    pi = new QWSPenInput( 0, 0, QWidget::WStyle_Customize 
-				  | QWidget::WStyle_NoBorder 
-				  | QWidget::WStyle_StaysOnTop );
+	    pi = new QWSPenInput( 0, 0, WStyle_Customize 
+				  //| WStyle_NoBorder | WStyle_StaysOnTop
+				  | WStyle_Tool | WStyle_StaysOnTop
+				  );
 	    pi->setFrameStyle( QFrame::Box | QFrame::Plain );
 	    pi->setLineWidth( 1 );
 	    pi->addCharSet( "qimpen/asciilower.qpt" );
@@ -307,9 +314,10 @@ void TaskBar::showKbd( bool on )
 	break;
     case Key:
 	if ( !kbd ) {
-	    kbd = new Keyboard( 0, 0, QWidget::WStyle_Customize 
-				| QWidget::WStyle_NoBorder 
-				| QWidget::WStyle_StaysOnTop );
+	    kbd = new Keyboard( 0, 0, WStyle_Customize 
+				  //| WStyle_NoBorder | WStyle_StaysOnTop
+				  | WStyle_Tool | WStyle_StaysOnTop
+				  );
 	    kbd->resize( kbd->sizeHint().width(), kbd->sizeHint().height() + 1 );
 	    int h = y();
 	    kbd->move( 0,  h - kbd->height() );
@@ -319,9 +327,10 @@ void TaskBar::showKbd( bool on )
 	break;
     case Unicode:
 	if ( !uni ) {
-	    uni = new UniKeyboard( 0, 0, QWidget::WStyle_Customize 
-				   | QWidget::WStyle_NoBorder 
-				   | QWidget::WStyle_StaysOnTop );
+	    uni = new UniKeyboard( 0, 0, WStyle_Customize 
+				  //| WStyle_NoBorder | WStyle_StaysOnTop
+				  | WStyle_Tool | WStyle_StaysOnTop
+				  );
 	    uni->resize( qApp->desktop()->width(), 
 			 qApp->desktop()->height()/2  );
 	    int h = y();
