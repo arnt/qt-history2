@@ -3910,17 +3910,23 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
     for ( int i = 0; i < indent; ++i )
 	s << " ";
 
-    if ( namespaceURI.isNull() ) {
-	s << "<" << name;
-    } else {
+    QString qName( name );
+    QString nsDecl( "" );
+    if ( !namespaceURI.isNull() ) {
 	// ### optimize this, so that you only declare namespaces that are not
 	// yet declared -- we loose default namespace mappings, so maybe we
 	// should rather store the information that we get from
 	// startPrefixMapping()/endPrefixMapping() and use them (you have to
 	// take care if the DOM tree is modified, though)
-	s << "<" << prefix << ":" << name
-	    << " xmlns:" << prefix << "=\"" << encodeAttr( namespaceURI ) << "\"";
+	if ( prefix.isEmpty() ) {
+	    nsDecl = " xmlns";
+	} else {
+	    qName = prefix + ":" + name;
+	    nsDecl = " xmlns:" + prefix;
+	}
+	nsDecl += "=\"" + encodeAttr( namespaceURI ) + "\"";
     }
+    s << "<" << qName << nsDecl;
 
     if ( !m_attr->map.isEmpty() ) {
 	s << " ";
@@ -3942,10 +3948,7 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
 	    for( int i = 0; i < indent; ++i )
 		s << " ";
 
-	s << "</";
-	if ( !namespaceURI.isNull() )
-	    s << prefix << ":";
-	s << name << ">" << endl;
+	s << "</" << qName << ">" << endl;
     } else {
 	s << "/>" << endl;
     }
