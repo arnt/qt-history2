@@ -217,6 +217,7 @@ static QPrinter::PageSize mapDevmodePageSize( int s )
 void QPrinter::readPdlg( void* pdv )
 {
     // Note: Remember to reflect any changes here in readPdlgA below!
+    
     PRINTDLG* pd = (PRINTDLG*)pdv;
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
     from_pg = pd->nFromPage;
@@ -231,6 +232,7 @@ void QPrinter::readPdlg( void* pdv )
 	    else
 		setOrientation( Landscape );
 	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+	    ncopies = dm->dmCopies;
 	}
 	GlobalUnlock( pd->hDevMode );
     }
@@ -274,6 +276,7 @@ void QPrinter::readPdlgA( void* pdv )
 	    else
 		setOrientation( Landscape );
 	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+	    ncopies = pd->nCopies;
 	}
 	GlobalUnlock( pd->hDevMode );
     }
