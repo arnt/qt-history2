@@ -320,7 +320,7 @@ bool Option::postProcessProject(QMakeProject *project)
 	Option::prl_ext = project->first("QMAKE_EXT_PRL");
     if(!project->isEmpty("QMAKE_EXT_UI"))
 	Option::ui_ext = project->first("QMAKE_EXT_UI");
-    if(!project->isEmpty("QMAKE_EXT_H"))
+    if(!project->isEmpty("QMAKE_EXT_H")) 
 	Option::h_ext = project->first("QMAKE_EXT_H");
     if(!project->isEmpty("QMAKE_EXT_MOC"))
 	Option::moc_ext = project->first("QMAKE_EXT_MOC");
