@@ -2615,13 +2615,7 @@ void MainWindow::showDialogHelp()
 
 void MainWindow::setupActionManager()
 {
-    actionPluginManager = new QPluginManager<ActionInterface>( IID_Action );
-    QStringList paths(QApplication::libraryPaths());
-    QStringList::Iterator it = paths.begin();
-    while (it != paths.end()) {
-	actionPluginManager->addLibraryPath(*it + "/designer");
-	it++;
-    }
+    actionPluginManager = new QPluginManager<ActionInterface>( IID_Action, QApplication::libraryPaths(), "/designer" );
 
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator ait = lst.begin(); ait != lst.end(); ++ait ) {
@@ -2841,61 +2835,21 @@ TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& cl
 
 void MainWindow::setupPluginManagers()
 {
-    editorPluginManager = new QPluginManager<EditorInterface>( IID_Editor );
-    QStringList paths(QApplication::libraryPaths());
-    QStringList::Iterator it = paths.begin();
-    while (it != paths.end()) {
-	editorPluginManager->addLibraryPath(*it + "/designer");
-	it++;
-    }
-
+    editorPluginManager = new QPluginManager<EditorInterface>( IID_Editor, QApplication::libraryPaths(), "/designer" );
     MetaDataBase::setEditor( editorPluginManager->featureList() );
-    templateWizardPluginManager = new QPluginManager<TemplateWizardInterface>( IID_TemplateWizard );
-    it = paths.begin();
-    while (it != paths.end()) {
-	templateWizardPluginManager->addLibraryPath(*it + "/designer");
-	it++;
-    }
+
+    templateWizardPluginManager = new QPluginManager<TemplateWizardInterface>( IID_TemplateWizard, QApplication::libraryPaths(), "/designer" );
 
     MetaDataBase::setupInterfaceManagers();
-    programPluginManager = new QPluginManager<ProgramInterface>( IID_Program );
-    it = paths.begin();
-    while (it != paths.end()) {
-	programPluginManager->addLibraryPath(*it + "/designer");
-	it++;
-    }
-
-    interpreterPluginManager = new QPluginManager<InterpreterInterface>( IID_Interpreter );
-    it = paths.begin();
-    while (it != paths.end()) {
-	interpreterPluginManager->addLibraryPath(*it + "/designer");
-	it++;
-    }
-
-    preferencePluginManager = new QPluginManager<PreferenceInterface>( IID_Preference );
-    it = paths.begin();
-    while (it != paths.end()) {
-	preferencePluginManager->addLibraryPath(*it + "/designer");
-	it++;
-    }
-
-    projectSettingsPluginManager = new QPluginManager<ProjectSettingsInterface>( IID_ProjectSettings );
-    it = paths.begin();
-    while (it != paths.end()) {
-	projectSettingsPluginManager->addLibraryPath(*it + "/designer");
-	it++;
-    }
-
-    sourceTemplatePluginManager = new QPluginManager<SourceTemplateInterface>( IID_SourceTemplate );
-    it = paths.begin();
-    while (it != paths.end()) {
-	sourceTemplatePluginManager->addLibraryPath(*it + "/designer");
-	it++;
-    }
+    programPluginManager = new QPluginManager<ProgramInterface>( IID_Program, QApplication::libraryPaths(), "/designer" );
+    interpreterPluginManager = new QPluginManager<InterpreterInterface>( IID_Interpreter, QApplication::libraryPaths(), "/designer" );
+    preferencePluginManager = new QPluginManager<PreferenceInterface>( IID_Preference, QApplication::libraryPaths(), "/designer" );
+    projectSettingsPluginManager = new QPluginManager<ProjectSettingsInterface>( IID_ProjectSettings, QApplication::libraryPaths(), "/designer" );
+    sourceTemplatePluginManager = new QPluginManager<SourceTemplateInterface>( IID_SourceTemplate, QApplication::libraryPaths(), "/designer" );
 
     if ( preferencePluginManager ) {
 	QStringList lst = preferencePluginManager->featureList();
-	for ( it = lst.begin(); it != lst.end(); ++it ) {
+	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	    PreferenceInterface *i = 0;
 	    preferencePluginManager->queryInterface( *it, &i );
 	    i->connectTo( designerInterface() );

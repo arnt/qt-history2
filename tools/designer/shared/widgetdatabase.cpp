@@ -824,14 +824,7 @@ void WidgetDatabase::loadWhatsThis( const QString &docPath )
 QPluginManager<WidgetInterface> *widgetManager()
 {
     if ( !widgetPluginManager ) {
-	widgetPluginManager = new QPluginManager<WidgetInterface>( IID_Widget );
-	QStringList paths(QApplication::libraryPaths());
-	QStringList::Iterator it = paths.begin();
-	while (it != paths.end()) {
-	    widgetPluginManager->addLibraryPath(*it + "/designer");
-	    it++;
-	}
-
+	widgetPluginManager = new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), "/designer" );
 	cleanup_manager.add( &widgetPluginManager );
     }
     return widgetPluginManager;

@@ -1019,13 +1019,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 {
     statusBar()->message( tr( "Select a file...") );
 
-    QPluginManager<ImportFilterInterface> manager( IID_ImportFilter );
-    QStringList paths(QApplication::libraryPaths());
-    QStringList::Iterator it = paths.begin();
-    while (it != paths.end()) {
-	manager.addLibraryPath(*it + "/designer");
-	it++;
-    }
+    QPluginManager<ImportFilterInterface> manager( IID_ImportFilter, QApplication::libraryPaths(), "/designer" );
 
     Project* project = inProject ? currentProject : eProject;
 

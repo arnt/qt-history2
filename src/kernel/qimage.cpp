@@ -3634,26 +3634,17 @@ void qt_init_image_plugins()
     if ( plugin_manager )
 	return;
 
-    plugin_manager = new QPluginManager<QImageFormatInterface>( IID_QImageFormat );
-
-    QStringList paths(QApplication::libraryPaths());
-    QStringList::Iterator it = paths.begin();
-    while (it != paths.end()) {
-	plugin_manager->addLibraryPath(*it + "/imageformats");
-	it++;
-    }
+    plugin_manager = new QPluginManager<QImageFormatInterface>( IID_QImageFormat, QApplication::libraryPaths(), "/imageformats" );
 
     QStringList features = plugin_manager->featureList();
-    it = features.begin();
+    QStringList::Iterator it = features.begin();
     while ( it != features.end() ) {
 	QString str = *it;
 	++it;
-	QImageFormatInterface *iface;
+	QInterfacePtr<QImageFormatInterface> iface;
 	plugin_manager->queryInterface( str, &iface );
-	if ( iface ) {
+	if ( iface )
 	    iface->installIOHandler( str );
-	    iface->release();
-	}
     }
 #endif
 }

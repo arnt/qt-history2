@@ -1409,25 +1409,11 @@ QMap<QString, QString> MetaDataBase::functionBodies( QObject *o )
 
 void MetaDataBase::setupInterfaceManagers()
 {
-    if ( !eventInterfaceManager ) {
-	eventInterfaceManager = new QPluginManager<EventInterface>( IID_Event );
+    if ( !eventInterfaceManager )
+	eventInterfaceManager = new QPluginManager<EventInterface>( IID_Event, QApplication::libraryPaths(), "/designer" );
 
-	QStringList paths(QApplication::libraryPaths());
-	QStringList::Iterator it = paths.begin();
-	while (it != paths.end()) {
-	    eventInterfaceManager->addLibraryPath(*it + "/designer");
-	    it++;
-	}
-
-    }
     if ( !languageInterfaceManager ) {
-	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language );
-	QStringList paths(QApplication::libraryPaths());
-	QStringList::Iterator it = paths.begin();
-	while (it != paths.end()) {
-	    languageInterfaceManager->addLibraryPath(*it + "/designer");
-	    it++;
-	}
+	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(), "/designer" );
 
 	langList = languageInterfaceManager->featureList();
 	langList.remove( "C++" );

@@ -258,7 +258,7 @@ static void cleanup()
 
 /*!
   Sets \a iface to point to the implementation of the QAccessibleInterface for \a object, and returns QS_OK
-  if successfull, or sets \a iface to 0 and returns QE_NOINTERFACE if no accessibility implementation for
+  if successfull, or sets \a iface to 0 and returns QE_NOCOMPONENT if no accessibility implementation for
   \a object exists.
 
   The function uses the \link QObject::className() classname \endlink of \a object to find a suitable
@@ -283,18 +283,11 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
     }
 
     if ( !qAccessibleManager ) {
-	qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>( IID_QAccessibleFactory );
+	qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>( IID_QAccessibleFactory, QApplication::libraryPaths(), "/accessible" );
 	qAddPostRoutine( cleanup );
-
-	QStringList paths(QApplication::libraryPaths());
-	QStringList::Iterator it = paths.begin();
-	while (it != paths.end()) {
-	    qAccessibleManager->addLibraryPath(*it + "/accessible" );
-	    it++;
-	}
     }
 
-    QAccessibleFactoryInterface *factory = 0;
+    QInterfacePtr<QAccessibleFactoryInterface> factory = 0;
     QMetaObject *mo = object->metaObject();
     while ( mo ) {
 	qAccessibleManager->queryInterface( mo->className(), &factory );
@@ -302,15 +295,10 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 	    break;
 	mo = mo->superClass();
     }
-    if ( factory ) {
-	factory->createAccessibleInterface( mo->className(), object, iface );
-	factory->release();
-    }
+    if ( factory )
+	return factory->createAccessibleInterface( mo->className(), object, iface );
 
-    if ( !*iface )
-	return QE_NOINTERFACE;
-
-    return QS_OK;
+    return QE_NOCOMPONENT;
 }
 
 

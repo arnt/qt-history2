@@ -913,13 +913,7 @@ HierarchyView::HierarchyView( QWidget *parent )
     addTab( fView, tr( "Source" ) );
 
     if ( !classBrowserInterfaceManager ) {
-	classBrowserInterfaceManager = new QPluginManager<ClassBrowserInterface>( IID_ClassBrowser );
-	QStringList paths(QApplication::libraryPaths());
-	QStringList::Iterator it = paths.begin();
-	while (it != paths.end()) {
-	    classBrowserInterfaceManager->addLibraryPath(*it + "/designer");
-	    it++;
-	}
+	classBrowserInterfaceManager = new QPluginManager<ClassBrowserInterface>( IID_ClassBrowser, QApplication::libraryPaths(), "/designer" );
     }
 
     QStringList langs = MetaDataBase::languages();

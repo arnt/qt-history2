@@ -304,26 +304,11 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	widgetFactory->loadFunctions( functions );
 
 
-    if ( !languageInterfaceManager ) {
-	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language );
-	QStringList paths(QApplication::libraryPaths());
-	QStringList::Iterator it = paths.begin();
-	while (it != paths.end()) {
-	    languageInterfaceManager->addLibraryPath(*it + "/designer");
-	    it++;
-	}
-    }
-
-    if ( !interpreterInterfaceManager ) {
+    if ( !languageInterfaceManager )
+	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(), "/designer" );
+    if ( !interpreterInterfaceManager )
 	interpreterInterfaceManager =
-	    new QPluginManager<InterpreterInterface>( IID_Interpreter );
-	QStringList paths(QApplication::libraryPaths());
-	QStringList::Iterator it = paths.begin();
-	while (it != paths.end()) {
-	    interpreterInterfaceManager->addLibraryPath(*it + "/designer");
-	    it++;
-	}
-    }
+	    new QPluginManager<InterpreterInterface>( IID_Interpreter, QApplication::libraryPaths(), "/designer" );
 
     widgetFactory->loadExtraSource();
 
@@ -363,16 +348,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	}
 #endif
 
-	if ( !eventInterfaceManager ) {
-	    eventInterfaceManager = new QPluginManager<EventInterface>( IID_Event );
-
-	    QStringList paths(QApplication::libraryPaths());
-	    QStringList::Iterator it = paths.begin();
-	    while (it != paths.end()) {
-		eventInterfaceManager->addLibraryPath(*it + "/designer");
-		it++;
-	    }
-	}
+	if ( !eventInterfaceManager )
+	    eventInterfaceManager = new QPluginManager<EventInterface>( IID_Event, QApplication::libraryPaths(), "/designer" );
 
 	if ( eventInterfaceManager && interpreterInterfaceManager && languageInterfaceManager ) {
 	    QStringList langs = languageInterfaceManager->featureList();
@@ -587,20 +564,13 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 #endif
 
     // try to create it using the loaded widget plugins
-    if ( !widgetInterfaceManager ) {
-	widgetInterfaceManager = new QPluginManager<WidgetInterface>( IID_Widget );
-	QStringList paths(QApplication::libraryPaths());
-	QStringList::Iterator it = paths.begin();
-	while (it != paths.end()) {
-	    widgetInterfaceManager->addLibraryPath(*it + "/designer");
-	    it++;
-	}
-    }
-    WidgetInterface *iface = 0;
+    if ( !widgetInterfaceManager )
+	widgetInterfaceManager = new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), "/designer" );
+
+    QInterfacePtr<WidgetInterface> iface = 0;
     widgetInterfaceManager->queryInterface( className, &iface );
     if ( iface ) {
 	QWidget *w = iface->create( className, parent, name );
-	iface->release();
 	if ( w )
 	    return w;
     }
@@ -1571,16 +1541,9 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
     QDomElement n = e.firstChild().toElement();
     QMap<QString, QString> bodies;
     QString s;
-    if ( !interpreterInterfaceManager ) {
+    if ( !interpreterInterfaceManager )
 	interpreterInterfaceManager =
-	    new QPluginManager<InterpreterInterface>( IID_Interpreter );
-	QStringList paths(QApplication::libraryPaths());
-	QStringList::Iterator it = paths.begin();
-	while ( it != paths.end() ) {
-	    interpreterInterfaceManager->addLibraryPath( *it + "/designer" );
-	    it++;
-	}
-    }
+	    new QPluginManager<InterpreterInterface>( IID_Interpreter, QApplication::libraryPaths(), "/designer" );
 
     while ( !n.isNull() ) {
 	if ( n.tagName() == "function" ) {
