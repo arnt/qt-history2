@@ -1006,9 +1006,10 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
     QPaintEvent e(r & widget->rect());
     QApplication::sendEvent(widget, &e);
     QPainter::restoreRedirected(widget);
-    QPainter pt(&res);
-    pt.drawPixmap(offset.x(), offset.y(), buf, 0, 0, r.width(), r.height());
-    pt.end();
+    {
+        QPainter pt(&res);
+        pt.drawPixmap(offset.x(), offset.y(), buf, 0, 0, r.width(), r.height());
+    }
 
     const QObjectList children = widget->children();
     for (int i = 0; i < children.size(); ++i) {
