@@ -1102,7 +1102,9 @@ void QDragManager::move( const QPoint & globalPos )
 	// Ok.
     } else if ( target ) {
 	//me
-	target = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
+	Window targetW = qt_x11_findClientWindow( target, qt_wm_state, TRUE );
+	if (targetW)
+	    target = targetW;
  	if ( qt_xdnd_deco && (!target || target == qt_xdnd_deco->winId()) ) {
  	    target = findRealWindow(globalPos,qt_xrootwin(),6);
  	}
