@@ -362,6 +362,8 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 #endif
 	    if(item->widget())
 		continue;
+	    if(!item->isVisible())
+		continue;
 
 	    QString text = "empty", accel; //Yes I need this, stupid!
 	    if(!item->isSeparator()) {
