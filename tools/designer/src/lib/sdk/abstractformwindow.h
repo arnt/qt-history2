@@ -97,6 +97,7 @@ public slots:
 
 signals:
     void fileNameChanged(const QString &fileName);
+    void editModeChanged(EditMode editMode);
     void selectionChanged();
     void changed();
     void widgetManaged(QWidget *widget);

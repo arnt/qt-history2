@@ -60,6 +60,8 @@ QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWo
 
 QDesignerFormWindow::~QDesignerFormWindow()
 {
+    if (workbench())
+        workbench()->removeFormWindow(this);
 }
 
 QAction *QDesignerFormWindow::action() const
@@ -90,6 +92,11 @@ QRect QDesignerFormWindow::geometryHint() const
 AbstractFormWindow *QDesignerFormWindow::editor() const
 {
     return m_editor;
+}
+
+QDesignerWorkbench *QDesignerFormWindow::workbench() const
+{
+    return m_workbench;
 }
 
 void QDesignerFormWindow::updateWindowTitle(const QString &fileName)

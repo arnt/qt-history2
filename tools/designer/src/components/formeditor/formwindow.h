@@ -171,7 +171,7 @@ public:
     QList<QWidget *> widgets(QWidget *widget) const;
 
     inline BuddyEditor *buddyEditor() const { return m_buddyEditor; }
-    
+
     QWidget *createWidget(DomUI *ui, const QRect &rect, QWidget *target);
     void insertWidget(QWidget *w, const QRect &rect, QWidget *target);
     void resizeWidget(QWidget *widget, const QRect &geometry);
@@ -213,12 +213,11 @@ public:
 
     WidgetToActionMap &widgetToActionMap() { return m_widget_to_action_map; }
     ActionList &actionList() { return m_action_list; }
-    
+
     SignalSlotEditor *signalSlotEditor() const { return m_signalSlotEditor; }
 
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);
-    void editModeChanged(EditMode);
 
 public slots:
     void deleteWidgets();

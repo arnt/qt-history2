@@ -166,3 +166,4 @@ bool QDesignerIntegration::saveForm(AbstractFormWindow *fw, const QString &saveF
 
     return true;
 }
+

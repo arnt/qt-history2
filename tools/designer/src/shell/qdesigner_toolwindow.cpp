@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_toolwindow.h"
+#include "qdesigner_workbench.h"
 
 #include <QAction>
 #include <QEvent>
@@ -30,6 +31,8 @@ QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget 
 
 QDesignerToolWindow::~QDesignerToolWindow()
 {
+    if (workbench())
+        workbench()->removeToolWindow(this);
 }
 
 void QDesignerToolWindow::showEvent(QShowEvent *e)

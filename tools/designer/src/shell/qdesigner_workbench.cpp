@@ -359,3 +359,17 @@ void QDesignerWorkbench::updateWorkbench(AbstractFormWindow *fw, const QString &
     Q_UNUSED(value);
 }
 
+void QDesignerWorkbench::removeToolWindow(QDesignerToolWindow *toolWindow)
+{
+    m_toolWindows.remove(toolWindow);
+    m_toolWindowExtras.remove(toolWindow);
+    emit toolWindowRemoved(toolWindow);
+}
+
+void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
+{
+    m_formWindows.remove(formWindow);
+    m_formWindowExtras.remove(formWindow);
+    emit formWindowRemoved(formWindow);
+}
+

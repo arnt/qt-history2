@@ -77,7 +77,10 @@ public:
 
 signals:
     void toolWindowAdded(QDesignerToolWindow *toolWindow);
+    void toolWindowRemoved(QDesignerToolWindow *toolWindow);
+
     void formWindowAdded(QDesignerFormWindow *formWindow);
+    void formWindowRemoved(QDesignerFormWindow *formWindow);
 
     void modeChanged(Mode mode);
     void initialized();
@@ -85,6 +88,8 @@ signals:
 public slots:
     void addToolWindow(QDesignerToolWindow *toolWindow);
     void addFormWindow(QDesignerFormWindow *formWindow);
+    void removeToolWindow(QDesignerToolWindow *toolWindow);
+    void removeFormWindow(QDesignerFormWindow *formWindow);
 
 // ### private slots:
     void switchToNeutralMode();
