@@ -1,5 +1,6 @@
 # Compiling
 SYSCONF_CXX		= #$ Expand('TMAKE_CXX');
+SYSCONF_CC		= #$ Expand('TMAKE_CC');
 
 # Compiling with support libraries
 SYSCONF_CXXFLAGS_X11	= #$ ExpandGlue('TMAKE_INCDIR_X11', '-I', ' -I', '');

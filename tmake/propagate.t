@@ -6,6 +6,7 @@
 #!
 #${
     $project{"TMAKE_CXXFLAGS"} = "";
+    $project{"TMAKE_CFLAGS"} = "";
     $project{"TMAKE_LFLAGS"} = "";
     $project{"TMAKE_LIBS"} = "";
 
@@ -86,6 +87,7 @@
 	Project('TMAKE_LIBS *= $(SYSCONF_LIBS_YACC)' );
     }
     Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS)' );
+    Project('TMAKE_CFLAGS *= $(SYSCONF_CFLAGS)' );
     Project('TMAKE_LFLAGS *= $(SYSCONF_LFLAGS)' );
     if ( Project('TEMPLATE') eq "lib" ) {
 	Project('TMAKE_CXXFLAGS *= $(SYSCONF_CXXFLAGS_LIB)' );
@@ -98,6 +100,8 @@
 
 CXX	=	$(SYSCONF_CXX)
 CXXFLAGS=	#$ Expand("TMAKE_CXXFLAGS"); ExpandGlue("DEFINES","-D"," -D",""); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_CXXFLAGS_OPT)');
+CC	=	$(SYSCONF_CC)
+CFLAGS	=	#$ Expand("TMAKE_CFLAGS"); ExpandGlue("DEFINES","-D"," -D",""); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_CXXFLAGS_OPT)');
 INCPATH =	#$ ExpandGlue("INCPATH","-I"," -I","");
 LFLAGS	=	#$ Expand("TMAKE_LFLAGS");
 LIBS	=	#$ Expand("TMAKE_LIBS"); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_LIBS_OPT)');
