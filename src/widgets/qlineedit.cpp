@@ -2019,7 +2019,7 @@ void QLineEdit::windowActivationChange( bool )
 /*! \reimp */
 QAccessibleInterface *QLineEdit::accessibleInterface()
 {
-    return new QAccessibleWidget( this, QAccessible::Text );
+    return new QAccessibleText( this, QAccessible::Text );
 }
 #endif
 

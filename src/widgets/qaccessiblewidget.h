@@ -67,6 +67,8 @@ public:
 	QString description = QString::null, QString help = QString::null, 
 	QString defAction = QString::null, QString accelerator = QString::null );
 
+    QString name( int who ) const;
+    QString accelerator( int who ) const;
     QString value( int who ) const;
 };
 
@@ -77,8 +79,10 @@ public:
 	QString description = QString::null, QString help = QString::null, 
 	QString defAction = QString::null, QString accelerator = QString::null );
 
+    QString name( int who ) const;
+    QString accelerator( int who ) const;
     QString value( int who ) const;
-    State state( int who ) const;
+    State state( int who ) const;    
 };
 
 class Q_EXPORT QAccessibleDisplay : public QAccessibleWidget

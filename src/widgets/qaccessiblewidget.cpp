@@ -16,6 +16,63 @@
 #include "qgroupbox.h"
 #include "qtoolbutton.h"
 
+static QString buddyString( QWidget *widget ) 
+{
+    QWidget *parent = widget->parentWidget();
+    QObjectList *ol = parent->queryList( "QLabel", 0, FALSE, FALSE );
+    if ( !ol || !ol->count() ) {
+	delete ol;
+	return QString::null;
+    }
+
+    QString str;
+
+    QObjectListIt it(*ol);
+    while ( it.current() ) {
+	QLabel *label = (QLabel*)it.current();
+	++it;
+	if ( label->buddy() == widget ) {
+	    str = label->text();
+	    break;
+	}
+    }
+    delete ol;
+    if ( !!str )
+	return str;
+
+    if ( parent->inherits( "QGroupBox" ) )
+	return ((QGroupBox*)parent)->title();
+
+    return QString::null;
+}
+
+static QString stripAmp( const QString &text )
+{
+    QString n = text;
+    for ( uint i = 0; i < n.length(); i++ ) {
+	if ( n[(int)i] == '&' )
+	    n.remove( i, 1 );
+    }
+    return n;
+}
+
+static QString hotKey( const QString &text )
+{
+    QString n = text;
+    int fa = 0;
+    bool ac = FALSE;
+    while ( ( fa = n.find( "&", fa ) ) != -1 ) {
+	if ( n.at(fa+1) != '&' ) {
+	    ac = TRUE;
+	    break;
+	}
+    }
+    if ( fa != -1 && ac )
+	return "ALT+"+n.at(fa + 1);
+
+    return QString::null;
+}
+
 /*!
   \class QAccessibleWidget qaccessiblewidget.h
   \brief The QAccessibleWidget class implements the QAccessibleInterface for QWidgets.
@@ -420,20 +477,11 @@ QString QAccessibleButton::defaultAction( int who ) const
 QString	QAccessibleButton::accelerator( int who ) const
 {
     QString acc = QAccessibleWidget::accelerator( who );
-    if ( acc.isNull() ) {
-	QString text = ((QButton*)object())->text();
+    if ( acc.isNull() )
+	acc = hotKey( ((QButton*)object())->text() );
+    if ( acc.isNull() )
+	acc = hotKey( buddyString( (QWidget*)object() ) );
 
-	int fa = 0;
-	bool ac = FALSE;
-	while ( ( fa = text.find( "&", fa ) ) != -1 ) {
-	    if ( text.at(fa+1) != '&' ) {
-		ac = TRUE;
-		break;
-	    }
-	}
-	if ( fa != -1 && ac )
-	    return "ALT+"+text.at(fa + 1);
-    }
     return acc;
 }
 
@@ -447,16 +495,17 @@ QString	QAccessibleButton::accelerator( int who ) const
 QString	QAccessibleButton::name( int who ) const
 {
     QString n = QAccessibleWidget::name( who );
-    if ( n.isNull() ) {
+    if ( n.isNull() )
 	n = ((QButton*)object())->text();
-    
-	for ( uint i = 0; i < n.length(); i++ ) {
-	    if ( n[(int)i] == '&' )
-		n.remove( i, 1 );
-	}
-    }
     if ( n.isNull() && object()->inherits("QToolButton") )
 	n = ((QToolButton*)object())->textLabel();
+    if ( n.isNull() )
+	n = buddyString( (QWidget*)object() );
+
+    for ( uint i = 0; i < n.length(); i++ ) {
+	if ( n[(int)i] == '&' )
+	    n.remove( i, 1 );
+    }
 
     return n;
 }
@@ -504,6 +553,26 @@ QAccessibleRangeControl::QAccessibleRangeControl( QWidget *w, Role role, QString
 }
 
 /*! \reimp */
+QString QAccessibleRangeControl::name( int who ) const
+{
+    QString n = QAccessibleWidget::name( who );
+    if ( n.isNull() )
+	n = buddyString( (QWidget*)object() );
+
+    return stripAmp( n );
+}
+
+/*! \reimp */
+QString	QAccessibleRangeControl::accelerator( int who ) const
+{
+    QString acc = QAccessibleWidget::accelerator( who );
+    if ( acc.isNull() )
+	acc = hotKey( buddyString( (QWidget*)object() ) );
+
+    return acc;
+}
+
+/*! \reimp */
 QString QAccessibleRangeControl::value( int who ) const
 {
     QString v = QAccessibleWidget::value( who );
@@ -544,13 +613,33 @@ QAccessibleText::QAccessibleText( QWidget *w, Role role, QString name, QString d
 }
 
 /*! \reimp */
+QString QAccessibleText::name( int who ) const
+{
+    QString n = QAccessibleWidget::name( who );
+    if ( n.isNull() )
+	n = buddyString( (QWidget*)object() );
+
+    return stripAmp( n );
+}
+
+/*! \reimp */
+QString	QAccessibleText::accelerator( int who ) const
+{
+    QString acc = QAccessibleWidget::accelerator( who );
+    if ( acc.isNull() )
+	acc = hotKey( buddyString( (QWidget*)object() ) );
+
+    return acc;
+}
+
+/*! \reimp */
 QString QAccessibleText::value( int who ) const
 {
     QString v = QAccessibleWidget::value( who );
     if ( v.isNull() ) {
 	if ( object()->inherits( "QLineEdit" ) ) {
 	    QLineEdit *l = (QLineEdit*)object();
-	    return l->text();
+	    v = l->text();
 	}
     }
 
@@ -616,19 +705,20 @@ QString QAccessibleDisplay::name( int who ) const
     if ( n.isNull() ) {
 	if ( object()->inherits( "QLabel" ) ) {
 	    QLabel *l = (QLabel*)object();
-	    return l->text();
+	    n = l->text();
 	} else if ( object()->inherits( "QLCDNumber" ) ) {
 	    QLCDNumber *l = (QLCDNumber*)object();
 	    if ( l->numDigits() )
-		return QString::number( l->value() );
-	    return QString::number( l->intValue() );
+		n = QString::number( l->value() );
+	    else
+		n = QString::number( l->intValue() );
 	} else if ( object()->inherits( "QGroupBox" ) ) {
 	    QGroupBox *g = (QGroupBox*)object();
-	    return g->title();
+	    n = g->title();
 	}
     }
 
-    return n;
+    return stripAmp( n );
 }
 
 #endif
