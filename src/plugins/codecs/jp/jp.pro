@@ -12,14 +12,12 @@ HEADERS		= ../../../../include/qeucjpcodec.h \
 		  ../../../../include/qjpunicode.h \
 		  ../../../../include/private/qfontcodecs_p.h
 
-SOURCES		= ../../../../src/codecs/qeucjpcodec.cpp \
-		  ../../../../src/codecs/qjiscodec.cpp \
-		  ../../../../src/codecs/qsjiscodec.cpp \
-		  ../../../../src/codecs/qjpunicode.cpp \
-		  ../../../../src/codecs/qfontjpcodec.cpp \
+SOURCES		= ../../../core/codecs/qeucjpcodec.cpp \
+		  ../../../core/codecs/qjiscodec.cpp \
+		  ../../../core/codecs/qsjiscodec.cpp \
+		  ../../../core/codecs/qjpunicode.cpp \
+		  ../../../core/codecs/qfontjpcodec.cpp \
 		  main.cpp
-
 
 target.path += $$plugins.path/codecs
 INSTALLS += target
-

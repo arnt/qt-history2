@@ -9,10 +9,9 @@ QTDIR_build:REQUIRES = "!contains(QT_CONFIG, bigcodecs)"
 HEADERS		= ../../../../include/qgb18030codec.h \
 		  ../../../../include/private/qfontcodecs_p.h
 
-SOURCES		= ../../../../src/codecs/qgb18030codec.cpp \
-		  ../../../../src/codecs/qfontcncodec.cpp \
+SOURCES		= ../../../core/codecs/qgb18030codec.cpp \
+		  ../../../core/codecs/qfontcncodec.cpp \
 		  main.cpp
-
 
 target.path += $$plugins.path/codecs
 INSTALLS += target
