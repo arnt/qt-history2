@@ -3099,59 +3099,92 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     ScriptItemArray items;
     layout->itemize( items, string );
 
-    unsigned char levels[256];
-    int visualOrder[256];
-    for ( int i = 0; i < items.size(); i++ )
-	levels[i] = items[i].analysis.bidiLevel;
-    TextLayout::instance()->bidiReorder( items.size(), (unsigned char *)levels, (int *)visualOrder );
+    int start = 0;
+    int end = items.size();
+    if ( pos != 0 || len != (int)str.length() ) {
+	// subset of the string requested
+	while ( start < items.size() && pos < items[start].position )
+	    start++;
+	while ( end > 0 && pos+len > items[end-1].position )
+	    end--;
+	end++;
+    }
 
-//      qDebug("QPainter::drawText: num items=%d",  items.size() );
-    for ( int i = 0; i < items.size(); i++ ) {
-	int current = visualOrder[i];
+    int numItems = end-start;
+    int visualOrder[256];
+    if ( dir == Auto ) {
+	unsigned char levels[256];
+	for ( int i = start; i < numItems; i++ )
+	    levels[i] = items[i].analysis.bidiLevel;
+	TextLayout::instance()->bidiReorder( items.size(), (unsigned char *)levels, (int *)visualOrder );
+    } else if ( dir == LTR ) {
+	for ( int i = start; i < numItems; i++ )
+	    visualOrder[i] = i;
+    } else {
+	int j = numItems;
+	for ( int i = start; i < numItems; i++ )
+	    visualOrder[i] = --j;
+    }
+
+    int xpos = x;
+
+//     qDebug("QPainter::drawText: num items=%d (start=%d, end=%d)",  numItems, start, end );
+    for ( int i = start; i < end; i++ ) {
+	int current = visualOrder[i]+start;
 	const ScriptItem &it = items[ current ];
 	ShapedItem shaped;
 	layout->shape( shaped, cfont, string, items, current );
 	layout->position( shaped );
 
 	QFont::Script script = (QFont::Script)it.analysis.script;
-	cfont.d->load( script );
 	FontEngineIface *fe = cfont.engineForScript( script );
-//  	qDebug("drawing item %d, script=%d, fe=%p", current, script, fe );
-	if ( fe && fe != (FontEngineIface *)-1 ) {
-	    fe->draw( this, x,  y, shaped.glyphs(), shaped.advances(), shaped.offsets(), shaped.count(),
-		      (shaped.d->analysis.bidiLevel%2) );
-	    int xoff = 0;
-	    int yoff = 0;
-	    const Offset *advances = shaped.advances();
-	    int i = shaped.count();
-	    while ( i-- ) {
-		xoff += advances->x;
-		yoff += advances->y;
-		++advances;
-	    }
-// 	    qDebug("width = %d", xoff );
-	    x += xoff;
-	    y += yoff;
-// 	    drawLine( x, y-20, x, y+20 );
+	assert( fe );
+
+	bool rightToLeft;
+	if ( dir == Auto )
+	    rightToLeft = shaped.d->analysis.bidiLevel % 2;
+	else
+	    rightToLeft = (dir == RTL);
+
+	int from = 0;
+	if ( it.position < pos )
+	    from = pos - it.position;
+	int length = shaped.count() - from;
+	if ( it.position + from + length > pos + len )
+	    length = pos + len - it.position - from;
+//  	qDebug("drawing item %d (from: %d, length: %d), script=%d, fe=%p", current, from, length, script, fe );
+
+	fe->draw( this, x,  y, shaped.glyphs()+from, shaped.advances()+from,
+		  shaped.offsets()+from, length, rightToLeft );
+	int xoff = 0;
+	int yoff = 0;
+	const Offset *advances = shaped.advances();
+	int i = shaped.count();
+	while ( i-- ) {
+	    xoff += advances->x;
+	    yoff += advances->y;
+	    ++advances;
 	}
+	// 	    qDebug("width = %d", xoff );
+	x += xoff;
+	y += yoff;
+	// 	    drawLine( x, y-20, x, y+20 );
     }
 
-#if 0
     if ( cfont.underline() || cfont.strikeOut() ) {
         QFontMetrics fm = fontMetrics();
         int lw = fm.lineWidth();
 
         // draw underline effect
         if ( cfont.underline() ) {
-            XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(), width, lw );
+            XFillRectangle( dpy, hd, gc, xpos, y+fm.underlinePos(), x-xpos, lw );
         }
 
         // draw strikeout effect
         if ( cfont.strikeOut() ) {
-            XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(), width, lw );
+            XFillRectangle( dpy, hd, gc, xpos, y-fm.strikeOutPos(), x-xpos, lw );
         }
     }
-#endif
 }
 
 /*!
