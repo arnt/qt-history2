@@ -4694,8 +4694,10 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 
     if ( hasdoc && formatChar->isAnchor() && !formatChar->anchorHref().isEmpty() &&
 	 document()->focusIndicator.parag == this &&
-	 document()->focusIndicator.start >= i &&
-	 document()->focusIndicator.start + document()->focusIndicator.len <= i + len ) {
+	 ( document()->focusIndicator.start >= i  &&
+	   document()->focusIndicator.start + document()->focusIndicator.len <= i + len ||
+	   document()->focusIndicator.start <= i &&
+	   document()->focusIndicator.start + document()->focusIndicator.len >= i + len ) ) {
 	painter.drawWinFocusRect( QRect( startX, lastY, bw, h ) );
     }
 

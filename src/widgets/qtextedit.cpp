@@ -2661,12 +2661,11 @@ bool QTextEdit::focusNextPrevChild( bool n )
     if ( !isReadOnly() || !linksEnabled() )
 	return FALSE;
     bool b = doc->focusNextPrevChild( n );
-    if ( b ) {
-	repaintChanged();
+    repaintChanged();
+    if ( b )
 	//##### this does not work with tables. The focusIndicator
 	//should really be a QTextCursor. Fix 3.1
 	makeParagVisible( doc->focusIndicator.parag );
-    }
     return b;
 }
 
