@@ -7,4 +7,4 @@ Saying just 'make' in this directory builds all the programs (t1/t1,
 t2/t2, t3/t3 and so on).  Saying 'make' in each subdirectory builds
 just that tutorial program.
 
-Feel free to send comments about the tutorial to bugs@troll.no
+Feel free to send comments about the tutorial to qt-bugs@troll.no.
