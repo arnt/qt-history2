@@ -499,15 +499,7 @@ MakefileGenerator::init()
         }
     }
 
-    QString fixpaths[] = { QString("PRE_TARGETDEPS"), QString("POST_TARGETDEPS"), QString::null };
-    for(int path = 0; !fixpaths[path].isNull(); path++) {
-        QStringList &l = v[fixpaths[path]];
-        for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-            if(!(*val_it).isEmpty())
-                (*val_it) = Option::fixPathToTargetOS((*val_it), false);
-        }
-    }
-
+    //extra compilers (done here so it ends up in the variables pre fixed)
     QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
     for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
         QString tmp_out = project->variables()[(*it) + ".output"].first();
@@ -522,7 +514,7 @@ MakefileGenerator::init()
                 if(QFile::exists((*input)))
                     (*input) = fileFixify((*input));
                 QFileInfo fi(Option::fixPathToLocalOS((*input)));
-                QString in = Option::fixPathToTargetOS((*input), false), out = tmp_out;
+                QString in = fileFixify(Option::fixPathToTargetOS((*input), false)), out = tmp_out;
                 out = replaceExtraCompilerVariables(out, (*input), QString::null);
                 if(project->variables().contains((*it) + ".variable_out")) {
                     project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
@@ -530,6 +522,16 @@ MakefileGenerator::init()
                     project->variables()["OBJECTS"] += out; //auto link it in
                 }
             }
+        }
+    }
+
+    //fix up the target deps
+    QString fixpaths[] = { QString("PRE_TARGETDEPS"), QString("POST_TARGETDEPS"), QString::null };
+    for(int path = 0; !fixpaths[path].isNull(); path++) {
+        QStringList &l = v[fixpaths[path]];
+        for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+            if(!(*val_it).isEmpty())
+                (*val_it) = Option::fixPathToTargetOS((*val_it), false);
         }
     }
 
