@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#330 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#331 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -353,8 +353,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( destroyw ) {
 	DestroyWindow( destroyw );
     }
+#ifdef UNICODE    
     if ( title )
 	delete [] title;
+#endif	
 
     setFontSys();
 }
