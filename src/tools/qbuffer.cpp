@@ -83,7 +83,7 @@
 QBuffer::QBuffer()
 {
     setFlags( IO_Direct );
-    a_inc = 16;					// initial increment
+    a_inc = 16;                                 // initial increment
     a_len = 0;
     ioIndex = 0;
 }
@@ -101,8 +101,8 @@ QBuffer::QBuffer()
     QCString str = "abc";
     QBuffer b( str );
     b.open( IO_WriteOnly );
-    b.at( 3 );					// position at \0
-    b.writeBlock( "def", 4 );			// write including \0
+    b.at( 3 );                                  // position at \0
+    b.writeBlock( "def", 4 );                   // write including \0
     b.close();
       // Now, str == "abcdef"
   \endcode
@@ -115,9 +115,9 @@ QBuffer::QBuffer( QByteArray buf ) : a(buf)
 {
     setFlags( IO_Direct );
     a_len = a.size();
-    a_inc = (a_len > 512) ? 512 : a_len;	// initial increment
+    a_inc = (a_len > 512) ? 512 : a_len;        // initial increment
     if ( a_inc < 16 )
-	a_inc = 16;
+        a_inc = 16;
     ioIndex = 0;
 }
 
@@ -146,15 +146,15 @@ bool QBuffer::setBuffer( QByteArray buf )
 {
     if ( isOpen() ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "QBuffer::setBuffer: Buffer is open");
+        qWarning( "QBuffer::setBuffer: Buffer is open");
 #endif
-	return FALSE;
+        return FALSE;
     }
     a = buf;
     a_len = a.size();
-    a_inc = (a_len > 512) ? 512 : a_len;	// initial increment
+    a_inc = (a_len > 512) ? 512 : a_len;        // initial increment
     if ( a_inc < 16 )
-	a_inc = 16;
+        a_inc = 16;
     ioIndex = 0;
     return TRUE;
 }
@@ -186,21 +186,21 @@ bool QBuffer::setBuffer( QByteArray buf )
 
 bool QBuffer::open( int m  )
 {
-    if ( isOpen() ) {				// buffer already open
+    if ( isOpen() ) {                           // buffer already open
 #if defined(QT_CHECK_STATE)
-	qWarning( "QBuffer::open: Buffer already open" );
+        qWarning( "QBuffer::open: Buffer already open" );
 #endif
-	return FALSE;
+        return FALSE;
     }
     setMode( m );
-    if ( m & IO_Truncate ) {			// truncate buffer
-	a.resize( 0 );
-	a_len = 0;
+    if ( m & IO_Truncate ) {                    // truncate buffer
+        a.resize( 0 );
+        a_len = 0;
     }
-    if ( m & IO_Append ) {			// append to end of buffer
-	ioIndex = a.size();
+    if ( m & IO_Append ) {                      // append to end of buffer
+        ioIndex = a.size();
     } else {
-	ioIndex = 0;
+        ioIndex = 0;
     }
     a_inc = 16;
     setState( IO_Open );
@@ -217,9 +217,9 @@ bool QBuffer::open( int m  )
 void QBuffer::close()
 {
     if ( isOpen() ) {
-	setFlags( IO_Direct );
-	ioIndex = 0;
-	a_inc = 16;
+        setFlags( IO_Direct );
+        ioIndex = 0;
+        a_inc = 16;
     }
 }
 
@@ -252,15 +252,15 @@ bool QBuffer::at( Q_ULONG pos )
 {
 #if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
-	qWarning( "QBuffer::at: Buffer is not open" );
-	return FALSE;
+        qWarning( "QBuffer::at: Buffer is not open" );
+        return FALSE;
     }
 #endif
     if ( pos > a_len ) {
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QBuffer::at: Index %ld out of range", pos );
+        qWarning( "QBuffer::at: Index %ld out of range", pos );
 #endif
-	return FALSE;
+        return FALSE;
     }
     ioIndex = pos;
     return TRUE;
@@ -275,22 +275,22 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
 {
 #if defined(QT_CHECK_STATE)
     Q_CHECK_PTR( p );
-    if ( !isOpen() ) {				// buffer not open
-	qWarning( "QBuffer::readBlock: Buffer not open" );
-	return -1;
+    if ( !isOpen() ) {                          // buffer not open
+        qWarning( "QBuffer::readBlock: Buffer not open" );
+        return -1;
     }
-    if ( !isReadable() ) {			// reading not permitted
-	qWarning( "QBuffer::readBlock: Read operation not permitted" );
-	return -1;
+    if ( !isReadable() ) {                      // reading not permitted
+        qWarning( "QBuffer::readBlock: Read operation not permitted" );
+        return -1;
     }
 #endif
-    if ( ioIndex + len > a.size() ) {	// overflow
-	if ( ioIndex >= a.size() ) {
-	    setStatus( IO_ReadError );
-	    return -1;
-	} else {
-	    len = a.size() - ioIndex;
-	}
+    if ( ioIndex + len > a.size() ) {   // overflow
+        if ( ioIndex >= a.size() ) {
+            setStatus( IO_ReadError );
+            return -1;
+        } else {
+            len = a.size() - ioIndex;
+        }
     }
     memcpy( p, a.data()+ioIndex, len );
     ioIndex += len;
@@ -304,44 +304,49 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
   overwriting any characters there and extending the buffer if necessary.
   Returns the number of bytes actually written.
 
-  Returns -1 if a serious error occurred.
+  Returns -1 if a error occurred.
 
   \sa readBlock()
 */
 
 Q_LONG QBuffer::writeBlock( const char *p, Q_ULONG len )
 {
+    if ( len == 0 )
+        return 0;
+
 #if defined(QT_CHECK_NULL)
-    if ( p == 0 && len != 0 )
-	qWarning( "QBuffer::writeBlock: Null pointer error" );
+    if ( p == 0 ) {
+        qWarning( "QBuffer::writeBlock: Null pointer error" );
+        return -1;
+    }
 #endif
 #if defined(QT_CHECK_STATE)
-    if ( !isOpen() ) {				// buffer not open
-	qWarning( "QBuffer::writeBlock: Buffer not open" );
-	return -1;
+    if ( !isOpen() ) {                          // buffer not open
+        qWarning( "QBuffer::writeBlock: Buffer not open" );
+        return -1;
     }
-    if ( !isWritable() ) {			// writing not permitted
-	qWarning( "QBuffer::writeBlock: Write operation not permitted" );
-	return -1;
+    if ( !isWritable() ) {                      // writing not permitted
+        qWarning( "QBuffer::writeBlock: Write operation not permitted" );
+        return -1;
     }
 #endif
-    if ( ioIndex + len >= a_len ) {		// overflow
-	Q_ULONG new_len = a_len + a_inc*((ioIndex+len-a_len)/a_inc+1);
-	if ( !a.resize( new_len ) ) {		// could not resize
+    if ( ioIndex + len >= a_len ) {             // overflow
+        Q_ULONG new_len = a_len + a_inc*((ioIndex+len-a_len)/a_inc+1);
+        if ( !a.resize( new_len ) ) {           // could not resize
 #if defined(QT_CHECK_NULL)
-	    qWarning( "QBuffer::writeBlock: Memory allocation error" );
+            qWarning( "QBuffer::writeBlock: Memory allocation error" );
 #endif
-	    setStatus( IO_ResourceError );
-	    return -1;
-	}
-	a_inc *= 2;				// double increment
-	a_len = new_len;
-	a.shd->len = ioIndex + len;
+            setStatus( IO_ResourceError );
+            return -1;
+        }
+        a_inc *= 2;                             // double increment
+        a_len = new_len;
+        a.shd->len = ioIndex + len;
     }
     memcpy( a.data()+ioIndex, p, len );
     ioIndex += len;
     if ( a.shd->len < ioIndex )
-	a.shd->len = ioIndex;			// fake (not alloc'd) length
+        a.shd->len = ioIndex;                   // fake (not alloc'd) length
     return len;
 }
 
@@ -354,25 +359,25 @@ Q_LONG QBuffer::readLine( char *p, Q_ULONG maxlen )
 {
 #if defined(QT_CHECK_STATE)
     Q_CHECK_PTR( p );
-    if ( !isOpen() ) {				// buffer not open
-	qWarning( "QBuffer::readLine: Buffer not open" );
-	return -1;
+    if ( !isOpen() ) {                          // buffer not open
+        qWarning( "QBuffer::readLine: Buffer not open" );
+        return -1;
     }
-    if ( !isReadable() ) {			// reading not permitted
-	qWarning( "QBuffer::readLine: Read operation not permitted" );
-	return -1;
+    if ( !isReadable() ) {                      // reading not permitted
+        qWarning( "QBuffer::readLine: Read operation not permitted" );
+        return -1;
     }
 #endif
     if ( maxlen == 0 )
-	return 0;
+        return 0;
     Q_ULONG start = ioIndex;
     char *d = a.data() + ioIndex;
-    maxlen--;					// make room for 0-terminator
+    maxlen--;                                   // make room for 0-terminator
     if ( a.size() - ioIndex < maxlen )
-	maxlen = a.size() - ioIndex;
+        maxlen = a.size() - ioIndex;
     while ( maxlen-- ) {
-	if ( (*p++ = *d++) == '\n' )
-	    break;
+        if ( (*p++ = *d++) == '\n' )
+            break;
     }
     *p = '\0';
     ioIndex = d - a.data();
@@ -387,18 +392,18 @@ Q_LONG QBuffer::readLine( char *p, Q_ULONG maxlen )
 int QBuffer::getch()
 {
 #if defined(QT_CHECK_STATE)
-    if ( !isOpen() ) {				// buffer not open
-	qWarning( "QBuffer::getch: Buffer not open" );
-	return -1;
+    if ( !isOpen() ) {                          // buffer not open
+        qWarning( "QBuffer::getch: Buffer not open" );
+        return -1;
     }
-    if ( !isReadable() ) {			// reading not permitted
-	qWarning( "QBuffer::getch: Read operation not permitted" );
-	return -1;
+    if ( !isReadable() ) {                      // reading not permitted
+        qWarning( "QBuffer::getch: Read operation not permitted" );
+        return -1;
     }
 #endif
-    if ( ioIndex+1 > a.size() ) {		// overflow
-	setStatus( IO_ReadError );
-	return -1;
+    if ( ioIndex+1 > a.size() ) {               // overflow
+        setStatus( IO_ReadError );
+        return -1;
     }
     return uchar(*(a.data()+ioIndex++));
 }
@@ -417,24 +422,24 @@ int QBuffer::getch()
 int QBuffer::putch( int ch )
 {
 #if defined(QT_CHECK_STATE)
-    if ( !isOpen() ) {				// buffer not open
-	qWarning( "QBuffer::putch: Buffer not open" );
-	return -1;
+    if ( !isOpen() ) {                          // buffer not open
+        qWarning( "QBuffer::putch: Buffer not open" );
+        return -1;
     }
-    if ( !isWritable() ) {			// writing not permitted
-	qWarning( "QBuffer::putch: Write operation not permitted" );
-	return -1;
+    if ( !isWritable() ) {                      // writing not permitted
+        qWarning( "QBuffer::putch: Write operation not permitted" );
+        return -1;
     }
 #endif
-    if ( ioIndex + 1 >= a_len ) {		// overflow
-	char buf[1];
-	buf[0] = (char)ch;
-	if ( writeBlock(buf,1) != 1 )
-	    return -1;				// write error
+    if ( ioIndex + 1 >= a_len ) {               // overflow
+        char buf[1];
+        buf[0] = (char)ch;
+        if ( writeBlock(buf,1) != 1 )
+            return -1;                          // write error
     } else {
-	*(a.data() + ioIndex++) = (char)ch;
-	if ( a.shd->len < ioIndex )
-	    a.shd->len = ioIndex;
+        *(a.data() + ioIndex++) = (char)ch;
+        if ( a.shd->len < ioIndex )
+            a.shd->len = ioIndex;
     }
     return ch;
 }
@@ -446,20 +451,20 @@ int QBuffer::putch( int ch )
 int QBuffer::ungetch( int ch )
 {
 #if defined(QT_CHECK_STATE)
-    if ( !isOpen() ) {				// buffer not open
-	qWarning( "QBuffer::ungetch: Buffer not open" );
-	return -1;
+    if ( !isOpen() ) {                          // buffer not open
+        qWarning( "QBuffer::ungetch: Buffer not open" );
+        return -1;
     }
-    if ( !isReadable() ) {			// reading not permitted
-	qWarning( "QBuffer::ungetch: Read operation not permitted" );
-	return -1;
+    if ( !isReadable() ) {                      // reading not permitted
+        qWarning( "QBuffer::ungetch: Read operation not permitted" );
+        return -1;
     }
 #endif
     if ( ch != -1 ) {
-	if ( ioIndex )
-	    ioIndex--;
-	else
-	    ch = -1;
+        if ( ioIndex )
+            ioIndex--;
+        else
+            ch = -1;
     }
     return ch;
 }
