@@ -96,6 +96,7 @@ public:
 	}
     }	
 };
+static QGuardedPtr<QMenuBar> fallbackMenuBar; //The current global menubar
 static QGuardedPtr<QMenuBar> activeMenuBar; //The current global menubar
 
 #if !defined(QMAC_QMENUBAR_NO_EVENT)
@@ -542,7 +543,12 @@ void QMenuBar::macCreateNativeMenubar()
 {
     macDirtyNativeMenubar();
     QWidget *p = parentWidget();
-    if(p && (!menubars || !menubars->find((int)topLevelWidget())) &&
+    if(!p && !fallbackMenuBar) {
+	fallbackMenuBar = this;
+	mac_eaten_menubar = 1;
+	if(!mac_d)
+	    mac_d = new MacPrivate;
+    } else if(p && (!menubars || !menubars->find((int)topLevelWidget())) &&
        (((p->isDialog() || p->inherits("QMainWindow")) && p->isTopLevel()) || 
 	p->inherits("QToolBar") || 
 	topLevelWidget() == qApp->mainWidget() || !qApp->mainWidget())) {
@@ -634,6 +640,8 @@ void QMenuBar::macUpdateMenuBar()
 	}
 	while(w && !w->testWFlags(WShowModal) && !mb) 
 	    mb = menubars->find((int)(w = w->parentWidget()));
+	if(!mb)
+	    mb = fallbackMenuBar;
   	if(mb) {
 	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) 
 		return;
