@@ -540,6 +540,14 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
 
 void QGenericTreeView::scrollContentsBy(int dx, int dy)
 {
+    int max_dx = horizontalScrollBar()->pageStep() * 10;
+    int max_dy = verticalScrollBar()->pageStep() * 10;
+
+    // no need to do a lot of work if we are going to redraw the whole thing anyway
+    if (dx > max_dx || dy > max_dy) {
+        d->viewport->update();
+        return;
+    }   
         
     if (dx) {
         int value = horizontalScrollBar()->value();
