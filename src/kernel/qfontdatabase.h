@@ -69,6 +69,7 @@ public:
     QFontDatabase();
 
     QStringList families() const;
+    QStringList families( QFont::Script ) const;
     QStringList styles( const QString & ) const;
     QValueList<int> pointSizes( const QString &, const QString & = QString::null);
     QValueList<int> smoothSizes( const QString &, const QString &);

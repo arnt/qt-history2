@@ -1245,6 +1245,42 @@ QStringList QFontDatabase::families() const
     return flist;
 }
 
+/*!
+    Returns a sorted list of the available font families which support
+    the Unicode script \a script.
+
+    If a family exists in several foundries, the returned name for
+    that font is in the form "family [foundry]". Examples: "Times
+    [Adobe]", "Times [Cronyx]", "Palatino".
+*/
+QStringList QFontDatabase::families( QFont::Script script ) const
+{
+    load();
+
+    QStringList flist;
+    for ( int i = 1; i < d->count; i++ ) {
+	QtFontFamily *f = d->families[i];
+	if ( f->count == 0 )
+	    continue;
+	if ( ! ( f->scripts[script] & QtFontFamily::Supported ) )
+	    continue;
+	if ( f->count == 1 ) {
+	    flist.append( f->name );
+	} else {
+	    for ( int j = 0; j < f->count; j++ ) {
+		QString str = f->name;
+		QString foundry = f->foundries[j]->name;
+		if ( !foundry.isEmpty() ) {
+		    str += " [";
+		    str += foundry;
+		    str += "]";
+		}
+		flist.append( str );
+	    }
+	}
+    }
+    return flist;
+}
 
 /*!
     Returns a list of the styles available for the font family \a
