@@ -1107,7 +1107,8 @@ void QMacStylePrivate::objDestroyed(QObject *o)
 enum { TabNormalLeft, TabNormalMid, TabNormalRight, TabSelectedActiveLeft,
        TabSelectedActiveMid, TabSelectedActiveRight, TabSelectedInactiveLeft,
        TabSelectedInactiveMid, TabSelectedInactiveRight, TabSelectedActiveGraphiteLeft,
-       TabSelectedActiveGraphiteMid, TabSelectedActiveGraphiteRight };
+       TabSelectedActiveGraphiteMid, TabSelectedActiveGraphiteRight,
+       TabPressedLeft, TabPressedMid, TabPressedRight };
 
 static const char * const * const PantherTabXpms[] = {
                                     qt_mac_tabnrm_left,
@@ -1121,7 +1122,10 @@ static const char * const * const PantherTabXpms[] = {
                                     qt_mac_tabselected_inactive_right,
                                     qt_mac_tab_selected_active_graph_left,
                                     qt_mac_tab_selected_active_graph_mid,
-                                    qt_mac_tab_selected_active_graph_right};
+                                    qt_mac_tab_selected_active_graph_right,
+                                    qt_mac_tab_press_left,
+                                    qt_mac_tab_press_mid,
+                                    qt_mac_tab_press_right};
 
 void qt_mac_draw_tab(QPainter *p, const QWidget *w, const QRect &ir, ThemeTabStyle tts,
                      ThemeTabDirection ttd)
@@ -1156,23 +1160,29 @@ void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p
 
     ThemeTabDirection ttd = getTabDirection(tabOpt->shape);
 
-    if (!(tabOpt->state & QStyle::Style_Selected)) {
-        pantherTabStart = TabNormalLeft;
-    } else if (!(tabOpt->state & QStyle::Style_Active)) {
-        pantherTabStart = TabSelectedInactiveLeft;
+    if (tabOpt->state & QStyle::Style_Selected) {
+        if (!(tabOpt->state & QStyle::Style_Active)) {
+            pantherTabStart = TabSelectedInactiveLeft;
+        } else {
+            // Draw into a pixmap to determine which version we use, Aqua or Graphite.
+            QPixmap tabPix(20, 20, 32);
+            QPainter pixPainter(&tabPix);
+            qt_mac_draw_tab(&pixPainter, 0, QRect(0, 0, 20, 20), kThemeTabFront, kThemeTabNorth);
+            pixPainter.end();
+            const QRgb GraphiteColor = 0xffa7b1b9;
+            QImage img = tabPix.toImage();
+            if (img.pixel(10, 10) == GraphiteColor)
+                pantherTabStart = TabSelectedActiveGraphiteLeft;
+            else
+                pantherTabStart = TabSelectedActiveLeft;
+        }
+    } else if ((tabOpt->state & (QStyle::Style_Sunken | QStyle::Style_MouseOver))
+                == (QStyle::Style_Sunken | QStyle::Style_MouseOver)) {
+        pantherTabStart = TabPressedLeft;
     } else {
-        // Draw into a pixmap to determine which version we use, Aqua or Graphite.
-        QPixmap tabPix(20, 20, 32);
-        QPainter pixPainter(&tabPix);
-        qt_mac_draw_tab(&pixPainter, 0, QRect(0, 0, 20, 20), kThemeTabFront, kThemeTabNorth);
-        pixPainter.end();
-        const QRgb GraphiteColor = 0xffa7b1b9;
-        QImage img = tabPix.toImage();
-        if (img.pixel(10, 10) == GraphiteColor)
-            pantherTabStart = TabSelectedActiveGraphiteLeft;
-        else
-            pantherTabStart = TabSelectedActiveLeft;
+        pantherTabStart = TabNormalLeft;
     }
+
 
     bool doLine;
     bool verticalTabs = ttd == kThemeTabWest || ttd == kThemeTabEast;
