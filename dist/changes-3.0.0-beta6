@@ -1,4 +1,4 @@
-Qt 3.0 Beta6 is not binary compatible with Beta3; any programs linked
+Qt 3.0 Beta6 is not binary compatible with Beta5; any programs linked
 against Beta5 must be recompiled.
 
 Below you will find a description of general changes in the Qt
@@ -64,11 +64,21 @@ QListView
 New function:
 	bool isRenaming() const;
 
+QObject
+-------
+
+ - The slot deferredDelete() was renamed to deleteLate() to be more
+   intuitive.
+
+New function:
+	void deleteLater();
+
 QPixmap
 -------
 
- - X11 with render extension only: QPixmap::xForm() keeps now the alpha
-   channel information.
+ - X11 with render extension only: better support for alpha blending
+   (QPixmap::xForm() keeps now the alpha channel information, tiling
+   pixmaps with alpha channel works now).
 
 QPrinter
 --------
@@ -89,6 +99,15 @@ QTextEdit
 
 New function:
 	virtual QPopupMenu *createPopupMenu( const QPoint& pos );
+
+QUrlInfo
+--------
+
+ - Add the concept of invalid QUrlInfo objects. This is useful in
+   conjunction with QUrlOperator::info().
+
+New function:
+	bool isValid() const;
 
 QWMatrix
 --------
