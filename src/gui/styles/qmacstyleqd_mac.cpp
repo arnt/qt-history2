@@ -1129,7 +1129,6 @@ void QMacStyleQD::drawControl(ControlElement element,
 	if(btn->isFlat() && !(how & (Style_Down | Style_On)))
 	    break;
 
-	d->addWidget(btn);
 	QString pmkey;
 	bool do_draw = FALSE;
 	QPixmap *buffer = NULL;

@@ -73,8 +73,9 @@ public:
     enum Animates { AquaPushButton, AquaProgressBar, AquaListViewItemOpen };
     bool animatable(Animates, const QWidget *);
     bool animatable(Animates, const QListViewItem *);
-    void stopAnimate(Animates, const QWidget *);
+    void stopAnimate(Animates, QWidget *);
     void stopAnimate(Animates, const QListViewItem *);
+    void startAnimate(Animates, QWidget *);
 
     //focus things
     bool focusable(const QWidget *) const;
@@ -85,7 +86,7 @@ protected:
     virtual bool doAnimate(Animates) = 0;
     virtual int animateSpeed(Animates) { return 50; }
     //finally set the focus
-    void setFocusWidget(const QWidget *);
+    void setFocusWidget(QWidget *);
     virtual void doFocus(QWidget *w) = 0;
 
 protected:

@@ -42,16 +42,24 @@ static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
     return qt_glb_mac_rect(r, p->device(), off, rect);
 }
 
+inline static QWidget *qt_abuse_painter_for_widget(QPainter *p)
+{
+    QWidget *w = 0;
+    if (p && p->device()->devType() == QInternal::Widget)
+        w = static_cast<QWidget *>(p->device());
+    return w;
+}
+
 inline static bool qt_mac_is_metal(QWidget *w)
 {
-    return (bool)w->testAttribute(QWidget::WA_MacMetalStyle);
+    if (!w)
+        return false;
+    return w->testAttribute(QWidget::WA_MacMetalStyle);
 }
 
 inline static bool qt_mac_is_metal(QPainter *p)
 {
-    if(p && p->device()->devType() == QInternal::Widget)
-	return qt_mac_is_metal((QWidget*)p->device());
-    return false;
+    return qt_mac_is_metal(qt_abuse_painter_for_widget(p));
 }
 
 // Utility to get the track info for scroll bars and sliders. It is used a few times and
@@ -118,10 +126,10 @@ public:
 
 protected:
     friend class QMacStyleCG;
-    virtual int animateSpeed(Animates) { return 33; }   // Gives us about 30 frames a second.
-    virtual bool doAnimate(Animates anim) {
+    inline int animateSpeed(Animates) { return 33; }   // Gives us about 30 frames a second.
+    inline bool doAnimate(Animates anim) {
 	if(anim == AquaProgressBar)
-	    progressFrame++;
+	    ++progressFrame;
 	return true;
     }
     virtual void doFocus(QWidget *) {
@@ -347,8 +355,9 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
         HIThemeTabPaneDrawInfo tpdi;
         tpdi.version = qt_mac_hitheme_version;
         tpdi.state = tds;
-        // ### HELP! I need the widget to get the size and position...
         tpdi.direction = kThemeTabNorth;
+        if (flags & Style_Bottom)
+            tpdi.direction = kThemeTabSouth;
         tpdi.size = kHIThemeTabSizeNormal;
         HIThemeDrawTabPane(qt_glb_mac_rect(r, p), &tpdi, static_cast<CGContextRef>(p->handle()),
                            kHIThemeOrientationNormal);
@@ -379,7 +388,6 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
         if (!widget)
             break;
 	const QPushButton *btn = static_cast<const QPushButton *>(widget);
-	d->addWidget(const_cast<QPushButton*>(btn));
         if (btn->isFlat() && !(how & (Style_Down | Style_On)))
 	    return;
         HIThemeButtonDrawInfo info;

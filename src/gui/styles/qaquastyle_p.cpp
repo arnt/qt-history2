@@ -135,24 +135,24 @@ bool QAquaFocusWidget::eventFilter(QObject * o, QEvent * e)
 
 struct QAquaAnimatePrivate
 {
-    const QWidget *focus; //the focus widget
-    QGuardedPtr<QPushButton> defaultButton, noPulse; //default pushbuttons
-    int buttonTimerId;
-    QList<const QProgressBar *> progressBars; //progress bar information
-    int progressTimerId;
+    QPointer<QWidget> focus; //the focus widget
+    QPointer<QPushButton> defaultButton; //default pushbuttons
+    int timerID;
+    QList<QPointer<QProgressBar> > progressBars; //progress bar information
     QList<const QListViewItem *> lvis;
-    int lviTimerID;
 };
+
 QAquaAnimate::QAquaAnimate()
 {
     d = new QAquaAnimatePrivate;
-    d->focus = d->defaultButton = d->noPulse = 0;
-    d->lviTimerID = d->progressTimerId = d->buttonTimerId = -1;
+    d->timerID = -1;
 }
+
 QAquaAnimate::~QAquaAnimate()
 {
     delete d;
 }
+
 bool QAquaAnimate::addWidget(QWidget *w)
 {
     if (focusable(w)) {
@@ -161,24 +161,19 @@ bool QAquaAnimate::addWidget(QWidget *w)
 	w->installEventFilter(this);
     }
     //already knew of it
-    if (w == d->defaultButton || d->progressBars.contains(static_cast<QProgressBar*>(w)))
+    QProgressBar *pb = ::qt_cast<QProgressBar *>(w);
+    QPushButton *btn = ::qt_cast<QPushButton *>(w);
+    if (btn == d->defaultButton || d->progressBars.contains(pb))
 	return false;
 
-    if (QPushButton *btn = ::qt_cast<QPushButton *>(w)) {
-        if (btn->isDefault() || (btn->autoDefault() && btn->hasFocus())){
-	    d->defaultButton = btn;
-            btn->installEventFilter(this);
-            if (btn->isVisible() && d->buttonTimerId == -1) 
-                d->buttonTimerId = startTimer(animateSpeed(AquaPushButton));
-        }
+    if (btn) {
+        btn->installEventFilter(this);
+        if (btn->isDefault() || (btn->autoDefault() && btn->hasFocus()))
+            startAnimate(AquaPushButton, btn);
 	return true;
-    } else if (::qt_cast<QProgressBar *>(w)) {
-	w->installEventFilter(this);
-	QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
-	if (w->isVisible() && d->progressTimerId == -1) {
-	    d->progressBars.append(static_cast<QProgressBar *>(w));
-	    d->progressTimerId = startTimer(animateSpeed(AquaProgressBar));
-	}
+    } else if (pb) {
+	pb->installEventFilter(this);
+        startAnimate(AquaProgressBar, pb);
 	return true;
     } else if (::qt_cast<QListView *>(w)) {
 #if 0
@@ -192,20 +187,11 @@ void QAquaAnimate::removeWidget(QWidget *w)
 {
     if (focusWidget() == w)
 	setFocusWidget(0);
-
-    if (QPushButton *btn = ::qt_cast<QPushButton *>(w)) {
-        if (btn == d->defaultButton)
-	    d->defaultButton = 0;
-        if (d->buttonTimerId != -1) {
-            killTimer(d->buttonTimerId);
-            d->buttonTimerId = -1;
-        }
+    QPushButton *btn = ::qt_cast<QPushButton *>(w);
+    if (btn && btn == d->defaultButton) {
+        stopAnimate(AquaPushButton, btn);
     } else if (::qt_cast<QProgressBar *>(w)) {
-	d->progressBars.remove(static_cast<QProgressBar *>(w));
-	if (d->progressBars.isEmpty() && d->progressTimerId != -1) {
-	    killTimer(d->progressTimerId);
-	    d->progressTimerId = -1;
-	}
+        stopAnimate(AquaProgressBar, static_cast<QProgressBar *>(w));
     } else if (::qt_cast<QListView*>(w)) {
 	QObject::disconnect(w, SIGNAL(collapsed(QListViewItem*)), this, SLOT(lvi(QListViewItem*)));
 	QObject::disconnect(w, SIGNAL(expanded(QListViewItem*)),  this, SLOT(lvi(QListViewItem*)));
@@ -215,85 +201,103 @@ void QAquaAnimate::lvi(QListViewItem *l)
 {
     if (d->lvis.indexOf(l) == -1)
 	d->lvis.append(l);
-    if (d->lviTimerID == -1)
-	d->lviTimerID = startTimer(animateSpeed(AquaListViewItemOpen));
+    if (!d->timerID <= -1)
+	d->timerID = startTimer(animateSpeed(AquaListViewItemOpen));
 }
+
 void QAquaAnimate::objDestroyed(QObject *o)
 {
     if (o == d->focus)
 	setFocusWidget(0);
-    d->progressBars.remove(static_cast<QProgressBar *>(o));
 }
+
 bool QAquaAnimate::animatable(QAquaAnimate::Animates as, const QListViewItem *l)
 {
-    if (as == AquaListViewItemOpen && d->lvis.indexOf(l) != -1)
+    if (as == AquaListViewItemOpen && d->lvis.contains(l))
 	return true;
     return false;
 }
+
 bool QAquaAnimate::animatable(QAquaAnimate::Animates as, const QWidget *w)
 {
-    QPushButton *btn;
-    if (as == AquaPushButton && (btn = ::qt_cast<QPushButton *>(w))) {
-	if ((!d->noPulse || static_cast<QPushButton *>(d->noPulse) == btn || !d->noPulse->isDown())
-		&& btn->isEnabled() && (btn->isDefault() || (btn->autoDefault() && btn->hasFocus()))
-		&& (static_cast<QPushButton *>(d->defaultButton) == btn) && w == d->defaultButton)
+    if (as == AquaPushButton) {
+	if (static_cast<const QPushButton *>(w) == d->defaultButton)
 	    return true;
     } else if (as == AquaProgressBar
-	       && d->progressBars.indexOf(static_cast<const QProgressBar *>(w)) != -1) {
+               && d->progressBars.contains(static_cast<QProgressBar *>(const_cast<QWidget *>(w)))) {
 	return true;
     }
     return false;
 }
-void QAquaAnimate::stopAnimate(QAquaAnimate::Animates as, const QWidget *w)
+
+void QAquaAnimate::stopAnimate(QAquaAnimate::Animates as, QWidget *w)
 {
-    if (as == AquaPushButton && ::qt_cast<QPushButton*>(w)) {
-	if (d->defaultButton == static_cast<const QPushButton *>(w)) {
-	    d->defaultButton = 0;
-	    if (d->buttonTimerId != -1) {
-		killTimer(d->buttonTimerId);
-		d->buttonTimerId = -1;
-	    }
-	}
+    if (as == AquaPushButton && d->defaultButton) {
+        QPushButton *tmp = d->defaultButton;
+        d->defaultButton = 0;
+        if (tmp->isVisible())
+            tmp->update();
     } else if (as == AquaProgressBar) {
-	d->progressBars.remove(static_cast<const QProgressBar *>(w));
-	if (d->progressTimerId != -1 && d->progressBars.isEmpty()) {
-	    killTimer(d->progressTimerId);
-	    d->progressTimerId = -1;
-	}
+	d->progressBars.remove(static_cast<QProgressBar *>(w));
     }
 }
+
+void QAquaAnimate::startAnimate(QAquaAnimate::Animates as, QWidget *w)
+{
+    if (as == AquaPushButton)
+        d->defaultButton = static_cast<QPushButton *>(w);
+    else if (as == AquaProgressBar)
+        d->progressBars.append(static_cast<QProgressBar *>(w));
+
+    if ((d->defaultButton || !d->progressBars.isEmpty()) && d->timerID <= -1)
+        d->timerID = startTimer(animateSpeed(AquaListViewItemOpen));
+}
+
+
 void QAquaAnimate::stopAnimate(QAquaAnimate::Animates as, const QListViewItem *l)
 {
-    if (as == AquaListViewItemOpen) {
+    if (as == AquaListViewItemOpen)
 	d->lvis.remove(l);
-	if (d->lviTimerID != -1 && d->lvis.isEmpty()) {
-	    killTimer(d->lviTimerID);
-	    d->lviTimerID = -1;
-	}
-    }
 }
-void QAquaAnimate::timerEvent(QTimerEvent * te)
+
+void QAquaAnimate::timerEvent(QTimerEvent *)
 {
-    if (te->timerId() == d->buttonTimerId) {
-	if (d->defaultButton && d->defaultButton->isEnabled() && d->defaultButton->isVisibleTo(0) &&
-	    (d->defaultButton->isDefault() || (d->defaultButton->autoDefault() && d->defaultButton->hasFocus()) )) {
-	    if (doAnimate(AquaPushButton))
-		d->defaultButton->repaint();
-	}
-    } else if (te->timerId() == d->lviTimerID && !d->lvis.isEmpty()) {
-	if (doAnimate(AquaListViewItemOpen)) {
-	    for (int i = 0; i < d->lvis.count(); ++i)
-		d->lvis.at(i)->repaint();
-	}
-    } else if (te->timerId() == d->progressTimerId && !d->progressBars.isEmpty()) {
-	if (doAnimate(AquaProgressBar)) {
-	    for (int i = 0; i < d->progressBars.count(); ++i) {
-		if (d->progressBars.at(i)->progress() > 0)
-		    const_cast<QProgressBar*>(d->progressBars.at(i))->repaint();
-	    }
-	}
+    if (d->defaultButton || !d->progressBars.isEmpty() || !d->lvis.isEmpty()) {
+        
+	if (d->defaultButton && d->defaultButton->isEnabled() && d->defaultButton->isVisibleTo(0)
+            && (d->defaultButton->isDefault()
+                || (d->defaultButton->autoDefault() && d->defaultButton->hasFocus()))
+            && doAnimate(AquaPushButton))
+            d->defaultButton->update();
+        if (!d->progressBars.isEmpty()) {
+            int i = 0;
+            while (i < d->progressBars.size()) {
+                QProgressBar *pb = d->progressBars.at(i);
+                if (!pb) {
+                    d->progressBars.removeAt(i);
+                } else {
+                    if (pb->totalSteps() == 0 || pb->progress() > 0
+                        && pb->progress() < pb->totalSteps()) {
+                        if (doAnimate(AquaProgressBar))
+                            pb->update();
+                    }
+                    ++i;
+                }
+            }
+        }
+        if (!d->lvis.isEmpty()) {
+            if (doAnimate(AquaListViewItemOpen)) {
+                for (int i = 0; i < d->lvis.count(); ++i)
+                    d->lvis.at(i)->repaint();
+            }
+        }
+    } else {
+        // What the heck are we doing here.
+        killTimer(d->timerID);
+        d->timerID = -1;
     }
 }
+
 bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
 {
     //focus
@@ -311,66 +315,61 @@ bool QAquaAnimate::eventFilter(QObject * o, QEvent * e)
     //animate
     QPushButton *btn = ::qt_cast<QPushButton *>(o);
     QProgressBar *pb = ::qt_cast<QProgressBar *>(o);
-    if (o && o->isWidgetType() && e->type() == QEvent::FocusIn) {
-	if (btn && btn->autoDefault()) { // Kb Focus received - make this the default button
-	    d->defaultButton = btn;
-            if (btn->isVisible() && d->buttonTimerId == -1) 
-                d->buttonTimerId = startTimer(animateSpeed(AquaPushButton));
-	}
-    } else if (e->type() == QEvent::Show && pb) {
-	d->progressBars.append(pb);
-	if (d->progressTimerId == -1)
-	    d->progressTimerId = startTimer(animateSpeed(AquaProgressBar));
-    } else if (e->type() == QEvent::Hide && d->progressBars.indexOf(pb) != -1) {
-	while (d->progressBars.remove(pb));
-	if (d->progressBars.isEmpty() && d->progressTimerId != -1) {
-	    killTimer(d->progressTimerId);
-	    d->progressTimerId = -1;
-	}
-    } else if (e->type() == QEvent::Hide && d->defaultButton == o) {
-	d->defaultButton = 0;
-	if (d->buttonTimerId != -1) {
-	    killTimer(d->buttonTimerId);
-	    d->buttonTimerId = -1;
-	}
-    } else if ((e->type() == QEvent::MouseButtonPress || e->type() == QEvent::MouseButtonRelease)
-               && btn) {
-	QMouseEvent *me = (QMouseEvent*)e;
-	d->noPulse = 0;
-	if (me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton)
-	    d->noPulse = (QPushButton*)o;
-    } else if (o && (e->type() == QEvent::FocusOut || e->type() == QEvent::Show) && btn) {
-	// Find the correct button to use as default button
-	QObjectList list = btn->topLevelWidget()->queryList("QPushButton");
-	for (QObjectList::Iterator it = list.begin(); it != list.end(); ++it) {
-	    QPushButton *pushbutton = static_cast<QPushButton *>(*it);
-	    if (((e->type() == QEvent::FocusOut) && (pushbutton->isDefault()
-                || (pushbutton->autoDefault() && pushbutton->hasFocus())) && (pushbutton != btn))
-		|| (e->type() == QEvent::Show) && pushbutton->isDefault()) {
-		QPushButton *tmp = d->defaultButton;
-		d->defaultButton = 0;
-		if (tmp)
-		    tmp->repaint();
-		if (pushbutton->topLevelWidget()->isActiveWindow()) 
-		    d->defaultButton = pushbutton;
-		break;
-	    }
-	}
-	if (d->defaultButton) {
-	    if (d->buttonTimerId == -1) 
-                d->buttonTimerId = startTimer(animateSpeed(AquaPushButton));
-	} else if (d->buttonTimerId != -1) {
-	    killTimer(d->buttonTimerId);
-	    d->buttonTimerId = -1;
-	}
+    if (pb) {
+        switch (e->type()) {
+        default:
+            break;
+        case QEvent::Show:
+            if (!d->progressBars.contains(pb))
+                startAnimate(AquaProgressBar, pb);
+            break;
+        case QEvent::Hide:
+            d->progressBars.remove(pb);
+        }
+    } else if (btn) {
+        switch (e->type()) {
+        default:
+            break;
+        case QEvent::FocusIn:
+            if (btn->autoDefault())
+                startAnimate(AquaPushButton, btn);
+            break;
+        case QEvent::Hide:
+            if (btn == d->defaultButton)
+                stopAnimate(AquaPushButton, btn);
+            break;
+        case QEvent::MouseButtonPress:
+            // It is very confusing to keep the button pulsing, so just stop the animation.
+            stopAnimate(AquaPushButton, btn);
+            break;
+        case QEvent::MouseButtonRelease:
+        case QEvent::FocusOut:
+        case QEvent::Show: {
+            QObjectList list = btn->topLevelWidget()->queryList("QPushButton");
+            for (int i = 0; i < list.size(); ++i) {
+                QPushButton *pBtn = static_cast<QPushButton *>(list.at(i));
+                if ((e->type() == QEvent::FocusOut 
+                     && (pBtn->isDefault() || (pBtn->autoDefault() && pBtn->hasFocus()))
+                     && pBtn != btn)
+                    || ((e->type() == QEvent::Show || e->type() == QEvent::MouseButtonRelease)
+                        && pBtn->isDefault())) {
+                    if (pBtn->topLevelWidget()->isActiveWindow())
+                        startAnimate(AquaPushButton, pBtn);
+                    break;
+                }
+            }
+            break; }
+        }
     }
     return false;
 }
+
 const QWidget *QAquaAnimate::focusWidget() const
 {
     return d->focus;
 }
-void QAquaAnimate::setFocusWidget(const QWidget *w)
+
+void QAquaAnimate::setFocusWidget(QWidget *w)
 {
     if (w) {
 	QWidget *top = w->parentWidget();
@@ -406,6 +405,7 @@ void QAquaAnimate::setFocusWidget(const QWidget *w)
     if ((d->focus = w))
 	QObject::connect(w, SIGNAL(destroyed(QObject*)), this, SLOT(objDestroyed(QObject*)));
 }
+
 bool QAquaAnimate::focusable(const QWidget *w) const
 {
 #ifdef Q_WS_MAC
