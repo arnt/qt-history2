@@ -8,7 +8,7 @@ compat {
 		other/qguardedptr.h \
 		other/qlocalfs.h \
 		other/qnetworkprotocol.h \
-		other/qdns.h \
+		other/q3dns.h \
 		other/qurloperator.h \
 		../gui/dialogs/qfiledialog.h 
 
@@ -16,7 +16,7 @@ compat {
 		other/qdropsite.cpp \
 		other/qlocalfs.cpp \
 		other/qnetworkprotocol.cpp \
-		other/qdns.cpp \
+		other/q3dns.cpp \
 		other/qurloperator.cpp \
 		../gui/dialogs/qfiledialog.cpp 
 	
