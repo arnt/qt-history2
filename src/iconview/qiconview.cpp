@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/iconview/qiconview.cpp#91 $
+** $Id: //depot/qt/main/src/iconview/qiconview.cpp#92 $
 **
 ** Implementation of QIconView widget class
 **
@@ -400,13 +400,11 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent *e )
 /*!
   \class QIconDragItem qiconview.h
 
-  \brief The QIconDragItem class is an internal class used by the
-  QIconDrag class to encapsulate a drag item.
+  \brief The QIconDragItem class encapsulates a drag item.
 
   \module iconview
 
-    The QIconDragItem class is an internal class that is used to
-    encapsulate drag items. The QIconDrag class uses a list of
+    The QIconDrag class uses a list of
     QIconDragItems to support drag and drop operations.
 
     In practice a QIconDragItem object (or an object of a class derived
@@ -416,9 +414,8 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent *e )
 
     See QIconView::dragObject() for more information.
 
-    For examples see \c qt/examples/fileiconview (especially
-    \c qfileiconview.h and \c qfileiconview.cpp) and
-    \c qt/examples/iconview/simple_dd.
+    See the \l fileiconview/qfileiconview.cpp and
+    \l iconview/simple_dd/main.cpp examples.
 */
 
 /*!
