@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#17 $
 **
 ** Implementation of QColor class for Windows
 **
@@ -14,7 +14,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#16 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#17 $")
 
 
 /*****************************************************************************
@@ -50,47 +50,48 @@ int QColor::numBitPlanes()
 }
 
 
-#define TEST_WINDOWS_PALETTE
-
 void QColor::initialize()
 {
-    return;
-#if defined(TEST_WINDOWS_PALETTE)
+//    return;
+
     int numCols = maxColors();
     if ( numCols <= 16 || numCols > 256 )	// no need to create palette
 	return;
 
-    const int max_r = 6;
-    const int max_g = 6;
-    const int max_b = 6;
-    const double r_div = 1.0 / (max_r - 1);
-    const double g_div = 1.0 / (max_g - 1);
-    const double b_div = 1.0 / (max_b - 1);
-    const int palsize = max_r * max_g * max_b;
-
     LOGPALETTE *logPal;
     logPal = (LOGPALETTE*)new char[sizeof(LOGPALETTE)+
-				   sizeof(PALETTEENTRY)*palsize];
+				   sizeof(PALETTEENTRY)*256];
     ASSERT( logPal );
     logPal->palVersion = 0x300;			// Windows 3.0 compatible
-    logPal->palNumEntries = palsize;
-    int i = 0, r, g, b;
-    for ( r=max_r-1; r>=0; r-- ) {
-	for ( g=max_g-1; g>=0; g-- ) {
-	    for ( b=max_b-1; b>=0; b-- ) {
-		logPal->palPalEntry[i].peRed   = qRound(r_div * 255 * r);
-		logPal->palPalEntry[i].peGreen = qRound(g_div * 255 * g);
-		logPal->palPalEntry[i].peBlue  = qRound(b_div * 255 * b);
-		logPal->palPalEntry[i].peFlags = PC_NOCOLLAPSE;
-		i++;
+    logPal->palNumEntries = 256;
+    HDC hdcScreen = CreateCompatibleDC( 0 );
+    GetSystemPaletteEntries( hdcScreen, 0, 10, &logPal->palPalEntry[0] );
+    GetSystemPaletteEntries( hdcScreen, 246, 10, &logPal->palPalEntry[246] );
+    DeleteDC( hdcScreen );
+    int r, g, b;
+    PALETTEENTRY *pe = &logPal->palPalEntry[10];
+    for ( r=0; r<6; r++ ) {			// create color cube
+	for ( g=0; g<6; g++ ) {
+	    for ( b=0; b<6; b++ ) {
+		pe->peRed   = r * 255 / 6;
+		pe->peGreen = g * 255 / 6;
+		pe->peBlue  = b * 255 / 6;
+		pe->peFlags = PC_NOCOLLAPSE;
+		pe++;
 	    }
 	}
     }
-    ASSERT( i == palsize );
+    for ( r=0; r<20; r++ ) {			// grey scale palette
+	pe->peRed   = r * 255 / 20;
+	pe->peGreen = r * 255 / 20;
+	pe->peBlue  = r * 255 / 20;
+	pe->peFlags = PC_NOCOLLAPSE;
+	pe++;
+    }
     hpal = CreatePalette ( logPal) ;		// create logical palette
-    ASSERT( hpal );
-#endif // TEST_WINDOWS_PALETTE
+    delete [] logPal;
 }
+
 
 void QColor::cleanup()
 {
@@ -125,7 +126,7 @@ QColor::QColor( ulong rgb, ulong pixel )
 	setRgb( rgb );
     else {
 	rgbVal = rgb;
-	pix    = PALETTEINDEX( pixel );
+	pix    = pixel;
     }
     rgbVal |= RGB_DIRECT;
 }
@@ -153,17 +154,15 @@ void QColor::setNamedColor( const char * )
 
 void QColor::setRgb( int r, int g, int b )
 {
-    rgbVal = QRGB(r,g,b);
-    if ( hpal ) {
-#if 0
-	int ri = qRound( 5.0*r/255.0 );
-	int gi = qRound( 5.0*g/255.0 );
-	int bi = qRound( 5.0*b/255.0 );
-	pix = PALETTEINDEX( ri*6*6 + gi *6 + bi );
-#else
-	pix = PALETTEINDEX( GetNearestPaletteIndex(hpal,rgbVal) );
+#if defined(CHECK_RANGE)
+    if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
+	warning( "QColor::setRgb: RGB parameter(s) out of range" );
 #endif
+    rgbVal = QRGB(r,g,b);
+    if ( lalloc ) {
+	rgbVal |= RGB_DIRTY;			// alloc later
+	pix = 0;
+    } else {
+	alloc();				// alloc now
     }
-    else
-	pix = rgbVal;
 }
