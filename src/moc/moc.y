@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#224 $
+** $Id: //depot/qt/main/src/moc/moc.y#225 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1456,12 +1456,13 @@ bool qt_is_gui_used = FALSE;
 #include <CWPlugins.h>
 #include "DropInCompilerLinker.h"
 #include "Aliases.h"
+#include <stat.h>
 
 const unsigned char *p_str(const char *);
 
 CWPluginContext g_ctx;
 
-int do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fout, CWFileSpec *dspec, bool i)
+moc_status do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fout, CWFileSpec *dspec, bool i)
 {
     init();
     
@@ -1489,7 +1490,7 @@ int do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fout, CWFi
 	fi.isdependentoffile = kCurrentCompiledFile;
     if(CWFindAndLoadFile( ctx, fin.data(), &fi) != cwNoErr) {
         cleanup();
-        return 4;
+        return moc_no_source;
     }
     
     if(dspec) {
@@ -1497,49 +1498,60 @@ int do_moc( CWPluginContext ctx, const QCString &fin, const QCString &fout, CWFi
         const unsigned char *f = p_str(fout.data());
         memcpy(dspec->name, f, f[0]+1);
     }
-    buf_index = 0;
     buf_size_total = fi.filedatalength;
     buf_buffer = fi.filedata;    
 
-    QCString inpath("");
+    QCString path("");
     AliasHandle alias;
     Str63 str;
     AliasInfoType x = 1;
     char tmp[sizeof(Str63)+2];
     if(NewAlias( NULL, &fi.filespec, &alias) != noErr) {
         cleanup();
-        return 5;
+        return moc_general_error;
     }
-    
     while(1) {
          GetAliasInfo(alias, x++, str);
          if(!str[0])
             break;
          strncpy((char *)tmp, (const char *)str+1, str[0]);
          tmp[str[0]] = '\0';
-         inpath.prepend(":");
-         inpath.prepend((char *)tmp);
+         path.prepend(":");
+         path.prepend((char *)tmp);
     }
-    inpath.prepend("MacOS 9:"); //FIXME
-    inpath += fout;
-	    
-    unlink(inpath.data());
-    out = fopen(inpath.data(), "w+");
+    path.prepend("MacOS 9:"); //FIXME
+
+    QString inpath = path + fin, outpath = path + fout;
+    struct stat istat, ostat;
+    if(stat(inpath, &istat) == -1) {
+	cleanup();
+	return moc_no_source;
+    }
+    if(stat(outpath, &ostat) == 0 && istat.st_mtime < ostat.st_mtime) {
+	cleanup();
+	return moc_not_time;
+    }
+
+    unlink(outpath.data());
+    out = fopen(outpath.data(), "w+");
     if(!out) {
         cleanup();
-        return 3;
+        return moc_general_error;
     }
 
     yyparse();
     if(out != stdout)
       fclose(out);
    
-    if(!g->generatedCode) 
-        unlink(inpath.data());
-        
-    int ret = !(displayWarnings || g->mocError) ? 2 : 1;
+   if(g->mocError || !g->generatedCode) {
+        unlink(outpath.data());
+        moc_status ret = !g->generatedCode ? moc_no_qobject : moc_parse_error;
+        cleanup();
+        return ret;
+    }
+
     cleanup();
-    return ret;
+    return moc_success;
 }
 #endif
 void replace( char *s, char c1, char c2 )
@@ -2764,7 +2776,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#224 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#225 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
