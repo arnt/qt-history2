@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#11 $
 **
 ** Implementation of QFile class
 **
@@ -27,8 +27,17 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#11 $";
 #endif
+
+/*! \class QFile qfile.h
+
+  \brief The QFile class provides system-independent file access and
+  related functions.
+
+  This class is not yet documented.  Our <a
+  href=http://www.troll.no/>home page</a> contains a pointer to the
+  current version of Qt. */
 
 
 QFile::QFile()
