@@ -47,7 +47,6 @@ protected slots:
     void accept(); // reimplemented from QDialog
 
 private slots:
-    void clickedPath();
     void clickedSystem( int );
     void sysOtherComboChanged( int ); 
     void clickedFolderPath();
@@ -175,6 +174,7 @@ private:
     LicenseAgreementPageImpl	*licenseAgreementPageQsa;
     LicensePageImpl		*licensePage;
     OptionsPageImpl		*optionsPage;
+    OptionsPageImpl		*optionsPageQsa;
     FoldersPageImpl		*foldersPage;
     ConfigPageImpl		*configPage;
     ProgressPageImpl		*progressPage;

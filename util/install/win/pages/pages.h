@@ -93,12 +93,15 @@ public:
     LicenseAgreementPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
     ~LicenseAgreementPageImpl() {}
     QString title() const
-    { return "License agreement"; }
+    { return titleStr; }
     QString shortTitle() const
-    { return "License agreement"; }
+    { return titleStr; }
 
 private slots:
     void licenseAction(int);
+
+public:
+    QString titleStr;
 };
 
 class LicensePageImpl : public LicensePage, public Page
@@ -137,9 +140,16 @@ public:
     OptionsPageImpl( QWidget* parent = 0, const char* name = 0, WFlags fl = 0 );
     ~OptionsPageImpl() {}
     QString title() const
-    { return "Options"; }
+    { return titleStr; }
     QString shortTitle() const
-    { return "Choose options"; }
+    { return shortTitleStr; }
+
+private slots:
+    void choosePath();
+
+public:
+    QString titleStr;
+    QString shortTitleStr;
 };
 
 class ProgressPageImpl : public ProgressPage, public Page

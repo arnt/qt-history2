@@ -356,6 +356,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
     licenseAgreementPage( 0 ),
     licenseAgreementPageQsa( 0 ),
     optionsPage( 0 ),
+    optionsPageQsa( 0 ),
     foldersPage( 0 ),
     configPage( 0 ),
     progressPage( 0 ),
@@ -447,6 +448,10 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	optionsPage->sysGroup->setButton( sysGroupButton );
 	clickedSystem( sysGroupButton );
     }
+    if ( optionsPageQsa ) {
+	optionsPageQsa->sysGroup->setButton( sysGroupButton );
+	clickedSystem( sysGroupButton );
+    }
     readLicense( QDir::homeDirPath() + "/.qt-license" );
 }
 
@@ -531,6 +536,9 @@ void SetupWizardImpl::initPages()
 	ADD_PAGE( licenseAgreementPageQsa, LicenseAgreementPageImpl)
 #endif
 	ADD_PAGE( optionsPage,		OptionsPageImpl		)
+#if defined(QSA)
+	ADD_PAGE( optionsPageQsa,	OptionsPageImpl		)
+#endif
 #if !defined(Q_OS_UNIX)
 	ADD_PAGE( foldersPage,		FoldersPageImpl		)
 #endif
@@ -549,6 +557,23 @@ void SetupWizardImpl::initPages()
     }
     if ( licenseAgreementPageQsa ) {
 	setNextEnabled( licenseAgreementPageQsa, FALSE );
+	licenseAgreementPage->titleStr = "License agreement Qt";
+	licenseAgreementPageQsa->titleStr = "License agreement QSA";
+    }
+    if ( optionsPageQsa ) {
+	optionsPageQsa->installExamples->hide();
+	optionsPageQsa->installTools->hide();
+	optionsPageQsa->installExtensions->hide();
+	optionsPageQsa->installTutorials->hide();
+	optionsPageQsa->skipBuild->hide();
+	optionsPageQsa->installDocs->hide();
+	optionsPageQsa->sysGroup->hide();
+	optionsPageQsa->pathLabel->setText("QSA destination &path");
+
+	optionsPage->titleStr = "Options for Qt";
+	optionsPage->shortTitleStr = "Choose options for Qt";
+	optionsPageQsa->titleStr = "Options for QSA";
+	optionsPageQsa->shortTitleStr = "Choose options for QSA";
     }
     if ( progressPage ) {
 	setBackEnabled( progressPage, FALSE );
@@ -572,7 +597,6 @@ void SetupWizardImpl::initConnections()
     if ( optionsPage ) {
 	connect( optionsPage->sysGroup, SIGNAL(clicked(int)), SLOT(clickedSystem(int)));
 	connect( optionsPage->sysOtherCombo, SIGNAL(activated(int)), SLOT(sysOtherComboChanged(int)));
-	connect( optionsPage->installPathButton, SIGNAL(clicked()), SLOT(clickedPath()));
 	connect( optionsPage->skipBuild, SIGNAL(clicked()), SLOT(clickedSkipBuild()));
     }
     if ( foldersPage ) {
@@ -622,37 +646,6 @@ void SetupWizardImpl::stopProcesses()
 	configure.kill();
     if( make.isRunning() )
 	make.kill();
-}
-
-void SetupWizardImpl::clickedPath()
-{
-    QDir dir( optionsPage->installPath->text() );
-
-#if defined(Q_OS_WIN32)
-    if( !dir.exists() )
-	dir.setPath( "C:\\Qt" );
-
-    QString dest = QFileDialog::getExistingDirectory( optionsPage->installPath->text(), this, NULL, "Select installation directory" );
-    if ( dest.isNull() )
-	dest = "C:\\Qt";
-    if ( dest.right(1) == "\\" )
-	dest += "Qt";
-    if ( dest.contains( QRegExp( "\\s" ) ) && !optionsPage->sysBorland->isChecked() )
-	QMessageBox::warning( 0, "Invalid directory", "No whitespace is allowed in the directory name due to a limitation with MSVC" );
-    else if ( dest.contains( "-" ) && optionsPage->sysBorland->isChecked() )
-	QMessageBox::warning( 0, "Invalid directory", "No '-' characters are allowed in the directory name due to a limitation with the Borland linker" );
-    else {
-	dir.setPath( dest );
-	optionsPage->installPath->setText( QDir::convertSeparators(dir.absPath()) );
-    }
-#elif defined(Q_OS_MACX)
-    if( !dir.exists() )
-	dir.setPath( "/" );
-
-    QString dest = QFileDialog::getExistingDirectory( optionsPage->installPath->text(), this, NULL, "Select installation directory" );
-    if (!dest.isNull())
-	optionsPage->installPath->setText( dest );
-#endif
 }
 
 void SetupWizardImpl::clickedFolderPath()

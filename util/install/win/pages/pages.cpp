@@ -10,6 +10,7 @@
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qmultilineedit.h>
+#include <qfiledialog.h>
 #include <qtabwidget.h>
 #include <qvalidator.h>
 #include <qmessagebox.h>
@@ -88,7 +89,8 @@ FoldersPageImpl::FoldersPageImpl( QWidget* parent, const char* name, WFlags fl )
 }
 
 LicenseAgreementPageImpl::LicenseAgreementPageImpl( QWidget* parent, const char* name, WFlags fl )
-    : LicenseAgreementPage( parent, name, fl )
+    : LicenseAgreementPage( parent, name, fl ),
+      titleStr("License agreement")
 {
     connect( licenceButtons, SIGNAL(clicked(int)), SLOT(licenseAction(int)));
 }
@@ -173,8 +175,11 @@ QValidator::State InstallPathValidator::validate( QString& input, int& ) const
 }
 
 OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
-    : OptionsPage( parent, name, fl )
+    : OptionsPage( parent, name, fl ),
+      titleStr("Options"),
+      shortTitleStr("Choose options")
 {
+    connect( installPathButton, SIGNAL(clicked()), SLOT(choosePath()));
 #if defined(Q_OS_WIN32)
     installPath->setText(
 	    QString( "C:\\Qt\\" ) +
@@ -194,6 +199,37 @@ OptionsPageImpl::OptionsPageImpl( QWidget* parent, const char* name, WFlags fl )
 #endif
     installPath->setText(base + QString( globalInformation.qtVersionStr() ).replace( QRegExp("\\s"), "" ));
     sysGroup->hide();
+#endif
+}
+
+void OptionsPageImpl::choosePath()
+{
+    QDir dir( installPath->text() );
+
+#if defined(Q_OS_WIN32)
+    if( !dir.exists() )
+	dir.setPath( "C:\\Qt" );
+
+    QString dest = QFileDialog::getExistingDirectory( installPath->text(), this, NULL, "Select installation directory" );
+    if ( dest.isNull() )
+	dest = "C:\\Qt";
+    if ( dest.right(1) == "\\" )
+	dest += "Qt";
+    if ( dest.contains( QRegExp( "\\s" ) ) && !sysBorland->isChecked() )
+	QMessageBox::warning( 0, "Invalid directory", "No whitespace is allowed in the directory name due to a limitation with MSVC" );
+    else if ( dest.contains( "-" ) && sysBorland->isChecked() )
+	QMessageBox::warning( 0, "Invalid directory", "No '-' characters are allowed in the directory name due to a limitation with the Borland linker" );
+    else {
+	dir.setPath( dest );
+	installPath->setText( QDir::convertSeparators(dir.absPath()) );
+    }
+#elif defined(Q_OS_MACX)
+    if( !dir.exists() )
+	dir.setPath( "/" );
+
+    QString dest = QFileDialog::getExistingDirectory( installPath->text(), this, NULL, "Select installation directory" );
+    if (!dest.isNull())
+	installPath->setText( dest );
 #endif
 }
 
