@@ -77,7 +77,8 @@ public:
 	MaxHoriz     = 1<<3,
 	Max = MaxVert | MaxHoriz,
 	Shaded       = 1<<4,
-	SkipTaskbar  = 1<<5
+	SkipTaskbar  = 1<<5,
+	StaysOnTop   = 1<<6
     };
 
     enum Direction {

@@ -1340,7 +1340,9 @@ void NETWinInfo::setState(unsigned long st, unsigned long msk) {
 
 	XSendEvent(p->display, p->root, False, SubstructureRedirectMask, &e);
     } else {
-	p->state = st;
+	p->state &= ~msk;
+	p->state |= st;
+	
 	XChangeProperty(p->display, p->window, net_wm_state, XA_CARDINAL, 32,
 			PropModeReplace, (unsigned char *) &st, 1);
     }
