@@ -13,7 +13,6 @@
 #include <qmap.h>
 #include <qsqldatabase.h>
 #include <qsqlcursor.h>
-#include <qsqltable.h>
 #include <qsqleditorfactory.h>
 #include <qsqlpropertymap.h>
 

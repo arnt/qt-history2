@@ -9,9 +9,9 @@
 *****************************************************************************/
 
 #include "main.h"
+#include <qdatatable.h>
 
-
-InvoiceItemCursor::InvoiceItemCursor() : 
+InvoiceItemCursor::InvoiceItemCursor() :
     QSqlCursor( "invoiceitem" )
 {
     QSqlField productName( "productname", QVariant::String );
@@ -34,20 +34,20 @@ QVariant InvoiceItemCursor::calculateField( const QString & name )
     if ( name == "productname" ) {
 	QSqlQuery query( "SELECT name FROM prices WHERE id=" +
 		     field( "pricesid" )->value().toString() + ";" );
-	if ( query.next() ) 
+	if ( query.next() )
 	    return query.value( 0 );
     }
     else if ( name == "price" ) {
 	QSqlQuery query( "SELECT price FROM prices WHERE id=" +
 		     field( "pricesid" )->value().toString() + ";" );
-	if ( query.next() ) 
+	if ( query.next() )
 	    return query.value( 0 );
     }
     else if ( name == "cost" ) {
 	QSqlQuery query( "SELECT price FROM prices WHERE id=" +
 		     field( "pricesid" )->value().toString() + ";" );
-	if ( query.next() ) 
-	    return QVariant( query.value( 0 ).toDouble() * 
+	if ( query.next() )
+	    return QVariant( query.value( 0 ).toDouble() *
 			     value( "quantity").toDouble() );
     }
 
@@ -59,7 +59,7 @@ QSqlRecord *InvoiceItemCursor::primeInsert()
 {
     QSqlRecord *buffer = editBuffer();
     QSqlQuery query( "SELECT NEXTVAL( 'invoiceitem_seq' );" );
-    if ( query.next() ) 
+    if ( query.next() )
 	buffer->setValue( "id", query.value( 0 ) );
     buffer->setValue( "paiddate", QDate::currentDate() );
     buffer->setValue( "quantity", 1 );
@@ -75,7 +75,7 @@ int main( int argc, char *argv[] )
     if ( createConnections() ) {
 	InvoiceItemCursor invoiceItemCursor;
 
-	QSqlTable *invoiceItemTable = new QSqlTable( &invoiceItemCursor );
+	QDataTable *invoiceItemTable = new QDataTable( &invoiceItemCursor );
 
 	app.setMainWidget( invoiceItemTable );
 
@@ -103,8 +103,8 @@ bool createConnections()
     defaultDB->setUserName( "salesuser" );
     defaultDB->setPassword( "salespw" );
     defaultDB->setHostName( "saleshost" );
-    if ( ! defaultDB->open() ) { 
-	qWarning( "Failed to open sales database: " + 
+    if ( ! defaultDB->open() ) {
+	qWarning( "Failed to open sales database: " +
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
 	return FALSE;
@@ -117,7 +117,7 @@ bool createConnections()
     oracle->setPassword( "orderspw" );
     oracle->setHostName( "ordershost" );
     if ( ! oracle->open() ) {
-	qWarning( "Failed to open orders database: " + 
+	qWarning( "Failed to open orders database: " +
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
 	return FALSE;
@@ -125,5 +125,3 @@ bool createConnections()
 
     return TRUE;
 }
-
-

@@ -10,6 +10,7 @@
 
 #include "main.h"
 
+
 StatusPicker::StatusPicker( QWidget *parent=0, const char *name=0 )
     : QComboBox( parent, name )
 {
@@ -50,7 +51,7 @@ void CustomTable::paintField( QPainter * p, const QSqlField* field,
 	return;
     if ( field->name() == "statusid" ) {
 	QSqlQuery query( "SELECT name FROM status WHERE id=" +
-		     field->value().toString() ); 
+		     field->value().toString() );
 	QString text;
 	if ( query.next() ) {
 	    text = query.value( 0 ).toString();
@@ -58,13 +59,13 @@ void CustomTable::paintField( QPainter * p, const QSqlField* field,
 	p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), text );
     }
     else {
-	QSqlTable::paintField( p, field, cr, b) ;
+	QDataTable::paintField( p, field, cr, b) ;
     }
 }
 
 
-QWidget *CustomSqlEditorFactory::createEditor( 
-    QWidget *parent, const QSqlField *field ) 
+QWidget *CustomSqlEditorFactory::createEditor(
+    QWidget *parent, const QSqlField *field )
 {
     if ( field->name() == "statusid" ) {
 	QWidget *editor = new StatusPicker( parent );
@@ -117,8 +118,8 @@ bool createConnections()
     defaultDB->setUserName( "salesuser" );
     defaultDB->setPassword( "salespw" );
     defaultDB->setHostName( "saleshost" );
-    if ( ! defaultDB->open() ) { 
-	qWarning( "Failed to open sales database: " + 
+    if ( ! defaultDB->open() ) {
+	qWarning( "Failed to open sales database: " +
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
 	return FALSE;
@@ -131,7 +132,7 @@ bool createConnections()
     oracle->setPassword( "orderspw" );
     oracle->setHostName( "ordershost" );
     if ( ! oracle->open() ) {
-	qWarning( "Failed to open orders database: " + 
+	qWarning( "Failed to open orders database: " +
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
 	return FALSE;
@@ -139,4 +140,3 @@ bool createConnections()
 
     return TRUE;
 }
-

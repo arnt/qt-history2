@@ -14,9 +14,9 @@
 #include <qpainter.h>
 #include <qsqldatabase.h>
 #include <qsqlcursor.h>
-#include <qsqltable.h>
 #include <qsqleditorfactory.h>
 #include <qsqlpropertymap.h>
+#include <qdatatable.h>
 
 bool createConnections();
 
@@ -34,12 +34,12 @@ private:
 };
 
 
-class CustomTable : public QSqlTable
+class CustomTable : public QDataTable
 {
     Q_OBJECT
 public:
-    CustomTable::CustomTable( QSqlCursor * cursor, bool autoPopulate = FALSE, QWidget * parent = 0, const char * name = 0 ) : QSqlTable( cursor, autoPopulate, parent, name ) {}
-    void CustomTable::paintField( 
+    CustomTable::CustomTable( QSqlCursor * cursor, bool autoPopulate = FALSE, QWidget * parent = 0, const char * name = 0 ) : QDataTable( cursor, autoPopulate, parent, name ) {}
+    void CustomTable::paintField(
 	    QPainter * p, const QSqlField* field, const QRect & cr, bool );
 
 };
@@ -51,6 +51,3 @@ class CustomSqlEditorFactory : public QSqlEditorFactory
 public:
     QWidget *createEditor( QWidget *parent, const QSqlField *field );
 };
-
-
-

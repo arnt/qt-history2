@@ -11,7 +11,6 @@
 #include <qapplication.h>
 #include <qsqldatabase.h>
 #include <qsqlcursor.h>
-#include <qsqltable.h>
 
 class QSqlRecord;
 

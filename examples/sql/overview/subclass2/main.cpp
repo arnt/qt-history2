@@ -9,9 +9,9 @@
 *****************************************************************************/
 
 #include "main.h"
+#include <qdatatable.h>
 
-
-InvoiceItemCursor::InvoiceItemCursor() : 
+InvoiceItemCursor::InvoiceItemCursor() :
     QSqlCursor( "invoiceitem" )
 {
     // NOOP
@@ -25,7 +25,7 @@ int main( int argc, char *argv[] )
     if ( createConnections() ) {
 	InvoiceItemCursor invoiceItemCursor;
 
-	QSqlTable *invoiceItemTable = new QSqlTable( &invoiceItemCursor );
+	QDataTable *invoiceItemTable = new QDataTable( &invoiceItemCursor );
 
 	app.setMainWidget( invoiceItemTable );
 
@@ -51,8 +51,8 @@ bool createConnections()
     defaultDB->setUserName( "salesuser" );
     defaultDB->setPassword( "salespw" );
     defaultDB->setHostName( "saleshost" );
-    if ( ! defaultDB->open() ) { 
-	qWarning( "Failed to open sales database: " + 
+    if ( ! defaultDB->open() ) {
+	qWarning( "Failed to open sales database: " +
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
 	return FALSE;
@@ -65,7 +65,7 @@ bool createConnections()
     oracle->setPassword( "orderspw" );
     oracle->setHostName( "ordershost" );
     if ( ! oracle->open() ) {
-	qWarning( "Failed to open orders database: " + 
+	qWarning( "Failed to open orders database: " +
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
 	return FALSE;
@@ -73,5 +73,3 @@ bool createConnections()
 
     return TRUE;
 }
-
-

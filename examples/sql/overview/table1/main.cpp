@@ -11,7 +11,7 @@
 #include <qapplication.h>
 #include <qsqldatabase.h>
 #include <qsqlcursor.h>
-#include <qsqltable.h>
+#include <qdatatable.h>
 
 bool createConnections();
 
@@ -21,7 +21,7 @@ int main( int argc, char *argv[] )
 
     if ( createConnections() ) {
 	QSqlCursor staffCursor( "staff" );
-	QSqlTable *staffTable = new QSqlTable( &staffCursor, TRUE );
+	QDataTable *staffTable = new QDataTable( &staffCursor, TRUE );
 	app.setMainWidget( staffTable );
 	staffTable->refresh();
 	staffTable->show();

@@ -12,7 +12,6 @@
 #include <qdatetime.h>
 #include <qsqldatabase.h>
 #include <qsqlcursor.h>
-#include <qsqltable.h>
 
 class QSqlRecord;
 
@@ -27,5 +26,3 @@ class InvoiceItemCursor : public QSqlCursor
     protected:
 	QVariant calculateField( const QString & name );
 };
-
-

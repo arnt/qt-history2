@@ -9,6 +9,7 @@
 *****************************************************************************/
 
 #include "main.h"
+#include <qdatatable.h>
 
 StatusPicker::StatusPicker( QWidget *parent=0, const char *name=0 )
     : QComboBox( parent, name )
@@ -44,8 +45,8 @@ void StatusPicker::setStatusId( int statusid )
 
 
 
-QWidget *CustomSqlEditorFactory::createEditor( 
-    QWidget *parent, const QSqlField *field ) 
+QWidget *CustomSqlEditorFactory::createEditor(
+    QWidget *parent, const QSqlField *field )
 {
     if ( field->name() == "statusid" ) {
 	QWidget *editor = new StatusPicker( parent );
@@ -63,7 +64,7 @@ int main( int argc, char *argv[] )
     if ( createConnections() ) {
 	QSqlCursor staffCursor( "staff" );
 
-	QSqlTable		*staffTable	= new QSqlTable( &staffCursor );
+	QDataTable		*staffTable	= new QDataTable( &staffCursor );
 	QSqlPropertyMap		*propMap	= new QSqlPropertyMap();
 	CustomSqlEditorFactory	*editorFactory	= new CustomSqlEditorFactory();
 	propMap->insert( "StatusPicker", "statusid" );
@@ -98,8 +99,8 @@ bool createConnections()
     defaultDB->setUserName( "salesuser" );
     defaultDB->setPassword( "salespw" );
     defaultDB->setHostName( "saleshost" );
-    if ( ! defaultDB->open() ) { 
-	qWarning( "Failed to open sales database: " + 
+    if ( ! defaultDB->open() ) {
+	qWarning( "Failed to open sales database: " +
 		  defaultDB->lastError().driverText() );
 	qWarning( defaultDB->lastError().databaseText() );
 	return FALSE;
@@ -112,7 +113,7 @@ bool createConnections()
     oracle->setPassword( "orderspw" );
     oracle->setHostName( "ordershost" );
     if ( ! oracle->open() ) {
-	qWarning( "Failed to open orders database: " + 
+	qWarning( "Failed to open orders database: " +
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
 	return FALSE;
@@ -120,4 +121,3 @@ bool createConnections()
 
     return TRUE;
 }
-
