@@ -105,9 +105,7 @@ bool ParenMatcher::checkOpenParen( QTextCursor *cursor )
 		++i;
 		continue;
 	    }
-	
-	
-	
+
 	    int id = Match;
 	    if ( c == '{' && closedParen.chr != '}' ||
 		 c == '(' && closedParen.chr != ')' ||
@@ -123,8 +121,6 @@ bool ParenMatcher::checkOpenParen( QTextCursor *cursor )
 	    cursor->setIndex( tidx );
 	    return TRUE;
 	}
-	
-	++i;
     }
 
  bye:
@@ -199,8 +195,6 @@ bool ParenMatcher::checkClosedParen( QTextCursor *cursor )
 	    cursor->setIndex( tidx );
 	    return TRUE;
 	}
-	
-	--i;
     }
 
  bye:
