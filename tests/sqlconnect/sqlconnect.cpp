@@ -20,9 +20,6 @@ int main( int argc, char** argv )
     else
 	qDebug(" ERROR: could not open database:" + db->lastError().databaseText());
 
-
-
-
     db->close();
     if ( !db->isOpen() )
 	qDebug(" Database closed.");
