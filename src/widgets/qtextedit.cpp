@@ -1279,8 +1279,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			e->ignore();
 			break;
 		    }
-		    if ( textFormat() == Qt::RichText &&
-			 ( cursor->paragraph()->isListItem() || cursor->paragraph()->listDepth() ) ) {
+		    if ( textFormat() == Qt::RichText && cursor->index() == 0
+			 && ( cursor->paragraph()->isListItem() || cursor->paragraph()->listDepth() ) ) {
 			clearUndoRedo();
 			undoRedoInfo.type = UndoRedoInfo::Style;
 			undoRedoInfo.id = cursor->paragraph()->paragId();
@@ -1295,8 +1295,9 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    }
 		}
 
-		if ( textFormat() == Qt::RichText && !cursor->paragraph()->isListItem() ) {
-		    if ( cursor->index() == 0 && ( e->text()[0] == '-' || e->text()[0] == '*' ) ) {
+		if ( textFormat() == Qt::RichText && cursor->index() == 0
+		     && !cursor->paragraph()->isListItem()
+		     && ( e->text()[0] == '-' || e->text()[0] == '*' ) ) {
 			clearUndoRedo();
 			undoRedoInfo.type = UndoRedoInfo::Style;
 			undoRedoInfo.id = cursor->paragraph()->paragId();
@@ -1308,7 +1309,6 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			repaintChanged();
 			drawCursor( TRUE );
 			break;
-		    }
 		}
 		if ( overWrite && !cursor->atParagEnd() )
 		    cursor->remove();
