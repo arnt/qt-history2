@@ -752,8 +752,8 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                SQLT_STR,
                                (dvoid *) &(fieldInf[idx].ind),
                                0, 0, OCI_DEFAULT);
-           if (r == 0)
-               setCharset(dfn);
+            if (r == 0)
+                setCharset(dfn);
            break;
         default:
             dataSize += ++dataSize; // REMOVE ME
@@ -816,31 +816,15 @@ void QOCIResultPrivate::setCharset(OCIDefine* dfn)
     int r = 0;
 
     Q_ASSERT(dfn);
-#ifdef QOCI_USES_VERSION_9
-    if (d->serverVersion > 8) {
 
-        r = OCIAttrSet((void*)dfn,
-                        OCI_HTYPE_DEFINE,
-                        (void*) &CSID_NCHAR,
-                        (ub4) 0,
-                        (ub4) OCI_ATTR_CHARSET_FORM,
-                        d->err);
-
-        if (r != 0)
-            qOraWarning("QOCIResultPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_FORM: ", d);
-    }
-#endif //QOCI_USES_VERSION_9
-
-    if (d->serverVersion > 8) {
-        r = OCIAttrSet((void*)dfn,
-                        OCI_HTYPE_DEFINE,
-                        (void*) &qOraCharset,
-                        (ub4) 0,
-                        (ub4) OCI_ATTR_CHARSET_ID,
-                        d->err);
+    r = OCIAttrSet((void*)dfn,
+                   OCI_HTYPE_DEFINE,
+                   (void*) &qOraCharset,
+                   (ub4) 0,
+                   (ub4) OCI_ATTR_CHARSET_ID,
+                   d->err);
         if (r != 0)
             qOraWarning("QOCIResultPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_ID: ", d);
-    }
 }
 
 int QOCIResultPrivate::readPiecewise(QVector<QVariant> &values, int index)
