@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#26 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#27 $
 **
 ** Definition of QScrollView class
 **
@@ -20,8 +20,8 @@
 ** and professional editions to avoid line number inconsistency.
 **
 *****************************************************************************/
-#ifndef QVIEWP_H
-#define QVIEWP_H
+#ifndef QSCROLLVIEW_H
+#define QSCROLLVIEW_H
 
 #ifndef QT_H
 #include "qframe.h"
