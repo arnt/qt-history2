@@ -187,7 +187,7 @@ bool QMenuBar::activate(MenuRef menu, short idx)
 	return FALSE;
     }
 
-    if(MacPopupBinding *mpb = pdict->find((int)menu)) {
+    if(MacPopupBinding *mpb = pdict->find((int)((short)menu))) {
 	MenuCommand cmd;
 	GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
 	mpb->qpopup->activateItemAt(mpb->qpopup->indexOf(cmd));

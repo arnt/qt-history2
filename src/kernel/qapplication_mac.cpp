@@ -1103,6 +1103,7 @@ bool QApplication::do_mouse_down( Point *pt )
 	break;
 #ifdef QMAC_QMENUBAR_NATIVE
     case inMenuBar:
+	MenuSelect(*pt); //allow menu tracking
 	break;
 #endif
     default:
