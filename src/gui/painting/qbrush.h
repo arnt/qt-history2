@@ -59,6 +59,8 @@ public:
 
     const QGradient *gradient() const;
 
+    bool isOpaque() const;
+
     bool operator==(const QBrush &b) const;
     inline bool operator!=(const QBrush &b) const { return !(operator==(b)); }
 
@@ -178,6 +180,7 @@ class Q_GUI_EXPORT QLinearGradient : public QGradient
 {
 public:
     QLinearGradient(const QPointF &start, const QPointF &finalStop);
+    QLinearGradient(qreal xStart, qreal yStart, qreal xFinalStop, qreal yFinalStop);
 
     QPointF start() const;
     QPointF finalStop() const;
@@ -188,6 +191,7 @@ class Q_GUI_EXPORT QRadialGradient : public QGradient
 {
 public:
     QRadialGradient(const QPointF &center, qreal radius, const QPointF &focalPoint = QPointF());
+    QRadialGradient(qreal cx, qreal cy, qreal radius, qreal fx=0, qreal fy=0);
 
     QPointF center() const;
     QPointF focalPoint() const;
@@ -199,6 +203,7 @@ class Q_GUI_EXPORT QConicalGradient : public QGradient
 {
 public:
     QConicalGradient(const QPointF &center, qreal startAngle);
+    QConicalGradient(qreal cx, qreal cy, qreal startAngle);
 
     QPointF center() const;
     qreal angle() const;

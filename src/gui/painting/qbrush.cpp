@@ -572,6 +572,39 @@ const QGradient *QBrush::gradient() const
 
 
 /*!
+    Returns true if the brush is fully opaque otherwise false.
+    The various pattern brushes are considered opaque for the
+    purpose of this function.
+*/
+
+bool QBrush::isOpaque() const
+{
+    bool opaqueColor = d->color.alpha() == 255;
+
+    // Test awfully simple case first
+    if (d->style == Qt::SolidPattern && opaqueColor)
+        return true;
+
+    if (!opaqueColor)
+        return false;
+
+    if (d->style == Qt::LinearGradientPattern
+        || d->style == Qt::RadialGradientPattern
+        || d->style == Qt::ConicalGradientPattern) {
+        QGradientStops stops = gradient()->stops();
+        for (int i=0; i<stops.size(); ++i)
+            if (stops.at(i).second.alpha() != 255)
+                return false;
+        return true;
+    } else if (d->style == Qt::TexturePattern) {
+        return !texture().hasAlpha();
+    }
+
+    return true;
+}
+
+
+/*!
     \fn bool QBrush::operator!=(const QBrush &b) const
 
     Returns true if the brush is different from \a b; otherwise
@@ -983,6 +1016,23 @@ QLinearGradient::QLinearGradient(const QPointF &start, const QPointF &finalStop)
     m_data.linear.y2 = finalStop.y();
 }
 
+/*!
+    \overload
+
+    Constructs a linear gradient with interpolation area between \a
+    xStart, \a yStart and \a xFinalStop, \a yFinalStop. The positions
+    are specified using logical coordinates.
+*/
+QLinearGradient::QLinearGradient(qreal xStart, qreal yStart, qreal xFinalStop, qreal yFinalStop)
+{
+    m_type = LinearGradient;
+    m_spread = PadSpread;
+    m_data.linear.x1 = xStart;
+    m_data.linear.y1 = yStart;
+    m_data.linear.x2 = xFinalStop;
+    m_data.linear.y2 = yFinalStop;
+}
+
 
 /*!
     Returns the start point of this linear gradient in logical
@@ -1033,6 +1083,27 @@ QRadialGradient::QRadialGradient(const QPointF &center, qreal radius, const QPoi
     m_data.radial.cy = center.y();
     m_data.radial.fx = focalPoint.x();
     m_data.radial.fy = focalPoint.y();
+    m_data.radial.radius = radius;
+}
+
+
+
+/*!
+    Constructs a radial gradient centered at \a cx, \a cy with radius
+    \a radius.  The focal point \a fx, \a fy can be used to define the
+    focal point of the gradient inside the circle.
+
+    The default focalPoint is the circle center.
+*/
+
+QRadialGradient::QRadialGradient(qreal cx, qreal cy, qreal radius, qreal fx, qreal fy)
+{
+    m_type = RadialGradient;
+    m_spread = PadSpread;
+    m_data.radial.cx = cx;
+    m_data.radial.cy = cy;
+    m_data.radial.fx = fx;
+    m_data.radial.fy = fy;
     m_data.radial.radius = radius;
 }
 
@@ -1092,6 +1163,21 @@ QConicalGradient::QConicalGradient(const QPointF &center, qreal angle)
     m_spread = PadSpread;
     m_data.conical.cx = center.x();
     m_data.conical.cy = center.y();
+    m_data.conical.angle = angle;
+}
+
+
+/*!
+    Constructs a conical centered at \a cx, \a cy and starting at
+    \a angle.
+*/
+
+QConicalGradient::QConicalGradient(qreal cx, qreal cy, qreal angle)
+{
+    m_type = ConicalGradient;
+    m_spread = PadSpread;
+    m_data.conical.cx = cx;
+    m_data.conical.cy = cy;
     m_data.conical.angle = angle;
 }
 
