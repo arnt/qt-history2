@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabelled.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qlabelled.cpp#2 $
 **
 ** Implementation of QLabelled widget class
 **
@@ -49,6 +49,7 @@ void QLabelled::init()
     setMargin(9);
     d = new QLabelledPrivate(this);
     layout();
+    resetFrameRect();
 }
 
 QLabelled::~QLabelled()
@@ -95,6 +96,7 @@ void QLabelled::setAlignment( int align )
 	ASSERT( align == AlignTop || align == AlignLeft );
 	d->align = align;
 	layout();
+	resetFrameRect();
 	update();
     }
 }
@@ -111,16 +113,12 @@ void QLabelled::layout()
 {
     delete d->grid;
 
-    QRect f = rect();
-
     QSize sh = d->label->sizeHint();
     if (sh.isValid() && !sh.isEmpty())
 	d->label->setFixedSize(sh);
 
     if ( d->align == AlignTop ) {
 	d->grid = new QGridLayout(this,4,4);
-	f.setTop( d->label->height()/2 );
-	setFrameRect(f);
 	d->grid->addMultiCellWidget( d->label, 0, 0, 1, 2, AlignLeft );
 	if (d->child) {
 	    d->grid->addWidget( d->child, 2, 2, AlignLeft );
@@ -134,8 +132,6 @@ void QLabelled::layout()
 	d->grid->addColSpacing( 3, frameWidth() );
     } else {
 	d->grid = new QGridLayout(this,4,4);
-	f.setLeft( d->label->width()/2 );
-	setFrameRect(f);
 	d->grid->addMultiCellWidget( d->label, 1, 2, 0, 0, AlignTop );
 	if (d->child) {
 	    d->grid->addWidget( d->child, 2, 2, AlignTop );
@@ -150,6 +146,24 @@ void QLabelled::layout()
     }
 
     d->grid->activate();
+}
+
+void QLabelled::resetFrameRect()
+{
+    QRect f = rect();
+
+    if ( d->align == AlignTop ) {
+	f.setTop( d->label->height()/2 );
+	setFrameRect(f);
+    } else {
+	f.setLeft( d->label->width()/2 );
+	setFrameRect(f);
+    }
+}
+
+void QLabelled::resizeEvent( QResizeEvent * )
+{
+    resetFrameRect();
 }
 
 void QLabelled::childEvent( QChildEvent *e )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#5 $
 **
 ** Implementation of grid layout widget
 **
@@ -29,8 +29,8 @@
   \c Horizontal, \a n specifies the number of columns. If \a d is \c Vertical,
   \a n specifies the number of rows.
  */
-QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name )
-    :QWidget( parent, name )
+QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name, WFlags f )
+    :QWidget( parent, name, f )
 {
     if ( d == Horizontal ) {
 	nCols = n;
@@ -50,8 +50,8 @@ QGrid::QGrid( int n, Direction d, QWidget *parent, const char *name )
   Constructs a grid widget with parent \a parent and name \a name.
   \a n specifies the number of columns. 
  */
-QGrid::QGrid( int n, QWidget *parent, const char *name )
-    :QWidget( parent, name )
+QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
+    :QWidget( parent, name, f )
 {
     nCols = n;
     nRows = 1;

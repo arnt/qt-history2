@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabelled.h#1 $
+** $Id: //depot/qt/main/src/widgets/qlabelled.h#2 $
 **
 ** Definition of QLabelled widget class
 **
@@ -36,12 +36,14 @@ public:
 
 protected:
     virtual void childEvent( QChildEvent * );
+    virtual void resizeEvent( QResizeEvent * );
     virtual int labelMargin() const;
 
 private:
     QLabelledPrivate* d;
     void init();
     void layout();
+    void resetFrameRect();
 
 private:	// Disabled copy constructor and operator=
     QLabelled( const QLabelled & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#27 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -581,7 +581,6 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 
 		right=left+width-1;
 		bottom=top+height-1;
-		bool hadlcmap = lcmap;
 		lcmap=!!(hold[9]&0x80);
 		interlace=!!(hold[9]&0x40);
 		//bool lcmsortflag=!!(hold[9]&0x20);

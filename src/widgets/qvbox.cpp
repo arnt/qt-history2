@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvbox.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qvbox.cpp#3 $
 **
 ** Implementation of vbox layout widget
 **
@@ -25,7 +25,7 @@
 /*!
   Constructs a vbox widget with parent \a parent and name \a name
  */
-QVBox::QVBox( QWidget *parent, const char *name )
-    :QHBox( FALSE, parent, name )
+QVBox::QVBox( QWidget *parent, const char *name, WFlags f )
+    :QHBox( FALSE, parent, name, f )
 {
 }
