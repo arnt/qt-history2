@@ -804,7 +804,7 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
     \quotefromfile snippets/textblock-fragments/xmlwriter.cpp
     \skipto QTextBlock::iterator
     \printuntil if (fragment.isValid())
-    \skipto ...
+    \skipto processFragment
     \printuntil ...
     \skipto }
     \printuntil }

@@ -371,7 +371,7 @@ void QTextTablePrivate::update() const
     For example, we can insert a table with three rows and two columns at the
     current cursor position in an editor using the following lines of code:
 
-    \quotefromfile snippets/textdocument-tables
+    \quotefromfile snippets/textdocument-tables/mainwindow.cpp
     \skipto QTextCursor cursor(editor
     \printuntil cursor.movePosition(QTextCursor::Start);
     \skipto QTextTable *table = cursor

@@ -1520,15 +1520,7 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
-    \fn void QTextListFormat::setStyle(int style)
-
-    Sets the list format's \a style. See \c{Style} for the available styles.
-
-    \sa style()
-*/
-
-/*!
-    \fn QTextListFormat::style() const
+    \fn Style QTextListFormat::style() const
 
     Returns the list format's style. See \c{Style}.
 
@@ -1680,15 +1672,15 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
-    \fn QTextFrameFormat::setHeight(int height)
-    \reimp
-
+    \fn void QTextFrameFormat::setHeight(const QTextLength &height)
+    
     Sets the frame's \a height.
 */
 
 /*!
-    \fn QTextFrameFormat::setHeight(const QTextLength &height)
-    
+    \fn void QTextFrameFormat::setHeight(int height)
+    \reimp
+
     Sets the frame's \a height.
 */
 
