@@ -141,7 +141,11 @@ all: #$ ExpandGlue("ALL_DEPS",""," "," "); $text .= '$(DESTDIR)$(SYSCONF_LINK_TA
 $(DESTDIR)$(SYSCONF_LINK_TARGET): $(OBJECTS) $(OBJMOC) #$ Expand("TARGETDEPS");
 	#${
 	    if ( Project('TEMPLATE') eq "lib" ) {
-		$text .= '$(SYSCONF_LINK_LIB)';
+		if ( Config('staticlib') ) {
+		    $text .= '$(SYSCONF_LINK_LIB_STATIC)';
+		} else {
+		    $text .= '$(SYSCONF_LINK_LIB)';
+		}
 	    } else {
 		$text .= '$(SYSCONF_LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)';
 	    }

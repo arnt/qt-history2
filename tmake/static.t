@@ -1,3 +1,4 @@
 #$ IncludeTemplate("common.t");
 #$ IncludeTemplate("release.t");
-#$ IncludeTemplate("staticlib.t");
+
+SYSCONF_LINK_LIB	= $(SYSCONF_LINK_LIB_STATIC)
