@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#48 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#48 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -39,6 +39,14 @@ void	    qt_leave_modal( QWidget * );
 bool	    qt_modal_state();
 void	    qt_open_popup( QWidget * );
 void	    qt_close_popup( QWidget * );
+
+
+extern bool qt_nograb();
+
+static QWidget *mouseGrb    = 0;
+static QCursor *mouseGrbCur = 0;
+static QWidget *keyboardGrb = 0;
+static HANDLE	journalRec  = 0;
 
 
 /*****************************************************************************
@@ -222,6 +230,10 @@ bool QWidget::destroy()
 		    ((QWidget*)obj)->destroy();
 	    }
 	}
+	if ( mouseGrb == this )
+	    releaseMouse();
+	if ( keyboardGrb == this )
+	    releaseKeyboard();
 	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
@@ -333,13 +345,6 @@ void QWidget::setIconText( const char *iconText )
     extra->iconText = qstrdup( iconText );
 }
 
-
-extern bool qt_nograb();
-
-static QWidget *mouseGrb    = 0;
-static QCursor *mouseGrbCur = 0;
-static QWidget *keyboardGrb = 0;
-static HANDLE	journalRec  = 0;
 
 QCursor *qt_grab_cursor()
 {

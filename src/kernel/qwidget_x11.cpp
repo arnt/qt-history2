@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#144 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#143 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#144 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -30,6 +30,12 @@ bool qt_modal_state();				// --- "" ---
 void qt_open_popup( QWidget * );		// --- "" ---
 void qt_close_popup( QWidget * );		// --- "" ---
 void qt_updated_rootinfo();
+
+
+extern bool qt_nograb();
+
+static QWidget *mouseGrb    = 0;
+static QWidget *keyboardGrb = 0;
 
 
 /*****************************************************************************
@@ -232,6 +238,10 @@ bool QWidget::destroy()
 		    ((QWidget*)obj)->destroy();
 	    }
 	}
+	if ( mouseGrb == this )
+	    releaseMouse();
+	if ( keyboardGrb == this )
+	    releaseKeyboard();
 	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
@@ -488,11 +498,6 @@ void QWidget::setMouseTracking( bool enable )
     }
 }
 
-
-extern bool qt_nograb();
-
-static QWidget *mouseGrb    = 0;
-static QWidget *keyboardGrb = 0;
 
 /*!
   Grabs the mouse input.
