@@ -588,22 +588,6 @@ int QTableWidget::columnCount() const
 /*!
   ###
 */
-void QTableWidget::insertRow(int /*row*/)
-{
-
-}
-
-/*!
-  ###
-*/
-void QTableWidget::insertColumn(int /*column*/)
-{
-
-}
-
-/*!
-  ###
-*/
 int QTableWidget::row(const QTableWidgetItem *item) const
 {
     Q_ASSERT(item);
@@ -735,6 +719,22 @@ QList<QTableWidgetItem*> QTableWidget::selectedItems() const
     for (int i = 0; i < indexes.count(); ++i)
         items.append(d->model()->item(indexes.at(i)));
     return items;
+}
+
+/*!
+  ###
+*/
+void QTableWidget::insertRow(int row)
+{
+    d->model()->insertRows(row);
+}
+
+/*!
+  ###
+*/
+void QTableWidget::insertColumn(int column)
+{
+    d->model()->insertColumns(column);
 }
 
 /*!

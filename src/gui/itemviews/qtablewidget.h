@@ -117,9 +117,6 @@ public:
     void setColumnCount(int columns);
     int columnCount() const;
 
-    void insertRow(int row);
-    void insertColumn(int column);
-
     int row(const QTableWidgetItem *item) const;
     int column(const QTableWidgetItem *item) const;
 
@@ -144,6 +141,8 @@ public:
     QList<QTableWidgetItem*> selectedItems() const;
 
 public slots:
+    void insertRow(int row);
+    void insertColumn(int column);
     void clear();
 
 signals:
