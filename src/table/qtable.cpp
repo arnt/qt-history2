@@ -529,7 +529,8 @@ QTableItem::QTableItem( QTable *table, EditType et,
 
 QTableItem::~QTableItem()
 {
-    table()->takeItem( this );
+    if ( table() )
+	table()->takeItem( this );
 }
 
 int QTableItem::RTTI = 0;
