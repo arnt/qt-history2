@@ -1175,8 +1175,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    QApplication::sendEvent( qt_desktopWidget, &mv );
 	    x = GetSystemMetrics( 78 );
 	    y = GetSystemMetrics( 79 );
-	    QResizeEvent re( QSize(x, y), qt_desktopWidget->size() );
-	    QApplication::sendEvent( qt_desktopWidget, &re );
+	    qt_desktopWidget->resize(x, y);
 	}
 	break;
 #endif
