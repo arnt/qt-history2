@@ -107,7 +107,7 @@ public:
     {
 	return fi.count();
     }
-    bool contains( int i )
+    bool contains( int i ) const
     {
 	return fi.contains( i );
     }
@@ -308,12 +308,12 @@ QSqlField* QSqlRecord::field( const QString& name )
 
 const QSqlField* QSqlRecord::field( int i ) const
 {
+    if ( !sh->d->contains( i ) ) {
 #ifdef QT_CHECK_RANGE
-    if( (unsigned int) i > sh->d->count() ){
 	qWarning( "QSqlRecord::field: index out of range: " + QString::number( i ) );
+#endif // QT_CHECK_RANGE
 	return 0;
     }
-#endif // QT_CHECK_RANGE
     return &sh->d->fieldInfo( i )->field;
 }
 
