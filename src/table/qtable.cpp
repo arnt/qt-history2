@@ -1606,6 +1606,7 @@ void QTable::init( int rows, int cols )
     topHeader->setOrientation( Horizontal );
     topHeader->setTracking( TRUE );
     topHeader->setMovingEnabled( TRUE );
+    topLeftCorner = new QWidget( this );
     setMargins( 30, fontMetrics().height() + 4, 0, 0 );
 
     topHeader->setUpdatesEnabled( FALSE );
@@ -3497,6 +3498,7 @@ void QTable::updateGeometries()
 			     leftMargin(), visibleHeight() );
     topHeader->setGeometry( leftMargin() + frameWidth(), frameWidth(),
 			    visibleWidth(), topMargin() );
+    topLeftCorner->setGeometry( frameWidth(), frameWidth(), leftMargin(), topMargin() );
     horizontalScrollBar()->raise();
     verticalScrollBar()->raise();
     inUpdateGeometries = FALSE;

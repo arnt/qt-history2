@@ -468,6 +468,7 @@ private:
     int startDragCol;
     QPoint dragStartPos;
     int oldCurrentRow, oldCurrentCol;
+    QWidget *topLeftCorner;
 
 };
 
