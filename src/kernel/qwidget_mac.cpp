@@ -285,7 +285,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 
 	WindowAttributes wattr = kWindowNoAttributes;
 
-	if(testWFlags( WStyle_Tool ) )
+	if( wclass == kSheetWindowClass )
 	    wattr |= kWindowNoShadowAttribute;
 
 	if( testWFlags(WStyle_Customize) ) {
@@ -1357,6 +1357,7 @@ bool QWidget::isClippedRegionDirty()
 QRegion QWidget::clippedRegion(bool do_children)
 {
     createExtra();
+
     if(!extra->clip_dirty && (!do_children || !extra->child_dirty)) {
 	if(!do_children)
 	    return extra->clip_sibs;
