@@ -44,7 +44,7 @@ Configurations files are found in <tt>configs/</tt>.
 <p>
    You may need to recompile your kernel to enable the framebuffer.
    This document does not describe how to do this; the
-   <a href=HOWTO-Framebuffer.html>HOWTO-Framebuffer page</a>
+   <a href=HOWTO-framebuffer.html>HOWTO-Framebuffer page</a>
    contains a short description. (You should see
    a penguin logo at boot time when the frame buffer is enabled.)
 
