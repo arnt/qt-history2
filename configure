@@ -1617,11 +1617,11 @@ then
     echo
     echo "Each depth adds around 100Kb on 80386."
     echo
-    echo "Your choices (default 8,16):"
+    echo "Your choices (default 8,16,32):"
     read QWS_DEPTHS
     if [ -z "$QWS_DEPTHS" ]
     then
-	QWS_DEPTHS=8,16
+	QWS_DEPTHS=8,16,32
     fi
 fi
 
