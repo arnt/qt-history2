@@ -701,6 +701,12 @@ void QTextView::removeSelectedText()
     emitUndoAvailable( doc->commands()->isUndoAvailable() );
     emitRedoAvailable( doc->commands()->isRedoAvailable() );
     emit textChanged();
+#if defined(Q_WS_WIN)
+    // there seems to be a problem with repainting or erasing the area
+    // of the scrollview which is not the contents on windows
+    if ( contentsHeight() < visibleHeight() )
+	viewport()->repaint( 0, contentsHeight(), visibleWidth(), visibleHeight() - contentsHeight(), TRUE );
+#endif
 }
 
 void QTextView::moveCursor( MoveDirectionPrivate direction, bool shift, bool control )
