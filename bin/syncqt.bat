@@ -1,16 +1,19 @@
-@rem = '--*-Perl-*--
+@rem = '--*-PERL-*--';
+@rem = '
 @echo off
-if "%OS%" == "Windows_NT" goto WinNT
-perl -x -S "%0" %1 %2 %3 %4 %5 %6 %7 %8 %9
-goto endofperl
-:WinNT
-perl -x -S "%0" %*
-if NOT "%COMSPEC%" == "%SystemRoot%\system32\cmd.exe" goto endofperl
-if %errorlevel% == 9009 echo You do not have Perl in your PATH.
+rem setlocal
+set ARGS=
+:loop
+if .%1==. goto endloop
+set ARGS=%ARGS% %1
+shift
+goto loop
+:endloop
+rem ***** This assumes PERL is in the PATH *****
+perl.exe -S syncqt.bat %ARGS%
 goto endofperl
 @rem ';
-#!/usr/bin/perl
-#line 14
+#!/usr/bin/perl -w
 ############################################################################
 # $Id: $
 #
