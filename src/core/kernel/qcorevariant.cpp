@@ -1703,7 +1703,7 @@ QCoreVariant::Type QCoreVariant::nameToType(const char *name)
         return Invalid;
     if (strcmp(name, "") == 0)
         return Invalid;
-    if (strcmp(name, "QCString") == 0)
+    if (strcmp(name, "Q3CString") == 0)
         return ByteArray;
     if (strcmp(name, "Q_LLONG") == 0)
         return LongLong;
