@@ -498,7 +498,8 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		QAccessibleInterface *sibling = 0;
 		pIface->navigate(Child, i+1, &sibling);
 		Q_ASSERT(sibling);
-		if (relationTo(0, sibling, 0) & Self)
+		if ((relationTo(0, sibling, 0) & Self) || (sibling->state(0) & QAccessible::Invisible))
+		    //ignore ourself and invisible siblings
 		    continue;
 
 		QRect sibg = sibling->rect(0);
