@@ -95,7 +95,5 @@ bool WindowsStyle::canUnload() const
 
 Q_EXPORT_INTERFACE()
 {
-    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new WindowsStyle();
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( WindowsStyle )
 }

@@ -95,7 +95,5 @@ bool CDEStyle::canUnload() const
 
 Q_EXPORT_INTERFACE()
 {
-    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new CDEStyle;
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( CDEStyle )
 }

@@ -93,8 +93,7 @@ bool SGIStyle::canUnload() const
     return styles.isEmpty();
 }
 
-Q_EXPORT_INTERFACE(){
-    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new SGIStyle();
-    iface->addRef();
-    return iface;
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( SGIStyle )
 }

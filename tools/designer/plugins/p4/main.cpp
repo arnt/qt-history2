@@ -805,9 +805,7 @@ bool P4Interface::canUnload() const
 
 Q_EXPORT_INTERFACE()
 {
-    QUnknownInterface *iface = (QUnknownInterface*)(ActionInterface*)new P4Interface;
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( P4Interface )
 }
 
 #include "main.moc"

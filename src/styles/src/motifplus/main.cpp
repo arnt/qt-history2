@@ -95,7 +95,5 @@ bool MotifPlusStyle::canUnload() const
 
 Q_EXPORT_INTERFACE()
 {
-    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new MotifPlusStyle;
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( MotifPlusStyle )
 }

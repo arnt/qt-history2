@@ -99,7 +99,5 @@ bool RCFilter::canUnload() const
 
 Q_EXPORT_INTERFACE()
 {
-    QUnknownInterface *iface = (QUnknownInterface*)(ImportFilterInterface*)new RCFilter;
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( RCFilter )
 }

@@ -95,7 +95,5 @@ bool PlatinumStyle::canUnload() const
 
 Q_EXPORT_INTERFACE()
 {
-    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new PlatinumStyle;
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( PlatinumStyle )
 }
