@@ -35,7 +35,6 @@ private:
 CNTextCodecs::CNTextCodecs()
     : ref(0)
 {
-    qDebug("CNTextCodecs loaded");
 }
 
 

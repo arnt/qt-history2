@@ -35,7 +35,6 @@ private:
 KRTextCodecs::KRTextCodecs()
     : ref(0)
 {
-    qDebug("KRTextCodecs loaded");
 }
 
 

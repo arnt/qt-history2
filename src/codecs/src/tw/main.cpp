@@ -35,7 +35,6 @@ private:
 TWTextCodecs::TWTextCodecs()
     : ref(0)
 {
-    qDebug("TWTextCodecs loaded");
 }
 
 

@@ -37,7 +37,6 @@ private:
 JPTextCodecs::JPTextCodecs()
     : ref(0)
 {
-    qDebug("JPTextCodecs loaded");
 }
 
 
