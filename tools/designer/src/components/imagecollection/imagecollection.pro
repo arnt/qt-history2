@@ -15,3 +15,4 @@ SOURCES += imagecollection.cpp
 HEADERS += imagecollection.h \
     imagecollection_global.h
 
+include(../../sharedcomponents.pri)

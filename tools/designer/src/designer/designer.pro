@@ -79,3 +79,5 @@ mac {
 
 target.path=$$bins.path
 INSTALLS += target
+
+include(../sharedcomponents.pri)

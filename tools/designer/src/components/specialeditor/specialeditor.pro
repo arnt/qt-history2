@@ -21,3 +21,4 @@ HEADERS += defaultspecialeditor.h \
     specialeditorsupport.h \
     specialeditor_global.h
 
+include(../../sharedcomponents.pri)

@@ -18,3 +18,5 @@ INCLUDEPATH += \
     ../../lib/sdk \
     ../../uilib \
     ../../lib/extension
+
+include(../../sharedcomponents.pri)

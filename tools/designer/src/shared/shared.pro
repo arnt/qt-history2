@@ -37,6 +37,4 @@ SOURCES += \
     qdesigner_formbuilder.cpp \
     treewidget.cpp
 
-
-
-
+include(../sharedcomponents.pri)

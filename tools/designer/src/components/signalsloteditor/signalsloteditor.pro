@@ -18,3 +18,5 @@ HEADERS += default_membersheet.h signalsloteditor.h membersheet.h signalslotedit
 SOURCES += default_membersheet.cpp signalsloteditor.cpp
 
 MOCABLE += signalsloteditor.cpp
+
+include(../../sharedcomponents.pri)

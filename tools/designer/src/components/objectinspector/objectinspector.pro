@@ -15,4 +15,4 @@ HEADERS += objectinspector.h \
 
 SOURCES += objectinspector.cpp
 
-
+include(../../sharedcomponents.pri)

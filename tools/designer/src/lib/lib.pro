@@ -12,3 +12,4 @@ include(sdk/sdk.pri)
 target.path=$$libs.path
 INSTALLS        += target
 
+include(../sharedcomponents.pri)

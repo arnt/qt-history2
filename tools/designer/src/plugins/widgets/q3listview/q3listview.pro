@@ -19,3 +19,5 @@ SOURCES += plugin.cpp
 CONFIG += qt warn_on
 OBJECTS_DIR=.obj/debug-shared
 MOC_DIR=.moc/debug-shared
+
+include(../../../sharedcomponents.pri)

@@ -20,3 +20,4 @@ SOURCES += \
     ui4.cpp \
     formbuilder.cpp
 
+include(../sharedcomponents.pri)

@@ -21,3 +21,5 @@ RESOURCES += widgetbox.qrc
 
 # DEFINES -= QT_COMPAT_WARNINGS
 # DEFINES += QT_COMPAT
+
+include(../../sharedcomponents.pri)
