@@ -28,9 +28,6 @@ tabbing bug
 12.
 pakking, testing, sende ut
 
-14. HN - 2d			14/6 og 21/6
-	Toppnivaa vinduer uten ramme.
-
 
 Gjort:
 ------
@@ -47,3 +44,5 @@ makesystem for Windows
 11. 
 32 bit QImage <-> QPixmap
 
+14. HN - 2d			14/6 og 21/6
+	Toppnivaa vinduer uten ramme.
