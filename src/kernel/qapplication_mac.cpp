@@ -2186,6 +2186,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else if(ekind == kEventWindowShown) {
 	    widget->topLevelWidget()->setActiveWindow();
 	} else if(ekind == kEventWindowActivated) {
+	    WindowActivationScope scope;
+	    if(GetWindowActivationScope((WindowRef)wid, &scope) == noErr && 
+		scope == kWindowActivationScopeIndependent)
+		break;
+
 	    if(QApplication::app_style) {
 		//I shouldn't have to do this, but the StyleChanged isn't happening as I expected
 		//so this is in for now, FIXME!

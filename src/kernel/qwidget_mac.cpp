@@ -788,9 +788,9 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(wclass == kFloatingWindowClass) //these dialogs don't hide
 	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute |
 				   kWindowNoActivatesAttribute);
-#ifdef Q_WS_MACX
-	if(!grp && dialog && !parentWidget() && !testWFlags(WShowModal))
+	if(dialog && !parentWidget() && !testWFlags(WShowModal))
 	    grp = GetWindowGroupOfClass(kDocumentWindowClass);
+#ifdef Q_WS_MACX
 	if(testWFlags(WStyle_StaysOnTop)) {
 	    createTLExtra();
 	    if(extra->topextra->group)
