@@ -45,7 +45,8 @@ public:
 	  confEdits( FALSE ),
 	  confCancs( FALSE ),
 	  cancelMode( FALSE ),
-	  autoDelete( FALSE )
+	  autoDelete( FALSE ),
+	  lastAt()
     {}
     ~QSqlTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
@@ -73,6 +74,7 @@ public:
     bool confCancs;
     bool cancelMode;
     bool autoDelete;
+    int lastAt;
 };
 
 /*!
@@ -300,19 +302,19 @@ QWidget * QSqlTable::createEditor( int , int col, bool initFromCell ) const
 
     if ( d->mode == QSqlTable::None )
 	return 0;
-    
+
     QSqlEditorFactory * f = (d->editorFactory == 0) ?
 		     QSqlEditorFactory::defaultFactory() : d->editorFactory;
 
     QSqlPropertyMap * m = (d->propertyMap == 0) ?
 			  QSqlPropertyMap::defaultMap() : d->propertyMap;
- 
+
     QWidget * w = 0;
     if( initFromCell && d->editBuffer ){
 	w = f->createEditor( viewport(), d->editBuffer->value( indexOf( col ) ) );
 	if ( w )
 	    m->setProperty( w, d->editBuffer->value( indexOf( col ) ) );
-    } 
+    }
     return w;
 }
 
@@ -505,7 +507,7 @@ void QSqlTable::endEdit( int row, int col, bool accept, bool )
 	return;
     }
     if ( d->mode != QSqlTable::None && d->editBuffer ) {
-	qt_debug_buffer("endEdit: edit buffer", d->editBuffer);	
+	qt_debug_buffer("endEdit: edit buffer", d->editBuffer);
 	QSqlPropertyMap * m = (d->propertyMap == 0) ?
 			      QSqlPropertyMap::defaultMap() : d->propertyMap;
 	d->editBuffer->setValue( indexOf( col ),  m->property( editor ) );
@@ -575,7 +577,7 @@ void QSqlTable::endUpdate()
 
 bool QSqlTable::beginInsert()
 {
-    qDebug("QSqlTable::beginInsert");    
+    qDebug("QSqlTable::beginInsert");
     if ( !d->cursor || isReadOnly() || ! numCols() )
 	return FALSE;
     if ( !d->cursor->canInsert() )
@@ -1010,6 +1012,7 @@ void QSqlTable::reset()
     d->insertRowLast = -1;
     d->insertHeaderLabelLast = QString::null;
     d->cancelMode = FALSE;
+    d->lastAt = -1;
     if ( sorting() )
 	horizontalHeader()->setSortIndicator( -1 );
 }
@@ -1547,8 +1550,11 @@ void QSqlTable::setCurrentSelection( int row, int )
 {
     if ( !d->cursor )
 	return;
+    if ( row == d->lastAt )
+	return;
     if ( !d->cursor->seek( row ) )
 	return;
+    d->lastAt = row;
     emit currentChanged( d->cursor );
 }
 
