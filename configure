@@ -3506,7 +3506,6 @@ fi
 # save configuration into qconfig.pri
 #-------------------------------------------------------------------------------
 
-[ -f "$outpath/mkspecs/qconfig.pri" ] && rm -f "$outpath/mkspecs/qconfig.pri"
 QTCONFIG=$outpath/mkspecs/qconfig.pri
 [ -f $QTCONFIG.tmp ] && rm -f $QTCONFIG.tmp
 QTCONFIG_CONFIG=
