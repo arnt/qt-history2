@@ -2494,6 +2494,13 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    SetCursor( c->handle() );
 	else if ( isEnabled() )		// use widget cursor if widget is enabled
 	    SetCursor( cursor().handle() );
+	else {
+	    QWidget *parent = parentWidget();
+	    while ( parent && !parent->isEnabled() )
+		parent = parent->parentWidget();
+	    if ( parent )
+		SetCursor( parent->cursor().handle() );
+	}
 	if ( curWin != winId() ) {		// new current window
 	    qt_dispatchEnterLeave( this, QWidget::find(curWin) );
 	    curWin = winId();
