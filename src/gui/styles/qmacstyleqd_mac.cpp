@@ -2395,6 +2395,8 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
             if(mi->text().indexOf('\t') >= 0)
                 w += 12;
         }
+        if (mi->popup())
+            w += 20;
 
         if(maxpmw)
             w += maxpmw + 6;
