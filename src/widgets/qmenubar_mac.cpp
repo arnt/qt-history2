@@ -203,6 +203,7 @@ static bool updateMenuBar(QMenuBar *mbar)
     InvalMenuBar();
     if(pdict)
 	pdict->clear();
+    
     for(int x = 0; x < (int)mbar->count(); x++) {
 	QMenuItem *item = mbar->findItem(mbar->idAt(x));
 	if(item->isSeparator()) //mac doesn't support these
@@ -210,7 +211,7 @@ static bool updateMenuBar(QMenuBar *mbar)
 
 	MenuRef mp = createPopup(item->popup(), FALSE);
 	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
-	InsertMenu(mp, x);
+	InsertMenu(mp, 0);
     }
     InvalMenuBar();
     return TRUE;
