@@ -15219,6 +15219,20 @@ QString &QString::replace( uint index, uint len, const QString &s )
     return replace( index, len, s.unicode(), s.length() );
 }
 
+/*! \overload
+
+    This is the same as replace(\a index, \a len, QString(\a c)).
+*/
+QString &QString::replace( uint index, uint len, QChar c )
+{
+    return replace( index, len, &c, 1 );
+}
+
+/*! \overload
+    \fn QString &QString::replace( uint index, uint len, char c )
+
+    This is the same as replace(\a index, \a len, QChar(\a c)).
+*/
 
 /*! \overload
 
@@ -15236,7 +15250,7 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
     } else if ( s >= d->unicode && (uint)(s - d->unicode) < d->maxl ) {
 	// Part of me - take a copy.
 	QChar *tmp = QT_ALLOC_QCHAR_VEC( slen );
-	memcpy(tmp,s,slen*sizeof(QChar));
+	memcpy( tmp, s, slen * sizeof(QChar) );
 	replace( index, len, tmp, slen );
 	QT_DELETE_QCHAR_VEC( tmp );
     } else {

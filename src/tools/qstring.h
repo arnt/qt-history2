@@ -509,6 +509,9 @@ public:
 #endif
     QString    &replace( uint index, uint len, const QString & );
     QString    &replace( uint index, uint len, const QChar*, uint clen );
+    QString    &replace( uint index, uint len, QChar );
+    QString    &replace( uint index, uint len, char c )
+    { return replace( index, len, QChar(c) ); }
     QString    &replace( QChar c, const QString & );
     QString    &replace( char c, const QString & after )
     { return replace( QChar(c), after ); }
