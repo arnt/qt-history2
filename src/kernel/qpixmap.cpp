@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#58 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#58 $");
 
 
 /*!
@@ -357,6 +357,26 @@ void QPixmap::resize( int w, int h )
 	pm.setMask( m );
     }
     *this = pm;
+}
+
+
+/*! Returns a reasonable mask for this pixmap.  The mask may not be
+  perfect but should be reasonable, so you can do things like
+
+  \code
+    pm->setMask( pm->maskGuess() );
+  \endcode;
+
+  This function is slow.
+
+  \sa QImage::maskGuess()
+*/
+
+QBitmap QPixmap::maskGuess() const
+{
+    QBitmap m;
+    m.convertFromImage( convertToImage().maskGuess() );
+    return m;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#79 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#79 $");
 
 
 /*!
@@ -842,7 +842,7 @@ static bool dither_image( const QImage *src, QImage *dst )
 
 /*!
   Converts the depth (bpp) of the image to \e depth and returns the
-  converted image.
+  converted image.  The original image is left undisturbed.
 
   The \e depth argument must be 1, 8 or 32.
 
@@ -912,6 +912,67 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
     memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
     return image;
 }
+
+
+
+/*!
+  Return a one-bpp image which problably is a reasonably good mask for
+  this image.
+
+  This function is much slower than it might have been, and not as
+  flexible - it always returns a little-endian mask (which you can
+  convert to big-endianness using convertBitOrder()) and it assumes
+  that the pixel in the upper left corner is the background color (it
+  would be better to have the four corner pixels vote).
+*/
+
+QImage QImage::maskGuess() const
+{
+    debug ( "yuck" );
+    if ( depth() < 32 )
+	return convertDepth( 32 ).maskGuess();
+
+    QImage m( width(), height(), 1, 0, QImage::LittleEndian );
+    QRgb background = *(QRgb *)scanLine(0);
+    int x,y;
+
+    for ( y = 0; y < height(); y++ )
+	memset( m.scanLine( y ), 255, (width()+7)/8 );
+
+    bool done = FALSE;
+    uchar * ypp, * ypc, * ypn;
+    int w = width(), h = height();
+    while( !done ) {
+	done = TRUE;
+	ypn = m.scanLine(0);
+	ypc = 0;
+	for ( y = 0; y < h; y++ ) {
+	    ypp = ypc;
+	    ypc = ypn;
+	    ypn = (y == h-1) ? 0 : m.scanLine(y+1);
+	    for ( x = 0; x < w; x++ ) {
+		// slowness here - it's possible to do six of these tests
+		// together in one go.  oh well.
+		if ( ( x == 0 || y == 0 || x == w-1 || y == h-1 ||
+		       !(*(ypc + ((x-1) >> 3)) & (1 << ((x-1) & 7))) ||
+		       !(*(ypc + ((x+1) >> 3)) & (1 << ((x+1) & 7))) ||
+		       !(*(ypp + (x     >> 3)) & (1 << (x     & 7))) ||
+		       !(*(ypn + (x     >> 3)) & (1 << (x     & 7))) ) &&
+		     (	(*(ypc + (x     >> 3)) & (1 << (x     & 7))) ) &&
+		     ( (*((QRgb *)scanLine(y) + x)) == background ) ) {
+		    done = FALSE;
+		    *(ypc + (x >> 3)) &= ~(1 << (x & 7));
+		    debug( "masked %d, %d", x, y );
+		} else {
+		    debug( "%d,%d: %d (%d)", x, y,
+			   (*((QRgb *)scanLine(y) + x)), background );
+		}
+	    }
+	}
+    }
+    return m;
+}
+
 
 
 /*!
@@ -2461,4 +2522,3 @@ static void write_xpm_image( QImageIO * /* iio */ ) // write XPM image data
 }
 
 #endif
-
