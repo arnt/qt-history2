@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#202 $
+** $Id: //depot/qt/main/src/moc/moc.y#203 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1842,7 +1842,7 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	f->type += ")";
     }
     for ( f=list->first(); f; f=list->next() )
-	fprintf( out, "    m%d_t%d v%d_%d = Q_AMPERSAND %s::%s;\n",
+	fprintf( out, "    m%d_t%d v%d_%d = &%s::%s;\n",
 		 num, list->at(), num, list->at(),
 		 (const char*)qualifiedClassName(), (const char*)f->name);
     if ( list->count() ) {
@@ -2456,7 +2456,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#202 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#203 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2507,12 +2507,6 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "#include \"%s\"\n", (const char*)includeFile );
 	fprintf( out, "#include <%sqmetaobject.h>\n", (const char*)qtPath );
 	fprintf( out, "#include <%sqapplication.h>\n", (const char*)qtPath );
-	fprintf( out, "\n" );
-	fprintf( out, "#if defined(Q_SPARCWORKS_FUNCP_BUG)\n" );
-	fprintf( out, "#define Q_AMPERSAND\n" );
-	fprintf( out, "#else\n" );
-	fprintf( out, "#define Q_AMPERSAND &\n" );
-	fprintf( out, "#endif\n" );
 	fprintf( out, "\n\n" );
     } else {
 	fprintf( out, "\n\n" );
