@@ -1357,8 +1357,8 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	SetRect(&limits, -2, 0, 0, 0);
 	if(QWExtra *extra = ((QETWidget*)widget)->extraData())
 	    SetRect(&limits, extra->minw, extra->minh,
-		    extra->maxw < QWIDGETSIZE_MAX ? extra->maxw : QWIDGETSIZE_MAX,
-		    extra->maxh < QWIDGETSIZE_MAX ? extra->maxh : QWIDGETSIZE_MAX);
+		    extra->maxw < 32767 ? extra->maxw : 32767,
+		    extra->maxh < 32767 ? extra->maxh : 32767);
 	int growWindowSize;
 	{
 	    QMacBlockingFunction block;
