@@ -67,110 +67,56 @@
 
 /*!
   \class QObject qobject.h
-  \brief The QObject class is the base class of all Qt objects that can
-  deal with signals, slots and events.
+  \brief The QObject class is the base class of all Qt objects.
 
   \ingroup objectmodel
 
-  Qt provides a very powerful mechanism for seamless object
-  communication; \link metaobjects.html signal/slot
-  connections\endlink. The signal/slot mechanism is an advanced way
-  of making traditional callback routines.
+  QObject is the heart of the \link object.html Qt Object Model
+  \endlink. The central feature in this model is a very powerful
+  mechnism for seamless object commuinication dubbed \link
+  signalsandslots.html signals and slots \endlink. With connect(), you
+  can connect a signal to a slot and destroy the connection again with
+  disconnect(). To avoid neverending notification loops, you can
+  temporarily block signals with blockSignals(). The protected
+  functions connectNotify() and disconnectNotify() make it possible to
+  track connections.
+  
+  QObjects organize themselves in object trees. When you create a
+  QObject with another object as parent, it will automatically do an
+  insertChild() on the parent and thus show up in the parent's
+  children() list. The parent receives object ownership, i.e. it will
+  automatically delete its children in its destructor.  With
+  objectTrees(), you get direct access to all root objects currently
+  existing. With queryList(), you can query all children and
+  children's children of an object for certain criteria, such as their
+  class or object name.
+  
+  Every object has an object name() and can report its className() and
+  whether it inherits() another class in the QObject inheritance
+  hierarchy.
+  
+  When an object is deleted, it emits a destroyed() signal. You can
+  catch this signal to avoid dangling references to QObjects. The
+  QGuardedPtr class provides an elegant way to utilize this feature.
 
-  Example:
-  \code
-    //
-    // The Mandelbrot class uses a QTimer to calculate the mandelbrot
-    // set one scanline at a time without blocking the CPU.
-    // It inherits QObject to use signals and slots.
-    // Calling start() starts the calculation. The done() signal is
-    // emitted when it has finished.
-    // Note that this example is not complete. Feel free to complete it.
-    //
-
-    class Mandelbrot : public QObject
-    {
-	Q_OBJECT				// required for signals/slots
-    public:
-	Mandelbrot( QObject *parent=0, const char *name );
-	...
-    public slots:
-	void	start();
-    signals:
-	void	done();
-    private slots:
-	void	calculate();
-    private:
-	QTimer	timer;
-	...
-    };
-
-    //
-    // Constructs and initializes a Mandelbrot object.
-    //
-
-    Mandelbrot::Mandelbrot( QObject *parent=0, const char *name )
-	: QObject( parent, name )
-    {
-	connect( &timer, SIGNAL(timeout()), SLOT(calculate()) );
-	...
-    }
-
-    //
-    // Starts the calculation task. The internal calculate() slot
-    // will be activated every 10 milliseconds.
-    //
-
-    void Mandelbrot::start()
-    {
-	if ( !timer.isActive() )		// not already running
-	    timer.start( 10 );			// timeout every 10 ms
-    }
-
-    //
-    // Calculates one scanline at a time.
-    // Emits the done() signal when finished.
-    //
-
-    void Mandelbrot::calculate()
-    {
-	...			// perform the calculation for a scanline
-	if ( finished ) {	// no more scanlines
-	   timer.stop();
-	   emit done();
-	}
-    }
-  \endcode
-
-  When an object has changed in some way that might be interesting for
-  the outside world, it emits a signal to tell whoever is listening.
-  All slots that are connected to this signal will be activated
-  (called).  It is even possible to connect a signal directly to
-  another signal.  (This will emit the second signal immediately
-  whenever the first is emitted.)
-
-  There is no limitation on how many slots that can be connected to
-  a signal.  The slots will be activated in the order they were connected
-  to the signal.
+  QObjects can receive events through event() and filter events of
+  other objects. See installEventFilter() and eventFilter() for
+  details. A convenience handler childEvent() can be reimplemented to
+  catch child events.
+  
+  Last but not least, QObject provides the basic timer support in Qt,
+  see startTimer() and timerEvent() for details.
 
   Notice that the \c Q_OBJECT macro is mandatory for any object that
-  implement signals or slots.  You also need to run the \link
-  metaobjects.html moc program (Meta Object Compiler) \endlink on the
-  source file.
+  implement signals, slots or properties.  You also need to run the
+  \link moc.html moc program (Meta Object Compiler) \endlink on the
+  source file. We strongly recommenend to use the macro in \e all
+  subclasses of QObject regardless whether they actually use signals,
+  slots and properties or not. Otherwise certain functions can show
+  undefined behaviour.
 
-  The signal/slot mechanism allows objects to easily reused, because
-  the object that emits a signal does not need to know what the
-  signals are connected to.
-
-  All Qt widgets inherit QObject and use signals and slots.  A
-  QScrollBar, for example, emits \link QScrollBar::valueChanged()
-  valueChanged()\endlink whenever the scroll bar value changes.
-
-  Meta objects are useful for doing more than connecting signals to slots.
-  They also allow the programmer to obtain information about the class to
-  which an object is instantiated from (see isA() and inherits()) or to
-  produce a list of child objects that inherit a particular class
-  (see queryList()).
+  All Qt widgets inherit QObject. The convenience function
+  isWidgetType() returns whether an object is actually a widget.
 */
 
 
@@ -466,13 +412,14 @@ QObject::~QObject()
   \fn QMetaObject *QObject::metaObject() const
   Returns a pointer to the meta object of this object.
 
-  A meta object contains information about a class that inherits QObject:
-  class name, super class name, signals and slots. Every class that contains
-  the \c Q_OBJECT macro will also have a meta object.
+  A meta object contains information about a class that inherits
+  QObject: class name, super class name, properties, signals and
+  slots. Every class that contains the \c Q_OBJECT macro will also
+  have a meta object.
 
-  The meta object information is required by the signal/slot connection
-  mechanism.  The functions isA() and inherits() also make use of the
-  meta object.
+  The meta object information is required by the signal/slot
+  connection mechanism and the property system.  The functions isA()
+  and inherits() also make use of the meta object.
 */
 
 /*!
@@ -2137,7 +2084,10 @@ void QObject::dumpObjectInfo()
 
   Returne TRUE is the operation was successful, FALSE otherwise.
 
-  \sa property()
+  Information about all available properties are provided through the
+  metaObject().
+
+  \sa property(), metaObject(), QMetaObject::propertyNames(), QMetaObject::property()
 */
 bool QObject::setProperty( const char *name, const QVariant& value )
 {
@@ -2656,7 +2606,12 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 
   If no such property exists, the returned variant is invalid.
 
-  \sa setProperty(), QVariant::isValid()
+  Information about all available properties are provided through the
+  metaObject().
+
+  \sa setProperty(), QVariant::isValid(), metaObject(),
+  QMetaObject::propertyNames(), QMetaObject::property()
+
 */
 QVariant QObject::property( const char *name ) const
 {

@@ -107,16 +107,20 @@
   <li> \c Paint - screen update necessary, QPaintEvent
   <li> \c Move - widget's position changed, QMoveEvent
   <li> \c Resize - widget's size changed, QResizeEvent
-  <li> \c Create - reserved
-  <li> \c Destroy - reserved
   <li> \c Show - widget was shown on screen, QShowEvent
   <li> \c Hide - widget was removed from screen, QHideEvent
   <li> \c Close - widget was closed (permanently), QCloseEvent
-  <li> \c Quit - reserved
   <li> \c Accel - key press in child, for shortcut key handling, QKeyEvent
   <li> \c Wheel - mouse wheel rolled, QWheelEvent
   <li> \c AccelAvailable - an internal event used by Qt on some platforms.
-  <li> \c CaptionChange - widget's caption has changed
+ <li> \c WindowActivate - the window was activated
+ <li> \c WindowDeactivate - the window was deactivated
+  <li> \c CaptionChange - widget's caption changed
+  <li> \c IconChange - widget's icon changed
+  <li> \c ParentFontChange - the font of the parent widget changed.
+  <li> \c ApplicationFontChange - the default application font changed.
+  <li> \c ParentPaletteChange - the palette of the parent widget changed.
+  <li> \c ApplicationPaletteChange - the default application palette changed.
   <li> \c Clipboard - system clipboard contents have changed
   <li> \c SockAct - socket activated, used to implement QSocketNotifier
   <li> \c DragEnter - drag-and-drop enters widget, QDragEnterEvent
@@ -129,6 +133,10 @@
   <li> \c LayoutHint - a widget child has changed layout properties
   <li> \c ActivateControl - an internal event used by Qt on some platforms.
   <li> \c DeactivateControl - an internal event used by Qt on some platforms.
+  <li> \c Quit - reserved
+  <li> \c Create - reserved
+  <li> \c Destroy - reserved
+  <li> \c Reparent - reserved
   <li> \c Configure - reserved
   <li> \c ConfigureLayout - reserved
 

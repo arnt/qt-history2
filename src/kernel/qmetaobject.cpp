@@ -32,7 +32,7 @@
 // NOT REVISED
 
 /*!
-  \struct QMetaData
+  \class QMetaData
   
   \brief The QMetaData struct contains a member function that is known
   to the meta object system.
@@ -50,7 +50,7 @@
  */
 
 /*!
-  \struct QClassInfo
+  \class QClassInfo
   
   \brief The QClassInfo struct stores a single class information
 
@@ -69,13 +69,33 @@
 /*!
   \class QMetaObject qmetaobject.h
 
-  \brief The QMetaObject class is an internal class used for the meta
-  object system.
-
+  \brief The QMetaObject class contains meta information about Qt objects.
+  
   \ingroup objectmodel
-
-  It is generally a very bad idea to use this class directly in
-  application programs.
+  
+  The Meta Object System in Qt is responsible for the signal/slot
+  mechanism for communication between objects, runtime type
+  information and the property system. All meta information in Qt is
+  kept in a singla instance of QMetaObject per class.
+  
+  In general, you will not have to use this class directly in any
+  application program. Most of the class members and functions are
+  internal, <strong> do not use them </strong>.
+  
+  Some functions, however, are marked as public API and may make sense
+  for certain "meta" applications such as scripting engines or GUI
+  builders:
+  <ul>
+  <li> className() to get the name of a class.
+  <li> superClassName() to get the name of the superclass.
+  <li> inherits(), the function called by QObject::inherits().
+  <li> superClass() to access the meta object of the superclass.
+  <li> numSlots(), numSignals(), slotNames() and  signalNames() to get
+      information about a classes signals and slots.
+  <li> property() and propertyNames() to receive information about a
+      classes properties.
+  <li> classInfo() and numClassInfo() to access additional class information.
+  </ul>
 
 */
 
@@ -239,6 +259,27 @@ QMetaObject::~QMetaObject()
     delete reserved;
 }
 
+
+/*! \fn const char *QMetaObject::className() const
+  
+  Returns the class name.
+  
+  \sa QObject::className(), superClassName()
+*/
+
+/*! \fn const char *QMetaObject::superClassName() const
+  
+  Returns the class name of the super class, or 0 if there is no super
+  class in the QObject hierachy.
+  
+  \sa className()
+*/
+
+/*! \fn QMetaObject *QMetaObject::superClass() const
+  
+  Returns the meta object of the super class or 0, if there is no such
+  object.
+ */
 
 /*!
   Returns the number of slots for this class. 
@@ -748,7 +789,7 @@ bool QMetaObject::inherits( const char* clname ) const
   Property meta data mainly consists of a type(), a name() and the
   fact, whether a property is writeable(), designable() or stored().
   
-  The functions isSetType(), isEnumType() and enumKey() provide further
+  The functions isSetType(), isEnumType() and enumKeys() provide further
   information about a property's type.
   
   Actual property values are set and received through QObject's set
@@ -874,7 +915,7 @@ bool QMetaProperty::stored( QObject* o ) const
     return (o->*m)();
 }
 
-/*! \enum QMetaProperty::Specifying
+/*! \enum QMetaProperty::Specification
   
   \internal
 */

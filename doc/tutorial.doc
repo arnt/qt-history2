@@ -263,7 +263,7 @@ Here, the \e clicked() signal of \e quit is connected to the \e
 quit() slot of \e a, so that when the button is clicked, the
 application quits.
 
-The \link metaobjects.html Signals and Slots\endlink documentation
+The \link signalsandslots.html Signals and Slots\endlink documentation
 describes this topic in detail.
 
 <h2>Behavior</h2>
@@ -538,7 +538,7 @@ QSlider::setRange() documentation) and its initial value to 0.
 
 \line connect
 
-Here we use the \link metaobjects.html signal/slot mechanism \endlink
+Here we use the \link signalsandslots.html signal/slot mechanism \endlink
 to connect the slider's valueChanged() signal to the LCD number's
 display() slot.
 
@@ -743,7 +743,7 @@ implementation
 <li>\link t7-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t7-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href="metaobjects.html">signal/slot creation.</a>
+href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -803,7 +803,7 @@ custom signal.
 
 Slots must be implemented in the normal way (remember, a slot is also
 a C++ member function).  Signals are automatically implemented in the
-\link metaobjects.html meta object\endlink file.  Signals follow the
+\link signalsandslots.html meta object\endlink file.  Signals follow the
 access rules of protected C++ functions, i.e.  they can only be emitted
 by the class they are defined in or by classes inheriting from it.
 
@@ -874,7 +874,7 @@ outside its legal range.
 
 All of main.cpp is copied from the previous chapter, except that in
 the constructor for MyWidget, when we create the 16 LCDRange object we
-now connect them together using the \link metaobjects.html
+now connect them together using the \link signalsandslots.html
 signal/slot\endlink mechanism.  Each one has its valueChanged() signal
 connected to the setValue() slot in the previous one.  Since LCDRange
 emits the signal valueChanged() when its value changes (surprise!), we
@@ -997,7 +997,7 @@ implementation
 <li>\link t8-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t8-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href="metaobjects.html">signal/slot creation.</a>
+href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -1351,7 +1351,7 @@ implementation
 <li>\link t9-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t9-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href="metaobjects.html">signal/slot creation.</a>
+href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -1569,7 +1569,7 @@ implementation
 <li>\link t10-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t10-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for
-<a href="metaobjects.html">signal/slot creation.</a>
+<a href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -1836,7 +1836,7 @@ implementation
 <li>\link t11-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t11-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href="metaobjects.html">signal/slot creation.</a>
+href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -2109,7 +2109,7 @@ implementation
 <li>\link t12-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t12-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href="metaobjects.html">signal/slot creation.</a>
+href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -2527,7 +2527,7 @@ implementation
 <li>\link t13-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t13-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href="metaobjects.html">signal/slot creation.</a>
+href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>
@@ -2954,7 +2954,7 @@ implementation
 <li>\link t14-main-cpp.html main.cpp\endlink contains MyWidget and main.
 <li>\link t14-makefile.html Makefile\endlink contains some rules for
 generating the meta object information necessary for <a
-href="metaobjects.html">signal/slot creation.</a>
+href="signalsandslots.html">signal/slot creation.</a>
 </ul>
 
 <h2>Line by Line Walk-Through</h2>

@@ -21,7 +21,7 @@
 **
 *****************************************************************************/
 
-/*! \page metaobjects.html
+/*! \page signalsandslots.html
 
 <title>
 Qt Toolkit - Signals and Slots
@@ -55,8 +55,10 @@ functions. A slot does not know if it has any signal(s) connected to
 it. Again, the object does not know about the communication mechanism and
 can be used as a true software component.
 
-You can connect as many signals as you want to a single slot, and a signal
-can be connected to as many slots as you desire.
+You can connect as many signals as you want to a single slot, and a
+signal can be connected to as many slots as you desire. It is even
+possible to connect a signal directly to another signal.  (This will
+emit the second signal immediately whenever the first is emitted.)
 
 Together, signals and slots make up a powerful component programming
 mechanism.

@@ -80,14 +80,14 @@ Overviews
       <li> <a href="classes.html">  Alphabetical Class List</a>
       <li> <a href="topicals.html">  Structure Overview</a>
       <li> <a href="annotated.html">  Annotated Class List</a>
-      <li> <a href="hierachy.html">  Inheritance Hierachy</a>
+      <li> <a href="hierarchy.html">  Inheritance Hierachy</a>
       <li> <a href="functions.html">  All Functions (long)</a>
       <li> <a href="headers.html">  Header File Index</a>
 </ul>
 </td>
 <td valign=top>
 <ul>
-<li> <a href="metaobjects.html">  Introduction to Signals and Slots</a>
+<li> <a href="object.html">  Introduction to the Qt Object Model</a>
 <li> <a href="moc.html">  Using the Meta Object Compiler (moc)</a>
 <li> <a href="layout.html">  Geometry Management </a>
 <li> <a href="dnd.html">  Drag and Drop (D'n'D)</a>
@@ -290,7 +290,7 @@ these classes.
 
 <h1 align="center">Object Model</h1><br clear="all">
 
-These classes form the basis of the Qt object model.
+These classes form the basis of the <a href="object.html">Qt Object Model</a>.
 
 */
 
