@@ -116,8 +116,10 @@ QResource *QResourceNode::localeResource()
             if(resource->d->lang == systemLocale.language() &&
                resource->d->country == systemLocale.country())
                 return resource;
-            if(!ret && resource->d->lang == QLocale::C && //default
-               resource->d->country == QLocale::AnyCountry)
+            if(!ret && resource->d->lang == systemLocale.language())
+                ret = resource;
+            else if(!ret && resource->d->lang == QLocale::C && //default
+                    resource->d->country == QLocale::AnyCountry)
                 ret = resource;
         }
         return ret;
