@@ -58,26 +58,26 @@ What´s New
 <tr>
 <td>
 <ul>
-<li> <a href="aboutqt.html" >About Qt</a>
-<li> <a href="commonproblems.html">Common Problems</a>
-<li> <a href="winsystem.html"> Windowsystem-specific notes</a>
-<li> <a href="buyhowto.html">How to buy Qt</a>
+<li> \link aboutqt.html About Qt \endlink
+<li> \link commonproblems.html Common Problems \endlink
+<li> \link winsystem.html  Windowsystem-specific notes \endlink
+<li> \link buyhowto.html How to buy Qt \endlink
 </ul>
 </td>
 <td valign=top>
 <ul>
-<li> <a href="installation.html">Installation</a>
-<li> <a href="tutorial.html">Tutorial</a>
-<li> <a href="walkthroughs.html">Walkthroughs</a>
-<li> <a href="examples.html">Examples</a>
+<li> \link installation.html Installation \endlink
+<li> \link tutorial.html Tutorial \endlink
+<li> \link walkthroughs.html Walkthroughs \endlink
+<li> \link examples.html Examples \endlink
 </ul>
 </td>
 <td valign=top>
 <ul>
-<li> <a href="keyfeatures22.html">  Key Features in Qt 3.0</a>
-<li> <a href="changes22.html">  Detailed Change Notes for Qt 3.0</a>
-<li> <a href="http://www.trolltech.com/developer/changes/">Change History</a>
-<li> <a href="porting.html">  Porting from Qt 2.x to Qt 3.x</a>
+<li> \link keyfeatures22.html   Key Features in Qt 3.0 \endlink
+<li> \link changes22.html   Detailed Change Notes for Qt 3.0 \endlink
+<li> \link http://www.trolltech.com/developer/changes/ Change History \endlink
+<li> \link porting.html   Porting from Qt 2.x to Qt 3.x \endlink
 </ul>
 </td>
 </tr>
@@ -93,38 +93,38 @@ Overviews
 <tr>
 <td valign=top >
 <ul>
-      <li> <a href="classes.html">  Alphabetical Class List</a>
-      <li> <a href="topicals.html">  Structure Overview</a>
-      <li> <a href="annotated.html">  Annotated Class List</a>
-      <li> <a href="hierarchy.html">  Inheritance Hierachy</a>
-      <li> <a href="functions.html">  All Functions (long)</a>
-      <li> <a href="headers.html">  Header File Index</a>
+      <li> \link classes.html   Alphabetical Class List \endlink
+      <li> \link topicals.html   Structure Overview \endlink
+      <li> \link annotated.html   Annotated Class List \endlink
+      <li> \link hierarchy.html   Inheritance Hierachy \endlink
+      <li> \link functions.html   All Functions (long) \endlink
+      <li> \link headers.html   Header File Index \endlink
 </ul>
 </td>
 <td valign=top>
 <ul>
-<li> <a href="modules.html">  About Modules</a>
-<li> <a href="canvas.html">  Canvas</a>
-<li> <a href="sql.html">  SQL</a>
-<li> <a href="iconview.html">  Iconview</a>
-<li> <a href="network.html">  Network</a>
-<li> <a href="opengl.html">  OpenGL</a>
-<li> <a href="table.html">  Table</a>
-<li> <a href="workspace.html">  Workspace</a>
-<li> <a href="xml.html">  XML</a>
+<li> \link modules.html   About Modules \endlink
+<li> \link canvas.html   Canvas \endlink
+<li> \link sql.html   SQL \endlink
+<li> \link iconview.html   Iconview \endlink
+<li> \link network.html   Network \endlink
+<li> \link opengl.html   OpenGL \endlink
+<li> \link table.html   Table \endlink
+<li> \link workspace.html   Workspace \endlink
+<li> \link xml.html   XML \endlink
 </ul>
 </td>
 <td valign=top>
 <ul>
-<li> <a href="object.html">  Qt Object Model</a>
-<li> <a href="signalsandslots.html">  Signals and Slots</a>
-<li> <a href="moc.html">  Using the Meta Object Compiler (moc)</a>
-<li> <a href="layout.html">  Geometry Management </a>
-<li> <a href="dnd.html">  Drag and Drop (D'n'D)</a>
-<li> <a href="i18n.html">  Internationalization (i18n) </a>
-<li> <a href="debug.html">  Debugging Techniques</a>
-<li> <a href="pictures.html">  Widget Screenshots</a>
-<li> <a href="threads.html"> Thread Support in Qt </a>
+<li> \link object.html   Qt Object Model \endlink
+<li> \link signalsandslots.html   Signals and Slots \endlink
+<li> \link moc.html   Using the Meta Object Compiler (moc) \endlink
+<li> \link layout.html   Geometry Management  \endlink
+<li> \link dnd.html   Drag and Drop (D'n'D) \endlink
+<li> \link i18n.html   Internationalization (i18n)  \endlink
+<li> \link debug.html   Debugging Techniques \endlink
+<li> \link pictures.html   Widget Screenshots \endlink
+<li> \link threads.html  Thread Support in Qt  \endlink
 </ul>
 
 </td>
@@ -143,25 +143,25 @@ Appendix
 <tr>
 <td valign=top>
 <ul>
-<li> <a href="troll.html"> About Trolltech</a>
-<li> <a href="bughowto.html"> How to report a bug</a>
-<li> <a href="mailinglists.html"> Mailing List Information</a>
+<li> \link troll.html  About Trolltech \endlink
+<li> \link bughowto.html  How to report a bug \endlink
+<li> \link mailinglists.html  Mailing List Information \endlink
 </ul>
 </td>
 <td valign=top>
 <ul>
-  <li> <a href="designer.html"> Qt Designer</a>
-  <li> <a href="qembed.html"> QEmbed - inline files/images</a>
-  <li> <a href="qvfb-qws.html"> QVFb - virtual framebuffer for Qt/Embedded</a>
+  <li> \link designer.html  Qt Designer \endlink
+  <li> \link qembed.html  QEmbed - inline files/images \endlink
+  <li> \link qvfb-qws.html  QVFb - virtual framebuffer for Qt/Embedded \endlink
 </ul>
 </td>
 <td valign=top>
 <ul>
-<li> <a href="accelerators.html">  Standard Accelerators</a>
-<li> <a href="license.html"> Q Public License</a>
-<li> <a href="gpl.html"> GNU General Public License</a>
-<li> <a href="licenses.html"> Other Licenses used in Qt </a>
-<li> <a href="credits.html"> Credits</a>
+<li> \link accelerators.html   Standard Accelerators \endlink
+<li> \link license.html  Q Public License \endlink
+<li> \link gpl.html  GNU General Public License \endlink
+<li> \link licenses.html  Other Licenses used in Qt  \endlink
+<li> \link credits.html  Credits \endlink
 </ul>
 </td>
 </tr>
@@ -180,27 +180,27 @@ Components
 </th>
 </tr><tr>
 <td>
-<a href="environment.html">  Environment</a>
+\link environment.html   Environment \endlink
 </td><td> Classes providing various global services to your application such as
 event handling, access to system settings, internationalization, etc.
 </td></tr><tr><td>
-<a href="application.html"> <nobr>Mainwindow And Friends</nobr></a>
+\link application.html  <nobr>Mainwindow And Friends</nobr> \endlink
 </td><td> Everything you need for a typical modern main application window
 (menus, toolbars, workspace, ...)
 </td></tr><tr><td>
-<a href="dialogs.html">  Standard Dialogs</a>
+\link dialogs.html   Standard Dialogs \endlink
 </td><td> Ready-made dialogs for file-, font-, color-selection and more.
 </td></tr><tr><td>
-<a href="basic.html">  Basic Controls</a>
+\link basic.html   Basic Controls \endlink
 </td><td> The GUI primitives like buttons, combo-boxes, scrollbars, etc.
 </td></tr><tr><td>
-<a href="advanced.html">  Advanced Controls</a>
+\link advanced.html   Advanced Controls \endlink
 </td><td> Advanced user interface controls like listviews, progress bars etc.
 </td></tr><tr><td>
-<a href="organizers.html">  Organizers</a>
+\link organizers.html   Organizers \endlink
 </td><td> User interface organizers like splitters, tab books, button groups, etc.
 </td></tr><tr><td>
- <a href="helpsystem.html">  Help System</a>
+ \link helpsystem.html   Help System \endlink
 </td><td> Classes providing for all forms of online-help in your application.
 </td></tr>
 <tr>
@@ -209,23 +209,23 @@ Framework
 </th>
 </tr><tr>
 <td>
-      <a href="objectmodel.html">  Object Model</a>
+      \link objectmodel.html   Object Model \endlink
 </td><td> The framework's underlying object model.
 </td></tr><tr><td>
-      <a href="abstractwidgets.html">  Abstract Widgets</a>
+      \link abstractwidgets.html   Abstract Widgets \endlink
 </td><td> Abstract widget classes available for subclassing.
 </td></tr><tr><td>
-      <a href="drawing.html">  Drawing And Printing</a>
+      \link drawing.html   Drawing And Printing \endlink
 </td><td> Classes providing drawing (and thus printing) primitives
 </td></tr><tr><td>
-      <a href="draganddrop.html">  Drag and Drop</a>
+      \link draganddrop.html   Drag and Drop \endlink
 </td><td> Classes dealing with drag and drop and the necessary mime type
 encoding and decoding.
 </td></tr><tr><td>
-      <a href="appearance.html">  Widget Appearance</a>
+      \link appearance.html   Widget Appearance \endlink
 </td><td> Appearance customization with styles, fonts, colors etc.
 </td></tr><tr><td>
-      <a href="geomanagement.html">  Geometry Management</a>
+      \link geomanagement.html   Geometry Management \endlink
 </td><td> Casses handling automatic resizing and moving of widgets. The Qt way
 of composing complex dialogs.
 </td></tr>
@@ -235,19 +235,19 @@ Utilities
 </th>
 </tr><tr>
 <td>
-      <a href="tools.html"><nobr> General Tool Classes</nobr></a>
+      \link tools.html <nobr> General Tool Classes</nobr> \endlink
 </td><td> Generic collection classes like list, queue, stack, string etc.
 </td></tr><tr><td>
-      <a href="images.html">  Image Processing</a>
+      \link images.html   Image Processing \endlink
 </td><td> Digital image coding, decoding and manipulation
 </td></tr><tr><td>
-      <a href="io.html">  I/O Handling</a>
+      \link io.html   I/O Handling \endlink
 </td><td>Classes providing I/O, file and directory handling.
 </td></tr><tr><td>
-      <a href="time.html">  Time And Date</a>
+      \link time.html   Time And Date \endlink
 </td><td>Classes for handling date and time.
 </td></tr><tr><td>
-      <a href="misc.html">  Miscellaneous</a>
+      \link misc.html   Miscellaneous \endlink
 </td><td> Various other useful classes
 </td>
 </tr>
@@ -265,8 +265,8 @@ independently of the GUI classes.
 <p>In particular, these classes do not depend on QApplication at all,
 and so can be used in non-GUI programs.
 
-<p>See also the <a href="collection.html">introduction to Qt collection
-classes</a>.
+<p>See also the \link collection.html introduction to Qt collection
+classes. \endlink 
 
 */
 
@@ -283,9 +283,9 @@ devices, files etc., as well as manipulating files and directories.
 
 \title Basic Controls
 
-These basic controls are meant for direct use.  There are also some <a
-href="abstractwidgets.html">abstract widget classes,</a> meant for
-subclassing, and some <a href="advanced.html">more complex widgets.</a>
+These basic controls are meant for direct use.  There are also some \link
+abstractwidgets.html abstract widget classes, \endlink meant for
+subclassing, and some \link advanced.html more complex widgets. \endlink
 
 */
 
@@ -311,7 +311,7 @@ these classes.
 
 \title Object Model
 
-These classes form the basis of the <a href="object.html">Qt Object Model</a>.
+These classes form the basis of the \link object.html Qt Object Model \endlink.
 
 */
 
@@ -348,8 +348,8 @@ These classes are used for manipulating images.
 
 These classes provide powerful graphics drawing primitives.
 
-<p>See also this introduction to the <a href="coordsys.html">Qt
-coordinate system</a>.
+<p>See also this introduction to the \link coordsys.html Qt
+coordinate system. \endlink
 
 */
 
@@ -358,8 +358,8 @@ coordinate system</a>.
 \title Drag And Drop Classes
 
 These classes deal with drag and drop and the necessary mime type
-encoding and decoding. See also <a href="dnd.html">Drag and Drop with
-Qt</a>.
+encoding and decoding. See also \link dnd.html Drag and Drop with
+Qt. \endlink
 
 */
 
@@ -387,17 +387,17 @@ seem heavyweight.
 
 /*! \defgroup time
 
-\heading Time and Date
+\title Time and Date
 
 These classes provide system-independent date and time abstractions.
 
-<p>Also available: <a href="y2k.html">Qt Year 2000 Compliance Statement</a>.
+<p>Also available: \link y2k.html Qt Year 2000 Compliance Statement \endlink.
 */
 
 
 /*! \defgroup application
 
-\heading Main Window And Friends
+\title Main Window And Friends
 
 These classes provide everything you need for a typical modern main
 application window, like the main window itself, menu and tool bars,
@@ -408,7 +408,7 @@ a statusbar, etc.
 
 /*! \defgroup geomanagement
 
-\heading Geometry Management
+\title Geometry Management
 
 These classes provide automatic geometry management of widgets.
 
@@ -417,7 +417,7 @@ These classes provide automatic geometry management of widgets.
 
 /*! \defgroup helpsystem
 
-\heading Help System
+\title Help System
 
 These classes provide for all forms of online-help in your application,
 with three levels of detail:
@@ -439,7 +439,7 @@ with three levels of detail:
 
 /*! \defgroup environment
 
-\heading Environment Classes
+\title Environment Classes
 
 These classes providing various global services to your application such as
 event handling, access to system settings, internationalization, etc.
@@ -448,7 +448,7 @@ event handling, access to system settings, internationalization, etc.
 
 /*! \defgroup misc
 
-\heading Miscellaneous Classes
+\title Miscellaneous Classes
 
 These classes are useful classes not fitting into any other category.
 
@@ -457,7 +457,7 @@ These classes are useful classes not fitting into any other category.
 
 /*! \defgroup walkthroughs
 
-\heading Walkthroughs
+\title Walkthroughs
 
 Walkthroughs provide a careful step-by-step explanation of example code.
 
@@ -481,7 +481,7 @@ and Qt basics, and some of them simply want to show you what's possible.
 
 Note that most of the examples assume that you have some experience with C++ 
 and Qt and therefore are not commented extensively. If you are interested
-in a line-by-line coverage please refer to the <a href="walkthroughs.html">Walkthroughs</a>
+in a line-by-line coverage please refer to the \link walkthroughs.html Walkthroughs \endlink
 provided.
 
 <table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
@@ -494,7 +494,7 @@ Qt base classes: assorted examples
 
 Pages:
 <ul>
-<li> <a href="qaction-examples.html">QAction and QActionGroup</a>
+<li> \link qaction-examples.html QAction and QActionGroup \endlink
 </ul>
 
 <table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
@@ -507,7 +507,7 @@ Qt modules: assorted examples
 
 Pages:
 <ul>
-<li> <a href="xml-examples.html">XML examples</a>
+<li> \link xml-examples.html XML examples \endlink
 </ul>
 
 <table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
@@ -520,8 +520,8 @@ Qt extensions: assorted examples
 
 Pages:
 <ul>
-<li> <a href="nsplugin-examples.html">Qt-based plugins for web browsers</a>
-<li> <a href="xt-motif-examples.html">Xt/Motif support extension</a>
+<li> \link nsplugin-examples.html Qt-based plugins for web browsers \endlink
+<li> \link xt-motif-examples.html Xt/Motif support extension \endlink
 </ul>
 
 <table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
@@ -559,7 +559,7 @@ The following example programs show how to write plugins
 that can be used with web browsers supporting the LiveConnect
 protocol.
 
-For more information see the <a href="nsplugin.html">Plugin Howto</a>.
+For more information see the \link nsplugin.html Plugin Howto \endlink.
 */
 
 /*! \defgroup xt-motif-examples 
@@ -570,6 +570,6 @@ The following example programs illustrate the use of the Qt Xt/Motif Extension
 assisting in the migration process of old Xt and Motif based code
 to the more comfortable Qt toolkit.
 
-For more information see the <a href="xt.html">Qt Xt/Motif Support
-Extension documentation</a>.
+For more information see the \link xt.html Qt Xt/Motif Support
+Extension documentation. \endlink
 */

@@ -22,8 +22,8 @@ Xt and Motif based code to the more comfortable Qt toolkit.
 
 The Qt Xt/Motif Extension consists of the following classes:
 <ul>
-  <li><a href="qxtapplication.html">QXtApplication</a> Allows mixing of Xt/Motif and Qt widgets
-  <li><a href="qxtwidget.html">QXtWidget</a> Base widget for Xt/Motif and Qt combination
+  <li>\link qxtapplication.html QXtApplication \endlink allows mixing of Xt/Motif and Qt widgets.
+  <li>\link qxtwidget.html QXtWidget \endlink is the base widget for Xt/Motif and Qt combination.
 </ul>
 
 <h2>How-to</h2>
@@ -36,7 +36,7 @@ The Qt Xt/Motif Extension consists of the following classes:
  <li>Decide whether you are writing a new Qt application reusing
 	old Xt widgets, or introducing new Qt widgets into an existing
 	Xt/Motif application. See the corresponding 
-        <a href="xt-motif-examples.html">example programs</a>.
+        \link xt-motif-examples.html example programs. \endlink
 </ol>
 
 <h2>Known Bugs</h2>

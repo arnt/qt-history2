@@ -164,7 +164,7 @@ that draws the clock face in the aclock/aclock.cpp example.  We
 recommend compiling and running the example before you read any
 further.  In particular, try resizing the window to different shapes.
 
-\dontinclude aclock/aclock.cpp
+\walkthrough aclock/aclock.cpp
 \skipto ::drawClock
 \printline ::drawClock
 \printline {

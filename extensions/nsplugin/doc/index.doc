@@ -29,8 +29,8 @@ WWW browser supporting the same protocol.
 
 <ol>
  <li>Download the
-    <a href="http://home.netscape.com/comprod/development_partners/plugin_api/index.html">
-    Plugin SDK from Netscape</a>, and copy the following files from there to
+    \link http://home.netscape.com/comprod/development_partners/plugin_api/index.html 
+    Plugin SDK from Netscape \endlink, and copy the following files from there to
     <tt>$QTDIR/extensions/nsplugin/src</tt> :
     <multicol cols=2>
     <ul>
@@ -46,15 +46,15 @@ WWW browser supporting the same protocol.
  <li>Build the Netscape Plugin extension library, found in the
 	<tt>extensions/nsplugin/src</tt> directory of your Qt distribution.
 	This produces a static library to be linked with your plugin code.
- <li>Read the <a href="annotated.html">plugin class documentation</a>, and
-	examine the <a href="nsplugin-examples.html">example plugins</a>.
+ <li>Read the \link annotated.html plugin class documentation \endlink, and
+	examine the \link nsplugin-examples.html example plugins \endlink.
  <li>Do most of your development as a stand-alone Qt application - debugging
 	Netscape Plugins is cumbersome.  You may want to use <tt>signal(2)</tt>
 	in your plugin to enable core-dumps if your browser disables them.
  <li>Note the platform-specific build steps below.
  <li>Read about the raw plugin interface
-	<a href="http://developer.netscape.com/docs/manuals/communicator/plugin/index.htm">
-	in Netscape's handbook.</a>
+	\link http://developer.netscape.com/docs/manuals/communicator/plugin/index.htm 
+	in Netscape's handbook. \endlink
  <li>If files viewed by a plugin are provided by an HTTP server
 	(using a <tt>http://...</tt> URL) then
 	the server must be configured to send the correct MIME type
