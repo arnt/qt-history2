@@ -18,6 +18,7 @@
 #include <oaidl.h>
 #include "../../shared/types.h"
 #include <qaxfactory.h>
+#include <qmenudata.h>
 
 QAxObject *ax_mainWindow = 0;
 
@@ -350,7 +351,6 @@ void MainWindow::runMacro()
 
 void MainWindow::loadScript()
 {
-/*
 #ifndef QT_NO_QAXSCRIPT
     QString file = QFileDialog::getOpenFileName(QString::null, QAxScriptManager::scriptFileFilter(),
 						this, 0, "Open Script");
@@ -383,7 +383,6 @@ void MainWindow::loadScript()
     QMessageBox::information(this, "Function not available",
 	"QAxScript functionality is not available with this compiler.");
 #endif
-*/
 }
 
 void MainWindow::logMacro(int code, const QString &description, int sourcePosition, const QString &sourceText )
