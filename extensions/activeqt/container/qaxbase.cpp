@@ -1014,12 +1014,6 @@ static inline void QStringToQUType( const QString& type, QUParameter *param, con
 	param->type = &static_QUType_double;
     } else if ( type == "QVariant" || type == "const QVariant&" ) {
 	param->type = &static_QUType_QVariant;
-    } else if ( type == "IUnknown*" ) {
-	param->type = &static_QUType_iface;
-	param->typeExtra = "QUnknownInterface";
-    } else if ( type == "IDispatch*" ) {
-	param->type = &static_QUType_idisp;
-	param->typeExtra = "QDispatchInterface";
     } else if ( (enumData = enumDict.find( type )) != 0 ) {
 	param->type = &static_QUType_enum;
 	QUEnum *uEnum = new QUEnum;
@@ -1127,6 +1121,7 @@ QMetaObject *QAxBase::metaObject() const
 
     // create class information
     CComPtr<IProvideClassInfo> classinfo;
+    CComPtr<ITypeLib> typelib;
     d->ptr->QueryInterface( IID_IProvideClassInfo, (void**)&classinfo );
     QString coClassID;
     if ( classinfo ) {
@@ -1166,7 +1161,6 @@ QMetaObject *QAxBase::metaObject() const
     if ( disp ) {
 	CComPtr<ITypeInfo> info;
 	disp->GetTypeInfo( 0, LOCALE_USER_DEFAULT, &info );
-	CComPtr<ITypeLib> typelib;
 	info->GetContainingTypeLib( &typelib, &index );
 	// Read enum information from type library
 	if ( typelib ) {
@@ -1694,85 +1688,68 @@ QMetaObject *QAxBase::metaObject() const
 
     CComPtr<IConnectionPointContainer> cpoints;
     d->ptr->QueryInterface( IID_IConnectionPointContainer, (void**)&cpoints );
-    if ( classinfo && cpoints && d->useEventSink ) {
-	// Get type info and enumerator
-	CComPtr<ITypeInfo> info;
-	classinfo->GetClassInfo( &info );
+    if ( cpoints && d->useEventSink ) {
+	// Get connection point enumerator
 	CComPtr<IEnumConnectionPoints> epoints;
 	cpoints->EnumConnectionPoints( &epoints );
-	if ( info && epoints ) {
+	if ( epoints ) {
 	    ULONG c = 1;
 	    epoints->Reset();
-	    // get information about type
-	    TYPEATTR *typeattr;
-	    info->GetTypeAttr( &typeattr );
-	    if ( typeattr ) do {
+	    do {
 		CComPtr<IConnectionPoint> cpoint;
 		epoints->Next( c, &cpoint, &c );
 		if ( !c )
 		    break;
 
-		IID iid;
-		cpoint->GetConnectionInterface( &iid );
-		if ( iid == IID_IPropertyNotifySink ) {
+		IID conniid;
+		cpoint->GetConnectionInterface( &conniid );
+#ifndef QAX_NO_CLASSINFO
+		if ( d->useClassInfo ) {
+  		    QUuid uuid( conniid );
+  		    QString uuidstr = uuid.toString().upper();
+  		    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
+  		    static eventcount = 0;
+  		    infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
+		}
+#endif
+
+		// get information about type
+		CComPtr<ITypeInfo> eventinfo;
+		if ( conniid == IID_IPropertyNotifySink ) {
 		    // test whether property notify sink has been created already, and advise on it
 		    QAxEventSink *eventSink = d->eventSink.find( iid_propNotifySink );
 		    if ( eventSink )
-			eventSink->advise( cpoint, iid );
+			eventSink->advise( cpoint, conniid );
 		    continue;
-		}
-
-		CComPtr<ITypeInfo> eventinfo;
-		// test if one of the interfaces implemented is the one we're looking for
-		for ( int impl = 0; impl < typeattr->cImplTypes && !eventinfo; ++impl ) {
-		    // get the ITypeInfo for the interface
-		    HREFTYPE reftype;
-		    info->GetRefTypeOfImplType( impl, &reftype );
-		    CComPtr<ITypeInfo> eventtype;
-		    info->GetRefTypeInfo( reftype, &eventtype );
-		    if ( eventtype ) {
-			TYPEATTR *eventattr;
-			eventtype->GetTypeAttr( &eventattr );
-			// this is it
-			if ( eventattr && eventattr->typekind == TKIND_DISPATCH && eventattr->guid == iid ) {
-#ifndef QAX_NO_CLASSINFO
-			    if ( d->useClassInfo ) {
-				QUuid uuid( iid );
-				QString uuidstr = uuid.toString().upper();
-				uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-				static eventcount = 0;
-				infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
-			    }
-#endif
-			    eventinfo = eventtype;
-			}
-			eventtype->ReleaseTypeAttr( eventattr );
-		    }
+		} else if ( typelib ) {
+		    typelib->GetTypeInfoOfGuid( conniid, &eventinfo );
 		}
 
 		// what about other event interfaces?
 		if ( eventinfo ) {
-		    QAxEventSink *eventSink = d->eventSink.find( QUuid(iid) );
-		    if ( !eventSink ) {
-			eventSink = new QAxEventSink( that );
-			d->eventSink.insert( QUuid(iid), eventSink );
-		    }
-		    eventSink->advise( cpoint, iid );
-
 		    TYPEATTR *eventattr;
 		    eventinfo->GetTypeAttr( &eventattr );
-		    // Number of functions
-		    ushort nEvents = eventattr ? eventattr->cFuncs : 0;
+		    if ( !eventattr )
+			continue;
+		    if ( eventattr->typekind != TKIND_DISPATCH )
+			continue;
+
+		    QAxEventSink *eventSink = d->eventSink.find( QUuid(conniid) );
+		    if ( !eventSink ) {
+			eventSink = new QAxEventSink( that );
+			d->eventSink.insert( QUuid(conniid), eventSink );
+			eventSink->advise( cpoint, conniid );
+		    }
 
 		    // get information about all event functions
-		    for ( UINT fd = 0; fd < (UINT)nEvents; ++fd ) {
+		    for ( UINT fd = 0; fd < eventattr->cFuncs; ++fd ) {
 			FUNCDESC *funcdesc;
 			eventinfo->GetFuncDesc( fd, &funcdesc );
 			if ( !funcdesc )
 			    break;
 			if ( funcdesc->invkind != INVOKE_FUNC ||
 			     funcdesc->funckind != FUNC_DISPATCH ) {
-			    info->ReleaseFuncDesc( funcdesc );
+			    eventinfo->ReleaseFuncDesc( funcdesc );
 			    continue;
 			}
 
@@ -1807,7 +1784,7 @@ QMetaObject *QAxBase::metaObject() const
 			    bool optional = p > funcdesc->cParams - funcdesc->cParamsOpt;
 			    
 			    TYPEDESC tdesc = funcdesc->lprgelemdescParam[p - ( (funcdesc->invkind == INVOKE_FUNC) ? 1 : 0 ) ].tdesc;
-			    QString ptype = guessTypes( tdesc, info, enumDict, function );
+			    QString ptype = guessTypes( tdesc, eventinfo, enumDict, function );
 
 			    if ( funcdesc->invkind == INVOKE_FUNC )
 				ptype = constRefify( ptype );
@@ -1865,8 +1842,6 @@ QMetaObject *QAxBase::metaObject() const
 		    }
 		}
 	    } while ( c );
-	    if ( typeattr )
-		info->ReleaseTypeAttr( typeattr );
 	}
     }
 
