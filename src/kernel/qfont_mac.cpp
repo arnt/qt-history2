@@ -150,18 +150,50 @@ static inline void qstring_to_pstring(QString s, int len, Str255 str, TextEncodi
 }
 
 /* font information */
+#if defined( QMAC_FONT_ATSUI )
+struct QATSUStyle : public QShared {
+    ATSUStyle style;
+    RGBColor rgb;
+};
+#endif
 class QMacFontInfo
 {
     short fi_fnum, fi_face;
     int fi_size;
     TextEncoding fi_enc;
+#if defined( QMAC_FONT_ATSUI )
+    QATSUStyle *fi_astyle;
+#endif
 public:
-    inline QMacFontInfo() : fi_fnum(0), fi_face(0), fi_size(0), fi_enc(0) { }
-    inline QMacFontInfo &operator=(const QMacFontInfo &rhs) {
+    inline QMacFontInfo() : fi_fnum(0), fi_face(0), fi_size(0), fi_enc(0)
+#if defined( QMAC_FONT_ATSUI )
+	,fi_astyle(0)
+#endif
+	{ }
+#if defined( QMAC_FONT_ATSUI )
+    inline ~QMacFontInfo() 
+	{ if(fi_astyle && fi_astyle->deref()) {
+	    ATSUDisposeStyle(fi_astyle->style);
+	    delete fi_astyle;
+	} }
+#endif
+    inline QMacFontInfo &operator=(QMacFontInfo &rhs) {
 	setEncoding(rhs.encoding());
 	setFont(rhs.font());
 	setStyle(rhs.style());
 	setSize(rhs.size());
+#if defined( QMAC_FONT_ATSUI )
+	if(rhs.atsuStyle()) {
+	    rhs.atsuStyle()->ref();
+	    setATSUStyle(rhs.atsuStyle());
+	} else {
+	    if(fi_astyle && fi_astyle->deref()) {
+		ATSUDisposeStyle(fi_astyle->style);
+		delete fi_astyle;
+	    }
+	    setStyle(NULL);
+	}
+#endif
 	return *this;
     }
 
@@ -176,6 +208,11 @@ public:
 
     inline int size() const { return fi_size; }
     inline void setSize(int f) { fi_size = f; }
+
+#if defined( QMAC_FONT_ATSUI )
+    inline QATSUStyle *atsuStyle() { return fi_astyle; }
+    inline void setATSUStyle(QATSUStyle *s) { fi_astyle = s; }
+#endif
 };
 
 class QMacSetFontInfo : public QMacSavedFontInfo, public QMacFontInfo 
@@ -217,6 +254,39 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	UpgradeScriptInfoToTextEncoding(FontToScript(d->fin->fnum), kTextLanguageDontCare, 
 					kTextRegionDontCare, NULL, &enc);
 	fi->setEncoding(enc);
+
+#if defined( QMAC_FONT_ATSUI )
+	//Create a cacheable ATSUStyle
+	const int arr_guess = 5;
+	int arr = 0;
+	ATSUAttributeTag tags[arr_guess];
+	ByteCount valueSizes[arr_guess];
+	ATSUAttributeValuePtr values[arr_guess];
+	tags[arr] = kATSUSizeTag; //font size
+	Fixed fsize = FixRatio(pointSize, 1);
+	valueSizes[arr] = sizeof(fsize);
+	values[arr] = &fsize;
+	arr++;
+	tags[arr] = kATSUFontTag;  //font
+	ATSUFontID fond;
+	ATSUFONDtoFontID(d->fin->fnum, face, &fond);
+	valueSizes[arr] = sizeof(fond);
+	values[arr] = &fond;
+	arr++;
+	if(arr > arr_guess) //this won't really happen, just so I will not miss the case
+	    qDebug("%d: Whoa!! you forgot to increase arr_guess! %d", __LINE__, arr);
+
+	//create style
+	QATSUStyle *st = new QATSUStyle;
+	st->rgb.red = st->rgb.green = st->rgb.blue = 0;
+	ATSUCreateStyle(&st->style);
+	if(OSStatus e = ATSUSetAttributes(st->style, arr, tags, valueSizes, values)) {
+	    qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	    delete st;
+	    st = NULL;
+	}
+	fi->setATSUStyle(st);
+#endif
     }
     if(!sfi || fi->font() != sfi->tfont)
 	TextFont(fi->font());
@@ -239,67 +309,23 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
 {
     int ret = 0;
     QMacSetFontInfo fi(d);
-
-    //set attributes
-    const int arr_guess = 15;
-    int arr = 0;
-    ATSUAttributeTag tags[arr_guess];
-    ByteCount valueSizes[arr_guess];
-    ATSUAttributeValuePtr values[arr_guess];
-    tags[arr] = kATSUSizeTag; //font size
-    Fixed fsize = FixRatio(fi.size(), 1);
-    valueSizes[arr] = sizeof(fsize);
-    values[arr] = &fsize;
-    arr++;
-    tags[arr] = kATSUFontTag;  //font
-    ATSUFontID fond;
-    ATSUFONDtoFontID(fi.font(), fi.style(), &fond);
-    valueSizes[arr] = sizeof(fond);
-    values[arr] = &fond;
-    arr++;
-    tags[arr] = kATSUColorTag; //color
-    RGBColor fcolor;
-    GetForeColor(&fcolor);
-    valueSizes[arr] = sizeof(fcolor);
-    values[arr] = &fcolor;
-    arr++;
-#if 0
-    //tweaks?
-    tags[arr] = kATSUKerningInhibitFactorTag;
-    Fract kern = 1;
-    valueSizes[arr] = sizeof(kern);
-    values[arr] = &kern;
-    arr++;
-    tags[arr] = kATSUSuppressCrossKerningTag;
-    Boolean kern2 = true;
-    valueSizes[arr] = sizeof(kern2);
-    values[arr] = &kern2;
-    arr++;
-    tags[arr] = kATSUNoOpticalAlignmentTag;
-    Boolean optalign = true;
-    valueSizes[arr] = sizeof(optalign);
-    values[arr] = &optalign;
-    arr++;
-    tags[arr] = kATSUForceHangingTag;
-    Boolean hanging = true;
-    valueSizes[arr] = sizeof(hanging);
-    values[arr] = &hanging;
-    arr++;
-    tags[arr] = kATSUDecompositionFactorTag;
-    Fixed decomp = FixRatio(0, 1);
-    valueSizes[arr] = sizeof(decomp);
-    values[arr] = &decomp;
-    arr++;
-#endif
-    if(arr > arr_guess) //this won't really happen, just so I will not miss the case
-	qDebug("%d: Whoa!! you forgot to increase arr_guess! %d", __LINE__, arr);
-
-    //create style
-    ATSUStyle astyle;
-    ATSUCreateStyle(&astyle);
-    if(OSStatus e = ATSUSetAttributes(astyle, arr, tags, valueSizes, values)) {
-	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+    QATSUStyle *st = fi.atsuStyle();
+    if(!st) 
 	return 0;
+    if(task & GIMME_DRAW) {
+	RGBColor fcolor;
+	GetForeColor(&fcolor);
+	if(st->rgb.red != fcolor.red || st->rgb.green != fcolor.green ||
+	   st->rgb.blue != fcolor.blue) {
+	    st->rgb = fcolor;
+	    const ATSUAttributeTag tag = kATSUColorTag;
+	    ByteCount size = sizeof(fcolor);
+	    ATSUAttributeValuePtr value = &fcolor;
+	    if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
+		qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+		return 0;
+	    }
+	}
     }
 
     //create layout
@@ -308,21 +334,24 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
 #if 0
     if(OSStatus e = ATSUCreateTextLayoutWithTextPtr((UniChar *)(s), pos, 
 						    count, len, 1, &count, 
-						    &astyle, &alayout)) {
+						    &st->style, &alayout)) {
 	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
-	ATSUDisposeStyle(astyle);
 	return 0;
     }
 #else
+    Q_UNUSED(len);
     if(OSStatus e = ATSUCreateTextLayoutWithTextPtr((UniChar *)(s)+pos, 0, 
 						    count, use_len, 1, &count, 
-						    &astyle, &alayout)) {
+						    &st->style, &alayout)) {
 	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
-	ATSUDisposeStyle(astyle);
 	return 0;
     }
 #endif
-    arr = 0;
+    const int arr_guess = 5;
+    int arr = 0;
+    ATSUAttributeTag tags[arr_guess];
+    ByteCount valueSizes[arr_guess];
+    ATSUAttributeValuePtr values[arr_guess];
     tags[arr] = kATSULineLayoutOptionsTag;
     ATSLineLayoutOptions layopts = kATSLineIsDisplayOnly | kATSLineHasNoOpticalAlignment | 
 				   kATSLineFractDisable;
@@ -348,7 +377,6 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
 	qDebug("%d: Whoa!! you forgot to increase arr_guess! %d", __LINE__, arr);
     if(OSStatus e = ATSUSetLayoutControls(alayout, arr, tags, valueSizes, values)) {
 	qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
-	ATSUDisposeStyle(astyle);
 #ifdef QMAC_FONT_ANTIALIAS
 	QDEndCGContext(port, &ctx);
 #endif
@@ -379,7 +407,6 @@ static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
 	ret = FixRound(right-left);
     }
     //cleanup
-    ATSUDisposeStyle(astyle);
     ATSUDisposeTextLayout(alayout);
 #ifdef QMAC_FONT_ANTIALIAS
     QDEndCGContext(port, &ctx);
