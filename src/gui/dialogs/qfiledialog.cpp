@@ -1359,7 +1359,6 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
 
     listView->setWrapping(true);
     listView->setResizeMode(QListView::Adjust);
-    listView->setLayoutMode(QListView::Batched);
     listView->setEditTriggers(QAbstractItemView::EditKeyPressed);
 
     grid->addWidget(listView, 1, 0, 1, 6);
