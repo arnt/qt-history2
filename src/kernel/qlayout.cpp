@@ -722,9 +722,8 @@ void QGridLayoutData::setupHfwLayoutData( int spacing )
 	    }
 	}
     }
-    for ( i = 0; i < rr; i++ ) {
+    for ( i = 0; i < rr; i++ )
 	rData[i].expansive = rData[i].expansive || rData[i].stretch > 0;
-    }
 }
 
 void QGridLayoutData::distribute( QRect r, int spacing )
@@ -1893,11 +1892,19 @@ void QBoxLayout::setGeometry( const QRect &r )
 	    }
 	}
 
+	Direction visualDir = dir;
+	if ( QApplication::reverseLayout() ) {
+	    if ( dir == LeftToRight )
+		visualDir = RightToLeft;
+	    else if ( dir == RightToLeft )
+		visualDir = LeftToRight;
+	}
+
 	qGeomCalc( a, 0, n, pos, space, spacing() );
 	for ( int i = 0; i < n; i++ ) {
 	    QBoxLayoutItem *box = data->list.at( i );
 
-	    switch ( dir ) {
+	    switch ( visualDir ) {
 	    case LeftToRight:
 		box->item->setGeometry( QRect(a[i].pos, s.y(),
 					      a[i].size, s.height()) );
@@ -2493,9 +2500,7 @@ void QBoxLayout::calcHfw( int w )
 */
 QHBoxLayout::QHBoxLayout( QWidget *parent, int margin,
 			  int spacing, const char *name )
-    : QBoxLayout( parent,
-		  QApplication::reverseLayout() ? RightToLeft : LeftToRight,
-		  margin, spacing, name )
+    : QBoxLayout( parent, LeftToRight, margin, spacing, name )
 {
 }
 
@@ -2509,9 +2514,7 @@ QHBoxLayout::QHBoxLayout( QWidget *parent, int margin,
 */
 QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int spacing,
 			  const char *name )
-    : QBoxLayout( parentLayout,
-		  QApplication::reverseLayout() ? RightToLeft : LeftToRight,
-		  spacing, name )
+    : QBoxLayout( parentLayout, LeftToRight, spacing, name )
 {
 }
 
@@ -2524,8 +2527,7 @@ QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int spacing,
     parent's spacing().
 */
 QHBoxLayout::QHBoxLayout( int spacing, const char *name )
-    : QBoxLayout( QApplication::reverseLayout() ? RightToLeft : LeftToRight,
-		  spacing, name )
+    : QBoxLayout( LeftToRight, spacing, name )
 {
 }
 
@@ -2590,7 +2592,6 @@ QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int spacing,
 			  const char *name )
     : QBoxLayout( parentLayout, TopToBottom, spacing, name )
 {
-
 }
 
 /*!
