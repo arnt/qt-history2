@@ -560,7 +560,7 @@ static void cleanupEventRef(EventRef &event)
     event = 0;
 }
 
-static bool qt_event_remove(EventRef event)
+static bool qt_event_remove(EventRef &event)
 {
     if (event) {
 	if (IsEventInQueue(GetMainEventQueue(), event))  {
