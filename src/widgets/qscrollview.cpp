@@ -771,6 +771,7 @@ void QScrollView::updateScrollBars()
     bool needv;
     bool showh;
     bool showv;
+    bool showc = FALSE;
 
     int hsbExt = horizontalScrollBar()->sizeHint().height();
     int vsbExt = verticalScrollBar()->sizeHint().width();
@@ -798,6 +799,26 @@ void QScrollView::updateScrollBars()
             showv = FALSE;
         else
             showv = needv;
+
+#ifdef Q_WS_MAC
+	bool mac_need_scroll = FALSE;
+	if(!parentWidget()) {
+	    mac_need_scroll = TRUE;
+	} else {
+	    QWidget *tlw = topLevelWidget();
+	    QPoint tlw_br = QPoint(tlw->width(), tlw->height()), 
+		    my_br = posInWindow(this) + QPoint(w, h);
+	    if(my_br.x() >= tlw_br.x() - 3 && my_br.y() >= tlw_br.y() - 3) 
+		mac_need_scroll = TRUE;
+	}
+	if(mac_need_scroll) {
+	    showc = TRUE;
+	    if(d->vMode == Auto)
+		showv = TRUE;
+	    if(d->hMode == Auto)
+		showh = TRUE;
+	}
+#endif
 
         // Given other scrollbar will be shown, NOW do we need one?
         if ( showh && h-vsbExt-tmarg-bmarg < contentsHeight() ) {
@@ -866,7 +887,7 @@ void QScrollView::updateScrollBars()
             xpos -= fw;
     }
     if ( showh ) {
-        int right = ( showv || cornerWidget() ) ? w-vsbExt : w;
+        int right = ( showc || showv || cornerWidget() ) ? w-vsbExt : w;
         if ( ! frameContentsOnly )
             setHBarGeometry( *d->hbar, fw + xoffset, h-hsbExt-fw,
 			     right-fw-fw, hsbExt );
@@ -886,7 +907,7 @@ void QScrollView::updateScrollBars()
 	    changeFrameRect(QRect(0, 0, w, h) );
 	else
 	    changeFrameRect(QRect(xoffset, 0, w-vsbExt, bottom));
-	if (cornerWidget()) {
+	if (showc || cornerWidget()) {
 	    if ( ! frameContentsOnly )
 		setVBarGeometry( *d->vbar, xpos,
 				 fw, vsbExt,
