@@ -900,8 +900,7 @@ void QWorkspace::showEvent( QShowEvent *e )
        QWorkspace be used as an MDI. */
     if(d->wmode == WS_Default) {
 	d->wmode = WS_MDI;
-//#if defined( Q_WS_MACX ) && !defined( QMAC_QMENUBAR_NO_NATIVE )
-#if 1
+#if defined( Q_WS_MACX ) && !defined( QMAC_QMENUBAR_NO_NATIVE )
 	QWidget *o = topLevelWidget();
 	if(o->inherits("QMainWindow")) {
 	    d->mainwindow = (QMainWindow*)o;
