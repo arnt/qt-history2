@@ -962,10 +962,10 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
             if (rect.right() > contents.width())
                 rect.setRight(contents.width());
             d->intersectingSet(rect);
-             // don't get current in this set
-             int idx = d->intersectVector.indexOf(current);
-             if (idx > -1)
-                 d->intersectVector.remove(idx);
+            // don't get current in this set
+            int idx = d->intersectVector.indexOf(current);
+            if (idx > -1)
+                d->intersectVector.remove(idx);
         }
         return d->closestIndex(pos, d->intersectVector);
     case MovePageUp:
@@ -981,6 +981,10 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
             if (rect.top() < 0)
                 rect.setTop(0);
             d->intersectingSet(rect);
+            // don't get current in this set
+            int idx = d->intersectVector.indexOf(current);
+            if (idx > -1)
+                d->intersectVector.remove(idx);
         }
         return d->closestIndex(pos, d->intersectVector);
     case MovePageDown:
@@ -996,6 +1000,10 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
             if (rect.bottom() > contents.height())
                 rect.setBottom(contents.height());
             d->intersectingSet(rect);
+            // don't get current in this set
+            int idx = d->intersectVector.indexOf(current);
+            if (idx > -1)
+                d->intersectVector.remove(idx);
         }
         return d->closestIndex(pos, d->intersectVector);
     case MoveHome:
@@ -1778,7 +1786,7 @@ QModelIndex QListViewPrivate::closestIndex(const QPoint &target,
         if (!(*it).isValid())
             continue;
         distance = (indexToListViewItem(*it).rect().center() - target).manhattanLength();
-        if (distance < shortest || shortest == -1) {
+        if (distance < shortest || shortest == -1) { 
             shortest = distance;
             closest = *it;
         }
