@@ -1792,7 +1792,11 @@ void QAxServerBase::updateMask()
 
     QRegion rgn = qt.widget->mask();
     HRGN hrgn = rgn.handle();
-    SetWindowRgn(m_hWnd, hrgn, true);
+
+    // Since SetWindowRegion takes ownership
+    HRGN wr = CreateRectRgn(0,0,0,0);
+    CombineRgn(wr, hrgn, 0, RGN_COPY);
+    SetWindowRgn(m_hWnd, wr, true);
 }
 
 static bool checkHRESULT(HRESULT hres)
