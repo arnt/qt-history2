@@ -315,6 +315,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     mw->setSaveSettingsOnClose(true);
     mw->setWindowTitle(tr("Qt Designer"));
     m_workspace = new Q3Workspace(mw);
+    m_workspace->setScrollBarsEnabled(true);
     connect(m_workspace, SIGNAL(windowActivated(QWidget*)),
             this, SLOT(activateWorkspaceChildWindow(QWidget* )));
     mw->setCentralWidget(m_workspace);
