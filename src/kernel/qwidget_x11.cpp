@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#392 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#393 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -480,7 +480,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	QObjectListIt it( *chlist );
 	QObject *obj;
 	while ( (obj=it.current()) ) {
-	    if ( obj->isWidgetType() ) {
+	    if ( obj->isWidgetType() && !((QWidget*)obj)->isTopLevel() ) {
 		QWidget *w = (QWidget *)obj;
 		XReparentWindow( x11Display(), w->winId(), winId(),
 				 w->geometry().x(), w->geometry().y() );
