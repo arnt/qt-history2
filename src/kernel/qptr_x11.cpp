@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#99 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#98 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#99 $";
 #endif
 
 
@@ -34,37 +34,38 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#98 $";
 //
 
 /*!
-\class QPen qpen.h
-\brief The QPen class defines how the QPainter should draw lines and outlines
-of shapes.
+  \class QPen qpen.h
+  \brief The QPen class defines how the QPainter should draw lines and outlines
+  of shapes.
 
-A pen has a style, a width and a color.
+  A pen has a style, a width and a color.
 
-The pen style defines the line type. The default pen style is \c SolidPen.
-Setting the style to \c NoPen tells the painter to not draw lines or outlines.
+  The pen style defines the line type. The default pen style is \c SolidPen.
+  Setting the style to \c NoPen tells the painter to not draw lines or
+  outlines.
 
-The pen width defines the line width. The default line width is 0, which
-draws a 1-pixel line very fast, but not so accurate.  Setting the line
-width to 1 or more draws lines that are precise, but drawing is slower.
+  The pen width defines the line width. The default line width is 0, which
+  draws a 1-pixel line very fast, but not so accurate.  Setting the line
+  width to 1 or more draws lines that are precise, but drawing is slower.
 
-The line color defines the color of lines and text. The default line
-color is black.	 The QColor documentation contains a list of standard colors.
+  The pen color defines the color of lines and text. The default line
+  color is black.  The QColor documentation lists predefined colors.
 
-Use the QBrush class for specifying fill styles.
+  Use the QBrush class for specifying fill styles.
 
-Example of how to use a pen:
-\code
-  QPainter painter;
-  QPen	   pen( red, 2 );		// red solid line, 2 pixel width
-  painter.begin( &anyPaintDevice );	// paint something
-  painter.setPen( pen );		// set the red, fat pen
-  painter.drawRect( 40,30, 200,100 );	// draw rectangle
-  painter.setPen( blue );		// set blue pen, 0 pixel width
-  painter.drawLine( 40,30, 240,130 );	// draw diagonal in rectangle
-  painter.end();			// painting done
-\endcode
+  Example of how to use a pen:
+  \code
+    QPainter painter;
+    QPen     pen( red, 2 );		// red solid line, 2 pixel width
+    painter.begin( &anyPaintDevice );	// paint something
+    painter.setPen( pen );		// set the red, fat pen
+    painter.drawRect( 40,30, 200,100 );	// draw rectangle
+    painter.setPen( blue );		// set blue pen, 0 pixel width
+    painter.drawLine( 40,30, 240,130 );	// draw diagonal in rectangle
+    painter.end();			// painting done
+  \endcode
 
-The setStyle() function has a list of pen styles.
+  The setStyle() function lists the pen styles.
 */
 
 
@@ -78,7 +79,7 @@ void QPen::init( const QColor &color, uint width, PenStyle style )
 }
 
 /*!
-Constructs a default black solid line pen with 0 width.
+  Constructs a default black solid line pen with 0 width.
 */
 
 QPen::QPen()
@@ -87,9 +88,8 @@ QPen::QPen()
 }
 
 /*!
-Constructs a  pen black with 0 width and a specified style.
-
-\sa setStyle().
+  Constructs a  pen black with 0 width and a specified style.
+  \sa setStyle().
 */
 
 QPen::QPen( PenStyle style )
@@ -98,7 +98,7 @@ QPen::QPen( PenStyle style )
 }
 
 /*!
-Constructs a pen with a specified color, width and style.
+  Constructs a pen with a specified color, width and style.
 */
 
 QPen::QPen( const QColor &color, uint width, PenStyle style )
@@ -107,7 +107,7 @@ QPen::QPen( const QColor &color, uint width, PenStyle style )
 }
 
 /*!
-Constructs a pen which is a shallow copy of \e p.
+  Constructs a pen which is a copy of \e p.
 */
 
 QPen::QPen( const QPen &p )
@@ -117,7 +117,7 @@ QPen::QPen( const QPen &p )
 }
 
 /*!
-Destroys the pen.
+  Destroys the pen.
 */
 
 QPen::~QPen()
@@ -128,12 +128,12 @@ QPen::~QPen()
 
 
 /*!
-Detaches from shared pen data to makes sure that this pen is the only
-one referring the data.
+  Detaches from shared pen data to makes sure that this pen is the only
+  one referring the data.
 
-If multiple pens share common data, this pen dereferences the
-data and gets a copy of the data. Nothing will be done if there is just
-a single reference.
+  If multiple pens share common data, this pen dereferences the
+  data and gets a copy of the data. Nothing will be done if there is just
+  a single reference.
 */
 
 void QPen::detach()
@@ -144,8 +144,7 @@ void QPen::detach()
 
 
 /*!
-Assigns a shallow copy of \e p to the pen and returns a reference to this
-pen.
+  Assigns \e c to this pen and returns a reference to this pen.
 */
 
 QPen &QPen::operator=( const QPen &p )
@@ -159,7 +158,7 @@ QPen &QPen::operator=( const QPen &p )
 
 
 /*!
-Returns a deep copy of the pen.
+  Returns a deep copy of the pen.
 */
 
 QPen QPen::copy() const
@@ -170,41 +169,25 @@ QPen QPen::copy() const
 
 
 /*!
-\fn PenStyle QPen::style() const
-Returns the pen style.
-
-\sa setStyle().
+  \fn PenStyle QPen::style() const
+  Returns the pen style.
+  \sa setStyle().
 */
 
 /*!
-\fn uint QPen::width() const
-Returns the pen width.
+  Sets the pen style to \e s.
 
-\sa setWidth().
-*/
+  The pen styles are:
+  <dl compact>
+  <dt> NoPen <dd> no outline will be drawn.
+  <dt> SolidLine <dd> solid line (default).
+  <dt> DashLine <dd> - - - (dashes) line.
+  <dt> DotLine <dd> * * * (dots) line.
+  <dt> DashDotLine <dd> - * - * line.
+  <dt> DashDotDotLine <dd> -- * -- * line.
+  </dl>
 
-/*!
-\fn QColor QPen::color() const
-Returns the pen color.
-
-\sa setColor().
-*/
-
-
-/*!
-Sets the pen style to \e s.
-
-The pen styles are:
-<dl compact>
-<dt> NoPen <dd> no outline will be drawn.
-<dt> SolidLine <dd> solid line (default).
-<dt> DashLine <dd> - - - (dashes) line.
-<dt> DotLine <dd> * * * (dots) line.
-<dt> DashDotLine <dd> - * - * line.
-<dt> DashDotDotLine <dd> -- * -- * line.
-</dl>
-
-\sa style().
+  \sa style().
 */
 
 void QPen::setStyle( PenStyle s )		// set pen style
@@ -216,9 +199,14 @@ void QPen::setStyle( PenStyle s )		// set pen style
 }
 
 /*!
-Sets the pen width to \e w.
+  \fn uint QPen::width() const
+  Returns the pen width.
+  \sa setWidth().
+*/
 
-\sa width().
+/*!
+  Sets the pen width to \e w.
+  \sa width().
 */
 
 void QPen::setWidth( uint w )			// set pen width
@@ -230,9 +218,14 @@ void QPen::setWidth( uint w )			// set pen width
 }
 
 /*!
-Sets the pen color to \e c.
+  \fn const QColor &QPen::color() const
+  Returns the pen color.
+  \sa setColor()
+*/
 
-\sa color().
+/*!
+  Sets the pen color to \e c.
+  \sa color()
 */
 
 void QPen::setColor( const QColor &c )		// set pen color
@@ -243,18 +236,20 @@ void QPen::setColor( const QColor &c )		// set pen color
 
 
 /*!
-\fn bool QPen::operator!=( const QPen &p ) const
-Returns TRUE if the pen is different from \e p, or FALSE if the pens are
-equal.
+  \fn bool QPen::operator!=( const QPen &p ) const
+  Returns TRUE if the pen is different from \e p, or FALSE if the pens are
+  equal.
 
-Two pens are different if they have different styles, widths and colors.
+  Two pens are different if they have different styles, widths and colors.
+  \sa operator!=()
 */
 
 /*!
-Returns TRUE if the pen is equal to \e p, or FALSE if the pens are
-different.
+  Returns TRUE if the pen is equal to \e p, or FALSE if the pens are
+  different.
 
-Two pens are equal if they have equal styles, widths and colors.
+  Two pens are equal if they have equal styles, widths and colors.
+  \sa operator==()
 */
 
 bool QPen::operator==( const QPen &p ) const
@@ -269,38 +264,38 @@ bool QPen::operator==( const QPen &p ) const
 //
 
 /*!
-\class QBrush qbrush.h
-\brief The QBrush class defines the fill pattern of shapes drawn using the
-QPainter.
+  \class QBrush qbrush.h
+  \brief The QBrush class defines the fill pattern of shapes drawn using the
+  QPainter.
 
-A brush has a style and a color.  One of the brush styles is a custom
-pattern, which is defined by a QBitmap.
+  A brush has a style and a color.  One of the brush styles is a custom
+  pattern, which is defined by a QBitmap.
 
-The brush style defines the fill pattern. The default brush style is \c
-NoBrush (depends on how you construct a brush).	 This style tells the
-painter to not fill shapes. The standard style for filling is called \c
-SolidPattern.
+  The brush style defines the fill pattern. The default brush style is \c
+  NoBrush (depends on how you construct a brush).  This style tells the
+  painter to not fill shapes. The standard style for filling is called \c
+  SolidPattern.
 
-The brush color defines the color of the fill pattern.
-The QColor documentation contains a list of standard colors.
+  The brush color defines the color of the fill pattern.
+  The QColor list the predefined colors.
 
-Use the QPen class for specifying line/outline styles.
+  Use the QPen class for specifying line/outline styles.
 
-Example of how to use a brush:
-\code
-  QPainter painter;
-  QBrush   brush( yellow );		// yellow solid pattern
-  painter.begin( &anyPaintDevice );	// paint something
-  painter.setBrush( brush );		// set the yellow brush
-  painter.setPen( NoPen );		// do not draw outline
-  painter.drawRect( 40,30, 200,100 );	// draw filled rectangle
-  painter.setBrush( NoBrush );		// do not fill
-  painter.setPen( black );		// set black pen, 0 pixel width
-  painter.drawRect( 10,10, 30,20 );	// draw rectangle outline
-  painter.end();			// painting done
-\endcode
+  Example of how to use a brush:
+  \code
+    QPainter painter;
+    QBrush   brush( yellow );		// yellow solid pattern
+    painter.begin( &anyPaintDevice );	// paint something
+    painter.setBrush( brush );		// set the yellow brush
+    painter.setPen( NoPen );		// do not draw outline
+    painter.drawRect( 40,30, 200,100 );	// draw filled rectangle
+    painter.setBrush( NoBrush );	// do not fill
+    painter.setPen( black );		// set black pen, 0 pixel width
+    painter.drawRect( 10,10, 30,20 );	// draw rectangle outline
+    painter.end();			// painting done
+  \endcode
 
-The setStyle() function describes the brush styles.
+  The setStyle() function lists the brush styles.
 */
 
 
@@ -326,8 +321,8 @@ void QBrush::reset()
 
 
 /*!
-Constructs a default black brush with the style \c NoBrush (will not fill
-shapes).
+  Constructs a default black brush with the style \c NoBrush (will not fill
+  shapes).
 */
 
 QBrush::QBrush()
@@ -336,7 +331,7 @@ QBrush::QBrush()
 }
 
 /*!
-Constructs a black brush with the specified style.
+  Constructs a black brush with the specified style.
 */
 
 QBrush::QBrush( BrushStyle style )
@@ -345,7 +340,7 @@ QBrush::QBrush( BrushStyle style )
 }
 
 /*!
-Constructs a brush with a specified color and style.
+  Constructs a brush with a specified color and style.
 */
 
 QBrush::QBrush( const QColor &color, BrushStyle style )
@@ -354,7 +349,7 @@ QBrush::QBrush( const QColor &color, BrushStyle style )
 }
 
 /*!
-Constructs a brush with a specified color and a custom pattern.
+  Constructs a brush with a specified color and a custom pattern.
 */
 
 QBrush::QBrush( const QColor &color, const QBitmap &bitmap )
@@ -364,7 +359,7 @@ QBrush::QBrush( const QColor &color, const QBitmap &bitmap )
 }
 
 /*!
-Constructs a brush which is a shallow copy of \e b.
+  Constructs a brush which is a shallow copy of \e b.
 */
 
 QBrush::QBrush( const QBrush &b )
@@ -374,7 +369,7 @@ QBrush::QBrush( const QBrush &b )
 }
 
 /*!
-Destroys the brush.
+  Destroys the brush.
 */
 
 QBrush::~QBrush()
@@ -385,12 +380,12 @@ QBrush::~QBrush()
 
 
 /*!
-Detaches from shared brush data to makes sure that this brush is the only
-one referring the data.
+  Detaches from shared brush data to makes sure that this brush is the only
+  one referring the data.
 
-If multiple brushes share common data, this pen dereferences the
-data and gets a copy of the data. Nothing will be done if there is just
-a single reference.
+  If multiple brushes share common data, this pen dereferences the
+  data and gets a copy of the data. Nothing will be done if there is just
+  a single reference.
 */
 
 void QBrush::detach()
@@ -401,8 +396,7 @@ void QBrush::detach()
 
 
 /*!
-Assigns a shallow copy of \e b to the brush and returns a reference to
-this brush.
+  Assigns \e b to this brush and returns a reference to this brush.
 */
 
 QBrush &QBrush::operator=( const QBrush &b )
@@ -416,16 +410,16 @@ QBrush &QBrush::operator=( const QBrush &b )
 
 
 /*!
-Returns a deep copy of the brush.
+  Returns a deep copy of the brush.
 */
 
 QBrush QBrush::copy() const
 {
-    if ( data->style == CustomPattern ) {	// brush has bitmap
+    if ( data->style == CustomPattern ) {     // brush has bitmap
 	QBrush b( data->color, *data->bitmap );
 	return b;
     }
-    else {					// brush has std pattern
+    else {                                    // brush has std pattern
 	QBrush b( data->color, data->style );
 	return b;
     }
@@ -433,53 +427,50 @@ QBrush QBrush::copy() const
 
 
 /*!
-\fn BrushStyle QBrush::style() const
-Returns the brush style.
-
-\sa setStyle().
+  \fn BrushStyle QBrush::style() const
+  Returns the brush style.
+  \sa setStyle().
 */
 
 /*!
-\fn QColor QBrush::color() const
-Returns the brush color.
-
-\sa setColor().
+  \fn const QColor &Brush::color() const
+  Returns the brush color.
+  \sa setColor().
 */
 
 /*!
-\fn QBitmap *QBrush::bitmap() const
-Returns a pointer to the custom brush pattern.
+  \fn QBitmap *QBrush::bitmap() const
+  Returns a pointer to the custom brush pattern.
 
-A null pointer is returned if no custom brush pattern has been set.
-
-\sa setBitmap().
+  A null pointer is returned if no custom brush pattern has been set.
+  \sa setBitmap().
 */
 
 
 /*!
-Sets the brush style to \e s.
+  Sets the brush style to \e s.
 
-The brush styles are:
-<dl compact>
-<dt> NoBrush <dd> will not fill shapes (default).
-<dt> SolidPattern <dd> solid (100%) fill pattern.
-<dt> Dense1Pattern <dd> 94% fill pattern.
-<dt> Dense2Pattern <dd> 88% fill pattern.
-<dt> Dense3Pattern <dd> 63% fill pattern.
-<dt> Dense4Pattern <dd> 50% fill pattern.
-<dt> Dense5Pattern <dd> 37% fill pattern.
-<dt> Dense6Pattern <dd> 12% fill pattern.
-<dt> Dense7Pattern <dd> 6% fill pattern.
-<dt> HorPattern <dd> horizontal lines pattern.
-<dt> VerPattern <dd> vertical lines pattern.
-<dt> CrossPattern <dd> crossing lines pattern.
-<dt> BDiagPattern <dd> diagonal lines (directed / ) pattern.
-<dt> FDiagPattern <dd> diagonal lines (directed \ ) pattern.
-<dt> DiagCrossPattern <dd> diagonal crossing lines pattern.
-<dt> CustomPattern <dd> internal: set when a bitmap pattern is being used.
-</dl>
+  The brush styles are:
+  <dl compact>
+  <dt> NoBrush <dd> will not fill shapes (default).
+  <dt> SolidPattern <dd> solid (100%) fill pattern.
+  <dt> Dense1Pattern <dd> 94% fill pattern.
+  <dt> Dense2Pattern <dd> 88% fill pattern.
+  <dt> Dense3Pattern <dd> 63% fill pattern.
+  <dt> Dense4Pattern <dd> 50% fill pattern.
+  <dt> Dense5Pattern <dd> 37% fill pattern.
+  <dt> Dense6Pattern <dd> 12% fill pattern.
+  <dt> Dense7Pattern <dd> 6% fill pattern.
+  <dt> HorPattern <dd> horizontal lines pattern.
+  <dt> VerPattern <dd> vertical lines pattern.
+  <dt> CrossPattern <dd> crossing lines pattern.
+  <dt> BDiagPattern <dd> diagonal lines (directed / ) pattern.
+  <dt> FDiagPattern <dd> diagonal lines (directed \ ) pattern.
+  <dt> DiagCrossPattern <dd> diagonal crossing lines pattern.
+  <dt> CustomPattern <dd> internal: set when a bitmap pattern is being used.
+  </dl>
 
-\sa style().
+  \sa style().
 */
 
 void QBrush::setStyle( BrushStyle s )		// set brush style
@@ -507,9 +498,8 @@ void QBrush::setColor( const QColor &c )	// set brush color
 }
 
 /*!
-Sets the brush bitmap.	The style is set to \c CustomPattern.
-
-\sa bitmap().
+  Sets the brush bitmap.  The style is set to \c CustomPattern.
+  \sa bitmap().
 */
 
 void QBrush::setBitmap( const QBitmap &bitmap ) // set brush bitmap
