@@ -1,6 +1,8 @@
 #ifndef QNUMERIC_P_H
 #define QNUMERIC_P_H
 
+#include <string.h>
+
 enum {
     QtLittleEndian,
     QtBigEndian
