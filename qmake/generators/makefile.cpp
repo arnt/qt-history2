@@ -121,6 +121,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 	total_size_read += have_read);
     close(file);
 
+#define COMP_LEN 8 //strlen("Q_OBJECT")
 #define OBJ_LEN 8 //strlen("Q_OBJECT")
 #define DIS_LEN 10 //strlen("Q_DISPATCH")
     for(int x = 0; x < (total_size_read-COMP_LEN); x++) {
