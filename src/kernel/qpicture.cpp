@@ -286,7 +286,17 @@ bool QPicture::load( QIODevice *dev, const char *format )
 
 bool QPicture::save( const QString &fileName, const char *format )
 {
+    if ( paintingActive() ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QPicture::save: still being painted on. "
+		  "Call QPainter::end() first" );
+#endif
+	return FALSE;
+    }
+
 #ifndef QT_NO_SVG
+    // identical to QIODevice* code below but the file name
+    // makes a difference when it comes to saving pixmaps
     if ( qstrcmp( format, "svg" ) == 0 ) {
 	QSvgDevice svg;
 	QPainter p( &svg );
@@ -311,6 +321,14 @@ bool QPicture::save( const QString &fileName, const char *format )
 
 bool QPicture::save( QIODevice *dev, const char *format )
 {
+    if ( paintingActive() ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QPicture::save: still being painted on. "
+		  "Call QPainter::end() first" );
+#endif
+	return FALSE;
+    }
+
 #ifndef QT_NO_SVG
     if ( qstrcmp( format, "svg" ) == 0 ) {
 	QSvgDevice svg;
