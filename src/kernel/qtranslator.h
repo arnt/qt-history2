@@ -71,6 +71,13 @@ public:
 
     QValueList<QTranslatorInputItem> inputKeys() const;
 
+    void setComment( const char *, const char *, const char * );
+    QString comment( const char *, const char * );
+
+    enum TranslationType { Unfinished, Finished, Obsolete };
+    void setTranslationType( enum TranslationType );
+    TranslationType mode() const;
+    
 private:
     QTranslatorPrivate * d;
 

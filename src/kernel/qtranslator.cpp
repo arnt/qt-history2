@@ -105,7 +105,7 @@ public:
     // a single message, with any combination of contents
     class Message {
     public:
-	Message(): h(0) {}
+	Message(): t( QTranslator::Unfinished ), h(0), collision( FALSE ) {}
 	Message( QDataStream & );
 
 	void setInput( const char * ni )
@@ -140,13 +140,25 @@ public:
 
 	bool sane() { return i.length() > 0 && o.length() > 0 && hash() != 0; }
 
+	void setComment( const QString & newComment) { c = newComment; }
+	QString comment() const { return c; }
+
+	void setTranslationType( QTranslator::TranslationType nt ) { t = nt; }
+	QTranslator::TranslationType translationType() { return t; }
+
+	void setHashCollision( bool asdf ) { collision = asdf; }
+	bool hashCollision() const { return collision; }
+
     private:
 	QString i;
 	QString o;
 	QString s;
+	QString c;
+	QTranslator::TranslationType t;
 	uint h;
+	bool collision;
 
-	enum Tag { End = 1, Input, Output, Scope, Hash };
+	enum Tag { End = 1, Input, Output, Scope, Hash, Comment, Type };
 
     };
 
@@ -188,6 +200,8 @@ public:
 QTranslatorPrivate::Message::Message( QDataStream & stream )
 {
     h = 0;
+    t = QTranslator::Unfinished;
+    collision = FALSE;
     char tag;
 
     while( TRUE ) {
@@ -210,9 +224,24 @@ QTranslatorPrivate::Message::Message( QDataStream & stream )
 	case Hash:
 	    stream >> h;
 	    break;
+	case Comment:
+	    stream >> c;
+	    break;
+	case Type:
+	    { // a scope for tmp, to silence the compiler
+		Q_UINT8 tmp;
+		stream >> tmp;
+		t = (QTranslator::TranslationType)tmp;
+		if ( t != QTranslator::Unfinished &&
+		     t != QTranslator::Finished &&
+		     t != QTranslator::Obsolete )
+		    t = QTranslator::Unfinished;
+	    }
+	    break;
 	default:
-	    i = o = s = QString::null;
+	    i = o = s = c = QString::null;
 	    h = 0;
+	    t = QTranslator::Unfinished;
 	    return;
 	}
     }
@@ -228,17 +257,33 @@ void QTranslatorPrivate::Message::write( QTranslator::SaveMode m,
     stream.writeRawBytes( &tag, 1 );
     stream << o;
 
+    bool mustWriteHash = TRUE;
+
+    if ( ( m == QTranslator::Everything || collision ) &&
+	 s && i ) {
+	tag = (char)Scope;
+	stream.writeRawBytes( &tag, 1 );
+	stream << s;
+	tag = (char)Input;
+	stream.writeRawBytes( &tag, 1 );
+	stream << i;
+    }
+
+    if ( mustWriteHash ) {
+	tag = (char)Hash;
+	stream.writeRawBytes( &tag, 1 );
+	stream << h;
+    }
+
     if ( m == QTranslator::Everything ) {
-	if ( s ) {
-	    tag = (char)Scope;
+	if ( c ) {
+	    tag = (char)Comment;
 	    stream.writeRawBytes( &tag, 1 );
-	    stream << s;
+	    stream << c;
 	}
-	if ( i ) {
-	    tag = (char)Input;
-	    stream.writeRawBytes( &tag, 1 );
-	    stream << i;
-	}
+	tag = (char)Type;
+	stream.writeRawBytes( &tag, 1 );
+	stream << (Q_UINT8)t;
     }
 
     tag = (char)End;
@@ -291,12 +336,6 @@ void QTranslatorPrivate::Message::write( QTranslator::SaveMode m,
   modified to work well with Unicode strings in UCS-2 format.  Its
   algorithm is not specified beyond the fact that it will remain
   unchanged in future versions of Qt.
-
-  To examine the contents of a QTranslator, use QTranslatorIterator.
-
-  \sa QTranslatorIterator QApplication::installTranslator
-  QApplication::removeTranslator() QObject::tr()
-  QApplication::translate()
 */
 
 /*! \enum QTranslator::SaveMode
@@ -780,4 +819,36 @@ QValueList<QTranslatorInputItem> QTranslator::inputKeys() const
 	d->messages->next();
     }
     return result;
+}
+
+
+/*!  Sets the comment for \a message in \a scope to \a comment.  The
+comment is a string which may help the translator provide a better
+translation, but which isn't seen by any end-users.  Most applications
+will never need to call this.
+*/
+
+void QTranslator::setComment( const char * scope, const char * message,
+			      const char * comment )
+{
+    unsqueeze();
+    QTranslatorPrivate::Message * m;
+    while( (m=d->messages->current()) != 0 &&
+	   (m->input() != message || m->scope() != scope) )
+	d->messages->next();
+    if ( m )
+	m->setComment( comment );
+}
+
+
+/*!  Returns the comment for \a message in \a scope. */
+
+QString QTranslator::comment( const char * scope, const char * message )
+{
+    unsqueeze();
+    QTranslatorPrivate::Message * m;
+    while( (m=d->messages->current()) != 0 &&
+	   (m->input() != message || m->scope() != scope) )
+	d->messages->next();
+    return m ? m->comment() : QString::null;
 }
