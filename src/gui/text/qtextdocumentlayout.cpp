@@ -589,7 +589,7 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
         }
 
     } else {
-        DrawResult previousDrawResult;
+        DrawResult previousDrawResult = OutsideClipRect;
         for (QTextFrame::Iterator it = frame->begin(); !it.atEnd(); ++it) {
             QTextFrame *c = it.currentFrame();
             DrawResult r;
