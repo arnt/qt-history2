@@ -313,13 +313,15 @@ static void basic_attributes( int /*script*/, const QString &text, int from, int
 
     QCharAttributes *a = attributes;
 
+    bool softHyphen = FALSE;
     for ( int i = 0; i < len; i++ ) {
 	QChar::Category cat = ::category( *uc );
 	a->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
-	a->softBreak = FALSE;
+	a->softBreak = softHyphen;
 	a->charStop = (cat != QChar::Mark_NonSpacing);
 	a->wordStop = FALSE;
 	a->invalid = FALSE;
+	softHyphen = (uc->unicode() == 0xad);
 	++uc;
 	++a;
     }
