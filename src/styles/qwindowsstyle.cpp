@@ -453,6 +453,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	QTabBar * tb = (QTabBar *) widget;
 	QTabWidget * tw = (QTabWidget *) tb->parentWidget();
 	bool lastIsCurrent = FALSE;
+	bool selected = how & CStyle_Selected;
 
 	if ( tw->tabAlignment() == AlignRight &&
 	     tb->currentTab() == tb->indexOf(tb->count()-1) )
@@ -467,7 +468,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    if ( r.left() == 0 )
 		p->drawPoint( tb->rect().bottomLeft() );
 
-	    if ( how & CStyle_Selected ) {
+	    if ( selected ) {
 		p->fillRect( QRect( r.left()+1, r.bottom()-1, r.width()-3, 2),
 			     cg.brush( QColorGroup::Background ));
 		p->setPen( cg.background() );
@@ -502,15 +503,15 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    p->setPen( cg.dark() );
 	    x2 = r.right() - 1;
 	    p->drawLine( x2, r.top() + 2, x2, r.bottom() - 1 +
-			 ((how & CStyle_Selected) ? 1:-1) );
+			 (selected ? 1:-1) );
 	    p->setPen( cg.shadow() );
 	    p->drawPoint( x2, r.top() + 1 );
 	    p->drawPoint( x2, r.top() + 1 );
 	    x2++;
 	    p->drawLine( x2, r.top() + 2, x2, r.bottom() -
-			 ((how & CStyle_Selected) ? (lastIsCurrent ? 0:1) :2));
+			 (selected ? (lastIsCurrent ? 0:1) :2));
 	} else if ( tb->shape() == QTabBar::RoundedBelow ) {
-	    if ( how & CStyle_Selected ) {
+	    if ( selected ) {
 		p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),
 			     tb->palette().active().brush( QColorGroup::Background ));
 		p->setPen( cg.background() );
