@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#235 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#236 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -515,8 +515,8 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
   Returns the color in the color table at index \e i.
 
-  A color value is an RGB triplet. Use the QRED, QGREEN and QBLUE functions
-  (defined in qcolor.h) to get the color value components.
+  A color value is an RGB triplet. Use the qRed(), qGreen() and qBlue()
+  functions (defined in qcolor.h) to get the color value components.
 
   \sa setColor(), QColor
 */
