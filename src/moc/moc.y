@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#8 $
+** $Id: //depot/qt/main/src/moc/moc.y#9 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -41,7 +41,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#9 $";
 #endif
 
 
@@ -622,7 +622,7 @@ void generate()					// generate C++ source code
 //
 // Call to initialize parent meta object
 //
-    fprintf( out, "if ( getMetaObject(\"%s\") == 0 )\n",(char*)superclassName);
+    fprintf( out, "if ( metaObject(\"%s\") == 0 )\n",(char*)superclassName);
     fprintf( out, "\t%s::initMetaObject();\n", (char *)superclassName );
 //
 // Build methods array in initMetaObject()
@@ -639,7 +639,7 @@ void generate()					// generate C++ source code
 //
 // Finally create meta object
 //
-    fprintf( out, "    metaObject = new QMetaObject( \"%s\", \"%s\",\n",
+    fprintf( out, "    metaObj = new QMetaObject( \"%s\", \"%s\",\n",
 	     (char*)className, (char*)superclassName );
     if ( methods.count() )
 	fprintf( out, "\tmethod_tbl, %d,\n", methods.count() );
