@@ -5055,7 +5055,7 @@ QString QString::number(double n, char f, int prec)
     anywhere in the string, split() returns a single-element list
     containing this string.
 
-    If \a behavior is \c StripEmptyEntries, empty entries don't
+    If \a behavior is \c SkipEmptyParts, empty entries don't
     appear in the result. By default, empty entries are kept.
 
     Example:
@@ -5064,25 +5064,25 @@ QString QString::number(double n, char f, int prec)
         QStringList list1 = str.split(",");
         // list1: [ "a", "", "b", "c" ]
 
-        QStringList list2 = str.split(",", QString::StripEmptyEntries);
+        QStringList list2 = str.split(",", QString::SkipEmptyParts);
         // list2: [ "a", "b", "c" ]
     \endcode
 
     \sa QStringList::join(), section()
 */
-QStringList QString::split(const QString &sep, EmptyEntriesBehavior behavior) const
+QStringList QString::split(const QString &sep, SplitBehavior behavior) const
 {
     QStringList list;
     int start = 0;
     int extra = 0;
     int end;
     while ((end = indexOf(sep, start + extra)) != -1) {
-        if (start != end || behavior == KeepEmptyEntries)
+        if (start != end || behavior == KeepEmptyParts)
             list.append(mid(start, end - start));
         start = end + sep.size();
         extra = (sep.size() == 0 ? 1 : 0);
     }
-    if (start != size() || behavior == KeepEmptyEntries)
+    if (start != size() || behavior == KeepEmptyParts)
         list.append(mid(start));
     return list;
 }
@@ -5090,17 +5090,17 @@ QStringList QString::split(const QString &sep, EmptyEntriesBehavior behavior) co
 /*!
     \overload
 */
-QStringList QString::split(const QChar &sep, EmptyEntriesBehavior behavior) const
+QStringList QString::split(const QChar &sep, SplitBehavior behavior) const
 {
     QStringList list;
     int start = 0;
     int end;
     while ((end = indexOf(sep, start)) != -1) {
-        if (start != end || behavior == KeepEmptyEntries)
+        if (start != end || behavior == KeepEmptyParts)
             list.append(mid(start, end - start));
         start = end + 1;
     }
-    if (start != size() || behavior == KeepEmptyEntries)
+    if (start != size() || behavior == KeepEmptyParts)
         list.append(mid(start));
     return list;
 }
@@ -5147,7 +5147,7 @@ QStringList QString::split(const QChar &sep, EmptyEntriesBehavior behavior) cons
 
     \sa QStringList::join(), section()
 */
-QStringList QString::split(const QRegExp &rx, EmptyEntriesBehavior behavior) const
+QStringList QString::split(const QRegExp &rx, SplitBehavior behavior) const
 {
     QStringList list;
     int start = 0;
@@ -5155,12 +5155,12 @@ QStringList QString::split(const QRegExp &rx, EmptyEntriesBehavior behavior) con
     int end;
     while ((end = indexOf(rx, start + extra)) != -1) {
         int matchedLen = rx.matchedLength();
-        if (start != end || behavior == KeepEmptyEntries)
+        if (start != end || behavior == KeepEmptyParts)
             list.append(mid(start, end - start));
         start = end + matchedLen;
         extra = (matchedLen == 0) ? 1 : 0;
     }
-    if (start != size() || behavior == KeepEmptyEntries)
+    if (start != size() || behavior == KeepEmptyParts)
         list.append(mid(start));
     return list;
 }

@@ -74,16 +74,16 @@ inline QStringList QStringList::split(const QString &sep, const QString &str,
 {
     if (str.isEmpty())
         return QStringList();
-    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyEntries
-                                            : QString::StripEmptyEntries);
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyParts
+                                            : QString::SkipEmptyParts);
 }
 
 inline QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
 {
     if (str.isEmpty())
         return QStringList();
-    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyEntries
-                                            : QString::StripEmptyEntries);
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyParts
+                                            : QString::SkipEmptyParts);
 }
 
 inline QStringList QStringList::split(const QRegExp &sep, const QString &str,
@@ -91,8 +91,8 @@ inline QStringList QStringList::split(const QRegExp &sep, const QString &str,
 {
     if (str.isEmpty())
         return QStringList();
-    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyEntries
-                                            : QString::StripEmptyEntries);
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyParts
+                                            : QString::SkipEmptyParts);
 }
 #endif
 

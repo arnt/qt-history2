@@ -187,11 +187,11 @@ public:
     inline QString &remove(const QRegExp &rx)
     { return replace(rx, QString()); }
 #endif
-    enum EmptyEntriesBehavior { KeepEmptyEntries, StripEmptyEntries };
+    enum SplitBehavior { KeepEmptyParts, SkipEmptyParts };
 
-    QStringList split(const QString &sep, EmptyEntriesBehavior behavior = KeepEmptyEntries) const;
-    QStringList split(const QChar &sep, EmptyEntriesBehavior behavior = KeepEmptyEntries) const;
-    QStringList split(const QRegExp &sep, EmptyEntriesBehavior behavior = KeepEmptyEntries) const;
+    QStringList split(const QString &sep, SplitBehavior behavior = KeepEmptyParts) const;
+    QStringList split(const QChar &sep, SplitBehavior behavior = KeepEmptyParts) const;
+    QStringList split(const QRegExp &sep, SplitBehavior behavior = KeepEmptyParts) const;
 
     inline const char *ascii() const { return toAscii(); }
     inline const char *latin1() const { return toLatin1(); }
