@@ -5450,6 +5450,15 @@ void QListView::setSorting( int column, bool ascending )
 #endif
 }
 
+/*!
+    \enum QListView::SortOrder
+
+    This enum describes how the items in the list view are sorted.
+
+    \value Ascending The items are sorted ascending.
+
+    \value Descending The items are sorted descending.
+*/
 
 /*!
     Sets the \a column the list view is sorted by.
@@ -5473,7 +5482,10 @@ void QListView::changeSortColumn( int column )
 }
 
 /*! Returns the column by which the list view is sorted, or
-    -1 if sorting is disabled. */
+    -1 if sorting is disabled.
+
+    \sa sortOrder()
+*/
 
 int QListView::sortColumn() const
 {
@@ -5481,11 +5493,40 @@ int QListView::sortColumn() const
 }
 
 /*!
-  Returns TRUE if the list view is sorted ascending, otherwise returns FALSE.
+  Sets the sorting column for the list view.
+
+  If \a column is -1, sorting is disabled and the user cannot sort
+  columns by clicking on the column headers. If \a column is larger
+  than the number of columns the user must click on a column
+  header to sort the list view.
+
+  \sa setSorting()
 */
-bool QListView::isSortAscending() const
+void QListView::setSortColumn( int column )
 {
-    return d->ascending;
+    setSorting( column, d->ascending );
+}
+
+/*!
+  Returns the sorting order of the list view items.
+
+  \sa sortColumn()
+*/
+QListView::SortOrder QListView::sortOrder() const
+{
+    if ( d->ascending )
+	return Ascending;
+    return Descending;
+}
+
+/*!
+  Sets the sort order for the items in the list view.
+
+  \sa setSorting()
+*/
+void QListView::setSortOrder( SortOrder order )
+{
+    setSorting( d->sortcolumn, order == Ascending ? TRUE : FALSE );
 }
 
 /*!

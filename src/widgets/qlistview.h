@@ -326,9 +326,12 @@ public:
     virtual void setRootIsDecorated( bool );
     bool rootIsDecorated() const;
 
+    enum SortOrder { Ascending, Descending };
     virtual void setSorting( int column, bool ascending = TRUE );
     int sortColumn() const;
-    bool isSortAscending() const;
+    void setSortColumn( int column );
+    SortOrder sortOrder() const;
+    void setSortOrder( SortOrder order );
     virtual void sort();
 
     virtual void setFont( const QFont & );
