@@ -396,7 +396,7 @@ QString QSqlDriver::sqlStatement(StatementType type, const QString &tableName,
                  QLatin1String(" ("));
         QString vals;
         for (i = 0; i < rec.count(); ++i) {
-            if (!rec.isGenerated(i))
+            if (!rec.isGenerated(i) || !rec.value(i).isValid())
                 continue;
             s.append(escapeIdentifier(rec.fieldName(i))).append(QLatin1String(", "));
             if (preparedStatement)
