@@ -1,4 +1,5 @@
-TEMPLATE    =	qtlib
+TEMPLATE    =	lib
+CONFIG	    =	qt warn_on release
 HEADERS     =	dialogs/qfiledlg.h \
 		dialogs/qmsgbox.h \
 		dialogs/qtabdlg.h \
