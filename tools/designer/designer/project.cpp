@@ -1046,42 +1046,6 @@ QString Project::language() const
     return lang;
 }
 
-QString Project::formName( const QString &uifile )
-{
-    QFile f( makeAbsolute( uifile ) );
-    if ( f.open( IO_ReadOnly ) ) {
-	QTextStream ts( &f );
-	QString line;
-	QString className;
-	while ( !ts.eof() ) {
-	    line = ts.readLine();
-	    if ( !className.isEmpty() ) {
-		int end = line.find( "</class>" );
-		if ( end == -1 ) {
-		    className += line;
-		} else {
-		    className += line.left( end );
-		    break;
-		}
-		continue;
-	    }
-	    int start;
-	    if ( ( start = line.find( "<class>" ) ) != -1 ) {
-		int end = line.find( "</class>" );
-		if ( end == -1 ) {
-		    className = line.mid( start + 7 );
-		} else {
-		    className = line.mid( start + 7, end - ( start + 7 ) );
-		    break;
-		}
-	    }
-	}
-	if ( !className.isEmpty() )
-	    return className;
-    }
-    return uifile;
-}
-
 void Project::setCustomSetting( const QString &key, const QString &value )
 {
     customSettings.remove( key );

@@ -377,7 +377,6 @@ void Workspace::update()
     triggerUpdate();
 }
 
-
 void Workspace::activeFormChanged( FormWindow *fw )
 {
     WorkspaceItem *i = findItem( fw->formFile() );

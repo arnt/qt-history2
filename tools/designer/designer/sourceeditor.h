@@ -24,7 +24,6 @@
 #include "../interfaces/editorinterface.h"
 #include <qvbox.h>
 #include <qguardedptr.h>
-#include <qdatetime.h>
 
 class FormWindow;
 class QCloseEvent;
@@ -78,7 +77,6 @@ public:
     QString text() const;
 
     void checkTimeStamp();
-    void updateTimeStamp();
 
     SourceFile *sourceFile() const;
     FormWindow *formWindow() const;
@@ -94,7 +92,6 @@ private:
     Project *pro;
     QString lang;
     QGuardedPtr<QWidget> editor;
-    QDateTime lastTimeStamp;
 
 };
 

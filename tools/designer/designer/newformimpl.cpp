@@ -65,10 +65,9 @@ void FormItem::insert( Project *pro )
 {
     QString n = "Form" + QString::number( ++forms );
     FormWindow *fw = 0;
-    fw = new FormWindow( MainWindow::self, MainWindow::self->qWorkspace(), n );
-    fw->setProject( pro );
     FormFile *ff = new FormFile( FormFile::createUnnamedFileName(), TRUE, pro );
-    ff->setFormWindow( fw );
+    fw = new FormWindow( ff, MainWindow::self, MainWindow::self->qWorkspace(), n );
+    fw->setProject( pro );
     MetaDataBase::addEntry( fw );
     if ( fType == Widget ) {
 	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QWidget" ),
@@ -209,11 +208,13 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 	pi->setDragEnabled( FALSE );
     }
 
+    QIconViewItem *cur = 0;
     FormItem *fi = new FormItem( templateView,tr( "Dialog" ) );
     allItems.append( fi );
     fi->setFormType( FormItem::Dialog );
     fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
     fi->setDragEnabled( FALSE );
+    cur = fi;
     fi = new FormItem( templateView,tr( "Wizard" ) );
     allItems.append( fi );
     fi->setFormType( FormItem::Wizard );
@@ -277,10 +278,9 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 	}
     }
 
-    templateView->setCurrentItem( templateView->firstItem() );
     templateView->viewport()->setFocus();
-
     projectChanged( projectCombo->currentText() );
+    templateView->setCurrentItem( cur );
 }
 
 void NewForm::accept()

@@ -114,25 +114,27 @@ static void flickerfree_update( QWidget *w )
   event filter which is implemented in MainWindow::eventFilter().
 */
 
-FormWindow::FormWindow( MainWindow *mw, QWidget *parent, const char *name )
+FormWindow::FormWindow( FormFile *f, MainWindow *mw, QWidget *parent, const char *name )
     : QWidget( parent, name, WDestructiveClose ), mainwindow( mw ),
       commands( 100 ), pixInline( TRUE ), pixProject( FALSE )
 {
+    ff = f;
     init();
     MetaDataBase::addEntry( this );
     initSlots();
 }
 
-FormWindow::FormWindow( QWidget *parent, const char *name )
+FormWindow::FormWindow( FormFile *f, QWidget *parent, const char *name )
     : QWidget( parent, name, WDestructiveClose ), mainwindow( 0 ),
       commands( 100 ), pixInline( TRUE )
 {
+    ff = f;
     init();
 }
 
 void FormWindow::init()
 {
-    ff = 0;
+    ff->setFormWindow( this );
     iface = 0;
     proj = 0;
     propertyWidget = 0;
@@ -202,9 +204,9 @@ void FormWindow::initSlots()
 	if ( !MetaDataBase::hasSlot( this, "destroy()" ) )
 	    MetaDataBase::addSlot( this, "destroy()", "", "protected", mainWindow()->currProject()->language(), "void" );
     } else {
-	QString code = MetaDataBase::formCode( this );
+	QString code = formFile()->code();
 	if ( code.isEmpty() ) {
-	    code=
+	    code =
 		"/****************************************************************************\n"
 		"** ui.h extension file, included from the uic-generated form implementation.\n"
 		"**\n"
@@ -212,7 +214,7 @@ void FormWindow::initSlots()
 		"** update this file, preserving your code. Create an init() slot in place of\n"
 		"** a constructor, and a destroy() slot in place of a destructor.\n"
 		"*****************************************************************************/\n";
-	    MetaDataBase::setFormCode( this, code );
+	    formFile()->setCode( code );
 	}
     }
 }
@@ -220,6 +222,7 @@ void FormWindow::initSlots()
 FormWindow::~FormWindow()
 {
     MetaDataBase::clear( this );
+    ff->setFormWindow( 0 );
     delete iface;
 }
 
@@ -1669,29 +1672,8 @@ void FormWindow::updateUndoInfo()
     commandHistory()->emitUndoRedo();
 }
 
-bool FormWindow::saveAs()
+bool FormWindow::checkCustomWidgets()
 {
-    mainWindow()->statusBar()->message( tr( "Enter a filename..." ) );
-    QString fn = QFileDialog::getSaveFileName( QString::fromLatin1(name()).lower() + ".ui",
-					       tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
-					       tr( "All Files (*)" ), mainWindow(), 0,
-					       tr( "Save form '%1' as ....").arg( name() ),
-					       &mainWindow()->lastSaveFilter );
-    if ( fn.isEmpty() )
-	return FALSE;
-    QFileInfo fi( fn );
-    if ( fi.extension() != "ui" )
-	fn += ".ui";
-    setFileName( fn );
-    return save();
-}
-
-bool FormWindow::save( bool withMsgBox )
-{
-    if ( filename.isEmpty() ) {
-	return saveAs();
-    }
-    mainWindow()->statusBar()->message( tr( "Saving file %1..." ).arg(filename) );
     QStringList missingCustomWidgets;
     QPtrDictIterator<QWidget> it( insertedWidgets );
     for ( ; it.current(); ++it ) {
@@ -1710,39 +1692,8 @@ bool FormWindow::save( bool withMsgBox )
 	txt += "If you save this form and generate code for it by the UIC, \n"
 	       "the generated code will not compile. Do you really want to save\n"
 	       "this form now?";
-	if ( withMsgBox ) {
-	    if ( QMessageBox::information( mainWindow(), tr( "Save Form" ), txt ) == 1 )
-		return FALSE;
-	}
-    }
-
-    if ( QFile::exists( filename ) ) {
-	QString fn( filename );
-#if defined(Q_OS_WIN32)
-	fn += ".bak";
-#else
-	fn += "~";
-#endif
-	QFile f( filename );
-	if ( f.open( IO_ReadOnly ) ) {
-	    QFile f2( fn );
-	    if ( f2.open( IO_WriteOnly ) ) {
-		QCString data( f.size() );
-		f.readBlock( data.data(), f.size() );
-		f2.writeBlock( data );
-	    }
-	}
-    }
-
-    Resource resource( mainWindow() );
-    resource.setWidget( this );
-    if ( !resource.save( filename ) ) {
-	mainWindow()->statusBar()->message( tr( "Failed to save file %1.").arg( filename ), 5000 );
-	if ( withMsgBox )
-	    QMessageBox::warning( mainWindow(), tr( "Save" ), tr( "Couldn't save file %1" ).arg( filename ) );
-    } else {
-	mainWindow()->statusBar()->message( tr( "%1 saved.").arg( filename ), 3000 );
-	commandHistory()->setModified( FALSE );
+	if ( QMessageBox::information( mainWindow(), tr( "Save Form" ), txt ) == 1 )
+	    return FALSE;
     }
     return TRUE;
 }
@@ -2232,19 +2183,19 @@ void FormWindow::drawConnectLine()
 
 QString FormWindow::fileName() const
 {
-    return filename;
+    return ff->fileName();
 }
 
 void FormWindow::setFileName( const QString &fn )
 {
-    filename = fn;
-    emit fileNameChanged( filename, this );
+    ff->setFileName( fn );
+    emit fileNameChanged( ff->fileName(), this );
 }
 
 void FormWindow::modificationChanged( bool m )
 {
     emit modificationChanged( m, this );
-    emit modificationChanged( m, fileName() );
+    emit modificationChanged( m, ff->fileName() );
 }
 
 bool FormWindow::unify( QObject *w, QString &s, bool changeIt )

@@ -178,12 +178,11 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 
     DomTool::fixDocument( doc );
 
-    toplevel = formwindow = new FormWindow( mainwindow->qWorkspace(), 0 );
+    FormFile *ff = new FormFile( filename, FALSE, MainWindow::self->currProject() );
+    toplevel = formwindow = new FormWindow( ff, mainwindow->qWorkspace(), 0 );
     formwindow->setProject( MainWindow::self->currProject() );
     formwindow->setMainWindow( mainwindow );
     MetaDataBase::addEntry( formwindow );
-    FormFile *ff = new FormFile( filename, FALSE, MainWindow::self->currProject() );
-    ff->setFormWindow( formwindow );
 
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
@@ -370,10 +369,10 @@ bool Resource::load( QIODevice* dev, const QString& filename, bool keepname )
 	MetaDataBase::setExportMacro( formwindow->mainContainer(), exportMacro );
     }
 
-    loadExtraSource();
-
     if ( formwindow && !filename.isEmpty() && keepname )
 	formwindow->setFileName( filename );
+
+    loadExtraSource();
 
     if ( mainwindow && formwindow )
 	mainwindow->insertFormWindow( formwindow );
@@ -2534,7 +2533,7 @@ void Resource::saveFormCode()
 	if ( formwindow->project()->language() == "C++" &&
 	     formwindow->project()->customSetting( "CPP_ALWAYS_CREATE_SOURCE" ) == "TRUE" ) {
 	    formwindow->initSlots();
-	    QString code = MetaDataBase::formCode( formwindow );
+	    QString code = formwindow->formFile()->code();
 	    QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
 	    for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin();
 		  it != slotList.end(); ++it ) {
@@ -2544,24 +2543,19 @@ void Resource::saveFormCode()
 							     (*it).returnType ) +
 			"\n" + iface->createEmptyFunction();
 	    }
-	    MetaDataBase::setFormCode( formwindow, code );
-	} else {
+	    formwindow->formFile()->setCode( code );
+	} else if ( !langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
 	    return;
 	}
     }
 
     if ( langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
-	if ( MetaDataBase::formCode( formwindow ).isEmpty() )
+	if ( formwindow->formFile()->code().isEmpty() )
 	    return;
-	QString filename = MetaDataBase::formSourceFile( formwindow );
-	if ( filename.isEmpty() ) {
-	    filename = currFileName + iface->formCodeExtension();
-	    MetaDataBase::setFormSourceFile( formwindow, filename );
-	}
-	QFile f( filename );
+	QFile f( formwindow->formFile()->codeFile() );
 	if ( f.open( IO_WriteOnly ) ) {
 	    QTextStream ts( &f );
-	    ts << MetaDataBase::formCode( formwindow );
+	    ts << formwindow->formFile()->code();
 	}
     } else {
 	QValueList<LanguageInterface::Function> funcs;
@@ -2630,14 +2624,13 @@ void Resource::loadExtraSource()
 			 functions, forwards, includesImpl, includesDecl, vars, connections );
 
     if ( iface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
-	MetaDataBase::setFormSourceFile( formwindow, currFileName + iface->formCodeExtension() );
-	QFile f( currFileName + iface->formCodeExtension() );
+	QFile f( formwindow->formFile()->codeFile() );
 	QString code;
 	if ( f.open( IO_ReadOnly ) ) {
 	    QTextStream ts( &f );
 	    code = ts.read();
 	}
-	MetaDataBase::setFormCode( formwindow, code );
+	formwindow->formFile()->setCode( code );
     }
 
     for ( QValueList<LanguageInterface::Connection>::Iterator cit = connections.begin();

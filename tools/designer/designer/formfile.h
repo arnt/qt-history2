@@ -23,6 +23,7 @@
 
 #include <qobject.h>
 #include "timestamp.h"
+#include "metadatabase.h"
 
 class Project;
 class FormWindow;
@@ -40,27 +41,34 @@ public:
     };
 
     FormFile( const QString &fn, bool temp, Project *p );
+    ~FormFile();
 
     void setFormWindow( FormWindow *f );
     void setEditor( SourceEditor *e );
     void setFileName( const QString &fn );
     void setCode( const QString &c );
     void setModified( bool m, int who = WAnyOrAll );
+    void setCodeEdited( bool b );
 
     FormWindow *formWindow() const;
     SourceEditor *editor() const;
     QString fileName() const;
     QString codeFile() const;
-    QString code() const;
+    QString code();
+    bool isCodeEdited() const;
 
     bool load();
-    bool save();
+    bool save( bool withMsgBox = TRUE );
     bool saveAs();
     bool close();
     bool closeEvent();
     bool isModified( int who = WAnyOrAll );
     bool hasFormCode() const;
     void createFormCode();
+    void syncCode();
+    void checkTimeStamp();
+    void addSlotCode( MetaDataBase::Slot slot );
+    void functionNameChanged( const QString &oldName, const QString &newName );
 
     void showFormWindow();
     void showEditor();
@@ -69,6 +77,8 @@ public:
 
 signals:
     void modificationChanged();
+
+    QString formName() const;
 
 private:
     bool isFormWindowModified() const;
@@ -87,6 +97,7 @@ private:
     QString cod;
     TimeStamp timeStamp;
     bool hFormCode;
+    bool codeEdited;
 
 };
 

@@ -274,7 +274,7 @@ void EditSlots::currentTypeChanged( const QString &type )
 
 void EditSlots::removeSlotFromCode( const QString &slot, FormWindow *formWindow )
 {
-    QString code = MetaDataBase::formCode( formWindow );
+    QString code = formWindow->formFile()->code();
     if ( code.isEmpty() )
 	return;
     LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
@@ -311,7 +311,7 @@ void EditSlots::removeSlotFromCode( const QString &slot, FormWindow *formWindow 
 	    if ( end < start )
 		return;
 	    code.remove( start, end - start );
-	    MetaDataBase::setFormCode( formWindow, code );
+	    formWindow->formFile()->setCode( code );
 	}
     }
 }

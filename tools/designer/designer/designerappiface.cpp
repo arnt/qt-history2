@@ -173,10 +173,12 @@ QPtrList<DesignerFormWindow> DesignerProjectImpl::formList() const
 
 QStringList DesignerProjectImpl::formNames() const
 {
-    QStringList lst = project->uiFiles();
     QStringList l;
-    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
-	l << project->formName( *it );
+    for ( QPtrListIterator<FormFile> forms = project->formFiles();
+	  forms.current(); ++forms ) {
+	FormFile* f = forms.current();
+	l << f->formName();
+    }
     return l;
 }
 

@@ -1108,7 +1108,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		LanguageInterface *iface = MetaDataBase::languageInterface( currentProject->language() );
 		if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
 		    SourceFile *sf = currentProject->findSourceFile( currentProject->makeRelative( filename ) );
-		    if ( !sf ) 
+		    if ( !sf )
 			sf = new SourceFile( currentProject->makeRelative( filename ), FALSE, currentProject );
 		    editSource( sf );
 		}
@@ -1164,6 +1164,7 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
     if ( !makeNew ) {
 	statusBar()->message( tr( "Reading file %1...").arg( filename ) );
 	if ( QFile::exists( filename ) ) {
+#if 0
 	    if ( !blockCheck && currentProject->hasUiFile( currentProject->makeRelative( filename ) ) ) {
 		FormWindow *fw = currentProject->formWindow( currentProject->makeRelative( filename ) );
 		if ( fw ) {
@@ -1178,6 +1179,7 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
 		    return 0;
 		}
 	    }
+#endif
 	    QApplication::setOverrideCursor( WaitCursor );
 	    Resource resource( this );
 	    bool b = resource.load( filename ) && (FormWindow*)resource.widget();
@@ -1199,9 +1201,7 @@ FormWindow *MainWindow::openFormWindow( const QString &filename, bool validFileN
 	fileNew();
 	if ( formWindow() )
 	    formWindow()->setFileName( filename );
-	if ( !formWindow()->formFile() )
-	    return formWindow();
-	return 0;
+	return formWindow();
     }
     return 0;
 }
@@ -1217,17 +1217,13 @@ bool MainWindow::fileSave()
 
 bool MainWindow::fileSaveForm()
 {
-    SourceEditor *se = 0;
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->object() == formWindow() )
-	    se = e;
 	if ( e->object() == formWindow() || e == qWorkspace()->activeWindow() ) {
 	    e->save();
 	    e->setModified( FALSE );
 	}
 	if ( e->sourceFile() && e == qWorkspace()->activeWindow() )
 	    sourceFile()->save();
-	
     }
 
     FormWindow *fw = 0;
@@ -1235,7 +1231,7 @@ bool MainWindow::fileSaveForm()
     QWidget *w = qWorkspace()->activeWindow();
     if ( w ) {
 	if ( w->inherits( "SourceEditor" ) ) {
-	    se = (SourceEditor*)w;
+	    SourceEditor *se = (SourceEditor*)w;
 	    if ( se->formWindow() )
 		fw = se->formWindow();
 	    else if ( se->sourceFile() ) {
@@ -1247,10 +1243,8 @@ bool MainWindow::fileSaveForm()
 
     if ( !fw )
 	fw = formWindow();
-    if ( !fw || !fw->save() )
+    if ( !fw || !fw->formFile()->save() )
 	return FALSE;
-    if ( se )
-	se->updateTimeStamp();
     QApplication::restoreOverrideCursor();
     return TRUE;
 }
@@ -1268,7 +1262,7 @@ bool MainWindow::fileSaveAs()
 
     QWidget *w = qworkspace->activeWindow();
     if ( w->inherits( "FormWindow" ) )
-	return ( (FormWindow*)w )->saveAs();
+	return ( (FormWindow*)w )->formFile()->saveAs();
     else if ( w->inherits( "SourceEditor" ) )
 	return ( (SourceEditor*)w )->saveAs();
     return FALSE;
@@ -1296,7 +1290,7 @@ void MainWindow::fileSaveAll()
 	    bool mini = fw->parentWidget()->isMinimized() || fw->isMinimized();
 	    if ( mini )
 		fw->showNormal();
-	    formWindow()->save( formWindow()->fileName() );
+	    formWindow()->formFile()->save( formWindow()->fileName() );
 	    if ( mini )
 		fw->showMinimized();
 	    QApplication::restoreOverrideCursor();
@@ -1330,7 +1324,7 @@ void MainWindow::saveAllTemp()
 
 	QString fn = baseName + QString::number( i++ ) + ".ui";
 	( (FormWindow*)w )->setFileName( fn );
-	( (FormWindow*)w )->save( fn );
+	( (FormWindow*)w )->formFile()->save( fn );
     }
     inSaveAllTemp = FALSE;
 }
@@ -1703,7 +1697,7 @@ SourceEditor *MainWindow::editSource( SourceFile *f )
     }
     if ( f )
 	editor = f->editor();
-    
+
     if ( !editor ) {
 	EditorInterface *eIface = 0;
 	editorPluginManager->queryInterface( lang, &eIface );

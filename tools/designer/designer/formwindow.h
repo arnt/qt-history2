@@ -63,8 +63,8 @@ class FormWindow : public QWidget
     Q_PROPERTY( QString fileName READ fileName WRITE setFileName )
 
 public:
-    FormWindow( MainWindow *mw, QWidget *parent, const char *name = 0 );
-    FormWindow( QWidget *parent, const char *name = 0 );
+    FormWindow( FormFile *f, MainWindow *mw, QWidget *parent, const char *name = 0 );
+    FormWindow( FormFile *f, QWidget *parent, const char *name = 0 );
     ~FormWindow();
 
     void init();
@@ -135,8 +135,7 @@ public:
 
     virtual MainWindow *mainWindow() const { return mainwindow; }
 
-    virtual bool save( bool withMsgBox = TRUE );
-    virtual bool saveAs();
+    bool checkCustomWidgets();
     virtual void insertWidget( QWidget *w, bool checkName = FALSE );
     virtual void removeWidget( QWidget *w );
     virtual void deleteWidgets();
@@ -283,7 +282,6 @@ private:
     *windowsRepaintWorkaroundTimer;
     QPoint connectStartPos, currentConnectPos;
     QObject *connectSender, *connectReceiver;
-    QString filename;
     QPixmap *buffer;
     QPtrList<OrderIndicator> orderIndicators;
     QWidgetList orderedWidgets;

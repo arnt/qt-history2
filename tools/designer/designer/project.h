@@ -163,8 +163,6 @@ public:
 
     DesignerProject *iFace();
 
-    QString formName( const QString &uifile );
-
     void setCustomSetting( const QString &key, const QString &value );
     QString customSetting( const QString &key ) const;
 

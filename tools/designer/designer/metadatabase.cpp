@@ -25,6 +25,7 @@
 #include "formwindow.h"
 #include "parser.h"
 #include "widgetdatabase.h"
+#include "formfile.h"
 
 #include <qapplication.h>
 #include <qobject.h>
@@ -61,8 +62,6 @@ static QString make_pretty( const QString &s )
 class MetaDataBaseRecord
 {
 public:
-    MetaDataBaseRecord() : isEdited( FALSE ) {}
-
     QObject *object;
     QStringList changedProperties;
     QMap<QString,QVariant> fakeProperties;
@@ -83,10 +82,6 @@ public:
     QMap<QString, QString> functionComments;
     QValueList<int> breakPoints;
     QString exportMacro;
-    QString sourceFile;
-    QString code;
-    bool isEdited;
-    QDateTime timeStamp;
 };
 
 static QPtrDict<MetaDataBaseRecord> *db = 0;
@@ -118,15 +113,6 @@ inline void setupDataBase()
 	cWidgets = new QPtrList<MetaDataBase::CustomWidget>;
 	cWidgets->setAutoDelete( TRUE );
     }
-}
-
-static void rereadCode( MetaDataBaseRecord *r )
-{
-    QFile f( r->sourceFile );
-    if ( !f.open( IO_ReadOnly ) )
-	return;
-    QTextStream ts( &f );
-    r->code = ts.read();
 }
 
 void MetaDataBase::clearDataBase()
@@ -529,26 +515,7 @@ void MetaDataBase::addSlot( QObject *o, const QCString &slot, const QString& spe
     s.returnType = returnType;
     if ( r->slotList.find( s ) == r->slotList.end() )
 	r->slotList.append( s );
-    if ( !r->code.isEmpty() ) {
-	LanguageInterface *iface = languageInterface( language );
-	if ( iface ) {
-	    QMap<QString, QString>::Iterator it = r->functionBodies.find( normalizeSlot( slot ) );
-	    if ( it == r->functionBodies.end() ) {
-		if ( !r->isEdited ) {
-		    if ( r->timeStamp != QFileInfo( r->sourceFile ).lastModified() )
-			rereadCode( r );
-		    r->timeStamp = QFileInfo( r->sourceFile ).lastModified();
-		}
-		QString body = "\n\n" + iface->createFunctionStart( o->name(), make_pretty( slot ),
-								    returnType.isEmpty() ?
-								    QString( "void" ) :
-								    returnType ) +
-			       "\n" + iface->createEmptyFunction();
-		r->code += body;
-		r->functionBodies.insert( normalizeSlot( slot ), iface->createEmptyFunction() );
-	    }
-	}
-    }
+    ( (FormWindow*)o )->formFile()->addSlotCode( s );
 }
 
 void MetaDataBase::setSlotList( QObject *o, const QValueList<Slot> &slotList )
@@ -1260,10 +1227,8 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 	QString fName = *fit + "(";
 	if ( ed.name != "<none>" ) {
 	    QStringList args;
-	    for ( QStringList::Iterator it = ed.args.begin(); it != ed.args.end(); ++it ) {
-		qDebug( *it );
+	    for ( QStringList::Iterator it = ed.args.begin(); it != ed.args.end(); ++it )
 		args << *it;
-	    }
 	    LanguageInterface *iface = languageInterface( lang );
 	    if ( iface )
 		fName += iface->createArguments( args );
@@ -1595,93 +1560,6 @@ void MetaDataBase::functionNameChanged( QObject *o, const QString &oldName, cons
     QString body = *it;
     r->functionBodies.remove( it );
     r->functionBodies.insert( newName, body );
-    if ( !r->code.isEmpty() ) {
-	QString funcStart = QString( o->name() ) + QString( "::" );
-	int i = r->code.find( funcStart + oldName );
-	if ( i != -1 ) {
-	    r->code.remove( i + funcStart.length(), oldName.length() );
-	    r->code.insert( i + funcStart.length(), newName );
-	}
-    }
+    ( (FormWindow*)o )->formFile()->functionNameChanged( oldName, newName );
 }
 
-void MetaDataBase::setFormSourceFile( QObject *o, const QString &fileName )
-{
-    if ( !o )
-	return;
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return;
-    }
-
-    r->sourceFile = fileName;
-    r->timeStamp = QFileInfo( fileName ).lastModified();
-}
-
-void MetaDataBase::setFormCode( QObject *o, const QString &code )
-{
-    if ( !o )
-	return;
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return;
-    }
-
-    r->code = code;
-}
-
-QString MetaDataBase::formSourceFile( QObject *o )
-{
-    if ( !o )
-	return QString::null;
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return QString::null;
-    }
-
-    return r->sourceFile;
-}
-
-QString MetaDataBase::formCode( QObject *o )
-{
-    if ( !o )
-	return QString::null;
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return QString::null;
-    }
-
-    return r->code;
-}
-
-void MetaDataBase::setEdited( QObject *o, bool b )
-{
-    if ( !o )
-	return;
-    setupDataBase();
-    MetaDataBaseRecord *r = db->find( (void*)o );
-    if ( !r ) {
-	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
-		  o, o->name(), o->className() );
-	return;
-    }
-
-    r->isEdited = b;
-    if ( !b ) {
-	if ( r->timeStamp != QFileInfo( r->sourceFile ).lastModified() )
-	    rereadCode( r );
-	r->timeStamp = QFileInfo( r->sourceFile ).lastModified();
-    }
-}
