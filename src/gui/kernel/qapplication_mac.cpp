@@ -1401,6 +1401,9 @@ void qt_enter_modal(QWidget *widget)
         QApplication::sendEvent(widget->parentWidget(), &e);
     }
 
+    qt_dispatchEnterLeave(0, qt_mouseover);
+    qt_mouseover = 0;
+
     qt_modal_stack->insert(0, widget);
     if(!app_do_modal)
         qt_event_request_menubarupdate();
@@ -1418,6 +1421,11 @@ void qt_leave_modal(QWidget *widget)
         if(qt_modal_stack->isEmpty()) {
             delete qt_modal_stack;
             qt_modal_stack = 0;
+            QPoint p(QCursor::pos());
+            app_do_modal = false;
+            QWidget* w = QApplication::widgetAt(p.x(), p.y());
+            qt_dispatchEnterLeave(w, qt_mouseover); // send synthetic enter event
+            qt_mouseover = w? w->winId() : 0;
         }
     }
 #ifdef DEBUG_MODAL_EVENTS
