@@ -9730,54 +9730,26 @@ make sense of anything.
 
 /*! \enum QChar::Direction
 
-  This enum type defines <ul>
-<li> \c DirL -
-<li> \c DirR -
-<li> \c DirEN -
-<li> \c DirES -
-<li> \c DirET -
-<li> \c DirAN -
-<li> \c DirCS -
-<li> \c DirB -
-<li> \c DirS -
-<li> \c DirWS -
-<li> \c DirON -
-</ul>
+  This enum type defines the Unicode direction attributes.
+  See <a href=http://www.unicode.org/>the Unicode Standard</a>
+  for a description of the values.
+
+  In order to conform to C/C++ naming conventions "Dir" is
+  prepended to the codes used in The Unicode Standard.
 */
 
 /*! \enum QChar::Decomposition
 
-  This enum type defines <ul>
-<li> \c        Single -
-<li> \c Canonical -
-<li> \c Font -
-<li> \c NoBreak -
-<li> \c Initial -
-<li> \c Medial -
-<li> \c Final -
-<li> \c Isolated -
-<li> \c Circle -
-<li> \c Super -
-<li> \c Sub -
-<li> \c Vertical -
-<li> \c Wide -
-<li> \c Narrow -
-<li> \c Small -
-<li> \c Square -
-<li> \c Compat -
-<li> \c Fraction -
-</ul>
+  This enum type defines the Unicode decomposition attributes.
+  See <a href=http://www.unicode.org/>the Unicode Standard</a>
+  for a description of the values.
 */
 
 /*! \enum QChar::Joining
 
-  This enum type defines <ul>
-<li> \c OtherJoining -
-<li> \c Dual -
-<li> \c Right -
-<li> \c Center -
-<li> \c Unknown -
-</ul>
+  This enum type defines the Unicode decomposition attributes.
+  See <a href=http://www.unicode.org/>the Unicode Standard</a>
+  for a description of the values.
 */
 
 
