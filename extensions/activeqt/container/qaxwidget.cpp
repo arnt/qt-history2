@@ -1377,6 +1377,8 @@ bool QAxWidget::initialize( IUnknown **ptr )
     This function is called by initialize(). If you reimplement initialize
     to customize the actual control instantiation, call this function in your
     reimplementation to have the control embedded by the default client side.
+    Creates the client site for the ActiveX control, and returns TRUE if
+    the control could be embedded successfully, otherwise returns FALSE.
 */
 bool QAxWidget::createHostWindow( bool initialized )
 {
