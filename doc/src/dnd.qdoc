@@ -25,12 +25,6 @@ mechanism.
 
 \tableofcontents
 
-For drag and drop examples see (in increasing order of
-sophistication): \c qt/examples/iconview/simple_dd, \c
-qt/examples/dragdrop and \c qt/examples/fileiconview. See also the
-QTextEdit widget source code.
-
-
 \section1 Dragging
 
 To start a drag, for example in a \link QWidget::mouseMoveEvent()
@@ -40,14 +34,10 @@ QImageDrag for images. Then call the drag() method. This is all you
 need for simple dragging of existing types.
 
 For example, to start dragging some text from a widget:
-\code
-void MyWidget::startDrag()
-{
-    QDragObject *d = new QTextDrag( myHighlightedText(), this );
-    d->dragCopy();
-    // do NOT delete d.
-}
-\endcode
+\quotefromfile snippets/dragging/window.cpp
+\skipto mousePressEvent
+\skipto QDrag
+\printuntil drag->start()
 
 Note that the QDragObject is not deleted after the drag. The
 QDragObject needs to persist after the drag is apparently finished
