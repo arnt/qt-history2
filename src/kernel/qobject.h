@@ -175,6 +175,9 @@ private:
     uint blockSig : 1;
     uint wasDeleted : 1;
     uint hasPostedEvents : 1;
+#ifndef QT_NO_COMPAT
+    uint hasPostedChildInsertedEvents : 1;
+#endif
     uint unused : 26;
 
     const char *objname;

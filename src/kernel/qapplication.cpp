@@ -2236,7 +2236,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     }
 
 #ifndef QT_NO_COMPAT
-    if ( e->type() == QEvent::ChildRemoved && receiver->hasPostedEvents ) {
+    if (e->type() == QEvent::ChildRemoved && receiver->hasPostedChildInsertedEvents) {
 
 #ifdef QT_THREAD_SUPPORT
 	QMutexLocker locker( postevent_mutex );
@@ -2246,26 +2246,24 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	// QApplication::sendEvent() directly.  this can happen while the event
 	// loop is in the middle of posting events, and when we get here, we may
 	// not have any more posted events for this object.
-	if ( receiver->hasPostedEvents ) {
-	    bool postEventsRemaining = false;
-	    // if this is a child remove event and the child insert
-	    // hasn't been dispatched yet, kill that insert
-	    QObject * c = ((QChildEvent*)e)->child();
-	    for (int i = 0; i < postedEvents.size(); ++i) {
-		const QPostEvent &pe = postedEvents.at(i);
-		if (pe.event && pe.receiver == receiver) {
-		    if (pe.event->type() == QEvent::ChildInserted
-			&& ((QChildEvent*)pe.event)->child() == c ) {
-			pe.event->posted = false;
-			delete pe.event;
-			const_cast<QPostEvent &>(pe).event = 0;
-			const_cast<QPostEvent &>(pe).receiver = 0;
-		    } else {
-			postEventsRemaining = true;
-		    }
+	bool postedChildInsertEventsRemaining = false;
+	// if this is a child remove event and the child insert
+	// hasn't been dispatched yet, kill that insert
+	QObject * c = ((QChildEvent*)e)->child();
+	for (int i = 0; i < postedEvents.size(); ++i) {
+	    const QPostEvent &pe = postedEvents.at(i);
+	    if (pe.event && pe.receiver == receiver) {
+		if (pe.event->type() == QEvent::ChildInserted
+		    && ((QChildEvent*)pe.event)->child() == c ) {
+		    pe.event->posted = false;
+		    delete pe.event;
+		    const_cast<QPostEvent &>(pe).event = 0;
+		    const_cast<QPostEvent &>(pe).receiver = 0;
+		} else {
+		    postedChildInsertEventsRemaining = true;
 		}
 	    }
-	    receiver->hasPostedEvents = postEventsRemaining;
+	    receiver->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
 	}
     }
 #endif // QT_NO_COMPAT
@@ -3053,6 +3051,10 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 
     event->posted = TRUE;
     receiver->hasPostedEvents = true;
+#ifndef QT_NO_COMPAT
+    if (event->type() == QEvent::ChildInserted)
+	receiver->hasPostedChildInsertedEvents = true;
+#endif
     postedEvents.append( QPostEvent( receiver, event ) );
     ++postEventCounter;
 
@@ -3087,15 +3089,19 @@ void QApplication::sendPostedEvents()
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
     static int skipSafely = 0;
+
+    if ( !postedEvents || ( receiver && !receiver->hasPostedEvents ) )
+	return;
+
 #ifndef QT_NO_COMPAT
+    // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
+    if (receiver && event_type == QEvent::ChildInserted && !receiver->hasPostedChildInsertedEvents)
+	return;
     // Make sure the object hierarchy is stable before processing events
     // to avoid endless loops
     if ( receiver == 0 && event_type == 0 )
 	sendPostedEvents( 0, QEvent::ChildInserted );
 #endif
-
-    if ( !postedEvents || ( receiver && !receiver->hasPostedEvents ) )
-	return;
 
 #ifdef QT_THREAD_SUPPORT
     QMutexLocker locker( postevent_mutex );
@@ -3163,15 +3169,33 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     if (!event_type) {
 	if (!receiver) {
 	    for (i = 0; i < postedEvents.size(); ++i)
-		if ((receiver = postedEvents.at(i).receiver))
+		if ((receiver = postedEvents.at(i).receiver)) {
 		    receiver->hasPostedEvents = false;
+#ifndef QT_NO_COMPAT
+		    receiver->hasPostedChildInsertedEvents = false;
+#endif
+		}
 	    postedEvents.clear();
 	    postEventCounter = 0;
 	    skipSafely = 0;
 	} else {
 	    receiver->hasPostedEvents = false;
+#ifndef QT_NO_COMPAT
+	    receiver->hasPostedChildInsertedEvents = false;
+#endif
 	}
     }
+#ifndef QT_NO_COMPAT
+    else if (event_type == QEvent::ChildInserted) {
+	if (!receiver) {
+	    for (i = 0; i < postedEvents.size(); ++i)
+		if ((receiver = postedEvents.at(i).receiver))
+		    receiver->hasPostedChildInsertedEvents = false;
+	} else {
+	    receiver->hasPostedChildInsertedEvents = false;
+	}
+    }
+#endif
 }
 
 /*!

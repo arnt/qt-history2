@@ -248,6 +248,7 @@ QObject::QObject( QObject *parent, const char *name )
     blockSig( FALSE ),      			// not blocking signals
     wasDeleted( FALSE ),       			// double-delete catcher
     hasPostedEvents( FALSE ),
+    hasPostedChildInsertedEvents( FALSE ),
     objname( name ? qstrdup(name) : 0 ),        // set object name
     parentObj( 0 ),				// no parent yet. It is set by reparent()
     d_ptr( new QObjectPrivate )
@@ -269,6 +270,7 @@ QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
     blockSig( FALSE ),      			// not blocking signals
     wasDeleted( FALSE ),       			// double-delete catcher
     hasPostedEvents( FALSE ),
+    hasPostedChildInsertedEvents( FALSE ),
     objname( name ? qstrdup(name) : 0 ),        // set object name
     parentObj( 0 ),				// no parent yet. It is set by reparent()
     d_ptr(dd)
@@ -288,6 +290,7 @@ QObject::QObject(QWidgetPrivate *dd, QObject *parent, const char *name)
     blockSig( FALSE ),      			// not blocking signals
     wasDeleted( FALSE ),       			// double-delete catcher
     hasPostedEvents( FALSE ),
+    hasPostedChildInsertedEvents( FALSE ),
     objname( name ? qstrdup(name) : 0 ),        // set object name
     parentObj( 0 ),				// no parent yet. It is set by reparent()
     d_ptr((QObjectPrivate*)dd)
