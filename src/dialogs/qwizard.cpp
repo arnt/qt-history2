@@ -23,7 +23,7 @@
 #include "qlabel.h"
 #include "qwidgetstack.h"
 #include "qapplication.h"
-#include "qptrlist.h"
+#include "qlist.h"
 #include "qpainter.h"
 #include "qaccel.h"
 
@@ -103,7 +103,7 @@ public:
     QVBoxLayout * v;
     Page * current;
     QWidgetStack * ws;
-    QPtrList<Page> pages;
+    QList<Page *> pages;
     QLabel * title;
     QPushButton * backButton;
     QPushButton * nextButton;
@@ -348,7 +348,7 @@ int QWizard::indexOf( QWidget* page ) const
     QWizardPrivate::Page * p = d->page( page );
     if ( !p ) return -1;
 
-    return d->pages.find( p );
+    return d->pages.findIndex(p);
 }
 
 /*!
@@ -855,7 +855,7 @@ void QWizard::removePage( QWidget * page )
     if ( i < 0 )
 	return;
     QWizardPrivate::Page * p = d->pages.at( i );
-    d->pages.removeRef( p );
+    d->pages.remove( p );
     d->ws->removeWidget( page );
 
     if( cp == page ) {
