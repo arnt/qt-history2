@@ -721,7 +721,7 @@ extern bool qt_winunicode;
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
 #    if defined(Q_CC_MSVC)
-#      define Q_TEMPLATE_EXTERN extern
+#      define Q_TEMPLATE_EXTERN /*extern*/ //### too many warnings, even though disabled
 #    else
 #      define Q_TEMPLATE_EXTERN
 #    endif
