@@ -306,25 +306,27 @@ bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
     QTime started = QTime::currentTime();
     QTime now = started;
     bool flushed = FALSE;
+
     do {
 	if ( XCheckTypedWindowEvent(dpy,win,type,event) )
 	    return TRUE;
+
 	now = QTime::currentTime();
 	if ( started > now )			// crossed midnight
 	    started = now;
-	// XSync is evil, and causes a *very* high load on the server and client if
-	// called // like this very often. Things also
- 	// XSync( dpy, FALSE );			// toss a ball while we wait
+
 	if(!flushed) {
 	    XFlush( dpy );
 	    flushed = TRUE;
 	}
-	// sleep a bit, so we don't use up CPU cycles all the time.
-	struct timeval _usleep_tv;
-	_usleep_tv.tv_sec = 0;
-	_usleep_tv.tv_usec = 50000;
-	select(0,0,0,0,&_usleep_tv);
+
+	// sleep 50ms, so we don't use up CPU cycles all the time.
+	struct timeval usleep_tv;
+	usleep_tv.tv_sec = 0;
+	usleep_tv.tv_usec = 50000;
+	select(0, 0, 0, 0, &usleep_tv);
     } while ( started.msecsTo(now) < timeout );
+
     return FALSE;
 }
 
@@ -344,8 +346,8 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 			   int *format, bool nullterm )
 {
     int	   maxsize = maxSelectionIncr(dpy);
-    ulong  bytes_left;
-    ulong  length;
+    ulong  bytes_left; // bytes_after
+    ulong  length;     // nitems
     uchar *data;
     Atom   dummy_type;
     int    dummy_format;
@@ -366,38 +368,85 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
     }
     XFree( (char*)data );
 
-    int  offset = 0;
-    bool ok = buffer->resize( (int)bytes_left+ (nullterm?1:0) );
-
-    if ( ok ) {					// could allocate buffer
-	while ( bytes_left ) {			// more to read...
-	    r = XGetWindowProperty( dpy, win, property, offset/4, maxsize/4,
+    int  offset = 0, buffer_offset = 0, format_inc = 1, proplen = bytes_left;
+    
+#if defined (QT_CLIPBOARD_DEBUG)
+    qDebug("qt_xclb_read_property: initial property length: %d", proplen);
+#endif
+    
+    switch (*format) {
+    case 8:
+    default:
+	format_inc = sizeof(char) / 1;
+	break;
+	
+    case 16:
+	format_inc = sizeof(short) / 2;
+	proplen *= sizeof(short) / 2;
+	break;
+	
+    case 32:
+	format_inc = sizeof(long) / 4;
+	proplen *= sizeof(long) / 4;
+	break;
+    }
+    
+    bool ok = buffer->resize( proplen + (nullterm ? 1 : 0) );
+    
+#if defined(QT_CLIPBOARD_DEBUG)
+    qDebug("qt_xclb_read_property: buffer resized to %d", buffer->size());
+#endif
+    
+    if ( ok ) {
+	// could allocate buffer
+	
+	while ( bytes_left ) {
+	    // more to read...
+	    
+	    r = XGetWindowProperty( dpy, win, property, offset, maxsize/4,
 				    FALSE, AnyPropertyType, type, format,
 				    &length, &bytes_left, &data );
 	    if ( r != Success )
 		break;
-	    length *= *format/8;		// length in bytes
+	    
+	    offset += length;
+	    length *= format_inc * (*format) / 8;
+	    
 	    // Here we check if we get a buffer overflow and tries to
 	    // recover -- this shouldn't normally happen, but it doesn't
 	    // hurt to be defensive
-	    if ( offset+length > buffer->size() ) {
-		length = buffer->size() - offset;
-		bytes_left = 0;			// escape loop
+	    if (buffer_offset + length > buffer->size()) {
+		length = buffer->size() - buffer_offset;
+		
+		// escape loop
+		bytes_left = 0;
 	    }
-	    memcpy( buffer->data()+offset, data, (unsigned int)length );
-	    offset += (unsigned int)length;
+	    
+	    memcpy(buffer->data() + buffer_offset, data, length);
+	    buffer_offset += length;
+	    
 	    XFree( (char*)data );
 	}
+	
+	// zero-terminate (for text)
        	if (nullterm)
-	    buffer->at(offset) = '\0';		// zero-terminate (for text)
+	    buffer->at(buffer_offset) = '\0';
     }
+     
+    // correct size, not 0-term.
     if ( size )
-	*size = offset;				// correct size, not 0-term.
-    XFlush( dpy );
-    if ( deleteProperty ) {
+	*size = buffer_offset;
+    
+#if defined(QT_CLIPBOARD_DEBUG)
+    qDebug("qt_xclb_read_property: buffer size %d, buffer offset %d, offset %d",
+	   buffer->size(), buffer_offset, offset);
+#endif
+    
+    if ( deleteProperty )
 	XDeleteProperty( dpy, win, property );
-	XFlush( dpy );
-    }
+
+    XFlush( dpy );
+    
     return ok;
 }
 
@@ -498,9 +547,10 @@ bool QClipboard::event( QEvent *e )
 
     switch ( xevent->type ) {
 
-    case SelectionClear:			// new selection owner
+    case SelectionClear:
+	// new selection owner
 	if (xevent->xselectionclear.selection == XA_PRIMARY) {
-	    
+
 #if defined(QT_CLIPBOARD_DEBUG)
 	    qDebug("qclipboard_x11.cpp: new selection owner 0x%lx",
 		   XGetSelectionOwner(dpy, XA_PRIMARY));
@@ -519,22 +569,22 @@ bool QClipboard::event( QEvent *e )
 	}
 	
 	break;
-
+	
     case SelectionNotify:
+	// some has delivered data to us
 	if (xevent->xselection.selection == XA_PRIMARY)
 	    selectionData()->clear();
 	else // if (xevent->xselection.selection == qt_xa_clipboard)
 	    clipboardData()->clear();
 	
 	break;
-
+	
     case SelectionRequest:
-	{
+	{	
 	    // someone wants our data
 	    XSelectionRequestEvent *req = &xevent->xselectionrequest;
-	    
-	    if (req->requestor == owner->winId())
-		break;
+
+	    if (req->requestor == owner->winId()) break;
 
 	    XEvent evt;
 	    evt.xselection.type = SelectionNotify;
@@ -544,9 +594,7 @@ bool QClipboard::event( QEvent *e )
 	    evt.xselection.target	= req->target;
 	    evt.xselection.property	= None;
 	    evt.xselection.time = req->time;
-	    // ### Should we check that we own the clipboard?
-	    // ### We do above
-
+	    
 #if defined(QT_CLIPBOARD_DEBUG)
 	    qDebug("qclipboard_x11.cpp: selection requested\n"
 		   "                    from 0x%lx\n"
@@ -645,7 +693,7 @@ bool QClipboard::event( QEvent *e )
 		    qDebug("qclipboard_x11.cpp:%d: size %d %d",
 			   __LINE__, n * sizeof(long), data.size());
 #endif
-
+		    
 		    XChangeProperty ( dpy, req->requestor, property, xa_targets, 32,
 				      PropModeReplace, (uchar *) data.data(), n );
 		    evt.xselection.property = property;
