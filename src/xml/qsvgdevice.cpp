@@ -944,7 +944,7 @@ void QSvgDevice::setStyle( const QString &s )
 		    pt->setBrush( parseColor( val ));
 	    } else if ( prop == "font-size" ) {
 		// ### pixel size seems more logical but produces bad results
-		font.setPointSize( float(parseLen( val )) );
+		font.setPointSizeFloat( float(parseLen( val )) );
 	    } else if ( prop == "font-family" ) {
 		font.setFamily( val );
 	    } else if ( prop == "text-anchor" ) {
