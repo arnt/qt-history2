@@ -696,8 +696,8 @@ typedef unsigned long Q_ULONG;      // word up to 64 bit unsigned
 typedef __int64 Q_INT64;            // 64 bit signed
 typedef unsigned __int64 Q_UINT64;  // 64 bit unsigned
 #else
-#  define Q_INT64_C(c) c ## LL     // signed 64 bit constant
-#  define Q_UINT64_C(c) c ## ULL   // unsigned 64 bit constant
+#  define Q_INT64_C(c) static_cast<long long>(c ## LL)            // signed 64 bit constant
+#  define Q_UINT64_C(c) static_cast<unsigned long long>(c ## ULL) // unsigned 64 bit constant
 typedef long long Q_INT64;          // 64 bit signed
 typedef unsigned long long Q_UINT64;// 64 bit unsigned
 #endif
