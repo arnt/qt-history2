@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#26 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#27 $
 **
 ** Implementation of QFontDialog
 **
@@ -547,7 +547,7 @@ void QFontDialog::updateScripts()
     d->scriptCombo->clear();
     d->scriptCombo->insertStrList( d->family.charSetNames() );
     if ( d->scriptCombo->count() != 0 ) {
-	// Avoid bug in QComboBox
+	// Avoid bug in QComboBox ###### FIX IT
 	scriptHighlighted( d->scriptCombo->text( 0 ) );
     }
 }
