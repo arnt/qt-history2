@@ -1188,16 +1188,26 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
     case kEventClassMouse:
     {
+#ifdef DEBUG_MOUSE_MAPS
+	const char *edesc = NULL;
+	switch(ekind) {
+	case kEventMouseDown: edesc = "MouseButtonPress"; break;
+	case kEventMouseUp: edesc = "MouseButtonRelease"; break;
+	case kEventMouseDragged: case kEventMouseMoved: edesc = "MouseMove"; break;
+	case kEventMouseWheelMoved: edesc = "MouseWheelMove"; break;
+	}
+#endif
 	if( (ekind == kEventMouseDown && mouse_button_state ) ||
 	    (ekind == kEventMouseUp && !mouse_button_state) ) {
 #ifdef DEBUG_MOUSE_MAPS
-	    qDebug("Dropping mouse event.. %d %d", ekind == kEventMouseDown, mouse_button_state);
+	    qDebug("**** Dropping mouse event.. %s %d %p **** ", 
+		   edesc, mouse_button_state, (QWidget*)qt_button_down);
 #endif
 	    break;
 	}
 #ifdef DEBUG_MOUSE_MAPS
 	else if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
-	    qDebug("Handling mouse: %d", ekind == kEventMouseDown);
+	    qDebug("Handling mouse: %s", edesc);
 	}
 #endif
 	QEvent::Type etype = QEvent::None;
@@ -1391,7 +1401,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	{
 	    if ((QWidget *)qt_mouseover != widget) {
 #ifdef DEBUG_MOUSE_MAPS
-		qDebug("Entering: %s (%s), Leaving %s (%s)",
+		qDebug("Entering: %p - %s (%s), Leaving %s (%s)", widget, 
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
 		       qt_mouseover ? qt_mouseover->className() : "none",
 		       qt_mouseover ? qt_mouseover->name() : "");
@@ -1444,23 +1454,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		was_context = cme.isAccepted();
 	    }
 #ifdef DEBUG_MOUSE_MAPS
-	    char *event_desc = NULL;
-	    if(was_context) {
+	    const char *event_desc = edesc;
+	    if(was_context) 
 		event_desc = "Context Menu";
-	    } else if(etype == QEvent::MouseButtonDblClick) {
+	    else if(etype == QEvent::MouseButtonDblClick)
 		event_desc = "Double Click";
-	    } else {
-		switch(ekind) {
-		case kEventMouseDown: event_desc = "MouseButtonPress"; break;
-		case kEventMouseUp: event_desc = "MouseButtonRelease"; break;
-		case kEventMouseDragged: case kEventMouseMoved: event_desc = "MouseMove"; break;
-		case kEventMouseWheelMoved: event_desc = "MouseWheelMove"; break;
-		}
-	    }
-	    if(event_desc)
-		qDebug("%d %d (%d %d) - Would send (%s) event to %s %s (%d %d %d)", p.x(), p.y(),
-		       plocal.x(), plocal.y(), event_desc, widget->name(), widget->className(),
-		       button, state|keys, wheel_delta);
+	    qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d %d %d)", p.x(), p.y(),
+		   plocal.x(), plocal.y(), event_desc, widget, widget->name(), 
+		   widget->className(), button, state|keys, wheel_delta);
 #endif
 	    if(!was_context) {
 		if(etype == QEvent::MouseButtonPress) {
@@ -1473,10 +1474,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    QWheelEvent qwe(plocal, p, wheel_delta, state | keys);
 		    QApplication::sendSpontaneousEvent(widget, &qwe);
 		    if(!qwe.isAccepted() && focus_widget && focus_widget != widget) {
-			QWheelEvent qwe2(focus_widget->mapFromGlobal(p), p,
-					  wheel_delta, state | keys);
-			QApplication::sendSpontaneousEvent(focus_widget, &qwe2);
-	    }
+			QWheelEvent qwe2( focus_widget->mapFromGlobal( p ), p,
+					  wheel_delta, state | keys );
+			QApplication::sendSpontaneousEvent( focus_widget, &qwe2 );
+		    }
 		} else {
 #ifdef QMAC_SPEAK_TO_ME
 		    if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
@@ -1991,6 +1992,10 @@ void QApplication::closePopup( QWidget *popup )
     if (popup == popupOfPopupButtonFocus) {
 	popupButtonFocus = 0;
 	popupOfPopupButtonFocus = 0;
+    }
+    if(popup == qt_button_down) {
+	mouse_button_state = 0;
+	qt_button_down = NULL;
     }
     if ( popupWidgets->count() == 0 ) {		// this was the last popup
 	popupCloseDownMode = TRUE;		// control mouse events
