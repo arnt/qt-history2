@@ -30,9 +30,9 @@ class QMakeMetaInfo
 public:
     QMakeMetaInfo();
 
-    bool readLib(const QString &lib);
-    static QString findLib(const QString &lib);
-    static bool libExists(const QString &lib);
+    bool readLib(QString lib);
+    static QString findLib(QString lib);
+    static bool libExists(QString lib);
     QString type() const;
 
     bool isEmpty(const QString &v);
@@ -66,7 +66,7 @@ inline QString QMakeMetaInfo::first(const QString &v)
 inline QMap<QString, QStringList> &QMakeMetaInfo::variables()
 { return vars; }
 
-inline bool QMakeMetaInfo::libExists(const QString &lib)
+inline bool QMakeMetaInfo::libExists(QString lib)
 { return !findLib(lib).isNull(); }
 
 #endif /* __META_H__ */

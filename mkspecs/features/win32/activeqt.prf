@@ -29,6 +29,6 @@ QMAKE_POST_LINK += $$quote($$ACTIVEQT_IDC $${ACTIVEQT_TARGET} /regserver)
 
 QMAKE_CLEAN += $${ACTIVEQT_OUTPUT}.idl $${ACTIVEQT_OUTPUT}.tlb
 qt:!target_qt {
-   QMAKE_LIBS_QT_ENTRY =
-   LIBS += -lqaxserver
+   QMAKE_LIBS_QT_ENTRY = -lqaxserver
+   dll:QMAKE_LIBS += $$QMAKE_LIBS_QT_ENTRY
 }

@@ -26,7 +26,7 @@ QMakeMetaInfo::QMakeMetaInfo()
 
 
 bool
-QMakeMetaInfo::readLib(const QString &lib)
+QMakeMetaInfo::readLib(QString lib)
 {
     clear();
     QString meta_file = findLib(lib);
@@ -69,8 +69,13 @@ QMakeMetaInfo::clear()
 
 
 QString
-QMakeMetaInfo::findLib(const QString &lib)
+QMakeMetaInfo::findLib(QString lib)
 {
+    if((lib[0] == '\'' || lib[0] == '"') &&
+       lib[lib.length()-1] == lib[0])
+	lib = lib.mid(1, lib.length()-2);
+    lib = Option::fixPathToLocalOS(lib);
+
     QString ret = QString::null;
     QString extns[] = { Option::prl_ext, /*Option::pkgcfg_ext, Option::libtool_ext,*/ QString::null };
     for(int extn = 0; !extns[extn].isNull(); extn++) {
