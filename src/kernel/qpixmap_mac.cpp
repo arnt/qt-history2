@@ -263,7 +263,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	    UnlockPixels(GetGWorldPixMap((GWorldPtr)data->alphapm->hd));
 #endif
 	} else
-#endif //!QMAKE_PIXMAP_ALPHA
+#endif //!QMAC_PIXMAP_ALPHA
 	{
 	    QBitmap m;
 	    m = img.createAlphaMask(conversion_flags);
