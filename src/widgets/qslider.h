@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#13 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#14 $
 **
 ** Definition of QSlider class
 **
@@ -83,7 +83,7 @@ private slots:
 private:
     enum State { Idle, Dragging, TimingUp, TimingDown };
 
-        void	init();
+    void	init();
     int		positionFromValue( int ) const;
     int		valueFromPosition( int ) const;
     void	moveSlider( int );
