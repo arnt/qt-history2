@@ -1052,7 +1052,7 @@ Installation options:
  These are optional, but you may specify install directories.
 
     -prefix dir ........ This will install everything relative dir
-			  (default $QT_PREFIX_DIR)
+			  (default $QT_INSTALL_PREFIX)
 
  You may use these to separate different parts of the install:
 
@@ -1071,34 +1071,34 @@ Installation options:
  *  -release ........... Compile and link Qt with debugging turned off.
     -debug ............. Compile and link Qt with debugging turned on.
 
- *  -shared ............ Create and use a shared Qt library (libqt.so)
-    -static ............ Create and use a static Qt library (libqt.a)
+ *  -shared ............ Create and use a shared Qt library (libqt.so).
+    -static ............ Create and use a static Qt library (libqt.a).
 
  *  -no-gif ............ Do not compile in GIF reading support.
-    -qt-gif ............... Compile in GIF reading support. See src/kernel/qgif.h
+    -qt-gif ............ Compile in GIF reading support.
+                         See src/kernel/qgif.h
 
  $SMN  -no-sm ............. Do not support X Session Management.
  $SMY  -sm ................ Support X Session Management, links in -lSM -lICE.
 
- $THN  -no-thread ......... Do not compile with Threading Support
- $THY  -thread ............ Compile with Threading Support
+ $THN  -no-thread ......... Do not compile with threading support.
+ $THY  -thread ............ Compile with threading support.
 
  $XRN  -no-xinerama ....... Do not compile Xinerama (multihead) support.
- $XRY  -xinerama .......... Compile Xinerama support.  Requires
-			 X11/extensions/Xinerama.h and libXinerama.
+ $XRY  -xinerama .......... Compile Xinerama support.
+			 Requires X11/extensions/Xinerama.h and libXinerama.
 
  $XRN  -no-xrender ........ Do not compile XRender support.
- $XRY  -xrender ........... Compile XRender support. Requires
-                         X11/extensions/Xrender.h and libXrender.
+ $XRY  -xrender ........... Compile XRender support.
+                         Requires X11/extensions/Xrender.h and libXrender.
 
- $XFTN  -no-xft ............ Do not compile XftFreeType (anti-aliased font)
-                         support.
- $XFTY  -xft ............... Compile XftFreeType support. Requires
-                         X11/Xft/XftFreetype.h and libXft.
+ $XFTN  -no-xft ............ Do not compile XftFreeType (anti-aliased font) support.
+ $XFTY  -xft ............... Compile XftFreeType support.
+                         Requires X11/Xft/XftFreetype.h and libXft.
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
     -system-zlib ....... Use a zlib from the operating system
-			 http://www.info-zip.org/pub/infozip/zlib
+			 See http://www.info-zip.org/pub/infozip/zlib
 
  *  -qt-libpng ......... Use the libpng bundled with Qt.
     -system-libpng ..... Use a libpng from the operating system.
@@ -1120,20 +1120,19 @@ Installation options:
  *  -freetype .......... Qt/Embedded only: add FreeType2 font support.
 
     -enable-kde2 ....... Builds the Qt Designer with KDE2 support, so that
-			 KDE2 widgets can be used directly in
-			 the Qt Designer. \$KDEDIR must be
-			 set to point to a KDE2 installation.
+			 KDE2 widgets can be used directly in the Qt Designer.
+			 \$KDEDIR must be set to point to a KDE2 installation.
 			 See http://www.kde.org
 
-    -embedded arch...... This will enable embedded for Qt, you must have a proper
-			 license for this switch to work.
+    -embedded arch...... This will enable embedded for Qt, you must have a
+			 proper license for this switch to work.
 
-    -make directory .... This will generated makefiles for all projectfiles
+    -make directory .... This will generate makefiles for all project files
 			 in directory. You can specify this option multiple
 			 times so as to only make specific directories.
 
-    -platform target ... The platform you are building on ($PLATFORM)
-    -xplatform target .. The platform when cross-compiling.
+    -platform target ... The platform you are building on ($PLATFORM).
+    -xplatform target .. The target platform when cross-compiling.
 
 			 See the PLATFORMS file for a list of supported
 			 operating systems and compilers.
@@ -1147,13 +1146,14 @@ Installation options:
 
 
     -enable-<module> .......... Enables a module where module is one of:
-				$MODULES_HELP
-    -disable-<module> ......... Disables a module, where module can can be one of:
-				$MODULES_HELP
+                                $MODULES_HELP
+    -disable-<module> ......... Disables a module where module is one of:
+                                $MODULES_HELP
 
     -with-<module setting> .... This will activate a setting as described below.
-    -without-<module setting> . This will deactivate a setting for any enabled module,
-				consult each Qt module for their specific settings.
+    -without-<module setting> . This will deactivate a setting for any enabled
+                                module, consult each Qt module for their
+				specific settings.
 
 EOF
 
