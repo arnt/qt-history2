@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#23 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#24 $
 **
 ** Definition of QStyle class
 **
@@ -54,7 +54,7 @@ public:
     virtual void unPolish( QApplication*);
 
     virtual void polish( QPalette&);
-    
+
     virtual QRect itemRect( QPainter *p, int x, int y, int w, int h,
 		    int flags, bool enabled,
 		    const QPixmap *pixmap, const QString& text, int len=-1 );
@@ -127,8 +127,9 @@ public:
 
 
     // focus
-    virtual void drawFocusRect( QPainter*,
-		    const QRect&, const QColorGroup &, const QColor* bg = 0, bool = FALSE ) = 0;
+    virtual void drawFocusRect( QPainter*, const QRect &,
+				const QColorGroup &, const QColor* bg = 0,
+				bool = FALSE ) = 0;
 
     // push buttons
     virtual void drawPushButton( QPushButton* btn, QPainter *p) = 0;
