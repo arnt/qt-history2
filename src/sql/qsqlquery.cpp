@@ -896,12 +896,16 @@ bool QSqlQuery::exec()
 		}
 	    }
 	}
-	return exec( query );
+	// have to retain the original query w/placeholders..
+	QString orig = d->sqlResult->lastQuery();
+	bool ret = exec( query );
+	d->sqlResult->setQuery( orig );
+	return ret;
     }
 }
 
 /*! Set the placeholder \c placeholder to be bound to value \c val in
-  the prepared statement. Note that the placeholder mark (e.g \c :)
+  the prepared statement. Note that the placeholder mark (e.g {\c :})
   should be included when specifying the placeholder name.
   Placeholder values are cleared when prepare() is called.
   
@@ -927,11 +931,10 @@ void QSqlQuery::bindValue( int pos, const QVariant& val )
     d->sqlResult->extension()->bindValue( pos, val );
 }
 
-/*! Adds the value \c val to the list of placeholder values when using
-  positional value binding. The order in which addBindValue() is
-  called determines the order the values will be bound to the
-  placeholders in the prepared query. Placeholder values are cleared
-  when prepare() is called.
+/*! Adds the value \c val to the list of values when using positional
+  value binding. The order of the addBindValue() calls determines
+  which placeholder a value will be bound to in the prepared
+  query. Placeholder values are cleared when prepare() is called.
   
   \sa bindValue(), prepare(), exec()
 */
