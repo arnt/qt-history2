@@ -449,6 +449,8 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
             if(!matched)
                 continue;
         }
+#else
+        Q_UNUSED(filters);
 #endif
         if  ((doDirs && isDir) || (doFiles && isFile)) {
             QString name = QFSFileEnginePrivate::fixToQtSlashes(fname);

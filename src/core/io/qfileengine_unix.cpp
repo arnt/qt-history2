@@ -170,6 +170,8 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
             if(!matched)
                 continue;
         }
+#else
+        Q_UNUSED(filters);
 #endif
         if  ((doDirs && fi.isDir()) || (doFiles && fi.isFile()) ||
               (doSystem && (!fi.isFile() && !fi.isDir()))) {
