@@ -190,7 +190,7 @@ then
     PLATFORMS="aix-g++ aix-xlc bsdi-g++ dgux-g++ freebsd-g++ gnu-g++ hpux-acc
 	hpux-cc hpux-g++ irix-64 irix-dcc irix-g++ irix-n32 irix-o32
 	linux-g++ netbsd-g++ openbsd-g++ osf1-cxx osf1-g++ qnx-g++ sco-g++
-	solaris-cc solaris-g++ sunos-g++ ultrix-g++ unixware-g++
+	solaris-cc-gcc solaris-cc solaris-g++ sunos-g++ ultrix-g++ unixware-g++
 	unixware7-cc unixware7-g++"
 
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
@@ -260,7 +260,7 @@ then
 	PLATFORM=solaris-cc
 	PLATFORM_NOTES="
 	    - Sun C++ 5 is not supported (it is too buggy)
-	    - Mixing GNU C and SunPRO C++ is not supported
+	    - To mix GNU C and SunPRO C++, add -platform solaris-cc-gcc
 	"
 	;;
      SunOS:4*)
