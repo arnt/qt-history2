@@ -67,30 +67,25 @@
 #endif
 
 static QList<QTextCodec*> *all = 0;
-static bool destroying_is_ok; // starts out as 0
+static bool destroying_is_ok = false;
 static QTextCodec * localeMapper = 0;
 
-class QTextCodecCleanup {
+class QTextCodecCleanup
+{
 public:
-    ~QTextCodecCleanup() {
-	QTextCodec::deleteAllCodecs();
-    }
+    ~QTextCodecCleanup() { QTextCodec::deleteAllCodecs(); }
 };
+static QTextCodecCleanup qtextcodec_cleanup;
 
 /*!
     Deletes all the created codecs.
 
-    \warning Do not call this function.
+    \internal
 
-    QApplication calls this function just before exiting to delete
-    any QTextCodec objects that may be lying around. Since various
-    other classes hold pointers to QTextCodec objects, it is not safe
-    to call this function earlier.
-
-    If you are using the utility classes (like QString) but not using
-    QApplication, calling this function at the very end of your
-    application may be helpful for chasing down memory leaks by
-    eliminating any QTextCodec objects.
+    Qt calls this function just before exiting to delete any
+    QTextCodec objects that may be lying around. Since various other
+    classes hold pointers to QTextCodec objects, it is not safe to
+    call this function earlier.
 */
 
 void QTextCodec::deleteAllCodecs()
@@ -105,7 +100,7 @@ void QTextCodec::deleteAllCodecs()
 	return;
 #endif // QT_THREAD_SUPPORT
 
-    destroying_is_ok = TRUE;
+    destroying_is_ok = true;
 
     QList<QTextCodec*> *ball = all;
     all = 0;
@@ -117,12 +112,10 @@ void QTextCodec::deleteAllCodecs()
     ball->clear();
     delete ball;
 
-    destroying_is_ok = FALSE;
+    destroying_is_ok = false;
 }
 
-
 static void realSetup();
-
 
 static inline void setup()
 {
@@ -2810,7 +2803,7 @@ static void setupLocaleMapper()
 static void realSetup()
 {
     if ( destroying_is_ok )
-	qWarning( "QTextCodec: creating new codec during codec cleanup!" );
+	qWarning( "QTextCodec: Creating new codec during codec cleanup" );
     all = new QList<QTextCodec*>;
 
     (void)new QLatin1Codec;
