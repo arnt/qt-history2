@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#38 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#38 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -320,6 +320,9 @@ int QPixmap::metric( int m ) const
 }
 
 
+extern bool qt_image_did_native_bmp();		// defined in qpixmap.cpp
+
+
 QImage QPixmap::convertToImage() const
 {
     if ( isNull() ) {
@@ -344,6 +347,7 @@ QImage QPixmap::convertToImage() const
     }
 
     QImage image( w, h, d, ncols, QImage::BigEndian );
+    bool   native = qt_image_did_native_bmp();
 
     int	  bmi_data_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
     char *bmi_data = new char[bmi_data_len];
@@ -362,6 +366,17 @@ QImage QPixmap::convertToImage() const
     QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
 
     GetDIBits( handle(), hbm(), 0, h, image.bits(), bmi, DIB_RGB_COLORS );
+    if ( !native && d == 32 ) {
+	for ( int i=0; i<image.height(); i++ ) {
+	    uint *p = (uint*)image.scanLine(i);
+	    uint *end = p + image.width();
+	    while ( p < end ) {
+		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
+		    *p & 0xff00;
+		p++;
+	    }
+	}
+    }
 
     for ( int i=0; i<ncols; i++ ) {		// copy color table
 	RGBQUAD *r = (RGBQUAD*)&coltbl[i];
@@ -373,9 +388,6 @@ QImage QPixmap::convertToImage() const
     delete [] bmi_data;
     return image;
 }
-
-
-extern bool qt_image_did_native_bmp();		// defined in qpixmap.cpp
 
 
 bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
@@ -451,8 +463,30 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	r->rgbRed   = qRed  ( c );
 	r->rgbReserved = 0;
     }
+    if ( !native && d == 32 ) {
+	for ( int i=0; i<image.height(); i++ ) {
+	    uint *p = (uint*)image.scanLine(i);
+	    uint *end = p + image.width();
+	    while ( p < end ) {
+		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
+		    *p & 0xff00;
+		p++;
+	    }
+	}
+    }
     SetDIBitsToDevice( pm.handle(), 0, 0, w, h, 0, 0, 0, h,
 		       image.bits(), bmi, DIB_RGB_COLORS );
+    if ( !native && d == 32 ) {
+	for ( int i=0; i<image.height(); i++ ) {
+	    uint *p = (uint*)image.scanLine(i);
+	    uint *end = p + image.width();
+	    while ( p < end ) {
+		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
+		    *p & 0xff00;
+		p++;
+	    }
+	}
+    }
     delete [] bmi_data;
 
     pm.data->uninit = FALSE;
