@@ -2139,7 +2139,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::EditTrigger trigger
         return true;
     if (trigger & editTriggers)
         return true;
-    return d->editors.contains(index); // persistent editor
+    return !d->editors.contains(index); // not a persistent editor
 }
 
 bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
