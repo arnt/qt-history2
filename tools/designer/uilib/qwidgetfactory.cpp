@@ -33,6 +33,7 @@
 #include <qlayout.h>
 #include <qmetaobject.h>
 #include <domtool.h>
+#include <uib.h>
 #include <qapplication.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
@@ -95,6 +96,12 @@
 
 #include <stdlib.h>
 
+struct QWidgetFactoryPrivate
+{
+    QCString translationContext;
+    QListViewItem *lastItem;
+};
+
 static QPtrList<QWidgetFactory> widgetFactories;
 static QPluginManager<EventInterface> *eventInterfaceManager = 0;
 static QPluginManager<InterpreterInterface> *interpreterInterfaceManager = 0;
@@ -143,6 +150,41 @@ static void setupWidgetListAndMap()
 	availableWidgetMap->insert( *it, TRUE );
 }
 
+static QImage loadImageData( const QString& format, ulong len, QByteArray data )
+{
+    QImage img;
+    if ( format == "XPM.GZ" ) {
+	if ( len < data.size() * 10 )
+	    len = data.size() * 10;
+	QByteArray baunzip( len );
+	::uncompress( (uchar*) baunzip.data(), &len, (uchar*) data.data(), data.size() );
+	img.loadFromData( (const uchar*)baunzip.data(), len, "XPM" );
+    }  else {
+	img.loadFromData( (const uchar*)data.data(), data.size(), format );
+    }
+    return img;
+}
+
+static QSizePolicy::SizeType stringToSizeType( const QString& str )
+{
+    if ( str == "Fixed" ) {
+	return QSizePolicy::Fixed;
+    } else if ( str == "Minimum" ) {
+	return QSizePolicy::Minimum;
+    } else if ( str == "Maximum" ) {
+	return QSizePolicy::Maximum;
+    } else if ( str == "Preferred" ) {
+	return QSizePolicy::Preferred;
+    } else if ( str == "MinimumExpanding" ) {
+	return QSizePolicy::MinimumExpanding;
+    } else if ( str == "Expanding" ) {
+	return QSizePolicy::Expanding;
+    } else {
+	return QSizePolicy::Ignored;
+    }
+}
+
+
 /*!
   \class QWidgetFactory
 
@@ -180,11 +222,10 @@ static void setupWidgetListAndMap()
 /*! Constructs a QWidgetFactory. */
 
 QWidgetFactory::QWidgetFactory()
-    : dbControls( 0 ), usePixmapCollection( FALSE )
+    : d( new QWidgetFactoryPrivate() ), dbControls( 0 ),
+      usePixmapCollection( FALSE ), defMargin( 11 ), defSpacing( 6 )
 {
     widgetFactories.setAutoDelete( TRUE );
-    defSpacing = 6;
-    defMargin = 11;
 }
 
 /*! \fn QWidgetFactory::~QWidgetFactory()
@@ -192,7 +233,8 @@ QWidgetFactory::QWidgetFactory()
 */
 QWidgetFactory::~QWidgetFactory()
 {
-#if 0 // #### Volker, please test your changes!!!
+    delete d;
+#if 0
     delete widgetInterfaceManager;
     widgetInterfaceManager = 0;
     delete languageInterfaceManager;
@@ -246,115 +288,32 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
 
 QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *parent, const char *name )
 {
+    QWidget *w = 0;
     QDomDocument doc;
     QString errMsg;
     int errLine;
 
-    if ( !doc.setContent( dev, &errMsg, &errLine ) ) {
-	//qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
-	return 0;
-    }
-
-    DomTool::fixDocument( doc );
-
     QWidgetFactory *widgetFactory = new QWidgetFactory;
     widgetFactory->toplevel = 0;
 
-    QDomElement e = doc.firstChild().toElement().firstChild().toElement();
-
-    QDomElement variables = e;
-    while ( variables.tagName() != "variables" && !variables.isNull() )
-	variables = variables.nextSibling().toElement();
-
-    QDomElement slots = e;
-    while ( slots.tagName() != "slots" && !slots.isNull() )
-	slots = slots.nextSibling().toElement();
-
-    QDomElement connections = e;
-    while ( connections.tagName() != "connections" && !connections.isNull() )
-	connections = connections.nextSibling().toElement();
-
-    QDomElement imageCollection = e;
-    while ( imageCollection.tagName() != "images" && !imageCollection.isNull() )
-	imageCollection = imageCollection.nextSibling().toElement();
-
-    QDomElement tabOrder = e;
-    while ( tabOrder.tagName() != "tabstops" && !tabOrder.isNull() )
-	tabOrder = tabOrder.nextSibling().toElement();
-
-    QDomElement actions = e;
-    while ( actions.tagName() != "actions" && !actions.isNull() )
-	actions = actions.nextSibling().toElement();
-
-    QDomElement toolbars = e;
-    while ( toolbars.tagName() != "toolbars" && !toolbars.isNull() )
-	toolbars = toolbars.nextSibling().toElement();
-
-    QDomElement menubar = e;
-    while ( menubar.tagName() != "menubar" && !menubar.isNull() )
-	menubar = menubar.nextSibling().toElement();
-
-    QDomElement functions = e;
-    while ( functions.tagName() != "functions" && !functions.isNull() )
-	functions = functions.nextSibling().toElement();
-
-    QDomElement widget;
-    while ( !e.isNull() ) {
-	if ( e.tagName() == "widget" ) {
-	    widget = e;
-	} else if ( e.tagName() == "variable" ) { // compatibility with old betas
-	    widgetFactory->variables << e.firstChild().toText().data();
-	} else if ( e.tagName() == "pixmapinproject" ) {
-	    widgetFactory->usePixmapCollection = TRUE;
-	} else if ( e.tagName() == "layoutdefaults" ) {
-	    widgetFactory->defSpacing = e.attribute( "spacing", QString::number( widgetFactory->defSpacing ) ).toInt();
-	    widgetFactory->defMargin = e.attribute( "margin", QString::number( widgetFactory->defMargin ) ).toInt();
+    Q_UINT32 magic;
+    QDataStream in( dev );
+    in >> magic;
+    if ( magic == UibMagic ) {
+	w = widgetFactory->createFromUibFile( in, connector, parent, name );
+    } else {
+	in.unsetDevice();
+	dev->at( dev->at() - 4 );
+	if ( doc.setContent( dev, &errMsg, &errLine ) ) {
+	    w = widgetFactory->createFromUiFile( doc, connector, parent, name );
+	} else {
+	    //qDebug( QString("Parse error: ") + errMsg + QString(" in line %d"), errLine );
 	}
-	e = e.nextSibling().toElement();
     }
-
-    if ( !imageCollection.isNull() )
-	widgetFactory->loadImageCollection( imageCollection );
-
-    widgetFactory->createWidgetInternal( widget, parent, 0, widget.attribute("class", "QWidget") );
-    QWidget *w = widgetFactory->toplevel;
     if ( !w ) {
 	delete widgetFactory;
 	return 0;
     }
-
-    if ( !variables.isNull() ) {
-	for ( QDomElement n = variables.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
-	    if ( n.tagName() == "variable" )
-		widgetFactory->variables << n.firstChild().toText().data();
-    }
-    if ( !slots.isNull() ) {
-	for ( QDomElement n = slots.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
-	    if ( n.tagName() == "slot" ) {
-		QString s = n.firstChild().toText().data();
-		widgetFactory->languageSlots.insert( s.left( s.find( "(" ) ) , n.attribute( "language", "C++" ) );
-	    }
-    }
-
-    if ( !actions.isNull() )
-	widgetFactory->loadActions( actions );
-    if ( !toolbars.isNull() )
-	widgetFactory->loadToolBars( toolbars );
-    if ( !menubar.isNull() )
-	widgetFactory->loadMenuBar( menubar );
-
-    if ( !connections.isNull() )
-	widgetFactory->loadConnections( connections, connector );
-    if ( w && name && qstrlen( name ) > 0 )
-	w->setName( name );
-
-    if ( !tabOrder.isNull() )
-	widgetFactory->loadTabOrder( tabOrder );
-
-
-    if ( !functions.isNull() ) // compatibiliy with early 3.0 betas
-	widgetFactory->loadFunctions( functions );
-
 
     if ( !languageInterfaceManager )
 	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(), "/designer" );
@@ -416,8 +375,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 		    if ( fit != widgetFactory->languageFunctions.end() ) {
 			QString funcs = (*fit)->functions;
 			funcs += "\n";
-			for ( QStringList::Iterator vit = widgetFactory->variables.begin();
-			      vit != widgetFactory->variables.end(); ++vit )
+			for ( QStringList::Iterator vit = widgetFactory->vars.begin();
+			      vit != widgetFactory->vars.end(); ++vit )
 			    funcs += interpreterInterface->createVariableDeclaration( *vit ) + "\n";
 			if ( qwf_execute_code ) {
 			    if ( qwf_form_object )
@@ -469,6 +428,647 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     QApplication::sendPostedEvents();
 
     return w;
+}
+
+QWidget *QWidgetFactory::createFromUiFile( QDomDocument doc, QObject *connector,
+	QWidget *parent, const char *name )
+{
+    DomTool::fixDocument( doc );
+
+    QDomElement e = doc.firstChild().toElement().firstChild().toElement();
+
+    QDomElement variables = e;
+    while ( variables.tagName() != "variables" && !variables.isNull() )
+	variables = variables.nextSibling().toElement();
+
+    QDomElement slots = e;
+    while ( slots.tagName() != "slots" && !slots.isNull() )
+	slots = slots.nextSibling().toElement();
+
+    QDomElement connections = e;
+    while ( connections.tagName() != "connections" && !connections.isNull() )
+	connections = connections.nextSibling().toElement();
+
+    QDomElement imageCollection = e;
+    while ( imageCollection.tagName() != "images" && !imageCollection.isNull() )
+	imageCollection = imageCollection.nextSibling().toElement();
+
+    QDomElement tabOrder = e;
+    while ( tabOrder.tagName() != "tabstops" && !tabOrder.isNull() )
+	tabOrder = tabOrder.nextSibling().toElement();
+
+    QDomElement actions = e;
+    while ( actions.tagName() != "actions" && !actions.isNull() )
+	actions = actions.nextSibling().toElement();
+
+    QDomElement toolbars = e;
+    while ( toolbars.tagName() != "toolbars" && !toolbars.isNull() )
+	toolbars = toolbars.nextSibling().toElement();
+
+    QDomElement menubar = e;
+    while ( menubar.tagName() != "menubar" && !menubar.isNull() )
+	menubar = menubar.nextSibling().toElement();
+
+    QDomElement functions = e;
+    while ( functions.tagName() != "functions" && !functions.isNull() )
+	functions = functions.nextSibling().toElement();
+
+    QDomElement widget;
+    while ( !e.isNull() ) {
+	if ( e.tagName() == "class" ) {
+	    d->translationContext = e.firstChild().toText().data();
+	} else if ( e.tagName() == "widget" ) {
+	    widget = e;
+	} else if ( e.tagName() == "variable" ) { // compatibility with old betas
+	    vars << e.firstChild().toText().data();
+	} else if ( e.tagName() == "pixmapinproject" ) {
+	    usePixmapCollection = TRUE;
+	} else if ( e.tagName() == "layoutdefaults" ) {
+	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();
+	    defMargin = e.attribute( "margin", QString::number( defMargin ) ).toInt();
+	}
+	e = e.nextSibling().toElement();
+    }
+
+    if ( !imageCollection.isNull() )
+	loadImageCollection( imageCollection );
+
+    createWidgetInternal( widget, parent, 0, widget.attribute("class", "QWidget") );
+    QWidget *w = toplevel;
+    if ( !w )
+	return 0;
+
+    if ( !variables.isNull() ) {
+	for ( QDomElement n = variables.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
+	    if ( n.tagName() == "variable" )
+		vars << n.firstChild().toText().data();
+    }
+    if ( !slots.isNull() ) {
+	for ( QDomElement n = slots.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
+	    if ( n.tagName() == "slot" ) {
+		QString s = n.firstChild().toText().data();
+		languageSlots.insert( s.left( s.find( "(" ) ) , n.attribute( "language", "C++" ) );
+	    }
+    }
+
+    if ( !actions.isNull() )
+	loadActions( actions );
+    if ( !toolbars.isNull() )
+	loadToolBars( toolbars );
+    if ( !menubar.isNull() )
+	loadMenuBar( menubar );
+
+    if ( !connections.isNull() )
+	loadConnections( connections, connector );
+    if ( w && name && qstrlen( name ) > 0 )
+	w->setName( name );
+
+    if ( !tabOrder.isNull() )
+	loadTabOrder( tabOrder );
+
+    if ( !functions.isNull() ) // compatibiliy with early 3.0 betas
+	loadFunctions( functions );
+
+    return w;
+}
+
+static void unpackUInt16( QDataStream& in, Q_UINT16& n )
+{
+    Q_UINT8 half;
+    in >> half;
+    if ( half == 255 ) {
+	in >> n;
+    } else {
+	n = half;
+    }
+}
+
+static void unpackUInt32( QDataStream& in, Q_UINT32& n )
+{
+    Q_UINT16 half;
+    in >> half;
+    if ( half == 65535 ) {
+	in >> n;
+    } else {
+	n = half;
+    }
+}
+
+static void unpackByteArray( QDataStream& in, QByteArray& array )
+{
+    Q_UINT32 size;
+    unpackUInt32( in, size );
+    array.resize( size );
+    in.readRawBytes( array.data(), size );
+}
+
+static void unpackCString( const UibStrTable& strings, QDataStream& in,
+			   QCString& cstr )
+{
+    Q_UINT32 n;
+    unpackUInt32( in, n );
+    cstr = strings.asCString( n );
+}
+
+static void unpackString( const UibStrTable& strings, QDataStream& in,
+			  QString& str )
+{
+    Q_UINT32 n;
+    unpackUInt32( in, n );
+    str = strings.asString( n );
+}
+
+static void unpackStringSplit( const UibStrTable& strings, QDataStream& in,
+			       QString& str )
+{
+    QString remainder;
+    unpackString( strings, in, str );
+    unpackString( strings, in, remainder );
+    str += remainder;
+}
+
+static void unpackVariant( const UibStrTable& strings, QDataStream& in,
+			   QVariant& value )
+{
+    Q_UINT32 number;
+    Q_UINT16 count;
+    Q_UINT16 x;
+    Q_UINT16 y;
+    Q_UINT16 width;
+    Q_UINT16 height;
+    Q_UINT8 bit;
+    Q_UINT8 type;
+
+    in >> type;
+
+    switch ( type ) {
+    case QVariant::Pixmap:
+    case QVariant::Image:
+    case QVariant::IconSet:
+	unpackString( strings, in, value.asString() );
+	break;
+    case QVariant::StringList:
+	unpackUInt16( in, count );
+	while ( count-- ) {
+	    QString str;
+	    unpackString( strings, in, str );
+	    value.asStringList().append( str );
+	}
+	break;
+    case QVariant::Font:
+	in >> value.asFont();
+	break;
+    case QVariant::Rect:
+	unpackUInt16( in, x );
+	unpackUInt16( in, y );
+	unpackUInt16( in, width );
+	unpackUInt16( in, height );
+	value = QRect( x, y, width, height );
+	break;
+    case QVariant::Size:
+	unpackUInt16( in, width );
+	unpackUInt16( in, height );
+	value = QSize( width, height );
+	break;
+    case QVariant::Color:
+	in >> value.asColor();
+	break;
+    case QVariant::Point:
+	unpackUInt16( in, x );
+	unpackUInt16( in, y );
+	value = QPoint( x, y );
+	break;
+    case QVariant::Int:
+	unpackUInt32( in, number );
+	value = (int) number;
+	break;
+    case QVariant::Bool:
+	in >> bit;
+	value = QVariant( bit != 0, 0 );
+	break;
+    case QVariant::Double:
+	in >> value.asDouble();
+	break;
+    case QVariant::CString:
+	unpackCString( strings, in, value.asCString() );
+	break;
+    case QVariant::Cursor:
+	in >> value.asCursor();
+	break;
+    case QVariant::Date:
+	in >> value.asDate();
+	break;
+    case QVariant::Time:
+	in >> value.asTime();
+	break;
+    case QVariant::DateTime:
+	in >> value.asDateTime();
+	break;
+    default:
+	in >> value;
+    }
+}
+
+void QWidgetFactory::inputSpacer( const UibStrTable& strings, QDataStream& in,
+				  QLayout *parent )
+{
+    QCString name;
+    QVariant value;
+    QCString comment;
+    QSizePolicy::SizeType sizeType = QSizePolicy::Preferred;
+    bool vertical = FALSE;
+    int w = 0;
+    int h = 0;
+    Q_UINT16 column = 0;
+    Q_UINT16 row = 0;
+    Q_UINT16 colspan = 1;
+    Q_UINT16 rowspan = 1;
+    Q_UINT8 objectTag;
+
+    in >> objectTag;
+    while ( !in.atEnd() && objectTag != Object_End ) {
+	switch ( objectTag ) {
+	case Object_GridCell:
+	    unpackUInt16( in, column );
+	    unpackUInt16( in, row );
+	    unpackUInt16( in, colspan );
+	    unpackUInt16( in, rowspan );
+	    break;
+	case Object_VariantProperty:
+	    unpackCString( strings, in, name );
+	    unpackVariant( strings, in, value );
+	    if ( name == "orientation" ) {
+		vertical = ( value == "Vertical" );
+	    } else if ( name == "sizeHint" ) {
+		w = value.toSize().width();
+		h = value.toSize().height();	    
+	    } else if ( name == "sizeType" ) {
+		sizeType = stringToSizeType( value.toString() );
+	    }
+	    break;
+	default:
+	    qFatal( "Corrupt" );
+	}
+	in >> objectTag;
+    }
+
+    if ( parent != 0 ) {
+qDebug ( "%s: %d %d, %d", vertical ? "ver" : "hor", w, h, sizeType );
+	QSpacerItem *spacer;
+	if ( vertical ) {
+	    spacer = new QSpacerItem( w, h, QSizePolicy::Minimum, sizeType );
+	} else {
+	    spacer = new QSpacerItem( w, h, sizeType, QSizePolicy::Minimum );
+	}
+
+	if ( parent->inherits("QGridLayout") ) {
+	    ((QGridLayout *) parent)->addMultiCell( spacer, row,
+		    row + rowspan - 1, column, column + colspan - 1,
+		    vertical ? Qt::AlignHCenter : Qt::AlignVCenter );
+	} else {
+qDebug( "add item" );
+	    parent->addItem( spacer );
+	}
+    }
+}
+
+QObject *QWidgetFactory::inputObject( QObject **objects, int& numObjects,
+				      const UibStrTable& strings,
+				      QDataStream& in, QObject *parent,
+				      QCString className )
+{
+    QObject *obj = 0;
+    QWidget *widget = 0;
+    QLayout *layout = 0;
+    QWidget *parentWidget = 0;
+    QLayout *parentLayout = 0;
+
+    bool isQObject = !className.isEmpty();
+    if ( isQObject ) {
+	if ( parent ) {
+	    if ( parent->isWidgetType() ) {
+		parentWidget = (QWidget *) parent;
+	    } else if ( parent->inherits("QLayout") ) {
+		parentLayout = (QLayout *) parent;
+		parentWidget = parentLayout->mainWidget();
+	    }
+	}
+
+	if ( className == "QLayout" ) {
+	    unpackCString( strings, in, className );
+	    LayoutType type = Grid;
+	    if ( className == "QHBoxLayout" ) {
+		type = HBox;
+	    } else if ( className == "QVBoxLayout" ) {
+		type = VBox;
+	    }
+	    layout = createLayout( parentWidget, parentLayout, type );
+	    obj = layout;
+	} else if ( className == "QWidget" ) {
+	    unpackCString( strings, in, className );
+	    widget = createWidget( className, parentWidget, 0 );
+	    obj = widget;
+	}
+	if ( obj == 0 )
+	    return 0;
+	objects[numObjects++] = obj;
+    }
+
+    QCString name;
+    QVariant value;
+    QCString comment;
+    int metAttribute = 0;
+    Q_UINT16 column = 0;
+    Q_UINT16 row = 0;
+    Q_UINT16 colspan = 1;
+    Q_UINT16 rowspan = 1;
+    Q_UINT8 paletteTag;
+    Q_UINT8 objectTag;
+
+    in >> objectTag;
+    while ( !in.atEnd() && objectTag != Object_End ) {
+	switch ( objectTag ) {
+	case Object_Action:
+	    inputObject( objects, numObjects, strings, in, obj, "QAction" );
+	    break;
+	case Object_ActionGroup:
+	    inputObject( objects, numObjects, strings, in, obj,
+			 "QActionGroup" );
+	    break;
+	case Object_ActionRef:
+	    {
+		Q_UINT16 actionNo;
+		unpackUInt16( in, actionNo );
+		// ###
+	    }
+	    break;
+	case Object_Attribute:
+	    metAttribute = 2;
+	    break;
+	case Object_GridCell:
+	    unpackUInt16( in, column );
+	    unpackUInt16( in, row );
+	    unpackUInt16( in, colspan );
+	    unpackUInt16( in, rowspan );
+	    break;
+	case Object_Item:
+	    inputObject( objects, numObjects, strings, in, obj );
+	    break;
+	case Object_PaletteProperty:
+	    in >> paletteTag;
+	    while ( !in.atEnd() && paletteTag != Palette_End ) {
+		switch ( paletteTag ) {
+		case Palette_Active:
+		    // ###
+		    break;
+		case Palette_Inactive:
+		    // ###
+		    break;
+		case Palette_Disabled:
+		    // ###
+		    break;
+		case Palette_Color:
+		    in >> value.asColor();
+		    break;
+		case Palette_Pixmap:
+		    in >> value.asString();
+		}
+		in >> paletteTag;
+	    }
+	    break;
+	case Object_StringProperty:
+	    unpackCString( strings, in, name );
+	    unpackCString( strings, in, value.asCString() );
+	    unpackCString( strings, in, comment );
+	    if ( obj != 0 )
+		setProperty( obj, name, translate(value.asCString(), comment) );
+	    break;
+	case Object_VariantProperty:
+	    unpackCString( strings, in, name );
+	    unpackVariant( strings, in, value );
+	    if ( obj != 0 )
+		setProperty( obj, name, value );
+	    break;
+	case Object_Separator:
+	    // ###
+	    break;
+	case Object_Spacer:
+	    inputSpacer( strings, in, (QLayout *) obj->qt_cast("QLayout") );
+	    break;
+	case Object_SubLayout:
+	    inputObject( objects, numObjects, strings, in, obj, "QLayout" );
+	    break;
+	case Object_SubWidget:
+	    inputObject( objects, numObjects, strings, in, obj, "QWidget" );
+	    break;
+	case Object_TableColumn:
+	    inputObject( objects, numObjects, strings, in, obj );
+	    break;
+	case Object_TableRow:
+	    inputObject( objects, numObjects, strings, in, obj );
+	}
+	in >> objectTag;
+	metAttribute--;
+    }
+
+    if ( parentLayout != 0 ) {
+	if ( widget != 0 ) {
+	    if ( parentLayout->inherits("QGridLayout") ) {
+		((QGridLayout *) parentLayout)->addMultiCellWidget( widget, row,
+			row + rowspan - 1, column, column + colspan - 1 );
+	    } else {
+		((QBoxLayout *) parentLayout)->addWidget( widget );
+	    }
+	} else if ( layout != 0 ) {
+	    if ( parentLayout->inherits("QGridLayout") )
+		((QGridLayout *) parentLayout)->addMultiCellLayout( layout, row,
+			row + rowspan - 1, column, column + colspan - 1 );
+	}
+    }
+    return obj;
+}
+
+QWidget *QWidgetFactory::createFromUibFile( QDataStream& in, QObject *connector,
+	QWidget *parent, const char *name )
+{
+#define END_OF_BLOCK() \
+	( in.atEnd() || in.device()->at() >= nextBlock )
+
+    Q_UINT8 lf;
+    Q_UINT8 cr;
+    in >> lf;
+    in >> cr;
+    if ( lf != '\n' || cr != '\r' ) {
+	qWarning( "File corrupted" );
+	return 0;
+    }
+
+    UibStrTable strings;
+    union {
+	QObject **objects;
+	QWidget **widgets;
+    };
+    objects = 0;
+    int numObjects = 0;
+
+    Q_UINT8 blockType;
+    Q_UINT32 blockSize;
+
+    in >> blockType;
+    while ( !in.atEnd() && blockType != Block_End ) {
+	unpackUInt32( in, blockSize );
+	QIODevice::Offset nextBlock = in.device()->at() + blockSize;
+
+	switch ( blockType ) {
+	case Block_Actions:
+	    // ###
+	    qWarning( "Block_Actions not supported" );
+	    in.device()->at( nextBlock );
+	    break;
+	case Block_Buddies:
+	    {
+		Q_UINT16 labelNo;
+		Q_UINT16 buddyNo;
+
+		do {
+		    unpackUInt16( in, labelNo );
+		    unpackUInt16( in, buddyNo );
+		    QLabel *label = (QLabel *)
+			    widgets[labelNo]->qt_cast( "QLabel" );
+		    if ( label != 0 )
+			label->setBuddy( widgets[buddyNo] );
+		} while ( !END_OF_BLOCK() );
+	    }
+	    break;
+	case Block_Connections:
+	    {
+		QString language = "C++";
+		Q_UINT16 senderNo = 0;
+		QString signal = "clicked()";
+		Q_UINT16 receiverNo = 0;
+		QString slot = "accept()";
+		Q_UINT8 connectionFlags;
+
+		do {
+		    in >> connectionFlags;
+		    if ( connectionFlags & Connection_Language )
+			unpackString( strings, in, language );
+		    if ( connectionFlags & Connection_Sender )
+			unpackUInt16( in, senderNo );
+		    if ( connectionFlags & Connection_Signal )
+			unpackStringSplit( strings, in, signal );
+		    if ( connectionFlags & Connection_Receiver )
+			unpackUInt16( in, receiverNo );
+		    if ( connectionFlags & Connection_Slot )
+			unpackStringSplit( strings, in, slot );
+		    // ###
+		    qDebug( "connect( %p, %s, %p, %s )", objects[senderNo],
+			    signal.latin1(), objects[receiverNo],
+			    slot.latin1() );
+		} while ( !END_OF_BLOCK() );
+	    }
+	    break;
+	case Block_Functions:
+	    // ###
+	    qWarning( "Block_Functions not supported" );
+	    in.device()->at( nextBlock );
+	    break;
+	case Block_Images:
+	    {
+		QString format;
+		Q_UINT32 length;
+		QByteArray data;
+		Image image;
+
+		do {
+		    unpackString( strings, in, image.name );
+		    unpackString( strings, in, format );
+		    unpackUInt32( in, length );
+		    unpackByteArray( in, data );
+		    image.img = loadImageData( format, length, data );
+		    images += image;
+		} while ( !END_OF_BLOCK() );
+	    }
+	    break;
+	case Block_Intro:
+	    {
+		Q_INT16 defaultMargin;
+		Q_INT16 defaultSpacing;
+		Q_UINT16 maxObjects;
+		Q_UINT8 introFlags;
+
+		in >> introFlags;
+		in >> defaultMargin;
+		in >> defaultSpacing;
+		unpackUInt16( in, maxObjects );
+		unpackCString( strings, in, d->translationContext );
+
+		if ( introFlags & Intro_Pixmapinproject )
+		    usePixmapCollection = TRUE;
+		if ( defaultMargin != -32768 )
+		    defMargin = defaultMargin;
+		if ( defaultSpacing != -32768 )
+		    defSpacing = defaultSpacing;
+		objects = new QObject *[maxObjects];
+	    }
+	    break;
+	case Block_Menubar:
+	    // ###
+	    qWarning( "Block_Menubar not supported" );
+	    in.device()->at( nextBlock );
+	    break;
+	case Block_Slots:
+	    {
+		QString language;
+		QString slot;
+
+		do {
+		    unpackString( strings, in, language );
+		    unpackStringSplit( strings, in, slot );
+		} while ( !END_OF_BLOCK() );
+	    }
+	    break;
+	case Block_Strings:
+	    strings.readBlock( in, blockSize );
+	    break;
+	case Block_Tabstops:
+	    {
+		Q_UINT16 beforeNo;
+		Q_UINT16 afterNo;
+
+		unpackUInt16( in, beforeNo );
+		while ( !END_OF_BLOCK() ) {
+		    unpackUInt16( in, afterNo );
+		    toplevel->setTabOrder( widgets[beforeNo],
+					   widgets[afterNo] );
+		    beforeNo = afterNo;
+		}
+	    }
+	    break;
+	case Block_Toolbars:
+	    // ###
+	    qWarning( "Block_Toolbars not supported" );
+	    in.device()->at( nextBlock );
+	    break;
+	case Block_Variables:
+	    // ###
+	    qWarning( "Block_Variables not supported" );
+	    in.device()->at( nextBlock );
+	    break;
+	case Block_Widget:
+	    toplevel = (QWidget *)
+		inputObject( objects, numObjects, strings, in, parent,
+			     "QWidget" );
+	    toplevel->setName( name );
+	    break;
+	default:
+	    qWarning( "Version error" );
+	    return 0;
+	}
+	in >> blockType;
+    }
+    delete[] objects;
+    return toplevel;
 }
 
 /*! Installs a widget factory \a factory, which normally contains
@@ -673,7 +1273,7 @@ bool QWidgetFactory::supportsWidget( const QString &widget )
 
 QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout, const QString &classNameArg )
 {
-    lastItem = 0;
+    d->lastItem = 0;
     QDomElement n = e.firstChild().toElement();
     QWidget *w = 0; // the widget that got created
     QObject *obj = 0; // gets the properties
@@ -897,81 +1497,72 @@ QWidgetFactory::LayoutType QWidgetFactory::layoutType( QLayout *layout ) const
     return NoLayout;
 }
 
-void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomElement &e )
+void QWidgetFactory::setProperty( QObject* obj, const QString &prop,
+				  QVariant value )
 {
-    const QMetaProperty *p = obj->metaObject()->property( obj->metaObject()->findProperty( prop, TRUE ), TRUE );
-
-    QVariant defVariant;
-    if ( e.tagName() == "font" ) {
-	QFont f( qApp->font() );
-	if ( obj->isWidgetType() && ( (QWidget*)obj )->parentWidget() )
-	    f = ( (QWidget*)obj )->parentWidget()->font();
-	defVariant = QVariant( f );
-    }
-
-    QString comment;
-    QVariant v( DomTool::elementToVariant( e, defVariant, comment ) );
-
-    if ( e.tagName() == "pixmap" ) {
-	QPixmap pix = loadPixmap( e );
-	if ( pix.isNull() )
-	    return;
-	v = QVariant( pix );
-    } else if ( e.tagName() == "iconset" ) {
-	QPixmap pix = loadPixmap( e );
-	if ( pix.isNull() )
-	    return;
-	v = QVariant( QIconSet( pix ) );
-    } else if ( e.tagName() == "image" ) {
-	v = QVariant( loadFromCollection( v.toString() ) );
-    } else if ( e.tagName() == "string" ) {
-	v = QVariant( translate( v.asString(), comment ) );
-    }
-
-    if ( !p ) {
+    if ( obj->metaObject()->findProperty(prop, TRUE) ) {
+	if ( prop == "geometry" && obj == toplevel ) {
+	    toplevel->resize( value.toRect().size() );
+	} else {
+	    obj->setProperty( prop, value );
+	}
+    } else {
 	if ( obj->isWidgetType() ) {
 	    if ( prop == "toolTip" ) {
-		if ( !v.toString().isEmpty() )
-		    QToolTip::add( (QWidget*)obj, v.toString() );
+		if ( !value.toString().isEmpty() )
+		    QToolTip::add( (QWidget*)obj, value.toString() );
 	    } else if ( prop == "whatsThis" ) {
-		if ( !v.toString().isEmpty() )
-		    QWhatsThis::add( (QWidget*)obj, v.toString() );
-	    }
-#ifndef QT_NO_SQL
-	    if ( prop == "database" && !obj->inherits( "QDataView" )
-		 && !obj->inherits( "QDataBrowser" ) ) {
-		QStringList lst = DomTool::elementToVariant( e, QVariant( QStringList() ) ).toStringList();
-		if ( lst.count() > 2 ) {
-		    if ( dbControls )
-			dbControls->insert( obj->name(), lst[ 2 ] );
-		} else if ( lst.count() == 2 ) {
-		    dbTables.insert( obj->name(), lst );
-		}
-	    } else if ( prop == "database" ) {
-		QStringList lst = DomTool::elementToVariant( e, QVariant( QStringList() ) ).toStringList();
-		if ( lst.count() == 2 && obj->inherits( "QWidget" ) ) {
-		    SqlWidgetConnection conn( lst[ 0 ], lst[ 1 ] );
-		    sqlWidgetConnections.insert( (QWidget*)obj, conn );
-		    dbControls = conn.dbControls;
-		}
-	    } else
-#endif
-		if ( prop == "buddy" ) {
-		buddies.insert( obj->name(), v.toCString() );
-	    } else if ( prop == "frameworkCode" ) {
-		if ( !DomTool::elementToVariant( e, QVariant( TRUE, 0 ) ).toBool() ) {
-		    noDatabaseWidgets << obj->name();
-		}
+		if ( !value.toString().isEmpty() )
+		    QWhatsThis::add( (QWidget*)obj, value.toString() );
+	    } else if ( prop == "buddy" ) {
+		buddies.insert( obj->name(), value.toCString() );
 	    } else if ( prop == "buttonGroupId" ) {
 		if ( obj->inherits( "QButton" ) && obj->parent()->inherits( "QButtonGroup" ) )
-		    ( (QButtonGroup*)obj->parent() )->insert( (QButton*)obj, v.toInt() );
+		    ( (QButtonGroup*)obj->parent() )->insert( (QButton*)obj, value.toInt() );
+#ifndef QT_NO_SQL
+	    } else if ( prop == "database" ) {
+		const QStringList& lst = value.asStringList();
+		if ( obj->inherits( "QDataView" ) || obj->inherits( "QDataBrowser" ) ) {
+		    if ( lst.count() > 2 ) {
+			if ( dbControls )
+			    dbControls->insert( obj->name(), lst[ 2 ] );
+		    } else if ( lst.count() == 2 ) {
+			dbTables.insert( obj->name(), lst );
+		    }
+		} else {
+		    if ( lst.count() == 2 ) {
+			SqlWidgetConnection conn( lst[ 0 ], lst[ 1 ] );
+			sqlWidgetConnections.insert( (QWidget*)obj, conn );
+			dbControls = conn.dbControls;
+		    }
+		}
+#endif
+	    } else if ( prop == "frameworkCode" ) {
+		if ( value.isValid() && !value.toBool() )
+		    noDatabaseWidgets << obj->name();
 	    }
-
-	    return;
 	}
     }
+}
 
-    if ( e.tagName() == "palette" ) {
+void QWidgetFactory::setProperty( QObject* widget, const QString &prop, const QDomElement &e )
+{
+    QString comment;
+    QVariant value( DomTool::elementToVariant( e, QVariant(), comment ) );
+
+    if ( e.tagName() == "string" ) {
+	value = translate( value.asString().utf8(), comment.utf8() );
+    } else if ( e.tagName() =="pixmap" ) {
+	QPixmap pix = loadPixmap( value.toString() );
+	if ( !pix.isNull() )
+	    value = pix;
+    } else if ( e.tagName() == "iconset" ) {
+	QPixmap pix = loadPixmap( value.toString() );
+	if ( !pix.isNull() )
+	    value = QIconSet( pix );
+    } else if ( e.tagName() == "image" ) {
+	value = loadFromCollection( value.toString() );
+    } else if ( e.tagName() == "palette" ) {
 	QDomElement n = e.firstChild().toElement();
 	QPalette p;
 	while ( !n.isNull() ) {
@@ -988,27 +1579,9 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 	    }
 	    n = n.nextSibling().toElement();
 	}
-	v = QPalette( p );
-    } else if ( e.tagName() == "enum" && p && p->isEnumType() ) {
-	QString key( v.toString() );
-	v = QVariant( p->keyToValue( key ) );
-    } else if ( e.tagName() == "set" && p && p->isSetType() ) {
-	QString keys( v.toString() );
-	QStringList lst = QStringList::split( '|', keys );
-	QStrList l;
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it )
-	    l.append( *it );
-	v = QVariant( p->keysToValue( l ) );
+	value = p;
     }
-
-    if ( prop == "geometry" ) {
-	if ( obj == toplevel ) {
-	    toplevel->resize( v.toRect().size() );
-	    return;
-	}
-    }
-
-    obj->setProperty( prop, v );
+    setProperty( widget, prop, value );
 }
 
 void QWidgetFactory::createSpacer( const QDomElement &e, QLayout *layout )
@@ -1031,18 +1604,7 @@ void QWidgetFactory::createSpacer( const QDomElement &e, QLayout *layout )
 		else
 		    orient = Qt::Vertical;
 	    } else if ( prop == "sizeType" ) {
-		if ( n.firstChild().firstChild().toText().data() == "Fixed" )
-		    sizeType = QSizePolicy::Fixed;
-		else if ( n.firstChild().firstChild().toText().data() == "Minimum" )
-		    sizeType = QSizePolicy::Minimum;
-		else if ( n.firstChild().firstChild().toText().data() == "Maximum" )
-		    sizeType = QSizePolicy::Maximum;
-		else if ( n.firstChild().firstChild().toText().data() == "Preferred" )
-		    sizeType = QSizePolicy::Preferred;
-		else if ( n.firstChild().firstChild().toText().data() == "MinimumExpanding" )
-		    sizeType = QSizePolicy::MinimumExpanding;
-		else if ( n.firstChild().firstChild().toText().data() == "Expanding" )
-		    sizeType = QSizePolicy::Expanding;
+		sizeType = stringToSizeType( n.firstChild().firstChild().toText().data() );
 	    } else if ( prop == "sizeHint" ) {
 		w = n.firstChild().firstChild().firstChild().toText().data().toInt();
 		h = n.firstChild().firstChild().nextSibling().firstChild().toText().data().toInt();
@@ -1068,38 +1630,13 @@ void QWidgetFactory::createSpacer( const QDomElement &e, QLayout *layout )
 
 static QImage loadImageData( QDomElement &n2 )
 {
-    QImage img;
-    QString data = n2.firstChild().toText().data();
-    char *ba = new char[ data.length() / 2 ];
-    for ( int i = 0; i < (int)data.length() / 2; ++i ) {
-	char h = data[ 2 * i ].latin1();
-	char l = data[ 2 * i  + 1 ].latin1();
-	uchar r = 0;
-	if ( h <= '9' )
-	    r += h - '0';
-	else
-	    r += h - 'a' + 10;
-	r = r << 4;
-	if ( l <= '9' )
-	    r += l - '0';
-	else
-	    r += l - 'a' + 10;
-	ba[ i ] = r;
-    }
     QString format = n2.attribute( "format", "PNG" );
-    if ( format == "XPM.GZ" ) {
-	ulong len = n2.attribute( "length" ).toULong();
-	if ( len < data.length() * 5 )
-	    len = data.length() * 5;
-	QByteArray baunzip( len );
-	::uncompress( (uchar*) baunzip.data(), &len, (uchar*) ba, data.length()/2 );
-	img.loadFromData( (const uchar*)baunzip.data(), len, "XPM" );
-    }  else {
-	img.loadFromData( (const uchar*)ba, data.length() / 2, format );
-    }
-    delete [] ba;
-
-    return img;
+    QString hex = n2.firstChild().toText().data();
+    int n = hex.length() / 2;
+    QByteArray data( n );
+    for ( int i = 0; i < n; i++ )
+	data[i] = (char) hex.mid( 2 * i, 2 ).toUInt( 0, 16 );
+    return loadImageData( format, n2.attribute("length").toULong(), data );
 }
 
 void QWidgetFactory::loadImageCollection( const QDomElement &e )
@@ -1131,22 +1668,22 @@ QImage QWidgetFactory::loadFromCollection( const QString &name )
     return QImage();
 }
 
+QPixmap QWidgetFactory::loadPixmap( const QString& name )
+{
+    QPixmap pix;
+    if ( usePixmapCollection ) {
+	const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( name );
+	if ( m )
+	    QImageDrag::decode( m, pix );
+    } else {
+	pix.convertFromImage( loadFromCollection(name) );
+    }
+    return pix;
+}
+
 QPixmap QWidgetFactory::loadPixmap( const QDomElement &e )
 {
-    QString arg = e.firstChild().toText().data();
-    if ( usePixmapCollection ) {
-	const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( arg );
-	if ( !m )
-	    return QPixmap();
-	QPixmap pix;
-	QImageDrag::decode( m, pix );
-	return pix;
-    }
-
-    QImage img = loadFromCollection( arg );
-    QPixmap pix;
-    pix.convertFromImage( img );
-    return pix;
+    return loadPixmap( e.firstChild().toText().data() );
 }
 
 QColorGroup QWidgetFactory::loadColorGroup( const QDomElement &e )
@@ -1479,9 +2016,9 @@ void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListVie
 	QListViewItem *item = 0;
 	QListView *lv = (QListView*)widget;
 	if ( i )
-	    item = new QListViewItem( i, lastItem );
+	    item = new QListViewItem( i, d->lastItem );
 	else
-	    item = new QListViewItem( lv, lastItem );
+	    item = new QListViewItem( lv, d->lastItem );
 	while ( !n.isNull() ) {
 	    if ( n.tagName() == "property" ) {
 		QString attrib = n.attribute( "name" );
@@ -1509,7 +2046,7 @@ void QWidgetFactory::createItem( const QDomElement &e, QWidget *widget, QListVie
 	    item->setText( i, textes[ i ] );
 	    item->setPixmap( i, pixmaps[ i ] );
 	}
-	lastItem = item;
+	d->lastItem = item;
     }
 }
 
@@ -1620,7 +2157,7 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
 		}
 		n2 = n2.nextSibling().toElement();
 	    }
-	    mb->insertItem( translate( n.attribute( "text" ) ), popup );
+	    mb->insertItem( translate( n.attribute( "text" ).utf8() ), popup );
 	} else if ( n.tagName() == "property" ) {
 	    setProperty( mb, n.attribute( "name" ), n.firstChild().toElement() );
 	}
@@ -1722,11 +2259,11 @@ void QWidgetFactory::loadExtraSource()
     QStringList forwards;
     QStringList includesImpl;
     QStringList includesDecl;
-    QStringList vars;
+    QStringList extraVars;
     QValueList<LanguageInterface::Connection> connections;
 
     iface->loadFormCode( toplevel->name(), qwf_currFileName + iface->formCodeExtension(),
-			 functions, forwards, includesImpl, includesDecl, vars, connections );
+			 functions, forwards, includesImpl, includesDecl, extraVars, connections );
 
     for ( QValueList<LanguageInterface::Connection>::Iterator cit = connections.begin();
 	  cit != connections.end(); ++cit ) {
@@ -1787,15 +2324,12 @@ void QWidgetFactory::loadExtraSource()
 	    interpreterInterface->release();
 	}
     }
-
-    QStringList::Iterator vit;
-    for ( vit = vars.begin(); vit != vars.end(); ++vit )
-	variables << *vit;
+    vars += extraVars;
 }
 
-QString QWidgetFactory::translate( const QString& sourceText, const QString& comment )
+QString QWidgetFactory::translate( const char *sourceText, const char *comment )
 {
-    // ### 4.0 use the <class> name, not the widget name
-    return qApp->translate( toplevel->name(), sourceText.utf8(),
-			    comment.utf8(), QApplication::UnicodeUTF8 );
+    return qApp->translate( d->translationContext, sourceText, comment,
+			    QApplication::UnicodeUTF8 );
 }
+

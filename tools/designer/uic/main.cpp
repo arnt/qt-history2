@@ -20,6 +20,7 @@
 
 #include "uic.h"
 #include "domtool.h"
+#include "ui2uib.h"
 #include <qapplication.h>
 #include <qfile.h>
 #include <qstringlist.h>
@@ -38,12 +39,13 @@ int main( int argc, char * argv[] )
     bool impl = FALSE;
     bool subcl = FALSE;
     bool imagecollection = FALSE;
+    bool binary = FALSE;
     QStringList images;
     const char *error = 0;
     const char* fileName = 0;
     const char* className = 0;
     const char* headerFile = 0;
-    const char* outputFile = 0;
+    QCString outputFile;
     const char* projectName = 0;
     const char* trmacro = 0;
     bool nofwd = FALSE;
@@ -82,6 +84,8 @@ int main( int argc, char * argv[] )
 		    projectName = argv[++n];
 		} else
 		    projectName = &opt[1];
+	    } else if ( opt == "binary" ) {
+		binary = TRUE;
 	    } else if ( opt == "nofwd" ) {
 		nofwd = TRUE;
 	    } else if ( opt == "nounload" ) {
@@ -137,7 +141,7 @@ int main( int argc, char * argv[] )
 	    if ( imagecollection )
 		images << argv[n];
 	    else if ( fileName )		// can handle only one file
-		error	 = "Too many input files specified";
+		error = "Too many input files specified";
 	    else
 		fileName = argv[n];
 	}
@@ -158,6 +162,8 @@ int main( int argc, char * argv[] )
 		 "   %s  [options] -embed <project> <image1> <image2> <image3> ...\n"
 		 "\t<project>       project name\n"
 		 "\t<image[1-N]>    image files\n"
+		 "Generate binary UI file:\n"
+		 "   %s  [options] -binary <uifile>\n"
 		 "Generate subclass declaration:\n"
 		 "   %s  [options] -subdecl <subclassname> <baseclassheaderfile> <uifile>\n"
 		 "\t<subclassname>     name of the subclass to generate\n"
@@ -174,15 +180,22 @@ int main( int argc, char * argv[] )
 		 "\t-L path         Additional plugin search path\n"
 		 "\t-version        Display version of uic\n"
 		 "\t-help           Display this information\n"
-		 , argv[0], argv[0], argv[0], argv[0], argv[0], argv[0]);
+		 , argv[0], argv[0], argv[0], argv[0], argv[0], argv[0], argv[0] );
 	exit( 1 );
     }
 
+    if ( binary && outputFile.isEmpty() ) {
+	outputFile = fileName;
+	if ( outputFile.mid(outputFile.length() - 3).lower() == ".ui" )
+	    outputFile.truncate( outputFile.length() - 3 );
+	outputFile += ".uib";
+    }
+
     QFile fileOut;
-    if ( outputFile ) {
+    if ( !outputFile.isEmpty() ) {
 	fileOut.setName( outputFile );
 	if (!fileOut.open( IO_WriteOnly ) )
-	    qFatal( "uic: Could not open output file '%s'", outputFile );
+	    qFatal( "uic: Could not open output file '%s'", outputFile.data() );
     } else {
 	fileOut.open( IO_WriteOnly, stdout );
     }
@@ -195,20 +208,26 @@ int main( int argc, char * argv[] )
     }
 
     out.setEncoding( QTextStream::UnicodeUTF8 );
+
     QFile file( fileName );
     if ( !file.open( IO_ReadOnly ) )
-	qFatal( "uic: Could not open file '%s' ", fileName );
+	qFatal( "uic: Could not open file '%s'", fileName );
 
     QDomDocument doc;
     QString errMsg;
     int errLine;
     if ( !doc.setContent( &file, &errMsg, &errLine ) )
-	qFatal( QString("uic: Failed to parse %s: ") + errMsg + QString (" in line %d\n"), fileName, errLine );
+	qFatal( QString("uic: Failed to parse %s: ") + errMsg + QString (" in line %d"), fileName, errLine );
 
     DomTool::fixDocument( doc );
 
     if ( fix ) {
 	out << doc.toString();
+	return 0;
+    } else if ( binary ) {
+	out.unsetDevice();
+	QDataStream binaryOut( &fileOut );
+	convertUiToUib( doc, binaryOut );
 	return 0;
     }
 

@@ -368,7 +368,7 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 		}
 		call += value + " );";
 
-		if ( n.firstChild().toElement().tagName() == "string" ) {
+		if ( n2.firstChild().toElement().tagName() == "string" ) {
 		    trout << indent << call << endl;
 		} else {
 		    out << indent << call << endl;
@@ -443,11 +443,12 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "action" )
-		trout << indent << n2.attribute( "name" ) << "->addTo( " << itemName << " );" << endl;
+		out << indent << n2.attribute( "name" ) << "->addTo( " << itemName << " );" << endl;
 	    else if ( n2.tagName() == "separator" )
-		trout << indent << itemName << "->insertSeparator();" << endl;
+		out << indent << itemName << "->insertSeparator();" << endl;
 	}
-	trout << indent << objName << "->insertItem( " << trcall( ae.attribute( "text" ) ) << ", " << itemName << " );" << endl;
+	out << indent << objName << "->insertItem( \"\", " << itemName << ", " << i << " );" << endl;
+	trout << indent << objName << "->findItem( " << i << " )->setText( " << trcall( ae.attribute( "text" ) ) << " );" << endl;
     }
 }
 

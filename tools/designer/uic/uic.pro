@@ -4,13 +4,17 @@ HEADERS	= uic.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
 		  ../shared/parser.h \
+		  ../shared/ui2uib.h \
+		  ../shared/uib.h \
 		  ../interfaces/widgetinterface.h
 
 SOURCES	= main.cpp uic.cpp form.cpp object.cpp \ 
 		   subclassing.cpp embed.cpp\
 		  ../shared/widgetdatabase.cpp  \
 		  ../shared/domtool.cpp \
-		  ../shared/parser.cpp
+		  ../shared/parser.cpp \
+		  ../shared/ui2uib.cpp \
+		  ../shared/uib.cpp
 
 DEFINES		+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )
