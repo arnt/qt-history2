@@ -254,7 +254,7 @@ DISTDIR="${TMP_DIR}/qt-$BRANCH-$MYNAME-$$"
 if [ -z $LOCAL_TREE ]; then
     export P4PORT
     checkoutlabel=""
-    if ! $P4 fstat //depot/qt/$BRANCH/doc.conf 2>&1 | grep " depotFile " >/dev/null 2>&1 ; then
+    if ! $P4 fstat //depot/qt/$BRANCH/util/qdoc/qdoc.conf 2>&1 | grep " depotFile " >/dev/null 2>&1 ; then
 	die "//depot/qt/$BRANCH/... is not in the depot, stopped"
     fi
     if [ ! -z $LABEL ]; then
