@@ -1146,6 +1146,8 @@ void QStyleSheet::init()
      style->setFontUnderline( TRUE);
      style = new QStyleSheetItem( this, QString::fromLatin1("nobr") );
      style->setWhiteSpaceMode( QStyleSheetItem::WhiteSpaceNoWrap );
+     style = new QStyleSheetItem( this, QString::fromLatin1("wsp") ); // qt extension for QTextEdit
+     style->setWhiteSpaceMode( (QStyleSheetItem::WhiteSpaceMode) 3 ); // WhiteSpaceModeNoCompression
 
      // tables
      style = new QStyleSheetItem( this, QString::fromLatin1("table") );

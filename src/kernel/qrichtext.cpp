@@ -69,6 +69,8 @@
 
 static QTextFormatCollection *qFormatCollection = 0;
 
+const int QStyleSheetItem_WhiteSpaceNoCompression = 3; // ### belongs in QStyleSheetItem, fix 3.1
+
 #if defined(PARSER_DEBUG)
 static QString debug_indent;
 #endif
@@ -2006,12 +2008,16 @@ QString QTextDocument::richText( QTextParag *p ) const
 		lastItems = items;
 		if ( item->name() == "li" && p->listValue() != -1 ) {
 		    s += "<li value=\"" + QString::number( p->listValue() ) + "\">";
-		} else if ( !item->name().isEmpty() ) {
-		    s += "<" + item->name() + align_to_string( item->name(), p->alignment() )
-			 + direction_to_string( item->name(), p->direction() )  + ">" +
-			 p->richText() + "</" + item->name() + ">\n";
-		} else if ( p->next() ) {
-		    s += "<br>\n"; // empty paragraph, except the last one
+		} else { 
+		    QString ps = p->richText();
+		    if ( ps.isEmpty() && (!item->name().isEmpty() || p->next()) )
+			s += "<br>\n"; // empty paragraph, except the last one
+		    else if ( !item->name().isEmpty() )
+			s += "<" + item->name() + align_to_string( item->name(), p->alignment() )
+			     + direction_to_string( item->name(), p->direction() )  + ">" +
+			     ps + "</" + item->name() + ">\n";
+		    else 
+			s += ps +"\n";
 		}
 	    } else {
 		QString end;
@@ -2021,8 +2027,12 @@ QString QTextDocument::richText( QTextParag *p ) const
 		    end.prepend( "</" + lastItems[ i ]->name() + ">" );
 		}
 		s += end;
-		s += "<p" + align_to_string( "p", p->alignment() ) + direction_to_string( "p", p->direction() )
-		     + ">" + p->richText() + "</p>\n";
+		QString ps = p->richText();
+		if ( ps.isEmpty() )
+		    s += "<br>\n"; // empty paragraph
+		else
+		    s += "<p" + align_to_string( "p", p->alignment() ) + direction_to_string( "p", p->direction() )
+			 + ">" + ps + "</p>\n";
 		lastItems = items;
 	    }
 	    p = p->next();
@@ -4647,16 +4657,31 @@ QString QTextParag::richText() const
 {
     QString s;
     QTextFormat *lastFormat = 0;
+    QString spaces;
     for ( int i = 0; i < length()-1; ++i ) {
 	QTextStringChar *c = &str->at( i );
 	if ( !lastFormat || ( lastFormat->key() != c->format()->key() && c->c != ' ' ) ) {
 	    s += c->format()->makeFormatChangeTags( lastFormat );
 	    lastFormat = c->format();
 	}
+	
+	if ( c->c == ' ' || c->c == '\t' ) {
+	    spaces += c->c;
+	    continue;
+	} else if ( !spaces.isEmpty() ) {
+	    if ( spaces.length() > 1 || spaces[0] == '\t' )
+		s += "<wsp>" + spaces + "</wsp>";
+	    else
+		s += spaces;
+	    spaces = QString::null;
+	}
+	
 	if ( c->c == '<' ) {
 	    s += "&lt;";
 	} else if ( c->c == '>' ) {
 	    s += "&gt;";
+	} else if ( c->c == QChar::nbsp ) {
+	    s += "&nbsp;";
 #ifndef QT_NO_TEXTCUSTOMITEM
 	} else if ( c->isCustom() ) {
 	    s += c->customItem()->richText();
@@ -4664,6 +4689,12 @@ QString QTextParag::richText() const
 	} else {
 	    s += c->c;
 	}
+    }
+    if ( !spaces.isEmpty() ) {
+	if ( spaces.length() > 1 || spaces[0] == '\t' )
+		s += "<wsp>" + spaces + "</wsp>";
+	else
+	    s += spaces;
     }
     if ( lastFormat )
 	s += lastFormat->makeFormatEndTags();
@@ -6876,6 +6907,8 @@ QChar QTextDocument::parseChar(const QString& doc, int& pos, QStyleSheetItem::Wh
 		return QChar::nbsp;
 	    else
 		return c;
+	} else if ( wsm ==  QStyleSheetItem_WhiteSpaceNoCompression ) {
+	    return c;
 	} else { // non-pre mode: collapse whitespace except nbsp
 	    while ( pos< int(doc.length() ) &&
 		    (doc.unicode())[pos].isSpace()  && (doc.unicode())[pos] != QChar::nbsp )
