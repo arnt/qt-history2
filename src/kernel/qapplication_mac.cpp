@@ -211,7 +211,9 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	    { kEventClassWindow, kEventWindowHidden },
 
 	    { kEventClassApplication, kEventAppActivated },
-	    { kEventClassApplication, kEventAppDeactivated }
+	    { kEventClassApplication, kEventAppDeactivated },
+
+	    { kEventClassMenu, kEventMenuOpening }
 	};
 	InstallEventHandler( GetApplicationEventTarget(),
 			     NewEventHandlerUPP(QApplication::globalEventProcessor),
@@ -1385,6 +1387,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	else if(ekind == kEventAppDeactivated) {
 	    app->clipboard()->saveScrap();
 	    app->setActiveWindow(NULL);
+	}
+	break;
+    case kEventClassMenu:
+	if(ekind == kEventMenuOpening) {
+	    Boolean first;
+	    GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean, NULL, sizeof(first), NULL, &first);
+	    if(first) {
+		MenuRef mr;
+		GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL, sizeof(mr), NULL, &mr);
+		QMenuBar::macUpdatePopup(mr);
+	    }
 	}
 	break;
     }

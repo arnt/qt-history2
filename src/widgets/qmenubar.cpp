@@ -315,7 +315,7 @@ void QMenuBar::menuContentsChanged()
 #endif
     }
 #if defined( Q_WS_MAC ) && defined( QMAC_QMENUBAR_NATIVE )
-    macDirtyMenuBar();
+    mac_dirty_menubar = 1;
 #endif
 }
 

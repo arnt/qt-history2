@@ -93,6 +93,7 @@ class QWidgetListIt;
 
 #if defined(Q_WS_MAC)
 
+typedef struct OpaqueMenuHandle *MenuRef;
 typedef struct OpaquePMPrintSession *PMPrintSession;
 typedef struct OpaquePMPrintSettings *PMPrintSettings;
 typedef struct OpaquePMPageFormat *PMPageFormat;

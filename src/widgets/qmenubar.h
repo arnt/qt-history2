@@ -147,12 +147,12 @@ private:
 
     friend class QPopupMenu;
 
-#ifdef QMAC_QMENUBAR_NATIVE
+#if defined( Q_WS_MAC ) && defined( QMAC_QMENUBAR_NATIVE )
     friend class QApplication;
     uint mac_dirty_menubar : 1;
     static bool activate(short id, short index);
-    void macDirtyMenuBar();
     static void macUpdateMenuBar();
+    static void macUpdatePopup(MenuRef);
 #endif
 
 private:	// Disabled copy constructor and operator=

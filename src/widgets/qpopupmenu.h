@@ -151,6 +151,11 @@ private:
 #ifndef QT_NO_ACCEL
     QAccel     *autoaccel;
 #endif
+
+#if defined( Q_WS_MAC ) && defined( QMAC_QMENUBAR_NATIVE )
+    uint mac_dirty_popup : 1;
+#endif
+
     int popupActive;
     int tab;
     uint accelDisabled : 1;
