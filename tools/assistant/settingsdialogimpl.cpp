@@ -218,7 +218,7 @@ void SettingsDialog::accept()
 
     QStringList::ConstIterator it = deleteProfilesList.begin();
     for ( ; it != deleteProfilesList.end(); ++it )
-	config->removeProfile( *it );
+	Config::removeProfile( *it );
 
     ProfileCheckItem *item = currentCheckedProfile();
     if ( item )

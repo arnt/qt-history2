@@ -110,9 +110,7 @@ void Config::load( const QString &name )
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     QString profName = name;
-    if ( profName.isEmpty() ) {
-	profName = settings.readEntry( key + "LastProfile", "" );
-    } else {
+    if ( !profName.isEmpty() ) {
 	settings.readBoolEntry( key + "Profile/" + profName, FALSE, &profileNameValid );
 	if ( !profileNameValid )
 	    return;
@@ -196,7 +194,6 @@ void Config::saveSettings()
     settings.writeEntry( key + "GeometryMaximized", maximized );
     if ( !hideSidebar )
 	settings.writeEntry( key + "MainwindowLayout", mainWinLayout );
-    settings.writeEntry( key + "LastProfile", profil->props["name"] );
     settings.writeEntry( key + "assistantDocPath", assDocPath );
 }
 
@@ -256,9 +253,6 @@ void Config::saveProfile( Profile *profile, bool changed )
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
     const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
-    QString lastProfile = settings.readEntry( key + "LastProfile" );
-    if ( lastProfile.isEmpty() )
-	settings.writeEntry( key + "LastProfile", profile->props["name"] );
     const QString profKey = key + "Profile/" + profile->props["name"] + "/";
     settings.writeEntry( profKey, changed );
     settings.writeEntry( profKey + "AppIcon", profile->props["applicationicon"] );
@@ -285,18 +279,12 @@ void Config::removeProfile( const QString &name )
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    const QString profKey = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/Profile/" + name + "/";
+    const QString profKey = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/Profile/" + name;
+    QStringList entries = settings.entryList( profKey );
+    for( QStringList::ConstIterator it = entries.begin(); it != entries.end(); ++it ) {
+       	settings.removeEntry( profKey + "/" + *it );
+    }
     settings.removeEntry( profKey );
-    settings.removeEntry( profKey + "AppIcon" );
-    settings.removeEntry( profKey + "AboutMenuText" );
-    settings.removeEntry( profKey + "AboutUrl" );
-    settings.removeEntry( profKey + "Title" );
-    settings.removeEntry( profKey + "BasePath" );
-    settings.removeEntry( profKey + "DocFiles" );
-    settings.removeEntry( profKey + "DocTitles" );
-    settings.removeEntry( profKey + "DocIcons" );
-    settings.removeEntry( profKey + "ImageDirs" );
-    settings.removeEntry( profKey + "StartPage" );
 }
 
 bool Config::setCurrentProfile( const QString &name )

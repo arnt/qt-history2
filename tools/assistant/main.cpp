@@ -158,10 +158,6 @@ int main( int argc, char ** argv )
 		aDocPath = argv[++i];
 	    } else if ( QString( argv[i] ).lower() == "-server" ) {
 	        server = TRUE;
-	    //} else if ( QString( argv[i] ).lower() == "-disablefirstrun" ) {
-	    //    allowFirstRun = FALSE;
-	    } else if ( QString( argv[i] ).lower() == "-startclean" ) {
-		startClean = TRUE;
 	    } else if ( QString( argv[i] ).lower() == "-addprofile" ) {
 		INDEX_CHECK( "Missing profile argument!" );
 		QString path = "";
@@ -170,7 +166,13 @@ int main( int argc, char ** argv )
 		    path = QString( argv[i+1] );
 		if ( !Config::addProfile( QString( argv[i] ), path ) )
 		    exit( 1 );
-		exit( 0 );
+		exit( 0 );                            
+	    } else if ( QString( argv[i] ).lower() == "-removeprofile" ) {
+		INDEX_CHECK( "Missing profile argument!" );
+		Config *config = new Config( argv[i+1] );
+		config->removeProfile( argv[i+1] );
+//  		Config::configuration()->removeProfile( argv[i] );
+		return 0;
 	    } else if ( QString( argv[i] ).lower() == "-installqtdoc" ) {
 		if ( !Config::addProfile( "default", QString::null ) )
 		    exit( 1 );
@@ -195,6 +197,8 @@ int main( int argc, char ** argv )
 				  "                            path of the profile is taken.\n"
 				  "                            For further informations have a look\n"
 				  "                            at the assistant online help.\n"
+				  " -removeProfile File        Removes the specified profile from the\n"
+				  "                            system.\n"
 				  " -installQtDoc              installs the Qt profile. This option is\n"
 				  "                            only necessary if assistants first installed\n"
 				  "                            profile was another than the Qt one.\n"

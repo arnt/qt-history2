@@ -117,7 +117,7 @@ void ProfileDialog::okClicked()
 	 profile->docs != oldProfile->docs ) {
 	changed = TRUE;
 	if ( mode == Modify )
-	    Config::configuration()->removeProfile( oldProfile->props["name"] );
+	    Config::removeProfile( oldProfile->props["name"] );
 	if ( removedDocFiles.count() ) {
 	    QStringList::ConstIterator it = removedDocFiles.begin();
 	    for ( ; it != removedDocFiles.end(); ++it )

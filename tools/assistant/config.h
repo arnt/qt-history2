@@ -98,12 +98,11 @@ public:
 
     void saveProfile( Profile *profile, bool changed = FALSE );
     Profile* loadProfile( const QString &name );
-    void removeProfile( const QString &name );
     void reloadProfiles();
 
     static Config *configuration();
-    static bool addProfile( const QString &profileFileName,
-			    const QString &path );
+    static bool addProfile( const QString &profileFileName, const QString &path );
+    static void removeProfile( const QString &name );
 
 private:
     Config( const Config &c );
