@@ -56,12 +56,12 @@ const char piData[] = "version=\"1.0\" standalone=\"no\"";
 const char publicId[] = "-//W3C//DTD SVG 20001102//EN";
 const char systemId[] = "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001102.dtd";
 
-struct Q_EXPORT ImgElement {
+struct QM_EXPORT_SVG ImgElement {
     QDomElement element;
     QImage image;
 };
 
-struct Q_EXPORT PixElement {
+struct QM_EXPORT_SVG PixElement {
     QDomElement element;
     QPixmap pixmap;
 };
