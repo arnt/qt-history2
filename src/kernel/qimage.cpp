@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#31 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#31 $";
 #endif
 
 /*!
@@ -1896,7 +1896,6 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
 	    memcpy( buf, image.scanline(y), bpl );
 	d->writeBlock( (char*)buf, bpl_bmp );
     }
-    iio->setImage( image );
     delete buf;
 }
 
