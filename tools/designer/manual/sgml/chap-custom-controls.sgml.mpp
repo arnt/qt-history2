@@ -4,40 +4,207 @@
 <title>Creating Custom Widgets</>
 
 <para>
-\qd provides two mechanisms for creating custom widgets:
+Custom widgets are created in code. They may comprise a combination of
+existing widgets but with additional functionality, slots and signals,
+or they may be written from scratch, or a mixture of both.
+</para>
+<para>
+\qd provides two mechanisms for incorporating custom widgets:
 \list[1]
 \item\p
-The original \qd version 1 method involves little more than
-completing a dialog box. This approach is very simple and
-particularly well suited to custom widgets that do not add any new
-properties, slots or signals. We'll explain this approach at the end of
-the chapter in the <xref linkend="old-custom-widgets"> "Simple Custom
-Widgets" section.
+The original method involves little more than completing a dialog box.
+Widgets incorporated this way appear as flat pixmaps when added to a
+form in \qd, even in preview mode. They only appear in their true form
+at runtime. We'll explain how to create custom widgets using the
+original approach in <xref linkend="old-custom-widgets"> "Simple Custom
+Widgets".
 \P\Item
 
 \item\p
-The \qd version 2 method involves creating custom widgets
-in code and embedding the widgets in a plugin. This approach
-provides more power and flexibility than the older method and is
-covered in the following two sections.
-\P\Item
+The new method involves embedding the widgets in a plugin. Widgets that
+are incorporated through plugins appear in their true form in \qd, both
+when laying out the form and in preview mode. This approach provides
+more power and flexibility than the original method and is covered in
+<xref linkend="creatingcustomwidgetswithplugins"> "Creating Custom
+Widgets with Plugins"\P\Item
 \List1
 </para>
 
+<sect1 id="old-custom-widgets">
+<title>Simple Custom Widgets</title>
+<para>
+There are two stages to creating a custom widget. Firstly we must create
+a class that defines the widget, and secondly we must incorporate the
+widget into \qd. Creating the widget has to be done whether we are
+creating a simple custom widget or a plugin, but for simple custom
+widgets the incorporation into \qd is very easy.
+</para>
+<para>
+We will create a VCR style widget comprising four buttons, rewind,
+play, next and stop. The widget will emit signals according to which
+button is clicked.
+</para>
+
+<sect2 id="codingthecustomwidget">
+<title>Coding the Custom Widget </title>
+<para>
+A custom widget may consist of one or more standard widgets placed
+together in a particular combination, or may be written from scratch. We
+will combine some <classname>QPushButton</classname> widgets to form the
+basis of our custom widget. 
+</para>
+<para>
+We'll look at the header file,
+<filename>qt/tools/designer/eg/vcr/vcr.h</filename> first.
+<programlisting>
+\scan eg/vcr/vcr.h
+</programlisting>
+We include <filename>qwidget.h</filename> since we'll be deriving our
+custom widget from
+<classname>QWidget</classname>. We declare a constructor where the
+widget will be created and the four signals we want our widget to emit.
+Since we're using signals we must also include the
+<literal>Q_OBJECT</literal> macro.
+</para>
+
+<para>
+The implementation is straightforward. The only function we implement is
+the constructor. The rest of the file consists of include statements and
+embedded xpm images.
+<programlisting>
+\scan eg/vcr/vcr.cpp /::Vcr/ /connect/
+</programlisting>
+We create a <classname>QHBoxLayout</classname> in which we'll place the
+buttons. We've only shown the rewind button in the code above since all
+the others are identical except for the names of the buttons, pixmaps
+and signals. For each button we require we call the
+<classname>QPushButton</classname> constructor passing it the
+appropriate embedded pixmap. We then set the button's minimum size and
+add it to the layout. Lastly we connect the button's
+<function>clicked()</function> signal to the appropriate
+<emphasis>signal</emphasis>. Since the <function>clicked()</function>
+signals aren't specific to our widget we want to emit signals that
+reflect the widget's use. The <function>rewind()</function>,
+<function>play()</function>, etc. signals are meaningful in the context
+of our widget so we propagate each button's
+<function>clicked()</function> signal to the appropriate widget-specific
+signal. 
+</para>
+
+<para>
+The implementation is complete, but to make sure that our widget
+compiles and runs we'll create a tiny test harness. The test harness
+will require two files, a <filename>.pro</filename> project file and a
+<filename>main.cpp</filename>. The
+<filename>qt/tools/designer/eg/vcr/vcr.pro</filename> project file:
+<programlisting>
+\scan eg/vcr/vcr.pro
+</programlisting>
+The <filename>qt/tools/designer/eg/vcr/main.cpp</filename> file is
+also brief:
+<programlisting>
+\scan eg/vcr/main.cpp
+</programlisting>
+Once we're satisfied that the custom widget compiles and runs we are
+ready to incorporate it into \qd.
+</para>
+
+</sect2>
+
+<sect2 id="addingthecustomwidgettoqtdesigner">
+<title>Adding the Custom Widget to Qt Designer </title>
+<para>
+Click <guimenuitem>Tools|Custom|Edit Custom Widgets</guimenuitem> to
+invoke the Edit Custom Widgets dialog. 
+<orderedlist numeration="arabic">
+<listitem>
+<para>
+Click <guibutton>New
+Widget</guibutton> so that we are ready to add our new widget.
+</para>
+</listitem>
+<listitem>
+<para>
+Change the Class name from 'MyCustomWidget' to 'Vcr'. 
+</para>
+</listitem>
+<listitem>
+<para>
+Click the ellipsis (<guibutton>...</guibutton>) button to the right of
+the Headerfile line edit to invoke the file Open dialog. Locate
+<filename>vcr.h</filename>, select it, and click
+<guibutton>Open</guibutton>. It will now appear as the Headerfile. 
+</para>
+</listitem>
+<listitem>
+<para>
+If you have a pixmap that you want to use to identify your widget on the
+toolbar click the ellipsis (<guibutton>...</guibutton>) button to the right of
+the Pixmap.
+</para>
+<para>
+In our example we have the file
+<filename>qt/tools/designer/eg/vcr/play.xpm</filename> which we'll use
+for this purpose.
+</para>
+</listitem>
+<listitem>
+<para>
+Since we know the minimum sensible size for our widget we'll put values
+into the Size Hint spin boxes. Enter a width of 80 (in the left hand spin
+box), and a height of 20 (in the right hand spin box).
+</para>
+</listitem>
+</orderedlist>
+
+<para>
+The remaining items to be completed will depend on the characteristics
+of the widget you've created. If, for example, your widget can be used
+to contain other widgets you'd check the Container Widget checkbox. In
+the case of our Vcr example the only items we need to add are its
+signals.
+</para>
+
+<para>
+Click the Signals tab. Click the <guibutton>New Signal</guibutton>
+button and type in the signal name 'rewind()'. Click <guibutton>New
+Signal</guibutton> again and this time type in 'play()'. Add the
+'next()' and 'stop()' signals in the same way.
+</para>
+
+<para>
+Since our example hasn't any slots or properties we've finished and can
+click <guibutton>Close</guibutton>. A new icon will appear in \qd's
+toolbars which represents the new widget. If you create a new
+form you can add Vcr widgets and connect the Vcr's signals to your
+slots.
+</para>
+
+<para>
+Incorporating custom widgets that have their own slots and properties is
+achieved in a similar way to adding signals. All the required
+information is in our custom widget's header file. 
+</para>
+</sect2>
+</sect1>
+
+
+
+<sect1 id="creatingcustomwidgetswithplugins">
+<title>Creating Custom Widgets with Plugins </title>
+
+
 \p
-This chapter will show you how to write a custom widget and how to embed
+This section will show you how to write a custom widget and how to embed
 the custom widget into a plugin. There are no restrictions or special
 considerations that must be taken into account when creating a widget
 that is destined to become a plugin. If you are an experienced Qt
 programmer you can safely skip the section on creating a custom widget
 and go directly to <xref linkend="creating-a-plugin"> "Creating a
-Plugin". Note that a simpler but less powerful approach to creating
-custom widgets is also available, see <xref
-linkend="old-custom-widgets"> "Custom Widgets", at the end of this
-chapter.
+Plugin". 
 \P
 
-    <sect1>\title[Creating a Custom Widget]
+    <sect2 id="creatingacustomwidget">\title[Creating a Custom Widget]
     \p
     A custom widget is often a specialization (subclass) of another
     widget or a combination of widgets working together or a blend of
@@ -89,7 +256,7 @@ chapter.
     read how we created the widget then read on.
     \P
 
-	<sect2>\title[Coding the Widget's Interface]
+	<sect3>\title[Coding the Widget's Interface]
 	\p
 	We will work step-by-step through the widget's header file,
 	\f[eg/filechooser/widget/filechooser.h].
@@ -150,9 +317,9 @@ chapter.
 	as a Mode variable are held as private data. 
 	\P
 
-	</sect2>
+	</sect3>
 
-	<sect2>\title[Coding the Implementation]
+	<sect3>\title[Coding the Implementation]
 	\p 
 	We will work step-by-step through the implementation which is in
 	\f[eg/filechooser/widget/filechooser.cpp].
@@ -235,9 +402,9 @@ chapter.
 	to put it into a plugin.
 	\P
 
-	</sect2>
+	</sect3>
 
-	<sect2>\title[Testing the Implementation]
+	<sect3>\title[Testing the Implementation]
 	\p
 	We present a rudimentary test harness which will allow us
 	to run our custom widget. The test harness requires two
@@ -258,11 +425,11 @@ chapter.
 	can embed it into a plugin.
 	\P
 
-	</sect2>
+	</sect3>
 
-    </sect1>
+    </sect2>
 
-    <sect1 id="creating-a-plugin">\title[Creating a Plugin]
+    <sect2 id="creating-a-plugin">\title[Creating a Plugin]
     \p
     A plugin is a software component. Plugins are not specific to \qd;
     they can be used generally to wrap any number of classes which can
@@ -350,7 +517,7 @@ chapter.
     implementation so no name conflict can occur.
     \P
 
-	<sect2><title>The \class[WidgetInterface] Implementation</title>
+	<sect3><title>The \class[WidgetInterface] Implementation</title>
 	\p
 	We have called our header file \f[plugin.h] and we've
 	called our interface class \class[CustomWidgetInterface] since we
@@ -363,7 +530,6 @@ chapter.
 </programlisting></example>
 	\P
 
-	    <sect3>\title[The Private Data]
 	    \p
 	    There are two items of private data, \c[objects] and
 	    \c[ref]. The \c[ref] item is used to store the widget
@@ -378,11 +544,10 @@ chapter.
 	    for more information.)
 	    \P
 
-	    </sect3>
 
-	</sect2>
+	</sect3>
 
-	<sect2>\title[The WidgetInterface Functions]
+	<sect3>\title[The WidgetInterface Functions]
 	\p
 	Create your own plugin \c[.cpp] file by copying our
 	\f[plugin.cpp] file and changing all occurrences of
@@ -394,8 +559,8 @@ chapter.
 	control in your interface implementation.
 	\P
 
-	    <sect3><title>The Constructor</title>
 	    \p
+	    We'll now look at the constructor.
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::CustomWidgetInterface/ /^}/
 </programlisting>
@@ -405,7 +570,6 @@ chapter.
 	    implementation.
 	    \P
 
-	    <sect3><title>The Destructor</title>
 	    \p
 	    No destructor is necessary. We defined it in the header
 	    file as follows:
@@ -417,9 +581,8 @@ chapter.
 	    destructor is done.
 	    \P
 
-	    <sect3><title>\fn[queryInterface()]</title>
 	    \p
-	    This is the most complicated function: but it can simply be
+	    The <function>queryInterface()</function> is the most complicated function: but it can simply be
 	    copied into your own widget interface implementation.
 	    Change the class name to whatever class you've called your
 	    widget interface implementation. (It isn't implemented for
@@ -442,8 +605,8 @@ chapter.
 	    pointer is returned to the caller. 	    
 	    \P
 
-	    <sect3><title>\fn[addRef()]</title>
 	    \p
+	    The <function>addRef()</function> function.
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::addRef/ /^}/
 </programlisting>
@@ -452,8 +615,8 @@ chapter.
 	    the class name of your widget interface implementation.
 	    \P
 
-	    <sect3><title>\fn[release()]</title>
 	    \p
+	    The <function>release()</function> function.
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::release/ /^}/
 </programlisting>
@@ -490,8 +653,8 @@ chapter.
 	    \P
 	    </sidebar>
 
-	    <sect3><title>The \fn[Q_EXPORT_INTERFACE] Macro</title>
 	    \p
+	    The \fn[Q_EXPORT_INTERFACE] Macro
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /Q_EXPORT_INTERFACE/ /^}/
 </programlisting>
@@ -510,7 +673,6 @@ chapter.
 	    point.)
 	    \P
 
-	    <sect3><title>\fn[featureList()]</title>
 	    \p
 	    Each widget you wrap in a widget interface implementation
 	    becomes a feature that the interface implementation offers.
@@ -525,8 +687,8 @@ chapter.
 	    example we add a single feature, 'FileChooser'.
 	    \P
 
-	    <sect3><title>\fn[create()]</title>
 	    \p
+	    The <function>create()</function> function.
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::create/ /^}/
 </programlisting>
@@ -541,8 +703,8 @@ chapter.
 	    documentation</> for more information on cleanup handling.)
 	    \P
 
-	    <sect3><title>\fn[includeFile()]</title>
 	    \p
+	    The <function>includeFile()</function> function.
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::includeFile/ /^}/
 </programlisting>
@@ -551,9 +713,9 @@ chapter.
 	    feature name and filename to suit your own custom widget.
 	    \P
 
-	    <sect3><title>\fn[group()], \fn[iconSet()], \fn[iconset()],
-	    \fn[toolTip()] and \fn[whatsThis()]</title>
 	    \p
+	    The \fn[group()], \fn[iconSet()], \fn[iconset()],
+	    \fn[toolTip()] and \fn[whatsThis()] functions.
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::group/ /^}/
 </programlisting>
@@ -575,8 +737,8 @@ chapter.
 	    interface implementation.
 	    \P
 
-	    <sect3><title>\fn[isContainer()]</title>
 	    \p
+	    The \fn[isContainer()] function.
 <programlisting>
 \scan eg/filechooser/plugin/plugin.cpp /::isContainer/ /^}/
 </programlisting>
@@ -587,11 +749,9 @@ chapter.
 	    \class[QPushButton].
 	    \P
 
-	    </sect3>
+	</sect3>
 
-	</sect2>
-
-	<sect2>\title[The Project File]
+	<sect3>\title[The Project File]
 	\p
 	The project file for a plugin is somewhat different from an
 	application's project file but in most cases you can use our
@@ -606,22 +766,18 @@ chapter.
 	\cmd[qmake] and make the project the plugin will be created and
 	placed in a directory where \qd can find it. The next time you
 	run \qd it will detect your new plugin and load it
-	automatically. 
+	automatically, displaying its icon in the toolbar you specified. 
 	\P
-	</sect2>
+	</sect3>
 <!-- TODO 
 	<sect2>\title[Considerations for Making Distributable Plugins]
 	<para>
 	</para>
 	</sect2>
 -->
-    </sect1>
+    </sect2>
 
-<sect1 id="old-custom-widgets">
-<title>Simple Custom Widgets</title>
-<para>
-
-</para>
 </sect1>
+
 
 </chapter>

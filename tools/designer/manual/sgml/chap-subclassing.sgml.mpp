@@ -14,6 +14,28 @@ change more often than the underlying application.
 
 <sect1 id="subclassing">
 <title>Subclassing</title>
+
+<sidebar id="subclassingvscodinginqtdesigner">
+<title>Subclassing vs Coding in Qt Designer</title>
+<para>
+Adding slots directly in \qd is a useful technique suitable for most
+situations. But in some cases we want to use our own constructor or
+destructor rather than the supplied <function>init()</function> and
+<function>destroy()</function> functions. Also, for more complex
+applications, it may be easier to debug the code in separate files since
+the line numbers in error messages refer to the lines where our code
+appears in the generated code rather where they appear in \qd's code
+editor.
+</para>
+<para>
+Many applications consist of a main window plus dialogs, where most of
+the functionality is in the main window, and where the dialogs are used
+to get preferences from the user. In such cases the most convenient
+approach may be to subclass the main window (to ease debugging) and code
+the dialogs wholly within \qd. 
+</para>
+</sidebar>
+
 <para>
 We'll start with a general description of how to subclass a form and
 follow with a short example.
@@ -69,20 +91,9 @@ implementation files to the <filename>.pro</filename> file.
 <title>Subclassing a Form </title>
 
 <para>
-Adding slots directly in \qd is a useful technique suitable for most
-situations. But in some cases we want to use our own constructor or
-destructor rather than the supplied <function>init()</function> and
-<function>destroy()</function> functions. Also, for more complex
-applications, it may be easier to debug the code in separate files since
-the line numbers in error messages refer to the lines where our code
-appears in the generated code rather where they appear in \qd's code
-editor.
-</para>
-
-<para>
-If we're going to subclass a form it may be helpful to use a naming
-convention for the form to help us see which files are generated from
-\qd's <filename>.ui</filename> files and which are hand coded. 
+When subclassing a form it is helpful to use a naming convention for the
+form to help us see which files are generated from \qd's
+<filename>.ui</filename> files and which are hand coded. 
 </para>
 <para>
 For example, suppose we have an application with a dialog that we want
