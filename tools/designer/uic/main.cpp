@@ -146,7 +146,7 @@ int main( int argc, char * argv[] )
 		fprintf( stderr,
 			 "User Interface Compiler for Qt version %s\n",
 			 QT_VERSION_STR );
-		exit( 1 );
+		return 1;
 	    } else if ( opt == "help" ) {
 		break;
 	    } else if ( opt == "fix" ) {
@@ -206,7 +206,7 @@ int main( int argc, char * argv[] )
 		 , argv[0]
 #endif
 	    );
-	exit( 1 );
+	return 1;
     }
 
     if ( imagecollection_tmpfile ) {
@@ -307,6 +307,11 @@ int main( int argc, char * argv[] )
     if ( !protector.isEmpty() ) {
 	out << endl;
 	out << "#endif // " << protector << endl;
+    }
+    if ( fileOut.status() != IO_Ok ) {
+	qWarning( "uic: Error writing to file" );
+	if ( !outputFile.isEmpty() )
+	    remove( outputFile );
     }
     return 0;
 }
