@@ -96,6 +96,7 @@ private:
     QVector<Element> elements;
 
     friend class QPainterPathStroker;
+    friend class QPainterPathStrokerPrivate;
     friend class QMatrix;
 };
 

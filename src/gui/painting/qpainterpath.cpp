@@ -694,7 +694,7 @@ QList<QPolygon> QPainterPath::toSubpathPolygons() const
         const QPainterPath::Element &e = elements.at(i);
         switch (e.type) {
         case QPainterPath::MoveToElement:
-            if (!current.isEmpty())
+            if (current.size() > 1)
                 flatCurves += current;
             current.clear();
             current += QPointF(e.x, e.y);
@@ -840,54 +840,53 @@ public:
     QPainterPathStroker *q_ptr;
 };
 
-void QPainterPathStrokerPrivate::joinPoints(const QLineF &l, QPainterPath *path) const
+void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine, QPainterPath *path) const
 {
 #ifdef QPP_STROKE_DEBUG
     printf(" -----> joinPoints: (%.2f, %.2f) (%.2f, %.2f)\n",
-           l.startX(), l.startY(), l.endX(), l.endY());
+           nextLine.startX(), nextLine.startY(), nextLine.endX(), nextLine.endY());
 #endif
-    path->lineTo(l.start());
-#if 0
+    int elmCount = path->elementCount();
+    Q_ASSERT(elmCount >= 2);
+    QPainterPath::Element &back1 = path->elements[elmCount-1];
+    const QPainterPath::Element &back2 = path->elementAt(elmCount-2);
+
+    Q_ASSERT(back1.type == QPainterPath::LineToElement);
+
     // Check for overlap
-    QLineF pline(sp->lastCurrent(), QPointF(prev->lineData.x, prev->lineData.y));
-    QLineF bevelLine(prev->lineData.x, prev->lineData.y, ml.startX(), ml.startY());
+    QLineF pline(back2.x, back2.y, back1.x, back1.y);
+    QLineF bevelLine(back1.x, back1.y, nextLine.startX(), nextLine.startY());
 
     QPointF isect;
-    QLineF::IntersectType type = pline.intersect(ml, &isect);
+    QLineF::IntersectType type = pline.intersect(nextLine, &isect);
     if (type == QLineF::BoundedIntersection) {
-        Q_ASSERT(prev->type == QPainterPathElement::Line);
-        prev->lineData.x = isect.x();
-        prev->lineData.y = isect.y();
-        sp->currentPoint = isect;
+        back1.x = isect.x();
+        back1.y = isect.y();
     } else {
-        if (pline.angle(bevelLine) > 90) {
-            sp->brokenSegments.append(sp->elements.size());
-            joinStyle = Qt::BevelJoin;
-        }
-        switch (joinStyle) {
+        Qt::PenJoinStyle jStyle = joinStyle;
+        // Actually a broken segment. Will be removed later, so minimize overhead
+        if (pline.angle(bevelLine) > 90)
+            jStyle = Qt::BevelJoin;
+        switch (jStyle) {
         case Qt::MiterJoin:
-            Q_ASSERT(prev->type == QPainterPathElement::Line);
-            prev->lineData.x = isect.x();
-            prev->lineData.y = isect.y();
-            sp->currentPoint = isect;
+            back1.x = isect.x();
+            back1.y = isect.y();
             break;
         case Qt::BevelJoin:
-            sp->lineTo(ml.start());
+            path->lineTo(nextLine.start());
             break;
         case Qt::RoundJoin: {
             QLineF cp1Line(pline.end(), isect);
             cp1Line.setLength(cp1Line.length() * KAPPA);
-            QLineF cp2Line(ml.start(), isect);
+            QLineF cp2Line(nextLine.start(), isect);
             cp2Line.setLength(cp2Line.length() * KAPPA);
-            sp->curveTo(cp1Line.end(), cp2Line.end(), ml.start());
+            path->curveTo(cp1Line.end(), cp2Line.end(), nextLine.start());
             break;
         }
         default:
             break;
         }
     }
-    return type;
-#endif
 }
 
 void QPainterPathStrokerPrivate::strokeLine(int elmi, const QPolygon &polygon, QPainterPath *path) const
