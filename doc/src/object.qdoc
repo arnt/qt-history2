@@ -129,7 +129,7 @@ single-threaded application without blocking the user interface.
     {
 	Q_OBJECT // required for signals/slots
     public:
-	Mandelbrot( QObject *parent=0, const char *name );
+	Mandelbrot(QObject *parent=0);
 	...
     public slots:
 	void start();
@@ -146,8 +146,8 @@ single-threaded application without blocking the user interface.
     // Constructs and initializes a Mandelbrot object.
     //
 
-    Mandelbrot::Mandelbrot( QObject *parent=0, const char *name )
-    : QObject( parent, name )
+    Mandelbrot::Mandelbrot(QObject *parent=0)
+    : QObject(parent)
     {
 	connect( &timer, SIGNAL(timeout()), SLOT(calculate()) );
 	...
@@ -218,14 +218,14 @@ QWidget::minimumWidth() isn't stored, since it's just a view of
 \l QWidget::minimumSize(), and has no data of its own.
 
 \i A reset function to set a property back to its context specific
-default value. This is very rare, but for example, \l QWidget::font()
-needs this, since no call to \l QWidget::setFont() can mean 'reset to
-the context specific font'.
+default value. This is very rare, but for example, \l QWidget::cursor
+needs this, since no call to \l QWidget::setCursor() can mean 'reset to
+the context specific cursor'.
 
 \i An attribute "designable" that indicates whether it makes sense to
 make the property available in a GUI builder (e.g. \link
 designer-manual.book Qt Designer\endlink). For most properties this 
-makes sense, but not for all, e.g. \l QButton::isDown(). The user can
+makes sense, but not for all, e.g. \l QAbstractButton::down. The user can
 press buttons, and the application programmer can make the program
 press its own buttons, but a GUI design tool can't press buttons.
 
@@ -254,10 +254,10 @@ can give you control over classes that weren't available at compile
 time.
 
 As well as QObject::setProperty(), there is a corresponding \l
-QObject::property() function. \l QMetaObject::propertyNames() returns
-the names of all available properties. \l QMetaObject::property()
-returns the property data for a named property: a \l QMetaProperty
-object.
+QObject::property() function. \l QMetaObject::propertyCount() returns
+the number of all available properties. \l QMetaObject::property()
+returns the property data for a given property index: a \l
+QMetaProperty object.
 
 Here's a simple example that shows the most important property
 functions in use:
@@ -267,11 +267,11 @@ functions in use:
     {
         Q_OBJECT
     public:
-        MyClass( QObject * parent=0, const char * name=0 );
+        MyClass(QObject * parent=0);
         ~MyClass();
 
         enum Priority { High, Low, VeryHigh, VeryLow };
-        void setPriority( Priority );
+        void setPriority(Priority);
         Priority priority() const;
     };
 \endcode
@@ -320,11 +320,11 @@ final class declaration including the property related declarations:
         Q_PROPERTY( Priority priority READ priority WRITE setPriority )
         Q_ENUMS( Priority )
     public:
-        MyClass( QObject * parent=0, const char * name=0 );
+        MyClass(QObject * parent=0);
         ~MyClass();
 
         enum Priority { High, Low, VeryHigh, VeryLow };
-        void setPriority( Priority );
+        void setPriority(Priority);
         Priority priority() const;
     };
 \endcode
