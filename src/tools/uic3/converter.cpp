@@ -493,8 +493,9 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             DomWidget *ui_child = createWidget(e);
             Q_ASSERT(ui_child != 0);
 
-            if (ui_child->attributeClass() == QLatin1String("QLayoutWidget"))
-                    ui_child->setAttributeClass(QLatin1String("QWidget"));
+            bool isLayoutWidget = ui_child->attributeClass() == QLatin1String("QLayoutWidget");
+            if (isLayoutWidget)
+                ui_child->setAttributeClass(QLatin1String("QWidget"));
 
             QList<DomLayout*> layouts = ui_child->elementLayout();
             for (int i=0; i<layouts.size(); ++i) {
@@ -505,11 +506,13 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
                 if (m.contains("margin"))
                     continue;
 
-                DomProperty *margin = new DomProperty();
-                margin->setAttributeName("margin");
-                margin->setElementNumber(0);
-                properties.append(margin);
-                l->setElementProperty(properties);
+                if (isLayoutWidget) {
+                    DomProperty *margin = new DomProperty();
+                    margin->setAttributeName("margin");
+                    margin->setElementNumber(0);
+                    properties.append(margin);
+                    l->setElementProperty(properties);
+                }
             }
 
             ui_child_list.append(ui_child);
