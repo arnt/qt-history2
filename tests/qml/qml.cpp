@@ -1047,17 +1047,28 @@ void QMLCursor::goTo(QPainter* p, int xarg, int yarg, bool select)
 }
 
 
-void QMLCursor::insert(QPainter* p, const QChar& c)
+void QMLCursor::insert(QPainter* p, const QString& s)
 {
+    if (s.isEmpty())
+	return;
+    
     QMLNode* n = new QMLNode;
-    n->c = c;
+    n->c = s[0];
+
+    QMLNode* last = n;
+    for (unsigned int i = 1; i < s.length(); i++) {
+	last->next = new QMLNode;
+	last = last->next;
+	last->c = s[i];
+    }
+    
     if (nodeParent->child == node) {
-	n->next = node;
+	last->next = node;
 	nodeParent->child = n;
 	//	row = 0;
     } else {
  	QMLNode* prev = node->previous(); // slow!
- 	n->next = node;
+ 	last->next = node;
  	prev->next = n;
     }
     QMLBox* b = node->box();
@@ -1478,6 +1489,8 @@ QMLView::QMLView()
     cursorTimer = new QTimer( this );
     cursorTimer->start(200, TRUE);
     connect( cursorTimer, SIGNAL( timeout() ), this, SLOT( cursorTimerDone() ));
+    updateTimer = new QTimer( this );
+    connect( updateTimer, SIGNAL( timeout() ), this, SLOT( updateTimerDone() ));
     backgroundPixmap = 0;
     //backgroundPixmap = new QPixmap("bg.ppm");
 	
@@ -1666,15 +1679,19 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 		p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
 	}
 	else if (!e->text().isEmpty() ){
+	    textToInsert += e->text();
+	    updateTimer->start(0, TRUE);
+	    return;
+    /*
 	    // other keys
 		QPainter p( viewport() );
-		for (unsigned int i = 0; i < e->text().length(); i++)
-		    doc->cursor->insert( &p, e->text()[(int)i] );
-		//TODO this is the wrong way. use repaint to schedule events more clever
-		QRegion r(0, 0, viewport()->width(), viewport()->height());
+		doc->cursor->insert( &p, e->text());
+		QRegion r(0, 0, viewport()->width(), 
+			  doc->cursor->rowY+doc->cursor->rowHeight - 1 - contentsY());
 		doc->draw(&p, 0, 0, contentsX(), contentsY(),
 			  contentsX(), contentsY(),
-			  viewport()->width(), viewport()->height(),
+			  viewport()->width(), 
+			  doc->cursor->rowY + doc->cursor->rowHeight - 1- contentsY(),
 			  r, colorGroup(), backgroundPixmap, TRUE);
 		p.setClipRegion(r);
 		if (backgroundPixmap)
@@ -1682,6 +1699,7 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 				      *backgroundPixmap, contentsX(), contentsY());
 		else
 		    p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
+    */
 	}
 	showCursor();
 	resizeContents(doc->width, doc->height);
@@ -1789,7 +1807,6 @@ void QMLView::cursorTimerDone()
     }
 }
 
-
 void QMLView::showCursor()
 {
     cursor_hidden = FALSE;
@@ -1802,11 +1819,38 @@ void QMLView::showCursor()
 
 void QMLView::hideCursor()
 {
+    if (cursor_hidden)
+	return;
     cursor_hidden = TRUE;
     repaintContents(doc->cursor->x, doc->cursor->y,
 		    doc->cursor->width(), doc->cursor->height);
     cursorTimer->start(300, TRUE);
 }
+
+
+void QMLView::updateTimerDone()
+{
+    {
+	QPainter p( viewport() );
+	doc->cursor->insert( &p, textToInsert);
+	textToInsert = "";
+	QRegion r(0, 0, viewport()->width(), viewport()->height());
+	doc->draw(&p, 0, 0, contentsX(), contentsY(),
+		  contentsX(), contentsY(),
+		  viewport()->width(), viewport()->height(),
+		  r, colorGroup(), backgroundPixmap, TRUE);
+	p.setClipRegion(r);
+	if (backgroundPixmap)
+	    p.drawTiledPixmap(0, 0, viewport()->width(), viewport()->height(),
+			      *backgroundPixmap, contentsX(), contentsY());
+	else
+	    p.fillRect(0, 0, viewport()->width(), viewport()->height(), colorGroup().base());
+    }
+    showCursor();
+    resizeContents(doc->width, doc->height);
+    ensureVisible(doc->cursor->x, doc->cursor->y);
+}
+
 
 void QMLView::resizeEvent(QResizeEvent*e)
 {

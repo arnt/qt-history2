@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qml/qml.h#11 $
+** $Id: //depot/qt/main/tests/qml/qml.h#12 $
 **
 ** Definition of something or other
 **
@@ -274,7 +274,7 @@ public:
     bool selectionDirty;
     void clearSelection();
 
-    void insert(QPainter* p, const QChar& c);
+    void insert(QPainter* p, const QString& s);
     void enter(QPainter* p);
     void del(QPainter* p);
     void backSpace(QPainter* p);
@@ -316,6 +316,7 @@ protected:
 
  private slots:
     void cursorTimerDone();
+    void updateTimerDone();
 
 
 private:
@@ -323,8 +324,11 @@ private:
     bool cursor_hidden;
     QPixmap* backgroundPixmap;
     QTimer* cursorTimer;
+    QTimer* updateTimer;
+    QString textToInsert;
 
     void updateSelection(int oldY=-1, int newY=-1);
+
 
 };
 
