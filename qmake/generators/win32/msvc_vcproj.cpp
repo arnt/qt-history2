@@ -356,7 +356,7 @@ void VcprojGenerator::initPostBuildEventTools()
 		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// register server
 		"echo idc done again &amp;&amp; " +
-		"regserv32 /s " + vcProject.Configuration.OutputDirectory + "\\" + nameext;		
+		"regsrv32 /s " + vcProject.Configuration.OutputDirectory + "\\" + nameext;		
 	} else { // out of process
 	    vcProject.Configuration.postBuild.CommandLine =
 		// call application to dump idl
