@@ -4295,25 +4295,36 @@ void QWidget::leaveEvent( QEvent * )
 
 /*!
   This event handler can be reimplemented in a subclass to receive
-  widget paint events.
+  paint events.
 
-  When the paint event occurs, the update region QPaintEvent::region()
-  normally has been cleared to the background color or pixmap. An
-  exception is when repaint(FALSE) is called or the widget sets the
-  WRepaintNoErase or WResizeNoErase flag.  Inside the paint event
-  handler, QPaintEvent::erased() carries this information.
+  A paint event is a request to repaint all or part of the widget.  It
+  can happen as a result of repaint() or update(), or because the
+  widget was obscured and has now been uncovered, or for many other
+  reasons.
 
-  For many widgets it is sufficient to redraw the entire widget each time,
-  but some need to consider the update
-  \link QPaintEvent::rect() rectangle\endlink
-  or
-  \link QPaintEvent::region() region\endlink
-  of the QPaintEvent to avoid slow update.
+  Many widgets can simply repaint their entire surface when asked to,
+  but some slow widgets need to optimize by painting only the
+  requested region - QPaintEvent::region(). This speed optimization
+  does not change the result, as painting is clipped to that region
+  during event processing.  QListView and QCanvas do this, for
+  example.
 
-  During paintEvent(), any QPainter you create on the widget will be
-  clipped to at most the area covered by the update region.
+  Qt also tries to speed up painting by merging multiple paint events
+  into one.  When update() is called several times or the window
+  system sends several paint events, Qt merges these events into one
+  event with a larger region (see QRegion::unite()).  repaint() does
+  not permit this optimization, so we suggest using update() when
+  possible.
 
-  update() and repaint() can be used to force a paint event.
+  When the paint event occurs, the update region normally has been
+  erased, so that you're painting on the widget's background. There
+  are a couple of exceptions, though, and QPaintEvent::erased() tells
+  you whether the widget has been erased or not.
+
+  The background is settable using setBackgroundMode(),
+  setBackgroundColor() or setBackgroundPixmap(). The documentation for
+  setBackgroundMode() elaborates on the background; we recommend
+  reading it.
 
   \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent
 */
@@ -4801,7 +4812,7 @@ bool QWidget::customWhatsThis() const
 
 /*!  Returns the visible child widget at pixel position \a (x,y) in
   the widget's own coordinate system.
-  
+
   If \a includeThis is TRUE, and there is no child visible at \a
   (x,y), the widget itself is returned.
  */

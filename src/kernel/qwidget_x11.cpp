@@ -1151,7 +1151,7 @@ void QWidget::setActiveWindow()
     if ( tlw->isVisible() && !tlw->topData()->embedded ) {
 	XSetInputFocus( x11Display(), tlw->winId(), RevertToNone, qt_x_time);
 
-#ifndef NO_XIM	
+#ifndef NO_XIM
 	if (tlw->topData()->xic)
 	    XSetICFocus( (XIC) tlw->topData()->xic);
 #endif
@@ -1162,41 +1162,40 @@ void QWidget::setActiveWindow()
 /*!
   Updates the widget unless updates are disabled or the widget is hidden.
 
-  Updating the widget will erase the widget contents and generate an
-  appropriate paint event for the invalidated region. The paint event
-  is processed after the program has returned to the main event loop.
-  Calling update() many times in a row will generate a single paint
-  event.
+  This function does not cause an immediate repaint - rather, it
+  schedules a paint event for processing when Qt returns to the main
+  event loop. This permits Qt to optimize for more speed and less
+  flicker and a call to repaint() does.
 
-  If the widgets sets the WRepaintNoErase flag, update() will not erase
-  its contents.
+  Calling update() several times normally results in just one
+  paintEvent() call.
 
   \sa repaint(), paintEvent(), setUpdatesEnabled(), erase(), setWFlags()
 */
 
 void QWidget::update()
 {
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
-	QApplication::postEvent( this, new QPaintEvent( visibleRect(),
-		!testWFlags(WRepaintNoErase) ) );
-    }
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) ==
+	 WState_Visible )
+	QApplication::postEvent( this, new QPaintEvent( visibleRect(), !testWFlags(WRepaintNoErase) ) );
 }
 
 /*!
   Updates a rectangle (\e x, \e y, \e w, \e h) inside the widget
   unless updates are disabled or the widget is hidden.
 
-  Updating the widget erases the widget area \e (x,y,w,h) and generate
-  an appropriate paint event for the invalidated region. The paint
-  event is processed after the program has returned to the main event
-  loop.  Calling update() many times in a row will generate a single
-  paint event.
+  This function does not cause an immediate repaint - rather, it
+  schedules a paint event for processing when Qt returns to the main
+  event loop. This permits Qt to optimize for more speed and less
+  flicker and a call to repaint() does.
+
+  Calling update() several times normally results in just one
+  paintEvent() call.
 
   If \e w is negative, it is replaced with <code>width() - x</code>.
   If \e h is negative, it is replaced width <code>height() - y</code>.
 
-
-  If the widgets sets the WRepaintNoErase flag, update() will not erase
+  If the widget sets the WRepaintNoErase flag, update() will not erase
   its contents.
 
   \sa repaint(), paintEvent(), setUpdatesEnabled(), erase()
@@ -1234,22 +1233,23 @@ void QWidget::update( int x, int y, int w, int h )
 */
 
 /*!
-  Repaints the widget directly by calling paintEvent() directly,
+  Repaints the widget directly by calling paintEvent() immediately,
   unless updates are disabled or the widget is hidden.
 
-  Erases the widget area  \e (x,y,w,h) if \e erase is TRUE.
+  If \e erase is TRUE, Qt erases the area \e (x,y,w,h) before the
+  paintEvent() call.
 
-  If \e w is negative, it is replaced with <code>width() - x</code>.
-  If \e h is negative, it is replaced width <code>height() - y</code>.
+  If \e w is negative, it is replaced with <code>width() - x</code>,
+  and if \e h is negative, it is replaced width <code>height() -
+  y</code>.
 
-  Use repaint if your widget needs to be repainted immediately, for
-  example when doing some animation. In all other cases, update() is
-  to be preferred. Calling update() many times in a row will generate
-  a single paint event.
+  We suggest using repaint() if you need an immediate repaint, for
+  example during animation. In almost all circumstances update() is
+  better, as it permits Qt to optimize for speed and against flicker.
 
-  \warning If you call repaint() in a function which may itself be called
-  from paintEvent(), you may see infinite recursion. The update() function
-  never generates recursion.
+  \warning If you call repaint() in a function which may itself be
+  called from paintEvent(), you may see infinite recursion. The
+  update() function never generates recursion.
 
   \sa update(), paintEvent(), setUpdatesEnabled(), erase()
 */

@@ -811,27 +811,39 @@ void QFocusEvent::resetReason()
 
   \ingroup event
 
+  Paint events are sent to widgets that need to update themselves, for
+  instance when a part of a widget is exposed because an overlying
+  widget is moved away.
 
-  Paint events are sent to widgets that need to update themselves, for instance
-  when a part of a widget is exposed because an overlying widget is moved away.
-
-  The event handler QWidget::paintEvent() receives paint events.
-
-  \sa QPainter, QWidget::update(), QWidget::repaint()
+  The event contains a region() that needs to be updated, and a rect()
+  that is the bounding rectangle of that region. Both are provided
+  because many widgets can't make much use of region(), and rect() can
+  be much faster than region().boundingRect().  Painting is clipped to
+  region() during processing of a paint event.
+  
+  The erased() function returns TRUE if the region() has been cleared
+  to the widget's background (see QWidget::backgroundMode()), and
+  FALSE if the region's contents are arbitrary.
+  
+  \sa QPainter QWidget::update() QWidget::repaint()
+  QWidget::paintEvent() QWidget::backgroundMode() QRegion
 */
 
 /*!
   \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion, bool erased=TRUE )
+
   Constructs a paint event object with the region that should be updated.
 */
 
 /*!
   \fn QPaintEvent::QPaintEvent( const QRect &paintRect, bool erased=TRUE )
+
   Constructs a paint event object with the rectangle that should be updated.
 */
 
 /*!
   \fn const QRect &QPaintEvent::rect() const
+
   Returns the rectangle that should be updated.
 
   \sa region(), QPainter::setClipRect()
@@ -839,6 +851,7 @@ void QFocusEvent::resetReason()
 
 /*!
   \fn const QRegion &QPaintEvent::region() const
+
   Returns the region that should be updated.
 
   \sa rect(), QPainter::setClipRegion()
@@ -846,6 +859,7 @@ void QFocusEvent::resetReason()
 
 /*!
   \fn bool QPaintEvent::erased() const
+
   Returns whether the paint event region (or rectangle) has been
   erased with the widget's background.
 */
@@ -855,7 +869,6 @@ void QFocusEvent::resetReason()
   \brief The QMoveEvent class contains event parameters for move events.
 
   \ingroup event
-
 
   Move events are sent to widgets that have been moved to a new position
   relative to their parent.
