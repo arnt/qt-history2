@@ -181,7 +181,7 @@ protected:
     void operationPut( QNetworkOperation *op );
 
 private slots:
-    void clientReply( const QHttpResponseHeader &rep, const QByteArray & dataA );
+    void clientReply( const QHttpResponseHeader &rep );
     void clientFinishedSuccess();
     void clientFinishedError( const QString &detail, int );
     void clientConnected();
@@ -213,14 +213,17 @@ public:
 
     void close();
 
+    Q_ULONG bytesAvailable() const;
+    Q_LONG readBlock( char *data, Q_ULONG maxlen );
+    QByteArray readAll();
+
     State state() const;
 
 signals:
     void responseHeaderReceived( const QHttpResponseHeader& resp );
 
-    void response( const QHttpResponseHeader& resp, const QByteArray& data );
-    void response( const QHttpResponseHeader& resp, const QIODevice* data );
-    void responseChunk( const QHttpResponseHeader& resp, const QByteArray& data );
+    void readyRead( const QHttpResponseHeader& resp );
+    void dataReadProgress( int, int );
 
     void finishedError( const QString& detail, int error );
     void finishedSuccess();

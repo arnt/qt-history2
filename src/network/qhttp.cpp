@@ -48,11 +48,13 @@
 #include "qbuffer.h"
 #include "qurloperator.h"
 
+//#define QHTTP_DEBUG
 
 class QHttpPrivate
 {
 public:
     QHttpPrivate() :
+	bytesDone( 0 ),
 	state( QHttp::Unconnected ),
 	hostname( QString::null ),
 	port( 0 ),
@@ -63,11 +65,13 @@ public:
 
     QSocket* socket;
     QByteArray buffer;
-    uint bytesRead;
+    uint bytesDone;
     QHttpRequestHeader header;
     QHttp::State state;
     bool readHeader;
     QHttpResponseHeader response;
+
+    QString headerStr;
 
     QString hostname;
     Q_UINT16 port;
@@ -769,14 +773,10 @@ QString QHttpRequestHeader::toString() const
     \omit WE SHOULD SHOW A CONNECTION\endomit
 
     This only makes the request. If a part of the response arrived, the
-    signal responseChunk() is emitted. After the last chunk is reported,
+    signal readyRead() is emitted. After the last chunk is reported,
     the finishedSuccess() signal is emitted. This allows you to process the
     document as chunks are received, without having to wait for the
     complete transmission to be finished.
-
-    If you need to receive the complete document before continuing,
-    you might prefer to connect to the response() signal which is emitted
-    when the entire document is received.
 
     \sa \link network.html Qt Network Documentation \endlink QNetworkProtocol, QUrlOperator
 */
@@ -798,8 +798,8 @@ void QHttp::init()
     d = new QHttpPrivate;
 
     // ################## signal/slot connections used in the QUrlOperator mode
-    connect( this, SIGNAL(responseChunk(const QHttpResponseHeader&, const QByteArray&)),
-	     SLOT(clientReply(const QHttpResponseHeader&, const QByteArray&)) );
+    connect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
+	     SLOT(clientReply(const QHttpResponseHeader&)) );
     connect( this, SIGNAL(finishedSuccess()),
 	     SLOT(clientFinishedSuccess()) );
     connect( this, SIGNAL(finishedError( const QString&, int )),
@@ -873,7 +873,7 @@ void QHttp::operationPut( QNetworkOperation *op )
     request( header, op->rawArg(1) );
 }
 
-void QHttp::clientReply( const QHttpResponseHeader &rep, const QByteArray & dataA )
+void QHttp::clientReply( const QHttpResponseHeader &rep )
 {
     QNetworkOperation *op = operationInProgress();
     if ( op ) {
@@ -900,9 +900,10 @@ void QHttp::clientReply( const QHttpResponseHeader &rep, const QByteArray & data
 	    }
 	}
 	// ### In cases of an error, should we still emit the data() signals?
-	if ( op->operation() == OpGet && !dataA.isEmpty() ) {
-	    emit data( dataA, op );
-	    bytesRead += dataA.size();
+	if ( op->operation() == OpGet && bytesAvailable() > 0 ) {
+	    QByteArray ba = readAll();
+	    emit data( ba, op );
+	    bytesRead += ba.size();
 	    if ( rep.hasContentLength() ) {
 		emit dataTransferProgress( bytesRead, rep.contentLength(), op );
 	    }
@@ -979,43 +980,21 @@ void QHttp::clientClosed()
  ****************************************************/
 
 /*!
-  \fn void QHttp::response( const QHttpResponseHeader& resp, const QByteArray& data )
-
-  This signal is emitted when the response is available. The response header is
-  passed in \a resp and the data of the response is passed in \a data. Do not
-  call request() in response to this signal. Instead wait for finishedSuccess().
-
-  If this QHttp has a device set, then this signal is not emitted.
-
-  \sa responseChunk()
-*/
-/*!
-  \fn void QHttp::response( const QHttpResponseHeader& resp, const QIODevice* device )
-  \overload
-
-  This signal is emitted when the response is available and the data was written
-  to the device \a device. The response header is passed in \a resp. Do not call
-  request() in response to this signal. Instead wit for finishedSuccess().
-
-  If this QHttp has no device set, then this signal is not emitted.
-
-  \sa responseChunk()
-*/
-/*!
-  \fn void QHttp::responseChunk( const QHttpResponseHeader& resp, const QByteArray& data )
+  \fn void QHttp::readyRead( const QHttpResponseHeader& resp )
 
   This signal is emitted if the client has received a piece of the response data.
   This is useful for slow connections: you don't have to wait until all data is
   available; you can present the data that is already loaded to the user.
 
-  The header is passed in \a resp and the data chunk in \a data.
-
-  If you are only interested in the complete document, use one of the response()
-  signals instead.
+  The header is passed in \a resp. You can read the data with the readAll() or
+  readBlock() functions
 
   After everything is read and reported, the finishedSuccess() signal is emitted.
 
-  \sa finishedSuccess() response()
+  \sa bytesAvailable() readAll() readBlock() finishedSuccess()
+*/
+/*!  \fn void QHttp::dataReadProgress( int bytesDone, int bytesTotal )
+  This signal is emitted ###
 */
 /*!
   \fn void QHttp::responseHeaderReceived( const QHttpResponseHeader& resp )
@@ -1023,7 +1002,7 @@ void QHttp::clientClosed()
   This signal is emitted if the HTTP header of the response is available. The
   header is passed in \a resp.
 
-  \sa response() responseChunk()
+  \sa readyRead()
 */
 /*!
   \fn void QHttp::finishedError( const QString& detail, int error )
@@ -1040,7 +1019,7 @@ void QHttp::clientClosed()
   This signal is emitted when the QHttp is able to start a new request.
   The QHttp is either in the state Unconnected or Connected now.
 
-  \sa response() responseChunk()
+  \sa readyRead()
 */
 
 /*!
@@ -1104,6 +1083,82 @@ void QHttp::close()
 }
 
 /*!
+    Returns the number of bytes that can be read from the response content at
+    the moment.
+
+    \sa request() readyRead() readBlock() readAll()
+*/
+Q_ULONG QHttp::bytesAvailable() const
+{
+    if ( d->socket ) {
+	if ( d->response.hasContentLength() )
+	    return QMIN( d->response.contentLength()-d->bytesDone, d->socket->bytesAvailable() );
+	return d->socket->bytesAvailable();
+    }
+    return 0;
+}
+
+/*!
+    Reads \a maxlen bytes from the response content into \a data and returns
+    the number of bytes read. Returns -1 if an error occurred.
+
+    \sa request() readyRead() bytesAvailable() readAll()
+*/
+Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
+{
+    if ( d->socket ) {
+	if ( d->response.hasContentLength() ) {
+	    uint n = QMIN( bytesAvailable(), maxlen );
+	    Q_LONG read = d->socket->readBlock( data, n );
+	    d->bytesDone += read;
+#if defined(QHTTP_DEBUG)
+	    qDebug( "QHttp::readBlock(): read %d bytes (%d bytes done)", (int)read, d->bytesDone );
+#endif
+	    return read;
+	} else {
+	    Q_LONG read = d->socket->readBlock( data, maxlen );
+	    d->bytesDone += read;
+#if defined(QHTTP_DEBUG)
+	    qDebug( "QHttp::readBlock(): read %d bytes (%d bytes done)", (int)read, d->bytesDone );
+#endif
+	    return read;
+	}
+    }
+    return -1;
+}
+
+/*!
+    Reads all bytes from the response contentt and returns it.
+
+    \sa request() readyRead() bytesAvailable() readBlock()
+*/
+QByteArray QHttp::readAll()
+{
+    if ( d->socket ) {
+	if ( d->response.hasContentLength() ) {
+	    uint n = bytesAvailable();
+	    QByteArray tmp( n );
+	    Q_LONG read = d->socket->readBlock( tmp.data(), n );
+	    tmp.resize( read );
+	    d->bytesDone += read;
+#if defined(QHTTP_DEBUG)
+	    qDebug( "QHttp::readAll(): read %d bytes (%d bytes done)", tmp.size(), d->bytesDone );
+#endif
+	    return tmp;
+	} else {
+	    QByteArray tmp = d->socket->readAll();
+	    d->bytesDone += tmp.size();
+#if defined(QHTTP_DEBUG)
+	    qDebug( "QHttp::readAll(): read %d bytes (%d bytes done)", tmp.size(), d->bytesDone );
+#endif
+	    return tmp;
+	}
+    }
+    return QByteArray();
+}
+
+
+/*!
     Sets the HTTP server that is used for requests to \a hostname on port \a
     port.
 
@@ -1124,8 +1179,8 @@ void QHttp::setHost(const QString &hostname, Q_UINT16 port )
     content data is used.
 
     If the IO device \a to is not 0, the content data of the response is
-    written to it. Otherwise the content data is reported by the
-    responseChunk() signal.
+    written to it. Otherwise the readyRead() signal is emitted every time new
+    content data is available to read.
 
     \sa setHost()
 */
@@ -1216,26 +1271,10 @@ void QHttp::slotClosed()
     if ( d->state == Closing )
 	return;
 
-    // If the other side closed the connection then there
-    // may still be data left to read.
     if ( d->state == Reading ) {
-	while( d->socket->bytesAvailable() > 0 ) {
-	    slotReadyRead();
-	}
-
-	// If we got no Content-Length then we know
-	// now that the request has completed.
-	if ( d->response.value("connection")=="close" && !d->response.hasKey( "content-length" ) ) {
-	    if ( d->toDevice )
-		emit response( d->response, d->toDevice );
-	    else
-		emit response( d->response, d->buffer );
-
-	    // Save memory
-	    d->buffer = QByteArray();
-	} else {
+	if ( d->response.value("connection")!="close" || d->response.hasKey( "content-length" ) ) {
 	    // We got Content-Length, so did we get all bytes ?
-	    if ( d->bytesRead != d->response.contentLength() ) {
+	    if ( d->bytesDone+bytesAvailable() != d->response.contentLength() ) {
 		emit finishedError( tr("Wrong content length"), WrongContentLength );
 	    }
 	}
@@ -1315,32 +1354,28 @@ void QHttp::slotReadyRead()
 	d->state = Reading;
 	d->buffer = QByteArray();
 	d->readHeader = TRUE;
+	d->headerStr = "";
+	d->bytesDone = 0;
     }
 
     if ( d->readHeader ) {
-	int n = d->socket->bytesAvailable();
-	if ( n == 0 )
-	    return;
-
-	int s = d->buffer.size();
-	d->buffer.resize( s + n );
-	n = d->socket->readBlock( d->buffer.data() + s, n );
-
-	// Search for \r\n\r\n
-	const char* data = d->buffer.data();
-	int i;
 	bool end = FALSE;
-	for( i = QMAX( 0, s - 3 ); !end && i+3 < s + n; ++i ) {
-	    if ( data[i] == '\r' && data[i+1] == '\n' && data[i+2] == '\r' && data[i+3] == '\n' )
+	QString tmp;
+	while ( !end && d->socket->canReadLine() ) {
+	    tmp = d->socket->readLine();
+	    if ( tmp == "\r\n" )
 		end = TRUE;
+	    else
+		d->headerStr += tmp;
 	}
 
 	if ( end ) {
-	    --i;
+#if defined(QHTTP_DEBUG)
+	    qDebug( "QHttp: read response header:\n---{\n%s}---", d->headerStr.latin1() );
+#endif
 	    d->readHeader = FALSE;
-	    d->buffer[i] = 0;
-	    d->response = QHttpResponseHeader( QString( d->buffer ) );
-
+	    d->response = QHttpResponseHeader( d->headerStr );
+	    d->headerStr = "";
 	    // Check header
 	    if ( !d->response.isValid() ) {
 		emit finishedError( tr("Invalid HTTP response header"), InvalidResponseHeader );
@@ -1349,72 +1384,34 @@ void QHttp::slotReadyRead()
 	    }
 	    emit responseHeaderReceived( d->response );
 
-	    // Handle data that was already read
-	    d->bytesRead = d->buffer.size() - i - 4;
-	    if ( d->response.hasContentLength() )
-		d->bytesRead = QMIN( d->response.contentLength(), d->bytesRead );
-
-	    if ( d->toDevice ) {
-		// Write the data to file
-		d->toDevice->writeBlock( d->buffer.data() + i + 4, d->bytesRead );
-
-		QByteArray tmp( d->bytesRead );
-		memcpy( tmp.data(), d->buffer.data() + i + 4, d->bytesRead );
-		emit responseChunk( d->response, tmp );
-	    } else {
-		// Copy the data to the beginning of a new buffer.
-		QByteArray tmp;
-		// Resize the array. Do we know the size of the data a priori ?
-		if ( d->response.hasContentLength() )
-		    tmp.resize( d->response.contentLength() );
-		else
-		    tmp.resize( d->bytesRead );
-		memcpy( tmp.data(), d->buffer.data() + i + 4, d->bytesRead );
-		d->buffer = tmp;
-
-		QByteArray tmp2( d->bytesRead );
-		memcpy( tmp2.data(), d->buffer.data(), d->bytesRead );
-		emit responseChunk( d->response, tmp2 );
-	    }
 	}
     }
 
     if ( !d->readHeader ) {
-	uint n = d->socket->bytesAvailable();
+	uint n = bytesAvailable();
 	if ( n > 0 ) {
-	    if ( d->response.hasContentLength() )
-		n = QMIN( d->response.contentLength() - d->bytesRead, n );
-
 	    if ( d->toDevice ) {
 		QByteArray arr( n );
 		n = d->socket->readBlock( arr.data(), n );
 		d->toDevice->writeBlock( arr.data(), n );
-
-		arr.resize( n );
-		emit responseChunk( d->response, arr );
+		d->bytesDone += n;
+		if ( d->response.hasContentLength() )
+		    emit dataReadProgress( d->bytesDone, d->response.contentLength() );
+		else
+		    emit dataReadProgress( d->bytesDone, 0 );
 	    } else {
-		d->buffer.resize( d->buffer.size() + n );
-		n = d->socket->readBlock( d->buffer.data() + d->bytesRead, n );
-
-		QByteArray tmp( n );
-		memcpy( tmp.data(), d->buffer.data()+d->bytesRead, n );
-		emit responseChunk( d->response, tmp );
+		emit readyRead( d->response );
+		if ( d->response.hasContentLength() )
+		    emit dataReadProgress( d->bytesDone + n, d->response.contentLength() );
+		else
+		    emit dataReadProgress( d->bytesDone + n, 0 );
 	    }
-	    d->bytesRead += n;
 	}
 
 	// Read everything ?
 	// We can only know that if the content length was given in advance.
 	// Otherwise we emit the signal in closed().
-	if ( d->response.hasContentLength() && d->bytesRead == d->response.contentLength() ) {
-	    if ( d->toDevice )
-		emit response( d->response, d->toDevice );
-	    else
-		emit response( d->response, d->buffer );
-
-	    // Save memory
-	    d->buffer = QByteArray();
-
+	if ( d->response.hasContentLength() && d->bytesDone+bytesAvailable() == d->response.contentLength() ) {
 	    // Handle "Connection: close"
 	    if ( d->response.value("connection") == "close" ) {
 		close();
