@@ -8,8 +8,6 @@
 #include <qmap.h>
 #include <qfont.h>
 
-enum { UndefinedIndex = -1 };
-
 class QTextFormatProperty
 {
 public:
@@ -73,19 +71,9 @@ QDebug &operator<<(QDebug &debug, const QTextFormatProperty &property)
 class QTextFormatPrivate : public QSharedObject
 {
 public:
-    void clearProperty(int property)
-    { properties.remove(property); }
-    void setProperty(int propertyId, const QTextFormatProperty &property)
-    { properties[propertyId] = property; }
-
-    const QTextFormatProperty property(int propertyId, QTextFormat::PropertyType propType) const;
+    typedef QMap<int, QTextFormatProperty> PropertyMap;
 
     bool operator==(const QTextFormatPrivate &rhs) const;
-
-    QList<int> propertyIds() const { return properties.keys(); }
-
-private:
-    typedef QMap<int, QTextFormatProperty> PropertyMap;
 
     PropertyMap properties;
 };
@@ -134,14 +122,6 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
     }
 
     return true;
-}
-
-const QTextFormatProperty QTextFormatPrivate::property(int propertyId, QTextFormat::PropertyType propType) const
-{
-    const QTextFormatProperty prop = properties.value(propertyId);
-    if (!prop.isValid() || (prop.type != propType && propType != QTextFormat::Undefined))
-	return QTextFormatProperty();
-    return prop;
 }
 
 bool QTextFormatPrivate::operator==(const QTextFormatPrivate &rhs) const
@@ -196,11 +176,9 @@ void QTextFormat::merge(const QTextFormat &other)
 	return;
     }
 
-    Q_FOREACH(int propId, other.allPropertyIds()) {
-	const QTextFormatProperty prop = other.d->property(propId, QTextFormat::Undefined);
-	Q_ASSERT(prop.isValid());
-	d->setProperty(propId, prop);
-    }
+    for (QTextFormatPrivate::PropertyMap::ConstIterator it = other.d->properties.begin();
+	 it != other.d->properties.end(); ++it)
+	d->properties.insert(it.key(), it.value());
 }
 
 QTextBlockFormat QTextFormat::toBlockFormat() const
@@ -253,11 +231,9 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
     if (!d)
 	return defaultValue;
 
-    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Bool);
-
-    if (!prop.isValid())
+    const QTextFormatProperty prop = d->properties.value(propertyId);
+    if (prop.type != QTextFormat::Bool)
 	return defaultValue;
-
     return prop.data.boolValue;
 }
 
@@ -266,11 +242,9 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
     if (!d)
 	return defaultValue;
 
-    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Integer);
-
-    if (!prop.isValid())
+    const QTextFormatProperty prop = d->properties.value(propertyId);
+    if (prop.type != QTextFormat::Integer)
 	return defaultValue;
-
     return prop.data.intValue;
 }
 
@@ -279,11 +253,9 @@ float QTextFormat::floatProperty(int propertyId, float defaultValue) const
     if (!d)
 	return defaultValue;
 
-    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::Float);
-
-    if (!prop.isValid())
+    const QTextFormatProperty prop = d->properties.value(propertyId);
+    if (prop.type != QTextFormat::Float)
 	return defaultValue;
-
     return prop.data.floatValue;
 }
 
@@ -292,11 +264,9 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
     if (!d)
 	return defaultValue;
 
-    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::String);
-
-    if (!prop.isValid())
+    const QTextFormatProperty prop = d->properties.value(propertyId);
+    if (prop.type != QTextFormat::String)
 	return defaultValue;
-
     return prop.stringValue();
 }
 
@@ -305,11 +275,9 @@ int QTextFormat::formatReferenceProperty(int propertyId, int defaultValue) const
     if (!d)
 	return defaultValue;
 
-    const QTextFormatProperty prop = d->property(propertyId, QTextFormat::FormatReference);
-
-    if (!prop.isValid())
+    const QTextFormatProperty prop = d->properties.value(propertyId);
+    if (prop.type != QTextFormat::FormatReference)
 	return defaultValue;
-
     return prop.data.intValue;
 }
 
@@ -317,28 +285,28 @@ void QTextFormat::setProperty(int propertyId, bool value)
 {
     if (!d)
 	d = new QTextFormatPrivate;
-    d->setProperty(propertyId, value);
+    d->properties.insert(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, int value)
 {
     if (!d)
 	d = new QTextFormatPrivate;
-    d->setProperty(propertyId, value);
+    d->properties.insert(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, float value)
 {
     if (!d)
 	d = new QTextFormatPrivate;
-    d->setProperty(propertyId, value);
+    d->properties.insert(propertyId, value);
 }
 
 void QTextFormat::setProperty(int propertyId, const QString &value)
 {
     if (!d)
 	d = new QTextFormatPrivate;
-    d->setProperty(propertyId, value);
+    d->properties.insert(propertyId, value);
 }
 
 void QTextFormat::setFormatReferenceProperty(int propertyId, int value)
@@ -348,14 +316,14 @@ void QTextFormat::setFormatReferenceProperty(int propertyId, int value)
     QTextFormatProperty prop;
     prop.type = FormatReference;
     prop.data.intValue = value;
-    d->setProperty(propertyId, prop);
+    d->properties.insert(propertyId, prop);
 }
 
 bool QTextFormat::hasProperty(int propertyId) const
 {
     if (!d)
 	return false;
-    return d->property(propertyId, QTextFormat::Undefined).isValid();
+    return d->properties.contains(propertyId);
 }
 
 QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
@@ -363,10 +331,7 @@ QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
     if (!d)
 	return QTextFormat::Undefined;
 
-    QTextFormatProperty prop = d->property(propertyId, QTextFormat::Undefined);
-    if (!prop.isValid())
-	return QTextFormat::Undefined;
-    return prop.type;
+    return d->properties.value(propertyId).type;
 }
 
 QList<int> QTextFormat::allPropertyIds() const
@@ -374,7 +339,7 @@ QList<int> QTextFormat::allPropertyIds() const
     if (!d)
 	return QList<int>();
 
-    return d->propertyIds();
+    return d->properties.keys();
 }
 
 bool QTextFormat::operator==(const QTextFormat &rhs) const
