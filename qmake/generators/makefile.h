@@ -95,8 +95,8 @@ protected:
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
     QString varList(const QString &var);
 
-    bool fileFixify(QString &file) const;
-    bool fileFixify(QStringList &files) const;
+    bool fileFixify(QString &file, QString dir=QString::null) const;
+    bool fileFixify(QStringList &files, QString dir=QString::null) const;
 public:
     MakefileGenerator(QMakeProject *p);
     virtual ~MakefileGenerator();

@@ -76,8 +76,7 @@ void
 UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 {
     QString deps = Option::output.name();
-    if(deps.findRev(Option::dir_sep) != -1)
-	deps = deps.right(deps.length() - deps.findRev(Option::dir_sep) -1);
+    fileFixify(deps, QDir::currentDirPath());
     bool do_incremental = (project->isActiveConfig("incremental") &&
 			   !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
 			   (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||

@@ -1109,22 +1109,25 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 }
 
 bool
-MakefileGenerator::fileFixify(QStringList &files) const
+MakefileGenerator::fileFixify(QStringList &files, QString dir) const
 {
     if(files.isEmpty())
 	return FALSE;
     int ret = 0;
     for(QStringList::Iterator it = files.begin(); it != files.end(); ++it)
 	if(!(*it).isEmpty())
-	    ret += (int)fileFixify((*it));
+	    ret += (int)fileFixify((*it), dir);
     return ret != 0;
 }
 
 bool
-MakefileGenerator::fileFixify(QString &file) const
+MakefileGenerator::fileFixify(QString &file, QString dir) const
 {
     if(file.isEmpty())
 	return FALSE;
+    if(dir.isNull())
+	dir = Option::output_dir;
+
     int depth = 4;
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
 	if(project && !project->isEmpty("QMAKE_PROJECT_DEPTH"))
@@ -1138,7 +1141,7 @@ MakefileGenerator::fileFixify(QString &file) const
 	file = Option::fixPathToTargetOS(file, FALSE);
 	if(QDir::isRelativePath(file))
 	    return FALSE;
-	QString match_dir = Option::output_dir;
+	QString match_dir = dir;
 	if(file.left(match_dir.length()) == match_dir &&
 	   file.mid(match_dir.length(), Option::dir_sep.length()) == Option::dir_sep) {
 	    file = file.right(file.length() - (match_dir.length() + 1));
