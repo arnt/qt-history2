@@ -2024,3 +2024,8 @@ void QWidget::resetInputContext()
 {
 
 }
+
+void QWidget::macWidgetChangedWindow()
+{
+
+}
