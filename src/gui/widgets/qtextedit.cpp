@@ -433,7 +433,6 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         q->setFocusPolicy(Qt::WheelFocus);
     }
 
-    readOnly = false;
     q->clear();
 
     doc->setModified(false);
