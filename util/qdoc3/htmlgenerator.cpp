@@ -511,13 +511,27 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::TableOfContents:
         {
             int numColumns = 1;
+            const Node *node = relative;
             Doc::SectioningUnit sectioningUnit = Doc::Section4;
             QStringList params = atom->string().split(",");
+            QString columnText = params.at(0);
+            QStringList pieces = columnText.split(" ", QString::SkipEmptyParts);
+            if (pieces.size() == 2) {
+                QString path = pieces.at(1);
+                columnText = pieces.at(0);
+                if (!path.isEmpty())
+                    node = marker->resolveTarget(path, tre, tre->root());
+                if (!node)
+                    node = relative;
+            }
+
             if (params.size() == 2) {
-                numColumns = params.at(0).toInt();
+                numColumns = qMax(columnText.toInt(), numColumns);
                 sectioningUnit = (Doc::SectioningUnit)params.at(1).toInt();
             }
-	    generateTableOfContents(relative, marker, sectioningUnit, numColumns);
+
+	    generateTableOfContents(node, marker, sectioningUnit, numColumns,
+                                    relative);
         }
 	break;
     case Atom::Target:
@@ -864,7 +878,8 @@ void HtmlGenerator::generateIncludes(const InnerNode *inner, CodeMarker *marker)
 }
 
 void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker,
-                                            Doc::SectioningUnit sectioningUnit, int numColumns)
+                                            Doc::SectioningUnit sectioningUnit,
+                                            int numColumns, const Node *relative)
 
 {
     if (!node->doc().hasTableOfContents())
@@ -872,6 +887,10 @@ void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker
     QList<Atom *> toc = node->doc().tableOfContents();
     if (toc.isEmpty())
 	return;
+
+    QString nodeName = "";
+    if (node != relative)
+        nodeName = node->name();
 
     QStringList sectionNumber;
     int columnSize = 0;
@@ -912,7 +931,7 @@ void HtmlGenerator::generateTableOfContents(const Node *node, CodeMarker *marker
             columnSize = 0;
         }
 	out() << "<li>";
-        out() << "<a href=\"#sec." << sectionNumber.join(".") << "\">";
+        out() << "<a href=\"" << nodeName << "#sec." << sectionNumber.join(".") << "\">";
 	generateAtomList(headingText.firstAtom(), node, marker, true, numAtoms);
         out() << "</a></li>\n";
 

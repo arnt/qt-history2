@@ -55,7 +55,8 @@ private:
     				CodeMarker *marker );
 #endif
     void generateTableOfContents(const Node *node, CodeMarker *marker,
-                                 Doc::SectioningUnit sectioningUnit, int numColumns);
+                                 Doc::SectioningUnit sectioningUnit,
+                                 int numColumns, const Node *relative = 0);
     QString generateListOfAllMemberFile(const InnerNode *inner, CodeMarker *marker);
     QString generateLowStatusMemberFile(const InnerNode *inner, CodeMarker *marker,
                                         CodeMarker::Status status);
