@@ -82,11 +82,15 @@ static QString htmlProtect( const QString& str )
     return t;
 }
 
-// ### bad
+/*
+  This function is imperfect.  If sophisticated '\index's are needed, it can
+  always be changed.
+ */
 static QString indexAnchor( const QString& str )
 {
+    static QRegExp unfriendly( QString("[^a-zA-Z0-9_-]+") );
     QString t = str;
-    t.replace( QRegExp(QChar(' ')), QChar('-') );
+    t.replace( unfriendly, QChar('-') );
     return t;
 }
 
@@ -264,9 +268,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
     QString arg, brief;
     QString className, enumName, extName, fileName, groupName, moduleName;
-    QString title, prototype, relates;
-    StringSet groups, headers, parameters;
-    QStringList seeAlso, important, index;
+    QString title, prototype, relates, x;
+    StringSet groups, headers, parameters, index;
+    QStringList seeAlso, important, anamesToPrepend;
     bool obsolete = FALSE;
     int briefBegin = -1;
     int briefEnd = 0;
@@ -542,7 +546,17 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 'i', 5 ):
 		consume( "index" );
-		index.append( getRestOfLine(yyIn, yyPos).simplifyWhiteSpace() );
+		x = getRestOfLine( yyIn, yyPos ).simplifyWhiteSpace();
+		index.insert( x );
+
+		/*
+		  The <a name="..."> for '\page's is put right here, because a
+		  page can contain many topics.  Otherwise, no new
+		  <a name="..."> is created; the link given by setLink() is
+		  used.
+		*/
+		if ( kindIs == Doc::Page )
+		    yyOut += QString( "<a name=\"%1\"></a>" ).arg( x );
 		break;
 	    case hash( 'i', 7 ):
 		consume( "ingroup" );
@@ -653,7 +667,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			yyPos++;
 		    if ( yyPos > begin )
 			prototype = yyIn.mid( begin, yyPos - begin );
-		    setKind( Doc::Fn, command );
+		    if ( kindIs != Doc::Fn )
+			setKind( Doc::Fn, command );
 		}
 		break;
 	    case hash( 'p', 4 ):
@@ -1373,6 +1388,8 @@ Doc::Doc( Kind kind, const Location& loc, const QString& htmlText )
 
 void Doc::setLink( const QString& link, const QString& title )
 {
+    QString indexLink;
+
     if ( !q.isEmpty() ) {
 	quotes[q].insert( link, title );
 	q = QString::null;
@@ -1385,12 +1402,16 @@ void Doc::setLink( const QString& link, const QString& title )
 	int k = link.find( QChar('#') );
 	if ( k == -1 )
 	    k = link.length();
-	QStringList::Iterator s = idx.begin();
+
+	StringSet::ConstIterator s = idx.begin();
 	while ( s != idx.end() ) {
-	    indices.insert( *s, link.left(k) + QChar('#') + indexAnchor(*s) );
+	    if ( kind() == Page )
+		indexLink = link.left( k ) + QChar( '#' ) + indexAnchor( *s );
+	    else
+		indexLink = link;
+	    indices.insert( *s, indexLink );
 	    ++s;
 	}
-	idx.clear();
     }
 
     /*
@@ -1703,11 +1724,22 @@ QString Doc::finalHtml() const
     if ( megaRegExp != 0 ) {
 	int k = 0;
 	while ( (k = yyOut.find(*megaRegExp, k)) != -1 ) {
+	    // ### I don't remember what this condition means... will find out
 	    if ( yyOut[k + 1] != QChar('<') ) {
 		QString t = megaRegExp->cap( 0 ).mid( 1 ).simplifyWhiteSpace();
-		yyOut.replace( k + 1, t.length(),
-			       QString("<a href=\"%1\">%2</a>")
-			       .arg(indices[t]).arg(t) );
+
+		/*
+		  Insert a href, but rule out two cases:  (1) The current link
+		  is foo.html and the index entry is at foo.html#big-mice;
+		  (2) The current doc and the entry are both at
+		  foo.html#printBar.
+		*/
+		if ( lnk != indices[t].left(lnk.length())
+		     && offsetOK(&offsetMap, yyOut.length(), t) ) {
+		    yyOut.replace( k + 1, t.length(),
+				   QString("<a href=\"%1\">%2</a>")
+				   .arg(indices[t]).arg(t) );
+		}
 	    }
 	    k += megaRegExp->matchedLength() + 1;
 	}

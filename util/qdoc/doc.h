@@ -50,7 +50,7 @@ public:
     void setInternal( bool internal ) { inter = internal; }
     void setObsolete( bool obsolete ) { obs = obsolete; }
     void setSeeAlso( const QStringList& seeAlso ) { sa = seeAlso; }
-    void setIndex( const QStringList& index ) { idx = index; }
+    void setIndex( const StringSet& index ) { idx = index; }
     void setHtmlMustQuote( const QString& quote ) { q = quote; }
     void setLink( const QString& link, const QString& title );
 
@@ -80,7 +80,7 @@ private:
     bool inter;
     bool obs;
     QString q;
-    QStringList idx;
+    StringSet idx;
     QString lnk;
 
     static const Resolver *res;
