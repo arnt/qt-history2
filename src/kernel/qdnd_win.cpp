@@ -426,6 +426,8 @@ QByteArray QDropEvent::encodedData( const char* format ) const
 }
 
 
+static QDragObject::DragMode current_mode = QDragObject::DragDefault;
+
 bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 {
     if ( object == o ) {
@@ -456,6 +458,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     QOleDropSource *src = new QOleDropSource(dragSource);
     QOleDataObject *obj = new QOleDataObject(o);
     DWORD allowed_effects;
+    current_mode = mode;
     switch (mode) {
       case QDragObject::DragDefault:
 	allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
@@ -491,6 +494,8 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     delete global_src;
     global_src = 0;
     object = 0;
+    current_mode = QDragObject::DragDefault;
+
     updatePixmap();
 
     return r == DRAGDROP_S_DROP
@@ -998,7 +1003,7 @@ void QDragManager::updatePixmap()
 	}
 
 	QPixmap pm = object->pixmap();
-	if ( pm.isNull() ) {
+	if ( pm.isNull() && !object->cursor( current_mode ) ) {
 	    // None.
 	} else {
 	    cursor = new HCURSOR[n_cursor];

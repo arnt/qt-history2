@@ -62,6 +62,8 @@ public:
     QDragObjectData(): hot(0,0) {}
     QPixmap pixmap;
     QPoint hot;
+    // store default cursors
+    QPixmap *pm_cursor;
 };
 
 static QWidget* last_target;
@@ -302,6 +304,7 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
     : QObject( dragSource, name )
 {
     d = new QDragObjectData();
+    d->pm_cursor = 0;
 #ifndef QT_NO_DRAGANDDROP
     if ( !qt_dnd_manager && qApp )
 	(void)new QDragManager();
@@ -319,6 +322,11 @@ QDragObject::~QDragObject()
 #ifndef QT_NO_DRAGANDDROP
     if ( qt_dnd_manager && qt_dnd_manager->object == this )
 	qt_dnd_manager->cancel( FALSE );
+    if ( d->pm_cursor ) {
+	for ( int i = 0; i < qt_dnd_manager->n_cursor; i++ )
+	    qt_dnd_manager->pm_cursor[i] = d->pm_cursor[i];
+	delete [] d->pm_cursor;
+    }
 #endif
     delete d;
 }
@@ -374,6 +382,62 @@ QPixmap QDragObject::pixmap() const
 QPoint QDragObject::pixmapHotSpot() const
 {
     return d->hot;
+}
+
+/*!
+    Set the \a cursor used when dragging in mode \a m. 
+    Note: X11 only allow bitmaps for cursors.
+*/
+void QDragObject::setCursor(DragMode m, const QPixmap &pm)
+{
+    if ( d->pm_cursor == 0 ) {
+	// safe default cursors
+	d->pm_cursor = new QPixmap[qt_dnd_manager->n_cursor];
+	for ( int i = 0; i < qt_dnd_manager->n_cursor; i++ )
+	    d->pm_cursor[i] = qt_dnd_manager->pm_cursor[i];
+    }
+
+    int index;
+    switch ( m ) {
+    case DragCopy:
+	index = 1;
+	break;
+    case DragLink:
+	index = 2;
+	break;
+    default:
+	index = 0;
+	break;
+    }
+
+    // override default cursor
+    for ( index = 0; index < qt_dnd_manager->n_cursor; index++ )
+	qt_dnd_manager->pm_cursor[index] = pm;
+}
+
+/*!
+    Returns the cursor used when dragging in mode \a m, or null if no cursor
+    has been set for that mode.
+*/
+QPixmap *QDragObject::cursor( DragMode m ) const
+{
+    if ( !d->pm_cursor )
+	return 0;
+
+    int index;
+    switch ( m ) {
+    case DragCopy:
+	index = 1;
+	break;
+    case DragLink:
+	index = 2;
+	break;
+    default:
+	index = 0;
+	break;
+    }
+
+    return qt_dnd_manager->pm_cursor+index;
 }
 
 /*!

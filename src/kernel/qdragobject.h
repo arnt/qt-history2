@@ -77,6 +77,8 @@ public:
 #ifndef QT_NO_DRAGANDDROP
     enum DragMode { DragDefault, DragCopy, DragMove, DragLink, DragCopyOrMove };
 
+    void setCursor( DragMode m, const QPixmap &pm );
+    QPixmap *cursor( DragMode m ) const;
 protected:
     virtual bool drag(DragMode);
 #endif
