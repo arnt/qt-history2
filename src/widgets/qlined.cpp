@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#81 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#80 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#81 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -369,7 +369,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		test.remove( minMark(), maxMark() - minMark() );
 	    if ( (int)test.length() < maxLen )
 		test.insert( cursorPos, e->ascii() );
-	    if ( validator()->validate( test ) > QValidator::Unknown )
+	    if ( validator()->validate( test ) > QValidator::Uncertain )
 		return;
 	}
 	*/
@@ -442,7 +442,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 			t.truncate( maxLen-tlen );
 		    }
 		    test.insert( cursorPos, t );
-		    if ( validator()->validate( test ) > QValidator::Unknown )
+		    if ( validator()->validate( test ) > QValidator::Uncertain )
 			break;
 		}
 		*/
@@ -817,12 +817,13 @@ void QLineEdit::paintText( QPainter *p, const QSize &s, bool )
 	    curXPos += fm.width( displayText, cursorPos - offset ) - 1;
 	int curYPos   = ypos - fm.ascent();
 	if ( hasFocus() ) {
-	    p->drawLine( curXPos - 2, curYPos,
-			 curXPos + 2, curYPos );
-	    p->drawLine( curXPos    , curYPos,
-			 curXPos    , curYPos + fm.height() - 1);
-	    p->drawLine( curXPos - 2, curYPos + fm.height() - 1,
-			 curXPos + 2, curYPos + fm.height() - 1);
+	    p->drawLine( curXPos, curYPos, curXPos, curYPos + fm.height() - 1);
+	    if ( style() != WindowsStyle ) {
+		p->drawLine( curXPos - 2, curYPos,
+			     curXPos + 2, curYPos );
+		p->drawLine( curXPos - 2, curYPos + fm.height() - 1,
+			     curXPos + 2, curYPos + fm.height() - 1);
+	    }
 	}
     }
 }
@@ -931,7 +932,7 @@ void QLineEdit::del()
 	test.remove( minMark(), maxMark() - minMark() );
 	/* No validators
 	if ( validator() &&
-	     validator()->validate( test ) > QValidator::Unknown )
+	     validator()->validate( test ) > QValidator::Uncertain )
 	    return;
 	*/
 	tbuf = test;
@@ -946,7 +947,7 @@ void QLineEdit::del()
 	test.remove( cursorPos, 1 );
 	/* No validators
 	if ( validator() &&
-	     validator()->validate( test ) > QValidator::Unknown )
+	     validator()->validate( test ) > QValidator::Uncertain )
 	    return;
 	*/
 	tbuf = test;
