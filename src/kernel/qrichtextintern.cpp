@@ -49,6 +49,8 @@ public:
     virtual void draw(QPainter* p, int x, int y,
 		      int ox, int oy, int cx, int cy, int cw, int ch,
 		      QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper = 0) = 0;
+    
+    virtual bool expandsHorizontally();
 
     int width;
     int height;
@@ -63,6 +65,9 @@ public:
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper = 0);
+
+    bool expandsHorizontally();
+
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#6 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -112,6 +112,12 @@ QTextCustomNode::~QTextCustomNode()
 }
 
 
+bool QTextCustomNode::expandsHorizontally()
+{
+    return FALSE;
+}
+
+
 QTextImage::QTextImage(const QDict<QString> &attr, QMLProvider &provider)
     : QTextCustomNode()
 {
@@ -188,6 +194,11 @@ QTextHorizontalLine::~QTextHorizontalLine()
 {
 }
 
+
+bool QTextHorizontalLine::expandsHorizontally()
+{
+    return TRUE;
+}
 
 void QTextHorizontalLine::draw(QPainter* p, int x, int y,
 			     int ox, int oy, int cx, int cy, int cw, int ch,
@@ -278,12 +289,25 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	    a = fm.ascent();
 	    d = h-a;
 	}
-	else {
-	    tx += ((QTextCustomNode*)*it)->width;
-	    h = ((QTextCustomNode*)*it)->height;
+	else if ( !it->isContainer ) { 
+	    QTextCustomNode* c = (QTextCustomNode*)*it;
+	    if ( c->expandsHorizontally() ) {
+		c->width = width;
+	    }
+	    tx +=c->width;
+	    h = c->height;
 	    a = h;
 	    d = 0;
 	}
+	else if ( it->isContainer ){ 
+	    if ( it->isBox )
+		break;
+	    else {
+		++it;
+		continue;
+	    }
+	}
+	
 	if (tx > width - fm.width(' ') && *it != first && !it->isSpace() )
 	    break;
 
@@ -292,10 +316,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	rdesc = QMAX( rdesc, d );
 	
 	prev = it;
-	do {
-	    ++it;
-	}
-	while ( it != end && it->isContainer && !it->isBox );
+	++it;
 	
 	// break (a) after a space, (b) before a box, (c) if we have
 	// to or (d) at the end of a box.
@@ -330,7 +351,7 @@ QTextRow::QTextRow( QPainter* p, QFontMetrics &fm,
 	fill = 0;
 
     it = lastSpace;
-    
+
     if ( lastWidth > width ) {
 	width = lastWidth;
 	fill = 0;
@@ -422,7 +443,7 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 
     QFontMetrics fm = p->fontMetrics();
     for ( it = begin(); it != end(); ++it ) {
-	if ( it->isContainer && !it->isBox )
+	if ( it->isContainer )
 	    continue;
 	s.truncate(0);
 	QFont font = it.parentNode()->font();
