@@ -1987,7 +1987,7 @@ void QLineEdit::updateOffset()
 	    d->offset = leftGap;
 	else if ( cursorPos < d->offset )
 	    d->offset = cursorPos;
-	else if ( cursorPos > d->offset + w )
+	if ( cursorPos > d->offset + w )
 	    d->offset = cursorPos - w;
     } else {
 	int align = d->parag->alignment() & Qt::AlignHorizontal_Mask;
