@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#87 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#88 $
 **
 ** Implementation of QFile class
 **
@@ -1019,7 +1019,7 @@ int QFile::handle() const
     if ( !isOpen() )
 	return -1;
     else if ( fh )
-	return fileno( fh );
+	return FILENO( fh );
     else
 	return fd;
 }
