@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#105 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#106 $
 **
 ** Implementation of QPixmap class
 **
@@ -770,7 +770,13 @@ void QPixmap::setDefaultOptimization( Optimization optimization )
 
 QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 {
-    QImageIO io( s.device(), "PNG" );
+    QImageIO io;
+    io.setIODevice( s.device() );
+    if ( s.version() == 1 )
+	io.setFormat( "BMP" );
+    else
+	io.setFormat( "PNG" );
+
     io.setImage( pixmap.convertToImage() );
     io.write();
     return s;

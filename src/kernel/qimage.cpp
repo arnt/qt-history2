@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#224 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#225 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2338,7 +2338,13 @@ bool QImage::save( const QString &fileName, const char* format ) const
 
 QDataStream &operator<<( QDataStream &s, const QImage &image )
 {
-    QImageIO io( s.device(), "PNG" );
+    QImageIO io;
+    io.setIODevice( s.device() );
+    if ( s.version() == 1 )
+	io.setFormat( "BMP" );
+    else
+	io.setFormat( "PNG" );
+
     io.setImage( image );
     io.write();
     return s;

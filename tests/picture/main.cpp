@@ -42,6 +42,10 @@ static const char* open_xpm[]={
 "..*************d",
 "...ddddddddddddd"};
 
+#if QT_VERSION < 200
+#define qDebug debug
+#define qWarning warning
+#endif
 
 class Streamer: public QWidget
 {

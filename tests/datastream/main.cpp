@@ -41,11 +41,16 @@ static const char* open_xpm[]={
 "...ddddddddddddd"};
 
 
+#if QT_VERSION < 200
+#define qDebug debug
+#define qWarning warning
+#endif
+
 class Streamer: public QWidget
 {
 public:
-    bool writeOut( QIODevice* dev, int ver );
-    bool readIn( QIODevice* dev, int ver );
+    bool writeOut( QIODevice* dev, int ver, bool printable );
+    bool readIn( QIODevice* dev, int ver, bool printable );
 
 };
 
@@ -84,18 +89,20 @@ void dumpPalette( const QPalette& p )
 }
 */
 
-bool Streamer::writeOut( QIODevice* dev, int ver )
+bool Streamer::writeOut( QIODevice* dev, int ver, bool printable  )
 {
     QPixmap* pm = new QPixmap(open_xpm);
     ASSERT( !pm->isNull() );
 
     QDataStream s( dev );
+    s.setPrintableData( printable );
+
 #if QT_VERSION >= 200
     s.setVersion( ver );
 #else
     ver = ver;
 #endif
-
+	
     QBitArray d1( 3 );
     d1.fill( TRUE );
     d1[1] = FALSE;
@@ -176,12 +183,13 @@ bool Streamer::writeOut( QIODevice* dev, int ver )
 
 
 
-bool Streamer::readIn( QIODevice* dev, int ver )
+bool Streamer::readIn( QIODevice* dev, int ver, bool printable  )
 {
     QPixmap* pm = new QPixmap(open_xpm);
     ASSERT( !pm->isNull() );
 
     QDataStream s( dev );
+    s.setPrintableData( printable );
 #if QT_VERSION >= 200
     s.setVersion( ver );
 #else
@@ -331,11 +339,22 @@ int main( int argc, char **argv )
 	QString arg1( argv[1] );
 	if ( arg1 == "-v1" ) {
 	    ver = 1;
-	    off = 1;
+	    off++;
 	}
 	else if ( arg1 == "-v2" ) {
 	    ver = 2;
-	    off = 1;
+	    off++;
+	}
+    }
+
+    bool printable = FALSE;
+
+    if ( argc > 1 ) {
+	QString arg2( argv[1+off] );
+	if ( arg2 == "-p" ) {
+	    printable = TRUE;
+	    qDebug( "%s: Using QDatastream printable format.", argv[0] );
+	    off++;
 	}
     }
 
@@ -349,10 +368,10 @@ int main( int argc, char **argv )
 	    QByteArray ba(10000);
 	    QBuffer b( ba );
 	    b.open( IO_WriteOnly );
-	    s.writeOut( &b, ver );
+	    s.writeOut( &b, ver, printable );
 	    b.close();
 	    b.open( IO_ReadOnly );
-	    s.readIn( &b, ver );
+	    s.readIn( &b, ver, printable );
 	    b.close();
 	    qDebug( "%s: Internal write and read done.", argv[0] );
 	    return 0;
@@ -378,7 +397,7 @@ int main( int argc, char **argv )
 	    return 0;
 	}
 	 
-	s.writeOut( &f, ver );
+	s.writeOut( &f, ver, printable );
 	f.close();
 	
 	qDebug( "%s: Output written to %s.", argv[0], (const char*)fileName );
@@ -392,7 +411,7 @@ int main( int argc, char **argv )
 	    return 0;
 	}
 	 
-	s.readIn( &f, ver );
+	s.readIn( &f, ver, printable );
 	f.close();
 	qDebug( "%s: %s read.", argv[0], (const char*)fileName );
     }
