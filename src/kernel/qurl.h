@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#20 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#21 $
 **
 ** Implementation of QUrl class
 **
@@ -26,8 +26,9 @@
 #ifndef QURL_H
 #define QURL_H
 
-#include <qstring.h>
-#include <qdir.h>
+#include "qstring.h"
+#include "qdir.h"
+#include "qnetworkprotocol.h"
 
 struct QUrlPrivate;
 

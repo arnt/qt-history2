@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#55 $
 **
 ** Implementation of QUrl class
 **
@@ -24,7 +24,6 @@
 *****************************************************************************/
 
 #include "qurl.h"
-#include "qnetworkprotocol.h"
 
 #include <stdlib.h>
 
@@ -784,7 +783,7 @@ QString QUrl::path( bool correct ) const
 	}
 	d->cleanPathDirty = FALSE;
     }
-    
+
     return d->cleanPath;
 }
 

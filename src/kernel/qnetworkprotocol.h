@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#22 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#23 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -26,7 +26,6 @@
 #ifndef QNETWORKPROTOCOL_H
 #define QNETWORKPROTOCOL_H
 
-#include "qurloperator.h"
 #include "qurlinfo.h"
 
 #include <qstring.h>
@@ -40,6 +39,7 @@ class QNetworkProtocol;
 class QNetworkOperation;
 class QTimer;
 struct QNetworkProtocolPrivate;
+class QUrlOperator;
 
 class Q_EXPORT QNetworkProtocolFactoryBase
 {
@@ -168,48 +168,6 @@ private slots:
     void removeMe();
 
 };
-
-inline void QNetworkProtocol::emitNewChild( const QUrlInfo &i, QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitNewChild( i, res );
-}
-
-inline void QNetworkProtocol::emitFinished( QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitFinished( res );
-}
-
-inline void QNetworkProtocol::emitStart( QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitStart( res );
-}
-
-inline void QNetworkProtocol::emitCreatedDirectory( const QUrlInfo &i, QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitCreatedDirectory( i, res );
-}
-
-inline void QNetworkProtocol::emitRemoved( QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitRemoved( res );
-}
-
-inline void QNetworkProtocol::emitItemChanged( QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitItemChanged( res );
-}
-
-inline void QNetworkProtocol::emitData( const QCString &d, QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitData( d, res );
-}
 
 struct QNetworkOperationPrivate;
 class Q_EXPORT QNetworkOperation

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#32 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -25,6 +25,7 @@
 
 #include "qnetworkprotocol.h"
 #include "qlocalfs.h"
+#include "qurloperator.h"
 #include "qtimer.h"
 
 QNetworkProtocolDict *qNetworkProtocolRegister = 0;
@@ -764,6 +765,48 @@ struct QNetworkOperationPrivate
     QString protocolDetail;
     QNetworkProtocol::Error errorCode;
 };
+
+void QNetworkProtocol::emitNewChild( const QUrlInfo &i, QNetworkOperation *res )
+{
+    if ( url() )
+	url()->emitNewChild( i, res );
+}
+
+void QNetworkProtocol::emitFinished( QNetworkOperation *res )
+{
+    if ( url() )
+	url()->emitFinished( res );
+}
+
+void QNetworkProtocol::emitStart( QNetworkOperation *res )
+{
+    if ( url() )
+	url()->emitStart( res );
+}
+
+void QNetworkProtocol::emitCreatedDirectory( const QUrlInfo &i, QNetworkOperation *res )
+{
+    if ( url() )
+	url()->emitCreatedDirectory( i, res );
+}
+
+void QNetworkProtocol::emitRemoved( QNetworkOperation *res )
+{
+    if ( url() )
+	url()->emitRemoved( res );
+}
+
+void QNetworkProtocol::emitItemChanged( QNetworkOperation *res )
+{
+    if ( url() )
+	url()->emitItemChanged( res );
+}
+
+void QNetworkProtocol::emitData( const QCString &d, QNetworkOperation *res )
+{
+    if ( url() )
+	url()->emitData( d, res );
+}
 
 /*!
   \class QNetworkOperation qnetworkprotocol.h

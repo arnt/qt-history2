@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.h#7 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.h#8 $
 **
 ** Implementation of QUrlInfo class
 **
@@ -26,12 +26,12 @@
 #ifndef QURLINFO_H
 #define QURLINFO_H
 
-#include "qurl.h"
-#include <qdatetime.h>
-#include <qstring.h>
+#include "qdatetime.h"
+#include "qstring.h"
 
 class QUrlOperator;
 struct QUrlInfoPrivate;
+class QUrl;
 
 class Q_EXPORT QUrlInfo
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#6 $
 **
 ** Implementation of QLocalFs class
 **
@@ -29,6 +29,7 @@
 #include "qurlinfo.h"
 #include "qapplication.h"
 #include "qtextstream.h"
+#include "qurloperator.h"
 
 // NOT REVISED
 
