@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#4 $
 **
 ** Implementation of QGArray class
 **
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#4 $";
 #endif
 
 
@@ -193,15 +193,14 @@ QGArray &QGArray::assign( char *d, uint len )	// shallow copy
 
 QGArray &QGArray::duplicate( const QGArray &a ) // deep copy
 {
+    char *oldptr = 0;
     if ( p->count > 1 ) {			// disconnect this
 	p->count--;
 	p = new array_data;
 	CHECK_PTR( p );
     }
-    else {
-	if ( p->data )
-	    DELETE(p->data);
-    }
+    else					// delete after copy was made
+	oldptr = p->data;
     if ( a.p->count ) {				// duplicate data
 	p->data = NEW(char,a.p->len);
 	CHECK_PTR( p->data );
@@ -211,20 +210,21 @@ QGArray &QGArray::duplicate( const QGArray &a ) // deep copy
     else
 	p->data = 0;
     p->len = a.p->len;
+    if ( oldptr )
+	DELETE(oldptr);
     return *this;
 }
 
 QGArray &QGArray::duplicate( const char *d, uint len )
 {						// deep copy
+    char *oldptr = 0;
     if ( p->count > 1 ) {			// disconnect this
 	p->count--;
 	p = new array_data;
 	CHECK_PTR( p );
     }
-    else {
-	if ( p->data )
-	    DELETE(p->data);
-    }
+    else					// delete after copy was made
+	oldptr = p->data;
     if ( !(d && len) ) {			// null value
 	p->data = 0;
 	p->len = 0;
@@ -236,6 +236,8 @@ QGArray &QGArray::duplicate( const char *d, uint len )
 	if ( p->data )
 	    memcpy( p->data, d, len );
     }
+    if ( oldptr )
+	DELETE(oldptr);
     return *this;
 }
 
