@@ -69,6 +69,7 @@ void QMacStylePainter::setport()
 #include <qscrollview.h>
 #include <qspinbox.h>
 #include <qsplitter.h>
+#include <qtable.h>
 #include <qtabbar.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
@@ -465,7 +466,7 @@ void QMacStyle::polish(QWidget* w)
     QPopupMenu *popup;
     QTitleBar *tb;
     if ((lined = ::qt_cast<QLineEdit*>(w)) != 0) {
-        if(w->parentWidget() && ::qt_cast<QComboBox*>(w->parentWidget()))
+        if(::qt_cast<QComboBox*>(w->parentWidget()))
 	    lined->setFrameStyle(QFrame::LineEditPanel | QFrame::Sunken);
 	SInt32 frame_size;
 	GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
@@ -563,7 +564,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    w = (QWidget*)p->device();
 	((QMacStylePainter *)p)->setport();
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
-        if (w && w->parentWidget() && ::qt_cast<QGroupBox*>(w->parentWidget()))
+        if (w && ::qt_cast<QGroupBox*>(w->parentWidget()))
 	    DrawThemeSecondaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
 	else
 #endif
@@ -628,6 +629,22 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
     case PE_HeaderArrow: //drawn in HeaderSection rather than separately..
 	break;
     case PE_HeaderSection: {
+        ThemeButtonKind bkind = kThemeListHeaderButton;
+        // Grab the widget behind this thing yet again and check if it's parent is a table.
+        // We do this because the kThemeListHeader apparently doesn't extend vertically.
+        // Also change the sunken flag to true for items that are selected. Because of
+        // design decisions we have to explictily turn it off for every header section.
+        // We can tell if something is selected by looking at the boldness of the font,
+        // icky, but it does the job.
+        if (p && p->device() && p->device()->devType() == QInternal::Widget) {
+            if (::qt_cast<QTable*>(((QWidget*)p->device())->parentWidget())) {
+                bkind = kThemeBevelButton;
+                if (p->font().bold())
+                    flags |= Style_Sunken;
+                else
+                    flags &= ~Style_Sunken;
+            }
+        }
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
         QWidget *w = 0;
         if (p->device()->devType() == QInternal::Widget)
@@ -654,9 +671,8 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    ir.setRight(ir.right() + 50);
 	else if((flags & Style_Up))
 	    info.adornment |= kThemeAdornmentHeaderButtonSortUp;
-	((QMacStylePainter *)p)->setport();
-	DrawThemeButton(qt_glb_mac_rect(ir, p, FALSE), kThemeListHeaderButton,
-			&info, NULL, NULL, NULL, 0);
+	((QMacPainter *)p)->setport();
+	DrawThemeButton(qt_glb_mac_rect(ir, p, FALSE), bkind, &info, 0, 0, 0, 0);
 	break; }
     case PE_CheckListController:
 	break;
@@ -1114,6 +1130,39 @@ void QMacStyle::drawControl(ControlElement element,
 		delete buffer;
 	}
 	break; }
+#ifndef QT_NO_HEADER
+    case CE_HeaderLabel:
+    {
+        QRect rect = r;
+        const QHeader* header = (const QHeader *)widget;
+        int section = opt.headerSection();
+
+        QIconSet* icon = header->iconSet( section );
+        if ( icon ) {
+            QPixmap pixmap = icon->pixmap( QIconSet::Small,
+                                           how & Style_Enabled ?
+                                           QIconSet::Normal : QIconSet::Disabled );
+            int pixw = pixmap.width();
+            int pixh = pixmap.height();
+            // "pixh - 1" because of tricky integer division
+
+            QRect pixRect = rect;
+            pixRect.setY( rect.center().y() - (pixh - 1) / 2 );
+            drawItem ( p, pixRect, AlignVCenter, cg, how & Style_Enabled,
+                       &pixmap, QString::null );
+            rect.setLeft( rect.left() + pixw + 2 );
+        }
+
+	// change the color to bright text if we are a table header and selected.
+        const QColor *penColor = &cg.buttonText();
+        if (::qt_cast<QTable *>(header->parentWidget()) && p->font().bold())
+            penColor = &cg.color(QColorGroup::BrightText);
+
+        drawItem(p, rect, AlignVCenter, cg, how & Style_Enabled,
+                 0, header->label(section), -1, penColor);
+        break;
+    }
+#endif // QT_NO_HEADER
     default:
 	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
     }
@@ -2214,7 +2263,7 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	    w += 20 - maxpmw;
 	if(checkable || maxpmw > 0)
 	    w += 2;
-        if (widget->parentWidget() && ::qt_cast<QComboBox*>(widget->parentWidget())
+        if (::qt_cast<QComboBox*>(widget->parentWidget())
             && widget->parentWidget()->isVisible())
 	    w = QMAX(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(),
 			SC_ComboBoxEditField).width());
