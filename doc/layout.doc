@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: layout.doc,v 2.12 1999/05/21 09:46:03 warwick Exp $
+** $Id: layout.doc,v 2.13 1999/05/21 12:09:23 paul Exp $
 **
 ** Explanation of the layout subsystem
 **
@@ -105,16 +105,28 @@ done with a function called \c addWidget()). This way, you can give
 layout parameters for each widget, specifying properties like
 alignment, stretch, and placement.
 <p>
-The following code makes a grid like the one above:
+The following code makes a grid like the one above, with a couple of 
+improvements: 
 \code
     QWidget *main = new QWidget;
+
     //make a 1x1 grid, it will auto-expand:
     QGridLayout *grid = new QGridLayout( main, 1, 1 ); 
+
+    //add the first four widgets with (row, column) addressing
     grid->addWidget( new QLabel( "One", main ), 0, 0 );
     grid->addWidget( new QLabel( "Two", main ), 0, 1 );
     grid->addWidget( new QLabel( "Three", main ), 1, 0 );
     grid->addWidget( new QLabel( "Four", main ), 1, 1 );
-    grid->addWidget( new QLabel( "Five", main ), 2, 0 );
+
+    //add the last widget on row 2, let it span from column 0 to
+    //column 1, and let it be aligned center.	
+    grid->addMultiCellWidget( new QLabel( "Five", main ), 2, 2, 0, 1, 
+			      Qt::AlignCenter );
+
+    //let the ratio between the widths of columns 0 and 1 be 2:3.
+    grid->setColStretch( 0, 2 );
+    grid->setColStretch( 1, 3 );
 \endcode
 
 <p>
@@ -122,17 +134,18 @@ The following code makes a grid like the one above:
 You can insert layouts inside a layout by giving the parent layout as
 a parameter in the constructor. 
 \code
-    QWidget *main = new QWidget;
+    QWidget*       main = new QWidget;
+    QLineEdit*    field = new QLineEdit( main );
+    QPushButton*     ok = new QPushButton( "OK", main );
+    QPushButton* cancel = new QPushButton( "Cancel", main );
+    QLabel*       label = new QLabel( "Where do you want to go?", main );
 
-    QVBoxLayout *vbox = new QVBoxLayout( main ); 
-    vbox->addWidget( new QLabel( "Where do you want to go?", main ) );
-    QLineEdit *lined = new QLineEdit( main );
-    vbox->addWidget( lined );
-
-    QHBoxLayout *buttons = new QHBoxLayout( vbox );
-    QPushButton *ok = new QPushButton( "OK", main );
+    QVBoxLayout *vbox    = new QVBoxLayout( main ); // A layout on a widget
+    vbox->addWidget( label );
+    vbox->addWidget( field );
+    
+    QHBoxLayout *buttons = new QHBoxLayout( vbox ); // A layout inside a layout
     buttons->addWidget( ok );
-    QPushButton *cancel = new QPushButton( "Cancel", main );
     buttons->addWidget( cancel );
 \endcode
 If you are not satisfied with the
@@ -333,7 +346,8 @@ must be implemented. It is used by QLayout::add(), by the QLayout
 constructor that takes a layout as parent, and it is used to implement
 the \link QLayout::autoAdd() auto-add\endlink feature. If your layout
 has advanced placement options that require parameters, you will have to
-provide extra access functions eg. QGridLayout::addMultiCell().
+provide extra access functions like eg. \link QGridLayout::addMultiCell()
+QGridLayout::addMultiCell()\endlink.
 
 \code
 void CardLayout::addItem( QLayoutItem *item )
