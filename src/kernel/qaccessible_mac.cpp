@@ -179,10 +179,29 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		Point where;
 		GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
 				  sizeof(where), NULL, &where);
-		if(widget) 
-		    widget = widget->childAt(widget->mapFromGlobal(QPoint(where.h, where.v))); //FIXME!!
-		else 
+		if(widget) {
+#if 0
+		    QAccessibleInterface *iface;
+		    if(queryAccessibleInterface(widget, &iface) == QS_OK) {
+			QPoint p = widget->mapFromGlobal(QPoint(where.h, where.v));
+			int child = iface->controlAt(p.x(), p.y());
+			if(child > 0) {
+			    QAccessibleInterface *child_iface;
+			    if(iface->queryChild(child, &child_iface) == QS_OK) {
+				QObject *o = queryAccessibleObject(child_iface);
+				if(o && o->isWidgetType())
+				    widget = (QWidget*)o;
+				child_iface->release();
+			    }
+			}
+			iface->release();
+		    }
+#else
+		    widget = widget->childAt(widget->mapFromGlobal(QPoint(where.h, where.v)));
+#endif
+		} else {
 		    widget = QApplication::widgetAt(where.h, where.v);
+		}
 		if(widget) {
 		    AXUIElementRef element = qt_mac_find_uielement(widget);
 		    SetEventParameter(event, kEventParamAccessibleChild, typeCFTypeRef, sizeof(element), &element);
@@ -221,27 +240,28 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
 				  sizeof(str), NULL, &str);
 		if(CFStringCompare(str, kAXChildrenAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXParentAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXSelectedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMainAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXZoomButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXGrowAreaAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXParentAttribute, 0) == kCFCompareEqualTo) {
+		    
+		} else if(CFStringCompare(str, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXSelectedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMainAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXZoomButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXGrowAreaAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
 		} else {
 		    qDebug("Unknown [kEventAccessibleGetNamedAttribute]: %s", cfstring2qstring(str).latin1());
 		}
@@ -250,27 +270,27 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
 				  sizeof(str), NULL, &str);
 		if(CFStringCompare(str, kAXChildrenAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXParentAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXSelectedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMainAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXZoomButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXGrowAreaAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXParentAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXSelectedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMainAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXZoomButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXGrowAreaAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
 		} else {
 		    qDebug("Unknown [kEventAccessibleSetNamedAttribute]: %s", cfstring2qstring(str).latin1());
 		}
@@ -279,36 +299,33 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		GetEventParameter(event, kEventParamAccessibleAttributeName, typeCFStringRef, NULL,
 				  sizeof(str), NULL, &str);
 		if(CFStringCompare(str, kAXChildrenAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXParentAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXSelectedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMainAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXZoomButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXGrowAreaAttribute, 0) == kCFCompareEqualTo) {
-		} else 	if(CFStringCompare(str, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXParentAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXPositionAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXSizeAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXValueAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXHelpAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXRoleAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXSelectedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMainAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXZoomButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXGrowAreaAttribute, 0) == kCFCompareEqualTo) {
+		} else if(CFStringCompare(str, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
 		} else {
 		    qDebug("Unknown [kEventAccessibleIsNamedAttributeSettable]: %s", cfstring2qstring(str).latin1());
 		}
 	    } else if(ekind == kEventAccessibleGetAllActionNames) {
-		qDebug("get all action names..");
 	    } else if(ekind == kEventAccessiblePerformNamedAction) {
-		qDebug("perofmr named action..");
 	    } else if(ekind == kEventAccessibleGetNamedActionDescription) {
-		qDebug("get action desc..");
 	    } else {
 		handled_event = FALSE;
 	    }
