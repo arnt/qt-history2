@@ -46,7 +46,7 @@
 /*****************************************************************************
   QSettings debug facilities
  *****************************************************************************/
-//#define DEBUG_SETTINGS_KEYS
+#define DEBUG_SETTINGS_KEYS
 
 static QString *qt_mac_settings_base = NULL;
 QString cfstring2qstring(CFStringRef); //qglobal.cpp
@@ -173,6 +173,10 @@ QSettingsSysPrivate::QSettingsSysPrivate()
 
 bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool global)
 {
+#if 1
+    global = FALSE; //this doesn't work very well!
+#endif
+
     bool ret = FALSE;
     for(QStringList::Iterator it = searchPaths.fromLast(); it != searchPaths.end(); --it) {
 	search_keys k((*it), key, "writeEntry");
@@ -191,6 +195,10 @@ bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool gl
 }
 CFPropertyListRef QSettingsSysPrivate::readEntry(QString key, bool global)
 {
+#if 1
+    global = FALSE; //this doesn't work very well!
+#endif
+
     for(QStringList::Iterator it = searchPaths.fromLast(); it != searchPaths.end(); --it) {
 	search_keys k((*it), key, "readEntry");
 	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
@@ -205,6 +213,10 @@ CFPropertyListRef QSettingsSysPrivate::readEntry(QString key, bool global)
 
 QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global)
 {
+#if 1
+    global = FALSE; //this doesn't work very well!
+#endif
+
     QStringList ret;
     for(QStringList::Iterator it = searchPaths.fromLast();  it != searchPaths.end(); --it) {
 	search_keys k((*it), key, "entryList");
