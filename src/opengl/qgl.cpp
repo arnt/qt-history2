@@ -705,7 +705,7 @@ QGLContext* QGLContext::currentCtx = 0;
 QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
     : glFormat(format), reqFormat(format)
 {
-    d = new QGLContextPrivate;
+    d = new Private;
     d->paintDevice = device;
     d->valid = FALSE;
 #if defined(Q_WS_X11)

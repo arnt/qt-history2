@@ -156,16 +156,6 @@ private:
 Q_EXPORT bool operator==( const QGLFormat&, const QGLFormat& );
 Q_EXPORT bool operator!=( const QGLFormat&, const QGLFormat& );
 
-class QGLContextPrivate {
-public:
-    bool		valid;
-    bool		sharing;
-    bool		initDone;
-    bool		crWin;
-    QPaintDevice*	paintDevice;
-    QColor		transpColor;
-};
-
 class Q_EXPORT QGLContext : public QGL
 {
 public:
@@ -231,7 +221,16 @@ protected:
     QGLFormat		reqFormat;
 
 private:
-    QGLContextPrivate*  d;
+    class Private {
+    public:
+	bool		valid;
+	bool		sharing;
+	bool		initDone;
+	bool		crWin;
+	QPaintDevice*	paintDevice;
+	QColor		transpColor;
+    };
+    Private* d;
     static QGLContext*	currentCtx;
 
     friend class QGLWidget;
