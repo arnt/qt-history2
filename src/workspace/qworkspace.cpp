@@ -2494,7 +2494,6 @@ QWidget* QWorkspaceChild::iconWidget() const
 	} else {
 	    vbox->resize( 196, th );
 	}
-	((QWorkspaceChild*)tb)->setWState( WState_Minimized );
 	that->iconw = tb;
 	iconw->setActive( isActive() );
 
