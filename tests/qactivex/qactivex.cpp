@@ -145,27 +145,36 @@ public:
 		RECT rc = { 0, 0, activex->width(), activex->height() };
 		ole->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)this, 0/*reserved*/, activex->winId(), &rc );
 	    }
-	    CComPtr<IOleDocumentView> document;
-	    control->QueryInterface( IID_IOleDocumentView, (void**)&document );
-	    if ( document ) {
-		document->SetInPlaceSite( (IOleInPlaceSite*)(IOleInPlaceSiteEx*)this );
-		document->UIActivate( TRUE );
-	    }
 
 	    CComPtr<IViewObject> view;
 	    control->QueryInterface( IID_IViewObject, (void**)&view );
 	    if ( view ) {
 		view->SetAdvise( DVASPECT_CONTENT, ADVF_ONLYONCE, (IAdviseSink*)(IAdviseSink2*)this );
 	    }
+
+	    CComPtr<IOleDocumentView> document;
+	    control->QueryInterface( IID_IOleDocumentView, (void**)&document );
+	    if ( document ) {
+		document->SetInPlaceSite( (IOleInPlaceSite*)(IOleInPlaceSiteEx*)this );
+		document->UIActivate( TRUE );
+	    }
 	}
     }
     ~QClientSite()
     {
+	disconnect();
+    }
+    void disconnect()
+    {
 	if ( control ) {
-	    CComPtr<IOleObject> ole;
-	    control->QueryInterface( IID_IOleObject, (void**)&ole );
-	    if ( ole )
-		ole->Unadvise( oleconnection );
+	    if ( oleconnection ) {
+		CComPtr<IOleObject> ole;
+		control->QueryInterface( IID_IOleObject, (void**)&ole );
+		if ( ole ) {
+		    ole->Unadvise( oleconnection );
+		    ole->SetClientSite( 0 );
+		}
+	    }
 
 	    CComPtr<IViewObject> view;
 	    control->QueryInterface( IID_IViewObject, (void**)&view );
@@ -173,10 +182,19 @@ public:
 		view->SetAdvise( DVASPECT_CONTENT, ADVF_ONLYONCE, 0 );
 	    }
 
+	    CComPtr<IOleDocumentView> document;
+	    control->QueryInterface( IID_IOleDocumentView, (void**)&document );
+	    if ( document ) {
+		document->SetInPlaceSite( 0 );
+	    }
+
 	    control->Release();
+	    control = 0;
 	}
-	if ( activeObject )
+	if ( activeObject ) {
 	    activeObject->Release();
+	    activeObject = 0;
+	}
     }
 
     // IUnknown
@@ -767,8 +785,10 @@ bool QActiveX::initialize( IUnknown **ptr )
 	return FALSE;
     }
 
-    if ( clientsite )
+    if ( clientsite ) {
+	clientsite->disconnect();
 	clientsite->Release();
+    }
     clientsite = new QClientSite( this );
     clientsite->AddRef();
 
@@ -788,7 +808,6 @@ bool QActiveX::initialize( IUnknown **ptr )
 */
 void QActiveX::clear()
 {
-
     if ( !!control() ) {
 	if ( hhook ) {
 	    if ( !--hhookref ) {
@@ -796,11 +815,6 @@ void QActiveX::clear()
 		hhook = 0;
 	    }
 	}
-    }
-
-    if ( clientsite ) {
-	clientsite->Release();
-	clientsite = 0;
     }
 
     bool wasVisible = isVisible();
@@ -812,8 +826,13 @@ void QActiveX::clear()
     if ( wasVisible )
 	show();
 
-
     QComBase::clear();
+
+    if ( clientsite ) {
+	clientsite->disconnect();
+	clientsite->Release();
+	clientsite = 0;
+    }
 }
 
 /*!
