@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#145 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#146 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#145 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#146 $")
 
 
 /*****************************************************************************
@@ -111,7 +111,7 @@ static bool	activateTimers();
 static timeval	watchtime;			// watch if time is turned back
 
 QObject	       *qt_clipboard = 0;
-Time		qt_x_clipboardtime;
+Time		qt_x_clipboardtime = CurrentTime;
 
 static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
@@ -1203,6 +1203,8 @@ int QApplication::enter_loop()
 		case ButtonPress:		// mouse event
 		case ButtonRelease:
 		case MotionNotify:
+		    qt_x_clipboardtime = (event.type == MotionNotify) ?
+				event.xmotion.time : event.xbutton.time;
 		    if ( widget->isEnabled() ) {
 			if ( event.type == ButtonPress &&
 			     event.xbutton.button == Button1 )
@@ -1213,6 +1215,7 @@ int QApplication::enter_loop()
 
 		case KeyPress:			// keyboard event
 		case KeyRelease: {
+		    qt_x_clipboardtime = event.xkey.time;
 		    QWidget *w = QWidget::keyboardGrabber();
 		    if ( w )
 			widget = (QETWidget*)w;
@@ -1310,6 +1313,15 @@ int QApplication::enter_loop()
 						     r->top()  - a->y),
 					      QPoint(r->right()	 + a->x,
 						     r->bottom() + a->x) );
+		    }
+		    break;
+
+		case SelectionClear:
+		case SelectionNotify:
+		case SelectionRequest:
+		    if ( qt_clipboard ) {
+			QCustomEvent e( Event_Clipboard, &event );
+			QApplication::sendEvent( qt_clipboard, &e );
 		    }
 		    break;
 
@@ -1863,7 +1875,7 @@ bool qKillTimer( QObject *obj )			// kill timers for obj
 // comparing window, time and position between two mouse press events.
 //
 
-int translateButtonState( int s )		// translate button state
+int translateButtonState( int s )
 {
     int bst = 0;
     if ( s & Button1Mask )
@@ -1876,7 +1888,7 @@ int translateButtonState( int s )		// translate button state
 	bst |= ShiftButton;
     if ( s & ControlMask )
 	bst |= ControlButton;
-    if ( s & (Mod1Mask | Mod2Mask) )
+    if ( s & Mod1Mask )
 	bst |= AltButton;
     return bst;
 }
