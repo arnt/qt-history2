@@ -74,11 +74,10 @@ public:
     void showEditor();
 
     static QString createUnnamedFileName();
+    QString formName() const;
 
 signals:
     void modificationChanged();
-
-    QString formName() const;
 
 private:
     bool isFormWindowModified() const;
