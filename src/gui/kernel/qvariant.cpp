@@ -550,11 +550,27 @@ static bool cast(const QCoreVariant::Private *d, QVariant::Type t,
         if (d->type == QVariant::Image) {
             *static_cast<QPixmap *>(result) = *v_cast<QImage>(d);
             return true;
+        } else if (d->type == QVariant::Bitmap) {
+            *static_cast<QPixmap *>(result) = *v_cast<QBitmap>(d);
+            return true;
         }
         break;
     case QVariant::Image:
         if (d->type == QVariant::Pixmap) {
             *static_cast<QImage *>(result) = v_cast<QPixmap>(d)->toImage();
+            return true;
+        } else if (d->type == QVariant::Bitmap) {
+            *static_cast<QImage *>(result) = v_cast<QBitmap>(d)->toImage();
+            return true;
+        }
+        break;
+    case QVariant::Bitmap:
+        if (d->type == QVariant::Pixmap) {
+            *static_cast<QBitmap *>(result) = *v_cast<QPixmap>(d);
+            return true;
+        } else if (d->type == QVariant::Image) {
+            *static_cast<QBitmap *>(result) = *v_cast<QImage>(d);
+            return true;
         }
         break;
 #ifndef QT_NO_ACCEL
@@ -614,9 +630,11 @@ static bool canCast(const QVariant::Private *d, QVariant::Type t)
             return true;
         break;
     case QVariant::Image:
-        return d->type == QVariant::Pixmap;
+        return d->type == QVariant::Pixmap || d->type == QVariant::Bitmap;
     case QVariant::Pixmap:
-        return d->type == QVariant::Image;
+        return d->type == QVariant::Image || d->type == QVariant::Bitmap;
+    case QVariant::Bitmap:
+        return d->type == QVariant::Pixmap || d->type == QVariant::Image;
     case QVariant::ByteArray:
         if (d->type == QVariant::Color)
             return true;
