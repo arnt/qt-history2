@@ -2822,8 +2822,9 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    ++cin;
 	    --l;
 	}
-	if ( numUnderlines )
-	    text.setLength( cout - text.unicode() );
+	int newlen = cout - text.unicode();
+	if ( newlen != text.length())
+	    text.setLength( newlen );
     }
 
     // no need to do extra work for underlines if we don't paint
