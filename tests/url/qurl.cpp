@@ -418,10 +418,14 @@ Node11:
     goto NodeOk;
 
 NodeOk:
+    if ( d->path.isEmpty() )
+	d->path = "/";
     delete []orig;
     return;
 
 NodeErr:
+    if ( d->path.isEmpty() )
+	d->path = "/";
     qDebug( "Error in parsing \"%s\"", url.ascii() );
     delete []orig;
     d->isMalformed = true;
