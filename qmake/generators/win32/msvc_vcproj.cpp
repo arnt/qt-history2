@@ -28,9 +28,10 @@
 const char* _GUIDSourceFiles           = "{4FC737F1-C7A5-4376-A066-2A32D752A2FF}";
 const char* _GUIDHeaderFiles           = "{93995380-89BD-4b04-88EB-625FBE52EBFB}";
 const char* _GUIDGeneratedFiles        = "{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}";
-const char* _GUIDTranslated            = "{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}";
 const char* _GUIDResourceFiles         = "{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}";
 const char* _GUIDLexYaccFiles          = "{E12AE0D2-192F-4d59-BD23-7D3FA58D3183}";
+const char* _GUIDTranslationFiles      = "{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}";
+const char* _GUIDFormFiles             = "{99349809-55BA-4b9d-BF79-8FDBB0286EB3}";
 const char* _GUIDExtraCompilerFiles    = "{E0D8C965-CC5F-43d7-AD63-FAEF0BBC0F85}";
 
 #ifdef Q_OS_WIN32
@@ -638,6 +639,8 @@ void VcprojGenerator::initProject()
     initHeaderFiles();
     initGeneratedFiles();
     initLexYaccFiles();
+    initTranslationFiles();
+    initFormFiles();
     initResourceFiles();
 
     initExtraCompilerOutputs();
@@ -932,7 +935,7 @@ void VcprojGenerator::initHeaderFiles()
 void VcprojGenerator::initGeneratedFiles()
 {
     vcProject.GeneratedFiles.Name = "Generated Files";
-    vcProject.GeneratedFiles.Filter = "cpp;c;cxx;moc;h";
+    vcProject.GeneratedFiles.Filter = "cpp;c;cxx;moc;h;qrc;def;odl;idl";
     vcProject.GeneratedFiles.Guid = _GUIDGeneratedFiles;
 
     // Create a list of the files being moc'ed
@@ -949,6 +952,12 @@ void VcprojGenerator::initGeneratedFiles()
                               mocSource(srcl.at(index)),
                               srcl.at(index).endsWith(Option::cpp_moc_ext)
                               ? false : true));
+
+    // ### These cannot have CustomBuild!!
+    vcProject.GeneratedFiles.addFiles(project->variables()["RESOURCES"]);
+    vcProject.GeneratedFiles.addFiles(project->variables()["IDLSOURCES"]);
+    vcProject.GeneratedFiles.addFiles(project->variables()["RES_FILE"]);                 // compat
+    vcProject.GeneratedFiles.addFiles(project->variables()["QMAKE_IMAGE_COLLECTION"]);   // compat
 
     vcProject.GeneratedFiles.Project = this;
     vcProject.GeneratedFiles.Config = &(vcProject.Configuration);
@@ -973,15 +982,31 @@ void VcprojGenerator::initLexYaccFiles()
 
 void VcprojGenerator::initTranslationFiles()
 {
-    vcProject.TranslationFiles.Name = "Translations Files";
+    vcProject.TranslationFiles.Name = "Translation Files";
     vcProject.TranslationFiles.ParseFiles = _False;
     vcProject.TranslationFiles.Filter = "ts";
+    vcProject.TranslationFiles.Guid = _GUIDTranslationFiles;
 
     vcProject.TranslationFiles.addFiles(project->variables()["TRANSLATIONS"]);
 
     vcProject.TranslationFiles.Project = this;
     vcProject.TranslationFiles.Config = &(vcProject.Configuration);
     vcProject.TranslationFiles.CustomBuild = none;
+}
+
+
+void VcprojGenerator::initFormFiles()
+{
+    vcProject.FormFiles.Name = "Form Files";
+    vcProject.FormFiles.ParseFiles = _False;
+    vcProject.FormFiles.Filter = "ui";
+    vcProject.FormFiles.Guid = _GUIDFormFiles;
+
+    vcProject.FormFiles.addFiles(project->variables()["FORMS"]);
+
+    vcProject.FormFiles.Project = this;
+    vcProject.FormFiles.Config = &(vcProject.Configuration);
+    vcProject.FormFiles.CustomBuild = none;
 }
 
 
@@ -992,14 +1017,9 @@ void VcprojGenerator::initResourceFiles()
     vcProject.ResourceFiles.Filter = ""; //"rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;ts;qrc";
     vcProject.ResourceFiles.Guid = _GUIDResourceFiles;
 
-    vcProject.ResourceFiles.addFiles(project->variables()["FORMS"]);
-    vcProject.ResourceFiles.addFiles(project->variables()["TRANSLATIONS"]);
-    vcProject.ResourceFiles.addFiles(project->variables()["RESOURCES"]);
-    vcProject.ResourceFiles.addFiles(project->variables()["RC_FILE"]);
-    vcProject.ResourceFiles.addFiles(project->variables()["RES_FILE"]);
-    vcProject.ResourceFiles.addFiles(project->variables()["IDLSOURCES"]);
+    //vcProject.ResourceFiles.addFiles(project->variables()["RC_FILE"]);
+    // ### Insert qrc dependencies here...
     vcProject.ResourceFiles.addFiles(project->variables()["IMAGES"]);
-    vcProject.ResourceFiles.addFiles(project->variables()["QMAKE_IMAGE_COLLECTION"]);   // compat
 
     vcProject.ResourceFiles.Project = this;
     vcProject.ResourceFiles.Config = &(vcProject.Configuration);

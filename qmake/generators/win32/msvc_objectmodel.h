@@ -803,6 +803,7 @@ public:
     VCFilter                GeneratedFiles;
     VCFilter                LexYaccFiles;
     VCFilter                TranslationFiles;
+    VCFilter                FormFiles;
     VCFilter                ResourceFiles;
     VCFilterList            ExtraCompilersFiles;
 

@@ -2117,6 +2117,8 @@ void VCProject::outputFileConfigs(XmlOutput &xml,
             filter = SingleProjects.at(i).LexYaccFiles;
         } else if (filtername == "TranslationFiles") {
             filter = SingleProjects.at(i).TranslationFiles;
+        } else if (filtername == "FormFiles") {
+            filter = SingleProjects.at(i).FormFiles;
         } else if (filtername == "ResourceFiles") {
             filter = SingleProjects.at(i).ResourceFiles;
         } else {
@@ -2154,6 +2156,8 @@ void VCProject::outputFilter(XmlOutput &xml,
             filter = SingleProjects.at(i).LexYaccFiles;
         } else if (filtername == "TranslationFiles") {
             filter = SingleProjects.at(i).TranslationFiles;
+        } else if (filtername == "FormFiles") {
+            filter = SingleProjects.at(i).FormFiles;
         } else if (filtername == "ResourceFiles") {
             filter = SingleProjects.at(i).ResourceFiles;
         } else {
@@ -2220,6 +2224,7 @@ XmlOutput &operator<<(XmlOutput &xml, VCProject &tool)
     tool.outputFilter(xml, "GeneratedFiles");
     tool.outputFilter(xml, "LexYaccFiles");
     tool.outputFilter(xml, "TranslationFiles");
+    tool.outputFilter(xml, "FormFiles");
     tool.outputFilter(xml, "ResourceFiles");
     for (int x = 0; x < tool.ExtraCompilers.count(); ++x) {
         tool.outputFilter(xml, tool.ExtraCompilers.at(x));
