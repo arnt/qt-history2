@@ -466,15 +466,13 @@ zlib:SOURCES   += $$ZLIB_SOURCES
 builder:HEADERS+= $$KERNEL_H/qdom.h \
 		  $$KERNEL_H/qvariant.h \
 		  $$KERNEL_H/qxml.h \
-		  $$WIDGETS_H/qaction.h \
-		  $$DIALOGS_H/qlinedialog.h
+		  $$WIDGETS_H/qaction.h
 		
 builder:SOURCES+= kernel/qdom.cpp \
 		  kernel/qdomext.cpp \
 		  kernel/qvariant.cpp \
 		  kernel/qxml.cpp \
-		  widgets/qaction.cpp \
-		  dialogs/qlinedialog.cpp
+		  widgets/qaction.cpp
 
 TARGET		= qt
 VERSION		= 2.1.0
