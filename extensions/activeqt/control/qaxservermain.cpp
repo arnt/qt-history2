@@ -809,8 +809,7 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 
 #if QT_VERSION >= 0x030100
 		if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-		    int vartable = (QVariant::Type)*(int*)param->typeExtra;
-		    QVariant::Type vartype = (QVariant::Type)qt_variant_types[vartable];
+		    QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 		    QCString type = QVariant::typeToName( vartype );
 		    paramType = convertTypes( type, &ok );
 		} else 

@@ -299,6 +299,68 @@ static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &v
     return FALSE;
 }
 
+/*!
+    God knows why VariantChangeType can't do that...
+    Probably because VariantClear does not delete the stuff?
+*/
+static inline void makeReference( VARIANT &arg )
+{
+    switch( arg.vt ) {
+    case VT_BSTR:
+	arg.pbstrVal = new BSTR(arg.bstrVal);
+	break;
+    case VT_BOOL:
+	arg.pboolVal = new short(arg.boolVal);
+	break;
+    case VT_I1:
+	arg.pcVal = new char(arg.cVal);
+	break;
+    case VT_I2:
+	arg.piVal = new short(arg.iVal);
+	break;
+    case VT_I4:
+	arg.plVal = new long(arg.lVal);
+	break;
+    case VT_INT:
+	arg.pintVal = new int(arg.intVal);
+	break;
+    case VT_UI1:
+	arg.pbVal = new uchar(arg.bVal);
+	break;
+    case VT_UI2:
+	arg.puiVal = new ushort(arg.uiVal);
+	break;
+    case VT_UI4:
+	arg.pulVal = new ulong(arg.ulVal);
+	break;
+    case VT_UINT:
+	arg.puintVal = new uint(arg.uintVal);
+	break;
+    case VT_R8:
+	arg.pdblVal = new double(arg.dblVal);
+	break;
+    case VT_DATE:
+	arg.pdate = new DATE(arg.date);
+	break;
+    case VT_DISPATCH:
+	{
+	    IDispatch *olddisp = arg.pdispVal;
+	    arg.ppdispVal = new IDispatch*;
+	    *arg.ppdispVal = olddisp;
+	}
+	break;
+    case VT_ARRAY|VT_VARIANT:
+	{
+	    SAFEARRAY *oldarray = arg.parray;
+	    arg.pparray = new SAFEARRAY*;
+	    *arg.pparray = oldarray;
+	}
+	break;
+    }
+    arg.vt |= VT_BYREF;
+}
+
+
 /*
     Converts \a var to \a res, and tries to coerce \a res to the type of \a param.
 
@@ -308,11 +370,20 @@ static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &v
 */
 bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *param )
 {
-    QUObject obj;
-    QVariantToQUObject( var, obj, param );
-    bool ok = QUObjectToVARIANT( &obj, res, param );
-    clearQUObject( &obj, param );
+    const char *vartypename = 0;
+    if ( QUType::isEqual( param->type, &static_QUType_varptr ) )
+	vartypename = QVariant::typeToName( (QVariant::Type)*(char*)param->typeExtra );
+    else if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
+	vartypename = (const char*)param->typeExtra;
+    else if ( QUType::isEqual( param->type, &static_QUType_enum ) )
+	vartypename = "int";
+    else
+	vartypename = param->type->desc();
 
+    bool ok = QVariantToVARIANT( var, res, vartypename );
+    bool byref = param && ( param->inOut == QUParameter::InOut );
+    if ( byref )
+	makeReference( res );
     return ok;
 }
 
@@ -335,7 +406,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    if ( QUType::isEqual( param->type, &static_QUType_QString ) ) {
 		static_QUType_QString.set( obj, str );
 	    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-		QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+		QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 		switch( vartype ) {
 		case QVariant::CString:
 		    static_QUType_varptr.set( obj, new QCString( str.local8Bit() ) );
@@ -351,7 +422,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	{
 	    QString str = BSTRToQString( *arg.pbstrVal );
 	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) &&
-		(QVariant::Type)*(int*)param->typeExtra == QVariant::CString ) {
+		(QVariant::Type)*(char*)param->typeExtra == QVariant::CString ) {
 		QCString *reference = (QCString*)static_QUType_varptr.get( obj );
 		if ( reference )
 		    *reference = str.local8Bit();
@@ -364,7 +435,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	}
 	break;
     case VT_BOOL:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Bool )
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Bool )
 	    static_QUType_varptr.set( obj, new bool(arg.boolVal) );
 	else
 	    static_QUType_bool.set( obj, arg.boolVal );
@@ -374,7 +445,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	break;
     case VT_I4:
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-	    const QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	    switch ( vartype ) {
 	    case QVariant::Color:
 		static_QUType_varptr.set( obj, new QColor( OLEColorToQColor( arg.lVal ) ) );
@@ -388,7 +459,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	}
 	break;
     case VT_I4|VT_BYREF:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Color ) {
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Color ) {
 	    QColor *reference = (QColor*)static_QUType_varptr.get( obj );
 	    if ( reference )
 		*reference = OLEColorToQColor( *arg.plVal );
@@ -401,7 +472,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	break;
     case VT_INT:
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-	    const QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	    switch( vartype ) {
 	    case QVariant::Color:
 		static_QUType_varptr.set( obj, new QColor( OLEColorToQColor( arg.intVal ) ) );
@@ -415,7 +486,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	}
 	break;
     case VT_INT|VT_BYREF:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Color ) {
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Color ) {
 	    QColor *reference = (QColor*)static_QUType_varptr.get( obj );
 	    if ( reference )
 		*reference = OLEColorToQColor( *arg.pintVal );
@@ -428,7 +499,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	break;
     case VT_UI4:
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-	    const QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	    switch( vartype ) {
 	    case QVariant::Color:
 		static_QUType_varptr.set( obj, new QColor( OLEColorToQColor( arg.ulVal ) ) );
@@ -442,7 +513,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	}
 	break;
     case VT_UI4|VT_BYREF:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Color ) {
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Color ) {
 	    QColor *reference = (QColor*)static_QUType_varptr.get( obj );
 	    if ( reference )
 		*reference = OLEColorToQColor( *arg.pulVal );
@@ -455,7 +526,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	break;
     case VT_UINT:
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) ) {
-	    const QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+	    const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	    switch( vartype ) {
 	    case QVariant::Color:
 		static_QUType_varptr.set( obj, new QColor( OLEColorToQColor( arg.uintVal ) ) );
@@ -472,7 +543,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	static_QUType_uint.set( obj, *arg.puintVal );
 	break;
     case VT_R8:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Double )
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Double )
 	    static_QUType_varptr.set( obj, new double(arg.dblVal) );
 	else
 	    static_QUType_double.set( obj, arg.dblVal );
@@ -503,7 +574,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    else
 		disp = arg.pdispVal;
 
-	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Font ) {
+	    if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Font ) {
 		IFont *ifont = 0;
 		QFont qfont;
 		QFont *reference = (QFont*)static_QUType_varptr.get( obj );
@@ -520,7 +591,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		else
 		    reference = new QFont( qfont );
 		static_QUType_varptr.set( obj, reference );
-	    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::Pixmap ) {
+	    } else if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::Pixmap ) {
 		IPicture *ipic = 0;
 		QPixmap qpixmap;
 		QPixmap *reference = (QPixmap*)static_QUType_varptr.get( obj );
@@ -546,7 +617,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 
     case VT_ARRAY|VT_VARIANT:
     case VT_ARRAY|VT_VARIANT|VT_BYREF:
-	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(int*)param->typeExtra == QVariant::List ) {
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && *(char*)param->typeExtra == QVariant::List ) {
 	    // parray and pparrayare a union
 	    SAFEARRAY *array = 0;
 	    if ( arg.vt & VT_BYREF )
@@ -862,66 +933,6 @@ bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
     return TRUE;
 }
 
-/*!
-    God knows why VariantChangeType can't do that...
-    Probably because VariantClear does not delete the stuff?
-*/
-static inline void makeReference( VARIANT &arg )
-{
-    switch( arg.vt ) {
-    case VT_BSTR:
-	arg.pbstrVal = new BSTR(arg.bstrVal);
-	break;
-    case VT_BOOL:
-	arg.pboolVal = new short(arg.boolVal);
-	break;
-    case VT_I1:
-	arg.pcVal = new char(arg.cVal);
-	break;
-    case VT_I2:
-	arg.piVal = new short(arg.iVal);
-	break;
-    case VT_I4:
-	arg.plVal = new long(arg.lVal);
-	break;
-    case VT_INT:
-	arg.pintVal = new int(arg.intVal);
-	break;
-    case VT_UI1:
-	arg.pbVal = new uchar(arg.bVal);
-	break;
-    case VT_UI2:
-	arg.puiVal = new ushort(arg.uiVal);
-	break;
-    case VT_UI4:
-	arg.pulVal = new ulong(arg.ulVal);
-	break;
-    case VT_UINT:
-	arg.puintVal = new uint(arg.uintVal);
-	break;
-    case VT_R8:
-	arg.pdblVal = new double(arg.dblVal);
-	break;
-    case VT_DATE:
-	arg.pdate = new DATE(arg.date);
-	break;
-    case VT_DISPATCH:
-	{
-	    IDispatch *olddisp = arg.pdispVal;
-	    arg.ppdispVal = new IDispatch*;
-	    *arg.ppdispVal = olddisp;
-	}
-	break;
-    case VT_ARRAY|VT_VARIANT:
-	{
-	    SAFEARRAY *oldarray = arg.parray;
-	    arg.pparray = new SAFEARRAY*;
-	    *arg.pparray = oldarray;
-	}
-	break;
-    }
-    arg.vt |= VT_BYREF;
-}
 
 static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
 {
@@ -987,8 +998,6 @@ static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
     Converts \a obj to \a arg, and tries to coerce \a var to the type of \a param.
 
     Used by
-    QVariantToVariant
-
     QAxServerBase:
     - qt_emit
     - IDispatch::Invoke( update references in method )
@@ -1052,7 +1061,7 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ||
 	     QUType::isEqual( param->type, &static_QUType_varptr ) ) {
 	    if ( param->typeExtra )
-		vartype = QVariant::typeToName( (QVariant::Type)*(int*)param->typeExtra );
+		vartype = QVariant::typeToName( (QVariant::Type)*(char*)param->typeExtra );
 	    else
 		vartype = value.typeName();
 	} else if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
@@ -1076,7 +1085,7 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
 	    QVariant::Type vart;
 	    if ( param->typeExtra )
-		vart = (QVariant::Type)*(int*)param->typeExtra ;
+		vart = (QVariant::Type)*(char*)param->typeExtra ;
 	    else
 		vart = value.type();
 
@@ -1136,7 +1145,7 @@ void clearQUObject( QUObject *obj, const QUParameter *param )
     if ( !param || !QUType::isEqual( param->type, &static_QUType_varptr ) || !QUType::isEqual( param->type, obj->type ) ) {
 	obj->type->clear( obj );
     } else {
-	const QVariant::Type vartype = (QVariant::Type)*(int*)param->typeExtra;
+	const QVariant::Type vartype = (QVariant::Type)*(char*)param->typeExtra;
 	void *ptrvalue = static_QUType_varptr.get( obj );
 	switch( vartype ) {
 	case QVariant::Bool:
