@@ -20,7 +20,6 @@ int main(int argc, char **argv)
     app.connect(&app, SIGNAL(lastWindowClosed()), SLOT(quit()));
 
     MainWindow *mainwindow = new MainWindow(0, Qt::WDestructiveClose);
-    mainwindow->setWindowTitle("Qt Main Window Demo");
     mainwindow->show();
 
     return app.exec();

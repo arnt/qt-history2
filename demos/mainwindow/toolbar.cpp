@@ -70,9 +70,13 @@ ToolBar::ToolBar(QMainWindow *parent)
     addAction(genIcon(3, QColor(0, 160, 0)), "Three");
     addAction(genIcon(4, QColor(160, 0, 0)), "Four");
     addAction(genIcon(5, QColor(80, 0, 80)), "Five");
-    addAction(genIcon(6, QColor(0, 80, 80)), "Six");
-    addAction(genIcon(7, QColor(80, 80, 0)), "Seven");
-    addAction(genIcon(8), "Eight");
+
+    QAction *six = addAction(genIcon(6, QColor(0, 80, 80)), "Six");
+    six->setCheckable(true);
+    QAction *seven = addAction(genIcon(7, QColor(80, 80, 0)), "Seven");
+    seven->setCheckable(true);
+    QAction *eight = addAction(genIcon(8), "Eight");
+    eight->setCheckable(true);
 
     showHideAction = new QAction(this);
     showHideAction->setText(tr("Hide"));
