@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 2.5 1998/10/31 04:04:27 agulbra Exp $
+** $Id: debug.doc,v 2.6 1999/01/11 17:53:41 agulbra Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -130,4 +130,16 @@ Example:
   #endif
   }
 \endcode
+
+<h2>Common bugs</h2>
+
+There is one bug that is so common that is deserves mention here: If
+you include the Q_OBJECT macro in a class declaration and run the moc,
+but forget to link the moc-generated object code into your executable,
+you will get very confusing error message.
+
+Any link error complaining about a lack of <code>vtbl</code>,
+<code>_vtbl</code>, <code>__vtbl</code> or similar is likely to be
+this problem.
+
 */
