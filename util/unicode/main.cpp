@@ -543,11 +543,13 @@ static void readCompositionExclusion()
         UnicodeData data = unicodeData.value(i, UnicodeData(i));
         if (!data.excludedComposition
             && data.decompositionType == QChar::Canonical
-            // this doesn't catch three tibetan codepoints listed in CompositionExclusions.txt,
-            // but I think this is a bug in the file.
-            && data.p.combiningClass == 0
             && data.decomposition.size() > 1) {
             Q_ASSERT(data.decomposition.size() == 2);
+
+            uint part1 = data.decomposition.at(0);
+            UnicodeData first = unicodeData.value(part1, UnicodeData(part1));
+            if (first.p.combiningClass != 0)
+                continue;
 
             ++numLigatures;
             highestLigature = qMax(highestLigature, data.decomposition.at(0));
@@ -1063,6 +1065,7 @@ static QByteArray createLigatureInfo()
 
                 ligatures.append(l.size());
                 for (int i = 0; i < l.size(); ++i) {
+                    Q_ASSERT(l.at(i).u2 == uc);
                     ligatures.append(l.at(i).u1);
                     ligatures.append(l.at(i).ligature);
                 }
