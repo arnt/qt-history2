@@ -1540,12 +1540,18 @@ public:
     inline QFlags &operator&=(uint mask) {  i &= mask; return *this; }
     inline QFlags &operator|=(QFlags f) {  i |= f.i; return *this; }
     inline QFlags &operator|=(Enum f) {  i |= f; return *this; }
+    inline QFlags &operator^=(QFlags f) {  i ^= f.i; return *this; }
+    inline QFlags &operator^=(Enum f) {  i ^= f; return *this; }
+
 
     inline operator int() const { return i;}
 
     inline QFlags operator|(QFlags f) const { QFlags g; g.i = i | f.i; return g; }
     inline QFlags operator|(Enum f) const { QFlags g; g.i = i | f; return g; }
     inline int operator|(int f) const { return i | f; }
+    inline QFlags operator^(QFlags f) const { QFlags g; g.i = i ^ f.i; return g; }
+    inline QFlags operator^(Enum f) const { QFlags g; g.i = i ^ f; return g; }
+    inline int operator^(int f) const { return i ^ f; }
     inline QFlags operator&(int mask) const { QFlags g; g.i = i & mask; return g; }
     inline QFlags operator&(uint mask) const { QFlags g; g.i = i & mask; return g; }
     inline QFlags operator&(Enum f) const { QFlags g; g.i = i & f; return g; }

@@ -487,7 +487,7 @@ void QTitleBar::paintEvent(QPaintEvent *)
     if(autoRaise() && underMouse()) {
         under_mouse = style().querySubControl(QStyle::CC_TitleBar, &opt,
                                               mapFromGlobal(QCursor::pos()), this);
-        opt.subControls = QStyle::SubControls(opt.subControls ^ under_mouse);
+        opt.subControls ^= under_mouse;
     }
     opt.palette.setCurrentColorGroup(usesActiveColor() ? QPalette::Active : QPalette::Inactive);
 
