@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#75 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#76 $
 #
 # this is a massive hack, written very quickly
 #
@@ -105,6 +105,14 @@ sub processcode {
 	    sprintf("<a href=%s>%s</a>", $anchor{$1}, $1);
 	} else {
 	    sprintf("%s", $1);
+	}
+    @egsx;
+
+    s@(\s)([A-Za-z0-9_]+)\b@
+	if ((defined($anchor{$2})) && ($type{$anchor{$2}} eq "class")) {
+	    sprintf("%s<a href=%s>%s</a>", $1, $anchor{$2}, $2);
+	} else {
+	    sprintf("%s%s", $1, $2);
 	}
     @egsx;
 
@@ -228,6 +236,23 @@ sub processdocs {
 	    $seealso =~ s/ sex / /gs;
 	    sprintf( "\n\nmagicwordthatyoushouldavoid %s.\n", $seealso );
 	}@es;
+
+	$doc =~ s-\\link\s+((?:(?:\w+)\s+)*[\*\&]?\s*)(\w+)::(\w+)\s*\((.*?)\)(?:\s*(const))?\s+(.+?)\s*\\endlink-
+	{
+#print $1, " ", $2, " ", $3, " (", $4, ") ", $5, " <=> ", $6, "\n";
+	    $string = $6;
+	    $_ = &manglefn( $1, $2, $3, $4, $5);
+	    if ($type{$_} eq "fn") {
+		sprintf("<a href=%s>%s</a>", $_, $string);
+	    } elsif (defined($anchor{$2 . "::" . $3})) {
+		sprintf("<a href=%s>%s</a>", 
+			$anchor{$2 . "::" . $3}, &html($string));
+	    } else {
+		print "SEX: ", $string, "\n";
+		sprintf("%s", $string);
+	    }
+	}
+	-egsx;
 
 	$doc =~ s-\\link\s+([\w:\.]+)(?:[\(\)]*)\s*(.*?)\s*\\endlink-
 	    if (defined($anchor{$1})) {
