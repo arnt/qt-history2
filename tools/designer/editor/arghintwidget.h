@@ -18,8 +18,6 @@ public:
 
 public slots:
     void relayout();
-
-private slots:
     void gotoPrev();
     void gotoNext();
 

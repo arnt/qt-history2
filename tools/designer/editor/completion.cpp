@@ -326,6 +326,17 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    }
 	}
+	
+	if ( functionLabel->isVisible() ) {
+	    if ( ke->key() == Key_Up && ( ke->state() & ControlButton ) == ControlButton ) {
+		functionLabel->gotoPrev();
+		return TRUE;
+	    } else if ( ke->key() == Key_Down && ( ke->state() & ControlButton ) == ControlButton ) {
+		functionLabel->gotoNext();
+		return TRUE;
+	    }
+	}
+	
 	if ( ke->text().length() && !( ke->state() & AltButton ) &&
 	     ( !ke->ascii() || ke->ascii() >= 32 ) ||
 	     ( ke->text() == "\t" && !( ke->state() & ControlButton ) ) ) {
