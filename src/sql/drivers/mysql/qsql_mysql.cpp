@@ -13,6 +13,7 @@
 
 #include "qsql_mysql.h"
 
+#include <qcoreapplication.h>
 #include <qcorevariant.h>
 #include <qdatetime.h>
 #include <qsqlerror.h>
@@ -335,8 +336,8 @@ bool QMYSQLResult::fetch(int i)
         mysql_stmt_data_seek(d->stmt, i);
 
         if (mysql_stmt_fetch(d->stmt)) {
-            setLastError(qMakeStmtError(QLatin1String("Unable to fetch data"),
-                         QSqlError::StatementError, d->stmt));
+            setLastError(qMakeStmtError(QCoreApplication::tr("QMYSQLResult",
+                         "Unable to fetch data"), QSqlError::StatementError, d->stmt));
             return false;
         }
 #else
@@ -502,13 +503,13 @@ bool QMYSQLResult::reset (const QString& query)
     cleanup();
     const QByteArray encQuery(d->tc->fromUnicode(query));
     if (mysql_real_query(d->mysql, encQuery.data(), encQuery.length())) {
-        setLastError(qMakeError(QLatin1String("Unable to execute query"),
+        setLastError(qMakeError(QCoreApplication::tr("QMYSQLResult", "Unable to execute query"),
                      QSqlError::StatementError, d));
         return false;
     }
     d->result = mysql_store_result(d->mysql);
     if (!d->result && mysql_field_count(d->mysql) > 0) {
-        setLastError(qMakeError(QLatin1String("Unable to store result"),
+        setLastError(qMakeError(QCoreApplication::tr("QMYSQLResult", "Unable to store result"),
                     QSqlError::StatementError, d));
         return false;
     }
@@ -614,8 +615,7 @@ bool QMYSQLResult::prepare(const QString& query)
     if (!d->stmt)
         d->stmt = mysql_stmt_init(d->mysql);
     if (!d->stmt) {
-        qWarning("QMYSQLResult::prepare: unable to prepare statement");
-        setLastError(qMakeError(QLatin1String("Unable to prepare statement"),
+        setLastError(qMakeError(QCoreApplication::tr("QMYSQLResult", "Unable to prepare statement"),
                      QSqlError::StatementError, d));
         return false;
     }
@@ -623,9 +623,8 @@ bool QMYSQLResult::prepare(const QString& query)
     const QByteArray encQuery(d->tc->fromUnicode(query));
     r = mysql_stmt_prepare(d->stmt, encQuery.constData(), encQuery.length());
     if (r != 0) {
-        qWarning("QMYSQLResult::prepare: unable to prepare statement");
-        setLastError(qMakeStmtError(QLatin1String("Unable to prepare statement"),
-                     QSqlError::StatementError, d->stmt));
+        setLastError(qMakeStmtError(QCoreApplication::tr("QMYSQLResult",
+                     "Unable to prepare statement"), QSqlError::StatementError, d->stmt));
         cleanup();
         return false;
     }
@@ -655,8 +654,8 @@ bool QMYSQLResult::exec()
 
     r = mysql_stmt_reset(d->stmt);
     if (r != 0) {
-        qWarning("QMYSQLResult::exec: unable to reset statement");
-        setLastError(qMakeStmtError(QLatin1String("Unable to reset statement"), QSqlError::StatementError, d->stmt));
+        setLastError(qMakeStmtError(QCoreApplication::tr("QMYSQLResult",
+                     "Unable to reset statement"), QSqlError::StatementError, d->stmt));
         return false;
     }
 
@@ -739,9 +738,8 @@ bool QMYSQLResult::exec()
 
         r = mysql_stmt_bind_param(d->stmt, d->outBinds);
         if (r != 0) {
-            qWarning("QMYSQLResult::exec: unable to bind value");
-            setLastError(qMakeStmtError(QLatin1String("Unable to bind value"),
-                         QSqlError::StatementError, d->stmt));
+            setLastError(qMakeStmtError(QCoreApplication::tr("QMYSQLResult",
+                         "Unable to bind value"), QSqlError::StatementError, d->stmt));
             qDeleteAll(timeVector);
             return false;
         }
@@ -751,9 +749,8 @@ bool QMYSQLResult::exec()
     qDeleteAll(timeVector);
 
     if (r != 0) {
-        qWarning("QMYSQLResult::exec: unable to execute statement");
-        setLastError(qMakeStmtError(QLatin1String("Unable to execute statement"),
-                     QSqlError::StatementError, d->stmt));
+        setLastError(qMakeStmtError(QCoreApplication::tr("QMYSQLResult",
+                     "Unable to execute statement"), QSqlError::StatementError, d->stmt));
         return false;
     }
     //if there is meta-data there is also data
@@ -766,9 +763,8 @@ bool QMYSQLResult::exec()
 
         r = mysql_stmt_bind_result(d->stmt, d->inBinds);
         if (r != 0) {
-            qWarning("QMYSQLResult::prepare: unable to bind outvalues");
-            setLastError(qMakeStmtError(QLatin1String("Unable to bind outvalues"),
-                         QSqlError::StatementError, d->stmt));
+            setLastError(qMakeStmtError(QCoreApplication::tr("QMYSQLResult",
+                         "Unable to bind outvalues"), QSqlError::StatementError, d->stmt));
             return false;
         }
         if (d->hasBlobs)
@@ -776,9 +772,8 @@ bool QMYSQLResult::exec()
 
         r = mysql_stmt_store_result(d->stmt);
         if (r != 0) {
-            qWarning("QMYSQLResult::exec: unable to store statement results");
-            setLastError(qMakeStmtError(QLatin1String("Unable to store statement results"),
-                        QSqlError::StatementError, d->stmt));
+            setLastError(qMakeStmtError(QCoreApplication::tr("QMYSQLResult",
+                         "Unable to store statement results"), QSqlError::StatementError, d->stmt));
             return false;
         }
 
@@ -789,9 +784,8 @@ bool QMYSQLResult::exec()
             d->bindBlobs();
             r = mysql_stmt_bind_result(d->stmt, d->inBinds);
             if (r != 0) {
-                qWarning("QMYSQLResult::prepare: unable to bind outvalues");
-                setLastError(qMakeStmtError(QLatin1String("Unable to bind outvalues"),
-                            QSqlError::StatementError, d->stmt));
+                setLastError(qMakeStmtError(QCoreApplication::tr("QMYSQLResult",
+                             "Unable to bind outvalues"), QSqlError::StatementError, d->stmt));
                 return false;
             }
         }
@@ -952,14 +946,14 @@ bool QMYSQLDriver::open(const QString& db,
                                optionFlags))
     {
         if (mysql_select_db(d->mysql, db.toLocal8Bit().constData())) {
-            setLastError(qMakeError(QLatin1String("Unable open database '") + db +
+            setLastError(qMakeError(tr("Unable open database '") + db +
                         QLatin1Char('\''), QSqlError::ConnectionError, d));
             mysql_close(d->mysql);
             setOpenError(true);
             return false;
         }
     } else {
-            setLastError(qMakeError(QLatin1String("Unable to connect"),
+            setLastError(qMakeError(tr("Unable to connect"),
                                     QSqlError::ConnectionError, d));
             mysql_close(d->mysql);
             setOpenError(true);
@@ -1073,7 +1067,7 @@ bool QMYSQLDriver::beginTransaction()
         return false;
     }
     if (mysql_query(d->mysql, "BEGIN WORK")) {
-        setLastError(qMakeError(QLatin1String("Unable to begin transaction"),
+        setLastError(qMakeError(tr("Unable to begin transaction"),
                                 QSqlError::StatementError, d));
         return false;
     }
@@ -1090,7 +1084,7 @@ bool QMYSQLDriver::commitTransaction()
         return false;
     }
     if (mysql_query(d->mysql, "COMMIT")) {
-        setLastError(qMakeError(QLatin1String("Unable to commit transaction"),
+        setLastError(qMakeError(tr("Unable to commit transaction"),
                                 QSqlError::StatementError, d));
         return false;
     }
@@ -1107,7 +1101,7 @@ bool QMYSQLDriver::rollbackTransaction()
         return false;
     }
     if (mysql_query(d->mysql, "ROLLBACK")) {
-        setLastError(qMakeError(QLatin1String("Unable to rollback transaction"),
+        setLastError(qMakeError(tr("Unable to rollback transaction"),
                                 QSqlError::StatementError, d));
         return false;
     }

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qsql_db2.h"
+#include <qcoreapplication.h>
 #include <qdatetime.h>
 #include <qsqlfield.h>
 #include <qsqlerror.h>
@@ -514,8 +515,8 @@ bool QDB2Result::reset (const QString& query)
                        qToTChar(query),
                        (SQLINTEGER) query.length());
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
-        setLastError(qMakeError(QLatin1String("Unable to execute statement"),
-                                QSqlError::StatementError, d));
+        setLastError(qMakeError(QCoreApplication::translate("QDB2Result",
+                                "Unable to execute statement"), QSqlError::StatementError, d));
         return false;
     }
     SQLSMALLINT count;
@@ -745,8 +746,8 @@ bool QDB2Result::exec()
         if (r != SQL_SUCCESS) {
             qWarning("QDB2Result::exec: unable to bind variable: %s",
                      qDB2Warn(d).toLocal8Bit().constData());
-            setLastError(qMakeError(QLatin1String("Unable to bind variable"),
-                                    QSqlError::StatementError, d));
+            setLastError(qMakeError(QCoreApplication::translate("QDB2Result",
+                                    "Unable to bind variable"), QSqlError::StatementError, d));
             return false;
         }
     }
@@ -755,8 +756,8 @@ bool QDB2Result::exec()
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
         qWarning("QDB2Result::exec: Unable to execute statement: %s",
                  qDB2Warn(d).toLocal8Bit().constData());
-        setLastError(qMakeError(QLatin1String("Unable to execute statement"),
-                                QSqlError::StatementError, d));
+        setLastError(qMakeError(QCoreApplication::translate("QDB2Result",
+                                "Unable to execute statement"), QSqlError::StatementError, d));
         return false;
     }
     SQLSMALLINT count;
@@ -836,8 +837,8 @@ bool QDB2Result::fetch(int i)
                             actualIdx);
     }
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
-        setLastError(qMakeError(QString::fromLatin1("Unable to fetch record %1").arg(i),
-                                QSqlError::StatementError, d));
+        setLastError(qMakeError(QCoreApplication::translate("QDB2Result",
+                                "Unable to fetch record %1").arg(i), QSqlError::StatementError, d));
         return false;
     }
     setAt(i);
@@ -853,8 +854,8 @@ bool QDB2Result::fetchNext()
                        0);
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
         if (r != SQL_NO_DATA)
-            setLastError(qMakeError(QLatin1String("Unable to fetch next"),
-                                    QSqlError::StatementError, d));
+            setLastError(qMakeError(QCoreApplication::translate("QDB2Result",
+                                    "Unable to fetch next"), QSqlError::StatementError, d));
         return false;
     }
     setAt(at() + 1);
@@ -873,7 +874,7 @@ bool QDB2Result::fetchFirst()
                        SQL_FETCH_FIRST,
                        0);
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
-        setLastError(qMakeError(QLatin1String("Unable to fetch first"),
+        setLastError(qMakeError(QCoreApplication::translate("QDB2Result", "Unable to fetch first"),
                                 QSqlError::StatementError, d));
         return false;
     }
@@ -1141,7 +1142,7 @@ bool QDB2Driver::open(const QString& db, const QString& user, const QString& pas
                           &cb,
                           SQL_DRIVER_NOPROMPT);
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
-        setLastError(qMakeError(QLatin1String("Unable to connect"),
+        setLastError(qMakeError(tr("Unable to connect"),
                                 QSqlError::ConnectionError, d));
         setOpenError(true);
         return false;
@@ -1403,7 +1404,7 @@ bool QDB2Driver::commitTransaction()
                               d->hDbc,
                               SQL_COMMIT);
     if (r != SQL_SUCCESS) {
-        setLastError(qMakeError(QLatin1String("Unable to commit transaction"),
+        setLastError(qMakeError(tr("Unable to commit transaction"),
                      QSqlError::TransactionError, d));
         return false;
     }
@@ -1420,7 +1421,7 @@ bool QDB2Driver::rollbackTransaction()
                               d->hDbc,
                               SQL_ROLLBACK);
     if (r != SQL_SUCCESS) {
-        setLastError(qMakeError(QLatin1String("Unable to rollback transaction"),
+        setLastError(qMakeError(tr("Unable to rollback transaction"),
                                 QSqlError::TransactionError, d));
         return false;
     }
@@ -1435,7 +1436,7 @@ bool QDB2Driver::setAutoCommit(bool autoCommit)
                                       (SQLPOINTER)ac,
                                       sizeof(ac));
     if (r != SQL_SUCCESS) {
-        setLastError(qMakeError(QLatin1String("Unable to set autocommit"),
+        setLastError(qMakeError(tr("Unable to set autocommit"),
                                 QSqlError::TransactionError, d));
         return false;
     }

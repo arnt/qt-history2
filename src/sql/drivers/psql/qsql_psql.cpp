@@ -15,6 +15,7 @@
 
 #include <math.h>
 
+#include <qcoreapplication.h>
 #include <qcorevariant.h>
 #include <qdatetime.h>
 #include <qregexp.h>
@@ -112,8 +113,8 @@ bool QPSQLResultPrivate::processResults()
         currentSize = -1;
         return true;
     }
-    q->setLastError(qMakeError(QLatin1String("Unable to create query"), QSqlError::StatementError,
-                               driver));
+    q->setLastError(qMakeError(QCoreApplication::translate("QPSQLResult",
+                    "Unable to create query"), QSqlError::StatementError, driver));
     return false;
 }
 
@@ -568,7 +569,7 @@ bool QPSQLDriver::open(const QString & db,
 
     d->connection = PQconnectdb(connectString.toLocal8Bit().constData());
     if (PQstatus(d->connection) == CONNECTION_BAD) {
-        setLastError(qMakeError(QLatin1String("Unable to connect"), QSqlError::ConnectionError, d));
+        setLastError(qMakeError(tr("Unable to connect"), QSqlError::ConnectionError, d));
         setOpenError(true);
         return false;
     }
@@ -607,7 +608,7 @@ bool QPSQLDriver::beginTransaction()
     PGresult* res = PQexec(d->connection, "BEGIN");
     if (!res || PQresultStatus(res) != PGRES_COMMAND_OK) {
         PQclear(res);
-        setLastError(qMakeError(QLatin1String("Could not begin transaction"),
+        setLastError(qMakeError(tr("Could not begin transaction"),
                                 QSqlError::TransactionError, d));
         return false;
     }
@@ -624,7 +625,7 @@ bool QPSQLDriver::commitTransaction()
     PGresult* res = PQexec(d->connection, "COMMIT");
     if (!res || PQresultStatus(res) != PGRES_COMMAND_OK) {
         PQclear(res);
-        setLastError(qMakeError(QLatin1String("Could not commit transaction"),
+        setLastError(qMakeError(tr("Could not commit transaction"),
                                 QSqlError::TransactionError, d));
         return false;
     }
@@ -640,7 +641,7 @@ bool QPSQLDriver::rollbackTransaction()
     }
     PGresult* res = PQexec(d->connection, "ROLLBACK");
     if (!res || PQresultStatus(res) != PGRES_COMMAND_OK) {
-        setLastError(qMakeError(QLatin1String("Could not rollback transaction"),
+        setLastError(qMakeError(tr("Could not rollback transaction"),
                                 QSqlError::TransactionError, d));
         PQclear(res);
         return false;

@@ -16,8 +16,8 @@
 
 #if defined (Q_OS_WIN32)
 #include <qt_windows.h>
-#include <qcoreapplication.h>
 #endif
+#include <qcoreapplication.h>
 #include <qcorevariant.h>
 #include <qdatetime.h>
 #include <qsqlerror.h>
@@ -684,7 +684,8 @@ bool QODBCResult::reset (const QString& query)
                        (SQLINTEGER) query8.length());
 #endif
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
-        setLastError(qMakeError(QLatin1String("Unable to execute statement"), QSqlError::StatementError, d));
+        setLastError(qMakeError(QCoreApplication::translate("QODBCResult",
+                     "Unable to execute statement"), QSqlError::StatementError, d));
         return false;
     }
     SQLSMALLINT count;
@@ -1177,7 +1178,8 @@ bool QODBCResult::exec()
         if (r != SQL_SUCCESS) {
             qWarning("QODBCResult::exec: unable to bind variable: %s",
                      qODBCWarn(d).toLocal8Bit().constData());
-            setLastError(qMakeError(QLatin1String("Unable to bind variable"), QSqlError::StatementError, d));
+            setLastError(qMakeError(QCoreApplication::translate("QODBCResult",
+                         "Unable to bind variable"), QSqlError::StatementError, d));
             return false;
         }
     }
@@ -1185,7 +1187,8 @@ bool QODBCResult::exec()
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
         qWarning("QODBCResult::exec: Unable to execute statement: %s",
                  qODBCWarn(d).toLocal8Bit().constData());
-        setLastError(qMakeError(QLatin1String("Unable to execute statement"), QSqlError::StatementError, d));
+        setLastError(qMakeError(QCoreApplication::translate("QODBCResult",
+                     "Unable to execute statement"), QSqlError::StatementError, d));
         return false;
     }
     SQLSMALLINT count;
@@ -1376,13 +1379,14 @@ bool QODBCDriver::open(const QString & db,
                           &cb,
                           SQL_DRIVER_NOPROMPT);
     if (r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) {
-        setLastError(qMakeError(QLatin1String("Unable to connect"), QSqlError::ConnectionError, d));
+        setLastError(qMakeError(tr("Unable to connect"), QSqlError::ConnectionError, d));
         setOpenError(true);
         return false;
     }
 
     if (!d->checkDriver()) {
-        setLastError(qMakeError(QLatin1String("Unable to connect - Driver doesn't support all needed functionality"), QSqlError::ConnectionError, d));
+        setLastError(qMakeError(tr("Unable to connect - Driver doesn't support all "
+                     "needed functionality"), QSqlError::ConnectionError, d));
         setOpenError(true);
         return false;
     }
@@ -1563,7 +1567,8 @@ bool QODBCDriver::beginTransaction()
                                       (SQLPOINTER)ac,
                                       sizeof(ac));
     if (r != SQL_SUCCESS) {
-        setLastError(qMakeError(QLatin1String("Unable to disable autocommit"), QSqlError::TransactionError, d));
+        setLastError(qMakeError(tr("Unable to disable autocommit"),
+                     QSqlError::TransactionError, d));
         return false;
     }
     return true;
@@ -1579,7 +1584,8 @@ bool QODBCDriver::commitTransaction()
                               d->hDbc,
                               SQL_COMMIT);
     if (r != SQL_SUCCESS) {
-        setLastError(qMakeError(QLatin1String("Unable to commit transaction"), QSqlError::TransactionError, d));
+        setLastError(qMakeError(tr("Unable to commit transaction"),
+                     QSqlError::TransactionError, d));
         return false;
     }
     return endTrans();
@@ -1595,7 +1601,8 @@ bool QODBCDriver::rollbackTransaction()
                               d->hDbc,
                               SQL_ROLLBACK);
     if (r != SQL_SUCCESS) {
-        setLastError(qMakeError(QLatin1String("Unable to rollback transaction"), QSqlError::TransactionError, d));
+        setLastError(qMakeError(tr("Unable to rollback transaction"),
+                     QSqlError::TransactionError, d));
         return false;
     }
     return endTrans();
@@ -1609,7 +1616,7 @@ bool QODBCDriver::endTrans()
                                       (SQLPOINTER)ac,
                                       sizeof(ac));
     if (r != SQL_SUCCESS) {
-        setLastError(qMakeError(QLatin1String("Unable to enable autocommit"), QSqlError::TransactionError, d));
+        setLastError(qMakeError(tr("Unable to enable autocommit"), QSqlError::TransactionError, d));
         return false;
     }
     return true;

@@ -13,6 +13,7 @@
 
 #include "qsql_sqlite2.h"
 
+#include <qcoreapplication.h>
 #include <qcorevariant.h>
 #include <qdatetime.h>
 #include <qfile.h>
@@ -108,8 +109,8 @@ void QSQLite2ResultPrivate::finalize()
     char* err = 0;
     int res = sqlite_finalize(currentMachine, &err);
     if (err) {
-        q->setLastError(QSqlError(QLatin1String("Unable to fetch results"),
-                                  QString::fromAscii(err),
+        q->setLastError(QSqlError(QCoreApplication::translate("QSQLite2Result",
+                                  "Unable to fetch results"), QString::fromAscii(err),
                                   QSqlError::StatementError, res));
         sqlite_freemem(err);
     }
@@ -232,8 +233,8 @@ bool QSQLite2Result::reset (const QString& query)
                                 &(d->currentMachine),
                                 &err);
     if (res != SQLITE_OK || err) {
-        setLastError(QSqlError(QLatin1String("Unable to execute statement"),
-                     QString::fromAscii(err),
+        setLastError(QSqlError(QCoreApplication::translate("QSQLite2Result",
+                     "Unable to execute statement"), QString::fromAscii(err),
                      QSqlError::StatementError, res));
         sqlite_freemem(err);
     }
@@ -323,7 +324,7 @@ bool QSQLite2Driver::open(const QString & db, const QString &, const QString &, 
     char* err = 0;
     d->access = sqlite_open(QFile::encodeName(db), 0, &err);
     if (err) {
-        setLastError(QSqlError(QLatin1String("Error to open database"), QString::fromAscii(err),
+        setLastError(QSqlError(tr("Error to open database"), QString::fromAscii(err),
                      QSqlError::ConnectionError));
         sqlite_freemem(err);
         err = 0;
@@ -364,7 +365,7 @@ bool QSQLite2Driver::beginTransaction()
     if (res == SQLITE_OK)
         return true;
 
-    setLastError(QSqlError(QLatin1String("Unable to begin transaction"),
+    setLastError(QSqlError(tr("Unable to begin transaction"),
                            QString::fromAscii(err), QSqlError::TransactionError, res));
     sqlite_freemem(err);
     return false;
@@ -381,7 +382,7 @@ bool QSQLite2Driver::commitTransaction()
     if (res == SQLITE_OK)
         return true;
 
-    setLastError(QSqlError(QLatin1String("Unable to commit transaction"),
+    setLastError(QSqlError(tr("Unable to commit transaction"),
                 QString::fromAscii(err), QSqlError::TransactionError, res));
     sqlite_freemem(err);
     return false;
@@ -398,7 +399,7 @@ bool QSQLite2Driver::rollbackTransaction()
     if (res == SQLITE_OK)
         return true;
 
-    setLastError(QSqlError(QLatin1String("Unable to rollback Transaction"),
+    setLastError(QSqlError(tr("Unable to rollback Transaction"),
                            QString::fromAscii(err), QSqlError::TransactionError, res));
     sqlite_freemem(err);
     return false;

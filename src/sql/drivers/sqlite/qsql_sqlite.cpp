@@ -13,6 +13,7 @@
 
 #include "qsql_sqlite.h"
 
+#include <qcoreapplication.h>
 #include <qcorevariant.h>
 #include <qsqlerror.h>
 #include <qsqlfield.h>
@@ -176,8 +177,8 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
     case SQLITE_MISUSE:
     default:
         // something wrong, don't get col info, but still return false
-        q->setLastError(qMakeError(access, QLatin1String("Unable to fetch row"),
-                        QSqlError::ConnectionError, res));
+        q->setLastError(qMakeError(access, QCoreApplication::translate("QSQLiteResult",
+                        "Unable to fetch row"), QSqlError::ConnectionError, res));
         finalize();
         q->setAt(QSql::AfterLastRow);
         return false;
@@ -215,8 +216,8 @@ bool QSQLiteResult::reset (const QString &query)
                                 &d->stmt, 0);
 
     if (res != SQLITE_OK) {
-        setLastError(qMakeError(d->access, QLatin1String("Unable to execute statement"),
-                                QSqlError::StatementError, res));
+        setLastError(qMakeError(d->access, QCoreApplication::translate("QSQLiteResult",
+                     "Unable to execute statement"), QSqlError::StatementError, res));
         d->finalize();
         return false;
     }
@@ -305,8 +306,8 @@ bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, c
         setOpenError(false);
         return true;
     } else {
-        setLastError(qMakeError(d->access, QLatin1String("Error opening database"),
-                                QSqlError::ConnectionError));
+        setLastError(qMakeError(d->access, tr("Error opening database"),
+                     QSqlError::ConnectionError));
         setOpenError(true);
         return false;
     }
@@ -316,7 +317,7 @@ void QSQLiteDriver::close()
 {
     if (isOpen()) {
         if (sqlite3_close(d->access) != SQLITE_OK)
-            setLastError(qMakeError(d->access, QLatin1String("Error closing database"),
+            setLastError(qMakeError(d->access, tr("Error closing database"),
                                     QSqlError::ConnectionError));
         d->access = 0;
         setOpen(false);

@@ -13,6 +13,7 @@
 
 #include "qsql_oci.h"
 
+#include <qcoreapplication.h>
 #include <qcorevariant.h>
 #include <qdatetime.h>
 #include <qregexp.h>
@@ -1123,7 +1124,8 @@ bool QOCIResult::prepare(const QString& query)
                         0);
     if (r != 0) {
         qOraWarning("QOCIResult::prepare: unable to alloc statement:", d);
-        setLastError(qMakeError(QLatin1String("Unable to alloc statement"), QSqlError::StatementError, d));
+        setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
+                     "Unable to alloc statement"), QSqlError::StatementError, d));
         return false;
     }
     d->setStatementAttributes();
@@ -1143,7 +1145,8 @@ bool QOCIResult::prepare(const QString& query)
                        OCI_DEFAULT);
     if (r != 0) {
         qOraWarning("QOCIResult::prepare: unable to prepare statement:", d);
-        setLastError(qMakeError(QLatin1String("Unable to prepare statement"), QSqlError::StatementError, d));
+        setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
+                                "Unable to prepare statement"), QSqlError::StatementError, d));
         return false;
     }
     // do something with the placeholders? into a map?
@@ -1163,7 +1166,8 @@ bool QOCIResult::exec()
     if (boundValueCount() > 0
          && d->bindValues(boundValues(), indicators, tmpStorage) != OCI_SUCCESS) {
         qOraWarning("QOCIResult::exec: unable to bind value: ", d);
-        setLastError(qMakeError(QLatin1String("Unable to bind value"), QSqlError::StatementError, d));
+        setLastError(qMakeError(QCoreApplication::translate("QOCIResult", "Unable to bind value"),
+                     QSqlError::StatementError, d));
         return false;
     }
 
@@ -1186,7 +1190,8 @@ bool QOCIResult::exec()
                             OCI_DEFAULT);
         if (r != 0) {
             qOraWarning("QOCIResult::exec: unable to execute select statement:", d);
-            setLastError(qMakeError(QLatin1String("Unable to execute select statement"), QSqlError::StatementError, d));
+            setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
+                         "Unable to execute select statement"), QSqlError::StatementError, d));
             return false;
         }
         ub4 parmCount = 0;
@@ -1202,7 +1207,8 @@ bool QOCIResult::exec()
                                 d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS );
         if (r != 0) {
             qOraWarning("QOCIResult::exec: unable to execute statement:", d);
-            setLastError(qMakeError(QLatin1String("Unable to execute statement"), QSqlError::StatementError, d));
+            setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
+                         "Unable to execute statement"), QSqlError::StatementError, d));
             return false;
         }
         setSelect(false);
@@ -1481,7 +1487,8 @@ bool QOCI9Result::exec()
     if (boundValueCount() > 0
         && d->bindValues(boundValues(), indicators, tmpStorage) != OCI_SUCCESS) {
         qOraWarning("QOCIResult::exec: unable to bind value: ", d);
-        setLastError(qMakeError(QLatin1String("Unable to bind value"), QSqlError::StatementError, d));
+        setLastError(qMakeError(QCoreApplication::translate("QOCIResult", "Unable to bind value"),
+                     QSqlError::StatementError, d));
         return false;
     }
 
@@ -1507,7 +1514,8 @@ bool QOCI9Result::exec()
                             mode);
         if (r != 0) {
             qOraWarning("QOCI9Result::reset: unable to execute select statement: ", d);
-            setLastError(qMakeError(QLatin1String("Unable to execute select statement"), QSqlError::StatementError, d));
+            setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
+                         "Unable to execute select statement"), QSqlError::StatementError, d));
             return false;
         }
         ub4 parmCount = 0;
@@ -1522,7 +1530,8 @@ bool QOCI9Result::exec()
                                 d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS);
         if (r != 0) {
             qOraWarning("QOCI9Result::reset: unable to execute statement: ", d);
-            setLastError(qMakeError(QLatin1String("Unable to execute statement"), QSqlError::StatementError, d));
+            setLastError(qMakeError(QCoreApplication::translate("QOCIResult",
+                         "Unable to execute statement"), QSqlError::StatementError, d));
             return false;
         }
         setSelect(false);
@@ -1601,7 +1610,7 @@ void QOCIDriver::init()
     if (r != 0)
         qOraWarning("QOCIDriver: unable to alloc service context:", d);
     if (r != 0)
-        setLastError(qMakeError(QLatin1String("Unable to initialize"),
+        setLastError(qMakeError(tr("Unable to initialize"),
                      QSqlError::ConnectionError, d));
 }
 
@@ -1698,7 +1707,7 @@ bool QOCIDriver::open(const QString & db,
                  tmpDb.length());
 #endif
     if (r != 0) {
-        setLastError(qMakeError(QLatin1String("Unable to logon"), QSqlError::ConnectionError, d));
+        setLastError(qMakeError(tr("Unable to logon"), QSqlError::ConnectionError, d));
         setOpenError(true);
         return false;
     }
