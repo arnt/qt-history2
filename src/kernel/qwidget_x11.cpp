@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#215 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#216 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -28,7 +28,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#215 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#216 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1033,7 +1033,7 @@ void QWidget::iconify()
   Raises this widget to the top of the parent widget's stack.
 
   If there are any siblings of this widget that overlap it on the screen,
-  this widget will be in front of its siblings afterwards.
+  this widget will be visually in front of its siblings afterwards.
 
   \sa lower()
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#138 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#137 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#138 $");
 
 
 /*!
@@ -761,7 +761,7 @@ static void objSearch( QObjectList *result,
   Note that the list order might change when \link QWidget widget\endlink
   children are \link QWidget::raise() raised\endlink or \link
   QWidget::lower() lowered\endlink. A widget that is raised becomes the
-  first object in the list.  A widget that is lowered becomes the last
+  last object in the list.  A widget that is lowered becomes the first
   object in the list.
 
   \sa queryList(), parent(), insertChild(), removeChild()
