@@ -137,6 +137,8 @@ int main( int argc, char ** argv )
             withGUI = false;
     }
     QApplication a(argc, argv, withGUI);
+    a.setOrganizationDomain("trolltech.com");
+    a.setApplicationName("Assistant");
 
     QString resourceDir;
     AssistantServer *as = 0;
