@@ -6842,33 +6842,55 @@ bool QDomHandler::notationDecl(const QString & name, const QString & publicId, c
 
 /**************************************************************
  *
- * These are dlsym'ed by QSettings
+ * These are dlsym'ed by QCoreSettings
  *
  **************************************************************/
 
 typedef QMap<QString, QCoreVariant> KeyMap;
 
-static QString settingEltToKey(QDomElement elt)
+static QString nameAttr(const QDomElement &elt)
 {
-    QString result = elt.attribute(QLatin1String("name"));
-    if (result.isEmpty())
-        return QString();
-    result.prepend(QLatin1Char('/'));
+    QString name = elt.attribute(QLatin1String("name"));
+    Q_ASSERT(!name.isEmpty())
+    return name;
+}
 
-    QDomNode parent = elt.parentNode();
-    for (; !parent.isNull(); parent = parent.parentNode()) {
-        if (!parent.isElement())
-            return QString();
-        if (parent.nodeName() != QLatin1String("group"))
+static int siblingIndex(QDomElement elt)
+{
+    int result = 0;
+
+    QDomNode node = elt.previousSibling();
+    for (; !node.isNull(); node = node.previousSibling()) {
+        if (node.isElement())
+            ++result;
+    }
+    return result;
+}
+
+static QString elementToKey(const QDomElement &elt)
+{
+    QString result = QLatin1String("/");
+
+    QDomNode node = elt;
+    for (; node.isElement(); node = node.parentNode()) {
+        QDomElement eltNode = node.toElement();
+
+        if (eltNode.nodeName() == QLatin1String("setting")) {
+            Q_ASSERT(node == elt);
+            result.append(nameAttr(eltNode));
+        } else if (eltNode.nodeName() == QLatin1String("group")) {
+            result.prepend(nameAttr(eltNode));
+            result.prepend(QLatin1Char('/'));
+        } else if (eltNode.nodeName() == QLatin1String("item")) {
+            int idx = siblingIndex(eltNode);
+            result.prepend(QString::number(idx + 1));
+            result.prepend(QLatin1Char('/'));
+        } else if (eltNode.nodeName() == QLatin1String("array")) {
+            // do nothing
+        } else {
+            Q_ASSERT(eltNode.nodeName() == QLatin1String("settings"));
             break;
-        QDomElement parentElt = parent.toElement();
-
-        QString name = parentElt.attribute(QLatin1String("name"));
-        if (name.isEmpty())
-            return QString();
-
-        result.prepend(name);
-        result.prepend(QLatin1Char('/'));
+        }
     }
 
     return result;
@@ -6893,7 +6915,7 @@ extern "C" bool qSettingsReadXmlFile(QIODevice &device, KeyMap *keys)
     QDomNodeList settingElts = root.elementsByTagName(QLatin1String("setting"));
     for (uint i = 0; i < settingElts.count(); ++i) {
         QDomElement elt = settingElts.item(i).toElement();
-        QString key = settingEltToKey(elt);
+        QString key = elementToKey(elt);
         if (key.isEmpty())
             continue;
         QDomAttr valueAttr = elt.attributeNode(QLatin1String("value"));
@@ -6904,36 +6926,149 @@ extern "C" bool qSettingsReadXmlFile(QIODevice &device, KeyMap *keys)
         keys->insert(key, value);
     }
 
+    QDomNodeList arrayElts = root.elementsByTagName(QLatin1String("array"));
+    for (uint i = 0; i < arrayElts.count(); ++i) {
+        QDomElement elt = arrayElts.item(i).toElement();
+        QString key = elementToKey(elt);
+        if (key.isEmpty())
+            continue;
+
+        // Find out how many <item> tags there are
+        int itemCnt = 0;
+        QDomNode child = elt.firstChild();
+        for (; !child.isNull(); child = child.nextSibling()) {
+            if (child.isElement() && child.nodeName() == QLatin1String("item"))
+                ++itemCnt;
+        }
+
+        keys->insert(key + QLatin1String("size"), itemCnt);
+    }
+
     return true;
 }
 
-static QDomElement findOrCreateSubGroup(QDomDocument &doc, QDomElement &parentGroup, const QString &name)
+// Returns group names and item names directly under this prefix.
+static QStringList getGroupItemList(const QString &prefix, const KeyMap &keys)
 {
-    QDomNode child = parentGroup.firstChild();
-    for (; !child.isNull(); child = child.nextSibling()) {
-        if (!child.isElement())
-            continue;
+    QStringList result;
 
-        QDomElement elt = child.toElement();
-        if (elt.nodeName() != QLatin1String("group"))
-            continue;
+//     qDebug("getGroupItemList(): \"%s\"", prefix.latin1());
+    Q_ASSERT(prefix.endsWith(QLatin1String("/")));
+    int prefLen = prefix.length();
 
-        QDomAttr attr = elt.attributeNode(QLatin1String("name"));
-        if (attr.isNull())
-            continue;
-
-        if (attr.value() == name)
-            break;
+    KeyMap::const_iterator i = keys.lowerBound(prefix);
+    while (i != keys.end() && i.key().startsWith(prefix)) {
+        QString key = i.key();
+        int itemLen = key.indexOf(QLatin1Char('/'), prefLen);
+        if (itemLen != -1)
+            itemLen -= prefLen - 1; // keep trailing '/'
+        QString item = key.mid(prefLen, itemLen);
+        if (result.isEmpty() || result.last() != item) // don't add duplicates
+            result.append(key.mid(prefLen, itemLen));
+        ++i;
     }
 
-    if (child.isNull()) {
-        QDomElement subGroupElt = doc.createElement(QLatin1String("group"));
-        subGroupElt.setAttribute(QLatin1String("name"), name);
-        parentGroup.appendChild(subGroupElt);
-        return subGroupElt;
+    return result;
+}
+
+/*
+    Check if this is an array. An array has a "size" item and an appropriate number
+    of subgroups called "1", "2", ... and nothing else.
+*/
+static bool arrayItems(const QStringList &itemList, const QString &group, const KeyMap &keys)
+{
+    if (itemList.size() < 2)
+        return false;
+
+    // itemList is sorted
+    if (itemList.last() != QLatin1String("size"))
+        return false;
+
+    KeyMap::const_iterator keyIter = keys.find(group + "size");
+    Q_ASSERT(keyIter != keys.end());
+    bool ok;
+    int size = keyIter.value().toInt(&ok);
+    if (!ok || size < 1 || itemList.size() != size + 1)
+        return false;
+
+    /*
+        Lemma:
+        Let S be a sequence of N integers (a1, a2, ..., aN), such that:
+            ai != aj for i != j and
+            0 < ai <= N for all 0 < i <= N.
+        Then
+            Sum(ai; 0 < i <= N) = Sum(i; 0 < i <= N)
+                                iff
+            for any 0 < j <= N, j = ai for some 0 < i <= N.
+    */
+
+    int sum1 = 0, sum2 = 0;
+    for (int i = 0; i < size; ++i) {
+        QString item = itemList[i];
+        if (item.length() < 2)
+            return false;
+        if (i > 0 && itemList[i - 1] == item) // check for duplicate
+            return false;
+        if (!item.endsWith(QLatin1String("/")))
+            return false;
+        item = item.mid(0, item.length() - 1);
+        if (item != item.stripWhiteSpace())  // make sure there is no whitespace (which toInt()
+            return false;                    // would ignore)
+        bool ok;
+        int j = item.toInt(&ok);
+        if (!ok || j < 1 || j > size)
+            return false;
+        sum1 += i + 1;
+        sum2 += j;
     }
 
-    return child.toElement();
+    return sum1 == sum2;
+}
+
+static void addGroupItems(QDomDocument *doc, QDomElement *parentElt, const KeyMap &keys)
+{
+    Q_ASSERT(parentElt->nodeName() == QLatin1String("group")
+                || parentElt->nodeName() == QLatin1String("item")
+                || parentElt->nodeName() == QLatin1String("settings"));
+
+    QString group = elementToKey(*parentElt);
+//     qDebug("addGroupItems(): \"%s\"", group.latin1());
+    QStringList itemList = getGroupItemList(group, keys);
+//     qDebug("addGruopItems(): subgroups: %d\n%s", itemList.size(), itemList.join("\n").latin1());
+
+    if (arrayItems(itemList, group, keys)) {
+        // <array>...</array>
+        QDomElement arrayElt = doc->createElement(QLatin1String("array"));
+        parentElt->appendChild(arrayElt);
+        for (int i = 0; i < itemList.size() - 1; ++i) {
+            QDomElement itemElt = doc->createElement(QLatin1String("item"));
+            arrayElt.appendChild(itemElt);
+            addGroupItems(doc, &itemElt, keys);
+        }
+    } else {
+        // <group>...</group>
+        for (int i = 0; i < itemList.size(); ++i) {
+            QString item = itemList[i];
+
+            if (item.endsWith(QLatin1String("/"))) {
+                // insert group
+                QDomElement subGroupElt = doc->createElement(QLatin1String("group"));
+                subGroupElt.setAttribute(QLatin1String("name"), item.mid(0, item.length() - 1)); // chop off trailing '/'
+                parentElt->appendChild(subGroupElt);
+                addGroupItems(doc, &subGroupElt, keys);
+            } else {
+                // insert setting
+                KeyMap::const_iterator i = keys.find(group + item);
+                Q_ASSERT(i != keys.end());
+                const QCoreVariant value = i.value();
+                QDomElement settingElt = doc->createElement(QLatin1String("setting"));
+                settingElt.setAttribute(QLatin1String("name"), item);
+                settingElt.setAttribute(QLatin1String("value"), value.toString());
+                settingElt.setAttribute(QLatin1String("type"), QLatin1String(value.typeName()));
+                parentElt->appendChild(settingElt);
+            }
+        }
+    }
 }
 
 extern "C" bool qSettingsWriteXmlFile(QIODevice &device, const KeyMap &keys)
@@ -6943,29 +7078,11 @@ extern "C" bool qSettingsWriteXmlFile(QIODevice &device, const KeyMap &keys)
     QDomElement root = doc.createElement(QLatin1String("settings"));
     doc.appendChild(root);
 
-    KeyMap::const_iterator i = keys.begin();
-    for (; i != keys.end(); ++i) {
-        QString key = i.key();
-        const QCoreVariant &val = i.value();
-
-        // chop initial '/'
-        Q_ASSERT(key.startsWith(QLatin1String("/")));
-        key = key.mid(1);
-
-        QStringList keyParts = key.split(QLatin1Char('/'));
-
-        QDomElement groupElt = root;
-        for (int j = 0; j < keyParts.size() - 1; ++j)
-            groupElt = findOrCreateSubGroup(doc, groupElt, keyParts[j]);
-
-        QDomElement settingElt = doc.createElement(QLatin1String("setting"));
-        settingElt.setAttribute(QLatin1String("name"), keyParts.last());
-        settingElt.setAttribute(QLatin1String("value"), val.toString());
-        groupElt.appendChild(settingElt);
-    }
+    addGroupItems(&doc, &root, keys);
 
     QTextStream stream(&device);
-    doc.save(stream, 0);
+    stream.setEncoding(QTextStream::UnicodeUTF8);
+    stream << doc.toString(4);
     return true;
 }
 
