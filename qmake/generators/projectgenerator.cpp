@@ -58,16 +58,8 @@ ProjectGenerator::init()
     v["TEMPLATE"] += Option::user_template.isEmpty() ? QString("app") : Option::user_template;
 
     //figure out target
-    QString o = Option::output.name();
-    if(o == "-" || o.isEmpty()) {
-	o = "unknown";
-    } else {
-	int s = o.findRev(Option::dir_sep);
-	if(s != -1)
-	    o = o.right(o.length() - (s + 1));
-	o.replace(QRegExp(".pro$"), "");
-	v["TARGET"] += o;
-    }
+    if(Option::output.name() == "-" || Option::output.name().isEmpty()) 
+	v["TARGET"] = QStringList("unknown");
 
     //the scary stuff
     if(Option::projfile::do_pwd)
