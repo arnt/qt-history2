@@ -52,6 +52,18 @@
   cursor, insert, update and delete records, and refresh data in the
   display.
 
+  Instances of this class cannot be created directly.  Derived classes
+  must reimplement certain functions (see
+  QSqlFormNavigator::defaultForm() and QSqlNavigator::defaultCursor())
+  which provide the form and cursor on which the navigator operates.
+
+  Convenient signals and slots are provided to navigate the cursor
+  (see firstRecord(), lastRecord(), prevRecord(), nextRecord()), to
+  update records (see insertRecord(), updateRecord(), deleteRecord()),
+  and to update the display according to the cursor's current position
+  (see firstRecordAvailable(), lastRecordAvailable(),
+  nextRecordAvailable(), prevRecordAvailable()).
+
 */
 
 QSqlWidget::QSqlWidget( QWidget *parent, const char *name, WFlags fl )
