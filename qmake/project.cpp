@@ -1306,18 +1306,24 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
                 feature_roots << (qInstallPathData() + mkspecs_concat + (*concat_it));
 #endif
             debug_msg(2, "Looking for feature '%s' in (%s)", file.latin1(), feature_roots.join("::").latin1());
-            QFileInfo currentFile;
-            if(::parser.from_file)
-                currentFile = QFileInfo(::parser.file).canonicalFilePath();
-            for(QStringList::Iterator it = feature_roots.begin(); it != feature_roots.end(); ++it) {
-                QString prf((*it) + QDir::separator() + file);
-                QFileInfo prfFile(QFileInfo(prf).canonicalFilePath());
-                if(prfFile.exists()) {
-                    if(prfFile != currentFile) {
-                        found = true;
-                        file = prf;
+            int start_root = 0;
+            if(parser.from_file) {
+                QFileInfo currFile(QFileInfo(parser.file).canonicalFilePath());
+                for(int root = 0; root < feature_roots.size(); ++root) {
+                    QString prf(feature_roots[root] + QDir::separator() + file);
+                    QFileInfo prfFile(QFileInfo(prf).canonicalFilePath());
+                    if(prfFile == currFile) {
+                        start_root = root+1;
                         break;
                     }
+                }
+            }
+            for(int root = start_root; root < feature_roots.size(); ++root) {
+                QString prf(feature_roots[root] + QDir::separator() + file);
+                if(QFile::exists(prf)) {
+                    found = true;
+                    file = prf;
+                    break;
                 }
             }
             if(!found)
@@ -1337,9 +1343,9 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
         }
         if(Option::output_dir != QDir::currentPath())
             include_roots << QDir::currentPath();
-        for(QStringList::Iterator it = include_roots.begin(); it != include_roots.end(); ++it) {
-            if(QFile::exists((*it) + QDir::separator() + file)) {
-                file = (*it) + QDir::separator() + file;
+        for(int root = 0; root < include_roots.size(); ++root) {
+            if(QFile::exists(include_roots[root] + QDir::separator() + file)) {
+                file = include_roots[root] + QDir::separator() + file;
                 break;
             }
         }
