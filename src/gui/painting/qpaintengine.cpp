@@ -426,7 +426,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     if (testDirty(DirtyClipPath)) {
         // Assume for now that painterpaths implies native clip xform.
         if (hasFeature(PainterPaths)) {
-            updateXForm(s->clipPathMatrix);
+            updateMatrix(s->clipPathMatrix);
             updateClipPath(s->clipPath, s->clipEnabled);
             setDirty(DirtyTransform);
         } else {
@@ -441,7 +441,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
                 qWarning("QPaintEngine::updateInternal(), feature combination ClipTransform and"
                          " not PainterPaths is not supported");
             }
-            updateXForm(s->clipRegionMatrix);
+            updateMatrix(s->clipRegionMatrix);
             updateClipRegion(s->clipRegion, s->clipEnabled);
             setDirty(DirtyTransform);
         } else {
@@ -455,7 +455,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         clearDirty(DirtyClip);
     }
     if (testDirty(DirtyTransform)) {
-        updateXForm(s->matrix);
+        updateMatrix(s->matrix);
         clearDirty(DirtyTransform);
     }
     if (testDirty(DirtyHints)) {
@@ -676,7 +676,7 @@ void QPaintEngine::updateClipPath(const QPainterPath &path, bool enabled)
 */
 
 /*!
-  \fn QPaintEngine::updateXForm(const QMatrix &matrix)
+  \fn QPaintEngine::updateMatrix(const QMatrix &matrix)
 
   This function is called when the engine needs to be updated with
   new transformation settings, specified with \a matrix.

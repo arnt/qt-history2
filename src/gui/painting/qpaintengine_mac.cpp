@@ -228,7 +228,7 @@ QQuickDrawPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 }
 
 void
-QQuickDrawPaintEngine::updateXForm(const QMatrix &)
+QQuickDrawPaintEngine::updateMatrix(const QMatrix &)
 {
 }
 
@@ -1181,7 +1181,7 @@ QCoreGraphicsPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &brush)
 }
 
 void
-QCoreGraphicsPaintEngine::updateXForm(const QMatrix &matrix)
+QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
 {
     Q_ASSERT(isActive());
     d->setTransform(matrix.isIdentity() ? 0 : &matrix);

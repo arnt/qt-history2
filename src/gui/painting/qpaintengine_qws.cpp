@@ -325,9 +325,9 @@ void QWSPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
 //    qDebug("QWSPaintEngine::updateBackground");
 }
-void QWSPaintEngine::updateXForm(const QMatrix &)
+void QWSPaintEngine::updateMatrix(const QMatrix &)
 {
-//    qDebug("QWSPaintEngine::updateXForm");
+//    qDebug("QWSPaintEngine::updateMatrix");
 }
 void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
 {

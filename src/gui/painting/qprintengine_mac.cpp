@@ -572,10 +572,10 @@ void QMacPrintEngine::updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush)
     d->paintEngine->updateBackground(bgmode, bgBrush);
 }
 
-void QMacPrintEngine::updateXForm(const QMatrix &matrix)
+void QMacPrintEngine::updateMatrix(const QMatrix &matrix)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->updateXForm(matrix);
+    d->paintEngine->updateMatrix(matrix);
 }
 
 void QMacPrintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)

@@ -367,8 +367,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     }
 
     // ### Workaround for the ellipse problem below...
-    updateXForm(QMatrix(2, 0, 0, 2, 0, 0));
-    updateXForm(QMatrix());
+    updateMatrix(QMatrix(2, 0, 0, 2, 0, 0));
+    updateMatrix(QMatrix());
 
     SetBkMode(d->hdc, TRANSPARENT);
     SetTextAlign(d->hdc, TA_BASELINE);
@@ -1170,14 +1170,14 @@ void QWin32PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 }
 
 
-void QWin32PaintEngine::updateXForm(const QMatrix &mtx)
+void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
 {
 #ifdef NO_NATIVE_XFORM
     return;
 #endif
 
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->updateXForm(mtx);
+        d->gdiplusEngine->updateMatrix(mtx);
         return;
     }
 
@@ -1201,7 +1201,7 @@ void QWin32PaintEngine::updateXForm(const QMatrix &mtx)
         m.eDy  = mtx.dy();
         SetGraphicsMode(d->hdc, GM_ADVANCED);
         if (!SetWorldTransform(d->hdc, &m)) {
-            qSystemWarning("QWin32PaintEngine::updateXForm(), SetWorldTransformation() failed..");
+            qSystemWarning("QWin32PaintEngine::updateMatrix(), SetWorldTransformation() failed..");
         }
         d->advancedMode = true;
         d->advancedModeUsed = true;
@@ -2024,7 +2024,7 @@ void QGdiplusPaintEngine::updateBackground(Qt::BGMode, const QBrush &)
 {
 }
 
-void QGdiplusPaintEngine::updateXForm(const QMatrix &qm)
+void QGdiplusPaintEngine::updateMatrix(const QMatrix &qm)
 {
 //     Matrix m(qm.m11(), qm.m12(), qm.m21(), qm.m22(), qm.dx(), qm.dy());
 //     d->graphics->SetTransform(&m);

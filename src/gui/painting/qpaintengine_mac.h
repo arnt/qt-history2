@@ -37,7 +37,7 @@ public:
     void updateBrush(const QBrush &brush, const QPoint &pt);
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
-    void updateXForm(const QMatrix &matrix);
+    void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
 
     void drawLine(const QPoint &pt1, const QPoint &pt2);
@@ -88,7 +88,7 @@ public:
     void updateBrush(const QBrush &brush, const QPoint &pt);
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
-    void updateXForm(const QMatrix &matrix);
+    void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
     void updateRenderHints(QPainter::RenderHints hints);
 

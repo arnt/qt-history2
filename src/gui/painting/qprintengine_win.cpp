@@ -453,7 +453,7 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
 {
     bool oldNoNativeXForm = d->noNativeXform;
     d->noNativeXform = true;
-    updateXForm(QMatrix(1, 0, 0, 1, 0, 0));
+    updateMatrix(QMatrix(1, 0, 0, 1, 0, 0));
 
     QPixmap pixmap = originalPixmap;
     if (sr.x()!=0 || sr.y() != 0 || sr.size() != originalPixmap.size()) {

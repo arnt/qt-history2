@@ -146,7 +146,7 @@ void QPicturePaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBr
     writeCmdLength(pos, QRect(), false);
 }
 
-void QPicturePaintEngine::updateXForm(const QMatrix &matrix)
+void QPicturePaintEngine::updateMatrix(const QMatrix &matrix)
 {
     int pos;
     SERIALIZE_CMD(PdcSetWMatrix);

@@ -281,8 +281,8 @@ private:
         TxRotShear = 3
     };
 
-    void updateXForm();
-    void updateInvXForm();
+    void updateMatrix();
+    void updateInvMatrix();
     void init();
 
     QPainterPrivate *d_ptr;

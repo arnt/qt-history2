@@ -620,7 +620,7 @@ bool QPainter::begin(QPaintDevice *pd)
     Q_ASSERT(d->engine->isActive());
 
     if (!d->redirection_offset.isNull())
-        updateXForm();
+        updateMatrix();
 
     Q_ASSERT(d->engine->isActive());
     d->engine->clearRenderHints(QPainter::LineAntialiasing);
@@ -914,7 +914,7 @@ void QPainter::setMatrix(const QMatrix &matrix, bool combine)
     if (!d->state->WxF)
         setMatrixEnabled(true);
     else
-        updateXForm();
+        updateMatrix();
 }
 
 /*!
@@ -976,7 +976,7 @@ void QPainter::setMatrixEnabled(bool enable)
         d->engine->updateState(d->state);
 
     d->state->WxF = enable;
-    updateXForm();
+    updateMatrix();
 }
 
 /*!
@@ -2605,7 +2605,7 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
   \internal
 */
 
-void QPainter::updateXForm()
+void QPainter::updateMatrix()
 {
     QMatrix m;
     if (d->state->VxF) {
@@ -2658,7 +2658,7 @@ void QPainter::updateXForm()
 
 
 /*! \internal */
-void QPainter::updateInvXForm()
+void QPainter::updateInvMatrix()
 {
     Q_ASSERT(d->txinv == false);
     d->txinv = true;                                // creating inverted matrix
@@ -2794,7 +2794,7 @@ void QPainter::setWindow_helper(const QRect &r)
     d->state->ww = r.width();
     d->state->wh = r.height();
     if (d->state->VxF)
-        updateXForm();
+        updateMatrix();
     else
         setViewXForm(true);
 }
@@ -2854,7 +2854,7 @@ void QPainter::setViewport_helper(const QRect &r)
     d->state->vw = r.width();
     d->state->vh = r.height();
     if (d->state->VxF)
-        updateXForm();
+        updateMatrix();
     else
         setViewXForm(true);
 }
@@ -2893,7 +2893,7 @@ void QPainter::setViewXForm(bool enable)
         d->engine->updateState(d->state);
 
     d->state->VxF = enable;
-    updateXForm();
+    updateMatrix();
 }
 
 
@@ -3047,7 +3047,7 @@ QPoint QPainter::xFormDev(const QPoint &p) const
         return p;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
-        that->updateInvXForm();
+        that->updateInvMatrix();
     }
     return p * d->invMatrix;
 #else
@@ -3072,7 +3072,7 @@ QRect QPainter::xFormDev(const QRect &r)  const
         return r;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
-        that->updateInvXForm();
+        that->updateInvMatrix();
     }
     return d->invMatrix.mapRect(r);
 #else
@@ -3096,7 +3096,7 @@ QPointArray QPainter::xFormDev(const QPointArray &a) const
         return a;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
-        that->updateInvXForm();
+        that->updateInvMatrix();
     }
     return a * d->invMatrix;
 #else
@@ -3140,7 +3140,7 @@ QPointArray QPainter::xFormDev(const QPointArray &ad, int index, int npoints) co
         return a;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
-        that->updateInvXForm();
+        that->updateInvMatrix();
     }
     return a * d->invMatrix;
 #else
