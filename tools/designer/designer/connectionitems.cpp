@@ -178,7 +178,18 @@ SenderItem::SenderItem( QTable *table, FormWindow *fw )
 
     QPtrListIterator<QAction> it2( formWindow->actionList() );
     while ( it2.current() ) {
+	QAction *action = it2.current();
 	lst << it2.current()->name();
+	if ( action->inherits( "QActionGroup" ) ) {
+	    QObjectListIt it3( *action->children() );
+	    while ( it3.current() ) {
+		QObject *o = it3.current();
+		++it3;
+		if ( !o->inherits( "QAction" ) )
+		    continue;
+		lst << o->name();
+	    }
+	}
 	++it2;
     }
 
@@ -238,7 +249,18 @@ ReceiverItem::ReceiverItem( QTable *table, FormWindow *fw )
 
     QPtrListIterator<QAction> it2( formWindow->actionList() );
     while ( it2.current() ) {
+	QAction *action = it2.current();
 	lst << it2.current()->name();
+	if ( action->inherits( "QActionGroup" ) ) {
+	    QObjectListIt it3( *action->children() );
+	    while ( it3.current() ) {
+		QObject *o = it3.current();
+		++it3;
+		if ( !o->inherits( "QAction" ) )
+		    continue;
+		lst << o->name();
+	    }
+	}
 	++it2;
     }
 
