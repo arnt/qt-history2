@@ -47,11 +47,12 @@ private slots:
     void createDatabase();
     void setupHistoryMenu();
     void showFromHistory( int id );
-    
+
 private:
     QPopupMenu *history;
     QString docDir;
-
+    bool indexCreated;
+    
 };
 
 #endif

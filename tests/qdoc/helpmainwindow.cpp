@@ -221,6 +221,7 @@ HelpMainWindow::HelpMainWindow()
 	     this, SLOT( setupHistoryMenu() ) );
     connect( history, SIGNAL( activated( int ) ),
 	     this, SLOT( showFromHistory( int ) ) );
+    indexCreated = FALSE;
 }
 
 void HelpMainWindow::slotFilePrint()
@@ -344,7 +345,8 @@ void HelpMainWindow::moveFocusToBrowser()
 void HelpMainWindow::showEvent( QShowEvent *e )
 {
     QMainWindow::showEvent( e );
-    QTimer::singleShot( 1, this, SLOT( createDatabase() ) );
+    if ( !indexCreated )
+	QTimer::singleShot( 1, this, SLOT( createDatabase() ) );
 }
 
 class StartDialog : public QDialog
@@ -382,6 +384,7 @@ private:
 
 void HelpMainWindow::createDatabase()
 {
+    indexCreated = TRUE;
     StartDialog dia( this, navigation );
     dia.exec();
     viewer->setSource( docDir + "/index.html" );
