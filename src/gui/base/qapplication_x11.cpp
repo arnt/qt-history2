@@ -3382,6 +3382,18 @@ void qt_leave_modal( QWidget *widget )
 
 bool qt_try_modal( QWidget *widget, XEvent *event )
 {
+    if (qt_xdnd_dragging) {
+	// allow mouse events while DnD is active
+	switch (event->type) {
+	case ButtonPress:
+	case ButtonRelease:
+	case MotionNotify:
+	    return TRUE;
+	default:
+	    break;
+	}
+    }
+
     if ( qt_tryModalHelper( widget ) )
 	return TRUE;
 
