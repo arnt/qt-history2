@@ -4198,7 +4198,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     } else
 	initialDir = QString::null;
     if ( qApp->style().styleHint( QStyle::SH_GUIStyle ) == WindowsStyle )
-        return winGetExistingDirectory( initialDir, parent, name );
+        return winGetExistingDirectory( initialDir, parent, name, caption );
 #endif
 
     QFileDialog *dialog = new QFileDialog( parent, name ? name : "qt_filedlg_ged", TRUE );
