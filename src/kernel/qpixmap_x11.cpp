@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#122 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#123 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#122 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#123 $");
 
 
 // For thread-safety:
@@ -259,23 +259,26 @@ void QPixmap::init( int w, int h, int d )
 }
 
 
-void QPixmap::reset()
+void QPixmap::deref()
 {
-    if ( data->mask ) {
-	delete data->mask;
-	data->mask = 0;
-    }
-    if ( data->maskgc ) {
-	XFreeGC( dpy, (GC)data->maskgc );
-	data->maskgc = 0;
-    }
-    if ( data->ximage ) {
-	qSafeXDestroyImage( (XImage*)data->ximage );
-	data->ximage = 0;
-    }
-    if ( hd && qApp ) {
-	XFreePixmap( dpy, hd );
-	hd = 0;
+    if ( data && data->deref() ) {			// last reference lost
+	if ( data->mask ) {
+	    delete data->mask;
+	    data->mask = 0;
+	}
+	if ( data->maskgc ) {
+	    XFreeGC( dpy, (GC)data->maskgc );
+	    data->maskgc = 0;
+	}
+	if ( data->ximage ) {
+	    qSafeXDestroyImage( (XImage*)data->ximage );
+	    data->ximage = 0;
+	}
+	if ( hd && qApp ) {
+	    XFreePixmap( dpy, hd );
+	    hd = 0;
+	}
+	delete data;
     }
 }
 
@@ -332,10 +335,7 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 
 QPixmap::~QPixmap()
 {
-    if( data->deref() ) {			// last reference lost
-	reset();
-	delete data;
-    }
+    deref();
 }
 
 
@@ -389,10 +389,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	return *this;
     }
     pixmap.data->ref();				// avoid 'x = x'
-    if ( data && data->deref() ) {		// last reference lost
-	reset();
-	delete data;
-    }
+    deref();
+
     if ( pixmap.paintingActive() ) {		// make a deep copy
 	init( pixmap.width(), pixmap.height(), pixmap.depth() );
 	data->uninit = FALSE;
@@ -453,8 +451,8 @@ int QPixmap::defaultDepth()
 
   Pixmap optimization involves keeping intermediate results in a cache
   buffer and use the data in the cache to speed up bitBlt() and xForm().
-  The cost is more memory consumption, up to width()*height()*depth()/8
-  bytes per cached pixmap.
+  The cost is more memory consumption, up to twice as much as an
+  unoptimized pixmap.
 
   The \a optimization parameter can be:
   <ul>
@@ -464,7 +462,7 @@ int QPixmap::defaultDepth()
   <li> \c QPixmap::NormalOptim, normal optimization to make pixmap drawing
   faster. This option is the default and is suitable for most purposes.
   <li> \c QPixmap::BestOptim, heavily optimized pixmap drawing. Use this
-  option for pixmap animation (sprites).
+  option for pixmap drawn extremely frequently.
   </ul>
 
   Use the setDefaultOptimization() to change the default optimization
@@ -498,7 +496,7 @@ QPixmap::Optimization QPixmap::defaultOptimization()
 /*!
   Sets the default pixmap optimization.
 
-  All new pixmaps that are created will use this default optimization.
+  All \e new pixmaps that are created will use this default optimization.
   You may also set optimization for individual pixmaps using the
   setOptimization() function.
 
@@ -1318,10 +1316,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, dd );
 
     XPutImage( dpy, hd, qt_xget_readonly_gc(), xi, 0, 0, 0, 0, w, h );
-    if ( data->opt == BestOptim ) {		// keep ximage that we created
-	data->ximage = xi;
-    } else {
+    if ( data->opt == NoOptim ) {		// throw away image
 	qSafeXDestroyImage( xi );
+    } else {					// keep ximage that we created
+	data->ximage = xi;
     }
     data->w = w;  data->h = h;	data->d = dd;
 

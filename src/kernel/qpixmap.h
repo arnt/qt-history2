@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#78 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#79 $
 **
 ** Definition of QPixmap class
 **
@@ -114,7 +114,7 @@ protected:
     struct QPixmapData : public QShared {	// internal pixmap data
 	QCOORD	w, h;
 	short	d;
-	uint	dirtyNU	 : 1;
+	uint	unused	 : 1;
 	uint	optim	 : 1;
 	uint	uninit	 : 1;
 	uint	bitmap	 : 1;
@@ -137,7 +137,7 @@ protected:
 
 private:
     void	init( int, int, int );
-    void	reset();
+    void	deref();
     QPixmap	copy() const;
     static bool optimAll;
     static Optimization defOpt;

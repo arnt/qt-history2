@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#66 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#66 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -82,27 +82,30 @@ void QPixmap::init( int w, int h, int d )
 }
 
 
-void QPixmap::reset()
+void QPixmap::deref()
 {
-    if ( hdc ) {
-	DeleteDC( hdc );
-	hdc = 0;
-    }
-    if ( data->mask ) {
-	delete data->mask;
-	data->mask = 0;
-    }
-    if ( data->hbm ) {
-	DeleteObject( data->hbm );
-	data->hbm = 0;
-    }
-    if ( data->bits ) {
-	delete [] data->bits;
-	data->bits = 0;
-    }
-    if ( data->maskpm ) {
-	delete data->maskpm;
-	data->maskpm = 0;
+    if ( data && data->deref() ) {		// last reference lost
+	if ( hdc ) {
+	    DeleteDC( hdc );
+	    hdc = 0;
+	}
+	if ( data->mask ) {
+	    delete data->mask;
+	    data->mask = 0;
+	}
+	if ( data->hbm ) {
+	    DeleteObject( data->hbm );
+	    data->hbm = 0;
+	}
+	if ( data->bits ) {
+	    delete [] data->bits;
+	    data->bits = 0;
+	}
+	if ( data->maskpm ) {
+	    delete data->maskpm;
+	    data->maskpm = 0;
+	}
+	delete data;
     }
 }
 
@@ -163,10 +166,7 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 
 QPixmap::~QPixmap()
 {
-    if ( data->deref() ) {			// last reference lost
-	reset();
-	delete data;
-    }
+    deref();
 }
 
 
@@ -221,10 +221,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	return *this;
     }
     pixmap.data->ref();				// avoid 'x = x'
-    if ( data && data->deref() ) {		// last reference lost
-	reset();
-	delete data;
-    }
+    deref();
+
     if ( pixmap.paintingActive() ) {		// make a deep copy
 	init( pixmap.width(), pixmap.height(), pixmap.depth() );
 	data->uninit = FALSE;

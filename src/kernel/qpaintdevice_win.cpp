@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#35 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -25,7 +25,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#35 $");
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -271,7 +271,6 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	return;
 
     if ( mask ) {
-	bool do_bsm = qt_winver == WV_95 || qt_bitblt_bsm;
 	if ( src_pm->data->selfmask ) {
 	    HBRUSH b = CreateSolidBrush( black.pixel() );
 	    COLORREF tc, bc;
@@ -281,8 +280,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, 0x00b8074a );
 	    SetBkColor( dst_dc, bc );
 	    SetTextColor( dst_dc, tc );
-	    DeleteObject( SelectObject(dst_dc, b) );		
-	} else if ( do_bsm ) {
+	    DeleteObject( SelectObject(dst_dc, b) );
+	} else if ( qt_winver == WV_95 || qt_bitblt_bsm ) {
 	    bool mask_tmp = mask->handle() == 0;
 	    if ( mask_tmp )
 		mask->allocMemDC();
