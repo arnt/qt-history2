@@ -943,6 +943,8 @@ void QSplitter::recalc( bool update )
     }
     if ( update )
 	doResize();
+    else
+	data->firstShow = TRUE;
 }
 
 /*!
