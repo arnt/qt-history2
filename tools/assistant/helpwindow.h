@@ -12,9 +12,14 @@ public:
     void setSource( const QString &name );
     QPopupMenu *createPopupMenu();
 
+protected:
+    void keyPressEvent( QKeyEvent *e );
+    void keyReleaseEvent( QKeyEvent *e );
+
 private:
     MainWindow *mw;
-    
+    bool shiftPressed;
+
 };
 
 #endif

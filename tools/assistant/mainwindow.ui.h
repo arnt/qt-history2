@@ -320,7 +320,9 @@ void MainWindow::hide()
 }
 
 
-void MainWindow::newWindow()
+MainWindow* MainWindow::newWindow()
 {
-   (new MainWindow)->show();
+    MainWindow *mw = new MainWindow;
+    mw->show();
+    return mw;
 }

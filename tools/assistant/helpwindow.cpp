@@ -9,7 +9,7 @@
 #include <qaction.h>
 
 HelpWindow::HelpWindow( MainWindow *w, QWidget *parent, const char *name )
-    : QTextBrowser( parent, name ), mw( w )
+    : QTextBrowser( parent, name ), mw( w ), shiftPressed( FALSE )
 {
 }
 
@@ -17,9 +17,17 @@ void HelpWindow::setSource( const QString &name )
 {
     if ( name.isEmpty() )
 	return;
-    
+
+    if ( shiftPressed ) {
+	removeSelection();
+	MainWindow *mw = new MainWindow;
+	mw->showLink( name, "" );
+	mw->show();
+	return;
+    }
+
     mw->setCaption( tr( "Qt Assistant by Trolltech - %1" ).arg( name ) );
-    
+
     if ( name.left( 2 ) != "p:" ) {
 	QUrl u( context(), name );
 	if ( !u.isLocalFile() ) {
@@ -82,4 +90,16 @@ QPopupMenu *HelpWindow::createPopupMenu()
     mw->actionEditCopy->addTo( m );
     mw->actionEditFind->addTo( m );
     return m;
+}
+
+void HelpWindow::keyPressEvent( QKeyEvent *e )
+{
+    shiftPressed = e->key() == Key_Shift;
+    QTextBrowser::keyPressEvent( e );
+}
+
+void HelpWindow::keyReleaseEvent( QKeyEvent *e )
+{
+    shiftPressed = FALSE;
+    QTextBrowser::keyReleaseEvent( e );
 }
