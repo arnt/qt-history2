@@ -359,7 +359,7 @@ bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
 					  QEventLoop::ExcludeSocketNotifiers |
 					  QEventLoop::WaitForMore | 0x08 );
 
-	if ( caught_selection_notify ) {
+	if ( type == SelectionNotify && caught_selection_notify ) {
 	    waiting_for_data = FALSE;
 	    *event = selnot_event;
 	    return TRUE;
