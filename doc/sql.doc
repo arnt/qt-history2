@@ -202,11 +202,14 @@ addition to \l QSqlDatabase, \l QSqlCursor and \l QSqlQuery, the SQL
 API layer is supported by QSqlError, QSqlField, QSqlIndex and
 QSqlRecord.
 
-<em>Driver Layer.</em> This comprises three classes, \l QSqlResult, \l
-QSqlDriver and QSqlDriverInterface. This layer provides the low level
-bridge between the database and the SQL classes. This layer is
-documented separately since it is only relevant to driver writers, and
-is rarely used in standard database application programming.
+<em><a href="sql-driver.html">Driver Layer</a>.</em> This comprises
+three classes, \l QSqlResult, \l QSqlDriver and
+QSqlDriverFactoryInterface. This layer provides the low level bridge
+between the database and the SQL classes. This layer is <a
+href="sql-driver.html">documented separately</a> since it is only
+relevant to driver writers, and is rarely used in standard database
+application programming.  See <a href="sql-driver.html">here</a> for
+more information on implementing a Qt SQL driver plugin.
 
 <h1><a name="Plugins">SQL Driver Plugins</a></h1>
 
