@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qtstream.cpp#15 $
 **
 ** Implementation of QTextStream class
 **
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#15 $";
 #endif
 
 
@@ -349,6 +349,7 @@ static double input_double( QTextStream *s )
     s->device()->ungetch( c );
     return val;
 #endif
+    return 0.0;
 }
 
 
