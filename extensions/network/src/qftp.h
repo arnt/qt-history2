@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#13 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#14 $
 **
 ** Implementation of Network Extension Library
 **
@@ -41,34 +41,25 @@ class QFtp : public QNetworkProtocol
 public:
     QFtp();
     virtual ~QFtp();
-
-    virtual void openConnection( QUrlOperator *url );
-    virtual bool isOpen();
-    virtual void close();
-    virtual void listEntries();
-    virtual void mkdir( const QString &dirname );
-    virtual void remove( const QString &filename );
-    virtual void rename( const QString &oldname, const QString &newname );
-    virtual void copy( const QStringList &files, const QString &dest,
-		       bool move );
-
     virtual int supportedOperations() const;
 
 protected:
-    enum Command {
-	List = 0,
-	Mkdir,
-	None = -1
-    };
-
     void parseDir( const QString &buffer, QUrlInfo &info );
+    virtual void operationListChildren( QNetworkOperation *op );
+    virtual void operationMkDir( QNetworkOperation *op );
+    virtual void operationRemove( QNetworkOperation *op );
+    virtual void operationRename( QNetworkOperation *op );
+    virtual void operationCopy( QNetworkOperation *op );
+    virtual void operationGet( QNetworkOperation *op );
 
     QSocket *commandSocket, *dataSocket;
-    QString extraData;
-    Command command;
     bool connectionReady, passiveMode;
     QString tmp;
-
+    
+private:
+    bool checkConnection( QNetworkOperation *op );
+    void close();
+    
 protected slots:
     void hostFound();
     void connected();

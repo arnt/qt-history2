@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.h#2 $
+** $Id: //depot/qt/main/extensions/network/src/qsocket.h#3 $
 **
 ** Implementation of Network Extension Library
 **
@@ -99,7 +99,8 @@ private:
     bool	 skipReadBuf( int nbytes, char * );
     bool	 skipWriteBuf( int nbytes );
     bool	 scanNewline( QByteArray * = 0 );
-
+    bool firstTime;
+    
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QSocket( const QSocket & );

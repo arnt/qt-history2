@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#78 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#79 $
 **
 ** Definition of QFileDialog class
 **
@@ -32,6 +32,7 @@ class QLabel;
 class QWidget;
 class QFileDialog;
 class QTimer;
+class QNetworkOperation;
 
 #ifndef QT_H
 #include "qdir.h"
@@ -306,15 +307,13 @@ protected:
 private slots:
     void updateGeometries();
     void modeButtonsDestroyed();
-    void urlStart( int action );
-    void urlFinished( int action );
-    void copyProgress( const QString &from, const QString &to,
-		       int step, int total );
-    void insertEntry( const QUrlInfo &fi );
-    void removeEntry( const QString &fi );
-    void createdDirectory( const QUrlInfo &info );
-    void error( int ecode, const QString &msg );
-    void itemChanged( const QString &oldname, const QString &newname );
+    void urlStart( QNetworkOperation *op );
+    void urlFinished( QNetworkOperation *op );
+    void copyProgress( int step, int total, QNetworkOperation * );
+    void insertEntry( const QUrlInfo &fi, QNetworkOperation *op );
+    void removeEntry( QNetworkOperation * );
+    void createdDirectory( const QUrlInfo &info, QNetworkOperation * );
+    void itemChanged( QNetworkOperation * );
 
 private:
     enum PopupAction {

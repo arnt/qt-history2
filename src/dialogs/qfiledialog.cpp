@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#315 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#316 $
 **
 ** Implementation of QFileDialog class
 **
@@ -53,6 +53,7 @@
 #include "qsplitter.h"
 #include "qprogressdialog.h"
 #include "qmap.h"
+#include "qnetworkprotocol.h"
 
 #include <time.h>
 #include <ctype.h>
@@ -1559,22 +1560,20 @@ void QFileDialog::init()
     d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
 
-    connect( &d->url, SIGNAL( start( int ) ),
-             this, SLOT( urlStart( int ) ) );
-    connect( &d->url, SIGNAL( finished( int ) ),
-             this, SLOT( urlFinished( int ) ) );
-    connect( &d->url, SIGNAL( entry( const QUrlInfo & ) ),
-             this, SLOT( insertEntry( const QUrlInfo & ) ) );
-    connect( &d->url, SIGNAL( removed( const QString & ) ),
-             this, SLOT( removeEntry( const QString & ) ) );
-    connect( &d->url, SIGNAL( createdDirectory( const QUrlInfo & ) ),
-             this, SLOT( createdDirectory( const QUrlInfo & ) ) );
-    connect( &d->url, SIGNAL( error( int, const QString & ) ),
-             this, SLOT( error( int, const QString & ) ) );
-    connect( &d->url, SIGNAL( itemChanged( const QString &, const QString & ) ),
-             this, SLOT( itemChanged( const QString &, const QString & ) ) );
-    connect( &d->url, SIGNAL( copyProgress( const QString &, const QString &, int, int ) ),
-             this, SLOT( copyProgress( const QString &, const QString &, int, int ) ) );
+    connect( &d->url, SIGNAL( start( QNetworkOperation * ) ),
+             this, SLOT( urlStart( QNetworkOperation * ) ) );
+    connect( &d->url, SIGNAL( finished( QNetworkOperation * ) ),
+             this, SLOT( urlFinished( QNetworkOperation * ) ) );
+    connect( &d->url, SIGNAL( newChild( const QUrlInfo &, QNetworkOperation * ) ),
+             this, SLOT( insertEntry( const QUrlInfo &, QNetworkOperation * ) ) );
+    connect( &d->url, SIGNAL( removed( QNetworkOperation * ) ),
+             this, SLOT( removeEntry( QNetworkOperation * ) ) );
+    connect( &d->url, SIGNAL( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ),
+             this, SLOT( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
+    connect( &d->url, SIGNAL( itemChanged( QNetworkOperation * ) ),
+             this, SLOT( itemChanged( QNetworkOperation * ) ) );
+    connect( &d->url, SIGNAL( copyProgress( int, int, QNetworkOperation * ) ),
+             this, SLOT( copyProgress( int, int, QNetworkOperation * ) ) );
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
     connect( nameEdit, SIGNAL(textChanged(const QString&)),
@@ -2098,7 +2097,7 @@ bool QFileDialog::showHiddenFiles() const
 
 void QFileDialog::rereadDir()
 {
-    d->url.listEntries();
+    d->url.listChildren();
 }
 
 
@@ -2879,21 +2878,6 @@ void QFileDialog::deleteFile( const QString &filename )
 
 }
 
-void QFileDialog::error( int ecode, const QString &msg )
-{
-    if ( d->paths->hasFocus() )
-	d->ignoreNextKeyPress = TRUE;
-
-    QMessageBox::critical( this, tr( "ERROR" ), msg );
-
-    if ( ecode == QUrlOperator::ErrReadDir || ecode == QUrlOperator::ErrParse ||
-	 ecode == QUrlOperator::ErrUnknownProtocol || ecode == QUrlOperator::ErrLoginIncorrect ||
-	 ecode == QUrlOperator::ErrValid ) {
-	d->url = d->oldUrl;
-	rereadDir();
-    }
-}
-
 void QFileDialog::fileSelected( int  )
 {
     // unused
@@ -2937,7 +2921,7 @@ void QFileDialog::newFolderClicked()
     d->url.mkdir( dirname );
 }
 
-void QFileDialog::createdDirectory( const QUrlInfo &info )
+void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
 {
     if ( d->moreFiles->isVisible() ) {
 	for ( uint i = 0; i < d->moreFiles->count(); ++i ) {
@@ -3583,9 +3567,9 @@ QUrlOperator QFileDialog::url() const
     return d->url;
 }
 
-void QFileDialog::urlStart( int action )
+void QFileDialog::urlStart( QNetworkOperation *op )
 {
-    if ( action == QUrlOperator::ActListDirectory ) {
+    if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 	d->moreFiles->clear();
 	files->clear();
 	files->setSorting( -1 );
@@ -3605,18 +3589,31 @@ void QFileDialog::urlStart( int action )
 	    d->cdToParent->setEnabled( FALSE );
 	else
 	    d->cdToParent->setEnabled( TRUE );
-    } else if ( action == QUrlOperator::ActCopyFiles ) {
+    } else if ( op->operation() == QNetworkProtocol::OpCopy ) {
 	d->progressDia = new QProgressDialog( this, "", TRUE );
 	d->progressDia->setCaption( tr( "Copy File" ) );
-    } else if ( action == QUrlOperator::ActMoveFiles ) {
+    } else if ( op->operation() == QNetworkProtocol::OpMove ) {
 	d->progressDia = new QProgressDialog( this, "", TRUE );
 	d->progressDia->setCaption( tr( "Move File" ) );
     }
 }
 
-void QFileDialog::urlFinished( int action )
+void QFileDialog::urlFinished( QNetworkOperation *op )
 {
-    if ( action == QUrlOperator::ActListDirectory ) {
+    if ( op && op->state() == QNetworkProtocol::StFailed ) {
+	if ( d->paths->hasFocus() )
+	d->ignoreNextKeyPress = TRUE;
+
+	QMessageBox::critical( this, tr( "ERROR" ), op->protocolDetail() );
+
+	int ecode = op->errorCode();
+	if ( ecode == QNetworkProtocol::ErrReadDir || ecode == QNetworkProtocol::ErrParse ||
+	     ecode == QNetworkProtocol::ErrUnknownProtocol || ecode == QNetworkProtocol::ErrLoginIncorrect ||
+	     ecode == QNetworkProtocol::ErrValid ) {
+	    d->url = d->oldUrl;
+	    rereadDir();
+	}
+    } else if ( op->operation() == QNetworkProtocol::OpListChildren ) {
 	if ( !d->hadDotDot && d->url.path() != "/" ) {
 	    QUrlInfo ui( d->url, ".." );
 	    ui.setName( ".." );
@@ -3624,10 +3621,11 @@ void QFileDialog::urlFinished( int action )
 	    ui.setFile( FALSE );
 	    ui.setSymLink( FALSE );
 	    ui.setSize( 0 );
-	    insertEntry( ui );
+	    insertEntry( ui, 0 );
 	}
 	resortDir();
-    } else if ( ( action == QUrlOperator::ActCopyFiles || action == QUrlOperator::ActMoveFiles ) &&
+    } else if ( ( op->operation() == QNetworkProtocol::OpCopy ||
+		  op->operation() == QNetworkProtocol::OpMove ) &&
 		d->progressDia ) {
 	delete d->progressDia;
 	d->progressDia = 0;
@@ -3635,15 +3633,14 @@ void QFileDialog::urlFinished( int action )
     }
 }
 
-void QFileDialog::copyProgress( const QString &from, const QString &to,
-				int step, int total )
+void QFileDialog::copyProgress( int step, int total, QNetworkOperation *op )
 {
     if ( !d->progressDia )
 	return;
 
     if ( !d->progressDia->isVisible() || step == -1 ) {
 	QLabel *l = new QLabel( d->progressDia );
-	l->setText( tr( "From: %1\nTo: %2" ).arg( from ).arg( to ) );
+	l->setText( tr( "From: %1\nTo: %2" ).arg( op->arg1() ).arg( op->arg2() ) );
 	d->progressDia->setLabel( l );
 	d->progressDia->reset();
 	d->progressDia->setMinimumDuration( 0 );
@@ -3654,7 +3651,7 @@ void QFileDialog::copyProgress( const QString &from, const QString &to,
     d->progressDia->setProgress( step );
 }
 
-void QFileDialog::insertEntry( const QUrlInfo &inf )
+void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )
 {
     if ( inf.name() == ".." ) {
 	d->hadDotDot = TRUE;
@@ -3681,11 +3678,11 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
     i->i = i2;
 }									
 
-void QFileDialog::removeEntry( const QString &filename )
+void QFileDialog::removeEntry( QNetworkOperation *op )
 {
     QListViewItemIterator it( files );
     for ( ; it.current(); ++it ) {
-	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == filename ) {
+	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == op->arg1() ) {
 	    delete ( (QFileDialogPrivate::File*)it.current() )->i;
 	    delete it.current();
 	    break;
@@ -3693,16 +3690,16 @@ void QFileDialog::removeEntry( const QString &filename )
     }
 }									
 
-void QFileDialog::itemChanged( const QString &oldname, const QString &newname )
+void QFileDialog::itemChanged( QNetworkOperation *op )
 {
     QListViewItemIterator it( files );
     for ( ; it.current(); ++it ) {
-	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == oldname ) {
-	    ( (QFileDialogPrivate::File*)it.current() )->info.setName( newname );
+	if ( ( (QFileDialogPrivate::File*)it.current() )->info.name() == op->arg1() ) {
+	    ( (QFileDialogPrivate::File*)it.current() )->info.setName( op->arg2() );
 	    break;
 	}
     }
-    
+
     resortDir();
 }
 

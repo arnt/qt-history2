@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#23 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#24 $
 **
 ** Implementation of Network Extension Library
 **
@@ -63,22 +63,55 @@ QFtp::~QFtp()
     delete dataSocket;
 }
 
-void QFtp::openConnection( QUrlOperator *u )
+void QFtp::operationListChildren( QNetworkOperation *op )
 {
-    QNetworkProtocol::openConnection( u );
+    commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+    passiveMode = TRUE;
+}
+
+void QFtp::operationMkDir( QNetworkOperation *op )
+{
+    QString cmd( "MKD " + op->arg1() + "\r\n" );
+    commandSocket->writeBlock( cmd, cmd.length() );
+}
+
+void QFtp::operationRemove( QNetworkOperation *op )
+{
+}
+
+void QFtp::operationRename( QNetworkOperation *op )
+{
+}
+
+void QFtp::operationCopy( QNetworkOperation *op )
+{
+}
+
+void QFtp::operationGet( QNetworkOperation *op )
+{
+}
+
+bool QFtp::checkConnection( QNetworkOperation *op )
+{
+    if ( !commandSocket->host().isEmpty() && connectionReady &&
+	 !passiveMode )
+	return TRUE;
+    
+    if ( !commandSocket->host().isEmpty() )
+	return FALSE;
+    
     connectionReady = FALSE;
     if ( commandSocket->connectToHost( url->host(), url->port() != -1 ? url->port() : 21 ) ) {
 	if ( !dataSocket->host().isEmpty() )
 	    dataSocket->close();
-	extraData = QString::null;
     } else {
-	emit error( QUrlOperator::ErrHostNotFound, tr( "Host\n%1\nbot found!" ).arg( u->host() ) );
+	QString msg = tr( "Host not found: \n" + url->host() );
+	op->setState( StFailed );
+	op->setProtocolDetail( msg );
+	op->setErrorCode( ErrHostNotFound );
     }
-}
-
-bool QFtp::isOpen()
-{
-    return !commandSocket->host().isEmpty();
+    
+    return FALSE;
 }
 
 void QFtp::close()
@@ -92,56 +125,9 @@ void QFtp::close()
     }
 }
 
-void QFtp::listEntries()
-{
-    if ( !isOpen() ) {
-	if ( url )
-	    openConnection( url );
-	else {
-	    qWarning( "Cannnot open FTP connection, URL is NULL!" );
-	    return;
-	}
-    }
-
-    command = List;
-    if ( connectionReady )
-	commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
-}
-
-void QFtp::mkdir( const QString &dirname )
-{
-    if ( !isOpen() ) {
-	if ( url )
-	    openConnection( url );
-	else {
-	    qWarning( "Cannnot open FTP connection, URL is NULL!" );
-	    return;
-	}
-    }
-
-    command = Mkdir;
-    extraData = dirname;
-    if ( connectionReady ) {
-	QString cmd( "MKD " + extraData + "\r\n" );
-	commandSocket->writeBlock( cmd, cmd.length() );
-    }
-}
-
-void QFtp::remove( const QString &/*filename*/ )
-{
-}
-
-void QFtp::rename( const QString &/*oldname*/, const QString &/*newname*/ )
-{
-}
-
-void QFtp::copy( const QStringList &/*files*/, const QString &/*dest*/, bool /*move*/ )
-{
-}
-
 int QFtp::supportedOperations() const
 {
-    return OpListEntries | OpMkdir | OpRemove | OpRename | OpCopy | OpUrlIsDir;
+    return OpListChildren | OpMkdir | OpRemove | OpRename | OpCopy | OpMove;
 }
 
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
@@ -169,7 +155,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 	info.setDir( FALSE );
 	info.setFile( TRUE );
 	info.setSymLink( FALSE );
-    } else if ( tmp_[ 0 ] == QChar( 'l' ) ) { 
+    } else if ( tmp_[ 0 ] == QChar( 'l' ) ) {
 	info.setDir( TRUE ); // #### todo
 	info.setFile( FALSE );
 	info.setSymLink( TRUE );
@@ -223,8 +209,8 @@ void QFtp::readyRead()
     QCString s;
     s.resize( commandSocket->bytesAvailable() );
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
-
-    emit data( s );
+    
+    emit data( s, opInProgress );
 
     if ( !url )
 	return;
@@ -241,21 +227,8 @@ void QFtp::readyRead()
 	connectionReady = FALSE;
     } else if ( s.left( 3 ) == "230" ) { // succesfully logged in
 	connectionReady = TRUE;
-	switch ( command ) {
-	case List: {
-	    if ( !passiveMode ) {
-		passiveMode = TRUE;
-		commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
-	    }
-	    } break;
-	case Mkdir: {
-	    QString cmd( "MKD " + extraData + "\r\n" );
-	    commandSocket->writeBlock( cmd, cmd.length() );
-	} break;
-	case None:
-	    break;
-	}
-    } else if ( s.left( 3 ) == "227" ) { // open the data connection for LIST
+    } else if ( s.left( 3 ) == "227" && opInProgress && 
+		opInProgress->operation() == OpListChildren ) { // open the data connection for LIST
 	int i = s.find( "(" );
 	int i2 = s.find( ")" );
 	s = s.mid( i + 1, i2 - i - 1 );
@@ -264,62 +237,63 @@ void QFtp::readyRead()
 	QStringList lst = QStringList::split( ',', s );
 	int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
 	dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
-    } else if ( s.left( 3 ) == "250" ) { // cwd succesfully, list dir
+    } else if ( s.left( 3 ) == "250" && opInProgress && 
+		opInProgress->operation() == OpListChildren ) { // cwd succesfully, list dir
 	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
+	emit start( opInProgress );
     } else if ( s.left( 3 ) == "530" ) { // Login incorrect
 	close();
-	emit error( QUrlOperator::ErrLoginIncorrect, tr( "Login Incorrect" ) );
-	if ( url )
-	    url->emitError( QUrlOperator::ErrLoginIncorrect, tr( "Login Incorrect" ) );
+	QString msg( tr( "Login Incorrect" ) );
+	if ( opInProgress )
+	    opInProgress->setProtocolDetail( msg );
+	emit finished( opInProgress );
     } else
 	;//qWarning( "unknown result: %s", s.data() );
 }
 
 void QFtp::dataHostFound()
 {
-    emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
 }
 
 void QFtp::dataConnected()
 {
-    emit connectionStateChanged( ConHostFound, tr( "Connected to host" ) );
-
-    QString path = url->path().isEmpty() ? QString( "/" ) : url->path();
-    QString cmd = "CWD " + path + "\r\n";
-    commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-    tmp = QString::null;
+    if ( opInProgress && opInProgress->operation() == OpListChildren ) {
+	QString path = url->path().isEmpty() ? QString( "/" ) : url->path();
+	QString cmd = "CWD " + path + "\r\n";
+	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
+	tmp = QString::null;
+    }
 }
 
 void QFtp::dataClosed()
 {
-    emit finished( QUrlOperator::ActListDirectory );
     emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
     passiveMode = FALSE;
-    if ( url )
-	url->emitFinished( QUrlOperator::ActListDirectory );
+    emit finished( opInProgress );
 }
 
 void QFtp::dataReadyRead()
 {
-    QCString s;
-    s.resize( dataSocket->bytesAvailable() );
-    dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
-    QString ss = QString::fromLatin1( s.copy() );
-    emit data( s );
-    if ( !tmp.isEmpty() )
-	ss.prepend( tmp );
-    tmp = QString::null;
-    QStringList lst = QStringList::split( '\n', ss );
-    QStringList::Iterator it = lst.begin();
-    for ( ; it != lst.end(); ++it ) {
-	QUrlInfo inf;
-	parseDir( *it, inf );
-	if ( !inf.name().isEmpty() ) {
-	    if ( url ) {
-		QRegExp filt( url->nameFilter(), FALSE, TRUE );
-		if ( inf.isDir() || filt.match( inf.name() ) != -1 ) {
-		    url->emitEntry( inf );
-		    emit entry( inf );
+    if ( opInProgress && opInProgress->operation() == OpListChildren ) {
+	QCString s;
+	s.resize( dataSocket->bytesAvailable() );
+	dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
+	QString ss = QString::fromLatin1( s.copy() );
+	emit data( s, opInProgress );
+	if ( !tmp.isEmpty() )
+	    ss.prepend( tmp );
+	tmp = QString::null;
+	QStringList lst = QStringList::split( '\n', ss );
+	QStringList::Iterator it = lst.begin();
+	for ( ; it != lst.end(); ++it ) {
+	    QUrlInfo inf;
+	    parseDir( *it, inf );
+	    if ( !inf.name().isEmpty() ) {
+		if ( url ) {
+		    QRegExp filt( url->nameFilter(), FALSE, TRUE );
+		    if ( inf.isDir() || filt.match( inf.name() ) != -1 ) {
+			emit newChild( inf, opInProgress );
+		    }
 		}
 	    }
 	}
