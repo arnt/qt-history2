@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#298 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#299 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#298 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#299 $");
 
 
 /*****************************************************************************
@@ -2560,7 +2560,7 @@ static void cleanupTimers()			// cleanup timer data structure
     if ( timerList ) {
 	delete timerList;
 	timerList = 0;
-	delete [] timerBitVec;
+	delete timerBitVec;
 	timerBitVec = 0;
     }
 }
