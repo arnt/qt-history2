@@ -19,12 +19,18 @@ public slots:
 	void generate();
 	void clickedLib( int );
 	void clickedThread( int );
+	void FillCompilers( const QString& strPlatform );
 
 private:
 	CConfigView* m_pConfigView;
 	QLineEdit* m_pOutNameEdit;
-	QComboBox* m_pOutFormat;
+	QComboBox* m_pCompiler;
+	QComboBox* m_pPlatform;
+	QLineEdit* m_pOptions;
 
 	bool m_bShared;
 	bool m_bThreaded;
+
+private:
+	void FillPlatforms();
 };

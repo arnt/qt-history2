@@ -10,6 +10,7 @@
 #include <qlabel.h>
 #include <qhbox.h>
 #include <qvbox.h>
+#include <qdir.h>
 #include <stdlib.h>
 
 #include "dialogwidget.h"
@@ -34,7 +35,9 @@ CDialogWidget::CDialogWidget( QWidget* pParent, const char* pName, WFlags f ) :
 	QRadioButton* pSharedLib;
 	QRadioButton* pStaticLib;
 	QLabel* pOutNameLabel;
-	QLabel* pOutFormatLabel;
+	QLabel* pPlatformLabel;
+	QLabel* pCompilerLabel;
+	QLabel* pOptionsLabel;
 	QPushButton* pCloseButton;
 	QPushButton* pGenerateButton;
 
@@ -58,10 +61,14 @@ CDialogWidget::CDialogWidget( QWidget* pParent, const char* pName, WFlags f ) :
 	pOutputGroup = new QGroupBox( 2, Qt::Horizontal, "Output options", pProjectSettingsBox );
 	pOutNameLabel = new QLabel( "Output filename", pOutputGroup );
 	m_pOutNameEdit = new QLineEdit( "Makefile", pOutputGroup );
-	pOutFormatLabel = new QLabel( "Output format", pOutputGroup );
-	m_pOutFormat = new QComboBox( false, pOutputGroup );
-	m_pOutFormat->insertItem( "Makefile", 0 );
-	m_pOutFormat->insertItem( "Visual Studio project", 1 );
+	pPlatformLabel = new QLabel( "Platform", pOutputGroup );
+	m_pPlatform = new QComboBox( false, pOutputGroup );
+	FillPlatforms();
+	pCompilerLabel = new QLabel( "Compiler", pOutputGroup );
+	m_pCompiler = new QComboBox( false, pOutputGroup );
+	FillCompilers( m_pPlatform->currentText() );
+	pOptionsLabel = new QLabel( "Extra options", pOutputGroup );
+	m_pOptions = new QLineEdit( pOutputGroup );
 	pButtonBox = new QHBox( pProjectSettingsBox );
 	pGenerateButton = new QPushButton( "Generate", pButtonBox );
 	pCloseButton = new QPushButton( "Close", pButtonBox );
@@ -83,6 +90,7 @@ CDialogWidget::CDialogWidget( QWidget* pParent, const char* pName, WFlags f ) :
 	connect( pGenerateButton, SIGNAL( clicked() ), this, SLOT( generate() ) );
 	connect( pLibGroup, SIGNAL( clicked( int ) ), this, SLOT( clickedLib( int ) ) );
 	connect( pThreadGroup, SIGNAL( clicked( int ) ), this, SLOT( clickedThread( int ) ) );
+	connect( m_pPlatform, SIGNAL( activated( const QString& ) ), this, SLOT( FillCompilers( const QString& ) ) );
 }
 
 CDialogWidget::~CDialogWidget( )
@@ -120,11 +128,11 @@ void CDialogWidget::generate()
 		strQMake += " \"DEFINES+=QT_MAKEDLL\"";
 	}
 
-	if ( m_pOutFormat->currentItem() )
+	strQMake += " -mkspec " + m_pPlatform->currentText() + "-" + m_pCompiler->currentText() + " -o " + m_pOutNameEdit->text();
+	if ( m_pOptions->text().length() )
 	{
-		strQMake += " -win32 -t vclib";
+		strQMake += " " + m_pOptions->text();
 	}
-	strQMake += " -o " + m_pOutNameEdit->text();
 	qDebug( strQMake );
 	system( strQMake.latin1() );
 }
@@ -137,4 +145,41 @@ void CDialogWidget::clickedLib( int nID )
 void CDialogWidget::clickedThread( int nID )
 {
 	m_bThreaded = nID;
+}
+
+void CDialogWidget::FillCompilers( const QString& strPlatform )
+{
+	QDir mkspecDir( QString( getenv( "QTDIR" ) ) + "/mkspecs", strPlatform + "*", QDir::Name | QDir::IgnoreCase, QDir::Files );
+	const QFileInfoList* mkspecs = mkspecDir.entryInfoList();
+	QFileInfoListIterator mkspecIterator( *mkspecs );
+	QFileInfo* mkspec;
+	
+	m_pCompiler->clear();
+	while ( ( mkspec = mkspecIterator.current() ) )
+	{
+		qDebug( "filename = \"%s\"\n", mkspec->fileName().latin1() );
+		m_pCompiler->insertItem( mkspec->fileName().mid( strPlatform.length() + 1 ) );
+		++mkspecIterator;
+	}
+}
+
+void CDialogWidget::FillPlatforms()
+{
+	QDir mkspecDir( QString( getenv( "QTDIR" ) ) + "/mkspecs", QString::null, QDir::Name | QDir::IgnoreCase, QDir::Files );
+	const QFileInfoList* mkspecs = mkspecDir.entryInfoList();
+	QFileInfoListIterator mkspecIterator( *mkspecs );
+	QFileInfo* mkspec;
+	QString strLast,strThis;
+
+	while ( ( mkspec = mkspecIterator.current() ) )
+	{
+		strThis = mkspec->fileName().left( mkspec->fileName().find( '-' ) );
+		qDebug( "strLast = \"%s\" strThis = \"%s\"\n", strLast.latin1(), strThis.latin1() );
+		if ( strThis != strLast )
+		{
+			strLast = strThis;
+			m_pPlatform->insertItem( strThis );
+		}
+		++mkspecIterator;
+	}
 }
