@@ -1,7 +1,6 @@
-
+#include "qsqldatabase.h"
 #ifndef QT_NO_SQL
 
-#include "qsqldatabase.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldriverplugin.h"
