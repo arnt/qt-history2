@@ -4,7 +4,7 @@
 #include <qtextview.h>
 #include <qpushbutton.h>
 #include <qmessagebox.h>
-#include "uninstall.h"
+#include "uninstallimpl.h"
 #include "../environment.h"
 
 QApplication* app;
@@ -37,7 +37,7 @@ void rmDirRecursive( const QDir &dir )
 int main( int argc, char** argv )
 {
     app = new QApplication( argc, argv );
-    progress = new UninstallDlg( 0, 0, 0, Qt::WStyle_Customize|Qt::WStyle_NormalBorder|Qt::WStyle_Title);
+    progress = new UninstallDlgImpl( 0, 0, 0, Qt::WStyle_Customize|Qt::WStyle_NormalBorder|Qt::WStyle_Title);
     
     if( argc != 4 )
 	qFatal( "Incorrect parameters" );
@@ -61,6 +61,7 @@ int main( int argc, char** argv )
 	rmDirRecursive( QDir(argv[2]) );
     
 	progress->okButton->setEnabled( true );
+	progress->cleanRegButton->setEnabled( true );
 	/*
 	** Just hang around until someone clicks the "OK" button
 	*/
