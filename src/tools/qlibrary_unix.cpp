@@ -59,7 +59,7 @@ bool QLibraryPrivate::loadLibrary()
     pHnd = (void*)shl_load( filename.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !pHnd )
-	qWarning( "Failed to load library %s!", filename.latin1() );
+	qWarning( "%s: failed to load library!", filename.latin1() );
 #endif
     return pHnd != 0;
 }
@@ -71,7 +71,8 @@ bool QLibraryPrivate::freeLibrary()
 
     if ( shl_unload( (shl_t)pHnd ) ) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-	qWarning( "Failed to unload library!" );
+	QString filename = library->library();
+	qWarning( "%s: Failed to unload library!", filename.latin1() );
 #endif
 	return FALSE;
     }
@@ -87,7 +88,8 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
     void* address = 0;
     if ( shl_findsym( (shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address ) < 0 ) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-	qWarning( "Couldn't resolve symbol \"%s\"", symbol );
+	QString filename = library->library();
+	qWarning( "%s: couldn't resolve symbol \"%s\"", filename.latin1(), symbol );
 #endif
     }
     return address;
