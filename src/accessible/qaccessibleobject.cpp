@@ -179,9 +179,36 @@ int QAccessibleObject::defaultAction(int) const
 /*!
     \reimp
 */
-QString QAccessibleObject::actionText(int, Text, int) const
+QString QAccessibleObject::actionText(int action, Text t, int) const
 {
-    return QString();
+    // #### these strings need to be i18n'ed
+    QString str;
+    if (t == Name) switch (action) {
+    case Press:
+	str = "Press";
+	break;
+    case SetFocus:
+	str = "Set Focus";
+	break;
+    case Increase:
+	str = "Increase";
+	break;
+    case Decrease:
+	str = "Decrease";
+	break;
+    case Accept:
+	str = "Accept";
+	break;
+    case Select:
+	str = "Select";
+	break;
+    case Cancel:
+	str = "Cancel";
+	break;
+    default:
+	break;
+    }
+    return str;
 }
 
 /*!
@@ -361,10 +388,16 @@ bool QAccessibleApplication::doAction(int action, int child)
 /*! \reimp */
 QString QAccessibleApplication::actionText(int action, Text text, int child) const
 {
-    if (action != SetFocus || text != Name || child)
-	return QString();
-
-    return QApplication::tr("Activate");
+    QString str;
+    if (action == defaultAction(child) && !child) switch (text) {
+    case Name:
+	str = QApplication::tr("Activate");
+	break;
+    case Description:
+	str = QApplication::tr("Activates the application main widget");
+	break;
+    }
+    return str;
 }
 
 #endif //QT_ACCESSIBILITY_SUPPORT

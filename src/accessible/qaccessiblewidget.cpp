@@ -100,7 +100,6 @@ public:
     QString value;
     QString help;
     int	    defAction;
-    QString defActionName;
     QString accelerator;
     QStringList primarySignals;
     const QAccessibleInterface *asking;
@@ -760,28 +759,6 @@ int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
 }
 
 /*! \reimp */
-bool QAccessibleWidget::doAction(int action, int child)
-{
-    if (child)
-	qWarning("QAccessibleWidget::doAction: This implementation does not support subelements! (ID %d unknown for %s)", child, widget()->className());
-
-    if (action == SetFocus && widget()->focusPolicy() != QWidget::NoFocus) {
-	widget()->setFocus();
-	return TRUE;
-    }
-    return FALSE;
-}
-
-/*! \reimp */
-int QAccessibleWidget::defaultAction(int child) const
-{
-    if (child)
-	qWarning("QAccessibleWidget::defaultAction: This implementation does not support subelements! (ID %d unknown for %s)", child, widget()->className());
-
-    return SetFocus;
-}
-
-/*! \reimp */
 QString QAccessibleWidget::text(Text t, int child) const
 {
     QString str;
@@ -823,11 +800,25 @@ QString QAccessibleWidget::text(Text t, int child) const
 }
 
 /*! \reimp */
-QString QAccessibleWidget::actionText(int action, Text t, int child) const
+bool QAccessibleWidget::doAction(int action, int child)
 {
-    if (child || t != Name || action != defaultAction(0))
-	return QString();
-    return d->defActionName;
+    if (action != SetFocus || child)
+	return FALSE;
+    if (widget()->focusPolicy() != QWidget::NoFocus)
+	widget()->setFocus();
+    else if (widget()->isTopLevel())
+	widget()->setActiveWindow();
+    else
+	return FALSE;
+    return TRUE;
+}
+
+/*! \reimp */
+int QAccessibleWidget::defaultAction(int child) const
+{
+    if (!child && (widget()->focusPolicy() != QWidget::NoFocus || widget()->isTopLevel()))
+	return SetFocus;
+    return QAccessibleObject::defaultAction(child);
 }
 
 /*! \reimp */

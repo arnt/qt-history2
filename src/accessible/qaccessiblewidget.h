@@ -42,7 +42,6 @@ public:
 
     int		defaultAction(int child) const;
     bool	doAction(int action, int child);
-    QString	actionText(int action, Text t, int child) const;
 
 protected:
     ~QAccessibleWidget();
