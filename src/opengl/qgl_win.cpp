@@ -896,30 +896,30 @@ void *QGLContext::getProcAddress(const QString &proc) const
   QGLWidget Win32/WGL-specific code
  *****************************************************************************/
 
-void QGLWidget::init(QGLContext *ctx, const QGLWidget* shareWidget)
+void QGLWidgetPrivate::init(QGLContext *ctx, const QGLWidget* shareWidget)
 {
-    d->glcx = 0;
-    d->autoSwap = true;
+    glcx = 0;
+    autoSwap = true;
 
     if (!ctx->device())
-        ctx->setDevice(this);
+        ctx->setDevice(q);
 
     if (shareWidget) {
-        setContext(ctx, shareWidget->context());
+        q->setContext(ctx, shareWidget->context());
     } else {
-        setContext(ctx);
+        q->setContext(ctx);
     }
-    setAttribute(Qt::WA_NoSystemBackground, true);
+    q->setAttribute(Qt::WA_NoSystemBackground, true);
 
-    if (isValid() && context()->format().hasOverlay()) {
-        d->olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
-        if (!d->olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
-            delete d->olcx;
-            d->olcx = 0;
-            d->glcx->d->glFormat.setOverlay(false);
+    if (q->isValid() && q->context()->format().hasOverlay()) {
+        olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), q);
+        if (!olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
+            delete olcx;
+            olcx = 0;
+            glcx->d->glFormat.setOverlay(false);
         }
     } else {
-        d->olcx = 0;
+        olcx = 0;
     }
 }
 
