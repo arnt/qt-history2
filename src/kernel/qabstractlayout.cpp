@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#45 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -246,8 +246,7 @@ static QSize smartMinSize( QWidget *w )
 {
     QSize s(0,0);
     if ( w->layout() ) {
-	//###this is hacky
-	s = w->layout()->minimumSize();
+	s = w->layout()->totalMinimumSize();
     } else {
 	if ( w->sizePolicy().mayShrinkHorizontally() )
 	    s.setWidth( w->minimumSizeHint().width() );
@@ -744,7 +743,8 @@ void QLayout::setWidgetLayout( QWidget *w, QLayout *l )
 
 
 /*! \fn QSize QLayout::minSize()
-  Returns the minimum size this layout needs.
+  Returns the minimum size this layout needs. Does not include what's
+  needed by margin() or menuBar().
 */
 
 
@@ -817,7 +817,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	}
 	break;
     }
-    case QEvent::ChildInserted: 
+    case QEvent::ChildInserted:
 	if ( topLevel && autoNewChild ) {
 	    QChildEvent *c = (QChildEvent*)e;
 	    if ( c->child()->isWidgetType() ) {
@@ -841,8 +841,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 
 /*!
   \internal
-  Also takes margin() and menu bar into account. May change name
-  or disappear altogether if we find a better solution.
+  Also takes margin() and menu bar into account. 
 */
 
 int QLayout::totalHeightForWidth( int w ) const
@@ -853,6 +852,63 @@ int QLayout::totalHeightForWidth( int w ) const
 	h += menubar->heightForWidth( w );
     return h;
 }
+
+/*!
+  \internal
+  Also takes margin() and menu bar into account. 
+*/
+
+QSize QLayout::totalMinimumSize() const
+{
+    int b = topLevel ? 2*outsideBorder : 0;
+
+    QSize s = minimumSize();
+    int h = b;
+    if ( menubar )
+	h += menubar->heightForWidth( s.width() );
+    return s + QSize(b,h);
+}
+
+
+
+/*!
+  \internal
+  Also takes margin() and menu bar into account. 
+*/
+
+QSize QLayout::totalSizeHint() const
+{
+    int b = topLevel ? 2*outsideBorder : 0;
+
+    QSize s = sizeHint();
+    int h = b;
+    if ( menubar )
+	h += menubar->heightForWidth( s.width() );
+    return s + QSize(b,h);
+}
+
+
+/*!
+  \internal
+  Also takes margin() and menu bar into account. 
+*/
+
+QSize QLayout::totalMaximumSize() const
+{
+    int b = topLevel ? 2*outsideBorder : 0;
+
+    QSize s = maximumSize();
+    int h = b;
+    if ( menubar )
+	h += menubar->heightForWidth( s.width() );
+
+    if ( isTopLevel() )
+	s = QSize( QMIN( s.width() + b, QWIDGETSIZE_MAX ),
+	           QMIN( s.height() + h, QWIDGETSIZE_MAX ) );
+    return s;
+}
+
+
 
 
 /*!
@@ -932,7 +988,7 @@ void QLayout::freeze( int w, int h )
   child widgets are placed below the bottom edge of the menu bar.
 
   A menu bar does its own geometry managing, never do addWidget()
-  on a menu bar.
+  on a QMenuBar.
 */
 
 void QLayout::setMenuBar( QMenuBar *w )
@@ -945,12 +1001,14 @@ void QLayout::setMenuBar( QMenuBar *w )
   \fn QSize QLayout::sizeHint()
 
   Implemented in subclasses to return the preferred size of this layout.
+  Not including what's needed by margin() or menuBar().
 */
 
 /*!
   Returns the minimum size of this layout. This is the smallest size
   that the layout can have, while still respecting the specifications.
-
+  Does not include what's  needed by margin() or menuBar().
+  
   The default implementation allows unlimited resizing.
 */
 
@@ -963,6 +1021,7 @@ QSize QLayout::minimumSize() const
 /*!
   Returns the maximum size of this layout. This is the largest size
   that the layout can have, while still respecting the specifications.
+  Does not include what's  needed by margin() or menuBar().
 
   The default implementation allows unlimited resizing.
 */
@@ -1028,9 +1087,9 @@ bool QLayout::activate()
 			s.width() - 2*outsideBorder,
 			s.height() - mbh - 2*outsideBorder ) );
     if ( frozen )
-	mainWidget()->setFixedSize( sizeHint() ); //### will trigger resize
+	mainWidget()->setFixedSize( totalSizeHint() ); //### will trigger resize
     else if ( autoMinimum )
-	mainWidget()->setMinimumSize( minimumSize() );
+	mainWidget()->setMinimumSize( totalMinimumSize() );
 
     //###if ( sizeHint or sizePolicy has changed )
     mainWidget()->updateGeometry();
@@ -1337,18 +1396,20 @@ QLayout::ResizeMode QLayout::resizeMode() const
 }
 
 
-/*! \fn bool autoAdd() const
-  Returns TRUE if this layout automatically grabs all new mainWidget()'s
-  new children and adds them as defined by addItem().
+/*! \fn bool QLayout::autoAdd() const
+  Returns TRUE if this layout automatically grabs all new
+  mainWidget()'s new children and adds them as defined by
+  addItem(). This only has effect for top-level layouts, ie. layouts
+  that are direct children of their mainWidget().
 
   autoAdd() is disabled by default.
-  
+
   \sa setAutoAdd()
 */
 
 /*!
   Sets autoAdd() if \a b is TRUE.
-  
+
   \sa autoAdd()
 */
 

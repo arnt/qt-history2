@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#93 $
 **
 ** Implementation of layout classes
 **
@@ -948,10 +948,7 @@ int QGridLayout::numCols() const
 
 QSize QGridLayout::sizeHint() const
 {
-    QSize s =  array->sizeHint( spacing() );
-    if ( isTopLevel() )
-	s += QSize( 2*margin(), 2*margin() );
-    return s;
+    return array->sizeHint( spacing() );
 }
 /*!
   Returns the minimum size needed by this grid.
@@ -959,10 +956,7 @@ QSize QGridLayout::sizeHint() const
 
 QSize QGridLayout::minimumSize() const
 {
-    QSize s =  array->minimumSize( spacing() );
-    if ( isTopLevel() )
-	s += QSize( 2*margin(), 2*margin() );
-    return s;
+    return array->minimumSize( spacing() );
 }
 /*!
   Returns the maximum size needed by this grid.
@@ -970,11 +964,7 @@ QSize QGridLayout::minimumSize() const
 
 QSize QGridLayout::maximumSize() const
 {
-    QSize s =  array->maximumSize( spacing() );
-    if ( isTopLevel() )
-	s = QSize( QMIN( 2*margin()+s.width(), QWIDGETSIZE_MAX ),
-	           QMIN( 2*margin()+s.height(), QWIDGETSIZE_MAX ) );
-    return s;
+    return  array->maximumSize( spacing() );
 }
 
 
@@ -996,8 +986,8 @@ bool QGridLayout::hasHeightForWidth() const
 
 int QGridLayout::heightForWidth( int w ) const
 {
-    return ((QGridLayout*)this)->array->heightForWidth( w, spacing() )
-	+ 2*margin();
+    return ((QGridLayout*)this)->array->heightForWidth( w, spacing() );
+
 }
 
 

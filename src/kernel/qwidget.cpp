@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#395 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#396 $
 **
 ** Implementation of QWidget class
 **
@@ -3069,7 +3069,7 @@ void QWidget::adjustSize()
 QSize QWidget::sizeHint() const
 {
     if ( layout() )
-	return layout()->sizeHint();
+	return layout()->totalSizeHint();
     return QSize( -1, -1 );
 }
 
@@ -3089,7 +3089,7 @@ QSize QWidget::sizeHint() const
 QSize QWidget::minimumSizeHint() const
 {
     if ( layout() )
-	return layout()->minimumSize();
+	return layout()->totalMinimumSize();
     return QSize( -1, -1 );
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#18 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#19 $
 **
 ** Definition of the abstract layout base class
 **
@@ -174,7 +174,7 @@ public:
 
     virtual void setAutoAdd( bool );
     bool autoAdd() const { return autoNewChild; }
-    
+
     QRect geometry() const;
     bool activate();
 
@@ -189,6 +189,9 @@ public:
     bool isEmpty() const;
 
     int totalHeightForWidth( int w ) const;
+    QSize totalMinimumSize() const;
+    QSize totalMaximumSize() const;
+    QSize totalSizeHint() const;
 protected:
     bool  eventFilter( QObject *, QEvent * );
     void addChildLayout( QLayout *l );
