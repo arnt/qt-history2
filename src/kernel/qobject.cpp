@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#86 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#85 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#86 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1010,7 +1010,7 @@ static void err_member_notfound( int code, const QObject *object,
 
 
 /*----------------------------------------------------------------------------
-  \overload bool QObject::connect( QObject *sender, const char *signal, const char *member ) const
+  \overload bool QObject::connect( const QObject *sender, const char *signal, const char *member ) const
 
   Connects \e signal from the \e sender object to \e member in this object.
 
@@ -1504,14 +1504,22 @@ static void dumpRecursive( int level, QObject *object )
 }
 
 /*----------------------------------------------------------------------------
-  Dumps a tree of children to the debug device.	 Prints out
-  all signal connections.
+  Dumps a tree of children to the debug output.
+
+  This function is useful for debugging.
  ----------------------------------------------------------------------------*/
 
 void QObject::dumpObjectTree()
 {
     dumpRecursive( 0, this );
 }
+
+/*----------------------------------------------------------------------------
+  Dumps information about signal connections etc. for this object to the
+  debug output.
+
+  This function is useful for debugging.
+ ----------------------------------------------------------------------------*/
 
 void QObject::dumpObjectInfo()
 {
