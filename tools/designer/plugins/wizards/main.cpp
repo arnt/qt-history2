@@ -63,14 +63,11 @@ StandardTemplateWizardInterface::~StandardTemplateWizardInterface()
 
 bool StandardTemplateWizardInterface::init()
 {
-    qInitImages_wizards();
-
     return TRUE;
 }
 
 void StandardTemplateWizardInterface::cleanup()
 {
-    qCleanupImages_wizards();
 }
 
 bool StandardTemplateWizardInterface::canUnload() const
