@@ -952,13 +952,13 @@ void QWorkspace::maximizeWindow( QWidget* w)
 
     if ( c ) {
 	setUpdatesEnabled( FALSE );
-	c->setUpdatesEnabled( FALSE );
 	if (d->icons.contains(c->iconWidget()) )
 	    normalizeWindow( w );
 	QRect r( c->geometry() );
 	c->adjustToFullscreen();
 	c->show();
 	c->internalRaise();
+	qApp->sendPostedEvents( c, QEvent::ShowWindowRequest );
 	if ( d->maxWindow != c ) {
 	    if ( d->maxWindow )
 		d->maxWindow->setGeometry( d->maxRestore );
@@ -973,7 +973,6 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	    topLevelWidget()->setCaption( QString("%1 - [%2]")
 		.arg(d->topCaption).arg(c->caption()) );
 	inCaptionChange = FALSE;
-	c->setUpdatesEnabled( TRUE );
 	setUpdatesEnabled( TRUE );
     }
 }
@@ -2549,12 +2548,13 @@ void QWorkspaceChild::setCaption( const QString& cap )
 
 void QWorkspaceChild::internalRaise()
 {
+    setUpdatesEnabled( FALSE );
     raise();
 
-    if ( !windowWidget() )
+    if ( !windowWidget() || windowWidget()->testWFlags( WStyle_StaysOnTop ) ) {
+	setUpdatesEnabled( TRUE );
 	return;
-    if ( windowWidget()->testWFlags( WStyle_StaysOnTop ) )
-	return;
+    }
 
     QList<QWorkspaceChild> l = ((QWorkspace*)parent())->d->windows;
 
@@ -2564,6 +2564,7 @@ void QWorkspaceChild::internalRaise()
 	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
 	     c->raise();
     }
+    setUpdatesEnabled( TRUE );
 }
 
 bool QWorkspaceChild::isShaded() const
