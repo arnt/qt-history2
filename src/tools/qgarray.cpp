@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#46 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#47 $
 **
 ** Implementation of QGArray class
 **
@@ -407,12 +407,24 @@ void QGArray::store( const char *d, uint len )
   \fn array_data *QGArray::sharedBlock() const
   \internal
   Returns a pointer to the shared array block.
+
+  \warning
+  
+  Do not use this function.  Using it is begging for trouble.  We dare
+  not remove it, for fear of breaking code, but we \e strongly
+  discourage new use of it.
 */
 
 /*!
   \fn void QGArray::setSharedBlock( array_data *p )
   \internal
   Sets the shared array block to \e p.
+
+  \warning
+  
+  Do not use this function.  Using it is begging for trouble.  We dare
+  not remove it, for fear of breaking code, but we \e strongly
+  discourage new use of it.
 */
 
 
@@ -468,7 +480,7 @@ QGArray &QGArray::setRawData( const char *d, uint len )
   Resets raw data.
 
   The arguments must be the data and length that were passed to
-  setRawData().	 This is for consistency checking.
+  setRawData().  This is for consistency checking. 
 */
 
 void QGArray::resetRawData( const char *d, uint len )
