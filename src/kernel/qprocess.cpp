@@ -152,6 +152,22 @@
 */
 
 /*!
+  \enum QProcess::Communication
+
+  This enum type defines the communication channels connected to the
+  process.
+  \list
+
+  \i Stdin - data can be written to the process's stdin
+  \i Stdout - data can be read from the process's stdout
+  \i Stderr - data can be read from the process's stderr
+
+  \endlist
+
+  \sa setCommunication() communication()
+*/
+
+/*!
   Constructs a QProcess object. The \a parent and \a name parameters are passed
   to the QObject constructor.
 
@@ -160,7 +176,8 @@
 QProcess::QProcess( QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
     wroteToStdinConnected( FALSE ),
-    readStdoutCalled( FALSE ), readStderrCalled( FALSE )
+    readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
+    comms( Stdin|Stdout|Stderr )
 {
     init();
 }
@@ -177,7 +194,8 @@ QProcess::QProcess( QObject *parent, const char *name )
 QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
     wroteToStdinConnected( FALSE ),
-    readStdoutCalled( FALSE ), readStderrCalled( FALSE )
+    readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
+    comms( Stdin|Stdout|Stderr )
 {
     init();
     addArgument( arg0 );
@@ -197,7 +215,8 @@ QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
 QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
     wroteToStdinConnected( FALSE ),
-    readStdoutCalled( FALSE ), readStderrCalled( FALSE )
+    readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
+    comms( Stdin|Stdout|Stderr )
 {
     init();
     setArguments( args );
@@ -214,6 +233,16 @@ QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
 QStringList QProcess::arguments() const
 {
     return _arguments;
+}
+
+/*!
+  Clears the list of arguments that are set for the process.
+
+  \sa setArguments() addArgument()
+*/
+void QProcess::clearArguments()
+{
+    _arguments.clear();
 }
 
 /*!
@@ -268,6 +297,28 @@ void QProcess::setWorkingDirectory( const QDir& dir )
     workingDir = dir;
 }
 #endif //QT_NO_DIR
+
+/*!
+  Returns the communication required with the process.
+
+  \sa setCommunication()
+*/
+int QProcess::communication() const
+{
+    return comms;
+}
+
+/*!
+  Sets \a commFlags as the communication required with the process.
+
+  \a commFlags is a bitwise OR between the flags defined in \c Communication.
+
+  \sa communication()
+*/
+void QProcess::setCommunication( int commFlags )
+{
+    comms = commFlags;
+}
 
 /*!
   Returns TRUE if the process has exited normally; otherwise returns

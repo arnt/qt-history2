@@ -60,12 +60,19 @@ public:
 
     // set and get the arguments and working directory
     QStringList arguments() const;
+    void clearArguments();
     virtual void setArguments( const QStringList& args );
     virtual void addArgument( const QString& arg );
 #ifndef QT_NO_DIR
     QDir workingDirectory() const;
     virtual void setWorkingDirectory( const QDir& dir );
 #endif
+
+    // set and get the comms wanted
+    enum Communication { Stdin=0x01, Stdout=0x02, Stderr=0x04 };
+    void setCommunication( int c );
+    int communication() const;
+
     // start the execution
     virtual bool start( QStringList *env=0 );
     virtual bool launch( const QString& buf, QStringList *env=0  );
@@ -152,6 +159,7 @@ private:
 
     bool readStdoutCalled;
     bool readStderrCalled;
+    int comms;
 
     friend class QProcessPrivate;
 #if defined(Q_OS_UNIX)

@@ -57,6 +57,14 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#ifdef __MIPSEL__
+# ifndef SOCK_DGRAM
+#  define SOCK_DGRAM 1
+# endif
+# ifndef SOCK_STREAM
+#  define SOCK_STREAM 2
+# endif
+#endif
 
 //#define QT_QPROCESS_DEBUG
 
@@ -584,13 +592,13 @@ bool QProcess::start( QStringList *env )
     int sStderr[2];
 
     // open sockets for piping
-    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdin ) == -1 ) {
+    if ( (comms & Stdin) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdin ) == -1 ) {
 	return FALSE;
     }
-    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStderr ) == -1 ) {
+    if ( (comms & Stderr) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStderr ) == -1 ) {
 	return FALSE;
     }
-    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdout ) == -1 ) {
+    if ( (comms & Stdout) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdout ) == -1 ) {
 	return FALSE;
     }
 
@@ -630,12 +638,18 @@ bool QProcess::start( QStringList *env )
     if ( pid == 0 ) {
 	// child
 	d->closeOpenSocketsForChild();
-	::close( sStdin[1] );
-	::close( sStdout[0] );
-	::close( sStderr[0] );
-	::dup2( sStdin[0], STDIN_FILENO );
-	::dup2( sStdout[1], STDOUT_FILENO );
-	::dup2( sStderr[1], STDERR_FILENO );
+	if ( comms & Stdin ) {
+	    ::close( sStdin[1] );
+	    ::dup2( sStdin[0], STDIN_FILENO );
+	}
+	if ( comms & Stdout ) {
+	    ::close( sStdout[0] );
+	    ::dup2( sStdout[1], STDOUT_FILENO );
+	}
+	if ( comms & Stderr ) {
+	    ::close( sStderr[0] );
+	    ::dup2( sStderr[1], STDERR_FILENO );
+	}
 #ifndef QT_NO_DIR
 	::chdir( workingDir.absPath().latin1() );
 #endif
@@ -722,31 +736,36 @@ bool QProcess::start( QStringList *env )
 	::close( fd[0] );
     }
 
-    ::close( sStdin[0] );
-    ::close( sStdout[1] );
-    ::close( sStderr[1] );
-
     d->newProc( pid, this );
-    d->proc->socketStdin = sStdin[1];
-    d->proc->socketStdout = sStdout[0];
-    d->proc->socketStderr = sStderr[0];
 
-    // setup notifiers for the sockets
-    d->notifierStdin = new QSocketNotifier( sStdin[1], QSocketNotifier::Write );
-    d->notifierStdout = new QSocketNotifier( sStdout[0], QSocketNotifier::Read );
-    d->notifierStderr = new QSocketNotifier( sStderr[0], QSocketNotifier::Read );
-    connect( d->notifierStdin, SIGNAL(activated(int)),
-	    this, SLOT(socketWrite(int)) );
-    connect( d->notifierStdout, SIGNAL(activated(int)),
-	    this, SLOT(socketRead(int)) );
-    connect( d->notifierStderr, SIGNAL(activated(int)),
-	    this, SLOT(socketRead(int)) );
-    if ( !d->stdinBuf.isEmpty() ) {
-	d->notifierStdin->setEnabled( TRUE );
+    if ( comms & Stdin ) {
+	::close( sStdin[0] );
+	d->proc->socketStdin = sStdin[1];
+	d->notifierStdin = new QSocketNotifier( sStdin[1], QSocketNotifier::Write );
+	connect( d->notifierStdin, SIGNAL(activated(int)),
+		this, SLOT(socketWrite(int)) );
+	// setup notifiers for the sockets
+	if ( !d->stdinBuf.isEmpty() ) {
+	    d->notifierStdin->setEnabled( TRUE );
+	}
     }
-    if ( ioRedirection ) {
-	d->notifierStdout->setEnabled( TRUE );
-	d->notifierStderr->setEnabled( TRUE );
+    if ( comms & Stdout ) {
+	::close( sStdout[1] );
+	d->proc->socketStdout = sStdout[0];
+	d->notifierStdout = new QSocketNotifier( sStdout[0], QSocketNotifier::Read );
+	connect( d->notifierStdout, SIGNAL(activated(int)),
+		this, SLOT(socketRead(int)) );
+	if ( ioRedirection )
+	    d->notifierStdout->setEnabled( TRUE );
+    }
+    if ( comms & Stderr ) {
+	::close( sStderr[1] );
+	d->proc->socketStderr = sStderr[0];
+	d->notifierStderr = new QSocketNotifier( sStderr[0], QSocketNotifier::Read );
+	connect( d->notifierStderr, SIGNAL(activated(int)),
+		this, SLOT(socketRead(int)) );
+	if ( ioRedirection )
+	    d->notifierStderr->setEnabled( TRUE );
     }
 
     // cleanup and return
@@ -760,12 +779,18 @@ error:
 #endif
     if ( d->procManager )
 	d->procManager->cleanup();
-    ::close( sStdin[1] );
-    ::close( sStdout[0] );
-    ::close( sStderr[0] );
-    ::close( sStdin[0] );
-    ::close( sStdout[1] );
-    ::close( sStderr[1] );
+    if ( comms & Stdin ) {
+	::close( sStdin[1] );
+	::close( sStdin[0] );
+    }
+    if ( comms & Stdout ) {
+	::close( sStdout[0] );
+	::close( sStdout[1] );
+    }
+    if ( comms & Stderr ) {
+	::close( sStderr[0] );
+	::close( sStderr[1] );
+    }
     ::close( fd[0] );
     ::close( fd[1] );
     delete[] arglistQ;
