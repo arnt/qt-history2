@@ -2,7 +2,10 @@
 #include <qmessagebox.h>
 #include <qsplitter.h>
 #include <qpushbutton.h>
+#include <qcombobox.h>
 #include <qhbox.h>
+#include <qmenubar.h>
+#include <qpopupmenu.h>
 #include <qsizepolicy.h>
 
 #include "domtree.h"
@@ -16,6 +19,27 @@ DomTree::DomTree( const QString &fileName, QWidget *parent, const char *name )
 {
     filename = fileName;
 
+    QPushButton *pb;
+    QHBox *hb;
+
+    // create menu bar
+    QMenuBar *mb = new QMenuBar( this );
+    QPopupMenu *pm;
+
+    pm = new QPopupMenu( mb );
+    pm->insertItem( "Element", this, SLOT(createElement()) );
+    pm->insertItem( "DocumentFragment", this, SLOT(createDocumentFragment()) );
+    pm->insertItem( "TextNode", this, SLOT(createTextNode()) );
+    pm->insertItem( "Comment", this, SLOT(createComment()) );
+    pm->insertItem( "CDATASection", this, SLOT(createCDATASection()) );
+    pm->insertItem( "ProcessingInstruction", this, SLOT(createProcessingInstruction()) );
+    pm->insertItem( "Attribute", this, SLOT(createAttribute()) );
+    pm->insertItem( "EntityReference", this, SLOT(createEntityReference()) );
+    pm->insertItem( "ElementNS", this, SLOT(createElementNS()) );
+    pm->insertItem( "AttributeNS", this, SLOT(createAttributeNS()) );
+    mb->insertItem( "Create node", pm );
+
+    // splitter with treeview
     QSplitter *split = new QSplitter( this );
     split->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
 
@@ -36,12 +60,12 @@ DomTree::DomTree( const QString &fileName, QWidget *parent, const char *name )
     split->setResizeMode( tree, QSplitter::KeepSize );
     split->setResizeMode( text, QSplitter::Stretch );
 
-    QHBox *hb = new QHBox( this );
-    QPushButton *pb;
-    pb = new QPushButton( "With Namespace Processing", hb );
+    // buttons to reread file with/without ns processing
+    hb = new QHBox( this );
+    pb = new QPushButton( "Reread with Namespace Processing", hb );
     connect( pb, SIGNAL(clicked()),
 	    this, SLOT(withNSProc()) );
-    pb = new QPushButton( "Without Namespace Processing", hb );
+    pb = new QPushButton( "Reread without Namespace Processing", hb );
     connect( pb, SIGNAL(clicked()),
 	    this, SLOT(withoutNSProc()) );
 
@@ -127,6 +151,57 @@ void DomTree::withoutNSProc()
     tree->clear();
     setContent( filename, FALSE );
 }
+
+void DomTree::createElement()
+{
+    new DomTreeItem( TRUE, domTree->createElement( "" ), tree, 0 );
+}
+
+void DomTree::createDocumentFragment()
+{
+    new DomTreeItem( TRUE, domTree->createDocumentFragment(), tree, 0 );
+}
+
+void DomTree::createTextNode()
+{
+    new DomTreeItem( TRUE, domTree->createTextNode( "" ), tree, 0 );
+}
+
+void DomTree::createComment()
+{
+    new DomTreeItem( TRUE, domTree->createComment( "" ), tree, 0 );
+}
+
+void DomTree::createCDATASection()
+{
+    new DomTreeItem( TRUE, domTree->createCDATASection( "" ), tree, 0 );
+}
+
+void DomTree::createProcessingInstruction()
+{
+    new DomTreeItem( TRUE, domTree->createProcessingInstruction( "", "" ), tree, 0 );
+}
+
+void DomTree::createAttribute()
+{
+    new DomTreeItem( TRUE, domTree->createAttribute( "" ), tree, 0 );
+}
+
+void DomTree::createEntityReference()
+{
+    new DomTreeItem( TRUE, domTree->createEntityReference( "" ), tree, 0 );
+}
+
+void DomTree::createElementNS()
+{
+    new DomTreeItem( TRUE, domTree->createElementNS( "", "" ), tree, 0 );
+}
+
+void DomTree::createAttributeNS()
+{
+    new DomTreeItem( TRUE, domTree->createAttributeNS( "", "" ), tree, 0 );
+}
+
 
 //
 // DomTreeItem
@@ -342,7 +417,7 @@ QString DomTreeItem::contentString()
 	    s += _node.toText().data();
 	    break;
 	case QDomNode::AttributeNode:
-	    s += "<b>Value:</b> ";
+	    s += "<b>Value:</b> '";
 	    s += _node.toAttr().value();
 	    s += "'<br/>";
 	    break;

@@ -21,6 +21,17 @@ private slots:
     void withNSProc();
     void withoutNSProc();
 
+    void createElement();
+    void createDocumentFragment();
+    void createTextNode();
+    void createComment();
+    void createCDATASection();
+    void createProcessingInstruction();
+    void createAttribute();
+    void createEntityReference();
+    void createElementNS();
+    void createAttributeNS();
+
 private:
     QString filename;
     QDomDocument *domTree;
