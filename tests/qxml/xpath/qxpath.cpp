@@ -457,11 +457,119 @@ private:
     Operator op;
 };
 
+
+/***************************************************************
+ *
+ * QXPathParser
+ *
+ ***************************************************************/
+class QXPathParser : public QXPathNS
+{
+public:
+    QXPathParser( const QString& expr )
+    {
+	lex = new QXPathLexicalAnalyzer( expr );
+    }
+
+    ~QXPathParser()
+    {
+	delete lex;
+    }
+
+    QXPathAtom* parse()
+    {
+	Token token;
+
+	while ( !lex->atEnd() ) {
+	    token = lex->nextToken();
+	    switch ( token ) {
+		case TkError:
+		    // ### think about error handling
+		    break;
+		case TkLeftParen:
+		    break;
+		case TkRightParen:
+		    break;
+		case TkLeftBracket:
+		    break;
+		case TkRightBracket:
+		    break;
+		case TkSelfAbbr:
+		    break;
+		case TkParentAbbr:
+		    break;
+		case TkAttribAbbr:
+		    break;
+		case TkComma:
+		    break;
+		case TkDoubleColon:
+		    break;
+		case TkNameTest_Star:
+		case TkNameTest_NCNameStar:
+		case TkNameTest_QName:
+		    break;
+		case TkNodeType_Comment:
+		case TkNodeType_Text:
+		case TkNodeType_PI:
+		case TkNodeType_Node:
+		    break;
+		case TkOperator:
+		    break;
+		case TkFunctionName:
+		    break;
+		case TkAxisName_Child:
+		case TkAxisName_Descendant:
+		case TkAxisName_Parent:
+		case TkAxisName_Ancestor:
+		case TkAxisName_FollowingSibling:
+		case TkAxisName_PrecedingSibling:
+		case TkAxisName_Following:
+		case TkAxisName_Preceding:
+		case TkAxisName_Attribute:
+		case TkAxisName_Namespace:
+		case TkAxisName_Self:
+		case TkAxisName_DescendantOrSelf:
+		case TkAxisName_AncestorOrSelf:
+		    break;
+		case TkLiteral:
+		    break;
+		case TkNumber:
+		    break;
+		case TkVariableReference:
+		    break;
+	    }
+	}
+	return 0;
+    }
+
+private:
+    QXPathLexicalAnalyzer *lex;
+};
+
+
 /***************************************************************
  *
  * QXPath
  *
  ***************************************************************/
+class QXPathPrivate
+{
+public:
+    QXPathPrivate() : expr(0)
+    {
+    }
+
+    ~QXPathPrivate()
+    {
+	delete expr;
+    }
+
+private:
+    QXPathAtom *expr;
+    friend class QXPath;
+};
+
+
 /*!
   Creates an empty and therefore invalid XPath.
 
@@ -469,7 +577,7 @@ private:
 */
 QXPath::QXPath()
 {
-    d = 0;
+    d = new QXPathPrivate;
 }
 
 /*!
@@ -482,7 +590,7 @@ QXPath::QXPath()
 */
 QXPath::QXPath( const QString& expr )
 {
-    d = 0;
+    d = new QXPathPrivate;
     setExpression( expr );
 }
 
@@ -491,6 +599,7 @@ QXPath::QXPath( const QString& expr )
 */
 QXPath::~QXPath()
 {
+    delete d;
 }
 
 /*!
@@ -503,7 +612,8 @@ QXPath::~QXPath()
 */
 void QXPath::setExpression( const QString& expr )
 {
-    parse( expr );
+    QXPathParser parser( expr );
+    d->expr = parser.parse();
 }
 
 /*!
@@ -526,79 +636,7 @@ QString QXPath::expression() const
 */
 bool QXPath::isValid() const
 {
-    return TRUE;
-}
-
-/*!
-  Parses the string \a expr and returns TRUE if the parsing was ok, otherwise
-  returns FALSE.
-*/
-bool QXPath::parse( const QString& expr )
-{
-    QXPathLexicalAnalyzer lex( expr );
-    QXPathNS::Token token;
-
-    while ( !lex.atEnd() ) {
-	token = lex.nextToken();
-	switch ( token ) {
-	    case QXPathNS::TkError:
-		// ### think about error handling
-		break;
-	    case QXPathNS::TkLeftParen:
-		break;
-	    case QXPathNS::TkRightParen:
-		break;
-	    case QXPathNS::TkLeftBracket:
-		break;
-	    case QXPathNS::TkRightBracket:
-		break;
-	    case QXPathNS::TkSelfAbbr:
-		break;
-	    case QXPathNS::TkParentAbbr:
-		break;
-	    case QXPathNS::TkAttribAbbr:
-		break;
-	    case QXPathNS::TkComma:
-		break;
-	    case QXPathNS::TkDoubleColon:
-		break;
-	    case QXPathNS::TkNameTest_Star:
-	    case QXPathNS::TkNameTest_NCNameStar:
-	    case QXPathNS::TkNameTest_QName:
-		break;
-	    case QXPathNS::TkNodeType_Comment:
-	    case QXPathNS::TkNodeType_Text:
-	    case QXPathNS::TkNodeType_PI:
-	    case QXPathNS::TkNodeType_Node:
-		break;
-	    case QXPathNS::TkOperator:
-		break;
-	    case QXPathNS::TkFunctionName:
-		break;
-	    case QXPathNS::TkAxisName_Child:
-	    case QXPathNS::TkAxisName_Descendant:
-	    case QXPathNS::TkAxisName_Parent:
-	    case QXPathNS::TkAxisName_Ancestor:
-	    case QXPathNS::TkAxisName_FollowingSibling:
-	    case QXPathNS::TkAxisName_PrecedingSibling:
-	    case QXPathNS::TkAxisName_Following:
-	    case QXPathNS::TkAxisName_Preceding:
-	    case QXPathNS::TkAxisName_Attribute:
-	    case QXPathNS::TkAxisName_Namespace:
-	    case QXPathNS::TkAxisName_Self:
-	    case QXPathNS::TkAxisName_DescendantOrSelf:
-	    case QXPathNS::TkAxisName_AncestorOrSelf:
-		break;
-	    case QXPathNS::TkLiteral:
-		break;
-	    case QXPathNS::TkNumber:
-		break;
-	    case QXPathNS::TkVariableReference:
-		break;
-	}
-    }
-
-    return TRUE;
+    return d->expr != 0;
 }
 
 
@@ -612,13 +650,13 @@ bool QXPath::parse( const QString& expr )
 */
 QXPathStep::QXPathStep()
 {
-    stepAxis = QXPath::Child;
+    stepAxis = Child;
 }
 
 /*!
   Creates an location step with...
 */
-QXPathStep::QXPathStep( QXPath::Axis axis )
+QXPathStep::QXPathStep( QXPathStep::Axis axis )
 {
     stepAxis = axis;
 }
@@ -640,14 +678,14 @@ QXPathStep::~QXPathStep()
 
 /*!
 */
-void QXPathStep::setAxis( QXPath::Axis axis )
+void QXPathStep::setAxis( QXPathStep::Axis axis )
 {
     stepAxis = axis;
 }
 
 /*!
 */
-QXPath::Axis QXPathStep::axis() const
+QXPathStep::Axis QXPathStep::axis() const
 {
     return stepAxis;
 }

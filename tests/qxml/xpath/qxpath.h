@@ -19,6 +19,14 @@ public:
     QString expression() const;
     bool isValid() const;
 
+private:
+    QXPathPrivate *d;
+};
+
+
+class Q_EXPORT QXPathStep
+{
+public:
     enum Axis {
 	Child,
 	Descendant,
@@ -35,27 +43,16 @@ public:
 	AncestorOrSelf
     };
 
-protected:
-    virtual bool parse( const QString& path );
-
-private:
-    QXPathPrivate *d;
-};
-
-
-class Q_EXPORT QXPathStep
-{
-public:
     QXPathStep();
-    QXPathStep( QXPath::Axis axis ); // nodeTest, predicates );
+    QXPathStep( Axis axis ); // nodeTest, predicates );
     QXPathStep( const QXPathStep& step );
     ~QXPathStep();
 
-    void setAxis( QXPath::Axis axis );
-    QXPath::Axis axis() const;
+    void setAxis( Axis axis );
+    Axis axis() const;
 
 private:
-    QXPath::Axis stepAxis;
+    Axis stepAxis;
 };
 
 #endif // QXPATH_H
