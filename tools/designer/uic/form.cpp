@@ -71,15 +71,15 @@ static QByteArray unzipXPM( QString data, ulong& length )
 
   \sa createFormImpl(), createObjectDecl()
  */
-void Uic::createFormDecl( const QDomElement& widget, const QDomElement &e )
+void Uic::createFormDecl( const QDomElement &e )
 {
     QDomElement n;
     QDomNodeList nl;
     int i;
-    QString objClass = getClassName( widget );
+    QString objClass = getClassName( e );
     if ( objClass.isEmpty() )
 	return;
-    QString objName = getObjectName( widget );
+    QString objName = getObjectName( e );
 
     QStringList typeDefs;
 
@@ -348,31 +348,27 @@ void Uic::createFormDecl( const QDomElement& widget, const QDomElement &e )
     QStringList publicSlotTypes, protectedSlotTypes, privateSlotTypes;
     QStringList publicSlotSpecifier, protectedSlotSpecifier, privateSlotSpecifier;
     QMap<QString, QString> functionImpls;
-    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "slots" || n.tagName()  == "connections" ) {
-	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
-		if ( n2.tagName() == "slot" ) {
-		    if ( n2.attribute( "language", "C++" ) != "C++" )
-			continue;
-		    QString returnType = n2.attribute( "returnType", "void" );
-		    QString slotName = n2.firstChild().toText().data();
-		    QString specifier = n2.attribute( "specifier" );
-		    QString access = n2.attribute( "access" );
-		    if ( access == "protected" ) {
-			protectedSlots += slotName;
-			protectedSlotTypes += returnType;
-			protectedSlotSpecifier += specifier;
-		    } else if ( access == "private" ) {
-			privateSlots += slotName;
-			privateSlotTypes += returnType;
-			privateSlotSpecifier += specifier;
-		    } else {
-			publicSlots += slotName;
-			publicSlotTypes += returnType;
-			publicSlotSpecifier += specifier;
-		    }
-		}
-	    }
+    nl = e.parentNode().toElement().elementsByTagName( "slot" );
+    for ( i = 0; i < (int) nl.length(); i++ ) {
+	n = nl.item(i).toElement();
+	if ( n.attribute( "language", "C++" ) != "C++" )
+	    continue;
+	QString returnType = n.attribute( "returnType", "void" );
+	QString slotName = n.firstChild().toText().data();
+	QString specifier = n.attribute( "specifier" );
+	QString access = n.attribute( "access" );
+	if ( access == "protected" ) {
+	    protectedSlots += slotName;
+	    protectedSlotTypes += returnType;
+	    protectedSlotSpecifier += specifier;
+	} else if ( access == "private" ) {
+	    privateSlots += slotName;
+	    privateSlotTypes += returnType;
+	    privateSlotSpecifier += specifier;
+	} else {
+	    publicSlots += slotName;
+	    publicSlotTypes += returnType;
+	    publicSlotSpecifier += specifier;
 	}
     }
 
@@ -506,15 +502,15 @@ void Uic::createFormDecl( const QDomElement& widget, const QDomElement &e )
 
   \sa createFormDecl(), createObjectImpl()
  */
-void Uic::createFormImpl( const QDomElement& widget, const QDomElement &e )
+void Uic::createFormImpl( const QDomElement &e )
 {
     QDomElement n;
     QDomNodeList nl;
     int i;
-    QString objClass = getClassName( widget );
+    QString objClass = getClassName( e );
     if ( objClass.isEmpty() )
 	return;
-    QString objName = getObjectName( widget );
+    QString objName = getObjectName( e );
 
     // generate local and local includes required
     QStringList globalIncludes, localIncludes;
@@ -525,17 +521,17 @@ void Uic::createFormImpl( const QDomElement& widget, const QDomElement &e )
     // find additional slots and functions
     QStringList extraSlots;
     QStringList extraSlotTypes;
+    nl = e.parentNode().toElement().elementsByTagName( "slot" );
+    for ( i = 0; i < (int) nl.length(); i++ ) {
+	n = nl.item(i).toElement();
+	if ( n.attribute( "language", "C++" ) != "C++" )
+	    continue;
+	extraSlots += n.firstChild().toText().data();
+	extraSlotTypes += n.attribute( "returnType", "void" );
+    }
+    
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "slots" ||n.tagName()  == "connections" ) {
-	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
-		if ( n2.tagName() == "slot" ) {
-		    if ( n2.attribute( "language", "C++" ) != "C++" )
-			continue;
-		    extraSlots += n2.firstChild().toText().data();
-		    extraSlotTypes += n2.attribute( "returnType", "void" );
-		}
-	    }
-	} else if ( n.tagName() == "functions" ) {
+	if ( n.tagName() == "functions" ) { // compatibility
 	    for ( QDomElement n2 = n.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 		if ( n2.tagName() == "function" ) {
 		    QString fname = n2.attribute( "name" );
@@ -816,7 +812,7 @@ void Uic::createFormImpl( const QDomElement& widget, const QDomElement &e )
 
 
     // set the properties
-    for ( n = widget.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+    for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
 	    bool stdset = stdsetdef;
 	    if ( n.hasAttribute( "stdset" ) )
@@ -865,7 +861,7 @@ void Uic::createFormImpl( const QDomElement& widget, const QDomElement &e )
     // create all children, some forms have special requirements
 
     if ( objClass == "QWizard" ) {
-	for ( n = widget.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	    if ( tags.contains( n.tagName()  ) ) {
 		QString page = createObjectImpl( n, objClass, "this" );
 		QString label = DomTool::readAttribute( n, "title", "" ).toString();
@@ -884,7 +880,7 @@ void Uic::createFormImpl( const QDomElement& widget, const QDomElement &e )
 	    }
 	}
     } else { // standard widgets
-	for ( n = widget.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	    if ( tags.contains( n.tagName()  ) )
 		createObjectImpl( n, objName, "this" );
 	}

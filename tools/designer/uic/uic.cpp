@@ -126,30 +126,29 @@ Uic::Uic( const QString &fn, QTextStream &outStream, QDomDocument doc,
     stdsetdef = toBool( doc.firstChild().toElement().attribute("stdsetdef") );
 
     QDomElement e = doc.firstChild().firstChild().toElement();
-    QDomElement n = e;
-    while ( n.tagName() != "widget" ) {
-	if ( n.tagName() == "pixmapinproject" ) {
+    while ( e.tagName() != "widget" ) {
+	if ( e.tagName() == "pixmapinproject" ) {
 	    externPixmaps = TRUE;
-	} else if ( n.tagName() == "layoutdefaults" ) {
-	    defSpacing = n.attribute( "spacing", QString::number( defSpacing ) ).toInt();
-	    defMargin = n.attribute( "margin", QString::number( defMargin ) ).toInt();
+	} else if ( e.tagName() == "layoutdefaults" ) {
+	    defSpacing = e.attribute( "spacing", QString::number( defSpacing ) ).toInt();
+	    defMargin = e.attribute( "margin", QString::number( defMargin ) ).toInt();
 	}
-	n = n.nextSibling().toElement();
+	e = e.nextSibling().toElement();
     }
 
     if ( nameOfClass.isEmpty() )
-	nameOfClass = getObjectName( n );
+	nameOfClass = getObjectName( e );
 
     if ( subcl ) {
 	if ( decl )
-	    createSubDecl( n, e, subClass );
+	    createSubDecl( e, subClass );
 	else
-	    createSubImpl( n, e, subClass );
+	    createSubImpl( e, subClass );
     } else {
 	if ( decl )
-	    createFormDecl( n, e );
+	    createFormDecl( e );
 	else
-	    createFormImpl( n, e );
+	    createFormImpl( e );
     }
 
 }
