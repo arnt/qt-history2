@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/listbox_combo/Makefile#1 $
+# $Id: //depot/qt/main/examples/listboxcombo/Makefile#1 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = listbox_combo
+PROJECT = listboxcombo
 
 !INCLUDE $(QTDIR)\Makefile.inc

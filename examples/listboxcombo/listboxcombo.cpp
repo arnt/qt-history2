@@ -8,7 +8,7 @@
 **
 *****************************************************************************/
 
-#include "listbox_combo.h"
+#include "listboxcombo.h"
 
 #include <qcombobox.h>
 #include <qlistbox.h>

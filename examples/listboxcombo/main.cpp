@@ -8,7 +8,7 @@
 **
 *****************************************************************************/
 
-#include "listbox_combo.h"
+#include "listboxcombo.h"
 #include <qapplication.h>
 
 int main( int argc, char **argv )

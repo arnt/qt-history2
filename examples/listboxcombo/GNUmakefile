@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/listbox_combo/GNUmakefile#1 $
+# $Id: //depot/qt/main/examples/listboxcombo/GNUmakefile#1 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -7,6 +7,6 @@
 #
 #############################################################################
 
-PROJECT = listbox_combo
+PROJECT = listboxcombo
 
 include $(QTDIR)/GNUmakefile.inc

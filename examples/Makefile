@@ -27,7 +27,7 @@ SUBDIRS =	aclock \
 		layout \
 		life \
 		lineedits \
-		listbox_combo \
+		listboxcombo \
 		listbox \
 		listviews \
 		menu \
@@ -152,8 +152,8 @@ lineedits: FORCE
 	$(MAKE)
 	@cd ..
 
-listbox_combo: FORCE
-	cd listbox_combo
+listboxcombo: FORCE
+	cd listboxcombo
 	$(MAKE)
 	@cd ..
 
@@ -378,8 +378,8 @@ tmake_all:
 	cd lineedits
 	$(TMAKE) lineedits.pro -o $(MAKEFILE)
 	@cd ..
-	cd listbox_combo
-	$(TMAKE) listbox_combo.pro -o $(MAKEFILE)
+	cd listboxcombo
+	$(TMAKE) listboxcombo.pro -o $(MAKEFILE)
 	@cd ..
 	cd listbox
 	$(TMAKE) listbox.pro -o $(MAKEFILE)
@@ -534,7 +534,7 @@ clean:
 	cd lineedits
 	$(MAKE) clean
 	@cd ..
-	cd listbox_combo
+	cd listboxcombo
 	$(MAKE) clean
 	@cd ..
 	cd listbox

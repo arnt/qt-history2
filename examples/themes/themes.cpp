@@ -14,7 +14,7 @@
 
 #include "../buttons_groups/buttons_groups.h"
 #include "../lineedits/lineedits.h"
-#include "../listbox_combo/listbox_combo.h"
+#include "../listboxcombo/listboxcombo.h"
 #include "../checklists/checklists.h"
 #include "../progressbar/progressbar.h"
 #include "../rangecontrols/rangecontrols.h"

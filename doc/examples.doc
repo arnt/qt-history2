@@ -378,7 +378,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 */
 
-/*! \example listbox_combo/main.cpp
+/*! \example listboxcombo/main.cpp
 
   <h1 align=center>Listboxes and Comboboxes</h1><br clear="all">
 
@@ -389,13 +389,13 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
   Header file:
 
-  \include listbox_combo/listbox_combo.h
+  \include listboxcombo/listboxcombo.h
 
   <hr>
 
   Implementation:
 
-  \include listbox_combo/listbox_combo.cpp
+  \include listboxcombo/listboxcombo.cpp
 
   <hr>
 
