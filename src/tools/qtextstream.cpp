@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#30 $
 **
 ** Implementation of QTextStream class
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#30 $");
 
 
 /*----------------------------------------------------------------------------
@@ -487,7 +487,9 @@ static double input_double( QTextStream *s )
 	c = d->getch();
     }
 
-    return 0.0; // never reached
+#if !defined(_CC_EDG_) // has working dead code detection
+    return 0.0;
+#endif
 }
 
 

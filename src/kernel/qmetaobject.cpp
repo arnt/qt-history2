@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#18 $
 **
 ** Implementation of QMetaObject class
 **
@@ -14,7 +14,7 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobject.cpp#18 $");
 
 /* not documented
   \class QMetaObject qmetaobj.h
@@ -182,7 +182,9 @@ QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 	else					// not found
 	    return 0;
     }
-    return 0;					// never reached
+#if !defined(_CC_EDG_) // has working dead code detection
+    return 0;
+#endif
 }
 
 QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
@@ -217,5 +219,7 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
 	else					// bad index
 	    return 0;
     }
-    return 0;					// never reached!
+#if !defined(_CC_EDG_) // has working dead code detection
+    return 0;
+#endif
 }
