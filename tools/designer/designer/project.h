@@ -38,6 +38,9 @@ public:
 	QString name;
 	QString driver, dbName, username, password, hostname;
 	QSqlDatabase *connection;
+
+	QStringList tables;
+	QMap<QString, QStringList> fields;
 	
 	bool connect();
 	bool sync();
@@ -76,6 +79,10 @@ public:
     void setDatabaseConnections( const QList<Project::DatabaseConnection> &lst );
     void addDatabaseConnection( Project::DatabaseConnection *conn );
     Project::DatabaseConnection *databaseConnection( const QString &name );
+
+    QStringList databaseConnectionList();
+    QStringList databaseTableList( const QString &connection );
+    QStringList databaseFieldList( const QString &connection, const QString &table );
     
 private:
     void parse();
@@ -90,7 +97,7 @@ private:
     QString desc;
     QMap<FormWindow*, QString> formWindows;
     QList<Project::DatabaseConnection> dbConnections;
-    
+
 };
 
 #endif

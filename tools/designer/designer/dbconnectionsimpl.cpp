@@ -39,6 +39,7 @@ DatabaseConnection::DatabaseConnection( Project *pro, QWidget* parent,  const ch
     QList<Project::DatabaseConnection> lst = project->databaseConnections();
     for ( Project::DatabaseConnection *conn = lst.first(); conn; conn = lst.next() )
 	listConnections->insertItem( conn->name );
+    comboDriver->insertStringList( QSqlDatabase::drivers() );
     enableAll( FALSE );
 }
 
@@ -113,7 +114,7 @@ void DatabaseConnection::enableAll( bool b )
     editName->setEnabled( b );
     editName->setText( "" );
     comboDriver->setEnabled( b );
-    comboDriver->clear();
+    comboDriver->lineEdit()->setText( "" );
     comboDatabase->setEnabled( b );
     comboDatabase->clear();
     editUsername->setEnabled( b );

@@ -24,11 +24,14 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qurl.h>
+#include <qsqlrecord.h>
 
 Project::Project( const QString &fn, const QString &pName )
     : proName( pName )
 {
     setFileName( fn );
+    if ( !pName.isEmpty() )
+	proName = pName;
 }
 
 void Project::setFileName( const QString &fn, bool doClear )
@@ -340,11 +343,48 @@ bool Project::DatabaseConnection::connect()
     connection->setUserName( username );
     connection->setPassword( password );
     connection->setHostName( hostname );
-    
-    return TRUE; // #### do error checking
+    if ( !connection->open() )
+	return FALSE;
+
+    tables = connection->tables();
+    fields.clear();
+    for ( QStringList::Iterator it = tables.begin(); it != tables.end(); ++it ) {
+	QSqlRecord fil = connection->record( *it );
+	QStringList lst;
+	for ( uint j = 0; j < fil.count(); ++j )
+	    lst << fil.field( j )->name();
+	fields.insert( *it, lst );
+    }
+
+    connection->close();
+    return TRUE;
 }
 
 bool Project::DatabaseConnection::sync()
 {
     return TRUE;
+}
+
+QStringList Project::databaseConnectionList() 
+{
+    QStringList lst;
+    for ( DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() )
+	lst << conn->name;
+    return lst;
+}
+
+QStringList Project::databaseTableList( const QString &connection ) 
+{
+    DatabaseConnection *conn = databaseConnection( connection );
+    if ( !conn )
+	return QStringList();
+    return conn->tables;
+}
+
+QStringList Project::databaseFieldList( const QString &connection, const QString &table ) 
+{
+    DatabaseConnection *conn = databaseConnection( connection );
+    if ( !conn )
+	return QStringList();
+    return conn->fields[ table ];
 }
