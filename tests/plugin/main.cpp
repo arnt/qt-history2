@@ -21,7 +21,6 @@ int main( int argc, char** argv )
     QWidgetFactory::installWidgetFactory( pm );
     QActionFactory::installActionFactory( pm );
 
-    bool ok = FALSE;
     QWidget* ui = QWidgetFactory::createWidget( "widgetpreview.ui" );
     if ( ui )
 	ui->show();

@@ -2,13 +2,8 @@
 #include <qdir.h>
 #ifdef _WS_WIN_
 #include <qt_windows.h>
-#endif
-
-#ifndef _OS_WIN32_
-#define LoadLibrary(name) dlopen(name)
-#define FreeLibrary(handle) dlclose(handle)
-#define GetProcAddress(handle, name) dlsym(handle, name)
-#include <dlfnc.h>
+#else
+#include <dlfcn.h>
 #endif
 
 /*!
@@ -69,7 +64,11 @@ bool QPlugIn::load()
 	return FALSE;
 
     if ( !pHnd )
+#ifdef _WS_WIN_
 	pHnd = LoadLibrary( libfile );
+#else
+	pHnd = dlopen( libfile, (libPol == DefaultPolicy) ? RTLD_LAZY : RTLD_NOW );
+#endif	
 
     infoStringPtr = (STRINGPROC) getSymbolAddress( "infoString" );
 
@@ -82,7 +81,11 @@ bool QPlugIn::load()
 void QPlugIn::unload()
 {
     if ( pHnd )
+#ifdef _WS_WIN
 	FreeLibrary( pHnd );
+#else
+	dlclose( pHnd );
+#endif	
 
     pHnd = 0;
 }
@@ -141,7 +144,11 @@ void QPlugIn::use()
 */
 void* QPlugIn::getSymbolAddress( const QString& sym )
 {
+#ifdef _WS_WIN_
     return GetProcAddress( pHnd, sym );
+#else
+    return dlsym( pHnd, sym );
+#endif
 }
 
 /*!

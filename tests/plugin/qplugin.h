@@ -7,6 +7,10 @@
 #include "qdict.h"
 #include <qdir.h>
 
+#ifndef HINSTANCE
+#define HINSTANCE void*
+#endif
+
 class QAction;
 class QPlugIn;
 
@@ -22,7 +26,7 @@ public:
     };
 
     QPlugIn( const QString& filename, LibraryPolicy = DefaultPolicy );
-    ~QPlugIn();
+    virtual ~QPlugIn();
 
     virtual bool addToManager( QPlugInDict& dict ) = 0;
     virtual bool load();
@@ -62,7 +66,7 @@ public:
 	    addPlugInPath( path );
     }
 
-    ~QPlugInManager()
+    virtual ~QPlugInManager()
     {
     }
 
