@@ -8,6 +8,6 @@ int main(int argc, char *argv[])
     MainWindow window;
     app.setMainWidget(&window);
     window.show();
-    window.openImage(":/Images/qt.png");
+    window.openImage(":/images/qt.png");
     return app.exec();
 }
