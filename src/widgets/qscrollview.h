@@ -151,7 +151,7 @@ public slots:
     void	center(int x, int y);
     void	center(int x, int y, float xmargin, float ymargin);
 
-    void	updateScrollBars();
+    void	updateScrollBars(); // ### virtual in 4.0
     void	setEnabled( bool enable );
 
 protected:
