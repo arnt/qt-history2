@@ -877,8 +877,8 @@ struct QWExtra {
 #endif
 #if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     QRegion mask;				// widget mask
-    bool clip_dirty;
-    QRegion clip_saved;
+    bool clip_dirty, child_dirty;
+    QRegion clip_saved, clip_sibs, clip_children;
 #endif
     char     bg_mode;				// background mode
 #ifndef QT_NO_STYLE

@@ -839,6 +839,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     QRect  r( x, y, w, h );
     setCRect( r );
+
     if (!isTopLevel() && size() == olds && oldp == pos() )
 	return;
     dirtyClippedRegion(TRUE);
@@ -1090,6 +1091,7 @@ void QWidget::createSysExtra()
 {
     //do we really need this? Will this need to go back when it crashes again? These are the questions..
 //    font().handle(); // force QFont::load call
+    extra->child_dirty = extra->clip_dirty = TRUE;
     extra->macDndExtra = 0;
 }
 
@@ -1187,86 +1189,114 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 
 void QWidget::dirtyClippedRegion(bool tell_parent)
 {
-    if(extra)
-	extra->clip_dirty = TRUE;
-    if(tell_parent && parentWidget())
-	parentWidget()->dirtyClippedRegion(FALSE);
+    if(extra) 
+	extra->child_dirty = extra->clip_dirty = TRUE;
+    if(const QObjectList *chldnlst=children()) {
+	for(QObjectListIt it(*chldnlst); it.current(); ++it) {
+	    if((*it)->isWidgetType()) {
+		QWidget *w = (QWidget *)(*it);
+		if(w->isVisible() && w->extra && !w->isTopLevel()) {
+		    w->dirtyClippedRegion(FALSE);
+		}
+	    }
+	}
+    }
+
+    if(tell_parent && !isTopLevel() && parentWidget()) 
+	parentWidget()->dirtyClippedRegion(TRUE);
 }
 
 bool QWidget::isClippedRegionDirty()
 {
-    if(!extra) {
+    if(!extra || extra->clip_dirty) 
 	return TRUE;
-    }
-    return extra->clip_dirty || (isTopLevel() || (parentWidget() && parentWidget()->isClippedRegionDirty()));
+    if((parentWidget() && parentWidget()->isClippedRegionDirty())) 
+	return TRUE;
+    return FALSE;
 }
 
 QRegion QWidget::clippedRegion(bool do_children)
 {
-    if(!isClippedRegionDirty()) 
+    if(extra && !isClippedRegionDirty() && (!do_children || !extra->child_dirty)) {
+	if(!do_children) 
+	    return extra->clip_sibs;
 	return extra->clip_saved;
-
-    createExtra();
-    extra->clip_dirty = FALSE;
-    QPoint mp = posInWindow(this);
-    extra->clip_saved = QRegion(mp.x(), mp.y(), width(), height());
-    //clip my rect with my mask
-    if(extra && !extra->mask.isNull()) {
-	QRegion mask = extra->mask;
-	mask.translate(mp.x(), mp.y());
-	extra->clip_saved &= mask;
     }
+    createExtra();
 
-    QPoint tmp;
+    QRegion mask;
     //clip out my children
-    if(do_children) {
+    if(do_children && extra->child_dirty) {
+	extra->child_dirty = FALSE;
+	extra->clip_children = QRegion(0, 0, width(), height());
 	if(const QObjectList *chldnlst=children()) {
 	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
 		if((*it)->isWidgetType()) {
 		    QWidget *cw = (QWidget *)(*it);
-		    if( cw->isVisible() ) {
-			QRegion childrgn(mp.x()+cw->x(), mp.y()+cw->y(), cw->width(), cw->height());
+		    if( cw->isVisible() && cw->topLevelWidget() == topLevelWidget() ) {
+			QRegion childrgn(cw->x(), cw->y(), cw->width(), cw->height());
 			if(cw->extra && !cw->extra->mask.isNull()) {
-			    QRegion mask = cw->extra->mask;
-			    mask.translate(mp.x()+cw->x(), mp.y()+cw->y());
+			    mask = cw->extra->mask;
+			    mask.translate(cw->x(), cw->y());
 			    childrgn &= mask;
 			}
-			extra->clip_saved -= childrgn;
+			extra->clip_children -= childrgn;
 		    }
 		}
 	    }
 	}
     }
 
-    //clip away my siblings
-    if(!isTopLevel() && parentWidget()) {
-	if(const QObjectList *siblst = parentWidget()->children()) {
-	    //loop to this because its in zorder, and i don't care about people behind me
-	    QObjectListIt it(*siblst);
-	    for(it.toLast(); it.current() && it.current() != this; --it) {
-		if((*it)->isWidgetType()) {
-		    QWidget *sw = (QWidget *)(*it);
-		    tmp = posInWindow(sw);
-		    QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
-		    if(sw->topLevelWidget() == topLevelWidget() && 
-		       sw->isVisible() && extra->clip_saved.contains(sr)) {
-			QRegion sibrgn(sr);
-			if(sw->extra && !sw->extra->mask.isNull()) {
-			    QRegion mask = sw->extra->mask;
-			    mask.translate(tmp.x(), tmp.y());
-			    sibrgn &= mask;
+    if(isClippedRegionDirty()) {
+	extra->clip_dirty = FALSE;
+	QPoint tmp = posInWindow(this);
+	extra->clip_sibs = QRegion(tmp.x(), tmp.y(), width(), height());
+	//clip my rect with my mask
+	if(extra && !extra->mask.isNull()) {
+	    mask = extra->mask;
+	    mask.translate(tmp.x(), tmp.y());
+	    extra->clip_sibs &= mask;
+	}
+
+	//clip away my siblings
+	if(!isTopLevel() && parentWidget()) {
+	    if(const QObjectList *siblst = parentWidget()->children()) {
+		tmp = posInWindow(parentWidget()); //OPTIMIZE ME AWAY!! FIXME
+		//loop to this because its in zorder, and i don't care about people behind me
+		QObjectListIt it(*siblst);
+		for(it.toLast(); it.current() && it.current() != this; --it) {
+		    if((*it)->isWidgetType()) {
+			QWidget *sw = (QWidget *)(*it);
+			QRect sr(tmp.x()+sw->x(), tmp.y()+sw->y(), sw->width(), sw->height());
+			if(sw->topLevelWidget() == topLevelWidget() && 
+			   sw->isVisible() && extra->clip_sibs.contains(sr)) {
+			    QRegion sibrgn(sr);
+			    if(sw->extra && !sw->extra->mask.isNull()) {
+				mask = sw->extra->mask;
+				mask.translate(tmp.x()+sw->x(), tmp.y()+sw->y());
+				sibrgn &= mask;
+			    }
+			    extra->clip_sibs -= sibrgn;
 			}
-			extra->clip_saved -= sibrgn;
 		    }
 		}
 	    }
 	}
+
+	if(!isTopLevel() && parentWidget()) 
+	    extra->clip_sibs &= parentWidget()->clippedRegion(FALSE);
     }
 
-    if(!isTopLevel() && parentWidget()) 
-	extra->clip_saved &= parentWidget()->clippedRegion(FALSE);
+    //translate my stuff and my children now
+    QRegion chldrgns = extra->clip_children;
+    QPoint mp = posInWindow(this);
+    chldrgns.translate(mp.x(), mp.y());
+    extra->clip_saved = extra->clip_sibs & chldrgns;
 
-    return extra->clip_saved;
+
+    if(do_children) 
+	return extra->clip_saved;
+    return extra->clip_sibs;
 }
 
 
