@@ -3,7 +3,6 @@ HEADERS +=      kernel/qsql.h \
                 kernel/qsqldatabase.h \
                 kernel/qsqlfield.h \
                 kernel/qsqlrecord.h \
-                kernel/qsqlrecord_p.h \
                 kernel/qsqldriver.h \
                 kernel/qsqlnulldriver_p.h \
                 kernel/qsqldriverplugin.h \

@@ -13,12 +13,28 @@
 ****************************************************************************/
 
 #include "qsqlrecord.h"
-#include "qsqlrecord_p.h"
 
 #ifndef QT_NO_SQL
 
 #include "qdebug.h"
 #include "qstringlist.h"
+#include "qatomic.h"
+#include "qsqlfield.h"
+#include "qstring.h"
+#include "qvector.h"
+
+class QSqlRecordPrivate
+{
+public:
+    QSqlRecordPrivate();
+    QSqlRecordPrivate(const QSqlRecordPrivate &other);
+
+    inline bool contains(int i) { return i >= 0 && i < fields.count(); }
+    QString createField(int i, const QString &prefix) const;
+
+    QVector<QSqlField> fields;
+    QAtomic ref;
+};
 
 QSqlRecordPrivate::QSqlRecordPrivate()
 {
@@ -30,27 +46,9 @@ QSqlRecordPrivate::QSqlRecordPrivate(const QSqlRecordPrivate &other): fields(oth
     ref = 1;
 }
 
-QSqlRecordPrivate::~QSqlRecordPrivate()
-{
-}
-
-QSqlRecordPrivate *QSqlRecordPrivate::clone() const
-{
-    return new QSqlRecordPrivate(*this);
-}
-
-QString QSqlRecordPrivate::toString() const
-{
-    QString res;
-    res.reserve(128);
-    for (int i = 0; i < fields.count(); ++i)
-        res.append(fields.at(i).name()).append(",");
-    if (!res.isEmpty())
-        res.truncate(res.size() - 1);
-    return res;
-}
-
-/* Just for compat */
+/*! \internal
+    Just for compat
+*/
 QString QSqlRecordPrivate::createField(int i, const QString &prefix) const
 {
     QString f;
@@ -130,16 +128,6 @@ QSqlRecord& QSqlRecord::operator=(const QSqlRecord& other)
     qAtomicAssign(d, other.d);
     return *this;
 }
-
-/*!
-    \internal
-
-    Constructs a QSqlRecord with a custom private object \a p
- */
-QSqlRecord::QSqlRecord(QSqlRecordPrivate &p): d(&p)
-{
-}
-
 
 /*!
     Destroys the object and frees any allocated resources.
@@ -560,12 +548,7 @@ void QSqlRecord::setValue(const QString& name, const QCoreVariant& val)
 */
 void QSqlRecord::detach()
 {
-    if (d->ref == 1)
-        return;
-    QSqlRecordPrivate *x = d->clone();
-    x = qAtomicSetPtr(&d, x);
-    if (!--x->ref)
-        delete x;
+    qAtomicDetach(d);
 }
 
 #if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030

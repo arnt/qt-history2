@@ -65,6 +65,9 @@ public:
     QT_COMPAT const QSqlField* fieldPtr(int i) const;
     QT_COMPAT const QSqlField* fieldPtr(const QString& name) const;
     inline QT_COMPAT int position(const QString& name) const { return indexOf(name); }
+    QT_COMPAT QString toString(const QString& prefix = QString(),
+                               const QString& sep = ",") const;
+    QT_COMPAT QStringList toStringList(const QString& prefix = QString()) const;
 #endif
 
     void append(const QSqlField& field);
@@ -77,12 +80,6 @@ public:
     void clear();
     void clearValues();
     int count() const;
-    QString toString(const QString& prefix = QString(),
-                     const QString& sep = ",") const;
-    QStringList toStringList(const QString& prefix = QString()) const;
-
-protected:
-    QSqlRecord(QSqlRecordPrivate &p);
 
 private:
     void detach();
