@@ -470,18 +470,17 @@ void QWindowsStyle::drawControl( ControlElement element,
 #ifndef QT_NO_TABBAR
     case CE_TabBarTab:
 	{
-	    if ( !widget || !widget->parentWidget() )
+	    if ( !widget || !widget->parentWidget() || !opt.tab() )
 		break;
 
 	    const QTabBar * tb = (const QTabBar *) widget;
+	    const QTab * t = opt.tab();
 	    bool selected = flags & Style_Selected;
+	    bool lastTab = (tb->indexOf( t->identifier() ) == tb->count()-1) ?
+			   TRUE : FALSE;
 	    QRect r2( r );
 	    if ( tb->shape()  == QTabBar::RoundedAbove ) {
-		bool lastIsCurrent = FALSE;
 		p->setPen( cg.midlight() );
-		if ( styleHint( SH_TabBar_Alignment, tb ) == AlignRight &&
-		     tb->currentTab() == tb->indexOf(tb->count()-1) )
-		    lastIsCurrent = TRUE;
 
 		p->drawLine( r2.left(), r2.bottom(), r2.right(), r2.bottom() );
 		p->setPen( cg.light() );
@@ -530,13 +529,10 @@ void QWindowsStyle::drawControl( ControlElement element,
 		p->drawPoint( x2, r2.top() + 1 );
 		x2++;
 		p->drawLine( x2, r2.top() + 2, x2, r2.bottom() -
-			     (selected ? (lastIsCurrent ? 0:1) :2));
+			     (selected ? (lastTab ? 0:1) :2));
 	    } else if ( tb->shape() == QTabBar::RoundedBelow ) {
-		bool firstIsCurrent = FALSE;
-		if ( styleHint( SH_TabBar_Alignment, tb ) == AlignLeft &&
-		     tb->indexOf( tb->currentTab() ) == 0 )
-		    firstIsCurrent = TRUE;
-		
+		bool rightAligned = styleHint( SH_TabBar_Alignment, tb ) == AlignRight;
+		bool firstTab = tb->indexOf( t->identifier() ) == 0;
 		if ( selected ) {
 		    p->fillRect( QRect( r2.left()+1, r2.top(), r2.width()-3, 1),
 				 tb->palette().active().brush( QColorGroup::Background ));
@@ -545,11 +541,17 @@ void QWindowsStyle::drawControl( ControlElement element,
 		    p->setPen( cg.dark() );
 		} else {
  		    p->setPen( cg.shadow() );
-		    p->drawLine( r2.left() + 1, r2.top() + 1, 
-				 r2.right() - (firstIsCurrent ? 0 : 2),
+		    p->drawLine( r2.left() + 
+				 (rightAligned && firstTab ? 0 : 1),
+				 r2.top() + 1, 
+				 r2.right() - (lastTab ? 0 : 2),
 				 r2.top() + 1 );
+		    
+		    if ( rightAligned && lastTab )
+			p->drawPoint( r2.right(), r2.top() );
 		    p->setPen( cg.dark() );
-		    p->drawLine( r2.left(), r2.top(), r2.right(), r2.top() );
+		    p->drawLine( r2.left(), r2.top(), r2.right() - 1,
+				 r2.top() );
 		    r2.setRect( r2.left() + 2, r2.top(),
 				r2.width() - 4, r2.height() - 2 );
 		}
@@ -565,7 +567,9 @@ void QWindowsStyle::drawControl( ControlElement element,
  			     r2.left() + 1, r2.top() + (selected ? 0 : 2) );
 
 		p->setPen( cg.shadow() );
-		p->drawLine( r2.right(), r2.top() + 1,
+		p->drawLine( r2.right(), 
+			     r2.top() + (lastTab && rightAligned && 
+					 selected) ? 0 : 1,
 			     r2.right(), r2.bottom() - 1 );
 		p->drawPoint( r2.right() - 1, r2.bottom() - 1 );
 		p->drawLine( r2.right() - 1, r2.bottom(),
