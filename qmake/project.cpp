@@ -2240,7 +2240,7 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                         return false;
                     }
                     c = QChar();
-                } else if(i >= str.size()-1) {
+                } else if(i >= str.size()) {
                     c = QChar();
                 }
 
