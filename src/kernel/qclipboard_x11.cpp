@@ -46,6 +46,7 @@
 #include "qbuffer.h"
 #include "qtextcodec.h"
 #include "qlist.h"
+#include "qmap.h"
 #include "qt_x11_p.h"
 #include "qapplication_p.h"
 
@@ -56,6 +57,10 @@
   Internal QClipboard functions for X11.
  *****************************************************************************/
 
+// from qapplication_x11.cpp
+typedef int (*QX11EventFilter) (XEvent*);
+extern QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
+
 extern Time qt_x_time;			// def. in qapplication_x11.cpp
 extern Time qt_x_incr;			// def. in qapplication_x11.cpp
 extern Atom qt_xa_clipboard;
@@ -63,6 +68,8 @@ extern Atom qt_selection_property;
 extern Atom qt_clipboard_sentinel;
 extern Atom qt_selection_sentinel;
 extern Atom qt_utf8_string;
+
+// from qdnd_x11.cpp
 extern Atom* qt_xdnd_str_to_atom( const char *mimeType );
 extern const char* qt_xdnd_atom_to_str( Atom );
 
@@ -75,6 +82,7 @@ static int timer_id = 0;
 static int pending_timer_id = 0;
 static bool pending_clipboard_changed = FALSE;
 static bool pending_selection_changed = FALSE;
+
 
 // event capture mechanism for qt_xclb_wait_for_event
 static bool waiting_for_data = FALSE;
@@ -103,6 +111,19 @@ void setupOwner()
     owner = new QWidget( 0, "internal clipboard owner" );
     requestor = new QWidget(0, "internal clipboard requestor");
     qAddPostRoutine( cleanup );
+}
+
+static
+int sizeof_format(int format)
+{
+    int sz;
+    switch (format) {
+    default:
+    case  8: sz = sizeof( char); break;
+    case 16: sz = sizeof(short); break;
+    case 32: sz = sizeof( long); break;
+    }
+    return sz;
 }
 
 class QClipboardWatcher : public QMimeSource {
@@ -208,6 +229,95 @@ static QClipboardData *selectionData()
     return internalSelData;
 }
 
+class QClipboardINCRTransaction
+{
+public:
+    QClipboardINCRTransaction(Window w, Atom p, Atom t, int f, QByteArray d, unsigned int i);
+    ~QClipboardINCRTransaction(void);
+
+    int x11Event(XEvent *event);
+
+    Window window;
+    Atom property, target;
+    int format;
+    QByteArray data;
+    unsigned int increment;
+    unsigned int offset;
+};
+
+typedef QMap<Window,QClipboardINCRTransaction*> TransactionMap;
+static TransactionMap *transactions = 0;
+static QX11EventFilter prev_x11_event_filter = 0;
+
+static int qt_xclb_transation_event_handler(XEvent *event)
+{
+    TransactionMap::Iterator it = transactions->find(event->xany.window);
+    if (it != transactions->end()) {
+	if ((*it)->x11Event(event) != 0)
+	    return 1;
+    }
+    if (prev_x11_event_filter)
+	return prev_x11_event_filter(event);
+    return 0;
+}
+
+QClipboardINCRTransaction::QClipboardINCRTransaction(Window w, Atom p, Atom t, int f,
+						     QByteArray d, unsigned int i)
+    : window(w), property(p), target(t), format(f), data(d), increment(i), offset(0u)
+{
+    DEBUG("QClipboard: sending %d bytes (INCR transaction %p)", d.size(), this);
+
+    XSelectInput(QPaintDevice::x11AppDisplay(), window, PropertyChangeMask);
+
+    if (! transactions) {
+	VDEBUG("QClipboard: created INCR transaction map");
+	transactions = new TransactionMap;
+	prev_x11_event_filter = qt_set_x11_event_filter(qt_xclb_transation_event_handler);
+    }
+    transactions->insert(window, this);
+}
+
+QClipboardINCRTransaction::~QClipboardINCRTransaction(void)
+{
+    VDEBUG("QClipboard: destroyed INCR transacton %p", this);
+
+    XSelectInput(QPaintDevice::x11AppDisplay(), window, NoEventMask);
+
+    transactions->remove(window);
+    if (transactions->isEmpty()) {
+	VDEBUG("QClipboard: no more INCR transations");
+	delete transactions;
+	transactions = 0;
+	(void)qt_set_x11_event_filter(prev_x11_event_filter);
+    }
+}
+
+int QClipboardINCRTransaction::x11Event(XEvent *event)
+{
+    if (event->type != PropertyNotify
+	|| (event->xproperty.state != PropertyDelete
+	    || event->xproperty.atom != property))
+	return 0;
+
+    unsigned int bytes_left = data.size() - offset;
+    if (bytes_left > 0) {
+	unsigned int xfer = QMIN(increment, bytes_left);
+	VDEBUG("QClipboard: sending %d bytes, %d remaining (INCR transaction %p)",
+	       xfer, bytes_left - xfer, this);
+
+	XChangeProperty(QPaintDevice::x11AppDisplay(), window, property, target, format,
+			PropModeReplace, (uchar *) data.data() + offset, xfer);
+	offset += xfer;
+    } else {
+	// INCR transaction finished...
+	XChangeProperty(QPaintDevice::x11AppDisplay(), window, property, target, format,
+			PropModeReplace, (uchar *) data.data(), 0);
+       	delete this;
+    }
+
+    return 1;
+}
+
 
 /*****************************************************************************
   QClipboard member functions for X11.
@@ -247,7 +357,7 @@ static int qt_xclb_event_filter(XEvent *event)
 {
     if (event->xany.type == capture_event_type &&
 	event->xany.window == capture_event_win) {
-	VDEBUG( "qt_xclb_event_filter: caught event type %d", event->type );
+	VDEBUG( "QClipboard: event_filter(): caught event type %d", event->type );
 	has_captured_event = TRUE;
 	captured_event = *event;
 	return 1;
@@ -271,9 +381,6 @@ bool qt_xclb_wait_for_event( Display *dpy, Window win, int type, XEvent *event,
     capture_event_win = win;
     capture_event_type = type;
 
-    // from qapplication_x11.cpp
-    typedef int (*QX11EventFilter) (XEvent*);
-    extern QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
     QX11EventFilter old_event_filter = qt_set_x11_event_filter(qt_xclb_event_filter);
 
     do {
@@ -342,7 +449,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 
     int  offset = 0, buffer_offset = 0, format_inc = 1, proplen = bytes_left;
 
-    VDEBUG("qt_xclb_read_property: initial property length: %d", proplen);
+    VDEBUG("QClipboard: read_property(): initial property length: %d", proplen);
 
     switch (*format) {
     case 8:
@@ -365,7 +472,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
     buffer->resize(newSize);
 
     bool ok = (buffer->size() == newSize);
-    VDEBUG("qt_xclb_read_property: buffer resized to %d", buffer->size());
+    VDEBUG("QClipboard: read_property(): buffer resized to %d", buffer->size());
 
     if (ok) {
 	// could allocate buffer
@@ -428,7 +535,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
     if ( size )
 	*size = buffer_offset;
 
-    VDEBUG("qt_xclb_read_property: buffer size %d, buffer offset %d, offset %d",
+    VDEBUG("QClipboard: read_property(): buffer size %d, buffer offset %d, offset %d",
 	   buffer->size(), buffer_offset, offset);
 
     if ( deleteProperty )
@@ -504,68 +611,8 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
     return QByteArray();
 }
 
-static void qt_xclb_send_incremental_property(Display *dpy, const Window window,
-					      const Atom property, const Atom xtarget,
-					      const int xformat, const QByteArray &data,
-					      const unsigned int increment)
-{
-    DEBUG("QClipboard: starting INCR transfer, %d bytes", data.size());
-
-    unsigned int offset = 0;
-    unsigned int bytes_left = data.size();
-    bool proto_error = FALSE;
-    while (bytes_left > 0) {
-	XEvent event;
-	if (! qt_xclb_wait_for_event(dpy, window, PropertyNotify,
-				     &event, 5000)) {
-	    DEBUG("QClipboard: INCR: timeout waiting for PropertyDelete");
-	    proto_error = TRUE;
-	    break;
-	}
-
-	if (event.xproperty.state != PropertyDelete ||
-	    event.xproperty.atom != property)
-	    continue;
-
-	unsigned int xfer = QMIN(increment, bytes_left);
-
-	DEBUG("QClipboard: sending %d bytes", xfer);
-
-	XChangeProperty(dpy, window, property, xtarget, xformat,
-			PropModeReplace, (uchar *) data.constData() + offset, xfer);
-	XFlush(dpy);
-
-	offset += xfer;
-	bytes_left -= xfer;
-
-	VDEBUG("QClipboard: INCR: %d bytes remaining", bytes_left);
-    }
-
-    if (! proto_error) {
-	DEBUG("QClipboard: finished sending INCR data");
-
-	bool finished = FALSE;
-	while (! finished) {
-	    XEvent event;
-	    if (! qt_xclb_wait_for_event(dpy, window, PropertyNotify, &event, 5000)) {
-		DEBUG("QClipboard: INCR: timeout waiting for PropertyDelete");
-		break;
-	    }
-
-	    if (event.xproperty.state != PropertyDelete ||
-		event.xproperty.atom != property)
-		continue;
-
-	    VDEBUG("QClipboard: INCR: sending 0 bytes (final XChangeProperty)");
-
-	    XChangeProperty(dpy, window, property, xtarget, xformat,
-			    PropModeReplace, (uchar *) data.constData(), 0);
-	    finished = TRUE;
-	}
-    }
-
-    XSelectInput(dpy, window, NoEventMask);
-}
+static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom property,
+			   int format = 0, QByteArray data = QByteArray());
 
 static Atom send_targets_selection(QClipboardData *d, Window window, Atom property)
 {
@@ -575,8 +622,7 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
     if (d->source()->provides("image/pbm")) atoms++;
     if (d->source()->provides("text/plain")) atoms+=4;
 
-    VDEBUG("qclipboard_x11.cpp: send_targets_selection()\n"
-	   "    %d provided types", atoms);
+    VDEBUG("QClipboard: send_targets_selection(): %d provided types", atoms);
 
     // for 64 bit cleanness... XChangeProperty expects long* for data with format == 32
     QByteArray data((atoms+3) * sizeof(long)); // plus TARGETS, MULTIPLE and TIMESTAMP
@@ -586,8 +632,6 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
     int n = 0;
     while ((fmt=d->source()->format(n)) && n < atoms)
 	atarget[n++] = *qt_xdnd_str_to_atom(fmt);
-
-    VDEBUG("    before standard, n(%d) atoms(%d)", n, atoms);
 
     static Atom xa_text = *qt_xdnd_str_to_atom("TEXT");
     static Atom xa_compound_text = *qt_xdnd_str_to_atom("COMPOUND_TEXT");
@@ -615,9 +659,6 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
 	VDEBUG("    atom %d: 0x%lx (%s)", index, atarget[index],
 	       qt_xdnd_atom_to_str(atarget[index]));
     }
-
-    VDEBUG("    after standard, n(%d) atoms(%d)", n, atoms);
-    VDEBUG("    size %d %d", n * sizeof(long), data.size());
 #endif
 
     XChangeProperty(QPaintDevice::x11AppDisplay(), window, property, xa_targets, 32,
@@ -630,7 +671,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
     static Atom xa_text = *qt_xdnd_str_to_atom("TEXT");
     static Atom xa_compound_text = *qt_xdnd_str_to_atom("COMPOUND_TEXT");
 
-    DEBUG("qclipboard_x11.cpp: send_string_selection()\n"
+    DEBUG("QClipboard: send_string_selection():\n"
 	  "    property type %lx\n"
 	  "    property name '%s'",
 	  target, qt_xdnd_atom_to_str(target));
@@ -656,11 +697,11 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
 		  textprop.encoding, qt_xdnd_atom_to_str(textprop.encoding),
 		  textprop.format, textprop.nitems);
 
-	    XChangeProperty(QPaintDevice::x11AppDisplay(), window, property,
-			    textprop.encoding, textprop.format, PropModeReplace,
-			    textprop.value, textprop.nitems);
+	    int sz = sizeof_format(textprop.format);
+	    data.duplicate((const char *) textprop.value, textprop.nitems * sz);
 	    XFree(textprop.value);
-	    return property;
+
+	    return send_selection(d, textprop.encoding, window, property, textprop.format, data);
 	}
 
 	return None;
@@ -715,63 +756,43 @@ static Atom send_pixmap_selection(QClipboardData *d, Atom target, Window window,
 		    target, 32, PropModeReplace, (uchar *) &handle, 1);
     d->addTransferredPixmap(pm);
     return property;
+
 }
 
 static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom property,
-			   Atom selection, Time timestamp, bool allow_incr)
+			   int format, QByteArray data)
 {
-    Atom xtarget = 0;
-    int xformat = 0;
-    const char *fmt = 0;
+    if (format == 0) format = 8;
 
-    fmt = qt_xdnd_atom_to_str(target);
-    xtarget = target;
-    xformat = 8;
-    if (fmt && !d->source()->provides(fmt)) // Not a MIME type we can produce
-	return None;
-
-    QByteArray data = d->source()->encodedData(fmt);
-
-    int sz;
-    switch (xformat) {
-    default:
-    case 8:  sz = sizeof( char); break;
-    case 16: sz = sizeof(short); break;
-    case 32: sz = sizeof( long); break;
+    if (data.isEmpty()) {
+	const char *fmt = qt_xdnd_atom_to_str(target);
+	DEBUG("QClipboard: send_selection(): converting to type '%s'", fmt);
+	if (fmt && !d->source()->provides(fmt)) // Not a MIME type we can produce
+	    return None;
+	data = d->source()->encodedData(fmt);
     }
 
-    DEBUG("qclipboard_x11.cpp: send_selection()\n"
+    DEBUG("QClipboard: send_selection():\n"
 	  "    property type %lx\n"
 	  "    property name '%s'\n"
 	  "    format %d\n"
 	  "    %d bytes",
-	  xtarget, qt_xdnd_atom_to_str(xtarget), xformat, data.size());
+	  target, qt_xdnd_atom_to_str(target), format, data.size());
+
+    // don't allow INCR transfers when using MULTIPLE or to
+    // Motif clients (since Motif doesn't support INCR)
+    static Atom motif_clip_temporary = *qt_xdnd_str_to_atom("CLIP_TEMPORARY");
+    bool allow_incr = property != motif_clip_temporary;
 
     const int increment =
 	(XMaxRequestSize(QPaintDevice::x11AppDisplay()) >= 65536 ?
 	 65536 : XMaxRequestSize(QPaintDevice::x11AppDisplay()));
-    if ( data.size() > increment && allow_incr) {
-	// only support INCR when not using INCR
+    if (data.size() > increment && allow_incr) {
 	long bytes = data.size();
 	XChangeProperty(QPaintDevice::x11AppDisplay(), window, property,
 			qt_x_incr, 32, PropModeReplace, (uchar *) &bytes, 1);
 
-	XEvent event;
-	event.xselection.type      = SelectionNotify;
-	event.xselection.display   = QPaintDevice::x11AppDisplay();
-	event.xselection.requestor = window;
-	event.xselection.selection = selection;
-	event.xselection.target    = xtarget;
-	event.xselection.property  = property;
-	event.xselection.time      = timestamp;
-
-	XSelectInput(QPaintDevice::x11AppDisplay(), window, PropertyChangeMask);
-	XSendEvent(QPaintDevice::x11AppDisplay(), window, False, NoEventMask, &event);
-	XFlush(QPaintDevice::x11AppDisplay());
-
-	qt_xclb_send_incremental_property(QPaintDevice::x11AppDisplay(), window, property,
-					  xtarget, xformat, data, increment);
-
+	(void)new QClipboardINCRTransaction(window, property, target, format, data, increment);
 	return qt_x_incr;
     }
 
@@ -780,8 +801,9 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
 	return None; // ### perhaps use several XChangeProperty calls w/ PropModeAppend?
 
     // use a single request to transfer data
-    XChangeProperty(QPaintDevice::x11AppDisplay(), window, property, xtarget,
-		    xformat, PropModeReplace, (uchar *) data.data(), data.size() / sz);
+    XChangeProperty(QPaintDevice::x11AppDisplay(), window, property, target,
+		    format, PropModeReplace, (uchar *) data.data(),
+		    data.size() / sizeof_format(format));
     return property;
 }
 
@@ -927,9 +949,8 @@ bool QClipboard::event( QEvent *e )
 	    event.xselection.property  = None;
 	    event.xselection.time      = req->time;
 
-	    DEBUG("qclipboard_x11.cpp: selection requested\n"
-		  "                    from 0x%lx\n"
-		  "                    to 0x%lx (%s) 0x%lx (%s)",
+	    DEBUG("QClipboard: SelectionRequest from %lx\n"
+		  "    selection 0x%lx (%s) target 0x%lx (%s)",
 		  req->requestor,
 		  req->selection,
 		  qt_xdnd_atom_to_str(req->selection),
@@ -947,8 +968,7 @@ bool QClipboard::event( QEvent *e )
 		d = clipboardData();
 	    } else {
 #ifdef QT_CHECK_RANGE
-		qWarning( "QClipboard::event: unknown selection request '%lx'",
-			  req->selection );
+		qWarning("QClipboard: unknown selection '%lx'", req->selection);
 #endif // QT_CHECK_RANGE
 
 		XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
@@ -979,7 +999,6 @@ bool QClipboard::event( QEvent *e )
 	    static Atom xa_targets = *qt_xdnd_str_to_atom("TARGETS");
 	    static Atom xa_multiple = *qt_xdnd_str_to_atom("MULTIPLE");
 	    static Atom xa_timestamp = *qt_xdnd_str_to_atom("TIMESTAMP");
-	    static Atom motif_clip_temporary = *qt_xdnd_str_to_atom("CLIP_TEMPORARY");
 
 	    struct AtomPair { Atom target; Atom property; } *multi = 0;
 	    Atom multi_type = None;
@@ -1043,11 +1062,7 @@ bool QClipboard::event( QEvent *e )
 			   || target == XA_BITMAP) {
 		    ret = send_pixmap_selection(d, target, req->requestor, property);
 		} else {
-		    // don't allow INCR transfers when using MULTIPLE or to
-		    // Motif clients (since Motif doesn't support INCR)
-		    bool allow_incr = nmulti == 0 && req->property != motif_clip_temporary;
-		    ret = send_selection(d, target, req->requestor, property,
-					 req->selection, req->time, allow_incr);
+		    ret = send_selection(d, target, req->requestor, property);
 		}
 
 		if (nmulti > 0) {
@@ -1073,16 +1088,13 @@ bool QClipboard::event( QEvent *e )
 		event.xselection.property = req->property;
 	    }
 
-	    if (event.xselection.property != qt_x_incr) {
-		// send selection notify to requestor
-		XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
+	    // send selection notify to requestor
+	    XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
 
-		DEBUG("qclipboard_x11.cpp: SelectionNotify to 0x%lx\n"
-		      "                    property 0x%lx (%s)",
-		      req->requestor, event.xselection.property,
-		      qt_xdnd_atom_to_str(event.xselection.property));
-		break;
-	    }
+	    DEBUG("QClipboard: SelectionNotify to 0x%lx\n"
+		  "    property 0x%lx (%s)",
+		  req->requestor, event.xselection.property,
+		  qt_xdnd_atom_to_str(event.xselection.property));
 	}
 	break;
     }
