@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#211 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#212 $
 **
 ** Implementation of QFileDialog class
 **
@@ -310,23 +310,7 @@ struct QFileDialogPrivate {
 
 QFileDialogPrivate::~QFileDialogPrivate()
 {
-    delete paths;
-    delete types;
-    delete pathL;
-    delete fileL;
-    delete typeL;
-    delete topLevelLayout;
-    delete extraWidgetsLayout;
-    delete extraLabel;
-    delete extraWidget;
-    delete extraButton;
-    delete cdToParent;
-    delete newFolder;
-    delete detailView;
-    delete mcView;
     delete modeButtons;
-    delete moreFiles;
-    delete stack;
 }
 
 
@@ -1138,7 +1122,6 @@ void QFileDialog::init()
 
 QFileDialog::~QFileDialog()
 {
-    delete d->modeButtons;
     delete d;
 }
 
