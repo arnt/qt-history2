@@ -42,6 +42,62 @@ public:
     bool moving, fullWidth;
 };
 
+
+class QToolBarSeparator : public QFrame
+{
+    Q_OBJECT;
+public:
+    QToolBarSeparator( Orientation, QToolBar *parent, const char* name=0 );
+
+    QSize sizeHint() const;
+    QSizePolicy sizePolicy() const;
+    Orientation orientation() const { return orient; }
+public slots:
+   void setOrientation( Orientation );
+private:
+    Orientation orient;
+};
+
+
+
+QToolBarSeparator::QToolBarSeparator(Orientation o , QToolBar *parent,
+				     const char* name )
+    :QFrame( parent, name )
+{
+    connect( parent, SIGNAL(orientationChanged(Orientation)),
+	     this, SLOT(setOrientation(Orientation)) );
+    setOrientation( o );
+}
+
+
+
+void QToolBarSeparator::setOrientation( Orientation o )
+{
+    orient = o;
+    if ( style() == WindowsStyle ) {
+	if ( orientation() == Vertical ) 
+	    setFrameStyle( HLine + Sunken );
+	else
+	    setFrameStyle( VLine + Sunken );
+    } else {
+	    setFrameStyle( NoFrame );
+    }
+}
+
+
+QSize QToolBarSeparator::sizeHint() const
+{
+    return orientation() == Vertical ? QSize( 0, 6 ) : QSize( 6, 0 );
+}
+
+QSizePolicy QToolBarSeparator::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum );
+}
+
+#include "qtoolbar.moc"
+
+
 // NOT REVISED
 /*! \class QToolBar qtoolbar.h
 
@@ -99,27 +155,13 @@ QToolBar::QToolBar( const QString &label,
 		    bool newLine, const char * name )
     : QWidget( parent, name )
 {
-    d = new QToolBarPrivate;
-    d->moving = FALSE;
-    d->fullWidth = FALSE;
-    b = 0;
     mw = parent;
-    sw = 0;
     o = (dock == QMainWindow::Left || dock == QMainWindow::Right )
 	? Vertical : Horizontal;
-    if ( parent ) {
+    init();
+        
+    if ( parent )
 	parent->addToolBar( this, label, dock, newLine );
-	connect( parent, SIGNAL( startMovingToolbar( QToolBar * ) ),
-		 this, SLOT( startMoving( QToolBar * ) ) );
-	connect( parent, SIGNAL( endMovingToolbar( QToolBar * ) ),
-		 this, SLOT( endMoving( QToolBar * ) ) );
-    }
-#if defined(CHECK_NULL)
-    else
-	qWarning( "QToolBar::QToolBar main window cannot be 0." );
-#endif
-    setBackgroundMode( PaletteButton);
-    setFocusPolicy( NoFocus );
 }
 
 
@@ -137,26 +179,12 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 		    WFlags f )
     : QWidget( parent, name, f )
 {
-    d = new QToolBarPrivate;
-    d->moving = FALSE;
-    d->fullWidth = FALSE;
-    b = 0;
     mw = mainWindow;
-    sw = 0;
     o = Horizontal;
-    if ( mainWindow ) {
+    init();
+    
+    if ( mainWindow )
 	mainWindow->addToolBar( this, label, QMainWindow::Unmanaged, newLine );
-	connect( mainWindow, SIGNAL( startMovingToolbar( QToolBar * ) ),
-		 this, SLOT( startMoving( QToolBar * ) ) );
-	connect( mainWindow, SIGNAL( endMovingToolbar( QToolBar * ) ),
-		 this, SLOT( endMoving( QToolBar * ) ) );
-    }
-#if defined(CHECK_NULL)
-    else
-	qWarning( "QToolBar::QToolBar main window cannot be 0." );
-#endif
-    setBackgroundMode( PaletteButton);
-    setFocusPolicy( NoFocus );
 }
 
 
@@ -167,18 +195,36 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 QToolBar::QToolBar( QMainWindow * parent, const char * name )
     : QWidget( parent, name )
 {
+    mw = parent;
+    o = Horizontal;
+    init();
+
+    if ( parent )
+	parent->addToolBar( this, QString::null, QMainWindow::Top );
+}
+
+/*!
+  Common initialization code. Requires that \c mw and \c o are set.
+  Does not call QMainWindow::addToolBar
+*/
+void QToolBar::init()
+{
     d = new QToolBarPrivate;
     d->moving = FALSE;
     d->fullWidth = FALSE;
     b = 0;
-    o = Horizontal;
     sw = 0;
-    mw = parent;
-    if ( parent ) {
-	parent->addToolBar( this, QString::null, QMainWindow::Top );
-	connect( parent, SIGNAL( startMovingToolbar( QToolBar * ) ),
+
+    b = new QBoxLayout( this, orientation() == Vertical
+			? QBoxLayout::Down : QBoxLayout::LeftToRight,
+			style() == WindowsStyle ? 2 : 1, 0 );
+    b->setAutoAdd( TRUE );
+    b->addSpacing( 9 );
+    
+    if ( mw ) {
+	connect( mw, SIGNAL( startMovingToolbar( QToolBar * ) ),
 		 this, SLOT( startMoving( QToolBar * ) ) );
-	connect( parent, SIGNAL( endMovingToolbar( QToolBar * ) ),
+	connect( mw, SIGNAL( endMovingToolbar( QToolBar * ) ),
 		 this, SLOT( endMoving( QToolBar * ) ) );
     }
 #if defined(CHECK_NULL)
@@ -205,8 +251,7 @@ QToolBar::~QToolBar()
 
 void QToolBar::addSeparator()
 {
-    QFrame * f = new QFrame( this, "tool bar separator" );
-    f->setFrameStyle( QFrame::NoFrame ); // old-style whatevers
+    (void) new QToolBarSeparator( orientation(), this, "tool bar separator" );
 }
 
 
@@ -223,7 +268,9 @@ void QToolBar::setOrientation( Orientation newOrientation )
 {
     if ( o != newOrientation ) {
 	o = newOrientation;
-	setUpGM();
+	if ( b )
+	    b->setDirection( o==Horizontal ? QBoxLayout::LeftToRight :
+			     QBoxLayout::TopToBottom );
 	emit orientationChanged( newOrientation );
     }
 }
@@ -234,71 +281,18 @@ void QToolBar::setOrientation( Orientation newOrientation )
   Returns the current orientation of the toolbar.
 */
 
-/*!  Reimplemented to set up geometry management. */
+/*!  \reimp. */
 
 void QToolBar::show()
 {
-    setUpGM();
+    //Does nothing, present for binary compatibility
     QWidget::show();
 }
 
 
-/*!  Sets up geometry management for this toolbar. */
-
 void QToolBar::setUpGM()
 {
-    delete b;
-    b = new QBoxLayout( this, orientation() == Vertical
-			? QBoxLayout::Down : QBoxLayout::LeftToRight,
-			style() == WindowsStyle ? 2 : 1, 0 );
-
-    b->addSpacing( 9 );
-
-    const QObjectList * c = children();
-    QObjectListIt it( *c );
-    QObject *obj;
-    while( (obj=it.current()) != 0 ) {
-	++it;
-	if ( obj->isWidgetType() ) {
-	    QWidget * w = (QWidget *)obj;
-	    if ( !isVisible() || w->isVisible() ) {
-		if ( !qstrcmp( "tool bar separator", obj->name() ) &&
-		     !qstrcmp( "QFrame", obj->className() ) ) {
-		    QFrame * f = (QFrame *)obj;
-		    if ( orientation() == Vertical ) {
-			f->setMinimumSize( 0, 6 );
-			f->setMaximumSize( QWIDGETSIZE_MAX, 6 );
-			if ( style() == WindowsStyle )
-			    f->setFrameStyle( QFrame::HLine + QFrame::Sunken );
-			else
-			    f->setFrameStyle( QFrame::NoFrame );
-		    } else {
-			f->setMinimumSize( 6, 0 );
-			f->setMaximumSize( 6, QWIDGETSIZE_MAX );
-			if ( style() == WindowsStyle )
-			    f->setFrameStyle( QFrame::VLine + QFrame::Sunken );
-			else
-			    f->setFrameStyle( QFrame::NoFrame );
-		    }
-		    // #### Reggie: Why is this needed. It breaks the layout of a toolbar (minimumSize)
-		    // #### if you have toolbuttons with labels + e.g. a combobox in a toolbar!!!
-// 		} else if ( w->maximumSize() == QSize(QWIDGETSIZE_MAX,
-// 						      QWIDGETSIZE_MAX)
-// 			    && w->minimumSize() == QSize(0,0) ) {
-// 		    QSize s( w->sizeHint() );
-// 		    if ( s.width() > 0 && s.height() > 0 )
-// 			w->setMinimumSize( s );
-// 		    else if ( s.width() > 0 )
-// 			w->setMinimumWidth( s.width() );
-// 		    else if ( s.height() > 0 )
-// 			w->setMinimumHeight( s.width() );
-		}
-		b->addWidget( w, w == sw ? 42 : 0 );
-	    }
-	}
-    }
-    b->activate();
-    updateGeometry();
+    //Does nothing, present for binary compatibility
 }
 
 
@@ -341,6 +335,8 @@ QMainWindow * QToolBar::mainWindow()
 void QToolBar::setStretchableWidget( QWidget * w )
 {
     sw = w;
+    b->setStretchFactor( w, 1 );
+    
     if ( !stretchable() )
 	setStretchable( TRUE );
 }
@@ -350,14 +346,14 @@ void QToolBar::setStretchableWidget( QWidget * w )
 
 bool QToolBar::event( QEvent * e )
 {
-    if ( e->type() == QEvent::LayoutHint ) {
-	setUpGM();
-    } else if ( e->type() == QEvent::ChildInserted ) {
+    bool r =  QWidget::event( e );
+    //after the event filters have dealt with it:
+    if ( e->type() == QEvent::ChildInserted ) {
 	QObject * child = ((QChildEvent*)e)->child();
-	if ( child && child->isWidgetType() )
-	    child->installEventFilter( this );
+	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
+	    b->setStretchFactor( (QWidget*)child, 1 );
     }
-    return QWidget::event( e );
+    return r;
 }
 
 
@@ -365,12 +361,7 @@ bool QToolBar::event( QEvent * e )
 
 bool QToolBar::eventFilter( QObject * obj, QEvent * e )
 {
-    if ( obj && e && obj->isWidgetType() &&
-	 ((QWidget *)obj)->parentWidget() == this &&
-	 ( e->type() == QEvent::Show ||
-	   e->type() == QEvent::Hide ) ) {
-	QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
-    }
+    //Does nothing, present for binary compatibility
     return QWidget::eventFilter( obj, e );
 }
 

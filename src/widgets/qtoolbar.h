@@ -80,6 +80,7 @@ protected slots:
     void endMoving( QToolBar *tb );
 
 private:
+    void init();
     virtual void setUpGM();
 
     QBoxLayout * b;
