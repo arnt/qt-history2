@@ -38,7 +38,6 @@ int main(int argc, char *argv[])
     tree->setModel(model);
     list->setModel(model);
 
-    // share the selections
     QItemSelectionModel *selection = new QItemSelectionModel(model, model);
     tree->setSelectionModel(selection);
     list->setSelectionModel(selection);
