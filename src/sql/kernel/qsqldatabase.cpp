@@ -1002,7 +1002,7 @@ QSqlRecord QSqlDatabase::record(const QString& tablename) const
     connection is opened or it has no effect; (or you can close() the
     connection, call this function and open() the connection again).
 
-    The format of the \a options string is a semi-colon separated list
+    The format of the \a options string is a semicolon separated list
     of option names or option=value pairs. The options depend on the
     database client used:
 

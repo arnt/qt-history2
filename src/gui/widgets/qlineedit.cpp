@@ -900,7 +900,7 @@ bool QLineEdit::hasAcceptableInput() const
     \endtable
 
     The mask consists of a string of mask characters and separators,
-    optionally followed by a semi-colon and the character used for
+    optionally followed by a semicolon and the character used for
     blanks: the blank characters are always removed from the text
     after editing. The default blank character is space.
 

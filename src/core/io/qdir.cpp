@@ -746,7 +746,7 @@ QDir::nameFilters() const
     The \a nameFilters is a wildcard (globbing) filter that understands
     "*" and "?" wildcards. (See \link qregexp.html#wildcard-matching
     QRegExp wildcard matching\endlink.) You may specify several filter
-    entries, each separated by spaces " ", or by semi-colons ";".
+    entries, each separated by spaces " ", or by semicolons ";".
 
     For example, if you want entryList() and entryInfoList() to list
     all files ending with either ".cpp" or ".h", you would use either
@@ -1543,7 +1543,7 @@ QDir::match(const QStringList &filters, const QString &fileName)
 /*!
     Returns true if the \a fileName matches the wildcard (glob)
     pattern \a filter; otherwise returns false. The \a filter may
-    contain multiple patterns separated by spaces or semi-colons.
+    contain multiple patterns separated by spaces or semicolons.
 
     (See \link qregexp.html#wildcard-matching QRegExp wildcard
     matching.\endlink)
@@ -1700,7 +1700,7 @@ QDir::refresh() const
 
     Returns a list of name filters from the given \a nameFilter. (If
     there is more than one filter, each pair of filters is separated
-    by a space or by a semi-colon.)
+    by a space or by a semicolon.)
 */
 
 QStringList 

@@ -272,7 +272,7 @@ qtextstream.h and \c qstringlist.h.
 \printto Element
 
 The format we are using to store the data is colon separated fields
-and newline separated records. The proportional points are semi-colon
+and newline separated records. The proportional points are semicolon
 separated, with their x, y pairs being comma-separated. The field
 order is value, value color, value pattern, label color, label points,
 label text. For example:
