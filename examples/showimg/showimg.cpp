@@ -60,7 +60,7 @@ ImageViewer::ImageViewer( QWidget *parent, const char *name, int wFlags )
     si = file->insertItem( "Save image", saveimage );
     sp = file->insertItem( "Save pixmap", savepixmap );
     file->insertSeparator();
-    file->insertItem( "&Quit", qApp,  SLOT(quit()), CTRL+Key_Q );
+    file->insertItem( "E&xit", qApp,  SLOT(quit()), CTRL+Key_Q );
 
     edit =  new QPopupMenu();
     menubar->insertItem( "&Edit", edit );

@@ -13,10 +13,6 @@
 #include <qapplication.h>
 #include <qimage.h>
 
-#ifdef QIMGIO
-#include <qimageio.h>
-#endif
-
 int main( int argc, char **argv )
 {
     if ( argc > 1 && QString(argv[1]) == "-m" ) {
@@ -29,10 +25,6 @@ int main( int argc, char **argv )
 
     QApplication::setFont( QFont("Helvetica", 12) );
     QApplication a( argc, argv );
-
-#ifdef QIMGIO
-    qInitImageIO();
-#endif
 
     QFileDialog::setIconProvider(new ImageIconProvider);
 
