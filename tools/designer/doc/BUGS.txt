@@ -14,6 +14,9 @@ Corrupted designerrc (Reggie)
 Small
 -----
 
+When saving as and the filname already exists, ask if you really want
+to override the existing file.
+
 
 Cosmetic
 --------
