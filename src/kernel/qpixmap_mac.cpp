@@ -143,7 +143,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	srow = (QRgb *)((char *)sptr + (yy * sbpr));
 	for(int xx=0;xx<image.width();xx++) {
 	    q = (srow + xx);
-	    *(drow + xx) = qRed(*q) << 16 | qGreen(*q) << 8 | qBlue(*q);
+	    *(drow + xx) = qAlpha(*q) << 24 | qRed(*q) << 16 | qGreen(*q) << 8 | qBlue(*q);
 	}
     }
     SwapMMUMode(&mode);
@@ -234,7 +234,7 @@ QImage QPixmap::convertToImage() const
 	srow = (long *)((char *)sptr + (yy * sbpr));
 	for(int xx=0;xx<w;xx++) {
 	    r = *(srow + xx);
-	    q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, 0);
+	    q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, (r >> 24) & 0xFF );
 	    if(d == 1) {
 		image->setPixel(xx, yy, q ? 0 : 1);
 	    } else {
@@ -620,6 +620,9 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
+    if(d != 32 && d != 1)
+	d = 32; //magic number.. we always use a 32 bit depth for non-bitmaps
+
     static int serial = 0;
     
     hd = 0;
