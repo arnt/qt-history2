@@ -193,9 +193,9 @@ QImageData::~QImageData()
 #ifdef QT3_SUPPORT
     if (jumptable)
         free(jumptable);
+    jumptable = 0;
 #endif
     data = 0;
-    jumptable = 0;
 }
 
 /*!
@@ -1412,6 +1412,7 @@ void QImage::setAlphaBuffer(bool enable)
     \sa fill() width() height() depth() numColors() bitOrder()
     jumpTable() scanLine() bits() bytesPerLine() numBytes()
 */
+#ifdef QT3_SUPPORT
 bool QImage::create(int width, int height, int depth, int numColors, Endian bitOrder)
 {
     if (d && !d->ref.deref())
@@ -1433,7 +1434,7 @@ bool QImage::create(const QSize& size, int depth, int numColors, QImage::Endian 
     d = QImageData::create(size, formatFor(depth, bitOrder), numColors);
     return true;
 }
-
+#endif // QT3_SUPPORT
 
 /*****************************************************************************
   Internal routines for converting image depth.

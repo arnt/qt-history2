@@ -777,7 +777,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     }
 
     QAbstractSpinBox::keyPressEvent(e);
-    if (select && d->currentsection != oldCurrent && !(e->modifiers() & Qt::ShiftButton) && !d->edit->hasSelectedText()) {
+    if (select && d->currentsection != oldCurrent && !(e->modifiers() & Qt::ShiftModifier) && !d->edit->hasSelectedText()) {
 	d->setSelected(d->currentsection);
     }
 }

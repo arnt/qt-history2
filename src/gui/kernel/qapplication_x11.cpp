@@ -1163,8 +1163,8 @@ static bool isXInputSupported(Display *dpy)
     if (!version || version == reinterpret_cast<XExtensionVersion *>(NoSuchExtension))
         return false;
 
-    int tmp;
 #ifdef Q_OS_IRIX
+    int tmp;
     sgi_extension_exists = XSGIMiscQueryExtension(dpy, &tmp, &tmp);
 #endif
     XFree(version);
@@ -4658,6 +4658,8 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
         if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
     }
+#else
+    Q_UNUSED(grab)
 #endif
 
     long save = 0;

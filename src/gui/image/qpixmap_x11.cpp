@@ -2030,7 +2030,6 @@ void QPixmap::x11SetScreen(int screen)
 #endif
 
     QImage img = toImage();
-    resize(0,0);
     QX11InfoData* xd = data->xinfo.getX11Data(true);
     xd->screen = screen;
     xd->depth = QX11Info::appDepth(screen);
