@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#68 $
 **
 ** Implementation of QLabel widget class
 **
@@ -18,7 +18,7 @@
 #include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#67 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#68 $");
 
 
 #if QT_VERSION == 200
@@ -61,7 +61,7 @@ static void cleanupLabel()
 
   \code
      QLineEdit * phone = new QLineEdit( this, "phone number" );
-     QLabel * phoneLabel = new QLineEdit( phone, "&Phone", this );
+     QLabel * phoneLabel = new QLabel( phone, "&Phone", this );
   \endcode
 
   In this example, keyboard focus is transferred to the label's buddy
@@ -234,7 +234,7 @@ void QLabel::setText( const char *text )
 	    repaint();
     } else {
 	updateLabel();
-    } 
+    }
 }
 
 
@@ -613,7 +613,7 @@ void QLabel::setBuddy( QWidget *buddy )
 	that->buddy = buddy;
 	that->accel = new QAccel( this, "accel label accel" );
     }
-		    
+		
     const char * p = ltext.isEmpty() ? 0 : strchr( ltext, '&' );
     while( p && *p && p[1] == '&' )
 	p = strchr( p+2, '&' );
