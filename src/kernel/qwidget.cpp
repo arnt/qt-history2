@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#481 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#482 $
 **
 ** Implementation of QWidget class
 **
@@ -3000,11 +3000,14 @@ void QWidget::show()
     if ( !isTopLevel() && !parentWidget()->isVisible() )
 	return; // nothing we can do
 
+    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+    QApplication::sendPostedEvents( this, QEvent::Move );
+    QApplication::sendPostedEvents( this, QEvent::Resize );
+    
     bool sendLayoutHint = testWState( WState_Withdrawn ) && !isTopLevel();
     clearWState( WState_Withdrawn );
     setWState( WState_Visible );
-
-     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+    
      if ( parentWidget() )
 	 QApplication::sendPostedEvents( parentWidget(),
 					 QEvent::ChildInserted );
@@ -3042,8 +3045,6 @@ void QWidget::show()
 	}
     }
 
-    QApplication::sendPostedEvents( this, QEvent::Move );
-    QApplication::sendPostedEvents( this, QEvent::Resize );
     if ( testWFlags(WStyle_Tool) ) {
 	raise();
     } else if ( testWFlags(WType_TopLevel) && !isPopup() ) {
