@@ -73,6 +73,12 @@ static QPaintDevice* paintEventDevice = 0;
 
 void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 {
+    if(paintEventClipRegion) {
+	if(dev != paintEventDevice )
+	    warning("Whoa, two set_paintevent_clippings on different widgets!?!");
+	return;
+    }
+
     if ( !paintEventClipRegion )
 	paintEventClipRegion = new QRegion;
     *paintEventClipRegion = region;
@@ -323,7 +329,10 @@ bool QPainter::begin( const QPaintDevice *pd )
         bg_col = w->backgroundColor();          // use widget bg color
         ww = vw = w->width();                   // default view size
         wh = vh = w->height();
-        if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
+	if(paintEventDevice == pdev) {
+	    clippedreg = *paintEventClipRegion;
+	}
+        else if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
             setf( NoCache );
             updatePen();
             updateBrush();
@@ -331,12 +340,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    //just clip my bounding rect
 	    clippedreg = QRegion(0, 0, w->width(), w->height());
         }  else {
-	    if(paintEventDevice == pdev) {
-		clippedreg = *paintEventClipRegion;
-	    }
-	    else {
-		clippedreg = w->clippedRegion();
-	    }
+	    clippedreg = w->clippedRegion();
 	}
     } else if ( dt == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;

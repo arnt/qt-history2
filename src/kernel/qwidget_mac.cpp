@@ -493,12 +493,25 @@ void QWidget::update()
 void QWidget::update( int x, int y, int w, int h )
 {
     if ( !testWState(WState_BlockUpdates) && testWState( WState_Visible ) && isVisible() ) {
-	Rect r;
+	if ( w < 0 )
+	    w = crect.width()  - x;
+	if ( h < 0 )
+	    h = crect.height() - y;
+	if ( w && h ) {
+#if 0
+	    QPoint mp(posInWindow(this));
+	    x += mp.x();
+	    y += mp.y();
 
-	QPoint mp(posInWindow(this));
-	SetRect( &r, mp.x()+x, mp.y()+y, mp.x()+x+w, mp.y()+y+h );
-	InvalWindowRect( (WindowRef)winId(), &r );
+	    Rect r;
+	    SetRect( &r, x, y, x+w, y+h );
+	    InvalWindowRect( (WindowRef)winId(), &r );
+#else
+	    QApplication::postEvent( this, new QPaintEvent( QRect(x,y,w,h), !testWFlags( WRepaintNoErase ) ) );
+#endif
+
     }
+}
 }
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
@@ -783,6 +796,7 @@ void QWidget::erase( const QRegion& reg )
 	yoff = y();
     }
 
+    qt_set_paintevent_clipping( this, reg );
     QPainter p;
     p.begin(this);
     p.setClipRegion(reg);
@@ -795,6 +809,7 @@ void QWidget::erase( const QRegion& reg )
 	p.fillRect(rr, bg_col);
     }
     p.end();
+    qt_clear_paintevent_clipping();
 }
 
 
