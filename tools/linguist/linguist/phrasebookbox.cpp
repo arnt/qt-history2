@@ -110,8 +110,7 @@ void PhraseBookBox::keyPressEvent( QKeyEvent *ev )
     if ( ev->key() == Key_Down || ev->key() == Key_Up ||
          ev->key() == Key_Next || ev->key() == Key_Prior )
         QApplication::sendEvent( lv,
-                new QKeyEvent(ev->type(), ev->key(), ev->ascii(), ev->state(),
-                              ev->text(), ev->isAutoRepeat(), ev->count()) );
+                new QKeyEvent(ev->type(), ev->key(), ev->state(), ev->text(), ev->isAutoRepeat(), ev->count()) );
     else
         QDialog::keyPressEvent( ev );
 }

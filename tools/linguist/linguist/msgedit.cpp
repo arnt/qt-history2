@@ -154,7 +154,7 @@ void ShadowWidget::paintEvent( QPaintEvent * e )
         return;
 
     if ( p.begin( this ) ) {
-        p.setPen( colorGroup().shadow() );
+        p.setPen( palette().color(QPalette::Shadow) );
 
         p.drawPoint( w + 5, 6 );
         p.drawLine( w + 3, 6, w + 5, 8 );
@@ -187,15 +187,15 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
 
     // Use white explicitly as the background color for the editor page.
     QPalette p = palette();
-    p.setColor( QPalette::Active, QColorGroup::Base, QColor( white ) );
-    p.setColor( QPalette::Inactive, QColorGroup::Base, QColor( white ) );
-    p.setColor( QPalette::Disabled, QColorGroup::Base, QColor( white ) );
-    p.setColor( QPalette::Active, QColorGroup::Background,
-                p.active().color( QColorGroup::Base ) );
-    p.setColor( QPalette::Inactive, QColorGroup::Background,
-                p.inactive().color( QColorGroup::Base ) );
-    p.setColor( QPalette::Disabled, QColorGroup::Background,
-                p.disabled().color( QColorGroup::Base ) );
+    p.setColor( QPalette::Active, QPalette::Base, QColor( white ) );
+    p.setColor( QPalette::Inactive, QPalette::Base, QColor( white ) );
+    p.setColor( QPalette::Disabled, QPalette::Base, QColor( white ) );
+    p.setColor( QPalette::Active, QPalette::Background,
+                p.color( QPalette::Active, QPalette::Base ) );
+    p.setColor( QPalette::Inactive, QPalette::Background,
+                p.color( QPalette::Inactive, QPalette::Base ) );
+    p.setColor( QPalette::Disabled, QPalette::Background,
+                p.color( QPalette::Disabled, QPalette::Base ) );
     setPalette( p );
 
     srcTextLbl = new QLabel( tr("Source text"), this, "source text label" );
@@ -214,7 +214,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     srcText->setHScrollBarMode( QScrollView::AlwaysOff );
     srcText->setVScrollBarMode( QScrollView::AlwaysOff );
     p = srcText->palette();
-    p.setColor( QPalette::Disabled, QColorGroup::Base, p.active().base() );
+    p.setColor( QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
     srcText->setPalette( p );
     connect( srcText, SIGNAL(textChanged()), SLOT(handleSourceChanges()) );
 
@@ -226,8 +226,8 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     cmtText->setHScrollBarMode( QScrollView::AlwaysOff );
     cmtText->setVScrollBarMode( QScrollView::AlwaysOff );
     p = cmtText->palette();
-    p.setColor( QPalette::Active, QColorGroup::Base, QColor( 236,245,255 ) );
-    p.setColor( QPalette::Inactive, QColorGroup::Base, QColor( 236,245,255 ) );
+    p.setColor( QPalette::Active, QPalette::Base, QColor( 236,245,255 ) );
+    p.setColor( QPalette::Inactive, QPalette::Base, QColor( 236,245,255 ) );
     cmtText->setPalette( p );
     connect( cmtText, SIGNAL(textChanged()), SLOT(handleCommentChanges()) );
 
@@ -242,7 +242,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     translationMed->setWordWrap( QTextView::WidgetWidth );
     translationMed->setTextFormat( QTextView::PlainText );
     p = translationMed->palette();
-    p.setColor( QPalette::Disabled, QColorGroup::Base, p.active().base() );
+    p.setColor( QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
     translationMed->setPalette( p );
     connect( translationMed, SIGNAL(textChanged()),
              SLOT(handleTranslationChanges()) );
@@ -423,7 +423,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
 
     sv = new QScrollView( this, "scroll view" );
     sv->setHScrollBarMode( QScrollView::AlwaysOff );
-    sv->viewport()->setBackgroundMode( PaletteBackground );
+    sv->viewport()->setBackgroundRole(QPalette::Background);
 
     editorPage = new EditorPage( sv, "editor page" );
     connect( editorPage, SIGNAL(pageHeightUpdated(int)),
@@ -554,22 +554,22 @@ bool MessageEditor::eventFilter( QObject *o, QEvent *e )
                 switch( k ) {
                 case Key_Up:
                     if (ed->cursorY() < 10)
-                        sv->verticalScrollBar()->subtractLine();
+                        sv->verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepSub);
                     break;
 
                 case Key_Down:
                     if (ed->cursorY() >= ed->height() - 20)
-                        sv->verticalScrollBar()->addLine();
+                        sv->verticalScrollBar()->triggerAction(QScrollBar::SliderSingleStepAdd);
                     break;
 
                 case Key_PageUp:
                     if (ed->cursorY() < 10)
-                        sv->verticalScrollBar()->subtractPage();
+                        sv->verticalScrollBar()->triggerAction(QScrollBar::SliderPageStepSub);
                     break;
 
                 case Key_PageDown:
                     if (ed->cursorY() >= ed->height() - 50)
-                        sv->verticalScrollBar()->addPage();
+                        sv->verticalScrollBar()->triggerAction(QScrollBar::SliderPageStepAdd);
                     break;
                 default:
                     sv->ensureVisible( sw->margin() + ed->x() + ed->cursorX(),

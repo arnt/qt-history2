@@ -72,9 +72,9 @@ void LVI::drawObsoleteText( QPainter * p, const QColorGroup & cg, int column,
         t = tmp;
     }
     if ( isSelected() )
-        p->setPen( lv->palette().disabled().highlightedText() );
+        p->setPen( lv->palette().color(QPalette::Disabled, QPalette::HighlightedText));
     else
-        p->setPen( lv->palette().disabled().text() );
+        p->setPen( lv->palette().color(QPalette::Disabled, QPalette::Text));
 
     if ( !t.isEmpty() ) {
         p->drawText( r, 0, width-marg-r, height(),

@@ -1987,3 +1987,4 @@ QIconSet TrWindow::loadPixmap(const QString &imageName)
 
     return QIconSet();
 }
+
