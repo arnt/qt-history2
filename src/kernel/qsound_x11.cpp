@@ -80,6 +80,7 @@ public:
     void play(QSound*);
     void stop(QSound*);
     bool okay();
+    void setDone(QSound*);
 
 public slots:
     void dataReceived();
@@ -136,7 +137,19 @@ qDebug("Event %d",e->type);
 	if (e->type==AuEventTypeElementNotify &&
 		    e->auelementnotify.kind==AuElementNotifyKindState) {
 	    if ( e->auelementnotify.cur_state == AuStateStop )
-		qDebug("DONE");
+		((QAuServerNAS*)inprogress->find(p))->setDone((QSound*)p);
+	}
+    }
+}
+
+void QAuServerNAS::setDone(QSound* s)
+{
+    if (nas) {
+	decLoop(s);
+	if (s->loopsRemaining()) {
+	    play(s);
+	} else {
+	    inprogress->remove(s);
 	}
     }
 }
@@ -146,7 +159,7 @@ void QAuServerNAS::play(QSound* s)
     if (nas) {
 	if ( !inprogress )
 	    inprogress = new QPtrDict<void>;
-	inprogress->insert(s,(void*)1);
+	inprogress->insert(s,(void*)this);
 	int iv=100;
 	AuFixedPoint volume=AuFixedPointFromFraction(iv,100);
 	AuSoundPlayFromBucket(nas, bucket(s)->id, AuNone, volume,
@@ -161,9 +174,8 @@ void QAuServerNAS::play(QSound* s)
 void QAuServerNAS::stop(QSound* s)
 {
     if (nas) {
+	s->setLoops(0);
 	inprogress->remove(s);
-
-	// #######
     }
 }
 
