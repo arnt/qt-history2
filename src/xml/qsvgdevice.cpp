@@ -1522,6 +1522,12 @@ void QSvgDevice::applyTransform( QDomElement *e ) const
     e->setAttribute( "transform", s );
 }
 
+QPaintEngine *QSvgDevice::engine() const
+{
+    Q_ASSERT(!"QSvgDevice::engine() not implemented!");
+    return 0;
+}
+
 /* Statically initialized, so it is created if you link to this */
 #include <qpicture.h>
 class QSVGIO {

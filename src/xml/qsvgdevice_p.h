@@ -42,6 +42,7 @@
 #ifndef QT_NO_SVG
 
 class QPainter;
+class QPaintEngine;
 class QDomNode;
 class QDomNamedNodeMap;
 struct QSvgDeviceState;
@@ -63,6 +64,8 @@ public:
 
     QRect boundingRect() const;
     void setBoundingRect( const QRect &r );
+
+    QPaintEngine *engine() const;
 
 protected:
     virtual int	 metric( int ) const;
