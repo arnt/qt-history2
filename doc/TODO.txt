@@ -41,6 +41,10 @@ QPicture
 QSpinBox
   Don't use buttons in the box, and make it styleable.
 
+QMenuData
+  Clean up the semi-internalness of QMenuItem, ref qmenudata.h. Either
+  make it public or provide another API (e.g. methods in QMenuData) for
+  asking about the contents of an existing menu.
 
 Specific enhancements
 ---------------------
