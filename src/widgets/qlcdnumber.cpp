@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#28 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#28 $")
 
 
 /*! \class QLCDNumber qlcdnum.h
@@ -38,8 +38,9 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#27 $")
 
   These digits and other symbols can be shown: 0/O, 1, 2, 3, 4, 5/S,
   6, 7, 8, 9/g, minus, decimal point, A, B, C, D, E, F, h, H, L, o, P,
-  r, u, U, Y, colon, single quote and space.  QLCDNumber substitutes
-  spaces for illegal characters.
+  r, u, U, Y, colon, degree sign (which is specified as single quote
+  in the string) and space.  QLCDNumber substitutes spaces for illegal
+  characters.
 
   It is impossible to retrieve the contents of a QLCDNumber object.
   If you need to, we recommend that you connect the signals which feed
@@ -280,9 +281,6 @@ QLCDNumber::~QLCDNumber()
   If smallDecimalPoint() is TRUE, \e numDigits can be shown.  If it is
   FALSE, only \e numDigits-1 digits can be shown.
 
-  Setting the number of digits too low for the current contents does
-  \e not cause overflow() to be emitted.
-
   \sa numDigits() setMode() setSmallDecimalPoint() overflow() */
 
 void QLCDNumber::setNumDigits( int numDigits )
@@ -415,8 +413,9 @@ void QLCDNumber::display( double num )
 
   These digits and other symbols can be shown: 0/O, 1, 2, 3, 4, 5/S,
   6, 7, 8, 9/g, minus, decimal point, A, B, C, D, E, F, h, H, L, o, P,
-  r, u, U, Y, colon, single quote and space.  QLCDNumber substitutes
-  spaces for illegal characters. */
+  r, u, U, Y, colon, degree sign (which is specified as single quote
+  in the string) and space.  QLCDNumber substitutes spaces for illegal
+  characters. */
 
 void QLCDNumber::display( const char *s )
 {
