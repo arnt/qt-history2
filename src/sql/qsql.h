@@ -49,15 +49,15 @@ public:
 	Yes = 1
     };
 
-    enum ParameterType {
+    enum ParamTypeFlags {
 	In = 0x00000001,
 	Out = 0x00000002,
 	InOut = 0x00000003, // In | Out
 	Binary = 0x00000004
     };
-    Q_DECLARE_FLAGS(ParamType, ParameterType);
-    
-    enum TableType { 
+    Q_DECLARE_FLAGS(ParamType, ParamTypeFlags);
+
+    enum TableType {
 	Tables = 0x01,
 	SystemTables = 0x02,
 	Views = 0x04,
@@ -72,7 +72,7 @@ private:	// Disabled copy constructor and operator=
 
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(ParamType)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QSql::ParamType)
 
 #endif
 #endif
