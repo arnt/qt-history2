@@ -288,7 +288,10 @@ void MainWindow::print()
     if ( printer.setup( this ) ) {
 	QPaintDeviceMetrics screen( this );
 	printer.setResolution( screen.logicalDpiY() );
-	QPainter p( &printer );
+	QPainter p;
+	if ( !p.begin( &printer ) )
+	    return;
+
 	QPaintDeviceMetrics metrics(p.device());
 	QTextBrowser *browser = tabs->currentBrowser();
 	int dpix = metrics.logicalDpiX();
