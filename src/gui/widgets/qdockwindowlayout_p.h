@@ -43,7 +43,7 @@ struct QDockWindowLayoutInfo
     uint is_sep     : 1;
     uint is_dummy   : 1;
     uint is_dropped : 1;
-    uint reserved   : 29;
+    uint reserved   : 13;
 
     inline QDockWindowLayoutInfo(QLayoutItem *i)
 	: item(i), cur_pos(-1), cur_size(-1), min_size(1), max_size(-1),
