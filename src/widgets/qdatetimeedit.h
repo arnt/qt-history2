@@ -149,6 +149,12 @@ class Q_EXPORT QTimeEdit : public QDateTimeEditBase
     Q_PROPERTY( QTime minValue READ minValue WRITE setMinValue )
 
 public:
+    enum Display {
+	Hours	= 0x01,
+	Minutes	= 0x02,
+	Seconds	= 0x04
+    };
+
     QTimeEdit( QWidget* parent=0,  const char* name=0 );
     QTimeEdit( const QTime& time, QWidget* parent=0,  const char* name=0 );
     ~QTimeEdit();
@@ -171,6 +177,9 @@ public:
     virtual void setRange( const QTime& min, const QTime& max );
     QString separator() const;
     virtual void setSeparator( const QString& s );
+
+    int display() const;
+    void setDisplay( int );
 
 signals:
     void valueChanged( const QTime& time );

@@ -243,6 +243,10 @@ public:
     {
 	sections.append( sec );
     }
+    void clearSections()
+    {
+	sections.clear();
+    }
     void setSectionSelection( int sec, int selstart, int selend )
     {
 	if ( sec < 0 || sec > (int)sections.count() )
@@ -383,6 +387,7 @@ public:
     int  focusSection() const;
     bool setFocusSection( int s );
     void appendSection( const QNumberSection& sec );
+    void clearSections();
     void setSectionSelection( int sec, int selstart, int selend );
     bool eventFilter( QObject *o, QEvent *e );
     int  sectionAt( const QPoint &p );
@@ -620,6 +625,14 @@ void QDateTimeEditor::appendSection( const QNumberSection& sec )
     d->appendSection( sec );
 }
 
+/*! Removes all sections from the editor.
+
+*/
+void QDateTimeEditor::clearSections()
+{
+    d->clearSections();
+}
+
 /*! Sets the selection of \a sec to start at \a selstart and end at \a
   selend.
 
@@ -741,7 +754,9 @@ protected:
 	
 	int section = editor->sectionAt( e->pos() );
 	editor->setFocusSection( section );
-	
+
+	if ( section == -1 )
+	    return;
 	QSpinWidget::wheelEvent( e );
     }
 };
@@ -827,6 +842,17 @@ public:
   \value YMD year-month-day (the default)
   \value YDM year-day-month (a very bad idea)
 */
+
+/*! \enum QTimeEdit::Display
+    This enum defines which sections that comprise a time appear
+
+    \value Hours The hours section
+    \value Minutes The minutes section
+    \value Seconds The seconds section
+
+    The values can be or'ed together to show any combination.
+*/
+
 
 /*! Constructs an empty date editor which is a child of \a parent and the
   name \a name.
@@ -1642,6 +1668,7 @@ public:
     int h;
     int m;
     int s;
+    int display;
     bool adv;
     bool overwrite;
     int timerId;
@@ -1742,6 +1769,7 @@ void QTimeEdit::init()
     d->h = 0;
     d->m = 0;
     d->s = 0;
+    d->display = Hours | Minutes | Seconds;
     d->adv = FALSE;
     d->overwrite = FALSE;
     d->timerId = 0;
@@ -1809,7 +1837,39 @@ void QTimeEdit::setRange( const QTime& min, const QTime& max )
 	d->max = max;
 }
 
+/*!
+  Sets the sections that are available in the time edit to \a display.
 
+  The value can be any combination of the values in the Display enum.
+  By default, the widget displays hours, minutes and seconds.
+*/
+void QTimeEdit::setDisplay( int display )
+{
+    if ( d->display == display )
+	return;
+
+    d->ed->clearSections();
+    d->display = display;
+    if ( d->display & Hours )
+	d->ed->appendSection( QNumberSection( 0,0 ) );
+    if ( d->display & Minutes )
+	d->ed->appendSection( QNumberSection( 0,0 ) );
+    if ( d->display & Seconds )
+	d->ed->appendSection( QNumberSection( 0,0 ) );
+
+    d->ed->setFocusSection( 0 );
+    d->ed->update();
+}
+
+/*!
+  Returns the sections that are available in the time edit display.
+
+  The returned value is an or'ed combination of the values in the Display enum.
+*/
+int QTimeEdit::display() const
+{
+    return d->display;
+}
 
 /*! \property QTimeEdit::time
 
@@ -1920,6 +1980,20 @@ void QTimeEdit::timerEvent( QTimerEvent * )
     d->overwrite = TRUE;
 }
 
+static int adjustSection( int display, int sec )
+{
+    int newsec = sec;
+    if ( sec==0 && !(display & QTimeEdit::Hours) )
+	newsec++;
+    if ( sec==0 && !(display & QTimeEdit::Hours) && !(display &QTimeEdit::Minutes ) )
+	newsec++;
+    if ( sec==1 && ( !(display & QTimeEdit::Hours ) || !(display & QTimeEdit::Minutes ) ) )
+	newsec++;
+
+    return newsec;
+}
+
+
 
 /*! \reimp
 
@@ -1927,7 +2001,7 @@ void QTimeEdit::timerEvent( QTimerEvent * )
 
 void QTimeEdit::stepUp()
 {
-    int sec = d->ed->focusSection();
+    int sec = adjustSection( d->display, d->ed->focusSection() );
     bool accepted = FALSE;
     switch( sec ) {
     case 0:
@@ -1948,6 +2022,11 @@ void QTimeEdit::stepUp()
 	    setSecond( d->s+1 );
 	}
 	break;
+    default:
+#ifdef QT_CHECK_RANGE
+	qWarning( "QTimeEdit::stepUp: Focus section out of range!" );
+#endif
+	break;
     }
     if ( accepted ) {
 	d->changed = TRUE;
@@ -1963,7 +2042,8 @@ void QTimeEdit::stepUp()
 
 void QTimeEdit::stepDown()
 {
-    int sec = d->ed->focusSection();
+    int sec = adjustSection( d->display, d->ed->focusSection() );
+
     bool accepted = FALSE;
     switch( sec ) {
     case 0:
@@ -1983,6 +2063,11 @@ void QTimeEdit::stepDown()
 	    accepted = TRUE;
 	    setSecond( d->s-1 );
 	}
+	break;
+    default:
+#ifdef QT_CHECK_RANGE
+	qWarning( "QTimeEdit::stepDown: Focus section out of range!" );
+#endif
 	break;
     }
     if ( accepted ) {
@@ -2010,11 +2095,18 @@ QString QTimeEdit::sectionFormattedText( int sec )
 	d->ed->setSectionSelection( sec, offset - 2, offset );
     txt = txt.rightJustify( 2, QDATETIMEEDIT_HIDDEN_CHAR );
 
-    if ( sec == 2 && lAMPM ) {
-	if ( d->h < 12 )
-	    txt += " " + *lAM;
-	else
-	    txt += " " + *lPM;
+    if ( d->display & Hours ) {
+	int lastSec = 0;
+	if ( d->display & Minutes )
+	    lastSec++;
+	if ( d->display & Seconds )
+	    lastSec++;
+	if ( sec == lastSec && lAMPM ) {
+	    if ( d->h < 12 )
+		txt += " " + *lAM;
+	    else
+		txt += " " + *lPM;
+	}
     }
     return txt;
 }
@@ -2094,6 +2186,8 @@ void QTimeEdit::setSecond( int s )
 
 QString QTimeEdit::sectionText( int sec )
 {
+    sec = adjustSection( d->display, sec );
+
     QString txt;
     switch( sec ) {
     case 0:
@@ -2142,6 +2236,7 @@ void QTimeEdit::addNumber( int sec, int num )
 {
     if ( sec == -1 )
 	return;
+    sec = adjustSection( d->display, sec );
     killTimer( d->timerId );
     bool overwrite = FALSE;
     bool accepted = FALSE;
