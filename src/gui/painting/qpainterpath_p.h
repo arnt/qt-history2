@@ -76,7 +76,11 @@ inline void QPainterPathPrivate::makeDirty()
         containsCache = QRegion();
 }
 
-class Q_GUI_EXPORT QSubpathIterator
+/*******************************************************************************
+ * class QSubpathIterator
+ * Iterates through a path, subpath by subpath, element by element.
+ */
+class QSubpathIterator
 {
 public:
     QSubpathIterator(const QPainterPath *path);
@@ -93,7 +97,13 @@ private:
     int m_pos;
 };
 
-class Q_GUI_EXPORT QSubpathReverseIterator
+/*******************************************************************************
+ * QSubpathReverseIterator
+ *
+ * Iterates through all subpaths backwards. The order of the subpaths
+ * are the same as their order in the original path.
+ */
+class QSubpathReverseIterator
 {
 public:
     QSubpathReverseIterator(const QPainterPath *path);
@@ -111,6 +121,36 @@ private:
     int m_pos;
     int m_start, m_end;
 };
+
+/*******************************************************************************
+ * QSubpathFlatIterator
+ *
+ * Iterates through all subpaths, element by element, but converts any
+ * curve element to a number of line segments so all elements retrieved
+ * are of type QPainterPath::LineToElement.
+ */
+class QSubpathFlatIterator
+{
+public:
+    QSubpathFlatIterator(const QPainterPath *path);
+
+    inline bool hasSubpath() const;
+    inline QPointF nextSubpath();
+
+    inline bool hasNext() const;
+    QPainterPath::Element next();
+
+private:
+    const QPainterPath *m_path;
+    int m_pos;
+    QPolygonF m_curve;
+    int m_curve_index;
+};
+
+
+/*******************************************************************************
+ * QSubpathIterator inline implemetations
+ */
 
 inline QSubpathIterator::QSubpathIterator(const QPainterPath *path)
      : m_path(path),
@@ -145,6 +185,11 @@ inline QPainterPath::Element QSubpathIterator::next()
     return m_path->elementAt(m_pos++);
 }
 
+
+/*******************************************************************************
+ * QSubpathReverseIterator inline implementations
+ */
+
 inline QSubpathReverseIterator::QSubpathReverseIterator(const QPainterPath *path)
      : m_path(path)
 {
@@ -177,6 +222,40 @@ inline int QSubpathReverseIterator::indexOfSubpath(int i)
     while (i < max && m_path->elementAt(i).type != QPainterPath::MoveToElement)
         ++i;
     return i - 1;
+}
+
+
+/*******************************************************************************
+ * QSubpathFlatIterator inline implemetations
+ */
+
+inline QSubpathFlatIterator::QSubpathFlatIterator(const QPainterPath *path)
+     : m_path(path),
+       m_pos(0),
+       m_curve_index(-1)
+{
+
+}
+
+inline bool QSubpathFlatIterator::hasNext() const
+{
+    return m_curve_index >= 0 || (m_pos < m_path->elementCount()
+                                  && m_path->elementAt(m_pos).type != QPainterPath::MoveToElement);
+}
+
+inline bool QSubpathFlatIterator::hasSubpath() const
+{
+    return m_pos + 1 < m_path->elementCount()
+        && m_path->elementAt(m_pos).type == QPainterPath::MoveToElement;
+}
+
+inline QPointF QSubpathFlatIterator::nextSubpath()
+{
+    Q_ASSERT(hasSubpath());
+    const QPainterPath::Element &e = m_path->elementAt(m_pos);
+    ++m_pos;
+    Q_ASSERT(!hasSubpath());
+    return QPointF(e.x, e.y);
 }
 
 #endif // QPAINTERPATH_P_H

@@ -1444,6 +1444,41 @@ QPainterPath::Element QSubpathReverseIterator::next()
     return ce;
 }
 
+QPainterPath::Element QSubpathFlatIterator::next()
+{
+    Q_ASSERT(hasNext());
+
+    if (m_curve_index >= 0) {
+        QPainterPath::Element e = { m_curve.at(m_curve_index).x(),
+                                    m_curve.at(m_curve_index).y(),
+                                    QPainterPath::LineToElement };
+        ++m_curve_index;
+        if (m_curve_index >= m_curve.size())
+            m_curve_index = -1;
+        return e;
+    }
+
+    QPainterPath::Element e = m_path->elementAt(m_pos);
+    if (e.isCurveTo()) {
+        Q_ASSERT(m_pos > 0);
+        Q_ASSERT(m_pos < m_path->elementCount());
+        m_curve = QBezier(m_path->elementAt(m_pos-1),
+                          e,
+                          m_path->elementAt(m_pos+1),
+                          m_path->elementAt(m_pos+2)).toPolygon();
+        m_curve_index = 1;
+        e.type = QPainterPath::LineToElement;
+        e.x = m_curve.at(0).x();
+        e.y = m_curve.at(0).y();
+        m_pos += 2;
+    }
+    Q_ASSERT(e.isLineTo());
+    ++m_pos;
+    return e;
+}
+
+
+
 
 /*******************************************************************************
  * class QPainterPathStroker
