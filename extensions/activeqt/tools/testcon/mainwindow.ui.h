@@ -382,5 +382,13 @@ void MainWindow::loadScript()
 
 void MainWindow::logMacro( int code, const QString &description, int sourcePosition, const QString &sourceText )
 {
-    logMacros->append(QString("Script: %1 '%2' at line %3 '%4'").arg(code).arg(description).arg(sourcePosition).arg(sourceText));
+    QString message = "Script: ";
+    if (code)
+	message += QString::number(code) + " ";
+    message += "'" + description + "'";
+    if (sourcePosition)
+	message += " at position " + QString::number(sourcePosition);
+    if (!sourceText.isEmpty())
+	message += "'" + sourceText + "'";
+    logMacros->append(message);
 }

@@ -177,7 +177,18 @@
                                 </property>
                                 <widget class="QTextEdit">
                                     <property name="name">
-                                        <cstring>logMacro</cstring>
+                                        <cstring>logMacros</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>7</hsizetype>
+                                            <vsizetype>5</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                    <property name="readOnly">
+                                        <bool>true</bool>
                                     </property>
                                 </widget>
                             </hbox>
@@ -721,7 +732,7 @@
     <slot>renderPixmap()</slot>
     <slot>runMacro()</slot>
     <slot>loadScript()</slot>
-    <slot>macroError(int code, const QString &amp;description, int sourcePosition, const QString &amp;sourceText)</slot>
+    <slot>logMacro(int code, const QString &amp;description, int sourcePosition, const QString &amp;sourceText)</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
