@@ -30,7 +30,7 @@ struct Candidate {
 };
 
 inline bool operator==( const Candidate& c, const Candidate& d ) {
-    return c.source == d.source && c.target == d.target;
+    return c.target == d.target && c.source == d.source;
 }
 inline bool operator!=( const Candidate& c, const Candidate& d ) {
     return !operator==( c, d );

@@ -59,11 +59,11 @@ enum { Tok_Eof, Tok_class, Tok_tr, Tok_translate, Tok_Ident, Tok_Comment,
 */
 static QCString yyFileName;
 static int yyCh;
-static char yyIdent[32];
+static char yyIdent[128];
 static size_t yyIdentLen;
 static char yyComment[65536];
 static size_t yyCommentLen;
-static char yyString[8192];
+static char yyString[16384];
 static size_t yyStringLen;
 static int yyBraceDepth;
 static int yyParenDepth;

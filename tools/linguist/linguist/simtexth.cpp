@@ -150,7 +150,6 @@ struct CoMatrix
     }
 };
 
-	// langue de culture et de raffinement
 static inline CoMatrix reunion( const CoMatrix& m, const CoMatrix& n )
 {
     CoMatrix p;
@@ -189,8 +188,8 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 	int delta = QABS( (int) s.length() - targetLen );
 
 	/*
-	  Here is the score formula.  A comment above contains a discussion on
-	  a similar (but simpler) formula.
+	  Here is the score formula. A comment above contains a
+	  discussion on a similar (but simpler) formula.
 	*/
 	int score = ( (intersection(cm, cmTarget).worth() + 1) << 10 ) /
 		    ( reunion(cm, cmTarget).worth() + (delta << 1) + 1 );
@@ -199,15 +198,24 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 	     score > scores[maxCandidates - 1] )
 	    candidates.remove( candidates.last() );
 	if ( (int) candidates.count() < maxCandidates && score >= 190 ) {
+	    Candidate cand( s, (*it).translation() );
+
 	    int i;
 	    for ( i = 0; i < (int) candidates.count(); i++ ) {
-		if ( score > scores[i] )
-		    break;
+		if ( score >= scores[i] ) {
+		    if ( score == scores[i] ) {
+			if ( candidates[i] == cand )
+			    goto continue_outer_loop;
+		    } else {
+			break;
+		    }
+		}
 	    }
 	    scores.insert( scores.at(i), score );
-	    candidates.insert( candidates.at(i),
-			       Candidate(s, (*it).translation()) );
+	    candidates.insert( candidates.at(i), cand );
 	}
+continue_outer_loop:
+	;
     }
     return candidates;
 }
