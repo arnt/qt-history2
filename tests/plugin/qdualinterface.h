@@ -4,14 +4,17 @@
 #include <qobject.h>
 #include <qvariant.h>
 
+class QClientInterface;
+
 class QDualInterface : public QObject
 {
     Q_OBJECT
 signals:
-    void readProperty( const QCString&, QVariant& );
-    void writeProperty( const QCString&, const QVariant& );
-    void makeConnection( const char*, QObject*, const char* );
-    void eventFilter( QObject* );
+    void sendRequestProperty( const QCString&, QVariant& );
+    void sendRequestSetProperty( const QCString&, const QVariant& );
+    void sendRequestSignal( const char*, QObject*, const char* );
+    void sendRequestEvents( QObject* );
+    void sendRequestConnection( const QCString&, QClientInterface* );
 
 public slots:
     virtual void requestProperty( const QCString&, QVariant& ) = 0;
@@ -25,48 +28,52 @@ public slots:
     provide the same interface all the time (as the accessed objects
     change).
     
-    The application interface should create the interface
-    if it wants to, and the plugin can use its clientInterface 
-    function to access it (this way, no pointer has to be 
-    passed from the application to the plugin!)
+    The plugin can create a QClientInterface and ask the application 
+    interface to connect the new client to a requested interface the
+    existing ai knows about (e.g. a mainwindow knows about its menubar)
+    The connection will automatically be canceled when the plugin does
+    no longer need the interface and deletes it.
 
-    E.g. We have a stable connection to the Designer application
+    I.e. We have a stable connection to the Designer application
     interface, and we want to access the active form -> the client
     interface sends a request to the application interface, which
     creates the forminterface for the active form. Now the plugin
     can try to get the new interface using the clientInterface()
     function!
     */
-    virtual void requestInterface( const QCString& ) {}
-    /*
-    The other way round. The plugin doesn't need the interface
-    any more, so the application can delete it.
-    Hmmm... maybe the clientinterface-dict of the plugin should
-    be a QDict<<QGuardedPtr<QClientInterface>>, then the application
-    can cut an interface (e.g. when the form the interface accesses
-    is closed) without leaving the plugin in an undefined state!
-    */
-    virtual void abortInterface( const QCString& ) {}
+    virtual void requestConnection( const QCString&, QClientInterface* ) = 0;
 };
 
 class QClientInterface : public QDualInterface
 {
 public:
+    QClientInterface()
+    {
+	qDebug( "Here comes the client interface!" );
+    }
+    ~QClientInterface()
+    {
+	qDebug( "There goes the client interface!" );
+    }
     void requestProperty( const QCString& p, QVariant& v ) 
     {
-	emit readProperty( p, v );
+	emit sendRequestProperty( p, v );
     }
     void requestSetProperty( const QCString& p, const QVariant& v )
     {
-	emit writeProperty( p, v );
+	emit sendRequestSetProperty( p, v );
     }
     void requestSignal( const char* signal, QObject* target, const char* slot )
     {
-	emit makeConnection( signal, target, slot );
+	emit sendRequestSignal( signal, target, slot );
     }
     void requestEvents( QObject* o )
     {
-	emit eventFilter( o );
+	emit sendRequestEvents( o );
+    }
+    void requestConnection( const QCString& request, QClientInterface* plug )
+    {
+	emit sendRequestConnection( request, plug );
     }
 };
 
