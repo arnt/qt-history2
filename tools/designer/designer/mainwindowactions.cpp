@@ -1064,10 +1064,12 @@ void MainWindow::fileClose()
 	fileCloseProject();
     } else {
 	QWidget *w = qworkspace->activeWindow();
-	if ( w->inherits( "FormWindow" ) )
-	    ( (FormWindow*)w )->formFile()->close();
-	else if ( w->inherits( "SourceEditor" ) )
-	    ( (SourceEditor*)w )->close();
+	if ( w ) {
+	    if ( w->inherits( "FormWindow" ) )
+		( (FormWindow*)w )->formFile()->close();
+	    else if ( w->inherits( "SourceEditor" ) )
+		( (SourceEditor*)w )->close();
+	}
     }
 }
 
