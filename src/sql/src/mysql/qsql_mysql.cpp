@@ -203,7 +203,7 @@ QSqlFieldList QMySQLResult::fields()
 		    QSqlField fi( QString((const char*)f->name), count, qDecodeMYSQLType( f->type ) );
 		    if ( isValid() )
 			fi.setValue( data( count ) );
-		    fil.append( fi  );
+		    fil.append( &fi  );
 		} else
 		    break;
 		count++;
@@ -317,7 +317,7 @@ QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
     while ( i.isActive() && i.next() ) {
 	if ( i.value(2).toString() == "PRIMARY" ) {
 	    QSqlFieldList fil = fields( tablename );
-	    idx.append( *(fil.field( i.value(3).toInt()-1 )) );
+	    idx.append( fil.field( i.value(3).toInt()-1 ) );
 	    break;
 	}
     }
@@ -330,8 +330,10 @@ QSqlFieldList QMySQLDriver::fields( const QString& tablename ) const
     QString fieldStmt( "show columns from %1;");
     QSql i = createResult();
     i.setQuery( fieldStmt.arg( tablename ) );
-    while ( i.isActive() && i.next() )
-	fil.append ( QSqlField( i.value(0).toString() , i.at(), qDecodeMYSQLType(i.value(1).toInt()) ) );
+    while ( i.isActive() && i.next() ) {
+	QSqlField f ( i.value(0).toString() , i.at(), qDecodeMYSQLType(i.value(1).toInt()) );
+	fil.append ( &f );
+    }
     return fil;
 }
 
