@@ -104,6 +104,9 @@
 //for qt_mac.h
 QPaintDevice *qt_mac_safe_pdev = 0;
 QPtrList<QMacSavedPortInfo> QMacSavedPortInfo::gports;
+#ifdef QT_THREAD_SUPPORT
+QMutex *qt_mac_port_mutex = NULL;
+#endif
 
 /*****************************************************************************
   Internal variables and functions
@@ -416,6 +419,9 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 	    tlw->hide();
 	    qt_mac_safe_pdev = tlw;
 	}
+#if defined(QT_THREAD_SUPPORT)
+	qt_mac_port_mutex = new QMutex(TRUE);
+#endif
     }
 
     if(!app_proc_handler) {

@@ -30,6 +30,11 @@
 
 #include <qwidget.h>
 extern int mac_window_count; //qwidget_mac.cpp
+#ifdef QT_THREAD_SUPPORT
+#include <qthread.h>
+extern QMutex *qt_mac_port_mutex; //qapplication_mac.cpp
+#endif
+
 
 class QMacSavedFontInfo 
 {
@@ -149,7 +154,8 @@ inline bool
 QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 {
 #if defined(QT_THREAD_SUPPORT)
-    qApp->lock();
+    if(qt_mac_port_mutex)
+	qt_mac_port_mutex->lock();
 #endif
     bool ret = TRUE;
     if(!pd)
@@ -167,7 +173,8 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 	break;
     }
 #if defined(QT_THREAD_SUPPORT)
-    qApp->unLock();
+    if(qt_mac_port_mutex)
+	qt_mac_port_mutex->unLock();
 #endif
     return ret;
 }
@@ -176,7 +183,8 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 inline void QMacSavedPortInfo::init()
 {
 #if defined(QT_THREAD_SUPPORT)
-    qApp->lock();
+    if(qt_mac_port_mutex)
+	qt_mac_port_mutex->lock();
 #endif
     fi = NULL;
     if(mac_window_count) {
@@ -209,7 +217,8 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
     if(fi)
 	delete fi;
 #if defined(QT_THREAD_SUPPORT)
-    qApp->unLock();
+    if(qt_mac_port_mutex)
+	qt_mac_port_mutex->unLock();
 #endif
 }
 
