@@ -86,6 +86,7 @@ private:
     QPopupMenu* options;
     QPrinter* printer;
     bool dbf;
+    int dbf_id;
 };
 
 #endif
