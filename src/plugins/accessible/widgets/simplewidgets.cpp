@@ -136,9 +136,9 @@ QString QAccessibleButton::text(Text t, int child) const
 }
 
 /*! \reimp */
-int QAccessibleButton::state(int child) const
+QAccessible::State QAccessibleButton::state(int child) const
 {
-    int state = QAccessibleWidget::state(child);
+    State state = QAccessibleWidget::state(child);
 
     QAbstractButton *b = button();
     QCheckBox *cb = qt_cast<QCheckBox *>(b);
@@ -214,9 +214,9 @@ QAccessible::Role QAccessibleToolButton::role(int child) const
 }
 
 /*! \reimp */
-int QAccessibleToolButton::state(int child) const
+QAccessible::State QAccessibleToolButton::state(int child) const
 {
-    int st = QAccessibleButton::state(child);
+    QAccessible::State st = QAccessibleButton::state(child);
     if (toolButton()->autoRaise())
         st |= HotTracked;
     if (toolButton()->menu() && child != ButtonExecute)
@@ -411,9 +411,10 @@ QString QAccessibleDisplay::text(Text t, int child) const
 }
 
 /*! \reimp */
-int QAccessibleDisplay::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
+QAccessible::Relation QAccessibleDisplay::relationTo(int child, const QAccessibleInterface *other,
+                                                     int otherChild) const
 {
-    int relation = QAccessibleWidget::relationTo(child, other, otherChild);
+    Relation relation = QAccessibleWidget::relationTo(child, other, otherChild);
     if (child || otherChild)
         return relation;
 
@@ -431,7 +432,7 @@ int QAccessibleDisplay::relationTo(int child, const QAccessibleInterface *other,
 }
 
 /*! \reimp */
-int QAccessibleDisplay::navigate(Relation rel, int entry, QAccessibleInterface **target) const
+int QAccessibleDisplay::navigate(RelationFlag rel, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
     if (rel == Labelled) {
@@ -502,9 +503,9 @@ void QAccessibleLineEdit::setText(Text t, int control, const QString &text)
 }
 
 /*! \reimp */
-int QAccessibleLineEdit::state(int child) const
+QAccessible::State QAccessibleLineEdit::state(int child) const
 {
-    int state = QAccessibleWidget::state(child);
+    State state = QAccessibleWidget::state(child);
 
     QLineEdit *l = lineEdit();
     if (l->isReadOnly())

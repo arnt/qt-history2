@@ -94,7 +94,7 @@ QRect QAccessibleSpinBox::rect(int child) const
 }
 
 /*! \reimp */
-int QAccessibleSpinBox::navigate(Relation rel, int entry, QAccessibleInterface **target) const
+int QAccessibleSpinBox::navigate(RelationFlag rel, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
 
@@ -153,9 +153,9 @@ QAccessible::Role QAccessibleSpinBox::role(int child) const
 }
 
 /*! \reimp */
-int QAccessibleSpinBox::state(int child) const
+QAccessible::State QAccessibleSpinBox::state(int child) const
 {
-    int state = QAccessibleWidget::state(child);
+    State state = QAccessibleWidget::state(child);
     switch(child) {
     case ValueUp:
         if (spinBox()->value() >= spinBox()->maximum())

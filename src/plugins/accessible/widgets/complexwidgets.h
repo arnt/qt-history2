@@ -27,12 +27,12 @@ class QAccessibleHeader : public QAccessibleWidget
 public:
     QAccessibleHeader(QWidget *w);
 
-    int                childCount() const;
+    int childCount() const;
 
-    QRect        rect(int child) const;
-    QString        text(Text t, int child) const;
-    Role        role(int child) const;
-    int                state(int child) const;
+    QRect rect(int child) const;
+    QString text(Text t, int child) const;
+    Role role(int child) const;
+    State state(int child) const;
 
 protected:
     QHeaderView *header() const;
@@ -43,15 +43,15 @@ class QAccessibleTabBar : public QAccessibleWidget
 public:
     QAccessibleTabBar(QWidget *w);
 
-    int                childCount() const;
+    int childCount() const;
 
-    QRect        rect(int child) const;
-    QString        text(Text t, int child) const;
-    Role        role(int child) const;
-    int                state(int child) const;
+    QRect rect(int child) const;
+    QString text(Text t, int child) const;
+    Role role(int child) const;
+    State state(int child) const;
 
-    bool        doAction(int action, int child, const QVariantList &params);
-    bool        setSelected(int child, bool on, bool extend);
+    bool doAction(int action, int child, const QVariantList &params);
+    bool setSelected(int child, bool on, bool extend);
     QVector<int> selection() const;
 
 protected:
@@ -73,17 +73,17 @@ public:
         PopupList
     };
 
-    int                childCount() const;
-    int                childAt(int x, int y) const;
-    int                indexOfChild(const QAccessibleInterface *child) const;
-    int                navigate(Relation rel, int entry, QAccessibleInterface **target) const;
+    int childCount() const;
+    int childAt(int x, int y) const;
+    int indexOfChild(const QAccessibleInterface *child) const;
+    int navigate(RelationFlag rel, int entry, QAccessibleInterface **target) const;
 
-    QString        text(Text t, int child) const;
-    QRect        rect(int child) const;
-    Role        role(int child) const;
-    int                state(int child) const;
+    QString text(Text t, int child) const;
+    QRect rect(int child) const;
+    Role role(int child) const;
+    State state(int child) const;
 
-    bool        doAction(int action, int child, const QVariantList &params);
+    bool doAction(int action, int child, const QVariantList &params);
 
 protected:
     QComboBox *comboBox() const;
@@ -94,14 +94,14 @@ class QAccessibleTitleBar : public QAccessibleWidget
 public:
     QAccessibleTitleBar(QWidget *w);
 
-    int                childCount() const;
+    int childCount() const;
 
-    QString        text(Text t, int child) const;
-    QRect        rect(int child) const;
-    Role        role(int child) const;
-    int                state(int child) const;
+    QString text(Text t, int child) const;
+    QRect rect(int child) const;
+    Role role(int child) const;
+    State state(int child) const;
 
-    bool        doAction(int action, int child, const QVariantList &params);
+    bool doAction(int action, int child, const QVariantList &params);
 
 protected:
     QTitleBar *titleBar() const;

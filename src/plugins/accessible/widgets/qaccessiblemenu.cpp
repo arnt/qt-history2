@@ -107,9 +107,9 @@ QAccessible::Role QAccessibleMenu::role(int child) const
     return MenuItem;
 }
 
-int QAccessibleMenu::state(int child) const
+QAccessible::State QAccessibleMenu::state(int child) const
 {
-    int s = QAccessibleWidget::state(child);
+    State s = QAccessibleWidget::state(child);
     if (!child)
         return s;
 
@@ -246,9 +246,9 @@ QAccessible::Role QAccessibleMenuBar::role(int child) const
     return MenuItem;
 }
 
-int QAccessibleMenuBar::state(int child) const
+QAccessible::State QAccessibleMenuBar::state(int child) const
 {
-    int s = QAccessibleWidget::state(child);
+    State s = QAccessibleWidget::state(child);
     if (!child)
         return s;
 

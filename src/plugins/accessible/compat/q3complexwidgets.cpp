@@ -79,9 +79,9 @@ QAccessible::Role Q3AccessibleHeader::role(int) const
 }
 
 /*! \reimp */
-int Q3AccessibleHeader::state(int child) const
+QAccessible::State Q3AccessibleHeader::state(int child) const
 {
-    int state = QAccessibleWidget::state(child);
+    State state = QAccessibleWidget::state(child);
 
     int section = child ? child - 1 : -1;
     if (!header()->isClickEnabled(section))

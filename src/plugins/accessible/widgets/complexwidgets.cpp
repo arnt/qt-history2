@@ -106,9 +106,9 @@ QAccessible::Role QAccessibleHeader::role(int) const
 }
 
 /*! \reimp */
-int QAccessibleHeader::state(int child) const
+QAccessible::State QAccessibleHeader::state(int child) const
 {
-    int state = QAccessibleWidget::state(child);
+    State state = QAccessibleWidget::state(child);
 
     int section = child ? child - 1 : -1;
     if (header()->isSectionHidden(section))
@@ -218,9 +218,9 @@ QAccessible::Role QAccessibleTabBar::role(int child) const
 }
 
 /*! \reimp */
-int QAccessibleTabBar::state(int child) const
+QAccessible::State QAccessibleTabBar::state(int child) const
 {
-    int st = QAccessibleWidget::state(0);
+    State st = QAccessibleWidget::state(0);
 
     if (!child)
         return st;
@@ -368,7 +368,7 @@ QRect QAccessibleComboBox::rect(int child) const
 }
 
 /*! \reimp */
-int QAccessibleComboBox::navigate(Relation rel, int entry, QAccessibleInterface **target) const
+int QAccessibleComboBox::navigate(RelationFlag rel, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
     if (entry > ComboBoxSelf) switch (rel) {
@@ -469,7 +469,7 @@ QAccessible::Role QAccessibleComboBox::role(int child) const
 }
 
 /*! \reimp */
-int QAccessibleComboBox::state(int /*child*/) const
+QAccessible::State QAccessibleComboBox::state(int /*child*/) const
 {
     return QAccessibleWidget::state(0);
 }
@@ -660,7 +660,7 @@ QAccessible::Role QAccessibleTitleBar::role(int child) const
 }
 
 /*! \reimp */
-int QAccessibleTitleBar::state(int child) const
+QAccessible::State QAccessibleTitleBar::state(int child) const
 {
     return QAccessibleWidget::state(child);
 }

@@ -78,7 +78,7 @@
 */
 
 /*!
-    \enum QAccessible::State
+    \enum QAccessible::StateFlag
 
     This enum type defines bit flags that can be combined to indicate
     the state of an accessible object. The values are:
@@ -232,7 +232,7 @@
 */
 
 /*!
-    \enum QAccessible::Relation
+    \enum QAccessible::RelationFlag
 
     This enum type defines bit flags that can be combined to indicate
     the relationship between two accessible objects.
@@ -682,7 +682,8 @@ bool QAccessible::isActive()
 */
 
 /*!
-    \fn int QAccessibleInterface::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
+    \fn QAccessible::Relation QAccessibleInterface::relationTo(int child,
+const QAccessibleInterface *other, int otherChild) const
 
     Returns the relationship between this object's \a child and the \a
     other object's \a otherChild. If \a child is 0 the object's own relation
@@ -717,7 +718,8 @@ bool QAccessible::isActive()
 */
 
 /*!
-    \fn int QAccessibleInterface::navigate(Relation relation, int entry, QAccessibleInterface **target) const
+    \fn int QAccessibleInterface::navigate(RelationFlag relation, int entry, QAccessibleInterface
+**target) const
 
     Navigates from this object to an object that has a relationship \a
     relation to this object, and returns the respective object in \a
@@ -843,11 +845,11 @@ bool QAccessible::isActive()
 */
 
 /*!
-    \fn int QAccessibleInterface::state(int child) const
+    \fn QAccessible::State QAccessibleInterface::state(int child) const
 
     Returns the current state of the object, or of the object's child if
     \a child is not 0. The returned value is a combination of the flags in
-    the QAccessible::State enumeration.
+    the QAccessible::StateFlag enumeration.
 
     All accessible objects have a state.
 

@@ -63,9 +63,10 @@ QString Q3AccessibleDisplay::text(Text t, int child) const
 }
 
 /*! \reimp */
-int Q3AccessibleDisplay::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
+QAccessible::Relation Q3AccessibleDisplay::relationTo(int child, const QAccessibleInterface *other,
+                                                      int otherChild) const
 {
-    int relation = QAccessibleWidget::relationTo(child, other, otherChild);
+    Relation relation = QAccessibleWidget::relationTo(child, other, otherChild);
     if (child || otherChild)
         return relation;
 
@@ -83,7 +84,7 @@ int Q3AccessibleDisplay::relationTo(int child, const QAccessibleInterface *other
 }
 
 /*! \reimp */
-int Q3AccessibleDisplay::navigate(Relation rel, int entry, QAccessibleInterface **target) const
+int Q3AccessibleDisplay::navigate(RelationFlag rel, int entry, QAccessibleInterface **target) const
 {
     *target = 0;
     if (rel == Labelled) {

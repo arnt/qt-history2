@@ -222,7 +222,8 @@ int QAccessibleApplication::childAt(int x, int y) const
 }
 
 /*! \reimp */
-int QAccessibleApplication::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
+QAccessible::Relation QAccessibleApplication::relationTo(int child, const
+        QAccessibleInterface *other, int otherChild) const
 {
     QObject *o = other ? other->object() : 0;
     if (!o)
@@ -252,7 +253,8 @@ int QAccessibleApplication::relationTo(int child, const QAccessibleInterface *ot
 }
 
 /*! \reimp */
-int QAccessibleApplication::navigate(Relation relation, int entry, QAccessibleInterface **target) const
+int QAccessibleApplication::navigate(RelationFlag relation, int entry,
+                                     QAccessibleInterface **target) const
 {
     if (!target)
         return -1;
@@ -307,7 +309,7 @@ QAccessible::Role QAccessibleApplication::role(int) const
 }
 
 /*! \reimp */
-int QAccessibleApplication::state(int) const
+QAccessible::State QAccessibleApplication::state(int) const
 {
     return qApp->activeWindow() ? Focused : Normal;
 }

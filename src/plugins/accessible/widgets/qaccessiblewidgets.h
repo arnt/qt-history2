@@ -34,17 +34,17 @@ public:
     QAccessibleViewport(QWidget *o,QWidget *sv);
     ~QAccessibleViewport();
 
-    int                childAt(int x, int y) const;
-    int                childCount() const;
+    int childAt(int x, int y) const;
+    int childCount() const;
 
-    QRect        rect(int child) const;
-    QString        text(Text t, int child) const;
-    Role        role(int child) const;
-    int                state(int child) const;
+    QRect rect(int child) const;
+    QString text(Text t, int child) const;
+    Role role(int child) const;
+    State state(int child) const;
 
-    bool        doAction(int action, int child, const QVariantList &params);
-    bool        setSelected(int child, bool on, bool extend);
-    void        clearSelection();
+    bool doAction(int action, int child, const QVariantList &params);
+    bool setSelected(int child, bool on, bool extend);
+    void clearSelection();
     QVector<int> selection() const;
 
 protected:

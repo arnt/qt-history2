@@ -28,7 +28,7 @@ public:
     QRect rect(int child) const;
     QString text(Text t, int child) const;
     Role role(int child) const;
-    int state(int child) const;
+    State state(int child) const;
 
 protected:
     Q3Header *header() const;

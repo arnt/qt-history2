@@ -151,9 +151,9 @@ QAccessible::Role QAccessibleListView::role(int child) const
 }
 
 /*! \reimp */
-int QAccessibleListView::state(int child) const
+QAccessible::State QAccessibleListView::state(int child) const
 {
-    int state = Q3AccessibleScrollView::state(child);
+    State state = Q3AccessibleScrollView::state(child);
     Q3ListViewItem *item;
     if (!child || !(item = findLVItem(listView(), child)))
         return state;
@@ -360,9 +360,9 @@ QAccessible::Role QAccessibleIconView::role(int child) const
 }
 
 /*! \internal */
-int QAccessibleIconView::state(int child) const
+QAccessible::State QAccessibleIconView::state(int child) const
 {
-    int state = Q3AccessibleScrollView::state(child);
+    State state = Q3AccessibleScrollView::state(child);
     QIconViewItem *item;
     if (!child || !(item = findIVItem(iconView(), child)))
         return state;
@@ -616,7 +616,8 @@ int QAccessibleWidgetStack::childAt(int, int) const
 }
 
 /*! \reimp */
-int QAccessibleWidgetStack::navigate(Relation rel, int entry, QAccessibleInterface **target) const
+int QAccessibleWidgetStack::navigate(RelationFlag rel, int entry,
+                                     QAccessibleInterface **target) const
 {
     *target = 0;
     QObject *targetObject = 0;
@@ -698,9 +699,9 @@ QAccessible::Role QAccessibleListBox::role(int child) const
 }
 
 /*! \reimp */
-int QAccessibleListBox::state(int child) const
+QAccessible::State QAccessibleListBox::state(int child) const
 {
-    int state = Q3AccessibleScrollView::state(child);
+    State state = Q3AccessibleScrollView::state(child);
     QListBoxItem *item;
     if (!child || !(item = listBox()->item(child - 1)))
         return state;

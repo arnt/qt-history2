@@ -25,11 +25,11 @@ class QAccessibleButton : public QAccessibleWidget
 public:
     QAccessibleButton(QWidget *w, Role r);
 
-    QString        text(Text t, int child) const;
-    int                state(int child) const;
+    QString text(Text t, int child) const;
+    State state(int child) const;
 
-    QString        actionText(int action, Text text, int child) const;
-    bool        doAction(int action, int child, const QVariantList &params);
+    QString actionText(int action, Text text, int child) const;
+    bool doAction(int action, int child, const QVariantList &params);
 
 protected:
     QAbstractButton *button() const;
@@ -46,22 +46,22 @@ public:
         ButtonDropMenu
     };
 
-    Role        role(int child) const;
-    int                state(int child) const;
+    Role role(int child) const;
+    State state(int child) const;
 
-    int                childCount() const;
-    QRect        rect(int child) const;
+    int childCount() const;
+    QRect rect(int child) const;
 
-    QString        text(Text t, int child) const;
+    QString text(Text t, int child) const;
 
-    int                actionCount(int child) const;
-    QString        actionText(int action, Text text, int child) const;
-    bool        doAction(int action, int child, const QVariantList &params);
+    int actionCount(int child) const;
+    QString actionText(int action, Text text, int child) const;
+    bool doAction(int action, int child, const QVariantList &params);
 
 protected:
     QToolButton *toolButton() const;
 
-    bool        isSplitButton() const;
+    bool isSplitButton() const;
 };
 
 class QAccessibleDisplay : public QAccessibleWidget
@@ -69,11 +69,11 @@ class QAccessibleDisplay : public QAccessibleWidget
 public:
     QAccessibleDisplay(QWidget *w, Role role = StaticText);
 
-    QString        text(Text t, int child) const;
-    Role        role(int child) const;
+    QString text(Text t, int child) const;
+    Role role(int child) const;
 
-    int                relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
-    int                navigate(Relation, int entry, QAccessibleInterface **target) const;
+    Relation relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
+    int navigate(RelationFlag, int entry, QAccessibleInterface **target) const;
 };
 
 class QAccessibleLineEdit : public QAccessibleWidget
@@ -81,9 +81,9 @@ class QAccessibleLineEdit : public QAccessibleWidget
 public:
     QAccessibleLineEdit(QWidget *o, const QString &name = QString());
 
-    QString        text(Text t, int child) const;
-    void        setText(Text t, int control, const QString &text);
-    int                state(int child) const;
+    QString text(Text t, int child) const;
+    void setText(Text t, int control, const QString &text);
+    State state(int child) const;
 
 protected:
     QLineEdit *lineEdit() const;

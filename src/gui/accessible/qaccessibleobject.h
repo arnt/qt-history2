@@ -53,16 +53,16 @@ public:
     // relations
     int childCount() const;
     int indexOfChild(const QAccessibleInterface*) const;
-    int relationTo(int, const QAccessibleInterface *, int) const;
+    Relation relationTo(int, const QAccessibleInterface *, int) const;
 
     // navigation
     int childAt(int x, int y) const;
-    int navigate(Relation, int, QAccessibleInterface **) const;
+    int navigate(RelationFlag, int, QAccessibleInterface **) const;
 
     // properties and state
     QString text(Text t, int child) const;
     Role role(int child) const;
-    int state(int child) const;
+    State state(int child) const;
 
     // actions
     int userActionCount(int child) const;

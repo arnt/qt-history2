@@ -44,7 +44,7 @@ public:
 
     QString text(Text t, int child) const;
     Role role(int child) const;
-    int state(int child) const;
+    State state(int child) const;
 
     bool setSelected(int child, bool on, bool extend);
     void clearSelection();
@@ -66,7 +66,7 @@ public:
 
     QString text(Text t, int child) const;
     Role role(int child) const;
-    int state(int child) const;
+    State state(int child) const;
 
     bool setSelected(int child, bool on, bool extend);
     void clearSelection();
@@ -106,7 +106,7 @@ public:
 
     int childAt(int x, int y) const;
 
-    int navigate(Relation rel, int entry, QAccessibleInterface **target) const;
+    int navigate(RelationFlag rel, int entry, QAccessibleInterface **target) const;
 
 protected:
     QWidgetStack *widgetStack() const;
@@ -123,7 +123,7 @@ public:
 
     QString text(Text t, int child) const;
     Role role(int child) const;
-    int state(int child) const;
+    State state(int child) const;
 
     bool setSelected(int child, bool on, bool extend);
     void clearSelection();

@@ -103,7 +103,7 @@ QAccessible::Role QAccessibleViewport::role(int child) const
     return scrollview->role(child);
 }
 
-int QAccessibleViewport::state(int child) const
+QAccessible::State QAccessibleViewport::state(int child) const
 {
     return scrollview->state(child);
 }

@@ -73,7 +73,7 @@ public:
         AcceleratorChanged  = 0x80C0
     };
 
-    enum State {
+    enum StateFlag {
         Normal                = 0x00000000,
         Unavailable        = 0x00000001,
         Selected        = 0x00000002,
@@ -111,6 +111,7 @@ public:
         HasPopup        = 0x40000000,
         Modal                = 0x80000000
     };
+    Q_DECLARE_FLAGS(State, StateFlag);
 
     enum Role {
         NoRole                = 0x00000000,
@@ -189,7 +190,7 @@ public:
         UserText        = 0x0000ffff
     };
 
-    enum Relation {
+    enum RelationFlag {
         Unrelated        = 0x00000000,
         Self                = 0x00000001,
         Ancestor        = 0x00000002,
@@ -213,6 +214,7 @@ public:
         Controlled        = 0x00100000,
         LogicalMask        = 0x00ff0000
     };
+    Q_DECLARE_FLAGS(Relation, RelationFlag);
 
     enum Action {
         DefaultAction   = 0,
@@ -253,6 +255,9 @@ private:
     static RootObjectHandler rootObjectHandler;
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAccessible::State)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAccessible::Relation)
+
 class Q_GUI_EXPORT QAccessibleInterface : public QAccessible
 {
 public:
@@ -265,18 +270,19 @@ public:
     virtual int indexOfChild(const QAccessibleInterface *) const = 0;
 
     // relations
-    virtual int relationTo(int child, const QAccessibleInterface *other, int otherChild) const = 0;
+    virtual Relation relationTo(int child, const QAccessibleInterface *other,
+                                int otherChild) const = 0;
     virtual int childAt(int x, int y) const = 0;
 
     // navigation
-    virtual int navigate(Relation relation, int index, QAccessibleInterface **iface) const = 0;
+    virtual int navigate(RelationFlag relation, int index, QAccessibleInterface **iface) const = 0;
 
     // properties and state
     virtual QString text(Text t, int child) const = 0;
     virtual void setText(Text t, int child, const QString &text) = 0;
     virtual QRect rect(int child) const = 0;
     virtual Role role(int child) const = 0;
-    virtual int state(int child) const = 0;
+    virtual State state(int child) const = 0;
 
     // action
     virtual int userActionCount(int child) const = 0;

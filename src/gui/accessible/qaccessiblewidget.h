@@ -27,15 +27,15 @@ public:
 
     int childCount() const;
     int indexOfChild(const QAccessibleInterface *child) const;
-    int relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
+    Relation relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
 
     int childAt(int x, int y) const;
     QRect rect(int child) const;
-    int navigate(Relation rel, int entry, QAccessibleInterface **target) const;
+    int navigate(RelationFlag rel, int entry, QAccessibleInterface **target) const;
 
     QString text(Text t, int child) const;
     Role role(int child) const;
-    int state(int child) const;
+    State state(int child) const;
 
     QString actionText(int action, Text t, int child) const;
     bool doAction(int action, int child, const QVariantList &params);

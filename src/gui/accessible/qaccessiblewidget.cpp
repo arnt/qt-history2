@@ -335,9 +335,10 @@ void QAccessibleWidget::setAccelerator(const QString &accel)
 }
 
 /*! \reimp */
-int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
+QAccessible::Relation QAccessibleWidget::relationTo(int child,
+            const QAccessibleInterface *other, int otherChild) const
 {
-    int relation = Unrelated;
+    Relation relation = Unrelated;
     if (d->asking == this) // recursive call
         return relation;
 
@@ -425,7 +426,8 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
 }
 
 /*! \reimp */
-int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterface **target) const
+int QAccessibleWidget::navigate(RelationFlag relation, int entry,
+                                QAccessibleInterface **target) const
 {
     if (!target)
         return -1;
@@ -832,7 +834,7 @@ QAccessible::Role QAccessibleWidget::role(int child) const
 }
 
 /*! \reimp */
-int QAccessibleWidget::state(int child) const
+QAccessible::State QAccessibleWidget::state(int child) const
 {
     if (child)
         return Normal;
