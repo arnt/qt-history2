@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qresource.h#1 $
+** $Id: //depot/qt/main/src/kernel/qresource.h#2 $
 **
 ** Definition of QResource classes
 *
@@ -145,8 +145,9 @@ public:
   void removeAttrib( const QString& _name ) { attribs.remove( _name ); }
   void insertAttrib( const QString& _name, const QString& _value ) { attribs.insert( _name, _value ); }
 
-  void insert( QResourceItem* _item );
   void insert( const QResourceItem* pos, QResourceItem* item );
+  void prepend( QResourceItem* _item );
+  void append( QResourceItem* _item ) { insert( 0, _item ); }
   void remove( const QResourceItem* old ) { QResourceItem* t = extract( old ); if ( t ) delete t; }
   void replace( const QResourceItem* pos, QResourceItem* t );
   QResourceItem* extractAndReplace( const QResourceItem* pos, QResourceItem* t );

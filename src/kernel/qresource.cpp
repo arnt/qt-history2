@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qresource.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qresource.cpp#2 $
 **
 ** Implementation of QResource classes
 **
@@ -102,7 +102,7 @@ void QResourceItem::clear()
   txt = QString::null;
 }
 
-void QResourceItem::insert( QResourceItem* _tag )
+void QResourceItem::prepend( QResourceItem* _tag )
 {
   _tag->nextSiblingItem = firstChildItem;
   firstChildItem = _tag;
@@ -514,39 +514,39 @@ void QResourceItem::setProperty( const QString& name, const QProperty& prop )
 	else
 	{
 	  QResourceItem* item = new QResourceItem( name );
-	  item->insert( new QResourceItem( prop.stringValue(), TRUE ) );
-	  insert( item );
+	  item->append( new QResourceItem( prop.stringValue(), TRUE ) );
+	  append( item );
 	}
       }
       break;
     case QProperty::StringListType:
       {
 	QResourceItem* item = new QResourceItem( name );
-	item->insert( item );
+	item->append( item );
 
 	QResourceItem* lst = new QResourceItem( "QStringList" );
-	insert( lst );
+	append( lst );
 	// Iterate backwards since we insert at the front
-	QStringList::ConstIterator it = prop.stringListValue().last();
+	QStringList::ConstIterator it = prop.stringListValue().fromLast();
 	QStringList::ConstIterator end = prop.stringListValue().end();
 	for( ; it != end; --it )
 	{
 	  QResourceItem* li = new QResourceItem( "li" );
-	  lst->insert( li );
+	  lst->append( li );
 	  QResourceItem* text = new QResourceItem( *it, TRUE );
-	  li->insert( text );
+	  li->append( text );
 	}
       }
       break;
     case QProperty::IntListType:
       {
 	QResourceItem* item = new QResourceItem( name );
-	insert( item );
+	append( item );
 
 	QResourceItem* lst = new QResourceItem( "QValueList<int>" );
-	item->insert( lst );
+	item->append( lst );
 	// Iterate backwards since we insert at the front
-	QValueList<int>::ConstIterator it = prop.intListValue().last();
+	QValueList<int>::ConstIterator it = prop.intListValue().fromLast();
 	QValueList<int>::ConstIterator end = prop.intListValue().end();
 	for( ; it != end; --it )
 	{
@@ -554,19 +554,19 @@ void QResourceItem::setProperty( const QString& name, const QProperty& prop )
 	  QString str;
 	  str.setNum( *it );
 	  li->insertAttrib( "value", str );
-	  lst->insert( li );
+	  lst->append( li );
 	}
       }
       break;
     case QProperty::DoubleListType:
       {
 	QResourceItem* item = new QResourceItem( name );
-	insert( item );
+	append( item );
 
 	QResourceItem* lst = new QResourceItem( "QValueList<double>" );
-	item->insert( lst );
+	item->append( lst );
 	// Iterate backwards since we insert at the front
-	QValueList<double>::ConstIterator it = prop.doubleListValue().last();
+	QValueList<double>::ConstIterator it = prop.doubleListValue().fromLast();
 	QValueList<double>::ConstIterator end = prop.doubleListValue().end();
 	for( ; it != end; --it )
 	{
@@ -574,18 +574,18 @@ void QResourceItem::setProperty( const QString& name, const QProperty& prop )
 	  QString str;
 	  str.setNum( *it );
 	  li->insertAttrib( "value", str );
-	  lst->insert( li );
+	  lst->append( li );
 	}
       }
       break;
     case QProperty::FontType:
       {
 	QResourceItem* item = new QResourceItem( name );
-	insert( item );
+	append( item );
 
 	QResourceItem* f = new QResourceItem( "QFont" );
 	f->insertAttrib( "family", prop.fontValue().family() );
-	item->insert( f );
+	item->append( f );
 
 	QString str;
 	str.setNum( prop.fontValue().pointSize() );
@@ -627,10 +627,10 @@ void QResourceItem::setProperty( const QString& name, const QProperty& prop )
     case QProperty::RectType:
       {
 	QResourceItem* item = new QResourceItem( name );
-	insert( item );
+	append( item );
 
 	QResourceItem* f = new QResourceItem( "QRect" );
-	item->insert( f );
+	item->append( f );
 
 	QString str;
 	str.setNum( prop.rectValue().x() );
@@ -646,10 +646,10 @@ void QResourceItem::setProperty( const QString& name, const QProperty& prop )
     case QProperty::SizeType:
       {
 	QResourceItem* item = new QResourceItem( name );
-	insert( item );
+	append( item );
 
 	QResourceItem* f = new QResourceItem( "QSize" );
-	item->insert( f );
+	item->append( f );
 
 	QString str;
 	str.setNum( prop.sizeValue().width() );
@@ -674,10 +674,10 @@ void QResourceItem::setProperty( const QString& name, const QProperty& prop )
     case QProperty::PointType:
       {
 	QResourceItem* item = new QResourceItem( name );
-	insert( item );
+	append( item );
 
 	QResourceItem* f = new QResourceItem( "QPoint" );
-	item->insert( f );
+	item->append( f );
 
 	QString str;
 	str.setNum( prop.pointValue().x() );
@@ -791,7 +791,7 @@ bool QResourceXMLConsumer::tagStart( const QString& name )
   else
   {
     QResourceItem* i = new QResourceItem( name );
-    item->insert( 0, i );
+    item->append( i );
     item = i;
   }
 
@@ -831,7 +831,7 @@ bool QResourceXMLConsumer::text( const QString& text )
   if ( !item )
     return FALSE;
 
-  item->insert( 0, new QResourceItem( text, TRUE ) );
+  item->append( new QResourceItem( text, TRUE ) );
 
   return TRUE;
 }
