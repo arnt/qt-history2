@@ -145,7 +145,7 @@ Q_UNUSED( destIsPixmap )
 	Q_CHECK_PTR( bs );
 	BitBlt( bs->handle(), 0, 0, src_width, src_height,
 		hdc_src, 0, src_offset, SRCCOPY );
-	QBitmap masknot( src_width, src_height, FALSE, QPixmap::NormalOptim );
+	QBitmap masknot( src_width, src_height, (bool)FALSE, QPixmap::NormalOptim );
 	BitBlt( masknot.handle(), 0, 0, src_width, src_height,
 		hdc_mask, 0, mask_offset, NOTSRCCOPY );
 	BitBlt( bs->handle(), 0, 0, src_width, src_height,

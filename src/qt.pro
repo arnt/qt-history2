@@ -14,6 +14,8 @@ win32:!shared:CONFIG += staticlib
 win32-borland {
 	mng:QMAKE_CFLAGS_WARN_ON	+= -w-par
 	mng:QMAKE_CXXFLAGS_WARN_ON	+= -w-par
+	xml:QMAKE_CFLAGS_WARN_ON	+= -w-use
+	xml:QMAKE_CXXFLAGS_WARN_ON	+= -w-use
 }
 
 KERNEL_CPP	= kernel	
