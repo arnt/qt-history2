@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#48 $
 **
 ** Implementation of layout classes
 **
@@ -25,8 +25,6 @@
 #include "qmenubar.h"
 #include "qapplication.h"
 #include "qlist.h"
-
-#include "qdatetime.h" // ### fun hack can be removed"
 
 class QLayoutBox
 {
@@ -257,9 +255,7 @@ static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos,
     if ( spacerCount )
 	spacerCount -= 1; //only spacers between things
     if ( space < sumMin + spacerCount*spacer ) {
-	debug( QTime::currentTime().second() < 50 // ######################
-	       ? "QBasicManager: not enough space to go around"
-	       : "QBasicManager: not enough fun left in that joke" );
+	//Not enogh space... Lets just give out minimum sizes.
 	for ( int i = 0; i < count; i++ )
 	    chain[i].size = chain[i].minSize;
     } else {
@@ -691,7 +687,7 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
   Returns the internal object name.
 */
 
-/*! 
+/*!
   \fn QMenuBar* QLayout::menuBar () const
   Returns the menu bar set for this layout, or a null pointer if no
   menu bar is set.
@@ -701,17 +697,17 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 
 /*!
   \fn bool QLayout::isTopLevel () const
-  
+
  */
 
 /*!
-  \fn const QRect& QLayout::geometry () 
-  
+  \fn const QRect& QLayout::geometry ()
+
  */
 
 
 /*!
-  \fn bool QLayout::removeWidget (QWidget *w ) 
+  \fn bool QLayout::removeWidget (QWidget *w )
   This function is implemented in subclasses to remove \a w from geometry
   management.
  */
