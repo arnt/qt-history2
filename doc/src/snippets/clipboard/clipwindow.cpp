@@ -38,6 +38,7 @@ ClipWindow::ClipWindow(QWidget *parent)
 void ClipWindow::updateClipboard()
 {
     QStringList formats = clipboard->mimeData()->formats();
+    QByteArray data = clipboard->mimeData()->data(format);
 
     mimeTypeCombo->clear();
     mimeTypeCombo->insertStringList(formats);
@@ -48,7 +49,6 @@ void ClipWindow::updateClipboard()
 
     updateData(formats[0]);
 /*
-    QByteArray data = clipboard->mimeData()->data(format);
     ...
 */
 }
