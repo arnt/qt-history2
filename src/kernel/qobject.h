@@ -28,8 +28,8 @@
 
 struct QMetaObject;
 class QVariant;
-struct QObjectPrivate;
-struct QWidgetPrivate;
+class QObjectPrivate;
+class QWidgetPrivate;
 #ifndef QT_NO_USERDATA
 class QObjectUserData;
 #endif

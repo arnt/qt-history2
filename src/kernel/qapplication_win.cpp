@@ -1340,7 +1340,7 @@ extern void qt_sn_activate_fd( int sockfd, int type );
 
 bool qt_sendSpontaneousEvent( QObject *receiver, QEvent *event )
 {
-    return QApplication::sendSpontaneousEvent( receiver, event );
+    return QKernelApplication::sendSpontaneousEvent( receiver, event );
 }
 
 extern "C"

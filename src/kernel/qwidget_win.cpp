@@ -97,6 +97,9 @@ extern "C" LRESULT CALLBACK QtWndProc( HWND, UINT, WPARAM, LPARAM );
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
+#define d d_func()
+#define q q_func()
+
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/

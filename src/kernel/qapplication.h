@@ -342,9 +342,6 @@ private:
     friend class QAccelManager;
     friend class QTranslator;
     friend Q_EXPORT void qt_ucm_initialize( QApplication * );
-#if defined(Q_WS_WIN)
-    friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
-#endif
 #if defined(Q_WS_QWS)
     friend class QInputContext;
 #endif

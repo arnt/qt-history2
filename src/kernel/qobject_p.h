@@ -43,7 +43,7 @@ private: \
     friend class Class
 
 
-struct QObjectPrivate
+class QObjectPrivate
 {
     Q_DECL_PUBLIC( QObject );
 protected:

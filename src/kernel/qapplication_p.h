@@ -29,6 +29,7 @@
 //
 //
 
+#include "qapplication.h"
 #include "qfont.h"
 #include "qcursor.h"
 #include "qmutex.h"
@@ -53,7 +54,7 @@ extern QClipboard *qt_clipboard;
 
 #if defined (Q_OS_WIN32) || defined (Q_OS_CYGWIN)
 extern Qt::WindowsVersion qt_winver;
-enum { QT_TABLET_NPACKETQSIZE = 128; }
+enum { QT_TABLET_NPACKETQSIZE = 128 };
 # ifdef Q_OS_TEMP
   extern DWORD qt_cever;
 # endif
@@ -69,7 +70,7 @@ extern int qt_ncols_option;
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* );
 extern bool qt_tryModalHelper( QWidget *, QWidget ** = 0 );
 
-struct QApplicationPrivate : public QKernelApplicationPrivate
+class QApplicationPrivate : public QKernelApplicationPrivate
 {
     Q_DECL_PUBLIC(QApplication);
 

@@ -17,10 +17,15 @@
 #include "qwidget.h"
 #include "qevent.h"
 #include <private/qinputcontext_p.h>
+#include "qintdict.h"
+#include "qptrqueue.h"
+#include "qptrvector.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"
 #endif // QT_THREAD_SUPPORT
+
+#define d d_func()
 
 extern uint qGlobalPostedEventsCount();
 extern bool qt_winEventFilter( MSG* msg, long &result );

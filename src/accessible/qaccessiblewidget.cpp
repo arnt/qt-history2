@@ -260,8 +260,6 @@ QList<QObject*> ConnectionObject::senders() const
     return senders;
 }
 
-#undef d
-
 /*! 
     Registers \a signal as a controlling signal.
     

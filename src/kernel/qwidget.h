@@ -56,7 +56,7 @@ class QShowEvent;
 class QHideEvent;
 
 
-struct QWidgetPrivate;
+class QWidgetPrivate;
 
 class Q_EXPORT QWidget : public QObject, public QPaintDevice
 {

@@ -2,8 +2,9 @@
 #define QKERNELAPPLICATION_P_H
 
 #include "qobject_p.h"
+#include "qkernelapplication.h"
 
-struct QKernelApplicationPrivate : public QObjectPrivate
+class QKernelApplicationPrivate : public QObjectPrivate
 {
     Q_DECL_PUBLIC(QKernelApplication);
 public:

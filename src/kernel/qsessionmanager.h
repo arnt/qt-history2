@@ -23,7 +23,7 @@
 #endif // QT_H
 #ifndef QT_NO_SESSIONMANAGER
 
-struct QSessionManagerPrivate;
+class QSessionManagerPrivate;
 
 class Q_EXPORT  QSessionManager : public QObject
 {

@@ -2414,7 +2414,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	QEvent e( QEvent::WindowDeactivate );
 	for(int i = 0; i < deacts.size(); ++i) {
 	    QWidget *w = deacts.at(i);
-	    QApplication::sendSpontaneousEvent( w, &e );
+	    sendSpontaneousEvent( w, &e );
 	}
     }
 
@@ -2435,7 +2435,7 @@ void QApplication::setActiveWindow( QWidget* act )
 	    acts.append(active_window);
 	for (int i = 0; i < acts.size(); ++i) {
 	    QWidget *w = acts.at(i);
-	    QApplication::sendSpontaneousEvent( w, &e );
+	    sendSpontaneousEvent( w, &e );
 	}
     }
 
@@ -2448,7 +2448,7 @@ void QApplication::setActiveWindow( QWidget* act )
 #ifdef Q_WS_WIN
 	QInputContext::accept( tmp );
 #endif
-	QApplication::sendSpontaneousEvent( tmp, &out );
+	sendSpontaneousEvent( tmp, &out );
     } else if ( active_window ) {
 	QWidget *w = active_window->focusWidget();
 	if ( w && w->focusPolicy() != QWidget::NoFocus )
@@ -2473,7 +2473,7 @@ void QApplication::setActiveWindow( QWidget* act )
   Creates the proper Enter/Leave event when widget \a enter is entered
   and widget \a leave is left.
  */
-Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
+void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
 #if 0
     if ( leave ) {
 	QEvent e( QEvent::Leave );
@@ -3098,6 +3098,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 	break;
     }
 
+    return res;
 }
 
 bool QApplication::notify_helper( QObject *receiver, QEvent * e)
@@ -3520,7 +3521,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 #ifndef QT_NO_SESSIONMANAGER
 #if defined( QT_NO_SM_SUPPORT ) || defined( Q_WS_WIN ) || defined( Q_WS_MAC ) || defined( Q_WS_QWS )
 
-struct QSessionManagerPrivate : public QObjectPrivate
+class QSessionManagerPrivate : public QObjectPrivate
 {
 public:
     QStringList restartCommand;

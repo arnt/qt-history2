@@ -92,6 +92,9 @@ private:
     friend class QETWidget;
     friend class QAccelManager;
     friend class QWidget;
+#if defined(Q_WS_WIN)
+    friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
+#endif
 };
 
 inline bool QKernelApplication::sendEvent( QObject *receiver, QEvent *event )
