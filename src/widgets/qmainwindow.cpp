@@ -289,6 +289,45 @@ protected:
 	if ( !d->hidden || d->hidden->isEmpty() )
 	    return;
 	mouseMoveEvent( e );
+	
+	if ( e->button() == RightButton && pressedHandle != -1 ) {
+	    QMainWindowPrivate::ToolBar *tb = d->hidden->at( pressedHandle );
+	    QPopupMenu menu( this );
+	    int left = menu.insertItem( "&Left" );
+	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Left ) 
+				 && win->isDockEnabled( tb->t, QMainWindow::Left ) ); 
+	    int right = menu.insertItem( "&Right" );
+	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Right ) 
+				 && win->isDockEnabled( tb->t, QMainWindow::Right ) ); 
+	    int top = menu.insertItem( "&Top" );
+	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Top ) 
+				 && win->isDockEnabled( tb->t, QMainWindow::Top ) ); 
+	    int bottom = menu.insertItem( "&Bottom" );
+	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Bottom ) 
+				 && win->isDockEnabled( tb->t, QMainWindow::Bottom ) ); 
+	    menu.insertSeparator();
+	    int hide = menu.insertItem( "&Restore" );
+	    QMainWindow::ToolBarDock dock = tb->oldDock;
+	    menu.setItemEnabled( left, win->isDockEnabled( dock ) 
+				 && win->isDockEnabled( tb->t, dock ) ); 
+	    int res = menu.exec( e->globalPos() );
+	    pressed = FALSE;
+	    pressedHandle = -1;
+	    repaint( TRUE );
+	    if ( res == left )
+		win->moveToolBar( tb->t, QMainWindow::Left );
+	    else if ( res == right )
+		win->moveToolBar( tb->t, QMainWindow::Right );
+	    else if ( res == top ) 
+		win->moveToolBar( tb->t, QMainWindow::Top );
+	    else if ( res == bottom )
+		win->moveToolBar( tb->t, QMainWindow::Bottom );
+	    else if ( res == hide )
+		win->moveToolBar( tb->t,  dock );
+	    else
+		return;
+	    tb->t->show();
+	}
     }
 
     void mouseMoveEvent( QMouseEvent *e ) {
@@ -323,10 +362,12 @@ protected:
 	    return;
 	if ( !d->hidden || d->hidden->isEmpty() )
 	    return;
-	if ( e->y() >= 0 && e->y() <= height() ) {
-	    QMainWindowPrivate::ToolBar *tb = d->hidden->at( pressedHandle );
-	    tb->t->show();
-	    win->moveToolBar( tb->t, tb->oldDock, tb->nl, tb->oldIndex );
+	if ( e->button() == LeftButton ) {
+	    if ( e->y() >= 0 && e->y() <= height() ) {
+		QMainWindowPrivate::ToolBar *tb = d->hidden->at( pressedHandle );
+		tb->t->show();
+		win->moveToolBar( tb->t, tb->oldDock, tb->nl, tb->oldIndex );
+	    }
 	}
 	pressedHandle = -1;
 	repaint( TRUE );
@@ -1910,6 +1951,37 @@ static QRect fixRect( const QRect &r )
 void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 {
     if ( e->type() == QEvent::MouseButtonPress ) {
+	if ( ( e->button() & RightButton ) ) {
+	    emit startMovingToolbar( t );
+	    QPopupMenu menu( this );
+	    int left = menu.insertItem( "&Left" );
+	    menu.setItemEnabled( left, isDockEnabled( Left ) && isDockEnabled( t, Left ) ); 
+	    int right = menu.insertItem( "&Right" );
+	    menu.setItemEnabled( left, isDockEnabled( Right ) && isDockEnabled( t, Right ) ); 
+	    int top = menu.insertItem( "&Top" );
+	    menu.setItemEnabled( left, isDockEnabled( Top ) && isDockEnabled( t, Top ) ); 
+	    int bottom = menu.insertItem( "&Bottom" );
+	    menu.setItemEnabled( left, isDockEnabled( Bottom ) && isDockEnabled( t, Bottom ) ); 
+	    menu.insertSeparator();
+	    int hide = menu.insertItem( "&Hide" );
+	    menu.setItemEnabled( left, isDockEnabled( Hidden ) && isDockEnabled( t, Hidden ) ); 
+	    int res = menu.exec( e->globalPos() );
+	    if ( res == left )
+		moveToolBar( t, Left );
+	    else if ( res == right )
+		moveToolBar( t, Right );
+	    else if ( res == top ) 
+		moveToolBar( t, Top );
+	    else if ( res == bottom )
+		moveToolBar( t, Bottom );
+	    else if ( res == hide )
+		moveToolBar( t,  Hidden );
+	    emit endMovingToolbar( t );
+	    return;
+	}
+	if ( ( e->button() & MidButton ) ) {
+	    return;
+	}
 	emit startMovingToolbar( t );
 
 	// don't allow repaints of the central widget as this may be a problem for our rects
@@ -1947,6 +2019,12 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
+	if ( ( e->button() & RightButton ) ) {
+	    return;
+	}
+	if ( ( e->button() & MidButton ) ) {
+	    return;
+	}
 	// delete the rect painter
 	if ( d->rectPainter ) {
 	    if ( d->oldPosRectValid )
@@ -1982,7 +2060,10 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	
 	return;
     } else if ( e->type() == QMouseEvent::MouseMove ) {
-	if ( (e->state() & LeftButton) == 0 ) {
+	if ( ( e->button() & RightButton ) ) {
+	    return;
+	}
+	if ( ( e->button() & MidButton ) ) {
 	    return;
 	}
     }

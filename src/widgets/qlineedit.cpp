@@ -722,7 +722,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	d->popup->setItemEnabled( d->id[ 3 ], hasMarkedText() );
 	d->popup->setItemEnabled( d->id[ 4 ], (bool)QApplication::clipboard()->text().length() );
 	d->popup->setItemEnabled( d->id[ 5 ], (bool)text().length() );
-	int id = d->popup->exec( QCursor::pos() );
+	int id = d->popup->exec( e->globalPos() );
 	if ( id == d->id[ 0 ] )
 	    undoInternal();
 	else if ( id == d->id[ 1 ] )
