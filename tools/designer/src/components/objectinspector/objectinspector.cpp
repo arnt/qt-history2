@@ -197,3 +197,9 @@ void ObjectInspector::slotSelectionChanged()
             m_formWindow->selectWidget(widget);
     }
 }
+
+void ObjectInspector::showEvent(QShowEvent *event)
+{
+    m_treeWidget->resizeColumnToContents(0);
+    AbstractObjectInspector::showEvent(event);
+}

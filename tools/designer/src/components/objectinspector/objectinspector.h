@@ -37,6 +37,9 @@ public:
 private slots:
     void slotSelectionChanged();
 
+protected:
+    virtual void showEvent(QShowEvent *enent);
+
 private:
     static bool sortEntry(const QObject *a, const QObject *b);
 
