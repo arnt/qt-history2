@@ -201,8 +201,10 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    QString build = userdep + 
 				    "# Begin Custom Build - lupdate'ing " + (*it) + "...\n"
 				    "InputPath=.\\" + (*it) + "\n\n"
-				    "\"" + (*it) + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
-				    "\t$(QTDIR)\\bin\\lupdate " + project->projectFile() + " -ts " + (*it) + "\n\n"
+				    "\"tmp\\" + (*it) + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
+				    "\tcopy " + (*it) +" tmp\\" + (*it) + "\n"
+				    "\t$(QTDIR)\\bin\\lupdate " + project->projectFile() + " -ts " + (*it) + "\n"
+				    "\tcopy tmp\\" + (*it) + " " + (*it) + "\n\n"
 				    "# End Custom Build\n\n";
 
 		    t << "# Begin Source File\n\nSOURCE=.\\" << *it << endl;
@@ -227,7 +229,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    base.replace(QRegExp("\\..*$"), "").upper();
 		    base.replace(QRegExp("[^a-zA-Z]"), "_");
 
-		    QString build = "USERDEP_" + base + "=\"" + (*it) + "\"\n\n" 
+		    QString build = "USERDEP_" + base + "=\"tmp\\" + (*it) + "\"\n\n" 
 				    "# Begin Custom Build - lrelease'ing " + (*it) + "...\n"
 				    "InputPath=.\\" + qmfile + "\n\n"
 				    "\"" + qmfile + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
