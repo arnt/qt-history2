@@ -70,10 +70,6 @@
 #include "connectiondialog.h"
 #include "configtoolboxdialog.h"
 
-#ifdef QSA
-#include "qsainterface.h"
-#endif
-
 static const char * whatsthis_image[] = {
     "16 16 3 1",
     "	c None",
@@ -587,13 +583,6 @@ void MainWindow::setupToolActions()
     connect( a, SIGNAL( activated() ), this, SLOT( toolsConfigure() ) );
     mmenu->insertSeparator();
     a->addTo( mmenu );
-
-#ifdef QSA
-    a = new QAction( tr( "Scripter" ), tr( "Scripter..." ), 0, this );
-    connect( a, SIGNAL( activated() ), this, SLOT( toolsScripter() ) );
-    a->addTo( mmenu );
-#endif
-
     resetTool();
 }
 
@@ -2012,17 +2001,6 @@ void MainWindow::toolsConfigure()
 	return;
     rebuildCommonWidgetsToolBoxPage();
 }
-
-#ifdef QSA
-void MainWindow::toolsScripter()
-{
-    if ( !scriptEditor ) {
-	scriptEditor = new ScriptEditor( 0 );
-	scriptEditor->resize( 640, 480 );
-    }
-    scriptEditor->show();
-}
-#endif
 
 void MainWindow::showStartDialog()
 {
