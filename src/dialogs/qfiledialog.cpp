@@ -2515,6 +2515,9 @@ QFileDialog::~QFileDialog()
 
 QString QFileDialog::selectedFile() const
 {
+    QUrl u( d->currentFileName );
+    if ( u.isLocalFile() )
+	return u.path();
     return d->currentFileName;
 }
 
@@ -2548,14 +2551,18 @@ QStringList QFileDialog::selectedFiles() const
 	QListViewItem * i = files->firstChild();
 	while( i ) {
 	    if ( i->isSelected() ) {
-		QString u = QUrlOperator( d->url, ((QFileDialogPrivate::File*)i)->info.name() );
-		lst << u;
+		QUrl u = QUrl( d->url, ((QFileDialogPrivate::File*)i)->info.name() );
+		if ( u.isLocalFile() )
+		    lst << u.path();
+		else
+		    lst << u.toString();
 	    }
 	    i = i->nextSibling();
 	}
-    } else
+    } else {
 	lst << selectedFile();
-
+    }
+    
     return lst;
 }
 

@@ -93,7 +93,7 @@ public:
     static void encode( QString& url );
 
     operator QString() const;
-    virtual QString toString( bool encodedPath = FALSE, bool forcePrependProtocol = FALSE ) const;
+    virtual QString toString( bool encodedPath = FALSE, bool = FALSE ) const;
 
     virtual bool cdUp();
 

@@ -27,11 +27,7 @@
 
 #if QT_FEATURE_NETWORKPROTOCOL
 
-#include "qnetworkprotocol.h"
-
 #include <stdlib.h>
-
-extern Q_EXPORT QNetworkProtocolDict *qNetworkProtocolRegister;
 
 struct QUrlPrivate
 {
@@ -1058,25 +1054,19 @@ void QUrl::decode( QString& url )
     url = newUrl;
 }
 
-/*!
-  Composes a string of the URL and returns it. If \a encodedPath
-  is TRUE, the path in the returned string will be encoded. If
-  \a forcePrependProtocol is TRUE the file:/ protocol is also
-  prepended if no remote network protocols are registered.
+/*!  Composes a string of the URL and returns it. If \a encodedPath is
+  TRUE, the path in the returned string will be encoded. The second
+  bool parameter is meaningless and just provided for compatibility
+  reasons.
 */
 
-QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
+QString QUrl::toString( bool encodedPath, bool /*forcePrependProtocol*/ ) const
 {
     QString res, p = path();
     if ( encodedPath )
 	encode( p );
 
     if ( isLocalFile() ) {
-	if ( !forcePrependProtocol && ( !qNetworkProtocolRegister ||
-					qNetworkProtocolRegister->count() == 0 ||
-					QNetworkProtocol::hasOnlyLocalFileSystem() ) )
-	    res = p;
-	else
 	    res = d->protocol + ":" + p;
     } else {
 	res = d->protocol + "://";
