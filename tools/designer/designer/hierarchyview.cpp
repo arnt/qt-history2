@@ -920,7 +920,8 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	menu.insertItem( PixmapChooser::loadPixmap( "filenew" ), tr( "New" ), NEW_ITEM );
 	if ( formWindow->project()->language() == "C++" )
 	    menu.insertItem( PixmapChooser::loadPixmap( "editslots" ), tr( "Properties..." ), PROPS );
-	menu.insertItem( tr( "Goto Implementation" ), EDIT );
+        if ( MetaDataBase::hasEditor( formWindow->project()->language() ) )
+	    menu.insertItem( tr( "Goto Implementation" ), EDIT );
 	menu.insertSeparator();
 	menu.insertItem( PixmapChooser::loadPixmap( "editcut" ), tr( "Delete" ), REMOVE );
 	popupOpen = TRUE;
