@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#441 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#442 $
 **
 ** Implementation of QWidget class
 **
@@ -1564,7 +1564,8 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
 
 /*! \enum QWidget::BackgroundMode
 
-  This enum describes how the background of a widget changes, as the widget's palette changes.
+  This enum describes how the background of a widget changes, as the
+  widget's palette changes.
 
   The background is what the widget contains when paintEvent() is called.
   To minimize flicker, this should be the most common color in the
@@ -1797,7 +1798,7 @@ const QColorGroup &QWidget::colorGroup() const
 */
 
 
-/*! \enum Qt::PropagationMode
+/*! \enum QWidget::PropagationMode
 
   This enum determines how fonts and palette changes are propagated to
   children of a widget.
