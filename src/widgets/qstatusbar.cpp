@@ -413,12 +413,16 @@ void QStatusBar::paintEvent( QPaintEvent * )
 
 /*! \reimp
 */
-void QStatusBar::resizeEvent( QResizeEvent * )
+void QStatusBar::resizeEvent( QResizeEvent * e )
 {
     for ( QStatusBarPrivate::SBItem* item = d->items.first(); item; item = d->items.next() )
-    {
-        item->w->setMaximumWidth( width() - d->box->totalMinimumSize().width() );
-    }
+	item->w->setMinimumWidth( 30 );
+
+    int mw = d->box->totalMinimumSize().width() - 30;
+    for ( item = d->items.first(); item; item = d->items.next() )
+	item->w->setMaximumWidth( width() - mw );
+    
+    QWidget::resizeEvent( e );
 }
 
 /*!
