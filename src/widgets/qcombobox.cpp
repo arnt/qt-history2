@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#40 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#40 $")
 
 
 /*----------------------------------------------------------------------------
@@ -378,6 +378,14 @@ void QComboBox::setAutoResize( bool enable )
 
 void QComboBox::adjustSize()
 {
+    if ( suggestedSize() != size() )
+	resize( suggestedSize() );
+}
+/*----------------------------------------------------------------------------
+  Returns a size which fits the contents of the combo box button.
+ ----------------------------------------------------------------------------*/
+QSize QComboBox::suggestedSize() const
+{
     int dist, buttonH, buttonW;
     if ( !getMetrics( width(), height(), &dist, &buttonW, &buttonH ) ) {
 	dist	= 0;
@@ -400,7 +408,7 @@ void QComboBox::adjustSize()
 	    h = height() - 4;
 	}
     }
-    resize( 4 + 4 + w + 2*dist + buttonW, h + 4 + 4 );
+    return QSize( 4 + 4 + w + 2*dist + buttonW, h + 4 + 4 );
 }
 
 

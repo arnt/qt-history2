@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#33 $
 **
 ** Global functions
 **
@@ -17,7 +17,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#33 $")
 
 
 #define QT_VERSION "0.98"
@@ -381,6 +381,15 @@ void qObsolete(  const char *obj, const char *oldfunc )
     if ( !firstObsoleteWarning(obj, oldfunc) )
 	return;
     debug( "%s::%s: This function is obsolete.", obj, oldfunc );
+}
+
+void qObsolete(  const char *message )
+{
+    if ( suppressObsolete )
+	return;
+    if ( !firstObsoleteWarning( "Qt", message) )
+	return;
+    debug( "%s", message );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#44 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#43 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#44 $")
 
 
 /*----------------------------------------------------------------------------
@@ -98,15 +98,10 @@ static int extraWidth( int gs )
 
 
 /*----------------------------------------------------------------------------
-  Adjusts the size of the check box to fit the contents.
-
-  This function is called automatically whenever the contents change and
-  auto-resizing is enabled.
-
-  \sa setAutoResize()
+  Returns a size which fits the contents of the check box.
  ----------------------------------------------------------------------------*/
 
-void QCheckBox::adjustSize()
+QSize QCheckBox::suggestedSize() const
 {
     QFontMetrics fm = fontMetrics();
     int w = fm.width( text() );
@@ -117,10 +112,8 @@ void QCheckBox::adjustSize()
     if ( h < hbm )
 	h = hbm;
     w += wbm+extraWidth( gs );
-    if ( w!=width() || h!=height() )
-	resize( w, h );
-    else
-	repaint(TRUE);
+
+    return QSize( w, h );
 }
 
 

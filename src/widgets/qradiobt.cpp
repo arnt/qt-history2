@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.cpp#43 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#42 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobt.cpp#43 $")
 
 
 /*----------------------------------------------------------------------------
@@ -110,15 +110,10 @@ void QRadioButton::init()
 
 
 /*----------------------------------------------------------------------------
-  Adjusts the size of the radio button to fit the contents.
-
-  This function is called automatically whenever the contents change and
-  auto-resizing is enabled.
-
-  \sa setAutoResize()
+  Returns a size which fits the contents of the radio button.
  ----------------------------------------------------------------------------*/
 
-void QRadioButton::adjustSize()
+QSize QRadioButton::suggestedSize() const
 {
     QFontMetrics fm = fontMetrics();
     int w = fm.width( text() );
@@ -128,10 +123,8 @@ void QRadioButton::adjustSize()
     if ( h < hbm )
 	h = hbm;
     w += wbm+6;
-    if ( w!=width() || h!=height() )
-	resize( w, h );
-    else
-	repaint(TRUE);
+
+    return QSize( w, h );
 }
 
 
