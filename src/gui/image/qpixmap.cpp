@@ -743,7 +743,7 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
 {
 #ifndef QT_NO_PIXMAP_RETAIN
     const QString retain_key = QString("load_filename_") + fileName;
-    if(QRetainedPixmap *retain = qt_retained_pixmaps()->find(retain_key)) {
+    if(QRetainedPixmap *retain = qt_retained_pixmaps()->object(retain_key)) {
         if(retain->isOutOfDate()) {
             qt_retained_pixmaps()->remove(retain_key);
             delete retain;
