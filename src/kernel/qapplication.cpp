@@ -2041,9 +2041,9 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    QKeyEvent* key = (QKeyEvent*) e;
 	    res = qt_dispatchAccelEvent( (QWidget*)receiver, key );
 	    if ( !res )
-		res = internalNotify( receiver, e ) || key->isAccepted();
-	    if ( !res && !((QWidget*)receiver)->isTopLevel() )
-		res = internalNotify( ((QWidget*)receiver)->topLevelWidget(), e ) || key->isAccepted();
+		res = internalNotify( receiver, e );
+	    if ( !res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel() )
+		res = internalNotify( ((QWidget*)receiver)->topLevelWidget(), e );
 	}
     break;
     case QEvent::KeyPress:

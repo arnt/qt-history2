@@ -300,12 +300,14 @@ bool QAccelManager::tryAccelEvent( QWidget* w, QKeyEvent* e )
 	e->t = QEvent::AccelOverride;
 	e->spont = TRUE;
 	e->ignore();
-	if ( QApplication::sendEvent( w, e ) || e->isAccepted() )
+	QApplication::sendEvent( w, e );
+	if ( e->isAccepted() )
 	    return FALSE;
 	e->t = QEvent::Accel;
 	e->spont = TRUE;
 	e->ignore();
-	if ( QApplication::sendEvent( w, e ) )
+	QApplication::sendEvent( w, e );
+	if ( e->isAccepted() )
 	    return TRUE;
     }
     return FALSE;
