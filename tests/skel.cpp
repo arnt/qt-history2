@@ -1,34 +1,35 @@
-#include <qwidget.h>
+#include "???.h"
 #include <qpainter.h>
 #include <qapp.h>
 
-class Main : public QWidget {
-public:
-    Main(QWidget* parent=0, const char* name=0, int f=0) :
-	QWidget(parent, name, f)
-    {
-    }
+Main::Main(QWidget* parent, const char* name, int f) :
+    QWidget(parent, name, f)
+{
+}
 
-    void resizeEvent(QResizeEvent*)
-    {
-    }
+void Main::bang()
+{
+}
 
-    void keyPressEvent(QKeyEvent*)
-    {
-    }
+void Main::resizeEvent(QResizeEvent*)
+{
+}
 
-    void keyReleaseEvent(QKeyEvent*)
-    {
-    }
+void Main::keyPressEvent(QKeyEvent*)
+{
+}
 
-    void paintEvent(QPaintEvent* e)
-    {
-	QPainter p(this);
-	p.setClipRect(e->rect());
+void Main::keyReleaseEvent(QKeyEvent*)
+{
+}
 
-	// ...
-    }
-};
+void Main::paintEvent(QPaintEvent* e)
+{
+    QPainter p(this);
+    p.setClipRect(e->rect());
+
+    // ...
+}
 
 main(int argc, char** argv)
 {
@@ -37,8 +38,9 @@ main(int argc, char** argv)
     QApplication::setFont( QFont("Helvetica") );
 
     Main m;
-    app.setMainWidget(&m);
     m.show();
+
+    QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
 
     return app.exec();
 }
