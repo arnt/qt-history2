@@ -542,13 +542,13 @@ extern void qt_create_std_palette();
 
 static void qt_set_windows_resources()
 {
+#ifndef Q_OS_TEMP
     QFont menuFont;
     QFont messageFont;
     QFont statusFont;
     QFont titleFont;
     QFont smallTitleFont;
 
-#ifndef Q_OS_TEMP
     QT_WA( {
 	NONCLIENTMETRICS ncm;
 	ncm.cbSize = sizeof( ncm );
@@ -577,7 +577,12 @@ static void qt_set_windows_resources()
     QApplication::setFont( statusFont, TRUE, "QStatusBar" );
     QApplication::setFont( titleFont, TRUE, "QTitleBar" );
     QApplication::setFont( smallTitleFont, TRUE, "QDockWindowTitleBar" );
-#endif // Q_OS_TEMP
+#else
+    LOGFONT lf;
+    HGDIOBJ stockFont = GetStockObject( SYSTEM_FONT );
+    GetObject( stockFont, sizeof(lf), &lf );
+    QApplication::setFont( qt_LOGFONTtoQFont( lf, TRUE ) );
+#endif// Q_OS_TEMP
 
     if ( qt_std_pal && *qt_std_pal != QApplication::palette() )
 	return;
