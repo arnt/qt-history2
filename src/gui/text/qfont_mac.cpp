@@ -130,7 +130,7 @@ void QFontPrivate::load(QFont::Script script)
     } else {
 	engineData->ref();
     }
-    if ( engineData->engine ) // already loaded
+    if(engineData->engine) // already loaded
 	return;
 
     if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
@@ -143,9 +143,10 @@ void QFontPrivate::load(QFont::Script script)
 
     engine = new QFontEngineMac;
     engineData->engine = engine;
+    engine->ref(); //a ref for the engineData->engine
     if(!engine->fontref) {
 	//find the font
-	QStringList family_list = request.family.split( ',' );
+	QStringList family_list = request.family.split(',');
 	// append the substitute list for each family in family_list
 	{
 	    QStringList subs_list;
