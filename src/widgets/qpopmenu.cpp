@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#104 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#104 $");
 
 
 // Motif style parameters
@@ -1185,10 +1185,11 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     }
 #if 1
     if ( !ok_key && !e->state() && e->key() >= Key_0 && e->key() <= Key_Z ) {
-	char c = 'A' + e->key() - Key_A;
+	char c = '0' + e->key() - Key_0;
 
 	QMenuItemListIt it(*mitems);
 	register QMenuItem *m;
+	int indx = 0;
 	while ( (m=it.current()) ) {
 	    ++it;
 	    QString s = m->text();
@@ -1203,14 +1204,24 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		    }
 		}
 	    }
+	    indx++;
 	}
 	if ( mi ) {
-	    hideAllPopups();
-	    byeMenuBar();
-	    if ( mi->isEnabled() ) {
-		if ( mi->signal() )
-		    mi->signal()->activate();
-		actSig( mi->id() );
+	    popup = mi->popup();
+	    if ( popup ) {
+		actItem = indx;
+		hidePopups();
+		killTimers();
+		startTimer( 20 );
+		popup->setFirstItemActive();
+	    } else {
+		hideAllPopups();
+		byeMenuBar();
+		if ( mi->isEnabled() ) {
+		    if ( mi->signal() )
+			mi->signal()->activate();
+		    actSig( mi->id() );
+		}
 	    }
 	}
     }
