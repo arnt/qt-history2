@@ -1,6 +1,7 @@
 TEMPLATE = app
 
-CONFIG	+= qt warn_off
+CONFIG	+= uic3
+QT      += compat
 LIBS	+= -lqaxcontainer
 
 QTDIR_build:REQUIRES = shared
