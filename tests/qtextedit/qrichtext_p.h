@@ -490,13 +490,13 @@ public:
     void setBidi( bool b ) { bidi = b; }
     bool isTextChanged() const { return textChanged; }
     bool isBidi() const { return bidi; }
-    
+
 private:
     QArray<Char> data;
     QString cache;
     uint textChanged : 1;
     uint bidi : 1;
-    
+
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -682,7 +682,7 @@ class QTextFormatter
 public:
     QTextFormatter( QTextDocument *d );
     virtual ~QTextFormatter() {}
-    virtual int format( QTextParag *parag, int start ) = 0;
+    virtual int format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts ) = 0;
 
 protected:
     QTextDocument *doc;
@@ -695,7 +695,7 @@ class QTextFormatterBreakInWords : public QTextFormatter
 {
 public:
     QTextFormatterBreakInWords( QTextDocument *d );
-    int format( QTextParag *parag, int start );
+    int format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts );
 
 };
 
@@ -705,7 +705,7 @@ class QTextFormatterBreakWords : public QTextFormatter
 {
 public:
     QTextFormatterBreakWords( QTextDocument *d );
-    int format( QTextParag *parag, int start );
+    int format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts );
 
 };
 

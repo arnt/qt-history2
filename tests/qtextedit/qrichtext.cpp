@@ -2546,11 +2546,12 @@ void QTextParag::format( int start, bool doMove )
 	    i->xpos = r.x() + r.width() - i->width;
 	doc->flow()->updateHeight( i );
     }
-    QMap<int, LineStart*>::Iterator it = lineStarts.begin();
-    for ( ; it != lineStarts.end(); ++it )
-	delete *it;
+    QMap<int, LineStart*> oldLineStarts = lineStarts;
     lineStarts.clear();
-    int y = doc->formatter()->format( this, start );
+    int y = doc->formatter()->format( this, start, oldLineStarts );
+    QMap<int, LineStart*>::Iterator it = oldLineStarts.begin();
+    for ( ; it != oldLineStarts.end(); ++it )
+	delete *it;
 
     QTextString::Char *c = 0;
     if ( lineStarts.count() == 1 && doc->flow()->isEmpty() ) {
@@ -2733,7 +2734,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int cy = 0;
     int curx = -1, cury, curh;
     bool lastDirection = 0;
-    
+
     int selectionStarts[ doc->numSelections ];
     int selectionEnds[ doc->numSelections ];
     if ( drawSelections ) {
@@ -3096,7 +3097,7 @@ QTextFormatterBreakInWords::QTextFormatterBreakInWords( QTextDocument *d )
 {
 }
 
-int QTextFormatterBreakInWords::format( QTextParag *parag, int start )
+int QTextFormatterBreakInWords::format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts )
 {
     QTextString::Char *c = 0;
     int left = parag->leftMargin();
@@ -3193,7 +3194,7 @@ QTextFormatterBreakWords::QTextFormatterBreakWords( QTextDocument *d )
 {
 }
 
-int QTextFormatterBreakWords::format( QTextParag *parag, int start )
+int QTextFormatterBreakWords::format( QTextParag *parag, int start, const QMap<int, QTextParag::LineStart*> &oldLineStarts )
 {
     QTextString::Char *c = 0;
     int left = parag->leftMargin();
