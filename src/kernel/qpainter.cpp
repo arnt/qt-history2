@@ -2589,20 +2589,39 @@ void qt_format_text( const QFont& font, const QRect &r,
     if ( simple ) {
 	// we can use a simple drawText instead of the QTextParag.
 	QFontMetrics fm = painter ? painter->fontMetrics() : QFontMetrics( font );
-	QString parStr( str.left( len ) );
+	QString parStr = str;
+	// str.setLength() always does a deep copy, so the replacement code below is safe.
+	parStr.setLength( len );
 	// compatible behaviour to the old implementation. Replace tabs by spaces
 	QChar *chr = (QChar*)parStr.unicode();
-	int l = parStr.length();
+	int l = len;
 	while ( l-- ) {
-	    if ( *chr == '\t' )
+	    if ( *chr == '\t' || *chr == '\r' || *chr == '\n' )
 		*chr = ' ';
 	    chr++;
 	}
 	QString parStr2 = parStr;
-#ifndef QT_NO_REGEXP
-	if ( noaccel || showprefix )
-		parStr.replace( QRegExp( "&(?!&)" ), "" );
-#endif
+	if ( noaccel || showprefix ) {
+	    parStr.setLength( len ); // does a detach
+	    QChar *cout = (QChar*)parStr.unicode();
+	    QChar *cin = cout;
+	    int l = len;
+	    int skip = 0;
+	    while ( l-- ) {
+		if ( *cin == '&' ) {
+		    if ( l > 1 && *(cin+1) != '&' ) {
+			cin++;
+			skip++;
+			l--;
+		    }
+		}
+		*cout = *cin;
+		cout++;
+		cin++;
+	    }
+	    if ( skip )
+		parStr.setLength( len-skip );
+	}
 	int w = fm.width( parStr );
 	int h = fm.height();
 
@@ -2696,7 +2715,8 @@ void qt_format_text( const QFont& font, const QRect &r,
 	parag = *internal;
     } else {
 	QString parStr = str;
-	parStr.truncate( len );
+	// str.setLength() always does a deep copy, so the replacement code below is safe.
+	parStr.setLength( len );
 	// need to build paragraph
 	parag = new QTextParag( 0, 0, 0, FALSE );
 	parag->setNewLinesAllowed( TRUE );
@@ -2709,12 +2729,13 @@ void qt_format_text( const QFont& font, const QRect &r,
 	parag->pseudoDocument()->pFormatter = formatter;
 	QTextFormat *f = parag->formatCollection()->format( font, painter ? painter->pen().color() : QColor() );
 	f->setPainter( painter );
-#ifndef QT_NO_REGEXP
-	if ( singleline )
-	    parStr.replace(QRegExp("[\n\r]"), " ");
-	else
-	    parStr.replace(QRegExp("\r"), " ");
-#endif
+	QChar *chr = (QChar*)parStr.unicode();
+	int l = parStr.length();
+	while ( l-- ) {
+	    if ( *chr == '\r' || (singleline && *chr == '\n') )
+		*chr = ' ';
+	    chr++;
+	}
 	if ( showprefix || noaccel ) {
 	    int idx = -1;
 	    int start = 0;
@@ -2792,7 +2813,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	qDebug("par: %d/%d", brect->width(), brect->height() );
 #endif
     }
-    if ( painter ) {
+    if ( painter && !(tf & QPainter::DontPrint) ) {
 	xoff += r.x();
 	if ( r.width() < parag->pseudoDocument()->wused ) {
 	    if ( ( tf & Qt::AlignHCenter ) == Qt::AlignHCenter )
@@ -2803,30 +2824,29 @@ void qt_format_text( const QFont& font, const QRect &r,
 	if ( tf & Qt::AlignRight )
 	    xoff -= 2; // ### strange
 	yoff += r.y();
-	if(!(tf & QPainter::DontPrint)) {
-	    QColorGroup cg;
-	    painter->save();
+
+	QColorGroup cg;
+	painter->save();
 #if defined(QT_FORMAT_TEXT_DEBUG)
-	    QRect parRect = parag->rect();
-	    qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
+	QRect parRect = parag->rect();
+	qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
 #endif
 
 #ifndef QT_NO_TRANSFORMATIONS
-	    QRegion reg = painter->xmat * rect;
+	QRegion reg = painter->xmat * rect;
 #else
-	    QRegion reg = rect;
-	    reg.translate( painter->xlatex, painter->xlatey );
+	QRegion reg = rect;
+	reg.translate( painter->xlatex, painter->xlatey );
 #endif
-	    if ( !dontclip ) {
-		if ( painter->hasClipping() )
-		    reg &= painter->clipRegion();
+	if ( !dontclip ) {
+	    if ( painter->hasClipping() )
+		reg &= painter->clipRegion();
 
-		painter->setClipRegion( reg );
-	    }
-	    painter->translate( xoff, yoff );
-	    parag->paint( *painter, cg );
-	    painter->restore();
+	    painter->setClipRegion( reg );
 	}
+	painter->translate( xoff, yoff );
+	parag->paint( *painter, cg );
+	painter->restore();
     }
     if ( encode ) {
 	*internal = parag;
