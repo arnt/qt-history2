@@ -1829,7 +1829,7 @@ QStringList QOCIDriver::tables(QSql::TableType type) const
 void qSplitTableAndOwner(const QString & tname, QString * tbl,
                           QString * owner)
 {
-    int i = tname.indexOf('.'); // prefixed with owner?
+    int i = tname.indexOf(QLatin1Char('.')); // prefixed with owner?
     if (i != -1) {
         *tbl = tname.right(tname.length() - i - 1).toUpper();
         *owner = tname.left(i).toUpper();
@@ -1960,7 +1960,8 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
             const QString srcStr = field.value().toString();
             for (int i = 0; i < srcStr.length(); ++i) {
                 encStr += QLatin1Char('\\') +
-                          QString::number(srcStr.at(i).unicode(), 16).rightJustified(4, '0');
+                          QString::number(srcStr.at(i).unicode(),
+                                          16).rightJustified(4, QLatin1Char('0'));
             }
             encStr += QLatin1String("')");
             return encStr;

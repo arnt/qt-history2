@@ -449,12 +449,12 @@ static QSqlField qMakeFieldInfo(const QODBCPrivate* p, int i )
 bool QODBCDriverPrivate::setConnectionOptions(const QString& connOpts)
 {
     // Set any connection attributes
-    const QStringList opts(connOpts.split(';', QString::SkipEmptyParts));
+    const QStringList opts(connOpts.split(QLatin1Char(';'), QString::SkipEmptyParts));
     SQLRETURN r = SQL_SUCCESS;
     for (int i = 0; i < opts.count(); ++i) {
         const QString tmp(opts.at(i));
         int idx;
-        if ((idx = tmp.indexOf('=')) == -1) {
+        if ((idx = tmp.indexOf(QLatin1Char('='))) == -1) {
             qWarning("QODBCDriver::open: Illegal connect option value '%s'", tmp.latin1());
             continue;
         }
@@ -567,7 +567,7 @@ void QODBCDriverPrivate::splitTableQualifier(const QString & qualifier, QString 
         table = qualifier;
         return;
     }
-    QStringList l = qualifier.split('.');
+    QStringList l = qualifier.split(QLatin1Char('.'));
     if (l.count() > 3)
         return; // can't possibly be a valid table qualifier
     int i = 0, n = l.count();
@@ -1842,9 +1842,11 @@ QString QODBCDriver::formatValue(const QSqlField &field,
             QTime tm = field.value().toDateTime().time();
             // Dateformat has to be "yyyy-MM-dd hh:mm:ss", with leading zeroes if month or day < 10
             r = QLatin1String("{ ts '") +
-                QString::number(dt.year()) + QLatin1String("-") +
-                QString::number(dt.month()).rightJustified(2, '0', true) + QLatin1String("-") +
-                QString::number(dt.day()).rightJustified(2, '0', true) + QLatin1String(" ") +
+                QString::number(dt.year()) + QLatin1Char('-') +
+                QString::number(dt.month()).rightJustified(2, QLatin1Char('0'), true) +
+                QLatin1Char('-') +
+                QString::number(dt.day()).rightJustified(2, QLatin1Char('0'), true) +
+                QLatin1Char(' ') +
                 tm.toString() +
                 QLatin1String("' }");
         } else
@@ -1855,8 +1857,8 @@ QString QODBCDriver::formatValue(const QSqlField &field,
         static const char hexchars[] = "0123456789abcdef";
         for (int i = 0; i < ba.size(); ++i) {
             uchar s = (uchar) ba[i];
-            res += hexchars[s >> 4];
-            res += hexchars[s & 0x0f];
+            res += QLatin1Char(hexchars[s >> 4]);
+            res += QLatin1Char(hexchars[s & 0x0f]);
         }
         r = QLatin1String("0x") + res;
     } else {

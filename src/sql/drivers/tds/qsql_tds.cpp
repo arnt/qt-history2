@@ -714,8 +714,8 @@ QString QTDSDriver::formatValue(const QSqlField &field,
         static const char hexchars[] = "0123456789abcdef";
         for (int i = 0; i < ba.size(); ++i) {
             uchar s = (uchar) ba[i];
-            res += hexchars[s >> 4];
-            res += hexchars[s & 0x0f];
+            res += QLatin1Char(hexchars[s >> 4]);
+            res += QLatin1Char(hexchars[s & 0x0f]);
         }
         r = QLatin1String("0x") + res;
     } else {
@@ -736,7 +736,7 @@ QSqlIndex QTDSDriver::primaryIndex(const QString& tablename) const
     t.setForwardOnly(true);
     t.exec(QString::fromLatin1("sp_helpindex '%1'").arg(tablename));
     if (t.next()) {
-        QStringList fNames = t.value(2).toString().simplified().split(',');
+        QStringList fNames = t.value(2).toString().simplified().split(QLatin1Char(','));
         QRegExp regx(QLatin1String("\\s*(\\S+)(?:\\s+(DESC|desc))?\\s*"));
         for(QStringList::Iterator it = fNames.begin(); it != fNames.end(); ++it) {
             regx.indexIn(*it);

@@ -880,7 +880,7 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
             for (int i = 0; i < (int)ba.size(); ++i) {
                 uc = (unsigned char) ba[i];
                 if (uc > 40 && uc < 92) {
-                    r += uc;
+                    r += QLatin1Char(uc);
                 } else {
                     r += QLatin1String("\\\\");
                     r += QString::number((unsigned char) ba[i], 8).rightJustified(3,

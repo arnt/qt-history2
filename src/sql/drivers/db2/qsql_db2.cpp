@@ -388,7 +388,7 @@ static void qSplitTableQualifier(const QString & qualifier, QString * catalog,
 {
     if (!catalog || !schema || !table)
         return;
-    QStringList l = qualifier.split('.');
+    QStringList l = qualifier.split(QLatin1Char('.'));
     if (l.count() > 3)
         return; // can't possibly be a valid table qualifier
     int i = 0, n = l.count();
@@ -1077,11 +1077,11 @@ bool QDB2Driver::open(const QString& db, const QString& user, const QString& pas
         return false;
     }
     // Set connection attributes
-    const QStringList opts(connOpts.split(';', QString::SkipEmptyParts));
+    const QStringList opts(connOpts.split(QLatin1Char(';'), QString::SkipEmptyParts));
     for (int i = 0; i < opts.count(); ++i) {
         const QString tmp(opts.at(i));
         int idx;
-        if ((idx = tmp.indexOf('=')) == -1) {
+        if ((idx = tmp.indexOf(QLatin1Char('='))) == -1) {
             qWarning("QDB2Driver::open: Illegal connect option value '%s'", tmp.latin1());
             continue;
         }
@@ -1461,8 +1461,8 @@ QString QDB2Driver::formatValue(const QSqlField &field, bool trimStrings) const
             static const char hexchars[] = "0123456789abcdef";
             for (int i = 0; i < ba.size(); ++i) {
                 uchar s = (uchar) ba[i];
-                res += hexchars[s >> 4];
-                res += hexchars[s & 0x0f];
+                res += QLatin1Char(hexchars[s >> 4]);
+                res += QLatin1Char(hexchars[s & 0x0f]);
             }
             res += QLatin1String("')");
             return res;

@@ -460,13 +460,13 @@ bool QMYSQLDriver::open(const QString& db,
         close();
 
     unsigned int optionFlags = 0;
-    const QStringList opts(connOpts.split(';', QString::SkipEmptyParts));
+    const QStringList opts(connOpts.split(QLatin1Char(';'), QString::SkipEmptyParts));
 
     // extract the real options from the string
     for (int i = 0; i < opts.count(); ++i) {
         QString tmp(opts.at(i).simplified());
         int idx;
-        if ((idx = tmp.indexOf('=')) != -1) {
+        if ((idx = tmp.indexOf(QLatin1Char('='))) != -1) {
             QString val(tmp.mid(idx + 1).simplified());
             if (val == QLatin1String("TRUE") || val == QLatin1String("1"))
                 setOptionFlag(optionFlags, tmp.left(idx).simplified());
