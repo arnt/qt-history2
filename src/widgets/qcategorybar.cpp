@@ -48,6 +48,8 @@
 #include <qlayout.h>
 #include <qptrdict.h>
 #include <qtooltip.h>
+#include <qeventloop.h>
+#include <qdatetime.h>
 
 class QCategoryButton : public QToolButton
 {
@@ -80,7 +82,7 @@ public:
     QCategoryBarPrivate()
 	{
 	    currentPage = 0;
-	    lastTab = 0;
+	    lastButton = 0;
 	    categories = new QPtrList<Category>;
 	    categories->setAutoDelete( TRUE );
 	}
@@ -134,7 +136,7 @@ public:
     QPtrList<Category> *categories;
     QVBoxLayout *layout;
     QWidget *currentPage;
-    QCategoryButton *lastTab;
+    QCategoryButton *lastButton;
 };
 
 
@@ -268,8 +270,8 @@ void QCategoryBar::insertCategory( const QString &label, const QIconSet &iconSet
 
     if ( count() == 1 ) {
 	d->currentPage = sv;
-	d->lastTab = button;
-	d->lastTab->setSelected( TRUE );
+	d->lastButton = button;
+	d->lastButton->setSelected( TRUE );
 	sv->show();
 	// #### is this needed, seems hacky
 	set_background_mode( d->currentPage, PaletteLight );
@@ -284,6 +286,53 @@ void QCategoryBar::buttonClicked()
 {
     QCategoryButton *tb = (QCategoryButton*)sender();
     QWidget *page = d->pages.find( tb );
+
+    if ( page == d->currentPage )
+	return;
+
+
+    // ### this stuff needs more work (tweak parameters and also
+    // ### resize the old and new current page accordingly, so it will
+    // ### look nicer)
+    int direction = 0;
+
+    QWidgetList buttons;
+    for ( QCategoryBarPrivate::Category *c = d->categories->first(); c;
+	  c = d->categories->next() ) {
+	if ( c->button == tb ) {
+	    buttons.append( c->button );
+	    if ( direction < 0 )
+		break;
+	    direction = 5;
+	} else if ( c->button == d->lastButton ) {
+	    if ( direction > 0 )
+		break;
+	    direction = -5;
+	} else if ( direction != 0 ) {
+	    buttons.append( c->button );
+	}
+    }
+
+    int dist = 0;
+    int h = d->currentPage->parentWidget()->height() - d->lastButton->height();
+
+    QTime t;
+    t.start();
+
+    while ( dist < h ) {
+	if ( t.elapsed() > 2 ) {
+	    QWidgetListIt it( buttons );
+	    while ( it.current() ) {
+		it.current()->raise();
+		it.current()->move( it.current()->x(), it.current()->y() + direction );
+		++it;
+	    }
+	    dist += QABS( direction );
+	    t.restart();
+	}
+	qApp->eventLoop()->processEvents( QEventLoop::ExcludeUserInput );
+    }
+
     setCurrentPage( page );
 }
 
@@ -294,7 +343,7 @@ void QCategoryBar::updateTabs()
 	  c = d->categories->next() ) {
 	c->button->setBackgroundMode( !after ? PaletteBackground : PaletteLight );
 	c->button->update();
-	after = c->button == d->lastTab;
+	after = c->button == d->lastButton;
     }
 }
 
@@ -318,9 +367,9 @@ void QCategoryBar::setCurrentPage( QWidget *page )
 	return;
 
     tb->setSelected( TRUE );
-    if ( d->lastTab )
-	d->lastTab->setSelected( FALSE );
-    d->lastTab = tb;
+    if ( d->lastButton )
+	d->lastButton->setSelected( FALSE );
+    d->lastButton = tb;
     if ( d->currentPage )
 	d->currentPage->hide();
     d->currentPage = page;
@@ -411,7 +460,7 @@ void QCategoryBar::activateClosestPage( QWidget *page )
 	p = d->findClosestPage( page );
 	if ( !p ) {
 	    d->currentPage = 0;
-	    d->lastTab = 0;
+	    d->lastButton = 0;
 	} else {
 	    setCurrentPage( p );
 	}
