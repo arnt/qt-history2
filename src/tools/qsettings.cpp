@@ -811,6 +811,11 @@ void QSettings::insertSearchPath( System s, const QString &path)
     }
 #endif
 
+#if !defined(Q_WS_WIN)
+    if ( s == Windows )
+	return;
+#endif
+
     if ( !verifyKey( path ) ) {
 #if defined(QT_CHECK_STATE)
 	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
