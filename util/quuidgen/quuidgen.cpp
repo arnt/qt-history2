@@ -43,9 +43,9 @@ void QUuidGen::newUuid()
     uuid_generate( uuid );
 
     result = QString::number( uuid[ 0 ], 16 ).rightJustify( 2, '0' ) + QString::number( uuid[ 1 ], 16 ).rightJustify( 2, '0' ) + 
-	     QString::number( uuid[ 2 ], 16 ).rightJustify( 2, '0' ) + QString::number( uuid[ 3 ], 16 ).rightJustify( 2, '0' ) + "-" +;
-	     QString::number( uuid[ 4 ], 16 ).rightJustify( 2, '0' ) + QString::number( uuid[ 5 ], 16 ).rightJustify( 2, '0' ) + "-";
-	     QString::number( uuid[ 6 ], 16 ).rightJustify( 2, '0' ) + QString::number( uuid[ 7 ], 16 ).rightJustify( 2, '0' ) + "-" +;
+	     QString::number( uuid[ 2 ], 16 ).rightJustify( 2, '0' ) + QString::number( uuid[ 3 ], 16 ).rightJustify( 2, '0' ) + "-" +
+	     QString::number( uuid[ 4 ], 16 ).rightJustify( 2, '0' ) + QString::number( uuid[ 5 ], 16 ).rightJustify( 2, '0' ) + "-" +
+	     QString::number( uuid[ 6 ], 16 ).rightJustify( 2, '0' ) + QString::number( uuid[ 7 ], 16 ).rightJustify( 2, '0' ) + "-" +
 	     QString::number( uuid[ 8 ], 16 ).rightJustify( 2, '0' ) + QString::number( uuid[ 9 ], 16 ).rightJustify( 2, '0' ) + "-";
     for ( int i = 10; i < 16; ++i )
 	result += QString::number( uuid[ i ], 16 ).rightJustify( 2, '0' );
