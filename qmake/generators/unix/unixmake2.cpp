@@ -653,10 +653,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
           << ",g\" \"" << info_plist << "\" >\"" << info_plist_out << "\"" << endl;
         if(!project->first("ICON").isEmpty()) {
             QString dir = destdir + "../Resources/";
-            t << dir << "application.icns: " << var("ICON") << "\n\t"
+            t << dir << "application.icns: " << fileFixify(var("ICON")) << "\n\t"
               << "@test -d " << dir << " || mkdir -p " << dir << "\n\t"
               << "@$(DEL_FILE) " << dir << "application.icns" << "\n\t"
-              << "@$(COPY_FILE) " << var("ICON") << " " << dir << "application.icns" << endl;
+              << "@$(COPY_FILE) " << fileFixify(var("ICON")) << " " << dir << "application.icns" << endl;
         }
         if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
             const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
