@@ -238,6 +238,17 @@ uint FileDriver::count() const
     return d->file.FieldCount();
 }
 
+QStringList FileDriver::indexNames()
+{
+    QStringList idx;
+    for ( uint i = 0; i < d->indexes.count(); ++i ) {
+	char buf[XB_MAX_NDX_NODE_SIZE];
+	d->indexes[i]->GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
+	idx += QString(buf);
+    }
+    return idx;
+}
+
 bool FileDriver::close()
 {
     if ( !isOpen() )

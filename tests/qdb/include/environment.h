@@ -115,6 +115,7 @@ namespace qdb {
 	virtual bool fieldDescription( const QString& name, QVariant& v ) = 0;
 	virtual bool fieldDescription( int i, QVariant& v ) = 0;
 	virtual bool clearMarked() = 0;
+	virtual QStringList indexNames() = 0;
     };
 
 

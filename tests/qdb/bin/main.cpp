@@ -188,6 +188,7 @@ int main( int argc, char** argv )
     /* table description */
     if ( tablename.length() ) {
 	QDb env;
+	uint i = 0;
 	env.addFileDriver( 0, tablename );
 	qdb::FileDriver* driver = env.fileDriver( 0 );
 	if ( !driver->open() )
@@ -199,7 +200,7 @@ int main( int argc, char** argv )
 	    outstream << sep << "---------------" << sep << "---------------" << sep
 		      << "---------------" << sep << "---------------" << sep << endl;
 	}
-	for ( uint i = 0; i < driver->count(); ++i ) {
+	for ( i = 0; i < driver->count(); ++i ) {
 	    QVariant v;
 	    if ( !driver->fieldDescription( i, v ) )
 		die( "unable to find field:" + QString::number( i ) );
@@ -215,6 +216,9 @@ int main( int argc, char** argv )
 		      << " " << QString::number( l[2].toInt() ).leftJustify( 14 ) << sep
 		      << " " << QString::number( l[3].toInt() ).leftJustify( 14 ) <<  sep << endl;
 	}
+	QStringList idx = driver->indexNames();
+	for ( i = 0; i < idx.count(); ++i )
+	    outstream << "index: " << idx[i] << endl;
 	return 0;
     }
 

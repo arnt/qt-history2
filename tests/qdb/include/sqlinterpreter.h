@@ -43,6 +43,7 @@ public:
     uint size() const;
     QStringList columnNames() const;
     QValueList<QVariant::Type> columnTypes() const;
+    QStringList indexNames();
 
 protected:
     virtual void setName( const QString& name ) { nm = name; }
