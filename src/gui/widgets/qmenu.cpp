@@ -1561,8 +1561,6 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
 {
     if (d->mouseEventTaken(e))
         return;
-    if (!d->mouseDown && d->motions < 6)
-        return;
 
     d->mouseDown = false;
     QAction *action = d->actionAt(e->pos());
@@ -1580,6 +1578,8 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
             action->menu()->d->setFirstActionActive();
         else
             d->activateAction(action, QAction::Trigger);
+    } else if (d->motions > 6) {
+        d->hideUpToMenuBar();
     }
 }
 
