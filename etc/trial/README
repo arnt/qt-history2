@@ -8,3 +8,8 @@ Test programs:
 	code			- Encodes a key string
 	decode			- Decodes a key string
 	scramble		- Scrambles text/data
+
+Trial dates:
+
+	May 1, 1998:	hex = 002565f7, dec = 2450935
+	Dec 1, 1998:	hex = 002566cd, dec = 2451149
