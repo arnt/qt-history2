@@ -3,6 +3,14 @@
 # Main Makefile for building the Qt library, examples and tutorial.
 # Read PORTING for instructions how to port Qt to a new platform.
 
+!IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
+QMFILE=Makefile
+FORCEDEP=FORCE
+!ELSE
+QMFILE=Makefile.borland
+FORCEDEP=
+!ENDIF
+
 all: symlinks sub-src sub-tools sub-tutorial sub-examples
 	@echo .
 	@echo The Qt library is now built in .\lib
@@ -17,15 +25,15 @@ all: symlinks sub-src sub-tools sub-tutorial sub-examples
 
 src-qmake: symlinks
 	cd qmake
-	$(MAKE)
+	$(MAKE) -f $(QMFILE)
 	cd ..
 
-src-moc: src-qmake FORCE
+src-moc: src-qmake $(FORCEDEP)
 	cd src\moc
 	$(MAKE)
 	cd ..\..
 
-sub-tools: sub-src FORCE
+sub-tools: sub-codecs $(FORCEDEP)
 	cd tools
 	$(MAKE)
 	cd ..
@@ -33,29 +41,39 @@ sub-tools: sub-src FORCE
 symlinks: .qmake.cache
 #	syncqt
 
-sub-src: .qmake.cache FORCE
+sub-src: .qmake.cache $(FORCEDEP)
 	cd src
 	$(MAKE)
 	$(MAKE) -f Makefile.main
 	cd ..
 
-sub-tutorial: sub-src FORCE
+sub-codecs: sub-src .qmake.cache $(FORCEDEP)
+	cd src\codecs\src
+	$(MAKE)
+	cd ..\..\..
+
+sub-tutorial: sub-src $(FORCEDEP)
 	cd tutorial
 	$(MAKE)
 	cd ..
 
-sub-examples: sub-src FORCE
+sub-examples: sub-src $(FORCEDEP)
 	cd examples
 	$(MAKE)
 	cd ..
 
 clean:
-	cd qmake&&$(MAKE) clean
-	cd tools&&$(MAKE) clean
-	cd src\moc&&$(MAKE) clean
-	cd src&&$(MAKE) clean&&$(MAKE) clean -f Makefile.main
-	cd tutorial&&$(MAKE) clean
-	cd examples&&$(MAKE) clean
+	cd qmake
+	$(MAKE) -f $(QMFILE) clean
+	cd ..\tools
+	$(MAKE) clean
+	cd ..\src
+	$(MAKE) clean
+	$(MAKE) -f Makefile.main clean
+	cd ..\tutorial
+	$(MAKE) clean
+	cd ..\examples
+	$(MAKE) clean
 
 distclean: clean
 	-del .qmake.cache
