@@ -12,6 +12,7 @@
 #include <qtimer.h>
 
 #include "private/qtextdocumentlayout_p.h"
+#include "private/qtextdocument_p.h"
 #include "qtextdocument.h"
 #include "qtextcursor.h"
 #include "qtextdocumentfragment.h"
@@ -139,6 +140,9 @@ public:
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
     void selectionChanged();
+
+    // ### helper for compat functions
+    QTextBlock blockAt(int block) const;
 
     QTextDocument *doc;
     bool cursorOn;
@@ -354,6 +358,16 @@ void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
 void QTextEditPrivate::selectionChanged()
 {
     emit q->copyAvailable(cursor.hasSelection());
+}
+
+QTextBlock QTextEditPrivate::blockAt(int blockNr) const
+{
+    QTextBlock block = doc->rootFrame()->begin().currentBlock();
+    while (blockNr > 0 && block.isValid()) {
+        block = block.next();
+        --blockNr;
+    }
+    return block;
 }
 
 QTextEdit::QTextEdit( QWidget *parent,  const char * name )
@@ -1216,11 +1230,9 @@ Qt::TextFormat QTextEdit::textFormat() const
     return d->textFormat;
 }
 
-void QTextEdit::setCursorPosition(int para, int index)
+void QTextEdit::setCursorPosition(int parag, int index)
 {
-    QTextCursor c = cursor();
-    c.movePosition(QTextCursor::Start);
-    c.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, para);
+    QTextCursor c(d->blockAt(parag));
     c.movePosition(QTextCursor::NextCharacter, QTextCursor::MoveAnchor, index);
     setCursor(c);
 }
@@ -1243,13 +1255,23 @@ void QTextEdit::getCursorPosition(int *parag, int *index) const
 
 QString QTextEdit::text(int parag) const
 {
-    QTextBlock block = document()->rootFrame()->begin().currentBlock();
-    while (parag > 0 && block.isValid()) {
-        block = block.next();
-        --parag;
-    }
     // ### return html for textFormat() == RichText
-    return block.text();
+    return d->blockAt(parag).text();
+}
+
+int QTextEdit::paragraphs() const
+{
+    return d->doc->docHandle()->numBlocks();
+}
+
+int QTextEdit::linesOfParagraph(int parag) const
+{
+    return d->blockAt(parag).layout()->numLines();
+}
+
+int QTextEdit::paragraphLength(int parag) const
+{
+    return d->blockAt(parag).length();
 }
 
 #endif

@@ -257,6 +257,12 @@ public:
 
     QT_COMPAT QString text(int parag) const;
 
+    QT_COMPAT int paragraphs() const;
+
+    QT_COMPAT int linesOfParagraph(int parag) const;
+
+    QT_COMPAT int paragraphLength(int parag) const;
+
 #endif
 };
 
