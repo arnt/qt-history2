@@ -129,7 +129,7 @@ public:
     virtual bool insertRow(int row, const QModelIndex &parent = 0, int count = 1);
     virtual bool insertColumn(int column, const QModelIndex &parent = 0, int count = 1);
     virtual bool removeRow(int row, const QModelIndex &parent = 0, int count = 1);
-    virtual bool removeColumn(int column, const QModelIndex &parent, int count = 1);
+    virtual bool removeColumn(int column, const QModelIndex &parent = 0, int count = 1);
 
     virtual bool isSelectable(const QModelIndex &index) const;
     virtual bool isEditable(const QModelIndex &index) const;
