@@ -135,7 +135,13 @@
     removeSearchPath() to remove any unwanted paths.
 */
 
+/*!
+    \enum QSettings::System
 
+    \value Mac (reserved for future use)
+    \value Unix Unix, Linux and Unix-like execution environments
+    \value Windows Windows execution environments
+*/
 
 
 static QStringList *searchPaths = 0;
