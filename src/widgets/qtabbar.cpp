@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#70 $
 **
 ** Implementation of QTabBar class
 **
@@ -607,29 +607,28 @@ void QTabBar::keyPressEvent( QKeyEvent * e )
     if ( e->key() == Key_Left ) {
 	// left - skip past any disabled ones
 	if ( d->focus > 0 ) {
-	    QTab * t;
+	    QTab * t = lstatic->last();
+	    while ( t && t->id != d->focus )
+		t = lstatic->prev();
 	    do {
-		d->focus--;
-		t = l->first();
-		while ( t && t->id != d->focus )
-		    t = l->next();
-	    } while ( d->focus >= 0 && t && !t->enabled );
+		t = lstatic->prev();
+	    } while ( t && !t->enabled);
+	    if (t)
+		d->focus = t->id;
 	}
 	if ( d->focus < 0 )
 	    d->focus = old;
     } else if ( e->key() == Key_Right ) {
-	// right - ditto
-	if ( d->focus < d->id-1 ) {
-	    QTab * t;
-	    do {
-		d->focus++;
-		t = l->first();
-		while ( t && t->id != d->focus )
-		    t = l->next();
-	    } while ( d->focus < d->id && t && !t->enabled );
-	}
-	if ( d->focus >= d->id )
-	    d->focus = old;
+	QTab * t = lstatic->first();
+	while ( t && t->id != d->focus )
+	    t = lstatic->next();
+	do {
+	    t = lstatic->next();
+	} while ( t && !t->enabled);
+    if (t)
+	d->focus = t->id;
+    if ( d->focus >= d->id )
+	d->focus = old;
     } else {
 	// other keys - ignore
 	e->ignore();
