@@ -615,7 +615,7 @@ QTextStream::QTextStream( QString& str, int filemode )
     \endcode
 */
 
-QTextStream::QTextStream( QByteArray a, int mode )
+QTextStream::QTextStream( QByteArray &a, int mode )
 {
     init();
     dev = new QBuffer( a );
@@ -1620,7 +1620,7 @@ QTextStream &QTextStream::operator>>( QByteArray &str )
 	if(sr)
 	    break;
     }
-    str.resize(used+1);
+    str.resize(used);
     return *this;
 }
 

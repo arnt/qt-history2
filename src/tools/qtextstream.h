@@ -44,7 +44,7 @@ public:
     QTextStream( QIODevice * );
     QTextStream( QString*, int mode );
     QTextStream( QString&, int mode );		// obsolete
-    QTextStream( QByteArray, int mode );
+    QTextStream( QByteArray &, int mode );
     QTextStream( FILE *, int mode );
     virtual ~QTextStream();
 
