@@ -123,6 +123,7 @@ Overviews
 \i \link workspace.html   Workspace \endlink
 \i \link xml.html   XML \endlink
 \i \link activeqt.html   ActiveQt Framework \endlink
+\i \link qmotif-extension.html QMotif Extension\endlink
 \endlist
 </td>
 <td valign=top>
@@ -365,9 +366,10 @@ in a line-by-line coverage please refer to the
 \section1 Qt Extensions: Assorted Examples
 
 \list
-\i \link nsplugin-examples.html Qt-based plugins for web browsers \endlink
-\i \link xt-motif-examples.html Xt/Motif support extension \endlink
 \i \link activeqt-examples.html ActiveX support extension \endlink
+\i \link qmotif-examples.html QMotif support extension \endlink
+\omit \i \link xt-motif-examples.html Xt/Motif support extension \endlink \endomit
+\i \link nsplugin-examples.html Qt-based plugins for web browsers \endlink
 \endlist
 
 \section1 Miscellaneous Examples
@@ -457,7 +459,20 @@ protocol.
 For more information see the \link nsplugin.html Plugin Howto \endlink.
 */
 
-/*! \defgroup xt-motif-examples 
+/*! \defgroup qmotif-examples 
+
+\title QMotif Support Extension
+
+The following example programs illustrate the use of the QMotif Extension
+assisting in the migration process of old Xt and Motif based code
+to the more comfortable Qt toolkit.
+
+For more information see the \link qmotif-extension.html QMotif
+Support Extension documentation. \endlink
+*/
+
+/*
+\defgroup xt-motif-examples 
 
 \title Qt Xt/Motif Support Extension
 

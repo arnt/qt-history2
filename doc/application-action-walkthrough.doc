@@ -71,12 +71,12 @@ to the <A HREF="simple-application.html#choose()">\e choose()</A> slot.
 There is however a novelty: the \e fileOpenAction (unlike \e fileNewAction)
 is assigned a pixmap (the one included with the \e fileopen.xpm file). 
 
-\printuntil </p>
+\printto defaultFactory 
 
 For the \e fileOpenAction we want to provide "What's This?" help and therefore
 define an appropriate rich-text. 
 
-\printline defaultFactory()->setPixmap( "fileopen"
+\printline QMimeSourceFactory::defaultFactory()
 \printline fileOpenAction->iconSet()
 
 As \e fileOpenText makes use of a pixmap, we have to inform the rich-text

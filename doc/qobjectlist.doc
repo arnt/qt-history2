@@ -53,7 +53,7 @@
 
 
 /*!
-    \class QObjectListIt
+    \class QObjectListIt qobjectlist.h
     \brief The QObjectListIt class provides an iterator for
     QObjectLists.
 
