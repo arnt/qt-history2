@@ -5,7 +5,6 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qfiledialog.h>
-#include <qhbox.h>
 #include <qvbox.h>
 #include <qtooltip.h>
 #include <qpushbutton.h>
@@ -13,7 +12,7 @@
 #include <qmessagebox.h>
 #include <qstatusbar.h>
 #include <qaction.h>
-#include <qvariant.h>
+#include <qlistview.h>
 
 PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
 : QMainWindow( parent, name, f )
@@ -40,12 +39,6 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
     pluginTool = 0;
 
     statusBar();
-
-    sv = new QScrollView( this );
-    box = new QHBox( sv->viewport() );
-    box->setFixedHeight( 200 );
-    sv->addChild( box );
-    setCentralWidget( sv );
 
     QStringList wl = QWidgetFactory::widgetList();
     for ( uint w = 0; w < wl.count(); w++ )
@@ -224,18 +217,4 @@ bool PlugMainWindow::addAction( QAction* action )
     action->addTo( pluginMenu );
 
     return TRUE;
-}
-
-void PlugMainWindowInterface::requestSetProperty( const QCString& p, const QVariant& v )
-{
-    ((PlugMainWindow*)qApp->mainWidget())->setProperty( p, v );
-}
-
-void PlugMainWindowInterface::requestProperty( const QCString& p, QVariant& v )
-{
-    if ( p == "usesTextLabel" ) {
-	v = ((PlugMainWindow*)qApp->mainWidget())->property( p );
-    } else if ( p == "mainWindow" ) {
-	v = QVariant( (uint)qApp->mainWidget() );
-    }
 }
