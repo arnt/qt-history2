@@ -136,7 +136,7 @@ void QVFb::createActions()
 
 void QVFb::createPopupMenu()
 {
-    QMenu *file = new QMenu;
+    QMenu *file = new QMenu("&File");
     file->addAction(actions[ConfigAct]);
     file->addSeparator();
     file->addAction(actions[SaveAct]);
@@ -144,7 +144,7 @@ void QVFb::createPopupMenu()
     file->addSeparator();
     file->addAction(actions[QuitAct]);
 
-    QMenu *view = new QMenu;
+    QMenu *view = new QMenu("&View");
     view->addAction(actions[CursorAct]);
     view->addAction(actions[RefreshAct]);
     view->addSeparator();
@@ -154,21 +154,21 @@ void QVFb::createPopupMenu()
     view->addAction(actions[Zoom4Act]);
     view->addAction(actions[Zoom05Act]);
 
-    QMenu *help = new QMenu;
+    QMenu *help = new QMenu("Help");
     help->addAction(actions[AboutAct]);
     help->addAction(actions[AboutQtAct]);
 
     QMenu *menu = new QMenu(this);
-    menu->addMenu("&File", file);
-    menu->addMenu("&View", view);
+    menu->addAction(file->menuAction());
+    menu->addAction(view->menuAction());
     menu->addSeparator();
-    menu->addMenu("&Help", help);
+    menu->addAction(help->menuAction());
     menu->exec(QCursor::pos());
 }
 
 void QVFb::createMenuBar()
 {
-    QMenu *file = new QMenu;
+    QMenu *file = new QMenu("&File");
     file->addAction(actions[ConfigAct]);
     file->addSeparator();
     file->addAction(actions[SaveAct]);
@@ -176,7 +176,7 @@ void QVFb::createMenuBar()
     file->addSeparator();
     file->addAction(actions[QuitAct]);
 
-    QMenu *view = new QMenu;
+    QMenu *view = new QMenu("&View");
     view->addAction(actions[CursorAct]);
     view->addAction(actions[RefreshAct]);
     view->addSeparator();
@@ -186,15 +186,15 @@ void QVFb::createMenuBar()
     view->addAction(actions[Zoom4Act]);
     view->addAction(actions[Zoom05Act]);
 
-    QMenu *help = new QMenu;
+    QMenu *help = new QMenu("&Help");
     help->addAction(actions[AboutAct]);
     help->addAction(actions[AboutQtAct]);
 
     QMenuBar *menu = menuBar();
-    menu->addMenu("&File", file);
-    menu->addMenu("&View", view);
+    menu->addAction(file->menuAction());
+    menu->addAction(view->menuAction());
     menu->addSeparator();
-    menu->addMenu("&Help", help);
+    menu->addAction(help->menuAction());
 }
 
 void QVFb::enableCursor( bool e )
