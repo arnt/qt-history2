@@ -18,38 +18,38 @@
 
 class StyleButton : public QPushButton
 {
-	Q_OBJECT
-	Q_PROPERTY(QBrush brush READ brush WRITE setBrush)
+    Q_OBJECT
+    Q_PROPERTY(QBrush brush READ brush WRITE setBrush)
     Q_ENUMS(ButtonType)
 
 public:
     enum ButtonType {ColorButton, PixmapButton};
 
-	StyleButton (QWidget *parent = 0, ButtonType type = ColorButton);
-	~StyleButton () {}
+    StyleButton (QWidget *parent = 0, ButtonType type = ColorButton);
+    virtual ~StyleButton () {}
 
-	void setButtonType(ButtonType type);
+    void setButtonType(ButtonType type);
     const QBrush &brush();
-	void setBrush(const QBrush &b);
+    void setBrush(const QBrush &b);
 
-	QString pixmapFileName() const;
+    QString pixmapFileName() const;
 
-protected:
-	void paintEvent (QPaintEvent *event);
-
-private:
-	QString buildImageFormatList() const;
-	bool openPixmap();
-
-	ButtonType btype;
-	QString pixFile;
-	QBrush mBrush;
+signals:
+    void changed();
 
 public slots:
     virtual void onEditor();
 
-signals:
-	void changed();
+protected:
+    void paintEvent (QPaintEvent *event);
+
+private:
+    QString buildImageFormatList() const;
+    bool openPixmap();
+
+    ButtonType btype;
+    QString pixFile;
+    QBrush mBrush;
 };
 
 #endif // STYLEBUTTON_H

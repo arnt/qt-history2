@@ -9,13 +9,23 @@ DESTDIR = ../../../lib
 
 include(propertyeditor.pri)
 
-FORMS += actioneditor.ui
+FORMS += actioneditor.ui \
+    paletteeditor.ui \
+    previewwidget.ui
 
 HEADERS += propertyeditor.h \
-    actioneditor.h
+    actioneditor.h \
+    paletteeditor.h \
+    paletteeditorbutton.h \
+    previewwidget.h \
+    stylebutton.h
 
 SOURCES += propertyeditor.cpp \
-    actioneditor.cpp
+    actioneditor.cpp \
+    paletteeditor.cpp \
+    paletteeditorbutton.cpp \
+    previewwidget.cpp \
+    stylebutton.cpp
 
 #PRECOMPILED_HEADER=propertyeditor_pch.h
 

@@ -11,12 +11,11 @@
 **
 ****************************************************************************/
 
-#include <qpainter.h>
-#include <qstyle.h>
-#include <qstyleoption.h>
-#include <qcolordialog.h>
-#include <qfiledialog.h>
-#include <qimageio.h>
+#include <QtGui/QPainter>
+#include <QtGui/QStyle>
+#include <QtGui/QStyleOption>
+#include <QtGui/QColorDialog>
+#include <QtGui/QFileDialog>
 
 #include "stylebutton.h"
 
@@ -54,7 +53,7 @@ void StyleButton::paintEvent (QPaintEvent *event)
 
     QStyleOptionButton opt;
     opt.init(this);
-    QRect contentRect = style()->subRect(QStyle::SR_PushButtonContents, &opt, this);
+    QRect contentRect = style()->subElementRect(QStyle::SE_PushButtonContents, &opt, this);
 
     QPainter paint(this);
 
@@ -69,6 +68,8 @@ void StyleButton::paintEvent (QPaintEvent *event)
 QString StyleButton::buildImageFormatList() const
 {
     QString filter;
+
+#if 0 // ### port me
     QString all = tr("All Pixmaps (");
     for (int i=0; i<QImageIO::outputFormats().count(); ++i) {
         QString outputFormat = QImageIO::outputFormats().at(i);
@@ -82,8 +83,9 @@ QString StyleButton::buildImageFormatList() const
         filter += tr("%1-Pixmaps (%2)\n").arg(outputFormat).arg("*." + outputExtension);
         all += "*." + outputExtension + ";";
     }
-
     filter.prepend(all + tr(")\n"));
+#endif
+
     filter += tr("All Files (*.*)");
 
     return filter;

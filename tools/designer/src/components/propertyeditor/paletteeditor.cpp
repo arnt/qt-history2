@@ -78,8 +78,8 @@ void PaletteEditor::cleanUpsnrMap()
 
 void PaletteEditor::onChoosePixmap()
 {
-    QPalette::ColorGroup cg = groupFromItem(paletteCombo->currentItem());
-    QPalette::ColorRole cr = roleFromItem(rolesCombo->currentItem());
+    QPalette::ColorGroup cg = groupFromItem(paletteCombo->currentIndex());
+    QPalette::ColorRole cr = roleFromItem(rolesCombo->currentIndex());
     const QBrush oldBrush = editPalette.brush(cg, cr);
 
     QPixmap p(advPixmapButton->pixmapFileName());
@@ -109,8 +109,8 @@ void PaletteEditor::onChoosePixmap()
 
 void PaletteEditor::onChooseAdvancedColor()
 {
-    QPalette::ColorGroup cg = groupFromItem(paletteCombo->currentItem());
-    QPalette::ColorRole cr = roleFromItem(rolesCombo->currentItem());
+    QPalette::ColorGroup cg = groupFromItem(paletteCombo->currentIndex());
+    QPalette::ColorRole cr = roleFromItem(rolesCombo->currentIndex());
 
     QBrush b(editPalette.brush(cg, cr));
     b.setColor(advColorButton->brush().color());
@@ -249,7 +249,7 @@ void PaletteEditor::copyColorGroup(const QPalette &fpal, QPalette &tpal, QPalett
 
 void PaletteEditor::setPreviewPalette(const QPalette &pal)
 {
-    QPalette::ColorGroup cg = groupFromItem(paletteCombo->currentItem());
+    QPalette::ColorGroup cg = groupFromItem(paletteCombo->currentIndex());
 
     copyColorGroup(pal, previewPalette, cg, QPalette::Active);
     copyColorGroup(pal, previewPalette, cg, QPalette::Inactive);
@@ -263,8 +263,8 @@ void PaletteEditor::updatePaletteEditor()
     effectButton->setBrush(editPalette.brush(QPalette::Active, QPalette::Button));
     backgroundButton->setBrush(editPalette.brush(QPalette::Active, QPalette::Background));
 
-    int groupItem = paletteCombo->currentItem();
-    int roleItem = rolesCombo->currentItem();
+    int groupItem = paletteCombo->currentIndex();
+    int roleItem = rolesCombo->currentIndex();
     QPalette::ColorGroup cg = groupFromItem(groupItem);
     QPalette::ColorRole cr = roleFromItem(roleItem);
 

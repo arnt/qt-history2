@@ -25,16 +25,14 @@ PreviewWidget::PreviewWidget(QWidget *parent)
 
 void PreviewWidget::installEventFilters(QWidget *parent)
 {
-    QObjectList objlist = parent->children();
-	QWidget *wobj;
+    QList<QObject*> objlist = parent->children();
 
-	for (int i = 0; i < objlist.size(); ++i) {
-        wobj = qt_cast<QWidget *>(objlist.at(i));
-		if (wobj != 0) {
-			installEventFilters(wobj);
-			wobj->installEventFilter(this);
-			wobj->setFocusPolicy(Qt::NoFocus);
-		}
+    for (int i = 0; i < objlist.size(); ++i) {
+        if (QWidget *wobj = qobject_cast<QWidget *>(objlist.at(i))) {
+            installEventFilters(wobj);
+            wobj->installEventFilter(this);
+            wobj->setFocusPolicy(Qt::NoFocus);
+        }
     }
 }
 
