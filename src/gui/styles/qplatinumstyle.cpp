@@ -911,7 +911,7 @@ void QPlatinumStyle::drawControl(ControlElement element,
 /*!
     \reimp
 */
-void QPlatinumStlye::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
+void QPlatinumStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                         QPainter *p, const QWidget *widget) const
 /*
 void QPlatinumStyle::drawComplexControl(ComplexControl control,

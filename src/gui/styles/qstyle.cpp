@@ -482,7 +482,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 
     \value PE_PanelButtonCommand  Button used to initiate an action, for
         example, a QPushButton.
-    \value PE_FrameDefaultDefault  This frame around a default button, e.g. in a dialog.
+    \value PE_FrameDefaultButton  This frame around a default button, e.g. in a dialog.
     \value PE_PanelButtonBevel  Generic panel with a button bevel.
     \value PE_PanelButtonTool  Panel for a Tool button, used with QToolButton
     \value PE_IndicatorButtonDropDown  indicator for a drop down button, for example, a tool
@@ -516,6 +516,8 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value PE_FrameTabWidget  Frame for tab widgets.
     \value PE_FrameLineEdit  Panel frame for line edits.
     \value PE_FrameGroupBox  Panel frame around group boxes.
+    \value PE_FrameButtonBevel  Panel frame for a button bevel
+    \value PE_FrameButtonTool  Panel frame for a tool button
 
     \value PE_PanelHeader Panel Section of a list or table header; see also
                                 QHeader.
@@ -527,15 +529,18 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 
     \value PE_Q3Separator  Qt 3 compatible generic separator.
 
-    \value PE_IndicatorCheckMark  Generic check mark.
+    \value PE_IndicatorMenuCheckMark  Check mark used in a menu.
 
-    \value PE_IndicatorProgressBarChunk  Section of a progress bar indicator; see also QProgressBar.
+    \value PE_IndicatorProgressChunk  Section of a progress bar indicator; see also QProgressBar.
 
     \value PE_Q3CheckListController  Qt 3 compatible Controller part of a list view item.
     \value PE_Q3CheckListIndicator  Qt 3 compatible Checkbox part of a list view item.
     \value PE_Q3CheckListExclusiveIndicator  Qt 3 compatible Radio button part of a list view item.
 
     \value PE_IndicatorBranch  Lines used to represent the branch of a tree in a tree view.
+    \value PE_IndicatorToolBarHandle  The handle of a toolbar.
+    \value PE_IndicatorToolBarSeparator  The separator in a toolbar.
+    \value PE_PanelToolBar  The panel for a toolbar.
 
     \value PE_CustomBase  Base value for custom PrimitiveElements.
         All values above this are reserved for custom use. Custom
@@ -551,7 +556,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 */
 
 /*!
-    \enum QStyle::StyleFlags
+    \enum QStyle::StyleFlag
 
     This enum represents flags for drawing PrimitiveElements. Not all
     primitives use all of these flags. Note that these flags may mean
@@ -563,7 +568,6 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value Style_Active
     \value Style_AutoRaise
     \value Style_Bottom
-    \value Style_ButtonDefault
     \value Style_Children
     \value Style_None
     \value Style_Down
@@ -586,6 +590,8 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value Style_Sunken
     \value Style_Top
     \value Style_Up
+
+    \omitvalue Style_Default
 
     \sa drawPrimitive()
 */
@@ -822,7 +828,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 
     \value SR_SliderFocusRect  Area for the focus indicator
 
-    \value SR_DockWindowHandleRect  Area for the tear-off handle
+    \value SR_Q3DockWindowHandleRect  Area for the tear-off handle
 
     \value SR_ProgressBarGroove  Area for the groove
     \value SR_ProgressBarContents  Area for the progress indicator
@@ -859,8 +865,6 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 
     Returns the sub-area \a subRect as described in \a option in logical
     coordinates.
-
-    The \a metrics argument may be helpful in determining the size of the sub-area.
 
     The \a widget argument is optional and may contain a widget that
     may aid determining the subRect.
@@ -957,7 +961,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value SC_TitleBarNormalButton  Normal (restore) button
     \value SC_TitleBarShadeButton  Shade button
     \value SC_TitleBarUnshadeButton  Unshade button
-    \value SC_TitleBarContextHelp  Context Help button
+    \value SC_TitleBarContextHelpButton Context Help button
 
     \value SC_ListView  The list view area
     \value SC_ListViewExpand  Expand item (i.e., show/hide child items)
@@ -1469,6 +1473,8 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
      \value SH_ToolButton_PopupDelay An int indicating the popup delay in milliseconds
      for menus attached to tool buttons.
 
+     \value SH_ToolBar_IconSize The default icon size for the icons in a toolbar.
+
      \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()
@@ -1495,11 +1501,13 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 
     \value SP_TitleBarMinButton  Minimize button on title bars (e.g.,
         in QWorkspace)
+    \value SP_TitleBarMenuButton Menu button on a title bar
     \value SP_TitleBarMaxButton  Maximize button on title bars
     \value SP_TitleBarCloseButton  Close button on title bars
     \value SP_TitleBarNormalButton  Normal (restore) button on title bars
     \value SP_TitleBarShadeButton  Shade button on title bars
     \value SP_TitleBarUnshadeButton  Unshade button on title bars
+    \value SP_TitleBarContextHelpButton The Context help button on title bars
     \value SP_MessageBoxInformation  The "information" icon
     \value SP_MessageBoxWarning  The "warning" icon
     \value SP_MessageBoxCritical  The "critical" icon
@@ -1517,6 +1525,17 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value SP_DirLinkIcon
     \value SP_FileIcon
     \value SP_FileLinkIcon
+    \value SP_FileDialogStart
+    \value SP_FileDialogEnd
+    \value SP_FileDialogToParent
+    \value SP_FileDialogNewFolder
+    \value SP_FileDialogDetailedView
+    \value SP_FileDialogInfoView
+    \value SP_FileDialogContentsView
+    \value SP_FileDialogListView
+    \value SP_FileDialogBack
+    \value SP_ItemChecked
+    \value SP_ItemUnchecked
     \value SP_DockWindowCloseButton  Close button on dock windows (see also QDockWindow)
     \value SP_ToolBarHorizontalExtensionButton Extension button for horizontal toolbars
     \value SP_ToolBarVerticalExtensionButton Extension button for vertical toolbars
@@ -1572,8 +1591,8 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
 
 
 /*!
-    Returns the rectangle \a logicalRect converted to screen
-    coordinates. The \a boundingRect rectangle is used to perform the
+    Returns the rectangle \a logicalRect converted to screen coordinates based
+    on \a direction. The \a boundingRect rectangle is used to perform the
     translation.
 
     This function is provided to aid style implementors in supporting
@@ -1592,12 +1611,9 @@ QRect QStyle::visualRect(Qt::LayoutDirection direction, const QRect &boundingRec
 }
 
 /*!
-
-    Returns the point \a logicalPos converted to screen coordinates.
-    The \a boundingRect rectangle is used to perform the translation.
-
-    This function is provided to aid style implementors in supporting
-    right-to-left desktops.
+    Returns the point \a logicalPos converted to screen coordinates based on \a
+    direction.  The \a boundingRect rectangle is used to perform the
+    translation.
 
     \sa QWidget::layoutDirection
 */
@@ -1728,7 +1744,7 @@ int QStyle::valueFromPosition(int min, int max, int pos, int span, bool upsideDo
     of a QColorGroup.
 */
 
-/*! void QStyle::drawItem(QPainter *p, const QRect &r,
+/*! \fn void QStyle::drawItem(QPainter *p, const QRect &r,
                           int flags, const QColorGroup colorgroup, bool enabled,
                           const QPixmap *pixmap,
                           const QString &text, int len = -1,

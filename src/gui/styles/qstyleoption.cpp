@@ -90,6 +90,7 @@
     \value SO_ListView \l QStyleOptionListView
     \value SO_ListViewItem \l QStyleOptionListViewItem
     \value SO_Header \l QStyleOptionHeader
+    \value SO_Q3DockWindow \l QStyleOptionQ3DockWindow
     \value SO_DockWindow \l QStyleOptionDockWindow
     \value SO_SpinBox \l QStyleOptionSpinBox
     \value SO_ToolButton \l QStyleOptionToolButton
@@ -301,8 +302,22 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 */
 
 /*!
+    \property QStyleOptionHeader::textAlignment
+    \brief The alignment flags for the text of the header.
+
+    \sa Qt::Alignment
+*/
+
+/*!
     \property QStyleOptionHeader::icon
     \brief The icon of the header.
+*/
+
+/*!
+    \property QStyleOptionHeader::iconAlignment
+    \brief The alignment flags for the icon of the header.
+
+    \sa Qt::Alignment
 */
 
 /*!
@@ -324,6 +339,8 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
     \value None	Indicates a normal push button.
     \value Flat Indicates a flat push button.
     \value HasMenu Indicates that the button has a drop down menu.
+    \value DefaultButton Indicates that the button is a default button.
+    \value AutoDefaultButton Indicates that the button is an auto default button.
 
     \sa features
 */
@@ -1227,13 +1244,6 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 */
 
 /*!
-    \property QStyleOptionToolButton::textPosition
-    \brief The position of the text in the tool button.
-
-    This value is only used if \l features includes \l TextLabel.
-*/
-
-/*!
     \class QStyleOptionComboBox
     \brief The QStyleOptionComboBox class is used to describe the
     parameter for drawing a combobox.
@@ -1438,6 +1448,13 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
     \brief The size ofthe decoration for the item.
 
     \sa Size
+*/
+
+/*!
+    \property QStyleOptionViewItem::font
+    \brief The font used for the item
+
+    \sa QFont
 */
 
 /*!

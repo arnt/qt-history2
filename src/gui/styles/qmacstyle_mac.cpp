@@ -4971,7 +4971,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
     }
 }
 
-/* \reimp */
+/*! \reimp */
 void QMacStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, QPainter *p,
                                 const QWidget *w) const
 {
