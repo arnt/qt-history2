@@ -1065,6 +1065,8 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    mainContainerSet = TRUE;
 	}
 	w = (QWidget*)obj;
+	if ( w->inherits( "QMainWindow" ) )
+	    w = ( (QMainWindow*)w )->centralWidget();
 	if ( layout ) {
 	    switch ( WidgetFactory::layoutType( layout ) ) {
 	    case WidgetFactory::HBox:
@@ -1092,9 +1094,6 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	    else if ( parent && ( parent->inherits( "QTabWidget" ) || parent->inherits( "QWizard" ) ) )
 		MetaDataBase::addEntry( w );
 	}
-	
-	if ( w->inherits( "QMainWindow" ) )
-	    w = ( (QMainWindow*)w )->centralWidget();
     }
 
     while ( !n.isNull() ) {

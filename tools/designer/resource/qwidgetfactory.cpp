@@ -147,7 +147,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     if ( !imageCollection.isNull() )
 	widgetFactory->loadImageCollection( imageCollection );
 
-    QWidget *w = widgetFactory->createWidgetInternal( firstWidget, parent, 0, firstWidget.attribute("class", "QWidget") );
+    widgetFactory->createWidgetInternal( firstWidget, parent, 0, firstWidget.attribute("class", "QWidget") );
+    QWidget *w = widgetFactory->toplevel;
     if ( !w ) {
 	delete widgetFactory;
 	return 0;
@@ -375,7 +376,10 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     } else if ( className == "QScrollBar" ) {
 	return new QScrollBar( parent, name );
     } else if ( className == "QMainWindow" ) {
-	return new QMainWindow( parent, name );
+	QMainWindow *mw = new QMainWindow( parent, name );
+	mw->setCentralWidget( new QWidget( mw, "qt_central_widget" ) );
+	mw->centralWidget()->show();
+	return mw;
     } else if ( className == "QSqlTable" ) {
 #if defined(QT_MODULE_SQL)
 	return new QSqlTable( parent, name );
@@ -465,6 +469,8 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	    w = (QWidget*)obj;
 	    if ( !toplevel )
 		toplevel = w;
+	    if ( w->inherits( "QMainWindow" ) )
+		w = ( (QMainWindow*)w )->centralWidget();
 	    if ( layout ) {
 		switch( layoutType( layout ) ) {
 		case HBox:
