@@ -1,8 +1,10 @@
+#include <iostream>
+
 #include <stdio.h>
 #include <QString>
 #include <QFile>
 #include <QFileInfo>
-#include <stdio.h>
+
 #include "projectporter.h"
 #include "fileporter.h"
 #include "logger.h"
@@ -12,7 +14,7 @@ QString rulesFilePath;
 
 QString findRulesFile(QString fileName, QString programPath)
 {
-    QString filePath;    
+    QString filePath;
 
     QFile f(fileName);
     if (f.exists()) {
@@ -22,7 +24,7 @@ QString findRulesFile(QString fileName, QString programPath)
         programPath.chop(programFileName.size());
         filePath = programPath + fileName;
         QFile f(filePath);
-        if (!f.exists()) 
+        if (!f.exists())
             filePath=QString();
     }
     return filePath;
@@ -71,24 +73,40 @@ int projectMode(QString inFile, QString outDir)
     return 0;
 }
 
+void usage(char **argv)
+{
+    using namespace std;
+    cout << "Usage: " << argv[0] << " infile.cpp/h [outfile.cpp/h]" << endl;
+    cout << "       " << argv[0] << " infile.pro [outdir]" << endl;
+    cout << "Tool for porting Qt 3 applications to Qt 4, using the compatibility library" << endl;
+    cout << "and compatibility functions in the core library." << endl;
+    cout << endl;
+    cout << "Port has two usage modes: " << endl;
+    cout << "* File mode:     port infile.cpp/h [out_file]" << endl;
+    cout << "* Project mode:  port infile.pro   [out_directory]" << endl;
+    cout << endl;
+    cout << "The out arguments are optional. The ported file(s) will" << endl;
+    cout << "printed to standard out if not specified." << endl;
+    cout << endl;
+    cout << "See README for more info." << endl;
+}
 
 int main(int argc, char**argv)
 {
     QString in;
     QString out;
     if(argc==1 || argc >3) {
-        puts("Port: The Qt porting program\n");
-        puts("Port has two usage modes: ");
-        puts("* File mode:     port infile.cpp/h [out_file]");
-        puts("* Project mode:  port infile.pro   [out_directory]\n");
-
-        printf("The out arguments are optional, the ported file(s) will\n");
-        printf("printed to standard out if not specified.\n\n");
-        printf("See the readme file for more info");  
+        usage(argv);
         return 0;
     }
-    
-    in=argv[1];
+
+    in = argv[1];
+    if (in == "--help" || in == "/h" || in == "-help" || in == "-h"
+        || in == "-?" || in == "/?") {
+        usage(argv);
+        return 0;
+    }
+
     if(argc==3) out=argv[2];
 
     rulesFileName="rules.xml";
@@ -99,8 +117,8 @@ int main(int argc, char**argv)
     } else {
         printf("found rules file: %s\n", rulesFilePath.latin1());
     }
-    
-        
+
+
     int retval;
     if(in.endsWith(".pro"))
         retval = projectMode(in, out);
