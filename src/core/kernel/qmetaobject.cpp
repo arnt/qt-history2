@@ -1214,12 +1214,18 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
         if (t == QCoreVariant::Invalid)
             return QCoreVariant();
     }
-    QCoreVariant value(t, (void*)0);
-    void *argv[] = { value.data() };
+    QCoreVariant value;
+    void *argv[1];
+    if (t == 0xffffffff) {
+        argv[0] = &value;
+    } else {
+        value = QCoreVariant(t, (void*)0);
+        argv[0] = value.data();
+    }
     const_cast<QObject*>(obj)->qt_metacall(QMetaObject::ReadProperty,
                      idx[QMetaObject::ReadProperty] + mobj[QMetaObject::ReadProperty]->propertyOffset(),
                      argv);
-    if (argv[0] != value.data())
+    if (argv[0] != value.data() && t != 0xffffffff)
         return QCoreVariant(t, argv[0]);
     return value;
 }
@@ -1234,6 +1240,7 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
         return false;
 
     QCoreVariant v = value;
+    QCoreVariant::Type t = QCoreVariant::Invalid;
     if (isEnumType()) {
         if (v.type() == QCoreVariant::String || v.type() == QCoreVariant::CString) {
             if (isFlagType())
@@ -1247,15 +1254,19 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
     } else {
         int handle = priv(mobj[QMetaObject::WriteProperty]->d.data)->propertyData + 3*idx[QMetaObject::WriteProperty];
         int flags = mobj[QMetaObject::WriteProperty]->d.data[handle + 2];
-        QCoreVariant::Type t = (QCoreVariant::Type)(flags >> 24);
+        t = (QCoreVariant::Type)(flags >> 24);
         if (t == QCoreVariant::Invalid)
             t = QCoreVariant::nameToType(mobj[QMetaObject::WriteProperty]->d.stringdata
                                       + mobj[QMetaObject::WriteProperty]->d.data[handle + 1]);
-        if (t != QCoreVariant::Invalid && !v.cast(t))
+        if (t != QCoreVariant::Invalid && t != 0xffffffff && !v.cast(t))
             return false;
     }
 
-    void *argv[] = { v.data() };
+    void *argv[1];
+    if (t == 0xffffffff)
+        argv[0] = &v;
+    else
+        argv[0] = v.data();
     obj->qt_metacall(QMetaObject::WriteProperty,
                      idx[QMetaObject::WriteProperty] + mobj[QMetaObject::WriteProperty]->propertyOffset(),
                      argv);
