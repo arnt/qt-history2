@@ -243,7 +243,9 @@ private:
 
 void QComboData::updateLinedGeometry()
 {
-    if ( !ed || !combo || current == 0 && combo->count() == 0 ) {
+    if ( !ed || !combo )
+	return;
+    if ( current == 0 && combo->count() == 0 ) {
 	ed->setGeometry( combo->style().comboButtonRect( 0, 0, combo->width(), combo->height() ) );
 	return;
     }
