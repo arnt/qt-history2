@@ -1249,6 +1249,9 @@ void Parser::emitWhereLoop( const QVariant& cond,
 	}
 	yyProg->append( new Goto(next) );
 	yyProg->appendLabel( end );
+
+	if ( !saving )
+	    yyProg->append( new RewindMarked(tableId) );
     }
 }
 
