@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#5 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -20,7 +20,7 @@
 #include "qbuffer.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#5 $";
 #endif
 
 
@@ -54,11 +54,24 @@ QPSPrinter::~QPSPrinter()
 
 static void ps_setFont( QTextStream *s, const QFont *f )
 {
+    if ( f->rawMode() ) {
+	QFont fnt( "Helvetica", 12 );
+	ps_setFont( s, &fnt );
+	return;
+    }
+    if ( f->pointSize() == 0 ) {
+#if defined(CHECK_RANGE)
+	warning( "QPrinter: Cannot set a font with zero point size." );
+#endif
+	return;
+    }
+
     QString family = f->family();
     QString ps;
     int  weight = f->weight();
     bool italic = f->italic();
     bool times  = FALSE;
+    bool symbol = FALSE;
     family = family.lower();
     if ( family == "courier" )
 	ps = "/Courier";
@@ -66,12 +79,16 @@ static void ps_setFont( QTextStream *s, const QFont *f )
 	ps = "/Times";
 	times = TRUE;
     }
+    else if ( family == "symbol" ) {
+	ps = "/Symbol";
+	symbol = TRUE;
+    }
     else
 	ps = "/Helvetica";
     QString extra;
-    if ( weight >= QFont::Bold )
+    if ( weight >= QFont::Bold && !symbol )
 	extra = "Bold";
-    if ( italic ) {
+    if ( italic && !symbol ) {
 	if ( times )
 	    extra += "Italic";
 	else
@@ -241,6 +258,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	if ( dirtyMatrix ) {
 	    QWMatrix tmp;
 	    if ( paint->hasViewXForm() ) {
+		debug( "has view xform" );
 		QRect viewport = paint->viewport();
 		QRect window   = paint->window();
 		tmp.translate( viewport.x(), viewport.y() );
@@ -248,8 +266,10 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 			   1.0 * viewport.height() / window.height() );
 		tmp.translate( -window.x(), -window.y() );
 	    }
-	    if ( paint->hasWorldXForm() )
+	    if ( paint->hasWorldXForm() ) {
 		tmp = paint->worldMatrix() * tmp;
+		debug( "has world xform" );
+	    }
 	    stream << "[ "
 		   << tmp.m11() << ' ' << tmp.m12() << ' '
 		   << tmp.m21() << ' ' << tmp.m22() << ' '
@@ -320,6 +340,10 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	case PDC_DRAWPOLYGON:
 	    if ( p[0].ptarr->size() > 0 ) {
 		QPointArray a = *p[0].ptarr;
+		if ( p[1].ival )
+		    stream << "/WFi true def";
+		else
+		    stream << "/WFi false def";
 		QPoint pt = a.point(0);
 		stream << "NP\n";
 		stream << XCOORD(pt.x()) << ' '
@@ -345,19 +369,20 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	case PDC_DRAWTEXT:
 	    stream << POINT(0) << "(" << p[1].str << ") T\n";
 	    break;
-	case PDC_DRAWTEXTFRMT: {
-	    QPoint pt = p[0].rect->topLeft();
-	    stream << XCOORD(pt.x()) << ' ' << YCOORD(pt.y())
-		   << " (" << p[3].str << ") T\n";
-	    break;
-        }
+	case PDC_DRAWTEXTFRMT:;
+	    return FALSE;			// uses Qt instead
         case PDC_DRAWPIXMAP: {
             if ( p[1].pixmap->isNull() )
                 break;
             int depth = p[1].pixmap->depth();
+	    if ( depth == 1 ) {
+		warning( "QPrinter: Sorry, pixmaps with depth 1 are not ",
+			 "supported in Qt 0.92 - Try an 8 bit pixmap." );
+		return FALSE;
+	    }
             if ( depth != 1 && depth != 8 && depth != 32 ) {
-                warning("QPSPrinter::cmd: unsupported image depth"
-                        " (1, 8 or 24 supported)");
+                warning( "QPrinter::cmd: Unsupported image depth "
+                         "(1, 8 or 24 supported).");
                 break;
 	    }
             
@@ -428,13 +453,16 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		       << COLOR(p[0].pen->color()) << "PE\n";
 	    break;
 	case PDC_SETBRUSH:
+	    if ( p[0].brush->style() == CustomPattern ) {
+		warning( "QPrinter: Pixmap brush not supported" );
+		return FALSE;
+	    }
 	    stream << p[0].brush->style() << ' ' 
 		   << COLOR(p[0].brush->color()) << "B\n";
 	    break;
 	case PDC_SETTABSTOPS:
-	    break;
 	case PDC_SETTABARRAY:
-	    break;
+	    return FALSE;
 	case PDC_SETUNIT:
 	    break;
 	case PDC_SETVXFORM:
