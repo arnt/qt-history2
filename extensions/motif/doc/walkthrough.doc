@@ -135,7 +135,7 @@ rename \c {todo.c} to \c {todo.cpp}.
 Next, we add the appropriate includes for the QMotif and QApplication
 classes.
 
-\quotefile walkthrough/step1/todo.cpp
+\quotefile walkthrough/todo-gettingstarted.cpp
 
 \skipto REV_INFO
 \printuntil pwd.h
@@ -168,7 +168,7 @@ Thankfully, the changes are not too large.  Most include files from
 existing C projects are not C++ safe, so we make them safe by wrapping
 them in an \c {extern "C"} block.
 
-\quotefile walkthrough/step1/todo.cpp
+\quotefile walkthrough/todo-gettingstarted.cpp
 
 \skipuntil Wrap non-standard includes
 \printuntil } // extern "C"
@@ -278,7 +278,7 @@ class as the parent for both Motif dialogs and Qt dialogs.
 We need to include the appropriate headers for QMotifWidget and
 QFileDialog.
 
-\quotefile walkthrough/step2/todo.cpp
+\quotefile walkthrough/todo.cpp
 
 \skipto Qt includes
 \printuntil qmotifwidget.h
@@ -312,7 +312,7 @@ and \c Save() functions.
 
 We first need to change the declaration of these two functions.
 
-\quotefile walkthrough/step2/todo.cpp
+\quotefile walkthrough/todo.cpp
 
 \skipuntil Wrap extern/callback functions and global variables with extern "C"
 \printuntil void Print
@@ -350,7 +350,7 @@ The changes required to make \c {actions.cpp} compile are minimal.  We
 need to wrap more C header files and global variables in an \c {extern
 "C"} block.
 
-\quotefile walkthrough/step2/actions.cpp
+\quotefile walkthrough/actions.cpp
 
 \skipuntil Wrap non-standard includes and global variables with extern "C"
 \printuntil extern int maxpages
@@ -378,7 +378,7 @@ QMessageBox::information().
 
 First, we need to make sure we include the proper header for QMessageBox.
 
-\quotefile walkthrough/step2/actions.cpp
+\quotefile walkthrough/actions.cpp
 
 \skipto Qt includes
 \printline
@@ -400,7 +400,7 @@ completely.
 Next, we change \c {todo.cpp} to pass the top-level QMotifWidget as the
 \c client_data tot he \c DeletePage() function.
 
-\quotefile walkthrough/step2/todo.cpp
+\quotefile walkthrough/todo.cpp
 
 \skipto XmdCreateMenu(SELECTED_MENU, menubar, &selected_menu, &size)
 \printuntil (XtCallbackProc) DeletePage, (XtPointer) &toplevel
@@ -413,7 +413,7 @@ The changes required to make \c {io.cpp} compile are minimal.  We need
 to wrap more C header files and global variables in an \c {extern "C"}
 block.
 
-\quotefile walkthrough/step2/io.cpp
+\quotefile walkthrough/io.cpp
 
 \skipuntil Wrap non-standard includes and global variables with extern "C"
 \printuntil Page AllocPage()
@@ -440,7 +440,7 @@ QMessageBox::warning().
 
 First, we need to make sure we include the proper header for QMessageBox.
 
-\quotefile walkthrough/step2/io.cpp
+\quotefile walkthrough/io.cpp
 
 \skipto Qt includes
 \printline
