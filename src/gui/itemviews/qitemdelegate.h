@@ -12,7 +12,7 @@ class QItemOptions
 public:
     QItemOptions()
 	: palette(), itemRect(), selected(false), open(false),
-	  focus(false), disabled(false), small(true), editing(false),
+	  focus(false), disabled(false), smallItem(true), editing(false),
 	  iconAlignment(Qt::AlignLeft|Qt::AlignVCenter),
 	  textAlignment(Qt::AlignLeft|Qt::AlignVCenter) {}
 
@@ -22,7 +22,7 @@ public:
     uint open : 1;
     uint focus : 1;
     uint disabled : 1;
-    uint small : 1;
+    uint smallItem : 1;
     uint editing : 1;
     int iconAlignment;
     int textAlignment;

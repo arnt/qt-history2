@@ -64,7 +64,7 @@ void QItemDelegate::paint(QPainter *painter, const QItemOptions &options, const 
 
     if (iconElement >= 0) {
  	QIconSet::Mode mode = options.disabled ? QIconSet::Disabled : QIconSet::Normal; // FIXME: open
- 	QIconSet::Size size = options.small ? QIconSet::Small : QIconSet::Large;
+ 	QIconSet::Size size = options.smallItem ? QIconSet::Small : QIconSet::Large;
  	QIconSet::State state = options.selected ? QIconSet::On : QIconSet::Off;
 	QIconSet icons = model()->data(item,iconElement).toIconSet();
 	QPixmap icon = icons.pixmap(size, mode, state);
@@ -126,7 +126,7 @@ QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOption
 
     if (iconElement >= 0) {
 	QIconSet::Mode mode = options.disabled ? QIconSet::Disabled : QIconSet::Normal; // FIXME: open
-	QIconSet::Size size = options.small ? QIconSet::Small : QIconSet::Large;
+	QIconSet::Size size = options.smallItem ? QIconSet::Small : QIconSet::Large;
 	QIconSet::State state = options.selected ? QIconSet::On : QIconSet::Off;
 	QIconSet icons = model()->data(item, iconElement).toIconSet();
 	QRect iconRect = icons.pixmap(size, mode, state).rect();
@@ -195,7 +195,7 @@ QRect QItemDelegate::textRect(const QItemOptions &options, const QModelIndex &it
     int iconElement = model()->element(item, QVariant::IconSet);
     if (iconElement >= 0) {
 	QIconSet::Mode mode = options.disabled ? QIconSet::Disabled : QIconSet::Normal; // FIXME: open
-	QIconSet::Size size = options.small ? QIconSet::Small : QIconSet::Large;
+	QIconSet::Size size = options.smallItem ? QIconSet::Small : QIconSet::Large;
 	QIconSet::State state = options.selected ? QIconSet::On : QIconSet::Off;
 	QIconSet icons = model()->data(item, iconElement).toIconSet();
 	QRect iconRect = icons.pixmap(size, mode, state).rect();

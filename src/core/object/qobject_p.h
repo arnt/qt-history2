@@ -151,7 +151,7 @@ public:
     uint ownObjectName : 1;
 };
 
-class QMetaCallEvent : public QEvent
+class Q_CORE_EXPORT QMetaCallEvent : public QEvent
 {
 public:
     QMetaCallEvent(Type type, int id, const QObject *sender = 0, int nargs = 0,

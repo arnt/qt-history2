@@ -46,7 +46,7 @@ public:
     inline void insertItem(T &item, const QRect &rect, int idx);
     inline void removeItem(const QRect &rect, int idx);
     inline void moveItem(const QPoint &dest, const QRect &rect, int idx);
-    
+
     inline int leafCount() const;
     inline const QGenericVector<int> &const_leaf(int idx) const;
     inline QGenericVector<int> &leaf(int idx);
@@ -176,7 +176,7 @@ int BinTree<T>::nodeCount() const
     return nodeVector.count();
 }
 
-template <class T> 
+template <class T>
 const typename BinTree<T>::Node &BinTree<T>::node(int idx) const
 {
     return nodeVector[idx];
@@ -552,7 +552,7 @@ void QGenericListView::startDrag()
 void QGenericListView::getViewOptions(QItemOptions *options) const
 {
     QAbstractItemView::getViewOptions(options);
-    options->small = !d->wrap;
+    options->smallItem = !d->wrap;
     options->iconAlignment = (d->wrap ? Qt::AlignTop : Qt::AlignLeft | Qt::AlignVCenter);
     options->textAlignment = (d->wrap ? Qt::AlignCenter : Qt::AlignLeft | Qt::AlignVCenter);
 }
@@ -742,7 +742,7 @@ void QGenericListView::startItemsLayout()
     // we should keep the original layout rect if and only start layout once
 //    if ( /*d->movement == Free && arrangeItemsDone()*/ d->layoutBounds.isValid() )
 //	return;
-    
+
     d->layoutStart = 0;
     d->layoutWraps = 0;
     d->translate = 0;
