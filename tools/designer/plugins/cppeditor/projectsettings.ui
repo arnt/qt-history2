@@ -1,7 +1,7 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>CppProjectSettings</class>
 <include location="local" implDecl="in declaration">projectsettings.ui.h</include>
-<forward>class QUnknownInterface;</forward>
+<forward>struct QUnknownInterface;</forward>
 <variable>QMap&lt;QString, QString&gt; config, libs, defines, includes;</variable>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
