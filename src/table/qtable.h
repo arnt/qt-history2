@@ -93,6 +93,8 @@ public:
     int rightCol() const { return rCol; }
     int anchorRow() const { return aRow; }
     int anchorCol() const { return aCol; }
+    int numRows() const { return bRow - tRow + 1; }
+    int numCols() const { return rCol - lCol + 1; }
 
     bool isActive() const { return active; }
 

@@ -348,6 +348,22 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 */
 
 /*!
+    \fn int QTableSelection::numRows() const
+
+    Returns the number of rows in the selection.
+
+    \sa numCols()
+*/
+
+/*!
+    \fn int QTableSelection::numCols() const
+
+    Returns the number of columns in the selection.
+
+    \sa numRows()
+*/
+
+/*!
     \fn bool QTableSelection::isActive() const
 
     Returns whether the selection is active or not. A selection is
