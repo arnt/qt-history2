@@ -1,32 +1,45 @@
 @SysInclude { tbl }
 @SysInclude { diag }
 @Include { mydoc }
+# Use lout 3.25. 
+macro @DialogColour	{ rgb 0.4 0.9 0.4 }
+macro @StyleColour	{ rgb 0.9 0.9 0.9 }
+macro @EventColour	{ rgb 0.85 0.5 1.0 }
+macro @XMLColour	{ rgb 0.9 0.7 0.9 }
+macro @CollectionColour	{ rgb 0.7 0.7 1.0 }
 @Doc 
 //
 @Text @Begin
+@Place
+    x { 22.5c }
+    y { 3.30c }
+{
+0.75 @Scale lightgrey @Colour 90d @Rotate
+{ Qt"/"Embedded @CDot Qt"/"Mac @CDot Qt"/"Windows @CDot Qt"/"X11 }
+}
 @Place 
-    x { 22.4c }
+    x { 23.30c }
     y { 2c }
 {
 0.5 @Scale 90d @Rotate @IncludeGraphic { combobox.eps.gz }
 }
 @Place 
-    x { 17.8c }
+    x { 18.0c }
     y { 30.5c }
 {
 1.5 @Scale lightgrey @Colour 150d @Rotate
-{ Times Bold } @Font { Qt by Trolltech }
+{ Qt by Trolltech }
 }
 @Place 
-    x { 22c }
+    x { 22.05c }
     y { 10.5c }
 {
 2.0 @Scale lightgrey @Colour 90d @Rotate
 @F { info@trolltech.com }
 }
 @Place 
-    x { 19.2c }
-    y { 36.5c }
+    x { 19.3c }
+    y { 36.6c }
 {
 0.5 @Scale lightgrey @Colour 180d @Rotate
 lines @Break {
@@ -39,12 +52,12 @@ writing applications fast and
 straightforward. Qt's cross-
 platform capabilities and 
 extensive internationalization support ensure 
-that Qt applications reach the widest possible @B{mark}et. 
+that Qt applications reach the widest possible @BI{mark}et. 
 }
 }
 @Place 
-    x { 15.25c }
-    y { 24.30c }
+    x { 15.50c }
+    y { 24.575c }
 {
 0.5 @Scale 90d @Rotate lightgrey @Colour 
 @F @Verbatim @Begin 
@@ -64,61 +77,58 @@ int main( int argc, char **argv )
 }
 @End @Verbatim
 }
-@Place x { 5c } y { 5c }
+@Place x { 5.4c } y { 5c }
 { 0.75 @Scale lightgrey @Colour 120d @Rotate
 { Windows~95 } }
-@Place x { 23c } y { 32.0c }
+@Place x { 23.4c } y { 32.25c }
 { 0.75 @Scale lightgrey @Colour 10d @Rotate
 { Windows~98 } }
-@Place x { 5.25c } y { 35.5c }
+@Place x { 5.5c } y { 35.5c }
 { 0.75 @Scale lightgrey @Colour 100d @Rotate
 { Windows~NT~4 } }
-@Place x { 19.7c } y { 19c }
+@Place x { 20.0c } y { 19.5c }
 { 0.75 @Scale lightgrey @Colour 140d @Rotate
 { Windows~ME } }
-@Place x { 4c } y { 24.5c }
+@Place x { 4.4c } y { 24.75c }
 { 0.75 @Scale lightgrey @Colour 170d @Rotate
 { Windows~2000 } }
-@Place x { 19c } y { 5.75c }
+@Place x { 19.0c } y { 5.75c }
 { 0.75 @Scale lightgrey @Colour 160d @Rotate
 { AIX } }
-@Place x { 16.5c } y { 19.65c }
+@Place x { 16.9c } y { 20.25c }
 { 0.75 @Scale lightgrey @Colour 30d @Rotate
 { OpenBSD } }
-@Place x { 12.5c } y { 6.25c }
+@Place x { 12.7c } y { 6.00c }
 { 0.75 @Scale lightgrey @Colour 50d @Rotate
 { FreeBSD } }
-@Place x { 9.5c } y { 27.75c }
+@Place x { 9.9c } y { 27.85c }
 { 0.75 @Scale lightgrey @Colour 30d @Rotate
 { HP-UX } }
-@Place x { 20.5c } y { 35c }
+@Place x { 20.9c } y { 35.2c }
 { 0.75 @Scale lightgrey @Colour 110d @Rotate
 { Irix } }
-@Place x { 10.5c } y { 20c }
+@Place x { 10.9c } y { 20.5c }
 { 0.75 @Scale lightgrey @Colour 150d @Rotate
 { Linux } }
-@Place x { 7.25c } y { 5.5c }
+@Place x { 7.65c } y { 5.5c }
 { 0.75 @Scale lightgrey @Colour 20d @Rotate
 { NetBSD } }
-@Place x { 16.5c } y { 9c }
+@Place x { 16.9c } y { 8.75c }
 { 0.75 @Scale lightgrey @Colour 170d @Rotate
 { BSDI } }
-@Place x { 3.5c } y { 20.35c }
+@Place x { 3.9c } y { 20.75c }
 { 0.75 @Scale lightgrey @Colour 20d @Rotate
 { Solaris } }
-@Place x { 9.35c } y { 35.5c }
+@Place x { 9.75c } y { 35.75c }
 { 0.75 @Scale lightgrey @Colour 70d @Rotate
 { Tru64 } }
-@Place x { 19.6375c } y { 2c }
-{ 0.75 @Scale lightgrey @Colour 0d @Rotate
-{ Qt"/"Embedded } }
-@Place x { 14.75c } y { 5.6375c }
+@Place x { 14.95c } y { 5.50c }
 { 0.75 @Scale lightgrey @Colour 110d @Rotate
 { Mac~OS~X } }
-@Place x { 17c } y { 35.25c }
+@Place x { 17.4c } y { 35.35c }
 { 0.75 @Scale lightgrey @Colour 150d @Rotate
 { UnixWare } }
-@Place x { 2.95c } y { 30.3c }
+@Place x { 3.30c } y { 30.5c }
 { 0.6 @Scale lightgrey @Colour 90d @Rotate rlines @Break { 
 utf16 @CDot Unicode
 utf8 @CDot Unicode
@@ -167,10 +177,10 @@ CP 1258
 Apple Roman
 } 
 }
-@Place x { 25.60c } y { 26.25c }
+@Place x { 25.65c } y { 26.5c }
 { 0.5 @Scale grey @Colour 90d @Rotate
-{ Copyright @CopyRight 2001 Trolltech AS. All Rights Reserved. } }
-@Place x { 22.75c } y { 12c }
+{ Copyright @CopyRight 2002 Trolltech AS. All Rights Reserved. } }
+@Place x { 23.30c } y { 10.5c }
 { 0.2 @Scale 90d @Rotate
 @IncludeGraphic { logo_face_trolltech.eps.gz } }
 @CD 
@@ -192,13 +202,13 @@ Apple Roman
     bmargin { 0.3f }
     boutline { shadowbox }
     bshadow { 0.2f }
-    bpaint { lightcyan }
+    bpaint { rgb 0.5 0.5 1.0 }
 
     # SQL
     cmargin { 0.3f }
     coutline { shadowbox }
     cshadow { 0.2f }
-    cpaint { lightred }
+    cpaint { rgb 1.0 0.7 0.7 }
     {
     @Tbl 
 	marginhorizontal { 0.55f }
@@ -221,227 +231,227 @@ Apple Roman
 	    K { QWIDGET:: @Node { QWidget } } 
 	    Q { QWIDGETFACTORY:: @BNode { QWidgetFactory } }
 	    R { QACCESSIBLE:: @BNode { QAccessible } }
-	    V { QMEMARRAY:: @Node paint { cyan } { QMemArray } }
+	    V { QMEMARRAY:: @Node paint { @CollectionColour } { QMemArray } }
 	@Rowa
 	    B { QBRUSH:: @ANode { QBrush } } 
-	    E { QEVENT:: @Node paint { lightblue } { QEvent } } 
+	    E { QEVENT:: @Node paint { @EventColour } { QEvent } } 
 	    F { QACCEL:: @Node paint { yellow } { QAccel } } 
 	    L { QBUTTON:: @Node { QButton } } 
 	    Q { QWIDGETPLUGIN:: @BNode { QWidgetPlugin } }
-	    R { QASCIICACHE:: @Node paint { cyan } { QAsciiCache } }
+	    R { QASCIICACHE:: @Node paint { @CollectionColour } { QAsciiCache } }
 	    V { QMETAOBJECT:: @BNode { QMetaObject } }
-	    W { QBYTEARRAY:: @Node paint { cyan } { QByteArray } }
+	    W { QBYTEARRAY:: @Node paint { @CollectionColour } { QByteArray } }
 	@Rowa
 	    B { QCURSOR:: @ANode { QCursor } } 
-	    E { QIMEVENT:: @Node paint { lightblue } halign { right } { QIMEvent } } 
+	    E { QIMEVENT:: @Node paint { @EventColour } halign { right } { QIMEvent } } 
 	    F { QACTION:: @Node paint { yellow } { QAction } } 
 	    L { QCOMBOBOX:: @Node { QComboBox } } 
 	    M { QCHECKBOX:: @Node { QCheckBox } } 
 	    R { QASYNCIO:: @BNode { QAsyncIO } } 
 	    V { QMETAPROPERTY:: @BNode { QMetaProperty } }
-	    W { QPOINTARRAY:: @Node paint { cyan } { QPointArray } }
+	    W { QPOINTARRAY:: @Node paint { @CollectionColour } { QPointArray } }
 	@Rowa
 	    B { QKEYSEQUENCE:: @ANode { QKeySequence } } 
-	    E { QKEYEVENT:: @Node paint { lightblue } { QKeyEvent } } 
+	    E { QKEYEVENT:: @Node paint { @EventColour } { QKeyEvent } } 
 	    F { QAPPLICATION:: @Node paint { yellow } { QApplication } } 
 	    L { QDATETIMEEDIT:: @Node { QDateTimeEdit } } 
 	    M { QTOOLBUTTON:: @Node { QToolButton } } 
-	    Q { QXMLATTRIBUTES:: @Node paint { lightmagenta } { QXmlAttributes } }
+	    Q { QXMLATTRIBUTES:: @Node paint { @XMLColour } { QXmlAttributes } }
 	    R { QCHAR:: @BNode { QChar } } 
 	    V { QMIMESOURCE:: @BNode { QMimeSource } }
-	    W { QBITARRAY:: @Node paint { cyan } { QBitArray } }
+	    W { QBITARRAY:: @Node paint { @CollectionColour } { QBitArray } }
 	@Rowa
 	    B { QPAINTER:: @ANode { QPainter } } 
-	    E { QHIDEEVENT:: @Node paint { lightblue } { QHideEvent } } 
+	    E { QHIDEEVENT:: @Node paint { @EventColour } { QHideEvent } } 
 	    F { QCANVAS:: @Node paint { yellow } { QCanvas } } 
 	    L { QDESKTOPWIDGET:: @Node { QDesktopWidget } } 
 	    M { QPUSHBUTTON:: @Node { QPushButton } } 
-	    Q { QXMLDECLHANDLER:: @Node paint { lightmagenta } { QXmlDeclHandler } }
+	    Q { QXMLDECLHANDLER:: @Node paint { @XMLColour } { QXmlDeclHandler } }
 	    R { QCOLOR:: @BNode { QColor } } 
 	    V { QMOVIE:: @BNode { QMovie } }
 	@Rowa
 	    B { QPEN:: @ANode { QPen } } 
-	    E { QDROPEVENT:: @Node paint { lightblue } { QDropEvent } } 
+	    E { QDROPEVENT:: @Node paint { @EventColour } { QDropEvent } } 
 	    F { QCLIPBOARD:: @Node paint { yellow } { QClipboard } } 
 	    L { QDIAL:: @Node { QDial } } 
 	    M { QRADIOBUTTON:: @Node { QRadioButton } } 
-	    Q { QXMLDTDHANDLER:: @Node paint { lightmagenta } { QXmlDTDHandler } }
+	    Q { QXMLDTDHANDLER:: @Node paint { @XMLColour } { QXmlDTDHandler } }
 	    R { QCOLORGROUP:: @BNode { QColorGroup } } 
 	    V { QMUTEX:: @BNode { QMutex } }
 	@Rowa
 	    B { QTAB:: @ANode { QTab } } 
-	    E { QPAINTEVENT:: @Node paint { lightblue } { QPaintEvent } } 
+	    E { QPAINTEVENT:: @Node paint { @EventColour } { QPaintEvent } } 
 	    F { QDNS:: @Node paint { yellow } { QDns } } 
-	    L { QDIALOG:: @Node paint { green } { QDialog } } 
-	    Q { QXMLENTITYRESOLVER:: @Node paint { lightmagenta } { QXmlEntityResolver } }
+	    L { QDIALOG:: @Node paint { @DialogColour } { QDialog } } 
+	    Q { QXMLENTITYRESOLVER:: @Node paint { @XMLColour } { QXmlEntityResolver } }
 	    R { QDATASTREAM:: @BNode { QDataStream } } 
 	    V { QPAINTDEVICE:: @BNode { QPaintDevice } }
 	@Rowa
 	    B { QTHREAD:: @ANode { QThread } } 
-	    E { QCHILDEVENT:: @Node paint { lightblue } { QChildEvent } } 
+	    E { QCHILDEVENT:: @Node paint { @EventColour } { QChildEvent } } 
 	    F { QDRAGOBJECT:: @Node paint { yellow } { QDragObject } } 
 	    L { QDOCKAREA:: @Node { QDockArea } } 
-	    M { QWIZARD:: @Node paint { green } { QWizard } } 
-	    Q { QXMLLOCATOR:: @Node paint { lightmagenta } { QXmlLocator } }
+	    M { QWIZARD:: @Node paint { @DialogColour } { QWizard } } 
+	    Q { QXMLLOCATOR:: @Node paint { @XMLColour } { QXmlLocator } }
 	    R { QDATE:: @BNode { QDate } } 
 	    V { QPAINTDEVICEMETRICS:: @BNode { QPaintDeviceMetrics } }
 	    W { QPRINTER:: @BNode { QPrinter } }
 	@Rowa
 	    B { QTOOLTIP:: @ANode { QTooltip } } 
-	    E { QMOVEEVENT:: @Node paint { lightblue } { QMoveEvent } } 
+	    E { QMOVEEVENT:: @Node paint { @EventColour } { QMoveEvent } } 
 	    F { QNETWORKOPERATION:: @Node paint { yellow } { QNetworkOperation } } 
 	    L { QWORKSPACE:: @Node { QWorkspace } } 
-	    M { QTABDIALOG:: @Node paint { green } { QTabDialog } } 
-	    Q { QXMLNAMESPACESUPPORT:: @Node paint { lightmagenta } { QXmlNamespace... } }
+	    M { QTABDIALOG:: @Node paint { @DialogColour } { QTabDialog } } 
+	    Q { QXMLNAMESPACESUPPORT:: @Node paint { @XMLColour } { QXmlNamespace... } }
 	    R { QDATETIME:: @BNode { QDateTime } } 
-	    V { QPAIR:: @Node paint { cyan } { QPair } }
+	    V { QPAIR:: @Node paint { @CollectionColour } { QPair } }
 	    W { QPICTURE:: @BNode { QPicture } }
 	@Rowa
 	    B { QWHATSTHIS:: @ANode { QWhatsThis } } 
-	    E { QSHOWEVENT:: @Node paint { lightblue } { QShowEvent } } 
+	    E { QSHOWEVENT:: @Node paint { @EventColour } { QShowEvent } } 
 	    F { QNETWORKPROTOCOL:: @Node paint { yellow } { QNetworkProtocol } } 
 	    L { QGLWIDGET:: @Node { QGLWidget } } 
-	    M { QFILEDIALOG:: @Node paint { green } { QFileDialog } } 
-	    Q { QXMLREADER:: @Node paint { lightmagenta } { QXmlReader } }
+	    M { QFILEDIALOG:: @Node paint { @DialogColour } { QFileDialog } } 
+	    Q { QXMLREADER:: @Node paint { @XMLColour } { QXmlReader } }
 	    R { QDIR:: @BNode { QDir } } 
 	    V { QPALETTE:: @BNode { QPalette } }
 	    W { QPIXMAP:: @BNode { QPixmap } }
 	@Rowa
 	    B { QCANVASITEM:: @ANode { QCanvasItem } } 
-	    E { QCLOSEEVENT:: @Node paint { lightblue } { QCloseEvent } } 
+	    E { QCLOSEEVENT:: @Node paint { @EventColour } { QCloseEvent } } 
 	    F { QPROCESS:: @Node paint { yellow } { QProcess } } 
 	    L { QHEADER:: @Node { QHeader } } 
-	    M { QFONTDIALOG:: @Node paint { green } { QFontDialog } } 
-	    R { QDOMNODE:: @Node paint { lightmagenta } { QDomNode } } 
-	    V { QPIXMAPCACHE:: @Node paint { cyan } { QPixmapCache } }
+	    M { QFONTDIALOG:: @Node paint { @DialogColour } { QFontDialog } } 
+	    R { QDOMNODE:: @Node paint { @XMLColour } { QDomNode } } 
+	    V { QPIXMAPCACHE:: @Node paint { @CollectionColour } { QPixmapCache } }
 	    W { QBITMAP:: @BNode { QBitmap } }
 	@Rowa
 	    B { QCANVASTEXT:: @ANode { QCanvasText } } 
-	    E { QTIMEREVENT:: @Node paint { lightblue } { QTimerEvent } } 
+	    E { QTIMEREVENT:: @Node paint { @EventColour } { QTimerEvent } } 
 	    F { QSERVERSOCKET:: @Node paint { yellow } { QServerSocket } } 
 	    L { QMAINWINDOW:: @Node { QMainWindow } } 
-	    M { QINPUTDIALOG:: @Node paint { green } { QInputDialog } } 
-	    Q { QDOMATTR:: @Node paint { lightmagenta } { QDomAttr } } 
+	    M { QINPUTDIALOG:: @Node paint { @DialogColour } { QInputDialog } } 
+	    Q { QDOMATTR:: @Node paint { @XMLColour } { QDomAttr } } 
 	    R { QFILEINFO:: @BNode { QFileInfo } } 
 	    V { QPOINT:: @BNode { QPoint } }
 	@Rowa
 	    B { QCANVASSPRITE:: @ANode { QCanvasSprite } } 
-	    E { QFOCUSEVENT:: @Node paint { lightblue } { QFocusEvent } } 
+	    E { QFOCUSEVENT:: @Node paint { @EventColour } { QFocusEvent } } 
 	    F { QSESSIONMANAGER:: @Node paint { yellow } { QSessionManager } } 
 	    L { QSCROLLBAR:: @Node { QScrollBar } } 
-	    M { QCOLORDIALOG:: @Node paint { green } { QColorDialog } } 
-	    Q { QDOMENTITY:: @Node paint { lightmagenta } { QDomEntity } } 
+	    M { QCOLORDIALOG:: @Node paint { @DialogColour } { QColorDialog } } 
+	    Q { QDOMENTITY:: @Node paint { @XMLColour } { QDomEntity } } 
 	    R { QFONT:: @BNode { QFont } } 
-	    V { QPTRCOLLECTION:: @Node paint { cyan } { QPtrCollection } }
+	    V { QPTRCOLLECTION:: @Node paint { @CollectionColour } { QPtrCollection } }
 	@Rowa
 	    B { QCANVASPOLYGONALITEM:: @ANode { QCanvasPolygonalItem } } 
-	    E { QWHEELEVENT:: @Node paint { lightblue } { QWheelEvent } } 
+	    E { QWHEELEVENT:: @Node paint { @EventColour } { QWheelEvent } } 
 	    F { QSIGNAL:: @Node paint { yellow } { QSignal } } 
 	    L { QSLIDER:: @Node { QSlider } } 
-	    M { QMESSAGEBOX:: @Node paint { green } { QMessageBox } } 
-	    Q { QDOMELEMENT:: @Node paint { lightmagenta } { QDomElement } } 
+	    M { QMESSAGEBOX:: @Node paint { @DialogColour } { QMessageBox } } 
+	    Q { QDOMELEMENT:: @Node paint { @XMLColour } { QDomElement } } 
 	    R { QFONTDATABASE:: @BNode { QFontDatabase } } 
-	    V { QPTRQUEUE:: @Node paint { cyan } { QPtrQueue } }
-	    W { QDICT:: @Node paint { cyan } { QDict } }
+	    V { QPTRQUEUE:: @Node paint { @CollectionColour } { QPtrQueue } }
+	    W { QDICT:: @Node paint { @CollectionColour } { QDict } }
 	@Rowa
 	    B { QCANVASELLIPSE:: @ANode { QCanvasEllipse } } 
-	    E { QMOUSEEVENT:: @Node paint { lightblue } { QMouseEvent } } 
+	    E { QMOUSEEVENT:: @Node paint { @EventColour } { QMouseEvent } } 
 	    F { QSOCKET:: @Node paint { yellow } { QSocket } } 
 	    L { QSPINBOX:: @Node { QSpinBox } } 
-	    M { QPROGRESSDIALOG:: @Node paint { green } { QProgressDialog } } 
-	    Q { QDOMDOCUMENT:: @Node paint { lightmagenta } { QDomDocument } } 
+	    M { QPROGRESSDIALOG:: @Node paint { @DialogColour } { QProgressDialog } } 
+	    Q { QDOMDOCUMENT:: @Node paint { @XMLColour } { QDomDocument } } 
 	    R { QFONTINFO:: @BNode { QFontInfo } } 
-	    V { QPTRSTACK:: @Node paint { cyan } { QPtrStack } }
-	    W { QCACHE:: @Node paint { cyan } { QCache } }
+	    V { QPTRSTACK:: @Node paint { @CollectionColour } { QPtrStack } }
+	    W { QCACHE:: @Node paint { @CollectionColour } { QCache } }
 	@Rowa
 	    B { QCANVASLINE:: @ANode { QCanvasLine } } 
-	    E { QRESIZEEVENT:: @Node paint { lightblue } { QResizeEvent } } 
+	    E { QRESIZEEVENT:: @Node paint { @EventColour } { QResizeEvent } } 
 	    F { QSOUND:: @Node paint { yellow } { QSound } } 
 	    L { QFRAME:: @Node { QFrame } } 
-	    Q { QDOMCHARACTERDATA:: @Node paint { lightmagenta } { QDomCharacterData } } 
+	    Q { QDOMCHARACTERDATA:: @Node paint { @XMLColour } { QDomCharacterData } } 
 	    R { QFONTMANAGER:: @BNode { QFontManager } } 
 	    V { QRANGECONTROL:: @BNode { QRangeControl } }
-	    W { QPTRLIST:: @Node paint { cyan } { QPtrList } }
+	    W { QPTRLIST:: @Node paint { @CollectionColour } { QPtrList } }
 	@Rowa
 	    B { QCANVASPOLYGON:: @ANode { QCanvasPolygon } } 
-	    F { QSTYLE:: @Node paint { lightgrey } { QStyle } } 
+	    F { QSTYLE:: @Node paint { @StyleColour } { QStyle } } 
 	    L { QSTATUSBAR:: @Node { QStatusBar } } 
 	    M { QGRID:: @Node { QGrid } } 
 	    R { QFONTMETRICS:: @BNode { QFontMetrics } } 
 	    V { QRECT:: @BNode { QRect } }
-	    W { QINTDICT:: @Node paint { cyan } { QIntDict } }
+	    W { QINTDICT:: @Node paint { @CollectionColour } { QIntDict } }
 	@Rowa
 	    F { QSTYLESHEET:: @Node paint { yellow } { QStyleSheet } } 
 	    L { QTABBAR:: @Node { QTabBar } } 
 	    M { QLABEL:: @Node { QLabel } } 
 	    R { QGL:: @BNode { QGL } } 
 	    V { QREGEXP:: @BNode { QRegExp } }
-	    W { QPTRDICT:: @Node paint { cyan } { QPtrDict } }
+	    W { QPTRDICT:: @Node paint { @CollectionColour } { QPtrDict } }
 	@Rowa
-	    B { QWINDOWSSTYLE:: @Node paint { lightgrey } { QWindowsStyle } } 
-	    E { QCOMMONSTYLE:: @Node paint { lightgrey } { QCommonStyle } } 
+	    B { QWINDOWSSTYLE:: @Node paint { @StyleColour } { QWindowsStyle } } 
+	    E { QCOMMONSTYLE:: @Node paint { @StyleColour } { QCommonStyle } } 
 	    F { QTIMER:: @Node paint { yellow } { QTimer } } 
 	    L { QTABWIDGET:: @Node { QTabWidget } } 
 	    M { QHBOX:: @Node { QHBox } } 
 	    Q { QGLFORMAT:: @BNode { QGLFormat } } 
 	    R { QGLCOLORMAP:: @BNode { QGLColorMap } } 
 	    V { QREGION:: @BNode { QRegion } }
-	    W { QASCIIDICT:: @Node paint { cyan } { QAsciiDict } }
+	    W { QASCIIDICT:: @Node paint { @CollectionColour } { QAsciiDict } }
 	@Rowa
 	    F { QTRANSLATOR:: @Node paint { yellow } { QTranslator } } 
 	    M { QVBOX:: @Node { QVBox } } 
 	    Q { QGLCONTEXT:: @BNode { QGLContext } } 
 	    R { QGUARDEDPTR:: @BNode { QGuardedPtr } } 
 	    V { QSEMAPHORE:: @BNode { QSemaphore } }
-	    W { QPTRVECTOR:: @Node paint { cyan } { QPtrVector } }
+	    W { QPTRVECTOR:: @Node paint { @CollectionColour } { QPtrVector } }
 	@Rowa
-	    B { QAQUASTYLE:: @Node paint { lightgrey } { QAquaStyle } } 
-	    E { QMOTIFSTYLE:: @Node paint { lightgrey } { QMotifStyle } } 
+	    B { QAQUASTYLE:: @Node paint { @StyleColour } { QAquaStyle } } 
+	    E { QMOTIFSTYLE:: @Node paint { @StyleColour } { QMotifStyle } } 
 	    F { QURLOPERATOR:: @Node paint { yellow } { QUrlOperator } } 
 	    L { QSCROLLVIEW:: @Node { QScrollView } } 
 	    M { QSPLITTER:: @Node { QSplitter } } 
 	    R { QICONSET:: @BNode { QIconSet } } 
 	    V { QSETTINGS:: @BNode { QSettings } }
-	    W { QSORTEDLIST:: @Node paint { cyan } { QSortedList } }
+	    W { QSORTEDLIST:: @Node paint { @CollectionColour } { QSortedList } }
 	@Rowa
-	    B { QPLATINUMSTYLE:: @Node paint { lightgrey } { QPlatinumStyle } } 
+	    B { QPLATINUMSTYLE:: @Node paint { @StyleColour } { QPlatinumStyle } } 
 	    F { QVALIDATOR:: @Node paint { yellow } { QValidator } } 
 	    L { QCANVASVIEW:: @Node { QCanvasView } } 
 	    M { QLINEEDIT:: @Node { QLineEdit } } 
 	    R { QIMAGE:: @BNode { QImage } } 
 	    V { QSIMPLERICHTEXT:: @BNode { QSimpleRichText } }
 	@Rowa
-	    B { QSGISTYLE:: @Node paint { lightgrey } { QSGIStyle } } 
+	    B { QSGISTYLE:: @Node paint { @StyleColour } { QSGIStyle } } 
 	    F { QLAYOUT:: @Node paint { yellow } { QLayout } } 
 	    L { QGRIDVIEW:: @Node { QGridView } } 
 	    M { QMENUBAR:: @Node { QMenuBar } } 
 	    R { QIMAGEFORMATPLUGIN:: @BNode { QImageFormatPlugin } } 
 	    V { QSIZE:: @BNode { QSize } }
-	    W { QVALUELIST:: @Node paint { cyan } { QValueList } }
+	    W { QVALUELIST:: @Node paint { @CollectionColour } { QValueList } }
 	@Rowa
-	    B { QCDESTYLE:: @Node paint { lightgrey } { QCDEStyle } } 
+	    B { QCDESTYLE:: @Node paint { @StyleColour } { QCDEStyle } } 
 	    L { QICONVIEW:: @Node { QIconView } } 
 	    M { QGROUPBOX:: @Node { QGroupBox } } 
 	    R { QIMAGEIO:: @BNode { QImageIO } } 
 	    V { QSIZEPOLICY:: @BNode { QSizePolicy } }
-	    W { QSTRINGLIST:: @Node paint { cyan } { QStringList } }
+	    W { QSTRINGLIST:: @Node paint { @CollectionColour } { QStringList } }
 	@Rowa
-	    B { QMOTIFPLUSSTYLE:: @Node paint { lightgrey } { QMotifPlusStyle } } 
+	    B { QMOTIFPLUSSTYLE:: @Node paint { @StyleColour } { QMotifPlusStyle } } 
 	    F { QSQLDATABASE:: @CNode { QSqlDatabase } } 
 	    L { QLISTVIEW:: @Node { QListView } } 
 	    M { QPOPUPMENU:: @Node { QPopupMenu } } 
-	    R { QINTCACHE:: @Node paint { cyan } { QIntCache } } 
+	    R { QINTCACHE:: @Node paint { @CollectionColour } { QIntCache } } 
 	    V { QSTRING:: @BNode { QString } }
-	    W { QVALUESTACK:: @Node paint { cyan } { QValueStack } }
+	    W { QVALUESTACK:: @Node paint { @CollectionColour } { QValueStack } }
 	@Rowa
-	    B { QSTYLEPLUGIN:: @Node paint { lightgrey } { QStylePlugin } } 
+	    B { QSTYLEPLUGIN:: @Node paint { @StyleColour } { QStylePlugin } } 
 	    E { QSQLFIELD:: @CNode { QSqlField } } 
 	    F { QSQLDRIVER:: @CNode { QSqlDriver } } 
 	    L { QTEXTEDIT:: @Node { QTextEdit } } 
 	    M { QPROGRESSBAR:: @Node { QProgressBar } } 
 	    R { QIODEVICE:: @BNode { QIODevice } } 
 	    V { QTEXTCODEC:: @BNode { QTextCodec } }
-	    W { QVALUEVECTOR:: @Node paint { cyan } { QValueVector } }
+	    W { QVALUEVECTOR:: @Node paint { @CollectionColour } { QValueVector } }
 	@Rowa
 	    E { QSQLRECORD:: @CNode { QSqlRecord } } 
 	    F { QSQLFORM:: @CNode { QSqlForm } } 
@@ -467,7 +477,7 @@ Apple Roman
 	    F { QDATAVIEW:: @CNode { QDataView } } 
 	    M { QDOCKWINDOW:: @Node { QDockWindow } } 
 	    Q { QSOCKETDEVICE:: @BNode { QSocketDevice } } 
-	    R { QMAP:: @Node paint { cyan } { QMap } } 
+	    R { QMAP:: @Node paint { @CollectionColour } { QMap } } 
 	    V { QTIME:: @BNode { QTime } }
 	    W { QWMATRIX:: @BNode { QWMatrix } }
 	@Rowa
@@ -481,43 +491,46 @@ Apple Roman
 	    L { QGRIDLAYOUT:: @Node paint { yellow } { QGridLayout } } 
 	    M { QICONVIEWITEM:: @ANode QIconViewItem }
 	    Q { QLISTBOXITEM:: @BNode QListBoxItem }
-	    R { QASCIICACHEITERATOR:: @Node paint { cyan } QAsciiCacheIterator }
-	    V { QPTRDICTITERATOR:: @Node paint { cyan } QPtrDictIterator }
+	    R { QASCIICACHEITERATOR:: @Node paint { @CollectionColour } QAsciiCacheIterator }
+	    V { QPTRDICTITERATOR:: @Node paint { @CollectionColour } QPtrDictIterator }
 	@Rowa
 	    L { QBOXLAYOUT:: @Node paint { yellow } { QBoxLayout } } 
 	    M { QLISTVIEWITEM:: @ANode QListViewItem }
 	    Q { QLISTBOXTEXT:: @BNode QListBoxText }
-	    R { QCACHEITERATOR:: @Node paint { cyan } QCacheIterator }
-	    V { QMAPITERATOR:: @Node paint { cyan } QMapIterator }
+	    R { QCACHEITERATOR:: @Node paint { @CollectionColour } QCacheIterator }
+	    V { QMAPITERATOR:: @Node paint { @CollectionColour } QMapIterator }
 	@Rowa
 	    L { QHBOXLAYOUT:: @Node paint { yellow } { QHBoxLayout } } 
 	    M { QCHECKLISTITEM:: @ANode QCheckListItem }
 	    Q { QLISTBOXPIXMAP:: @BNode QListBoxPixmap }
-	    R { QINTCACHEITERATOR:: @Node paint { cyan } QIntCacheIterator }
-	    V { QVALUELISTITERATOR:: @Node paint { cyan } QValueListIterator }
+	    R { QINTCACHEITERATOR:: @Node paint { @CollectionColour } QIntCacheIterator }
+	    V { QVALUELISTITERATOR:: @Node paint { @CollectionColour } QValueListIterator }
 	@Rowa
 	    L { QVBOXLAYOUT:: @Node paint { yellow } { QVBoxLayout } } 
 	    M { QTABLEITEM:: @ANode QTableItem }
 	    Q { QLAYOUTITEM:: @BNode QLayoutItem }
-	    R { QASCIIDICTITERATOR:: @Node paint { cyan } QAsciiDictIterator }
-	    V { QPTRLISTITERATOR:: @Node paint { cyan } QPtrListIterator }
+	    R { QASCIIDICTITERATOR:: @Node paint { @CollectionColour } QAsciiDictIterator }
+	    V { QPTRLISTITERATOR:: @Node paint { @CollectionColour } QPtrListIterator }
 	    W { QHBUTTONGROUP:: @Node { QHButtonGroup } }
 	@Rowa
+	    K { QTEXTBROWSER:: @Node { QTextBrowser } }
 	    L { QSTYLESHEETITEM:: @Node paint { yellow } { QStyleSheetItem } } 
 	    M { QCHECKTABLEITEM:: @ANode QCheckTableItem }
 	    Q { QSPACERITEM:: @BNode QSpacerItem }
-	    R { QDICTITERATOR:: @Node paint { cyan } QDictIterator }
-	    V { QINTDICTITERATOR:: @Node paint { cyan } QIntDictIterator }
+	    R { QDICTITERATOR:: @Node paint { @CollectionColour } QDictIterator }
+	    V { QINTDICTITERATOR:: @Node paint { @CollectionColour } QIntDictIterator }
 	    W { QVBUTTONGROUP:: @Node { QVButtonGroup } }
 	@Rowb
-	    A { { BoldSlope +3p } @Font 
-		{ The Essential Qt 3.0 Class Hierarchy } }
+	    K { QTEXTVIEW:: @Node { QTextView } }
 	    L { QCUSTOMMENUITEM:: @ANode QCustomMenuItem }
 	    M { QCOMBOTABLEITEM:: @ANode QComboTableItem }
 	    Q { QWIDGETITEM:: @BNode QWidgetItem }
 	    R { QHGROUPBOX:: @Node { QHGroupBox } }
 	    V { QVGROUPBOX:: @Node { QVGroupBox } }
 	    W { QBUTTONGROUP:: @Node { QButtonGroup } }
+	@Rowb
+	    A { { BoldSlope +3p } @Font 
+		{ The Essential Qt 3.0 Class Hierarchy } }
     }
     //
     @VHCurveArrow from { QT } to { QBRUSH }
@@ -666,6 +679,7 @@ Apple Roman
     @VHCurveArrow from { QTABLE } to { QDATATABLE } 
     @LVRCurveArrow from { QSQLRECORD } to { QSQLCURSOR } bias { 1.5f } zindent { 0.2f }
     @LVRCurveArrow from { QSQLRECORD } to { QSQLINDEX } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QSQLQUERY } to { QSQLCURSOR } bias { 1.5f } zindent { 0.2f }
     @RVLCurveArrow from { QVALUELIST } to { QSTRINGLIST } bias { 2.3f } zindent { 0.2f }
     @RVLCurveArrow from { QVALUELIST } to { QVALUESTACK } bias { 1.5f } zindent { 0.2f }
     @RVLCurveArrow from { QLAYOUTITEM } to { QSPACERITEM } bias { 1.45f } zindent { 0.2f }
@@ -681,10 +695,12 @@ Apple Roman
     @LVRCurveArrow from { QLAYOUT } to { QGRIDLAYOUT } bias { 1.5f } zindent { 0.2f }
     @VHCurveArrow from { QDOCKWINDOW } to { QTOOLBAR } bias { 1.5f }
     @LVRCurveArrow from { QHBOX } to { QVBOX } bias { 1.5f } zindent { 0.2f }
-    @DWrapCurveArrow from { QGROUPBOX } to { QBUTTONGROUP } bias { 1.5f }
-    @DWrapCurveArrow from { QGROUPBOX } to { QHGROUPBOX } bias { 1.5f }
-    @DWrapCurveArrow from { QGROUPBOX } to { QVGROUPBOX } bias { 1.5f }
+    @DWrapCurveArrow from { QGROUPBOX } to { QBUTTONGROUP } bias { 1.5f } fbias { 1.0f }
+    @DWrapCurveArrow from { QGROUPBOX } to { QHGROUPBOX } bias { 1.5f } fbias { 1.0f }
+    @DWrapCurveArrow from { QGROUPBOX } to { QVGROUPBOX } bias { 1.5f } fbias { 1.0f }
     @LVRCurveArrow from { QBUTTONGROUP } to { QVBUTTONGROUP } bias { 1.5f } zindent { 0.2f }
     @LVRCurveArrow from { QBUTTONGROUP } to { QHBUTTONGROUP } bias { 1.5f } zindent { 0.2f }
+    @DWrapCurveArrow from { QTEXTEDIT } to { QTEXTBROWSER } bias { 3.9f } fbias { 5.1f }
+    @DWrapCurveArrow from { QTEXTEDIT } to { QTEXTVIEW } bias { 1.78f } fbias { 5.1f }
 }
 @End @Text
