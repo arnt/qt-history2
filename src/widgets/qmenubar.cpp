@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#38 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#37 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#38 $";
 #endif
 
 /*!
@@ -74,8 +74,13 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     if ( parent )				// filter parent events
 	parent->installEventFilter( this );
     move( 0, 0 );
-    setFrameStyle( QFrame::Panel | QFrame::Raised );
-    setLineWidth( motifBarFrame );
+    if ( style() == MotifStyle ) {
+	setFrameStyle( QFrame::Panel | QFrame::Raised );
+	setLineWidth( motifBarFrame );
+    }
+    else {
+	setFrameStyle( QFrame::NoFrame );
+    }
 }
 
 QMenuBar::~QMenuBar()
@@ -322,9 +327,12 @@ void QMenuBar::updateRects()
     int max_width = width();
     int max_height = 0;
     int nlitems = 0;				// number on items on cur line
+    int gs = style();
     int x = motifBarFrame + motifBarHMargin;
     int y = motifBarFrame + motifBarVMargin;
     int i = 0;
+    if ( gs == WindowsStyle )	// !!!hanord
+	x = y = 2;
     while ( i < (int)mitems->count() ) {	// for each menu item...
 	QMenuItem *mi = mitems->at(i);
 	int w, h;
@@ -336,8 +344,10 @@ void QMenuBar::updateRects()
 	    w = fm.width( mi->string() ) + 2*motifItemHMargin;
 	    h = fm.height() + motifItemVMargin;
 	}
-	w += 2*motifItemFrame;
-	h += 2*motifItemFrame;
+	if ( gs == MotifStyle ) {
+	    w += 2*motifItemFrame;
+	    h += 2*motifItemFrame;
+	}
 	if ( x + w + motifBarFrame > max_width && nlitems > 0 ) {
 	    nlitems = 0;
 	    x = motifBarFrame + motifBarHMargin;
@@ -391,17 +401,30 @@ void QMenuBar::drawContents( QPainter *p )	// draw menu bar
     QColorGroup	 g  = colorGroup();
     QFontMetrics fm = fontMetrics();
     int		 fw = frameWidth();
+    int		 gs = style();
 
     p->setClipRect( fw, fw, width() - 2*fw, height() - 2*fw );
 
     for ( int i=0; i<(int)mitems->count(); i++ ) {
 	QMenuItem *mi = mitems->at( i );
 	QRect r = irects[i];
-	if ( i == actItem )			// active item frame
-	    p->drawShadePanel( r, g.light(), g.dark(), motifItemFrame );
-	else					// incognito frame
-	    p->drawShadePanel( r, g.background(), g.background(),
-			       motifItemFrame );
+	if ( gs == MotifStyle ) {
+	    if ( i == actItem ) {			// active item frame
+		p->drawShadePanel( r, g.light(), g.dark(), motifItemFrame );
+	    }
+	    else {					// incognito frame
+		p->drawShadePanel( r, g.background(), g.background(),
+				   motifItemFrame );
+	    }
+	}
+	else {
+	    if ( i == actItem ) {
+		p->fillRect( r, blue );
+	    }
+	    else {
+		p->fillRect( r, g.background() );
+	    }
+	}
 	if ( mi->pixmap() )
 	    p->drawPixmap( r.left() + motifItemFrame,
 			   r.top() + motifItemFrame,
@@ -409,8 +432,12 @@ void QMenuBar::drawContents( QPainter *p )	// draw menu bar
 	else if ( mi->string() ) {
 	    if ( mi->isDisabled() )
 		p->setPen( palette().disabled().text() );
-	    else
+	    else {
 		p->setPen( g.text() );
+		if ( i == actItem && gs != MotifStyle )
+		    p->setPen( white );
+		p->setPen( g.text() );
+	    }
 	    p->drawText( r, AlignCenter | ShowPrefix | DontClip,
 			 mi->string() );
 	}

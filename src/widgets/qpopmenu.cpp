@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#46 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#45 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#46 $";
 #endif
 
 
@@ -120,7 +120,10 @@ QPopupMenu::QPopupMenu( QWidget *, const char *name )
     setNumRows( 0 );				// set number of table rows
     clearTableFlags( Tbl_clipCellPainting | Tbl_autoScrollBars );
     setFrameStyle( QFrame::Panel | QFrame::Raised );
-    setLineWidth( motifPopupFrame );
+    if ( style() == MotifStyle )
+	setLineWidth( motifPopupFrame );
+    else
+	setLineWidth( 1 );
 }
 
 /*!
@@ -655,12 +658,15 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	p->drawLine( 0, 1, cellw, 1 );
 	return;
     }
+    int pw = motifItemFrame;
+    if ( gs != MotifStyle )
+	pw = 1;
     if ( row == actItem )			// active item frame
 	p->drawShadePanel( 0, 0, cellw, cellh, g.light(), g.dark(),
-			   motifItemFrame );
+			   pw );
     else					// incognito frame
 	p->drawShadePanel( 0, 0, cellw, cellh, g.background(), g.background(),
-			   motifItemFrame );
+			   pw );
     p->setPen( g.text() );
     if ( mi->pixmap() ) {			// draw pixmap
 	QPixmap *pixmap = mi->pixmap();
