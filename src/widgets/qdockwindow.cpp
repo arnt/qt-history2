@@ -875,6 +875,18 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 /*!
     Constructs a QDockWindow with parent \a parent, called \a name and
     with widget flags \a f.
+*/
+
+QDockWindow::QDockWindow( QWidget* parent, const char* name, WFlags f )
+    : QFrame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder )
+{
+    curPlace = InDock;
+    init();
+}
+
+/*!
+    Constructs a QDockWindow with parent \a parent, called \a name and
+    with widget flags \a f.
 
     If \a p is \c InDock, the dock window is docked into a dock area
     and \a parent \e must be a QDockArea or a QMainWindow. If the \a
@@ -890,18 +902,35 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
 */
 
 QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder ),
-      wid( 0 ), unclippedPainter( 0 ), dockArea( 0 ), tmpDockArea( 0 ), curPlace( p ), resizeEnabled( FALSE ),
-      moveEnabled( TRUE ), nl( FALSE ), opaque( default_opaque ), cMode( Never ), offs( 0 ), fExtent( -1, -1 ),
-      dockWindowData( 0 ),
-      lastPos( -1, -1 ), lastSize( -1, -1 )
+    : QFrame( parent, name, f | WType_Dialog | WStyle_Customize | WStyle_NoBorder )
 {
+    curPlace = p;
+    init();
+}
+
+void QDockWindow::init()
+{
+    wid = 0;
+    unclippedPainter = 0;
+    dockArea = 0;
+    tmpDockArea = 0;
+    resizeEnabled = FALSE;
+    moveEnabled = TRUE;
+    nl = FALSE;
+    opaque = default_opaque;
+    cMode = Never;
+    offs = 0;
+    fExtent = QSize( -1, -1 );
+    dockWindowData = 0;
+    lastPos = QPoint( -1, -1 );
+    lastSize = QSize( -1, -1 );
+
     widgetResizeHandler = new QWidgetResizeHandler( this );
     widgetResizeHandler->setMovingEnabled( FALSE );
 
     hbox = new QVBoxLayout( this );
     hbox->setResizeMode( QLayout::Minimum );
-    hbox->setMargin( isResizeEnabled() || p == OutsideDock ? 2 : 0 );
+    hbox->setMargin( isResizeEnabled() || curPlace == OutsideDock ? 2 : 0 );
     hbox->setSpacing( 1 );
     titleBar = new QDockWindowTitleBar( this );
     horHandle = new QDockWindowHandle( this );
@@ -929,12 +958,12 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     setLineWidth( 2 );
 
-    if ( parent )
-	parent->installEventFilter( this );
-    QWidget *mw = parent;
-    if ( parent && parent->inherits( "QDockArea" ) ) {
-	QDockArea* da = (QDockArea*)parent;
-	if ( p == InDock )
+    if ( parentWidget() )
+	parentWidget()->installEventFilter( this );
+    QWidget *mw = parentWidget();
+    if ( parentWidget() && parentWidget()->inherits( "QDockArea" ) ) {
+	QDockArea* da = (QDockArea*)parentWidget();
+	if ( curPlace == InDock )
 	    da->moveDockWindow( this );
 	mw = da->parentWidget();
     }

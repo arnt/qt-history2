@@ -83,6 +83,7 @@ public:
     enum CloseMode { Never = 0, Docked = 1, Undocked = 2, Always = Docked | Undocked };
 
     QDockWindow( Place p = InDock, QWidget* parent=0, const char* name=0, WFlags f = 0 );
+    QDockWindow( QWidget* parent, const char* name=0, WFlags f = 0 );
     ~QDockWindow();
 
     virtual void setWidget( QWidget *w );
@@ -175,6 +176,7 @@ private:
     QWidget *areaAt( const QPoint &gp );
     void removeFromDock( bool fixNewLines = TRUE );
     void swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, QDockArea *area );
+    void init();
 
 private:
     QDockWindowHandle *horHandle, *verHandle;
