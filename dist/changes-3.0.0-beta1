@@ -290,6 +290,17 @@ QHttp
 This class provides a simple interface for HTTP downloads and uploads.
 
 
+Compatibility with the Standard Template Library (STL)
+------------------------------------------------------
+
+Support for the C++ Standard Template Library has been added to the Qt
+Template Library (QTL).  The QTL classes now contain appropriate copy
+constructors and typedefs so that they can be freely mixed with other
+STL containers and algorithms.  In addition, new member functions have
+been added to QTL template classes which correspond to STL-style
+naming conventions (e.g., push_back()).
+
+
 Qt Designer
 ========================================
 
