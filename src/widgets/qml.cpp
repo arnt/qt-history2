@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#14 $
 **
 ** Implementation of QML classes
 **
@@ -564,7 +564,7 @@ public:
     inline QFont font() const;
     inline QColor color(const QColor&) const;
     inline int margin(QMLStyle::Margin) const;
-    inline int numberOfColumns() const;
+    virtual int numberOfColumns() const;
     inline int alignment() const;
 
     QMLContainer* parent;
@@ -649,6 +649,35 @@ inline int QMLContainer::alignment() const
 	return style->alignment();
     return parent?parent->alignment():QMLStyle::AlignLeft;
 }
+
+
+class QMLMulticol : public QMLContainer
+{
+private:
+    int ncols;
+public:
+    QMLMulticol( const QMLStyle *stl)
+	: QMLContainer(stl)
+	{
+	    ncols = 1;
+	}
+    QMLMulticol( const QMLStyle *stl, const QDict<QString>& attr )
+	: QMLContainer(stl, attr)
+	{
+	    if (attr["cols"])
+		ncols =  attr["cols"]->toInt();
+	    ncols = QMAX( 1, ncols);
+	}
+    
+    ~QMLMulticol()
+	{
+	}
+    
+    int numberOfColumns() const
+	{
+	    return ncols;
+	}
+};
 
 
 class QMLBox : public QMLContainer
@@ -849,6 +878,8 @@ void QMLStyleSheet::init()
     style = new QMLStyle( this, "twocolumn" );
     style->setNumberOfColumns( 2 );
 
+    style = new QMLStyle( this, "multicol" );
+
     style = new QMLStyle( this, "ul" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
 
@@ -949,6 +980,8 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
 	result->c = '\n';
 	return result;
     }
+    else if (style->name() == "multicol") 
+	return new QMLMulticol( style, attr );
 
     // process containers
     switch ( style->displayMode() ) {
