@@ -69,6 +69,8 @@ ProjectGenerator::init()
     }
 
     //the scary stuff
+    if(Option::projfile::do_pwd) 
+	Option::projfile::project_dirs.prepend("*.cpp; *.ui; *.c; *.y; *.l");
     for(QStringList::Iterator pd = Option::projfile::project_dirs.begin(); pd != Option::projfile::project_dirs.end(); pd++) 
     {
 	QString dir;
@@ -105,6 +107,11 @@ ProjectGenerator::init()
 	    if(!tmp.isEmpty()) {
 		for(QStringList::Iterator dep_it = tmp.begin(); dep_it != tmp.end(); ++dep_it) {
 		    if((*dep_it).right(Option::h_ext.length()) == Option::h_ext) {
+			if((*dep_it).left(1).lower() == "q") {
+			    QString qhdr = (*dep_it).lower();
+			    if(qhdr == "qthread.h")
+				addConfig("thread");
+			}
 			QString src((*dep_it).left((*dep_it).length() - Option::h_ext.length()) + Option::cpp_ext);
 			if(QFile::exists(src)) {
 			    if(!l.contains(src))
@@ -147,6 +154,16 @@ ProjectGenerator::writeMakefile(QTextStream &t)
     for(QStringList::Iterator it = Option::user_vars.begin(); it != Option::user_vars.end(); ++it) 
 	t << (*it) << endl;
     return true;
+}
+
+bool
+ProjectGenerator::addConfig(const QString &cfg)
+{
+    if(!project->variables()["CONFIG"].contains(cfg)) {
+	project->variables()["CONFIG"] += cfg;
+	return TRUE;
+    }
+    return FALSE;
 }
 
 

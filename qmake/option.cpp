@@ -72,6 +72,7 @@ Option::TARG_MODE Option::target_mode = Option::TARG_UNIX_MODE;
 #endif
 
 //QMAKE_GENERATE_PROJECT stuff
+bool Option::projfile::do_pwd = TRUE;
 QStringList Option::projfile::project_dirs;
 
 //QMAKE_GENERATE_MAKEFILE stuff
@@ -113,6 +114,7 @@ bool usage(const char *a0)
 	    "\t-path dir      Use dir as QMAKEPATH        [makefile mode only]\n"
 	    "\t-nocache       Don't use a cache file      [makefile mode only]\n"
 	    "\t-nodepend      Don't generate dependencies [makefile mode only]\n"
+	    "\t-nopwd         Don't look for files in pwd [ project mode only]\n"
 	    ,a0);
     return FALSE;
 }
@@ -167,10 +169,14 @@ Option::parseCommandLine(int argc, char **argv)
 			return usage(argv[0]);
 		    }
 		} else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
-		    fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
-		    return usage(argv[0]);
+		    if(opt == "nopwd") {
+			Option::projfile::do_pwd = FALSE;
+		    } else {
+			fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
+			return usage(argv[0]);
+		    }
 		}
-	    }
+	    } 
 	}
 	else {
 	    if(x == 1)
@@ -207,9 +213,6 @@ Option::parseCommandLine(int argc, char **argv)
 		return usage(argv[0]);
 	    }
 	}
-    } else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
-	if(Option::projfile::project_dirs.isEmpty())
-	    Option::projfile::project_dirs.append("*.cpp; *.ui; *.c; *.y; *.l");
     }
 
     //defaults for globals

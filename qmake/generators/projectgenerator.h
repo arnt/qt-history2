@@ -43,6 +43,7 @@ class ProjectGenerator : public MakefileGenerator
 {
     bool init_flag;
     bool addFile(const QString &);
+    bool addConfig(const QString &);
 protected:
     virtual void init();
     virtual bool writeMakefile(QTextStream &);

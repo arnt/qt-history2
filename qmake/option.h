@@ -76,6 +76,7 @@ struct Option
 
     //QMAKE_GENERATE_PROJECT options
     struct projfile {
+	static bool do_pwd;
 	static QStringList project_dirs;
     };
 
