@@ -17,8 +17,8 @@
 #include "qwsdisplay_qws.h"
 #include "qwsevent_qws.h"
 #include "qwindowsystem_qws.h"
-#include <private/qeventdispatcher_unix_p.h>
 #include "qeventdispatcher_qws_p.h"
+#include <private/qeventdispatcher_unix_p.h>
 
 
 #if defined(QT_THREAD_SUPPORT)
