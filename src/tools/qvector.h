@@ -75,10 +75,10 @@ class QVector
     inline Iterator erase( Iterator pos ) { return erase(pos, pos+1); }
 
     // more Qt
-    T& first() { Q_ASSERT(!isEmpty()); return *begin(); }
-    const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
-    T& last() { Q_ASSERT(!isEmpty()); return *(end()-1); }
-    const T& last() const { Q_ASSERT(!isEmpty()); return *(end()-1); }
+    inline T& first() { Q_ASSERT(!isEmpty()); return *begin(); }
+    inline const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
+    inline T& last() { Q_ASSERT(!isEmpty()); return *(end()-1); }
+    inline const T& last() const { Q_ASSERT(!isEmpty()); return *(end()-1); }
 
     // stl compatibility
     typedef T value_type;
@@ -99,10 +99,10 @@ class QVector
     void pop_back() { Q_ASSERT(!isEmpty()); erase(end()-1); }
     inline bool empty() const
     { return d->size == 0; }
-    T& front() { return first(); }
-    const_reference front() const { return first(); }
-    reference back() { return last(); }
-    const_reference back() const { return last(); }
+    inline T& front() { return first(); }
+    inline const_reference front() const { return first(); }
+    inline reference back() { return last(); }
+    inline const_reference back() const { return last(); }
 
 #ifndef QT_NO_COMPAT
     // compatibility
@@ -112,7 +112,7 @@ class QVector
 
     //comfort
     QVector &operator+=(const QVector &l);
-    QVector operator+(const QVector &l) const
+    inline QVector operator+(const QVector &l) const
     { QVector n = *this; n += l; return n; }
     inline void operator+=(const T &t)
     { append(t); }
