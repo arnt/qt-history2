@@ -35,8 +35,8 @@
     whenever you work with Unicode strings. QStringList is part of the
     \link qtl.html Qt Template Library\endlink.
 
-    Like QString itself, QStringList objects are implicitly shared.
-    Passing them around as value-parameters is both fast and safe.
+    Like QString itself, QStringList objects are implicitly shared, so
+    passing them around as value-parameters is both fast and safe.
 
     Strings can be added to a list using append(), operator+=() or
     operator<<(), e.g.
@@ -131,7 +131,7 @@
 /*!
     \fn QStringList::QStringList (const char *i)
 
-    Constructs a string list consisting of the single latin-1 string \a i.
+    Constructs a string list consisting of the single Latin-1 string \a i.
 */
 
 /*!
@@ -231,7 +231,8 @@ QStringList QStringList::split(const QString &sep, const QString &str,
     if \a allowEmptyEntries is true.
 
     If \a sep does not match anywhere in \a str, split() returns a
-    list consisting of the single string \a str.
+    single element list with the element containing the single string
+    \a str.
 
     \sa join() QString::section()
 */
@@ -269,15 +270,15 @@ QStringList QStringList::split(const QRegExp &sep, const QString &str,
 #endif
 
 /*!
-    Returns a list of all strings containing the substring \a str.
+    Returns a list of all the strings containing the substring \a str.
 
     If \a cs is true, the grep is done case-sensitively; otherwise
     case is ignored.
 
     \code
     QStringList list;
-    list << "Bill Gates" << "Joe Blow" << "Bill Clinton";
-    list = list.grep("Bill");
+    list << "Bill Gates" << "John Doe" << "Bill Clinton";
+    list = list.grep( "Bill" );
     // list == ["Bill Gates", "Bill Clinton"]
     \endcode
 
@@ -314,9 +315,9 @@ QStringList QStringList::grep(const QRegExp &rx) const
 #endif
 
 /*!
-    Replaces every occurrences of the string \a before in the strings
-    that constitute the string-list with the string \a after. Returns
-    a reference to the string-list.
+    Replaces every occurrence of the string \a before in the strings
+    that constitute the string list with the string \a after. Returns
+    a reference to the string list.
 
     If \a cs is true, the search is case sensitive; otherwise the
     search is case insensitive.
@@ -343,7 +344,7 @@ QStringList& QStringList::gres(const QString &before, const QString &after, QStr
     \overload
 
     Replaces every occurrence of the regexp \a rx in the string
-    with \a after. Returns a reference to the string-list.
+    with \a after. Returns a reference to the string list.
 
     Example:
     \code

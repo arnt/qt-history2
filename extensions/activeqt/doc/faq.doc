@@ -15,30 +15,30 @@
     \section1 Accessing the object API
 
     ActiveQt provides a Qt API to the COM object, and replaces COM
-    datatypes with the Qt equivalent as appropriate. Use the
-    \c dumpdoc example program to get the documentation of the Qt API 
-    for any COM object and it's subobjects.
+    datatypes with Qt equivalents. Use the \c dumpdoc example program
+    to get the documentation of the Qt API for any COM object and it's
+    subobjects.
 
     \section2 Typical error messages
 
     ActiveQt prints error messages to the debug output when it
-    encounters error situations in runtime. Usually you need to run 
-    your program in the debugger to see those messages (ie. in Visual
+    encounters error situations at runtime. Usually you must run 
+    your program in the debugger to see these messages (e.g. in Visual
     Studio's Debug output).
 
     \section3 Requested control could not be instantiated
 
     The control requested in QAxBase::setControl() is not installed
-    on this system, or not accessible for the current user.
+    on this system, or is not accessible for the current user.
 
-    The control might require administrative rights, or a license key.
+    The control might require administrator rights, or a license key.
     If the control is licensed, reimplement initialize() and use the
     COM APIs to call the IClassFactory2 interface functions.
 
     \section3 QAxBase::internalInvoke: No such method
 
     A \c dynamicCall() failed - the function prototype did not
-    match any function available in the API of the object.
+    match any function available in the object's API.
 
     \section3 Error calling IDispatch member: Non-optional parameter 
     missing
@@ -51,7 +51,7 @@
 
     A \c dynamicCall() failed - the function prototype was correct,
     but the paramter at index \c n was of the wrong type and could 
-    not be coerced into the correct type.
+    not be coerced to the correct type.
 
     \section1 Distributing QAxContainer applications
 
@@ -61,7 +61,7 @@
 
     To distribute your application when Qt and QAxContainer are
     shared DLLs provide both DLLs either in the system path, or
-    in the same directory as the application executable itself.
+    in the same directory as the application's executable.
 */
 
 /*! \page qaxserver-faq.html
@@ -129,11 +129,11 @@
     \section3 "_ucm_initialize already defined in ..."
 
     The server exports more than one implementation of a QAxFactory,
-    or the same implementation twice. If you use the default factory,
-    the \c QAXFACTORY_DEFAULT macro must only be used once in the 
-    project.
-    Use a custom QAxFactory implementation and the \c QAXFACTORY_EXPORT
-    macro if the server provides multiple ActiveX controls.
+    or exports the same implementation twice. If you use the default
+    factory, the \c QAXFACTORY_DEFAULT macro must only be used once in
+    the project. Use a custom QAxFactory implementation and the \c
+    QAXFACTORY_EXPORT macro if the server provides multiple ActiveX
+    controls.
 
     \section3 "unresolved external symbol _main"
 
@@ -156,9 +156,9 @@
     }
     \endcode
 
-    Note that even in-process servers need to implement a main function
-    to satisfy the linker, but in that case a dummy implementation is
-    sufficient (the function is never called).
+    Note that even in-process servers must implement a \c main()
+    function to satisfy the linker, although they can use a dummy
+    implementation because it will never be called.
     \code
     void main() 
     {}
@@ -194,17 +194,18 @@
     binary.
 
     If the server runs (e.g. the task manager lists a process), see
-    the following section to debug your server.
+    the following section for information on debugging your server.
 
     \section3 The Object cannot be created
 
     If the server could be built and registered correctly during the build
     process, but the object cannot be initiliazed e.g. by the OLE/COM Object 
-    Viewer application make sure that no DLL the server depends on is
-    missing from the system path (e.g. the Qt DLL!). Use a dependency walker
+    Viewer application, make sure that no DLL the server depends on is
+    missing from the system path (e.g. the Qt DLL). Use a dependency walker
     to view all dependencies of the server binary.
 
-    If the server runs, see the following section to debug your server.
+    If the server runs, see the following section for information on
+    debugging your server.
 
     \section1 Debugging runtime errors
 
@@ -222,11 +223,10 @@
 
     \section1 Distributing QAxServer binaries
 
-    ActiveX servers written with Qt can use Qt either as a shared library,
-    or link Qt statically into the binary. Both ways will produce rather
-    large packages (either the server binary itself becomes large, or
-    you have to ship the Qt DLL), and in general you would probably not
-    use Qt to write small and lightweight ActiveX controls.
+    ActiveX servers written with Qt can use Qt either as a shared
+    library, or have Qt linked statically into the binary. Both ways
+    will produce rather large packages (either the server binary
+    itself becomes large, or you have to ship the Qt DLL).
 
     \section2 Installing stand-alone Servers
 
@@ -281,8 +281,8 @@
 
     The INF files assume a static build of Qt, so no dependencies to other DLLs
     are listed in the INF files. To distribute an ActiveX server depending on
-    DLLs you will have to add the respective dependencies, and provide the
-    library files with the archive.
+    DLLs you must add the dependencies, and provide the library files
+    with the archive.
 
     \section1 Supported and Unsupported ActiveX clients
 
@@ -304,10 +304,11 @@
     \section2 Unsupported Clients
 
     \list
-    \i Visual Studio.NET - the unmanged code wrapper of Microsoft is reported
+    \i Visual Studio.NET - Microsoft's unmanged code wrapper is reported
     to be buggy for C++ controls that don't expose a dual interface.
     \i Borland Builder, Delphi - don't support C++ COM objects that don't 
     expose a dual interface.
-    \i Microsoft Office Applications - requires support for aggregation
+    \i Microsoft Office Applications - these require aggregation
+    support
     \endlist
 */
