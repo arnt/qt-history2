@@ -225,7 +225,9 @@ void QListBoxItem::setCustomHighlighting( bool b )
 /*!
   \fn void QListBoxItem::paint( QPainter *p )
 
-  Implement this function to draw your item.
+  Implement this function to draw your item.  You will
+  need to pass the QPainter that will draw this item as
+  the parameter \a p.
 
   \sa height(), width()
 */
@@ -280,7 +282,8 @@ const QPixmap *QListBoxItem::pixmap() const
 }
 
 /*!
-  Specifies if this item may be selected by the user or not.
+  If \a b is TRUE then this item can be selected by the user.
+  If \a b is FALSE then this item cannot be selected by the user.
 
   \sa isSelectable()
 */
@@ -316,8 +319,9 @@ bool QListBoxItem::isSelectable() const
 /*!
   \fn void QListBoxItem::setText( const QString &text )
 
-  Sets the text of the widget, which is also used for sorting.
-  The text is not shown unless explicitly drawn in paint().
+  Sets the text of the QListBoxItem to \a text, which is 
+  also used for sorting.  The text is not shown unless 
+  explicitly drawn in paint().
 
   \sa text()
 */
@@ -470,7 +474,7 @@ QListBoxPixmap::QListBoxPixmap( QListBox* listbox, const QPixmap &pix, const QSt
 
 /*!
   Constructs a new list box item in the list box showing the pixmap
-  \a pix.
+  \a pix, setting the text to \a text.
 */
 QListBoxPixmap::QListBoxPixmap( const QPixmap & pix, const QString& text)
     : QListBoxItem()
@@ -714,7 +718,8 @@ int QListBoxPixmap::width( const QListBox* lb ) const
 
 /*! \fn void  QListBox::onItem( QListBoxItem *i )
   This signal is emitted when the user moves the mouse cursor onto an
-  item, similar to the QWidget::enterEvent() function.
+  item, similar to the QWidget::enterEvent() function.  \a i is the 
+  QListBoxItem that the mouse has moved on.
 */
 
 // ### bug here too? enter/leave event may noit considered. move the
@@ -796,7 +801,10 @@ QListBox::~QListBox()
   connected to this signal.
 */
 
-/*! \fn void QListBox::pressed( QListBoxItem *item, const QPoint &pnt )
+/*! 
+  \overload
+
+  \fn void QListBox::pressed( QListBoxItem *item, const QPoint &pnt )
 
   This signal is emitted when the user presses any mouse button. If \a
   item is non-null, the cursor is on \a item. If \a item is null, the
@@ -822,7 +830,10 @@ QListBox::~QListBox()
   connected to this signal.
 */
 
-/*! \fn void QListBox::clicked( QListBoxItem *item, const QPoint &pnt )
+/*! 
+  \overload
+
+  \fn void QListBox::clicked( QListBoxItem *item, const QPoint &pnt )
 
   This signal is emitted when the user clicks any mouse button. If \a
   item is non-null, the cursor is on \a item. If \a item is null, the
@@ -919,6 +930,8 @@ QListBox::~QListBox()
 */
 
 /*!
+  \overload
+  
   \fn void QListBox::selectionChanged( QListBoxItem *item )
 
   This signal is emitted when the selection in a Single selection
@@ -930,7 +943,7 @@ QListBox::~QListBox()
 /*! \fn void QListBox::currentChanged( QListBoxItem *item )
 
   This signal is emitted when the user highlights a new current item.
-  The argument is the index of the new item, which is already current.
+  \a item is the new current list box item.
 
   \sa setCurrentItem() currentItem()
 */
@@ -938,12 +951,15 @@ QListBox::~QListBox()
 /*! \fn void QListBox::highlighted( int index )
 
   This signal is emitted when the user highlights a new current item.
-  The argument is the index of the new item, which is already current.
+  \a index is the index of the highlighted item.
 
   \sa selected() currentItem() selectionChanged()
 */
 
-/*! \fn void QListBox::highlighted( QListBoxItem * )
+/*! 
+  \overload
+
+  \fn void QListBox::highlighted( QListBoxItem * )
 
   This signal is emitted when the user highlights a new current item.
   The argument is a pointer to the new current item.
@@ -951,7 +967,10 @@ QListBox::~QListBox()
   \sa selected() currentItem() selectionChanged()
 */
 
-/*! \fn void QListBox::highlighted( const QString &)
+/*! 
+  \overload
+
+  \fn void QListBox::highlighted( const QString &)
 
   This signal is emitted when the user highlights a new current item
   and the new item is a string.	 The argument is the text of the
@@ -963,13 +982,16 @@ QListBox::~QListBox()
 /*! \fn void QListBox::selected( int index )
 
   This signal is emitted when the user double-clicks on an item or
-  presses Return when an item is highlighted.  The argument is the
-  index of the selected item.
+  presses Return when an item is highlighted.  \a index is the index
+  of the selected item.
 
   \sa highlighted() selectionChanged()
 */
 
-/*! \fn void QListBox::selected( QListBoxItem * )
+/*! 
+  \overload
+
+  \fn void QListBox::selected( QListBoxItem * )
 
   This signal is emitted when the user double-clicks on an item or
   presses Return when an item is highlighted.  The argument is a
@@ -978,7 +1000,10 @@ QListBox::~QListBox()
   \sa highlighted() selectionChanged()
 */
 
-/*! \fn void QListBox::selected( const QString &)
+/*! 
+  \overload
+
+  \fn void QListBox::selected( const QString &)
 
   This signal is emitted when the user double-clicks on an item or
   presses Return while an item is highlighted, and the selected item
@@ -1062,6 +1087,8 @@ void QListBox::insertStringList( const QStringList & list, int index )
 
 
 /*!
+  \overload
+
   Inserts the string list \a list into the list at item \a index.
 
   If \a index is negative, \a list is inserted at the end of the list.	If
@@ -1096,6 +1123,8 @@ void QListBox::insertStrList( const QStrList & list, int index )
 
 
 /*!
+  \overload
+
   Inserts the \a numStrings strings of the array \a strings into the
   list at item \a index.
 
@@ -1202,6 +1231,8 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 }
 
 /*!
+  \overload
+    
   Inserts the item \a lbi into the list after the item \a after.
 
   If \a after is NULL, \a lbi is inserted at the beginning.
@@ -1257,6 +1288,8 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 }
 
 /*!
+  \overload
+
   Inserts \a text into the list at \a index.
 
   If \a index is negative, \a text is inserted at the end of the list.
@@ -1270,6 +1303,8 @@ void QListBox::insertItem( const QString &text, int index )
 }
 
 /*!
+  \overload
+  
   Inserts \a pixmap into the list at \a index.
 
   If \a index is negative, \a pixmap is inserted at the end of the list.
@@ -1283,6 +1318,8 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
 }
 
 /*!
+  \overload
+
   Inserts \a pixmap and \a text into the list at \a index.
 
   If \a index is negative, \a pixmap is inserted at the end of the list.
@@ -1349,7 +1386,7 @@ void QListBox::clear()
 
 
 /*!
-  Returns the text at position \e index, or a
+  Returns the text at position \a index, or a
   \link QString::operator!() null string\endlink
   if there is no text at that position.
 
@@ -1380,6 +1417,8 @@ const QPixmap *QListBox::pixmap( int index ) const
 }
 
 /*!
+  \overload
+
   Replaces the item at position \a index with \a text.
 
   The operation is ignored if \a index is out of range.
@@ -1393,6 +1432,8 @@ void QListBox::changeItem( const QString &text, int index )
 }
 
 /*!
+  \overload
+  
   Replaces the item at position \a index with \a pixmap.
 
   The operation is ignored if \a index is out of range.
@@ -1406,6 +1447,8 @@ void QListBox::changeItem( const QPixmap &pixmap, int index )
 }
 
 /*!
+  \overload
+
   Replaces the item at position \a index with \a pixmap and \a text.
 
   The operation is ignored if \a index is out of range.
@@ -1518,7 +1561,10 @@ void QListBox::setCurrentItem( int index )
 
 
 /*! \overload
- */
+
+  Sets the current item to the QListBoxItem \a i.
+
+*/
 void QListBox::setCurrentItem( QListBoxItem * i )
 {
     if ( !i || d->current == i )
@@ -1639,7 +1685,10 @@ bool QListBox::itemVisible( int index )
 }
 
 
-/*!  Returns TRUE if \a item is at least partly visible, or else FALSE.
+/*!  
+  \overload
+
+  Returns TRUE if \a item is at least partly visible, or else FALSE.
 */
 
 bool QListBox::itemVisible( const QListBoxItem * item )
@@ -2257,7 +2306,9 @@ void QListBox::updateItem( int index )
 
 
 /*!
-  Repaints \a i.
+  \overload 
+
+  Repaints the QListBoxItem \a i.
 */
 
 void QListBox::updateItem( QListBoxItem * i )
@@ -2435,6 +2486,8 @@ bool QListBox::isSelected( int i ) const
 
 
 /*!
+  \overload 
+
   Returns TRUE if item \a i is selected. Returns FALSE if it is not
   selected or if there is an error.
 */
@@ -2591,6 +2644,8 @@ void QListBox::setColumnMode( LayoutMode mode )
 
 
 /*!
+  \overload
+
   Sets the column layout mode for this list box to \c FixedNumber and
   sets the number of displayed columns to \a columns.
 
@@ -2617,6 +2672,8 @@ void QListBox::setRowMode( LayoutMode mode )
 }
 
 /*!
+  \overload
+  
   Sets the row layout mode for this list box to \c FixedNumber and sets the
   number of displayed rows to \a rows.
 
@@ -3464,7 +3521,7 @@ int QListBox::inSort( const QListBoxItem * lbi )
 
 /*!
   \obsolete
-
+  \overload
   Using this method is quite inefficient. We suggest to use insertItem()
   for inserting and sort() afterwards.
 
@@ -3749,8 +3806,9 @@ void QListBox::clearInputString()
 /*!
   Finds the first list box item that starts with
   \a text and returns it, or returns 0 of no
-  such item could be found.
-  The search is done as case-insensitive.
+  such item could be found.  If ComparisonFlags are
+  specified in \a compare then these flags are used, otherwise
+  the default is a case-sensitive, exact match search.
 */
 
 QListBoxItem *QListBox::findItem( const QString &text, ComparisonFlags compare ) const
