@@ -23,7 +23,7 @@ dll:unix {
    TARGET_MAP = lib$${TARGET}.map
    QMAKE_LFLAGS += -Wl,--version-script=$${TARGET_MAP}
    TARGETDEPS += $$TARGET_MAP
-   VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl $$QPRO_PWD >$$TARGET_MAP
+   VERSION_MAP.commands = $(QTDIR)/util/scripts/exports.pl -o $$TARGET_MAP $$QPRO_PWD
    VERSION_MAP.target = $$TARGET_MAP
    QMAKE_EXTRA_TARGETS += VERSION_MAP
 }

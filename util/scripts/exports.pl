@@ -2,10 +2,22 @@
 
 use strict;
 
-($#ARGV == -1) && die "$0 directory <export_symbol>\n";
-my $EXPORT_DIRECTORY = $ARGV[0];
-my $EXPORT_SYMBOL = "Q_[^ ]*_EXPORT(?:_[^ ]*)?";
+my $EXPORT_OUT = "-";
+my $EXPORT_DIRECTORY = 0;
+my $EXPORT_SYMBOL = "Q.*_[^ ]*_EXPORT(?:_[^ ]*)?";
+while($#ARGV >= 0) {
+    if($ARGV[0] eq "-o") {
+	shift;
+	$EXPORT_OUT = $ARGV[0];
+    } else {
+	last;
+    }
+    shift;
+}
+($#ARGV != 0) && die "$0 [options] directory <export_symbol>\n";
+$EXPORT_DIRECTORY = $ARGV[0];
 $EXPORT_SYMBOL = $ARGV[1] if($#ARGV == 1);
+
 
 my %CLASSES=();
 my %GLOBALS=();
@@ -117,31 +129,37 @@ sub find_files {
 find_files("$EXPORT_DIRECTORY");
 
 #generate output
-print "VERSION\n";
-print "{\n";
-print "  global:\n";
-print "  extern \"C++\"\n";
-print "  {";
+if("$EXPORT_OUT" eq "-") {
+    open(OUTPUT, ">&STDOUT");
+} else {
+    open(OUTPUT, ">$EXPORT_OUT");
+}
+print OUTPUT "VERSION\n";
+print OUTPUT "{\n";
+print OUTPUT "  global:\n";
+print OUTPUT "  extern \"C++\"\n";
+print OUTPUT "  {";
 my $symbol_count = 0;
 foreach (keys %CLASSES) {
      my @symbols = ("${_}::*", "${_}?virtual?table", "${_}?type_info?node", "${_}?type_info?function",
 		    "vtable?for?${_}", "typeinfo?for?${_}", "non-virtual?thunk?to?${_}::*");
      foreach (@symbols) {
-	 print ";" if($symbol_count);
-	 print "\n     ${_}";
+	 print OUTPUT ";" if($symbol_count);
+	 print OUTPUT "\n     ${_}";
 	 $symbol_count++;
      }
 }
 foreach (keys %GLOBALS) {
-    print ";" if($symbol_count);
-    print "\n     ${_}*";
+    print OUTPUT ";" if($symbol_count);
+    print OUTPUT "\n     ${_}*";
     $symbol_count++;
 }
-print "*" unless($symbol_count);
-print "\n  };\n";
-print "  local:\n";
-print "  extern \"C++\"\n";
-print "  {\n";
-print "    *\n";
-print "  };\n";
-print "};\n";
+print OUTPUT "\n     *" unless($symbol_count);
+print OUTPUT "\n  };\n";
+print OUTPUT "  local:\n";
+print OUTPUT "  extern \"C++\"\n";
+print OUTPUT "  {\n";
+print OUTPUT "    *\n";
+print OUTPUT "  };\n";
+print OUTPUT "};\n";
+close(OUTPUT);
