@@ -103,7 +103,8 @@ int main( int argc, char** argv )
     bool getRes = FALSE;
 #endif
     QStringList files;
-    for(int i = 1; i < argc; i++) {
+    int i;
+    for( i = 1; i < argc; i++ ) {
 	//options
 	if(!strcmp(argv[i], "-o")) {
 	    if ( ++i < argc )
