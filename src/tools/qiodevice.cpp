@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#41 $
 **
 ** Implementation of QIODevice class
 **
@@ -414,7 +414,13 @@ bool QIODevice::at( int pos )
 
 bool QIODevice::atEnd() const
 {
-    return at() == (int)size();
+    if ( isSequentialAccess() ) {
+	int c = getch();
+	bool result = c < 0;
+	ungetch(c);
+	return result;
+    } else {
+	return at() == (int)size();
 }
 
 /*!
