@@ -19,7 +19,7 @@ int main( int argc, char **argv )
 
     RangeControls rangecontrols;
     rangecontrols.resize( 500, 300 );
-    rangecontrols.setCaption( "Qt Example - Range Control Widgets" );
+    rangecontrols.setWindowTitle( "Qt Example - Range Control Widgets" );
     a.setMainWidget( &rangecontrols );
     rangecontrols.show();
 
