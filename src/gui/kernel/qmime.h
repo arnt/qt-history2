@@ -17,6 +17,10 @@
 #include "qobject.h"
 #include "qvariant.h"
 
+#if defined(Q_WS_WIN)
+    #include <objidl.h>
+#endif
+
 class QUrl;
 class QString;
 class QByteArray;
