@@ -1,3 +1,4 @@
+//depot/qt/main/examples/forever/forever.cpp#18 - integrate change 112192 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
@@ -29,17 +30,19 @@
 Forever::Forever( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-//     for (int a=0; a<numColors; a++) {
-// 	colors[a] = QColor( rand()&255,
-// 			    rand()&255,
-// 			    rand()&255 );
-//     }
-//     rectangles = 0;
-//     startTimer( 0 );				// run continuous timer
-//     QTimer * counter = new QTimer( this );
-//     connect( counter, SIGNAL(timeout()),
-// 	     this, SLOT(updateCaption()) );
-//     counter->start( 1000 );
+    setAttribute(WA_NoBackground);
+    setAttribute(WA_PaintOnScreen);
+    for (int a=0; a<numColors; a++) {
+	colors[a] = QColor( rand()&255,
+			    rand()&255,
+			    rand()&255 );
+    }
+    rectangles = 0;
+    startTimer( 0 );				// run continuous timer
+    QTimer * counter = new QTimer( this );
+    connect( counter, SIGNAL(timeout()),
+	     this, SLOT(updateCaption()) );
+    counter->start( 1000 );
 }
 
 
@@ -58,7 +61,6 @@ void Forever::updateCaption()
 
 void Forever::paintEvent( QPaintEvent * )
 {
-    return;
     QPainter paint( this );			// painter object
     int w = width();
     int h = height();
@@ -80,7 +82,6 @@ void Forever::paintEvent( QPaintEvent * )
 
 void Forever::timerEvent( QTimerEvent * )
 {
-    return;
     for ( int i=0; i<100; i++ ) {
 	repaint( FALSE );			// repaint, don't erase
 	rectangles++;
@@ -96,10 +97,9 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );		// create application object
     Forever always;				// create widget
-//     always.resize( 400, 250 );			// start up with size 400x250
-//     a.setMainWidget( &always );			// set as main widget
-//     always.setCaption("Qt Example - Forever");
-    always.setAttribute(QWidget::WA_NoSystemBackground);
+    always.resize( 400, 250 );			// start up with size 400x250
+    a.setMainWidget( &always );			// set as main widget
+    always.setCaption("Qt Example - Forever");
     always.show();				// show widget
     return a.exec();				// run event loop
 }

@@ -1,3 +1,4 @@
+//depot/qt/main/examples/buttongroups/buttongroups.h#12 - integrate change 112192 (text)
 /****************************************************************************
 **
 ** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
@@ -29,8 +30,7 @@ protected:
     QCheckBox *state;
     QRadioButton *rb21, *rb22, *rb23;
 
-protected slots:
-    void buttonClicked();
+protected slots:    
     void slotChangeGrp3State();
 
 };
