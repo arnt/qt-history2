@@ -366,24 +366,27 @@ bool QInputContext::endComposition( QWidget *fw )
 #ifdef Q_IME_DEBUG
     qDebug("endComposition!");
 #endif
+    if( imePosition == -1 )
+	return result;
 
-    if ( !fw ) {
-	fw = qApp->focusWidget();
-	if ( fw && imePosition != -1 ) {
-	    QIMEvent e( QEvent::IMEnd, QString::null, -1 );
-	    result = qt_sendSpontaneousEvent( fw, &e );
-	}
-    } else if ( imeComposition && !imeComposition->isNull() ) {
-	QIMEvent e( QEvent::IMEnd, QString::null, -1 );
-	QApplication::sendEvent( fw, &e );
-    
+    if ( imeComposition )
+	*imeComposition = QString::null;
+    imePosition = -1;
+
+    if ( fw ) {
 	HIMC imc = getContext( fw->winId() );
 	notifyIME( imc, NI_COMPOSITIONSTR, CPS_CANCEL, 0 );
 	releaseContext( fw->winId(), imc );
     }
-    if ( imeComposition )
-	*imeComposition = QString::null;
-    imePosition = -1;
+
+    if ( !fw )
+	fw = qApp->focusWidget();
+
+    if ( fw ) {
+	qDebug("sending end event to focuswidget");
+	QIMEvent e( QEvent::IMEnd, QString::null, -1 );
+	result = qt_sendSpontaneousEvent( fw, &e );
+    }
 
     return result;
 }
@@ -422,10 +425,14 @@ bool QInputContext::composition( LPARAM lParam )
 	str += "CURSORPOS ";
     if ( lParam & GCS_COMPCLAUSE )
 	str += "COMPCLAUSE ";
-    qDebug( "composition, lParam=%s", str.latin1() );
+    qDebug( "composition, lParam=%s imePosition=%d", str.latin1(), imePosition );
 #endif
 
     bool result = TRUE;
+
+    if( !lParam )
+	// bogus event
+	return TRUE;
 
     QWidget *fw = qApp->focusWidget();
     if ( fw ) {
@@ -451,13 +458,13 @@ bool QInputContext::composition( LPARAM lParam )
 	    if ( selLength != 0 )
 		imePosition = selStart;
 
-#ifdef Q_IME_DEBUG
-	    qDebug("imecomposition: cursor pos at %d, str=%x", imePosition, str[0].unicode() );
-#endif
 	    QIMComposeEvent e( QEvent::IMCompose, *imeComposition, imePosition, selLength );
 	    result = qt_sendSpontaneousEvent( fw, &e );
 	}
         releaseContext( fw->winId(), imc );
     }
+#ifdef Q_IME_DEBUG
+    qDebug("imecomposition: cursor pos at %d, str=%x", imePosition, str[0].unicode() );
+#endif
     return result;
 }
