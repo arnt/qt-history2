@@ -8,9 +8,6 @@ list to be complete:
   works on Windows NT.  Rotation of all other drawing primitives works
   on both systems.
 
-* QPixmap::setClipMask() does not work on Windows 95.  Any workaround
-  is likely to be much slower than on Windows NT.
-
 There are also glitches in two of the example programs:
 
 * The timestamp example does not work on Windows; it uses stdout and
