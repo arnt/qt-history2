@@ -225,7 +225,8 @@ int QFontMetrics::width( QChar ch ) const
 	 d->engineData && d->engineData->widthCache[ uc ] )
 	return d->engineData->widthCache[ uc ];
 
-    if ( ch.category() == QChar::Mark_NonSpacing ) return 0;
+    if ( ::category( ch ) == QChar::Mark_NonSpacing )
+	return 0;
 
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
     int width = memorymanager->lockGlyphMetrics( engine->handle(), ch.unicode() )->advance;
