@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qlibrary.h"
+#include "quuiddefs.h"
 #include "qdict.h"
 #include "qdir.h"
 #include "qstringlist.h"
