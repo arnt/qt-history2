@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#85 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#86 $
 **
 ** Implementation of QTextStream class
 **
@@ -718,7 +718,7 @@ QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
 	    doUnicodeHeader = FALSE;
 	    ts_putc( QChar::byteOrderMark );
 	}
-	dev->writeBlock( (char*)p, 2*sizeof(QChar) );
+	dev->writeBlock( (char*)p, sizeof(QChar)*len );
     } else {
     for (uint i=0; i<len; i++)
 	ts_putc( p[i] );
