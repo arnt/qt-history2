@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#103 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#102 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#103 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -880,9 +880,12 @@ void QListBox::setCurrentItem( int index )
     current	   = index;
     updateItem( oldCurrent );
     updateItem( current, FALSE ); // Do not clear, current marker covers item
+    QString tmp = 0;
+    if ( item( currentItem() ) )
+	tmp = item( currentItem() )->text();
     emit highlighted( current );
-    if ( item( currentItem() ) && item( currentItem() )->text() )
-	emit highlighted( item( currentItem() )->text() );
+    if ( !tmp.isNull() )
+	emit highlighted( tmp );
 }
 
 /*!
@@ -1266,9 +1269,11 @@ void QListBox::mouseDoubleClickEvent( QMouseEvent *e )
 {
     mouseReleaseEvent( e );
     if ( currentItem() >= 0 ) {
+	ASSERT(item( currentItem() ));
+	QString tmp = item( currentItem() )->text();
 	emit selected( currentItem());
-	if ( item( currentItem() )->text() )
-	    emit selected( item( currentItem() )->text() );
+	if ( !tmp.isNull() )
+	    emit selected( tmp );
     }
 }
 
