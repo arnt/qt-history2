@@ -44,7 +44,8 @@ class QWSKbPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSKbPrivate( QWSKeyboardHandler * ) {
+    QWSKbPrivate( QWSKeyboardHandler *h ) {
+	handler = h;
 	arTimer = new QTimer( this );
 	connect( arTimer, SIGNAL(timeout()), SLOT(autoRepeat()) );
 	repeatdelay = 400;
@@ -55,7 +56,7 @@ public:
 	unicode = uni;
 	keycode = code;
 	modifier = mod;
-	arTimer->start( repeatperiod, TRUE );
+	arTimer->start( repeatdelay, TRUE );
     }
     void endAutoRepeat() {
 	arTimer->stop();
@@ -65,7 +66,7 @@ private slots:
     void autoRepeat() {
 	handler->processKeyEvent( unicode, keycode, modifier, FALSE, TRUE );
 	handler->processKeyEvent( unicode, keycode, modifier, TRUE, TRUE );
-	arTimer->start( repeatdelay, TRUE );
+	arTimer->start( repeatperiod, TRUE );
     }
 
 private:
