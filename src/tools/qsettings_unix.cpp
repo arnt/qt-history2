@@ -43,20 +43,94 @@
 
 /*!
   \class QSettings qsettings.h
-  \brief The QSettings class provides persistent application settings.
+  \brief The QSettings class provides persistent platform-independent application settings.
 
   \ingroup misc
 
-  QSettings provides a platform independent way to load and save settings
-  for applications.
+  On Unix systems, QSettings uses text files to store settings. On
+  Windows systems, QSettings uses the registry.
 
-  On Unix systems, QSettings uses small files to store settings.  On Windows
-  systems, QSettings uses the registry.
+  Each setting comprises an identifying key and the data associated with
+  the key. A key is a unicode string which consists of \i two or more
+  subkeys. A subkey is a slash, '/', followed by one or more unicode
+  characters (excluding slashes, newlines, carriage returns and equals,
+  '=', signs). The associated data, called the entry, may be a boolean,
+  an integer, a double, a string or a list of strings.
 
-  Data is accessed through keys.  A key is a Unicode string, similar to UNIX
-  file paths.  A key must begin with a slash, must not end with a slash, must
-  not contain "//" and must contain at least two slashes (including the leading
-  slash).
+    Example settings:
+    \code
+    /MyCompany/MyApplication/background color
+    /MyCompany/MyApplication/foreground color
+    /MyCompany/MyApplication/font/name
+    /MyCompany/MyApplication/font/size
+    /MyCompany/MyApplication/recent files/1
+    /MyCompany/MyApplication/recent files/2
+    /MyCompany/MyApplication/recent files/3
+    \endcode
+
+    A typical usage pattern for application startup:
+    \code
+    QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
+    settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share" );
+    // Use default values if the keys don't exist
+    QString fontName = settings.readEntry( "/MyApplication/font/name", "Arial" );
+    double fontSize = settings.readDoubleEntry( "/MyApplication/font/size", 10.0 );
+    // ...
+    \endcode
+ 
+    A typical usage pattern for application exit or 'save preferences':
+    \code
+    QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
+    settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share" );
+    settings.writeEntry( "/MyApplication/font/name", "Ariel" );
+    settings.writeEntry( "/MyApplication/font/size", 12.0 );
+    // ...
+    \endcode
+
+    You can get a list of entry-holding keys by calling entryList(), and
+    a list of key-holding keys using subkeyList().
+
+    \code
+    QStringList keys = entryList( "/MyApplication" );
+    \endcode
+    \c keys contains 'background color' and 'foreground color'.
+
+    \code
+    QStringList keys = entryList( "/MyApplication/recent files" );
+    \endcode
+    \c keys contains '1', '2' and '3'.
+
+    \code
+    QStringList subkeys = subkeyList( "/MyApplication" );
+    \endcode
+    \c subkeys contains 'font' and 'recent files'
+
+    \code
+    QStringList subkeys = subkeyList( "/MyApplication/recent files" );
+    \endcode
+    \c subkeys is empty. 
+
+    <b>Notes for Unix Applications</b>
+
+    There is no universally accepted place for storing application
+    settings under Unix. In the examples the settings file will be
+    searched for in the following directories:
+    <ul>
+    <li>$QTDIR/etc
+    <li>/opt/MyCompany/share/MyApplication
+    <li>$HOME/.qt
+    </ul>
+    The settings file will be called 'myapplicationrc'. Settings will be
+    read from each file in turn with settings from later files
+    overriding settings from earlier files, the final values being the
+    ones returned. Files for which the user does not have access rights
+    will be skipped.
+
+    If you wish to use a different search path call insertSearchPath()
+    as often as necessary to add your preferred paths. Call
+    removeSearchPath() to remove any unwanted paths. 
 */
 
 
@@ -335,54 +409,56 @@ QDateTime QSettingsPrivate::modificationTime()
 
 
 /*!
-  Inserts \a path into the settings search path. The semantic of \a path depends
-  on the system \a s:
+  Inserts \a path into the settings search path. The semantics of \a
+  path depends on the system \a s:
 
-  When \a s is \e Unix, the search path list will be used when trying to determine a
-  suitable filename for reading and writing settings files. By default, there
-  are two entries in the search path:
-
-  <ul>
-  <li> <i>\<prefix\></i>/lib/qt/settings/ - where <i>\<prefix\></i> is the
-  directory where Qt was installed.
-  <li> <i>\<home\></i>/.qt/ - where <i>\<home\></i> is the user's home
-  directory.
-  </ul>
-
-  All insertions into the search path will go before <i>\<home\></i>/.qt/.  For
-  example:
+  When \a s is \e Windows, the search path list will be used as the
+  first subfolder of the "Software" folder in the registry. For example:
 
   \code
   QSettings settings;
-  settings.insertSearchPath("/opt/mysoft/share/cfg");
-  settings.insertSearchPath("/opt/mysoft/share/myapp/cfg");
-  ...
+  settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
+  settings.writeEntry( "/MyApplication/Tip of the day", TRUE );
   \endcode
-
-  Will result in a list of:
-
+    This will try to write the subkey "Tip of the day" into the \i first
+    of the registry folders listed below that is found and for which the
+    user has write permission:
   <ul>
-  <li><i>\<prefix\></i>/lib/qt/settings
-  <li>/opt/mysoft/share/cfg
-  <li>/opt/mysoft/share/myapp/cfg
-  <li><i>\<home\></i>/.qt
+  <li>HKEY_LOCAL_MACHINE/Software/MyCompany/MyApplication
+  <li>HKEY_LOCAL_MACHINE/Software/MyApplication
+  <li>HKEY_CURRENT_USER/Software/MyCompany/MyApplication
+  <li>HKEY_CURRENT_USER/Software/MyApplication
   </ul>
 
-  When \a s is \e Windows, the search path list will be used as the first subfolder
-  of the "Software" folder in the registry. For example:
+  When \a s is \e Unix, the search path list will be used when trying to
+  determine a suitable filename for reading and writing settings files.
+  By default, there are two entries in the search path:
 
+  <ul>
+  <li>$QTDIR/etc - where $QTDIR is the directory where Qt was installed.
+  <li>$HOME/.qt/ - where $HOME is the user's home directory.
+  </ul>
+
+  All insertions into the search path will go before $HOME/.qt/.  
+  For example:
   \code
   QSettings settings;
-  settings.insertSearchPath( QSettings::Windows, "/FooSoft" );
-
-  settings.writeEntry( "/MyProgram/TipOfDay", TRUE );
+  settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share/etc" );
+  settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share/MyApplication/etc" );
+  // ...
   \endcode
+  Will result in a search path of:
+  <ul>
+  <li>$QTDIR/etc
+  <li>/opt/MyCompany/share/etc
+  <li>/opt/MyCompany/share/MyApplication/etc
+  <li>$HOME/.qt
+  </ul>
 
-  will try to write the entry "TipOfDay" into the registry folders
-  HKEY_LOCAL_MACHINE/Software/FooSoft/MyProgram
-  HKEY_LOCAL_MACHINE/Software/MyProgram
-  HKEY_CURRENT_USER/Software/FooSoft/MyProgram
-  HKEY_CURRENT_USER/Software/MyProgram
+  The file searched for will be 'myapplicationrc'.
+
+  \sa removeSearchPath()
+
 */
 void QSettings::insertSearchPath( System s, const QString &path)
 {
@@ -398,8 +474,8 @@ void QSettings::insertSearchPath( System s, const QString &path)
 
 
 /*!
-  Removes all occurrences or \a path from the settings search path for \a s.
-  Note that the default search paths cannot be removed.
+  Removes all occurrences of \a path from the settings search path for
+  system \a s. Note that the default search paths cannot be removed.
 
   \sa insertSearchPath()
 */
@@ -427,10 +503,9 @@ QSettings::QSettings()
 }
 
 /*!
-  Destroys the settings object.  All modifications made to the object
-  will automatically be written to disk by calling sync().
+  Destroys the settings object.  All modifications made to the settings
+  will automatically be saved.
 
-  \sa sync()
 */
 QSettings::~QSettings()
 {
@@ -442,6 +517,9 @@ QSettings::~QSettings()
 
 
 /*!
+
+    \internal 
+
   Writes all modifications to the settings to disk.  If any errors are
   encountered, this function returns FALSE, otherwise it will return TRUE.
 */
@@ -538,10 +616,10 @@ bool QSettings::sync()
 /*!
   Reads the entry specified by \a key, and returns a bool, or \a def
   if the entry couldn't be read.
-  If \a ok non-null, *ok is set to TRUE if there are no errors, and
-  FALSE if the entry could not be read.
+  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
+  otherwise.
 
-  \sa writeEntry(), removeEntry()
+  \sa readEntry(), readNumEntry(), readDoubleEntry(), writeEntry(), removeEntry()
 */
 bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 {
@@ -564,10 +642,10 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 /*!
   Reads the entry specified by \a key, and returns a double, or \a def
   if the entry couldn't be read.
-  If \a ok non-null, *ok is set to TRUE if there are no errors, and
-  FALSE if the entry could not be read.
+  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
+  otherwise.
 
-  \sa writeEntry(), removeEntry()
+  \sa readEntry(), readNumEntry(), readBoolEntry(), writeEntry(), removeEntry()
 */
 double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 {
@@ -577,12 +655,12 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 
 
 /*!
-  Reads the entry specified by \a key, and returns a integer, or \a def
+  Reads the entry specified by \a key, and returns an integer, or \a def
   if the entry couldn't be read.
-  If \a ok non-null, *ok is set to TRUE if there are no errors, and
-  FALSE if the entry could not be read.
+  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
+  otherwise.
 
-  \sa writeEntry(), removeEntry()
+  \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry()
 */
 int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 {
@@ -594,10 +672,10 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 /*!
   Reads the entry specified by \a key, and returns a QString, or \a def
   if the entry couldn't be read.
-  If \a ok non-null, *ok is set to TRUE if there are no errors, and
-  FALSE if the entry could not be read.
+  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
+  otherwise.
 
-  \sa writeEntry(), removeEntry()
+  \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry()
 */
 QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 {
@@ -655,12 +733,13 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 
 
 /*!
-  Reads the string entry specified by \a key.  The \a separator is used to
-  create a QStringList by calling QStringList::split (\a separator, data).
-  If \a ok non-null, *ok is set to TRUE if there are no errors, and
-  FALSE if the entry could not be read.
+  Reads the entry specified by \a key as a string.  The \a separator is
+  used to create a QStringList by calling QStringList::split(\a
+  separator, entry).
+  If \a ok is non-null, *ok is set to TRUE if the key was read, FALSE
+  otherwise.
 
-  \sa writeEntry(), removeEntry(), QStringList::split()
+  \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
 */
 QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok )
 {
@@ -673,13 +752,14 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
 
 
 /*!
-  Writes the entry specified by \a key with the boolean \a value, replacing
-  any previous setting.
+    Writes the boolean entry \a value into key \a key. The \a key is
+    created if it doesn't exist. Any previous value is overwritten by \a
+    value.
 
-  If an error occurs, this functions returns FALSE and the object is left
-  unchanged.
+    If an error occurs the settings are left unchanged and FALSE is
+    returned; otherwise TRUE is returned. 
 
-  \sa readEntry(), removeEntry()
+  \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
 bool QSettings::writeEntry(const QString &key, bool value)
 {
@@ -689,13 +769,14 @@ bool QSettings::writeEntry(const QString &key, bool value)
 
 
 /*!
-  Writes the entry specified by \a key with the double \a value, replacing
-  any previous setting.
+    Writes the double entry \a value into key \a key. The \a key is
+    created if it doesn't exist. Any previous value is overwritten by \a
+    value.
 
-  If an error occurs, this functions returns FALSE and the object is left
-  unchanged.
+    If an error occurs the settings are left unchanged and FALSE is
+    returned; otherwise TRUE is returned. 
 
-  \sa readEntry(), removeEntry()
+  \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
 bool QSettings::writeEntry(const QString &key, double value)
 {
@@ -705,13 +786,14 @@ bool QSettings::writeEntry(const QString &key, double value)
 
 
 /*!
-  Writes the entry specified by \a key with the integer \a value, replacing
-  any previous setting.
+    Writes the integer entry \a value into key \a key. The \a key is
+    created if it doesn't exist. Any previous value is overwritten by \a
+    value.
 
-  If an error occurs, this functions returns FALSE and the object is left
-  unchanged.
+    If an error occurs the settings are left unchanged and FALSE is
+    returned; otherwise TRUE is returned. 
 
-  \sa readEntry(), removeEntry()
+  \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
 bool QSettings::writeEntry(const QString &key, int value)
 {
@@ -720,7 +802,9 @@ bool QSettings::writeEntry(const QString &key, int value)
 }
 
 
-/*!
+/*! 
+    \internal
+
   Writes the entry specified by \a key with the string-literal \a value,
   replacing any previous setting.  If \a value is zero-length or null, the
   entry is replaced by an empty setting.
@@ -741,14 +825,15 @@ bool QSettings::writeEntry(const QString &key, const char *value)
 
 
 /*!
-  Writes the entry specified by \a key with the string \a value, replacing
-  any previous setting.  If \a value is zero-length or null, the entry is
-  replaced by an empty setting.
+    Writes the string entry \a value into key \a key. The \a key is
+    created if it doesn't exist. Any previous value is overwritten by \a
+    value. If \a value is an empty string or a null string the key's
+    value will be an empty string.
 
-  If an error occurs, this functions returns FALSE and the object is left
-  unchanged.
+    If an error occurs the settings are left unchanged and FALSE is
+    returned; otherwise TRUE is returned. 
 
-  \sa readEntry(), removeEntry()
+  \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
 bool QSettings::writeEntry(const QString &key, const QString &value)
 {
@@ -802,14 +887,17 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 
 
 /*!
-  Writes the entry specified by \a key with the string-list \a value,
-  replacing any previous setting.  If \a value is empty, the entry is
-  replaced by an empty setting.
+    Writes the string list entry \a value into key \a key. The \a key is
+    created if it doesn't exist. Any previous value is overwritten by \a
+    value. The list is stored as a sequence of strings separated by \a
+    separator, so none of the strings in the list should contain the
+    separator. If the list is empty the key's value will be an empty
+    string.
 
-  If an error occurs, this functions returns FALSE and the object is left
-  unchanged.
+    If an error occurs the settings are left unchanged and FALSE is
+    returned; otherwise TRUE is returned. 
 
-  \sa readEntry(), removeEntry()
+  \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
 bool QSettings::writeEntry(const QString &key, const QStringList &value,
 			   const QChar &separator)
@@ -820,8 +908,9 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value,
 
 
 /*!
-  Removes the entry specified by \a key.  This function returns FALSE if
-  an error occured and returns TRUE otherwise.
+  Removes the entry specified by \a key.  
+  
+    Returns TRUE if the entry existed and was removed, FALSE otherwise.
 
   \sa readEntry(), writeEntry()
 */
@@ -875,19 +964,21 @@ bool QSettings::removeEntry(const QString &key)
 
 
 /*!
-  Returns a list of entries under \a key. For example, when this function
-  is called with "/MyProgram" as  \a key, and these keys are present:
+  Returns a list of the keys which contain entries under \a key. Does \i
+  not return any keys that contain keys.
 
-  <ul>
-  <li>/MyProgram/colors
-  <li>/MyProgram/font
-  <li>/MyProgram/recentfiles/one
-  <li>/MyProgram/recentfiles/two
-  <li>/MyProgram/recentfiles/three
-  </ul>
-
-  This function will return a list with \e colors and \e font in the list,
-  excluding the subkey \e recentfiles.
+    Example settings:
+    \code
+    /MyCompany/MyApplication/background color
+    /MyCompany/MyApplication/foreground color
+    /MyCompany/MyApplication/font/name
+    /MyCompany/MyApplication/font/size
+    \endcode
+    \code
+    QStringList keys = entryList( "/MyApplication" );
+    \endcode
+    \c keys contains 'background color' and 'foreground color'. It does
+    not contain 'font' because this key contains keys not entries.
   
   \sa subkeyList()
 */
@@ -955,19 +1046,25 @@ QStringList QSettings::entryList(const QString &key) const
 
 
 /*!
-  Returns a list of subkeys under \a key.  For example, when this function
-  is called with "/MyProgram" as  \a key, and these keys are present:
+  Returns a list of the keys which contain keys under \a key. Does \i
+  not return any keys that contain entries.
 
-  <ul>
-  <li>/MyProgram/colors
-  <li>/MyProgram/font
-  <li>/MyProgram/recentfiles/one
-  <li>/MyProgram/recentfiles/two
-  <li>/MyProgram/recentfiles/three
-  </ul>
-
-  this function will return a list with \e recentfiles in the list,
-  excluding the entries \e colors and \e font.
+    Example settings:
+    \code
+    /MyCompany/MyApplication/background color
+    /MyCompany/MyApplication/foreground color
+    /MyCompany/MyApplication/font/name
+    /MyCompany/MyApplication/font/size
+    /MyCompany/MyApplication/recent files/1
+    /MyCompany/MyApplication/recent files/2
+    /MyCompany/MyApplication/recent files/3
+    \endcode
+    \code
+    QStringList keys = subkeyList( "/MyApplication" );
+    \endcode
+    \c keys contains 'font' and 'recent files'. It does not contain
+    'background color' or 'foreground color' because they are keys which
+    contain entries not keys.
 
   \sa entryList()
 */
@@ -1035,6 +1132,8 @@ QStringList QSettings::subkeyList(const QString &key) const
 
 
 /*!
+    \internal
+
   This function returns the time of last modification for \a key.
 */
 QDateTime QSettings::lastModficationTime(const QString &key)
