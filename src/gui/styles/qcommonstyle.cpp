@@ -2874,55 +2874,55 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
     switch (standardPixmap) {
     case SP_ToolBarHorizontalExtensionButton:
         if (QApplication::layoutDirection() == Qt::RightToLeft) {
-            QImage im((const char **)tb_extension_arrow_h_xpm);
+            QImage im(tb_extension_arrow_h_xpm);
             im = im.mirror(true, false);
             return QPixmap(im);
         }
-        return QPixmap((const char **)tb_extension_arrow_h_xpm);
+        return QPixmap(tb_extension_arrow_h_xpm);
     case SP_ToolBarVerticalExtensionButton:
-        return QPixmap((const char **)tb_extension_arrow_v_xpm);
+        return QPixmap(tb_extension_arrow_v_xpm);
     case SP_FileDialogStart:
-        return QPixmap((const char **)filedialog_start_xpm);
+        return QPixmap(filedialog_start_xpm);
     case SP_FileDialogEnd:
-        return QPixmap((const char **)filedialog_end_xpm);
+        return QPixmap(filedialog_end_xpm);
     case SP_FileDialogToParent:
-        return QPixmap((const char **)filedialog_toparent_xpm);
+        return QPixmap(filedialog_toparent_xpm);
     case SP_FileDialogNewFolder:
-        return QPixmap((const char **)filedialog_newfolder_xpm);
+        return QPixmap(filedialog_newfolder_xpm);
     case SP_FileDialogDetailedView:
-        return QPixmap((const char **)filedialog_detailedview_xpm);
+        return QPixmap(filedialog_detailedview_xpm);
     case SP_FileDialogInfoView:
-        return QPixmap((const char **)filedialog_previewinfoview_xpm);
+        return QPixmap(filedialog_previewinfoview_xpm);
     case SP_FileDialogContentsView:
-        return QPixmap((const char **)filedialog_previewcontentsview_xpm);
+        return QPixmap(filedialog_previewcontentsview_xpm);
     case SP_FileDialogListView:
-        return QPixmap((const char **)filedialog_mclistview_xpm);
+        return QPixmap(filedialog_mclistview_xpm);
     case SP_FileDialogBack:
-        return QPixmap((const char **)filedialog_back_xpm);
+        return QPixmap(filedialog_back_xpm);
     case SP_DriveHDIcon:
-        return QPixmap((const char **)drive_hd_xpm);
+        return QPixmap(drive_hd_xpm);
     case SP_DriveFDIcon:
     case SP_TrashIcon:
     case SP_DriveNetIcon:
         break; // Grab from Windows
     case SP_DesktopIcon:
-        return QPixmap((const char **)commonstyle_desktop16_xpm);
+        return QPixmap(commonstyle_desktop16_xpm);
     case SP_ComputerIcon:
-        return QPixmap((const char **)commonstyle_computer16_xpm);
+        return QPixmap(commonstyle_computer16_xpm);
     case SP_DriveCDIcon:
-        return QPixmap((const char **)commonstyle_cdr16_xpm);
+        return QPixmap(commonstyle_cdr16_xpm);
     case SP_DriveDVDIcon:
-        return QPixmap((const char **)commonstyle_dvd16_xpm);
+        return QPixmap(commonstyle_dvd16_xpm);
     case SP_DirOpenIcon:
-        return QPixmap((const char **)commonstyle_diropen16_xpm);
+        return QPixmap(commonstyle_diropen16_xpm);
     case SP_DirClosedIcon:
-        return QPixmap((const char **)commonstyle_dirclosed16_xpm);
+        return QPixmap(commonstyle_dirclosed16_xpm);
     case SP_DirLinkIcon:
-        return QPixmap((const char **)dir_link_xpm);
+        return QPixmap(dir_link_xpm);
     case SP_FileIcon:
-        return QPixmap((const char **)file_xpm);
+        return QPixmap(file_xpm);
     case SP_FileLinkIcon:
-        return QPixmap((const char **)file_link_xpm);
+        return QPixmap(file_link_xpm);
     default:
         break;
     }
