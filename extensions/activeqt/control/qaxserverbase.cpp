@@ -195,6 +195,8 @@ public:
 	pUnk->QueryInterface( iid, (void**)&checkImpl );
 	if ( !checkImpl )
 	    return CONNECT_E_CANNOTCONNECT;
+	checkImpl->Release();
+
 	CONNECTDATA cd;
 	cd.dwCookie = connections.count()+1;
 	cd.pUnk = pUnk;
