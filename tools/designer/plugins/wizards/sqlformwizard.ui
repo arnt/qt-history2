@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>679</width>
-            <height>426</height>
+            <width>627</width>
+            <height>402</height>
         </rect>
     </property>
     <property name="caption">
@@ -1270,60 +1270,12 @@
                 <cstring>unnamed</cstring>
             </property>
             <property name="margin">
-                <number>0</number>
+                <number>11</number>
             </property>
             <property name="spacing">
                 <number>6</number>
             </property>
-            <widget class="QGroupBox" row="2" column="1" rowspan="1" colspan="2">
-                <property name="name">
-                    <cstring>GroupBox4</cstring>
-                </property>
-                <property name="title">
-                    <string>Editing</string>
-                </property>
-                <grid>
-                    <property name="margin">
-                        <number>11</number>
-                    </property>
-                    <property name="spacing">
-                        <number>6</number>
-                    </property>
-                    <widget class="QCheckBox" row="0" column="0">
-                        <property name="name">
-                            <cstring>checkBoxConfirmInserts</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Confirm &amp;Inserts</string>
-                        </property>
-                    </widget>
-                    <widget class="QCheckBox" row="1" column="0">
-                        <property name="name">
-                            <cstring>checkBoxConfirmUpdates</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Confirm &amp;Updates</string>
-                        </property>
-                    </widget>
-                    <widget class="QCheckBox" row="3" column="0">
-                        <property name="name">
-                            <cstring>checkBoxConfirmCancels</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Confirm &amp;Cancels</string>
-                        </property>
-                    </widget>
-                    <widget class="QCheckBox" row="2" column="0">
-                        <property name="name">
-                            <cstring>checkBoxConfirmDeletes</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Confirm &amp;Deletes</string>
-                        </property>
-                    </widget>
-                </grid>
-            </widget>
-            <widget class="QLabel" row="0" column="0" rowspan="5" colspan="1">
+            <widget class="QLabel" row="0" column="0" rowspan="4" colspan="1">
                 <property name="name">
                     <cstring>TextLabel4_2_2_2_2</cstring>
                 </property>
@@ -1557,7 +1509,7 @@
                     <string>.......A nice Pixmap here......</string>
                 </property>
             </widget>
-            <widget class="QLabel" row="0" column="1" rowspan="1" colspan="2">
+            <widget class="QLabel" row="0" column="1">
                 <property name="name">
                     <cstring>TextLabel1_2_2_2</cstring>
                 </property>
@@ -1576,23 +1528,7 @@
                 <property name="hAlign" stdset="0">
                 </property>
             </widget>
-            <widget class="QCheckBox" row="1" column="1">
-                <property name="name">
-                    <cstring>checkBoxReadOnly</cstring>
-                </property>
-                <property name="text">
-                    <string>&amp;Read-Only</string>
-                </property>
-            </widget>
-            <widget class="QCheckBox" row="3" column="1" rowspan="1" colspan="2">
-                <property name="name">
-                    <cstring>checkBoxSorting</cstring>
-                </property>
-                <property name="text">
-                    <string>Allow column &amp;sorting</string>
-                </property>
-            </widget>
-            <spacer row="4" column="2">
+            <spacer row="3" column="1">
                 <property name="name" stdset="0">
                     <cstring>Spacer1_7</cstring>
                 </property>
@@ -1609,6 +1545,86 @@
                     </size>
                 </property>
             </spacer>
+            <widget class="QGroupBox" row="1" column="1">
+                <property name="name">
+                    <cstring>GroupBox5</cstring>
+                </property>
+                <property name="title">
+                    <string>Editing</string>
+                </property>
+                <vbox>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>checkBoxReadOnly</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Read-Only</string>
+                        </property>
+                    </widget>
+                    <widget class="QGroupBox">
+                        <property name="name">
+                            <cstring>GroupBox4</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Confirmations</string>
+                        </property>
+                        <grid>
+                            <property name="margin">
+                                <number>11</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QCheckBox" row="0" column="0">
+                                <property name="name">
+                                    <cstring>checkBoxConfirmInserts</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Confirm &amp;Inserts</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox" row="1" column="0">
+                                <property name="name">
+                                    <cstring>checkBoxConfirmUpdates</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Confirm &amp;Updates</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox" row="3" column="0">
+                                <property name="name">
+                                    <cstring>checkBoxConfirmCancels</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Confirm &amp;Cancels</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox" row="2" column="0">
+                                <property name="name">
+                                    <cstring>checkBoxConfirmDeletes</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Confirm &amp;Deletes</string>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                </vbox>
+            </widget>
+            <widget class="QCheckBox" row="2" column="1">
+                <property name="name">
+                    <cstring>checkBoxSorting</cstring>
+                </property>
+                <property name="text">
+                    <string>Allow column &amp;sorting</string>
+                </property>
+            </widget>
         </grid>
     </widget>
     <widget class="QWidget">
@@ -2166,6 +2182,445 @@
     </widget>
     <widget class="QWidget">
         <property name="name">
+            <cstring>layoutPage</cstring>
+        </property>
+        <attribute name="title">
+            <string>Layout</string>
+        </attribute>
+        <grid>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <property name="margin">
+                <number>11</number>
+            </property>
+            <property name="spacing">
+                <number>6</number>
+            </property>
+            <widget class="QLabel" row="0" column="0" rowspan="6" colspan="1">
+                <property name="name">
+                    <cstring>TextLabel4_2_2_2_3_2</cstring>
+                </property>
+                <property name="sizePolicy">
+                    <sizepolicy>
+                        <hsizetype>0</hsizetype>
+                        <vsizetype>7</vsizetype>
+                    </sizepolicy>
+                </property>
+                <property name="palette">
+                    <palette>
+                        <active>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>228</red>
+                                <green>228</green>
+                                <blue>228</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>241</red>
+                                <green>241</green>
+                                <blue>241</blue>
+                            </color>
+                            <color>
+                                <red>114</red>
+                                <green>114</green>
+                                <blue>114</blue>
+                            </color>
+                            <color>
+                                <red>152</red>
+                                <green>152</green>
+                                <blue>152</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>246</red>
+                                <green>246</green>
+                                <blue>246</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>85</red>
+                                <green>170</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>141</red>
+                                <green>189</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                        </active>
+                        <disabled>
+                            <color>
+                                <red>128</red>
+                                <green>128</green>
+                                <blue>128</blue>
+                            </color>
+                            <color>
+                                <red>228</red>
+                                <green>228</green>
+                                <blue>228</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>114</red>
+                                <green>114</green>
+                                <blue>114</blue>
+                            </color>
+                            <color>
+                                <red>152</red>
+                                <green>152</green>
+                                <blue>152</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>246</red>
+                                <green>246</green>
+                                <blue>246</blue>
+                            </color>
+                            <color>
+                                <red>128</red>
+                                <green>128</green>
+                                <blue>128</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>85</red>
+                                <green>170</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>141</red>
+                                <green>189</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                        </disabled>
+                        <inactive>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>228</red>
+                                <green>228</green>
+                                <blue>228</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>114</red>
+                                <green>114</green>
+                                <blue>114</blue>
+                            </color>
+                            <color>
+                                <red>152</red>
+                                <green>152</green>
+                                <blue>152</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>246</red>
+                                <green>246</green>
+                                <blue>246</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>255</red>
+                                <green>255</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>85</red>
+                                <green>170</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                            <color>
+                                <red>141</red>
+                                <green>189</green>
+                                <blue>255</blue>
+                            </color>
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                        </inactive>
+                    </palette>
+                </property>
+                <property name="text">
+                    <string>.......A nice Pixmap here......</string>
+                </property>
+            </widget>
+            <spacer row="5" column="5">
+                <property name="name" stdset="0">
+                    <cstring>Spacer1_9</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Vertical</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>20</height>
+                    </size>
+                </property>
+            </spacer>
+            <widget class="QButtonGroup" row="1" column="1" rowspan="1" colspan="5">
+                <property name="name">
+                    <cstring>ButtonGroup1</cstring>
+                </property>
+                <property name="title">
+                    <string>&amp;Labels</string>
+                </property>
+                <grid>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QRadioButton" row="0" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>radioLabelsLeft</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="text">
+                            <string>Labels to &amp;left</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="3" column="1">
+                        <property name="name">
+                            <cstring>TextLabel3</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>3</hsizetype>
+                                <vsizetype>1</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>Create labels above data entry fields.</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="1" column="1">
+                        <property name="name">
+                            <cstring>TextLabel2_2</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>3</hsizetype>
+                                <vsizetype>1</vsizetype>
+                            </sizepolicy>
+                        </property>
+                        <property name="text">
+                            <string>Create labels to the left of data entry fields.</string>
+                        </property>
+                    </widget>
+                    <spacer row="1" column="0">
+                        <property name="name" stdset="0">
+                            <cstring>Spacer4</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Maximum</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="3" column="0">
+                        <property name="name" stdset="0">
+                            <cstring>Spacer5</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Maximum</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>16</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QRadioButton" row="2" column="0" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>radioLabelsTop</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Labels on &amp;top</string>
+                        </property>
+                    </widget>
+                </grid>
+            </widget>
+            <widget class="QCheckBox" row="4" column="1" rowspan="1" colspan="2">
+                <property name="name">
+                    <cstring>checkCreateLayouts</cstring>
+                </property>
+                <property name="text">
+                    <string>&amp;Create layout for all</string>
+                </property>
+                <property name="checked">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QCheckBox" row="3" column="1" rowspan="1" colspan="2">
+                <property name="name">
+                    <cstring>checkCreateButtonLayout</cstring>
+                </property>
+                <property name="text">
+                    <string>Create layout for &amp;buttons</string>
+                </property>
+                <property name="checked">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QCheckBox" row="2" column="1" rowspan="1" colspan="4">
+                <property name="name">
+                    <cstring>checkCreateFieldLayout</cstring>
+                </property>
+                <property name="text">
+                    <string>Create layout for &amp;fields</string>
+                </property>
+                <property name="checked">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QSpinBox" row="0" column="2">
+                <property name="name">
+                    <cstring>spinNumberOfColumns</cstring>
+                </property>
+                <property name="maxValue">
+                    <number>20</number>
+                </property>
+                <property name="value">
+                    <number>2</number>
+                </property>
+            </widget>
+            <widget class="QLabel" row="0" column="1">
+                <property name="name">
+                    <cstring>TextLabel1_6</cstring>
+                </property>
+                <property name="text">
+                    <string>Number of Columns:</string>
+                </property>
+            </widget>
+            <spacer row="0" column="3">
+                <property name="name" stdset="0">
+                    <cstring>Spacer3_2</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Vertical</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>20</width>
+                        <height>20</height>
+                    </size>
+                </property>
+            </spacer>
+        </grid>
+    </widget>
+    <widget class="QWidget">
+        <property name="name">
             <cstring>finishPage</cstring>
         </property>
         <attribute name="title">
@@ -2491,18 +2946,6 @@
         <slot>setText(const QString&amp;)</slot>
     </connection>
     <connection>
-        <sender>editTable</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>SqlFormWizardBase</receiver>
-        <slot>tableSelected(const QString&amp;)</slot>
-    </connection>
-    <connection>
-        <sender>editConnection</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>SqlFormWizardBase</receiver>
-        <slot>connectionSelected(const QString&amp;)</slot>
-    </connection>
-    <connection>
         <sender>listBoxConnection</sender>
         <signal>highlighted(const QString&amp;)</signal>
         <receiver>editConnection</receiver>
@@ -2616,19 +3059,31 @@
         <receiver>GroupBox4</receiver>
         <slot>setDisabled(bool)</slot>
     </connection>
+    <connection>
+        <sender>listBoxConnection</sender>
+        <signal>highlighted(const QString&amp;)</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>connectionSelected(const QString&amp;)</slot>
+    </connection>
+    <connection>
+        <sender>listBoxTable</sender>
+        <signal>highlighted(const QString&amp;)</signal>
+        <receiver>SqlFormWizardBase</receiver>
+        <slot>tableSelected(const QString&amp;)</slot>
+    </connection>
     <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">addField()</slot>
+    <slot access="protected" language="C++">addSortField()</slot>
     <slot access="protected" language="C++">connectionSelected( const QString &amp; )</slot>
     <slot access="protected" language="C++">fieldDown()</slot>
     <slot access="protected" language="C++">fieldUp()</slot>
-    <slot access="protected" language="C++">sortFieldDown()</slot>
     <slot access="protected" language="C++">reSortSortField()</slot>
     <slot access="protected" language="C++">removeField()</slot>
     <slot access="protected" language="C++">removeSortField()</slot>
     <slot access="protected" language="C++">setupDatabaseConnections()</slot>
+    <slot access="protected" language="C++">sortFieldDown()</slot>
     <slot access="protected" language="C++">sortFieldUp()</slot>
     <slot access="protected" language="C++">tableSelected( const QString &amp; )</slot>
-    <slot access="protected" language="C++">addSortField()</slot>
 </connections>
 <functions>
     <function name="addField()" >{
@@ -2668,4 +3123,47 @@
     
 }</function>
 </functions>
+<tabstops>
+    <tabstop>editConnection</tabstop>
+    <tabstop>editTable</tabstop>
+    <tabstop>PushButton5</tabstop>
+    <tabstop>listBoxConnection</tabstop>
+    <tabstop>listBoxTable</tabstop>
+    <tabstop>checkBoxAutoPopulate</tabstop>
+    <tabstop>listBoxField</tabstop>
+    <tabstop>buttonAddField</tabstop>
+    <tabstop>buttonRemoveField</tabstop>
+    <tabstop>buttonFieldUp</tabstop>
+    <tabstop>buttonFieldDown</tabstop>
+    <tabstop>listBoxSelectedField</tabstop>
+    <tabstop>checkBoxNavig</tabstop>
+    <tabstop>checkBoxPrev</tabstop>
+    <tabstop>checkBoxNext</tabstop>
+    <tabstop>checkBoxFirst</tabstop>
+    <tabstop>checkBoxLast</tabstop>
+    <tabstop>checkBoxEdit</tabstop>
+    <tabstop>checkBoxInsert</tabstop>
+    <tabstop>checkBoxUpdate</tabstop>
+    <tabstop>checkBoxDelete</tabstop>
+    <tabstop>checkBoxReadOnly</tabstop>
+    <tabstop>checkBoxConfirmInserts</tabstop>
+    <tabstop>checkBoxConfirmUpdates</tabstop>
+    <tabstop>checkBoxConfirmDeletes</tabstop>
+    <tabstop>checkBoxConfirmCancels</tabstop>
+    <tabstop>checkBoxSorting</tabstop>
+    <tabstop>editFilter</tabstop>
+    <tabstop>listBoxSortField</tabstop>
+    <tabstop>buttonAddSortField</tabstop>
+    <tabstop>buttonRemoveSortField</tabstop>
+    <tabstop>buttonUpSortField</tabstop>
+    <tabstop>buttonDownSortField</tabstop>
+    <tabstop>buttonReSortField</tabstop>
+    <tabstop>listBoxSortedField</tabstop>
+    <tabstop>spinNumberOfColumns</tabstop>
+    <tabstop>radioLabelsLeft</tabstop>
+    <tabstop>radioLabelsTop</tabstop>
+    <tabstop>checkCreateFieldLayout</tabstop>
+    <tabstop>checkCreateButtonLayout</tabstop>
+    <tabstop>checkCreateLayouts</tabstop>
+</tabstops>
 </UI>

@@ -33,6 +33,8 @@
 #include <qmultilineedit.h>
 #include <qlistview.h>
 #include <qfeatures.h>
+#include <qradiobutton.h>
+#include <qspinbox.h>
 
 #ifndef QT_NO_SQL
 #include <qdatatable.h>
@@ -54,6 +56,7 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
 	setCaption( "Data Table Wizard" );
 	mode = Table;
 	setAppropriate( navigPage, FALSE );
+	setAppropriate( layoutPage, FALSE );
     } else if ( widget->inherits( "QDataBrowser" ) ) {
 	setCaption( "Data Browser Wizard" );
 	setAppropriate( tablePropertiesPage, FALSE );
@@ -262,10 +265,6 @@ void SqlFormWizard::setupPage1()
     listBoxConnection->clear();
     editTable->clear();
     editConnection->clear();
-    if ( !widget->parentWidget()->inherits( "FormWindow" ) ) {
-	checkBoxEdit->setChecked( FALSE );
-	checkBoxNavig->setChecked( FALSE );
-    }
     QList<DesignerDatabase> databases = proIface->databaseConnections();
     databases.setAutoDelete( TRUE );
     QStringList lst;
@@ -349,101 +348,167 @@ void SqlFormWizard::accept()
 
     int row = 0;
     const int SPACING = 25;
+    const int COL_SPACING = SPACING*9;
 
     uint j;
     switch ( mode ) {
     case None:
 	break;
     case View:
-    case Form:
+    case Form: {
+	formWindow->clearSelection();
+	bool createFieldLayout = checkCreateFieldLayout->isChecked();
+	bool createButtonLayout = checkCreateButtonLayout->isChecked();
+	bool createLayouts = checkCreateLayouts->isChecked();
+	bool labelAbove = radioLabelsTop->isOn();
+	uint numCols = spinNumberOfColumns->text().toInt();
+	uint currentCol = 0;
+	uint fieldsPerCol = listBoxSelectedField->count();
+	uint fieldsInCol = 0;
+	if ( listBoxSelectedField->count() )
+	    fieldsPerCol = listBoxSelectedField->count() / numCols;
+	/* labels and data field editors */
 	for( j = 0; j < listBoxSelectedField->count(); j++ ){
 
 	    QSqlField* field = tab.field( listBoxSelectedField->text( j ) );
 	    if ( !field )
 		continue;
 
+	    /* label */
 	    QString labelName = field->name();
 	    labelName = labelName.mid(0,1).upper() + labelName.mid(1);
 	    labelName.replace( QRegExp("_"), " " );
 	    label = (QLabel*)formWindow->create( "QLabel", widget,
 						 QString( "label" + labelName ) );
 	    label->setText( labelName );
-	    label->setGeometry( SPACING, row+SPACING, SPACING*3, SPACING );
-	    formWindow->setPropertyChanged( label, "text", TRUE );
-	    formWindow->setPropertyChanged( label, "geometry", TRUE );
+	    label->setGeometry( SPACING + currentCol*COL_SPACING, row+SPACING,
+				SPACING*3, SPACING );
 
+	    formWindow->setPropertyChanged( label, "geometry", TRUE );
+	    formWindow->setPropertyChanged( label, "text", TRUE );
+
+	    /* editor */
 	    editorDummy = f->createEditor( widget, field );
 	    editor = formWindow->create( editorDummy->className(), widget,
-					 QString( QString( editorDummy->className() ) + labelName) );
+					 QString( QString( editorDummy->className() )
+						  + labelName) );
 	    delete editorDummy;
-	    editor->setGeometry( SPACING * 5, row+SPACING, SPACING*3, SPACING );
+	    if ( labelAbove ) {
+		row += SPACING;
+		editor->setGeometry(SPACING + currentCol*COL_SPACING, row+SPACING,
+				    SPACING*3, SPACING );
+	    } else {
+		editor->setGeometry(SPACING * 5 + currentCol*COL_SPACING, row+SPACING,
+				    SPACING*3, SPACING );
+	    }
 	    formWindow->setPropertyChanged( editor, "geometry", TRUE );
-
 	    QStringList lst;
 	    lst << conn << table << field->name();
 	    formWindow->setProperty( editor, "database", lst );
 	    formWindow->setPropertyChanged( editor, "database", TRUE );
 
-	    row += SPACING + 5;
+	    /* geometry */
+	    if ( createFieldLayout ) {
+		formWindow->selectWidget( label );
+		formWindow->selectWidget( editor );
+	    }
 
+	    row += SPACING + 5;
+	    fieldsInCol++;
+	    if ( ( fieldsInCol >= fieldsPerCol ) && ( currentCol < numCols-1 ) ) {
+		currentCol++;
+		fieldsInCol = 0;
+		row = 0;
+	    }
+	}
+
+	if ( listBoxSelectedField->count() ) {
+	    if ( createFieldLayout )
+		formWindow->layoutG();
+	    row += SPACING;
 	}
 
 	if ( checkBoxNavig->isChecked() ) {
+	    formWindow->clearSelection();
+	    currentCol = 0;
 	    if ( checkBoxFirst->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonFirst",
 						 "|< &First",
-						 QRect( SPACING * 10, SPACING,
-							SPACING * 3, SPACING ),
+						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ),
 						 formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "firstRecord()" );
 		formWindow->addConnection( widget, "firstRecordAvailable( bool )",
 					   pb, "setEnabled( bool )" );
+		currentCol++;
+		formWindow->selectWidget( pb );
 	    }
 	    if ( checkBoxPrev->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonPrev",
 						 "<< &Prev",
-						 QRect( SPACING * 13, SPACING,
-							SPACING * 3, SPACING ),
+						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ),
 						 formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "prevRecord()" );
 		formWindow->addConnection( widget, "prevRecordAvailable( bool )",
 					   pb, "setEnabled( bool )" );
+		currentCol++;
+		formWindow->selectWidget( pb );
 	    }
 	    if ( checkBoxNext->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonNext",
 						 "&Next >>",
-						 QRect( SPACING * 16, SPACING,
-							SPACING * 3, SPACING ),
+						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ),
 						 formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "nextRecord()" );
-		formWindow->addConnection( widget, "nextRecordAvailable( bool )", pb, "setEnabled( bool )" );
+		formWindow->addConnection( widget, "nextRecordAvailable( bool )", pb,
+					   "setEnabled( bool )" );
+		currentCol++;
+		formWindow->selectWidget( pb );
 	    }
 	    if ( checkBoxLast->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonLast", "&Last >|",
-						 QRect( SPACING * 19, SPACING, SPACING * 3, SPACING ), formWindow );
+						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING*3, SPACING ), formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "lastRecord()" );
-		formWindow->addConnection( widget, "lastRecordAvailable( bool )", pb, "setEnabled( bool )" );
+		formWindow->addConnection( widget, "lastRecordAvailable( bool )", pb,
+					   "setEnabled( bool )" );
+		currentCol++;
+		formWindow->selectWidget( pb );
 	    }
+	    if ( createButtonLayout )
+		formWindow->layoutH();
 	}
-
 	if ( checkBoxEdit->isChecked() ) {
+	    formWindow->clearSelection();
+	    row += SPACING;
+	    currentCol = 0;
 	    if ( checkBoxInsert->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonInsert", "&Insert",
-						 QRect( SPACING * 10, SPACING *3, SPACING * 3, SPACING ), formWindow );
+						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ), formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "insertRecord()" );
+		currentCol++;
+		formWindow->selectWidget( pb );
 	    }
 	    if ( checkBoxUpdate->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonUpdate", "&Update",
-						 QRect( SPACING * 13, SPACING *3, SPACING * 3, SPACING ), formWindow );
+						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ), formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "updateRecord()" );
+		currentCol++;
+		formWindow->selectWidget( pb );
 	    }
 	    if ( checkBoxDelete->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonDelete", "&Delete",
-						 QRect( SPACING * 16, SPACING *3, SPACING * 3, SPACING ), formWindow );
+						 QRect( 3 * SPACING * currentCol, row+SPACING, SPACING * 3, SPACING ), formWindow );
 		formWindow->addConnection( pb, "clicked()", widget, "deleteRecord()" );
+		currentCol++;
+		formWindow->selectWidget( pb );
 	    }
+	    if ( createButtonLayout )
+		formWindow->layoutH();
 	}
+	if ( createLayouts )
+	    formWindow->layoutGContainer( widget );
+	formWindow->clearSelection();
 	break;
+    }
     case Table:
 	{
 	    QDataTable* sqlTable = ((QDataTable*)widget);

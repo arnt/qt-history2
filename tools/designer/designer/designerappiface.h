@@ -131,9 +131,9 @@ public:
     void layoutHSplit();
     void layoutVSplit();
     void layoutG();
-    void layoutHContainer();
-    void layoutVContainer();
-    void layoutGContainer();
+    void layoutHContainer( QWidget* w );
+    void layoutVContainer( QWidget* w );
+    void layoutGContainer( QWidget* w );
     void breakLayout();
     void selectWidget( QWidget * );
     void selectAll();

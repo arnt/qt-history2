@@ -125,11 +125,11 @@ struct DesignerFormWindow
     virtual void layoutHSplit() = 0;
     virtual void layoutVSplit() = 0;
     virtual void layoutG() = 0;
-    virtual void layoutHContainer() = 0;
-    virtual void layoutVContainer() = 0;
-    virtual void layoutGContainer() = 0;
+    virtual void layoutHContainer( QWidget* w ) = 0;
+    virtual void layoutVContainer( QWidget* w ) = 0;
+    virtual void layoutGContainer( QWidget* w ) = 0;
     virtual void breakLayout() = 0;
-    virtual void selectWidget( QWidget * ) = 0;
+    virtual void selectWidget( QWidget * w ) = 0;
     virtual void selectAll() = 0;
     virtual void clearSelection() = 0;
     virtual bool isWidgetSelected( QWidget * ) const = 0;

@@ -346,6 +346,7 @@ void DesignerFormWindowImpl::checkAccels()
 
 void DesignerFormWindowImpl::layoutH()
 {
+    formWindow->layoutHorizontal();
 }
 
 void DesignerFormWindowImpl::layoutV()
@@ -362,26 +363,31 @@ void DesignerFormWindowImpl::layoutVSplit()
 
 void DesignerFormWindowImpl::layoutG()
 {
+    formWindow->layoutGrid();
 }
 
-void DesignerFormWindowImpl::layoutHContainer()
+void DesignerFormWindowImpl::layoutHContainer( QWidget* w )
 {
+    formWindow->layoutHorizontalContainer( w );
 }
 
-void DesignerFormWindowImpl::layoutVContainer()
+void DesignerFormWindowImpl::layoutVContainer( QWidget* w )
 {
+    formWindow->layoutVerticalContainer( w );
 }
 
-void DesignerFormWindowImpl::layoutGContainer()
+void DesignerFormWindowImpl::layoutGContainer( QWidget* w )
 {
+    formWindow->layoutGridContainer( w );
 }
 
 void DesignerFormWindowImpl::breakLayout()
 {
 }
 
-void DesignerFormWindowImpl::selectWidget( QWidget * )
+void DesignerFormWindowImpl::selectWidget( QWidget * w )
 {
+    formWindow->selectWidget( w, TRUE );
 }
 
 void DesignerFormWindowImpl::selectAll()
@@ -390,6 +396,7 @@ void DesignerFormWindowImpl::selectAll()
 
 void DesignerFormWindowImpl::clearSelection()
 {
+    formWindow->clearSelection();
 }
 
 bool DesignerFormWindowImpl::isWidgetSelected( QWidget * ) const
@@ -517,7 +524,7 @@ void DesignerFormWindowImpl::setImplementationIncludes( const QStringList &lst )
 	    continue;
 	includes << inc;
     }
-	
+
     for ( QStringList::ConstIterator sit = lst.begin(); sit != lst.end(); ++sit ) {
 	QString s = *sit;
 	if ( s[ 0 ] != '<' && s[ 0 ] != '"' ) {
@@ -555,7 +562,7 @@ void DesignerFormWindowImpl::setDeclarationIncludes( const QStringList &lst )
 	    continue;
 	includes << inc;
     }
-	
+
     for ( QStringList::ConstIterator sit = lst.begin(); sit != lst.end(); ++sit ) {
 	QString s = *sit;
 	if ( s[ 0 ] != '<' && s[ 0 ] != '"' ) {
