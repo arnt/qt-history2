@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#13 $
 **
 ** Implementation of QMenuData class
 **
@@ -13,9 +13,10 @@
 #define  INCLUDE_MENUITEM_DEF
 #include "qmenudta.h"
 #include "qpopmenu.h"
+#include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#13 $";
 #endif
 
 
@@ -184,7 +185,8 @@ void QMenuData::removeItem( int index )		// remove menu item
     if ( mi->popup_menu )
 	menuDelPopup( mi->popup_menu );
     mitems->remove();
-    menuContentsChanged();
+    if ( !QApplication::closingDown() )		// avoid trouble
+	menuContentsChanged();
 }
 
 
