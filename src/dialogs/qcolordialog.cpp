@@ -153,7 +153,7 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
 
 QSize QWellArray::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     QSize s = gridSize().boundedTo( QSize(640, 480 ) );
     return QSize( s.width() + 2*frameWidth(), s.height() + 2*frameWidth() );
 }
@@ -691,7 +691,7 @@ void QColorLuminancePicker::setVal( int v )
 	return;
     val = qMax( 0, qMin(v,255));
     delete pix; pix=0;
-    repaint( FALSE ); //###
+    repaint(); //###
     emit newHsv( hue, sat, val );
 }
 
@@ -742,7 +742,7 @@ void QColorLuminancePicker::setCol( int h, int s , int v )
     hue = h;
     sat = s;
     delete pix; pix=0;
-    repaint( FALSE );//####
+    repaint();//####
 }
 
 QPoint QColorPicker::colPt()
@@ -795,7 +795,7 @@ void QColorPicker::setCol( int h, int s )
     r = r.unite( QRect( colPt(), QSize(20,20) ) );
     r.moveBy( contentsRect().x()-9, contentsRect().y()-9 );
     //    update( r );
-    repaint( r, FALSE );
+    repaint(r);
 }
 
 void QColorPicker::mouseMoveEvent( QMouseEvent *m )
@@ -1010,7 +1010,7 @@ void QColorShowLabel::dropEvent( QDropEvent *e )
 {
     if ( QColorDrag::canDecode( e ) ) {
 	QColorDrag::decode( e, col );
-	repaint( FALSE );
+	repaint();
 	emit colorDropped( col.rgb() );
 	e->accept();
     } else {
@@ -1106,7 +1106,7 @@ QColorShower::QColorShower( QWidget *parent, const char *name )
 void QColorShower::showCurrentColor()
 {
     lab->setColor( currentColor() );
-    lab->repaint(FALSE); //###
+    lab->repaint(); //###
 }
 
 void QColorShower::rgbEd()

@@ -348,7 +348,7 @@ void QScrollBar::setPalette( const QPalette &p )
 /*! \reimp */
 QSize QScrollBar::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     int sbextent = style().pixelMetric(QStyle::PM_ScrollBarExtent, this);
 
     if ( orient == Horizontal ) {
@@ -676,7 +676,7 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
     }
     drawControls( tmp, pressedControl );
     if ( e->button() == MidButton )
-	repaint( FALSE );
+	repaint();
 }
 
 

@@ -140,8 +140,11 @@ QDialogButtons::addWidget(QWidget *w)
     } else {
 	lay = (QBoxLayout*)d->custom->layout();
     }
-    if(w->parent() != d->custom)
-	w->reparent(d->custom, 0, QPoint(0, 0), TRUE);
+    if(w->parent() != d->custom) {
+	w->setParent(d->custom, 0);
+	w->move(QPoint(0, 0));
+	w->show();
+    }
     lay->addWidget(w);
 }
 
@@ -325,10 +328,10 @@ QDialogButtons::showEvent(QShowEvent *)
     layoutButtons();
 }
 
-void 
+void
 QDialogButtons::changeEvent( QEvent *ev )
 {
-    if(ev->type() == QEvent::StyleChange) 
+    if(ev->type() == QEvent::StyleChange)
 	layoutButtons();
     QWidget::changeEvent(ev);
 }
@@ -401,7 +404,7 @@ QDialogButtons::layoutButtons()
 QSize
 QDialogButtons::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     QSize s;
     if(d->custom)
 	s = d->custom->sizeHint();

@@ -3051,7 +3051,7 @@ void QListView::setTreeStepSize( int size )
 {
     if ( size != d->levelWidth ) {
 	d->levelWidth = size;
-	viewport()->repaint( FALSE );
+	viewport()->repaint();
     }
 }
 
@@ -3454,7 +3454,7 @@ void QListView::updateContents()
     viewport()->setUpdatesEnabled( FALSE );
     updateGeometries();
     viewport()->setUpdatesEnabled( TRUE );
-    viewport()->repaint( FALSE );
+    viewport()->repaint();
 }
 
 
@@ -3500,7 +3500,7 @@ void QListView::handleSizeChange( int section, int os, int ns )
     viewport()->setUpdatesEnabled( upe );
 
     if ( fullRepaint ) {
-	viewport()->repaint( FALSE );
+	viewport()->repaint();
 	return;
     }
 
@@ -3511,8 +3511,8 @@ void QListView::handleSizeChange( int section, int os, int ns )
 	left -= dx;
     if ( left < visibleWidth() )
 	viewport()->scroll( dx, 0, QRect( left, 0, visibleWidth() - left, visibleHeight() ) );
-    viewport()->repaint( left - 4 - d->ellipsisWidth, 0, 4 + d->ellipsisWidth,
-			 visibleHeight(), FALSE ); // border between the items and ellipses width
+    viewport()->repaint(left - 4 - d->ellipsisWidth, 0, 4 + d->ellipsisWidth,
+			visibleHeight()); // border between the items and ellipses width
 
     // map auto to left for now. Need to fix this once we support
     // reverse layout on the listview.
@@ -3560,7 +3560,7 @@ void QListView::updateDirtyItems()
     if ( !ir.isEmpty() )  {		      // rectangle to be repainted
 	if ( ir.x() < 0 )
 	    ir.moveBy( -ir.x(), 0 );
-	viewport()->repaint( ir, FALSE );
+	viewport()->repaint(ir);
     }
 }
 
@@ -4635,7 +4635,7 @@ void QListView::focusInEvent( QFocusEvent* )
 	d->startEdit = FALSE;
     }
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
-	viewport()->repaint( FALSE );
+	viewport()->repaint();
     }
 
     QRect mfrect = itemRect( d->focusItem );
@@ -4661,7 +4661,7 @@ void QListView::focusOutEvent( QFocusEvent* )
 	    QFocusEvent::reason() == QFocusEvent::Popup
 	    || (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
 	if ( !d->inMenuMode ) {
-	    viewport()->repaint( FALSE );
+	    viewport()->repaint();
 	}
     }
 
@@ -6619,7 +6619,7 @@ QSize QListView::sizeHint() const
     if ( cachedSizeHint().isValid() )
 	return cachedSizeHint();
 
-    constPolish();
+    ensurePolished();
 
     if (!isVisible() && d->drawables.isEmpty())
 	// force the column widths to sanity, if possible

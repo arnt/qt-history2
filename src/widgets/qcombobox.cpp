@@ -1029,7 +1029,7 @@ QSize QComboBox::sizeHint() const
     if ( isVisible() && d->sizeHint.isValid() )
 	return d->sizeHint;
 
-    constPolish();
+    ensurePolished();
     int i, w;
     QFontMetrics fm = fontMetrics();
 
@@ -1312,7 +1312,7 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 	    if ( arrowRect.contains( e->pos() ) ) {
 		d->arrowPressed = TRUE;
 		d->arrowDown    = TRUE;
-		repaint( FALSE );
+		repaint();
 	    }
 	} else {
 	    popup();
@@ -1608,7 +1608,7 @@ void QComboBox::popDownListBox()
     d->listBox()->setCurrentItem( d->current );
     if ( d->arrowDown ) {
 	d->arrowDown = FALSE;
-	repaint( FALSE );
+	repaint();
     }
     d->poppedUp = FALSE;
 }
@@ -1720,12 +1720,12 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		    if ( arrowRect.contains( comboPos ) ) {
 			if ( !d->arrowDown  ) {
 			    d->arrowDown = TRUE;
-			    repaint( FALSE );
+			    repaint();
 			}
 		    } else {
 			if ( d->arrowDown  ) {
 			    d->arrowDown = FALSE;
-			    repaint( FALSE );
+			    repaint();
 			}
 		    }
 		}
@@ -1755,7 +1755,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		    d->arrowPressed = FALSE;
 		    if ( d->arrowDown  ) {
 			d->arrowDown = FALSE;
-			repaint( FALSE );
+			repaint();
 		    }
 		}
 	    }

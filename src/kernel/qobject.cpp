@@ -233,7 +233,7 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
     if ( !list.isEmpty() ) {
 	for (int i = 0; i < list.size(); ++i) {
 	    QObject *obj = list.at(i);
-	    if ( qstrcmp(name,obj->objectName()) == 0 && obj->inherits(type) )
+	    if ( qstrcmp(name,obj->objectName()) == 0 && obj->metaObject()->inherits(type) )
 		return obj;
 	}
     }
@@ -601,7 +601,7 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
 	if ( onlyWidgets ) {
 	    if ( obj->isWidgetType() && ( !objName || qstrcmp( objName, obj->objectName() ) == 0 ) )
 		return obj;
-	} else if ( ( !inheritsClass || obj->inherits(inheritsClass) ) && ( !objName || qstrcmp( objName, obj->objectName() ) == 0 ) )
+	} else if ( ( !inheritsClass || obj->metaObject()->inherits(inheritsClass) ) && ( !objName || qstrcmp( objName, obj->objectName() ) == 0 ) )
 	    return obj;
 	if ( recursiveSearch && (obj = obj->child( objName, inheritsClass, recursiveSearch ) ) )
 	    return obj;
@@ -986,7 +986,7 @@ static void objSearch( QObjectList &result,
 	bool ok = TRUE;
 	if ( onlyWidgets )
 	    ok = obj->isWidgetType();
-	else if ( inheritsClass && !obj->inherits(inheritsClass) )
+	else if ( inheritsClass && !obj->metaObject()->inherits(inheritsClass) )
 	    ok = FALSE;
 	if ( ok ) {
 	    if ( objName )

@@ -2460,7 +2460,7 @@ void QPopupMenu::setActiveItem( int i )
 */
 QSize QPopupMenu::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
 	return minimumSize(); //can be any size..
 

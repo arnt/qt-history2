@@ -317,13 +317,13 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	    } else if ( qt_cast<QScrollBar*>(widget) ) {
 		QRect oldRect = d->lastScrollbarRect.rect;
 		d->lastScrollbarRect.rect = QRect( 0, -1, 0, -1 );
-		widget->repaint( oldRect );
+		widget->repaint(oldRect);
 #endif
 #ifndef QT_NO_SLIDER
 	    } else if ( qt_cast<QSlider*>(widget) ) {
 		QRect oldRect = d->lastSliderRect.rect;
 		d->lastSliderRect.rect = QRect( 0, -1, 0, -1 );
-		widget->repaint( oldRect );
+		widget->repaint(oldRect);
 #endif
             }
         }

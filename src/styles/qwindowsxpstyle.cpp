@@ -2497,7 +2497,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		QTab * t = bar->selectTab( me->pos() );
 		if ( d->hotTab != t ) {
 		    d->hotTab = t;
-		    widget->repaint( FALSE );
+		    widget->repaint();
 		}
 	    } else if ( qt_cast<QHeader*>(o) ) {
 		QHeader *header = (QHeader*)o;
@@ -2545,10 +2545,10 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		const bool inArrow = rect.contains( d->hotSpot );
 		if ( ( inArrow && !clearCombo ) || ( !inArrow && clearCombo ) ) {
 		    clearCombo = inArrow;
-		    widget->repaint( FALSE );
+		    widget->repaint();
 		}
 	    } else {
-		widget->repaint( FALSE );
+		widget->repaint();
 	    }
 	}
         break;
@@ -2579,7 +2579,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 
     case QEvent::FocusOut:
     case QEvent::FocusIn:
-	widget->repaint( FALSE );
+	widget->repaint();
 	break;
 
     case QEvent::Resize:
@@ -2606,7 +2606,7 @@ void QWindowsXPStyle::activeTabChanged()
     if ( !qt_cast<QTabBar*>(s) )
 	return;
 
-    ((QWidget *)s)->repaint( FALSE );
+    ((QWidget *)s)->repaint();
 }
 
 #endif //QT_NO_STYLE_WINDOWSXP

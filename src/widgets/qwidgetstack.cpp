@@ -437,7 +437,7 @@ void QWidgetStack::resizeEvent( QResizeEvent * e )
 
 QSize QWidgetStack::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
 
     QSize size( 0, 0 );
 
@@ -465,7 +465,7 @@ QSize QWidgetStack::sizeHint() const
 */
 QSize QWidgetStack::minimumSizeHint() const
 {
-    constPolish();
+    ensurePolished();
 
     QSize size( 0, 0 );
 

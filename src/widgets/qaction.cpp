@@ -1051,7 +1051,7 @@ bool QAction::addTo( QWidget* w )
 	QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
 	mi->popup = (QPopupMenu*) w;
 	QIconSet* diconset = d->iconset;
-	if ( !qstrcmp( name(), "qt_separator_action" ) )
+	if ( !qstrcmp( objectName(), "qt_separator_action" ) )
 	    mi->id = ((QPopupMenu*)w)->insertSeparator();
 	else if ( diconset )
 	    mi->id = mi->popup->insertItem( *diconset, QString::fromLatin1("") );

@@ -536,7 +536,7 @@ void QDateTimeEditor::mousePressEvent( QMouseEvent *e )
     int sec = sectionAt( p );
     if ( sec != -1 ) {
 	cw->setFocusSection( sec );
-	repaint( rect(), FALSE );
+	repaint(rect());
     }
 }
 
@@ -552,13 +552,13 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 	    case Key_Right:
 		if ( d->focusSection() < (int)d->sectionCount()-1 ) {
 		    if ( cw->setFocusSection( focusSection()+1 ) )
-			repaint( rect(), FALSE );
+			repaint(rect());
 		}
 		return TRUE;
 	    case Key_Left:
 		if ( d->focusSection() > 0 ) {
 		    if ( cw->setFocusSection( focusSection()-1 ) )
-			repaint( rect(), FALSE );
+			repaint(rect());
 		}
 		return TRUE;
 	    case Key_Up:
@@ -618,7 +618,7 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		    // do the same thing as KEY_RIGHT when the user presses the separator key
 		    if ( d->focusSection() < 2 ) {
 			if ( cw->setFocusSection( focusSection()+1 ) )
-			    repaint( rect(), FALSE );
+			    repaint(rect());
 		    }
 		    return TRUE;
 		} else if ( !txt.isEmpty() && qt_cast<QTimeEdit*>(cw) && focusSection() == (int) d->sectionCount()-1 ) {
@@ -1052,7 +1052,7 @@ void QDateEdit::resizeEvent( QResizeEvent * )
 */
 QSize QDateEdit::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     QFontMetrics fm( font() );
     int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
     int h = qMax( fm.lineSpacing(), 14 ) + 2;
@@ -1210,7 +1210,7 @@ void QDateEdit::setOrder( QDateEdit::Order order )
 	break;
     }
     if ( isVisible() )
-	d->ed->repaint( d->ed->rect(), FALSE );
+	d->ed->repaint(d->ed->rect());
 }
 
 
@@ -1247,7 +1247,7 @@ void QDateEdit::stepUp()
 	d->changed = TRUE;
 	emit valueChanged( date() );
     }
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 
@@ -1280,7 +1280,7 @@ void QDateEdit::stepDown()
 	d->changed = TRUE;
 	emit valueChanged( date() );
     }
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 /*!
@@ -1383,7 +1383,7 @@ void QDateEdit::setDate( const QDate& date )
 	emit valueChanged( date );
     }
     d->changed = FALSE;
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 QDate QDateEdit::date() const
@@ -1508,7 +1508,7 @@ void QDateEdit::addNumber( int sec, int num )
     }
     d->overwrite = overwrite;
     d->timerId = startTimer( qApp->doubleClickInterval()*4 );
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 
@@ -1646,7 +1646,7 @@ void QDateEdit::removeFirstNumber( int sec )
 	d->d = txt.toInt();
 	d->dayCache = d->d;
     }
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 /*! \reimp
@@ -1672,7 +1672,7 @@ void QDateEdit::removeLastNumber( int sec )
 	d->d = txt.toInt();
 	d->dayCache = d->d;
     }
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 /*!
@@ -1947,7 +1947,7 @@ void QTimeEdit::setTime( const QTime& time )
 	emit valueChanged( time );
     }
     d->changed = FALSE;
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 QTime QTimeEdit::time() const
@@ -2075,7 +2075,7 @@ void QTimeEdit::stepUp()
 	d->changed = TRUE;
 	emit valueChanged( time() );
     }
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 
@@ -2122,7 +2122,7 @@ void QTimeEdit::stepDown()
 	d->changed = TRUE;
 	emit valueChanged( time() );
     }
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 
@@ -2404,7 +2404,7 @@ void QTimeEdit::addNumber( int sec, int num )
 	emit valueChanged( time() );
     d->overwrite = overwrite;
     d->timerId = startTimer( qApp->doubleClickInterval()*4 );
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 
@@ -2444,7 +2444,7 @@ void QTimeEdit::removeFirstNumber( int sec )
 	d->s = txt.toInt();
 	break;
     }
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 /*! \reimp
@@ -2479,7 +2479,7 @@ void QTimeEdit::removeLastNumber( int sec )
 	d->s = txt.toInt();
 	break;
     }
-    d->ed->repaint( d->ed->rect(), FALSE );
+    d->ed->repaint(d->ed->rect());
 }
 
 /*! \reimp
@@ -2493,7 +2493,7 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
 */
 QSize QTimeEdit::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     QFontMetrics fm( font() );
     int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
     int h = fm.lineSpacing() + 2;
@@ -2685,7 +2685,7 @@ void QDateTimeEdit::init()
 
 QSize QDateTimeEdit::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     QSize dsh = de->sizeHint();
     QSize tsh = te->sizeHint();
     return QSize( dsh.width() + tsh.width(),

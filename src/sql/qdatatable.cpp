@@ -2077,7 +2077,7 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 	}
     }
     viewport()->setUpdatesEnabled( TRUE );
-    viewport()->repaint( FALSE );
+    viewport()->repaint();
     horizontalHeader()->repaint();
     verticalHeader()->repaint();
     setSize( cur );

@@ -287,7 +287,7 @@ void QToolButton::setToggleButton( bool enable )
 */
 QSize QToolButton::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
 
     int w = 0, h = 0;
 
@@ -520,7 +520,7 @@ void QToolButton::drawButtonLabel(QPainter *p)
 void QToolButton::enterEvent( QEvent * e )
 {
     if ( autoRaise() && isEnabled() )
-	repaint(FALSE);
+	repaint();
 
     QButton::enterEvent( e );
 }
@@ -532,7 +532,7 @@ void QToolButton::enterEvent( QEvent * e )
 void QToolButton::leaveEvent( QEvent * e )
 {
     if ( autoRaise() && isEnabled() )
-	repaint(FALSE);
+	repaint();
 
     QButton::leaveEvent( e );
 }
@@ -546,7 +546,7 @@ void QToolButton::moveEvent( QMoveEvent * )
     //   has a fancy pixmap background.
     if ( parentWidget() && parentWidget()->backgroundPixmap() &&
 	 autoRaise() && !uses3D() )
-	repaint( FALSE );
+	repaint();
 }
 
 /*!
@@ -863,7 +863,7 @@ void QToolButton::openPopup()
 	return;
 
     d->instantPopup = TRUE;
-    repaint( FALSE );
+    repaint();
     if ( d->popupTimer )
 	d->popupTimer->stop();
     QGuardedPtr<QToolButton> that = this;
@@ -871,7 +871,7 @@ void QToolButton::openPopup()
     if ( !that )
 	return;
     d->instantPopup = FALSE;
-    repaint( FALSE );
+    repaint();
 }
 
 void QToolButton::popupPressed()

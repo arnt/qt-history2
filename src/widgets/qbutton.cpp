@@ -560,7 +560,7 @@ void QButton::animateClick()
 	return;
     animation = TRUE;
     buttonDown = TRUE;
-    repaint( FALSE );
+    repaint();
     emit pressed();
     QTimer::singleShot( 100, this, SLOT(animateTimeout()) );
 }
@@ -582,7 +582,7 @@ void QButton::setDown( bool enable )
     mlbDown = FALSE;				// the safe setting
     if ( (bool)buttonDown != enable ) {
 	buttonDown = enable;
-	repaint( FALSE );
+	repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
@@ -607,7 +607,7 @@ void QButton::setState( ToggleState s )
 	stat = s;
 	if ( autoMask() )
 	    updateMask();
-	repaint( FALSE );
+	repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
@@ -740,7 +740,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
 	if ( autoMask() )
 	    updateMask();
 
-	repaint( FALSE );
+	repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
@@ -763,7 +763,7 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 
 	    if ( autoMask() )
 		updateMask();
-	    repaint( FALSE );
+	    repaint();
 	}
 
 	e->ignore();
@@ -783,7 +783,7 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 	emit released();
 	emit clicked();
     } else {
-	repaint( FALSE );
+	repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
@@ -801,7 +801,7 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
     if ( hitButton(e->pos()) ) {		// mouse move in button
 	if ( !buttonDown ) {
 	    buttonDown = TRUE;
-	    repaint( FALSE );
+	    repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
@@ -810,7 +810,7 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
     } else {					// mouse move outside button
 	if ( buttonDown ) {
 	    buttonDown = FALSE;
-	    repaint( FALSE );
+	    repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
 #endif
@@ -891,7 +891,7 @@ void QButton::nextState()
     }
     if ( autoMask() )
         updateMask();
-    repaint( FALSE );
+    repaint();
     if ( t ) {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );

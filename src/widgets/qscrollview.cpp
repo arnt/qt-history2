@@ -236,7 +236,7 @@ void QScrollViewData::hideOrShowAll(QScrollView* sv, bool isScroll )
 	 viewport->height() ) {
 	// clipped_viewport still covers viewport
 	if( static_bg )
-	    clipped_viewport->repaint( TRUE );
+	    clipped_viewport->repaint();
 	else if ( ( !isScroll && !clipped_viewport->testAttribute(QWidget::WA_StaticContents) )
 		  || static_bg )
 	    QApplication::postEvent(clipped_viewport, new QPaintEvent(clipped_viewport->clipRegion()));
@@ -266,7 +266,7 @@ void QScrollViewData::moveAllBy(int dx, int dy)
 	    r->child->move(r->child->x()+dx,r->child->y()+dy);
 	}
 	if ( static_bg )
-	    viewport->repaint( TRUE );
+	    viewport->repaint();
     }
 }
 
@@ -2625,7 +2625,7 @@ QSize QScrollView::sizeHint() const
     if ( d->use_cached_size_hint && d->cachedSizeHint.isValid() )
 	return d->cachedSizeHint;
 
-    constPolish();
+    ensurePolished();
     int f = 2 * frameWidth();
     int h = fontMetrics().height();
     QSize sz( f, f );

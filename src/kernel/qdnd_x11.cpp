@@ -1556,7 +1556,7 @@ void QDragManager::updatePixmap()
 	}
 	qt_xdnd_deco->setPixmap(pm);
 	qt_xdnd_deco->move(QCursor::pos()-pm_hot);
-	qt_xdnd_deco->repaint(FALSE);
+	qt_xdnd_deco->repaint();
 	    //if ( willDrop ) {
 	    qt_xdnd_deco->show();
 	    //} else {

@@ -593,7 +593,7 @@ void QHeader::keyReleaseEvent( QKeyEvent *e )
     case Key_Space:
 	//double check that this wasn't started with the mouse
 	if ( state == Pressed && handleIdx == d->focusIdx ) {
-	    repaint(sRect( handleIdx ), FALSE);
+	    repaint(sRect( handleIdx ));
 	    int section = d->i2s[d->focusIdx];
 	    emit released( section );
 	    emit sectionClicked( handleIdx );
@@ -677,9 +677,9 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	} else {
 	    handleIdx = oldHandleIdx;
 	}
-	repaint(sRect( handleIdx ), FALSE);
+	repaint(sRect( handleIdx ));
 	if ( oldOldHandleIdx != handleIdx )
-	    repaint(sRect(oldOldHandleIdx ), FALSE );
+	    repaint(sRect(oldOldHandleIdx ));
 	} break;
     case Sliding: {
 	int c = orient == Horizontal ? e->pos().x() : e->pos().y();
@@ -709,9 +709,9 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	    } else {
 		handleIdx = oldHandleIdx;
 	    }
-	    repaint(sRect( handleIdx ), FALSE );
+	    repaint(sRect( handleIdx ));
 	    if(oldOldHandleIdx != handleIdx)
-		repaint(sRect(oldOldHandleIdx ), FALSE );
+		repaint(sRect(oldOldHandleIdx ));
 	}
 	break;
     }
@@ -1199,7 +1199,7 @@ QSize QHeader::sizeHint() const
     int width;
     int height;
 
-    constPolish();
+    ensurePolished();
     QFontMetrics fm = fontMetrics();
 
     if ( d->heightDirty ) {
@@ -1894,7 +1894,7 @@ void QHeader::adjustHeaderSize( int diff )
 	if ( ns < 20 )
 	    ns = 20;
 	setCellSize( sec, ns );
-	repaint( FALSE );
+	repaint();
 	emit sizeChange( sec, os, ns );
     } else if ( d->fullSize == -1 ) {
 	int df = diff / count();
@@ -1914,7 +1914,7 @@ void QHeader::adjustHeaderSize( int diff )
 	if ( ns < 20 )
 	    ns = 20;
 	setCellSize( sec, ns );
-	repaint( FALSE );
+	repaint();
 	emit sizeChange( sec, os, ns );
     }
 }

@@ -2332,8 +2332,8 @@ void QTable::updateHeaderStates()
 
     horizontalHeader()->setUpdatesEnabled( TRUE );
     verticalHeader()->setUpdatesEnabled( TRUE );
-    horizontalHeader()->repaint( FALSE );
-    verticalHeader()->repaint( FALSE );
+    horizontalHeader()->repaint();
+    verticalHeader()->repaint();
 }
 
 /*!
@@ -4184,7 +4184,7 @@ QSize QTable::sizeHint() const
     if ( cachedSizeHint().isValid() )
 	return cachedSizeHint();
 
-    constPolish();
+    ensurePolished();
 
     QSize s = tableSize();
     QSize sh;
@@ -5192,7 +5192,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 		*s = QTableHeader::Bold;
 	    ++s;
 	}
-	topHeader->repaint( FALSE );
+	topHeader->repaint();
     }
 
     if ( updateVertical && numRows() > 0 && top >= 0 ) {
@@ -5206,7 +5206,7 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
 		*s = QTableHeader::Bold;
 	    ++s;
 	}
-	leftHeader->repaint( FALSE );
+	leftHeader->repaint();
     }
 }
 
@@ -5262,10 +5262,10 @@ void QTable::clearSelection( bool repaint )
 	repaintContents( r, FALSE );
 
     leftHeader->setSectionStateToAll( QTableHeader::Normal );
-    leftHeader->repaint( FALSE );
+    leftHeader->repaint();
     if ( !isRowSelection( selectionMode() ) ) {
 	topHeader->setSectionStateToAll( QTableHeader::Normal );
-	topHeader->repaint( FALSE );
+	topHeader->repaint();
     }
     topHeader->setSectionState( curCol, QTableHeader::Bold );
     leftHeader->setSectionState( curRow, QTableHeader::Bold );
@@ -6384,9 +6384,9 @@ void QTableHeader::setSectionState( int s, SectionState astate )
     states.data()[ s ] = astate;
     if ( isUpdatesEnabled() ) {
 	if ( orientation() == Horizontal )
-	    repaint( sectionPos( s ) - offset(), 0, sectionSize( s ), height(), FALSE );
+	    repaint(sectionPos( s ) - offset(), 0, sectionSize( s ), height());
 	else
-	    repaint( 0, sectionPos( s ) - offset(), width(), sectionSize( s ), FALSE );
+	    repaint(0, sectionPos( s ) - offset(), width(), sectionSize( s ));
     }
 }
 
@@ -6805,7 +6805,7 @@ void QTableHeader::updateSelections()
 	    *s = Selected;
 	++s;
     }
-    repaint( FALSE );
+    repaint();
 
     if (table->currentSel) {
 	QTableSelection oldSelection = *table->currentSel;

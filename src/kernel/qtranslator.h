@@ -106,11 +106,11 @@ public:
     bool save( const QString & filename, SaveMode mode = Everything );
 
     void insert( const QTranslatorMessage& );
-    void insert( const char *context, const char *sourceText, const QString &translation ) {
+    inline void insert( const char *context, const char *sourceText, const QString &translation ) {
 	insert( QTranslatorMessage(context, sourceText, "", translation) );
     }
     void remove( const QTranslatorMessage& );
-    void remove( const char *context, const char *sourceText ) {
+    inline void remove( const char *context, const char *sourceText ) {
 	remove( QTranslatorMessage(context, sourceText, "") );
     }
     bool contains( const char *, const char *, const char * comment = 0 ) const;

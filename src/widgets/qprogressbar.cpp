@@ -124,7 +124,7 @@ void QProgressBar::reset()
     progress_val = -1;
     percentage = -1;
     setIndicator(progress_str, progress_val, total_steps);
-    repaint( FALSE );
+    repaint();
 }
 
 
@@ -148,7 +148,7 @@ void QProgressBar::setTotalSteps( int totalSteps )
 
     if ( isVisible() &&
 	 ( setIndicator(progress_str, progress_val, total_steps) || !total_steps ) )
-	repaint( FALSE );
+	repaint();
 }
 
 
@@ -169,7 +169,7 @@ void QProgressBar::setProgress( int progress )
 
     setIndicator( progress_str, progress_val, total_steps );
 
-    repaint( FALSE );
+    repaint();
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
@@ -205,7 +205,7 @@ void QProgressBar::setProgress( int progress, int totalSteps )
 */
 QSize QProgressBar::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     QFontMetrics fm = fontMetrics();
     int cw = style().pixelMetric(QStyle::PM_ProgressBarChunkWidth, this);
     return style().sizeFromContents(QStyle::CT_ProgressBar, this,
@@ -236,7 +236,7 @@ void QProgressBar::setCenterIndicator( bool on )
 	return;
     auto_indicator = FALSE;
     center_indicator = on;
-    repaint( FALSE );
+    repaint();
 }
 
 /*!
@@ -253,7 +253,7 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
     if ( on == auto_indicator )
 	return;
     auto_indicator = on;
-    repaint( FALSE );
+    repaint();
 }
 
 /*!
@@ -269,7 +269,7 @@ void QProgressBar::setPercentageVisible( bool on )
     if ( on == percentage_visible )
 	return;
     percentage_visible = on;
-    repaint( FALSE );
+    repaint();
 }
 
 /*!

@@ -463,7 +463,7 @@ bool QSpinBox::wrapping() const
 */
 QSize QSpinBox::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     QSize sz = vi->sizeHint();
     int h = sz.height();
     QFontMetrics fm( font() );
@@ -788,7 +788,7 @@ void QSpinBox::updateDisplay()
 	     vi->setCursorPosition( vi->text().length() - suffix().length() );
     }
     vi->setUpdatesEnabled( TRUE );
-    vi->repaint( FALSE ); // immediate repaint needed for some reason
+    vi->repaint(); // immediate repaint needed for some reason
     edited = FALSE;
 
     bool upEnabled = isEnabled() && ( wrapping() || value() < maxValue() );
@@ -797,7 +797,7 @@ void QSpinBox::updateDisplay()
     d->controls->setUpEnabled( upEnabled );
     d->controls->setDownEnabled( downEnabled );
     vi->setEnabled( isEnabled() );
-    repaint( FALSE );
+    repaint();
 }
 
 
@@ -997,7 +997,7 @@ void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
 	d->controls->setButtonSymbols( QSpinWidget::PlusMinus );
 	break;
     }
-    //    repaint( FALSE );
+    //    repaint();
 }
 
 QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const

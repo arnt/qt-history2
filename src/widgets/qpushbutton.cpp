@@ -379,7 +379,7 @@ void QPushButton::setDefault( bool enable )
 */
 QSize QPushButton::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
 
     int w = 0, h = 0;
 

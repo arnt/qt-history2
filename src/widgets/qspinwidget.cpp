@@ -111,7 +111,7 @@ void QSpinWidget::mousePressEvent( QMouseEvent *e )
 	d->stopTimer();
 	d->buttonDown = 0;
 	d->theButton = 0;
-	repaint( d->down.unite( d->up ), FALSE );
+	repaint(d->down.unite( d->up ));
 	return;
     }
 
@@ -127,13 +127,13 @@ void QSpinWidget::mousePressEvent( QMouseEvent *e )
     d->theButton = d->buttonDown;
     if ( oldButtonDown != d->buttonDown ) {
 	if ( !d->buttonDown ) {
-	    repaint( d->down.unite( d->up ), FALSE );
+	    repaint(d->down.unite( d->up ));
 	} else if ( d->buttonDown & 1 ) {
-	    repaint( d->down, FALSE );
+	    repaint(d->down);
 	    stepDown();
 	    d->startTimer( FALSE, 300 );
 	} else if ( d->buttonDown & 2 ) {
-	    repaint( d->up, FALSE );
+	    repaint(d->up);
 	    stepUp();
 	    d->startTimer( TRUE, 300 );
 	}
@@ -217,9 +217,9 @@ void QSpinWidget::mouseReleaseEvent( QMouseEvent *e )
     d->theButton = 0;
     if ( oldButtonDown != d->theButton ) {
 	if ( oldButtonDown & 1 )
-	    repaint( d->down, FALSE );
+	    repaint(d->down);
 	else if ( oldButtonDown & 2 )
-	    repaint( d->up, FALSE );
+	    repaint(d->up);
     }
     d->stopTimer();
     d->buttonDown = 0;
@@ -242,19 +242,19 @@ void QSpinWidget::mouseMoveEvent( QMouseEvent *e )
     if ( oldButtonDown & 1 && !d->down.contains( e->pos() ) ) {
 	d->stopTimer();
 	d->theButton = 0;
-	repaint( d->down, FALSE );
+	repaint( d->down);
     } else if ( oldButtonDown & 2 && !d->up.contains( e->pos() ) ) {
 	d->stopTimer();
 	d->theButton = 0;
-	repaint( d->up, FALSE );
+	repaint( d->up);
     } else if ( !oldButtonDown && d->up.contains( e->pos() ) && d->buttonDown & 2 ) {
 	d->startTimer( 500 );
 	d->theButton = 2;
-	repaint( d->up, FALSE );
+	repaint( d->up);
     } else if ( !oldButtonDown && d->down.contains( e->pos() ) && d->buttonDown & 1 ) {
 	d->startTimer( 500 );
 	d->theButton = 1;
-	repaint( d->down, FALSE );
+	repaint( d->down);
     }
 
     if (!oldButtonDown && !d->buttonDown)
@@ -374,7 +374,7 @@ void QSpinWidget::updateDisplay()
 	d->theButton &= ~2;
 	d->buttonDown &= ~2;
     }
-    repaint( FALSE );
+    repaint();
 }
 
 /*!

@@ -109,12 +109,9 @@ static int __cdecl cmp_uint32_big( const void* target, const void* candidate )
 static int cmp_uint32_big( const void* target, const void* candidate )
 #endif
 {
-    const uchar* t = (const uchar*) target;
-    const uchar* c = (const uchar*) candidate;
-    return t[0] != c[0] ? (int) t[0] - (int) c[0]
-	   : t[1] != c[1] ? (int) t[1] - (int) c[1]
-	   : t[2] != c[2] ? (int) t[2] - (int) c[2]
-	   : (int) t[3] - (int) c[3];
+    const uint* t = (const uint*) target;
+    const uint* c = (const uint*) candidate;
+    return (*t > *c ? 1 : (*t == *c ? 0 : -1));
 }
 
 #if defined(Q_C_CALLBACKS)
@@ -508,8 +505,7 @@ bool QTranslator::do_load( const uchar *data, int len )
 	return FALSE;
     }
 
-    QByteArray array;
-    array.setRawData( (const char *) data, len );
+    QConstByteArray array((const char *) data, len);
     QDataStream s( array, IO_ReadOnly );
     bool ok = TRUE;
 
@@ -547,12 +543,7 @@ bool QTranslator::do_load( const uchar *data, int len )
 	if ( !s.atEnd() )
 	    s >> tag >> blockLen;
     }
-    array.resetRawData( (const char *) data, len );
 
-#if 0
-    QEvent ev(QEvent::LanguageChange);
-    QCoreApplication::sendEvent(QCoreApplication::instance(), &ev);
-#endif
     return ok;
 }
 
@@ -1280,7 +1271,6 @@ void QTranslatorMessage::write( QDataStream & stream, bool strip,
     stream.writeRawBytes( &tag, 1 );
     stream << tn;
 
-    bool mustWriteHash = TRUE;
     if ( !strip )
 	prefix = HashContextSourceTextComment;
 
@@ -1301,11 +1291,9 @@ void QTranslatorMessage::write( QDataStream & stream, bool strip,
 	stream << cx;
 	// fall through
     default:
-	if ( mustWriteHash ) {
-	    tag = (char)Tag_Hash;
-	    stream.writeRawBytes( &tag, 1 );
-	    stream << h;
-	}
+	tag = (char)Tag_Hash;
+	stream.writeRawBytes( &tag, 1 );
+	stream << h;
     }
 
     tag = (char)Tag_End;

@@ -349,7 +349,7 @@ protected:
 		    int old = pressedHandle;
 		    pressedHandle = i;
 		    if ( pressedHandle != old )
-			repaint( TRUE );
+			repaint();
 		    return;
 		}
 		x += 30;
@@ -358,7 +358,7 @@ protected:
 	int old = pressedHandle;
 	pressedHandle = -1;
 	if ( old != -1 )
-	    repaint( TRUE );
+	    repaint();
     }
 
     void mouseReleaseEvent( QMouseEvent *e ) {
@@ -379,7 +379,7 @@ protected:
 	    }
 	}
 	pressedHandle = -1;
-	repaint( FALSE );
+	repaint();
     }
 
     bool eventFilter( QObject *o, QEvent *e ) {

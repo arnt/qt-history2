@@ -193,9 +193,10 @@ struct Q_CORE_EXPORT QMetaObject
 	QueryPropertyEditable
     };
 
+    bool inherits(const char* classname) const;
+
 #ifdef QT_COMPAT
     QT_COMPAT const char *superClassName() const;
-    /*QT_COMPAT*/ bool inherits(const char* classname) const;
 #endif
 
     struct { // private data

@@ -611,7 +611,7 @@ QSize QLabel::minimumSizeHint() const
     if ( d->valid_hints == frameWidth() )
 	return d->msh;
 
-    constPolish();
+    ensurePolished();
     d->valid_hints = frameWidth();
     d->sh = sizeForWidth( -1 );
     QSize sz( -1, -1 );
@@ -919,7 +919,7 @@ void QLabel::movieUpdated(const QRect& rect)
 	r.moveBy(rect.x(), rect.y());
 	r.setWidth(qMin(r.width(), rect.width()));
 	r.setHeight(qMin(r.height(), rect.height()));
-	repaint( r, mov->framePixmap().mask() != 0 );
+	repaint(r);
     }
 }
 

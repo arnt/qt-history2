@@ -3011,7 +3011,7 @@ void QIconView::slotUpdate()
 	viewport()->setUpdatesEnabled( FALSE );
 	resizeContents( w, h );
 	viewport()->setUpdatesEnabled( TRUE );
-	viewport()->repaint( FALSE );
+	viewport()->repaint();
     }
 
     int cx = d->cachedContentsX == -1 ? contentsX() : d->cachedContentsX;
@@ -5949,7 +5949,7 @@ void QIconView::sort( bool ascending )
 
 QSize QIconView::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
 
     if ( !d->firstItem )
 	return QScrollView::sizeHint();

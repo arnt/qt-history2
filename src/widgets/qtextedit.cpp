@@ -5286,7 +5286,7 @@ void QTextEdit::setTabStopWidth( int ts )
 QSize QTextEdit::sizeHint() const
 {
     // cf. QScrollView::sizeHint()
-    constPolish();
+    ensurePolished();
     int f = 2 * frameWidth();
     int h = fontMetrics().height();
     QSize sz( f, f );

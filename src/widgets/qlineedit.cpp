@@ -612,7 +612,7 @@ void QLineEdit::setValidator( const QValidator *v )
 
 QSize QLineEdit::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     QFontMetrics fm( font() );
     int h = qMax(fm.lineSpacing(), 14) + 2*innerMargin;
     int w = fm.width( 'x' ) * 17; // "some"
@@ -631,7 +631,7 @@ QSize QLineEdit::sizeHint() const
 
 QSize QLineEdit::minimumSizeHint() const
 {
-    constPolish();
+    ensurePolished();
     QFontMetrics fm = fontMetrics();
     int h = fm.height() + qMax( 2*innerMargin, fm.leading() );
     int w = fm.maxWidth();

@@ -251,7 +251,7 @@ void QAlphaWidget::render()
     } else {
 	alphaBlend();
 	pm = mixed;
-	repaint( FALSE );
+	repaint();
     }
 }
 
@@ -529,7 +529,7 @@ void QRollEffect::scroll()
 
 	resize( w, h );
         setUpdatesEnabled( TRUE );
-	repaint( FALSE );
+	repaint();
     }
     if ( done ) {
 	anim.stop();

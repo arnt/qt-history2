@@ -725,7 +725,7 @@ void QTabBar::mousePressEvent( QMouseEvent * e )
 	if(e->type() == style().styleHint( QStyle::SH_TabBar_SelectMouseType, this ))
 	    setCurrentTab( t );
 	else
-	    repaint(t->rect(), FALSE);
+	    repaint(t->rect());
     }
 }
 
@@ -744,9 +744,9 @@ void QTabBar::mouseMoveEvent ( QMouseEvent *e )
 	QTab *t = selectTab( e->pos() );
 	if(t != d->pressed) {
 	    if(d->pressed)
-		repaint(d->pressed->rect(), FALSE);
+		repaint(d->pressed->rect());
 	    if((d->pressed = t))
-		repaint(t->rect(), FALSE);
+		repaint(t->rect());
 	}
     }
 }

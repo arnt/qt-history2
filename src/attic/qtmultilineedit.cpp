@@ -3081,7 +3081,7 @@ QSizePolicy QtMultiLineEdit::sizePolicy() const
 */
 QSize QtMultiLineEdit::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     int expected_lines;
     if ( d->maxlines >= 0 && d->maxlines <= 6 ) {
 	expected_lines = d->maxlines;
@@ -3106,7 +3106,7 @@ QSize QtMultiLineEdit::sizeHint() const
 
 QSize QtMultiLineEdit::minimumSizeHint() const
 {
-    constPolish();
+    ensurePolished();
     QFontMetrics fm( font() );
     int h = fm.lineSpacing() + frameWidth()*2;
     int w = fm.maxWidth();
@@ -3138,7 +3138,7 @@ void QtMultiLineEdit::resizeEvent( QResizeEvent *e )
 	    rebreakAll();
 	setAutoUpdate( oldAuto );
 	if ( autoUpdate() )
-	    repaint( FALSE );
+	    repaint();
     } else if ( d->align != AlignLeft ) {
  	d->maxLineWidth = 0; // trigger update
 	updateCellWidth();

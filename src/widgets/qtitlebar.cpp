@@ -289,7 +289,7 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	default:
 	    break;
 	}
-	repaint( FALSE );
+	repaint();
     } else {
 	d->pressed = FALSE;
     }
@@ -339,7 +339,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 	    case QStyle::SC_TitleBarCloseButton:
 		if( testWFlags( WStyle_SysMenu ) ) {
 		    d->buttonDown = QStyle::SC_None;
-		    repaint(FALSE);
+		    repaint();
 		    emit doClose();
 		    return;
 		}
@@ -350,7 +350,7 @@ void QTitleBar::mouseReleaseEvent( QMouseEvent * e)
 	    }
 	}
 	d->buttonDown = QStyle::SC_None;
-	repaint(FALSE);
+	repaint();
 	d->pressed = FALSE;
     }
 }
@@ -360,7 +360,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
     switch (d->buttonDown) {
     case QStyle::SC_None:
 	if(autoRaise())
-	    repaint( FALSE );
+	    repaint();
 	break;
     case QStyle::SC_TitleBarSysMenu:
 	break;
@@ -375,7 +375,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 	    d->buttonDown = style().querySubControl(QStyle::CC_TitleBar, this, e->pos());
 	    if( d->buttonDown != last_ctrl)
 		d->buttonDown = QStyle::SC_None;
-	    repaint(FALSE);
+	    repaint();
 	    d->buttonDown = last_ctrl;
 	}
 	break;
@@ -410,7 +410,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 	    QStyle::SCFlags last_ctrl = d->buttonDown;
 	    d->buttonDown = QStyle::SC_None;
 	    if( d->buttonDown != last_ctrl)
-		repaint(FALSE);
+		repaint();
 	}
 	break;
     }
@@ -511,13 +511,13 @@ void QTitleBar::cutText()
 void QTitleBar::leaveEvent( QEvent * )
 {
     if(autoRaise() && !d->pressed)
-	repaint( FALSE );
+	repaint();
 }
 
 void QTitleBar::enterEvent( QEvent * )
 {
     if(autoRaise() && !d->pressed)
-	repaint( FALSE );
+	repaint();
     QEvent e( QEvent::Leave );
     QApplication::sendEvent( parentWidget(), &e );
 }
@@ -616,7 +616,7 @@ bool QTitleBar::autoRaise() const
 
 QSize QTitleBar::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     QRect menur = style().querySubControlMetrics(QStyle::CC_TitleBar, this,
 						 QStyle::SC_TitleBarSysMenu);
     return QSize( menur.width(), style().pixelMetric( QStyle::PM_TitleBarHeight, this ) );

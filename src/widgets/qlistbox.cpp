@@ -2988,7 +2988,7 @@ QSize QListBox::sizeHint() const
     if ( cachedSizeHint().isValid() )
 	return cachedSizeHint();
 
-    constPolish();
+    ensurePolished();
     doLayout();
 
     int i=0;
@@ -3175,7 +3175,7 @@ void QListBox::doLayout() const
 {
     if ( !d->layoutDirty || d->resizeTimer->isActive() )
 	return;
-    constPolish();
+    ensurePolished();
     int c = count();
     switch( rowMode() ) {
     case FixedNumber:
@@ -3648,7 +3648,7 @@ void QListBox::refreshSlot()
 	       d->rowPos[d->currentRow] < contentsY() ||
 	       d->rowPos[d->currentRow+1] > contentsY()+visibleHeight() ) )
 	    ensureCurrentVisible();
-	viewport()->repaint( FALSE );
+	viewport()->repaint();
 	return;
     }
 
@@ -3683,9 +3683,9 @@ void QListBox::refreshSlot()
     }
 
     if ( r.isEmpty() )
-	viewport()->repaint( FALSE );
+	viewport()->repaint();
     else
-	viewport()->repaint( r, FALSE );
+	viewport()->repaint(r);
 }
 
 
@@ -3964,7 +3964,7 @@ void QListBox::resizeEvent( QResizeEvent *e )
 	if ( currentItemVisible )
 	    ensureCurrentVisible();
 	if ( d->current )
-	    viewport()->repaint( itemRect( d->current ), FALSE );
+	    viewport()->repaint(itemRect(d->current));
     } else if ( ( d->columnMode == FitToWidth || d->rowMode == FitToHeight ) && !(isVisible()) ) {
 	QScrollView::resizeEvent( e );
     } else if ( d->layoutDirty ) {
@@ -4347,7 +4347,7 @@ void QListBox::doRubberSelection( const QRect &old, const QRect &rubber )
 	QAccessible::updateAccessibility( viewport(), 0, QAccessible::Selection );
 #endif
     }
-    viewport()->repaint( pr, TRUE );
+    viewport()->repaint(pr);
 }
 
 

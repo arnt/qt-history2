@@ -124,7 +124,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 	    // Repaint all relevant widgets
 	    for (int pos=0; pos<l.size(); ++pos) {
 		QWidget *w = static_cast<QWidget*>(l.at(pos));
-		w->repaint(FALSE);
+		w->repaint();
 	    }
 	}
 	break;
@@ -138,7 +138,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 	    QObjectList l = widget->queryList("QMenuBar");
 	    for (int pos=0; pos<l.size(); ++pos) {
 		QMenuBar *menuBar  = static_cast<QMenuBar*>(l.at(pos));
-		menuBar->repaint(FALSE);
+		menuBar->repaint();
 	    }
 	}
 	break;
@@ -148,7 +148,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 	    // Menubars toggle based on focus
 	    QMenuBar *menuBar = ::qt_cast<QMenuBar*>(o);
 	    if (menuBar)
-		menuBar->repaint(FALSE);
+		menuBar->repaint();
 	}
 	break;
     case QEvent::Close:

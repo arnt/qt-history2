@@ -132,7 +132,7 @@ QSize QRadioButton::sizeHint() const
 {
     // Any more complex, and we will use style().itemRect()
     // NB: QCheckBox::sizeHint() is similar
-    constPolish();
+    ensurePolished();
 
     if(!qt_radiobutton_painter_pix)
 	qt_radiobutton_painter_pix = new QPixmap(1, 1);

@@ -1892,13 +1892,13 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     case QEvent::WindowDeactivate:
 	if ( titlebar )
 	    titlebar->setActive( FALSE );
-	repaint( FALSE );
+	repaint();
 	break;
 
     case QEvent::WindowActivate:
 	if ( titlebar )
 	    titlebar->setActive( act );
-	repaint( FALSE );
+	repaint();
 	break;
 
     default:
@@ -2014,7 +2014,7 @@ void QWorkspaceChild::setActive( bool b )
 	titlebar->setActive( act );
     if ( iconw )
 	iconw->setActive( act );
-    repaint( FALSE );
+    repaint();
 
     QObjectList ol = childWidget->queryList( "QWidget" );
     if ( act ) {

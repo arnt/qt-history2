@@ -364,17 +364,11 @@ QRect QSlider::sliderRect() const
 
 void QSlider::reallyMoveSlider( int newPos )
 {
-    QRegion oldR(sliderRect());
+    QRect oldR(sliderRect());
     sliderPos = newPos;
-    QRegion newR(sliderRect());
+    QRect newR(sliderRect());
 
-    /* just the one repaint if no background */
-    if (testAttribute(WA_NoSystemBackground)) {
-	repaint(newR | oldR, FALSE);
-    } else {
-	repaint(oldR.subtract(newR));
-	repaint(newR, FALSE);
-    }
+    repaint(newR | oldR);
 }
 
 
@@ -698,7 +692,7 @@ int QSlider::goodPart( const QPoint &p ) const
 */
 QSize QSlider::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     const int length = 84, tickSpace = 5;
     int thick = style().pixelMetric( QStyle::PM_SliderThickness, this );
     if ( ticks & Above )

@@ -325,7 +325,7 @@ void QMenuBar::updateItem( int id )
 {
     int i = indexOf( id );
     if ( i >= 0 && irects )
-	repaint( irects[i], FALSE );
+	repaint(irects[i]);
 }
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -1353,20 +1353,20 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 	int n = qMax( actItem, i );
 	actItem = i;
 	if ( irects && n >= 0 )
-	    repaint( irects[n], FALSE );
+	    repaint(irects[n]);
     } else if ( QABS(i-actItem) == 1 ) {
 	// two neighbouring items need repainting
 	int o = actItem;
 	actItem = i;
 	if ( irects )
-	    repaint( irects[i].unite( irects[o] ), FALSE );
+	    repaint(irects[i].unite(irects[o]));
     } else {
 	// two non-neighbouring items need repainting
 	int o = actItem;
 	actItem = i;
 	if ( irects ) {
-	    repaint( irects[o], FALSE );
-	    repaint( irects[i], FALSE );
+	    repaint(irects[o]);
+	    repaint(irects[i]);
 	}
     }
 

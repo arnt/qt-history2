@@ -145,7 +145,7 @@ bool QCheckBox::isTristate() const
 QSize QCheckBox::sizeHint() const
 {
     // NB: QRadioButton::sizeHint() is similar
-    constPolish();
+    ensurePolished();
 
 
     if(!qt_checkbox_painter_pix)

@@ -267,7 +267,7 @@ QIntValidator::~QIntValidator()
 
 QValidator::State QIntValidator::validate( QString & input, int & ) const
 {
-    QString stripped = input.stripWhiteSpace();
+    QString stripped = input.trimmed();
     if ( stripped.isEmpty() || (b < 0 && stripped == "-") )
 	return Intermediate;
     bool ok;
@@ -399,7 +399,7 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 {
     QRegExp empty( QString::fromLatin1(" *-?\\.? *") );
     if ( b >= 0 &&
-	 input.stripWhiteSpace().startsWith(QString::fromLatin1("-")) )
+	 input.trimmed().startsWith(QString::fromLatin1("-")) )
 	return Invalid;
     if ( empty.exactMatch(input) )
 	return Intermediate;
@@ -422,7 +422,7 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
 	}
     }
 
-    int i = input.find( '.' );
+    int i = input.indexOf('.');
     if ( i >= 0 && nume == 0 ) {
 	// has decimal point (but no E), now count digits after that
 	i++;
