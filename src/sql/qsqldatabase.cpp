@@ -290,7 +290,7 @@ void QSqlDatabase::init( const QString& type, const QString&  )
     d = new QSqlDatabasePrivate();
 #ifndef QT_NO_PLUGIN
     d->plugIns = new QInterfaceManager<QSqlDriverInterface>( "QSqlDriverInterface", QString((char*)getenv( "QTDIR" )) + "/lib" ); // ###
-    
+
 //     QStringList sl = d->plugIns->featureList();
 //     for( QStringList::Iterator it = sl.begin(); it != sl.end(); ++it ){
 //  	qDebug("QSqlDatabase::init() -> Feature: " + (*it) );
@@ -310,7 +310,7 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 
 #ifdef QT_SQL_MYSQL
 	if ( type == "QMYSQL" )
-	    d->driver = new QMySQLDriver();
+	    d->driver = new QMYSQLDriver();
 #endif
 
 #ifdef QT_SQL_ODBC
