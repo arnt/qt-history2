@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>483</width>
-            <height>379</height>
+            <width>479</width>
+            <height>410</height>
         </rect>
     </property>
     <property name="caption">
@@ -71,152 +71,6 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QGroupBox" row="2" column="0">
-                        <property name="name">
-                            <cstring>GroupBox5</cstring>
-                        </property>
-                        <property name="title">
-                            <string>Ge&amp;neral</string>
-                        </property>
-                        <vbox>
-                            <property name="margin">
-                                <number>11</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <widget class="QCheckBox">
-                                <property name="name">
-                                    <cstring>checkBoxWorkspace</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>&amp;Restore last workspace on startup</string>
-                                </property>
-                                <property name="checked">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Restore last workspace</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>The current workspace settings will be restored next time you start the designer if this option is checked.</string>
-                                </property>
-                            </widget>
-                            <widget class="QCheckBox">
-                                <property name="name">
-                                    <cstring>checkBoxSplash</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Show &amp;Splash Screen on startup</string>
-                                </property>
-                                <property name="checked">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Show Splashscreen</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>A splashscreen is displayed when starting the designer if this option is checked.</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel">
-                                <property name="name">
-                                    <cstring>Label3</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>&amp;Documentation Path:</string>
-                                </property>
-                                <property name="buddy" stdset="0">
-                                    <cstring>editDocPath</cstring>
-                                </property>
-                            </widget>
-                            <widget class="QLayoutWidget">
-                                <property name="name">
-                                    <cstring>Layout6</cstring>
-                                </property>
-                                <hbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <property name="margin">
-                                        <number>0</number>
-                                    </property>
-                                    <property name="spacing">
-                                        <number>6</number>
-                                    </property>
-                                    <widget class="QLineEdit">
-                                        <property name="name">
-                                            <cstring>editDocPath</cstring>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;b&gt;Enter the path to the documentation.&lt;/b&gt;&lt;p&gt;You may provide an $environment variable as first part of your pathname.&lt;/p&gt;</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QToolButton">
-                                        <property name="name">
-                                            <cstring>buttonDocPath</cstring>
-                                        </property>
-                                        <property name="focusPolicy">
-                                            <enum>TabFocus</enum>
-                                        </property>
-                                        <property name="text">
-                                            <string>...</string>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Select path</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Look for the documentation path.</string>
-                                        </property>
-                                    </widget>
-                                </hbox>
-                            </widget>
-                        </vbox>
-                    </widget>
-                    <widget class="QGroupBox" row="2" column="1">
-                        <property name="name">
-                            <cstring>GroupBox3</cstring>
-                        </property>
-                        <property name="title">
-                            <string>&amp;Toolbars</string>
-                        </property>
-                        <vbox>
-                            <property name="margin">
-                                <number>11</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <widget class="QCheckBox">
-                                <property name="name">
-                                    <cstring>checkBoxBigIcons</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Show &amp;Big Icons</string>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Big Icons</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>Uses big icons in the toolbars when checked.</string>
-                                </property>
-                            </widget>
-                            <widget class="QCheckBox">
-                                <property name="name">
-                                    <cstring>checkBoxTextLabels</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Show Text Lab&amp;els</string>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Text Labels</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>Shows textlabels in the toolbars when checked.</string>
-                                </property>
-                            </widget>
-                        </vbox>
-                    </widget>
                     <widget class="QButtonGroup" row="0" column="0" rowspan="2" colspan="1">
                         <property name="name">
                             <cstring>ButtonGroup1</cstring>
@@ -467,6 +321,163 @@
                             <string>A splashscreen is displayed when starting the designer if this option is checked.</string>
                         </property>
                     </spacer>
+                    <widget class="QGroupBox" row="2" column="0">
+                        <property name="name">
+                            <cstring>GroupBox5</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Ge&amp;neral</string>
+                        </property>
+                        <vbox>
+                            <property name="margin">
+                                <number>11</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>checkBoxWorkspace</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Restore last workspace on startup</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Restore last workspace</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>The current workspace settings will be restored next time you start the designer if this option is checked.</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>checkBoxSplash</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Show &amp;Splash Screen on startup</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Show Splashscreen</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>A splashscreen is displayed when starting the designer if this option is checked.</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>checkAutoEdit</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Disable Database Auto-Edit in Preview</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                            <widget class="QLabel">
+                                <property name="name">
+                                    <cstring>Label3</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Documentation Path:</string>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>editDocPath</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>Layout6</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <property name="margin">
+                                        <number>0</number>
+                                    </property>
+                                    <property name="spacing">
+                                        <number>6</number>
+                                    </property>
+                                    <widget class="QLineEdit">
+                                        <property name="name">
+                                            <cstring>editDocPath</cstring>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>&lt;b&gt;Enter the path to the documentation.&lt;/b&gt;&lt;p&gt;You may provide an $environment variable as first part of your pathname.&lt;/p&gt;</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QToolButton">
+                                        <property name="name">
+                                            <cstring>buttonDocPath</cstring>
+                                        </property>
+                                        <property name="focusPolicy">
+                                            <enum>TabFocus</enum>
+                                        </property>
+                                        <property name="text">
+                                            <string>...</string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Select path</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>Look for the documentation path.</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </vbox>
+                    </widget>
+                    <widget class="QGroupBox" row="2" column="1">
+                        <property name="name">
+                            <cstring>GroupBox3</cstring>
+                        </property>
+                        <property name="title">
+                            <string>&amp;Toolbars</string>
+                        </property>
+                        <vbox>
+                            <property name="margin">
+                                <number>11</number>
+                            </property>
+                            <property name="spacing">
+                                <number>6</number>
+                            </property>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>checkBoxBigIcons</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Show &amp;Big Icons</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Big Icons</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Uses big icons in the toolbars when checked.</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>checkBoxTextLabels</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Show Text Lab&amp;els</string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Text Labels</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Shows textlabels in the toolbars when checked.</string>
+                                </property>
+                            </widget>
+                        </vbox>
+                    </widget>
                 </grid>
             </widget>
         </widget>
@@ -619,6 +630,7 @@
         <slot>setEnabled(bool)</slot>
     </connection>
     <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
 </connections>
 <tabstops>
     <tabstop>tabWidget</tabstop>

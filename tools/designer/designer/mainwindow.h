@@ -341,6 +341,7 @@ private:
     QString pluginDir, libDir;
     OutputWindow *oWindow;
     QValueList<Tab> preferenceTabs;
+    bool databaseAutoEdit;
 
 };
 

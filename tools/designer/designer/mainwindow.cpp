@@ -156,7 +156,7 @@ MainWindow::MainWindow( bool asClient )
 #endif
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
       docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
-      previewing( FALSE )
+      previewing( FALSE ), databaseAutoEdit( FALSE )
 {
     desInterface = new DesignerInterfaceImpl( this );
     desInterface->addRef();
@@ -1941,6 +1941,7 @@ void MainWindow::editPreferences()
 	dia->radioColor->setChecked( TRUE );
     dia->checkBoxSplash->setChecked( splashScreen );
     dia->editDocPath->setText( docPath );
+    dia->checkAutoEdit->setChecked( !databaseAutoEdit );
     connect( dia->buttonDocPath, SIGNAL( clicked() ),
 	     this, SLOT( chooseDocPath() ) );
 
@@ -1979,6 +1980,7 @@ void MainWindow::editPreferences()
 	}
 	splashScreen = dia->checkBoxSplash->isChecked();
 	docPath = dia->editDocPath->text();
+	databaseAutoEdit = !dia->checkAutoEdit->isChecked();
     }
     for ( it = preferenceTabs.begin(); it != preferenceTabs.end(); ++it ) {
 	Tab t = *it;
@@ -2057,6 +2059,8 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 		( (QWidget*)o )->setStyle( style );
 	    if ( palet )
 		( (QWidget*)o )->setPalette( *palet );
+	    if ( !databaseAutoEdit )
+		o->setProperty( "autoEdit", QVariant( FALSE, 0 ) );
 	}
 	delete l;
 	w->move( fw->mapToGlobal( QPoint(0,0) ) );
@@ -3164,6 +3168,7 @@ void MainWindow::writeConfig()
     config.writeEntry( "FileFilter", fileFilter );
     config.writeEntry( "RecentlyOpenedFiles", recentlyFiles, ',' );
     config.writeEntry( "RecentlyOpenedProjects", recentlyProjects, ',' );
+    config.writeEntry( "DatabaseAutoEdit", databaseAutoEdit );
     config.setGroup( "Grid" );
     config.writeEntry( "Snap", snGrid );
     config.writeEntry( "Show", sGrid );
@@ -3288,6 +3293,7 @@ void MainWindow::readConfig()
     docPath = config.readEntry( "DocPath", docPath );
     fileFilter = config.readEntry( "FileFilter", fileFilter );
     templPath = config.readEntry( "TemplatePath", QString::null );
+    databaseAutoEdit = config.readBoolEntry( "DatabaseAutoEdit", databaseAutoEdit );
     int num;
     config.setGroup( "General" );
     if ( restoreConfig ) {
