@@ -19,8 +19,9 @@ Limitations:
 Compilation problems:
 
   Qt 2.0 has problems compiling on some combinations of operating
-  system versions and compiler versions.  We do not yet know the full
-  extent of these problems, but see http://www.troll.no/platforms/
+  system versions and compiler versions.  Information about such
+  problems will be posted on http://www.troll.no/platforms/ as we
+  become aware of them.
 
 Example:
 
