@@ -32,6 +32,7 @@
 #include "qbuffer.h"
 #include "qimage.h"
 #include "qbitmap.h"
+#include "qvaluelist.h"
 #include "qt_mac.h"
 
 #if 1
