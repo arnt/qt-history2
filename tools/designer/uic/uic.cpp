@@ -1882,8 +1882,9 @@ const char* const ColorRole[] = {
 };
 
 
-/*!
-  Attention: this function has to be in sync with Resource::setWidgetProperty(). If you change one, change both.
+/*!  Attention: this function has to be in sync with
+  Resource::saveProperty() and DomTool::elementToVariant. If you
+  change one, change all.
  */
 QString Uic::setObjectProperty( const QString& objClass, const QString& obj, const QString &prop, const QDomElement &e, bool stdset )
 {
