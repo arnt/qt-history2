@@ -94,7 +94,7 @@ QList<DesignerFormWindowInterface>* DesignerFormListInterfaceImpl::queryFormInte
 QString DesignerFormListInterfaceImpl::text( DesignerFormWindowInterface *form, int col ) const
 {
     QString formname = form->requestProperty( "name" ).toString();
-    DesignerFormListInterfaceImpl* that = (DesignerFormListInterfaceImpl*)this;    
+    DesignerFormListInterfaceImpl* that = (DesignerFormListInterfaceImpl*)this;
     QListViewItemIterator it( (FormList*)that->object() );
     while ( it.current() ) {
 	FormListItem* item = (FormListItem*)it.current();
@@ -108,7 +108,7 @@ QString DesignerFormListInterfaceImpl::text( DesignerFormWindowInterface *form, 
 void DesignerFormListInterfaceImpl::setText( DesignerFormWindowInterface *form, int col, const QString& s )
 {
     QString formname = form->requestProperty( "name" ).toString();
-    QListViewItemIterator it( (FormList*)object() );    
+    QListViewItemIterator it( (FormList*)object() );
     while ( it.current() ) {
 	FormListItem* item = (FormListItem*)it.current();
 	++it;
@@ -150,7 +150,7 @@ void DesignerFormListInterfaceImpl::setPixmap( DesignerFormWindowInterface *form
 
 
 /*
- * DesignerActiveFormWindowInterface 
+ * DesignerActiveFormWindowInterface
 */
 DesignerActiveFormWindowInterfaceImpl::DesignerActiveFormWindowInterfaceImpl ( FormList* fl )
     : DesignerActiveFormWindowInterface( fl ), formWindow( 0 )
@@ -226,7 +226,7 @@ void DesignerActiveFormWindowInterfaceImpl ::reconnect()
     for ( QValueList<Connect2>::Iterator cit2 = connects2.begin(); cit2 != connects2.end(); ++cit2 ) {
 /*	if ( oldFormWindow && (*cit1).target )
 	    disconnect( (*cit2).sender, (*cit2).signal, oldFormWindow, (*cit2).slot );*/
-	if ( formWindow && (*cit1).target )
+	if ( formWindow && (*cit2).sender )
 	    connect( (*cit2).sender, (*cit2).signal, formWindow, (*cit2).slot );
     }
     QObjectListIt eit( filterObjects );
