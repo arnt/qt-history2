@@ -6,7 +6,5 @@ SOURCES		= centralwidget.cpp \
 		  main.cpp \
 		  mainwindow.cpp
 TARGET		= qutlook
-DEPENDPATH	=../../include
 
-INCLUDEPATH += ../../container
-LIBS        += $(QT_BUILD_TREE)/lib/qaxcontainer.lib
+LIBS        += qaxcontainer.lib
