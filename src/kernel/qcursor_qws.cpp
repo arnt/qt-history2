@@ -76,8 +76,7 @@ QCursorData::~QCursorData()
   Global cursors
  *****************************************************************************/
 
-static const int cursors = 15;
-static QCursor cursorTable[cursors];
+static QCursor cursorTable[Qt::LastCursor+1];
 
 static const int arrowCursorIdx = 0;
 
@@ -96,6 +95,7 @@ QT_STATIC_CONST_IMPL QCursor & Qt::splitHCursor = cursorTable[11];
 QT_STATIC_CONST_IMPL QCursor & Qt::splitVCursor = cursorTable[12];
 QT_STATIC_CONST_IMPL QCursor & Qt::pointingHandCursor = cursorTable[13];
 QT_STATIC_CONST_IMPL QCursor & Qt::forbiddenCursor = cursorTable[14];
+QT_STATIC_CONST_IMPL QCursor & Qt::whatsThisCursor = cursorTable[15];
 
 
 QCursor *QCursor::find_cur( int shape )		// find predefined cursor
@@ -109,7 +109,7 @@ static bool initialized = FALSE;
 void QCursor::cleanup()
 {
     int shape;
-    for( shape = 0; shape < cursors; shape++ ) {
+    for( shape = 0; shape <= LastCursor; shape++ ) {
 	delete cursorTable[shape].data;
 	cursorTable[shape].data = 0;
     }
@@ -120,7 +120,7 @@ void QCursor::cleanup()
 void QCursor::initialize()
 {
     int shape;
-    for( shape = 0; shape < cursors; shape++ )
+    for( shape = 0; shape <= LastCursor ; shape++ )
 	cursorTable[shape].data = new QCursorData( shape, shape );
     initialized = TRUE;
     qAddPostRoutine( cleanup );
