@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#60 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -53,10 +53,6 @@
 #if defined(_OS_IRIX_) && defined(_CC_GNU_)
 #define _LANGUAGE_C_PLUS_PLUS
 #endif
-// On Tru64 the correct type for sigaction.sa_handler is used when XPG4v2
-// is specified.
-#undef _XOPEN_SOURCE_EXTENDED // get rid of warnings
-#define _XOPEN_SOURCE_EXTENDED
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -71,24 +67,24 @@
 //#define QT_QPROCESS_DEBUG
 
 #ifdef __MIPSEL__
-#ifndef SOCK_DGRAM
-#define SOCK_DGRAM 1
-#endif
-#ifndef SOCK_STREAM
-#define SOCK_STREAM 2
-#endif
+#  ifndef SOCK_DGRAM
+#    define SOCK_DGRAM 1
+#  endif
+#  ifndef SOCK_STREAM
+#    define SOCK_STREAM 2
+#  endif
 #endif
 
 #if defined(SIGNAL_HACK)
-#undef SIGNAL_HACK
+#  undef SIGNAL_HACK
 #endif
 
 #if defined(Q_OS_MACX)
 // these platforms work one way
-#define SIGNAL_HACK
+#  define SIGNAL_HACK
 #elif defined(Q_CC_GNU) && ( defined(Q_OS_IRIX) || defined(Q_OS_SUN) )
 // gcc on these platforms works above, but native compiler doesn't.
-#define SIGNAL_HACK
+#  define SIGNAL_HACK
 #endif
 
 
