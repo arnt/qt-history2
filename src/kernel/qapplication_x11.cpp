@@ -664,7 +664,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
     if ( !qt_std_pal )
 	qt_create_std_palette();
 
-    QCString resFont, resFG, resBG;
+    QCString resFont, resFG, resBG, resEF;
 
     if ( QApplication::desktopSettingsAware() && !qt_set_desktop_properties() ) {
 	int format;
@@ -685,8 +685,10 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 		XFree(data);
 	}
 
-	QCString item, key, value;
-	int l = 0, r, i;
+	QCString key, value;
+	int l = 0, r;
+	QCString apn = appName;
+	int apnl = apn.length();
 
 	while( (unsigned) l < res.length()) {
 	    r = res.find( "\n", l );
@@ -694,23 +696,41 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 		r = res.length();
 	    while ( isspace(res[l]) )
 		l++;
+	    bool mine = FALSE;
 	    if ( res[l] == '*'
-	      && (res[l+1] == 'f' || res[l+1] == 'b') )
+	      && (res[l+1] == 'f' || res[l+1] == 'b' || res[l+1] == 'q') )
 	    {
-		// OPTIMIZED, since we only want "*[fb].."
+		// OPTIMIZED, since we only want "*[fbq].."
 
-		item = res.mid( l, r - l ).simplifyWhiteSpace();
-		i = item.find( ":" );
-		key = item.left( i ).stripWhiteSpace();
+		QCString item = res.mid( l, r - l ).simplifyWhiteSpace();
+		int i = item.find( ":" );
+		key = item.left( i ).stripWhiteSpace().mid(1);
 		value = item.right( item.length() - i - 1 ).stripWhiteSpace();
-		if ( !font && key == "*font")
-		    resFont = value.copy();
-		else if  ( !fg &&  key == "*foreground" )
-		    resFG = value.copy();
-		else if ( !bg && key == "*background")
-		    resBG = value.copy();
-		// NOTE: if you add more, change the [fb] stuff above
+		mine = TRUE;
+	    } else if ( res[l] == appName[0] ) {
+		if ( res.mid(l,apnl) == apn &&
+			(res[l+apnl] == '.' || res[l+apnl] == '*' ) )
+		{
+		    QCString item = res.mid( l, r - l ).simplifyWhiteSpace();
+		    int i = item.find( ":" );
+		    key = item.left( i ).stripWhiteSpace().mid(apnl+1);
+		    value = item.right( item.length() - i - 1 ).stripWhiteSpace();
+		    mine = TRUE;
+		}
 	    }
+
+	    if ( mine ) {
+		if ( !font && key == "font")
+		    resFont = value.copy();
+		else if  ( !fg &&  key == "foreground" )
+		    resFG = value.copy();
+		else if ( !bg && key == "background")
+		    resBG = value.copy();
+		else if ( key == "guieffects")
+		    resEF = value.copy();
+		// NOTE: if you add more, change the [fbq] stuff above
+	    }
+
 	    l = r + 1;
 	}
     }
@@ -786,6 +806,22 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	if ( pal != *qt_std_pal && pal != QApplication::palette() )
 	    QApplication::setPalette( pal, TRUE );
 	*qt_std_pal = pal;
+    }
+
+    if ( !resEF.isEmpty() ) {
+	QStringList effects = QStringList::split(" ",resEF);
+	if ( effects.contains("general") )
+	    QApplication::enableEffect( Qt::UI_General, TRUE );
+	if ( effects.contains("animatemenu") )
+	    QApplication::enableEffect( Qt::UI_AnimateMenu, TRUE );
+	if ( effects.contains("fademenu") )
+	    QApplication::enableEffect( Qt::UI_FadeMenu, TRUE );
+	if ( effects.contains("animatecombo") )
+	    QApplication::enableEffect( Qt::UI_AnimateCombo, TRUE );
+	if ( effects.contains("animatetooltip") )
+	    QApplication::enableEffect( Qt::UI_AnimateTooltip, TRUE );
+	if ( effects.contains("fadetooltip") )
+	    QApplication::enableEffect( Qt::UI_FadeTooltip, TRUE );
     }
 }
 
