@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#14 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#15 $
 **
 ** Implementation of QFileDialog class
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#14 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#15 $")
 
 
 /*----------------------------------------------------------------------------
@@ -382,7 +382,7 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 
 void QFileDialog::fileSelected( int index )
 {
-    nameEdit->setText( files->string( index ) );
+    nameEdit->setText( files->text(index) );
     emit fileSelected( d.filePath( nameEdit->text() ) );
     accept();
 }
@@ -394,8 +394,8 @@ void QFileDialog::fileSelected( int index )
 
 void QFileDialog::fileHighlighted( int index )
 {
-    nameEdit->setText( files->string( index ) );
-    emit fileHighlighted( d.filePath( files->string( index ) ) );
+    nameEdit->setText( files->text(index) );
+    emit fileHighlighted( d.filePath( files->text(index) ) );
 }
 
 /*----------------------------------------------------------------------------
@@ -406,7 +406,7 @@ void QFileDialog::fileHighlighted( int index )
 void QFileDialog::dirSelected( int index )
 {
     QDir tmp = d;
-    if ( d.cd( dirs->string(index) ) && d.isReadable() ) {
+    if ( d.cd( dirs->text(index) ) && d.isReadable() ) {
 	nameEdit->setText( "" );
 	emit dirEntered( d.path() );
 	rereadDir();
@@ -423,7 +423,7 @@ void QFileDialog::pathSelected( int index )
     QString newPath;
     QDir tmp = d;
     for( int i = pathBox->count() - 1 ; i >= index ; i-- )
-	newPath += pathBox->string( i );
+	newPath += pathBox->text( i );
     d.setPath( newPath );
     if ( d.isReadable() ) {
 	rereadDir();
