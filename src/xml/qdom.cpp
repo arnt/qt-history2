@@ -6861,7 +6861,7 @@ static QStringList getGroupItemList(const QString &prefix, const KeyMap &keys)
             itemLen -= prefLen - 1; // keep trailing '/'
         QString item = key.mid(prefLen, itemLen);
         if (result.isEmpty() || result.last() != item) // don't add duplicates
-            result.append(key.mid(prefLen, itemLen));
+            result.append(item);
         ++i;
     }
 
