@@ -120,7 +120,14 @@ QVariant QSqlField::value() const
 */
 void QSqlField::setValue( const QVariant& value )
 {
-    val = value;
+    if ( value.type() != val.type() ) {
+	if ( !val.canCast( value.type() ) )    
+	     qWarning("QSqlField::setValue: cannot cast from %s to %s", value.typeName(), val.typeName() );
+	QVariant tmp = value;
+	tmp.cast( val.type() );
+	val = tmp;
+    } else
+	val = value;
     if ( val.type() != QVariant::Invalid )
 	setNull( FALSE );
 }
