@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#61 $
 **
-** Implementation of QDirclass
+** Implementation of QDir class
 **
 ** Created : 950628
 **
@@ -40,26 +40,13 @@
 #include "qdir.h"
 #ifndef QT_NO_DIR
 
+#include "qdir_p.h"
 #include "qfileinfo.h"
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
 #include <stdlib.h>
 #include <ctype.h>
-
-extern QStringList qt_makeFilterList( const QString &filter );
-
-extern int qt_cmp_si_sortSpec;
-
-#if defined(Q_C_CALLBACKS)
-extern "C" {
-#endif
-
-extern int qt_cmp_si( const void *, const void * );
-
-#if defined(Q_C_CALLBACKS)
-}
-#endif
 
 
 void QDir::slashify( QString& )

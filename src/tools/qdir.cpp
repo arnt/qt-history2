@@ -40,6 +40,7 @@
 #include "qdir.h"
 
 #ifndef QT_NO_DIR
+#include "qdir_p.h"
 #include "qfileinfo.h"
 #include "qfiledefs_p.h"
 #include "qregexp.h"

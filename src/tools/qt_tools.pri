@@ -15,6 +15,7 @@ tools {
 		  $$TOOLS_H/qdatetime.h \
 		  $$TOOLS_H/qdict.h \
 		  $$TOOLS_H/qdir.h \
+		  $$TOOLS_P/qdir_p.h \
 		  $$TOOLS_H/qeucjpcodec.h \
 		  $$TOOLS_H/qeuckrcodec.h \
 		  $$TOOLS_H/qfile.h \

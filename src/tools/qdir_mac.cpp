@@ -1,14 +1,11 @@
-#include "qglobal.h"
 #include "qdir.h"
+#include "qdir_p.h"
 #include "qfileinfo.h"
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
 
 static QString qt_cwd;
-
-extern int qt_cmp_si_sortSpec;
-extern int qt_cmp_si( const void *, const void * );
 
 void QDir::slashify(QString& n)
 {
@@ -168,8 +165,6 @@ bool QDir::isRelativePath(const QString& path)
 	return true;
     return false;
 }
-
-extern QStringList qt_makeFilterList ( const QString &filter );
 
 bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
 			  int sortSpec)

@@ -36,6 +36,7 @@
 #endif
 
 #include "qdir.h"
+#include "qdir_p.h"
 #include "qnamespace.h"
 #include "qfileinfo.h"
 #include "qfiledefs_p.h"
@@ -55,8 +56,6 @@ extern "C" Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
 #endif
 
 #if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
-
-QStringList qt_makeFilterList( const QString &filter );
 
 void QDir::slashify( QString& n )
 {
@@ -330,10 +329,6 @@ bool QDir::isRelativePath( const QString &path )
 	i = 2;
     return path[i] != '/' && path[i] != '\\';
 }
-
-extern int qt_cmp_si_sortSpec;
-
-extern int qt_cmp_si( const void *, const void * );
 
 /*!
   \internal
