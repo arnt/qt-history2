@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#389 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#390 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3113,7 +3113,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( qt_window_for_button_down != winId() && !qApp->inPopupMode() )
 		unexpected = TRUE;
 
-	    if ( (state & ( LeftButton |
+	    if ( (state & (~button) & ( LeftButton |
 			    MidButton |
 			    RightButton)) == 0 ) {
 		qt_button_down = 0;
@@ -3209,7 +3209,6 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    if ( testWFlags(WType_Popup) )	// ignore replayed event
 		return TRUE;
 	}
-
 
 	QMouseEvent e( type, pos, globalPos, button, state );
 	QApplication::sendEvent( widget, &e );
@@ -3458,7 +3457,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     (void) translateKeyEventInternal( event, count, text, state, ascii, code);
     bool isAccel = FALSE;
     if (!grab) { // test for accel if the keyboard is not grabbed
-	QKeyEvent a( QEvent::AccelAvailable, code, ascii, state, text, FALSE, 
+	QKeyEvent a( QEvent::AccelAvailable, code, ascii, state, text, FALSE,
 		     QMAX(count, int(text.length())) );
 	a.ignore();
 	QApplication::sendEvent( topLevelWidget(), &a );
@@ -3483,7 +3482,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    (void) translateKeyEventInternal( &evPress, countIntern, textIntern, stateIntern, asciiIntern, codeIntern);
 	    if ( stateIntern == state && !textIntern.isEmpty() ) {
 		if (!grab) { // test for accel if the keyboard is not grabbed
-		    QKeyEvent a( QEvent::AccelAvailable, codeIntern, asciiIntern, stateIntern, textIntern, FALSE, 
+		    QKeyEvent a( QEvent::AccelAvailable, codeIntern, asciiIntern, stateIntern, textIntern, FALSE,
 				 QMAX(countIntern, int(textIntern.length())) );
 		    a.ignore();
 		    QApplication::sendEvent( topLevelWidget(), &a );
