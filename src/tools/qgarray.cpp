@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#16 $
 **
 ** Implementation of QGArray class
 **
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#16 $";
 #endif
 
 
@@ -68,11 +68,9 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#15 $";
   \brief The QGArray class is a generic array, intended to be
   subclassed by real array classes such as QArray.
 
-  \ingroup tools
-
   It provides <em>no</em> type checking and other new-fangled luxury.
-  See the entry for Real Programmer in <cite>The New Hackers
-  Dictionary,</cite> and please consider using QArray instead.
+  See the entry for Real Programmer in <i>The New Hackers
+  Dictionary,</i> and please consider using QArray instead.
 
   \sa QGCache QGDict QGList QGVector */
 
@@ -86,7 +84,12 @@ QGArray::QGArray()				// create empty array
 
 /*! Dummy constructor; does nothing.
 
- \sa explain that */
+  There has to be a default constructor, but for this class, the
+  default constructor has no meaning.  If you don't understand, do
+  yourself a favour and use QArray.  If you do understand, you know
+  why you should use QArray.
+
+  \sa QArray */
 
 QGArray::QGArray( int, int )			// dummy; does not alloc
 {
