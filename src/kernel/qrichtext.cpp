@@ -1,4 +1,4 @@
-/****************************************************************************
+#/****************************************************************************
 ** $Id$
 **
 ** Implementation of the internal Qt classes dealing with rich text
@@ -1957,7 +1957,7 @@ QString QTextDocument::plainText( QTextParag *p ) const
 
 static QString align_to_string( const QString &tag, int a )
 {
-    if ( tag == "p" || tag == "li" || tag[ 0 ] == 'h' ) {
+    if ( tag == "p" || tag == "li" || ( tag[0] == 'h' && tag[1].isDigit() ) ) {
 	if ( a & Qt::AlignRight )
 	    return " align=\"right\"";
 	if ( a & Qt::AlignCenter )
@@ -1971,7 +1971,7 @@ static QString align_to_string( const QString &tag, int a )
 static QString direction_to_string( const QString &tag, int d )
 {
     if ( d != QChar::DirON &&
-	 ( tag == "p" || tag == "div" || tag == "li" || tag[ 0 ] == 'h' ) )
+	 ( tag == "p" || tag == "div" || tag == "li" || ( tag[0] == 'h' && tag[1].isDigit() ) ) )
 	return ( d == QChar::DirL? " dir=\"ltr\"" : " dir=\"rtl\"" );
     return "";
 }
@@ -2008,7 +2008,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 		lastItems = items;
 		if ( item->name() == "li" && p->listValue() != -1 ) {
 		    s += "<li value=\"" + QString::number( p->listValue() ) + "\">";
-		} else { 
+		} else {
 		    QString ps = p->richText();
 		    if ( ps.isEmpty() && (!item->name().isEmpty() || p->next()) )
 			s += "<br>\n"; // empty paragraph, except the last one
@@ -2016,7 +2016,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 			s += "<" + item->name() + align_to_string( item->name(), p->alignment() )
 			     + direction_to_string( item->name(), p->direction() )  + ">" +
 			     ps + "</" + item->name() + ">\n";
-		    else 
+		    else
 			s += ps +"\n";
 		}
 	    } else {
@@ -4680,8 +4680,6 @@ QString QTextParag::richText() const
 	    s += "&lt;";
 	} else if ( c->c == '>' ) {
 	    s += "&gt;";
-	} else if ( c->c == QChar::nbsp ) {
-	    s += "&nbsp;";
 #ifndef QT_NO_TEXTCUSTOMITEM
 	} else if ( c->isCustom() ) {
 	    s += c->customItem()->richText();
@@ -6040,7 +6038,7 @@ QString QTextFormat::makeFormatEndTags() const
 	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
 	    tag += "</b>";
     }
-    if ( isAnchor() && anchorHref().isEmpty() )
+    if ( isAnchor() && !anchorHref().isEmpty() )
 	tag += "</a>";
     return tag;
 }
