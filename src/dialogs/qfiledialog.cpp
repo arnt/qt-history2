@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#154 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#155 $
 **
 ** Implementation of QFileDialog class
 **
@@ -616,12 +616,12 @@ void QFileDialogPrivate::MCList::mousePressEvent( QMouseEvent * e )
 }
 
 
-void QFileDialogPrivate::MCList::mouseMoveEvent( QMouseEvent * e )
+void QFileDialogPrivate::MCList::mouseMoveEvent( QMouseEvent * )
 {
 }
 
 
-void QFileDialogPrivate::MCList::mouseReleaseEvent( QMouseEvent * e )
+void QFileDialogPrivate::MCList::mouseReleaseEvent( QMouseEvent * )
 {
 }
 
