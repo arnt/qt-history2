@@ -159,24 +159,32 @@ ProjectGenerator::init()
 			    (*dep_it).length() - ((*dep_it).findRev(Option::dir_sep)+1));
 			if(no_qt_files && file_no_path.find(QRegExp("^q[a-z_0-9].h$")) != -1)
 			    no_qt_files = FALSE;
-			if((*dep_it).right(Option::h_ext.length()) == Option::h_ext) {
+			QString h_ext;
+			if((*dep_it).right(Option::h_ext.length()) == (h_ext=Option::h_ext) ||
+			   (*dep_it).right(Option::hpp_ext.length()) == (h_ext=Option::hpp_ext)) {
 			    if((*dep_it).left(1).lower() == "q") {
 				QString qhdr = (*dep_it).lower();
 				if(file_no_path == "qthread.h")
 				    addConfig("thread");
 			    }
-			    QString src((*dep_it).left((*dep_it).length() - Option::h_ext.length()) + Option::cpp_ext);
-			    if(QFile::exists(src)) {
-				bool exists = FALSE;
-				QStringList &srcl = v["SOURCES"];
-				for(QStringList::Iterator src_it = srcl.begin(); src_it != srcl.end(); ++src_it) {
-				    if((*src_it).lower() == src.lower()) {
-					exists = TRUE;
-					break;
+
+			    bool found_src = FALSE;
+			    QString c_ext[] = { Option::cpp_ext, Option::cxx_ext, Option::cc_ext, 
+						       QString::null };
+			    for(int i = 0; !c_ext[i].isNull(); i++) {
+				QString src((*dep_it).left((*dep_it).length() - h_ext.length()) + c_ext[i]);
+				if(QFile::exists(src)) {
+				    bool exists = FALSE;
+				    QStringList &srcl = v["SOURCES"];
+				    for(QStringList::Iterator src_it = srcl.begin(); src_it != srcl.end(); ++src_it) {
+					if((*src_it).lower() == src.lower()) {
+					    exists = TRUE;
+					    break;
+					}
 				    }
+				    if(!exists)
+					srcl.append(src);
 				}
-				if(!exists)
-				    srcl.append(src);
 			    }
 			} else if((*dep_it).right(2) == Option::lex_ext &&
 				  file_no_path.left(Option::lex_mod.length()) == Option::lex_mod) {
@@ -287,6 +295,16 @@ ProjectGenerator::addFile(const QString &file)
 	    ; //do nothing
 	else
 	    where = "SOURCES";
+    } else if(file.right(Option::cc_ext.length()) == Option::cc_ext) {
+	if(QFile::exists(file.left(file.length() - Option::cc_ext.length()) + Option::ui_ext))
+	    ; //do nothing
+	else
+	    where = "SOURCES";
+    } else if(file.right(Option::cxx_ext.length()) == Option::cxx_ext) {
+	if(QFile::exists(file.left(file.length() - Option::cxx_ext.length()) + Option::ui_ext))
+	    ; //do nothing
+	else
+	    where = "SOURCES";
     } else if(file.right(Option::ui_ext.length()) == Option::ui_ext) {
 	where = "INTERFACES";
     } else if(file.right(2) == ".c") {
@@ -295,7 +313,8 @@ ProjectGenerator::addFile(const QString &file)
 	where = "LEXSOURCES";
     } else if(file.right(Option::yacc_ext.length()) == Option::yacc_ext) {
 	where = "YACCSOURCES";
-    } else if(file.right(Option::h_ext.length()) == Option::h_ext) {
+    } else if(file.right(Option::h_ext.length()) == Option::h_ext || 
+	      file.right(Option::hpp_ext.length()) == Option::hpp_ext) {
 	where = "HEADERS";
     }
     QString newfile = file;

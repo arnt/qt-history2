@@ -1228,6 +1228,8 @@ MakefileGenerator::specdir()
     spec = Option::mkfile::qmakespec;
     if(const char *d = getenv("QTDIR")) {
 	QString qdir = QDir::convertSeparators(QString(d));
+	if(qdir.right(1) == Option::dir_sep)
+	    qdir.truncate(qdir.length()-1);
 	//fix path
 	QFileInfo fi(spec);
 	QString absSpec(fi.absFilePath());
