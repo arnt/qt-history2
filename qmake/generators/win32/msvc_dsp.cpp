@@ -830,11 +830,11 @@ DspMakefileGenerator::init()
 	    activeQtStepPostCopyDll +=
 			     "\t" + idc + " %1 /regserver\n";
 
-	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
+	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + targetfilename + ".dll";
 	    activeQtStepPreCopyDllRelease = activeQtStepPreCopyDll.arg(executable).arg(executable);
 	    activeQtStepPostCopyDllRelease = activeQtStepPostCopyDll.arg(executable);
 
-	    executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
+	    executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + targetfilename + ".dll";
 	    activeQtStepPreCopyDllDebug = activeQtStepPreCopyDll.arg(executable).arg(executable);
 	    activeQtStepPostCopyDllDebug = activeQtStepPostCopyDll.arg(executable);
 	} else {
@@ -844,11 +844,11 @@ DspMakefileGenerator::init()
 			     "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb";
 	    activeQtStepPostCopyDll +=
 			     "\t%1 -regserver\n";
-	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
+	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + targetfilename + ".exe";
 	    activeQtStepPreCopyDllRelease = activeQtStepPreCopyDll.arg(executable).arg(executable);
 	    activeQtStepPostCopyDllRelease = activeQtStepPostCopyDll.arg(executable);
 
-	    executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
+	    executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + targetfilename + ".exe";
 	    activeQtStepPreCopyDllDebug = activeQtStepPreCopyDll.arg(executable).arg(executable);
 	    activeQtStepPostCopyDllDebug = activeQtStepPostCopyDll.arg(executable);
 	}
