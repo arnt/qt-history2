@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#76 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#76 $");
 
 
 /*!
@@ -31,6 +31,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#75 $");
   \brief The QComboBox widget is a combined button and popup list.
 
   \ingroup realwidgets
+
+  \define QComboBox::Policy
 
   A combo box may be defined as a selection widget which displays the
   current selection, and which can pop up a list of possible
