@@ -170,11 +170,13 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << varGlue("OBJECTS","\t-del ","\n\t-del ","") 
       << varGlue("SRCMOC" ,"\n\t-del ","\n\t-del ","")
       << varGlue("OBJMOC" ,"\n\t-del ","\n\t-del ","")
+      << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","") 
+      << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","")
       << "\n\t-del $(TARGET)"
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
       << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
-	t << "\n\t-del " << var("DLLDESTDIR") << "\\$(TARGET)";
+	t << "\n\t-del " << var("DLLDESTDIR") << "\\" << project->variables()[ "TARGET" ].first() << project->variables()[ "TARGET_EXT" ].first();
     }
     t << endl << endl;
 }

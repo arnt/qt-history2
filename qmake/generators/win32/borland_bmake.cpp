@@ -171,11 +171,13 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
       << varGlue("OBJECTS","-del ","\n\t-del ","") << "\n\t"
       << varGlue("SRCMOC" ,"-del ","\n\t-del ","") << "\n\t"
       << varGlue("OBJMOC" ,"-del ","\n\t-del ","") << "\n\t"
+      << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","") 
+      << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","")
       << "-del $(TARGET)" << "\n\t"
       << varGlue("QMAKE_CLEAN","-del ","\n\t-del ","") << "\n\t"
       << varGlue("CLEAN_FILES","-del ","\n\t-del ","");
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
-	t << "\n\t-del " << var("DLLDESTDIR") << "\\$(TARGET)";
+	t << "\n\t-del " << var("DLLDESTDIR") << "\\" << project->variables()[ "TARGET" ].first() << project->variables()[ "TARGET_EXT" ].first();
     }
     t << endl << endl;
 
