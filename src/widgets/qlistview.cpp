@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#304 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#305 $
 **
 ** Implementation of QListView widget class
 **
@@ -829,7 +829,7 @@ void QListViewItem::setOpen( bool o )
 
     if ( !open )
 	return;
-    
+
     enforceSortOrder();
 }
 
@@ -3393,7 +3393,7 @@ void QListView::changeSortColumn( int column )
 
 /*!
   Resorts the listview using the last sorting configuration (sort column
-  und ascending/descending)
+  and ascending/descending)
 */
 
 void QListView::refreshSorting()
@@ -3413,6 +3413,7 @@ void QListView::refreshSorting()
 
   \sa QListViewItem::paintCell()
 */
+
 void QListView::setItemMargin( int m )
 {
     if ( d->margin == m )
@@ -3429,6 +3430,7 @@ void QListView::setItemMargin( int m )
 
   \sa QListViewItem::paintCell() setItemMargin()
 */
+
 int QListView::itemMargin() const
 {
     return d->margin;
@@ -3451,7 +3453,8 @@ int QListView::itemMargin() const
 */
 
 /*!  Reimplemented to let the list view items update themselves.  \a s
-  is the new GUI style. */
+  is the new GUI style. 
+*/
 
 void QListView::styleChange( QStyle& old )
 {
@@ -3461,7 +3464,8 @@ void QListView::styleChange( QStyle& old )
 
 
 /*!  Reimplemented to let the list view items update themselves.  \a f
-  is the new font. */
+  is the new font. 
+*/
 
 void QListView::setFont( const QFont & f )
 {
@@ -3472,7 +3476,8 @@ void QListView::setFont( const QFont & f )
 
 
 /*!  Reimplemented to let the list view items update themselves.  \a p
-  is the new palette. */
+  is the new palette. 
+*/
 
 void QListView::setPalette( const QPalette & p )
 {
@@ -3503,6 +3508,7 @@ void QListView::reconfigureItems()
   Ensures the width mode of column \a c is updated according
   to the width of \a item.
 */
+
 void QListView::widthChanged( const QListViewItem* item, int c )
 {
     if ( c >= d->h->count() )
@@ -4068,7 +4074,7 @@ void QListView::setOpen( QListViewItem * item, bool open )
 	return;
 
     item->setOpen( open );
-    
+
     if ( d->drawables )
 	d->drawables->clear();
     buildDrawableList();
