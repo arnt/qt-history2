@@ -38,7 +38,7 @@
 #include <qfileinfo.h>
 #include <qstringlist.h>
 
-#define DEBUG_XBASE
+//#define DEBUG_XBASE
 // #define VERBOSE_DEBUG_XBASE
 
 class XbaseSys
@@ -1101,14 +1101,14 @@ bool FileDriver::rangeAction( const List* data, const List* cols,
 	}
     }
 #ifdef DEBUG_XBASE
-    if ( domark ) {
+    if ( domark )
 	env->output() << "recs marked:" << d->marked.count() << " " << flush;
-	rewindMarked();
-    }
      if ( dosave )
 	 env->output() << "recs saved:" << result->size() << " " << flush;
      env->output() << "success" << endl;
 #endif
+     if ( domark )
+	 rewindMarked();
     return TRUE;
 }
 
