@@ -1489,7 +1489,6 @@ void QMenuBar::setupAccelerators()
 			     SLOT(accelDestroyed()) );
 		}
 		autoaccel->insertItem( i, mi->id() );
-		autoaccel->insertItem( i | SHIFT, mi->id() );
 	    }
 	}
 	if ( mi->popup() ) {
