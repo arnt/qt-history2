@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#6 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#6 $";
 #endif
 
 
@@ -115,15 +115,15 @@ bool QWidget::destroy()				// destroy widget
 
 bool QWidget::setMouseMoveEvents( bool onOff )
 {
-    bool v = testFlag( WEtc_MouMove );
+    bool v = testFlag( WEtc_MouseMove );
     ulong mm;
     if ( onOff ) {
 	mm = PointerMotionMask;
-	setFlag( WEtc_MouMove );
+	setFlag( WEtc_MouseMove );
     }
     else {
 	mm = 0;
-	clearFlag( WEtc_MouMove );
+	clearFlag( WEtc_MouseMove );
     }
     XSelectInput( dpy, ident,			// specify events
 		  mm|
