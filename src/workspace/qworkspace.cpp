@@ -1303,6 +1303,11 @@ void QWorkspace::toolMenuAboutToShow()
 	d->toolPopup->changeItem( 6, QIconSet(QPixmap((const char**)shade_xpm).xForm(QWMatrix().rotate( -180 ))), "&Roll down" );
     else
 	d->toolPopup->changeItem( 6, QIconSet((const char**)shade_xpm), "&Roll up" );
+
+    QWorkspace* w = (QWorkspace*)d->active->windowWidget();
+    if ( !w )
+	return;
+    d->toolPopup->setItemChecked( 7, w->testWFlags( WStyle_StaysOnTop ) );
 }
 
 void QWorkspace::operationMenuActivated( int a )
@@ -1333,10 +1338,8 @@ void QWorkspace::operationMenuActivated( int a )
 	    if ( !w )
 		break;
 	    if ( w->testWFlags( WStyle_StaysOnTop ) ) {
-		d->toolPopup->setItemChecked( 7, FALSE );
 		w->clearWFlags( WStyle_StaysOnTop );
 	    } else {
-		d->toolPopup->setItemChecked( 7, TRUE );
 		w->setWFlags( WStyle_StaysOnTop );
 		w->parentWidget()->raise();
 	    }
