@@ -481,7 +481,7 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
     WhatsThisItem * i;
     QWidget * w;
     while( it != dict->end() ) {
-	w = (QWidget *)it.key();
+	w = it.key();
 	++it;
 	i = dict->take(w);
 	delete i;
@@ -601,7 +601,7 @@ void QWhatsThisPrivate::leaveWhatsThisMode()
     if ( state == Waiting ) {
 	QHash<QToolButton *, QWhatsThisButton *>::Iterator it = wt->buttons->begin();
 	while (it != wt->buttons->end()) {
-	    ((QWhatsThisButton*)*it)->setOn(FALSE);
+	    (*it)->setOn(FALSE);
 	    ++it;
 	}
 #ifndef QT_NO_CURSOR
