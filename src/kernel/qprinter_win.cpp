@@ -1551,12 +1551,6 @@ QPrinterPageSize QPrinter::printerPageSize() const
     return d->pageSize;
 }
 
-
-QPrinterPageSize::QPrinterPageSize()
-    : d( 0 )
-{
-}
-
 QPrinterPageSize::QPrinterPageSize( const QString &name,
 				    const QSize &dimension )
 {
