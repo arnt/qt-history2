@@ -817,7 +817,7 @@ void SetupWizardImpl::prepareEnvironment()
     }
 
 #if defined(Q_OS_WIN32)
-    if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
+    if( qWinVersion() & Qt::WV_NT_based ) {
 	// under Windows 9x, we don't compile from the installer -- so there is
 	// no need to set the local environment; and doing so, results in not
 	// setting the persistent since qtDir\bin is already in the PATH
