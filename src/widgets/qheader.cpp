@@ -914,7 +914,6 @@ int QHeader::addLabel( const QString &s, int size )
     d->clicks.setBit( section, d->clicks_default );
     d->resize.setBit( section, d->resize_default );
 
-    calculatePositions();
     update();
     return index;
 }
