@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#33 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#34 $
 #
 # this is a massive hack, written very quickly
 #
@@ -73,22 +73,27 @@ sub processcode {
     s/\n\s*\n/\n<linebreak>\n/gs;
     s!\\/(.*?\n)!//$1!gs;
     s/\n  /\n/gs;
+    s/^  //gs;
 
-    while ( /(?:(?:^)|(?:\b))([A-Za-z0-9_:]+)\b(?=\s*\*?\s*([A-Za-z0-9_]+)\b)/gs ) {
+    while ( /(?:(?:^)|(?:;))\s*([A-Za-z0-9_:]+)\b(?=\s*\*?\s*([A-Za-z0-9_]+)\b)/gs ) {
 	if ($type{$anchor{$1}} eq "class") {
 	    if (defined($types{$2})) {
-		print "confusion: ", %2, " seems to refer to both ", $1, 
+		print "confusion: ", $2, " seems to refer to both ", $1, 
 		" and ", $types{$2}, "\n";
 	    } else {
 		$types{$2} = $1;
+#print "Variable ", $2, " has type ", $1, "\n";
 	    }
 	}
     }
-    s@\b([A-Za-z0-9_]+)(\s*(?:(?:\.)|(?:->))\s*)([A-Za-z0-9_]+)\b@
+#print;
+    s@([A-Za-z0-9_]+)(\s*(?:(?:\.)|(?:-&gt;))\s*)([A-Za-z0-9_]+)@
 	if (defined($anchor{$types{$1} . "::" . $3})) {
+#print "found documentation for ", $types{$1}, "::", $3, "\n";
 	    sprintf("%s%s<a href=%s>%s</a>", $1, $2,
 		    $anchor{$types{$1} . "::" . $3}, $3);
 	} else {
+#print "didn't find documentation for ", $types{$1}, "::", $3, "\n";
 	    sprintf("%s%s%s", $1, $2, $3);
 	}
     @egsx;
@@ -183,9 +188,16 @@ sub processdocs {
 	$_ .= "</ul>\n";
 	$doc .= $_ if (/<li>/s);
 
+	$_ = "Bugs and limitations:\n<ul>\n";
+	$_ .= "<li>" . $1 . "\n" 
+	    while ($doc =~ s/\s*\\bug\s+(.*?)
+		   (?:(?:\n\s*?\n\s*)|(?:$ ))/\n\n/sx);
+	$_ .= "</ul>\n";
+	$doc .= $_ if (/<li>/s);
+
 	$doc =~ s-\\internal\s-<p>Internal comments:<p>\n-s;
 
-	$doc =~ s!\\code\s+(.*?)\\endcode!&processcode($1)!esg;
+	$doc =~ s!\\code\b(.*?)\\endcode!&processcode($1)!esg;
 
 	$doc =~ s!\\e\s+(\S+)!<em>$1</em>!gs;
 
@@ -631,7 +643,7 @@ sub printout {
 	    $fnheader = "<h2>Member Function Documentation</h2>\n";
 	    print O $fntail, $tail;
 	    close(O);
-	    open(O, "> $file") || die "can't open $file for writing";
+	    open(O, "> $file") || die "can't open $file ($url) for writing";
 	    print "output html file: ", $file, "\n";
 	    $cfile = $file;
 
@@ -828,6 +840,7 @@ EOTAIL
 }
 
 
+umask 111;
 $cfile = "VOLD";
 #$debug = 1;
 $internal = 1;
