@@ -969,7 +969,6 @@ bool QSplitter::event(QEvent *e)
 #endif
         d->recalc(isVisible());
         break;
-#endif
     default:
         ;
     }
