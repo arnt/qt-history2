@@ -15,9 +15,9 @@
 #define QIODEVICE_H
 
 #ifndef QT_NO_QOBJECT
-#include <QObject>
+#include <QtCore/QObject>
 #endif
-#include <QString>
+#include <QtCore/QString>
 
 #include "qobjectdefs.h"
 
