@@ -3122,7 +3122,7 @@ void QCanvasLine::setPen(QPen p)
 }
 
 /*!
-  QPoint QCanvasLine::startPoint () const
+  \fn QPoint QCanvasLine::startPoint () const
 
   Returns the start of the line.
 
@@ -3130,7 +3130,7 @@ void QCanvasLine::setPen(QPen p)
 */
 
 /*!
-  QPoint QCanvasLine::endPoint () const
+  \fn QPoint QCanvasLine::endPoint () const
 
   Returns the end of the line.
 
