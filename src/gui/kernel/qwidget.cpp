@@ -2827,8 +2827,7 @@ QString QWidget::windowTitle() const
     This property only makes sense for top-level widgets. If no icon
     has been set, windowIcon() returns the application icon.
 
-    \sa windowIconText, windowTitle
-    \link appicon.html Setting the Application Icon\endlink
+    \sa windowIconText, windowTitle \link appicon.html Setting the Application Icon\endlink
 */
 const QPixmap &QWidget::windowIcon() const
 {

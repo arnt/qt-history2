@@ -1003,7 +1003,8 @@ QAbstractButton::QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f
     Use isCheckable() instead.
 */
 
-/*! \fn void QAbstractButton::setToggleButton(bool b)
+/*! 
+    \fn void QAbstractButton::setToggleButton(bool b)
 
     Use setCheckable() instead.
 */
