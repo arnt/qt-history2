@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#51 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#52 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -82,6 +82,7 @@ protected:
     void	paintEvent( QPaintEvent * );
     void	timerEvent( QTimerEvent * );
     void	resizeEvent( QResizeEvent * );
+    void	leaveEvent( QEvent * );
 
     bool	event( QEvent * );
 

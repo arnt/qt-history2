@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#34 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#35 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -78,6 +78,7 @@ protected:
     void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
     void	timerEvent( QTimerEvent * );
+    void	leaveEvent( QEvent * );
 
     bool	hasMarkedText() const;
     QString	markedText() const;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#92 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -442,11 +442,33 @@ void QMultiLineEdit::focusInEvent( QFocusEvent * )
 
 
 /*!
+  Handles auto-copy of selection (X11 only).
+*/
+
+void QMultiLineEdit::leaveEvent( QEvent * )
+{
+#if defined(_WS_X11_)
+    if ( style() == WindowsStyle ) {
+	// X11 users are very accustomed to "auto-copy"
+	copyText();
+    }
+#endif
+}
+
+
+/*!
   stops the cursor blinking.
 */
 
 void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 {
+#if defined(_WS_X11_)
+    if ( style() == WindowsStyle ) {
+	// X11 users are very accustomed to "auto-copy"
+	copyText();
+    }
+#endif
+
     if ( dragScrolling ) {
 	killTimer( scrollTimer );
 	dragScrolling = FALSE;
@@ -787,9 +809,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	    cursorLeft( e->state() & ShiftButton );
 	    break;
 	case Key_C:
-	    if ( hasMarkedText() ) {
-		copyText();
-	    }
+	    copyText();
 	    break;
 	case Key_D:
 	    del();
@@ -1525,6 +1545,12 @@ void QMultiLineEdit::end( bool mark )
 
 void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
+    if ( m->button() ==  MidButton ) {
+	if ( hasMarkedText() ) {
+	    copyText(); // copy-and-paste to self
+	    turnMarkOff();
+	}
+    }
     if ( dragScrolling ) {
 	killTimer( scrollTimer );
 	dragScrolling = FALSE;
@@ -1642,7 +1668,7 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
     dragMarking   = FALSE;
     if ( markAnchorY == markDragY && markAnchorX == markDragX )
 	markIsOn = FALSE;
-    else
+    else if ( style() == MotifStyle )
 	copyText();
 }
 
@@ -1774,11 +1800,13 @@ void QMultiLineEdit::setBottomCell( int line )
 
 /*!
   Copies text from the clipboard onto the current cursor position.
-  Any marked text is unmarked.
+  Any marked text is first deleted.
 */
 void QMultiLineEdit::paste()
 {
     //debug( "paste" );
+    if ( hasMarkedText() )
+	del();
     QString t = QApplication::clipboard()->text();
     if ( !t.isEmpty() ) {
 	if ( hasMarkedText() )
@@ -1869,7 +1897,8 @@ void QMultiLineEdit::markWord( int posx, int posy )
     markDragX = i;
     markDragY = posy;
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
-    copyText();
+    if ( style() == MotifStyle )
+	copyText();
 }
 
 /*!

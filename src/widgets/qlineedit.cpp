@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#134 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#135 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -458,19 +458,37 @@ void QLineEdit::focusInEvent( QFocusEvent * )
 
 
 /*!
-  Handles the cursor blinking.
+  Handles the cursor blinking and selection copying.
 */
 
 void QLineEdit::focusOutEvent( QFocusEvent * )
 {
-    if ( style() == WindowsStyle &&
-	 ( focusWidget() != this ||
+    if ( style() == WindowsStyle ) {
+#if defined(_WS_X11_)
+	// X11 users are very accustomed to "auto-copy"
+	copyText();
+#endif
+	if ( focusWidget() != this ||
 	   qApp->focusWidget() == 0 ||
-	   qApp->focusWidget()->topLevelWidget() != topLevelWidget() ) )
-	deselect();
+	   qApp->focusWidget()->topLevelWidget() != topLevelWidget() )
+	    deselect();
+    }
     d->dragTimer.stop();
     if ( cursorOn )
 	blinkSlot();
+}
+
+/*!
+  Handles selection copying.
+*/
+void QLineEdit::leaveEvent( QEvent * )
+{
+#if defined(_WS_X11_)
+    if ( style() == WindowsStyle ) {
+	// X11 users are very accustomed to "auto-copy"
+	copyText();
+    }
+#endif
 }
 
 
