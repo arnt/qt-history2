@@ -109,8 +109,10 @@ void FontRowTable::paintEvent( QPaintEvent* e )
     }
 }
 
-void FontRowTable::setRow(int)
+void FontRowTable::setRow(int r)
 {
+    row = r;
+
     QFontMetrics fm = fontMetrics();
     QFontInfo fi = fontInfo();
     QString str = QString("%1 %2pt%3%4 mLB=%5 mRB=%6 mW=%7")
@@ -132,14 +134,10 @@ void FontRowTable::chooseFont()
     QFont oldfont = tablefont;
     tablefont = QFontDialog::getFont(&ok, oldfont, this);
 
-    if (ok) {
+    if (ok)
 	setFont(tablefont);
-	setRow(0);
-    }
     else
 	tablefont = oldfont;
-
-
 }
 
 FontDisplayer::FontDisplayer( QWidget* parent, const char* name ) :
