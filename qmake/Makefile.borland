@@ -25,6 +25,7 @@ qmake: $(OBJS) $(QTOBJS)
 
 clean::
 	-del $(OBJS) $(QTOBJS)
+	-del qmake.tds
 
 distclean:: clean
 	-del qmake
