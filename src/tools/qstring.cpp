@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#99 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#100 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#100 $");
 
 
 /*****************************************************************************
@@ -470,7 +470,11 @@ QString::QString( const char *str )
 
 QString::QString( const char *str, uint maxlen )
 {
-    uint len = QMIN(maxlen-1,strlen(str));
+    uint len; // index of last nul character
+    // cannot use memchr - we need the *index*, not void*
+    for (len=0; len<maxlen-1; len++) {
+	if (!str[len]) break;
+    }
     duplicate( str, len+1 );
     data()[len] = 0;
 }
