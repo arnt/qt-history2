@@ -108,7 +108,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 			if(*(big_buffer + x) == 't' || *(big_buffer + x) == 'q') { //ignore
 			    if(total_size_read >= (x + 20)) {
 				if(!strncmp(big_buffer + x + 1, "make ignore Q_OBJECT", 20)) {
-				    debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"",
+				    debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"", 
 					      fn_target.latin1(), line_count);
 				    x += 20;
 				    ignore_qobject = !ignore_qobject;
@@ -127,7 +127,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 	    }
 	}
 #define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
-			(x <= '0' && x >= '9') || x == '_')
+			(x <= '0' && x >= '9') || x == '_') 
 	bool interesting = *(big_buffer+x) == 'Q' && (!strncmp(big_buffer+x, "Q_OBJECT", OBJ_LEN) ||
 						      !strncmp(big_buffer+x, "Q_DISPATCH", DIS_LEN));
 	if(interesting) {
@@ -165,7 +165,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 		    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
 		    project->variables()["_HDRMOC"].append(mocFile);
 		}
-
+		
 		if(!mocFile.isEmpty()) {
 		    mocFile = Option::fixPathToTargetOS(mocFile);
 		    mocablesToMOC[cleanFilePath(fn_target)] = mocFile;
@@ -176,7 +176,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 	}
 	    while(x < total_size_read && SYMBOL_CHAR(*(big_buffer+x)))
 		x++;
-	if(*(big_buffer+x) == '\n')
+	if(*(big_buffer+x) == '\n') 
 	    line_count++;
     }
 #undef OBJ_LEN
@@ -652,8 +652,17 @@ MakefileGenerator::init()
 	    QFileInfo fi((*it));
 	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 	    impls.append(impl);
-	    if( ! project->isActiveConfig("lex_included"))
+	    if( ! project->isActiveConfig("lex_included")) {
 		v["SOURCES"].append(impl);
+		// attribute deps of lex file to impl file
+		QStringList &lexdeps = depends[(*it)];
+		QStringList &impldeps = depends[impl];
+		QStringList::ConstIterator d = lexdeps.begin();
+		for( ; d != lexdeps.end(); ++d)
+		    if(!impldeps.contains(*d))		    
+			impldeps.append(*d);
+		lexdeps.clear();
+	    }
 	}
 	if( ! project->isActiveConfig("lex_included"))
 	    v["OBJECTS"] += (v["LEXOBJECTS"] = createObjectList("LEXIMPLS"));
@@ -669,13 +678,26 @@ MakefileGenerator::init()
 	    decls.append(decl);
 	    impls.append(impl);
 	    v["SOURCES"].append(impl);
-	    depends[impl].append(decl);
-
+	    QStringList &impldeps = depends[impl];
+ 	    impldeps.append(decl);
+	    // attribute deps of yacc file to impl file
+	    QStringList &yaccdeps = depends[(*it)];
+	    QStringList::ConstIterator d = yaccdeps.begin();
+	    for( ; d != yaccdeps.end(); ++d)
+		if(!impldeps.contains(*d))		
+		    impldeps.append(*d);
 	    if( project->isActiveConfig("lex_included")) {
+		// is there a matching lex file ? Transfer its dependencies.
 		QString leximpl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
-		if(v["LEXIMPLS"].findIndex(leximpl) != -1)
-		    depends[impl].append(leximpl);
+		if(v["LEXIMPLS"].findIndex(leximpl) != -1) {
+		    QStringList &lexdeps = depends[leximpl];
+		    QStringList::ConstIterator d = lexdeps.begin();
+		    for( ; d != lexdeps.end(); ++d)
+			if(!impldeps.contains(*d))
+			    impldeps.append(*d);
+		}
 	    }
+	    yaccdeps.clear();
 	}
 	v["OBJECTS"] += (v["YACCOBJECTS"] = createObjectList("YACCIMPLS"));
     }
@@ -826,11 +848,10 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
 	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext;
 
-	t << impl << ": " << (*it) << " "
-	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
+	t << impl << ": " << (*it) << "\n\t"
 	  << "$(YACC) $(YACCFLAGS) " << (*it) << "\n\t"
 	  << "-$(DEL) " << impl << " " << decl << "\n\t"
-	  << "-$(MOVE)  y.tab.h " << decl << "\n\t"
+	  << "-$(MOVE) y.tab.h " << decl << "\n\t"
 	  << "-$(MOVE) y.tab.c " << impl << endl << endl;
 	t << decl << ": " << impl << endl << endl;
     }
@@ -844,8 +865,7 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 	QFileInfo fi((*it));
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 
-	t << impl << ": " << (*it) << " "
-	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
+	t << impl << ": " << (*it) << "\n\t"
 	  << "$(LEX) $(LEXFLAGS) " << (*it) << "\n\t"
 	  << "-$(DEL) " << impl << " " << "\n\t"
 	  << "-$(MOVE) lex.yy.c " << impl << endl << endl;
@@ -858,51 +878,31 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
     QString all_installs;
     QStringList &l = project->variables()[installs];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	bool do_default = TRUE;
 	QString pvar = (*it) + ".path";
 	if(project->variables()[pvar].isEmpty()) {
 	    fprintf(stderr, "%s is not defined: install target not created\n", pvar.latin1());
 	    continue;
 	}
 
-	QString target, dst=project->variables()[pvar].first();
+	QString target;
 	QStringList tmp;
 	//masks
 	tmp = project->variables()[(*it) + ".files"];
 	if(!tmp.isEmpty()) {
 	    if(Option::target_mode == Option::TARG_WIN_MODE || Option::target_mode == Option::TARG_MAC9_MODE) {
 	    } else if(Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) {
-		do_default = FALSE;
-		for(QStringList::Iterator wild_it = tmp.begin(); wild_it != tmp.end(); ++wild_it) {
-		    QString dirstr = QDir::currentDirPath(), f = (*wild_it);
-		    int slsh = f.findRev(Option::dir_sep);
-		    if(slsh != -1) {
-			dirstr = f.left(slsh+1);
-			f = f.right(f.length() - slsh - 1);
-		    }
-		    QDir dir(dirstr, f);
-		    for(int x = 0; x < dir.count(); x++) {
-			QString file = dir[x];
-			if(file == "." || file == "..") //blah
-			    continue;
-			fileFixify(file);
-			QFileInfo fi(file);
-			target += QString(fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") + 
-				  " " + dirstr + file + " " + dst + "\n\t";
-		    }
-		}
+		target += QString("$(COPY) -pR ") + tmp.join(" ") + QString(" ") + project->variables()[pvar].first();
 	    }
 	}
 	//other
 	tmp = project->variables()[(*it) + ".extra"];
 	if(!tmp.isEmpty()) {
-	    do_default = FALSE;
 	    if(!target.isEmpty())
 		target += "\n\t";
 	    target += tmp.join(" ");
 	}
 	//default?
-	if(do_default)
+	if(target.isEmpty())
 	    target = defaultInstall((*it));
 
 	if(!target.isEmpty()) {
@@ -1015,7 +1015,7 @@ QString MakefileGenerator::build_args()
 	if(!Option::mkfile::do_cache)
 	    ret += " -nocache";
 	if(!Option::mkfile::do_deps)
-	    ret += " -nodepend";
+	    ret += " -nodeps";
 	if(!Option::mkfile::do_dep_heuristics)
 	    ret += " -nodependheuristics";
 
