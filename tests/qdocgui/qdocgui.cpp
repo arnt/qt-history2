@@ -32,9 +32,10 @@ QString QDocListItem::key( int, bool ) const
 
 
 
-QDocMainWindow::QDocMainWindow( const QString& qtdir,
+QDocMainWindow::QDocMainWindow( const QString &qtdir, QStringList defines,
 				QWidget* parent, const char* name )
-    : QDialog( parent, name )
+    : QDialog( parent, name ),
+      _defines(defines)
 {
     if ( qtdir.isEmpty() )
 	qtdirenv = getenv( "QTDIR" );
@@ -43,7 +44,8 @@ QDocMainWindow::QDocMainWindow( const QString& qtdir,
 	if ( qtdirenv.endsWith( "/" ) )
 	    qtdirenv.truncate( qtdirenv.length() - 1 );
     }
-    setCaption( QString( "qdocgui -- %1" ).arg( qtdirenv ) );
+    setCaption( QString( "qdocgui -- %1 %2" )
+		    .arg( qtdirenv ).arg( _defines.join(" ") ) );
 
     vb = new QVBoxLayout( this );
     classList = new QListView( this );
@@ -104,10 +106,13 @@ void QDocMainWindow::populateListView()
 	proc->addArgument( "--friendly" );
 	proc->addArgument( "-Wall" );
 	proc->addArgument( "-W4" );
+	for (QStringList::const_iterator it = _defines.constBegin();
+	     it != _defines.constEnd(); ++it)
+	    proc->addArgument(*it);
 
 	connect( proc, SIGNAL(readyReadStderr()), this, SLOT(readOutput()) );
 	connect( proc, SIGNAL(processExited()), this, SLOT(finished()) );
-	statusBar->setText( "Running qdoc..." );
+	statusBar->setText( QString("Running qdoc..."));
 	// qdoc relies on $QTDIR _as well as_ qdoc.conf
 	QStringList *env = new QStringList( QString( "QTDIR=%1" ).
 						arg( qtdirenv ) );
@@ -343,12 +348,21 @@ int main( int argc, char** argv )
     QApplication app( argc, argv );
 
     /* By default qdocgui uses $QTDIR, but you can override this by
-       specifying a path on the command line */
+       specifying a path on the command line.
+       You can also specify defines, e.g.
+       qdocgui /home/mark/qt-3.2 -Dcommercial_edition -Dprofessional_edition
+    */
     QString qtdir;
-    if ( app.argc() > 1 )
-	qtdir = app.argv()[1];
+    QStringList defines;
+    for (int i = 1; i < app.argc(); ++i) {
+	QString arg = app.argv()[i];
+	if (arg.startsWith("-D"))
+	    defines += arg;
+	else
+	    qtdir = arg;
+    }
 
-    QDocMainWindow qdmw( qtdir );
+    QDocMainWindow qdmw( qtdir, defines );
     app.setMainWidget( &qdmw );
     qdmw.show();
     return app.exec();
