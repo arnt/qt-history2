@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#16 $
 **
 ** Implementation of QPointArray class
 **
@@ -17,7 +17,7 @@
 #include <stdarg.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#16 $";
 #endif
 
 
@@ -45,8 +45,8 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 
 bool QPointArray::fill( const QPoint &p, int size )
 {						// fill array with point value
-    QPointData p( p.x(), p.y() );
-    return QArrayM(QPointData)::fill( p, size );
+    QPointData p2( p.x(), p.y() );
+    return QArrayM(QPointData)::fill( p2, size );
 }
 
 
