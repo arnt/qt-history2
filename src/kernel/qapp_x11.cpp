@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#97 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#98 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -41,7 +41,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#97 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#98 $";
 #endif
 
 
@@ -59,7 +59,10 @@ static bool	mwIconic	= FALSE;	// main widget iconified
 static Display *appDpy		= 0;		// X11 application display
 static char    *appDpyName	= 0;		// X11 display name
 static bool	appSync		= FALSE;	// X11 synchronization
+#if defined(DEBUG)
 static bool	appNoGrab	= FALSE;	// X11 grabbing enabled
+static bool	appDoGrab	= FALSE;	// X11 grabbing override (gdb)
+#endif
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
 static bool	app_save_rootinfo = FALSE;	// save root info
@@ -192,7 +195,9 @@ void qt_init( int *argcptr, char **argv )
 	else if ( arg == "-sync" )
 	    appSync = !appSync;
 	else if ( arg == "-nograb" )
-	    appNoGrab = TRUE;
+	    appNoGrab = !appNoGrab;
+	else if ( arg == "-dograb" )
+	    appDoGrab = !appDoGrab;
 	else if ( arg == "-memchk" )
 	    appMemChk = !appMemChk;
 	else if ( arg == "-membuf" ) {
@@ -210,23 +215,24 @@ void qt_init( int *argcptr, char **argv )
 
     *argcptr = j;
 
-#if defined(_OS_LINUX_)
-    if ( !appNoGrab ) {
+#if defined(DEBUG) && defined(_OS_LINUX_)
+    if ( !appNoGrab && !appDoGrab ) {
 	QString s;
-	s.sprintf("/proc/%d/cmdline", getppid());
+	s.sprintf( "/proc/%d/cmdline", getppid() );
 	QFile f( s );
 	if ( f.open( IO_ReadOnly ) ) {
-	    s.truncate(0);
+	    s.truncate( 0 );
 	    int c;
 	    while ( (c = f.getch()) > 0 ) {
-		if (c == '/')
-		    s.truncate(0);
+		if ( c == '/' )
+		    s.truncate( 0 );
 		else
 		    s += (char)c;
 	    }
 	    if ( s == "gdb" ) {
 		appNoGrab == TRUE;
-		debug( "Qt: gdb: -nograb added to command-line options" );
+		debug( "Qt: gdb: -nograb added to command-line options"
+		       "\tUse the -dograb option to enforce grabbing" );
 	    }
 	    f.close();
 	}
@@ -461,7 +467,11 @@ WId qt_xrootwin()				// get X root window
 
 bool qt_nograb()				// application no-grab option
 {
+#if defined(DEBUG)
     return appNoGrab;
+#else
+    return FALSE;
+#endif
 }
 
 GC qt_xget_readonly_gc( bool monochrome )	// get read-only GC
