@@ -278,6 +278,6 @@ or
 to your .pro file, depending on whether you want compatibility
 function calls to generate compiler warnings or not.
 
-\link tech-preview.html [Back to the Technology Preview page] \endlink
+\link qt4-intro.html [Back to the Technology Preview page] \endlink
 
 */

@@ -27,7 +27,7 @@
 
     If you haven't yet made the decision about porting, or are unsure
     about whether it is worth it, take a look at the \link
-    tech-preview.html key features\endlink offered by Qt 4.
+    qt4-intro.html key features\endlink offered by Qt 4.
 
     The Qt 4 series is not binary compatible with the 3 series. This
     means programs compiled for Qt 3 must be recompiled to work with
