@@ -60,7 +60,8 @@ Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : QWidget
     setFixedSize( skinImageUp->size() );
     QBitmap mask = skinImageUp->createHeuristicMask();
     WFlags wf = WStyle_Customize | WType_TopLevel | WStyle_NoBorder;
-    parent->reparent( 0, wf, pos(), TRUE );
+    parent->setParent(0, wf);
+    parent->show();
     parent->setMask( mask );
     parent->setFixedSize( skinImageUp->size() );
     buttonPressed = FALSE;
@@ -118,7 +119,7 @@ void Skin::mousePressEvent( QMouseEvent *e )
 //		Debug message to be sure we are clicking the right areas
 //		printf("%s clicked\n", areas[i].name);
 		ButtonAreas *ba = &areas[buttonIndex];
-		repaint( ba->x1, ba->y1, ba->x2 - ba->x1, ba->y2 - ba->y1, FALSE );
+		repaint( ba->x1, ba->y1, ba->x2 - ba->x1, ba->y2 - ba->y1); //#####, FALSE );
 		continue;
 	    }
 	}
@@ -147,7 +148,7 @@ void Skin::mouseReleaseEvent( QMouseEvent * )
 	    view->skinKeyReleaseEvent( &keyEvent );
 	buttonPressed = FALSE;
 	ButtonAreas *ba = &areas[buttonIndex];
-	repaint( ba->x1, ba->y1, ba->x2 - ba->x1, ba->y2 - ba->y1, FALSE );
+	repaint( ba->x1, ba->y1, ba->x2 - ba->x1, ba->y2 - ba->y1); //######, FALSE );
     }
 }
 

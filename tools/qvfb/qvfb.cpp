@@ -40,11 +40,13 @@ QVFb::QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *p
     if ( m ) {
 	QPixmap pix;
 	QImageDrag::decode( m, pix );
-	setIcon( pix );
+	setWindowIcon( pix );
     }
 
+#warning "QFileDialog"
+#if 0    
     imagesave = new QFileDialog( this, 0, TRUE );
-
+#endif
     rateDlg = 0;
     view = 0;
     init( display_id, w, h, d, skin );
@@ -65,7 +67,7 @@ void QVFb::popupMenu()
 
 void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
 {
-    setCaption( QString("Virtual framebuffer %1x%2 %3bpp Display :%4")
+    setWindowTitle( QString("Virtual framebuffer %1x%2 %3bpp Display :%4")
 		    .arg(w).arg(h).arg(d).arg(display_id) );
     delete view;
 
@@ -86,7 +88,8 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
     } else {
 	if ( !currentSkin.isEmpty() ) {
 	    clearMask();
-	    reparent( 0, 0, pos(), TRUE );
+	    setParent(0, 0);
+	    show();
 	}
 	menuBar()->show();
 	view = new QVFbView( display_id, w, h, d, this );
@@ -172,9 +175,12 @@ void QVFb::setZoom4()
 void QVFb::saveImage()
 {
     QImage img = view->image();
+#warning "QFileDialog"
+#if 0    
     QString filename = imagesave->getSaveFileName("snapshot.png", "*.png", this, "", "Save Image");
     if ( !!filename )
 	img.save(filename,"PNG");
+#endif
 }
 
 void QVFb::toggleAnimation()
@@ -182,12 +188,15 @@ void QVFb::toggleAnimation()
     if ( view->animating() ) {
 	view->stopAnimation();
     } else {
+#warning "QFileDialog"
+#if 0    
 	QString filename = imagesave->getSaveFileName("animation.mng", "*.mng", this, "", "Save animation");
 	if ( !filename ) {
 	    view->stopAnimation();
 	} else {
 	    view->startAnimation(filename);
 	}
+#endif	
     }
 }
 

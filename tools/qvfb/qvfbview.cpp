@@ -14,7 +14,7 @@
 #if !defined( Q_WS_QWS ) || defined( QT_NO_QWS_MULTIPROCESS )
 #define QLock QWSSemaphore
 #undef QT_NO_QWS_MULTIPROCESS
-#include "../../src/kernel/qlock.cpp"
+#include "../../src/gui/embedded/qlock.cpp"
 #else
 #include "qlock_p.h"
 #endif
@@ -183,7 +183,7 @@ void QVFbView::setGamma(double gr, double gg, double gb)
 	gmax = 255;
 	bmax = 255;
     }
-    int mm = QMAX(rmax,QMAX(gmax,bmax))+1;
+    int mm = qMax(rmax,qMax(gmax,bmax))+1;
     if ( gammatable )
 	delete [] gammatable;
     gammatable = new QRgb[mm];
@@ -474,8 +474,8 @@ void QVFbView::drawScreen()
 	    r.rTop() = int(int(r.top()*zm)/zm);
 	    r.rRight() = int(int(r.right()*zm+zm+0.0000001)/zm+1.9999);
 	    r.rBottom() = int(int(r.bottom()*zm+zm+0.0000001)/zm+1.9999);
-	    r.rRight() = QMIN(r.right(),hdr->width-1);
-	    r.rBottom() = QMIN(r.bottom(),hdr->height-1);
+	    r.rRight() = qMin(r.right(),hdr->width-1);
+	    r.rBottom() = qMin(r.bottom(),hdr->height-1);
 	}
 	int leading;
 	QImage img( getBuffer( r, leading ) );
@@ -559,7 +559,7 @@ void QVFbView::keyPressEvent( QKeyEvent *e )
 
 void QVFbView::keyReleaseEvent( QKeyEvent *e )
 {
-    sendKeyboardData(e->ascii(), e->key(),
+    sendKeyboardData(/*#### e->ascii()*/0, e->key(),
 		     e->state()&(ShiftButton|ControlButton|AltButton),
 		     FALSE, e->isAutoRepeat());
 }

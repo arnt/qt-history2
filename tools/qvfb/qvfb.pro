@@ -9,3 +9,4 @@ IMAGES		= images/logo.png
 TARGET		= qvfb
 INCLUDEPATH	+= $$QT_SOURCE_TREE/src/3rdparty/libpng $$QT_SOURCE_TREE/src/3rdparty/zlib
 DEPENDPATH	= ../../include
+DEFINES		+= QT_COMPAT
