@@ -839,7 +839,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	doc = new DefgroupDoc( loc, yyOut, groupName, title, heading );
 	break;
     case Doc::Example:
-	sanitize( fileName );
+	yyOut += "\\include ";
+	yyOut += fileName;
 	doc = new ExampleDoc( loc, yyOut, fileName, title, heading );
 	break;
     default:
