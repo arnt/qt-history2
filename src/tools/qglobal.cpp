@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#14 $
 **
 ** Global functions
 **
@@ -15,10 +15,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#14 $")
 
 
-const char *qVersion() { return "0.92"; }
+const char *qVersion() { return "0.93"; }
 
 // --------------------------------------------------------------------------
 // System detection routines
