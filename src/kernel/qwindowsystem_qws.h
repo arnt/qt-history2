@@ -87,7 +87,7 @@ private:
     bool forClient(const QWSClient* cl) const { return cl==c; }
 
     void setName( const QString &n );
-    void setWindowCaption( const QString &c );
+    void setCaption( const QString &c );
 
     void addAllocation( QWSRegionManager *, const QRegion & );
     void removeAllocation( QWSRegionManager *, const QRegion & );
@@ -493,8 +493,9 @@ extern QWSServer *qwsServer; //there can be only one
 
 
 #ifndef QT_NO_QWS_IM
-    class QWSInputMethod
+    class QWSInputMethod : public QObject
     {
+	Q_OBJECT
     public:
 	QWSInputMethod();
 	virtual ~QWSInputMethod();

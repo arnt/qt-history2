@@ -1280,20 +1280,20 @@ void QWSDisplay::grabKeyboard( QWidget *w, bool grab )
     d->flush();
 }
 
-QList<QWSWindowInfo*> * QWSDisplay::windowList()
+QList<QWSWindowInfo> QWSDisplay::windowList()
 {
-    QList<QWSWindowInfo*> * ret=new QList<QWSWindowInfo*>;
-    ret->setAutoDelete(true);
+    QList<QWSWindowInfo> ret;
     if(d->directServerConnection()) {
 	QList<QWSInternalWindowInfo*> * qin=QWSServer::windowList();
 	for ( int i = 0; i < qin->count(); ++i) {
 	    QWSInternalWindowInfo * qwi = qin->at(i);
-	    QWSWindowInfo * tmp=new QWSWindowInfo();
-	    tmp->winid=qwi->winid;
-	    tmp->clientid=qwi->clientid;
-	    tmp->name=QString(qwi->name);
-	    ret->append(tmp);
+	    QWSWindowInfo tmp;
+	    tmp.winid = qwi->winid;
+	    tmp.clientid = qwi->clientid;
+	    tmp.name = QString(qwi->name);
+	    ret.append(tmp);
 	}
+	qDeleteAll(*qin);
 	delete qin;
     }
     return ret;
@@ -1468,8 +1468,9 @@ static void init_display()
     qws_decoration = QWSManager::newDefaultDecoration();
 #endif
 
-    incoming.setAutoDelete(true);
-    outgoing.setAutoDelete(true);
+    //##### should be cleaned up at exit
+    //##### incoming.setAutoDelete(true);
+    //##### outgoing.setAutoDelete(true);
 
     qApp->setName( appName );
 

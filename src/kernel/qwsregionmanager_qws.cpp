@@ -65,7 +65,6 @@ QWSRegionManager::QWSRegionManager( const QString &filename, bool c) :
 	regIdx = (QWSRegionIndex *)(data + sizeof(QWSRegionHeader));
     } else {
 	// the server needs a local copy of the data
-	regions.setAutoDelete(TRUE);
 	regHdr = new QWSRegionHeader;
 	regHdr->maxRegions = 0;
 	regHdr->maxRects = QT_MAX_REGIONS * QT_RECTS_PER_REGION;
@@ -84,6 +83,7 @@ QWSRegionManager::~QWSRegionManager()
     detach();
 
     if ( !client ) {
+	qDeleteAll(regions);
 	delete regHdr;
 	delete [] regIdx;
     }

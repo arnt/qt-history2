@@ -426,13 +426,13 @@ QWSPcMouseHandlerPrivate::QWSPcMouseHandlerPrivate( QWSPcMouseHandler *h,
     const QString &drv, const QString &dev )
     : handler( h ), driver( drv ), device( dev )
 {
-    notifiers.setAutoDelete( TRUE );
     retries = 0;
     openDevices();
 }
 
 QWSPcMouseHandlerPrivate::~QWSPcMouseHandlerPrivate()
 {
+    qDeleteAll(notifiers);
     closeDevices();
 }
 
@@ -577,6 +577,7 @@ void QWSPcMouseHandlerPrivate::closeDevices()
 	sub[i]->closeIfNot(pfd);
 	delete sub[i];
     }
+    qDeleteAll(notifiers);
     notifiers.clear();
 }
 

@@ -225,11 +225,6 @@ int QRenderedFont::maxWidth()
 
 QFontManager::QFontManager()
 {
-    factories.setAutoDelete(TRUE);
-    diskfonts.setAutoDelete(TRUE);
-    diskfonts.setAutoDelete(TRUE);
-    cachedfonts.setAutoDelete(TRUE);
-
 #ifndef QT_NO_FREETYPE
     factories.append(new QFontFactoryFT());
 #endif
@@ -292,6 +287,9 @@ QFontManager::QFontManager()
 QFontManager::~QFontManager()
 {
     delete policy;
+    qDeleteAll(factories);
+    qDeleteAll(diskfonts);
+    qDeleteAll(cachedfonts);
 
     if ( qt_fontmanager == this )
 	qt_fontmanager = 0;

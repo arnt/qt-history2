@@ -22,6 +22,7 @@
 #include <qfileinfo.h>
 #include <qstringlist.h>
 #include <qevent.h>
+#include <qtl.h>
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -29,6 +30,7 @@
 #include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <sys/soundcard.h>
+
 
 #define QT_QWS_SOUND_16BIT 1 // or 0, or undefined for always 0
 #define QT_QWS_SOUND_STEREO 1 // or 0, or undefined for always 0
@@ -248,11 +250,13 @@ public:
 #endif
 	timerId = 0;
 	fd = -1;
-	active.setAutoDelete(TRUE);
 	unwritten = 0;
 	can_GETOSPACE = TRUE;
     }
-
+    ~QWSSoundServerPrivate()
+    {
+	qDeleteAll(active);
+    }
 public slots:
     void playFile(const QString& filename);
     void feedDevice(int fd);
@@ -424,8 +428,10 @@ void  QWSSoundServerPrivate::feedDevice(int fd)
 		}
 		for (int i = 0; i < active.size(); ++i) {
 		    bucket = active.at(i);
-		    if (bucket->finished())
+		    if (bucket->finished()) {
 			active.remove(bucket);
+			delete bucket;
+		    }
 		}
 	    }
 

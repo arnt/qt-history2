@@ -18,6 +18,7 @@
 #include "qwscommand_qws.h"
 #include "qwindowsystem_qws.h"
 #include "qhash.h"
+#include "qtl.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -53,8 +54,8 @@ QWSPropertyManager::QWSPropertyManager()
 
 QWSPropertyManager::~QWSPropertyManager()
 {
-    while (!d->properties.isEmpty())
-	delete d->properties.takeFirst();
+
+    qDeleteAll(d->properties);
     delete d;
 }
 
@@ -179,8 +180,7 @@ bool QWSPropertyManager::removeProperties( int winId )
     QHash<int,Data::Property*> *wp = d->properties.take(winId);
 
     if (wp) {
-	while (!wp->isEmpty())
-	    delete wp->takeFirst();
+	qDeleteAll(*wp);
 	delete wp;
     }
     return wp != 0;

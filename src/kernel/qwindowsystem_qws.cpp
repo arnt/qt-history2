@@ -83,11 +83,10 @@ public:
 	saver = 0;
 	cursorClient = 0;
 	mouseState = 0;
-	deletedWindows.setAutoDelete( TRUE );
     }
     ~QWSServerData()
     {
-	deletedWindows.clear();
+	qDeleteAll(deletedWindows);
 	delete [] screensaverintervals;
 	delete saver;
     }
@@ -193,9 +192,34 @@ static int current_IM_winId=-1;
 */
 
 /*!
+    \fn const QString &QWSWindow::caption() const
+
+    Returns the window's caption.
+*/
+
+/*!
     \fn QWSClient* QWSWindow::client() const
 
     Returns the QWSClient that owns this window.
+*/
+
+/*!
+    \fn QRegion QWSWindow::requestedRegion() const
+
+    Returns the region that the window has requested to draw onto,
+    including any window decorations.
+
+    \sa allocation()
+*/
+
+/*!
+    \fn QRegion QWSWindow::allocatedRegion() const
+
+    Returns the region that the window is allowed to draw onto,
+    including any window decorations but excluding regions covered by
+    other windows.
+
+    \sa requested()
 */
 
 /*!
@@ -271,7 +295,11 @@ void QWSWindow::setName( const QString &n )
     rgnName = n;
 }
 
-void QWSWindow::setWindowCaption( const QString &c )
+/*!
+  Sets the window's caption to \a c.
+*/
+
+void QWSWindow::setCaption( const QString &c )
 {
     rgnCaption = c;
 }
@@ -714,7 +742,7 @@ QWSServer::~QWSServer()
     for (ClientIterator it = client.begin(); it != client.end(); ++it )
 	delete *it;
 
-    windows.setAutoDelete(TRUE);
+    qDeleteAll(windows);
     windows.clear();
 
     delete bgColor;
@@ -849,6 +877,7 @@ void QWSServer::clientClosed()
 
 void QWSServer::deleteWindowsLater()
 {
+    qDeleteAll(d->deletedWindows);
     d->deletedWindows.clear();
 }
 
@@ -1268,11 +1297,12 @@ void QWSServer::setMouseHandler(QWSMouseHandler* mh)
 
 /*!
   \internal
+
+  Caller owns data in list, and must delete contents
 */
 QList<QWSInternalWindowInfo*> * QWSServer::windowList()
 {
     QList<QWSInternalWindowInfo*> * ret=new QList<QWSInternalWindowInfo*>;
-    ret->setAutoDelete(TRUE);
     for (int i=0; i < qwsServer->windows.size(); ++i) {
         QWSWindow *window = qwsServer->windows.at(i);
 	QWSInternalWindowInfo * qwi=new QWSInternalWindowInfo();
@@ -1615,7 +1645,7 @@ void QWSServer::invokeRegionName( const QWSRegionNameCommand *cmd, QWSClient *cl
     QWSWindow* changingw = findWindow(cmd->simpleData.windowid, client);
     if ( changingw ) {
 	changingw->setName( cmd->name );
-	changingw->setWindowCaption( cmd->caption );
+	changingw->setCaption( cmd->caption );
 	emit windowEvent( changingw, Name );
     }
 }
@@ -2374,7 +2404,7 @@ void QWSServer::syncRegions( QWSWindow *active )
 */
 void QWSServer::closeMouse()
 {
-    mousehandlers.setAutoDelete(TRUE);
+    qDeleteAll(mousehandlers);
     mousehandlers.clear();
 }
 
@@ -2444,7 +2474,7 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 */
 void QWSServer::closeKeyboard()
 {
-    keyboardhandlers.setAutoDelete(TRUE);
+    qDeleteAll(keyboardhandlers);
     keyboardhandlers.clear();
 }
 
@@ -3073,6 +3103,16 @@ void QWSInputMethod::mouseHandler( int, int )
 {
 }
 
+/*!
+  Returns the font of the current input widget
+ */
+QFont QWSInputMethod::font() const
+{
+    if ( !current_IM_Font )
+	return QApplication::font(); //### absolutely last resort
+
+    return *current_IM_Font;
+}
 
 /*!
   Returns the input rectangle of the current input widget. The input
