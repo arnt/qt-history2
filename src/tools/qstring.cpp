@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#173 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#174 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -86,9 +86,12 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
   \class QChar qstring.h
   \brief A Unicode character.
 
+  A QChar is a simple 16-bit value representing a Unicode character.
+  Most C++ compilers will process them much as they would a "short int".
+
   QChar values are normally used in combination with QString.
 
-  They can be constructed from:
+  They can be trivially constructed from:
    <dl>
     <dt>\c char
       <dd>the char is assumed to be a Latin-1 character,
