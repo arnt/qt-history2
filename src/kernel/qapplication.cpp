@@ -2283,7 +2283,6 @@ void QApplication::installTranslator( QTranslator * mf )
 
     // hook to set the layout direction of dialogs
     setReverseLayout( qt_detectRTLLanguage() );
-    setReverseLayout( qt_detectRTLLanguage() );
 
     QWidgetList *list = topLevelWidgets();
     QWidgetListIt it( *list );
