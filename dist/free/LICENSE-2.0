@@ -13,7 +13,9 @@
 <a href="/developer/"><img width="98" height="22" src="/image/btn-developer.gif" alt="Developer" border="0"></a>
 <a href="/site-map.html"><img width="98" height="22" src="/image/btn-sitemap.gif" alt="Site Map" border="0"></a>
 <a href="/search.html"><img width="98" height="22" src="/image/btn-search.gif" alt="Search" border="0"></a>
-</div><br clear="all"><h1 align=center>The License for the Qt Free Edition</h1>
+</div><br clear="all">
+<!-- skip: -->
+<h1 align=center>The License for the Qt Free Edition</h1>
 <!-- remove all lines starting with less-than to get plaintext version -->
 <p>Included below is the license offered for the Qt Free Edition.  The license
 <!-- -->is called the Q Public License (or "QPL"), and qualifies as
@@ -41,11 +43,18 @@
 <!-- -->Your software can be licensed by any license
 <!-- -->that permits the requirements in section 5.
 </p>
+<p>
 <hr>
+<!-- endskip: -->
+<!-- preface: -->
 <h1 align=center>
+<!-- skip: -->
 			     THE Q PUBLIC LICENSE
+<!-- endskip: -->
+<!-- header: -->
 <br>
 				  version 0.8
+
 <br>
 <br>
 <small>
@@ -68,6 +77,7 @@ the Software.  This license covers modification and distribution of the
 Software, use of third-party application programs based on the Software,
 and development of free software which uses the Software.  
 
+
 <h2 align=center>
 				 Granted Rights
 </h2>
@@ -75,21 +85,25 @@ and development of free software which uses the Software.
 <p>
 1. All these rights are granted provided that you accept this license.
 
+<!-- 1: -->
 <p>
 2. You may copy and distribute the Software provided that the entire
    package is distributed, including this notice.
 
+<!-- 2: -->
 <p>
 3. You may make modifications to the Software.  In order to preserve the
    integrity of the unmodified version of the Software, modifications must
    be distributed in the form of Patches, and the following restrictions
    apply to each Patch: 
 
+<!-- 3: -->
 <blockquote>
 <p>
    a. Application of the Patch must not modify copyright notices in
       the Software.
 
+<!-- 3a: -->
 <p>
    b. The Patch must be explicitly licensed by the following clause without
       additional restriction:
@@ -102,11 +116,12 @@ and development of free software which uses the Software.
         sell copies of the patch.  
 </blockquote>
 
+<!-- 3b: -->
 <p>
-   c. The Patch must include an accurate description of the modification,
-      the date of the modification and the author of the modification.
+  c. The Patch must include an accurate description of the modification,
+     the date of the modification and the author of the modification.
+<!-- 3c: -->
 </blockquote>
-
 <p>
 4. You may distribute machine-executable forms of the Software or
    machine-executable forms of modified versions of the Software,
@@ -115,10 +130,13 @@ and development of free software which uses the Software.
    downloaded. This information must be put in a location where a user of
    the distribution is likely to look for it.  
 
+
+<!-- 4: -->
 <p>
 5. You may use the original or modified versions of the Software to compile,
-   link and run application programs legally developed by third parties.
+Link and run application programs legally developed by third parties.
 
+<!-- 5: -->
 <p>
 6. You may develop application programs, reusable components and other
    software items that link with the original or modified versions of the
@@ -136,6 +154,8 @@ and development of free software which uses the Software.
       attributions and legal responsibility), and freely redistribute
       original or modified versions of the software. 
 </blockquote>
+
+<!-- 6: -->
 
 <h2 align=center>
 			    Limitations of Liability
@@ -165,6 +185,11 @@ Patch
      a software item, on a format that can be mechanically applied to
      the original by a publicly available program to produce the
      modified version.  
+<dt><b>
+Link
+</b><dd>
+    To Link is the process of creating a machine-executable program that
+    contains portions of the Software.
 </dl>
 
 <h2 align=center>

@@ -1,31 +1,36 @@
+preface:
+
 This is not a legal document. For the exact interpretation of the license
-you must read it and understand it. This text is simply meant to explain
+you must read it and understand it. This page is simply meant to explain
 the license in an easy to understand and informal way.
 
-1.
+header:
+THE ANNOTATED Q PUBLIC LICENSE
+
+1:
 
 This is to ensure that everyone follows the rules. If you do not accept
 this license you are not given the right to distribute the software, to
 make modifications to it nor to develop something  it.
 
-2.
+2:
 
 Distribute the software, e.g. Qt, to anyone you like, including your dog,
 as long as you include everything in the original distribution.
 
-3.
+3:
 
 You can make and distribute patches. If you find a bug, fix it and
 redistribute the patch. If you miss something, implement it and distribute
 the patch.
 
-    a
+3a:
 
 This license applies to all software that refers to this license in its
 copyright statement. You are not allowed to change the copyright statement
 as that might remove the reference to this license.
 
-    b
+3b:
 
 This clause has been inspired by the X Consortium license. It is designed
 to ensure that patches can be used by anyone without restrictions. This
@@ -35,21 +40,26 @@ Qt. It also means that we can include the same patches in the Qt
 Professional Edition, which we intend to keep exactly equal to the Qt Free
 Edition.
 
-    c
+3c:
 
 To avoid confusion all patches must be traceable, and you should be able
 to see how old a patch is. People like to know who their software comes
 from. We recommend that you include your email address, this makes
 communication between developers easier.
 
-4.
+4:
 
 Distribute executables to anyone you like, including your bird, as you long
 as you tell them about their rights and include any patches. This again is
 to avoid confusion and make sure that people know that they are using Open
 Source software.
 
-6.
+5:
+
+If you have a program written for the software, go ahead and use it, we
+will not charge you, and we will not try to stop you.
+
+6:
 
 This is a license designed for libraries, therefore we must also talk
 about application programs or other libraries (components) that are
