@@ -62,9 +62,9 @@ public:
 	Variable
     };
 
-    HierarchyItem( Type type, QListViewItem *parent,
+    HierarchyItem( Type type, QListViewItem *parent, QListViewItem *after,
 		   const QString &txt1, const QString &txt2, const QString &txt3 );
-    HierarchyItem( Type type, QListView *parent,
+    HierarchyItem( Type type, QListView *parent, QListViewItem *after,
 		   const QString &txt1, const QString &txt2, const QString &txt3 );
 
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );

@@ -56,15 +56,15 @@ QListViewItem *newItem = 0;
 
 static QPluginManager<ClassBrowserInterface> *classBrowserInterfaceManager = 0;
 
-HierarchyItem::HierarchyItem( Type type, QListViewItem *parent,
+HierarchyItem::HierarchyItem( Type type, QListViewItem *parent, QListViewItem *after,
 			      const QString &txt1, const QString &txt2, const QString &txt3 )
-    : QListViewItem( parent, txt1, txt2, txt3 ), typ( type )
+    : QListViewItem( parent, after, txt1, txt2, txt3 ), typ( type )
 {
 }
 
-HierarchyItem::HierarchyItem( Type type, QListView *parent,
+HierarchyItem::HierarchyItem( Type type, QListView *parent, QListViewItem *after,
 			      const QString &txt1, const QString &txt2, const QString &txt3 )
-    : QListViewItem( parent, txt1, txt2, txt3 ), typ( type )
+    : QListViewItem( parent, after, txt1, txt2, txt3 ), typ( type )
 {
 }
 
@@ -427,9 +427,9 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     }
 
     if ( !parent )
-	item = new HierarchyItem( HierarchyItem::Widget, this, name, className, dbInfo );
+	item = new HierarchyItem( HierarchyItem::Widget, this, 0, name, className, dbInfo );
     else
-	item = new HierarchyItem( HierarchyItem::Widget, parent, name, className, dbInfo );
+	item = new HierarchyItem( HierarchyItem::Widget, parent, 0, name, className, dbInfo );
     if ( !parent )
 	item->setPixmap( 0, QPixmap::fromMimeSource( "form.png" ) );
     else if ( o->inherits( "QLayoutWidget") )
@@ -679,14 +679,16 @@ void FormDefinitionView::setup()
     if ( lIface ) {
 	QStringList defs = lIface->definitions();
 	for ( QStringList::Iterator dit = defs.begin(); dit != defs.end(); ++dit ) {
-	    HierarchyItem *itemDef = new HierarchyItem( HierarchyItem::DefinitionParent,
-							this, tr( *dit ), QString::null, QString::null );
+	    HierarchyItem *itemDef = new HierarchyItem( HierarchyItem::DefinitionParent, this, 0,
+							tr( *dit ), QString::null, QString::null );
 	    itemDef->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
 	    itemDef->setOpen( TRUE );
-	    QStringList entries = lIface->definitionEntries( *dit, formWindow->mainWindow()->designerInterface() );
+	    QStringList entries =
+		lIface->definitionEntries( *dit, formWindow->mainWindow()->designerInterface() );
+	    HierarchyItem *item;
 	    for ( QStringList::Iterator eit = entries.begin(); eit != entries.end(); ++eit ) {
-		HierarchyItem *item = new HierarchyItem( HierarchyItem::Definition,
-							 itemDef, *eit, QString::null, QString::null );
+		item = new HierarchyItem( HierarchyItem::Definition,
+					  itemDef, item, *eit, QString::null, QString::null );
 		item->setRenameEnabled( 0, TRUE );
 	    }
 	}
@@ -720,16 +722,16 @@ void FormDefinitionView::setupVariables()
 	i = i->nextSibling();
     }
 
-    HierarchyItem *itemVar = new HierarchyItem( HierarchyItem::VarParent, this,
-						tr( "Class Variables" ), QString::null, QString::null );
+    HierarchyItem *itemVar = new HierarchyItem( HierarchyItem::VarParent, this, 0, tr( "Class Variables" ),
+						QString::null, QString::null );
     itemVar->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
     itemVar->setOpen( TRUE );
 
-    itemVarPriv = new HierarchyItem( HierarchyItem::VarPrivate, itemVar, tr( "private" ),
+    itemVarPriv = new HierarchyItem( HierarchyItem::VarPrivate, itemVar, 0, tr( "private" ),
 				     QString::null, QString::null );
-    itemVarProt = new HierarchyItem( HierarchyItem::VarProtected, itemVar, tr( "protected" ),
+    itemVarProt = new HierarchyItem( HierarchyItem::VarProtected, itemVar, 0, tr( "protected" ),
 				     QString::null, QString::null );
-    itemVarPubl = new HierarchyItem( HierarchyItem::VarPublic, itemVar, tr( "public" ),
+    itemVarPubl = new HierarchyItem( HierarchyItem::VarPublic, itemVar, 0, tr( "public" ),
 				     QString::null, QString::null );
 
     QValueList<MetaDataBase::Variable> varList = MetaDataBase::variables( formWindow );
@@ -738,13 +740,13 @@ void FormDefinitionView::setupVariables()
 	for (;;) {
 	    QListViewItem *item = 0;
 	    if ( (*it).varAccess == "public" )
-		item = new HierarchyItem( HierarchyItem::Variable, itemVarPubl, (*it).varName,
+		item = new HierarchyItem( HierarchyItem::Variable, itemVarPubl, 0, (*it).varName,
 					  QString::null, QString::null );
 	    else if ( (*it).varAccess == "private" )
-		item = new HierarchyItem( HierarchyItem::Variable, itemVarPriv, (*it).varName,
+		item = new HierarchyItem( HierarchyItem::Variable, itemVarPriv, 0, (*it).varName,
 					  QString::null, QString::null );
 	    else // default is protected
-		item = new HierarchyItem( HierarchyItem::Variable, itemVarProt, (*it).varName,
+		item = new HierarchyItem( HierarchyItem::Variable, itemVarProt, 0, (*it).varName,
 					  QString::null, QString::null );
 	    item->setPixmap( 0, QPixmap::fromMimeSource( "editslots.png" ) );
 	    if ( it == varList.begin() )
@@ -802,24 +804,24 @@ void FormDefinitionView::refresh()
 
 
     itemFunct = new HierarchyItem( HierarchyItem::FunctParent,
-				   this, tr( "Functions" ), QString::null, QString::null );
+				   this, 0, tr( "Functions" ), QString::null, QString::null );
     itemFunct->moveItem( i );
     itemFunct->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
-    itemFunctPriv = new HierarchyItem( HierarchyItem::FunctPrivate, itemFunct,
+    itemFunctPriv = new HierarchyItem( HierarchyItem::FunctPrivate, itemFunct, 0,
 				       tr( "private" ), QString::null, QString::null );
-    itemFunctProt = new HierarchyItem( HierarchyItem::FunctProtected, itemFunct,
+    itemFunctProt = new HierarchyItem( HierarchyItem::FunctProtected, itemFunct, 0,
 				       tr( "protected" ), QString::null, QString::null );
-    itemFunctPubl = new HierarchyItem( HierarchyItem::FunctPublic, itemFunct,
+    itemFunctPubl = new HierarchyItem( HierarchyItem::FunctPublic, itemFunct, 0,
 				       tr( "public" ), QString::null, QString::null );
 
     itemSlots = new HierarchyItem( HierarchyItem::SlotParent,
-				   this, tr( "Slots" ), QString::null, QString::null );
+				   this, 0, tr( "Slots" ), QString::null, QString::null );
     itemSlots->setPixmap( 0, QPixmap::fromMimeSource( "folder.png" ) );
-    itemPrivate = new HierarchyItem( HierarchyItem::SlotPrivate, itemSlots, tr( "private" ),
+    itemPrivate = new HierarchyItem( HierarchyItem::SlotPrivate, itemSlots, 0, tr( "private" ),
 				     QString::null, QString::null );
-    itemProtected = new HierarchyItem( HierarchyItem::SlotProtected, itemSlots, tr( "protected" ),
+    itemProtected = new HierarchyItem( HierarchyItem::SlotProtected, itemSlots, 0, tr( "protected" ),
 				       QString::null, QString::null );
-    itemPublic = new HierarchyItem( HierarchyItem::SlotPublic, itemSlots, tr( "public" ),
+    itemPublic = new HierarchyItem( HierarchyItem::SlotPublic, itemSlots, 0, tr( "public" ),
 				    QString::null, QString::null );
 
     QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow );
@@ -829,23 +831,23 @@ void FormDefinitionView::refresh()
 	    QListViewItem *item = 0;
 	    if ( (*it).type == "slot" ) {
 		if ( (*it).access == "protected" )
-		    item = new HierarchyItem( HierarchyItem::Slot, itemProtected, (*it).function,
+		    item = new HierarchyItem( HierarchyItem::Slot, itemProtected, 0, (*it).function,
 					      QString::null, QString::null );
 		else if ( (*it).access == "private" )
-		    item = new HierarchyItem( HierarchyItem::Slot, itemPrivate, (*it).function,
+		    item = new HierarchyItem( HierarchyItem::Slot, itemPrivate, 0, (*it).function,
 					      QString::null, QString::null );
 		else // default is public
-		    item = new HierarchyItem( HierarchyItem::Slot, itemPublic, (*it).function,
+		    item = new HierarchyItem( HierarchyItem::Slot, itemPublic, 0, (*it).function,
 					      QString::null, QString::null );
 	    } else {
 		if ( (*it).access == "protected" )
-		    item = new HierarchyItem( HierarchyItem::Function, itemFunctProt, (*it).function,
+		    item = new HierarchyItem( HierarchyItem::Function, itemFunctProt, 0, (*it).function,
 					      QString::null, QString::null );
 		else if ( (*it).access == "private" )
-		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPriv, (*it).function,
+		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPriv, 0, (*it).function,
 					      QString::null, QString::null );
 		else // default is public
-		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPubl, (*it).function,
+		    item = new HierarchyItem( HierarchyItem::Function, itemFunctPubl, 0, (*it).function,
 					      QString::null, QString::null );
 	    }
 	    item->setPixmap( 0, QPixmap::fromMimeSource( "editslots.png" ) );
@@ -915,7 +917,10 @@ static HierarchyItem::Type getChildType( int type )
 
 void HierarchyList::insertEntry( QListViewItem *i, const QPixmap &pix, const QString &s )
 {
-    HierarchyItem *item = new HierarchyItem( getChildType( i->rtti() ), i, s,
+    QListViewItem *after = i->firstChild();
+    while ( after && after->nextSibling() )
+	after = after->nextSibling();
+    HierarchyItem *item = new HierarchyItem( getChildType( i->rtti() ), i, after, s,
 					     QString::null, QString::null );
     if ( !pix.isNull() )
 	item->setPixmap( 0, pix );

@@ -3390,17 +3390,19 @@ void EventList::setup()
 	sigs = iface->signalNames( editor->widget() );
     QStrListIterator it( sigs );
     while ( it.current() ) {
-	HierarchyItem *eventItem = new HierarchyItem( HierarchyItem::Event, this,
+	HierarchyItem *eventItem = new HierarchyItem( HierarchyItem::Event, this, 0,
 						      it.current(), QString::null, QString::null );
 	eventItem->setOpen( TRUE );
 	QValueList<MetaDataBase::Connection> conns =
 	    MetaDataBase::connections( formWindow, editor->widget(), formWindow->mainContainer() );
-	for ( QValueList<MetaDataBase::Connection>::Iterator cit = conns.begin(); cit != conns.end(); ++cit ) {
+	HierarchyItem *item;
+	for ( QValueList<MetaDataBase::Connection>::Iterator cit = conns.begin();
+	      cit != conns.end(); ++cit ) {
 	    QString s = it.current();
 	    if ( MetaDataBase::normalizeFunction( clean_arguments( QString( (*cit).signal ) ) ) !=
 		 MetaDataBase::normalizeFunction( clean_arguments( s ) ) )
 		continue;
-	    HierarchyItem *item = new HierarchyItem( HierarchyItem::EventFunction, eventItem,
+	    item = new HierarchyItem( HierarchyItem::EventFunction, eventItem, item,
 						     (*cit).slot, QString::null, QString::null );
 	    item->setPixmap( 0, QPixmap::fromMimeSource( "editslots.png" ) );
 	}
