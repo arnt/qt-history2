@@ -434,6 +434,7 @@ private slots:
     void makeVisible();
     void handleSizeChange( int, int, int );
     void startRename();
+    void openFocusItem();
 
 private:
     void contentsMousePressEventEx( QMouseEvent * e );

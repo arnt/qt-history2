@@ -216,6 +216,7 @@ struct QListViewPrivate
 
     QTimer *scrollTimer;
     QTimer *renameTimer;
+    QTimer *autoopenTimer;
 
     // sort column and order   #### may need to move to QHeader [subclass]
     int sortcolumn;
@@ -2502,6 +2503,7 @@ void QListView::init()
     d->dirtyItemTimer = new QTimer( this );
     d->visibleTimer = new QTimer( this );
     d->renameTimer = new QTimer( this );
+    d->autoopenTimer = new QTimer( this );
     d->margin = 1;
     d->selectionMode = QListView::Single;
     d->sortcolumn = 0;
@@ -2548,6 +2550,8 @@ void QListView::init()
 	     this, SLOT(makeVisible()) );
     connect( d->renameTimer, SIGNAL(timeout()),
 	     this, SLOT(startRename()) );
+    connect( d->autoopenTimer, SIGNAL(timeout()),
+	     this, SLOT(openFocusItem()) );
 
     connect( d->h, SIGNAL(sizeChange( int, int, int )),
 	     this, SLOT(handleSizeChange( int, int, int )) );
@@ -6823,6 +6827,18 @@ void QListView::takeItem( QListViewItem * i )
 	d->r->takeItem( i );
 }
 
+
+void QListView::openFocusItem()
+{
+    d->autoopenTimer->stop();
+    if ( d->focusItem && !d->focusItem->isOpen() ) {
+	d->focusItem->setOpen( TRUE );
+	d->focusItem->repaint();
+    }
+}
+
+static const int autoopenTime = 750;
+
 #ifndef QT_NO_DRAGANDDROP
 
 /*! \reimp */
@@ -6835,6 +6851,7 @@ void QListView::contentsDragEnterEvent( QDragEnterEvent *e )
     if ( i )
 	i->repaint();
     if ( d->focusItem ) {
+	d->autoopenTimer->start( autoopenTime );
 	d->focusItem->dragEntered();
 	d->focusItem->repaint();
     }
@@ -6856,9 +6873,14 @@ void QListView::contentsDragMoveEvent( QDragMoveEvent *e )
 	i->repaint();
     }
     if ( d->focusItem ) {
-	if ( i != d->focusItem )
+	if ( i != d->focusItem ) {
 	    d->focusItem->dragEntered();
+	    d->autoopenTimer->stop();
+	    d->autoopenTimer->start( autoopenTime );
+	}
 	d->focusItem->repaint();
+    } else {
+	d->autoopenTimer->stop();
     }
     if ( i && i->dropEnabled() && i->acceptDrop( e ) )
 	e->accept();
@@ -6870,6 +6892,8 @@ void QListView::contentsDragMoveEvent( QDragMoveEvent *e )
 
 void QListView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
+    d->autoopenTimer->stop();
+
     if ( d->focusItem )
 	d->focusItem->dragLeft();
 
@@ -6881,6 +6905,8 @@ void QListView::contentsDragLeaveEvent( QDragLeaveEvent * )
 
 void QListView::contentsDropEvent( QDropEvent *e )
 {
+    d->autoopenTimer->stop();
+
     setCurrentItem( d->oldFocusItem );
     QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
     if ( i && i->dropEnabled() && i->acceptDrop( e ) )
