@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#267 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#268 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -75,7 +75,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#267 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#268 $");
 
 
 /*****************************************************************************
@@ -2614,7 +2614,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 
     type = (event->type == KeyPress) ? Event_KeyPress : Event_KeyRelease;
 
-#if defined(X11R4) || (defined(_OS_OSF_) && (XlibSpecificationRelease < 6))
+#if defined(X11R4) || (defined(_OS_OSF_) && (XlibSpecificationRelease < 6)) || defined(_OS_AIX_)
     // Implementation for X11R4 not using XIM, and for OSF/1 with broken
     // Xlib
 
