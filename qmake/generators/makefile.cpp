@@ -53,6 +53,7 @@ MakefileGenerator::MakefileGenerator(QMakeProject *p) : project(p), init_already
 bool
 MakefileGenerator::generateMocList(QString fn)
 {
+
     QString &m = mocablesToMOC[fn];
     if(!m.isEmpty())
 	return TRUE;
@@ -71,11 +72,11 @@ MakefileGenerator::generateMocList(QString fn)
 		else
 		    mocFile = fi.dirPath() + "/";
 
-		if(fi.extension(FALSE) == Option::cpp_ext+1) {
+		if(fi.extension(FALSE) == (Option::cpp_ext.latin1()+1)) {
 		    mocFile += fi.baseName() + Option::moc_ext;
 		    project->variables()["_SRCMOC"].append(mocFile);
 		}
-		else if(fi.extension(FALSE) == Option::h_ext+1 && 
+		else if(fi.extension(FALSE) == (Option::h_ext.latin1()+1) && 
 			project->variables()["HEADERS"].findIndex(fn) != -1) {
 		    mocFile += "moc_" + fi.baseName() + Option::cpp_ext;
 		    project->variables()["_HDRMOC"].append(mocFile);
