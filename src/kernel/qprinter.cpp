@@ -121,24 +121,24 @@
 
   This enum describes the mode the printer should work in. It basically
   presets a certain resolution and working mode.
-  
+
   \value ScreenResolution Sets the resolution of the print device to the
   screen resolution. This has the big advantage, that the results obtained
-  when painting on the printer will match more or less exactly the visible 
+  when painting on the printer will match more or less exactly the visible
   output on the screen. It is the easiest to use, as fontmetrics on the
   screen and on the printer are the same. This is the default value.
-  
+
   \value PrinterResolution Use the physical resolution of the printer on
   Windows. On Unix, set the postscript resolution to 72 dpi.
 
   \value HighResolution Use printer resolution on windows, set the resolution
   of the postscript driver to 600dpi.
 
-  \value Compatible Almost the same as PrinterResolution, but keeps some 
+  \value Compatible Almost the same as PrinterResolution, but keeps some
   peculiarities of the printer dirver of Qt-2.x. This is useful, when porting an
   application from Qt-2.x to Qt-3.
-  
- 
+
+
  */
 
 /*! \enum QPrinter::Orientation
@@ -275,9 +275,9 @@ void QPrinter::setPrinterName( const QString &name )
 {
     if ( state != 0 ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "QPrinter::setPrinterName: Cannot do this during printing" );
+        qWarning( "QPrinter::setPrinterName: Cannot do this during printing" );
 #endif
-	return;
+        return;
     }
     printer_name = name;
 }
@@ -310,9 +310,9 @@ void QPrinter::setOutputToFile( bool enable )
 {
     if ( state != 0 ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "QPrinter::setOutputToFile: Cannot do this during printing" );
+        qWarning( "QPrinter::setOutputToFile: Cannot do this during printing" );
 #endif
-	return;
+        return;
     }
     output_file = enable;
 }
@@ -320,7 +320,7 @@ void QPrinter::setOutputToFile( bool enable )
 
 /*!
   \fn QString QPrinter::outputFileName() const
-  Returns the name of the output file.	There is no default file name.
+  Returns the name of the output file.  There is no default file name.
   \sa setOutputFileName(), setOutputToFile()
 */
 
@@ -340,9 +340,9 @@ void QPrinter::setOutputFileName( const QString &fileName )
 {
     if ( state != 0 ) {
 #if defined(QT_CHECK_STATE)
-	qWarning("QPrinter::setOutputFileName: Cannot do this during printing");
+        qWarning("QPrinter::setOutputFileName: Cannot do this during printing");
 #endif
-	return;
+        return;
     }
     output_filename = fileName;
     output_file = !output_filename.isEmpty();
@@ -392,9 +392,9 @@ void QPrinter::setDocName( const QString &name )
 {
     if ( state != 0 ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "QPrinter::setDocName: Cannot do this during printing" );
+        qWarning( "QPrinter::setDocName: Cannot do this during printing" );
 #endif
-	return;
+        return;
     }
     doc_name = name;
 }
@@ -438,7 +438,7 @@ void QPrinter::setCreator( const QString &creator )
   \c QPrinter::Landscape.
 
   The printer driver reads this setting and prints using the specified
-  orientation.  On Windows however, this setting won't take effect until 
+  orientation.  On Windows however, this setting won't take effect until
   the printer dialog is shown (using QPrinter::setup() ).
 
   \sa orientation()
@@ -459,17 +459,6 @@ void QPrinter::setOrientation( Orientation orientation )
 */
 
 
-static QPrinter::PageSize makepagesize( QPrinter::PageSize ps,
-					QPrinter::PageOrder po,
-					QPrinter::ColorMode cm )
-{
-    return (QPrinter::PageSize)( ((int)ps & 255) +
-				 ((po == QPrinter::LastPageFirst) ? 256 : 0) +
-				 ((cm == QPrinter::GrayScale) ? 512 : 0) );
-}
-
-
-
 /*!  Sets the printer page size to \a newPageSize if that size is
   supported. The result if undefined if \a newPageSize is not
   supported.
@@ -486,11 +475,11 @@ void QPrinter::setPageSize( PageSize newPageSize )
 {
     if ( newPageSize > NPageSize ) {
 #if defined(QT_CHECK_STATE)
-	qWarning("QPrinter::SetPageSize: illegal page size %d", newPageSize );
+        qWarning("QPrinter::SetPageSize: illegal page size %d", newPageSize );
 #endif
-	return;
+        return;
     }
-    page_size = makepagesize( newPageSize, pageOrder(), colorMode() );
+    page_size = newPageSize;
 }
 
 
@@ -506,7 +495,7 @@ void QPrinter::setPageSize( PageSize newPageSize )
 
 void QPrinter::setPageOrder( PageOrder newPageOrder )
 {
-    page_size = makepagesize( pageSize(), newPageOrder, colorMode() );
+    page_order = newPageOrder;
 }
 
 
@@ -517,10 +506,7 @@ void QPrinter::setPageOrder( PageOrder newPageOrder )
 
 QPrinter::PageOrder QPrinter::pageOrder() const
 {
-    if ( ((int)page_size) & 256 )
-	return QPrinter::LastPageFirst;
-    else
-	return QPrinter::FirstPageFirst;
+    return page_order;
 }
 
 
@@ -532,7 +518,7 @@ QPrinter::PageOrder QPrinter::pageOrder() const
 
 void QPrinter::setColorMode( ColorMode newColorMode )
 {
-    page_size = makepagesize( pageSize(), pageOrder(), newColorMode );
+    color_mode = newColorMode;
 }
 
 
@@ -544,12 +530,7 @@ void QPrinter::setColorMode( ColorMode newColorMode )
 
 QPrinter::ColorMode QPrinter::colorMode() const
 {
-    if ( ((int)page_size) & 512 )
-	return QPrinter::GrayScale;
-    else
-	return QPrinter::Color;
-
-
+    return color_mode;
 }
 
 
@@ -588,9 +569,9 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 {
     if ( state != 0 ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "QPrinter::setFromTo: Cannot do this during printing" );
+        qWarning( "QPrinter::setFromTo: Cannot do this during printing" );
 #endif
-	return;
+        return;
     }
     from_pg = fromPage;
     to_pg = toPage;
@@ -600,7 +581,7 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 /*!
   \fn int QPrinter::minPage() const
   Returns the min-page setting, i.e. the lowest pagenumber a user
-  is allowed to choose.	 The default value is 0.
+  is allowed to choose.  The default value is 0.
   \sa maxPage(), setMinMax()
 */
 

@@ -58,10 +58,10 @@
 
 // QPrinter states
 
-#define PST_IDLE	0
-#define PST_ACTIVE	1
-#define PST_ERROR	2
-#define PST_ABORTED	3
+#define PST_IDLE        0
+#define PST_ACTIVE      1
+#define PST_ERROR       2
+#define PST_ABORTED     3
 
 
 QPrinter::QPrinter( PrinterMode m )
@@ -77,22 +77,24 @@ QPrinter::QPrinter( PrinterMode m )
     //other
     orient = Portrait;
     page_size = A4;
+    page_order = FirstPageFirst;
+    color_mode = GrayScale;
     ncopies = 1;
     from_pg = to_pg = min_pg = max_pg = 0;
     state = PST_IDLE;
     output_file = FALSE;
-    to_edge	= FALSE;
+    to_edge     = FALSE;
 
     switch ( m ) {
-	case ScreenResolution:
-	    res = 80; // ### FIXME
-	    break;
-	case Compatible:
-	    devFlags |= QInternal::CompatibilityMode;
-	    // fall through
-	case PrinterResolution:
-	case HighResolution:
-	    res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
+        case ScreenResolution:
+            res = 80; // ### FIXME
+            break;
+        case Compatible:
+            devFlags |= QInternal::CompatibilityMode;
+            // fall through
+        case PrinterResolution:
+        case HighResolution:
+            res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
     }
 }
 
@@ -100,9 +102,9 @@ QPrinter::~QPrinter()
 {
 #if 0
     if(pformat != kPMNoPageFormat)
-	PMDisposePageFormat(pformat);
+        PMDisposePageFormat(pformat);
     if(psettings != kPMNoPrintSettings)
-	PMDisposePrintSettings(psettings);
+        PMDisposePrintSettings(psettings);
 #endif
 }
 
@@ -110,17 +112,17 @@ QPrinter::~QPrinter()
 bool QPrinter::newPage()
 {
     if( PMSessionEndPage(psession) != noErr )  {//end the last page
-	state = PST_ERROR;
-	return FALSE;
+        state = PST_ERROR;
+        return FALSE;
     }
     PMRect rect;
     if( PMGetAdjustedPageRect(pformat, &rect) != noErr ) {
-	state = PST_ERROR;
-	return FALSE;
+        state = PST_ERROR;
+        return FALSE;
     }
     if( PMSessionBeginPage(psession, pformat, &rect) != noErr )  { //start a new one
-	state = PST_ERROR;
-	return FALSE;
+        state = PST_ERROR;
+        return FALSE;
     }
     return TRUE;
 }
@@ -136,19 +138,19 @@ bool QPrinter::aborted() const
     return FALSE;
 }
 
-bool 
+bool
 QPrinter::prepare(PMPrintSettings *s)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
-	return FALSE;
+        return FALSE;
     if(*s == kPMNoPrintSettings) {
-	if( PMCreatePrintSettings(s) != noErr )
-	    return FALSE;
-	if( PMSessionDefaultPrintSettings(psession, *s) != noErr)
-	    return FALSE;
+        if( PMCreatePrintSettings(s) != noErr )
+            return FALSE;
+        if( PMSessionDefaultPrintSettings(psession, *s) != noErr)
+            return FALSE;
     } else {
-	if( PMSessionValidatePrintSettings(psession, *s, kPMDontWantBoolean) != noErr )
-	    return FALSE;
+        if( PMSessionValidatePrintSettings(psession, *s, kPMDontWantBoolean) != noErr )
+            return FALSE;
     }
     PMSetPageRange(*s, minPage()+1, maxPage()+1);
     PMSetFirstPage(*s, fromPage(), TRUE);
@@ -158,19 +160,19 @@ QPrinter::prepare(PMPrintSettings *s)
     return TRUE;
 }
 
-bool 
+bool
 QPrinter::prepare(PMPageFormat *f)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
-	return FALSE;
+        return FALSE;
     if( *f == kPMNoPageFormat ) {
-	if(PMCreatePageFormat(f) != noErr)
-	    return FALSE;
-	if(PMSessionDefaultPageFormat(psession, *f) != noErr)
-	    return FALSE;
+        if(PMCreatePageFormat(f) != noErr)
+            return FALSE;
+        if(PMSessionDefaultPageFormat(psession, *f) != noErr)
+            return FALSE;
     } else {
-	if(PMSessionValidatePageFormat(psession, *f,kPMDontWantBoolean) != noErr)
-	    return FALSE;
+        if(PMSessionValidatePageFormat(psession, *f,kPMDontWantBoolean) != noErr)
+            return FALSE;
     }
     PMSetOrientation(*f, orientation() == Portrait ? kPMPortrait : kPMLandscape, TRUE);
     return TRUE;
@@ -180,49 +182,49 @@ QPrinter::prepare(PMPageFormat *f)
 bool QPrinter::setup( QWidget *  )
 {
     if(!psession && PMCreateSession(&psession) != noErr)
-	return FALSE;
+        return FALSE;
     if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) ) {
-	Boolean ret;
+        Boolean ret;
 
-	//page format
-	if(!prepare(&pformat))
-	    return FALSE;
-	if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret) 
-	    return FALSE;
+        //page format
+        if(!prepare(&pformat))
+            return FALSE;
+        if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret)
+            return FALSE;
 
-	//get values
-	PMOrientation o;
-	if(PMGetOrientation(pformat, &o) == noErr)
-	    setOrientation(o == kPMPortrait ? Portrait : Landscape);
-	
-	//setup
-	if(!prepare(&psettings)) 
-	    return FALSE;
-	if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret ) 
-	    return FALSE;
+        //get values
+        PMOrientation o;
+        if(PMGetOrientation(pformat, &o) == noErr)
+            setOrientation(o == kPMPortrait ? Portrait : Landscape);
 
-	//get values
-	UInt32 from, to;
-	if(PMGetFirstPage(psettings, &from) == noErr && PMGetFirstPage(psettings, &to) == noErr)
-	    setFromTo(from, to);
+        //setup
+        if(!prepare(&psettings))
+            return FALSE;
+        if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret )
+            return FALSE;
 
-	UInt32 copies;
-	if(PMGetCopies(psettings, &copies) == noErr)
-	    setNumCopies(copies);
-	
-	UInt32 max, min;
-	if(PMGetPageRange(psettings, &max, &min) == noErr)
-	    setMinMax(min-1, max-1);
+        //get values
+        UInt32 from, to;
+        if(PMGetFirstPage(psettings, &from) == noErr && PMGetFirstPage(psettings, &to) == noErr)
+            setFromTo(from, to);
 
-	PMColorMode cm;
-	if(PMGetColorMode(psettings, &cm) == noErr)
-	    setColorMode(cm == kPMGray ? GrayScale : Color);
+        UInt32 copies;
+        if(PMGetCopies(psettings, &copies) == noErr)
+            setNumCopies(copies);
 
-	return TRUE;
+        UInt32 max, min;
+        if(PMGetPageRange(psettings, &max, &min) == noErr)
+            setMinMax(min-1, max-1);
+
+        PMColorMode cm;
+        if(PMGetColorMode(psettings, &cm) == noErr)
+            setColorMode(cm == kPMGray ? GrayScale : Color);
+
+        return TRUE;
     } else if ( QPrintDialog::getPrinterSetup( this ) ) {
-	if(!prepare(&pformat) || !prepare(&psettings))
-	    return FALSE;
-	return TRUE;
+        if(!prepare(&pformat) || !prepare(&psettings))
+            return FALSE;
+        return TRUE;
     }
     return FALSE;
 }
@@ -231,42 +233,42 @@ bool QPrinter::setup( QWidget *  )
 bool QPrinter::cmd( int c, QPainter *, QPDevCmdParam * )
 {
     if(!psession && PMCreateSession(&psession) != noErr)
-	return FALSE;
+        return FALSE;
 
-    if ( c ==  PdcBegin ) {			// begin; start printing
-	if(state != PST_IDLE) {
-	    qDebug("printer: two PdcBegin(s).");
-	    return FALSE;
-	}
+    if ( c ==  PdcBegin ) {                     // begin; start printing
+        if(state != PST_IDLE) {
+            qDebug("printer: two PdcBegin(s).");
+            return FALSE;
+        }
 
-	PMRect rect;
-	OSStatus r;
+        PMRect rect;
+        OSStatus r;
 
-	//validate the settings
-	if( PMSessionValidatePrintSettings(psession, psettings, kPMDontWantBoolean) != noErr ) 
-	    return FALSE;
-	if(PMSessionValidatePageFormat(psession, pformat, kPMDontWantBoolean) != noErr) 
-	    return FALSE;
-	if( (r=PMGetAdjustedPageRect(pformat, &rect)) != noErr ) 
-	    return FALSE;
+        //validate the settings
+        if( PMSessionValidatePrintSettings(psession, psettings, kPMDontWantBoolean) != noErr )
+            return FALSE;
+        if(PMSessionValidatePageFormat(psession, pformat, kPMDontWantBoolean) != noErr)
+            return FALSE;
+        if( (r=PMGetAdjustedPageRect(pformat, &rect)) != noErr )
+            return FALSE;
 
-	if(PMSessionBeginDocument(psession, psettings, pformat) != noErr) //begin the document
-	    return FALSE;
-	if( PMSessionBeginPage(psession, pformat, &rect) != noErr ) //begin the page
-	    return FALSE;
-	if( PMSessionGetGraphicsContext(psession, NULL, &hd) != noErr ) //get the gworld
-	    return FALSE;
-	state = PST_ACTIVE;
+        if(PMSessionBeginDocument(psession, psettings, pformat) != noErr) //begin the document
+            return FALSE;
+        if( PMSessionBeginPage(psession, pformat, &rect) != noErr ) //begin the page
+            return FALSE;
+        if( PMSessionGetGraphicsContext(psession, NULL, &hd) != noErr ) //get the gworld
+            return FALSE;
+        state = PST_ACTIVE;
     } else if ( c == PdcEnd ) {
-	if(hd && state != PST_IDLE) {
-	    PMSessionEndPage(psession);
-	    PMSessionEndDocument(psession);
-	    hd = NULL;
-	}
-	state  = PST_IDLE;
-    } else {					// all other commands...
-	if( (state == PST_ACTIVE || state == PST_ERROR ) && PMSessionError(psession) != noErr) 
-	    return FALSE;
+        if(hd && state != PST_IDLE) {
+            PMSessionEndPage(psession);
+            PMSessionEndDocument(psession);
+            hd = NULL;
+        }
+        state  = PST_IDLE;
+    } else {                                    // all other commands...
+        if( (state == PST_ACTIVE || state == PST_ERROR ) && PMSessionError(psession) != noErr)
+            return FALSE;
     }
     return TRUE;
 }
@@ -276,46 +278,46 @@ int QPrinter::metric( int m ) const
 {
     int val = 1;
     switch ( m ) {
-    case QPaintDeviceMetrics::PdmWidth: 
+    case QPaintDeviceMetrics::PdmWidth:
     {
-	PMRect r;
-	if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
-	    val = (int)(r.right - r.left);
-	break;
+        PMRect r;
+        if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
+            val = (int)(r.right - r.left);
+        break;
     }
     case QPaintDeviceMetrics::PdmHeight:
     {
-	PMRect r;
-	if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
-	    val = (int)(r.bottom - r.top);;
-	break;
+        PMRect r;
+        if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
+            val = (int)(r.bottom - r.top);;
+        break;
     }
     case QPaintDeviceMetrics::PdmDpiY:
     case QPaintDeviceMetrics::PdmDpiX:
     // ### FIXME: logical resolution scales with res!
     case QPaintDeviceMetrics::PdmPhysicalDpiX:
     case QPaintDeviceMetrics::PdmPhysicalDpiY:
-	val = 72;
-	break;
+        val = 72;
+        break;
     case QPaintDeviceMetrics::PdmWidthMM:
-	// double rounding error here.  hooray.
-	val = metric( QPaintDeviceMetrics::PdmWidth );
-	val = (val * 254 + 5*res) / (10*res);
-	break;
+        // double rounding error here.  hooray.
+        val = metric( QPaintDeviceMetrics::PdmWidth );
+        val = (val * 254 + 5*res) / (10*res);
+        break;
     case QPaintDeviceMetrics::PdmHeightMM:
-	val = metric( QPaintDeviceMetrics::PdmHeight );
-	val = (val * 254 + 5*res) / (10*res);
-	break;
+        val = metric( QPaintDeviceMetrics::PdmHeight );
+        val = (val * 254 + 5*res) / (10*res);
+        break;
     case QPaintDeviceMetrics::PdmNumColors:
-	val = 16777216;
-	break;
+        val = 16777216;
+        break;
     case QPaintDeviceMetrics::PdmDepth:
-	val = 24;
-	break;
+        val = 24;
+        break;
     default:
-	val = 0;
+        val = 0;
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QPixmap::metric: Invalid metric command" );
+        qWarning( "QPixmap::metric: Invalid metric command" );
 #endif
     }
     return val;

@@ -53,28 +53,28 @@ class Q_EXPORT QPrinter : public QPaintDevice
 {
 public:
     enum PrinterMode { ScreenResolution, PrinterResolution, HighResolution, Compatible };
-    
+
     QPrinter( PrinterMode mode = ScreenResolution );
    ~QPrinter();
 
     enum Orientation { Portrait, Landscape };
 
     enum PageSize    { A4, B5, Letter, Legal, Executive,
-		       A0, A1, A2, A3, A5, A6, A7, A8, A9, B0, B1,
-		       B10, B2, B3, B4, B6, B7, B8, B9, C5E, Comm10E,
-		       DLE, Folio, Ledger, Tabloid, NPageSize };
+                       A0, A1, A2, A3, A5, A6, A7, A8, A9, B0, B1,
+                       B10, B2, B3, B4, B6, B7, B8, B9, C5E, Comm10E,
+                       DLE, Folio, Ledger, Tabloid, NPageSize };
 
     enum PageOrder   { FirstPageFirst, LastPageFirst };
 
     enum ColorMode   { GrayScale, Color };
 
-    enum PaperSource { OnlyOne, Lower, Middle, Manual, Envelope, 
-                       EnvelopeManual, Auto, Tractor, SmallFormat, 
+    enum PaperSource { OnlyOne, Lower, Middle, Manual, Envelope,
+                       EnvelopeManual, Auto, Tractor, SmallFormat,
                        LargeFormat, LargeCapacity, Cassette, FormSource };
 
     QString printerName() const;
     virtual void setPrinterName( const QString &);
-    bool outputToFile()	const;
+    bool outputToFile() const;
     virtual void setOutputToFile( bool );
     QString outputFileName()const;
     virtual void setOutputFileName( const QString &);
@@ -90,55 +90,55 @@ public:
     QString creator() const;
     virtual void setCreator( const QString &);
 
-    Orientation orientation()	const;
+    Orientation orientation()   const;
     virtual void setOrientation( Orientation );
-    PageSize	pageSize()	const;
+    PageSize    pageSize()      const;
     virtual void setPageSize( PageSize );
 
     virtual void setPageOrder( PageOrder );
-    PageOrder	pageOrder() const;
+    PageOrder   pageOrder() const;
 
     void setResolution( int );
     int resolution() const;
 
     virtual void setColorMode( ColorMode );
-    ColorMode	colorMode() const;
+    ColorMode   colorMode() const;
 
-    virtual void	setFullPage( bool );
-    bool		fullPage() const;
-    QSize	margins()	const;
+    virtual void        setFullPage( bool );
+    bool                fullPage() const;
+    QSize       margins()       const;
 
-    int		fromPage()	const;
-    int		toPage()	const;
+    int         fromPage()      const;
+    int         toPage()        const;
     virtual void setFromTo( int fromPage, int toPage );
-    int		minPage()	const;
-    int		maxPage()	const;
+    int         minPage()       const;
+    int         maxPage()       const;
     virtual void setMinMax( int minPage, int maxPage );
-    int		numCopies()	const;
+    int         numCopies()     const;
     virtual void setNumCopies( int );
 
-    bool	newPage();
-    bool	abort();
-    bool	aborted()	const;
+    bool        newPage();
+    bool        abort();
+    bool        aborted()       const;
 
-    bool	setup( QWidget *parent = 0 );
+    bool        setup( QWidget *parent = 0 );
 
     PaperSource paperSource()   const;
     virtual void setPaperSource( PaperSource );
 
 protected:
-    bool	cmd( int, QPainter *, QPDevCmdParam * );
-    int		metric( int ) const;
+    bool        cmd( int, QPainter *, QPDevCmdParam * );
+    int         metric( int ) const;
 
 #if defined(Q_WS_WIN)
-    virtual void	setActive();
-    virtual void	setIdle();
+    virtual void        setActive();
+    virtual void        setIdle();
 #endif
 
 private:
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
     QPaintDevice *pdrv;
-    int		pid;
+    int         pid;
 #endif
 #if defined(Q_WS_MAC)
     PMPageFormat pformat;
@@ -147,31 +147,33 @@ private:
     bool prepare(PMPrintSettings *);
     bool prepare(PMPageFormat *);
 #endif
-    
-    int		state;
-    QString	printer_name;
-    QString	option_string;
-    QString	output_filename;
-    bool	output_file;
-    QString	print_prog;
-    QString	doc_name;
-    QString	creator_name;
-    Orientation orient;
-    PageSize	page_size;
-    PaperSource paper_source;
-    bool	to_edge;
-    short	from_pg, to_pg;
-    short	min_pg,	 max_pg;
-    short	ncopies;
-#if defined(Q_WS_WIN)
-    bool	viewOffsetDone;
-    QPainter*   painter;
-    void	readPdlg( void* );
-    void	readPdlgA( void* );
-#endif
-    int		res;
 
-private:	// Disabled copy constructor and operator=
+    int         state;
+    QString     printer_name;
+    QString     option_string;
+    QString     output_filename;
+    bool        output_file;
+    QString     print_prog;
+    QString     doc_name;
+    QString     creator_name;
+    PageSize    page_size : 8;
+    PaperSource paper_source : 8;
+    PageOrder   page_order : 1;
+    ColorMode   color_mode : 1;
+    Orientation orient : 1;
+    bool        to_edge : 1;
+    short       from_pg, to_pg;
+    short       min_pg,  max_pg;
+    short       ncopies;
+#if defined(Q_WS_WIN)
+    bool        viewOffsetDone;
+    QPainter*   painter;
+    void        readPdlg( void* );
+    void        readPdlgA( void* );
+#endif
+    int         res;
+
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QPrinter( const QPrinter & );
     QPrinter &operator=( const QPrinter & );
@@ -198,7 +200,7 @@ inline QString QPrinter::creator() const
 { return creator_name; }
 
 inline QPrinter::PageSize QPrinter::pageSize() const
-{ return (PageSize) ( ((int)page_size) & 255 ); }
+{ return page_size; }
 
 inline QPrinter::Orientation QPrinter::orientation() const
 { return orient; }

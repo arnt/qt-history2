@@ -65,6 +65,8 @@ QPrinter::QPrinter( PrinterMode m )
 {
     orient      = Portrait;
     page_size   = A4;
+    page_order = FirstPageFirst;
+    color_mode = GrayScale;
     ncopies     = 1;
     from_pg     = to_pg = min_pg  = max_pg = 0;
     state       = PST_IDLE;
