@@ -128,8 +128,8 @@ int main( int argc, char ** argv )
 	QString arg( argv[1] );
 	arg = arg.lower();
 #ifndef Q_WS_WIN
-	if ( arg == "-addprofile" ||
-	     arg == "-installqtdoc" ||
+	if ( arg == "-addcontentfile" ||
+	     arg == "-removecontentfile" ||
 	     arg == "-help" )
 	    withGUI = FALSE;
 #endif
@@ -180,7 +180,7 @@ int main( int argc, char ** argv )
 		    parser->addTo( c->profile() );
 		    c->setDocRebuild( TRUE );
 		    c->save();
-		} 
+		}
 		return 0;
 	    } else if ( QString( argv[i] ).lower() == "-removecontentfile" ) {
 		INDEX_CHECK( "Missing content file!" );
