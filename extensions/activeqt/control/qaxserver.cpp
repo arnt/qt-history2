@@ -618,7 +618,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     
     QString topclass = qAxFactory()->exposeToSuperClass(className);
     if (topclass.isEmpty())
-        topclass = "QWidget";
+        topclass = "Qt";
     bool hasStockEvents = qAxFactory()->hasStockEvents(className);
     
     const QMetaObject *pmo = mo;
@@ -626,6 +626,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         pmo = pmo->superClass();
     } while (pmo && topclass != pmo->className());
     
+    int enumoff = pmo ? pmo->enumeratorOffset() : mo->enumeratorOffset();
     int memberoff = pmo ? pmo->memberOffset() : mo->memberOffset();
     int propoff = pmo ? pmo->propertyOffset() : mo->propertyOffset();
     
@@ -655,7 +656,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     QString defProp(mo->classInfo(mo->indexOfClassInfo("DefaultProperty")).value());
     QString defSignal(mo->classInfo(mo->indexOfClassInfo("DefaultSignal")).value());
     
-    for (i = 0; i < mo->enumeratorCount(); ++i) {
+    for (i = enumoff; i < mo->enumeratorCount(); ++i) {
         const QMetaEnum enumerator = mo->enumerator(i);
         if (enums.contains(enumerator.name()))
             continue;

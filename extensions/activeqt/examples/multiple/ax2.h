@@ -20,7 +20,7 @@ class QAxWidget2 : public QWidget
     Q_CLASSINFO("ClassID", "{58139D56-6BE9-4b17-937D-1B1EDEDD5B71}")
     Q_CLASSINFO("InterfaceID", "{B66280AB-08CC-4dcc-924F-58E6D7975B7D}")
     Q_CLASSINFO("EventsID", "{D72BACBA-03C4-4480-B4BB-DE4FE3AA14A0}")
-    Q_CLASSINFO("ToSuperClass", "QAxWidget2")
+//    Q_CLASSINFO("ToSuperClass", "QAxWidget2")
     Q_CLASSINFO("StockEvents", "yes")
 
     Q_PROPERTY( int lineWidth READ lineWidth WRITE setLineWidth )
