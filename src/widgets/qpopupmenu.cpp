@@ -2024,7 +2024,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		    i = c - 1;
 	    }
 	    mi = mitems->at( i );
-	    if ( !mi->isVisible() )
+	    if ( !mi || !mi->isVisible() )
 		continue;
 
 	    if ( !mi->isSeparator() &&
