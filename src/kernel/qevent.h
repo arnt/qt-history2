@@ -216,7 +216,7 @@ protected:
 class Q_EXPORT QTabletEvent : public QEvent
 {
 public:
-    enum TabletDevices { NONE = -1, PUCK, STYLUS, ERASER, MENU };
+    enum TabletDevices { None = -1, Puck, Stylus, Eraser };
     QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt )
 	: QEvent( Tablet ), p( pos ), dev( device ), press( pressure ),
 	  xT( xTilt ), yT( yTilt )
@@ -239,8 +239,6 @@ public:
     int isAccepted() const { return accpt; };
     void accept() { accpt = TRUE; };
     void ignore() { accpt = FALSE; };
-    //    static void setMaxPressure( int newMax ) { maxPress = newMax; };
-    //    static void setMinPressure( int newMin ) { minPress = newMin; };
 protected:
     QPoint p;
     QPoint g;
@@ -249,8 +247,6 @@ protected:
     int xT;
     int yT;
     bool accpt;
-    //    static int maxPress;
-    //    static int minPress;
 };
 
 class Q_EXPORT QKeyEvent : public QEvent

@@ -4696,17 +4696,17 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 		switch ( vs->valuators[WAC_TRANSDUCER_I]
 			 & WAC_TRANSDUCER_MSK ) {
 		case WAC_PUCK_ID:
-		    deviceType = QTabletEvent::PUCK;
+		    deviceType = QTabletEvent::Puck;
 		    break;
 		case WAC_STYLUS_ID:
-		    deviceType = QTabletEvent::STYLUS;
+		    deviceType = QTabletEvent::Stylus;
 		    break;
 		case WAC_ERASER_ID:
-		    deviceType = QTabletEvent::ERASER;
+		    deviceType = QTabletEvent::Eraser;
 		    break;
 		}
 	    } else
-		deviceType = QTabletEvent::NONE;
+		deviceType = QTabletEvent::None;
 	    // apparently Wacom needs a cast for the +/- values to make sense
 	    xTilt = short(vs->valuators[WAC_XTILT_I]);
 	    yTilt = short(vs->valuators[WAC_YTILT_I]);
