@@ -255,7 +255,7 @@
 // Some classes do not permit copies to be made of an object.
 // These classes contains a private copy constructor and operator=
 // to disable copying (the compiler gives an error message).
-// Undefine Q_DISABLE_COPY to turn of this checking.
+// Undefine Q_DISABLE_COPY to turn off this checking.
 //
 
 #define Q_DISABLE_COPY

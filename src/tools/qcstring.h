@@ -266,7 +266,7 @@ inline bool QCString::isEmpty() const
 { return data() == 0 || *data() == '\0'; }
 
 inline uint QCString::length() const
-{ return strlen( data() ); }
+{ return qstrlen( data() ); }
 
 inline bool QCString::truncate( uint pos )
 { return resize(pos+1); }
@@ -304,49 +304,49 @@ inline QCString::operator const char *() const
  *****************************************************************************/
 
 Q_EXPORT inline bool operator==( const QCString &s1, const QCString &s2 )
-{ return strcmp(s1.data(),s2.data()) == 0; }
+{ return qstrcmp(s1.data(),s2.data()) == 0; }
 
 Q_EXPORT inline bool operator==( const QCString &s1, const char *s2 )
-{ return strcmp(s1.data(),s2) == 0; }
+{ return qstrcmp(s1.data(),s2) == 0; }
 
 Q_EXPORT inline bool operator==( const char *s1, const QCString &s2 )
-{ return strcmp(s1,s2.data()) == 0; }
+{ return qstrcmp(s1,s2.data()) == 0; }
 
 Q_EXPORT inline bool operator!=( const QCString &s1, const QCString &s2 )
-{ return strcmp(s1.data(),s2.data()) != 0; }
+{ return qstrcmp(s1.data(),s2.data()) != 0; }
 
 Q_EXPORT inline bool operator!=( const QCString &s1, const char *s2 )
-{ return strcmp(s1.data(),s2) != 0; }
+{ return qstrcmp(s1.data(),s2) != 0; }
 
 Q_EXPORT inline bool operator!=( const char *s1, const QCString &s2 )
-{ return strcmp(s1,s2.data()) != 0; }
+{ return qstrcmp(s1,s2.data()) != 0; }
 
 Q_EXPORT inline bool operator<( const QCString &s1, const QCString& s2 )
-{ return strcmp(s1.data(),s2.data()) < 0; }
+{ return qstrcmp(s1.data(),s2.data()) < 0; }
 
 Q_EXPORT inline bool operator<( const QCString &s1, const char *s2 )
-{ return strcmp(s1.data(),s2) < 0; }
+{ return qstrcmp(s1.data(),s2) < 0; }
 
 Q_EXPORT inline bool operator<( const char *s1, const QCString &s2 )
-{ return strcmp(s1,s2.data()) < 0; }
+{ return qstrcmp(s1,s2.data()) < 0; }
 
 Q_EXPORT inline bool operator<=( const QCString &s1, const char *s2 )
-{ return strcmp(s1.data(),s2) <= 0; }
+{ return qstrcmp(s1.data(),s2) <= 0; }
 
 Q_EXPORT inline bool operator<=( const char *s1, const QCString &s2 )
-{ return strcmp(s1,s2.data()) <= 0; }
+{ return qstrcmp(s1,s2.data()) <= 0; }
 
 Q_EXPORT inline bool operator>( const QCString &s1, const char *s2 )
-{ return strcmp(s1.data(),s2) > 0; }
+{ return qstrcmp(s1.data(),s2) > 0; }
 
 Q_EXPORT inline bool operator>( const char *s1, const QCString &s2 )
-{ return strcmp(s1,s2.data()) > 0; }
+{ return qstrcmp(s1,s2.data()) > 0; }
 
 Q_EXPORT inline bool operator>=( const QCString &s1, const char *s2 )
-{ return strcmp(s1.data(),s2) >= 0; }
+{ return qstrcmp(s1.data(),s2) >= 0; }
 
 Q_EXPORT inline bool operator>=( const char *s1, const QCString &s2 )
-{ return strcmp(s1,s2.data()) >= 0; }
+{ return qstrcmp(s1,s2.data()) >= 0; }
 
 Q_EXPORT inline QCString operator+( const QCString &s1, const QCString &s2 )
 {

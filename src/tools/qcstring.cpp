@@ -461,7 +461,7 @@ QCString::QCString( int size )
 
 QCString::QCString( const char *str )
 {
-    duplicate( str, strlen(str)+1 );
+    duplicate( str, qstrlen(str)+1 );
 }
 
 
@@ -625,7 +625,7 @@ QCString &QCString::sprintf( const char *format, ... )
     if ( size() < 256 )
 	QByteArray::resize( 256 );		// make string big enough
     vsprintf( data(), format, ap );
-    resize( strlen(data()) + 1 );		// truncate
+    resize( qstrlen(data()) + 1 );		// truncate
     va_end( ap );
     return *this;
 }
@@ -711,9 +711,9 @@ int QCString::find( const char *str, int index, bool cs ) const
 	d = strstr( data()+index, str );
     } else {					// case insensitive
 	d = data()+index;
-	int len = strlen( str );
+	int len = qstrlen( str );
 	while ( *d ) {
-	    if ( strnicmp(d, str, len) == 0 )
+	    if ( qstrnicmp(d, str, len) == 0 )
 		break;
 	    d++;
 	}
@@ -772,7 +772,7 @@ int QCString::findRev( char c, int index, bool cs ) const
 
 int QCString::findRev( const char *str, int index, bool cs ) const
 {
-    int slen = strlen(str);
+    int slen = qstrlen(str);
     if ( index < 0 )				// neg index ==> start from end
 	index = length()-slen;
     else if ( (uint)index >= size() )		// bad index
@@ -785,11 +785,11 @@ int QCString::findRev( const char *str, int index, bool cs ) const
     register char *d = data() + index;
     if ( cs ) {					// case sensitive
 	for ( int i=index; i>=0; i-- )
-	    if ( strncmp(d--,str,slen)==0 )
+	    if ( qstrncmp(d--,str,slen)==0 )
 		return i;
     } else {					// case insensitive
 	for ( int i=index; i>=0; i-- )
-	    if ( strnicmp(d--,str,slen)==0 )
+	    if ( qstrnicmp(d--,str,slen)==0 )
 		return i;
     }
     return -1;
@@ -842,13 +842,13 @@ int QCString::contains( const char *str, bool cs ) const
     char *d = data();
     if ( !d )
 	return 0;
-    int len = strlen( str );
+    int len = qstrlen( str );
     while ( *d ) {				// counts overlapping strings
 	if ( cs ) {
-	    if ( strncmp( d, str, len ) == 0 )
+	    if ( qstrncmp( d, str, len ) == 0 )
 		count++;
 	} else {
-	    if ( strnicmp(d, str, len) == 0 )
+	    if ( qstrnicmp(d, str, len) == 0 )
 		count++;
 	}
 	d++;
@@ -936,7 +936,7 @@ QCString QCString::right( uint len ) const
 QCString QCString::mid( uint index, uint len ) const
 {
     if ( len == 0xffffffff ) len = length()-index;
-    uint slen = strlen( data() );
+    uint slen = qstrlen( data() );
     if ( isEmpty() || index >= slen ) {
 	QCString empty;
 	return empty;
@@ -970,7 +970,7 @@ QCString QCString::mid( uint index, uint len ) const
 QCString QCString::leftJustify( uint width, char fill, bool truncate ) const
 {
     QCString result;
-    int len = strlen(data());
+    int len = qstrlen(data());
     int padlen = width - len;
     if ( padlen > 0 ) {
 	result.QByteArray::resize( len+padlen+1 );
@@ -1007,7 +1007,7 @@ QCString QCString::leftJustify( uint width, char fill, bool truncate ) const
 QCString QCString::rightJustify( uint width, char fill, bool truncate ) const
 {
     QCString result;
-    int len = strlen(data());
+    int len = qstrlen(data());
     int padlen = width - len;
     if ( padlen > 0 ) {
 	result.QByteArray::resize( len+padlen+1 );
@@ -1180,7 +1180,7 @@ QCString QCString::simplifyWhiteSpace() const
 
 QCString &QCString::insert( uint index, const char *s )
 {
-    int len = strlen(s);
+    int len = qstrlen(s);
     if ( len == 0 )
 	return *this;
     uint olen = length();
@@ -1544,7 +1544,7 @@ QCString &QCString::setStr( const char *str )
 {
     detach();
     if ( str )					// valid string
-	store( str, strlen(str)+1 );
+	store( str, qstrlen(str)+1 );
     else					// empty
 	resize( 0 );
     return *this;
@@ -1574,7 +1574,7 @@ QCString &QCString::setNum( long n )
     } while ( n );
     if ( neg )
 	*--p = '-';
-    store( p, strlen(p)+1 );
+    store( p, qstrlen(p)+1 );
     return *this;
 }
 
@@ -1593,7 +1593,7 @@ QCString &QCString::setNum( ulong n )
 	*--p = ((int)(n%10)) + '0';
 	n /= 10;
     } while ( n );
-    store( p, strlen(p)+1 );
+    store( p, qstrlen(p)+1 );
     return *this;
 }
 
@@ -1718,7 +1718,7 @@ QCString& QCString::operator+=( const char *str )
 	return *this;				// nothing to append
     detach();
     uint len1 = length();
-    uint len2 = strlen(str);
+    uint len2 = qstrlen(str);
     if ( !QByteArray::resize( len1 + len2 + 1 ) )
 	return *this;				// no memory
     memcpy( data() + len1, str, len2 + 1 );
