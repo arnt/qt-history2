@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include <windows.h>
+#include <conio.h>
 
 std::ostream &operator<<( std::ostream &s, const QString &val ) {
     s << val.local8Bit();
@@ -1754,19 +1755,31 @@ void Configure::readLicense()
             return;
         }
 
-        // Prompt the license content to the user (25 lines at a time)
+        // Get console line height, to fill the screen properly
+        int i = 0, screenHeight = 25; // default
+        CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+        HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+        if (GetConsoleScreenBufferInfo(stdOut, &consoleInfo))
+            screenHeight = consoleInfo.srWindow.Bottom 
+                         - consoleInfo.srWindow.Top 
+                         - 1; // Some overlap for context
+
+        // Prompt the license content to the user
         QStringList licenseContent = QString(file.readAll()).split('\n');
-        for (int i = 0; i<licenseContent.size(); ++i) {
+        while(i < licenseContent.size()) {
             cout << licenseContent.at(i) << endl;
-            char c;
-            if (i % 25 == 24)
-                cin.get(c);
+            if (++i % screenHeight == 0) {
+                cout << "(Press any key for more..)"; 
+                if(_getch() == 3) // _Any_ keypress w/no echo(eat <Enter> for stdout)
+                    exit(0);      // Exit cleanly for Ctrl+C
+                cout << "\r";     // Overwrite text above
+            }
         }
 
         char accept = 'n';
         cout << endl << "Do you accept the license? (y/n)" << endl;
         cin >> accept;
-        if (accept != 'y') {
+        if (tolower(accept) != 'y') {
             cout << "Configuration aborted since license was not accepted";
             dictionary["DONE"] = "error";
             return;
