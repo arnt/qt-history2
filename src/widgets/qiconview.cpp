@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#57 $
 **
 ** Definition of QIconView widget class
 **
@@ -107,7 +107,7 @@ struct QIconViewPrivate
     QIconView::SelectionMode selectionMode;
     QIconViewItem *currentItem, *tmpCurrentItem;
     QRect *rubber;
-    QTimer *scrollTimer, *adjustTimer, *updateTimer;
+    QTimer *scrollTimer, *adjustTimer, *updateTimer, *inputTimer;
     int rastX, rastY, spacing;
     bool cleared, dropped;
     int dragItems;
@@ -1297,11 +1297,14 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->cachedW = d->cachedH = 0;
     d->maxItemWidth = 200;
     d->maxItemTextLength = 255;
-
+    d->inputTimer = new QTimer( this );
+    
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
 	      this, SLOT( slotUpdate() ) );
+    connect ( d->inputTimer, SIGNAL( timeout() ),
+	      this, SLOT( clearInputString() ) );
 
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
@@ -1328,6 +1331,7 @@ QIconView::~QIconView()
     }
 
     delete d->adjustTimer;
+    delete d->inputTimer;
     delete d;
 }
 
@@ -1374,7 +1378,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
     }
 
     d->nameMap[ item->text() ] = item;
-    
+
     if ( isVisible() ) {
 	if ( d->updateTimer->isActive() )
 	    d->updateTimer->stop();
@@ -1694,6 +1698,24 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
 	if ( item->contains( pos ) )
 	    return item;
 
+    return 0;
+}
+
+/*!
+  Returns a pointer to the first item which could be found that contains
+  \a text, or 0 if no such item could be found.
+*/
+
+QIconViewItem *QIconView::findItem( const QString &text ) const
+{
+    if ( !d->firstItem )
+	return 0;
+
+    QIconViewItem *item = d->firstItem;
+    for ( ; item; item = item->next )
+	if ( item->text().left( text.length() ) == text )
+	    return item;
+    
     return 0;
 }
 
@@ -2532,6 +2554,17 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	break;
     default:
 	if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
+	    if ( d->inputTimer->isActive() )
+		d->inputTimer->stop();
+	    d->inputTimer->start( 500, TRUE );
+	    d->currInputString += e->text();
+	    QIconViewItem *item = findItem( d->currInputString );
+	    if ( item ) {
+		QIconViewItem *i = d->currentItem;
+		setCurrentItem( item );
+		repaintItem( i );
+		repaintItem( d->currentItem );
+	    }
 	}
     }
 
@@ -2945,4 +2978,10 @@ bool QIconView::eventFilter( QObject * o, QEvent * e )
     return QScrollView::eventFilter( o, e );
 }
 
+void QIconView::clearInputString()
+{
+    d->currInputString = QString::null;
+}
+
 #include "qiconview.moc"
+

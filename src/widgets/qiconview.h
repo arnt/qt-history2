@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#25 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#26 $
 **
 ** Definition of QIconView widget class
 **
@@ -207,7 +207,7 @@ protected:
     virtual void dragLeft();
     virtual void init();
     void setView( QIconView* v );
-    
+
 private:
     QIconView *view;
     QString itemText;
@@ -278,6 +278,7 @@ public:
     virtual SelectionMode selectionMode() const;
 
     virtual QIconViewItem *findItem( const QPoint &pos ) const;
+    virtual QIconViewItem *findItem( const QString &text ) const;
     virtual void selectAll( bool select );
 
     virtual void repaintItem( QIconViewItem *item );
@@ -323,6 +324,9 @@ protected slots:
     virtual void adjustItems();
     virtual void slotUpdate();
 
+private slots:
+    void clearInputString();
+    
 protected:
     virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void contentsMousePressEvent( QMouseEvent *e );
