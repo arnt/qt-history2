@@ -2234,7 +2234,7 @@ QMetaObject* QObject::staticQtMetaObject()
 	{ "Alignment", 10, enum_0, TRUE },
 	{ "Orientation", 2, enum_1, FALSE },
 	{ "TextFormat", 4, enum_2, FALSE },
-	{ "BackgroundMode", 18, enum_3, FALSE },
+	{ "BackgroundMode", 17, enum_3, FALSE },
 	{ "DateFormat", 3, enum_4, FALSE }
     };
 #endif
