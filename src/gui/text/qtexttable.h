@@ -35,7 +35,7 @@ public:
 
 private:
     friend class QTextTable;
-    QTextTableCellProperties(const QTextTablePrivate *p, QTextPieceTable *pt, int row, int col);
+    QTextTableCellProperties(const QTextTablePrivate *p, int row, int col);
 
     int r, c;
     QTextCursor s;
@@ -81,7 +81,6 @@ private:
 
     QTextTable(QTextPieceTable *pt, QObject *parent);
 
-    QTextPieceTable *pieceTable;
 #if defined(Q_DISABLE_COPY)
     QTextTable(const QTextTable &o);
     QTextTable & operator =(const QTextTable &o);

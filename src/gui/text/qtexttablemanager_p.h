@@ -96,6 +96,8 @@ public:
     QList<int> columnMinWidth;
     QList<int> rowHeight;
     inline void setDirty() { dirty = true; }
+
+    QTextPieceTable *pieceTable;
 private:
     inline void setCell(int r, int c, const QFragmentMap<QTextBlock>::ConstIterator block) const
 	{ grid[r*nCols + c] = block; }
