@@ -112,44 +112,6 @@ public: \
     inline bool findPrevious(const T &t) \
     { while (i != c.constBegin()) if (*(n = --i) == t) return true; \
       n = c.constEnd(); return false; } \
-    inline bool findNextKey(const Key &key) \
-    {  \
-        if (i == c.constBegin()) { \
-            i = const_cast<const C<Key,T> &>(c).find(key); \
-            if ((n = i) != c.constEnd()) { \
-                ++i; \
-                return true; \
-            } \
-            return false; \
-        } else if (i == c.constEnd() || !C<Key, T>::sameKey(i.key(), key)) { \
-            n = i = c.constEnd(); \
-            return false; \
-        } else { \
-            n = i++; \
-            return true; \
-        } \
-    } \
-    inline bool findPreviousKey(const Key &key) \
-    { \
-        if (i == c.constEnd()) { \
-            n = i = const_cast<const C<Key,T> &>(c).find(key); \
-            if (i == c.constEnd()) { \
-                i = c.constBegin(); \
-                return false; \
-            } \
-            while (++i != c.constEnd() && C<Key, T>::sameKey(i.key(), key)) \
-                ; \
-            n = --i; \
-            return true; \
-        } else if (i == c.constBegin() || !C<Key, T>::sameKey((--i).key(), key)) { \
-            n = c.constEnd(); \
-            i = c.constBegin(); \
-            return false; \
-        } else { \
-            n = i; \
-            return true; \
-        } \
-    } \
 }; \
 \
 template <class Key, class T> \
@@ -186,10 +148,6 @@ public: \
     inline bool findPrevious(const T &t) \
     { while (i != c->constBegin()) if (*(n = --i) == t) return true; \
       n = c->end(); return false; } \
-    inline bool findNextKey(const Key &key) \
-    { return reinterpret_cast<C##Iterator<Key, T> *>(this)->findNextKey(key); } \
-    inline bool findPreviousKey(const Key &key) \
-    { return reinterpret_cast<C##Iterator<Key, T> *>(this)->findPreviousKey(key); } \
 };
 
 #endif // QITERATOR_H

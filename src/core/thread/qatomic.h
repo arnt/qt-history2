@@ -165,9 +165,9 @@ public:
     }
 };
 
-/*! \internal
-    This is a helper for the assignment operators of implicitely
-    shared classes.  Your assignment operator should look like this:
+/*!
+    This is a helper for the assignment operators of implicitly
+    shared classes. Your assignment operator should look like this:
 
     \code
         MyClass &MyClass:operator=(const MyClass &other)

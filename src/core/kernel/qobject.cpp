@@ -1627,16 +1627,16 @@ int QObject::receivers(const char *signal) const
             return false;
         }
         QConnectionList *list = ::connectionList();
-    QReadWriteLockLocker locker(&list->lock, QReadWriteLock::ReadAccess);
-        QHashIterator<const QObject *, int> it(list->sendersHash);
-        while (it.findNextKey(this)) {
-            if (list->connections.at(it.value()).signal == signal_index)
+        QReadWriteLockLocker locker(&list->lock, QReadWriteLock::ReadAccess);
+        QHash<const QObject *, int>::const_iterator i = list->sendersHash.find(this);
+        while (i != list->sendersHash.constEnd() && i.key() == this) {
+            if (list->connections.at(i.value()).signal == signal_index)
                 ++receivers;
+            ++i;
         }
     }
     return receivers;
 }
-
 
 /*!
     \threadsafe
@@ -1648,18 +1648,22 @@ int QObject::receivers(const char *signal) const
     You must use the SIGNAL() and SLOT() macros when specifying the \a signal
     and the \a member, for example:
     \code
-    QLabel     *label  = new QLabel;
-    QScrollBar *scroll = new QScrollBar;
-    QObject::connect(scroll, SIGNAL(valueChanged(int)),
-                      label,  SLOT(setNum(int)));
+        QLabel *label  = new QLabel;
+        QScrollBar *scroll = new QScrollBar;
+        QObject::connect(scroll, SIGNAL(valueChanged(int)),
+                          label,  SLOT(setNum(int)));
     \endcode
 
     This example ensures that the label always displays the current
     scroll bar value. Note that the signal and slots parameters must not
     contain any variable names, only the type. E.g. the following would
     not work and return false:
+
+    \code
+    // WRONG
     QObject::connect(scroll, SIGNAL(valueChanged(int v)),
-                      label,  SLOT(setNum(int v)));
+                     label, SLOT(setNum(int v)));
+    \endcode
 
     A signal can also be connected to another signal:
 
@@ -1667,20 +1671,22 @@ int QObject::receivers(const char *signal) const
     class MyWidget : public QWidget
     {
         Q_OBJECT
+
     public:
         MyWidget();
 
     signals:
-        void myUsefulSignal();
+        void buttonClicked();
 
     private:
-        QPushButton *aButton;
+        QPushButton *myButton;
     };
 
     MyWidget::MyWidget()
     {
-        aButton = new QPushButton(this);
-        connect(aButton, SIGNAL(clicked()), SIGNAL(myUsefulSignal()));
+        myButton = new QPushButton(this);
+        connect(aButton, SIGNAL(clicked()),
+                this, SIGNAL(buttonClicked()));
     }
     \endcode
 
@@ -1700,9 +1706,9 @@ int QObject::receivers(const char *signal) const
     existence of either \a signal or \a member, or if their signatures
     aren't compatible.
 
-    A signal is emitted for \e{every} connection you make, so if you
+    A signal is emitted for every connection you make, so if you
     duplicate a connection, two signals will be emitted. You can
-    always break a connection using \c{disconnect()}.
+    always break a connection using disconnect().
 
     \sa disconnect()
 */
