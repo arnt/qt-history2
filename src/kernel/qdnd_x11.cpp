@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#59 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -1054,6 +1054,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode )
 			dragSource->topLevelWidget()->winId(),
 			qt_xdnd_source_current_time );
     updatePixmap();
+    move(QCursor::pos());
 
     qApp->enter_loop();
 

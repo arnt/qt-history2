@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#67 $
 **
 ** Implementation of event classes
 **
@@ -825,4 +825,98 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   based on the \link type() event type\endlink. Again, it is not
   recommended to use custom events unless you are implementing Qt kernel
   enhancements.
+*/
+
+/*!
+  \fn QDragMoveEvent::QDragMoveEvent( const QPoint& pos )
+
+  Creates a QDragMoveEvent for which the mouse is at point \a pos.
+
+  Note that internal state is also involved with QDragMoveEvent,
+  so it is not useful to create these yourself.
+*/
+
+/*!
+  \fn QDragMoveEvent::QDragMoveEvent( const QPoint& pos, int type )
+
+  Creates a QDragMoveEvent for which the mouse is at point \a pos,
+  and the given event \a type.
+
+  Note that internal state is also involved with QDragMoveEvent,
+  so it is not useful to create these yourself.
+*/
+
+/*!
+  \fn const QPoint& QDragMoveEvent::pos() const
+
+  Returns the position of the mouse when the event occurred.
+*/
+
+/*!
+  \fn bool   QDragMoveEvent::isAccepted() const
+
+  Returns TRUE if accept() has been called.
+*/
+
+/*!
+  \fn void   QDragMoveEvent::accept()
+
+  Call this to indicate that the event provides data which your widget
+  can process.  Use provides(), or preferrably, the canDecode() methods
+  of existing QDragObject subclasses, such as
+  QTextDrag::canDecode(), or your own subclasses.
+*/
+
+/*!
+  \fn void   QDragMoveEvent::ignore()
+
+  The opposite of accept().
+*/
+
+/*!
+  \fn void   QDragMoveEvent::accept( const QRect & r )
+
+  The same as accept() above, but also notifies that future moves will
+  also be acceptable if they remain withing the rectangle \a r on the
+  widget - this can improve performance, but may also be ignored by
+  the underlying system.
+*/
+
+/*!
+  \fn void   QDragMoveEvent::ignore( const QRect & r)
+
+  The opposite of accept(const QRect&).
+*/
+
+/*!
+  \fn QRect  QDragMoveEvent::answerRect() const { return rect; }
+
+  Returns the rectangle for which the acceptance of
+  the move event applies.
+*/
+
+
+
+/*!
+  \fn QDropEvent::QDropEvent( const QPoint& pos )
+
+  Creates a QDropEvent for which the mouse is at point \a pos.
+
+  Note that internal state is also involved with QDropEvent,
+  so it is not useful to create these yourself.
+*/
+
+/*!
+  \fn void   QDropEvent::accept()
+
+  Call this to indicate that the event provided data which your widget
+  processed.  Use data(), or preferrably, the decode() methods
+  of existing QDragObject subclasses, such as
+  QTextDrag::decode(), or your own subclasses.
+*/
+
+/*!
+  \fn void   QDropEvent::ignore()
+
+  The opposite of accept().
 */
