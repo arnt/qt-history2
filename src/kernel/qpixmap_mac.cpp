@@ -312,10 +312,6 @@ QImage QPixmap::convertToImage() const
 
 void QPixmap::fill( const QColor &fillColor )
 {
-#if 0
-    if(!hd)
-	init(width(), height(), depth(), isQBitmap());
-#endif
     if(!hd)
 	qDebug("Some weirdness! %s %d", __FILE__, __LINE__);
 	
@@ -447,9 +443,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	h = QABS( h );
 	w = QABS( w );
 
-	if(w==0 || h==0) {
+	if(w==0 || h==0) 
 	    return *this;
-	}
 
 	QPixmap pm( w, h, depth(), NormalOptim );
 	scaledBitBlt(&pm, 0, 0, w, h, this, ws, hs, width(), height(), Qt::CopyROP, TRUE);
