@@ -1,29 +1,33 @@
 #############################################################################
 # Qt Makefile - Meta Object Compiler (moc)
+#
+# You'll need the Win32 GNU package in order to compile the moc.
+# Get it from ftp://ftp.cygnus.com/pub/gnu-win32/win32
+#
 #############################################################################
 
 ####### Directories
 
-BASEDIR		= $(QTDIR)
-INCDIR		= $(BASEDIR)\include
-LIBDIR		= $(BASEDIR)\lib
+BASEDIR =	$(QTDIR)
+INCDIR	=	$(BASEDIR)\include
+LIBDIR	=	$(BASEDIR)\lib
 
 ####### Compiler
 
-CFLAGS		= -O2
-CC		= cl
+CFLAGS	=	-O2
+CC	=	cl
 
-LEX		= flex
-YACC		= yacc -d
+LEX	=	flex
+YACC	=	byacc -d
 
 ####### Files
 
-SOURCES	=	moc.l		moc.y
-LEXOUT	=	lexyy.c
-YACCOUT =	ytab.c
-YACCHDR	=	ytab.h
+SOURCES =	moc.l		moc.y
+LEXOUT	=	lex.yy.c
+YACCOUT =	y.tab.c
+YACCHDR =	y.tab.h
 TMPCPP	=	moc.cpp
-TOOLOBJ	=	qbuffer.obj	\
+TOOLOBJ =	qbuffer.obj	\
 		qcollect.obj	\
 		qdatetm.obj	\
 		qdstream.obj	\
@@ -33,7 +37,7 @@ TOOLOBJ	=	qbuffer.obj	\
 		qgvector.obj	\
 		qiodev.obj	\
 		qstring.obj
-OBJECTS	=	moc.obj
+OBJECTS =	moc.obj
 TARGET	=	moc
 
 ####### Implicit rules
@@ -42,7 +46,7 @@ TARGET	=	moc
 .SUFFIXES: .cpp $(SUFFIXES)
 
 .cpp.obj:
-	$(CC) -c $(CFLAGS) -I$(INCDIR) $<
+	$(CC) -c $(CFLAGS) -I. -I$(INCDIR) $<
 
 ####### Build rules
 
@@ -67,7 +71,9 @@ $(LEXOUT): moc.l
 
 $(TMPCPP): moc.y $(LEXOUT)
 	$(YACC) moc.y
+	del $(TMPCPP)
 	ren $(YACCOUT) $(TMPCPP)
+	touch unistd.h
 
 ####### Tools needed for moc
 
