@@ -168,10 +168,12 @@ int QTableItem::alignment() const
 */
 
 QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
-    : QScrollView( parent, name, WRepaintNoErase | WNorthWestGravity )
+    : QScrollView( parent, name, WRepaintNoErase | WNorthWestGravity ),
+      currentSelection( 0 )
 {
     setResizePolicy( Manual );
-
+    selections.setAutoDelete( TRUE );
+    
     // Create headers
     leftHeader = new QTableHeader( numRows, this );
     leftHeader->setOrientation( Vertical );
@@ -223,6 +225,9 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
     defValidator = 0;
     editorWidget = 0;
 
+    installEventFilter( this );
+    viewport()->installEventFilter( this );
+    
     // Initial size
     resize( 640, 480 );
 }
@@ -283,18 +288,12 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	}
     }
 
-
-    // ##### we have to draw a inidcation of a current region here, not current cell
-    if ( hasFocus() || viewport()->hasFocus() ||
-	 ( isEditing() && editorWidget && editorWidget->hasFocus() ) ) {
-	// If we are in the focus cell, draw indication
-	QRect focusRect = cellGeometry( curRow, curCol );
-	p->setPen( QPen( black, 1 ) );
-	p->setBrush( NoBrush );
-	p->drawRect( focusRect.x() - 2, focusRect.y() - 2, focusRect.width() + 3, focusRect.height() + 3 );
-	p->drawRect( focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1 );
-    }	
-
+    // draw indication of current cell
+    QRect focusRect = cellGeometry( curRow, curCol );
+    p->setPen( QPen( black, 1 ) );
+    p->setBrush( NoBrush );
+    p->drawRect( focusRect.x() - 2, focusRect.y() - 2, focusRect.width() + 3, focusRect.height() + 3 );
+    p->drawRect( focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1 );
 
     // Paint empty rects
     paintEmptyArea( p, cx, cy, cw, ch );
@@ -469,7 +468,7 @@ void QTable::setCurrentCell( int row, int col )
 	updateCell( curRow, curCol );
 	ensureCellVisible( curRow, curCol );
 	emit currentChanged( row, col );
-	if ( !currentSelection.active ) {
+	if ( !isSelected( oldRow, oldCol ) ) {
 	    topHeader->setSectionState( oldCol, QTableHeader::Normal );
 	    leftHeader->setSectionState( oldRow, QTableHeader::Normal );
 	}
@@ -487,11 +486,51 @@ void QTable::ensureCellVisible( int row, int col )
 
 bool QTable::isSelected( int row, int col )
 {
-    return ( currentSelection.active &&
-	     row >= currentSelection.topRow &&
-	     row <= currentSelection.bottomRow &&
-	     col >= currentSelection.leftCol &&
-	     col <= currentSelection.rightCol );
+    for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+	if ( s->active &&
+	     row >= s->topRow &&
+	     row <= s->bottomRow &&
+	     col >= s->leftCol &&
+	     col <= s->rightCol )
+	    return TRUE;
+	if ( row == currentRow() && col == currentCol() )
+	    return TRUE;
+    }
+    return FALSE;
+}
+
+bool QTable::isRowSelected( int row, bool full )
+{
+    if ( !full ) {
+	for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+	    if ( s->active &&
+		 row >= s->topRow &&
+		 row <= s->bottomRow )
+	    return TRUE;
+	if ( row == currentRow() )
+	    return TRUE;
+	}
+    } else {
+	// #### todo
+    }
+    return FALSE;
+}
+
+bool QTable::isColSelected( int col, bool full )
+{
+    if ( !full ) {
+	for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+	    if ( s->active &&
+		 col >= s->leftCol &&
+		 col <= s->rightCol )
+	    return TRUE;
+	if ( col == currentCol() )
+	    return TRUE;
+	}
+    } else {
+	// #### todo
+    }
+    return FALSE;
 }
 
 /*!  \reimp
@@ -507,9 +546,19 @@ void QTable::contentsMousePressEvent( QMouseEvent* e )
     fixRow( curRow, e->pos().y() );
     fixCol( curCol, e->pos().x() );
 
+    if ( ( e->state() & ShiftButton ) == ShiftButton ) {
+    } else if ( ( e->state() & ControlButton ) == ControlButton ) {
+	currentSelection = new SelectionRange();
+	selections.append( currentSelection );
+	currentSelection->init( curRow, curCol );
+    } else {
+	clearSelections();
+	currentSelection = new SelectionRange();
+	selections.append( currentSelection );
+	currentSelection->init( curRow, curCol );
+    }
+    
     setCurrentCell( curRow, curCol );
-    clearSelections();
-    currentSelection.init( curRow, curCol );
 }
 
 /*!  \reimp
@@ -556,9 +605,12 @@ void QTable::doAutoScroll()
 
     ensureCellVisible( curRow, curCol );
 
-    SelectionRange oldSelection = currentSelection;
-    currentSelection.expandTo( curRow, curCol );
-    repaintSelections( oldSelection );
+    if ( !currentSelection )
+	return;
+    
+    SelectionRange oldSelection = *currentSelection;
+    currentSelection->expandTo( curRow, curCol );
+    repaintSelections( &oldSelection, currentSelection );
 
     if ( pos.x() < 0 || pos.x() > visibleWidth() || pos.y() < 0 || pos.y() > visibleHeight() )
 	autoScrollTimer->start( 100, TRUE );
@@ -577,31 +629,36 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent * )
 
 bool QTable::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !isEditing() || !editorWidget || !o || !e || o != editorWidget || e->type() != QEvent::KeyPress )
+    if ( !o || !e )
 	return QScrollView::eventFilter( o, e );
 
-    QKeyEvent *ke = (QKeyEvent*)e;
+    if ( e->type() == QEvent::KeyPress && isEditing() && editorWidget && o == editorWidget ) {
+	QKeyEvent *ke = (QKeyEvent*)e;
 
-    if ( ke->key() == Key_Escape ) {
-	endEdit( editRow, editCol, FALSE, editorWidget );
+	if ( ke->key() == Key_Escape ) {
+	    endEdit( editRow, editCol, FALSE, editorWidget );
+	    return TRUE;
+	}
+
+	if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
+	    endEdit( editRow, editCol, TRUE, editorWidget );
+	    activateNextCell();
+	    return TRUE;
+	}
+
+	if ( edMode == Replacing &&
+	     ( ke->key() == Key_Up || ke->key() == Key_Prior || ke->key() == Key_Home ||
+	       ke->key() == Key_Down || ke->key() == Key_Next || ke->key() == Key_End ||
+	       ke->key() == Key_Left || ke->key() == Key_Right ) ) {
+	    endEdit( editRow, editCol, TRUE, editorWidget );
+	    keyPressEvent( ke );
+	    return TRUE;
+	}
+    } else if ( (o == this || o == viewport() ) &&
+		( e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut ) ) {
 	return TRUE;
     }
-
-    if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
-	endEdit( editRow, editCol, TRUE, editorWidget );
-	activateNextCell();
-	return TRUE;
-    }
-
-    if ( edMode == Replacing &&
-	 ( ke->key() == Key_Up || ke->key() == Key_Prior || ke->key() == Key_Home ||
-	  ke->key() == Key_Down || ke->key() == Key_Next || ke->key() == Key_End ||
-	   ke->key() == Key_Left || ke->key() == Key_Right ) ) {
-	endEdit( editRow, editCol, TRUE, editorWidget );
-	keyPressEvent( ke );
-	return TRUE;
-    }
-
+    
     return QScrollView::eventFilter( o, e );
 }
 
@@ -1012,34 +1069,34 @@ int QTable::indexOf( int row, int col ) const
     return ( row * cols() ) + col; // mapping from 2D table to 1D array
 }
 
-void QTable::repaintSelections( SelectionRange oldSelection )
+void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection )
 {
-    QRect old = rangeGeometry( oldSelection.topRow,
-			       oldSelection.leftCol,
-			       oldSelection.bottomRow,
-			       oldSelection.rightCol );
+    QRect old = rangeGeometry( oldSelection->topRow,
+			       oldSelection->leftCol,
+			       oldSelection->bottomRow,
+			       oldSelection->rightCol );
 
-    QRect cur = rangeGeometry( currentSelection.topRow,
-			       currentSelection.leftCol,
-			       currentSelection.bottomRow,
-			       currentSelection.rightCol );
+    QRect cur = rangeGeometry( newSelection->topRow,
+			       newSelection->leftCol,
+			       newSelection->bottomRow,
+			       newSelection->rightCol );
 
     QRect r( old.unite( cur ) );
     repaintContents( r, FALSE );
 
-    int left = QMIN( oldSelection.leftCol, currentSelection.leftCol );
-    int right = QMAX( oldSelection.rightCol, currentSelection.rightCol );
+    int left = QMIN( oldSelection->leftCol, newSelection->leftCol );
+    int right = QMAX( oldSelection->rightCol, newSelection->rightCol );
     for ( int i = left; i <= right; ++i ) {
-	if ( i < currentSelection.leftCol || i > currentSelection.rightCol )
+	if ( !isColSelected( i ) )
 	    topHeader->setSectionState( i, QTableHeader::Normal );
 	else
 	    topHeader->setSectionState( i, QTableHeader::Bold );
     }
 
-    int top = QMIN( oldSelection.topRow, currentSelection.topRow );
-    int bottom = QMAX( oldSelection.bottomRow, currentSelection.bottomRow );
+    int top = QMIN( oldSelection->topRow, newSelection->topRow );
+    int bottom = QMAX( oldSelection->bottomRow, newSelection->bottomRow );
     for ( int i = top; i <= bottom; ++i ) {
-	if ( i < currentSelection.topRow || i > currentSelection.bottomRow )
+	if ( !isRowSelected( i ) )
 	    leftHeader->setSectionState( i, QTableHeader::Normal );
 	else
 	    leftHeader->setSectionState( i, QTableHeader::Bold );
@@ -1048,32 +1105,34 @@ void QTable::repaintSelections( SelectionRange oldSelection )
 
 void QTable::clearSelections()
 {
-    if ( !currentSelection.active )
+    if ( selections.isEmpty() )
 	return;
-
-    int left = currentSelection.leftCol;
-    int right = currentSelection.rightCol;
-    for ( int i = left; i <= right; ++i ) {
-	if ( i != curCol )
+    
+    QRect r;
+    for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
+	r = r.unite( rangeGeometry( s->topRow,
+				    s->leftCol,
+				    s->bottomRow,
+				    s->rightCol ) );
+    }
+    
+    currentSelection = 0;
+    selections.clear();
+    for ( int i = 0; i <= cols(); ++i ) {
+	if ( !isColSelected( i ) )
 	    topHeader->setSectionState( i, QTableHeader::Normal );
 	else
 	    topHeader->setSectionState( i, QTableHeader::Bold );
     }
 
-    int top = currentSelection.topRow;
-    int bottom = currentSelection.bottomRow;
-    for ( int i = top; i <= bottom; ++i ) {
-	if ( i != curRow)
+    for ( int i = 0; i <= rows(); ++i ) {
+	if ( !isRowSelected( i ) )
 	    leftHeader->setSectionState( i, QTableHeader::Normal );
 	else
 	    leftHeader->setSectionState( i, QTableHeader::Bold );
     }
 
-    currentSelection.active = FALSE;
-    repaintContents( rangeGeometry( currentSelection.topRow,
-				    currentSelection.leftCol,
-				    currentSelection.bottomRow,
-				    currentSelection.rightCol ), FALSE );
+    repaintContents( r, FALSE );
 }
 
 QRect QTable::rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol )
@@ -1089,7 +1148,7 @@ QRect QTable::rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCo
 
 void QTable::activateNextCell()
 {
-    if ( !currentSelection.active ) {
+    if ( !currentSelection || !currentSelection->active ) {
 	if ( curRow < rows() - 1 )
 	    setCurrentCell( curRow + 1, curCol );
 	else if ( curCol < cols() - 1 )
@@ -1097,12 +1156,12 @@ void QTable::activateNextCell()
 	else
 	    setCurrentCell( 0, 0 );	
     } else {
-	if ( curRow < currentSelection.bottomRow )
+	if ( curRow < currentSelection->bottomRow )
 	    setCurrentCell( curRow + 1, curCol );
-	else if ( curCol < currentSelection.rightCol )
-	    setCurrentCell( currentSelection.topRow, curCol + 1 );
+	else if ( curCol < currentSelection->rightCol )
+	    setCurrentCell( currentSelection->topRow, curCol + 1 );
 	else
-	    setCurrentCell( currentSelection.topRow, currentSelection.leftCol );	
+	    setCurrentCell( currentSelection->topRow, currentSelection->leftCol );	
     }
 
 }
@@ -1156,6 +1215,14 @@ void QTable::SelectionRange::expandTo( int row, int col )
     active = topRow != bottomRow || leftCol != rightCol;
 }
 
+bool QTable::SelectionRange::operator==( const SelectionRange &s ) const
+{
+    return ( s.active == active &&
+	     s.topRow == topRow &&
+	     s.bottomRow == bottomRow &&
+	     s.leftCol == leftCol &&
+	     s.rightCol == rightCol );
+}
 
 
 

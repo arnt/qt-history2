@@ -16,6 +16,7 @@
 #include <qvector.h>
 #include <qheader.h>
 #include <qarray.h>
+#include <qlist.h>
 
 class QTableHeader;
 class QValidator;
@@ -100,9 +101,11 @@ public:
     int currentRow() const { return curRow; }
     int currentCol() const { return curCol; }
     void ensureCellVisible( int row, int col );
-    
-    bool isSelected( int row, int col );
 
+    bool isSelected( int row, int col );
+    bool isRowSelected( int row, bool full = FALSE );
+    bool isColSelected( int col, bool full = FALSE );
+    
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
@@ -136,6 +139,7 @@ private:
 	      rightCol( -1 ), anchorRow( -1 ), anchorCol( -1 ) {}
 	void init( int row, int col );
 	void expandTo( int row, int col );
+	bool operator==( const SelectionRange &s ) const;
 	
 	bool active;
 	int topRow, leftCol, bottomRow, rightCol;
@@ -145,13 +149,13 @@ private:
     void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
     int indexOf( int row, int col ) const;
     void updateGeometries();
-    void repaintSelections( SelectionRange oldSelection );
+    void repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection );
     void clearSelections();
     QRect rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol );
     void activateNextCell();
     void fixRow( int &row, int y );
     void fixCol( int &col, int x );
-    
+
 private:
     QVector<QTableItem> contents;
     int curRow;
@@ -161,10 +165,10 @@ private:
     EditMode edMode;
     int editCol, editRow;
     QWidget *editorWidget;
-    QValueList<SelectionRange> selections;
-    SelectionRange currentSelection;
+    QList<SelectionRange> selections;
+    SelectionRange *currentSelection;
     QTimer *autoScrollTimer;
-    
+
 };
 
 class QTableHeader : public QHeader
