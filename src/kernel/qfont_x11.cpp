@@ -485,12 +485,14 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd,
 #define exactScore           0xfffe
 #define exactNonUnicodeScore 0xffff
 
-#define PitchScore	     0x40
-#define SizeScore	     0x20
-#define ResolutionScore	     0x10
-#define WeightScore	     0x08
-#define SlantScore	     0x04
-#define WidthScore	     0x02
+#define PitchScore	     0x102
+#define CJKPitchScore 0x100
+#define SizeScore	     0x80
+#define ScaledBitmapScore 0x40
+#define ResolutionScore	     0x20
+#define WeightScore	     0x10
+#define SlantScore	     0x08
+#define WidthScore	     0x04
 #define NonUnicodeScore	     0x01
 
 // Returns an XLFD for the font and sets exact to TRUE if the font found matches
@@ -672,7 +674,7 @@ QCString QFontPrivate::bestFamilyMember(QFontPrivate::Script script,
 					const QString& family,
 					int *score ) const
 {
-    const int prettyGoodScore = SizeScore | WeightScore | SlantScore | WidthScore;
+    const int prettyGoodScore = CJKPitchScore | SizeScore | WeightScore | SlantScore | WidthScore;
 
     int testScore = 0;
     QCString testResult;
@@ -683,7 +685,7 @@ QCString QFontPrivate::bestFamilyMember(QFontPrivate::Script script,
 	QString pattern
 	    = "-" + foundry + "-" + family + "-*-*-*-*-*-*-*-*-*-*-" +
 	    (qt_x11encodings[script])[(qt_x11indices[script])];
-	result = bestMatch(pattern.latin1(), &bestScore);
+	result = bestMatch(pattern.latin1(), &bestScore, script);
     }
 
     if ( bestScore < prettyGoodScore ) {
@@ -701,7 +703,7 @@ QCString QFontPrivate::bestFamilyMember(QFontPrivate::Script script,
 	    QString fam = family.mid( alternator, next-alternator );
 	    QString pattern = "-*-" + fam + "-*-*-*-*-*-*-*-*-*-*-" +
 			      (qt_x11encodings[script])[(qt_x11indices[script])];
-	    testResult = bestMatch( pattern.latin1(), &testScore );
+	    testResult = bestMatch( pattern.latin1(), &testScore, script );
 	    bestScore -= bias;
 
 	    if ( testScore > bestScore ) {
@@ -736,7 +738,7 @@ struct QFontMatchData { // internal for bestMatch
     bool    smooth;
 };
 
-QCString QFontPrivate::bestMatch( const char *pattern, int *score ) const
+QCString QFontPrivate::bestMatch( const char *pattern, int *score, QFontPrivate::Script script ) const
 {
     QFontMatchData best;
     QFontMatchData bestScalable;
@@ -756,7 +758,7 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score ) const
     for( i = 0; i < count; i++ ) {
 	sc = fontMatchScore( xFontNames[i], matchBuffer,
 			     &pointDiff, &weightDiff,
-			     &scalable, &smoothScalable );
+			     &scalable, &smoothScalable, script );
 
 	if ( scalable ) {
 	    if ( sc > bestScalable.score ||
@@ -841,7 +843,8 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score ) const
 // of a font.
 int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 				   float *pointSizeDiff, int  *weightDiff,
-				   bool	 *scalable     , bool *smoothScalable ) const
+				   bool	 *scalable     , bool *smoothScalable, 
+				  QFontPrivate::Script script ) const
 {
     char *tokens[NFontFields];
     bool   exactMatch = TRUE;
@@ -865,7 +868,16 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
     // on the foundry, family and charset now
 
     char pitch = tolower( tokens[Spacing][0] );
-    if ( request.fixedPitch ) {
+    if ( script >= QFontPrivate::Han && script <= QFontPrivate::Yi || script == QFontPrivate::HanHack ) {
+	// basically we treat cell spaced and proportional fonts the same for asian. 
+	// Proportional ones put a heavy load on the server, so we make them less favorable.
+	if ( pitch != 'p' )  
+	    score |= PitchScore;
+	else {
+	    score |= CJKPitchScore;
+	    exactMatch = FALSE;
+	}
+    } else if ( request.fixedPitch ) { 
 	if ( pitch == 'm' || pitch == 'c' )
 	    score |= PitchScore;
 	else
@@ -877,9 +889,12 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 
     float diff;
     if ( *scalable ) {
+	// scaled bitmap fonts look just ugly. Never give them a size score.
 	diff = 9.0;	// choose scalable font over >= 0.9 point difference
-	score |= SizeScore;
-	exactMatch = FALSE;
+	if ( *smoothScalable )
+	    score |= SizeScore;
+	else
+	    exactMatch = FALSE;
     } else {
 	int pSize;
 	float percentDiff;

@@ -384,8 +384,8 @@ public:
     QCString findFont(QFontPrivate::Script, bool *) const;
     QCString bestFamilyMember(QFontPrivate::Script, const QString &, const QString &,
 			      int *) const;
-    QCString bestMatch(const char *, int *) const;
-    int fontMatchScore(const char *, QCString &, float *, int *, bool *, bool *) const;
+    QCString bestMatch(const char *, int *, Script) const;
+    int fontMatchScore(const char *, QCString &, float *, int *, bool *, bool *, Script) const;
     void initFontInfo(QFontPrivate::Script);
     void load(QFontPrivate::Script = QFontPrivate::NoScript, bool = TRUE);
     void computeLineWidth();
