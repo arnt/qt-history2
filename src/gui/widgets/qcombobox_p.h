@@ -133,30 +133,29 @@ private:
     QStyleOptionMenuItem getStyleOption(const QStyleOptionViewItem &option,
                                         QAbstractItemModel *model,
                                         const QModelIndex &index) const {
-        QStyleOptionMenuItem opt(0);
-        opt.palette = option.palette;
-        opt.state = QStyle::Style_Default;
+        QStyleOptionMenuItem menuOption(0);
+        menuOption.palette = option.palette;
+        menuOption.state = QStyle::Style_Default;
+        menuOption.state |= QStyle::Style_ButtonDefault;
         if (option.state & QStyle::Style_Enabled)
-            opt.state |= QStyle::Style_Enabled;
+            menuOption.state |= QStyle::Style_Enabled;
+        if (option.state & QStyle::Style_Selected)
+            menuOption.state |= QStyle::Style_Active;
+        if (qt_cast<QComboBox*>(parent())->currentItem() == index.row())
+            menuOption.checkState = QStyleOptionMenuItem::Checked;
         else
-            opt.palette.setCurrentColorGroup(QPalette::Disabled);
-        opt.state |= QStyle::Style_ButtonDefault;
-        if (option.state & QStyle::Style_Selected) {
-            opt.state |= QStyle::Style_Active;
-            opt.checkState = QStyleOptionMenuItem::Checked;
-        } else {
-            opt.checkState = QStyleOptionMenuItem::Unchecked;
-        }
-        opt.menuItemType = QStyleOptionMenuItem::Normal;
-        opt.icon = model->data(index, QAbstractItemModel::DecorationRole).toIconSet();
-        opt.text = model->data(index, QAbstractItemModel::DisplayRole).toString();
-        opt.tabWidth = 0;
-        opt.maxIconWidth = 0;
-        if (!opt.icon.isNull())
-            opt.maxIconWidth = opt.icon.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4;
-        opt.menuRect = option.rect;
-        opt.rect = option.rect;
-        return opt;
+            menuOption.checkState = QStyleOptionMenuItem::Unchecked;
+        menuOption.menuItemType = QStyleOptionMenuItem::Normal;
+        menuOption.icon = model->data(index, QAbstractItemModel::DecorationRole).toIconSet();
+        menuOption.text = model->data(index, QAbstractItemModel::DisplayRole).toString();
+        menuOption.tabWidth = 0;
+        menuOption.maxIconWidth = 0;
+        if (!menuOption.icon.isNull())
+            menuOption.maxIconWidth
+                = menuOption.icon.pixmap(QIconSet::Small, QIconSet::Normal).width() + 4;
+        menuOption.menuRect = option.rect;
+        menuOption.rect = option.rect;
+        return menuOption;
     }
 };
 
