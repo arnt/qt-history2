@@ -191,13 +191,16 @@ if [ "${platform}" = "win" ]; then
   perl -pi -e 's/^#include \<unistd\.h\>$/\/\* #include <unistd.h> \*\//' lex.yy.c
   cd ${DISTDIR}/qt/src
   echo "Moving source and include files..." >&2
+  mv ../include/qt.h .
   rm -f ../include/*
   mv */q*.h ../include
+  mv qt.h ../include
   cd ${DISTDIR}/qt
   mv extensions/opengl/src/q*.h include
   mv extensions/imageio/src/q*.h include
   mv extensions/nsplugin/src/q*.h include
   rm -rf makefiles
+  rm -rf extensions/xt
   find . -name 'qtx11.*' | xargs rm -vf
   echo "Converting Unix text files to DOS..." >&2
   cd ${DISTDIR}
