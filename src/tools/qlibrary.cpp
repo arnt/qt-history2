@@ -312,7 +312,7 @@ QString QLibrary::library() const
     QString filename = libfile;
 
 #if defined(Q_WS_WIN)
-    if ( filename.find( ".dll" ) == -1 )
+    if ( filename.find( ".dll", 0, FALSE ) == -1 )
 	filename += ".dll";
 #elif defined(Q_OS_MACX)
     if ( filename.find( ".dylib" ) == -1 )

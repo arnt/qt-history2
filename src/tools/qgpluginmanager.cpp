@@ -432,7 +432,8 @@ QStringList QGPluginManager::featureList() const
     while ( it != theLibs.end() ) {
 	QString lib = *it;
 	++it;
-	that->addLibrary( lib );
+	//if (lib[0] != '/')
+	    that->addLibrary( lib );
     }
 
     QStringList list;
