@@ -1790,24 +1790,19 @@ void SetupWizardImpl::licenseChanged()
     QString name = licenseeName->text();
     QString date = expiryDate->text();
     QString products = productsString->currentText();
-#if 0
-    QStringList proKey = QStringList::split( "-", productKey->text() );
-    if ( proKey.count() != 3 ) {
-	setNextEnabled( licensePage, FALSE );
-	return;
-    }
-#else
     int i = proKey.find( '-' );
     if ( i <= 0 || i >= (int)proKey.length()-1 ) {
 	setNextEnabled( licensePage, FALSE );
 	return;
     }
-#endif
 
-qDebug( proKey.left( i ) );
-    QString keyString = customer + license + products + date + proKey.left( i );
+    QString platforms = proKey.left( i );
+    if ( platforms.contains('W') <= 0 ) {
+	setNextEnabled( licensePage, FALSE );
+	return;
+    }
+    QString keyString = customer + license + products + date + platforms;
     QMd4Sum sum( keyString );
-qDebug( proKey.mid( i+1, 17 ) );
     setNextEnabled( licensePage, sum.scrambled() == proKey.mid( i+1, 17 ) );
 }
 
