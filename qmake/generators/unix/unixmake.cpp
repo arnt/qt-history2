@@ -98,6 +98,14 @@ UnixMakefileGenerator::init()
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
+    if ( project->isActiveConfig("qtopiainc") )
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QTOPIA"];
+    if ( project->isActiveConfig("qtopialib") ) {
+	if(!project->isEmpty("QMAKE_LIBDIR_QTOPIA"))
+	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QTOPIA", "-L", " -L", "");
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QTOPIA"];
+    }
+
     bool is_qt = (project->first("TARGET") == "qt" || project->first("TARGET") == "qte" ||
 		  project->first("TARGET") == "qt-mt" || project->first("TARGET") == "qte-mt");
     bool extern_libs = !project->isEmpty("QMAKE_APP_FLAG") ||
@@ -192,13 +200,6 @@ UnixMakefileGenerator::init()
     }
     if(project->isActiveConfig("global_init_link_order"))
 	project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    if ( project->isActiveConfig("qtopiainc") )
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QTOPIA"];
-    if ( project->isActiveConfig("qtopialib") ) {
-	if(!project->isEmpty("QMAKE_LIBDIR_QTOPIA"))
-	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QTOPIA", "-L", " -L", "");
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QTOPIA"];
-    }
     if ( project->isActiveConfig("x11inc") )
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( project->isActiveConfig("x11lib") ) {
