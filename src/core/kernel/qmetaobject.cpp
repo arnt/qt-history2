@@ -1491,7 +1491,7 @@ static QVector<QCustomTypeInfo> customTypes;
 const char *QMetaType::typeName(int type)
 {
     if (type >= User)
-        return isRegistered(type) ? customTypes.at(type - User).typeName : 0;
+        return isRegistered(type) ? customTypes.at(type - User).typeName.constData() : 0;
 
     int i = 0;
     while (types[i].typeName) {
