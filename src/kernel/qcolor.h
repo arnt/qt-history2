@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#13 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#14 $
 **
 ** Definition of QColor class
 **
@@ -50,23 +50,23 @@ public:
     QColor( const QColor & );			// copy color
 
     static bool lazyAlloc()	{ return lalloc; }
-    static void setLazyAlloc( bool );
+    static void setLazyAlloc( bool );		// enable/disable lazy alloc
 
-    bool   alloc();				// allocate color
+    void   alloc();				// allocate color
 
-    bool   setNamedColor( const char *name );	// load color from database
+    void   setNamedColor( const char *name );	// load color from database
 
     void   getRGB( int *r, int *g, int *b ) const; // get RGB value
     ulong  getRGB() const { return rgb & RGB_MASK; }
-    bool   setRGB( int r, int g, int b );	// set RGB value
-    bool   setRGB( ulong rgb );
+    void   setRGB( int r, int g, int b );	// set RGB value
+    void   setRGB( ulong rgb );
 
     int	   red()    const { return QRED(rgb); }
     int	   green()  const { return QGREEN(rgb); }
     int	   blue()   const { return QBLUE(rgb); }
 
     void   getHSV( int *h, int *s, int *v ) const; // get HSV value
-    bool   setHSV( int h, int s, int v );	// set HSV value
+    void   setHSV( int h, int s, int v );	// set HSV value
     
     bool   isValid()const { return (rgb & RGB_INVALID) == 0; }
     bool   isDirty()const { return (rgb & RGB_DIRTY) == RGB_DIRTY; }
