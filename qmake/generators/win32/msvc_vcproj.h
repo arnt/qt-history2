@@ -1,3 +1,4 @@
+
 /****************************************************************************
 **
 ** Definition of VcprojGenerator class.
@@ -73,7 +74,7 @@ protected:
     target projectTarget;
 
 private:
-    QUuid getProjectUUID();
+    QUuid getProjectUUID(const QString &filename=QString::null);
     QUuid increaseUUID(const QUuid &id);
     friend class VCFilter;
 };

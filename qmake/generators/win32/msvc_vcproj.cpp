@@ -94,7 +94,7 @@ struct VcsolutionDepend {
     QStringList dependencies;
 };
 
-QUuid VcprojGenerator::getProjectUUID()
+QUuid VcprojGenerator::getProjectUUID(const QString &filename)
 {
     bool validUUID = true;
 
@@ -102,8 +102,8 @@ QUuid VcprojGenerator::getProjectUUID()
     QUuid uuid = project->first("GUID");
 
     // If none, create one based on the MD5 of absolute project path
-    if (uuid.isNull()) {
-	QString abspath = project->first("QMAKE_MAKEFILE");
+    if (uuid.isNull() || !filename.isNull()) {
+	QString abspath = filename.isNull()?project->first("QMAKE_MAKEFILE"):filename;
 	qtMD5(abspath.utf8(), (unsigned char*)(&uuid));
 	validUUID = !uuid.isNull();
 	uuid.data4[0] = (uuid.data4[0] & 0x3F) | 0x80; // UV_DCE variant
@@ -215,11 +215,8 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			newDep->orig_target = tmp_proj.first("QMAKE_ORIG_TARGET");
 			newDep->target = tmp_proj.first("TARGET").section(Option::dir_sep, -1);
 			newDep->targetType = tmp_vcproj.projectTarget;
-			{
-			    static QUuid uuid = getProjectUUID();
-			    uuid = increaseUUID( uuid );
-			    newDep->uuid = uuid.toString().upper();
-			}
+			newDep->uuid = getProjectUUID(Option::fixPathToLocalOS(QDir::currentDirPath() + QDir::separator() + vcproj)).toString().upper();
+
 			if(newDep->target.endsWith(".dll"))
 			    newDep->target = newDep->target.left(newDep->target.length()-3) + "lib";
 			if(!tmp_proj.isEmpty("FORMS"))
