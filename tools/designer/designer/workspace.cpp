@@ -575,6 +575,7 @@ void Workspace::itemClicked( int button, QListViewItem *i, const QPoint& )
 	mainWindow->editSource( wi->sourceFile );
 	break;
     case WorkspaceItem::ObjectType:
+	project->fakeFormFor( wi->object )->setFocus();
 	mainWindow->propertyeditor()->setWidget( wi->object, project->fakeFormFor( wi->object ) );
 	mainWindow->objectHierarchy()->setFormWindow( project->fakeFormFor( wi->object ), wi->object );
 	break;

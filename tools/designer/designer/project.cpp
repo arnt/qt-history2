@@ -38,6 +38,7 @@
 #include <qmessagebox.h>
 #include <qapplication.h>
 #include "mainwindow.h"
+#include <qworkspace.h>
 
 #ifndef QT_NO_SQL
 #include <qsqldatabase.h>
@@ -1163,10 +1164,11 @@ void Project::addObject( QObject *o )
     emit objectAdded( o );
     MetaDataBase::addEntry( o );
     FormFile *ff = new FormFile( "", TRUE, this, "qt_fakewindow" );
-    FormWindow *fw = new FormWindow( ff, MainWindow::self, "qt_fakewindow" );
+    FormWindow *fw = new FormWindow( ff, MainWindow::self->qWorkspace(), "qt_fakewindow" );
     fw->setMainWindow( MainWindow::self );
     fw->setProject( this );
-    fw->hide();
+    fw->setGeometry( -100, -100, 50, 50 );
+    fw->show();
     fakeForms.insert( (void*)o, fw );
 }
 
@@ -1177,10 +1179,11 @@ void Project::setObjects( const QObjectList &ol )
 	emit objectAdded( it.current() );
 	MetaDataBase::addEntry( it.current() );
 	FormFile *ff = new FormFile( "", TRUE, this, "qt_fakewindow" );
-	FormWindow *fw = new FormWindow( ff, MainWindow::self, "qt_fakewindow" );
+	FormWindow *fw = new FormWindow( ff, MainWindow::self->qWorkspace(), "qt_fakewindow" );
 	fw->setMainWindow( MainWindow::self );
 	fw->setProject( this );
-	fw->hide();
+	fw->setGeometry( -100, -100, 50, 50 );
+	fw->show();
 	fakeForms.insert( (void*)it.current(), fw );
     }
 }
