@@ -295,15 +295,35 @@ XtAppContext QMotif::applicationContext() const
 
 void QMotif::appStartingUp()
 {
-    int argc = qApp->argc();
-    XtDisplayInitialize( d->appContext,
-			 QPaintDevice::x11AppDisplay(),
-			 qApp->name(),
-			 d->applicationClass,
-			 d->options,
-			 d->numOptions,
-			 &argc,
-			 qApp->argv() );
+    /*
+      QApplication could be using a Display from an outside source, so
+      we should only initialize the display if the current application
+      context does not contain the QApplication display
+    */
+
+    bool display_found = FALSE;
+    Display **displays;
+    Cardinal x, count;
+    XtGetDisplays( d->appContext, &displays, &count );
+    for ( x = 0; x < count && ! display_found; ++x ) {
+	if ( displays[x] == QPaintDevice::x11AppDisplay() )
+	    display_found = TRUE;
+    }
+    if ( displays )
+	XtFree( (char *) displays );
+
+    if ( ! display_found ) {
+	int argc = qApp->argc();
+	XtDisplayInitialize( d->appContext,
+			     QPaintDevice::x11AppDisplay(),
+			     qApp->name(),
+			     d->applicationClass,
+			     d->options,
+			     d->numOptions,
+			     &argc,
+			     qApp->argv() );
+    }
+
     d->hookMeUp();
 }
 
