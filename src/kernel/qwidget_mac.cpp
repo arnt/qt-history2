@@ -1138,7 +1138,12 @@ void QWidget::erase( const QRegion& reg )
 	}
     }
 
+    bool unclipped = testWFlags( WPaintUnclipped );
+    clearWFlags( WPaintUnclipped );
     QPainter p(this);
+    if ( unclipped )
+	setWFlags( WPaintUnclipped );
+
     p.setClipRegion(reg);
     if ( extra && extra->bg_pix ) {
 	if ( !extra->bg_pix->isNull() ) {

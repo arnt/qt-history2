@@ -233,7 +233,6 @@ void QPainter::updateFont()
         if ( !pdev->cmd(QPaintDevice::PdcSetFont,this,param) || !hd )
             return;
     }
-    setf(NoCache);
     if ( penRef )
         updatePen();                            // force a non-cached GC
     cfont.macSetFont(pdev);
@@ -464,7 +463,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
     }
     offx = offy = wx = wy = vx = vy = 0;                      // default view origins
 
-    unclipped = FALSE;
+    unclipped = unclipp;
     if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
 
@@ -484,10 +483,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
         bg_col = w->backgroundColor();          // use widget bg color
         ww = vw = w->width();                   // default view size
         wh = vh = w->height();
-	unclipped = unclipp || w->testWFlags(WPaintUnclipped);
-        if ( unclipped ) // paint direct on device
-            setf( NoCache );
-
+	if(!unclipped)
+	    unclipped = w->testWFlags(WPaintUnclipped);
     } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;
         if ( pm->isNull() ) {
@@ -501,7 +498,6 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
         wh = vh = pm->height();
 
 	initPaintDevice();
-
     } 
 
     if ( testf(ExtDev) ) {               // external device
