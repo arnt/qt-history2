@@ -78,7 +78,7 @@ void MainWindow::init()
     browser->setStyleSheet( sh );
 
     if ( !config.readBoolEntry( keybase + "ShowSideBar", TRUE ) )
-	//helpDock->parentWidget()->hide();
+	helpDock->parentWidget()->hide();
 
     helpDock->tabWidget->setCurrentPage( config.readNumEntry( keybase + "SideBarPage", 0 ) );
 
@@ -102,7 +102,6 @@ void MainWindow::destroy()
     config.writeEntry( keybase + "LinkColor", browser->palette().color( QPalette::Active, QColorGroup::Link ).name() );
     config.writeEntry( keybase + "Source", browser->source() );
     config.writeEntry( keybase + "Title", browser->caption() );
-    config.writeEntry( keybase + "ShowSideBar", helpDock->parentWidget()->isVisible() );
     config.writeEntry( keybase + "SideBarPage", helpDock->tabWidget->currentPageIndex() );
 }
 
@@ -282,4 +281,13 @@ void MainWindow::showSettingsDialog()
     sh->item( "code" )->setFontFamily( family );
     sh->item( "tt" )->setFontFamily( family );
     browser->setStyleSheet( sh );
+}
+
+void MainWindow::hide()
+{
+    QString keybase("/Qt Assistant/3.0/");
+    QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    config.writeEntry( keybase + "ShowSideBar", helpDock->parentWidget()->isVisible() );
+    QMainWindow::hide();
 }

@@ -431,5 +431,6 @@
     <slot access="public" specifier="virtual" language="C++" returnType="void">showQtHelp()</slot>
     <slot access="public" specifier="virtual" language="C++" returnType="void">setFamily( const QString &amp; f )</slot>
     <slot access="protected" specifier="virtual" language="C++" returnType="void">showSettingsDialog()</slot>
+    <slot access="Public" specifier="virtual" language="C++" returnType="void">hide()</slot>
 </connections>
 </UI>
