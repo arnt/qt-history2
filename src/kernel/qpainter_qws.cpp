@@ -1497,9 +1497,8 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 
 void QPainter::drawText( int x, int y, const QString &s, int from, int len, QPainter::TextDirection dir)
 {
-    int lenOut;
-    QChar *shaped = (QChar *)QComplexText::shapedString( s, from, len, &lenOut );
-    drawText( x, y, QConstString( shaped, lenOut ).string(), lenOut, dir );
+    QString shaped = QComplexText::shapedString( s, from, len );
+    drawText( x, y, shaped, shaped.length(), dir );
 }
 
 void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::TextDirection )
