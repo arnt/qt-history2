@@ -2049,6 +2049,7 @@ void QLineEdit::setCursorPosition( int newPos )
 {
     d->cursor->setIndex( newPos );
     deselect();
+    d->selectionStart = d->cursor->index();
 }
 
 
