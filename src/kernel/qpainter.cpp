@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#28 $
 **
 ** Implementation of QPainter class
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#28 $";
 #endif
 
 
@@ -408,9 +408,8 @@ void QPainter::drawShadePanel( int x, int y, int w, int h,
     if ( w < 1 || h < 1 || lw <= 0 )		// bad parameters
 	return;
     QPen oldPen = pen();			// save pen
-    QPen pen( tColor );
     QPointArray a( 4*lw );
-    setPen( pen );
+    setPen( tColor );
     int x1, y1, x2, y2;
     int i;
     int n = 0;
