@@ -16041,10 +16041,10 @@ double QString::toDouble( bool *ok ) const
 {
     char *end;
 
-    QCString a = latin1();
-    double val = strtod( a.data() ? a.data() : "", &end );
+    const char *a = latin1();
+    double val = strtod( a ? a : "", &end );
     if ( ok )
-	*ok = ( a && *a && (end == 0 || at(end - a.data()) == QChar('\0')) );
+	*ok = ( a && *a && (end == 0 || (end - a) == (int)length()) );
     return val;
 }
 
