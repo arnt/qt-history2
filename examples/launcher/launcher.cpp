@@ -21,6 +21,7 @@
 #include <qgroupbox.h>
 #include <qvbuttongroup.h>
 #include <qwindowsystem_qws.h>
+#include <qmime.h>
 
 #include <stdlib.h>
 #include <unistd.h>
@@ -147,9 +148,9 @@ public:
 	setSpacing(10);
 	setMargin(10);
 	QMimeSourceFactory::defaultFactory()
-	    ->setImage("qtlogo",QImage("qtlogo.png"));
+	    ->setImage("qtlogo",QImage(QString("qtlogo.png")));
 	QMimeSourceFactory::defaultFactory()
-	    ->setImage("face",QImage("face.png"));
+	    ->setImage("face",QImage(QString("face.png")));
 	QVBox* vb;
         vb = new QVBox(this);
 	setStretchFactor(vb,1);
