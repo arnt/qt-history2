@@ -280,4 +280,12 @@ QIconSet::defaultPixmapGeneratorFn() in place of
 QIconFactory::installDefaultFactory() and QIconFactory::defaultFactory()
 respectively.
 
+\section1 QPtrDict<T>, QIntDict<T>, QDict<T>
+These classes have been removed use QHash<type *, T*> QHash<int, T*>, and QHash<QString, T*> respecitively. Please note that while the dictionary classes allowed for multiple entries with the same key, the current QHash allows for only ONE value.
+
+\section1 QPtrDict
+
+QPtrDict has been removed, please use QHash<type *, T *> instead. If you previously assigned a value with find use value() in this case instead, it will keep the same semantics (that it returns 0 if it can't find the pointer).
+
+
 */
