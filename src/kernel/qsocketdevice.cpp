@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#15 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -889,7 +889,7 @@ int QSocketDevice::putch( int ch )
   allow any ungetch operation.
 */
 
-int QSocketDevice::ungetch( int ch )
+int QSocketDevice::ungetch( int )
 {
     return -1;
 }

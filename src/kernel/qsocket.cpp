@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#16 $
 **
 ** Implementation of QSocket class
 **
@@ -281,7 +281,7 @@ QSocket::Mode QSocket::mode() const
   incoming text using the readLine() function.
   The readBlock() and bytesAvailable() functions work just like
   in binary mode.
-  
+
   The close() function sets the mode to \c QSocket::Binary.
 
   \sa mode(), readBlock(), bytesAvailable(), canReadLine(), readLine(),
@@ -378,7 +378,7 @@ bool QSocket::connectToHost( const QString &host, int port )
     d->wsn = new QSocketNotifier(d->socket->socket(), QSocketNotifier::Write);
     d->wsn->setEnabled( TRUE );
     connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
-    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );    
+    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
     // Initialize the IO device flags
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
@@ -867,7 +867,7 @@ int QSocket::putch( int ch )
   allow any ungetch operation.
 */
 
-int QSocket::ungetch( int ch )
+int QSocket::ungetch( int )
 {
     return -1;
 }
