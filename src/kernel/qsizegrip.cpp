@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#11 $
 **
 ** Implementation of QSizeGrip class
 **
@@ -200,5 +200,5 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
 
 QSizePolicy QSizeGrip::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed );
+    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed );
 }
