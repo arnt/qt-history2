@@ -9,3 +9,5 @@ modelview-models.sk     0.28
 modelview-overview.sk   0.28
 modelview-tablemodel.sk 0.28
 modelview-treemodel.sk  0.28
+plaintext-layout.png    0.8
+standard-views.sk       0.22
