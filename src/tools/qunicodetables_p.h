@@ -69,11 +69,13 @@ public:
 inline QChar::Category category( const QChar &c )
 {
 #ifdef QT_NO_UNICODETABLES
-    if ( c.unicode() > 0xff ) return QChar::Letter_Uppercase; //#######
-#endif // QT_NO_UNICODETABLES
+    if ( c.unicode() > 0xff ) return QChar::Letter_Uppercase; //########
+    return (QChar::Category)QUnicodeTables::unicode_info[c.unicode()];
+#else
     register int uc = ((int)QUnicodeTables::unicode_info[c.row()]) << 8;
     uc += c.cell();
     return (QChar::Category)QUnicodeTables::unicode_info[uc];
+#endif // QT_NO_UNICODETABLES
 }
 
 inline QChar lower( const QChar &c )
