@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.h#5 $
+** $Id: //depot/qt/main/src/kernel/qmime.h#6 $
 **
 ** Definition of mime classes
 **
@@ -37,6 +37,29 @@ public:
     virtual const char* format( int n = 0 ) const = 0;
     virtual bool provides( const char* ) const;
     virtual QByteArray encodedData( const char* ) const = 0;
+};
+
+class QMimeSourceFactoryData;
+class QStringList;
+
+class Q_EXPORT QMimeSourceFactory {
+public:
+    QMimeSourceFactory();
+    virtual ~QMimeSourceFactory();
+
+    virtual const QMimeSource* data(const QString& abs_name) const;
+    virtual QString makeAbsolute(const QString& abs_or_rel_name, const QString& context) const;
+    const QMimeSource* data(const QString& abs_or_rel_name, const QString& context) const;
+
+    virtual void setText( const QString& abs_name, const QString& text );
+    virtual void setImage( const QString& abs_name, const QImage& im );
+    virtual void setPixmap( const QString& abs_name, const QPixmap& pm );
+    virtual void setData( const QString& abs_name, QMimeSource* data );
+    virtual void setFilePath( const QStringList& );
+    virtual void setExtensionType( const QString& ext, const char* mimetype );
+
+private:
+    QMimeSourceFactoryData* d;
 };
 
 #ifdef _WS_WIN_
