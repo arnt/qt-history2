@@ -6,6 +6,15 @@ QComLibrary::QComLibrary( const QString &filename, QLibrary::Policy pol )
 {
 }
 
+bool QComLibrary::unload()
+{
+    if ( entry )
+	entry->release();
+    entry = 0;
+
+    QLibrary::unload();
+}
+
 void QComLibrary::createInstanceInternal()
 {
     if ( library().isEmpty() )
