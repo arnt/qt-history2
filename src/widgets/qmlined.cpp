@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#22 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -40,7 +40,7 @@
 static const int BORDER = 3;
 
 static const int blinkTime  = 500;		// text cursor blink time
-static const int scrollTime = 100;		// mark text scroll time
+static const int scrollTime = 50;		// mark text scroll time
 
 static int xPosToCursorPos( const char *s, const QFontMetrics &fm,
 			    int xPos, int width )
@@ -387,16 +387,18 @@ void QMultiLineEdit::focusOutEvent( QFocusEvent * )
 void QMultiLineEdit::timerEvent( QTimerEvent *t )
 {
     if ( hasFocus() && t->timerId() == blinkTimer ) {
-	/*
-	if ( dragScrolling ) {
-	    if ( scrollingLeft )
-		cursorLeft( TRUE );	// mark left
-	    else
-		cursorRight( TRUE );	// mark right
-	} else */{
-	    cursorOn = !cursorOn;
-	    updateCell( cursorY, 0, FALSE );
-	}
+	cursorOn = !cursorOn;
+	updateCell( cursorY, 0, FALSE );
+    } else if ( t->timerId() == scrollTimer ) {
+	QPoint p = mapFromGlobal( QCursor::pos() );
+	if ( p.y() < 0 )
+	    cursorUp( TRUE );
+	else if ( p.y() > height() )
+	    cursorDown( TRUE );
+	else if ( p.x() < 0 )
+	    cursorLeft( TRUE, FALSE );
+	else if ( p.x() > width() )
+	    cursorRight( TRUE, FALSE );
     }
 }
 
@@ -713,7 +715,8 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 
 
 /*!
-  Moves the cursor one page up.
+  Moves the cursor one page up.  If \a mark is TRUE, the text 
+  is marked. 
 */
 
 void QMultiLineEdit::pageDown( bool mark )
@@ -754,7 +757,8 @@ void QMultiLineEdit::pageDown( bool mark )
 
 
 /*!
-  Moves the cursor one page down.
+  Moves the cursor one page down.  If \a mark is TRUE, the text 
+  is marked. 
 */
 
 void QMultiLineEdit::pageUp( bool mark )
@@ -945,17 +949,16 @@ void QMultiLineEdit::killLine()
 }
 
 /*!
-  Moves the cursor leftwards one or more characters.
-  \sa cursorRight()
+  Moves the cursor one character to the left. If \a mark is TRUE, the text 
+  is marked. If \a wrap is TRUE, the cursor moves to the end of the 
+  previous line  if it is placed at the beginning of the current line.
+
+  \sa cursorRight() cursorUp() cursorDown()
 */
 
-void QMultiLineEdit::cursorLeft( bool mark, int steps )
+void QMultiLineEdit::cursorLeft( bool mark, bool wrap )
 {
-    if ( steps < 0 ) {
-	cursorRight( mark, -steps );
-	return;
-    }
-    if ( cursorX != 0 || cursorY != 0 ) {
+    if ( cursorX != 0 || cursorY != 0 && wrap ) {
 	if ( mark && !hasMarkedText() ) {
 	    markAnchorX    = cursorX;
 	    markAnchorY    = cursorY;
@@ -965,7 +968,7 @@ void QMultiLineEdit::cursorLeft( bool mark, int steps )
 	if ( cursorX > ll )
 	    cursorX = ll;
 	cursorOn = TRUE;
-	cursorX -= steps;
+	cursorX--;
 	if ( cursorX < 0 ) {
 	    int oldY = cursorY;
 	    if ( cursorY > 0 ) {
@@ -989,30 +992,24 @@ void QMultiLineEdit::cursorLeft( bool mark, int steps )
 }
 
 /*!
-  Moves the cursor rightwards one or more characters.
-  \sa cursorLeft()
+  Moves the cursor one character to the right.  If \a mark is TRUE, the text 
+  is marked. If \a wrap is TRUE, the cursor moves to the beginning of the next
+  line if it is placed at the end of the current line.
+  \sa cursorLeft() cursorUp() cursorDown()
 */
 
-void QMultiLineEdit::cursorRight( bool mark, int steps )
+void QMultiLineEdit::cursorRight( bool mark, bool wrap )
 {
-
-    if ( steps != 1 ) {
-	warning( "cursorRight %d steps", steps );
-    }
-    if ( steps < 0 ) {
-	cursorLeft( mark, -steps );
-	return;
-    }
     int strl = lineLength( cursorY );
 
-    if ( cursorX < strl || cursorY < (int)contents->count() - 1 ) {
+    if ( cursorX < strl || cursorY < (int)contents->count() - 1 && wrap ) {
 	if ( mark && !hasMarkedText() ) {
 	    markAnchorX    = cursorX;
 	    markAnchorY    = cursorY;
 	}
 	killTimer( blinkTimer );
 	cursorOn = TRUE;
-	cursorX += steps;
+	cursorX++;
 	if ( cursorX > strl ) {
 	    int oldY = cursorY;
 	    if ( cursorY < (int) contents->count() - 1 ) {
@@ -1035,20 +1032,13 @@ void QMultiLineEdit::cursorRight( bool mark, int steps )
 }
 
 /*!
-  Moves the cursor upwards one or more characters.
+  Moves the cursor up one line.  If \a mark is TRUE, the text 
+  is marked. 
   \sa cursorDown() cursorLeft() cursorRight()
 */
 
-void QMultiLineEdit::cursorUp( bool mark, int steps )
+void QMultiLineEdit::cursorUp( bool mark )
 {
-    if ( steps != 1 ) {
-	warning( "cursorUp %d steps", steps );
-    }
-    if ( steps < 0 ) {
-	cursorDown( mark, -steps );
-	return;
-    }
-
     if ( cursorY != 0 ) {
 	if ( mark && !hasMarkedText() ) {
 	    markAnchorX    = cursorX;
@@ -1059,7 +1049,7 @@ void QMultiLineEdit::cursorUp( bool mark, int steps )
 	int oldY = cursorY;
 	killTimer( blinkTimer );
 	cursorOn = TRUE;
-	cursorY -= steps;
+	cursorY--;
 	if ( cursorY < 0 ) {
 	    cursorY = 0;
 	}
@@ -1076,19 +1066,13 @@ void QMultiLineEdit::cursorUp( bool mark, int steps )
 }
 
 /*!
-  Moves the cursor downwards one or more characters.
+  Moves the cursor one line down.  If \a mark is TRUE, the text 
+  is marked. 
   \sa cursorDown() cursorLeft() cursorRight()
 */
 
-void QMultiLineEdit::cursorDown( bool mark, int steps )
+void QMultiLineEdit::cursorDown( bool mark )
 {
-    if ( steps != 1 ) {
-	warning( "cursorDown %d steps", steps );
-    }
-    if ( steps < 0 ) {
-	cursorUp( mark, -steps );
-	return;
-    }
     int lastLin = contents->count() - 1;
     if ( cursorY != lastLin ) {
 	if ( mark && !hasMarkedText() ) {
@@ -1100,13 +1084,13 @@ void QMultiLineEdit::cursorDown( bool mark, int steps )
 	int oldY = cursorY;
 	killTimer( blinkTimer );
 	cursorOn = TRUE;
-	cursorY += steps;
+	cursorY++;
 	if ( cursorY > lastLin ) {
 	    cursorY = lastLin;
 	}
+        cursorX = mapFromView( curXPos, cursorY );
 	if ( mark )
 	    newMark( cursorX, cursorY, FALSE );
-        cursorX = mapFromView( curXPos, cursorY );
 	updateCell( oldY, 0, FALSE );
 	updateCell( cursorY, 0, FALSE );
 	blinkTimer = startTimer( blinkTime );
@@ -1302,8 +1286,9 @@ void QMultiLineEdit::end( bool mark )
 void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
     textDirty = FALSE;
+
     if ( readOnly )
-	return;
+    	return;
     int newY = findRow( m->pos().y() );
     if ( newY < 0 )
 	newY = lastRowVisible();
@@ -1347,6 +1332,15 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
     if ( readOnly || !dragMarking )
 	return;
     if ( rect().contains( e->pos() ) ) {
+	if ( dragScrolling ) {
+	    killTimer( scrollTimer );
+	    dragScrolling = FALSE;
+	}
+    } else if ( !dragScrolling ) {
+	scrollTimer = startTimer( scrollTime );
+	dragScrolling = TRUE;
+    }
+
 	int newY = findRow( e->pos().y() );
 	if ( newY < 0 ) {
 	    if ( e->pos().y() < 0 )
@@ -1356,11 +1350,10 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 	}
 	newY = QMIN( (int)contents->count() - 1, newY );
 	int newX = xPosToCursorPos( *getString( newY ), fontMetrics(),
-				   e->pos().x() - BORDER + xOffset(),
-				   cellWidth() - 2 * BORDER );
+				    e->pos().x() - BORDER + xOffset(),
+				    cellWidth() - 2 * BORDER );
 	newMark( newX, newY, FALSE );
 	repaint( FALSE ); //###
-    }
 }
 
 
@@ -1369,7 +1362,10 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 */
 void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
 {
-    dragScrolling = FALSE;
+    if ( dragScrolling ) {
+	killTimer( scrollTimer );
+	dragScrolling = FALSE;
+    }
     dragMarking   = FALSE;
     if ( markAnchorY == markDragY && markAnchorX == markDragX )
 	markIsOn = FALSE;
