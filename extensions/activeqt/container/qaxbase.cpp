@@ -791,7 +791,16 @@ static QString usertypeToQString( TYPEDESC tdesc, ITypeInfo *info, const QDict<Q
 		return "QColor";
 	    if ( userTypeName == "IFontDisp" || userTypeName == "IFontDisp*" )
 		return "QFont";
-	    qDebug( "%s: Control uses unknown usertype", userTypeName.latin1() );
+	    TYPEATTR *typeattr = 0;
+	    usertypeinfo->GetTypeAttr( &typeattr );
+	    if ( typeattr && typeattr->typekind == TKIND_ALIAS ) {
+		QString aliasTypeName = usertypeToQString( typeattr->tdescAlias, info, enumlist );
+		if ( aliasTypeName.isEmpty() )
+		    aliasTypeName = typedescToQString( typeattr->tdescAlias );
+		if ( !aliasTypeName.isEmpty() )
+		    userTypeName = aliasTypeName;
+	    }
+	    usertypeinfo->ReleaseTypeAttr( typeattr );
 	    return userTypeName;	    
 	}
     }
@@ -1016,7 +1025,7 @@ QMetaObject *QAxBase::metaObject() const
 			QMetaEnum * metaEnum = new QMetaEnum;
 			metaEnum->name = new char[enumName.length() + 1];
 			metaEnum->name = qstrcpy( (char*)metaEnum->name, enumName );
-			metaEnum->items = new QMetaEnum::Item[typeattr->cVars];
+			metaEnum->items = typeattr->cVars ? new QMetaEnum::Item[typeattr->cVars] : 0;
 			metaEnum->count = typeattr->cVars;
 			metaEnum->set = FALSE;
 			
