@@ -89,7 +89,7 @@ public:
     virtual void setForm( QSqlForm* form );
     QSqlForm* form();
 
-    void setAutoEdit( bool autoEdit );
+    virtual void setAutoEdit( bool autoEdit );
     bool autoEdit() const;
 
 signals:
