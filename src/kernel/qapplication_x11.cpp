@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#367 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#368 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qkeycode.h"
-#include "qeucmapper.h"
+#include "qcodemapper.h"
 #include <stdlib.h>
 #include <ctype.h>
 #include <locale.h>
@@ -207,8 +207,8 @@ static XIM	xim;
 static XIMStyle xim_style = 0;
 static XIMStyle xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
 static XFontSet xim_fixed_fontset;
-static QCodeMapper * xim_mapper = 0;
 #endif
+static QCodeMapper * input_mapper = 0;
 
 timeval        *qt_wait_timer();
 int	        qt_activate_timers();
@@ -272,7 +272,6 @@ static void close_xim()
     // Instead we get a non-critical memory leak
     // XCloseIM( xim );
     xim = 0;
-    delete xim_mapper;
 }
 
 /*****************************************************************************
@@ -811,9 +810,6 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     }
 
     if ( xim ) {
-	// Built-in code mappers
-	(void)new QEUCMapper;
-
 	XIMStyles *styles;
 	XGetIMValues(xim, XNQueryInputStyle, &styles, NULL, NULL);
 	for (int i = 0; i < styles->count_styles; i++) {
@@ -847,16 +843,20 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		close_xim();
 	    }
 	}
-	const char* locale = XLocaleOfIM(xim);
-
-	// ####### This hack is just for testing.
-	// Why does kinput2 not tell us the encoding?
-	if ( strcmp(locale,"ja_JP")==0 )
-	    locale = "ja_JP.eucJP";
-
-	xim_mapper = QCodeMapper::mapperForName(locale);
+	if ( xim ) {
+	    const char* locale = XLocaleOfIM(xim);
+	    input_mapper = QCodeMapper::mapperForName(locale);
+debug("YYY %s",locale);
+	}
     }
+
+    if ( !xim )
 #endif
+    {
+	const char* locale = setlocale( LC_CTYPE, 0 );
+	input_mapper = QCodeMapper::mapperForName(locale);
+debug("XXX %s %p",locale,input_mapper);
+    }
 }
 
 void qt_init( int *argcptr, char **argv )
@@ -3412,16 +3412,12 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    XAllowEvents( dpy, SyncKeyboard, CurrentTime );
     }
 
-#if defined(NO_XIM)
-    QString text = chars;
-#else
     // convert chars (8bit) to text (unicode).
     QString text;
-    if ( xim_mapper )
-        text = xim_mapper->toUnicode(chars,count);
+    if ( input_mapper )
+        text = input_mapper->toUnicode(chars,count);
     else
         text = chars;
-#endif
 
     // was this the last auto-repeater?
     static uint curr_autorep = 0;

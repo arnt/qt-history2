@@ -53,6 +53,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qkeycode.h \
+		  $$KERNEL_H/qkoi8mapper.h \
 		  $$KERNEL_H/qlayout.h \
 		  $$KERNEL_H/qlayoutengine.h \
 		  $$KERNEL_H/qmessagefile.h \
@@ -245,6 +246,7 @@ SOURCES		+= \
 		  kernel/qfont.cpp \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
+		  kernel/qkoi8mapper.cpp \
 		  kernel/qlayout.cpp \
 		  kernel/qlayoutengine.cpp \
 		  kernel/qmessagefile.cpp \

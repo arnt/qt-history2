@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#120 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -485,14 +485,17 @@ void QFont::initFontInfo() const
 	encoding += '-';
 	encoding += tokens[CharsetEncoding];
 	f->cmapper = QCodeMapper::mapperForName(encoding);
+debug("A = %s",f->cmapper?f->cmapper->name() : "NONE");
     } else if ( PRIV->needsSet() ) {
 	static const char* enc[Set_N-Set_1+1] =
 		{ "eucJP","eucKO","TACTIS","eucCN","eucTW" };
 	QString encoding;
 	encoding += enc[charSet()-Set_1];
 	f->cmapper = QCodeMapper::mapperForName(encoding);
+debug("B = %s",f->cmapper?f->cmapper->name() : "NONE");
     } else {
 	f->cmapper = 0;
+debug("NO MAPPER");
     }
 
     if ( exactMatch() ) {			// match: copy font description
@@ -996,10 +999,12 @@ Q1String QFont_Private::findFont( bool *exact )
 	s.sprintf(
 	    "-*-%s-%s-%s-normal-*-*-%d-*-*-*-*-*-*,"
 	    "-*-%s-*-%s-*-*-*-%d-*-*-*-*-*-*,"
+	    "-*-helvetica-%s-%s-*-*-*-%d-*-*-*-*-*-*,"
 	    "-*-*-*-%s-*-*-*-%d-*-*-*-*-*-*,"
 	    "-*-*-*-*-*-*-*-%d-*-*-*-*-*-*",
 		familyName.ascii(), wt, slant, size,
 		familyName.ascii(), slant, size,
+		slant, wt, size,
 		slant, size,
 		size );
 debug("Font set: %s",s.data());
@@ -1122,8 +1127,6 @@ const QCodeMapper *QFontMetrics::mapper() const
 #define FS (type() == FontInternal ? u.f->fontStruct() : (XFontStruct*)fontStruct())
 #undef  SET
 #define SET ((XFontSet)fontSet())
-#undef  MAPPER
-#define MAPPER mapper()
 
 // How to calculate metrics from ink and logical rectangles.
 #define LBEARING(i,l) (i.x+l.x)
@@ -1207,26 +1210,33 @@ inline bool inFont(XFontStruct *f, QChar ch )
 bool QFontMetrics::inFont(QChar ch) const
 {
     XFontStruct *f = FS;
-    if ( f )
+    if ( f && !mapper() ) {
 	return ::inFont(f,ch);
-    return TRUE; // #### XFontSet range?  Use MAPPER?
+    }
+    return TRUE; // ###### XFontSet range?  Use mapper()?
 }
 
-inline XCharStruct* charStr(XFontStruct *f, QChar ch)
+static
+XCharStruct* charStr(const QCodeMapper* mapper, XFontStruct *f, QChar ch)
 {
     // Optimized - inFont() is merged in here.
 
     if ( !f->per_char )
 	return &f->max_bounds;
-    if ( !inFont(f,ch) )
-	ch = QChar(f->default_char%256,f->default_char/256);
+
+    if ( mapper ) {
+	int l = 1;
+	char* c = mapper->fromUnicode(ch,l);
+	ch = *c;
+	delete [] c;
+    }
 
     if ( f->max_byte1 ) {
 	if ( !(ch.cell >= f->min_char_or_byte2
 	    && ch.cell <= f->max_char_or_byte2
 	    && ch.row >= f->min_byte1
 	    && ch.row <= f->max_byte1) )
-	    ch = QChar(f->default_char%256,f->default_char/256);
+	    ch = QChar((ushort)f->default_char);
 	return f->per_char +
 	    ((ch.row - f->min_byte1)
 		    * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
@@ -1235,12 +1245,12 @@ inline XCharStruct* charStr(XFontStruct *f, QChar ch)
 	uint ch16 = ch.cell+ch.row*256;
 	if ( !(ch16 >= f->min_char_or_byte2
 	    && ch16 <= f->max_char_or_byte2) )
-	    ch = QChar(f->default_char%256,f->default_char/256);
+	    ch = QChar((ushort)f->default_char);
 	return f->per_char + ch16;
     } else {
 	if ( !( ch.cell >= f->min_char_or_byte2
 	    && ch.cell <= f->max_char_or_byte2) )
-	    ch = QChar(f->default_char);
+	    ch = QChar((uchar)f->default_char);
 	return f->per_char + ch.cell - f->min_char_or_byte2;
     }
 }
@@ -1254,6 +1264,7 @@ void getExt(QString str, int len, XRectangle& ink, XRectangle& logical, XFontSet
     XmbTextExtents( set, x, len, &ink, &logical );
     delete [] x;
 }
+
 
 /*!
   Returns the left bearing of character \a ch in the font.
@@ -1271,10 +1282,10 @@ int QFontMetrics::leftBearing(QChar ch) const
 {
     XFontStruct *f = FS;
     if ( f )
-	return printerAdjusted(charStr(f,ch)->lbearing);
+	return printerAdjusted(charStr(mapper(),f,ch)->lbearing);
 
     XRectangle ink, log;
-    getExt(ch,1,ink,log,SET,MAPPER);
+    getExt(ch,1,ink,log,SET,mapper());
     return printerAdjusted(LBEARING(ink,log));
 }
 
@@ -1294,11 +1305,11 @@ int QFontMetrics::rightBearing(QChar ch) const
 {
     XFontStruct *f = FS;
     if ( f ) {
-	XCharStruct* cs = charStr(f,ch);
+	XCharStruct* cs = charStr(mapper(),f,ch);
 	return printerAdjusted(cs->width - cs->rbearing);
     }
     XRectangle ink, log;
-    getExt(ch,1,ink,log,SET,MAPPER);
+    getExt(ch,1,ink,log,SET,mapper());
     return printerAdjusted(RBEARING(ink,log));
 }
 
@@ -1438,9 +1449,9 @@ int QFontMetrics::width( QChar ch ) const
 {
     XFontStruct *f = FS;
     if ( f )
-	return printerAdjusted(charStr(f,ch)->width);
+	return printerAdjusted(charStr(mapper(),f,ch)->width);
     XRectangle ink, log;
-    getExt(ch,1,ink,log,SET,MAPPER);
+    getExt(ch,1,ink,log,SET,mapper());
     return printerAdjusted(log.width);
 }
 
@@ -1463,10 +1474,19 @@ int QFontMetrics::width( const QString &str, int len ) const
     if ( len < 0 )
 	len = str.length();
     XFontStruct *f = FS;
-    if ( f )
-	return printerAdjusted(XTextWidth16( f, (XChar2b*)str.unicode(), len ));
+    if ( f ) {
+	const QCodeMapper* m = mapper();
+	if ( m ) {
+	    char* s = m->fromUnicode(str,len);
+	    int r = printerAdjusted(XTextWidth( f, s, len ));
+	    delete [] s;
+	    return r;
+	} else {
+	    return printerAdjusted(XTextWidth16( f, (XChar2b*)str.unicode(), len ));
+	}
+    }
     XRectangle ink, log;
-    getExt(str,len,ink,log,SET,MAPPER);
+    getExt(str,len,ink,log,SET,mapper());
     return printerAdjusted(log.width);
 }
 
@@ -1519,10 +1539,17 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     }
 
     if ( f ) {
-	XTextExtents16( f, (XChar2b*)str.unicode(), len, &direction, &ascent, &descent, &overall );
+	const QCodeMapper *m = mapper();
+	if ( m ) {
+	    char* s = m->fromUnicode(str,len);
+	    XTextExtents( f, s, len, &direction, &ascent, &descent, &overall );
+	    delete [] s;
+	} else {
+	    XTextExtents16( f, (XChar2b*)str.unicode(), len, &direction, &ascent, &descent, &overall );
+	}
     } else {
 	XRectangle ink, log;
-	getExt(str,len,ink,log,SET,MAPPER);
+	getExt(str,len,ink,log,SET,mapper());
 	overall.lbearing = LBEARING(ink,log);
 	overall.rbearing = ink.width+ink.x; // RBEARING(ink,log);
 	overall.ascent = ASCENT(ink,log);

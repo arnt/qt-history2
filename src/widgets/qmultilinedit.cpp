@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#117 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -586,46 +586,30 @@ QString QMultiLineEdit::markedText() const
     } else { //multiline
 	ASSERT( markBeginY >= 0);
 	ASSERT( markEndY < (int)contents->count() );
-	
+
 	QString *firstS, *lastS;
 	firstS = getString( markBeginY );
 	lastS  = getString( markEndY );
 	ASSERT( firstS != lastS );
 
-	int len = firstS->length() - markBeginX + 1;
 	int i;
 
-	for( i = markBeginY + 1 ; i < markEndY ; i++ ) {
-	    len += lineLength( i ) + 1;
-	}
-	len += markEndX + 1;
+	QString tmp;
 
-	QString tmp( len + 1 );
-	int idx = 0;
+	if ( firstS && *firstS )
+	    tmp += firstS->mid(markBeginX);
 
-	if ( firstS && *firstS ) {
-	    uint i=markBeginX;
-	    while ( i < firstS->length() ) {
-		tmp[idx++] = firstS->at(i++);
-	    }
-	}
-	tmp[idx++] = '\n';
+	tmp += "\n";
 
 	for( i = markBeginY + 1; i < markEndY ; i++ ) {
-	    int i = 0;
-	    QString s = *(contents->at( i ));
-	    while ( (uint)i < s.length() ) {
-		tmp[idx++] = s[i++];
-	    }
-	    tmp[idx++] = '\n';
+	    tmp += *(contents->at( i ));
+	    tmp += "\n";
 	}
+
 	if ( lastS ) {
-	    int i = 0;
-	    while ( i < markEndX )
-		tmp[idx++] = (*lastS)[i++];
-	    tmp[idx] = 0;
+	    tmp += lastS->left(markEndX);
 	} else {
-	    tmp[idx++] = 0;
+	    tmp.truncate(tmp.length()-1);
 	}
 
 	return tmp;
@@ -660,26 +644,12 @@ QString QMultiLineEdit::textLine( int line ) const
 
 QString QMultiLineEdit::text() const
 {
-    if ( contents->count() == 0 )
-	return QString( "" );
-
-    int len = 0;
-    int i;
-    for( i = 0 ; i < (int)contents->count() ; i++ ) {
-	len += lineLength( i ) + 1;
+    QString tmp("");
+    for( int i = 0 ; i < (int)contents->count() ; i++ ) {
+	tmp += *(contents->at( i ));
+	if ( i+1 < (int)contents->count() )
+	    tmp += "\n";
     }
-
-    QString tmp( len + 1 );
-    int idx = 0;
-    for( i = 0 ; i < (int)contents->count() ; i++ ) {
-	// ##### Isn't this just appending the string?
-	int j=0;
-	QString s = *(contents->at( i ));
-	while ( (uint)j < s.length() )
-	    tmp[idx++] = s[j++];
-	tmp[idx++] = '\n';
-    }
-    tmp[idx-1] = 0;
     return tmp;
 }
 

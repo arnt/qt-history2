@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#82 $
+** $Id: //depot/qt/main/src/tools/qstring.h#83 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -153,15 +153,24 @@ public:
     // The alternatives just avoid order-of-construction warnings.
 #if defined(_WS_X11_) || defined(_WS_WIN_BYTESWAP_)
     QChar() : row(0), cell(0) { }
-    QChar( uchar c, uchar r=0 ) : row(r), cell(c) { }
+    QChar( char c ) : row(0), cell(c) { }
+    QChar( uchar c ) : row(0), cell(c) { }
+    QChar( uchar c, uchar r ) : row(r), cell(c) { }
     QChar( const QChar& c ) : row(c.row), cell(c.cell) { }
+    QChar( ushort rc ) : row((rc>>8)&0xff), cell(rc&0xff) { }
+    QChar( short rc ) : row((rc>>8)&0xff), cell(rc&0xff) { }
 #else
     QChar() : cell(0), row(0) { }
-    QChar( uchar c, uchar r=0 ) : cell(c), row(r) { }
+    QChar( char c ) : cell(c), row(0) { }
+    QChar( uchar c ) : cell(c), row(0) { }
+    QChar( uchar c, uchar r ) : cell(c), row(r) { }
     QChar( const QChar& c ) : cell(c.cell), row(c.row) { }
+    QChar( ushort rc ) : cell(rc&0xff), row((rc>>8)&0xff) { }
+    QChar( short rc ) : cell(rc&0xff), row((rc>>8)&0xff) { }
 #endif
 
-    QT_STATIC_CONST QChar null;
+    QT_STATIC_CONST QChar null;            // 0000
+    QT_STATIC_CONST QChar replacement;     // FFFD
 
     bool isSpace() const;
 

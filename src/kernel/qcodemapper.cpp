@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcodemapper.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qcodemapper.cpp#5 $
 **
 ** Implementation of QCodeMapper class
 **
@@ -57,35 +57,38 @@ QCodeMapper::~QCodeMapper()
 */
 int QCodeMapper::heuristicNameMatch(const char* hint) const
 {
-    const char* actual = name();
     int r = -10;
     int toggle = 0;
-    while ( *hint && *actual ) {
-	// Skip punctuation
-	while ( hint[1] && !isalnum(*hint) )
-	    hint++;
-	while ( actual[1] && !isalnum(*actual) )
-	    actual++;
-
-	if ( tolower(*hint) == tolower(*actual) ) {
-	    hint++;
-	    actual++;
-	    r+=3;
-	} else if ( tolower(hint[1]) == tolower(*actual) ) {
-	    hint++;
-	    r+=1;
-	} else if ( tolower(*hint) == tolower(actual[1]) ) {
-	    actual++;
-	    r+=1;
-	} else {
-	    if ( toggle ) {
+    while ( *hint ) {
+	const char* approx = hint++;
+	const char* actual = name();
+	while ( *approx && *actual ) {
+	    // Skip punctuation
+	    while ( approx[1] && !isalnum(*approx) )
+		approx++;
+	    while ( actual[1] && !isalnum(*actual) )
 		actual++;
-		r--;
+
+	    if ( tolower(*approx) == tolower(*actual) ) {
+		approx++;
+		actual++;
+		r+=3;
+	    } else if ( tolower(approx[1]) == tolower(*actual) ) {
+		approx++;
+		r+=1;
+	    } else if ( tolower(*approx) == tolower(actual[1]) ) {
+		actual++;
+		r+=1;
 	    } else {
-		hint++;
-		r--;
+		if ( toggle ) {
+		    actual++;
+		    r--;
+		} else {
+		    approx++;
+		    r--;
+		}
+		toggle = !toggle;
 	    }
-	    toggle = !toggle;
 	}
     }
     return r;
@@ -114,7 +117,7 @@ QCodeMapper* QCodeMapper::mapperForMib(int mib)
 QCodeMapper* QCodeMapper::mapperForName(const char* hint)
 {
     QListIterator<QCodeMapper> i(all);
-    QCodeMapper* result;
+    QCodeMapper* result = 0;
     int best=0;
     for ( QCodeMapper* cursor; (cursor=i); ++i ) {
 	int s = cursor->heuristicNameMatch(hint);

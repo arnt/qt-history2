@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#64 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#65 $
 **
 ** Implementation of QTextStream class
 **
@@ -1055,7 +1055,7 @@ QTextStream &QTextStream::operator>>( QString &str )
 	    ts_ungetc( c );
 	    break;
 	}
-	str[i++] = c;
+	str[i++] = (ushort)c;
 	c = ts_getc();
     }
     return *this;
@@ -1126,7 +1126,7 @@ QString QTextStream::readLine()
 	if ( c == '\n' ) {
 	    break;
 	}
-	result[i++] = c;
+	result[i++] = (ushort)c;
 	c = ts_getc();
     }
     if ( i > 0 && result[i-1] == '\r' )
@@ -1238,7 +1238,7 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 	    if ( padlen <= 0 ) {		// no padding required
 		writeBlock( p, len );
 	    } else if ( padlen < (int)(p-buf) ) { // speeds up padding
-		memset( p-padlen, fillchar, padlen );
+		memset( p-padlen, (char)fillchar, padlen );
 		writeBlock( p-padlen, padlen+len );
 	    }
 	    else				// standard padding
@@ -1390,7 +1390,7 @@ QTextStream &QTextStream::operator<<( const char* s )
 	    } else {
 		ppad = padbuf;
 	    }
-	    memset( ppad, fillchar, padlen );	// fill with fillchar
+	    memset( ppad, (char)fillchar, padlen );	// fill with fillchar
 	    if ( !(flags() & left) ) {
 		writeBlock( ppad, padlen );
 		padlen = 0;
@@ -1418,9 +1418,9 @@ QTextStream &QTextStream::operator<<( const QString& s )
     QString s1 = s;
     if ( fwidth ) {				// field width set
 	if ( !(flags() & left) ) {
-	    s1 = s.rightJustify(fwidth, fillchar);
+	    s1 = s.rightJustify(fwidth, (char)fillchar);
 	} else {
-	    s1 = s.leftJustify(fwidth, fillchar);
+	    s1 = s.leftJustify(fwidth, (char)fillchar);
 	}
 	fwidth = 0;				// reset width
     }
@@ -1494,11 +1494,7 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
 	}
 	break;
       case UnicodeLittleEndian: {
-	    QChar *u = new QChar[len];
-	    for (uint i=0; i<len; i++)
-		u[i] = QChar(0,p[i]);
-	    dev->writeBlock( (char*)u, len*sizeof(QChar) );
-	    delete [] u;
+	    // ############ ...
 	}
 	break;
     }
@@ -1517,11 +1513,7 @@ QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
 	}
 	break;
       case UnicodeBigEndian: {
-	    QChar *u = new QChar[len];
-	    for (uint i=0; i<len; i++)
-		u[i] = QChar(p[i].row,p[i].cell);
-	    dev->writeBlock( (char*)u, len*sizeof(QChar) );
-	    delete [] u;
+	    // ########## .......
 	}
 	break;
       case UnicodeLittleEndian: {

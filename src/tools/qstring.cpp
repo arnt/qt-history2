@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#138 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#139 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -385,11 +385,11 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 // ##### Unicode fns need to ifdef UNICODE (if we go that way)
 QChar uctolower(QChar c)
 {
-    return c.row ? c : QChar(tolower(c.cell));
+    return c.row ? c : QChar((char)tolower(c.cell));
 }
 QChar uctoupper(QChar c)
 {
-    return c.row ? c : QChar(toupper(c.cell));
+    return c.row ? c : QChar((char)toupper(c.cell));
 }
 bool ucisspace(QChar c)
 {
@@ -541,6 +541,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
 Q_EXPORT QString::Data *QString::shared_null = 0;
 QT_STATIC_CONST_IMPL QString QString::null;
 QT_STATIC_CONST_IMPL QChar QChar::null;
+QT_STATIC_CONST_IMPL QChar QChar::replacement((ushort)0xfffd);
 
 #define Q2HELPER(x) x
 #ifdef Q2HELPER
@@ -1701,7 +1702,7 @@ ushort QString::toUShort( bool *ok ) const
 	*ok = FALSE;
 	v = 0;
     }
-    return (QChar)v;
+    return (ushort)v;
 }
 
 
@@ -2062,7 +2063,7 @@ void QString::subat( uint i )
 	    truncate( newmax );
 	}
 	for ( uint j=ol; j<=i; j++ )
-	    d->unicode[j]=0;
+	    d->unicode[j]='\0';
 	d->len = i+1;
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qeucmapper.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qeucmapper.cpp#6 $
 **
 ** Implementation of QEUCMapper class
 **
@@ -9282,7 +9282,7 @@ static ushort unicode_to_euc[0x10000] = {
 	0xa2f7, 0xa2f8, 0x0000, 0x0000, 0x0000, 0xa1c5, 0xa1c4, 0x0000, // 2027
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 202F
 	0xa2f3, 0x0000, 0xa1ec, 0xa1ed, 0x0000, 0x0000, 0x0000, 0x0000, // 2037
-	0x0000, 0x0000, 0x0000, 0xa2a8, 0x0000, 0x0000, 0x0000, 0x0000, // 203F
+	0x0000, 0x0000, 0x0000, 0xa2a8, 0x0000, 0x0000, 0x8d7e, 0x0000, // 203F
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 2047
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 204F
 	0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, // 2057
@@ -16462,8 +16462,13 @@ char* QEUCMapper::fromUnicode(const QString& uc, int& len_in_out) const
 	if ( !ch.row && ch.cell < 128 ) {
 	    *cursor++ = ch.cell;
 //debug("U%02x%02x -> Euc00%02x", ch.row,ch.cell,(uchar)cursor[-1]);
+	} else if ( ch.row == 0xff && ch.cell >= 0x61 && ch.cell <= 0x9F ) {
+	    *cursor++ = 142;
+	    *cursor++ = ch.cell+0x40;
 	} else {
 	    int u = unicode_to_euc[(ch.row<<8)|ch.cell];
+	    if ( !u )
+		u = 0xa2a2; // white box
 	    *cursor++ = u >> 8;
 	    *cursor++ = u & 0xff;
 //debug("U%02x%02x -> Euc%02x%02x", ch.row,ch.cell,(uchar)cursor[-2],(uchar)cursor[-1]);
@@ -16479,15 +16484,55 @@ QString QEUCMapper::toUnicode(const char* chars, int len) const
     QString result;
     for (int i=0; i<len; i++) {
 	uchar ch = chars[i];
-	if ( ch < 128 || i==len-1 ) {
-	    result += ch;
-//debug("Euc%02x -> U00%02x", ch, ch);
+	if ( ch < 128 ) {
+	    // ASCII
+	    result += QChar(ch);
+	} else if ( ch < 142 || ch > 254 ) {
+	    // Invalid
+	    result += QChar::replacement;
+	} else if ( ch == 142 ) {
+	    // Half-width katakana
+	    if ( i < len-1 ) {
+		uchar c2 = chars[++i];
+		if ( c2 >= 0xa1 && c2 <= 0xdf ) {
+		    result += QChar(c2-0x40,0xff);
+		} else {
+		    result += QChar::replacement;
+		}
+	    }
+	} else if ( ch == 143 ) {
+	    // User-defined characters
+	    if ( i < len-1 ) {
+		uchar c2 = chars[++i];
+		if ( c2 < 161 || c2 > 254 ) {
+		    i--;
+		    result += QChar::replacement;
+		} else {
+		    if ( i < len-1 ) {
+			uchar c3 = chars[++i];
+			if ( c3 < 161 || c3 > 254 ) {
+			    result += QChar::replacement;
+			    i--;
+			} else
+			    result += QChar::replacement;
+		    }
+		}
+	    }
 	} else {
-	    uchar c2 = chars[++i];
-	    int c = (ch << 8) | c2;
-	    ushort rc = euc_to_unicode[c];
-	    result += QChar(rc&0xff,(rc>>8)&0xff);
-//debug("Euc%02x%02x -> U%02x%02x", chars[0], chars[1], rc&0xff,(rc>>8)&0xff);
+	    // JIS X 0208-1990
+	    if ( i < len-1 ) {
+		uchar c2 = chars[++i];
+		if ( c2 < 161 || c2 > 254 ) {
+		    result += QChar::replacement;
+		    i--;
+		} else {
+		    int c = (ch << 8) | c2;
+		    ushort rc = euc_to_unicode[c];
+		    result += QChar(rc&0xff,(rc>>8)&0xff);
+		}
+	    } else {
+		result += QChar::replacement;
+	    }
 	}
     }
     return result;
@@ -16526,7 +16571,7 @@ int QEUCMapper::heuristicContentMatch(const char* chars, int len) const
 	} else if ( ch == 142 ) {
 	    // Half-width katakana
 	    if ( i < len-1 ) {
-		uchar c2 = chars[i++];
+		uchar c2 = chars[++i];
 		if ( c2 < 161 || c2 >223 )
 		    return -1;
 		score++;
@@ -16535,11 +16580,11 @@ int QEUCMapper::heuristicContentMatch(const char* chars, int len) const
 	} else if ( ch == 143 ) {
 	    // User-defined characters
 	    if ( i < len-1 ) {
-		uchar c2 = chars[i++];
+		uchar c2 = chars[++i];
 		if ( c2 < 161 || c2 > 254 )
 		    return -1;
 		if ( i < len-1 ) {
-		    uchar c3 = chars[i++];
+		    uchar c3 = chars[++i];
 		    if ( c3 < 161 || c3 > 254 )
 			return -1;
 		    score++;
@@ -16550,7 +16595,7 @@ int QEUCMapper::heuristicContentMatch(const char* chars, int len) const
 	} else {
 	    // JIS X 0208-1990
 	    if ( i < len-1 ) {
-		uchar c2 = chars[i++];
+		uchar c2 = chars[++i];
 		if ( c2 < 161 || c2 > 254 )
 		    return -1;
 		score++;
@@ -16560,3 +16605,4 @@ int QEUCMapper::heuristicContentMatch(const char* chars, int len) const
     }
     return score;
 }
+

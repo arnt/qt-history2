@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#76 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2013,7 +2013,7 @@ void QPSPrinter::setFont( const QFont & f )
     i = 0;
     while( (unsigned int)i < ps.length() ) {
 	if ( i == 0 || ps[i-1] == ' ' ) {
-	    ps[i] = toupper( ps[i] );
+	    ps[i] = (char)toupper( ps[i] );
 	    if ( i )
 		ps.remove( i-1, 1 );
 	    else
