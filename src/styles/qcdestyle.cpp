@@ -96,6 +96,9 @@ int QCDEStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
     case PM_MenuBarFrameWidth:
 	ret = 1;
 	break;
+    case PM_ScrollBarExtent:
+	ret = 13;
+	break;
     default:
 	ret = QMotifStyle::pixelMetric( metric, widget );
 	break;
@@ -173,7 +176,7 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
     }
     break;
     case PE_ExclusiveIndicator: {
-#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)		
+#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 	static const QCOORD pts1[] = {              // up left  lines
 	    1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
 	static const QCOORD pts4[] = {              // bottom right  lines
