@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#57 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -306,7 +306,7 @@ void QFont::load( HANDLE ) const
 	}
     }
     if ( !d->fin->font() ) {			// font not loaded
-	d->fin->hdc   = CreateCompatibleDC( qt_display_dc() );
+	d->fin->hdc   = GetDC( 0 );
 	d->fin->hfont = create( &d->fin->stockFont, 0 );
 	SelectObject( d->fin->hdc, d->fin->hfont );
 	GetTextMetrics( d->fin->hdc, &d->fin->tm );
