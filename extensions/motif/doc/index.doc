@@ -24,8 +24,9 @@ The Qt Motif Extension consists of the following classes:
 \i \l QMotifWidget - Provides the QWidget API for Motif widgets.
 \i \l QMotifDialog - Provides the QDialog API for Motif dialogs.
 \i \l QXtWidget - The Xt/Motif integration widget from the previous
-Xt/Motif extension.  This class is unsupported, and only provided for
-projects moving to the new Motif extension.
+Xt/Motif extension.  This class is unsupported and has many known
+problems and limitations.  It is provided only to keep existing source
+working; it should not be used in new code.
 \endlist
 
 \section2 Additional Documentation
@@ -40,9 +41,9 @@ complete migration of a Motif based program to the Qt toolkit.
 
 \section1 Common Problems
 
-\list
+\section2 Incorrect CDE Color Scheme
 
-\i QMotifWidget and QMotifDialog will use the same Visual, Colormap
+QMotifWidget and QMotifDialog will use the same Visual, Colormap
 and color depth that QApplication uses.  When using CDE, the color
 scheme may be incorrect when using a Visual, Colormap and color depth
 that is not the default.  To work around this problem, add the
@@ -53,7 +54,9 @@ following resource string to your startup files (for example,
     *userColorObj: false
 \endcode
 
-\i The X11 headers define some constants that conflict with the Qt
+\section2 X11 Header Conflicts
+
+The X11 headers define some constants that conflict with the Qt
 headers.  The solution is to include all Qt headers first, followed by
 headers from this extension, and all Xt/Motif and X11 headers last.
 For example:
@@ -77,7 +80,9 @@ For example:
     ...
 \endcode
 
-\i QMotifWidget can be used together with QDesktopWidget to create
+\section2 Multiple Screen Support
+
+QMotifWidget can be used together with QDesktopWidget to create
 top-level windows on multiple screens.  A common mistake is to create
 a QMotifWidget on a non-default screen while the Xt/Motif widgets are
 created on the default screen.  The solution is to specify the screen
@@ -89,11 +94,9 @@ to both QMotifWidget and the Xt/Motif child.  For example:
 
     // make sure both QMotifWidget and the XmMainWindow are on screen 1
     XtSetArg(args[0], XtNscreen, ScreenOfDisplay(dpy, 1));
-    QMotifWidget *toplevel = 
+    QMotifWidget *toplevel =
         new QMotifWidget(QApplication::desktop()->screen(1),
                          xmMainWindowWidgetClass, args, 1, "mainwindow");
 \endcode
-
-\endlist
 
 */

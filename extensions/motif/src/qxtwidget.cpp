@@ -125,19 +125,40 @@ static WidgetClass qWidgetClass = (WidgetClass)&qwidgetClassRec;
 /*!
   \class QXtWidget qxt.h
   \brief The QXtWidget class allows mixing of Xt/Motif and Qt widgets.
+  \obsolete
 
   \extension Motif
-
-  NOTE: This widget comes from the previous Xt/Motif extension.  This
-  class is unsupported and has many known problems.  It is provided
-  only for projects moving to the new Motif extension.  Do not use it
-  in new code.
 
   QXtWidget acts as a bridge between Xt and Qt. For utilizing old Xt
   widgets, it can be a QWidget based on a Xt widget class. For
   including Qt widgets in an existing Xt/Motif application, it can be
   a special Xt widget class that is a QWidget.  See the constructors
   for the different behaviors.
+
+  \section2 Known QXtWidget Problems
+
+  This class is unsupported and has many known problems and
+  limitations.  It is provided only to keep existing source working;
+  it should not be used in new code.  Note: These problems will \e not
+  be fixed in future releases.
+
+  Below is an imcomplete list of know issues:
+
+  \list 1
+
+  \i Keyboard focus navigation is impossible when using QXtWidget.
+  The mouse must be used to focus widgets in both Qt and Xt/Motif
+  widgets.  For example, when embedding a QXtWidget into an Xt/Motif
+  widget, key events will go to the QXtWidget (and its children) while
+  the mouse is over the QXtWidget, regardless of where Xt/Motif has
+  placed the focus.
+
+  \i Reparenting does not work.  You cannot use
+  QWidget::reparent(). This includes the functions
+  QWidget::showFullScreen() and QWidget::showNormal(), which use
+  QWidget::reparent().
+
+  \endlist
 */
 
 void QXtWidget::init(const char* name, WidgetClass widget_class,
@@ -282,8 +303,6 @@ QXtWidget::~QXtWidget()
 /*!
   Reimplemented to produce the Xt effect of getting focus when the
   mouse enters the widget. The event is passed in \a e.
-
-    \preliminary
 */
 bool QXtWidget::x11Event( XEvent * e )
 {
