@@ -101,6 +101,6 @@ bool FileWriter::writeFile(QString filePath, QByteArray contents)
 
     cout << "Could not write to to file: ";
     cout << QDir::convertSeparators(filePath).toLatin1().constData();
-    cout << "Is it write protected?" << endl;
+    cout << ". Is it write protected?" << endl;
     return false;
 }
