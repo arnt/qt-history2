@@ -40,6 +40,9 @@
 #include "qstyle.h"
 #include "qeventloop.h"
 #include "qmessagebox.h"
+#include "qdesktopwidget.h"
+#include "qmime.h"
+#include "qevent.h"
 
 #ifndef QT_NO_MAINWINDOW
 # include "qmainwindow.h"
@@ -92,6 +95,7 @@ QPaintDevice *qt_mac_safe_pdev = 0;
 QMutex *qt_mac_port_mutex = NULL;
 #endif
 
+
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
@@ -127,6 +131,16 @@ static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
 
+#include "qwidget_p.h"
+class QExtraWidget : public QWidget
+{
+public:
+    inline QWExtra* extraData();
+    inline QTLWExtra* topData();
+};
+inline QWExtra* QExtraWidget::extraData() { return d->extraData(); }
+inline QTLWExtra* QExtraWidget::topData() { return d->topData(); }
+
 /*****************************************************************************
   External functions
  *****************************************************************************/
@@ -136,7 +150,7 @@ extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
 extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(QWidget *, bool =FALSE); //qwidget_mac.cpp
-extern QString qt_mac_get_global_setting(QString key, QString d, QString file=QString::null); //qsettings_mac.cpp
+extern QString qt_mac_get_global_setting(QString key, QString val, QString file=QString::null); //qsettings_mac.cpp
 QByteArray p2qstring(const unsigned char *); //qglobal.cpp
 void qt_mac_command_set_enabled(UInt32, bool); //qmenubar_mac.cpp
 
@@ -519,22 +533,22 @@ void qt_event_request_showsheet(QWidget *w)
 static QValueList<WId> request_updates_pending_list;
 void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
 {
-    w->createExtra();
+    QWExtra *extra = ((QExtraWidget*)w)->extraData();
     if(subtract) {
-	if(w->extra->has_dirty_area) {
-	    w->extra->dirty_area -= r;
-	    if(w->extra->dirty_area.isEmpty()) {
+	if(extra->has_dirty_area) {
+	    extra->dirty_area -= r;
+	    if(extra->dirty_area.isEmpty()) {
 		request_updates_pending_list.remove(w->winId());
-		w->extra->has_dirty_area = FALSE;
+		extra->has_dirty_area = FALSE;
 	    }
 	}
 	return;
-    } else if(w->extra->has_dirty_area) {
-	w->extra->dirty_area |= r;
+    } else if(extra->has_dirty_area) {
+	extra->dirty_area |= r;
 	return;
     }
-    w->extra->has_dirty_area = TRUE;
-    w->extra->dirty_area = r;
+    extra->has_dirty_area = TRUE;
+    extra->dirty_area = r;
     //now maintain the list of widgets to be updated
     if(request_updates_pending_list.isEmpty()) {
 	EventRef upd = NULL;
@@ -925,10 +939,11 @@ QWidget *qt_recursive_match(QWidget *widg, int x, int y)
 		int wx=curwidg->x(), wy=curwidg->y();
 		int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
 		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
-		    if(!curwidg->testWFlags(Qt::WMouseNoMask) &&
-		       curwidg->extra && !curwidg->extra->mask.isEmpty() &&
-		       !curwidg->extra->mask.contains(QPoint(x-wx, y-wy)))
-			continue;
+		    if(!curwidg->testWFlags(Qt::WMouseNoMask)) {
+			QWExtra *extra = ((QExtraWidget*)curwidg)->extraData();
+			if(extra && !extra->mask.isEmpty() && !extra->mask.contains(QPoint(x-wx, y-wy)))
+			    continue;
+		    }
 		    return qt_recursive_match(curwidg,x-wx,y-wy);
 		}
 	    }
@@ -1253,7 +1268,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     case inGrow: {
 	Rect limits;
 	SetRect(&limits, -2, 0, 0, 0);
-	if(QWExtra   *extra = widget->extraData())
+	if(QWExtra *extra = ((QExtraWidget*)widget)->extraData())
 	    SetRect(&limits, extra->minw, extra->minh,
 		    extra->maxw < QWIDGETSIZE_MAX ? extra->maxw : QWIDGETSIZE_MAX,
 		    extra->maxh < QWIDGETSIZE_MAX ? extra->maxh : QWIDGETSIZE_MAX);
@@ -1415,14 +1430,14 @@ static void qt_event_request_context(QWidget *w=NULL, EventRef *where=NULL)
 }
 static EventRef request_context_hold_pending = NULL;
 QMAC_PASCAL void
-QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
+QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *w)
 {
-    QWidget *w = (QWidget *)d;
+    QWidget *widg = (QWidget *)w;
     EventLoopTimerRef otc = mac_context_timer;
     RemoveEventLoopTimer(mac_context_timer);
     mac_context_timer = NULL;
-    if(r == otc && w == qt_button_down)
-	qt_event_request_context(w, &request_context_hold_pending);
+    if(r == otc && widg == qt_button_down)
+	qt_event_request_context(widg, &request_context_hold_pending);
 }
 
 bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, WindowPtr pt)
@@ -1476,10 +1491,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    for(QValueList<WId>::Iterator it = request_updates_pending_list.begin();
 		it != request_updates_pending_list.end(); ++it) {
 		QWidget *widget = QWidget::find((*it));
-		if(widget && widget->extra && widget->extra->has_dirty_area) {
-		    widget->extra->has_dirty_area = FALSE;
-		    QRegion r = widget->extra->dirty_area;
-		    widget->extra->dirty_area = QRegion();
+		if(!widget)
+		    continue;
+		QWExtra *extra = ((QExtraWidget*)widget)->extraData();
+		if(extra && extra->has_dirty_area) {
+		    extra->has_dirty_area = FALSE;
+		    QRegion r = extra->dirty_area;
+		    extra->dirty_area = QRegion();
 		    QRegion cr = widget->clippedRegion();
 		    if(!widget->isTopLevel()) {
 			QPoint point(posInWindow(widget));
@@ -1686,8 +1704,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    n = app_cursor;
 		} else {
 		    for(QWidget *p = widget; p; p = p->parentWidget()) {
-			if(p->extra && p->extra->curs) {
-			    n = p->extra->curs;
+			QWExtra *extra = ((QExtraWidget*)p)->extraData();
+			if(extra && extra->curs) {
+			    n = extra->curs;
 			    break;
 			}
 		    }
@@ -2631,11 +2650,13 @@ void QApplication::flush()
 		for(QValueList<WId>::Iterator it = request_updates_pending_list.begin();
 		    it != request_updates_pending_list.end(); ++it) {
 		    QWidget *widget = QWidget::find((*it));
-		    if(widget && widget->extra && widget->extra->has_dirty_area &&
-		       widget->topLevelWidget() == tlw) {
-			widget->extra->has_dirty_area = FALSE;
-			QRegion r = widget->extra->dirty_area;
-			widget->extra->dirty_area = QRegion();
+		    if(!widget)
+			continue;
+		    QWExtra *extra = ((QExtraWidget*)widget)->extraData();
+		    if(extra && extra->has_dirty_area && widget->topLevelWidget() == tlw) {
+			extra->has_dirty_area = FALSE;
+			QRegion r = extra->dirty_area;
+			extra->dirty_area = QRegion();
 			QRegion cr = widget->clippedRegion();
 			if(!widget->isTopLevel()) {
 			    QPoint point(posInWindow(widget));

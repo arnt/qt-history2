@@ -19,6 +19,7 @@
 #include "qdatastream.h"
 #include "qnamespace.h"
 #include "qt_mac.h"
+#include "qevent.h"
 #ifdef Q_WS_MACX
 # include <ApplicationServices/ApplicationServices.h>
 #endif

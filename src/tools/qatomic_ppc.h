@@ -5,6 +5,8 @@
 
 #if defined(__GNUC__) && defined(__ppc__)
 
+#include "stdint.h"
+
 template <typename T>
 inline T *qAtomicSetPtr( T ** volatile ptr, T *value )
 {

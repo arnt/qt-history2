@@ -28,12 +28,14 @@
 #include "qcursor.h"
 #include "qtimer.h"
 #include "qstyle.h"
+#include "qevent.h"
+#include "qdesktopwidget.h"
 #ifdef Q_WS_MACX
 # include <ApplicationServices/ApplicationServices.h>
 #endif
 #include <limits.h>
 
-#include "qobject_p.h"
+#include "qwidget_p.h"
 
 /*****************************************************************************
   QWidget debug facilities
@@ -86,10 +88,11 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
 {
     if(!w || !w->isTopLevel())
 	return FALSE;
-    w->createTLExtra();
-    w->extra->topextra->resizer += up;
-    if(w->extra->topextra->resizer ||
-       (w->extra->maxw && w->extra->maxh && w->extra->maxw == w->extra->minw && w->extra->maxh == w->extra->minh))
+    w->d->createTLExtra();
+    w->d->topData()->resizer += up;
+    if(w->d->topData()->resizer ||
+       (w->d->extraData()->maxw && w->d->extraData()->maxh && w->d->extraData()->maxw == w->d->extraData()->minw && 
+	w->d->extraData()->maxh == w->d->extraData()->minh))
 	ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowResizableAttribute);
     else
 	ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute, 0);
@@ -253,7 +256,7 @@ bool qt_paint_children(QWidget *p, QRegion &r, uchar ops = PC_None)
                 debug_wndw_rgn("**paint_children4", p, r, TRUE, TRUE);
 #endif
 		p->update(r); //last try
-	    } else if(p->extra && p->extra->has_dirty_area) {
+	    } else if(p->d->extraData() && p->d->extraData()->has_dirty_area) {
 #ifdef DEBUG_WINDOW_RGN
                 debug_wndw_rgn("**paint_children5", p, r, TRUE, TRUE);
 #endif
@@ -334,7 +337,8 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 		    y = px.v;
 		}
 
-		if(widget->extra && !widget->extra->mask.isEmpty()) {
+		QWExtra *extra = widget->d->extraData();
+		if(extra && !extra->mask.isEmpty()) {
 		    QRegion titlebar;
 		    {
 			RgnHandle rgn = qt_mac_get_rgn();
@@ -342,7 +346,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 			CopyRgn(rgn, titlebar.handle(TRUE));
 			qt_mac_dispose_rgn(rgn);
 		    }
-		    QRegion rpm = widget->extra->mask;
+		    QRegion rpm = extra->mask;
 		    /* This is a gross hack, something is weird with how the Mac is handling this region.
 		       clearly the first paintable pixel is becoming 0,0 of this region, so to compensate
 		       I just force 0,0 to be on - that way I know the region is offset like I want. Of
@@ -369,8 +373,9 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 		    y = px.v;
 		}
 
-		if(widget->extra && !widget->extra->mask.isEmpty()) {
-		    QRegion rpm = widget->extra->mask;
+		QWExtra *extra = widget->d->extraData();		
+		if(extra && !extra->mask.isEmpty()) {
+		    QRegion rpm = extra->mask;
 		    rpm.translate(x, y);
 		    CopyRgn(rpm.handle(TRUE), rgn);
 		} else if(force) {
@@ -387,12 +392,13 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 	case kWindowStructureRgn: {
 	    QRegion cr;
 	    if(widget) {
-		if(widget->extra && !widget->extra->mask.isEmpty()) {
+		QWExtra *extra = widget->d->extraData();
+		if(extra && !extra->mask.isEmpty()) {
 		    QRegion rin;
 		    CopyRgn(rgn, rin.handle(TRUE));
 		    QPoint g(widget->x(), widget->y());
 		    int offx = 0, offy = 0;
-		    QRegion rpm = widget->extra->mask;
+		    QRegion rpm = extra->mask;
 		    if(widget->testWFlags(Qt::WStyle_Customize) &&
 		       widget->testWFlags(Qt::WStyle_NoBorder)) {
 			QPoint rpm_tl = rpm.boundingRect().topLeft();
@@ -418,8 +424,9 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 	    return TRUE; }
 	case kWindowContentRgn: {
 	    if(widget) {
-		if(widget->extra && !widget->extra->mask.isEmpty()) {
-		    QRegion cr = widget->extra->mask;
+		QWExtra *extra = widget->d->extraData();
+		if(extra && !extra->mask.isEmpty()) {
+		    QRegion cr = extra->mask;
 		    QPoint g(widget->x(), widget->y());
 		    if(!widget->testWFlags(Qt::WStyle_Customize) ||
 		       !widget->testWFlags(Qt::WStyle_NoBorder)) {
@@ -641,10 +648,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	dskr = QRect(0, 0, w, h);
     } else {
 	if(QDesktopWidget *dsk = QApplication::desktop()) {
-	    int d = dsk->primaryScreen();
+	    int deskn = dsk->primaryScreen();
 	    if(parentWidget() && !parentWidget()->isDesktop())
-		d = dsk->screenNumber(parentWidget());
-	    dskr = dsk->screenGeometry(d);
+		deskn = dsk->screenNumber(parentWidget());
+	    dskr = dsk->screenGeometry(deskn);
 	}
     }
     int sw = dskr.width(), sh = dskr.height();                // screen size
@@ -857,13 +864,13 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    grp = GetWindowGroupOfClass(kDocumentWindowClass);
 #ifdef Q_WS_MACX
 	if(testWFlags(WStyle_StaysOnTop)) {
-	    createTLExtra();
-	    if(extra->topextra->group)
-		ReleaseWindowGroup(extra->topextra->group);
-	    CreateWindowGroup(kWindowActivationScopeNone, &extra->topextra->group);
-	    SetWindowGroupLevel(extra->topextra->group, kCGMaximumWindowLevel);
-	    SetWindowGroupParent(extra->topextra->group, GetWindowGroupOfClass(kAllWindowClasses));
-	    SetWindowGroup((WindowPtr)id, extra->topextra->group);
+	    d->createTLExtra();
+	    if(d->topData()->group)
+		ReleaseWindowGroup(d->topData()->group);
+	    CreateWindowGroup(kWindowActivationScopeNone, &d->topData()->group);
+	    SetWindowGroupLevel(d->topData()->group, kCGMaximumWindowLevel);
+	    SetWindowGroupParent(d->topData()->group, GetWindowGroupOfClass(kAllWindowClasses));
+	    SetWindowGroup((WindowPtr)id, d->topData()->group);
 	} else if(grp) {
 	    SetWindowGroup((WindowPtr)id, grp);
 	}
@@ -874,7 +881,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    SInt32 lvl;
 	    GetWindowGroupLevel(grpf, &lvl);
 	    const char *from = "Default";
-	    if(extra && extra->topextra && grpf == extra->topextra->group)
+	    if(d->topData() && grpf == d->topData()->group)
 		from = "Created";
 	    else if(grpf == grp)
 		from = "Copied";
@@ -1036,7 +1043,7 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
     setFocusPolicy(fp);
     setAcceptDrops(dropable);
     if(!capt.isNull()) {
-	extra->topextra->caption = QString::null;
+	d->topData()->caption = QString::null;
 	setCaption(capt);
     }
     if(showIt)
@@ -1113,6 +1120,7 @@ void QWidget::setFontSys(QFont *)
 void QWidget::setBackgroundColorDirect(const QColor &color)
 {
     bg_col = color;
+    QWExtra *extra = d->extraData();
     if(extra && extra->bg_pix) {		// kill the background pixmap
 	delete extra->bg_pix;
 	extra->bg_pix = 0;
@@ -1132,6 +1140,7 @@ static int allow_null_pixmaps = 0;
 void QWidget::setBackgroundPixmapDirect(const QPixmap &pixmap)
 {
     QPixmap old;
+    QWExtra *extra = d->extraData();
     if(extra && extra->bg_pix)
 	old = *extra->bg_pix;
     if(!allow_null_pixmaps && pixmap.isNull()) {
@@ -1151,8 +1160,8 @@ void QWidget::setBackgroundPixmapDirect(const QPixmap &pixmap)
 	if(extra && extra->bg_pix)
 	    delete extra->bg_pix;
 	else
-	    createExtra();
-	extra->bg_pix = new QPixmap(pm);
+	    d->createExtra();
+	d->extraData()->bg_pix = new QPixmap(pm);
     }
     update();
 }
@@ -1168,9 +1177,9 @@ void QWidget::setBackgroundEmpty()
 
 void QWidget::setCursor(const QCursor &cursor)
 {
-    createExtra();
-    delete extra->curs;
-    extra->curs = new QCursor(cursor);
+    d->createExtra();
+    delete d->extraData()->curs;
+    d->extraData()->curs = new QCursor(cursor);
     setWState( WState_OwnCursor );
 
     if(qApp && qApp->activeWindow() &&
@@ -1190,7 +1199,7 @@ void QWidget::setCursor(const QCursor &cursor)
 void QWidget::unsetCursor()
 {
     if(!isTopLevel()) {
-	if(extra) {
+	if(QWExtra *extra = d->extraData()) {
 	    delete extra->curs;
 	    extra->curs = 0;
 	}
@@ -1209,8 +1218,9 @@ void QWidget::unsetCursor()
 	    n = QApplication::overrideCursor();
 	} else {
 	    for(QWidget *p = this; p; p = p->parentWidget()) {
-		if(p->extra && p->extra->curs) {
-		    n = p->extra->curs;
+		QWExtra *extra = p->d->extraData();
+		if(extra && extra->curs) {
+		    n = extra->curs;
 		    break;
 		}
 	    }
@@ -1223,10 +1233,10 @@ void QWidget::unsetCursor()
 
 void QWidget::setCaption(const QString &cap)
 {
-    if(extra && extra->topextra && extra->topextra->caption == cap)
+    if(d->topData() && d->topData()->caption == cap)
 	return; // for less flicker
-    createTLExtra();
-    extra->topextra->caption = cap;
+    d->createTLExtra();
+    d->topData()->caption = cap;
     if(isTopLevel()) {
 	CFStringRef str = CFStringCreateWithCharacters(NULL, (UniChar *)cap.unicode(), cap.length());
 	SetWindowTitleWithCFString((WindowPtr)hd, str);
@@ -1237,14 +1247,14 @@ void QWidget::setCaption(const QString &cap)
 
 void QWidget::setIcon(const QPixmap &pixmap)
 {
-    if(extra && extra->topextra) {
-	delete extra->topextra->icon;
-	extra->topextra->icon = 0;
+    if(d->topData()) {
+	delete d->topData()->icon;
+	d->topData()->icon = 0;
     } else {
-	createTLExtra();
+	d->createTLExtra();
     }
     if(!pixmap.isNull())
-	extra->topextra->icon = new QPixmap(pixmap);
+	d->topData()->icon = new QPixmap(pixmap);
 #ifdef Q_WS_MACX
     if(isTopLevel()) {
 	if(qApp && qApp->mainWidget() == this) {
@@ -1277,8 +1287,8 @@ void QWidget::setIcon(const QPixmap &pixmap)
 
 void QWidget::setIconText(const QString &iconText)
 {
-    createTLExtra();
-    extra->topextra->iconText = iconText;
+    d->createTLExtra();
+    d->topData()->iconText = iconText;
 }
 
 void QWidget::grabMouse()
@@ -1413,9 +1423,9 @@ void QWidget::showWindow()
 	return;
 
     if(isTopLevel()) {
-	createTLExtra();
+	d->createTLExtra();
 	QDesktopWidget *dsk = QApplication::desktop();
-	if (!extra->topextra->is_moved && dsk) {
+	if (!d->topData()->is_moved && dsk) {
 	    int movex = x(), movey = y();
 	    QRect r = frameGeometry();
 	    QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
@@ -1518,13 +1528,13 @@ void QWidget::showMaximized()
 	QDesktopWidget *dsk = QApplication::desktop();
 	QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
 	SetRect(&bounds, avail.x(), avail.y(), avail.x() + avail.width(), avail.y() + avail.height());
-	if(QWExtra   *extra = extraData()) {
+	if(QWExtra   *extra = d->extraData()) {
 	    if(bounds.right - bounds.left > extra->maxw)
 		bounds.right = bounds.left + extra->maxw;
 	    if(bounds.bottom - bounds.top > extra->maxh)
 		bounds.bottom = bounds.top + extra->maxh;
 	}
-	if(QTLWExtra *tlextra = topData()) {
+	if(QTLWExtra *tlextra = d->topData()) {
 	    if(tlextra->normalGeometry.width() < 0)
 		tlextra->normalGeometry = geometry();
 	    if(fstrut_dirty)
@@ -1570,9 +1580,9 @@ void QWidget::showNormal()
     if(isDesktop()) //desktop is always visible
 	return;
     if(isTopLevel()) {
-	if(topData()->fullscreen) {
-	    reparent(0, topData()->savedFlags, QPoint(0,0));
-	    setGeometry(topData()->normalGeometry);
+	if(d->topData()->fullscreen) {
+	    reparent(0, d->topData()->savedFlags, QPoint(0,0));
+	    setGeometry(d->topData()->normalGeometry);
 	} else if(isMaximized()) {
 	    Rect bounds;
 	    ZoomWindow((WindowPtr)hd, inZoomIn, FALSE);
@@ -1582,8 +1592,8 @@ void QWidget::showNormal()
 	    CollapseWindow((WindowPtr)hd, FALSE);
 	}
     }
-    if(extra && extra->topextra)
-	extra->topextra->fullscreen = 0;
+    if(d->topData())
+	d->topData()->fullscreen = 0;
     dirtyClippedRegion(TRUE);
     show();
     QEvent e(QEvent::ShowNormal);
@@ -1670,12 +1680,12 @@ void QWidget::stackUnder(QWidget *w)
 void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 {
     if (isTopLevel() && isMove) {
-	createTLExtra();
-	extra->topextra->is_moved = 1;
+	d->createTLExtra();
+	d->topData()->is_moved = 1;
     }
     if(isDesktop())
 	return;
-    if(extra) {				// any size restrictions?
+    if(QWExtra *extra = d->extraData()) {	// any size restrictions?
 	if(isTopLevel()) {
 	    qt_mac_update_sizer(this);
 	    if(extra->maxw && extra->maxh && extra->maxw == extra->minw && extra->maxh == extra->minh)
@@ -1689,14 +1699,14 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 	h = QMAX(h,extra->minh);
 
 	// Deal with size increment
-	if(extra->topextra) {
-	    if(extra->topextra->incw) {
-		w = w/extra->topextra->incw;
-		w *= extra->topextra->incw;
+	if(QTLWExtra *top = d->topData()) {
+	    if(top->incw) {
+		w = w/top->incw;
+		w *= top->incw;
 	    }
-	    if(extra->topextra->inch) {
-		h = h/extra->topextra->inch;
-		h *= extra->topextra->inch;
+	    if(top->inch) {
+		h = h/top->inch;
+		h *= top->inch;
 	    }
 	}
     }
@@ -1806,11 +1816,11 @@ void QWidget::setMinimumSize(int minw, int minh)
     if(minw < 0 || minh < 0)
 	qWarning("Qt: QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
-    createExtra();
-    if(extra->minw == minw && extra->minh == minh)
+    d->createExtra();
+    if(d->extraData()->minw == minw && d->extraData()->minh == minh)
 	return;
-    extra->minw = minw;
-    extra->minh = minh;
+    d->extraData()->minw = minw;
+    d->extraData()->minh = minh;
     if(minw > width() || minh > height()) {
 	bool resized = testWState(WState_Resized);
 	resize(QMAX(minw,width()), QMAX(minh,height()));
@@ -1839,11 +1849,11 @@ void QWidget::setMaximumSize(int maxw, int maxh)
 	maxh = QMAX(maxh, 0);
     }
 #endif
-    createExtra();
-    if(extra->maxw == maxw && extra->maxh == maxh)
+    d->createExtra();
+    if(d->extraData()->maxw == maxw && d->extraData()->maxh == maxh)
 	return;
-    extra->maxw = maxw;
-    extra->maxh = maxh;
+    d->extraData()->maxw = maxw;
+    d->extraData()->maxh = maxh;
     if(maxw < width() || maxh < height()) {
 	bool resized = testWState(WState_Resized);
 	resize(QMIN(maxw,width()), QMIN(maxh,height()));
@@ -1856,16 +1866,16 @@ void QWidget::setMaximumSize(int maxw, int maxh)
 
 void QWidget::setSizeIncrement(int w, int h)
 {
-    createTLExtra();
-    extra->topextra->incw = w;
-    extra->topextra->inch = h;
+    d->createTLExtra();
+    d->topData()->incw = w;
+    d->topData()->inch = h;
 }
 
 void QWidget::setBaseSize(int w, int h)
 {
-    createTLExtra();
-    extra->topextra->basew = w;
-    extra->topextra->baseh = h;
+    d->createTLExtra();
+    d->topData()->basew = w;
+    d->topData()->baseh = h;
 }
 
 void QWidget::erase(int x, int y, int w, int h)
@@ -1884,6 +1894,7 @@ void QWidget::erase(const QRegion& reg)
     if(unclipped)
 	setWFlags(WPaintUnclipped);
     p.setClipRegion(reg);
+    QWExtra *extra = d->extraData();
     if(extra && extra->bg_pix) {
 	if(!extra->bg_pix->isNull()) {
 	    QPoint offset = backgroundOffset();
@@ -2021,7 +2032,7 @@ int QWidget::metric(int m) const
     return 0;
 }
 
-void QWidget::createSysExtra()
+void QWidgetPrivate::createSysExtra()
 {
     extra->has_dirty_area = FALSE;
     extra->child_serial = extra->clip_serial = 1;
@@ -2029,18 +2040,18 @@ void QWidget::createSysExtra()
     extra->macDndExtra = 0;
 }
 
-void QWidget::deleteSysExtra()
+void QWidgetPrivate::deleteSysExtra()
 {
 }
 
-void QWidget::createTLSysExtra()
+void QWidgetPrivate::createTLSysExtra()
 {
     extra->topextra->group = NULL;
     extra->topextra->is_moved = 0;
     extra->topextra->resizer = 0;
 }
 
-void QWidget::deleteTLSysExtra()
+void QWidgetPrivate::deleteTLSysExtra()
 {
     if(extra->topextra->group)
 	ReleaseWindowGroup(extra->topextra->group);
@@ -2059,7 +2070,7 @@ void QWidget::updateFrameStrut() const
 	return;
     }
     that->fstrut_dirty = FALSE;
-    QTLWExtra *top = that->topData();
+    QTLWExtra *top = that->d->topData();
     top->fleft = top->fright = top->ftop = top->fbottom = 0;
     if(isTopLevel()) {
 	Rect window_r, content_r;
@@ -2086,25 +2097,25 @@ void QWidget::setAcceptDrops(bool on)
     if((on && macDropEnabled) || (!on && !macDropEnabled))
 	return;
     macDropEnabled = on;
-    if(!on && !topLevelWidget()->extraData()) //short circuit
+    if(!on && !topLevelWidget()->d->extraData()) //short circuit
 	return;
-    topLevelWidget()->createExtra();
+    topLevelWidget()->d->createExtra();
     if(on)
-	qt_macdnd_register(topLevelWidget(),  topLevelWidget()->extraData());
+	qt_macdnd_register(topLevelWidget(),  topLevelWidget()->d->extraData());
     else
-	qt_macdnd_unregister(topLevelWidget(), topLevelWidget()->extraData());
+	qt_macdnd_unregister(topLevelWidget(), topLevelWidget()->d->extraData());
 }
 
 void QWidget::setMask(const QRegion &region)
 {
-    createExtra();
-    if(region.isEmpty() && extra->mask.isEmpty())
+    d->createExtra();
+    if(region.isEmpty() && d->extraData()->mask.isEmpty())
 	return;
 
     QRegion clp;
     if(isVisible())
 	clp = clippedRegion(FALSE);
-    extra->mask = region;
+    d->extraData()->mask = region;
     if(isVisible()) {
 	dirtyClippedRegion(TRUE);
 	clp ^= clippedRegion(FALSE);
@@ -2169,6 +2180,7 @@ void QWidget::propagateUpdates(bool update_rgn)
 */
 void QWidget::setRegionDirty(bool child)
 {
+    QWExtra *extra = d->extraData();
     if(!extra)
 	return;
     if(child) {
@@ -2189,7 +2201,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	return;
     if(dirty_myself && !wasDeleted) {
 	//dirty myself
-	if(extra) {
+	{
 	    setRegionDirty(FALSE);
 	    setRegionDirty(TRUE);
 	}
@@ -2262,7 +2274,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 */
 bool QWidget::isClippedRegionDirty()
 {
-    if(!extra || extra->clip_dirty)
+    if(!d->extraData() || d->extraData()->clip_dirty)
 	return TRUE;
     if(/*!isTopLevel() && */(parentWidget(TRUE) && parentWidget(TRUE)->isClippedRegionDirty()))
 	return TRUE;
@@ -2277,16 +2289,16 @@ CGContextRef QWidget::macCGContext(bool do_children) const
 {
     QWidget *that = (QWidget*)this;
     if(!extra)
-	that->createExtra();
+	that->d->createExtra();
     bool dirty = !ctx ||
-		 extra->clip_dirty || (do_children && extra->child_dirty) ||
-		 (do_children && !extra->ctx_children_clipped);
+		 d->extraData()->clip_dirty || (do_children && d->extraData()->child_dirty) ||
+		 (do_children && !d->extraData()->ctx_children_clipped);
     if(!ctx)
 	CreateCGContextForPort(GetWindowPort((WindowPtr)hd), &that->ctx);
     if(dirty) {
 	Rect r;
 	ValidWindowRect((WindowPtr)hd, &r);
-	extra->ctx_children_clipped = do_children;
+	d->extraData()->ctx_children_clipped = do_children;
 	QRegion reg = that->clippedRegion(do_children);
 	ClipCGContextToRegion(ctx, &r, reg.handle(TRUE));
     }
@@ -2299,8 +2311,8 @@ CGContextRef QWidget::macCGContext(bool do_children) const
 */
 uint QWidget::clippedSerial(bool do_children)
 {
-    createExtra();
-    return do_children ? extra->clip_serial : extra->child_serial;
+    d->createExtra();
+    return do_children ? d->extraData()->clip_serial : d->extraData()->child_serial;
 }
 
 /*!
@@ -2308,9 +2320,12 @@ uint QWidget::clippedSerial(bool do_children)
 */
 QRegion QWidget::clippedRegion(bool do_children)
 {
-    //the desktop doesn't participate in our clipping games
-    if(isDesktop()) {
-	createExtra();
+    if(wasDeleted || !isVisible() || qApp->closingDown() || qApp->startingUp())
+	return QRegion();
+
+    d->createExtra();
+    QWExtra *extra = d->extraData();
+    if(isDesktop()) {    //the desktop doesn't participate in our clipping games
 	if(!extra->clip_dirty && (!do_children || !extra->child_dirty)) {
 	    if(!do_children)
 		return extra->clip_sibs;
@@ -2320,10 +2335,6 @@ QRegion QWidget::clippedRegion(bool do_children)
 	return extra->clip_sibs = extra->clip_children = QRegion(0, 0, width(), height());
     }
 
-    if(wasDeleted || !isVisible() ||  qApp->closingDown() || qApp->startingUp())
-	return QRegion();
-
-    createExtra();
     if(!extra->clip_dirty && (!do_children || !extra->child_dirty)) {
 	if(!do_children)
 	    return extra->clip_sibs;
@@ -2395,10 +2406,12 @@ QRegion QWidget::clippedRegion(bool do_children)
 		    QWidget *cw = (QWidget *)obj;
 		    if(cw->isVisible() && !cw->isTopLevel() && sr.intersects(cw->geometry())) {
 			QRegion childrgn(cw->x(), cw->y(), cw->width(), cw->height());
-			if(cw->extra && !cw->extra->mask.isEmpty()) {
-			    mask = cw->extra->mask;
-			    mask.translate(cw->x(), cw->y());
-			    childrgn &= mask;
+			if(QWExtra *cw_extra = cw->d->extraData()) {
+			    if(!cw_extra->mask.isEmpty()) {
+				mask = cw_extra->mask;
+				mask.translate(cw->x(), cw->y());
+				childrgn &= mask;
+			    }
 			}
 			extra->clip_children -= childrgn;
 		    }
@@ -2431,10 +2444,12 @@ QRegion QWidget::clippedRegion(bool do_children)
 		    QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
 		    if(!sw->isTopLevel() && sw->isVisible() && extra->clip_sibs.contains(sr)) {
 			QRegion sibrgn(sr);
-			if(sw->extra && !sw->extra->mask.isEmpty()) {
-			    mask = sw->extra->mask;
-			    mask.translate(tmp.x(), tmp.y());
-			    sibrgn &= mask;
+			if(QWExtra *sw_extra = sw->d->extraData()) {
+			    if(!sw_extra->mask.isEmpty()) {
+				mask = sw_extra->mask;
+				mask.translate(tmp.x(), tmp.y());
+				sibrgn &= mask;
+			    }
 			}
 			extra->clip_sibs -= sibrgn;
 		    }
@@ -2473,6 +2488,15 @@ QRegion QWidget::clippedRegion(bool do_children)
 	chldrgns.translate(mp.x(), mp.y());
 	extra->clip_saved = extra->clip_sibs & chldrgns;
     }
+
+    qDebug("finally calculated %s::%s (%d)", name(), className(), do_children);
+    QVector<QRect> ars = extra->clip_saved.rects();
+    for(int i = 0; i < ars.count(); i++)
+	qDebug("%d %d %d %d", ars[i].x(), ars[i].y(), ars[i].width(), ars[i].height());
+    qDebug("other!!!!!!!!!!!!!!!!!!!!!!!");
+    ars = extra->clip_sibs.rects();
+    for(int i = 0; i < ars.count(); i++)
+	qDebug("%d %d %d %d", ars[i].x(), ars[i].y(), ars[i].width(), ars[i].height());
 
     //finally return the correct region
     if(do_children)

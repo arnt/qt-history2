@@ -28,6 +28,7 @@
 #include "qbuffer.h"
 #include "qstringlist.h"
 #include "qtextcodec.h"
+#include "qdesktopwidget.h"
 #include <stdlib.h>
 
 static UInt8 *str_buffer = NULL;

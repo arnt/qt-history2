@@ -22,6 +22,7 @@
 #include "qt_mac.h"
 #include "qpainter.h"
 #include "qcursor.h"
+#include "qevent.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -72,6 +73,17 @@ static const char* default_pm[] = {
 " X X X X X X ",
 "X X X X X X X",
 };
+
+#include "qwidget_p.h"
+class QExtraWidget : public QWidget
+{
+public:
+    inline QWExtra* extraData();
+    inline QTLWExtra* topData();
+};
+inline QWExtra* QExtraWidget::extraData() { return d->extraData(); }
+inline QTLWExtra* QExtraWidget::topData() { return d->topData(); }
+
 //functions
 extern uint qGlobalPostedEventsCount();
 OSErr FSpLocationFromFullPath(short, const void *, FSSpec *); //qsound_mac.cpp
@@ -438,13 +450,14 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     acceptact = FALSE;
     drag_received = FALSE;
     qt_mac_in_drag = TRUE;
-    if(!widget->extraData()->macDndExtra) //never too late I suppose..
-	qt_macdnd_register(widget,  widget->extraData());
+    QWExtra *extra = ((QExtraWidget*)widget)->extraData();
+    if(!extra->macDndExtra) //never too late I suppose..
+	qt_macdnd_register(widget, extra);
     set_drag_mode = mode;
     updateDragMode(theDrag);
     //kick off the drag by calling the callback ourselves first..
     qt_mac_tracking_handler(kDragTrackingEnterWindow, (WindowPtr)widget->hd,
-			     (void *)widget->extraData()->macDndExtra, theDrag);
+			     (void *)extra->macDndExtra, theDrag);
     //now let the mac take control..
     {
 	QMacBlockingFunction block;

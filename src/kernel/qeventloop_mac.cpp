@@ -13,6 +13,7 @@
 #include "qeventloop_p.h"
 #include "qeventloop.h"
 #include "qapplication.h"
+#include "qevent.h"
 #include "qt_mac.h"
 
 #if defined(QT_THREAD_SUPPORT)

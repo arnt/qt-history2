@@ -27,6 +27,7 @@
 #include <qradiobutton.h>
 #include <qcombobox.h>
 #include <qlistview.h>
+#include <qevent.h>
 #ifdef Q_WS_MAC
 #  include <qt_mac.h>
 #  include <qmacstyle_mac.h>
