@@ -141,8 +141,10 @@ uint QMenuBar::isCommand(QMenuItem *it)
     t.replace(QRegExp("\\.*$"), ""); //no ellipses
     //now the fun part
     uint ret = 0;
+#if 0
     if(t.find("about", 0, FALSE) == 0 && t.find(QRegExp("qt$", FALSE)) == -1) 
 	ret = kHICommandAbout;
+#endif
     if(t.find("config", 0, FALSE) == 0 || t.find("preference", 0, FALSE) == 0 || 
        t.find("options", 0, FALSE) == 0 || t.find("setting", 0, FALSE) == 0) 
 	ret = kHICommandPreferences;
