@@ -3064,13 +3064,15 @@ void EventList::setup()
 	if ( events.isEmpty() )
 	    return;
 	for ( QValueList<MetaDataBase::EventDescription>::Iterator it = events.begin(); it != events.end(); ++it ) {
-	    HierarchyItem *eventItem = new HierarchyItem( this, (*it).name, QString::null, QString::null );
+	    HierarchyItem *eventItem = new HierarchyItem( HierarchyItem::Event, this, (*it).name,
+							  QString::null, QString::null );
 	    eventItem->setOpen( TRUE );
 	    QStringList funcs = MetaDataBase::eventFunctions( editor->widget(),
 							      (*it).name,
 							      formWindow->project()->language() );
 	    for ( QStringList::Iterator fit = funcs.begin(); fit != funcs.end(); ++fit ) {
-		HierarchyItem *item = new HierarchyItem( eventItem, *fit, QString::null, QString::null );
+		HierarchyItem *item = new HierarchyItem( HierarchyItem::EventFunction, eventItem,
+							 *fit, QString::null, QString::null );
 		item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	    }
 #if 0 // ### for conversation from old to new
@@ -3083,7 +3085,8 @@ void EventList::setup()
 	sigs.remove( "destroyed()" );
 	QStrListIterator it( sigs );
 	while ( it.current() ) {
-	    HierarchyItem *eventItem = new HierarchyItem( this, it.current(), QString::null, QString::null );
+	    HierarchyItem *eventItem = new HierarchyItem( HierarchyItem::Event, this,
+							  it.current(), QString::null, QString::null );
 	    eventItem->setOpen( TRUE );
 	    QValueList<MetaDataBase::Connection> conns =
 		MetaDataBase::connections( formWindow, editor->widget(), formWindow->mainContainer() );
@@ -3091,7 +3094,8 @@ void EventList::setup()
 		if ( MetaDataBase::normalizeSlot( QString( (*cit).signal ) ) !=
 		     MetaDataBase::normalizeSlot( QString( it.current() ) ) )
 		    continue;
-		HierarchyItem *item = new HierarchyItem( eventItem, (*cit).slot, QString::null, QString::null );
+		HierarchyItem *item = new HierarchyItem( HierarchyItem::EventFunction, eventItem,
+							 (*cit).slot, QString::null, QString::null );
 		item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	    }
 	    ++it;
@@ -3117,13 +3121,7 @@ void EventList::contentsMouseDoubleClickEvent( QMouseEvent *e )
 	s = QString( editor->widget()->name() ) + "_" + i->text( 0 );
     }
 
-    HierarchyItem *item = new HierarchyItem( i, s, QString::null, QString::null );
-    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
-    item->setRenameEnabled( 0, TRUE );
-    setCurrentItem( item );
-    qApp->processEvents();
-    newItem = item;
-    item->startRename( 0 );
+    insertEntry( i, PixmapChooser::loadPixmap( "editslots.xpm" ), s );
 }
 
 void EventList::setCurrent( QWidget * )
@@ -3158,13 +3156,7 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	} else {
 	    s = QString( editor->widget()->name() ) + "_" + ( i->parent() ? i->parent() : i )->text( 0 );
 	}
-	HierarchyItem *item = new HierarchyItem( i->parent() ? i->parent() : i, s, QString::null, QString::null );
-	item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
-	item->setRenameEnabled( 0, TRUE );
-	setCurrentItem( item );
-	qApp->processEvents();
-	newItem = item;
-	item->startRename( 0 );
+	insertEntry( i->parent() ? i->parent() : i, PixmapChooser::loadPixmap( "editslots.xpm" ), s );
     } else if ( res == DEL_ITEM && i->parent() ) {
 	if ( MetaDataBase::hasEvents( formWindow->project()->language() ) ) {
 	    QListViewItem *p = i->parent();

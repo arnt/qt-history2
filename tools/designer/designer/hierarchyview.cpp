@@ -78,13 +78,15 @@ QListViewItem *newItem = 0;
 
 static QPluginManager<ClassBrowserInterface> *classBrowserInterfaceManager = 0;
 
-HierarchyItem::HierarchyItem( QListViewItem *parent, const QString &txt1, const QString &txt2, const QString &txt3 )
-    : QListViewItem( parent, txt1, txt2, txt3 )
+HierarchyItem::HierarchyItem( Type type, QListViewItem *parent,
+			      const QString &txt1, const QString &txt2, const QString &txt3 )
+    : QListViewItem( parent, txt1, txt2, txt3 ), typ( type )
 {
 }
 
-HierarchyItem::HierarchyItem( QListView *parent, const QString &txt1, const QString &txt2, const QString &txt3 )
-    : QListViewItem( parent, txt1, txt2, txt3 )
+HierarchyItem::HierarchyItem( Type type, QListView *parent,
+			      const QString &txt1, const QString &txt2, const QString &txt3 )
+    : QListViewItem( parent, txt1, txt2, txt3 ), typ( type )
 {
 }
 
@@ -95,7 +97,8 @@ void HierarchyItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
     g.setColor( QColorGroup::Foreground, Qt::black );
     g.setColor( QColorGroup::Text, Qt::black );
     QString txt = text( 0 );
-    if ( MainWindow::self->currProject()->language() == "C++" &&
+    if ( rtti() == Slot &&
+	 MainWindow::self->currProject()->language() == "C++" &&
 	 ( txt == "init()" || txt == "destroy()" ) ) {
 	listView()->setUpdatesEnabled( FALSE );
 	if ( txt == "init()" )
@@ -400,9 +403,9 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
     }
 
     if ( !parent )
-	item = new HierarchyItem( this, name, className, dbInfo );
+	item = new HierarchyItem( HierarchyItem::Widget, this, name, className, dbInfo );
     else
-	item = new HierarchyItem( parent, name, className, dbInfo );
+	item = new HierarchyItem( HierarchyItem::Widget, parent, name, className, dbInfo );
     if ( !parent )
 	item->setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
     else if ( o->inherits( "QLayoutWidget") )
@@ -571,12 +574,14 @@ void FunctionList::setup()
     if ( lIface ) {
 	QStringList defs = lIface->definitions();
 	for ( QStringList::Iterator dit = defs.begin(); dit != defs.end(); ++dit ) {
-	    HierarchyItem *itemDef = new HierarchyItem( this, tr( *dit ), QString::null, QString::null );
+	    HierarchyItem *itemDef = new HierarchyItem( HierarchyItem::DefinitionParent,
+							this, tr( *dit ), QString::null, QString::null );
 	    itemDef->setPixmap( 0, *folderPixmap );
 	    itemDef->setOpen( TRUE );
 	    QStringList entries = lIface->definitionEntries( *dit, formWindow->mainWindow()->designerInterface() );
 	    for ( QStringList::Iterator eit = entries.begin(); eit != entries.end(); ++eit ) {
-		HierarchyItem *item = new HierarchyItem( itemDef, *eit, QString::null, QString::null );
+		HierarchyItem *item = new HierarchyItem( HierarchyItem::Definition,
+							 itemDef, *eit, QString::null, QString::null );
 		item->setRenameEnabled( 0, TRUE );
 	    }
 	}
@@ -595,7 +600,7 @@ void FunctionList::refreshFunctions( bool doDelete )
     if ( doDelete ) {
 	QListViewItem *i = firstChild();
 	while ( i ) {
-	    if ( i->text( 0 ) == tr( "Functions" ) ) {
+	    if ( ( (HierarchyItem*)i )->rtti() == HierarchyItem::FunctionParent ) {
 		delete i;
 		break;
 	    }
@@ -604,21 +609,28 @@ void FunctionList::refreshFunctions( bool doDelete )
     }
 
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow );
-    HierarchyItem *itemFunctions = new HierarchyItem( this, tr( "Functions" ), QString::null, QString::null );
+    HierarchyItem *itemFunctions = new HierarchyItem( HierarchyItem::FunctionParent,
+						      this, tr( "Functions" ), QString::null, QString::null );
     itemFunctions->setPixmap( 0, *folderPixmap );
-    HierarchyItem *itemPrivate = new HierarchyItem( itemFunctions, tr( "private" ), QString::null, QString::null );
-    HierarchyItem *itemProtected = new HierarchyItem( itemFunctions, tr( "protected" ), QString::null, QString::null );
-    HierarchyItem *itemPublic = new HierarchyItem( itemFunctions, tr( "public" ), QString::null, QString::null );
+    HierarchyItem *itemPrivate = new HierarchyItem( HierarchyItem::Private, itemFunctions, tr( "private" ),
+						    QString::null, QString::null );
+    HierarchyItem *itemProtected = new HierarchyItem( HierarchyItem::Protected, itemFunctions, tr( "protected" ),
+						      QString::null, QString::null );
+    HierarchyItem *itemPublic = new HierarchyItem( HierarchyItem::Public, itemFunctions, tr( "public" ),
+						   QString::null, QString::null );
     QValueList<MetaDataBase::Slot>::Iterator it = --( slotList.end() );
     if ( !slotList.isEmpty() ) {
 	while ( TRUE ) {
 	    QListViewItem *item = 0;
 	    if ( (*it).access == "protected" )
-		item = new HierarchyItem( itemProtected, (*it).slot, QString::null, QString::null );
+		item = new HierarchyItem( HierarchyItem::Slot,
+					  itemProtected, (*it).slot, QString::null, QString::null );
 	    else if ( (*it).access == "private" )
-		item = new HierarchyItem( itemPrivate, (*it).slot, QString::null, QString::null );
+		item = new HierarchyItem( HierarchyItem::Slot,
+					  itemPrivate, (*it).slot, QString::null, QString::null );
 	    else // default is public
-		item = new HierarchyItem( itemPublic, (*it).slot, QString::null, QString::null );
+		item = new HierarchyItem( HierarchyItem::Slot,
+					  itemPublic, (*it).slot, QString::null, QString::null );
 	    item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	    if ( it == slotList.begin() )
 		break;
@@ -638,28 +650,40 @@ void FunctionList::setCurrent( QWidget * )
 
 void FunctionList::objectClicked( QListViewItem *i )
 {
-    if ( !i || !i->parent() )
+    if ( !i )
 	return;
-    if ( 	 i->parent()->text( 0 ) == tr( "private" ) ||
-		 i->parent()->text( 0 ) == tr( "protected" ) ||
-		 i->parent()->text( 0 ) == tr( "public" ) )
+    if ( ( (HierarchyItem*)i )->rtti() == HierarchyItem::Slot )
 	formWindow->mainWindow()->editFunction( i->text( 0 ) );
 }
 
-void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
+static HierarchyItem::Type getChildType( int type )
 {
-    QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
-    if ( !i )
-	return;
-    if ( i->text( 0 ) == tr( "Functions" ) )
-	return;
-    QListViewItem *it = i;
-    if ( i->parent() &&
-	 ( i->parent()->text( 0 ) == tr( "private" ) ||
-	   i->parent()->text( 0 ) == tr( "protected" ) ||
-	   i->parent()->text( 0 ) == tr( "public" ) ) )
-	it = i->parent();
-    HierarchyItem *item = new HierarchyItem( it, QString::null, QString::null, QString::null );
+    switch ( (HierarchyItem::Type)type ) {
+    case HierarchyItem::Widget:
+    case HierarchyItem::FunctionParent:
+	qWarning( "getChildType: Inserting childs dynamically to Widget or FunctionParent is not allwowed!" );
+	return (HierarchyItem::Type)type;
+    case HierarchyItem::Public:
+    case HierarchyItem::Protected:
+    case HierarchyItem::Private:
+    case HierarchyItem::Slot:
+	return HierarchyItem::Slot;
+    case HierarchyItem::DefinitionParent:
+    case HierarchyItem::Definition:
+	return HierarchyItem::Definition;
+    case HierarchyItem::Event:
+    case HierarchyItem::EventFunction:
+	return HierarchyItem::Event;
+    }
+    return (HierarchyItem::Type)type;
+}
+
+void HierarchyList::insertEntry( QListViewItem *i, const QPixmap &pix, const QString &s )
+{
+    HierarchyItem *item = new HierarchyItem( getChildType( ( (HierarchyItem*)i )->rtti() ), i, s,
+					     QString::null, QString::null );
+    if ( !pix.isNull() )
+	item->setPixmap( 0, pix );
     item->setRenameEnabled( 0, TRUE );
     setCurrentItem( item );
     ensureItemVisible( item );
@@ -668,18 +692,28 @@ void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
     item->startRename( 0 );
 }
 
+void FunctionList::contentsMouseDoubleClickEvent( QMouseEvent *e )
+{
+    QListViewItem *i = itemAt( contentsToViewport( e->pos() ) );
+    if ( !i )
+	return;
+    if ( ( (HierarchyItem*)i )->rtti() == HierarchyItem::FunctionParent )
+	return;
+    HierarchyItem::Type t = getChildType( i->rtti() );
+    if ( (int)t == i->rtti() )
+	i = i->parent();
+    insertEntry( i );
+}
+
 
 void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 {
     if ( !i )
 	return;
-    if ( i->text( 0 ) == tr( "Functions" ) )
+    if ( ( (HierarchyItem*)i )->rtti() == HierarchyItem::FunctionParent )
 	return;
 
-    if ( i->parent() &&
-	 ( i->parent()->text( 0 ) == tr( "private" ) ||
-	   i->parent()->text( 0 ) == tr( "protected" ) ||
-	   i->parent()->text( 0 ) == tr( "public" ) ) ) {
+    if ( ( (HierarchyItem*)i )->rtti() == HierarchyItem::Slot ) {
 	QPopupMenu menu;
 	const int PROPS = 1;
 	const int EDIT = 2;
@@ -695,13 +729,7 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	int res = menu.exec( pos );
 	popupOpen = FALSE;
 	if ( res == NEW_ITEM ) {
-	    HierarchyItem *item = new HierarchyItem( i->parent(), QString::null, QString::null, QString::null );
-	    item->setRenameEnabled( 0, TRUE );
-	    setCurrentItem( item );
-	    ensureItemVisible( item );
-	    qApp->processEvents();
-	    newItem = item;
-	    item->startRename( 0 );
+	    insertEntry( i->parent() );
 	} else if ( res == PROPS ) {
 	    EditSlots dlg( this, formWindow );
 	    dlg.setCurrentSlot( MetaDataBase::normalizeSlot( i->text( 0 ) ) );
@@ -721,23 +749,18 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     const int NEW_ITEM = 1;
     const int DEL_ITEM = 2;
     menu.insertItem( tr( "New" ), NEW_ITEM );
-    bool forceChild = FALSE;
-    if ( i->parent() && i->text( 0 ) != tr( "private" ) &&
-	 i->text( 0 ) != tr( "protected" ) && i->text( 0 ) != tr( "public" ) )
+    if ( i->parent() && ( (HierarchyItem*)i )->rtti() != HierarchyItem::Public &&
+	 ( (HierarchyItem*)i )->rtti() != HierarchyItem::Protected &&
+	 ( (HierarchyItem*)i )->rtti() != HierarchyItem::Private )
 	menu.insertItem( tr( "Delete" ), DEL_ITEM );
-    forceChild = i->text( 0 ) != tr( "protected" ) || i->text( 0 ) != tr( "public" );
     popupOpen = TRUE;
     int res = menu.exec( pos );
     popupOpen = FALSE;
     if ( res == NEW_ITEM ) {
-	HierarchyItem *item = new HierarchyItem( ( !forceChild && i->parent() ) ? i->parent() : i,
-						 QString::null, QString::null, QString::null );
-	item->setRenameEnabled( 0, TRUE );
-	setCurrentItem( item );
-	ensureItemVisible( item );
-	qApp->processEvents();
-	newItem = item;
-	item->startRename( 0 );
+	HierarchyItem::Type t = getChildType( i->rtti() );
+	if ( (int)t == i->rtti() )
+	    i = i->parent();
+	insertEntry( i );
     } else if ( res == DEL_ITEM ) {
 	QListViewItem *p = i->parent();
 	delete i;
@@ -756,7 +779,7 @@ void FunctionList::renamed( QListViewItem *i )
 
 void FunctionList::save( QListViewItem *p, QListViewItem *i )
 {
-    if ( i && ( p->text( 0 ) == tr( "protected" ) || p->text( 0 ) == tr( "public" ) || p->text( 0 ) == tr( "private" )) ) {
+    if ( i && ( (HierarchyItem*)i )->rtti() == HierarchyItem::Slot ) {
 	if ( i->text( 0 ).isEmpty() ) {
 	    delete i;
 	    return;

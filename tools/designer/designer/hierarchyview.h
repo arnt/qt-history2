@@ -37,8 +37,23 @@ struct ClassBrowserInterface;
 class HierarchyItem : public QListViewItem
 {
 public:
-    HierarchyItem( QListViewItem *parent, const QString &txt1, const QString &txt2, const QString &txt3 );
-    HierarchyItem( QListView *parent, const QString &txt1, const QString &txt2, const QString &txt3 );
+    enum Type {
+	Widget,
+	FunctionParent,
+	Public,
+	Protected,
+	Private,
+	Slot,
+	DefinitionParent,
+	Definition,
+	Event,
+	EventFunction
+    };
+
+    HierarchyItem( Type type, QListViewItem *parent,
+		   const QString &txt1, const QString &txt2, const QString &txt3 );
+    HierarchyItem( Type type, QListView *parent,
+		   const QString &txt1, const QString &txt2, const QString &txt3 );
 
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
     void updateBackColor();
@@ -48,6 +63,8 @@ public:
 
     void setText( int col, const QString &txt ) { if ( !txt.isEmpty() ) QListViewItem::setText( col, txt ); }
 
+    int rtti() const { return (int)typ; }
+
 private:
     void okRename( int col );
     void cancelRename( int col );
@@ -56,6 +73,7 @@ private:
     QColor backgroundColor();
     QColor backColor;
     QWidget *wid;
+    Type typ;
 
 };
 
@@ -79,6 +97,8 @@ public:
 	setUpdatesEnabled( TRUE );
 	QListView::drawContentsOffset( p, ox, oy, cx, cy, cw, ch );
     }
+
+    void insertEntry( QListViewItem *i, const QPixmap &pix = QPixmap(), const QString &s = QString::null );
 
 protected:
     void keyPressEvent( QKeyEvent *e );
