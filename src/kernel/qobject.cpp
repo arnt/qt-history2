@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#6 $
 **
 ** Implementation of QObject class
 **
 ** Author  : Haavard Nord
 ** Created : 930418
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qview.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#6 $";
 #endif
 
 
@@ -31,11 +31,13 @@ declare(QDictM,QConnection);			// dictionary of connections
 
 QMetaObject *QObject::metaObj = 0;
 
-QObject::QObject( QObject *parent )		// create object with parent
+QObject::QObject( QObject *parent, const char *name )
 {
     if ( !objectDict )				// will create object dict
 	initMetaObject();
     parentObj = parent;				// set parent
+    if ( name )
+	objname = name;				// set object name
     sender = 0;					// no sender yet
     connections = 0;				// no connections yet
     isPType = FALSE;				// assume not a parent type
@@ -218,7 +220,7 @@ bool QObject::unbind( const char *signal )	// disconnect from signal
 }
 
 
-char *QObject::className() const		// get name of class
+const char *QObject::className() const		// get name of class
 {
     return "QObject";
 }
