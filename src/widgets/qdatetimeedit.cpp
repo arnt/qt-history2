@@ -1798,7 +1798,6 @@ QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
     : QDateTimeEditBase( parent, name )
 {
     init();
-    updateButtons();
 }
 
 /*!
@@ -1827,8 +1826,6 @@ void QTimeEdit::init()
     setFocusProxy( d->ed );
     connect( d->controls, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
     connect( d->controls, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
-    connect( this, SIGNAL( valueChanged(const QTime&) ),
-	     SLOT( updateButtons() ) );
 
     d->ed->appendSection( QNumberSection( 0,0, TRUE, 0 ) );
     d->ed->appendSection( QNumberSection( 0,0, TRUE, 1 ) );
@@ -2518,9 +2515,13 @@ QSize QTimeEdit::minimumSizeHint() const
 }
 
 /*!
+    \internal
     Enables/disables the push buttons according to the min/max time
     for this widget.
 */
+
+// ### Remove in 4.0?
+
 void QTimeEdit::updateButtons()
 {
     if ( !isEnabled() )
