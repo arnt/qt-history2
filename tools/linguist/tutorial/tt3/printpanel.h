@@ -12,6 +12,7 @@
 class PrintPanel : public QVBoxWidget
 {
     Q_OBJECT
+
 public:
     PrintPanel(QWidget *parent = 0);
 };

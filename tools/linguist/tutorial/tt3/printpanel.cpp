@@ -6,21 +6,18 @@
 
 #include "printpanel.h"
 
+#include <QButtonGroup>
+#include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QGroupBox>
-#include <QButtonGroup>
 #include <QRadioButton>
 
 PrintPanel::PrintPanel(QWidget *parent)
     : QVBoxWidget(parent)
 {
-    setMargin( 10 );
-    setSpacing( 10 );
-
 /*
-    QLabel *lab = new QLabel( tr("<b>TROLL PRINT</b>"), this );
-    lab->setAlignment( AlignCenter );
+    QLabel *lab = new QLabel(tr("<b>TROLL PRINT</b>"), this);
+    lab->setAlignment(Qt::AlignCenter);
 */
 
     QRadioButton *but;

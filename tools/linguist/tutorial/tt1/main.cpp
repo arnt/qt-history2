@@ -4,22 +4,21 @@
 **
 ****************************************************************/
 
-#include <qapplication.h>
-#include <qpushbutton.h>
-#include <qtranslator.h>
+#include <QApplication>
+#include <QPushButton>
+#include <QTranslator>
 
-
-int main( int argc, char **argv )
+int main(int argc, char *argv[])
 {
-    QApplication app( argc, argv );
+    QApplication app(argc, argv);
 
-    QTranslator translator( 0 );
-    translator.load( "tt1_la", "." );
-    app.installTranslator( &translator );
+    QTranslator translator;
+    translator.load("tt1_la", ".");
+    app.installTranslator(&translator);
 
-    QPushButton hello( QPushButton::tr("Hello world!"), 0 );
+    QPushButton hello(QPushButton::tr("Hello world!"));
 
-    app.setMainWidget( &hello );
+    app.setMainWidget(&hello);
     hello.show();
     return app.exec();
 }

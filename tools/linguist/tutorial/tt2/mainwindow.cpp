@@ -8,13 +8,12 @@
 #include "mainwindow.h"
 
 #include <QApplication>
-#include <QMenuBar>
 #include <QMenu>
+#include <QMenuBar>
 
-MainWindow::MainWindow(QWidget *parent, const char *name)
+MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    setObjectName(name);
     ArrowPad *ap = new ArrowPad(this);
     setCentralWidget(ap);
 
