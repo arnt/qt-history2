@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#137 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#138 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#137 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#138 $");
 
 // Motif style parameters
 
@@ -145,6 +145,16 @@ static QPopupMenuExtra * lookInPMDict( const QPopupMenu *that )
   <img src=qpopmenu-m.gif> <img src=qpopmenu-w.gif>
 
   \sa QMenuBar
+*/
+
+
+/*! \fn void QPopupMenu::aboutToShow()
+  
+  This signal is emited just before the popup menu is displayed.  You
+  can connect it to any slot that sets up the menu contents (e.g. to
+  ensure that the right items are enabled).
+
+  \sa setItemEnabled() setItemChecked() insertItem() removeItem()
 */
 
 
@@ -932,6 +942,7 @@ void QPopupMenu::setFont( const QFont &font )
 
 void QPopupMenu::show()
 {
+    emit aboutToShow();
     if ( badSize )
 	updateSize();
     QWidget::show();

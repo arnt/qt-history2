@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#36 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#37 $
 **
 ** Definition of QPopupMenu class
 **
@@ -27,7 +27,7 @@ public:
 
     void	popup( const QPoint & pos, int indexAtPoint = 0 );// open popup
     void	updateItem( int id );
-    
+
     void	setCheckable( bool );
     bool	isCheckable() const;
 
@@ -44,6 +44,7 @@ signals:
     void	highlighted( int itemId );
     void	activatedRedirect( int itemId );// to parent menu
     void	highlightedRedirect( int itemId );
+    void	aboutToShow();
 
 protected:
     int		cellHeight( int );
