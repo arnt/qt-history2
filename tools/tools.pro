@@ -7,4 +7,4 @@ unix:SUBDIRS	= designer \
 		  linguist \
 		  qtconfig
 CONFIG+=ordered
-REQUIRES=full-config
+REQUIRES=full-config nocrosscompiler

@@ -1321,6 +1321,7 @@ Qt/Embedded only:
     -accel-mach64 ...... Enable Mach64 acceleration.
     -accel-matrox ...... Enable Matrox MGA acceleration.
     -qvfb .............. Enable X11-based Qt Virtual Frame Buffer.
+    -no-qvfb ........... Disable X11-based Qt Virtual Frame Buffer.
     -vnc ............... Enable VNC server (requires network module).
 
 EOF

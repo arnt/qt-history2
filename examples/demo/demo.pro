@@ -65,4 +65,4 @@ DEPENDPATH	= ../../include
 INTERFACES	+= dnd/dndbase.ui \
 		   widgets/widgetsbase.ui
 unix:LIBS += -lm
-REQUIRES=full-config
+REQUIRES=full-config nocrosscompiler
