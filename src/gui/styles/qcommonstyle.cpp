@@ -993,6 +993,66 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             p->setBrush(Qt::NoBrush);
         }
         break;
+    case CE_TabBarTab:
+        if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
+            if (tab->shape == QTabBar::TriangularAbove || tab->shape == QTabBar::TriangularBelow) {
+                QBrush oldBrush = p->brush();
+                QPen oldPen = p->pen();
+                // triangular, above or below
+                int y;
+                int x;
+                QPointArray a(10);
+                a.setPoint(0, 0, -1);
+                a.setPoint(1, 0, 0);
+                y = tab->rect.height() - 2;
+                x = y / 3;
+                a.setPoint(2, x++, y - 1);
+                a.setPoint(3, x++, y);
+                a.setPoint(3, x++, y++);
+                a.setPoint(4, x, y);
+
+                int i;
+                int right = tab->rect.width() - 1;
+                for (i = 0; i < 5; ++i)
+                    a.setPoint(9 - i, right - a.point(i).x(), a.point(i).y());
+
+                if (tab->shape == QTabBar::TriangularAbove)
+                    for (i = 0; i < 10; ++i)
+                        a.setPoint(i, a.point(i).x(), tab->rect.height() - 1 - a.point(i).y());
+
+                a.translate(tab->rect.left(), tab->rect.top());
+
+                if (tab->state & Style_Selected)
+                    p->setBrush(tab->palette.base());
+                else
+                    p->setBrush(tab->palette.background());
+                p->setPen(tab->palette.foreground());
+                p->drawPolygon(a);
+                p->setPen(oldPen);
+                p->setBrush(oldBrush);
+            }
+        }
+        break;
+    case CE_TabBarLabel:
+        if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
+            QRect tr = tab->rect;
+            if (tab->state & Style_Selected)
+                tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_DefaultFrameWidth, widget));
+
+            int alignment = Qt::AlignCenter | Qt::ShowPrefix;
+            if (!styleHint(SH_UnderlineAccelerator, widget))
+                alignment |= Qt::NoAccel;
+            drawItem(p, tr, alignment, tab->palette, tab->state & Style_Enabled, tab->text);
+
+            if (tab->state & Style_HasFocus && !tab->text.isEmpty()) {
+                QStyleOptionFocusRect fropt(0);
+                fropt.rect = tab->rect;
+                fropt.palette = tab->palette;
+                fropt.state = Style_Default;
+                drawPrimitive(PE_FocusRect, &fropt, p, widget);
+            }
+        }
+        break;
     default:
         break;
     }

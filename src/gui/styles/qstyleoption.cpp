@@ -142,3 +142,22 @@ void QStyleOption::init(const QWidget *w)
 
     The current default is 0.
 */
+
+/*
+    \class QStyleOptionFocusRect qstyleoption.h
+    \brief QStyleOptionFocusRect describes the parameters for drawing a focus
+    rect with QStyle.
+    \ingroup appearance
+*/
+
+/*!
+  \fn QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
+
+  Construct a QStyleOptionFocusRect with version number \a version
+*/
+
+/*!
+    \property QStyleOptionFocusRect::backgroundColor
+
+    \brief The background color on which the focus rect is being drawn.
+*/

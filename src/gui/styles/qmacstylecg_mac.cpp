@@ -459,7 +459,6 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
         ret = 4;
         break;
     case PM_TitleBarHeight: {
-        /*
         if (!widget)
             break;
         const QTitleBar *titlebar = static_cast<const QTitleBar *>(widget);
@@ -479,13 +478,13 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
         }
         wdi.titleHeight = titlebar->height();
         wdi.titleWidth = titlebar->width();
-        HIShapeRef region;
-        HIThemeGetWindowShape(qt_glb_mac_rect(titlebar->rect()), &wdi, kWindowTitleBarRgn, &region);
+        QCFType<HIShapeRef> region;
+        HIRect hirect = qt_hirectForQRect(titlebar->rect());
+        HIThemeGetWindowShape(&hirect, &wdi, kWindowTitleBarRgn, &region);
         HIRect rect;
         HIShapeGetBounds(region, &rect);
-        CFRelease(region);
         ret = int(rect.size.height);
-         break;*/ }
+         break; }
     default:
         ret = QWindowsStyle::pixelMetric(metric, widget);
         break;
@@ -1104,6 +1103,60 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
         break;
     case CE_ToolBoxTab:
         QCommonStyle::drawControl(ce, opt, p, w);
+        break;
+    case CE_TabBarTab:
+        if (const QStyleOptionTab *tabOpt = qt_cast<const QStyleOptionTab *>(opt)) {
+            HIThemeTabDrawInfo tdi;
+            tdi.version = qt_mac_hitheme_version;
+            tdi.style = kThemeTabNonFront;
+            if (tabOpt->state & Style_Selected) {
+                if(!qAquaActive(tabOpt->palette))
+                    tdi.style = kThemeTabFrontUnavailable;
+                else if(!(tabOpt->state & Style_Enabled))
+                    tdi.style = kThemeTabFrontInactive;
+                else
+                    tdi.style = kThemeTabFront;
+            } else if (!qAquaActive(tabOpt->palette)) {
+                tdi.style = kThemeTabNonFrontUnavailable;
+            } else if( !(tabOpt->state & Style_Enabled)) {
+                tdi.style = kThemeTabNonFrontInactive;
+            } else if (tabOpt->state & (Style_Sunken | Style_MouseOver)
+                       == (Style_Sunken | Style_MouseOver)) {
+                tdi.style = kThemeTabNonFrontPressed;
+            }
+            if (tabOpt->shape == QTabBar::RoundedAbove || tabOpt->shape == QTabBar::TriangularAbove)
+                tdi.direction = kThemeTabNorth;
+            else
+                tdi.direction = kThemeTabSouth;
+            tdi.size = kHIThemeTabSizeNormal;
+            if (tabOpt->state & Style_HasFocus)
+                tdi.adornment = kHIThemeTabAdornmentFocus;
+            else
+                tdi.adornment = kHIThemeTabAdornmentNone;
+            QRect tabrect = tabOpt->rect;
+            tabrect.setHeight(tabrect.height() + pixelMetric(PM_TabBarBaseOverlap, w));
+            HIRect hirect = qt_hirectForQRect(tabrect, p);
+            HIThemeDrawTab(&hirect, &tdi, cg, kHIThemeOrientationNormal, 0);
+            if (!(opt->state & Style_Selected)) {
+                HIThemeTabPaneDrawInfo tpdi;
+                tpdi.version = 0;
+                tpdi.state = tds;
+                tpdi.direction = tdi.direction;
+                tpdi.size = tdi.size;
+                const int FUDGE = 20;
+                QRect panerect(tabOpt->rect.x() - FUDGE, tabOpt->rect.bottom() - 2,
+                               2 * FUDGE + tabOpt->rect.width(),
+                               pixelMetric(PM_TabBarBaseHeight, w));
+                if (tdi.direction == kThemeTabSouth)
+                    panerect.moveBy(0, (-tabOpt->rect.height() + 2));
+                p->save();
+                p->setClipRect(tabOpt->rect.x(), panerect.y(), tabOpt->rect.width(),
+                               panerect.height());
+                hirect = qt_hirectForQRect(panerect, p);
+                HIThemeDrawTabPane(&hirect, &tpdi, cg, kHIThemeOrientationNormal);
+                p->restore();
+            }
+        }
         break;
     default:
         QWindowsStyle::drawControl(ce, opt, p, w);

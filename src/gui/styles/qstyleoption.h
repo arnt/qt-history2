@@ -46,6 +46,7 @@ struct QStyleOptionFocusRect  : public QStyleOption {
     enum { Type = SO_FocusRect };
     QColor backgroundColor;
     QStyleOptionFocusRect(int version) : QStyleOption(version, SO_FocusRect) {}
+    QDOC_PROPERTY(QColor backgroundColor);
 };
 
 struct QStyleOptionFrame : public QStyleOption {
@@ -74,7 +75,7 @@ struct QStyleOptionButton : public QStyleOption {
 
 struct QStyleOptionTab : public QStyleOption {
     enum { Type = SO_Tab };
-    QTabBar::Shape tabshape;
+    QTabBar::Shape shape;
     QString text;
     QIconSet icon;
     QStyleOptionTab(int version) : QStyleOption(version, SO_Tab) {}

@@ -12,16 +12,17 @@
  **
  ****************************************************************************/
 
-#include "qtabbar.h"
-#include "qevent.h"
+#include "qapplication.h"
 #include "qbitmap.h"
+#include "qcursor.h"
+#include "qevent.h"
+#include "qiconset.h"
+#include "qpainter.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
+#include "qtabbar.h"
 #include "qtoolbutton.h"
 #include "qtooltip.h"
-#include "qapplication.h"
-#include "qstyle.h"
-#include "qpainter.h"
-#include "qiconset.h"
-#include "qcursor.h"
 #include <private/qinternal_p.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -74,12 +75,34 @@ public:
     void layoutTabs();
 
     void makeVisible(int index);
-
+    QStyleOptionTab getStyleOption(int tab) const;
 };
 
 
 #define d d_func()
 #define q q_func()
+QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
+{
+    QStyleOptionTab opt(0);
+    const QTabBarPrivate::Tab *ptab = &tabList.at(tab);
+    opt.rect = q->tabRect(tab);
+    opt.palette = q->palette();
+    bool isCurrent = tab == currentIndex;
+    opt.state = QStyle::Style_Default;
+    // must handle mouse down...
+    if (isCurrent)
+        opt.state |= QStyle::Style_Selected;
+    if (isCurrent && q->hasFocus())
+        opt.state |= QStyle::Style_HasFocus;
+    if (q->isEnabled() && ptab->enabled)
+        opt.state |= QStyle::Style_Enabled;
+    if (opt.rect.contains(QCursor::pos()))
+        opt.state |= QStyle::Style_MouseOver;
+    opt.shape = shape;
+    opt.text = ptab->text;
+    opt.icon = ptab->icon;
+    return opt;
+}
 
 
 
@@ -135,7 +158,7 @@ public:
     \i tabSizeHint() calcuates the size of a tab.
     \i tabInserted() notifies that a new tab was added.
     \i tabRemoved() notifies that a tab was removed.
-    \i tabLayoutChange() notifies that the tabs were relayouted.
+    \i tabLayoutChange() notifies that the tabs have been re-laid out.
     \i paintEvent() paints all tabs.
     \endlist
 
@@ -258,7 +281,6 @@ void QTabBarPrivate::makeVisible(int index)
     q->update();
 
 }
-
 
 void QTabBarPrivate::scrollTabs()
 {
@@ -663,20 +685,11 @@ void QTabBar::resizeEvent(QResizeEvent *)
  */
 void QTabBar::paintEvent(QPaintEvent *)
 {
-    //### use style
     QPainter p(this);
     for (int i = 0; i < d->tabList.count(); ++i) {
-        const QTabBarPrivate::Tab *tab = &d->tabList.at(i);
-        QRect r = tabRect(i);
-        p.setPen(i == d->currentIndex ? Qt::white : Qt::black);
-        p.setBrush(i == d->currentIndex ? Qt::black : Qt::white);
-        p.drawRect(r);
-        p.drawText(r, Qt::AlignCenter | Qt::ShowPrefix, tab->text);
-        if (i == d->currentIndex && hasFocus()) {
-            r.addCoords(2, 2, -2, -2);
-            p.setBrush(Qt::NoBrush);
-            p.drawRect(r);
-        }
+        QStyleOptionTab opt = d->getStyleOption(i);
+        style().drawControl(QStyle::CE_TabBarTab, &opt, &p, this);
+        style().drawControl(QStyle::CE_TabBarLabel, &opt, &p, this);
     }
 }
 

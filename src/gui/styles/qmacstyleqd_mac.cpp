@@ -1398,6 +1398,60 @@ void QMacStyleQD::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
     case CE_ToolBoxTab:
         QCommonStyle::drawControl(ce, opt, p, widget);
         break;
+    case CE_TabBarTab:
+        if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
+            ThemeTabStyle tts = kThemeTabNonFront;
+            if (tab->state & Style_Selected) {
+                if (!qAquaActive(tab->palette))
+                    tts = kThemeTabFrontUnavailable;
+                else if (!(tab->state & Style_Enabled))
+                    tts = kThemeTabFrontInactive;
+                else
+                    tts = kThemeTabFront;
+            } else if (!qAquaActive(tab->palette)) {
+                tts = kThemeTabNonFrontUnavailable;
+            } else if (!(tab->state & Style_Enabled)) {
+                tts = kThemeTabNonFrontInactive;
+            } else if (tab->state & (Style_Sunken | Style_MouseOver)
+                       == (Style_Sunken | Style_MouseOver)) {
+                tts = kThemeTabNonFrontPressed;
+            }
+            ThemeTabDirection ttd = kThemeTabNorth;
+            if (tab->shape == QTabBar::RoundedBelow || tab->shape == QTabBar::TriangularBelow)
+                ttd = kThemeTabSouth;
+            QRect tabr(tab->rect.x(), tab->rect.y(), tab->rect.width(),
+                       tab->rect.height() + pixelMetric(PM_TabBarBaseOverlap, widget));
+            if (ttd == kThemeTabSouth)
+                tabr.moveBy(0, -pixelMetric(PM_TabBarBaseOverlap, widget));
+            static_cast<QMacStyleQDPainter *>(p)->setport();
+            DrawThemeTab(qt_glb_mac_rect(tabr, p, false), tts, ttd, 0, 0);
+            if (!(tab->state & Style_Selected)) {
+                //The "fudge" is just so the left and right side doesn't
+                //get drawn onto my widget (not sure it will really happen)
+                const int fudge = 20;
+                QRect pr = QRect(tab->rect.x() - fudge, tab->rect.bottom() - 2,
+                                 tab->rect.width() + (fudge * 2),
+                                 pixelMetric(PM_TabBarBaseHeight, widget));
+                if (ttd == kThemeTabSouth)
+                    pr.moveBy(0, -(tab->rect.height() + 2));
+                p->save();
+                p->setClipRect(QRect(pr.x() + fudge, pr.y(), pr.width() - (fudge * 2), pr.height()));
+                static_cast<QMacStyleQDPainter *>(p)->setport();
+                ThemeDrawState tabpane_tds = kThemeStateActive;
+                if (qAquaActive(tab->palette)) {
+                    if (!(tab->state & Style_Enabled))
+                        tabpane_tds = kThemeStateUnavailable;
+                } else {
+                    if (!(tab->state & Style_Enabled))
+                        tabpane_tds = kThemeStateInactive;
+                    else
+                        tabpane_tds = kThemeStateUnavailableInactive;
+                }
+                DrawThemeTabPane(qt_glb_mac_rect(pr, p), tabpane_tds);
+                p->restore();
+            }
+        }
+        break;
     default:
         QWindowsStyle::drawControl(ce, opt, p, widget);
     }
