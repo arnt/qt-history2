@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#29 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#30 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -1263,7 +1263,6 @@ void *QGLContext::tryVisual( const QGLFormat& f )
         }
 	if ( f.stereo() ) {
 	    spec[i++] = GLX_STEREO;
-	    spec[i++] = TRUE;
 	}
     } else {
 	spec[i++] = GLX_BUFFER_SIZE;
