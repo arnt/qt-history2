@@ -49,4 +49,4 @@ sql {
 TARGET		= demo
 INCLUDEPATH	+= .
 DEPENDPATH	= ../../include
-INTERFACES	= dnd/dndbase.ui
+INTERFACES	+= dnd/dndbase.ui
