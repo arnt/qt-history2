@@ -207,7 +207,7 @@ QSize DemoViewer::sizeHint() const
 
 void DemoViewer::itemSelected()
 {
-    QString name = listView->model()->data(listView->selectionModel()->currentItem()).toString();
+    QString name = listView->model()->data(listView->selectionModel()->currentIndex()).toString();
 
     Q_ASSERT(!name.isEmpty());
     DemoWidget *demoWidget = widgetByName[name];
@@ -238,9 +238,9 @@ void DemoViewer::fillModeChanged(int mode)
 
 void DemoViewer::showEvent(QShowEvent *)
 {
-    if (!listView->currentItem().isValid()) {
-        listView->selectionModel()->setCurrentItem(listView->model()->index(0, 0),
-                                                   QItemSelectionModel::ClearAndSelect);
+    if (!listView->currentIndex().isValid()) {
+        listView->selectionModel()->setCurrentIndex(listView->model()->index(0, 0),
+						    QItemSelectionModel::ClearAndSelect);
     }
     itemSelected();
 }
