@@ -1,12 +1,12 @@
 #include <QtGui>
 
-#include "dialog.h"
+#include "client.h"
 
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
-    Dialog dialog;
-    app.setMainWidget(&dialog);
-    dialog.show();
+    Client client;
+    app.setMainWidget(&client);
+    client.show();
     return app.exec();
 }
