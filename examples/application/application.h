@@ -14,8 +14,6 @@
 #include <qmainwindow.h>
 
 class QTextEdit;
-class QToolBar;
-class QPopupMenu;
 
 class ApplicationWindow: public QMainWindow
 {
@@ -42,7 +40,6 @@ private slots:
 private:
     QPrinter *printer;
     QTextEdit *e;
-    QToolBar *fileTools;
     QString filename;
 };
 

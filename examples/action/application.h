@@ -14,7 +14,6 @@
 #include <qmainwindow.h>
 
 class QTextEdit;
-class QAction;
 
 class ApplicationWindow: public QMainWindow
 {

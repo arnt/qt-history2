@@ -1,0 +1,165 @@
+/*
+$Id$
+*/
+
+/*! \page simple-application-action.html
+
+\title Walkthrough: A Simple Application with Actions
+
+While reading through the implementation of the 
+<A HREF="simple-application.html#ApplicationWindow">\e ApplicationWindow constructor</A> 
+you have maybe asked yourself: "The \e fileOpen tool-button
+in the toolbar does exactly the same thing as the \e File->Open menu-entry.
+Their "What's this?" help is the same, the icons common, the same
+slot is connected to both them ...
+Shouldn't it be possible to save some code and don't invent
+the wheel twice?"
+
+Indeed, it is. In modern GUI-application programming you will use
+so called \e actions to do this. An action collects all the
+common items (icon, tooltip, menu-entry text, shortcuts, "What's this?" help-text
+and what to do -- the actual action) together. Whenever this action is required
+(in the toolbar, as a menu-entry) all the programmer has to do is
+to insert the action in the respective toolbar or menu. 
+Its appearance (as a tool-button or a menu-entry) is something, the
+programmer does not has to worry about -- it's obvious from the context.
+
+With the \l QAction class, Qt provides you with everything you need 
+to use this striking concept. So let's write an 
+\e ApplicationWindow constructor that makes use of actions.
+
+
+<h2>The ApplicationWindow constructor with Actions</h2>
+
+\dontinclude action/application.cpp
+
+<a name="ApplicationWindow"></a>
+\skipto ApplicationWindow::ApplicationWindow
+\printline ApplicationWindow::ApplicationWindow
+\printuntil QPrinter
+
+Nothing new so far. But with the next line...
+
+\printuntil fileQuitAction;
+
+... the difference becomes obvious. Here we define the actions our application
+is supposed to undertake: it should create a new editor-instance (\e fileNewAction),
+open a file, save a file, save it under a different name, print the
+content of the editor, close an editor window and quit the entire application.
+
+\printline "New"
+
+The first one has the name \e new and can be reached via the accelerator \e Ctrl+N.
+When used as a menu-entry it will provide the entry \e New and can be reached 
+via the accelerator \e Alt-N (\e &N). As we won't set a special tooltip-text, the
+text \e New with the accelerator \e Ctrl+N in brackets will show up when
+a user holds the mouse over a tool-button and does nothing.
+
+\printline newDoc()
+
+When the action becomes activated (the user chooses the respective 
+menu-entry or clicks an appropriate tool-button), it connects to the
+<A HREF="simple-application.html#newDoc()">\e newDoc()</A> slot.  
+
+\printuntil choose()
+
+The same way we create an \e Open \e File action and connect its \e activated() signal
+to the <A HREF="simple-application.html#choose()">\e choose()</A> slot.
+There is however a novelty: the \e fileOpenAction (unlike \e fileNewAction)
+is assigned a pixmap (the one included with the \e fileopen.xpm file). 
+
+\printuntil </p>
+
+For the \e fileOpenAction we want to provide "What's This?" help and therefore
+define an appropriate rich-text. 
+
+\printline defaultFactory()
+
+As \e fileOpenText makes use of a pixmap, we have to inform the rich-text
+engine that it should provide <EM>QPixmap( fileopen )</EM> whenever a rich-text
+asks for an image-source named \e fileopen.
+
+\printline setWhatsThis( fileOpenText )
+
+Finally we assign "What's this?" help to the \e fileOpenAction.
+
+\printuntil setWhatsThis( fileSaveText ); 
+
+The same way we create a \e Save \e File action with a pixmap, "What's this?" help
+and the more common items like menu-entry text and accelerator. Note
+that we don't have to bother with the rich-text engine because the
+pixmap is not used in \e fileSaveText. When activated
+the \e fileSaveAction will call the 
+<A HREF="simple-application.html#save()">\e save()</A> slot. 
+
+\printuntil setWhatsThis( fileSaveText ); 
+
+For the \e Save \e File \e As action we reuse \e fileSaveText but do without a
+pixmap. On activation, this action calls the 
+<A HREF="simple-application.html#saveAs()">\e saveAs()</A> slot.   
+
+\printuntil setWhatsThis( filePrintText )
+
+The \e Print \e File action -- with an \e activated() signal connected to 
+<A HREF="simple-application.html#printer">\e print()</A> -- looks very much
+like \e fileSaveText.
+
+\printuntil close()
+\printuntil closeAllWindows()
+
+For the last two actions, \e fileCloseAction and \e fileQuitAction, we do it the
+easy way: no "What's this?", no pixmaps. Thus we have defined all the
+actions we need.
+
+The only thing left is to use them as menu- and toolbar-entries. 
+
+\printuntil "File Operations" 
+
+First we create a toolbar in \e this window
+and define a caption for it. 
+
+As actions that weren't assigned a pixmap are quite useless in a toolbar
+we'll restrict ourselves to three tool-buttons for opening, saving 
+and printing files.
+
+\printline fileOpenAction
+
+The first tool-button is easily installed: All we have to do 
+is to add the \e fileOpenAction to the \e fileTools toolbar.
+
+\printuntil filePrintAction
+
+The same easy procedure applies to \e fileSaveAction and \e filePrintAction.
+
+\printline whatsThisButton
+
+To provide the user with a means to toggle his or her mouse into "What's this?" mode,
+we need a fourth icon in the toolbar: the (predefined) "What's this?" button.
+
+
+\printuntil menuBar()
+
+Next we install the newly created \e file popup-menu in the menu bar.
+After we're done with this, we populate the menu ...
+
+\printuntil fileSaveAsAction
+
+... with some menu-entries derived from actions, ...
+
+\printline insertSeparator
+
+... a separator ...
+
+\printuntil fileQuitAction
+
+... and more actions and separators.
+
+The rest of the constructor ...
+
+\printuntil }
+
+... is exactly the same as in the 
+<A HREF="simple-application.html#common_constructor">tool-button and menu-entry version</A>.
+
+
+*/

@@ -40,7 +40,7 @@ ApplicationWindow::ApplicationWindow()
     printer = new QPrinter;
     QPixmap openIcon, saveIcon, printIcon;
 
-    fileTools = new QToolBar( this, "file operations" );
+    QToolBar * fileTools = new QToolBar( this, "file operations" );
     fileTools->setLabel( "File Operations" );
 
     openIcon = QPixmap( fileopen );
@@ -70,8 +70,8 @@ ApplicationWindow::ApplicationWindow()
 
     QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", openIcon );
 
-    const char * fileSaveText = "<p>Click this button to save the file you are "
-                 "editing.  You will be prompted for a file name.\n"
+    const char * fileSaveText = "<p>Click this button to save the file you "
+                 "are editing. You will be prompted for a file name.\n"
                  "You can also select the <b>Save</b> command "
                  "from the <b>File</b> menu.</p>";
 
