@@ -66,6 +66,8 @@ class QPixmap;
 class Q_EXPORT QTitleBar : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY( bool autoRaise READ autoRaise WRITE setAutoRaise )
+    Q_PROPERTY( bool movable READ isMovable WRITE setMovable )
 
 public:
     QTitleBar (QWidget* w, QWidget* parent, const char* name=0);

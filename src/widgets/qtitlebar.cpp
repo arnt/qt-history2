@@ -148,7 +148,7 @@ public:
     QString cuttext;
 };
 
-QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
+QTitleBar::QTitleBar(QWidget* w, QWidget* parent, const char* name)
     : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder | WResizeNoErase | WRepaintNoErase )
 {
     d = new QTitleBarPrivate();
@@ -164,6 +164,8 @@ QTitleBar::QTitleBar (QWidget* w, QWidget* parent, const char* name)
     	setCaption( w->caption() );
 #endif
 	setWFlags( ((QTitleBar*)w)->getWFlags() | WResizeNoErase | WRepaintNoErase );
+    } else {
+	setWFlags( WStyle_Customize | WResizeNoErase | WRepaintNoErase );
     }
 
     readColors();
@@ -433,10 +435,10 @@ void QTitleBar::resizeEvent( QResizeEvent *r)
 void QTitleBar::paintEvent(QPaintEvent *)
 {
     QStyle::SCFlags ctrls = QStyle::SC_TitleBarLabel;
-    if ( d->window && d->window->testWFlags( WStyle_SysMenu) ) {
-	if ( d->window->testWFlags( WStyle_Tool ) ) {
+    if ( testWFlags( WStyle_SysMenu) ) {
+	if ( testWFlags( WStyle_Tool ) ) {
 	    ctrls |= QStyle::SC_TitleBarCloseButton;
-	    if ( d->window->testWFlags( WStyle_MinMax ) ) {
+	    if ( d->window && testWFlags( WStyle_MinMax ) ) {
 		if ( d->window->isMinimized() )
 		    ctrls |= QStyle::SC_TitleBarUnshadeButton;
 		else
@@ -444,13 +446,13 @@ void QTitleBar::paintEvent(QPaintEvent *)
 	    }
 	} else {
 	    ctrls |= QStyle::SC_TitleBarSysMenu | QStyle::SC_TitleBarCloseButton;
-	    if ( d->window->testWFlags( WStyle_Minimize ) ) {
-		if( d->window->isMinimized() )
+	    if ( d->window && testWFlags( WStyle_Minimize ) ) {
+		if( d->window && d->window->isMinimized() )
 		    ctrls |= QStyle::SC_TitleBarNormalButton;
 		else
 		    ctrls |= QStyle::SC_TitleBarMinButton;
 	    }
-	    if ( d->window->testWFlags( WStyle_Maximize ) && !d->window->isMaximized() )
+	    if ( d->window && testWFlags( WStyle_Maximize ) && !d->window->isMaximized() )
 		ctrls |= QStyle::SC_TitleBarMaxButton;
 	}
     }
