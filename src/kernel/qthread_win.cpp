@@ -156,11 +156,18 @@ void QThreadInstance::terminate()
       is accessing it (but before the thread stops), which results in
       a crash.
     */
-    void **storage = d->thread_storage;
-    d->thread_storage = 0;
+    void **storage = thread_storage;
+    thread_storage = 0;
 
-    finish( this );
-    TerminateThread( d->handle, 0 );
+    running = FALSE;
+    finished = TRUE;
+    args[0] = args[1] = 0;
+    id = 0;
+
+    if ( orphan )
+	delete this;
+
+    TerminateThread( handle, 0 );
 
     QThreadStoragePrivate::finish( storage );
 }
@@ -246,7 +253,7 @@ void QThread::start()
     d->args[1] = d;
 
     d->handle = (Qt::HANDLE)_beginthreadex( NULL, d->stacksize, QThreadInstance::start,
-					    this, 0, &(d->id) );
+					    d->args, 0, &(d->id) );
 
     if ( !d->handle ) {
 #ifdef QT_CHECK_STATE

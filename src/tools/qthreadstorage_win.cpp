@@ -38,6 +38,7 @@
 #include "qplatformdefs.h"
 
 #include "qthreadstorage.h"
+#include <private/qthreadinstance_p.h>
 #include <private/qcriticalsection_p.h>
 
 #include <string.h>
@@ -52,7 +53,7 @@ static bool thread_storage_init = FALSE;
 static struct {
     bool used;
     void (*func)( void * );
-} thread_storage[MAX_THREAD_STORAGE];
+} thread_storage_usage[MAX_THREAD_STORAGE];
 
 static void thread_storage_id( int &id, void (*func)( void * ), bool alloc )
 {
@@ -115,7 +116,7 @@ void **QThreadStoragePrivate::set( void *p )
     if ( !d->thread_storage ) {
 #ifdef QTHREADSTORAGE_DEBUG
 	qDebug( "QThreadStoragePrivate: allocating storage for thread %lx",
-		(unsigned long) pthread_self() );
+		(unsigned long) GetCurrentThreadId() );
 #endif // QTHREADSTORAGE_DEBUG
 
 	d->thread_storage = new void*[MAX_THREAD_STORAGE];
@@ -137,7 +138,7 @@ void QThreadStoragePrivate::finish( void **thread_storage )
 
 #ifdef QTHREADSTORAGE_DEBUG
     qDebug( "QThreadStoragePrivate: destroying storage for thread %lx",
-	    (unsigned long) pthread_self() );
+	    (unsigned long) GetCurrentThreadId() );
 #endif // QTHREADSTORAGE_DEBUG
 
     for ( int i = 0; i < MAX_THREAD_STORAGE; ++i ) {
@@ -145,7 +146,7 @@ void QThreadStoragePrivate::finish( void **thread_storage )
 	if ( ! thread_storage_usage[i].used ) {
 #ifdef QT_CHECK_STATE
 	    qWarning( "QThreadStorage: thread %lx exited after QThreadStorage destroyed",
-		      (unsigned long) pthread_self() );
+		      (unsigned long) GetCurrentThreadId() );
 #endif // QT_CHECK_STATE
 	    continue;
 	}

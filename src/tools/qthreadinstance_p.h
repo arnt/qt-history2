@@ -81,11 +81,11 @@ public:
 #endif // Q_OS_UNIX
 
 #ifdef Q_OS_WIN32
-    Qt::HANDLE handle;
+    HANDLE handle;
     unsigned int id;
 
-    static unsigned int start( void * );
-    static void finish();
+    static unsigned int __stdcall start( void * );
+    static void finish( QThreadInstance * );
 #endif // Q_OS_WIN32
 };
 

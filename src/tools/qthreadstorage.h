@@ -38,7 +38,9 @@
 
 #ifdef QT_THREAD_SUPPORT
 
-class QThreadStoragePrivate
+#include "qglobal.h"
+
+class Q_EXPORT QThreadStoragePrivate
 {
 public:
     QThreadStoragePrivate( void (*func)(void *) );
