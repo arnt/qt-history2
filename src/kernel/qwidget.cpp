@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#136 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#135 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#136 $");
 
 
 /*!
@@ -517,16 +517,36 @@ void QWidget::setEnabled( bool enable )
     if ( enable ) {
 	if ( testWFlags(WState_Disabled) ) {
 	    clearWFlags( WState_Disabled );
-	    repaint();
+	    enabledChange( TRUE );
 	}
     } else {
 	if ( !testWFlags(WState_Disabled) ) {
 	    if ( testWFlags(WFocusSet) )
 		clearFocus();
 	    setWFlags( WState_Disabled );
-	    repaint();
+	    enabledChange( FALSE );
 	}
     }
+}
+
+/*!
+  \fn void QWidget::enabledChange( bool oldEnabled )
+
+  This virtual function is called from setEnabled(). \e oldEnabled is the
+  previous setting; you can get the new setting from enabled().
+
+  Reimplement this function if your widget needs to know when it becomes
+  enabled or disabled. You will almost certainly need to update the widget
+  using either repaint(TRUE) or update().
+
+  The default implementation calls repaint(TRUE).
+
+  \sa setEnabled(), enabled(), repaint(), update()
+*/
+
+void QWidget::enabledChange( bool )
+{
+    repaint();
 }
 
 

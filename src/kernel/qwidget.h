@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#94 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#95 $
 **
 ** Definition of QWidget class
 **
@@ -45,7 +45,7 @@ public:
     bool	 isDesktop()	const;
 
     bool	 isEnabled()	const;
-    void	 setEnabled( bool );
+    virtual void setEnabled( bool );
 
   // Widget coordinates
 
@@ -216,6 +216,7 @@ protected:
 
 protected:
     virtual void styleChange( GUIStyle );
+    virtual void enabledChange( bool );
     virtual void backgroundColorChange( const QColor & );
     virtual void backgroundPixmapChange( const QPixmap & );
     virtual void paletteChange( const QPalette & );
