@@ -193,19 +193,29 @@ void QGLContext::makeCurrent()
 
     QMacSavedPortInfo::setPaintDevice(paintDevice);
     aglSetCurrentContext((AGLContext)cx);
-    if(paintDevice->devType() == QInternal::Widget) {
-	QWidget *w = (QWidget *)paintDevice;
-	SetClip((RgnHandle)w->clippedRegion().handle());	
-
-	QWidget *tlw = w->topLevelWidget();
-	QPoint mp(posInWindow(w));
-	GLint offs[4] = { 
-	    mp.x(),  tlw->height() - (mp.y() + w->height()),
-	    w->width(), w->height() };
-	aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
-    }
+    fixBufferRect();
     aglUpdateContext((AGLContext)cx);
     currentCtx = this;
+}
+
+void QGLContext::fixBufferRect() 
+{
+    if(paintDevice->devType() == QInternal::Widget) {
+	QWidget *w = (QWidget *)paintDevice;
+	QRegion clp = w->clippedRegion();
+	SetClip((RgnHandle)clp.handle());
+	if(clp.isEmpty() || clp.isNull()) {
+	    qDebug("using..");
+	    GLint offs[4] = { 0, 0, 0, 0 };
+	    aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
+	} else {
+	    QPoint mp(posInWindow(w));
+	    GLint offs[4] = { 
+		mp.x(),  w->topLevelWidget()->height() - (mp.y() + w->height()),
+		w->width(), w->height() };
+	    aglSetInteger((AGLContext)cx, AGL_BUFFER_RECT, offs);
+	}
+    }
 }
 
 void QGLContext::doneCurrent()

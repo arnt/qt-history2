@@ -224,6 +224,9 @@ private:
     static QGLContext*	currentCtx;
 
     friend class QGLWidget;
+#ifdef Q_WS_MAC
+    void fixBufferRect();
+#endif
 
 private:	// Disabled copy constructor and operator=
     QGLContext() {}
@@ -315,15 +318,19 @@ private:
     friend class QGLOverlayWidget;
 #elif defined(Q_WS_MAC)
     QGLContext*		olcx;
-
-    friend class QWidget;
-    void fixReparented();
 #endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QGLWidget( const QGLWidget& );
     QGLWidget&		operator=( const QGLWidget& );
+#endif
+
+#ifdef Q_WS_MAC
+    friend class QWidget;
+private slots:
+    void fixReparented();
+    void fixBufferRect();
 #endif
 };
 
@@ -467,5 +474,11 @@ inline bool QGLWidget::autoBufferSwap() const
     return autoSwap;
 }
 
+#ifdef Q_WS_MAC
+inline void QGLWidget::fixBufferRect()
+{
+    glcx->fixBufferRect();
+}
+#endif
 
 #endif
