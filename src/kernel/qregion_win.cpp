@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#45 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -102,7 +102,8 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 		data.header.nCount = n; \
 		data.header.nRgnSize = 0; \
 		data.header.rcBound.bottom = y; \
-		HRGN r = ExtCreateRegion(0,sizeof(data),(RGNDATA*)&data); \
+		HRGN r = ExtCreateRegion(0, \
+		    sizeof(RGNDATAHEADER)+n*sizeof(RECT),(RGNDATA*)&data); \
 		if ( region ) { \
 		    CombineRgn(region, region, r, RGN_OR); \
 		    DeleteObject( r ); \
