@@ -131,13 +131,24 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	if ( sdirs.count() > 0 ) {
 	    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 		QString subdir = *sdirit;
+		int lastSeparator( 0 );
 		subLevels = 1;
 		for( i = 0; i < subdir.length(); i++ ) {
-		    if( subdir.at( i ) == '/' ) subLevels++;
+		    if( subdir.at( i ) == '/' ) {
+			subLevels++;
+		        lastSeparator = i;
+		    }
 		}
 		t << "\n\t"
-		    << "cd " << subdir << "\n\t"
-		    << "$(MAKE) " << targs[x] << "\n\t"
+		    << "cd " << subdir << "\n\t";
+
+		if ( targs[x] == "clean" ) {
+		    if( lastSeparator )
+			subdir = subdir.mid( lastSeparator + 1 );
+		    t << "$(QMAKE) " << subdir << ".pro" << "\n\t";
+		}
+		
+		t << "$(MAKE) " << targs[x] << "\n\t"
 		    << "@cd ..";
 		for( i = 1; i < subLevels; i++ ) {
 		    t << "\\..";
