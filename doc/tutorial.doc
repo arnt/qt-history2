@@ -1,0 +1,895 @@
+/****************************************************************************
+** $Id: tutorial.doc,v 1.1 1995/12/18 08:59:49 eiriken Exp $
+**
+** Tutorial
+**
+** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+**
+*****************************************************************************/
+
+/*! \page tutorial.html
+
+<title>
+Qt tutorial - Introduction
+</title></head><body>
+
+<h1>The 14 Steps</h1>
+
+This tutorial is meant to give an introduction to GUI programming
+using the Qt toolkit.  It introduces some of the most important
+features, but the emphasis is on the programming philosophy in Qt.
+
+It starts with a five-line hello-world and builds gradually,
+introducing one or a few concepts at a time, into a simple, 600-line
+game.
+
+To compile and run the tutorial programs, you need the Qt toolkit, gcc
+version 2.7.0 or later, and X11R6.  You do not need libg++ or
+libstdc++.
+
+Each chapter explains what 
+
+
+
+ */
+
+/*! \page t1.html
+
+<title>
+Qt tutorial - Chapter 1
+</title></head><body>
+
+<h1>Chapter 1: Hello, World!</h1>
+
+<img src=t1.gif>
+
+This first program is a simple hello-world example.  It contains only
+the bare minimum you need to get a Qt application up and running.
+
+\include t1/t1.cpp
+
+<h2>Line by Line Walk-Through</h2>
+
+\skip include
+\line qapp
+
+This line includes the QApplication class definition.  There has to be
+exactly one QApplication object in every application that uses Qt.
+QApplication manages various application-wide resources, such as the
+default font and cursor.
+
+\line qpushbt
+
+This line includes the QPushButton class definition.  The <a
+href=hierarchy.html>reference documentation</a> for each class
+mentions at the top which file needs to be included to use that class.
+
+QPushButton is classical GUI push button, which the user can press and
+release.  It manages its own look and feel, like every other \link
+QWidget widget \endlink (a widget is a user interface object).  The
+programmer can change both the overall \link QWidget::setStyle() look
+and feel, \endlink many minor aspects of it such as color, and the
+widget's content.  A QPushButton can show both a string and a pixmap.
+
+\line main
+\line {
+
+The \c main() function is the entry point to the program.  When using
+Qt, it almost always just does some initialization before it passes
+control over to the Qt library, which then tells the program about the
+user's actions via events.  If you are new to event-driven GUI
+programming, you should probably read our \link event-driven.html
+introduction \endlink to this.
+
+\e argc is the number of command-line arguments and \e argv is the
+array of command-line arguments, as always.
+
+\line QApplication
+
+a is this program's QApplication.  Here it is created and processes
+some of the command-line arguments (such as -display on X).  Note that
+all command-line arguments processed are \e removed.  It is essential
+that the QApplication object is created before any window-system parts
+of Qt are used.
+
+\line QPushButton
+
+Here, \e after the QApplication, comes the first window-system code: A
+push button is created.
+
+The button is set up to display the string "Hello world!" and be a
+window of its own (since the constructor does not specify another
+window which the button should be part of).
+
+\line resize
+
+The button is set up to be 100 pixels wide and 30 pixels high (plus
+the window system frame).
+
+\line setMainWidget
+
+The push button is chosen as the main widget for the application.  If
+the user closes a main widget, the application exits.
+
+You don't have to have a main widget, but most programs have one.
+
+\line show
+
+A widget is never visible when you create it.  You must call show() to
+make it visible.
+
+\line exec
+
+This is where \c main() passes control to Qt.  exec() will return when
+the application exits.
+
+In exec(), events are received from the user and passed on to the
+appropriate widgets.
+
+\line }
+
+That's it.
+
+<h2>Behaviour</h2>
+
+You should now try to \link makefiles.html compile \endlink and \link
+QApplication::QApplication() run \endlink this program.
+
+When you run it, you will see a small window filled with a single
+button, and on it you can read the famous words, Hello World!
+
+Try to resize the window.  Press the button.  If you're running X, try
+running the program with the -geometry option (e.g. -geometry
+100x200+10+20)
+
+You may now go on to \link t2.html chapter two. \endlink
+
+*/
+
+/*! \page t2.html
+
+<title>
+Qt tutorial - Chapter 2
+</title></head><body>
+
+<h1>Chapter 2: Calling it Quits</h1>
+
+<img src=t2.gif>
+
+Having \e created a window in \link chapter one, \endlink we will now
+go on to close it properly and make the application quit properly when
+the user tells it to.
+
+We will also use a specific font, a font not as boring as the default
+one, at that.
+
+\include t2/t2.cpp
+
+<h2>Line by Line Walk-Through</h2>
+
+\skipline qfont
+
+Since this program uses QFont, it needs to include qfont.h.  Qt's font
+abstraction is rather different from the horror provided by X, and
+loading and using fonts has been highly optimized.
+
+\skipline QPushButton
+
+This time, the button says "Quit" and that's exactly what the program
+will do when the user clicks the button.  This is not a coincidence.
+
+\line resize
+
+Since "Quit" is rather shorter than "Hello World!" we've made the
+button a bit smaller.  We could also have used
+QPushButton::setAutoResize(), or even QFontMetrics if the built-in
+resizing wasn't quite right for this button.
+
+\line setFont
+
+Here we choose a new font for the button, an 18-point bold font from
+the Times family.  Note that we create the font on the spot.  If the
+same font is used several times in one program, Qt will cache it.
+
+It is also possible to \link QApplication::setDefaultFont() change the
+default font \endlink for the whole application.
+
+\line connect
+
+connect() is perhaps \e the central feature of Qt.
+
+This line establishes a one-way connection between two Qt objects
+(objects that inherit QObject, directly or indirectly).  Every Qt
+object can have both \c signals (to send messages) and \c slots (to
+receive messages). (All widgets are Qt objects.)
+
+Here, the \e clicked() signal of \e quit is connected to the \e
+quitApp() slot of \e a, so that when the button is clicked, the
+application quits.
+
+\link metaobjects.html Signals and Slots \endlink covers this topic
+more thoroughly.
+
+<h2>Behavior</h2>
+
+When you run this program, you will see an even smaller window than in
+chapter one, filled with an even smaller button.
+
+Try to resize the window.  Press the button.  Oops!  That connect()
+would seem to make some difference :)
+
+You may now go on to \link t3.html chapter three. \endlink
+
+ */
+
+
+
+
+/*! \page t3.html
+
+<title>
+Qt tutorial - Chapter 3
+</title></head><body>
+
+<h1>Chapter 3: Family Values</h1>
+
+<img src=t3.gif>
+
+This example shows how to create mother and child widgets.
+
+We'll keep it simple and use just a single mother (uh, family values?)
+and a lone child.
+
+\include t3/t3.cpp
+
+<h2>Line by Line Walk-Through</h2>
+
+\skipline QWidget
+
+Here we simply create a widget.  Note that we did not bother to
+include \c qwidget.h, because we have included qpushbt.h and
+QPushButton is a subclass of QWidget (see <a href=hierarchy.html>
+Class Hierarchy</a>).
+
+A QWidget does not handle any events, it simply displays itself using
+its \link QWidget::setBackgroundColor() background color \endlink and
+\link QWidget::setCaption() caption. \endlink
+
+\line resize
+
+We set the width to 200 pixels and the height to 120 pixels.
+
+\line quit
+
+A child is born.
+
+This QPushButton is created with both a text, "Quit", and a mother, w.
+A child widget is always on top of its mother.  When displayed, it is
+clipped by its mother's bounds.
+
+\line move
+
+The child is moved to a position of 62,40, relative to its mother's
+top left corner.  The coordinate is as usual for a visual display, x
+increases to the right and y increases downwards.
+
+\skipline show
+
+When a widget is shown, it will call show for all its children (except
+those you have done an explicit \link QWidget::hide hide() \endlink
+on).
+
+<h2>Behavior</h2>
+
+Note that if you resize the window, the button is not resized, unlike
+the programs in the first two chapters.  That's because the top level
+widget is a QWidget, which does not react to resizing.
+
+If you're using X-windows, you will see the same effect if you invoke
+the program with -geometry.
+
+<h2>Excercises</h2>
+
+Try changing the arguments to quit.move() and/or quit.resize().  What
+happens if quit is partly "outside" w?
+
+Also try moving the w.resize() to after the quit.move/resize, and to
+after a.setMainWidget().  Does -geometry still work?
+
+Are there any other signals in QPushButton you can connect to quitApp?
+Hint: The QPushButton inherits most of its behaviour from QButton.
+
+You may now go on to \link t4.html chapter four. \endlink
+
+ */
+
+/*! \page t4.html
+
+<title>
+Qt tutorial - Chapter 4
+</title></head><body>
+
+<h1>Chapter 4: Let There Be Widgets</h1>
+
+<img src=t4.gif>
+
+This example shows how to create your own widget, how to control the
+minimum and maximum sizes of a window, and introduces widget names.
+
+\include t4/t4.cpp
+
+<h2>Line by Line Walk-Through</h2>
+
+\skip MyWidget
+\until }
+
+Here we create a new class.  Since this class inherits from QWidget,
+the new class is a widget, and may be a top level window or a child
+widget (like the push button in chapter three).
+
+This class has only one member, a constructor (in addition to the
+members it inherits from QWidget).  The constructor is a standard Qt
+widget constructor; you should always include a similar constructor
+when you create widgets.
+
+The first argument is its parent widget.  To create a top level window
+you specify a null pointer as the parent.  As you can see, the widget
+defaults to be a top level window.
+
+The second argument is the widget's name.  This is \e not what appears
+in the title bar.  For now, just think of it as a descriptive name for
+this object.
+
+\line MyWidget
+\line QWidget
+
+The implementation of the constructor starts here.  Like all widgets,
+it just passes on the \c parent and \c name to the QWidget
+constructor.
+
+\until setMaximumSize
+
+Since this widget doesn't know how to handle resizing, we fix its size
+by setting the minimum and maximum to be equal.  In the next chapter,
+we will show how a widget can respond to resize event from the user.
+
+\until setFont
+
+Here we create a child widget of this widget (the new widget's parent
+is <code>this</code) which has the widget name "quit".  The widget
+name has nothing to do with the button text, they just happen to be
+similar in this case.
+
+\c quit is a local variable in the constructor.  MyWidget does not
+keep track of it, but Qt does, and will by default delete it when
+MyWidget is deleted.  This is why MyWidget doesn't need a destructor.
+
+The setGeometry() call does the same as move() and resize() did in the
+previous chapters.
+
+\line qApp
+\line }
+
+Since MyWidget object doesn't know about the application object, it
+has to connect to Qt's pointer to it, \c qApp.
+
+A widget is a <a link=components.html>software component</a> and
+should know as little as possible about its environment in order to be
+as general and reusable as possible.
+
+Knowing the name of the application object would break this principle,
+so Qt offers an alias, qApp, for the rare cases where a component such
+as MyWidget needs to talk to the application object.
+
+\until }
+
+Here we instantiate our new baby, set it to be the main widget, and
+execute the application.
+
+<h2>Behavior</h2>
+
+It may seem indistinguishable from the previous chapter, but it
+behaves very distinguishably, just try to resize it to see.
+
+<h2>Excercises</h2>
+
+Try to add more buttons, or put in widgets other than QPushButton.
+
+The \link QWidget::setBackgroundColor background color \endlink can be
+changed.
+
+Try creating two or more MyWidgets in main.
+
+You may now go on to \link t5.html chapter five. \endlink
+
+ */
+
+
+/*! \page t5.html
+
+<title>
+Qt tutorial - Chapter 5
+</title></head><body>
+
+<h1>Chapter 5: Lego</h1>
+
+<img src=t5.gif>
+
+This example shows how to create and connect together several widgets
+using signals and slots, and how to handle resize events.
+
+\include t5/t5.cpp
+
+<h2>Line by Line Walk-Through</h2>
+
+\skip qapp
+\until qfont
+
+Two new include files here, because we use two new classes.
+
+\skip MyWidget
+\until parent=0
+
+Nothing new compared to the previous chapter.
+
+\until resize
+
+MyWidget now gains the ability to handle resize event.
+
+resizeEvent() is one of a dozen-odd virtual functions in QWidget which
+are used to pass events of various kinds to widgets.  These \link
+event-system.html event functions \endlink are one of the the central
+control flow mechanisms in Qt, the other is the \link metaobjects.html
+signal/slot mechanism. \endlink
+
+This one is called, unsurprisingly, whenever the user or a part of the
+program resizes the widget.
+
+\until }
+
+In chapter three, MyWidget didn't remember its child widget.  Now it
+does (so it can resize them).
+
+\until setMinimumSize
+
+Since we want MyWidget to handle all sizes greater than 200 by 200
+pixels, we only set a minimum size.
+
+<a name=constructor></a>
+\skip lcd
+\until move
+
+\c lcd is a QLCDNumber, a widget which displays numbers in an LCD-like
+fashion.  This instance is set up to display two digits, be a child of
+\e this and is named "lcd".
+
+It is located at 10,50 relative to the top left corner of MyWidget.
+Note that its size is not set here, resizeEvent() will do that when
+MyWidget's own size is set.
+
+50 is not a random number: It is exactly five pixels below the bottom
+of \c quit, which looks nice.  We could have written
+<code>quit-\>\link QWidget::y()\endlink() + quit.\link
+QWidget::height() height\endlink() + 5</code> in place of 50.
+
+Hardcoding positions like this is tedious when you have many widgets,
+but Qt does not include a nice designer yet.  Stay tuned.
+
+\line QScrollBar
+\until scrollbar
+
+QScrollBar is a classical window system scrollbar.  This is one of
+several possible constructors, there are other constructors that take
+fewer arguments but then we'd have to set up the same state using
+several function calls.
+
+We don't set up the scrollbar's geometry, the resize event will handle
+it.
+
+\line connect
+
+Here we use the \link metaobjects.html signal/slot mechanism \endlink
+to connect the scrollbar's valueChanged() signal to the LCD number's
+display() slot.
+
+Whenever the scrollbar's value changes, it broadcasts the new value by
+emitting the valueChanged() signal.  Since that signal is connected to
+the LCD number's display() slot, the slot is called when the signal is
+broadcast.  Neither of the objects know about the other.  This is
+essential in component programming.
+
+Slots are otherwise normal C++ member functions and follow the normal
+C++ access rules.
+
+<a name=resize></a>
+\skip resizeEvent
+\until }
+
+The scrollbar's geometry is set so there is a 10-pixel border to the
+left, right and below it, and its height is fixed at 16 pixels, which
+is recommended by most style guides.
+
+Remember that the order of arguments to setGeometry() is left, top,
+width, height.
+
+The LCD number is resized in the same way.  Its position was set in
+the constructor.  We use the same width as for the scrollbar, and
+leave five pixels between it and the scrollbar.
+
+<!-- geometry management -->
+
+<h2>Behavior</h2>
+
+The LCD number reflects everything you do to the scrollbar, and the
+widget handles resizing well.
+
+<h2>Excercises</h2>
+
+Try changing the LCD number to add more digits or \link
+QLCDNumber::setMode() change mode. \endlink You can even add four push
+buttons to set mode.
+
+You can also change the scrollbar's range.
+
+Try to make the application quit when the number overflows.
+
+You may now go on to \link t6.html chapter six. \endlink
+
+ */
+
+
+
+/*! \page t6.html
+
+<title>
+Qt tutorial - Chapter 6
+</title></head><body>
+
+<h1>Chapter 5: Lego Galore!</h1>
+
+<img src=t6.gif>
+
+This example shows how to create and connect together \e many widgets
+using signals and slots.  For the first time, we use a custom widget
+as a child widget.
+
+\include t6/t6.cpp
+
+<h2>Line by Line Walk-Through</h2>
+
+\skip LCDRange
+\until };
+
+The LCDRange widget is an encapsulation of a QScrollBar and a
+QLCDNumber, connected together.
+
+\until }
+
+This is essentially lifted straight from the <a
+href=t5.html#constructor>MyWidget constructor</a> in chapter five.
+The only difference is that \c lcd is now placed at coordinate 0,0
+(the top left corner of the LCDRange widget) since we're making a new
+widget and don't want a border.  If the widget's user wants a border,
+he/she can make a border around the LCDRange.
+
+\until }
+
+Since LCDRange doesn't have either a border or quit button, the resize
+event is simpler than <a href=t5.html#resize>the one in MyWidget.</a>
+
+\skip private
+\until }
+
+MyWidget now contains the familiar quit button and an array of 16
+LCDRange pointers.
+
+\skip for
+\line 16
+\line value
+
+In MyWidget's constructor, we create 16 LCDRanges, all with \c this as
+parent.  Remember that these will be deleted by Qt when MyWidget is
+destroyed.
+
+\skip resizeEvent
+\until }
+
+In the resize event, we calculate and set the geometry of all 16
+LCDRanges in a simple for loop.
+
+First we calculate the top left position of the top left LCDRange and
+new size of each LCDRange.  From there, it's an easy matter to loop
+over the LCDRange array and set the geometry of each one.
+
+<h2>Behavior</h2>
+
+This program appears much like the one in chapter five (on speed, that
+is), the important difference is in the code.
+
+<h2>Excercises</h2>
+
+Change MyWidget so each LCDRange is guaranteed to be square.
+
+Initialize each scrollbar with a different/random value on startup.
+
+You may now go on to \link t7.html chapter seven. \endlink
+
+ */
+
+
+
+
+/*! \page t7.html
+
+<title>
+Qt tutorial - Chapter 7
+</title></head><body>
+
+<h1>Chapter 7: One Thing Leads to Another</h1>
+
+<img src=t7.gif>
+
+This example shows how to create custom widgets with signals and
+slots, and how to connect them together in more complex ways.  For the
+first time, the source is split among several files.
+
+<ul>
+<li> \link t7/lcdrange.h lcdrange.h \endlink contains the LCDRange
+class definition
+<li> \link t7/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+implementation
+<li> \link t7/t7.cpp t7.cpp \endlink contains MyWidget and main.
+<li> \link t7/Makefile Makefile \endlink contains some rules for
+generating the metaobject information necessary for <a
+href=metaobjects.html>signal/slot creation.</a>
+</ul>
+
+<h2>Line by Line Walk-Through</h2>
+
+<h3>lcdrange.h</h3>
+
+This file is mainly lifted from \link t6/t6.cpp t6.cpp \endlink and
+only the changes are noted here.
+
+\dontinclude t7/lcdrange.h
+
+\skip ifndef
+\until define
+
+This is the classical C construction to avoid errors if a header file
+happens to be included more than once.  If you don't use it already:
+It is a very good habit.  The #ifndef should enclose \e all of the
+header file.
+
+\line include
+\line QScrollBar
+\line QLCDNumber
+
+\c qwidget.h is included.  LCDRange inherits QWidget, and the header
+file of a parent class must always be included.  Until now, \c
+qwidget.h has been included indirectly via other header files like \c
+qpushbt.h.
+
+Since the class declaration only uses pointers to QScrollBar and
+QLCDNumber it does not need their definitions, so we merely declare
+their names in the header files.  This makes the job a little easier
+for the compiler.
+
+\skip LCDRange
+\until parent=0
+
+Note the Q_OBJECT.  This macro must be included in \e all classes that
+contain signals and/or slots.  For the curious, it defines the
+functions that are implemented in the <a
+href=metaobject.html>metaobject file</a>.
+
+\line value
+\until valueChanged
+
+These three members make up an interface between this widget and other
+components in a program.  Until now, LCDRange didn't really have an
+interface at all.
+
+value() is a public function for accessing the value of the LCDRange.
+setValue() is our first custom slot and valueChanged() is our first
+custom signal.
+
+Slots must be implemented in the normal way (remember, a slot is also
+a C++ member function).  Signals are automatically implemented.
+
+<h3>lcdrange.cpp</h3>
+
+\dontinclude t7/lcdrange.cpp
+
+This file is mainly lifted from \link t6/t6.cpp t6.cpp \endlink and
+only the changes are noted here.
+
+\skip connect
+\line connect
+\line connect
+
+The first connect is the same kind you've seen in the previous
+chapter.  The second is new: It connects sBar's valueChanged() signal
+to this object's valueChanged \e signal.
+
+Yes, that's right.  Signals can be connected to other signals.  When
+the first is emitted, the second signal is also emitted.
+
+Let's look at what happens when the user operates the scrollbar: The
+scrollbar sees that its value has change, and emits the valueChanged()
+signal.  That signal is connected both to the display() slot of the
+QLCDNumber and to the valueChanged() signal of the LCDRange.
+
+Thus, when the signal is emitted, LCDRange emits its own
+valueChanged() signal.  In addition, QLCDNumber::display() is called
+and shows the new number.
+
+Note that you're not guaranteed any particular order of execution.
+
+\skip LCDRange::value
+\until }
+
+The implementation of value() is straightforward, it simply returns
+the scrollbar's value.
+
+\line setValue
+\until }
+
+The implementation of value() is equally straightforward.  Note that
+since the scrollbar and LCD number is connected, setting the
+scrollbar's value automatically updates the LCD number as well.
+
+<h3>
+
+
+<h2>Behavior</h2>
+
+
+
+<h2>Excercises</h2>
+
+
+You may now go on to \link t7.html chapter seven. \endlink
+
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*! \page t.html
+
+<title>
+Qt tutorial - Chapter 
+</title></head><body>
+
+<h1>Chapter : </h1>
+
+<img src=t.gif>
+
+
+<ul>
+<li> \link t \endlink contains MyWidget and main.
+<li> \link t7/lcdrange.h lcdrange.h \endlink contains the LCDRange
+class definition
+<li> \link t7/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+implementation
+<li> 
+</ul>
+
+<h2>Line by Line Walk-Through</h2>
+
+
+<h2>Behavior</h2>
+
+
+<h2>Excercises</h2>
+
+
+You may now go on to \link t7.html chapter seven. \endlink
+
+ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*! \page t13.html
+
+<title>
+Qt tutorial - Chapter 13
+</title></head><body>
+
+<h1>Chapter 13: Game Over</h1>
+
+<h2>Introduction</h2>
+
+<img src=t13.gif>
+
+\link t13/t13.cpp \endlink
+\link t13/lcdrange.h \endlink
+\link t13/lcdrange.cpp \endlink
+\link t13/cannon.h \endlink
+\link t13/cannon.cpp \endlink
+\link t13/gamebrd.h \endlink
+\link t13/gamebrd.cpp \endlink
+
+<h2>Introduction</h2>
+
+This example shows 
+
+Rename MyWidget to a more descriptive name and put it files of its own.
+
+Add slots.
+
+Process shots internally to count down
+
+Add two QLCDNums to display hits and shots left.
+
+Add two labels to describe the LCDNums.
+
+This is what mother and child look like (with the \e fvwm window
+manager on an X display):
+
+
+\dontinclude t13/t13.cpp
+
+
+
+\dontinclude t13/lcdrange.h
+
+
+
+\dontinclude t13/lcdrange.cpp
+\dontinclude t13/cannon.h
+\dontinclude t13/cannon.cpp
+\dontinclude t13/gamebrd.h
+\dontinclude t13/gamebrd.cpp
+
+
+
+
+<h2>Behavior</h2>
+
+Compoment programming; flexibility, complexity and .. design requirements.
+
+
+You may now go on to \link t14 chapter fourteen. \endlink
+
+ */
