@@ -142,12 +142,12 @@ conditional, based on the state of various debugging flags:
 <li> \c QT_CHECK_NULL: Check for dangerous null pointer
 <li> \c QT_CHECK_MATH: Check for dangerous math, e.g. division by 0
 <li> \c QT_NO_CHECK: Turn off all QT_CHECK_... flags
-<li> \c DEBUG: Enable debugging code
-<li> \c NO_DEBUG: Turn off DEBUG flag
+<li> \c QT_DEBUG: Enable debugging code
+<li> \c QT_NO_DEBUG: Turn off QT_DEBUG flag
 </ul>
 
-By default, both DEBUG and all the QT_CHECK flags are on. To turn off
-DEBUG, define NO_DEBUG. To turn off the QT_CHECK flags, define QT_NO_CHECK.
+By default, both QT_DEBUG and all the QT_CHECK flags are on. To turn off
+QT_DEBUG, define QT_NO_DEBUG. To turn off the QT_CHECK flags, define QT_NO_CHECK.
 
 Example:
 \code

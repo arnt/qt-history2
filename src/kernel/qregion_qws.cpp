@@ -353,7 +353,7 @@ SOFTWARE.
 #include "poly.h"
 */
 
-#ifdef DEBUG
+#if defined(QT_DEBUG)
 #include <stdio.h>
 #define assert(expr) {if (!(expr)) fprintf(stderr,\
 "Assertion failed file %s, line %d: expr\n", __FILE__, __LINE__); }

@@ -271,7 +271,7 @@ void QFont::cleanup()
 
 void QFont::cacheStatistics()
 {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     fontCache->statistics();
     QFontCacheIt it(*fontCache);
     QFontInternal *fin;
@@ -568,7 +568,7 @@ void *QFont::textMetric() const
 {
     if ( DIRTY_FONT ) {
 	load();
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	ASSERT( d->fin && d->fin->font() );
 #endif
     }

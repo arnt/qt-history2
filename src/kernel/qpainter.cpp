@@ -2221,7 +2221,7 @@ void QPainter::drawText( const QRect &r, int tf,
 		   tabstops, tabarray, tabarraylen, internal, this);
 }
 
-//#define FORMAT_TEXT_DEBUG
+//#define QT_FORMAT_TEXT_DEBUG
 
 void qt_format_text( const QFont& font, const QRect &r,
 		     int tf, const QString& str, int len, QRect *brect,
@@ -2237,7 +2237,7 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool singleline = (tf & Qt::SingleLine) == Qt::SingleLine;
     bool showprefix = (tf & Qt::ShowPrefix) == Qt::ShowPrefix;
 
-#if defined(FORMAT_TEXT_DEBUG)
+#if defined(QT_FORMAT_TEXT_DEBUG)
     qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
 #endif
     QTextParag *parag;
@@ -2295,7 +2295,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 		parag->setTabStops( tabstops );
 	}
 	f->removeRef();
-#if defined(FORMAT_TEXT_DEBUG)
+#if defined(QT_FORMAT_TEXT_DEBUG)
 	qDebug("rect: %d/%d size %d/%d", rect.x(), rect.y(), rect.width(), rect.height() );
 #endif
 	parag->setDocumentRect( rect );
@@ -2323,7 +2323,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft )
 	    brect->setLeft( brect->left() + parag->at( 0 )->x );
 	brect->moveBy( xoff, yoff );
-#if defined(FORMAT_TEXT_DEBUG)
+#if defined(QT_FORMAT_TEXT_DEBUG)
 	qDebug("par: %d/%d", brect->width(), brect->height() );
 #endif
     }
@@ -2332,7 +2332,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	yoff += r.y();
 	QColorGroup cg;
  	painter->save();
-#if defined(FORMAT_TEXT_DEBUG)
+#if defined(QT_FORMAT_TEXT_DEBUG)
 	QRect parRect = parag->rect();
 	qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
 #endif

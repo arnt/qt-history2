@@ -124,7 +124,7 @@ static void crashHandler( int )
 
 int main( int argc, char *argv[] )
 {
-#if defined(NO_DEBUG)
+#if defined(QT_NO_DEBUG)
     signal( SIGSEGV, crashHandler );
 #endif
 

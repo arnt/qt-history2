@@ -903,7 +903,7 @@ void QGDict::clear()
 
 void QGDict::statistics() const
 {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     QString line;
     line.fill( '-', 60 );
     double real, ideal;
@@ -941,7 +941,7 @@ void QGDict::statistics() const
     qDebug( "Rand dist  = %g", ideal );
     qDebug( "Real/Rand  = %g", real/ideal );
     qDebug( line.ascii() );
-#endif // DEBUG
+#endif // QT_DEBUG
 }
 
 

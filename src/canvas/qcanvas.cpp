@@ -2821,8 +2821,8 @@ QPointArray QCanvasPolygonalItem::areaPointsAdvanced() const
     return r;
 }
 
-//#define DEBUG_QCANVAS_POLYGONS
-#ifdef DEBUG_QCANVAS_POLYGONS
+//#define QCANVAS_POLYGONS_DEBUG
+#ifdef QCANVAS_POLYGONS_DEBUG
 static QWidget* dbg_wid=0;
 static QPainter* dbg_ptr=0;
 #endif
@@ -2841,7 +2841,7 @@ public:
 	bitmap = QImage(bounds.width(),bounds.height(),1,2,QImage::LittleEndian);
 	pnt = 0;
 	bitmap.fill(0);
-#ifdef DEBUG_QCANVAS_POLYGONS
+#ifdef QCANVAS_POLYGONS_DEBUG
 	dbg_start();
 #endif
     }
@@ -2852,7 +2852,7 @@ public:
 	    result.resize(pnt*2+10);
 	}
 	result[pnt++] = QPoint(x+bounds.x(),y+bounds.y());
-#ifdef DEBUG_QCANVAS_POLYGONS
+#ifdef QCANVAS_POLYGONS_DEBUG
 	if ( dbg_ptr ) {
 	    int cs = canvas->chunkSize();
 	    QRect r(x*cs+bounds.x()*cs,y*cs+bounds.y()*cs,cs-1,cs-1);
@@ -2869,7 +2869,7 @@ public:
 		add(xo+i,yo);
     }
 
-#ifdef DEBUG_QCANVAS_POLYGONS
+#ifdef QCANVAS_POLYGONS_DEBUG
     void dbg_start()
     {
 	if ( !dbg_wid ) {
@@ -2896,25 +2896,25 @@ public:
 	    int x1r = x1%8;
 	    int x2q = x2/8;
 	    int x2r = x2%8;
-#ifdef DEBUG_QCANVAS_POLYGONS
+#ifdef QCANVAS_POLYGONS_DEBUG
 	    if ( dbg_ptr ) dbg_ptr->setPen(Qt::yellow);
 #endif
 	    if ( x1q == x2q ) {
 		uchar newbits = (~l[x1q]) & (((2<<(x2r-x1r))-1)<<x1r);
 		if ( newbits ) {
-#ifdef DEBUG_QCANVAS_POLYGONS
+#ifdef QCANVAS_POLYGONS_DEBUG
 		    if ( dbg_ptr ) dbg_ptr->setPen(Qt::darkGreen);
 #endif
 		    addBits(x1r,x2r,newbits,x1q*8,y);
 		    l[x1q] |= newbits;
 		}
 	    } else {
-#ifdef DEBUG_QCANVAS_POLYGONS
+#ifdef QCANVAS_POLYGONS_DEBUG
 		if ( dbg_ptr ) dbg_ptr->setPen(Qt::blue);
 #endif
 		uchar newbits1 = (~l[x1q]) & (0xff<<x1r);
 		if ( newbits1 ) {
-#ifdef DEBUG_QCANVAS_POLYGONS
+#ifdef QCANVAS_POLYGONS_DEBUG
 		    if ( dbg_ptr ) dbg_ptr->setPen(Qt::green);
 #endif
 		    addBits(x1r,7,newbits1,x1q*8,y);
@@ -2928,14 +2928,14 @@ public:
 		}
 		uchar newbits2 = (~l[x2q]) & (0xff>>(7-x2r));
 		if ( newbits2 ) {
-#ifdef DEBUG_QCANVAS_POLYGONS
+#ifdef QCANVAS_POLYGONS_DEBUG
 		    if ( dbg_ptr ) dbg_ptr->setPen(Qt::red);
 #endif
 		    addBits(0,x2r,newbits2,x2q*8,y);
 		    l[x2q] |= newbits2;
 		}
 	    }
-#ifdef DEBUG_QCANVAS_POLYGONS
+#ifdef QCANVAS_POLYGONS_DEBUG
 	    if ( dbg_ptr ) {
 		dbg_ptr->drawLine(pt[j],pt[j]+QPoint(w[j],0));
 	    }

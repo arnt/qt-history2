@@ -1,23 +1,8 @@
-#ifndef QT_MACH_H
-
-#ifdef QTDEBUG
-#warning "Guess I didn't realize this would ever happen.."
-#endif
-
-#if defined(DEBUG)
-#    define QTDEBUG DEBUG
-#    undef DEBUG
-#    define DEBUG 0
-#endif
+#ifndef QT_MAC_H
+#define QT_MAC_H
 
 #include "Carbon.h"
 #include "Movies.h"
-
-#if defined (QTDEBUG)
-#    undef DEBUG
-#    define DEBUG QTDEBUG
-#    undef QTDEBUG
-#endif
 
 class QMacSavedPortInfo
 {
@@ -52,7 +37,4 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
     RGBBackColor(&back);
 }
 
-#endif
-
-
-
+#endif // QT_MAC_H

@@ -7,7 +7,7 @@
 **
 *****************************************************************************/
 
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 static char ident[] = "$Id: examples.doc,v 1.2 1999/07/02 19:42:02 ettrich Exp $";
 #endif
 

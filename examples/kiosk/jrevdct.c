@@ -275,7 +275,7 @@ j_rev_dct_sparse (DCTELEM *data, int pos)
   }
   tmp2dataptr = (DCTELEM *)tmp2data;
 
-#ifdef DEBUG
+#if defined(QT_DEBUG)
   printf ("original DCTBLOCK:\n");
   for (rr=0; rr<8; rr++) {
     for (v=0; v<8; v++) {
@@ -312,7 +312,7 @@ j_rev_dct_sparse (DCTELEM *data, int pos)
 
   dataptr = (DCTELEM *) data;
 
-#ifdef DEBUG 
+#if defined(QT_DEBUG)
   printf ("sparse IDCT:\n");
   for (rr=0; rr<8; rr++) {
     for (v=0; v<8; v++) {
@@ -321,7 +321,7 @@ j_rev_dct_sparse (DCTELEM *data, int pos)
     printf("\n");
   }
   printf("\n");
-#endif /* DEBUG */
+#endif /* QT_DEBUG */
 #else  /* NO_SPARSE_AC */
 #ifdef FLOATDCT
   if (qualityFlag)

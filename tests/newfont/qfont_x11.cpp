@@ -1074,7 +1074,7 @@ void QFont::cacheStatistics()
     qDebug("QFont:cacheStatistics: sorry, function not implemented");
 
     /*
-      #if defined(DEBUG)
+      #if defined(QT_DEBUG)
       fontCache->statistics();
       QFontCacheIt it(*fontCache);
       QFontPrivate *fin;

@@ -71,7 +71,7 @@
 //   UNIX	- Any UNIX bsd/sysv system
 //
 
-#if defined( __APPLE__ ) && defined( __GNUC__ )
+#if defined(__APPLE__) && defined(__GNUC__)
 #  define Q_OS_MACX
 #elif defined(macintosh)
 #  define Q_OS_MAC
@@ -504,8 +504,15 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #  define QT_CHECK_MATH				// check math functions
 #endif
 
-#if !defined(NO_DEBUG) && !defined(DEBUG)
-#  define DEBUG					// display debug messages
+#if !defined(QT_NO_DEBUG) && !defined(QT_DEBUG)
+#  define QT_DEBUG				// display debug messages
+#  if !defined(QT_CLEAN_NAMESPACE)
+#    if !defined(NO_DEBUG)
+#      if !defined(Q_OS_MACX)			// clash with MacOS X headers
+#        define DEBUG
+#      endif
+#    endif
+#  endif
 #endif
 
 

@@ -145,12 +145,12 @@ QString QDir::currentDirPath()
 	char currentName[PATH_MAX];
 	if ( GETCWD( currentName, PATH_MAX ) != 0 )
 	    result = QFile::decodeName(currentName);
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	if ( result.isNull() )
 	    qWarning( "QDir::currentDirPath: getcwd() failed" );
 #endif
     } else {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	qWarning( "QDir::currentDirPath: stat(\".\") failed" );
 #endif
     }

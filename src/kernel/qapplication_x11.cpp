@@ -83,7 +83,7 @@
 #include "qthread.h"
 #endif
 
-#if defined(Q_OS_LINUX) && defined(DEBUG)
+#if defined(QT_DEBUG) && defined(Q_OS_LINUX)
 #include "qfile.h"
 #include <unistd.h>
 #endif
@@ -249,7 +249,7 @@ static Display *appDpy		= 0;		// X11 application display
 static char    *appDpyName	= 0;		// X11 display name
 static bool	appForeignDpy	= FALSE;        // we didn't create display
 static bool	appSync		= FALSE;	// X11 synchronization
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 static bool	appNoGrab	= FALSE;	// X11 grabbing enabled
 static bool	appDoGrab	= FALSE;	// X11 grabbing override (gdb)
 #endif
@@ -1148,7 +1148,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    } else if ( arg == "-cmap" ) {    // xv uses this name
 		qt_cmap_option = TRUE;
 	    }
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	    else if ( arg == "-sync" )
 		appSync = !appSync;
 	    else if ( arg == "-nograb" )
@@ -1162,7 +1162,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	*argcptr = j;
 
-#if defined(DEBUG) && defined(Q_OS_LINUX)
+#if defined(QT_DEBUG) && defined(Q_OS_LINUX)
 	if ( !appNoGrab && !appDoGrab ) {
 	    QCString s;
 	    s.sprintf( "/proc/%d/cmdline", getppid() );
@@ -1654,7 +1654,7 @@ WId qt_xrootwin()				// get X root window
 
 bool qt_nograb()				// application no-grab option
 {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     return appNoGrab;
 #else
     return FALSE;
@@ -3385,11 +3385,11 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
 {
     TimerInfo *t = timerList->first();
     int index = 0;
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     int dangerCount = 0;
 #endif
     while ( t && t->timeout < ti->timeout ) {	// list is sorted by timeout
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	if ( t->obj == ti->obj )
 	    dangerCount++;
 #endif
@@ -3397,7 +3397,7 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
 	index++;
     }
     timerList->insert( index, ti );		// inserts sorted
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     if ( dangerCount > 16 )
 	qDebug( "QObject: %d timers now exist for object %s::%s",
 	       dangerCount, ti->obj->className(), ti->obj->name() );

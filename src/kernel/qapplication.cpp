@@ -508,7 +508,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
   to process command line arguments.
 
   Qt debugging options (not available if Qt was compiled with the
-  NO_DEBUG flag defined):
+  QT_NO_DEBUG flag defined):
   <ul>
   <li> \c -nograb, tells Qt to never grab the mouse or the keyboard.
   <li> \c -dograb (only under X11), running under a debugger can cause
@@ -2274,7 +2274,7 @@ void QApplication::removePostedEvent( QEvent *  event )
 	return;
 
     if ( !globalPostedEvents ) {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	qDebug( "QApplication::removePostedEvent: %p %d is posted: impossible",
 		event, event->type() );
 	return;
@@ -2286,7 +2286,7 @@ void QApplication::removePostedEvent( QEvent *  event )
     while( (pe = it.current()) != 0 ) {
 	++it;
 	if ( pe->event == event ) {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	    const char *n;
 	    switch ( event->type() ) {
 	    case QEvent::Timer:

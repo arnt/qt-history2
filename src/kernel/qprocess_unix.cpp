@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#26 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -52,7 +52,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-//#define QPROCESS_DEBUG
+//#define QT_QPROCESS_DEBUG
 
 #ifdef __MIPSEL__
 #ifndef SOCK_DGRAM
@@ -88,7 +88,7 @@ class QProcessPrivate
 public:
     QProcessPrivate( QProcess *proc ) : d( proc )
     {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcessPrivate: Constructor" );
 #endif
 	stdinBufRead = 0;
@@ -112,7 +112,7 @@ public:
 
 	    struct sigaction act;
 
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	    qDebug( "QProcessPrivate: install a sigchild handler" );
 #endif
 	    act.sa_handler = qt_C_sigchldHnd;
@@ -125,7 +125,7 @@ public:
 	    if ( sigaction( SIGCHLD, &act, oldactChld ) != 0 )
 		qWarning( "Error installing SIGCHLD handler" );
 
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	    qDebug( "QProcessPrivate: install a sigpipe handler (SIG_IGN)" );
 #endif
 	    act.sa_handler = SIG_IGN;
@@ -140,7 +140,7 @@ public:
 
     ~QProcessPrivate()
     {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcessPrivate: Destructor" );
 #endif
 	// restore SIGCHLD handler
@@ -150,13 +150,13 @@ public:
 		delete proclist;
 		proclist = 0;
 
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 		qDebug( "QProcessPrivate: restore old sigchild handler" );
 #endif
 		if ( sigaction( SIGCHLD, oldactChld, 0 ) != 0 )
 		    qWarning( "Error restoring SIGCHLD handler" );
 
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 		qDebug( "QProcessPrivate: restore old sigpipe handler" );
 #endif
 		if ( sigaction( SIGPIPE, oldactPipe, 0 ) != 0 )
@@ -189,7 +189,7 @@ public:
 
     static void sigchldHnd()
     {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 		qDebug( "QProcessPrivate::sigchldHnd()" );
 #endif
 	if ( !proclist )
@@ -197,7 +197,7 @@ public:
 	QProcess *proc;
 	for ( proc=proclist->first(); proc!=0; proc=proclist->next() ) {
 	    if ( !proc->d->exitValuesCalculated && !proc->isRunning() ) {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 		qDebug( "QProcessPrivate::sigchldHnd(): process exited" );
 #endif
 		// read pending data
@@ -302,7 +302,7 @@ QProcess::~QProcess()
 */
 bool QProcess::start()
 {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcess::start()" );
 #endif
     d->exitValuesCalculated = FALSE;
@@ -344,7 +344,7 @@ bool QProcess::start()
     for ( QStringList::Iterator it = arguments.begin(); it != arguments.end(); ++it ) {
 	arglistQ[i] = (*it).local8Bit();
 	arglist[i] = arglistQ[i];
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::start(): arg %d = %s", i, arglist[i] );
 #endif
 	i++;
@@ -436,7 +436,7 @@ bool QProcess::kill()
 bool QProcess::isRunning()
 {
     if ( d->exitValuesCalculated ) {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::isRunning(): FALSE (already computed)" );
 #endif
 	return FALSE;
@@ -450,12 +450,12 @@ bool QProcess::isRunning()
 		exitStat = WEXITSTATUS( status );
 	    }
 	    d->exitValuesCalculated = TRUE;
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	    qDebug( "QProcess::isRunning(): FALSE" );
 #endif
 	    return FALSE;
 	} else {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	    qDebug( "QProcess::isRunning(): TRUE" );
 #endif
 	    return TRUE;
@@ -469,7 +469,7 @@ bool QProcess::isRunning()
 */
 void QProcess::writeToStdin( const QByteArray& buf )
 {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 //    qDebug( "QProcess::writeToStdin(): write to stdin (%d)", d->socketStdin[1] );
 #endif
     d->stdinBuf.enqueue( new QByteArray(buf) );
@@ -495,7 +495,7 @@ void QProcess::closeStdin()
 	if ( ::close( d->socketStdin[1] ) != 0 ) {
 	    qWarning( "Could not close stdin of child process" );
 	}
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::closeStdin(): stdin (%d) closed", d->socketStdin[1] );
 #endif
 	d->socketStdin[1] = 0;
@@ -508,7 +508,7 @@ void QProcess::closeStdin()
 */
 void QProcess::socketRead( int fd )
 {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcess::socketRead(): %d", fd );
 #endif
     if ( fd == 0 )
@@ -532,7 +532,7 @@ void QProcess::socketRead( int fd )
     // eof or error?
     if ( n == 0 || n == -1 ) {
 	if ( fd == d->socketStdout[0] ) {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	    qDebug( "QProcess::socketRead(): stdout (%d) closed", fd );
 #endif
 	    d->notifierStdout->setEnabled( FALSE );
@@ -542,7 +542,7 @@ void QProcess::socketRead( int fd )
 	    d->socketStdout[0] = 0;
 	    return;
 	} else {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	    qDebug( "QProcess::socketRead(): stderr (%d) closed", fd );
 #endif
 	    d->notifierStderr->setEnabled( FALSE );
@@ -563,13 +563,13 @@ void QProcess::socketRead( int fd )
     }
 
     if ( fd == d->socketStdout[0] ) {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::socketRead(): %d bytes read from stdout (%d)",
 		buffer.size()-oldSize, fd );
 #endif
 	emit readyReadStdout();
     } else {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::socketRead(): %d bytes read from stderr (%d)",
 		buffer.size()-oldSize, fd );
 #endif
@@ -589,7 +589,7 @@ void QProcess::socketWrite( int fd )
 	d->notifierStdin->setEnabled( FALSE );
 	return;
     }
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcess::socketWrite(): write to stdin (%d)", fd );
 #endif
     ssize_t ret = ::write( fd,

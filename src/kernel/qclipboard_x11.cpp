@@ -39,8 +39,8 @@
 
 #ifndef QT_NO_CLIPBOARD
 
-// #define QT_CLIPBOARD_DEBUG
-// #define QT_CLIPBOARD_DEBUG_VERBOSE
+// #define QCLIPBOARD_DEBUG
+// #define QCLIPBOARD_DEBUG_VERBOSE
 
 #include "qapplication.h"
 #include "qbitmap.h"
@@ -370,7 +370,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 
     int  offset = 0, buffer_offset = 0, format_inc = 1, proplen = bytes_left;
     
-#if defined (QT_CLIPBOARD_DEBUG)
+#if defined (QCLIPBOARD_DEBUG)
     qDebug("qt_xclb_read_property: initial property length: %d", proplen);
 #endif
     
@@ -393,7 +393,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
     
     bool ok = buffer->resize( proplen + (nullterm ? 1 : 0) );
     
-#if defined(QT_CLIPBOARD_DEBUG)
+#if defined(QCLIPBOARD_DEBUG)
     qDebug("qt_xclb_read_property: buffer resized to %d", buffer->size());
 #endif
     
@@ -437,7 +437,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
     if ( size )
 	*size = buffer_offset;
     
-#if defined(QT_CLIPBOARD_DEBUG)
+#if defined(QCLIPBOARD_DEBUG)
     qDebug("qt_xclb_read_property: buffer size %d, buffer offset %d, offset %d",
 	   buffer->size(), buffer_offset, offset);
 #endif
@@ -551,7 +551,7 @@ bool QClipboard::event( QEvent *e )
 	// new selection owner
 	if (xevent->xselectionclear.selection == XA_PRIMARY) {
 
-#if defined(QT_CLIPBOARD_DEBUG)
+#if defined(QCLIPBOARD_DEBUG)
 	    qDebug("qclipboard_x11.cpp: new selection owner 0x%lx",
 		   XGetSelectionOwner(dpy, XA_PRIMARY));
 #endif
@@ -559,7 +559,7 @@ bool QClipboard::event( QEvent *e )
 	    emit selectionChanged();
 	} else { // if (xevent->xselectionclear.selection == qt_xa_clipboard) {
 	    
-#if defined (QT_CLIPBOARD_DEBUG)
+#if defined (QCLIPBOARD_DEBUG)
 	    qDebug("QClipboard: new clipboard owner 0x%lx",
 		   XGetSelectionOwner(dpy, qt_xa_clipboard));
 #endif
@@ -595,7 +595,7 @@ bool QClipboard::event( QEvent *e )
 	    evt.xselection.property	= None;
 	    evt.xselection.time = req->time;
 	    
-#if defined(QT_CLIPBOARD_DEBUG)
+#if defined(QCLIPBOARD_DEBUG)
 	    qDebug("qclipboard_x11.cpp: selection requested\n"
 		   "                    from 0x%lx\n"
 		   "                    to 0x%lx (%s) 0x%lx (%s)",
@@ -652,7 +652,7 @@ bool QClipboard::event( QEvent *e )
 		    if (d->source()->provides("image/pbm")) atoms++;
 		    if (d->source()->provides("text/plain")) atoms++;
 
-#if defined(QT_CLIPBOARD_DEBUG_VERBOSE)
+#if defined(QCLIPBOARD_DEBUG_VERBOSE)
 		    qDebug("qclipboard_x11.cpp:%d: %d provided types", __LINE__, atoms);
 #endif
 
@@ -669,7 +669,7 @@ bool QClipboard::event( QEvent *e )
 			atarget[n++] = *dnd;
 		    }
 
-#if defined(QT_CLIPBOARD_DEBUG_VERBOSE)
+#if defined(QCLIPBOARD_DEBUG_VERBOSE)
 		    qDebug("qclipboard_x11.cpp:%d: before standard, n(%d) atoms(%d)",
 			   __LINE__, n, atoms);
 #endif
@@ -681,7 +681,7 @@ bool QClipboard::event( QEvent *e )
 		    if ( d->source()->provides("text/plain") )
 			atarget[n++] = XA_STRING;
 
-#if defined(QT_CLIPBOARD_DEBUG_VERBOSE)
+#if defined(QCLIPBOARD_DEBUG_VERBOSE)
 		    for (int index = 0; index < n; index++) {
 			qDebug("qclipboard_x11.cpp: atom %d: 0x%lx (%s)",
 			       index, atarget[index],
@@ -762,7 +762,7 @@ bool QClipboard::event( QEvent *e )
 		    }
 		}
 
-#if defined(QT_CLIPBOARD_DEBUG)
+#if defined(QCLIPBOARD_DEBUG)
 		qDebug("qclipboard_x11.cpp: SelectionNotify to 0x%lx\n"
 		       "                    property 0x%lx (%s)",
 		       req->requestor, evt.xselection.property,
@@ -951,7 +951,7 @@ void QClipboard::setData( QMimeSource* src )
 
     // ### perhaps this should be QT_CHECK_RANGE ?
     if ( XGetSelectionOwner(dpy, atom) != win ) {
-#if defined(QT_CLIPBOARD_DEBUG)
+#if defined(QCLIPBOARD_DEBUG)
 	qDebug( "QClipboard::setData: Cannot set X11 selection owner for %s",
 		XGetAtomName(dpy, atom));
 #endif

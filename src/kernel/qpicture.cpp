@@ -259,7 +259,7 @@ bool QPicture::play( QPainter *painter )
 
 bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     int		strm_pos;
 #endif
     Q_UINT8	c;				// command id
@@ -289,7 +289,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 	    s >> len;
 	else
 	    len = tiny_len;
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	strm_pos = s.device()->at();
 #endif
 	switch ( c ) {				// exec cmd
@@ -494,7 +494,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		if ( len )			// skip unknown command
 		    s.device()->at( s.device()->at()+len );
 	}
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	//qDebug( "device->at(): %i, strm_pos: %i len: %i", s.device()->at(), strm_pos, len );
 	ASSERT( s.device()->at() - strm_pos == len );
 #endif

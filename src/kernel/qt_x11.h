@@ -101,7 +101,7 @@ typedef char *XPointer;
 #elif defined(Q_OS_SOLARIS)
 // XRegisterIMInstantiateCallback broken under "C" locale on Solaris
 #define NO_XIM
-#elif defined(NO_DEBUG) && defined(Q_OS_IRIX) && defined(Q_CC_EDG)
+#elif defined(QT_NO_DEBUG) && defined(Q_OS_IRIX) && defined(Q_CC_EDG)
 // XCreateIC broken when compiling -64 on IRIX 6.5.2
 #define NO_XIM
 #elif defined(Q_OS_HPUX) && defined(__LP64__)

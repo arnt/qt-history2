@@ -34,7 +34,7 @@
 ** not clear to you.
 **
 **********************************************************************/
-#define DEBUG
+#define QT_DEBUG
 // REVISED: arnt
 
 #include "qwidget.h"
@@ -410,7 +410,7 @@ void QFont::cleanup()
 
 void QFont::cacheStatistics()
 {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     fontCache->statistics();
     QFontCacheIt it(*fontCache);
     QFontInternal *fin;
@@ -1299,7 +1299,7 @@ void QFont::load() const
 	    s = XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
 				&missing, &nmissing, 0 );
 	    if ( missing ) {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 		for(int i=0; i<nmissing; i++)
 		    qDebug("Qt: missing charset %s",missing[i]);
 #endif

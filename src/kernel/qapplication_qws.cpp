@@ -91,7 +91,7 @@
 #include <errno.h>
 #define	 GC GC_QQQ
 
-#if defined(Q_OS_LINUX) && defined(DEBUG)
+#if defined(Q_OS_LINUX) && defined(QT_DEBUG)
 #include "qfile.h"
 #include <unistd.h>
 #endif
@@ -144,7 +144,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-#ifdef DEBUG
+#if defined(QT_DEBUG)
 /*
 extern "C" void dumpmem(const char* m)
 {

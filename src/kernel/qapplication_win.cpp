@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#424 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#425 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -130,7 +130,7 @@ static bool	sm_cancel;
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 static bool replayPopupMouseEvent = FALSE; // replay handling when popups close
 
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
 
@@ -530,7 +530,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     // Detect the Windows version
     (void) QApplication::winVersion();
 
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     int argc = *argcptr;
     int i, j;
 
@@ -552,7 +552,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 #else
     Q_UNUSED( argcptr );
     Q_UNUSED( argv );
-#endif // DEBUG
+#endif // QT_DEBUG
 
 
     // Get the application name/instance if qWinMain() was not invoked
@@ -723,7 +723,7 @@ Q_EXPORT HDC qt_display_dc()			// get display DC
 
 bool qt_nograb()				// application no-grab option
 {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     return appNoGrab;
 #else
     return FALSE;

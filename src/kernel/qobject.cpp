@@ -364,7 +364,7 @@ QObject::QObject( QObject *parent, const char *name )
 QObject::~QObject()
 {
     if ( wasDeleted ) {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	qWarning( "Double QObject deletion detected." );
 #endif
 	return;
@@ -2019,7 +2019,7 @@ ACTIVATE_SIGNAL_WITH_PARAM( activate_signal_strref, const QString & )
 
 static void dumpRecursive( int level, QObject *object )
 {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     if ( object ) {
 	QString buf;
 	buf.fill( '\t', level/2 );
@@ -2082,7 +2082,7 @@ void QObject::dumpObjectTree()
 
 void QObject::dumpObjectInfo()
 {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     qDebug( "OBJECT %s::%s", className(), name( "unnamed" ) );
     int n = 0;
     qDebug( "  SIGNALS OUT" );

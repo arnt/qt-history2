@@ -217,7 +217,7 @@ public:
 	    qApp->syncX();
 	    int el = t.elapsed();
 	    qDebug("%s%c: %dms for %d %c's (%ld pixels/second)",
-#ifdef DEBUG
+#ifdef QT_DEBUG
 		"Unoptimized: ",
 #else
 		"",

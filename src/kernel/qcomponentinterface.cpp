@@ -40,7 +40,7 @@ QUnknownInterface::~QUnknownInterface()
     if ( par )
 	par->removeChild( this );
 
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     if ( refcount )
 	qDebug( "Interface %s is destroyed while referenced %d times", objname, refcount );
 #endif
@@ -538,10 +538,10 @@ QString QApplicationInterface::command() const
 QApplicationComponentInterface::QApplicationComponentInterface( QObject* object, QUnknownInterface *parent, const char* name )
 : QUnknownInterface( parent, name )
 {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     if ( !parent )
 	qWarning( "QApplicationComponentInterfaces can't be toplevel!" );
-#endif //DEBUG
+#endif
     comp = object;
 }
 

@@ -1622,8 +1622,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
 #endif
 
-// #define DEBUG_XIMAGE
-#if defined(DEBUG_XIMAGE)
+// #define QT_DEBUG_XIMAGE
+#if defined(QT_DEBUG_XIMAGE)
     qDebug( "----IMAGE--INFO--------------" );
     qDebug( "width............. %d", xi->width );
     qDebug( "height............ %d", xi->height );

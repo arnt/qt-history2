@@ -427,7 +427,7 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_INCPATH"].append(varGlue("INCLUDEPATH","/I "," /I ",""));
     if ( project->isActiveConfig("qt") ) {
-	project->variables()["MSVCDSP_RELDEFS"].append("/D \"NO_DEBUG\"");
+	project->variables()["MSVCDSP_RELDEFS"].append("/D \"QT_NO_DEBUG\"");
     } else {
 	project->variables()["MSVCDSP_RELDEFS"].clear();
     }

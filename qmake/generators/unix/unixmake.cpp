@@ -367,7 +367,7 @@ UnixMakefileGenerator::init()
 	if(configs.findIndex("moc")) configs.append("moc");
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
 	if ( !project->isActiveConfig("debug") ) {
-	    project->variables()["DEFINES"].append("NO_DEBUG");
+	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
 	}
 	if ( !(((project->variables()["TARGET"].first() == "qt") ||
 		(project->variables()["TARGET"].first() == "qt-mt")) &&

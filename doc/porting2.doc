@@ -240,7 +240,7 @@ This change has been made to avoid collisions with other namespaces.
 is not set (i.e. if the QT_NO_CHECK flag is defined).
 
 <p>The debug() function now outputs nothing if Qt was compiled with
-the NO_DEBUG macro defined.
+the QT_NO_DEBUG macro defined.
 
 
 <h3><a name=QString>QString</a></h3>

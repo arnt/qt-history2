@@ -249,7 +249,7 @@ NmakeMakefileGenerator::init()
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
 	if ( !project->isActiveConfig("debug") ) {
-	    project->variables()["DEFINES"].append("NO_DEBUG");
+	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
 	}
 	if ( (project->variables()["TARGET"].first() == "qt") &&
 	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {

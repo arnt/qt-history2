@@ -870,7 +870,7 @@ qstring_to_xtp( const QString& s )
 	tl[1] = 0;
 	errCode = XmbTextListToTextProperty( QPaintDevice::x11AppDisplay(),
 					     tl, 1, XStdICCTextStyle, &tp );
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	if ( errCode < 0 )
 	    qDebug( "qstring_to_xtp result code %d", errCode );
 #endif

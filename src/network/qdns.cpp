@@ -53,7 +53,7 @@
 #include "qsocketdevice.h"
 #include "qcleanuphandler.h"
 
-//#define DEBUG_QDNS
+//#define QDNS_DEBUG
 
 
 static Q_UINT16 id; // ### seeded started by now()
@@ -331,7 +331,7 @@ QString QDnsAnswer::readString()
 void QDnsAnswer::parseA()
 {
     if ( next != pp + 4 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw %d bytes long IN A for %s",
 		next - pp, label.ascii() );
 #endif
@@ -344,7 +344,7 @@ void QDnsAnswer::parseA()
 				( answer[pp+1] << 16 ) +
 				( answer[pp+2] <<  8 ) +
 				( answer[pp+3] ) );
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns: saw %s IN A %s (ttl %d)", label.ascii(),
 	    rr->address.toString().ascii(), ttl );
 #endif
@@ -354,7 +354,7 @@ void QDnsAnswer::parseA()
 void QDnsAnswer::parseAaaa()
 {
     if ( next != pp + 16 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw %d bytes long IN Aaaa for %s",
 		next - pp, label.ascii() );
 #endif
@@ -364,7 +364,7 @@ void QDnsAnswer::parseAaaa()
     rr = new QDnsRR( label );
     rr->t = QDns::Aaaa;
     rr->address = QHostAddress( answer+pp );
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns: saw %s IN Aaaa %s (ttl %d)", label.ascii(),
 	    rr->address.toString().ascii(), ttl );
 #endif
@@ -375,7 +375,7 @@ void QDnsAnswer::parseAaaa()
 void QDnsAnswer::parseMx()
 {
     if ( next < pp + 2 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw %d bytes long IN MX for %s",
 		next - pp, label.ascii() );
 #endif
@@ -387,13 +387,13 @@ void QDnsAnswer::parseMx()
     pp += 2;
     rr->target = readString().lower();
     if ( !ok ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad string in MX for %s", label.ascii() );
 #endif
 	return;
     }
     rr->t = QDns::Mx;
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns: saw %s IN MX %d %s (ttl %d)", label.ascii(),
 	    rr->priority, rr->target.ascii(), ttl );
 #endif
@@ -403,7 +403,7 @@ void QDnsAnswer::parseMx()
 void QDnsAnswer::parseSrv()
 {
     if ( next < pp + 6 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw %d bytes long IN SRV for %s",
 		next - pp, label.ascii() );
 #endif
@@ -417,13 +417,13 @@ void QDnsAnswer::parseSrv()
     pp += 6;
     rr->target = readString().lower();
     if ( !ok ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad string in SRV for %s", label.ascii() );
 #endif
 	return;
     }
     rr->t = QDns::Srv;
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns: saw %s IN SRV %d %d %d %s (ttl %d)", label.ascii(),
 	    rr->priority, rr->weight, rr->port, rr->target.ascii(), ttl );
 #endif
@@ -434,7 +434,7 @@ void QDnsAnswer::parseCname()
 {
     QString target = readString().lower();
     if ( !ok ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad cname for for %s", label.ascii() );
 #endif
 	return;
@@ -443,7 +443,7 @@ void QDnsAnswer::parseCname()
     rr = new QDnsRR( label );
     rr->t = QDns::Cname;
     rr->target = target;
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns: saw %s IN CNAME %s (ttl %d)", label.ascii(),
 	    rr->target.ascii(), ttl );
 #endif
@@ -454,7 +454,7 @@ void QDnsAnswer::parseNs()
 {
     QString target = readString().lower();
     if ( !ok ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad cname for for %s", label.ascii() );
 #endif
 	return;
@@ -462,7 +462,7 @@ void QDnsAnswer::parseNs()
 
     // parse, but ignore
 
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns: saw %s IN NS %s (ttl %d)", label.ascii(),
 	    target.ascii(), ttl );
 #endif
@@ -473,7 +473,7 @@ void QDnsAnswer::parsePtr()
 {
     QString target = readString().lower();
     if ( !ok ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad PTR for for %s", label.ascii() );
 #endif
 	return;
@@ -482,7 +482,7 @@ void QDnsAnswer::parsePtr()
     rr = new QDnsRR( label );
     rr->t = QDns::Ptr;
     rr->target = target;
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns: saw %s IN PTR %s (ttl %d)", label.ascii(),
 	    rr->target.ascii(), ttl );
 #endif
@@ -493,7 +493,7 @@ void QDnsAnswer::parseTxt()
 {
     QString text = readString();
     if ( !ok ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "QDns: saw bad TXT for for %s", label.ascii() );
 #endif
 	return;
@@ -502,7 +502,7 @@ void QDnsAnswer::parseTxt()
     rr = new QDnsRR( label );
     rr->t = QDns::Txt;
     rr->text = text;
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns: saw %s IN TXT \"%s\" (ttl %d)", label.ascii(),
 	    rr->text.ascii(), ttl );
 #endif
@@ -513,7 +513,7 @@ void QDnsAnswer::parse()
 {
     // okay, do the work...
     if ( (answer[2] & 0x78) != 0 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: asnwer to wrong query type (%d)", answer[1] );
 #endif
 	ok = FALSE;
@@ -525,7 +525,7 @@ void QDnsAnswer::parse()
 
     // TC
     if ( (answer[2] & 2) != 0 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: truncated answer; pressing on" );
 #endif
     }
@@ -537,7 +537,7 @@ void QDnsAnswer::parse()
     // we don't test the MBZ fields
 
     if ( (answer[3] & 0x0f) == 3 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: saw NXDomain for %s", query->l.ascii() );
 #endif
 	// NXDomain.  cache that for one minute.
@@ -552,7 +552,7 @@ void QDnsAnswer::parse()
     }
 
     if ( (answer[3] & 0x0f) != 0 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: error code %d", answer[3] & 0x0f );
 #endif
 	ok = FALSE;
@@ -591,7 +591,7 @@ void QDnsAnswer::parse()
 	if ( pp + 10 <= size )
 	    rdlength = ( answer[pp+8] << 8 ) + answer[pp+9];
 	if ( pp + 10 + rdlength > size ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	    qDebug( "DNS Manager: ran out of stuff to parse (%d+%d>%d (%d)",
 		    pp, rdlength, size, rrno < ancount );
 #endif
@@ -609,7 +609,7 @@ void QDnsAnswer::parse()
 	      ( answer[pp+6] <<  8 ) + answer[pp+7];
 	pp = pp + 10;
 	if ( clas != 1 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	    qDebug( "DNS Manager: class %d (not internet) for %s",
 		    clas, label.isNull() ? "." : label.ascii() );
 #endif
@@ -643,7 +643,7 @@ void QDnsAnswer::parse()
 		break;
 	    default:
 		// something we don't know
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 		qDebug( "DNS Manager: type %d for %s", type,
 			label.isNull() ? "." : label.ascii() );
 #endif
@@ -667,7 +667,7 @@ void QDnsAnswer::parse()
 	rrno++;
     }
     if ( answers == 0 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: answer contained no answers" );
 #endif
 	ok = ( aa || rd );
@@ -707,7 +707,7 @@ void QDnsAnswer::parse()
 		     older->text == rr->text ) {
 		    // well, it's equal, but it's not the same. so we kill it,
 		    // but use its expiry time.
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 		    qDebug( "killing off old %d for %s, expire was %d",
 			   older->t, older->domain->name().latin1(),
 			   rr->expireTime );
@@ -716,7 +716,7 @@ void QDnsAnswer::parse()
 		    rr->expireTime = QMAX( older->expireTime, rr->expireTime );
 		    rr->deleteTime = QMAX( older->deleteTime, rr->deleteTime );
 		    older->deleteTime = 0;
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 		    qDebug( "    adjusted expire is %d", rr->expireTime );
 #endif
 		}
@@ -725,7 +725,7 @@ void QDnsAnswer::parse()
 	}
     }
 
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     //qDebug( "DNS Manager: ()" );
 #endif
 }
@@ -754,7 +754,7 @@ void QDnsAnswer::notify()
 	     query->dns->find( (void*)dns ) != 0 ) {
 	    notified.insert( (void*)dns, (void*)42 );
 	    if ( rrs->count() == 0 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 		qDebug( "DNS Manager: found no answers!" );
 #endif
 		((QDnsUgleHack*)dns)->ugle( TRUE );
@@ -768,7 +768,7 @@ void QDnsAnswer::notify()
 			found = TRUE;
 		if ( found )
 		    ((QDnsUgleHack*)dns)->ugle();
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 		else
 		    qDebug( "DNS Manager: DNS thing %s not notified for %s",
 			    dns->label().ascii(), query->l.ascii() );
@@ -826,7 +826,7 @@ QDnsManager * QDnsManager::manager()
 void QDnsUgleHack::ugle( bool emitAnyway)
 {
     if ( emitAnyway || !isWorking() ) {
-#if defined( DEBUG_QDNS )
+#if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: status change for %s (type %d)",
 		label().ascii(), recordType() );
 #endif
@@ -873,7 +873,7 @@ QDnsManager::QDnsManager()
 	    ns->next();
 	if ( !ns->current() ) {
 	    ns->append( new QHostAddress(*h) );
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	    qDebug( "using name server %s", h->toString().latin1() );
 	} else {
 	    qDebug( "skipping address %s", h->toString().latin1() );
@@ -896,7 +896,7 @@ QDnsManager::QDnsManager()
 	    domains->next();
 	if ( !domains->current() ) {
 	    domains->append( s );
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	    qDebug( "searching domain %s", s );
 	} else {
 	    qDebug( "skipping domain %s", s );
@@ -925,7 +925,7 @@ void QDnsManager::cleanCache()
     QDictIterator<QDnsDomain> it( cache );
     QDnsDomain * d;
     Q_UINT32 thisSweep = now();
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDnsManager::cleanCache(: Called, time is %u, last was %u",
 	   thisSweep, lastSweep );
 #endif
@@ -959,7 +959,7 @@ void QDnsManager::answer()
 {
     QByteArray a( 16383 ); // large enough for anything, one suspects
     int r = socket->readBlock( a.data(), a.size() );
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug("DNS Manager: answer arrived: %d bytes from %s:%d", r,
 	   socket->peerAddress().toString().ascii(), socket->peerPort() );
 #endif
@@ -975,7 +975,7 @@ void QDnsManager::answer()
 	   !( queries[i] && queries[i]->id == aid ) )
 	i++;
     if ( i == queries.size() ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: bad id (0x%04x) %d", aid, i );
 #endif
 	return;
@@ -984,7 +984,7 @@ void QDnsManager::answer()
     // at this point queries[i] is whatever we asked for.
 
     if ( (Q_UINT8)(a[2]) & 0x80 == 0 ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: received a query" );
 #endif
 	return;
@@ -1027,7 +1027,7 @@ void QDnsManager::transmitQuery( int i )
 	// okay, we've run out of retransmissions, let's kill it off and say
 	// name-server-is-naughty
 	queries.take( i );
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "DNS Manager: giving up on query 0x%04x", q->id );
 #endif
 	// we fake an NXDomain with a very short life time
@@ -1108,7 +1108,7 @@ void QDnsManager::transmitQuery( int i )
 	return;
 
     socket->writeBlock( p.data(), pp, *ns->at( q->step % ns->count() ), 53 );
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "issuing query 0x%04x (%d) about %s type %d to %s",
 	    q->id, q->step, q->l.ascii(), q->t,
 	    ns->at( q->step % ns->count() )->toString().ascii() );
@@ -1120,7 +1120,7 @@ void QDnsManager::transmitQuery( int i )
 	QHostAddress * server;
 	while( (server=ns->next()) != 0 ) {
 	    socket->writeBlock( p.data(), pp, *server, 53 );
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	    qDebug( "copying query to %s", server->toString().ascii() );
 #endif
 	}
@@ -1232,7 +1232,7 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 	QString s = *it;
 	it++;
 	nxdomain = FALSE;
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "looking at cache for %s (%s %d)",
 		s.ascii(), r->label().ascii(), r->recordType() );
 #endif
@@ -1246,7 +1246,7 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 		 !rr->nxdomain && cnamecount < 16 ) {
 		// cname.  if the code is ugly, that may just
 		// possibly be because the concept is.
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 		qDebug( "found cname from %s to %s",
 			r->label().ascii(), rr->target.ascii() );
 #endif
@@ -1293,7 +1293,7 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 	}
 	// if we found a positive result, return quickly
 	if ( answer && l->count() ) {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	    qDebug( "found %d records for %s",
 		    l->count(), r->label().ascii() );
 	    l->first();
@@ -1309,7 +1309,7 @@ QList<QDnsRR> * QDnsDomain::cached( const QDns * r )
 	    return l;
 	}
 
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	if ( nxdomain )
 	    qDebug( "found NXDomain %s", s.ascii() );
 #endif
@@ -1360,7 +1360,7 @@ void QDnsDomain::sweep()
 	if ( !rr->deleteTime )
 	    rr->deleteTime = lastSweep; // will hit next time around
 
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
 	qDebug( "QDns::sweep: %s type %d expires %u %u - %s / %s",
 	       rr->domain->name().latin1(), rr->t,
 	       rr->expireTime, rr->deleteTime,
@@ -1570,7 +1570,7 @@ void QDns::setLabel( const QString & label )
 	n.append( l.lower() );
     }
     setStartQueryTimer(); // start query the next time we enter event loop
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns::setLabel: %d address(es) for %s", n.count(), l.ascii() );
     int i = 0;
     for( i = 0; i < (int)n.count(); i++ )
@@ -1730,7 +1730,7 @@ QString QDns::toInAddrArpaDomain( const QHostAddress &address )
 
 bool QDns::isWorking() const
 {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns::isWorking (%s, %d)", l.ascii(), t );
 #endif
     if ( t == None )
@@ -1763,7 +1763,7 @@ bool QDns::isWorking() const
 
 QValueList<QHostAddress> QDns::addresses() const
 {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns::addresses (%s)", l.ascii() );
 #endif
     QValueList<QHostAddress> result;
@@ -1796,7 +1796,7 @@ QValueList<QHostAddress> QDns::addresses() const
 */
 QValueList<QDns::MailServer> QDns::mailServers() const
 {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns::mailServers (%s)", l.ascii() );
 #endif
     QValueList<QDns::MailServer> result;
@@ -1833,7 +1833,7 @@ QValueList<QDns::MailServer> QDns::mailServers() const
 */
 QValueList<QDns::Server> QDns::servers() const
 {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns::servers (%s)", l.ascii() );
 #endif
     QValueList<QDns::Server> result;
@@ -1861,7 +1861,7 @@ QValueList<QDns::Server> QDns::servers() const
 */
 QStringList QDns::hostNames() const
 {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns::hostNames (%s)", l.ascii() );
 #endif
     QStringList result;
@@ -1888,7 +1888,7 @@ QStringList QDns::hostNames() const
 */
 QStringList QDns::texts() const
 {
-#if defined(DEBUG_QDNS)
+#if defined(QDNS_DEBUG)
     qDebug( "QDns::texts (%s)", l.ascii() );
 #endif
     QStringList result;

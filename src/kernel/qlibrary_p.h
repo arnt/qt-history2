@@ -70,7 +70,7 @@ HINSTANCE qt_load_library( const QString& lib )
 	handle = LoadLibraryW( (TCHAR*)qt_winTchar(lib, TRUE) );
     else
 	handle = LoadLibraryA( (const char*)lib.local8Bit() );
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     if ( !handle )
 	qSystemWarning( "Failed to load library!" );
 #endif
@@ -81,7 +81,7 @@ HINSTANCE qt_load_library( const QString& lib )
 bool qt_free_library( HINSTANCE handle )
 {
     bool ok = FreeLibrary( handle );
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     if ( !ok )
 	qSystemWarning( "Failed to unload library!" );
 #endif
@@ -92,7 +92,7 @@ bool qt_free_library( HINSTANCE handle )
 void* qt_resolve_symbol( HINSTANCE handle, const char* f )
 {
     void* address = GetProcAddress( handle, f );
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     if ( !address )
 	qSystemWarning( QString("Couldn't resolve symbol \"%1\"").arg( f ) );
 #endif
@@ -147,7 +147,7 @@ void* qt_resolve_symbol( void* handle, const char* f )
 void* qt_load_library( const QString& lib )
 {
     void* handle = dlopen( lib, RTLD_LAZY );
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     if ( !handle )
 	qWarning( dlerror() );
 #endif
@@ -157,7 +157,7 @@ void* qt_load_library( const QString& lib )
 bool qt_free_library( void* handle )
 {
     int ok = dlclose( handle );
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     const char* error = dlerror();
     if ( error )
 	qWarning( error );
@@ -168,7 +168,7 @@ bool qt_free_library( void* handle )
 void* qt_resolve_symbol( void* handle, const char* f )
 {
     void* address = dlsym( handle, f );
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
     const char* error = dlerror();
     if ( error )
 	qWarning( error );

@@ -236,7 +236,7 @@ QUnknownInterface* QLibrary::queryInterface( const QString &request, bool recurs
 	if ( libPol != Manual )
 	    load();
 	else {
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	    qWarning( "Tried to use library %s without loading!", libfile.latin1() );
 #endif
 	    return 0;

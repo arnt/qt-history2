@@ -457,7 +457,7 @@ void qFatal( const char *msg, ... )
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
-#if defined(Q_OS_UNIX) && defined(DEBUG)
+#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
 #else
 	exit( 1 );				// goodbye cruel world
@@ -479,7 +479,7 @@ void fatal( const char *msg, ... )
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
-#if defined(Q_OS_UNIX) && defined(DEBUG)
+#if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
 #else
 	exit( 1 );				// goodbye cruel world
@@ -563,7 +563,7 @@ static bool firstObsoleteWarning(const char *obj, const char *oldfunc )
     static QAsciiDict<int> *obsoleteDict = 0;
     if ( !obsoleteDict ) {			// first time func is called
 	obsoleteDict = new QAsciiDict<int>;
-#if defined(DEBUG)
+#if defined(QT_DEBUG)
 	qDebug(
       "You are using obsolete functions in the Qt library. Call the function\n"
       "qSuppressObsoleteWarnings() to suppress obsolete warnings.\n"
