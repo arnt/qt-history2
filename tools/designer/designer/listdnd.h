@@ -29,7 +29,7 @@ class ListDnd : public QObject
     Q_OBJECT
 public:
     enum DragMode { None = 0, External = 1, Internal = 2, Both = 3, Move = 4, NullDrop = 8 };
-    ListDnd( QScrollView * eventSource, const char *name = 0 );
+    ListDnd( QScrollView * eventSource, const char * name = 0 );
     void setDragMode( int mode );
     int dragMode() const;
     bool eventFilter( QObject *, QEvent * event );

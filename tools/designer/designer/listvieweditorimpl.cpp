@@ -68,6 +68,11 @@ ListViewEditor::ListViewEditor( QWidget *parent, QListView *lv, FormWindow *fw )
     columnsDnd->setDragMode( ListBoxDnd::Internal | ListBoxDnd::Move );
     QObject::connect( columnsDnd, SIGNAL( dropped( QListBoxItem * ) ),
 		      columnsDnd, SLOT( confirmDrop( QListBoxItem * ) ) );
+
+    QListViewItemIterator it = ((QListView *)itemsPreview)->firstChild();
+    for ( ; *it; it++ )
+	(*it)->setRenameEnabled( 0, TRUE );
+
 }
 
 void ListViewEditor::applyClicked()
@@ -84,8 +89,6 @@ void ListViewEditor::okClicked()
     applyClicked();
     accept();
 }
-
-
 
 void ListViewEditor::columnClickable( bool b )
 {
@@ -263,11 +266,6 @@ void ListViewEditor::deleteColumnClicked()
 	colPreview->setSelected( colPreview->currentItem(), TRUE );
 }
 
-
-
-
-
-
 void ListViewEditor::currentItemChanged( QListViewItem *i )
 {
     if ( !i ) {
@@ -350,6 +348,7 @@ void ListViewEditor::itemNewClicked()
 {
     QListViewItem *item = new QListViewItem( itemsPreview );
     item->setText( 0, "Item" );
+    item->setRenameEnabled( 0, TRUE );
     itemsPreview->setCurrentItem( item );
     itemsPreview->setSelected( item, TRUE );
     itemText->setFocus();
@@ -367,6 +366,7 @@ void ListViewEditor::itemNewSubClicked()
 	item = new QListViewItem( itemsPreview );
     }
     item->setText( 0, "Subitem" );
+    item->setRenameEnabled( 0, TRUE );
     itemsPreview->setCurrentItem( item );
     itemsPreview->setSelected( item, TRUE );
 }

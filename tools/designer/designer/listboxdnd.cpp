@@ -29,7 +29,7 @@
 class ListBoxItemDrag : public QStoredDrag
 {
 public:
-    ListBoxItemDrag( ListBoxItemList &items, QWidget * parent = 0, const char * name = 0 );
+    ListBoxItemDrag( ListBoxItemList & items, bool sendPtr = FALSE, QListBox * parent = 0, const char * name = 0 );
     ~ListBoxItemDrag() {};
     static bool canDecode( QDragMoveEvent * event );
     static bool decode( QDropEvent * event, QListBox * parent, QListBoxItem * insertPoint );
@@ -56,7 +56,7 @@ bool ListBoxDnd::dropEvent( QDropEvent * event )
 	}
 	
 	QPoint pos = event->pos();
-	QListBoxItem *item = itemAt( pos );
+	QListBoxItem * item = itemAt( pos );
 
 	if ( ListBoxItemDrag::decode( event, (QListBox *) src, item ) ) {
 	    event->accept();
@@ -77,7 +77,7 @@ bool ListBoxDnd::mouseMoveEvent( QMouseEvent * event )
 
 	    ListBoxItemList list;
 	    buildList( list );
-	    ListBoxItemDrag * dragobject = new ListBoxItemDrag( list, (QListBox *) src );
+	    ListBoxItemDrag * dragobject = new ListBoxItemDrag( list, (dMode & Internal), (QListBox *) src );
 
 	    if ( dMode & Move ) {
 		removeList( list ); // "hide" items
@@ -87,7 +87,7 @@ bool ListBoxDnd::mouseMoveEvent( QMouseEvent * event )
 
 	    if ( dMode & Move ) {
 		if ( dropConfirmed ) {
-		    // ###FIX: memleak ?
+		    // ###FIX: memleak ? in internal mode, only pointers are transfered...
 		    //list.setAutoDelete( TRUE );
 		    list.clear();
 		    dropConfirmed = FALSE;
@@ -103,8 +103,10 @@ int ListBoxDnd::buildList( ListBoxItemList & list )
 {
     QListBoxItem * i = ((QListBox *)src)->firstItem();
     while ( i ) {
-	if ( i->isSelected() )
+	if ( i->isSelected() ) {
+	    ((QListBox *)src)->setSelected( i, FALSE );
 	    list.append( i );
+	}
 	i = i->next();
     }
     return list.count();
@@ -141,7 +143,7 @@ void ListBoxDnd::updateLine( const QPoint & dragPos )
     line->move( 0, ypos );
 }
 
-QListBoxItem *ListBoxDnd::itemAt( QPoint pos )
+QListBoxItem * ListBoxDnd::itemAt( QPoint pos )
 {
     QListBox * src = (QListBox *) this->src;
     QListBoxItem * result = src->itemAt( pos );
@@ -166,7 +168,7 @@ bool ListBoxDnd::canDecode( QDragEnterEvent * event )
 // The Dragobject Implementation ------------------------------------
 // ------------------------------------------------------------------
 
-ListBoxItemDrag::ListBoxItemDrag( ListBoxItemList & items, QWidget * parent, const char * name )
+ListBoxItemDrag::ListBoxItemDrag( ListBoxItemList & items, bool sendPtr, QListBox * parent, const char * name )
     : QStoredDrag( "qt/listboxitem", parent, name )
 {
     // ### FIX!
@@ -174,27 +176,42 @@ ListBoxItemDrag::ListBoxItemDrag( ListBoxItemList & items, QWidget * parent, con
     QDataStream stream( data, IO_WriteOnly );
 
     stream << items.count();
+    stream << (Q_UINT8) sendPtr; // just transfer item pointer; omit data
 
-    QListBoxItem *i = items.first();
-    while ( i ) {
+    QListBoxItem * i = items.first();
 
-	Q_UINT8 b = 0;
+    if ( sendPtr ) {
+	
+	while ( i ) {
+	    
+	    stream << (unsigned long) i; //###FIX: demands sizeof(ulong) >= sizeof(void*)
+	    i = items.next();
+	    
+	}
+	
+    } else {
+  
+	while ( i ) {
+	
+	    Q_UINT8 b = 0;
 
-	b = (Q_UINT8) ( i->text() != QString::null ); // does item have text ?
-	stream << b;
-	if ( b ) {
-	    stream << i->text();
+	    b = (Q_UINT8) ( i->text() != QString::null ); // does item have text ?
+	    stream << b;
+	    if ( b ) {
+		stream << i->text();
+	    }
+    
+	    b = (Q_UINT8) ( !!i->pixmap() ); // does item have a pixmap ?
+	    stream << b;
+	    if ( b ) {
+		stream << ( *i->pixmap() );
+	    }
+
+	    stream << (Q_UINT8) i->isSelectable();
+	    
+	    i = items.next();
 	}
     
-	b = (Q_UINT8) ( !!i->pixmap() ); // does item have a pixmap ?
-	stream << b;
-	if ( b ) {
-	    stream << ( *i->pixmap() );
-	}
-
-	stream << (Q_UINT8) i->isSelectable();
-	
-	i = items.next();
     }
 
     setEncodedData( data );
@@ -216,36 +233,56 @@ bool ListBoxItemDrag::decode( QDropEvent * event, QListBox * parent, QListBoxIte
 	int count = 0;
 	stream >> count;
 
+	Q_UINT8 recievePtr = 0; // data contains just item pointers; no data
+	stream >> recievePtr;
+
 	QListBoxItem * item = 0;
 
-	for( int i = 0; i < count; i++ ) {
+	if ( recievePtr ) {
+	    
+	    for( int i = 0; i < count; i++ ) {
 
-	    Q_UINT8 hasText = 0;
-	    QString text;
-	    stream >> hasText;
-	    if ( hasText ) {
-		stream >> text;
+		unsigned long p = 0; //###FIX: demands sizeof(ulong) >= sizeof(void*)
+		stream >> p;
+		item = (QListBoxItem *) p;
+		
+		parent->insertItem( item, after );
+		
 	    }
 	    
-	    Q_UINT8 hasPixmap = 0;
-	    QPixmap pixmap;
-	    stream >> hasPixmap;
-	    if ( hasPixmap ) {
-		stream >> pixmap;
-	    }
-	    
-	    Q_UINT8 isSelectable = 0;
-	    stream >> isSelectable;
+	} else {		
 
-	    if ( hasPixmap ) {
-		item = new QListBoxPixmap( parent, pixmap, text, after );
-	    } else {
-		item = new QListBoxText( parent, text, after );
-	    }
+	    for ( int i = 0; i < count; i++ ) {
 
-	    item->setSelectable( isSelectable );
+		Q_UINT8 hasText = 0;
+		QString text;
+		stream >> hasText;
+		if ( hasText ) {
+		    stream >> text;
+		}
 	    
+		Q_UINT8 hasPixmap = 0;
+		QPixmap pixmap;
+		stream >> hasPixmap;
+		if ( hasPixmap ) {
+		    stream >> pixmap;
+		}
+	    
+		Q_UINT8 isSelectable = 0;
+		stream >> isSelectable;
+
+		if ( hasPixmap ) {
+		    item = new QListBoxPixmap( parent, pixmap, text, after );
+		} else {
+		    item = new QListBoxText( parent, text, after );
+		}
+
+		item->setSelectable( isSelectable );
+	    
+	    }
+	
 	}
+	
 	return TRUE;
     }
     return FALSE;
