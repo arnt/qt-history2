@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#35 $
 **
 ** Implementation of QScrollView class
 **
@@ -22,12 +22,11 @@
 const int sbDim = 16;
 
 struct ChildRec {
-    ChildRec(QScrollView* sv, QWidget* c, int xx, int yy) :
+    ChildRec(QWidget* c, int xx, int yy) :
 	child(c),
 	x(xx), y(yy),
 	wantshown(TRUE)
     {
-	hideOrShow(sv);
     }
 
     void moveBy(QScrollView* sv, int dx, int dy)
@@ -36,7 +35,7 @@ struct ChildRec {
     }
     void moveTo(QScrollView* sv, int xx, int yy)
     {
-	if ( x != xx || y != yy ) {
+	if ( x != xx || y != yy || wantshown ) {
 	    x = xx;
 	    y = yy;
 	    hideOrShow(sv);
@@ -52,12 +51,10 @@ struct ChildRec {
 	    {
 		child->hide();
 	    } else {
-		if (!child->isVisible()) {
-		    child->move(x-sv->contentsX(), y-sv->contentsY());
-		    child->show();
-		}
+		child->move(x-sv->contentsX(), y-sv->contentsY());
+		child->show();
 	    }
-	} else if (child->isVisible()) {
+	} else {
 	    child->hide();
 	}
     }
@@ -95,6 +92,13 @@ struct QScrollViewData {
 	    if (!w) return 0;
 	}
 	return rec(w);
+    }
+    ChildRec* addChildRec(QWidget* w, int x, int y )
+    {
+	ChildRec *r = new ChildRec(w,x,y);
+	children.append(r);
+	childDict.insert(w, r);
+	return r;
     }
     void deleteChildRec(ChildRec* r)
     {
@@ -576,9 +580,7 @@ void QScrollView::addChild(QWidget* child, int x, int y)
 	child->recreate( &d->viewport, 0, QPoint(0,0), FALSE );
     }
     child->hide();
-    ChildRec *r = new ChildRec(this,child,x,y);
-    d->children.append(r);
-    d->childDict.insert(child, r);
+    d->addChildRec(child,x,y)->hideOrShow(this);
 
     if ( d->policy > Manual )
 	d->autoResize(this); // #### better to just deal with this one widget!
@@ -1103,28 +1105,32 @@ bool QScrollView::focusNextPrevChild( bool next )
     QWidget *candidate = 0;
     QWidget *w = next ? f->last() : f->first();
 
-    do {
-	if ( w && w != startingPoint &&
-	     w->testWFlags( WState_TabToFocus ) && !w->focusProxy() &&
-	     w->isEnabledToTLW() )
-	    candidate = w;
-	w = next ? f->prev() : f->next();
-    } while( w && !(candidate && w==startingPoint) );
+    while ( w && w != startingPoint ) {
+	do {
+	    if ( w && w != startingPoint &&
+		 w->testWFlags( WState_TabToFocus ) && !w->focusProxy() &&
+		 w->isEnabledToTLW() )
+		candidate = w;
+	    w = next ? f->prev() : f->next();
+	} while( w && !(candidate && w==startingPoint) );
 
-    if ( !candidate )
-	return FALSE;
+	if ( !candidate )
+	    return FALSE;
 
-    r = d->ancestorRec(candidate);
-    if ( r ) {
-	QPoint cp = candidate->mapToGlobal(QPoint(0,0));
-	QPoint cr = r->child->mapToGlobal(QPoint(0,0)) - cp;
-	ensureVisible( r->x+cr.x()+candidate->width()/2,
-		       r->y+cr.y()+candidate->height()/2,
-		       candidate->width()/2,
-		       candidate->height()/2 );
+	r = d->ancestorRec(candidate);
+
+	if ( r ) {
+	    QPoint cp = candidate->mapToGlobal(QPoint(0,0));
+	    QPoint cr = r->child->mapToGlobal(QPoint(0,0)) - cp;
+	    ensureVisible( r->x+cr.x()+candidate->width()/2,
+			   r->y+cr.y()+candidate->height()/2,
+			   candidate->width()/2,
+			   candidate->height()/2 );
+	    if ( candidate )
+		candidate->setFocus();
+	    break;
+	}
     }
-
-    candidate->setFocus();
 
     return TRUE;
 }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#90 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -50,6 +50,7 @@ static int tabStopDist( const QFontMetrics &fm )
     return 8*fm.width( 'x' );
 }
 
+//  NOTE: only appropriate for whole lines.
 static int textWidthWithTabs( const QFontMetrics &fm,const char *s,int nChars )
 {
     if ( !s )
@@ -57,7 +58,7 @@ static int textWidthWithTabs( const QFontMetrics &fm,const char *s,int nChars )
     if ( nChars == -1 )
 	nChars = strlen(s);
 
-    int         dist = 0;
+    int         dist = -fm.minLeftBearing();
     const char *tmp  = s;
     if ( !tmp )
 	return 0;
@@ -396,6 +397,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 
 /*!
   Returns the width in pixels of the string \a s.
+  NOTE: only appropriate for whole lines.
 */
 
 int QMultiLineEdit::textWidth( QString *s )

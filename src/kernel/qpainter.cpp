@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#125 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qimage.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#124 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#125 $");
 
 
 /*!
@@ -2180,11 +2180,11 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 		if ( (*cp & PREFIX) == PREFIX ) {
 		    int xcpos = fm.width( p, k );
 		    if ( pp )			// gray text
-			pp->fillRect( xp+xcpos, fascent+fm.underlinePos(),
+			pp->fillRect( xc+xcpos, fascent+fm.underlinePos(),
 				      CWIDTH( *cp&0xff ), fm.lineWidth(),
 				      color1 );
 		    else
-			painter->fillRect( x+xp+xcpos, y+yp+fm.underlinePos(),
+			painter->fillRect( x+xc+xcpos, y+yp+fm.underlinePos(),
 				  CWIDTH( *cp&0xff ), fm.lineWidth(),
 				  painter->cpen.color() );
 		}
