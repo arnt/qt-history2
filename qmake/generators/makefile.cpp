@@ -305,7 +305,7 @@ MakefileGenerator::generateDependancies(QList<MakefileDependDir> &dirs, QString 
 		    int extn = inc.findRev('.');
 		    if(extn != -1) {
 			QString uip = inc.left(extn) + Option::ui_ext + "$";
-			QStringList uil = project->variables()["INTERFACES"];
+			QStringList uil = project->variables()["FORMS"];
 			for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
 			    QString s = (*it);
 			    if(!project->isEmpty("UI_DIR")) {
@@ -393,7 +393,7 @@ MakefileGenerator::init()
 	QDir::current().cd( currentDir );
     }
 
-    QString paths[] = { QString("SOURCES"), QString("INTERFACES"), QString("YACCSOURCES"), QString("INCLUDEPATH"),
+    QString paths[] = { QString("SOURCES"), QString("FORMS"), QString("YACCSOURCES"), QString("INCLUDEPATH"),
 			    QString("HEADERS"), QString("HEADERS_ORIG"),
 			    QString("LEXSOURCES"), QString("QMAKE_INTERNAL_INCLUDED_FILES"), QString::null };
     for(int y = 0; paths[y] != QString::null; y++) {
@@ -430,7 +430,7 @@ MakefileGenerator::init()
 	}
 
 	QString sources[] = { QString("LEXSOURCES"), QString("YACCSOURCES"),
-				  QString("HEADERS"), QString("SOURCES"), QString("INTERFACES"), QString::null };
+				  QString("HEADERS"), QString("SOURCES"), QString("FORMS"), QString::null };
 	for(int x = 0; sources[x] != QString::null; x++) {
 	    QStringList &l = v[sources[x]];
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -453,7 +453,7 @@ MakefileGenerator::init()
 	if(!project->variables()["UI_DIR"].isEmpty())
 	    project->variables()["INCLUDEPATH"].append(project->first("UI_DIR"));
 	QStringList &decls = v["UICDECLS"], &impls = v["UICIMPLS"];
-	QStringList &l = v["INTERFACES"];
+	QStringList &l = v["FORMS"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
 	    QString impl, decl;
@@ -957,7 +957,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
 {
     t << "####### Compile" << endl << endl;
     writeObj(t, "OBJECTS", "SOURCES");
-    writeUicSrc(t, "INTERFACES");
+    writeUicSrc(t, "FORMS");
     writeObj(t, "UICOBJECTS", "UICIMPLS");
     writeMocObj(t, "OBJMOC" );
     writeMocSrc(t, "HEADERS");

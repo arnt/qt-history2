@@ -91,20 +91,20 @@ $$MSVCDSP_COPY_DLL
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 $$MSVCDSP_SOURCES
-$$MSVCDSP_INTERFACESOURCES
+$$MSVCDSP_FORMSOURCES
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 $$MSVCDSP_HEADERS
-$$MSVCDSP_INTERFACEHEADERS
+$$MSVCDSP_FORMHEADERS
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # End Group
-# Begin Group "Interfaces"
-$$MSVCDSP_INTERFACES
+# Begin Group "Forms"
+$$MSVCDSP_FORMS
 
 # Prop Default_Filter "ui"
 # End Group

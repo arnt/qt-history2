@@ -159,20 +159,20 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    t << "# End Source File" << endl;
 		}
 	    }
-	    else if(variable == "MSVCDSP_INTERFACESOURCES" || variable == "MSVCDSP_INTERFACEHEADERS") {
-		if(project->variables()["INTERFACES"].isEmpty())
+	    else if(variable == "MSVCDSP_FORMSOURCES" || variable == "MSVCDSP_FORMHEADERS") {
+		if(project->variables()["FORMS"].isEmpty())
 		    continue;
 
-		QStringList &list = project->variables()["INTERFACES"];
-		QString ext = variable == "MSVCDSP_INTERFACESOURCES" ? ".cpp" : ".h";
+		QStringList &list = project->variables()["FORMS"];
+		QString ext = variable == "MSVCDSP_FORMSOURCES" ? ".cpp" : ".h";
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString base = (*it);
 		    base.replace(QRegExp("\\..*$"), ext);
 		    t << "# Begin Source File\n\nSOURCE=.\\" << base << "\n# End Source File" << endl;
 		}
 	    }
-	    else if(variable == "MSVCDSP_INTERFACES") {
-		if(project->variables()["INTERFACES"].isEmpty())
+	    else if(variable == "MSVCDSP_FORMS") {
+		if(project->variables()["FORMS"].isEmpty())
 		    continue;
 
 		QString uicpath = var("QMAKE_UIC");
@@ -180,7 +180,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		QString mocpath = var( "QMAKE_MOC" );
 		mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 
-		QStringList &list = project->variables()["INTERFACES"];
+		QStringList &list = project->variables()["FORMS"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    t <<  "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
 

@@ -169,7 +169,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     } else {
 	t << "OBJECTS = " << varList("OBJECTS") << endl;
     }
-    t << "INTERFACES = " << varList("INTERFACES") << endl;
+    t << "FORMS = " << varList("FORMS") << endl;
     QString uicDecls = varList("UICDECLS");
     QString uicImpls = varList("UICIMPLS");
     QString srcMoc = varList("SRCMOC");
@@ -426,7 +426,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "dist: " << "\n\t"
       << "cd ..\n\t"
-      << "$(TAR) " << var("PROJECT") << ".tar " << " $(SOURCES) $(HEADERS) $(INTERFACES) $(DIST)" << "\n\t"
+      << "$(TAR) " << var("PROJECT") << ".tar " << " $(SOURCES) $(HEADERS) $(FORMS) $(DIST)" << "\n\t"
       << "$(GZIP) " << var("PROJECT") << ".tar" << endl << endl;
 
     QString clean_targets;

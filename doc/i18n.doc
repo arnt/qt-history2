@@ -213,7 +213,7 @@ file. Here's an example project file (or .pro file):
     SOURCES         = funnydialog.cpp \
 		      main.cpp \
 		      wackywidget.cpp
-    INTERFACES      = fancybox.ui
+    FORMS           = fancybox.ui
     TRANSLATIONS    = superapp_dk.ts \
 		      superapp_fi.ts \
 		      superapp_no.ts \

@@ -46,7 +46,15 @@
 
 int line_count;
 extern "C" void yyerror(const char *);
-#define UN_TMAKEIFY(x) x.replace(QRegExp("^TMAKE"), "QMAKE")
+
+static QString varMap(const QString &x) 
+{
+    QString ret(x);
+    ret.replace(QRegExp("^TMAKE"), "QMAKE");
+    if(ret == "INTERFACES")
+	ret = "FORMS";
+    return ret;
+}
 
 QMakeProject::QMakeProject()
 {
@@ -167,8 +175,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 
     if(!var.isEmpty() && Option::mkfile::do_preprocess) 
 	debug_msg(0, "%s:%d :: %s %s %s",  file.latin1(), line_count, var.latin1(), op.latin1(), vals.latin1());
-
-    var = UN_TMAKEIFY(var); //backwards compatability
+    var = varMap(var); //backwards compatability
 
     QStringList vallist;  /* vallist is the broken up list of values */
     if((var == "DEPENDPATH" || var == "INCLUDEPATH") && vals.find(';') != -1) { //these guys use ; for space reasons I guess
@@ -589,7 +596,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	    right = 0;
 	}
 	while((rep = reg_var.match(str, 0, &rep_len)) != -1) {
-	    QString rep_var = UN_TMAKEIFY(str.mid(rep + left, rep_len - (left + right)));
+	    QString rep_var = varMap(str.mid(rep + left, rep_len - (left + right)));
 	    QString replacement = rep_var == "LITERAL_WHITESPACE" ? QString("\t") : place[rep_var].join(" ");
 	    debug_msg(2, "Project parser: (%s) :: %s -> %s", str.latin1(),
 		   str.mid(rep, rep_len).latin1(), replacement.latin1());

@@ -149,7 +149,7 @@ The \c files argument can be a list of files or directories, if a directory
 is specified this will be included in the DEPENDPATH and relevant code from
 there will be included in the generated project file, if a file is given it
 will go into the correct variable depending on extention (ie .ui files go
-into INTERFACES, .cpp files go into SOURCES, etc).
+into FORMS, .cpp files go into SOURCES, etc).
 
 \target SystemVariables
 \section1 System Variables
@@ -314,8 +314,8 @@ For example:
 \endcode
 
 
-\target INTERFACES
-<dt>\c INTERFACES
+\target FORMS
+<dt>\c FORMS
 
 <dd>This variable specifies the .ui files (see the \link
 designer.html Qt Designer \endlink) to be processed through \e uic
@@ -325,9 +325,9 @@ to build these .ui files will automatically be added to the project.
 For example:
 
 \code
-INTERFACES = mydialog.ui \
-	     mywidget.ui \
-             myconfig.ui
+FORMS = mydialog.ui \
+	mywidget.ui \
+        myconfig.ui
 \endcode
 
 
@@ -1429,7 +1429,7 @@ this variable is typically handled by \e qmake or
 
 <dt>\c SUBLIBS
 
-<dd>###
+<dd>
 
 
 

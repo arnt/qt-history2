@@ -266,7 +266,7 @@ This template recognizes several system variables
 \i DEFINES - Tell compiler to define C preprocessor macros (-D option)
 \i INCLUDEPATH - Sets the include file search path for the compiler (-I option).
 \i DEPENDPATH - Sets the dependency search path for the compiler
-\i INTERFACES - Specify .ui files for addition to the build
+\i FORMS - Specify .ui files for addition to the build
 \i DEF_FILE - Win32 only: Link with a .def file
 \i RC_FILE - Win32 only: Use a .rc file (compile to temporary .res)
 \i RES_FILE - Win32 only: Link with a .res file

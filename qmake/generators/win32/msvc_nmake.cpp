@@ -116,7 +116,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "HEADERS =	" << varList("HEADERS") << endl;
     t << "SOURCES =	" << varList("SOURCES") << endl;
     t << "OBJECTS =	" << varList("OBJECTS") << endl;
-    t << "INTERFACES =	" << varList("INTERFACES") << endl;
+    t << "FORMS =	" << varList("FORMS") << endl;
     t << "UICDECLS =	" << varList("UICDECLS") << endl;
     t << "UICIMPLS =	" << varList("UICIMPLS") << endl;
     t << "SRCMOC	=	" << varList("SRCMOC") << endl;
@@ -164,7 +164,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     t << "dist:" << "\n\t"
       << "$(ZIP) " << var("PROJECT") << ".zip "
-      << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST) $(INTERFACES)" << endl << endl;
+      << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST) $(FORMS)" << endl << endl;
 
     t << "clean:" << "\n"
       << varGlue("OBJECTS","\t-del ","\n\t-del ","") 

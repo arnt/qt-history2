@@ -112,7 +112,7 @@ ProjectGenerator::init()
     }
     QStringList &h = v["HEADERS"];
     bool no_qt_files = TRUE;
-    QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "INTERFACES", QString::null };
+    QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "FORMS", QString::null };
     for(int i = 0; !srcs[i].isNull(); i++) {
 	QStringList &l = v[srcs[i]];
 	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -151,8 +151,8 @@ ProjectGenerator::init()
     if(h.isEmpty())
 	addConfig("moc", FALSE);
 
-    //if we find a file that matches an interfaces it needn't be included in the project
-    QStringList &u = v["INTERFACES"];
+    //if we find a file that matches an forms it needn't be included in the project
+    QStringList &u = v["FORMS"];
     QString no_ui[] = { "SOURCES", "HEADERS", QString::null };
     {
 	for(int i = 0; !no_ui[i].isNull(); i++) {
@@ -194,7 +194,7 @@ ProjectGenerator::writeMakefile(QTextStream &t)
 
     t << endl << "# Input" << endl;
     WRITE_VAR("HEADERS");
-    WRITE_VAR("INTERFACES");
+    WRITE_VAR("FORMS");
     WRITE_VAR("LEXSOURCES");
     WRITE_VAR("YACCSOURCES");
     WRITE_VAR("SOURCES");
@@ -235,7 +235,7 @@ ProjectGenerator::addFile(const QString &file)
 	else
 	    where = "SOURCES";
     } else if(file.right(Option::ui_ext.length()) == Option::ui_ext) {
-	where = "INTERFACES";
+	where = "FORMS";
     } else if(file.right(2) == ".c") {
 	where = "SOURCES";
     } else if(file.right(2) == Option::lex_ext) {
