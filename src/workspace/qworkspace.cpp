@@ -684,8 +684,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    w->hide();
 	else if ( !isVisible() )  // that's a case were we don't receive a showEvent in time. Tricky.
 	    child->show();
-	if ( child->isVisibleTo( this ) )
-	    activateWindow( w );
+	activateWindow( w );
     } else if (e->removed() ) {
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
 	    d->windows.removeRef( (QWorkspaceChild*)e->child() );
@@ -1092,8 +1091,6 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     case QEvent::Show:
 	if ( o->isA("QWorkspaceChild") && !d->focus.containsRef( (QWorkspaceChild*)o ) )
 	    d->focus.append( (QWorkspaceChild*)o );
-	if ( d->active == o && o->isA("QWorkspaceChild") )
-	    emit windowActivated( ((QWorkspaceChild*)o)->windowWidget() );
 	break;
     case QEvent::CaptionChange:
 	if ( inCaptionChange )
