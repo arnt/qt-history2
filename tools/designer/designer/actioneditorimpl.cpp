@@ -148,7 +148,7 @@ void ActionEditor::deleteAction()
 		}
 	    }
 	    delete subActions;
-	    subAction = 0;
+	    subActions = 0;
 	    delete currentAction;
 	    currentAction = 0;
 	    delete it.current();
