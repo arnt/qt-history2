@@ -225,11 +225,11 @@ class MyFancyMenu : public QMenu
         return ret;
     }
 public:
-    MyFancyMenu(const QString &t, QWidget *widget) : QMenu(widget), text(t) { 
+    MyFancyMenu(const QString &t, QWidget *widget) : QMenu(widget), text(t) {
         margin = QFontMetrics(myFont()).height() + 10;
-        setContentsMargins(margin, 0, 0, 0); 
+        setContentsMargins(margin, 0, 0, 0);
     }
-    
+
     QSize sizeHint() const {
         QSize ret = QMenu::sizeHint();
         int length = QFontMetrics(myFont()).width(text);
@@ -259,9 +259,9 @@ protected:
 void MenuExample::contextMenuEvent( QContextMenuEvent * )
 {
     MyFancyMenu contextMenu(tr("Context!"), this);
-    contextMenu.addAction("&New",  this, SLOT(news()), Qt::CTRL+Qt::Key_N);
-    contextMenu.addAction("&Open...", this, SLOT(open()), Qt::CTRL+Qt::Key_O);
-    contextMenu.addAction("&Save", this, SLOT(save()), Qt::CTRL+Qt::Key_S);
+    contextMenu.addAction("&New",  this, SLOT(news()))->setShortcut( Qt::CTRL+Qt::Key_N);
+    contextMenu.addAction("&Open...", this, SLOT(open()))->setShortcut( Qt::CTRL+Qt::Key_O);
+    contextMenu.addAction("&Save", this, SLOT(save()))->setShortcut( Qt::CTRL+Qt::Key_S);
     QMenu *submenu = new QMenu(this);
     submenu->addAction("&Print to printer", this, SLOT(printer()));
     submenu->addAction("Print to &file", this, SLOT(file()));
