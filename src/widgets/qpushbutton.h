@@ -84,6 +84,7 @@ public:
 
 public slots:
     virtual void setOn( bool );
+    void openPopup();
 
 protected:
     void	drawButton( QPainter * );

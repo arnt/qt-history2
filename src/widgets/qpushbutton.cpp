@@ -637,6 +637,19 @@ QPopupMenu* QPushButton::popup() const
     return d ? (QPopupMenu*)d->popup : 0;
 }
 
+/*!
+    Opens (pops up) the associated popup menu. If there is no such
+    menu, this function does nothing. This function does not return
+    until the popup menu has been closed by the user.
+*/
+void QPushButton::openPopup()
+{
+    if (!d || !d->popup)
+	return;
+    setDown(TRUE);
+    popupPressed();
+}
+
 void QPushButton::popupPressed()
 {
     QPopupMenu* popup = d ? (QPopupMenu*) d->popup : 0;
