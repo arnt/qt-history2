@@ -1140,7 +1140,24 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
 
 void QUrlPrivate::clear()
 {
-    *this = QUrlPrivate();
+    scheme.clear();
+    userName.clear();
+    password.clear();
+    host.clear();
+    int port = -1;
+    path.clear();
+    query.clear();
+    fragment.clear();
+
+    encodedOriginal.clear();
+
+    isValid = false;
+
+    valueDelimiter = '=';
+    pairDelimiter = '&';
+
+    isParsed = false;
+    isValidated = false;
 }
 
 QByteArray QUrlPrivate::toEncoded() const
