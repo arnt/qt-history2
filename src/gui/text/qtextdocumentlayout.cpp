@@ -592,7 +592,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
 void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo)
 {
     Q_ASSERT(data(f)->dirty);
-//     qDebug("layouting frame (%d--%d)", f->firstPosition(), f->lastPosition());
+    qDebug("layouting frame (%d--%d), parent=%p", f->firstPosition(), f->lastPosition(), f->parentFrame());
 
     QTextFrameData *fd = data(f);
     QTextFrameFormat fformat = f->format();
@@ -606,8 +606,20 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
         fd->padding = fformat.padding();
 
         int width = fformat.width();
-        if (width == -1)
-            width = pd ? pd->contentsWidth : pageSize.width();
+        if (width == -1) {
+            QTextTable *t = qt_cast<QTextTable *>(parent);
+            if (t) {
+                QTextTableData *td = static_cast<QTextTableData *>(pd);
+                QTextTableCell cell = t->cellAt(f->firstPosition());
+                int c = cell.column();
+                int cspan = cell.columnSpan();
+                width = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
+                        - td->columnPositions.at(c) - 2*td->padding;
+            } else {
+                width = pd ? pd->contentsWidth : pageSize.width();
+            }
+        }
+        qDebug("available width = %d pd=%p", width, pd);
         fd->contentsWidth = width - 2*(fd->margin + fd->border);
 
         int height = fformat.height();
