@@ -756,8 +756,7 @@ HRESULT WINAPI QAxClientSite::Invoke(DISPID dispIdMember,
         return S_OK;
         
     case DISPID_AMBIENT_FONT:
-        pVarResult->vt = VT_DISPATCH;
-        pVarResult->pdispVal = QFontToIFont(widget->font());
+        QVariantToVARIANT(widget->font(), *pVarResult);
         return S_OK;
         
     case DISPID_AMBIENT_BACKCOLOR:
