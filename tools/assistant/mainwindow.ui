@@ -612,6 +612,7 @@
     <variable>QMap&lt;int, QString&gt; bookmarks;</variable>
     <variable>SettingsDialog * settingsDia;</variable>
     <variable>TabbedBrowser *tabs;</variable>
+    <variable>int setupCompleted:1;</variable>
 </variables>
 <slots>
     <slot>init()</slot>

@@ -34,6 +34,7 @@ void MainWindow::init()
 #ifndef Q_WS_MACX
     setIcon( QPixmap::fromMimeSource( "appicon.png" ) );
 #endif
+    setupCompleted = FALSE;
 
     if ( !windows )
 	windows = new QPtrList<MainWindow>;
@@ -86,6 +87,8 @@ void MainWindow::init()
 
 void MainWindow::setup()
 {
+    if( setupCompleted )
+	return;
     helpDock->initialize();
     connect( actionGoPrevious, SIGNAL( activated() ), tabs, SLOT( backward() ) );
     connect( actionGoNext, SIGNAL( activated() ), tabs, SLOT( forward() ) );
@@ -142,6 +145,7 @@ void MainWindow::setup()
 	settings.writeEntry( DocuParser::DocumentKey + "NewDoc/", FALSE );
     }
 
+    setupCompleted = TRUE;
 }
 
 void MainWindow::setupGoActions( const QStringList &docList, const QStringList &catList )
@@ -394,7 +398,8 @@ void MainWindow::setFamily( const QString & f )
 void MainWindow::showSettingsDialog()
 {
     showSettingsDialog( -1 );
-}
+} 
+
 void MainWindow::showWebBrowserSettings()
 {
     showSettingsDialog( 1 );

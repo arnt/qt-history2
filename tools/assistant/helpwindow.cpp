@@ -56,7 +56,7 @@ void HelpWindow::setSource( const QString &name )
 	mw->saveSettings();
 	mw->saveToolbarSettings();
 	MainWindow *nmw = new MainWindow;
-	nmw->show();
+	nmw->setup();
 	nmw->showLink( name );
 	nmw->move( mw->geometry().topLeft() );
 	if ( mw->isMaximized() )
