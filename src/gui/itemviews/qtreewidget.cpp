@@ -115,9 +115,11 @@ QTreeModel::~QTreeModel()
 void QTreeModel::clear()
 {
     for (int i = 0; i < tree.count(); ++i) {
-        tree.at(i)->par = 0;
-        tree.at(i)->view = 0;
-        delete tree.at(i);
+        QTreeWidgetItem *item = tree.at(i);
+        item->par = 0;
+        item->view = 0;
+        item->model = 0;
+        delete item;
     }
     tree.clear();
     emit reset();
@@ -876,10 +878,14 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after
 QTreeWidgetItem::~QTreeWidgetItem()
 {
     for (int i = 0; i < children.count(); ++i) {
-        children.at(i)->par = 0;
-        children.at(i)->view = 0;
-        delete children.at(i);
+        QTreeWidgetItem *child = children.at(i);
+        child->par = 0;
+        child->view = 0;
+        child->model = 0;
+        delete child;
     }
+
+    children.clear();
 
     if (par) {
         par->children.removeAll(this);
