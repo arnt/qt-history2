@@ -2344,17 +2344,11 @@ QString Doc::finalHtml() const
 
 	    if ( begin < end &&
 		 offsetOK(&offsetMap, yyOut.length(), yyOut.mid(begin)) ) {
-		if ( ch == QChar('(') && yyIn.mid(yyPos, 1) == QChar(')') ) {
-		    yyOut.replace( begin, end - begin,
-				   href(yyOut.mid(begin) + QString("()")) );
-		    yyPos++;
-		} else {
-		    yyOut.replace( begin, end - begin, href(yyOut.mid(begin)) );
-		    yyOut += ch;
-		}
-	    } else {
-		yyOut += ch;
+		yyOut.replace( begin, end - begin,
+			       href(yyOut.mid(begin) + parenParen,
+				    yyOut.mid(begin)) );
 	    }
+	    yyOut += ch;
 	} else {
 	    if ( metSpace && isCppSym(ch) && config->autoHrefs() ) {
 		begin = yyPos - 1;
