@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#93 $
 **
 ** Implementation of QScrollView class
 **
@@ -114,9 +114,16 @@ struct QScrollViewData {
     QSVChildRec* rec(QWidget* w) { return childDict.find(w); }
     QSVChildRec* ancestorRec(QWidget* w)
     {
-	while (w->parentWidget() != &viewport) {
-	    w = w->parentWidget();
-	    if (!w) return 0;
+	if ( clipped_viewport ) {
+	    while (w->parentWidget() != clipped_viewport) {
+		w = w->parentWidget();
+		if (!w) return 0;
+	    }
+	} else {
+	    while (w->parentWidget() != &viewport) {
+		w = w->parentWidget();
+		if (!w) return 0;
+	    }
 	}
 	return rec(w);
     }
@@ -1342,7 +1349,7 @@ void QScrollView::moveContents(int x, int y)
     d->vx = x;
     d->vy = y;
 
-    emit contentsMoving( x, y );
+    emit contentsMoving( -x, -y );
 
     if ( d->clipped_viewport ) {
 	// Cheap move (usually)
@@ -1598,16 +1605,31 @@ QWidget* QScrollView::viewport() const
     return d->clipped_viewport ? d->clipped_viewport : &d->viewport;
 }
 
+/*!
+  Returns the clipper widget.
+  Contents in the scrollview is ultimately clipped to be inside
+  the clipper widget.
+
+  You should not need to access this.
+
+  \sa visibleWidth(), visibleHeight()
+*/
 QWidget* QScrollView::clipper() const
 {
     return &d->viewport;
 }
 
+/*!
+  Returns the horizontal amount of the content that is visible.
+*/
 int QScrollView::visibleWidth() const
 {
     return clipper()->width();
 }
 
+/*!
+  Returns the vertical amount of the content that is visible.
+*/
 int QScrollView::visibleHeight() const
 {
     return clipper()->height();
@@ -1767,6 +1789,12 @@ void QScrollView::enableClipper(bool y)
     }
 }
 
+/*!
+  Translates
+    a point (\a x, \a y) in the contents
+  to
+    a point (\a vx, \a vy) on the viewport() widget.
+*/
 void QScrollView::contentToViewport(int x, int y, int& vx, int& vy)
 {
     if ( d->clipped_viewport ) {
@@ -1778,6 +1806,12 @@ void QScrollView::contentToViewport(int x, int y, int& vx, int& vy)
     }
 }
 
+/*!
+  Translates
+    a point (\a vx, \a vy) on the viewport() widget
+  to
+    a point (\a x, \a y) in the contents.
+*/
 void QScrollView::viewportToContent(int vx, int vy, int& x, int& y)
 {
     if ( d->clipped_viewport ) {
