@@ -532,7 +532,7 @@ QSize QLabel::sizeForWidth( int w ) const
 	hm = indent();
     if ( hm < 0 ) {
 	if ( fw > 0 )
-	    hm = fm.width( QChar('x') );
+	    hm = fm.width( 'x' ) / 2;
 	else
 	    hm = 0;
     }
@@ -541,7 +541,7 @@ QSize QLabel::sizeForWidth( int w ) const
 	vm = indent();
     if ( vm < 0 ) {
 	if ( fw > 0 )
-	    vm = fm.width( QChar('x') );
+	    vm = fm.width( 'x' ) / 2;
 	else
 	    vm = 0;
     }
@@ -734,7 +734,7 @@ void QLabel::drawContents( QPainter *p )
     int m = indent();
     if ( m < 0 && !mov && !pix ) {
 	if ( frameWidth() > 0 )
-	    m = p->fontMetrics().width('x')/2;
+	    m = p->fontMetrics().width('x') / 2;
 	else
 	    m = 0;
     }
