@@ -734,6 +734,11 @@ copy_platform_files() {
 	    echo $o_file | grep '.qws$' >>$LOG 2>&1 && continue
 	fi
 	[ "$platform" = "mac" ] && [ `basename $a` = "README.outside" ] && continue
+	if [ `basename $a` = "LICENSE.QPL" ]; then
+	    if [ "$platform" = "embedded" ] || [ "$platform" = "mac" ]; then
+	       continue
+            fi
+        fi
 
 	case $edition in
 	commercial|review|academic)
