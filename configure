@@ -940,6 +940,7 @@ else
     if [ -f "$relpath/GNUmakefile" ]; then
 	rm -f $outpath/Makefile
 	cp $relpath/GNUmakefile $outpath/Makefile
+	chmod +w $outpath/Makefile
     fi
 fi
 
