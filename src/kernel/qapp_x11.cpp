@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#69 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#68 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#69 $";
 #endif
 
 
@@ -346,6 +346,11 @@ static int trapIOErrors( Display * )		// default X11 IO error handler
 }
 
 
+/*!
+\relates QApplication
+Adds a global routine that will be called from the QApplication constructor.
+*/
+
 void qAddPreRoutine( void (*p)() )		// add pre routine
 {
     if ( !preRList ) {
@@ -354,6 +359,28 @@ void qAddPreRoutine( void (*p)() )		// add pre routine
     }
     preRList->append( (void *)p );		// store at list tail
 }
+
+/*!
+\relates QApplication
+Adds a global routine that will be called from the QApplication destructor.
+This function is normally used to add cleanup routines.
+
+Example of use:
+\code
+  static int *global_ptr = 0;
+
+  void cleanup_ptr()
+  {
+      delete global_ptr;
+  }
+
+  void init_ptr()
+  {
+      global_ptr = new int[100];	// alloc data
+      qAddPostRoutine( cleanup_ptr );	// do cleanup later
+  }
+\endcode
+*/
 
 void qAddPostRoutine( void (*p)() )		// add post routine
 {
@@ -366,7 +393,7 @@ void qAddPostRoutine( void (*p)() )		// add post routine
 
 
 // --------------------------------------------------------------------------
-// Some implementation-specific functions
+// Platform specific functions (mostly)
 //
 
 char *qAppName()				// get application name
@@ -740,11 +767,11 @@ int QApplication::enter_loop()			// local event loop
 
 		case FocusIn: {			// got focus
 		    QWidget *w = widget;
-		    while ( w->parentWidget() )	// go to the top
+		    while ( w->parentWidget() )	// go to top level
 			w = w->parentWidget();
 		    while ( w->focusChild )	// go down focus chain
 			w = w->focusChild;
-		    if ( w->acceptFocus() ) {
+		    if ( w != focus_widget && w->acceptFocus() ) {
 		        focus_widget = w;
 		        QFocusEvent in( Event_FocusIn );
 			QApplication::sendEvent( w, &in );
