@@ -158,6 +158,7 @@ void QStringList::sort()
     qHeapSort(*this);
 }
 
+#ifdef QT_COMPAT
 /*!
     \overload
 
@@ -265,6 +266,7 @@ QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allo
     return lst;
 }
 #endif
+#endif //QT_COMPAT
 
 /*!
     Returns a list of all the strings containing the substring \a str.

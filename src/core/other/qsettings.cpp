@@ -1206,7 +1206,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 
     if (grp_key[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', grp_key));
+	QStringList list(grp_key.split('/'));
 
 	if (list.count() < 2) {
 	    qWarning("QSettings::readEntry: invalid key '%s'", grp_key.latin1());
@@ -1383,7 +1383,7 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 
     if (grp_key[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', grp_key));
+	QStringList list(grp_key.split('/'));
 
 	if (list.count() < 2) {
 	    qWarning("QSettings::writeEntry: invalid key '%s'", grp_key.latin1());
@@ -1438,7 +1438,7 @@ bool QSettings::removeEntry(const QString &key)
     QString realkey;
     if (grp_key[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', grp_key));
+	QStringList list(grp_key.split('/'));
 
 	if (list.count() < 2) {
 	    qWarning("QSettings::removeEntry: invalid key '%s'", grp_key.latin1());
@@ -1512,7 +1512,7 @@ QStringList QSettings::entryList(const QString &key) const
     QString realkey;
     if (grp_key[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', grp_key));
+	QStringList list(grp_key.split('/'));
 
 	if (list.count() < 1) {
 	    qWarning("QSettings::listEntries: invalid key '%s'", grp_key.latin1());
@@ -1605,7 +1605,7 @@ QStringList QSettings::subkeyList(const QString &key) const
     int subkeycount = 2;
     if (grp_key[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', grp_key));
+	QStringList list(grp_key.split('/'));
 
 	if (list.count() < 1) {
 	    qWarning("QSettings::subkeyList: invalid key '%s'", grp_key.latin1());
@@ -1691,7 +1691,7 @@ QDateTime QSettings::lastModificationTime( const QString &key )
 
     if (grp_key[0] == '/') {
 	// parse our key
-	QStringList list(QStringList::split('/', grp_key));
+	QStringList list(grp_key.split('/'));
 
 	if (list.count() < 2) {
 	    qWarning("QSettings::lastModificationTime: Invalid key '%s'", grp_key.latin1());
@@ -1773,8 +1773,8 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
     \overload QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok ) const
 
     Reads the entry specified by \a key as a string. The \a separator
-    is used to create a QStringList by calling QStringList::split(\a
-    separator, entry, true). If \a ok is not 0: \a *ok is set to true
+    is used to create a QStringList by calling entry.split(\a
+    separator). If \a ok is not 0: \a *ok is set to true
     if the key was read, otherwise \a *ok is set to false.
 
     \warning If the string list argument to the writeEntry() function
@@ -1807,7 +1807,7 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
     if ( ok && !*ok )
 	return QStringList();
 
-    return QStringList::split(separator, value, true);
+    return value.split(separator);
 }
 
 /*!
@@ -1827,7 +1827,7 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
     }
     \endcode
 
-    \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QStringList::split()
+    \sa readEntry(), readDoubleEntry(), readBoolEntry(), writeEntry(), removeEntry(), QString::split()
 */
 
 /*!

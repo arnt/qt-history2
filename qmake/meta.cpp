@@ -121,7 +121,7 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
 	    if(!dir.isEmpty() && !dir.endsWith(Option::dir_sep))
 		dir += Option::dir_sep;
 	    if(lst.count() == 1)
-		lst = QStringList::split(" ", lst.first());
+		lst = lst.first().split(" ");
 	    for(QStringList::Iterator lst_it = lst.begin(); lst_it != lst.end(); ++lst_it) {
 		bool found = FALSE;
 		QString dirs[] = { "", dir, dirf, dirf + ".libs" + QDir::separator(), "(term)" };
@@ -142,7 +142,7 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
 		QString dep = lst.first();
 		if((dep.startsWith("'") || dep.startsWith("\"")) && dep.endsWith(QString(dep[0])))
 		    dep = dep.mid(1, dep.length() - 2);
-		lst = QStringList::split(" ", dep.trimmed());
+		lst = dep.trimmed().split(" ");
 	    }
 	    QMakeProject *conf = NULL;
 	    for(QStringList::Iterator lit = lst.begin(); lit != lst.end(); ++lit) {

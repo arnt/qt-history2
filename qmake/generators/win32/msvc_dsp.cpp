@@ -668,13 +668,14 @@ DspMakefileGenerator::init()
 	setMocAware(TRUE);
 
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ',
-								 "HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
-    QStringList &l = project->variables()["QMAKE_FILETAGS"];
-    for(it = l.begin(); it != l.end(); ++it) {
-	QStringList &gdmf = project->variables()[(*it)];
-	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
-	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
+
+    char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
+    for(int i = 0; filetags[i]; i++) {
+	project->variables()["QMAKE_FILETAGS"] << filetags[i];
+	//clean path
+	QStringList &gdmf = project->variables()[filetags[i]];
+	for(QStringList::Iterator it = gdmf.begin(); it != gdmf.end(); ++it)
+	    (*it) = Option::fixPathToTargetOS((*it), FALSE);
     }
 
     MakefileGenerator::init();
@@ -690,7 +691,7 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_PROJECT"].append(msvcdsp_project);
     QStringList &proj = project->variables()["MSVCDSP_PROJECT"];
 
-    for(it = proj.begin(); it != proj.end(); ++it)
+    for(QStringList::Iterator it = proj.begin(); it != proj.end(); ++it)
 	(*it).replace(QRegExp("\\.[a-zA-Z0-9_]*$"), "");
 
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
@@ -920,7 +921,7 @@ DspMakefileGenerator::beginGroupForFile(QString file, QTextStream &t,
 	currentGroup = "";
     }
 
-    QStringList dirs = QStringList::split(Option::dir_sep, file.right(file.length() - currentGroup.length()));
+    QStringList dirs = file.right(file.length() - currentGroup.length()).split(Option::dir_sep);
     for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
 	t << "# Begin Group \"" << (*dir_it) << "\"\n"
 	    << "# Prop Default_Filter \"" << filter << "\"\n";
@@ -937,7 +938,7 @@ DspMakefileGenerator::endGroups(QTextStream &t)
     else if(currentGroup.isEmpty())
 	return;
 
-    QStringList dirs = QStringList::split(Option::dir_sep, currentGroup);
+    QStringList dirs = currentGroup.split(Option::dir_sep);
     for(QStringList::Iterator dir_it = dirs.end(); dir_it != dirs.begin(); --dir_it) {
 	t << "\n# End Group\n";
     }

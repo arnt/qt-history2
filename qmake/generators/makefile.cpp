@@ -55,7 +55,7 @@ static bool createDir(const QString& fullPath)
     QDir dirTmp;
     bool ret = TRUE;
     QString pathComponent, tmpPath;
-    QStringList hierarchy = QStringList::split(QString(Option::dir_sep), fullPath, TRUE);
+    QStringList hierarchy = fullPath.split(QString(Option::dir_sep));
     for(QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it) {
 	pathComponent = *it + QDir::separator();
 	tmpPath += pathComponent;
@@ -153,7 +153,7 @@ MakefileGenerator::initOutPaths()
 	    }
 	    if(driveExists) {
 #endif
-		QStringList subs = QStringList::split(Option::dir_sep, path);
+		QStringList subs = path.split(Option::dir_sep);
 		for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
 		    if(!d.cd(*subit)) {
 			d.mkdir((*subit));

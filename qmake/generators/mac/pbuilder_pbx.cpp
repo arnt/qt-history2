@@ -119,14 +119,14 @@ ProjectBuilderMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 			    if(project->isActiveConfig("flat")) {
 				QString flat_file = fileFixify(name, oldpwd, Option::output_dir, TRUE);
 				if(flat_file.indexOf(Option::dir_sep) != -1) {
-				    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
+				    QStringList dirs = flat_file.split(Option::dir_sep);
 				    name = dirs.back();
 				}
 			    } else {
 				QString flat_file = fileFixify(name, oldpwd, Option::output_dir, TRUE);
 				if(QDir::isRelativePath(flat_file) && flat_file.indexOf(Option::dir_sep) != -1) {
 				    QString last_grp("QMAKE_PBX_HEIR_GROUP");
-				    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
+				    QStringList dirs = flat_file.split(Option::dir_sep);
 				    name = dirs.back();
 				    for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
 					QString new_grp(last_grp + Option::dir_sep + (*dir_it)), new_grp_key(keyFor(new_grp));
@@ -322,14 +322,14 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    if(project->isActiveConfig("flat")) {
 		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, TRUE);
 		if(flat_file.indexOf(Option::dir_sep) != -1) {
-		    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
+		    QStringList dirs = flat_file.split(Option::dir_sep);
 		    name = dirs.back();
 		}
 	    } else {
 		QString flat_file = fileFixify(file, QDir::currentDirPath(), Option::output_dir, TRUE);
 		if(QDir::isRelativePath(flat_file) && flat_file.indexOf(Option::dir_sep) != -1) {
 		    QString last_grp("QMAKE_PBX_" + srcs[i] + "_HEIR_GROUP");
-		    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
+		    QStringList dirs = flat_file.split(Option::dir_sep);
 		    name = dirs.back();
 		    dirs.pop_back(); //remove the file portion as it will be added via src_key
 		    for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {

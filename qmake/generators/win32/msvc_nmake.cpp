@@ -449,8 +449,7 @@ NmakeMakefileGenerator::init()
     }
     if(project->isActiveConfig("dll")) {
 	if(!project->variables()["QMAKE_LIB_FLAG"].isEmpty()) {
-	    project->variables()["TARGET_EXT"].append(
-		QStringList::split('.',project->first("VERSION")).join("") + ".dll");
+	    project->variables()["TARGET_EXT"].append(project->first("VERSION").replace(".", "") + ".dll");
 	} else {
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
@@ -485,14 +484,13 @@ NmakeMakefileGenerator::init()
 	}
     }
 
-    project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ',
-	"HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
-    QStringList &l = project->variables()["QMAKE_FILETAGS"];
-    QStringList::Iterator it;
-    for(it = l.begin(); it != l.end(); ++it) {
-	QStringList &gdmf = project->variables()[(*it)];
-	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
-	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
+    char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
+    for(int i = 0; filetags[i]; i++) {
+	project->variables()["QMAKE_FILETAGS"] << filetags[i];
+	//clean path
+	QStringList &gdmf = project->variables()[filetags[i]];
+	for(QStringList::Iterator it = gdmf.begin(); it != gdmf.end(); ++it)
+	    (*it) = Option::fixPathToTargetOS((*it), FALSE);
     }
 
     if(!project->variables()["DEF_FILE"].isEmpty())
@@ -540,12 +538,12 @@ NmakeMakefileGenerator::init()
     }
 
     if(!project->variables()["VERSION"].isEmpty()) {
-	QStringList l = QStringList::split('.', project->first("VERSION"));
+	QStringList l = project->first("VERSION").split('.');
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
     }
 
-    QString version = QStringList::split('.', project->first("VERSION")).join("");
+    QString version = project->first("VERSION").replace(".", "");
     if(project->isActiveConfig("dll")) {
 	project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + version + ".exp");
     }
@@ -556,7 +554,7 @@ NmakeMakefileGenerator::init()
     }
 
     QStringList &quc = project->variables()["QMAKE_EXTRA_WIN_COMPILERS"];
-    for(it = quc.begin(); it != quc.end(); ++it) {
+    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
 	QString tmp_out = project->variables()[(*it) + ".output"].first();
 	if(tmp_out.isEmpty())
 	    continue;

@@ -320,7 +320,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
 		    {
 			//apparently tmake used colon separation...
-			QStringList damn = QStringList::split(':', (*val_it));
+			QStringList damn = (*val_it).split(':');
 			if(!damn.isEmpty())
 			    list += damn;
 			else
@@ -520,7 +520,7 @@ MetrowerksMakefileGenerator::init()
 	project->variables()["VERSION"].append("1.0." + 
 					       (project->isEmpty("VER_PAT") ? QString("0") : 
 						project->first("VER_PAT")) );
-    QStringList ver = QStringList::split('.', project->first("VERSION"));
+    QStringList ver = project->first("VERSION").split('.');
     ver << "0" << "0"; //make sure there are three
     project->variables()["VER_MAJ"].append(ver[0]);
     project->variables()["VER_MIN"].append(ver[1]);

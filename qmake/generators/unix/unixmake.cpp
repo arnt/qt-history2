@@ -48,27 +48,27 @@ UnixMakefileGenerator::init()
 	return; /* subdirs is done */
     }
 
-    if( project->isEmpty("QMAKE_EXTENSION_SHLIB") ) {
-	if ( project->isEmpty("QMAKE_CYGWIN_SHLIB") ) {
-	    project->variables()["QMAKE_EXTENSION_SHLIB"].append( "so" );
+    if(project->isEmpty("QMAKE_EXTENSION_SHLIB")) {
+	if(project->isEmpty("QMAKE_CYGWIN_SHLIB")) {
+	    project->variables()["QMAKE_EXTENSION_SHLIB"].append("so");
 	} else {
-	    project->variables()["QMAKE_EXTENSION_SHLIB"].append( "dll" );
+	    project->variables()["QMAKE_EXTENSION_SHLIB"].append("dll");
 	}
     }
-    if( project->isEmpty("QMAKE_CFLAGS_PRECOMPILE"))
+    if(project->isEmpty("QMAKE_CFLAGS_PRECOMPILE"))
 	project->variables()["QMAKE_CFLAGS_PRECOMPILE"].append("-x c-header -c");
-    if( project->isEmpty("QMAKE_CXXFLAGS_PRECOMPILE"))
+    if(project->isEmpty("QMAKE_CXXFLAGS_PRECOMPILE"))
 	project->variables()["QMAKE_CXXFLAGS_PRECOMPILE"].append("-x c++-header -c");
-    if( project->isEmpty("QMAKE_CFLAGS_USE_PRECOMPILE"))
+    if(project->isEmpty("QMAKE_CFLAGS_USE_PRECOMPILE"))
 	project->variables()["QMAKE_CFLAGS_USE_PRECOMPILE"].append("-include");
-    if( project->isEmpty("QMAKE_EXTENSION_PLUGIN") )
+    if(project->isEmpty("QMAKE_EXTENSION_PLUGIN"))
 	project->variables()["QMAKE_EXTENSION_PLUGIN"].append(project->first("QMAKE_EXTENSION_SHLIB"));
-    if( project->isEmpty("QMAKE_COPY_FILE") )
-	project->variables()["QMAKE_COPY_FILE"].append( "$(COPY)" );
-    if( project->isEmpty("QMAKE_COPY_DIR") )
-	project->variables()["QMAKE_COPY_DIR"].append( "$(COPY) -R" );
-    if( project->isEmpty("QMAKE_LIBTOOL") )
-	project->variables()["QMAKE_LIBTOOL"].append( "libtool --silent" );
+    if(project->isEmpty("QMAKE_COPY_FILE"))
+	project->variables()["QMAKE_COPY_FILE"].append("$(COPY)");
+    if(project->isEmpty("QMAKE_COPY_DIR"))
+	project->variables()["QMAKE_COPY_DIR"].append("$(COPY) -R");
+    if(project->isEmpty("QMAKE_LIBTOOL"))
+	project->variables()["QMAKE_LIBTOOL"].append("libtool --silent");
     //If the TARGET looks like a path split it into DESTDIR and the resulting TARGET
     if(!project->isEmpty("TARGET")) {
 	QString targ = project->first("TARGET");
@@ -85,10 +85,10 @@ UnixMakefileGenerator::init()
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    if ( (!project->isEmpty("QMAKE_LIB_FLAG") && !project->isActiveConfig("staticlib") ) ||
-	 (project->isActiveConfig("qt") &&  project->isActiveConfig( "plugin" ) )) {
+    if((!project->isEmpty("QMAKE_LIB_FLAG") && !project->isActiveConfig("staticlib")) ||
+	 (project->isActiveConfig("qt") &&  project->isActiveConfig("plugin"))) {
 	if(configs.indexOf("dll") == -1) configs.append("dll");
-    } else if ( !project->isEmpty("QMAKE_APP_FLAG") || project->isActiveConfig("dll") ) {
+    } else if(!project->isEmpty("QMAKE_APP_FLAG") || project->isActiveConfig("dll")) {
 	configs.remove("staticlib");
     }
     if(!project->isEmpty("QMAKE_INCREMENTAL"))
@@ -102,12 +102,12 @@ UnixMakefileGenerator::init()
     if(!project->isEmpty("QMAKE_LIBDIR")) {
 	const QStringList &libdirs = project->values("QMAKE_LIBDIR");
 	for(QStringList::ConstIterator it = libdirs.begin(); it != libdirs.end(); ++it) {
-	    if ( !project->isEmpty("QMAKE_RPATH") )
+	    if(!project->isEmpty("QMAKE_RPATH"))
 		project->variables()["QMAKE_LFLAGS"] += var("QMAKE_RPATH") + (*it);
 	    project->variables()["QMAKE_LIBDIR_FLAGS"] += "-L" + (*it);
 	}
     }
-    if ( project->isActiveConfig("moc") )
+    if(project->isActiveConfig("moc"))
 	setMocAware(TRUE);
     QString compile_flag = var("QMAKE_COMPILE_FLAG");
     if(compile_flag.isEmpty())
@@ -125,22 +125,26 @@ UnixMakefileGenerator::init()
 	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
 	project->variables()["HEADERS"].clear();
     }
-    if ( project->isEmpty("QMAKE_RUN_CC") )
+    if(project->isEmpty("QMAKE_RUN_CC"))
 	project->variables()["QMAKE_RUN_CC"].append("$(CC) " + compile_flag + " $(CFLAGS) $(INCPATH) -o $obj $src");
-    if ( project->isEmpty("QMAKE_RUN_CC_IMP") )
+    if(project->isEmpty("QMAKE_RUN_CC_IMP"))
 	project->variables()["QMAKE_RUN_CC_IMP"].append("$(CC) " + compile_flag + " $(CFLAGS) $(INCPATH) -o $@ $<");
-    if ( project->isEmpty("QMAKE_RUN_CXX") )
+    if(project->isEmpty("QMAKE_RUN_CXX"))
 	project->variables()["QMAKE_RUN_CXX"].append("$(CXX) " + compile_flag + " $(CXXFLAGS) $(INCPATH) -o $obj $src");
-    if ( project->isEmpty("QMAKE_RUN_CXX_IMP") )
+    if(project->isEmpty("QMAKE_RUN_CXX_IMP"))
 	project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) " + compile_flag + " $(CXXFLAGS) $(INCPATH) -o $@ $<");
-    project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
-    if( project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS"))
+
+    char *filetags[] = { "HEADERS", "SOURCES", "TARGET", "DESTDIR", NULL };
+    for(int i = 0; filetags[i]; i++)
+	project->variables()["QMAKE_FILETAGS"] << filetags[i];
+
+    if(project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS"))
 	include_deps = TRUE; //do not generate deps
     if(project->isActiveConfig("compile_libtool"))
 	Option::obj_ext = ".lo"; //override the .o
 
     MakefileGenerator::init();
-    if ( project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
+    if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
 	if(!project->isEmpty("QMAKE_APP_FLAG")) {
 	    if(project->isEmpty("DESTDIR"))
 		project->values("DESTDIR").append("");
@@ -637,9 +641,9 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		uninst.append("\n\t");
 	    uninst.append("-$(DEL_FILE) \"" + dst_pc + "\"");
 	}
-	if ( project->isEmpty("QMAKE_CYGWIN_SHLIB") ) {
-	    if ( !project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin") ) {
-		if ( project->isEmpty("QMAKE_HPUX_SHLIB") ) {
+	if(project->isEmpty("QMAKE_CYGWIN_SHLIB")) {
+	    if(!project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin")) {
+		if(project->isEmpty("QMAKE_HPUX_SHLIB")) {
 		    links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
 		} else {
 		    links << "$(TARGET0)";

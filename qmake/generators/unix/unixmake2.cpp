@@ -319,7 +319,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		    }
 		    if(!d_file.isEmpty()) {
 			d_file = odir + ".deps/" + d_file + ".d";
-			QStringList deps = findDependencies((*it)).grep(QRegExp(Option::cpp_moc_ext + "$"));
+			QStringList deps = findDependencies((*it)).find(QRegExp(Option::cpp_moc_ext + "$"));
 			if(!deps.isEmpty())
 			    t << d_file << ": " << deps.join(" ") << endl;
 			t << var("QMAKE_CFLAGS_USE_PRECOMPILE") << " " << d_file << endl;
@@ -1136,7 +1136,7 @@ void UnixMakefileGenerator::init2()
 	project->variables()["VERSION"].append("1.0." +
 					       (project->isEmpty("VER_PAT") ? QString("0") :
 						project->first("VER_PAT")) );
-    QStringList l = QStringList::split('.', project->first("VERSION"));
+    QStringList l = project->first("VERSION").split('.');
     l << "0" << "0"; //make sure there are three
     project->variables()["VER_MAJ"].append(l[0]);
     project->variables()["VER_MIN"].append(l[1]);

@@ -142,14 +142,14 @@ QStringList qmake_mkspec_paths()
     const QString concat = QDir::separator() + QString("mkspecs");
     if(const char *qmakepath = getenv("QMAKEPATH")) {
 #ifdef Q_OS_WIN
-	QStringList lst = QStringList::split(';', qmakepath);
+	QStringList lst = QString(qmakepath).split(';');
 	for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
-	    QStringList lst2 = QStringList::split(':', (*it));
+	    QStringList lst2 = (*it).split(':');
 	    for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2)
 		ret << ((*it2) + concat);
 	}
 #else
-	QStringList lst = QStringList::split(':', qmakepath);
+	QStringList lst = QString(qmakepath).split(':');
 	for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
 	    ret << ((*it) + concat);
 #endif
@@ -586,7 +586,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 
     /* vallist is the broken up list of values */
     QStringList vallist = split_value_list(vals, (var == "DEPENDPATH" || var == "INCLUDEPATH"));
-    if(!vallist.grep("=").isEmpty())
+    if(!vallist.find("=").isEmpty())
 	warn_msg(WarnParser, "Detected possible line continuation: {%s} %s:%d",
 		 var.latin1(), parser.file.latin1(), parser.line_no);
 
@@ -608,7 +608,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	    return false;
 	}
 	QChar sep = val.at(1);
-	QStringList func = QStringList::split(sep, val, true);
+	QStringList func = val.split(sep);
 	if(func.count() < 3 || func.count() > 4) {
 	    qmake_error_msg("~= operator only can handle s/// function ('" +
 		s + "')");
@@ -1040,11 +1040,11 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 	    QStringList feature_roots;
 	    if(const char *mkspec_path = getenv("QMAKEFEATURES")) {
 #ifdef Q_OS_WIN
-		QStringList lst = QStringList::split(';', mkspec_path);
+		QStringList lst = QString(mkspec_path).split(';');
 		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
-		    feature_roots += QStringList::split(':', (*it));
+		    feature_roots += (*it).split(':');
 #else
-		feature_roots += QStringList::split(':', mkspec_path);
+		feature_roots += QString(mkspec_path).split(':');
 #endif
 	    }
 	    if(!Option::mkfile::cachefile.isEmpty()) {
@@ -1058,9 +1058,9 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 	    }
 	    if(const char *qmakepath = getenv("QMAKEPATH")) {
 #ifdef Q_OS_WIN
-		QStringList lst = QStringList::split(';', qmakepath);
+		QStringList lst = QString(qmakepath).split(';');
 		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
-		    QStringList lst2 = QStringList::split(':', (*it));
+		    QStringList lst2 = (*it).split(':');
 		    for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2) {
 			for(QStringList::Iterator concat_it = concat.begin();
 			    concat_it != concat.end(); ++concat_it)
@@ -1068,7 +1068,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
 		    }
 		}
 #else
-		QStringList lst = QStringList::split(':', qmakepath);
+		QStringList lst = QString(qmakepath).split(':');
 		for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
 		    for(QStringList::Iterator concat_it = concat.begin();
 			concat_it != concat.end(); ++concat_it)
@@ -1643,7 +1643,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			join = arg_list[2];
 		    QStringList var = place[varMap(arg_list.first())];
 		    for(QStringList::Iterator vit = var.begin(); vit != var.end(); ++vit) {
-			QStringList lst = QStringList::split(sep, (*vit));
+			QStringList lst = (*vit).split(sep);
 			for(QStringList::Iterator spltit = lst.begin(); spltit != lst.end(); ++spltit) {
 			    if(!replacement.isEmpty())
 				replacement += join;

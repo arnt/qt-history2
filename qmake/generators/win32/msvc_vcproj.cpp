@@ -54,7 +54,7 @@ bool use_net2003_version()
     } else {
 	// Have both, so figure out the current
 	QString paths = getenv("PATH");
-	QStringList pathlist = QStringList::split(";", paths.toLower());
+	QStringList pathlist = paths.toLower().split(";");
 
 	path2003 = path2003.toLower();
 	QStringList::iterator it;
@@ -1048,12 +1048,13 @@ void VcprojGenerator::initOld()
 
     // Run through all variables containing filepaths, and -----------
     // slash-slosh them correctly depending on current OS  -----------
-    project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ', "HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
-    QStringList &l = project->variables()["QMAKE_FILETAGS"];
-    for(it = l.begin(); it != l.end(); ++it) {
-	QStringList &gdmf = project->variables()[(*it)];
-	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
-	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
+    char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
+    for(int i = 0; filetags[i]; i++) {
+	project->variables()["QMAKE_FILETAGS"] << filetags[i];
+	//clean path
+	QStringList &gdmf = project->variables()[filetags[i]];
+	for(QStringList::Iterator it = gdmf.begin(); it != gdmf.end(); ++it)
+	    (*it) = Option::fixPathToTargetOS((*it), FALSE);
     }
 
      // Get filename w/o extention -----------------------------------

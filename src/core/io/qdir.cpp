@@ -1055,7 +1055,7 @@ QList<QRegExp> qt_makeFilterList( const QString &filter )
     if ( i == -1 && filter.indexOf( ' ', 0 ) != -1 )
 	sep = QChar( ' ' );
 
-    QStringList list = QStringList::split( sep, filter );
+    QStringList list = filter.split( sep );
     QStringList::Iterator it = list.begin();
     while ( it != list.end() ) {
 	regExps << QRegExp( (*it).trimmed(),
