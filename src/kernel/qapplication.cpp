@@ -1504,13 +1504,16 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	qdevel->addTopLevelWidget( (QWidget*)receiver );
 #endif
 
-
-
     if ( receiver->pendEvent && event->type() == QEvent::ChildRemoved ) {
-	// if this is a child remove event an the child insert hasn't been
+	// if this is a child remove event and the child insert hasn't been
 	// dispatched yet, kill that insert and return.
+	QPostEventList * l = postedEvents;
+	if ( receiver->isWidgetType() && 
+	     ((QWidget*)receiver)->extra &&
+	     ((QWidget*)receiver)->extra->posted_events )
+	    l = (QPostEventList*)(((QWidget*)receiver)->extra->posted_events);
 	QObject * c = ((QChildEvent*)event)->child();
-	QPostEventListIt it( *postedEvents );
+	QPostEventListIt it( *l );
 	QPostEvent * pe;
 	while( ( pe = it.current()) != 0 ) {
 	    ++it;
@@ -1843,8 +1846,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	while ( (cur=(*l)->current()) != 0 &&
 		( cur->receiver != receiver ||
 		  cur->event == 0 ||
-		  cur->event->type() != event->type() ||
-		  !cur->event->posted ) )
+		  cur->event->type() != event->type() ) )
 	    (*l)->next();
 	if ( (*l)->current() != 0 ) {
 	    if ( cur->event->type() == QEvent::Paint ) {
@@ -1899,7 +1901,8 @@ void QApplication::sendPostedEvents()
 
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
-    if ( !postedEvents || receiver && !receiver->pendEvent )
+    if ( !postedEvents || receiver && !receiver->pendEvent ||
+	 postedEventReceivers )
 	return;
 
     // illegal combination:
@@ -1921,18 +1924,10 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	l = (QPostEventList**)&(((QWidget*)receiver)->extra->posted_events);
 
     QPostEventListIt it( **l );
-    QPostEvent *pe;
-    if ( !postedEventReceivers ||
-	 postedEventReceivers->size() < postedEvents->count() ) {
-	int s = postedEvents->count() * 3 / 2;
-	if ( s < 787 )
-	    s = 787;
-	if( postedEventReceivers )
-	    postedEventReceivers->resize( s );
-	else
-	    postedEventReceivers = new QPtrDict<QObject>( s );
-    }
+    postedEventReceivers 
+	= new QPtrDict<QObject>( postedEvents->count() * 3 / 2 );
 
+    QPostEvent *pe;
     bool morePostedEvents = FALSE; // applies iff receiver != 0
 
     while ( (pe=it.current()) != 0 ) {
@@ -1964,7 +1959,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	}
     }
 
-    if ( ( !receiver || !morePostedEvents ) && postedEventReceivers ) {
+    if ( postedEventReceivers && !morePostedEvents ) {
 	QPtrDictIterator<QObject> it( *postedEventReceivers );
 	QObject * o;
 	while( (o=it.current()) != 0 ) {
@@ -1979,11 +1974,9 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 		}
 	    }
 	}
-	if ( postedEventReceivers->size() > postedEvents->count() * 4 ) {
-	    delete postedEventReceivers;
-	    postedEventReceivers = 0;
-	}
     }
+    delete postedEventReceivers;
+    postedEventReceivers = 0;
 
     if ( !receiver )
 	postedEvents->clear();
@@ -2021,7 +2014,7 @@ void QApplication::removePostedEvents( QObject *receiver )
     if ( receiver && receiver->isWidgetType() &&
 	 ((QWidget*)receiver)->extra &&
 	 ((QWidget*)receiver)->extra->posted_events ) {
-	QPostEventList * l 
+	QPostEventList * l
 	    = (QPostEventList*)(((QWidget*)receiver)->extra->posted_events);
 	((QWidget*)receiver)->extra->posted_events = 0;
 	l->first();
@@ -2036,7 +2029,7 @@ void QApplication::removePostedEvents( QObject *receiver )
 	}
 	delete l;
     } else {
-	postedEvents->current();
+	postedEvents->first();
 	QPostEvent * pe;
 	while( (pe=postedEvents->current()) != 0 ) {
 	    if ( pe->receiver == receiver && pe->event ) {

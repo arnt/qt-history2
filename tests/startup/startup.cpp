@@ -4,6 +4,7 @@
 #include <qdatetime.h>
 
 QPtrDict<QWidget> widgets( 9949 );
+QTime s;
 
 class TimerWidget: public QWidget
 {
@@ -24,8 +25,10 @@ TimerWidget::TimerWidget( QWidget * parent )
 void TimerWidget::paintEvent( QPaintEvent * )
 {
     widgets.take( this );
-    if ( widgets.isEmpty() )
+    if ( widgets.isEmpty() ) {
+	debug( "exec()   %2.3fs", s.restart()*0.001 );
 	qApp->quit();
+    }
 }
 
 const int size = 1000;
@@ -33,7 +36,6 @@ const int size = 1000;
 int main( int argc, char ** argv ) {
     QApplication a( argc, argv );
 
-    QTime s;
     s.start();
 
     TimerWidget * top = new TimerWidget( 0 );
@@ -52,5 +54,5 @@ int main( int argc, char ** argv ) {
     top->show();
     debug( "show()   %2.3fs", s.restart()*0.001 );
     (void)a.exec();
-    debug( "exec()   %2.3fs", s.restart()*0.001 );
+    debug( "quit()   %2.3fs", s.restart()*0.001 );
 }
