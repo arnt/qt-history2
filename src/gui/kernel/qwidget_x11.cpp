@@ -26,7 +26,6 @@
 #include "qdatetime.h"
 #include "qcursor.h"
 #include "qstack.h"
-#include "qcleanuphandler.h"
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
@@ -2782,14 +2781,17 @@ void QWidgetPrivate::setWindowRole(const char *role)
                     (unsigned char *)role, qstrlen(role));
 }
 
-static QSingleCleanupHandler<QX11PaintEngine> qt_paintengine_cleanup_handler;
 static QX11PaintEngine *qt_widget_paintengine = 0;
+static void qt_cleanup_widget_paintengine()
+{
+    delete qt_widget_paintengine;
+}
+
 QPaintEngine *QWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
         qt_widget_paintengine = new QX11PaintEngine(const_cast<QWidget *>(this));
-        qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
-
+	qAddPostRoutine(qt_cleanup_widget_paintengine);
     }
     return qt_widget_paintengine;
 }
