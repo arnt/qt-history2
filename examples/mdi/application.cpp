@@ -90,7 +90,7 @@ ApplicationWindow::ApplicationWindow()
 
     file->insertItem( "&New", this, SLOT(newDoc()), CTRL+Key_N );
 
-    id = file->insertItem( openIcon, "&Open",
+    id = file->insertItem( openIcon, "&Open...",
 			   this, SLOT(load()), CTRL+Key_O );
     file->setWhatsThis( id, fileOpenText );
 
@@ -101,7 +101,7 @@ ApplicationWindow::ApplicationWindow()
     file->setWhatsThis( id, fileSaveText );
 #ifndef QT_NO_PRINTER
     file->insertSeparator();
-    id = file->insertItem( printIcon, "&Print",
+    id = file->insertItem( printIcon, "&Print...",
 			   this, SLOT(print()), CTRL+Key_P );
     file->setWhatsThis( id, filePrintText );
 #endif
