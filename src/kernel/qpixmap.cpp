@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#120 $
 **
 ** Implementation of QPixmap class
 **
@@ -552,9 +552,9 @@ void QPixmap::resize( int w, int h )
 
 void QPixmap::setMask( const QBitmap &newmask )
 {
-    if ( (data == newmask.data) ||
+    const QPixmap *tmp = &newmask;		// dec cxx bug
+    if ( (data == tmp->data) ||
 	 ( newmask.handle() && newmask.handle() == handle() ) ) {
-	const QPixmap *tmp = &newmask;		// dec cxx bug
 	QPixmap m = tmp->copy( TRUE );
 	setMask( *((QBitmap*)&m) );
 	data->selfmask = TRUE;			// mask == pixmap
@@ -576,13 +576,10 @@ void QPixmap::setMask( const QBitmap &newmask )
     }
     delete data->mask;
     QBitmap* newmaskcopy;
-    if ( newmask.mask() ) {
-	const QPixmap *tmp = &newmask;
+    if ( newmask.mask() )
 	newmaskcopy = (QBitmap*)new QPixmap( tmp->copy( TRUE ) );
-    }
-    else {
+    else
 	newmaskcopy = new QBitmap( newmask );
-    }
     data->mask = newmaskcopy;
 }
 
