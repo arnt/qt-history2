@@ -156,7 +156,7 @@ public:
 	PStyle_Bottom =			0x00000800,
 	PStyle_FocusAtBorder =		0x00001000,
 	PStyle_AutoRaise =		0x00002000,
-	PStyle_MouseOver =		0x00004000,
+	PStyle_MouseOver =		0x00004000
 
 	/*
 	  PStyle_FocusHighlight=	0x00000001,
