@@ -248,19 +248,29 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 }
 
 /*!
-  \class QGenericListView qgenericlistview.h
+    \class QGenericListView qgenericlistview.h
 
-  \brief The QGenericListView class provides a default model/view implementation of a list and icon view.
+    \brief The QGenericListView class provides a default model/view
+    implementation of a list and of an icon view.
 
-  \ingroup model-view
+    \ingroup model-view
 
-  This class implements a list representation of a QAbstractItemView working on a QAbstractItemModel.
+    This class implements a list representation of a QAbstractItemView
+    working on a QAbstractItemModel.
 
-  \omit
-  Describe the listview/iconview concept.
-  \endomit
+    \omit
+    Describe the listview/iconview concept.
+    \endomit
 
-  \sa \link model-view-programming.html Model/View Programming\endlink.
+    Items in these views flow() in a particular direction, move
+    according to the movement() state, wrap depending on
+    isWrapping(), and have a resizeMode() and a layoutMode() governing
+    how and when they are laid out. Items are spaced according to
+    their spacing() and can exist within a notional grid of size
+    gridSize(). The items can be rendered large or small depending on
+    their iconMode().
+
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 /*!
@@ -268,20 +278,24 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 
   \value Static The items cannot be moved by the user.
   \value Free The items can be moved freely by the user.
-  \value Snap The items snap to the specified grid when moved.
+  \value Snap The items snap to the specified grid when moved; see
+  setGridSize().
 */
 
 /*!
   \enum QGenericListView::Flow
 
-  \value LeftToRight The items are layed out in the view from the left to the right.
-  \value TopToBottom The items are layed out in the view from the top to the bottom.
+  \value LeftToRight The items are laid out in the view from the left
+  to the right.
+  \value TopToBottom The items are laid out in the view from the top
+  to the bottom.
 */
 
 /*!
   \enum QGenericListView::IconMode
 
-  \value Automatic The icon size is Small if the isWrapping property is true, otherwise Large.
+  \value Automatic The icon size is Small if \l isWrapping is
+  true; otherwise the icon size is Large.
   \value Small The icons in the items are rendered as small icons.
   \value Large The icons in the items are rendered as large icons.
 */
@@ -289,19 +303,20 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 /*!
   \enum QGenericListView::ResizeMode
 
-  \value Fixed The items will only be layed out the first time the view is shown.
-  \value Adjust The items will be layed out every time the view is resized.
+  \value Fixed The items will only be laid out the first time the view is shown.
+  \value Adjust The items will be laid out every time the view is resized.
 */
 
 /*!
   \enum QGenericListView::LayoutMode
 
-  \value Instant The items are layed out all at once.
-  \value Batched The items are layed out in batches of 100 items.
+  \value Instant The items are laid out all at once.
+  \value Batched The items are laid out in batches of 100 items.
 */
 
+// ### DOC: How is the model set?
 /*!
-  Creates a new QGenericListView to view a model, and with the given \a parent.
+    Creates a new QGenericListView to view a model with the given \a parent.
 */
 QGenericListView::QGenericListView(QWidget *parent)
     : QAbstractItemView(*new QGenericListViewPrivate, parent)
@@ -326,19 +341,21 @@ QGenericListView::~QGenericListView()
 }
 
 /*!
-  \property QGenericListView::movement
-  \brief whether the items can be moved freely, snaps to a grid or not at all.
+    \property QGenericListView::movement
+    \brief whether the items can be moved freely, are snapped to a
+    grid, or cannot be moved at all.
 
-  This property holds how the user can move the items in the view.
-  Static means that the items can't be moved at all by the user.
-  Free means that the user can drag and drop the items to any position in the view.
-  Snap means that the user can drag and drop the items, but only to the positions
-  in a grid decided by the property gridSize.
+    This property determines how the user can move the items in the
+    view. \c Static means that the items can't be moved the user. \c
+    Free means that the user can drag and drop the items to any
+    position in the view. \c Snap means that the user can drag and
+    drop the items, but only to the positions in a notional grid
+    signified by the gridSize property.
 
-  Setting this property when the view is visible will cause the items to
-  be layed out again.
+    Setting this property when the view is visible will cause the
+    items to be laid out again.
 
-  \sa gridSize
+    \sa gridSize
 */
 void QGenericListView::setMovement(Movement movement)
 {
@@ -353,20 +370,17 @@ QGenericListView::Movement QGenericListView::movement() const
 }
 
 /*!
-  \property QGenericListView::flow
-  \brief which direction the items layout should flow.
+    \property QGenericListView::flow
+    \brief which direction the items layout should flow.
 
-  If this property is LeftToRight, the items will be layed out
-  left to right. If the isWrapping property is true, the layout
-  will wrap when it reaches the right side of the visible area.
-  If this  property is TopToBottom, the items will be layed out
-  from the top of the visible area, wrapping when it reaches
-  the bottom.
+    If this property is \c LeftToRight, the items will be laid out left
+    to right. If the \l isWrapping property is true, the layout will wrap
+    when it reaches the right side of the visible area. If this
+    property is \c TopToBottom, the items will be laid out from the top
+    of the visible area, wrapping when it reaches the bottom.
 
-  Setting this property when the view is visible will cause the items to
-  be layed out again.
-
-  \sa isWrapping
+    Setting this property when the view is visible will cause the
+    items to be laid out again.
 */
 void QGenericListView::setFlow(Flow flow)
 {
@@ -381,17 +395,15 @@ QGenericListView::Flow QGenericListView::flow() const
 }
 
 /*!
-  \property QGenericListView::isWrapping
-  \brief whether the items layout should wrap.
+    \property QGenericListView::isWrapping
+    \brief whether the items layout should wrap.
 
-  This property holds whether the layout should wrap when
-  there is no more space in the visible area. When the layout
-  wraps depends on the flow property.
+    This property holds whether the layout should wrap when there is
+    no more space in the visible area. When the layout wraps depends
+    on the \l flow property.
 
-  Setting this property when the view is visible will cause the items to
-  be layed out again.
-
-  \sa flow
+    Setting this property when the view is visible will cause the
+    items to be laid out again.
 */
 void QGenericListView::setWrapping(bool enable)
 {
@@ -406,20 +418,19 @@ bool QGenericListView::isWrapping() const
 }
 
 /*!
-  \property QGenericListView::iconMode
-  \brief whether the items should be rendered as large or small items.
+    \property QGenericListView::iconMode
+    \brief whether the items should be rendered as large or small items.
 
-  If this property is Small (default), the default delegate will render the items
-  as small items with the decoration to the left and the text to the right.
-  If this property is Large, the default delegate will render the items
-  as large items with the decoration on top and the text on the bottom.
-  If set to Automatic, the view will use the Small mode if the isWrapping
-  property is true.
+    If this property is \c Small (the default), the default delegate
+    will render the items as small items with the decoration to the
+    left and the text to the right. If this property is \c Large, the
+    default delegate will render the items as large items with the
+    decoration at the top and the text at the bottom. If set to \c
+    Automatic, the view will use the \c Small mode if the \l
+    isWrapping property is true.
 
-  Setting this property when the view is visible will cause the items to
-  be layed out again.
-
-  \sa isWrapping
+    Setting this property when the view is visible will cause the
+    items to be laid out again.
 */
 void QGenericListView::setIconMode(IconMode mode)
 {
@@ -434,13 +445,12 @@ QGenericListView::IconMode QGenericListView::iconMode() const
 }
 
 /*!
-  \property QGenericListView::resizeMode
-  \brief whether or not the items are layed out again when the view is resized.
+    \property QGenericListView::resizeMode
+    \brief whether the items are laid out again when the view is resized.
 
-  If this property is Adjust, the items will be layed out again when the view is
-  resized. When it is Fixed, the items will not be moved.
-
-  \sa doItemsLayout()
+    If this property is \c Adjust, the items will be laid out again
+    when the view is resized. If the value is \c Fixed, the items will
+    not be laid out when the view is resized.
 */
 void QGenericListView::setResizeMode(ResizeMode mode)
 {
@@ -453,16 +463,15 @@ QGenericListView::ResizeMode QGenericListView::resizeMode() const
 }
 
 /*!
-  \property QGenericListView::layoutMode
-  \brief whether the layout of items should be instant or delayed.
+    \property QGenericListView::layoutMode
+    \brief whether the layout of items should happen immediately or be delayed.
 
-  This property holds the layout mode for the items.
-  When the mode is Instant (default), the items are layed out all in one go.
-  When the mode is Batched, the items are layed out in batches of 100 items,
-  while processing events. This makes it possible to instantly view and interact
-  with items while the rest are being layed out.
-
-  \sa doItemsLayout()
+    This property holds the layout mode for the items. When the mode
+    is \c Instant (the default), the items are laid out all in one go.
+    When the mode is \c Batched, the items are laid out in batches of 100
+    items, while processing events. This makes it possible to
+    instantly view and interact with the visible items while the rest
+    are being laid out.
 */
 void QGenericListView::setLayoutMode(LayoutMode mode)
 {
@@ -475,17 +484,15 @@ QGenericListView::LayoutMode QGenericListView::layoutMode() const
 }
 
 /*!
-  \property QGenericListView::spacing
-  \brief the space between items in the layout
+    \property QGenericListView::spacing
+    \brief the space between items in the layout
 
-  This property is the size of the empty space between items
-  in the layout. The spacing will be ignored if the items are layed out in
-  a grid.
+    This property is the size of the empty space between items in the
+    layout. This property is ignored if the items are laid out in a
+    grid.
 
-  Setting this property when the view is visible will cause the items to
-  be layed out again.
-
-  \sa doItemsLayout()
+    Setting this property when the view is visible will cause the
+    items to be laid out again.
 */
 void QGenericListView::setSpacing(int space)
 {
@@ -500,16 +507,17 @@ int QGenericListView::spacing() const
 }
 
 /*!
-  \property QGenericListView::gridSize
-  \brief the size of the layout grid
+    \property QGenericListView::gridSize
+    \brief the size of the layout grid
 
-  This property is the size of the grid in which the items are layed out.
-  To turn on grid layout, the grid size must be non-empty.
+    This property is the size of the grid in which the items are laid
+    out. The default is an empty size which means that there is no
+    grid and the layout is not done in a grid. Setting this property
+    to a non-empty size switches on the grid layout. (When a grid
+    layout is in force the \l spacing property is ignored.)
 
-  Setting this property when the view is visible will cause the items to
-  be layed out again.
-
-  \sa doItemsLayout()
+    Setting this property when the view is visible will cause the
+    items to be laid out again.
 */
 void QGenericListView::setGridSize(const QSize &size)
 {
@@ -563,7 +571,9 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
 }
 
 /*!
-  Scroll the view contents by \a dx and \a dy.
+    \internal
+
+    Scroll the view contents by \a dx and \a dy.
 */
 void QGenericListView::scrollContentsBy(int dx, int dy)
 {
@@ -576,7 +586,10 @@ void QGenericListView::scrollContentsBy(int dx, int dy)
 }
 
 /*!
-  Resize the internal contents to \a width and \a height and set the scrollbar ranges accordingly.
+    \internal
+
+    Resize the internal contents to \a width and \a height and set the
+    scrollbar ranges accordingly.
 */
 void QGenericListView::resizeContents(int width, int height)
 {
@@ -961,7 +974,8 @@ QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorA
 }
 
 /*!
-    Returns the rectangle of the item at \a index in contents coordinates.
+    Returns the rectangle of the item at position \a index in the
+    model. The rectangle is in contents coordinates.
 */
 QRect QGenericListView::itemRect(const QModelIndex &index) const
 {
@@ -1020,7 +1034,9 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
 }
 
 /*!
-  Layout the items according to the flow and wrapping properties.
+    \internal
+
+    Layout the items according to the flow and wrapping properties.
 */
 void QGenericListView::doItemsLayout()
 {

@@ -24,24 +24,35 @@
 #define q q_func()
 
 /*!
-  \class QGenericTableView qgenerictableview.h
+    \class QGenericTableView qgenerictableview.h
 
-  \brief The QGenericTableView class provides a default model/view implementation of a table view.
+    \brief The QGenericTableView class provides a default model/view
+    implementation of a table view.
 
-  \ingroup model-view
+    \ingroup model-view
 
-  This class implements a table representation of a QGenericItemView working
-  on a QAbstractItemModel.
+    This class implements a table representation of a QGenericItemView working
+    on a QAbstractItemModel.
 
-  \sa \link model-view-programming.html Model/View Programming\endlink.
+    The table has a vertical header available from leftHeader() and a
+    horizontal header available from topHeader(). Rows have a
+    rowHeight(), and a y-coordinate can be mapped to a row using
+    rowAt() and a row can be mapped to a contents coordinate with
+    rowViewportPosition(); columns are similar with columnWidth(),
+    columnAt(), and columnViewportPosition(). Rows and columns can be
+    hidden and shown with hideRow(), hideColumn(), showRow(), and
+    showColumn(). They can be selected with selectRow() and
+    selectColumn(). The table will show a grid depending on the \l
+    showGrid property.
 
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
+// ### DOC: Where does the model come from?
 /*!
-  Constructs a table view with a \a parent to represent the data in
-  the given \a model.
+    Constructs a table view with a \a parent to represent the data.
 
-  \sa QAbstractItemModel
+    \sa QAbstractItemModel
 */
 
 QGenericTableView::QGenericTableView(QWidget *parent)
@@ -103,7 +114,9 @@ void QGenericTableView::setSelectionModel(QItemSelectionModel *selectionModel)
 }
 
 /*!
-  Returns the header to the top of the table view.
+    Returns the table view's horizontal header.
+
+    \sa setTopHeader() leftHeader()
 */
 
 QGenericHeader *QGenericTableView::topHeader() const
@@ -112,7 +125,9 @@ QGenericHeader *QGenericTableView::topHeader() const
 }
 
 /*!
-  Returns the header to the left of the table view.
+    Returns the table view's vertical header.
+
+    \sa setLeftHeader() topHeader()
 */
 QGenericHeader *QGenericTableView::leftHeader() const
 {
@@ -120,7 +135,9 @@ QGenericHeader *QGenericTableView::leftHeader() const
 }
 
 /*!
-  Set the top header widget.
+    Sets the widget to use for the vertical header to \a header.
+
+    \sa topHeader() setLeftHeader()
 */
 void QGenericTableView::setTopHeader(QGenericHeader *header)
 {
@@ -152,7 +169,9 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
 }
 
 /*!
-    Set the left header widget.
+    Sets the widget to use for the horizontal header to \a header.
+
+    \sa leftHeader() setTopHeader()
 */
 void QGenericTableView::setLeftHeader(QGenericHeader *header)
 {
@@ -184,7 +203,9 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
 }
 
 /*!
-  Scroll the contents of the table view by \a(dx, dy).
+    \internal
+
+    Scroll the contents of the table view by \a(dx, dy).
 */
 void QGenericTableView::scrollContentsBy(int dx, int dy)
 {
@@ -219,6 +240,7 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
 }
 
 /*!
+    Paints the table on receipt of the given paint event \a e.
 */
 void QGenericTableView::paintEvent(QPaintEvent *e)
 {
@@ -330,7 +352,8 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
 }
 
 /*!
-  Returns the model item index corresponding to the item at \a(x, y).
+    Returns the index position of the model item corresponding to the
+    table item at position (\a x, \a y) in contents coordinates.
 */
 QModelIndex QGenericTableView::itemAt(int x, int y) const
 {
@@ -338,7 +361,9 @@ QModelIndex QGenericTableView::itemAt(int x, int y) const
 }
 
 /*!
-  Returns the horizontal offset of the items in the table view.
+    Returns the horizontal offset of the items in the table view.
+
+    \sa verticalOffset()
 */
 int QGenericTableView::horizontalOffset() const
 {
@@ -346,7 +371,9 @@ int QGenericTableView::horizontalOffset() const
 }
 
 /*!
-  Returns the vertical offset of the items in the table view.
+    Returns the vertical offset of the items in the table view.
+
+    \sa horizontalOffset()
 */
 int QGenericTableView::verticalOffset() const
 {
@@ -354,12 +381,12 @@ int QGenericTableView::verticalOffset() const
 }
 
 /*!
-\fn QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state)
+    \fn QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState state)
 
-Move the cursor in the way described by \a cursorAction, using the
-information provided by the button \a state.
+    Moves the cursor in accordance with the given \a cursorAction, using the
+    information provided by the button \a state.
 
-\sa QAbstractItemView::CursorAction
+    \sa QAbstractItemView::CursorAction
 */
 QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                           Qt::ButtonState)
@@ -399,6 +426,11 @@ QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursor
 }
 
 /*!
+    \fn void QGenericTableView::setSelection(const QRect &rect,
+    QItemSelectionModel::SelectionFlags flags)
+
+    Selects the items within the given \a rect and in accordance with
+    the specified selection \a flags.
 */
 void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
 {
@@ -417,8 +449,10 @@ void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::Sel
 }
 
 /*!
-  Returns the rectangle from the viewport of the items in the given
-  \a selection.
+    \internal
+
+    Returns the rectangle from the viewport of the items in the given
+    \a selection.
 */
 QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) const
 {
@@ -461,6 +495,9 @@ QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) 
 }
 
 /*!
+    This slot is called whenever rows are added or deleted. The
+    previous number of rows is given by \a oldCount, and the new
+    number of rows is given by \a newCount.
 */
 
 void QGenericTableView::rowCountChanged(int, int)
@@ -470,10 +507,9 @@ void QGenericTableView::rowCountChanged(int, int)
 }
 
 /*!
-  \fn void QGenericTableView::columnCountChanged(int start, int end)
-
-  Informs the table view that the columns from \a start to \a end
-  inclusive have been changed.
+    This slot is called whenever columns are added or deleted. The
+    previous number of columns is given by \a oldCount, and the new
+    number of columns is given by \a newCount.
 */
 
 void QGenericTableView::columnCountChanged(int, int)
@@ -483,6 +519,7 @@ void QGenericTableView::columnCountChanged(int, int)
 }
 
 /*!
+    \internal
 */
 
 void QGenericTableView::updateGeometries()
@@ -534,9 +571,9 @@ void QGenericTableView::updateGeometries()
 }
 
 /*!
-  Returns the size hint for the \a row's height.
+    Returns the size hint for the given \a row's height.
 
-  \sa QWidget::sizeHint
+    \sa QWidget::sizeHint
 */
 int QGenericTableView::rowSizeHint(int row) const
 {
@@ -557,9 +594,9 @@ int QGenericTableView::rowSizeHint(int row) const
 }
 
 /*!
-  Returns the size hint for the \a column's width.
+    Returns the size hint for the given \a column's width.
 
-  \sa QWidget::sizeHint
+    \sa QWidget::sizeHint
 */
 int QGenericTableView::columnSizeHint(int column) const
 {
@@ -580,6 +617,8 @@ int QGenericTableView::columnSizeHint(int column) const
 }
 
 /*!
+    Returns the x-coordinate in contents coordinates of the given \a
+    row.
 */
 
 int QGenericTableView::rowViewportPosition(int row) const
@@ -588,7 +627,7 @@ int QGenericTableView::rowViewportPosition(int row) const
 }
 
 /*!
-  Returns the height of the \a row.
+    Returns the height of the given \a row.
 */
 
 int QGenericTableView::rowHeight(int row) const
@@ -597,8 +636,8 @@ int QGenericTableView::rowHeight(int row) const
 }
 
 /*!
-  Returns the row in the tree view whose header covers the \a y
-  coordinate given.
+    Returns the row in which the given y-coordinate, \a y, in contents
+    coordinates is located.
 */
 
 int QGenericTableView::rowAt(int y) const
@@ -607,7 +646,9 @@ int QGenericTableView::rowAt(int y) const
 }
 
 /*!
-  Returns the horizontal position of the \a column in the viewport.*/
+    Returns the y-coordinate in contents coordinates of the given \a
+    column.
+*/
 
 int QGenericTableView::columnViewportPosition(int column) const
 {
@@ -618,7 +659,7 @@ int QGenericTableView::columnViewportPosition(int column) const
 }
 
 /*!
-  Returns the widget of the \a column.
+    Returns the width of the given \a column.
 */
 
 int QGenericTableView::columnWidth(int column) const
@@ -627,8 +668,8 @@ int QGenericTableView::columnWidth(int column) const
 }
 
 /*!
-  Returns the column in the tree view whose header covers the \a x
-  coordinate given.
+    Returns the column in which the given x-coordinate, \a x, in contents
+    coordinates is located.
 */
 
 int QGenericTableView::columnAt(int x) const
@@ -640,7 +681,7 @@ int QGenericTableView::columnAt(int x) const
 }
 
 /*!
-  Returns true if the \a row is hidden; otherwise returns false.
+    Returns true if the given \a row is hidden; otherwise returns false.
 */
 
 bool QGenericTableView::isRowHidden(int row) const
@@ -649,7 +690,7 @@ bool QGenericTableView::isRowHidden(int row) const
 }
 
 /*!
-  Returns true if the \a column is hidden; otherwise returns false.
+    Returns true if the given \a column is hidden; otherwise returns false.
 */
 
 bool QGenericTableView::isColumnHidden(int column) const
@@ -657,12 +698,13 @@ bool QGenericTableView::isColumnHidden(int column) const
     return d->topHeader->isSectionHidden(column);
 }
 
+// ### DOC: What is the default?
 /*!
-  \property QGenericTableView::showGrid
-  \brief whether or not to show the grid.
+    \property QGenericTableView::showGrid
+    \brief whether the grid is shown
 
-  This property is true if the table grid should be drawn
-  and false if it should not be drawn.
+    If this property is true a grid is drawn for the table; if the
+    property is false no grid is drawn.
 */
 
 void QGenericTableView::setShowGrid(bool show)
@@ -676,6 +718,8 @@ bool QGenericTableView::showGrid() const
 }
 
 /*!
+    Sets the style used by the grid (see \l{showGrid}) to the given
+    pen \a style.
 */
 
 void QGenericTableView::setGridStyle(Qt::PenStyle style)
@@ -684,10 +728,10 @@ void QGenericTableView::setGridStyle(Qt::PenStyle style)
 }
 
 /*!
-  \fn QRect QGenericTableView::itemViewportRect(const QModelIndex &index) const
+    \internal
 
-  Returns the rectangle on the viewport occupied by the item at
-  \a index.
+    Returns the rectangle on the viewport occupied by the given \a
+    item.
 */
 
 QRect QGenericTableView::itemViewportRect(const QModelIndex &item) const
@@ -699,6 +743,10 @@ QRect QGenericTableView::itemViewportRect(const QModelIndex &item) const
 }
 
 /*!
+    \internal
+
+    Makes sure that the given \a item is visible in the table view,
+    scrolling if necessary.
 */
 
 void QGenericTableView::ensureItemVisible(const QModelIndex &item)
@@ -740,6 +788,11 @@ void QGenericTableView::ensureItemVisible(const QModelIndex &item)
 }
 
 /*!
+    This slot is called to change the height of the given \a row. The
+    old height is given by \a oldHeight, and the new height by \a
+    newHeight.
+
+    \sa columnWidthChanged()
 */
 
 void QGenericTableView::rowHeightChanged(int row, int, int)
@@ -751,6 +804,11 @@ void QGenericTableView::rowHeightChanged(int row, int, int)
 }
 
 /*!
+    This slot is called to change the width of the given \a column.
+    The old width is given by \a oldWidth, and the new width by \a
+    newWidth.
+
+    \sa rowHeightChanged()
 */
 
 void QGenericTableView::columnWidthChanged(int column, int, int)
@@ -764,6 +822,11 @@ void QGenericTableView::columnWidthChanged(int column, int, int)
 }
 
 /*!
+    This slot is called to change the index of the given \a row in the
+    table view. The old index is given by \a oldIndex, and the new
+    index by \a newIndex.
+
+    \sa columnIndexChanged()
 */
 
 void QGenericTableView::rowIndexChanged(int, int oldIndex, int newIndex)
@@ -777,6 +840,11 @@ void QGenericTableView::rowIndexChanged(int, int oldIndex, int newIndex)
 }
 
 /*!
+    This slot is called to change the index of the given \a column in
+    the table view. The old index is given by \a oldIndex, and
+    the new index by \a newIndex.
+
+    \sa rowIndexChanged()
 */
 
 void QGenericTableView::columnIndexChanged(int, int oldIndex, int newIndex)
@@ -790,6 +858,10 @@ void QGenericTableView::columnIndexChanged(int, int oldIndex, int newIndex)
 }
 
 /*!
+    This slot is called to select the given \a row in accordance with
+    the given button \a state.
+
+    \sa selectColumn()
 */
 
 void QGenericTableView::selectRow(int row, Qt::ButtonState state)
@@ -806,6 +878,10 @@ void QGenericTableView::selectRow(int row, Qt::ButtonState state)
 }
 
 /*!
+    This slot is called to select the given \a column in accordance with
+    the given button \a state.
+
+    \sa selectRow()
 */
 
 void QGenericTableView::selectColumn(int column, Qt::ButtonState state)
@@ -822,6 +898,9 @@ void QGenericTableView::selectColumn(int column, Qt::ButtonState state)
 }
 
 /*!
+    Hide the given \a row.
+
+    \sa showRow() hideColumn()
 */
 
 void QGenericTableView::hideRow(int row)
@@ -830,6 +909,9 @@ void QGenericTableView::hideRow(int row)
 }
 
 /*!
+    Hide the given \a column.
+
+    \sa showColumn() hideRow()
 */
 
 void QGenericTableView::hideColumn(int column)
@@ -838,6 +920,9 @@ void QGenericTableView::hideColumn(int column)
 }
 
 /*!
+    Show the given \a row.
+
+    \sa hideRow() showColumn()
 */
 
 void QGenericTableView::showRow(int row)
@@ -846,6 +931,9 @@ void QGenericTableView::showRow(int row)
 }
 
 /*!
+    Show the given \a column.
+
+    \sa hideColumn() showRow()
 */
 
 void QGenericTableView::showColumn(int column)
@@ -854,6 +942,7 @@ void QGenericTableView::showColumn(int column)
 }
 
 /*!
+    \internal
 */
 
 void QGenericTableView::resizeRowToContents(int row, bool checkHeader)
@@ -864,6 +953,7 @@ void QGenericTableView::resizeRowToContents(int row, bool checkHeader)
 }
 
 /*!
+    \internal
 */
 
 void QGenericTableView::resizeColumnToContents(int column, bool checkHeader)
@@ -874,6 +964,7 @@ void QGenericTableView::resizeColumnToContents(int column, bool checkHeader)
 }
 
 /*!
+    \internal
 */
 
 void QGenericTableView::verticalScrollbarAction(int action)
@@ -906,6 +997,7 @@ void QGenericTableView::verticalScrollbarAction(int action)
 }
 
 /*!
+    \internal
 */
 
 void QGenericTableView::horizontalScrollbarAction(int action)
