@@ -96,8 +96,6 @@ void qt_clear_paintevent_clipping()
     paintEventDevice = 0;
 }
 
-static QList<QPainter*> *widgetPainterList = 0;
-
 void qwsUpdateActivePainters()
 {
     /* ##############
@@ -114,9 +112,9 @@ void qwsUpdateActivePainters()
     */
 }
 
-void qt_draw_background(QPaintEngine *pe, int/* x*/, int /*y*/, int /*w*/,  int /*h*/)
+void qt_draw_background(QPaintEngine * /*pe*/, int/* x*/, int /*y*/, int /*w*/,  int /*h*/)
 {
-    QWSPaintEngine *p = static_cast<QWSPaintEngine *>(pe);
+//     QWSPaintEngine *p = static_cast<QWSPaintEngine *>(pe);
 // // //     XSetForeground(p->d->dpy, p->d->gc, p->d->bg_brush.color().pixel(p->d->scrn));
 // // //     qt_draw_transformed_rect(pp, x, y, w, h, true);
 // // //     XSetForeground(p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn));
@@ -315,11 +313,11 @@ void QWSPaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin)
     d->gfx->setBrushOrigin(int(bgOrigin.x()), int(bgOrigin.y()));
 }
 
-void QWSPaintEngine::updateFont(const QFont &font)
+void QWSPaintEngine::updateFont(const QFont & /*font*/)
 {
 //    qDebug("QWSPaintEngine::updateFont");
 }
-void QWSPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
+void QWSPaintEngine::updateBackground(Qt::BGMode /*mode*/, const QBrush & /*bgBrush*/)
 {
 //    qDebug("QWSPaintEngine::updateBackground");
 }

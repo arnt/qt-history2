@@ -521,7 +521,7 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
     bool hasMinimize = widget->testWFlags(Qt::WStyle_Minimize);
     bool hasMaximize = widget->testWFlags(Qt::WStyle_Maximize);
 
-    bool paintAll = (decorationRegion == All);
+    bool paintAll = (decorationRegion == int(All));
     bool handled = false;
 
     if ((paintAll || decorationRegion & Borders) && state == Normal && hasBorder) {

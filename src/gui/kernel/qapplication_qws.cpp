@@ -2869,7 +2869,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
 }
 
 
-bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab)
+bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool /*grab*/)
 {
     int code = -1;
     Qt::KeyboardModifiers state = event->simpleData.modifiers;

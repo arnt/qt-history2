@@ -606,7 +606,7 @@ void qDrawPlainRect(QPainter *p, const QRect &r, const QColor &c,
                     lineWidth, fill);
 }
 
-
+#ifdef QT_COMPAT
 static void qDrawWinArrow(QPainter *p, Qt::ArrowType type, bool down,
                            int x, int y, int w, int h,
                            const QPalette &pal, bool enabled)
@@ -657,7 +657,7 @@ static void qDrawWinArrow(QPainter *p, Qt::ArrowType type, bool down,
     }
     p->setPen(savePen);                        // restore pen
 }
-
+#endif // QT_COMPAT
 
 #if defined(Q_CC_MSVC)
 #pragma warning(disable: 4244)

@@ -272,7 +272,7 @@ bool QDecorationWindows::paint(QPainter *painter, const QWidget *widget, int dec
     const QPalette pal = widget->palette();
     QRegion oldClipRegion = painter->clipRegion();
 
-    bool paintAll = (decorationRegion == All);
+    bool paintAll = (decorationRegion == int(All));
     if ((paintAll || decorationRegion & Title && titleRect.width() > 0) && state == Normal
         && widget->testWFlags(Qt::WStyle_Title)) {
         painter->setClipRegion(oldClipRegion);

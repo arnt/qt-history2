@@ -1832,9 +1832,9 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate 
     float yo = 0;
 
     QGlyphLayout *glyphs = ti.glyphs;
-    QFontEngine *fe = ti.fontEngine;
 
 #ifdef Q_WS_X11
+    QFontEngine *fe = ti.fontEngine;
     int type = fe->type();
     bool glyphIndices = (type == QFontEngine::Xft);
     // This helps us get arabic for XLFD fonts working. In that case we have a Unicode

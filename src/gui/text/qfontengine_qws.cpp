@@ -202,11 +202,11 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
         p->updateBrush(p->painterState()->pen.color(), QPoint(0,0));
 
         if (si.flags & QTextItem::Underline)
-            qpe->fillRect(x, y+qRound(underlinePosition()), si.width, lw);
+            qpe->fillRect(x, y+qRound(underlinePosition()), int(si.width), lw);
         if (si.flags & QTextItem::StrikeOut)
-            qpe->fillRect(x, y-qRound(ascent())/3, si.width, lw);
+            qpe->fillRect(x, y-qRound(ascent())/3, int(si.width), lw);
         if (si.flags & QTextItem::Overline)
-            qpe->fillRect(x, y-qRound(ascent())-1, si.width, lw);
+            qpe->fillRect(x, y-qRound(ascent())-1, int(si.width), lw);
 
         p->updateBrush(p->painterState()->brush, p->painterState()->bgOrigin);
     }
@@ -957,11 +957,11 @@ void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItem &si)
         p->updateBrush(p->painterState()->pen.color(), QPoint(0,0));
 
         if (si.flags & QTextItem::Underline)
-            qpe->fillRect(x, y+qRound(underlinePosition()), si.width, lw);
+            qpe->fillRect(x, y+qRound(underlinePosition()), int(si.width), lw);
         if (si.flags & QTextItem::StrikeOut)
-            qpe->fillRect(x, y-qRound(ascent())/3, si.width, lw);
+            qpe->fillRect(x, y-qRound(ascent())/3, int(si.width), lw);
         if (si.flags & QTextItem::Overline)
-            qpe->fillRect(x, y-qRound(ascent())-1, si.width, lw);
+            qpe->fillRect(x, y-qRound(ascent())-1, int(si.width), lw);
 
         p->updateBrush(p->painterState()->brush, p->painterState()->bgOrigin);
     }
