@@ -81,9 +81,6 @@ bool Handler::startElement(const QString &, const QString &,
     }
     else if (qName == "link") {
 
-        /* We shouldn't allow multiple link elements within a item element.
-           However, the link information may have been declared in the item
-           element's attributes, so we will just overwrite the previous value.*/
         if (inLink)
             return false;
         else if (inItem)
