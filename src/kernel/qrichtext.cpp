@@ -1582,7 +1582,7 @@ struct Q_EXPORT QTextDocumentTag {
 
 
 #define NEWPAR       do{ if ( !hasNewPar) { \
-		    if ( doLineBreak && curpar->prev() ) curpar->prev()->ubm = 0; \
+		    if ( doLineBreak && curpar->prev() ) curpar->prev()->ubm = 0;\
 		    curpar = createParag( this, curpar ); } \
 		    curpar->utm = -1; \
 		    hasNewPar = TRUE; \
@@ -1616,7 +1616,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QTextParag* curpar = lParag;
     int pos = 0;
     QValueStack<QTextDocumentTag> tags;
-    QTextDocumentTag initag( "", sheet_->item(""), *formatCollection()->defaultFormat() );
+    QTextDocumentTag initag( "p", sheet_->item("p"), *formatCollection()->defaultFormat() );
     QTextDocumentTag curtag = initag;
     bool space = TRUE;
     bool doLineBreak = FALSE;
@@ -1631,6 +1631,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QString anchorName;
 
     QString wellKnownTags = "br hr wsp table qt meta title";
+    NEWPAR;
 
     while ( pos < length ) {
 	if ( hasPrefix(doc, length, pos, '<' ) ){
@@ -2019,6 +2020,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	}
     }
 
+    if ( doLineBreak && curpar->prev() ) 
+        curpar->prev()->ubm = 0;
     if ( hasNewPar && curpar != fParag ) {
 	// cleanup unused last paragraphs
 	curpar = curpar->p;
@@ -2916,15 +2919,6 @@ bool QTextDocument::find( const QString &expr, bool cs, bool wo, bool forward,
 void QTextDocument::setTextFormat( Qt::TextFormat f )
 {
     txtFormat = f;
-
-    //###
-    if ( txtFormat == Qt::RichText && fParag && fParag == lParag && fParag->length() <= 1 ) {
-	QPtrVector<QStyleSheetItem> v = fParag->styleSheetItems();
-	v.resize( v.size() + 1 );
-	v.insert( v.size() - 1, styleSheet()->item( "p" ) );
-	fParag->setStyleSheetItems( v );
-    }
-
 }
 
 Qt::TextFormat QTextDocument::textFormat() const
@@ -4896,8 +4890,6 @@ void QTextParag::setStyleSheetItems( const QPtrVector<QStyleSheetItem> &vec )
 {
     styleSheetItemsVec() = vec;
     invalidate( 0 );
-    if ( list_val < 0 )
-	list_val = -1;
 }
 
 void QTextParag::setList( bool b, QStyleSheetItem::ListStyle listStyle )
