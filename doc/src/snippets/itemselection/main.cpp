@@ -37,24 +37,24 @@ int main(int argc, char *argv[])
     QModelIndex topLeft;
     QModelIndex bottomRight;
 
-    topLeft = model->index(0, 0, QModelIndex(), QModelIndex::View);
-    bottomRight = model->index(5, 2, QModelIndex(), QModelIndex::View);
+    topLeft = model->index(0, 0, QModelIndex());
+    bottomRight = model->index(5, 2, QModelIndex());
 
     QItemSelection selection(topLeft, bottomRight, model);
     selectionModel->select(selection, QItemSelectionModel::Select);
 
     QItemSelection toggleSelection;
 
-    topLeft = model->index(2, 1, QModelIndex(), QModelIndex::View);
-    bottomRight = model->index(7, 3, QModelIndex(), QModelIndex::View);
+    topLeft = model->index(2, 1, QModelIndex());
+    bottomRight = model->index(7, 3, QModelIndex());
     toggleSelection.select(topLeft, bottomRight, model);
 
     selectionModel->select(toggleSelection, QItemSelectionModel::Toggle);
 
     QItemSelection columnSelection;
 
-    topLeft = model->index(0, 1, QModelIndex(), QModelIndex::View);
-    bottomRight = model->index(0, 2, QModelIndex(), QModelIndex::View);
+    topLeft = model->index(0, 1, QModelIndex());
+    bottomRight = model->index(0, 2, QModelIndex());
 
     columnSelection.select(topLeft, bottomRight, model);
 
@@ -63,8 +63,8 @@ int main(int argc, char *argv[])
 
     QItemSelection rowSelection;
 
-    topLeft = model->index(0, 0, QModelIndex(), QModelIndex::View);
-    bottomRight = model->index(1, 0, QModelIndex(), QModelIndex::View);
+    topLeft = model->index(0, 0, QModelIndex());
+    bottomRight = model->index(1, 0, QModelIndex());
 
     rowSelection.select(topLeft, bottomRight, model);
 
