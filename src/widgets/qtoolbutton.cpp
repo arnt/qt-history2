@@ -225,7 +225,7 @@ QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
 	else
 	    QToolTip::add( this, textLabel );
     }
-#endif    
+#endif
 }
 
 
@@ -816,19 +816,16 @@ void QToolButton::popupTimerDone()
 	bool horizontal = TRUE;
 	bool topLeft = TRUE;
 	if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
-	    if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical ) {
+	    if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical )
 		horizontal = FALSE;
-		if ( mapToGlobal( rect().center() ).x() >
-		     topLevelWidget()->x() + topLevelWidget()->width()/2 )
-		    topLeft = FALSE;
-	    } else if ( mapToGlobal( rect().center() ).y() >
-			topLevelWidget()->y() + topLevelWidget()->height()/2 )
-		topLeft = FALSE;
 	}
 	if ( horizontal ) {
-	    if ( topLeft )
-		d->popup->exec( mapToGlobal( rect().bottomLeft() ) );
-	    else {
+	    if ( topLeft ) {
+		if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + d->popup->sizeHint().height() <= qApp->desktop()->height() )
+		    d->popup->exec( mapToGlobal( rect().bottomLeft() ) );
+		else
+		    d->popup->exec( mapToGlobal( rect().topLeft() - QPoint( 0, d->popup->sizeHint().height() ) ) );
+	    } else {
 		QSize sz( d->popup->sizeHint() );
 		QPoint p = mapToGlobal( rect().topLeft() );
 		p.ry() -= sz.height();
@@ -836,9 +833,12 @@ void QToolButton::popupTimerDone()
 	    }
 	}
 	else {
-	    if ( topLeft )
-		d->popup->exec( mapToGlobal( rect().topRight() ) );
-	    else {
+	    if ( topLeft ) {
+		if ( mapToGlobal( QPoint( rect().right(), 0 ) ).x() + d->popup->sizeHint().width() <= qApp->desktop()->width() )
+		    d->popup->exec( mapToGlobal( rect().topRight() ) );
+		else
+		    d->popup->exec( mapToGlobal( rect().topLeft() - QPoint( d->popup->sizeHint().width(), 0 ) ) );
+	    } else {
 		QSize sz( d->popup->sizeHint() );
 		QPoint p = mapToGlobal( rect().topLeft() );
 		p.rx() -= sz.width();

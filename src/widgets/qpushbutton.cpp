@@ -47,6 +47,7 @@
 #include "qguardedptr.h"
 #include "qptrdict.h" // binary compatibility
 #include "qapplication.h"
+#include "qtoolbar.h"
 #include "qcleanuphandler.h"
 
 // NOT REVISED
@@ -586,7 +587,7 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
 
 
 
-/*!  
+/*!
   \fn void QPushButton::setIsMenuButton( bool )
   \obsolete
 
@@ -599,7 +600,7 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
   \sa isMenuButton()
 */
 
-/*! 
+/*!
   \fn bool QPushButton::isMenuButton() const
   \obsolete
 
@@ -681,7 +682,38 @@ void QPushButton::popupPressed()
 {
     QPopupMenu* popup = ::d( this )->popup;
     if ( isDown() && popup ) {
-	popup->exec( mapToGlobal( rect().bottomLeft() ) );
+	bool horizontal = TRUE;
+	bool topLeft = TRUE;
+	if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
+	    if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical )
+		horizontal = FALSE;
+	}
+	if ( horizontal ) {
+	    if ( topLeft ) {
+		if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + popup->sizeHint().height() <= qApp->desktop()->height() )
+		    popup->exec( mapToGlobal( rect().bottomLeft() ) );
+		else
+		    popup->exec( mapToGlobal( rect().topLeft() - QPoint( 0, popup->sizeHint().height() ) ) );
+	    } else {
+		QSize sz( popup->sizeHint() );
+		QPoint p = mapToGlobal( rect().topLeft() );
+		p.ry() -= sz.height();
+		popup->exec( p );
+	    }
+	}
+	else {
+	    if ( topLeft ) {
+		if ( mapToGlobal( QPoint( rect().right(), 0 ) ).x() + popup->sizeHint().width() <= qApp->desktop()->width() )
+		    popup->exec( mapToGlobal( rect().topRight() ) );
+		else
+		    popup->exec( mapToGlobal( rect().topLeft() - QPoint( popup->sizeHint().width(), 0 ) ) );
+	    } else {
+		QSize sz( popup->sizeHint() );
+		QPoint p = mapToGlobal( rect().topLeft() );
+		p.rx() -= sz.width();
+		popup->exec( p );
+	    }
+	}
 	setDown( FALSE );
     }
 }

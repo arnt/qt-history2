@@ -44,12 +44,9 @@ SGI Style/MotifPlus style
     Changing the palette of a widget while the mouse is over it will reset the palette when leave
 
 QMultiLineEdit
-    When using fonts (appears to be all fonts) of a size bigger than 10 points, the cursor will 
+    When using fonts (appears to be all fonts) of a size bigger than 10 points, the cursor will
     not move when the TAB key is pressed at the beginning of the line.  The text is correctly placed
     however.  (Was: Lucida font problem)
-
-QToolButton/popups
-    See qt-bugs/arc-08/16903
 
 Cosmetic
 --------
