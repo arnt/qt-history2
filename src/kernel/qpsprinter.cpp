@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#62 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1969,7 +1969,7 @@ static struct {
     { "utopia", "Utopia-Regular", 0, 0, 0, 0, 0 },
     { 0, 0, 0, 0, 0, 0, 0 }
 };
-    
+
 
 //static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
 void QPSPrinter::setFont( const QFont & f )
@@ -1995,7 +1995,7 @@ void QPSPrinter::setFont( const QFont & f )
     bool italic = f.italic();
 
     family = family.lower();
-    
+
     int i;
 
     // try to make a "good" postscript name
@@ -2024,7 +2024,7 @@ void QPSPrinter::setFont( const QFont & f )
 	if ( p > -1 )
 	    ps.truncate( p );
     }
-    
+
     // get the right modification, or build something
     if ( weight >= QFont::Bold && italic ) {
 	if ( postscriptFontNames[i].boldItalic )
@@ -2105,7 +2105,7 @@ void QPSPrinter::setFont( const QFont & f )
 		d->headerFontNames.insert( key2, new QString( fontName ) );
 	    }
 	    ++d->headerFontNumber;
-	    d->fontStream << "/F" << d->headerFontNumber << " " 
+	    d->fontStream << "/F" << d->headerFontNumber << " "
 			  << f.pointSize() << fontName << " DF\n";
 	    fontName.sprintf( "F%d", d->headerFontNumber );
 	    d->headerFontNames.insert( key, new QString( fontName ) );
@@ -2124,22 +2124,21 @@ void QPSPrinter::setFont( const QFont & f )
 		fontName = *tmp;
 	    } else {
 		fontName.sprintf( "/F%d", ++d->pageFontNumber );
-		d->fontStream << fontName << fontEncoding << "/"
-			      << ps << " MF\n";
+		stream << fontName << fontEncoding << "/" << ps << " MF\n";
 		d->pageFontNames.insert( key2, new QString( fontName ) );
 	    }
 	    ++d->pageFontNumber;
-	    d->fontStream << "/F" << d->pageFontNumber << " " 
-			  << f.pointSize() << fontName << " DF\n";
+	    stream << "/F" << d->pageFontNumber << " " 
+		   << f.pointSize() << fontName << " DF\n";
 	    fontName.sprintf( "F%d", d->pageFontNumber );
 	    d->pageFontNames.insert( key, new QString( fontName ) );
 	}
     }
     stream << fontName << " F\n";
 
-    // change "/Palatino-Roman /Times-Roman " to "Times-Roman "
-    ps.replace( QRegExp( "^.*/" ), "" );
-    if ( !fontsUsed.contains(ps) )
+    ps.append( " " );
+    ps.prepend( " " );
+    if ( !fontsUsed.contains( ps ) )
 	fontsUsed += ps;
 }
 
@@ -2283,8 +2282,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	       << "QP\n"
 	       << "%%Trailer\n";
 	if ( pageCountAtEnd )
-	    stream << "%%Pages: " << pageCount << '\n'
-		   << "%%DocumentFonts: " << fontsUsed << '\n';
+	    stream << "%%Pages: " << pageCount << "\n%%DocumentFonts: " 
+		   << fontsUsed.simplifyWhiteSpace() << '\n';
 	stream.unsetDevice();
 	d->realDevice->close();
 	if ( d->fd >= 0 )
@@ -2594,8 +2593,8 @@ void QPSPrinter::emitHeader( bool finished )
 	   << "\n%%Title: " << title
 	   << "\n%%CreationDate: " << QDateTime::currentDateTime().toString();
     if ( finished )
-	stream << "\n%%Pages: " << pageCount
-	       << "\n%%DocumentFonts: " << fontsUsed;
+	stream << "%%Pages: " << pageCount << "\n%%DocumentFonts: " 
+	       << fontsUsed.simplifyWhiteSpace() << '\n';
     else
 	stream << "\n%%Pages: (atend)"
 	       << "\n%%DocumentFonts: (atend) ";
@@ -2609,7 +2608,9 @@ void QPSPrinter::emitHeader( bool finished )
 
     stream << "% Standard Qt prolog\n" << fixed_ps_header << "\n";
     if ( d->fontBuffer->buffer().size() ) {
-	if ( pageCount > 1 )
+	if ( pageCount == 1 )
+	    stream << "% Fonts and encodings used\n";
+	else
 	    stream << "% Fonts and encodings used on pages 1-"
 		   << pageCount << "\n";
 	stream.writeRawBytes( (const char *)(d->fontBuffer->buffer().data()),
