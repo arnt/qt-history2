@@ -2228,7 +2228,7 @@ void QApplication::setOverrideCursor(const QCursor &cursor)
 {
     qApp->d->cursor_list.prepend(cursor);
 
-    for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+    for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
         register QWidget *w = *it;
         if (w->testAttribute(Qt::WA_SetCursor))
             qt_x11_enforce_cursor(w);
@@ -2253,8 +2253,9 @@ void QApplication::restoreOverrideCursor()
         return;
     qApp->d->cursor_list.removeFirst();
 
-    if (QWidget::mapper != 0 && !closingDown()) {
-        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+    if (QWidgetPrivate::mapper != 0 && !closingDown()) {
+        for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
+             it != QWidgetPrivate::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
             if (w->testAttribute(Qt::WA_SetCursor))
                 qt_x11_enforce_cursor(w);
@@ -2874,7 +2875,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 widget->d->topData()->spont_unmapped = 1;
                 QHideEvent e;
                 QApplication::sendSpontaneousEvent(widget, &e);
-                widget->hideChildren(true);
+                widget->d->hideChildren(true);
             }
         }
         break;
@@ -2884,7 +2885,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             widget->setAttribute(Qt::WA_Mapped);
             if (widget->d->topData()->spont_unmapped) {
                 widget->d->topData()->spont_unmapped = 0;
-                widget->showChildren(true);
+                widget->d->showChildren(true);
                 QShowEvent e;
                 QApplication::sendSpontaneousEvent(widget, &e);
             }
