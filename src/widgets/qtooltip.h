@@ -118,6 +118,9 @@ protected:
     virtual void maybeTip( const QPoint & ) = 0;
     void    tip( const QRect &, const QString &);
     void    tip( const QRect &, const QString& , const QString &);
+    void    tip( const QRect &, const QString &, const QRect & );
+    void    tip( const QRect &, const QString&, const QString &, const QRect &);
+
     void    clear();
 
 public:
@@ -125,15 +128,12 @@ public:
     QToolTipGroup *group()	  const { return g; }
 
 private:
-    void    tip( const QRect &, const QRect &, const QString &);
     QWidget	    *p;
     QToolTipGroup   *g;
     static QFont    *ttFont;
     static QPalette *ttPalette;
 
     friend class QTipManager;
-    friend class QIconViewToolTip;
-    friend class QListViewToolTip;
 };
 
 

@@ -73,6 +73,7 @@ public:
 	setText(text);
 	adjustSize();
     }
+    void setWidth( int w ) { resize( sizeForWidth( w ) ); }
 };
 
 // Internal class - don't touch
@@ -126,7 +127,7 @@ private:
     QTimer  fallAsleep;
 
     QPtrDict<Tip> *tips;
-    QLabel *label;
+    QTipLabel *label;
     QPoint pos;
     QGuardedPtr<QWidget> widget;
     Tip *currentTip;
@@ -496,7 +497,7 @@ void QTipManager::showTip()
 	 && label->x11Screen() == widget->x11Screen()
 #endif
 	 ) {
-	// the next two lines are a workaround for QLabel being to intelligent.
+	// the next two lines are a workaround for QLabel being too intelligent.
 	// QLabel turns on the wordbreak flag once it gets a richtext. The two lines below
 	// ensure we get correct textflags when switching back and forth between a richtext and
 	// non richtext tooltip
@@ -525,8 +526,7 @@ void QTipManager::showTip()
     } else {
 	p = widget->mapToGlobal( t->geometry.topLeft() );
 	label->setAlignment( WordBreak | AlignCenter );
-	int h = label->heightForWidth( t->geometry.width() - 4 );
-	label->resize( label->width(), h );
+	label->setWidth( t->geometry.width() - 4 );
     }
     if ( p.y() < screen.y() )
 	p.setY( screen.y() );
@@ -919,7 +919,8 @@ void QToolTip::hide()
     shown and must decide whether there is a tool tip for the point \a
     p in the widget that this QToolTip object relates to. If so,
     maybeTip() must call tip() with the rectangle the tip applies to,
-    the tip's text and optionally the QToolTipGroup details.
+    the tip's text and optionally the QToolTipGroup details and the
+    geometry in screen coordinates.
 
     \a p is given in that widget's local coordinates. Most maybeTip()
     implementations will be of the form:
@@ -957,18 +958,13 @@ void QToolTip::tip( const QRect & rect, const QString &text )
     tipManager->add( parentWidget(), rect, text, 0, QString::null, 0, TRUE );
 }
 
-void QToolTip::tip( const QRect &geometry, const QRect &rect, const QString &text )
-{
-    initTipManager();
-    tipManager->add( geometry, parentWidget(), rect, text, 0, QString::null, 0, TRUE );
-}
-
 /*!
     \overload
 
     Immediately pops up a tip saying \a text and removes that tip once
-    the cursor moves out of rectangle \a rect. \a groupText is the
-    text emitted from the group.
+    the cursor moves out of rectangle \a rect (which is given in the
+    coordinate system of the widget this QToolTip relates to). \a
+    groupText is the text emitted from the group.
 
     The tip will not reappear if the cursor moves back; your
     maybeTip() must reinstate it each time.
@@ -980,6 +976,48 @@ void QToolTip::tip( const QRect & rect, const QString &text,
     initTipManager();
     tipManager->add( parentWidget(), rect, text, group(), groupText, 0, TRUE );
 }
+
+/*!
+    \overload
+
+    Immediately pops up a tip within the rectangle \a geometry, saying
+    \a text and removes the tip once the cursor moves out of rectangle
+    \a rect. Both rectangles are given in the coordinate system of the
+    widget this QToolTip relates to.
+
+    The tip will not reappear if the cursor moves back; your
+    maybeTip() must reinstate it each time.
+
+    If the tip does not fit inside \a geometry, the tip expands.
+*/
+
+void QToolTip::tip( const QRect &rect, const QString &text, const QRect &geometry )
+{
+    initTipManager();
+    tipManager->add( geometry, parentWidget(), rect, text, 0, QString::null, 0, TRUE );
+}
+
+/*!
+    \overload
+
+    mmediately pops up a tip within the rectangle \a geometry, saying
+    \a text and removes the tip once the cursor moves out of rectangle
+    \a rect. \a groupText is the text emitted from the group. Both
+    rectangles are given in the coordinate system of the widget this
+    QToolTip relates to.
+
+    The tip will not reappear if the cursor moves back; your
+    maybeTip() must reinstate it each time.
+
+    If the tip does not fit inside \a geometry, the tip expands.
+*/
+
+void QToolTip::tip( const QRect &rect, const QString &text, const QString& groupText, const QRect &geometry )
+{
+    initTipManager();
+    tipManager->add( geometry, parentWidget(), rect, text, group(), groupText, 0, TRUE );
+}
+
 
 
 /*!

@@ -155,6 +155,8 @@ private:
 #endif
     QLabelPrivate* d;
 
+    friend class QTipLabel;
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QLabel( const QLabel & );
