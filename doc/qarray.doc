@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 1.10 1996/05/06 20:45:54 hanord Exp $
+** $Id: qarray.doc,v 1.11 1996/05/20 16:29:17 hanord Exp $
 **
 ** QArray class documentation
 **
@@ -345,6 +345,15 @@
 
 /*----------------------------------------------------------------------------
   \fn type &QArray::operator[]( int index ) const
+  Returns a reference to the element at position \e index in the array.
+
+  This can be used to both read and set an element.  Equivalent to at().
+
+  \sa at()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn type &QArray::operator[]( uint index ) const
   Returns a reference to the element at position \e index in the array.
 
   This can be used to both read and set an element.  Equivalent to at().
