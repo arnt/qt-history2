@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#28 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#29 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -141,6 +141,7 @@ private:
 
     void 	newMark( int posx, int posy, bool copy=TRUE );
     void 	markWord( int posx, int posy );
+    int 	charClass( char );
     void	turnMarkOff();
 
 private:	// Disabled copy constructor and operator=

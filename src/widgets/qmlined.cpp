@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#64 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#65 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1587,22 +1587,21 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 				cellWidth() - 2 * BORDER );
 
     if ( wordMark ) {
+	int i = newX;
+	int lim = s->length();
+	int startclass = i < 0 || i >= lim ? -1 : charClass(s->at(i));
 	if ( markAnchorY < markDragY || markAnchorY == markDragY
 	     && markAnchorX < markDragX ) {
 	    // going right
-	    int i = newX;
-	    int lim = s->length();
-	    while ( i < lim && isprint(s->at(i)) && !isspace(s->at(i)) )
+	    while ( i < lim && charClass(s->at(i)) == startclass )
 		i++;
-	    newX = i;
 	} else {
 	    // going left
-	    int i = newX;
-	    while ( i >= 0 && isprint(s->at(i)) && !isspace(s->at(i)) )
+	    while ( i >= 0 && charClass(s->at(i)) == startclass )
 		i--;
 	    i++;
-	    newX = i;
 	}
+	newX = i;
     }
 
     if ( markDragX == newX && markDragY == newY )
@@ -1837,17 +1836,19 @@ void QMultiLineEdit::markWord( int posx, int posy )
 {
     QString *s = contents->at( posy );
     ASSERT( s );
+    int lim = s->length();
     int i = posx - 1;
 
-    while ( i >= 0 && isprint(s->at(i)) && !isspace(s->at(i)) )
+    int startclass = i < 0 || i >= lim ? -1 : charClass( s->at(i) );
+
+    while ( i >= 0 && charClass(s->at(i)) == startclass )
 	i--;
     i++;
     markAnchorY = posy;
     markAnchorX = i;
 
-    int lim = s->length();
     i = posx;
-    while ( i < lim && isprint(s->at(i)) && !isspace(s->at(i)) )
+    while ( i < lim && charClass(s->at(i)) == startclass )
 	i++;
     markDragX = i;
     markDragY = posy;
@@ -1855,6 +1856,19 @@ void QMultiLineEdit::markWord( int posx, int posy )
     copyText();
 }
 
+/*!
+  This may become a protected virtual member in a future Qt.
+  This implementation is an example of a useful classification
+  that aides selection of common units like filenames and URLs.
+*/
+int QMultiLineEdit::charClass( char ch )
+{
+    if ( !isprint(ch) || isspace(ch) ) return 1;
+    else if ( isalnum(ch) || ch=='-' || ch=='+' || ch==':'
+	    || ch=='.' || ch=='/' || ch=='\\'
+	    || ch=='@' || ch=='$' || ch=='~' ) return 2;
+    else return 3;
+}
 
 /*!
   Copies the marked text to the clipboard.
