@@ -28,6 +28,9 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 {
     Q_ASSERT(m_mainWindow != 0);
 
+    m_workbench = m_mainWindow->workbench();
+    Q_ASSERT(m_workbench != 0);
+
     m_core = m_mainWindow->core();
     Q_ASSERT(m_core != 0);
 
@@ -181,6 +184,12 @@ QDesignerActions::~QDesignerActions()
 QDesignerMainWindow *QDesignerActions::mainWindow() const
 { return m_mainWindow; }
 
+QDesignerWorkbench *QDesignerActions::workbench() const
+{ return m_workbench; }
+
+AbstractFormEditor *QDesignerActions::core() const
+{ return m_core; }
+
 QActionGroup *QDesignerActions::fileActions() const
 { return m_fileActions; }
 
@@ -297,6 +306,3 @@ void QDesignerActions::updateEditMode(QAction *action)
         formWindow->setEditMode(mode);
     }
 }
-
-AbstractFormEditor *QDesignerActions::core() const
-{ return m_core; }

@@ -17,6 +17,8 @@
 #include <QObject>
 
 class QDesignerMainWindow;
+class QDesignerWorkbench;
+
 class QAction;
 class QActionGroup;
 class AbstractFormEditor;
@@ -29,6 +31,9 @@ public:
     virtual ~QDesignerActions();
 
     QDesignerMainWindow *mainWindow() const;
+    QDesignerWorkbench *workbench() const;
+    AbstractFormEditor *core() const;
+
 
     QActionGroup *fileActions() const;
     QActionGroup *editActions() const;
@@ -78,13 +83,12 @@ public:
     QAction *adjustSizeAction() const;
     QAction *previewFormAction() const;
 
-    AbstractFormEditor *core() const;
-
 private slots:
     void updateEditMode(QAction *action);
 
 private:
     QDesignerMainWindow *m_mainWindow;
+    QDesignerWorkbench *m_workbench;
     AbstractFormEditor *m_core;
 
     QActionGroup *m_fileActions;
