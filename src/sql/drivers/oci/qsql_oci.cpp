@@ -1778,11 +1778,10 @@ QSqlRecord QOCIDriver::record( const QString& tablename ) const
     QString table, owner, tmpStmt;
     qSplitTableAndOwner( tablename, &table, &owner );
     tmpStmt = stmt.arg( "'" + table + "'" );
-    if ( !owner.isEmpty() ) {
-	tmpStmt += " and owner='" + owner + "'";
-    } else {
-	tmpStmt += " and owner='" + d->user + "'";
+    if ( owner.isEmpty() ) {
+	owner = d->user;
     }
+    tmpStmt += " and owner='" + owner + "'";
     t.setForwardOnly( TRUE );
     t.exec( tmpStmt );
     if ( !t.next() ) { // check to see if this is a synonym instead
@@ -1849,11 +1848,10 @@ QSqlRecordInfo QOCIDriver::recordInfo( const QString& tablename ) const
     QString table, owner, tmpStmt;
     qSplitTableAndOwner( tablename, &table, &owner );
     tmpStmt = stmt.arg( "'" + table + "'" );
-    if ( !owner.isEmpty() ) {
-	tmpStmt += " and owner='" + owner + "'";
-    } else {
-	tmpStmt += " and owner='" + d->user + "'";
+    if ( owner.isEmpty() ) {
+	owner = d->user;
     }
+    tmpStmt += " and owner='" + owner + "'";
     t.setForwardOnly( TRUE );
     t.exec( tmpStmt );
     if ( !t.next() ) { // try and see if the tablename is a synonym
