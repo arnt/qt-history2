@@ -100,17 +100,17 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     setFieldWidth() and setPadChar(). Use setFieldAlignment() to set
     the alignment within each field. For real numbers, call
     setRealNumberNotation() and setRealNumberPrecision() to set the
-    notation (\l Smart, \l Scientific, \l Fixed) and precision in
+    notation (SmartNotation, ScientificNotation, FixedNotation) and precision in
     digits of the generated number. Some extra number formatting
     options are also available through setNumberFlags().
+
+    \keyword QTextStream manipulators
 
     Like \c <iostream> in the standard C++ library, QTextStream also
     defines several global manipulator functions:
 
-    \keyword QTextStream manipulators
-
     \table
-    \header \o Function           \o Description
+    \header \o Manipulator        \o Description
     \row    \o \c bin             \o Same as setIntegerBase(2).
     \row    \o \c oct             \o Same as setIntegerBase(8).
     \row    \o \c dec             \o Same as setIntegerBase(10).
@@ -2304,10 +2304,10 @@ QTextStream &fixed(QTextStream &stream)
 
     \sa fixed(), {QTextStream manipulators}
 */
-QTextStream &scientific(QTextStream &s)
+QTextStream &scientific(QTextStream &stream)
 {
-    s.setRealNumberNotation(QTextStream::ScientificNotation);
-    return s;
+    stream.setRealNumberNotation(QTextStream::ScientificNotation);
+    return stream;
 }
 
 /*!
@@ -2355,19 +2355,19 @@ QTextStream &center(QTextStream &stream)
 /*!
     \relates QTextStream
 
-    Writes '\n' to stream \a out and flushes the stream.
+    Writes '\n' to the \a stream and flushes the stream.
 
     Equivalent to
 
     \code
-        out << '\n' << flush;
+        stream << '\n' << flush;
     \endcode
 
     \sa flush(), reset(), {QTextStream manipulators}
 */
-QTextStream &endl(QTextStream &out)
+QTextStream &endl(QTextStream &stream)
 {
-    return out << QLatin1Char('\n') << flush;
+    return stream << QLatin1Char('\n') << flush;
 }
 
 /*!
@@ -2400,6 +2400,8 @@ QTextStream &reset(QTextStream &stream)
     \relates QTextStream
 
     Calls skipWhiteSpace() on \a stream and returns \a stream.
+
+    \sa {QTextStream manipulators}
 */
 QTextStream &ws(QTextStream &stream)
 {
