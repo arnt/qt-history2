@@ -691,13 +691,14 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 	    if (itemAttrs[next].softBreak)
 		breakany = false;
 	    --next;
-	    int s = next;
-	    if (!(d->textFlags & (Qt::SingleLine|Qt::IncludeTrailingSpaces)))
-		while (s > pos && itemAttrs[s].whiteSpace)
-		    --s;
+	    int lastNonSpace = next;
+	    if (!(d->textFlags & (Qt::SingleLine|Qt::IncludeTrailingSpaces))) {
+		while (lastNonSpace >= pos && itemAttrs[lastNonSpace].whiteSpace)
+		    --lastNonSpace;
+	    }
 
 	    int gp = logClusters[pos];
-	    int gs = logClusters[s];
+	    int gs = lastNonSpace < pos ? -1 : logClusters[lastNonSpace];
 	    int ge = logClusters[next];
 
 	    int tmpw = 0;
