@@ -56,3 +56,6 @@
 #define QT_NO_EFFECTS
 #define QT_NO_COP
 #define QT_NO_QWS_TRANSFORMED
+
+#define QT_NO_REGEXP_CAPTURE
+#define QT_NO_REGEXP_WILDCARD
