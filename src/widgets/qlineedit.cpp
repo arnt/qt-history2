@@ -171,12 +171,12 @@ struct QLineEditPrivate {
 	undoRedoInfo.type = t;
     }
 
-    bool readonly			: 1;
-    bool cursorOn			: 1;
-    bool inDoubleClick		: 1;
-    bool mousePressed		: 1;
-    bool dnd_primed			: 1;
-    bool ed			: 1;
+    bool readonly : 1;
+    bool cursorOn : 1;
+    bool inDoubleClick : 1;
+    bool mousePressed : 1;
+    bool dnd_primed : 1;
+    bool ed : 1;
     QLineEdit::EchoMode mode;
     int maxLen;
     int offset;
@@ -231,12 +231,11 @@ QPixmap* QLineEditPrivate::pm = 0;
   Return or Enter key is pressed the returnPressed() signal is
   emitted.
 
-  The default QLineEdit object has its own frame as specified by the
-  Windows/Motif style guides; you can turn off the frame by calling
-  setFrame( FALSE ).
+  By default, QLineEdits have a frame as specified by the Windows and
+  Motif style guides; you can turn it off by calling setFrame(FALSE).
 
   The default key bindings are described below.  A
-  right-mouse-button menu presents some of the editing commands to
+  right mouse button menu presents some of the editing commands to
   the user.
     \target desc
   \list
@@ -271,8 +270,7 @@ QPixmap* QLineEditPrivate::pm = 0;
   <img src=qlined-m.png> <img src=qlined-w.png>
 
   \sa QTextEdit QLabel QComboBox
-  \link guibooks.html#fowler GUI Design Handbook: Field, Entry,\endlink
-  \link guibooks.html#fowler GUI Design Handbook: Field, Required.\endlink
+      \link guibooks.html#fowler GUI Design Handbook: Field, Entry\endlink
 */
 
 
@@ -1308,32 +1306,9 @@ void QLineEdit::cursorForward( bool mark, int steps )
 
   \sa del()
 */
-
 void QLineEdit::backspace()
 {
-    if ( hasSelectedText() ) {
-	removeSelectedText();
-    } else if ( d->cursor->index() > 0 ) {
-	d->checkUndoRedoInfo( UndoRedoInfo::Delete );
-	if ( !d->undoRedoInfo.valid() ) {
-	    d->undoRedoInfo.index = d->cursor->index();
-	    d->undoRedoInfo.text = QString::null;
-	}
-	d->cursor->gotoLeft();
-	d->undoRedoInfo.text.prepend( QString( d->cursor->parag()->at( d->cursor->index() )->c ) );
-	d->undoRedoInfo.index = d->cursor->index();
-	d->cursor->remove();
-	d->cursor->checkIndex();
-
-    }
-    d->selectionStart = d->cursor->index();
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
-    d->ed = TRUE;
-    update();
-    emit textChanged( text() );
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
-#endif
+    delOrBackspace( TRUE );
 }
 
 /*!
@@ -1347,25 +1322,7 @@ void QLineEdit::backspace()
 
 void QLineEdit::del()
 {
-    if ( hasSelectedText() ) {
-	removeSelectedText();
-    } else {
-	d->checkUndoRedoInfo( UndoRedoInfo::Delete );
-	if ( !d->undoRedoInfo.valid() ) {
-	    d->undoRedoInfo.index = d->cursor->index();
-	    d->undoRedoInfo.text = QString::null;
-	}
-	d->undoRedoInfo.text += d->cursor->parag()->at( d->cursor->index() )->c;
-	d->cursor->remove();
-    }
-    d->selectionStart = d->cursor->index();
-    update();
-    setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
-    d->ed = TRUE;
-    emit textChanged( text() );
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
-#endif
+    delOrBackspace( FALSE );
 }
 
 /*!  Moves the text cursor to the beginning of the line. If \a mark is TRUE,
@@ -1777,7 +1734,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 #endif
 
     // okay, it succeeded
-    if( t != old )
+    if ( t != old )
 	setText( t );
 
     d->cursor->setIndex( newPos );
@@ -1792,12 +1749,11 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 /*!  Removes any selected text, inserts \a newText,
   and validates the result. If it is valid, it sets it as the new contents
   of the line edit.
-
 */
 void QLineEdit::insert( const QString &newText )
 {
     QString t( newText );
-    if ( t.isEmpty() )
+    if ( t.isEmpty() && !hasSelectedText() )
 	return;
 
     d->checkUndoRedoInfo( UndoRedoInfo::Insert );
@@ -1806,25 +1762,33 @@ void QLineEdit::insert( const QString &newText )
 	d->undoRedoInfo.text = QString::null;
     }
 
-    d->ed = TRUE;
-
     for ( int i=0; i<(int)t.length(); i++ )
 	if ( t[i] < ' ' )  // unprintable/linefeed becomes space
 	    t[i] = ' ';
 
-    QString text = d->parag->string()->toString();
-    text.remove( text.length() - 1, 1 );
-    int cp = d->cursor->index();
+    QString t1 = d->parag->string()->toString();
+    t1.remove( t1.length() - 1, 1 );
+    int cp1 = d->cursor->index();
+
     if ( hasSelectedText() ) {
-	text.remove( d->parag->selectionStart(0),
-		     d->parag->selectionEnd(0) - d->parag->selectionStart( 0 ) );
-	cp = d->parag->selectionStart(0);
+	t1.remove( d->parag->selectionStart(0),
+		   d->parag->selectionEnd(0) - d->parag->selectionStart(0) );
+	cp1 = d->parag->selectionStart( 0 );
     }
-    text.insert( cp, t );
-    cp = QMIN( cp+t.length(), (uint)maxLength() );
+
+    QString t2 = t1;
+    t2.insert( cp1, t );
+    int cp2 = QMIN( cp1 + t.length(), (uint)maxLength() );
+
+    d->ed = TRUE;
+    if ( !validateAndSet( t2, cp2, cp2, cp2 ) ) {
+	if ( !validateAndSet( t1, cp1, cp1, cp1 ) )
+	    return;
+    }
+
     blinkOn();
-    validateAndSet( text, cp, cp, cp );
-    if ( text == this->text() )
+
+    if ( t2 == this->text() )
 	d->undoRedoInfo.text += t;
     update();
     d->selectionStart = d->cursor->index();
@@ -1853,8 +1817,8 @@ void QLineEdit::setFont( const QFont & f )
 }
 
 
-/*!  Syntactic sugar for setText( "" ), provided to match no-argument
-  signals.
+/*!
+  Clears the contents of the editor. This is equivalent to setText("").
 */
 
 void QLineEdit::clear()
@@ -2040,23 +2004,7 @@ void QLineEdit::updateSelection()
 
 void QLineEdit::removeSelectedText()
 {
-    d->checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
-    int start = d->parag->selectionStart( 0 );
-    int len = d->parag->selectionEnd( 0 ) - start;
-    if ( !d->undoRedoInfo.valid() ) {
-	d->undoRedoInfo.index = start;
-	d->undoRedoInfo.text = QString::null;
-    }
-    d->undoRedoInfo.text = d->parag->string()->toString().mid( start, len );
-    d->parag->remove( start, len );
-    d->cursor->setIndex( start );
-    deselect();
-    d->undoRedoInfo.clear();
-#ifndef QT_NO_CURSOR
-    setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
-#endif
-    if ( hasFocus() )
-	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+    insert( QString::null );
 }
 
 
@@ -2201,9 +2149,7 @@ int QLineEdit::characterAt( int xpos, QChar *chr ) const
 /*!
     \property QLineEdit::undoAvailable
     \brief whether undo is available
-
 */
-
 bool QLineEdit::isUndoAvailable() const
 {
     return d->parag->commands()->isUndoAvailable();
@@ -2212,12 +2158,60 @@ bool QLineEdit::isUndoAvailable() const
 /*!
     \property QLineEdit::redoAvailable
     \brief whether redo is available
-
 */
-
 bool QLineEdit::isRedoAvailable() const
 {
     return d->parag->commands()->isRedoAvailable();
+}
+
+/*
+  Implements del() and backspace().
+*/
+void QLineEdit::delOrBackspace( bool backspace )
+{
+    if ( hasSelectedText() ) {
+	removeSelectedText();
+    } else {
+	int newPos = d->cursor->index();
+	if ( backspace )
+	    newPos--;
+	if ( newPos >= 0 ) {
+	    bool ok = TRUE;
+	    if ( d->validator ) {
+		QString newText = text();
+		newText.remove( newPos, 1 );
+		ok = ( d->validator->validate(newText, newPos) != QValidator::Invalid );
+	    }
+
+	    if ( ok ) {
+		d->checkUndoRedoInfo( UndoRedoInfo::Delete );
+		if ( !d->undoRedoInfo.valid() ) {
+		    d->undoRedoInfo.index = d->cursor->index();
+		    d->undoRedoInfo.text = QString::null;
+		}
+		if ( backspace ) {
+		    d->cursor->gotoLeft();
+		    d->undoRedoInfo.index = d->cursor->index();
+		}
+		QChar ch = d->cursor->parag()->at( d->cursor->index() )->c;
+		if ( backspace ) {
+		    d->undoRedoInfo.text.prepend( ch );
+		} else {
+		    d->undoRedoInfo.text.append( ch );
+		}
+		d->cursor->remove();
+
+		d->selectionStart = d->cursor->index();
+		d->ed = TRUE;
+		update();
+		setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
+		emit textChanged( text() );
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+		QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
+#endif
+	    }
+	}
+    }
 }
 
 #endif

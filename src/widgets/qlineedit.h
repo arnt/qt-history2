@@ -203,6 +203,7 @@ private:
     void updateOffset();
     void updateSelection();
     void removeSelectedText();
+    void delOrBackspace( bool backspace );
 
     QLineEditPrivate * d;
 
