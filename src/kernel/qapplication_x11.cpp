@@ -191,11 +191,10 @@ static bool	appSync		= FALSE;	// X11 synchronization
 static bool	appNoGrab	= FALSE;	// X11 grabbing enabled
 static bool	appDoGrab	= FALSE;	// X11 grabbing override (gdb)
 #endif
-//static int	appScreen;			// X11 screen number
+static int	appScreen;			// X11 screen number
 //static Window	appRootWin;			// X11 root window
 static int	appScreenCount;			// X11 screen count
 static bool	app_save_rootinfo = FALSE;	// save root info
-
 static bool	app_do_modal	= FALSE;	// modal mode
 static Window	curWin = 0;			// current window
 static int	app_Xfd;			// X network socket
