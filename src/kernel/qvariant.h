@@ -56,6 +56,7 @@ class QDataStream;
 // Relevant header files removed from above for GCC 2.7.* compatibility, so...
 class QVariant;
 class QVariantTypeBase;
+class QVariantValueBase;
 class QStringList;
 template <class T> class QValueList;
 template <class T> struct QValueListNode;
@@ -122,9 +123,31 @@ public:
     // ### Problems on some compilers ?
     QVariant( bool );
     QVariant( double );
-    QVariant( void* custom, const QCString& type );
-	     
+    QVariant( void* custom, const QVariantTypeBase* type );
+    QVariant( const QVariantValueBase& );
+
     QVariant& operator= ( const QVariant& );
+    QVariant& operator= ( const QString& );
+    QVariant& operator= ( const QCString& );
+    QVariant& operator= ( const char* );
+    QVariant& operator= ( const QStringList& );
+    QVariant& operator= ( const QFont& );
+    QVariant& operator= ( const QPixmap& );
+    QVariant& operator= ( const QImage& );
+    QVariant& operator= ( const QBrush& );
+    QVariant& operator= ( const QPoint& );
+    QVariant& operator= ( const QRect& );
+    QVariant& operator= ( const QSize& );
+    QVariant& operator= ( const QColor& );
+    QVariant& operator= ( const QPalette& );
+    QVariant& operator= ( const QColorGroup& );
+    QVariant& operator= ( const QIconSet& );
+    QVariant& operator= ( const QValueList<QVariant>& );
+    QVariant& operator= ( const QMap<QString,QVariant>& );
+    QVariant& operator= ( int );
+    QVariant& operator= ( uint );
+    QVariant& operator= ( double );
+    QVariant& operator= ( const QVariantValueBase& );
 
     void setValue( const QString& );
     void setValue( const QCString& );
@@ -147,39 +170,70 @@ public:
     void setValue( uint );
     void setBoolValue( bool );
     void setValue( double );
-    void setValue( void* custom, const QCString& type );
-    
+    void setValue( void* custom, const QVariantTypeBase* type );
+    void setValue( const QVariantValueBase& );
+
     Type type() const;
     const char* typeName() const;
+    const QVariantTypeBase* customType() const;
 
     bool canCast( Type ) const;
-    bool canCast( const char* ) const;
-    
+    bool canCast( const QVariantTypeBase* type ) const;
+
     bool isValid() const;
 
-    QString toString() const;
-    QCString toCString() const;
-    QStringList toStringList() const;
-    QFont toFont() const;
-    QPixmap toPixmap() const;
-    QImage toImage() const;
-    QBrush toBrush() const;
-    QPoint toPoint() const;
-    QRect toRect() const;
-    QSize toSize() const;
-    QColor toColor() const;
-    QPalette toPalette() const;
-    QColorGroup toColorGroup() const;
-    QIconSet toIconSet() const;
+    void clear();
+
+    const QString toString() const;
+    const QCString toCString() const;
+    const QStringList toStringList() const;
+    const QFont toFont() const;
+    const QPixmap toPixmap() const;
+    const QImage toImage() const;
+    const QBrush toBrush() const;
+    const QPoint toPoint() const;
+    const QRect toRect() const;
+    const QSize toSize() const;
+    const QColor toColor() const;
+    const QPalette toPalette() const;
+    const QColorGroup toColorGroup() const;
+    const QIconSet toIconSet() const;
     int toInt() const;
     uint toUInt() const;
     bool toBool() const;
     double toDouble() const;
-    QValueList<QVariant> toList() const;
-    QMap<QString,QVariant> toMap() const;
-    void* toCustom( const char* type ) const;
-    const void* toCustom() const;
-    
+    const QValueList<QVariant> toList() const;
+    const QMap<QString,QVariant> toMap() const;
+    void* toCustom( const QVariantTypeBase* type ) const;
+
+    const QStringList& asStringList() const;
+    const QValueList<QVariant>& asList() const;
+    const QMap<QString,QVariant>& asMap() const;
+    const void* asCustom() const;
+
+    QString& asString();
+    QCString& asCString();
+    QStringList& asStringList();
+    QFont& asFont();
+    QPixmap& asPixmap();
+    QImage& asImage();
+    QBrush& asBrush();
+    QPoint& asPoint();
+    QRect& asRect();
+    QSize& asSize();
+    QColor& asColor();
+    QPalette& asPalette();
+    QColorGroup& asColorGroup();
+    QIconSet& asIconSet();
+    int& asInt();
+    uint& asUInt();
+    bool& asBool();
+    double& asDouble();
+    QValueList<QVariant>& asList();
+    QMap<QString,QVariant>& asMap();
+    void* asCustom( const QVariantTypeBase* );
+    void* asCustom();
+
     void load( QDataStream& );
     void save( QDataStream& ) const;
 
@@ -187,8 +241,6 @@ public:
     static Type nameToType( const char* name );
 
 private:
-    void clear();
-
     Type typ;
     union
     {
@@ -198,8 +250,8 @@ private:
 	double d;
 	void *ptr;
     } value;
-    
-    QVariantTypeBase* customType;
+
+    const QVariantTypeBase* custom_type;
 };
 
 class QVariantTypeBase
@@ -207,25 +259,27 @@ class QVariantTypeBase
 public:
     QVariantTypeBase( const char* type );
     virtual ~QVariantTypeBase();
-    
-    virtual void* create() = 0;
-    virtual void destroy( void* ) = 0;
-    virtual void* copy( void* ) = 0;
-    
+
+    virtual void* create() const = 0;
+    virtual void destroy( void* ) const = 0;
+    virtual void* copy( const void* ) const = 0;
+
     virtual void save( const void*, QDataStream& ) const = 0;
-    virtual void load( void*, QDataStream& ) = 0;
+    virtual void load( void*, QDataStream& ) const = 0;
 
     virtual void* castFrom( const QVariant& ) const;
-    virtual QVariant castTo( void* ptr, QVariant::Type ) const;
+    virtual QVariant castTo( const void* ptr, QVariant::Type ) const;
+    virtual void* castTo( const void* ptr, const QVariantTypeBase* type ) const;
 
+    virtual bool canCastTo( const QVariantTypeBase* type ) const;
     virtual bool canCastTo( QVariant::Type ) const;
-    virtual bool canCastFrom( const char* type ) const;
+    virtual bool canCastFrom( const QVariantTypeBase* type ) const;
     virtual bool canCastFrom( QVariant::Type ) const;
-    
+
     const char* typeName() const;
-    
-    static QVariantTypeBase* type( const char* t );
-    
+
+    static const QVariantTypeBase* type( const char* t );
+
 private:
     QCString m_type;
 };
@@ -239,13 +293,66 @@ class QVariantType : public QVariantTypeBase
 public:
     QVariantType( const char* type ) : QVariantTypeBase( type ) { };
     ~QVariantType() { };
-    
-    void* create() { return new T; }
-    void destroy( void* ptr ) { delete (T*)ptr; }
-    void* copy( void* ptr ) { return new T( (const T&)*ptr ); }
-    
-    void save( const void* ptr, QDataStream& str ) const { str << *ptr; }
-    void load( void* ptr, QDataStream& str ) { str >> *ptr; }
+
+    void* create() const { return new T; }
+    void destroy( void* ptr ) const { delete (T*)ptr; }
+    void* copy( const void* ptr ) const { return new T( (const T&)*ptr ); }
+
+    void save( const void* ptr, QDataStream& str ) const { str << *((T*)ptr); }
+    void load( void* ptr, QDataStream& str ) const { str >> *((T*)ptr); }
+};
+
+/**
+ * Dieses Ding wird in QVariant gespeichert.
+ * CopyConstructor und Delete funktionieren mit Hilfe von QVariantTypeBase
+ */
+class QVariantValueBase
+{
+public:
+    QVariantValueBase( const QVariantTypeBase* t ) { ptr = 0; typ = t; }
+    QVariantValueBase( void* p, const QVariantTypeBase* t ) { ptr = p; typ = t; }
+    QVariantValueBase( const QVariantValueBase& p ) { typ = p.typ; if ( typ ) ptr = typ->copy( p.ptr ); else ptr = 0; }
+    ~QVariantValueBase() { if ( ptr && typ ) typ->destroy( ptr ); }
+
+    bool isNull() const { return ( ptr == 0 || typ == 0 ); }
+
+    void* value() { return ptr; }
+    const void* value() const { return ptr; }
+    const QVariantTypeBase* type() const { return typ; }
+
+protected:
+    void assign( const QVariant& v ) { if ( ptr ) typ->destroy( ptr ); ptr = v.toCustom( typ ); }
+    void assign( void* p ) { if ( ptr ) typ->destroy( ptr ); ptr = p; }
+    void assign( QVariantValueBase& p ) { if ( ptr ) typ->destroy( ptr ); typ = p.typ; if ( typ ) ptr = typ->copy( p.ptr ); else ptr = 0; }
+
+private:
+    void* ptr;
+    const QVariantTypeBase* typ;
+};
+
+template< class V, class T >
+class QVariantValue : public QVariantValueBase
+{
+public:
+    QVariantValue() : QVariantValueBase( T::type() ) { }
+    QVariantValue( const QVariant& v ) : QVariantValueBase( T::type() ) { assign( v ); }
+    QVariantValue( const V& v ) : QVariantValueBase( new V( v ), T::type() ) { }
+    QVariantValue( const QVariantValue<V,T>& ptr ) : QVariantValueBase( ptr ) { }
+
+    QVariantValue<V,T>& operator=( const QVariantValue<V,T>& v ) { assign( v ); return *this; }
+    QVariantValue<V,T>& operator=( const QVariant& v ) { assign( v ); return *this; }
+    QVariantValue<V,T>& operator=( const V& v ) { assign( new V( v ) ); return *this; }
+
+    const V* operator->() const { return (V*)value(); }
+    V* operator->() { return (V*)value(); }
+    const V& operator*() const { return *((V*)value()); }
+    V& operator*() { return *((V*)value()); }
+    operator const V*() const { return (V*)value(); }
+    operator V*() { return (V*)value(); }
+
+private:
+    bool operator==( QVariantValue<V,T>& v ) { return FALSE; }
+    bool operator!=( QVariantValue<V,T>& v ) { return FALSE; }
 };
 
 // These header files are down here for GCC 2.7.* compatibility
