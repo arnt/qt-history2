@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#37 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -207,11 +207,12 @@ QRegion QRegion::winCombine( const QRegion &r, int op ) const
 	res = CombineRgn( result.data->rgn, data->rgn, 0, left );
     else if ( r.data->rgn && right != RGN_NOP )
 	res = CombineRgn( result.data->rgn, r.data->rgn, 0, right );
-    if ( res == NULLREGION ) {
-	if ( result.data->rgn )
-	    DeleteObject( result.data->rgn );
-	result.data->rgn = 0;			// empty region
-    }
+    //##### do not delete this. A null pointer is different from an empty region in SelectClipRgn in qpainter_win! (M)
+//     if ( res == NULLREGION ) {
+// 	if ( result.data->rgn )
+// 	    DeleteObject( result.data->rgn );
+// 	result.data->rgn = 0;			// empty region
+//     }
     return result;
 }
 
@@ -275,7 +276,7 @@ QArray<QRect> QRegion::rects() const
     }
 
     delete [] buf;
-    
+
     return a;
 }
 
