@@ -49,6 +49,7 @@ internal:X11LIBS += -lICE -lSM
 #
 internal:CONFIG += jpeg
 embedded:CONFIG -= jpeg
+win32:CONFIG -= jpeg
 jpeg:INTJPEGIU += -ljpeg
 jpeg:INTJPEGIW += $(QTDIR)/lib/libjpeg.lib
 DEFINESI += QT_NO_IMAGEIO_JPEG
