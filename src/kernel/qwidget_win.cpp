@@ -521,8 +521,10 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, 
 	QInputContext::setFocusHint( x, y, width, height, this );
     setFontSys( f );
 
-    if ( QRect( x, y, width, height ) != microFocusHint() )
-	d->extraData()->micro_focus_hint.setRect( x, y, width, height );
+    if ( QRect( x, y, width, height ) != microFocusHint() ) {
+	if ( d && d->extraData() )
+	    d->extraData()->micro_focus_hint.setRect( x, y, width, height );
+    }
 }
 
 void QWidget::resetInputContext()
@@ -530,7 +532,7 @@ void QWidget::resetInputContext()
     QInputContext::accept();
 }
 
-void QWidgetPrivate::setBackgroundBrush( const QBrush &brush )
+void QWidgetPrivate::setBackgroundBrush( const QBrush & )
 {
 }
 
