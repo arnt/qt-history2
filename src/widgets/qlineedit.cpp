@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#78 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#78 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -163,7 +163,8 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     initMetaObject();
-    pm		  = 0;
+    pm = new QPixmap( width(), height() );   // used for flicker-free update
+    CHECK_PTR( pm );
     cursorPos	  = 0;
     offset	  = 0;
     maxLen	  = 32767;
@@ -435,7 +436,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 			t.truncate( maxLen-tlen );
 		    }
 		    test.insert( cursorPos, t );
-		    if ( validator()->validate( test ) > QValidator::MaybeGood )
+		    if ( validator()->validate( test ) > QValidator::Unknown )
 			break;
 		}
 		if ( hasMarkedText() ) {
@@ -502,8 +503,6 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 
 void QLineEdit::focusInEvent( QFocusEvent * )
 {
-    pm = new QPixmap( width(), height() );   // used for flicker-free update
-    CHECK_PTR( pm );
     killTimers();
     startTimer( blinkTime );
     cursorOn = TRUE;
@@ -518,8 +517,6 @@ void QLineEdit::focusInEvent( QFocusEvent * )
 void QLineEdit::focusOutEvent( QFocusEvent * )
 {
     killTimers();
-    delete pm;
-    pm		  = 0;
     cursorOn	  = FALSE;
     dragScrolling = FALSE;
     if ( style() == WindowsStyle )
@@ -566,10 +563,7 @@ void QLineEdit::timerEvent( QTimerEvent * )
 
 void QLineEdit::resizeEvent( QResizeEvent *e )
 {
-    if ( hasFocus() ) {
-	delete pm;
-	pm = new QPixmap( e->size().width(), e->size().height() );
-    }
+    pm->resize( e->size() );
     int max = lastCharVisible();
     if ( cursorPos > max ) {
 	QFontMetrics fm = fontMetrics();
@@ -711,10 +705,7 @@ void QLineEdit::paint( bool )
 
 void QLineEdit::pixmapPaint()
 {
-    if ( pm == 0 ) // be paranoid
-	pm = new QPixmap( width(), height() );
-    QPainter p;
-    p.begin( pm );
+    QPainter p( pm );
     p.setFont( font() );
     paintText( &p, pm->size(), TRUE /* remove for 2.0 */ );
     p.end();
@@ -932,7 +923,7 @@ void QLineEdit::del()
     if ( hasMarkedText() ) {
 	test.remove( minMark(), maxMark() - minMark() );
 	if ( validator() &&
-	     validator()->validate( test ) > QValidator::MaybeGood )
+	     validator()->validate( test ) > QValidator::Unknown )
 	    return;
 	tbuf = test;
 	cursorPos  = minMark();
@@ -945,7 +936,7 @@ void QLineEdit::del()
     } else if ( cursorPos != (int)strlen(tbuf) ) {
 	test.remove( cursorPos, 1 );
 	if ( validator() &&
-	     validator()->validate( test ) > QValidator::MaybeGood )
+	     validator()->validate( test ) > QValidator::Unknown )
 	    return;
 	tbuf = test;
 	repaint( !hasFocus() );
@@ -1220,4 +1211,17 @@ QValidator * QLineEdit::validator() const
 {
     QLineEditExtra * x = lookInLEDict( this );
     return x ? x->validator : 0;
+}
+
+
+/*!
+  Sets the line current palette to \a p, and sets the \link
+  setBackgroundColor() window system background color \endlink to
+  p.normal().base() to reduce flickering.
+*/
+
+void QLineEdit::setPalette( const QPalette & p )
+{
+    QWidget::setPalette( p );
+    QWidget::setBackgroundColor( p.normal().base() );
 }
