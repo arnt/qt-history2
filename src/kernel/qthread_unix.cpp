@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** QThread class for Unix
 **
@@ -38,6 +38,11 @@
 #if defined(QT_THREAD_SUPPORT)
 
 #include "qplatformdefs.h"
+
+// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
+#if defined(connect)
+#undef connect
+#endif
 
 #include "qthread.h"
 #include "qapplication.h"
