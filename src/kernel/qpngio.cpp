@@ -142,7 +142,7 @@ void setup_qt( QImage& image, png_structp png_ptr, png_infop info_ptr )
 	    image.setAlphaBuffer( TRUE );
 	    int i;
 	    for (i=0; i<info_ptr->num_trans; i++) {
-		image.setColor(i, image.color(i) |
+		image.setColor(i, image.color(i)  &~(0xff << 24) |
 		    (info_ptr->trans[i] << 24));
 	    }
 	    while (i < info_ptr->num_palette) {
