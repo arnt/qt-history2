@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#77 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#76 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#77 $")
 
 
 /*----------------------------------------------------------------------------
@@ -232,7 +232,7 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
-  Constructs an object with parent objects \e parent and a \e name.
+  Constructs an object with the parent object \e parent and a \e name.
 
   The parent of an object may be viewed as the object's owner. For
   instance, a \link QDialog dialog box\endlink is the parent of the
@@ -243,7 +243,14 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
   Setting \e parent to 0 constructs an object with no parent.
   If the object is a widget, it will become a top-level window.
 
-  \sa parent(), name()
+  The object name is a text that can be used to identify this QObject.
+  It is not very useful in the current version of Qt, but it will become
+  increasingly important in the future.
+
+  The queryList() function searches the object tree for objects that
+  matches a particular object name.
+
+  \sa parent(), name(), queryList()
  ----------------------------------------------------------------------------*/
 
 QObject::QObject( QObject *parent, const char *name )
