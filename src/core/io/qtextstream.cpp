@@ -183,11 +183,11 @@
 #define I_LONG       0x0030
 #define I_TYPE_MASK  0x00f0
 
-#define I_BASE_2     QTS::bin
-#define I_BASE_8     QTS::oct
-#define I_BASE_10    QTS::dec
-#define I_BASE_16    QTS::hex
-#define I_BASE_MASK  (QTS::bin | QTS::oct | QTS::dec | QTS::hex)
+#define I_BASE_2     QTextStream::bin
+#define I_BASE_8     QTextStream::oct
+#define I_BASE_10    QTextStream::dec
+#define I_BASE_16    QTextStream::hex
+#define I_BASE_MASK  (QTextStream::bin | QTextStream::oct | QTextStream::dec | QTextStream::hex)
 
 #define I_SIGNED     0x0100
 #define I_UNSIGNED   0x0200
@@ -2227,25 +2227,25 @@ void QTextStream::setPrecision(int p)
 
 QTextStream &bin(QTextStream &s)
 {
-    s.setf(QTS::bin,QTS::basefield);
+    s.setf(QTextStream::bin,QTextStream::basefield);
     return s;
 }
 
 QTextStream &oct(QTextStream &s)
 {
-    s.setf(QTS::oct,QTS::basefield);
+    s.setf(QTextStream::oct,QTextStream::basefield);
     return s;
 }
 
 QTextStream &dec(QTextStream &s)
 {
-    s.setf(QTS::dec,QTS::basefield);
+    s.setf(QTextStream::dec,QTextStream::basefield);
     return s;
 }
 
 QTextStream &hex(QTextStream &s)
 {
-    s.setf(QTS::hex,QTS::basefield);
+    s.setf(QTextStream::hex,QTextStream::basefield);
     return s;
 }
 
