@@ -1594,7 +1594,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 			if (child->isVisible()) {
 			    int lh;
 			    if ( !item->multiLinesEnabled() )
-				lh = child ? child->height() : 0;
+				lh = child->height();
 			    else
 				lh = p->fontMetrics().height() + 2 * v->itemMargin();
 			    lh = qMax( lh, QApplication::globalStrut().height() );

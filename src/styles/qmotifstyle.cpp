@@ -1346,45 +1346,46 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 		    // paint stuff in the magical area
 		    QListView* v = item->listView();
 		    while ( child && y < r.height() ) {
-			int lh;
-			if ( !item->multiLinesEnabled() )
-			    lh = child ? child->height() : 0;
-			else
-			    lh = p->fontMetrics().height() + 2 * v->itemMargin();
-			lh = qMax( lh, QApplication::globalStrut().height() );
-			if ( lh % 2 > 0 )
-			    lh++;
-			linebot = y + lh/2;
-			if ( (child->isExpandable() || child->childCount()) &&
-			     (child->height() > 0) ) {
-			    // needs a box
-			    p->setPen( pal.text() );
-			    p->drawRect( bx-4, linebot-4, 9, 9 );
-			    QPointArray a;
-			    if ( child->isOpen() )
-				a.setPoints( 3, bx-2, linebot-2,
-					     bx, linebot+2,
-					     bx+2, linebot-2 ); //RightArrow
+			if (child->isVisible()) {
+			    int lh;
+			    if ( !item->multiLinesEnabled() )
+				lh = child->height();
 			    else
-				a.setPoints( 3, bx-2, linebot-2,
-					     bx+2, linebot,
-					     bx-2, linebot+2 ); //DownArrow
-			    p->setBrush( pal.text() );
-			    p->drawPolygon( a );
-			    p->setBrush( NoBrush );
-			    // dotlinery
-			    dotlines[c++] = QPoint( bx, linetop );
-			    dotlines[c++] = QPoint( bx, linebot - 5 );
-			    dotlines[c++] = QPoint( bx + 5, linebot );
-			    dotlines[c++] = QPoint( r.width(), linebot );
-			    linetop = linebot + 5;
-			} else {
-			    // just dotlinery
-			    dotlines[c++] = QPoint( bx+1, linebot );
-			    dotlines[c++] = QPoint( r.width(), linebot );
+				lh = p->fontMetrics().height() + 2 * v->itemMargin();
+			    lh = QMAX( lh, QApplication::globalStrut().height() );
+			    if ( lh % 2 > 0 )
+				lh++;
+			    linebot = y + lh/2;
+			    if ( (child->isExpandable() || child->childCount()) &&
+				 (child->height() > 0) ) {
+				// needs a box
+				p->setPen( pal.text() );
+				p->drawRect( bx-4, linebot-4, 9, 9 );
+				QPointArray a;
+				if ( child->isOpen() )
+				    a.setPoints( 3, bx-2, linebot-2,
+						 bx, linebot+2,
+						 bx+2, linebot-2 ); //RightArrow
+				else
+				    a.setPoints( 3, bx-2, linebot-2,
+						 bx+2, linebot,
+						 bx-2, linebot+2 ); //DownArrow
+				p->setBrush( pal.text() );
+				p->drawPolygon( a );
+				p->setBrush( NoBrush );
+				// dotlinery
+				dotlines[c++] = QPoint( bx, linetop );
+				dotlines[c++] = QPoint( bx, linebot - 5 );
+				dotlines[c++] = QPoint( bx + 5, linebot );
+				dotlines[c++] = QPoint( r.width(), linebot );
+				linetop = linebot + 5;
+			    } else {
+				// just dotlinery
+				dotlines[c++] = QPoint( bx+1, linebot );
+				dotlines[c++] = QPoint( r.width(), linebot );
+			    }
+			    y += child->totalHeight();
 			}
-
-			y += child->totalHeight();
 			child = child->nextSibling();
 		    }
 
