@@ -249,8 +249,11 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->popup->insertItem(QIconSet(style().stylePixmap(QStyle::SP_TitleBarMaxButton)), tr("Ma&ximize"), 5);
     d->popup->insertSeparator();
     d->popup->insertItem(QIconSet(style().stylePixmap(QStyle::SP_TitleBarCloseButton)),
-				  tr("&Close")+"\t"+QAccel::keyToString( CTRL+Key_F4),
-		  this, SLOT( closeActiveWindow() ) );
+				  tr("&Close")
+#ifndef QT_NO_ACCEL
+					+"\t"+QAccel::keyToString(CTRL+Key_F4)
+#endif
+		    , this, SLOT( closeActiveWindow() ) );
 
     connect( d->toolPopup, SIGNAL( aboutToShow() ), this, SLOT(toolMenuAboutToShow() ));
     connect( d->toolPopup, SIGNAL( activated(int) ), this, SLOT( operationMenuActivated(int) ) );
@@ -262,9 +265,13 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->toolPopup->insertSeparator();
     d->toolPopup->insertItem(QIconSet(style().stylePixmap(QStyle::SP_TitleBarShadeButton)), tr("Sh&ade"), 6);
     d->toolPopup->insertItem(QIconSet(style().stylePixmap(QStyle::SP_TitleBarCloseButton)),
-				      tr("&Close")+"\t"+QAccel::keyToString( CTRL+Key_F4),
-		  this, SLOT( closeActiveWindow() ) );
+				      tr("&Close")
+#ifndef QT_NO_ACCEL
+					+"\t"+QAccel::keyToString( CTRL+Key_F4)
+#endif
+		, this, SLOT( closeActiveWindow() ) );
 
+#ifndef QT_NO_ACCEL
     QAccel* a = new QAccel( this );
     a->connectItem( a->insertItem( ALT + Key_Minus),
 		    this, SLOT( showOperationMenu() ) );
@@ -281,6 +288,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 
     a->connectItem( a->insertItem( CTRL + Key_F4 ),
 		    this, SLOT( closeActiveWindow() ) );
+#endif
 
     setBackgroundMode( PaletteDark );
     setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
@@ -950,7 +958,9 @@ void QWorkspace::showMaximizeControls()
 					  d->maxcontrols->frameWidth(), 0 );
 	if ( d->maxWindow->windowWidget()->testWFlags(WStyle_Minimize) ) {
 	    QToolButton* iconB = new QToolButton( d->maxcontrols, "iconify" );
+#ifndef QT_NO_TOOLTIP
 	    QToolTip::add( iconB, tr( "Minimize" ) );
+#endif
 	    l->addWidget( iconB );
 	    iconB->setFocusPolicy( NoFocus );
 	    iconB->setIconSet(style().stylePixmap(QStyle::SP_TitleBarMinButton));
@@ -960,7 +970,9 @@ void QWorkspace::showMaximizeControls()
 	}
 
 	QToolButton* restoreB = new QToolButton( d->maxcontrols, "restore" );
+#ifndef QT_NO_TOOLTIP
 	QToolTip::add( restoreB, tr( "Restore Down" ) );
+#endif
 	l->addWidget( restoreB );
 	restoreB->setFocusPolicy( NoFocus );
 	restoreB->setIconSet( style().stylePixmap(QStyle::SP_TitleBarNormalButton));
@@ -970,7 +982,9 @@ void QWorkspace::showMaximizeControls()
 
 	l->addSpacing( 2 );
 	QToolButton* closeB = new QToolButton( d->maxcontrols, "close" );
+#ifndef QT_NO_TOOLTIP
 	QToolTip::add( closeB, tr( "Close" ) );
+#endif
 	l->addWidget( closeB );
 	closeB->setFocusPolicy( NoFocus );
 	closeB->setIconSet( style().stylePixmap(QStyle::SP_TitleBarCloseButton) );

@@ -121,9 +121,11 @@ public:
 
     QFrame * hbar1, * hbar2;
 
+#ifndef QT_NO_ACCEL
     QAccel * accel;
     int backAccel;
     int nextAccel;
+#endif
 
     Page * page( const QWidget * w )
     {
@@ -184,11 +186,13 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
     connect( d->helpButton, SIGNAL(clicked()),
 	     this, SLOT(help()) );
 
+#ifndef QT_NO_ACCEL
     d->accel = new QAccel( this, "arrow-key accel" );
     d->backAccel = d->accel->insertItem( Qt::ALT + Qt::Key_Left );
     d->accel->connectItem( d->backAccel, this, SLOT(back()) );
     d->nextAccel = d->accel->insertItem( Qt::ALT + Qt::Key_Right );
     d->accel->connectItem( d->nextAccel, this, SLOT(next()) );
+#endif
 }
 
 
@@ -385,14 +389,18 @@ void QWizard::help()
 void QWizard::setBackEnabled( bool enable )
 {
     d->backButton->setEnabled( enable );
+#ifndef QT_NO_ACCEL
     d->accel->setItemEnabled( d->backAccel, enable );
+#endif
 }
 
 
 void QWizard::setNextEnabled( bool enable )
 {
     d->nextButton->setEnabled( enable );
+#ifndef QT_NO_ACCEL
     d->accel->setItemEnabled( d->nextAccel, enable );
+#endif
 }
 
 

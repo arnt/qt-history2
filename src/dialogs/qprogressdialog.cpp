@@ -397,9 +397,11 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
 	    cancelButton->reparent( this, 0, QPoint(0,0), FALSE );
 	}
 	connect( d->cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
+#ifndef QT_NO_ACCEL
 	QAccel *accel = new QAccel( this );
 	accel->connectItem( accel->insertItem(Key_Escape),
 			    d->cancel, SIGNAL(clicked()) );
+#endif
     }
     int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
     int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );

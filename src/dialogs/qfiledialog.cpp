@@ -2415,7 +2415,9 @@ void QFileDialog::init()
 	d->cdToParent->setAutoRaise( TRUE );
 #endif
     d->cdToParent->setFocusPolicy( TabFocus );
+#ifndef QT_NO_TOOLTIP
     QToolTip::add( d->cdToParent, tr( "One directory up" ) );
+#endif
     d->cdToParent->setIconSet( *cdToParentIcon );
     connect( d->cdToParent, SIGNAL(clicked()),
 	     this, SLOT(cdUpClicked()) );
@@ -2426,7 +2428,9 @@ void QFileDialog::init()
 	d->newFolder->setAutoRaise( TRUE );
 #endif
     d->newFolder->setFocusPolicy( TabFocus );
+#ifndef QT_NO_TOOLTIP
     QToolTip::add( d->newFolder, tr( "Create New Folder" ) );
+#endif
     d->newFolder->setIconSet( *newFolderIcon );
     connect( d->newFolder, SIGNAL(clicked()),
 	     this, SLOT(newFolderClicked()) );
@@ -2446,7 +2450,9 @@ void QFileDialog::init()
 	d->mcView->setAutoRaise( TRUE );
 #endif
     d->mcView->setFocusPolicy( TabFocus );
+#ifndef QT_NO_TOOLTIP
     QToolTip::add( d->mcView, tr( "List View" ) );
+#endif
     d->mcView->setIconSet( *multiColumnListViewIcon );
     d->mcView->setToggleButton( TRUE );
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
@@ -2456,7 +2462,9 @@ void QFileDialog::init()
 	d->detailView->setAutoRaise( TRUE );
 #endif
     d->detailView->setFocusPolicy( TabFocus );
+#ifndef QT_NO_TOOLTIP
     QToolTip::add( d->detailView, tr( "Detail View" ) );
+#endif
     d->detailView->setIconSet( *detailViewIcon );
     d->detailView->setToggleButton( TRUE );
     d->stack->addWidget( files, d->modeButtons->insert( d->detailView ) );
@@ -2467,7 +2475,9 @@ void QFileDialog::init()
 	d->previewInfo->setAutoRaise( TRUE );
 #endif
     d->previewInfo->setFocusPolicy( TabFocus );
+#ifndef QT_NO_TOOLTIP
     QToolTip::add( d->previewInfo, tr( "Preview File Info" ) );
+#endif
     d->previewInfo->setIconSet( *previewInfoViewIcon );
     d->previewInfo->setToggleButton( TRUE );
     d->modeButtons->insert( d->previewInfo );
@@ -2478,7 +2488,9 @@ void QFileDialog::init()
 	d->previewContents->setAutoRaise( TRUE );
 #endif
     d->previewContents->setFocusPolicy( TabFocus );
+#ifndef QT_NO_TOOLTIP
     QToolTip::add( d->previewContents, tr( "Preview File Contents" ) );
+#endif
     d->previewContents->setIconSet( *previewContentsViewIcon );
     d->previewContents->setToggleButton( TRUE );
     d->modeButtons->insert( d->previewContents );

@@ -1349,6 +1349,8 @@ bool QActionGroup::addTo( QWidget* w )
 #ifndef QT_NO_TOOLTIP
 		if ( !!toolTip() )
 		    QToolTip::add( box, toolTip() );
+#endif
+#ifndef QT_NO_WHATSTHIS
 		if ( !!whatsThis() )
 		    QWhatsThis::add( box, whatsThis() );
 #endif

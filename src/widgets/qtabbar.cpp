@@ -218,7 +218,9 @@ class QTabBarToolTip;
 struct QTabPrivate {
     int id;
     int focus;
+#ifndef QT_NO_ACCEL
     QAccel * a;
+#endif
     QTabBar::Shape s;
     QToolButton* rightB;
     QToolButton* leftB;
@@ -313,7 +315,10 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     d->id = 0;
     d->focus = 0;
     d->toolTips = 0;
+#ifndef QT_NO_ACCEL
     d->a = new QAccel( this, "tab accelerators" );
+    connect( d->a, SIGNAL(activated(int)), this, SLOT(setCurrentTab(int)) );
+#endif
     d->s = RoundedAbove;
     d->scrolls = FALSE;
     d->leftB = new QToolButton( LeftArrow, this, "qt_left_btn" );
@@ -327,8 +332,6 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     lstatic->setAutoDelete( TRUE );
     setFocusPolicy( TabFocus );
     setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
-
-    connect( d->a, SIGNAL(activated(int)), this, SLOT(setCurrentTab(int)) );
 }
 
 
@@ -399,9 +402,11 @@ int QTabBar::insertTab( QTab * newTab, int index )
     updateArrowButtons();
     makeVisible( tab( currentTab() ) );
 
+#ifndef QT_NO_ACCEL
     int p = QAccel::shortcutKey( newTab->label );
     if ( p )
 	d->a->insertItem( p, newTab->id );
+#endif
 
     return newTab->id;
 }
@@ -417,8 +422,10 @@ void QTabBar::removeTab( QTab * t )
     if ( d->toolTips )
 	d->toolTips->remove( t );
 #endif
+#ifndef QT_NO_ACCEL
     if ( d->a )
 	d->a->removeItem( t->id );
+#endif
     // remove the TabBar Reference
     t->setTabBar( 0 );
     l->remove( t );
@@ -448,7 +455,9 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 	if ( t && t->id == id ) {
 	    if ( t->enabled != enabled ) {
 		t->enabled = enabled;
+#ifndef QT_NO_ACCEL
 		d->a->setItemEnabled( t->id, enabled );
+#endif
 		QRect r( t->r );
 		if ( !enabled && id == currentTab() ) {
 		    QPoint p1( t->r.center() ), p2;
@@ -1201,9 +1210,11 @@ void QTab::setText( const QString& text )
 {
     label = text;
     if ( tb ) {
+#ifndef QT_NO_ACCEL
 	tb->d->a->removeItem( id );
 	int p = QAccel::shortcutKey( text );
 	tb->d->a->insertItem( p, id );
+#endif
         tb->repaint();
     }
 }
