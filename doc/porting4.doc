@@ -68,4 +68,10 @@ killTimers() has been removed.
 
 QObjectList is a typdef to a QList of QObject pointers and not a QPtrList now.
 
+\section 1 QPointArray
+
+QPointArray is now implicitly shared and based on QVector.
+The return type for the setPoints() and putPoints() functions is now void instead of bool.
+isNull() is obsolete, use isEmpty() instead.
+copy() is obsolete, use standard assignment instead.
 */
