@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#77 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -18,7 +18,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#77 $");
 
 
 // Motif style parameters
@@ -614,7 +614,6 @@ void QPopupMenu::show()
     if ( badSize )
 	updateSize();
     QWidget::show();
-    raise();
     popupActive = -1;
 }
 
