@@ -386,20 +386,20 @@ void QTableModel::itemChanged(QTableWidgetItem *item)
 // item
 
 QTableWidgetItem::QTableWidgetItem()
-    : itemFlags(QAbstractItemModel::ItemIsEditable
+    : view(0), model(0),
+      itemFlags(QAbstractItemModel::ItemIsEditable
                 |QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsCheckable
-                |QAbstractItemModel::ItemIsEnabled),
-      model(0)
+                |QAbstractItemModel::ItemIsEnabled)
 {
 }
 
 QTableWidgetItem::QTableWidgetItem(const QString &text)
-    : itemFlags(QAbstractItemModel::ItemIsEditable
+    : view(0), model(0),
+      itemFlags(QAbstractItemModel::ItemIsEditable
                 |QAbstractItemModel::ItemIsSelectable
                 |QAbstractItemModel::ItemIsCheckable
-                |QAbstractItemModel::ItemIsEnabled),
-      model(0)
+                |QAbstractItemModel::ItemIsEnabled)
 {
     setData(QAbstractItemModel::DisplayRole, text);
 }
@@ -408,12 +408,6 @@ QTableWidgetItem::~QTableWidgetItem()
 {
     if (model)
         model->removeItem(this);
-}
-
-
-bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
-{
-    return text() < other.text();
 }
 
 void QTableWidgetItem::setData(int role, const QVariant &value)
@@ -437,6 +431,11 @@ QVariant QTableWidgetItem::data(int role) const
         if (values.at(i).role == role)
             return values.at(i).value;
     return QVariant();
+}
+
+bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
+{
+    return text() < other.text();
 }
 
 /*!
@@ -711,12 +710,21 @@ QTableWidgetItem *QTableWidget::item(int row, int column) const
 void QTableWidget::setItem(int row, int column, QTableWidgetItem *item)
 {
     Q_ASSERT(item);
+    item->view = this;
     d->model()->setItem(row, column, item);
 }
 
 QTableWidgetItem *QTableWidget::takeItem(int row, int column)
 {
-    return d->model()->takeItem(row, column);
+    QTableWidgetItem *item = d->model()->takeItem(row, column);
+    item->view = 0;
+    return item;
+}
+
+void QTableWidget::removeItem(QTableWidgetItem *item)
+{
+    Q_ASSERT(item);
+    d->model()->removeItem(item);
 }
 
 QTableWidgetItem *QTableWidget::verticalHeaderItem(int row) const
@@ -726,6 +734,7 @@ QTableWidgetItem *QTableWidget::verticalHeaderItem(int row) const
 
 void QTableWidget::setVerticalHeaderItem(int row, QTableWidgetItem *item)
 {
+    item->view = this;
     d->model()->setHorizontalHeaderItem(row, item);
 }
 
@@ -736,6 +745,7 @@ QTableWidgetItem *QTableWidget::horizontalHeaderItem(int column) const
 
 void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 {
+    item->view = this;
     d->model()->setVerticalHeaderItem(column, item);
 }
 
@@ -904,12 +914,6 @@ void QTableWidget::removeColumn(int column)
 void QTableWidget::clear()
 {
     d->model()->clear();
-}
-
-void QTableWidget::removeItem(QTableWidgetItem *item)
-{
-    Q_ASSERT(item);
-    d->model()->removeItem(item);
 }
 
 void QTableWidget::setModel(QAbstractItemModel *model)

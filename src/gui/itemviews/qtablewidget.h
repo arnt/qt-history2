@@ -17,10 +17,9 @@
 #include <qtableview.h>
 #include <qlist.h>
 
-class QTableModel;
-
 class Q_GUI_EXPORT QTableWidgetItem
 {
+    friend class QTableWidget;
     friend class QTableModel;
 public:
     QTableWidgetItem();
@@ -93,10 +92,11 @@ protected:
     };
 
     QVector<Data> values;
+    QTableWidget *view;
 
 private:
-    QAbstractItemModel::ItemFlags itemFlags;
     QTableModel *model;
+    QAbstractItemModel::ItemFlags itemFlags;
 };
 
 class QTableWidgetPrivate;
@@ -105,7 +105,6 @@ class Q_GUI_EXPORT QTableWidget : public QTableView
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTableWidget)
-    friend class QTableWidgetItem;
 
 public:
     QTableWidget(QWidget *parent = 0);
@@ -124,6 +123,7 @@ public:
     QTableWidgetItem *item(int row, int column) const;
     void setItem(int row, int column, QTableWidgetItem *item);
     QTableWidgetItem *takeItem(int row, int column);
+    void removeItem(QTableWidgetItem *item);
 
     QTableWidgetItem *verticalHeaderItem(int row) const;
     void setVerticalHeaderItem(int row, QTableWidgetItem *item);
@@ -173,7 +173,6 @@ signals:
     void itemChanged(QTableWidgetItem *item);
 
 protected:
-    void removeItem(QTableWidgetItem *item);
     void setModel(QAbstractItemModel *model);
     void setup();
 
