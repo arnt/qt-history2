@@ -199,9 +199,12 @@ void QPaintEngine::drawPoints(const QPolygon &p)
     \sa drawPolygon
 */
 
-void QPaintEngine::drawEllipse(const QRectF &)
+void QPaintEngine::drawEllipse(const QRectF &r)
 {
-    // TODO, implement....
+    QPainterPath path;
+    path.moveTo(r.width(), r.height()/2);
+    path.arcTo(r, 0, 360);
+    drawPolygon(path.toPolygon(), ConvexMode);
 }
 
 /*!
