@@ -2713,6 +2713,16 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
     return checkHRESULT( hres, &excepinfo, this, slot->name );
 }
 
+bool wrapComPointer( QVariant &var, VARTYPE vt, QObject *parent, const char *name )
+{
+    if ( !var.isNull() && !var.isValid() && ( vt == VT_DISPATCH || vt == VT_UNKNOWN ) ) {
+	IUnknown *ptr = (IUnknown *)var.rawAccess();
+	var.rawAccess( new QAxObject( ptr, parent, name ) );
+	return TRUE;
+    }
+    return FALSE;
+}
+
 /*!
     \reimp
 */
@@ -2791,8 +2801,9 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 
 		// map result VARIANTARG to QVariant
 		*_v = VARIANTToQVariant( arg, prop->type() );
+		bool comOnlyType = wrapComPointer( *_v, arg.vt, qObject(), prop->name() );
 		clearVARIANT( &arg );
-		return ( _v->isValid() );
+		return ( _v->isValid() || comOnlyType );
 	    }
 	case 2: // Reset
 	    return TRUE;
