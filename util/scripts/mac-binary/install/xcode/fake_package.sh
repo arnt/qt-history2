@@ -43,9 +43,7 @@ done
 #copy the scripts
 SCRPT_DIR="/Library/Frameworks/QtCore.framework/Versions/${VERSION_MAJOR}.${VERSION_MINOR}/Resources/xcode"
 mkdir -p "$SCRPT_DIR"
-for script in integration/scripts; do
-    base=`basename "$script"`
-    rm -rf "$SCRPT_DIR/$base"
-    ln -s "$PWD/$script" "$SCRPT_DIR"
+for script in integration/scripts/*; do
+    make_link "$PWD/$script" "$SCRPT_DIR"
 done
 ln -sf "Versions/${VERSION_MAJOR}.${VERSION_MINOR}/Resources" "/Library/Frameworks/QtCore.framework/Resources"
