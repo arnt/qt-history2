@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#198 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#199 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -2087,7 +2087,6 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     int breakindex;				// index where to break
     int breakwidth;				// width of text at breakindex
     int maxwidth;				// maximum width of a line
-    int bcwidth;				// width of break char
     int tabindex;				// tab array index
     int cw;					// character width
     int k;					// index for p
@@ -2108,7 +2107,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
     nlines = 0;
     index  = 1;					// first index contains BEGLINE
-    begline = breakindex = breakwidth = maxwidth = bcwidth = tabindex = 0;
+    begline = breakindex = breakwidth = maxwidth = tabindex = 0;
     k = tw = 0;
 
     if ( decode )				// skip encoding
@@ -2223,7 +2222,6 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    }
 	    breakindex = index;
 	    breakwidth = 0;
-	    bcwidth = cw;
 	}
 
 	tw += cw;				// increment text width

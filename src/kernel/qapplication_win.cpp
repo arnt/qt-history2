@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#333 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#334 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -502,8 +502,6 @@ void qt_init( int *argcptr, char **argv )
     // default font
     {
 	HFONT hfont = (HFONT)GetStockObject( DEFAULT_GUI_FONT );
-	QString name;
-	int size=0;
 	QFont f("MS Sans Serif",8);
 	if ( qt_winver == Qt::WV_NT ) {
 	    LOGFONT lf;
