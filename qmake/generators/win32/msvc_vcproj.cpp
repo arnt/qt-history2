@@ -533,10 +533,12 @@ void VcprojGenerator::initPostBuildEventTools()
     if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() ) {
 	vcProject.Configuration.postBuild.Description = var("QMAKE_POST_LINK");
 	vcProject.Configuration.postBuild.CommandLine = var("QMAKE_POST_LINK");
+	vcProject.Configuration.postBuild.Description.replace(" && ", " &amp;&amp; ");
+	vcProject.Configuration.postBuild.CommandLine.replace(" && ", " &amp;&amp; ");
     }
     if ( !project->variables()["MSVCPROJ_COPY_DLL"].isEmpty() ) {
 	if ( !vcProject.Configuration.postBuild.CommandLine.isEmpty() )
-	    vcProject.Configuration.postBuild.CommandLine += " && ";
+	    vcProject.Configuration.postBuild.CommandLine += " &amp;&amp; ";
 	vcProject.Configuration.postBuild.Description += var("MSVCPROJ_COPY_DLL_DESC");
 	vcProject.Configuration.postBuild.CommandLine += var("MSVCPROJ_COPY_DLL");
     }
