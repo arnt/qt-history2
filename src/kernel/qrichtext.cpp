@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#20 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -1202,7 +1202,7 @@ void QTextBox::update(QPainter* p, QTextRow* r)
 	    QTextIterator it( r->first, r->parent );
 	    QTextRow tr (p, fm, it,  r->width, min, alignment() );
 	    widthUsed = QMAX( widthUsed, min * numberOfColumns() );
-	    fast_exit &= r->last == tr.last && r->height == tr.height;
+	    fast_exit = fast_exit && r->last == tr.last && r->height == tr.height;
 	    if (fast_exit) {
 		r->dirty = TRUE;
 		r->fill = tr.fill;
@@ -2086,7 +2086,7 @@ bool QRichText::eatSpace(const QString& doc, int& pos)
 
 bool QRichText::eat(const QString& doc, int& pos, QChar c)
 {
-    valid &= (bool) (doc[pos] == c);
+    valid = valid && (bool) (doc[pos] == c);
     if (valid)
 	pos++;
     return valid;
@@ -2309,7 +2309,7 @@ bool QRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
 	qWarning( "QText Warning: Document not valid ( '%s' not closing #%d)", open.ascii(), pos);
 	valid = TRUE;
     }
-    valid &= tag == open;
+    valid = valid && tag == open;
     if (!valid) {
 	qWarning( "QText Warning: Document not valid ( '%s' not closed before '%s' #%d)",
 		 open.ascii(), tag.ascii(), pos);
