@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#25 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#26 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -229,15 +229,16 @@ enum RasterOp					// raster op/transfer mode
 const AlignLeft		= 0x000;		// text alignment
 const AlignRight	= 0x001;
 const AlignCenter	= 0x002;
+const AlignHCenter	= 0x002;
 const AlignTop		= 0x000;
 const AlignBottom	= 0x004;
-const AlignVerCenter	= 0x008;
+const AlignVCenter	= 0x008;
 
-const WordBreak		= 0x010;		// misc. flags
-const ClipText		= 0x020;
+const SingleLine	= 0x010;		// misc. flags
+const DontClip		= 0x020;
 const ExpandTabs	= 0x040;
 const ShowPrefix	= 0x080;
-const SingleLineText	= 0x100;
+const WordBreak		= 0x100;
 
 
 #endif // QWINDEFS_H
