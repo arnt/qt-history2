@@ -94,7 +94,7 @@
   {
 
     /* sanity check */
-      //assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) );
+      /*assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) ); */
 
     if ( out->pos + num_out > out->allocated )
 	TT_GSUB_String_Allocate( out, out->pos + num_out );
@@ -136,7 +136,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 {
 
     /* sanity check */
-    //assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) );
+    /* assert( !( !in || !out || in->length == 0 || in->pos >= in->length || in->length < in->pos + num_in ) ); */
 
     if ( out->pos >= out->allocated )
 	TT_GSUB_String_Allocate( out, out->pos + 1 );
@@ -4357,10 +4357,11 @@ EXPORT_FUNC
     tmp1->pos = 0;
     tmp2->pos = 0;
 
-    //###### need to order lookups in the order they appear in the
-    //###### lookup list, not the order they appear in the
-    //###### featurelist.
-
+    /*
+      ###### need to order lookups in the order they appear in the
+      ###### lookup list, not the order they appear in the
+      ###### featurelist.
+    */
     for ( j = 0; j < feature.LookupListCount; j++ ) {
         error = GSub_Do_String_Lookup( gsub, index[j], where_to_apply, tmp1, tmp2 );
         if ( error && error != TTO_Err_Not_Covered )

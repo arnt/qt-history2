@@ -2828,9 +2828,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     comp_index = in->glyph_properties[in->pos].component;
 
-    // ###### why the hell doesn't this compile?
-//     if (comp_index == MAX_COMPONENT_INDEX)
-// 	comp_index = lat->ComponentCount - 1;
+    /* ###### why the hell doesn't this compile?
+       if (comp_index == MAX_COMPONENT_INDEX)
+       comp_index = lat->ComponentCount - 1;
+    */
     if ( comp_index >= lat->ComponentCount )
         return TTO_Err_Not_Covered;
 
@@ -6137,7 +6138,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
   static FT_Error  GPos_Do_String_Lookup( GPOS_Instance*    gpi,
                                      FT_UShort         lookup_index,
-//					  unsigned char *where_to_apply,
+/*					  unsigned char *where_to_apply, */
                                      TTO_GSUB_String*  in,
                                      TTO_GPOS_Data*    out )
   {
@@ -6155,7 +6156,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     while ( in->pos < in->length )
     {
-	if (1) //where_to_apply[in->pos])
+	if (1) /*where_to_apply[in->pos]) */
       {
         /* 0xFFFF indicates that we don't have a context length yet. */
 
@@ -6267,9 +6268,11 @@ static FT_Error  default_mmfunc( FT_Face      face,
     feature = gpos->FeatureList.FeatureRecord[feature_index].Feature;
     index   = feature.LookupListIndex;
 
-    //###### need to order lookups in the order they appear in the
-    //###### lookup list, not the order they appear in the
-    //###### featurelist.
+    /*
+      ###### need to order lookups in the order they appear in the
+      ###### lookup list, not the order they appear in the
+      ###### featurelist.
+    */
 
     for ( j = 0; j < feature.LookupListCount; j++ ) {
         error = GPos_Do_String_Lookup( &gpi, index[j], in, *out );

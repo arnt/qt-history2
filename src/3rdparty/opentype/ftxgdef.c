@@ -773,11 +773,11 @@
                                         FT_UShort*       property )
   {
     const FT_UShort class2glyphProp[5] = {
-	0,// UNCLASSIFIED_GLYPH
-	TTO_BASE_GLYPH, // SIMPLE_GLYPH        1
-	TTO_LIGATURE,// LIGATURE_GLYPH      2
-	TTO_MARK,// MARK_GLYPH          3
-	TTO_COMPONENT // COMPONENT_GLYPH     4
+	0,/* UNCLASSIFIED_GLYPH */
+	TTO_BASE_GLYPH, /* SIMPLE_GLYPH        1 */
+	TTO_LIGATURE,/* LIGATURE_GLYPH      2 */
+	TTO_MARK,/* MARK_GLYPH          3 */
+	TTO_COMPONENT /* COMPONENT_GLYPH     4 */
     };
     FT_UShort klass, index;
 
