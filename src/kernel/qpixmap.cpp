@@ -662,7 +662,7 @@ void QPixmap::resize( int w, int h )
     \code
 	QPixmap alpha( "image-with-alpha.png" );
 	QPixmap alphacopy = alpha;
-	alphacopy.setMask( alphacopy.mask() );
+	alphacopy.setMask( *alphacopy.mask() );
     \endcode
     Now, alpha and alphacopy are visually different.
 
