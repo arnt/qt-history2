@@ -71,7 +71,16 @@
     \sa QWidget::setAutoMask()
 */
 
-static QPixmap *qt_radiobutton_painter_pix = 0;
+
+/*
+    Initializes the radio button.
+*/
+static void qRadioButtonInit(QRadioButton *button)
+{
+    button->setCheckable(true);
+    button->setAutoExclusive(true);
+}
+
 
 /*!
     Constructs a radio button with no text.
@@ -80,10 +89,10 @@ static QPixmap *qt_radiobutton_painter_pix = 0;
     constructor.
 */
 
-QRadioButton::QRadioButton(QWidget *parent, const char *name)
-        : QButton(parent, name, WMouseNoMask)
+QRadioButton::QRadioButton(QWidget *parent)
+        : QAbstractButton(parent)
 {
-    init();
+    qRadioButtonInit(this);
 }
 
 /*!
@@ -93,36 +102,12 @@ QRadioButton::QRadioButton(QWidget *parent, const char *name)
     constructor.
 */
 
-QRadioButton::QRadioButton(const QString &text, QWidget *parent,
-                            const char *name)
-        : QButton(parent, name, WMouseNoMask)
+QRadioButton::QRadioButton(const QString &text, QWidget *parent)
+        : QAbstractButton(parent)
 {
-    init();
+    qRadioButtonInit(this);
     setText(text);
 }
-
-
-/*
-    Initializes the radio button.
-*/
-
-void QRadioButton::init()
-{
-    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
-    setToggleButton(true);
-#ifndef QT_NO_BUTTONGROUP
-    QButtonGroup *bgrp = qt_cast<QButtonGroup*>(parentWidget());
-    if (bgrp)
-        bgrp->setRadioButtonExclusive(true);
-#endif
-}
-
-void QRadioButton::setChecked(bool check)
-{
-    setOn(check);
-}
-
-
 
 
 /*!
@@ -130,16 +115,8 @@ void QRadioButton::setChecked(bool check)
 */
 QSize QRadioButton::sizeHint() const
 {
-    // Any more complex, and we will use style().itemRect()
-    // NB: QCheckBox::sizeHint() is similar
     ensurePolished();
-
-    if(!qt_radiobutton_painter_pix)
-        qt_radiobutton_painter_pix = new QPixmap(1, 1);
-    QPainter p(qt_radiobutton_painter_pix, this);
-    QSize sz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, false,
-                                pixmap(), text()).size();
-
+    QSize sz = style().itemRect(fontMetrics(), QRect(0, 0, 1, 1), ShowPrefix, false, text()).size();
     return (style().sizeFromContents(QStyle::CT_RadioButton, this, sz).
             expandedTo(QApplication::globalStrut()));
 }
@@ -161,13 +138,13 @@ bool QRadioButton::hitButton(const QPoint &pos) const
     return r.contains(pos);
 }
 
-
 /*!
-    \reimp
+    Draws the radio button bevel. Called from paintEvent().
+
+    \sa drawLabel()
 */
-void QRadioButton::drawButton(QPainter *paint)
+void QRadioButton::drawBevel(QPainter *p)
 {
-    QPainter *p = paint;
     QRect irect = QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonIndicator, this), this);
     const QPalette &pal = palette();
 
@@ -180,22 +157,17 @@ void QRadioButton::drawButton(QPainter *paint)
         flags |= QStyle::Style_Down;
     if (testAttribute(WA_UnderMouse))
         flags |= QStyle::Style_MouseOver;
-    if (state() == QButton::On)
-        flags |= QStyle::Style_On;
-    else if (state() == QButton::Off)
-        flags |= QStyle::Style_Off;
+    flags |= (isChecked() ? QStyle::Style_On : QStyle::Style_Off);
 
     style().drawControl(QStyle::CE_RadioButton, p, this, irect, pal, flags);
-
-    drawButtonLabel(p);
 }
 
-
-
 /*!
-    \reimp
+    Draws the radio button label. Called from paintEvent().
+
+    \sa drawBevel()
 */
-void QRadioButton::drawButtonLabel(QPainter *p)
+void QRadioButton::drawLabel(QPainter *p)
 {
     QRect r =
         QStyle::visualRect(style().subRect(QStyle::SR_RadioButtonContents,
@@ -208,35 +180,29 @@ void QRadioButton::drawButtonLabel(QPainter *p)
         flags |= QStyle::Style_HasFocus;
     if (isDown())
         flags |= QStyle::Style_Down;
-    if (state() == QButton::On)
-        flags |= QStyle::Style_On;
-    else if (state() == QButton::Off)
-        flags |= QStyle::Style_Off;
+    flags |= (isChecked() ? QStyle::Style_On : QStyle::Style_Off);
 
     style().drawControl(QStyle::CE_RadioButtonLabel, p, this, r, palette(), flags);
 }
 
+/*
+  Paints the button, by first calling drawBevel() and then
+  drawLabel(). If you reimplement paintEvent() in order to draw a
+  different label only, you can call drawBevel() from your code.
 
-/*!
-    \reimp
+  \code
+    QPainter p(this);
+    drawBevel(&p);
+    // ... your label drawing code
+  \endcode
 */
-void QRadioButton::resizeEvent(QResizeEvent* e)
+void QRadioButton::paintEvent(QPaintEvent *)
 {
-    QButton::resizeEvent(e);
-    if (isVisible()) {
-    if(!qt_radiobutton_painter_pix)
-        qt_radiobutton_painter_pix = new QPixmap(1, 1);
-    QPainter p(qt_radiobutton_painter_pix, this);
-    QSize isz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, false,
-                                 pixmap(), text()).size();
-    QSize wsz = (style().sizeFromContents(QStyle::CT_RadioButton, this, isz).
-            expandedTo(QApplication::globalStrut()));
-
-    update(wsz.width(), isz.width(), 0, wsz.height());
-   }
-    if (autoMask())
-        updateMask();
+    QPainter p(this);
+    drawBevel(&p);
+    drawLabel(&p);
 }
+
 
 /*!
     \reimp
@@ -266,5 +232,21 @@ void QRadioButton::updateMask()
 
     setMask(bm);
 }
+#ifdef QT_COMPAT
+QRadioButton::QRadioButton(QWidget *parent, const char* name)
+    :QAbstractButton(parent)
+{
+    setObjectName(name);
+    qRadioButtonInit(this);
+}
 
+QRadioButton::QRadioButton(const QString &text, QWidget *parent, const char* name)
+    :QAbstractButton(parent)
+{
+    setObjectName(name);
+    qRadioButtonInit(this);
+    setText(text);
+}
+
+#endif
 #endif

@@ -1675,13 +1675,13 @@ void Q3ActionGroup::add(Q3Action* action)
     for (QList<QComboBox*>::Iterator cb(d->comboboxes.begin()); cb != d->comboboxes.end(); ++cb)
         action->addTo(*cb);
     for (QList<QToolButton*>::Iterator mb(d->menubuttons.begin()); mb != d->menubuttons.end(); ++mb) {
-        QPopupMenu* menu = (*mb)->popup();
+        QMenu* menu = (*mb)->popup();
         if (!menu)
             continue;
         action->addTo(menu);
     }
     for (QList<Q3ActionGroupPrivate::Action4Item*>::Iterator ac(d->action4items.begin());
-         ac != d->action4items.end(); ++ac) 
+         ac != d->action4items.end(); ++ac)
         action->addTo((*ac)->action->menu());
     for (QList<Q3ActionGroupPrivate::MenuItem*>::Iterator mi(d->menuitems.begin());
          mi != d->menuitems.end(); ++mi) {
@@ -1850,7 +1850,7 @@ bool Q3ActionGroup::addTo(QWidget *w)
             if(!ai->action)  { //static
                 ai->action = new QAction;
                 ai->action->setMenu(new QMenu);
-                if (!iconSet().isNull()) 
+                if (!iconSet().isNull())
                     ai->action->setIcon(iconSet());
                 if (menuText().isEmpty())
                     ai->action->setText(text());
@@ -1863,7 +1863,7 @@ bool Q3ActionGroup::addTo(QWidget *w)
             d->action4items.append(ai);
             menu = ai->action->menu();
         }
-        for (QList<Q3Action*>::Iterator it(d->actions.begin()); it != d->actions.end(); ++it) 
+        for (QList<Q3Action*>::Iterator it(d->actions.begin()); it != d->actions.end(); ++it)
             (*it)->addTo(menu);
         return true;
     }

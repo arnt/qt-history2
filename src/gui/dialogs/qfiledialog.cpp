@@ -845,7 +845,7 @@ QFDProgressDialog::QFDProgressDialog(QWidget *parent, const QString &fn, int ste
     writeBar->setProgress(0);
     layout->addWidget(writeBar);
 
-    QPushButton *b = new QPushButton(QFileDialog::tr("Cancel"), this,
+    QButton *b = new QButton(QFileDialog::tr("Cancel"), this,
                                       "qt_cancel_btn");
     b->setFixedSize(b->sizeHint());
     layout->addWidget(b);
@@ -895,7 +895,7 @@ public:
     QPtrList<QLabel> extraLabels;
     QPtrList<QWidget> extraWidgets;
     QPtrList<QWidget> extraButtons;
-    QPtrList<QButton> toolButtons;
+    QPtrList<QAbstractButton> toolButtons;
 
     QWidgetStack * stack;
 
@@ -2455,11 +2455,11 @@ void QFileDialog::init()
     d->moreFiles->installEventFilter(this);
     d->moreFiles->viewport()->installEventFilter(this);
 
-    okB = new QPushButton(tr("&OK"), this, "OK"); //### Or "Save (see other "OK")
+    okB = new QButton(tr("&OK"), this, "OK"); //### Or "Save (see other "OK")
     okB->setDefault(true);
     okB->setEnabled(false);
     connect(okB, SIGNAL(clicked()), this, SLOT(okClicked()));
-    cancelB = new QPushButton(tr("Cancel") , this, "Cancel");
+    cancelB = new QButton(tr("Cancel") , this, "Cancel");
     connect(cancelB, SIGNAL(clicked()), this, SLOT(cancelClicked()));
 
     d->paths = new QComboBox(true, this, "directory history/editor");
@@ -2771,7 +2771,7 @@ void QFileDialog::changeMode(int id)
     if (!d->infoPreview && !d->contentsPreview)
         return;
 
-    QButton *btn = (QButton*)d->modeButtons->find(id);
+    QAbstractButton*btn = d->modeButtons->find(id);
     if (!btn)
         return;
 
@@ -3805,7 +3805,7 @@ r.setHeight(qMax(r.height(),t.height()))
     d->mcView->setFixedSize(r);
     d->detailView->setFixedSize(r);
 
-    QButton *b = 0;
+    QAbstractButton *b = 0;
     if (!d->toolButtons.isEmpty()) {
         for (b = d->toolButtons.first(); b; b = d->toolButtons.next())
             b->setFixedSize(b->sizeHint().width(), r.height());
@@ -4231,7 +4231,7 @@ void QFileDialog::deleteFile(const QString &filename)
 {
     if (filename.isEmpty())
         return;
-    
+
     QString encoded = QFileDialogPrivate::encodeFileName(filename);
     QUrlInfo fi(d->url.info(encoded.isEmpty() ? "." : encoded));
     QString t = tr("the file");
@@ -4646,7 +4646,7 @@ QFileDialog::PreviewMode QFileDialog::previewMode() const
     {
         QLabel* label = new QLabel("Added widgets", this);
         QLineEdit* lineedit = new QLineEdit(this);
-        QPushButton* pushbutton = new QPushButton(this);
+        QButton* pushbutton = new QButton(this);
 
         addWidgets(label, lineedit, pushbutton);
     }
@@ -4661,7 +4661,7 @@ QFileDialog::PreviewMode QFileDialog::previewMode() const
   \sa addToolButton(), addLeftWidget(), addRightWidget()
 */
 
-void QFileDialog::addWidgets(QLabel * l, QWidget * w, QPushButton * b)
+void QFileDialog::addWidgets(QLabel * l, QWidget * w, QButton * b)
 {
     if (!l && !w && !b)
         return;
@@ -4704,7 +4704,7 @@ void QFileDialog::addWidgets(QLabel * l, QWidget * w, QPushButton * b)
   \sa addWidgets(), addLeftWidget(), addRightWidget()
 */
 
-void QFileDialog::addToolButton(QButton *b, bool separator)
+void QFileDialog::addToolButton(QAbstractButton *b, bool separator)
 {
     if (!b || !d->buttonLayout)
         return;

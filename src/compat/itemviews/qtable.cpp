@@ -3562,7 +3562,7 @@ void QTable::contentsMousePressEventEx(QMouseEvent* e)
         QTableItem *itm = item(tmpRow, tmpCol);
         if (itm && itm->editType() == QTableItem::WhenCurrent) {
             QWidget *w = cellWidget(tmpRow, tmpCol);
-            if (qt_cast<QComboBox*>(w) || qt_cast<QButton*>(w)) {
+            if (qt_cast<QComboBox*>(w) || qt_cast<QAbstractButton*>(w)) {
                 QMouseEvent ev(e->type(), w->mapFromGlobal(e->globalPos()),
                                 e->globalPos(), e->button(), e->state());
                 QApplication::sendPostedEvents(w, 0);

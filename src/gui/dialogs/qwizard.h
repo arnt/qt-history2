@@ -59,11 +59,11 @@ public:
     virtual bool appropriate(QWidget *) const;
     virtual void setAppropriate(QWidget *, bool);
 
-    QPushButton * backButton() const;
-    QPushButton * nextButton() const;
-    QPushButton * finishButton() const;
-    QPushButton * cancelButton() const;
-    QPushButton * helpButton() const;
+    QButton * backButton() const;
+    QButton * nextButton() const;
+    QButton * finishButton() const;
+    QButton * cancelButton() const;
+    QButton * helpButton() const;
 
     bool eventFilter(QObject *, QEvent *);
 

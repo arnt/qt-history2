@@ -18,6 +18,7 @@
 
 #ifndef QT_H
 #include "qobject.h"
+#include "qmap.h"
 #endif
 
 class QAbstractButton;
@@ -39,6 +40,8 @@ public:
     void addButton(QAbstractButton *);
     void removeButton(QAbstractButton *);
 
+    int count() const;
+
     QAbstractButton * checkedButton() const;
     // no setter on purpose!
 
@@ -58,7 +61,6 @@ private:
 #ifndef QT_NO_BUTTONGROUP
 
 class QButton;
-class QButtonMap;
 
 class Q_GUI_EXPORT QButtonGroup : public QGroupBox
 {
@@ -83,17 +85,15 @@ public:
     virtual void setRadioButtonExclusive(bool);
 
 public:
-    int                insert(QButton *, int id=-1);
-    void        remove(QButton *);
-    QButton    *find(int id) const;
-    int                id(QButton *) const;
+    int                insert(QAbstractButton *, int id=-1);
+    void        remove(QAbstractButton *);
+    QAbstractButton    *find(int id) const;
+    int                id(QAbstractButton *) const;
     int                count() const;
 
     virtual void setButton(int id);
 
-    virtual void moveFocus(int);
-
-    QButton    *selected() const;
+    QAbstractButton    *selected() const;
     int    selectedId() const;
 
 signals:
@@ -105,7 +105,6 @@ protected slots:
     void        buttonPressed();
     void        buttonReleased();
     void        buttonClicked();
-    void        buttonToggled(bool on);
 
 protected:
     bool         event(QEvent * e);
@@ -115,7 +114,8 @@ private:
 
     bool        excl_grp;
     bool        radio_excl;
-    QButtonMap *buttons; // ### 4.0: move to d-pointer
+    QMap<int, QAbstractButton*> buttonIds;
+    Q4ButtonGroup group;
 
 private:
 #if defined(Q_DISABLE_COPY)

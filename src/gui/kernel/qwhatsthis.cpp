@@ -416,7 +416,7 @@ QWhatsThisButton::QWhatsThisButton(QWidget * parent, const char * name)
     : QToolButton(parent, name)
 {
     QPixmap p((const char**)button_image);
-    setPixmap(p);
+    setIcon(p);
     setToggleButton(true);
     setAutoRaise(true);
     setFocusPolicy(NoFocus);

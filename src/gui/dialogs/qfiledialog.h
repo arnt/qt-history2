@@ -15,7 +15,8 @@
 #ifndef QFILEDIALOG_H
 #define QFILEDIALOG_H
 
-class QPushButton;
+class QAbstractButton;
+class QButton;
 class QButton;
 class QLabel;
 class QWidget;
@@ -177,8 +178,8 @@ protected:
     void resizeEvent(QResizeEvent *);
     void keyPressEvent(QKeyEvent *);
 
-    void addWidgets(QLabel *, QWidget *, QPushButton *);
-    void addToolButton(QButton *b, bool separator = false);
+    void addWidgets(QLabel *, QWidget *, QButton *);
+    void addToolButton(QAbstractButton *b, bool separator = false);
     void addLeftWidget(QWidget *w);
     void addRightWidget(QWidget *w);
 
@@ -264,8 +265,8 @@ private:
     QFileDialogQFileListView  *files;
 
     QLineEdit  *nameEdit; // also filter
-    QPushButton *okB;
-    QPushButton *cancelB;
+    QButton *okB;
+    QButton *cancelB;
 
 #if defined(Q_WS_WIN)
     static QString winGetOpenFileName(const QString &initialSelection,

@@ -16,38 +16,36 @@
 #define QRADIOBUTTON_H
 
 #ifndef QT_H
-#include "qbutton.h"
+#include "qabstractbutton.h"
 #endif // QT_H
 
 #ifndef QT_NO_RADIOBUTTON
 
-class Q_GUI_EXPORT QRadioButton : public QButton
+class Q_GUI_EXPORT QRadioButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
+    Q_PROPERTY(bool autoExclusive DESIGNABLE true)
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
-    QRadioButton(QWidget *parent=0, const char* name=0);
-    QRadioButton(const QString &text, QWidget *parent=0, const char* name=0);
+    QRadioButton(QWidget *parent=0);
+    QRadioButton(const QString &text, QWidget *parent=0);
 
-    bool    isChecked() const;
-
-    QSize    sizeHint() const;
-
-public slots:
-    virtual void    setChecked(bool check);
+    QSize sizeHint() const;
 
 protected:
-    bool    hitButton(const QPoint &) const;
-    void    drawButton(QPainter *);
-    void    drawButtonLabel(QPainter *);
-    void    updateMask();
+    bool hitButton(const QPoint &) const;
+    void drawBevel(QPainter *p);
+    void drawLabel(QPainter *p);
+    void paintEvent(QPaintEvent *);
+    void updateMask();
 
-    void    resizeEvent(QResizeEvent*);
+#ifdef QT_COMPAT
+public:
+    QRadioButton(QWidget *parent, const char* name);
+    QRadioButton(const QString &text, QWidget *parent, const char* name);
 
-private:
-    void    init();
+#endif
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -55,10 +53,6 @@ private:        // Disabled copy constructor and operator=
     QRadioButton &operator=(const QRadioButton &);
 #endif
 };
-
-
-inline bool QRadioButton::isChecked() const
-{ return isOn(); }
 
 #endif // QT_NO_RADIOBUTTON
 

@@ -37,7 +37,6 @@
 #include "qpointer.h"
 #include "qlayout.h"
 
-
 struct QMotifPlusStylePrivate
 {
     QMotifPlusStylePrivate()
@@ -164,7 +163,7 @@ void QMotifPlusStyle::polish(QWidget *widget)
         widget->layout()->setMargin(2);
 #endif
     if (useHoveringHighlight) {
-        if (qt_cast<QButton*>(widget) || qt_cast<QComboBox*>(widget))
+        if (qt_cast<QAbstractButton*>(widget) || qt_cast<QComboBox*>(widget))
             widget->installEventFilter(this);
 
         if (qt_cast<QScrollBar*>(widget) || qt_cast<QSlider*>(widget)) {

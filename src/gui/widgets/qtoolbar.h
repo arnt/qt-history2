@@ -22,7 +22,7 @@
 #ifndef QT_NO_TOOLBAR
 
 class QMainWindow;
-class QButton;
+class QAbstractButton;
 class QBoxLayout;
 class QToolBarPrivate;
 

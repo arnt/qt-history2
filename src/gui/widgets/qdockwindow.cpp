@@ -480,7 +480,7 @@ void QDockWindowHandle::updateGui()
 #ifndef QT_NO_CURSOR
         closeButton->setCursor(ArrowCursor);
 #endif
-        closeButton->setPixmap(style().stylePixmap(QStyle::SP_DockWindowCloseButton, closeButton));
+        closeButton->setIcon(style().stylePixmap(QStyle::SP_DockWindowCloseButton, closeButton));
         closeButton->setFixedSize(12, 12);
         connect(closeButton, SIGNAL(clicked()),
                  dockWindow, SLOT(hide()));
@@ -508,7 +508,7 @@ void QDockWindowHandle::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange) {
         if (closeButton)
-            closeButton->setPixmap(style().stylePixmap(QStyle::SP_DockWindowCloseButton, closeButton));
+            closeButton->setIcon(style().stylePixmap(QStyle::SP_DockWindowCloseButton, closeButton));
     }
     QWidget::changeEvent(ev);
 }

@@ -22,7 +22,7 @@
 #include "qdatetime.h"
 #include "qapplication.h"
 #include "qstyle.h"
-#include "qpushbutton.h"
+#include "qbutton.h"
 #include "qcursor.h"
 #include "qtimer.h"
 #include <limits.h>
@@ -58,7 +58,7 @@ public:
 
     QWidget         *creator;
     QLabel         *label;
-    QPushButton         *cancel;
+    QButton         *cancel;
     QProgressBar *bar;
     bool          shown_once;
     bool          cancellation_flag;
@@ -374,7 +374,7 @@ void QProgressDialog::setLabelText(const QString &text)
   \sa setCancelButtonText()
 */
 
-void QProgressDialog::setCancelButton(QPushButton *cancelButton)
+void QProgressDialog::setCancelButton(QButton *cancelButton)
 {
     delete d->cancel;
     d->cancel = cancelButton;
@@ -409,7 +409,7 @@ void QProgressDialog::setCancelButtonText(const QString &cancelButtonText)
         if (d->cancel)
             d->cancel->setText(cancelButtonText);
         else
-            setCancelButton(new QPushButton(cancelButtonText, this, "cancel"));
+            setCancelButton(new QButton(cancelButtonText, this, "cancel"));
     } else {
         setCancelButton(0);
     }

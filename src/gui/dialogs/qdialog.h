@@ -23,14 +23,14 @@
 Q_OBJECT
 #endif
 
-class QPushButton;
+class QButton;
 class QDialogPrivate;
 
 class Q_GUI_EXPORT QDialog : public QWidget
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDialog);
-    friend class QPushButton;
+    friend class QButton;
 
     Q_PROPERTY(bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled)
     Q_PROPERTY(bool modal READ isModal WRITE setModal)
@@ -86,8 +86,8 @@ protected:
     void        adjustPosition(QWidget*);
 
 private:
-    void        setDefault(QPushButton *);
-    void        setMainDefault(QPushButton *);
+    void        setDefault(QButton *);
+    void        setMainDefault(QButton *);
     void        hideDefault();
 #ifdef Q_OS_TEMP
     void        hideSpecial();

@@ -125,9 +125,9 @@ void QToolBarExtensionWidget::setOrientation(Orientation o)
 {
     orient = o;
     if (orient == Horizontal)
-        tb->setPixmap(QPixmap((const char **)arrow_h_xpm));
+        tb->setIcon(QPixmap((const char **)arrow_h_xpm));
     else
-        tb->setPixmap(QPixmap((const char **)arrow_v_xpm));
+        tb->setIcon(QPixmap((const char **)arrow_v_xpm));
     layOut();
 }
 
@@ -619,8 +619,8 @@ void QToolBar::createPopup()
                     d->extensionPopup->setItemChecked(id, b->isOn());
                 if (!b->isEnabled())
                     d->extensionPopup->setItemEnabled(id, false);
-            } else if (qt_cast<QButton*>(w)) {
-                QButton *b = (QButton*)w;
+            } else if (qt_cast<QAbstractButton*>(w)) {
+                QAbstractButton *b = (QAbstractButton*)w;
                 QString s = b->text();
                 if (s.isEmpty())
                     s = "";

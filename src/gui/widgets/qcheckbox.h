@@ -16,54 +16,59 @@
 #define QCHECKBOX_H
 
 #ifndef QT_H
-#include "qbutton.h"
+#include "qabstractbutton.h"
 #endif // QT_H
 
 #ifndef QT_NO_CHECKBOX
 
-class Q_GUI_EXPORT QCheckBox : public QButton
+class QCheckBoxPrivate;
+
+class Q_GUI_EXPORT QCheckBox : public QAbstractButton
 {
     Q_OBJECT
-    Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
+    Q_DECLARE_PRIVATE(QCheckBox);
     Q_PROPERTY(bool tristate READ isTristate WRITE setTristate)
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
-    QCheckBox(QWidget *parent=0, const char* name=0);
-    QCheckBox(const QString &text, QWidget *parent=0, const char* name=0);
+    QCheckBox(QWidget *parent=0);
+    QCheckBox(const QString &text, QWidget *parent=0);
 
-    bool    isChecked() const;
 
-    void    setNoChange();
+    QSize sizeHint() const;
 
-    void    setTristate(bool y=true);
-    bool    isTristate() const;
+    void setTristate(bool y=true);
+    bool isTristate() const;
 
-    QSize   sizeHint() const;
+    enum ToggleState { Off, NoChange, On };
+    ToggleState state() const;
+    void setState(ToggleState state);
 
-public slots:
-    void    setChecked(bool check);
+signals:
+    void stateChanged(int);
 
 protected:
-    void    resizeEvent(QResizeEvent*);
-    void    drawButton(QPainter *);
-    void    drawButtonLabel(QPainter *);
-    void    updateMask();
-    bool    hitButton(const QPoint &pos) const;
+    bool hitButton(const QPoint &pos) const;
+    void checkStateSet();
+    void nextCheckState();
+    void drawBevel(QPainter *);
+    void drawLabel(QPainter *);
+    void paintEvent(QPaintEvent *);
+    void updateMask();
+
+#ifdef QT_COMPAT
+public:
+    inline QT_COMPAT void setNoChange() { setState(NoChange); }
+    QCheckBox(QWidget *parent, const char* name);
+    QCheckBox(const QString &text, QWidget *parent, const char* name);
+
+#endif
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QCheckBox(const QCheckBox &);
     QCheckBox &operator=(const QCheckBox &);
 #endif
 };
-
-
-inline bool QCheckBox::isChecked() const
-{ return isOn(); }
-
-inline void QCheckBox::setChecked(bool check)
-{ setOn(check); }
-
 
 #endif // QT_NO_CHECKBOX
 

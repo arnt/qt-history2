@@ -108,13 +108,13 @@
   In this example, when the user presses Alt+C the button will call
   animateClick().
 
-  You can also set a custom shortcut key using the setMnemonic()
+  You can also set a custom shortcut key using the setShortcut()
   function. This is useful mostly for buttons that do not have any
   text, because they have no automatic accelerator.
 
   \code
         p->setPixmap(QPixmap("print.png"));
-        p->setMnemonic(ALT+Key_F7);
+        p->setShortcut(ALT+Key_F7);
   \endcode
 
   All of the buttons provided by Qt (\l QPushButton, \l QToolButton,
@@ -189,6 +189,14 @@ void Q4ButtonGroup::removeButton(QAbstractButton *button)
         button->d->group = 0;
         d->buttonList.removeAll(button);
     }
+}
+
+/*!
+    Returns the number of buttons in the group.
+*/
+int Q4ButtonGroup::count() const
+{
+    return d->buttonList.count();
 }
 
 QAbstractButton * Q4ButtonGroup::checkedButton() const
@@ -491,8 +499,11 @@ bool QAbstractButton::isCheckable() const
 */
 void QAbstractButton::setChecked(bool checked)
 {
-    if (!d->checkable || d->checked == checked)
+    if (!d->checkable || d->checked == checked) {
+        if (!d->blockRefresh)
+            checkStateSet();
         return;
+    }
 
     if (!checked && d->queryCheckedButton() == this) {
             // the checked button of an exclusive or autoexclusive group cannot be  unchecked
@@ -501,6 +512,8 @@ void QAbstractButton::setChecked(bool checked)
     }
 
     d->checked = checked;
+    if (!d->blockRefresh)
+        checkStateSet();
     d->refresh();
 
     if (checked)
@@ -661,8 +674,9 @@ void QAbstractButton::toggle()
 }
 
 
-/*! This virtual handler is called then setChecked() was called. It
-  allows subclasses to reset their intermediate button states.
+/*! This virtual handler is called then setChecked() was called,
+  unless it was called from within nextCheckState(). It allows
+  subclasses to reset their intermediate button states.
 
   \sa nextCheckState()
  */
@@ -842,13 +856,19 @@ void QAbstractButton::focusOutEvent(QFocusEvent * e)
 }
 
 /*! \reimp */
-void QAbstractButton::changeEvent(QEvent *ev)
+void QAbstractButton::changeEvent(QEvent *e)
 {
-    if(ev->type() == QEvent::EnabledChange) {
+    switch (e->type()) {
+    case QEvent::EnabledChange:
         if (!isEnabled())
             setDown(false);
+        break;
+    case QEvent::PaletteChange:
+        d->icon.clearGenerated();
+    default:
+        ;
     }
-    QWidget::changeEvent(ev);
+    QWidget::changeEvent(e);
 }
 
 #ifdef QT_COMPAT

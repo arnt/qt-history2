@@ -19,6 +19,21 @@
 #include "qapplication.h"
 #include "qstyle.h"
 
+#include "private/qabstractbutton_p.h"
+
+class QCheckBoxPrivate : public QAbstractButtonPrivate
+{
+    Q_DECLARE_PUBLIC(QCheckBox);
+public:
+    QCheckBoxPrivate():tristate(false), noChange(false){}
+    uint tristate : 1;
+    uint noChange : 1;
+    void init();
+};
+
+#define d d_func()
+#define q q_func()
+
 /*!
     \class QCheckBox qcheckbox.h
     \brief The QCheckBox widget provides a checkbox with a text label.
@@ -87,7 +102,12 @@
     The default is two-state, i.e. tri-state is false.
 */
 
-static QPixmap *qt_checkbox_painter_pix = 0;
+
+
+void QCheckBoxPrivate::init()
+{
+    q->setCheckable(true);
+}
 
 /*!
     Constructs a checkbox with no text.
@@ -96,11 +116,10 @@ static QPixmap *qt_checkbox_painter_pix = 0;
     constructor.
 */
 
-QCheckBox::QCheckBox(QWidget *parent, const char *name)
-        : QButton(parent, name, WMouseNoMask)
+QCheckBox::QCheckBox(QWidget *parent)
+    : QAbstractButton (*new QCheckBoxPrivate, parent)
 {
-    setToggleButton(true);
-    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
+    d->init();
 }
 
 /*!
@@ -110,33 +129,45 @@ QCheckBox::QCheckBox(QWidget *parent, const char *name)
     constructor.
 */
 
-QCheckBox::QCheckBox(const QString &text, QWidget *parent, const char *name)
-        : QButton(parent, name, WMouseNoMask)
+QCheckBox::QCheckBox(const QString &text, QWidget *parent)
+    : QAbstractButton (*new QCheckBoxPrivate, parent)
 {
+    d->init();
     setText(text);
-    setToggleButton(true);
-    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
-}
-
-/*!
-    Sets the checkbox to the "no change" state.
-
-    \sa setTristate()
-*/
-void QCheckBox::setNoChange()
-{
-    setTristate(true);
-    setState(NoChange);
 }
 
 void QCheckBox::setTristate(bool y)
 {
-    setToggleType(y ? Tristate : Toggle);
+    d->tristate = y;
 }
 
 bool QCheckBox::isTristate() const
 {
-    return toggleType() == Tristate;
+    return d->tristate;
+}
+
+
+QCheckBox::ToggleState QCheckBox::state() const
+{
+    if (d->tristate &&  d->noChange)
+        return NoChange;
+    return d->checked ? On : Off;
+}
+
+void QCheckBox::setState(ToggleState state)
+{
+    if (state == NoChange) {
+        d->tristate = true;
+        d->noChange = true;
+    } else {
+        d->noChange = false;
+    }
+    bool checked = (state != Off);
+    if (checked != d->checked)
+        setChecked(checked);
+    else
+        d->refresh();
+    emit stateChanged(state);
 }
 
 
@@ -144,25 +175,18 @@ bool QCheckBox::isTristate() const
 */
 QSize QCheckBox::sizeHint() const
 {
-    // NB: QRadioButton::sizeHint() is similar
     ensurePolished();
-
-
-    if(!qt_checkbox_painter_pix)
-        qt_checkbox_painter_pix = new QPixmap(1, 1);
-    QPainter p(qt_checkbox_painter_pix, this);
-    QSize sz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, false,
-                                pixmap(), text()).size();
-
+    QSize sz = style().itemRect(fontMetrics(), QRect(0, 0, 1, 1), ShowPrefix, false, text()).size();
     return (style().sizeFromContents(QStyle::CT_CheckBox, this, sz).
             expandedTo(QApplication::globalStrut()));
 }
 
+/*!
+    Draws the check box bevel. Called from paintEvent().
 
-/*!\reimp
+    \sa drawLabel()
 */
-
-void QCheckBox::drawButton(QPainter *paint)
+void QCheckBox::drawBevel(QPainter *paint)
 {
     QPainter *p = paint;
     QRect irect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxIndicator, this), this);
@@ -177,22 +201,21 @@ void QCheckBox::drawButton(QPainter *paint)
         flags |= QStyle::Style_Down;
     if (testAttribute(WA_UnderMouse))
         flags |= QStyle::Style_MouseOver;
-    if (state() == QButton::On)
-        flags |= QStyle::Style_On;
-    else if (state() == QButton::Off)
-        flags |= QStyle::Style_Off;
-    else if (state() == QButton::NoChange)
+    if (d->tristate &&  d->noChange)
         flags |= QStyle::Style_NoChange;
+    else
+        flags |= d->checked ? QStyle::Style_On : QStyle::Style_Off;
 
     style().drawControl(QStyle::CE_CheckBox, p, this, irect, pal, flags);
-
-    drawButtonLabel(paint);
 }
 
 
-/*!\reimp
+/*!
+    Draws the check box label. Called from paintEvent().
+
+    \sa drawBevel()
 */
-void QCheckBox::drawButtonLabel(QPainter *p)
+void QCheckBox::drawLabel(QPainter *p)
 {
     QRect r =
         QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxContents, this), this);
@@ -204,36 +227,32 @@ void QCheckBox::drawButtonLabel(QPainter *p)
         flags |= QStyle::Style_HasFocus;
     if (isDown())
         flags |= QStyle::Style_Down;
-    if (state() == QButton::On)
-        flags |= QStyle::Style_On;
-    else if (state() == QButton::Off)
-        flags |= QStyle::Style_Off;
-    else if (state() == QButton::NoChange)
+    if (d->tristate && d->noChange)
         flags |= QStyle::Style_NoChange;
+    else
+        flags |= d->checked ? QStyle::Style_On : QStyle::Style_Off;
 
     style().drawControl(QStyle::CE_CheckBoxLabel, p, this, r, palette(), flags);
 }
 
-/*!
-  \reimp
-*/
-void QCheckBox::resizeEvent(QResizeEvent *e)
-{
-    QButton::resizeEvent(e);
-    if (isVisible()) {
-    if(!qt_checkbox_painter_pix)
-        qt_checkbox_painter_pix = new QPixmap(1, 1);
-    QPainter p(qt_checkbox_painter_pix, this);
-    QSize isz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, false,
-                                 pixmap(), text()).size();
-    QSize wsz = (style().sizeFromContents(QStyle::CT_CheckBox, this, isz).
-                 expandedTo(QApplication::globalStrut()));
+/*
+  Paints the button, by first calling drawBevel() and then
+  drawLabel(). If you reimplement paintEvent() in order to draw a
+  different label only, you can call drawBevel() from your code.
 
-    update(wsz.width(), isz.width(), 0, wsz.height());
-    }
-    if (autoMask())
-        updateMask();
+  \code
+    QPainter p(this);
+    drawBevel(&p);
+    // ... your label drawing code
+  \endcode
+*/
+void QCheckBox::paintEvent(QPaintEvent *)
+{
+    QPainter p(this);
+    drawBevel(&p);
+    drawLabel(&p);
 }
+
 
 /*!
   \reimp
@@ -274,5 +293,39 @@ bool QCheckBox::hitButton(const QPoint &pos) const
     }
     return r.contains(pos);
 }
+
+/*!\reimp*/
+void QCheckBox::checkStateSet()
+{
+    d->noChange = false;
+    emit stateChanged(state());
+}
+
+/*!\reimp*/
+void QCheckBox::nextCheckState()
+{
+    if (d->tristate)
+        setState((ToggleState)((state() + 1) % 3));
+    else
+        QAbstractButton::nextCheckState();
+}
+
+#ifdef QT_COMPAT
+QCheckBox::QCheckBox(QWidget *parent, const char* name)
+    : QAbstractButton (*new QCheckBoxPrivate, parent)
+{
+    setObjectName(name);
+    d->init();
+}
+
+QCheckBox::QCheckBox(const QString &text, QWidget *parent, const char* name)
+    : QAbstractButton (*new QCheckBoxPrivate, parent)
+{
+    setObjectName(name);
+    d->init();
+    setText(text);
+}
+
+#endif
 
 #endif

@@ -16,36 +16,26 @@
 #define QTOOLBUTTON_H
 
 #ifndef QT_H
-#include "qbutton.h"
-#include "qstring.h"
-#include "qpixmap.h"
-#include "qiconset.h"
+#include "qabstractbutton.h"
 #endif // QT_H
 
 #ifndef QT_NO_TOOLBUTTON
 
 class QToolButtonPrivate;
 class QToolBar;
-class QPopupMenu;
+class QMenu;
 
-class Q_GUI_EXPORT QToolButton : public QButton
+class Q_GUI_EXPORT QToolButton : public QAbstractButton
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QToolButton);
     Q_ENUMS(TextPosition)
 
-    Q_PROPERTY(QIconSet iconSet READ iconSet WRITE setIconSet)
-    Q_PROPERTY(QIconSet onIconSet READ onIconSet WRITE setOnIconSet DESIGNABLE false STORED false)
-    Q_PROPERTY(QIconSet offIconSet READ offIconSet WRITE setOffIconSet DESIGNABLE false STORED false)
     Q_PROPERTY(bool usesBigPixmap READ usesBigPixmap WRITE setUsesBigPixmap)
     Q_PROPERTY(bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel)
-    Q_PROPERTY(QString textLabel READ textLabel WRITE setTextLabel)
     Q_PROPERTY(int popupDelay READ popupDelay WRITE setPopupDelay)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
     Q_PROPERTY(TextPosition textPosition READ textPosition WRITE setTextPosition)
-
-    Q_OVERRIDE(bool toggleButton WRITE setToggleButton)
-    Q_OVERRIDE(bool on WRITE setOn)
-    Q_OVERRIDE(QPixmap pixmap DESIGNABLE false STORED false)
     Q_OVERRIDE(BackgroundMode backgroundMode DESIGNABLE true)
 
 public:
@@ -55,10 +45,11 @@ public:
         Right = BesideIcon, // obsolete
         Under = BelowIcon // obsolete
     };
-    QToolButton(QWidget * parent=0, const char* name=0);
+    QToolButton(QWidget * parent=0);
+
 #ifndef QT_NO_TOOLBAR
     QToolButton(const QIconSet& s, const QString &textLabel,
-                 const QString& grouptext,
+                 const QString& statusTip,
                  QObject * receiver, const char* slot,
                  QToolBar * parent=0, const char* name=0);
 #endif
@@ -68,85 +59,62 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-#ifdef QT_COMPAT
-    QT_COMPAT void setOnIconSet(const QIconSet&);
-    QT_COMPAT void setOffIconSet(const QIconSet&);
-    QT_COMPAT void setIconSet(const QIconSet &, bool on);
-    QT_COMPAT QIconSet onIconSet() const;
-    QT_COMPAT QIconSet offIconSet() const;
-    QT_COMPAT QIconSet iconSet(bool on) const;
-#endif
-    virtual void setIconSet(const QIconSet &);
-    QIconSet iconSet() const;
 
-    bool usesBigPixmap() const { return ubp; }
-    bool usesTextLabel() const { return utl; }
-    QString textLabel() const { return tl; }
+    bool usesBigPixmap() const;
+    bool usesTextLabel() const;
 
-#ifndef QT_NO_POPUPMENU
-    void setPopup(QPopupMenu* popup);
-    QPopupMenu* popup() const;
+    void setMenu(QMenu* menu);
+    QMenu* menu() const;
+    void openMenu();
 
     void setPopupDelay(int delay);
     int popupDelay() const;
-
-    void openPopup();
-#endif
 
     void setAutoRaise(bool enable);
     bool autoRaise() const;
     TextPosition textPosition() const;
 
-    void setText(const QString &txt);
-
 public slots:
     virtual void setUsesBigPixmap(bool enable);
     virtual void setUsesTextLabel(bool enable);
-    virtual void setTextLabel(const QString &, bool);
-
-    virtual void setToggleButton(bool enable);
-
-    virtual void setOn(bool enable);
-    void toggle();
-    void setTextLabel(const QString &);
     void setTextPosition(TextPosition pos);
 
 protected:
     void mousePressEvent(QMouseEvent *);
-    void drawButton(QPainter *);
-    void drawButtonLabel(QPainter *);
+    void drawBevel(QPainter *);
+    void drawLabel(QPainter *);
+    void paintEvent(QPaintEvent *);
 
     void enterEvent(QEvent *);
     void leaveEvent(QEvent *);
-    void moveEvent(QMoveEvent *);
-    void changeEvent(QEvent *);
+    void timerEvent(QTimerEvent *);
 
-    // ### Make virtual in 4.0, maybe act like QPushButton with
-    // regards to setFlat() instead?  Andy
-    virtual bool uses3D() const;
+    bool uses3D() const;
 
     bool eventFilter(QObject *o, QEvent *e);
 
-private slots:
-    void popupTimerDone();
-    void popupPressed();
-
 private:
-    void init();
+    Q_PRIVATE_SLOT(void popupPressed())
+    void popupTimerDone();
 
-    QPixmap bp;
-    int bpID;
-    QPixmap sp;
-    int spID;
 
-    QString tl;
-
-    QToolButtonPrivate *d;
-    QIconSet *s;
-
-    uint utl : 1;
-    uint ubp : 1;
-    uint hasArrow : 1;
+#ifdef QT_COMPAT
+public:
+    QToolButton(QWidget * parent, const char* name);
+    inline QT_COMPAT void setPixmap(const QPixmap &pixmap) { setIcon(pixmap); }
+    QT_COMPAT void setOnIconSet(const QIconSet&);
+    QT_COMPAT void setOffIconSet(const QIconSet&);
+    QT_COMPAT void setIconSet(const QIconSet &, bool on = true);
+    inline QT_COMPAT void setTextLabel(const QString &text, bool tooltip = true) { setText(text); if (tooltip)setToolTip(text);}
+    inline QT_COMPAT QString textLabel() const { return text(); }
+    QT_COMPAT QIconSet onIconSet() const;
+    QT_COMPAT QIconSet offIconSet() const;
+    QT_COMPAT QIconSet iconSet(bool on) const;
+    inline QT_COMPAT QIconSet iconSet() const { return icon(); }
+    inline QT_COMPAT void openPopup()  { openMenu(); }
+    inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
+    inline QT_COMPAT QMenu* popup() const { return menu(); }
+#endif
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
