@@ -109,11 +109,11 @@ public:
 		     const QBrush *fill = 0 ) = 0;
 
     QRect bevelButtonRect( int x, int y, int w, int h); // virtual 3.0
-    
+
     virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
-    
+
     QRect toolButtonRect(  int x, int y, int w, int h); // virtual 3.0
 
     virtual void drawPanel( QPainter *p, int x, int y, int w, int h,
@@ -229,9 +229,9 @@ public:
     QSize scrollBarExtent();
     int buttonDefaultIndicatorWidth() const;
     int toolBarHandleExtend() const; // ######### make virtual
-    void drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation, // #### make virtual
+    void drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
 			    bool highlight, const QColorGroup &cg,
-			    bool drawBorder = FALSE );
+			    bool drawBorder = FALSE ); // #### make virtual
 
 
 protected:
