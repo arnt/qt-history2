@@ -262,7 +262,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    GetClientRect( id, &cr );
 	}
 
- 	if ( topLevel ){
+	if ( topLevel ){
 	    // one cannot trust cr.left and cr.top, use a correction POINT instead
 	    POINT pt;
 	    pt.x = 0;
@@ -271,17 +271,16 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
  	    crect = QRect( QPoint(pt.x, pt.y),
  			   QPoint(pt.x+cr.right, pt.y+cr.bottom) );
 
-	    ftop = crect.top() - fr.top;
-	    fleft = crect.left() - fr.left;
-	    fbottom = fr.bottom - crect.bottom();
-	    fright = fr.right - crect.right();
+	    QTLWExtra *top = topData();
+	    top->ftop = crect.top() - fr.top;
+	    top->fleft = crect.left() - fr.left;
+	    top->fbottom = fr.bottom - crect.bottom();
+	    top->fright = fr.right - crect.right();
 	    fstrut_dirty = FALSE;
 
 	    createTLExtra();
  	} else {
 	    crect.setCoords( cr.left, cr.top, cr.right, cr.bottom );
-	    ftop = fleft = fbottom = fright = 0;
-	    fstrut_dirty = FALSE;
 	    // in case extra data already exists (eg. reparent()).  Set it.
 	}
     }
@@ -786,9 +785,9 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 void QWidget::showWindow()
 {
     if ( testWFlags(WStyle_Tool) || isPopup() ) {
-	QSize fSize = frameSize();
+	QRect fRect = frameGeometry();
 	SetWindowPos( winId(), 0,
-		      crect.left() - fleft, crect.top() - ftop, fSize.width(), fSize.height(),
+		      fRect.x(), fRect.y(), fRect.width(), fRect.height(),
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
     }
     else {
@@ -1249,6 +1248,12 @@ void QWidget::setMask( const QRegion &region )
     CombineRgn(wr, region.handle(), 0, RGN_COPY);
     RECT cr;
     GetClientRect( winId(), &cr );
+
+    int fleft = 0, ftop = 0;
+    if (isTopLevel()) {
+	ftop = topData()->ftop;
+	fleft = topData()->fleft;
+    }
     OffsetRgn(wr, fleft, ftop );
     SetWindowRgn( winId(), wr, TRUE );
 }
@@ -1258,6 +1263,12 @@ void QWidget::setMask( const QBitmap &bitmap )
     HRGN wr = qt_win_bitmapToRegion(bitmap);
     RECT cr;
     GetClientRect( winId(), &cr );
+
+    int fleft = 0, ftop = 0;
+    if (isTopLevel()) {
+	ftop = topData()->ftop;
+	fleft = topData()->fleft;
+    }
     OffsetRgn(wr, fleft, ftop );
     SetWindowRgn( winId(), wr, TRUE );
 }
@@ -1290,8 +1301,8 @@ void QWidget::updateFrameStrut() const
     pt.y = 0;
 
     ClientToScreen( winId(), &pt );
-    crect = QRect( QPoint( pt.x, pt.y ),
- 		   QPoint( pt.x + cr.right, pt.y + cr.bottom ) );
+    that->crect = QRect( QPoint( pt.x, pt.y ),
+ 			 QPoint( pt.x + cr.right, pt.y + cr.bottom ) );
 
     QTLWExtra *top = that->topData();
     top->ftop = crect.top() - fr.top;
