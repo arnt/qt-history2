@@ -2415,5 +2415,4 @@ void QWidget::resetInputContext()
 */
 void QWidget::macWidgetChangedWindow()
 {
-    qt_mac_unicode_reset_input(this);
 }
