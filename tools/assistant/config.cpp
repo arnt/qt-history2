@@ -247,7 +247,11 @@ void Config::saveProfile( Profile *profile, bool changed )
 {
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    const QString profKey = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/Profile/" + profile->props["name"] + "/";
+    const QString key = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
+    QString lastProfile = settings.readEntry( key + "LastProfile" );
+    if ( lastProfile.isEmpty() )
+	settings.writeEntry( key + "LastProfile", profile->props["name"] );
+    const QString profKey = key + "Profile/" + profile->props["name"] + "/";
     settings.writeEntry( profKey, changed );
     settings.writeEntry( profKey + "AppIcon", profile->props["applicationicon"] );
     settings.writeEntry( profKey + "AboutMenuText", profile->props["aboutmenutext"] );
