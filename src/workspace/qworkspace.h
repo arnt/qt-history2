@@ -76,7 +76,7 @@ public:
     void setPaletteBackgroundColor( const QColor & );
     void setPaletteBackgroundPixmap( const QPixmap & );
 
-    enum WindowMode { Yes, No, Default };
+    enum WindowMode { WS_TopLevel, WS_MDI, WS_Default };
     void setWindowMode(WindowMode);
     WindowMode windowMode() const;
 

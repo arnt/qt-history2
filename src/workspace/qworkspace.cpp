@@ -227,7 +227,7 @@ public:
     int yoffset, xoffset;
 
     // toplevel mdi fu
-    QWorkspace::WindowMode toplevel;
+    QWorkspace::WindowMode wmode;
     QGuardedPtr<QMainWindow> mainwindow;
     QPtrList<QDockWindow> dockwindows;
 };
@@ -247,7 +247,7 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
     d->py = 0;
     d->becomeActive = 0;
     d->autoFocusChange = FALSE;
-    d->toplevel = Default;
+    d->wmode = WS_Default;
     d->mainwindow = 0;
 #if defined(Q_WS_WIN)
     d->popup = new QPopupMenu( this, "qt_internal_mdi_popup" );
@@ -426,7 +426,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	emit windowActivated( 0 );
 	return;
     }
-    if ( d->toplevel != Yes && !isVisibleTo( 0 ) ) {
+    if ( d->wmode != WS_TopLevel && !isVisibleTo( 0 ) ) {
 	d->becomeActive = w;
 	return;
     }
@@ -493,7 +493,7 @@ QWidget* QWorkspace::activeWindow() const
 
 void QWorkspace::place( QWidget* w)
 {
-    if(d->toplevel == Yes && w->isTopLevel())
+    if(d->wmode == WS_TopLevel && w->isTopLevel())
 	return;
 
     int overlap, minOverlap = 0;
@@ -815,14 +815,13 @@ void QWorkspace::showEvent( QShowEvent *e )
     /* This is all magic, be carefull when playing with this code - this tries to allow people to 
        use QWorkspace as a high level abstraction for window management, but removes enforcement that
        QWorkspace be used as an MDI. */
-    if(d->toplevel == Default) {
-	d->toplevel = No;
-//#if defined( Q_WS_MACX ) && !defined( QMAC_QMENUBAR_NO_NATIVE )
-#if 1
+    if(d->wmode == WS_Default) {
+	d->wmode = WS_MDI;
+#if defined( Q_WS_MACX ) && !defined( QMAC_QMENUBAR_NO_NATIVE )
 	QWidget *o = topLevelWidget();
 	if(o->inherits("QMainWindow")) {
 	    d->mainwindow = (QMainWindow*)o;
-	    d->toplevel = Yes;
+	    d->wmode = WS_TopLevel;
 	    const QObjectList *c = o->children();
 	    for(QObjectListIt it(*c); it; ++it) {
 		if((*it)->isWidgetType() && !((QWidget *)(*it))->isTopLevel() &&
@@ -831,14 +830,14 @@ void QWorkspace::showEvent( QShowEvent *e )
 		   !(*it)->inherits("QDockArea") && !(*it)->inherits("QWorkspace") &&
 		   !(*it)->inherits("QMenuBar") &&
 		   !(*it)->inherits("QStatusBar") && !(*it)->inherits("QSizeHandle")) {
-		    d->toplevel = No;
+		    d->wmode = WS_MDI;
 		    break;
 		}
 	    }
 	}
 #endif
     }
-    if(d->toplevel == Yes) {
+    if(d->wmode == WS_TopLevel) {
 	QWidget *o = topLevelWidget();
 	const QObjectList *c = o->children();
 	for(QObjectListIt it(*c); it; ++it) {	
@@ -1702,7 +1701,7 @@ void QWorkspace::tile()
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 				  const char *name )
     : QFrame( parent, name,
-	      (parent->windowMode() == QWorkspace::Yes ? WType_TopLevel : 0 ) | WStyle_Customize | 
+	      (parent->windowMode() == QWorkspace::WS_TopLevel ? WType_TopLevel : 0 ) | WStyle_Customize | 
 	      WStyle_MinMax | WStyle_SysMenu | WDestructiveClose | WNoMousePropagation | WSubWindow )
 {
     statusbar = 0;
@@ -1806,7 +1805,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
     widgetResizeHandler->setExtraHeight( th + 1 );
-    if(parent->windowMode() == QWorkspace::Yes && isTopLevel())
+    if(parent->windowMode() == QWorkspace::WS_TopLevel && isTopLevel())
 	widgetResizeHandler->setActive( FALSE );
 }
 
@@ -1820,7 +1819,7 @@ bool QWorkspaceChild::event( QEvent *e )
 {
     switch(e->type()) {
     case QEvent::WindowDeactivate:
-	if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::Yes && statusbar) {
+	if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::WS_TopLevel && statusbar) {
 	    QSize newsize(width(), height() - statusbar->height());
 	    if(statusbar->parentWidget() == this)
 		statusbar->hide();
@@ -1830,7 +1829,7 @@ bool QWorkspaceChild::event( QEvent *e )
 	break;
     case QEvent::WindowActivate:
 	activate();
-	if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::Yes && 
+	if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::WS_TopLevel && 
 	   ((QWorkspace*) parentWidget() )->d->mainwindow) 
 	    setStatusBar( ((QWorkspace*) parentWidget() )->d->mainwindow->statusBar() );
 	break;
@@ -1842,7 +1841,7 @@ bool QWorkspaceChild::event( QEvent *e )
 
 void QWorkspaceChild::setStatusBar( QStatusBar *sb ) 
 {
-    if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::Yes) {
+    if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::WS_TopLevel) {
 	QSize newsize;
 	if(sb) {
 	    sb->show();
@@ -2349,7 +2348,7 @@ void QWorkspaceChild::internalRaise()
 	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
 	     c->raise();
     }
-    if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::Yes && isTopLevel())
+    if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::WS_TopLevel && isTopLevel())
 	setActiveWindow();
 
     setUpdatesEnabled( TRUE );
@@ -2543,14 +2542,39 @@ void QWorkspace::scrollBarChanged()
     updateWorkspace();
 }
 
+/*!
+    \enum QWorkspace::WindowMode
+
+    Determines the Windowing Model QWorkspace will use for sub-windows.
+
+    \value WS_TopLevel
+    \value WS_MDI
+    \value WS_Default
+*/
+
+/*!
+   Returns the windowing model of the QWorkspace. The windowing model
+   influences how the subwindows are actually created, for most platforms
+   the default behavior of a workspace is to operate in WS_MDI mode,
+   however Macintosh does not use MDI, in place of MDI QWorkspace will try
+   to manage windows as WS_TopLevel windows.
+
+   \sa QWorkspace::WindowMode, setWindowMode()
+*/
 QWorkspace::WindowMode QWorkspace::windowMode() const
 {
-    return d->toplevel;
+    return d->wmode;
 }
 
+/*!
+  Settings the windowing model of the workspace to \e m. This will default
+  to WS_Default, which will allow the platform to decide what windowing model to choose.
+
+  \sa QWorkspace::WindowMode, windowMode()
+*/
 void QWorkspace::setWindowMode(QWorkspace::WindowMode m)
 {
-    d->toplevel = m;
+    d->wmode = m;
 }
 
 #ifndef QT_NO_STYLE
