@@ -73,9 +73,9 @@ struct QLineEditPrivate : public Qt
 	: q(q), cursor(0), cursorTimer(0), tripleClickTimer(0), frame(1),
 	  cursorVisible(0), separator(0), readOnly(0), modified(0),
 	  direction(QChar::DirON), dragEnabled(1), alignment(0),
-	  echoMode(0),  textDirty(0), selDirty(0), validInput(1),
-	  maxLength(32767), menuId(0),
-	  hscroll(0),  validator(0),  maskData(0),
+	  echoMode(0), textDirty(0), selDirty(0), validInput(1),
+	  ascent(0), maxLength(32767), menuId(0),
+	  hscroll(0), validator(0), maskData(0),
 	  undoState(0), selstart(0), selend(0),
 	  imstart(0), imend(0), imselstart(0), imselend(0)
 #ifndef QT_NO_DRAGANDDROP
@@ -102,6 +102,7 @@ struct QLineEditPrivate : public Qt
     uint textDirty : 1;
     uint selDirty : 1;
     uint validInput : 1;
+    int ascent;
     int maxLength;
     int menuId;
     int hscroll;
@@ -1797,7 +1798,8 @@ void QLineEdit::drawContents( QPainter *p )
     } else if ( widthUsed - d->hscroll < lineRect.width() ) {
 	d->hscroll = widthUsed - lineRect.width() + 1;
     }
-    QPoint topLeft = lineRect.topLeft() - QPoint(d->hscroll,0);
+    // the y offset is there to keep the baseline constant in case we have script changes in the text.
+    QPoint topLeft = lineRect.topLeft() - QPoint(d->hscroll, d->ascent-fm.ascent());
 
     // draw text, selections and cursors
     p->setPen( cg.text() );
@@ -2137,7 +2139,7 @@ void QLineEditPrivate::updateTextLayout()
     textLayout.beginLine( INT_MAX );
     while ( !textLayout.atEnd() )
 	textLayout.addCurrentItem();
-    textLayout.endLine();
+    textLayout.endLine(0, 0, Qt::AlignLeft, &ascent);
 }
 
 int QLineEditPrivate::xToPos( int x, QTextItem::CursorPosition betweenOrOn ) const
