@@ -1257,10 +1257,14 @@ void QWidgetPrivate::setWindowIcon_sys(const QPixmap &pixmap)
                 CGImageRelease(ir);
             }
         }
-        if(pixmap.isNull())
+        if(pixmap.isNull()) {
             RemoveWindowProxy(qt_mac_window_for(q));
-        else
-            SetWindowProxyIcon(qt_mac_window_for(q), qt_mac_create_iconref(pixmap));
+        } else {
+            WindowClass wclass;
+            GetWindowClass((WindowPtr)qt_mac_window_for(q), &wclass);
+            if(wclass == kDocumentWindowClass)
+                SetWindowProxyIcon(qt_mac_window_for(q), qt_mac_create_iconref(pixmap));
+        }
     }
 }
 
