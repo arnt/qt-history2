@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#574 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#575 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -75,9 +75,6 @@
 
 #ifndef X11R4
 #include <X11/Xlocale.h>
-#if (XlibSpecificationRelease < 6 )
-#define NO_X11R6_XIM
-#endif
 #endif
 
 #if defined(_OS_IRIX_)
@@ -745,16 +742,8 @@ static Visual *find_truecolor_visual( Display *dpy, int *depth, int *ncols )
 extern "C" {
 #endif
 
-#if !defined(NO_XIM) && !defined(NO_X11R6_XIM)
-    
-#ifdef _OS_LINUX_
-//################ XFree86 has a buggy Xlib.h ############################
-//################ it is wrong to test for    ############################
-//################ Linux, but what can we do? ############################
-static void xim_create_callback(Display* /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)
-#else    
+#ifdef USE_X11R6_XIM
 static void xim_create_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)    
-#endif
 {
     QApplication::create_xim();
 }
@@ -762,7 +751,9 @@ static void xim_create_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*c
 static void xim_destroy_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)
 {
     QApplication::close_xim();
-    XRegisterIMInstantiateCallback(appDpy,0,0,0,xim_create_callback,0);
+    
+    XRegisterIMInstantiateCallback(appDpy,0,0,0,(XIMProc)xim_create_callback,0);
+
 }
 #endif
 
@@ -781,9 +772,9 @@ void QApplication::create_xim()
     qt_xim = XOpenIM( appDpy, 0, 0, 0 );
 
 	if ( qt_xim ) {
-#ifndef NO_X11R6_XIM
+#ifdef USE_X11R6_XIM
 		XIMCallback	destroy;
-		destroy.callback=xim_destroy_callback;
+		destroy.callback=(XIMProc)xim_destroy_callback;
 		destroy.client_data=NULL;
 		if (XSetIMValues(qt_xim,XNDestroyCallback,&destroy,NULL)!=NULL)
 			qWarning( "Xlib dosn't support destroy callback");
@@ -836,8 +827,8 @@ void QApplication::create_xim()
 			  "  See InputMethod documentation.");
 		close_xim();
 	    } else {
-#ifndef NO_X11R6_XIM
-		XUnregisterIMInstantiateCallback(appDpy,0,0,0,(XIDProc )create_xim,0);		
+#ifdef USE_X11R6_XIM
+		XUnregisterIMInstantiateCallback(appDpy,0,0,0,(XIMProc )create_xim,0);		
 #endif
 		QWidgetList *list= qApp->topLevelWidgets();
 		QWidgetListIt it(*list);
@@ -1109,17 +1100,17 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	if (ximServer) ximServerName.prepend("@im=");
 	if ( !XSupportsLocale() )
 	    qDebug("Qt: Locales not supported on X server");
-#ifdef NO_X11R6_XIM
-	else if ( XSetLocaleModifiers ("") == NULL )
-	    qDebug("Qt: Cannot set locale modifiers");
-	else if ( !noxim )
-	    QApplication::create_xim(); //###????
-#else
+#ifdef USE_X11R6_XIM
 	else if ( ximServer && XSetLocaleModifiers (ximServerName.ascii()) == NULL )
 	    qDebug("Qt: Cannot set locale modifiers: %s",ximServerName.ascii());
 	else if ( !noxim )
 	    XRegisterIMInstantiateCallback(appDpy,0,0,0,
-			       (XIDProc )QApplication::create_xim, 0);
+			       (XIMProc )QApplication::create_xim, 0);
+#else
+	else if ( XSetLocaleModifiers ("") == NULL )
+	    qDebug("Qt: Cannot set locale modifiers");
+	else if ( !noxim )
+	    QApplication::create_xim();
 #endif	
 #endif
 	// Always use the locale codec, since we have no examples of non-local

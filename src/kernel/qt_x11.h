@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_x11.h#8 $
+** $Id: //depot/qt/main/src/kernel/qt_x11.h#9 $
 **
 ** Includes X11 system header files.
 **
@@ -34,11 +34,20 @@
 
 #include "qwindowdefs.h"
 #define	 GC GC_QQQ
+#define XRegisterIMInstantiateCallback qt_XRegisterIMInstantiateCallback
+#define XUnregisterIMInstantiateCallback qt_XUnregisterIMInstantiateCallback
+#define XSetIMValues qt_XSetIMValues
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 #include <X11/extensions/shape.h>
+
+#undef XRegisterIMInstantiateCallback
+#undef XUnregisterIMInstantiateCallback
+#undef XSetIMValues
+
 
 //#define QT_NO_SHAPE
 #ifdef QT_NO_SHAPE
@@ -71,4 +80,40 @@ typedef char *XPointer;
 #endif
 
 
+
+#if !defined(NO_XIM) && (XlibSpecificationRelease >= 6 )
+#define USE_X11R6_XIM
+
+
+
+//######### XFree86 has wrong declarations for XRegisterIMInstantiateCallback
+//######### and XUnregisterIMInstantiateCallback
+//######### Many old X11R6 header files lack XSetIMValues
+//######### Therefore, we have to declare these functions ourselves.
+
+extern "C" Bool XRegisterIMInstantiateCallback(
+    Display*,
+    struct _XrmHashBucketRec*,
+    char*,
+    char*,
+    XIMProc, //XFree86 has XIDProc, which has to be wrong
+    XPointer
+);
+
+extern "C" Bool XUnregisterIMInstantiateCallback(
+    Display*,
+    struct _XrmHashBucketRec*,
+    char*,
+    char*,
+    XIMProc, //XFree86 has XIDProc, which has to be wrong
+    XPointer
+);
+
+extern "C" char *XSetIMValues( XIM /* im */, ... );
+
+
+#endif
+
+
 #endif // QT_X11_H
+
