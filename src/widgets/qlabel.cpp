@@ -55,13 +55,13 @@ class QLabelPrivate
 {
 public:
     QLabelPrivate()
-	:img(0), pix(0), valid_hints( FALSE )
+	:img(0), pix(0), valid_hints( -1 )
     {}
     QImage* img; // for scaled contents
     QPixmap* pix; // for scaled contents
     QSize sh;
     QSize msh;
-    uint valid_hints;
+    int valid_hints; // stores the frameWidth() for the stored size hint, -1 otherwise
 };
 
 
@@ -588,10 +588,7 @@ QSize QLabel::sizeForWidth( int w ) const
 	if ( tryWidth && br.height() < 2*fm.lineSpacing() && br.width() > w/4 )
 	    br = fm.boundingRect( 0, 0, w/4, 2000, alignment(), text() );
 	// adjust so "Yes" and "yes" will have the same height
-	int h = fm.lineSpacing();
-	if( h <= 0 ) // for broken fonts...
-	    h = 14;
-	br.setHeight( ((br.height() + h-1) / h)*h - fm.leading() );
+	br.setHeight( QMAX( br.height(), fm.lineSpacing() ) );
     }
     int wid = br.width() + hm + 2*fw;
     int hei = br.height() + vm + 2*fw;
@@ -621,7 +618,7 @@ int QLabel::heightForWidth( int w ) const
 */
 QSize QLabel::sizeHint() const
 {
-    if ( !d->valid_hints )
+    if ( d->valid_hints != frameWidth() )
 	(void) minimumSizeHint();
     return d->sh;
 }
@@ -632,10 +629,10 @@ QSize QLabel::sizeHint() const
 
 QSize QLabel::minimumSizeHint() const
 {
-    if ( d->valid_hints )
+    if ( d->valid_hints == frameWidth() )
 	return d->msh;
 
-    d->valid_hints = TRUE;
+    d->valid_hints = frameWidth();
     d->sh = sizeForWidth( -1 );
     QSize sz( -1, -1 );
 
@@ -837,7 +834,7 @@ void QLabel::drawContents( QPainter *p )
 
 void QLabel::updateLabel( QSize oldSizeHint )
 {
-    d->valid_hints = FALSE;
+    d->valid_hints = -1;
     QSizePolicy policy = sizePolicy();
     bool wordBreak = align & WordBreak;
     policy.setHeightForWidth( wordBreak );
