@@ -389,9 +389,9 @@ extern bool qt_is_gui_used;
 static void mac_default_handler( const char *msg )
 {
     if ( qt_is_gui_used ) {
-	const char *p = p_str(msg);
+	const unsigned char *p = p_str(msg);
 	DebugStr(p);
-	free(p);
+	free((void*)p);
     } else {
 	fprintf( stderr, msg );
     }
