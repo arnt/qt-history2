@@ -48,21 +48,22 @@ What´s New
 <td>
 <ul>
 <li> <a href="aboutqt.html" >About Qt</a>
-<li> <a href="porting.html">  Porting from Qt 1.x to Qt 2.0</a>
-<li> <a href="commonproblems.html">  Common Problems</a>
+<li> <a href="commonproblems.html">Common Problems</a>
+<li> <a href="buyhowto.html">How to buy Qt</a>
 </ul>
 </td>
 <td valign=top>
 <ul>
-<li> <a href="tutorial.html">  Tutorial</a>
-<li> <a href="simple-application.html">  Walkthrough</a>
-<li> <a href="examples.html">  Examples</a>
+<li> <a href="tutorial.html">Tutorial</a>
+<li> <a href="simple-application.html">Walkthrough</a>
+<li> <a href="examples.html">Examples</a>
 </ul>
 </td>
 <td valign=top>
 <ul>
 <li> <a href="keyfeatures21.html">  Key Features in Qt-2.1</a>
 <li> <a href="changes21.html">  Detailed Changes Notes</a>
+<li> <a href="porting.html">  Porting from Qt 1.x to Qt 2.0</a>
 </ul>
 </td>
 </tr>
@@ -118,7 +119,6 @@ Appendix
 <ul>
 <li> <a href="troll.html"> About Troll Tech</a>
 <li> <a href="bughowto.html"> How to report a bug</a>
-<li> <a href="buyhowto.html"> How to buy Qt</a>
 <li> <a href="mailinglists.html"> Mailing List Information</a>
 </ul>
 </td>
@@ -130,7 +130,7 @@ Appendix
 <td valign=top>
 <ul>
 <li> <a href="accelerators.html">  Standard Accelerators</a>
-<li> <a href="license.html">  License Agreement</a>
+<li> <a href="license.html"> Qt Free Edition License</a>
 <li> <a href="credits.html"> Credits</a>
 </ul>
 </td>

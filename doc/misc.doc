@@ -28,22 +28,37 @@
 
 <h1 align=center>About Qt</h1>
 
-<p>Qt is a multiplatform C++ GUI toolkit from <a
-href="troll.html">Troll Tech</a>.  It provides single-source
-portability across Windows 95/98/NT/2000, Linux, Solaris, HP-UX and
-many other versions of Unix with X11.
+<p>Qt is a cross-platform C++ GUI application framework. It provides
+application developers with all the functionality needed to build
+state-of-the-art graphical user interfaces. Qt is fully
+object-oriented, easily extensible, and allows true component
+programming. It is supported on Windows 95/98/NT/2000, Linux, Sun
+Solaris, HP-UX, Digital Unix, IBM AIX, SGI IRIX and a wide range of
+other platforms. Since the commercial introduction of Qt in early
+1996, Qt has formed the basis of many hundreds of successful
+applications worldwide. Qt is also the basis of the popular KDE Linux
+desktop environment, included in all major Linux distributions.
 
-<p><strong>Qt Professional Edition</strong> is provided for commercial
+<p>Qt is a product of <a href="troll.html">Troll Tech</a>.
+
+<p>Qt is released under two different licenses:
+
+<dl>
+<dd><b>Qt Professional Edition</b> is provided for commercial
 software development. It includes free upgrades and Technical Support
 Service. For the latest prices, please see the Troll Tech web site, <a
 href="http://www.troll.no/pricing.html">Pricing and Availability</a>
 page, or contact <a href="mailto:sales@troll.no">sales@troll.no</a>.
 
-<p><strong>Qt Free Edition</strong> is the Unix/X11 version of Qt
-available for development of <em>free software</em> only. It is
-provided free of charge under the <a href="license.html">Qt Free
-Edition License</a>. The latest version is available for <a
+<p>
+
+<dd><b>Qt Free Edition</strong> is the Unix/X11 version of Qt
+available for development of <em>free/Open Source software</em>
+only. It is provided free of charge under the <a
+href="license.html">Qt Free Edition License</a>. The latest version is
+available for <a
 href="http://www.troll.no/dl/qtfree-dl.html">download</a>.
+</dl>
 */
 
 /*! \page commonproblems.html
@@ -102,7 +117,28 @@ TODO: copy from changes21 file
 
 <h1 align=center>How-To Report A Bug</h1>
 
-TODO
+<p>If you think you have found a bug in Qt, we would like to hear
+about it so we can fix it.
+
+<p>Before reporting a bug, please check the <a
+href="http://www.troll.no/faq/">FAQs</a> and <a
+href="http://www.troll.no/platforms/">Platform Notes</a> on our web
+site to see if the issue is already known.
+
+<p>Always include the following information in your bug report:
+<nl>
+<li>The name and version number of your compiler
+<li>The name and version number of your operating system
+<li>The version of Qt you are using, and what configure options it was compiled with.
+</nl>
+
+<p>If the problem you are reporting is only visible run-time, try to
+include a small test program that shows the problem when run. Often,
+such a program can be made by simply doing some minor changes to one
+of the many example programs in the <tt>qt/examples</tt> directory.
+
+<p>Please send the bug report to <a
+href="mailto:qt-bugs@troll.no">qt-bugs@troll.no</a>.
 */
 
 /*! \page buyhowto.html
@@ -112,7 +148,10 @@ TODO
 
 <h1 align=center>How-To Buy Qt</h1>
 
-TODO
+Please see the <a href="http://www.troll.no/purchase/">Purchasing
+information</a> and <a href="http://www.troll.no/pricing.html">price
+list</a> on the Troll Tech web site.
+
 */
 
 
