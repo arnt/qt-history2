@@ -1677,8 +1677,8 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 
     for ( int i = start; i < end; i++ ) {
 	QTextItem ti;
-	ti.item = i;
-	ti.engine = &engine;
+	ti.itm = i;
+	ti.eng = &engine;
 
 	drawTextItem( x, y - ascent, ti, textFlags );
     }
@@ -1698,10 +1698,10 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 	    return;
     }
 
-    QTextEngine *engine = ti.engine;
-    QScriptItem *si = &engine->items[ti.item];
+    QTextEngine *engine = ti.eng;
+    QScriptItem *si = &engine->items[ti.itm];
 
-    engine->shape( ti.item );
+    engine->shape( ti.itm );
     QFontEngine *fe = si->fontEngine;
     assert( fe );
 
