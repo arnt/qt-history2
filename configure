@@ -188,6 +188,29 @@ else
 		Desc=Professional
 		Edition=pro
 	    fi
+	    # example key: ProductKey=WXME-15483B4E-9BE1A581
+	    if [ -z "$ProductKey" ]
+	    then
+		echo 
+		echo "You are using an old license file."
+		echo
+		echo "Please install the license file supplied by Trolltech,"
+		echo "or install the Qt Free Edition if you intend to develop"
+		echo "free software."
+		exit 1
+	    else
+		plats=`echo $ProductKey | sed -e s,-.*$,,`
+		if ! echo $plats | grep >/dev/null 'X'
+		then
+		    echo
+		    echo "You are not licensed for the X11 platform."
+ 		    echo
+		    echo "Please contact sales@trolltech.com to upgrade your license"
+		    echo "to include the X11 platform, or install the Qt Free Edition"
+		    echo "if you intend to develop free software."
+		    exit 1
+		fi
+	    fi
         else
 	    echo
 	    echo "\"$HOME/.qt-license\" not found"
