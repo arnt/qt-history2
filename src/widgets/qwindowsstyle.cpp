@@ -106,7 +106,7 @@ void QWindowsStyle::drawIndicator( QPainter* p,
 	if ( s == QButton::NoChange ) {
 	    p->setPen( g.dark() );
 	} else {
-	    p->setPen( g.foreground() );
+	    p->setPen( g.text() );
 	}
 	p->drawLineSegments( a );
     }
@@ -325,7 +325,7 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
     p->drawPolygon( a );
     if ( on ) {
 	p->setPen( NoPen );
-	p->setBrush( g.foreground() );
+	p->setBrush( g.text() );
 	p->drawRect( x+5, y+4, 2, 4 );
 	p->drawRect( x+4, y+5, 4, 2 );
     }
@@ -341,7 +341,6 @@ QWindowsStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y, int w, int
 {
     QColorGroup g(color1, color1, color1, color1, color1, color1, color1, color1, color0);
     drawExclusiveIndicator(p , x, y, w, h, g, FALSE, FALSE, FALSE );
-    //p->fillRect(x, y, w, h, color1);
 }
 
 

@@ -536,7 +536,7 @@ void QPalette::setBrush( QColorGroup::ColorRole r, const QBrush &b )
 
 QPalette QPalette::copy() const
 {
-    QPalette p( data->normal, data->disabled, data->active );
+    QPalette p( data->active, data->disabled, data->inactive );
     return p;
 }
 
@@ -642,9 +642,9 @@ void QPalette::setInactive( const QColorGroup &g )
 
 bool QPalette::operator==( const QPalette &p ) const
 {
-    return data->normal == p.data->normal &&
+    return data->active == p.data->active &&
 	   data->disabled == p.data->disabled &&
-	   data->active == p.data->active;
+	   data->inactive == p.data->inactive;
 }
 
 

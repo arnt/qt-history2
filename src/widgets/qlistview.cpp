@@ -1355,9 +1355,9 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	if ( (child->expandable || child->childCount()) &&
 	     (child->height() > 0) ) {
 	    // needs a box
-	    p->setPen( cg.foreground() );
+	    p->setPen( cg.text() );
 	    p->drawRect( bx-4, linebot-4, 9, 9 );
-	    p->setPen( cg.foreground() ); // ### windows uses black
+	    p->setPen( cg.text() ); // ### windows uses black
 	    if ( s == WindowsStyle ) {
 		// plus or minus
 		p->drawLine( bx - 2, linebot, bx + 2, linebot );
@@ -1373,7 +1373,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		    a.setPoints( 3, bx-2, linebot-2,
 				 bx+2, linebot,
 				 bx-2, linebot+2 ); //DownArrow
-		p->setBrush( cg.foreground() );
+		p->setBrush( cg.text() );
 		p->drawPolygon( a );
 		p->setBrush( NoBrush );
 	    }
@@ -1467,7 +1467,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	}
     } else {
 	int line; // index into dotlines
-	p->setPen( cg.foreground() );
+	p->setPen( cg.text() );
 	for( line = 0; line < c; line += 2 ) {
 	    p->drawLine( dotlines[line].x(), dotlines[line].y(),
 			 dotlines[line+1].x(), dotlines[line+1].y() );

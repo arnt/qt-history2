@@ -591,7 +591,7 @@ void qDrawItem( QPainter *p, Qt::GUIStyle gs,
 		const QPixmap *pixmap,
 		const QString& text, int len , const QColor* penColor )
 {
-    p->setPen( penColor?*penColor:g.text() );
+    p->setPen( penColor?*penColor:g.foreground() );
     if ( pixmap ) {
 	QPixmap  pm( *pixmap );
 	bool clip = (flags & Qt::DontClip) == 0;

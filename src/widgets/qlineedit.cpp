@@ -683,7 +683,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	}
 	// ... x += w;
 
-	p.setPen( g.foreground() );
+	p.setPen( g.text() );
 
 	d->cursorRepaintRect.setTop( y + (frame() ? 2 : 0) - fm.ascent() );
 	d->cursorRepaintRect.setHeight( fm.height() );

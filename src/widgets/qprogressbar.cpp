@@ -392,7 +392,7 @@ void QProgressBar::drawContents( QPainter *p )
 	qDrawShadePanel( p, r, colorGroup(), TRUE, 1 );
 
 	// ### This part changes every percentage change.
-	p->setPen( colorGroup().text() );
+	p->setPen( colorGroup().foreground() );
 	p->fillRect( r.x()+r.width(), bar.y(), textw, bar.height(),
 		     colorGroup().brush(QColorGroup::Background ) );
 	p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
@@ -408,10 +408,10 @@ void QProgressBar::drawContents( QPainter *p )
 
 	    p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
 	}
-	if ( progress_val != total_steps )
+	if ( progress_val != total_steps )	
 	    p->fillRect( bar, colorGroup().brush( style()==MotifStyle ?
 		QColorGroup::Background : QColorGroup::Base ) );
-	p->setPen( colorGroup().text() );
+	p->setPen( style()==MotifStyle? colorGroup().foreground() : colorGroup().text() );
 	p->drawText( bar, AlignCenter, progress_str );
     }
 }

@@ -393,17 +393,17 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
     }
 
    if ( t->enabled && isEnabled()  ) {
-	p->setPen( colorGroup().text() );
+	p->setPen( colorGroup().foreground() );
 	p->drawText( r, AlignCenter | ShowPrefix, t->label );
     } else if ( style() == MotifStyle ) {
-	p->setPen( palette().disabled().text() );
+	p->setPen( palette().disabled().foreground() );
 	p->drawText( r, AlignCenter | ShowPrefix, t->label );
     } else { // Windows style, disabled
 	p->setPen( colorGroup().light() );
 	QRect wr = r;
 	wr.moveBy( 1, 1 );
 	p->drawText( wr, AlignCenter | ShowPrefix, t->label );
-	p->setPen( palette().disabled().text() );
+	p->setPen( palette().disabled().foreground() );
 	p->drawText( r, AlignCenter | ShowPrefix, t->label );
     }
 
