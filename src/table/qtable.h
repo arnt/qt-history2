@@ -212,10 +212,10 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QPtrVector<QTableItem>;
-template class Q_EXPORT QPtrVector<QWidget>;
-template class Q_EXPORT QPtrList<QTableSelection>;
-template class Q_EXPORT QIntDict<int>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrVector<QTableItem>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrVector<QWidget>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QTableSelection>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QIntDict<int>;
 // MOC_SKIP_END
 #endif
 

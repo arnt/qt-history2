@@ -59,8 +59,8 @@ class QDockAreaPrivate;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QValueList<QRect>;
-template class Q_EXPORT QPtrList<QDockWindow>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList<QRect>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QDockWindow>;
 // MOC_SKIP_END
 #endif
 

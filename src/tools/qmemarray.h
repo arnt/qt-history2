@@ -110,8 +110,8 @@ public:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QMemArray<int>;
-template class Q_EXPORT QMemArray<bool>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<int>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<bool>;
 // MOC_SKIP_END
 #endif
 

@@ -45,7 +45,7 @@
 
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QMemArray<QPoint>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<QPoint>;
 #endif
 
 class Q_EXPORT QPointArray : public QMemArray<QPoint>

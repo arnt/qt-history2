@@ -715,10 +715,13 @@ extern bool qt_winunicode;
 #    endif
 #    define Q_EXPORT  __declspec(dllexport)
 #    define Q_TEMPLATEDLL
+#    define Q_TEMPLATE_EXTERN
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  elif defined(QT_DLL)		/* use a Qt DLL library */
 #    define Q_EXPORT  __declspec(dllimport)
 #    define Q_TEMPLATEDLL
+#    define Q_TEMPLATE_EXTERN extern
+#    pragma warning(disable: 4231) // nonstandard extension used : 'extern' before template explicit instantiation
 #    undef  Q_DISABLE_COPY	/* avoid unresolved externals */
 #  endif
 #else

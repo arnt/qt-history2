@@ -260,7 +260,7 @@ struct Q_EXPORT QAccessibleFactoryInterface : public QAccessible, public QFeatur
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QGuardedPtr<QObject>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QGuardedPtr<QObject>;
 // MOC_SKIP_END
 #endif
 

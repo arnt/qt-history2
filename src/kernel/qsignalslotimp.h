@@ -46,8 +46,8 @@
 
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QPtrList<QConnection>;
-template class Q_EXPORT QPtrListIterator<QConnection>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QConnection>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrListIterator<QConnection>;
 #endif
 
 
@@ -71,8 +71,8 @@ public:
 
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QAsciiDict<QConnectionList>;
-template class Q_EXPORT QAsciiDictIterator<QConnectionList>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QAsciiDict<QConnectionList>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QAsciiDictIterator<QConnectionList>;
 #endif
 
 

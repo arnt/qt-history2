@@ -46,8 +46,8 @@
 
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QPtrList<char>;
-template class Q_EXPORT QPtrListIterator<char>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<char>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrListIterator<char>;
 #endif
 
 #if defined(Q_QDOC)

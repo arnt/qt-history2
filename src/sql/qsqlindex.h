@@ -54,7 +54,7 @@
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QValueList<bool>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList<bool>;
 // MOC_SKIP_END
 #endif
 

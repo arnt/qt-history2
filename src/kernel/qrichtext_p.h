@@ -162,7 +162,7 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QMemArray<QTextStringChar>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<QTextStringChar>;
 // MOC_SKIP_END
 #endif
 
@@ -237,9 +237,9 @@ inline QChar::Direction QTextString::direction() const
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QValueStack<int>;
-template class Q_EXPORT QValueStack<QTextParag*>;
-template class Q_EXPORT QValueStack<bool>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QValueStack<int>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QValueStack<QTextParag*>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QValueStack<bool>;
 // MOC_SKIP_END
 #endif
 
@@ -357,7 +357,7 @@ protected:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QPtrList<QTextCommand>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QTextCommand>;
 // MOC_SKIP_END
 #endif
 
@@ -447,7 +447,7 @@ public:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QMap<QString, QString>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<QString, QString>;
 // MOC_SKIP_END
 #endif
 
@@ -502,7 +502,7 @@ private:
 #ifndef QT_NO_TEXTCUSTOMITEM
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QPtrList<QTextCustomItem>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QTextCustomItem>;
 // MOC_SKIP_END
 #endif
 #endif
@@ -620,8 +620,8 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QPtrList<QTextTableCell>;
-template class Q_EXPORT QMap<QTextCursor*, int>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QTextTableCell>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<QTextCursor*, int>;
 // MOC_SKIP_END
 #endif
 
@@ -699,10 +699,10 @@ struct Q_EXPORT QTextDocumentSelection
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QMap<int, QColor>;
-template class Q_EXPORT QMap<int, bool>;
-template class Q_EXPORT QMap<int, QTextDocumentSelection>;
-template class Q_EXPORT QPtrList<QTextDocument>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QColor>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, bool>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QTextDocumentSelection>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QTextDocument>;
 // MOC_SKIP_END
 #endif
 
@@ -1132,8 +1132,8 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QMap<int, QTextParagSelection>;
-template class Q_EXPORT QMap<int, QTextParagLineStart*>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QTextParagSelection>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QTextParagLineStart*>;
 // MOC_SKIP_END
 #endif
 
@@ -1571,7 +1571,7 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QDict<QTextFormat>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QDict<QTextFormat>;
 // MOC_SKIP_END
 #endif
 

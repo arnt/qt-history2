@@ -60,7 +60,7 @@
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QDict<QLibrary>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QDict<QLibrary>;
 // MOC_SKIP_END
 #endif
 

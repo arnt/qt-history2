@@ -171,10 +171,10 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-template class Q_EXPORT QDict<QStyleSheetItem>;
-template class Q_EXPORT QValueList< QPtrVector<QStyleSheetItem> >;
-template class Q_EXPORT QPtrVector<QStyleSheetItem>;
-template class Q_EXPORT QValueList<QStyleSheetItem::ListStyle>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QDict<QStyleSheetItem>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList< QPtrVector<QStyleSheetItem> >;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrVector<QStyleSheetItem>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList<QStyleSheetItem::ListStyle>;
 // MOC_SKIP_END
 #endif
 

@@ -102,7 +102,7 @@ Q_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
  *****************************************************************************/
 
 #if defined(Q_TEMPLATEDLL)
-template class Q_EXPORT QMemArray<char>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<char>;
 #endif
 
 #if defined(Q_QDOC)
