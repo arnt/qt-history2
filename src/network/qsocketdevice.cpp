@@ -57,6 +57,15 @@ QSocketDevicePrivate::QSocketDevicePrivate()
     \sa QSocket, QSocketNotifier, QHostAddress
 */
 
+
+/*!
+    \enum QSocketDevice::Family
+
+    \value Auto
+    \value Ipv4
+    \value Ipv6
+*/
+
 /*!
     \enum QSocketDevice::Error
 
@@ -150,8 +159,8 @@ QSocketDevice::QSocketDevice( Type type )
     reliable, connection-oriented TCP socket, or \c
     QSocketDevice::Datagram for an unreliable UDP socket.
 
-    \a family decides wether the socket should be of type Ipv4 or
-    Ipv6.
+    The \a family indicates whether the socket should be of type Ipv4
+    or Ipv6. (The \a dummy integer is for internal use.)
 
     \sa blocking()
 */
@@ -207,11 +216,19 @@ QSocketDevice::Type QSocketDevice::type() const
     return t;
 }
 
+/*!
+    Returns the socket type, which is one of \c Auto, \c Ipv4, or \c
+    Ipv6.
+*/
 QSocketDevice::Family QSocketDevice::family() const
 {
     return d->family;
 }
 
+/*!
+    Sets the socket type. The \a family must be one of \c Auto, \c
+    Ipv4, or \c Ipv6.
+*/
 void QSocketDevice::setFamily( Family family )
 {
     d->family = family;
