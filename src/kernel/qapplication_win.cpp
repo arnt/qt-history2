@@ -3761,6 +3761,8 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    return animate_tooltip;
 	case UI_FadeTooltip:
 	    return fade_tooltip;
+	case UI_AnimateToolBox:
+	    return animate_toolbox;
 	default:
 	    return animate_ui;
 	}
