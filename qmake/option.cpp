@@ -608,12 +608,7 @@ Option::fixString(QString string, uchar flags)
         string = string.replace('\\', '/');
 #endif
     } else if(flags & Option::FixPathToTargetSeparators) {
-        if(Option::target_mode == TARG_MAC9_MODE)
-            string = string.replace('/', Option::dir_sep).replace('\\', Option::dir_sep);
-        else if(Option::target_mode == TARG_WIN_MODE)
-            string = string.replace('/', Option::dir_sep);
-        else
-            string = string.replace('\\', Option::dir_sep);
+        string = string.replace('/', Option::dir_sep).replace('\\', Option::dir_sep);
     }
 
     //cache
