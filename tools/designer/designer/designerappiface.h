@@ -87,10 +87,11 @@ private:
 
 };
 
+#ifndef QT_NO_SQL
 class DesignerDatabaseImpl: public DesignerDatabase
 {
 public:
-    DesignerDatabaseImpl( Project::DatabaseConnection *d );
+    DesignerDatabaseImpl( DatabaseConnection *d );
 
     QString name() const;
     void setName( const QString & );
@@ -111,9 +112,10 @@ public:
     void open() const;
     void close() const;
 private:
-    Project::DatabaseConnection *db;
+    DatabaseConnection *db;
 
 };
+#endif
 
 class DesignerFormWindowImpl: public DesignerFormWindow
 {

@@ -28,31 +28,33 @@
 #include <qsqldatabase.h>
 
 /*
- *  Constructs a DatabaseConnection which is a child of 'parent', with the
+ *  Constructs a DatabaseConnectionEditor which is a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'
  *
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  TRUE to construct a modal dialog.
  */
-DatabaseConnection::DatabaseConnection( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
+DatabaseConnectionEditor::DatabaseConnectionEditor( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
     : DatabaseConnectionBase( parent, name, modal, fl ), project( pro )
 {
-    QList<Project::DatabaseConnection> lst = project->databaseConnections();
-    for ( Project::DatabaseConnection *conn = lst.first(); conn; conn = lst.next() )
-	listConnections->insertItem( conn->name );
+#ifndef QT_NO_SQL
+    QList<DatabaseConnection> lst = project->databaseConnections();
+    for ( DatabaseConnection *conn = lst.first(); conn; conn = lst.next() )
+	listConnections->insertItem( conn->name() );
     comboDriver->insertStringList( QSqlDatabase::drivers() );
+#endif
     enableAll( FALSE );
 }
 
-DatabaseConnection::~DatabaseConnection()
+DatabaseConnectionEditor::~DatabaseConnectionEditor()
 {
 }
 
-void DatabaseConnection::deleteConnection()
+void DatabaseConnectionEditor::deleteConnection()
 {
 }
 
-void DatabaseConnection::newConnection()
+void DatabaseConnectionEditor::newConnection()
 {
     enableAll( TRUE );
     listConnections->clearSelection();
@@ -60,20 +62,21 @@ void DatabaseConnection::newConnection()
     editName->setText( "(default)" ); // #### only if we don't have already a default connection
 }
 
-void DatabaseConnection::doConnect()
+void DatabaseConnectionEditor::doConnect()
 {
+#ifndef QT_NO_SQL
     if ( listConnections->currentItem() == -1 ) { // new connection
 	// ### do error checking for duplicated connection names
-	Project::DatabaseConnection *conn = new Project::DatabaseConnection( project );
-	conn->name = editName->text();
-	conn->driver = comboDriver->lineEdit()->text();
-	conn->dbName = comboDatabase->lineEdit()->text();
-	conn->username = editUsername->text();
-	conn->password = editPassword->text();
-	conn->hostname = editHostname->text();
+	DatabaseConnection *conn = new DatabaseConnection( project );
+	conn->setName( editName->text() );
+	conn->setDriver( comboDriver->lineEdit()->text() );
+	conn->setDatabase( comboDatabase->lineEdit()->text() );
+	conn->setUsername( editUsername->text() );
+	conn->setPassword( editPassword->text() );
+	conn->setHostname( editHostname->text() );
 	if ( conn->refreshCatalog() ) {
 	    project->addDatabaseConnection( conn );
-	    listConnections->insertItem( conn->name );
+	    listConnections->insertItem( conn->name() );
 	    listConnections->setCurrentItem( listConnections->count() - 1 );
 	    project->saveConnections();
 	} else {
@@ -81,46 +84,49 @@ void DatabaseConnection::doConnect()
 	    delete conn;
 	}
     } else { // sync // ### should this do something else? right now it just overwrites all info about the connection...
-	Project::DatabaseConnection *conn = project->databaseConnection( listConnections->currentText() );
-	conn->name = editName->text();
-	conn->driver = comboDriver->lineEdit()->text();
-	conn->dbName = comboDatabase->lineEdit()->text();
-	conn->username = editUsername->text();
-	conn->password = editPassword->text();
-	conn->hostname = editHostname->text();
+	DatabaseConnection *conn = project->databaseConnection( listConnections->currentText() );
+	conn->setName( editName->text() );
+	conn->setDriver( comboDriver->lineEdit()->text() );
+	conn->setDatabase( comboDatabase->lineEdit()->text() );
+	conn->setUsername( editUsername->text() );
+	conn->setPassword( editPassword->text() );
+	conn->setHostname( editHostname->text() );
 	conn->refreshCatalog();
 	project->saveConnections();
     }
+#endif
 }
 
 static bool blockChanges = FALSE;
 
-void DatabaseConnection::currentConnectionChanged( const QString &s )
+void DatabaseConnectionEditor::currentConnectionChanged( const QString &s )
 {
-    Project::DatabaseConnection *conn = project->databaseConnection( s );
+#ifndef QT_NO_SQL
+    DatabaseConnection *conn = project->databaseConnection( s );
     blockChanges = TRUE;
     enableAll( (bool)conn );
     blockChanges = FALSE;
     if ( !conn)
 	return;
     blockChanges = TRUE;
-    editName->setText( conn->name );
+    editName->setText( conn->name() );
     blockChanges = FALSE;
-    comboDriver->lineEdit()->setText( conn->driver );
-    comboDatabase->lineEdit()->setText( conn->dbName );
-    editUsername->setText( conn->username );
-    editPassword->setText( conn->password );
-    editHostname->setText( conn->hostname );
+    comboDriver->lineEdit()->setText( conn->driver() );
+    comboDatabase->lineEdit()->setText( conn->database() );
+    editUsername->setText( conn->username() );
+    editPassword->setText( conn->password() );
+    editHostname->setText( conn->hostname() );
+#endif
 }
 
-void DatabaseConnection::connectionNameChanged( const QString &s )
+void DatabaseConnectionEditor::connectionNameChanged( const QString &s )
 {
     if ( listConnections->currentItem() == -1 || blockChanges )
 	return;
     listConnections->changeItem( s, listConnections->currentItem() );
 }
 
-void DatabaseConnection::enableAll( bool b )
+void DatabaseConnectionEditor::enableAll( bool b )
 {
     editName->setEnabled( b );
     editName->setText( "" );

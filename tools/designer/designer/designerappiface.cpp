@@ -195,9 +195,11 @@ void DesignerProjectImpl::setupDatabases() const
 QList<DesignerDatabase> DesignerProjectImpl::databaseConnections() const
 {
     QList<DesignerDatabase> lst;
-    QList<Project::DatabaseConnection> conns = project->databaseConnections();
-    for ( Project::DatabaseConnection *d = conns.first(); d; d = conns.next() )
+#ifndef QT_NO_SQL
+    QList<DatabaseConnection> conns = project->databaseConnections();
+    for ( DatabaseConnection *d = conns.first(); d; d = conns.next() )
 	lst.append( d->iFace() );
+#endif
     return lst;
 }
 
@@ -235,15 +237,15 @@ QString DesignerProjectImpl::customSetting( const QString &key ) const
 
 
 
-
-DesignerDatabaseImpl::DesignerDatabaseImpl( Project::DatabaseConnection *d )
+#ifndef QT_NO_SQL
+DesignerDatabaseImpl::DesignerDatabaseImpl( DatabaseConnection *d )
     : db( d )
 {
 }
 
 QString DesignerDatabaseImpl::name() const
 {
-    return db->name;
+    return db->name();
 }
 
 void DesignerDatabaseImpl::setName( const QString & )
@@ -252,7 +254,7 @@ void DesignerDatabaseImpl::setName( const QString & )
 
 QString DesignerDatabaseImpl::driver() const
 {
-    return db->driver;
+    return db->driver();
 }
 
 void DesignerDatabaseImpl::setDriver( const QString & )
@@ -261,7 +263,7 @@ void DesignerDatabaseImpl::setDriver( const QString & )
 
 QString DesignerDatabaseImpl::database() const
 {
-    return db->dbName;
+    return db->database();
 }
 
 void DesignerDatabaseImpl::setDatabase( const QString & )
@@ -270,7 +272,7 @@ void DesignerDatabaseImpl::setDatabase( const QString & )
 
 QString DesignerDatabaseImpl::userName() const
 {
-    return db->username;
+    return db->username();
 }
 
 void DesignerDatabaseImpl::setUserName( const QString & )
@@ -279,7 +281,7 @@ void DesignerDatabaseImpl::setUserName( const QString & )
 
 QString DesignerDatabaseImpl::password() const
 {
-    return db->password;
+    return db->password();
 }
 
 void DesignerDatabaseImpl::setPassword( const QString & )
@@ -288,7 +290,7 @@ void DesignerDatabaseImpl::setPassword( const QString & )
 
 QString DesignerDatabaseImpl::hostName() const
 {
-    return db->hostname;
+    return db->hostname();
 }
 
 void DesignerDatabaseImpl::setHostName( const QString & )
@@ -297,12 +299,12 @@ void DesignerDatabaseImpl::setHostName( const QString & )
 
 QStringList DesignerDatabaseImpl::tables() const
 {
-    return db->tables;
+    return db->tables();
 }
 
 QMap<QString, QStringList> DesignerDatabaseImpl::fields() const
 {
-    return db->fields;
+    return db->fields();
 }
 
 void DesignerDatabaseImpl::open() const
@@ -322,7 +324,7 @@ void DesignerDatabaseImpl::setFields( const QMap<QString, QStringList> & )
 void DesignerDatabaseImpl::setTables( const QStringList & )
 {
 }
-
+#endif
 
 
 

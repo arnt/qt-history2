@@ -1736,6 +1736,7 @@ void PropertyDatabaseItem::createChildren()
 
 void PropertyDatabaseItem::initChildren()
 {
+#ifndef QT_NO_SQL
     PropertyItem *item = 0;
     QStringList lst = value().toStringList();
     QString conn, table;
@@ -1789,6 +1790,7 @@ void PropertyDatabaseItem::initChildren()
 		item->setCurrentItem( 0 );
 	}
     }
+#endif
 }
 
 PropertyDatabaseItem::~PropertyDatabaseItem()
@@ -1831,6 +1833,7 @@ bool PropertyDatabaseItem::hasSubItems() const
 
 void PropertyDatabaseItem::childValueChanged( PropertyItem *c )
 {
+#ifndef QT_NO_SQL
     QStringList lst;
     lst << ( (PropertyListItem*)PropertyItem::child( 0 ) )->currentItem()
 	<< ( (PropertyListItem*)PropertyItem::child( 1 ) )->currentItem();
@@ -1853,6 +1856,7 @@ void PropertyDatabaseItem::childValueChanged( PropertyItem *c )
 	lst << ( (PropertyListItem*)PropertyItem::child( 2 ) )->currentItem();
     setValue( lst );
     notifyValueChange();
+#endif
 }
 
 // --------------------------------------------------------------

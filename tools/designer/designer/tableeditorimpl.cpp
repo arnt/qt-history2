@@ -16,12 +16,16 @@
 TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw, const char* name, bool modal, WFlags fl )
     : TableEditorBase( parent, name, modal, fl ), editTable( (QTable*)editWidget ), formWindow( fw )
 {
+    labelColumnPixmap->setText( "" );
+    labelRowPixmap->setText( "" );
+
     if ( !editTable->inherits( "QDataTable" ) ) {
 	labelFields->hide();
 	comboFields->hide();
 	labelTable->hide();
 	labelTableValue->hide();
     }
+#ifndef QT_NO_SQL
     if ( editTable->inherits( "QDataTable" ) ) {
 	// ## why does this behave weird?
 	//	TabWidget->removePage( rows_tab );
@@ -29,9 +33,6 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
 	// ## do this in the meantime...
 	TabWidget->setTabEnabled( rows_tab, FALSE );
     }
-
-    labelColumnPixmap->setText( "" );
-    labelRowPixmap->setText( "" );
 
     if ( formWindow->project() && editTable->inherits( "QDataTable" ) ) {
 	QStringList lst = MetaDataBase::fakeProperty( editTable, "database" ).toStringList();
@@ -44,6 +45,7 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
 	if ( !lst[ 1 ].isEmpty() )
 	    labelTableValue->setText( lst[ 1 ] );
     }
+#endif
 
     readFromTable();
 }

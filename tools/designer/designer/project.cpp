@@ -36,6 +36,90 @@
 #include <qdatatable.h>
 #endif
 
+
+#ifndef QT_NO_SQL
+DatabaseConnection::~DatabaseConnection()
+{
+    delete iface;
+}
+
+bool DatabaseConnection::refreshCatalog()
+{
+#ifndef QT_NO_SQL
+    if ( loaded )
+	return TRUE;
+    if ( !open() )
+	return FALSE;
+    tbls = conn->tables();
+    flds.clear();
+    for ( QStringList::Iterator it = tbls.begin(); it != tbls.end(); ++it ) {
+	QSqlRecord fil = conn->record( *it );
+	QStringList lst;
+	for ( uint j = 0; j < fil.count(); ++j )
+	    lst << fil.field( j )->name();
+	flds.insert( *it, lst );
+    }
+    loaded = TRUE;
+    conn->close();
+    return loaded;
+#else
+    return FALSE;
+#endif
+}
+
+bool DatabaseConnection::open()
+{
+#ifndef QT_NO_SQL
+    // register our name, if nec
+    if ( nm == "(default)" ) {
+	if ( !QSqlDatabase::contains() ) // default doesn't exists?
+	    conn = QSqlDatabase::addDatabase( drv );
+	else
+	    conn = QSqlDatabase::database();
+    } else {
+	if ( !QSqlDatabase::contains( nm ) )
+	    conn = QSqlDatabase::addDatabase( drv, nm );
+	else
+	    conn = QSqlDatabase::database( nm );
+    }
+    conn->setDatabaseName( dbName );
+    conn->setUserName( uname );
+    conn->setPassword( pword );
+    conn->setHostName( hname );
+    bool b = conn->open();
+    if ( !b ) {
+	if ( nm == "(default)" )
+	    QSqlDatabase::removeDatabase( QSqlDatabase::defaultConnection );
+	else
+	    QSqlDatabase::removeDatabase( nm );
+    }
+    return b;
+#else
+    return FALSE;
+#endif
+}
+
+void DatabaseConnection::close()
+{
+    if ( !loaded )
+	return;
+#ifndef QT_NO_SQL
+    if ( conn )
+	conn->close();
+#endif
+}
+
+DesignerDatabase *DatabaseConnection::iFace()
+{
+    if ( !iface )
+	iface = new DesignerDatabaseImpl( this );
+    return iface;
+}
+
+#endif
+
+////////
+
 Project::Project( const QString &fn, const QString &pName, QInterfaceManager<PreferenceInterface> *pm )
     : proName( pName ), preferencePluginManager( pm )
 {
@@ -50,6 +134,19 @@ Project::~Project()
 {
     delete iface;
 }
+
+#ifndef QT_NO_SQL
+DatabaseConnection *Project::databaseConnection( const QString &name )
+{
+    for ( DatabaseConnection *conn = dbConnections.first();
+	  conn;
+	  conn = dbConnections.next() ) {
+	if ( conn->name() == name )
+	    return conn;
+    }
+    return 0;
+}
+#endif
 
 void Project::setFileName( const QString &fn, bool doClear )
 {
@@ -366,142 +463,69 @@ void Project::save()
     saveConnections();
 }
 
-QList<Project::DatabaseConnection> Project::databaseConnections() const
+#ifndef QT_NO_SQL
+QList<DatabaseConnection> Project::databaseConnections() const
 {
     return dbConnections;
 }
+#endif
 
-void Project::setDatabaseConnections( const QList<Project::DatabaseConnection> &lst )
+#ifndef QT_NO_SQL
+void Project::setDatabaseConnections( const QList<DatabaseConnection> &lst )
 {
     dbConnections = lst;
 }
+#endif
 
-void Project::addDatabaseConnection( Project::DatabaseConnection *conn )
+#ifndef QT_NO_SQL
+void Project::addDatabaseConnection( DatabaseConnection *conn )
 {
     dbConnections.append( conn );
     saveConnections();
 }
-
-Project::DatabaseConnection::~DatabaseConnection()
-{
-    delete iface;
-}
-
-Project::DatabaseConnection *Project::databaseConnection( const QString &name )
-{
-    for ( Project::DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() ) {
-	if ( conn->name == name )
-	    return conn;
-    }
-    return 0;
-}
-
-bool Project::DatabaseConnection::refreshCatalog()
-{
-#ifndef QT_NO_SQL
-    if ( loaded )
-	return TRUE;
-    if ( !open() )
-	return FALSE;
-    tables = connection->tables();
-    fields.clear();
-    for ( QStringList::Iterator it = tables.begin(); it != tables.end(); ++it ) {
-	QSqlRecord fil = connection->record( *it );
-	QStringList lst;
-	for ( uint j = 0; j < fil.count(); ++j )
-	    lst << fil.field( j )->name();
-	fields.insert( *it, lst );
-    }
-    loaded = TRUE;
-    connection->close();
-    return loaded;
-#else
-    return FALSE;
 #endif
-}
 
-bool Project::DatabaseConnection::open()
-{
 #ifndef QT_NO_SQL
-    // register our name, if nec
-    if ( name == "(default)" ) {
-	if ( !QSqlDatabase::contains() ) // default doesn't exists?
-	    connection = QSqlDatabase::addDatabase( driver );
-	else
-	    connection = QSqlDatabase::database();
-    } else {
-	if ( !QSqlDatabase::contains( name ) )
-	    connection = QSqlDatabase::addDatabase( driver, name );
-	else
-	    connection = QSqlDatabase::database( name );
-    }
-    connection->setDatabaseName( dbName );
-    connection->setUserName( username );
-    connection->setPassword( password );
-    connection->setHostName( hostname );
-    bool b = connection->open();
-    if ( !b ) {
-	if ( name == "(default)" )
-	    QSqlDatabase::removeDatabase( QSqlDatabase::defaultConnection );
-	else
-	    QSqlDatabase::removeDatabase( name );
-    }
-    return b;
-#else
-    return FALSE;
-#endif
-}
-
-void Project::DatabaseConnection::close()
-{
-    if ( !loaded )
-	return;
-#ifndef QT_NO_SQL
-    if ( connection )
-	connection->close();
-#endif
-}
-
-DesignerDatabase *Project::DatabaseConnection::iFace()
-{
-    if ( !iface )
-	iface = new DesignerDatabaseImpl( this );
-    return iface;
-}
-
 QStringList Project::databaseConnectionList()
 {
     QStringList lst;
     for ( DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() )
-	lst << conn->name;
+	lst << conn->name();
     return lst;
 }
+#endif
 
+#ifndef QT_NO_SQL
 QStringList Project::databaseTableList( const QString &connection )
 {
     DatabaseConnection *conn = databaseConnection( connection );
     if ( !conn ) {
 	return QStringList();
     }
-    return conn->tables;
+    return conn->tables();
 }
+#endif
 
+#ifndef QT_NO_SQL
 QStringList Project::databaseFieldList( const QString &connection, const QString &table )
 {
     DatabaseConnection *conn = databaseConnection( connection );
     if ( !conn )
 	return QStringList();
-    return conn->fields[ table ];
-    return QStringList();
+    return conn->fields( table );
 }
+#endif
 
+#ifndef QT_NO_SQL
 static QString makeIndent( int indent )
 {
     QString s;
     s.fill( ' ', indent * 4 );
     return s;
 }
+#endif
 
+#ifndef QT_NO_SQL
 static void saveSingleProperty( QTextStream &ts, const QString& name, const QString& value, int indent )
 {
     ts << makeIndent( indent ) << "<property name=\"" << name << "\">" << endl;
@@ -510,10 +534,14 @@ static void saveSingleProperty( QTextStream &ts, const QString& name, const QStr
     --indent;
     ts << makeIndent( indent ) << "</property>" << endl;
 }
+#endif
 
+#ifndef QT_NO_SQL
 static bool inSaveConnections = FALSE;
+#endif
 void Project::saveConnections()
 {
+#ifndef QT_NO_SQL
     if ( inSaveConnections )
 	return;
     inSaveConnections = TRUE;
@@ -531,28 +559,30 @@ void Project::saveConnections()
 
 	/* db connections */
 	int indent = 0;
-	for ( Project::DatabaseConnection *conn = dbConnections.first();
+	for ( DatabaseConnection *conn = dbConnections.first();
 	      conn;
 	      conn = dbConnections.next() ) {
 
 	    ts << makeIndent( indent ) << "<connection>" << endl;
 	    ++indent;
-	    saveSingleProperty( ts, "name", conn->name, indent );
-	    saveSingleProperty( ts, "driver", conn->driver, indent );
-	    saveSingleProperty( ts, "database", conn->dbName, indent );
-	    saveSingleProperty( ts, "username", conn->username, indent );
-	    saveSingleProperty( ts, "hostname", conn->hostname, indent );
+	    saveSingleProperty( ts, "name", conn->name(), indent );
+	    saveSingleProperty( ts, "driver", conn->driver(), indent );
+	    saveSingleProperty( ts, "database", conn->database(), indent );
+	    saveSingleProperty( ts, "username", conn->username(), indent );
+	    saveSingleProperty( ts, "hostname", conn->hostname(), indent );
 
 	    /* connection tables */
-	    for ( QStringList::Iterator it = conn->tables.begin();
-		  it != conn->tables.end(); ++it ) {
+	    QStringList tables = conn->tables();
+	    for ( QStringList::Iterator it = tables.begin();
+		  it != tables.end(); ++it ) {
 		ts << makeIndent( indent ) << "<table>" << endl;
 		++indent;
 		saveSingleProperty( ts, "name", (*it), indent );
 
 		/* tables fields */
-		for ( QStringList::Iterator it2 = conn->fields[ *it ].begin();
-		  it2 != conn->fields[ *it ].end(); ++it2 ) {
+		QStringList fields = conn->fields( *it );
+		for ( QStringList::Iterator it2 = fields.begin();
+		  it2 != fields.end(); ++it2 ) {
 		    ts << makeIndent( indent ) << "<field>" << endl;
 		    ++indent;
 		    saveSingleProperty( ts, "name", (*it2), indent );
@@ -573,8 +603,10 @@ void Project::saveConnections()
     }
 
     inSaveConnections = FALSE;
+#endif
 }
 
+#ifndef QT_NO_SQL
 static QDomElement loadSingleProperty( QDomElement e, const QString& name )
 {
     QDomElement n;
@@ -586,9 +618,11 @@ static QDomElement loadSingleProperty( QDomElement e, const QString& name )
     }
     return n;
 }
+#endif
 
 void Project::loadConnections()
 {
+#ifndef QT_NO_SQL
     if ( !QFile::exists( makeAbsolute( dbFile ) ) )
 	return;
 
@@ -612,19 +646,18 @@ void Project::loadConnections()
 		QDomElement connectionHostname = loadSingleProperty( connection,
 								     "hostname" );
 		DatabaseConnection *conn = new DatabaseConnection( this );
-		conn->name = connectionName.firstChild().firstChild().toText().data();
-		conn->driver = connectionDriver.firstChild().firstChild().toText().data();
-		conn->dbName = connectionDatabase.firstChild().firstChild().toText().data();
-		conn->username = connectionUsername.firstChild().firstChild().toText().data();
-		conn->password = "";
-		conn->hostname = connectionHostname.firstChild().firstChild().toText().data();
+		conn->setName( connectionName.firstChild().firstChild().toText().data() );
+		conn->setDriver( connectionDriver.firstChild().firstChild().toText().data() );
+		conn->setDatabase( connectionDatabase.firstChild().firstChild().toText().data() );
+		conn->setUsername( connectionUsername.firstChild().firstChild().toText().data() );
+		conn->setHostname( connectionHostname.firstChild().firstChild().toText().data() );
 
 		/* connection tables */
 		QDomNodeList tables = connection.toElement().elementsByTagName( "table" );
 		for ( uint j = 0; j <  tables.length(); j++ ) {
 		    QDomElement table = tables.item(j).toElement();
 		    QDomElement tableName = loadSingleProperty( table, "name" );
-		    conn->tables.append( tableName.firstChild().firstChild().toText().data() );
+		    conn->addTable( tableName.firstChild().firstChild().toText().data() );
 
 		    /* table fields */
 		    QStringList fieldList;
@@ -634,7 +667,7 @@ void Project::loadConnections()
 			QDomElement fieldName = loadSingleProperty( field, "name" );
 			fieldList.append( fieldName.firstChild().firstChild().toText().data() );
 		    }
-		    conn->fields.insert( tableName.firstChild().firstChild().toText().data(),
+		    conn->setFields( tableName.firstChild().firstChild().toText().data(),
 					 fieldList );
 		}
 
@@ -643,8 +676,7 @@ void Project::loadConnections()
 	}
 	f.close();
     }
-
-    return;
+#endif
 }
 
 /*! Opens the database \a connection.  The connection remains open and
@@ -653,24 +685,30 @@ can be closed again with closeDatabase().
 
 bool Project::openDatabase( const QString &connection )
 {
+#ifndef QT_NO_SQL
     DatabaseConnection *conn = databaseConnection( connection );
     if ( connection.isEmpty() && !conn )
 	conn = databaseConnection( "(default)" );
     if ( !conn )
 	return FALSE;
     return conn->open();
+#else
+    return FALSE;
+#endif
 }
 
 /*! Closes the database \a connection.
 */
 void Project::closeDatabase( const QString &connection )
 {
+#ifndef QT_NO_SQL
     DatabaseConnection *conn = databaseConnection( connection );
     if ( connection.isEmpty() && !conn )
 	conn = databaseConnection( "(default)" );
     if ( !conn )
 	return;
     conn->close();
+#endif
 }
 
 void Project::formClosed( FormWindow *fw )

@@ -25,13 +25,13 @@
 
 class Project;
 
-class DatabaseConnection : public DatabaseConnectionBase
+class DatabaseConnectionEditor : public DatabaseConnectionBase
 {
     Q_OBJECT
 
 public:
-    DatabaseConnection( Project *pro, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
-    ~DatabaseConnection();
+    DatabaseConnectionEditor( Project *pro, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    ~DatabaseConnectionEditor();
 
 protected slots:
     void deleteConnection();
@@ -42,10 +42,10 @@ protected slots:
 
 private:
     void enableAll( bool b );
-    
+
 private:
     Project *project;
-    
+
 };
 
 #endif // DATABASECONNECTION_H
