@@ -998,15 +998,15 @@ QStringList qt_makeFilterList( const QString &filter )
     if ( i == -1 && filter.find( ' ', 0 ) != -1 )
 	sep = QChar( ' ' );
 
-    QStringList lst = QStringList::split( sep, filter );
-    QStringList::Iterator it = lst.begin();
-    QStringList lst2;
+    QStringList list = QStringList::split( sep, filter );
+    QStringList::Iterator it = list.begin();
+    QStringList list2;
 
-    for ( ; it != lst.end(); ++it ) {
+    for ( ; it != list.end(); ++it ) {
 	QString s = *it;
-	lst2 << s.stripWhiteSpace();
+	list2 << s.stripWhiteSpace();
     }
-    return lst2;
+    return list2;
 }
 
 /*!
