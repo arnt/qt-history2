@@ -39,6 +39,7 @@ public:
     const char* format(int n) const;
     QByteArray encodedData(const char*) const;
 
+    QList<QByteArray> formats;
     const QMimeData *data;
 };
 
