@@ -85,14 +85,14 @@ struct FunctionBlock : public ParsableBlock
     int scope_level;
     bool cause_return;
 
-    bool exec(QMakeProject *p, const QStringList &args, bool &functionReturn);
+    bool exec(QMakeProject *p, const QStringList &args, QString &functionReturn);
     virtual bool continueBlock() { return !cause_return; }
 
 protected:
     bool eval(QMakeProject *p);
 };
 
-bool FunctionBlock::exec(QMakeProject *p, const QStringList &args, bool &functionReturn)
+bool FunctionBlock::exec(QMakeProject *p, const QStringList &args, QString &functionReturn)
 {
     //save state
     return_value = "";
@@ -108,16 +108,7 @@ bool FunctionBlock::exec(QMakeProject *p, const QStringList &args, bool &functio
         p->variables()[QString::number(i+1)] = args[i];
     }
     bool ret = ParsableBlock::eval(p);
-    if(return_value.isEmpty()) {
-        functionReturn = true;
-    } else {
-        bool ok;
-        int val = return_value.toInt(&ok);
-        if(ok) 
-            functionReturn = val;
-        else 
-            functionReturn = (return_value == "true");
-    }
+    functionReturn = return_value;
     for(int i = 0; i < va.count(); i++) 
         p->variables()[QString::number(i+1)] = va[i];
     p->variables()["ARG_COUNT"] = args_old; //just to be carefull
@@ -637,7 +628,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                         } else if(iterator) {
                             iterator->test.append(IteratorBlock::Test(func, args, invert_test));
                             test = !invert_test;
-                        } else if(func == "define") {
+                        } else if(func == "defineTest" || func == "defineReplace") {
                             if(!function_blocks.isEmpty()) {
                                 fprintf(stderr, 
                                         "%s:%d: cannot define a function within another definition.\n",
@@ -645,12 +636,22 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
                                 return false;
                             }
                             if(args.count() != 1) {
-                                fprintf(stderr, "%s:%d: define(function_name) requires one arguments.\n",
-                                        parser.file.latin1(), parser.line_no);
+                                fprintf(stderr, "%s:%d: %s(function_name) requires one arguments.\n",
+                                        parser.file.latin1(), parser.line_no, func.latin1());
                                 return false;
                             }
+                            QMap<QString, FunctionBlock*> *map = 0;
+                            if(func == "defineTest")
+                                map = &testFunctions;
+                            else
+                                map = &replaceFunctions;
+                            if(!map || map->contains(args[0])) {
+                                   fprintf(stderr, "%s:%d: Function[%s] multiply defined.\n",
+                                           parser.file.latin1(), parser.line_no, args[0].latin1());
+                                   return false;
+                            }
                             function = new FunctionBlock;
-                            functions.insert(args[0], function);
+                            map->insert(args[0], function);
                             test = true;
                         } else {
                             test = doProjectTest(func, args, place);
@@ -1619,11 +1620,20 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
         if(func == "error")
             exit(2);
         return true;
-    } else if(FunctionBlock *defined = functions[func]) {
-        bool ret = true;
-        if(!defined->exec(this, args, ret)) {
+    } else if(FunctionBlock *defined = testFunctions[func]) {
+        QString ret;
+        defined->exec(this, args, ret);
+        if(ret.isEmpty()) {
+            return true;
+        } else {
+            bool ok;
+            int val = ret.toInt(&ok);
+            if(ok) 
+                return val;
+            else 
+                return (ret.toLower() == "true");
         }
-        return ret;
+        return false;
     } else {
         fprintf(stderr, "%s:%d: Unknown test function: %s\n", parser.file.latin1(), parser.line_no,
                 func.latin1());
@@ -2110,6 +2120,8 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                         replacement = t.readLine();
                     }
                 }
+            } else if(FunctionBlock *defined = replaceFunctions[val]) {
+                defined->exec(this, args, replacement);
             } else {
                 fprintf(stderr, "%s:%d: Unknown replace function: %s\n",
                         parser.file.latin1(), parser.line_no, val.latin1());

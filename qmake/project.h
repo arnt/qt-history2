@@ -45,7 +45,7 @@ class QMakeProject
     QStack<FunctionBlock *> function_blocks;
     IteratorBlock *iterator;
     FunctionBlock *function;
-    QMap<QString, FunctionBlock*> functions;
+    QMap<QString, FunctionBlock*> testFunctions, replaceFunctions;
 
     bool own_prop;
     QString pfile, cfile;
