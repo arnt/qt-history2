@@ -1550,14 +1550,6 @@ void QWidget::showMinimized()
     setWState( WState_Minimized );
 }
 
-/*!
-    \property QWidget::minimized
-    \brief whether this widget is minimized (iconified)
-
-    This property is only relevant for top-level widgets.
-
-    \sa showMinimized(), isVisible(), show(), hide(), showNormal()
- */
 bool QWidget::isMinimized() const
 {
     // true for non-toplevels that have the minimized flag, e.g. MDI children
