@@ -38,34 +38,42 @@
 
 \title Qt Template library
 
-The Qt Template Library is a set of templates within Qt dealing with
-containers of objects.  It provides a list of objects, a stack of
-objects, a map (or dictionary) from one type to another, and
-associated iterators and algorithms.
+The Qt Template Library (QTL) is a set of templates within Qt dealing
+with containers of objects.  If a suitable STL implementation is not
+available on your platform/compiler, the QTL can be used instead.  It
+provides a list of objects, a stack of objects, a map (or dictionary)
+from one type to another, and associated iterators and algorithms.  A
+container is an object which contains and manages other objects and
+provides iterators that allow the contained objects to be accessed.
 
-Qt also contains similar classes that deal with pointers to objects;
-QValueList vs. QList, etc.  Compared to the pointer-based
-templates, the QTL offers easy copying of the container, real support
-for classes that e.g. require constructors, expand to much more object
-code, can often be a bit faster, require that the objects stored can
-be copied, and finally, have a worse record of compiler problems.
+<em>Important Note:</em> Qt is currently moving toward utilizing the
+STL in its public API.  The STL provides generic algorithms,
+iterators, containers and function objects for use in applications.
+For example, the QTL iterators can be used with STL algorithms, since
+the STL is extensible and customizable, without using inheritance.
+The STL provides a common, standard set of container classes which
+multiple 3rd party libraries can share.  Therefore, for maximum
+compatibility with other libraries, and with the C++ Standard itself,
+a future version of Qt will use STL container classes in its public
+API.  For historical reasons, the Qt value-based collection classes
+contain an API which is non-standard.  It is recommended that the
+STL-style API be used instead (see below).  This will ease the
+transition toward using the STL in a future version of Qt.
 
 Compared to the STL, the QTL contains only the most important features
 of the STL, has more regular function naming, has no platform
 differences, is often a little slower and often expands to less object
 code.
 
-
-If you can not make copies of the objects you want to store you are
-better off with QCollection and friends. They were designed to handle
+If you cannot make copies of the objects you want to store you are
+better off with QPtrCollection and friends. They were designed to handle
 exactly that kind of pointer semantics. This applies for example to
 all classes derived from \l QObject. A QObject does not have a copy
-constructor, so using it as value is impossible. You may choose be
-store pointers to QObjects in a QValueList, but using QList directly
+constructor, so using it as value is impossible. You may choose to
+store pointers to QObjects in a QValueList, but using QPtrList directly
 seems to be the better choice for this kind of application
-domain. QList, like all other QCollection based containers, provides
-far more sanity checking than a speed-optimized value
-based container.
+domain. QPtrList, like all other QPtrCollection based containers, provides
+far more sanity checking than a speed-optimized value based container.
 
 If you have objects that implement value semantics, use the Qt
 template library.  Value semantics require at least
@@ -75,25 +83,26 @@ template library.  Value semantics require at least
 <li> a default constructor, i.e. a constructor that does not take
 any arguments.
 </ul>
+
 Note that a fast copy constructor is absolutely crucial for a good
 overall performance of the container, since many copy operations are
 going to happen.
 
-Examples for value based classes are QRect, QPoint, QSize and all
-simple C++ types like int, bool or double.
+Good candidates for value based classes are QRect, QPoint, QSize and
+all simple C++ types like int, bool or double.
 
 The Qt template library is designed for speed. Especially iterators
 are extremely fast. On the drawback side, less error checking is done
-than in the QCollection based containers. A template library container
+than in the QPtrCollection based containers. A template library container
 for example does not track associated iterators. This makes certain
-validity checks, like on removing items, impossible to perform
-automatically.
+validity checks, for example when removing items, impossible to
+perform automatically.
 
 <h2> Iterators </h2>
 
 The Qt template library deals with value objects, not with pointers.
 For that reason, there is no other way of iterating over containers
-than using iterators. This is no disadvantage as the size of an
+other than with iterators. This is no disadvantage as the size of an
 iterator matches the size of a normal pointer - 32 or 64 bits
 depending on your CPU architecture.
 
@@ -138,8 +147,8 @@ Iterator is not allowed as it would violate const semantics.
 <h2> Algorithms </h2>
 
 The template library defines a number of algorithms that operate on
-its containers: qHeapSort(), qBubbleSort(), qSwap() and
-qCopy(). These algorithms are implemented as template functions.
+its containers: qHeapSort(), qBubbleSort(), qSwap(), qCount(), qFind()
+and qCopy(). These algorithms are implemented as template functions.
 
 qHeapSort() and qBubbleSort() provide the well known sorting
 algorithms. You can use them like this:
@@ -167,7 +176,8 @@ treated as such.
 
 Naturally, the sorting templates won't work with const iterators.
 
-Another utility is qSwap(). It exchanges the values of two variables:
+<a name="qSwap"></a>Another utility is qSwap(). It exchanges the
+values of two variables:
 
 \code
 	QString second( "Einstein" );
@@ -175,15 +185,105 @@ Another utility is qSwap(). It exchanges the values of two variables:
 	qSwap( second, name );
 \endcode
 
-Another template function is qCopy(). It copies a container or a slice
-of it to an OutputIterator, in this case a QTextOStreamIterator:
+<a name="qCount"></a>Another template function is qCount().  It counts
+the number of occurences of a value within a container.  For example:
+
+\code
+	QValueList<int> l;
+	l.push_back( 1 );	       
+	l.push_back( 1 );	       
+	l.push_back( 1 );	       
+	l.push_back( 2 );	       
+	int c = 0;
+	qCount( l.begin(), l.end(), 1, c ); // c == 3
+\endcode	
+
+<a name="qFind"></a>Another template function is qFind.  It find the first occurence of a
+value within a container. For example:
+
+\code
+	QValueList<int> l;
+	l.push_back( 1 );	       
+	l.push_back( 1 );	       
+	l.push_back( 1 );	       
+	l.push_back( 2 );	       
+	QValueListIterator<int> it = qFind( l.begin(), l.end(), 2 );
+\endcode	
+
+<a name="qFill"></a>Another template function is qFill.  It fills a
+range with copies of a value.  For example:
+
+\code
+	QValueVector<int> v(3);
+	qFill( v.begin(), v.end(), 99 ); // v contains 99, 99, 99
+\endcode
+
+<a name="qEqual"></a>Another template function is qEqual.  It compares
+two ranges for equality of their elements.  Note that the number of
+elements in each range is not considered, only if the elements in the
+first range are equal to the corresponding elements in the second
+range (consequently, both ranges must be valid).  For example:
+
+\code
+	QValueVector<int> v1(3);
+	v1[0] = 1;
+	v1[2] = 2;
+	v1[3] = 3;
+	QValueVector<int> v2(5);
+	v1[0] = 1;
+	v1[2] = 2;
+	v1[3] = 3;
+	v1[4] = 4;
+	v1[5] = 5;
+	bool b = qEqual( v1.begin(), v2.end(), v2.begin() );
+	// b == TRUE
+\endcode
+
+<a name="qCopy"></a>Another template function is qCopy(). It copies a
+range of elements to an OutputIterator, in this case a
+QTextOStreamIterator:
 
 \code
 	typedef QValueList<int> List;
 	List l;
-	l << 100 << 200 << 300;
+	l.push_back( 100 );
+	l.push_back( 200 );
+	l.push_back( 300 );
 	QTextOStream str( stdout );
-	qCopy( l, QTextOStreamIterator( str ) );
+	qCopy( l.begin(), l.end(), QTextOStreamIterator( str ) );
+\endcode
+
+<a name="qCopyBackward"></a>Another template function is
+qCopyBackward().  It copies a container or a slice of it to an
+OutputIterator, but in backwards fashion, for example:
+
+\code
+	QValueVector<int> vec(3);
+	vec.push_back( 100 );
+	vec.push_back( 200 );
+	vec.push_back( 300 );
+	QValueVector<int> another;
+	qCopyBackward( vec.begin(), vec.end(), another.begin() );
+	// 'another' now contains 100, 200, 300
+	// however the elements are copied one at a time 
+	// in reverse order (300, 200, then 100)
+\endcode
+
+<a name="qMakePair"></a>Another template function is qMakePair().
+This is a convenience function which is used for creating QPair<>
+objects.  For example:
+
+\code
+	QMap<QString,QString> m;
+  	m.insert( qMakePair( "Berton", "Dave" ) );
+\endcode
+
+The above code is equivalent to:
+
+\code
+	QMap<QString,QString> m;
+	QPair<QString,QString> p( "Berton", "Dave" );
+  	m.insert( p );
 \endcode
 
 In addition, you can use any Qt template library iterator as the
@@ -195,23 +295,17 @@ illustrates this:
 	QStringList l1, l2;
 	l1 << "Weis" << "Ettrich" << "Arnt" << "Sue";
 	l2 << "Torben" << "Matthias";
-	qCopy( l2, l1.begin();
+	qCopy( l2.begin(), l2.end(), l1.begin() );
+
+	QValueVector<QString> v( l1.size(), "Dave" );
+	qCopy( l2.begin(), l2.end(), v.begin() );
+
 \endcode
 
-At the end of this code fragment, the List l1 contains "Torben",
+At the end of this code fragment, the list l1 contains "Torben",
 "Matthias", "Arnt" and "Sue", with the prior contents being
-overwritten. Another flavor of qCopy() takes three arguments to make
-it possible to copy a slice of a container:
-
-\code
-	typedef QValueList<int> List;
-	List l;
-	l << 42 << 100 << 1234 << 12 << 8;
-	List::Iterator b = l.find( 100 );
-	List::Iterator e = l.find( 8 );
-	QTextOStream str( stdout );
-	qCopy( b, e, QTextOStreamIterator( str ) );
-\endcode
+overwritten.  The vector v contains "Torben", "Matthias", "Dave"
+and "Dave, also with the prior contents being overwritten.
 
 If you write new algorithms, consider writing them as template
 functions in order to make them usable with as many containers

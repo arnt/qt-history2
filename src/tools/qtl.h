@@ -75,6 +75,63 @@ inline OutputIterator qCopy( InputIterator _begin, InputIterator _end,
     return _dest;
 }
 
+template <class BiIterator, class BiOutputIterator>
+inline BiOutputIterator qCopyBackward( BiIterator _begin, BiIterator _end,
+				     BiOutputIterator _dest )
+{
+    while ( _begin != _end )
+	*--_dest = *--_end;
+    return _dest;
+}
+
+template <class InputIterator1, class InputIterator2>
+inline bool qEqual( InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 )
+{
+    for ( ; first1 != last1; ++first1, ++first2 )
+	if ( *first1 != *first2 )
+	    return FALSE;
+    return TRUE;
+}
+
+template <class ForwardIterator, class T>
+inline void qFill( ForwardIterator first, ForwardIterator last, const T& val )
+{
+    for ( ; first != last; ++first )
+	*first = val;
+}
+
+#if 0
+template <class BiIterator, class OutputIterator>
+inline OutputIterator qReverseCopy( BiIterator _begin, BiIterator _end,
+				    OutputIterator _dest )
+{
+    while ( _begin != _end ) {
+	--_end;
+	*_dest = *_end;
+	++_dest;
+    }
+    return _dest;
+}
+#endif
+
+
+template <class InputIterator, class T>
+inline InputIterator qFind(InputIterator first, InputIterator last,
+			   const T& val )
+{
+    while ( first != last && *first != val )
+	++first;
+    return first;
+}
+
+template <class InputIterator, class T, class Size>
+inline void qCount( InputIterator first, InputIterator last, const T& value,
+	    Size& n )
+{
+    for ( ; first != last; ++first )
+	if ( *first == value )
+	    ++n;
+}
 
 template <class T>
 inline void qSwap( T& _value1, T& _value2 )
