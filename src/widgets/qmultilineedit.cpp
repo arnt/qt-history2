@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#23 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2427,14 +2427,10 @@ void QMultiLineEdit::setAutoUpdate( bool enable )
   Sets the fixed height of the QMultiLineEdit so that \e lines text lines
   are visible given the current font.
 
-  \sa setFixedHeight()
+  \sa setMaxLines(), setFixedHeight()
  */
 void QMultiLineEdit::setFixedVisibleLines( int lines )
 {
-    //##################### should use sizeHint instead!!!!!!!!!
-
-
-    // #### What about auto-scrollbars?
     int ls = fontMetrics().lineSpacing();
     setFixedHeight( frameWidth()*2 + ls*lines );
     return;
@@ -2555,39 +2551,94 @@ const QValidator * QMultiLineEdit::validator() const
     return mlData->val;
 }
 
+/*!
+  Moves the cursor left \a steps characters.  The traversed
+  text is marked if \a mark is TRUE.
+*/
 void QMultiLineEdit::cursorLeft( bool mark, long steps )
 {
     while ( steps-- )
 	cursorLeft( mark, TRUE );
 }
 
+/*!
+  Moves the cursor right \a steps characters.  The traversed
+  text is marked if \a mark is TRUE.
+*/
 void QMultiLineEdit::cursorRight( bool mark, long steps )
 {
     while ( steps-- )
 	cursorRight( mark, TRUE );
 }
 
+/*!  Sets the edited flag of this line edit to \a on.  The edited flag
+is never read by QMultiLineEdit, but is changed to TRUE whenever the user
+changes its contents.
+ 
+This is useful e.g. for things that need to provide a default value,
+but cannot find the default at once.  Just open the line edit without
+the best default and when the default is known, check the edited()
+return value and set the line edit's contents if the user has not
+started editing the line edit.
+ 
+\sa edited()
+*/
 void QMultiLineEdit::setEdited( bool e )
 {
     mlData->edited = e;
 }
 
+/*!  Returns the edited flag of the line edit.  If this returns FALSE,
+the contents has not been changed since the construction
+of the QMultiLineEdit (or the last call to setEdited( FALSE ), if any).  If
+it returns true, the contents have been edited, or setEdited( TRUE )
+has been called.
+ 
+\sa setEdited()
+*/
 bool QMultiLineEdit::edited() const
 {
     return mlData->edited;
 }
 
+/*!
+  Sets the echo mode to \a em.  Values are:
+
+  \define QMultiLineEdit::EchoMode
+
+  <ul>
+   <li>\c Normal - the text is displayed normally.
+   <li>\c Password - the text is replaced by a same-length sequence of *'s.
+   <li>\c NoEcho - the text is not displayed at all.
+  </ul>
+
+  The display is updated according.
+
+  \sa setEchoMode()
+*/
 void QMultiLineEdit::setEchoMode( EchoMode em )
 {
     if ( mlData->echomode != em ) {
 	mlData->echomode = em;
+	updateCellWidth();
 	update();
     }
 }
+
+/*!
+  Returns the currently set echo mode.
+
+  \sa setEchoMode()
+*/
 QMultiLineEdit::EchoMode QMultiLineEdit::echoMode() const
 {
     return mlData->echomode;
 }
+
+/*!
+  Returns the string shown at line \a row, including
+  processing of the \link setEchoMode() echo mode\endlink.
+*/
 QString QMultiLineEdit::stringShown(int row) const
 {
     QString* s = getString(row);
@@ -2609,6 +2660,12 @@ QString QMultiLineEdit::stringShown(int row) const
     return "";
 }
 
+/*!
+  Sets the maximum length of lines to \a m.  Use -1 for unlimited
+  (the default).  Existing long lines will be truncated.
+
+  \sa maxLineLength()
+*/
 void QMultiLineEdit::setMaxLineLength(int m)
 {
     bool trunc = mlData->maxllen >= 0 && mlData->maxllen < m;
@@ -2627,11 +2684,23 @@ void QMultiLineEdit::setMaxLineLength(int m)
     }
 }
 
+/*!
+  Returns the currently set line length limit, or -1 if there is
+  no limit (this is the default).
+
+  \sa setMaxLineLength()
+*/
 int QMultiLineEdit::maxLineLength() const
 {
     return mlData->maxllen;
 }
 
+/*!
+  Sets the maximum number of lines to \a m.  Use -1 for unlimited
+  (the default).  Existing excess lines will be deleted.
+
+  \sa maxLines()
+*/
 void QMultiLineEdit::setMaxLines(int m)
 {
     bool trunc = mlData->maxlines >= 0 && mlData->maxlines < m;
@@ -2649,16 +2718,29 @@ void QMultiLineEdit::setMaxLines(int m)
 	    markDragX = 0;
 	    markDragY = m;
 	}
+	while ( content->remove(m) )
+	    ;
 	updateCellWidth();
 	update();
     }
 }
 
+/*!
+  Returns the currently set line limit, or -1 if there is
+  no limit (the default).
+
+  \sa setMaxLines()
+*/
 int QMultiLineEdit::maxLines() const
 {
     return mlData->maxlines;
 }
 
+/*!
+  Sets the horizontal margin.
+
+  \sa hMargin()
+*/
 void QMultiLineEdit::setHMargin(int m)
 {
     if ( m != mlData->lr_marg ) {
@@ -2668,6 +2750,11 @@ void QMultiLineEdit::setHMargin(int m)
     }
 }
 
+/*!
+  Returns the horizontal margin current set.  The default is 3.
+
+  \sa setHMargin()
+*/
 int QMultiLineEdit::hMargin() const
 {
     return mlData->lr_marg;
