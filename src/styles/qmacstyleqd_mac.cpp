@@ -317,12 +317,12 @@ void QMacStyleQD::polish(QApplication* app)
 
 void QMacStyleQD::polish(QWidget* w)
 {
-    if(!w->isTopLevel() && ::qt_cast<QSplitter*>(w) == 0 &&
-       w->backgroundPixmap() &&
-       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap() &&
-	w->backgroundPixmap()->serialNumber() ==
-       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber())
-	w->setBackgroundOrigin(QWidget::AncestorOrigin);
+    QPixmap *bgPixmap = w->palette().brush(w->backgroundRole()).pixmap();
+    if(!w->isTopLevel() && ::qt_cast<QSplitter*>(w) == 0
+       && bgPixmap && qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()
+       && bgPixmap->serialNumber() == qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber()) {
+	// w->setBackgroundOrigin(QWidget::AncestorOrigin); // I currently do nothing.
+    }
     d->addWidget(w);
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
@@ -1127,8 +1127,8 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 
 		// If the background color is set then make the toolbutton
 		// translucent so the background color is visible
-		if (widget->paletteBackgroundColor() != white) {
-		    p->fillRect( r, widget->backgroundColor() );
+		if (widget->palette().color(widget->backgroundRole()) != white) {
+		    p->fillRect( r, widget->palette().color(widget->backgroundRole()));
 		    info.state = kThemeStateInactive;
 		}
 
@@ -1136,9 +1136,9 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		DrawThemeButton(qt_glb_mac_rect(button, p, FALSE, off_rct),
 				bkind, &info, NULL, NULL, NULL, 0);
 	    } else if(toolbutton->parentWidget() &&
-			toolbutton->parentWidget()->backgroundPixmap() &&
-			! toolbutton->parentWidget()->backgroundPixmap()->isNull()) {
-		p->drawTiledPixmap(r, *(toolbutton->parentWidget()->backgroundPixmap()),
+			toolbutton->parentWidget()->palette().brush(toolbutton->parentWidget()->backgroundRole()).pixmap() &&
+			! toolbutton->parentWidget()->palette().brush(toolbutton->parentWidget()->backgroundRole()).pixmap()->isNull()) {
+		p->drawTiledPixmap(r, *(toolbutton->parentWidget()->palette().brush(toolbutton->parentWidget()->backgroundRole()).pixmap()),
 				    toolbutton->pos());
 	    }
 	}
@@ -1167,9 +1167,9 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    ((QMacStyleQDPainter *)p)->setport();
 	    {
 		::RGBColor f;
-		f.red = widget->paletteBackgroundColor().red()*256;
-		f.green = widget->paletteBackgroundColor().green()*256;
-		f.blue = widget->paletteBackgroundColor().blue()*256;
+		f.red = widget->palette().color(widget->backgroundRole()).red()*256;
+		f.green = widget->palette().color(widget->backgroundRole()).green()*256;
+		f.blue = widget->palette().color(widget->backgroundRole()).blue()*256;
 		RGBBackColor(&f);
 	    }
 
@@ -1195,7 +1195,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 				} else {
 				    if(pm.isNull()) {
 					pm = QPixmap(mr.width()+(border*2), mr.height()+(border*2), 32);
-					pm.fill(widget->paletteBackgroundColor());
+					pm.fill(widget->palette().color(widget->backgroundRole()));
 					pm_paint.begin(&pm);
 				    }
 				    SetRect(&glb_r, border, border, mr.width(), mr.height());
@@ -1237,10 +1237,10 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    if(flags & Style_HasFocus && QMacStyle::focusRectPolicy(widget) != QMacStyle::FocusDisabled)
 		info.adornment |= kThemeAdornmentFocus;
 	    QRect updown = sw->upRect() | sw->downRect();
-	    if(sw->backgroundPixmap())
-		p->drawPixmap(updown, *sw->backgroundPixmap());
+	    if(sw->palette().brush(sw->backgroundRole()).pixmap())
+		p->drawPixmap(updown, *sw->palette().brush(sw->backgroundRole()).pixmap());
 	    else
-		p->fillRect(updown, sw->backgroundColor());
+		p->fillRect(updown, sw->palette().color(sw->backgroundRole()));
 	    ((QMacStyleQDPainter *)p)->setport();
 	    ThemeButtonKind kind = kThemeIncDecButton;
 #if QT_MACOSX_VERSION >= 0x1030
