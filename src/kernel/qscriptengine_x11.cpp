@@ -1070,89 +1070,51 @@ static const IndicOrdering * const indic_order[] = {
 
 
 // vowel matras that have to be split into two parts.
-static const unsigned short bengali_o[2]  = { 0x9c7, 0x9be };
-static const unsigned short bengali_au[2] = { 0x9c7, 0x9d7 };
+static const unsigned short split_matras[]  = {
+    //  matra, split1, split2
 
-static const unsigned short oriya_ai[2]    = { 0xb47, 0xb56 };
-static const unsigned short oriya_o[2]    = { 0xb47, 0xb3e };
-static const unsigned short oriya_au[2]    = { 0xb47, 0xb57 };
+    // bengalis
+    0x9cb, 0x9c7, 0x9be,
+    0x9cc, 0x9c7, 0x9d7,
+    // oriya
+    0xb48, 0xb47, 0xb56,
+    0xb4b, 0xb47, 0xb3e,
+    0xb4c, 0xb47, 0xb57,
+    // tamil
+    0xbca, 0xbc6, 0xbbe,
+    0xbcb, 0xbc7, 0xbbe,
+    0xbcc, 0xbc6, 0xbd7,
+    // telugu
+    0xc48, 0xc46, 0xc56,
+    // kannada
+    0xcc0, 0xcbf, 0xcd5,
+    0xcc7, 0xcc6, 0xcd5,
+    0xcc8, 0xcc6, 0xcd6,
+    0xcca, 0xcc6, 0xcc2,
+    0xccb, 0xcca, 0xcd5,
+    // malayalam
+    0xd4a, 0xd46, 0xd3e,
+    0xd4b, 0xd47, 0xd3e,
+    0xd4c, 0xd46, 0xd57,
+    // sinhala
+    0xdda, 0xdd9, 0xdca,
+    0xddc, 0xdd9, 0xdcf,
+    0xddd, 0xddc, 0xdca,
+    0xdde, 0xdd9, 0xddf,
+    0xffff
+};
 
-static const unsigned short tamil_o[2]    = { 0xbc6, 0xbbe };
-static const unsigned short tamil_oo[2]   = { 0xbc7, 0xbbe };
-static const unsigned short tamil_au[2]   = { 0xbc6, 0xbd7 };
-
-static const unsigned short telugu_ai[2]   = { 0xc46, 0xc56 };
-
-static const unsigned short kannada_ii[2]   = { 0xcbf, 0xcd5 };
-static const unsigned short kannada_ee[2]   = { 0xcc6, 0xcd5 };
-static const unsigned short kannada_ai[2]   = { 0xcc6, 0xcd6 };
-static const unsigned short kannada_o[2]    = { 0xcc6, 0xcc2 };
-static const unsigned short kannada_oo[2]   = { 0xcca, 0xcd5 };
-
-static const unsigned short malayalam_o[2]   = { 0xd46, 0xd3e };
-static const unsigned short malayalam_oo[2]   = { 0xd47, 0xd3e };
-static const unsigned short malayalam_au[2]   = { 0xd46, 0xd57 };
-
-static const unsigned short sinhala_ee[2]   = { 0xdd9, 0xdca };
-static const unsigned short sinhala_o[2]   = { 0xdd9, 0xdcf };
-static const unsigned short sinhala_oo[2]   = { 0xddc, 0xdca };
-static const unsigned short sinhala_au[2]   = { 0xdd9, 0xddf };
-
-static inline void splitMatra( int script, unsigned short *reordered, int matra, int &len, int &base)
+static inline void splitMatra(unsigned short *reordered, int matra, int &len, int &base)
 {
-    const unsigned short *split = 0;
     unsigned short matra_uc = reordered[matra];
-    if ( script == QFont::Bengali ) {
-	if ( matra_uc == 0x9cb )
-	    split = bengali_o;
-	else if ( matra_uc == 0x9cc )
-	    split = bengali_au;
-    } else if ( script == QFont::Oriya ) {
-	if ( matra_uc == 0xb48 )
-	    split = oriya_ai;
-	else if ( matra_uc == 0xb4b )
-	    split = oriya_o;
-	else if ( matra_uc == 0xb4c )
-	    split = oriya_au;
-    } else if ( script == QFont::Tamil ) {
-	if ( matra_uc == 0xbca )
-	    split = tamil_o;
-	else if ( matra_uc == 0xbcb )
-	    split = tamil_oo;
-	else if ( matra_uc == 0xbcc )
-	    split = tamil_au;
-    } else if ( script == QFont::Telugu ) {
-	if ( matra_uc == 0xc48 )
-	    split = telugu_ai;
-    } else if ( script == QFont::Kannada ) {
-	if ( matra_uc == 0xcc0 )
-	    split = kannada_ii;
-	else if ( matra_uc == 0xcc7 )
-	    split = kannada_ee;
-	else if ( matra_uc == 0xcc8 )
-	    split = kannada_ai;
-	else if ( matra_uc == 0xcca )
-	    split = kannada_o;
-	else if ( matra_uc == 0xccb )
-	    split = kannada_oo;
-    } else if ( script == QFont::Malayalam ) {
-	if ( matra_uc == 0xd4a )
-	    split = malayalam_o;
-	else if ( matra_uc == 0xd4b )
-	    split = malayalam_oo;
-	else if ( matra_uc == 0xd4c )
-	    split = malayalam_au;
-    } else if ( script == QFont::Sinhala ) {
-	if ( matra_uc == 0xdda )
-	    split = sinhala_ee;
-	else if ( matra_uc == 0xddc )
-	    split = sinhala_o;
-	else if ( matra_uc == 0xddd )
-	    split = sinhala_oo;
-	else if ( matra_uc == 0xdde )
-	    split = sinhala_au;
-    }
-    assert(split);
+
+    const unsigned short *split = split_matras;
+    while ( split[0] < matra_uc )
+	split += 3;
+
+    assert(*split == matra_uc);
+    ++split;
+
     if (indic_position(*split) == Pre) {
 	reordered[matra] = split[1];
 	memmove(reordered + 1, reordered, len*sizeof(unsigned short));
@@ -1369,7 +1331,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    //      to be at the begining of the syllable, so we just move
 	    //      them there now.
 	    if (matra_position == Split)
-		splitMatra(script, uc, matra, len, base);
+		splitMatra(uc, matra, len, base);
 	    else if (matra_position == Pre) {
 		unsigned short m = uc[matra];
 		while (matra--)
@@ -1753,6 +1715,16 @@ static void indic_attributes( int script, const QString &text, int from, int len
 
 }
 
+
+// --------------------------------------------------------------------------------------------------------------------------------------------
+//
+// Thai and Lao
+//
+// --------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
 // Tibetan
@@ -2091,7 +2063,7 @@ static const unsigned char khmerForm[0x54] = {
 // which has to come before type 3. type 2 can appear only once.
 //
 // We use 0xff to encode that this is a split vowel.
-static unsigned char khmerSubscriptType[0x54] = {
+static const unsigned char khmerSubscriptType[0x54] = {
     1, 1, 1, 3,
     1, 1, 1, 1,
     3, 1, 1, 1,
@@ -2333,29 +2305,29 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
  	bool where[16];
 
 	// substitutions
-	for (int i = 0; i < len; ++i)
-	    where[i] = (properties[i] & PreForm);
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 'r', 'e', 'f' ), where);
+	const struct {
+	    int feature; int form;
+	} features[] = {
+	    { FT_MAKE_TAG( 'p', 'r', 'e', 'f' ), PreForm },
+	    { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), BelowForm },
+	    { FT_MAKE_TAG( 'a', 'b', 'v', 'f' ), AboveForm },
+	    { FT_MAKE_TAG( 'p', 's', 't', 'f' ), PostForm }
+	};
+	for (int j = 0; j < 3; ++j) {
+	    for (int i = 0; i < len; ++i)
+		where[i] = (properties[i] & features[j].form);
+	    openType->applyGSUBFeature(features[j].feature, where);
+	}
 
-	for (int i = 0; i < len; ++i)
-	    where[i] = (properties[i] & BelowForm);
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), where);
-
-
-	for (int i = 0; i < len; ++i)
-	    where[i] = (properties[i] & AboveForm);
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'a', 'b', 'v', 'f' ), where);
-
-	for (int i = 0; i < len; ++i)
-	    where[i] = (properties[i] & PostForm);
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 'f' ), where);
-
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 'r', 'e', 's' ));
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'b', 'l', 'w', 's' ));
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'a', 'b', 'v', 's' ));
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 's' ));
-
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'l', 'i', 'g' ));
+	const int features2 [] = {
+	    FT_MAKE_TAG( 'p', 'r', 'e', 's' ),
+	    FT_MAKE_TAG( 'b', 'l', 'w', 's' ),
+	    FT_MAKE_TAG( 'a', 'b', 'v', 's' ),
+	    FT_MAKE_TAG( 'p', 's', 't', 's' ),
+	    FT_MAKE_TAG( 'c', 'l', 'i', 'g' )
+	};
+	for (int i = 0; i < 5; ++i)
+	    openType->applyGSUBFeature(features2[i]);
 
 	openType->applyGPOSFeatures();
 
@@ -2619,10 +2591,16 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 
 	openType->init(glyphs, glyphAttributes, len, logClusters, len);
 
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'c', 'm', 'p' ));
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'l', 'j', 'm', 'o' ));
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'j', 'j', 'm', 'o' ));
-	openType->applyGSUBFeature(FT_MAKE_TAG( 't', 'j', 'm', 'o' ));
+	const int features[] = {
+	    FT_MAKE_TAG( 'c', 'c', 'm', 'p' ),
+	    FT_MAKE_TAG( 'l', 'j', 'm', 'o' ),
+	    FT_MAKE_TAG( 'j', 'j', 'm', 'o' ),
+	    FT_MAKE_TAG( 't', 'j', 'm', 'o' ),
+	    0
+	};
+	const int *f = features;
+	while (*f)
+	    openType->applyGSUBFeature(*f);
 	openType->applyGPOSFeatures();
 
 	GlyphAttributes *glyphAttrs = engine->glyphAttributes(si)+si->num_glyphs;
@@ -2732,7 +2710,6 @@ static void hangul_attributes( int script, const QString &text, int from, int le
     attributes += from;
     int i = 0;
     while ( i < len ) {
-	bool invalid;
 	int boundary = hangul_nextSyllableBoundary( text, from+i, end ) - from;
 
 	attributes[i].whiteSpace = FALSE;
@@ -2748,7 +2725,7 @@ static void hangul_attributes( int script, const QString &text, int from, int le
 	    attributes[i].softBreak = TRUE;
 	    attributes[i].charStop = FALSE;
 	    attributes[i].wordStop = FALSE;
-	    attributes[i].invalid = invalid;
+	    attributes[i].invalid = FALSE;
 	    ++uc;
 	    ++i;
 	}
