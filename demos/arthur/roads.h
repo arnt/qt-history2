@@ -30,7 +30,8 @@ public:
 
 private:
     QPainterPath yellowLine;
-    QPolygon carVector;
+    QList<QPolygon> carVectors;
+    QPixmap pixmap;
 
 };
 
