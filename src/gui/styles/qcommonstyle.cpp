@@ -761,7 +761,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         }
         break;
     case CE_MenuTearoff:
-        if (opt->state & Style_Active)
+        if (opt->state & Style_Selected)
             p->fillRect(opt->rect, opt->palette.brush(QPalette::Highlight));
         else
             p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));

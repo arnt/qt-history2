@@ -745,7 +745,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \header \i ControlElement \i Option Cast \i Style Flag \i Remark
     \row \i{1,4} \l CE_MenuItem, \l CE_MenuBarItem
          \i{1,4} \l QStyleOptionMenuItem
-         \i \l Style_Active \i The menu item is the current item
+         \i \l Style_Selected \i The menu item is currently selected item
     \row \i \l Style_Enabled \i The item is enabled
     \row \i \l Style_Down
          \i Set if the menu item is down

@@ -649,7 +649,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     if (defaultAction == action)
 	opt.menuItemType = QStyleOptionMenuItem::DefaultItem;
     if (currentAction && currentAction == action)
-        opt.state |= QStyle::Style_Active;
+        opt.state |= QStyle::Style_Selected;
     if (mouseDown)
         opt.state |= QStyle::Style_Down;
     if (!checkable) {
@@ -1466,7 +1466,7 @@ void QMenu::paintEvent(QPaintEvent *e)
         p.setClipRect(menuOpt.rect);
         menuOpt.state = QStyle::Style_None;
         if (d->tearoffHighlighted)
-            menuOpt.state |= QStyle::Style_Active;
+            menuOpt.state |= QStyle::Style_Selected;
         style().drawControl(QStyle::CE_MenuTearoff, &menuOpt, &p, this);
     }
     //draw border

@@ -1716,7 +1716,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
 
             int tabwidth = mi->tabWidth;
             int maxpmw = mi->maxIconWidth;
-            bool active = mi->state & QStyle::Style_Active;
+            bool active = mi->state & QStyle::Style_Selected;
             bool enabled = mi->state & QStyle::Style_Enabled;
             HIRect menuRect = qt_hirectForQRect(mi->menuRect, p, false);
             HIRect itemRect = qt_hirectForQRect(mi->rect, p, false);
@@ -1841,7 +1841,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             HIRect itemRect = qt_hirectForQRect(mi->rect);
             HIThemeMenuItemDrawInfo mdi;
             mdi.version = qt_mac_hitheme_version;
-            if (opt->state & QStyle::Style_Active)
+            if (opt->state & QStyle::Style_Selected)
                 mdi.state = kThemeMenuSelected;
             else
                 mdi.state = kThemeMenuActive;
@@ -1876,7 +1876,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 tdi.state = kThemeMenuDisabled;
             else
                 tdi.state = kThemeMenuActive;
-            if (mi->state & QStyle::Style_Active)
+            if (mi->state & QStyle::Style_Selected)
                 tdi.state |= kThemeMenuSelected;
             tdi.attributes = 0;
             tdi.condensedTitleExtra = 0.0;
@@ -3343,7 +3343,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             int tab = mi->tabWidth;
             int maxpmw = mi->maxIconWidth;
             bool checkable = mi->checkType != QStyleOptionMenuItem::NotCheckable;
-            bool act = mi->state & QStyle::Style_Active;
+            bool act = mi->state & QStyle::Style_Selected;
             Rect mrect = *qt_glb_mac_rect(mi->menuRect, p),
             irect = *qt_glb_mac_rect(mi->rect, p, false);
 
@@ -3461,7 +3461,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                  irect = *qt_glb_mac_rect(mi->rect, p, false);
             ThemeMenuState tms = kThemeMenuActive;
             ThemeMenuItemType tmit = kThemeMenuItemPlain;
-            if (opt->state & QStyle::Style_Active)
+            if (opt->state & QStyle::Style_Selected)
                 tms |= kThemeMenuSelected;
             if (ce == QStyle::CE_MenuScroller) {
                 if (opt->state & QStyle::Style_Down)
@@ -3489,7 +3489,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             Rect mrect = *qt_glb_mac_rect(mi->menuRect, p),
                  irect = *qt_glb_mac_rect(ir, p, false);
             ThemeMenuState tms = kThemeMenuActive;
-            if (!(mi->state & QStyle::Style_Active))
+            if (!(mi->state & QStyle::Style_Selected))
                 tms = kThemeMenuDisabled;
             if (mi->state & QStyle::Style_Down)
                 tms = kThemeMenuSelected;

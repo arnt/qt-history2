@@ -139,7 +139,7 @@ private:
         if (option.state & QStyle::Style_Enabled)
             menuOption.state |= QStyle::Style_Enabled;
         if (option.state & QStyle::Style_Selected)
-            menuOption.state |= QStyle::Style_Active;
+            menuOption.state |= QStyle::Style_Selected;
         menuOption.checkType = QStyleOptionMenuItem::NonExclusive;
         menuOption.checked = mCombo->currentItem() == index.row();
         menuOption.menuItemType = QStyleOptionMenuItem::Normal;

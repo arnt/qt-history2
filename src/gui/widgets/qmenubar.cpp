@@ -300,7 +300,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
     else
         opt.palette.setCurrentColorGroup(QPalette::Disabled);
     if (currentAction && currentAction == action) {
-        opt.state |= QStyle::Style_Active;
+        opt.state |= QStyle::Style_Selected;
         if (popupState && !closePopupMode)
             opt.state |= QStyle::Style_Down;
     }

@@ -1440,7 +1440,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             bool dis = !(menuitem->state & Style_Enabled);
             bool checked = menuitem->checkType != QStyleOptionMenuItem::NotCheckable
                             ? menuitem->checked : false;
-            bool act = menuitem->state & Style_Active;
+            bool act = menuitem->state & Style_Selected;
 
             int x, y, w, h;
             menuitem->rect.getRect(&x, &y, &w, &h);
@@ -1593,7 +1593,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         break;
     case CE_MenuBarItem:
         if (const QStyleOptionMenuItem *mbi = qt_cast<const QStyleOptionMenuItem *>(opt)) {
-            bool active = mbi->state & Style_Active;
+            bool active = mbi->state & Style_Selected;
             bool hasFocus = mbi->state & Style_HasFocus;
             bool down = mbi->state & Style_Down;
             QStyleOptionMenuItem newMbi = *mbi;
