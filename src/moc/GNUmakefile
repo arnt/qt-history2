@@ -4,7 +4,7 @@
 
 ####### BEGIN
 SYSCONF_CFLAGS_QT	=	-O2
-SYSCONF_CC	=	gcc
+SYSCONF_CC	=	g++
 SYSCONF_YACCCFLAGS = -Wno-unused -Wno-parentheses
 ####### END
 
