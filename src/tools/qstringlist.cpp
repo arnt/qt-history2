@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#10 $
 **
 ** Implementation of QStringList
 **
@@ -70,11 +70,11 @@ QDataStream &operator<<( QDataStream& s, const QStringList& l )
   real QString objects instead of character pointers. That makes
   QStringList the class of choice if you have to deal with unicode
   strings.
-  
+
   Like QString itself, a QStringList provides implicit
   share. Therefore string lists can be passed around
   as value-parameters both fast and safe.
-  
+
   Example:
   \code
   	QStringList list;
@@ -88,11 +88,11 @@ QDataStream &operator<<( QDataStream& s, const QStringList& l )
 	list.sort();
 	
 	// print it out
-	for ( QStringList::Iterator it = list.begin(); it != list.end() ) {
+	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 	    printf( "%s \n", it->latin1() );
 	}
   \endcode
-  
+
 */
 
 /*! \fn QStringList::QStringList()
