@@ -60,7 +60,6 @@
 QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice)
 {
     d = new QPrinterPrivate;
-    d->outputToFileEnabled = TRUE;
     if(PMCreateSession(&psession) != noErr)
 	psession = NULL;
 
@@ -111,8 +110,11 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
     output_file = FALSE;
     to_edge     = FALSE;
 
-    setPageRangeEnabled( All | Range );
-    setPageRange( All );
+    d->printerOptions = 0;
+    setPrintRange( AllPages );
+    setOptionEnabled( PrintToFile, TRUE );
+    setOptionEnabled( PrintPageRange, TRUE );
+    setOptionEnabled( CollateCopies, TRUE );
 }
 
 QPrinter::~QPrinter()

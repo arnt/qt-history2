@@ -227,10 +227,8 @@ QPrinter::QPrinter( PrinterMode m )
     d = new QPrinterWinPrivate;
     D->printerMode = m;
     D->winPageSize = DMPAPER_A4;
-    D->pageRangeEnabled = All | Range;
-    D->pageRange = All;
-    d->outputToFileEnabled = TRUE;
-
+    d->printerOptions = 0;
+    d->printRange = AllPages;
     orient      = Portrait;
     page_size   = A4;
     page_order = FirstPageFirst;
@@ -280,6 +278,9 @@ QPrinter::QPrinter( PrinterMode m )
             readPdlgA( &pd );
     } )
     setPrinterMapping( hdc, res );
+
+    setOptionEnabled( PrintToFile, TRUE );
+    setOptionEnabled( PrintPageRange, TRUE );
 }
 
 QPrinter::~QPrinter()
@@ -469,11 +470,11 @@ void QPrinter::readPdlg( void* pdv )
         usercolcopies = FALSE;
 
     if ( pd->Flags & PD_PAGENUMS )
-	D->pageRange = Range;
+	d->printRange = PageRange;
     else if ( pd->Flags & PD_SELECTION )
-	D->pageRange = Selection;
+	d->printRange = Selection;
     else
-	D->pageRange = All;
+	d->printRange = AllPages;
 
     if ( hdc ) {
 	DeleteDC( hdc );
@@ -575,11 +576,11 @@ void QPrinter::readPdlgA( void* pdv )
     }
 
     if ( pd->Flags & PD_PAGENUMS )
-	D->pageRange = Range;
+	d->printRange = PageRange;
     else if ( pd->Flags & PD_SELECTION )
-	D->pageRange = Selection;
+	d->printRange = Selection;
     else
-	D->pageRange = All;
+	d->printRange = AllPages;
 
     hdc	= pd->hDC;
     if ( pd->hDevMode ) {
@@ -878,9 +879,8 @@ void QPrinter::setPrinterName( const QString &name )
     }
     printer_name = name;
 
-    PageRange prange = d->pageRange;
-    uint prangeen = d->pageRangeEnabled;
-    bool toFile = d->outputToFileEnabled;
+    PrintRange prange = d->printRange;
+    uint printOptions  = d->printerOptions;
     QString dname = doc_name;
     Orientation orien = orient;
     int wpgsz = D->winPageSize;
@@ -923,9 +923,8 @@ void QPrinter::setPrinterName( const QString &name )
 	qSystemWarning( "QPrinter::setPrinterName: setDefaultPrinter failed" );
 #endif
 
-    d->pageRange = prange;
-    d->pageRangeEnabled = prangeen;
-    d->outputToFileEnabled = toFile;
+    d->printRange = prange;
+    d->printerOptions = printOptions;
     doc_name = dname;
     orient = orien;
     D->winPageSize = wpgsz;
@@ -1053,20 +1052,21 @@ bool QPrinter::setup( QWidget *parent )
 	if ( result ) {
 	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
+	    pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
 
-	    if ( ! ( d->pageRangeEnabled & Selection ) )
+	    if ( ! ( isOptionEnabled( PrintSelection ) ) )
 		pd.Flags |= PD_NOSELECTION;
-	    if ( d->pageRangeEnabled & Range ) {
+	    if ( isOptionEnabled( PrintPageRange ) ) {
 		pd.nMinPage = min_pg;
 		pd.nMaxPage = max_pg;
 	    }
 
-	    if( !d->outputToFileEnabled )
+	    if( !isOptionEnabled( PrintToFile ) )
 		pd.Flags |= PD_DISABLEPRINTTOFILE;
 
-	    if ( d->pageRange == Selection )
+	    if ( d->printRange == Selection )
 		pd.Flags |= PD_SELECTION;
-	    else if ( d->pageRange == Range )
+	    else if ( d->printRange == PageRange )
 		pd.Flags |= PD_PAGENUMS;
 	    else
 		pd.Flags |= PD_ALLPAGES;
@@ -1076,8 +1076,6 @@ bool QPrinter::setup( QWidget *parent )
 	    if ( pd.nMinPage==0 && pd.nMaxPage==0 )
 		pd.Flags |= PD_NOPAGENUMS;
 
-	    if ( usercolcopies )
-		pd.Flags |= PD_COLLATE;
             if ( outputToFile() )
                 pd.Flags |= PD_PRINTTOFILE;
             pd.hwndOwner = parent ? parent->winId() : 0;
@@ -1096,6 +1094,7 @@ bool QPrinter::setup( QWidget *parent )
 		GlobalUnlock( pd.hDevMode );
 	    }
             // } writePdlg
+
             result = PrintDlg( &pd );
             if ( result && pd.hDC == 0 )
                 result = FALSE;
@@ -1122,17 +1121,21 @@ bool QPrinter::setup( QWidget *parent )
 	if ( result ) {
 	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
+	    pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
 
-	    if ( ! ( d->pageRangeEnabled & Selection ) )
+	    if ( ! ( isOptionEnabled( PrintSelection ) ) )
 		pd.Flags |= PD_NOSELECTION;
-	    if ( d->pageRangeEnabled & Range ) {
+	    if ( isOptionEnabled( PrintPageRange ) ) {
 		pd.nMinPage = min_pg;
 		pd.nMaxPage = max_pg;
 	    }
 
-	    if ( d->pageRange == Selection )
+	    if( !isOptionEnabled( PrintToFile ) )
+		pd.Flags |= PD_DISABLEPRINTTOFILE;
+
+	    if ( d->printRange == Selection )
 		pd.Flags |= PD_SELECTION;
-	    else if ( d->pageRange == Range )
+	    else if ( d->printRange == PageRange )
 		pd.Flags |= PD_PAGENUMS;
 	    else
 		pd.Flags |= PD_ALLPAGES;
@@ -1142,8 +1145,6 @@ bool QPrinter::setup( QWidget *parent )
 	    if ( pd.nMinPage==0 && pd.nMaxPage==0 )
 		pd.Flags |= PD_NOPAGENUMS;
 
-	    if ( usercolcopies )
-		pd.Flags |= PD_COLLATE;
             if ( outputToFile() )
                 pd.Flags |= PD_PRINTTOFILE;
             pd.hwndOwner = parent ? parent->winId() : 0;

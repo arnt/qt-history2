@@ -1545,7 +1545,7 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 	// print command does not exist any more
 
 	// file name
-	d->printToFileButton->setEnabled( d->printer->outputToFileEnabled() );
+	d->printToFileButton->setEnabled( d->printer->isOptionEnabled( QPrinter::PrintToFile ) );
 	d->fileName->setText( p->outputFileName() );
 
 	// orientation
@@ -1576,24 +1576,21 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
     }
 
     if( p ) {
-	uint ranges = p->pageRangeEnabled();
-	if( ranges & QPrinter::All )
-	    d->printAllButton->setEnabled( TRUE );
-	if( ranges & QPrinter::Selection )
-	    d->printSelectionButton->setEnabled( TRUE );
-	if( ranges & QPrinter::Range )
-	    d->printRangeButton->setEnabled( TRUE );
+	d->printAllButton->setEnabled( TRUE );
+	d->printSelectionButton
+	    ->setEnabled( d->printer->isOptionEnabled( QPrinter::PrintSelection ) );
+	d->printRangeButton
+	    ->setEnabled( d->printer->isOptionEnabled( QPrinter::PrintPageRange ) );
 
-	QPrinter::PageRange range = p->pageRange();
-
+	QPrinter::PrintRange range = p->printRange();
 	switch ( range ) {
-	case QPrinter::All:
+	case QPrinter::AllPages:
 	    printRangeSelected( d->printRange->id( d->printAllButton ) );
 	    break;
 	case QPrinter::Selection:
 	    printRangeSelected( d->printRange->id( d->printSelectionButton ) );
 	    break;
-	case QPrinter::Range:
+	case QPrinter::PageRange:
 	    printRangeSelected( d->printRange->id( d->printRangeButton ) );
 	    break;
 	}

@@ -123,8 +123,10 @@ QPrinter::QPrinter( PrinterMode m )
     margins( &(tmp->topMargin), &(tmp->leftMargin),
 	     &(tmp->bottomMargin), &(tmp->rightMargin) );
     d = tmp;
-    d->outputToFileEnabled = TRUE;
-    setPageRangeEnabled( All | Range );
+    d->printerOptions = 0;
+    setOptionEnabled( PrintPageRange, TRUE );
+    setOptionEnabled( PrintToFile, TRUE );
+    setOptionEnabled( CollateCopies, TRUE );
     setPageRange( All );
 
     switch ( m ) {

@@ -79,9 +79,13 @@ public:
                        EnvelopeManual, Auto, Tractor, SmallFormat,
                        LargeFormat, LargeCapacity, Cassette, FormSource };
 
-    enum PageRange   { All = 0x1,
-		       Selection = 0x2,
-		       Range = 0x4 };
+    enum PrintRange   { AllPages,
+			Selection,
+			PageRange };
+
+    enum PrinterOption { PrintToFile,
+			 PrintSelection,
+			 PrintPageRange };
 
     QString printerName() const;
     virtual void setPrinterName( const QString &);
@@ -112,9 +116,6 @@ public:
     virtual void setPageOrder( PageOrder );
     PageOrder   pageOrder() const;
 
-    void setOutputToFileEnabled( bool enabled );
-    bool outputToFileEnabled() const;
-
     void setResolution( int );
     int resolution() const;
 
@@ -140,13 +141,10 @@ public:
     void	setCollateCopiesEnabled(bool );
 
     bool	collateCopies() const;
-    void	setCollateCopies(bool );
+    void	setCollateCopies( bool );
 
-    uint 	pageRangeEnabled() const;
-    void 	setPageRangeEnabled( uint mask );
-
-    PageRange	pageRange() const;
-    void 	setPageRange( PageRange );
+    PrintRange	printRange() const;
+    void 	setPrintRange( PrintRange range );
 
     bool        newPage();
     bool        abort();
@@ -156,6 +154,9 @@ public:
 
     PaperSource paperSource()   const;
     virtual void setPaperSource( PaperSource );
+
+    void setOptionEnabled( PrinterOption, bool enable );
+    bool isOptionEnabled( PrinterOption );
 
 protected:
     bool        cmd( int, QPainter *, QPDevCmdParam * );

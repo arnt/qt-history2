@@ -300,6 +300,35 @@
 */
 
 /*!
+  \enum QPrinter::PrintRange
+
+  This enum is used to specify which print range the application
+  should use to print.
+
+  \value AllPages All pages should be printed
+  \value Selection Only the selection should be printed.
+  \value PageRange From page, to page option.
+
+  \sa setPrintRange(), printRange()
+*/
+
+/*!
+  \enum QPrinter::PrinterOption
+
+  This enum describes various printer options that appear in the
+  printer setup dialog. It is used to enable and disable these
+  options in the setup dialog.
+
+  \value PrintToFile Describes if print to file should be enabled.
+  \value PrintSelection Describes if printing selections should be enabled.
+  \value PrintPageRange Describes if printing page ranges (from, to) should
+         be enabled
+
+  \sa setOptionEnabled(), isOptionEnabled()
+*/
+
+
+/*!
     \fn QString QPrinter::printerName() const
 
     Returns the printer name. This value is initially set to the name
@@ -927,98 +956,62 @@ QPrinter::PaperSource QPrinter::paperSource() const
     return paper_source;
 }
 
-
 /*!
-    \enum QPrinter::PageRange
+  Sets the default selected page range to be used when the print setup
+  dialog is opened to \a range. If the PageRange specified by \a range is
+  currently disabled the function does nothing.
 
-    This enum type is used to specify which of the page range options
-    are enabled in the print dialog. It is also used to specify which
-    of the options is selected by default when the print dialog opens.
-
-    \value All All pages are printed; on windows this cannot be disabled.
-    \value Selection Only the selection is printed.
-    \value Range From page, to page option.
+  \sa printRange()
 */
-
-/*!
-  \fn void QPrinter::setPageRangeEnabled( uint mask )
-
-  Enables the page range options that should be visible in the print
-  setup dialog. \a mask is a bitmask of possible QPrinter::PageRange.
-
-  \sa QPrinter::PageRange
-*/
-
-void QPrinter::setPageRangeEnabled( uint mask )
+void QPrinter::setPrintRange( PrintRange range )
 {
-    d->pageRangeEnabled = ( mask & ( All | Selection | Range ) );
-    if( !( d->pageRangeEnabled & d->pageRange ) )
-	d->pageRange = All;
-    if( ( mask & Range ) && min_pg==0 && max_pg==0 ) {
-	max_pg = 9999;
+    if( range != AllPages )
+	if( range == Selection
+	    && !isOptionEnabled( PrintSelection ) )
+	    setOptionEnabled( PrintSelection, TRUE );
+	else if( range == PageRange
+		 && !isOptionEnabled( PrintPageRange ) )
+	    setOptionEnabled( PrintPageRange, TRUE );
+    d->printRange = range;
+}
+
+/*!
+  Returns the PageRange of the QPrinter. After the print setup dialog
+  has been opened, this function returns the value selected by the user.
+
+  \sa setPrintRange()
+*/
+QPrinter::PrintRange QPrinter::printRange() const
+{
+    return d->printRange;
+}
+
+/*!
+    Enables the printer option with the identifier \a option if \a
+    enable is TRUE, and disables option \a option if \a enable is FALSE.
+
+    \sa isOptionEnabled()
+*/
+void QPrinter::setOptionEnabled( PrinterOption option, bool enable )
+{
+    if( enable ) {
+	d->printerOptions |= ( 1 << option );
+	if( ( option == PrintPageRange ) && min_pg==0 && max_pg==0 )
+	    max_pg = 9999;
+    } else {
+	d->printerOptions &= ( ~( 1 << option ) );
     }
 }
 
 /*!
-  \fn uint QPrinter::pageRangeEnabled() const
+  Returns TRUE if the printer option with identifier \a option is enabled;
+  otherwise returns FALSE.
 
-  Returns a bitmask of QPrinter::PageRange describing which of the
-  page ranges are enabled in the print setup dialog.
-
-  \sa QPrinter::PageRange
-*/
-
-uint QPrinter::pageRangeEnabled() const
+  \sa setOptionEnabled()
+ */
+bool QPrinter::isOptionEnabled( PrinterOption option )
 {
-    return d->pageRangeEnabled;
+    return d->printerOptions & ( 1 << option );
 }
-
-/*!
-  \fn void QPrinter::setPageRange( PageRange range )
-
-  Sets the default selected page range to be used when the print setup
-  dialog is opened to \a range. If the PageRange specified by \a range is
-  currently disabled the function does nothing.
-*/
-
-void QPrinter::setPageRange( QPrinter::PageRange range )
-{
-    if( d->pageRangeEnabled & range )
-	d->pageRange = range;
-}
-
-/*!
-  \fn PageRange QPrinter::pageRange() const
-
-  Returns the PageRange of the QPrinter. After the print setup dialog
-  has been opened, this function returns the value selected by the user.
-*/
-QPrinter::PageRange QPrinter::pageRange() const
-{
-    return d->pageRange;
-}
-
-/*!
-  \fn void QPrinter::setOutputToFileEnabled( bool )
-
-  If \a enabled is false, turns of the possibility to select
-  print to file in the printer setup dialog. This features
-  is enabled by default.
-*/
-void QPrinter::setOutputToFileEnabled( bool enable )
-{
-    d->outputToFileEnabled = enable;
-}
-
-/*!
-  \fn bool QPrinter::outputToFileEnabled() const
-  Returns if the print to file checkbox in the setup dialog should
-  be enabled or not.
-*/
-bool QPrinter::outputToFileEnabled() const
-{
-    return d->outputToFileEnabled;
-}
-
 #endif // QT_NO_PRINTER
 

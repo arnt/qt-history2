@@ -46,9 +46,8 @@
 class QPrinterPrivate
 {
 public:
-    Q_UINT32 pageRangeEnabled;
-    QPrinter::PageRange pageRange;
-    uint outputToFileEnabled:1;
+    Q_UINT32 printerOptions;
+    QPrinter::PrintRange printRange;
 };
 
 #endif
