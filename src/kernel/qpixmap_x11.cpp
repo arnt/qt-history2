@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#55 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -21,49 +21,12 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#54 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#55 $")
 
 
-/*
-DETTE SKAL INN I SHARING_DOC.
-The QPixmap class is internally based on implicit data sharing.
-Shared classes contains a data block with a reference count.
-The reference count reports the number of objects that are referring
-to the data block.
-
-Making a copy of the object (called shallow copy) is accomplished
-just by setting a pointer and incrementing the reference count.
-An object that is destroyed decrements the reference count.
-If the reference count reaches zero, then the destructor deletes
-the data block.
-
-It is much more expensive to make a deep copy.	A deep copy requires that
-all data is copied.
-
-The advantages of data sharing is that objects can easily be assigned,
-sent as parameters to functions and returned from functions.
-Shared classes also allocates less memory and require less copying of data.
-
-The disadvantage of data sharing is that changing one object will
-automatically change all other objects that refer to the same data.
-This is always the case when using explicite sharing.  The programmer
-has to be careful when modifying objects, and in some cases, make
-copies or detach an object from the rest.
-
-Implicit sharing solves these problems. A class that uses implicit
-sharing knows when it is about to be modified, and then detaches
-itself from the rest.  Implicit sharing is only possible when the
-class has total control of the call interface.
-
-Implicit sharing cannot be done when a class exports some of its
-internal data. Therefore, classes like QString and QImage must be explicitly
-shared classes.
-*/
-
-
-// --------------------------------------------------------------------------
-// Internal functions
-//
+/*****************************************************************************
+  Internal functions
+ *****************************************************************************/
 
 static uchar *flip_bits( uchar *bits, int len ) // flip bits in bitmap
 {
@@ -88,12 +51,17 @@ static int highest_bit( ulong v )
 }
 
 
-// --------------------------------------------------------------------------
-// QPixmap member functions
-//
+/*****************************************************************************
+  QPixmap member functions
+ *****************************************************************************/
 
 bool QPixmap::optimAll = TRUE;
 
+
+/*----------------------------------------------------------------------------
+  \internal
+  Initializes the pixmap data.
+ ----------------------------------------------------------------------------*/
 
 void QPixmap::init()
 {
@@ -107,10 +75,10 @@ void QPixmap::init()
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a null pixmap.
   \sa isNull()
-*/
+ ----------------------------------------------------------------------------*/
 
 QPixmap::QPixmap()
     : QPaintDevice( PDT_PIXMAP )
@@ -120,7 +88,7 @@ QPixmap::QPixmap()
     data->d = 0;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a pixmap with \e w width, \e h height and of \e depth bits per
   pixels.
 
@@ -133,7 +101,7 @@ QPixmap::QPixmap()
   If either \e width or \e height is zero, a null pixmap is constructed.
 
   \sa isNull()
-*/
+ ----------------------------------------------------------------------------*/
 
 QPixmap::QPixmap( int w, int h, int depth )
     : QPaintDevice( PDT_PIXMAP )
@@ -161,9 +129,9 @@ QPixmap::QPixmap( int w, int h, int depth )
     hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
 }
 
-/*!
+/*----------------------------------------------------------------------------
   \overload QPixmap::QPixmap( const QSize &size, int depth )
-*/
+ ----------------------------------------------------------------------------*/
 
 QPixmap::QPixmap( const QSize &size, int depth )
     : QPaintDevice( PDT_PIXMAP )
@@ -193,10 +161,10 @@ QPixmap::QPixmap( const QSize &size, int depth )
     hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a monochrome pixmap which is initialized with the data in \e bits.
   This constructor is protected and used by the QBitmap class.
-*/
+ ----------------------------------------------------------------------------*/
 
 QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
     : QPaintDevice( PDT_PIXMAP )
@@ -220,9 +188,9 @@ QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
     delete [] flipped_bits;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Constructs a pixmap which is a copy of \e pixmap.
-*/
+ ----------------------------------------------------------------------------*/
 
 QPixmap::QPixmap( const QPixmap &pixmap )
     : QPaintDevice( PDT_PIXMAP )
@@ -234,9 +202,9 @@ QPixmap::QPixmap( const QPixmap &pixmap )
     hd	= pixmap.hd;				// copy QPaintDevice drawable
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Destroys the pixmap.
-*/
+ ----------------------------------------------------------------------------*/
 
 QPixmap::~QPixmap()
 {
@@ -250,10 +218,10 @@ QPixmap::~QPixmap()
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Assigns the pixmap \e pixmap to this pixmap and returns a reference to
   this pixmap.
-*/
+ ----------------------------------------------------------------------------*/
 
 QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {
@@ -273,11 +241,11 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns the default pixmap depth, i.e. the depth a pixmap gets
   if -1 is specified.
   \sa depth()
-*/
+ ----------------------------------------------------------------------------*/
 
 int QPixmap::defaultDepth()
 {
@@ -288,21 +256,21 @@ int QPixmap::defaultDepth()
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns the optimization flag for the pixmap.
 
   The optimization flag is initially set to the global pixmap optimization
   flag allAreOptimized(), which is TRUE by default.
 
   \sa optimize(), optimizeGlobally(), isGloballyOptimized()
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QPixmap::isOptimized() const
 {
     return data->optim;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Enables pixmap optimization if \e enable is TRUE, or disables
   optimization if \e enable is FALSE.
 
@@ -311,7 +279,7 @@ bool QPixmap::isOptimized() const
   rougly width()*depth()*height()/8 bytes.
 
   \sa isOptimized(), optimizeGlobally(), isGloballyOptimized()
-*/
+ ----------------------------------------------------------------------------*/
 
 void QPixmap::optimize( bool enable )
 {
@@ -325,17 +293,17 @@ void QPixmap::optimize( bool enable )
     }
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Returns the global pixmap optimization flag.	The default value is TRUE.
   \sa optimizeGlobally(), optimize(), isOptimized()
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QPixmap::isGloballyOptimized()
 {
     return optimAll;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   Sets the global pixmap optimization flag.
 
   All new pixmaps that are created will be optimized if \e enable is
@@ -346,7 +314,7 @@ bool QPixmap::isGloballyOptimized()
   The default value is TRUE.
 
   \sa isGloballyOptimized(), optimize(), isOptimized()
-*/
+ ----------------------------------------------------------------------------*/
 
 void QPixmap::optimizeGlobally( bool enable )
 {
@@ -354,9 +322,9 @@ void QPixmap::optimizeGlobally( bool enable )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Fills the pixmap with the color \e fillColor.
-*/
+ ----------------------------------------------------------------------------*/
 
 void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
 {
@@ -369,11 +337,11 @@ void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Internal implementation of the virtual QPaintDevice::metric() function.
 
   Use the QPaintDeviceMetrics class instead.
-*/
+ ----------------------------------------------------------------------------*/
 
 long QPixmap::metric( int m ) const		// get metric information
 {
@@ -412,7 +380,7 @@ long QPixmap::metric( int m ) const		// get metric information
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Converts the pixmap to an image. Returns a null image if the
   operation failed.
 
@@ -423,7 +391,7 @@ long QPixmap::metric( int m ) const		// get metric information
 
   \bug Does not support 2 or 4 bit display hardware. This function
   needs to be tested on different types of X servers.
-*/
+ ----------------------------------------------------------------------------*/
 
 QImage QPixmap::convertToImage() const
 {
@@ -621,7 +589,7 @@ QImage QPixmap::convertToImage() const
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   \fn bool QPixmap::convertFromImage( const QImage &image )
   Converts an image and sets this pixmap. Returns TRUE if
   successful.
@@ -635,7 +603,7 @@ QImage QPixmap::convertToImage() const
 
   \bug Does not support 2 or 4 bit display hardware. This function
   needs to be tested on different types of X servers.
-*/
+ ----------------------------------------------------------------------------*/
 
 bool QPixmap::convertFromImage( const QImage &img )
 {
@@ -946,7 +914,7 @@ bool QPixmap::convertFromImage( const QImage &img )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Grabs the contents of a window and makes a pixmap out of it.
   Returns the pixmap.
 
@@ -962,10 +930,12 @@ bool QPixmap::convertFromImage( const QImage &img )
   entirely over the one you grab, you get pixels from the overlying
   window too.
 
+  The reason we use a window identifier and not a QWidget is to enable
+  grabbing of windows that are not part of the application.
+
   \warning Grabbing an area outside the window, or screen, is not safe
   in general.  This depends on the underlying window system.
-
-  \todo WId should probably be QWidget. */
+ ----------------------------------------------------------------------------*/
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
@@ -993,7 +963,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Transforms the pixmap using \e matrix, and returns the transformed
   pixmap.
 
@@ -1034,7 +1004,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
   \bug 2 and 4 bits pixmaps not supported.
 
   \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix()
-*/
+ ----------------------------------------------------------------------------*/
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
@@ -1319,7 +1289,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns the actual matrix used for transforming a pixmap with \e w
   width and \e h height.
 
@@ -1334,10 +1304,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
   \todo This is voodoo and badly needs an example.
 
   \sa xForm(), QWMatrix
-*/
+ ----------------------------------------------------------------------------*/
 
 QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
-{						// get true wxform matrix
+{
     const float dt = 0.0001;
     float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
     float xx = (float)w - 1;

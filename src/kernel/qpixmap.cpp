@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#40 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#39 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#40 $")
 
 
 /*----------------------------------------------------------------------------
@@ -62,10 +62,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#39 $")
   A pixmap can be converted to a QImage to get direct access to the pixels.
   A QImage can also be converted back to a pixmap.
 
-  The QPixmap class is optimized by the use of implicit sharing, so it
-  is quite practical to pass QPixmap objects as arguments.
+  The QPixmap class is optimized by the use of \link shclass.html implicit
+  sharing\endlink, so it is very efficient to pass QPixmap objects as
+  arguments.
 
-  \sa QBitmap, QImage, QImageIO
+  \sa QBitmap, QImage, QImageIO, \link shclass.html Shared Classes\endlink
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#19 $
 **
 ** Implementation of QBitmap class
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qimage.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#19 $")
 
 
 /*----------------------------------------------------------------------------
@@ -41,7 +41,12 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#18 $")
   QColor objects make no sense, because the \link QColor::pixel() pixel
   value\endlink is not necessarily 0 for black and 1 for white.
 
-  \sa QPixmap, QPainter::drawPixmap(), bitBlt()
+  Just like the QPixmap class, QBitmap is optimized by the use of \link
+  shclass.html implicit sharing\endlink, so it is very efficient to pass
+  QBitmap objects as arguments.
+
+  \sa QPixmap, QPainter::drawPixmap(), bitBlt(), \link shclass.html Shared
+  Classes\endlink
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
