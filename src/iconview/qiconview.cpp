@@ -411,9 +411,9 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
 
     See QIconView::dragObject() for more information.
 
-    See the QtFileIconView example for an example of usage, especially
-    the files qt/examples/fileiconview/qfileiconview.h and
-    qt/examples/fileiconview/qfileiconview.cpp.
+    For examples see qt/examples/fileiconview (especially
+    qfileiconview.h and qfileiconview.cpp) and
+    qt/examples/iconview/simple_dd.
 */
 
 /*!
