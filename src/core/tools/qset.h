@@ -52,6 +52,7 @@ public:
 
     class const_iterator
     {
+        typedef QHash<T, QHashDummyValue> Hash;
         typename Hash::const_iterator i;
 
     public:
