@@ -1,0 +1,40 @@
+#!/usr/bin/perl
+
+#Set the variable $dryrun to 0 to actually send mail to all customers
+
+$dryrun="testrun";          # 0 for real, or file for test result
+
+if ( $#ARGV != 0 ) {
+    die "Usage:  mail-to-customers mail-file\n";
+}
+
+$custfile = $ENV{"HOME"}."/troll/kunder.txt";
+
+open( MESSAGE, "<".$ARGV[0] ) || die "1";
+
+undef $/;
+$message = <MESSAGE>;
+
+$/ = "\n";
+open( CUSTOMERS, "<".$custfile ) || die "1";
+
+foreach $line ( <CUSTOMERS> ) {
+    $exp = "";
+    chomp $line;
+    ($name, $addr, $platform, $exp, $org) = split( / *\t+ */, $line );
+    die "$line\ninvalid line, stopped" unless ( $exp =~ m-^\d+/\d+/\d+$- );
+
+    $to = $addr;
+
+    print "Sending mail to ", $to, "\n";
+
+    if ($dryrun) {
+        open( MAIL, ">> $dryrun" );
+    } else {
+        open( MAIL, "| /usr/sbin/sendmail -t" );
+    }
+
+    print MAIL  "To: ",$to,"\n";
+    print MAIL $message,"\n";
+    close MAIL;
+}
