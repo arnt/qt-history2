@@ -916,8 +916,12 @@ bool QLineEdit::getSelection( int *start, int *end )
 
 void QLineEdit::setSelection( int start, int length )
 {
-    d->selstart = start;
-    d->selend = start + length;
+    if ( start < 0 || start > (int)d->text.length() || length < 0 ) {
+	d->selstart = d->selend = 0;
+    } else {
+	d->selstart = start;
+	d->selend = QMIN( start + length, (int)d->text.length() );
+    }
     update();
 }
 
