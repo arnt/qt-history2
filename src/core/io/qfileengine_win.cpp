@@ -962,14 +962,12 @@ QFSFileEngine::fileName(FileName file) const
         ret[0] = ret.at(0).toUpper();
 
         if (file == AbsolutePathName) {
-            if (!QFileInfo(ret).isDir()) {
-                int slash = ret.lastIndexOf(QLatin1Char('/'));
-                Q_ASSERT(slash < 0 || slash >= 2);
-                if (slash < 0)
-                    return ret;
-                else
-                    return ret.left(slash);
-            }
+            int slash = ret.lastIndexOf(QLatin1Char('/'));
+            Q_ASSERT(slash < 0 || slash >= 2);
+            if (slash < 0)
+                return ret;
+            else
+                return ret.left(slash);
         }
         return ret;
     } else if(file == CanonicalName || file == CanonicalPathName) {
