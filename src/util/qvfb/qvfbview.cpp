@@ -48,12 +48,14 @@ QVFbView::QVFbView( int w, int h, int d, QWidget *parent, const char *name,
 	    qFatal( "Unsupported bit depth %d\n", d );
     }
 
+    unlink( QT_VFB_MOUSE_PIPE );
     mknod( QT_VFB_MOUSE_PIPE, S_IFIFO | 0666, 0 );
     mouseFd = open( QT_VFB_MOUSE_PIPE, O_RDWR | O_NDELAY );
     if ( mouseFd == -1 ) {
 	qFatal( "Cannot open mouse pipe" );
     }
 
+    unlink( QT_VFB_KEYBOARD_PIPE );
     mknod( QT_VFB_KEYBOARD_PIPE, S_IFIFO | 0666, 0 );
     keyboardFd = open( QT_VFB_KEYBOARD_PIPE, O_RDWR | O_NDELAY );
     if ( keyboardFd == -1 ) {
