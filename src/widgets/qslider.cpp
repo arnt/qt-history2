@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#33 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#33 $");
 
 
 static const int motifBorder = 2;
@@ -494,7 +494,7 @@ void QSlider::reallyMoveSlider( int newPos )
 {
     QRect updateR = sliderRect();
     sliderPos = newPos;
-    updateR.unite( sliderRect() );
+    updateR = updateR.unite( sliderRect() );
     repaint( updateR );
 }
 
@@ -523,13 +523,13 @@ void QSlider::drawWinGroove( QPainter *p, QCOORD c )
   Handles paint events for the slider.
 */
 
-void QSlider::paintEvent( QPaintEvent * )
+void QSlider::paintEvent( QPaintEvent *e )
 {
-    //QRect paintRect = e->rect();
     
     QPainter p;
     p.begin( this );
-
+    QRect paintRect = e->rect();
+    p.setClipRect( paintRect );
     QRect sliderR = sliderRect();
     QColorGroup g = colorGroup();
     switch ( style() ) {
