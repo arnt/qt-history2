@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#33 $
 **
 ** Definition of QIconView widget class
 **
@@ -87,6 +87,8 @@ static const char *unknown[] = {
     "..................##dddeb#####..",
     "....................##d#b###....",
     "......................####......"};
+
+static QIconSet *unknown_icon = 0;
 
 /*****************************************************************************
  *
@@ -375,7 +377,7 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
 */
 
 QIconViewItem::QIconViewItem( QIconView *parent )
-    : view( parent ), itemText(), itemIcon( QPixmap( unknown ) ),
+    : view( parent ), itemText(), itemIcon( *unknown_icon ),
       prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 )
 {
@@ -388,7 +390,7 @@ QIconViewItem::QIconViewItem( QIconView *parent )
 */
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after )
-    : view( parent ), itemText(), itemIcon( QPixmap( unknown ) ),
+    : view( parent ), itemText(), itemIcon( *unknown_icon ),
       prev( 0 ), next( after ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 )
 {
@@ -401,7 +403,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after )
 */
 
 QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
-    : view( parent ), itemText( text ), itemIcon( QPixmap( unknown ) ),
+    : view( parent ), itemText( text ), itemIcon( *unknown_icon ),
       prev( 0 ), next( 0 ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 )
 {
@@ -414,7 +416,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
 */
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text )
-    : view( parent ), itemText( text ), itemIcon( QPixmap( unknown ) ),
+    : view( parent ), itemText( text ), itemIcon( *unknown_icon ),
       prev( 0 ), next( after ), allow_rename( TRUE ), allow_drag( TRUE ), allow_drop( TRUE ),
       selected( FALSE ), selectable( TRUE ), fm( 0 ), renameBox( 0 )
 {
@@ -1200,6 +1202,11 @@ void QIconViewItem::dragLeft()
 QIconView::QIconView( QWidget *parent, const char *name )
     : QScrollView( parent, name, WNorthWestGravity )
 {
+    if ( !unknown_icon ) {
+	QPixmap pix = QPixmap( unknown );
+	unknown_icon = new QIconSet( pix );
+    }
+
     d = new QIconViewPrivate;
     d->firstItem = 0;
     d->lastItem = 0;
@@ -1224,7 +1231,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->isIconDrag = FALSE;
     d->iconDragData.clear();
     d->numDragItems = 0;
-
+    
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
 
@@ -1263,7 +1270,7 @@ QIconView::~QIconView()
   You should never need to call this methode yourself, you should rather do
 
   \code
-    (void) new QIconViewItem( iconview, "This is the text of the item", QIocnSet( pixmap ) );
+    (void) new QIconViewItem( iconview, "This is the text of the item", QIconSet( pixmap ) );
   \endcode
 
   This does everything required for inserting an item.
