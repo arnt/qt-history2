@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#24 $
+** $Id: //depot/qt/main/src/tools/qarray.h#25 $
 **
 ** Definition of QArray template/macro class
 **
@@ -36,6 +36,10 @@ template<class type> class QArray : public QGArray
 protected:
     QArray( int, int ) : QGArray( 0, 0 ) {}
 public:
+    typedef type* Iterator;
+    typedef const type* ConstIterator;
+    typedef type ValueType;
+
     QArray()			{}
     QArray( int size ) : QGArray(size*sizeof(type)) {}
     QArray( const QArray<type> &a ) : QGArray(a) {}
@@ -80,6 +84,10 @@ public:
 	 operator const type*() const { return (const type *)QGArray::data(); }
     bool operator==( const QArray<type> &a ) const { return isEqual(a); }
     bool operator!=( const QArray<type> &a ) const { return !isEqual(a); }
+    Iterator begin() { return data(); }
+    Iterator end() { return data() + size(); }
+    ConstIterator begin() const { return data(); }
+    ConstIterator end() const { return data() + size(); }
 };
 
 
