@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#283 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#284 $
 **
 ** Implementation of QWidget class
 **
@@ -620,6 +620,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     focus_proxy = 0;
     extra = 0;					// no extra widget info
     automask = 0;
+    lay_out = 0;
     if ( !deferredMoves )			// do it only once
 	initDeferredDicts();
     create();					// platform-dependent init

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#24 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#25 $
 **
 ** Definition of layout classes
 **
@@ -43,7 +43,8 @@ public:
     QLayout( int autoBorder=-1, const char *name=0 );
     virtual ~QLayout();
     int defaultBorder() const { return insideSpacing; }
-
+    int margin() const { return outsideBorder; }
+    
     enum { unlimited = QCOORD_MAX };
 
     void freeze( int w, int h );
@@ -63,10 +64,10 @@ public:
     virtual QSize minSize() = 0;
     //    virtual void clearCache();
     virtual void setGeometry( const QRect& );
+    virtual bool removeWidget( QWidget * ) = 0;
 protected:
     bool  eventFilter( QObject *, QEvent * );
     virtual void paintEvent( QPaintEvent * );
-    virtual void childRemoved( QWidget * ) = 0;
     void addChildLayout( QLayout *l );
 private:
     int insideSpacing;
@@ -124,7 +125,7 @@ public:
     enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
     void setOrigin( Corner );
 protected:
-    void childRemoved( QWidget * );
+    bool removeWidget( QWidget * );
     void setGeometry( const QRect& );
     void add( QLayoutBox*, int row, int col );
 private:
