@@ -64,6 +64,8 @@ class Q_EXPORT QSqlTable : public QTable
     Q_PROPERTY( bool confirmCancels READ confirmCancels WRITE setConfirmCancels )
     Q_PROPERTY( QString filter READ filter WRITE setFilter )
     Q_PROPERTY( QStringList sort READ sort WRITE setSort )
+    Q_PROPERTY( int numCols READ numCols )
+    Q_PROPERTY( int numRows READ numRows )
 
 public:
     QSqlTable ( QWidget * parent = 0, const char * name = 0 );
@@ -108,6 +110,9 @@ public:
 
     void         installEditorFactory( QSqlEditorFactory * f );
     void         installPropertyMap( QSqlPropertyMap* m );
+
+    int          numCols() const;
+    int          numRows() const;
 
 signals:
     void         currentChanged( const QSqlRecord* record );
@@ -161,7 +166,6 @@ protected:
     int          indexOf( uint i ) const;
     void         reset();
     void         setSize( QSqlCursor* sql );
-    void         setNumRows ( int r );
     void         repaintCell( int row, int col );
     void         paintCell ( QPainter * p, int row, int col, const QRect & cr,
 			     bool selected );
@@ -176,6 +180,10 @@ protected:
     void         clearCell ( int row, int col ) ;
     void         setPixmap ( int row, int col, const QPixmap & pix );
     void         takeItem ( QTableItem * i );
+
+    void         setNumCols( int c );
+    void         setNumRows ( int r );
+
 private slots:
     void         loadNextPage();
     void         loadLine( int l );
@@ -185,7 +193,6 @@ private:
     void         init();
     QWidget*     beginEdit ( int row, int col, bool replace );
     void         refresh( QSqlCursor* cursor, const QSqlIndex& idx = QSqlIndex() );
-    void         setNumCols ( int r );
     void         updateRow( int row );
     void         endInsert();
     void         endUpdate();

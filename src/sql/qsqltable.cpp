@@ -1366,6 +1366,14 @@ QString QSqlTable::falseText() const
 /*!  \reimp
 */
 
+int QSqlTable::numRows() const
+{
+    return QTable::numRows();
+}
+
+/*!  \reimp
+*/
+
 void QSqlTable::setNumRows ( int r )
 {
     QTable::setNumRows( r );
@@ -1377,6 +1385,14 @@ void QSqlTable::setNumRows ( int r )
 void QSqlTable::setNumCols ( int r )
 {
     QTable::setNumCols( r );
+}
+
+/*!  \reimp
+*/
+
+int QSqlTable::numCols() const
+{
+    return QTable::numCols();
 }
 
 /*!  Returns the text in cell \a row, \a col, or an empty string if
