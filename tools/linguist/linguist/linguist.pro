@@ -32,15 +32,20 @@ HEADERS        += finddialog.h \
         ../shared/metatranslator.h
 
 DEFINES        += QT_KEYWORDS
-QT += xml network
+QT += xml
 include( ../../../src/qt_professional.pri )
-include( ../../../lib/qassistantclient.prl )
 
 DESTDIR                = ../../../bin
 TARGET                = linguist
 
-
-LIBS        +=  -lqassistantclient
+LIBS += -lqassistantclient
+!debug_and_release|build_pass {
+   CONFIG(debug, debug|release) {
+      LIBS -= -lqassistantclient
+      unix:LIBS += -lqassistantclient_debug
+      else:LIBS += -lqassistantclientd
+   }
+}
 
 win32:RC_FILE        = linguist.rc
 
