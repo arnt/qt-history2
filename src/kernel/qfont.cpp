@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#11 $
 **
 ** Implementation of QFont and QFontInfo classes
 **
@@ -18,7 +18,7 @@
 #include "qwidcoll.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#11 $";
 #endif
 
 
@@ -196,7 +196,19 @@ void QFont::setRawMode( bool b )
 
 bool QFont::operator==( const QFont &f ) const
 {
-    return f.d == d;
+    return f.d == d ||
+           f.d->req.rawMode == d->req.rawMode &&
+           ( f.d->req.rawMode && f.d->req.family == d->req.family ||
+             f.d->req.pointSize     == d->req.pointSize     &&
+             f.d->req.styleHint     == d->req.styleHint     &&
+             f.d->req.charSet       == d->req.charSet       &&
+             f.d->req.weight        == d->req.weight        &&
+             f.d->req.italic        == d->req.italic        &&
+             f.d->req.underline     == d->req.underline     &&
+             f.d->req.strikeOut     == d->req.strikeOut     &&
+             f.d->req.fixedPitch    == d->req.fixedPitch    &&
+             f.d->req.hintSetByUser == d->req.hintSetByUser &&
+             f.d->req.family        == d->req.family         );
 }
 
 void QFont::init()
