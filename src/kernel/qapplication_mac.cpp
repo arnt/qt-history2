@@ -121,6 +121,7 @@ static struct {
     bool active, use_qt_time_limit;
 } qt_mac_dblclick = { 0, 0, -2, 0, 0 };
 static int mouse_button_state = 0;
+static int keyboard_modifiers_state = 0;
 static bool	app_do_modal	= FALSE;	// modal mode
 extern QWidgetList *qt_modal_stack;		// stack of modal widgets
 extern bool qt_mac_in_drag; //qdnd_mac.cpp
@@ -366,6 +367,7 @@ static EventTypeSpec events[] = {
     { kEventClassMenu, kEventMenuTargetItem },
 
     { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
+    { kEventClassKeyboard, kEventRawKeyModifiersChanged },
     { kEventClassKeyboard, kEventRawKeyRepeat },
     { kEventClassKeyboard, kEventRawKeyUp },
     { kEventClassKeyboard, kEventRawKeyDown },
@@ -2218,7 +2220,66 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
     case kEventClassKeyboard: {
 	UInt32 modif;
-	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modif), NULL, &modif);
+	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, 
+			  sizeof(modif), NULL, &modif);
+
+	/*unfortunatly modifiers changed event looks quite different, so I have a separate
+	  code path */
+	if(ekind == kEventRawKeyModifiersChanged) {
+	    int changed_modifiers = keyboard_modifiers_state ^ modif, 
+		   last_modifiers = keyboard_modifiers_state,
+			modifiers = get_modifiers(last_modifiers);
+	    keyboard_modifiers_state = modif;
+	    if( mac_keyboard_grabber )
+		widget = mac_keyboard_grabber;
+	    else if(focus_widget)
+		widget = focus_widget;
+	    if(!widget || (app_do_modal && !qt_try_modal(widget, event) ))
+		break;
+	    static key_sym key_modif_syms[] = {
+		{ shiftKeyBit, MAP_KEY(Qt::Key_Shift) },
+		{ rightShiftKeyBit, MAP_KEY(Qt::Key_Shift) }, //???
+		{ controlKeyBit, MAP_KEY(Qt::Key_Control) },
+		{ rightControlKeyBit, MAP_KEY(Qt::Key_Control) }, //???
+		{ cmdKeyBit, MAP_KEY(Qt::Key_Meta) },
+		{ optionKeyBit, MAP_KEY(Qt::Key_Super_L) },
+		{ rightOptionKeyBit, MAP_KEY(Qt::Key_Super_R) },
+		{ alphaLockBit, MAP_KEY(Qt::Key_CapsLock) },
+		{   0, MAP_KEY(0) } };
+	    for(int i = cmdKeyBit; i <= rightControlKeyBit; i++) {
+		if(!(changed_modifiers & (1 << i)))
+		    continue;
+		QEvent::Type etype = QEvent::KeyPress;
+		if(last_modifiers & (1 << i))
+		    etype = QEvent::KeyRelease;
+		int key = 0;
+		for(int x = 0; key_modif_syms[x].mac_code; x++) {
+		    if(key_modif_syms[x].mac_code == i) {
+#ifdef DEBUG_KEY_MAPS
+			qDebug("got modifier changed: %s", key_modif_syms[x].desc);
+#endif
+			key = key_modif_syms[x].qt_code;
+			break;
+		    }
+		}
+		if(!key) {
+#ifdef DEBUG_KEY_MAPS
+		    qDebug("could not get modifier changed: %d", i);
+#endif
+		    continue;
+		}
+#ifdef DEBUG_KEY_MAPS
+		qDebug("KeyEvent (modif): Sending %s to %s::%s: %d - %d",
+		       etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
+		       widget ? widget->className() : "none", widget ? widget->name() : "", 
+		       key, modifiers);
+#endif
+		QKeyEvent ke(etype, key, 0, modifiers, "", FALSE, 0);
+		QApplication::sendSpontaneousEvent(widget,&ke);
+	    }
+	    break; 
+	}
+
 	int modifiers = get_modifiers(modif);
 	UInt32 keyc;
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
