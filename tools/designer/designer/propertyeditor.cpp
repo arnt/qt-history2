@@ -74,6 +74,19 @@
 static QFontDatabase *fontDataBase = 0;
 QString assistantPath();
 
+#ifdef Q_WS_MAC
+#include <qwindowsstyle.h>
+static void setupStyle(QWidget *w)
+{
+    static QStyle *windowsStyle = 0;
+    if(!windowsStyle)
+	windowsStyle = new QWindowsStyle;
+    w->setStyle(windowsStyle);
+}
+#else
+#define setupStyle(x)
+#endif
+
 static void cleanupFontDatabase()
 {
     delete fontDataBase;
@@ -376,6 +389,7 @@ void PropertyItem::createResetButton()
     hbox->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     hbox->setLineWidth( 1 );
     resetButton = new QPushButton( hbox );
+    setupStyle( resetButton );
     resetButton->setPixmap( QPixmap::fromMimeSource( "resetproperty.png" ) );
     resetButton->setFixedWidth( resetButton->sizeHint().width() );
     hbox->layout()->setAlignment( Qt::AlignRight );
@@ -576,6 +590,7 @@ QLineEdit *PropertyTextItem::lined()
 	lin->hide();
     } else {
 	button = new QPushButton( tr("..."), box );
+	setupStyle( button );
 	button->setFixedWidth( 20 );
 	connect( button, SIGNAL( clicked() ),
 		 this, SLOT( getText() ) );
@@ -1599,6 +1614,7 @@ PropertyPixmapItem::PropertyPixmapItem( PropertyList *l, PropertyItem *after, Pr
     pixPrev->setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Minimum ) );
     pixPrev->setBackgroundColor( pixPrev->colorGroup().color( QColorGroup::Base ) );
     button = new QPushButton( "...", box );
+    setupStyle( button );
     button->setFixedWidth( 20 );
     box->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     box->setLineWidth( 2 );
@@ -1680,6 +1696,7 @@ PropertyColorItem::PropertyColorItem( PropertyList *l, PropertyItem *after, Prop
     box->hide();
     colorPrev = new QFrame( box );
     button = new QPushButton( "...", box );
+    setupStyle( button );
     button->setFixedWidth( 20 );
     box->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     box->setLineWidth( 2 );
@@ -1805,6 +1822,7 @@ PropertyFontItem::PropertyFontItem( PropertyList *l, PropertyItem *after, Proper
     box->hide();
     lined = new QLineEdit( box );
     button = new QPushButton( "...", box );
+    setupStyle( button );
     button->setFixedWidth( 20 );
     box->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     box->setLineWidth( 2 );
@@ -1931,6 +1949,7 @@ PropertyDatabaseItem::PropertyDatabaseItem( PropertyList *l, PropertyItem *after
     box->hide();
     lined = new QLineEdit( box );
     button = new QPushButton( "...", box );
+    setupStyle( button );
     button->setFixedWidth( 20 );
     box->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     box->setLineWidth( 2 );
@@ -2207,6 +2226,7 @@ PropertyPaletteItem::PropertyPaletteItem( PropertyList *l, PropertyItem *after, 
     box->hide();
     palettePrev = new QLabel( box );
     button = new QPushButton( "...", box );
+    setupStyle( button );
     button->setFixedWidth( 20 );
     box->setFrameStyle( QFrame::StyledPanel | QFrame::Sunken );
     box->setLineWidth( 2 );
