@@ -93,18 +93,22 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     d->glFormat.setDoubleBuffer(res);
     aglDescribePixelFormat(fmt, AGL_DEPTH_SIZE, &res);
     d->glFormat.setDepth(res);
-    d->glFormat.setDepthBufferSize(res);
+    if (d->glFormat.depth())
+	d->glFormat.setDepthBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_RGBA, &res);
     d->glFormat.setRgba(res);
     aglDescribePixelFormat(fmt, AGL_ALPHA_SIZE, &res);
     d->glFormat.setAlpha(res);
-    d->glFormat.setAlphaBufferSize(res);
+    if (d->glFormat.alpha())
+	d->glFormat.setAlphaBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_ACCUM_RED_SIZE, &res);
     d->glFormat.setAccum(res);
-    d->glFormat.setAccumBufferSize(res);
+    if (d->glFormat.accum())
+	d->glFormat.setAccumBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_STENCIL_SIZE, &res);
     d->glFormat.setStencil(res);
-    d->glFormat.setStencilBufferSize(res);
+    if (d->glFormat.stencil())
+	d->glFormat.setStencilBufferSize(res);
     aglDescribePixelFormat(fmt, AGL_STEREO, &res);
     d->glFormat.setStereo(res);
 

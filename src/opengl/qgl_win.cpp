@@ -440,14 +440,18 @@ static QGLFormat pfdToQGLFormat(const PIXELFORMATDESCRIPTOR* pfd)
     QGLFormat fmt;
     fmt.setDoubleBuffer(pfd->dwFlags & PFD_DOUBLEBUFFER);
     fmt.setDepth(pfd->cDepthBits);
-    fmt.setDepthBufferSize(pfd->cDepthBits);
+    if (fmt.depth())
+	fmt.setDepthBufferSize(pfd->cDepthBits);
     fmt.setRgba(pfd->iPixelType == PFD_TYPE_RGBA);
     fmt.setAlpha(pfd->cAlphaBits);
-    fmt.setAlphaBufferSize(pfd->cAlphaBits);
+    if (fmt.alpha())
+	fmt.setAlphaBufferSize(pfd->cAlphaBits);
     fmt.setAccum(pfd->cAccumBits);
-    fmt.setAccumBufferSize(pfd->cAccumRedBits);
+    if (fmt.accum())
+	fmt.setAccumBufferSize(pfd->cAccumRedBits);
     fmt.setStencil(pfd->cStencilBits);
-    fmt.setStencilBufferSize(pfd->cStencilBits);
+    if (fmt.stencil())
+	fmt.setStencilBufferSize(pfd->cStencilBits);
     fmt.setStereo(pfd->dwFlags & PFD_STEREO);
     fmt.setDirectRendering((pfd->dwFlags & PFD_GENERIC_ACCELERATED) ||
                             !(pfd->dwFlags & PFD_GENERIC_FORMAT));
@@ -513,10 +517,14 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         d->glFormat.setStencil(lpfd.cStencilBits);
         d->glFormat.setStereo(lpfd.dwFlags & LPD_STEREO);
         d->glFormat.setDirectRendering(false);
-	d->glFormat.setDepthBufferSize(lpfd.cDepthBits);
-	d->glFormat.setAlphaBufferSize(lpfd.cAlphaBits);
-	d->glFormat.setAccumBufferSize(lpfd.cAccumRedBits);
-	d->glFormat.setStencilBufferSize(lpfd.cStencilBits);
+	if (d->glFormat.depth())
+	    d->glFormat.setDepthBufferSize(lpfd.cDepthBits);
+	if (d->glFormat.alpha())
+	    d->glFormat.setAlphaBufferSize(lpfd.cAlphaBits);
+	if (d->glFormat.accum())
+	    d->glFormat.setAccumBufferSize(lpfd.cAccumRedBits);
+	if (d->glFormat.stencil())
+	    d->glFormat.setStencilBufferSize(lpfd.cStencilBits);
 
         if (d->glFormat.rgba()) {
             if (lpfd.dwFlags & LPD_TRANSPARENT)

@@ -505,7 +505,11 @@ void QOpenGLPaintEngine::drawRect(const QRectF &r)
     float w = r.width();
     float h = r.height();
     if (d->cbrush.style() == Qt::LinearGradientPattern) {
+	painter()->save();
+	painter()->setClipRect(r, Qt::IntersectClip);
+	syncState();
 	qt_fill_linear_gradient(r, d->cbrush);
+	painter()->restore();
 	if (d->cpen.style() == Qt::NoPen)
 	    return;
     } else if (d->cbrush.style() != Qt::NoBrush) {
@@ -785,7 +789,6 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
     glPushMatrix();
     glTranslatef(rect.x(), rect.y(), .0);
     glShadeModel(GL_SMOOTH);
-    glDisable(GL_DEPTH_TEST);
 
     QPoint goff = QPoint(qRound(rect.x()), qRound(rect.y()));
 

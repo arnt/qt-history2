@@ -293,19 +293,23 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_DOUBLEBUFFER, &res);
     d->glFormat.setDoubleBuffer(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_DEPTH_SIZE, &res);
-    d->glFormat.setDepthBufferSize(res);
     d->glFormat.setDepth(res);
+    if (d->glFormat.depth())
+	d->glFormat.setDepthBufferSize(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_RGBA, &res);
     d->glFormat.setRgba(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_ALPHA_SIZE, &res);
-    d->glFormat.setAlphaBufferSize(res);
     d->glFormat.setAlpha(res);
+    if (d->glFormat.alpha())
+	d->glFormat.setAlphaBufferSize(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_ACCUM_RED_SIZE, &res);
-    d->glFormat.setAccumBufferSize(res);
     d->glFormat.setAccum(res);
+    if (d->glFormat.accum())
+	d->glFormat.setAccumBufferSize(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_STENCIL_SIZE, &res);
-    d->glFormat.setStencilBufferSize(res);
     d->glFormat.setStencil(res);
+    if (d->glFormat.stencil())
+	d->glFormat.setStencilBufferSize(res);
     glXGetConfig(disp, (XVisualInfo*)d->vi, GLX_STEREO, &res);
     d->glFormat.setStereo(res);
 
