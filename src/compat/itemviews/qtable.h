@@ -32,7 +32,7 @@
 #if !defined(QT_MODULE_TABLE) || defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_TABLE)
 #define QM_EXPORT_TABLE
 #else
-#define QM_EXPORT_TABLE Q_GUI_EXPORT
+#define QM_EXPORT_TABLE Q_COMPAT_EXPORT
 #endif
 
 class QTableHeader;
