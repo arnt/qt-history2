@@ -488,7 +488,7 @@ int QAction::accel() const
  */
 void QAction::setToggleAction( bool enable )
 {
-    if ( enable == d->toggleaction )
+    if ( enable == (bool)d->toggleaction )
 	return;
     d->toggleaction = enable;
     d->update();
@@ -521,7 +521,7 @@ void QAction::setOn( bool enable )
 #endif
 	return;
     }
-    if ( enable == d->on )
+    if ( enable == (bool)d->on )
 	return;
     d->on = enable;
     d->update( QActionPrivate::State );

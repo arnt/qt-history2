@@ -1123,7 +1123,7 @@ bool QLabel::hasScaledContents() const
  */
 void QLabel::setScaledContents( bool enable )
 {
-    if ( scaledcontents == enable )	
+    if ( (bool)scaledcontents == enable )	
 	return;
     scaledcontents = enable;
     if ( !enable ) {
