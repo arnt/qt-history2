@@ -389,7 +389,7 @@ QString QLibrary::library() const
 	    if(QFile::exists(tmpfile + (*it))) {
 		tmpfile += (*it);
 	    } else {
-		const int x = tmpfile.findRev( "/" );
+		const int x = tmpfile.lastIndexOf("/");
 		if ( x != -1 ) {
 		    QString path = tmpfile.left( x + 1 );
 		    QString file = tmpfile.right( tmpfile.length() - x - 1 );
