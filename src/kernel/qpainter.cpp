@@ -2690,7 +2690,8 @@ void qt_format_text( const QFont& font, const QRect &r,
     if ( !singleline && str.length() < 30 )
 	singleline = str.find( '\n' ) == -1;
 
-    bool simple = !decode && singleline && !wordbreak && !expandtabs && ( !showprefix || !str.isRightToLeft() );
+    bool isRightToLeft = str.isRightToLeft();
+    bool simple = !decode && singleline && !wordbreak && !expandtabs && ( !showprefix || !isRightToLeft );
 
 #ifdef QT_NO_RICHTEXT
     simple = TRUE; //####### This is ugly and hopefully temporary
@@ -2754,7 +2755,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    yoff += r.height() - h;
 	else if ( tf & Qt::AlignVCenter )
 	    yoff += ( r.height() - h ) / 2;
-	if ( ( tf & Qt::AlignHorizontal_Mask ) == Qt::AlignAuto && parStr.isRightToLeft() )
+	if ( ( tf & Qt::AlignHorizontal_Mask ) == Qt::AlignAuto && isRightToLeft )
 	    tf |= Qt::AlignRight;
 	if ( tf & Qt::AlignRight )
 	    xoff += r.width() - w;
@@ -2929,7 +2930,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	if ( brect ) {
 	    *brect = paragRect;
 	    brect->setWidth( QMAX( brect->width(), parag->pseudoDocument()->wused ) );
-	    if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft || str.isRightToLeft() )
+	    if ( QApplication::horizontalAlignment( tf ) != Qt::AlignLeft || isRightToLeft )
 		brect->setLeft( brect->left() + parag->leftGap());
 	    brect->moveBy( xoff, yoff );
 #if defined(QT_FORMAT_TEXT_DEBUG)
