@@ -24,10 +24,21 @@ QString DeclResolver::resolve( const QString& name ) const
     } else if ( y == 0 ) {
 	if ( eg.contains(name) || h.contains(name) ) {
 	    return config->verbatimHref( name );
-	} else if ( html.contains(name) ) {
-	    return name;
 	} else {
-	    return QString::null;
+	    QString base = name;
+	    QString ref;
+
+	    int k = base.find( QChar('#') );
+	    if ( k != -1 ) {
+		base.truncate( k );
+		ref = name.right( k );
+	    }
+
+            if ( html.contains(base) ) {
+		return name;
+	    } else {
+		return QString::null;
+	    }
 	}
     } else if ( y->kind() == Decl::Class ) {
 	return config->classRefHref( y->fullName() );

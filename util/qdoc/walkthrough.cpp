@@ -41,28 +41,30 @@ void HighScore::addContribution( bool inInclude, int lineNo, int contribution )
 void Walkthrough::includePass1( const QString& fileName,
 				const Resolver *resolver )
 {
-    QString t = start( TRUE, TRUE, fileName, resolver, LinkMap() );
+    QString t = start( TRUE, TRUE, fileName, resolver, LinkMap(), LinkMap() );
 }
 
 QString Walkthrough::includePass2( const QString& fileName,
 				   const Resolver *resolver,
-				   const LinkMap& exampleLinkMap )
+				   const LinkMap& includeLinkMap,
+				   const LinkMap& walkthroughLinkMap )
 {
-    QString t = start( TRUE, FALSE, fileName, resolver, exampleLinkMap );
+    QString t = start( TRUE, FALSE, fileName, resolver, includeLinkMap,
+		       walkthroughLinkMap );
     return t;
 }
 
 void Walkthrough::startPass1( const QString& fileName,
 			      const Resolver *resolver )
 {
-    start( FALSE, TRUE, fileName, resolver, LinkMap() );
+    start( FALSE, TRUE, fileName, resolver, LinkMap(), LinkMap() );
 }
 
 void Walkthrough::startPass2( const QString& fileName,
 			      const Resolver *resolver,
-			      const LinkMap& exampleLinkMap )
+			      const LinkMap& walkthroughLinkMap )
 {
-    start( FALSE, FALSE, fileName, resolver, exampleLinkMap );
+    start( FALSE, FALSE, fileName, resolver, LinkMap(), walkthroughLinkMap );
 }
 
 QString Walkthrough::printline( const QString& substr, const Location& docLoc )
@@ -106,9 +108,29 @@ void Walkthrough::skipuntil( const QString& substr, const Location& docLoc )
     xuntil( substr, docLoc, QString("skipuntil") );
 }
 
+void Walkthrough::addANames( QString *text, const LinkMap& exampleLinkMap )
+{
+    int lineNo = 1;
+    int k = 0;
+    LinkMap::ConstIterator links = exampleLinkMap.begin();
+    while ( links != exampleLinkMap.end() ) {
+	while ( links.key() > lineNo ) {
+	    k = text->find( QChar('\n'), k ) + 1;
+	    lineNo++;
+	}
+	StringSet::ConstIterator link = (*links).begin();
+	while ( link != (*links).end() ) {
+	    text->insert( k, QString("<a name=\"%1\">").arg(*link) );
+	    ++link;
+	}
+	++links;
+    }
+}
+
 QString Walkthrough::start( bool include, bool firstPass,
 			    const QString& fileName, const Resolver *resolver,
-			    const LinkMap& exampleLinkMap )
+			    const LinkMap& includeLinkMap,
+			    const LinkMap& walkthroughLinkMap )
 {
     static QRegExp trailingSpacesPlusNL( QString("[ \t]+\n") );
     static QRegExp endOfLine( QString("\n(?!\n)") );
@@ -131,7 +153,7 @@ QString Walkthrough::start( bool include, bool firstPass,
 
     if ( filePath.isEmpty() ) {
 	if ( !shutUp )
-	    warning( 1, "Cannot find example file '%s'", filePath.latin1() );
+	    warning( 1, "Cannot find example file '%s'", fileName.latin1() );
 	return QString::null;
     }
 
@@ -199,26 +221,11 @@ QString Walkthrough::start( bool include, bool firstPass,
 	walkthroughText.replace( aname, QString::null );
 
     if ( !firstPass ) {
-	QString *text = include ? &includeText : &walkthroughText;
-
-	// add '<a name="...">' as specified in the link map
-	int lineNo = 1;
-	int k = 0;
-	LinkMap::ConstIterator links = exampleLinkMap.begin();
-	while ( links != exampleLinkMap.end() ) {
-	    while ( links.key() > lineNo ) {
-		k = text->find( QChar('\n'), k ) + 1;
-		lineNo++;
-	    }
-	    StringSet::ConstIterator link = (*links).begin();
-	    while ( link != (*links).end() ) {
-		text->insert( k, QString("<a name=\"%1\">").arg(*link) );
-		++link;
-	    }
-	    ++links;
-	}
+	if ( include )
+	    addANames( &includeText, includeLinkMap );
+	addANames( &walkthroughText, walkthroughLinkMap );
     }
-
+    
     fancylines = QStringList::split( endOfLine, walkthroughText, TRUE );
 
     if ( !firstPass ) {

@@ -914,7 +914,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "walkthrough" );
 		x = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
-		flushWalkthrough( walkthrough, &examples );
+		if ( x != walkthrough.fileName() )
+		    flushWalkthrough( walkthrough, &examples );
 
 		if ( x.isEmpty() )
 		    warning( 2, location(),
@@ -1054,7 +1055,7 @@ const Location& DocParser::location()
     return yyLoc;
 }
 
-static const int AbsoluteMaxExamples = 12;
+static const int AbsoluteMaxExamples = 7;
 
 static int xunique = 1;
 
@@ -1898,7 +1899,8 @@ QString Doc::finalHtml() const
 		if ( !fileName.isEmpty() ) {
 		    yyOut += QString( "<pre>" );
 		    yyOut += walkthrough.includePass2( fileName, resolver(),
-				     includeLinkMaps[fileName] );
+				     includeLinkMaps[fileName],
+				     walkthroughLinkMaps[fileName] );
 		    yyOut += QString( "</pre>" );
 		    dependsOn.insert( walkthrough.filePath() );
 		}

@@ -66,10 +66,11 @@ public:
 
     void includePass1( const QString& fileName, const Resolver *resolver );
     QString includePass2( const QString& fileName, const Resolver *resolver,
-			  const LinkMap& exampleLinkMap );
+			  const LinkMap& includeLinkMap,
+			  const LinkMap& walkthroughLinkMap );
     void startPass1( const QString& fileName, const Resolver *resolver );
     void startPass2( const QString& fileName, const Resolver *resolver,
-		     const LinkMap& exampleLinkMap );
+		     const LinkMap& walkthroughLinkMap );
 
     QString printline( const QString& substr, const Location& docLoc );
     QString printto( const QString& substr, const Location& docLoc );
@@ -88,8 +89,10 @@ private:
     Walkthrough& operator=( const Walkthrough& w );
 #endif
 
+    void addANames( QString *text, const LinkMap& exampleLinkMap );
     QString start( bool include, bool firstPass, const QString& fileName,
-		   const Resolver *resolver, const LinkMap& exampleLinkMap );
+		   const Resolver *resolver, const LinkMap& includeLinkMap,
+		   const LinkMap& walkthroughLinkMap );
 
     QString xline( const QString& substr, const Location& docLoc,
 		   const QString& command );
