@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#64 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#65 $
 **
 ** Definition of QPopupMenu class
 **
@@ -121,6 +121,7 @@ private:
     int tab;
     uint accelDisabled : 1;
     uint checkable : 1;
+    uint connectModalRecursionSafety : 1;
     int maxPMWidth;
     int reserved;
 

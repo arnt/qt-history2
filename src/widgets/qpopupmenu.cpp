@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#240 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#241 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -142,6 +142,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     maxPMWidth = 0;
 
     tab = 0;
+    reserved = 0;
     setFrameStyle( QFrame::PopupPanel | QFrame::Raised );
     style().polishPopupMenu( this );
     setBackgroundMode( PaletteButton );
@@ -1282,6 +1283,8 @@ int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
  */
 void QPopupMenu::connectModal( QPopupMenu* receiver, bool doConnect )
 {
+    connectModalRecursionSafety = doConnect;
+    
     if ( doConnect )
         connect( this, SIGNAL(activated(int)),
                  receiver, SLOT(modalActivation(int)) );
@@ -1293,7 +1296,8 @@ void QPopupMenu::connectModal( QPopupMenu* receiver, bool doConnect )
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
         ++it;
-        if ( mi->popup() && mi->popup() != receiver )//&& mi->popup()->parentMenu == this ) //avoid circularity
+        if ( mi->popup() && mi->popup() != receiver 
+	     && mi->popup()->connectModalRecursionSafety != doConnect ) //avoid circularity
             mi->popup()->connectModal( receiver, doConnect );
     }
 }
