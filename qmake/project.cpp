@@ -309,6 +309,8 @@ QMakeProject::isActiveConfig(const QString &x)
 	return TRUE;
     else if(Option::mode == Option::WIN_MODE && x == "win32")
 	return TRUE;
+    else if(Option::specfile.right(x.length()) == x)
+	return TRUE;
     return ( vars["CONFIG"].findIndex(x) != -1 ) || ( cache["CONFIG"].findIndex(x) != -1 ) ;
 }
 
