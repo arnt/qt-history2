@@ -1,5 +1,4 @@
 TARGET		= qt
-embedded:TARGET	= qte
 include(qbase.pri)
 
 QCONFIG = kernel 
