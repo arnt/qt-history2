@@ -1828,21 +1828,6 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
 }
 
 /*!
-  \fn QStyle::operator GUIStyle() const
-  \obsolete
-*/
-
-/*!
-  \fn bool QStyle::operator==(GUIStyle s) const
-  \obsolete
-*/
-
-/*!
-  \fn bool QStyle::operator!=(GUIStyle s) const
-  \obsolete
-*/
-
-/*!
   \fn int QStyle::defaultFrameWidth() const
   \obsolete
 */
