@@ -2,8 +2,8 @@ Qt 3.0 Beta6 is not binary compatible with Beta5; any programs linked
 against Beta5 must be recompiled.
 
 Below you will find a description of general changes in the Qt
-Library, Qt Designer and Qt Assistant.  Followed by a detailed list of changes in the
-API.
+Library, Qt Designer and Qt Assistant.  Followed by a detailed list of
+changes in the API.
 
 
 The Qt Library
@@ -42,8 +42,8 @@ Qt Designer
 
  - Improvements to the Designer reference manual.
 
- - Improved the C++ code indenter in the editor for numbers and handling of
-   parenthesis.
+ - Improved the C++ code indenter in the editor for numbers and
+   handling of parenthesis.
 
 
 Qt Assistant
@@ -51,8 +51,8 @@ Qt Assistant
 
  - Added a context menu with common commands.
 
- - Allow multiple windows to be opened and added the common shortcut that
-   Shift+Click on a link opens the link in a new window.
+ - Allow multiple windows to be opened and added the common shortcut
+    that Shift+Click on a link opens the link in a new window.
 
 
 Qt Functions
@@ -61,15 +61,15 @@ Qt Functions
 QAccel
 ------
 
- - Make sure accelerators continue to work when a top level widget is reparented
-   into another window.
+ - Try harder to ensure that accelerators continue to work when a top
+   level widget is reparented into another window.
 
 QColor
 -----
 
  - X11 only: better heuristic to decide if you use black or white when a
    color could not be allocated.
- - Windows only: improve color allocation on 8bit displays, e.g. when
+ - win32 only: improve color allocation on 8bit displays, e.g. when
    using a terminal server.
 
 QComboBox
@@ -90,15 +90,15 @@ QCString
 QCursor
 -------
 
- - Windows only: Added a constructor that takes a platform specific handle.
+ - win32 only: Added a constructor that takes a platform specific handle.
 
 New function:
-	QCursor( HCURSOR ); (Windows only)
+	QCursor( HCURSOR ); (win32 only)
 
 QDateTime and QDateTimeEdit
 ---------------------------
 
- - Windows only: better handling of localization settings.
+ - win32 only: better handling of localization settings.
 
 QDockWindow
 -----------
@@ -119,13 +119,13 @@ QFileDialog
 QFileInfo
 ---------
 
- - Windows only: permissions respects the read-only attribute now.
+ - win32 only: permissions respects the read-only attribute now.
 
 QIconView
 ---------
 
- - Added a function to find out whether an item in a view is currently being
-   renamed.
+ - Added a function to find out whether an item in a view is currently
+   being renamed.
  - Fixed a crash.
 
 New function:
@@ -161,7 +161,7 @@ QMap
 QObject
 -------
 
- - The slot deferredDelete() was renamed to deleteLate() to be more
+ - The slot deferredDelete() was renamed to deleteLater() to be more
    intuitive. Code that used deferredDelete() has to be adjusted for the
    new name.
 
