@@ -8,9 +8,9 @@ void NorwegianWoodStyle::polish(QPalette &palette)
     QColor beige(236, 182, 120);
     QColor slightlyOpaqueBlack(0, 0, 0, 63);
 
-    QImage backgroundImage(":/images/woodbackground.png");
-    QImage buttonImage(":/images/woodbutton.png");
-    QImage midImage = buttonImage;
+    QPixmap backgroundImage(":/images/woodbackground.png");
+    QPixmap buttonImage(":/images/woodbutton.png");
+    QPixmap midImage = buttonImage;
 
     QPainter painter;
     painter.begin(&midImage);
@@ -103,13 +103,11 @@ void NorwegianWoodStyle::drawPrimitive(PrimitiveElement element,
                 }
             }
 
-            // ### replace with fillPath()
             painter->save();
             painter->setRenderHint(QPainter::Antialiasing, true);
-            painter->setClipPath(roundRect);
-            painter->fillRect(option->rect, brush);
+            painter->fillPath(roundRect, brush);
             if (darker)
-                painter->fillRect(option->rect, slightlyOpaqueBlack);
+                painter->fillPath(roundRect, slightlyOpaqueBlack);
 
             int penWidth;
             if (radius < 10)
