@@ -468,8 +468,13 @@ MingwMakefileGenerator::init()
 	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
     }
 
-    if ( project->isActiveConfig("dll") )
-	project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,--out-implib,") + project->first("DESTDIR") + "\\lib"+ project->first("TARGET") + ".a");
+	if ( project->isActiveConfig("dll") ) {
+		QString destDir = "";
+		if (!project->first("DESTDIR").isEmpty())
+			destDir = project->first("DESTDIR") + "\\";
+		project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,--out-implib,") +
+													destDir + "lib" + project->first("TARGET") + ".a");
+	}
 
     if ( !project->variables()["DEF_FILE"].isEmpty() )
 	project->variables()["QMAKE_LFLAGS"].append(QString("-Wl,") + project->first("DEF_FILE"));
