@@ -202,7 +202,7 @@ Project::Project( const QString &fn, const QString &pName, QPluginManager<Projec
     sourcefiles.setAutoDelete( TRUE );
     modified = FALSE;
     objs.setAutoDelete( FALSE );
-    fakeForms.setAutoDelete( TRUE );
+    fakeForms.setAutoDelete( FALSE );
 }
 
 Project::~Project()
