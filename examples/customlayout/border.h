@@ -59,18 +59,15 @@ public:
 
     BorderLayout( QWidget *parent, int border = 0, int autoBorder = -1,
 		  const char *name = 0 )
-	: QLayout( parent, border, autoBorder, name ), cached( 0, 0 ), mcached( 0, 0 ),
-	  sizeDirty( TRUE ), msizeDirty( TRUE )
-    {}
+	: QLayout( parent, border, autoBorder, name ), cached( 0, 0 ), mcached( 0, 0 )
+	{}
 
     BorderLayout( QLayout* parent, int autoBorder = -1, const char *name = 0 )
-	: QLayout( parent, autoBorder, name  ), cached( 0, 0 ), mcached( 0, 0 ),
-	  sizeDirty( TRUE ), msizeDirty( TRUE )
+	: QLayout( parent, autoBorder, name  ), cached( 0, 0 ), mcached( 0, 0 )
     {}
 
     BorderLayout( int autoBorder = -1, const char *name = 0 )
-	: QLayout( autoBorder, name ), cached( 0, 0 ), mcached( 0, 0 ),
-	  sizeDirty( TRUE ), msizeDirty( TRUE )
+	: QLayout( autoBorder, name ), cached( 0, 0 ), mcached( 0, 0 )
     {}
 
     ~BorderLayout();
@@ -93,13 +90,11 @@ protected:
     void setGeometry( const QRect &rect );
 
 private:
-    void doLayout( const QRect &rect, bool testonly = FALSE );
-    void calcSize( SizeType st );
+    void doLayout( const QRect &rect );
+    void calcSize();
 
     QPtrList<BorderLayoutStruct> list;
     QSize cached, mcached;
-    bool sizeDirty, msizeDirty;
-
 };
 
 #endif
