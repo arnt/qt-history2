@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#114 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1321,7 +1321,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
   If several of the horizontal or several of the vertical alignment flags
   are set, the resulting alignment is undefined.
 
-  These flags are defined in qwindowdefs.h.
+  These flags are defined in the Qt namespace.
 
   If \c ExpandTabs is set in \a flags, then:
   if \a tabarray is non.zero, it specifies a 0-terminated sequence
