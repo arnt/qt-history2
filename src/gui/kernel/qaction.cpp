@@ -52,6 +52,7 @@ QActionPrivate::QActionPrivate() : group(0), enabled(1), forceDisabled(0),
     act_signal = 0;
 #endif
     shortcutId = 0;
+    shortcutContext = Qt::ShortcutOnActiveWindow;
 }
 
 QActionPrivate::~QActionPrivate()
@@ -76,7 +77,7 @@ void QActionPrivate::redoGrab(QShortcutMap &map)
         map.removeShortcut(shortcutId, q);
     if (shortcut.isEmpty())
         return;
-    shortcutId = map.addShortcut(q, shortcut, Qt::ShortcutOnActiveWindow);
+    shortcutId = map.addShortcut(q, shortcut, shortcutContext);
     if (!enabled)
         map.setShortcutEnabled(false, shortcutId, q);
 }
@@ -243,6 +244,28 @@ void QAction::setShortcut(const QKeySequence &shortcut)
 QKeySequence QAction::shortcut() const
 {
     return d->shortcut;
+}
+
+/*!
+    \property QAction::shortcutContext
+    \brief the context for the action's shortcut
+    
+    Valid values for this property can be found in \l Qt::ShortcutContext.
+    The default value is Qt::ShortcutOnActiveWindow.
+*/
+
+void QAction::setShortcutContext(Qt::ShortcutContext context)
+{
+    if (d->shortcutContext == context)
+        return;
+    d->shortcutContext = context;
+    d->redoGrab(qApp->d->shortcutMap);
+    d->sendDataChanged();
+}
+
+Qt::ShortcutContext QAction::shortcutContext() const
+{
+    return d->shortcutContext;
 }
 
 /*!

@@ -51,6 +51,7 @@ public:
     QString whatsthis;
     QKeySequence shortcut;
     int shortcutId;
+    Qt::ShortcutContext shortcutContext;
     QFont font;
     QPointer<QMenu> menu;
     uint enabled : 1, forceDisabled : 1;
