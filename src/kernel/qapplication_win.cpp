@@ -1532,8 +1532,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    y = GetSystemMetrics( 79 );
 	    QResizeEvent re( QSize(x, y), qt_desktopWidget->size() );
 	    QApplication::sendEvent( qt_desktopWidget, &re );
-	    // ### how do we get the screen number?
-	    emit desktop()->resize( 0 );
 	}
 	break;
 #endif
