@@ -489,7 +489,7 @@ bool QPSQLDriver::open( const QString & db,
 
     pro = getPSQLVersion( d->connection );
 
-    PGresult* dateResult;
+    PGresult* dateResult = 0;
     switch( pro ) {
     case QPSQLDriver::Version6:
 	dateResult = PQexec( d->connection, "SET DATESTYLE TO 'ISO';" );
