@@ -34,7 +34,7 @@
 **
 **********************************************************************/
 
-// ### UNICODE???
+//#define UNICODE
 
 #include "qsql_db2.h"
 #include <qsqlrecord.h>
@@ -704,6 +704,8 @@ bool QDB2Result::isNull( int i )
 
 int QDB2Result::numRowsAffected()
 {
+    if ( isSelect() )
+	return size();
     SQLINTEGER affectedRowCount = 0;
     SQLRETURN r = SQLRowCount( d->hStmt, &affectedRowCount );
     if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO )
@@ -830,6 +832,8 @@ QSqlRecordInfo QDB2Driver::recordInfo( const QString& tableName ) const
     SQLHANDLE hStmt;
     QString catalog, schema, table;
     qSplitTableQualifier( tableName.upper(), &catalog, &schema, &table );
+    if ( schema.isEmpty() )
+	schema = d->user;
 
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
 				  d->hDbc,
