@@ -259,8 +259,10 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     if (popupMode == QToolButton::MenuButtonPopup) {
         opt.subControls |= QStyle::SC_ToolButtonMenu;
         opt.features |= QStyleOptionToolButton::Menu;
-        if (menuButtonDown || down)
+        if (menuButtonDown || down) {
+            opt.state |= QStyle::Style_MouseOver;
             opt.activeSubControls |= QStyle::SC_ToolButtonMenu;
+        }
     } else {
         if (menuButtonDown)
             opt.state  |= QStyle::Style_Down;
