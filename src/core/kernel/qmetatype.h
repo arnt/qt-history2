@@ -25,10 +25,10 @@ public:
     enum {
         // these are merged with QCoreVariant
         Void = 0, QString = 3, Int = 16, UInt = 17,
-        Bool = 18, Double = 19, QByteArray = 29,
+        Bool = 18, Double = 19, QByteArray = 29, QChar = 35,
 
         VoidStar = 64, Long, Short, Char, ULong,
-        UShort, UChar, Float, QChar,
+        UShort, UChar, Float,
         User = 256
     };
 
