@@ -29,7 +29,8 @@ enum ObjectCategory
     ActiveX         = 0x02,
     NoMetaObject    = 0x04,
     NoImplementation = 0x08,
-    NoDeclaration   = 0x10
+    NoDeclaration   = 0x10,
+    DoNothing       = 0x11
 };
 
 // this comes from moc/qmetaobject.cpp
@@ -531,7 +532,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
         }
     }
 
-    if (!(category & (NoMetaObject|NoImplementation)) {
+    if (!(category & (NoMetaObject|NoImplementation))) {
         QFile outfile(outname + ".cpp");
         if (!outfile.open(IO_WriteOnly | IO_Translate)) {
             qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().latin1());
@@ -750,6 +751,9 @@ int main(int argc, char **argv)
                     category |= NoDeclaration;
                 } else if (arg == "decl") {
                     category |= NoImplementation;
+                } else if (arg == "donothing") {
+                    category = DoNothing;
+                    break;
                 } else if (arg == "h") {
                     qWarning("dumpdoc Usage:\n\tdumpcpp object -c <classname> [-n <namespace>] [-o <filename>] [-nometaobject]"
                         "              \n\tobject   : object[/subobject]*"
@@ -781,6 +785,9 @@ int main(int argc, char **argv)
             break;
         }
     }
+
+    if (category == DoNothing)
+        return 0;
     
     if (object.isEmpty()) {
         qWarning("dumpcpp: No object or type library name provided.\n"
