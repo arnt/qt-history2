@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#70 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#69 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#70 $")
 
 
 /*----------------------------------------------------------------------------
@@ -790,7 +790,7 @@ void QObject::insertChild( QObject *obj )	// add object object
   It will only remove it from the parent widget's list of children.
  ----------------------------------------------------------------------------*/
 
-void QObject::removeChild( QObject *obj )	// remove child object
+void QObject::removeChild( QObject *obj )
 {
     if ( childObjects && childObjects->findRef(obj) >= 0 ) {
 	childObjects->remove();			// remove object from list
@@ -801,16 +801,18 @@ void QObject::removeChild( QObject *obj )	// remove child object
     }
 }
 
+
 /*----------------------------------------------------------------------------
   Adds an event filter object for this object.
 
-  An event filter is another object that receives all events that are
-  sent to this object via the eventFilter() function.
-  The event filter returns TRUE if the event should be stopped, or
-  FALSE if the event can be dispatched normally.
+  An event filter is an object that receives all events that are sent to
+  this object.  The filter can stop the event or to send it to this
+  object.  The event filter object receives events via the eventFilter()
+  function.  The eventFilter() function must return TRUE if the event
+  should be stopped, or FALSE if the event should be dispatched normally.
 
   If multiple event filters are installed for a single object, the
-  filter last installed will be activated first.
+  filter that was installed last will be activated first.
 
   Example:
   \code
@@ -848,7 +850,7 @@ void QObject::removeChild( QObject *obj )	// remove child object
  ----------------------------------------------------------------------------*/
 
 void QObject::installEventFilter( const QObject *obj )
-{						// add event filter object
+{
     if ( !eventFilters ) {
 	eventFilters = new QObjectList;
 	CHECK_PTR( eventFilters );
@@ -857,12 +859,20 @@ void QObject::installEventFilter( const QObject *obj )
 }
 
 /*----------------------------------------------------------------------------
-  Removes an event filter object from this object.
+  Removes an event filter object \e obj from this object.
+  The request is ignored if such an event filter has not been installed.
+
+  All event filters for this object are automatically removed when this
+  object is destroyed.
+
+  It is always safe to remove an event filter, even during event filter
+  activation (i.e. from the eventFilter() function).
+
   \sa installEventFilter(), eventFilter(), event()
  ----------------------------------------------------------------------------*/
 
 void QObject::removeEventFilter( const QObject *obj )
-{						// remove event filter object
+{
     if ( eventFilters && eventFilters->findRef(obj) >= 0 ) {
 	eventFilters->remove();			// remove object from list
 	if ( eventFilters->isEmpty() ) {
