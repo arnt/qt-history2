@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#9 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#9 $";
 #endif
 
 
@@ -193,10 +193,10 @@ QString &QString::sprintf( const char *format, ... )
 {						// make formatted string
     va_list ap;
     va_start( ap, format );
-    if ( size() < 255 )
-	resize( 255 );				// make string big enough
+    if ( size() < 256 )
+	QByteArray::resize( 256 );		// make string big enough
     vsprintf( data(), format, ap );
-    resize( strlen(data()) );			// truncate
+    resize( strlen(data()) + 1 );		// truncate
     va_end( ap );
     return *this;
 }
@@ -213,7 +213,7 @@ bool QString::stripWhiteSpace()			// strip white space
     while ( isspace(s[start]) )			// skip white space from start
 	start++;
     if ( s[start] == '\0' ) {			// only white space
-	resize( 0 );
+	resize( 1 );
 	return TRUE;
     }
     while ( end && isspace(s[end]) )		// skip white space from end
@@ -228,7 +228,7 @@ bool QString::stripWhiteSpace()			// strip white space
 #else
     memmove( data(), &s[start], end );
 #endif
-    resize( end );
+    resize( end + 1 );
     return TRUE;
 }
 
@@ -389,7 +389,7 @@ QString QString::left( uint len ) const		// get left substring
 	QString s( len+1 );
 	strncpy( s.data(), data(), len );
 	*(s.data()+len) = '\0';
-	s.resize( (int)strchr(s.data(),0) - (int)s.data() );
+	s.QByteArray::resize( (int)strchr(s.data(),0) - (int)s.data() + 1 );
 	return s;
     }
 }
@@ -425,7 +425,7 @@ QString QString::mid( uint index, uint len ) const // get mid substring
 	QString s( len+1 );
 	strncpy( s.data(), p, len );
 	*(s.data()+len) = '\0';
-	s.resize( (int)strchr(s.data(),0) - (int)s.data() );
+	s.QByteArray::resize( (int)strchr(s.data(),0) - (int)s.data() + 1 );
 	return s;
     }
 }
@@ -436,7 +436,7 @@ QString QString::leftJustify( uint width, char fill ) const
     int len = strlen(data());
     int padlen = width - len;
     if ( padlen > 0 ) {
-	tmp.resize( len+padlen+1 );
+	tmp.QByteArray::resize( len+padlen+1 );
 	memcpy( tmp.data(), data(), len );
 	memset( tmp.data()+len, fill, padlen );
 	tmp[len+padlen] = '\0';
@@ -452,7 +452,7 @@ QString QString::rightJustify( uint width, char fill ) const
     int len = strlen(data());
     int padlen = width - len;
     if ( padlen > 0 ) {
-	tmp.resize( len+padlen+1 );
+	tmp.QByteArray::resize( len+padlen+1 );
 	memset( tmp.data(), fill, padlen );
 	memcpy( tmp.data()+padlen, data(), len );
 	tmp[len+padlen] = '\0';
