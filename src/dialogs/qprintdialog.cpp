@@ -729,7 +729,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
 
     QSize ms( minimumSize() );
-    QSize ss( QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( pos() ) ).size() );
+    QSize ss( QApplication::desktop()->screenGeometry( pos() ).size() );
     if ( ms.height() < 512 && ss.height() >= 600 )
         ms.setHeight( 512 );
     else if ( ms.height() < 460 && ss.height() >= 480 )
