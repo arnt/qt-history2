@@ -7,7 +7,6 @@ PRECOMPILED_HEADER = kernel/qt_gui_pch.h
 KERNEL_P= kernel
 HEADERS += \
 	kernel/qabstractlayout.h \
-	kernel/qaccel.h \
 	kernel/qaction.h \
 	kernel/qapplication.h \
 	kernel/qapplication_p.h \
@@ -37,7 +36,6 @@ HEADERS += \
 
 SOURCES += \
 	kernel/qabstractlayout.cpp \
-	kernel/qaccel.cpp \
 	kernel/qaction.cpp \
 	kernel/qapplication.cpp \
 	kernel/qclipboard.cpp \

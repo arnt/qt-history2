@@ -30,7 +30,6 @@ class QProgressDialogData;
 class Q_GUI_EXPORT QProgressDialog : public QDialog
 {
     Q_OBJECT
-    Q_PROPERTY(bool wasCancelled READ wasCancelled DESIGNABLE false STORED false) // ### remove in 4.0
     Q_PROPERTY(bool wasCanceled READ wasCanceled)
     Q_PROPERTY(int totalSteps READ totalSteps WRITE setTotalSteps)
     Q_PROPERTY(int progress READ progress WRITE setProgress)
@@ -47,20 +46,18 @@ public:
                      bool modal=false, WFlags f=0);
     ~QProgressDialog();
 
-    void        setLabel(QLabel *);
-    void        setCancelButton(QPushButton *);
-    void        setBar(QProgressBar *);
+    void setLabel(QLabel *);
+    void setCancelButton(QPushButton *);
+    void setBar(QProgressBar *);
 
-    // ### Qt 4.0: remove wasCancelled() in 4.0
-    bool        wasCanceled() const;
-    inline bool        wasCancelled() const { return wasCanceled(); }
+    bool wasCanceled() const;
 
-    int                totalSteps() const;
-    int                progress()   const;
+    int totalSteps() const;
+    int progress()   const;
 
-    QSize        sizeHint() const;
+    QSize sizeHint() const;
 
-    QString     labelText() const;
+    QString labelText() const;
 
     void setAutoReset(bool b);
     bool autoReset() const;
@@ -68,40 +65,38 @@ public:
     bool autoClose() const;
 
 public slots:
-    void        cancel();
-    void        reset();
-    void        setTotalSteps(int totalSteps);
-    void        setProgress(int progress);
-    void        setProgress(int progress, int totalSteps);
-    void        setLabelText(const QString &);
-    void        setCancelButtonText(const QString &);
+    void cancel();
+    void reset();
+    void setTotalSteps(int totalSteps);
+    void setProgress(int progress);
+    void setProgress(int progress, int totalSteps);
+    void setLabelText(const QString &);
+    void setCancelButtonText(const QString &);
 
-    void        setMinimumDuration(int ms);
+    void setMinimumDuration(int ms);
 public:
-    int                minimumDuration() const;
+    int minimumDuration() const;
 
 signals:
-    // ### remove cancelled() in 4.0
-    void        cancelled();
-    void        canceled();
+    void canceled();
 
 protected:
-    void        resizeEvent(QResizeEvent *);
-    void        closeEvent(QCloseEvent *);
-    void        changeEvent(QEvent *);
-    void        showEvent(QShowEvent *e);
+    void resizeEvent(QResizeEvent *);
+    void closeEvent(QCloseEvent *);
+    void changeEvent(QEvent *);
+    void showEvent(QShowEvent *e);
 
 protected slots:
-    void        forceShow();
+    void forceShow();
 
 private:
-    void           init(QWidget *creator, const QString& lbl, const QString &canc,
+    void init(QWidget *creator, const QString& lbl, const QString &canc,
                          int totstps);
-    void           layout();
-    QLabel          *label()  const;
-    QProgressBar  *bar()    const;
+    void layout();
+    QLabel *label()  const;
+    QProgressBar *bar()    const;
     QProgressDialogData *d;
-    QTimer          *forceTimer;
+    QTimer *forceTimer;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

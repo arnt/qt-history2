@@ -40,9 +40,9 @@ public:
 #ifdef QT_COMPAT
     QLabel(QWidget *parent, const char* name, WFlags f=0);
     QLabel(const QString &text, QWidget *parent, const char* name,
-            WFlags f=0);
+           WFlags f=0);
     QLabel(QWidget *buddy, const QString &,
-            QWidget *parent=0, const char* name=0, WFlags f=0);
+           QWidget *parent=0, const char* name=0, WFlags f=0);
 #endif
     QLabel(QWidget *parent=0, WFlags f=0);
     QLabel(const QString &text, QWidget *parent=0, WFlags f=0);
@@ -54,7 +54,7 @@ public:
     QPicture *picture() const;
 #endif
 #ifndef QT_NO_MOVIE
-    QMovie      *movie()                const;
+    QMovie *movie() const;
 #endif
 
     TextFormat textFormat() const;
@@ -70,16 +70,16 @@ public:
     void setMargin(int);
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-    bool         hasScaledContents() const;
-    void         setScaledContents(bool);
+    bool hasScaledContents() const;
+    void setScaledContents(bool);
 #endif
-    QSize         sizeHint() const;
-    QSize         minimumSizeHint() const;
+    QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 #ifndef QT_NO_ACCEL
     void setBuddy(QWidget *);
-    QWidget     *buddy() const;
+    QWidget *buddy() const;
 #endif
-    int                 heightForWidth(int) const;
+    int heightForWidth(int) const;
 
 public slots:
     void setText(const QString &);
@@ -92,22 +92,23 @@ public slots:
 #endif
     void setNum(int);
     void setNum(double);
-    void         clear();
+    void clear();
 
 protected:
-    void         paintEvent(QPaintEvent *);
-    void         changeEvent(QEvent *);
+    bool event(QEvent *e);
+    void paintEvent(QPaintEvent *);
+    void changeEvent(QEvent *);
 
 private slots:
 #ifndef QT_NO_ACCEL
-    void         acceleratorSlot();
+    void mnemonicSlot();
 #endif
 #ifndef QT_NO_MOVIE
-    void         movieUpdated(const QRect&);
-    void         movieResized(const QSize&);
+    void movieUpdated(const QRect&);
+    void movieResized(const QSize&);
 #endif
 
-private:        // Disabled copy constructor and operator=
+private: // Disabled copy constructor and operator=
     friend class QTipLabel;
 
 #if defined(Q_DISABLE_COPY)

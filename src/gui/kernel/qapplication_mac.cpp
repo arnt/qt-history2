@@ -112,7 +112,6 @@ bool qt_mac_app_fullscreen = false;
 bool qt_scrollbar_jump_to_pos = false;
 static bool qt_mac_collapse_on_dblclick = true;
 QPointer<QWidget> qt_button_down;                // widget got last button-down
-extern bool qt_tryAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
 static QPointer<QWidget> qt_mouseover;
 static QHash<WindowRef, int> unhandled_dialogs;        //all unhandled dialogs (ie mac file dialog)
 static enum { QT_MAC_OFFTHESPOT, QT_MAC_ONTHESPOT } qt_mac_input_spot = QT_MAC_ONTHESPOT;
@@ -2204,7 +2203,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                 break;
 
             bool key_event = true;
-            if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
+#if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
+            if(etype == QEvent::KeyPress && !mac_keyboard_grabber
+               && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
                 /* We offer the accelerator a text representation of chr, this is because the Mac
                    actually flips the keyboard when things like alt are pressed, but that doesn't
                    really mean that accelerators should be mapped to the new key (or things could get
@@ -2219,7 +2220,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                 QKeyEvent accel_ev(QEvent::AccelOverride, mychar, modifiers,
                                    accel_str, ekind == kEventRawKeyRepeat,
                                    qMax(1, accel_str.length()));
-                if(qt_tryAccelEvent(widget, &accel_ev)) {
+                if(static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(widget, &accel_ev)) {
 #ifdef DEBUG_KEY_MAPS
                     qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
                            widget ? widget->className() : "none", widget ? widget->objectName().local8Bit() : "",
@@ -2236,6 +2237,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                     }
                 }
             }
+#endif // !QT_NO_COMPAT && !QT_NO_ACCEL
             if(key_event) {
                 //Find out if someone else wants the event, namely
                 //is it of use to text services? If so we won't bother

@@ -16,7 +16,7 @@
 
 #ifndef QT_NO_PROGRESSDIALOG
 
-#include "qaccel.h"
+#include "qshortcut.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qdatetime.h"
@@ -288,7 +288,6 @@ void QProgressDialog::init(QWidget *creator,
     d->autoReset = true;
     d->forceHide = false;
     setCancelButtonText(canc);
-    connect(this, SIGNAL(canceled()), this, SIGNAL(cancelled()));
     connect(this, SIGNAL(canceled()), this, SLOT(cancel()));
     forceTimer = new QTimer(this);
     connect(forceTimer, SIGNAL(timeout()), this, SLOT(forceShow()));
@@ -302,14 +301,6 @@ void QProgressDialog::init(QWidget *creator,
   It is connected to the cancel() slot by default.
 
   \sa wasCanceled()
-*/
-
-/*!
-  \fn void QProgressDialog::cancelled()
-
-  \obsolete
-
-  Use canceled() instead.
 */
 
 
@@ -385,11 +376,7 @@ void QProgressDialog::setCancelButton(QPushButton *cancelButton)
             cancelButton->setParent(this, 0);
         }
         connect(d->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
-#ifndef QT_NO_ACCEL
-        QAccel *accel = new QAccel(this);
-        accel->connectItem(accel->insertItem(Key_Escape),
-                            d->cancel, SIGNAL(clicked()));
-#endif
+        new QShortcut(Key_Escape, this, SIGNAL(canceled()));
     }
     int w = qMax(isVisible() ? width() : 0, sizeHint().width());
     int h = qMax(isVisible() ? height() : 0, sizeHint().height());
@@ -440,15 +427,6 @@ void QProgressDialog::setBar(QProgressBar *bar)
     resize(w, h);
 }
 
-
-/*!
-  \property QProgressDialog::wasCancelled
-  \brief whether the dialog was canceled
-
-  \obsolete
-
-  Use \l wasCanceled instead.
-*/
 
 /*!
   \property QProgressDialog::wasCanceled

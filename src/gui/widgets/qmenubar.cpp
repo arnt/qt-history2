@@ -61,14 +61,12 @@ void QMenuBarPrivate::updateActions()
     itemsWidth = q_width;
     itemsStart = q_start;
     if(itemsDirty) {
-        delete shortcuts;
-        shortcuts = new QAccel(q);
-        QObject::connect(shortcuts, SIGNAL(activated(int)), q, SLOT(internalShortcutActivated(int)));
-        for(int i = 0; i < actionItems.count(); i++) {
-            QKeySequence key = QAccel::shortcutKey(actionItems.at(i)->action->menuText());
-            if(!key.isEmpty())
-                shortcuts->insertItem(key);
-        }
+        for(int j = 0; j < shortcutIndexMap.size(); ++j)
+            q->releaseShortcut(shortcutIndexMap.value(j));
+        shortcutIndexMap.resize(0); // faster than clear
+        for(int i = 0; i < actionItems.count(); i++)
+            shortcutIndexMap.append(
+                q->grabShortcut(QKeySequence::mnemonic(actionItems.at(i)->action->menuText())));
     }
     itemsDirty = 0;
 
@@ -771,6 +769,13 @@ bool QMenuBar::event(QEvent *e)
             return true;
         }
 
+    } else if(e->type() == QEvent::Shortcut) {
+        QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
+        int shortcutId = se->shortcutId();
+        for(int j = 0; j < d->shortcutIndexMap.size(); ++j) {
+            if (shortcutId == d->shortcutIndexMap.value(j))
+                internalShortcutActivated(j);
+        }
     }
     return QWidget::event(e);
 }
@@ -815,36 +820,36 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
 
     QWidget *widget = (QWidget *)object;
     QKeyEvent *ke = (QKeyEvent *)event;
-#ifndef QT_NO_ACCEL
-    // look for Alt press and Alt-anything press
-    if(event->type() == QEvent::Accel || event->type() == QEvent::KeyPress) {
-        QWidget *f = widget->focusWidget();
-        // ### this thinks alt and meta are the same
-        if(ke->key() == Key_Alt || ke->key() == Key_Meta) {
-            if(d->altPressed) { //eat first alt
-                d->altPressed = false;
-                if(!widget->isTopLevel())
-                    object->removeEventFilter(this);
-                ke->accept();
-                return true;
-            } else if(hasFocus()) {             // Menu has focus, send focus back
-                d->setKeyboardMode(false);
-                ke->accept();
-                return true;
-            } else if(ke->stateAfter() == AltButton) {  // Start waiting for Alt release on focus widget
-                d->altPressed = true;
-                if(f && f != object)
-                    f->installEventFilter(this);
-            }
-        } else if(ke->key() == Key_Control || ke->key() == Key_Shift) {        // Other modifiers kills focus on menubar
-            d->setKeyboardMode(false);
-        } else {         // Got other key, no need to wait for Alt release
-            d->altPressed = false;
-        }
-        d->setCurrentAction(0);
-        return false;
-    }
-#endif
+//#ifndef QT_NO_ACCEL
+//    // look for Alt press and Alt-anything press
+//    if(event->type() == QEvent::Accel || event->type() == QEvent::KeyPress) {
+//        QWidget *f = widget->focusWidget();
+//        // ### this thinks alt and meta are the same
+//        if(ke->key() == Key_Alt || ke->key() == Key_Meta) {
+//            if(d->altPressed) { //eat first alt
+//                d->altPressed = false;
+//                if(!widget->isTopLevel())
+//                    object->removeEventFilter(this);
+//                ke->accept();
+//                return true;
+//            } else if(hasFocus()) {             // Menu has focus, send focus back
+//                d->setKeyboardMode(false);
+//                ke->accept();
+//                return true;
+//            } else if(ke->stateAfter() == AltButton) {  // Start waiting for Alt release on focus widget
+//                d->altPressed = true;
+//                if(f && f != object)
+//                    f->installEventFilter(this);
+//            }
+//        } else if(ke->key() == Key_Control || ke->key() == Key_Shift) {        // Other modifiers kills focus on menubar
+//            d->setKeyboardMode(false);
+//        } else {         // Got other key, no need to wait for Alt release
+//            d->altPressed = false;
+//        }
+//        d->setCurrentAction(0);
+//        return false;
+//    }
+//#endif
     if(((QWidget*)object)->focusWidget() == object || (object->parent() == 0 && ((QWidget*)object)->focusWidget() == 0)) {
         if(d->altPressed && event->type() == QEvent::KeyRelease && (ke->key() == Key_Alt || ke->key() == Key_Meta)) {    //alt release
             d->setKeyboardMode(true);
@@ -977,16 +982,8 @@ int QMenuBar::heightForWidth(int max_width) const
 */
 void QMenuBar::internalShortcutActivated(int id)
 {
-#ifndef QT_NO_ACCEL
-    QKeySequence key = d->shortcuts->key(id);
-    for(int i = 0; i < d->actionItems.count(); i++) {
-        QMenuAction *act = d->actionItems.at(i);
-        if(QAccel::shortcutKey(act->action->text()) == key) {
-            d->setCurrentAction(act, true);
-            break;
-        }
-    }
-#endif
+    QMenuAction *act = d->actionItems.at(id);
+    d->setCurrentAction(act, true);
 }
 
 /*!

@@ -390,8 +390,6 @@ int                qt_visual_option = -1;
 bool                qt_cmap_option         = false;
 QWidget               *qt_button_down         = 0;                // widget got last button-down
 
-extern bool qt_tryAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
-
 
 
 // stuff in qt_xdnd.cpp
@@ -4757,7 +4755,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
 
         if (code == Key_Tab &&
              (state & ShiftButton) == ShiftButton) {
-            // map shift+tab to shift+backtab, QAccel knows about it
+            // map shift+tab to shift+backtab, QShortcutMap knows about it
             // and will handle it.
             code = Key_Backtab;
             text = QString();
@@ -4862,14 +4860,17 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
     translateKeyEventInternal(event, count, text, state, code, type,
                                qt_mode_switch_remove_mask != 0);
 
+#if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
     // process accelerators before doing key compression
-    if (type == QEvent::KeyPress && !grab) {
+    if (type == QEvent::KeyPress && !grab
+        && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed
         QKeyEvent a(type, code, state, text, autor,
                      qMax(qMax(count,1), int(text.length())));
-        if (qt_tryAccelEvent(this, &a))
+        if (static_cast<QApplicationPrivate*>(qApp->d_ptr)qt_tryAccelEvent(this, &a))
             return true;
     }
+#endif
 
     long save = 0;
     if (qt_mode_switch_remove_mask != 0) {

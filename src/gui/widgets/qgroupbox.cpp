@@ -17,7 +17,6 @@
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qbitmap.h"
-#include "qaccel.h"
 #include "qradiobutton.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
@@ -47,9 +46,7 @@ public:
     QString str;
     int align;
     int lenvisible;
-#ifndef QT_NO_ACCEL
-    QAccel * accel;
-#endif
+    int shortcutId;
 
     void fixFocus();
     void setChildrenEnabled(bool b);
@@ -123,9 +120,7 @@ QGroupBox::~QGroupBox()
 void QGroupBoxPrivate::init()
 {
     align = AlignAuto;
-#ifndef QT_NO_ACCEL
-    accel = 0;
-#endif
+    shortcutId = 0;
     lenvisible = 0;
     bFlat = false;
 }
@@ -136,17 +131,8 @@ void QGroupBox::setTitle(const QString &title)
     if (d->str == title)                                // no change
         return;
     d->str = title;
-#ifndef QT_NO_ACCEL
-    if (d->accel)
-        delete d->accel;
-    d->accel = 0;
-    int s = QAccel::shortcutKey(title);
-    if (s) {
-        d->accel = new QAccel(this, "automatic focus-change accelerator");
-        d->accel->connectItem(d->accel->insertItem(s, 0),
-                            this, SLOT(fixFocus()));
-    }
-#endif
+    releaseShortcut(d->shortcutId);
+    d->shortcutId = grabShortcut(QKeySequence::mnemonic(title));
     if (d->checkbox) {
         d->checkbox->setText(d->str);
         d->updateCheckBoxGeometry();
@@ -165,7 +151,7 @@ void QGroupBox::setTitle(const QString &title)
     \brief the group box title text.
 
     The group box title text will have a focus-change keyboard
-    accelerator if the title contains \&, followed by a letter.
+    shortcut if the title contains \&, followed by a letter.
 
     \code
         g->setTitle("&User information");
@@ -287,8 +273,15 @@ void QGroupBox::paintEvent(QPaintEvent *event)
 }
 
 /*! \reimp  */
-bool QGroupBox::event(QEvent * e)
+bool QGroupBox::event(QEvent *e)
 {
+    if (e->type() == QEvent::Shortcut) {
+        QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
+        if (se->shortcutId() == d->shortcutId) {
+            d->fixFocus();
+            return true;
+        }
+    }
     return QWidget::event(e);
 }
 

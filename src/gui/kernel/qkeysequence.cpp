@@ -14,29 +14,27 @@
 
 #include "qkeysequence.h"
 
-#ifndef QT_NO_ACCEL
-
-#include "qaccel.h"
+#include "qshortcut.h"
 #include "qdebug.h"
 #ifndef QT_NO_REGEXP
 # include "qregexp.h"
 #endif
 #ifndef QT_NO_DATASTREAM
-#  include "qdatastream.h"
+# include "qdatastream.h"
 #endif
 
 #ifdef Q_WS_MAC
-#include "qt_mac.h"
-#define QMAC_CTRL QChar(kCommandUnicode)
-#define QMAC_META QChar(kControlUnicode)
-#define QMAC_ALT  QChar(kOptionUnicode)
-#define QMAC_SHIFT QChar(kShiftUnicode)
+# include "qt_mac.h"
+# define QMAC_CTRL QChar(kCommandUnicode)
+# define QMAC_META QChar(kControlUnicode)
+# define QMAC_ALT  QChar(kOptionUnicode)
+# define QMAC_SHIFT QChar(kShiftUnicode)
 #endif
 
 /*!
     \class QKeySequence qkeysequence.h
     \brief The QKeySequence class encapsulates a key sequence as used
-    by accelerators.
+    by shortcuts.
 
     \ingroup misc
 
@@ -53,9 +51,9 @@
     or from a human readable translatable string such as
     "Ctrl+X,Alt+Space". A key sequence can be cast to a QString to
     obtain a human readable translated version of the sequence.
-    Translations are done in the "QAccel" context.
+    Translations are done in the "QShortcut" context.
 
-    \sa QAccel
+    \sa QShortcut
 */
 
 /*!
@@ -70,87 +68,87 @@ static struct {
     int key;
     const char* name;
 } keyname[] = {
-    { Qt::Key_Space,        QT_TRANSLATE_NOOP("QAccel", "Space") },
-    { Qt::Key_Escape,       QT_TRANSLATE_NOOP("QAccel", "Esc") },
-    { Qt::Key_Tab,          QT_TRANSLATE_NOOP("QAccel", "Tab") },
-    { Qt::Key_Backtab,      QT_TRANSLATE_NOOP("QAccel", "Backtab") },
-    { Qt::Key_Backspace,    QT_TRANSLATE_NOOP("QAccel", "Backspace") },
-    { Qt::Key_Return,       QT_TRANSLATE_NOOP("QAccel", "Return") },
-    { Qt::Key_Enter,        QT_TRANSLATE_NOOP("QAccel", "Enter") },
-    { Qt::Key_Insert,       QT_TRANSLATE_NOOP("QAccel", "Ins") },
-    { Qt::Key_Delete,       QT_TRANSLATE_NOOP("QAccel", "Del") },
-    { Qt::Key_Pause,        QT_TRANSLATE_NOOP("QAccel", "Pause") },
-    { Qt::Key_Print,        QT_TRANSLATE_NOOP("QAccel", "Print") },
-    { Qt::Key_SysReq,       QT_TRANSLATE_NOOP("QAccel", "SysReq") },
-    { Qt::Key_Home,         QT_TRANSLATE_NOOP("QAccel", "Home") },
-    { Qt::Key_End,          QT_TRANSLATE_NOOP("QAccel", "End") },
-    { Qt::Key_Left,         QT_TRANSLATE_NOOP("QAccel", "Left") },
-    { Qt::Key_Up,           QT_TRANSLATE_NOOP("QAccel", "Up") },
-    { Qt::Key_Right,        QT_TRANSLATE_NOOP("QAccel", "Right") },
-    { Qt::Key_Down,         QT_TRANSLATE_NOOP("QAccel", "Down") },
-    { Qt::Key_Prior,        QT_TRANSLATE_NOOP("QAccel", "PgUp") },
-    { Qt::Key_Next,         QT_TRANSLATE_NOOP("QAccel", "PgDown") },
-    { Qt::Key_CapsLock,     QT_TRANSLATE_NOOP("QAccel", "CapsLock") },
-    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QAccel", "NumLock") },
-    { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP("QAccel", "ScrollLock") },
-    { Qt::Key_Menu,         QT_TRANSLATE_NOOP("QAccel", "Menu") },
-    { Qt::Key_Help,         QT_TRANSLATE_NOOP("QAccel", "Help") },
+    { Qt::Key_Space,        QT_TRANSLATE_NOOP("QShortcut", "Space") },
+    { Qt::Key_Escape,       QT_TRANSLATE_NOOP("QShortcut", "Esc") },
+    { Qt::Key_Tab,          QT_TRANSLATE_NOOP("QShortcut", "Tab") },
+    { Qt::Key_Backtab,      QT_TRANSLATE_NOOP("QShortcut", "Backtab") },
+    { Qt::Key_Backspace,    QT_TRANSLATE_NOOP("QShortcut", "Backspace") },
+    { Qt::Key_Return,       QT_TRANSLATE_NOOP("QShortcut", "Return") },
+    { Qt::Key_Enter,        QT_TRANSLATE_NOOP("QShortcut", "Enter") },
+    { Qt::Key_Insert,       QT_TRANSLATE_NOOP("QShortcut", "Ins") },
+    { Qt::Key_Delete,       QT_TRANSLATE_NOOP("QShortcut", "Del") },
+    { Qt::Key_Pause,        QT_TRANSLATE_NOOP("QShortcut", "Pause") },
+    { Qt::Key_Print,        QT_TRANSLATE_NOOP("QShortcut", "Print") },
+    { Qt::Key_SysReq,       QT_TRANSLATE_NOOP("QShortcut", "SysReq") },
+    { Qt::Key_Home,         QT_TRANSLATE_NOOP("QShortcut", "Home") },
+    { Qt::Key_End,          QT_TRANSLATE_NOOP("QShortcut", "End") },
+    { Qt::Key_Left,         QT_TRANSLATE_NOOP("QShortcut", "Left") },
+    { Qt::Key_Up,           QT_TRANSLATE_NOOP("QShortcut", "Up") },
+    { Qt::Key_Right,        QT_TRANSLATE_NOOP("QShortcut", "Right") },
+    { Qt::Key_Down,         QT_TRANSLATE_NOOP("QShortcut", "Down") },
+    { Qt::Key_Prior,        QT_TRANSLATE_NOOP("QShortcut", "PgUp") },
+    { Qt::Key_Next,         QT_TRANSLATE_NOOP("QShortcut", "PgDown") },
+    { Qt::Key_CapsLock,     QT_TRANSLATE_NOOP("QShortcut", "CapsLock") },
+    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QShortcut", "NumLock") },
+    { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP("QShortcut", "ScrollLock") },
+    { Qt::Key_Menu,         QT_TRANSLATE_NOOP("QShortcut", "Menu") },
+    { Qt::Key_Help,         QT_TRANSLATE_NOOP("QShortcut", "Help") },
 
     // Multimedia keys
-    { Qt::Key_Back,         QT_TRANSLATE_NOOP("QAccel", "Back") },
-    { Qt::Key_Forward,      QT_TRANSLATE_NOOP("QAccel", "Forward") },
-    { Qt::Key_Stop,         QT_TRANSLATE_NOOP("QAccel", "Stop") },
-    { Qt::Key_Refresh,      QT_TRANSLATE_NOOP("QAccel", "Refresh") },
-    { Qt::Key_VolumeDown,   QT_TRANSLATE_NOOP("QAccel", "Volume Down") },
-    { Qt::Key_VolumeMute,   QT_TRANSLATE_NOOP("QAccel", "Volume Mute") },
-    { Qt::Key_VolumeUp,     QT_TRANSLATE_NOOP("QAccel", "Volume Up") },
-    { Qt::Key_BassBoost,    QT_TRANSLATE_NOOP("QAccel", "Bass Boost") },
-    { Qt::Key_BassUp,       QT_TRANSLATE_NOOP("QAccel", "Bass Up") },
-    { Qt::Key_BassDown,     QT_TRANSLATE_NOOP("QAccel", "Bass Down") },
-    { Qt::Key_TrebleUp,     QT_TRANSLATE_NOOP("QAccel", "Treble Up") },
-    { Qt::Key_TrebleDown,   QT_TRANSLATE_NOOP("QAccel", "Treble Down") },
-    { Qt::Key_MediaPlay,    QT_TRANSLATE_NOOP("QAccel", "Media Play") },
-    { Qt::Key_MediaStop,    QT_TRANSLATE_NOOP("QAccel", "Media Stop") },
-    { Qt::Key_MediaPrev,    QT_TRANSLATE_NOOP("QAccel", "Media Previous") },
-    { Qt::Key_MediaNext,    QT_TRANSLATE_NOOP("QAccel", "Media Next") },
-    { Qt::Key_MediaRecord,  QT_TRANSLATE_NOOP("QAccel", "Media Record") },
-    { Qt::Key_HomePage,     QT_TRANSLATE_NOOP("QAccel", "Home") },
-    { Qt::Key_Favorites,    QT_TRANSLATE_NOOP("QAccel", "Favorites") },
-    { Qt::Key_Search,       QT_TRANSLATE_NOOP("QAccel", "Search") },
-    { Qt::Key_Standby,      QT_TRANSLATE_NOOP("QAccel", "Standby") },
-    { Qt::Key_OpenUrl,      QT_TRANSLATE_NOOP("QAccel", "Open URL") },
-    { Qt::Key_LaunchMail,   QT_TRANSLATE_NOOP("QAccel", "Launch Mail") },
-    { Qt::Key_LaunchMedia,  QT_TRANSLATE_NOOP("QAccel", "Launch Media") },
-    { Qt::Key_Launch0,      QT_TRANSLATE_NOOP("QAccel", "Launch (0)") },
-    { Qt::Key_Launch1,      QT_TRANSLATE_NOOP("QAccel", "Launch (1)") },
-    { Qt::Key_Launch2,      QT_TRANSLATE_NOOP("QAccel", "Launch (2)") },
-    { Qt::Key_Launch3,      QT_TRANSLATE_NOOP("QAccel", "Launch (3)") },
-    { Qt::Key_Launch4,      QT_TRANSLATE_NOOP("QAccel", "Launch (4)") },
-    { Qt::Key_Launch5,      QT_TRANSLATE_NOOP("QAccel", "Launch (5)") },
-    { Qt::Key_Launch6,      QT_TRANSLATE_NOOP("QAccel", "Launch (6)") },
-    { Qt::Key_Launch7,      QT_TRANSLATE_NOOP("QAccel", "Launch (7)") },
-    { Qt::Key_Launch8,      QT_TRANSLATE_NOOP("QAccel", "Launch (8)") },
-    { Qt::Key_Launch9,      QT_TRANSLATE_NOOP("QAccel", "Launch (9)") },
-    { Qt::Key_LaunchA,      QT_TRANSLATE_NOOP("QAccel", "Launch (A)") },
-    { Qt::Key_LaunchB,      QT_TRANSLATE_NOOP("QAccel", "Launch (B)") },
-    { Qt::Key_LaunchC,      QT_TRANSLATE_NOOP("QAccel", "Launch (C)") },
-    { Qt::Key_LaunchD,      QT_TRANSLATE_NOOP("QAccel", "Launch (D)") },
-    { Qt::Key_LaunchE,      QT_TRANSLATE_NOOP("QAccel", "Launch (E)") },
-    { Qt::Key_LaunchF,      QT_TRANSLATE_NOOP("QAccel", "Launch (F)") },
+    { Qt::Key_Back,         QT_TRANSLATE_NOOP("QShortcut", "Back") },
+    { Qt::Key_Forward,      QT_TRANSLATE_NOOP("QShortcut", "Forward") },
+    { Qt::Key_Stop,         QT_TRANSLATE_NOOP("QShortcut", "Stop") },
+    { Qt::Key_Refresh,      QT_TRANSLATE_NOOP("QShortcut", "Refresh") },
+    { Qt::Key_VolumeDown,   QT_TRANSLATE_NOOP("QShortcut", "Volume Down") },
+    { Qt::Key_VolumeMute,   QT_TRANSLATE_NOOP("QShortcut", "Volume Mute") },
+    { Qt::Key_VolumeUp,     QT_TRANSLATE_NOOP("QShortcut", "Volume Up") },
+    { Qt::Key_BassBoost,    QT_TRANSLATE_NOOP("QShortcut", "Bass Boost") },
+    { Qt::Key_BassUp,       QT_TRANSLATE_NOOP("QShortcut", "Bass Up") },
+    { Qt::Key_BassDown,     QT_TRANSLATE_NOOP("QShortcut", "Bass Down") },
+    { Qt::Key_TrebleUp,     QT_TRANSLATE_NOOP("QShortcut", "Treble Up") },
+    { Qt::Key_TrebleDown,   QT_TRANSLATE_NOOP("QShortcut", "Treble Down") },
+    { Qt::Key_MediaPlay,    QT_TRANSLATE_NOOP("QShortcut", "Media Play") },
+    { Qt::Key_MediaStop,    QT_TRANSLATE_NOOP("QShortcut", "Media Stop") },
+    { Qt::Key_MediaPrev,    QT_TRANSLATE_NOOP("QShortcut", "Media Previous") },
+    { Qt::Key_MediaNext,    QT_TRANSLATE_NOOP("QShortcut", "Media Next") },
+    { Qt::Key_MediaRecord,  QT_TRANSLATE_NOOP("QShortcut", "Media Record") },
+    { Qt::Key_HomePage,     QT_TRANSLATE_NOOP("QShortcut", "Home") },
+    { Qt::Key_Favorites,    QT_TRANSLATE_NOOP("QShortcut", "Favorites") },
+    { Qt::Key_Search,       QT_TRANSLATE_NOOP("QShortcut", "Search") },
+    { Qt::Key_Standby,      QT_TRANSLATE_NOOP("QShortcut", "Standby") },
+    { Qt::Key_OpenUrl,      QT_TRANSLATE_NOOP("QShortcut", "Open URL") },
+    { Qt::Key_LaunchMail,   QT_TRANSLATE_NOOP("QShortcut", "Launch Mail") },
+    { Qt::Key_LaunchMedia,  QT_TRANSLATE_NOOP("QShortcut", "Launch Media") },
+    { Qt::Key_Launch0,      QT_TRANSLATE_NOOP("QShortcut", "Launch (0)") },
+    { Qt::Key_Launch1,      QT_TRANSLATE_NOOP("QShortcut", "Launch (1)") },
+    { Qt::Key_Launch2,      QT_TRANSLATE_NOOP("QShortcut", "Launch (2)") },
+    { Qt::Key_Launch3,      QT_TRANSLATE_NOOP("QShortcut", "Launch (3)") },
+    { Qt::Key_Launch4,      QT_TRANSLATE_NOOP("QShortcut", "Launch (4)") },
+    { Qt::Key_Launch5,      QT_TRANSLATE_NOOP("QShortcut", "Launch (5)") },
+    { Qt::Key_Launch6,      QT_TRANSLATE_NOOP("QShortcut", "Launch (6)") },
+    { Qt::Key_Launch7,      QT_TRANSLATE_NOOP("QShortcut", "Launch (7)") },
+    { Qt::Key_Launch8,      QT_TRANSLATE_NOOP("QShortcut", "Launch (8)") },
+    { Qt::Key_Launch9,      QT_TRANSLATE_NOOP("QShortcut", "Launch (9)") },
+    { Qt::Key_LaunchA,      QT_TRANSLATE_NOOP("QShortcut", "Launch (A)") },
+    { Qt::Key_LaunchB,      QT_TRANSLATE_NOOP("QShortcut", "Launch (B)") },
+    { Qt::Key_LaunchC,      QT_TRANSLATE_NOOP("QShortcut", "Launch (C)") },
+    { Qt::Key_LaunchD,      QT_TRANSLATE_NOOP("QShortcut", "Launch (D)") },
+    { Qt::Key_LaunchE,      QT_TRANSLATE_NOOP("QShortcut", "Launch (E)") },
+    { Qt::Key_LaunchF,      QT_TRANSLATE_NOOP("QShortcut", "Launch (F)") },
 
     // --------------------------------------------------------------
     // More consistent namings
-    { Qt::Key_Print,        QT_TRANSLATE_NOOP("QAccel", "Print Screen") },
-    { Qt::Key_Prior,        QT_TRANSLATE_NOOP("QAccel", "Page Up") },
-    { Qt::Key_Next,         QT_TRANSLATE_NOOP("QAccel", "Page Down") },
-    { Qt::Key_CapsLock,     QT_TRANSLATE_NOOP("QAccel", "Caps Lock") },
-    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QAccel", "Num Lock") },
-    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QAccel", "Number Lock") },
-    { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP("QAccel", "Scroll Lock") },
-    { Qt::Key_Insert,       QT_TRANSLATE_NOOP("QAccel", "Insert") },
-    { Qt::Key_Delete,       QT_TRANSLATE_NOOP("QAccel", "Delete") },
-    { Qt::Key_Escape,       QT_TRANSLATE_NOOP("QAccel", "Escape") },
-    { Qt::Key_SysReq,       QT_TRANSLATE_NOOP("QAccel", "System Request") },
+    { Qt::Key_Print,        QT_TRANSLATE_NOOP("QShortcut", "Print Screen") },
+    { Qt::Key_Prior,        QT_TRANSLATE_NOOP("QShortcut", "Page Up") },
+    { Qt::Key_Next,         QT_TRANSLATE_NOOP("QShortcut", "Page Down") },
+    { Qt::Key_CapsLock,     QT_TRANSLATE_NOOP("QShortcut", "Caps Lock") },
+    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QShortcut", "Num Lock") },
+    { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QShortcut", "Number Lock") },
+    { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP("QShortcut", "Scroll Lock") },
+    { Qt::Key_Insert,       QT_TRANSLATE_NOOP("QShortcut", "Insert") },
+    { Qt::Key_Delete,       QT_TRANSLATE_NOOP("QShortcut", "Delete") },
+    { Qt::Key_Escape,       QT_TRANSLATE_NOOP("QShortcut", "Escape") },
+    { Qt::Key_SysReq,       QT_TRANSLATE_NOOP("QShortcut", "System Request") },
 
     { 0, 0 }
 };
@@ -189,7 +187,7 @@ QKeySequence::QKeySequence()
     Creates a key sequence from the string \a key. For example
     "Ctrl+O" gives CTRL+'O'. The strings "Ctrl",
     "Shift", "Alt" and "Meta" are recognized, as well as their
-    translated equivalents in the "QAccel" context (using
+    translated equivalents in the "QShortcut" context (using
     QObject::tr()).
 
     Multiple key codes (up to four) may be entered by separating them
@@ -395,13 +393,13 @@ int QKeySequence::decodeString(const QString &str)
         modifs << ModifKeyName(SHIFT, QMAC_SHIFT);
 #endif
         modifs << ModifKeyName(CTRL, "ctrl+")
-               << ModifKeyName(CTRL, QAccel::tr("Ctrl").toLower().append('+'))
+               << ModifKeyName(CTRL, QShortcut::tr("Ctrl").toLower().append('+'))
                << ModifKeyName(SHIFT, "shift+")
-               << ModifKeyName(SHIFT, QAccel::tr("Shift").toLower().append('+'))
+               << ModifKeyName(SHIFT, QShortcut::tr("Shift").toLower().append('+'))
                << ModifKeyName(ALT, "alt+")
-               << ModifKeyName(ALT, QAccel::tr("Alt").toLower().append('+'))
+               << ModifKeyName(ALT, QShortcut::tr("Alt").toLower().append('+'))
                << ModifKeyName(META, "meta+")
-               << ModifKeyName(ALT, QAccel::tr("Meta").toLower().append('+'));
+               << ModifKeyName(ALT, QShortcut::tr("Meta").toLower().append('+'));
     }
     QString sl = accel;
     for (int i = 0; i < modifs.size(); ++i) {
@@ -429,7 +427,7 @@ int QKeySequence::decodeString(const QString &str)
         for (int tran = 0; tran < 2; ++tran) {
             for (int i = 0; keyname[i].name; ++i) {
                 QString keyName(tran
-                                ? QAccel::tr(keyname[i].name)
+                                ? QShortcut::tr(keyname[i].name)
                                 : keyname[i].name);
                 if (accel == keyName.toLower()) {
                     ret |= keyname[i].key;
@@ -448,7 +446,7 @@ int QKeySequence::decodeString(const QString &str)
 /*!
     Creates an accelerator string for \a key. For example,
     CTRL+Key_O gives "Ctrl+O". The strings, "Ctrl", "Shift", etc. are
-    translated (using QObject::tr()) in the "QAccel" context.
+    translated (using QObject::tr()) in the "QShortcut" context.
  */
 QString QKeySequence::encodeString(int key)
 {
@@ -466,21 +464,21 @@ QString QKeySequence::encodeString(int key)
 #else
     // On other systems the order is Meta, Control, Alt, Shift
     if ((key & META) == META)
-        s += QAccel::tr("Meta");
+        s += QShortcut::tr("Meta");
     if ((key & CTRL) == CTRL) {
         if (!s.isEmpty())
-            s += QAccel::tr("+");
-        s += QAccel::tr("Ctrl");
+            s += QShortcut::tr("+");
+        s += QShortcut::tr("Ctrl");
     }
     if ((key & ALT) == ALT) {
         if (!s.isEmpty())
-            s += QAccel::tr("+");
-        s += QAccel::tr("Alt");
+            s += QShortcut::tr("+");
+        s += QShortcut::tr("Alt");
     }
     if ((key & SHIFT) == SHIFT) {
         if (!s.isEmpty())
-            s += QAccel::tr("+");
-        s += QAccel::tr("Shift");
+            s += QShortcut::tr("+");
+        s += QShortcut::tr("Shift");
     }
 #endif
 
@@ -496,14 +494,14 @@ QString QKeySequence::encodeString(int key)
             p += QChar((key-0x10000)%400+0xdc00);
         }
     } else if (key >= Key_F1 && key <= Key_F35) {
-        p = QAccel::tr("F%1").arg(key - Key_F1 + 1);
+        p = QShortcut::tr("F%1").arg(key - Key_F1 + 1);
     } else if (key > Key_Space && key <= Key_AsciiTilde) {
         p.sprintf("%c", key);
     } else if (key) {
         int i=0;
         while (keyname[i].name) {
             if (key == keyname[i].key) {
-                p = QAccel::tr(keyname[i].name);
+                p = QShortcut::tr(keyname[i].name);
                 break;
             }
             ++i;
@@ -524,7 +522,7 @@ QString QKeySequence::encodeString(int key)
 
 #ifndef Q_OS_MAC
     if (!s.isEmpty())
-        s += QAccel::tr("+");
+        s += QShortcut::tr("+");
 #endif
 
     s += p;
@@ -564,11 +562,11 @@ Qt::SequenceMatch QKeySequence::matches(const QKeySequence &seq) const
     For instance CTRL+Key_O gives "Ctrl+O". If the key sequence has
     multiple key codes they are returned comma-separated, e.g.
     "Alt+X, Ctrl+Y, Z". The strings, "Ctrl", "Shift", etc. are
-    translated (using QObject::tr()) in the "QAccel" scope. If the key
-    sequence has no keys, QString::null is returned.
+    translated (using QObject::tr()) in the "QShortcut" scope. If the
+    key sequence has no keys, QString::null is returned.
 
-    On Mac OS X, the string returned resembles the sequence that is shown in
-    the menubar.
+    On Mac OS X, the string returned resembles the sequence that is
+    shown in the menubar.
 */
 QKeySequence::operator QString() const
 {
@@ -723,5 +721,3 @@ QDebug operator<<(QDebug dbg, const QKeySequence &p)
     return dbg.space();
 }
 #endif
-
-#endif //QT_NO_ACCEL

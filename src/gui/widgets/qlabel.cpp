@@ -17,7 +17,6 @@
 #include "qpainter.h"
 #include "qevent.h"
 #include "qdrawutil.h"
-#include "qaccel.h"
 #include "qmovie.h"
 #include "qimage.h"
 #include "qbitmap.h"
@@ -38,10 +37,10 @@ public:
         :img(0), pix(0), valid_hints(false), margin(0)
     {}
 
-    void        init();
-    void        clearContents();
-    void        updateLabel();
-    QSize        sizeForWidth(int w) const;
+    void init();
+    void clearContents();
+    void updateLabel();
+    QSize sizeForWidth(int w) const;
 
     QImage* img; // for scaled contents
     QPixmap* pix; // for scaled contents
@@ -49,26 +48,22 @@ public:
     mutable QSize msh;
     mutable bool valid_hints;
     int margin;
-    QString        ltext;
-    QPixmap    *lpixmap;
+    QString ltext;
+    QPixmap *lpixmap;
 #ifndef QT_NO_PICTURE
-    QPicture   *lpicture;
+    QPicture *lpicture;
 #endif
 #ifndef QT_NO_MOVIE
-    QMovie *        lmovie;
+    QMovie *lmovie;
 #endif
-#ifndef QT_NO_ACCEL
     QPointer<QWidget> lbuddy;
-#endif
-    ushort        align;
-    short        extraMargin;
-    uint        scaledcontents :1;
+    int shortcutId;
+    ushort align;
+    short extraMargin;
+    uint scaledcontents :1;
     QLabel::TextFormat textformat;
 #ifndef QT_NO_RICHTEXT
     QTextDocument* doc;
-#endif
-#ifndef QT_NO_ACCEL
-    QAccel *        accel;
 #endif
 };
 
@@ -87,7 +82,7 @@ public:
     QLabel is used for displaying text or an image. No user
     interaction functionality is provided. The visual appearance of
     the label can be configured in various ways, and it can be used
-    for specifying a focus accelerator key for another widget.
+    for specifying a focus mnemonic key for another widget.
 
     A QLabel can contain any of the following content types:
     \table
@@ -127,7 +122,7 @@ public:
 
     A QLabel is often used as a label for an interactive widget. For
     this use QLabel provides a useful mechanism for adding an
-    accelerator key (see QAccel) that will set the keyboard focus to
+    mnemonic (see QKeysequence) that will set the keyboard focus to
     the other widget (called the QLabel's "buddy"). For example:
     \code
     QLineEdit* phoneEdit = new QLineEdit(this, "phoneEdit");
@@ -247,9 +242,7 @@ QLabel::QLabel(QWidget *buddy,  const QString &text,
     if (name)
         setObjectName(name);
     d->init();
-#ifndef QT_NO_ACCEL
     setBuddy(buddy);
-#endif
     setText(text);
 }
 
@@ -269,9 +262,7 @@ void QLabelPrivate::init()
 #ifndef QT_NO_MOVIE
     lmovie = 0;
 #endif
-#ifndef QT_NO_ACCEL
-    accel = 0;
-#endif
+    shortcutId = 0;
     lpixmap = 0;
 #ifndef QT_NO_PICTURE
     lpicture = 0;
@@ -301,7 +292,7 @@ void QLabelPrivate::init()
     auto-detect the format of the text set.
 
     If the text is interpreted as a plain text and a buddy has been
-    set, the buddy accelerator key is updated from the new text.
+    set, the buddy mnemonic key is updated from the new text.
 
     The label resizes itself if auto-resizing is enabled.
 
@@ -335,13 +326,8 @@ void QLabel::setText(const QString &text)
     // Eg. <b>&gt;Hello</b> will return ALT+G which is clearly
     // not intended.
     if (!useRichText) {
-        int p = QAccel::shortcutKey(d->ltext);
-        if (p) {
-            if (!d->accel)
-                d->accel = new QAccel(this, "accel label accel");
-            d->accel->connectItem(d->accel->insertItem(p),
-                                  this, SLOT(acceleratorSlot()));
-        }
+        releaseShortcut(d->shortcutId);
+        d->shortcutId = grabShortcut(QKeySequence::mnemonic(d->ltext));
     }
 #endif
 #ifndef QT_NO_RICHTEXT
@@ -714,10 +700,22 @@ QSize QLabel::minimumSizeHint() const
     return sz;
 }
 
+/*!\reimp
+*/
+bool QLabel::event(QEvent *e)
+{
+    if (e->type() == QEvent::Shortcut) {
+        QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
+        if (se->shortcutId() == d->shortcutId) {
+            mnemonicSlot();
+            return true;
+        }
+    }
+    return QFrame::event(e);
+}
 
 /*!\reimp
 */
-
 void QLabel::paintEvent(QPaintEvent *)
 {
     QPainter paint(this);
@@ -880,7 +878,7 @@ void QLabelPrivate::updateLabel()
   Internal slot, used to set focus for accelerator labels.
 */
 #ifndef QT_NO_ACCEL
-void QLabel::acceleratorSlot()
+void QLabel::mnemonicSlot()
 {
     if (!d->lbuddy)
         return;
@@ -945,19 +943,6 @@ void QLabel::setBuddy(QWidget *buddy)
 
     if (!d->lbuddy)
         return;
-#ifndef QT_NO_RICHTEXT
-    if (!(d->textformat == RichText || (d->textformat == AutoText &&
-                                       QStyleSheet::mightBeRichText(d->ltext))))
-#endif
-    {
-        int p = QAccel::shortcutKey(d->ltext);
-        if (p) {
-            if (!d->accel)
-                d->accel = new QAccel(this, "accel label accel");
-            d->accel->connectItem(d->accel->insertItem(p),
-                                this, SLOT(acceleratorSlot()));
-        }
-    }
 }
 
 
@@ -1046,10 +1031,8 @@ void QLabelPrivate::clearContents()
     d->pix = 0;
 
     d->ltext = QString::null;
-#ifndef QT_NO_ACCEL
-    if (accel)
-        accel->clear();
-#endif
+    q->releaseShortcut(shortcutId);
+    shortcutId = 0;
 #ifndef QT_NO_MOVIE
     if (d->lmovie) {
         d->lmovie->disconnectResize(q, SLOT(movieResized(QSize)));

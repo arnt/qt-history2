@@ -23,7 +23,6 @@
 #include "qtoolbutton.h"
 #include "qlabel.h"
 #include "qvbox.h"
-#include "qaccel.h"
 #include "qcursor.h"
 #include "qmenubar.h"
 #include "qpopupmenu.h"
@@ -39,12 +38,14 @@
 #include "qstyle.h"
 #include "qbitmap.h"
 #include "qpainter.h"
+#include "qhash.h"
+#include "qsignal.h"
 
 #define d d_func()
 #define q q_func()
 
-#define BUTTON_WIDTH        16
-#define BUTTON_HEIGHT        14
+#define BUTTON_WIDTH 16
+#define BUTTON_HEIGHT 14
 
 /*!
 \class QWorkspace qworkspace.h
@@ -204,6 +205,7 @@ public:
     QRect maxRestore;
     QPointer<QFrame> maxcontrols;
     QPointer<QMenuBar> maxmenubar;
+    QHash<int, const char*> shortcutMap;
 
     int px;
     int py;
@@ -219,7 +221,6 @@ public:
     QWidget *corner;
     int yoffset, xoffset;
     QBrush background;
-
 
     void init();
     void insertIcon(QWidget* w);
@@ -299,9 +300,7 @@ QWorkspacePrivate::init()
                                                              q->tr("Ma&ximize"), q);
     d->actions[QWorkspacePrivate::CloseAct] = new QAction(QIconSet(q->style().stylePixmap(QStyle::SP_TitleBarCloseButton)),
                                                           q->tr("&Close")
-#ifndef QT_NO_ACCEL
                                                           +"\t"+(QString)QKeySequence(CTRL+Key_F4)
-#endif
                                                           ,q);
     QObject::connect(d->actions[QWorkspacePrivate::CloseAct], SIGNAL(triggered()), q, SLOT(closeActiveWindow()));
     d->actions[QWorkspacePrivate::StaysOnTopAct] = new QAction(q->tr("Stay on &Top"), q);
@@ -328,28 +327,15 @@ QWorkspacePrivate::init()
     d->toolPopup->addAction(d->actions[QWorkspacePrivate::ShadeAct]);
     d->toolPopup->addAction(d->actions[QWorkspacePrivate::CloseAct]);
 
-#ifndef QT_NO_ACCEL
-    QAccel* a = new QAccel(q);
-    a->connectItem(a->insertItem(ALT + Key_Minus),
-                    q, SLOT(showOperationMenu()));
-
-    a->connectItem(a->insertItem(CTRL + Key_F6),
-                    q, SLOT(activateNextWindow()));
-    a->connectItem(a->insertItem(CTRL + Key_Tab),
-                    q, SLOT(activateNextWindow()));
-    a->connectItem(a->insertItem(Key_Forward),
-                    q, SLOT(activateNextWindow()));
-
-    a->connectItem(a->insertItem(CTRL + SHIFT + Key_F6),
-                    q, SLOT(activatePreviousWindow()));
-    a->connectItem(a->insertItem(CTRL + SHIFT + Key_Tab),
-                    q, SLOT(activatePreviousWindow()));
-    a->connectItem(a->insertItem(Key_Back),
-                    q, SLOT(activatePreviousWindow()));
-
-    a->connectItem(a->insertItem(CTRL + Key_F4),
-                    q, SLOT(closeActiveWindow()));
-#endif
+    // Set up shortcut bindings (id -> slot), most used first
+    shortcutMap.insert(q->grabShortcut(CTRL + Key_Tab), "activateNextWindow");
+    shortcutMap.insert(q->grabShortcut(CTRL + SHIFT + Key_Tab), "activatePreviousWindow");
+    shortcutMap.insert(q->grabShortcut(CTRL + Key_F4), "closeActiveWindow");
+    shortcutMap.insert(q->grabShortcut(ALT + Key_Minus), "showOperationMenu");
+    shortcutMap.insert(q->grabShortcut(CTRL + Key_F6), "activateNextWindow");
+    shortcutMap.insert(q->grabShortcut(CTRL + SHIFT + Key_F6), "activatePreviousWindow");
+    shortcutMap.insert(q->grabShortcut(Key_Forward), "activateNextWindow");
+    shortcutMap.insert(q->grabShortcut(Key_Back), "activatePreviousWindow");
 
     background = q->palette().dark();
     q->setAttribute(QWidget::WA_NoBackground, true);
@@ -1113,6 +1099,14 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
             d->popup->hide();
         }
         d->updateWorkspace();
+        break;
+    case QEvent::Shortcut:
+        {
+            QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
+            const char *theSlot = d->shortcutMap.value(se->shortcutId(), 0);
+            if (theSlot)
+                qInvokeSlot(this, theSlot);
+        }
         break;
     default:
         break;

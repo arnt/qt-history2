@@ -5,10 +5,12 @@ HEADERS +=      other/qdropsite.h \
                 other/qlocalfs.h \
                 other/qnetworkprotocol.h \
                 other/q3dns.h \
-                other/qurloperator.h
+                other/qurloperator.h \
+                other/qaccel.h
 
 SOURCES +=      other/qdropsite.cpp \
                 other/qlocalfs.cpp \
                 other/qnetworkprotocol.cpp \
                 other/q3dns.cpp \
-                other/qurloperator.cpp
+                other/qurloperator.cpp \
+                other/qaccel.cpp

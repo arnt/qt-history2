@@ -24,7 +24,7 @@
 #include "qwhatsthis.h"
 #include "qstatusbar.h"
 #include "qdockwindow.h"
-#include "qapplication_p.h"
+#include "private/qapplication_p.h"
 #define d d_func()
 #define q q_func()
 
@@ -162,8 +162,9 @@ public:
 private:
     QAccelManager()
         : currentState(Qt::NoMatch), clash(-1), metaComposeUnicode(false),composedUnicode(0)
-        { self_ptr = this; }
+        { setFuncPtr(); self_ptr = this; }
     ~QAccelManager() { self_ptr = 0; }
+    void setFuncPtr();
 
     bool correctSubWindow(QWidget *w, QAccelPrivate* priv);
     SequenceMatch match(QKeyEvent* e, QAccelItem* item, QKeySequence& temp);
@@ -179,24 +180,35 @@ private:
 };
 QAccelManager* QAccelManager::self_ptr = 0;
 
-bool Q_GUI_EXPORT qt_tryAccelEvent(QWidget* w, QKeyEvent*  e){
+bool Q_COMPAT_EXPORT qt_tryAccelEvent(QWidget *w, QKeyEvent *e){
     return QAccelManager::self()->tryAccelEvent(w, e);
 }
 
-bool Q_GUI_EXPORT qt_dispatchAccelEvent(QWidget* w, QKeyEvent*  e){
+bool Q_COMPAT_EXPORT qt_dispatchAccelEvent(QWidget *w, QKeyEvent *e){
     return QAccelManager::self()->dispatchAccelEvent(w, e);
 }
 
-bool Q_GUI_EXPORT qt_tryComposeUnicode(QWidget* w, QKeyEvent*  e){
+bool Q_COMPAT_EXPORT qt_tryComposeUnicode(QWidget *w, QKeyEvent *e){
     return QAccelManager::self()->tryComposeUnicode(w, e);
 }
+
+void QAccelManager::setFuncPtr() {
+    if (qApp->d->qt_compat_used)
+        return;
+    QApplicationPrivate *data = static_cast<QApplicationPrivate*>(qApp->d_ptr);
+    data->qt_tryAccelEvent = qt_tryAccelEvent;
+    data->qt_tryComposeUnicode = qt_tryComposeUnicode;
+    data->qt_dispatchAccelEvent = qt_dispatchAccelEvent;
+    data->qt_compat_used = true;
+}
+
 
 #ifdef Q_WS_MAC
 static bool qt_accel_no_shortcuts = true;
 #else
 static bool qt_accel_no_shortcuts = false;
 #endif
-void Q_GUI_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = !b; }
+void Q_COMPAT_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = !b; }
 
 /*
     \internal
@@ -396,15 +408,19 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
     int hasShift = (e->state()&Qt::ShiftButton)?1:0;
     bool identicalDisabled = false;
     bool matchFound = false;
+    qDebug("Search old system for shortcut");
     do {
         matchFound = false;
         for (int i = 0; i < accels.size(); ++i) {
             accel = accels.at(i);
+            qDebug("Accel: %p", &accel);
             if (correctSubWindow(w, accel)) {
+                qDebug("    correct subwindow");
                 if (accel->enabled) {
                     for (int j = accel->aitems.size(); j > 0;) {
                         --j;
                         item = accel->aitems.at(j);
+                        qDebug("        Item: %s", ((QString)item->key).latin1());
                         result = match(&pe, item, tocheck);
                         if (Qt::Identical == result) {
                             if (item->enabled) {
@@ -477,6 +493,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
         currentState = Qt::NoMatch; // Free sequence keylock
         intermediate = QKeySequence();
         lastaccel->activate(lastitem);
+        qDebug("activate(lastitem)");
         e->accept();
         return true;
     }
@@ -499,6 +516,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
             mainStatusBar->message(message, 2000);
 #endif
         lastaccel->activateAmbiguously(lastitem);
+        qDebug("activateAmbiguously(lastitem)");
     } else { // start (or wrap) with the first matching
         intermediate = QKeySequence();
         currentState = Qt::NoMatch; // Free sequence keylock
@@ -510,6 +528,7 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
             mainStatusBar->message(message, 2000);
 #endif
         firstaccel->activateAmbiguously(firstitem);
+        qDebug("activateAmbiguously(firstitem)");
     }
     e->accept();
     return true;
@@ -520,6 +539,7 @@ QAccelPrivate::QAccelPrivate(QAccel *p)
 {
     QAccelManager::self()->registerAccel(this);
     ignorewhatsthis = false;
+    // Make sure that QApplications starts QAccel processing
 }
 
 QAccelPrivate::~QAccelPrivate()
@@ -822,6 +842,7 @@ void QAccelPrivate::activate(QAccelItem* item)
         return;
     }
 #endif
+    qDebug("QAccelPrivate::activate(item)");
     if (item->signal)
         item->signal->activate();
     else
@@ -830,6 +851,7 @@ void QAccelPrivate::activate(QAccelItem* item)
 
 void QAccelPrivate::activateAmbiguously(QAccelItem* item)
 {
+    qDebug("QAccelPrivate::activateAmbiguously(item)");
     if (item->signal)
         item->signal->activate();
     else

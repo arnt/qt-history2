@@ -69,10 +69,16 @@ extern QSysInfo::MacVersion qt_macver;
 extern int qt_ncols_option;
 #endif
 
-
 extern void qt_dispatchEnterLeave(QWidget*, QWidget*);
 extern bool qt_tryModalHelper(QWidget *, QWidget ** = 0);
 
+#ifndef QT_NO_COMPAT
+extern "C" {
+    typedef bool (*Ptrqt_tryAccelEvent)(QWidget *w, QKeyEvent *e);
+    typedef bool (*Ptrqt_tryComposeUnicode)(QWidget *w, QKeyEvent *e);
+    typedef bool (*Ptrqt_dispatchAccelEvent)(QWidget *w, QKeyEvent *e);
+}
+#endif
 
 class QApplicationPrivate : public QCoreApplicationPrivate
 {
@@ -96,7 +102,19 @@ public:
     QPoint toolTipPos, toolTipGlobalPos;
     QPointer<QWidget> toolTipWidget;
     QShortcutMap shortcutMap;
+
+#ifndef QT_NO_COMPAT
+    bool qt_compat_used;
+    bool qt_compat_resolved;
+    Ptrqt_tryAccelEvent qt_tryAccelEvent;
+    Ptrqt_tryComposeUnicode qt_tryComposeUnicode;
+    Ptrqt_dispatchAccelEvent qt_dispatchAccelEvent;
+
+    bool use_compat() {
+        return qt_tryAccelEvent
+               && qt_tryComposeUnicode
+               && qt_dispatchAccelEvent;
+    }
+#endif
 };
-
-
 #endif

@@ -276,8 +276,6 @@ static bool        qt_try_modal(QWidget *, MSG *, int& ret);
 
 QWidget               *qt_button_down = 0;                // widget got last button-down
 
-extern bool qt_tryAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
-
 static HWND        autoCaptureWnd = 0;
 static void        setAutoCapture(HWND);                // automatic capture
 static void        releaseAutoCapture();
@@ -2811,7 +2809,7 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                 }
             }
 
-            // map shift+tab to shift+backtab, QAccel knows about it
+            // map shift+tab to shift+backtab, QShortcutMap knows about it
             // and will handle it
             if (code == Key_Tab && (state & ShiftButton) == ShiftButton)
                 code = Key_BackTab;
@@ -3123,12 +3121,15 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
                               int state, bool grab, const QString& text,
                               bool autor)
 {
-    if (type == QEvent::KeyPress && !grab) {
+#if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
+    if (type == QEvent::KeyPress && !grab 
+        && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed
         QKeyEvent a(type, code, state, text, autor, qMax(1, int(text.length())));
-        if (qt_tryAccelEvent(this, &a))
+        if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
     }
+#endif
     if (!isEnabled())
         return false;
     QKeyEvent e(type, code, state, text, autor, qMax(1, int(text.length())));

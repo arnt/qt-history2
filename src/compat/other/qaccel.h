@@ -29,7 +29,7 @@ class QAccelPrivate;
 class QKeySequence;
 class QWidget;
 
-class Q_GUI_EXPORT QAccel : public QObject                        // accelerator class
+class Q_COMPAT_EXPORT QAccel : public QObject                        // accelerator class
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAccel)
@@ -78,6 +78,8 @@ private:
 #endif
     friend class QAccelManager;
 };
+
+class QKeyEvent;
 
 #ifdef QT_COMPAT
 inline QString QAccel::keyToString(const QKeySequence &k)

@@ -18,7 +18,7 @@ class QMenuBarPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QMenuBar)
 public:
-    QMenuBarPrivate() : itemsDirty(0), itemsWidth(0), itemsStart(-1), shortcuts(0), currentAction(0), mouseDown(0),
+    QMenuBarPrivate() : itemsDirty(0), itemsWidth(0), itemsStart(-1), currentAction(0), mouseDown(0),
                          closePopupMode(0), defaultPopDown(1), popupState(0), keyboardState(0), altPressed(0)
 #ifdef Q_WS_MAC
                          , mac_menubar(0)
@@ -38,9 +38,8 @@ public:
     //item calculations
     uint itemsDirty : 1;
     int itemsWidth, itemsStart;
-#ifndef QT_NO_ACCEL
-    QAccel *shortcuts;
-#endif
+
+    QVector<int> shortcutIndexMap;
     QList<QMenuAction*> actionItems;
     QList<QMenuAction*> calcActionRects(int width, int start) const;
     QRect actionRect(QMenuAction *) const;

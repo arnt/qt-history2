@@ -56,7 +56,6 @@ extern const QCoreVariant::Handler qt_gui_variant_handler;
 #define q q_func()
 
 
-
 QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
     : QCoreApplicationPrivate(argc, argv)
 {
@@ -64,6 +63,13 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
     is_session_restored = false;
 #endif
 
+#ifndef QT_NO_COMPAT
+    qt_compat_used = 0;
+    qt_compat_resolved = 0;
+    qt_tryAccelEvent = 0;
+    qt_tryComposeUnicode = 0;
+    qt_dispatchAccelEvent = 0;
+#endif
     QVariant::handler = &qt_gui_variant_handler;
 }
 
@@ -2462,10 +2468,6 @@ int QApplication::exec()
     return QCoreApplication::exec();
 }
 
-#ifndef QT_NO_ACCEL
-extern bool qt_dispatchAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
-extern bool qt_tryComposeUnicode(QWidget*, QKeyEvent*); // def in qaccel.cpp
-#endif
 /*! \reimp
  */
 bool QApplication::notify(QObject *receiver, QEvent *e)
@@ -2543,30 +2545,32 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     if (!receiver->isWidgetType()) {
         res = notify_helper(receiver, e);
     } else switch (e->type()) {
-#ifndef QT_NO_ACCEL
+#if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
     case QEvent::Accel:
     {
-        QKeyEvent* key = (QKeyEvent*) e;
-        res = notify_helper(receiver, e);
+        if (d->use_compat()) {
+            QKeyEvent* key = (QKeyEvent*) e;
+            res = notify_helper(receiver, e);
 
-        if (!res && !key->isAccepted())
-            res = qt_dispatchAccelEvent((QWidget*)receiver, key);
+            if (!res && !key->isAccepted())
+                res = d->qt_dispatchAccelEvent((QWidget*)receiver, key);
 
-        // next lines are for compatibility with Qt <= 3.0.x: old
-        // QAccel was listening on toplevel widgets
-        if (!res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel())
-            res = notify_helper(((QWidget*)receiver)->topLevelWidget(), e);
+            // next lines are for compatibility with Qt <= 3.0.x: old
+            // QAccel was listening on toplevel widgets
+            if (!res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel())
+                res = notify_helper(((QWidget*)receiver)->topLevelWidget(), e);
+        }
         break;
     }
-#endif //QT_NO_ACCEL
+#endif //!QT_NO_COMPAT && !QT_NO_ACCEL
     case QEvent::ShortcutOverride:
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
         {
         QWidget* w = static_cast<QWidget*>(receiver);
         QKeyEvent* key = static_cast<QKeyEvent*>(e);
-#ifndef QT_NO_ACCEL
-        if (qt_tryComposeUnicode(w, key))
+#if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
+        if (d->use_compat() && d->qt_tryComposeUnicode(w, key))
             break;
 #endif
         // Try looking for a Shortcut before sending key events
