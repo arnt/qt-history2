@@ -560,7 +560,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
     if ( maxValue() == minValue() ) // nothing to be done
 	return;
 
-    if ( e->state() ) // another button was already pressed
+    if ( e->state() & MouseButtonMask ) // another button was already pressed
 	return;
 
     clickedAt	   = TRUE;
