@@ -57,7 +57,7 @@ int mac_window_count = 0;
   Externals
  *****************************************************************************/
 QString cfstring2qstring(CFStringRef); //qglobal.cpp
-void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QRect &, bool); //qpaintdevice_mac.cpp
+void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
 void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
@@ -2314,16 +2314,16 @@ uint QWidget::clippedSerial(bool do_children)
 Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 {
     //setup handle
-    Rect port_rect;
-    GetPortBounds(GetWindowPort((WindowPtr)handle()), &port_rect);
     if(!cg_hd) {
+	Rect port_rect;
+	GetPortBounds(GetWindowPort((WindowPtr)handle()), &port_rect);
 	CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), (CGContextRef*)&cg_hd);
 	SyncCGContextOriginWithPort((CGContextRef)cg_hd, GetWindowPort((WindowPtr)handle()));
 	CGContextTranslateCTM((CGContextRef)cg_hd, 0, (port_rect.bottom - port_rect.top));
 	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);
     }
     qt_mac_clip_cg_handle((CGContextRef)cg_hd, ((QWidget*)this)->clippedRegion(do_children), 
-			  QRect(0, 0, port_rect.right-port_rect.left, port_rect.bottom-port_rect.top), false);
+			  QPoint(0, 0), false);
     return cg_hd;
 }
 

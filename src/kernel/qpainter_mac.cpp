@@ -87,7 +87,7 @@ bool qt_recreate_root_win(); //qwidget_mac.cpp
 void drawTile(QPainter *, int, int, int, int, const QPixmap &, int, int);
 #endif
 QRegion make_region(RgnHandle handle); 
-void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QRect &, bool); //qpaintdevice_mac.cpp
+void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
 void unclippedBitBlt(QPaintDevice *dst, int dx, int dy,
 		     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 		     Qt::RasterOp rop, bool imask, bool set_fore_colour); //qpaintdevice_mac.cpp
@@ -145,7 +145,7 @@ static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *pa
     //apply paint event region (in global coords)
     if(paintevent_item *pevent = paintevents.current()) {
 	if((*pevent) == pdev)
-	    qt_mac_clip_cg_handle(ret, pevent->region(), QRect(0, 0, 0, 0), true);
+	    qt_mac_clip_cg_handle(ret, pevent->region(), QPoint(0, 0), true);
     }
     return ret;
 }
@@ -915,7 +915,7 @@ void QPainter::setClipping(bool b)
 		CGContextRetain((CGContextRef)hd);
 	}
 	if(hd && b) 
-	    qt_mac_clip_cg_handle((CGContextRef)hd, crgn, QRect(d->offx, d->offy, 0, 0), true);
+	    qt_mac_clip_cg_handle((CGContextRef)hd, crgn, QPoint(d->offx, d->offy), true);
     }
 #endif
 }
