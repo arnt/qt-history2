@@ -17,7 +17,7 @@ public:
 	  direction(QChar::DirON), dragEnabled(1), alignment(0),
 	  echoMode(0), textDirty(0), selDirty(0), validInput(1),
 	  ascent(0), maxLength(32767), menuId(0),
-	  hscroll(0), maskData(0),
+	  hscroll(0), lastCursorPos(-1), maskData(0),
 	  undoState(0), selstart(0), selend(0),
 	  imstart(0), imend(0), imselstart(0), imselend(0)
 	{}
@@ -44,7 +44,10 @@ public:
     int maxLength;
     int menuId;
     int hscroll;
+    int lastCursorPos;
     QChar passwordChar; // obsolete
+
+    inline void emitCursorPositionChanged();
 
     void finishChange( int validateFromState = -1, bool setModified = TRUE );
 

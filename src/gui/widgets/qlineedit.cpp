@@ -81,10 +81,11 @@
     setAlignment().
 
     When the text changes the textChanged() signal is emitted; when
-    the Return or Enter key is pressed the returnPressed() signal is
-    emitted. Note that if there is a validator set on the line edit,
-    the returnPressed() signal will only be emitted if the validator
-    returns \c Acceptable.
+    the cursor is moved the cursorPositionChanged() signal is emitted
+    and when the Return or Enter key is pressed the returnPressed()
+    signal is emitted. Note that if there is a validator set on the
+    line edit, the returnPressed() signal will only be emitted if the
+    validator returns \c Acceptable.
 
     By default, QLineEdits have a frame as specified by the Windows
     and Motif style guides; you can turn it off by calling
@@ -138,6 +139,15 @@
 
     This signal is emitted whenever the text changes. The argument is
     the new text.
+*/
+
+/*!
+    \fn void QLineEdit::cursorPositionChanged( int )
+
+    This signal is emitted whenever the cursor movees. The argument is
+    the new cursorPosition.
+
+    \sa setCursorPosition(), cursorPosition()
 */
 
 /*!
@@ -495,6 +505,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	d->selend = qMax( newMarkAnchor, newMarkDrag );
 	d->updateMicroFocusHint();
 	update();
+	d->emitCursorPositionChanged();
 	return TRUE;
     }
     return FALSE;
@@ -779,6 +790,7 @@ void QLineEdit::setSelection( int start, int length )
 	d->cursor = d->selend;
     }
     update();
+    d->emitCursorPositionChanged();
 }
 
 
@@ -1180,6 +1192,7 @@ void QLineEdit::mousePressEvent( QMouseEvent* e )
 	d->dndPos = e->pos();
 	if (!d->dndTimer.isActive())
 	    d->dndTimer.start(QApplication::startDragTime(), this);
+	d->emitCursorPositionChanged();
     } else
 #endif
     {
@@ -1540,6 +1553,7 @@ void QLineEdit::imComposeEvent( QIMEvent *e )
 	d->cursor = e->selectionLength() ? d->imend : d->imselend;
 	d->updateTextLayout();
 	update();
+	d->emitCursorPositionChanged();
     }
 }
 
@@ -1707,6 +1721,7 @@ void QLineEdit::dragMoveEvent( QDragMoveEvent *e )
 	d->cursor = d->xToPos( e->pos().x() );
 	d->cursorVisible = TRUE;
 	update();
+	d->emitCursorPositionChanged();
     }
 }
 
@@ -2004,6 +2019,7 @@ void QLineEditPrivate::moveCursor( int pos, bool mark )
 	selDirty = FALSE;
 	emit q->selectionChanged();
     }
+    d->emitCursorPositionChanged();
 }
 
 void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
@@ -2022,6 +2038,7 @@ void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
 		if ( text != textCopy ) {
 		    q->setText( textCopy );
 		    cursor = cursorCopy;
+		    emitCursorPositionChanged();
 		    return;
 		}
 		cursor = cursorCopy;
@@ -2053,6 +2070,15 @@ void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
     }
     if ( lineDirty || !setModified )
 	q->update();
+    emitCursorPositionChanged();
+}
+
+void QLineEditPrivate::emitCursorPositionChanged()
+{
+    if (cursor != lastCursorPos) {
+	lastCursorPos = cursor;
+	emit q->cursorPositionChanged(cursor);
+    }
 }
 
 void QLineEditPrivate::setText( const QString& txt )
@@ -2069,6 +2095,7 @@ void QLineEditPrivate::setText( const QString& txt )
     undoState = 0;
     cursor = text.length();
     textDirty = ( oldText != text );
+    emitCursorPositionChanged();
 }
 
 
@@ -2115,6 +2142,7 @@ void QLineEditPrivate::insert( const QString& s )
 	    addCommand( Command( Insert, cursor++, s.at(i) ) );
     }
     textDirty = TRUE;
+    emitCursorPositionChanged();
 }
 
 void QLineEditPrivate::del( bool wasBackspace )
@@ -2452,7 +2480,8 @@ int QLineEditPrivate::findInMask( int pos, bool forward, bool findSeparator, QCh
     return -1;
 }
 
-void QLineEditPrivate::undo(int until) {
+void QLineEditPrivate::undo(int until)
+{
     if ( !isUndoAvailable() )
 	return;
     deselect();
@@ -2485,6 +2514,7 @@ void QLineEditPrivate::undo(int until) {
     }
     modified = ( undoState != 0 );
     textDirty = TRUE;
+    emitCursorPositionChanged();
 }
 
 void QLineEditPrivate::redo() {
@@ -2516,6 +2546,7 @@ void QLineEditPrivate::redo() {
 	}
     }
     textDirty = TRUE;
+    emitCursorPositionChanged();
 }
 
 
