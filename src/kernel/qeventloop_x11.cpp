@@ -173,15 +173,27 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 		d->sn_vec[0].select_fds = d->sn_vec[0].enabled_fds;
 	    else
 		FD_ZERO( &d->sn_vec[0].select_fds );
+
 	    if ( d->sn_vec[1].list && ! d->sn_vec[1].list->isEmpty() )
 		d->sn_vec[1].select_fds = d->sn_vec[1].enabled_fds;
+	    else
+		FD_ZERO( &d->sn_vec[1].select_fds );
+
 	    if ( d->sn_vec[2].list && ! d->sn_vec[2].list->isEmpty() )
 		d->sn_vec[2].select_fds = d->sn_vec[2].enabled_fds;
+	    else
+		FD_ZERO( &d->sn_vec[2].select_fds );
 	} else {
 	    FD_ZERO( &d->sn_vec[0].select_fds );
+	    FD_ZERO( &d->sn_vec[1].select_fds );
+	    FD_ZERO( &d->sn_vec[2].select_fds );
 	}
 
 	highest = d->sn_highest;
+    } else {
+        FD_ZERO( &d->sn_vec[0].select_fds );
+	FD_ZERO( &d->sn_vec[1].select_fds );
+	FD_ZERO( &d->sn_vec[2].select_fds );
     }
 
     if ( qt_is_gui_used ) {
@@ -217,10 +229,10 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 #endif
 
     int nsel;
-    nsel = select( highest + 1,
-		   &d->sn_vec[0].select_fds,
-		   d->sn_vec[1].list ? &d->sn_vec[1].select_fds : 0,
-		   d->sn_vec[2].list ? &d->sn_vec[2].select_fds : 0,
+    nsel = select( highest + 1, 
+		   &d->sn_vec[0].select_fds, 
+		   &d->sn_vec[1].select_fds,
+		   &d->sn_vec[2].select_fds, 
 		   tm );
 
     // relock the GUI mutex before processing any pending events
