@@ -1041,7 +1041,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 			QApplication::postEvent( p, new QPaintEvent(oldr, TRUE) );
 		    p->setChildrenAllocatedDirty( dirtyChildren, this );
 		    updateActivePainter();
-		    paint_children( p, paintRegion, FALSE );
+		    paint_children( p, paintRegion, isResize );
 		}
 		p->overlapping_children = -1;
 	    } else {
