@@ -212,7 +212,7 @@ public:
 	GeometricalMask = 0xffff0000
     };
 
-    typedef bool(*InterfaceFactory)(QObject*, QAccessibleInterface**);
+    typedef QAccessibleInterface*(*InterfaceFactory)(const QString &key, QObject*);
     typedef void(*UpdateHandler)(QObject*, int who, Event reason);
     typedef void(*RootObjectHandler)(QObject*);
 

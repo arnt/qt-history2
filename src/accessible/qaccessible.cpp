@@ -449,15 +449,14 @@ QObject *QAccessible::queryAccessibleObject(QAccessibleInterface *o)
     successfull, or sets \a iface to 0 and returns FALSE if
     no accessibility implementation for \a object exists.
 
-    The function calls all intalled factory functions (in reverse
-    order) until one factory provides an interface. 
+    The function calls all installed factory functions (in reverse
+    order) until one factory provides an interface for the class of
+    \a object. If no factory can provide an accessibility implementation
+    for the class the function loads installed accessibility plugins and tests
+    if one plugin can provide the implementation.
 
-    If no factory can provide an accessibility implementation
-    for \a object the function loads installed accessibility plugins, 
-    and uses the \link QObject::className() classname \endlink of \a object
-    to find a suitable implementation. If no implementation for the object's 
-    class is available the function tries to find an implementation for 
-    the object's parent class.
+    If no implementation for the object's class is available the function tries to 
+    find an implementation for the object's parent class.
 
     The caller has to release the interface returned in \a iface.
 */
@@ -483,35 +482,38 @@ bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterfac
 	}
     }
 
-    if (qAccessibleFactories) {
-	for (int i = qAccessibleFactories->count(); i > 0; --i) {
-	    InterfaceFactory factory = (InterfaceFactory)qAccessibleFactories->at(i-1);
-	    if (factory(object, iface) && *iface) {
-		qInsertAccessibleObject(object, *iface);
-		return TRUE;
-	    }
-	}
-    }
-
-    if ( !qAccessibleManager ) {
-	qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>
-	    (IID_QAccessibleFactory, QApplication::libraryPaths(), "/accessible");
-	if ( !cleanupAdded ) {
-	    qAddPostRoutine( qAccessibleCleanup );
-	    cleanupAdded = TRUE;
-	}
-    }
-
     QInterfacePtr<QAccessibleFactoryInterface> factory = 0;
     const QMetaObject *mo = object->metaObject();
     while ( mo ) {
+	const QString cn(mo->className());
+	if (qAccessibleFactories) {
+	    for (int i = qAccessibleFactories->count(); i > 0; --i) {
+		InterfaceFactory factory = (InterfaceFactory)qAccessibleFactories->at(i-1);
+		QAccessibleInterface *aiface = factory(cn, object);
+		if (aiface) {
+		    aiface->addRef();
+		    *iface = aiface;
+		    qInsertAccessibleObject(object, *iface);
+		    return TRUE;
+		}
+	    }
+	}
+	if ( !qAccessibleManager ) {
+	    qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>
+		(IID_QAccessibleFactory, QApplication::libraryPaths(), "/accessible");
+	    if ( !cleanupAdded ) {
+		qAddPostRoutine( qAccessibleCleanup );
+		cleanupAdded = TRUE;
+	    }
+	}
 	qAccessibleManager->queryInterface( mo->className(), &factory );
-	if ( factory )
-	    break;
+	if ( factory ) {
+	    factory->createAccessibleInterface( cn, object, iface );
+	    if (*iface)
+		return TRUE;
+	}
 	mo = mo->superClass();
     }
-    if ( factory )
-	return factory->createAccessibleInterface( mo->className(), object, iface ) == QS_OK;
 
     QWidget *widget = qt_cast<QWidget*>(object);
     if (widget)
