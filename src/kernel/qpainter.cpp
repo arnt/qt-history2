@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#118 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#117 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#118 $");
 
 
 /*!
@@ -325,6 +325,10 @@ void QPainter::save()
     if ( testf(ExtDev) ) {
 	if ( testf(DirtyFont) )
 	    updateFont();
+	if ( testf(DirtyPen) ) 
+	    updatePen();
+	if ( testf(DirtyBrush) ) 
+	    updateBrush();
 	pdev->cmd( PDC_SAVE, this, 0 );
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
