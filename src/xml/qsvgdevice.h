@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.h#13 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.h#14 $
 **
 ** Definition of the QSVGDevice class
 **
@@ -50,7 +50,6 @@
 #include "qpaintdevice.h"
 #include "qrect.h"
 #include "qdom.h"
-#include "qmap.h"
 #endif // QT_H
 
 #ifndef QT_NO_SVG
@@ -59,12 +58,6 @@ class QPainter;
 class QDomNode;
 class QDomNamedNodeMap;
 class QSVGDevicePrivate;
-
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-template class Q_EXPORT QMap<QString, QString>;
-// MOC_SKIP_END
-#endif
 
 class Q_EXPORT QSVGDevice : public QPaintDevice
 {
@@ -120,15 +113,6 @@ private:
     QDomNode current;
     QPoint curPt;
     QPainter *pt;			// used by play() et al
-
-    #if defined(Q_TEMPLATEDLL)
-    // MOC_SKIP_BEGIN
-    template class Q_EXPORT QMap<QString, ElementType> typeMap;
-    // MOC_SKIP_END
-    #else
-    QMap<QString,ElementType> typeMap;	// element types
-    #endif
-    QMap<QString,QString> colMap;	// recognized color keyword names
 
     // writing
     int imageCount;			// incremental counter for ext. images

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#22 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#23 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -57,6 +57,10 @@ const char piData[] = "version=\"1.0\" standalone=\"yes\"";
 class QSVGDevicePrivate {
 };
 
+typedef QMap<QString,QSVGDevice::ElementType> QSvgTypeMap;
+static QSvgTypeMap *qSvgTypeMap=0; // element types
+static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
+
 /*!
   \class QSVGDevice qsvgdevice.h
 
@@ -84,6 +88,8 @@ QSVGDevice::QSVGDevice()
 
 QSVGDevice::~QSVGDevice()
 {
+    delete qSvgTypeMap; qSvgTypeMap = 0;	// static
+    delete qSvgColMap; qSvgColMap = 0;
     delete d;
 }
 
@@ -150,10 +156,11 @@ bool QSVGDevice::play( QPainter *painter )
 	{ 0,          InvalidElement  }
     };
     // initialize only once
-    if ( typeMap.isEmpty() ) {
+    if ( !qSvgTypeMap ) {
+	qSvgTypeMap = new QSvgTypeMap;
 	const ElementTable *t = etab;
 	while ( t->name ) {
-	    typeMap.insert( t->name, t->type );
+	    qSvgTypeMap->insert( t->name, t->type );
 	    t++;
 	}
     }
@@ -492,7 +499,7 @@ bool QSVGDevice::play( const QDomNode &node )
 	    setTransform( attr.namedItem( "transform" ).nodeValue() );
 
 	int x1, y1, x2, y2, rx, ry, w, h;
-	ElementType t = typeMap[ child.nodeName() ];
+	ElementType t = (*qSvgTypeMap)[ child.nodeName() ];
 	switch ( t ) {
 	case CommentElement:
 	    // ignore
@@ -628,17 +635,18 @@ QColor QSVGDevice::parseColor( const QString &col )
     };
 
     // initialize color map on first use
-    if ( colMap.isEmpty() ) {
+    if ( !qSvgColMap ) {
+	qSvgColMap = new QMap<QString, QString>;
 	const struct ColorTable *t = coltab;
 	while ( t->name ) {
-	    colMap.insert( t->name, t->rgb );
+	    qSvgColMap->insert( t->name, t->rgb );
 	    t++;
 	}
     }
 
     // a keyword ?
-    if ( colMap.contains ( col ) )
-	return QColor( colMap[ col ] );
+    if ( qSvgColMap->contains ( col ) )
+	return QColor( (*qSvgColMap)[ col ] );
     // in rgb(r,g,b) form ?
     QString c = col;
     c.replace( QRegExp( "\\s*" ), "" );
