@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#20 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#21 $
 **
 ** Definition of QIconView widget class
 **
@@ -197,7 +197,7 @@ protected slots:
 
 protected:
     virtual void removeRenameBox();
-    virtual void calcRect( int w = -1 );
+    virtual void calcRect( const QString &text_ = QString::null );
     virtual void paintItem( QPainter *p );
     virtual void paintFocus( QPainter *p );
     virtual void dropped( QDropEvent *e );
@@ -299,7 +299,7 @@ public:
     virtual int maxItemWidth() const;
     virtual void setMaxItemTextLength( int w );
     virtual int maxItemTextLength() const;
-    
+
     bool eventFilter( QObject * o, QEvent * );
 
 signals:

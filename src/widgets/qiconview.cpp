@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#38 $
 **
 ** Definition of QIconView widget class
 **
@@ -177,11 +177,7 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 	QSize s( size() );
 	resize( w, h );
 	if ( s != QSize( w, h ) ) {
-	    int dw = w - s.width();
-	    int dh = h - s.height();
-	    item->itemRect.setWidth( item->itemRect.width() + dw );
-	    item->itemRect.setHeight( item->itemRect.height() + dh );
-	    item->calcRect( width() );
+	    item->calcRect( text() );
 	    item->repaint();
 	}
     }
@@ -923,9 +919,9 @@ void QIconViewItem::rename()
     renameBox->setFocus();
     renameBox->show();
     view->viewport()->setFocusProxy( renameBox );
-    connect( renameBox, SIGNAL( returnPressed() ), 
+    connect( renameBox, SIGNAL( returnPressed() ),
 	     this, SLOT( renameItem() ) );
-    connect( renameBox, SIGNAL( escapePressed() ), 
+    connect( renameBox, SIGNAL( escapePressed() ),
 	     this, SLOT( cancelRenameItem() ) );
 }
 
@@ -979,22 +975,23 @@ void QIconViewItem::removeRenameBox()
   recalculates the bounding rect, text- and iconrect of the item.
 */
 
-void QIconViewItem::calcRect( int w )
+void QIconViewItem::calcRect( const QString &text_ )
 {
     if ( !fm )
 	return;
 
+    QString t = text_;
+    if ( t.isEmpty() )
+	t = itemText;
+    
     int h = 0;
-    if ( w == -1 ) {
-	w = 0;
-
-	QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth(), 
-				   0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak,
-				   itemText ) );
-	w = r.width();
-	h = r.height();
-    }
-
+    int w = 0;
+    QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth(),
+			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak,
+			       t ) );
+    w = r.width();
+    h = r.height();
+    
     itemTextRect.setWidth( w );
     itemTextRect.setHeight( h );
 
@@ -1166,7 +1163,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->cachedW = d->cachedH = 0;
     d->maxItemWidth = 200;
     d->maxItemTextLength = 255;
-    
+
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
