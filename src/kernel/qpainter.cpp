@@ -1155,11 +1155,11 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 	    QFontEngine *fe = ti.fontEngine;
 	    QFontEngine::FECaps fecaps = fe->capabilites();
 	    if (d->state->txop == TxRotShear) {
-		useFontEngine = (fecaps & QFontEngine::FullTransformations);
+		useFontEngine = (fecaps == QFontEngine::FullTransformations);
 		if (!useFontEngine
 		    && d->state->matrix.m11() == d->state->matrix.m22()
 		    && d->state->matrix.m12() == -d->state->matrix.m21())
-		    useFontEngine = (fecaps & QFontEngine::RotScale);
+		    useFontEngine = (fecaps & QFontEngine::RotScale) == QFontEngine::RotScale;
 	    } else if (d->state->txop == TxScale) {
 		useFontEngine = (fecaps & QFontEngine::Scale);
 	    }
@@ -1169,8 +1169,32 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
 	    return;
 	}
     }
-    // Fallback: draw into pixmap
-    // ##############
+
+    // Fallback: rasterize into a pixmap and draw the pixmap
+    // ### FIXME: this is slow
+
+    QFontEngine *fe = ti.fontEngine;
+    QPixmap pm(ti.width, ti.ascent+ti.descent);
+    pm.fill(white);
+
+    QPainter painter;
+    painter.begin(&pm);
+    painter.setPen(black);
+    painter.drawTextItem(0, ti.ascent, ti, textFlags);
+    painter.end();
+
+    QImage img = pm;
+    if (img.depth() != 32)
+	img = img.convertDepth(32);
+    img.setAlphaBuffer(true);
+    for (int y = 0; y < img.height(); ++y) {
+	for (int x = 0; x < img.width(); ++x) {
+	    img.setPixel(x, y, qRgba(0, 0, 0, 0xff-qGray(img.pixel(x, y))));
+	}
+    }
+
+    pm = img;
+    drawPixmap(p.x(), p.y() - ti.ascent, pm);
 }
 
 QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QString &str, int len)
