@@ -42,6 +42,42 @@
 #include <private/qunicodetables_p.h>
 #include <stdlib.h>
 
+QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
+
+static inline int qt_mac_pixelsize(const QFontDef &def, QPaintDevice *pdev)
+{
+    float ret;
+    if(def.pixelSize == -1) {
+	if(pdev) {
+	    ret = def.pointSize *  QPaintDeviceMetrics(pdev).logicalDpiY() / 720.;
+	} else {
+	    short vr, hr;
+	    ScreenRes(&hr, &vr);
+	    ret = def.pointSize * vr / 720.;
+	}
+    } else {
+	ret = def.pixelSize;
+    }
+    return (int)(ret + .5);
+}
+static inline int qt_mac_pointsize(const QFontDef &def, QPaintDevice *pdev)
+{
+    float ret;
+    if(def.pointSize == -1) {
+	if(pdev) {
+	    ret = def.pixelSize * 720. / QPaintDeviceMetrics(pdev).logicalDpiY();
+	} else {
+	    short vr, hr;
+	    ScreenRes(&hr, &vr);
+	    ret = def.pixelSize * 720. / vr;
+	}
+    } else {
+	ret = def.pointSize;
+    }
+    return (int)(ret + .5);
+}
+
+
 QMacFontInfo *
 QMacSetFontInfo::createFontInfo(const QFontEngine *fe, const QFontDef *def, QPaintDevice *pdev)
 {
@@ -61,16 +97,7 @@ QMacSetFontInfo::createFontInfo(const QFontEngine *fe, const QFontDef *def, QPai
     ret->setStyle(face);
 
     //size
-    int logicalDpi = 80; //FIXME
-    if(pdev) {
-	QPaintDeviceMetrics pm(pdev);
-	logicalDpi = pm.logicalDpiY();
-    } else {
-	short vr, hr;
-	ScreenRes(&hr, &vr);
-	logicalDpi = vr;
-    }
-    int pointSize = ((def->pointSize != -1) ? (def->pointSize / 10) : (def->pixelSize * logicalDpi /72));
+    int pointSize = qt_mac_pointsize(*def, pdev) / 10;
     ret->setSize(pointSize);
 
     //encoding
@@ -152,7 +179,7 @@ QMacSetFontInfo::setMacFont(const QFontEngine *fe, QMacSetFontInfo *sfi, QPaintD
     Q_ASSERT(fe->type() == QFontEngine::Mac);
     QFontEngineMac *mac_fe = (QFontEngineMac*)fe;
     if(!mac_fe->internal_fi)
-	mac_fe->internal_fi = createFontInfo(fe, &mac_fe->fdef, pdev);
+	mac_fe->internal_fi = createFontInfo(fe, &fe->fontDef, pdev);
     return setMacFont(mac_fe->internal_fi, sfi);
 }
 
@@ -164,7 +191,7 @@ QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi, QPaintD
     QFontEngineMac *engine = (QFontEngineMac *) eng;
     QMacFontInfo *fi = engine->internal_fi;
     if(!fi)
-	engine->internal_fi = fi = createFontInfo(engine, &d->request, pdev);
+	engine->internal_fi = fi = createFontInfo(engine, &eng->fontDef, pdev);
     return setMacFont(fi, sfi);
 }
 
@@ -426,203 +453,103 @@ void QFontPrivate::computeLineWidth()
 }
 #endif
 
-void QFontPrivate::load( QFont::Script script )
+void QFontPrivate::load(QFont::Script script)
 {
 #if defined(QT_CHECK_STATE)
     // sanity checks
-    Q_ASSERT( QFontCache::instance != 0 );
-    Q_ASSERT( script >= 0 && script < QFont::LastPrivateScript );
+    Q_ASSERT(QFontCache::instance != 0);
+    Q_ASSERT(script >= 0 && script < QFont::LastPrivateScript);
 #endif // QT_CHECK_STATE
 
-    // ### how do we get 'px' on the mac?
-    // int px = int( pixelSize( request, paintdevice, screen ) + .5 );
-    int px = request.pixelSize;
-
-    QFontDef req = request;
-    req.pixelSize = px;
-    req.pointSize = 0;
-    req.underline = req.strikeOut = 0;
-    req.mask = 0;
-
-    if ( ! engineData ) {
-	QFontCache::Key key( req, QFont::NoScript, screen );
-
-        // look for the requested font in the engine data cache
-        engineData = QFontCache::instance->findEngineData( key );
-
-        if ( ! engineData ) {
-            // create a new one
-            engineData = new QFontEngineData;
-	    QFontCache::instance->insertEngineData( key, engineData );
-        } else {
-            engineData->ref();
-        }
-    }
-
-    /*
-      ### look for a font engine macthing the request...
-
-      On Windows and X11, we do this by creating a list of families
-      and then calling QFontDatabase::findFont() on each family.  This
-      function isn't used on MacOSX, and I don't know if it makes
-      sense to do the same thing here as it does on Windows/X11.
-
-      If we decide to use QFontDatabase on MacOSX, then we need to
-      make sure that we make a copy of the request QFontDef.  This
-      copy will be used as the cache key for font engines.  This copy
-      should have the pointSize set to zero, underline/strikeout set
-      to FALSE (we do this ourselves), and the pixelSize set to the
-      requested pixelSize.  The px value calculated above should
-      suffice here.
-
-      One major difference between Windows/X11 and MacOSX is that
-      Windows/X11 use a "Box" font engine if we can't find a font for
-      the script.  However, on MacOSX, we don't do any font merging
-      (meaning we only use one QFontEngine to draw ALL scripts).  This
-      needs to be handled, but I am unsure how to do this.
-
-
-      pseudo code for the X11/Windows versions:
-
-...
-      family_list = request.family split on commas
-
-      family_list += substitutes list for each of the above
-
-      family_list += fallback font for the specified script (current unimplemented)
-
-      // for compatibility with previous versions
-      family_list += QApplication::font().defaultFamily();
-
-      // null family means find the first font matching the specified script
-      family_list += QString::null;
-
-      for each family while engine == 0 {
-          1. req.family = family;
-	  2. find the best matching font
-	  3. if ( ! no match ) continue;
-
-	  4. engine = look in cache
-	  5. if ( engine ) {
-	         if ( not a box-engine )
-		     break;
-		 if ( !family.isEmpty() ) {
-		     // don't accept the box engine, try the next family in the list
-		     engine = 0;
-		     continue;
-		 }
-	     }
-
-	  6. engine = load it
-
-	  7. if ( ! engine )
-	         engine = box-engine
-		 cache the box engine
-
-	         if ( family.isEmpty() ) {
-		     // don't accept the box engine, try the next family in the list
-		     engine = 0;
-		     continue;
-		 }
-	     } else {
-	         cache the loaded engine
-	     }
-
-	     a. not sure how to do this, or if it is even needed
-	     b. family.isEmpty() basically means that we are at the
-	        end of the family list
-      }
-
-      engine->ref();
-      engineData->engine = engine;
-...
-
-    */
-
-
-
-
-
-
-
-
-
-#if 0
-
-    // old loader code
-
-    if(request.dirty) {
-	request.dirty=FALSE;
-
-	QString k = key();
-	QFontEngine* qfs = fontCache->find(k);
-	if(!qfs) {
-	    qfs = new QFontEngineMac(request);
-	    fontCache->insert(k, qfs, 1);
+    QFontEngineMac *engine = NULL;
+    if(!engineData) {
+	QFontDef req = request;
+	req.pixelSize = qt_mac_pixelsize(request, paintdevice);
+	req.pointSize = 0;
+	req.mask = 0;
+	QFontCache::Key key = QFontCache::Key(req, QFont::NoScript, screen);
+	    
+	if(!(engineData = QFontCache::instance->findEngineData(key))) {
+	    // create a new one
+	    engineData = new QFontEngineData;
+	    QFontCache::instance->insertEngineData(key, engineData);
+	} else {
+	    engineData->ref();
 	}
-	qfs->ref();
-	if(fin)
-	    fin->deref();
-	fin=qfs;
-	Q_ASSERT(fin->type() == QFontEngine::Mac);
-	QFontEngineMac *mac_fin = (QFontEngineMac*)fin;
+	if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
+	    Q_ASSERT(engine->type() == QFontEngine::Mac);
+	    engine = (QFontEngineMac*)e;
+	    engine->ref();
+	} else {
+	    engine = new QFontEngineMac;
+	}
+	engineData->engine = engine;
 
-	if(mac_fin->fnum == -1) {
-	    Str255 str;
+	if(engine->fnum == -1) {
+	    Str255 request_str, actual_str;
 	    // encoding == 1, yes it is strange the names of fonts are encoded in MacJapanese
 	    TextEncoding encoding = CreateTextEncoding(kTextEncodingMacJapanese,
-							kTextEncodingDefaultVariant,
-							kTextEncodingDefaultFormat);
-	    qstring_to_pstring(request.family, request.family.length(), str, encoding);
+						       kTextEncodingDefaultVariant,
+						       kTextEncodingDefaultFormat);
+	    qstring_to_pstring(request.family, request.family.length(), request_str, encoding);
+
+	    //find the font
+	    QStringList family_list = QStringList::split( ',', request.family );
+	    // append the substitute list for each family in family_list
+	    {
+		QStringList subs_list;
+		QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+		for ( ; it != end; ++it )
+		    subs_list += QFont::substitutes( *it );
+		family_list += subs_list;
+	    }
+	    // add QFont::defaultFamily() to the list, for compatibility with
+	    // previous versions
+	    family_list << QApplication::font().defaultFamily();
+	    for(QStringList::ConstIterator it = family_list.begin(); it !=  family_list.end(); ++it) {
 #if 0
-	    mac_fin->fnum = FMGetFontFamilyFromName(str);
+		short fnum = FMGetFontFamilyFromName(request_str);
 #else
-	    GetFNum(str, &mac_fin->fnum);
+		short fnum;
+		GetFNum(request_str, &fnum);
 #endif
+		GetFontName(fnum, actual_str);
+		if(actual_str[0] == request_str[0] && 
+		   !strncasecmp((const char *)actual_str+1, (const char *)request_str+1, actual_str[0])) {
+		    engine->fnum = fnum;
+		    break;
+		} else if(engine->fnum == -1) {
+		    engine->fnum = fnum; //take the first one for now..
+		}
+	    }
 	}
-	if(!mac_fin->info) {
+	{ //fill in the engine's font definition
+	    engineData->engine->fontDef = request; //copy..
 #if 0
-	    mac_fin->info = (ATSFontMetrics*)malloc(sizeof(ATSFontMetrics));
+	    if(engineData->engine->fontDef.pointSize == -1)
+		engineData->engine->fontDef.pointSize = qt_mac_pointsize(engineData->engine->fontDef, paintdevice);
+	    else
+		engineData->engine->fontDef.pixelSize = qt_mac_pixelsize(engineData->engine->fontDef, paintdevice);
+#endif
+	    Str255 font;
+	    Q_ASSERT(engineData->engine->type() == QFontEngine::Mac);
+	    GetFontName(((QFontEngineMac*)engineData->engine)->fnum, font);
+	    engineData->engine->fontDef.family = p2qstring(font);
+	}
+	if(!engine->info) {
+#if 0
+	    engine->info = (ATSFontMetrics*)malloc(sizeof(ATSFontMetrics));
 	    const unsigned char *p = p_str(request.family);
 	    ATSFontGetVerticalMetrics(ATSFontFamilyFindFromQuickDrawName(p),
-				      kATSOptionFlagsDefault, mac_fin->info);
+				      kATSOptionFlagsDefault, engine->info);
 	    free(p);
 #else
-	    mac_fin->info = (FontInfo *)malloc(sizeof(FontInfo));
+	    engine->info = (FontInfo *)malloc(sizeof(FontInfo));
 	    QMacSetFontInfo fi(this, paintdevice);
-	    GetFontInfo(mac_fin->info);
+	    GetFontInfo(engine->info);
 #endif
 	}
-	actual.dirty = TRUE;
     }
-    if(actual.dirty) {
-	actual = request;
-	actual.dirty = FALSE;
-	int logicalDpi = 80; //FIXME
-	if(paintdevice) {
-	    QPaintDeviceMetrics pm(paintdevice);
-	    logicalDpi = pm.logicalDpiY();
-	} else {
-	    short vr, hr;
-	    ScreenRes(&hr, &vr);
-	    logicalDpi = vr;
-	}
-	if(actual.pointSize == -1)
-	    actual.pointSize = int((actual.pixelSize * 10 * logicalDpi) / 72. + 0.5);
-	else
-	    actual.pixelSize = (actual.pointSize * 72 / (10 * logicalDpi));
-
-	Str255 font;
-	Q_ASSERT(fin->type() == QFontEngine::Mac);
-	GetFontName(((QFontEngineMac*)fin)->fnum, font);
-	actual.family = p2qstring(font);
-
-	exactMatch = (actual.family == request.family &&
-		      (request.pointSize == -1 || (actual.pointSize == request.pointSize)) &&
-		      (request.pixelSize == -1 || (actual.pixelSize == request.pixelSize)));
-    }
-
-#endif
 }
 
 void QFont::initialize()

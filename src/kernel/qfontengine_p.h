@@ -319,7 +319,6 @@ private:
 #include "qt_mac.h"
 class QFontEngineMac : public QFontEngine
 {
-    QFontDef fdef;
 #if 0
     ATSFontMetrics *info;
 #else
@@ -333,8 +332,7 @@ class QFontEngineMac : public QFontEngine
     friend class QMacSetFontInfo;
 
 public:
-    QFontEngineMac(const QFontDef &f) : QFontEngine(), fdef(f), info(NULL), fnum(-1),
-					internal_fi(NULL) { cache_cost = 1; }
+    QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL) { cache_cost = 1; }
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
