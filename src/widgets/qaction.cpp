@@ -1232,6 +1232,7 @@ void QActionGroup::add( QAction* action )
 	action->setWhatsThis( whatsThis() );
     if ( action->toolTip().isNull() )
 	action->setToolTip( toolTip() );
+    action->setEnabled( isEnabled() );
 
     connect( action, SIGNAL( destroyed() ), this, SLOT( childDestroyed() ) );
     connect( action, SIGNAL( activated() ), this, SIGNAL( activated() ) );
