@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#56 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -218,9 +218,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		if ( fork() == 0 ) {	// child process
 		    dup2( fds[0], 0 );
 #if defined(_WS_X11_)
-		    // ###
 		    // hack time... getting the maximum number of open
-		    // files, if possible.  if not we assume it's 256.
+		    // files, if possible.  if not we assume it's the
+		    // larger of 256 and the fd we got
 		    int i;
 #if defined(_OS_OS2EMX_)
 		    LONG req_count = 0;
@@ -235,7 +235,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 #elif defined(OPEN_MAX)
 		    i = (int)OPEN_MAX;
 #else
-		    i = 256;
+		    i = QMAX( 256, fds[0] );
 #endif // ways-to-set i
 		    while( --i > 0 )
 			::close( i );
