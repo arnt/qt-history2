@@ -21,8 +21,7 @@ public:
 
     void insert(QTextCursor &cursor) const;
 
-    void appendBlock(int blockFormatIndex, int charFormatIndex, const QChar &separator = QChar::ParagraphSeparator);
-    void appendText(const QString &text, int formatIdx);
+    void appendText(const QString &text, int formatIdx, int blockIdx = -2);
 
     void readFormatCollection(const QTextFormatCollection *collection, const QVarLengthArray<int> &formatIndices);
     QMap<int, int> fillFormatCollection(QTextFormatCollection *collection) const;
@@ -31,24 +30,18 @@ public:
 
     struct TextFragment
     {
+        TextFragment()
+            : position(0), size(0),
+              charFormat(-1), blockFormat(-2) {}
         Q_INT32 position;
         Q_UINT32 size;
-        Q_INT32 format;
+        Q_INT32 charFormat;
+        Q_INT32 blockFormat;
     };
     typedef QVector<TextFragment> FragmentVector;
 
-    struct Block
-    {
-        Block() : createBlockUponInsertion(true), blockFormat(-1), charFormat(-1), separator(QChar::ParagraphSeparator) {}
-        Q_INT8 createBlockUponInsertion;
-        Q_INT32 blockFormat;
-        Q_INT32 charFormat;
-        Q_UINT16 separator;
-        FragmentVector fragments;
-    };
-    typedef QVector<Block> BlockVector;
+    FragmentVector fragments;
 
-    BlockVector blocks;
     QString localBuffer;
 
     typedef QMap<Q_INT32, QTextFormat> FormatMap;
@@ -62,20 +55,45 @@ public:
     QString title;
 };
 
-inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate::TextFragment &fragment)
-{ return stream << fragment.position << fragment.size << fragment.format; }
-inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate::TextFragment &fragment)
-{ return stream >> fragment.position >> fragment.size >> fragment.format; }
+// ###### Versioning!
 
-inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate::Block &block)
-{ return stream << block.createBlockUponInsertion << block.blockFormat << block.charFormat << block.separator << block.fragments; }
-inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate::Block &block)
-{ return stream >> block.createBlockUponInsertion >> block.blockFormat >> block.charFormat >> block.separator >> block.fragments; }
+inline QDataStream &operator<<(QDataStream &stream,
+                               const QTextDocumentFragmentPrivate::TextFragment &fragment)
+{
+    return stream << fragment.position
+                  << fragment.size
+                  << fragment.charFormat
+                  << fragment.blockFormat;
+}
+
+inline QDataStream &operator>>(QDataStream &stream,
+                               QTextDocumentFragmentPrivate::TextFragment &fragment)
+{
+    return stream >> fragment.position
+                  >> fragment.size
+                  >> fragment.charFormat
+                  >> fragment.blockFormat;
+}
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate &priv)
-{ return stream << priv.formats << priv.formatGroups << priv.blocks << priv.localBuffer << priv.hasTitle << priv.title; }
+{
+    return stream << priv.formats
+                  << priv.formatGroups
+                  << priv.fragments
+                  << priv.localBuffer
+                  << priv.hasTitle
+                  << priv.title;
+}
+
 inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate &priv)
-{ return stream >> priv.formats >> priv.formatGroups >> priv.blocks >> priv.localBuffer >> priv.hasTitle >> priv.title; }
+{
+    return stream >> priv.formats
+                  >> priv.formatGroups
+                  >> priv.fragments
+                  >> priv.localBuffer
+                  >> priv.hasTitle
+                  >> priv.title;
+}
 
 class QTextHTMLImporter : public QTextHtmlParser
 {
@@ -87,7 +105,7 @@ public:
 private:
     void closeTag(int i);
 
-    void appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt = QTextCharFormat());
+    void appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt = QTextCharFormat(), const QChar &separator = QChar::ParagraphSeparator);
     void appendText(const QString &text, const QTextFormat &format);
     inline void appendImage(const QTextImageFormat &format)
     { appendText(QString(QChar::ObjectReplacementCharacter), format); }

@@ -33,37 +33,17 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
         const int inFragmentOffset = qMax(0, pos - fragIt.position());
         int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
 
-        QTextBlockIterator currentBlock = pieceTable->blocksFind(pos);
+        QTextBlockIterator nextBlock = pieceTable->blocksFind(pos + 1);
 
-        bool lastFragmentInBlock = false;
-        if (pos + charsToCopy == currentBlock.position() + currentBlock.length()) {
-            // skip the block separator character
-            --charsToCopy;
-            lastFragmentInBlock = true;
+        int blockIdx = -2;
+        if (nextBlock.position() == pos + 1) {
+            blockIdx = pieceTable->formatCollection()->indexForFormat(nextBlock.blockFormat());
+            usedFormats.append(blockIdx);
         }
 
-        appendText(QString::fromRawData(originalText.constData() + frag->stringPosition + inFragmentOffset, charsToCopy), frag->format);
+        appendText(QString::fromRawData(originalText.constData() + frag->stringPosition + inFragmentOffset, charsToCopy), frag->format, blockIdx);
         usedFormats.append(frag->format);
         pos += charsToCopy;
-
-        if (pos < endPos && lastFragmentInBlock) {
-            ++currentBlock;
-            Q_ASSERT(!currentBlock.atEnd());
-
-            const int blockFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.blockFormat());
-            const int charFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.charFormat());
-            Q_ASSERT(frag->size == 1);
-            QChar separator = pieceTable->buffer().at(frag->stringPosition);
-
-            int idx = usedFormats.size();
-            usedFormats.resize(idx + 2);
-            usedFormats[idx++] = blockFormat;
-            usedFormats[idx] = charFormat;
-
-            appendBlock(blockFormat, charFormat, separator);
-            ++pos;
-            Q_ASSERT(pos == currentBlock.position());
-        }
     }
 
     readFormatCollection(pieceTable->formatCollection(), usedFormats);
@@ -80,33 +60,27 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     QTextPieceTablePointer destPieceTable = cursor.d->pieceTable;
     destPieceTable->beginEditBlock();
 
-    Q_FOREACH(const Block &b, blocks) {
-        if (b.createBlockUponInsertion) {
-            int blockFormatIdx;
-            if (b.blockFormat != -1)
-                blockFormatIdx = formatIndexMap.value(b.blockFormat, -1);
-            else
-                blockFormatIdx = formats->indexForFormat(cursor.blockFormat());
+    int defaultBlockFormat = formats->indexForFormat(cursor.blockFormat());
+    int defaultCharFormat = formats->indexForFormat(cursor.charFormat());
+
+    Q_FOREACH(const TextFragment &f, fragments) {
+            int blockFormatIdx = -2;
+            if (f.blockFormat >= 0)
+                blockFormatIdx = formatIndexMap.value(f.blockFormat, -1);
+            else if (f.blockFormat == -1)
+                blockFormatIdx = defaultBlockFormat;
             int formatIdx;
-            if (b.charFormat != -1)
-                formatIdx = formatIndexMap.value(b.charFormat, -1);
+            if (f.charFormat != -1)
+                formatIdx = formatIndexMap.value(f.charFormat, -1);
             else
-                formatIdx = formats->indexForFormat(cursor.charFormat());
+                formatIdx = defaultCharFormat;
 
-            destPieceTable->insertBlock(b.separator, cursor.position(), blockFormatIdx, formatIdx);
-        }
-
-        Q_FOREACH(const TextFragment &f, b.fragments) {
             QString text = QString::fromRawData(localBuffer.constData() + f.position, f.size);
 
-            int formatIdx;
-            if (f.format != -1)
-                formatIdx = formatIndexMap.value(f.format, -1);
+            if (blockFormatIdx == -2)
+                destPieceTable->insert(cursor.position(), text, formatIdx);
             else
-                formatIdx = formats->indexForFormat(cursor.charFormat());
-
-            destPieceTable->insert(cursor.position(), text, formatIdx);
-        }
+                destPieceTable->insertBlock(text.at(0), cursor.position(), blockFormatIdx, formatIdx);
     }
 
     // ### UNDO
@@ -116,29 +90,15 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     destPieceTable->endEditBlock();
 }
 
-void QTextDocumentFragmentPrivate::appendBlock(int blockFormatIndex, int charFormatIndex, const QChar &separator)
+void QTextDocumentFragmentPrivate::appendText(const QString &text, int formatIdx, int blockIdx)
 {
-    Block b;
-    b.separator = separator.unicode();
-    b.blockFormat = blockFormatIndex;
-    b.charFormat = charFormatIndex;
-    blocks.append(b);
-}
-
-void QTextDocumentFragmentPrivate::appendText(const QString &text, int formatIdx)
-{
-    if (blocks.isEmpty()) {
-        Block b;
-        b.createBlockUponInsertion = false;
-        blocks.append(b);
-    }
-
     TextFragment f;
     f.position = localBuffer.length();
     localBuffer.append(text);
     f.size = text.length();
-    f.format = formatIdx;
-    blocks.last().fragments.append(f);
+    f.charFormat = formatIdx;
+    f.blockFormat = blockIdx;
+    fragments.append(f);
 }
 
 // need this to make sure our copied format doesn't hold a reference
@@ -297,7 +257,7 @@ QTextDocumentFragment::~QTextDocumentFragment()
 */
 bool QTextDocumentFragment::isEmpty() const
 {
-    return !d || d->blocks.isEmpty();
+    return !d || d->fragments.isEmpty();
 }
 
 /*!
@@ -305,18 +265,10 @@ bool QTextDocumentFragment::isEmpty() const
 */
 QString QTextDocumentFragment::toPlainText() const
 {
-    QString result;
+    QString result = d->localBuffer;
 
-    if (!d)
-        return result;
-
-    for (int i = 0; i < d->blocks.count(); ++i) {
-        if (i > 0)
-            result += '\n';
-
-        Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &f, d->blocks[i].fragments)
-            result += QString::fromRawData(d->localBuffer.constData() + f.position, f.size);
-    }
+    result.replace(QTextBeginningOfFrame, QChar::ParagraphSeparator);
+    result.replace(QTextEndOfFrame, QChar::ParagraphSeparator);
 
     return result;
 }
@@ -355,7 +307,7 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
     QStringList blocks = plainText.split(QChar::ParagraphSeparator);
     for (int i = 0; i < blocks.count(); ++i) {
         if (i > 0)
-            res.d->appendBlock(-1, -1);
+            res.d->appendText(QString(QChar::ParagraphSeparator), -1, -1);
         // -1 as format idx means reuse current chat format when inserting/pasting
         res.d->appendText(blocks.at(i), -1);
     }
@@ -407,7 +359,7 @@ void QTextHTMLImporter::import()
             fmt.setObjectIndex(tableIndices[tableIndices.size() - 1]);
             if (node->bgColor.isValid())
                 fmt.setBackgroundColor(node->bgColor);
-            appendBlock(fmt, charFmt);
+            appendBlock(fmt, charFmt, QTextBeginningOfFrame);
         }
 
         if (node->isBlock) {
@@ -501,16 +453,10 @@ void QTextHTMLImporter::import()
 
     QVarLengthArray<int> usedFormats;
 
-    Q_FOREACH(const QTextDocumentFragmentPrivate::Block &b, d->blocks) {
-
-        int idx = usedFormats.size();
-        usedFormats.resize(usedFormats.size() + 2 + b.fragments.size());
-
-        usedFormats[idx++] = b.blockFormat;
-        usedFormats[idx++] = b.charFormat;
-
-        Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &f, b.fragments)
-            usedFormats[idx++] = f.format;
+    Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &f, d->fragments) {
+        usedFormats.append(f.charFormat);
+        if (f.blockFormat >= 0)
+            usedFormats.append(f.blockFormat);
     }
 
     d->readFormatCollection(&formats, usedFormats);
@@ -525,6 +471,8 @@ void QTextHTMLImporter::closeTag(int i)
 
     while (closedNode->parent != grandParent || (atLastNode && closedNode != &at(0))) {
         if (closedNode->tag == QLatin1String("tr")) {
+            // ################### Fix table columns!
+#if 0
             Q_ASSERT(!tableIndices.isEmpty());
             QTextCharFormat charFmt;
             charFmt.setNonDeletable(true);
@@ -532,12 +480,14 @@ void QTextHTMLImporter::closeTag(int i)
             fmt.setObjectIndex(tableIndices[tableIndices.size() - 1]);
 //             fmt.setTableCellEndOfRow(true);
             appendBlock(fmt, charFmt);
+#endif
+            ;
         } else if (closedNode->tag == QLatin1String("table")) {
             Q_ASSERT(!tableIndices.isEmpty());
             QTextCharFormat charFmt;
             charFmt.setNonDeletable(true);
             QTextBlockFormat fmt;
-            appendBlock(fmt, charFmt);
+            appendBlock(fmt, charFmt, QTextEndOfFrame);
             tableIndices.resize(tableIndices.size() - 1);
         } else if (closedNode->isListStart) {
 
@@ -551,9 +501,9 @@ void QTextHTMLImporter::closeTag(int i)
     }
 }
 
-void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt)
+void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt, const QChar &separator)
 {
-    d->appendBlock(formats.indexForFormat(format), formats.indexForFormat(charFmt));
+    d->appendText(QString(separator), formats.indexForFormat(charFmt), formats.indexForFormat(format));
 }
 
 void QTextHTMLImporter::appendText(const QString &text, const QTextFormat &format)
