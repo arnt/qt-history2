@@ -2030,7 +2030,7 @@ bool QDateTime::isValid() const
 /*!
     Returns the date part of the datetime.
 
-    \sa setDate(), time(), timeZone()
+    \sa setDate(), time(), timeSpec()
 */
 
 QDate QDateTime::date() const
@@ -2041,7 +2041,7 @@ QDate QDateTime::date() const
 /*!
     Returns the time part of the datetime.
 
-    \sa setTime(), date(), timeZone()
+    \sa setTime(), date(), timeSpec()
 */
 
 QTime QDateTime::time() const
@@ -2063,7 +2063,7 @@ Qt::TimeSpec QDateTime::timeSpec() const
 /*!
     Sets the date part of this datetime to \a date.
 
-    \sa date(), setTime(), setTimeZone()
+    \sa date(), setTime(), setTimeSpec()
 */
 
 void QDateTime::setDate(const QDate &date)
@@ -2074,7 +2074,7 @@ void QDateTime::setDate(const QDate &date)
 /*!
     Sets the time part of this datetime to \a time.
 
-    \sa time(), setDate(), setTimeZone()
+    \sa time(), setDate(), setTimeSpec()
 */
 
 void QDateTime::setTime(const QTime &time)

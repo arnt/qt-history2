@@ -317,6 +317,10 @@ const QString::Null QString::null = QString::Null();
 
     QStrings can be compared using overloaded operators such as
     operator<(), operator<=(), operator==(), operator>=(), and so on.
+    The comparison is based exclusively on the numeric Unicode values
+    of the characters and is very fast, but is not what a human would
+    expect. QString::localeAwareCompare() is a better choice for
+    sorting user-interface strings.
 
     Lists of strings are handled by the QStringList class. You can
     split a string into a list of strings using split(), and join a

@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-
-
 #include "qbytearray.h"
 #include "qbytearraymatcher.h"
 #include "qtools_p.h"
@@ -152,7 +150,7 @@ char *qstrncpy(char *dst, const char *src, uint len)
     or \a str2 is 0 (but not both).
 
     \sa qstrncmp(), qstricmp(), qstrnicmp(),
-        \link #asciinotion Note on character comparisons \endlink
+        {Note on 8-bit character comparisons}
 */
 int qstrcmp(const char *str1, const char *str2)
 {
@@ -178,7 +176,7 @@ int qstrcmp(const char *str1, const char *str2)
     or \a str2 is 0 (but not both).
 
     \sa qstrcmp(), qstricmp(), qstrnicmp(),
-        \link #asciinotion Note on character comparisons \endlink
+        {Note on 8-bit character comparisons}
 */
 
 /*! \relates QByteArray
@@ -197,7 +195,7 @@ int qstrcmp(const char *str1, const char *str2)
     or \a str2 is 0 (but not both).
 
     \sa qstrcmp(), qstrncmp(), qstrnicmp(),
-        \link #asciinotion Note on character comparisons \endlink
+        {Note on 8-bit character comparisons}
 */
 
 int qstricmp(const char *str1, const char *str2)
@@ -231,7 +229,7 @@ int qstricmp(const char *str1, const char *str2)
     or \a str2 is 0 (but not both).
 
     \sa qstrcmp(), qstrncmp(), qstricmp(),
-        \link #asciinotion Note on character comparisons \endlink
+        {Note on 8-bit character comparisons}
 */
 
 int qstrnicmp(const char *str1, const char *str2, uint len)
@@ -615,6 +613,13 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     occurs in the byte array, use count(). If you want to replace all
     occurrences of a particular value with another, use one of the
     two-parameter replace() overloads.
+ 
+    QByteArrays can be compared using overloaded operators such as
+    operator<(), operator<=(), operator==(), operator>=(), and so on.
+    The comparison is based exclusively on the numeric values
+    of the characters and is very fast, but is not what a human would
+    expect. QString::localeAwareCompare() is a better choice for
+    sorting user-interface strings.
 
     For historical reasons, QByteArray distinguishes between a null
     byte array and an empty byte array. A \e null byte array is a
@@ -640,6 +645,22 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     '\\0' character for a null byte array (\e not a null pointer),
     and QByteArray() compares equal to QByteArray(""). We recommend
     that you always use isEmpty() and avoid isNull().
+
+    \section1 Note on 9-bit Character Comparisons
+
+    In QByteArray, the notion of uppercase and lowercase and of which
+    character is greater than or less than another character is
+    locale dependent. This affects functions that support a case
+    insensitive option or that compare or lowercase or uppercase
+    their arguments. Case insensitive operations and comparisons will
+    be accurate if both strings contain only ASCII characters. (If \c
+    $LC_CTYPE is set, most Unix systems do "the right thing".)
+    Functions that this affects include contains(), indexOf(),
+    lastIndexOf(), operator<(), operator<=(), operator>(),
+    operator>=(), toLower() and toUpper().
+
+    This issue does not apply to QStrings since they represent
+    characters using Unicode.
 
     \sa QString, QBitArray
 */
@@ -2343,7 +2364,7 @@ QByteArray QByteArray::mid(int pos, int len) const
 }
 
 /*!
-    Returns a lower-case copy of the byte array.
+    Returns a lowercase copy of the byte array.
 
     Example:
     \code
@@ -2352,8 +2373,7 @@ QByteArray QByteArray::mid(int pos, int len) const
         // y == "trolltech"
     \endcode
 
-    \sa toUpper(),
-        \link #asciinotion Note on character comparisons \endlink
+    \sa toUpper(), {Note on 8-bit character comparisons}
 */
 QByteArray QByteArray::toLower() const
 {
@@ -2369,7 +2389,7 @@ QByteArray QByteArray::toLower() const
 }
 
 /*!
-    Returns an upper-case copy of the byte array.
+    Returns an uppercase copy of the byte array.
 
     Example:
     \code
@@ -2378,8 +2398,7 @@ QByteArray QByteArray::toLower() const
         // y == "TROLLTECH"
     \endcode
 
-    \sa toLower(),
-        \link #asciinotion Note on character comparisons \endlink
+    \sa toLower(), {Note on 8-bit character comparisons}
 */
 
 QByteArray QByteArray::toUpper() const
