@@ -732,7 +732,7 @@ void WidgetView::showProperties()
     qDebug(" ");
     qDebug("Properties for class '%s'", qApp->focusWidget()->className() );
     for ( int i = 0; i < (int) properties.count(); i++ ) {
-	QMetaProperty* p = qApp->focusWidget()->metaObject()->property( properties.at(i), TRUE );
+	const QMetaProperty* p = qApp->focusWidget()->metaObject()->property( properties.at(i), TRUE );
 	const char* s = "readwrite";
 	if (!p->writeable() )
 	    s = "read-only";
