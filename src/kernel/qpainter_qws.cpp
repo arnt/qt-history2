@@ -321,7 +321,7 @@ static uchar *pat_tbl[] = {
    if(testf(ExtDev)) {
         QPDevCmdParam param[1];
         param[0].brush = &cbrush;
-        if ( !pdev->cmd( QPaintDevice::PdcSetBrush, this, param ) || !gfx ) 
+        if ( !pdev->cmd( QPaintDevice::PdcSetBrush, this, param ) || !gfx )
 	    return;
    }
 
@@ -1540,13 +1540,13 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
     if ( len == 0 )				// empty string
 	return;
 
-#ifndef QT_NO_COMPLEXTEXT    
+#ifndef QT_NO_COMPLEXTEXT
     QString shaped = QComplexText::shapedString( str, from, len, dir );
-#else 
+#else
     QString shaped = str.mid(from,len); //### ugly and inefficient
 #endif
     len = shaped.length();
-   
+
     if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
 	if ( testf(DirtyFont) )
 	    updateFont();
@@ -1717,19 +1717,20 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
     cfont.d->drawText( gfx, x, y, cache );
     delete cache;
 
-    //if ( cfont.underline() || cfont.strikeOut() ) {
-	//QFontMetrics fm = fontMetrics();
-	//int lw = fm.lineWidth();
-	//int tw = fm.width( str, len );
-	/* XXX
-	if ( cfont.underline() )		// draw underline effect
-	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(),
-			    tw, lw );
-	if ( cfont.strikeOut() )		// draw strikeout effect
-	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(),
-			    tw, lw );
-	*/
-    //}
+    if ( cfont.underline() || cfont.strikeOut() ) {
+        QFontMetrics fm = fontMetrics();
+        int lw = fm.lineWidth();
+
+        // draw underline effect
+        if ( cfont.underline() ) {
+	    gfx->drawLine(x,y+fm.underlinePos(), width, lw);
+        }
+
+        // draw strikeout effect
+        if ( cfont.strikeOut() ) {
+	    gfx->drawLine(x,y-fm.strikeOutPos(), width, lw);
+        }
+    }
 }
 
 QPoint QPainter::pos() const
