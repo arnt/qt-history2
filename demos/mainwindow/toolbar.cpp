@@ -156,7 +156,7 @@ ToolBar::ToolBar(QMainWindow *parent)
 
     connect(movableAction, SIGNAL(checked(bool)), allowedAreasActions, SLOT(setEnabled(bool)));
 
-    menu = new QMenu(tr("Tool Bar"), this);
+    menu = new QMenu(tr("&Toolbar"), this);
     menu->addAction(showHideAction);
     menu->addSeparator();
     menu->addAction(orderAction);

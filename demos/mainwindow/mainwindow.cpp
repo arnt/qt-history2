@@ -79,11 +79,11 @@ void MainWindow::setupToolBar()
 
 void MainWindow::setupMenuBar()
 {
-    QMenu *menu = menuBar()->addMenu(tr("File"));
-    menu->addAction(tr("Close"), this, SLOT(close()));
+    QMenu *menu = menuBar()->addMenu(tr("&File"));
+    menu->addAction(tr("&Quit"), this, SLOT(close()));
 
     menuBar()->addMenu(toolbar->menu);
-    dockWindowMenu = menuBar()->addMenu(tr("Dock Windows"));
+    dockWindowMenu = menuBar()->addMenu(tr("&Dock windows"));
 }
 
 void MainWindow::setupDockWindows()
