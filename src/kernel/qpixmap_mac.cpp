@@ -397,28 +397,24 @@ void QPixmap::detach()
 
 int QPixmap::metric(int m) const
 {
-    int val;
+    int val=0;
     switch ( m ) {
 	case QPaintDeviceMetrics::PdmWidth:
 	    val = width();
+	    break;
 	case QPaintDeviceMetrics::PdmHeight:
 	    val = height();
-	case QPaintDeviceMetrics::PdmWidthMM:
-	    
 	    break;
+	case QPaintDeviceMetrics::PdmWidthMM:
 	case QPaintDeviceMetrics::PdmHeightMM:
 	    break;
 	case QPaintDeviceMetrics::PdmNumColors:
 	    val = 1 << depth();
 	    break;
-	case QPaintDeviceMetrics::PdmDpiX:
+	case QPaintDeviceMetrics::PdmDpiX: // ### fill with real values!
 	case QPaintDeviceMetrics::PdmPhysicalDpiX:
-	    // ### fill with real values!
-	    val = 72;
-	    break;
 	case QPaintDeviceMetrics::PdmDpiY:
 	case QPaintDeviceMetrics::PdmPhysicalDpiY:
-	    // ### fill with real values!
 	    val = 72;
 	    break;
 	case QPaintDeviceMetrics::PdmDepth:
