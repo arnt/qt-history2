@@ -160,6 +160,13 @@ private:
 
     bool processReply();
     bool startNextCmd();
+    void fatalError( const QString &text )
+    {
+	emit finished( Error, text );
+	pendingCommands.clear();
+	currentCommand = QString::null;
+	state = Idle;
+    }
 
     QSocket commandSocket;
     QFtpDTP dtp; // the PI has a DTP which is not the design of RFC 959, but it
@@ -170,11 +177,16 @@ private:
     QStringList pendingCommands;
     QString currentCommand;
 
+    QString outOfOrderError; // we might encounter an error that is not
+			     // signalled by a reply code -- use this variable
+			     // to issue these error in sync with the reply
+			     // parsing
     bool waitForDtpToClose;
 };
 
 QFtpPI::QFtpPI( QObject *parent ) : QObject( parent ),
     state(Begin), currentCommand(QString::null),
+    outOfOrderError(QString::null),
     waitForDtpToClose(FALSE)
 {
     connect( &commandSocket, SIGNAL(hostFound()),
@@ -401,17 +413,19 @@ bool QFtpPI::processReply()
 	    state = Idle;
 	    // no break!
 	case Idle:
-	    if ( !startNextCmd() )
-		emit finished( Ok, replyText );
+	    if ( outOfOrderError.isNull() ) {
+		if ( !startNextCmd() )
+		    emit finished( Ok, replyText );
+	    } else {
+		fatalError( outOfOrderError );
+		outOfOrderError = QString::null;
+	    }
 	    break;
 	case Waiting:
 	    // ### do nothing
 	    break;
 	case Failure:
-	    emit finished( Error, replyText );
-	    pendingCommands.clear();
-	    currentCommand = QString::null;
-	    state = Idle;
+	    fatalError( replyText );
 	    break;
     }
 #if defined(QFTPPI_DEBUG)
@@ -477,8 +491,15 @@ void QFtpPI::dtpReadyRead()
 #if defined(QFTPDTP_DEBUG)
 	    qDebug( "QFtpPI DTP read: '%s'", line.latin1() );
 #endif
-	    if ( parseDir( line, "", &i ) )
+	    if ( parseDir( line, "", &i ) ) {
 		emit listInfo( i );
+	    } else {
+		// some FTP servers don't return a 550 if the file or directory
+		// does not exist, but rather write a text to the data socket
+		// -- try to catch these cases
+		if ( line.endsWith( "No such file or directory\r\n" ) )
+		    outOfOrderError = line;
+	    }
 	}
     }
 }
