@@ -39,6 +39,7 @@
 
 #ifndef QT_NO_DATETIMEEDIT
 
+#include "../kernel/qinternal_p.h"
 #include "../kernel/qrichtext_p.h"
 #include "qrangecontrol.h"
 #include "qapplication.h"
@@ -221,13 +222,11 @@ public:
     QDateTimeEditorPrivate()
 	: frm( TRUE ),
 	  parag( new QTextParag( 0, 0, 0, FALSE ) ),
-	  pm(0),
 	  focusSec(0)
     {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
 	cursor->setParag( parag );
-	pm = new QPixmap;
 	offset = 0;
 	sep = localDateSep();
 	refcount++;
@@ -236,7 +235,6 @@ public:
     {
 	delete parag;
 	delete cursor;
-	delete pm;
 	if ( !--refcount )
 	    cleanup();
     }
@@ -341,12 +339,7 @@ public:
 	    p.translate( -xoff, -yoff );
     }
 
-    void resize( const QSize& size )
-    {
-	pm->resize( size );
-    }
-
-    QPixmap* pixmap() { return pm; }
+    void resize( const QSize& size ) { sz = size; }
 
 protected:
     void applyFocusSelection()
@@ -357,7 +350,7 @@ protected:
 	    parag->setSelection( QTextDocument::Standard, selstart, selend );
 	    parag->format();
 	    if ( parag->at( selstart )->x < offset ||
-		 parag->at( selend )->x + parag->string()->width( selend ) > offset + pm->width() ) {
+		 parag->at( selend )->x + parag->string()->width( selend ) > offset + sz.width() ) {
 		offset = parag->at( selstart )->x;
 	    }
 	}
@@ -366,7 +359,7 @@ private:
     bool frm;
     QTextParag *parag;
     QTextCursor *cursor;
-    QPixmap *pm;
+    QSize sz;
     int focusSec;
     QValueList< QNumberSection > sections;
     QString sep;
@@ -483,23 +476,21 @@ void QDateTimeEditor::resizeEvent( QResizeEvent *e )
 
 void QDateTimeEditor::paintEvent( QPaintEvent * )
 {
-    if ( d->pixmap()->isNull() )
-	return;
     QString txt;
     for ( uint i = 0; i < d->sectionCount(); ++i ) {
 	txt += cw->sectionFormattedText( i );
 	if ( i < d->sectionCount()-1 )
 	    txt += d->separator();
     }
-    const QColorGroup & cg = colorGroup();
-    QPainter p( d->pixmap() );
-    p.setFont( font() );
-    p.setPen( colorGroup().text() );
-    QBrush bg = cg.brush( QColorGroup::Base );
-    p.fillRect( 0, 0, width(), height(), bg );
-    d->paint( txt, hasFocus(), p, cg, rect(), style() );
-    p.end();
-    bitBlt( this, 0, 0, d->pixmap() );
+
+    QSharedDoubleBuffer buffer( FALSE, FALSE );
+    buffer.begin( this );
+    QBrush bg = colorGroup().brush( isEnabled() ? QColorGroup::Base
+				    : QColorGroup::Background );
+    buffer.painter()->fillRect( 0, 0, width(), height(), bg );
+    d->paint( txt, hasFocus(), *buffer.painter(), colorGroup(), rect(),
+	      style() );
+    buffer.end();
 }
 
 
