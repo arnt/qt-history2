@@ -5,7 +5,7 @@
 **
 ** Created : 990406
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -631,12 +631,8 @@ QValueList<T> QMap<Key,T>::values() const {
 
 
 #ifndef QT_NO_STL
-#  ifdef Q_CC_HPACC    // HP-UX aCC does require typename in some place
-#    undef Q_TYPENAME  // but not accept them at others.
-#    define Q_TYPENAME // also doesn't like re-defines ...
-#  endif
 template<class Key, class T>
-QMap<Key,T>::QMap( const Q_TYPENAME std::map<Key,T>& m )
+QMap<Key,T>::QMap( const std::map<Key,T>& m )
 {
     d = QMapData::init(new QMapData);
     Q_TYPENAME std::map<Key,T>::const_iterator it = m.begin();
@@ -647,7 +643,7 @@ QMap<Key,T>::QMap( const Q_TYPENAME std::map<Key,T>& m )
 }
 
 template<class Key, class T>
-QMap<Key,T>& QMap<Key,T>::operator= ( const Q_TYPENAME std::map<Key,T>& m )
+QMap<Key,T>& QMap<Key,T>::operator= ( const std::map<Key,T>& m )
 {
     clear();
     Q_TYPENAME std::map<Key,T>::const_iterator it = m.begin();
@@ -657,10 +653,6 @@ QMap<Key,T>& QMap<Key,T>::operator= ( const Q_TYPENAME std::map<Key,T>& m )
     }
     return *this;
 }
-#  ifdef Q_CC_HPACC    // undo the HP-UX aCC hackery done above
-#    undef Q_TYPENAME
-#    define Q_TYPENAME typename
-#  endif
 #endif
 
 #ifndef QT_NO_DATASTREAM
