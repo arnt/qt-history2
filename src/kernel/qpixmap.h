@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#66 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#67 $
 **
 ** Definition of QPixmap class
 **
@@ -72,6 +72,8 @@ public:
 #if defined(_WS_WIN_) || defined(_WS_PM_)
     HANDLE	hbm()		const;
 #endif
+
+    int		serialNumber()	const;
 
     bool	isOptimized()	const;
     void	optimize( bool );
@@ -150,6 +152,11 @@ inline HANDLE QPixmap::hbm() const
     return data->hbm;
 }
 #endif
+
+inline int QPixmap::serialNumber() const
+{
+    return data->ser_no;
+}
 
 inline bool QPixmap::isOptimized() const
 {

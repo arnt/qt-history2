@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#60 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#60 $");
 
 
 /*!
@@ -510,6 +510,16 @@ bool QPixmap::save( const char *fileName, const char *format ) const
     io.setImage( convertToImage() );
     return io.write();
 }
+
+
+/*!
+  \fn int QPixmap::serialNumber() const
+
+  Returns a number that uniquely identifies this QPixmap object. The
+  serial number is very useful for caching.
+
+  \sa QPixmapCache
+*/
 
 
 /*****************************************************************************
