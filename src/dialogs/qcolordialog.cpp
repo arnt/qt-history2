@@ -1369,7 +1369,7 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 void QColorDialogPrivate::addCustom()
 {
     cusrgb[nextCust] = cs->currentColor();
-    custom->repaint( FALSE ); //###
+    custom->repaintContents( FALSE );
     nextCust = (nextCust+1) % 16;
 }
 
