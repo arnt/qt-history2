@@ -315,7 +315,7 @@ MakefileGenerator::init()
 					   Option::h_moc_ext;
 				checkMultipleDefinition(mocFile, "SOURCES");
 				project->variables()["_HDRMOC"].append(mocFile);
-			    } else if(project->variables()["HEADERS"].indexOf(file) != -1) {
+			    } else {
 				mocFile += Option::cpp_moc_mod + file.mid(dir_pos+1, ext_pos - dir_pos-1) + 
 					   Option::cpp_moc_ext;
 				project->variables()["_SRCMOC"].append(mocFile);
