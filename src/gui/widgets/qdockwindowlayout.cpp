@@ -85,7 +85,9 @@ QDockWindowLayout::~QDockWindowLayout()
     for (int i = 0; i < layout_info.count(); ++i) {
 	const QDockWindowLayoutInfo &info = layout_info.at(i);
 	if (info.is_sep)
-            delete info.item->widget();
+            info.item->widget()->deleteLater();
+        if (!info.item->layout())
+            delete info.item;
     }
 }
 
