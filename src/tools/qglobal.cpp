@@ -283,7 +283,8 @@ int qWinVersion()
 */
 
 
-static QtMsgHandler handler = 0;			// pointer to debug handler
+static QtMsgHandler handler = 0;		// pointer to debug handler
+static const int QT_BUFFER_LENGTH = 8196;	// internal buffer length
 
 
 #ifdef Q_OS_MAC
@@ -337,12 +338,12 @@ static void mac_default_handler( const char *msg )
 
 void qDebug( const char *msg, ... )
 {
-    char buf[8196];
+    char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
 #if defined(QT_VSNPRINTF)
-	QT_VSNPRINTF( buf, 8196, msg, ap );
+	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );
 #else
 	vsprintf( buf, msg, ap );
 #endif
@@ -364,12 +365,12 @@ void qDebug( const char *msg, ... )
 // copied... this looks really bad.
 void debug( const char *msg, ... )
 {
-    char buf[8196];
+    char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
 #if defined(QT_VSNPRINTF)
-	QT_VSNPRINTF( buf, 8196, msg, ap );
+	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );
 #else
 	vsprintf( buf, msg, ap );
 #endif
@@ -390,12 +391,12 @@ void debug( const char *msg, ... )
 
 void qWarning( const char *msg, ... )
 {
-    char buf[8196];
+    char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
 #if defined(QT_VSNPRINTF)
-	QT_VSNPRINTF( buf, 8196, msg, ap );
+	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );
 #else
 	vsprintf( buf, msg, ap );
 #endif
@@ -418,12 +419,12 @@ void qWarning( const char *msg, ... )
 // again, copied
 void warning( const char *msg, ... )
 {
-    char buf[8196];
+    char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
 #if defined(QT_VSNPRINTF)
-	QT_VSNPRINTF( buf, 8196, msg, ap );
+	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );
 #else
 	vsprintf( buf, msg, ap );
 #endif
@@ -444,12 +445,12 @@ void warning( const char *msg, ... )
 
 void qFatal( const char *msg, ... )
 {
-    char buf[8196];
+    char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
 #if defined(QT_VSNPRINTF)
-	QT_VSNPRINTF( buf, 8196, msg, ap );
+	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );
 #else
 	vsprintf( buf, msg, ap );
 #endif
@@ -476,12 +477,12 @@ void qFatal( const char *msg, ... )
 // yet again, copied
 void fatal( const char *msg, ... )
 {
-    char buf[8196];
+    char buf[QT_BUFFER_LENGTH];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
     if ( handler ) {
 #if defined(QT_VSNPRINTF)
-	QT_VSNPRINTF( buf, 8196, msg, ap );
+	QT_VSNPRINTF( buf, QT_BUFFER_LENGTH, msg, ap );
 #else
 	vsprintf( buf, msg, ap );
 #endif
