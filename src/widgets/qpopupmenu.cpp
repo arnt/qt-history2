@@ -2325,7 +2325,7 @@ void QPopupMenu::modalActivation( int id )
 
 
 /*!
-    Sets the currently active item to \a i and repaints as necessary.
+    Sets the currently active item to index \a i and repaints as necessary.
 */
 
 void QPopupMenu::setActiveItem( int i )
