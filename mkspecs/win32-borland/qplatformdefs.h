@@ -32,8 +32,8 @@
 
 #ifdef QT_LARGEFILE_SUPPORT
 #  define QT_STATBUF		struct stati64		// non-ANSI defs
-#  define QT_STATBUF4TSTAT	struct _stati64		// non-ANSI defs
-#  define QT_STAT		::stati64
+#  define QT_STATBUF4TSTAT	struct stati64		// non-ANSI defs
+#  define QT_STAT		::_stati64
 #  define QT_FSTAT		::fstati64
 #  define QT_LSEEK		::_lseeki64
 #  define QT_TSTAT		::_tstati64
