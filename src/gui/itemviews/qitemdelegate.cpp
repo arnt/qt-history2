@@ -135,12 +135,10 @@ void QItemDelegate::paint(QPainter *painter,
         opt.palette.setColor(QPalette::Text, qvariant_cast<QColor>(value));
 
     // do layout
-    value = model->data(index, QAbstractItemModel::DecorationRole);
-    QPixmap pixmap = decoration(opt, value);
-    QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
+    QRect pixmapRect = QRect(0, 0, opt.decorationSize.width(), opt.decorationSize.height());
 
-    QRect pixmapRect = pixmap.rect();
     QFontMetrics fontMetrics(opt.font);
+    QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
     QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.height());
 
     value = model->data(index, QAbstractItemModel::CheckStateRole);
@@ -155,6 +153,9 @@ void QItemDelegate::paint(QPainter *painter,
         painter->fillRect(option.rect, qvariant_cast<QColor>(value));
 
     // draw the item
+    value = model->data(index, QAbstractItemModel::DecorationRole);
+    QPixmap pixmap = decoration(opt, value);
+
     drawCheck(painter, opt, checkRect, checkState);
     drawDecoration(painter, opt, pixmapRect, pixmap);
     drawDisplay(painter, opt, textRect, text);
@@ -176,12 +177,10 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
     QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
-
-    value = model->data(index, QAbstractItemModel::DecorationRole);
-    QPixmap pixmap = decoration(option, value);
     QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
 
-    QRect pixmapRect = pixmap.rect();
+    QRect pixmapRect = QRect(0, 0, option.decorationSize.width(),
+                             option.decorationSize.height());
     QFontMetrics fontMetrics(fnt);
     QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.height());
     QRect checkRect = check(option, model->data(index, QAbstractItemModel::CheckStateRole));
