@@ -73,14 +73,18 @@ public:
 	painter.setBrush( QBrush( Qt::red, Qt::DiagCrossPattern ) );
 	painter.drawRect( 150, 200, 150, 40 );
 	painter.drawText( 150, 200, 150, 40, Qt::AlignCenter, "DiagCrossPattern" );
-
-	painter.setBrush( Qt::NoBrush );
+/* Qt 4
+	painter.setBrush( QBrush( Qt::red, Qt::LinearGradientPattern ) );
 	painter.drawRect( 150, 240, 150, 40 );
-	painter.drawText( 150, 240, 150, 40, Qt::AlignCenter, "NoBrush" );
-
+	painter.drawText( 150, 240, 150, 40, Qt::AlignCenter, "LinearGradientPattern" );
+*/
 	painter.setBrush( Qt::NoBrush );
 	painter.drawRect( 150, 280, 150, 40 );
-	painter.drawText( 150, 280, 150, 40, Qt::AlignCenter, "CustomPattern\n(Pixmap)" );
+	painter.drawText( 150, 280, 150, 40, Qt::AlignCenter, "NoBrush" );
+
+	painter.setBrush( Qt::NoBrush );
+	painter.drawRect( 150, 320, 150, 40 );
+	painter.drawText( 150, 320, 150, 40, Qt::AlignCenter, "CustomPattern\n(Pixmap)" );
     }
 };
 
@@ -89,8 +93,13 @@ int main(int argc, char **argv)
     QApplication app( argc, argv );
     Frame *mw = new Frame( 0 );
     app.setMainWidget( mw );
+/* Qt 3 */
     mw->setCaption( "Brush Styles" );
     mw->setBackgroundColor( Qt::white );
+/* Qt 4
+    mw->setWindowTitle( "Brush Styles" );
+    mw->setBackgroundRole( QPalette::Base );
+*/
     mw->resize( 300, 320 );
     mw->show();
     return app.exec();
