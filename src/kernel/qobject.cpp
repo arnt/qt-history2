@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#52 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#51 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#52 $";
 #endif
 
 
@@ -127,15 +127,19 @@ Returns a pointer to the parent object.
   Connects \e signal from object \e sender to \e member in this
   object. */
 
-/*! \fn bool QObject::disconnect( const char *signal, const QObject *receiver, const char *member )
+/*! \overload bool QObject::disconnect( const char *signal, const QObject *receiver, const char *member )
 
-  Disconnects \e signal from \e member of \e receiver. */
+  Disconnects \e signal from \e member of \e receiver. 
 
-/*! \fn bool QObject::disconnect( const QObject *receiver, const char *member )
+  A signal-slot connection is removed cleanly when either of the objects
+  involved are destroyed. */
+
+/*! \overload bool QObject::disconnect( const QObject *receiver, const char *member )
 
   Disconnects all signals in this object from \e member of \e receiver.
 
-  \todo this */
+  A signal-slot connection is removed cleanly when either of the objects
+  involved are destroyed. */
 
 /*!
 \fn QObject *QObject::sender()
@@ -836,8 +840,8 @@ receiver.
 A signal-slot connection is removed cleanly when either of the objects
 involved are destroyed.
 
-This function is typically used in three ways, as the following
-examples show.
+disconnect is typically used in three ways, as the following examples
+show.
 
 <ol>
 <li>Disconnect everything connected to an object's signals:
@@ -854,8 +858,9 @@ examples show.
 \endcode
 </ol>
 
-As you can see, three of the four arguments may be left out; they
-default to 0, which is used as a wildcard.
+0 may be used as a wildcard in three of the four arguments, meaning
+"any signal", "any receiving object" or "any slot in the receiving
+object" respectively.
 
 The \e sender has no default and may never be 0.  (You cannot
 disconnect signals from more than one object.)
