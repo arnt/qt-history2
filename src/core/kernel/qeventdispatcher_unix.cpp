@@ -126,6 +126,8 @@ QEventDispatcherUNIXPrivate::QEventDispatcherUNIXPrivate()
     timerBitVec = 0;
 
     interrupt = false;
+
+    getTime(watchtime);
 }
 
 QEventDispatcherUNIXPrivate::~QEventDispatcherUNIXPrivate()
