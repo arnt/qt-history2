@@ -87,8 +87,8 @@ memory.\n");
     }
 
     if ( swidth || sheight ) {
-	swidth = QMIN( swidth, qfb.width );
-	sheight = QMIN( sheight, qfb.height );
+	swidth = qMin( swidth, qfb.width );
+	sheight = qMin( sheight, qfb.height );
     } else {
 	swidth = qfb.width;
 	sheight = qfb.height;

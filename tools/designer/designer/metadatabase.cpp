@@ -351,10 +351,10 @@ void MetaDataBase::setMargin( QObject *o, int margin )
 	    if ( isInnerLayout )
 		layout->setMargin( 1 );
 	    else
-		layout->setMargin( QMAX( 1, mardef ) );
+		layout->setMargin( qMax( 1, mardef ) );
 	}
 	else
-	    layout->setMargin( QMAX( 1, margin ) );
+	    layout->setMargin( qMax( 1, margin ) );
     }
 }
 

@@ -56,7 +56,7 @@ void OrderIndicator::setOrder( int i, QWidget* wid )
     QFont f( font() );
     f.setBold( TRUE );
     setFont( f );
-    resize( QMAX( w, h ), h );
+    resize( qMax( w, h ), h );
     update(); // in case the size didn't change
     reposition();
     show();

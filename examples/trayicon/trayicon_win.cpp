@@ -68,7 +68,7 @@ public:
 	    if ( !iconObject->toolTip().isNull() ) {
 		// Tip is limited to 63 + NULL; lstrcpyn appends a NULL terminator.
 		QString tip = iconObject->toolTip().left( 63 ) + QChar();
-		lstrcpynA(tnd.szTip, (const char*)tip.local8Bit(), QMIN( tip.length()+1, 64 ) );
+		lstrcpynA(tnd.szTip, (const char*)tip.local8Bit(), qMin( tip.length()+1, 64 ) );
 	    }
 	}
 
@@ -96,7 +96,7 @@ public:
 	    if ( !iconObject->toolTip().isNull() ) {
 		// Tip is limited to 63 + NULL; lstrcpyn appends a NULL terminator.
 		QString tip = iconObject->toolTip().left( 63 ) + QChar();
-		lstrcpynW(tnd.szTip, (TCHAR*)tip.unicode(), QMIN( tip.length()+1, 64 ) );
+		lstrcpynW(tnd.szTip, (TCHAR*)tip.unicode(), qMin( tip.length()+1, 64 ) );
 	    }
 	}
 	res = ptrShell_NotifyIcon(msg, &tnd);

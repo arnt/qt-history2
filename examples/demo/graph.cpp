@@ -113,10 +113,10 @@ void NodeItem::moveBy(double dx, double dy)
     double nx = x() + dx;
     double ny = y() + dy;
     if ( graph->moving != this ) {
-	nx = QMAX( width()/2, nx );
-	ny = QMAX( height()/2, ny );
-	nx = QMIN( canvas()->width() - width()/2, nx );
-	ny = QMIN( canvas()->height() - height()/2, ny );
+	nx = qMax( width()/2, nx );
+	ny = qMax( height()/2, ny );
+	nx = qMin( canvas()->width() - width()/2, nx );
+	ny = qMin( canvas()->height() - height()/2, ny );
     }
     QCanvasEllipse::moveBy( nx-x(), ny-y() );
     EdgeItemList::Iterator it;

@@ -1135,8 +1135,8 @@ void QWSServer::givePendingRegion()
 
 void QWSServer::setMouse(const QPoint& p,int bstate)
 {
-    mousePos.setX( QMIN( QMAX( p.x(), 0 ), swidth ) );
-    mousePos.setY( QMIN( QMAX( p.y(), 0 ), sheight ) );
+    mousePos.setX( qMin( qMax( p.x(), 0 ), swidth ) );
+    mousePos.setY( qMin( qMax( p.y(), 0 ), sheight ) );
     if (probed_card) {
 	probed_card->move_cursor(mousePos.x(), mousePos.y());
     }

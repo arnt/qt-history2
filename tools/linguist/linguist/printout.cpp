@@ -96,7 +96,7 @@ void PrintOut::addBox( int percent, const QString& text, Style style,
 
     Box b( r, text, f, align );
     cp.boxes.append( b );
-    cp.rect.setSize( QSize(cp.rect.width() + wd, QMAX(cp.rect.height(), ht)) );
+    cp.rect.setSize( QSize(cp.rect.width() + wd, qMax(cp.rect.height(), ht)) );
 }
 
 void PrintOut::breakPage()
@@ -118,14 +118,14 @@ void PrintOut::breakPage()
     p.drawText( r1, LeftAlign, pr->docName() );
     h2 = p.boundingRect( r2, RightAlign, QString::number(page) ).height();
     p.drawText( r2, RightAlign, QString::number(page) );
-    voffset += QMAX( h1, h2 );
+    voffset += qMax( h1, h2 );
 
     r1 = QRect( hmargin, voffset, hsize / 2, LeftAlign );
     p.setFont( f8 );
     h1 = p.boundingRect( r1, LeftAlign, dateTime.toString() ).height();
     p.drawText( r1, LeftAlign, dateTime.toString() );
     p.setFont( f10 );
-    voffset += QMAX( h1, h2 );
+    voffset += qMax( h1, h2 );
 
     voffset += 4;
     p.drawLine( QPoint(hmargin, voffset), QPoint(hmargin + hsize, voffset) );

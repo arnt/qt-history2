@@ -571,7 +571,7 @@ void ListViewEditor::setupColumns()
 void ListViewEditor::setupItems()
 {
     itemColumn->setMinValue( 0 );
-    itemColumn->setMaxValue( QMAX( numColumns - 1, 0 ) );
+    itemColumn->setMaxValue( qMax( numColumns - 1, 0 ) );
     int i = 0;
     QHeader *header = itemsPreview->header();
     for ( QListBoxItem *item = colPreview->firstItem(); item; item = item->next() ) {
@@ -588,7 +588,7 @@ void ListViewEditor::setupItems()
     while ( itemsPreview->columns() > i )
 	itemsPreview->removeColumn( i );
 
-    itemColumn->setValue( QMIN( numColumns - 1, itemColumn->value() ) );
+    itemColumn->setValue( qMin( numColumns - 1, itemColumn->value() ) );
 }
 
 ListViewEditor::Column *ListViewEditor::findColumn( QListBoxItem *i )

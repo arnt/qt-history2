@@ -800,9 +800,9 @@ void Resource::paste( const QString &cb, QWidget *parent )
 	    int x = w->x() + formwindow->grid().x();
 	    int y = w->y() + formwindow->grid().y();
 	    if ( w->x() + w->width() > parent->width() )
-		x = QMAX( 0, parent->width() - w->width() );
+		x = qMax( 0, parent->width() - w->width() );
 	    if ( w->y() + w->height() > parent->height() )
-		y = QMAX( 0, parent->height() - w->height() );
+		y = qMax( 0, parent->height() - w->height() );
 	    if ( x != w->x() || y != w->y() )
 		w->move( x, y );
 	    formwindow->selectWidget( w );
@@ -814,9 +814,9 @@ void Resource::paste( const QString &cb, QWidget *parent )
 	    int x = w->x() + formwindow->grid().x();
 	    int y = w->y() + formwindow->grid().y();
 	    if ( w->x() + w->width() > parent->width() )
-		x = QMAX( 0, parent->width() - w->width() );
+		x = qMax( 0, parent->width() - w->width() );
 	    if ( w->y() + w->height() > parent->height() )
-		y = QMAX( 0, parent->height() - w->height() );
+		y = qMax( 0, parent->height() - w->height() );
 	    if ( x != w->x() || y != w->y() )
 		w->move( x, y );
 	    formwindow->selectWidget( w );

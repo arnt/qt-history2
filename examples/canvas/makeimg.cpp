@@ -47,8 +47,8 @@ int main( int*, char**)
 	    int r = qRed(pixel);
 	    int g = qGreen(pixel);
 	    int b = qBlue(pixel);
-	    int min = QMIN( r, QMIN( g, b ) );
-	    int max = QMAX( r, QMAX( g, b ) );
+	    int min = qMin( r, qMin( g, b ) );
+	    int max = qMax( r, qMax( g, b ) );
 	    r -= min;
 	    g -= min;
 	    b -= min;

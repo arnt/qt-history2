@@ -733,7 +733,7 @@ void LayoutVerticalSplitCommand::unexecute()
 LayoutGridCommand::LayoutGridCommand( const QString &n, FormWindow *fw,
 				      QWidget *parent, QWidget *layoutBase,
 				      const QWidgetList &wl, int xres, int yres )
-    : Command( n, fw ), layout( wl, parent, fw, layoutBase, QSize( QMAX(5,xres), QMAX(5,yres) ) )
+    : Command( n, fw ), layout( wl, parent, fw, layoutBase, QSize( qMax(5,xres), qMax(5,yres) ) )
 {
 }
 
@@ -766,7 +766,7 @@ BreakLayoutCommand::BreakLayoutCommand( const QString &n, FormWindow *fw,
     else if ( lay == WidgetFactory::VBox )
 	layout = new VerticalLayout( wl, layoutBase, fw, layoutBase, FALSE, ::qt_cast<QSplitter*>(layoutBase) != 0 );
     else if ( lay == WidgetFactory::Grid )
-	layout = new GridLayout( wl, layoutBase, fw, layoutBase, QSize( QMAX( 5, fw->grid().x()), QMAX( 5, fw->grid().y()) ), FALSE );
+	layout = new GridLayout( wl, layoutBase, fw, layoutBase, QSize( qMax( 5, fw->grid().x()), qMax( 5, fw->grid().y()) ), FALSE );
 }
 
 void BreakLayoutCommand::execute()
@@ -778,7 +778,7 @@ void BreakLayoutCommand::execute()
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
     for (int i = 0; i < widgets.size(); ++i) {
 	QWidget *w = widgets.at(i);
-	w->resize( QMAX( 16, w->width() ), QMAX( 16, w->height() ) );
+	w->resize( qMax( 16, w->width() ), qMax( 16, w->height() ) );
     }
 }
 

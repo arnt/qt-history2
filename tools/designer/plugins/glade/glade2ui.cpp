@@ -1848,9 +1848,9 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 		    emitProperty( QString("value"), value );
 		}
 	    }
-	    if ( QMAX(page, pageSize) != 10 &&
+	    if ( qMax(page, pageSize) != 10 &&
 		 gtkClass.endsWith(QString("Scrollbar")) )
-		emitProperty( QString("pageStep"), QMAX(page, pageSize) );
+		emitProperty( QString("pageStep"), qMax(page, pageSize) );
 	    if ( !selectionMode.isEmpty() )
 		emitProperty( QString("selectionMode"),
 			      gtk2qtSelectionMode(selectionMode),

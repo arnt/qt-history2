@@ -106,7 +106,7 @@ MagWidget::MagWidget( QWidget *parent, const char *name )
 
     for( n=0; n<9; n++) {
 	int w2 = zoom->fontMetrics().width( zoomfactors[n] );
-	w = QMAX(w2, w);
+	w = qMax(w2, w);
     }
     zoom->setGeometry( 2, 2, w+30, 20 );
 
@@ -114,7 +114,7 @@ MagWidget::MagWidget( QWidget *parent, const char *name )
     w = 0;
     for( n=0; n<9; n++) {
 	int w2 = refresh->fontMetrics().width( refreshrates[n] );
-	w = QMAX(w2, w);
+	w = qMax(w2, w);
     }
     refresh->setGeometry( x, 2, w+30, 20 );
 
@@ -319,8 +319,8 @@ void MagWidget::grabAround(QPoint pos)
 	    zoom->setCurrentItem( pz-1 );
 
 	z = pz;
-	grabx = QMIN(rx, grabx) + w/2;
-	graby = QMIN(ry, graby) + h/2;
+	grabx = qMin(rx, grabx) + w/2;
+	graby = qMin(ry, graby) + h/2;
 	resize( w*z, h*z+yoffset );
     }
     grab();

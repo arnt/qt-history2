@@ -700,7 +700,7 @@ static void computeTableColumnWidths( const QValueList<Cell>& cells,
 
 static double percentToDouble( int percent )
 {
-    return (double) QMAX( percent - 3, 3 ) / 100;
+    return (double) qMax( percent - 3, 3 ) / 100;
 }
 
 static void laTeXifyTables( QString& html )

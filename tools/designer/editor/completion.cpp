@@ -562,7 +562,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     }
     if ( foundSpace )
 	++j;
-    j = QMAX( j, 0 );
+    j = qMax( j, 0 );
     QString function( cursor->paragraph()->string()->toString().mid( j, i - j + 1 ) );
     QString part = cursor->paragraph()->string()->toString().mid( j, cursor->index() - j + 1 );
     function = function.simplifyWhiteSpace();
@@ -629,13 +629,13 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	s.append( post );
 	label += "<p>" + s + "</p>";
 	functionLabel->setFunctionText( num, s );
-	w = QMAX( w, functionLabel->fontMetrics().width( s ) + 10 );
+	w = qMax( w, functionLabel->fontMetrics().width( s ) + 10 );
     }
     w += 16;
     if ( label.isEmpty() )
 	return FALSE;
     if ( functionLabel->isVisible() ) {
-	functionLabel->resize( w + 50, QMAX( functionLabel->fontMetrics().height(), 16 ) );
+	functionLabel->resize( w + 50, qMax( functionLabel->fontMetrics().height(), 16 ) );
     } else {
 	Q3TextStringChar *chr = cursor->paragraph()->at( cursor->index() );
 	int h = cursor->paragraph()->lineHeightOfChar( cursor->index() );
@@ -643,10 +643,10 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	int y, dummy;
 	cursor->paragraph()->lineHeightOfChar( cursor->index(), &dummy, &y );
 	y += cursor->paragraph()->rect().y();
-	functionLabel->resize( w + 50, QMAX( functionLabel->fontMetrics().height(), 16 ) );
+	functionLabel->resize( w + 50, qMax( functionLabel->fontMetrics().height(), 16 ) );
 	functionLabel->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
 	if ( functionLabel->x() + functionLabel->width() > QApplication::desktop()->width() )
-	    functionLabel->move( QMAX( 0, QApplication::desktop()->width() - functionLabel->width() ),
+	    functionLabel->move( qMax( 0, QApplication::desktop()->width() - functionLabel->width() ),
 				 functionLabel->y() );
 	functionLabel->show();
 	curEditor->setFocus();

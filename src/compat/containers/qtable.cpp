@@ -5945,8 +5945,8 @@ void QTable::insertRows( int row, int count )
     leftHeader->setUpdatesEnabled( leftHeaderUpdatesEnabled );
     setUpdatesEnabled( updatesEnabled );
 
-    int cr = QMAX( 0, currentRow() );
-    int cc = QMAX( 0, currentColumn() );
+    int cr = qMax( 0, currentRow() );
+    int cc = qMax( 0, currentColumn() );
     if ( curRow > row )
 	curRow -= count; // this is where curRow was
     setCurrentCell( cr, cc, TRUE, FALSE ); // without ensureCellVisible
@@ -6003,8 +6003,8 @@ void QTable::insertColumns( int col, int count )
     topHeader->setUpdatesEnabled( topHeaderUpdatesEnabled );
     setUpdatesEnabled( updatesEnabled );
 
-    int cr = QMAX( 0, currentRow() );
-    int cc = QMAX( 0, currentColumn() );
+    int cr = qMax( 0, currentRow() );
+    int cc = qMax( 0, currentColumn() );
     if ( curCol > col )
 	curCol -= count; // this is where curCol was
     setCurrentCell( cr, cc, TRUE, FALSE ); // without ensureCellVisible

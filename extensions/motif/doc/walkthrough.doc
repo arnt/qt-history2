@@ -1118,7 +1118,7 @@ Earlier modifications to \c actions.cpp caused the \c Trim() function
 to become redundant, so we remove it.
 
 The \c MIN() and \c MAX() macros in \c todo.cpp are redundant.  Qt
-provides the \c QMIN() and \c QMAX() macros which we will use.
+provides the \c qMin() and \c qMax() functions which we will use.
 
 Earlier modifications caused the \c fallback_resources array to become
 redundant, so we remove it. 

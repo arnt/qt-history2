@@ -1077,7 +1077,7 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
     }
     delete yyProgram;
     terminateIndenter();
-    return QMAX( 0, indent );
+    return qMax( 0, indent );
 }
 
 #ifdef Q_TEST_YYINDENT

@@ -136,8 +136,8 @@ void Layout::setup()
 	QWidget *w = widgets.at(i);
 	connect( w, SIGNAL( destroyed() ),
 		 this, SLOT( widgetDestroyed() ) );
-	startPoint = QPoint( QMIN( startPoint.x(), w->x() ),
-			     QMIN( startPoint.y(), w->y() ) );
+	startPoint = QPoint( qMin( startPoint.x(), w->x() ),
+			     qMin( startPoint.y(), w->y() ) );
 	geometries.insert( w, QRect( w->pos(), w->size() ) );
 	// Change the Z-order, as saving/loading uses the Z-order for
 	// writing/creating widgets and this has to be the same as in
@@ -924,7 +924,7 @@ void Spacer::paintEvent( QPaintEvent * )
 
     if ( orient == Horizontal ) {
 	const int dist = 3;
-	const int amplitude = QMIN( 3, height() / 3 );
+	const int amplitude = qMin( 3, height() / 3 );
 	const int base = height() / 2;
 	int i = 0;
 	p.setPen( white );
@@ -937,7 +937,7 @@ void Spacer::paintEvent( QPaintEvent * )
 	p.drawLine( width() - 1, 0, width() - 1, height());
     } else {
 	const int dist = 3;
-	const int amplitude = QMIN( 3, width() / 3 );
+	const int amplitude = qMin( 3, width() / 3 );
 	const int base = width() / 2;
 	int i = 0;
 	p.setPen( white );
@@ -962,12 +962,12 @@ void Spacer::updateMask()
 {
     QRegion r( rect() );
     if ( orient == Horizontal ) {
-	const int amplitude = QMIN( 3, height() / 3 );
+	const int amplitude = qMin( 3, height() / 3 );
 	const int base = height() / 2;
 	r = r.subtract( QRect(1, 0, width() - 2, base - amplitude ) );
 	r = r.subtract( QRect(1, base + amplitude, width() - 2, height() - base - amplitude ) );
     } else {
-	const int amplitude = QMIN( 3, width() / 3 );
+	const int amplitude = qMin( 3, width() / 3 );
 	const int base = width() / 2;
 	r = r.subtract( QRect(0, 1, base - amplitude, height() - 2 ) );
 	r = r.subtract( QRect( base + amplitude, 1, width() - base - amplitude, height() - 2 ) );

@@ -798,7 +798,7 @@ void WidgetDatabase::insert( int index, WidgetDatabaseRecord *r )
     db[ index ] = r;
     className2Id->insert(r->name, index);
     if ( index < dbcustom )
-	dbcount = QMAX( dbcount, index );
+	dbcount = qMax( dbcount, index );
 }
 
 void WidgetDatabase::append( WidgetDatabaseRecord *r )

@@ -76,7 +76,7 @@ void QCompletionEdit::placeListBox()
 	return;
     }
 
-    popup->resize( QMAX( listbox->sizeHint().width() + listbox->verticalScrollBar()->width() + 4, width() ),
+    popup->resize( qMax( listbox->sizeHint().width() + listbox->verticalScrollBar()->width() + 4, width() ),
 		   listbox->sizeHint().height() + listbox->horizontalScrollBar()->height() + 4 );
 
     QPoint p( mapToGlobal( QPoint( 0, 0 ) ) );

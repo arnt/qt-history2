@@ -447,7 +447,7 @@ void PropertyItem::placeEditor( QWidget *w )
     listview->moveChild( w, r.x(), r.y() );
     resetButton->parentWidget()->resize( resetButton->sizeHint().width() + 10, r.height() );
     listview->moveChild( resetButton->parentWidget(), r.x() + r.width() - 8, r.y() );
-    resetButton->setFixedHeight( QMAX( 0, r.height() - 3 ) );
+    resetButton->setFixedHeight( qMax( 0, r.height() - 3 ) );
 }
 
 /*!  This should be called by subclasses if the user changed the value
@@ -2710,7 +2710,7 @@ void EnumBox::mousePressEvent( QMouseEvent *e )
 						      QStyle::SC_ComboBoxArrow);
     arrowRect = QStyle::visualRect(arrowRect, this);
 
-    arrowRect.setHeight( QMAX(  height() - (2 * arrowRect.y()), arrowRect.height() ) );
+    arrowRect.setHeight( qMax(  height() - (2 * arrowRect.y()), arrowRect.height() ) );
 
     if ( arrowRect.contains( e->pos() ) ) {
 	arrowDown = TRUE;

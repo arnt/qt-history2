@@ -1141,11 +1141,11 @@ QSize PopupMenuEditor::contentsSize()
 		a = i->action();
 		w = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal ).rect().width() +
 		    borderSize; // padding
-		iconWidth = QMAX( iconWidth, w );
+		iconWidth = qMax( iconWidth, w );
 		w = fontMetrics().boundingRect( a->menuText() ).width();
-		textWidth = QMAX( textWidth, w );
+		textWidth = qMax( textWidth, w );
 		w = fontMetrics().boundingRect( a->accel() ).width() + 2; // added padding?
-		accelWidth = QMAX( accelWidth, w );
+		accelWidth = qMax( accelWidth, w );
 	    }
 	    h += itemHeight( i );
 	}
@@ -1164,8 +1164,8 @@ int PopupMenuEditor::itemHeight( const PopupMenuEditorItem * item ) const
     int padding =  + borderSize * 6;
     QAction * a = item->action();
     int h = a->iconSet().pixmap( QIconSet::Automatic, QIconSet::Normal ).rect().height();
-    h = QMAX( h, fontMetrics().boundingRect( a->menuText() ).height() + padding );
-    h = QMAX( h, fontMetrics().boundingRect( a->accel() ).height() + padding );
+    h = qMax( h, fontMetrics().boundingRect( a->menuText() ).height() + padding );
+    h = qMax( h, fontMetrics().boundingRect( a->accel() ).height() + padding );
     return h;
 }
 

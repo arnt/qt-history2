@@ -936,7 +936,7 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
     switch ( pe ) {
     case PE_ButtonCommand:
 	{
-	    int d = QMIN( w, h ) / 2;
+	    int d = qMin( w, h ) / 2;
 	    int b = buttonthickness( d );
 	
 	    QRegion internR = roundRectRegion( QRect(x + b, y + b,
@@ -949,7 +949,7 @@ void NorwegianWoodStyle::drawPrimitive( PrimitiveElement pe,
 	    p->setClipRegion( internR );
 	    p->fillRect( r, brush );
 	
-	    int e = QMIN( w, h ) / 2;
+	    int e = qMin( w, h ) / 2;
 	    QPoint p2( x + w - 1 - e, y + e );
 	    QPoint p3( x + e, y + h - 1 - e );
 	
@@ -1114,7 +1114,7 @@ void NorwegianWoodStyle::drawControlMask( ControlElement element,
     switch( element ) {
     case CE_PushButton:
 	{
-	    int d = QMIN( r.width(), r.height() ) / 2;
+	    int d = qMin( r.width(), r.height() ) / 2;
 	    p->setPen( color1 );
 	    p->setBrush( color1 );
 	    drawroundrect( p, r.x(), r.y(), r.width(), r.height(), d );
@@ -1188,7 +1188,7 @@ void NorwegianWoodStyle::drawComplexControlMask( ComplexControl control,
     switch ( control ) {
     case CC_ComboBox:
 	{
-	    int d = QMIN( r.width(), r.height() ) / 2;
+	    int d = qMin( r.width(), r.height() ) / 2;
 	    p->setPen( color1 );
 	    p->setBrush( color1 );
 	    drawroundrect( p, r.x(), r.y(), r.width(), r.height(), d );
@@ -1268,7 +1268,7 @@ QRect NorwegianWoodStyle::subRect( SubRect sr, const QWidget * widget ) const
 	    const QPushButton *btn;
 	    btn = (const QPushButton*)widget;
 	    r = btn->rect();
-	    int d = QMIN( r.width(), r.height() ) / 2;
+	    int d = qMin( r.width(), r.height() ) / 2;
 	    int b = buttonthickness( d );
 	
 	    d -= b;

@@ -321,9 +321,9 @@ void QWSServer::readKeyboardData()
 	if (alt && keyCode >= Qt::Key_F1 && keyCode <= Qt::Key_F10)
 	    term = keyCode - Qt::Key_F1 + 1;
 	else if (alt && keyCode == Qt::Key_Left)
-	    term = QMAX(vtQws - 1, 1);
+	    term = qMax(vtQws - 1, 1);
 	else if (alt && keyCode == Qt::Key_Right)
-	    term = QMIN(vtQws + 1, 10);
+	    term = qMin(vtQws + 1, 10);
 	if (term && !release) {
 	    ioctl(kbdFD, VT_ACTIVATE, term);
 	    return;

@@ -129,8 +129,8 @@ Print(Widget, char *, XmdPrintCallbackStruct *cb)
     from = 0;
     to = maxpages - 1;
   } else {
-    from = QMAX(0, cb -> first - 1);
-    to = QMIN(maxpages, cb -> last - 1);
+    from = qMax(0, cb -> first - 1);
+    to = qMin(maxpages, cb -> last - 1);
   }
 
   for (i = from; i <= to; i++) {
