@@ -495,7 +495,7 @@ void QTextBrowser::scrollToAnchor(const QString& name)
 {
     if ( name.isEmpty() )
 	return;
-    
+
     QTextParagraph* b = &richText();
     while ( b->child )
 	b = b->child;
@@ -506,9 +506,13 @@ void QTextBrowser::scrollToAnchor(const QString& name)
 		QPainter p( viewport() );
 		QFontMetrics fm( p.fontMetrics() );
 		QTextCursor tc( richText() );
-		if ( b->dirty )
+		if ( b->dirty ) {
+		    tc.gotoParagraph( &p, &richText() );
 		    tc.updateLayout( &p );
+		}
 		tc.gotoParagraph( &p, b );
+		tc.makeLineLayout( &p, fm );
+		tc.gotoLineStart( &p, fm );
 		while ( i-- )
 		    tc.rightOneItem( &p );
 		resizeContents( viewport()->width(), richText().flow()->height );
