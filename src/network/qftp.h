@@ -128,15 +128,6 @@ protected:
     void operationGet( QNetworkOperation *op );
     void operationPut( QNetworkOperation *op );
 
-    // ### Qt 4.0: delete these
-    // unused variables:
-    QSocket *commandSocket, *dataSocket;
-    bool connectionReady, passiveMode;
-    int getTotalSize, getDoneSize;
-    bool startGetOnFail;
-    int putToWrite, putWritten;
-    bool errorInListChildren;
-
 private:
     void init();
     int addCommand( QFtpCommand * );
