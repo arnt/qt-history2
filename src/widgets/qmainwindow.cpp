@@ -368,8 +368,8 @@ void HideToolTip::maybeTip( const QPoint &pos )
 class QToolLayout : public QLayout
 {
 public:
-    QToolLayout( QLayout* parent, QMainWindowPrivate::ToolBarDock *d, 
-		 QBoxLayout::Direction dd, bool justify, 
+    QToolLayout( QLayout* parent, QMainWindowPrivate::ToolBarDock *d,
+		 QBoxLayout::Direction dd, bool justify,
 		 int space=-1, const char *name=0 )
 	: QLayout( parent, space, name ), dock(d), dir(dd), fill(justify)
 	{ init(); }
@@ -406,7 +406,7 @@ private:
 QSize QToolLayout::sizeHint() const
 {
     if ( hasHeightForWidth() )
-	return minimumSize(); 
+	return minimumSize();
     // Only vertical scrollbars below this line
     int w = 0;
     int h = 0;
@@ -418,10 +418,10 @@ QSize QToolLayout::sizeHint() const
 	h += ms.height();
 	w = QMAX( w, ms.width() );
     }
-    return QSize(w,h);    
+    return QSize(w,h);
 }
 
-bool QToolLayout::hasHeightForWidth() const 
+bool QToolLayout::hasHeightForWidth() const
 {
     //direction is the dock's direction, which is perpendicular to the layout
     return dir == QBoxLayout::Up || dir == QBoxLayout::Down;
@@ -1071,7 +1071,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 	}
     }
 
-    triggerLayout( FALSE );
+    triggerLayout( edge == Hidden );
 }
 
 /*!
@@ -1201,7 +1201,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 			ipos = QMainWindowPrivate::Before;
 		    else {
 			tmp = dock->next();
-			if ( ( !tmp || tmp->nl || tmp->t->stretchable() ) && !t->t->stretchable() )
+			if ( !tmp || tmp->nl )
 			    ipos = QMainWindowPrivate::TotalAfter;
 			else
 			    ipos = QMainWindowPrivate::After;
@@ -1210,7 +1210,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 		}
 		tmp = t;
 		t = dock->next();
-		if ( !t || t->nl || t->t->x() > tmp->t->x() || t->t->stretchable() ) {
+		if ( !t || t->nl || t->t->x() > tmp->t->x() ) {
 		    ipos = QMainWindowPrivate::TotalAfter;
 		    return tmp;
 		}
@@ -1230,7 +1230,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 void QMainWindow::setUpLayout()
 {
     //### Must rewrite!
-    
+
     if ( d->tll ) { //just refresh...
 	d->tll->activate();
 	return;
@@ -1275,7 +1275,7 @@ void QMainWindow::setUpLayout()
     }
 
     (void) new QToolLayout( d->tll, d->top, QBoxLayout::Down, d->justify );
-    
+
     QBoxLayout * mwl = new QBoxLayout( QBoxLayout::LeftToRight );
 
     d->tll->addLayout( mwl, 100 );
@@ -1573,6 +1573,7 @@ bool QMainWindow::rightJustification() const
 
 void QMainWindow::triggerLayout( bool deleteLayout )
 {
+    deleteLayout = TRUE;
     if ( deleteLayout ) {
 	delete d->tll;
 	d->tll = 0;
@@ -1609,30 +1610,38 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
 	break;
     }
 
-    // find the toolbar which will be the relative toolbar for the moved one
-    QMainWindowPrivate::ToolBar *t = findCoveringToolbar( tdock, pos,
-							  (QMainWindowPrivate::InsertPos&)ipos );
-    covering = 0;
-
     Qt::Orientation o;
     if ( dock == QMainWindow::Top || dock == QMainWindow::Bottom )
 	o = Qt::Horizontal;
     else
 	o = Qt::Vertical;
 
+    // calc the minimum toolbar size of the dock
+    int ms = 0xFFFFFF;
+    if ( tdock ) {
+	QMainWindowPrivate::ToolBar *tt = tdock->first();
+	for ( ; tt; tt = tdock->next() ) 
+	    ms = QMIN( ms, o == Qt::Horizontal ? tt->t->width() : tt->t->height() );
+    }
+
+    // find the toolbar which will be the relative toolbar for the moved one
+    QMainWindowPrivate::ToolBar *t = findCoveringToolbar( tdock, pos,
+							  (QMainWindowPrivate::InsertPos&)ipos );
+    covering = 0;
+
     // calc width and height of the tb depending on the orientation it _would_ have
     int w = o == tb->orientation() ? tb->width() : tb->height();
     int h = o != tb->orientation() ? tb->width() : tb->height();
     if ( o == Qt::Horizontal ) {
-	if ( t && t->t && w > t->t->width() && ipos != QMainWindowPrivate::TotalAfter )
-	    w = 150; // #### should be calced somehow
+	if ( w > ms && ipos != QMainWindowPrivate::TotalAfter )
+	    w = ms; // #### should be calced somehow
 	if ( t && t->t )
 	    h = t->t->height();
 	else if ( o != tb->orientation() )
 	    h = QMIN( h, 30 );
     } else {
-	if ( t && t->t && h > t->t->height() && ipos != QMainWindowPrivate::TotalAfter )
-	    h = 150; // #### should be calced somehow
+	if ( h > ms && ipos != QMainWindowPrivate::TotalAfter )
+	    h = ms; // #### should be calced somehow
 	if ( t && t->t )
 	    w = t->t->width();
 	else if ( o != tb->orientation() )
@@ -2090,9 +2099,9 @@ QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
 
   Movable toolbars can be dragged around between and within the
   different toolbar docks by the user.
-  
+
   The default is TRUE.
-  
+
   \sa setDockEnabled(), toolbarsMovable()
 */
 
