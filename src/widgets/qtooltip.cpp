@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#97 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -25,6 +25,7 @@
 #include "qlabel.h"
 #include "qptrdict.h"
 #include "qapplication.h"
+#include "qguardedptr.h"
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -104,12 +105,11 @@ protected:
 private:
     QTimer  wakeUp;
     QTimer  fallAsleep;
-    QTimer  leaveWindow;
 
     QPtrDict<Tip> *tips;
     QLabel *label;
     QPoint pos;
-    QWidget *widget;
+    QGuardedPtr<QWidget> widget;
     Tip *currentTip;
     Tip *previousTip;
     bool isApplicationFilter;
@@ -151,7 +151,6 @@ QTipManager::QTipManager()
     isApplicationFilter = FALSE;
     connect( &wakeUp, SIGNAL(timeout()), SLOT(showTip()) );
     connect( &fallAsleep, SIGNAL(timeout()), SLOT(hideTip()) );
-    connect( &leaveWindow, SIGNAL(timeout()), SLOT(hideTip()) );
 }
 
 
@@ -328,7 +327,6 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	// user moved focus somewhere - hide the tip
 	hideTip();
 	fallAsleep.stop();
-	leaveWindow.stop();
 	return FALSE;
     }
 
@@ -341,8 +339,9 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 
     if ( !t ) {
 	if ( e->type() >= QEvent::MouseButtonPress &&
-	     e->type() <= QEvent::Leave )
+	     e->type() <= QEvent::Leave ) {
 	    hideTip();
+	}
 	return FALSE;
     }
 
@@ -357,7 +356,6 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	// input - turn off tool tip mode
 	hideTip();
 	fallAsleep.stop();
-	leaveWindow.stop();
 	break;
     case QEvent::MouseMove:
 	{ // a whole scope just for one variable
@@ -379,7 +377,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 		    return TRUE;
 		} else {
 		    if ( fallAsleep.isActive() ) {
-			wakeUp.start( 100, TRUE );
+			wakeUp.start( 1, TRUE );
 		    } else {
 			previousTip = 0;
 			wakeUp.start( 700, TRUE );
@@ -395,24 +393,13 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	    }
 	}
 	break;
-    case QEvent::Enter:
-	if ( label && label->isVisible() && w == widget )
-	    leaveWindow.stop();
-	else if ( w ) // test in event_leave below should always hit first
-	    hideTip();
-	break;
     case QEvent::Leave:
-	if ( label && label->isVisible() )
-	    leaveWindow.start( 50, TRUE );
-	else if ( widget != w )
+    case QEvent::Hide:
+    case QEvent::Destroy:
+	if ( w == widget )
 	    hideTip();
-	else
-	    wakeUp.stop();
-	if ( t->group && !t->group->d && !t->groupText.isEmpty() )
-	    emit t->group->showTip( QString::null );
 	break;
     default:
-	hideTip();
 	break;
     }
     return FALSE;
@@ -422,10 +409,8 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 
 void QTipManager::showTip()
 {
-    if ( widget == 0 ) {
-	widget = 0;
+    if ( !widget )
 	return;
-    }
 
     QTipManager::Tip *t = (*tips)[ widget ];
     while ( t && !t->rect.contains( pos ) )
@@ -455,11 +440,8 @@ void QTipManager::showTip()
 	label->move( p );
 	label->show();
 	label->raise();
+	fallAsleep.start( 10000, TRUE );
     }
-
-    if ( !label->text() && label->text().length() < 25 )
-	fallAsleep.start( 5000, TRUE );
-    leaveWindow.stop();
 
     if ( t->group && t->group->d && !t->groupText.isEmpty() )
 	emit t->group->showTip( t->groupText );
@@ -472,7 +454,7 @@ void QTipManager::hideTip()
 {
     if ( label && label->isVisible() ) {
 	label->hide();
-	fallAsleep.start( 10000, TRUE );
+	fallAsleep.start( 2000, TRUE );
 	wakeUp.stop();
 	if ( currentTip && currentTip->group )
 	    emit currentTip->group->removeTip();
