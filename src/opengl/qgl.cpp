@@ -879,13 +879,12 @@ QGLContext::~QGLContext()
     delete d;
 }
 
-// used to generate a simple id for the cache
+// generate a cache key from a filename
 static int scramble(const QString &str)
 {
     int scrambled = 0;
-    for (int i = 0; i < str.length(); ++i) {
+    for (int i = 0; i < str.length(); ++i)
 	scrambled += (int)(str.at(i).latin1()) * (i+1);
-    }
     return scrambled;
 }
 
@@ -1110,7 +1109,7 @@ void QGLContext::deleteTexture(GLuint id)
 
 /*!
     This function sets the limit for the texture cache. The limit is
-    in kilobytes. By default the cache limit is ~64 megabyte.
+    in kilobytes. By default the cache limit is ~64 megabytes.
 */
 void QGLContext::setTextureCacheLimit(int size)
 {
