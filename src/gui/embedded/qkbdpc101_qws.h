@@ -45,7 +45,7 @@ protected:
     uint ipaq_return_pressed:1;
 #endif
     uint extended:2;
-    int modifiers;
+    Qt::KeyboardModifiers modifiers;
     int prevuni;
     int prevkey;
 };

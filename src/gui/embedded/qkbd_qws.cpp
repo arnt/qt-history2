@@ -33,7 +33,7 @@ public:
         repeatperiod = 80;
     }
 
-    void beginAutoRepeat(int uni, int code, int mod) {
+    void beginAutoRepeat(int uni, int code, Qt::KeyboardModifiers mod) {
         unicode = uni;
         keycode = code;
         modifier = mod;
@@ -54,7 +54,7 @@ private:
     QWSKeyboardHandler *handler;
     int unicode;
     int keycode;
-    int modifier;
+    Qt::KeyboardModifiers modifier;
     int repeatdelay;
     int repeatperiod;
     QTimer *arTimer;
@@ -118,7 +118,7 @@ QWSKeyboardHandler::~QWSKeyboardHandler()
             mechanism, or an actual key press.
     \endtable
 */
-void QWSKeyboardHandler::processKeyEvent(int unicode, int keycode, int modifiers,
+void QWSKeyboardHandler::processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                         bool isPress, bool autoRepeat)
 {
     qwsServer->processKeyEvent(unicode, keycode, modifiers, isPress, autoRepeat);
@@ -158,7 +158,7 @@ int QWSKeyboardHandler::transformDirKey(int key)
 
     \sa endAutoRepeat()
 */
-void QWSKeyboardHandler::beginAutoRepeat(int uni, int code, int mod)
+void QWSKeyboardHandler::beginAutoRepeat(int uni, int code, Qt::KeyboardModifiers mod)
 {
     d->beginAutoRepeat(uni, code, mod);
 }

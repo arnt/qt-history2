@@ -82,7 +82,8 @@ QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
 }
 
 void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
-                    int modifiers, bool isPress, bool autoRepeat)
+                                            Qt::KeyboardModifiers modifiers, bool isPress,
+                                            bool autoRepeat)
 {
 #if defined(Q_OS_LINUX)
     // Virtual console switching

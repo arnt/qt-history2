@@ -29,7 +29,7 @@ public:
     virtual ~QWSTtyKeyboardHandler();
 
 protected:
-    virtual void processKeyEvent(int unicode, int keycode, int modifiers,
+    virtual void processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                                 bool isPress, bool autoRepeat);
 
 private:

@@ -1422,8 +1422,8 @@ static int keyUnicode(int keycode)
     user has held the key down and this is the second or subsequent
     key event being sent).
 */
-void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
-  bool autoRepeat)
+void QWSServer::sendKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
+                             bool isPress, bool autoRepeat)
 {
     qws_keyModifiers = modifiers;
 
@@ -1434,14 +1434,12 @@ void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPre
 
 #ifndef QT_NO_QWS_IM
 
-    if (!current_IM || !current_IM->filter(unicode, keycode, modifiers,
-                                             isPress, autoRepeat))
-        sendKeyEventUnfiltered(unicode, keycode, modifiers,
-                                isPress, autoRepeat);
+    if (!current_IM || !current_IM->filter(unicode, keycode, modifiers, isPress, autoRepeat))
+        sendKeyEventUnfiltered(unicode, keycode, modifiers, isPress, autoRepeat);
 }
 
-void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, bool isPress,
-  bool autoRepeat)
+void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
+                                       bool isPress, bool autoRepeat)
 {
 #endif
 
@@ -1461,9 +1459,8 @@ void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, 
     event.simpleData.is_press = isPress;
     event.simpleData.is_auto_repeat = autoRepeat;
 
-    for (ClientIterator it = qwsServer->clientMap.begin(); it != qwsServer->clientMap.end(); ++it) {
+    for (ClientIterator it = qwsServer->clientMap.begin(); it != qwsServer->clientMap.end(); ++it)
         (*it)->sendEvent(&event);
-    }
 }
 
 /*!
@@ -2792,8 +2789,8 @@ static QList<QWSServer::KeyboardFilter*> *keyFilters = 0;
 /*!
   \internal
 */
-void QWSServer::processKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
-  bool autoRepeat)
+void QWSServer::processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
+                                bool isPress, bool autoRepeat)
 {
     if (keyFilters) {
         for (int i = 0; i < keyFilters->size(); ++i) {

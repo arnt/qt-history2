@@ -2809,8 +2809,8 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
 
 bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab)
 {
-    int           code = -1;
-    int           state = event->simpleData.modifiers;
+    int code = -1;
+    Qt::KeyboardModifiers state = event->simpleData.modifiers;
 
     if (sm_blockUserInput) // block user interaction during session management
         return true;
@@ -2819,10 +2819,10 @@ bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab)
         return true;
 
     QEvent::Type type = event->simpleData.is_press ?
-        QEvent::KeyPress : QEvent::KeyRelease;
-    bool    autor = event->simpleData.is_auto_repeat;
+                        QEvent::KeyPress : QEvent::KeyRelease;
+    bool autor = event->simpleData.is_auto_repeat;
     QString text;
-    char   ascii = 0;
+    char ascii = 0;
     if (event->simpleData.unicode) {
         QChar ch(event->simpleData.unicode);
         if (ch.unicode() != 0xffff)
@@ -2835,7 +2835,7 @@ bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab)
     if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed
-        QKeyEvent a(type, code, state, text, autor, int(text.length()));
+        QKeyEvent a(type, code, 0, state, text, autor, int(text.length()));
         if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
     }

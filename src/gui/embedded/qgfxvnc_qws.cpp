@@ -188,7 +188,7 @@ private:
     Q_UINT8 msgType;
     bool handleMsg;
     QRfbPixelFormat pixelFormat;
-    int keymod;
+    Qt::KeyboardModifiers keymod;
     int encodingsPending;
     int cutTextPending;
     bool supportHextile;
@@ -736,17 +736,16 @@ void QVNCServer::keyEvent()
 
     if (ev.read(client)) {
         if (ev.keycode == Qt::Key_Shift)
-            keymod = ev.down ? keymod | Qt::ShiftButton :
-                               keymod & ~Qt::ShiftButton;
+            keymod = ev.down ? keymod | Qt::ShiftModifier :
+                               keymod & ~Qt::ShiftModifier;
         else if (ev.keycode == Qt::Key_Control)
-            keymod = ev.down ? keymod | Qt::ControlButton :
-                               keymod & ~Qt::ControlButton;
+            keymod = ev.down ? keymod | Qt::ControlModifier :
+                               keymod & ~Qt::ControlModifier;
         else if (ev.keycode == Qt::Key_Alt)
-            keymod = ev.down ? keymod | Qt::AltButton :
-                               keymod & ~Qt::AltButton;
+            keymod = ev.down ? keymod | Qt::AltModifier :
+                               keymod & ~Qt::AltModifier;
         if (ev.unicode || ev.keycode)
-            QWSServer::sendKeyEvent(ev.unicode, ev.keycode, keymod,
-                                     ev.down, false);
+            QWSServer::sendKeyEvent(ev.unicode, ev.keycode, keymod, ev.down, false);
         handleMsg = false;
     }
 }

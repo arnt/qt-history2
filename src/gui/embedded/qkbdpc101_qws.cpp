@@ -409,10 +409,10 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
         }
 
         modifiers = 0;
-        if (bAlt) modifiers |= Qt::AltButton;
-        if (bCtrl) modifiers |= Qt::ControlButton;
-        if (bShift) modifiers |= Qt::ShiftButton;
-        if (keypad) modifiers |= Qt::Keypad;
+        if (bAlt) modifiers |= Qt::AltModifier;
+        if (bCtrl) modifiers |= Qt::ControlModifier;
+        if (bShift) modifiers |= Qt::ShiftModifier;
+        if (keypad) modifiers |= Qt::KeypadModifier;
 
         // looks wrong -- WWA
         bool repeat = false;

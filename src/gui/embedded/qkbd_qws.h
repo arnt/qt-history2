@@ -26,12 +26,12 @@ public:
     QWSKeyboardHandler();
     virtual ~QWSKeyboardHandler();
 
-    virtual void processKeyEvent(int unicode, int keycode, int modifiers,
+    virtual void processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                             bool isPress, bool autoRepeat);
 
 protected:
     int transformDirKey(int key);
-    void beginAutoRepeat(int uni, int code, int mod);
+    void beginAutoRepeat(int uni, int code, Qt::KeyboardModifiers mod);
     void endAutoRepeat();
 
 private:

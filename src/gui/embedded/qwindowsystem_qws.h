@@ -170,10 +170,10 @@ public:
 
     enum GUIMode { NoGui = false, NormalGUI = true, Server };
 
-    static void sendKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
-                             bool autoRepeat);
-    static void processKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
-                                bool autoRepeat);
+    static void sendKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
+                             bool isPress, bool autoRepeat);
+    static void processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
+                                bool isPress, bool autoRepeat);
 
 #ifndef QT_NO_QWS_IM
     enum IMState { IMStart /*###remove this*/, IMCompose, IMEnd, IMMarkedText, IMInternal = 42 };
@@ -311,9 +311,8 @@ private:
     void reset_im(const QWSResetIMCommand *);
     void set_im_font(const QWSSetIMFontCommand *);
     void send_im_mouse(const QWSIMMouseCommand *);
-    static void sendKeyEventUnfiltered(int unicode, int keycode,
-                                       int modifiers, bool isPress,
-                                       bool autoRepeat);
+    static void sendKeyEventUnfiltered(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
+                                       bool isPress, bool autoRepeat);
 #endif
     static void emergency_cleanup();
 

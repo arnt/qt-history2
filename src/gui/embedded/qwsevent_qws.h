@@ -107,7 +107,7 @@ struct QWSKeyEvent: QWSEvent {
     struct SimpleData {
         int window;
         uint keycode;
-        int modifiers;
+        Qt::KeyboardModifiers modifiers;
         ushort unicode;
         uint is_press:1;
         uint is_auto_repeat:1;
