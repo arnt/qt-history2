@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#54 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#55 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -5903,10 +5903,55 @@ QDomNodeList QDomDocument::elementsByTagName( const QString& tagname ) const
 }
 
 /*!
-  fnord
+  Imports the node \a importedNode from another document to this document. \a
+  importedNode remains in the original document; this function creates a copy
+  of it that can be used within this document.
+
+  This function returns the imported node that belongs to this document. The
+  returned node has no parent. It is not possible to import QDomDocument and
+  QDomDocumentType nodes. In those cases this function returns a null node.
+
+  If \a deep is TRUE, this function imports not only the node \a importedNode
+  but the whole subtree; if it is TRUE, only \a importedNode is imported. The
+  argument \a deep has no effect for QDomAttr and QDomEntityReference nodes,
+  since the descendants of QDomAttr nodes are always imported and those of
+  QDomEntityReference nodes are never imported.
+
+  The behavior of this function is slightly different for the possible node
+  types:
+  <ul>
+  <li> QDomAttr - The owner element is set to 0 and the specified flag is set
+       to TRUE on the generated attribute.  The whole subtree of \a
+       importedNode is always imported for attribute nodes - \a deep has no
+       effect.
+  <li> QDomDocument - Document nodes cannot be imported.
+  <li> QDomDocumentFragment - If \a deep is TRUE, this function imports the
+       whole document fragment, otherwise it only generates an empty document
+       fragment.
+  <li> QDomDocumentType - Document type nodes cannot be imported.
+  <li> QDomElement - Attributes for which QDomAttr::specified() is TRUE are
+       also imported, other attributes are not imported.  If \a deep is TRUE,
+       this function imports also the subtree of \a importedNode, otherwise it
+       imports only the element node (and some attributes, see above).
+  <li> QDomEntity - Entity nodes can be imported, but at the moment there is no
+       way to use them since the document type is readonly in DOM level 2.
+  <li> QDomEntityReference - Descendants of entity reference nodes are never
+       imported - \a deep has no effect.
+  <li> QDomNotation - Notation nodes can be imported, but at the moment there
+       is no way to use them since the document type is readonly in DOM level 2.
+  <li> QDomProcessingInstruction - The target and value of the processing
+       instruction is copied to the new node.
+  <li> QDomText, QDomCDATASection and QDomComment - The text is copied to the
+       new node.
+  </ul>
+
+  \sa QDomElement::setAttribute() QDomNode::insertBefore()
+      QDomNode::insertAfter() QDomNode::replaceChild() QDomNode::removeChild()
+      QDomNode::appendChild()
 */
 QDomNode QDomDocument::importNode( const QDomNode& /*importedNode*/, bool /*deep*/ )
 {
+    // ### implementation!!!!
     return QDomNode();
 }
 
