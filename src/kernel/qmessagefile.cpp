@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qmessagefile.cpp#3 $
 **
 ** Localization database support.
 **
@@ -36,6 +36,7 @@
 // other qt stuff necessary for the implementation
 #include "qintdict.h"
 #include "qstring.h"
+#include "qapp.h"
 
 /*
 $ mcookie
@@ -75,7 +76,7 @@ public:
     // for mmap'ed files, this is what needs to be unmapped.
     void * unmapPointer;
     unsigned int unmapLength;
-    
+
     // for squeezed but non-file data, this is what needs to be deleted
     QByteArray * byteArray;
 };
@@ -134,6 +135,8 @@ QMessageFile::QMessageFile( QObject * parent, const char * name )
 
 QMessageFile::~QMessageFile()
 {
+    if ( qApp && parent() == qApp )
+	qApp->removeMessageFile( this );
     clear();
     delete d;
 }
@@ -215,7 +218,7 @@ QString QMessageFile::find( uint h ) const
 	    return *r1;
 	return QString::null;
     }
-	    
+	
     if ( !d->t || !d->l )
 	return QString::null;
 
@@ -260,7 +263,7 @@ uint QMessageFile::hash( const QString & key1, const QString & key2 )
     uint h = 0;
     uint g;
     int i;
-    
+
     QChar c;
 
     // key1
@@ -286,7 +289,7 @@ uint QMessageFile::hash( const QString & key1, const QString & key2 )
 	    h ^= g >> 16;
 	h &= ~g;
     }
-    
+
     if ( !h )
 	h = 1;
 
@@ -474,7 +477,7 @@ void QMessageFile::unsqueeze()
 
 /*!  Returns TRUE if this message file contains a message with hash
   value \a h, and FALSE if it does not.
-  
+
   (This is is a one-liner than calls find().)
 */
 
@@ -488,7 +491,7 @@ bool QMessageFile::contains( uint h ) const
 /*!  Inserts \a s with hash value \a h into this message file,
   replacing any current string for \a h.
 
-  
+
 */
 
 void QMessageFile::insert( uint h, const QString & s )
