@@ -1148,14 +1148,14 @@ void SetupWizardImpl::showPageFolders()
     QString makeCmd = makeCmds[ globalInformation.sysId() ];
     if( !findFile( makeCmd ) ) {
 	QMessageBox::critical( this, "Environment problems",
-				     "The installation program can't find the make tool '"
-				     + makeCmd + "'.\n"
+				     "The installation program can't find the make tool '" + makeCmd + "'.\n"
 				     "Make sure the path to it is present in the PATH environment\n"
-				     "variable and restart the installation.\n\n"
-				     "You can find the path to the tool using the 'Find' tool "
-				     "and add the location to the environment settings of your "
-				     "system. Please contact your local system administration if "
-				     "you have difficulties finding the files, or if you don't "
+				     "variable and restart the installation.\n"
+				     "\n"
+				     "You can find the path to the tool using the 'Find' tool\n"
+				     "and add the location to the environment settings of your\n"
+				     "system. Please contact your local system administration if\n"
+				     "you have difficulties finding the files, or if you don't\n"
 				     "know how to modifiy the environment settings of your system." );
 	qApp->quit();
     }
