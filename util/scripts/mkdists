@@ -366,7 +366,7 @@ for $platform ( "x11", "qws" ) {
     find(
 	sub {
 	    unlink $_ if ( ( /_[a-z][a-z1]+.cpp$/ && !/_$platform.cpp$/ && !/_unix.cpp$/ ) ||
-		   ( /qt_[a-z1]*.h$/ && !/^qt_$platform.h$/ ) );
+		   ( /_[a-z][a-z1]+.h$/ && !/_$platform.h$/ ) );
 	}, $qtdir
     );
 
@@ -468,7 +468,7 @@ if (!$notplatform{win}) {
 
     sub justwinfiles {
 	unlink $_ if ( ( /_[a-z][a-z1]+.cpp$/ && !/_win.cpp$/ ) ||
-		       ( /^qt_[a-z1]*.h$/ && !/^qt_windows.h$/ ) );
+		       ( /_[a-z][a-z1]+.h$/ && !/^qt_windows.h$/ ) );
     }
     find( \&justwinfiles, $qtdir );
 

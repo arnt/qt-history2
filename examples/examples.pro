@@ -50,6 +50,7 @@ SUBDIRS     =	aclock \
 		validator \
 		widgets \
 		wizard \
+		compact \
 		launcher \
 		kiosk \
 		canvas \
