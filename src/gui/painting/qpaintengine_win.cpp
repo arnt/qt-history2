@@ -1903,13 +1903,12 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
         | QPaintEngine::ClipTransform
 #endif
         | QPaintEngine::PainterPaths
-        | QPaintEngine::UsesFontEngine;
+        | QPaintEngine::UsesFontEngine
+        |= QPaintEngine::LinearGradients;
 
 
     int shadeCaps = GetDeviceCaps(qt_display_dc(), SHADEBLENDCAPS);
 
-    if (shadeCaps & SB_GRAD_TRI)
-        commonFeatures |= QPaintEngine::LinearGradients;
 
     if ((shadeCaps & SB_CONST_ALPHA) || qt_gdiplus_support)
         commonFeatures |= QPaintEngine::SolidAlphaFill;
