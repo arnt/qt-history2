@@ -3939,7 +3939,8 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	int ecode = op->errorCode();
 	if ( ecode == QNetworkProtocol::ErrListChlidren || ecode == QNetworkProtocol::ErrParse ||
 	     ecode == QNetworkProtocol::ErrUnknownProtocol || ecode == QNetworkProtocol::ErrLoginIncorrect ||
-	     ecode == QNetworkProtocol::ErrValid || ecode == QNetworkProtocol::ErrHostNotFound ) {
+	     ecode == QNetworkProtocol::ErrValid || ecode == QNetworkProtocol::ErrHostNotFound ||
+	     ecode == QNetworkProtocol::ErrFileNotExisting ) {
 	    d->url = d->oldUrl;
 	    rereadDir();
 	} else
