@@ -3128,7 +3128,8 @@ void QTextEdit::undo()
 	drawCursor( TRUE );
 	repaintContents( TRUE );
     }
-
+    emit undoAvailable( isUndoAvailable() );
+    emit redoAvailable( isRedoAvailable() );
     emit textChanged();
 }
 
@@ -3167,6 +3168,8 @@ void QTextEdit::redo()
     drawCursor( TRUE );
     updateMicroFocusHint();
     setModified();
+    emit undoAvailable( isUndoAvailable() );
+    emit redoAvailable( isRedoAvailable() );
     emit textChanged();
 }
 
