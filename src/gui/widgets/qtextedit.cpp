@@ -1675,7 +1675,7 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
 
     QTextLine line = currentTextLine(d->cursor);
     if (line.isValid() && line.length()) {
-        d->cursor.movePosition(QTextCursor::PreviousWord);
+        d->cursor.movePosition(QTextCursor::StartOfWord);
         d->cursor.movePosition(QTextCursor::EndOfWord, QTextCursor::KeepAnchor);
         d->selectionChanged();
         d->viewport->update();
