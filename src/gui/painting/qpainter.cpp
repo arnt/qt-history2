@@ -1205,7 +1205,7 @@ void QPainter::drawRect(const QRect &r)
     d->engine->updateState(d->state);
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QPixmap pm(r.width(), r.height());
         qt_fill_linear_gradient(r, &pm, d->state->brush);
         drawPixmap(r.x(), r.y(), pm);
@@ -1263,7 +1263,7 @@ void QPainter::drawRects(const QList<QRect> &rects)
     d->engine->updateState(d->state);
 
     if ((!d->engine->hasFeature(QPaintEngine::DrawRects)
-         || !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)
+         || !d->engine->hasFeature(QPaintEngine::LinearGradients)
          || ((d->state->VxF || d->state->WxF)
              && !d->engine->hasFeature(QPaintEngine::CoordTransform)))
 
@@ -1572,7 +1572,7 @@ void QPainter::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     QRect rect = r.normalize();
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QT_FILL_GRADIENT(rect,
                          drawRoundRect(0, 0, r.width(), r.height(), xRnd, yRnd),
                          drawRoundRect(r, xRnd, yRnd));
@@ -1641,7 +1641,7 @@ void QPainter::drawEllipse(const QRect &r)
     QRect rect = r.normalize();
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QT_FILL_GRADIENT(rect,
                          drawEllipse(0, 0, rect.width(), rect.height()),
                          drawEllipse(rect));
@@ -1745,7 +1745,7 @@ void QPainter::drawPie(const QRect &r, int a, int alen)
     QRect rect = r.normalize();
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QT_FILL_GRADIENT(rect,
                          drawPie(0, 0, rect.width(), rect.height(), a, alen),
                          drawPie(rect, a, alen));
@@ -1803,7 +1803,7 @@ void QPainter::drawChord(const QRect &r, int a, int alen)
     QRect rect = r.normalize();
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QT_FILL_GRADIENT(rect,
                          drawChord(0, 0, rect.width(), rect.height(), a, alen),
                          drawChord(rect, a, alen));
@@ -1933,7 +1933,7 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
         return;
 
     if (d->state->brush.style() == LinearGradientPattern
-        && !d->engine->hasFeature(QPaintEngine::LinearGradientSupport)) {
+        && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
         QRect bounds = a.boundingRect();
         QPointArray copy(a);
         copy.translate(-bounds.x(), -bounds.y());

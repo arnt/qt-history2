@@ -1871,7 +1871,7 @@ QGdiplusPaintEngine::QGdiplusPaintEngine(QPaintDevice *dev)
                           | PenWidthTransform
                           | PatternTransform
                           | PixmapTransform
-                          | LinearGradientSupport))
+                          | LinearGradients))
 
 {
     d->pdev = dev;

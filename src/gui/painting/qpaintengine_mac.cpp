@@ -974,13 +974,13 @@ static void qt_mac_color_gradient_function(void *info, const float *in, float *o
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintDevice *pdev)
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev,
-                            PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradientSupport))
+                            PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradients))
 {
     d->pdev = pdev;
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(dptr, pdev, PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradientSupport))
+    : QQuickDrawPaintEngine(dptr, pdev, PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradients))
 {
     d->pdev = pdev;
 }

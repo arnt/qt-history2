@@ -54,7 +54,7 @@ public:
         PenWidthTransform       = 0x0002,               // Pen width is transformed
         PatternTransform        = 0x0004,               // Brush patterns
         PixmapTransform         = 0x0008,               // Pixmap transforms
-        LinearGradientSupport   = 0x0010,               // Can fill gradient areas.
+        LinearGradients   	= 0x0010,               // Can fill gradient areas.
         PixmapScale             = 0x0020,               // Can scale (w/o XForm) in drawPixmap
         DrawRects               = 0x0040,               // Can draw rectangles
 	SolidAlphaFill          = 0x0080,               // Can fill with alpha.
