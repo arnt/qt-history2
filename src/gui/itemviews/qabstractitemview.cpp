@@ -971,7 +971,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         topLeft = bottomRight;
 
     QModelIndex index = itemAt(bottomRight);
-    QModelIndex buddy = model()->buddy(index);
+    QModelIndex buddy = model()->buddy(d->pressedItem);
     if (state() == EditingState && d->editors.contains(buddy))
         return;
 
