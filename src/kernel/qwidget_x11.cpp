@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#25 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#25 $";
 #endif
 
 
@@ -432,8 +432,6 @@ void QWidget::lower()				// lower widget
 }
 
 
-void qXRequestConfig( const QWidget * );	// defined in qapp_x11.cpp
-
 static void do_size_hints( Display *dpy, WId ident, QWExtra *x, XSizeHints *s )
 {
     if ( x ) {
@@ -466,7 +464,6 @@ void QWidget::move( int x, int y )		// move widget
     QRect r = ncrect;
     if ( r.topLeft() == p || testFlag(WType_Desktop) )
 	return;
-    qXRequestConfig( this );
     r.setTopLeft( p );
     setNCRect( r );
     if ( testFlag(WType_Overlap) ) {
@@ -478,7 +475,7 @@ void QWidget::move( int x, int y )		// move widget
     }
     XMoveWindow( dpy, ident, x, y );
     QMoveEvent e( r.topLeft() );
-    QApplication::sendEvent( this, &e );	// send move event
+    QApplication::sendEvent( this, &e );	// send move event immediatly
 }
 
 void QWidget::resize( int w, int h )		// resize widget
@@ -491,7 +488,6 @@ void QWidget::resize( int w, int h )		// resize widget
     QSize s(w,h);
     if ( r.size() == s || testFlag(WType_Desktop) )
 	return;
-    qXRequestConfig( this );
     r.setSize( s );
     setRect( r );
     if ( testFlag(WType_Overlap) ) {
@@ -503,7 +499,7 @@ void QWidget::resize( int w, int h )		// resize widget
     }
     XResizeWindow( dpy, ident, w, h );
     QResizeEvent e( s );
-    QApplication::sendEvent( this, &e );	// send resize event
+    QApplication::sendEvent( this, &e );	// send resize event immediatly
 }
 
 void QWidget::changeGeometry( int x, int y, int w, int h )
@@ -515,7 +511,6 @@ void QWidget::changeGeometry( int x, int y, int w, int h )
     QRect  r( x, y, w, h );
     if ( r == rect || testFlag(WType_Desktop) )
 	return;
-    qXRequestConfig( this );
     setRect( r );
     if ( testFlag(WType_Overlap) ) {
 	XSizeHints size_hints;			// tell window manager
@@ -706,5 +701,5 @@ void QView::setIcon( QPixMap *pm )		// set icon pixmap
     wm_hints.input = True;
     wm_hints.icon_pixmap = ipm->handle();
     wm_hints.flags = IconPixmapHint;
-    XSetWMHints( display(), id(), &wm_hints );    
+    XSetWMHints( display(), id(), &wm_hints );
 }
