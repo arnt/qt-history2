@@ -1,7 +1,7 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>HelpDialogBase</class>
 <comment>*********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -35,7 +35,7 @@
         <string>Help</string>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;Help&lt;/b&gt;&lt;p&gt;Choose the topic you need help for from the contents list, or search the index for keywords.&lt;/p&gt;</string>
+        <string>&lt;b&gt;Help&lt;/b&gt;&lt;p&gt;Choose the topic you want help on from the contents list, or search the index for keywords.&lt;/p&gt;</string>
     </property>
     <vbox>
         <property name="name">
@@ -90,7 +90,7 @@
                             <bool>true</bool>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;Help topics organized by category.&lt;/b&gt;&lt;p&gt;Double-click an item to see which topics are in that category. To view a topic, just double-click it.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;Help topics organized by category.&lt;/b&gt;&lt;p&gt;Double-click an item to see the topics in that category. To view a topic, just double-click it.&lt;/p&gt;</string>
                         </property>
                     </widget>
                 </vbox>
@@ -139,7 +139,7 @@
                             <cstring>listIndex</cstring>
                         </property>
                         <property name="whatsThis" stdset="0">
-                            <string>&lt;b&gt;List of available help topics.&lt;/b&gt;&lt;p&gt;Double-click on an item to open up the help page for this topic. You will have to choose the right page if more than one are found.&lt;/p&gt;</string>
+                            <string>&lt;b&gt;List of available help topics.&lt;/b&gt;&lt;p&gt;Double-click on an item to open its help page. If more than one is found, you must specify which page you want.&lt;/p&gt;</string>
                         </property>
                     </widget>
                 </vbox>
@@ -222,7 +222,7 @@
                                     <string>Add new bookmark</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Add the current displayed page as new bookmark to the list.</string>
+                                    <string>Add the currently displayed page as a new bookmark.</string>
                                 </property>
                             </widget>
                             <widget class="QPushButton">
@@ -236,7 +236,7 @@
                                     <string>Delete bookmark</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Delete the selected bookmark from the list.</string>
+                                    <string>Delete the selected bookmark.</string>
                                 </property>
                             </widget>
                         </hbox>

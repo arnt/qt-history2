@@ -1,5 +1,24 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MainWindow</class>
+<comment>*********************************************************************
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of Qt Designer.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+*********************************************************************</comment>
 <widget class="QMainWindow">
     <property name="name">
         <cstring>MainWindow</cstring>
@@ -146,7 +165,7 @@
             <string>&amp;Find in Text...</string>
         </property>
         <property name="whatsThis">
-            <string>Open a dialog where you can specify the textpattern you are looking for. Qt Assistant tries then to find this pattern on the currently displayed page.</string>
+            <string>Opens the Find dialog. Qt Assistant will search the currently displayed page for the text you enter.</string>
         </property>
         <property name="accel">
             <number>272629830</number>
@@ -166,7 +185,7 @@
             <string>&amp;Home</string>
         </property>
         <property name="whatsThis">
-            <string>Go to the home page. The home page of the Qt Assistant is the Qt Class Reference Documentation page.</string>
+            <string>Go to the home page. Qt Assistant's home page is the Qt Reference Documentation page.</string>
         </property>
         <property name="accel">
             <number>4198416</number>
@@ -223,7 +242,7 @@
             <string>About</string>
         </property>
         <property name="whatsThis">
-            <string>Display further informations about the Qt Assistant.</string>
+            <string>Display further information about Qt Assistant.</string>
         </property>
     </action>
     <action>
@@ -237,7 +256,7 @@
             <string>About Qt</string>
         </property>
         <property name="whatsThis">
-            <string>Display further informations about Qt.</string>
+            <string>Display further information about Qt.</string>
         </property>
     </action>
     <action>
@@ -251,7 +270,7 @@
             <string>Qt Class Reference</string>
         </property>
         <property name="whatsThis">
-            <string>Display the Qt Class Reference Documentation pages.</string>
+            <string>Display the Qt Reference Documentation.</string>
         </property>
     </action>
     <action>
@@ -282,7 +301,7 @@
             <string>Zoom &amp;in</string>
         </property>
         <property name="whatsThis">
-            <string>Zoom in the document, i.e. increase the font size.</string>
+            <string>Zoom in on the document, i.e. increase the font size.</string>
         </property>
         <property name="accel">
             <number>272629803</number>
@@ -302,7 +321,7 @@
             <string>Zoom &amp;out</string>
         </property>
         <property name="whatsThis">
-            <string>Zoom out the document, i.e. decrease the font size.</string>
+            <string>Zoom out on the document, i.e. decrease the font size.</string>
         </property>
         <property name="accel">
             <number>272629805</number>
@@ -364,7 +383,7 @@
             <string>&amp;Close</string>
         </property>
         <property name="whatsThis">
-            <string>Close Qt Assistant</string>
+            <string>Quit Qt Assistant</string>
         </property>
     </action>
     <action>
