@@ -731,6 +731,19 @@ void SetupWizardImpl::sysOtherComboChanged(int)
     clickedSystem(GlobalInformation::Other);
 }
 
+static QString getDirectoryList(const char *envvar)
+{
+    QString environment;
+    const char *cpath = getenv(envvar);
+    if (cpath) {
+	environment = QString::fromLocal8Bit(cpath);
+	environment = QStringList::split(QRegExp("[;,]"), environment).join("\n");
+    } else {
+	environment = "<Environment variable empty>";
+    }
+    return environment;
+}
+
 void SetupWizardImpl::clickedSystem( int sys )
 {
 #ifndef Q_OS_MACX
@@ -744,12 +757,16 @@ void SetupWizardImpl::clickedSystem( int sys )
     if (!isVisible())
 	return;
     QString makeCmd = globalInformation.text(GlobalInformation::MakeTool);
+    QString environment;
     if ( !optionsPage->skipBuild->isChecked() && optionsPage->skipBuild->isEnabled() ) {
 	if( !findFile( makeCmd ) ) {
+	    environment = getDirectoryList("PATH");
 	    // ### try to adjust environment
 	    QMessageBox::critical( this, "Environment problems",
-					 "The installation program can't find the make tool '" + makeCmd + "'.\n"
-					 "Make sure the path to it is present in the PATH environment\n"
+					 "The make tool '" + makeCmd + "' could not be located in any\n"
+					 "directory listed in the 'PATH' environment variable:"
+					 "\n\n" + environment + "\n\n"
+					 "Make sure the path to this file is present in the PATH environment\n"
 					 "variable and restart the installation.\n"
 					 "\n"
 					 "You can find the path to the tool using the 'Find' tool\n"
@@ -758,23 +775,40 @@ void SetupWizardImpl::clickedSystem( int sys )
 					 "you have difficulties finding the files, or if you don't\n"
 					 "know how to modifiy the environment settings of your system." );
 	}
-	if ( globalInformation.sysId() != GlobalInformation::Borland && globalInformation.sysId() != GlobalInformation::MinGW
-	    && !findFile( "string.h" ) ) {
-	    // ### try to adjust environment
-	    QMessageBox::critical( this, "Environment problems",
-				  "The file 'string.h' could not be located in any directory\n"
-				  "listed in the 'INCLUDE' environment variable.\n"
-				  "You might have to install the platform headers, or adjust\n"
-				  "the environment variables of your system, and restart the\n"
-				  "installation.\n\n"
-				  "Please contact your local system administration if you have\n"
-				  "difficulties finding the file, or if you don't know how to\n"
-				  "modify the environment settings on your system." );
+	if (globalInformation.sysId() != GlobalInformation::Borland && globalInformation.sysId() != GlobalInformation::MinGW) {
+	    if (!findFile( "string.h" ) ) {
+		environment = getDirectoryList("INCLUDE");
+		// ### try to adjust environment
+		QMessageBox::critical( this, "Environment problems",
+				      "The file 'string.h' could not be located in any directory\n"
+				      "listed in the 'INCLUDE' environment variable:\n\n" + environment + "\n\n"
+				      "You might have to install the platform headers, or adjust\n"
+				      "the environment variables of your system, and restart the\n"
+				      "installation.\n\n"
+				      "Please contact your local system administration if you have\n"
+				      "difficulties finding the file, or if you don't know how to\n"
+				      "modify the environment settings on your system." );
+	    }
+	    if (!findFile("ole32.lib")) {
+		environment = getDirectoryList("LIB");
+		// ### try to adjust environment
+		QMessageBox::critical( this, "Environment problems",
+				      "The file 'ole32.lib' could not be located in any directory\n"
+				      "listed in the 'LIB' environment variable:\n\n" + environment + "\n\n"
+				      "You might have to install the platform libraries, or adjust\n"
+				      "the environment variables of your system, and restart the\n"
+				      "installation.\n\n"
+				      "Please contact your local system administration if you have\n"
+				      "difficulties finding the file, or if you don't know how to\n"
+				      "modify the environment settings on your system." );
+	    }
 	}
 	if (globalInformation.sysId() == GlobalInformation::Intel && !findFile("icl.exe")) {
+	    environment = getDirectoryList("PATH");
 	    QMessageBox::critical(this, "Environment problems",
 				  "The Intel C++ compiler (icl.exe) could not be found\n"
-				  "in your PATH. Make sure it is present in the PATH environment\n"
+				  "in your PATH:\n\n" + environment + "\n\n"
+				  "Make sure the path to this file is present in the PATH environment\n"
 				  "variable and restart the installation.\n"
 				  "\n"
 				  "You can find the path to the tool using the 'Find' tool\n"
@@ -1473,6 +1507,9 @@ void SetupWizardImpl::showPageOptions()
 	optionsPage->skipBuild->setEnabled( FALSE );
 #  endif
 #endif
+
+    // trigger environment test
+    clickedSystem(globalInformation.sysId());
 }
 
 void SetupWizardImpl::showPageFolders()
