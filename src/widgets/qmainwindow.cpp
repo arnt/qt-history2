@@ -2312,7 +2312,10 @@ void QMainWindow::childEvent( QChildEvent* e)
     } else if ( e->type() == QEvent::ChildInserted ) {
 	if ( e->child()->inherits( "QStatusBar" ) ) {
 	    d->sb = (QStatusBar*)e->child();
-	    triggerLayout( TRUE );
+	    if ( d->tll )
+		d->tll->addWidget( (QStatusBar*)e->child() );
+	    else
+		triggerLayout();
 	}
     }
 }
