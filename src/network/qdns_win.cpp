@@ -1,6 +1,8 @@
 #include "qdns_p.h"
+#ifndef QT_NO_IPV6
 #include <winsock2.h>
 #include <ws2tcpip.h>
+#endif
 #include <qlibrary.h>
 #include <qsignal.h>
 #include <qtimer.h>
@@ -74,12 +76,14 @@ void QDnsAgent::run()
                             results.addresses.prepend(addr);
                     }
                         break;
+#ifndef QT_NO_IPV6
                     case AF_INET6: {
                         QHostAddress addr(((sockaddr_in6 *) p->ai_addr)->sin6_addr.s6_addr);
                         if (!results.addresses.contains(addr))
                             results.addresses.append(addr);
                     }
                         break;
+#endif
                     default:
                         results.error = QDns::UnknownError;
                         results.errorString = "Unknown address type";
