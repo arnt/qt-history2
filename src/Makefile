@@ -4,22 +4,29 @@
 
 all:
 	@echo "SPECIFY BUILD TARGET:"
-	@echo "  make static    - creates a static library"
-	@echo "  make staticdbg - creates a static library w/debug info"
-	@echo "  make staticpro - creates a static library w/profiling code"
-	@echo "  make shared    - creates a shared library"
-	@echo "  make shareddbg - creates a shared library w/debug info"
-	@echo "  make moc       - creates the meta object compiler"
-	@echo
+	@echo "  make static       - builds a static library"
+	@echo "  make staticdbg    - builds a static library w/debug info"
+	@echo "  make shared       - builds a shared library"
+	@echo "  make shareddbg    - builds a shared library w/debug info"
+	@echo "  make moc          - builds the meta object compiler"
+	@echo ""
+	@echo "SHOW FILES:"
+	@echo "  make showdirs     - show directories"
+	@echo "  make showfiles    - show all .h and .cpp files"
+	@echo "  make showheaders  - show all .h files"
+	@echo "  make showsources  - show all .cpp files"
+	@echo "  make showinternal - show all internal files"
+	@echo "  make showx11only  - show all X-specific files"
+	@echo ""
 	@echo "MAINTENANCE:"
-	@echo "  make include   - creates symlinks for the include files"
-	@echo "  make clean     - removes temporary files"	
-	@echo "  make tags      - updates the TAGS file"	
-	@echo
+	@echo "  make include      - creates symlinks for the include files"
+	@echo "  make clean        - removes temporary files"	
+	@echo "  make tags         - updates the TAGS file"	
+	@echo ""
 	@echo "MORE INFORMATION:"
-	@echo "  make help	- getting started with our make system"
-	@echo "  make details	- more details about our make system"
-	@echo
+	@echo "  make help         - getting started with our make system"
+	@echo "  make details      - more details about our make system"
+	@echo ""
 
 #
 # Create the meta object compiler
@@ -48,18 +55,22 @@ shareddbg: Makefile.shareddbg
 Makefile.static: qtx11.pro qtinternal.pro Makefile
 	mkdir -p obj/static
 	tmake qtx11.pro -p qtinternal.pro -o Makefile.static "CONFIG+=staticlib" "OBJECTS_DIR=obj/static"
+	make include
 
 Makefile.staticdbg: qtx11.pro qtinternal.pro Makefile
 	mkdir -p obj/staticdbg
 	tmake qtx11.pro -p qtinternal.pro -o Makefile.staticdbg "CONFIG+=staticlib debug" "OBJECTS_DIR=obj/staticdbg"
+	make include
 
 Makefile.shared: qtx11.pro qtinternal.pro Makefile
 	mkdir -p obj/shared
 	tmake qtx11.pro -p qtinternal.pro -o Makefile.shared "OBJECTS_DIR=obj/shared"
+	make include
 
 Makefile.shareddbg: qtx11.pro qtinternal.pro Makefile
 	mkdir -p obj/shareddbg
 	tmake qtx11.pro -p qtinternal.pro -o Makefile.shareddbg "CONFIG+=debug" "OBJECTS_DIR=obj/shareddbg"
+	make include
 
 
 showdirs:
@@ -105,14 +116,13 @@ help:
 	@echo "and the most recent version of tmake."
 	@echo ""
 	@echo "Make sure the QTDIR environment variable is correctly set, e.g:"
-	@echo "    export QTDIR=\$$(HOME)/qt"
+	@echo "    export QTDIR=\$${HOME}/qt"
 	@echo ""
 	@echo "Make sure the TMAKEPATH environment variable is correctly set, e.g:"
-	@echo "    export TMAKEPATH=\$$(HOME)/tmake/lib/linux-gcc:\$$(QTDIR)/tmake/linux-gcc"
+	@echo "    export TMAKEPATH=\$${HOME}/tmake/lib/linux-gcc:\$${QTDIR}/tmake/linux-gcc"
 	@echo ""
 	@echo "Before building the library the first time, do the following:"
-	@echo "    make include"
-	@echo "    make moc"
+	@echo "    make moc		- builds the moc program"
 	@echo ""
 	@echo "To create the library, build one of the following targets:"
 	@echo "    make shared		- shared library"
@@ -121,7 +131,7 @@ help:
 	@echo "    make staticdbg	- static library with debug info"
 	@echo ""
 	@echo "If you are unhappy with the default compiler settings, you can"
-	@echo "copy the \$$(HOME)/tmake/lib/linux-gcc/tmake.conf file to qt/src"
+	@echo "copy the \$${HOME}/tmake/lib/linux-gcc/tmake.conf file to qt/src"
 	@echo "and modify it to suit your needs."
 	@echo ""
 
@@ -133,6 +143,7 @@ details:
 	@echo "It lists files that we use internally.  If you want to add new"
 	@echo "files, e.g. qcolordialog.h and .cpp, add them to the INT_HEADERS"
 	@echo "and INT_SOURCES sections."
+	echo ""
 
 
 FORCE:
