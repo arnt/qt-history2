@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.h#15 $
+** $Id: //depot/qt/main/src/kernel/qbasic.h#16 $
 **
 **   Geometry Management
 **
@@ -48,6 +48,8 @@ public:
     QChain *yChain() {	return yC; }
 
     void  setMenuBar( QWidget *w ) { menuBar = w; }
+
+    QWidget *mainWidget() { return main; }
 
 protected:
     bool  eventFilter( QObject *, QEvent * );

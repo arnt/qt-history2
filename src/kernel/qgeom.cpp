@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#26 $
 **
 **  Geometry Management
 **
@@ -10,7 +10,7 @@
 *****************************************************************************/
 #include "qgeom.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#26 $");
 
 /*!
   \class QLayout qgeom.h
@@ -65,6 +65,19 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 
   Returns the internal object name.
   */
+
+
+
+/*!
+  Returns the main widget of this layout, or 0 if this layout is
+  a sublayout which is not yet inserted.
+*/
+
+QWidget * QLayout::parentWidget()
+{
+    return bm ? bm->mainWidget() : 0;
+}
+
 
 /*!
   Constructs a new child QLayout, 
@@ -298,15 +311,15 @@ static inline QBasicManager::Direction perp( QBasicManager::Direction dir )
   \sa direction()
 */
 
-QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d,
+QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 			int border, int autoBorder, const char *name )
     : QLayout( parent, border, autoBorder, name )
 {
     pristine = TRUE;
-    dir = d;
+    dir = (QBasicManager::Direction)d;
 
-    serChain = basicManager()->newSerChain( d );
-    if ( horz( d )  ) {
+    serChain = basicManager()->newSerChain( dir );
+    if ( horz( dir )  ) {
 	basicManager()->add( basicManager()->xChain(), serChain );
 	parChain = basicManager()->yChain();
     } else {
@@ -321,12 +334,12 @@ QBoxLayout::QBoxLayout( QWidget *parent, QBasicManager::Direction d,
 
   You have to insert this box into another layout before using it.
 */
-QBoxLayout::QBoxLayout( QBasicManager::Direction d,
+QBoxLayout::QBoxLayout( Direction d,
 			int autoBorder, const char *name )
     : QLayout( autoBorder, name )
 {
     pristine = TRUE;
-    dir = d;
+    dir = (QBasicManager::Direction)d;
     parChain = 0; // debug
     serChain = 0; // debug
 }
@@ -392,7 +405,7 @@ void QBoxLayout::addB( QLayout * l, int stretch )
 
 QChain * QBoxLayout::mainVerticalChain()
 {
-    if ( horz(direction()) )
+    if ( horz(dir) )
 	return parChain;
     else
 	return serChain;
@@ -405,7 +418,7 @@ QChain * QBoxLayout::mainVerticalChain()
 
 QChain * QBoxLayout::mainHorizontalChain()
 {
-    if ( horz(direction()) )
+    if ( horz(dir) )
 	return serChain;
     else
 	return parChain;
@@ -474,7 +487,7 @@ void QBoxLayout::addMaxStrut( int size)
 
 /*!
   Adds \a widget to the box, with stretch factor \a stretch and
-  alignment \a a.
+  alignment \a align.
 
   The stretch factor applies only in the \link direction() direction
   \endlink of the QBoxLayout, and is relative to the other boxes and
@@ -490,16 +503,16 @@ void QBoxLayout::addMaxStrut( int size)
 
   For horizontal boxes,	 the possible alignments are
   <ul>
-  <li> \c alignCenter centers vertically in the box.
-  <li> \c alignTop aligns to the top border of the box.
-  <li> \c alignBottom aligns to the bottom border of the box.
+  <li> \c AlignCenter centers vertically in the box.
+  <li> \c AlignTop aligns to the top border of the box.
+  <li> \c AlignBottom aligns to the bottom border of the box.
   </ul>
 
   For vertical boxes, the possible alignments are
   <ul>
-  <li> \c alignCenter centers horizontally in the box.
-  <li> \c alignLeft aligns to the left border of the box.
-  <li> \c alignRight aligns to the right border of the box.
+  <li> \c AlignCenter centers horizontally in the box.
+  <li> \c AlignLeft aligns to the left border of the box.
+  <li> \c AlignRight aligns to the right border of the box.
   </ul>
 
   Alignment only has effect if the size of the box is greater than the
@@ -508,9 +521,8 @@ void QBoxLayout::addMaxStrut( int size)
   \sa addLayout(), addSpacing()
 */
 
-void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
+void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 {
-
     if ( !basicManager() ) {
 	warning("QBoxLayout::addLayout(), box must be inserted before use.");
 	return;
@@ -521,19 +533,22 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
 	return;
     }
 
+    const int first = AlignLeft | AlignTop;
+    const int last  = AlignRight | AlignBottom;
+
     if ( !pristine && defaultBorder() )
 	basicManager()->addSpacing( serChain, defaultBorder(), 0, defaultBorder() );
 
     if ( 0/*a == alignBoth*/ ) {
 	basicManager()->addWidget( parChain, widget, 0 );
     } else {
-	QBasicManager::Direction d = perp( direction() );
+	QBasicManager::Direction d = perp( dir );
 	QChain *sc = basicManager()->newSerChain( d );
-	if ( a == alignCenter || a == alignBottom ) {
+	if ( align & first || align & AlignCenter ) {
 	    basicManager()->addSpacing(sc, 0);
 	}
 	basicManager()->addWidget( sc, widget, 1 );
-	if ( a == alignCenter ||  a == alignTop ) {
+	if ( align & AlignCenter || align & last ) {
 	    basicManager()->addSpacing(sc, 0);
 	}
 	basicManager()->add( parChain, sc );

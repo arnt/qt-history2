@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#19 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#20 $
 **
 **  Geometry Management
 **
@@ -29,6 +29,7 @@ public:
 
     void  setMenuBar( QWidget *w );
 
+    QWidget *parentWidget();
     
     const char *name() const { return objName; }
 
@@ -66,22 +67,21 @@ private:	// Disabled copy constructor and operator=
 class QBoxLayout : public QLayout
 {
 public:
-    QBoxLayout( QWidget *parent, QBasicManager::Direction, int border=0,
+    enum Direction { LeftToRight, RightToLeft, Down, Up };
+
+    QBoxLayout( QWidget *parent, Direction, int border=0,
 		int autoBorder = -1, const char *name=0 );
 
-    QBoxLayout(	QBasicManager::Direction, int autoBorder = -1,
+    QBoxLayout(	Direction, int autoBorder = -1,
 		const char *name=0 );
 
     ~QBoxLayout();
-    enum alignment { alignCenter, alignTop, alignLeft,
-		     alignBottom, alignRight };
-
-    void addWidget( QWidget *, int stretch = 0, alignment a = alignCenter );
+    void addWidget( QWidget *, int stretch = 0, int alignment = AlignCenter );
     void addSpacing( int size );
     void addStretch( int stretch = 0 );
     void addLayout( QLayout *layout, int stretch = 0 );
 
-    QBasicManager::Direction direction() const { return dir; }
+    Direction direction() const { return (Direction)dir; }
 
     void addStrut( int );
 protected:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#28 $
 **
 **  Geometry Management
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#28 $");
 
 
 
@@ -518,12 +518,20 @@ QBasicManager::~QBasicManager()
 
 
 /*!
+  \fn QWidget *QBasicManager::mainWidget()
+
+  Returns the main widget of the manager. 
+  */
+
+
+/*!
   \fn QChain *QBasicManager::xChain()
 
   Returns the main horizontal chain of the manager. All horizontal chains
   should be inserted into this chain or one of its descendants, otherwise
   they will be ignored.
 */
+
 
 /*!
   \fn QChain *QBasicManager::yChain()
