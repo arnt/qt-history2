@@ -14,6 +14,10 @@
 #define d d_func()
 #define q q_func()
 
+/*!
+    \internal
+*/
+
 ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent)
     : QFrame(parent), ignoreMousePress(false), list(listView), top(0), bottom(0)
 {
@@ -63,6 +67,10 @@ ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent
         connect(bottom, SIGNAL(doScroll(int)), this, SLOT(scrollListView(int)));
     }
 }
+
+/*!
+    \internal
+*/
 
 void ListViewContainer::scrollListView(int action)
 {
@@ -132,6 +140,10 @@ bool ListViewContainer::ignoreNextMousePress()
     return false;
 }
 
+/*!
+    \internal
+*/
+
 bool ListViewContainer::eventFilter(QObject *o, QEvent *e)
 {
     switch (e->type()) {
@@ -149,6 +161,10 @@ bool ListViewContainer::eventFilter(QObject *o, QEvent *e)
     return QFrame::eventFilter(o, e);
 }
 
+/*!
+    \internal
+*/
+
 void ListViewContainer::keyPressEvent(QKeyEvent *e)
 {
     switch (e->key()) {
@@ -165,6 +181,10 @@ void ListViewContainer::keyPressEvent(QKeyEvent *e)
         break;
     }
 }
+
+/*!
+    \internal
+*/
 
 void ListViewContainer::mousePressEvent(QMouseEvent *e)
 {
@@ -214,6 +234,101 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     setObjectName(name);
 }
 #endif //QT_COMPAT
+
+/*!
+    \class QComboBox qcombobox.h
+    \brief The QComboBox widget is a combined button and popup list.
+
+    \ingroup basic
+    \mainclass
+
+    A QComboBox provides a means of presenting a list of options to the user
+    in a way that takes up the minimum amount of screen space.
+
+    A combo box is a selection widget that displays the current item,
+    and can pop up a list of selectable items. A combo box may be editable,
+    allowing the user to modify each item in the list.
+
+    QComboBox supports three different display styles: Aqua/Motif 1.x,
+    Motif 2.0 and Windows. In Motif 1.x, a combo box was called
+    XmOptionMenu. In Motif 2.0, OSF introduced an improved combo box
+    and named that XmComboBox. QComboBox provides both.
+
+    QComboBox provides two different constructors. The simplest
+    constructor creates an "old-style" combo box in Motif (or Aqua)
+    style:
+    \code
+        QComboBox *c = new QComboBox(this, "read-only combobox");
+    \endcode
+
+    The other constructor creates a new-style combo box in Motif style,
+    and can create both read-only and editable combo boxes:
+    \code
+        QComboBox *c1 = new QComboBox(false, this, "read-only combo box" );
+        QComboBox *c2 = new QComboBox(true, this, "editable combo box" );
+    \endcode
+
+    New-style combo boxes use a list box in both Motif and Windows
+    styles, and both the content size and the on-screen size of the
+    list box can be limited with sizeLimit() and setMaxCount()
+    respectively. Old-style comboboxes use a popup in Aqua and Motif
+    style, and that popup will happily grow larger than the desktop if
+    you put enough data into it.
+
+    The two constructors create identical-looking comboboxes in
+    Windows style.
+
+    Comboboxes can contain pixmaps as well as strings; the
+    insertItem() and changeItem() functions are suitably overloaded.
+    For editable comboboxes, the function clearEdit() is provided,
+    to clear the displayed string without changing the combobox's
+    contents.
+
+    A combobox emits two signals, activated() and highlighted(), when
+    a new item has been activated (selected) or highlighted (made
+    current). Both signals exist in two versions, one with a \c
+    QString argument and one with an \c int argument. If the user
+    highlights or activates a pixmap, only the \c int signals are
+    emitted. Whenever the text of an editable combobox is changed the
+    textChanged() signal is emitted.
+
+    When the user enters a new string in an editable combobox, the
+    widget may or may not insert it, and it can insert it in several
+    locations. The default policy is is \c AtBottom but you can change
+    this using setInsertionPolicy().
+
+    It is possible to constrain the input to an editable combobox
+    using QValidator; see setValidator(). By default, any input is
+    accepted.
+
+    If the combobox is not editable then it has a default
+    focusPolicy() of \c TabFocus, i.e. it will not grab focus if
+    clicked. This differs from both Windows and Motif. If the combobox
+    is editable then it has a default focusPolicy() of \c StrongFocus,
+    i.e. it will grab focus if clicked.
+
+    A combobox can be populated using the insert functions,
+    insertStringList() and insertItem() for example. Items can be
+    changed with changeItem(). An item can be removed with
+    removeItem() and all items can be removed with clear(). The text
+    of the current item is returned by currentText(), and the text of
+    a numbered item is returned with text(). The current item can be
+    set with setCurrentItem() or setCurrentText(). The number of items
+    in the combobox is returned by count(); the maximum number of
+    items can be set with setMaxCount(). You can allow editing using
+    setEditable(). For editable comboboxes you can set auto-completion
+    using setAutoCompletion() and whether or not the user can add
+    duplicates is set with setDuplicatesEnabled().
+
+    <img src="qcombo1-m.png">(Motif 1, read-only)<br clear=all>
+    <img src="qcombo2-m.png">(Motif 2, editable)<br clear=all>
+    <img src="qcombo3-m.png">(Motif 2, read-only)<br clear=all>
+    <img src="qcombo1-w.png">(Windows style)
+
+    \sa QLineEdit QListBox QSpinBox QRadioButton QButtonGroup
+    \link guibooks.html#fowler GUI Design Handbook: Combo Box,\endlink
+    \link guibooks.html#fowler GUI Design Handbook: Drop-Down List Box.\endlink
+*/
 
 /*!
     Constructs a non-editable combobox widget with parent \a parent
@@ -374,10 +489,18 @@ void QComboBoxPrivate::emitHighlighted(const QModelIndex &index)
     emit q->highlighted(index);
 }
 
+/*!
+    Destroys the combo box.
+*/
+
 QComboBox::~QComboBox()
 {
     // ### check delegateparent and delete delegate if us?
 }
+
+/*!
+    \property QComboBox::sizeLimit
+*/
 
 int QComboBox::sizeLimit() const
 {
@@ -390,10 +513,18 @@ void QComboBox::setSizeLimit(int limit)
         d->sizeLimit = limit;
 }
 
+/*!
+    \property QComboBox::count
+*/
+
 int QComboBox::count() const
 {
     return model()->rowCount(root());
 }
+
+/*!
+    \property QComboBox::maxCount
+*/
 
 void QComboBox::setMaxCount(int max)
 {
@@ -408,6 +539,10 @@ int QComboBox::maxCount() const
     return d->maxCount;
 }
 
+/*!
+    \property QComboBox::autoCompletion
+*/
+
 bool QComboBox::autoCompletion() const
 {
     return d->autoCompletion;
@@ -417,6 +552,10 @@ void QComboBox::setAutoCompletion(bool enable)
 {
     d->autoCompletion = enable;
 }
+
+/*!
+    \duplicatesEnabled
+*/
 
 bool QComboBox::duplicatesEnabled() const
 {
@@ -429,7 +568,7 @@ void QComboBox::setDuplicatesEnabled(bool enable)
 }
 
 /*!
-  Returns true if any item in the combobox model matches \a text.
+  Returns true if any item in the combo box model matches \a text.
 */
 bool QComboBox::contains(const QString &text) const
 {
@@ -452,6 +591,10 @@ int QComboBox::findItem(const QString &text, QAbstractItemModel::MatchFlag flags
     return result.first().row();
 }
 
+/*!
+    \property QComboBox::insertionPolicy
+*/
+
 QComboBox::InsertionPolicy QComboBox::insertionPolicy() const
 {
     return d->insertionPolicy;
@@ -461,6 +604,10 @@ void QComboBox::setInsertionPolicy(InsertionPolicy policy)
 {
     d->insertionPolicy = policy;
 }
+
+/*!
+    \property QComboBox::editable
+*/
 
 bool QComboBox::isEditable() const
 {
@@ -527,11 +674,19 @@ QLineEdit *QComboBox::lineEdit() const
     return d->lineEdit;
 }
 
+/*!
+    \internal
+*/
+
 void QComboBox::setValidator(const QValidator *v)
 {
     if (d->lineEdit)
         d->lineEdit->setValidator(v);
 }
+
+/*!
+    \internal
+*/
 
 const QValidator *QComboBox::validator() const
 {
@@ -539,8 +694,8 @@ const QValidator *QComboBox::validator() const
 }
 
 /*!
-    Returns the item delegate used by the combobox and the popup
-    listview.
+    Returns the item delegate used by the combo box and the popup
+    list view.
 
     \sa setItemDelegate()
 */
@@ -570,10 +725,18 @@ void QComboBox::setItemDelegate(QAbstractItemDelegate *delegate)
     listView()->setItemDelegate(d->delegate);
 }
 
+/*!
+    Returns the model used by the combo box.
+*/
+
 QAbstractItemModel *QComboBox::model() const
 {
     return d->model;
 }
+
+/*!
+    \internal
+*/
 
 QModelIndex QComboBox::root() const
 {
@@ -588,6 +751,10 @@ void QComboBox::setRoot(const QModelIndex &index)
     emit rootChanged(old, index);
     update();
 }
+
+/*!
+    \property QComboBox::currentItem
+*/
 
 int QComboBox::currentItem() const
 {
@@ -604,6 +771,10 @@ void QComboBox::setCurrentItem(int row)
     emit currentChanged(old, index);
     update();
 }
+
+/*!
+    \property QComboBox::currentText
+*/
 
 QString QComboBox::currentText() const
 {
@@ -624,17 +795,29 @@ void QComboBox::setCurrentText(const QString& text)
     }
 }
 
+/*!
+    \internal
+*/
+
 QString QComboBox::text(int row) const
 {
     QModelIndex index = model()->index(row, 0, root());
     return model()->data(index, QAbstractItemModel::Role_Edit).toString();
 }
 
+/*!
+    \internal
+*/
+
 QPixmap QComboBox::pixmap(int row) const
 {
     QModelIndex index = model()->index(row, 0, root());
     return model()->data(index, QAbstractItemModel::Role_Edit).toIconSet().pixmap();
 }
+
+/*!
+    \internal
+*/
 
 void QComboBox::insertStringList(const QStringList &list, int row)
 {
@@ -655,6 +838,10 @@ void QComboBox::insertStringList(const QStringList &list, int row)
         setCurrentItem(row);
 }
 
+/*!
+    \internal
+*/
+
 void QComboBox::insertItem(const QString &text, int row)
 {
     if (!(count() < d->maxCount))
@@ -670,6 +857,10 @@ void QComboBox::insertItem(const QString &text, int row)
         setCurrentItem(row);
 }
 
+/*!
+    \internal
+*/
+
 void QComboBox::insertItem(const QIconSet &icon, int row)
 {
     if (!(count() < d->maxCount))
@@ -684,6 +875,10 @@ void QComboBox::insertItem(const QIconSet &icon, int row)
     if (!d->currentItem.isValid())
         setCurrentItem(row);
 }
+
+/*!
+    \internal
+*/
 
 void QComboBox::insertItem(const QIconSet &icon, const QString &text, int row)
 {
@@ -703,10 +898,18 @@ void QComboBox::insertItem(const QIconSet &icon, const QString &text, int row)
         setCurrentItem(row);
 }
 
+/*!
+    \internal
+*/
+
 void QComboBox::removeItem(int row)
 {
     model()->removeRows(row, root(), 1);
 }
+
+/*!
+    \internal
+*/
 
 void QComboBox::setItemText(const QString &text, int row)
 {
@@ -716,6 +919,10 @@ void QComboBox::setItemText(const QString &text, int row)
     }
 }
 
+/*!
+    \internal
+*/
+
 void QComboBox::setItemIcon(const QIconSet &icon, int row)
 {
     QModelIndex item = model()->index(row, 0, root());
@@ -723,6 +930,10 @@ void QComboBox::setItemIcon(const QIconSet &icon, int row)
         model()->setData(item, QAbstractItemModel::Role_Decoration, icon);
     }
 }
+
+/*!
+    \internal
+*/
 
 void QComboBox::setItem(const QIconSet &icon, const QString &text, int row)
 {
@@ -735,10 +946,18 @@ void QComboBox::setItem(const QIconSet &icon, const QString &text, int row)
     }
 }
 
+/*!
+    \internal
+*/
+
 QGenericListView *QComboBox::listView() const
 {
     return d->container->listView();
 }
+
+/*!
+    \reimp
+*/
 
 QSize QComboBox::sizeHint() const
 {
@@ -775,6 +994,10 @@ QSize QComboBox::sizeHint() const
                    .expandedTo(QApplication::globalStrut()));
     return d->sizeHint;
 }
+
+/*!
+    \internal
+*/
 
 void QComboBox::popup()
 {
@@ -816,10 +1039,18 @@ void QComboBox::popup()
     d->container->show();
 }
 
+/*!
+    \internal
+*/
+
 void QComboBox::clear()
 {
     model()->removeRows(0, root(), model()->rowCount(root()));
 }
+
+/*!
+    \internal
+*/
 
 void QComboBox::clearValidator()
 {
@@ -827,17 +1058,29 @@ void QComboBox::clearValidator()
         d->lineEdit->setValidator(0);
 }
 
+/*!
+    \internal
+*/
+
 void QComboBox::clearEdit()
 {
     if (d->lineEdit)
         d->lineEdit->clear();
 }
 
+/*!
+    \internal
+*/
+
 void QComboBox::setEditText(const QString &text)
 {
     if (d->lineEdit)
         d->lineEdit->setText(text);
 }
+
+/*!
+    \internal
+*/
 
 void QComboBox::currentChanged(const QModelIndex &, const QModelIndex &)
 {
@@ -847,10 +1090,18 @@ void QComboBox::currentChanged(const QModelIndex &, const QModelIndex &)
     d->emitActivated(d->currentItem);
 }
 
+/*!
+    \internal
+*/
+
 void QComboBox::focusInEvent(QFocusEvent *)
 {
     update();
 }
+
+/*!
+    \internal
+*/
 
 void QComboBox::focusOutEvent(QFocusEvent *)
 {
@@ -890,10 +1141,18 @@ void QComboBox::changeEvent(QEvent *e)
     QWidget::changeEvent(e);
 }
 
+/*!
+    \internal
+*/
+
 void QComboBox::resizeEvent(QResizeEvent *)
 {
     d->updateLineEditGeometry();
 }
+
+/*!
+    \internal
+*/
 
 void QComboBox::paintEvent(QPaintEvent *)
 {
@@ -924,6 +1183,10 @@ void QComboBox::paintEvent(QPaintEvent *)
     }
 }
 
+/*!
+    \internal
+*/
+
 void QComboBox::mousePressEvent(QMouseEvent *e)
 {
     QStyleOptionComboBox opt = d->getStyleOption();
@@ -935,6 +1198,10 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
         popup();
     QWidget::mousePressEvent(e);
 }
+
+/*!
+    \internal
+*/
 
 void QComboBox::keyPressEvent(QKeyEvent *e)
 {
