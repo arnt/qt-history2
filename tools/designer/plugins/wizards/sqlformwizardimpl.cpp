@@ -22,9 +22,6 @@ SqlFormWizard::SqlFormWizard( QWidget *w, const QValueList<TemplateWizardInterfa
     setFinishEnabled( populatePage, TRUE );
 
     connect( checkBoxAutoPopulate, SIGNAL( toggled(bool) ), this, SLOT( autoPopulate(bool) ) );
-
-    listBoxField->insertItem("test1"); //##
-    listBoxField->insertItem("test2"); //##
 }
 
 SqlFormWizard::~SqlFormWizard()
@@ -47,7 +44,6 @@ void SqlFormWizard::connectionSelected( const QString &c )
 void SqlFormWizard::tableSelected( const QString &t )
 {
     //setNextEnabled( databasePage, !t.isEmpty() );
-    //## prime listBoxField with selected table fields
     autoPopulate( TRUE );
 }
 
@@ -55,29 +51,51 @@ void SqlFormWizard::autoPopulate( bool populate )
 {
     listBoxSelectedField->clear();
     if ( populate ) {
-	for ( uint i = 0; i < listBoxField->count(); ++i )
-	    listBoxSelectedField->insertItem( listBoxField->item(i)->text() );
+	//## prime listBoxSelectedField with selected table fields
     }
 }
 
 void SqlFormWizard::fieldDown()
 {
+    if ( listBoxSelectedField->currentItem() == -1 ||
+	 listBoxSelectedField->currentItem() == (int)listBoxSelectedField->count() - 1 ||
+	 listBoxSelectedField->count() < 2 )
+	return;
+    int index = listBoxSelectedField->currentItem() + 1;
+    QListBoxItem *i = listBoxSelectedField->item( listBoxSelectedField->currentItem() );
+    listBoxSelectedField->takeItem( i );
+    listBoxSelectedField->insertItem( i, index );
+    listBoxSelectedField->setCurrentItem( i );
 }
 
 void SqlFormWizard::fieldUp()
 {
+    if ( listBoxSelectedField->currentItem() <= 0 ||
+	 listBoxSelectedField->count() < 2 )
+	return;
+    int index = listBoxSelectedField->currentItem() - 1;
+    QListBoxItem *i = listBoxSelectedField->item( listBoxSelectedField->currentItem() );
+    listBoxSelectedField->takeItem( i );
+    listBoxSelectedField->insertItem( i, index );
+    listBoxSelectedField->setCurrentItem( i );
 }
 
 void SqlFormWizard::removeField()
 {
     int i = listBoxSelectedField->currentItem();
-    if ( i != -1 )
+    if ( i != -1 ) {
+	listBoxField->insertItem( listBoxSelectedField->currentText() );
 	listBoxSelectedField->removeItem( i );
+    }
 }
 
 void SqlFormWizard::addField()
 {
+    int i = listBoxField->currentItem();
+    if ( i == -1 )
+	return;
     QString f = listBoxField->currentText();
     if ( !f.isEmpty() )
 	listBoxSelectedField->insertItem( f );
+    listBoxField->removeItem( i );
 }
