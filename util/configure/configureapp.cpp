@@ -1141,28 +1141,6 @@ void Configure::generateConfigfiles()
 			    FILE_ATTRIBUTE_NORMAL))
 	qDebug("Couldn't reset writable file attribute for qatomic.h");
 
-    outName = outDir + "/qmodules.h";
-
-    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
-    QFile::remove( outName );
-    outFile.setName( outName );
-
-    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
-	QTextStream outStream( &outFile );
-
-	outStream << "// These modules are present in this configuration of Qt" << endl;
-	for( QStringList::Iterator it = modules.begin(); it != modules.end(); ++it ) {
-	    outStream << "#define QT_MODULE_" << (*it).upper() << endl;
-	}
-	outStream << endl;
-	outFile.close();
-	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
-	    if ( !CopyFileA( outName, dictionary[ "QT_INSTALL_HEADERS" ] + "/qmodules.h", FALSE ) )
-		qDebug("Couldn't copy %s to include", outName.latin1() );
-	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
-	}
-    }
-
     outDir = dictionary[ "QT_SOURCE_TREE" ];
     outName = outDir + "/src/core/global/qconfig.cpp";
     ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
