@@ -370,17 +370,17 @@ inline void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
 
 inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh)
 {
-    drawPixmap(QRect(x, y, pm.width(), pm.height()), pm, QRect(sx, sy, sw, sh));
+    drawPixmap(QRect(x, y, -1, -1), pm, QRect(sx, sy, sw, sh));
 }
 
 inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr)
 {
-    drawPixmap(QRect(p.x(), p.y(), pm.width(), pm.height()), pm, sr);
+    drawPixmap(QRect(p.x(), p.y(), -1, -1), pm, sr);
 }
 
 inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm)
 {
-    drawPixmap(QRect(p.x(), p.y(), pm.width(), pm.height()),
+    drawPixmap(QRect(p.x(), p.y(), -1, -1),
 	       pm,
 	       QRect(0, 0, pm.width(), pm.height()));
 }

@@ -2024,15 +2024,15 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
     int sw = sr.width();
     int sh = sr.height();
 
-    if (w < 0)
-	w = pm.width();
-    if (h < 0)
-	h = pm.height();
-
     if (sw < 0)
 	sw = pm.width() - sx;
     if (sh < 0)
 	sh = pm.height() - sy;
+
+    if (w < 0)
+	w = sw;
+    if (h < 0)
+	h = sh;
 
     // Sanity-check clipping
     if (sx < 0) {
