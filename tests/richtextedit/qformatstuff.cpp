@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#2 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#3 $
 **
 ** Definition of the QtTextView class
 **
@@ -25,8 +25,7 @@
 
 #include "qformatstuff.h"
 
-#include <qdatastream.h>
-#include <qcstring.h>
+#include <qtextstream.h>
 #include <qstylesheet.h>
 
 QtTextCharFormat::QtTextCharFormat()
@@ -43,10 +42,11 @@ QtTextCharFormat::QtTextCharFormat( const QtTextCharFormat &format )
 QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c )
     : _font( f ), _color( c ), ref( 1 )
 {
-    QDataStream s( key, IO_WriteOnly );
-    s << _font << _color;
-
-    qDebug( "key: %s", key.data() );
+    key = QString( "%1_%2_%3_%4_%5_%6_%7_%8" ).
+          arg( c.red() ).arg( c.green() ).arg( c.blue() ).
+          arg( f.family() ).arg( f.pointSize() ).arg( f.weight() ).
+          arg( (int)f.underline() ).arg( (int)f.italic() );
+    qDebug( "create key: %s", key.latin1() );
 }
 
 QtTextCharFormat::~QtTextCharFormat()
@@ -104,6 +104,7 @@ ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
 {
     if ( cKey.contains( format.key ) ) {
         cKey[ format.key ]->addRef();
+        qDebug( "registerFormat (%s): found at %d", format.key.latin1(), cKeyIndex[ format.key ] ); 
         return cKeyIndex[ format.key ];
     } else {
         QtTextCharFormat *f = new QtTextCharFormat( format );
@@ -111,6 +112,7 @@ ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
         int i = cIndex.count();
         cIndex[ i ] = f;
         cKeyIndex[ f->key ] = i;
+        qDebug( "registerFormat (%s): added at %d", format.key.latin1(), i );
         return i;
     }
 }
@@ -118,12 +120,13 @@ ushort QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
 void QtTextFormatCollection::unregisterFormat( ushort index )
 {
     if ( cIndex.contains( index ) ) {
-        QCString key = cIndex[ index ]->key;
+        QString key = cIndex[ index ]->key;
         QtTextCharFormat *f = cKey[ key ];
         int ref = f->removeRef();
         cKey.remove( key );
         cIndex.remove( index );
         cKeyIndex.remove( key );
+        qDebug( "unregisterFormat (%s): removed at %d, refcount: %d", f->key.latin1(), index, ref );
         if ( ref <= 0 )
             delete f;
     }
