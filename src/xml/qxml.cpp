@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#77 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#78 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -1907,6 +1907,7 @@ private:
     bool useNamespaces;
     bool useNamespacePrefixes;
     bool reportWhitespaceCharData;
+    bool reportEntities;
 
     // used to build the attribute list
     QXmlAttributes attList;
@@ -2179,6 +2180,7 @@ QXmlSimpleReader::QXmlSimpleReader()
     d->useNamespaces = TRUE;
     d->useNamespacePrefixes = FALSE;
     d->reportWhitespaceCharData = TRUE;
+    d->reportEntities = FALSE;
 }
 
 /*!
@@ -2202,6 +2204,8 @@ bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
 	return d->useNamespacePrefixes;
     } else if ( name == "http://trolltech.com/xml/features/report-whitespace-only-CharData" ) {
 	return d->reportWhitespaceCharData;
+    } else if ( name == "http://trolltech.com/xml/features/report-start-end-entity" ) {
+	return d->reportEntities;
     } else {
 	qWarning( "Unknown feature %s", name.latin1() );
 	if ( ok != 0 )
@@ -2246,6 +2250,8 @@ void QXmlSimpleReader::setFeature( const QString& name, bool value )
 	d->useNamespacePrefixes = value;
     } else if ( name == "http://trolltech.com/xml/features/report-whitespace-only-CharData" ) {
 	d->reportWhitespaceCharData = value;
+    } else if ( name == "http://trolltech.com/xml/features/report-start-end-entity" ) {
+	d->reportEntities = value;
     } else {
 	qWarning( "Unknown feature %s", name.latin1() );
     }
