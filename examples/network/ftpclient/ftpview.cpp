@@ -84,7 +84,6 @@ int FtpViewItem::compare( QListViewItem * i, int col, bool ascending ) const
 	    return 0;
 	else
 	    return info.lastModified() < other->info.lastModified() ? -1 : 1;
-	break;
     default:
 	// use default method for colum 0 and others added in the future
 	return QListViewItem::compare( i, col, ascending );
