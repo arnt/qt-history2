@@ -40,6 +40,8 @@ public:
     QDesignerResource(FormWindow *fw);
     virtual ~QDesignerResource();
 
+    virtual void save(QIODevice *dev, QWidget *widget);
+
     void copy(QIODevice *dev, const QList<QWidget*> &selection);
     DomUI *copy(const QList<QWidget*> &selection);
     QList<QWidget*> paste(DomUI *ui, QWidget *parentWidget);
@@ -111,6 +113,7 @@ private:
     QHash<QString, QString> m_qlayout_to_internal;
     QStack<QLayout*> m_chain;
     QHash<AbstractWidgetDataBaseItem*, bool> m_usedCustomWidgets;
+    int m_topLevelSpacerCount;
 };
 
 #endif // QDESIGNER_RESOURCE_H

@@ -52,6 +52,8 @@
 QDesignerResource::QDesignerResource(FormWindow *formWindow)
    : m_formWindow(formWindow), m_core(formWindow->core())
 {
+    m_topLevelSpacerCount = 0;
+
     m_internal_to_qt.insert("QDesignerWidget", "QWidget");
     m_internal_to_qt.insert("QDesignerStackedWidget", "QStackedWidget");
     m_internal_to_qt.insert("QLayoutWidget", "QWidget");
@@ -77,11 +79,26 @@ QDesignerResource::~QDesignerResource()
 {
 }
 
+void QDesignerResource::save(QIODevice *dev, QWidget *widget)
+{
+    m_topLevelSpacerCount = 0;
+    Resource::save(dev, widget);
+
+    if (m_topLevelSpacerCount != 0) {
+        QMessageBox::warning(widget->window(), QObject::tr("Qt Designer"),
+               QObject::tr("This file contains top level spacers.<br>"
+                           "They have <b>NOT</b> been saved into the form.<br>"
+                           "Perhaps you forgot to create a layout?"),
+                           QMessageBox::Ok, 0);
+    }
+}
+
+
 QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 {
     QString version = ui->attributeVersion();
     if (version != "4.0") {
-        QMessageBox::warning(0, QObject::tr("Qt Designer"),
+        QMessageBox::warning(parentWidget->window(), QObject::tr("Qt Designer"),
                QObject::tr("This file was created using designer from Qt-%1 and "
                            "could not be read. "
                            "Please run it through <b>uic3 -convert</b> to convert "
@@ -297,12 +314,12 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                     if (resource != 0) {
                         QString icon_path = resource->text();
                         QString qrc_path = resource->attributeResource();
-                        
+
                         if (qrc_path.isEmpty())
                             icon_path = m_formWindow->absolutePath(icon_path);
                         else
                             qrc_path = m_formWindow->absolutePath(qrc_path);
-                            
+
                         if (p->kind() == DomProperty::IconSet) {
                             QIcon icon = m_core->iconCache()->nameToIcon(icon_path, qrc_path);
                             v = qVariantFromValue(icon);
@@ -310,7 +327,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                             QPixmap pixmap = m_core->iconCache()->nameToPixmap(icon_path, qrc_path);
                             v = qVariantFromValue(pixmap);
                         }
-                    }                        
+                    }
                 } else {
                     v = toVariant(o->metaObject(), p);
                 }
@@ -393,6 +410,11 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     AbstractMetaDataBaseItem *item = m_core->metaDataBase()->item(widget);
     if (!item)
         return 0;
+
+    if (qobject_cast<Spacer*>(widget)) {
+        ++m_topLevelSpacerCount;
+        return 0;
+    }
 
     int widgetInfoIndex = m_core->widgetDataBase()->indexOfObject(widget, false);
     if (widgetInfoIndex != -1) {
@@ -1011,7 +1033,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
             icon_path = m_core->iconCache()->pixmapToFilePath(pixmap);
             qrc_path = m_core->iconCache()->pixmapToQrcPath(pixmap);
         }
-        
+
         if (qrc_path.isEmpty())
             icon_path = m_formWindow->relativePath(icon_path);
         else
@@ -1021,12 +1043,12 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         if (!qrc_path.isEmpty())
             r->setAttributeResource(qrc_path);
         DomProperty *p = new DomProperty;
-        
+
         if (value.type() == QVariant::Icon)
             p->setElementIconSet(r);
         else
             p->setElementPixmap(r);
-            
+
         p->setAttributeName(propertyName);
         return p;
     }
