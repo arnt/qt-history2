@@ -23,6 +23,7 @@ const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
 var binaryHosts = new Array();
 binaryHosts["win"] = "innsikt";
 binaryHosts["mac"] = "zoidberg";
+const binaryUser = "period";
 		     
 const user = System.getenv("USER");
 
@@ -34,6 +35,8 @@ var licenseHeaders = []; // license text to put in .cpp and .h headers
 var moduleMap = [];      // maps between directories and module/class/application names
 var p4Port;
 var p4Command;
+var p4BranchPath;          // typically //depot/qt/[thebranch]
+var p4Label;               // the P4 label
 
 var indentation = 0;
 const tabSize = 4;
@@ -185,6 +188,7 @@ moduleMap["tools applications"]          = new RegExp("^src/tools");
 moduleMap["window classes"]              = new RegExp("^src/winmain");
 moduleMap["xml module"]                  = new RegExp("^src/xml");
 moduleMap["assistant application"]       = new RegExp("^tools/assistant");
+moduleMap["linguist application"]        = new RegExp("^tools/linguist");
 moduleMap["qtconfig application"]        = new RegExp("^tools/qtconfig");
 moduleMap["virtual framebuffer"]         = new RegExp("^tools/qvfb");
 
@@ -245,12 +249,13 @@ for (var p in validPlatforms) {
 	    print("Traversing all txt files and replacing tags...");
 	    replaceTags(platDir, getFileList(platDir), platform, edition, platName);
 
-	    // create binaries
-	    compile(platDir, platform, edition);
-
   	    // package directory
 	    print("Compressing and packaging file(s)...")
 	    compress(platDir, platform, edition);
+
+	    // create binaries
+	    print("Compiling binaries...")
+	    compile(platName, platform, edition);
 	    
   	    indentation-=tabSize;
   	}
@@ -379,8 +384,7 @@ function checkTools()
 	for (var p in binaryHosts) {
 	    if (options["binaries"] && options[p]) {
 		var host = binaryHosts[p];
-		if (execute(["ssh", "period@" + host, "true"]))
-		    throw "Host " + host + " failed...";
+		execute(["ssh", "period@" + host, "true"]);
 	    }
 	}
 	execute(p4Command);
@@ -397,10 +401,9 @@ function buildQdoc()
     var dir = new Dir(qdocDir);
     dir.setCurrent();
     execute("%1 qdoc3.pro".arg(qmakeCommand));
-    if (execute("make") != 0)
-	throw "Failed to build qdoc:\n %1".arg(Process.stderr);
+    execute("make");
     // test qdoc
-    execute( [qdocCommand, "--help"] );
+    execute( [qdocCommand, "-version"] );
 }
 
 
@@ -410,16 +413,16 @@ function buildQdoc()
 function checkout()
 {
     // check that the branch exist
-    var branchPath = "//depot/qt/" + options["branch"];
-    execute([p4Command, "fstat", branchPath + "/configure"]);
+    p4BranchPath = "//depot/qt/" + options["branch"];
+    execute([p4Command, "fstat", p4BranchPath + "/configure"]);
     if (Process.stdout.find("depotFile") == -1)
-	throw "Branch: " + branchPath + " does not exist.";
+	throw "Branch: " + p4BranchPath + " does not exist.";
     
     // check that the label exists
-    var label = "qt/" + options["version"];
-    execute([p4Command, "labels", branchPath + "/configure"]);
-    if (Process.stdout.find("Label " + label + " ") == -1)
-	throw "Label: " + label + " does not exist, or not in this branch.";
+    p4Label = "qt/" + options["version"];
+    execute([p4Command, "labels", p4BranchPath + "/configure"]);
+    if (Process.stdout.find("Label " + p4Label + " ") == -1)
+	throw "Label: " + p4Label + " does not exist, or not in this branch.";
 
     // generate clientSpec
     var tmpClient="qt-release-tmp-" + user;
@@ -435,7 +438,7 @@ function checkout()
     execute([p4Command, "client", "-i"], clientSpec);
 
     // checkout
-    execute([p4Command, "-c", tmpClient, "-d", distDir, "sync", "-f", "...@" + label]);
+    execute([p4Command, "-c", tmpClient, "-d", distDir, "sync", "-f", "...@" + p4Label]);
 
     // test for checkoutDir
     if (!File.exists(checkoutDir))
@@ -554,13 +557,43 @@ function compress(packageDir, platform, edition)
 
 
 /************************************************************
- * copies qt to binary host, and makes it compile
+ * copies a qt-package to binary host, compiles qt, and collects the
+ * resulting dlls etc.
  */
-function compile(packageDir, platform, edition)
+function compile(platformName, platform, edition)
 {
     if (!options["binaries"] || !binaryHosts[platform])
 	return;
 
+    var login = binaryUser + "@" + binaryHosts[platform];
+
+    // remove any previous packages/dirs/scripts for this platform
+    execute(["ssh", login, "rm -rf", platformName + "*"]);
+    execute(["ssh", login, "rm -rf", "buildbinary" + platform + "*"]);
+
+    if (platform == "win" && options["zip"]) {
+	// copy zip package to host
+	var packageName = platformName + ".zip";
+	execute(["scp", outputDir + "/" + packageName, login + ":."]);
+	
+	// unzip package (overwrite)
+	execute(["ssh", login, "unzip", "-o", packageName]);
+
+	// copy build script
+	var buildScript = p4Copy(p4BranchPath + "/util/scripts" ,
+				 "buildbinary" + platform + ".bat", p4Label);
+	execute(["scp", buildScript, login + ":."]);
+
+	// run it
+	execute(["ssh", login, "cmd /c buildbinarywin.bat win32-msvc " + platformName]);
+
+	// collect result
+
+	// cleanup host
+
+    } else if (platform == "mac") {
+
+    }
 }
 
 /************************************************************
@@ -765,6 +798,25 @@ function replaceTags(packageDir, fileList, platform, edition, platName)
 }
 
 /************************************************************
+ * returns a local writable copy of fileName specified in the
+ * depotPath
+ * 
+ * typically used when files are needed from the depot that can have
+ * been purged from the package (like qdoc configurations and scripts
+ * etc.)
+ */
+function p4Copy(depotPath, fileName, label)
+{
+    var depotFileName = depotPath + "/" + fileName + "@" + label;
+    var newFile = distDir + "/" + fileName;
+    execute([p4Command, "print", "-o", newFile, "-q", depotFileName]);
+    if (!File.exists(newFile))
+	throw "Failed copying file: %1 to: %2".arg(depotFileName).arg(newFile);
+    execute(["chmod", "ug+w", newFile]);
+    return newFile;
+}
+
+/************************************************************
  * prints out text with indentation
  */
 function print(text)
@@ -812,8 +864,10 @@ function execute(command, stdin) {
     var runTime = Math.floor((Date().getTime() - start)/1000);
     if (runTime > 0)
 	print("...took %1 second(s)".arg(runTime));
-    if (error != 0 || (Process.stderr.length > 0 &&
-		       Process.stderr.left(80).toLowerCase().find(/warning|error/) != -1))
-	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(80)));
-    return error;
+    if (error != 0) {
+	throw "Error runnning: %1 stderr: %2".arg(command).arg(Process.stderr.left(200));
+    } else if (Process.stderr.length > 0
+	       && Process.stderr.left(200).toLowerCase().find(/warning|error/) != -1) {
+	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(200)));
+    }
 }
