@@ -1288,9 +1288,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		bm = mask;
 		QRegion r( bm );
 		r.translate( pos.x(), pos.y() );
-#ifndef QT_NO_TRANSFORMATIONS
-		r = paint->xmat * r;
-#else
+#ifdef QT_NO_TRANSFORMATIONS
 		r.translate( painter->xlatex, painter->xlatey );
 #endif
 		if ( paint->hasClipping() )
