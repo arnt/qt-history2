@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#41 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#42 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -1648,7 +1648,7 @@ QDomNode::NodeType QDomNode::nodeType() const
 }
 
 /*!
-  Returns the parent node, If this node has no parent, then a null node is
+  Returns the parent node. If this node has no parent, then a null node is
   returned (i.e. a node for which isNull() returns TRUE).
 */
 QDomNode QDomNode::parentNode() const
@@ -3460,11 +3460,17 @@ bool QDomAttr::specified() const
 }
 
 /*!
-  fnord
+  Returns the element node, this attribute is attached to. If this attribute is
+  not attached to any element, a null element node is returned (i.e. a node for
+  which QDomNode::isNull() returns TRUE).
 */
 QDomElement QDomAttr::ownerElement() const
 {
-    return QDomElement();
+    if ( !impl && !impl->parent->isElement() )
+	return QDomElement();
+    // ### the following works for now; but note that "parent" is used wrong
+    // throughout the QDom code!!!
+    return QDomElement( (QDomElementPrivate*)(impl->parent) );
 }
 
 /*!
