@@ -1480,6 +1480,7 @@ process:
                     e->ignore();
                     return;
                 }
+                /*
                 if (d->cursor.currentTable()) {
                     d->gotoNextTableCell();
                     break;
@@ -1487,6 +1488,7 @@ process:
                     d->indent();
                     break;
                 }
+                */
             }
 
             if (e->key() == Qt::Key_Backtab) {
@@ -1494,6 +1496,7 @@ process:
                     e->ignore();
                     return;
                 }
+                /*
                 if (d->cursor.currentTable()) {
                     d->gotoPreviousTableCell();
                     break;
@@ -1501,6 +1504,7 @@ process:
                     d->outdent();
                     break;
                 }
+                */
             }
 
             if (d->cursor.atBlockStart()
