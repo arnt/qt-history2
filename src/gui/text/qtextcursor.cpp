@@ -474,7 +474,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 QTextTable *QTextCursorPrivate::complexSelectionTable() const
 {
     if (position == anchor)
-        return false;
+        return 0;
 
     QTextTable *t = qobject_cast<QTextTable *>(priv->frameAt(position));
     if (t) {
