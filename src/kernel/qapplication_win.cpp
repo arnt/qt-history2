@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#549 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#550 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -3677,7 +3677,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	    // Y Tilt = arctan(Y / Z)
 	    double radAzim = ( ort.orAzimuth / 10 ) * ( PI / 180 );
 	    //double radAlt = abs( ort.orAltitude / 10 ) * ( PI / 180 );
-	    double tanAlt = tan( ( ort.orAltitude / 10 ) * ( PI / 180 ) );
+	    double tanAlt = tan( (abs(ort.orAltitude / 10)) * ( PI / 180 ) );
 
 	    double degX = atan( sin(radAzim) / tanAlt );
 	    double degY = atan( cos(radAzim) / tanAlt );
