@@ -1093,7 +1093,20 @@ QString QCoreApplication::applicationDirPath()
 */
 QString QCoreApplication::applicationFilePath()
 {
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
+#if defined( Q_WS_WIN )
+    QFileInfo filePath;
+    QT_WA({
+        TCHAR module_name[256];
+        GetModuleFileName(0, module_name, sizeof(module_name));
+        filePath = QString::fromUtf16(module_name);
+    }, {
+        char module_name[256];
+        GetModuleFileNameA(0, module_name, sizeof(module_name));
+        filePath = QString::fromLocal8Bit(module_name);
+    });
+
+    return filePath.filePath();
+#elif defined(Q_WS_MAC)
     return QDir::cleanPath(QFile::decodeName(qAppFileName()));
 #else
     QString argv0 = QFile::decodeName(QByteArray(argv()[0]));
