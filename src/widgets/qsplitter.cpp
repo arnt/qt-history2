@@ -89,7 +89,7 @@ QSplitterHandle::QSplitterHandle( Qt::Orientation o,
     : QWidget( parent, name )
 {
     s = parent;
-    setOrientation(o);
+    setOrientation( o );
 }
 
 QSize QSplitterHandle::sizeHint() const
@@ -264,9 +264,9 @@ void QSplitter::init()
 {
     data = new QSplitterData;
     if ( orient == Horizontal )
-	setSizePolicy( QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Minimum) );
+	setSizePolicy( QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred) );
     else
-	setSizePolicy( QSizePolicy(QSizePolicy::Minimum,QSizePolicy::Expanding) );
+	setSizePolicy( QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding) );
 }
 
 
@@ -294,9 +294,9 @@ void QSplitter::setOrientation( Orientation o )
     orient = o;
 
     if ( orient == Horizontal )
-	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Minimum ) );
+	setSizePolicy( QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred) );
     else
-	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Expanding ) );
+	setSizePolicy( QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding) );
 
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
@@ -1008,10 +1008,9 @@ QSize QSplitter::sizeHint() const
 	QObjectListIt it( *c );
 	QObject * o;
 
-	while( (o=it.current()) != 0 ) {
+	while( (o = it.current()) != 0 ) {
 	    ++it;
-	    if ( o->isWidgetType() &&
-		 !((QWidget*)o)->isHidden() ) {
+	    if ( o->isWidgetType() && !((QWidget*)o)->isHidden() ) {
 		QSize s = ((QWidget*)o)->sizeHint();
 		if ( s.isValid() ) {
 		    l += pick( s );
@@ -1038,7 +1037,7 @@ QSize QSplitter::minimumSizeHint() const
 	QObjectListIt it( *c );
 	QObject * o;
 
-	while( (o=it.current()) != 0 ) {
+	while ( (o = it.current()) != 0 ) {
 	    ++it;
 	    if ( o->isWidgetType() && !((QWidget*)o)->isHidden() ) {
 		QSize s = qSmartMinSize( (QWidget*)o );
