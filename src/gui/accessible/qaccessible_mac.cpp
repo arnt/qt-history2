@@ -495,7 +495,7 @@ void QAccessible::updateAccessibility(QObject *object, int control, Event reason
         //need to look up the proper object..
     }
     CFStringRef notification = 0;
-    if(object->isWidgetType()) {
+    if(object && object->isWidgetType()) {
         if(reason == ObjectCreated)
             notification = kAXWindowCreatedNotification;
     } else if(reason == ValueChanged) {
