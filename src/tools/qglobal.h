@@ -401,9 +401,8 @@
 #    define Q_CC_OC
 #    define Q_NO_USING_KEYWORD
 
-/* CDS++ is not documented to define __EDG__ or __EDG in the Reliant
-   documentation but we suppose it does, in any case it does follow
-   conventions like _BOOL */
+/* CDS++ defines __EDG__ although this is not documented in the Reliant
+   documentation. It also follows conventions like _BOOL and this documented */
 #  elif defined(sinix)
 #    define Q_CC_CDS
 #    define Q_NO_USING_KEYWORD
