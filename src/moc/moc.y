@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#9 $
+** $Id: //depot/qt/main/src/moc/moc.y#10 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -41,7 +41,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#10 $";
 #endif
 
 
@@ -550,6 +550,10 @@ char *stradd( char *s1, char *s2 )		// adds two strings
 
 // Generate C++ code for building member function table
 
+const int Method_Num = 1;
+const int Slot_Num   = 2;
+const int Signal_Num = 3;
+
 void generateFuncs( FuncList *list, char *functype, int num )
 {
     Function *f;
@@ -567,6 +571,13 @@ void generateFuncs( FuncList *list, char *functype, int num )
 	fprintf( out, "    typedef %s %s(%s::*m%d_t%d)(%s);\n",
 		 (char*)f->type, (char*)f->ptrType,
 		 (char*)className, num, list->at(),(char*)typstr );
+	if ( num == Signal_Num && (f->type != "void" || f->ptrType != "" ) )
+	    warning( "moc: warning: %s (%d) signal %s%s %s(%s)"
+		     " should have void return value",
+		     (pcchar)fileName, f->lineNo,
+		     (pcchar)f->type, (pcchar)f->ptrType, (pcchar)f->name,
+		     (pcchar)typstr );
+
 	f->type = f->name.copy();
 	f->type += "(";
 	f->type += typstr;
@@ -627,15 +638,15 @@ void generate()					// generate C++ source code
 //
 // Build methods array in initMetaObject()
 //
-    generateFuncs( &methods, "method", 1 );
+    generateFuncs( &methods, "method", Method_Num );
 //
 // Build slots array in initMetaObject()
 //
-    generateFuncs( &slots, "slot", 2 );
+    generateFuncs( &slots, "slot", Slot_Num );
 //
 // Build signals array in initMetaObject()
 //
-    generateFuncs( &signals, "signal", 3 );
+    generateFuncs( &signals, "signal", Signal_Num );
 //
 // Finally create meta object
 //
@@ -732,6 +743,7 @@ void addMember( QString type, char m )
 {
     tmpFunc->type = type;
     tmpFunc->args = tmpArgList;
+    tmpFunc->lineNo = lineNo;
     tmpArgList = new ArgList;
     if ( !skipFunc ) {
 	switch( m ) {
