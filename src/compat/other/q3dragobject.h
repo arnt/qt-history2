@@ -18,6 +18,7 @@
 #include "qcolor.h"
 #include "qmime.h"
 #include "qimage.h"
+#include "q3strlist.h"
 #include "qlist.h"
 
 class QWidget;
@@ -134,7 +135,7 @@ class Q_COMPAT_EXPORT Q3UriDrag: public Q3StoredDrag {
     Q_OBJECT
 
 public:
-    Q3UriDrag(const QList<QByteArray> &uris, QWidget * dragSource = 0, const char * name = 0);
+    Q3UriDrag(const Q3StrList &uris, QWidget * dragSource = 0, const char * name = 0);
     Q3UriDrag(QWidget * dragSource = 0, const char * name = 0);
     ~Q3UriDrag();
 

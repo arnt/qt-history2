@@ -1024,7 +1024,7 @@ QByteArray Q3StoredDrag::encodedData(const char* m) const
 
     Note that URIs are always in escaped UTF8 encoding.
 */
-Q3UriDrag::Q3UriDrag(const QList<QByteArray> &uris, QWidget * dragSource, const char * name) :
+Q3UriDrag::Q3UriDrag(const Q3StrList &uris, QWidget * dragSource, const char * name) :
     Q3StoredDrag("text/uri-list", dragSource)
 {
     setObjectName(name);
