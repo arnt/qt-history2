@@ -177,8 +177,8 @@ void QTextImage::realize( QPainter* p )
     if ( !p || p->device()->devType() != QInternal::Printer )
 	return;
     QPaintDeviceMetrics metrics(p->device());
-    width *= metrics.logicalDpiX() / 75;
-    height *= metrics.logicalDpiY() / 75;
+    width *= metrics.logicalDpiX() / 72;
+    height *= metrics.logicalDpiY() / 72;
     if ( !pm.isNull() ) {
 	QImage img = pm.convertToImage().smoothScale( width, height );
 	pm.convertFromImage( img );
@@ -214,7 +214,7 @@ void QTextHorizontalLine::realize( QPainter* p )
     if ( !p || p->device()->devType() != QInternal::Printer )
 	return;
     QPaintDeviceMetrics metrics(p->device());
-    height *= metrics.logicalDpiY() / 75;
+    height *= metrics.logicalDpiY() / 72;
 }
 
 
@@ -1483,8 +1483,8 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
     if ( !formatinuse ) { // ### a bit hacky
 	if ( p && p->device()->devType() == QInternal::Printer ) {
 	    QPaintDeviceMetrics metrics(p->device());
-	    xscale = metrics.logicalDpiX() / 75;
-	    yscale = metrics.logicalDpiY() / 75;
+	    xscale = metrics.logicalDpiX() / 72;
+	    yscale = metrics.logicalDpiY() / 72;
 	}
     }
 
@@ -1504,14 +1504,14 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
 
 
     y_ =  b->ypos;
-    int m =  b->topMargin() * yscale;
+    int m =  int(b->topMargin() * yscale);
     flow->adjustFlow( y_, widthUsed, m ) ;
 
     y_ += m;
 
-    static_lmargin = paragraph->totalMargin( QStyleSheetItem::MarginLeft ) * xscale;
-    static_rmargin = paragraph->totalMargin( QStyleSheetItem::MarginRight ) * xscale;
-    static_labelmargin = paragraph->totalLabelMargin() * xscale;
+    static_lmargin = int(paragraph->totalMargin( QStyleSheetItem::MarginLeft ) * xscale);
+    static_rmargin = int(paragraph->totalMargin( QStyleSheetItem::MarginRight ) * xscale);
+    static_labelmargin = int(paragraph->totalLabelMargin() * xscale);
 
     alignment = paragraph->alignment();
 
@@ -1632,7 +1632,7 @@ void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int
     p->setFont( par->parent->format.font() );
     int size = p->fontMetrics().lineSpacing() / 3;
     if ( size > 12 * xscale )
-	size = 12 * xscale;
+	size = int(12 * xscale);
 
     switch ( s ) {
     case QStyleSheetItem::ListDecimal:
@@ -2319,11 +2319,11 @@ void QTextTable::realize( QPainter* p)
     painter = p;
     if ( p && p->device()->devType() != QInternal::Printer ) {
 	QPaintDeviceMetrics metrics(p->device());
-	double xscale = metrics.logicalDpiX() / 75;
-	cellspacing *= xscale;
-	border *= xscale;
-	innerborder *= xscale;
-	outerborder *= xscale;
+	double xscale = metrics.logicalDpiX() / 72;
+	cellspacing = int(cellspacing * xscale);
+	border = int(border * xscale);
+	innerborder = int(innerborder * xscale);
+	outerborder = int(outerborder * xscale);
     }
     for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() )
 	cell->realize();
