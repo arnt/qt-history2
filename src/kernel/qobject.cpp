@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#81 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#82 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#81 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#82 $")
 
 
 /*----------------------------------------------------------------------------
@@ -46,13 +46,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#81 $")
 	Mandelbrot( QObject *parent=0, const char *name );
 	...
     public slots:
-        void	start();
+	void	start();
     signals:
 	void	done();
     private slots:
 	void	calculate();
     private:
-	QTimer  timer;
+	QTimer	timer;
 	...
     };
 
@@ -74,7 +74,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#81 $")
 
     void Mandelbrot::start()
     {
-        if ( !timer.isActive() )		// not already running
+	if ( !timer.isActive() )		// not already running
 	    timer.start( 10 );			// timeout every 10 ms
     }
 
@@ -85,11 +85,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#81 $")
 
     void Mandelbrot::calculate()
     {
-        ...			// perform the calculation for a scanline
-        if ( finished ) {	// no more scanlines 
+	...			// perform the calculation for a scanline
+	if ( finished ) {	// no more scanlines
 	   timer.stop();
 	   emit done();
-        }
+	}
     }
   \endcode
 
@@ -134,7 +134,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#81 $")
   application programs.
 
   In particular, you cannot not use it to send signals from classes that do
-  not inherit QObject.  If you wish to do that, make an internal class
+  not inherit QObject.	If you wish to do that, make an internal class
   that inherits QObject and has the necessary signals and slots.
   Or use the QSignal class.
  ----------------------------------------------------------------------------*/
@@ -567,7 +567,13 @@ bool QObject::eventFilter( QObject *, QEvent * )
 }
 
 
-bool QObject::activate_filters( QEvent *e )	// activate event filters
+/*----------------------------------------------------------------------------
+  \internal
+  Activates all event filters for this object.
+  This function is normally called from QObject::event() or QWidget::event().
+ ----------------------------------------------------------------------------*/
+
+bool QObject::activate_filters( QEvent *e )
 {
     if ( !eventFilters )			// no event filter
 	return FALSE;
@@ -633,19 +639,19 @@ void QObject::blockSignals( bool block )
     };
 
     MyObject::MyObject( QObject *parent, const char *name )
-        : QObject( parent, name )
+	: QObject( parent, name )
     {
-        startTimer( 50 );			// 50 millisec timer
-        startTimer( 1000 );			// 1 second timer
+	startTimer( 50 );			// 50 millisec timer
+	startTimer( 1000 );			// 1 second timer
 	startTimer( 60000 );			// 1 minute timer
     }
 
     void MyObject::timerEvent( QTimerEvent *e )
     {
-        debug( "timer event, id=%d", e->timerId() );
+	debug( "timer event, id=%d", e->timerId() );
     }
   \endcode
-  
+
   There is practically no upper limit for the interval value (more than
   one year).  The accuracy depends on the underlying operating system.
   Windows 3.1 has 55 millisecond (18.2 times per second) accuracy; other
@@ -867,7 +873,7 @@ void QObject::removeChild( QObject *obj )
   Installs an event filter object for this object.
 
   An event filter is an object that receives all events that are sent to
-  this object.  The filter can either stop the event or forward it to this
+  this object.	The filter can either stop the event or forward it to this
   object.  The event filter object receives events via the eventFilter()
   function.  The eventFilter() function must return TRUE if the event
   should be stopped, or FALSE if the event should be dispatched normally.
@@ -882,26 +888,26 @@ void QObject::removeChild( QObject *obj )
     class MyWidget : public QWidget
     {
     public:
-        MyWidget::MyWidget( QWidget *parent=0, const char *name=0 );
+	MyWidget::MyWidget( QWidget *parent=0, const char *name=0 );
     protected:
-        bool  eventFilter( QObject *, QEvent * );
+	bool  eventFilter( QObject *, QEvent * );
     };
 
     MyWidget::MyWidget( QWidget *parent, const char *name )
-        : QWidget( parent, name )
+	: QWidget( parent, name )
     {
-        if ( parent )				// has a child widget
+	if ( parent )				// has a child widget
 	    parent->installEventFilter( this ); // then install filter
     }
 
     bool MyWidget::eventFilter( QObject *, QEvent *e )
     {
-        if ( e->type() == Event_KeyPress ) {	// key press
+	if ( e->type() == Event_KeyPress ) {	// key press
 	    QKeyEvent *k = (QKeyEvent*)e;
 	    debug( "Ate key press %d", k->key() );
 	    return TRUE;			// eat event
-        }
-        return FALSE;				// standard event processing
+	}
+	return FALSE;				// standard event processing
     }
   \endcode
 
@@ -1041,19 +1047,19 @@ static void err_member_notfound( int code, QObject *object, const char *member,
     class MyWidget : public QWidget
     {
     public:
-        MyWidget();
+	MyWidget();
     ...
     signals:
-        void aSignal(int);
+	void aSignal(int);
     ...
     private:
     ...
-        QPushButton *aButton;
+	QPushButton *aButton;
     };
 
     MyWidget::MyWidget()
     {
-        aButton = new QPushButton( this );
+	aButton = new QPushButton( this );
 	connect( aButton, SIGNAL(clicked()), SIGNAL(aSignal()) );
     }
   \endcode
