@@ -132,8 +132,16 @@ QSqlDatabaseManager::QSqlDatabaseManager(QObject * parent)
 
 QSqlDatabaseManager::~QSqlDatabaseManager()
 {
-    dbDict.deleteAll();
-    drDict.deleteAll();
+    QHash<QString, QSqlDatabase *>::ConstIterator it = dbDict.constBegin();
+    while (it != dbDict.constEnd()) {
+	delete it.value();
+	++it;
+    }
+    QDriverDict::ConstIterator it2 = drDict.constBegin();
+    while (it2 != drDict.constEnd()) {
+	delete it2.value();
+	++it2;
+    }
 }
 
 /*!

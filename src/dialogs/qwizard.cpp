@@ -194,7 +194,8 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
 
 QWizard::~QWizard()
 {
-    d->pages.deleteAll();
+    while (!d->pages.isEmpty())
+	delete d->pages.takeFirst();
     delete d;
 }
 

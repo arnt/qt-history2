@@ -339,7 +339,8 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *pwd
     NavDisposeReply(&ret);
     if(selectedFilter) 
 	*selectedFilter = filts.at(t.index)->filter;
-    filts.deleteAll();
+    while (!filts.isEmpty())
+	delete filts.takeFirst();
     return retstrl;
 }
 
@@ -456,7 +457,8 @@ QString QFileDialog::macGetSaveFileName(const QString &start, const QString &fil
     NavDisposeReply(&ret);
     if(selectedFilter) 
 	*selectedFilter = filts.at(t.index)->filter;
-    filts.deleteAll();
+    while (!filts.isEmpty())
+	delete filts.takeFirst();
     return retstr;
 }
 

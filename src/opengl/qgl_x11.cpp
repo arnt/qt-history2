@@ -71,20 +71,21 @@ CMapEntry::~CMapEntry()
 
 static QHash<int, CMapEntry *> *cmap_dict = 0;
 static bool mesa_gl = false;
-static QHash<int, QMap<int, QRgb> * > *qglcmap_dict = 0;
+static QHash<int, QMap<int, QRgb> > *qglcmap_dict = 0;
 
 static void cleanup_cmaps()
 {
     if (cmap_dict) {
-	cmap_dict->deleteAll();
+	QHash<int, CMapEntry *>::ConstIterator it = cmap_dict->constBegin();
+        while (it != cmap_dict->constEnd()) {
+	    delete it.value();
+            ++it;
+	}
 	delete cmap_dict;
 	cmap_dict = 0;
     }
-    if (qglcmap_dict) {
-	qglcmap_dict->deleteAll();
-	delete qglcmap_dict;
-	qglcmap_dict = 0;
-    }
+    delete qglcmap_dict;
+    qglcmap_dict = 0;
 }
 
 static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
@@ -637,20 +638,14 @@ uint QGLContext::colorIndex( const QColor& c ) const
 		     + ( bf * x->scmap.blue_mult );
 	    return p;
 	} else {
-	    if (!qglcmap_dict) {
-		qglcmap_dict = new QHash< int, QMap<int, QRgb> *>;
-	    }
-	    QHash<int, QMap<int, QRgb> *>::Iterator hit = qglcmap_dict->find((long) info->visualid);
-	    QMap<int, QRgb> *cmap = (hit != qglcmap_dict->end()) ? hit.value() : 0;
-	    if (!cmap) {
-		cmap = new QMap<int, QRgb>;
-		qglcmap_dict->insert((long) info->visualid, cmap);
-	    }
+	    if (!qglcmap_dict)
+		qglcmap_dict = new QHash<int, QMap<int, QRgb> >;
+	    QMap<int, QRgb> &cmap = (*qglcmap_dict)[(long)info->visualid];
 
 	    // already in the map?
 	    QRgb target = c.rgb();
-	    QMap<int, QRgb>::Iterator it = cmap->begin();
-	    for (; it != cmap->end(); ++it) {
+	    QMap<int, QRgb>::Iterator it = cmap.begin();
+	    for (; it != cmap.end(); ++it) {
 		if ((*it) == target)
 		    return it.key();
 	    }
@@ -670,7 +665,7 @@ uint QGLContext::colorIndex( const QColor& c ) const
 	    col.blue  = (ushort)((qBlue(c.rgb()) / 255.0) * 65535.0 + 0.5);
 	    XStoreColor(QX11Info::appDisplay(), x->cmap, &col);
 
-	    cmap->insert(color_map_entry, target);
+	    cmap.insert(color_map_entry, target);
 	    return color_map_entry;
 	}
     }

@@ -865,8 +865,8 @@ void QNetworkProtocol::clearOperationQueue()
 {
     if (!d->operationQueue.isEmpty())
 	d->operationQueue.removeFirst();
-    d->operationQueue.deleteAll();
-    d->operationQueue.clear();
+    while (!d->operationQueue.isEmpty())
+	delete d->operationQueue.takeFirst();
 }
 
 /*!
