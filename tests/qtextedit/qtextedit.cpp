@@ -58,7 +58,7 @@ void QTextEdit::init()
     setHScrollBarMode( AlwaysOff );
     setVScrollBarMode( AlwaysOn );
     viewport()->setMouseTracking( TRUE );
-    viewport()->setCursor( ibeamCursor );
+    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
     viewport()->setFocusPolicy( WheelFocus );
 
     cursor = new QTextCursor( doc );
@@ -154,7 +154,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	return;
     }
 
-    
+
     bool selChanged = FALSE;
     for ( int i = 1; i < doc->numSelections; ++i ) // start with 1 as we don't want to remove the Standard-Selection
 	selChanged = doc->removeSelection( i ) || selChanged;
@@ -584,16 +584,19 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 	oldMousePos = mousePos;
     }
 
-    if ( isReadOnly() ) {
+    if ( isReadOnly() && linksEnabled() ) {
 	QTextCursor c = *cursor;
 	placeCursor( e->pos(), &c );
 	if ( c.parag() && c.parag()->at( c.index() ) &&
 	     c.parag()->at( c.index() )->format()->isAnchor() ) {
 	    viewport()->setCursor( pointingHandCursor );
 	    onLink = c.parag()->at( c.index() )->format()->anchorHref();
+	    QUrl u( doc->context(), onLink, TRUE );
+	    emit highlighted( u.toString() );
 	} else {
-	    viewport()->setCursor( arrowCursor );
+	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 	    onLink = QString::null;
+	    emit highlighted( QString::null );
 	}
     }
 }
@@ -619,9 +622,9 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
     updateCurrentFormat();
     inDoubleClick = FALSE;
 
-    if ( onLink ) {
+    if ( !onLink.isEmpty() && linksEnabled() ) {
 	QUrl u( doc->context(), onLink, TRUE );
-	emit highlighted( u.toString() );
+	emit linkClicked( u.toString() );
     }
     drawCursor( TRUE );
 }
@@ -1647,4 +1650,14 @@ void QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
     default:
 	break;
     }
+}
+
+QString QTextEdit::context() const
+{
+    return doc->context();
+}
+
+QString QTextEdit::documentTitle() const
+{
+    return QString::null;
 }

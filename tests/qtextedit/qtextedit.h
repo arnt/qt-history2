@@ -89,6 +89,10 @@ public:
     bool hasSelectedText() const;
     QString selectedText() const;
 
+    QString context() const;
+
+    QString documentTitle() const;
+    
 public slots:
     virtual void undo();
     virtual void redo();
@@ -136,6 +140,7 @@ signals:
     void currentAlignmentChanged( int );
     void textChanged();
     void highlighted( const QString& );
+    void linkClicked( const QString& );
 
 protected:
     void setFormat( QTextFormat *f, int flags );
@@ -199,6 +204,7 @@ private:
 
 private:
     virtual bool isReadOnly() const { return FALSE; }
+    virtual bool linksEnabled() const { return TRUE; }
     void init();
     void ensureCursorVisible();
     void drawCursor( bool visible );
@@ -212,7 +218,7 @@ private:
     void repaintChanged();
     void updateCurrentFormat();
     void handleReadOnlyKeyEvent( QKeyEvent *e );
-    
+
 private:
     QTextDocument *doc;
     QTextCursor *cursor;

@@ -1209,6 +1209,7 @@ void QTextDocument::load( const QString &fn, bool tabify )
 
 void QTextDocument::setText( const QString &text, const QString &context, bool tabify )
 {
+    removeSelection( Standard );
     if ( txtFormat == Qt::AutoText && QStyleSheet::mightBeRichText( text ) ||
 	 txtFormat == Qt::RichText )
 	setRichText( text, context );

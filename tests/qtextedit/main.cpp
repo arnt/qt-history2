@@ -13,6 +13,9 @@
 #include <qprinter.h>
 #include <qpaintdevicemetrics.h>
 
+#include "qtextbrowser.h"
+#include "qtextview.h"
+
 //#define CPP_EDITOR
 //#define SPELL_CHECKER
 
@@ -36,10 +39,10 @@ class SimpleText : public QWidget
 {
 public:
     SimpleText() : QWidget() {
-	QFile f( "/home/reggie/troll/qt/doc/html/qcheckbox.html" );
+	QFile f( "/home/reggie/tmp/release/qt-2.2.0/doc/html/qcheckbox.html" );
 	f.open( IO_ReadOnly );
 	QTextStream ts( &f );
-	s = new QSimpleRichText( ts.read(), QApplication::font(), "/home/reggie/troll/qt/doc/html/qcheckbox.html" ); }
+	s = new QSimpleRichText( ts.read(), QApplication::font(), "/home/reggie/tmp/release/qt-2.2.0/doc/html/qcheckbox.html" ); }
 protected:
     void paintEvent( QPaintEvent *e ) {
 	QPainter p( this );
@@ -60,11 +63,11 @@ protected:
 		       metrics.width()-margin*dpix/72*2,
 		       metrics.height()-margin*dpiy/72*2 );
 	    QFont font("times", 10);
-	    QFile f( "/home/reggie/troll/qt/doc/html/qcheckbox.html" );
+	    QFile f( "/home/reggie/tmp/release/qt-2.2.0/doc/html/qcheckbox.html" );
 	    f.open( IO_ReadOnly );
 	    QTextStream ts( &f );
 	    QSimpleRichText richText( ts.read(), QFont( "times", 10 ),
-				      "/home/reggie/troll/qt/doc/html/qcheckbox.html", QStyleSheet::defaultSheet(),
+				      "/home/reggie/tmp/release/qt-2.2.0/doc/html/qcheckbox.html", QStyleSheet::defaultSheet(),
 				      QMimeSourceFactory::defaultFactory(), body.height() );
 	    richText.setWidth( &p, body.width() );
 	    QRect view( body );
@@ -381,6 +384,11 @@ int main( int argc, char ** argv )
     t.resize ( 100, 100 );
     t.show();
 
+    QTextBrowser b;
+    b.mimeSourceFactory()->setFilePath( "/home/reggie/tmp/release/qt-2.2.0/doc/html" );
+    b.setSource( "qcheckbox.html" );
+    b.show();
+    
     return a.exec();
 }
 
