@@ -40,7 +40,7 @@
     Thanks to \l QStyleOption, it is now possible to make \l QStyle draw
     widgets without linking in any code for the widget. This is how
     Qt's built-in styles can draw Qt 3 compatibility widgets such as
-    Q3ListView without necessarily linking against the \l QtCompat
+    Q3ListView without necessarily linking against the Qt3Support
     library. Another significant benefit of the new approach is that
     it's now possible to use \l{QStyle}'s draw functions on other
     widgets than the built-in widgets; for example, you can draw a

@@ -66,7 +66,7 @@
 
     \section1 Getting Started with Qt 4
 
-    This document covers the most important differences between Qt 3 and
+    This section covers the most important differences between Qt 3 and
     Qt 4. Although it is not intended to be a comprehensive porting
     guide, it tells you about the most important portability issues that
     you may encounter. It also explains how to turn on Qt 3 compatibility
@@ -87,7 +87,7 @@
     \o \bold{QtOpenGL}: OpenGL module
     \o \bold{QtSql}: SQL module
     \o \bold{QtXml}: XML module
-    \o \bold{Qt3Compat}: Qt 3 compatibility classes (see \l{Qt 3 Compatibility} below)
+    \o \bold{Qt3Support}: Qt 3 support classes (see \l{Qt 3 Compatibility} below)
     \endlist
 
     QtCore contains tool classes like QString, QList, and QFile, as
@@ -117,7 +117,7 @@
     to your .pro file. To enable the other libraries, add the line
 
     \code
-        QT += network opengl sql compat
+        QT += network opengl sql qt3support
     \endcode
 
     Another change to the build system is that moc now understands
@@ -291,7 +291,7 @@
     \l{QWidget::paintEvent()}{paintEvent()} on Windows, X11, and
     Qt/Embedded.
 
-    \section2 Qt 3 Compatibility
+    \section2 Qt 3 Support Layer
 
     Qt 4 provides an extension library that applications based on Qt 3
     can link against. This allows for more compatibility than ever
@@ -306,7 +306,7 @@
         implemented inline, so that they don't bloat the Qt libraries.
     \endlist
 
-    To enable the compatibility classes and functions, add the line
+    To enable the Qt 3 support classes and functions, add the line
 
     \code
         QT += compat
@@ -319,22 +319,22 @@
     off that warning, add the line
 
     \code
-        DEFINES += QT_COMPAT
+        DEFINES += QT3_SUPPORT
     \endcode
 
     to your \c .pro file.
 
     If you want to use compatibility functions but don't want to link
-    against the compatibility library, add the line
+    against the Qt3Support library, add the line
 
     \code
-        DEFINES += QT_COMPAT_WARNINGS
+        DEFINES += QT3_SUPPORT_WARNINGS
     \endcode
 
     or
 
     \code
-        DEFINES += QT_COMPAT
+        DEFINES += QT3_SUPPORT
     \endcode
 
     to your \c .pro file, depending on whether you want compatibility
