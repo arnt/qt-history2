@@ -4,6 +4,8 @@
 
 MainWindow::MainWindow()
 {
+    setAttribute(Qt::WA_DeleteOnClose);
+
     textEdit = new QTextEdit(this);
     setCentralWidget(textEdit);
 
@@ -44,10 +46,8 @@ void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 
 void MainWindow::newFile()
 {
-    if (maybeSave()) {
-        textEdit->clear();
-        setCurrentFile("");
-    }
+    MainWindow *other = new MainWindow;
+    other->show();
 }
 
 void MainWindow::open()
@@ -125,15 +125,15 @@ void MainWindow::createActions()
     saveAsAct->setStatusTip(tr("Save the spreadsheet under a new name"));
     connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
 
-    exitAct = new QAction(tr("&Close"), this);
-    exitAct->setShortcut(tr("Ctrl+W"));
-    exitAct->setStatusTip(tr("Close this window"));
-    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+    closeAct = new QAction(tr("&Close"), this);
+    closeAct->setShortcut(tr("Ctrl+W"));
+    closeAct->setStatusTip(tr("Close this window"));
+    connect(closeAct, SIGNAL(triggered()), this, SLOT(close()));
 
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     exitAct->setStatusTip(tr("Exit the application"));
-    connect(exitAct, SIGNAL(triggered()), this, SLOT(exit()));
+    connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
     cutAct = new QAction(QIconSet(QPixmap("images/cut.png")), tr("Cu&t"), this);
     cutAct->setShortcut(tr("Ctrl+X"));
