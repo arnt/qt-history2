@@ -748,13 +748,13 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
                         className = QString::number(LOWORD(lpcs->lpszClass), 16);
                     else                              // String
                         className = QString((QChar*)lpcs->lpszClass,
-                                            wcslen(reinterpret_cast<const wchar_t *>(lpcs->lpszClass)));
+                                            (int)wcslen(reinterpret_cast<const wchar_t *>(lpcs->lpszClass)));
                 }
 
                 QString windowName;
                 if (lpcs->lpszName != 0)
                     windowName = QString((QChar*)lpcs->lpszName,
-                                         wcslen(reinterpret_cast<const wchar_t *>(lpcs->lpszName)));
+                                         (int)wcslen(reinterpret_cast<const wchar_t *>(lpcs->lpszName)));
 
                 parameters.sprintf("x,y(%4d,%4d) w,h(%4d,%4d) className(%s) windowName(%s) parent(0x%08x) style(%s) exStyle(%s)",
                                     lpcs->x, lpcs->y, lpcs->cx, lpcs->cy, className.latin1(), windowName.latin1(),
@@ -944,7 +944,7 @@ Q_CORE_EXPORT QString decodeMSG(const MSG& msg)
 #endif
 #ifdef WM_SETTEXT
         case WM_SETTEXT:
-            parameters.sprintf("Set Text (%s)", QString((QChar*)lParam, wcslen(reinterpret_cast<const wchar_t *>(lParam))).latin1()); //Unicode string
+            parameters.sprintf("Set Text (%s)", QString((QChar*)lParam, (int)wcslen(reinterpret_cast<const wchar_t *>(lParam))).latin1()); //Unicode string
             break;
 #endif
 #ifdef WM_SIZE

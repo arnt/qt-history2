@@ -1848,7 +1848,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
             if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
 	        QString indeps;
                 while(!feof(proc)) {
-                    int read_in = fread(buff, 1, 255, proc);
+                    int read_in = (int)fread(buff, 1, 255, proc);
                     if(!read_in)
                         break;
                     indeps += QByteArray(buff, read_in);

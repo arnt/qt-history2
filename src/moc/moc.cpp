@@ -112,7 +112,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
 // only moc needs this function
 QByteArray normalizeType(const char *s, bool fixScope)
 {
-    int len = strlen(s);
+    int len = qstrlen(s);
     char stackbuf[64];
     char *buf = (len >= 64 ? new char[len] : stackbuf);
     char *d = buf;

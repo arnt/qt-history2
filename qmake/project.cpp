@@ -2033,7 +2033,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     char buff[256];
                     FILE *proc = QT_POPEN(arg_list.join(" ").latin1(), "r");
                     while(proc && !feof(proc)) {
-                        int read_in = fread(buff, 1, 255, proc);
+                        int read_in = (int)fread(buff, 1, 255, proc);
                         if(!read_in)
                             break;
                         for(int i = 0; i < read_in; i++) {

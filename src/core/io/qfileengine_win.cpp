@@ -518,7 +518,7 @@ QFSFileEngine::currentPath(const QString &fileName)
             QT_WA({
                 TCHAR buf[PATH_MAX];
                 ::_wgetdcwd(drv, buf, PATH_MAX);
-                ret.setUtf16((ushort*)buf, ::wcslen(buf));
+                ret.setUtf16((ushort*)buf, uint(::wcslen(buf)));
             }, {
                 char buf[PATH_MAX];
                 ::_getdcwd(drv, buf, PATH_MAX);
@@ -1147,6 +1147,8 @@ QFSFileEngine::owner(FileOwner own) const
 	}
 	return name;
     }
+#else
+    Q_UNUSED(own);
 #endif
     return QString("");
 }

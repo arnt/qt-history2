@@ -658,8 +658,8 @@ bool QMetaObject::checkConnectArgs(const char *signal, const char *member)
     while (*s2++ != '(') { }
     if (*s2 == ')' || qstrcmp(s1,s2) == 0)        // member has no args or
         return true;                                //   exact match
-    int s1len = strlen(s1);
-    int s2len = strlen(s2);
+    int s1len = qstrlen(s1);
+    int s2len = qstrlen(s2);
     if (s2len < s1len && strncmp(s1,s2,s2len-1)==0 && s1[s2len-1]==',')
         return true;                                // member has less args
     return false;
@@ -786,7 +786,7 @@ QByteArray QMetaObject::normalizedSignature(const char *member)
     const char *s = member;
     if (!s || !*s)
         return "";
-    int len = strlen(s);
+    int len = qstrlen(s);
     char stackbuf[64];
     char *buf = (len >= 64 ? new char[len+1] : stackbuf);
     char *d = buf;
