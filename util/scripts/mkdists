@@ -277,7 +277,7 @@ if [ -z $LOCAL_TREE ]; then
     $P4 -s -c $tmpclient sync -f $DISTDIR/qt/...${checkoutlabel} >/dev/null 2>&1
 else
     status "Copying Qt depot.."
-    [ ! -d $DISTDIR/qt ] && mkdir -p $DISTDIR/qt
+    [ ! -d $DISTDIR ] && mkdir -p $DISTDIR
     cp -ar $LOCAL_TREE $DISTDIR/qt
 fi
 
