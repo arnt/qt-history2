@@ -38,6 +38,7 @@
 #include "qsocket.h"
 #ifndef QT_NO_NETWORK
 #include "qptrlist.h"
+#include "qtimer.h"
 #include "qsocketdevice.h"
 #include "qdns.h"
 
@@ -1175,6 +1176,11 @@ void QSocket::sn_write()
     flush();
 }
 
+void QSocket::emitErrorConnectionRefused()
+{
+    emit error( ErrConnectionRefused );
+}
+
 void QSocket::tryConnection()
 {
     if ( d->socket->connect( d->addr, d->port ) ) {
@@ -1188,7 +1194,7 @@ void QSocket::tryConnection()
 	emit connected();
     } else {
 	d->state = Idle;
-	emit error( ErrConnectionRefused );
+	QTimer::singleShot( 0, this, SLOT(emitErrorConnectionRefused()) );
 	return;
     }
 }

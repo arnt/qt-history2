@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QSocket class.
 **
@@ -128,6 +128,7 @@ protected slots:
 
 private slots:
     void	tryConnecting();
+    void	emitErrorConnectionRefused();
 
 private:
     QSocketPrivate *d;
