@@ -220,6 +220,7 @@ bool QNonRecursiveMutexPrivate::trylock()
 
     if (threadID == GetCurrentThreadId()) {
 	// locked by this thread already, return FALSE
+	protect.leave();
 	return FALSE;
     }
 
