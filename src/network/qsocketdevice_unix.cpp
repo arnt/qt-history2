@@ -96,10 +96,10 @@ void QSocketDevice::init()
 }
 
 /*!
-  Creates a new socket identifier. Returns -1 if there is a failure to
-  create the new identifier, error() explains why.
+    Creates a new socket identifier. Returns -1 if there is a failure
+    to create the new identifier; error() explains why.
 
-  \sa setSocket()
+    \sa setSocket()
 */
 
 int QSocketDevice::createNewSocket ()
@@ -133,17 +133,18 @@ int QSocketDevice::createNewSocket ()
     return -1;
 }
 
-/*! \reimp
+/*!
+    \reimp
 
-  Closes the socket and sets the socket identifier to -1 (invalid).
+    Closes the socket and sets the socket identifier to -1 (invalid).
 
-  (This function ignores errors; if there are any then a file
-  descriptor leakage might result.  As far as we know, the only error
-  that can arise is EBADF, and that would of course not cause leakage.
-  There may be OS-specfic errors that we haven't come across,
-  however.)
+    (This function ignores errors; if there are any then a file
+    descriptor leakage might result. As far as we know, the only error
+    that can arise is EBADF, and that would of course not cause
+    leakage. There may be OS-specfic errors that we haven't come
+    across, however.)
 
-  \sa open()
+    \sa open()
 */
 void QSocketDevice::close()
 {
@@ -161,15 +162,15 @@ void QSocketDevice::close()
 
 
 /*!
-  Returns TRUE if the socket is in blocking mode, or FALSE if it
-  is in nonblocking mode or if the socket is invalid.
+    Returns TRUE if the socket is valid and in blocking mode;
+    otherwise returns FALSE.
 
-  Note that this function does not set error().
+    Note that this function does not set error().
 
-  \warning On Windows, this function always returns TRUE since the
-  ioctlsocket() function is broken.
+    \warning On Windows, this function always returns TRUE since the
+    ioctlsocket() function is broken.
 
-  \sa setBlocking(), isValid()
+    \sa setBlocking(), isValid()
 */
 bool QSocketDevice::blocking() const
 {
@@ -181,18 +182,18 @@ bool QSocketDevice::blocking() const
 
 
 /*!
-  Makes the socket blocking if \a enable is TRUE or nonblocking if
-  \a enable is FALSE.
+    Makes the socket blocking if \a enable is TRUE or nonblocking if
+    \a enable is FALSE.
 
-  Sockets are blocking by default, but we recommend using
-  nonblocking socket operations, especially for GUI programs that need
-  to be responsive.
+    Sockets are blocking by default, but we recommend using
+    nonblocking socket operations, especially for GUI programs that
+    need to be responsive.
 
-  \warning On Windows, this function should be used with care since whenever
-  you use a QSocketNotifier on Windows, the socket is immediately made
-  nonblocking.
+    \warning On Windows, this function should be used with care since
+    whenever you use a QSocketNotifier on Windows, the socket is
+    immediately made nonblocking.
 
-  \sa blocking(), isValid()
+    \sa blocking(), isValid()
 */
 void QSocketDevice::setBlocking( bool enable )
 {
@@ -231,7 +232,7 @@ void QSocketDevice::setBlocking( bool enable )
 
 
 /*!
-  Returns the value of the socket option \a opt.
+    Returns the value of the socket option \a opt.
 */
 int QSocketDevice::option( Option opt ) const
 {
@@ -281,7 +282,7 @@ int QSocketDevice::option( Option opt ) const
 
 
 /*!
-  Sets the socket option \a opt to \a v.
+    Sets the socket option \a opt to \a v.
 */
 void QSocketDevice::setOption( Option opt, int v )
 {
@@ -323,13 +324,13 @@ void QSocketDevice::setOption( Option opt, int v )
 
 
 /*!
-  Connects to the IP address and port specified by \a addr and \a port.
-  Returns TRUE if it establishes a connection, and FALSE if not.  error()
-  explains why.
+    Connects to the IP address and port specified by \a addr and \a
+    port. Returns TRUE if it establishes a connection; otherwise returns FALSE.
+    If it returns FALSE, error() explains why.
 
-  Note that error() commonly returns NoError for non-blocking sockets;
-  this just means that you can call connect() again in a little while
-  and it'll probably succeed.
+    Note that error() commonly returns NoError for non-blocking
+    sockets; this just means that you can call connect() again in a
+    little while and it'll probably succeed.
 */
 bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
@@ -391,13 +392,13 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 
 
 /*!
-  Assigns a name to an unnamed socket. The name is the host address \a address
-  and the port number \a port. If the operation succeeds, bind() returns TRUE.
-  Otherwise, it returns FALSE without changing what port() and address()
-  return.
+    Assigns a name to an unnamed socket. The name is the host address
+    \a address and the port number \a port. If the operation succeeds,
+    bind() returns TRUE; otherwise it returns FALSE without changing
+    what port() and address() return.
 
-  bind() is used by servers for setting up incoming connections.
-  Call bind() before listen().
+    bind() is used by servers for setting up incoming connections.
+    Call bind() before listen().
 */
 bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 {
@@ -451,15 +452,16 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 
 
 /*!
-  Specifies how many pending connections a server socket can have.
-  Returns TRUE if the operation was successful, otherwise FALSE.
+    Specifies how many pending connections a server socket can have.
+    Returns TRUE if the operation was successful; otherwise returns
+    FALSE.
 
-  The listen() call only applies to sockets where type() is \c Stream,
-  not \c Datagram sockets.  listen() must not be called before bind()
-  or after accept().  It is common to use a \a backlog value of 50 on
-  most Unix systems.
+    The listen() call only applies to sockets where type() is \c
+    Stream, i.e. not to \c Datagram sockets. listen() must not be
+    called before bind() or after accept(). It is common to use a \a
+    backlog value of 50 on most Unix systems.
 
-  \sa bind(), accept()
+    \sa bind(), accept()
 */
 bool QSocketDevice::listen( int backlog )
 {
@@ -474,11 +476,11 @@ bool QSocketDevice::listen( int backlog )
 
 
 /*!
-  Extracts the first connection from the queue of pending connections
-  for this socket and returns a new socket identifier.  Returns -1
-  if the operation failed.
+    Extracts the first connection from the queue of pending
+    connections for this socket and returns a new socket identifier.
+    Returns -1 if the operation failed.
 
-  \sa bind(), listen()
+    \sa bind(), listen()
 */
 int QSocketDevice::accept()
 {
@@ -537,15 +539,15 @@ int QSocketDevice::accept()
 
 
 /*!
-  Returns the number of bytes available for reading, or -1 if an
-  error occurred.
+    Returns the number of bytes available for reading, or -1 if an
+    error occurred.
 
-  \warning On Microsoft Windows, we use the ioctlsocket() function
-  to determine the number of bytes queued on the socket.
-  According to Microsoft (KB Q125486), ioctlsocket() sometimes
-  return an incorrect number.  The only safe way to determine the
-  amount of data on the socket is to read it using readBlock().
-  QSocket has workarounds to deal with this problem.
+    \warning On Microsoft Windows, we use the ioctlsocket() function
+    to determine the number of bytes queued on the socket. According
+    to Microsoft (KB Q125486), ioctlsocket() sometimes returns an
+    incorrect number. The only safe way to determine the amount of
+    data on the socket is to read it using readBlock(). QSocket has
+    workarounds to deal with this problem.
 */
 Q_LONG QSocketDevice::bytesAvailable() const
 {
@@ -560,21 +562,22 @@ Q_LONG QSocketDevice::bytesAvailable() const
 
 
 /*!
-  Wait up to \a msecs milliseconds for more data to be available.
-  If \a msecs is -1 the call will block indefinitely.
+    Wait up to \a msecs milliseconds for more data to be available. If
+    \a msecs is -1 the call will block indefinitely.
 
-  This is a blocking call and should be avoided in event driven
-  applications.
+    Returns the number of bytes available for reading, or -1 if an
+    error occurred.
 
-  Returns the number of bytes available for reading, or -1 if an
-  error occurred.
+    If \a timeout is non-null and no error occurred (i.e. it does not
+    return -1): this function sets \a *timeout to TRUE, if the reason
+    for returning was that the timeout was reached; otherwise it sets
+    \a *timeout to FALSE. This is useful to find out if the peer
+    closed the connection.
 
-  If \a timeout is non-null and no error occurred (i.e. it does not return -1),
-  then this function sets \a timeout out to TRUE, if the reason for returning
-  was that the timeout was reached, otherwise it sets \a timeout to FALSE. This
-  is useful to find out if the peer closed the connection.
+    \warning This is a blocking call and should be avoided in event
+    driven applications.
 
-  \sa bytesAvailable()
+    \sa bytesAvailable()
 */
 Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
 {
@@ -607,8 +610,8 @@ Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
 
 
 /*!
-  Reads max \a maxlen bytes from the socket into \a data and returns
-  the number of bytes read.  Returns -1 if an error occurred.
+    Reads \a maxlen bytes from the socket into \a data and returns the
+    number of bytes read. Returns -1 if an error occurred.
 */
 Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 {
@@ -687,10 +690,10 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 
 
 /*!
-  Writes \a len bytes to the socket from \a data and returns
-  the number of bytes written.  Returns -1 if an error occurred.
+    Writes \a len bytes to the socket from \a data and returns the
+    number of bytes written. Returns -1 if an error occurred.
 
-  This is used for \c QSocketDevice::Stream sockets.
+    This is used for \c QSocketDevice::Stream sockets.
 */
 Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 {
@@ -759,12 +762,14 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
 }
 
 
-/*!  \overload
-  Writes \a len bytes to the socket from \a data and returns
-  the number of bytes written.  Returns -1 if an error occurred.
+/*!
+    \overload
 
-  This is used for \c QSocketDevice::Datagram sockets. You have to specify the
-  \a host and \a port of the destination of the data.
+    Writes \a len bytes to the socket from \a data and returns the
+    number of bytes written. Returns -1 if an error occurred.
+
+    This is used for \c QSocketDevice::Datagram sockets. You must
+    specify the \a host and \a port of the destination of the data.
 */
 Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 			       const QHostAddress & host, Q_UINT16 port )
@@ -856,8 +861,8 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 
 
 /*!
-  Fetches information about both ends of the connection - whatever
-  is available.
+    Fetches information about both ends of the connection: whatever is
+    available.
 */
 void QSocketDevice::fetchConnectionParameters()
 {
@@ -884,12 +889,12 @@ void QSocketDevice::fetchConnectionParameters()
 
 
 /*!
-  Returns the port number of the port this socket device is connected to. This
-  may be 0 for a while, but is set to something sensible when there is a
-  sensible value it can have.
+    Returns the port number of the port this socket device is
+    connected to. This may be 0 for a while, but is set to something
+    sensible as soon as a sensible value is available.
 
-  Note that for Datagram sockets, this is the source port of the last packet
-  received.
+    Note that for Datagram sockets, this is the source port of the
+    last packet received.
 */
 Q_UINT16 QSocketDevice::peerPort() const
 {
@@ -898,12 +903,12 @@ Q_UINT16 QSocketDevice::peerPort() const
 
 
 /*!
-  Returns the address of the port this socket device is connected to. This may
-  be 0.0.0.0 for a while, but is set to something sensible when there is a
-  sensible value it can have.
+    Returns the address of the port this socket device is connected
+    to. This may be 0.0.0.0 for a while, but is set to something
+    sensible as soon as a sensible value is available.
 
-  Note that for Datagram sockets, this is the source port of the last
-  packet received, and that it is in native byte order.
+    Note that for Datagram sockets, this is the source port of the
+    last packet received, and that it is in native byte order.
 */
 QHostAddress QSocketDevice::peerAddress() const
 {

@@ -47,12 +47,13 @@
 
 /*! \file qnetwork.h */
 /*!
-  \relates QUrlOperator
+    \relates QUrlOperator
 
-  This function registers the network protocols for FTP and HTTP. You have to
-  call this function before you use QUrlOperator for these protocols.
+    This function registers the network protocols for FTP and HTTP.
+    You must call this function before you use QUrlOperator for
+    these protocols.
 
-  This function is declared in \l qnetwork.h.
+    This function is declared in \l qnetwork.h.
 */
 void qInitNetworkProtocols()
 {

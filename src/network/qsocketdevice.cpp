@@ -53,74 +53,77 @@ public:
 
 
 /*!
-  \class QSocketDevice qsocketdevice.h
+    \class QSocketDevice qsocketdevice.h
+    \brief The QSocketDevice class provides a platform-independent low-level socket API.
+
     \ingroup io
-  \brief The QSocketDevice class provides a platform-independent low-level socket API.
+    \module network
 
-  \module network
+    \preliminary
 
-  This class is not really intended for use outside Qt.  It can be used
-  to achieve some things that QSocket does not provide, but it's
-  not particularly easy to understand or use.
+    This class is not really intended for use outside Qt itself. It
+    can be used to achieve some things that QSocket does not provide,
+    but it's not particularly easy to understand or use.
 
-  The essential purpose of the class is to provide a QIODevice that works
-  on sockets, wrapped in a platform-independent API.
+    The essential purpose of the class is to provide a QIODevice that
+    works on sockets, wrapped in a platform-independent API.
 
-  \sa QSocket, QSocketNotifier, QHostAddress
+    \sa QSocket, QSocketNotifier, QHostAddress
 */
 
-/*! \enum QSocketDevice::Error
+/*!
+    \enum QSocketDevice::Error
 
-  This enum type describes the error states of QSocketDevice.  At present these
-  errors are defined:
+    This enum type describes the error states of QSocketDevice.
 
-  \value NoError  all is fine.
+    \value NoError  No error has occurred.
 
-  \value AlreadyBound  bind() said so.
+    \value AlreadyBound  The device is already bound, according to bind().
 
-  \value Inaccessible  the operating system or firewall prohibits something.
+    \value Inaccessible  The operating system or firewall prohibited
+			the action.
 
-  \value NoResources  the operating system ran out of something.
+    \value NoResources  The operating system ran out of a resource.
 
-  \value Bug  there seems to be a bug in QSocketDevice.
+    \value Bug  An internal error occurred in QSocketDevice.
 
-  \value Impossible  the impossible happened, usually because you confused
-  QSocketDevice horribly.  Simple example:
-  \code
-  ::close( sd->socket() );
-  sd->writeBlock( someData, 42 );
-  \endcode
-  The libc ::close() closes the socket, but QSocketDevice is not aware
-  of this.  So when you call writeBlock(), the impossible happens.
+    \value Impossible  An attempt was made to do something which makes
+    no sense. For example:
+    \code
+    ::close( sd->socket() );
+    sd->writeBlock( someData, 42 );
+    \endcode
+    The libc ::close() closes the socket, but QSocketDevice is not aware
+    of this. So when you call writeBlock(), the impossible happens.
 
-  \value NoFiles  the operating system will not let QSocketDevice open
-  another file.
+    \value NoFiles  The operating system will not let QSocketDevice open
+    another file.
 
-  \value ConnectionRefused  a connection attempt was rejected by the
-  peer.
+    \value ConnectionRefused  A connection attempt was rejected by the
+    peer.
 
-  \value NetworkFailure  there is a network failure between this host
-  and... and whatever.
+    \value NetworkFailure  There is a network failure.
 
-  \value UnknownError  the operating system reacted in a way that the
-  Qt developers did not foresee.
+    \value UnknownError  The operating system did something
+    unexpected.
 */
 
-/*! \enum QSocketDevice::Type
+/*!
+    \enum QSocketDevice::Type
 
-  This enum type describes the type of the socket:
-  \value Stream  a stream socket (TCP, usually)
-  \value Datagram  a datagram socket (UDP, usually)
+    This enum type describes the type of the socket:
+    \value Stream  a stream socket (TCP, usually)
+    \value Datagram  a datagram socket (UDP, usually)
 */
 
 
 /*!
-  Creates a QSocketDevice object for the existing socket \a socket.
+    Creates a QSocketDevice object for the existing socket \a socket.
 
-  The \a type argument must match the actual socket type; use \c
-  QSocketDevice::Stream for a reliable, connection-oriented TCP
-  socket, or \c QSocketDevice::Datagram for an unreliable,
-  connectionless UDP socket.
+    The \a type argument must match the actual socket type; use \c
+    QSocketDevice::Stream for a reliable, connection-oriented TCP
+    socket, or \c QSocketDevice::Datagram for an unreliable,
+    connectionless UDP socket.
 */
 QSocketDevice::QSocketDevice( int socket, Type type )
     : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
@@ -135,13 +138,13 @@ QSocketDevice::QSocketDevice( int socket, Type type )
 }
 
 /*!
-  Creates a QSocketDevice object for a stream or datagram socket.
+    Creates a QSocketDevice object for a stream or datagram socket.
 
-  The \a type argument must be either \c QSocketDevice::Stream for a
-  reliable, connection-oriented TCP socket, or \c
-  QSocketDevice::Datagram for an unreliable UDP socket.
+    The \a type argument must be either \c QSocketDevice::Stream for a
+    reliable, connection-oriented TCP socket, or \c
+    QSocketDevice::Datagram for an unreliable UDP socket.
 
-  \sa blocking()
+    \sa blocking()
 */
 QSocketDevice::QSocketDevice( Type type )
     : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ), d( 0 )
@@ -155,7 +158,7 @@ QSocketDevice::QSocketDevice( Type type )
 }
 
 /*!
-  Destroys the socket device and closes the socket if it is open.
+    Destroys the socket device and closes the socket if it is open.
 */
 QSocketDevice::~QSocketDevice()
 {
@@ -169,9 +172,9 @@ QSocketDevice::~QSocketDevice()
 
 
 /*!
-  Returns TRUE if this is a valid socket; otherwise returns FALSE.
+    Returns TRUE if this is a valid socket; otherwise returns FALSE.
 
-  \sa socket()
+    \sa socket()
 */
 bool QSocketDevice::isValid() const
 {
@@ -180,12 +183,12 @@ bool QSocketDevice::isValid() const
 
 
 /*!
-  \fn Type QSocketDevice::type() const
+    \fn Type QSocketDevice::type() const
 
-  Returns the socket type which is either \c QSocketDevice::Stream or
-  \c QSocketDevice::Datagram.
+    Returns the socket type which is either \c QSocketDevice::Stream
+    or \c QSocketDevice::Datagram.
 
-  \sa socket()
+    \sa socket()
 */
 QSocketDevice::Type QSocketDevice::type() const
 {
@@ -194,9 +197,9 @@ QSocketDevice::Type QSocketDevice::type() const
 
 
 /*!
-  Returns the socket number, or -1 if it is an invalid socket.
+    Returns the socket number, or -1 if it is an invalid socket.
 
-  \sa isValid(), type()
+    \sa isValid(), type()
 */
 int QSocketDevice::socket() const
 {
@@ -205,16 +208,17 @@ int QSocketDevice::socket() const
 
 
 /*!
-  Sets the socket device to operate on the existing socket \a socket.
+    Sets the socket device to operate on the existing socket \a
+    socket.
 
-  The \a type argument must match the actual socket type;
-  use \c QSocketDevice::Stream for a reliable, connection-oriented TCP
-  socket, or \c QSocketDevice::Datagram for an unreliable,
-  connectionless UDP socket.
+    The \a type argument must match the actual socket type; use \c
+    QSocketDevice::Stream for a reliable, connection-oriented TCP
+    socket, or \c QSocketDevice::Datagram for an unreliable,
+    connectionless UDP socket.
 
-  Any existing socket is closed.
+    Any existing socket is closed.
 
-  \sa isValid(), close()
+    \sa isValid(), close()
 */
 void QSocketDevice::setSocket( int socket, Type type )
 {
@@ -233,13 +237,14 @@ void QSocketDevice::setSocket( int socket, Type type )
 }
 
 
-/*! \reimp
+/*!
+    \reimp
 
-  Opens the socket using the specified QIODevice file \a mode.  This function
-  is called from the QSocketDevice constructors and from the setSocket()
-  function.  You should not call it yourself.
+    Opens the socket using the specified QIODevice file \a mode. This
+    function is called from the QSocketDevice constructors and from
+    the setSocket() function. You should not call it yourself.
 
-  \sa close().
+    \sa close().
 */
 bool QSocketDevice::open( int mode )
 {
@@ -254,18 +259,21 @@ bool QSocketDevice::open( int mode )
 }
 
 
-/*! \reimp
+/*!
+    \reimp
 
-  QSocketDevice does not buffer at all, so this is a no-op.
+    The current QSocketDevice implementation does not buffer at all,
+    so this is a no-op.
 */
 void QSocketDevice::flush()
 {
 }
 
 
-/*! \reimp
+/*!
+    \reimp
 
-  The size is meaningless for a socket, therefore this function returns 0.
+    The size is meaningless for a socket, therefore this function returns 0.
 */
 QIODevice::Offset QSocketDevice::size() const
 {
@@ -273,10 +281,11 @@ QIODevice::Offset QSocketDevice::size() const
 }
 
 
-/*! \reimp
+/*!
+    \reimp
 
-  The read/write index is meaningless for a socket, therefore
-  this function returns 0.
+    The read/write index is meaningless for a socket, therefore this
+    function returns 0.
 */
 QIODevice::Offset QSocketDevice::at() const
 {
@@ -284,10 +293,11 @@ QIODevice::Offset QSocketDevice::at() const
 }
 
 
-/*! \reimp
+/*!
+    \reimp
 
-  The read/write index is meaningless for a socket, therefore
-  this function does nothing and returns TRUE.
+    The read/write index is meaningless for a socket, therefore this
+    function does nothing and returns TRUE.
 */
 bool QSocketDevice::at( Offset )
 {
@@ -295,10 +305,11 @@ bool QSocketDevice::at( Offset )
 }
 
 
-/*! \reimp
- 
-  Returns TRUE if no data is available at the socket at the moment, otherwise
-  returns FALSE.
+/*!
+    \reimp
+
+    Returns TRUE if no data is currently available at the socket;
+    otherwise returns FALSE.
 */
 bool QSocketDevice::atEnd() const
 {
@@ -306,12 +317,13 @@ bool QSocketDevice::atEnd() const
 }
 
 
-/*! \reimp
+/*!
+    \reimp
 
-  \warning getch() is implemented as a one-byte readBlock(), so it
-  may be very slow if you call it more than a few times.
+    \warning getch() is implemented as a one-byte readBlock(), so it
+    may be very slow if you call it more than a few times.
 
-  \sa putch() readBlock()
+    \sa putch() readBlock()
 */
 int QSocketDevice::getch()
 {
@@ -320,12 +332,13 @@ int QSocketDevice::getch()
 }
 
 
-/*! \reimp
+/*!
+    \reimp
 
-  \warning putch() is implemented as a one-byte writeBlock(), so it
-  may be very slow if you call it more than a few times.
+    \warning putch() is implemented as a one-byte writeBlock(), so it
+    may be very slow if you call it more than a few times.
 
-  \sa getch()
+    \sa getch()
 */
 int QSocketDevice::putch( int ch )
 {
@@ -335,10 +348,11 @@ int QSocketDevice::putch( int ch )
 }
 
 
-/*! \reimp
+/*!
+    \reimp
 
-  This implementation of ungetch returns -1 (error).  A socket is a sequential
-  device and does not allow any ungetch operation.
+    This implementation of ungetch returns -1 (error). A socket is a
+    sequential device and does not allow any ungetch operation.
 */
 int QSocketDevice::ungetch( int )
 {
@@ -347,11 +361,11 @@ int QSocketDevice::ungetch( int )
 
 
 /*!
-  Returns TRUE if the address of this socket can be used by other
-  sockets at the same time, and FALSE if this socket claims exclusive
-  ownership.
+    Returns TRUE if the address of this socket can be used by other
+    sockets at the same time, and FALSE if this socket claims
+    exclusive ownership.
 
-  \sa setAddressReusable()
+    \sa setAddressReusable()
 */
 bool QSocketDevice::addressReusable() const
 {
@@ -360,17 +374,17 @@ bool QSocketDevice::addressReusable() const
 
 
 /*!
-  Sets the address of this socket to be usable by other sockets too
-  if \a enable is TRUE, and to be used exclusively by this socket if
-  \a enable is FALSE.
+    Sets the address of this socket to be usable by other sockets too
+    if \a enable is TRUE, and to be used exclusively by this socket if
+    \a enable is FALSE.
 
-  When a socket is reusable, other sockets can use the same port
-  number (and IP address), which is, in general, good.  Of course other
-  sockets cannot use the same (address,port,peer-address,peer-port)
-  4-tuple as this socket, so there is no risk of confusing the two TCP
-  connections.
+    When a socket is reusable, other sockets can use the same port
+    number (and IP address), which is generally useful. Of course
+    other sockets cannot use the same
+    (address,port,peer-address,peer-port) 4-tuple as this socket, so
+    there is no risk of confusing the two TCP connections.
 
-  \sa addressReusable()
+    \sa addressReusable()
 */
 void QSocketDevice::setAddressReusable( bool enable )
 {
@@ -379,9 +393,9 @@ void QSocketDevice::setAddressReusable( bool enable )
 
 
 /*!
-  Returns the size of the OS receive buffer.
+    Returns the size of the operating system receive buffer.
 
-  \sa setReceiveBufferSize()
+    \sa setReceiveBufferSize()
 */
 int QSocketDevice::receiveBufferSize() const
 {
@@ -390,14 +404,15 @@ int QSocketDevice::receiveBufferSize() const
 
 
 /*!
-  Sets the size of the OS receive buffer to \a size.
+    Sets the size of the operating system receive buffer to \a size.
 
-  The OS receive buffer size effectively limits two things: how much
-  data can be in transit at any one moment, and how much data can be
-  received in one iteration of the main event loop.
+    The operating system receive buffer size effectively limits two
+    things: how much data can be in transit at any one moment, and how
+    much data can be received in one iteration of the main event loop.
 
-  The default is OS-dependent.  A socket that receives large amounts
-  of data is probably best off with a buffer size of 49152.
+    The default is operating system-dependent. A socket that receives
+    large amounts of data is probably best with a buffer size of
+    49152.
 */
 void QSocketDevice::setReceiveBufferSize( uint size )
 {
@@ -406,9 +421,9 @@ void QSocketDevice::setReceiveBufferSize( uint size )
 
 
 /*!
-  Returns the size of the OS send buffer.
+    Returns the size of the operating system send buffer.
 
-  \sa setSendBufferSize()
+    \sa setSendBufferSize()
 */
 int QSocketDevice::sendBufferSize() const
 {
@@ -417,13 +432,14 @@ int QSocketDevice::sendBufferSize() const
 
 
 /*!
-  Sets the size of the OS send buffer to \a size.
+    Sets the size of the operating system send buffer to \a size.
 
-  The OS send buffer size effectively limits how much data can be in
-  transit at any one moment.
+    The operating system send buffer size effectively limits how much
+    data can be in transit at any one moment.
 
-  The default is OS-dependent.  A socket that sends large amounts of
-  data is probably best off with a buffer size of 49152.
+    The default is operating system-dependent. A socket that sends
+    large amounts of data is probably best with a buffer size of
+    49152.
 */
 void QSocketDevice::setSendBufferSize( uint size )
 {
@@ -432,11 +448,12 @@ void QSocketDevice::setSendBufferSize( uint size )
 
 
 /*!
-  Returns the port number of this socket device. This may be 0 for a while,
-  but is set to something sensible when there is a sensible value it can have.
+    Returns the port number of this socket device. This may be 0 for a
+    while, but is set to something sensible as soon as a sensible
+    value is available.
 
-  Note that Qt always uses native byte order, i.e. 67 is 67 in Qt, there
-  is no need to call htons().
+    Note that Qt always uses native byte order, i.e. 67 is 67 in Qt;
+    there is no need to call htons().
 */
 Q_UINT16 QSocketDevice::port() const
 {
@@ -445,8 +462,9 @@ Q_UINT16 QSocketDevice::port() const
 
 
 /*!
-  Returns the address of this socket device.  This may be 0.0.0.0 for a while,
-  but is set to something sensible when there is a sensible value it can have.
+    Returns the address of this socket device. This may be 0.0.0.0 for
+    a while, but is set to something sensible as soon as a sensible
+    value is available.
 */
 QHostAddress QSocketDevice::address() const
 {
@@ -455,7 +473,7 @@ QHostAddress QSocketDevice::address() const
 
 
 /*!
-  Returns the first error seen.
+    Returns the first error seen.
 */
 QSocketDevice::Error QSocketDevice::error() const
 {
@@ -464,7 +482,7 @@ QSocketDevice::Error QSocketDevice::error() const
 
 
 /*!
-  Allows subclasses to set the error state to \a err.
+    Allows subclasses to set the error state to \a err.
 */
 void QSocketDevice::setError( Error err )
 {
