@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#23 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#23 $";
 #endif
 
 
@@ -82,6 +82,12 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     RasterOp rop )
 {
+    if ( src->handle() == 0 ) {
+#if defined(CHECK_NULL)
+	warning( "bitBlt: Cannot bitBlt from device" );
+#endif
+	return;
+    }
     int ts = src->devType();			// from device type
     int td = dst->devType();			// to device type
     Display *dpy = src->display();
@@ -91,7 +97,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( sh <= 0 )				// use device height
 	sh = src->metric( PDM_HEIGHT );
 
-    if ( src->paintingActive() && dst->isExtDev() ) {
+    if ( dst->paintingActive() && dst->isExtDev() ) {
 	QPixmap *pm;				// output to picture/printer
 	if ( ts == PDT_PIXMAP )
 	    pm = (QPixmap*)src;
@@ -102,7 +108,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
 	else {
 #if defined(CHECK_RANGE)
-	    warning( "QPaintDevice::bitBlt: Cannot bitBlt from device" );
+	    warning( "bitBlt: Cannot bitBlt from device" );
 #endif
 	    return;
 	}
@@ -120,7 +126,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( !(ts <= PDT_PIXMAP && td <= PDT_PIXMAP) ) {
 #if defined(CHECK_RANGE)
-	warning( "QPaintDevice::bitBlt: Cannot bitBlt to or from device" );
+	warning( "bitBlt: Cannot bitBlt to or from device" );
 #endif
 	return;
     }
@@ -129,7 +135,14 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	  GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
     if ( rop > NotROP ) {
 #if defined(CHECK_RANGE)
-	warning( "QPaintDevice::bitBlt: Invalid ROP code" );
+	warning( "bitBlt: Invalid ROP code" );
+#endif
+	return;
+    }
+
+    if ( dst->handle() == 0 ) {
+#if defined(CHECK_NULL)
+	warning( "bitBlt: Cannot bitBlt to device" );
 #endif
 	return;
     }
@@ -143,7 +156,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	bool single_plane = ((QPixmap*)dst)->depth() == 1;
 	if ( single_plane && !copy_plane ) {	
 #if defined(CHECK_RANGE)
-		warning( "QPaintDevice::bitBlt: Incompatible destination pixmap" );
+		warning( "bitBlt: Incompatible destination pixmap" );
 #endif
 		return;			// dest is 1-bit pixmap, source is not
 	}
