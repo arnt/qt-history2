@@ -45,6 +45,7 @@ static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T a
 #define QT_STAT_MASK		S_IFMT
 #define QT_STAT_LNK		S_IFLNK
 #define QT_SOCKET_CONNECT	qt_socket_connect
+#define QT_SOCKET_BIND		::bind
 #define QT_FILENO		fileno
 #define QT_OPEN			::open
 #define QT_CLOSE		::close

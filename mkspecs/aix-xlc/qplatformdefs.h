@@ -50,6 +50,7 @@ static inline int qt_truncate(const char *pathname, off_t length)
 #define QT_STAT_MASK		S_IFMT
 #define QT_STAT_LNK		S_IFLNK
 #define QT_SOCKET_CONNECT	::connect
+#define QT_SOCKET_BIND		::bind
 #define QT_FILENO		fileno
 #define QT_OPEN			qt_open
 #define QT_CLOSE		::close
