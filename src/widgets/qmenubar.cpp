@@ -246,6 +246,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	if ( tlw != parent )
 	    tlw->installEventFilter( this );
     }
+    installEventFilter( this );
 
     setBackgroundMode( PaletteButton );
     setFrameStyle( QFrame::MenuBarPanel | QFrame::Raised );
@@ -440,7 +441,11 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( ! isVisible() || ! object->isWidgetType() )
 	return FALSE;
 
-    if ( event->type() == QEvent::MouseButtonPress ||
+    if ( object == this && event->type() == QEvent::LanguageChange ) {
+	badSize = TRUE;
+	calculateRects();
+	return FALSE;
+    } else if ( event->type() == QEvent::MouseButtonPress ||
 	event->type() == QEvent::MouseButtonRelease ) {
 	waitforalt = FALSE;
 	return FALSE;

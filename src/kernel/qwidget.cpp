@@ -4311,6 +4311,32 @@ bool QWidget::event( QEvent *e )
 		int index = metaObject()->findSlot( "retranslateStrings()", TRUE );
 		if ( index >= 0 )
 		    qt_invoke( index, 0 );
+
+		update();
+
+		if ( !layout() )
+		    break;
+
+		QObjectList *layouts = layout()->queryList( "QLayout" );
+		if ( !layouts )
+		    break;
+
+		QObjectListIt it( *layouts );
+		QObject *lo = 0;
+		while ( ( lo = it.current() ) != 0 ) {
+		    ++it;
+		    if ( lo->inherits( "QHBoxLayout" ) ) {
+			QHBoxLayout *bl = (QHBoxLayout*)lo;
+			if ( bl->direction() == QBoxLayout::LeftToRight && qApp->reverseLayout() )
+			    bl->setDirection( QBoxLayout::RightToLeft );
+			else if ( bl->direction() == QBoxLayout::RightToLeft && !qApp->reverseLayout() )
+			    bl->setDirection( QBoxLayout::LeftToRight );
+		    } else if ( lo->inherits( "QGridLayout" ) ) {
+			QGridLayout *gl = (QGridLayout*)lo;
+			gl->invalidate();
+		    }
+		}
+		delete layouts;
 	    }
 	    break;
 

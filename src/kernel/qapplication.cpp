@@ -2260,20 +2260,17 @@ void QApplication::installTranslator( QTranslator * mf )
     translators->insert( 0, mf );
 
     // hook to set the layout direction of dialogs
-    if( tr( "QT_LAYOUT_DIRECTION",
+    setReverseLayout( tr( "QT_LAYOUT_DIRECTION",
 	    "Translate this string to the string 'LTR' in left-to-right"
 	    " languages or to 'RTL' in right-to-left languages (such as Hebrew"
-	    " and Arabic) to get proper widget layout." ) == "RTL" )
-	setReverseLayout( TRUE );
+	    " and Arabic) to get proper widget layout." ) == "RTL" );
 
-    if ( loop_level ) {
-	QWidgetList *list = topLevelWidgets();
-	QWidgetListIt it( *list );
-	QWidget *w;
-	while ( ( w=it.current() ) != 0 ) {
-	    ++it;
-	    postEvent( w, new QEvent( QEvent::LanguageChange ) );
-	}
+    QWidgetList *list = topLevelWidgets();
+    QWidgetListIt it( *list );
+    QWidget *w;
+    while ( ( w=it.current() ) != 0 ) {
+	++it;
+	postEvent( w, new QEvent( QEvent::LanguageChange ) );
     }
 }
 
@@ -2294,14 +2291,17 @@ void QApplication::removeTranslator( QTranslator * mf )
 	translators->next();
     translators->take();
 
-    if ( loop_level ) {
-	QWidgetList *list = topLevelWidgets();
-	QWidgetListIt it( *list );
-	QWidget *w;
-	while ( ( w=it.current() ) != 0 ) {
-	    ++it;
-	    postEvent( w, new QEvent( QEvent::LanguageChange ) );
-	}
+    setReverseLayout( tr( "QT_LAYOUT_DIRECTION",
+	    "Translate this string to the string 'LTR' in left-to-right"
+	    " languages or to 'RTL' in right-to-left languages (such as Hebrew"
+	    " and Arabic) to get proper widget layout." ) == "RTL" );
+
+    QWidgetList *list = topLevelWidgets();
+    QWidgetListIt it( *list );
+    QWidget *w;
+    while ( ( w=it.current() ) != 0 ) {
+	++it;
+	postEvent( w, new QEvent( QEvent::LanguageChange ) );
     }
 }
 
@@ -3314,6 +3314,9 @@ int QApplication::startDragDistance()
   If \a b is TRUE, all dialogs and widgets will be laid out in a
   mirrored fashion, as required by right to left languages such as
   Hebrew and Arabic.
+
+  Changing this flag in runtime does not cause a relayout of already
+  instantiated widgets.
 
   \sa reverseLayout()
 */
