@@ -186,7 +186,6 @@ void QFontDatabase::createDatabase()
 
 	XftFontSetDestroy (foundries);
     }
-    else
 #endif
 	{
 	    int fontCount;

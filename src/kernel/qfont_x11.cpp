@@ -1323,18 +1323,19 @@ bool QFontPrivate::inFont( const QChar &ch )
 
 #ifndef QT_NO_XFTFREETYPE
 
-// returns an XftPattern for the font or zero if no found supporting the script could
-// be found
-XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact) const
+static XftPattern *checkXftFont( XftPattern *match, const QString &familyName, const QChar &sample )
 {
-    // look for foundry/family
-    QString familyName;
-    QString foundryName;
-    QFontDatabase::parseFontName(request.family, foundryName, familyName);
+    char * family_value;
+    XftPatternGetString (match, XFT_FAMILY, 0, &family_value);
+    QString fam = family_value;
+    //qDebug("got family %s for request %s", fam.latin1(), familyName.latin1() );
 
-    XftPattern *match = bestXftPattern(familyName, foundryName);
-
-    if (sample.unicode() != 0 && match) {
+    if ( fam.lower() != familyName.lower() ) {
+	//qDebug("pattern don't match");
+	XftPatternDestroy(match);
+	match = 0;
+    }
+    if (match && sample.unicode() != 0 ) { 
 	// check if the character is actually in the font - this does result in
 	// a font being loaded, but since Xft is completely client side, we can
 	// do this efficiently
@@ -1342,8 +1343,8 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact) const
 					       match);
 
 	if (xftfs) {
-	    if (! XftFreeTypeGlyphExists(QPaintDevice::x11AppDisplay(), xftfs,
-					 sample.unicode())) {
+	    if ( ! XftFreeTypeGlyphExists(QPaintDevice::x11AppDisplay(), xftfs,
+					  sample.unicode())) {
 		XftPatternDestroy(match);
 		match = 0;
 	    }
@@ -1351,6 +1352,22 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact) const
 	    XftFreeTypeClose(QPaintDevice::x11AppDisplay(), xftfs);
 	}
     }
+
+    return match;
+}
+
+// returns an XftPattern for the font or zero if no found supporting the script could
+// be found
+XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact) const
+{
+    // look for foundry/family
+    QString familyName;
+    QString foundryName;
+
+    QFontDatabase::parseFontName(request.family, foundryName, familyName);
+    XftPattern *match = bestXftPattern(familyName, foundryName);
+
+    match = checkXftFont( match, familyName, sample );
 
     *exact = TRUE;
 
@@ -1370,23 +1387,7 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact) const
 	    QFontDatabase::parseFontName(familyName, foundryName, familyName);
 	    match = bestXftPattern(familyName, foundryName);
 
-	    if (sample.unicode() != 0 && match) {
-		// check if the character is actually in the font - this does result in
-		// a font being loaded, but since Xft is completely client side, we can
-		// do this efficiently
-		XftFontStruct *xftfs = XftFreeTypeOpen(QPaintDevice::x11AppDisplay(),
-						       match);
-
-		if (xftfs) {
-		    if (! XftFreeTypeGlyphExists(QPaintDevice::x11AppDisplay(), xftfs,
-						 sample.unicode())) {
-			XftPatternDestroy(match);
-			match = 0;
-		    }
-
-		    XftFreeTypeClose(QPaintDevice::x11AppDisplay(), xftfs);
-		}
-	    }
+	    match = checkXftFont( match, familyName, sample );
 	}
     }
 
@@ -2426,7 +2427,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	bool use_core = TRUE;
 
 #ifndef QT_NO_XFTFREETYPE
-	if (qt_has_xft) {
+	if (qt_has_xft && ! (request.styleStrategy & QFont::PreferBitmap) ) {
 	    xftmatch = findXftFont(sample, &match);
 
 	    if (xftmatch) {
