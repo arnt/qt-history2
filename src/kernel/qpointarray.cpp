@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#48 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#48 $");
 
 /*!
   \class QPointVal qpntarry.h
@@ -567,12 +567,137 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 }
 
 
+// Work functions for QPointArray::quadBezier()
+static
+void split(const double *p, double *l, double *r)
+{
+    double tmpx;
+    double tmpy;
+
+    l[0] =  p[0];
+    l[1] =  p[1];
+    r[6] =  p[6];
+    r[7] =  p[7];
+
+    l[2] = (p[0]+ p[2])/2;
+    l[3] = (p[1]+ p[3])/2;
+    tmpx = (p[2]+ p[4])/2;
+    tmpy = (p[3]+ p[5])/2;
+    r[4] = (p[4]+ p[6])/2;
+    r[5] = (p[5]+ p[7])/2;
+
+    l[4] = (l[2]+ tmpx)/2;
+    l[5] = (l[3]+ tmpy)/2;
+    r[2] = (tmpx + r[4])/2;
+    r[3] = (tmpy + r[5])/2;
+
+    l[6] = (l[4]+ r[2])/2;
+    l[7] = (l[5]+ r[3])/2;
+    r[0] = l[6];
+    r[1] = l[7];
+}
+// Based on:
+//
+//   A Fast 2D Point-On-Line Test
+//   by Alan Paeth
+//   from "Graphics Gems", Academic Press, 1990
+static
+int pnt_on_line( const double* p, const double* q, const double* t )
+{
+/*
+ * given a line through P:(px,py) Q:(qx,qy) and T:(tx,ty)
+ * return 0 if T is not on the line through      <--P--Q-->
+ *        1 if T is on the open ray ending at P: <--P
+ *        2 if T is on the closed interior along:   P--Q
+ *        3 if T is on the open ray beginning at Q:    Q-->
+ *
+ * Example: consider the line P = (3,2), Q = (17,7). A plot
+ * of the test points T(x,y) (with 0 mapped onto '.') yields:
+ *
+ *     8| . . . . . . . . . . . . . . . . . 3 3
+ *  Y  7| . . . . . . . . . . . . . . 2 2 Q 3 3    Q = 2
+ *     6| . . . . . . . . . . . 2 2 2 2 2 . . .
+ *  a  5| . . . . . . . . 2 2 2 2 2 2 . . . . .
+ *  x  4| . . . . . 2 2 2 2 2 2 . . . . . . . .
+ *  i  3| . . . 2 2 2 2 2 . . . . . . . . . . .
+ *  s  2| 1 1 P 2 2 . . . . . . . . . . . . . .    P = 2
+ *     1| 1 1 . . . . . . . . . . . . . . . . .
+ *      +--------------------------------------
+ *        1 2 3 4 5 X-axis 10        15      19
+ *
+ * Point-Line distance is normalized with the Infinity Norm
+ * avoiding square-root code and tightening the test vs the
+ * Manhattan Norm. All math is done on the field of integers.
+ * The latter replaces the initial ">= MAX(...)" test with
+ * "> (ABS(qx-px) + ABS(qy-py))" loosening both inequality
+ * and norm, yielding a broader target line for selection.
+ * The tightest test is employed here for best discrimination
+ * in merging collinear (to grid coordinates) vertex chains
+ * into a larger, spanning vectors within the Lemming editor.
+ */
+
+    if ( QABS((q[1]-p[1])*(t[0]-p[0])-(t[1]-p[1])*(q[0]-p[0])) >=
+        (QMAX(QABS(q[0]-p[0]), QABS(q[1]-p[1])))) return 0;
+
+    if (((q[0]<p[0])&&(p[0]<t[0])) || ((q[1]<p[1])&&(p[1]<t[1])))
+	return 1 ;
+    if (((t[0]<p[0])&&(p[0]<q[0])) || ((t[1]<p[1])&&(p[1]<q[1])))
+	return 1 ;
+    if (((p[0]<q[0])&&(q[0]<t[0])) || ((p[1]<q[1])&&(q[1]<t[1])))
+	return 3 ;
+    if (((t[0]<q[0])&&(q[0]<p[0])) || ((t[1]<q[1])&&(q[1]<p[1])))
+	return 3 ;
+
+    return 2 ;
+}
+static
+void polygonizeQBezier( double* acc, int& accsize, const double ctrl[],
+			int maxsize )
+{
+    if ( accsize > maxsize / 2 )
+    {
+	// This never happens in practice.
+
+	if ( accsize >= maxsize )
+	    return;
+	// Running out of space - approximate by a line.
+        acc[accsize++] = ctrl[0];
+	acc[accsize++] = ctrl[1];
+	acc[accsize++] = ctrl[6];
+	acc[accsize++] = ctrl[7];
+	return;
+    }
+
+    //intersects:
+    double l[8];
+    double r[8];
+    split( ctrl, l, r);
+
+    if ( pnt_on_line( &ctrl[0], &ctrl[6], &ctrl[2] ) == 2
+      && pnt_on_line( &ctrl[0], &ctrl[6], &ctrl[4] ) == 2 )
+    {
+	// Approximate by 2 lines.
+	acc[accsize++] = l[0];
+	acc[accsize++] = l[1];
+	acc[accsize++] = l[6];
+	acc[accsize++] = l[7];
+	acc[accsize++] = r[6];
+	acc[accsize++] = r[7];
+	return;
+    }
+
+    // Too big and too curved - recusively subdivide.
+    polygonizeQBezier( acc, accsize, l, maxsize );
+    polygonizeQBezier( acc, accsize, r, maxsize );
+}
+
 /*!
   Returns the Bezier points for the four control points in this array.
 */
 
 QPointArray QPointArray::quadBezier() const
 {
+#ifdef USE_SIMPLE_QBEZIER_CODE
     if ( size() != 4 ) {
 #if defined(CHECK_RANGE)
 	warning( "QPointArray::bezier: The array must have 4 control points" );
@@ -580,6 +705,7 @@ QPointArray QPointArray::quadBezier() const
 	QPointArray p;
 	return p;
     }
+
     int v;
     const int n = 3;				// n + 1 control points
     float xvec[4];
@@ -625,6 +751,41 @@ QPointArray QPointArray::quadBezier() const
     pd->y = (Qpnta_t)yvec[3];
 
     return p;
+#else
+
+    if ( size() != 4 ) {
+#if defined(CHECK_RANGE)
+	warning( "QPointArray::bezier: The array must have 4 control points" );
+#endif
+	QPointArray pa;
+	return pa;
+    } else {
+	QRect r = boundingRect();
+	int m = QMAX(r.width(),r.height());
+	double *p = new double[m];
+	double *ctrl = new double[8];
+	int i;
+	for (i=0; i<4; i++) {
+	    ctrl[i*2] = at(i).x();
+	    ctrl[i*2+1] = at(i).y();
+	}
+	int len=0;
+	polygonizeQBezier( p, len, ctrl, m );
+	QPointArray pa(len/2);
+	int j=0;
+	for (i=0; j<len; i++) {
+	    // Don't round - it looks terrible
+	    int x = int(p[j++]);
+	    int y = int(p[j++]);
+	    pa[i] = QPoint(x,y);
+	}
+	delete p;
+	delete ctrl;
+
+	return pa;
+    }
+
+#endif
 }
 
 

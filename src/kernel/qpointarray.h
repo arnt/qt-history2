@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.h#27 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.h#28 $
 **
 ** Definition of QPointArray class
 **
@@ -100,6 +100,10 @@ public:
 		{ return QPointVal( data()+i ); }
     QPointVal operator[]( uint i )
 		{ return QPointVal( data()+i ); }
+    QPoint operator[]( int i ) const
+		{ return (QPoint)QPointVal( data()+i ); }
+    QPoint operator[]( uint i ) const
+		{ return (QPoint)QPointVal( data()+i ); }
 
     QRect   boundingRect() const;
 
