@@ -41,6 +41,7 @@ CppCodeParser::~CppCodeParser()
 void CppCodeParser::initializeParser( const Config& config )
 {
     CodeParser::initializeParser( config );
+
     nodeTypeMap.insert( COMMAND_NAMESPACE, Node::Namespace );
     nodeTypeMap.insert( COMMAND_CLASS, Node::Class );
     nodeTypeMap.insert( COMMAND_ENUM, Node::Enum );

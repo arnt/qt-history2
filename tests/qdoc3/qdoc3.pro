@@ -12,6 +12,7 @@ HEADERS += archiveextractor.h \
 	   cppcodemarker.h \
 	   cppcodeparser.h \
            doc.h \
+	   editdistance.h \
 	   generator.h \
 	   htmlgenerator.h \
            location.h \
@@ -46,6 +47,7 @@ SOURCES += archiveextractor.cpp \
 	   cppcodemarker.cpp \
 	   cppcodeparser.cpp \
            doc.cpp \
+	   editdistance.cpp \
 	   generator.cpp \
 	   htmlgenerator.cpp \
            location.cpp \

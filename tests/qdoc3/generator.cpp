@@ -7,6 +7,7 @@
 #include "codemarker.h"
 #include "config.h"
 #include "doc.h"
+#include "editdistance.h"
 #include "generator.h"
 #include "node.h"
 #include "separator.h"
@@ -202,7 +203,39 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
     }
     generateText( node->doc().body(), node, marker );
 
-    if ( node->type() == Node::Function ) {
+    if ( node->type() == Node::Enum ) {
+	const EnumNode *enume = (const EnumNode *) node;
+
+	Set<QString> definedItems;
+	QValueList<EnumItem>::ConstIterator it = enume->items().begin();
+	while ( it != enume->items().end() ) {
+	    definedItems.insert( (*it).name() );
+	    ++it;
+	}
+
+	Set<QString> documentedItems;
+	if ( enume->doc().enumItemNames() != 0 )
+	    documentedItems = *enume->doc().enumItemNames();
+
+	Set<QString> allItems = reunion( definedItems, documentedItems );
+	Set<QString>::ConstIterator a = allItems.begin();
+	while ( a != allItems.end() ) {
+	    if ( !definedItems.contains(*a) ) {
+		QString details;
+		QString best = nearestName( *a, definedItems );
+		if ( !best.isEmpty() && !documentedItems.contains(best) )
+		    details = tr( "Maybe you meant '%1'?" ).arg( best );
+
+		node->doc().location().warning( tr("No such enum item '%1'")
+						.arg(*a),
+						details );
+	    } else if ( !documentedItems.contains(*a) ) {
+		node->doc().location().warning( tr("Undocumented enum item"
+						   " '%1'").arg(*a) );
+	    }
+	    ++a;
+	}
+    } else if ( node->type() == Node::Function ) {
 	const FunctionNode *func = (const FunctionNode *) node;
 	if ( func->reimplementedFrom() != 0 )
 	    generateReimplementedFrom( func, marker );
@@ -423,8 +456,8 @@ void Generator::generateStatus( const Node *node, CodeMarker *marker )
 	break;
     case Node::Obsolete:
 	text << Atom::ParaLeft
-	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This " << typeString( node )
-	     << " is obsolete."
+	     << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "
+	     << typeString( node ) << " is obsolete."
 	     << Atom( Atom::FormattingRight, ATOM_FORMATTING_BOLD )
 	     << " It is provided to keep old source code working.  We strongly"
 	     << " advise against using it in new code." << Atom::ParaRight;

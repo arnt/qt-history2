@@ -19,6 +19,7 @@
 #define COMMAND_MODULE              Doc::alias( "module" )
 #define COMMAND_PAGE                Doc::alias( "page" )
 #define COMMAND_QUICKCLASS          Doc::alias( "quickclass" )
+#define COMMAND_QUICKENUM           Doc::alias( "quickenum" )
 #define COMMAND_QUICKFN             Doc::alias( "quickfn" )
 #define COMMAND_QUICKIFY            Doc::alias( "quickify" )
 #define COMMAND_QUICKPROPERTY       Doc::alias( "quickproperty" )
@@ -42,6 +43,11 @@ QsCodeParser::~QsCodeParser()
 void QsCodeParser::initializeParser( const Config& config )
 {
     CppCodeParser::initializeParser( config );
+
+    nodeTypeMap.insert( COMMAND_QUICKCLASS, Node::Class );
+    nodeTypeMap.insert( COMMAND_QUICKENUM, Node::Enum );
+    nodeTypeMap.insert( COMMAND_QUICKPROPERTY, Node::Property );
+    nodeTypeMap.insert( COMMAND_QUICKFN, Node::Function );
 
     tabSize = config.getInt( CONFIG_TABSIZE );
 
@@ -73,6 +79,7 @@ void QsCodeParser::initializeParser( const Config& config )
 
 void QsCodeParser::terminateParser()
 {
+    nodeTypeMap.clear();
     tabSize = 0;
     replaceBefores.clear();
     replaceAfters.clear();
@@ -159,7 +166,8 @@ Set<QString> QsCodeParser::topicCommands()
 {
     return Set<QString>() << COMMAND_FILE << COMMAND_GROUP << COMMAND_MODULE
 			  << COMMAND_PAGE << COMMAND_QUICKCLASS
-			  << COMMAND_QUICKFN << COMMAND_QUICKPROPERTY;
+			  << COMMAND_QUICKENUM << COMMAND_QUICKFN
+			  << COMMAND_QUICKPROPERTY;
 }
 
 Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
@@ -186,28 +194,15 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 				    .arg(arg).arg(command) );
 	}
 	return 0;
-    } else if ( command == COMMAND_QUICKPROPERTY ) {
+    } else if ( nodeTypeMap.contains(command) ) {
 	QStringList path = QStringList::split( ".", arg );
-	PropertyNode *quickProperty =
-		(PropertyNode *) qsTre->findNode( path, Node::Property );
-	if ( quickProperty == 0 ) {
+	Node *node = qsTre->findNode( path, nodeTypeMap[command] );
+	if ( node == 0 ) {
 	    doc.location().warning( tr("Cannot resolve '%1' specified with"
 				       " '\\%2'")
 				    .arg(arg).arg(command) );
 	} else {
-	    setQuickDoc( quickProperty, doc );
-	}
-	return 0;
-    } else if ( command == COMMAND_QUICKCLASS ) {
-	QStringList path = QStringList::split( ".", arg );
-	ClassNode *quickClass =
-		(ClassNode *) qsTre->findNode( path, Node::Class );
-	if ( quickClass == 0 ) {
-	    doc.location().warning( tr("Cannot resolve '%1' specified with"
-				       " '\\%2'")
-				    .arg(arg).arg(command) );
-	} else {
-	    setQuickDoc( quickClass, doc );	
+	    setQuickDoc( node, doc );
 	}
 	return 0;
     } else {

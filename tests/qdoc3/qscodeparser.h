@@ -58,6 +58,7 @@ private:
     static bool rightWordBoundary( const QString& str, int pos );
     static int columnForIndex( const QString& str, int index );
 
+    QMap<QString, Node::Type> nodeTypeMap;
     Tree *cppTre;
     Tree *qsTre;
     QRegExp replaceRegExp;

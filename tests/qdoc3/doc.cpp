@@ -11,6 +11,7 @@
 #include "codemarker.h"
 #include "config.h"
 #include "doc.h"
+#include "editdistance.h"
 #include "openedlist.h"
 #include "quoter.h"
 #include "text.h"
@@ -139,6 +140,7 @@ public:
     Text text;
     Set<QString> *params;
     QValueList<Text> *alsoList;
+    Set<QString> *enumItemSet;
     Set<QString> *metaCommandSet;
     QMap<QString, QStringList> *metaCommandMap;
     DocPrivateExtra *extra;
@@ -146,7 +148,7 @@ public:
 
 DocPrivate::DocPrivate( const Location& location, const QString& source )
     : loc( location ), src( source ), params( 0 ), alsoList( 0 ),
-      metaCommandSet( 0 ), metaCommandMap( 0 ), extra( 0 )
+      enumItemSet( 0 ), metaCommandSet( 0 ), metaCommandMap( 0 ), extra( 0 )
 {
 }
 
@@ -154,6 +156,7 @@ DocPrivate::~DocPrivate()
 {
     delete params;
     delete alsoList;
+    delete enumItemSet;
     delete metaCommandSet;
     delete metaCommandMap;
     delete extra;
@@ -227,7 +230,6 @@ private:
     static int indentLevel( const QString& str );
     static QString unindent( int level, const QString& str );
     static QString slashed( const QString& str );
-    static int editDistance( const QString& actual, const QString& expected );
 
     QValueStack<int> openedInputs;
 
@@ -669,12 +671,17 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    }
 
 		    if ( openedLists.top().style() == OpenedList::Value ) {
+			QString x = getArgument();
+			if ( priv->enumItemSet == 0 )
+			    priv->enumItemSet = new Set<QString>;
+			priv->enumItemSet->insert( x );
+
 			openedLists.top().next();
 			append( Atom::ListTagLeft, ATOM_LIST_VALUE );
 			append( Atom::FormattingLeft, ATOM_FORMATTING_BOLD );
 			append( Atom::FormattingLeft,
 				ATOM_FORMATTING_TELETYPE );
-			append( Atom::String, getArgument() );
+			append( Atom::String, x );
 			append( Atom::FormattingRight,
 				ATOM_FORMATTING_TELETYPE );
 			append( Atom::FormattingRight, ATOM_FORMATTING_BOLD );
@@ -811,27 +818,11 @@ QString DocParser::detailsUnknownCommand( const Set<QString>& metaCommandSet,
 		   " file. Use the new name." )
 	       .arg( str ).arg( (*aliasMap)[str] );
 
-    int deltaBest = 666;
-    int numBest;
-    QString best;
-
-    Set<QString>::ConstIterator c = commandSet.begin();
-    while ( c != commandSet.end() ) {
-	int delta = editDistance( str, *c );
-	if ( delta < deltaBest ) {
-	    deltaBest = delta;
-	    numBest = 1;
-	    best = *c;
-	} else if ( delta == deltaBest ) {
-	    numBest++;
-	}
-	++c;
-    }
-
-    if ( numBest == 1 && deltaBest <= 2 && str.length() + best.length() >= 5 ) {
-	return tr( "Maybe you meant '\\%1'?" ).arg( best );
-    } else {
+    QString best = nearestName( str, commandSet );
+    if ( best.isEmpty() ) {
 	return "";
+    } else {
+	return tr( "Maybe you meant '\\%1'?" ).arg( best );
     }
 }
 
@@ -1610,38 +1601,6 @@ QString DocParser::slashed( const QString& str )
     return "/" + result + "/";
 }
 
-int DocParser::editDistance( const QString& actual, const QString& expected )
-{
-#define D( i, j ) d[(i) * n + (j)]
-    int i;
-    int j;
-    int m = actual.length() + 1;
-    int n = expected.length() + 1;
-    int *d = new int[m * n];
-    int result;
-
-    for ( i = 0; i < m; i++ )
-	D( i, 0 ) = i;
-    for ( j = 0; j < n; j++ )
-	D( 0, j ) = j;
-    for ( i = 1; i < m; i++ ) {
-	for ( j = 1; j < n; j++ ) {
-	    if ( actual[i - 1] == expected[j - 1] ) {
-		D( i, j ) = D( i - 1, j - 1 );
-	    } else {
-		int x = D( i - 1, j );
-		int y = D( i - 1, j - 1 );
-		int z = D( i, j - 1 );
-		D( i, j ) = 1 + QMIN( QMIN(x, y), z );
-	    }
-	}
-    }
-    result = D( m - 1, n - 1 );
-    delete[] d;
-    return result;
-#undef D
-}
-
 Doc::Doc()
 {
     priv = new DocPrivate;
@@ -1725,6 +1684,11 @@ Doc::SectioningUnit Doc::sectioningUnit() const
     }
 }
 #endif
+
+const Set<QString> *Doc::enumItemNames() const
+{
+    return priv->enumItemSet;
+}
 
 const Set<QString> *Doc::metaCommandsUsed() const
 {
