@@ -138,6 +138,7 @@ signals:
     void clicked(const QModelIndex &index, int button);
     void doubleClicked(const QModelIndex &index, int button);
     void keyPressed(const QModelIndex &index, Qt::Key key, Qt::ButtonState state);
+    void returnPressed(const QModelIndex &index);
     void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
     void itemEntered(const QModelIndex &index, Qt::ButtonState state);
     void viewportEntered(Qt::ButtonState state);

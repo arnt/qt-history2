@@ -1047,8 +1047,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        //emit returnPressed(currentIndex());
-        //return;
+        emit returnPressed(currentIndex());
         e->accept();
         break;
     case Qt::Key_Space:
@@ -1057,31 +1056,24 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
                                                   currentIndex(),
                                                   e->type(),
                                                   (Qt::Key)e->key()));
-        //emit spacePressed(currentIndex());
-        //return;
     case Qt::Key_Delete:
-        //emit deletePressed(currentIndex());
-        //return;
         e->accept();
         break;
     case Qt::Key_F2:
         if (edit(currentIndex(), EditKeyPressed, e))
             e->accept();
-            //return;
         break;
     default:
         if (!e->text().isEmpty()) {
             if (!edit(currentIndex(), AnyKeyPressed, e))
                 keyboardSearch(e->text());
             e->accept();
-            //return;
         }
         break;
     }
 
     if (d->hasKeyTracking)
         emit keyPressed(currentIndex(), static_cast<Qt::Key>(e->key()), e->state());
-    //e->ignore();
 }
 
 /*!

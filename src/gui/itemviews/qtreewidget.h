@@ -24,7 +24,9 @@ class Q_GUI_EXPORT QTreeWidgetItem
     friend class QTreeModel;
 public:
     QTreeWidgetItem(QTreeWidget *view);
+    QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after);
     QTreeWidgetItem(QTreeWidgetItem *parent);
+    QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after);
     virtual ~QTreeWidgetItem();
 
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
@@ -83,6 +85,11 @@ public:
     inline QTreeWidgetItem *child(int index) const { return children.at(index); }
     inline int childCount() const { return children.count(); }
     inline int columnCount() const { return values.count(); }
+    inline int indexOfChild(QTreeWidgetItem *child) const { return children.indexOf(child); }
+ 
+    void appendChild(QTreeWidgetItem *child);
+    void insertChild(int index, QTreeWidgetItem *child);
+    QTreeWidgetItem *takeChild(int index);
 
 protected:
     QTreeWidgetItem();
@@ -116,6 +123,11 @@ public:
 
     int columnCount() const;
     void setColumnCount(int columns);
+
+    QTreeWidgetItem *topLevelItem(int index) const;
+    int topLevelItemCount() const;
+    void insertTopLevelItem(int index, QTreeWidgetItem *item);
+    void appendTopLevelItem(QTreeWidgetItem *item);
 
     QTreeWidgetItem *headerItem();
     void setHeaderItem(QTreeWidgetItem *item);

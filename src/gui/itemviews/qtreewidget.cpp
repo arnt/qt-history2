@@ -56,6 +56,7 @@ protected:
     void append(QTreeWidgetItem *item);
     void remove(QTreeWidgetItem *item);
     void emitRowsInserted(QTreeWidgetItem *item);
+    void emitRowsRemoved(QTreeWidgetItem *item);
 
 private:
     QList<QTreeWidgetItem*> tree;
@@ -414,15 +415,31 @@ void QTreeModel::remove(QTreeWidgetItem *item)
 /*!
 \internal
 
-Emits the rowsInserted() signal for the rows containing the given \a item.
+Emits the rowsInserted() signal for the row containing the given \a item.
 
-\sa rowsInserted()*/
+\sa emitRowsRemoved()
+*/
 
 void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 {
     QModelIndex idx = index(item);
     QModelIndex parentIndex = parent(idx);
     emit rowsInserted(parentIndex, idx.row(), idx.row());
+}
+
+/*!
+  \internal
+
+  Emits the rowsRemoved() signal for the rows containing the given \a item.
+
+  \sa emitRowsInserted()
+*/
+
+void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
+{
+    QModelIndex idx = index(item);
+    QModelIndex parentIndex = parent(idx);
+    emit rowsRemoved(parentIndex, idx.row(), idx.row());
 }
 
 /*!
@@ -626,8 +643,31 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
 {
     if (view) {
         QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
-        if (model)
-            model->append(this);
+        if (model) {
+            model->tree.append(this);
+            model->emitRowsInserted(this);
+        }
+    }
+}
+
+/*!
+  Constructs a tree widget item and inserts it into the given
+  tree \a view after the \a after item.
+*/
+
+QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
+    : view(0), par(0), itemFlags(QAbstractItemModel::ItemIsEditable
+                                 |QAbstractItemModel::ItemIsSelectable
+                                 |QAbstractItemModel::ItemIsCheckable
+                                 |QAbstractItemModel::ItemIsEnabled)
+{
+    if (view) {
+        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+        if (model) {
+            int i = model->tree.indexOf(after);
+            model->tree.insert(i, this);
+            model->emitRowsInserted(this);
+        }
     }
 }
 
@@ -643,9 +683,20 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
                 |QAbstractItemModel::ItemIsEnabled)
 {
     if (parent)
-        parent->children.push_back(this);
-    QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
-    model->emitRowsInserted(this);
+        parent->appendChild(this);
+}
+
+/*!
+  Constructs a tree widget item with the given \a parent and,
+  and inserted after the \a after child.
+*/
+
+QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after)
+{
+    if (parent) {
+        int i = parent->indexOfChild(after);
+        parent->insertChild(i, this);
+    }
 }
 
 /*!
@@ -722,6 +773,44 @@ QVariant QTreeWidgetItem::data(int column, int role) const
                 return column_values.at(i).value;
     }
     return QVariant();
+}
+
+/*!
+  Appends the \a child item to the list of children.
+
+  \sa insertChild() takeChild()
+*/
+void QTreeWidgetItem::appendChild(QTreeWidgetItem *child)
+{
+    insertChild(children.count(), child);
+}
+
+/*!
+  Inserts the \c child item in the list of children.
+*/
+
+void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
+{
+    children.insert(index, child);
+    if (view) {
+        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+        if (model)
+            model->emitRowsInserted(child);
+    }
+}
+
+/*!
+  Removes the item at \a index and returns it.
+*/
+
+QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
+{
+    if (view) {
+        QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
+        if (model)
+            model->emitRowsRemoved(children.at(index));
+    }
+    return children.takeAt(index);
 }
 
 #define d d_func()
@@ -875,6 +964,42 @@ int QTreeWidget::columnCount() const
 void QTreeWidget::setColumnCount(int columns)
 {
     d->model()->setColumnCount(columns);
+}
+
+/*!
+  Returns the top level item at \a index.
+*/
+
+QTreeWidgetItem *QTreeWidget::topLevelItem(int index) const
+{
+    return d->model()->tree.at(index);
+}
+
+/*!
+  Returns the number of top level items.
+*/
+
+int QTreeWidget::topLevelItemCount() const
+{
+    return d->model()->tree.count();
+}
+
+/*!
+  ###
+*/
+
+void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
+{
+    d->model()->tree.insert(index, item);
+}
+
+/*!
+  ###
+*/
+
+void QTreeWidget::appendTopLevelItem(QTreeWidgetItem *item)
+{
+    d->model()->tree.append(item);
 }
 
 /*!
