@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#132 $
+** $Id: //depot/qt/main/src/tools/qstring.h#133 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -166,6 +166,16 @@ public:
 
     static bool networkOrdered() { return (int)net_ordered == 1; }
 
+    friend int operator==( char ch, QChar c );
+    friend int operator==( QChar c, char ch );
+    friend int operator==( QChar c1, QChar c2 );
+    friend int operator!=( QChar c1, QChar c2 );
+    friend int operator!=( char ch, QChar c );
+    friend int operator!=( QChar c, char ch );
+    friend int operator<=( QChar c, char ch );
+    friend int operator<=( char ch, QChar c );
+    friend int operator<=( QChar c1, QChar c2 );
+
 private:
 #if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
     // XChar2b on X11, ushort on _OS_WIN32_BYTESWAP_
@@ -182,53 +192,53 @@ private:
 
 inline int operator==( char ch, QChar c )
 {
-    return ch == c.cell() && !c.row();
+    return ch == c.cl && !c.rw;
 }
 
 inline int operator==( QChar c, char ch )
 {
-    return ch == c.cell() && !c.row();
+    return ch == c.cl && !c.rw;
 }
 
 inline int operator==( QChar c1, QChar c2 )
 {
-    return c1.cell() == c2.cell()
-	&& c1.row() == c2.row();
+    return c1.cl == c2.cl
+	&& c1.rw == c2.rw;
 }
 
 inline int operator!=( QChar c1, QChar c2 )
 {
-    return c1.cell() != c2.cell()
-	|| c1.row() != c2.row();
+    return c1.cl != c2.cl
+	|| c1.rw != c2.rw;
 }
 
 inline int operator!=( char ch, QChar c )
 {
-    return ch != c.cell() || c.row();
+    return ch != c.cl || c.rw;
 }
 
 inline int operator!=( QChar c, char ch )
 {
-    return ch != c.cell() || c.row();
+    return ch != c.cl || c.rw;
 }
 
 inline int operator<=( QChar c, char ch )
 {
-    return !(ch < c.cell() || c.row());
+    return !(ch < c.cl || c.rw);
 }
 
 inline int operator<=( char ch, QChar c )
 {
-    return ch <= c.cell() || c.row();
+    return ch <= c.cl || c.rw;
 }
 
 inline int operator<=( QChar c1, QChar c2 )
 {
-    return c1.row() > c2.row()
+    return c1.rw > c2.rw
 	? FALSE
-	: c1.row() < c2.row()
+	: c1.rw < c2.rw
 	    ? TRUE
-	    : c1.cell() <= c2.cell();
+	    : c1.cl <= c2.cl;
 }
 
 inline int operator>=( QChar c, char ch ) { return ch <= c; }
@@ -420,6 +430,7 @@ public:
 #endif
 
     QString &setUnicode( const QChar* unicode, uint len );
+    QString &setUnicodeCodes( const ushort* unicode_as_ushorts, uint len );
     QString &setLatin1( const char*, int len=-1 );
 
     int compare( const QString& s ) const;

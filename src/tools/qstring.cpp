@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#260 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#261 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12729,7 +12729,7 @@ void QString::subat( uint i )
   \sa setLatin1(), isNull()
 */
 
-QString &QString::setUnicode( const QChar *unicode, uint len )
+QString& QString::setUnicode( const QChar *unicode, uint len )
 {
     if ( len == 0 ) {				// set to null string
 	deref();
@@ -12751,6 +12751,34 @@ QString &QString::setUnicode( const QChar *unicode, uint len )
 	d->dirtyascii = 1;
 	if ( unicode )
 	    memcpy( d->unicode, unicode, sizeof(QChar)*len );
+    }
+    return *this;
+}
+
+/*!
+  Resizes the string to \a len unicode characters and copies
+  \a unicode_as_ushorts into the string (on some X11 client
+  platforms this will involve a byte-swapping pass).
+
+  If \a unicode is null, nothing is copied, but the
+  string is resized to \a len anyway. If \a len is zero, the string
+  becomes a \link isNull() null\endlink string.
+
+  \sa setLatin1(), isNull()
+*/
+QString& QString::setUnicodeCodes( const ushort* unicode_as_ushorts, uint len )
+{
+    setUnicode((const QChar*)unicode_as_ushorts, len);
+    QChar t(0x1234);
+    if ( unicode_as_ushorts && *((ushort*)&t) == 0x3412 ) {
+	// Need to byteswap
+	char* b = (char*)d->unicode;
+	while ( len-- ) {
+	    char c = b[0];
+	    b[0] = b[1];
+	    b[1] = c;
+	    b += 2;
+	}
     }
     return *this;
 }
