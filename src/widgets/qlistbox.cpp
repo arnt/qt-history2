@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#314 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#315 $
 **
 ** Implementation of QListBox widget class
 **
@@ -776,25 +776,29 @@ QListBox::~QListBox()
     d = 0;
 }
 
-/*! \fn void QListBox::clicked( QListBoxItem *item )
+/*! 
+  \fn void QListBox::clicked( QListBoxItem *item )
 
   This signal is emitted whenever the user clicks on an listbox item.
   \a item is the pointer to the clicked listbox item.
 */
 
-/*! \fn void QListBox::clicked( int index )
+/*! 
+  \fn void QListBox::clicked( int index )
 
   This signal is emitted whenever the user clicks on an listbox item.
   \a index is the index of the clicked listbox item.
 */
 
-/*! \fn void QListBox::clicked( const QString &text )
+/*! 
+  \fn void QListBox::clicked( const QString &text )
 
   This signal is emitted whenever the user clicks on an listbox item.
   \a text is the text of to the clicked listbox item.
 */
 
-/*! \fn void QListBox::selectionChanged()
+/*! 
+  \fn void QListBox::selectionChanged()
 
   This signal is emitted when the selection set of a multiple-choice
   listbox changes. If the user selects five items by drag-selecting,
@@ -2191,7 +2195,7 @@ QSize QListBox::sizeHint() const
 	   d->columnPos[i] < 200 )
 	i++;
     int x = QMIN( 200, d->columnPos[i] );
-    
+
     i = 0;
     while( i < 10 &&
 	   i < (int)d->rowPos.size()-1 &&
