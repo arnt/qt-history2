@@ -638,12 +638,12 @@ QFSFileEnginePrivate::doStat() const
 	else if(statName.at(statName.length()-1) == '\\')
 	    statName = statName.left(statName.length()-2);
         if(d->fd != -1) {
-            could_stat = !QT_FSTAT(d->fd, &st);
+            could_stat = (QT_FSTAT(d->fd, &st) != -1);
         } else {
             QT_WA({
-                could_stat = !QT_TSTAT((TCHAR*)statName.utf16(), (QT_STATBUF4TSTAT*)&st);
+                could_stat = (QT_TSTAT((TCHAR*)statName.utf16(), (QT_STATBUF4TSTAT*)&st) != -1);
             } , {
-                could_stat = !QT_STAT(QFSFileEnginePrivate::win95Name(statName), &st);
+                could_stat = (QT_STAT(QFSFileEnginePrivate::win95Name(statName), &st) != -1);
             });
         }
 	if(could_stat) {
@@ -734,7 +734,6 @@ QFSFileEnginePrivate::getLink() const
         IShellLinkA *psl;                            // pointer to IShellLink i/f
         HRESULT hres;
         WIN32_FIND_DATAA wfd;
-        QString ret;
         char szGotPath[MAX_PATH];
         // Get pointer to the IShellLink interface.
 
@@ -757,9 +756,9 @@ QFSFileEnginePrivate::getLink() const
                     hres = psl->Resolve(0, SLR_ANY_MATCH);
 
                     if(SUCCEEDED(hres)) {
-                        QByteArray lfn = d->file.toLocal8Bit();
+                        QByteArray lfn = d->file.local8Bit();
                         memcpy(szGotPath, lfn.data(), (lfn.length()+1)*sizeof(char));
-                        hres = psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_SHORTPATH);
+                        hres = psl->GetPath((char*)szGotPath, MAX_PATH, &wfd, SLGP_UNCPRIORITY);
                         ret = QString::fromLocal8Bit(szGotPath);
 
                     }
@@ -819,26 +818,26 @@ bool QFSFileEngine::link(const QString &newName)
 
         hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
         if(hres == CO_E_NOTINITIALIZED) { // COM was not initalized
-                neededCoInit = true;
-                CoInitialize(NULL);
-                hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
+	    neededCoInit = true;
+	    CoInitialize(NULL);
+	    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
         }
         if (SUCCEEDED(hres)) {
-            hres = psl->SetPath(QFSFileEnginePrivate::win95Name(fileName(AbsoluteName)).data());
+            hres = psl->SetPath((char *)QString::fromLocal8Bit(QFSFileEnginePrivate::win95Name(fileName(AbsoluteName))).utf16());
             if (SUCCEEDED(hres)) {
-                IPersistFile *ppf;
+		IPersistFile *ppf;
                 hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
                 if (SUCCEEDED(hres)) {
-                    hres = ppf->Save((LPOLESTR)linkName.local8Bit(), TRUE);
+                    hres = ppf->Save((LPCOLESTR)linkName.utf16(), TRUE);
                     if (SUCCEEDED(hres))
                          ret = true;
-                    ppf->Release();
+		    ppf->Release();
                 }
             }
             psl->Release();
         }
         if(neededCoInit)
-                CoUninitialize();
+	    CoUninitialize();
     });
     return ret;
 #else
