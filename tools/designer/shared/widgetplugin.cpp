@@ -13,49 +13,88 @@ WidgetPlugInManager::WidgetPlugInManager( const QString& path, const QString& fi
 
 QWidget* WidgetPlugInManager::create( const QString& classname, QWidget* parent, const char* name )
 {
+    QWidget *w = 0;
     WidgetInterface* iface = queryInterface( classname );
-    return iface ? iface->create( classname, parent, name ) : 0;
+    if ( iface ) {
+	w = iface->create( classname, parent, name );
+	iface->release();
+    }
+    return w;
 }
 
 QString WidgetPlugInManager::group( const QString& classname )
 {
+    QString str;
     WidgetInterface* iface = queryInterface( classname );
-    return iface ? iface->group( classname ) : QString::null;
+    if ( iface ) {
+	str = iface->group( classname );
+	iface->release();
+    }
+    return str;
 }
 
 QString WidgetPlugInManager::iconSet( const QString& classname )
 {
+    QString str;
     WidgetInterface* iface = queryInterface( classname );
-    return iface ? iface->iconSet( classname ) : QString::null;
+    if ( iface ) {
+	str = iface->iconSet( classname );
+	iface->release();
+    }
+    return str;
 }
 
 QIconSet WidgetPlugInManager::iconset( const QString& classname )
 {
+    QIconSet set;
     WidgetInterface* iface = queryInterface( classname );
-    return iface ? iface->iconset( classname ) : QIconSet();
+    if ( iface ) {
+	set = iface->iconset( classname );
+	iface->release();
+    }
+    return set;
 }
 
 QString WidgetPlugInManager::includeFile( const QString& classname )
 {
+    QString str;
     WidgetInterface* iface = queryInterface( classname );
-    return iface ? iface->includeFile( classname ) : QString::null;
+    if ( iface ) {
+	str = iface->includeFile( classname );
+	iface->release();
+    }
+    return str;
 }
 
 QString WidgetPlugInManager::toolTip( const QString& classname )
 {
+    QString str;
     WidgetInterface* iface = queryInterface( classname );
-    return iface ? iface->toolTip( classname ) : QString::null;
+    if ( iface ) {
+	str = iface->toolTip( classname );
+	iface->release();
+    }
+    return str;
 }
 
 QString WidgetPlugInManager::whatsThis( const QString& classname )
 {
+    QString str;
     WidgetInterface* iface = queryInterface( classname );
-    return iface ? iface->whatsThis( classname ) : QString::null;
+    if ( iface ) {
+	str = iface->whatsThis( classname );
+	iface->release();
+    }
+    return str;
 }
 
 bool WidgetPlugInManager::isContainer( const QString& classname )
 {
+    bool is = FALSE;
     WidgetInterface* iface = queryInterface( classname );
-    return iface ? iface->isContainer( classname ) : 0;
+    if ( iface ) {
+	is = iface->isContainer( classname );
+	iface->release();
+    }
+    return is;
 }
-
