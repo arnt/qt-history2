@@ -1557,7 +1557,7 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
         unsigned short *logClusters = eng->logClusters(&si);
 
         int gs = logClusters[start-si.position];
-        int ge = logClusters[end-si.position-1];
+        int ge = (end == si.position + eng->length(item)) ? si.num_glyphs-1 : logClusters[end-si.position-1];
 
         QGlyphLayout *glyphs = eng->glyphs(&si);
 
