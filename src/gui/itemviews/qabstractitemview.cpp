@@ -420,9 +420,6 @@ QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QWidget *pare
 */
 QAbstractItemView::~QAbstractItemView()
 {
-    if (d->selectionModel)
-        disconnect(d->selectionModel, SIGNAL(destroyed(QObject*)),
-                   this, SLOT(selectionModelDestroyed()));
 }
 
 /*!
