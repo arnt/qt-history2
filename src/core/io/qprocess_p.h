@@ -122,6 +122,8 @@ public:
 
     void cleanup();
 
+    static bool execute(const QString &program, const QStringList &arguments,
+                       const QString &workingDir, const QStringList &environment);
 };
 
 #endif // QPROCESS_P_H

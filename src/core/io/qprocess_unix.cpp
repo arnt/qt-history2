@@ -705,5 +705,11 @@ void QProcessPrivate::notified()
 {
 }
 
+bool QProcessPrivate::execute(const QString &program, const QStringList &arguments,
+                             const QString &workingDir, const QStringList &environment)
+{
+    return false;
+}
+
 #include "qprocess_unix.moc"
 

@@ -215,14 +215,9 @@ void QProcessPrivate::destroyPipe(Q_PIPE pipe[2])
     }
 }
 
-void QProcessPrivate::startProcess()
+
+static QString qt_create_commandline(const QString &program, const QStringList &arguments)
 {
-    Q_Q(QProcess);
-
-    qt_create_pipes(this);
-
-    // construct the arguments for CreateProcess()
-
     QString programName = program;
     if (programName.contains(" ") && programName.startsWith("\"") && programName.endsWith("\""))
         programName = "\"" + programName + "\"";
@@ -251,33 +246,18 @@ void QProcessPrivate::startProcess()
         }
     }
 
-    if (pid) {
-        delete pid;
-        pid = 0;
-    }
-    pid = new PROCESS_INFORMATION;
-    memset(pid, 0, sizeof(PROCESS_INFORMATION));
+    return args;
+}
 
-    processState = QProcess::Starting;
-    emit q->stateChanged(processState);
-
-    bool success = false;
-
+static QByteArray qt_create_environment(const QStringList &environment)
+{
+    QByteArray envlist;
+    if (environment.isEmpty()) {
+	int pos = 0;
+	// add PATH if necessary (for DLL loading)
+	char *path = qgetenv("PATH");
 #ifdef UNICODE
-    if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
-	STARTUPINFOW startupInfo = {
-	    sizeof( STARTUPINFO ), 0, 0, 0,
-	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
-	    0, 0, 0,
-	    STARTF_USESTDHANDLES,
-	    0, 0, 0,
-	    writePipe[0], standardReadPipe[1], errorReadPipe[1]
-	};
-        QByteArray envlist;
-	if (environment.isEmpty()) {
-	    int pos = 0;
-	    // add PATH if necessary (for DLL loading)
-	    char *path = qgetenv("PATH");
+        if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
 	    if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
                 QString tmp = QString("PATH=%1").arg(qgetenv("PATH"));
                 uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
@@ -286,7 +266,7 @@ void QProcessPrivate::startProcess()
                 pos += tmpSize;
 	    }
 	    // add the user environment
-	    for (QStringList::Iterator it = environment.begin(); it != environment.end(); it++ ) {
+	    for (QStringList::ConstIterator it = environment.begin(); it != environment.end(); it++ ) {
                 QString tmp = *it;
                 uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
                 envlist.resize(envlist.size() + tmpSize);
@@ -299,13 +279,71 @@ void QProcessPrivate::startProcess()
 	    envlist[pos++] = 0;
 	    envlist[pos++] = 0;
 	    envlist[pos++] = 0;
-	}
+        } else
+#endif // UNICODE
+        {
+            if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
+                QByteArray tmp = QString("PATH=%1").arg(qgetenv("PATH")).toLocal8Bit();
+                uint tmpSize = tmp.length() + 1;
+                envlist.resize(envlist.size() + tmpSize);
+                memcpy(envlist.data()+pos, tmp.data(), tmpSize);
+                pos += tmpSize;
+            }
+            // add the user environment
+            for (QStringList::ConstIterator it = environment.begin(); it != environment.end(); it++) {
+                QByteArray tmp = (*it).toLocal8Bit();
+                uint tmpSize = tmp.length() + 1;
+                envlist.resize(envlist.size() + tmpSize);
+                memcpy(envlist.data()+pos, tmp.data(), tmpSize);
+                pos += tmpSize;
+            }
+            // add the terminating 0 (actually 2, just to be on the safe side)
+            envlist.resize(envlist.size()+2);
+            envlist[pos++] = 0;
+            envlist[pos++] = 0;
+        }
+    }
+
+    return envlist;
+}
+
+void QProcessPrivate::startProcess()
+{
+    Q_Q(QProcess);
+
+    bool success = false;
+
+    if (pid) {
+        delete pid;
+        pid = 0;
+    }
+    pid = new PROCESS_INFORMATION;
+    memset(pid, 0, sizeof(PROCESS_INFORMATION));
+
+    processState = QProcess::Starting;
+    emit q->stateChanged(processState);
+
+    qt_create_pipes(this);
+    QString args = qt_create_commandline(program, arguments);
+    QByteArray envlist = qt_create_environment(environment);
+
 #if defined QPROCESS_DEBUG
-        qDebug("Creating process");
-        qDebug("   program : [%s]", program.latin1());
-        qDebug("   args : %s", args.latin1());
-        qDebug("   pass enviroment : %s", environment.isEmpty() ? "no" : "yes");
+    qDebug("Creating process");
+    qDebug("   program : [%s]", program.latin1());
+    qDebug("   args : %s", args.latin1());
+    qDebug("   pass enviroment : %s", environment.isEmpty() ? "no" : "yes");
 #endif
+    
+#ifdef UNICODE
+    if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
+	STARTUPINFOW startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
+	                             (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
+                                     (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
+                                     0, 0, 0,
+                                     STARTF_USESTDHANDLES,
+                                     0, 0, 0,
+                                     writePipe[0], standardReadPipe[1], errorReadPipe[1]
+	};
         success = CreateProcessW(0, (WCHAR*)args.utf16(),
                                  0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT,
                                  environment.isEmpty() ? 0 : envlist.data(),
@@ -323,37 +361,7 @@ void QProcessPrivate::startProcess()
                                      0, 0, 0,
                                      writePipe[0], standardReadPipe[1], errorReadPipe[1]
 	};
-        QByteArray envlist;
-	if (environment.isEmpty()) {
-            int pos = 0;
-            // add PATH if necessary (for DLL loading)
-            char *path = qgetenv("PATH");
-            if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
-                QByteArray tmp = QString("PATH=%1").arg(qgetenv("PATH")).toLocal8Bit();
-                uint tmpSize = tmp.length() + 1;
-                envlist.resize(envlist.size() + tmpSize);
-                memcpy(envlist.data()+pos, tmp.data(), tmpSize);
-                pos += tmpSize;
-            }
-            // add the user environment
-            for (QStringList::Iterator it = environment.begin(); it != environment.end(); it++) {
-                QByteArray tmp = (*it).toLocal8Bit();
-                uint tmpSize = tmp.length() + 1;
-                envlist.resize(envlist.size() + tmpSize);
-                memcpy(envlist.data()+pos, tmp.data(), tmpSize);
-                pos += tmpSize;
-            }
-            // add the terminating 0 (actually 2, just to be on the safe side)
-            envlist.resize(envlist.size()+2);
-            envlist[pos++] = 0;
-            envlist[pos++] = 0;
-        }
-#if defined QPROCESS_DEBUG
-        qDebug("Creating process");
-        qDebug("   program : [%s]", program.latin1());
-        qDebug("   args : %s", args.latin1());
-        qDebug("   pass enviroment : %s", environment.isEmpty() ? "no" : "yes");
-#endif
+     
 	success = CreateProcessA(0, args.toLocal8Bit().data(),
                                  0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
                                  workingDirectory.toLocal8Bit(), &startupInfo, pid);
@@ -656,6 +664,47 @@ void QProcessPrivate::notified()
         canReadStandardError();
 
     notifier->start(NOTIFYTIMEOUT);
+}
+
+bool QProcessPrivate::execute(const QString &program, const QStringList &arguments,
+                             const QString &workingDir, const QStringList &environment)
+{
+    QString args = qt_create_commandline(program, arguments);
+    QByteArray envlist = qt_create_environment(environment);
+
+    bool success = false;
+
+    PROCESS_INFORMATION pinfo;
+
+#ifdef UNICODE
+    if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
+        STARTUPINFOW startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
+	                             (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
+                                     (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
+	                             0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                                   };
+        success = CreateProcessW(0, (WCHAR*)args.utf16(),
+                                 0, 0, TRUE, CREATE_UNICODE_ENVIRONMENT,
+                                 environment.isEmpty() ? 0 : envlist.data(),
+                                 workingDir.isEmpty() ? 0 : (WCHAR*)workingDir.utf16(),
+                                 &startupInfo, &pinfo);
+    } else
+#endif // UNICODE
+    {
+#ifndef Q_OS_TEMP
+	STARTUPINFOA startupInfo = { sizeof( STARTUPINFOA ), 0, 0, 0,
+                                     (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
+                                     (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
+                                     0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	                           };
+	success = CreateProcessA(0, args.toLocal8Bit().data(),
+                                 0, 0, TRUE, 0, environment.isEmpty() ? 0 : envlist.data(),
+                                 workingDir.isEmpty() ? 0 : workingDir.toLocal8Bit(),
+                                 &startupInfo, &pinfo);
+#endif // Q_OS_TEMP
+    }
+
+    return success;
 }
 
 #include "qprocess_win.moc"

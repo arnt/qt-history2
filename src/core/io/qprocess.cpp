@@ -1071,7 +1071,7 @@ QByteArray QProcess::readAllStandardError()
     process starts successfully, QProcess will emit started();
     otherwise, error() will be emitted.
 
-    \sa pid(), started()
+    \sa pid(), started(), launch()
 */
 void QProcess::start(const QString &program, const QStringList &arguments, OpenMode mode)
 {
@@ -1116,6 +1116,23 @@ int QProcess::exitCode() const
 {
     Q_D(const QProcess);
     return d->exitCode;
+}
+
+/*!
+    Executes \a program as a new process, passing the command line
+    \a arguments. It is also possible to modify the \a workingDir and
+    \a environment for the process. The new process is detached and there
+    is no way to interact with it from QProcess.
+    
+    This function will return true if the process was execute successfully, 
+    this does not reflect the exit vaue of the process. 
+
+    \sa start()
+*/
+bool QProcess::execute(const QString &program, const QStringList &arguments,
+                      const QString &workingDir, const QStringList &environment)
+{
+    return QProcessPrivate::execute(program, arguments, workingDir, environment);
 }
 
 #define d d_func()
