@@ -2642,16 +2642,16 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
     if (syllableLength == 2) {
 	int LIndex = ch[0].unicode() - Hangul_LBase;
 	int VIndex = ch[1].unicode() - Hangul_VBase;
-	if (LIndex > 0 && LIndex < Hangul_LCount &&
-	    VIndex > 0 && VIndex < Hangul_VCount)
+	if (LIndex >= 0 && LIndex < Hangul_LCount &&
+	    VIndex >= 0 && VIndex < Hangul_VCount)
 	    composed = (LIndex * Hangul_VCount + VIndex) * Hangul_TCount + Hangul_SBase;
     } else if (syllableLength == 3) {
 	int LIndex = ch[0].unicode() - Hangul_LBase;
 	int VIndex = ch[1].unicode() - Hangul_VBase;
 	int TIndex = ch[1].unicode() - Hangul_TBase;
-	if (LIndex > 0 && LIndex < Hangul_LCount &&
-	    VIndex > 0 && VIndex < Hangul_VCount &&
-	    TIndex > 0 && TIndex < Hangul_TCount )
+	if (LIndex >= 0 && LIndex < Hangul_LCount &&
+	    VIndex >= 0 && VIndex < Hangul_VCount &&
+	    TIndex >= 0 && TIndex < Hangul_TCount )
 	    composed = (LIndex * Hangul_VCount + VIndex) * Hangul_TCount + TIndex + Hangul_SBase;
     }
 
@@ -2700,7 +2700,7 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 	};
 	const int *f = features;
 	while (*f)
-	    openType->applyGSUBFeature(*f);
+	    openType->applyGSUBFeature(*f++);
 	openType->applyGPOSFeatures();
 
 	GlyphAttributes *glyphAttrs = engine->glyphAttributes(si)+si->num_glyphs;
@@ -2723,6 +2723,13 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
     {
 	Q_UNUSED(openType);
 	QChar c(composed);
+	const QChar *chars = ch;
+
+	// if we have a modern hangul use the composed form
+	if (composed) {
+	    chars = &c;
+	    len = 1;
+	}
 
 	// if we have a modern hangul use the composed form
 	if (composed) len = 1;
@@ -2733,7 +2740,7 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 	advance_t *advances = engine->advances(si)+si->num_glyphs;
 	GlyphAttributes *glyphAttributes = engine->glyphAttributes(si)+si->num_glyphs;
 
-	int error = si->fontEngine->stringToCMap(ch, len, glyphs, advances, &len,
+	int error = si->fontEngine->stringToCMap(chars, len, glyphs, advances, &len,
 						 (si->analysis.bidiLevel %2));
 	assert (!error);
 
