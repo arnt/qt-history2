@@ -25,7 +25,7 @@ public:
     QFileEngine(QFileEnginePrivate &);
     virtual ~QFileEngine();
 
-    static QFileEngine *QFileEngine::createFileEngine(const QString &file);
+    static QFileEngine *createFileEngine(const QString &file);
     virtual void setFileName(const QString &file) = 0;
 
     virtual bool remove() = 0;
