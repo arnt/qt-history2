@@ -1887,6 +1887,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( !widget )				// don't know this widget
 	goto do_default;
 
+    if ( message == WM_MOUSEACTIVATE && widget->inherits( "QDockWindow" ) )
+	return MA_NOACTIVATE;
+
     if ( app_do_modal )	{			// modal event handling
 	int ret = 0;
 	if ( !qt_try_modal(widget, &msg, ret ) ) {
@@ -2459,16 +2462,19 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
       block_event = TRUE;
     }
 #ifndef Q_OS_TEMP
-    else if ( type == WM_MOUSEACTIVATE || type == WM_NCLBUTTONDOWN || type == WM_SETFOCUS ){
+    else if ( type == WM_MOUSEACTIVATE || type == WM_NCLBUTTONDOWN ){
 	if ( !top->isActiveWindow() ) {
-	    if ( type == WM_SETFOCUS )
-		winPostMessage( msg->hwnd, WM_NCACTIVATE, FALSE, 0 );
 	    top->setActiveWindow();
 	} else {
 	    QApplication::beep();
 	}
 	block_event = TRUE;
 	ret = MA_NOACTIVATEANDEAT;
+    } else if ( type == WM_SETFOCUS ) {
+	if ( !top->isActiveWindow() ) {
+//	    top->setActiveWindow();
+	    winPostMessage( msg->hwnd, WM_NCACTIVATE, FALSE, 0 );
+	}
     }
 #endif
 
