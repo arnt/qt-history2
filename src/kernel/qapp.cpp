@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#19 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#19 $";
 #endif
 
 
@@ -87,10 +87,10 @@ QApplication::~QApplication()
     destroy_palettes();
     delete appPal;
     appPal = 0;
-    if ( appFont )
-	delete appFont;
-    if ( appCursor )
-	delete appCursor;
+    delete appFont;
+    appFont = 0;
+    delete appCursor;
+    appCursor = 0;
     qApp = 0;
     closing_down = TRUE;
     QWidget::destroyMapper();			// destroy widget mapper
@@ -115,7 +115,7 @@ void QApplication::setPalette( const QPalette &p, bool forceAllWidgets )
     delete appPal;
     appPal = new QPalette( p.copy() );
     CHECK_PTR( appPal );
-    if ( forceAllWidgets ) {			// update all widgets
+    if ( forceAllWidgets && !(starting_up || closing_down) ) {
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
