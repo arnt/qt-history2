@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#10 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#10 $";
 #endif
 
 
@@ -597,6 +597,7 @@ bool QPixmap::convertToImage( QImage *image ) const
 				       (carr[i].blue  >> 8) & 255 ) );
 	    }
 	}
+	delete carr;
     }
     if ( data->optim ) {			// keep ximage that we fetched
 	((QPixmap*)this)->data->dirty  = FALSE;
