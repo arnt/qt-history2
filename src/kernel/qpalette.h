@@ -137,7 +137,7 @@ private:
     friend class QColorGroup;
     uint is_colorgroup : 1;
 #endif
-    friend QDataStream &operator<<(QDataStream &s, const QPalette &p);
+    friend Q_EXPORT QDataStream &operator<<(QDataStream &s, const QPalette &p);
     ColorGroup current_group;
     static QPaletteData *shared_default;
     static int palette_count;

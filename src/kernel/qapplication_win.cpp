@@ -35,7 +35,7 @@
 #include "qnc_win.h"
 #endif
 
-#ifdef QT_THREAD_SUPPRORT
+#ifdef QT_THREAD_SUPPORT
 #include "qmutex.h"
 #endif // QT_THREAD_SUPPORT
 
@@ -604,7 +604,7 @@ static void qt_set_windows_resources()
 		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_BTNHIGHLIGHT))) );
     pal.setColor( QPalette::Dark,
 		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_BTNSHADOW))) );
-    pal.setColor( QPalette::Mid, pal.button().dark( 150 ) );
+    pal.setColor( QPalette::Mid, pal.button().color().dark( 150 ) );
     pal.setColor( QPalette::Text,
 		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_WINDOWTEXT))) );
     pal.setColor( QPalette::BrightText,
@@ -629,15 +629,15 @@ static void qt_set_windows_resources()
 
     if ( qt_winver != Qt::WV_NT && qt_winver != Qt::WV_95 ) {
 	if ( pal.midlight() == pal.button() )
-	    pal.setColor( QPalette::Midlight, pal.button().light(110) );
+	    pal.setColor( QPalette::Midlight, pal.button().color().light(110) );
 	if ( pal.background() != pal.base() ) {
-	    pal.setColor( QPalette::Inactive, QPalette::Highlight, icg.background() );
-	    pal.setColor( QPalette::Inactive, QPalette::HighlightedText, icg.text() );
+	    pal.setColor( QPalette::Inactive, QPalette::Highlight, pal.color(QPalette::Inactive, QPalette::Background) );
+	    pal.setColor( QPalette::Inactive, QPalette::HighlightedText, pal.color(QPalette::Inactive, QPalette::Text) );
 	}
     }
 
     const QColor fg = pal.foreground().color(), btn = pal.button().color();
-    QColor disabled( (fg.red()+pal.btn.red())/2,(fg.green()+pal.btn.green())/2,
+    QColor disabled( (fg.red()+btn.red())/2,(fg.green()+btn.green())/2,
 		     (fg.blue()+btn.blue())/2);
     pal.setColor( QPalette::Disabled, QPalette::Foreground, disabled );
     pal.setColor( QPalette::Disabled, QPalette::Text, disabled );
@@ -649,17 +649,17 @@ static void qt_set_windows_resources()
     QApplication::setPalette( pal, TRUE );
     *qt_std_pal = pal;
 
-    QColor menu(qt_colorref2qrgb(GetSysColor(COLOR_MENU)));
+    QColor menuCol(qt_colorref2qrgb(GetSysColor(COLOR_MENU)));
     QColor menuText(qt_colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
     {
 	QPalette menu(pal);
 	// we might need a special color group for the menu.
-	menu.setColor( QPalette::Active, QPalette::Button, menu );
+	menu.setColor( QPalette::Active, QPalette::Button, menuCol );
 	menu.setColor( QPalette::Active, QPalette::Text, menuText );
 	menu.setColor( QPalette::Active, QPalette::Foreground, menuText );
 	menu.setColor( QPalette::Active, QPalette::ButtonText, menuText );
 	const QColor fg = menu.foreground().color(), btn = menu.button().color();
-	QColor disabled( (fg.red()+menu.btn.red())/2,(fg.green()+menu.btn.green())/2,
+	QColor disabled( (fg.red()+btn.red())/2,(fg.green()+btn.green())/2,
 			 (fg.blue()+btn.blue())/2);
 	menu.setColor( QPalette::Disabled, QPalette::Foreground, disabled );
 	menu.setColor( QPalette::Disabled, QPalette::Text, disabled );
@@ -711,7 +711,7 @@ static void qt_set_windows_resources()
 	tiplabel.setColor( QPalette::Active, QPalette::Foreground, ttipText );
 	tiplabel.setColor( QPalette::Active, QPalette::ButtonText, ttipText );
 	const QColor fg = tiplabel.foreground().color(), btn = tiplabel.button().color();
-	QColor disabled( (fg.red()+menu.btn.red())/2,(fg.green()+menu.btn.green())/2,
+	QColor disabled( (fg.red()+btn.red())/2,(fg.green()+btn.green())/2,
 			 (fg.blue()+btn.blue())/2);
 	tiplabel.setColor( QPalette::Disabled, QPalette::Foreground, disabled );
 	tiplabel.setColor( QPalette::Disabled, QPalette::Text, disabled );
