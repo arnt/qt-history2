@@ -80,11 +80,12 @@ public:
 
     class Server {
     public:
-	Server(const QString & n=QString::null, Q_UINT16 p=0, Q_UINT16 w=0 )
-	    : name(n), priority(p), weight(w) {}
+	Server(const QString & n=QString::null, Q_UINT16 p=0, Q_UINT16 w=0, Q_UINT16 po=0 )
+	    : name(n), priority(p), weight(w), port(po) {}
 	QString name;
 	Q_UINT16 priority;
 	Q_UINT16 weight;
+	Q_UINT16 port;
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 	bool operator== ( const Server& ) const;
 	Server();

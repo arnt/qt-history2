@@ -16,25 +16,27 @@
 #include "qstring.h"
 #endif // QT_H
 
+class QHostAddressPrivate;
 
 class QHostAddress
 {
 public:
     QHostAddress();
-    QHostAddress( uint ip4Addr );
+    QHostAddress( Q_UINT32 ip4Addr );
+    QHostAddress( Q_UINT8 *ip6Addr );
     QHostAddress( const QHostAddress & );
    ~QHostAddress();
 
     QHostAddress & operator=( const QHostAddress & );
 
-    uint	 ip4Addr()	 const;
+    bool	 isIp4Addr()	 const;
+    Q_UINT32	 ip4Addr()	 const;
     QString	 toString() const;
 
     bool	 operator==( const QHostAddress & ) const;
 
 private:
-    void * d;
-    uint a;
+    QHostAddressPrivate* d;
 };
 
 

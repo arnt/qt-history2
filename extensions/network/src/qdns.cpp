@@ -302,13 +302,26 @@ void QDnsAnswer::parseA()
     qDebug( "QDns: saw %s IN A %s (ttl %d)", label.ascii(),
 	    rr->address.toString().ascii(), ttl );
 #endif
-
 }
 
 
 void QDnsAnswer::parseAaaa()
 {
-    // let's ignore it for now
+    if ( next != pp + 16 ) {
+#if defined(DEBUG_QDNS)
+	qDebug( "QDns: saw %d bytes long IN Aaaa for %s",
+		next - pp, label.ascii() );
+#endif
+	return;
+    }
+
+    rr = new QDnsRR( label );
+    rr->t = QDns::Aaaa;
+    rr->address = QHostAddress( answer+pp );
+#if defined(DEBUG_QDNS)
+    qDebug( "QDns: saw %s IN Aaaa %s (ttl %d)", label.ascii(),
+	    rr->address.toString().ascii(), ttl );
+#endif
 }
 
 
@@ -1522,9 +1535,10 @@ QValueList<QDns::MailServer> QDns::mailServers() const
   Returns a list of servers if the record type is \c Srv. The struct \c
   QDns::Server contains the following variables:
   <ul>
-  <li> \c QString QDns::Server::name;
-  <li> \c Q_UINT16 QDns::Server::priority;
-  <li> \c Q_UINT16 QDns::Server::weight;
+  <li> \c QString QDns::Server::name
+  <li> \c Q_UINT16 QDns::Server::priority
+  <li> \c Q_UINT16 QDns::Server::weight
+  <li> \c Q_UINT16 QDns::Server::port
   </ul>
 */
 QValueList<QDns::Server> QDns::servers() const
@@ -1541,7 +1555,7 @@ QValueList<QDns::Server> QDns::servers() const
     QDnsRR * rr;
     while( (rr=cached->current()) != 0 ) {
 	if ( rr->current && !rr->nxdomain ) {
-	    Server s( rr->target, rr->priority, rr->weight );
+	    Server s( rr->target, rr->priority, rr->weight, rr->port );
 	    result.append( s );
 	}
 	cached->next();

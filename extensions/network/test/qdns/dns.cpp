@@ -64,7 +64,7 @@ public slots:
 	cout << "Found " << list.count() << " results" << endl;
 	Server::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it ) {
-	    cout << (*it).name.latin1() <<
+	    cout << (*it).name.latin1() << ":" << (*it).port <<
 		" (" << (*it).priority << ")" <<
 		"weight: " << (*it).weight << endl;
 	}

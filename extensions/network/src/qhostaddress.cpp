@@ -24,6 +24,39 @@
 #include "qhostaddress.h"
 #include "qglobal.h"
 
+class QHostAddressPrivate
+{
+public:
+    QHostAddressPrivate( Q_UINT32 a_=0 ) : a(a_), isIp4(TRUE)
+    {
+    }
+    QHostAddressPrivate( Q_UINT8 *a_ ) : a(0), isIp4(FALSE)
+    {
+	for ( int i=0; i<16; i++ ) {
+	    a6[i] = a_[i];
+	}
+    }
+    ~QHostAddressPrivate()
+    {
+    }
+
+    QHostAddressPrivate & operator=( const QHostAddressPrivate &from )
+    {
+	a = from.a;
+	isIp4 = from.isIp4;
+	for ( int i=0; i<16; i++ ) {
+	    a6[i] = from.a6[i];
+	}
+	return *this;
+    }
+
+private:
+    Q_UINT32 a;     // ip 4 address
+    Q_UINT8 a6[16]; // ip 6 address
+    bool isIp4;
+
+    friend class QHostAddress;
+};
 
 /*!
   \class QHostAddress qhostaddress.h
@@ -44,12 +77,11 @@
 
 
 /*!
-  Creates a socket address object with the port number 0 and IP address
-  0.0.0.0.
+  Creates a socket address object with the IP address 0.0.0.0.
 */
 
 QHostAddress::QHostAddress()
-    : d( 0 ), a( 0 )
+    : d( new QHostAddressPrivate )
 {
 }
 
@@ -59,10 +91,23 @@ QHostAddress::QHostAddress()
   address.
 */
 
-QHostAddress::QHostAddress( uint ip4Addr )
-    : d(0)
+QHostAddress::QHostAddress( Q_UINT32 ip4Addr )
+    : d( new QHostAddressPrivate( ip4Addr ) )
 {
-    a = ip4Addr;
+}
+
+
+/*!
+  Creates a socket address object with a specified IPv6
+  address.
+
+  \a ip6Addr must be a 16 byte array in network byte order (high-order byte
+  first)
+*/
+
+QHostAddress::QHostAddress( Q_UINT8 *ip6Addr )
+    : d( new QHostAddressPrivate( ip6Addr ) )
+{
 }
 
 
@@ -71,9 +116,9 @@ QHostAddress::QHostAddress( uint ip4Addr )
 */
 
 QHostAddress::QHostAddress( const QHostAddress &address )
-    : d(0)
+    : d( new QHostAddressPrivate )
 {
-    a = address.a;
+    *d = *(address.d);
 }
 
 
@@ -83,8 +128,7 @@ QHostAddress::QHostAddress( const QHostAddress &address )
 
 QHostAddress::~QHostAddress()
 {
-    // nothing to d;
-    // nothing to a
+    delete d;
 }
 
 
@@ -95,24 +139,35 @@ QHostAddress::~QHostAddress()
 
 QHostAddress & QHostAddress::operator=( const QHostAddress & address )
 {
-    d = 0;
-    a = address.a;
+    *d = *(address.d);
     return *this;
 }
 
 
 /*!
-  Returns the IPc4 address as a number.
+  Return true if the host address represents a IPv4 address.
+*/
+
+bool QHostAddress::isIp4Addr() const
+{
+    return d->isIp4;
+}
+
+
+/*!
+  Returns the IPv4 address as a number.
 
   For example, if the address is 127.0.0.1, the returned value is
   2130706433 (hex: 7f000001).
 
+  This value is only valid when isIp4Addr() returns TRUE.
+
   \sa toString()
 */
 
-uint QHostAddress::ip4Addr() const
+Q_UINT32 QHostAddress::ip4Addr() const
 {
-    return a;
+    return d->a;
 }
 
 
@@ -127,11 +182,24 @@ uint QHostAddress::ip4Addr() const
 
 QString QHostAddress::toString() const
 {
-    uint i = ip4Addr();
-    QString s;
-    s.sprintf( "%d.%d.%d.%d", (i>>24) & 0xff, (i>>16) & 0xff,
-	       (i >> 8) & 0xff, i & 0xff );
-    return s;
+    if ( d->isIp4 ) {
+	Q_UINT32 i = ip4Addr();
+	QString s;
+	s.sprintf( "%d.%d.%d.%d", (i>>24) & 0xff, (i>>16) & 0xff,
+		(i >> 8) & 0xff, i & 0xff );
+	return s;
+    } else {
+	Q_UINT16 ugle[8];
+	for ( int i=0; i<8; i++ ) {
+	    ugle[i] = ( (Q_UINT16)( d->a6[2*i] ) << 8 ) | 
+		( (Q_UINT16)( d->a6[2*i+1] ) );
+	}
+	QString s;
+	s.sprintf( "%x:%x:%x:%x:%x:%x:%x:%x",
+		ugle[0], ugle[1], ugle[2], ugle[3],
+		ugle[4], ugle[5], ugle[6], ugle[7] );
+	return s;
+    }
 }
 
 
@@ -142,5 +210,5 @@ QString QHostAddress::toString() const
 
 bool QHostAddress::operator==( const QHostAddress & other ) const
 {
-    return  a == other.a;
+    return  d->a == other.d->a;
 }
