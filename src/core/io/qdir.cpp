@@ -44,6 +44,23 @@ private:
 #ifdef QT_COMPAT
     QChar filterSepChar;
 #endif
+    static inline QChar getFilterSepChar(const QString &nameFilter)
+    {
+        QChar sep(';');
+        int i = nameFilter.indexOf(sep, 0);
+        if (i == -1 && nameFilter.indexOf(' ', 0) != -1)
+            sep = QChar(' ');
+        return sep;
+    }
+    static inline QStringList splitFilters(const QString &nameFilter, QChar sep=0) {
+        if(sep == 0)
+            sep = getFilterSepChar(nameFilter);
+        QStringList ret = nameFilter.split(sep);
+        for(int i = 0; i < ret.count(); i++)
+            ret[i] = ret[i].trimmed();
+        return ret;
+    }
+
     struct Data {
         inline Data() : fileEngine(0) { ref = 1; clear(); }
         inline ~Data() { delete fileEngine; }
@@ -1637,15 +1654,6 @@ QDir::refresh() const
     d->data->clear();
 }
 
-static inline QChar getFilterSepChar(const QString &nameFilter)
-{
-    QChar sep(';');
-    int i = nameFilter.indexOf(sep, 0);
-    if (i == -1 && nameFilter.indexOf(' ', 0) != -1)
-        sep = QChar(' ');
-    return sep;
-}
-
 /*!
    ####
 */
@@ -1653,7 +1661,7 @@ static inline QChar getFilterSepChar(const QString &nameFilter)
 QStringList 
 QDir::nameFiltersFromString(const QString &nameFilter)
 {
-    return nameFilter.split(getFilterSepChar(nameFilter));
+    return QDirPrivate::splitFilters(nameFilter);
 }
 
 #ifdef QT_COMPAT
@@ -1664,7 +1672,8 @@ QString QDir::nameFilter() const
 
 void QDir::setNameFilter(const QString &nameFilter)
 {
-    d->filterSepChar = getFilterSepChar(nameFilter);
-    setNameFilters(nameFilter.split(d->filterSepChar));
+    d->filterSepChar = QDirPrivate::getFilterSepChar(nameFilter)
+    setNameFilters(QDirPrivate::splitFilters(nameFilter, d->filterSepChar);
 }
 #endif
+
