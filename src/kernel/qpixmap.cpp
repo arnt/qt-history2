@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#23 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#23 $";
 #endif
 
 
@@ -44,8 +44,8 @@ QPixmap QPixmap::copy() const
 {
     QPixmap tmp( data->w, data->h, data->d );
     bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h );
-    tmp.data->optim = data->optim;		// copy optim flag
-    pm.data->bitmap = data->bitmap;		// copy bitmap flag
+    tmp.data->optim  = data->optim;		// copy optim flag
+    tmp.data->bitmap = data->bitmap;		// copy bitmap flag
     return tmp;
 }
 
@@ -58,7 +58,7 @@ QPixmap QPixmap::copy() const
 
 QPixmap &QPixmap::operator=( const QImage &image )
 {
-    convertFromImage( im );
+    convertFromImage( image );
     return *this;
 }
 
