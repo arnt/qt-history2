@@ -316,6 +316,12 @@ QDir
   A function to remove a directory and all sub-directories/files within (a bit like
   deltree on Windows (except Win 2000).
 
+QLayout
+  Have a removeSpacer() function which removes a spacer.
+
+QMessageBox
+  Use 'Y' and 'N' etc as well as ALT+Key_Y for the shortcuts
+
 New functionality
 -----------------
 
