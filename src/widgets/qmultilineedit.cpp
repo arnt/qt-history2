@@ -1402,8 +1402,8 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
     int oldYPos = cursorY;
     if ( line < 0 || line >= int( contents->count() ) ) {
 	if ( !dummy )
-	    s.prepend('\n');
-	insertAt( s, numLines()-1, textLine( numLines()-1).length() );
+	    contents->append( new QMultiLineEditRow(QString::fromLatin1(""), 0) );
+	insertAt( s, numLines()-1, 0 );
     }
     else {
 	s.append('\n');
@@ -3586,7 +3586,7 @@ public:
 	if ( other->type() == type() ) {
 	    QDelTextCmd* o = (QDelTextCmd*) other;
 	    if ( mOffset + int(mStr.length()) == o->mOffset ) {
-		o->mStr += mStr;
+		o->mStr.prepend( mStr );
 		o->mOffset = mOffset;
 		return TRUE;
 	    }
