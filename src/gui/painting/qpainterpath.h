@@ -16,6 +16,7 @@
 #define QPAINTERPATH_H
 
 #include "qpoint.h"
+#include "qrect.h"
 
 class QPainterPathPrivate;
 
