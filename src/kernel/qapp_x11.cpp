@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#90 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#89 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#90 $";
 #endif
 
 
@@ -529,6 +529,37 @@ void QApplication::restoreCursor()		// restore application cursor
     delete app_cursor;				// reset app_cursor
     app_cursor = 0;
 }
+
+
+/*!
+  Returns a pointer to the widget at position \e (x,y), or a
+  null pointer if the cursor is not over at one of this applications's
+  widgets.
+
+  \warning Not Yet Implemented.
+
+  \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
+*/
+
+QWidget *QApplication::widgetAt( int x, int y )
+{
+#if 0
+    Window root;
+    Window child;
+    int root_x, root_y, win_x, win_y;
+    uint buttons;
+
+    XQueryPointer( qt_xdisplay(), qt_xrootwin(), &root, &child,
+		   &root_x, &root_y, &win_x, &win_y, &buttons );
+
+    reeturn child ? QWidget::find( child ) : 0;
+#endif
+    return 0;
+}
+
+/*!
+  \overload QWidget *QApplication::widgetAt( const QPoint &pos )
+*/
 
 
 void QApplication::flushX()			// flush X output buffer
