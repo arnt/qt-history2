@@ -29,9 +29,10 @@ class QMotifWidget : public QWidget
     Q_DECLARE_PRIVATE(QMotifWidget);
 
 public:
-    QMotifWidget( QWidget *, WidgetClass, ArgList = NULL, Cardinal = 0,
-                  const char * = 0, Qt::WFlags = 0 );
-    virtual ~QMotifWidget();
+    QMotifWidget(const char *name, WidgetClass widgetClass, QWidget *parent,
+                 ArgList args = NULL, Cardinal argCount = 0,
+                 Qt::WFlags flags = 0);
+    ~QMotifWidget();
 
     Widget motifWidget() const;
 
@@ -39,18 +40,18 @@ public:
     void hide();
 
 protected:
-    bool event( QEvent * );
-    bool eventFilter( QObject *object, QEvent *event );
+    bool event(QEvent *);
+    bool eventFilter(QObject *object, QEvent *event);
     bool x11Event(XEvent *event);
 
 private:
-    void realize( Widget );
+    void realize(Widget);
 
     friend void qmotif_widget_shell_destroy(Widget w);
-    friend void qmotif_widget_shell_realize( Widget, XtValueMask *,
+    friend void qmotif_widget_shell_realize(Widget, XtValueMask *,
                                              XSetWindowAttributes *);
-    friend void qmotif_widget_shell_change_managed( Widget );
-    static bool dispatchQEvent( QEvent*, QWidget*);
+    friend void qmotif_widget_shell_change_managed(Widget);
+    static bool dispatchQEvent(QEvent*, QWidget*);
     friend class QMotifDialog;
 };
 

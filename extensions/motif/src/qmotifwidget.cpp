@@ -297,10 +297,10 @@ public:
 */
 
 /*!
-    Creates a QMotifWidget of the given \a widgetclass as a child of
+    Creates a QMotifWidget of the given \a widgetClass as a child of
     \a parent, with the name \a name and widget flags \a flags.
 
-    The \a args and \a argcount arguments are passed on to
+    The \a args and \a argCount arguments are passed on to
     XtCreateWidget.
 
     The motifWidget() function returns the resulting Xt/Motif widget.
@@ -313,12 +313,10 @@ public:
     special TopLevelShell parent as the parent for existing
     Xt/Motif dialogs or QMotifDialogs.
 */
-QMotifWidget::QMotifWidget(QWidget *parent, WidgetClass widgetclass,
-                           ArgList args, Cardinal argcount,
-                           const char *name, Qt::WFlags flags)
+QMotifWidget::QMotifWidget(const char *name, WidgetClass widgetClass, QWidget *parent,
+                           ArgList args, Cardinal argCount, Qt::WFlags flags)
     : QWidget(*(new QMotifWidgetPrivate), parent, flags)
 {
-    setObjectName(name);
     setFocusPolicy( Qt::StrongFocus );
 
     Widget motifparent = NULL;
@@ -347,11 +345,11 @@ QMotifWidget::QMotifWidget(QWidget *parent, WidgetClass widgetclass,
 	}
     }
 
-    bool isShell = widgetclass == applicationShellWidgetClass || widgetclass == topLevelShellWidgetClass;
+    bool isShell = widgetClass == applicationShellWidgetClass || widgetClass == topLevelShellWidgetClass;
     if (!motifparent || isShell) {
-	ArgList realargs = new Arg[argcount + 3];
-	Cardinal nargs = argcount;
-	memcpy( realargs, args, sizeof( Arg ) * argcount );
+	ArgList realargs = new Arg[argCount + 3];
+	Cardinal nargs = argCount;
+	memcpy( realargs, args, sizeof( Arg ) * argCount );
 
 	int screen = x11Info().screen();
 	if (!QX11Info::appDefaultVisual(screen)) {
@@ -365,7 +363,7 @@ QMotifWidget::QMotifWidget(QWidget *parent, WidgetClass widgetclass,
 	    ++nargs;
 	}
 
-	if (widgetclass == applicationShellWidgetClass) {
+	if (widgetClass == applicationShellWidgetClass) {
 	    d->shell = XtAppCreateShell( name, name, qapplicationShellWidgetClass,
 					 QMotif::display(), realargs, nargs );
 	    ( (QApplicationShellWidget) d->shell )->qapplicationshell.widget = this;
@@ -383,7 +381,7 @@ QMotifWidget::QMotifWidget(QWidget *parent, WidgetClass widgetclass,
     if (isShell)
 	d->widget = d->shell;
     else
-	d->widget = XtCreateWidget( name, widgetclass, motifparent, args, argcount );
+	d->widget = XtCreateWidget( name, widgetClass, motifparent, args, argCount );
 
     QWidgetPrivate *wp = static_cast<QWidgetPrivate*>(QObject::d_ptr);
     if (! wp->extra) {
