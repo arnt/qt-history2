@@ -230,6 +230,7 @@ public:
     uint    macDropEnabled : 1;
     EventHandlerRef window_event;
     bool qt_mac_dnd_event(uint, DragRef);
+    void toggleDrawers(bool);
     //mac event functions
     friend class QGuiEventLoop;
     static bool qt_create_root_win();

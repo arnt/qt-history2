@@ -507,19 +507,45 @@ bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/
 {
     if(!qt_mac_is_macdrawer(w))
         return false;
-    OptionBits bits;
+    OptionBits edge;
     if(where == Qt::DockTop)
-        bits = kWindowEdgeTop;
+        edge = kWindowEdgeTop;
     else if(where == Qt::DockLeft)
-        bits = kWindowEdgeLeft;
+        edge = kWindowEdgeLeft;
     else if(where == Qt::DockRight)
-        bits = kWindowEdgeRight;
+        edge = kWindowEdgeRight;
     else if(where == Qt::DockBottom)
-        bits = kWindowEdgeBottom;
+        edge = kWindowEdgeBottom;
     else
         return false;
-    SetDrawerPreferredEdge(qt_mac_window_for(w), bits);
+    WindowPtr window = qt_mac_window_for(w);
+    if(edge == GetDrawerPreferredEdge(window)) //no-op
+        return false;
+    //do it
+    SetDrawerPreferredEdge(window, edge);
+    if(w->isVisible()) {
+        CloseDrawer(window, false);
+        OpenDrawer(window, edge, true);
+    }
     return true;
+}
+
+void QWidgetPrivate::toggleDrawers(bool visible)
+{
+    for (int i = 0; i < children.size(); ++i) {
+        register QObject *object = children.at(i);
+        if (!object->isWidgetType())
+            continue;
+        QWidget *widget = static_cast<QWidget*>(object);
+        if(qt_mac_is_macdrawer(widget)) {
+            if(visible) {
+                if (!widget->isHidden())
+                    widget->show();
+            } else {
+                widget->hide_helper();
+            }
+        }
+    }
 }
 
 bool qt_mac_is_macsheet(const QWidget *w)
@@ -1388,15 +1414,8 @@ void QWidget::show_sys()
         } else if(qt_mac_is_macdrawer(this)) {
             OpenDrawer(window, kWindowEdgeDefault, true);
         } else {
-            ShowHide(window, true);        //now actually show it
-            for (int i = 0; i < d->children.size(); ++i) {
-                register QObject *object = d->children.at(i);
-                if (!object->isWidgetType())
-                    continue;
-                QWidget *widget = static_cast<QWidget*>(object);
-                if (qt_mac_is_macdrawer(widget) && !widget->testWState(Qt::WState_Hidden))
-                    widget->show_helper();
-            }
+            ShowHide(window, true); 
+            d->toggleDrawers(true);
         }
         if(windowState() & Qt::WindowMinimized) //show in collapsed state
             CollapseWindow(window, true);
@@ -1423,6 +1442,7 @@ void QWidget::hide_sys()
             CloseDrawer(window, true);
         } else {
             ShowHide(window, false);
+            d->toggleDrawers(false);
         }
         if(isActiveWindow()) {
             QWidget *w = 0;
