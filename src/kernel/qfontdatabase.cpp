@@ -951,8 +951,7 @@ void newWinFont( void * )
 {
 }
 static
-void add_style( QtFontCharSet *charSet, const QString& styleName,
-	    bool italic, bool lesserItalic, int weight )
+void add_style( QtFontCharSet *, const QString&, bool, bool, int )
 {
 }
 #endif

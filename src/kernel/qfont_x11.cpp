@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#174 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#175 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -483,14 +483,11 @@ static bool fillFontDef( const QCString &xlfd, QFontDef *fd,
 #if 1
     //qWarning( "Resolution = %s", tokens[ResolutionY] );
 
-    // ##### WWA:   Eirik, is this the right time for this?  token might be "*".
-    if ( strcmp(tokens[ResolutionY], "75") != 0 ) { // if not 75 dpi
-	int r = atoi(tokens[ResolutionY]);
-	if ( r ) { // not "0" or "*"
-	    fd->pointSize = ( 2*fd->pointSize*atoi(tokens[ResolutionY]) + 75)
-			       / (75 * 2);		// adjust actual pointsize
-	    //qWarning( "Adjusted from %i to %i", fett, fd->pointSize  );
-	}
+    int r = atoi(tokens[ResolutionY]);
+    if ( r && QPaintDevice::x11DpiY() && r != QPaintDevice::x11DpiY() ) { // not "0" or "*", or required DPI
+	fd->pointSize = ( 2*fd->pointSize*atoi(tokens[ResolutionY]) + QPaintDevice::x11DpiY())
+			       / (QPaintDevice::x11DpiY() * 2);		// adjust actual pointsize
+	//qWarning( "Adjusted from %i to %i", fett, fd->pointSize  );
     }
 #endif
 
@@ -983,15 +980,16 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	// smoothly scalable font, we can ask for any resolution
 	score |= ResolutionScore;
     } else {
-	if ( strcmp(tokens[ResolutionX], "75") == 0 &&
-	     strcmp(tokens[ResolutionY], "75") == 0 ) {
+	int rx = atoi(tokens[ResolutionX]);
+	int ry = atoi(tokens[ResolutionY]);
+	if ( rx == QPaintDevice::x11DpiX() && ry == QPaintDevice::x11DpiY() ) {
 	    score |= ResolutionScore;
 	} else {
 	    exactMatch = FALSE;
 	    if ( !*scalable ) {
 		// int fett = pSize;
-		pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + 75)
-			/ (75 * 2);		// adjust actual pointsize
+		pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + QPaintDevice::x11DpiY())
+			/ (QPaintDevice::x11DpiY() * 2);	// adjust actual pointsize
 		//qWarning( "X Adjusted from %i to %i", fett, pSize  );
 	    }
 	}
@@ -1113,14 +1111,11 @@ QCString QFont_Private::bestMatch( const char *pattern, int *score )
 	     bestScalable.weightDiff < best.weightDiff ) ) ) {
 	strcpy( matchBuffer.data(), bestScalable.name );
 	if ( qParseXFontName( matchBuffer, tokens ) ) {
-	    int resx = 75;
-	    int resy = 75;
+	    // X will scale the font accordingly
+	    int resx = QPaintDevice::x11DpiX();
+	    int resy = QPaintDevice::x11DpiY();
+
 	    int pSize = deciPointSize();
-	    if ( !isSmoothlyScalable( tokens ) ) {
-		resx = atoi( tokens[ResolutionX]);
-		resy = atoi( tokens[ResolutionY]);
-		pSize = (2*pSize*75 + resy)/(resy*2);
-	    }
 	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-*-%i-%i-%i-%s-*-%s-%s",
 			      tokens[Foundry],
 			      tokens[Family],
@@ -1353,7 +1348,7 @@ int QFontMetrics::printerAdjusted(int val) const
 	 painter->device()->devType() == QInternal::Printer) {
 	painter->cfont.handle();
 	int xres = painter->cfont.d->fin->xResolution();
-	return qRound( val*75/xres );
+	return qRound( val * 72.0 / xres ); // PostScript is 72dpi
     } else {
 	return val;
     }
@@ -1982,19 +1977,19 @@ void QFontInternal::computeLineWidth()
     strcpy( buffer.data(), name() );
     if ( !qParseXFontName(buffer, tokens) ) {
 	lw   = 1;                   // name did not conform to X LFD
-	xres = 75;
+	xres = QPaintDevice::x11DpiX();
 	return;
     }
     int weight = qFontGetWeight( tokens[Weight_] );
     int pSize  = atoi( tokens[PointSize] ) / 10;
-    if ( strcmp( tokens[ResolutionX], "75") != 0 || // adjust if not 75 dpi
-	 strcmp( tokens[ResolutionY], "75") != 0 )
-	pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + 75 ) / ( 75 * 2 );
+    int ry = atoi( tokens[ResolutionY] );
+    if ( ry != QPaintDevice::x11DpiY() )
+	pSize = ( 2*pSize*ry + QPaintDevice::x11DpiY() ) / ( QPaintDevice::x11DpiY() * 2 );
     QCString tmp = tokens[ResolutionX];
     bool ok;
     xres = tmp.toInt( &ok );
     if ( !ok || xres == 0 )
-	xres = 75;		
+	xres = QPaintDevice::x11DpiX();		
     int score = pSize*weight;		// ad hoc algorithm
     lw = ( score ) / 700;
     if ( lw < 2 && score >= 1050 )	// looks better with thicker line

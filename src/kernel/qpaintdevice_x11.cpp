@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#99 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#100 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -221,6 +221,46 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 
   \sa handle()
 */
+
+
+/*!
+  Returns the horizontal DPI of the X display (X11 only).
+  <em>Using this function is not portable.</em> See QPaintDeviceMetrics
+  for portable access to related information.
+
+  \sa QPaintDeviceMetrics::logicalDpiX();
+*/
+int QPaintDevice::x11DpiX()
+{
+    static int remember = 0;
+    if ( !remember ) {
+	Display *dpy = x11AppDisplay();
+	int scr = x11AppScreen();
+	if ( dpy )
+	    remember = DisplayWidth(dpy,scr) * 254 / DisplayWidthMM(dpy,scr) / 10;
+    }
+    return remember;
+}
+
+/*!
+  Returns the vertical DPI of the X display (X11 only).
+  <em>Using this function is not portable.</em> See QPaintDeviceMetrics
+  for portable access to related information.
+
+  \sa QPaintDeviceMetrics::logicalDpiY();
+*/
+int QPaintDevice::x11DpiY()
+{
+    static int remember = 0;
+    if ( !remember ) {
+	Display *dpy = x11AppDisplay();
+	int scr = x11AppScreen();
+	if ( dpy )
+	    remember = DisplayHeight(dpy,scr) * 254 / DisplayHeightMM(dpy,scr) / 10;
+    }
+    return remember;
+}
+
 
 /*!
   \fn bool QPaintDevice::paintingActive() const
@@ -648,3 +688,4 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
   \relates QPaintDevice
 */
+
