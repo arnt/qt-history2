@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#191 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#192 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -48,7 +48,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#191 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#192 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -103,7 +103,7 @@ static QWidgetList *popupWidgets = 0;		// list of popup widgets
 static bool	    popupCloseDownMode = FALSE;
 static bool	    popupGrabOk;
 static bool	    popupFilter( QWidget * );
-
+static QWidget     *widgetWithButtonFocus = 0;
 
 typedef void  (*VFPTR)();
 typedef Q_DECLARE(QListM,void) QVFuncList;
@@ -2034,6 +2034,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     mouseYPos = pos.y();
     if ( type == 0 )				// don't send event
 	return FALSE;
+
     if ( popupWidgets ) {			// oops, in popup mode
 	QWidget *popup = popupWidgets->last();
 	if ( popup != this ) {
@@ -2042,8 +2043,33 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    else				// send to last popup
 		pos = popup->mapFromGlobal( mapToGlobal(pos) );
 	}
-	QMouseEvent e( type, pos, button, state );
-	QApplication::sendEvent( popup, &e );
+
+	QWidget * popupChild = findChildWidget( popup, pos );
+	bool releaseAfter = FALSE;
+	switch ( type ) {
+	case Event_MouseButtonPress:
+	    widgetWithButtonFocus = popupChild;
+	    break;
+	case Event_MouseButtonDblClick:
+	    widgetWithButtonFocus = popupChild;
+	    break;
+	case Event_MouseButtonRelease:
+	    releaseAfter = TRUE;
+	    break;
+	default:
+	    // nothing for mouse move
+	    break;
+	}
+
+	if ( widgetWithButtonFocus ) {
+	    QMouseEvent e( type, widgetWithButtonFocus->mapFromGlobal( popup->mapToGlobal( pos ) ), button, state );
+	    QApplication::sendEvent( widgetWithButtonFocus, &e );
+	    if ( releaseAfter )
+		widgetWithButtonFocus = 0;
+	} else {
+	    QMouseEvent e( type, pos, button, state );
+	    QApplication::sendEvent( popup, &e );
+	}
 	if ( popupWidgets ) {			// still in popup mode
 	    if ( popupGrabOk )
 		XAllowEvents( dpy, SyncPointer, CurrentTime );
