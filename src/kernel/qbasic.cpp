@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#14 $
 **
 **  Studies in Geometry Management
 **
@@ -18,7 +18,7 @@
 #include "qbasic.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#14 $");
 
 
 
@@ -576,30 +576,17 @@ bool QBasicManager::doIt()
   */
 void QBasicManager::freeze( int w, int h )
 {
-    xC->recalc();
-    yC->recalc();
+    frozen = FALSE; // so doIt can do it.
+    doIt();
 
-    //### duplication of code from doIt...
- 
-    int ys = yC->maxSize() + 2*border;
-    if ( ys > QBasicManager::unlimited )
-	ys = QBasicManager::unlimited;
-    int xs = xC->maxSize() + 2*border;
-    if ( xs > QBasicManager::unlimited )
-	xs = QBasicManager::unlimited;
+    QSize max = main->maximumSize();
+    QSize min = main->minimumSize();
 
-    w = QMIN( w, xs );
-    h = QMIN( h, ys );
-
-    ys = yC->minSize() + 2*border;
-    xs = xC->minSize() + 2*border;
-    w = QMAX( w, xs );
-    h = QMAX( h, ys );
-
-    resizeAll(); //### double recalc...
-
+    w = QMAX( min.width(), QMIN( w, max.width() ) );
+    h = QMAX( min.height(), QMIN( w, max.height() ) );
     main->setMaximumSize( w, h );
     main->setMinimumSize( w, h );
+    main->resize( w, h );
 
     frozen = TRUE;
 }
