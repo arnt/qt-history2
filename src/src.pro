@@ -26,9 +26,12 @@ unix {
             eval(release-$${sub}.commands = (cd $$sub && $(MAKE) -f $(MAKEFILE) debug))
             EXTRA_RELEASE_TARGETS += release-$${sub}
             QMAKE_EXTRA_TARGETS += release-$${sub}
-        } else { #both a debug and release target
-            EXTRA_DEBUG_TARGETS += sub-$${sub}
-            EXTRA_RELEASE_TARGETS += sub-$${sub}
+        } else { #both a debug and release target in one
+            eval(release-debug-$${sub}.depends = $${sub}/$(MAKEFILE) $$EXTRA_DEBUG_TARGETS)
+            eval(release-debug-$${sub}.commands = (cd $$sub && $(MAKE) -f $(MAKEFILE) first))
+            EXTRA_RELEASE_TARGETS += release-debug-$${sub}
+            EXTRA_DEBUG_TARGETS += release-debug-$${sub}
+            QMAKE_EXTRA_TARGETS += release-debug-$${sub}
         }
      }
      debug.depends = $$EXTRA_DEBUG_TARGETS
