@@ -1125,12 +1125,10 @@ void QListView::doItemsLayout(const QRect &bounds,
 */
 void QListView::doStaticLayout(const QRect &bounds, int first, int last)
 {
-    int x = 0;
-    int y = 0;
     int spacing = d->gridSize.isEmpty() ? d->spacing : 0;
-    d->initStaticLayout(x, y, first, bounds, spacing);
-
-    QPoint topLeft(x, y);
+    QPoint topLeft = d->initStaticLayout(first, bounds, spacing);
+    int x = topLeft.x();
+    int y = topLeft.y();
     QSize grid = d->gridSize;
     int delta = last - first + 1;
     int layoutWraps = d->layoutWraps;
@@ -1143,56 +1141,66 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
     QAbstractItemModel *model = this->model();
     QVector<int> hiddenRows = d->hiddenRows;
 
-    if (d->movement == QListView::Static && !wrap)
+    if (!wrap) {
         if (d->flow == QListView::LeftToRight)
-             rect.setHeight(qMin(d->contentsSize.height(), rect.height()));
+            rect.setHeight(qMin(d->contentsSize.height(), rect.height()));
         else
             rect.setWidth(qMin(d->contentsSize.width(), rect.width()));
+    }
+
+    // The static layout data structures are as follows:
+    // One vector of positions along an axis for each item
+    // Another vector of positions along the other axis for each
+    // layout row/column (depending on flow direction).
+    // A third vector containing the index (model row) of the first item
+    // in this layout row/column (refered to as a wrap)
 
     if (d->flow == LeftToRight) {
-        int w = bounds.width();
-        int dx, dy = grid.isValid() ? grid.height() : d->translate;
-        for (int i = first; i <= last ; ++i) {
-            if (!hiddenRows.contains(i)) {
-                index = model->index(i, d->column, root());
-                if (!grid.isValid())
+        int dx = grid.isValid() ? grid.width() : 0;
+        int dy = grid.isValid() ? grid.height() : d->translate;
+        for (int row = first; row <= last; ++row) {
+            if (hiddenRows.contains(row)) {
+                d->xposVector.append(x);
+            } else {
+                index = model->index(row, d->column, root());
+                if (!grid.isValid()) {
                     hint = delegate->sizeHint(option, index);
-                dx = hint.width();
-                if (wrap && (x + spacing >= w))
-                    d->createStaticRow(x, y, dy, layoutWraps, i, bounds, spacing, delta);
-                d->xposVector.push_back(x);
+                    dx = hint.width();
+                }
+                if (wrap && (x + spacing >= bounds.width()))
+                    d->createStaticRow(x, y, dy, layoutWraps, row, bounds, spacing, delta);
+                d->xposVector.append(x);
                 dy = (hint.height() > dy ? hint.height() : dy);
                 x += spacing + dx;
-            } else {
-                d->xposVector.push_back(x);
             }
         }
         // used when laying out next batch
-        d->xposVector.push_back(x);
+        d->xposVector.append(x);
         d->translate = dy;
         rect.setBottom(y + dy);
         if (layoutWraps == 0)
             rect.setRight(x);
     } else { // d->flow == TopToBottom
-        int h = bounds.height();
-        int dy, dx = grid.isValid() ? grid.width() : d->translate;
-        for (int i = first; i <= last ; ++i) {
-            if (!hiddenRows.contains(i)) {
-                index = model->index(i, d->column, root());
-                if (!grid.isValid())
+        int dx = grid.isValid() ? grid.width() : d->translate;
+        int dy = grid.isValid() ? grid.height() : 0;
+        for (int row = first; row <= last; ++row) {
+            if (hiddenRows.contains(row)) {
+                d->yposVector.append(y);
+            } else {
+                index = model->index(row, d->column, root());
+                if (!grid.isValid()) {
                     hint = delegate->sizeHint(option, index);
-                dy = hint.height();
-                if (wrap && (y + spacing >= h))
-                    d->createStaticColumn(x, y, dx, layoutWraps, i, bounds, spacing, delta);
-                d->yposVector.push_back(y);
+                    dy = hint.height();
+                }
+                if (wrap && (y + spacing >= bounds.height()))
+                    d->createStaticColumn(x, y, dx, layoutWraps, row, bounds, spacing, delta);
+                d->yposVector.append(y);
                 dx = (hint.width() > dx ? hint.width() : dx);
                 y += spacing + dy;
-            } else {
-                d->yposVector.push_back(y);
             }
         }
         // used when laying out next batch
-        d->yposVector.push_back(y);
+        d->yposVector.append(y);
         d->translate = dx;
         rect.setRight(x + dx);
         if (layoutWraps == 0)
@@ -1201,7 +1209,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
 
     if (d->layoutWraps < layoutWraps) {
         d->layoutWraps = layoutWraps;
-        d->wrapVector.push_back(last + 1);
+        d->wrapVector.append(last + 1);
     }
 
     resizeContents(rect.width(), rect.height());
@@ -1456,7 +1464,7 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
                 if (!hiddenRows.contains(i)) {
                     index = model->index(i, d->column, root);
                     if (index.isValid())
-                        intersectVector.push_back(index);
+                        intersectVector.append(index);
                     else
                         qFatal("intersectingStaticSet: index %d was invalid", i);
                 }
@@ -1475,7 +1483,7 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
                 if (!hiddenRows.contains(i)) {
                     index = model->index(i, d->column, root);
                     if (index.isValid())
-                        intersectVector.push_back(index);
+                        intersectVector.append(index);
                     else
                         qFatal("intersectingStaticSet: index %d was invalid", i);
                 }
@@ -1548,14 +1556,14 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
         ||(flow == QListView::TopToBottom && index.row() >= yposVector.count()))
         return QListViewItem();
 
-    int i = qBinarySearch<int>(wrapVector, index.row(), 0, layoutWraps);
+    int w = qBinarySearch<int>(wrapVector, index.row(), 0, layoutWraps);
     QPoint pos;
     if (flow == QListView::LeftToRight) {
         pos.setX(xposVector.at(index.row()));
-        pos.setY(yposVector.at(i));
+        pos.setY(yposVector.at(w));
     } else { // TopToBottom
         pos.setY(yposVector.at(index.row()));
-        pos.setX(xposVector.at(i));
+        pos.setX(xposVector.at(w));
     }
 
     QStyleOptionViewItem option = q->viewOptions();
@@ -1599,92 +1607,95 @@ void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
 {
     QListViewItem *vi;
     QListViewPrivate *_this = static_cast<QListViewPrivate *>(data.ptr);
-    for (int i = 0; i < (int)leaf.count(); ++i) {
+    for (int i = 0; i < leaf.count(); ++i) {
         int idx = leaf.at(i);
         if (idx < 0)
             continue;
         vi = _this->tree.itemPtr(idx);
         if (vi->rect().intersects(area) && vi->visited != visited) {
-            _this->intersectVector.push_back(_this->listViewItemToIndex(*vi));
+            _this->intersectVector.append(_this->listViewItemToIndex(*vi));
             vi->visited = visited;
         }
     }
 }
 
-void QListViewPrivate::createStaticRow(int &x, int &y, int &dy, int &wraps, int i,
-                                              const QRect &bounds, int spacing, int delta)
+void QListViewPrivate::createStaticRow(int &x, int &y, int &dy, int &wraps, int row,
+                                       const QRect &bounds, int spacing, int delta)
 {
     x = bounds.left() + spacing;
     y += spacing + dy;
     ++wraps;
-    if ((int)yposVector.size() < (wraps + 2)) {
+    if (yposVector.size() < (wraps + 2)) {
         int s = yposVector.size() + delta;
         yposVector.resize(s);
         wrapVector.resize(s);
     }
     yposVector[wraps] = y;
-    wrapVector[wraps] = i;
+    wrapVector[wraps] = row;
     dy = 0;
 }
 
-void QListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
-                                                 const QRect &bounds, int spacing, int delta)
+void QListViewPrivate::createStaticColumn(int &x, int &y, int &dx, int &wraps, int row,
+                                          const QRect &bounds, int spacing, int delta)
 {
     y = bounds.top() + spacing;
     x += spacing + dx;
     ++wraps;
-    if ((int)xposVector.size() < (wraps + 2)) {
+    if (xposVector.size() < (wraps + 2)) {
         int s = xposVector.size() + delta;
         xposVector.resize(s);
         wrapVector.resize(s);
     }
     xposVector[wraps] = x;
-    wrapVector[wraps] = i;
+    wrapVector[wraps] = row;
     dx = 0;
 }
 
-void QListViewPrivate::initStaticLayout(int &x, int &y, int first,
-                                        const QRect &bounds, int spacing)
+QPoint QListViewPrivate::initStaticLayout(int first,
+                                          const QRect &bounds,
+                                          int spacing)
 {
+    int x, y;
     if (first == 0) {
         x = bounds.left() + spacing;
         xposVector.clear();
         if (flow == QListView::TopToBottom)
-            xposVector.push_back(x);
+            xposVector.append(x);
         y = bounds.top() + spacing;
         yposVector.clear();
         if (flow == QListView::LeftToRight)
-            yposVector.push_back(y);
+            yposVector.append(y);
         layoutWraps = 0;
         wrapVector.clear();
-        wrapVector.push_back(0);
+        wrapVector.append(0);
     } else if (wrap) {
         if (flow == QListView::LeftToRight) {
-            x = xposVector.back();
+            x = xposVector.last();
             xposVector.pop_back();
         } else {
             x = xposVector.at(layoutWraps);
         }
         if (flow == QListView::TopToBottom) {
-            y = yposVector.back();
+            y = yposVector.last();
             yposVector.pop_back();
         } else {
             y = yposVector.at(layoutWraps);
         }
     } else {
         if (flow == QListView::LeftToRight) {
-            x = xposVector.back();
+            x = xposVector.last();
             xposVector.pop_back();
         } else {
             x = bounds.left() + spacing;
         }
         if (flow == QListView::TopToBottom) {
-            y = yposVector.back();
+            y = yposVector.last();
             yposVector.pop_back();
         } else {
             y = bounds.top() + spacing;
         }
     }
+    return QPoint(x, y);
 }
 
 void QListViewPrivate::insertItem(int index, QListViewItem &item)
@@ -1766,4 +1777,3 @@ QModelIndex QListViewPrivate::closestIndex(const QPoint &target,
     }
     return closest;
 }
-

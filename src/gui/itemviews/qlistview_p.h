@@ -281,7 +281,7 @@ public:
                          const QRect &bounds, int spacing, int delta);
     void createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
                             const QRect &bounds, int spacing, int delta);
-    void initStaticLayout(int &x, int &y, int first, const QRect &bounds, int spacing);
+    QPoint initStaticLayout(int first, const QRect &bounds, int spacing);
 
     void insertItem(int index, QListViewItem &item);
     void removeItem(int index);
