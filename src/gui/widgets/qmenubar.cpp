@@ -532,8 +532,12 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
 {
     if(e->button() != LeftButton)
         return;
-    d->mouseDown = true;
     QMenuAction *action = d->actionAt(e->pos());
+    if (!action)
+        return;
+
+    d->mouseDown = true;
+
     if(d->currentAction == action && d->popupState) {
         if((d->closePopupMode = (style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)))
             q->update(d->actionRect(action));
