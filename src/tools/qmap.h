@@ -47,11 +47,9 @@ struct Q_CORE_EXPORT QMapData
     static QMapData shared_null;
 };
 
-#ifndef QT_NO_DATASTREAM
+#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
 class QDataStream;
-
 template <class Key, class T> class QMap;
-
 template <class Key, class T>
 QDataStream &operator>>(QDataStream &out, QMap<Key, T> &map);
 #endif

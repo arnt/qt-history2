@@ -16,8 +16,8 @@
 #ifndef QT_NO_VARIANT
 #include "qbitarray.h"
 #include "qbytearray.h"
-#include "qmap.h"
 #include "qdatastream.h"
+#include "qmap.h"
 #include "qdatetime.h"
 #include "qlist.h"
 #include "qstring.h"
