@@ -350,8 +350,8 @@ QString cfstring2qstring(CFStringRef str)
     if(!str)
 	return QString();
 
-    CFIndex length = CFStringGetLength(str); 
-    if(const UniChar *chars = CFStringGetCharactersPtr(str)) 
+    CFIndex length = CFStringGetLength(str);
+    if(const UniChar *chars = CFStringGetCharactersPtr(str))
 	return QString((QChar *)chars, length);
     UniChar *buffer = (UniChar*)malloc(length * sizeof(UniChar));
     CFStringGetCharacters(str, CFRangeMake(0, length), buffer);
@@ -643,6 +643,9 @@ void qSystemWarning( const char* msg, int code )
     else
 	qWarning( msg );
 #endif
+#else
+    Q_UNUSED( msg );
+    Q_UNUSED( code );
 #endif
 }
 
