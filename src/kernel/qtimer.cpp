@@ -219,6 +219,16 @@ QSingleShotTimer::QSingleShotTimer(int msec, QObject *receiver, const char *memb
 
 void QSingleShotTimer::timerEvent(QTimerEvent *)
 {
+    // need to unregister the timer _before_ we emit timeout() in case the slot connected
+    // to timeout calls processEvents()
+#if defined(QT_THREAD_SUPPORT)
+    QEventLoop *eventloop = QEventLoop::instance(thread());
+#else
+    QEventLoop *eventloop = QEventLoop::instance();
+#endif
+    if (eventloop)
+	eventloop->unregisterTimers(this);
+
     emit timeout();
     delete this;
 }
