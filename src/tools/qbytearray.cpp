@@ -479,7 +479,7 @@ QByteArray::QByteArray(const char*s, int size)
 QByteArray::QByteArray(int size, char c)
 {
    if (size <= 0) {
-	d = &shared_empty;
+	d = &shared_null;
     } else {
 	d = (Data*) qMalloc(sizeof(Data)+size);
 	if (!d) {
@@ -598,6 +598,7 @@ QByteArray& QByteArray::prepend(const char *s)
 	memmove(d->data+len, d->data, d->size);
 	memcpy(d->data, s, len);
 	d->size += len;
+	d->data[d->size] = '\0';
     }
     return *this;
 }
@@ -655,8 +656,12 @@ QByteArray &QByteArray::insert(int i, char c)
 	i += d->size;
     if (i < 0)
 	return *this;
+    int oldsize = d->size;
     expand(QMAX(i, d->size));
-    ::memmove(d->data + i + 1, d->data + i, (d->size - i)*sizeof(char));
+    if (i > oldsize)
+	memset(d->data + oldsize, 0x20, i - oldsize);
+    else
+	::memmove(d->data + i + 1, d->data + i, (d->size - i)*sizeof(char));
     d->data[i] = c;
     return *this;
 }
@@ -666,8 +671,12 @@ QByteArray &QByteArray::insert(int i, const char *s)
     if (!s || *s == '\0' || i < 0)
 	return *this;
     int l = strlen(s);
+    int oldsize = d->size;
     expand(QMAX(d->size, i) + l - 1);
-    ::memmove(d->data + i + l, d->data + i, (d->size - i - l)*sizeof(char));
+    if (i > oldsize)
+	memset(d->data + oldsize, 0x20, i - oldsize);
+    else
+	::memmove(d->data + i + l, d->data + i, (d->size - i - l)*sizeof(char));
     memcpy(d->data + i, s, l*sizeof(char));
     return *this;
 }
@@ -727,7 +736,7 @@ QByteArray &QByteArray::replace(char before, const QByteArray &after)
 
 QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &after)
 {
-    if ( before == after || isNull() )
+    if ( isNull() || before == after )
 	return *this;
 
     int index = 0;
@@ -769,7 +778,7 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
 	    int msize = len - movestart;
 	    if ( msize > 0 )
 		memmove( d + to, d + movestart, msize );
-	    resize( len - num*(bl-al) + 1 );
+	    resize( len - num*(bl-al) );
 	}
     } else {
 	// the most complex case. We don't want to loose performance by doing repeated
@@ -798,7 +807,7 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
 	    int newlen = len + adjust;
 	    int moveend = len;
 	    if ( newlen > len ) {
-		resize( newlen + 1 );
+		resize( newlen );
 		len = newlen;
 	    }
 	    d = this->d->data;
@@ -992,7 +1001,7 @@ QByteArray QByteArray::right(int len) const
 
 QByteArray QByteArray::mid(int i, int len) const
 {
-    if (d == &shared_null)
+    if (d == &shared_null || d == &shared_empty || i >= d->size)
 	return QByteArray();
     if (len < 0)
 	len = d->size - i;

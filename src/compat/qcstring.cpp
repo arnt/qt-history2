@@ -323,6 +323,8 @@ QCString QCString::leftJustify( uint width, char fill, bool truncate ) const
     } else {
 	if ( truncate )
 	    result = left( width );
+	else
+	    result = *this;
     }
     return result;
 }
@@ -358,6 +360,8 @@ QCString QCString::rightJustify( uint width, char fill, bool truncate ) const
     } else {
 	if ( truncate )
 	    result = left( width );
+	else
+	    result = *this;
     }
     return result;
 }
