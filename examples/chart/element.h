@@ -20,7 +20,7 @@ class Element
 {
 public:
     enum { INVALID = -1 };
-    enum { NO_PROPORTION = -10000 };
+    enum { NO_PROPORTION = -1 };
     enum { MAX_PROPOINTS = 3 }; // One proportional point per chart type
 
     Element( double value = INVALID, QColor valueColor = Qt::gray,

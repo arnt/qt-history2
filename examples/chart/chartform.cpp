@@ -531,27 +531,3 @@ void ChartForm::helpAboutQt()
     QMessageBox::aboutQt( this, "Chart -- About Qt" );
 }
 
-
-void ChartForm::setProportional( int chartType, Element &elm, int x, int y ) 
-{
-    int w = m_canvas->width();
-    int h = m_canvas->height();
-    if( chartType==ChartForm::VERTICAL_BAR || chartType==ChartForm::HORIZONTAL_BAR ) {
-	elm.setProX( chartType, x / (double) w );
-	elm.setProY( chartType, y / (double) h );
-    } else {
-	double prox=0, proy=0;
-	if( w<h ) {
-	    int diff = h-w;
-	    prox = x / (double) w;
-	    proy = ( y - diff/2 ) / (double) w ;
-	} else {
-	    int diff = w-h;
-	    prox = ( x - diff/2 ) / (double) h;
-	    proy = y / (double) h ;
-	}	
-	elm.setProX( chartType, prox );
-	elm.setProY( chartType, proy );	    
-    }
-}
-
