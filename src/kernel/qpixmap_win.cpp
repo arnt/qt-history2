@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#92 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -328,7 +328,7 @@ int QPixmap::metric( int m ) const
 		    val = GetDeviceCaps( dc, NUMCOLORS );
 		break;
 	    case QPaintDeviceMetrics::PdmDepth:
-		val = GetDeviceCaps( dc, PLANES );
+		val = depth();
 		break;
 	    default:
 		val = 0;

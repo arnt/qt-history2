@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#228 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#229 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1054,7 +1054,7 @@ int QWidget::metric( int m ) const
 		val = GetDeviceCaps( gdc, NUMCOLORS );
 	    break;
 	case QPaintDeviceMetrics::PdmDepth:
-	    val = GetDeviceCaps( gdc, PLANES );
+	    val = GetDeviceCaps( gdc, BITSPIXEL );
 	    break;
 	default:
 	    val = 0;
@@ -1063,7 +1063,6 @@ int QWidget::metric( int m ) const
 #endif
 	}
 	ReleaseDC( 0, gdc );
-
     }
     return val;
 }
