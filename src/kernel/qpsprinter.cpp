@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#99 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2291,7 +2291,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 
     if ( c >= PdcDrawFirst && c <= PdcDrawLast ) {
 	if ( !paint )
-	    return; // sanity
+	    return FALSE; // sanity
 	if ( dirtyMatrix )
 	    matrixSetup( paint );
 	if ( dirtyNewPage )
