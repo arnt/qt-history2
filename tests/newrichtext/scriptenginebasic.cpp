@@ -200,7 +200,7 @@ void ScriptEngineBasic::charAttributes( const QString &text, int from, int len, 
     const QChar *uc = text.unicode() + from;
     for ( int i = 0; i < len; i++ ) {
 	// ### remove nbsp?
-	attributes[i].whiteSpace = uc[i].isSpace();
+	attributes[i].whiteSpace = ::isSpace( uc[i] );
 	attributes[i].softBreak = attributes[i].whiteSpace;
 	attributes[i].charStop = TRUE;
 	attributes[i].wordStop = attributes[i].whiteSpace;
@@ -230,9 +230,9 @@ void ScriptEngineBasic::shape( ShapedItem *result )
 void ScriptEngineBasic::position( ShapedItem *shaped )
 {
     ShapedItemPrivate *d = shaped->d;
-    d->offsets = (Offset *) malloc( d->num_glyphs * sizeof( Offset ) );
+    d->offsets = (Offset *) realloc( d->offsets, d->num_glyphs * sizeof( Offset ) );
     memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
-    d->advances = (Offset *) malloc( d->num_glyphs * sizeof( Offset ) );
+    d->advances = (Offset *) realloc( d->advances, d->num_glyphs * sizeof( Offset ) );
     for ( int i = 0; i < d->num_glyphs; i++ ) {
 	QGlyphInfo gi = d->fontEngine->boundingBox( d->glyphs[i] );
 	d->advances[i].x = gi.xoff;

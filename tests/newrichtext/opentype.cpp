@@ -235,7 +235,8 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
 
 //     qDebug("out: num_glyphs = %d", shaped->d->num_glyphs );
     GlyphAttributes *oldAttrs = shaped->d->glyphAttributes;
-    shaped->d->glyphAttributes = ( GlyphAttributes *) malloc( out->length*sizeof(GlyphAttributes) );
+    shaped->d->glyphAttributes = ( GlyphAttributes *) realloc( shaped->d->glyphAttributes,
+							       out->length*sizeof(GlyphAttributes) );
 
     int clusterStart = 0;
     int oldlc = 0;
