@@ -17,7 +17,7 @@
 
 #include <qsqlresult.h>
 #include <qsqldriver.h>
-#include "../cache/qsqlcachedresult.h"
+#include <qsqlcachedresult.h>
 
 #ifdef Q_OS_WIN32
 #define DBNTWIN32 // indicates 32bit windows dblib
@@ -40,7 +40,7 @@ class QTDSDriverPrivate;
 class QTDSResultPrivate;
 class QTDSDriver;
 
-class QTDSResult : public QtSqlCachedResult
+class QTDSResult : public QSqlCachedResult
 {
 public:
     QTDSResult(const QTDSDriver* db);
@@ -52,7 +52,7 @@ protected:
     bool reset (const QString& query);
     int size();
     int numRowsAffected();
-    bool gotoNext(QtSqlCachedResult::ValueCache &values, int index);
+    bool gotoNext(QSqlCachedResult::ValueCache &values, int index);
     QSqlRecord record() const;
 
 private:

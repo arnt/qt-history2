@@ -492,7 +492,7 @@ bool QIBaseResultPrivate::commit()
 //////////
 
 QIBaseResult::QIBaseResult(const QIBaseDriver* db):
-    QtSqlCachedResult(db)
+    QSqlCachedResult(db)
 {
     d = new QIBaseResultPrivate(this, db);
 }
@@ -708,7 +708,7 @@ bool QIBaseResult::reset (const QString& query)
     return true;
 }
 
-bool QIBaseResult::gotoNext(QtSqlCachedResult::ValueCache& row, int rowIdx)
+bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
 {
     ISC_STATUS stat = isc_dsql_fetch(d->status, &d->stmt, 1, d->sqlda);
 

@@ -19,7 +19,7 @@
 #include <qsqlresult.h>
 #include <qsqlrecord.h>
 #include <qsqlindex.h>
-#include "../cache/qsqlcachedresult.h"
+#include <qsqlcachedresult.h>
 
 #if (QT_VERSION-0 >= 0x030000)
 typedef QCoreVariant QSqlVariant;
@@ -34,7 +34,7 @@ class QSQLiteResultPrivate;
 class QSQLiteDriver;
 struct sqlite;
 
-class QSQLiteResult : public QtSqlCachedResult
+class QSQLiteResult : public QSqlCachedResult
 {
     friend class QSQLiteDriver;
     friend class QSQLiteResultPrivate;
@@ -43,7 +43,7 @@ public:
     ~QSQLiteResult();
 
 protected:
-    bool gotoNext(QtSqlCachedResult::ValueCache& row, int idx);
+    bool gotoNext(QSqlCachedResult::ValueCache& row, int idx);
     bool reset (const QString& query);
     int size();
     int numRowsAffected();

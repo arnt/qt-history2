@@ -56,7 +56,7 @@ class QSQLiteResultPrivate
 public:
     QSQLiteResultPrivate(QSQLiteResult *res);
     void cleanup();
-    bool fetchNext(QtSqlCachedResult::ValueCache &values, int idx, bool initialFetch);
+    bool fetchNext(QSqlCachedResult::ValueCache &values, int idx, bool initialFetch);
     bool isSelect();
     // initializes the recordInfo and the cache
     void init(const char **cnames, int numCols);
@@ -128,7 +128,7 @@ void QSQLiteResultPrivate::init(const char **cnames, int numCols)
     }
 }
 
-bool QSQLiteResultPrivate::fetchNext(QtSqlCachedResult::ValueCache &values, int idx, bool initialFetch)
+bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int idx, bool initialFetch)
 {
     // may be caching.
     const char **fvals;
@@ -189,7 +189,7 @@ bool QSQLiteResultPrivate::fetchNext(QtSqlCachedResult::ValueCache &values, int 
 }
 
 QSQLiteResult::QSQLiteResult(const QSQLiteDriver* db)
-: QtSqlCachedResult(db)
+: QSqlCachedResult(db)
 {
     d = new QSQLiteResultPrivate(this);
     d->access = db->d->access;
@@ -240,7 +240,7 @@ bool QSQLiteResult::reset (const QString& query)
     return true;
 }
 
-bool QSQLiteResult::gotoNext(QtSqlCachedResult::ValueCache& row, int idx)
+bool QSQLiteResult::gotoNext(QSqlCachedResult::ValueCache& row, int idx)
 {
     return d->fetchNext(row, idx, false);
 }

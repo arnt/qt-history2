@@ -39,14 +39,14 @@
 
 #include "qsqlresult.h"
 #include "qsqldriver.h"
-#include "../cache/qsqlcachedresult.h"
+#include "qsqlcachedresult.h"
 
 
 class QIBaseDriverPrivate;
 class QIBaseResultPrivate;
 class QIBaseDriver;
 
-class QIBaseResult : public QtSqlCachedResult
+class QIBaseResult : public QSqlCachedResult
 {
     friend class QIBaseResultPrivate;
 
@@ -58,7 +58,7 @@ public:
     bool exec();
 
 protected:
-    bool gotoNext(QtSqlCachedResult::ValueCache& row, int rowIdx);
+    bool gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx);
     bool reset (const QString& query);
     int size();
     int numRowsAffected();

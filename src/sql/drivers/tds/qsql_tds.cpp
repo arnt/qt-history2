@@ -241,7 +241,7 @@ QCoreVariant::Type qFieldType(QTDSResultPrivate* d, int i)
 
 
 QTDSResult::QTDSResult(const QTDSDriver* db)
-    : QtSqlCachedResult(db)
+    : QSqlCachedResult(db)
 {
     d = new QTDSResultPrivate();
     d->login = db->d->login;
@@ -275,7 +275,7 @@ void QTDSResult::cleanup()
     dbcanquery(d->dbproc);
     dbfreebuf(d->dbproc);
 
-    QtSqlCachedResult::cleanup();
+    QSqlCachedResult::cleanup();
 }
 
 DBPROCESS *QTDSResult::dbprocess() const
@@ -283,7 +283,7 @@ DBPROCESS *QTDSResult::dbprocess() const
     return d->dbproc;
 }
 
-bool QTDSResult::gotoNext(QtSqlCachedResult::ValueCache &values, int index)
+bool QTDSResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
 {
     STATUS stat = dbnextrow(d->dbproc);
     if (stat == NO_MORE_ROWS) {

@@ -999,7 +999,7 @@ QCoreVariant QOCIResultPrivate::value(int i)
 ////////////////////////////////////////////////////////////////////////////
 
 QOCIResult::QOCIResult(const QOCIDriver * db, QOCIPrivate* p)
-: QtSqlCachedResult(db),
+: QSqlCachedResult(db),
   cols(0)
 {
     d = new QOCIPrivate();
@@ -1030,7 +1030,7 @@ bool QOCIResult::reset (const QString& query)
     return exec();
 }
 
-bool QOCIResult::gotoNext(QtSqlCachedResult::ValueCache &values, int index)
+bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
 {
     if (at() == QSql::AfterLast)
         return false;
@@ -1097,7 +1097,7 @@ bool QOCIResult::prepare(const QString& query)
 
     delete cols;
     cols = 0;
-    QtSqlCachedResult::cleanup();
+    QSqlCachedResult::cleanup();
 
     if (d->sql) {
         r = OCIHandleFree(d->sql, OCI_HTYPE_STMT);
@@ -1138,7 +1138,7 @@ bool QOCIResult::exec()
     QList<QByteArray> tmpStorage;
     IndicatorArray indicators(boundValueCount());
 
-//    QtSqlCachedResult::clear();
+//    QSqlCachedResult::clear();
 
     // bind placeholders
     if (boundValueCount() > 0
@@ -1175,7 +1175,7 @@ bool QOCIResult::exec()
         if (r == 0 && !cols)
             cols = new QOCIResultPrivate(parmCount, d);
         setSelect(true);
-        QtSqlCachedResult::init(parmCount);
+        QSqlCachedResult::init(parmCount);
     } else { /* non-SELECT */
         r = OCIStmtExecute(d->svc, d->sql, d->err, 1,0,
                                 (CONST OCISnapshot *) NULL,

@@ -54,17 +54,17 @@
 
 #ifndef QT_NO_SQL
 
-class QtSqlCachedResultPrivate;
+class QSqlCachedResultPrivate;
 
-class Q_SQL_EXPORT QtSqlCachedResult: public QSqlResult
+class Q_SQL_EXPORT QSqlCachedResult: public QSqlResult
 {
 public:
-    virtual ~QtSqlCachedResult();
+    virtual ~QSqlCachedResult();
 
     typedef QVector<QCoreVariant> ValueCache;
 
 protected:
-    QtSqlCachedResult(const QSqlDriver * db);
+    QSqlCachedResult(const QSqlDriver * db);
 
     void init(int colCount);
     void cleanup();
@@ -84,7 +84,7 @@ protected:
 
 private:
     bool cacheNext();
-    QtSqlCachedResultPrivate *d;
+    QSqlCachedResultPrivate *d;
 };
 
 

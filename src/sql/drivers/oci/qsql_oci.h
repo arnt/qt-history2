@@ -17,7 +17,7 @@
 
 #include <qsqlresult.h>
 #include <qsqldriver.h>
-#include "../cache/qsqlcachedresult.h"
+#include <qsqlcachedresult.h>
 
 #include <oci.h>
 
@@ -36,7 +36,7 @@ class QOCIPrivate;
 class QOCIResultPrivate;
 class QOCIDriver;
 
-class QOCIResult : public QtSqlCachedResult
+class QOCIResult : public QSqlCachedResult
 {
     friend class QOCIDriver;
     friend class QOCIPrivate;
