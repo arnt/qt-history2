@@ -2305,9 +2305,7 @@ void QListViewItem::ignoreDoubleClick()
 
     \value Single  When the user selects an item, any already-selected
     item becomes unselected, and the user cannot unselect the selected
-    item. This means that the user can never clear the selection, even
-    though the selection may be cleared by the application programmer
-    using QListView::clearSelection().
+    item.
 
     \value Multi  When the user selects an item in the most ordinary
     way, the selection status of that item is toggled and the other
