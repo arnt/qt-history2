@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#12 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -13,10 +13,11 @@
 #include "qlcdnum.h"
 #include "qbitarry.h"
 #include "qpainter.h"
+#include "qpalette.h"
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#12 $";
 #endif
 
 
@@ -198,7 +199,6 @@ void QLCDNumber::init()
     base = DEC;
     smallPoint = FALSE;
     setNumDigits( ndigits );
-    setBackgroundColor( lightGray );
 }
 
 QLCDNumber::~QLCDNumber()
@@ -475,13 +475,14 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 			      int segLen, bool erase )
 {
     QPoint pt = pos;
+    QColorGroup g = colorGroup();
     QColor lightColor,darkColor;
     if ( erase ){
-	lightColor = backgroundColor();
-	darkColor  = lightColor;
+	lightColor = g.background();
+	darkColor  = g.background();
     } else {
-	lightColor = backgroundColor().light();
-	darkColor  = backgroundColor().dark();
+	lightColor = g.light();
+	darkColor  = g.dark();
     }
     int width = segLen/5;
 

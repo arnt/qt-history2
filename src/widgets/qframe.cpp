@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#7 $
 **
 ** Implementation of QFrame widget class
 **
@@ -12,15 +12,11 @@
 
 #include "qframe.h"
 #include "qpainter.h"
+#include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#7 $";
 #endif
-
-
-#define lightColor  white			// humbug!!!
-#define darkColor   darkGray
-#define midColor    gray
 
 
 QFrame::QFrame( QWidget *parent, const char *name ) : QWidget( parent, name )
@@ -76,27 +72,29 @@ void QFrame::paintEvent( QPaintEvent * )
 
 void QFrame::drawFrame( QPainter *p )
 {
-    QRect     r = frameRect();
-    QPoint    p1, p2;
-    QPainter *paint = p;
-    int	      type  = fstyle & MType;
-    int	      style = fstyle & MStyle;
-    QColor    fgcol = foregroundColor();
+    QRect       r = frameRect();
+    QPoint      p1, p2;
+    QPainter   *paint = p;
+    int	        type  = fstyle & MType;
+    int	        style = fstyle & MStyle;
+    QColorGroup g     = colorGroup();
+    QColor      fg    = g.foreground();
+    QColor	light = g.light();
+    QColor	dark  = g.dark();
+    QColor	mid   = g.medium();
 
     switch ( type ) {
 
 	case Box:
 	    switch ( style ) {
 		case Plain:
-		    paint->drawShadePanel( r, fgcol, fgcol, fwidth );
+		    paint->drawShadePanel( r, fg, fg, fwidth );
 		    break;
 		case Raised:
-		    paint->drawShadeRect( r, lightColor, darkColor, fwidth,
-					  midColor, mwidth );
+		    paint->drawShadeRect( r, light, dark, fwidth, mid, mwidth);
 		    break;
 		case Sunken:
-		    paint->drawShadeRect( r, darkColor, lightColor, fwidth,
-					  midColor, mwidth );
+		    paint->drawShadeRect( r, dark, light, fwidth, mid, mwidth);
 		    break;
 	    }
 	    break;
@@ -104,13 +102,13 @@ void QFrame::drawFrame( QPainter *p )
 	case Panel:
 	    switch ( style ) {
 		case Plain:
-		    paint->drawShadePanel( r, fgcol, fgcol, fwidth );
+		    paint->drawShadePanel( r, fg, fg, fwidth );
 		    break;
 		case Raised:
-		    paint->drawShadePanel( r, lightColor, darkColor, fwidth );
+		    paint->drawShadePanel( r, light, dark, fwidth );
 		    break;
 		case Sunken:
-		    paint->drawShadePanel( r, darkColor, lightColor, fwidth );
+		    paint->drawShadePanel( r, dark, light, fwidth );
 		    break;
 	    }
 	    break;
@@ -127,16 +125,15 @@ void QFrame::drawFrame( QPainter *p )
 	    }
 	    switch ( style ) {
 		case Plain:
-		    paint->drawShadeLine( p1, p2, fgcol, fgcol,
-					  fwidth, fgcol, mwidth );
+		    paint->drawShadeLine( p1, p2, fg, fg, fwidth, fg, mwidth );
 		    break;
 		case Raised:
-		    paint->drawShadeLine( p1, p2, lightColor, darkColor,
-					  fwidth, midColor, mwidth );
+		    paint->drawShadeLine( p1, p2, light, dark,
+					  fwidth, mid, mwidth );
 		    break;
 		case Sunken:
-		    paint->drawShadeLine( p1, p2, darkColor, lightColor,
-					  fwidth, midColor, mwidth );
+		    paint->drawShadeLine( p1, p2, dark, light,
+					  fwidth, mid, mwidth );
 		    break;
 	    }
 	    break;

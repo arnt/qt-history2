@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#17 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#17 $";
 #endif
 
 
@@ -89,7 +89,7 @@ void QScrollBar::init()
     sliderPos	     = 0;
     pressedControl   = NONE;
     clickedAt	     = FALSE;
-    setBackgroundColor( colorGroup().dark() );
+    setBackgroundColor( colorGroup().medium() );
 }
 
 
@@ -149,9 +149,9 @@ void QScrollBar::resizeEvent( QResizeEvent * )
 void QScrollBar::paintEvent( QPaintEvent * )
 {
     QPainter p;
+    QColorGroup g = colorGroup();
     p.begin( this );
-    p.drawShadePanel( rect(), foregroundColor().dark(),
-		      foregroundColor().light() );
+    p.drawShadePanel( rect(), g.dark(), g.light() );
     PRIV->drawControls( ADD_LINE | SUB_LINE | ADD_PAGE | SUB_PAGE | SLIDER,
 			pressedControl, p );
     p.end();
@@ -367,7 +367,6 @@ void QScrollBar_Private::action( ScrollControl control )
 void QScrollBar_Private::drawControls(uint controls, uint activeControl) const
 {
     QPainter p;
-
     p.begin( this );
     drawControls( controls, activeControl, p );
     p.end();
@@ -380,10 +379,6 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 #define ADD_LINE_ACTIVE ( activeControl == ADD_LINE )
 #define SUB_LINE_ACTIVE ( activeControl == SUB_LINE )
     QColorGroup g  = colorGroup();
-    QColor shadowC = g.dark();
-    QColor lightC  = g.light();
-    QColor upC	   = g.medium();
-    QColor downC   = backgroundColor();
 
     int sliderMin, sliderMax, sliderLength;
     metrics( &sliderMin, &sliderMax, &sliderLength );
@@ -440,19 +435,21 @@ void QScrollBar_Private::drawControls( uint controls, uint activeControl,
 		qDrawMotifArrow( &p, VERTICAL ? MotifDownArrow:MotifRightArrow,
 				 ADD_LINE_ACTIVE, addB.x(), addB.y(),
 				 addB.width(), addB.height(),
-				 upC, downC, lightC, shadowC );
+				 g.background(), g.medium(),
+				 g.light(), g.dark() );
 	    if ( controls & SUB_LINE )
-		qDrawMotifArrow( &p, VERTICAL ? MotifUpArrow:MotifLeftArrow,
+		qDrawMotifArrow( &p, VERTICAL ? MotifUpArrow : MotifLeftArrow,
 				 SUB_LINE_ACTIVE, subB.x(), subB.y(),
 				 subB.width(), subB.height(),
-				 upC, downC, lightC, shadowC );
+				 g.background(), g.medium(),
+				 g.light(), g.dark() );
 	    if ( controls & SUB_PAGE )
-		p.fillRect( subPageR, backgroundColor() );
+		p.fillRect( subPageR, g.medium() );
 	    if ( controls & ADD_PAGE )
-		p.fillRect( addPageR, backgroundColor() );
+		p.fillRect( addPageR, g.medium() );
 	    if ( controls & SLIDER )
-		p.drawShadePanel( sliderR, lightC, shadowC, 2,
-				  upC, TRUE );
+		p.drawShadePanel( sliderR, g.light(), g.dark(), 2,
+				  g.background(), TRUE );
 	    break;
 	}
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#18 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -15,20 +15,13 @@
 #include "qmenubar.h"
 #include "qkeycode.h"
 #include "qpainter.h"
-#include "qpntarry.h"
+#include "qpalette.h"
 #include "qscrbar.h"				// qDrawMotifArrow
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#18 $";
 #endif
-
-
-// Motif style colors
-
-static QColor normalColor( 0x72, 0x9e, 0xff );
-static QColor darkColor  ( 0x3d, 0x55, 0x8e );
-static QColor lightColor ( 0xc7, 0xd7, 0xff );
 
 
 // Mac style parameters
@@ -48,8 +41,8 @@ static const winItemFrame	= 2;		// menu item frame width
 static const winSepHeight	= 2;		// separator item height
 static const winItemHMargin	= 3;		// menu item hor text margin
 static const winItemVMargin	= 8;		// menu item ver text margin
-static const winArrowHMargin= 6;		// arrow horizontal margin
-static const winArrowVMargin= 4;		// arrow horizontal margin
+static const winArrowHMargin	= 6;		// arrow horizontal margin
+static const winArrowVMargin	= 4;		// arrow horizontal margin
 
 // PM style parameters
 
@@ -101,7 +94,6 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 {
     initMetaObject();
     isPopup = TRUE;
-    setBackgroundColor( normalColor );
     setNumCols( 1 );				// set number of table columns
     setNumRows( 0 );				// set number of table rows
     setClipCellPainting( FALSE );		// don't clip when painting tbl
@@ -373,24 +365,27 @@ int QPopupMenu::cellWidth( long col )
 
 void QPopupMenu::paintCell( QPainter *p, long row, long col )
 {
+    QColorGroup g = colorGroup();
     QMenuItem *mi = mitems->at( row );		// get menu item
-    int cellh = cellHeight( row );
-    int cellw = cellWidth( col );
-    int gs = style();
+    int cellh 	  = cellHeight( row );
+    int cellw 	  = cellWidth( col );
+    int gs 	  = style();
+
     if ( mi->isSeparator() ) {			// draw separator
-	QPen pen( darkColor );	
+	QPen pen( g.dark() );	
 	p->setPen( pen );
 	p->drawLine( 0, 0, cellw, 0 );
-	pen.setColor( lightColor );
+	pen.setColor( g.light() );
 	p->drawLine( 0, 1, cellw, 1 );
 	return;
     }
     if ( row == actItem )			// active item frame
-	p->drawShadePanel( 0, 0, cellw, cellh, lightColor, darkColor,
+	p->drawShadePanel( 0, 0, cellw, cellh, g.light(), g.dark(),
 			   motifItemFrame );
     else					// incognito frame
-	p->drawShadePanel( 0, 0, cellw, cellh, normalColor, normalColor,
+	p->drawShadePanel( 0, 0, cellw, cellh, g.background(), g.background(),
 			   motifItemFrame );
+    p->setPen( g.text() );
     if ( mi->image() ) {			// draw image
 	QImage *image = mi->image();
 	if ( image->depth() == 1 )
@@ -407,7 +402,7 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
         QFontMetrics fm = fontMetrics();
 	int bo = fm.descent() + motifItemVMargin/2;
 	if ( mi->isDisabled() )
-	    p->setPen( darkGray );
+	    p->setPen( palette().disabled().text() );
 	if ( t ) {				// make tab effect
 	    p->drawText( x, cellh-bo, s, (int)t-(int)s );
 	    s = t + 1;
@@ -421,7 +416,7 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	    QPointArray a;
 	    a.setPoints( 3, 0,-dim/2, 0,dim/2, dim/2,0 );
 	    a.move( cellw - motifArrowHMargin - dim, cellh/2-dim/2 );
-	    p->setBrush( black );
+	    p->setBrush( g.foreground() );
 	    p->setPen( NoPen );
 	    p->drawPolygon( a );
 	}
@@ -430,8 +425,8 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 	    qDrawMotifArrow( p, MotifRightArrow, row == actItem,
 			     cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
 			     dim, dim,
-			     normalColor, normalColor,
-			     lightColor, darkColor );
+			     g.background(), g.background(),
+			     g.light(), g.dark() );
 	}
     }
 }
@@ -443,15 +438,17 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 
 void QPopupMenu::paintEvent( QPaintEvent *e )	// paint popup menu
 {
-    QPainter paint;
+    QPainter    paint;
+    QColorGroup g = colorGroup();
+    QRect	r = rect();
     paint.begin( this );			// draw the popup frame
-    QRect r = rect();
     switch ( style() ) {
 	case MacStyle:
-	    paint.drawShadePanel( r, black, black, macPopupFrame );
+	    paint.drawShadePanel( r, g.foreground(), g.foreground(),
+				  macPopupFrame );
 	    break;
 	case MotifStyle:
-	    paint.drawShadePanel( r, lightColor, darkColor, motifPopupFrame );
+	    paint.drawShadePanel( r, g.light(), g.dark(), motifPopupFrame );
 	    break;
     }
     paint.end();

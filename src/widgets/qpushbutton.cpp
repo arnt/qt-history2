@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#19 $
 **
 ** Implementation of QPushButton class
 **
@@ -13,11 +13,11 @@
 #include "qpushbt.h"
 #include "qfontmet.h"
 #include "qpainter.h"
-#include "qpntarry.h"
 #include "qpixmap.h"
+#include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#19 $";
 #endif
 
 
@@ -85,8 +85,6 @@ void QPushButton::init()
 {
     initMetaObject();
     autoDefButton = defButton = lastDown = lastDef = FALSE;
-    if ( style() != MacStyle )
-	setBackgroundColor( lightGray );
 }
 
 
@@ -162,12 +160,13 @@ void QPushButton::drawButton( QPainter *paint )
 {
     register QPainter *p = paint;
     GUIStyle 	gs = style();
+    QColorGroup g  = colorGroup();
     bool 	updated = isDown() != lastDown || lastDef != defButton;
-    QColor	fillcol = backgroundColor();
+    QColor	fillcol = g.background();
     int 	x1, y1, x2, y2;
 
     rect().coords( &x1, &y1, &x2, &y2 );	// get coordinates
-    QPen pen( black );
+    QPen pen( g.foreground() );
     QBrush brush( fillcol, NoBrush );
 
 #define SAVE_PUSHBUTTON_PIXMAPS
@@ -213,7 +212,7 @@ void QPushButton::drawButton( QPainter *paint )
 	if ( updated ) {			// fill
 	    brush.setStyle( SolidPattern );
 	    if ( isDown() )
-		brush.setColor( black );
+		brush.setColor( g.foreground() );
 	}
 	p->drawRoundRect( x1, y1, x2-x1+1, y2-y1+1, 20, 20 );
     }
@@ -230,24 +229,24 @@ void QPushButton::drawButton( QPainter *paint )
 	    x2--; y2--;
 	}
 	if ( isDown() )
-	    p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, darkGray, lightGray,
+	    p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, g.dark(), g.light(),
 			       1, fillcol, updated );
 	else
-	    p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, white, darkGray,
+	    p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, g.light(), g.dark(),
 			       2, fillcol, updated );
     }
     else if ( gs == PMStyle ) {			// PM push button
-	pen.setColor( darkGray );
+	pen.setColor( g.dark() );
 	if ( updated )				// fill
 	    brush.setStyle( SolidPattern );
 	p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
 	if ( !defButton ) {
-	    pen.setColor( backgroundColor() );
+	    pen.setColor( g.background() );
 	    p->drawPoint( x1, y1 );
 	    p->drawPoint( x1, y2 );
 	    p->drawPoint( x2, y1 );
 	    p->drawPoint( x2, y2 );
-	    pen.setColor( darkGray );
+	    pen.setColor( g.dark() );
 	}
 	x1++; y1++;
 	x2--; y2--;
@@ -256,12 +255,12 @@ void QPushButton::drawButton( QPainter *paint )
 	abottom.setPoints( 3, x1,y2, x2,y2, x2,y1+1 );
 	QColor tc, bc;
 	if ( isDown() ) {
-	    tc = darkGray;
-	    bc = white;
+	    tc = g.dark();
+	    bc = g.light();
 	}
 	else {
-	    tc = white;
-	    bc = darkGray;
+	    tc = g.light();
+	    bc = g.dark();
 	}
 	pen.setColor( tc );
 	p->drawPolyline( atop );
@@ -271,20 +270,20 @@ void QPushButton::drawButton( QPainter *paint )
     else if ( gs == MotifStyle ) {		// Motif push button
 	QColor tColor, bColor;
 	if ( defButton ) {			// default Motif button
-	    p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, darkGray, white );
+	    p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, g.dark(), g.light() );
 	    x1 += extraMotifWidth/2;
 	    y1 += extraMotifHeight/2;
 	    x2 -= extraMotifWidth/2;
 	    y2 -= extraMotifHeight/2;
 	}
 	if ( isDown() ) {
-	    tColor = black;
-	    bColor = white;
-	    fillcol = darkGray;
+	    tColor = g.dark();
+	    bColor = g.light();
+	    fillcol = g.medium();
 	}
 	else {
-	    tColor = white;
-	    bColor = darkGray;
+	    tColor = g.light();
+	    bColor = g.dark();
 	}
 	p->drawShadePanel( x1, y1, x2-x1+1, y2-y1+1, tColor, bColor,
 			   2, fillcol, updated );
@@ -309,18 +308,19 @@ void QPushButton::drawButtonFace( QPainter *paint )
 {
     if ( !label() )
 	return;
-    register QPainter *p = paint;
-    GUIStyle gs = style();
+    register QPainter *p = paint;    
+    GUIStyle    gs = style();
+    QColorGroup g  = colorGroup();
     int dt;
     switch ( gs ) {
 	case MacStyle:
-	case MotifStyle:
-	    p->pen().setColor( isDown() ? white : black );
+	    p->pen().setColor( isDown() ? white : g.text() );
 	    dt = 0;
 	    break;
 	case WindowsStyle:
 	case PMStyle:
-	    p->pen().setColor( black );
+	case MotifStyle:
+	    p->pen().setColor( g.text() );
 	    dt = gs == WindowsStyle ? 2 : 0;
 	    break;
     }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#4 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -12,9 +12,10 @@
 
 #include "qgrpbox.h"
 #include "qpainter.h"
+#include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#4 $";
 #endif
 
 
@@ -46,11 +47,13 @@ void QGroupBox::setAlignment( int alignment )
 
 void QGroupBox::paintEvent( QPaintEvent * )	// overrides QFrame::paintEvent
 {
-    int   tw  = 0;
-    QRect cr  = rect();
-    QRect r   = cr;
-    int   len = str.length();
-    QPainter paint;
+    int   	tw  = 0;
+    QRect 	cr  = rect();
+    QRect 	r   = cr;
+    int   	len = str.length();
+    QColorGroup g = colorGroup();
+    QPainter	paint;
+
     paint.begin( this );
     if ( len == 0 )				// no title
 	setFrameRect( QRect(0,0,0,0) );		//  then use client rect
@@ -83,6 +86,7 @@ void QGroupBox::paintEvent( QPaintEvent * )	// overrides QFrame::paintEvent
     drawFrame( &paint );			// draw the frame
     if ( tw ) {					// draw the title
 	paint.setClipping( FALSE );
+	paint.setPen( g.text() );
 	paint.drawText( r, AlignCenter | AlignVCenter, str, len );
     }
     drawContents( &paint );

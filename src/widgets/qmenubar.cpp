@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#15 $
 **
 ** Implementation of QMenuBar class
 **
@@ -14,18 +14,12 @@
 #include "qmenubar.h"
 #include "qkeycode.h"
 #include "qpainter.h"
+#include "qpalette.h"
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#15 $";
 #endif
-
-
-// Motif style colors
-
-static QColor normalColor( 0x72, 0x9e, 0xff );
-static QColor darkColor  ( 0x3d, 0x55, 0x8e );
-static QColor lightColor ( 0xc7, 0xd7, 0xff );
 
 
 // Motif style parameters
@@ -66,7 +60,6 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     initMetaObject();
     isMenuBar = TRUE;
     irects = 0;
-    setBackgroundColor( normalColor );
     if ( parent )				// filter parent events
 	parent->installEventFilter( this );
 }
@@ -304,15 +297,17 @@ int QMenuBar::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
 
 void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 {
-    QPainter  paint;
-    QPainter *paint_pixmap;
-    QPixMap  *pm = 0;
-    register QPainter *p = &paint;
+    register QPainter *p;
+    QPainter     paint;
+    QPainter    *paint_pixmap;
+    QPixMap     *pm = 0;
+    QColorGroup  g  = colorGroup();
     QFontMetrics fm = fontMetrics();
-    QSize sz = size();
+    QSize	 sz = size();
+
+    p = &paint;
     p->begin( this );
-    
-    p->drawShadePanel( rect(), lightColor, darkColor, motifBarFrame );
+    p->drawShadePanel( rect(), g.light(), g.dark(), motifBarFrame );
     p->setClipRect( motifBarFrame, motifBarFrame,
 		    sz.width()  - 2*motifBarFrame,
 		    sz.height() - 2*motifBarFrame );
@@ -323,27 +318,30 @@ void QMenuBar::paintEvent( QPaintEvent *e )	// paint menu bar
 	if ( mi->isDisabled() ) {
 	    pm = new QPixMap( r.width(), r.height() );
 	    CHECK_PTR( pm );
-	    pm->fill( backgroundColor() );
+	    pm->fill( g.background() );
 	    paint_pixmap = new QPainter;
 	    paint_pixmap->begin( pm );		// draw menu item in pixmap
 	    CHECK_PTR( paint_pixmap );
-	    paint_pixmap->setBackgroundColor( backgroundColor() );
+	    paint_pixmap->setBackgroundColor( g.background() );
 	    p = paint_pixmap;			// redirect painting
 	    r.setRect( 0, 0, r.width(), r.height() );
 	}
 	if ( i == actItem )			// active item frame
-	    p->drawShadePanel( r, lightColor, darkColor, motifItemFrame );
+	    p->drawShadePanel( r, g.light(), g.dark(), motifItemFrame );
 	else					// incognito frame
-	    p->drawShadePanel( r, normalColor, normalColor, motifItemFrame );
+	    p->drawShadePanel( r, g.background(), g.background(),
+			       motifItemFrame );
 	if ( mi->image() )
 	    p->drawPixMap( r.left() + motifItemFrame, r.top() + motifItemFrame,
 			   *mi->image() );
-	else if ( mi->string() )
+	else if ( mi->string() ) {
+	    p->setPen( g.text() );
 	    p->drawText( r, AlignCenter | AlignVCenter | ShowPrefix | DontClip,
 			 mi->string() );
+	}
 	if ( mi->isDisabled() ) {		// overwrite with gray brush
 	    p->setPen( NoPen );
-	    p->setBrush( QBrush(backgroundColor(),Dense4Pattern) );
+	    p->setBrush( QBrush(g.background(),Dense4Pattern) );
 	    p->drawRect( r );
 	    paint_pixmap->end();
 	    delete paint_pixmap;

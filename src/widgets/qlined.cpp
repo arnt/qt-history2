@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#14 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -12,12 +12,13 @@
 
 #include "qlined.h"
 #include "qpainter.h"
+#include "qpalette.h"
 #include "qfontmet.h"
 #include "qpixmap.h"
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#14 $";
 #endif
 
 
@@ -73,7 +74,6 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     cursorOn	= TRUE;
     inTextFocus = FALSE;
     t		= "";
-    setBackgroundColor( lightGray );
 }
 
 QLineEdit::~QLineEdit()
@@ -279,10 +279,9 @@ void QLineEdit::paint( bool frame )
 void QLineEdit::pixmapPaint()
 {
     QPainter p;
-
     p.begin( pm );
     p.setFont( fontRef() );
-    p.fillRect( rect(), backgroundColor() );
+    p.fillRect( rect(), colorGroup().background() );
     paintText( &p, pm->size() , TRUE );
     p.end();
     bitBlt( this, 0, 0, pm, 0, 0, -1, -1 );
@@ -291,13 +290,13 @@ void QLineEdit::pixmapPaint()
 
 void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 {
+    QColorGroup  g  = colorGroup();
     QFontMetrics fm = fontMetrics();
     char *displayText = &t[ offset ];
 
     if ( frame )
 	p->drawShadePanel( 0, 0, sz.width(), sz.height(),
-			   backgroundColor().dark(),
-			   backgroundColor().light() );
+			   g.dark(), g.light() );
     p->setClipRect( LEFT_MARGIN, TOP_MARGIN,
 		    sz.width()	- LEFT_MARGIN - RIGHT_MARGIN + 1,
 		    sz.height() - TOP_MARGIN - BOTTOM_MARGIN + 1 );
@@ -308,8 +307,10 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
     if ( displayText[ displayLength ] != '\0' )
 	displayLength++;
 
+    p->setPen( g.text() );
     p->drawText( LEFT_MARGIN, sz.height() - BOTTOM_MARGIN - fm.descent(),
 		 displayText, displayLength );
+    p->setPen( g.foreground() );
 
     p->setClipping( FALSE );
     if( cursorOn ) {
