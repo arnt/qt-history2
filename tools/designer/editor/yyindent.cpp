@@ -624,7 +624,7 @@ static bool isUnfinishedLine()
 	  It doesn't end with ';' or similar. If it's neither
 	  "Q_OBJECT" nor "if ( x )", it must be an unfinished line.
 	*/
-	unf = ( yyLine->contains("Q_OBJECT") == 0 &&
+	unf = ( yyLine->find("Q_OBJECT") == -1 &&
 		!matchBracelessControlStatement() );
     } else if ( lastCh == QChar(';') ) {
 	if ( lastParen(*yyLine) == QChar('(') ) {
