@@ -233,7 +233,7 @@ const char *qt_file_dialog_filter_reg_exp =
     "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
 
 // Makes a list of filters from ;;-separated text.
-static QStringList qt_make_filter_list(const QString &filter)
+QStringList qt_make_filter_list(const QString &filter)
 {
     QString f(filter);
 
