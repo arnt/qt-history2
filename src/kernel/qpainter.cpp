@@ -1934,10 +1934,14 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
     drawPixmap( p.x(), p.y(), pm, 0, 0, pm.width(), pm.height() );
 }
 
+#if QT_VERSION >= 300
+#error "Merge QPainter::drawImage()'s by default conversion_flags=0"
+#endif
 
 /*!
   Draws at (\a x, \a y) the \a sw by \a sh area of pixels
-  from (\a sx, \a sy) in \a image.
+  from (\a sx, \a sy) in \a image, using \a conversion_flags if
+  the image needs to be converted to a pixmap.
 
   This function may convert \a image to a pixmap and then draw it, if
   device() is a QPixmap or a QWidget, or else draw it directly, if
@@ -1946,7 +1950,8 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
   \sa drawPixmap() QPixmap::convertFromImage()
 */
 void QPainter::drawImage( int x, int y, const QImage & image,
-			  int sx, int sy, int sw, int sh )
+			  int sx, int sy, int sw, int sh,
+			  int conversion_flags )
 {
 #ifdef _WS_QWS_
     //### Hackish
@@ -2031,13 +2036,30 @@ void QPainter::drawImage( int x, int y, const QImage & image,
     }
 
     QPixmap pm;
-    pm.convertFromImage( subimage );
+    pm.convertFromImage( subimage, conversion_flags );
     drawPixmap( x, y, pm );
+}
+
+/*!
+  \overload void QPainter::drawImage( int x, int y, const QImage & image,
+			  int sx, int sy, int sw, int sh )
+*/
+void QPainter::drawImage( int x, int y, const QImage & image,
+			  int sx, int sy, int sw, int sh )
+{
+    drawImage(x,y,image,sx,sy,sw,sh,0);
 }
 
 /*!
   \overload void QPainter::drawImage( const QPoint &, const QImage &, const QRect &sr )
 */
+/*!
+  \overload void QPainter::drawImage( const QPoint &, const QImage &, const QRect &sr, int conversion_flags )
+*/
+void QPainter::drawImage( const QPoint &p, const QImage &i, const QRect &sr, int conversion_flags )
+{
+    drawImage(p.x(),p.y(),i,sr.x(),sr.y(),sr.width(),sr.height(),conversion_flags);
+}
 
 /*!
   \overload void QPainter::drawImage( const QPoint &, const QImage & )
@@ -2045,6 +2067,14 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 void QPainter::drawImage( const QPoint & p, const QImage & i )
 {
     drawImage(p, i, i.rect());
+}
+
+/*!
+  \overload void QPainter::drawImage( const QPoint &, const QImage &, int conversion_flags )
+*/
+void QPainter::drawImage( const QPoint & p, const QImage & i, int conversion_flags )
+{
+    drawImage(p, i, i.rect(), conversion_flags);
 }
 
 

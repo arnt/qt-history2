@@ -194,9 +194,12 @@ public:
     void	drawPixmap( const QPoint &, const QPixmap & );
     void	drawImage( int x, int y, const QImage &,
 			   int sx=0, int sy=0, int sw=-1, int sh=-1 );
-    void	drawImage( const QPoint &, const QImage &,
-			   const QRect &sr );
+    void	drawImage( const QPoint &, const QImage &, const QRect &sr );
     void	drawImage( const QPoint &, const QImage & );
+    void	drawImage( int x, int y, const QImage &,
+			   int sx, int sy, int sw, int sh, int conversion_flags );
+    void	drawImage( const QPoint &, const QImage &, const QRect &sr, int conversion_flags );
+    void	drawImage( const QPoint &, const QImage &, int conversion_flags );
     void	drawTiledPixmap( int x, int y, int w, int h, const QPixmap &,
 				 int sx=0, int sy=0 );
     void	drawTiledPixmap( const QRect &, const QPixmap &,
