@@ -81,7 +81,13 @@ static const int macRightBorder       = 12;   // right border on mac
 
 void QMacPainter::setport()
 {
-    QPainter::initPaintDevice(TRUE);
+#ifdef USE_CORE_GRAPHICS
+    QRegion rgn;
+    QPainter::initPaintDevice(TRUE, 0, &rgn);
+    QMacSavedPortInfo::setClipRegion(rgn);
+#else
+    QPainter::initPaintDevice(TRUE, 0, );
+#endif
     NormalizeThemeDrawingState(); //just to be extra sure
 }
 

@@ -428,11 +428,11 @@ void qt_mac_clip_cg_handle(CGContextRef hd, const QRegion &rgn, const QPoint &of
 	    QRect qrect = QRect(0, 0, 99999, 999999);
 #else
 	    /* I have no idea why this doesn't work, something about the translation applied to the CGContextRef
-	       I suspect, I'll have to experiment, but for now just reset it as I do above!! FIXME!! ## --SAm */
+	       I suspect, I'll have to experiment, but for now just reset it as I do above!! FIXME!! ## --Sam */
 	    QRect qrect = rgn.boundingRect();
 	    qrect.moveBy(offp);
 #endif
-	    Rect qdr; SetRect(&qdr, qrect.x(), qrect.y(), qrect.right(), qrect.bottom());
+	    Rect qdr; SetRect(&qdr, qrect.left(), qrect.top(), qrect.right(), qrect.bottom());
 	    ClipCGContextToRegion(hd, &qdr, QRegion(qrect).handle(true));
 	} 
 	QVector<QRect> rects = rgn.rects();
@@ -442,9 +442,7 @@ void qt_mac_clip_cg_handle(CGContextRef hd, const QRegion &rgn, const QPoint &of
 	    const QRect &r = rects[i];
 	    cg_rects[i] = CGRectMake(r.x()+offp.x(), r.y()+offp.y(), r.width(), r.height());
 	}
-	CGContextBeginPath(hd);
-	CGContextAddRects(hd, cg_rects, count);
-	CGContextClip(hd);
+	CGContextClipToRects(hd, cg_rects, count);
 	free(cg_rects);
     }
 }

@@ -25,7 +25,6 @@
 #include <qptrstack.h>
 #include <qtextcodec.h>
 #include <qprinter.h>
-#include <private/qtextengine_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qtextlayout_p.h>
 #include <string.h>
@@ -676,7 +675,9 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     hd = qt_mac_get_cg(pdev, d); // get handle to drawable
     if(hd) 
 	CGContextRetain((CGContextRef)hd);
+#ifndef USE_CORE_GRAPHICS
     initPaintDevice(true); //force setting paint device, this does unclipped fu
+#endif
 
     if(testf(ExtDev)) {               // external device
 	ww = vw = pdev->metric(QPaintDeviceMetrics::PdmWidth);
@@ -1244,10 +1245,12 @@ void QPainter::drawRect(int x, int y, int w, int h)
 #ifdef USE_CORE_GRAPHICS
     CGRect mac_rect;
     d->cg_mac_rect(x, y, w, h, &mac_rect);
+    CGContextBeginPath((CGContextRef)hd);
+    CGContextAddRect((CGContextRef)hd, mac_rect);
     if(cbrush.style() != NoBrush) 
-	CGContextFillRect((CGContextRef)hd, mac_rect);
+	CGContextFillPath((CGContextRef)hd);
     if(cpen.style() != NoPen) 
-	CGContextStrokeRect((CGContextRef)hd, mac_rect);
+	CGContextStrokePath((CGContextRef)hd);
 #else
     initPaintDevice();
     if(d->qd_info.paintreg.isEmpty())
@@ -2217,16 +2220,16 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
             return;
     }
 
-    QTextEngine *engine = ti.engine;
-    QScriptItem &si = engine->items[ti.item];
-    engine->shape(ti.item);
-    QFontEngine *fe = si.fontEngine;
+    QTextEngine *engine = ti.engine();
+    QScriptItem *si = &engine->items[ti.item()];
+    engine->shape(ti.item());
+    QFontEngine *fe = si->fontEngine;
 
     Q_ASSERT(fe);
-    x += si.x;
-    y += si.y;
+    x += si->x;
+    y += si->y;
 
-    fe->draw(this, x,  y, engine, &si, textFlags);
+    fe->draw(this, x,  y, engine, si, textFlags);
 }
 
 QPoint QPainter::pos() const
@@ -2321,7 +2324,9 @@ void QPainter::initPaintDevice(bool force, QPoint *off, QRegion *rgn)
     }
     if(remade_clip || qt_mac_current_painter != this) {
 	QMacSavedPortInfo::setPaintDevice(pdev);
+#ifndef USE_CORE_GRAPHICS
 	QMacSavedPortInfo::setClipRegion(d->qd_info.paintreg);
+#endif
 	qt_mac_current_painter = this;
     }
     if(off)
