@@ -193,6 +193,17 @@ void QSqlResultShared::slotResultDestroyed()
     query.exec();
     \endcode
 
+    <b>Binding values to a stored procedure</b>
+    This code calls a stored procedure named TestOut that returns the
+    integer value 42 in its out parameter.
+    \code
+    QSqlQuery query;
+    query.prepare( "call TestOut(?)" );
+    query.bindValue( 0, 0, QSql::Out );
+    query.exec();
+    int i = query.boundValue( 0 ).toInt(); // i is 42.
+    \endcode
+
     \sa QSqlDatabase QSqlCursor QVariant
 */
 
