@@ -97,9 +97,14 @@ public:
     bool isFlat() const;
     void setFlat( bool b );
     bool isCheckable() const;
-    void setCheckable( bool b );
     bool isChecked() const;
+
+public slots:
+    void setCheckable( bool b );
     void setChecked( bool b );
+
+signals:
+    void toggled( bool );
 
 protected:
     bool event( QEvent * );

@@ -805,6 +805,8 @@ void QGroupBox::setCheckable( bool b )
 	    setChildrenEnabled( TRUE );
 	    connect( d->checkbox, SIGNAL( toggled( bool ) ),
 		     this, SLOT( setChildrenEnabled( bool ) ) );
+	    connect( d->checkbox, SIGNAL( toggled( bool ) ),
+		     this, SIGNAL( toggled( bool ) ) );
 	    updateCheckBoxGeometry();
 	}
 	d->checkbox->show();
@@ -832,6 +834,14 @@ bool QGroupBox::isChecked() const
     else
 	return FALSE;
 }
+
+/*!
+    \fn void QGroupBox::toggled( bool on )
+
+    If the group box has a check box (see \l isCheckable()) this signal
+    is emitted when the check box is toggled. \a on is TRUE if the check
+    box is checked, otherwise FALSE.
+*/
 
 /*!
     \property QGroupBox::checked
