@@ -367,7 +367,7 @@ QButton::QButton( QWidget *parent, const char *name, WFlags f )
 	group()->insert( this );		// insert into button group
     }
 #endif
-    setFocusPolicy( TabFocus );
+    setFocusPolicy( StrongFocus );
 }
 
 /*!
