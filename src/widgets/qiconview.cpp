@@ -1393,8 +1393,8 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg, const QFont &
 	f.setUnderline( TRUE );
 	p->setFont( f );
     }
-    
-    if ( isSelected() ) {   
+
+    if ( isSelected() ) {
 	p->setPen( cg.highlightedText() );
     } else {
 	if ( view->d->singleClick && view->d->scHighlighte && view->d->highlightedItem == this )
@@ -1402,7 +1402,7 @@ void QIconViewItem::paintItem( QPainter *p, const QColorGroup &cg, const QFont &
 	else
 	    p->setPen( cg.text() );
     }
-    
+
     calcTmpText();
 
     if ( view->itemTextPos() == QIconView::Bottom ) {
@@ -1579,7 +1579,7 @@ void QIconViewItem::calcTmpText()
   be selected, dragged and so on. The iconview can be used in double click mode
   (default) or single click mode (behaves like a web page). For the programmer which
   uses the iconview these modes are transparent, this means the iconview does all the
-  work for that.
+  work for that. See setSingleClickEnabled() for further details.
 
   Items can be inserted in a grid and can flow from top to bottom (South) or from
   left to right (East). The text can be either displayed at the bottom of the icons
@@ -1763,7 +1763,10 @@ void QIconViewItem::calcTmpText()
 */
 
 /*! \fn void  QIconView::doubleClicked (QIconViewItem * item)
-  This signal is emitted, if the user doubleclicked on the item \a item.
+  This signal is emitted, if the user doubleclicked on the item \a item in double click mode,
+  or if the user clicked on the \a item in single click mode.
+  
+  \sa setSingleClickEnabled()
 */
 
 /*! \fn void  QIconView::returnPressed (QIconViewItem * item)
@@ -1955,7 +1958,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->minLeftBearing = d->fm->minLeftBearing();
     d->minRightBearing = d->fm->minRightBearing();
     d->singleClick = FALSE;
-    
+
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -2633,17 +2636,17 @@ QIconView::SelectionMode QIconView::selectionMode() const
 }
 
 /*!
-  Sets the configuration for the single click mode. \a normalText
-  is the font and \a normalTextCol the color which should be used
-  for the normal icon text. \a highlightedText is the font and
-  \a highlightedTextCol the color which should be used for the icon
-  text, when the icon is highlighted (means, when the mouse cursor is
-  over the item). \a highlightedCursor is the mouse cursor which should
-  be used when the mouse is over an item. Passing 0 for one of these
-  parameters lets the iconview use the default value.
-  \a setCurrentInterval specifies the time interval (in ms) after which
-  a highlighted item (item over which the mouse is) gets the current
-  item and gets selected. Passing -1 here disables this feature.
+  Switches the iconview to single click mode, if \a enable is TRUE, else to the
+  normal double click mode. If \a enable is TRUE, \a underline specifies of all
+  item textes should be underlined, \a highlighte specifies if the text of the item over which
+  the mouse cursor is, should be drawn with QColorGroup::highlight() instead of QColorGroup::text(),
+  \a cursor specifies the mouse cursor which should be used of the mouse is over an item and
+  \a interval specifies the time in ms, after which an item should get the current, if the mouse
+  stays on it (-1 disables this feature).
+  
+  If you switch to single click mode, the signal doubleClicked() is emitted if the user only
+  does a single click on an item (this signal is emitted in the mouse release event then). Using that
+  it's transparent for you if you use the class in single click or double click mode.
 */
 
 void QIconView::setSingleClickEnabled( bool enable, bool underline, bool highlighte,
@@ -2658,7 +2661,13 @@ void QIconView::setSingleClickEnabled( bool enable, bool underline, bool highlig
     viewport()->repaint( FALSE );
 }
 
-bool QIconView::isSingleClickEnabled( bool *underline, bool *highlighte, 
+/*!
+  Returns TRUE, if the iconview is in single click mode or FALSE if it is in
+  double click mode. If you specify valid pointers as arguments, these values
+  are set to the values you specified in setSingleClickEnabled()
+*/
+
+bool QIconView::isSingleClickEnabled( bool *underline, bool *highlighte,
 				      QCursor *cursor, int *interval ) const
 {
     if ( underline )
@@ -3219,10 +3228,6 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 {
     d->dragStartPos = e->pos();
     QIconViewItem *item = findItem( e->pos() );
-    emit mouseButtonPressed( e->button(), item, e->globalPos() );
-    emit pressed( item );
-    emit pressed( item, e->globalPos() );
-    item = findItem( e->pos() );
 
     if ( d->currentItem )
 	d->currentItem->renameItem();
@@ -3233,12 +3238,12 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	 item->textRect( FALSE ).contains( e->pos() ) ) {
 
 	if ( !item->renameEnabled() )
-	    return;
+	    goto emit_signals;
 
 	ensureItemVisible( item );
 	setCurrentItem( item );
 	item->rename();
-	return;
+	goto emit_signals;
     }
 
     if ( item && item->isSelectable() ) {
@@ -3296,6 +3301,11 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	d->mousePressed = TRUE;
     }
 
+ emit_signals:
+    emit mouseButtonPressed( e->button(), item, e->globalPos() );
+    emit pressed( item );
+    emit pressed( item, e->globalPos() );
+    
     if ( e->button() == RightButton ) {
 	emit rightButtonPressed( item, e->globalPos() );
 	if ( item )
@@ -3312,14 +3322,11 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 {
     QIconViewItem *item = findItem( e->pos() );
-    emit mouseButtonClicked( e->button(), item, e->globalPos() );
-    emit clicked( item );
-    emit clicked( item, e->globalPos() );
-    item = findItem( e->pos() );
 
     d->mousePressed = FALSE;
     d->startDrag = FALSE;
-
+    bool emitDblClk = FALSE;
+    
     if ( d->rubber ) {
 	QPainter p;
 	p.begin( viewport() );
@@ -3337,7 +3344,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 	if ( item && !item->renameBox ) {
 	    if ( e->button() == LeftButton &&
 		 !( e->state() & ControlButton ) && !( e->state() & ShiftButton ) )
-		emit doubleClicked( item );
+		emitDblClk = TRUE;
 	}
     }
 
@@ -3348,6 +3355,12 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 	d->scrollTimer = 0;
     }
 
+    emit mouseButtonClicked( e->button(), item, e->globalPos() );
+    emit clicked( item );
+    emit clicked( item, e->globalPos() );
+    if ( emitDblClk )
+	emit doubleClicked( item );
+    
     if ( e->button() == RightButton ) {
 	emit rightButtonClicked( item, e->globalPos() );
 	if ( item )
@@ -3380,7 +3393,7 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 		    viewport()->setCursor( d->scCursor );
 		    repaintItem( old );
 		    repaintItem( d->highlightedItem );
-		    if ( d->scInterval >= 0 ) 
+		    if ( d->scInterval >= 0 )
 			d->singleClickSelectTimer->start( d->scInterval, TRUE );
 		}
 	    } else if ( d->highlightedItem ) {
@@ -3952,7 +3965,7 @@ QDragObject *QIconView::dragObject()
     if ( !d->currentItem )
 	return 0;
 
-    QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
+    QPoint orig = d->dragStartPos;
 
     QIconDrag *drag = new QIconDrag( viewport() );
     drag->setPixmap( QPixmap( d->currentItem->icon() ),
@@ -3975,7 +3988,10 @@ QDragObject *QIconView::dragObject()
 
 void QIconView::startDrag()
 {
-    QPoint orig = d->dragStartPos;//viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
+    if ( !d->currentItem )
+	return;
+    
+    QPoint orig = d->dragStartPos;
     d->dragStart = QPoint( orig.x() - d->currentItem->x(),
 			   orig.y() - d->currentItem->y() );
 
