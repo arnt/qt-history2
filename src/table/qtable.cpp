@@ -3177,7 +3177,8 @@ bool QTable::isColumnSelected( int col, bool full ) const
 }
 
 /*!
-    Returns the number of selections.
+    \property QTable::numSelections
+    \brief The number of selections.
 
     \sa currentSelection()
 */

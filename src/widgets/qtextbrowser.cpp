@@ -175,6 +175,33 @@ QString QTextBrowser::source() const
 	return d->stack.top();
 }
 
+/*!
+    \property QTextBrowser::undoDepth
+    \brief This text browser's undo depth.
+*/
+
+/*!
+    \property QTextBrowser::overwriteMode
+    \brief This text browser's overwrite mode.
+*/
+
+/*!
+    \property QTextBrowser::modified
+    \brief Whether the contents have been modified.
+*/
+
+/*!
+    \property QTextBrowser::readOnly
+    \brief Whether the contents are read only.
+*/
+
+/*!
+    \property QTextBrowser::undoRedoEnabled
+    \brief Whether undo and redo are enabled.
+*/
+
+
+
 /*! Reloads the current set source */
 
 void QTextBrowser::reload()
@@ -363,11 +390,12 @@ void QTextBrowser::home()
 
 /*!
     The event \a e is used to provide the following keyboard shortcuts:
-    <ul>
-    <li><i>Alt+Left Arrow</i> - backward()
-    <li><i>Alt+Right Arrow</i> - forward()
-    <li><i>Alt+Up Arrow</i> - home()
-    </ul>
+    \table
+    \header \i Keypress \i Action
+    \row \i Alt+Left Arrow  \i backward()
+    \row \i Alt+Right Arrow \i forward()
+    \row \i Alt+Up Arrow    \i home()
+    \endtable
 */
 void QTextBrowser::keyPressEvent( QKeyEvent * e )
 {

@@ -581,6 +581,17 @@ static bool block_set_alignment = FALSE;
   \value AlignSubScript Subscript
 */
 
+/*!
+    \enum QTextEdit::TextInsertionFlags
+
+    \internal
+
+    \value RedoIndentation
+    \value CheckNewLines
+    \value RemoveSelected
+*/
+
+
 /*!  \fn void QTextEdit::copyAvailable (bool yes)
 
   This signal is emitted when text is selected or de-selected in the text

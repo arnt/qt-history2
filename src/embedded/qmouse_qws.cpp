@@ -52,6 +52,18 @@
 */
 
 /*!
+    \fn virtual void QWSMouseHandler::getCalibration( QWSPointerCalibrationData * )
+
+    \internal
+*/
+
+/*!
+    \fn const QPoint &QWSMouseHandler::pos() const
+
+    Returns the mouse position.
+*/
+
+/*!
     Constructs a mouse handler. This becomes the primary mouse
     handler.
 

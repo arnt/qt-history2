@@ -538,8 +538,6 @@ void QLCDNumber::display( int num )
 
 
 /*!
-    \overload
-
     Displays the number represented by the string \a s.
 
     This version of the function disregards mode() and

@@ -139,6 +139,7 @@
   \value Wheel  Mouse wheel rolled, \l{QWheelEvent}.
   \value ContextMenu context popup menu, \l{QContextMenuEvent}
   \value AccelOverride  Key press in child, for overriding shortcut key handling, \l{QKeyEvent}.
+  \value AccelAvailable internal.
   \value WindowActivate  Window was activated.
   \value WindowDeactivate  Window was deactivated.
   \value CaptionChange  Widget's caption changed.

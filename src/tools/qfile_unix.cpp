@@ -432,25 +432,27 @@ QIODevice::Offset QFile::size() const
 
 
 /*!
-  Sets the file index to \a pos. Returns TRUE if successful; otherwise
-  returns FALSE.
+    \overload
 
-  Example:
-  \code
+    Sets the file index to \a pos. Returns TRUE if successful;
+    otherwise returns FALSE.
+
+    Example:
+    \code
     QFile f( "data.bin" );
-    f.open( IO_ReadOnly );			// index set to 0
-    f.at( 100 );				// set index to 100
-    f.at( f.at()+50 );				// set index to 150
-    f.at( f.size()-80 );			// set index to 80 before EOF
+    f.open( IO_ReadOnly );  // index set to 0
+    f.at( 100 );	    // set index to 100
+    f.at( f.at()+50 );	    // set index to 150
+    f.at( f.size()-80 );    // set index to 80 before EOF
     f.close();
-  \endcode
+    \endcode
 
-  Use \c at() without arguments to retrieve the file offset.
+    Use \c at() without arguments to retrieve the file offset.
 
-  \warning The result is undefined if the file was open()'ed
-  using the \c IO_Append specifier.
+    \warning The result is undefined if the file was open()'ed using
+    the \c IO_Append specifier.
 
-  \sa size(), open()
+    \sa size(), open()
 */
 
 bool QFile::at( Offset pos )

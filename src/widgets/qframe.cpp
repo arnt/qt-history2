@@ -116,6 +116,7 @@
     (useful as separator)
     \value VLine  QFrame draws a vertical line that frames nothing
     (useful as separator)
+    \value GroupBoxPanel draws a rectangular panel
     \value WinPanel draws a rectangular panel that can be raised or
     sunken like those in Windows 95. Specifying this shape sets
     the line width to 2 pixels. WinPanel is provided for compatibility.

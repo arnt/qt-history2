@@ -231,6 +231,12 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
 */
 
 /*!
+    \fn QGfx * QPainter::internalGfx()
+
+    \internal
+*/
+
+/*!
     \enum QPainter::CoordinateMode
     \value CoordDevice
     \value CoordPainter

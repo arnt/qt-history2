@@ -159,6 +159,12 @@ public:
 */
 
 /*!
+    \fn QStyleOption::QStyleOption(QCheckListItem* i)
+
+    Pass a QCheckListItem, \a i.
+*/
+
+/*!
     \fn bool QStyleOption::isDefault() const
 
     Returns TRUE if the option was constructed with the default
@@ -241,6 +247,13 @@ public:
 
     Returns an arrow type if the appropriate constructor was called;
     otherwise the return value is undefined.
+*/
+
+/*!
+    \fn QCheckListItem* QStyleOption::checkListItem() const
+
+    Returns a check list item if the appropriate constructor was
+    called; otherwise the return value is undefined.
 */
 
 /*!

@@ -47,7 +47,7 @@ static QEventLoop *INSTANCE = 0;
     \ingroup application
     \ingroup events
 
-    The QEventLoop class manages the main event loop.  It receives
+    It receives
     events from the window system and other sources.  It then sends
     them to QApplication for prcoessing and delivery.
 
@@ -83,8 +83,8 @@ static QEventLoop *INSTANCE = 0;
 */
 
 /*!
-    Creates a QEventLoop object.
-    \a parent and \a name are propagated to the QObject constructor.
+    Creates a QEventLoop object. The \a parent and \a name arguments
+    are passed on to the QObject constructor.
 */
 QEventLoop::QEventLoop( QObject *parent, const char *name )
     : QObject( parent, name )

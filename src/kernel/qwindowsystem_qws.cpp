@@ -868,6 +868,16 @@ static void ignoreSignal( int )
 */
 
 /*!
+    \enum QWSServer::IMState
+
+    \internal
+
+    \value IMStart  Starting to compose.
+    \value IMCompose Composing.
+    \value IMEnd Finished composing.
+*/
+
+/*!
     \fn const QPtrList<QWSWindow> &QWSServer::clientWindows()
 
     Returns the list of top-level windows. This list will change as
@@ -1609,6 +1619,14 @@ void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, 
 
 #ifndef QT_NO_QWS_IM
 
+/*!
+    \internal
+
+    Sends an input method event to the current client application.
+
+    The input method is in \a state, the input text in \a txt, the
+    cursor position in \a cpos and the selection length in \a selLen.
+*/
 void QWSServer::sendIMEvent( IMState state, QString txt, int cpos, int selLen )
 {
     QWSIMEvent event;
@@ -1633,6 +1651,11 @@ void QWSServer::sendIMEvent( IMState state, QString txt, int cpos, int selLen )
 }
 
 
+/*!
+    \internal
+
+    Sets the current input method to \a im.
+*/
 void QWSServer::setCurrentInputMethod( QWSInputMethod *im )
 {
     current_IM = im;
@@ -2763,6 +2786,12 @@ void QWSServer::screenSaverSleep()
     qt_disable_lowpriority_timers=TRUE;
 }
 
+/*!
+    \internal
+
+    Deletes the current screen saver and sets the screen saver to be
+    \a ss.
+*/
 void QWSServer::setScreenSaver(QWSScreenSaver* ss)
 {
     delete qwsServer->d->saver;
@@ -2849,7 +2878,7 @@ void QWSServer::screenSaverActivate(bool activate)
     which the event of type \a e has occurred.
 */
 
-/*!
+/*
     \fn QWSServer::keyMap()
 
     Returns the keyboard mapping table used to convert keyboard
@@ -2878,7 +2907,7 @@ void QWSServer::screenSaverActivate(bool activate)
 		    on the command line.
 */
 
-/*!
+/*
     \class QWSServer::KeyMap
     \brief The QWSServer::KeyMap class is used for mapping scancodes.
 
@@ -2916,21 +2945,25 @@ void QWSServer::screenSaverActivate(bool activate)
 
 
 /*!
-  \class QWSInputMethod
-  \brief International input methods for Qt/Embedded
+    \class QWSInputMethod
+    \brief The QWSInputMethod class provides international input
+    methods for Qt/Embedded.
 
-  Subclass this to implement your own input method
-
- */
+    Subclass this to implement your own input method.
+*/
 
 /*!
-
+    \internal
 */
 
 QWSInputMethod::QWSInputMethod()
 {
     
 }
+
+/*!
+    \internal
+*/
 
 QWSInputMethod::~QWSInputMethod()
 {
@@ -2950,7 +2983,7 @@ void QWSInputMethod::reset()
 
 
 /*!
-
+    \internal
 */
 
 void QWSInputMethod::setMicroFocus( int, int )
@@ -2960,7 +2993,7 @@ void QWSInputMethod::setMicroFocus( int, int )
 
 
 /*!
-
+    \internal
 */
 
 void QWSInputMethod::setFont( const QFont& )
@@ -2970,7 +3003,12 @@ void QWSInputMethod::setFont( const QFont& )
 
 
 /*!
+    \internal
 
+    Sends an input method event to the current client application.
+
+    The input method is in \a state, the input text in \a txt, the
+    cursor position in \a cpos and the selection length in \a selLen.
 */
 
 void QWSInputMethod::sendIMEvent( QWSServer::IMState state, QString txt, int cpos, int selLen )

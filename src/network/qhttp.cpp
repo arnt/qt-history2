@@ -333,9 +333,9 @@ void QHttpCloseRequest::start( QHttp *http )
     \endcode
 
     Some fields are so common that getters and setters are provided
-    for them as a convenient alternative to using value() and
-    setValue(), e.g. contentLength(), contentType(), connection(),
-    setContentLength(), setContentType() and setConnection().
+    for them as a convenient alternative to using \l value() and
+    \l setValue(), e.g. contentLength() and contentType(),
+    setContentLength() and setContentType().
 
     Each header key has a \e single value associated with it. If you
     set the value for a key which already exists the previous value
@@ -1573,6 +1573,8 @@ int QHttp::get( const QString& path, QIODevice* to )
     \a path must be an absolute path like \c /index.html or an
     absolute URI like \c http://www.trolltech.com/index.html.
 
+    The incoming data comes via the \a data IO device.
+
     If the IO device \a to is 0 the readyRead() signal is emitted
     every time new content data is available to read.
 
@@ -1641,6 +1643,8 @@ int QHttp::head( const QString& path )
     the constructor. Uses the \a header as the HTTP request header.
     You are responsible for setting up a header that is appropriate
     for your request.
+
+    The incoming data comes via the \a data IO device.
 
     If the IO device \a to is 0 the readyRead() signal is emitted
     every time new content data is available to read.

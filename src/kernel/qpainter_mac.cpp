@@ -1903,6 +1903,9 @@ QPoint QPainter::pos() const
     return xFormDev(QPoint(pt.h - d->offx, pt.v - d->offy));
 }
 
+/*!
+    \internal
+*/
 void QPainter::initPaintDevice(bool force) {
     bool remade_clip = FALSE;
     if(pdev->devType() == QInternal::Printer) {

@@ -5394,12 +5394,13 @@ void QWidget::setSizePolicy( QSizePolicy policy )
     updateGeometry();
 }
 
-/*
-  \overload void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
+/*!
+    \overload void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
 
-  Sets the size policy of the widget to \a hor, \a ver and \a hfw.
+    Sets the size policy of the widget to \a hor, \a ver and \a hfw
+    (height for width).
 
-  \sa QSizePolicy::QSizePolicy()
+    \sa QSizePolicy::QSizePolicy()
 */
 
 /*!

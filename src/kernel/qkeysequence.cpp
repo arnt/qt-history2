@@ -211,6 +211,13 @@ QKeySequence::QKeySequence( const QString& key )
 
 
 // ### BCI: Merge with constructor below for 4.0
+/*!
+    Constructs a key sequence that has a single \a key.
+
+    The key codes are listed in \c{qnamespace.h} and can be
+    combined with modifiers, e.g. with \c SHIFT, \c CTRL, \c
+    ALT, \c META or \c UNICODE_ACCEL.
+*/
 QKeySequence::QKeySequence( int key )
 {
     d = new QKeySequencePrivate();
@@ -225,7 +232,7 @@ QKeySequence::QKeySequence( int key )
     The key codes are listed in \c{qnamespace.h} and can be
     combined with modifiers, e.g. with \c SHIFT, \c CTRL, \c
     ALT, \c META or \c UNICODE_ACCEL.
- */
+*/
 QKeySequence::QKeySequence( int k1, int k2, int k3, int k4 )
 {
     d = new QKeySequencePrivate();

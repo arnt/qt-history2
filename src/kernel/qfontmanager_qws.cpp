@@ -91,6 +91,22 @@ QFontManager * qt_fontmanager=0;
 */
 
 /*!
+    \fn void QFontManager::cache(QRenderedFont * f)
+
+    \internal
+
+    Caches the given font, \a f.
+*/
+
+/*!
+    \fn void QFontManager::uncache(QRenderedFont * f)
+
+    \internal
+
+    Removes font \a f from the font cache.
+*/
+
+/*!
   Creates a new QFontManager and points qt_fontmanager to it
 */
 void QFontManager::initialize()
@@ -333,12 +349,24 @@ QDiskFont * QFontManager::get(const QFontDef & f)
     return bestmatch;
 }
 
+/*!
+    \internal
+
+    Deletes the existing font cache policy and sets the cache policy
+    to \a p.
+*/
 void QFontManager::setPolicy(QCachePolicy * p)
 {
     delete policy;
     policy=p;
 }
 
+/*!
+    \internal
+
+    Returns the cached font that matches font definition \a f, or 0 if
+    there is no matching font in the font cache.
+*/
 QRenderedFont* QFontManager::getCached(const QFontDef & f)
 {
     QRenderedFont * it;

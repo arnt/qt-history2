@@ -1956,15 +1956,10 @@ uint QDateTime::toTime_t() const
 }
 
 /*!
-    Sets the date and time to local time given the number of seconds
-    that have passed since 1970-01-01T00:00:00, Coordinated Universal
-    Time (UTC). On systems that do not support timezones this function
-    will behave as if local time were UTC.
+    \overload
 
-    On Windows, only a subset of \a secsSince1Jan1970UTC values are
-    supported, as Windows starts counting from 1980.
-
-    \sa toTime_t()
+    Convenience function that sets the date and time to local time
+    based on the given UTC time.
 */
 
 void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
@@ -1972,6 +1967,18 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
     setTime_t( secsSince1Jan1970UTC, Qt::LocalTime );
 }
 
+/*!
+    Sets the date and time to \a dts time (\c Qt::LocalTime or \c
+    Qt::UTC) given the number of seconds that have passed since
+    1970-01-01T00:00:00, Coordinated Universal Time (UTC). On systems
+    that do not support timezones this function will behave as if
+    local time were UTC.
+
+    On Windows, only a subset of \a secsSince1Jan1970UTC values are
+    supported, as Windows starts counting from 1980.
+
+    \sa toTime_t()
+*/
 void QDateTime::setTime_t( uint secsSince1Jan1970UTC, Qt::TimeSpec dts )
 {
     time_t tmp = (time_t) secsSince1Jan1970UTC;

@@ -3566,9 +3566,18 @@ int QRegExp::match( const QString& str, int index, int *len,
 #endif // QT_NO_COMPAT
 
 /*!
-    \fn int QRegExp::search( const QString& str, int offset,
-			     CaretMode caretMode ) const
+    \overload
 
+    This convenience function searches with a \c CaretMode of \c
+    CaretAtZero which is the most common usage.
+*/
+
+int QRegExp::search( const QString& str, int offset ) const
+{
+    return search( str, offset, CaretAtZero );
+}
+
+/*!
     Attempts to find a match in \a str from position \a offset (0 by
     default). If \a offset is -1, the search starts at the last
     character; if -2, at the next to last character; etc.
@@ -3602,11 +3611,6 @@ int QRegExp::match( const QString& str, int index, int *len,
     \sa searchRev() exactMatch()
 */
 
-int QRegExp::search( const QString& str, int offset ) const
-{
-    return search( str, offset, CaretAtZero );
-}
-
 int QRegExp::search( const QString& str, int offset, CaretMode caretMode ) const
 {
     if ( offset < 0 )
@@ -3620,10 +3624,20 @@ int QRegExp::search( const QString& str, int offset, CaretMode caretMode ) const
     return priv->captured[0];
 }
 
-/*!
-    \fn int QRegExp::searchRev( const QString& str, int offset,
-				CaretMode caretMode ) const
 
+/*!
+    \overload
+
+    This convenience function searches with a \c CaretMode of \c
+    CaretAtZero which is the most common usage.
+*/
+
+int QRegExp::searchRev( const QString& str, int offset ) const
+{
+    return searchRev( str, offset, CaretAtZero );
+}
+
+/*!
     Attempts to find a match backwards in \a str from position \a
     offset. If \a offset is -1 (the default), the search starts at the
     last character; if -2, at the next to last character; etc.
@@ -3642,12 +3656,6 @@ int QRegExp::search( const QString& str, int offset, CaretMode caretMode ) const
 
     \sa search() exactMatch()
 */
-
-
-int QRegExp::searchRev( const QString& str, int offset ) const
-{
-    return searchRev( str, offset, CaretAtZero );
-}
 
 int QRegExp::searchRev( const QString& str, int offset,
 			CaretMode caretMode ) const

@@ -753,11 +753,20 @@ bool QAction::isEnabled() const
     return d->enabled;
 }
 
-/*! \property QAction::visible
+/* \property QAction::visible
   \brief whether the action is visible
 
   Invisible actions can't be seen (or chosen) by the user. They don't
   disappear from the menu/tool bar's item list, but are not displayed.
+*/
+
+/*!
+    If \a visible is TRUE the action can be seen (e.g. in menus and
+    toolbars) and chosen by the user; if \a visible is FALSE the
+    action cannot be seen or chosen by the user.
+
+    Actions which are not visible are \e not just greyed out; they do
+    not appear at all.
 */
 void QAction::setVisible( bool visible )
 {
@@ -772,6 +781,10 @@ void QAction::setVisible( bool visible )
 	d->d_group->update( (QActionGroup*) this );
 }
 
+/*!
+    Returns TRUE if the action is visible (e.g. in menus and
+    toolbars); otherwise returns FALSE.
+*/
 bool QAction::isVisible() const
 {
     return d->visible;

@@ -2179,6 +2179,9 @@ void QWidget::resetInputContext()
 
 }
 
+/*!
+    \internal
+*/
 void QWidget::macWidgetChangedWindow()
 {
 

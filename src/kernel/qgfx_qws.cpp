@@ -62,6 +62,24 @@ void QGfx::setScreen(QScreen *,QScreenCursor *,bool,int *,int *)
 }
 
 /*!
+    \fn virtual int QScreen::sharedRamSize(void *)
+
+    \internal
+*/
+
+/*!
+    \fn virtual void QScreen::haltUpdates()
+
+    \internal
+*/
+
+/*!
+    \fn virtual void QScreen::resumeUpdates()
+
+    \internal
+*/
+
+/*!
     \fn int * QScreen::opType()
 
     Returns the screen's operation type.
@@ -254,6 +272,9 @@ int QScreen::pixmapDepth() const
     return depth();
 }
 
+/*!
+    \internal
+*/
 int QScreen::memoryNeeded(const QString&)
 {
     return 0;

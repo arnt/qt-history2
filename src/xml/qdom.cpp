@@ -6094,7 +6094,10 @@ QString QDomDocument::toString() const
 }
 
 /*!
-  This function uses \a indent as the amount of space to indent subelements.
+    \overload
+
+    This function uses \a indent as the amount of space to indent
+    subelements.
 */
 QString QDomDocument::toString( int indent ) const
 {
@@ -6119,7 +6122,10 @@ QCString QDomDocument::toCString() const
 }
 
 /*!
-  This function uses \a indent as the amount of space to indent subelements.
+    \overload
+
+    This function uses \a indent as the amount of space to indent
+    subelements.
 */
 QCString QDomDocument::toCString( int indent ) const
 {

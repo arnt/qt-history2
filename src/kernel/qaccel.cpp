@@ -470,7 +470,7 @@ QAccel::~QAccel()
     This signal is emitted when an accelerator key is pressed. \a id
     is a number that identifies this particular accelerator item.
 
-    \sa activateAmbiguously()
+    \sa activatedAmbiguously()
 */
 
 /*!

@@ -119,6 +119,16 @@ public:
   \link guibooks.html#fowler GUI Design Handbook: Push Button\endlink
 */
 
+/*!
+    \enum QToolButton::TextPosition
+
+    The position of the tool button's text in relation to the tool
+    button's icon.
+
+    \value Right The text appears to the right of the icon.
+    \value Under The text appears below the icon.
+*/
+
 
 /*!
   Constructs an empty tool button with parent \a parent and name \a name.

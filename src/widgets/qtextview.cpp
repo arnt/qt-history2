@@ -76,9 +76,25 @@ QTextView::~QTextView()
     \property QTextView::undoDepth
     \brief the number of undoable steps
 */
+
 /*!
     \property QTextView::overwriteMode
     \brief whether new text overwrites or pushes aside existing text
+*/
+
+/*!
+    \property QTextView::modified
+    \brief Whether the text view's contents have been modified.
+*/
+
+/*!
+    \property QTextView::readOnly
+    \brief Whether the text view's contents are read only.
+*/
+
+/*!
+    \property QTextView::undoRedoEnabled
+    \brief Whether undo and redo are enabled.
 */
 
 #endif

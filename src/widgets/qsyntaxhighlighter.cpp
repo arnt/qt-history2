@@ -139,9 +139,9 @@ QSyntaxHighlighter::~QSyntaxHighlighter()
 
     Some syntaxes can have constructs that span paragraphs. For
     example, a C++ syntax highlighter should be able to cope with
-    \/\* ... \*\/ comments that span paragraphs. To deal with these
-    cases it is necessary to know the end state of the previous
-    paragraph (e.g. "in comment").
+    \c{/}\c{*...*}\c{/} comments that span paragraphs. To deal
+    with these cases it is necessary to know the end state of the
+    previous paragraph (e.g. "in comment").
 
     If your syntax does not have paragraph spanning constructs, simply
     ignore the \a endStateOfLastPara parameter and always return 0.
@@ -163,7 +163,7 @@ QSyntaxHighlighter::~QSyntaxHighlighter()
     that ended in the middle of a comment you'd return 1, and for
     other paragraphs you'd return 0. In your parsing code if \a
     endStateOfLastPara was 1, you would highlight the text as a C++
-    comment until you reached the closing \*\/.
+    comment until you reached the closing \c{*}\c{/}.
 */
 
 /*!
