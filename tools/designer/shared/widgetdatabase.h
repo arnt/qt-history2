@@ -25,6 +25,9 @@
 #include <qstring.h>
 #include <qstringlist.h>
 
+class WidgetPlugInManager;
+extern WidgetPlugInManager *widgetManager();
+
 struct WidgetDatabaseRecord
 {
     WidgetDatabaseRecord();
@@ -69,7 +72,7 @@ public:
 
     static bool isWhatsThisLoaded();
     static void loadWhatsThis( const QString &docPath );
-    
+
 };
 
 #endif

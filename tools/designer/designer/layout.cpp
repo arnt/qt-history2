@@ -701,9 +701,9 @@ void GridLayout::doLayout()
 	    if ( needReparent && w->parent() != layoutBase )
 		w->reparent( layoutBase, 0, QPoint( 0, 0 ), FALSE );
 	    if ( rs * cs == 1 ) {
-		layout->addWidget( w, r, c );
+		layout->addWidget( w, r, c, w->inherits( "Spacer" ) ? ( (Spacer*)w )->alignment() : 0 );
 	    } else {
-		layout->addMultiCellWidget( w, r, r+rs-1, c, c+cs-1 );
+		layout->addMultiCellWidget( w, r, r+rs-1, c, c+cs-1, w->inherits( "Spacer" ) ? ( (Spacer*)w )->alignment() : 0 );
 	    }
 	    w->show();
 	} else {
@@ -818,9 +818,9 @@ void Spacer::setSizeType( SizeType t )
 {
     QSizePolicy sizeP;
     if ( orient == Vertical )
-	sizeP = QSizePolicy( QSizePolicy::Fixed, (QSizePolicy::SizeType)t );
+	sizeP = QSizePolicy( QSizePolicy::Minimum, (QSizePolicy::SizeType)t );
     else
-	sizeP = QSizePolicy( (QSizePolicy::SizeType)t, QSizePolicy::Fixed );
+	sizeP = QSizePolicy( (QSizePolicy::SizeType)t, QSizePolicy::Minimum );
     setSizePolicy( sizeP );
 }
 
@@ -866,7 +866,7 @@ void Spacer::setOrientation( Qt::Orientation o )
     orient = o;
     setSizeType( st );
     if ( ar )
-	resize( size().height(), size().width() );
+	resize( QSize( size().height(), size().width() ) );
     updateMask();
     update();
     updateGeometry();

@@ -1297,18 +1297,24 @@ QString Uic::createSpacerImpl( const QDomElement &e, const QString& /*parentClas
     objClass = e.tagName();
     objName = registerObject( "spacer" );
 
-    QRect geom = DomTool::readProperty( e, "geometry", QRect(0,0,0,0) ).toRect();
+    QSize size = DomTool::readProperty( e, "sizeHint", QSize( 0, 0 ) ).toSize();
     QString sizeType = DomTool::readProperty( e, "sizeType", "Expanding" ).toString();
     bool isVspacer = DomTool::readProperty( e, "orientation", "Horizontal" ) == "Vertical";
 
+    if ( sizeType != "Expanding" && sizeType != "MinimumExpanding" && 
+	 DomTool::hasProperty( e, "geometry" ) ) { // compatibility Qt 2.2
+	QRect geom = DomTool::readProperty( e, "geometry", QRect(0,0,0,0) ).toRect();
+	size = geom.size();
+    }
+    
     if ( isVspacer )
 	out << "    QSpacerItem* " << objName << " = new QSpacerItem( "
-	    << geom.width() << ", " << geom.height()
-	    << ", QSizePolicy::Fixed, QSizePolicy::" << sizeType << " );" << endl;
+	    << size.width() << ", " << size.height()
+	    << ", QSizePolicy::Minimum, QSizePolicy::" << sizeType << " );" << endl;
     else
 	out << "    QSpacerItem* " << objName << " = new QSpacerItem( "
-	    << geom.width() << ", " << geom.height()
-	    << ", QSizePolicy::" << sizeType << ", QSizePolicy::Fixed );" << endl;
+	    << size.width() << ", " << size.height()
+	    << ", QSizePolicy::" << sizeType << ", QSizePolicy::Minimum );" << endl;
 
     return objName;
 }
@@ -1516,7 +1522,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 		sp.setVerData( (QSizePolicy::SizeType)n3.firstChild().toText().data().toInt() );
 	    n3 = n3.nextSibling().toElement();
 	}
-	v = "QSizePolicy( (QSizePolicy::SizeType)%1, (QSizePolicy::SizeType)%2 )";
+	v = "QSizePolicy( (QSizePolicy::SizeType)%1, (QSizePolicy::SizeType)%2, " + obj + "->sizePolicy().hasHeightForWidth() )";
 	v = v.arg( (int)sp.horData() ).arg( (int)sp.verData() );
     } else if ( e.tagName() == "palette" ) {
 	QPalette pal;

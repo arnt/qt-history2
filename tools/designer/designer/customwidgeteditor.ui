@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>716</width>
-            <height>384</height>
+            <height>386</height>
         </rect>
     </property>
     <property stdset="1">
@@ -41,13 +41,6 @@
             <property stdset="1">
                 <name>name</name>
                 <cstring>boxWidgets</cstring>
-            </property>
-            <property stdset="1">
-                <name>sizePolicy</name>
-                <sizepolicy>
-                    <hsizetype>5</hsizetype>
-                    <vsizetype>7</vsizetype>
-                </sizepolicy>
             </property>
             <property>
                 <name>whatsThis</name>
@@ -174,10 +167,10 @@
             <property stdset="1">
                 <name>geometry</name>
                 <rect>
-                    <x>175</x>
+                    <x>231</x>
                     <y>79</y>
                     <width>20</width>
-                    <height>190</height>
+                    <height>192</height>
                 </rect>
             </property>
             <property stdset="1">
@@ -240,6 +233,10 @@
             </property>
             <widget>
                 <class>QWidget</class>
+                <property stdset="1">
+                    <name>name</name>
+                    <cstring>Widget2</cstring>
+                </property>
                 <attribute>
                     <name>title</name>
                     <string>D&amp;efinition</string>
@@ -642,10 +639,10 @@
                         <property stdset="1">
                             <name>geometry</name>
                             <rect>
-                                <x>345</x>
+                                <x>289</x>
                                 <y>181</y>
                                 <width>20</width>
-                                <height>105</height>
+                                <height>107</height>
                             </rect>
                         </property>
                         <property stdset="1">
@@ -681,6 +678,10 @@
             </widget>
             <widget>
                 <class>QWidget</class>
+                <property stdset="1">
+                    <name>name</name>
+                    <cstring>Widget3</cstring>
+                </property>
                 <attribute>
                     <name>title</name>
                     <string>&amp;Signals</string>
@@ -842,6 +843,10 @@
             </widget>
             <widget>
                 <class>QWidget</class>
+                <property stdset="1">
+                    <name>name</name>
+                    <cstring>Widget4</cstring>
+                </property>
                 <attribute>
                     <name>title</name>
                     <string>S&amp;lots</string>
@@ -1064,6 +1069,10 @@
             </widget>
             <widget>
                 <class>QWidget</class>
+                <property stdset="1">
+                    <name>name</name>
+                    <cstring>Widget5</cstring>
+                </property>
                 <attribute>
                     <name>title</name>
                     <string>&amp;Properties</string>

@@ -19,6 +19,7 @@
 **********************************************************************/
 
 #include "widgetdatabase.h"
+#include "widgetplugin.h"
 
 #if defined(DESIGNER)
 #include "../designer/formwindow.h"
@@ -35,6 +36,8 @@
 
 #include <qmodules.h>
 
+#include <stdlib.h>
+
 const int dbsize = 300;
 const int dbcustom = 200;
 const int dbdictsize = 211;
@@ -45,6 +48,7 @@ static int dbcustomcount = 200;
 static QStrList *wGroups;
 static QStrList *invisibleGroups;
 static bool whatsThisLoaded = FALSE;
+static WidgetPlugInManager *widgetPluginManager = 0;
 
 
 WidgetDatabaseRecord::WidgetDatabaseRecord()
@@ -396,6 +400,18 @@ void WidgetDatabase::setupDataBase()
     append( r );
 
     qt_init_kde_widget_database();
+
+    QStringList widgets = widgetManager()->featureList();
+    for ( QStringList::Iterator it = widgets.begin(); it != widgets.end(); ++it ) {
+	r = new WidgetDatabaseRecord;
+	r->iconSet = widgetManager()->iconSet( *it );
+	r->group = widgetManager()->group( *it );
+	r->toolTip = widgetManager()->toolTip( *it );
+	r->whatsThis = widgetManager()->whatsThis( *it );
+	r->includeFile = widgetManager()->includeFile( *it );
+	r->isContainer = widgetManager()->isContainer( *it );
+	r->name = *it;
+    }
 }
 
 /*!
@@ -635,4 +651,13 @@ void WidgetDatabase::loadWhatsThis( const QString &docPath )
 	    r->whatsThis = l[ 0 ];
     }
     whatsThisLoaded = TRUE;
+}
+
+WidgetPlugInManager *widgetManager()
+{
+    QString dir = getenv( "QTDIR" );
+    dir += "/plugins";
+    if ( !widgetPluginManager )
+	widgetPluginManager = new WidgetPlugInManager( dir );
+    return widgetPluginManager;
 }

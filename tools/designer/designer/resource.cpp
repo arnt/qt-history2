@@ -267,7 +267,7 @@ bool Resource::save( QIODevice* dev, bool saveImages, QValueList<Image> *imgs )
 
     if ( imgs )
 	*imgs = images;
-    
+
     images.clear();
 
     return TRUE;
@@ -694,11 +694,14 @@ void Resource::saveChildrenOf( QObject* obj, QTextStream &ts, int indent )
 void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 {
     QStringList changed;
-    if ( w->isWidgetType() )
+    if ( w->isWidgetType() ) {
 	changed = MetaDataBase::changedProperties( w );
-    else if ( w->inherits( "QLayout" ) ) // #### should be cleaner (RS)
+	if ( w->inherits( "Spacer" ) )
+	    changed << "sizeHint";
+    } else if ( w->inherits( "QLayout" ) ) { // #### should be cleaner (RS)
 	changed << "margin" << "spacing";
-
+    }
+    
     if ( w == formwindow->mainContainer() ) {
 	if ( changed.findIndex( "geometry" ) == -1 )
 	    changed << "geometry";
@@ -711,8 +714,6 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 
     bool inLayout = w != formwindow->mainContainer() && !copying && w->isWidgetType() && ( (QWidget*)w )->parentWidget() &&
 		    WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
-    if ( inLayout && w->inherits( "Spacer" ) )
-	inLayout = FALSE;
 	
     QStringList::Iterator it = changed.begin();
     for ( ; it != changed.end(); ++it ) {
@@ -1264,7 +1265,8 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
 	    if ( layout->inherits( "QBoxLayout" ) )
 		( (QBoxLayout*)layout )->addWidget( spacer, 0, spacer->alignment() );
 	    else
-		( (QDesignerGridLayout*)layout )->addMultiCellWidget( spacer, row, row + rowspan - 1, col, col + colspan - 1 );
+		( (QDesignerGridLayout*)layout )->addMultiCellWidget( spacer, row, row + rowspan - 1, col, col + colspan - 1,
+								      spacer->alignment() );
 	}
     } else {
 	QSpacerItem *item = new QSpacerItem( spacer->width(), spacer->height(),
@@ -1274,7 +1276,8 @@ QWidget *Resource::createSpacer( const QDomElement &e, QWidget *parent, QLayout 
 	    if ( layout->inherits( "QBoxLayout" ) )
 		( (QBoxLayout*)layout )->addItem( item );
 	    else
-		( (QDesignerGridLayout*)layout )->addMultiCell( item, row, row + rowspan - 1, col, col + colspan - 1 );
+		( (QDesignerGridLayout*)layout )->addMultiCell( item, row, row + rowspan - 1, col, col + colspan - 1, 
+								spacer->alignment() );
 	}
 	delete spacer;
 	return 0;
@@ -1413,6 +1416,11 @@ void Resource::setObjectProperty( QObject* obj, const QString &prop, const QDomE
 	}
     }
 
+    if ( prop == "sizePolicy" ) {
+	QSizePolicy sp = v.toSizePolicy();
+	sp.setHeightForWidth( ( (QWidget*)obj )->sizePolicy().hasHeightForWidth() );
+    }
+    
     obj->setProperty( prop, v );
 }
 

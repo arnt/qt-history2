@@ -19,6 +19,7 @@
 **********************************************************************/
 
 #include "widgetfactory.h"
+#include <widgetplugin.h>
 #include <widgetdatabase.h>
 #include "metadatabase.h"
 #include "mainwindow.h"
@@ -632,7 +633,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     if ( w )
 	return w;
 
-    return 0;
+    return widgetManager()->create( className, parent, name );
 }
 
 
@@ -1008,18 +1009,6 @@ bool QLayoutWidget::event( QEvent *e )
     return QWidget::event( e );
 }
 
-static int sp_to_int( QSizePolicy::SizeType t )
-{
-    if ( t == QSizePolicy::MinimumExpanding )
-	return 6;
-    return (int)t;
-}
-
-static bool isGreater( QSizePolicy::SizeType t1, QSizePolicy::SizeType t2 )
-{
-    return sp_to_int( t1 ) > sp_to_int( t2 );
-}
-
 void QLayoutWidget::updateSizePolicy()
 {
     if ( !children() || children()->count() == 0 ) {
@@ -1029,16 +1018,23 @@ void QLayoutWidget::updateSizePolicy()
 
     QObjectListIt it( *children() );
     QObject *o;
-    QSizePolicy::SizeType vt = QSizePolicy::Fixed;
-    QSizePolicy::SizeType ht = QSizePolicy::Fixed;
+    QSizePolicy::SizeType vt = QSizePolicy::Preferred;
+    QSizePolicy::SizeType ht = QSizePolicy::Preferred;
     while ( ( o = it.current() ) ) {
 	++it;
 	if ( !o->inherits( "QWidget" ) || ( (QWidget*)o )->testWState( WState_ForceHide ) )
 	    continue;
-	if ( isGreater( ( (QWidget*)o )->sizePolicy().horData(), ht ) )
-	    ht = ( (QWidget*)o )->sizePolicy().horData();
-	if ( isGreater( ( (QWidget*)o )->sizePolicy().verData(), vt ) )
-	    vt = ( (QWidget*)o )->sizePolicy().verData();
+	QWidget *w = (QWidget*)o;
+	if ( w->sizePolicy().horData() == QSizePolicy::Expanding ||
+	     w->sizePolicy().horData() == QSizePolicy::MinimumExpanding )
+	    ht = QSizePolicy::Expanding;
+	else if ( w->sizePolicy().horData() == QSizePolicy::Fixed && ht != QSizePolicy::Expanding )
+	    ht = QSizePolicy::Fixed;
+	if ( w->sizePolicy().verData() == QSizePolicy::Expanding ||
+	     w->sizePolicy().verData() == QSizePolicy::MinimumExpanding )
+	    vt = QSizePolicy::Expanding;
+	else if ( w->sizePolicy().verData() == QSizePolicy::Fixed && vt != QSizePolicy::Expanding )
+	    vt = QSizePolicy::Fixed;
     }
 
     sp = QSizePolicy( ht, vt );

@@ -323,8 +323,9 @@ int QLayoutItem::heightForWidth( int ) const
 static const int HorAlign = Qt::AlignHCenter | Qt::AlignRight | Qt::AlignLeft;
 static const int VerAlign = Qt::AlignVCenter | Qt::AlignBottom | Qt::AlignTop;
 
-static QSize smartMinSize( QWidget *w )
+static QSize smartMinSize( const QWidgetItem *i )
 {
+    QWidget *w = ( (QWidgetItem*)i )->widget();
     QSize s(0,0);
     if ( w->layout() ) {
 	s = w->layout()->totalMinimumSize();
@@ -344,14 +345,17 @@ static QSize smartMinSize( QWidget *w )
 	s.setWidth( min.width() );
     if ( min.height() > 0 )
 	s.setHeight( min.height() );
-
+    if ( i->hasHeightForWidth() && min.height() == 0 && min.width() > 0 )
+	    s.setHeight( i->heightForWidth( s.width() ) );
+    	
     s = s.expandedTo( QSize(1,1) );
     return s;
 }
 
 //returns the max size of a box containing \a w with alignment \a align.
-static QSize smartMaxSize( QWidget *w, int align = 0 )
+static QSize smartMaxSize( const QWidgetItem *i, int align = 0 )
 {
+    QWidget *w = ( (QWidgetItem*)i )->widget();
     if ( align & HorAlign && align & VerAlign )
 	return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
     QSize s = w->maximumSize();
@@ -389,7 +393,7 @@ void QSpacerItem::setGeometry( const QRect &r )
 */
 void QWidgetItem::setGeometry( const QRect &r )
 {
-    QSize s = r.size().boundedTo( smartMaxSize( wid ) );
+    QSize s = r.size().boundedTo( smartMaxSize( this ) );
     int x = r.x();
     int y = r.y();
     if ( align & (HorAlign|VerAlign) ) {
@@ -519,7 +523,7 @@ QSize QWidgetItem::minimumSize() const
 {
     if ( isEmpty() )
 	return QSize(0,0);
-    return smartMinSize( wid );
+    return smartMinSize( this );
 }
 
 
@@ -539,7 +543,7 @@ QSize QWidgetItem::maximumSize() const
 {
     if ( isEmpty() )
 	return QSize(0,0);
-    return smartMaxSize( wid, align );
+    return smartMaxSize( this, align );
 }
 
 /*!
