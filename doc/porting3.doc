@@ -85,7 +85,7 @@ that is the Qt Developer Community!
  <li><b>\link #Headers Header file inclusion changes \endlink</b>
  <li><b>\link #Namespace Namespace \endlink</b>
  <li><b>\link #Removed Removed functions \endlink</b>
- <li><b>\link #Collections Collection class renaming</b>
+ <li><b>\link #Collections Collection class renaming \endlink</b>
  <li><b>\link #QFont QFont \endlink</b>
  <li><b>\link #QMultiLineEdit QMultiLineEdit \endlink</b>
  <li><b>\link #QPrinter QPrinter \endlink</b>
@@ -221,7 +221,7 @@ base.
 The classes QArray, QCollection, QList, QListIterator, QQueue, QStack
 and QVector have been renamed QMemArray, QPtrCollection, QPtrList,
 QPtrListIterator, QPtrQueue and QPtrStack, and they are found in the
-header files \c <qarray.h>, \c <qptrcollection.h>, \c <qptrlist.h>,
+header files \c <qmemarray.h>, \c <qptrcollection.h>, \c <qptrlist.h>,
 \c <qptrqueue.h>, \c <qptrstack.h> and \c <qptrvector.h>. To
 ease porting, the old names and the old header-file names are still
 supported.
