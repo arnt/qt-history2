@@ -134,6 +134,9 @@ unixmake2.o: generators/unix/unixmake2.cpp
 borland_bmake.o: generators/win32/borland_bmake.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) generators/win32/borland_bmake.cpp
 
+msvc_vcproj.o: generators/win32/msvc_vcproj.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) generators/win32/msvc_vcproj.cpp
+
 msvc_nmake.o: generators/win32/msvc_nmake.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) generators/win32/msvc_nmake.cpp
 
