@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#106 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#107 $
 **
 ** Global type declarations and definitions
 **
@@ -207,7 +207,7 @@
 #define HAS_BOOL_TYPE
 #elif __GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 6)
 #define HAS_BOOL_TYPE
-#elif __BORLANDC__ >= 0x500
+#elif _MSC_VER >= 1100 || __BORLANDC__ >= 0x500
 #define HAS_BOOL_TYPE
 #elif defined(_CC_COMEAU_)
 #define HAS_BOOL_TYPE
