@@ -1424,13 +1424,13 @@ void FormWindow::emitSelectionChanged()
 
 void FormWindow::updatePropertiesTimerDone()
 {
-    if ( propertyWidget )
+    if ( propertyWidget && mainWindow()->formWindow() == this )
 	emit updateProperties( propertyWidget );
 }
 
 void FormWindow::showPropertiesTimerDone()
 {
-    if ( propertyWidget )
+    if ( propertyWidget && mainWindow()->formWindow() == this )
 	emit showProperties( propertyWidget );
 }
 
