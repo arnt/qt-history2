@@ -25,6 +25,9 @@ void WriteIncludes::accept(DomUI *node)
 {
     m_includes.clear();
 
+    if (node->elementIncludeHints())
+        accept(node->elementIncludeHints());
+
     if (node->elementCustomWidgets())
         TreeWalker::accept(node->elementCustomWidgets());
 
@@ -36,6 +39,9 @@ void WriteIncludes::accept(DomUI *node)
     QHashIterator<QString, bool> it(m_includes);
     while (it.hasNext()) {
         it.next();
+
+        if (m_includeHints.contains(it.key()))
+            continue;
 
         if (it.value())
             output << "#include <" << it.key() << ">\n";
@@ -108,4 +114,12 @@ void WriteIncludes::accept(DomCustomWidget *node)
 void WriteIncludes::accept(DomCustomWidgets *node)
 {
     Q_UNUSED(node);
+}
+
+void WriteIncludes::accept(DomIncludeHints *node)
+{
+    m_includeHints.clear();
+    foreach (QString includeHint, node->elementIncludeHint()) {
+        m_includeHints.insert(includeHint, true);
+    }
 }

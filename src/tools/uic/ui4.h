@@ -8,6 +8,7 @@
 #include <qstringlist.h>
 
 class DomUI;
+class DomIncludeHints;
 class DomActionGroup;
 class DomAction;
 class DomActionRef;
@@ -100,6 +101,9 @@ public:
     inline DomImages * elementImages() const { return m_eImages; }
     inline void setElementImages(DomImages * a) { m_eImages = a; };
 
+    inline DomIncludeHints * elementIncludeHints() const { return m_eIncludeHints; }
+    inline void setElementIncludeHints(DomIncludeHints * a) { m_eIncludeHints = a; };
+
     inline QString text() const { return m_text; }
     inline void setText(const QString &text) { m_text = text; }
 private:
@@ -126,6 +130,36 @@ private:
     DomCustomWidgets * m_eCustomWidgets;
     DomTabStops * m_eTabStops;
     DomImages * m_eImages;
+    DomIncludeHints * m_eIncludeHints;
+};
+
+class DomIncludeHints
+{
+    DomIncludeHints(const DomIncludeHints &other);
+    void operator = (const DomIncludeHints &other);
+
+public:
+    DomIncludeHints();
+    ~DomIncludeHints();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString::null);
+
+    inline QStringList elementIncludeHint() const { return m_eIncludeHint; }
+    inline void setElementIncludeHint(const QStringList & a) { m_eIncludeHint = a; };
+
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &text) { m_text = text; }
+private:
+    QString m_text;
+    QDomElement m_element;
+
+    inline void reset(bool full=true);
+
+    // attributes
+
+    // elements
+    QStringList m_eIncludeHint;
 };
 
 class DomActionGroup
@@ -1610,6 +1644,11 @@ inline DomUI::DomUI()
     m_eCustomWidgets = 0;
     m_eTabStops = 0;
     m_eImages = 0;
+    m_eIncludeHints = 0;
+}
+
+inline DomIncludeHints::DomIncludeHints()
+{
 }
 
 inline DomActionGroup::DomActionGroup()
@@ -1843,6 +1882,11 @@ inline DomUI::~DomUI()
     reset();
 }
 
+inline DomIncludeHints::~DomIncludeHints()
+{
+    reset();
+}
+
 inline DomActionGroup::~DomActionGroup()
 {
     reset();
@@ -2041,6 +2085,22 @@ inline void DomUI::read(const QDomElement &node)
         else if (tag == QLatin1String("customwidgets")) { DomCustomWidgets* v = new DomCustomWidgets(); v->read(e); m_eCustomWidgets = v; }
         else if (tag == QLatin1String("tabstops")) { DomTabStops* v = new DomTabStops(); v->read(e); m_eTabStops = v; }
         else if (tag == QLatin1String("images")) { DomImages* v = new DomImages(); v->read(e); m_eImages = v; }
+        else if (tag == QLatin1String("includehints")) { DomIncludeHints* v = new DomIncludeHints(); v->read(e); m_eIncludeHints = v; }
+
+        e = e.nextSibling().toElement();
+    }
+    m_text = node.firstChild().toText().data();
+}
+
+inline void DomIncludeHints::read(const QDomElement &node)
+{
+    // attributes
+
+    // elements
+    QDomElement e = node.firstChild().toElement();
+    while (!e.isNull()) {
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("includehint")) { m_eIncludeHint.append(e.firstChild().toText().data()); }
 
         e = e.nextSibling().toElement();
     }
@@ -2731,6 +2791,27 @@ inline QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
 
     if (m_eImages)
         node.appendChild(m_eImages->write(doc, "images"));
+
+    if (m_eIncludeHints)
+        node.appendChild(m_eIncludeHints->write(doc, "includeHints"));
+
+    if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
+    return node;
+}
+
+inline QDomElement DomIncludeHints::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement node = doc.createElement(tagName.size() ? tagName : QString("IncludeHints"));
+
+    QDomElement child;
+    QDomText t;
+
+    for (int i=0; i<m_eIncludeHint.size(); ++i) {
+        child = doc.createElement("includehint");
+        t = doc.createTextNode(m_eIncludeHint[i]);
+        child.appendChild(t);
+        node.appendChild(child);
+    }
 
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
     return node;
@@ -3742,6 +3823,15 @@ inline void DomUI::reset(bool full)
     delete m_eCustomWidgets; m_eCustomWidgets = 0;
     delete m_eTabStops; m_eTabStops = 0;
     delete m_eImages; m_eImages = 0;
+    delete m_eIncludeHints; m_eIncludeHints = 0;
+    m_text = QString::null;
+}
+
+inline void DomIncludeHints::reset(bool full)
+{
+    if (full) {
+    }
+
     m_text = QString::null;
 }
 

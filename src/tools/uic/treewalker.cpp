@@ -218,3 +218,7 @@ void TreeWalker::accept(DomImage *image)
     Q_UNUSED(image);
 }
 
+void TreeWalker::accept(DomIncludeHints *includeHints)
+{
+    Q_UNUSED(includeHints);
+}
