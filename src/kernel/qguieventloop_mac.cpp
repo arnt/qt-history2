@@ -422,7 +422,7 @@ class QMacBlockingFunction::Object : public QObject
 {
     QAtomic ref;
 public:
-    Object() { startTimer(1); }
+    Object() { startTimer(100); }
 
     void addRef() { ++ref; }
     bool subRef() { return (--ref); }
