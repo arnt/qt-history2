@@ -186,34 +186,6 @@
     \value Windows Windows execution environments
 */
 
-static QStringList *searchPaths = 0;
-QCleanupHandler<QStringList> qsettings_path_cleanup;
-
-static void initSearchPaths()
-{
-    if (searchPaths)
-	return;
-
-    searchPaths = new QStringList;
-    Q_CHECK_PTR(searchPaths);
-    qsettings_path_cleanup.add(&searchPaths);
-
-    QDir dir(QDir::homeDirPath() + "/.qt/");
-    if (! dir.exists()) {
-	if (! dir.mkdir(dir.path()))
-	    qWarning("QSettings: error creating %s", dir.path().latin1());
-    }
-
-#ifndef QT_INSTALL_PREFIX
-#  define QT_INSTALL_PREFIX "/usr/local/qt"
-#endif // QT_INSTALL_PREFIX
-
-    QString defpath(QT_INSTALL_PREFIX);
-    defpath += QSETTINGS_DEFAULT_PATH_SUFFIX;
-    searchPaths->append(defpath);
-    searchPaths->append(dir.path());
-}
-
 
 // QSettingsGroup is a map of key/value pairs
 class QSettingsGroup : public QMap<QString,QString>
@@ -284,7 +256,9 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 	if (gname[(int)gname.length() - 1] == QChar(']'))
 	    gname = gname.remove(gname.length() - 1, 1);
 
-	git = replace(gname, QSettingsGroup());
+	git = find(gname);
+	if (git == end())
+	    git = replace(gname, QSettingsGroup());
     } else {
 	if (git == end()) {
 	    qWarning("QSettings: line '%s' out of group", line.latin1());
@@ -348,6 +322,7 @@ public:
     void writeGroup(const QString &, const QString &);
     QDateTime modificationTime();
 
+    QStringList searchPaths;
     QMap<QString,QSettingsHeading> headings;
     QString group;
     QString heading;
@@ -358,6 +333,20 @@ public:
 QSettingsPrivate::QSettingsPrivate()
     : modified(FALSE)
 {
+    QDir dir(QDir::homeDirPath() + "/.qt/");
+    if (! dir.exists()) {
+	if (! dir.mkdir(dir.path()))
+	    qWarning("QSettings: error creating %s", dir.path().latin1());
+    }
+
+#ifndef QT_INSTALL_PREFIX
+#  define QT_INSTALL_PREFIX "/usr/local/qt"
+#endif // QT_INSTALL_PREFIX
+
+    QString defpath(QT_INSTALL_PREFIX);
+    defpath += QSETTINGS_DEFAULT_PATH_SUFFIX;
+    searchPaths.append(defpath);
+    searchPaths.append(dir.path());
 }
 
 
@@ -372,9 +361,8 @@ QSettingsGroup QSettingsPrivate::readGroup()
 
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
-	initSearchPaths();
-	QStringList::Iterator it = searchPaths->begin();
-	while (it != searchPaths->end()) {
+	QStringList::Iterator it = searchPaths.begin();
+	while (it != searchPaths.end()) {
 	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
 	    if (! hd.contains(fn + "cached")) {
@@ -407,9 +395,8 @@ void QSettingsPrivate::removeGroup(const QString &key)
 
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
-	initSearchPaths();
-	QStringList::Iterator it = searchPaths->begin();
-	while (it != searchPaths->end()) {
+	QStringList::Iterator it = searchPaths.begin();
+	while (it != searchPaths.end()) {
 	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
 	    if (! hd.contains(fn + "cached")) {
@@ -459,9 +446,8 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
 
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
-	initSearchPaths();
-	QStringList::Iterator it = searchPaths->begin();
-	while (it != searchPaths->end()) {
+	QStringList::Iterator it = searchPaths.begin();
+	while (it != searchPaths.end()) {
 	    QString filebase = heading.lower().replace(QRegExp("\\s+"), "_");
 	    QString fn((*it++) + "/" + filebase + "rc");
 	    if (! hd.contains(fn + "cached")) {
@@ -502,9 +488,8 @@ QDateTime QSettingsPrivate::modificationTime()
 
     QDateTime datetime;
 
-    initSearchPaths();
-    QStringList::Iterator it = searchPaths->begin();
-    while (it != searchPaths->end()) {
+    QStringList::Iterator it = searchPaths.begin();
+    while (it != searchPaths.end()) {
 	QFileInfo fi((*it++) + "/" + heading + "rc");
 	if (fi.exists() && fi.lastModified() > datetime)
 	    datetime = fi.lastModified();
@@ -603,11 +588,10 @@ void QSettings::insertSearchPath( System s, const QString &path)
 #endif
 	    return;
     }
-    initSearchPaths();
 
-    QStringList::Iterator it = searchPaths->find(searchPaths->last());
-    if (it != searchPaths->end()) {
-	searchPaths->insert(it, path);
+    QStringList::Iterator it = d->searchPaths.find(d->searchPaths.last());
+    if (it != d->searchPaths.end()) {
+	d->searchPaths.insert(it, path);
     }
 }
 
@@ -621,15 +605,17 @@ void QSettings::insertSearchPath( System s, const QString &path)
 */
 void QSettings::removeSearchPath( System s, const QString &path)
 {
-    if ( s != Unix )
+    if ( s != Unix ) {
+#ifdef Q_OS_MAC
+	if(s != Mac) //mac is respected on the mac as well
+#endif
+	    return;
+    }
+
+    if (path == d->searchPaths.first() || path == d->searchPaths.last())
 	return;
 
-    initSearchPaths();
-
-    if (path == searchPaths->first() || path == searchPaths->last())
-	return;
-
-    searchPaths->remove(path);
+    d->searchPaths.remove(path);
 }
 
 
@@ -674,9 +660,8 @@ bool QSettings::sync()
 	QSettingsHeading::Iterator hdit = hd.begin();
 	QFile file;
 
-	initSearchPaths();
-	QStringList::Iterator pit = searchPaths->begin();
-	while (pit != searchPaths->end()) {
+	QStringList::Iterator pit = d->searchPaths.begin();
+	while (pit != d->searchPaths.end()) {
 	    QString filebase = it.key().lower().replace(QRegExp("\\s+"), "_");
 	    QFileInfo di(*pit);
 	    QFileInfo fi((*pit++) + "/" + filebase + "rc");
