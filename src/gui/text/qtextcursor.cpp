@@ -32,8 +32,8 @@ enum {
 };
 
 QTextCursorPrivate::QTextCursorPrivate(QTextDocumentPrivate *p)
-    : x(0), position(0), anchor(0), adjusted_anchor(0),
-      priv(p)
+    : priv(p), x(0), position(0), anchor(0), adjusted_anchor(0),
+      currentCharFormat(-1)
 {
     priv->addCursor(this);
 }
@@ -46,6 +46,7 @@ QTextCursorPrivate::QTextCursorPrivate(const QTextCursorPrivate &rhs)
     adjusted_anchor = rhs.adjusted_anchor;
     priv = rhs.priv;
     x = rhs.x;
+    currentCharFormat = rhs.currentCharFormat;
     priv->addCursor(this);
 }
 
@@ -73,6 +74,7 @@ void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRe
         anchor += charsAddedOrRemoved;
         adjusted_anchor += charsAddedOrRemoved;
     }
+    currentCharFormat = -1;
 }
 
 void QTextCursorPrivate::setX()
@@ -88,6 +90,7 @@ void QTextCursorPrivate::setX()
 
 void QTextCursorPrivate::remove()
 {
+    currentCharFormat = -1;
     if (anchor == position)
         return;
     int pos1 = position;
@@ -143,6 +146,7 @@ void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format, const QText
     Q_ASSERT(formats->format(idx).isBlockFormat());
 
     priv->insertBlock(position, idx, formats->indexForFormat(charFormat));
+    currentCharFormat = -1;
 }
 
 void QTextCursorPrivate::adjustCursor(QTextCursor::MoveOperation m)
@@ -226,10 +230,12 @@ void QTextCursorPrivate::adjustCursor(QTextCursor::MoveOperation m)
         else
             adjusted_anchor = c_anchor.firstPosition();
     }
+    currentCharFormat = -1;
 }
 
 bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode)
 {
+    currentCharFormat = -1;
     bool adjustX = true;
     QTextBlock blockIt = block();
 
@@ -992,6 +998,7 @@ void QTextCursor::clearSelection()
     if (!d)
         return;
     d->adjusted_anchor = d->anchor = d->position;
+    d->currentCharFormat = -1;
 }
 
 /*!
@@ -1227,15 +1234,18 @@ QTextCharFormat QTextCursor::charFormat() const
     if (!d || !d->priv)
         return QTextCharFormat();
 
-    int pos = d->position - 1;
-    if (pos < 0)
-        pos = 0;
-    Q_ASSERT(pos >= 0 && pos < d->priv->length());
+    int idx = d->currentCharFormat;
+    if (idx == -1) {
+        int pos = d->position - 1;
+        if (pos < 0)
+            pos = 0;
+        Q_ASSERT(pos >= 0 && pos < d->priv->length());
 
 
-    QTextDocumentPrivate::FragmentIterator it = d->priv->find(pos);
-    Q_ASSERT(!it.atEnd());
-    int idx = it.value()->format;
+        QTextDocumentPrivate::FragmentIterator it = d->priv->find(pos);
+        Q_ASSERT(!it.atEnd());
+        idx = it.value()->format;
+    }
 
     QTextCharFormat cfmt = d->priv->formatCollection()->charFormat(idx);
     cfmt.clearProperty(QTextFormat::ObjectIndex);
@@ -1252,8 +1262,12 @@ QTextCharFormat QTextCursor::charFormat() const
 */
 void QTextCursor::setCharFormat(const QTextCharFormat &format)
 {
-    if (!d || !d->priv || d->position == d->anchor)
+    if (!d || !d->priv)
         return;
+    if (d->position == d->anchor) {
+        d->currentCharFormat = d->priv->formatCollection()->indexForFormat(format);
+        return;
+    }
 
     int pos1 = d->position;
     int pos2 = d->adjusted_anchor;
@@ -1274,8 +1288,15 @@ void QTextCursor::setCharFormat(const QTextCharFormat &format)
 */
 void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
 {
-    if (!d || !d->priv || d->position == d->anchor)
+    if (!d || !d->priv)
         return;
+
+    if (d->position == d->anchor) {
+        QTextCharFormat format = charFormat();
+        format.merge(modifier);
+        d->currentCharFormat = d->priv->formatCollection()->indexForFormat(format);
+        return;
+    }
 
     int pos1 = d->position;
     int pos2 = d->adjusted_anchor;

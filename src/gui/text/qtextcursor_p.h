@@ -37,6 +37,7 @@ public:
     inline void setPosition(int newPosition) {
         Q_ASSERT(newPosition >= 0 && newPosition < priv->length());
         position = newPosition;
+        currentCharFormat = -1;
     }
     void setX();
     bool canDelete(int pos) const;
@@ -54,11 +55,12 @@ public:
 
     void setBlockCharFormat(const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode);
 
+    QTextDocumentPrivate *priv;
     int x;
     int position;
     int anchor;
     int adjusted_anchor;
-    QTextDocumentPrivate *priv;
+    int currentCharFormat;
 };
 
 #endif // QTEXTCURSOR_P_H

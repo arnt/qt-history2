@@ -66,62 +66,6 @@ static bool dataHasText(const QMimeData *data)
         || data->hasFormat("application/x-qt-richtext");
 }
 
-/*
-const char *QRichTextDrag::format(int i) const
-{
-    const char *fmt = QTextDrag::format(i);
-    if (fmt)
-        return fmt;
-    if (QTextDrag::format(i - 1))
-        return "application/x-qt-richtext";
-    return 0;
-}
-
-QByteArray QRichTextDrag::encodedData(const char *mime) const
-{
-    if (qstrcmp(mime, "application/x-qt-richtext") == 0) {
-        QByteArray binary;
-        QDataStream stream(&binary, QIODevice::WriteOnly);
-        stream << fragment;
-        return binary;
-    }
-
-    if (!plainTextSet) {
-        const_cast<QRichTextDrag *>(this)->setText(fragment.toPlainText());
-        plainTextSet = true;
-    }
-
-    return QTextDrag::encodedData(mime);
-}
-
-bool QRichTextDrag::decode(const QMimeSource *e, QTextDocumentFragment &fragment)
-{
-    if (e->provides("application/x-qt-richtext")) {
-        QDataStream stream(e->encodedData("application/x-qt-richtext"));
-        stream >> fragment;
-        return true;
-    } else if (e->provides("application/x-qrichtext")) {
-        fragment = QTextDocumentFragment::fromHTML(e->encodedData("application/x-qrichtext"));
-        return true;
-    }
-
-    QString plainText;
-    if (!QTextDrag::decode( e, plainText ))
-        return false;
-
-    fragment = QTextDocumentFragment::fromPlainText(plainText);
-    return true;
-}
-
-bool QRichTextDrag::canDecode(const QMimeSource* e)
-{
-    if (e->provides("application/x-qt-richtext")
-        || e->provides("application/x-qrichtext"))
-        return true;
-    return QTextDrag::canDecode(e);
-}
-*/
-
 // could go into QTextCursor...
 static QTextLine currentTextLine(const QTextCursor &cursor)
 {
@@ -283,14 +227,14 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 void QTextEditPrivate::updateCurrentCharFormat()
 {
     QTextCharFormat fmt = cursor.charFormat();
-    if (fmt == currentCharFormat)
+    if (fmt == lastCharFormat)
         return;
-    currentCharFormat = fmt;
+    lastCharFormat = fmt;
 
-    emit q->currentCharFormatChanged(currentCharFormat);
+    emit q->currentCharFormatChanged(fmt);
     // compat signals
-    emit q->currentFontChanged(currentCharFormat.font());
-    emit q->currentColorChanged(currentCharFormat.textColor());
+    emit q->currentFontChanged(fmt.font());
+    emit q->currentColorChanged(fmt.textColor());
 }
 
 void QTextEditPrivate::indent()
@@ -908,7 +852,7 @@ QTextEdit::~QTextEdit()
 */
 float QTextEdit::fontPointSize() const
 {
-    return d->currentCharFormat.fontPointSize();
+    return d->cursor.charFormat().fontPointSize();
 }
 
 /*!
@@ -918,7 +862,7 @@ float QTextEdit::fontPointSize() const
 */
 QString QTextEdit::fontFamily() const
 {
-    return d->currentCharFormat.fontFamily();
+    return d->cursor.charFormat().fontFamily();
 }
 
 /*!
@@ -928,7 +872,7 @@ QString QTextEdit::fontFamily() const
 */
 int QTextEdit::fontWeight() const
 {
-    return d->currentCharFormat.fontWeight();
+    return d->cursor.charFormat().fontWeight();
 }
 
 /*!
@@ -939,7 +883,7 @@ int QTextEdit::fontWeight() const
 */
 bool QTextEdit::fontUnderline() const
 {
-    return d->currentCharFormat.fontUnderline();
+    return d->cursor.charFormat().fontUnderline();
 }
 
 /*!
@@ -950,7 +894,7 @@ bool QTextEdit::fontUnderline() const
 */
 bool QTextEdit::fontItalic() const
 {
-    return d->currentCharFormat.fontItalic();
+    return d->cursor.charFormat().fontItalic();
 }
 
 /*!
@@ -960,7 +904,7 @@ bool QTextEdit::fontItalic() const
 */
 QColor QTextEdit::textColor() const
 {
-    return d->currentCharFormat.textColor();
+    return d->cursor.charFormat().textColor();
 }
 
 /*!
@@ -970,7 +914,7 @@ QColor QTextEdit::textColor() const
 */
 QFont QTextEdit::currentFont() const
 {
-    return d->currentCharFormat.font();
+    return d->cursor.charFormat().font();
 }
 
 /*!
@@ -1037,11 +981,11 @@ void QTextEdit::setTextCursor(const QTextCursor &cursor)
     // (schedule a repaint of the region of the old cursor
     //  and of the new cursor, so that the old one disappears
     //  and the new one is shown)
-    d->update(d->cursorRect());
+    QRect r = d->cursorRect();
     d->cursor = cursor;
     d->updateCurrentCharFormatAndSelection();
     ensureCursorVisible();
-    d->update(d->cursorRect());
+    d->update(d->cursorRect().unite(r));
 }
 
 /*!
@@ -1331,8 +1275,6 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     // example)
     d->update(d->cursorRect());
 
-    bool updateCurrentFormat = true;
-
     if (d->cursorMoveKeyEvent(e))
         goto accept;
 
@@ -1439,8 +1381,8 @@ process:
             }
 
             if (!text.isEmpty()) {
-                d->cursor.insertText(text, d->currentCharFormat);
-                updateCurrentFormat = false;
+                d->cursor.insertText(text);
+                d->selectionChanged();
             } else {
                 QViewport::keyPressEvent(e);
                 return;
@@ -1455,9 +1397,7 @@ process:
 
     ensureCursorVisible();
 
-    if (updateCurrentFormat)
-        d->updateCurrentCharFormat();
-
+    d->updateCurrentCharFormat();
 }
 
 /*!
@@ -1966,7 +1906,7 @@ void QTextEdit::setReadOnly(bool ro)
 /*!
     If the editor has a selection then the properties of \a modifier are
     applied to the selection. Without a selection the properties are applied
-    to the word under the cursor. In addition they are always merged into 
+    to the word under the cursor. In addition they are always merged into
     the current char format.
 
     \sa QTextCursor::mergeCharFormat
@@ -1984,7 +1924,7 @@ void QTextEdit::mergeCurrentCharFormat(const QTextCharFormat &modifier)
         word.mergeCharFormat(modifier);
     }
 
-    d->currentCharFormat.merge(modifier);
+    d->lastCharFormat = d->cursor.charFormat();
 }
 
 /*!
@@ -1993,7 +1933,8 @@ void QTextEdit::mergeCurrentCharFormat(const QTextCharFormat &modifier)
  */
 void QTextEdit::setCurrentCharFormat(const QTextCharFormat &format)
 {
-    d->currentCharFormat = format;
+    d->cursor.setCharFormat(format);
+    d->lastCharFormat = format;
 }
 
 /*!
@@ -2001,7 +1942,7 @@ void QTextEdit::setCurrentCharFormat(const QTextCharFormat &format)
  */
 QTextCharFormat QTextEdit::currentCharFormat() const
 {
-    return d->currentCharFormat;
+    return d->cursor.charFormat();
 }
 
 /*!

@@ -80,7 +80,7 @@ public:
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;
-    QTextCharFormat currentCharFormat;
+    QTextCharFormat lastCharFormat;
 
     int imstart, imend, imselstart, imselend;
 
