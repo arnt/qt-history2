@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#198 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#199 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#198 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#199 $");
 
 
 /*****************************************************************************
@@ -2647,11 +2647,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	}
     }
 
-    if ( w <= 0 || h <= 0 ) {
-	if ( w == 0 || h == 0 )
-	    return;
+    if ( w <= 0 || h <= 0 )
 	fix_neg_rect( &x, &y, &w, &h );
-    }
 
     QFontMetrics fm = fontMetrics();		// get font metrics
 
@@ -3050,7 +3047,7 @@ QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
 {
     QRect brect;
     if ( str && *str )
-	drawText( x, y, w, h, tf, str, len, &brect, internal );
+	drawText( x, y, w, h, tf | DontPrint, str, len, &brect, internal );
     else
 	brect.setRect( x,y, 0,0 );
     return brect;
