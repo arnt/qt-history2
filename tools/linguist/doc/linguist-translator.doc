@@ -45,12 +45,20 @@ Click on one of the contexts in the context list (left hand side) and
 then click on one of the phrases that appears in the Source text area
 (top right). The phrase will be copied into the translation area (middle
 right). Click under the word 'Translation' and type in the translation.
-Click <em>Ctrl+N</em> (Done & Next) to confirm that you have completed the
-translation and to move on to the next phrase that requires translation.
-The cycle of entering a translation then pressing <em>Ctrl+N</em> can be repeated
-until all the translations are done or until you finish the session. At
-the end of the session choose <em>File|Save</em> from the menu bar and
-then <em>File|Exit</em> to quit.
+Click <em>Ctrl+Enter</em> (Done & Next) to confirm that you have
+completed the translation and to move on to the next phrase that
+requires translation.
+
+The cycle of entering a translation then pressing <em>Ctrl+Enter</em>
+can be repeated until all the translations are done or until you finish
+the session. Linguist will attempt to fill the "phrases and guesses"
+area with possible translations from any open phrase books and any
+previous translations. Each has a keyboard shortcut, e.g.
+<em>Ctrl+1</em>, <em>Ctrl+2</em>, etc., which you can use to copy the
+guess into the Translation area. (Mouse users can double click a phrase
+or guess to move it into the Translation area.) At the end of the
+session choose <em>File|Save</em> from the menu bar and then
+<em>File|Exit</em> to quit.
 
 <h2><a name="Qt_Linguists_Main_Window">
 \e {Qt Linguist}'s Main Window</a></h2>
@@ -180,28 +188,27 @@ accelerators using the same letter in the same context, must be avoided.
 Note that some Alt key accelerators, usually those on the menu bar, may
 apply in other contexts.
 
-Ctrl key accelerators can exist independently of any visual
-control. They are often used to invoke actions in menus that would
-otherwise take several keystrokes or mouse clicks. They may also be used
-to perform actions that do not appear in any menu or on any button. For
-example, most applications that have a \e File menu have a submenu item
-called \e New. In many applications this will appear as
-<em><u>N</u>ew... Ctrl+N</em>. This menu option could be invoked by
-clicking \e File then clicking \e New with the mouse. Or you could press
-Alt+F then press N since these letters are underlined. But the same
-thing can be achieved simply by pressing <em>Ctrl+N</em>. Accelerators that use
-the Ctrl key are shown literally in the source text, e.g.
-<em>Ctrl+N</em>. Ctrl key accelerators have no phrase so the translator
-must rely on the programmer to add a "comment" which appears in the
-top right hand pane. This comment should explain what action the Ctrl
-key accelerator performs. Ideally Ctrl key accelerators are translated
-simply by copying them by clicking the <em>Start from Source</em> button.
-However in some cases the letter will not make sense in the target
-language and must be changed. Whatever letter (or digit) is chosen, the
-translation should always be in the form "Ctrl+" followed by the letter
-or digit in upper case. As with Alt key accelerators, if the translator
-changes the key it must not conflict with any other Ctrl key
-accelerator.
+Ctrl key accelerators can exist independently of any visual control.
+They are often used to invoke actions in menus that would otherwise take
+several keystrokes or mouse clicks. They may also be used to perform
+actions that do not appear in any menu or on any button. For example,
+most applications that have a \e File menu have a submenu item called \e
+New. In many applications this will appear as <em><u>N</u>ew...
+Ctrl+N</em>. This menu option could be invoked by clicking \e File then
+clicking \e New with the mouse. Or you could press Alt+F then press N
+since these letters are underlined. But the same thing can be achieved
+simply by pressing <em>Ctrl+Enter</em>. Accelerators that use the Ctrl
+key are shown literally in the source text, e.g. <em>Ctrl+Enter</em>.
+Ctrl key accelerators have no phrase so the translator must rely on the
+programmer to add a "comment" which appears in the top right hand pane.
+This comment should explain what action the Ctrl key accelerator
+performs. Ideally Ctrl key accelerators are translated simply by copying
+them by clicking the <em>Begin from Source</em> button. However in some
+cases the letter will not make sense in the target language and must be
+changed. Whatever letter (or digit) is chosen, the translation should
+always be in the form "Ctrl+" followed by the letter or digit in upper
+case. As with Alt key accelerators, if the translator changes the key it
+must not conflict with any other Ctrl key accelerator.
 
 Later versions of \e {Qt Linguist} are expected to help the
 translator avoid accelerator conflicts.
@@ -226,7 +233,7 @@ and similarly \c %2, etc.
 <h3><a name="Reusing_Translations">Reusing Translations</a></h3>
 
 If the translated text is similar to the source text, click the
-<em>Start from Source</em> button (press Alt+T) which will copy the
+<em>Begin from Source</em> button (press Alt+T) which will copy the
 source text into the translation area.
 
 \e {Qt Linguist} automatically lists phrases from the open phrase
@@ -345,9 +352,9 @@ number of projects and applications.
 <ul>
 <li><em>File</em>
     <ul>
-    <li><em>Open...</em><br>pops up a file open dialog from which a
+    <li><em>Open...</em> Ctrl+O<br>pops up a file open dialog from which a
     translation source \c .ts file can be chosen.
-    <li><em>Save</em><br>saves the current translation source \c .ts file.
+    <li><em>Save </em>Ctrl+S<br>saves the current translation source \c .ts file.
     <li><em>Save As...</em><br>pops up a file save as dialog so that the
     current translation source \c .ts file may be saved with a different
     name and/or put in a different location.
@@ -356,50 +363,50 @@ number of projects and applications.
     based on the current translation source file. The release manager's
     command line tool \e lrelease performs the same function on
     <i>all</i> of an application's translation source files.
-    <li><em>Print...</em><br>pops up a print dialog. If you click OK the
-    translation source and the translations will be printed.
+    <li><em>Print...</em> Ctrl+P<br>pops up a print dialog. If you click
+    OK the translation source and the translations will be printed.
     <li><em>Recently opened files</em><br>shows the \c .ts files that
     have been opened recently, click one to open it.
-    <li><em>Exit</em><br>quits \e {Qt Linguist}.
+    <li><em>Exit</em> Ctrl+Q<br>quits \e {Qt Linguist}.
     </ul>
     <br><br>
 <li><em>Edit</em>
     <ul>
-    <li><em>Undo</em><br> undoes the last editing action in the
+    <li><em>Undo</em> Ctrl+Z<br> undoes the last editing action in the
     translation pane.
-    <li><em>Redo</em><br> redoes the last editing action in the
+    <li><em>Redo</em> Ctrl+Y<br> redoes the last editing action in the
     translation pane.
-    <li><em>Cut</em><br> deletes any highlighted text in the translation
-    pane and saves a copy to the clipboard.
-    <li><em>Copy</em><br> copies the highlighted text in the translation
-    pane to the clipboard.
-    <li><em>Paste</em><br> pastes the clipboard text into the translation
-    pane.
-    <li><em>Delete</em><br> deletes the highlighted text in the
+    <li><em>Cut</em> Ctrl+X<br> deletes any highlighted text in the
+    translation pane and saves a copy to the clipboard.
+    <li><em>Copy</em> Ctrl+C<br> copies the highlighted text in the
+    translation pane to the clipboard.
+    <li><em>Paste</em> Ctrl+V<br> pastes the clipboard text into the
     translation pane.
-    <li><em>Select All</em><br> selects all the text in the translation
-    pane ready for copying or deleting.
-    <li><em>Find...</em><br> pops up the
+<!--    <li><em>Delete</em><br> deletes the highlighted text in the
+    translation pane. -->
+    <li><em>Select All</em> Ctrl+A<br> selects all the text in the
+    translation pane ready for copying or deleting.
+    <li><em>Find...</em> Ctrl+F<br> pops up the
     <a href="#The_Find_Dialog">Find dialog</a>. When the dialog pops up
     enter the text to be found and click the <em>Find Next</em> button.
     Source phrases, translations and comments may be searched.
-    <li><em>Find Next</em><br> finds the next occurrence of the text that
+    <li><em>Find Next</em> F3<br> finds the next occurrence of the text that
     was last entered in the Find dialog.
     </ul>
     <br><br>
 <li><em>Translation</em>
     <ul>
-    <li><em>Start From Source</em><br>copy the source text into the
-    translation
-    <li><em>Prev Unfinished</em><br>move to the nearest previous
+    <li><em>Prev Unfinished</em> Ctrl+K<br>move to the nearest previous
     unfinished source phrase (unfinished means untranslated or
     translated but failed validation)
-    <li><em>Next Unfinished</em><br>move to the next unfinished source
+    <li><em>Next Unfinished</em> Ctrl+L<br>move to the next unfinished source
     phrase
-    <li><em>Prev</em><br>move the the previous source phrase
-    <li><em>Next</em><br>move the the next source phrase
-    <li><em>Done & Next</em><br>mark this phrase as 'done' (translated)
-    and move to the next unfinished source phrase
+    <li><em>Prev</em> Shift+Ctrl+K<br>move the the previous source phrase
+    <li><em>Next</em> Shift+Ctrl+L<br>move the the next source phrase
+    <li><em>Done & Next</em>Ctrl+Enter<br>mark this phrase as 'done'
+    (translated) and move to the next unfinished source phrase
+    <li><em>Begin from Source</em> Ctrl+B<br>copy the source text into
+    the translation
     </ul>
     <br><br>
 <li><em>Validation</em> (See the <a href="#Validation">"Validation"</a>
@@ -422,7 +429,7 @@ Books"</a> for details.)
     You must enter a filename to be used for the phrase book and save
     the file. Once saved you should open the phrase book to begin using
     it.
-    <li><em>Open Phrase Book...</em><br> pops up a file open dialog.
+    <li><em>Open Phrase Book...</em> Ctrl+H<br> pops up a file open dialog.
     Find and choose a phrase book to open.
     <li><em>Close Phrase Book</em><br> closes the current phrase book.
     This will stop any further phrase validation taking place.
@@ -493,9 +500,9 @@ unfinished source phrase.</dd>
 <dt><p><img src="../images/validateaccelerators.png"></dt>
 <dd>Toggle accelerator validation on and off.</dd>
 <dt><p><img src="../images/validatepunctuation.png"></dt>
-<dd>Switch phrase ending punctuation validation on and off.</dd>
+<dd>Toggle phrase ending punctuation validation on and off.</dd>
 <dt><p><img src="../images/validatephrases.png"></dt>
-<dd>Set phrase book validation on or off.</dd>
+<dd>Toggle phrase book validation on or off.</dd>
 </dl>
 
 <h3><a name="The_Find_Dialog">The Find Dialog</a></h3>

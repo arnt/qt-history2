@@ -378,7 +378,8 @@ bool QSqlDatabase::contains( const QString& connectionName )
      <li>QMYSQL3 - MySQL Driver
      </ul>
 
-     Note that additional 3rd party drivers can be loaded dynamically.  See
+     Note that additional 3<sup>rd</sup> party drivers can be loaded
+     dynamically.
 
 */
 
@@ -549,7 +550,7 @@ bool QSqlDatabase::isOpenError() const
 /*! Begins a transaction on the database if the driver supports transactions.
     Returns TRUE if the operation succeeded, FALSE otherwise.
 
-    \sa hasTransactionSupport() commit() rollback()
+    \sa QSqlDriver::hasTransactionSupport() commit() rollback()
 */
 
 bool QSqlDatabase::transaction()
@@ -562,7 +563,7 @@ bool QSqlDatabase::transaction()
 /*! Commits a transaction to the database if the driver supports transactions.
     Returns TRUE if the operation succeeded, FALSE otherwise.
 
-    \sa hasTransactionSupport() rollback()
+    \sa QSqlDriver::hasTransactionSupport() rollback()
 */
 
 bool QSqlDatabase::commit()
@@ -575,7 +576,7 @@ bool QSqlDatabase::commit()
 /*! Rolls a transaction back on the database if the driver supports transactions.
     Returns TRUE if the operation succeeded, FALSE otherwise.
 
-    \sa hasTransactionSupport() commit() transaction()
+    \sa QSqlDriver::hasTransactionSupport() commit() transaction()
 */
 
 bool QSqlDatabase::rollback()

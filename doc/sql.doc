@@ -86,6 +86,7 @@ This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
 <li><a href="#Executing_SQL_commands">
 Executing SQL Commands Using QSqlQuery</a></li> 
     <ul>
+    <li><a href="#Transactions">Transactions</a></li>
     <li><a href="#Basic_Browsing">Basic Browsing</a></li> 
     <li><a href="#Basic_Data_Manipulation">Basic Data Manipulation</a></li> 
     <li><a href="#Navigating_Result_Sets">Navigating Result Sets</a></li> 
@@ -336,6 +337,14 @@ commands for us. \l QSqlCursor is particularly easy to integrate with
 on-screen widgets. Programmers unfamiliar with SQL can safely skip this
 section and use the \l QSqlCursor class covered in 
 <a href="#Using_QSqlCursor">"Using QSqlCursor"</a>.
+
+<h2><a name="Transactions">Transactions</a></h2>
+
+If the underlying database engine supports transactions
+QSqlDriver::hasTransactionSupport() will return TRUE. You can use
+QSqlDatabase::transaction() to initiate a transaction, followed by the
+SQL commands you want to execute within the context of the transaction,
+and then either QSqlDatabase::commit() or \l{QSqlDatabase::rollback()}.
 
 <h2><a name="Basic_Browsing">Basic Browsing</a></h2> 
 

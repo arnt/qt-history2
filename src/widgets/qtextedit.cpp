@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#39 $
 **
 ** Implementation of the QTextEdit class
 **
@@ -286,7 +286,7 @@ static bool block_set_alignment = FALSE;
     (QTextView is still supplied for compatibility with old code.)
 
     When QTextEdit is used read-only the key-bindings are limited to
-    navigation:
+    navigation, and text may only be selected with the mouse:
     <ul>
     <li><i> Up Arrow </i> -- Move one line up
     <li><i> Down Arrow </i> -- Move one line down
@@ -2256,8 +2256,8 @@ void QTextEdit::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::
 
 /*!
   Sets the alignment of the current paragraph to \a a. Valid alignments
-  are \c Qt::AlignLeft, \c Qt::AlignRight and Qt::AlignJustify. (See
-  Qt::AlignmentFlags.)
+  are \c Qt::AlignLeft, \c Qt::AlignRight, Qt::AlignJustify and
+  Qt::AlignCenter (which centers horizontally). 
 
   \sa setParagType()
 */
@@ -2592,8 +2592,9 @@ void QTextEdit::setCursorPosition( int para, int index )
 }
 
 /*!
-  This function sets the \a para and \a index parameters to the
-  current cursor position.
+  This function sets the \e *\a para and \e *\a index parameters to the
+  current cursor position. \a para and \a index must be non-null int
+  pointers.
 
   \sa setCursorPosition()
  */
