@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#59 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -396,6 +396,8 @@ static const char *ps_header[] = {
 "  end",
 "  2 index exch definefont",
 "  exch makefont",
+// the font now contains a /FID key.  this does not seem to hurt, but
+// apparently should not be so.
 "  definefont pop",
 "} D",
 "",
@@ -2625,7 +2627,7 @@ void QPSPrinter::emitHeader( bool finished )
 	   << "\n%%Title: " << title
 	   << "\n%%CreationDate: " << QDateTime::currentDateTime().toString();
     if ( finished )
-	stream << "\n%%Pages: " << pageCount 
+	stream << "\n%%Pages: " << pageCount
 	       << "\n%%DocumentFonts: " << fontsUsed;
     else
 	stream << "\n%%Pages: (atend)"
