@@ -1066,6 +1066,7 @@ Q_EXPORT const char *qInstallPathData();
 #    pragma warning(disable: 4660) // template-class specialization 'identifier' is already instantiated
 #    pragma warning(disable: 4355) // 'this' : used in base member initializer list
 #    pragma warning(disable: 4231) // nonstandard extension used : 'extern' before template explicit instantiation
+#    pragma warning(disable: 4710) // function not inlined
 #  elif defined(Q_CC_BOR)
 #    pragma option -w-inl
 #    pragma option -w-aus
