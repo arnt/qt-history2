@@ -2314,6 +2314,7 @@ Qt::HANDLE QWidget::macCGHandle(bool do_children) const
     GetPortBounds(GetWindowPort((WindowPtr)handle()), &port_rect);
     if(!cg_hd) {
 	CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), (CGContextRef*)&cg_hd);
+	SyncCGContextOriginWithPort((CGContextRef)cg_hd, GetWindowPort((WindowPtr)handle()));
 	CGContextTranslateCTM((CGContextRef)cg_hd, 0, (port_rect.bottom - port_rect.top));
 	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);
     }

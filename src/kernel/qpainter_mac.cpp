@@ -371,7 +371,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 	}
     }
     CGRect rect = CGRectMake(0, 0, w, h);
-#if 0
+#if 1
     /* For whatever reason HIViews are top, left - so we'll just use this convenience function to
        actually render the CGImageRef. If this proves not to be an efficent funciton call (I doubt
        it), we'll just flip the image in the conversion above. */
@@ -534,7 +534,7 @@ void QPainter::updateBrush()
 	callbks.version = 0;
 	callbks.drawPattern = qt_mac_draw_pattern;
 	callbks.releaseInfo = qt_mac_dispose_pattern;
-	d->cg_info.fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGAffineTransformIdentity, width, height,
+	d->cg_info.fill_pattern = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)hd), width, height,
 						  kCGPatternTilingNoDistortion, !qpattern->as_mask, &callbks);
 	CGContextSetFillColorSpace((CGContextRef)hd, d->cg_info.fill_colorspace); 
 	const float tmp_float = 1; //wtf?? --SAM (this seems to be necessary, but why!?!) ###
@@ -2111,7 +2111,7 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h,
     callbks.drawPattern = qt_mac_draw_pattern;
     callbks.releaseInfo = qt_mac_dispose_pattern;
     const int width = pixmap.width(), height = pixmap.height();
-    CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGAffineTransformIdentity, width, height,
+    CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), CGContextGetCTM((CGContextRef)hd), width, height,
 					      kCGPatternTilingNoDistortion, false, &callbks);
     CGColorSpaceRef cs = CGColorSpaceCreatePattern(NULL);
     CGContextSetFillColorSpace((CGContextRef)hd, cs); 
