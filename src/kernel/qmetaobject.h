@@ -196,6 +196,8 @@ private:	// Disabled copy constructor and operator=
 
 inline bool QMetaProperty::writeable() const 
 { return set != 0; }
+inline bool QMetaProperty::testFlags( uint f ) const
+{ return (flags & (uint)f) != (uint)0; }
 inline bool QMetaProperty::isValid() const 
 { return get != 0 && !testFlags( UnresolvedEnum | UnresolvedDesignable | UnresolvedStored ) ; }
 inline bool QMetaProperty::isSetType() const 
@@ -204,8 +206,6 @@ inline bool QMetaProperty::isEnumType() const
 { return ( enumData != 0 ); }
 inline bool QMetaProperty::designable() const 
 { return ( isValid() && set != 0 && !testFlags( NotDesignable | UnresolvedDesignable ) ); }
-inline bool QMetaProperty::testFlags( uint f ) const
-{ return (flags & (uint)f) != (uint)0; }
 inline void QMetaProperty::setFlags( uint f )
 { flags |= (uint)f; }
 inline void QMetaProperty::clearFlags( uint f )
