@@ -199,6 +199,14 @@ clean:
 	-rm -f *~ core
 	#$ ExpandGlue("CLEAN_FILES","-rm -f "," ","");
 
+# For Qt/Embedded only
+tmp/qt.cpp: ../include/qt.h $(HEADERS)
+	-mkdir tmp
+	echo "#include <qt.h>" >tmp/qt.cpp
+	$(CXX) -E -DQT_MOC_CPP $(CXXFLAGS) $(INCPATH) -o tmp/moc_qt.h tmp/qt.cpp
+	$(MOC) -o tmp/qt.cpp-tmp tmp/moc_qt.h
+	sed -e 's/"moc_qt.h"/"qt.h"/' <tmp/qt.cpp-tmp >tmp/qt.cpp
+
 ####### Compile
 
 #$ BuildObj(Project("OBJECTS"),Project("SOURCES"));
