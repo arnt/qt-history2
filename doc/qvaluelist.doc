@@ -878,6 +878,21 @@ private:
   the iterator as returned by begin() causes undefined results.
 */
 
+
+/*!
+  \fn QValueListIterator<T>& QValueListIterator::operator+=(int j)
+
+  Postfix -- jumps j steps forward in the list. The iterator cannot check whether
+  it reached the end of the list. Jumping past the end() causes undefined results.
+*/
+
+/*!
+  \fn QValueListIterator<T>& QValueListIterator::operator-=(int j)
+
+  Postfix -- jumps j steps backward in the list. The iterator cannot check whether
+  it reached the beginning of the list. Jumping past begin() causes undefined results.
+*/
+
 /*!
   \fn bool QValueListIterator::operator==( const QValueListIterator<T>& it ) const
 

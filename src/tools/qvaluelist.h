@@ -132,6 +132,19 @@ class QValueListIterator
 	node = node->prev;
 	return tmp;
     }
+    
+    QValueListIterator<T>& operator+=( int j ) {
+	while ( j-- )
+	    node = node->next;
+	return *this;
+    }
+
+    QValueListIterator<T>& operator-=( int j ) {
+	while ( j-- )
+	    node = node->prev;
+	return *this;
+    }
+
 };
 
 template<class T>
