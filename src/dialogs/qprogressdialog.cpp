@@ -70,6 +70,9 @@ struct QProgressData
     QTime	  starttime;
     QCursor	  parentCursor;
     int		  showTime;
+    bool autoClose;
+    bool autoReset;
+    bool forceHide;
 };
 
 
@@ -212,6 +215,9 @@ void QProgressDialog::init( QWidget *creator,
 			    int totstps)
 {
     d = new QProgressData(this, creator, lbl, totstps);
+    d->autoClose = TRUE;
+    d->autoReset = TRUE;
+    d->forceHide = FALSE;
     setCancelButtonText( canc );
     connect( this, SIGNAL(cancelled()), this, SLOT(cancel()) );
     layout();
@@ -246,7 +252,9 @@ void QProgressDialog::setLabel( QLabel *label )
 	    label->reparent( this, 0, QPoint(0,0), FALSE );
 	}
     }
-    resize(sizeHint());
+    int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
+    int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+    resize( w, h );
     if (label)
 	label->show();
 }
@@ -261,7 +269,9 @@ void QProgressDialog::setLabelText( const QString &text )
 {
     if ( label() ) {
 	label()->setText( text );
-	resize(sizeHint());
+	int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
+	int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+	resize( w, h );
     }
 }
 
@@ -288,7 +298,9 @@ void QProgressDialog::setCancelButton( QPushButton *cancelButton )
 	accel->connectItem( accel->insertItem(Key_Escape),
 			    d->cancel, SIGNAL(clicked()) );
     }
-    resize(sizeHint());
+    int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
+    int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+    resize( w, h );
     if (cancelButton)
 	cancelButton->show();
 }
@@ -308,7 +320,9 @@ void QProgressDialog::setCancelButtonText( const QString &cancelButtonText )
     } else {
 	setCancelButton(0);
     }
-    resize(sizeHint());
+    int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
+    int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+    resize( w, h );
 }
 
 
@@ -328,7 +342,9 @@ void QProgressDialog::setBar( QProgressBar *bar )
     }
     delete d->bar;
     d->bar = bar;
-    resize(sizeHint());
+    int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
+    int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+    resize( w, h );
 }
 
 
@@ -369,7 +385,9 @@ void QProgressDialog::setTotalSteps( int totalSteps )
 
 /*!
   Reset the progress dialog.
-  The progress dialog becomes hidden.
+  The progress dialog becomes hidden if autoClose() is TRUE.
+  
+  \sa setAutoClose(), setAutoReset()
 */
 
 void QProgressDialog::reset()
@@ -378,7 +396,7 @@ void QProgressDialog::reset()
 	if ( d->creator )
 	    d->creator->setCursor( d->parentCursor );
     }
-    if ( isVisible() )
+    if ( isVisible() && ( d->autoClose || d->forceHide ) )
 	hide();
     bar()->reset();
     d->cancellation_flag = FALSE;
@@ -393,7 +411,9 @@ void QProgressDialog::reset()
 
 void QProgressDialog::cancel()
 {
+    d->forceHide = TRUE;
     reset();
+    d->forceHide = FALSE;
     d->cancellation_flag = TRUE;
 }
 
@@ -428,13 +448,10 @@ int QProgressDialog::progress() const
 
 void QProgressDialog::setProgress( int progress )
 {
-    int old_progress = bar()->progress();
-
-    if ( progress <= old_progress ||
-	 progress == 0 && old_progress > 0 ||
-	 progress != 0 && old_progress < 0 )
-	 return;
-
+    if ( progress == bar()->progress() ||
+	 bar()->progress() == -1 && progress == bar()->totalSteps() )
+	return;
+    
     bar()->setProgress(progress);
 
     if ( d->shown_once ) {
@@ -447,6 +464,7 @@ void QProgressDialog::setProgress( int progress )
 		d->creator->setCursor( waitCursor );
 	    }
 	    d->starttime.start();
+	    return;
 	} else {
 	    bool need_show;
 	    int elapsed = d->starttime.elapsed();
@@ -465,15 +483,16 @@ void QProgressDialog::setProgress( int progress )
 		}
 	    }
 	    if ( need_show ) {
-		resize(sizeHint());
-		center();
+		int w = QMAX( isVisible() ? width() : 0, sizeHint().width() );
+		int h = QMAX( isVisible() ? height() : 0, sizeHint().height() );
+		resize( w, h );
 		show();
 		d->shown_once = TRUE;
 	    }
 	}
     }
 
-    if ( progress == totalSteps() )
+    if ( progress == bar()->totalSteps() && d->autoReset )
 	reset();
 
     return;
@@ -482,16 +501,16 @@ void QProgressDialog::setProgress( int progress )
 
 void QProgressDialog::center()
 {
-    QPoint p(0,0);
-    QWidget* w;
-    if (d->creator) {
-	p = d->creator->mapToGlobal( p );
-	w = d->creator;
-    } else {
-	w = QApplication::desktop();
-    }
-    setGeometry( p.x() + w->width()/2  - width()/2,
-	  p.y() + w->height()/2 - height()/2, width(), height() );
+//     QPoint p(0,0);
+//     QWidget* w;
+//     if (d->creator) {
+// 	p = d->creator->mapToGlobal( p );
+// 	w = d->creator;
+//     } else {
+// 	w = QApplication::desktop();
+//     }
+//     setGeometry( p.x() + w->width()/2  - width()/2,
+// 	  p.y() + w->height()/2 - height()/2, width(), height() );
 }
 
 
@@ -602,4 +621,52 @@ void QProgressDialog::closeEvent( QCloseEvent *e )
 {
     emit cancelled();
     QSemiModal::closeEvent( e );
+}
+
+/*!
+  If you set \a b to TRUE, the progress dialog calls reset() if
+  progress() equals totalSteps(), if you set it to FALSE,
+  this does not happen.
+  
+  \sa setAutoClose()
+*/
+
+void QProgressDialog::setAutoReset( bool b )
+{
+    d->autoReset = b;
+}
+
+/*!
+  Returns if the dialog resets itself when progress() equals
+  totalSteps().
+  
+  \sa setAutoReset()
+*/
+
+bool QProgressDialog::autoReset() const
+{
+    return d->autoReset;
+}
+
+/*!
+  If you set \a b to TRUE, the dialog gets closed (hidden) if
+  reset() is called, else this does not happen.
+  
+  \sa setAutoReset()
+*/
+
+void QProgressDialog::setAutoClose( bool b )
+{
+    d->autoClose = b;
+}
+
+/*!
+  Returns if the dialog gets hidden by reset().
+  
+  \sa setAutoClose()
+*/
+
+bool QProgressDialog::autoClose() const
+{
+    return d->autoClose;
 }
