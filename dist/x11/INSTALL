@@ -84,10 +84,11 @@ the directories where you choose to install Qt.
     information on known issues.
 
 
-    At this point you have binaries created in $QTDIR (eg. $QTDIR/lib/
-    contains libqt.so). If, however, you would like to have your Qt
-    installed in a non-local installation you can run configure with
-    options splitting Qt into different areas for example:
+    At this point you have binaries created in $QTDIR (i.e. in
+    $QTDIR/bin and $QTDIR/lib). If, however, you would like to have
+    your Qt installed in a non-local installation you can run
+    configure with options splitting Qt into different areas for
+    example:
 
         ./configure -libdir /usr/local/lib -bindir /usr/local/bin -headerdir /usr/local/include/qt
 
@@ -108,7 +109,7 @@ the directories where you choose to install Qt.
 
     If you have problems running the demoe programs, e.g. messages like
 
-	 can't load library 'libqt.so.4'
+	 can't load library 'libQtGui.so.4'
 
     you probably need to put a reference to the qt library in a
     configuration file and run /sbin/ldconfig as root on your system.
