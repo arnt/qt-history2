@@ -14,6 +14,70 @@
 <widgetbox version="4.0">
     <scratchpad>
     </scratchpad>
+
+    <category name="Layouts">
+        <ui version="4.0" >
+            <widget class="QWidget">
+                <layout class="QHBoxLayout" >
+                    <property name="margin" >
+                        <number>0</number>
+                    </property>
+                    <item>
+                        <widget class="QWidget"  name="Vertical Layout" widgetboxicon="designer_vlayout.png">
+                            <property name="objectName">
+                                <string notr="true">verticalLayout</string>
+                            </property>
+                            <property name="geometry">
+                                <rect>
+                                    <x>0</x>
+                                    <y>0</y>
+                                    <width>160</width>
+                                    <height>80</height>
+                                </rect>
+                            </property>
+                            <layout class="QVBoxLayout" />
+                        </widget>
+                    </item>
+
+                    <item>
+                        <widget class="QWidget"  name="Horizontal Layout" widgetboxicon="designer_hlayout.png">
+                            <property name="objectName">
+                                <string notr="true">horizontalLayout</string>
+                            </property>
+                            <property name="geometry">
+                                <rect>
+                                    <x>0</x>
+                                    <y>0</y>
+                                    <width>160</width>
+                                    <height>80</height>
+                                </rect>
+                            </property>
+                            <layout class="QHBoxLayout" />
+                        </widget>
+                    </item>
+
+                    <item>
+                        <widget class="QWidget"  name="Grid Layout" widgetboxicon="designer_glayout.png">
+                            <property name="objectName">
+                                <string notr="true">gridLayout</string>
+                            </property>
+                            <property name="geometry">
+                                <rect>
+                                    <x>0</x>
+                                    <y>0</y>
+                                    <width>160</width>
+                                    <height>80</height>
+                                </rect>
+                            </property>
+                            <layout class="QGridLayout" />
+                        </widget>
+                    </item>
+
+                </layout>
+            </widget>
+        </ui>
+    </category>
+
     <category name="Spacers">
         <ui version="4.0" >
             <widget class="QWidget">
@@ -126,7 +190,7 @@
                         <string notr="true">listView</string>
                     </property>
             </widget>
-                            
+
             <widget class="QTreeView" name="Tree View" widgetboxicon="designer_listview.png">
                     <property name="geometry">
                         <rect>
@@ -140,7 +204,7 @@
                         <string notr="true">treeView</string>
                     </property>
             </widget>
-                            
+
             <widget class="QTableView" name="Table View" widgetboxicon="designer_table.png">
                     <property name="geometry">
                         <rect>
@@ -172,7 +236,7 @@
                         <string notr="true">listWidget</string>
                     </property>
             </widget>
-                            
+
             <widget class="QTreeWidget" name="Tree Widget" widgetboxicon="designer_listview.png">
                     <property name="geometry">
                         <rect>
@@ -186,7 +250,7 @@
                         <string notr="true">treeWidget</string>
                     </property>
             </widget>
-                            
+
             <widget class="QTableWidget" name="Table Widget" widgetboxicon="designer_table.png">
                     <property name="geometry">
                         <rect>
@@ -199,7 +263,7 @@
                     <property name="objectName">
                         <string notr="true">tableWidget</string>
                     </property>
-            </widget>                            
+            </widget>
         </ui>
     </category>
 
