@@ -492,10 +492,12 @@ void QDockWindowHandle::updateGui()
     if ( !dockWindow->area() )
 	return;
 
-    if ( dockWindow->area()->orientation() == Horizontal )
+    if ( dockWindow->area()->orientation() == Horizontal ) {
 	closeButton->move( 2, 2 );
-    else
-	closeButton->move( width() - closeButton->width() - 2, 2 );
+    } else {
+	int x = QApplication::reverseLayout() ? 2 : width() - closeButton->width() - 2;
+	closeButton->move( x, 2 );
+    }
 }
 
 QSize QDockWindowHandle::minimumSizeHint() const
