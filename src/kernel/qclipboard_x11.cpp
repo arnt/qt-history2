@@ -806,20 +806,14 @@ bool QClipboardWatcher::empty() const
 
 const char* QClipboardWatcher::format( int n ) const
 {
-    qDebug("QClipboardWatcher::format(%d)", n);
-
-    if ( empty() ) {
-	qDebug("    empty?!");
+    if ( empty() )
 	return 0;
-    }
 
     if (! formatList.count()) {
 	// get the list of targets from the current clipboard owner - we do this
 	// once so that multiple calls to this function don't require multiple
 	// server round trips...
 	static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
-
-	qDebug("    getting targets");
 
 	QClipboardWatcher *that = (QClipboardWatcher *) this;
 	QByteArray ba = getDataInFormat(xa_targets);
