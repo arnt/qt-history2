@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#47 $
 **
 ** Implementation of QListView widget class
 **
@@ -19,11 +19,13 @@
 #include "qapp.h"
 #include "qpixmap.h"
 #include "qkeycode.h"
+#include "qdatetm.h"
 
 #include <stdarg.h> // va_list
 #include <stdlib.h> // qsort
+#include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#46 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#47 $");
 
 
 const int Unsorted = 32767;
@@ -97,6 +99,11 @@ struct QListViewPrivate
     // suggested height for the items
     int fontMetricsHeight;
     bool allColumnsShowFocus;
+    
+    // currently typed prefix for the keyboard interface, and the time
+    // of the last key-press
+    QString currentPrefix;
+    QTime currentPrefixTime;
 };
 
 
@@ -562,7 +569,7 @@ void QListViewItem::enforceSortOrder()
   selected if \a o is FALSE.  Doesn't repaint anything in either case.
 
   Thsi function does not maintan any invariants --
-  QListView::setItemSelected() does that.
+  QListView::setSelected() does that.
 
   \sa ownHeight() totalHeight() */
 
@@ -1646,20 +1653,22 @@ void QListView::mouseDoubleClickEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
-    // ensure that the next mouse moves and eventual release is
+    // ensure that the following mouse moves and eventual release is
     // ignored.
     d->buttonDown = FALSE;
 
     QListViewItem * i = itemAt( e->pos() );
-    if ( i ) {
-	if (  !i->isOpen() && (i->isExpandable() || i->children()) ) {
-	    i->setOpen( TRUE );
-	    triggerUpdate();
-	} else if ( i->isOpen() && i->childItem ) {
-	    i->setOpen( FALSE );
-	    triggerUpdate();
-	}
+
+    if ( !i ) {
+	// nothing
+    } else if ( i->isSelectable() ) {
 	emit doubleClicked( i );
+    } else if ( !i->isOpen() && (i->isExpandable() || i->children()) ) {
+	i->setOpen( TRUE );
+	triggerUpdate(); // ### too slow
+    } else if ( i->isOpen() && i->childItem ) {
+	i->setOpen( FALSE );
+	triggerUpdate(); // ### too slow
     }
 }
 
@@ -1741,12 +1750,15 @@ void QListView::keyPressEvent( QKeyEvent * e )
     case Key_Enter:
     case Key_Return:
 	emit returnPressed( currentItem() );
+	d->currentPrefix.truncate( 0 );
 	return;
     case Key_Down:
 	i = i->itemBelow();
+	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Up:
 	i = i->itemAbove();
+	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Next:
 	i2 = itemAt( QPoint( 0, viewport()->height()-1 ) );
@@ -1761,6 +1773,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	} else {
 	    i = i2;
 	}
+	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Prior:
 	i2 = itemAt( QPoint( 0, 0 ) );
@@ -1774,6 +1787,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	} else {
 	    i = i2;
 	}
+	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Right:
 	if ( i->isOpen() && i->childItem ) {
@@ -1782,6 +1796,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    i->setOpen( TRUE );
 	    triggerUpdate();
 	}
+	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Left:
 	if ( i->isOpen() && i->childItem ) {
@@ -1790,13 +1805,55 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	} else if ( i->parentItem && i->parentItem != d->r ) {
 	    i = i->parentItem;
 	}
+	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Space:
 	i->activate();
+	d->currentPrefix.truncate( 0 );
 	break;
     default:
-	e->ignore();
-	return;
+	if ( e->ascii() ) {
+	    QString input( d->currentPrefix );
+	    input.detach();
+	    QListViewItem * keyItem = i;
+	    QTime now( QTime::currentTime() );
+	    while( keyItem ) {
+		// try twice, first with the previous string and this char
+		input += (char)tolower( e->ascii() );
+		const char * keyItemKey;
+		QString prefix;
+		while( keyItem ) {
+		    keyItemKey = keyItem->key( 0 );
+		    if ( !keyItemKey )
+			keyItemKey = keyItem->text( 0 );
+		    if ( keyItemKey && *keyItemKey ) {
+			prefix = keyItemKey;
+			prefix.truncate( input.length() );
+			prefix = prefix.lower();
+			if ( prefix == input ) {
+			    d->currentPrefix = input;
+			    d->currentPrefixTime = now;
+			    i = keyItem;
+			     // horrible hacked-up double-break...
+			    keyItem = 0;
+			    input.detach();
+			    input.truncate( 0 );
+			}
+		    }
+		    if ( keyItem )
+			keyItem = keyItem->itemBelow();
+		}
+		// then, if appropriate, with just this character
+		if ( input.length() > 1 &&
+		     d->currentPrefixTime.msecsTo( now ) > 1500 ) {
+		    input.truncate( 0 );
+		    keyItem = d->r;
+		}
+	    }
+	} else {
+	    e->ignore();
+	    return;
+	}
     }
 
     if ( !i )
@@ -1975,7 +2032,6 @@ void QListView::setCurrentItem( QListViewItem * i )
     viewport()->repaint( r, FALSE );
     if ( i != prev )
 	emit currentChanged( i );
-
 }
 
 
@@ -2256,9 +2312,9 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, const char *text, Type t
     init();
     if ( myType == RadioButton ) {
 	if ( parent->type() != Controller )
-	    warning( "QCheckListItem::QCheckListItem(), radio button must be " 
+	    warning( "QCheckListItem::QCheckListItem(), radio button must be "
 		     "child of a controller" );
-	else 
+	else
 	    exclusive = parent;
     }
 }
@@ -2508,16 +2564,16 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 		int cy = height()/2;
 		int e = BoxSize/2 - 1;
 		for ( int i = 0; i < 3; i++ ) { //penWidth 2 doesn't quite work
-		    a.setPoints( 4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e ); 
+		    a.setPoints( 4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e );
 		    p->drawPolygon( a );
 		    e--;
 		}
-		if ( on ) { 
+		if ( on ) {
 		    p->setPen( QPen( cg.text()) );
 		    QBrush   saveBrush = p->brush();
 		    p->setBrush( cg.text() );
 		    e = e - 2;
-		    a.setPoints( 4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e ); 
+		    a.setPoints( 4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e );
 		    p->drawPolygon( a );
 		    p->setBrush( saveBrush );
 		}
