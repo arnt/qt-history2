@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#23 $
 **
 ** Implementation of QRegExp class
 **
@@ -18,7 +18,7 @@
 #include <malloc.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qregexp.cpp#23 $")
 
 
 /*!
@@ -782,7 +782,7 @@ void QRegExp::compile()
 // QString member functions that use QRegExp
 //
 
-/*
+/*!
 Finds the first occurrence of the regular expression \e rx, starting at
 position \e index.
 
