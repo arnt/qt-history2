@@ -2607,21 +2607,26 @@ QPtrList<DesignerProject> MainWindow::projectList() const
 
 void MainWindow::recentlyFilesMenuActivated( int id )
 {
-    if ( id != -1 )
+    if ( id != -1 ) {
 	openFile( *recentlyFiles.at( id ) );
+	QString fn( *recentlyFiles.at( id ) );
+	addRecentlyOpened( fn, recentlyFiles );
+    }
 }
 
 void MainWindow::recentlyProjectsMenuActivated( int id )
 {
     if ( id != -1 ) {
 	openProject( *recentlyProjects.at( id ) );
+	QString fn( *recentlyProjects.at( id ) );
+	addRecentlyOpened( fn, recentlyProjects );
     }
 }
 
 void MainWindow::addRecentlyOpened( const QString &fn, QStringList &lst )
 {
     if ( lst.find( fn ) != lst.end() )
-	return;
+	lst.remove( fn );
     if ( lst.count() >= 10 )
 	lst.remove( lst.begin() );
     lst << fn;
