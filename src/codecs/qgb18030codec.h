@@ -1,5 +1,5 @@
 /****************************************************************************
-** Definition of QGb18030Codec template/macro class
+** Definition of QGb18030Codec class
 **
 ** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
