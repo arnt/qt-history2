@@ -44,6 +44,8 @@ public:
     virtual void enterInstance();
     virtual void leaveInstance();
 
+    QNPInstance* instance();
+
 private:
     WId saveWId;
     _NPInstance* pi;

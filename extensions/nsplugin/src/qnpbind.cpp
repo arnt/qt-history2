@@ -100,6 +100,7 @@ struct _NPInstance
     QString *argv;
 };
 
+
 /* ### debugging in ns3 needs a REALLY stderr */
 #if 0
 static
@@ -1112,12 +1113,43 @@ int main(int argc, char** argv)
 
 /*!
   \class QNPWidget qnp.h
-  \brief A QWidget that is a Netscape plugin window
+  \brief A QWidget that is a Web-browser plugin window
 
-  Deriving from QNPWidget is creates a widget that can be used as a 
-  Netscape plugin window, or create one and add child widgets.
+  Derive from QNPWidget to create a widget that can be used as a 
+  Browser plugin window, or create one and add child widgets.
   Instances of QNPWidget may only be created
-  in a call to QNPInstance::newWindow().
+  when QNPInstance::newWindow() is called by the browser.
+
+  A common way to develop a plugin widget is to develop it as a stand-alone
+  application window, then make it a \e child of a plugin widget to use
+  it as a browser plugin.  The technique is:
+
+\code
+class MyPluginWindow : public QNPWidget {
+    QWidget* child;
+public:
+    MyPluginWindow()
+    {
+        // Some widget that is normally used as a top-level widget
+        child = new MyIndependentlyDevelopedWidget();
+
+        // Use the background color of the web page
+        child->setBackgroundColor( backgroundColor() );
+
+        // Fill the plugin widget
+        child->setGeometry( 0, 0, width(), height() );
+
+        // Show now, since the QNPWidget is already shown
+        child->show();
+    }
+
+    void resizeEvent(QResizeEvent*)
+    {
+        // Fill the plugin widget
+        child->resize(size());
+    }
+};
+\endcode
 
   The default implementation is an empty window.
 */
@@ -1141,7 +1173,7 @@ QNPWidget::QNPWidget() :
 
 /*!
   Destroys the window.  This will be called by the plugin binding code
-  when the window is no longer required.  Netscape will delete windows
+  when the window is no longer required.  The Web-browser will delete windows
   when they leave the page.  The bindings will change the QWidget::winId()
   of the window when the window is resized, but this should not affect
   normal widget behaviour.
@@ -1163,6 +1195,14 @@ void QNPWidget::enterInstance()
 */
 void QNPWidget::leaveInstance()
 {
+}
+
+/*!
+  Returns the instance for which this widget is the window.
+*/
+QNPInstance* QNPWidget::instance()
+{
+    return pi->instance;
 }
 
 class QFixableWidget : public QWidget {
@@ -1275,7 +1315,7 @@ void QNPWidget::unsetWindow()
 
 /*!
   \class QNPInstance qnp.h
-  \brief a QObject that is a Netscape plugin
+  \brief a QObject that is a Web-browser plugin
 
   Deriving from QNPInstance is creates an object that represents a single
   &lt;EMBED&gt; tag in an HTML document.
@@ -1634,7 +1674,7 @@ int QNPStream::write( int len, void* buffer )
   created when the plugin is \e first needed, by calling
   QNPlugin::create(), which must be implemented in your plugin code to
   return some derived class of QNPlugin.  The one QNPlugin object creates
-  all instances for a single running Netscape process.
+  all instances for a single running Web-browser process.
 
   Additionally, if Qt is linked to the plugin as
   a dynamic library, only one instance of QApplication will exist
