@@ -1066,8 +1066,6 @@ void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 	}
     }
 
-
-
     if ( atParagStart() ) {
 	QTextParag *p = string->prev();
 	QTextParag *s = doc->createParag( doc, p, string, updateIds );
@@ -2566,18 +2564,30 @@ int QTextFormat::width( const QChar &c ) const
     if ( !painter || !painter->isActive() ) {
 	if ( c == '\t' )
 	    return fm.width( 'x' ) * 8;
-	int w;
-	if ( c.row() )
-	    w = fm.width( c );
-	else
-	    w = widths[ c.unicode() ];
-	if ( w == 0 && !c.row() ) {
-	    w = fm.width( c );
-	    ( (QTextFormat*)this )->widths[ c.unicode() ] = w;
+	if ( ha == AlignNormal ) {
+	    int w;
+	    if ( c.row() )
+		w = fm.width( c );
+	    else
+		w = widths[ c.unicode() ];
+	    if ( w == 0 && !c.row() ) {
+		w = fm.width( c );
+		( (QTextFormat*)this )->widths[ c.unicode() ] = w;
+	    }
+	    return w;
+	} else {
+	    QFont f( fn );
+	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+	    QFontMetrics fm_( f );
+	    return fm_.width( c );
 	}
-	return w;
     }
-    painter->setFont( fn );
+
+    QFont f( fn );
+    if ( ha != AlignNormal )
+	f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+    painter->setFont( f );
+
     return painter->fontMetrics().width( c );
 }
 
@@ -2585,9 +2595,19 @@ int QTextFormat::width( const QString &str, int pos ) const
 {
     int w;
     if ( !painter || !painter->isActive() ) {
-	w = fm.charWidth( str, pos );
+	if ( ha == AlignNormal ) {
+	    w = fm.charWidth( str, pos );
+	} else {
+	    QFont f( fn );
+	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+	    QFontMetrics fm_( f );
+	    w = fm_.charWidth( str, pos );
+	}
     } else {
-	painter->setFont( fn );
+	QFont f( fn );
+	if ( ha != AlignNormal )
+	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+	painter->setFont( f );
 	w = painter->fontMetrics().charWidth( str, pos );
     }
     return w;
@@ -2834,7 +2854,8 @@ int QTextString::width(int idx) const
 	     // complex text. We need some hacks to get the right metric here
 	     QString str;
 	     int pos = 0;
-	     if( idx > 3 ) pos = idx - 3;
+	     if( idx > 3 )
+		 pos = idx - 3;
 	     int off = idx - pos;
 	     int end = QMIN( length(), idx + 3 );
 	     while ( pos < end ) {
@@ -3274,7 +3295,8 @@ void QTextParag::setFormat( int index, int len, QTextFormat *f, bool useCollecti
 	     ( f->font().family() != of->font().family() ||
 	       f->font().pointSize() != of->font().pointSize() ||
 	       f->font().weight() != of->font().weight() ||
-	       f->font().italic() != of->font().italic() ) ) {
+	       f->font().italic() != of->font().italic() ||
+	       f->hAlign() != of->hAlign() ) ) {
 	    invalidate( 0 );
 	}
 	if ( flags == -1 || flags == QTextFormat::Format || !fc ) {
@@ -3559,8 +3581,21 @@ void QTextParag::drawParagString( QPainter &painter, const QString &str, int sta
     QPainter::TextDirection dir = QPainter::LTR;
     if ( rightToLeft )
 	dir = QPainter::RTL;
-    if ( str[start] != '\t' )
-	painter.drawText( startX, lastY + baseLine, str, start, len, dir );
+    if ( str[start] != '\t' ) {
+	if ( lastFormat->hAlign() == QTextFormat::AlignNormal ) {
+	    painter.drawText( startX, lastY + baseLine, str, start, len, dir );
+	} else if ( lastFormat->hAlign() == QTextFormat::AlignSuperScript ) {
+	    QFont f( painter.font() );
+	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+	    painter.setFont( f );
+	    painter.drawText( startX, lastY + baseLine - ( h - painter.fontMetrics().height() ), str, start, len, dir );
+	} else if ( lastFormat->hAlign() == QTextFormat::AlignSubScript ) {
+	    QFont f( painter.font() );
+	    f.setPointSize( ( f.pointSize() * 2 ) / 3 );
+	    painter.setFont( f );
+	    painter.drawText( startX, lastY + baseLine, str, start, len, dir );
+	}
+    }
     if ( lastFormat->isMisspelled() ) {
 	painter.save();
 	painter.setPen( QPen( Qt::red, 1, Qt::DotLine ) );
@@ -4666,6 +4701,8 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *of, QTextFormat *nf, in
 	cres->col = nf->col;
     if ( flags & QTextFormat::Misspelled )
 	cres->missp = nf->missp;
+    if ( flags & QTextFormat::HAlign )
+	cres->ha = nf->ha;
     cres->update();
 
     QTextFormat *fm = cKey.find( cres->key() );
@@ -4697,7 +4734,7 @@ QTextFormat *QTextFormatCollection::format( const QFont &f, const QColor &c )
 	return cachedFormat;
     }
 
-    QString key = QTextFormat::getKey( f, c, FALSE, QString::null, QString::null );
+    QString key = QTextFormat::getKey( f, c, FALSE, QString::null, QString::null, QTextFormat::AlignNormal );
     cachedFormat = cKey.find( key );
     cfont = f;
     ccol = c;
@@ -4791,6 +4828,14 @@ void QTextFormat::setMisspelled( bool b )
     if ( b == (bool)missp )
 	return;
     missp = b;
+    update();
+}
+
+void QTextFormat::setHAlign( HorizontalAlignemnt a )
+{
+    if ( a == ha )
+	return;
+    ha = a;
     update();
 }
 

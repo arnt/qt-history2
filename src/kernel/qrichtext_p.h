@@ -1330,9 +1330,12 @@ public:
 	Size = 16,
 	Color = 32,
 	Misspelled = 64,
+	HAlign = 128,
 	Font = Bold | Italic | Underline | Family | Size,
-	Format = Font | Color | Misspelled
+	Format = Font | Color | Misspelled | HAlign
     };
+
+    enum HorizontalAlignemnt { AlignNormal, AlignSubScript, AlignSuperScript };
 
     QTextFormat();
     QTextFormat( const QStyleSheetItem *s );
@@ -1343,6 +1346,7 @@ public:
     QColor color() const;
     QFont font() const;
     bool isMisspelled() const;
+    HorizontalAlignemnt hAlign() const;
     int minLeftBearing() const;
     int minRightBearing() const;
     int width( const QChar &c ) const;
@@ -1363,12 +1367,13 @@ public:
     void setFont( const QFont &f );
     void setColor( const QColor &c );
     void setMisspelled( bool b );
+    void setHAlign( HorizontalAlignemnt a );
 
     bool operator==( const QTextFormat &f ) const;
     QTextFormatCollection *parent() const;
     QString key() const;
 
-    static QString getKey( const QFont &f, const QColor &c, bool misspelled, const QString &lhref, const QString &lnm );
+    static QString getKey( const QFont &f, const QColor &c, bool misspelled, const QString &lhref, const QString &lnm, HorizontalAlignemnt hAlign );
 
     void addRef();
     void removeRef();
@@ -1395,6 +1400,7 @@ private:
     uint missp : 1;
     uint linkColor : 1;
     int leftBearing, rightBearing;
+    HorizontalAlignemnt ha;
     uchar widths[ 256 ];
     int hei, asc, dsc;
     QTextFormatCollection *collection;
@@ -1696,6 +1702,7 @@ inline QTextFormat::QTextFormat()
 {
     ref = 0;
     missp = FALSE;
+    ha = AlignNormal;
     collection = 0;
 }
 
@@ -1706,6 +1713,7 @@ inline QTextFormat::QTextFormat( const QStyleSheetItem *style )
     ref = 0;
     this->style = style->name();
     missp = FALSE;
+    ha = AlignNormal;
     collection = 0;
     fn = QFont( style->fontFamily(),
 		style->fontSize(),
@@ -1720,6 +1728,7 @@ inline QTextFormat::QTextFormat( const QStyleSheetItem *style )
     asc = fm.ascent();
     dsc = fm.descent();
     missp = FALSE;
+    ha = AlignNormal;
     memset( widths, 0, 256 );
     generateKey();
     addRef();
@@ -1739,6 +1748,7 @@ inline QTextFormat::QTextFormat( const QFont &f, const QColor &c )
     asc = fm.ascent();
     dsc = fm.descent();
     missp = FALSE;
+    ha = AlignNormal;
     memset( widths, 0, 256 );
     generateKey();
     addRef();
@@ -1762,6 +1772,7 @@ inline QTextFormat::QTextFormat( const QTextFormat &f )
     stdPointSize = f.stdPointSize;
     logicalFontSize = f.logicalFontSize;
     missp = f.missp;
+    ha = f.ha;
     k = f.k;
     anchor_name = f.anchor_name;
     anchor_href = f.anchor_href;
@@ -1787,6 +1798,7 @@ inline QTextFormat& QTextFormat::operator=( const QTextFormat &f )
     stdPointSize = f.stdPointSize;
     logicalFontSize = f.logicalFontSize;
     missp = f.missp;
+    ha = f.ha;
     k = f.k;
     anchor_name = f.anchor_name;
     anchor_href = f.anchor_href;
@@ -1823,6 +1835,11 @@ inline QFont QTextFormat::font() const
 inline bool QTextFormat::isMisspelled() const
 {
     return missp;
+}
+
+inline QTextFormat::HorizontalAlignemnt QTextFormat::hAlign() const
+{
+    return ha;
 }
 
 inline int QTextFormat::minLeftBearing() const
@@ -1911,10 +1928,12 @@ inline void QTextFormat::generateKey()
        << fn.family()
        << (int)isMisspelled()
        << anchor_href
-       << anchor_name;
+       << anchor_name
+       << (int)hAlign();
 }
 
-inline QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled, const QString &lhref, const QString &lnm )
+inline QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled,
+				    const QString &lhref, const QString &lnm, HorizontalAlignemnt a )
 {
     QString k;
     QTextOStream ts( &k );
@@ -1926,7 +1945,8 @@ inline QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool mis
        << fn.family()
        << (int)misspelled
        << lhref
-       << lnm;
+       << lnm
+       << (int)a;
     return k;
 }
 
