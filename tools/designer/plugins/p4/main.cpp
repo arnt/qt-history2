@@ -390,7 +390,7 @@ QAction* P4Interface::create( const QString& actionname, QObject* parent )
 	p4Actions = new QActionGroup( parent, 0, FALSE );
 
 	QAction *a = new QAction( "P4 Aware", QIconSet((const char**)report_xpm), "A&ware", 0, p4Actions, "P4 Aware", TRUE );
-	a->setToolTip( tr("Toggle edit awareness") );
+	a->setToolTip( tr("Toggle Edit Awareness") );
 	a->setStatusTip( tr("Toggles whether forms in source control should be checked out before edited") );
 	a->setWhatsThis( tr("") );
 	connect( a, SIGNAL( toggled(bool) ), this, SLOT( p4Aware(bool) ) );
@@ -399,41 +399,41 @@ QAction* P4Interface::create( const QString& actionname, QObject* parent )
 	p4Actions->addSeparator();
 
 	actionSync = new QAction( "P4 Sync", QIconSet((const char**)sync_xpm), "&Sync", 0, p4Actions, "P4 Sync" );
-	actionSync->setToolTip( tr("Sync to head revision") );
+	actionSync->setToolTip( tr("Sync to Head Revision") );
 	actionSync->setStatusTip( tr("Synchronizes client file to depot head revision") );
 	connect( actionSync, SIGNAL( activated() ), this, SLOT( p4Sync() ) );
 
 	actionEdit = new QAction( "P4 Edit", QIconSet((const char**)edit_xpm), "&Edit", 0, p4Actions, "P4 Edit" );
-	actionEdit->setToolTip( tr("Check out for edit") );
+	actionEdit->setToolTip( tr("Check Out for Edit") );
 	actionEdit->setStatusTip( tr("Checks out file for edit") );
 	connect( actionEdit, SIGNAL( activated() ), this, SLOT( p4Edit() ) );
 
 	actionSubmit = new QAction( "P4 Submit", QIconSet((const char**)submit_xpm), "&Submit", 0, p4Actions, "P4 Submit" );
-	actionSubmit->setToolTip( tr("Submit changes") );
+	actionSubmit->setToolTip( tr("Submit Changes") );
 	actionSubmit->setStatusTip( tr("Submits changed form(s) to depot") );
 	connect( actionSubmit, SIGNAL( activated() ), this, SLOT( p4Submit() ) );
 
 	actionRevert = new QAction( "P4 Revert", QIconSet((const char**)revert_xpm), "&Revert", 0, p4Actions, "P4 Revert" );
-	actionRevert->setToolTip( tr("Revert changes") );
+	actionRevert->setToolTip( tr("Revert Changes") );
 	actionRevert->setStatusTip( tr("Reverts changes to form(s)") );
 	connect( actionRevert, SIGNAL( activated() ), this, SLOT( p4Revert() ) );
 
 	p4Actions->addSeparator();
 
 	actionAdd = new QAction( "P4 Add", QIconSet((const char**)add_xpm), "&Add", 0, p4Actions, "P4 Add" );
-	actionAdd->setToolTip( tr("Add form") );
+	actionAdd->setToolTip( tr("Add Form") );
 	actionAdd->setStatusTip( tr("Adds form to source control") );
 	connect( actionAdd, SIGNAL( activated() ), this, SLOT( p4Add() ) );
 
 	actionDelete = new QAction( "P4 Delete", QIconSet((const char**)delete_xpm), "&Delete", 0, p4Actions, "P4 Delete" );
-	actionDelete->setToolTip( tr("Check out for delete") );
+	actionDelete->setToolTip( tr("Check Out for Delete") );
 	actionDelete->setStatusTip( tr("Checks out file for delete") );
 	connect( actionDelete, SIGNAL( activated() ), this, SLOT( p4Delete() ) );
 
 	p4Actions->addSeparator();
 
 	actionDiff = new QAction( "P4 Diff", QIconSet((const char**)diff_xpm), "Di&ff", 0, p4Actions, "P4 Diff" );
-	actionDiff->setToolTip( tr("Diff against depot") );
+	actionDiff->setToolTip( tr("Diff Against Depot") );
 	actionDiff->setStatusTip( tr("Opens diff for client file against depot file") );
 	connect( actionDiff, SIGNAL( activated() ), this, SLOT( p4Diff() ) );
 
