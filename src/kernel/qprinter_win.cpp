@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#57 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -258,7 +258,7 @@ bool QPrinter::setup( QWidget *parent )
 	memset( &pd, 0, sizeof(PRINTDLGA) );
 	pd.lStructSize = sizeof(PRINTDLGA);
 	pd.Flags	 = PD_RETURNDEFAULT;
-	bool result = PrintDlgA( &pd ) != 0;
+	result = PrintDlgA( &pd ) != 0;
 
 	if ( result ) {
 	    pd.Flags = PD_RETURNDC;
