@@ -5496,38 +5496,3 @@ const QPixmap *QWidget::backgroundPixmap() const { return erasePixmap(); }
 /*!\obsolete  Use setPaletteBackgroundPixmap() or setErasePixmap() instead. */
 void QWidget::setBackgroundPixmap( const QPixmap &pm ) { setErasePixmap( pm ); }
 
-#ifndef QT_NO_REMOTE
-/*!
-  \internal
-  Returns the alias name for the instance or an empty string if no alias is defined.
-  Use of this function is reserved for the remote control!!!
-  \sa setAlias()
-*/
-
-QString QWidget::alias() const
-{
-    if ( !extra ) {
-	return "";
-    } else if (extra->alias.isNull()) {
-	return ""; // Make sure we always return a string (not a null string)
-    } else {
-	return extra->alias;
-    }
-}
-
-/*!
-  \internal
-  Sets the alias name for the instance to \a newAlias.
-  Use of this function is reserved for the remote control!!!
-  \sa alias()
-*/
-
-void QWidget::setAlias( const QString &newAlias )
-{
-    if ( !extra ) {
-	createExtra();
-    }
-
-    extra->alias = newAlias;
-}
-#endif

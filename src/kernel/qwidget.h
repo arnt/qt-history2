@@ -274,11 +274,6 @@ public:
     const QPixmap *	backgroundPixmap() const; // obsolete, use erasePixmap()
     virtual void	setBackgroundPixmap( const QPixmap & ); // obsolete, use setErasePixmap()
 
-#ifndef QT_NO_REMOTE
-    QString		alias() const;
-    void		setAlias( const QString & );
-#endif
-
 public slots:
 #ifndef QT_NO_WIDGET_TOPEXTRA
     virtual void	setCaption( const QString &);
@@ -974,9 +969,6 @@ struct Q_EXPORT QWExtra {
 #endif
     QRect micro_focus_hint;                     // micro focus hint
     QSizePolicy size_policy;
-#ifndef QT_NO_REMOTE
-    QString alias;				// alias name for the widget
-#endif
 };
 
 
