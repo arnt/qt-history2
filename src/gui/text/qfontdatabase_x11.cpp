@@ -809,7 +809,7 @@ static int getFCWeight(int fc_weight)
 
 static void loadXft()
 {
-    if (!X11->has_xft)
+    if (!X11->has_xft && !X11->use_xrender)
         return;
 
     FcFontSet  *fonts;
@@ -973,7 +973,7 @@ static void loadXft()
 
 static void load(const QString &family = QString::null, int script = -1)
 {
-    if (X11->has_xft)
+    if (X11->has_xft && X11->use_xrender)
         return;
 
 #ifdef QFONTDATABASE_DEBUG
@@ -1072,7 +1072,7 @@ static void initializeDb()
 
 #ifdef QFONTDATABASE_DEBUG
 #ifndef QT_NO_XFT
-    if (!X11->has_xft)
+    if (!X11->has_xft || !X11->use_xrender)
 #endif
         // load everything at startup in debug mode.
         loadXlfds(0,  -1);
