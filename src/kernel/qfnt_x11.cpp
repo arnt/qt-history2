@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#69 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#69 $");
 
 
 static const int fontFields = 14;
@@ -670,7 +670,6 @@ QString QFont_Private::bestMatch( const QString &pattern, int *score )
 	sc = fontMatchScore( xFontNames[i], matchBuffer,
 			     &pointDiff, &weightDiff,
 			     &scalable, &polymorphic, &resx, &resy );
-	debug( "(%i) %s", sc, xFontNames[i] );	
 	if ( sc > best.score ||
 	    sc == best.score && pointDiff < best.pointDiff ||
 	    sc == best.score && pointDiff == best.pointDiff &&
