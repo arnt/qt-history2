@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#155 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#156 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -355,7 +355,7 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 {
     // avoid dumping core in case of application madness, and return
     // quickly for some common but irrelevant events
-    if ( !qApp || !qApp->focusWidget() ||
+    if ( !qApp || !qApp->activeWindow() ||
 	 !obj || !obj->isWidgetType() || // isWidgetType() catches most stuff
 	 !e ||
 	 e->type() == QEvent::Paint ||
@@ -1018,7 +1018,7 @@ QToolTipGroup::~QToolTipGroup()
 }
 
 
-/*!  
+/*!
   \property QToolTipGroup::delay
   \brief whether the group text is shown delayed.
 */
