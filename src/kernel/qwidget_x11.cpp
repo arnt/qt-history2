@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#284 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#285 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -549,6 +549,11 @@ static int allow_null_pixmaps = 0;
 
 /*!
   Sets the background pixmap of the widget to \e pixmap.
+  
+  This function is deprecated.  Use setBackgroundMode() or
+  setPalette(), as they ensure the appropriate clearing pixmap or
+  color is used when the widget is in the Active, Normal, or Disabled
+  state.
 
   The background pixmap is tiled.  Some widgets (e.g. QLineEdit) do
   not work well with a background pixmap.

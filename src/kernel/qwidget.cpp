@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#305 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#306 $
 **
 ** Implementation of QWidget class
 **
@@ -1536,25 +1536,40 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
 
   <ul>
     <li> \c PaletteForeground
-	- use palette() . \link QColorGroup::foreground() foreground()\endlink
+	- use palette() . \link QColorGroup::fillForeground() fillForeground()\endlink
     <li> \c PaletteBackground
-	- use palette() . \link QColorGroup::background() background()\endlink
+	- use palette() . \link QColorGroup::fillBackground() fillBackground()\endlink
+    <li> \c PaletteButton
+	- use palette() . \link QColorGroup::fillButton() fillButton()\endlink
     <li> \c PaletteLight
-	- use palette() . \link QColorGroup::light() light()\endlink
+	- use palette() . \link QColorGroup::fillLight() fillLight()\endlink
     <li> \c PaletteMidlight
-	- use palette() . \link QColorGroup::midlight() midlight()\endlink
+	- use palette() . \link QColorGroup::fillMidlight() fillMidlight()\endlink
     <li> \c PaletteDark
-	- use palette() . \link QColorGroup::dark() dark()\endlink
+	- use palette() . \link QColorGroup::fillDark() fillDark()\endlink
     <li> \c PaletteMid
-	- use palette() . \link QColorGroup::mid() mid()\endlink
+	- use palette() . \link QColorGroup::fillMid() fillMid()\endlink
     <li> \c PaletteText
-	- use palette() . \link QColorGroup::text() text()\endlink
+	- use palette() . \link QColorGroup::fillText() fillText()\endlink
+    <li> \c PaletteBrightText
+	- use palette() . \link QColorGroup::fillBrightText() fillBrightText()\endlink
+    <li> \c PaletteButtonText
+	- use palette() . \link QColorGroup::fillButtonText() fillButtonText()\endlink
     <li> \c PaletteBase
-	- use palette() . \link QColorGroup::base() base()\endlink
+	- use palette() . \link QColorGroup::fillBase() fillBase()\endlink
+    <li> \c PaletteShadow
+	- use palette() . \link QColorGroup::fillShadow() fillShadow()\endlink
+    <li> \c PaletteHighlight
+	- use palette() . \link QColorGroup::fillHighlight() fillHighlight()\endlink
+    <li> \c PaletteHighlightedText
+	- use palette() . \link QColorGroup::fillHighlightedText() fillHighlightedText()\endlink
     <li> \c NoBackground
 	- no color or pixmap is used - the paintEvent() must completely
 	    cover the drawing area.  This can help avoid flicker.
   </ul>
+
+  The fill functions of the colorgroup returns \link QBrush
+  Brushes\endlink, which may be either a plain color or a pixmap.
 
   If setBackgroundPixmap() or setBackgroundColor() is called, the
   mode will be one of:
@@ -1564,7 +1579,6 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
   </ul>
 
   These values may not be used as parameters to setBackgroundMode().
-
   \define QWidget::BackgroundMode
   For most widgets the default (PaletteBackground, normally
   gray) suffices, but some need to use PaletteBase (the
@@ -1729,16 +1743,16 @@ const QColorGroup &QWidget::colorGroup() const
 /*!
   \fn const QPalette &QWidget::palette() const
   Returns the widget palette.
-  
+
   As long as no special palette has been set, this is either a special
   palette for the widget class, the palette of the parent widget or
   the default application palette.
-  
+
   \sa setPalette(), colorGroup(), QApplication::palette()
 */
 
 const QPalette &QWidget::palette() const
-{ 
+{
     if (!paletteState){
 	QWidget* that = (QWidget*)this;
 	that->pal = *QApplication::palette( that );
@@ -1786,12 +1800,12 @@ void QWidget::setPalette( const QPalette &p )
 
 
 /*!
-  
+
   Like setPalette(const QPalette&) but has an additional flag to
   indicate whether the palette should be fix for the widget. Fixed
   means that QApplication::setPalette() will not touch the current
   setting. This Function calls setPalette(const QPalette&).
-  
+
 */
 void QWidget::setPalette( const QPalette &p, bool fixed )
 {
@@ -1830,13 +1844,13 @@ void QWidget::paletteChange( const QPalette & )
   As long as no special font has been set, this is either a special
   font for the widget class, the font of the parent widget or
   the default application font.
-  
+
   \sa setFont(), fontInfo(), fontMetrics(), QApplication::font()
 */
 
 
 const QFont &QWidget::font() const
-{ 
+{
     if (!fontState) {
 	QWidget* that = (QWidget*)this;
 	that->fnt = *QApplication::font( that );
@@ -1845,7 +1859,7 @@ const QFont &QWidget::font() const
 	    that->fnt = that->parentWidget()->font();
     }
 	
-    return fnt; 
+    return fnt;
 }
 
 
@@ -1891,12 +1905,12 @@ void QWidget::setFont( const QFont &font )
 }
 
 /*!
-  
+
   Like setFont(const QFont&) but has an additional flag to
   indicate whether the font should be fix for the widget. Fixed
   means that QApplication::setFont() will not touch the current
   setting. This Function calls setFont(const QFont&).
-  
+
 */
 void QWidget::setFont( const QFont &font, bool fixed )
 {
