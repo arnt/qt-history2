@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#196 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#197 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1274,6 +1274,13 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( type >= 0 )
 	    sn_activate_fd( wParam, type );
     } else if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
+	if ( popupWidgets ) {			// in popup mode
+	    POINT curPos;
+	    GetCursorPos( &curPos );
+	    QWidget* w = QApplication::widgetAt(curPos.x, curPos.y);
+	    if (w && w->testWFlags(WType_Popup))
+		widget = (QETWidget*)w;
+	}
 	if ( widget->isEnabled() &&
 	     message == WM_LBUTTONDOWN &&
 	     (widget->focusPolicy() & QWidget::ClickFocus) )
@@ -1545,7 +1552,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 	top->setActiveWindow();
 	block_event = TRUE;
     }
-    
+
     return !block_event;
 }
 
@@ -1932,9 +1939,9 @@ static int translateButtonState( int s, int type, int button )
     if ( GetKeyState(VK_MENU) < 0 )
 	bst |= QMouseEvent::AltButton;
 
-    // Translate from Windows-style "state after event" 
+    // Translate from Windows-style "state after event"
     // to X-style "state before event"
-    if ( type == QEvent::MouseButtonPress || 
+    if ( type == QEvent::MouseButtonPress ||
 	 type == QEvent::MouseButtonDblClick )
 	bst &= ~button;
     else if ( type == QEvent::MouseButtonRelease )
