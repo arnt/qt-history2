@@ -10,21 +10,33 @@ CODEBASE=http://www.trolltech.com/demos/simpleax.cab>
 [Object not available! Did you forget to build and register the server?]
 </object>
 
-<form ID="form">
-    <INPUT TYPE="BUTTON" VALUE="About..." onClick="QSimpleAX.about()"><br>
-    <INPUT TYPE="EDIT" ID="TextEdit" VALUE="Enter Text" onKeyUp="setText()"><br>
-    <INPUT TYPE="EDIT" ID="NumberEdit" VALUE="Enter Number" onKeyUp="setValue()"><br>
-</form>
+<FORM>
+    <INPUT TYPE="BUTTON" VALUE="About..." onClick="QSimpleAX.about()">
+</FORM>
+
+<object ID="Calendar" CLASSID="CLSID:8E27C92B-1264-101C-8A2F-040224009C02">
+[Standard Calendar control not available!]
+    <PARAM NAME="day" VALUE="1">
+</object>
+
+<FORM>
+    <INPUT TYPE="BUTTON" VALUE="Today" onClick="Calendar.Today()">
+</FORM>
+
+<SCRIPT LANGUAGE=VBScript>
+Sub Calendar_Click()
+    MsgBox( "Calendar Clicked!" )
+End Sub
+
+Sub QSimpleAX_TextChanged( str )
+    document.title = str
+End Sub
+</SCRIPT>
 
 <SCRIPT LANGUAGE=JavaScript>
-function setText()
+function QSimpleAX::ValueChanged( Newvalue )
 {
-    QSimpleAX.text = form.TextEdit.value
-}
-
-function setValue()
-{
-    QSimpleAX.value = form.NumberEdit.value
+    Calendar.Day = Newvalue;
 }
 </SCRIPT>
 \endraw
@@ -35,26 +47,30 @@ function setValue()
   \title A simple ActiveQt control (executable)
 
 
-  The ActiveX control in this example is a simple QWidget subclass
-  displaying some data. It provides a signal/slot/property interface 
-  to change the data and to send notifications of property changes,
-  and uses the default QAxFactory through the QAXFACTORY_DEFAULT macro.
+  The ActiveX control in this example is a layouted QWidget
+  with a QSlider, a QLCDNumber and a QLineEdit.
+  It provides a signal/slot/property interface to change the
+  values of the slider and the line edit, and to get notified
+  of any property changes.
+
+  It demonstrates the use of QAxBindable::requestPropertyChange()
+  and QAxBindable::propertyChanged(), and the use of the default
+  QAxFactory through the QAXFACTORY_DEFAULT macro.
 
   \quotefile simple/main.cpp
 
-  The Qt implementation of QWidget providing the ActiveX control for 
-  this example is straight forward:
+  The Qt implementation of the ActiveX for this example is
   \skipto class QSimpleAX
   \printto #include
+
+  The control is exported using the default QAxFactory
   \skipto QAXFACTORY
+  \printto int main
 
-  \printto )
-  The control is exported using the default QAxFactory.
-
-  Note that even though the example is an out-of-process server
-  there is is no implementation of a \c main function. This is because
-  ActiveQt provides a default implementation of \c main that is used if
-  the application itself doesn't provide one.
+  The implementation of \c main returns an error code when 
+  \c QAxFactory::isServer() returns FALSE, otherwise a QApplication
+  object is created and the event loop entered.
+  \printto }
 
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 
@@ -65,18 +81,21 @@ function setValue()
   The \link qaxserver-demo-simple.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
 
+  The simple ActiveX control is embedded using the \c <object> tag.
   \quotefile simple/simple.doc
   \skipto <object ID
   \printuntil </object>
-  The simple ActiveX control is embedded using the \c <object> tag.
 
+  A simple HTML button is connected to the ActiveQt's about() slot.
   \printuntil </FORM>
-  A simple HTML form is provided to change the properties of the ActiveX.
 
-  \skipto VBScript
-  \printuntil </SCRIPT>
-  \printuntil </SCRIPT>
+  A second ActiveX control - the standard Calendar Control - is instantiated
+  \skipto <object ID
+  \printuntil </object>
 
   Events from the ActiveX controls are handled using both Visual Basic Script
   and JavaScript.
+  \skipto VBScript
+  \printuntil </SCRIPT>
+  \printuntil </SCRIPT>
 */

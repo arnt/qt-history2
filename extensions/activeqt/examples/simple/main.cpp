@@ -11,81 +11,88 @@
 ****************************************************************************/
 
 #include <qapplication.h>
-#include <qaxfactory.h>
-#include <qfontmetrics.h>
+#include <qlayout.h>
+#include <qslider.h>
+#include <qlcdnumber.h>
+#include <qlineedit.h>
 #include <qmessagebox.h>
-#include <qpainter.h>
 
-class QSimpleAX : public QWidget
+#include <qaxbindable.h>
+#include <qaxfactory.h>
+
+class QSimpleAX : public QWidget, public QAxBindable
 {
     Q_OBJECT
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( int value READ value WRITE setValue )
 public:
     QSimpleAX( QWidget *parent = 0, const char *name = 0 )
-    : QWidget( parent, name ), number(0)
+    : QWidget( parent, name )
     {
+	QVBoxLayout *vbox = new QVBoxLayout( this );
+
+	slider = new QSlider( 0, 100, 1, 0, QSlider::Horizontal, this );
+	LCD = new QLCDNumber( 3, this );
+	edit = new QLineEdit( this );
+
+	connect( slider, SIGNAL( valueChanged( int ) ), this, SLOT( setValue(int) ) );
+	connect( edit, SIGNAL(textChanged(const QString&)), this, SLOT(setText(const QString&)) );
+
+	vbox->addWidget( slider );
+	vbox->addWidget( LCD );
+	vbox->addWidget( edit );
     }
 
-    QString text() const
-    {
-	return string;
+    QString text() const 
+    { 
+	return edit->text(); 
     }
     int value() const
     {
-	return number;
-    }
-
-    QSize sizeHint() const
-    {
-	QFontMetrics fm(font());
-	int w = QMAX(fm.width(string), fm.width(QString::number(number))) + 10;
-	int h = 2*fm.height() + 6;
-	return QSize(w,h);
+	return slider->value();
     }
 
 signals:
+    void someSignal();
     void valueChanged(int);
     void textChanged(const QString&);
 
 public slots:
+    void setText( const QString &string )
+    {
+	if ( !requestPropertyChange( "text" ) )
+	    return;
+
+	edit->blockSignals( TRUE );
+	edit->setText( string );
+	edit->blockSignals( FALSE );
+	emit someSignal();
+	emit textChanged( string );
+
+	propertyChanged( "text" );
+    }
     void about()
     {
 	QMessageBox::information( this, "About QSimpleAX", "This is a Qt widget, and this slot has been\n"
 							  "called through ActiveX/OLE automation!" );
     }
-    void setText( const QString &t )
-    {
-	string = t;
-	repaint();
-
-	updateGeometry();
-	emit textChanged( string );
-    }
     void setValue( int i )
     {
-	number = i;
-	repaint();
-
-	updateGeometry();
+	if ( !requestPropertyChange( "value" ) )
+	    return;
+	slider->blockSignals( TRUE );
+	slider->setValue( i );
+	slider->blockSignals( FALSE );
+	LCD->display( i );
 	emit valueChanged( i );
-    }
 
-protected:
-    void paintEvent(QPaintEvent *e)
-    {
-	QPainter p(this);
-	QFontMetrics fm(font());
-
-	int y = fm.height() + 3;
-	p.drawText(5, y, string);
-	y += fm.lineSpacing();
-	p.drawText(5, y, QString::number(number));
+	propertyChanged( "value" );
     }
 
 private:
-    QString string;
-    int number;
+    QSlider *slider;
+    QLCDNumber *LCD;
+    QLineEdit *edit;
 };
 
 #include "main.moc"
