@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#41 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#42 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#42 $");
 
 
 /*!
@@ -615,7 +615,7 @@ int QFile::writeBlock( const char *p, uint len )
   readLine() for files that have been opened with the \c IO_Raw
   flag.
 
-  \sa readBlock()
+  \sa readBlock(), QTextStream::readLine()
 */
 
 int QFile::readLine( char *p, uint maxlen )

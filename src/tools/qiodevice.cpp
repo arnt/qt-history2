@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#30 $
 **
 ** Implementation of QIODevice class
 **
@@ -11,7 +11,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#30 $");
 
 
 /*!
@@ -436,13 +436,12 @@ bool QIODevice::atEnd() const
 
 /*!
   Reads a line of text, up to \e maxlen bytes including a terminating
-  \0.  If there is a newline at the end if the line, it is not
-  stripped.
+  \0.  If there is a newline at the end if the line, it is not stripped.
 
   This virtual function can be reimplemented much more efficiently by
   the most subclasses.
 
-  \sa readBlock()
+  \sa readBlock(), QTextStream::readLine()
 */
 
 int QIODevice::readLine( char *data, uint maxlen )
