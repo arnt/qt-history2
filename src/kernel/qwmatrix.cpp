@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#3 $
 **
 ** Implementation of QWMatrix class
 **
@@ -19,7 +19,7 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#3 $";
 #endif
 
 
@@ -203,7 +203,7 @@ static inline int d2i_round( float d )
 }
 
 /*----------------------------------------------------------------------------
-  Transforms \e (x,y)</m> to \e (*tx,*ty), using the formulae:
+  Transforms \e (x,y) to \e (*tx,*ty), using the formulae:
 
   \code
     *tx = m11*x + m21*y + dx
