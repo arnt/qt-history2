@@ -47,7 +47,7 @@ WWW browser supporting the same protocol.
 	<tt>extensions/nsplugin/src</tt> directory of your Qt distribution.
 	This produces a static library to be linked with your plugin code.
  <li>Read the <a href="annotated.html">plugin class documentation</a>, and
-	examine the <a href="examples.html">example plugins</a>.
+	examine the <a href="nsplugin-examples.html">example plugins</a>.
  <li>Do most of your development as a stand-alone Qt application - debugging
 	Netscape Plugins is cumbersome.  You may want to use <tt>signal(2)</tt>
 	in your plugin to enable core-dumps if your browser disables them.

@@ -1,0 +1,14 @@
+/*! \page mainlyXt-editor-example.html
+
+  \ingroup xt-motif-examples  
+  \title Editors in an Xt form
+
+  This example shows two simple text editors, with most of the
+  program written in Xt.  One editor is a Qt QMultiLineEdit, the
+  other is an Athena Widgets text widget.  They are bound together
+  in an Xt form widget.
+  <hr>
+  Implementation:
+
+  \include mainlyXt/editor.cpp
+*/

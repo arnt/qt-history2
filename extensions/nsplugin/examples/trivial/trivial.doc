@@ -1,0 +1,22 @@
+/*! \page trivial-nsplugin-example.html
+  \ingroup nsplugin-examples
+
+  \title Trivial Example
+
+  This example is trivial, and thus useful for
+  investigating problems you might have installing the
+  extension.
+
+  To build the example, you must first build the
+  <a href=nsplugin.html>Qt Netscape Plugin Extension</a> library.
+  Then type <tt>make</tt> in <tt>extensions/nsplugin/examples/trivial/</tt>
+  and copy the resulting <tt>trivial.so</tt> or <tt>nptrivial.dll</tt>
+  to the Plugins directory of your WWW browser.
+
+  <EMBED TYPE=trivial/very WIDTH=100 HEIGHT=100>
+
+  <hr>
+  Implementation:
+
+  \include trivial/trivial.cpp
+*/

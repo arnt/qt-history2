@@ -487,7 +487,7 @@ provided.
 <table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
 <tr>
 <th bgcolor=#A2C511 width=100% align=left>
-Qt classes: assorted examples
+Qt base classes: assorted examples
 </th>
 </tr>
 </table>
@@ -508,6 +508,20 @@ Qt modules: assorted examples
 Pages:
 <ul>
 <li> <a href="xml-examples.html">XML examples</a>
+</ul>
+
+<table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
+<tr>
+<th bgcolor=#A2C511 width=100% align=left>
+Qt extensions: assorted examples
+</th>
+</tr>
+</table>
+
+Pages:
+<ul>
+<li> <a href="nsplugin-examples.html">Qt-based plugins for web browsers</a>
+<li> <a href="xt-motif-examples.html">Xt/Motif support extension</a>
 </ul>
 
 <table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
@@ -535,4 +549,27 @@ QAction and QActionGroup classes.
 The following example programs show how to use the 
 Qt XML classes.
 
+*/
+
+/*! \defgroup nsplugin-examples 
+
+\title Qt Plugins for Netscape and InternetExplorer 
+
+The following example programs show how to write plugins 
+that can be used with web browsers supporting the LiveConnect
+protocol.
+
+For more information see the <a href="nsplugin.html">Plugin Howto</a>.
+*/
+
+/*! \defgroup xt-motif-examples 
+
+\title Qt Xt/Motif Support Extension
+
+The following example programs illustrate the use of the Qt Xt/Motif Extension
+assisting in the migration process of old Xt and Motif based code
+to the more comfortable Qt toolkit.
+
+For more information see the <a href="xt.html">Qt Xt/Motif Support
+Extension documentation</a>.
 */
