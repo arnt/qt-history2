@@ -823,20 +823,6 @@ void QTabBar::paintEvent(QPaintEvent *)
 {
     QStylePainter p(this);
 
-    /*
-    QStyleOptionTabWidgetFrame opt1;
-    opt1.init(this);
-    if (QTabWidget *tw = qt_cast<QTabWidget *>(parentWidget())) {
-        if (tw->cornerWidget(Qt::TopLeftCorner) || tw->cornerWidget(Qt::TopRightCorner)) {
-            opt1.rect.setLeft(-(x() + tw->x()));
-            opt1.rect.setWidth(tw->width());
-        }
-
-    }
-    opt1.shape = d->shape;
-    p.drawPrimitive(QStyle::PE_FrameTabBarBase, opt1);
-
-    */
     int selected = -1;
     for (int i = 0; i < d->tabList.count(); ++i) {
         if (i == d->currentIndex) {

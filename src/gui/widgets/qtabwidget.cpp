@@ -577,7 +577,7 @@ void QTabWidget::setUpLayout(bool onlyCheck)
         tabx = qMin(availLength - t.width(), availLength - t.width() - lw + 2) - lcw;
     else
         tabx = qMax(0, lw - 2) + lcw;
-    if (d->pos == Bottom) {
+    if (d->pos == South) {
         taby = availThickness - t.height() - lw;
         stacky = 1;
         // exty = taby - (exth - overlap);
@@ -934,16 +934,13 @@ void QTabWidget::paintEvent(QPaintEvent *)
     }
     opt.rect = d->panelRect;
     p.drawPrimitive(QStyle::PE_FrameTabWidget, opt);
-    if (1 || d->leftCornerWidget || d->rightCornerWidget) {
-        if (d->pos == North) {
-            opt.rect.setTop(opt.rect.top() - 2);
-            opt.rect.setHeight(2);
-        } else if (d->pos == South) {
-            opt.rect.setTop(opt.rect.bottom() + 1);
-            opt.rect.setHeight(2);
-        }
-        p.drawPrimitive(QStyle::PE_FrameTabBarBase, opt);
-    }
+    int tabBarBaseHeight = style()->pixelMetric(QStyle::PM_TabBarBaseHeight, &opt, this);
+    if (d->pos == North)
+        opt.rect.setTop(opt.rect.top() - tabBarBaseHeight);
+    else if (d->pos == South)
+        opt.rect.setTop(opt.rect.bottom() + tabBarBaseHeight - 1);
+    opt.rect.setHeight(tabBarBaseHeight);
+    p.drawPrimitive(QStyle::PE_FrameTabBarBase, opt);
 }
 
 /*!

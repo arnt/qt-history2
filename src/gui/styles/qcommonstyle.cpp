@@ -2617,11 +2617,11 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         break;
 
     case PM_TabBarBaseHeight:
-        ret = 1;
+        ret = 2;
         break;
 
     case PM_TabBarBaseOverlap:
-        ret = 0;
+        ret = 1;
         break;
 
     case PM_TabBarTabHSpace:

@@ -3158,19 +3158,31 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         DrawThemePopupArrow(qt_glb_mac_rect(opt->rect, p), orientation, size, tds, 0, 0);
         break; }
     case QStyle::PE_FrameTabWidget:
-        if (opt->state & QStyle::Style_Bottom) {
-            p->save();
-            // Not great, but I can't seem to get Appearance Manager to flip for me.
-            QPixmap pix(opt->rect.size(), 32);
-            QPainter pixPainter(&pix);
-            qt_mac_set_port(&pixPainter);
-            DrawThemeTabPane(qt_glb_mac_rect(opt->rect, &pixPainter), tds);
-            p->scale(1, -1);
-            p->translate(0, -opt->rect.height());
-            p->drawPixmap(opt->rect, pix);
-            p->restore();
-        } else {
-            DrawThemeTabPane(qt_glb_mac_rect(opt->rect, p), tds);
+        if (const QStyleOptionTabWidgetFrame *twf
+                = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+            QRect wholePane = twf->rect;
+            // we need to draw the whole thing, so add in the height.
+            int baseHeight = q->pixelMetric(QStyle::PM_TabBarBaseHeight, twf, w);
+            int overlap = q->pixelMetric(QStyle::PM_TabBarBaseOverlap, twf, w);
+            if (twf->shape == QTabBar::RoundedSouth
+                    || twf->shape == QTabBar::TriangularSouth) {
+                p->save();
+                // Not great, but I can't seem to get Appearance Manager to flip for me.
+                wholePane.setHeight(baseHeight + wholePane.height() - overlap - 1);
+                QPixmap pix(wholePane.size(), 32);
+                QPainter pixPainter(&pix);
+                qt_mac_set_port(&pixPainter);
+                DrawThemeTabPane(qt_glb_mac_rect(wholePane, &pixPainter), tds);
+                p->scale(1, -1);
+                p->translate(0, -wholePane.height());
+                p->drawPixmap(wholePane, pix);
+                p->restore();
+            } else {
+                wholePane.setTop(wholePane.top() + overlap - baseHeight );
+                wholePane.setHeight(baseHeight + wholePane.height());
+                qt_mac_set_port(p);
+                DrawThemeTabPane(qt_glb_mac_rect(wholePane, p), tds);
+            }
         }
         break;
     default:
@@ -4502,7 +4514,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         ret = 0;
         break;
     case PM_TabBarBaseHeight:
-        ret = 8;
+        ret = 7;
         break;
     case PM_TabBarTabOverlap:
         GetThemeMetric(kThemeMetricTabOverlap, &ret);
