@@ -46,7 +46,7 @@ void MainWindow::init()
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
-    dw = new QDockWindow;
+    dw = new QDockWindow( QDockWindow::InDock, this );
     helpDock = new HelpDialog( dw, this, browser );
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
