@@ -1689,7 +1689,7 @@ QLayoutItem *QBoxLayout::itemAt(int idx) const
 */
 QLayoutItem *QBoxLayout::takeAt(int idx)
 {
-    if ((uint)idx >= data->list.count())
+    if (idx >= data->list.count())
         return 0;
     QBoxLayoutItem *b = data->list.takeAt(idx);
     QLayoutItem *item = b->item;
