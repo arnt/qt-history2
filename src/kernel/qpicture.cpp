@@ -45,7 +45,9 @@
 #include "qfile.h"
 #include "qdatastream.h"
 #include "qpaintdevicemetrics.h"
-
+#ifndef QT_NO_SVG
+#include "../xml/qsvgdevice_p.h"
+#endif
 
 /*!
   \class QPicture qpicture.h
@@ -195,11 +197,34 @@ void QPicture::setData( const char* data, uint size )
   Loads a picture from the file specified by \e fileName and returns TRUE
   if successful, otherwise FALSE.
 
+  By default, \a file will be interpreted as being of the native QPicture
+  format. Specifying the \a format string is optional and is only needed
+  for importing picture data stored in a different format.
+
+  Currently, the only external format supported is the
+  \link http://www.w3.org/Graphics/SVG/ W3C SVG \endlink format which requires
+  the \link xml.html Qt XML module \endlink. The corresponding \a format
+  string is "svg".
+
   \sa save()
 */
 
-bool QPicture::load( const QString &fileName )
+bool QPicture::load( const QString &fileName, const char *format )
 {
+#ifndef QT_NO_SVG
+    if ( qstrcmp( format, "svg" ) == 0 ) {
+	QSvgDevice svg;
+	if ( !svg.load( fileName ) )
+	    return FALSE;
+ 	QPainter p( this );
+	return svg.play( &p );
+    }
+#endif
+    if ( format ) {
+	qWarning( "QPicture::load: No such picture format: %s", format );
+	return FALSE;
+    }
+
     detach();
     QByteArray a;
     QFile f( fileName );
@@ -213,14 +238,38 @@ bool QPicture::load( const QString &fileName )
 }
 
 /*!
-  Saves a picture to the file specified by \e fileName and returns TRUE
+  Saves a picture to the file specified by \a fileName and returns TRUE
   if successful, otherwise FALSE.
+
+  Specifying the file \a format string is optional. It's not recommended
+  unless you intend to export the picture data for the use in a 3rd party
+  reader. By default the data will be saved in the native QPicture file
+  format.
+
+  Currently, the only external format supported is the
+  \link http://www.w3.org/Graphics/SVG/ W3C SVG \endlink format which requires
+  the \link xml.html Qt XML module \endlink. The corresponding \a format
+  string is "svg".
 
   \sa load()
 */
 
-bool QPicture::save( const QString &fileName )
+bool QPicture::save( const QString &fileName, const char *format )
 {
+#ifndef QT_NO_SVG
+    if ( qstrcmp( format, "svg" ) == 0 ) {
+	QSvgDevice svg;
+	QPainter p( &svg );
+	if ( !play( &p ) )
+	    return FALSE;
+	return svg.save( fileName );
+    }
+#endif
+    if ( format ) {
+	qWarning( "QPicture::save: No such picture format: %s", format );
+	return FALSE;
+    }
+
     QFile f( fileName );
     if ( !f.open( IO_WriteOnly ) )
 	return FALSE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#34 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#35 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -79,7 +79,7 @@ static QSvgTypeMap *qSvgTypeMap=0; // element types
 static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 
 /*!
-  \class QSvgDevice qsvgdevice.h
+  ### class QSvgDevice qsvgdevice.h
 
   \brief The QSvgDevice provides a paint device for SVG vector graphics.
 
@@ -208,7 +208,7 @@ bool QSvgDevice::save( const QString &fileName )
     return TRUE;
 }
 
-/*!  \fn QRect QSvgDevice::boundingRect() const
+/*!  ### fn QRect QSvgDevice::boundingRect() const
   Returns the bounding rectangle of the vector graphic.
  */
 
