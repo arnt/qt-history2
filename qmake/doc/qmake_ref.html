@@ -145,10 +145,24 @@ Example:<pre>
   DISTFILES = CHANGES README
 </pre>
 
+<h4><a name="REQUIRES"></a>REQUIRES</h4>
+This is a special variable processed by qmake, if the contents of this
+variable do not appear in CONFIG by the time this variable is assigned to
+then a minimal makefile will be generated that states what dependancies
+(the values assigned to REQUIRES) were missing.
 
 <h4><a name="HEADERS"></a>HEADERS</h4>
 Defines the header files of the project.
 
+<h4><a name="INTERFACES"></a>INTERFACES</h4>
+Defines the .ui (files see the <a href=eh>designer</a>) to be processed
+through uic before compiling.
+
+<h4><a name="LEXSOURCES"></a>LEXSOURCES</h4>
+Define the files to be processed by lex before compiling.
+
+<h4><a name="YACCSOURCES"></a>YACCSOURCES</h4>
+Define the files to be processed by yacc before compiling.
 
 <h4><a name="INCPATH"></a>INCPATH</h4>
 This variable is generated from <code>INCLUDEPATH</code>. The ';' or ':'
