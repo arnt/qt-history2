@@ -2273,7 +2273,8 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    painter->save();
 	    painter->setClipRegion( reg );
 	    // AlignAuto must be equal to AlignLeft, as we wouldn't get here for BiDi text!
-	    painter->drawText(xoff, yoff, str, len);
+	    if(!(tf & QPainter::DontPrint))
+		painter->drawText(xoff, yoff, str, len);
 	    painter->restore();
 	}
 	return;
