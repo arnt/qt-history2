@@ -2189,7 +2189,7 @@ void QWidget::setBackgroundFromMode()
 	    break;
 	case X11ParentRelative:
 #if defined(Q_WS_X11)
-	    setBackgroundX11Relative();
+	    d->setBackgroundX11Relative();
 #endif
 	    return;
 	}
@@ -2958,7 +2958,7 @@ void QWidget::setFocus()
 #endif
 	qApp->focus_widget = this;
 #if defined(Q_WS_X11)
-	focusInputContext();
+	d->focusInputContext();
 #endif
 
 #if defined(Q_WS_WIN)
@@ -5689,17 +5689,21 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     paint.drawText(p.x(), p.y(), str);
 }
 
+/*! \fn const QColor & QWidget::backgroundColor() const
+  \obsolete  Use paletteBackgroundColor() or eraseColor() instead.
+*/
 
+/*! \fn void QWidget::setBackgroundColor( const QColor &c )
+  \obsolete  Use setPaletteBackgroundColor() or setEraseColor() instead.
+*/
 
+/*! \fn const QPixmap *QWidget::backgroundPixmap() const
+  \obsolete  Use paletteBackgroundPixmap()  or erasePixmap() instead.
+*/
 
-/*!\obsolete  Use paletteBackgroundColor() or eraseColor() instead. */
-const QColor & QWidget::backgroundColor() const { return eraseColor(); }
-/*!\obsolete  Use setPaletteBackgroundColor() or setEraseColor() instead. */
-void QWidget::setBackgroundColor( const QColor &c ) { setEraseColor( c ); }
-/*!\obsolete  Use paletteBackgroundPixmap()  or erasePixmap() instead. */
-const QPixmap *QWidget::backgroundPixmap() const { return erasePixmap(); }
-/*!\obsolete  Use setPaletteBackgroundPixmap() or setErasePixmap() instead. */
-void QWidget::setBackgroundPixmap( const QPixmap &pm ) { setErasePixmap( pm ); }
+/*! void QWidget::setBackgroundPixmap( const QPixmap &pm )
+  \obsolete  Use setPaletteBackgroundPixmap() or setErasePixmap() instead.
+*/
 
 
 // documentation in qdesktopwidget_win.cpp

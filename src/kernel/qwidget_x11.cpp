@@ -680,7 +680,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
         // destroy the context here.  if we are reparenting back to toplevel,
         // then we will have another context created, otherwise we will
         // use our new toplevel's context
-        destroyInputContext();
+        d->destroyInputContext();
     }
 
     if ( isTopLevel() || !parent ) // we are toplevel, or reparenting to toplevel
@@ -744,12 +744,12 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
 
     // re-register dnd
     if (oldparent)
-	oldparent->checkChildrenDnd();
+	oldparent->d->checkChildrenDnd();
 
     if ( accept_drops )
 	setAcceptDrops( TRUE );
     else {
-	checkChildrenDnd();
+	d->checkChildrenDnd();
 	d->topData()->dnd = 0;
 	qt_dnd_enable(this, (d->extra && d->extra->children_use_dnd));
     }
@@ -826,7 +826,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
 	QTLWExtra *topdata = tlw->d->topData();
 
 	// trigger input context creation if it hasn't happened already
-	createInputContext();
+	d->createInputContext();
 	QInputContext *qic = (QInputContext *) topdata->xic;
 
 	if ( qt_xim && qic ) {
@@ -913,9 +913,9 @@ void QWidget::setBackgroundEmpty()
 }
 
 
-void QWidget::setBackgroundX11Relative()
+void QWidgetPrivate::setBackgroundX11Relative()
 {
-    XSetWindowBackgroundPixmap( x11Display(), winId(), ParentRelative );
+    XSetWindowBackgroundPixmap( q->x11Display(), q->winId(), ParentRelative );
 }
 
 void QWidget::setCursor( const QCursor &cursor )
@@ -1301,7 +1301,7 @@ void QWidget::setActiveWindow()
 
 #ifndef QT_NO_XIM
 	// trigger input context creation if it hasn't happened already
-	createInputContext();
+	d->createInputContext();
 
 	if (tlw->d->topData()->xic) {
 	    QInputContext *qic = (QInputContext *) tlw->d->topData()->xic;
@@ -2251,7 +2251,7 @@ void QWidgetPrivate::createTLSysExtra()
 
 void QWidgetPrivate::deleteTLSysExtra()
 {
-    q->destroyInputContext();
+    destroyInputContext();
 }
 
 /*
@@ -2260,9 +2260,9 @@ void QWidgetPrivate::deleteTLSysExtra()
    for widgets that are reparented and don't have DND enabled, BUT *DO* have
    children (or children of children ...) with DND enabled...
 */
-void QWidget::checkChildrenDnd()
+void QWidgetPrivate::checkChildrenDnd()
 {
-    QWidget *widget = this;
+    QWidget *widget = q;
     while (widget && !widget->isDesktop()) {
 	// note: this isn't done for the desktop widget
 	bool children_use_dnd = FALSE;
@@ -2313,7 +2313,7 @@ void QWidget::setAcceptDrops( bool on )
 		clearWState( WState_DND );
 	}
 
-	checkChildrenDnd();
+	d->checkChildrenDnd();
     }
 }
 
@@ -2469,9 +2469,9 @@ void QWidget::updateFrameStrut() const
 }
 
 
-void QWidget::createInputContext()
+void QWidgetPrivate::createInputContext()
 {
-    QWidget *tlw = topLevelWidget();
+    QWidget *tlw = q->topLevelWidget();
     QTLWExtra *topdata = tlw->d->topData();
 
 #ifndef QT_NO_XIM
@@ -2489,7 +2489,7 @@ void QWidget::createInputContext()
 }
 
 
-void QWidget::destroyInputContext()
+void QWidgetPrivate::destroyInputContext()
 {
 #ifndef QT_NO_XIM
     QInputContext *qic = (QInputContext *) d->extra->topextra->xic;
@@ -2511,7 +2511,7 @@ void QWidget::resetInputContext()
 	QTLWExtra *topdata = tlw->d->topData();
 
 	// trigger input context creation if it hasn't happened already
-	createInputContext();
+	d->createInputContext();
 
 	if (topdata->xic) {
 	    QInputContext *qic = (QInputContext *) topdata->xic;
@@ -2522,10 +2522,10 @@ void QWidget::resetInputContext()
 }
 
 
-void QWidget::focusInputContext()
+void QWidgetPrivate::focusInputContext()
 {
 #ifndef QT_NO_XIM
-    QWidget *tlw = topLevelWidget();
+    QWidget *tlw = q->topLevelWidget();
     QTLWExtra *topdata = tlw->d->topData();
 
     // trigger input context creation if it hasn't happened already

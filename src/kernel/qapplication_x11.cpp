@@ -617,7 +617,7 @@ void QApplication::close_xim()
     qt_xim = 0;
     QWidgetList list = qApp->topLevelWidgets();
     for (int i = 0; i < list.size(); ++i)
-	list.at(i)->destroyInputContext();
+	list.at(i)->d->destroyInputContext();
 #endif // QT_NO_XIM
 }
 
@@ -3550,7 +3550,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	     event->xfocus.detail != NotifyInferior &&
 	     event->xfocus.detail != NotifyNonlinear )
 	    break;
-	widget->createInputContext();
+	widget->d->createInputContext();
 	setActiveWindow( widget );
 	if ( qt_focus_model == FocusModel_PointerRoot ) {
 	    // We got real input focus from somewhere, but we were in PointerRoot

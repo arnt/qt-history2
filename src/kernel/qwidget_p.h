@@ -152,6 +152,14 @@ public:
     void createTLSysExtra();
     void deleteTLSysExtra();
 
+#if defined(Q_WS_X11)
+    void createInputContext();
+    void destroyInputContext();
+    void focusInputContext();
+    void checkChildrenDnd();
+    void setBackgroundX11Relative();
+#endif
+
     QWExtra *extra;
 };
 

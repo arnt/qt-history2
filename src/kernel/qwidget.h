@@ -266,12 +266,14 @@ public:
 
     void setMask( const QBitmap & );
     void setMask( const QRegion & );
-    void		clearMask();
+    void clearMask();
 
-    const QColor &	backgroundColor() const; // obsolete, use eraseColor()
-    void setBackgroundColor( const QColor & ); // obsolete, use setEraseColor()
-    const QPixmap *	backgroundPixmap() const; // obsolete, use erasePixmap()
-    void setBackgroundPixmap( const QPixmap & ); // obsolete, use setErasePixmap()
+#ifndef QT_NO_COMPAT
+    const QColor &backgroundColor() const;
+    void setBackgroundColor( const QColor & );
+    const QPixmap *backgroundPixmap() const;
+    void setBackgroundPixmap( const QPixmap & );
+#endif
 
 public slots:
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -566,12 +568,7 @@ protected:
     explicit QWidget( QWidgetPrivate *d, QWidget* parent, const char* name, WFlags f);
 private:
     void	 setFontSys( QFont *f = 0 );
-#if defined(Q_WS_X11)
-    void	 createInputContext();
-    void	 destroyInputContext();
-    void	 focusInputContext();
-    void	 checkChildrenDnd();
-#elif defined(Q_WS_MAC)
+#if defined(Q_WS_MAC)
     uint    own_id : 1, macDropEnabled : 1;
     EventHandlerRef window_event;
     //mac event functions
@@ -611,9 +608,6 @@ private:
     void         setBackgroundModeDirect( BackgroundMode );
     void         setBackgroundEmpty();
     void	 updateFrameStrut() const;
-#if defined(Q_WS_X11)
-    void         setBackgroundX11Relative();
-#endif
 
     WId		 winid;
     uint	 widget_state;
@@ -898,6 +892,13 @@ inline bool QWidget::isInputMethodEnabled() const
 {
     return (bool)im_enabled;
 }
+
+#ifndef QT_NO_COMPAT
+inline const QColor & QWidget::backgroundColor() const { return eraseColor(); }
+inline void QWidget::setBackgroundColor( const QColor &c ) { setEraseColor( c ); }
+inline const QPixmap *QWidget::backgroundPixmap() const { return erasePixmap(); }
+inline void QWidget::setBackgroundPixmap( const QPixmap &pm ) { setErasePixmap( pm ); }
+#endif
 
 #define QWIDGETSIZE_MAX 32767
 
