@@ -31,6 +31,7 @@ public:
     QWMatrix();
     QWMatrix( double m11, double m12, double m21, double m22,
 	      double dx, double dy );
+    QWMatrix(const QWMatrix &matrix);
 
     void	setMatrix( double m11, double m12, double m21, double m22,
 			   double dx,  double dy );
@@ -75,6 +76,8 @@ public:
     QRegion operator * (const QRect & ) const;
     QRegion operator * (const QRegion & ) const;
     QPointArray operator *  ( const QPointArray &a ) const;
+
+    QWMatrix &operator=(const QWMatrix &);
 
     enum TransformationMode {
 	Points, Areas

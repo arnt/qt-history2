@@ -253,6 +253,13 @@ QWMatrix::QWMatrix( double m11, double m12, double m21, double m22,
 }
 
 
+/*! Constructs a matrix with the elements from the matrix \a matrix
+ */
+QWMatrix::QWMatrix(const QWMatrix &matrix)
+{
+    *this = matrix;
+}
+
 /*!
     Sets the matrix elements to the specified values, \a m11, \a m12,
     \a m21, \a m22, \a dx and \a dy.
@@ -974,6 +981,17 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
     QWMatrix result = m1;
     result *= m2;
     return result;
+}
+
+QWMatrix &QWMatrix::operator=(const QWMatrix &matrix)
+{
+    _m11 = matrix._m11;
+    _m12 = matrix._m12;
+    _m21 = matrix._m21;
+    _m22 = matrix._m22;
+    _dx  = matrix._dx;
+    _dy  = matrix._dy;
+    return *this;
 }
 
 /*****************************************************************************
