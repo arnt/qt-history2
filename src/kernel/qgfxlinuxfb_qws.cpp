@@ -374,13 +374,13 @@ bool QLinuxFbScreen::initDevice()
 	} else {
 	    if ( grayscale ) {
 		// Build greyscale palette
-		unsigned int i;
+		int i;
 		for(i=0;i<screencols;i++) {
 		    int bval = screencols == 256 ? i : (i << 4);
 		    ushort val = (bval << 8) | bval;
-		    cmap.red[i] = bval;
-		    cmap.green[i] = bval;
-		    cmap.blue[i] = bval;
+		    cmap.red[i] = val;
+		    cmap.green[i] = val;
+		    cmap.blue[i] = val;
 		    cmap.transp[i] = 0;
 		    screenclut[i] = qRgb(bval,bval,bval);
 		}
