@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qintcache.doc,v 2.2 1999/08/17 09:25:59 paul Exp $
+** $Id: qintcache.doc,v 2.3 1999/10/21 10:04:34 aavit Exp $
 **
 ** QIntCache and QIntCacheIterator class documentation
 **
@@ -163,13 +163,15 @@
 /*!
   \fn bool QIntCache::insert( long k, const type *d, int c, int p )
 
-  Inserts the item \a d into the cache with key \a k, cost \c (default
-  1) and priority \a p (default 0).  Returns TRUE if it succeeds and
-  FALSE if it fails.
+  Inserts the item \a d into the cache with key \a k and cost \a c
+  (default 1).  Returns TRUE if it succeeds and FALSE if it fails.
 
   The cache's size is limited, and if the total cost is too high,
-  QIntCache will remove old, least-used items until there is room for this
-  new item.
+  QIntCache will remove old, least-used items until there is room for
+  this new item.
+
+  The parameter \a p is internal and should be left at the default
+  value (0).
 
   \warning If this function returns FALSE, you must delete \a d
   yourself.  Additionally, be very careful about using \a d after

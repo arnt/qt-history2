@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.17 1999/08/10 16:35:32 paul Exp $
+** $Id: qcache.doc,v 2.18 1999/10/21 10:04:33 aavit Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -174,13 +174,15 @@
 /*!
   \fn bool QCache::insert( const QString &k, const type *d, int c, int p )
 
-  Inserts the item \a d into the cache with key \a k, cost \c and
-  priority \a p, and returns TRUE if it is successful and FALSE if it
-  fails.
+  Inserts the item \a d into the cache with key \a k and cost \a
+  c. Returns TRUE if it is successful and FALSE if it fails.
 
   The cache's size is limited, and if the total cost is too high,
   QCache will remove old, least-used items until there is room for this
   new item.
+
+  The parameter \a p is internal and should be left at the default
+  value (0).
 
   \warning If this function returns FALSE, you must delete \a d
   yourself.  Additionally, be very careful about using \a d after

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#53 $
 **
 ** Implementation of QPrinter class
 **
@@ -80,7 +80,9 @@
   Once you've started printing, newPage() is essential.  You will
   probably also need to look at the QPaintDeviceMetrics for the
   printer (see the <a href="simple-application.html#printer">simple
-  print function</a> in the Application walk-through).  If you want
+  print function</a> in the Application walk-through). Note that the
+  paint device metrics are only valid after the QPrinter has been set
+  up; i.e. after setup() has returned successfully. If you want
   high-quality printing with accurate margins, setFullPage( TRUE ) is
   a must.
 
