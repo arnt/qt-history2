@@ -395,6 +395,7 @@ char **PluginSDK_QApplication::argv={ 0 };
 #ifdef _WS_X11_
 static void np_set_timer( int interval )
 {
+qDebug("set timer %dms",interval);
     // Ensure we only have one timeout in progress - QApplication is
     // computing the one amount of time we need to wait.
     if ( qt_np_timerid ) {
@@ -402,10 +403,15 @@ static void np_set_timer( int interval )
     }
     qt_np_timerid = XtAppAddTimeOut(appcon, interval,
 	(XtTimerCallbackProc)qt_np_timeout, 0);
+    /*
+    qt_np_timerid = XtAddTimeOut(interval,
+	(XtTimerCallbackProc)qt_np_timeout, 0);
+    */
 }
 
 static void np_do_timers( void*, void* )
 {
+qDebug("do timers");
     qt_np_timerid = 0; // It's us, and we just expired, that's why we are here.
 
     qt_activate_timers();
@@ -519,8 +525,10 @@ NPP_Shutdown(void)
 	    // We are the last Qt-based plugin to leave
 	    removeXtEventFilters(Safe);
 	    removeXtEventFilters(Dangerous);
-	    if (qt_np_timerid) XtRemoveTimeOut( qt_np_timerid );
-	    qt_np_timerid = 0;
+	    if (qt_np_timerid) {
+		XtRemoveTimeOut( qt_np_timerid );
+		qt_np_timerid = 0;
+	    }
 	    qt_np_leave_cb = 0;
 	}
 	delete piApp;
@@ -927,7 +935,6 @@ NPP_URLNotify(NPP instance,
               NPReason reason,
               void* notifyData)
 {
-    debug("NPP_URLNotify(%s,%d)",url,reason);
     if (instance != NULL) {
         QNPInstance::Reason r;
         switch (reason) {
@@ -1505,7 +1512,9 @@ void QNPInstance::postURL(const char* url, const char* window,
 */
 void QNPInstance::getURLNotify(const char* url, const char* window, void*data)
 {
+#ifdef _WS_WIN_ // Only on Windows?
     NPN_GetURLNotify( pi->npp, url, window, data );
+#endif
 }
 
 /*!

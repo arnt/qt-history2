@@ -115,6 +115,16 @@ void qt_np_remove_timeoutcb( SameAsXtTimerCallbackProc cb )
     }
 }
 
+void qt_np_enable_timers()
+{
+    if ( islist ) {
+	timeval *tm = qt_wait_timer();
+	if (tm) {
+	    int interval = (int)QMIN(tm->tv_sec,INT_MAX/1000)*1000 + (int)tm->tv_usec/1000;
+	    qt_np_set_timer(interval);
+	}
+    }
+}
 
 int qt_event_handler( XEvent* event )
 {
@@ -135,14 +145,8 @@ int qt_event_handler( XEvent* event )
 		XLeaveWindowEvent* e = (XLeaveWindowEvent*)event;
 		qt_np_leave_cb(e);
 	    }
-	if ( islist ) {
-	    qt_activate_timers();
-	    timeval *tm = qt_wait_timer();
-	    if (tm) {
-		int interval = (int)QMIN(tm->tv_sec,INT_MAX/1000)*1000 + (int)tm->tv_usec/1000;
-		qt_np_set_timer(interval);
-	    }
-	}
+	qt_activate_timers();
+	qt_np_enable_timers();
 	qt_reset_color_avail();
 	QApplication::sendPostedEvents();
 	// send the event to Xt in any case (think about XGrabPointer with ownerEvents TRUE

@@ -3262,6 +3262,8 @@ int qStartTimer( int interval, QObject *obj )
     t->timeout = currentTime + t->interval;
     t->obj = obj;
     insertTimer( t );				// put timer in list
+    void qt_np_enable_timers();			// in qnpsupport.cpp
+    qt_np_enable_timers();
     return id;
 }
 
