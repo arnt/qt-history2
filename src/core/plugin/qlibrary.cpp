@@ -60,7 +60,7 @@
     the same physical library. Once loaded, libraries remain in memory
     until the application terminates. You can attempt to unload a
     library using unload(), but if other instances of QLibrary are
-    using the same library, the call will \e block, and unloading will
+    using the same library, the call will fail, and unloading will
     only happen when every instance has called unload().
 
     A typical use of QLibrary is to resolve an exported symbol in a
@@ -544,8 +544,8 @@ bool QLibrary::load()
     shouldn't normally need to call this function.
 
     If other instances of QLibrary are using the same library, the
-    call will \e block, and unloading will only happen when every
-    instance has called unload().
+    call will fail, and unloading will only happen when every instance
+    has called unload().
 
     \sa resolve(), load()
 */
@@ -586,9 +586,6 @@ QLibrary::QLibrary(QObject *parent)
     QLibrary will automatically look for the file with the appropriate
     suffix in accordance with the platform, e.g. ".so" on Unix,
     ".dylib" on Mac OS X, and ".dll" on Windows. (See \l{fileName}.)
-
-    To make use of the library you must resolve() one or more of its
-    symbols.
  */
 QLibrary::QLibrary(const QString& fileName, QObject *parent)
     :QObject(parent), d(0), did_load(false)

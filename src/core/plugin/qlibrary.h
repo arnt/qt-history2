@@ -24,7 +24,7 @@ class QLibraryPrivate;
 class Q_CORE_EXPORT QLibrary : public QObject
 {
     Q_OBJECT
-    QDOC_PROPERTY(QString fileName READ fileName WRITE setFileName)
+    Q_PROPERTY(QString fileName READ fileName WRITE setFileName)
 public:
     QLibrary(QObject *parent = 0);
     QLibrary(const QString& fileName, QObject *parent = 0);
