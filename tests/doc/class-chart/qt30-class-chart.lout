@@ -532,26 +532,26 @@ Apple Roman
     @VHCurveArrow from { QT } to { QTHREAD }
     @VHCurveArrow from { QT } to { QTOOLTIP }
     @VHCurveArrow from { QT } to { QWHATSTHIS }
-    @RVLCurveArrow from { QEVENT } to { QCHILDEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QCLOSEEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QDROPEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QFOCUSEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QHIDEEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QIMEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QKEYEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QMOUSEEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QMOVEEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QPAINTEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QRESIZEEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QSHOWEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QTIMEREVENT } bias { 1.5f }
-    @RVLCurveArrow from { QEVENT } to { QWHEELEVENT } bias { 1.5f }
-    @RVLCurveArrow from { QCANVASITEM } to { QCANVASPOLYGONALITEM } bias { 1.5f }
-    @RVLCurveArrow from { QCANVASITEM } to { QCANVASSPRITE } bias { 1.5f }
-    @RVLCurveArrow from { QCANVASITEM } to { QCANVASTEXT } bias { 1.5f }
-    @LVRCurveArrow from { QCANVASPOLYGONALITEM } to { QCANVASELLIPSE } bias { 1.5f }
-    @LVRCurveArrow from { QCANVASPOLYGONALITEM } to { QCANVASLINE } bias { 1.5f }
-    @LVRCurveArrow from { QCANVASPOLYGONALITEM } to { QCANVASPOLYGON } bias { 1.5f }
+    @RVLCurveArrow from { QEVENT } to { QCHILDEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QCLOSEEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QDROPEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QFOCUSEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QHIDEEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QIMEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QKEYEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QMOUSEEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QMOVEEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QPAINTEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QRESIZEEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QSHOWEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QTIMEREVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QEVENT } to { QWHEELEVENT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QCANVASITEM } to { QCANVASPOLYGONALITEM } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QCANVASITEM } to { QCANVASSPRITE } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QCANVASITEM } to { QCANVASTEXT } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QCANVASPOLYGONALITEM } to { QCANVASELLIPSE } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QCANVASPOLYGONALITEM } to { QCANVASLINE } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QCANVASPOLYGONALITEM } to { QCANVASPOLYGON } bias { 1.5f } zindent { 0.2f }
     @Arrow from { QOBJECT } to { QWIDGET }
     @VHCurveArrow from { QOBJECT } to { QACCEL }
     @VHCurveArrow from { QOBJECT } to { QACTION }
@@ -598,93 +598,93 @@ Apple Roman
     @VHCurveArrow from { QWIDGET } to { QTABBAR }
     @VHCurveArrow from { QWIDGET } to { QTABWIDGET }
     @VHCurveArrow from { QWIDGET } to { QWORKSPACE }
-    @LVRCurveArrow from { QDOMNODE } to { QDOMATTR } bias { 1.5f }
-    @LVRCurveArrow from { QDOMNODE } to { QDOMCHARACTERDATA } bias { 1.5f }
-    @LVRCurveArrow from { QDOMNODE } to { QDOMDOCUMENT } bias { 1.5f }
-    @LVRCurveArrow from { QDOMNODE } to { QDOMELEMENT } bias { 1.5f }
-    @LVRCurveArrow from { QDOMNODE } to { QDOMENTITY } bias { 1.5f }
-    @LVRCurveArrow from { QGL } to { QGLCONTEXT } bias { 1.5f }
-    @LVRCurveArrow from { QGL } to { QGLFORMAT } bias { 1.5f }
-    @LVRCurveArrow from { QIODEVICE } to { QBUFFER } bias { 1.5f }
-    @LVRCurveArrow from { QIODEVICE } to { QFILE } bias { 1.5f }
-    @LVRCurveArrow from { QIODEVICE } to { QSOCKETDEVICE } bias { 1.5f }
-    @RVLCurveArrow from { QMEMARRAY } to { QBYTEARRAY } bias { 1.5f }
-    @RVLCurveArrow from { QMEMARRAY } to { QPOINTARRAY } bias { 1.5f }
-    @LVRCurveArrow from { QBYTEARRAY } to { QBITARRAY } bias { 1.5f }
-    @RVLCurveArrow from { QPAINTDEVICE } to { QPICTURE } bias { 1.5f }
-    @RVLCurveArrow from { QPAINTDEVICE } to { QPIXMAP } bias { 1.5f }
-    @RVLCurveArrow from { QPAINTDEVICE } to { QPRINTER } bias { 1.5f }
-    @LVRCurveArrow from { QPIXMAP } to { QBITMAP } bias { 1.5f }
-    @RVLCurveArrow from { QPTRCOLLECTION } to { QASCIIDICT } bias { 1.5f }
-    @RVLCurveArrow from { QPTRCOLLECTION } to { QCACHE } bias { 1.5f }
-    @RVLCurveArrow from { QPTRCOLLECTION } to { QDICT } bias { 1.5f }
-    @RVLCurveArrow from { QPTRCOLLECTION } to { QINTDICT } bias { 1.5f }
-    @RVLCurveArrow from { QPTRCOLLECTION } to { QPTRDICT } bias { 1.5f }
-    @RVLCurveArrow from { QPTRCOLLECTION } to { QPTRLIST } bias { 1.5f }
-    @RVLCurveArrow from { QPTRCOLLECTION } to { QPTRVECTOR } bias { 1.5f }
-    @LVRCurveArrow from { QPTRLIST } to { QSORTEDLIST } bias { 1.5f }
+    @LVRCurveArrow from { QDOMNODE } to { QDOMATTR } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QDOMNODE } to { QDOMCHARACTERDATA } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QDOMNODE } to { QDOMDOCUMENT } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QDOMNODE } to { QDOMELEMENT } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QDOMNODE } to { QDOMENTITY } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QGL } to { QGLCONTEXT } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QGL } to { QGLFORMAT } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QIODEVICE } to { QBUFFER } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QIODEVICE } to { QFILE } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QIODEVICE } to { QSOCKETDEVICE } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QMEMARRAY } to { QBYTEARRAY } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QMEMARRAY } to { QPOINTARRAY } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QBYTEARRAY } to { QBITARRAY } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QPAINTDEVICE } to { QPICTURE } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QPAINTDEVICE } to { QPIXMAP } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QPAINTDEVICE } to { QPRINTER } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QPIXMAP } to { QBITMAP } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QASCIIDICT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QCACHE } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QDICT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QINTDICT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QPTRDICT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QPTRLIST } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QPTRCOLLECTION } to { QPTRVECTOR } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QPTRLIST } to { QSORTEDLIST } bias { 1.5f } zindent { 0.2f }
     @HVCurveArrow from { QSTYLE } to { QCOMMONSTYLE } bias { 1.5f }
-    @RVLCurveArrow from { QBUTTON } to { QCHECKBOX } bias { 1.5f }
-    @RVLCurveArrow from { QBUTTON } to { QPUSHBUTTON } bias { 1.5f }
-    @RVLCurveArrow from { QBUTTON } to { QRADIOBUTTON } bias { 1.5f }
-    @RVLCurveArrow from { QBUTTON } to { QTOOLBUTTON } bias { 1.5f }
-    @RVLCurveArrow from { QDIALOG } to { QCOLORDIALOG } bias { 1.5f }
-    @RVLCurveArrow from { QDIALOG } to { QFILEDIALOG } bias { 1.5f }
-    @RVLCurveArrow from { QDIALOG } to { QFONTDIALOG } bias { 1.5f }
-    @RVLCurveArrow from { QDIALOG } to { QINPUTDIALOG } bias { 1.5f }
-    @RVLCurveArrow from { QDIALOG } to { QMESSAGEBOX } bias { 1.5f }
-    @RVLCurveArrow from { QDIALOG } to { QPROGRESSDIALOG } bias { 1.5f }
-    @RVLCurveArrow from { QDIALOG } to { QTABDIALOG } bias { 1.5f }
-    @RVLCurveArrow from { QDIALOG } to { QWIZARD } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QDOCKWINDOW } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QGRID } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QGROUPBOX } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QHBOX } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QLABEL } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QLCDNUMBER } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QLINEEDIT } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QMENUBAR } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QPOPUPMENU } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QPROGRESSBAR } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QSCROLLVIEW }
-    @RVLCurveArrow from { QFRAME } to { QSPLITTER } bias { 1.5f }
-    @RVLCurveArrow from { QFRAME } to { QWIDGETSTACK } bias { 1.5f }
-    @LVRCurveArrow from { QSCROLLVIEW } to { QCANVASVIEW } bias { 1.5 f }
-    @LVRCurveArrow from { QSCROLLVIEW } to { QGRIDVIEW } bias { 1.5 f }
-    @LVRCurveArrow from { QSCROLLVIEW } to { QICONVIEW } bias { 1.5 f }
-    @LVRCurveArrow from { QSCROLLVIEW } to { QLISTBOX } bias { 1.5 f }
-    @LVRCurveArrow from { QSCROLLVIEW } to { QLISTVIEW } bias { 1.5 f }
-    @LVRCurveArrow from { QSCROLLVIEW } to { QTABLE } bias { 1.5 f }
-    @LVRCurveArrow from { QSCROLLVIEW } to { QTEXTEDIT } bias { 1.5 f }
+    @RVLCurveArrow from { QBUTTON } to { QCHECKBOX } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QBUTTON } to { QPUSHBUTTON } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QBUTTON } to { QRADIOBUTTON } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QBUTTON } to { QTOOLBUTTON } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QDIALOG } to { QCOLORDIALOG } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QDIALOG } to { QFILEDIALOG } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QDIALOG } to { QFONTDIALOG } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QDIALOG } to { QINPUTDIALOG } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QDIALOG } to { QMESSAGEBOX } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QDIALOG } to { QPROGRESSDIALOG } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QDIALOG } to { QTABDIALOG } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QDIALOG } to { QWIZARD } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QDOCKWINDOW } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QGRID } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QGROUPBOX } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QHBOX } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QLABEL } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QLCDNUMBER } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QLINEEDIT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QMENUBAR } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QPOPUPMENU } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QPROGRESSBAR } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QSCROLLVIEW } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QSPLITTER } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QFRAME } to { QWIDGETSTACK } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QCANVASVIEW } bias { 1.5 f } zindent { 0.2f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QGRIDVIEW } bias { 1.5 f } zindent { 0.2f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QICONVIEW } bias { 1.5 f } zindent { 0.2f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QLISTBOX } bias { 1.5 f } zindent { 0.2f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QLISTVIEW } bias { 1.5 f } zindent { 0.2f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QTABLE } bias { 1.5 f } zindent { 0.2f }
+    @LVRCurveArrow from { QSCROLLVIEW } to { QTEXTEDIT } bias { 1.5 f } zindent { 0.2f }
     @Arrow from { QCOMMONSTYLE } to { QMOTIFSTYLE }
     @Arrow from { QCOMMONSTYLE } to { QWINDOWSSTYLE }
     @VHCurveArrow from { QMOTIFSTYLE } to { QCDESTYLE } bias { 1.5f }
     @VHCurveArrow from { QMOTIFSTYLE } to { QMOTIFPLUSSTYLE } bias { 1.5f }
     @VHCurveArrow from { QMOTIFSTYLE } to { QSGISTYLE } bias { 1.5f }
-    @LVRCurveArrow from { QWINDOWSSTYLE } to { QAQUASTYLE } bias { 1.5f }
-    @LVRCurveArrow from { QWINDOWSSTYLE } to { QPLATINUMSTYLE } bias { 1.5f }
+    @LVRCurveArrow from { QWINDOWSSTYLE } to { QAQUASTYLE } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QWINDOWSSTYLE } to { QPLATINUMSTYLE } bias { 1.5f } zindent { 0.2f }
     @VHCurveArrow from { QTABLE } to { QDATATABLE } 
-    @LVRCurveArrow from { QSQLRECORD } to { QSQLCURSOR } bias { 1.5f }
-    @LVRCurveArrow from { QSQLRECORD } to { QSQLINDEX } bias { 1.5f } 
-    @RVLCurveArrow from { QVALUELIST } to { QSTRINGLIST } bias { 1.5f }
-    @RVLCurveArrow from { QVALUELIST } to { QVALUESTACK } bias { 1.5f }
-    @RVLCurveArrow from { QLAYOUTITEM } to { QSPACERITEM } bias { 1.5f }
-    @RVLCurveArrow from { QLAYOUTITEM } to { QWIDGETITEM } bias { 1.5f }
-    @RVLCurveArrow from { QLISTBOXITEM } to { QLISTBOXPIXMAP } bias { 1.5f }
-    @RVLCurveArrow from { QLISTBOXITEM } to { QLISTBOXTEXT } bias { 1.5f }
-    @RVLCurveArrow from { QLISTVIEWITEM } to { QCHECKLISTITEM } bias { 1.5f }
-    @RVLCurveArrow from { QTABLEITEM } to { QCHECKTABLEITEM } bias { 1.5f }
-    @RVLCurveArrow from { QTABLEITEM } to { QCOMBOTABLEITEM } bias { 1.5f }
-    @RVLCurveArrow from { QBOXLAYOUT } to { QHBOXLAYOUT } bias { 1.5f }
-    @RVLCurveArrow from { QBOXLAYOUT } to { QVBOXLAYOUT } bias { 1.5f }
-    @LVRCurveArrow from { QLAYOUT } to { QBOXLAYOUT } bias { 1.5f }
-    @LVRCurveArrow from { QLAYOUT } to { QGRIDLAYOUT } bias { 1.5f }
+    @LVRCurveArrow from { QSQLRECORD } to { QSQLCURSOR } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QSQLRECORD } to { QSQLINDEX } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QVALUELIST } to { QSTRINGLIST } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QVALUELIST } to { QVALUESTACK } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QLAYOUTITEM } to { QSPACERITEM } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QLAYOUTITEM } to { QWIDGETITEM } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QLISTBOXITEM } to { QLISTBOXPIXMAP } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QLISTBOXITEM } to { QLISTBOXTEXT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QLISTVIEWITEM } to { QCHECKLISTITEM } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QTABLEITEM } to { QCHECKTABLEITEM } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QTABLEITEM } to { QCOMBOTABLEITEM } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QBOXLAYOUT } to { QHBOXLAYOUT } bias { 1.5f } zindent { 0.2f }
+    @RVLCurveArrow from { QBOXLAYOUT } to { QVBOXLAYOUT } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QLAYOUT } to { QBOXLAYOUT } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QLAYOUT } to { QGRIDLAYOUT } bias { 1.5f } zindent { 0.2f }
     @VHCurveArrow from { QDOCKWINDOW } to { QTOOLBAR } bias { 1.5f }
-    @LVRCurveArrow from { QHBOX } to { QVBOX } bias { 1.5f }
+    @LVRCurveArrow from { QHBOX } to { QVBOX } bias { 1.5f } zindent { 0.2f }
     @DWrapCurveArrow from { QGROUPBOX } to { QBUTTONGROUP } bias { 1.5f }
     @DWrapCurveArrow from { QGROUPBOX } to { QHGROUPBOX } bias { 1.5f }
     @DWrapCurveArrow from { QGROUPBOX } to { QVGROUPBOX } bias { 1.5f }
-    @LVRCurveArrow from { QBUTTONGROUP } to { QVBUTTONGROUP } bias { 1.5f }
-    @LVRCurveArrow from { QBUTTONGROUP } to { QHBUTTONGROUP } bias { 1.5f }
+    @LVRCurveArrow from { QBUTTONGROUP } to { QVBUTTONGROUP } bias { 1.5f } zindent { 0.2f }
+    @LVRCurveArrow from { QBUTTONGROUP } to { QHBUTTONGROUP } bias { 1.5f } zindent { 0.2f }
 }
 @End @Text
