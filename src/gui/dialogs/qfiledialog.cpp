@@ -1933,7 +1933,7 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     qt_get_dir_and_selection(dir, &qt_working_dir, &initialSelection);
 
 #if defined(Q_WS_WIN)
-    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle)
+    if (::qt_cast<QWindowsStyle*>(&qApp->style()))
         return qt_win_get_save_file_name(initialSelection, filter, &qt_working_dir,
 					 parent, caption, selectedFilter);
 #elif defined(Q_WS_MAC)
@@ -2016,7 +2016,7 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     QString initialDir;
     if (!dir.isEmpty() && QFileInfo(dir).isDir())
         initialDir = dir;
-    if (qApp->style().styleHint(QStyle::SH_GUIStyle) == Qt::WindowsStyle && (options & ShowDirsOnly))
+    if (qt_cast<QWindowsStyle *>(&qApp->style()) && (options & ShowDirsOnly))
         return qt_win_get_existing_directory(initialDir, parent, caption);
 #elif defined(Q_WS_MAC)
     if (::qt_cast<QMacStyle*>(&qApp->style())) {
