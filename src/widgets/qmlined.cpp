@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#24 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -143,7 +143,9 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
 /*! \fn void QMultiLineEdit::textChanged()
 
-  This signal should be emitted when the text is changed (not implemented)
+  This signal is emitted when the text is changed by  
+  an event or by a slot. Not that the signal is not emitted when 
+  you call a non-slot function such as insert().
 */
 
 
@@ -1601,6 +1603,12 @@ void QMultiLineEdit::markWord( int posx, int posy )
     ASSERT( s );
     int i = posx;
 
+    if ( markIsOn ) {
+	if ( posy < markAnchorY || posy == markAnchorY && posx < markAnchorX )
+	    debug( "before" );
+	else
+	    debug( "after" );
+    } else {
     while ( i >= 0 && isprint(s->at(i)) && !isspace(s->at(i)) )
 	i--;
     if ( i != posx )
@@ -1615,7 +1623,7 @@ void QMultiLineEdit::markWord( int posx, int posy )
     markDragX = i;
     markDragY = posy;
     markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
-
+    }
     copyText();
 }
 

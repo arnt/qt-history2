@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.h#13 $
+** $Id: //depot/qt/main/src/kernel/qbasic.h#14 $
 **
 **   Geometry Management
 **
@@ -39,7 +39,7 @@ public:
     bool addBranch( QChain *destination, QChain *branch, int fromIndex,
 		    int toIndex );
     void setStretch( QChain*, int );
-    bool doIt();
+    bool activate();
 
     void freeze( int w = 0, int h = 0 );
 

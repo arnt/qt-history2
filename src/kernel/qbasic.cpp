@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#24 $
 **
 **  Geometry Management
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#24 $");
 
 
 
@@ -22,13 +22,24 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#23 $");
   \brief The QBasicManager class provides one-dimensional geometry management.
 
   This class is intended for those who write geometry managers and
-  graphical designers.	<strong>It is not for the faint of heart. </strong>
-  The QBoxLayout class is available for normal application programming.
+  graphical designers. <strong>It is not for the faint of
+  heart. </strong> The QBoxLayout and QGridLayout classes are
+  available for normal application programming.
 
   Each dimension (horizontal and vertical) is handled independently. Widgets
   are organized in chains, which can be parallel or serial.
 
-  \sa QBoxLayout
+  In a serial chain, elements are added one after another. Available
+  space is divided among the elements according to stretch and
+  max-/minsize.
+
+  In parallel chains, elements are added on top of each other. All
+  elements are given the full length of the chain, and are placed at
+  the same position.
+
+
+  \sa QBoxLayout QGridLayout 
+
 */
 
 
@@ -616,7 +627,7 @@ void QBasicManager::resizeHandle( QWidget *, const QSize & )
   Starts geometry management.
 */
 
-bool QBasicManager::doIt()
+bool QBasicManager::activate()
 {
     if ( frozen )
 	return FALSE;
@@ -650,8 +661,8 @@ bool QBasicManager::doIt()
 */
 void QBasicManager::freeze( int w, int h )
 {
-    frozen = FALSE; // so doIt can do it.
-    doIt();
+    frozen = FALSE; // so activate can do it.
+    activate();
 
     QSize max = main->maximumSize();
     QSize min = main->minimumSize();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#23 $
 **
 **  Geometry Management
 **
@@ -11,7 +11,7 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#23 $");
 
 
 
@@ -20,7 +20,14 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#22 $");
   \brief QLayout is the base class of geometry specifiers.
   
   This is an abstract base class. Various layout managers inherit
-  from this one.
+  from this one. 
+
+  A layout manager is intended for specification of child widget
+  geometry. After geometry management is activated, the layout manager
+  can be deleted.
+
+  To make a new layout manager, you need to implement the functions
+  mainVerticalChain(), mainHorizontalChain() and initBM()
   */
 
 
@@ -54,7 +61,11 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
     bm->setBorder( border );
 }
 
+/*!
+  \fn const char *QLayout::name() const
 
+  Returns the internal object name.
+  */
 
 /*!
   Constructs a new QLayout, within another QLayout \a parent.
@@ -162,12 +173,12 @@ void QLayout::addChildLayout( QLayout *l )
   Starts geometry management - equivalent to show() for widgets.
   This function should only be called for top level layouts.
 */
-bool QLayout::doIt()
+bool QLayout::activate()
 { 
     if ( topLevel )
-	return bm->doIt();
+	return bm->activate();
 #if defined(DEBUG)
-    warning("QLayout::doIt() for child layout");
+    warning("QLayout::activate() for child layout");
 #endif
     return FALSE;
 }
@@ -293,18 +304,8 @@ void QBoxLayout::initBM()
 }
 
 
-/*
-    serChain = basicManager()->newSerChain( d );
-    // parChain is perpendicular to serChain
-    parChain = basicManager()->newParChain( perp( d ) );
-
- */
-
-
 /*!
   Adds \a layout to the box, with serial stretch factor \a stretch.
-
-  \warning The 
 
   \sa addWidget(), addSpacing()
 */
@@ -471,24 +472,6 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
 	warning( "QBoxLayout::addWidget: widget == 0" );
 	return;
     }
-
-#if 0 
-    //defined(DEBUG)
-    QObject * ancestor = this;
-    while ( ancestor && !ancestor->isWidgetType() )
-	ancestor = ((QBoxLayout*)ancestor)->parent();
-    if ( !ancestor || !ancestor->isWidgetType() ) {
-	warning( "QBoxLayout::addWidget: no widget ancestor found" );
-	return;
-    }
-
-    if ( (QWidget *)ancestor != widget->parentWidget() ) {
-	warning( "QBoxLayout::addWidget: %s(%s) is not a child of %s(%s)",
-		 widget->name(), widget->className(),
-		 ancestor->name(), ancestor->className() );
-	return;
-    }
-#endif
 
     if ( !pristine && defaultBorder() )
 	basicManager()->addSpacing( serChain, defaultBorder(), 0, defaultBorder() );

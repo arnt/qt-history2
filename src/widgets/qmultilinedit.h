@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#17 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#18 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -33,9 +33,8 @@ public:
     bool	isReadOnly();
     bool	isOverwriteMode();
 
-    bool	atBeginning() const;
-    bool	atEnd() const;
     void	setFont( const QFont &font );
+    virtual void insert( const char *s, int line = -1 );
 
 public slots:
     void clear();
@@ -65,9 +64,10 @@ protected:
     int		textWidth( int );
     int		textWidth( QString * );
 
+    bool	atBeginning() const;
+    bool	atEnd() const;
 
 protected:
-    virtual void insert( const char *s, int line = -1 );
     virtual void remove( int );
     virtual void insertChar( char );
     virtual void newLine();
