@@ -26,6 +26,9 @@
 class QProcessPrivate;
 class QMembuf;
 
+#if defined (Q_OS_WIN32)
+#include <qt_windows.h>
+#endif // Q_OS_WIN32
 
 class Q_CORE_EXPORT QProcess : public QObject
 {
