@@ -188,6 +188,8 @@ public:
     QRect hotHeader;
 
     QPoint hotSpot;
+    QRgb groupBoxTextColor;
+    QRgb groupBoxTextColorDisabled;
 
 private:
     static QWidget *limboWidget;
@@ -347,6 +349,15 @@ void QWindowsXPStyle::polish( QApplication *app )
     QWindowsStyle::polish( app );
     init_xp = FALSE;
     d->init();
+
+    // Get text color for groupbox labels
+    COLORREF cref;
+    XPThemeData theme( 0, 0, "BUTTON", 0, 0 );
+    pGetThemeColor( theme.handle(), BP_GROUPBOX, GBS_NORMAL, TMT_TEXTCOLOR, &cref );
+    d->groupBoxTextColor = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
+    pGetThemeColor( theme.handle(), BP_GROUPBOX, GBS_DISABLED, TMT_TEXTCOLOR, &cref );
+    d->groupBoxTextColor = qRgb( GetRValue(cref), GetGValue(cref), GetBValue(cref) );
+
     isPolished = TRUE;
 }
 
@@ -1835,6 +1846,12 @@ int QWindowsXPStyle::styleHint( StyleHint stylehint,
     switch ( stylehint ) {
     case SH_TitleBar_NoBorder:
 	return 1;
+
+    case SH_GroupBox_TextLabelColor:
+	if ( widget->isEnabled() )
+	    return d->groupBoxTextColor;
+	else
+	    return d->groupBoxTextColorDisabled;
 
     default:
 	return QWindowsStyle::styleHint( stylehint, widget, opt, returnData );
