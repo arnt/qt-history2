@@ -101,8 +101,8 @@ class Q_CORE_EXPORT QCoreVariant
 
     QCoreVariant(int i);
     QCoreVariant(uint ui);
-    QCoreVariant(qint64 ll);
-    QCoreVariant(quint64 ull);
+    QCoreVariant(qlonglong ll);
+    QCoreVariant(qulonglong ull);
     QCoreVariant(bool b);
     QCoreVariant(double d);
     QCoreVariant(const char *str);
@@ -149,8 +149,8 @@ class Q_CORE_EXPORT QCoreVariant
 
     int toInt(bool *ok = 0) const;
     uint toUInt(bool *ok = 0) const;
-    qint64 toLongLong(bool *ok = 0) const;
-    quint64 toULongLong(bool *ok = 0) const;
+    qlonglong toLongLong(bool *ok = 0) const;
+    qulonglong toULongLong(bool *ok = 0) const;
     bool toBool() const;
     double toDouble(bool *ok = 0) const;
     QByteArray toByteArray() const;
@@ -175,8 +175,8 @@ class Q_CORE_EXPORT QCoreVariant
 #ifdef QT_COMPAT
     inline QT_COMPAT int &asInt();
     inline QT_COMPAT uint &asUInt();
-    inline QT_COMPAT qint64 &asLongLong();
-    inline QT_COMPAT quint64 &asULongLong();
+    inline QT_COMPAT qlonglong &asLongLong();
+    inline QT_COMPAT qulonglong &asULongLong();
     inline QT_COMPAT bool &asBool();
     inline QT_COMPAT double &asDouble();
     inline QT_COMPAT QByteArray &asByteArray();
@@ -230,8 +230,8 @@ class Q_CORE_EXPORT QCoreVariant
             uint u;
             bool b;
             double d;
-            qint64 ll;
-            quint64 ull;
+            qlonglong ll;
+            qulonglong ull;
             void *ptr;
             PrivateShared *shared;
         } data;
@@ -350,9 +350,9 @@ class QPen;
 template<>
 inline int qt_variant_metatype_id(QPen *) { return QCoreVariant::Pen; }
 template<>
-inline int qt_variant_metatype_id(qint64 *) { return QCoreVariant::LongLong; }
+inline int qt_variant_metatype_id(qlonglong *) { return QCoreVariant::LongLong; }
 template<>
-inline int qt_variant_metatype_id(quint64 *) { return QCoreVariant::ULongLong; }
+inline int qt_variant_metatype_id(qulonglong *) { return QCoreVariant::ULongLong; }
 template<>
 inline int qt_variant_metatype_id(QUrl *) { return QCoreVariant::Url; }
 class QTextLength;
@@ -397,10 +397,10 @@ inline int &QCoreVariant::asInt()
 { return *reinterpret_cast<int *>(castOrDetach(Int)); }
 inline uint &QCoreVariant::asUInt()
 { return *reinterpret_cast<uint *>(castOrDetach(UInt)); }
-inline qint64 &QCoreVariant::asLongLong()
-{ return *reinterpret_cast<qint64 *>(castOrDetach(LongLong)); }
-inline quint64 &QCoreVariant::asULongLong()
-{ return *reinterpret_cast<quint64 *>(castOrDetach(ULongLong)); }
+inline qlonglong &QCoreVariant::asLongLong()
+{ return *reinterpret_cast<qlonglong *>(castOrDetach(LongLong)); }
+inline qulonglong &QCoreVariant::asULongLong()
+{ return *reinterpret_cast<qulonglong *>(castOrDetach(ULongLong)); }
 inline bool &QCoreVariant::asBool()
 { return *reinterpret_cast<bool *>(castOrDetach(Bool)); }
 inline double &QCoreVariant::asDouble()

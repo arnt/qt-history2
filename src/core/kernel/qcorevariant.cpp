@@ -101,10 +101,10 @@ static void construct(QCoreVariant::Private *x, const void *copy)
             x->data.d = *static_cast<const double*>(copy);
             break;
         case QCoreVariant::LongLong:
-            x->data.ll = *static_cast<const qint64 *>(copy);
+            x->data.ll = *static_cast<const qlonglong *>(copy);
             break;
         case QCoreVariant::ULongLong:
-            x->data.ull = *static_cast<const quint64 *>(copy);
+            x->data.ull = *static_cast<const qulonglong *>(copy);
             break;
         case QCoreVariant::Invalid:
         case QCoreVariant::UserType:
@@ -759,7 +759,7 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         break;
     }
     case QCoreVariant::LongLong: {
-        qint64 *l = static_cast<qint64 *>(result);
+        qlonglong *l = static_cast<qlonglong *>(result);
         switch (d->type) {
         case QCoreVariant::String:
             *l = v_cast<QString>(d)->toLongLong(ok);
@@ -771,22 +771,22 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *l = v_cast<QByteArray>(d)->toLongLong(ok);
             break;
         case QCoreVariant::Int:
-            *l = qint64(d->data.i);
+            *l = qlonglong(d->data.i);
             break;
         case QCoreVariant::UInt:
-            *l = qint64(d->data.u);
+            *l = qlonglong(d->data.u);
             break;
         case QCoreVariant::LongLong:
             *l = d->data.ll;
             break;
         case QCoreVariant::ULongLong:
-            *l = qint64(d->data.ull);
+            *l = qlonglong(d->data.ull);
             break;
         case QCoreVariant::Double:
             *l = qRound64(d->data.d);
             break;
         case QCoreVariant::Bool:
-            *l = qint64(d->data.b);
+            *l = qlonglong(d->data.b);
             break;
         default:
             *l = Q_INT64_C(0);
@@ -795,16 +795,16 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         break;
     }
     case QCoreVariant::ULongLong: {
-        quint64 *l = static_cast<quint64 *>(result);
+        qulonglong *l = static_cast<qulonglong *>(result);
         switch (d->type) {
         case QCoreVariant::Int:
-            *l = quint64(d->data.i);
+            *l = qulonglong(d->data.i);
             break;
         case QCoreVariant::UInt:
-            *l = quint64(d->data.u);
+            *l = qulonglong(d->data.u);
             break;
         case QCoreVariant::LongLong:
-            *l = quint64(d->data.ll);
+            *l = qulonglong(d->data.ll);
             break;
         case QCoreVariant::ULongLong:
             *l = d->data.ull;
@@ -813,7 +813,7 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             *l = qRound64(d->data.d);
             break;
         case QCoreVariant::Bool:
-            *l = quint64(d->data.b);
+            *l = qulonglong(d->data.b);
             break;
         case QCoreVariant::String:
             *l = v_cast<QString>(d)->toULongLong(ok);
@@ -889,7 +889,7 @@ static bool cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
             break;
         case QCoreVariant::ULongLong:
 #if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
-            *f = (double)(qint64)d->data.ull;
+            *f = (double)(qlonglong)d->data.ull;
 #else
             *f = double(d->data.ull);
 #endif
@@ -1337,13 +1337,13 @@ QCoreVariant::QCoreVariant(const char *val)
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(qint64 val)
+  \fn QCoreVariant::QCoreVariant(qlonglong val)
 
     Constructs a new variant with a long long integer value, \a val.
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(quint64 val)
+  \fn QCoreVariant::QCoreVariant(qulonglong val)
 
     Constructs a new variant with an unsigned long long integer value, \a val.
 */
@@ -1379,9 +1379,9 @@ QCoreVariant::QCoreVariant(int val)
 { create(Int, &val); }
 QCoreVariant::QCoreVariant(uint val)
 { create(UInt, &val); }
-QCoreVariant::QCoreVariant(qint64 val)
+QCoreVariant::QCoreVariant(qlonglong val)
 { create(LongLong, &val); }
-QCoreVariant::QCoreVariant(quint64 val)
+QCoreVariant::QCoreVariant(qulonglong val)
 { create(ULongLong, &val); }
 QCoreVariant::QCoreVariant(bool val)
 { create(Bool, &val); }
@@ -1563,8 +1563,8 @@ static const char* const type_map[ntypes] =
     "QBitArray",
     "QKeySequence",
     "QPen",
-    "qint64",
-    "quint64",
+    "qlonglong",
+    "qulonglong",
     "QChar",
     "QUrl",
     "QTextLength",
@@ -1948,7 +1948,7 @@ uint QCoreVariant::toUInt(bool *ok) const
 
     \sa canCast()
 */
-qint64 QCoreVariant::toLongLong(bool *ok) const
+qlonglong QCoreVariant::toLongLong(bool *ok) const
 {
     if (d.type == LongLong) {
         if (ok)
@@ -1959,7 +1959,7 @@ qint64 QCoreVariant::toLongLong(bool *ok) const
     bool c = canCast(LongLong);
     if (ok)
         *ok = c;
-    qint64 res = Q_INT64_C(0);
+    qlonglong res = Q_INT64_C(0);
     if (c)
         handler->cast(&d, LongLong, &res, ok);
 
@@ -1976,7 +1976,7 @@ qint64 QCoreVariant::toLongLong(bool *ok) const
 
     \sa canCast()
 */
-quint64 QCoreVariant::toULongLong(bool *ok) const
+qulonglong QCoreVariant::toULongLong(bool *ok) const
 {
     if (d.type == ULongLong) {
         if (ok)
@@ -1987,7 +1987,7 @@ quint64 QCoreVariant::toULongLong(bool *ok) const
     bool c = canCast(ULongLong);
     if (ok)
         *ok = c;
-    quint64 res = Q_UINT64_C(0);
+    qulonglong res = Q_UINT64_C(0);
     if (c)
         handler->cast(&d, ULongLong, &res, ok);
 
@@ -2318,13 +2318,13 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 */
 
 /*!
-    \fn qint64 &QCoreVariant::asLongLong()
+    \fn qlonglong &QCoreVariant::asLongLong()
 
     Use toLongLong() instead.
 */
 
 /*!
-    \fn quint64 &QCoreVariant::asULongLong()
+    \fn qulonglong &QCoreVariant::asULongLong()
 
     Use toULongLong() instead.
 */
