@@ -346,7 +346,7 @@ inline QPoint QPointF::toPoint() const
     return QPoint(qRound(xp), qRound(yp));
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_CORE_EXPORT QDebug operator<<(QDebug d, const QPointF &p);
 #endif
 

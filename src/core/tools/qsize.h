@@ -185,7 +185,7 @@ inline QSize QSize::boundedTo(const QSize & otherSize) const
     return QSize(qMin(wd,otherSize.wd), qMin(ht,otherSize.ht));
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QSize &);
 #endif
 
@@ -373,7 +373,7 @@ inline QSize QSizeF::toSize() const
     return QSize(qRound(wd), qRound(ht));
 }
 
-#ifndef QT_NO_DEBUG
+#ifndef QT_NO_DEBUG_OUTPUT
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QSizeF &);
 #endif
 
