@@ -87,33 +87,30 @@ QString Driver::findOrInsertAction(DomAction *ui_action)
 
 QString Driver::findOrInsertName(const QString &name)
 {
-    QString n = unique(name);
-    m_nameRepository.insert(n, true);
-    return n;
+    return unique(name);
 }
-
 
 QString Driver::unique(const QString &instanceName, const QString &className)
 {
+    QString name;
+
     if (instanceName.size()) {
         int id = 1;
-        QString name = instanceName;
+        name = instanceName;
+        name.replace(QRegExp("[^a-zA-Z_0-9]"), "_");
+
         while (true) {
             if (!m_nameRepository.contains(name))
                 break;
 
             name = instanceName + QString::number(id++);
         }
-
-        m_nameRepository.insert(name, true);
-        return name;
     } else if (className.size()) {
-        QString name = unique(qtify(className));
-        m_nameRepository.insert(name, true);
-        return name;
+        name = unique(qtify(className));
+    } else {
+        name = unique("var");
     }
 
-    QString name = unique("var");
     m_nameRepository.insert(name, true);
     return name;
 }
@@ -121,6 +118,7 @@ QString Driver::unique(const QString &instanceName, const QString &className)
 QString Driver::qtify(const QString &name)
 {
     QString qname = name;
+
     if (qname.at(0) == 'Q' || qname.at(0) == 'K')
         qname = qname.mid(1);
 
