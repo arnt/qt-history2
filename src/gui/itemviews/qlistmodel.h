@@ -15,7 +15,7 @@ class Q_GUI_EXPORT QListModelItem
     friend class QListModel;
 
 public:
-    QListModelItem(QListModel *model = 0);
+    QListModelItem()  : edit(true), select(true) {}
     ~QListModelItem() {}
 
     inline QString text() const { return data(QGenericItemModel::Display).toString(); }
@@ -71,10 +71,11 @@ public:
     QString text(int row) const;
     QIconSet iconSet(int row) const;
 
-private:
-    const QListModelItem *item(const QModelIndex &index) const;
+    QListModelItem item(int row) const;
+    void setItem(int row, const QListModelItem &item);
+    void append(const QListModelItem &item);
 
-    QModelIndex index(QListModelItem *item) const;
+private:
     QModelIndex index(int row, int column, const QModelIndex &parent = 0,
                       QModelIndex::Type type = QModelIndex::View) const;
 
@@ -88,8 +89,6 @@ private:
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
-
-    void append(QListModelItem *item);
 };
 
 #endif // QLISTMODEL_H

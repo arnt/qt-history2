@@ -1,12 +1,5 @@
 #include "qlistmodel.h"
-#include <qalgorithms.h>
 #include <private/qobject_p.h>
-
-QListModelItem::QListModelItem(QListModel *model)
-{
-    if (model)
-	model->append(this);
-}
 
 bool QListModelItem::operator ==(const QListModelItem &other) const
 {
@@ -48,8 +41,9 @@ class QListModelPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QListModel);
 public:
-    QList<QListModelItem*> lst;
+    QList<QListModelItem> lst;
 };
+
 #define d d_func()
 #define q q_func()
 
@@ -60,50 +54,46 @@ QListModel::QListModel(QObject *parent)
 
 QListModel::~QListModel()
 {
-    qDeleteAll(d->lst);
 }
 
 void QListModel::setText(int row, const QString &text)
 {
     if (row >= 0 && row < (int)d->lst.count())
-	d->lst[row]->setText(text);
+	d->lst[row].setText(text);
 }
 
 void QListModel::setIconSet(int row, const QIconSet &iconSet)
 {
     if (row >= 0 && row < (int)d->lst.count())
-	d->lst[row]->setIconSet(iconSet);
+	d->lst[row].setIconSet(iconSet);
 }
 
 QString QListModel::text(int row) const
 {
     if (row >= 0 && row < (int)d->lst.count())
-	return d->lst[row]->text();
+	return d->lst[row].text();
     return QString();
 }
 
 QIconSet QListModel::iconSet(int row) const
 {
     if (row >= 0 && row < (int)d->lst.count())
-	return d->lst[row]->iconSet();
+	return d->lst[row].iconSet();
     return QIconSet();
 }
 
-const QListModelItem *QListModel::item(const QModelIndex &index) const
+QListModelItem QListModel::item(int row) const
 {
-    if (!index.isValid())
-	return 0;
-    if (index.row() < (int)d->lst.count())
-	return d->lst.at(index.row());
-    return 0;
+    if (row >= 0 && row < (int)d->lst.count())
+	return d->lst[row];
+    else
+	return QListModelItem(); // FIXME we need invalid?
 }
 
-QModelIndex QListModel::index(QListModelItem *item) const
+void QListModel::setItem(int row, const QListModelItem &item)
 {
-    if (!item)
-	return QModelIndex();
-    int row = d->lst.indexOf(item);
-    return QModelIndex(row, 0, 0);
+    if (row >= 0 && row < (int)d->lst.count())
+	d->lst[row] = item;
 }
 
 QModelIndex QListModel::index(int row, int, const QModelIndex &, QModelIndex::Type type) const
@@ -127,51 +117,47 @@ QVariant QListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= (int)d->lst.count())
 	return QVariant();
-    if (role == QGenericItemModel::Display)
-	return d->lst[index.row()]->text();
-    if (role == QGenericItemModel::Decoration)
-	return d->lst[index.row()]->iconSet();
-    return QVariant();
+    return d->lst[index.row()].data(role);
 }
 
 void QListModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (!index.isValid() || index.row() >= (int)d->lst.count())
 	return;
-    if (role == QGenericItemModel::Display)
-	d->lst[index.row()]->setText(value.toString());
-    else if (role == QGenericItemModel::Decoration)
-	d->lst[index.row()]->setIconSet(value.toIconSet());
+    d->lst[index.row()].setData(role, value);
     emit contentsChanged(index, index);
 }
 
 QModelIndex QListModel::insertItem(const QModelIndex &index)
 {
-    QListModelItem *item = new QListModelItem();
-    if (index.isValid() && index.row() < rowCount())
-	d->lst.insert(index.row(), item);
-    else
-	d->lst.append(item);
-    return QListModel::index(item);
+    QListModelItem item;
+    QModelIndex insert = index;
+    if (insert.isValid() && insert.row() < rowCount()) {
+ 	d->lst.insert(insert.row(), item);
+    } else {
+ 	d->lst.append(item);
+	insert = QModelIndex(d->lst.count() - 1, 0);
+    }
+    return insert;
 }
 
 bool QListModel::isSelectable(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= (int)d->lst.count())
 	return false;
-    return d->lst[index.row()]->isSelectable();
+    return d->lst[index.row()].isSelectable();
 }
 
 bool QListModel::isEditable(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= (int)d->lst.count())
 	return false;
-    return d->lst[index.row()]->isEditable();
+    return d->lst[index.row()].isEditable();
 }
 
-void QListModel::append(QListModelItem *item)
+void QListModel::append(const QListModelItem &item)
 {
     d->lst.append(item);
-    QModelIndex idx = index(qMax(d->lst.count() - 1, 0), 0, 0);
+    QModelIndex idx(d->lst.count() - 1, 0);
     emit contentsInserted(idx, idx);
 }

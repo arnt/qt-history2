@@ -15,10 +15,19 @@ public:
     QListView_(QListModel *model, QWidget *parent = 0);
     ~QListView_();
 
-    virtual void setText(int row, const QString &text);
-    virtual void setIconSet(int row, const QIconSet &iconSet);
+    void setText(int row, const QString &text);
+    void setIconSet(int row, const QIconSet &iconSet);
+//     void setEditable(bool editable);
+//     void setSelectable(bool selectable);
+
     QString text(int row) const;
     QIconSet iconSet(int row) const;
+//     bool isEditable(int row) const;
+//     bool isSelectable(int row) const;
+
+    QListModelItem item(int row) const;
+    void setItem(int row, const QListModelItem &item);
+    void appendItem(const QListModelItem &item);
 
     inline QListModel *model() const { return ::qt_cast<QListModel*>(QAbstractItemView::model()); }
 };

@@ -34,3 +34,16 @@ QIconSet QListView_::iconSet(int row) const
 {
     return model()->iconSet(row);
 }
+
+QListModelItem QListView_::item(int row) const
+{
+    return model()->item(row);
+}
+
+void QListView_::setItem(int row, const QListModelItem &item) {
+    model()->setItem(row, item);
+}
+
+void QListView_::appendItem(const QListModelItem &item) {
+    model()->append(item);
+}
