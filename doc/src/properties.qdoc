@@ -21,22 +21,22 @@
     ordinary data members:
 
     \list
-    \i A read function. This always exists.
+    \o A read function. This always exists.
 
-    \i A write function. This is optional; read-only properties like \l
+    \o A write function. This is optional; read-only properties like \l
     QWidget::isDesktop() do not have one.
 
-    \i An attribute "stored" that indicates persistence. Most properties
+    \o An attribute "stored" that indicates persistence. Most properties
     are stored, but a few virtual properties are not. For example, \l
     QWidget::minimumWidth() isn't stored, since it's just a view of
     \l QWidget::minimumSize(), and has no data of its own.
 
-    \i A reset function to set a property back to its context specific
+    \o A reset function to set a property back to its context specific
     default value. This is very rare, but for example, \l QWidget::cursor
     needs this, since no call to \l QWidget::setCursor() can mean 'reset to
     the context specific cursor'.
 
-    \i An attribute "designable" that indicates whether it makes sense to
+    \o An attribute "designable" that indicates whether it makes sense to
     make the property available in a GUI builder (e.g. \link
     designer-manual.book Qt Designer\endlink). For most properties this 
     makes sense, but not for all, e.g. \l QAbstractButton::down. The user can
@@ -51,13 +51,18 @@
     in the case of multiple inheritance.
 
     Properties can be read and written through generic functions in
-    QObject without knowing anything about the class in use. These two
-    function calls are equivalent:
+    QObject without knowing anything about the class in use. In the
+    code snippet below, the QObject::setProperty() call is equivalent
+    QButton::setDown() call is equivalent to the
+    QObject::setProperty() call:
 
     \code
-        // QButton *b and QObject *o point to the same button
-        b->setDown(true);
-        o->setProperty("down", true);
+        QPushButton *button = new QPushButton;
+        QObject *object = button;
+        // button and object point to the same object
+
+        button->setDown(true);
+        object->setProperty("down", true);
     \endcode
 
     Equivalent, that is, except that the first is faster, and provides
@@ -82,11 +87,11 @@
             Q_OBJECT
 
         public:
-            MyClass(QObject * parent=0);
+            MyClass(QObject *parent = 0);
             ~MyClass();
 
             enum Priority { High, Low, VeryHigh, VeryLow };
-            void setPriority(Priority);
+            void setPriority(Priority priority);
             Priority priority() const;
         };
     \endcode

@@ -57,24 +57,16 @@
     of data. Objects can easily be assigned, sent as function arguments,
     and returned from functions.
 
-    Implicit sharing takes place behind the scenes; the programmer does
-    not need to worry about it.
+    Implicit sharing takes place behind the scenes; the programmer
+    does not need to worry about it. Even in multithreaded
+    applications, implicit sharing takes place, as explained in
+    \l{Threads and Implicit Sharing}.
 
     \section1 Implicit Sharing in Detail
 
     Implicit sharing automatically detaches the object from a shared block
     if the object is about to change and the reference count is greater
-    than one. (This is often called "copy-on-write".) Explicit sharing
-    leaves this job to the programmer. If an explicitly shared object is
-    not detached, changing an object will change all other objects that
-    refer to the same data.
-
-    Implicit sharing optimizes memory use and copying of data without
-    this side effect. So why didn't we implement implicit sharing for all
-    shared classes? The answer is that a class that allows direct access
-    to its internal data (for efficiency reasons), like QByteArray, cannot
-    be implicitly shared, because it can be changed without letting
-    QByteArray know.
+    than one. (This is often called "copy-on-write".)
 
     An implicitly shared class has total control of its internal data. In
     any member functions that modify its data, it automatically detaches
@@ -85,31 +77,19 @@
 
     Code fragment:
     \code
-        void QPen::setStyle( PenStyle s )
+        void QPen::setStyle(Qt::PenStyle style)
         {
-	    detach();        // detach from common data
-	    data->style = s; // set the style member
+	    detach();           // detach from common data
+	    d->style = style;   // set the style member
         }
 
         void QPen::detach()
         {
-	    if ( data->count != 1 ) // only if >1 reference
-	        *this = copy();
+	    if (d->ref != 1) {
+	        ...             // perform a deep copy
+            }
         }
     \endcode
-
-    This is clearly not possible for QByteArray, because the programmer
-    can do the following:
-
-    \code
-        QByteArray array( 10 );
-        array.fill( 'a' );
-        array[0] = 'f';        // will modify array
-        array.data()[1] = 'i'; // will modify array
-    \endcode
-
-    If we monitor changes in a QByteArray, the QByteArray class would
-    become unacceptably slow.
 
 
     \section1 Implicitly Shared Classes

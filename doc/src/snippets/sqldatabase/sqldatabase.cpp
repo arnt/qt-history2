@@ -247,9 +247,17 @@ void sql_intro_snippets()
 
     {
     // FEATURE
+    QSqlQuery query;
+    int numRows;
+    query.exec("SELECT name, salary FROM employee WHERE salary > 50000");
+
     QSqlDatabase defaultDB = QSqlDatabase::database();
     if (defaultDB.driver()->hasFeature(QSqlDriver::QuerySize)) {
-        // can rely on QSqlQuery::size()
+        numRows = query.size();
+    } else {
+        // this can be very slow
+        query.last();
+        numRows = query.at() + 1;
     }
     }
 

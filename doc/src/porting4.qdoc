@@ -18,6 +18,8 @@
     This document describes porting applications from Qt 3 to Qt 4.
 
 \omit
+    ### refer to porting4-renamedfunctions.qdoc
+    ### QApplication library mutex is gone
     ### no integral conversion for containers? strings?
     ### QVector etc. are initialized to 0 by default?
     ### How to port from Qt 2.3 to Qt 4.
@@ -1561,12 +1563,6 @@
     See \l{#virtual.functions}{Virtual Functions} for a list of
     QGroupBox virtual member functions in Qt 3 that are not longer
     virtual in Qt 4.
-
-    \section1 QGuardedPtr<T>
-
-    The QGuardedPtr<T> class has been renamed QPointer<T> in Qt 4.
-    The \l{Qt 3 compatibility library} contains a trivial
-    implementation of QGuardedPtr<T> in terms of QPointer<T>.
 
     \section1 QHBox
 

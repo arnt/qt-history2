@@ -1,0 +1,2 @@
+\row \o QThread::currentThread() \o QThread::currentThreadId()
+

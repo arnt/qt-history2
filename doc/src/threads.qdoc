@@ -15,9 +15,17 @@
     \title Thread Support in Qt
 
     Qt provides thread support in the form of platform-independent
-    threading classes, a thread-safe way of posting events, and ###.
-    It also uses threads internally to perform certain operations,
-    such as DNS lookups (QDns).
+    threading classes, a thread-safe way of posting events, and
+    signal-slot connections across threads. This makes it easy to
+    develop portable multithreaded Qt applications and take advantage
+    of multiprocessor machines. Multithreaded programming is also a
+    useful paradigm for performing time-consuming operations without
+    freezing the user interface of an application.
+
+    Earlier versions of Qt offered an option to build the library
+    without thread support. Since Qt 4.0, threads are always enabled,
+    except on Qt/Embedded, where they can be disabled by defining
+    \c{QT_NO_THREAD}.
 
     This document is intended for an audience that has knowledge of,
     and experience with, multithreaded applications. If you are new
@@ -27,7 +35,7 @@
 
     \tableofcontents
 
-    \section1 The Thread Classes
+    \section1 The Threading Classes
 
     Qt includes the following thread classes:
 
@@ -45,9 +53,9 @@
        woken up by another thread.
     \endlist
 
-    \section1 Creating a Thread
+    \section2 Creating a Thread
 
-    To create a thread, you must subclass QThread and reimplement its
+    To create a thread, subclass QThread and reimplement its
     \l{QThread::run()}{run()} function. For example:
 
     \quotefromfile snippets/threads/threads.h
@@ -61,14 +69,51 @@
     \dots
     \printline }
 
-    Creating threads is explained in more detail in the QThread
-    documentation.
+    Then, create an instance of the thread object and call
+    QThread::start(). The code that appears in the
+    \l{QThread::run()}{run()} reimplementation will then be executed
+    in a separate thread. Creating threads is explained in more
+    detail in the QThread documentation.
 
     Note that QCoreApplication::exec() must always be called from the
-    initial thread. This thread is sometimes referred to as the
-    \e{main thread}. In GUI applications, it's also called the \e{GUI
-    thread} because it's the only thread that is allowed to perform
-    GUI-related operations.
+    main thread (the thread that executes \c{main()}), not from a
+    QThread. In GUI applications, the main thread is also called the
+    GUI thread because it's the only thread that is allowed to
+    perform GUI-related operations.
+
+    \section2 Synchronizing Threads
+
+    The QMutex, QReadWriteLock, QSemaphore, and QWaitCondition
+    classes provide means to synchronize threads. While the main idea
+    with threads is that they should be as concurrent as possible,
+    there are points where threads must stop and wait for other
+    threads. For example, if two threads try to access the same
+    global variable simultaneously, the results are usually
+    undefined.
+
+    QMutex provides a mutually exclusive lock, or mutex. At most one
+    thread can hold the mutex at any time. If a thread tries to
+    acquire the mutex while the mutex already locked, the thread will
+    be put to sleep until the thread that current holds the mutex
+    unlocks it. Mutexes are often used to protect accesses to shared
+    data (i.e., data that can be accessed from multiple threads
+    simultaneously). In the \l{Reentrancy and Thread-Safety} section
+    below, we will use it to make a class thread-safe.
+
+    QReadWriteLock is similar to QMutex, except that it distinguishes
+    between "read" and "write" access to shared data and allows
+    multiple readers to access the data simultaneously. Using
+    QReadWriteLock instead of QMutex when it is possible can make
+    multithreaded programs more concurrent.
+
+    QSemaphore is a generalization of QMutex that protects a certain
+    number of identical resources. In contrast, a mutex protects
+    exactly one resource. The \c thread/semaphore example shows a
+    typical application of semaphores: synchronizing access to a
+    circular buffer between a producer and a consumer.
+
+    QWaitCondition allows a thread to go to sleep until another
+    thread wakes it up.
 
     \section1 Reentrancy and Thread-Safety
 
@@ -78,7 +123,7 @@
 
     \list
     \o A \e reentrant function can be called simultaneously by
-       multiple threads as long as each invocation of the function
+       multiple threads provided that each invocation of the function
        references unique data.
     \o A \e thread-safe function can be called simultaneously by
        multiple threads when each invocation references shared data.
@@ -91,17 +136,16 @@
     works if the different threads operate on the same instance.
 
     Note that the terminology in this domain isn't entirely
-    standardized. For example, POSIX defines thread-safety as a
-    lesser requirement than reentrant, whereas in Qt it's the
-    opposite. When dealing with an object-oriented C++ class library
-    such as Qt instead of a C-based API, the definitions had to be
-    adapted.
+    standardized. POSIX uses a somewhat definition of thread-safety
+    and reentrancy for its C APIs. When dealing with an
+    object-oriented C++ class library such as Qt, the definitions
+    must be adapted.
 
     Most C++ classes are inherently reentrant, since they typically
-    only reference class member data. Any thread can call such a
-    member function on an instance of the class, as long as no other
-    thread is calling a member function on the same instance. For
-    example, the \c Counter class below is reentrant:
+    only reference member data. Any thread can call such a member
+    function on an instance of the class, as long as no other thread
+    is calling a member function on the same instance. For example,
+    the \c Counter class below is reentrant:
 
     \quotefromfile snippets/threads/threads.cpp
     \skipto ReentrantCounter
@@ -111,25 +155,26 @@
 
     The class isn't thread-safe, because if multiple threads try to
     modify the data member \c n, the result is undefined. This is
-    because the C++ \c ++ and \c -- usually aren't atomic. Indeed, they
-    usually of three operations:
+    because C++'s \c ++ and \c -- operators aren't necessarily
+    atomic. Indeed, they usually expand to three machine
+    instructions:
 
     \list 1
     \o Load the variable's value in a register.
-    \o Increment the register's value.
+    \o Increment or decrement the register's value.
     \o Store the register's value back into main memory.
     \endlist
 
-    If thread A and B load the variable's old value simultaneously,
-    increment their register, and store it back, they end up
-    overwriting each other, and the variable is incremented only
-    once!
+    If thread A and thread B load the variable's old value
+    simultaneously, increment their register, and store it back, they
+    end up overwriting each other, and the variable is incremented
+    only once!
 
-    Clearly, the access must be serialized. Thread A must perform
-    steps 1, 2, 3 without interruption (i.e. \e{atomically}) before
-    thread B performs the same steps. One way to make the class
-    thread-safe is to protect all access to the data members with a
-    mutex:
+    Clearly, the access must be serialized: Thread A must perform
+    steps 1, 2, 3 without interruption (atomically) before thread B
+    can perform the same steps; or vice versa. An easy way to make
+    the class thread-safe is to protect all access to the data
+    members with a QMutex:
 
     \skipto ThreadSafeCounter
     \skipline ThreadSafeCounter
@@ -139,16 +184,17 @@
     The QMutexLocker class automatically locks the mutex in its
     constructor and unlocks it when the destructor is invoked, at the
     end of the function. Locking the mutex ensures that access from
-    different threads will be serialized.
+    different threads will be serialized. The \c mutex data member is
+    declared with the \c mutable qualifier because we need to lock
+    and unlock the mutex in \c value(), which is a const function.
 
     Since locking and unlocking a QMutex is a rather expensive
-    operation, most Qt classes are reentrant (like the first \c
-    Counter example) but not thread-safe (like the second example).
-    For example, QString is reentrant, meaning that you can use it in
+    operation, most Qt classes are reentrant but not thread-safe. For
+    example, QString is reentrant, meaning that you can use it in
     different threads, but you can't access the same QString object
     from different threads simultaneously. A few classes and
     functions are thread-safe; these are mainly thread-related
-    classes, such as QMutex, or fundamental functions, such as
+    classes such as QMutex, or fundamental functions such as
     QCoreApplication::postEvent().
 
     \section1 Threads and QObjects
@@ -168,17 +214,19 @@
     QObject is reentrant. Most of its non-GUI subclasses, such as
     QTimer, QTcpSocket, QUdpSocket, QHttp, QFtp, and QProcess, are
     also reentrant, making it possible to use these classes from
-    multiple threads simultaneously. This is documented on a
-    per-class basis.
+    multiple threads simultaneously. The only constraint is that you
+    must ensure that all objects created in a thread are deleted
+    before you delete the QThread. This can be done easily by passing
+    the QThread object as the parent for objects that otherwise
+    wouldn't have a parent.
 
     On the other hand, the GUI classes, notably QWidget and all its
     subclasses, are not reentrant. They can only be used from the
-    initial thread (which is for that reason often called the GUI
-    thread). As noted earlier, QApplication::exec() must also be
-    called from that thread.
+    main thread. As noted earlier, QCoreApplication::exec() must also
+    be called from that thread.
 
     In practice, the impossibility of using GUI classes in other
-    threads than the GUI thread can easily be worked around by
+    threads than the main thread can easily be worked around by
     putting time-consuming operations in a separate worker thread and
     displaying the results on screen in the main thread when the
     worker thread is finished.
@@ -186,8 +234,11 @@
     \section2 Per-Thread Event Loop
 
     Each thread can have its own event loop. The initial thread
-    starts its event loops using QApplication::exec(); other threads
-    can start an event loop using QThread::exec().
+    starts its event loops using QCoreApplication::exec(); other
+    threads can start an event loop using QThread::exec(). Like
+    QCoreApplication, QThread provides an
+    \l{QThread::exit()}{exit(int)} function and a
+    \l{QThread::quit()}{quit()} slot.
 
     An event loop in a thread makes it possible for the thread to use
     certain non-GUI Qt classes that require the presence of an event
@@ -196,53 +247,85 @@
     specific thread. This is explained in more detail in the
     \l{Signals and Slots Across Threads} section below.
 
+    \image threadsandobjects.png Threads, objects, and event loops
+
     A QObject instance is said to \e live in the thread in which it
     is created. Events to that object are dispatched by that thread's
     event loop. All other access to the QObject must be made from
-    that thread, since \l{QObject}s aren't thread-safe. (The
-    \l{Thread-Safe QObject Subclasses} section below presents a
-    partial solution to this problem.) The thread in which a QObject
-    lives is available using QObject::thread().
+    that thread, since \l{QObject}s aren't thread-safe. (See
+    \l{Accessing QObject Subclasses from Other Threads} for details.)
+    The thread in which a QObject lives is available using
+    QObject::thread().
+
+    Calling \c delete on a QObject from another thread than the
+    thread where it is created is unsafe, unless you can guarantee
+    that the object isn't processing events at the same moment. Use
+    QObject::deleteLater() instead; it will post a
+    \l{QCoreEvent::DeferredDelete}{DeferredDelete} event, which the
+    event loop of the object's thread will eventually pick up.
 
     If no event loop is running, events won't be delivered to the
     object. For example, if you create a QTimer object in a thread
     but never call QThread::exec(), the QTimer will never emit its
-    \l{QTimer::timeout()}{timeout()} signal.
+    \l{QTimer::timeout()}{timeout()} signal. Calling
+    \l{QObject::deleteLater()}{deleteLater()} won't work either. This
+    restriction applies to the main thread as well.
 
     You can manually post events to any object in any thread at any
-    time using the thread-safe function QApplication::postEvent().
-    The events will automatically be dispatched by the event loop of
-    the thread where the object was created.
+    time using the thread-safe function
+    QCoreApplication::postEvent(). The events will automatically be
+    dispatched by the event loop of the thread where the object was
+    created.
 
-    Event filters, on the other
-            * event filters, event delivery, etc., not thread-safe
-            * caveat: make sure you delete all objects in a thread before you delete the QThread
-            * use deleteLater()
+    Event filters are supported in all threads, with the restriction
+    that the monitoring object must live in the same thread as the
+    monitored object. Similarly, QCoreApplication::sendEvent()
+    (unlike \l{QCoreApplication::postEvent()}{postEvent()}) can only
+    be used to dispatch events to objects living in the thread from
+    which the function is called.
 
+    \section2 Accessing QObject Subclasses from Other Threads
 
+    QObject and all of its subclasses are not thread-safe. This
+    includes the entire event delivery system. It is important to
+    keep in mind that the event loop may be delivering events to your
+    QObject subclass while you are accessing the object from another
+    thread.
 
-    Once the event loop is started, 
-        * QThread::exec(), QThread::exit(), QThread::quit()
-
-        * thread-safe event posting
+    If you are calling a function on an QObject subclass that doesn't
+    live in the current thread and an event loop is active in the
+    object's thread, you must protect all access to your QObject
+    subclass's internal data with a mutex; otherwise, you may
+    experience crashes or other undesired behavior.
 
     \section2 Signals and Slots Across Threads
 
-            * direct connections
-            * queued connections (needs exec())
-            * auto-connection
+    Qt supports two types of signal-slot connections:
 
-    \section2 Thread-Safe QObject Subclasses
+    \list
+    \o With \l{QObject::DirectConnection}{direct connections}, the
+       slot gets called immediately when the signal is emitted. The
+       slot is executed in the thread that emitted the signal (which
+       is not necessarliy the thread where the receiver object
+       lives).
 
-            * possible...
-    "QObject and all of its subclasses are not thread-safe. This
-     includes the entire event delivery system. It is important to
-     remember that the GUI thread may be delivering events to your QObject
-     subclass while you are accessing the object from another thread. If
-     you are using QObject in a thread that is not the GUI thread, and you
-     are handling events sent to this object, you must protect all access
-     to your data with a mutex; otherwise you may experience crashes or
-     other undesired behavior."
+    \o With \l{QObject::QueuedConnection}{queued connections}, the
+       slot is invoked when control returns to the event loop of the
+       thread to which the object belongs. The slot is executed in
+       the thread where the receiver object lives.
+    \endlist
+
+    By default, QObject::connect() establishes a direct connection if
+    the sender and the receiver live in the same thread, and a queued
+    connection if they live in different threads. This can be
+    modified by passing an additional argument to
+    \l{QObject::connect()}{connect()}. Be aware that using direct
+    connections when the sender and receiver don't live in the same
+    thread is unsafe if an event loop is running in the receiver's
+    thread, for the same reason that calling any function on an
+    object living in another thread is unsafe.
+
+    QObject::connect() itself is thread-safe.
 
     \section1 Threads and Implicit Sharing
 
@@ -266,12 +349,35 @@
     This having been said, if you access the same \e object in
     multiple threads simultaneously (as opposed to copies of the same
     object), you still need a mutex to serialize the accesses, just
-    like with any reentrant class. As mentioned \l{Reentrance and
-    Thread-Safety}{above}, reentrance and thread-safety aren't the
-    same thing.
+    like with any reentrant class.
 
     To sum it up, implicitly shared classes in Qt 4 are really \e
     implicitly shared. Even in multithreaded applications, you can
     safely use them as if they were plain, non-shared, reentrant
     classes.
+
+    \section1 Threads and the SQL Module
+
+    The classes in the \l{SQL Module} can be used in separate
+    threads, as long as the rules for QObject based classes are followed.
+
+    The third-party libraries used to implement the SQL drivers can
+    impose other restrictions on using the SQL Module in a
+    multithreaded program. For example, the PostgreSQL library
+    requires a separate connection per thread. Consult the
+    documentation for your third-party library for more information.
+
+    \target reading
+    \section1 Recommended Reading
+
+    \list
+    \o \link http://www.amazon.com/exec/obidos/ASIN/0134436989/trolltech/t
+    Threads Primer: A Guide to Multithreaded Programming\endlink
+    \o \link http://www.amazon.com/exec/obidos/ASIN/0131900676/trolltech/t
+    Thread Time: The Multithreaded Programming Guide\endlink
+    \o \link http://www.amazon.com/exec/obidos/ASIN/1565921151/trolltech/t
+    Pthreads Programming: A POSIX Standard for Better Multiprocessing\endlink
+    \o \link http://www.amazon.com/exec/obidos/ASIN/1565922964/trolltech/t
+    Win32 Multithreaded Programming\endlink
+    \endlist
 */
