@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#324 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#325 $
 **
 ** Implementation of QListView widget class
 **
@@ -145,7 +145,8 @@ struct QListViewPrivate
     QPtrDict<void> * dirtyItems;
 
     bool multi;
-
+    bool strictMulti;
+    
     // TRUE if the widget should take notice of mouseReleaseEvent
     bool buttonDown;
     // TRUE if the widget should ignore a double-click
@@ -2821,7 +2822,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     QListViewItem * i = itemAt( vp );
     if ( !i )
 	return;
-
+        
     emit pressed( i );
     emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
 
@@ -2855,10 +2856,43 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
     i->activate();
 
+    QListViewItem *oldCurrent = currentItem();
     setCurrentItem( i );
 
-    if ( i->isSelectable() )
-	setSelected( i, d->select );
+    
+    if ( i->isSelectable() ) {
+	if ( !isMultiSelection() || isMultiSelection() && !isStrictMultiSelection() )
+	    setSelected( i, d->select );
+	else if ( isMultiSelection() && isStrictMultiSelection() ) {
+	    if ( !( ( e->state() & ControlButton ) ||
+		 ( e->state() & ShiftButton ) ) ) {
+		clearSelection();
+		setSelected( i, TRUE );
+	    } else {
+		if ( e->state() & ControlButton || !oldCurrent || !i || oldCurrent == i ) {
+		    setSelected( i, d->select );
+		} else {
+		    bool down = oldCurrent->itemPos() < i->itemPos();
+		    QListViewItemIterator lit( down ? oldCurrent : i );
+		    for ( ;; ++lit ) {
+			if ( !lit.current() )
+			    return;
+			if ( down && lit.current() == i ) {
+			    i->setSelected( d->select );
+			    triggerUpdate();
+			    break;
+			}
+			if ( !down && lit.current() == oldCurrent ) {
+			    oldCurrent->setSelected( d->select );
+			    triggerUpdate();
+			    break;
+			}
+			lit.current()->setSelected( d->select );
+		    }
+		}
+	    }
+	}
+    }
 
     return;
 }
@@ -3302,15 +3336,22 @@ int QListView::itemPos( const QListViewItem * item )
 }
 
 
-/*!  Sets the list view to multi-selection mode if \a enable is TRUE,
+/*!  
+  Sets the list view to multi-selection mode if \a enable is TRUE,
   and to single-selection mode if \a enable is FALSE.
+  
+  If you enable multi-selection mode, it's possible to specify
+  if this mode should be \a strict or not. Strict means, that the
+  user can only select multiple items when pressing the Shift
+  or Control button at the same time.
 
   \sa isMultiSelection()
 */
 
-void QListView::setMultiSelection( bool enable )
+void QListView::setMultiSelection( bool enable, bool strict )
 {
-    d->multi = enable ? TRUE : FALSE;
+    d->multi = enable;
+    d->strictMulti = strict;
 }
 
 
@@ -3323,6 +3364,18 @@ void QListView::setMultiSelection( bool enable )
 bool QListView::isMultiSelection() const
 {
     return d->multi;
+}
+
+/*!  
+  Returns TRUE if this list view is in strict multi-selection mode and
+  FALSE if it is in single-selection or non-strict multi-selection mode.
+
+  \sa isMultiSelection(), setMultiSelection()
+*/
+
+bool QListView::isStrictMultiSelection() const
+{
+    return d->multi && d->strictMulti;
 }
 
 
