@@ -293,11 +293,11 @@ QString QFileInfo::owner() const
 		DWORD lowner = 0, ldomain = 0;
 		SID_NAME_USE use;
 		// First call, to determine size of the strings (with '\0').
-		ptrLookupAccountSidW( NULL, pOwner, NULL, &lowner, NULL, &ldomain, &use );
+		ptrLookupAccountSidW( NULL, pOwner, NULL, &lowner, NULL, &ldomain, (SID_NAME_USE*)&use );
 		wchar_t *owner = new wchar_t[lowner];
 		wchar_t *domain = new wchar_t[ldomain];
 		// Second call, size is without '\0'
-		if ( ptrLookupAccountSidW( NULL, pOwner, (LPWSTR)owner, &lowner, (LPWSTR)domain, &ldomain, &use ) ) {
+		if ( ptrLookupAccountSidW( NULL, pOwner, (LPWSTR)owner, &lowner, (LPWSTR)domain, &ldomain, (SID_NAME_USE*)&use ) ) {
 		    name = QString::fromUcs2((ushort*)owner);
 		}
 		LocalFree( pSD );
@@ -330,11 +330,11 @@ QString QFileInfo::group() const
 		DWORD lgroup = 0, ldomain = 0;
 		SID_NAME_USE use;
 		// First call, to determine size of the strings (with '\0').
-		ptrLookupAccountSidW( NULL, pGroup, NULL, &lgroup, NULL, &ldomain, &use );
+		ptrLookupAccountSidW( NULL, pGroup, NULL, &lgroup, NULL, &ldomain, (SID_NAME_USE*)&use );
 		wchar_t *group = new wchar_t[lgroup];
 		wchar_t *domain = new wchar_t[ldomain];
 		// Second call, size is without '\0'
-		if ( ptrLookupAccountSidW( NULL, pGroup, (LPWSTR)group, &lgroup, (LPWSTR)domain, &ldomain, &use ) ) {
+		if ( ptrLookupAccountSidW( NULL, pGroup, (LPWSTR)group, &lgroup, (LPWSTR)domain, &ldomain, (SID_NAME_USE*)&use ) ) {
 		    name = QString::fromUcs2((ushort*)group);
 		}
 		LocalFree( pSD );
