@@ -282,6 +282,7 @@ QWidgetFactory::~QWidgetFactory()
 
 QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWidget *parent, const char *name )
 {
+    setupPluginDir();
     QFile f( uiFile );
     if ( !f.open( IO_ReadOnly ) )
 	return 0;
@@ -302,6 +303,7 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
 
 QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *parent, const char *name )
 {
+    setupPluginDir();
     QWidget *w = 0;
     QDomDocument doc;
     QString errMsg;
