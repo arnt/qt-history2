@@ -223,6 +223,7 @@ void QMapData::dump()
     \code
 	// WRONG
 	QMap<int, QWidget *> map;
+	...
 	for (int i = 0; i < 1000; ++i) {
 	    if (map[i] == okButton)
 		cout << "Found button at index " << i << endl;
@@ -558,20 +559,33 @@ void QMapData::dump()
 
 /*! \fn QList<Key> QMap::keys() const
 
-    Returns a list of all the keys in the map, in an arbitrary
-    order. Keys that occur multiple times in the map also occur
-    multiple times in the list.
+    Returns a list containing all the keys in the map, in an
+    arbitrary order. Keys that occur multiple times in the map also
+    occur multiple times in the list.
 
     The order is guaranteed to be the same as that used by values().
 
     \sa values()
 */
 
+/*! \fn QList<Key> QMap::keys(const T &value) const
+
+    \overload
+
+    Returns a list containing all the keys associated with value \a
+    value.
+
+    This function can be slow (\l{linear time}), because QMap's
+    internal data structure is optimized for fast lookup by key, not
+    by value.
+*/
+
 /*! \fn QList<T> QMap::values() const
 
-    Returns a list of all the values in the map, in an arbitrary
-    order. If a key is associated multiple values, all of its values
-    will be in the list, and not just the most recently inserted one.
+    Returns a list containing all the values in the map, in an
+    arbitrary order. If a key is associated multiple values, all of
+    its values will be in the list, and not just the most recently
+    inserted one.
 
     The order is guaranteed to be the same as that used by keys().
 
@@ -582,9 +596,9 @@ void QMapData::dump()
 
     \overload
 
-    Returns a list of all the values associated with a given key,
-    from the most recently inserted to the least recently inserted
-    one.
+    Returns a list containing all the values associated with a
+    given key, from the most recently inserted to the least recently
+    inserted one.
 
     \sa count(), insertMulti()
 */
@@ -1110,4 +1124,26 @@ void QMapData::dump()
     The postfix -- operator (\c{it--}) makes the preceding item
     current and returns an iterator pointing to the previously
     current item.
+*/
+
+/*! \fn template <class Key, class T> QDataStream &operator<<(QDataStream &out, const QMap<Key, T> &map)
+    \relates QMap
+
+    Writes the map \a map to stream \a out.
+
+    This function requires the key and value types to implement \c
+    operator<<().
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+/*! \fn template <class Key, class T> QDataStream &operator>>(QDataStream &in, QMap<Key, T> &map)
+    \relates QMap
+
+    Reads a map from stream \a in into \a map.
+
+    This function requires the key and value types to implement \c
+    operator>>().
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

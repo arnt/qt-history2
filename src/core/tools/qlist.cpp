@@ -105,7 +105,7 @@ void **QListData::insert(int i)
 	return prepend();
     if (i >= d->end - d->begin)
 	return append();
-    if ( d->end + 1 >  d->alloc)
+    if (d->end + 1 > d->alloc)
 	realloc(grow(d->alloc + 1));
     i += d->begin;
     ::memmove(d->array + i + 1, d->array + i,
@@ -224,7 +224,8 @@ void **QListData::erase(void **xi)
        use QVector.
     \endlist
 
-    Here's an example of a QList<int> and a QList<QDate>:
+    Here's an example of a QList that stores integers and
+    a QList that stores QDate values:
 
     \code
 	QList<int> integerList;
@@ -270,9 +271,7 @@ void **QListData::erase(void **xi)
         }
     \endcode
 
-    For technical reasons, at() is slightly faster than
-    operator[](). We therefore recommend that you use it whenever
-    possible.
+    For read-only access, at() is slightly faster than operator[]().
 
     A common requirement is to remove an item from a list and do
     something with it. For this, QList provides takeAt(),
@@ -461,9 +460,9 @@ void **QListData::erase(void **xi)
     Same as at().
 */
 
-/*! \fn void QList::append(const T &t)
+/*! \fn void QList::append(const T &value)
 
-    Inserts item \a t at the end of the list.
+    Inserts \a value at the end of the list.
 
     Example:
     \code
@@ -474,14 +473,14 @@ void **QListData::erase(void **xi)
         // list: [ "one", "two", "three" ]
     \endcode
 
-    This is the same as list.insert(size(), \a t).
+    This is the same as list.insert(size(), \a value).
 
     \sa operator<<(), prepend(), insert()
 */
 
-/*! \fn void QList::prepend(const T &t)
+/*! \fn void QList::prepend(const T &value)
 
-    Inserts \a t at the beginning of the list.
+    Inserts \a value at the beginning of the list.
 
     Example:
     \code
@@ -492,14 +491,14 @@ void **QListData::erase(void **xi)
         // list: [ "three", "two", "one" ]
     \endcode
 
-    This is the same as list.insert(0, \a t).
+    This is the same as list.insert(0, \a value).
 
     \sa append(), insert()
 */
 
-/*! \fn void QList::insert(int i, const T &t)
+/*! \fn void QList::insert(int i, const T &value)
 
-    Inserts the value \a t at index position \a i in the list. If \a i
+    Inserts \a value at index position \a i in the list. If \a i
     is 0, the value is prepended to the list. If \a i is size(), the
     value is appended to the list.
 
@@ -514,18 +513,17 @@ void **QListData::erase(void **xi)
     \sa append(), prepend(), replace(), removeAt()
 */
 
-/*! \fn QList::iterator QList::insert(iterator before, const T &t)
+/*! \fn QList::iterator QList::insert(iterator before, const T &value)
 
     \overload
 
-    Inserts the value \a t in front of the item pointed to by the
-    iterator \a before. Returns an iterator pointing at the inserted
-    item.
+    Inserts \a value in front of the item pointed to by the iterator
+    \a before. Returns an iterator pointing at the inserted item.
 */
 
-/*! \fn void QList::replace(int i, const T &t)
+/*! \fn void QList::replace(int i, const T &value)
 
-    Replaces the item at index position \a i with \a t.
+    Replaces the item at index position \a i with \a value.
 
     \a i must be a valid index position in the list (i.e., 0 <= \a
     i < size()).
@@ -533,9 +531,9 @@ void **QListData::erase(void **xi)
     \sa operator[](), removeAt()
 */
 
-/*! \fn int QList::remove(const T &t)
+/*! \fn int QList::remove(const T &value)
 
-    Removes all occurrences of item \a t in the list.
+    Removes all occurrences of \a value in the list.
 
     Example:
     \code
@@ -595,7 +593,7 @@ void **QListData::erase(void **xi)
 
     Example:
     \code
-	QList list;
+	QList<QString> list;
         list << "A" << "B" << "C" << "D" << "E" << "F";
         list.move(1, 4);
         // list: [ "A", "C", "D", "E", "B", "F" ]
@@ -613,7 +611,7 @@ void **QListData::erase(void **xi)
 
     Example:
     \code
-	QList list;
+	QList<QString> list;
         list << "A" << "B" << "C" << "D" << "E" << "F";
         list.swap(1, 4);
         // list: [ "A", "E", "C", "D", "B", "F" ]
@@ -622,15 +620,15 @@ void **QListData::erase(void **xi)
     \sa move()
 */
 
-/*! \fn int QList::indexOf(const T &t, int from = 0) const
+/*! \fn int QList::indexOf(const T &value, int from = 0) const
 
-    Returns the index position of the first occurrence of the value \a
-    t in the list, searching forward from index position \a from.
-    Returns -1 if no item matched.
+    Returns the index position of the first occurrence of \a value in
+    the list, searching forward from index position \a from. Returns
+    -1 if no item matched.
 
     Example:
     \code
-	QList list;
+	QList<QString> list;
         list << "A" << "B" << "C" << "B" << "A";
         list.indexOf("B");          // returns 1
         list.indexOf("B", 1);       // returns 1
@@ -644,16 +642,16 @@ void **QListData::erase(void **xi)
     \sa lastIndexOf(), contains()
 */
 
-/*! \fn int QList::lastIndexOf(const T &t, int from = -1) const
+/*! \fn int QList::lastIndexOf(const T &value, int from = -1) const
 
-    Returns the index position of the last occurrence of the value \a
-    t in the list, searching backward from index position \a from. If
-    \a from is -1 (the default), the search starts at the last item.
+    Returns the index position of the last occurrence of \a value in
+    the list, searching backward from index position \a from. If \a
+    from is -1 (the default), the search starts at the last item.
     Returns -1 if no item matched.
 
     Example:
     \code
-	QList list;
+	QList<QString> list;
         list << "A" << "B" << "C" << "B" << "A";
         list.lastIndexOf("B");      // returns 3
         list.lastIndexOf("B", 3);   // returns 3
@@ -666,10 +664,10 @@ void **QListData::erase(void **xi)
     \sa indexOf()
 */
 
-/*! \fn QBool QList::contains(const T &t) const
+/*! \fn QBool QList::contains(const T &value) const
 
-    Returns true if the list contains an occurrence of the value \a
-    t; otherwise returns false.
+    Returns true if the list contains an occurrence of \a value;
+    otherwise returns false.
 
     This function requires the value type to have an implementation of
     \c operator==().
@@ -677,9 +675,9 @@ void **QListData::erase(void **xi)
     \sa indexOf(), count()
 */
 
-/*! \fn int QList::count(const T &t) const
+/*! \fn int QList::count(const T &value) const
 
-    Returns the number of occurrences of the value \a t in the list.
+    Returns the number of occurrences of \a value in the list.
 
     This function requires the value type to have an implementation of
     \c operator==().
@@ -743,7 +741,8 @@ void **QListData::erase(void **xi)
     \overload
 
     Removes all the items from \a begin up to (but not including) \a
-    end.
+    end. Returns an iterator to the same item that \a end referred to
+    before the call.
 */
 
 /*! \typedef QList::Iterator
@@ -754,6 +753,11 @@ void **QListData::erase(void **xi)
 /*! \typedef QList::ConstIterator
 
     Qt-style synonym for QList::const_iterator.
+*/
+
+/*! \typedef QList::size_type
+
+    \internal
 */
 
 /*! \fn int QList::count() const
@@ -825,16 +829,16 @@ void **QListData::erase(void **xi)
     \a defaultValue.
 */
 
-/*! \fn void QList::push_back(const T &t)
+/*! \fn void QList::push_back(const T &value)
 
     This function is provided for STL compatibility. It is equivalent
-    to append().
+    to append(\a value).
 */
 
-/*! \fn void QList::push_front(const T &t)
+/*! \fn void QList::push_front(const T &value)
 
     This function is provided for STL compatibility. It is equivalent
-    to prepend().
+    to prepend(\a value).
 */
 
 /*! \fn T& QList::front()
@@ -885,11 +889,11 @@ void **QListData::erase(void **xi)
     \sa operator+(), append()
 */
 
-/*! \fn void QList::operator+=(const T &t)
+/*! \fn void QList::operator+=(const T &value)
 
     \overload
 
-    Appends the value \a t to the list.
+    Appends \a value to the list.
 
     \sa append(), operator<<()
 */
@@ -902,15 +906,15 @@ void **QListData::erase(void **xi)
     \sa operator+=()
 */
 
-/*! \fn QList &QList::operator<<(const T &t)
+/*! \fn QList &QList::operator<<(const T &value)
 
-    Appends the value \a t to the list and returns a reference to this
+    Appends \a value to the list and returns a reference to this
     list.
 
     \sa append(), operator+=()
 */
 
-/*!  bool QList::ensure_constructed()
+/*! \fn bool QList::ensure_constructed()
 
     \internal
 */
@@ -993,7 +997,7 @@ void **QListData::erase(void **xi)
     it before using it.
 */
 
-/*! \fn QList::iterator::iterator(Node *n)
+/*! \fn QList::iterator::iterator(Node *node)
 
     \internal
 */
@@ -1185,7 +1189,7 @@ void **QListData::erase(void **xi)
     it before using it.
 */
 
-/*! \fn QList::const_iterator::const_iterator(Node *n)
+/*! \fn QList::const_iterator::const_iterator(Node *node)
 
     \internal
 */
@@ -1305,4 +1309,26 @@ void **QListData::erase(void **xi)
 
     Returns the number of items between the item pointed to by \a
     other and the item pointed to by this iterator.
+*/
+
+/*! \fn template <class T> QDataStream &operator<<(QDataStream &out, const QList<T> &list)
+    \relates QList
+
+    Writes the list \a list to stream \a out.
+
+    This function requires the value type to implement \c
+    operator<<().
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+/*! \fn template <class T> QDataStream &operator>>(QDataStream &in, QList<T> &list)
+    \relates QList
+
+    Reads a list from stream \a in into \a list.
+
+    This function requires the value type to implement \c
+    operator>>().
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

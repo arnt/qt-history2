@@ -5,14 +5,14 @@
 #include <qglobal.h>
 #endif // QT_H
 
-template<class T, int prealloc = 256>
+template<class T, int Prealloc = 256>
 class QVarLengthArray
 {
 public:
     inline QVarLengthArray(int size = 0)
-	: a(prealloc), s(size) {
-	ptr = reinterpret_cast<T*>(array);
-	if (s > prealloc)
+	: a(Prealloc), s(size) {
+	ptr = reinterpret_cast<T *>(array);
+	if (s > Prealloc)
 	    ptr = reinterpret_cast<T *>(qMalloc(s * sizeof(T)));
 	if (QTypeInfo<T>::isComplex) {
 	    T* i = ptr + s;
@@ -26,11 +26,12 @@ public:
 	    while (i-- != ptr)
 		i->~T();
 	}
-	if (ptr != reinterpret_cast<T*>(array))
+	if (ptr != reinterpret_cast<T *>(array))
 	    qFree(ptr);
     }
 
     inline int size() const { return s; }
+    inline int count() const { return s; }
     inline bool isEmpty() const { return (s == 0); }
     inline void resize(int size) {
 	realloc(size, qMax(size,a));
@@ -67,12 +68,12 @@ private:
     void realloc(int size, int alloc);
     int a;
     int s;
-    unsigned char array[prealloc*sizeof(T)];
+    unsigned char array[Prealloc * sizeof(T)];
     T *ptr;
 };
 
-template <class T, int prealloc>
-Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, prealloc>::realloc(int size, int alloc)
+template <class T, int Prealloc>
+Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int size, int alloc)
 {
     T *oldPtr = ptr;
     if (alloc > a) {

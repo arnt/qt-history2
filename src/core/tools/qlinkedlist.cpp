@@ -198,9 +198,9 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa remove()
 */
 
-/*! \fn void QLinkedList::append(const T &t)
+/*! \fn void QLinkedList::append(const T &value)
 
-    Inserts item \a t at the end of the list.
+    Inserts \a value at the end of the list.
 
     Example:
     \code
@@ -211,14 +211,14 @@ QLinkedListData QLinkedListData::shared_null = {
         // list: [ "one", "two", "three" ]
     \endcode
 
-    This is the same as list.insert(end(), \a t).
+    This is the same as list.insert(end(), \a value).
 
     \sa operator<<(), prepend(), insert()
 */
 
 /*! \fn void QLinkedList::prepend(const T &)
 
-    Inserts \a t at the beginning of the list.
+    Inserts \a value at the beginning of the list.
 
     Example:
     \code
@@ -229,14 +229,14 @@ QLinkedListData QLinkedListData::shared_null = {
         // list: [ "three", "two", "one" ]
     \endcode
 
-    This is the same as list.insert(begin(), \a t).
+    This is the same as list.insert(begin(), \a value).
 
     \sa append(), insert()
 */
 
-/*! \fn int QLinkedList::remove(const T &t)
+/*! \fn int QLinkedList::remove(const T &value)
 
-    Removes all occurrences of item \a t in the list.
+    Removes all occurrences of \a value in the list.
 
     Example:
     \code
@@ -252,10 +252,10 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa insert()
 */
 
-/*! \fn bool QLinkedList::contains(const T &t) const
+/*! \fn bool QLinkedList::contains(const T &value) const
 
-    Returns true if the list contains an occurrence of the value
-    \a t; otherwise returns false.
+    Returns true if the list contains an occurrence of \a value;
+    otherwise returns false.
 
     This function requires the value type to have an implementation of
     \c operator==().
@@ -263,9 +263,9 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa QListIterator::findNext(), QListIterator::findPrev()
 */
 
-/*! \fn int QLinkedList::count(const T &t) const
+/*! \fn int QLinkedList::count(const T &value) const
 
-    Returns the number of occurrences of the value \a t in the list.
+    Returns the number of occurrences of \a value in the list.
 
     This function requires the value type to have an implementation of
     \c operator==().
@@ -315,11 +315,10 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa constBegin(), end()
 */
 
-/*! \fn QLinkedList::iterator QLinkedList::insert(iterator before, const T &t)
+/*! \fn QLinkedList::iterator QLinkedList::insert(iterator before, const T &value)
 
-    Inserts the value \a t in front of the item pointed to by the
-    iterator \a before. Returns an iterator pointing at the inserted
-    item.
+    Inserts \a value in front of the item pointed to by the iterator
+    \a before. Returns an iterator pointing at the inserted item.
 
     \sa erase()
 */
@@ -341,14 +340,19 @@ QLinkedListData QLinkedListData::shared_null = {
     end.
 */
 
-/*! \fn typedef QLinkedList::Iterator
+/*! \typedef QLinkedList::Iterator
 
     Qt-style synonym for QList::iterator.
 */
 
-/*! \fn typedef QLinkedList::ConstIterator
+/*! \typedef QLinkedList::ConstIterator
 
     Qt-style synonym for QList::const_iterator.
+*/
+
+/*! \typedef QLinkedList::size_type
+
+    \internal
 */
 
 /*! \fn int QLinkedList::count() const
@@ -416,16 +420,16 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa takeFirst(), takeAt(), removeLast()
 */
 
-/*! \fn void QLinkedList::push_back(const T &t)
+/*! \fn void QLinkedList::push_back(const T &value)
 
     This function is provided for STL compatibility. It is equivalent
-    to append(\a t).
+    to append(\a value).
 */
 
-/*! \fn void QLinkedList::push_front(const T &t)
+/*! \fn void QLinkedList::push_front(const T &value)
 
     This function is provided for STL compatibility. It is equivalent
-    to prepend(\a t).
+    to prepend(\a value).
 */
 
 /*! \fn T& QLinkedList::front()
@@ -484,18 +488,18 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa operator+=()
 */
 
-/*! \fn void QLinkedList::operator+=(const T &t)
+/*! \fn void QLinkedList::operator+=(const T &value)
 
     \overload
 
-    Appends the value \a t to the list.
+    Appends \a value to the list.
 
     \sa append(), operator<<()
 */
 
-/*! \fn QLinkedList &QLinkedList::operator<<(const T &t)
+/*! \fn QLinkedList &QLinkedList::operator<<(const T &value)
 
-    Appends the value \a t to the list and returns a reference to this
+    Appends \a value to the list and returns a reference to this
     list.
 
     \sa append(), operator+=()
@@ -626,7 +630,7 @@ QLinkedListData QLinkedListData::shared_null = {
     it before using it.
 */
 
-/*! \fn QLinkedList::iterator::iterator(Node *n)
+/*! \fn QLinkedList::iterator::iterator(Node *node)
 
     \internal
 */
@@ -807,7 +811,7 @@ QLinkedListData QLinkedListData::shared_null = {
     it before using it.
 */
 
-/*! \fn QLinkedList::const_iterator::const_iterator(Node *n)
+/*! \fn QLinkedList::const_iterator::const_iterator(Node *node)
 
     \internal
 */
@@ -908,6 +912,8 @@ QLinkedListData QLinkedListData::shared_null = {
     Advances the iterator by \a j items. (If \a j is negative, the
     iterator goes backward.)
 
+    This operation can be slow for large \a j values.
+
     \sa operator-=(), operator+()
 */
 
@@ -916,5 +922,28 @@ QLinkedListData QLinkedListData::shared_null = {
     Makes the iterator go back by \a j items. (If \a j is negative,
     the iterator goes forward.)
 
+    This operation can be slow for large \a j values.
+
     \sa operator+=(), operator-()
+*/
+
+/*! \fn template <class T> QDataStream &operator<<(QDataStream &out, const QLinkedList<T> &list)
+    \relates QLinkedList
+
+    Writes the linked list \a list to stream \a out.
+
+    This function requires the value type to implement \c
+    operator<<().
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+/*! \fn template <class T> QDataStream &operator>>(QDataStream &in, QLinkedList<T> &list)
+    \relates QLinkedList
+
+    Reads a linked list from stream \a in into \a list.
+
+    This function requires the value type to implement \c operator>>().
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

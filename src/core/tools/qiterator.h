@@ -89,8 +89,6 @@ public: \
     inline bool hasPrev() const { return c && i != c->constBegin(); } \
     inline const_iterator prev() { n = --i; return n; } \
     inline const_iterator peekPrev() const { const_iterator p = i; return --p; } \
-    inline void remove() \
-    { if (n != c->constEnd()) { i = c->erase(n); n = c->constEnd(); } } \
     inline const T &value() const { Q_ASSERT(item_exists()); return *n; } \
     inline const Key &key() const { Q_ASSERT(item_exists()); return n.key(); } \
     inline bool findNext(const T &t) \

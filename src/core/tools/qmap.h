@@ -5,7 +5,6 @@
 #include "qatomic.h"
 #include "qiterator.h"
 #include "qlist.h"
-//#include "qpair.h" ###
 #endif
 
 #ifndef QT_NO_STL
@@ -110,6 +109,7 @@ public:
     const T operator[](const Key &key) const;
 
     QList<Key> keys() const;
+    QList<Key> keys(const T &value) const;
     QList<T> values() const;
     QList<T> values(const Key &key) const;
     int count(const Key &key) const;
@@ -218,7 +218,6 @@ public:
 #ifdef QT_COMPAT
     inline QT_COMPAT iterator remove(iterator it) { return erase(it); }
 #endif
-    // ### QPair<iterator, bool> insert(const value_type &x);
 
     // more Qt
     typedef iterator Iterator;
@@ -602,6 +601,19 @@ Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key, T>::keys() const
 }
 
 template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE QList<Key> QMap<Key, T>::keys(const T &value) const
+{
+    QList<Key> res;
+    const_iterator i = begin();
+    while (i != end()) {
+	if (i.value() == value)
+	    res.append(i.key());
+        ++i;
+    }
+    return res;
+}
+
+template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values() const
 {
     QList<T> res;
@@ -616,15 +628,15 @@ Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values() const
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values(const Key &key) const
 {
-    QList<T> list;
+    QList<T> res;
     QMapData::Node *node = findNode(key);
     if (node != e) {
         do {
-	    list.append(concrete(node)->value);
+	    res.append(concrete(node)->value);
 	    node = node->forward[0];
         } while (node != e && !(key < concrete(node)->key));
     }
-    return list;
+    return res;
 }
 
 template <class Key, class T>

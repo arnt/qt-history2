@@ -4,6 +4,7 @@
 #ifndef QT_H
 #include "qiterator.h"
 #include "qatomic.h"
+#include "qvector.h"
 #endif // QT_H
 
 struct Q_CORE_EXPORT QListData {
@@ -44,7 +45,7 @@ class QList
 	Q_INLINE_TEMPLATE T &t();
 #else
 	Q_INLINE_TEMPLATE T &t()
-	{ return QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic ? *(T*)v:*(T*)this; }
+	{ return QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic ? *(T*)v : *(T*)this; }
 #endif
     };
 
@@ -56,6 +57,7 @@ class QList
 public:
     inline QList() : d(&QListData::shared_null) { ++d->ref; }
     inline QList(const QList &l) : d(l.d) { ++d->ref; }
+    QList(const QVector<T> &vector);
     ~QList();
     QList &operator=(const QList &l);
     bool operator==(const QList &l) const;
@@ -504,7 +506,14 @@ Q_OUTOFLINE_TEMPLATE int QList<T>::count(const T &t) const
     return c;
 }
 
+template <typename T>
+Q_OUTOFLINE_TEMPLATE QList<T>::QList(const QVector<T> &vector)
+{
+    p.realloc(vector.size());
+    for (int i = 0; i < vector.size(); ++i)
+	append(vector.at(i));
+}
+
 Q_DECLARE_ITERATOR(QList)
 
 #endif // QLIST_H
-

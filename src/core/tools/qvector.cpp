@@ -186,10 +186,10 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa resize()
 */
 
-/*! \fn QVector::QVector(int size, const T &t)
+/*! \fn QVector::QVector(int size, const T &value)
 
     Constructs a vector with an initial size of \a size elements.
-    Each element is initialized with the value of \a t.
+    Each element is initialized with \a value.
 
     \sa resize(), fill()
 */
@@ -405,9 +405,9 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     Same as at().
 */
 
-/*! \fn void QVector::append(const T &t)
+/*! \fn void QVector::append(const T &value)
 
-    Inserts item \a t at the end of the vector.
+    Inserts \a value at the end of the vector.
 
     Example:
     \code
@@ -418,8 +418,8 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
         // vector: [ "one", "two", three" ]
     \endcode
 
-    This is the same as calling resize(size() + 1) and assigning the
-    value \a t to the new last element in the vector.
+    This is the same as calling resize(size() + 1) and assigning \a
+    value to the new last element in the vector.
 
     This operation is relatively fast, because QVector typically
     allocates more memory than necessary, so it can grow without
@@ -428,9 +428,9 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa operator<<(), prepend(), insert()
 */
 
-/*! \fn void QVector::prepend(const T &t)
+/*! \fn void QVector::prepend(const T &value)
 
-    Inserts \a t at the beginning of the vector.
+    Inserts \a value at the beginning of the vector.
 
     Example:
     \code
@@ -441,7 +441,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
         // vector: [ "one", "two", "three" ]
     \endcode
 
-    This is the same as vector.insert(0, \a t).
+    This is the same as vector.insert(0, \a value).
 
     For large vectors, this operation can be slow (\l{linear time}),
     because it requires moving all the items in the vector by one
@@ -452,11 +452,11 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa append(), insert()
 */
 
-/*! \fn void QVector::insert(int i, const T &t)
+/*! \fn void QVector::insert(int i, const T &value)
 
-    Inserts the value \a t at index position \a i in the vector. If
-    \a i is 0, the value is prepended to the vector. If \a i is
-    size(), the value is appended to the vector.
+    Inserts \a value at index position \a i in the vector. If \a i is
+    0, the value is prepended to the vector. If \a i is size(), the
+    value is appended to the vector.
 
     Example:
     \code
@@ -475,11 +475,11 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa append(), prepend(), removeAt()
 */
 
-/*! \fn void QVector::insert(int i, int n, const T &t)
+/*! \fn void QVector::insert(int i, int count, const T &value)
 
     \overload
 
-    Inserts \a n copies of value \a t at index position \a i in the
+    Inserts \a count copies of \a value at index position \a i in the
     vector.
 
     Example:
@@ -491,25 +491,24 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \endcode
 */
 
-/*! \fn QVector::iterator QVector::insert(iterator before, const T &t)
+/*! \fn QVector::iterator QVector::insert(iterator before, const T &value)
 
     \overload
 
-    Inserts the value \a t in front of the item pointed to by the
-    iterator \a before. Returns an iterator pointing at the inserted
-    item.
+    Inserts \a value in front of the item pointed to by the iterator
+    \a before. Returns an iterator pointing at the inserted item.
 */
 
-/*! \fn QVector::iterator QVector::insert(iterator before, int n, const T &t)
+/*! \fn QVector::iterator QVector::insert(iterator before, int count, const T &value)
 
-    Inserts \a n copies of value \a t in front of the item pointed to
+    Inserts \a count copies of \a value in front of the item pointed to
     by the iterator \a before. Returns an iterator pointing at the
     first inserted item.
 */
 
-/*! \fn void QVector::replace(int i, const T &t)
+/*! \fn void QVector::replace(int i, const T &value)
 
-    Replaces the item at index position \a i with value \a t.
+    Replaces the item at index position \a i with \a value.
 
     \a i must be a valid index position in the vector (i.e., 0 <= \a
     i < size()).
@@ -517,17 +516,17 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa operator[](), remove()
 */
 
-/*! \fn void QVector::remove(int i, int n)
+/*! \fn void QVector::remove(int i, int count)
 
-    Remove \a n elements from the middle of the vector, starting at
+    Remove \a count elements from the middle of the vector, starting at
     index position \a i.
 
     \sa insert(), replace(), fill()
 */
 
-/*! \fn QVector &QVector::fill(const T &t, int size = -1)
+/*! \fn QVector &QVector::fill(const T &value, int size = -1)
 
-    Assigns value \a t to all items in the vector. If \a size is
+    Assigns \a value to all items in the vector. If \a size is
     different from -1 (the default), the vector is resized to size \a
     size beforehand.
 
@@ -543,11 +542,11 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa resize()
 */
 
-/*! \fn int QVector::indexOf(const T &t, int from = 0) const
+/*! \fn int QVector::indexOf(const T &value, int from = 0) const
 
-    Returns the index position of the first occurrence of the value
-    \a t in the vector, searching forward from index position \a
-    from. Returns -1 if no item matched.
+    Returns the index position of the first occurrence of \a value in
+    the vector, searching forward from index position \a from.
+    Returns -1 if no item matched.
 
     Example:
     \code
@@ -565,12 +564,12 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa lastIndexOf(), contains()
 */
 
-/*! \fn int QVector::lastIndexOf(const T &t, int from = -1) const
+/*! \fn int QVector::lastIndexOf(const T &value, int from = -1) const
 
     Returns the index position of the last occurrence of the value \a
-    t in the vector, searching backward from index position \a from. If
-    \a from is -1 (the default), the search starts at the last item.
-    Returns -1 if no item matched.
+    value in the vector, searching backward from index position \a
+    from. If \a from is -1 (the default), the search starts at the
+    last item. Returns -1 if no item matched.
 
     Example:
     \code
@@ -587,10 +586,10 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa indexOf()
 */
 
-/*! \fn bool QVector::contains(const T &t) const
+/*! \fn bool QVector::contains(const T &value) const
 
-    Returns true if the vector contains an occurrence of the value \a
-    t; otherwise returns false.
+    Returns true if the vector contains an occurrence of \a value;
+    otherwise returns false.
 
     This function requires the value type to have an implementation of
     \c operator==().
@@ -598,9 +597,9 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa indexOf(), count()
 */
 
-/*! \fn int QVector::count(const T &t) const
+/*! \fn int QVector::count(const T &value) const
 
-    Returns the number of occurrences of the value \a t in the vector.
+    Returns the number of occurrences of \a value in the vector.
 
     This function requires the value type to have an implementation of
     \c operator==().
@@ -671,7 +670,8 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \overload
 
     Removes all the items from \a begin up to (but not including) \a
-    end. Returns an iterator to \a end.
+    end. Returns an iterator to the same item that \a end referred to
+    before the call.
 */
 
 /*! \fn T& QVector::first()
@@ -720,16 +720,16 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \a defaultValue.
 */
 
-/*! \fn void QVector::push_back(const T &t)
+/*! \fn void QVector::push_back(const T &value)
 
     This function is provided for STL compatibility. It is equivalent
-    to append(\a t).
+    to append(\a value).
 */
 
-/*! \fn void QVector::push_front(const T &t)
+/*! \fn void QVector::push_front(const T &value)
 
     This function is provided for STL compatibility. It is equivalent
-    to prepend(\a t).
+    to prepend(\a value).
 */
 
 /*! \fn void QVector::pop_front()
@@ -780,11 +780,11 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa operator+(), append()
 */
 
-/*! \fn void QVector::operator+=(const T &t)
+/*! \fn void QVector::operator+=(const T &value)
 
     \overload
 
-    Appends the value \a t to the vector.
+    Appends \a value to the vector.
 
     \sa append(), operator<<()
 */
@@ -797,10 +797,10 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa operator+=()
 */
 
-/*! \fn QVector &QVector::operator<<(const T &t)
+/*! \fn QVector &QVector::operator<<(const T &value)
 
-    Appends the value \a t to the vector and returns a reference to
-    this vector.
+    Appends \a value to the vector and returns a reference to this
+    vector.
 
     \sa append(), operator+=()
 */
@@ -842,4 +842,59 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 /*! \typedef QVector::ConstIterator
 
     Qt-style synonym for QVector::const_iterator.
+*/
+
+/*! \typedef QVector::const_pointer
+
+    \internal
+*/
+
+/*! \typedef QVector::const_reference
+
+    \internal
+*/
+
+/*! \typedef QVector::difference_type
+
+    \internal
+*/
+
+/*! \typedef QVector::pointer
+
+    \internal
+*/
+
+/*! \typedef QVector::reference
+
+    \internal
+*/
+
+/*! \typedef QVector::size_type
+
+    \internal
+*/
+
+/*! \typedef QVector::value_type
+
+    \internal
+*/
+
+/*! \fn template <class T> QDataStream &operator<<(QDataStream &out, const QVector<T> &vector)
+    \relates QVector
+
+    Writes the vector \a vector to stream \a out.
+
+    This function requires the value type to implement \c operator<<().
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+/*! \fn template <class T> QDataStream &operator>>(QDataStream &in, QVector<T> &vector)
+    \relates QVector
+
+    Reads a vector from stream \a in into \a vector.
+
+    This function requires the value type to implement \c operator>>().
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

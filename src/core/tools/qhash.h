@@ -5,7 +5,6 @@
 #include "qatomic.h"
 #include "qiterator.h"
 #include "qlist.h"
-//#include "qpair.h" ###
 #endif // QT_H
 
 #ifndef QT_NO_STL
@@ -188,6 +187,7 @@ public:
     const T operator[](const Key &key) const;
 
     QList<Key> keys() const;
+    QList<Key> keys(const T &value) const;
     QList<T> values() const;
     QList<T> values(const Key &key) const;
     int count(const Key &key) const;
@@ -285,7 +285,6 @@ public:
     inline const_iterator end() const { return const_iterator(e); }
     inline const_iterator constEnd() const { return const_iterator(e); }
     iterator erase(iterator it);
-    // ### QPair<iterator, bool> insert(const value_type &x);
 
     // more Qt
     typedef iterator Iterator;
@@ -425,6 +424,19 @@ Q_OUTOFLINE_TEMPLATE QList<Key> QHash<Key, T>::keys() const
 }
 
 template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE QList<Key> QHash<Key, T>::keys(const T &value) const
+{
+    QList<Key> res;
+    const_iterator i = begin();
+    while (i != end()) {
+	if (it.value() == value)
+	    res.append(i.key());
+        ++i;
+    }
+    return res;
+}
+
+template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QList<T> QHash<Key, T>::values() const
 {
     QList<T> res;
@@ -439,14 +451,14 @@ Q_OUTOFLINE_TEMPLATE QList<T> QHash<Key, T>::values() const
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QList<T> QHash<Key, T>::values(const Key &key) const
 {
-    QList<T> list;
+    QList<T> res;
     Node *node = *findNode(key);
     if (node != e) {
 	do {
-	    list.append(node->value);
+	    res.append(node->value);
 	} while ((node = node->next) != e && node->key == key);
     }
-    return list;
+    return res;
 }
 
 template <class Key, class T>

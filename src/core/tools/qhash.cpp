@@ -314,6 +314,7 @@ void QHashData::free()
     \code
 	// WRONG
 	QHash<int, QWidget *> hash;
+	...
 	for (int i = 0; i < 1000; ++i) {
 	    if (hash[i] == okButton)
 		cout << "Found button at index " << i << endl;
@@ -591,7 +592,7 @@ void QHashData::free()
     Ideally, \a size should be slightly more than the maximum number
     of items expected in the hash. \a size doesn't have to be prime,
     because QHash will use a prime number internally anyway. If \a size
-    is an underestimate, the worse that will happen is that the QHash
+    is an underestimate, the worst that will happen is that the QHash
     will be a bit slower.
 
     In general, you will rarely ever need to call this function.
@@ -713,20 +714,33 @@ void QHashData::free()
 
 /*! \fn QList<Key> QHash::keys() const
 
-    Returns a list of all the keys in the hash, in an arbitrary
-    order. Keys that occur multiple times in the hash also occur
-    multiple times in the list.
+    Returns a list containing all the keys in the hash, in an
+    arbitrary order. Keys that occur multiple times in the hash also
+    occur multiple times in the list.
 
     The order is guaranteed to be the same as that used by values().
 
     \sa values()
 */
 
+/*! \fn QList<Key> QHash::keys(const T &value) const
+
+    \overload
+
+    Returns a list containing all the keys associated with value \a
+    value, in an arbitrary order.
+
+    This function can be slow (\l{linear time}), because QHash's
+    internal data structure is optimized for fast lookup by key, not
+    by value.
+*/
+
 /*! \fn QList<T> QHash::values() const
 
-    Returns a list of all the values in the hash, in an arbitrary
-    order. If a key is associated multiple values, all of its values
-    will be in the list, and not just the most recently inserted one.
+    Returns a list containing all the values in the hash, in an
+    arbitrary order. If a key is associated multiple values, all of
+    its values will be in the list, and not just the most recently
+    inserted one.
 
     The order is guaranteed to be the same as that used by keys().
 
@@ -737,7 +751,7 @@ void QHashData::free()
 
     \overload
 
-    Returns a list of all the values associated with a given key,
+    Returns a list of all the values associated with key \a key,
     from the most recently inserted to the least recently inserted
     one.
 
@@ -1362,4 +1376,26 @@ void QHashData::free()
     \relates QHash
 
     \overload
+*/
+
+/*! \fn template <class Key, class T> QDataStream &operator<<(QDataStream &out, const QHash<Key, T>& hash)
+    \relates QHash
+
+    Writes the hash \a hash to stream \a out.
+
+    This function requires the key and value types to implement \c
+    operator<<().
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+/*! \fn template <class Key, class T> QDataStream &operator>>(QDataStream &in, QHash<Key, T> &hash)
+    \relates QHash
+
+    Reads a hash from stream \a in into \a hash.
+
+    This function requires the key and value types to implement \c
+    operator>>().
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
