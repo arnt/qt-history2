@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#219 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#220 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2797,7 +2797,7 @@ const char* QImageIO::imageFormat( const QString &fileName )
     QFile file( fileName );
     if ( !file.open(IO_ReadOnly) )
 	return 0;
-    QString format = imageFormat( &file );
+    const char* format = imageFormat( &file );
     file.close();
     return format;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#214 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#215 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -226,8 +226,7 @@ QString QPopupMenu::accelString( int k )
 	k &= ~ASCII_ACCEL;
 	p.sprintf( "%c", (k & 0xff) );
     } else if ( k >= Key_F1 && k <= Key_F24 ) {
-	p.sprintf( "F%d", k - Key_F1 + 1 );
-	p = tr( p );
+	p = tr( "F%1" ).arg(k - Key_F1 + 1);
     } else if ( k > Key_Space && k <= Key_AsciiTilde ) {
 	p.sprintf( "%c", k );
     } else {

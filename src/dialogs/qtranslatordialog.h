@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.h#2 $
+** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.h#3 $
 **
 ** Definition of QTranslatorDialog class
 **
@@ -76,10 +76,9 @@ public:
     QMessageParser();
 
     virtual ~QMessageParser();
-    //void parse( QTextStream *input, QString name, QString scope = "PO" );
-    void parse( const QString &filename, QString scope = "PO" );
+    void parse( const QString &filename, const QCString& scope = "PO" );
 protected:
-    virtual void add( const char*, const char*, const char* );
+    virtual void add( const char*, const char*, const QString& );
 private:
     enum State { Initial, AfterKey, Error };
 
@@ -92,8 +91,8 @@ private:
     State state;
     QMessageLexer *lex;
     QString fileName;
-    QString scope;
-    QString key;
+    QCString scope;
+    QCString key;
     QString trans;
 
 };

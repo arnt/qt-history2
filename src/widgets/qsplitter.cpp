@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#64 $
 **
 **  Splitter widget
 **
@@ -37,7 +37,7 @@ class QSplitterHandle : public QWidget
 {
 public:
     QSplitterHandle( Qt::Orientation o,
-		       QSplitter *parent, QString name=QString::null );
+		       QSplitter *parent, const char* name=0 );
     void setOrientation( Qt::Orientation o );
     Qt::Orientation orientation() const { return orient; }
 
@@ -68,7 +68,7 @@ static int opaqueOldPos = -1; //### there's only one mouse, but this is a bit ri
 
 
 QSplitterHandle::QSplitterHandle( Qt::Orientation o,
-				      QSplitter *parent, QString name )
+				      QSplitter *parent, const char* name )
     : QWidget( parent, name )
 {
     s = parent;

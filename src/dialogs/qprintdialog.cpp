@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#61 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#62 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -89,7 +89,7 @@ static void perhapsAddPrinter( QListView * printers, const QString &name,
 			       QString host, QString comment )
 {
     const QListViewItem * i = printers->firstChild();
-    while( i && qstrcmp( i->text( 0 ), name ) )
+    while( i && i->text( 0 ) != name )
 	i = i->nextSibling();
     if ( i )
 	return;
@@ -294,7 +294,7 @@ static char * parsePrintersConf( QListView * printers )
 			   printerDesc[j] )
 			j++;
 		    // that's our default printer
-		    defaultPrinter = qstrdup( printerDesc.mid( i, j-i ) );
+		    defaultPrinter = qstrdup( printerDesc.mid( i, j-i ).ascii() );
 		    printerName = 0;
 		    printerDesc = 0;
 		} else if ( printerName == "_all" ) {
@@ -434,7 +434,7 @@ static void parseSpoolInterface( QListView * printers )
 	configFile.close();
 
 	printerType = printerType.stripWhiteSpace();
-	if ( !printerType.isEmpty() && qstricmp( printerType, "postscript" ))
+	if ( !printerType.isEmpty() && qstricmp( printerType.ascii(), "postscript" ))
 	    continue;
 
 	if(hostName.isEmpty() || hostPrinter.isEmpty())
@@ -719,21 +719,21 @@ QGroupBox * QPrintDialog::setupDestination()
 	QRegExp lp1( "[^a-z]lp[^a-z]" );
 	QRegExp lp2( "[^a-z]lp$" );
 	if ( quality < 4 &&
-	     !qstrcmp( lvi->text( 0 ), dollarPrinter ) ) {
+	     lvi->text( 0 ) == dollarPrinter ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
 	    quality = 4;
 	} else if ( quality < 3 && etcLpDefault &&
-		    !qstrcmp( lvi->text( 0 ), etcLpDefault ) ) {
+		    lvi->text( 0 ) == etcLpDefault ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
 	    quality = 3;
 	} else if ( quality < 2 &&
-		    ( !qstrcmp( lvi->text( 0 ), "ps" ) ||
+		    ( lvi->text( 0 ) == "ps" ||
 		      ps1.match( lvi->text( 2 ) ) > -1 ||
 		      ps2.match( lvi->text( 2 ) ) > -1 ) ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
 	    quality = 2;
 	} else if ( quality < 1 &&
-		    ( !qstrcmp( lvi->text( 0 ), "lp" ) ||
+		    ( lvi->text( 0 ) == "lp" ||
 		      lp1.match( lvi->text( 2 ) ) > -1 ||
 		      lp2.match( lvi->text( 2 ) ) > -1 ) ) {
 	    d->printers->setCurrentItem( (QListViewItem *)lvi );
@@ -1128,9 +1128,9 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 	printerOrFileSelected( p->outputToFile() );
 
 	// printer name
-	if ( p->printerName() ) {
+	if ( !!p->printerName() ) {
 	    QListViewItem * i = d->printers->firstChild();
-	    while( i && qstrcmp( i->text( 0 ), p->printerName() ) )
+	    while( i && i->text( 0 ) != p->printerName() )
 		i = i->nextSibling();
 	    if ( i )
 		d->printers->setSelected( i, TRUE );

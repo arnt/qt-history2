@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#35 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -659,7 +659,7 @@ QString QMultiLineEdit::markedText() const
 
 	QString tmp;
 
-	if ( firstS && *firstS )
+	if ( firstS )
 	    tmp += firstS->mid(markBeginX);
 
 	tmp += "\n";
@@ -1291,11 +1291,21 @@ void QMultiLineEdit::removeLine( int line )
 }
 
 /*!
-  Inserts \a c at the current cursor position.
+  Inserts \a s at the current cursor position.
 */
 void QMultiLineEdit::insert( const QString& s )
 {
     insert( s, FALSE );
+}
+
+/*!
+  Inserts \a c at the current cursor position.
+  (this function is provided for backward compatibility -
+  it simply calls insert()).
+*/
+void QMultiLineEdit::insertChar( QChar c )
+{
+    insert(c);
 }
 
 /*!

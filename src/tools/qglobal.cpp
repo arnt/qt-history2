@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#66 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#67 $
 **
 ** Global functions
 **
@@ -165,7 +165,7 @@ static msg_handler handler = 0;			// pointer to debug handler
 Q_EXPORT
 void debug( const char *msg, ... )
 {
-#if defined(TESTEAA)
+//#if defined(TESTEAA)
     char buf[512];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
@@ -178,9 +178,9 @@ void debug( const char *msg, ... )
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
     }
-#else
-    Q_UNUSED( msg );
-#endif
+//#else
+    //Q_UNUSED( msg );
+//#endif
 }
 
 /*!
@@ -469,3 +469,8 @@ msg_handler qInstallMsgHandler( msg_handler h )
     handler = h;
     return old;
 }
+
+
+#ifdef _WS_WIN_
+bool qt_winunicode=FALSE;
+#endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#9 $
+** $Id: //depot/qt/main/src/tools/qmap.h#10 $
 **
 ** Definition of QMap class
 **
@@ -431,11 +431,17 @@ public:
     ConstIterator begin() const { return ((const Priv*)sh)->begin(); }
     ConstIterator end() const { return ((const Priv*)sh)->end(); }
 
-    Iterator find ( const Key& k ) { detach(); return Iterator( sh->find( k ).node ); }
-    ConstIterator find ( const Key& k ) const { return sh->find( k ); }
-    T& operator[] ( const Key& k ) { detach(); return sh->find( k ).node->data; }
-    const T& operator[] ( const Key& k ) const { return sh->find( k ).data(); }
-    bool contains ( const Key& k ) const { return sh->find( k ) != ((const Priv*)sh)->end(); }
+    Iterator find ( const Key& k )
+	{ detach(); return Iterator( sh->find( k ).node ); }
+    ConstIterator find ( const Key& k ) const
+	{ return sh->find( k ); }
+    T& operator[] ( const Key& k )
+	{ detach(); return sh->find( k ).node->data; }
+    const T& operator[] ( const Key& k ) const
+	{ return sh->find( k ).data(); }
+    bool contains ( const Key& k ) const
+	{ return find( k ) != end(); }
+	//{ return sh->find( k ) != ((const Priv*)sh)->end(); }
   
     uint count() const { return sh->node_count; }
 

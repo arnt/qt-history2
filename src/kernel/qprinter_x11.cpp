@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#59 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -166,10 +166,15 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	if ( state == PST_IDLE ) {
 	    if ( output_file ) {
 #if defined(_OS_WIN32_)
-		int fd = open( output_filename,
-				O_CREAT | O_BINARY | O_TRUNC | O_WRONLY );
+		int fd;
+		if ( qt_winver == Qt::WV_NT )
+		    fd = _topen( qt_winTchar(output_filename,TRUE),
+				_O_CREAT | _O_BINARY | _O_TRUNC | _O_WRONLY );
+		else
+		    fd = _open( output_filename.ascii(),
+				_O_CREAT | _O_BINARY | _O_TRUNC | _O_WRONLY );
 #else
-		int fd = ::open( output_filename,
+		int fd = ::open( output_filename.local8Bit(),
 				 O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
 				 0666 );
 #endif
@@ -240,7 +245,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		    while( --i > 0 )
 			::close( i );
 #endif // _WS_X11_
-		    (void)execlp( print_prog, print_prog.ascii(),
+		    (void)execlp( print_prog.ascii(), print_prog.ascii(),
 				  pr.ascii(), 0 );
 		    // if execlp returns EACCES it couldn't find the
 		    // program.  if no special print program has been

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#92 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2012,7 +2012,7 @@ void QPSPrinter::setFont( const QFont & f )
     // see if the table has a better name
     i = 0;
     while( postscriptFontNames[i].input &&
-	   qstrcmp( postscriptFontNames[i].input, family ) )
+	   postscriptFontNames[i].input != family )
 	i++;
     if ( postscriptFontNames[i].roman ) {
 	ps = postscriptFontNames[i].roman;
@@ -2789,7 +2789,7 @@ void QPSPrinter::emitHeader( bool finished )
 		   << m.height() - d->boundingBox.top();
     }
     stream << "\n%%Creator: " << creator;
-    if ( title )
+    if ( !!title )
 	stream << "\n%%Title: " << title;
     stream << "\n%%CreationDate: " << QDateTime::currentDateTime().toString();
     if ( finished )

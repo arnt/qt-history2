@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#11 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#12 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -165,6 +165,7 @@ protected:
 
 protected:
     bool	cursorOn;	
+    void	insertChar( QChar );
 
 private slots:
     void	clipboardChanged();

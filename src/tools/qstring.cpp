@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#212 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#213 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -13444,11 +13444,20 @@ QString::QString( const QChar* unicode, uint length )
     d = new Data(uc,length,length);
 }
 
+#ifndef QT_NO_CAST_ASCII
+
 /*!
   Constructs a string that is a deep copy of \a str, interpreted as a
   classic C string.
 
   If \a str is 0 a null string is created.
+
+  This is a cast constructor.  You can disable this constructor by
+  defining QT_NO_CAST_ASCII when you compile your applications.  This
+  will allow you to be more vigilant about when you convert from 8-bit
+  data.  You can still make QString objects by using fromLatin1(), or
+  fromLocal8Bit(), fromUtf8(), or whatever encoding is appropriate for
+  the 8-bit data you have.
 
   \sa isNull()
 */
@@ -13462,6 +13471,7 @@ QString::QString( const char *str )
     d = new Data(uc,l,l);
 }
 
+#endif
 
 /*!
   \internal
@@ -13877,11 +13887,11 @@ QString &QString::sprintf( const char* cformat, ... )
 	// Non-escaped text
 	if ( pos > (int)last ) {
 	    result += format.mid(last,pos-last);
-//debug("%d UNESCAPED from %d = %s",pos-last,last,format.mid(last,pos-last).ascii());
+//debug("%d UNESCAPED from %d = %s",pos-last,last,format.mid(last,pos-last).latin1());
 	}
 	if ( pos < 0 ) {
 	    // The rest
-//debug("THE REST = %s",format.mid(last).ascii());
+//debug("THE REST = %s",format.mid(last).latin1());
 	    if ( last < format.length() )
 		result += format.mid(last);
 	    break;
@@ -13890,7 +13900,7 @@ QString &QString::sprintf( const char* cformat, ... )
 
 	// Escape
 	QString f = format.mid(pos,len);
-//debug("fmt=%s",f.ascii());
+//debug("fmt=%s",f.latin1());
 	uint width, decimals;
 	int params=0;
 	int wpos = f.find('*');
@@ -13949,7 +13959,7 @@ QString &QString::sprintf( const char* cformat, ... )
 		    ? replacement.rightJustify(width)
 		    : replacement.leftJustify(width);
 	    }
-//debug("rep=%s",replacement.ascii());
+//debug("rep=%s",replacement.latin1());
 	} else if ( format[pos+len] == '%' ) {
 	    replacement = "%";
 	} else if ( format[pos+len] == 'n' ) {
@@ -13957,7 +13967,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	    *n = result.length();
 	} else {
 	    char in[64], out[128];
-	    strncpy(in,f,63);
+	    strncpy(in,f.latin1(),63);
 	    char fch = format[pos+len];
 	    in[f.length()] = fch;
 	    switch ( fch ) {
@@ -13989,9 +13999,9 @@ QString &QString::sprintf( const char* cformat, ... )
 //debug("  %s -> %s",in,out);
 	    replacement = out;
 	}
-//debug("%s%c -> %s",f.ascii(),(char)format[pos+len],replacement.ascii());
+//debug("%s%c -> %s",f.latin1(),(char)format[pos+len],replacement.latin1());
 	result += replacement;
-//debug("now %s",result.ascii());
+//debug("now %s",result.latin1());
     }
     *this = result;
 
@@ -15034,7 +15044,7 @@ uint QString::toUInt( bool *ok, int base ) const
 double QString::toDouble( bool *ok ) const
 {
     char *end;
-    const char *a = ascii();
+    const char *a = latin1();
     double val = strtod( a ? a : "", &end );
     if ( ok )
 	*ok = ( a && *a && ( end == 0 || *end == '\0' ) );
@@ -15308,8 +15318,8 @@ QString &QString::operator+=( char c )
 }
 
 /*!
-  Returns an ASCII representation of the string. Note that the returned
-  value is undefined if the string contains non-ASCII characters.  If you
+  Returns a Latin-1 representation of the string. Note that the returned
+  value is undefined if the string contains non-Latin-1 characters.  If you
   want to convert strings into formats other than Unicode, see the
   QTextCodec classes.
 
@@ -15319,9 +15329,9 @@ QString &QString::operator+=( char c )
   The result remains valid so long as one unmodified
   copy of the string exists.
 
-  \sa utf8()
+  \sa utf8(), local8Bit()
 */
-const char* QString::ascii() const
+const char* QString::latin1() const
 {
     if ( d->ascii ) {
 	if ( d->dirtyascii )
@@ -15336,19 +15346,24 @@ const char* QString::ascii() const
     return d->ascii;
 }
 
+const char* QString::ascii() const
+{
+    return latin1();
+}
+
 /*!
   Returns the string encoded in UTF8 format.
 
   See QTextCodec for more diverse coding/decoding of Unicode strings.
 
-  \sa QString::fromUtf8()
+  \sa QString::fromUtf8(), local8Bit()
 */
 QCString QString::utf8() const
 {
     static QTextCodec* codec = QTextCodec::codecForMib(106);
     return codec
 	    ? codec->fromUnicode(*this)
-	    : QCString(ascii());
+	    : QCString(latin1());
 }
 
 /*!
@@ -15362,9 +15377,69 @@ QCString QString::utf8() const
 QString QString::fromUtf8(const char* utf8, int len)
 {
     static QTextCodec* codec = QTextCodec::codecForMib(106);
+    if ( len < 0 ) len = strlen(utf8);
     return codec
-	    ? codec->toUnicode(utf8, len < 0 ? strlen(utf8) : len)
-	    : QString(utf8);
+	    ? codec->toUnicode(utf8, len)
+	    : QString(utf8,len+1);
+}
+
+/*!
+  Creates a QString from Latin1 text.  This is the same as the
+  QString(const char*) constructor, but you can make that constructor
+  invisible if you compile with the define QT_NO_CAST_ASCII, in which
+  case you can explicitly create a QString from Latin-1 text using
+  this function.
+*/
+QString QString::fromLatin1(const char* chars, int len)
+{
+    if ( len < 0 ) {
+	uint l;
+	QChar *uc = asciiToUnicode(chars,&l);
+	return QString(new Data(uc,l,l), TRUE);
+    } else {
+	return QString( chars, len+1 );
+    }
+}
+
+/*!
+  \fn const QChar* QString::unicode() const
+
+  Returns the Unicode representation of the string.  The result
+  remains valid until the string is modified.
+*/
+
+/*!
+  Returns the string encoded in a locale-specific format.
+
+  See QTextCodec for more diverse coding/decoding of Unicode strings.
+
+  \sa QString::fromLocal8Bit(), local8Bit(), utf8()
+*/
+QCString QString::local8Bit() const
+{
+    static QTextCodec* codec = QTextCodec::codecForLocale();
+    return codec
+	    ? codec->fromUnicode(*this)
+	    : QCString(latin1());
+}
+
+/*!
+  Returns the unicode string decoded from the
+  first \a len bytes of \a local8Bit.  If \a len is -1 (the default), the
+  length of \a local8Bit is used.  If trailing partial characters are in
+  \a local8Bit, they are ignored.
+
+  \a local8Bit is assumed to be encoded in a locale-specific format.
+
+  See QTextCodec for more diverse coding/decoding of Unicode strings.
+*/
+QString QString::fromLocal8Bit(const char* local8Bit, int len)
+{
+    static QTextCodec* codec = QTextCodec::codecForLocale();
+    if ( len < 0 ) len = strlen(local8Bit);
+    return codec
+	    ? codec->toUnicode(local8Bit, len)
+	    : QString(local8Bit,len+1);
 }
 
 /*!
@@ -15377,7 +15452,7 @@ QString QString::fromUtf8(const char* utf8, int len)
 /*!
   \fn QString::operator const char *() const
 
-  Returns ascii().  Be sure to see the warnings documented there.
+  Returns latin1().  Be sure to see the warnings documented there.
   Note that for new code which you wish to be strictly Unicode-clean,
   you can define the macro QT_NO_ASCII_CAST when compiling your code
   to hide this function so that automatic casts are not done.  This
@@ -15792,7 +15867,7 @@ const void* qt_winTchar(const QString& str_in, bool addnul)
 #undef EXTEND
 
 #else
-    return str.ascii();
+    return str.latin1();
 #endif
 }
 

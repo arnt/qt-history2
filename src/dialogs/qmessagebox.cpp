@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#92 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#93 $
 **
 ** Implementation of QMessageBox class
 **
@@ -570,7 +570,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	if ( i >= mbd->numButtons ) {
 	    mbd->pb[i] = 0;
 	} else {
-	    QString buttonName;
+	    QCString buttonName;
 	    buttonName.sprintf( "button%d", i+1 );
 	    mbd->pb[i] = new QPushButton( mb_texts[mbd->button[i]],
 					  this, buttonName );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#74 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#75 $
 **
 ** Implementation of QDir class
 **
@@ -31,6 +31,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 #if defined(_OS_WIN32_)
+#ifdef UNICODE
+#ifndef _UNICODE
+#define _UNICODE
+#endif
+#endif
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
 #include <windows.h>
@@ -38,6 +43,8 @@
 #else
 #include <windows.h>
 #endif
+#include <direct.h>
+#include <tchar.h>
 #endif
 #if defined(_OS_OS2EMX_)
 extern Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
@@ -317,15 +324,39 @@ QString QDir::absPath() const
 
 QString QDir::canonicalPath() const
 {
+    QString r;
+
+#ifdef _WS_WIN_
+    char cur[PATH_MAX];
+    GETCWD( cur, PATH_MAX );
+    if ( qt_winunicode ) {
+	if ( _tchdir((TCHAR*)qt_winTchar(dPath,TRUE)) >= 0 ) {
+	    TCHAR tmp[PATH_MAX];
+	    if ( _tgetcwd( tmp, PATH_MAX ) )
+		r = qt_winQString(tmp);
+	}
+    } else {
+	if ( _chdir(dPath.ascii()) >= 0 ) {
+	    char tmp[PATH_MAX];
+	    if ( _getcwd( tmp, PATH_MAX ) )
+		r = tmp;
+	}
+    }
+    CHDIR( cur );
+#else
     char cur[PATH_MAX];
     char tmp[PATH_MAX];
 
     GETCWD( cur, PATH_MAX );
-    if ( CHDIR(dPath) >= 0 )
+    if ( CHDIR(dPath.local8Bit()) >= 0 ) {
 	GETCWD( tmp, PATH_MAX );
+	r = QString::fromLocal8Bit(tmp);
+    }
     CHDIR( cur );
 
-    return tmp;
+#endif
+
+    return r;
 }
 
 /*!
@@ -369,7 +400,7 @@ QString QDir::filePath( const QString &fileName,
 	return QString(fileName);
 
     QString tmp = dPath.copy();
-    if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && fileName &&
+    if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && !!fileName &&
 			   fileName[0] != '/') )
 	tmp += '/';
     tmp += fileName;
@@ -397,7 +428,7 @@ QString QDir::absFilePath( const QString &fileName,
 	return fileName;
 
     QString tmp = absPath();
-    if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && fileName &&
+    if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && !!fileName &&
 			   fileName[0] != '/') )
 	tmp += '/';
     tmp += fileName;
@@ -470,7 +501,7 @@ QString QDir::convertSeparators( const QString &pathName )
 
 bool QDir::cd( const QString &dirName, bool acceptAbsPath )
 {
-    if ( !dirName || !*dirName || strcmp(dirName,".") == 0 )
+    if ( dirName.isEmpty() || dirName=="." )
 	return TRUE;
     QString old = dPath;
     if ( acceptAbsPath && !isRelativePath(dirName) ) {
@@ -479,7 +510,9 @@ bool QDir::cd( const QString &dirName, bool acceptAbsPath )
 	if ( !isRoot() )
 	    dPath += '/';
 	dPath += dirName;
-	if ( strchr(dirName,'/') || old == "." || strcmp(dirName,"..") == 0 )
+	if ( dirName.find('/') >= 0
+		|| old == "."
+		|| dirName == ".." )
 	    dPath = cleanDirPath( dPath );
     }
     if ( !exists() ) {
@@ -791,9 +824,13 @@ const QFileInfoList *QDir::entryInfoList( const QString &nameFilter,
 bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 {
 #if defined (UNIX) || defined(__CYGWIN32__)
-    return MKDIR( filePath(dirName,acceptAbsPath), 0777 ) == 0;
+    return MKDIR( filePath(dirName,acceptAbsPath).local8Bit(), 0777 ) == 0;
 #else
-    return MKDIR( filePath(dirName,acceptAbsPath) ) == 0;
+    if ( qt_winunicode ) {
+	return _tmkdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
+    } else {
+	return _mkdir(filePath(dirName,acceptAbsPath).ascii()) == 0;
+    }
 #endif
 }
 
@@ -813,7 +850,15 @@ bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
 
 bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 {
-    return RMDIR( filePath(dirName,acceptAbsPath) ) == 0;
+#if defined (UNIX) || defined(__CYGWIN32__)
+    return RMDIR( filePath(dirName,acceptAbsPath).local8Bit() ) == 0;
+#else
+    if ( qt_winunicode ) {
+	return _trmdir((const TCHAR*)qt_winTchar(filePath(dirName,acceptAbsPath),TRUE)) == 0;
+    } else {
+	return _rmdir(filePath(dirName,acceptAbsPath).ascii()) == 0;
+    }
+#endif
 }
 
 /*!
@@ -827,10 +872,15 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 
 bool QDir::isReadable() const
 {
-#if defined(UNIX)
-    return ACCESS( dPath, R_OK | X_OK ) == 0;
+#if defined (UNIX) || defined(__CYGWIN32__)
+    return ACCESS( dPath.local8Bit(), R_OK | X_OK ) == 0;
 #else
-    return ACCESS( dPath, R_OK ) == 0;
+debug("QDir::isReadable");
+    if ( qt_winunicode ) {
+	return _taccess((const TCHAR*)qt_winTchar(dPath,TRUE), R_OK) == 0;
+    } else {
+	return _access(dPath.ascii(), R_OK) == 0;
+    }
 #endif
 }
 
@@ -1001,7 +1051,18 @@ bool QDir::rename( const QString &name, const QString &newName,
     }
     QString fn1 = filePath( name, acceptAbsPaths );
     QString fn2 = filePath( newName, acceptAbsPaths );
-    return ::rename(fn1, fn2) == 0;
+#if defined (UNIX) || defined(__CYGWIN32__)
+    return ::rename( fn1.local8Bit(), fn2.local8Bit() ) == 0;
+#else
+    if ( qt_winunicode ) {
+	TCHAR* t2 = (TCHAR*)qt_winTchar_new(fn1);
+	bool r = _trename((const TCHAR*)qt_winTchar(fn1,TRUE), t2) == 0;
+	delete [] t2;
+	return r;
+    } else {
+	return rename(fn1.ascii(), fn2.ascii()) == 0;
+    }
+#endif
 }
 
 /*!
@@ -1057,10 +1118,20 @@ char QDir::separator()
 
 bool QDir::setCurrent( const QString &path )
 {
-    if ( CHDIR(path) >= 0 )
-	return TRUE;
-    else
-	return FALSE;
+    int r;
+
+#ifdef _WS_WIN_
+debug("QDir::setCurrent");
+    if ( qt_winunicode ) {
+	r = _tchdir((const TCHAR*)qt_winTchar(path,TRUE));
+    } else {
+	r = _chdir(path.ascii());
+    }
+#else
+    r = CHDIR( path.local8Bit() );
+#endif
+
+    return r >= 0;
 }
 
 /*!
@@ -1390,6 +1461,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     }
 
 #if defined(_OS_WIN32_) || defined(_OS_MSDOS_)
+debug("QDir::readDirEntries");
 
     QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
     bool      first = TRUE;
@@ -1451,7 +1523,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     if ( ff == FF_ERROR ) {
 #if defined(CHECK_RANGE)
 	warning( "QDir::readDirEntries: Cannot read the directory: %s",
-		 (const char *)dPath );
+		 dPath.latin1() );
 #endif
 	return FALSE;
     }
@@ -1537,6 +1609,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #undef	FF_GETNEXT
 #undef	FF_ERROR
 
+debug("<QDir::readDirEntries");
 
 #elif defined(UNIX)
 
@@ -1549,18 +1622,19 @@ bool QDir::readDirEntries( const QString &nameFilter,
     DIR	     *dir;
     dirent   *file;
 
-    dir = opendir( dPath );
+    dir = opendir( dPath.local8Bit() );
     if ( !dir ) {
 #if defined(CHECK_NULL)
 	warning( "QDir::readDirEntries: Cannot read the directory: %s",
-		 dPath.ascii() );
+		 dPath.local8Bit().data() );
 #endif
 	return FALSE;
     }
 
     while ( (file = readdir(dir)) ) {
-	fi.setFile( *this, file->d_name );
-	if ( wc.match(file->d_name) == -1 && !(allDirs && fi.isDir()) )
+	QString fn = QString::fromLocal8Bit(file->d_name);
+	fi.setFile( *this, fn );
+	if ( wc.match(fn) == -1 && !(allDirs && fi.isDir()) )
 	    continue;
 	if  ( (doDirs && fi.isDir()) || (doFiles && fi.isFile()) ) {
 	    if ( noSymLinks && fi.isSymLink() )
@@ -1570,14 +1644,13 @@ bool QDir::readDirEntries( const QString &nameFilter,
 		     (doWritable && !fi.isWritable()) ||
 		     (doExecable && !fi.isExecutable()) )
 		    continue;
-	    if ( !doHidden && (file->d_name[0] == '.') &&
-		 (file->d_name[1] != '\0') &&
-		 (file->d_name[1] != '.' || file->d_name[2] != '\0') )
+	    if ( !doHidden && fn[0] == '.' &&
+		    fn != "." && fn != ".." )
 		continue;
 	    if ( dirsFirst && fi.isDir() )
-		dirInSort( dList, diList , file->d_name, fi, sortSpec );
+		dirInSort( dList, diList , fn, fi, sortSpec );
 	    else
-		dirInSort( fList, fiList, file->d_name, fi, sortSpec );
+		dirInSort( fList, fiList, fn, fi, sortSpec );
 	}
     }
     if ( closedir(dir) != 0 ) {
@@ -1627,6 +1700,7 @@ const QFileInfoList * QDir::drives()
 	knownMemoryLeak = new QFileInfoList;
 
 #if defined(_OS_WIN32_)
+debug("QDir::drives");
 
 	Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
 #elif defined(_OS_OS2EMX_)

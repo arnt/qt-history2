@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#44 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#45 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -481,7 +481,7 @@ void QGCache::statistics() const
 #if defined(DEBUG)
     QString line;
     line.fill( '*', 80 );
-    debug( line );
+    debug( line.ascii() );
     debug( "CACHE STATISTICS:" );
     debug( "cache contains %d item%s, with a total cost of %d",
 	   count(), count() != 1 ? "s" : "", tCost );
@@ -502,7 +502,7 @@ void QGCache::statistics() const
 	   lruList->dumps != 1 ? "have" : "has", lruList->dumpCosts );
     debug( "Statistics from internal dictionary class:" );
     dict->statistics();
-    debug( line );
+    debug( line.ascii() );
 #endif
 }
 

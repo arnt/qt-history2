@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#99 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -26,7 +26,7 @@
 #include "qwidget.h"
 #include "qpainter.h"
 #include "qcache.h"
-#include "qdict.h"
+#include "qmap.h"
 #include <limits.h>
 #include "qt_windows.h"
 
@@ -55,7 +55,7 @@ class QFontInternal
 public:
    ~QFontInternal();
     bool	    dirty()      const;
-    const char	   *key()	 const;
+    QString         key()	 const;
     HDC		    dc()	 const;
     HFONT	    font()	 const;
     TEXTMETRICA	   *textMetricA() const;
@@ -90,7 +90,7 @@ inline bool QFontInternal::dirty() const
     return hfont == 0;
 }
 
-inline const char* QFontInternal::key() const
+inline QString QFontInternal::key() const
 {
     return k;
 }
@@ -169,8 +169,7 @@ static const int fontCacheSize = 120;		// max number of loaded fonts
 
 
 typedef QCacheIterator<QFontInternal> QFontCacheIt;
-typedef QDict<QFontInternal>	      QFontDict;
-typedef QDictIterator<QFontInternal>  QFontDictIt;
+typedef QMap<QString,QFontInternal*>  QFontDict;
 
 
 class QFontCache : public QCache<QFontInternal>
@@ -178,6 +177,12 @@ class QFontCache : public QCache<QFontInternal>
 public:
     QFontCache( int maxCost, int size=17, bool cs=TRUE, bool ck=TRUE )
 	: QCache<QFontInternal>(maxCost,size,cs,ck) {}
+
+    // This pass-through function is needed to avoid MSVC++ 5.0 internal
+    // compiler error. (occurs in QFont::load()).
+    QFontInternal* find(const QString& k)
+	{ return QCache<QFontInternal>::find(k,TRUE); }
+
     void deleteItem( Item );
 };
 
@@ -203,9 +208,9 @@ void QFont::initialize()
 	return;
     shared_dc = CreateCompatibleDC( qt_display_dc() );
     shared_dc_font = 0;
-    fontCache = new QFontCache( fontCacheSize, 29, TRUE, FALSE );
+    fontCache = new QFontCache( fontCacheSize, 29, TRUE, TRUE );
     CHECK_PTR( fontCache );
-    fontDict  = new QFontDict( 29, TRUE, FALSE );
+    fontDict  = new QFontDict();
     CHECK_PTR( fontDict );
     if ( !defFont )
 	defFont = new QFont( QFI0 );		// create the default font
@@ -217,7 +222,11 @@ void QFont::cleanup()
     defFont = 0;
     delete fontCache;
     fontCache = 0;
-    fontDict->setAutoDelete( TRUE );
+    QFontDict::Iterator i=fontDict->begin();
+    while ( i != fontDict->end() ) {
+	delete *i;
+	++i;
+    }
     delete fontDict;
     ASSERT( shared_dc_font == 0 );
     DeleteDC( shared_dc );
@@ -336,14 +345,15 @@ void QFont::load() const
 
     QString k = key();
     d->fin = fontCache->find( k );
+
     if ( !d->fin ) {				// font not loaded
-	d->fin = fontDict->find( k );
-	if ( !d->fin ) {			// font was never loaded
+	if ( !fontDict->contains(k) ) {		// font was never loaded
 	    d->fin = new QFontInternal( k );
 	    CHECK_PTR( d->fin );
 	    fontDict->insert( d->fin->key(), d->fin );
 	}
     }
+
     if ( !d->fin->font() ) {			// font not loaded
 	if ( qt_winver == Qt::WV_NT )
 	    d->fin->hdc = GetDC(0);

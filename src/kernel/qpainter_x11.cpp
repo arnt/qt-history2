@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#292 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#293 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2497,7 +2497,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
-	    QString newstr( str, len+1 );
+	    QString newstr = str.left(len);
 	    param[0].point = &p;
 	    param[1].str = &newstr;
 	    if ( !pdev->cmd(PDC_DRAWTEXT2,this,param) || !hd )
@@ -2553,25 +2553,19 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 		}
 	    }
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
-		extern XFontStruct *qt_get_xfontstruct( QFontData * );
-		XFontStruct *fs = qt_get_xfontstruct( cfont.d );
-		int direction;
-		int ascent;
-		int descent;
-		XCharStruct overall;
-		XTextExtents( fs, str, len, &direction, &ascent, &descent,
-			      &overall );
+		// ### WWA: not sure on this, but the previous
+		// ###      was totally non-Unicode.
 		int fx = x;
-		int fy = y - ascent;
-		int fw = overall.width;
-		int fh = ascent + descent;
+		int fy = y - fm.ascent();
+		int fw = fm.width(str,len);
+		int fh = fm.ascent() + fm.descent();
 		int m, n;
 		QPointArray a(5);
-		mat1.map( fx,	 fy,	&m, &n );  a.setPoint( 0, m, n );
+		mat2.map( fx,	 fy,	&m, &n );  a.setPoint( 0, m, n );
 						   a.setPoint( 4, m, n );
-		mat1.map( fx+fw, fy,	&m, &n );  a.setPoint( 1, m, n );
-		mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
-		mat1.map( fx,	 fy+fh, &m, &n );  a.setPoint( 3, m, n );
+		mat2.map( fx+fw, fy,	&m, &n );  a.setPoint( 1, m, n );
+		mat2.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
+		mat2.map( fx,	 fy+fh, &m, &n );  a.setPoint( 3, m, n );
 		QBrush oldBrush = cbrush;
 		setBrush( backgroundColor() );
 		updateBrush();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#121 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -29,7 +29,7 @@
 #include "qfontinfo.h"
 #include "qwidget.h"
 #include "qpainter.h"
-#include "qdict.h"
+#include "qmap.h"
 #include "qstrlist.h"
 #include "qdatastream.h"
 #include <ctype.h>
@@ -849,13 +849,21 @@ void  QFont::setDefaultFont( const QFont &f )
  *****************************************************************************/
 
 
-// #######
-// fontSubst does not delete its entries.  this is correct for 1.4x,
-// because insertSubstitution() doesn't do a deep copy either, but
-// should probably be changed in 2.0.
+// Just case insensitive
+class QCIString : public QString {
+public:
+    QCIString() { }
+    QCIString( const QString& s ) : QString(s) { }
+};
+bool operator<( const QCIString &s1, const QCIString &s2 )
+{ return s1.lower() < s2.lower(); }
+bool operator==( const QCIString &s1, const QCIString &s2 )
+{ return s1.lower() == s2.lower(); }
+bool operator!=( const QCIString &s1, const QCIString &s2 )
+{ return s1.lower() != s2.lower(); }
+// .... That's all QMap needs
 
-typedef QDict<char> QFontSubst;
-typedef QDictIterator<char> QFontSubstIt;
+typedef QMap<QCIString,QString> QFontSubst;
 static QFontSubst *fontSubst = 0;
 
 static void cleanupFontSubst()
@@ -881,10 +889,10 @@ static void initFontSubst()			// create substitution dict
 
     if ( fontSubst )
 	return;
-    fontSubst = new QFontSubst( 17, FALSE );	// case insensitive
+    fontSubst = new QFontSubst();
     CHECK_PTR( fontSubst );
     for ( int i=0; initTbl[i] != 0; i += 2 )
-	fontSubst->insert( initTbl[i], initTbl[i+1] );
+	fontSubst->insert( QString(initTbl[i]), QString(initTbl[i+1]) );
     qAddPostRoutine( cleanupFontSubst );
 }
 
@@ -915,8 +923,10 @@ static void initFontSubst()			// create substitution dict
 QString QFont::substitute( const QString &familyName )
 {
     initFontSubst();
-    QString f = fontSubst->find( familyName );
-    return f.isNull() ? familyName : f;
+    QFontSubst::Iterator i = fontSubst->find( familyName );
+    if ( i != fontSubst->end() )
+	return *i;
+    return familyName;
 }
 
 /*!
@@ -961,10 +971,9 @@ QStringList QFont::substitutions()
 {
     QStringList list;
     initFontSubst();
-    QFontSubstIt it( *fontSubst );
-    const char* n;
-    while ( (n=(const char*)(void*)it.currentKeyLong()) ) {
-	list.append(n);
+    QFontSubst::Iterator it = fontSubst->begin();
+    while ( it != fontSubst->end() ) {
+	list.append(*it);
 	++it;
     }
     return list;
@@ -1030,32 +1039,27 @@ static void hex4( ushort n, char *s )
   Returns the font's key, which is a textual representation of the font
   settings. It is typically used to insert and find fonts in a
   dictionary or a cache.
-  \sa QDict, QCache
+  \sa QMap
 */
 
 QString QFont::key() const
 {
     if ( d->req.rawMode )
 	return d->req.family.lower();
-    int	    len = d->req.family.length();
-    QCString s( len+13 );
-    UINT8   bits = get_font_bits( d->req );
-    char   *p = s.data();
-    CHECK_PTR( p );
-    hex4( d->req.pointSize, p );
-    p += 4;
-    if ( len ) {
-	strcpy( p, d->req.family.ascii() );
-	while ( *p ) {
-	    *p = tolower(*p);
-	    p++;
-	}
-    }
-    hex2( bits, p );
-    hex2( d->req.weight, p+2 );
+    QString s;
+    char t[5];
+    hex4( d->req.pointSize, t );
+    s += t;
+    s += d->req.family.lower();
+    hex2( get_font_bits( d->req ), t );
+    s += t;
+    hex2( d->req.weight, t );
+    s += t;
     hex2( d->req.hintSetByUser ? (int)d->req.styleHint : (int)QFont::AnyStyle,
-	  p+4 );
-    hex2( d->req.charSet, p+6 );
+	  t );
+    s += t;
+    hex2( d->req.charSet, t );
+    s += t;
     return s;
 }
 
@@ -1598,7 +1602,7 @@ QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
   \sa QFont::family()
 */
 
-const char *QFontInfo::family() const
+QString QFontInfo::family() const
 {
     return spec()->family;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#74 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#75 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -473,11 +473,11 @@ void QGDict::statistics() const
     QString line;
     line.fill( '-', 60 );
     double real, ideal;
-    debug( line );
+    debug( line.ascii() );
     debug( "DICTIONARY STATISTICS:" );
     if ( count() == 0 ) {
 	debug( "Empty!" );
-	debug( line );
+	debug( line.ascii() );
 	return;
     }
     real = 0.0;
@@ -506,7 +506,7 @@ void QGDict::statistics() const
     debug( "Real dist  = %g", real );
     debug( "Rand dist  = %g", ideal );
     debug( "Real/Rand  = %g", real/ideal );
-    debug( line );
+    debug( line.ascii() );
 #endif // DEBUG
 }
 

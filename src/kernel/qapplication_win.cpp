@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#275 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#276 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -459,6 +459,8 @@ void qt_init( int *argcptr, char **argv )
 	default:
 	    qt_winver = Qt::WV_NT;
     }
+    // Tell tools/ modules.
+    qt_winunicode = qt_winver == Qt::WV_NT;
 
   // Initialize OLE/COM
   //   S_OK means success and S_FALSE means that it has already
@@ -2502,12 +2504,12 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		extra->topextra->iconic = 0;
 	    }
 	    QString txt;
-	    if ( IsIconic(winId()) && iconText() )
+	    if ( IsIconic(winId()) && !!iconText() )
 		txt = iconText();
 	    else if ( !caption().isNull() )
 		txt = caption();
 
-	    if ( txt ) {
+	    if ( !!txt ) {
 		if ( qt_winver == Qt::WV_NT )
 		    SetWindowText( winId(), (TCHAR*)qt_winTchar(txt,TRUE) );
 		else

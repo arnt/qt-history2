@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.cpp#5 $
 **
 ** Implementation of QTranslatorDialog class
 **
@@ -178,7 +178,7 @@ QMessageParser::~QMessageParser()
 }
 
 
-void QMessageParser::parse( const QString &filename, QString defScope )
+void QMessageParser::parse( const QString &filename, const QCString& defScope )
 {
 
     scope = defScope;
@@ -213,13 +213,13 @@ void QMessageParser::parse()
     while ( t  != QMessageLexer::Eof ) {
 	if ( state == Initial || state == Error ) {
 	    if ( t == QMessageLexer::Scope ) {
-		scope = s;
+		scope = s.latin1();
 		t = lex->getNext( s );
 	    } else if ( t == QMessageLexer::Msgid ) {
-		key = QString::null;
+		key = "";
 		t = lex->getNext( s );
 		while ( t == QMessageLexer::String ) {
-		    key += s;
+		    key += s.latin1();
 		    t = lex->getNext( s );
 		}
 		state = AfterKey;
@@ -302,9 +302,9 @@ void QMessageParser::error( int t, QString s)
 
 
 
-void QMessageParser::add( const char *scope, const char *key , const char *trans )
+void QMessageParser::add( const char *scope, const char *key , const QString& trans )
 {
-    debug( "Item: %s::\"%s\" -> \"%s\"", scope, key, trans );
+    debug( "Item: %s::\"%s\" -> \"%s\"", scope, key, trans.latin1() );
 }
 
 
@@ -572,17 +572,17 @@ void QTranslatorDialog::save()
 
     QListViewItem *it = lv->firstChild();
     while ( it  ) {
-	QString scope = it->text(0);
+	QCString scope = it->text(0).latin1();
 	QListViewItem *sub = it->firstChild();
 	while ( sub ) {
-	    if ( sub->text(1) ) {
-		int hash = mf.hash(scope, sub->text(0));
+	    if ( !!sub->text(1) ) {
+		int hash = mf.hash(scope, sub->text(0).latin1());
 		mf.insert( hash, sub->text(1) );
 		debug( "QTranslatorDialog::save %d, %s, %s, %s",
 		       hash,
-		       (const char*) scope,
-		       (const char*) sub->text(0),
-		       (const char*) sub->text(1) );
+		       scope.data(),
+		       sub->text(0).latin1(),
+		       sub->text(1).latin1() );
 	    }
 	    sub = sub->nextSibling();
 	}
@@ -591,7 +591,7 @@ void QTranslatorDialog::save()
 
     int hash = mf.hash("Main","Quit");
     QString s = mf.find( hash, "Main", "Quit" );
-    debug( "mf: %d -> %s", hash, (const char*)s );
+    debug( "mf: %d -> %s", hash, s.latin1() );
 
 
     mf.save( filename );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#195 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#196 $
 **
 ** Implementation of QObject class
 **
@@ -1216,7 +1216,7 @@ static void err_info_about_candidates( int code,
 {
     if ( strstr(member,"const char*") ) {
 	// porting help
-	QString newname = member;
+	QCString newname = member;
 	int p;
 	while ( (p=newname.find("const char*")) >= 0 ) {
 	    newname.replace(p, 11, "const QString&");
@@ -1227,7 +1227,7 @@ static void err_info_about_candidates( int code,
 	    case SIGNAL_CODE: rm = mo->signal( newname, TRUE ); break;
 	}
 	if ( rm ) {
-	    warning("QObject::%s:  Candidate: %s", func, newname.ascii());
+	    warning("QObject::%s:  Candidate: %s", func, newname.data());
 	}
     }
 }
@@ -1882,7 +1882,7 @@ static void dumpRecursive( int level, QObject *object )
 {
 #if defined(DEBUG)
     if ( object ) {
-	QString buf;
+	QCString buf;
 	buf.fill( '\t', level );
 	const char *name = object->name( "unnamed" );
 	QString flags="";
@@ -1900,7 +1900,7 @@ static void dumpRecursive( int level, QObject *object )
 	    }
 	}	
 	debug( "%s%s::%s %s", (const char*)buf, object->className(), name,
-	    (const char*)flags );
+	    flags.latin1() );
 	if ( object->children() ) {
 	    QObjectListIt it(*object->children());
 	    while ( it ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#21 $
 **
 ** Implementation of QSocket class
 **
@@ -341,7 +341,7 @@ bool QSocket::connectToHost( const QString &host, int port )
     debug( "QSocket::connectToHost: Lookup host" );
 #endif
     struct hostent *hp;
-    hp = gethostbyname( d->host );
+    hp = gethostbyname( d->host.latin1() );
     if ( !hp ) {
 #if defined(QSOCKET_DEBUG)
 	debug( "QSocket::connectToHost: gethostbyname failed" );

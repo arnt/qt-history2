@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#153 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#154 $
 **
 ** Global type declarations and definitions
 **
@@ -481,5 +481,8 @@ Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 #endif
 
+#ifdef _WS_WIN_
+extern bool qt_winunicode;
+#endif
 
 #endif // QGLOBAL_H

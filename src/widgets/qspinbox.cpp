@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#66 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -785,7 +785,7 @@ int QSpinBox::mapTextToValue( bool* ok )
 {
     QString s = text();
     int newVal = s.toInt( ok );
-    if ( !(*ok) && ( prefix() || suffix() ) ) {	// Try removing any pre/suffix
+    if ( !(*ok) && !( !prefix() && !suffix() ) ) {// Try removing any pre/suffix
 	s = cleanText();
 	newVal = s.toInt( ok );
     }

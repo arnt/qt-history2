@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#166 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#167 $
 **
 ** Implementation of QFileDialog class
 **
@@ -790,7 +790,7 @@ void QFileDialog::setDir( const QString & pathstr )
 	while( i < (int)d.length() && d[i] != '/' )
 	    i++;
 	QCString user;
-	user = ( i == 1 ) ? ::getlogin() : d.mid( 1, i-1 ).latin1();
+	user = ( i == 1 ) ? ::getlogin() : d.mid( 1, i-1 ).local8Bit();
 	d = d.mid( i, d.length() );
 	pw = ::getpwnam( user );
 	if ( pw )

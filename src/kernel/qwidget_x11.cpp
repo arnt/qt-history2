@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#351 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#352 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -35,6 +35,7 @@
 #include "qdragobject.h"
 #include "qfocusdata.h"
 #include "qabstractlayout.h"
+#include "qtextcodec.h"
 #include "qt_x11.h"
 
 
@@ -714,6 +715,38 @@ void QWidget::unsetCursor()
     }
 }
 
+static XTextProperty*
+qstring_to_xtp( const QString& s )
+{
+    static XTextProperty tp;
+    static const QTextCodec* mapper = QTextCodec::codecForLocale();
+    if ( mapper ) {
+	QCString mapped = mapper->fromUnicode(s);
+	char* tl[2];
+	tl[0] = mapped.data();
+	tl[1] = 0;
+	XmbTextListToTextProperty( QPaintDevice::x11AppDisplay(),
+	    tl, 1, XStdICCTextStyle, &tp );
+    } else {
+	static QCString qcs = s.ascii();
+	tp.value = (uchar*)qcs.data();
+	tp.encoding = XA_STRING;
+	tp.format = 8;
+	tp.nitems = qcs.length();
+    }
+
+    // ### If we knew WM could understand unicode, we could use
+    // ### a much simpler, cheaper encoding...
+    /*
+	tp.value = (XChar2b*)s.unicode();
+	tp.encoding = XA_UNICODE; // wish
+	tp.format = 16;
+	tp.nitems = s.length();
+    */
+
+    return &tp;
+}
+
 /*!
   Sets the window caption (title).
   \sa caption(), setIcon(), setIconText()
@@ -725,7 +758,7 @@ void QWidget::setCaption( const QString &caption )
 	return; // for less flicker
     createTLExtra();
     extra->topextra->caption = caption;
-    XStoreName( x11Display(), winId(), caption );
+    XSetWMName( x11Display(), winId(), qstring_to_xtp(caption) );
 }
 
 /*!
@@ -778,7 +811,8 @@ void QWidget::setIconText( const QString &iconText )
 {
     createTLExtra();
     extra->topextra->iconText = iconText;
-    XSetIconName( x11Display(), winId(), iconText );
+    XSetIconName( x11Display(), winId(), iconText.utf8() );
+    XSetWMIconName( x11Display(), winId(), qstring_to_xtp(iconText) );
 }
 
 

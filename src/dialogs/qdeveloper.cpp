@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#10 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#11 $
 **
 ** Implementation of QDeveloper class
 **
@@ -197,7 +197,7 @@ public:
 		}
 		cursor = cursor->nextSibling();
 	    }
-	    fatal(QDeveloper::tr("Huh?"));
+	    fatal("Huh?");
 	    return 0;
 	} else {
 	    // QObject
@@ -347,7 +347,7 @@ QDeveloper::QDeveloper() :
     QString msg;
     int nclasses = QMetaObjectInit::init()+1; // +1 for QObject
     if ( nclasses ) {
-	msg.sprintf(tr("Qt Developer - %d classes"), nclasses);
+	msg = tr("Qt Developer - %1 classes").arg(nclasses);
 	QListViewItem *lvi = new QDeveloperClassItem( d->classes, QObject::metaObject(), d );
 	lvi->setOpen(TRUE);
     } else {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#201 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#202 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1425,7 +1425,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    // to get the focus indication right
 	    update();
 	} else if ( d->useCompletion && d->completeNow ) {
-	    if ( d->ed->text() &&  d->ed->cursorPosition() > d->completeAt &&
+	    if ( !d->ed->text().isNull() &&  d->ed->cursorPosition() > d->completeAt &&
 		 d->ed->cursorPosition() == (int)d->ed->text().length() ) {
 		d->completeNow = FALSE;
 		QString ct( d->ed->text() );
@@ -1669,7 +1669,7 @@ void QComboBox::returnPressed()
     int c = 0;
     switch ( insertionPolicy() ) {
     case AtCurrent:
-	if ( qstrcmp( s, text( currentItem() ) ) )
+	if ( s != text( currentItem() ) )
 	    changeItem( s, currentItem() );
 	emit activated( currentItem() );
 	emit activated( s );

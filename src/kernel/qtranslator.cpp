@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#10 $
 **
 ** Localization database support.
 **
@@ -237,7 +237,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     QString fname = filename;
     QString realname;
     QString delims;
-    delims = search_delimiters ? search_delimiters : QString("_.");
+    delims = search_delimiters.isNull() ? QString("_.") : search_delimiters;
 
     // COMPLICATED LOOP
     try_with_and_without_suffix:
@@ -249,7 +249,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 	if ( fi.isReadable() )
 	    goto found_file; // EXIT LOOP
 
-	realname += suffix ? suffix : QString(".qm");
+	realname += suffix.isNull() ? QString(".qm") : suffix;
 	fi.setFile(realname);
 	if ( fi.isReadable() )
 	    goto found_file; // EXIT LOOP

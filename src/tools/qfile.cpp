@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#76 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#77 $
 **
 ** Implementation of QFile class
 **
@@ -24,7 +24,20 @@
 *****************************************************************************/
 
 #include "qfile.h"
+
+#if defined(_OS_WIN32_)
+#ifdef UNICODE
+#ifndef _UNICODE
+#define _UNICODE
+#endif
+#endif
+#endif
+
 #include "qfiledefs.h"
+
+#if defined(_OS_WIN32_)
+#include <tchar.h>
+#endif
 
 /*!
   \class QFile qfile.h
@@ -151,17 +164,29 @@ void QFile::setName( const QString &name )
     fn = name;
 }
 
+bool qt_file_access( const QString& fn, int t )
+{
+    if ( fn.isEmpty() )
+	return FALSE;
+#if defined (UNIX) || defined(__CYGWIN32__)
+    return ACCESS( fn.local8Bit(), t ) == 0;
+#else
+    if ( qt_winunicode ) {
+	return _taccess((const TCHAR*)qt_winTchar(fn,TRUE), t) == 0;
+    } else {
+	return _access(fn.ascii(), t) == 0;
+    }
+#endif
+}
 
 /*!
-  Returns TRUE if the file exists, otherwise FALSE.
+  Returns TRUE if this file exists, otherwise FALSE.
   \sa name()
 */
 
 bool QFile::exists() const
 {
-    if ( fn.isEmpty() )
-	return FALSE;
-    return ACCESS(fn, F_OK) == 0;
+    return qt_file_access( fn, F_OK );
 }
 
 /*!
@@ -170,10 +195,7 @@ bool QFile::exists() const
 
 bool QFile::exists( const QString &fileName )
 {
-#if defined(CHECK_NULL)
-    ASSERT( fileName != QString::null );
-#endif
-    return ACCESS( fileName, F_OK ) == 0;
+    return qt_file_access( fileName, F_OK );
 }
 
 
@@ -197,16 +219,21 @@ bool QFile::remove()
 
 bool QFile::remove( const QString &fileName )
 {
-    if ( fileName == QString::null || fileName[0] == '\0' ) {
+    if ( fileName.isEmpty() ) {
 #if defined(CHECK_NULL)
         warning( "QFile::remove: Empty or NULL file name" );
 #endif
         return FALSE;
     }
 #if defined(UNIX)
-    return unlink( fileName ) == 0;		// unlink more common in UNIX
+    return unlink( fileName.local8Bit() ) == 0;	// unlink more common in UNIX
 #else
-    return ::remove( fileName ) == 0;		// use standard ANSI remove
+    // use standard ANSI remove
+    if ( qt_winunicode ) {
+	return _tremove((const TCHAR*)qt_winTchar(fileName,TRUE)) == 0;
+    } else {
+	return ::remove(fileName.ascii()) == 0;
+    }
 #endif
 }
 
@@ -321,7 +348,16 @@ bool QFile::open( int m )
 	if ( isAsynchronous() )
 	    oflags |= OPEN_ASYNC;
 #endif
-	fd = OPEN( fn, oflags, 0666 );
+#if defined(UNIX)
+	fd = OPEN( fn.local8Bit(), oflags, 0666 );
+#else
+	if ( qt_winunicode ) {
+	    fd = _topen((const TCHAR*)qt_winTchar(fn,TRUE), oflags, 0666 );
+	} else {
+	    fd = _open(fn.ascii(), oflags, 0666 );
+	}
+#endif
+
 	if ( fd != -1 ) {			// open successful
 	    STATBUF st;
 	    FSTAT( fd, &st );
@@ -358,10 +394,27 @@ bool QFile::open( int m )
 	else
 	    strcat( perm2, "b" );
 #endif
-	fh = fopen( (QString)fn, perm2 );
-	if ( !fh && try_create ) {
-	    perm2[0] = 'w';			// try "w+" instead of "r+"
-	    fh = fopen( (QString)fn, perm2 );
+	while (1) { // At most twice
+#if defined(UNIX)
+	    fh = fopen( fn.local8Bit(), perm2 );
+#else
+	    if ( qt_winunicode ) {
+		TCHAR tperm2[4];
+		tperm2[0] = perm2[0];
+		tperm2[1] = perm2[1];
+		tperm2[2] = perm2[2];
+		tperm2[3] = perm2[3];
+		fh = _tfopen((const TCHAR*)qt_winTchar(fn,TRUE), tperm2 );
+	    } else {
+		fh = fopen(fn.ascii(), perm2 );
+	    }
+#endif
+	    if ( !fh && try_create ) {
+		perm2[0] = 'w';			// try "w+" instead of "r+"
+		try_create = FALSE;
+	    } else {
+		break;
+	    }
 	}
 	if ( fh ) {
 	    STATBUF st;
@@ -541,8 +594,17 @@ uint QFile::size() const
     STATBUF st;
     if ( isOpen() )
 	FSTAT( fh ? FILENO(fh) : fd, &st );
-    else
-	STAT( fn, &st );
+    else {
+#if defined (UNIX)
+	STAT( fn.local8Bit(), &st );
+#else
+	if ( qt_winunicode ) {
+	    _tstat((const TCHAR*)qt_winTchar(fn,TRUE), &st);
+	} else {
+	    _stat(fn.ascii(), &st);
+	}
+#endif
+    }
     return st.st_size;
 }
 

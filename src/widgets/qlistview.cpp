@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#222 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#223 $
 **
 ** Implementation of QListView widget class
 **
@@ -646,9 +646,8 @@ static int cmp( const void *n1, const void *n2 )
     if ( !n1 || !n2 )
 	return 0;
 
-    // ##### should use Unicode
-    return qstrcmp( ((QListViewPrivate::SortableItem *)n1)->key,
-		    ((QListViewPrivate::SortableItem *)n2)->key );
+    return ((QListViewPrivate::SortableItem *)n1)->key.
+	    compare( ((QListViewPrivate::SortableItem *)n2)->key );
 }
 
 

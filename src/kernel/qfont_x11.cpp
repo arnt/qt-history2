@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#152 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#153 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -138,7 +138,7 @@ private:
 };
 
 inline QFontInternal::QFontInternal( const QString &name )
-    : n(name), f(0), set(0)
+    : n(name.ascii()), f(0), set(0)
 {
     s.dirty = TRUE;
 }
@@ -227,8 +227,8 @@ void QFontCache::deleteItem( Item d )
 
 struct QXFontName
 {
-    QXFontName( const QString &n, bool e ) : name(n), exactMatch(e) {}
-    QString name;
+    QXFontName( const QCString &n, bool e ) : name(n), exactMatch(e) {}
+    QCString name;
     bool    exactMatch;
 };
 
@@ -452,7 +452,7 @@ QString QFont::lastResortFont() const
     if ( last )					// already found
 	return last;
     int i = 0;
-    QString f;
+    QCString f;
     while ( (f = tryFonts[i]) ) {
 	if ( fontExists(f) ) {
 	    last = f;
@@ -502,7 +502,7 @@ void QFont::initFontInfo() const
     bool validx = !PRIV->needsSet() && parseXFontName(buffer, tokens);
 
     if ( validx ) {
-	QString encoding;
+	QCString encoding;
 	encoding += tokens[CharsetRegistry];
 	encoding += '-';
 	encoding += tokens[CharsetEncoding];
@@ -610,15 +610,15 @@ void QFont::load() const
 	} else {
 	    name = PRIV->findFont( &match );
 	}
-	fn = new QXFontName( name, match );
+	fn = new QXFontName( name.ascii(), match );
 	CHECK_PTR( fn );
 	fontNameDict->insert( k, fn );
     }
 
-    QString n = fn->name;
-    d->fin = fontCache->find( n );
+    QCString n = fn->name;
+    d->fin = fontCache->find( n.data() );
     if ( !d->fin ) {				// font not loaded
-	d->fin = fontDict->find( n );
+	d->fin = fontDict->find( n.data() );
 	if ( !d->fin ) {			// font was never loaded
 	    d->fin = new QFontInternal( n );
 	    CHECK_PTR( d->fin );
@@ -644,7 +644,7 @@ void QFont::load() const
 	    f = XLoadQueryFont( QPaintDevice::x11AppDisplay(), n );
 	    if ( !f ) {
 		f = XLoadQueryFont( QPaintDevice::x11AppDisplay(),
-				    lastResortFont() );
+				    lastResortFont().ascii() );
 		fn->exactMatch = FALSE;
 #if defined(CHECK_NULL)
 		if ( !f )
@@ -1021,7 +1021,7 @@ debug("Font set: %s",s.data());
 	return s;
     } else {
 	int score;
-	QCString bestName = bestFamilyMember( familyName, &score );
+	QCString bestName = bestFamilyMember( familyName.ascii(), &score );
 	if ( score != exactScore )
 	    *exact = FALSE;
 
@@ -1030,25 +1030,25 @@ debug("Font set: %s",s.data());
        QString f = substitute( family() );
        if( familyName != f ) {
            familyName = f;                     // try substitution
-           bestName = bestFamilyMember( familyName, &score );
+           bestName = bestFamilyMember( familyName.ascii(), &score );
        }
     }
 	if ( score == 0 ) {
 	    QString f = defaultFamily();
 	    if( familyName != f ) {
 		familyName = f;			// try default family for style
-		bestName = bestFamilyMember( familyName, &score );
+		bestName = bestFamilyMember( familyName.ascii(), &score );
 	    }
 	    if ( score == 0 ) {
 		f = lastResortFamily();
 		if ( familyName != f ) {
 		    familyName = f;			// try system default family
-		    bestName = bestFamilyMember( familyName, &score );
+		    bestName = bestFamilyMember( familyName.ascii(), &score );
 		}
 	    }
 	}
 	if ( bestName.isNull() )			// no matching fonts found
-	    bestName = lastResortFont();
+	    bestName = lastResortFont().ascii();
 	return bestName;
     }
 }
@@ -1735,7 +1735,7 @@ static bool fontExists( const QString &fontName )
 {
     char **fontNames;
     int	   count;
-    fontNames = getXFontNames( fontName, &count );
+    fontNames = getXFontNames( fontName.ascii(), &count );
     XFreeFontNames( fontNames );
     return count != 0;
 }

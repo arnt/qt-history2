@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#112 $
+** $Id: //depot/qt/main/src/tools/qstring.h#113 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -216,7 +216,9 @@ public:
     QString( const QString & );			// impl-shared copy
     QString( const QByteArray& );		// deep copy
     QString( const QChar* unicode, uint length ); // deep copy
+#ifndef QT_NO_CAST_ASCII
     QString( const char *str );			// deep copy
+#endif
     QString( const char *str, uint maxSize );	// deep copy, max length
     ~QString();
 
@@ -335,11 +337,15 @@ public:
 
     const QChar* unicode() const { return d->unicode; }
     const char* ascii() const;
+    const char* latin1() const;
+    static QString fromLatin1(const char*, int len=-1);
     QCString utf8() const;
     static QString fromUtf8(const char*, int len=-1);
+    QCString local8Bit() const;
+    static QString fromLocal8Bit(const char*, int len=-1);
     bool operator!() const;
 #ifndef QT_NO_ASCII_CAST
-    operator const char *() const { return ascii(); }
+    operator const char *() const { return latin1(); }
 #endif
 
     int compare( const QString& s ) const;
@@ -354,7 +360,7 @@ public:
     QString visual(int index = 0, int len = -1);                              
 
 #ifndef QT_NO_COMPAT
-    const char* data() const { return ascii(); }
+    const char* data() const { return latin1(); }
 #endif
 
 private:

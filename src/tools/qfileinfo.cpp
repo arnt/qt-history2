@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#46 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#47 $
 **
 ** Implementation of QFileInfo class
 **
@@ -28,6 +28,14 @@
 #define readlink _qt_hide_readlink
 #endif
 
+#if defined(_OS_WIN32_)
+#ifdef UNICODE
+#ifndef _UNICODE
+#define _UNICODE
+#endif
+#endif
+#endif
+
 #include "qfileinfo.h"
 #include "qfiledefs.h"
 #include "qdatetime.h"
@@ -35,6 +43,10 @@
 #if defined(UNIX)
 #include <pwd.h>
 #include <grp.h>
+#endif
+
+#if defined(_OS_WIN32_)
+#include <tchar.h>
 #endif
 
 #if defined(_OS_SUN_)
@@ -60,6 +72,8 @@ static void convertSeparators( QString& )
 }
 
 #endif
+
+extern bool qt_file_access( const QString& fn, int t );
 
 
 struct QFileInfoCache
@@ -288,10 +302,7 @@ void QFileInfo::setFile( const QDir &d, const QString &fileName )
 
 bool QFileInfo::exists() const
 {
-    if ( !fn.isNull() )
-	return ACCESS( fn, F_OK ) == 0;
-    else
-	return FALSE;
+    return qt_file_access( fn, F_OK );
 }
 
 /*!
@@ -493,6 +504,7 @@ QDir QFileInfo::dir( bool absPath ) const
 }
 
 
+
 /*!
   Returns TRUE if the file is readable.
   \sa isWritable(), isExecutable(), permission()
@@ -500,10 +512,7 @@ QDir QFileInfo::dir( bool absPath ) const
 
 bool QFileInfo::isReadable() const
 {
-    if ( !fn.isNull() )
-	return ACCESS( fn, R_OK ) == 0;
-    else
-	return FALSE;
+    return qt_file_access( fn, R_OK );
 }
 
 /*!
@@ -513,10 +522,7 @@ bool QFileInfo::isReadable() const
 
 bool QFileInfo::isWritable() const
 {
-    if ( !fn.isNull() )
-	return ACCESS( fn, W_OK ) == 0 ;
-    else
-	return FALSE;
+    return qt_file_access( fn, W_OK );
 }
 
 /*!
@@ -526,10 +532,7 @@ bool QFileInfo::isWritable() const
 
 bool QFileInfo::isExecutable() const
 {
-    if ( !fn.isNull() )
-	return ACCESS( fn, X_OK ) == 0;
-    else
-	return FALSE;
+    return qt_file_access( fn, X_OK );
 }
 
 
@@ -625,7 +628,7 @@ QString QFileInfo::readLink() const
 #if defined(UNIX) && !defined(_OS_OS2EMX_)
     if ( !isSymLink() )
 	return QString();
-    int len = readlink( fn, s, PATH_MAX );
+    int len = readlink( fn.local8Bit(), s, PATH_MAX );
     if ( len < 0 )
 	len = 0;				// error, return empty string
 #endif
@@ -847,15 +850,26 @@ void QFileInfo::doStat() const
     that->fic->isSymLink = FALSE;
 
 #if defined( UNIX ) && defined(S_IFLNK)
-    if ( ::lstat(fn,b) == 0 ) {
+    if ( ::lstat(fn.local8Bit(),b) == 0 ) {
 	if ( S_ISLNK( b->st_mode ) )
 	    that->fic->isSymLink = TRUE;
 	else
 	    return;
     }
 #endif
+    int r;
+#if defined (UNIX)
+    r = STAT( fn.local8Bit(), b );
+#else
+debug("QDir::doStat");
+    if ( qt_winunicode ) {
+	r = _tstat((const TCHAR*)qt_winTchar(fn,TRUE), b);
+    } else {
+	r = _stat(fn.ascii(), b);
+    }
+#endif
 
-    if ( STAT(fn,b) != 0 ) {
+    if ( r != 0 ) {
 	delete that->fic;
 	that->fic = 0;
     }
