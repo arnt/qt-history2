@@ -84,7 +84,6 @@ public:
     bool         confirmEdits() const;
     bool         confirmCancels() const;
     bool         autoDelete() const;
-    bool         isColumnReadOnly( int col ) const;
     QString      filter() const;
     QStringList  sort() const;
 
@@ -95,7 +94,6 @@ public:
     virtual void setConfirmEdits( bool confirm );
     virtual void setConfirmCancels( bool confirm );
     virtual void setAutoDelete( bool enable );
-    virtual void setColumnReadOnly( int col, bool b );
     virtual void setFilter( const QString& filter );
     virtual void setSort( const QStringList& sort );
     virtual void setSort( const QSqlIndex& sort );

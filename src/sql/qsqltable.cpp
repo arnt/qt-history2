@@ -81,8 +81,6 @@ public:
     QString      nullTxt;
     typedef      QValueList< uint > ColIndex;
     ColIndex     colIndex;
-    typedef      QValueList< bool > ColReadOnly;
-    ColReadOnly  colReadOnly;
     bool         haveAllRows;
     bool         continuousEdit;
     QSqlEditorFactory* editorFactory;
@@ -202,6 +200,7 @@ QSqlTable::QSqlTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent, 
 /*! \internal
 */
 
+
 void QSqlTable::init()
 {
     setFocusProxy( viewport() );
@@ -244,10 +243,7 @@ void QSqlTable::addColumn( const QSqlField* field )
 	 !defaultCursor()->primaryIndex().contains( field->name() ) ) {
 	setNumCols( numCols() + 1 );
 	d->colIndex.append( defaultCursor()->position( field->name() ) );
-	if ( field->isReadOnly() )
-	    d->colReadOnly.append( TRUE );
-	else
-	    d->colReadOnly.append( FALSE );
+	setColumnReadOnly( numCols()-1, field->isReadOnly() );
 	QHeader* h = horizontalHeader();
 	h->setLabel( numCols()-1, defaultCursor()->displayLabel( field->name() ) );
     }
@@ -271,9 +267,6 @@ void QSqlTable::removeColumn( uint col )
     QSqlTablePrivate::ColIndex::Iterator it = d->colIndex.at( col );
     if ( it != d->colIndex.end() )
 	d->colIndex.remove( it );
-    QSqlTablePrivate::ColReadOnly::Iterator it2 = d->colReadOnly.at( col );
-    if ( it2 != d->colReadOnly.end() )
-	d->colReadOnly.remove( it2 );
 }
 
 /*!  Sets column \a col to display field \a field.  If \a col does not
@@ -291,44 +284,12 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
 	return;
     if ( defaultCursor()->isVisible( field->name() ) && !defaultCursor()->primaryIndex().field( field->name() ) ) {
 	d->colIndex[ col ] = defaultCursor()->position( field->name() );
-	if ( field->isReadOnly() )
-	    d->colReadOnly[ col ] =  TRUE;
-	else
-	    d->colReadOnly[ col ] =  FALSE;
+	setColumnReadOnly( col, field->isReadOnly() );
 	QHeader* h = horizontalHeader();
 	h->setLabel( col, field->name() );
     } else {
 	removeColumn( col );
     }
-}
-
-/*!  Sets the \a column's readonly flag to \a b.  Readonly columns
-  cannot be edited. Note that if the underlying cursor cannot be
-  edited, this function will have no effect.
-
-  \sa setCursor() isColumnReadOnly()
-
-*/
-
-void QSqlTable::setColumnReadOnly( int col, bool b )
-{
-    if ( col >= numCols() )
-	return;
-    d->colReadOnly[ col ] = b;
-}
-
-/*!  Returns TRUE if the \a column is readonly, otherwise FALSE is
-  returned.
-
-  \sa setColumnReadOnly()
-
-*/
-
-bool QSqlTable::isColumnReadOnly( int col ) const
-{
-    if ( col >= numCols() )
-	return FALSE;
-    return d->colReadOnly[ col ];
 }
 
 /*! Returns the current filter used on the displayed data.  If there
@@ -1535,7 +1496,6 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
 	d->cursor = cursor;
 	setNumCols(0);
 	d->colIndex.clear();
-	d->colReadOnly.clear();
 	if ( autoPopulate )
 	    addColumns( *d->cursor );
 	setReadOnly( d->cursor->isReadOnly() ); // ## do this by default?
