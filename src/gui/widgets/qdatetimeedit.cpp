@@ -734,6 +734,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 	    d->setSelected(d->currentsection);
 	    return;
 
+#ifndef Q_WS_MAC
 	case Qt::Key_Left:
 	    forward = false;
 	case Qt::Key_Right:
@@ -743,6 +744,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 		    break;
 		select = false;
 	    }
+#endif
 	case Qt::Key_Backtab:
 	case Qt::Key_Tab: {
 	    if (e->key() == Qt::Key_Backtab
