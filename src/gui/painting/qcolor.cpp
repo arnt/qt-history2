@@ -257,15 +257,20 @@ QColor::QColor(Qt::GlobalColor color)
 */
 
 /*!
-    Constructs a color with the RGB value \a rgb.
+    Constructs a color with the value \a color. The color format is
+    specified with \a format. The default format is RgbFormat, where the
+    alpha component is ignored and set to 255, or solid.
 */
-QColor::QColor(QRgb rgb)
+QColor::QColor(uint color, ColorFormat format)
 {
     cspec = Rgb;
-    argb.alpha = qAlpha(rgb) * 0x101;
-    argb.red   = qRed(rgb)   * 0x101;
-    argb.green = qGreen(rgb) * 0x101;
-    argb.blue  = qBlue(rgb)  * 0x101;
+    if (format == QColor::RgbaFormat)
+	argb.alpha = qAlpha(color) * 0x101;
+    else
+	argb.alpha = 0xffff;
+    argb.red   = qRed(color)   * 0x101;
+    argb.green = qGreen(color) * 0x101;
+    argb.blue  = qBlue(color)  * 0x101;
     argb.pad   = 0;
 }
 

@@ -36,10 +36,12 @@ class Q_GUI_EXPORT QColor
 public:
     enum Spec { Invalid, Rgb, Hsv, Cmyk };
 
+    enum ColorFormat { RgbFormat, RgbaFormat };
+
     QColor();
     QColor(Qt::GlobalColor color);
     QColor(int r, int g, int b, int a = 255);
-    QColor(QRgb rgb);
+    QColor(uint color, ColorFormat format = RgbFormat);
     QColor(const QString& name);
     QColor(const char *name);
     QColor(const QColor &color);
