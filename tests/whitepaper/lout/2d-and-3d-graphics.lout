@@ -282,11 +282,12 @@ sprites.
     @Tag { 3d.graphics }
 @Begin
 @PP
-OpenGL is a standard API for rendering 3D graphics. Qt developers can
-use OpenGL to draw 3D graphics in their GUI applications. This is
-achieved by subclassing @Class QGLWidget, a @Class QWidget subclass,
-and drawing with standard OpenGL functions rather than with @Class
-QPainter.
+OpenGL @FootNote { OpenGL is a trademark of Silicon Graphics, Inc. in
+the United States and other countries. } is a standard API for
+rendering 3D graphics. Qt developers can use OpenGL to draw 3D
+graphics in their GUI applications. This is achieved by subclassing
+@Class QGLWidget, a @Class QWidget subclass, and drawing with standard
+OpenGL functions rather than with @Class QPainter.
   gl @Index { GL }
   inheriting @Index { Inheriting }
   opengl @Index { OpenGL }
@@ -301,7 +302,7 @@ uses the system's OpenGL library (including Mesa).
   windows @Index { Windows }
   xwindowsystem @Index { X Window System }
 @Figure
-    @Caption { Brain Innovation's BrainVoyager application written in Qt }
+    @Caption { Brain Innovation's BrainVoyager application written in Qt and Open GL }
 @Scale @IncludeGraphic { "images/brain-innovation.eps" }
 @PP
 Qt developers can set the display format of an OpenGL rendering

@@ -30,7 +30,7 @@ toolkit for platform-independent OpenGL programming.
   \index XPM
 
 The \Class QImage class supports the input, output and manipulation
-of images in several formats, including BMP, GIF*, JPEG, MNG, PNG,
+of images in several formats, including BMP, GIF\FOOTMARKA, JPEG, MNG, PNG,
 PNM, XBM and XPM.
 
 Many of Qt's built-in widgets can display images, for example,
@@ -257,7 +257,7 @@ sprites.
   \index QGLWidget
   \index Subclassing
 
-OpenGL is a standard API for rendering 3D graphics. Qt developers can
+OpenGL\FOOTMARKB is a standard API for rendering 3D graphics. Qt developers can
 use OpenGL to draw 3D graphics in their GUI applications. This is
 achieved by subclassing \Class QGLWidget, a \Class QWidget subclass,
 and drawing with standard OpenGL functions rather than with \Class
@@ -273,7 +273,7 @@ Qt's OpenGL module is available on Windows, X11 and Macintosh, and
 uses the system's OpenGL library (including Mesa).
 
   \BRAIN
-  \caption Brain Innovation's BrainVoyager application written in Qt
+  \caption Brain Innovation's BrainVoyager application written in Qt and OpenGL
 
   \index Alpha channel
   \index Colormap
@@ -332,8 +332,13 @@ created:
 \Online http://doc.trolltech.com/3.0/opengl.html
 \ENDONLINES
 
-\FOOTNOTE
+\FOOTNOTEA
 If you are in a country that recognizes software patents and where
 Unisys holds a patent on LZW decompression, Unisys may require you to
 license the technology to use GIF.
+\ENDFOOTNOTE
+
+\FOOTNOTEB
+OpenGL is a trademark of Silicon Graphics, Inc. in the United States
+and other countries.
 \ENDFOOTNOTE
