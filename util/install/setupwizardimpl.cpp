@@ -414,14 +414,13 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QFile licenseFile( "LICENSE" );
 #endif
 	if( licenseFile.open( IO_ReadOnly ) ) {
-	    QByteArray fileData = licenseFile.readAll();
-/*
+//	    QByteArray fileData = licenseFile.readAll();
+
 	    QFileInfo fi( licenseFile );
-	    
-	    if( !fileData.resize( fi.size() ) )
-		qFatal( "Could not allocate memory for license text!" );
-	    licenseFile.readBlock( fileData.data(), fileData.size() );
-*/
+	    QByteArray fileData( fi.size() + 2 );
+	    licenseFile.readBlock( fileData.data(), fi.size() );
+	    fileData.data()[ fi.size() ] = 0;
+	    fileData.data()[ fi.size() + 1 ] = 0;
 	    introText->setText( QString( fileData.data() ) );
 	}
 	setInstallStep( 1 );
