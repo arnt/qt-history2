@@ -17,6 +17,7 @@
 #include "qapplication.h"
 #include "qgfxlinuxfb_qws.h"
 #include "qgfxtransformed_qws.h"
+#include "qgfxsnap_qws.h"
 #include "qgfxmach64_qws.h"
 #include "qgfxvoodoo_qws.h"
 #include "qgfxmatrox_qws.h"
@@ -69,6 +70,10 @@ QScreen *QGfxDriverFactory::create(const QString& key, int displayId)
 #ifndef QT_NO_QWS_QVFB
     if (driver == "qvfb" || driver.isEmpty())
         return new QVFbScreen(displayId);
+#endif
+#ifndef QT_NO_QWS_SNAP
+    if ( driver == "snap" )
+        return new QSNAPScreen( displayId );
 #endif
 #ifndef QT_NO_QWS_LINUXFB
     if (driver == "linuxfb" || driver.isEmpty())
@@ -130,6 +135,10 @@ QStringList QGfxDriverFactory::keys()
 #ifndef QT_NO_QWS_QVFB
     if (!list.contains("QVFb"))
         list << "QVFb";
+#endif
+#ifndef QT_NO_QWS_SNAP
+    if ( !list.contains( "snap" ) )
+        list << "snap";
 #endif
 #ifndef QT_NO_QWS_LINUXFB
     if (!list.contains("LinuxFb"))

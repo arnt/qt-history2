@@ -177,6 +177,21 @@ embedded {
 		SOURCES += embedded/qgfxmach64_qws.cpp
 	}
 
+	contains( gfx-drivers, snap ) {
+		exists( $(SCITECH)/include/snap/graphics.h) {
+			HEADERS += embedded/qgfxsnap_qws.h
+			SOURCES += embedded/qgfxsnap_qws.cpp
+			INCLUDEPATH += $(SCITECH)/include
+			debug:LIBS	+= -L$(SCITECH)/lib/debug/linux/gcc/x86/so -lpm
+			else:LIBS	+= -L$(SCITECH)/lib/release/linux/gcc/x86/so -lpm
+		}
+		else {
+			message("SciTech SNAP SDK is not properly set up! Please make sure the SCITECH")
+			message("environment variable is pointing to the SciTech SNAP SDK.")
+			error("Please fix and re-build the makefiles.")
+		}
+	}
+
 	contains( gfx-drivers, voodoo ) {
 		HEADERS += embedded/qgfxvoodoo_qws.h \
 			   embedded/qgfxvoodoodefs_qws.h
