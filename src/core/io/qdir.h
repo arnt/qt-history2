@@ -57,6 +57,7 @@ public:
                       DirsFirst   = 0x04,
                       Reversed    = 0x08,
                       IgnoreCase  = 0x10,
+                      DirsLast    = 0x20,
                       DefaultSort = -1 };
 
     QDir();

@@ -1244,9 +1244,12 @@ int qt_cmp_si(const void *n1, const void *n2)
     QDirSortItem* f1 = (QDirSortItem*)n1;
     QDirSortItem* f2 = (QDirSortItem*)n2;
 
-    if (qt_cmp_si_sortSpec & QDir::DirsFirst)
-        if (f1->item.isDir() != f2->item.isDir())
+    if (f1->item.isDir() != f2->item.isDir()) {
+        if (qt_cmp_si_sortSpec & QDir::DirsFirst)
             return f1->item.isDir() ? -1 : 1;
+        if (qt_cmp_si_sortSpec & QDir::DirsLast)
+            return f1->item.isDir() ? 1 : -1;
+    }
 
     int r = 0;
     int sortBy = qt_cmp_si_sortSpec & QDir::SortByMask;

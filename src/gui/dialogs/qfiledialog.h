@@ -99,6 +99,7 @@ protected slots:
     void setFilter(const QString &filter);
     void setCurrentDir(const QString &path);
     void showContextMenu(const QModelIndex &index, const QPoint &position);
+    void headerClicked(int section);
 };
 
 #endif // QFILEDIALOG_H

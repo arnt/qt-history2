@@ -493,7 +493,8 @@ void QFileDialog::showDetail()
 
 void QFileDialog::doubleClicked(const QModelIndex &index)
 {
-    if (d->model->isDir(index)) {
+    if (index.type() == QModelIndex::View
+        && d->model->isDir(index)) {
         d->history.push_back(d->root());
         d->setRoot(index);
     } else {
@@ -611,6 +612,46 @@ void QFileDialog::showContextMenu(const QModelIndex &index, const QPoint &positi
     }
 }
 
+void QFileDialog::headerClicked(int section)
+{
+    int spec = -1;
+    switch (section) {
+    case 0:
+        spec = QDir::Name;
+        break;
+    case 1:
+        spec = QDir::Size;
+        break;
+    case 2:
+        qDebug("sorting on type is not implemented yet");
+        return;
+        break;
+    case 3:
+        spec = QDir::Time;
+        break;
+    default:
+        return;
+    }
+    QGenericHeader *header = d->tview->header();
+    SortOrder order = (header->sortIndicatorSection() == section
+                       && header->sortIndicatorOrder() == Ascending)
+                      ? Descending : Ascending;
+    bool sortByName = (spec & QDir::SortByMask) == QDir::Name;
+    bool reverse = (order == Descending ? sortByName : !sortByName);
+    if (reverse) {
+        spec |= QDir::Reversed;
+        spec |= QDir::DirsLast;
+        spec &= ~QDir::DirsFirst;
+    } else {
+        spec &= ~QDir::Reversed;
+        spec &= ~QDir::DirsLast;
+        spec |= QDir::DirsFirst;
+    }
+    
+    d->setDirSorting(spec);
+    header->setSortIndicator(section, order);
+}
+
 void QFileDialogPrivate::setup()
 {
     q->setSizeGripEnabled(true);
@@ -659,6 +700,8 @@ void QFileDialogPrivate::setup()
                      q, SLOT(deletePressed(const QModelIndex&)));
     QObject::connect(tview, SIGNAL(deletePressed(const QModelIndex&)),
                      q, SLOT(deletePressed(const QModelIndex&)));
+    QObject::connect(tview->header(), SIGNAL(sectionClicked(int, ButtonState)),
+                     q, SLOT(headerClicked(int)));
 
     grid->addWidget(new QLabel("Look in:", q), 0, 0);
     grid->addWidget(new QLabel("File name:", q), 2, 0);
@@ -703,8 +746,8 @@ void QFileDialogPrivate::setup()
     // view context menu
     viewContextMenu = new QMenu(q);
     reloadAction = viewContextMenu->addAction("&Reload");
-    QMenu *sortContextMenu = viewContextMenu;//new QMenu();
-    //viewContextMenu->addMenu("Sort", sortContextMenu); // FIXME: QMenu bug
+    QMenu *sortContextMenu = new QMenu();
+    viewContextMenu->addMenu("Sort", sortContextMenu); // FIXME: QMenu bug
     sortByNameAction = sortContextMenu->addAction("Sort by &Name");
     sortByNameAction->setCheckable(true);
     sortByNameAction->setChecked(true);
@@ -829,7 +872,6 @@ void QFileDialogPrivate::setDirSorting(int spec)
     sortBySizeAction->setChecked(sortBy == QDir::Size);
     sortByDateAction->setChecked(sortBy == QDir::Time);
     unsortedAction->setChecked(sortBy == QDir::Unsorted);
-//    return;
     // Save path to current root, set the filter and then set the root back.
     // This is because the models internal data structure is totally rebuilt, and
     // so all QModelIndex objects are invalidated, including the root object.
@@ -896,6 +938,7 @@ extern QStringList qt_mac_get_open_file_names(const QString &filter,
                                               const QString &caption,
                                               QString *selectedFilter,
                                               bool multi, bool directory);
+
 extern QString qt_mac_get_save_file_name(const QString &start,
                                          const QString &filter,
                                          QString *pwd,

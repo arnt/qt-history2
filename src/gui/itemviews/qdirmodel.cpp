@@ -620,16 +620,24 @@ QModelIndex QDirModel::index(const QString &path) const
 
 QString QDirModel::path(const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return d->root.absPath();
     return fileInfo(index).absFilePath();
 }
 
 QString QDirModel::name(const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return d->root.dirName();
     return fileInfo(index).fileName();
 }
 
 QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 {
+    if (!index.isValid()) {
+        qWarning("fileInfo: index is invalid");
+        return QFileInfo();
+    }
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!node) {
         qWarning("fileInfo: the node does not exist");
@@ -640,6 +648,8 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 
 bool QDirModel::isDir(const QModelIndex &index) const
 {
+    if (!index.isValid())
+        return true;
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!node) {
         qWarning("isDir: the node does not exist");

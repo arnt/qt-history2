@@ -847,8 +847,10 @@ int QGenericHeader::stretchSectionCount() const
 
 void QGenericHeader::setSortIndicator(int section, SortOrder order)
 {
+    updateSection(d->sortIndicatorSection);
     d->sortIndicatorSection = section;
     d->sortIndicatorOrder = order;
+    updateSection(section);
 }
 
 int QGenericHeader::sortIndicatorSection() const
