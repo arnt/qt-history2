@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#9 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#10 $
 **
 ** Implementation of QFileDialog class
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#9 $")
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#10 $")
 
 
 /*----------------------------------------------------------------------------
@@ -279,7 +279,7 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
     OPENFILENAME ofn;
     memset( &ofn, 0, sizeof(OPENFILENAME) );
     ofn.lStructSize	= sizeof(OPENFILENAME);
-    ofn.hwndOwner	= parent ? parent->id() : 0;
+    ofn.hwndOwner	= parent ? parent->topLevelWidget()->id() : 0;
     ofn.lpstrFilter	= win_filter[0];	// !!!must fix
     ofn.lpstrFile	= file;
     ofn.nMaxFile	= maxstrlen;
@@ -332,7 +332,7 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
     OPENFILENAME ofn;
     memset( &ofn, 0, sizeof(OPENFILENAME) );
     ofn.lStructSize	= sizeof(OPENFILENAME);
-    ofn.hwndOwner	= parent ? parent->id() : 0;
+    ofn.hwndOwner	= parent ? parent->topLevelWidget()->id() : 0;
     ofn.lpstrFilter	= win_filter[0];	// !!!must fix
     ofn.lpstrFile	= file;
     ofn.nMaxFile	= maxstrlen;
