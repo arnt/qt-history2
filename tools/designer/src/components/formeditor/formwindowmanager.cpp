@@ -14,7 +14,7 @@
 #include "formwindowmanager.h"
 #include "widgetdatabase.h"
 #include "iconloader.h"
-#include "sizehandle.h"
+#include "widgetselection.h"
 #include "connectionedit.h"
 #include "orderindicator.h"
 
@@ -117,7 +117,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
     }
 
     QWidget *w = static_cast<QWidget*>(o);
-    if (qt_cast<SizeHandle*>(w))
+    if (qt_cast<WidgetHandle*>(w))
         return false;
 
     if (!o->isWidgetType())

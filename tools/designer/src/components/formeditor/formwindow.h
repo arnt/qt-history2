@@ -52,10 +52,10 @@ class View3D;
 class FormWindowDnDItem : public AbstractDnDItem
 {
     Q_OBJECT
-public:    
+public:
     FormWindowDnDItem(QWidget *widget, const QPoint &pos);
     FormWindowDnDItem(DomUI *dom_ui, QWidget *widget, const QPoint &pos);
-    
+
     virtual ~FormWindowDnDItem();
 
     virtual DomUI *domUi() const;
@@ -91,7 +91,7 @@ private:
 
 // ### fake - remove when actions are implemented
 struct QT_FORMEDITOR_EXPORT ActionListElt {
-    QString name, objectName, menu, icon, iconText, shortcut; 
+    QString name, objectName, menu, icon, iconText, shortcut;
 };
 typedef QList<ActionListElt> ActionList;
 
@@ -202,14 +202,14 @@ public:
                                     HighlightMode mode = Highlight);
 
     DomConnections *saveConnections();
-    
+
     void createConnections(DomConnections *connections, QWidget *parent);
 
     void updateOrderIndicators();
-    
+
     WidgetToActionMap &widgetToActionMap() { return m_widget_to_action_map; }
     ActionList &actionList() { return m_action_list; }
-    
+
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);
     void editModeChanged(EditMode);
@@ -350,14 +350,14 @@ private:
 
     WidgetToActionMap m_widget_to_action_map;
     ActionList m_action_list;
-    
+
 #ifdef DESIGNER_VIEW3D
     View3D *m_view_3d;
 #endif
-        
+
 private:
     friend class FormWindowManager;
-    friend class SizeHandle;
+    friend class WidgetHandle;
     friend class WidgetSelection;
     friend class QDesignerWidget;
 };

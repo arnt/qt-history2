@@ -468,9 +468,13 @@ void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, 
 
     switch (layoutType) {
         case LayoutInfo::Grid:
+        case LayoutInfo::VBox:
+        case LayoutInfo::HBox:
             m_layout = new GridLayout(widgets, m_parentWidget, formWindow(), layoutBase, sz);
             setDescription(tr("Lay out using grid"));
             break;
+
+#if 0 // ### disabled the vbox and hbox layout.
         case LayoutInfo::VBox:
             m_layout = new VerticalLayout(widgets, m_parentWidget, formWindow(), layoutBase, splitter);
             setDescription(tr("Lay out vertically"));
@@ -479,6 +483,7 @@ void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, 
             m_layout = new HorizontalLayout(widgets, m_parentWidget, formWindow(), layoutBase, splitter);
             setDescription(tr("Lay out horizontally"));
             break;
+#endif
         default:
             Q_ASSERT(0);
     }

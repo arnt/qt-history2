@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef SIZEHANDLE_H
-#define SIZEHANDLE_H
+#ifndef WIDGETHANDLE_H
+#define WIDGETHANDLE_H
 
 #include "formeditor_global.h"
 
@@ -24,49 +24,60 @@ class FormWindow;
 class WidgetSelection;
 class QPaintEvent;
 
-class QT_FORMEDITOR_EXPORT SizeHandle : public QWidget
+class QT_FORMEDITOR_EXPORT WidgetHandle: public QWidget
 {
     Q_OBJECT
 
 public:
-    enum Direction { LeftTop, Top, RightTop, Right, RightBottom, Bottom, LeftBottom, Left };
+    enum Type
+    {
+        LeftTop,
+        Top,
+        RightTop,
+        Right,
+        RightBottom,
+        Bottom,
+        LeftBottom,
+        Left,
+        TaskMenu,
 
-    SizeHandle( FormWindow *parent, Direction d, WidgetSelection *s );
-    void setWidget( QWidget *w );
-    void setActive( bool a );
+        TypeCount
+    };
+
+    WidgetHandle(FormWindow *parent, Type t, WidgetSelection *s);
+    void setWidget(QWidget *w);
+    void setActive(bool a);
     void updateCursor();
 
-    void setEnabled( bool ) {}
+    void setEnabled(bool) {}
 
 protected:
-    void paintEvent( QPaintEvent *e );
-    void mousePressEvent( QMouseEvent *e );
-    void mouseMoveEvent( QMouseEvent *e );
-    void mouseReleaseEvent( QMouseEvent *e );
+    void paintEvent(QPaintEvent *e);
+    void mousePressEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
 
 private:
-    void trySetGeometry( QWidget *w, int x, int y, int width, int height );
-    void tryResize( QWidget *w, int width, int height );
+    void trySetGeometry(QWidget *w, int x, int y, int width, int height);
+    void tryResize(QWidget *w, int width, int height);
     static int adjustPoint(int x, int dx);
-
 
 private:
     QWidget *widget;
-    Direction dir;
+    Type type;
     QPoint oldPressPos;
     FormWindow *formWindow;
     WidgetSelection *sel;
     QRect geom, origGeom;
     bool active;
-
 };
 
 class QT_FORMEDITOR_EXPORT WidgetSelection
 {
 public:
-    WidgetSelection( FormWindow *parent, QHash<QWidget *, WidgetSelection *> *selDict );
+    WidgetSelection(FormWindow *parent, QHash<QWidget *, WidgetSelection *> *selDict);
 
-    void setWidget( QWidget *w, bool updateDict = true);
+    void setWidget(QWidget *w, bool updateDict = true);
     bool isUsed() const;
 
     void updateGeometry();
@@ -77,11 +88,11 @@ public:
     QWidget *widget() const;
 
 protected:
-    QHash<int, SizeHandle*> handles;
+    QHash<int, WidgetHandle*> handles;
     QWidget *wid;
     FormWindow *formWindow;
     QHash<QWidget *, WidgetSelection *> *selectionDict;
 
 };
 
-#endif // SIZEHANDLE_H
+#endif // WIDGETHANDLE_H

@@ -19,37 +19,45 @@
 
 #include <abstractwidgetfactory.h>
 
+#include <QMenu>
 #include <QVariant>
 #include <QWidget>
 #include <QApplication>
 #include <QLabel>
 #include <QPainter>
 #include <QMouseEvent>
-
+#include <QStylePainter>
 #include <qdebug.h>
 
-SizeHandle::SizeHandle(FormWindow *parent, Direction d, WidgetSelection *s)
+WidgetHandle::WidgetHandle(FormWindow *parent, WidgetHandle::Type t, WidgetSelection *s)
     : QWidget(parent)
 {
     active = true;
-    setBackgroundRole(active ? QPalette::Text : QPalette::Dark);
-    setFixedSize(6, 6);
     widget = 0;
-    dir =d ;
+    type = t;
     setMouseTracking(false);
     formWindow = parent;
     sel = s;
+
+    if (type == TaskMenu) {
+        setBackgroundRole(QPalette::Button);
+        setFixedSize(12, 12);
+    } else {
+        setBackgroundRole(active ? QPalette::Text : QPalette::Dark);
+        setFixedSize(6, 6);
+    }
+
     updateCursor();
 }
 
-void SizeHandle::updateCursor()
+void WidgetHandle::updateCursor()
 {
     if (!active) {
         setCursor(Qt::ArrowCursor);
         return;
     }
 
-    switch (dir) {
+    switch (type) {
     case LeftTop:
         setCursor(Qt::SizeFDiagCursor);
         break;
@@ -74,22 +82,29 @@ void SizeHandle::updateCursor()
     case Left:
         setCursor(Qt::SizeHorCursor);
         break;
+    case TaskMenu:
+        setCursor(Qt::ArrowCursor);
+        break;
+    default:
+        Q_ASSERT(0);
     }
 }
 
-void SizeHandle::setActive(bool a)
+void WidgetHandle::setActive(bool a)
 {
     active = a;
-    setBackgroundRole(active ? QPalette::Text : QPalette::Dark);
+    if (type != TaskMenu) {
+        setBackgroundRole(active ? QPalette::Text : QPalette::Dark);
+    }
     updateCursor();
 }
 
-void SizeHandle::setWidget(QWidget *w)
+void WidgetHandle::setWidget(QWidget *w)
 {
     widget = w;
 }
 
-void SizeHandle::paintEvent(QPaintEvent *)
+void WidgetHandle::paintEvent(QPaintEvent *)
 {
     FormWindow *fw = static_cast<FormWindow*>(parentWidget());
     if (fw->currentWidget() != widget)
@@ -97,12 +112,23 @@ void SizeHandle::paintEvent(QPaintEvent *)
 
     AbstractFormWindowManager *m = fw->core()->formWindowManager();
 
-    QPainter p(this);
-    p.setPen(m->activeFormWindow() == fw ? Qt::blue : Qt::red);
-    p.drawRect(0, 0, width() - 1, height() - 1);
+    QStylePainter p(this);
+    if (type == TaskMenu) {
+        QStyleOptionToolButton option;
+        option.init(this);
+        option.state |= QStyle::State_Raised;
+        option.arrowType = Qt::RightArrow;
+        option.toolButtonStyle = Qt::ToolButtonIconOnly;
+        option.features = QStyleOptionToolButton::Arrow;
+        option.subControls = QStyle::SC_ToolButton;
+        p.drawComplexControl(QStyle::CC_ToolButton, option);
+    } else {
+        p.setPen(m->activeFormWindow() == fw ? Qt::blue : Qt::red);
+        p.drawRect(0, 0, width() - 1, height() - 1);
+    }
 }
 
-void SizeHandle::mousePressEvent(QMouseEvent *e)
+void WidgetHandle::mousePressEvent(QMouseEvent *e)
 {
     e->accept();
 
@@ -111,19 +137,32 @@ void SizeHandle::mousePressEvent(QMouseEvent *e)
 
     if (!formWindow->hasFeature(FormWindow::EditFeature))
         return;
-    
+
     QWidget *container = widget->parentWidget();
 
     oldPressPos = container->mapFromGlobal(e->globalPos());
     geom = origGeom = widget->geometry();
+
+    if (type == TaskMenu && e->button() == Qt::LeftButton) {
+        QMenu m(this);
+        m.addAction(tr("Move"));
+        m.addAction(tr("Clone"));
+        m.addSeparator();
+        m.addAction(tr("Edit contents"));
+        m.exec(e->globalPos());
+    }
+
 }
 
-int SizeHandle::adjustPoint(int x, int dx)
+int WidgetHandle::adjustPoint(int x, int dx)
 { return (x / dx) * dx + 1; }
 
-void SizeHandle::mouseMoveEvent(QMouseEvent *e)
+void WidgetHandle::mouseMoveEvent(QMouseEvent *e)
 {
     if (!(widget && active && e->buttons() & Qt::LeftButton))
+        return;
+
+    if (type == TaskMenu)
         return;
 
     //e->accept();
@@ -137,7 +176,10 @@ void SizeHandle::mouseMoveEvent(QMouseEvent *e)
     QRect pr = container->rect();
     QPoint grid = formWindow->grid();
 
-    switch (dir) {
+    switch (type) {
+
+    case TaskMenu:
+        break;
 
     case LeftTop: {
         if (rp.x() > pr.width() - 2 * width() || rp.y() > pr.height() - 2 * height())
@@ -279,17 +321,21 @@ void SizeHandle::mouseMoveEvent(QMouseEvent *e)
         formWindow->updateChildSelections(widget);
 }
 
-void SizeHandle::mouseReleaseEvent(QMouseEvent *e)
+void WidgetHandle::mouseReleaseEvent(QMouseEvent *e)
 {
     if (e->button() != Qt::LeftButton || !active)
         return;
+
+    if (type == TaskMenu)
+        return;
+
     e->accept();
 
     formWindow->sizePreview()->hide();
 
     if (!formWindow->hasFeature(FormWindow::EditFeature))
         return;
-        
+
     if (geom != widget->geometry()) {
         SetPropertyCommand *cmd = new SetPropertyCommand(formWindow);
         cmd->init(widget, "geometry", widget->geometry());
@@ -299,7 +345,7 @@ void SizeHandle::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
-void SizeHandle::trySetGeometry(QWidget *w, int x, int y, int width, int height)
+void WidgetHandle::trySetGeometry(QWidget *w, int x, int y, int width, int height)
 {
     if (!formWindow->hasFeature(FormWindow::EditFeature))
         return;
@@ -323,7 +369,7 @@ void SizeHandle::trySetGeometry(QWidget *w, int x, int y, int width, int height)
     w->setGeometry(x, y, qMax(minw, width), qMax(minh, height));
 }
 
-void SizeHandle::tryResize(QWidget *w, int width, int height)
+void WidgetHandle::tryResize(QWidget *w, int width, int height)
 {
     int minw = qMax(w->minimumSizeHint().width(), w->minimumSize().width());
     minw = qMax(minw, 16);
@@ -340,8 +386,8 @@ WidgetSelection::WidgetSelection(FormWindow *parent, QHash<QWidget *, WidgetSele
     : selectionDict(selDict)
 {
     formWindow = parent;
-    for (int i = SizeHandle::LeftTop; i <= SizeHandle::Left; ++i) {
-        handles.insert(i, new SizeHandle(formWindow, (SizeHandle::Direction)i, this));
+    for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
+        handles.insert(i, new WidgetHandle(formWindow, (WidgetHandle::Type)i, this));
     }
     hide();
 }
@@ -358,8 +404,8 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
 
     wid = w;
     bool active = !wid->parentWidget() || LayoutInfo::layoutType(formWindow->core(), wid->parentWidget()) == LayoutInfo::NoLayout;
-    for (int i = SizeHandle::LeftTop; i <= SizeHandle::Left; ++i) {
-        SizeHandle *h = handles[ i ];
+    for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
+        WidgetHandle *h = handles[ i ];
         if (h) {
             h->setWidget(wid);
             h->setActive(active);
@@ -388,34 +434,37 @@ void WidgetSelection::updateGeometry()
     int w = 6;
     int h = 6;
 
-    for (int i = SizeHandle::LeftTop; i <= SizeHandle::Left; ++i) {
-        SizeHandle *hndl = handles[ i ];
+    for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
+        WidgetHandle *hndl = handles[ i ];
         if (!hndl)
             continue;
         switch (i) {
-        case SizeHandle::LeftTop:
+        case WidgetHandle::LeftTop:
             hndl->move(r.x() - w / 2, r.y() - h / 2);
             break;
-        case SizeHandle::Top:
+        case WidgetHandle::Top:
             hndl->move(r.x() + r.width() / 2 - w / 2, r.y() - h / 2);
             break;
-        case SizeHandle::RightTop:
+        case WidgetHandle::RightTop:
             hndl->move(r.x() + r.width() - w / 2, r.y() - h / 2);
             break;
-        case SizeHandle::Right:
+        case WidgetHandle::Right:
             hndl->move(r.x() + r.width() - w / 2, r.y() + r.height() / 2 - h / 2);
             break;
-        case SizeHandle::RightBottom:
+        case WidgetHandle::RightBottom:
             hndl->move(r.x() + r.width() - w / 2, r.y() + r.height() - h / 2);
             break;
-        case SizeHandle::Bottom:
+        case WidgetHandle::Bottom:
             hndl->move(r.x() + r.width() / 2 - w / 2, r.y() + r.height() - h / 2);
             break;
-        case SizeHandle::LeftBottom:
+        case WidgetHandle::LeftBottom:
             hndl->move(r.x() - w / 2, r.y() + r.height() - h / 2);
             break;
-        case SizeHandle::Left:
+        case WidgetHandle::Left:
             hndl->move(r.x() - w / 2, r.y() + r.height() / 2 - h / 2);
+            break;
+        case WidgetHandle::TaskMenu:
+            hndl->move(r.x() + r.width() - w / 2, r.y() + h - h / 2);
             break;
         default:
             break;
@@ -425,8 +474,8 @@ void WidgetSelection::updateGeometry()
 
 void WidgetSelection::hide()
 {
-    for (int i = SizeHandle::LeftTop; i <= SizeHandle::Left; ++i) {
-        SizeHandle *h = handles[ i ];
+    for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
+        WidgetHandle *h = handles[ i ];
         if (h)
             h->hide();
     }
@@ -434,8 +483,8 @@ void WidgetSelection::hide()
 
 void WidgetSelection::show()
 {
-    for (int i = SizeHandle::LeftTop; i <= SizeHandle::Left; ++i) {
-        SizeHandle *h = handles[ i ];
+    for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
+        WidgetHandle *h = handles[ i ];
         if (h) {
             h->show();
             h->raise();
@@ -445,8 +494,8 @@ void WidgetSelection::show()
 
 void WidgetSelection::update()
 {
-    for (int i = SizeHandle::LeftTop; i <= SizeHandle::Left; ++i) {
-        SizeHandle *h = handles[ i ];
+    for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
+        WidgetHandle *h = handles[ i ];
         if (h)
             h->update();
     }

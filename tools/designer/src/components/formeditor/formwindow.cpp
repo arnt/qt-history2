@@ -17,7 +17,7 @@
 
 #include "command.h"
 #include "orderindicator.h"
-#include "sizehandle.h"
+#include "widgetselection.h"
 #include "qdesigner_widget.h"
 #include "qdesigner_tabwidget.h"
 #include "qdesigner_toolbox.h"
@@ -250,7 +250,7 @@ void FormWindow::setCursorToAll(const QCursor &c, QWidget *start)
     QListIterator<QWidget*> it(l);
     while (it.hasNext()) {
         QWidget *w = it.next();
-        if (!qt_cast<SizeHandle*>(w)) {
+        if (!qt_cast<WidgetHandle*>(w)) {
             w->setCursor(c);
         }
     }
@@ -268,7 +268,7 @@ void FormWindow::restoreCursors(QWidget *start, FormWindow *fw)
     QListIterator<QWidget*> it(l);
     while (it.hasNext()) {
         QWidget *w = it.next();
-        if (!qt_cast<SizeHandle*>(w))
+        if (!qt_cast<WidgetHandle*>(w))
             restoreCursors(w, fw);
     }
 }
@@ -319,8 +319,8 @@ void FormWindow::init()
                 m_buddyEditor, SLOT(deleteWidgetItem(QWidget*)));
     m_buddyEditor->setGeometry(rect());
     m_buddyEditor->show();
-        
-#ifdef DESIGNER_VIEW3D    
+
+#ifdef DESIGNER_VIEW3D
     m_view_3d = new View3D(this, this);
     m_view_3d->setGeometry(rect());
     m_view_3d->show();
@@ -1297,12 +1297,12 @@ void FormWindow::paste()
             selectWidget(w, true);
         }
         endCommand();
-        
+
         /* This will put the freshly pasted widgets into the clipboard, replacing the original.
            The point here is that the copied widgets are shifted a little with respect to the original.
            If the user presses paste again, the pasted widgets will be shifted again, rather than
            appearing on top of the previously pasted widgets. */
-        copy(); 
+        copy();
 
     } else {
         QMessageBox::information(this, tr("Paste error"),
@@ -1990,7 +1990,7 @@ static QWidget *childAt_SkipDropLine(QWidget *w, QPoint pos)
             continue;
         if (qt_cast<DropLine*>(child_obj) != 0)
             continue;
-        if (qt_cast<SizeHandle*>(child_obj) != 0)
+        if (qt_cast<WidgetHandle*>(child_obj) != 0)
             continue;
         QWidget *child = static_cast<QWidget*>(child_obj);
         if (!child->geometry().contains(pos))
@@ -2009,7 +2009,7 @@ static QWidget *childAt_SkipDropLine(QWidget *w, QPoint pos)
 QWidget *FormWindow::widgetAt(const QPoint &pos)
 {
     QWidget *w = childAt(pos);
-    if (qt_cast<DropLine*>(w) != 0 || qt_cast<SizeHandle*>(w) != 0)
+    if (qt_cast<DropLine*>(w) != 0 || qt_cast<WidgetHandle*>(w) != 0)
         w = childAt_SkipDropLine(this, pos);
     return w == 0 ? this : w;
 }
@@ -2090,18 +2090,18 @@ void FormWindow::setEditMode(EditMode mode)
         case TabOrderEditMode:
             showOrderIndicators();
             break;
-            
+
         case BuddyEditMode:
             m_buddyEditor->updateBackground();
             m_buddyEditor->raise();
             m_buddyEditor->updateAllItems();
             break;
 
-#ifdef DESIGNER_VIEW3D                        
+#ifdef DESIGNER_VIEW3D
         case View3DEditMode:
             m_view_3d->updateForm();
             m_view_3d->raise();
-#endif    
+#endif
     }
 
     emit editModeChanged(mode);
