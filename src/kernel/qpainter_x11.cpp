@@ -79,7 +79,7 @@ static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rh, const QReg
 #else
     Q_UNUSED( rh );
 #endif // QT_NO_XRENDER
-    XSetClipRectangles( dpy, gc, 0, 0, rects, num, Unsorted );
+    XSetClipRectangles( dpy, gc, 0, 0, rects, num, YXBanded );
 }
 
 static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rh, const QRegion &r, GC gc2 )
@@ -92,8 +92,8 @@ static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rh, const QReg
 #else
     Q_UNUSED( rh );
 #endif // QT_NO_XRENDER
-    XSetClipRectangles( dpy, gc, 0, 0, rects, num, Unsorted );
-    XSetClipRectangles( dpy, gc2, 0, 0, rects, num, Unsorted );
+    XSetClipRectangles( dpy, gc, 0, 0, rects, num, YXBanded );
+    XSetClipRectangles( dpy, gc2, 0, 0, rects, num, YXBanded );
 }
 
 
@@ -2580,7 +2580,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
         XSetForeground( dpy, cgc, 1 );
 	int num;
 	XRectangle *rects = (XRectangle *)qt_getClipRects( rgn, num );
-        XSetClipRectangles( dpy, cgc, -x, -y, rects, num, Unsorted );
+        XSetClipRectangles( dpy, cgc, -x, -y, rects, num, YXBanded );
         XSetFillStyle( dpy, cgc, FillOpaqueStippled );
         XSetStipple( dpy, cgc, mask->handle() );
         XSetTSOrigin( dpy, cgc, -sx, -sy );
