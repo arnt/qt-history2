@@ -398,7 +398,7 @@ void QOpenType::applyGSUBFeature(unsigned int featureTag, bool *where)
 }
 
 
-extern void q_heuristicPosition(QShaperItem *item);
+extern void qt_heuristicPosition(QShaperItem *item);
 
 void QOpenType::applyGPOSFeatures()
 {
@@ -530,7 +530,7 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
 //                    glyphs[i].advance, glyphs[i].offset.x, glyphs[i].offset.y);
         }
     } else {
-        q_heuristicPosition(item);
+        qt_heuristicPosition(item);
     }
 
 #ifdef OT_DEBUG

@@ -180,7 +180,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
 }
 
 
-void q_heuristicPosition(QShaperItem *item)
+void qt_heuristicPosition(QShaperItem *item)
 {
     QGlyphLayout *glyphs = item->glyphs;
 
@@ -295,7 +295,7 @@ static bool basic_shape(QShaperItem *item)
 
     heuristicSetGlyphAttributes(item);
     if (!(item->flags & QTextEngine::WidthOnly))
-        q_heuristicPosition(item);
+        qt_heuristicPosition(item);
     return true;
 }
 
@@ -1369,7 +1369,7 @@ static bool arabic_shape(QShaperItem *item)
     for (int i = 0; i < slen; ++i)
         if (item->glyphs[i].attributes.mark)
             item->glyphs[i].advance = QPointF();
-    q_heuristicPosition(item);
+    qt_heuristicPosition(item);
     return true;
 }
 
