@@ -549,19 +549,12 @@ private:
     int CF_INETURL;
 };
 
-#ifndef CFSTR_INETURLA
-#define CFSTR_INETURLA    "UniformResourceLocator"
-#endif
-#ifndef CFSTR_INETURLW
-#define CFSTR_INETURLW    "UniformResourceLocatorW"
-#endif
-
 QWindowsMimeURI::QWindowsMimeURI()
 {
     QT_WA({
-        CF_INETURL = QWindowsMime::registerMimeType(CFSTR_INETURLW);
+        CF_INETURL = QWindowsMime::registerMimeType("UniformResourceLocatorW");
     } , {
-        CF_INETURL = QWindowsMime::registerMimeType(CFSTR_INETURLA);
+        CF_INETURL = QWindowsMime::registerMimeType("UniformResourceLocator");
     });
 }
 
