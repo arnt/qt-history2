@@ -29,7 +29,7 @@ class GLBox : public QGLWidget,
 
 public:
 
-    GLBox( QWidget* parent, const char* name );
+    GLBox( QWidget* parent, const char* name = 0 );
     ~GLBox();
 
     QAxAggregated *createAggregate();
