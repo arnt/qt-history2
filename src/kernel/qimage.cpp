@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#61 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#60 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#61 $")
 
 
 /*----------------------------------------------------------------------------
@@ -38,8 +38,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#60 $")
   lookup table; the pixel value is a color table index.
 
   32-bpp images encode an RGB value in 24 bits and ignore the color table.
-  The last byte is reserved for alpha channel support in a future version
-  of Qt.
+  The most significant byte is reserved for alpha channel support in a
+  future version of Qt.
 
   An entry in the color table is an RGB triplet encoded as \c uint.  Use
   the qRed, qGreen and qBlue functions (qcolor.h) to access the
@@ -75,13 +75,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#60 $")
   \endcode
 
   32-bpp images ignore the color table, instead each pixel contains the
-  RGB triplet. 24 bits contains the RGB value and the upper 8 bits are
-  reserved for alpha channel.
+  RGB triplet. 24 bits contain the RGB value and the most significant
+  byte is reserved for alpha channel.
 
   \code
     QImage image;
       // sets 32 bit pixel at (x,y) to yellow.
-    uint *p = image.scanLine(y) + x;
+    uint *p = (uint *)image.scanLine(y) + x;
     *p = qRgb(255,255,0);
   \endcode
 
@@ -145,8 +145,7 @@ QImage::QImage()
   \sa create()
  ----------------------------------------------------------------------------*/
 
-QImage::QImage( int w, int h, int depth, int numColors,
-		QImage::Endian bitOrder )
+QImage::QImage( int w, int h, int depth, int numColors,	Endian bitOrder )
 {
     data = new QImageData;
     CHECK_PTR( data );
@@ -370,6 +369,12 @@ void QImage::setColor( int i, QRgb c )
   Returns a pointer to the pixel data at the \e i'th scanline.
 
   The scanline data is aligned on a 32-bit boundary.
+
+  \warning If you are accessing 32-bpp image data, cast the returned
+  pointer to \c uint* and use it to read/write the pixel value. You cannot
+  use the \c uchar* pointer directly, because the pixel format depends on
+  the byte order on the underlying platform. Hint: use \link ::qRgb()
+  qRgb()\endlink and friends (qcolor.h) to access the pixel.
 
   \sa bits()
  ----------------------------------------------------------------------------*/
