@@ -30,7 +30,6 @@ void DatabaseWgt::init()
     hSplitter   = new QSplitter( QSplitter::Horizontal, this );
     QFrame * f1 = new QFrame( hSplitter );
     vSplitter   = new QSplitter( QSplitter::Vertical, hSplitter  );
-
     QFrame * f2 = new QFrame( vSplitter );
     QFrame * f3 = new QFrame( vSplitter );
     QVBoxLayout * vb1 = new QVBoxLayout( f1 );
@@ -50,94 +49,92 @@ void DatabaseWgt::init()
     QFont f = font();
     f.setBold( TRUE );
 
-    customer_lbl = new QLabel( f1 );
-    customer_lbl->setText( "Customers" );
-    customer_lbl->setFont( f );
-    QFontMetrics fm = customer_lbl->fontMetrics();
+    QLabel * label = new QLabel( f1 );
+    label->setText( "Customers" );
+    label->setFont( f );
+    QFontMetrics fm = label->fontMetrics();
 
-    vb1->addWidget( customer_lbl );
+    vb1->addWidget( label );
 
-    customers = new QSqlTable( f1 );
-    vb1->addWidget( customers );
+    customerTable = new QSqlTable( f1 );
+    vb1->addWidget( customerTable );
 
     // customer buttons
-    customerBtnFrm = new QFrame( f1 );
-    QHBoxLayout * chl = new QHBoxLayout( customerBtnFrm );
+    QFrame * buttonFrame = new QFrame( f1 );
+    QHBoxLayout * chl = new QHBoxLayout( buttonFrame );
     chl->setSpacing( 2 );
 
     chl->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 				   QSizePolicy::Minimum ) );
 
-    QPushButton * p = new QPushButton( "U&pdate", customerBtnFrm );
-    chl->addWidget( p );
-    connect( p, SIGNAL( clicked() ), this, SLOT( updateCustomer() ) );
+    QPushButton * button = new QPushButton( "U&pdate", buttonFrame );
+    chl->addWidget( button );
+    connect( button, SIGNAL( clicked() ), this, SLOT( updateCustomer() ) );
 
-    p = new QPushButton( "I&nsert", customerBtnFrm );
-    chl->addWidget( p );
-    connect( p, SIGNAL( clicked() ), this, SLOT( insertCustomer() ) );
+    button = new QPushButton( "I&nsert", buttonFrame );
+    chl->addWidget( button );
+    connect( button, SIGNAL( clicked() ), this, SLOT( insertCustomer() ) );
 
-    p = new QPushButton( "D&elete", customerBtnFrm );
-    chl->addWidget( p );
-    connect( p, SIGNAL( clicked() ), this, SLOT( deleteCustomer() ) );
+    button = new QPushButton( "D&elete", buttonFrame );
+    chl->addWidget( button );
+    connect( button, SIGNAL( clicked() ), this, SLOT( deleteCustomer() ) );
 
-    vb1->addWidget( customerBtnFrm );
+    vb1->addWidget( buttonFrame );
 
     //
     // Second area - customer information
     //
-    customer_inf_lbl = new QLabel( f2 );
-    customer_inf_lbl->setText( "Customer information" );
-    customer_inf_lbl->setFont( f );
-    customer_inf_lbl->resize( fm.width("Customer information" ),
-			      customer_inf_lbl->height() );
-    vb2->addWidget( customer_inf_lbl );
+    label = new QLabel( f2 );
+    label->setText( "Customer information" );
+    label->setFont( f );
+    label->resize( fm.width("Customer information" ), label->height() );
+    vb2->addWidget( label );
 
-    customer = new QLabel( f2 );
-    customer->setText( "Customer info goes here!" );
-    customer->resize( fm.width("Customer info goes here!" ),
- 		      customer->height() );
-    customer->setFont( QFont( "fixed" ) );
-    customer->setAutoResize( TRUE );
-    customer->setSizePolicy( QSizePolicy( QSizePolicy::Preferred,
-					  QSizePolicy::Fixed ) );
-    vb2->addWidget( customer );
+    customerInfo = new QLabel( f2 );
+    customerInfo->setText( "Customer info goes here!" );
+    customerInfo->resize( fm.width("Customer info goes here!" ),
+ 		      customerInfo->height() );
+    customerInfo->setFont( QFont( "fixed" ) );
+    customerInfo->setAutoResize( TRUE );
+    customerInfo->setSizePolicy( QSizePolicy( QSizePolicy::Preferred,
+					      QSizePolicy::Fixed ) );
+    vb2->addWidget( customerInfo );
 
     //
     // Third area - invoice table
     //
-    invoice_lbl = new QLabel( f3 );
-    invoice_lbl->setText( "Invoices" );
-    invoice_lbl->setFont( f );
-    vb3->addWidget( invoice_lbl );
+    label = new QLabel( f3 );
+    label->setText( "Invoices" );
+    label->setFont( f );
+    vb3->addWidget( label );
 
-    invoices  = new QSqlTable( f3 );
-    connect( invoices, SIGNAL( beginInsert( QSqlRecord* ) ),
+    invoiceTable  = new QSqlTable( f3 );
+    connect( invoiceTable, SIGNAL( beginInsert( QSqlRecord* ) ),
 	     SLOT( insertingInvoice( QSqlRecord* ) ) );
 
-    vb3->addWidget( invoices );
+    vb3->addWidget( invoiceTable );
 
     // invoice buttons
-    invoiceBtnFrm = new QFrame( f3 ); // this
-    QHBoxLayout * ihl = new QHBoxLayout( invoiceBtnFrm );
+    buttonFrame = new QFrame( f3 ); // this
+    QHBoxLayout * ihl = new QHBoxLayout( buttonFrame );
 
-    vb3->addWidget( invoiceBtnFrm );
+    vb3->addWidget( buttonFrame );
 
     ihl->setSpacing( 2 );
-    ihl->addItem( new QSpacerItem( 1, p->height(), QSizePolicy::Expanding ) );
+    ihl->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding, 
+				   QSizePolicy::Minimum ) );
 
-    p = new QPushButton( "&Update", invoiceBtnFrm );
-    ihl->addWidget( p );
-    connect( p, SIGNAL( clicked() ), this, SLOT( updateInvoice() ) );
+    button = new QPushButton( "&Update", buttonFrame );
+    ihl->addWidget( button );
+    connect( button, SIGNAL( clicked() ), this, SLOT( updateInvoice() ) );
 
-    p = new QPushButton( "&Insert", invoiceBtnFrm );
-    p->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
-    ihl->addWidget( p );
-    connect( p, SIGNAL( clicked() ), this, SLOT( insertInvoice() ) );
+    button = new QPushButton( "&Insert", buttonFrame );
+    ihl->addWidget( button );
+    connect( button, SIGNAL( clicked() ), this, SLOT( insertInvoice() ) );
 
-    p = new QPushButton( "&Delete", invoiceBtnFrm );
-    p->setSizePolicy( QSizePolicy( QSizePolicy::Fixed, QSizePolicy::Fixed ) );
-    ihl->addWidget( p );
-    connect( p, SIGNAL( clicked() ), this, SLOT( deleteInvoice() ) );
+    button = new QPushButton( "&Delete", buttonFrame );
+    ihl->addWidget( button );
+    connect( button, SIGNAL( clicked() ), this, SLOT( deleteInvoice() ) );
 }
 
 void DatabaseWgt::resizeEvent( QResizeEvent * )
@@ -147,89 +144,90 @@ void DatabaseWgt::resizeEvent( QResizeEvent * )
 
 void DatabaseWgt::insertCustomer()
 {
-    QSqlCursor * cr = customers->cursor();
+    QSqlCursor * cr = customerTable->cursor();
 
     GenericDialog dlg( cr->insertBuffer(), GenericDialog::Insert, this );
     if( dlg.exec() == QDialog::Accepted ){
 	cr->insert();
-	customers->refresh();
+	customerTable->refresh();
     }
 }
 
 void DatabaseWgt::updateCustomer()
 {
-    QSqlCursor * cr = customers->cursor();
+    QSqlCursor * cr = customerTable->cursor();
 
     GenericDialog dlg( cr->updateBuffer(), GenericDialog::Update, this );
     if( dlg.exec() == QDialog::Accepted ){
 	cr->update();
-	customers->refresh();
+	customerTable->refresh();
     }
 }
 
 void DatabaseWgt::deleteCustomer()
 {
-    QSqlCursor * cr = customers->cursor();
+    QSqlCursor * cr = customerTable->cursor();
 
     GenericDialog dlg( cr->updateBuffer(), GenericDialog::Delete, this );
     if( dlg.exec() == QDialog::Accepted ){
 	cr->del();
-	customers->refresh();
+	customerTable->refresh();
     }
 }
 
 void DatabaseWgt::insertInvoice()
 {
-    QSqlRecord fl = customers->currentFieldSelection();
+    QSqlRecord fl = customerTable->currentFieldSelection();
     if( fl.isEmpty() ) {
 	QMessageBox::information( this, "No Customer", "There must be a Customer record for this invoice!" );
 	return;
     }
-    QSqlCursor * cr = invoices->cursor();
+    QSqlCursor * cr = invoiceTable->cursor();
     QSqlRecord * buf = cr->insertBuffer();
     insertingInvoice( buf );
 
     InvoiceDialog dlg( buf, InvoiceDialog::Insert, this );
     if( dlg.exec() == QDialog::Accepted ){
 	cr->insert();
-	invoices->refresh( cr->primaryIndex( TRUE ) );
+	invoiceTable->refresh( cr->primaryIndex( TRUE ) );
     }
 }
 void DatabaseWgt::insertingInvoice( QSqlRecord* buf )
 {
-    QSqlRecord fl = customers->currentFieldSelection();
+    QSqlRecord fl = customerTable->currentFieldSelection();
     buf->setValue( "customerid", fl.field("id")->value() );
 }
 
 void DatabaseWgt::updateInvoice()
 {
-    QSqlRecord r = invoices->currentFieldSelection();
+    QSqlRecord r = invoiceTable->currentFieldSelection();
     if ( r.isEmpty() ) {
 	QMessageBox::information( this, "No Selection", "Select an invoice first!" );
 	return;
     }
-    QSqlCursor  * v = invoices->cursor();
+    QSqlCursor  * cr = invoiceTable->cursor();
 
-    InvoiceDialog dlg( v->updateBuffer(), InvoiceDialog::Update, this );
+    InvoiceDialog dlg( cr->updateBuffer(), InvoiceDialog::Update, this );
     if( dlg.exec() == QDialog::Accepted ){
-	v->update();
-	invoices->refresh( v->primaryIndex( TRUE ) );
+	cr->update();
+	invoiceTable->refresh( cr->primaryIndex( TRUE ) );
     }
 }
 
 void DatabaseWgt::deleteInvoice()
 {
-    QSqlRecord r = invoices->currentFieldSelection();
+    QSqlRecord r = invoiceTable->currentFieldSelection();
     if ( r.isEmpty() ) {
 	QMessageBox::information( this, "No Selection", "Select an invoice first!" );
 	return;
     }
 
-    QSqlCursor  * v = invoices->cursor();
-    InvoiceDialog dlg( v->updateBuffer(), InvoiceDialog::Delete, this );
+    QSqlCursor  * cr = invoiceTable->cursor();
+    InvoiceDialog dlg( cr->updateBuffer(), InvoiceDialog::Delete, this );
+
     if( dlg.exec() == QDialog::Accepted ){
-	v->del();
-	invoices->refresh();
+	cr->del();
+	invoiceTable->refresh();
     }
 }
 
@@ -263,24 +261,24 @@ void DatabaseApp::init()
     menuBar()->insertItem( "&Tools", p );
 
     // Set up the customer table
-    d->customers->setConfirmEdits( TRUE );
-    d->customers->setConfirmCancels( TRUE );
-    d->customers->setCursor( &customerCr );
-    connect( d->customers, SIGNAL( currentChanged( const QSqlRecord * ) ),
+    d->customerTable->setConfirmEdits( TRUE );
+    d->customerTable->setConfirmCancels( TRUE );
+    d->customerTable->setCursor( &customerCr );
+    connect( d->customerTable, SIGNAL( currentChanged( const QSqlRecord * ) ),
 	     SLOT( updateCustomerInfo( const QSqlRecord * ) ) );
 
     // Set up the invoice table
-    d->invoices->setConfirmEdits( TRUE );
-    d->invoices->setConfirmCancels( TRUE );
-    d->invoices->setCursor( &invoiceCr );
+    d->invoiceTable->setConfirmEdits( TRUE );
+    d->invoiceTable->setConfirmCancels( TRUE );
+    d->invoiceTable->setCursor( &invoiceCr );
 }
 
 void DatabaseApp::updateCustomerInfo( const QSqlRecord * fields )
 {
-    static int row = d->customers->currentRow();
+    static int row = d->customerTable->currentRow();
     QString cap;
 
-    if( row != d->customers->currentRow() ){
+    if( row != d->customerTable->currentRow() ){
 	// Compile the customer information into a string and display it
 	for ( uint i = 0; i < fields->count(); ++i ) {
 	    const QSqlField * f  = fields->field(i);
@@ -290,16 +288,16 @@ void DatabaseApp::updateCustomerInfo( const QSqlRecord * fields )
 	}
 
 
-	d->customer->setText( cap );
-	d->customer->setMinimumSize( 0, d->customer->height() );
+	d->customerInfo->setText( cap );
+	d->customerInfo->setMinimumSize( 0, d->customerInfo->height() );
 
 	// Only show the invoice(s) for a particular customer
 	// Use the customer id to filter the invoice cursor
 	invoiceCr.select( "customerid = " +
 			  fields->field(0)->value().toString() );
-	d->invoices->refresh();
+	d->invoiceTable->refresh();
     }
-    row = d->customers->currentRow();
+    row = d->customerTable->currentRow();
 }
 
 void DatabaseApp::createDB()

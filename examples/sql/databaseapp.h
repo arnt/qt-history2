@@ -18,11 +18,8 @@ class DatabaseWgt : public QFrame
 public:
     DatabaseWgt( QWidget * parent, const char * name = 0 );
 
-    QFrame * customerBtnFrm, * invoiceBtnFrm;
-    QSqlTable * invoices;
-    QSqlTable * customers;
-
-    QLabel * customer, * customer_inf_lbl, * customer_lbl, * invoice_lbl;
+    QSqlTable * invoiceTable, * customerTable;
+    QLabel    * customerInfo;
     QSplitter * vSplitter, * hSplitter;
 
 public slots:
