@@ -273,13 +273,6 @@ void QLabel::setText( const QString &text )
     }
 #endif
 
-// #ifndef QT_NO_RICHTEXT
-//     if ( doc || align & WordBreak )
-// 	setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred, TRUE ) );
-//     else
-// #endif	
-// 	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum,  FALSE ) );
-
     updateLabel( osh );
 }
 
@@ -861,10 +854,10 @@ void QLabel::updateLabel( QSize oldSizeHint )
 	(align & WordBreak) )
 	policy.setHeightForWidth( TRUE );
     else
- 	policy.setHeightForWidth( FALSE );
+	policy.setHeightForWidth( FALSE );
     
     setSizePolicy( policy );
-    
+
     if ( sizeHint() != oldSizeHint )
 	updateGeometry();
     if ( autoresize ) {
