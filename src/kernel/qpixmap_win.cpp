@@ -651,7 +651,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    b[i+2] = (b[i+2]*b[i+3]) / 255;
 	}
 	if ( hasRealAlpha ) {
-	    // ### the old DATA_HBM should probably be deleted with a DeleteObject() call
+	    DeleteObject( DATA_HBM );
 	    DATA_HBM = (HBITMAP)SelectObject( dc, hBitmap );
 	} else {
 	    data->hasRealAlpha = FALSE;
