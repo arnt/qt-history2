@@ -295,12 +295,10 @@ TextChanged(Widget w, XtPointer i, XtPointer i2)
 }
 
 // Use proper C++ function declarations
-/*
-void manageCB( widget, w_to_manage, callback_data)
-     Widget widget;
-     Widget w_to_manage;
-     XtPointer callback_data;
-*/
+// void manageCB( widget, w_to_manage, callback_data)
+//      Widget widget;
+//      Widget w_to_manage;
+//      XtPointer callback_data;
 void manageCB( Widget widget, Widget w_to_manage, XtPointer callback_data)
 {
   if (w_to_manage != (Widget) NULL)
@@ -341,15 +339,11 @@ New(Widget w, char* ignore, XmPushButtonCallbackStruct *cs)
 void
 Save(Widget w, char *i, XmFileSelectionBoxCallbackStruct *i2)
 {
-  /*
-    XmStringUnparse returns an XtPointer, which is typedef'ed to void*
-    So, we need to cast the XtPointer to a char*
-  */
+  // XmStringUnparse returns an XtPointer, which is typedef'ed to void*
+  // So, we need to cast the XtPointer to a char*
   char *str;
-  /*
-    if ((str = XmStringUnparse(i2->value, NULL, XmCHARSET_TEXT,
-                               XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL))) {
-  */
+  // if ((str = XmStringUnparse(i2->value, NULL, XmCHARSET_TEXT,
+  //                            XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL))) {
   if ((str = (char *) XmStringUnparse(i2->value, 0, XmCHARSET_TEXT,
 				      XmCHARSET_TEXT, 0, 0, XmOUTPUT_ALL))) {
     SaveDB(str);
@@ -366,10 +360,8 @@ Open(Widget w, char *i, XmFileSelectionBoxCallbackStruct *i2)
 {
   // The same cast as above in Save()
   char *str;
-  /*
-    if ((str = XmStringUnparse(i2->value, NULL, XmCHARSET_TEXT,
-                               XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL))) {
-  */
+  // if ((str = XmStringUnparse(i2->value, NULL, XmCHARSET_TEXT,
+  //                            XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL))) {
   if ((str = (char *) XmStringUnparse(i2->value, 0, XmCHARSET_TEXT,
 				      XmCHARSET_TEXT, 0, 0, XmOUTPUT_ALL))) {
     ReadDB(str);
