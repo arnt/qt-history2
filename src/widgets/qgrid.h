@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.h#4 $
+** $Id: //depot/qt/main/src/widgets/qgrid.h#5 $
 **
 ** Definition of grid layout widget
 **
@@ -24,6 +24,8 @@ public:
     QGrid( int n, QWidget *parent=0, const char *name=0, WFlags f=0 );
     QGrid( int n, Direction, QWidget *parent=0, const char *name=0, WFlags f=0 );
     bool event( QEvent * );
+
+    void skip();
 protected:
     virtual void childEvent( QChildEvent * );
 private:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#6 $
 **
 ** Implementation of hbox layout widget
 **
@@ -61,7 +61,9 @@ void QHBox::childEvent( QChildEvent *c )
 	return;
     QWidget *w = c->child();
     w->setAutoMinimumSize( TRUE );
-    w->setMinimumSize( w->sizeHint() );
+    QSize sh = w->sizeHint();
+    if ( !sh.isEmpty() )
+	w->setMinimumSize( sh );
     lay->addWidget( w );
     if ( isVisible() )
 	lay->activate();
@@ -82,3 +84,16 @@ bool QHBox::event( QEvent *e ) {
     }
 }
 
+
+
+/*!
+  Adds infinitely stretchable space.
+*/
+
+void QHBox::addStretch()
+{
+    lay->addStretch( 1 );
+    if ( isVisible() )
+	lay->activate();
+    
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttonrow.h#1 $
+** $Id: //depot/qt/main/src/widgets/qbuttonrow.h#2 $
 **
 ** Definition of button row layout widget
 **
@@ -23,6 +23,7 @@ class QButtonRow : public QWidget
 public:
     QButtonRow( QWidget *parent=0, const char *name=0 );
     bool event( QEvent * );
+    void show();
 protected:
     virtual void childEvent( QChildEvent * );
     virtual void layoutEvent( QEvent * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttonrow.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qbuttonrow.cpp#2 $
 **
 ** Implementation of button row layout widget
 **
@@ -103,7 +103,8 @@ void QButtonRow::childEvent( QChildEvent *c )
 
     QSize sh = w->sizeHint();
     w->setAutoMinimumSize( TRUE );
-    w->setMinimumSize( sh );
+    if ( !sh.isEmpty() )
+	w->setMinimumSize( sh );
 
     if ( first )
 	first = FALSE;
@@ -162,3 +163,14 @@ void QButtonRow::dump()
 
 }
 #endif
+
+
+/*!
+  Reimplemented for layout reasons.
+*/
+
+void QButtonRow::show()
+{
+        gm->activate();
+    QWidget::show();
+}

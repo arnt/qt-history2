@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrid.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qgrid.cpp#6 $
 **
 ** Implementation of grid layout widget
 **
@@ -70,27 +70,15 @@ void QGrid::childEvent( QChildEvent *c )
 	return;
     QWidget *w = c->child();
     w->setAutoMinimumSize( TRUE );
-    w->setMinimumSize( w->sizeHint() );
+    QSize sh = w->sizeHint();
+    if ( !sh.isEmpty() )
+	w->setMinimumSize( sh );
 
     if ( row >= nRows || col >= nCols )
 	lay->expand( row+1, col+1 );
     lay->addWidget( w, row, col );
     //    debug( "adding %d,%d", row, col );
-    if ( dir == Horizontal ) {
-	if ( col+1 < nCols ) {
-	    col++;
-	} else {
-	    col = 0;
-	    row++;
-	}
-    } else { //Vertical
-	if ( row+1 < nRows ) {
-	    row++;
-	} else {
-	    row = 0;
-	    col++;
-	}
-    }
+    skip();
     if ( isVisible() )
 	lay->activate();
 }
@@ -110,3 +98,27 @@ bool QGrid::event( QEvent *e ) {
     }
 }
 
+
+
+/*!
+  Skips a position in the grid, leaving it empty.
+*/
+
+void QGrid::skip()
+{
+    if ( dir == Horizontal ) {
+	if ( col+1 < nCols ) {
+	    col++;
+	} else {
+	    col = 0;
+	    row++;
+	}
+    } else { //Vertical
+	if ( row+1 < nRows ) {
+	    row++;
+	} else {
+	    row = 0;
+	    col++;
+	}
+    }    
+}

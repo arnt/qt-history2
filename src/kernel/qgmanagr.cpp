@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#24 $
 **
 ** Implementation of QGGeometry class
 **
@@ -14,7 +14,7 @@
 #include "qmenubar.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#24 $");
 
 
 
@@ -819,9 +819,13 @@ bool QGManager::activate()
     ys = yC->maxSize() + 2*border + menuBarHeight;
     if ( ys > QGManager::unlimited )
 	ys = QGManager::unlimited;
+    if ( ys < 1 )
+	ys = 1;
     xs = xC->maxSize() + 2*border;
     if ( xs > QGManager::unlimited )
 	xs = QGManager::unlimited;
+    if ( xs < 1 )
+	xs = 1;
 
     main->setMaximumSize( xs, ys );
 
