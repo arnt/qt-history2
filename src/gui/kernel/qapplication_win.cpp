@@ -751,9 +751,32 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
     cname = QString::number(appUniqueID);
 #endif
 
-    if (winclassNames.contains(cname.latin1()))        // already registered
+    // since multiple Qt versions can be used in one process
+    // each one has to have window class names with a unique name
+    // The first instance gets the unmodified name; if the class 
+    // has already been registered by another instance of Qt then
+    // add an instance-specific ID, the address of the window proc.
+    static int classExists = -1;
+
+    if (classExists == -1) {
+        QT_WA({
+            WNDCLASS wcinfo;
+            classExists = GetClassInfo((HINSTANCE)qWinAppInst(), (TCHAR*)cname.ucs2(), &wcinfo);
+            classExists &= wcinfo.lpfnWndProc != QtWndProc;
+        }, {
+            WNDCLASSA wcinfo;
+            classExists = GetClassInfoA((HINSTANCE)qWinAppInst(), cname.latin1(), &wcinfo);
+            classExists &= wcinfo.lpfnWndProc != QtWndProc;
+        });
+    }
+
+    if (classExists)
+        cname += QString::number((uint)QtWndProc);
+
+    if (winclassNames.contains(cname))        // already registered in our list
         return cname;
 
+    ATOM atom;
 #ifndef Q_OS_TEMP
     QT_WA({
         WNDCLASS wc;
@@ -766,16 +789,14 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
             wc.hIcon = LoadIcon(appInst, L"IDI_ICON1");
             if (!wc.hIcon)
                 wc.hIcon = LoadIcon(0, IDI_APPLICATION);
-        }
-        else
-        {
+        } else {
             wc.hIcon = 0;
         }
         wc.hCursor        = 0;
         wc.hbrBackground= 0;
         wc.lpszMenuName        = 0;
         wc.lpszClassName= (TCHAR*)cname.utf16();
-        RegisterClass(&wc);
+        atom = RegisterClass(&wc);
     } , {
         WNDCLASSA wc;
         wc.style        = style;
@@ -787,15 +808,14 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
             wc.hIcon = LoadIconA(appInst, (char*)"IDI_ICON1");
             if (!wc.hIcon)
                 wc.hIcon = LoadIconA(0, (char*)IDI_APPLICATION);
-        }
-        else {
+        } else {
             wc.hIcon = 0;
         }
         wc.hCursor        = 0;
         wc.hbrBackground= 0;
         wc.lpszMenuName        = 0;
         wc.lpszClassName= cname.latin1();
-        RegisterClassA(&wc);
+        atom = RegisterClassA(&wc);
     });
 #else
         WNDCLASS wc;
@@ -808,20 +828,22 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
             wc.hIcon = LoadIcon(appInst, L"IDI_ICON1");
 //            if (!wc.hIcon)
 //                wc.hIcon = LoadIcon(0, IDI_APPLICATION);
-        }
-        else
-        {
+        } else {
             wc.hIcon = 0;
         }
         wc.hCursor        = 0;
         wc.hbrBackground= 0;
         wc.lpszMenuName        = 0;
         wc.lpszClassName= (TCHAR*)cname.utf16();
-        RegisterClass(&wc);
-
+        atom = RegisterClass(&wc);
 #endif
 
-    winclassNames.insert(cname.latin1(), 1);
+#ifndef QT_NO_DEBUG
+    if (!atom)
+        qSystemWarning("QApplication: Registering window class failed.");
+#endif
+
+    winclassNames.insert(cname, 1);
     return cname;
 }
 
@@ -833,7 +855,7 @@ static void unregWinClasses()
         QT_WA({
             UnregisterClass((TCHAR*)it.key().utf16(), (HINSTANCE)qWinAppInst());
         } , {
-            UnregisterClassA(it.key().local8Bit(), (HINSTANCE)qWinAppInst());
+            UnregisterClassA(it.key().latin1(), (HINSTANCE)qWinAppInst());
         });
         ++it;
     }
