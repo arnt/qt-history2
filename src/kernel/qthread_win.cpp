@@ -614,14 +614,14 @@ Qt::HANDLE QThread::currentThread()
 
 void QThread::initialize()
 {
-    if( !qthreadposteventprivate )
-	qthreadposteventprivate = new QThreadPostEventPrivate();
+    if( !qthreadEventsPrivate )
+	qthreadEventsPrivate = new QThreadPostEventPrivate();
 }
 
 void QThread::cleanup()
 {
-    delete qthreadposteventprivate;
-    qthreadposteventprivate = 0;
+    delete qthreadEventsPrivate;
+    qthreadEventsPrivate = 0;
 }
 
 void QThread::postEvent( QObject *o,QEvent *e )
