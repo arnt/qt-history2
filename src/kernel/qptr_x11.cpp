@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#217 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#218 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#217 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#218 $");
 
 
 /*****************************************************************************
@@ -395,7 +395,7 @@ static QPaintDeviceDict *pdev_dict = 0;
     QPixmap pm( myWidget->width(), myWidget->height() );
     pm.fill( myWidget->backgroundColor() );
     QPainter::redirect( myWidget, &pm );
-    myWidget->repaint();
+    myWidget->repaint( FALSE );
     QPainter::redirect( myWidget, 0 );
   \endcode
 */
