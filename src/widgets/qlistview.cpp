@@ -1267,7 +1267,10 @@ void QListViewItem::sortChildItems( int column, bool ascending )
 	siblings[0].item->siblingItem = 0;
 	childItem = siblings[nChildren-1].item;
     }
-
+    for ( i = 0; i < nChildren; i++ ) {
+	if ( siblings[i].item->isOpen() )
+	    siblings[i].item->sort();
+    }
     delete[] siblings;
 }
 
