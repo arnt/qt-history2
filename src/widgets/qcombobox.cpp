@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#194 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#195 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1285,6 +1285,7 @@ void QComboBox::popup()
     if ( d->usingListBox ) {
 	                // Send all listbox events to eventFilter():
 	d->listBox->installEventFilter( this );
+	d->listBox->viewport()->installEventFilter( this );
 	d->mouseWasInsidePopup = FALSE;
 	d->listBox->resize( width(),
 			    listHeight( d->listBox, d->sizeLimit ) + 2 );
@@ -1344,6 +1345,7 @@ void QComboBox::popDownListBox()
 {
     ASSERT( d->usingListBox );
     d->listBox->removeEventFilter( this );
+    d->listBox->viewport()->removeEventFilter( this );
     d->listBox->hide();
     d->listBox->setCurrentItem( d->current );
     if ( d->arrowDown ) {
@@ -1445,7 +1447,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 		}
 	    }
 	}
-    } else if ( d->usingListBox && object == d->listBox ) {
+    } else if ( d->usingListBox && ( object == d->listBox || object == d->listBox->viewport() )) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch( event->type() ) {
         case QEvent::MouseMove:
@@ -1542,6 +1544,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    if ( !d->popup->rect().contains( e->pos() ) ) {
 		// remove filter, event will take down popup:
 		d->listBox->removeEventFilter( this );
+		d->listBox->viewport()->removeEventFilter( this );
 		// ### uglehack!
 		// call internalHighlight so the highlighed signal
 		// will be emitted at least as often as necessary.
