@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#38 $
 **
 ** Implementation of QStyle class
 **
@@ -281,7 +281,7 @@ void QStyle::drawButtonMask( QPainter *, int , int , int , int )
 
 
 /*! \fn QRect QStyle::comboButtonRect( int x, int y, int w, int h)
-  
+
   Returns the rectangle available for contents in a combo box
   button. Usually this is the entire rectangle without the nifty menu
   indicator, but it may also be smaller when you think about rounded
@@ -463,14 +463,14 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, int /*state*
 
 
 /*! \fn void QStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, int& overlap)
-  
+
   TODO
  */
 
 /*! \fn void QStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool selected )
-   
+
    TODO
-   
+
 */
 
 /*! \fn void QStyle::drawTabMask( QPainter* p,  const  QTabBar* tb , QTab* t, bool selected )
@@ -526,7 +526,7 @@ TODO
 /*! \fn void QStyle::drawSliderMask( QPainter *p,
 			int x, int y, int w, int h,
 			Orientation, bool, bool )
-  
+
   Draws the mask of a slider
 */
 
@@ -549,7 +549,7 @@ TODO
 */
 
 /*! \fn int QStyle::maximumSliderDragDistance() const
-  
+
   Some feels require the scrollbar or other sliders to jump back to
   the original position when the mouse pointer is too far away while
   dragging.
@@ -592,11 +592,8 @@ TODO
     ###
  */
 
-/*! \fn int widthOfPopupCheckColumn( int maxpm )
-  ###
- */
 
-/* \fn int extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm  )
+/*! \fn int QStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm )
  ###
  */
 
@@ -604,7 +601,9 @@ TODO
    ###
  */
 
-/* \fn void drawPopupMenuItem( QPainter* p, bool checkable, int tab, QMenuItem* mi, const QFontMetrics& fm,
-				    bool act, int x, int y, int w, int h)
+/* \fn void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+				    const QPalette& pal, 
+				    bool act, bool enabled, int x, int y, int w, int h);
+				    
 	###			
 */

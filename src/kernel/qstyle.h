@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#29 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#30 $
 **
 ** Definition of QStyle class
 **
@@ -62,7 +62,7 @@ public:
 #endif
 
     GUIStyle guiStyle() const { return gs; }
-    
+
     // abstract section
 
     virtual void polish( QWidget* );
@@ -137,10 +137,10 @@ public:
     virtual void drawFocusRect( QPainter*, const QRect &,
 				const QColorGroup &, const QColor* bg = 0,
 				bool = FALSE ) = 0;
-    
-    
+
+
     // concrete section depending on Qt's widget cluster ( The line is hard to draw sometimes)
-    
+
     // "combo box"
     virtual void drawComboButton( QPainter *p, int x, int y, int w, int h,
 				  const QColorGroup &g, bool sunken = FALSE,
@@ -206,12 +206,13 @@ public:
 				const QColorGroup &g,
 				bool act, bool dis ) = 0;
     virtual void polishPopupMenu( QPopupMenu* ) = 0;
- 
-    virtual int widthOfPopupCheckColumn( int maxpm ) = 0;
-    virtual int extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) = 0;
+
+    virtual int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm  ) = 0;
+    virtual int popupSubmenuIndicatorWidth( const QFontMetrics& fm  ) = 0;
     virtual int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) = 0;
-    virtual void drawPopupMenuItem( QPainter* p, bool checkable, int tab, QMenuItem* mi, const QFontMetrics& fm,
-				    bool act, int x, int y, int w, int h) = 0;
+    virtual void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+				    const QPalette& pal, 
+				    bool act, bool enabled, int x, int y, int w, int h) = 0;
 
 };
 
