@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#6 $
 **
 ** Implementation of QTimer class
 **
@@ -14,16 +14,15 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qtimer.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qtimer.cpp#6 $";
 #endif
 
-/*! \class QTimer qtimer.h
+/*!
+  \class QTimer qtimer.h
+  \brief The QTimer class provides timer signals and single-shot timers.
 
-  \brief The QTimer class provides millisecond timers.
-
-  This class is not yet documented.  Our <a
-  href=http://www.troll.no/>home page</a> contains a pointer to the
-  current version of Qt. */
+  Timer events are pretty low lever.  todo...
+*/
 
 
 const int INV_TIMER = -1;			// invalid timer id
@@ -40,6 +39,12 @@ QTimer::~QTimer()
     if ( id != INV_TIMER )			// stop running timer
 	stop();
 }
+
+
+/*!
+  \fn void QTimer::timeout()
+  This signal is emitted when the timer is activated.
+*/
 
 
 int QTimer::start( long msec, bool sshot )	// start timer
