@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#124 $
 **
 ** Implementation of layout classes
 **
@@ -385,6 +385,10 @@ void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
     if ( col2 >= 0 && col2 < col1 )
 	qWarning( "QGridLayout: multicell fromCol greater than toCol" );
 #endif
+    if ( row1 == row2 && col1 == col2 ) {
+	add( box, row1, col1 );
+	return;
+    }
     expand( row2+1, col2+1 );
     box->row = row1;
     box->col = col1;
