@@ -148,8 +148,8 @@ void HttpWindow::updateDataReadProgress(int bytesRead, int totalBytes)
     if (httpRequestAborted)
         return;
 
-    progressDialog->setTotalSteps(totalBytes);
-    progressDialog->setProgress(bytesRead);
+    progressDialog->setMaximum(totalBytes);
+    progressDialog->setValue(bytesRead);
 }
 
 void HttpWindow::enableDownloadButton()

@@ -200,8 +200,8 @@ void FtpWindow::cdToParent()
 void FtpWindow::updateDataTransferProgress(Q_LONGLONG readBytes,
                                            Q_LONGLONG totalBytes)
 {
-    progressDialog->setTotalSteps(totalBytes);
-    progressDialog->setProgress(readBytes);
+    progressDialog->setMaximum(totalBytes);
+    progressDialog->setValue(readBytes);
 }
 
 void FtpWindow::enableConnectButton()

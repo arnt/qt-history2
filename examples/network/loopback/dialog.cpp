@@ -8,9 +8,9 @@ static const int TotalBytes = 50 * 1024 * 1024;
 Dialog::Dialog(QWidget *parent)
     : QDialog(parent)
 {
-    clientProgressBar = new QProgressBar(100, this);
+    clientProgressBar = new QProgressBar(this);
     clientStatusLabel = new QLabel(tr("Client ready"), this);
-    serverProgressBar = new QProgressBar(100, this);
+    serverProgressBar = new QProgressBar(this);
     serverStatusLabel = new QLabel(tr("Server ready"), this);
 
     startButton = new QPushButton(tr("&Start"), this);
@@ -85,7 +85,8 @@ void Dialog::startTransfer()
 void Dialog::updateServerProgress()
 {
     bytesReceived = (int)tcpServerConnection->bytesAvailable();
-    serverProgressBar->setProgress(bytesReceived, TotalBytes);
+    serverProgressBar->setMaximum(TotalBytes);
+    serverProgressBar->setValue(bytesReceived);
     serverStatusLabel->setText(tr("Received %1MB")
                                .arg(bytesReceived / (1024 * 1024)));
 
@@ -99,7 +100,8 @@ void Dialog::updateServerProgress()
 void Dialog::updateClientProgress(Q_LONGLONG numBytes)
 {
     bytesWritten += (int)numBytes;
-    clientProgressBar->setProgress(bytesWritten, TotalBytes);
+    clientProgressBar->setMaximum(TotalBytes);
+    clientProgressBar->setValue(bytesWritten);
     clientStatusLabel->setText(tr("Sent %1MB")
                                .arg(bytesWritten / (1024 * 1024)));
 }
