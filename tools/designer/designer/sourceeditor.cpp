@@ -39,6 +39,7 @@ SourceEditor::~SourceEditor()
 {
     iFace->release();
     lIface->release();
+    MainWindow::self->editorClosed( this );
 }
 
 void SourceEditor::setForm( FormWindow *fw )

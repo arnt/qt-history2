@@ -60,6 +60,9 @@ public:
     void setError( int line );
     void setModified( bool m );
 
+protected:
+    bool eventFilter( QObject *, QEvent * );
+
 private slots:
     void modificationChanged();
 

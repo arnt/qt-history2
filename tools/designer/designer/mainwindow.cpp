@@ -1340,35 +1340,48 @@ void MainWindow::fileCloseProject()
 {
     if ( currentProject->projectName() == "<No Project>" )
 	return;
+    Project *pro = currentProject;
     QAction* a = 0;
     QAction* lastValid = 0;
     for ( QMap<QAction*, Project* >::Iterator it = projects.begin(); it != projects.end(); ++it ) {
-	if ( it.data() == currentProject ) {
+	if ( it.data() == pro ) {
 	    a = it.key();
 	    break;
 	}
 	lastValid = it.key();
     }
     if ( a ) {
-	currentProject->save();
+	pro->save();
 	QWidgetList windows = workSpace()->windowList();
+	workSpace()->blockSignals( TRUE );
 	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	    if ( !w->inherits( "FormWindow" ) )
 		continue;
-	    if ( currentProject->hasFormWindow( (FormWindow*)w) ) {
-		closeForm( (FormWindow*)w );
+	    if ( ( (FormWindow*)w )->project() == pro ) {
+		if ( !closeForm( (FormWindow*)w ) )
+		    return;
 		w->close();
-		qApp->processEvents();
 	    }
 	}
+	windows = workSpace()->windowList();
+	workSpace()->blockSignals( FALSE );
 	actionGroupProjects->removeChild( a );
 	projects.remove( a );
 	delete a;
-	delete currentProject;
+	currentProject = 0;
 	if ( lastValid ) {
 	    projectSelected( lastValid );
 	    lastValid->setOn( TRUE );
 	    statusBar()->message( tr( currentProject->projectName() + " project selected...") );
+	}
+	if ( !windows.isEmpty() ) {
+	    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+		if ( !w->inherits( "FormWindow" ) )
+		    continue;
+		w->setFocus();
+		activeWindowChanged( w );
+		break;
+	    }
 	}
     }
 }
@@ -1985,8 +1998,8 @@ void MainWindow::editPreferences()
 
 QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 {
-    if ( sourceEditors.first() )
-	sourceEditors.first()->save();
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
+	e->save();
     QApplication::setOverrideCursor( WaitCursor );
     if ( currentTool() == ORDER_TOOL )
 	resetTool();
@@ -2660,6 +2673,18 @@ bool MainWindow::unregisterClient( FormWindow *w )
     formList->closed( w );
     if ( w == lastActiveFormWindow )
 	lastActiveFormWindow = 0;
+
+    QList<SourceEditor> waitingForDelete;
+    waitingForDelete.setAutoDelete( TRUE );
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
+	if ( e->form() == w )
+	    waitingForDelete.append( e );
+    }
+
+    if ( actionEditor->form() == w ) {
+	actionEditor->setFormWindow( 0 );
+	actionEditor->parentWidget()->hide();
+    }
 
     return TRUE;
 }
@@ -4027,6 +4052,11 @@ void MainWindow::setModified( bool b, QWidget *window )
 	}
 	w = w->parentWidget();
     }
+}
+
+void MainWindow::editorClosed( SourceEditor *e )
+{
+    sourceEditors.take( sourceEditors.findRef( e ) );
 }
 
 #include "mainwindow.moc"

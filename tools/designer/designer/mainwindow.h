@@ -89,6 +89,7 @@ public:
     FormWindow *formWindow();
 
     bool unregisterClient( FormWindow *w );
+    void editorClosed( SourceEditor *e );
     QWidget *isAFormWindowChild( QObject *o ) const;
 
     void insertFormWindow( FormWindow *fw );

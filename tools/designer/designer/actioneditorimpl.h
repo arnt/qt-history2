@@ -36,6 +36,7 @@ public:
     void setFormWindow( FormWindow *fw );
     void updateActionName( QAction *a );
     void updateActionIcon( QAction *a );
+    FormWindow *form() const { return formWindow; }
 
 protected:
     void closeEvent( QCloseEvent *e );
@@ -52,7 +53,7 @@ signals:
 
 private:
     void insertChildActions( ActionItem *i );
-    
+
 private:
     QAction *currentAction;
     FormWindow *formWindow;

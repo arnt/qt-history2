@@ -69,7 +69,8 @@ QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *iface 
 {
     if ( !viewManager ) {
 	( (EditorInterfaceImpl*)this )->viewManager = new ViewManager( parent, 0 );
-	(void)new CppEditor( QString::null, viewManager, "editor" );
+	CppEditor *e = new CppEditor( QString::null, viewManager, "editor" );
+	e->installEventFilter( this );
 	dIface = (DesignerInterface*)iface->queryInterface( IID_DesignerInterface );
     }
     return viewManager->currentView();
@@ -214,4 +215,11 @@ void EditorInterfaceImpl::setModified( bool m )
     if ( !viewManager )
 	return;
     ( (CppEditor*)viewManager->currentView() )->setModified( m );
+}
+
+bool EditorInterfaceImpl::eventFilter( QObject *o, QEvent *e )
+{
+    if ( e->type() == QEvent::ChildRemoved )
+	viewManager = 0;
+    return QObject::eventFilter( o, e );
 }
