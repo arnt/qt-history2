@@ -126,16 +126,19 @@ public:
 	QPoint pos;
 	QSize size;
 	QPoint offset;
-        uint is_dummy : 1;
+        int index;
     };
 
     struct ToolBarLineInfo
     {
         int pos;
+        int index;
         QList<ToolBarLayoutInfo> list;
+        QList<ToolBarLayoutInfo> hidden_list;
     };
 
     QList<ToolBarLineInfo> tb_layout_info, *save_tb_layout_info;
+    QList<ToolBarLineInfo> tb_layout_info_hidden;
 };
 
 #endif // QMAINWINDOWLAYOUT_P_H
