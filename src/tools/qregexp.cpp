@@ -50,7 +50,7 @@
 #include <limits.h>
 
 /*
-  WARNING!  Be sure to read qregexp.tex before modifying this file.
+  WARNING! Be sure to read qregexp.tex before modifying this file.
 */
 
 /*!
@@ -81,17 +81,17 @@
   'amp;'.
   \i \e {String Splitting.} A regexp can be used to identify
   where a string should be split into its component fields, e.g.
-  splitting tab delimited strings.
+  splitting tab-delimited strings.
   \endlist
 
   We present a very brief introduction to regexps, a description of
   Qt's regexp language, some code examples, and finally the function
-  documentation. QRegExp is modeled on Perl's regexp engine and fully
-  supports Unicode. QRegExp may also be used in the weaker 'wildcard'
-  (globbing) mode which works in a similar way to command shells. A
-  good text on regexps is \e {Mastering Regular Expressions: Powerful
-  Techniques for Perl and Other Tools} by Jeffrey E. Friedl, ISBN
-  1565922573.
+  documentation. QRegExp is modeled on Perl's regexp language, and
+  also fully supports Unicode. QRegExp may also be used in the weaker
+  'wildcard' (globbing) mode which works in a similar way to command
+  shells. A good text on regexps is \e {Mastering Regular
+  Expressions: Powerful Techniques for Perl and Other Tools} by
+  Jeffrey E. Friedl, ISBN 1565922573.
 
   Experienced regexp users may prefer to skip the introduction and
   go directly to the relevant information.
@@ -1211,7 +1211,7 @@ QRegExpEngine::~QRegExpEngine()
   captured text.  If there is no match, all pairs are (-1, -1).
 */
 QMemArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
-				  bool oneTest )
+				     bool oneTest )
 {
     mmStr = &str;
     mmIn = str.unicode();
@@ -1352,6 +1352,10 @@ int QRegExpEngine::anchorConcatenation( int a, int b )
 	return a | b;
     if ( (b & Anchor_Alternation) != 0 )
 	qSwap( a, b );
+
+    /*
+      
+    */
     int aprime = anchorConcatenation( aa[a ^ Anchor_Alternation].a, b );
     int bprime = anchorConcatenation( aa[a ^ Anchor_Alternation].b, b );
     return anchorAlternation( aprime, bprime );
@@ -3433,10 +3437,16 @@ bool QRegExp::exactMatch( const QString& str ) const
   \code
     QRegExp rx( "some pattern" );
     int pos = rx.search( str.mid(index) );
-    if ( pos != -1 )
+    if ( pos >= 0 )
 	pos += index;
     int len = rx.matchedLength();
   \endcode
+
+  Where performance is important, you can replace \c str.mid(index) by
+  \c QConstString(str.unicode() + index, str.length() - index).string(),
+  which avoids copying the character data.
+
+  \sa QString::mid() QConstString
 */
 int QRegExp::match( const QString& str, int index, int *len,
 		    bool indexIsStart )
@@ -3444,19 +3454,13 @@ int QRegExp::match( const QString& str, int index, int *len,
     int pos;
     if ( indexIsStart ) {
 	pos = search( str.mid(index) );
-	if ( pos >= 0 ) {
+	if ( pos >= 0 )
 	    pos += index;
-	    if ( len != 0 )
-		*len = matchedLength();
-	} else {
-	    if ( len != 0 )
-		*len = 0;
-	}
     } else {
 	pos = search( str, index );
-	if ( len != 0 )
-	    *len = matchedLength();
     }
+    if ( len != 0 )
+	*len = matchedLength();
     return pos;
 }
 
@@ -3664,15 +3668,15 @@ QString QRegExp::cap( int nth )
   Example:
   \code
     QRegExp rx( "/([a-z]+)/([a-z]+)" );
-    rx.search( "Output /dev/null" );    // returns  7 (position of /dev/null)
-    rx.pos( 0 );                        // returns  7 (position of /dev/null)
-    rx.pos( 1 );                        // returns  8 (position of dev)
+    rx.search( "Output /dev/null" );    // returns 7 (position of /dev/null)
+    rx.pos( 0 );                        // returns 7 (position of /dev/null)
+    rx.pos( 1 );                        // returns 8 (position of dev)
     rx.pos( 2 );                        // returns 12 (position of null)
   \endcode
 
-  Note that pos() returns -1 for zero-length matches. (For example, if
-  cap(4) would return an empty string, pos(4) returns -1.) This is due
-  to an implementation tradeoff.
+  For zero-length matches, pos() always returns -1. (For example, if
+  cap(4) would return an empty string, pos(4) returns -1.) This is
+  due to an implementation tradeoff.
 
   \sa capturedTexts() exactMatch() search() searchRev()
 */
