@@ -47,6 +47,7 @@ class QTestControl : public QWidget, public QAxBindable
     Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
     Q_PROPERTY( QValueList list READ list WRITE setList )
     Q_PROPERTY( Alpha beta READ beta WRITE setBeta )
+    Q_PROPERTY( LongLong currency READ currency WRITE setCurrency )
     
 public:
     QTestControl( QWidget *parent = 0, const char *name = 0 )
@@ -105,6 +106,9 @@ public:
 
     Alpha beta() const { PROP(beta) }
     void setBeta( Alpha beta ) { SET_PROP(beta) }
+
+    Q_LLONG currency() const { PROP(currency) }
+    void setCurrency( Q_LLONG currency ) { SET_PROP(currency) }
 
 public slots:
     QString getUnicodeSlot() const { GET_PROP_SLOT(unicode) }
@@ -177,6 +181,11 @@ public slots:
     Alpha getAndSetBetaSlot( Alpha& beta ) { GET_AND_SET(beta, Alpha) }
     Alpha emitBetaRefSignal() { EMIT_REF(beta, Alpha) }
 
+    Q_LLONG getCurrencySlot() const { GET_PROP_SLOT(currency) }
+    void setCurrencySlot( Q_LLONG currency ) { SET_PROP_SLOT(currency) }
+    Q_LLONG getAndSetCurrencySlot( Q_LLONG& currency ) { GET_AND_SET(currency, Q_LLONG) }
+    Q_LLONG emitCurrencyRefSignal() { EMIT_REF(currency, Q_LLONG) }
+
     IDispatch *getDispatchSlot() const { GET_PROP_SLOT(disp) }
     IDispatch *getDispatchSlotRef( IDispatch **d ) const { *d = m_disp; return m_disp; }
     void setDispatchSlot( IDispatch *disp ) { SET_PROP_SLOT(disp) }
@@ -195,6 +204,7 @@ public slots:
     void pixmapPointerSlot( QPixmap *pixmap) { PROP_POINTER(pixmap) }
     void listPointerSlot( QValueList<QVariant> *list) { PROP_POINTER(list) }
     void betaPointerSlot( Alpha *beta ) { PROP_POINTER(beta) }
+    void currencyPointerSlot( Q_LLONG *currency ) { PROP_POINTER(currency) }
 
 signals:
     void unicodeChanged( const QString& );
@@ -239,6 +249,9 @@ signals:
     void betaChanged( Alpha );
     void betaRefSignal( Alpha& );
 
+    void currencyChanged( Q_LLONG );
+    void currencyRefSignal( Q_LLONG& );
+
 private:
     QString m_unicode;
     QCString m_text;
@@ -254,6 +267,7 @@ private:
     QPixmap m_pixmap;
     QValueList<QVariant> m_list;
     Alpha m_beta;
+    Q_LLONG m_currency;
     IDispatch *m_disp;
 };
 
