@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#198 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#199 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1768,7 +1768,7 @@ int QPopupMenu::idAt( const QPoint& pos ) const
 }
 
 
-/*!\fn int QPopupMenu::idAt( const QPoint& pos ) const
+/*!\fn int QPopupMenu::idAt( int index ) const
   
   Returns the identifier of the menu item at position \a index in the internal
   list, or -1 if \a index is out of range.
