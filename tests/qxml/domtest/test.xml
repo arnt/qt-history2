@@ -7,6 +7,7 @@
     <?foo bar?>
     <!ENTITY gnorf PUBLIC "gnorf_p" "gnorf_s">
     <!ENTITY _norf PUBLIC "_norf_p" ""       >
+    <!ENTITY empty PUBLIC ""        ""       >
     <!ENTITY snarf SYSTEM "snarf"            >
     <!ENTITY n_orf PUBLIC "gnorf_p" "gnorf_s" NDATA nd1 >
     <!ENTITY n_arf SYSTEM "snarf"             NDATA nd2 >

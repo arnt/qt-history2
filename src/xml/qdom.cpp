@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#31 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#32 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -4594,14 +4594,18 @@ static QCString encodeEntity( const QCString& str )
 
 void QDomEntityPrivate::save( QTextStream& s, int ) const
 {
-    if ( m_sys.isEmpty() && m_pub.isEmpty() ) {
+    if ( m_sys.isNull() && m_pub.isNull() ) {
 	s << "<!ENTITY " << name << " \"" << encodeEntity( value.utf8() ) << "\">";
     } else {
 	s << "<!ENTITY " << name << " ";
-	if ( m_pub.isEmpty() )
+	if ( m_pub.isNull() ) {
 	    s << "SYSTEM \"" << m_sys << "\"";
-	else
+	} else {
 	    s << "PUBLIC \"" << m_pub << "\" \"" << m_sys << "\"";
+	}
+	if (! m_notationName.isNull() ) {
+	    s << " NDATA " << m_notationName;
+	}
 	s << ">";
     }
 }
