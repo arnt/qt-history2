@@ -385,9 +385,9 @@ BIG_CODECS=yes
 ZLIB=yes
 PNG=yes
 LIBPNG=qt
-JPEG=plugin
+JPEG=auto
 LIBJPEG=qt
-MNG=plugin
+MNG=auto
 LIBMNG=qt
 XRENDER=auto
 XFTFREETYPE=auto
@@ -464,6 +464,9 @@ do
 	;;
    -no-incremental)
 	DO_INCREMENT="no"
+	;;
+   -incremental)
+	DO_INCREMENT="yes"
 	;;
    -accel-voodoo3)
 	QWS_ACCEL_VOODOO3=y
@@ -776,6 +779,19 @@ then
     PLATFORM=qws/linux-generic-g++
     XPLATFORM=qws/linux-${EMBEDDED}-g++
 fi
+
+if [ "$JPEG" = "auto" ]
+then
+    JPEG=plugin
+    [ -z "$EMBEDDED" ] || JPEG=no
+fi 
+
+if [ "$MNG" = "auto" ]
+then
+    MNG=plugin
+    [ -z "$EMBEDDED" ] || MNG=no
+fi 
+
 
 if [ -z "$PLATFORM" ]
 then
@@ -1677,9 +1693,9 @@ elif [ "x$MNG" = "xyes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG mng"
 fi
 [ "x$LIBPNG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-png"
-if [ "x$LIBPNG" = "xno" ]; then
+if [ "x$PNG" = "xno" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-png"
-elif [ "x$LIBPNG" = "xyes" ]; then
+elif [ "x$PNG" = "xyes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG png"
 fi
 if [ "x$GIF" = "xno" ]; then
