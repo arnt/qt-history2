@@ -1416,6 +1416,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value PM_DefaultFrameWidth  default frame width, usually 2.
     \value PM_SpinBoxFrameWidth  frame width of a spin box.
+    \value PM_MDIFrameWidth frame width of an MDI window.
 
 
     \value PM_MaximumDragDistance  Some feels require the scrollbar or

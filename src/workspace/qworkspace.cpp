@@ -1956,7 +1956,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     }
 
     setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
-    setLineWidth( style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
+    setLineWidth( style().pixelMetric(QStyle::PM_MDIFrameWidth, this) );
     setMinimumSize( 128, 0 );
 
     childWidget = window;

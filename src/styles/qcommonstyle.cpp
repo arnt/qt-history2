@@ -2188,6 +2188,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 
     case PM_SpinBoxFrameWidth:
     case PM_DefaultFrameWidth:
+    case PM_MDIFrameWidth:
 	ret = 2;
 	break;
 #ifndef QT_NO_SCROLLBAR

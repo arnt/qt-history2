@@ -1924,6 +1924,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 	}
 	break;
 
+    case PM_DefaultFrameWidth:
     case PM_SpinBoxFrameWidth:
 	return 1;
 
@@ -1931,16 +1932,22 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
     	return 2;
 
     case PM_TabBarBaseOverlap:
-	return 0;
-
     case PM_TabBarBaseHeight:
 	return 0;
 
     case PM_TitleBarHeight:
 	return QWindowsStyle::pixelMetric( metric, widget ) + 4;
 
-    case PM_DefaultFrameWidth:
-	return 1;
+    case PM_MDIFrameWidth:
+	{
+	    XPThemeData theme( widget, 0, "WINDOW", WP_FRAMELEFT, FS_ACTIVE );
+	    if ( theme.isValid() ) {
+		SIZE size;
+		pGetThemePartSize( theme.handle(), NULL, WP_FRAMELEFT, FS_ACTIVE, 0, TS_TRUE, &size );
+		return size.cx-1;
+	    }
+	}
+	break;
 
     default:
 	break;

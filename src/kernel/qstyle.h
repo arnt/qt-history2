@@ -470,6 +470,8 @@ public:
 	PM_DialogButtonsSeparator,
 	PM_DialogButtonsButtonWidth,
 	PM_DialogButtonsButtonHeight,
+	
+	PM_MDIFrameWidth,
 
 	// do not add any values below/greater than this
 	PM_CustomBase =		0xf0000000
