@@ -793,6 +793,17 @@ void QButton::mousePressEvent( QMouseEvent *e )
 void QButton::mouseReleaseEvent( QMouseEvent *e)
 {
     if ( e->button() != LeftButton ) {
+
+	// clean up apperance if left button has been pressed
+	if (mlbDown || buttonDown) {
+	    mlbDown = FALSE;				
+	    buttonDown = FALSE;
+	    
+	    if ( autoMask() )
+		updateMask();
+	    repaint( FALSE );
+	}
+
 	e->ignore();
 	return;
     }
