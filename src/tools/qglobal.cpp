@@ -541,12 +541,12 @@ void qFatal( const char *msg, ... )
 #endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
-#elif defined(Q_CC_MSVC) && defined(_DEBUG) && !defined(Q_OS_TEMP)
-	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #elif defined(Q_OS_TEMP) && defined(_DEBUG) 
 	QString fstr;
 	fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
 	OutputDebugString( fstr.ucs2() );
+#elif defined(Q_CC_MSVC) && defined(_DEBUG)
+	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #else
 	exit( 1 );				// goodbye cruel world
 #endif
@@ -579,12 +579,12 @@ void fatal( const char *msg, ... )
 #endif
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
 	abort();				// trap; generates core dump
-#elif defined(Q_CC_MSVC) && defined(_DEBUG) && !defined(Q_OS_TEMP)
-	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #elif defined(Q_OS_TEMP) && defined(_DEBUG)
 	QString fstr;
 	fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
 	OutputDebugString( fstr.ucs2() );
+#elif defined(Q_CC_MSVC) && defined(_DEBUG)
+	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #else
 	exit( 1 );				// goodbye cruel world
 #endif
@@ -612,32 +612,28 @@ void qSystemWarning( const char* msg, int code )
     if ( !code )
 	return;
 
-#ifdef Q_OS_TEMP
     unsigned short *string;
+    QT_WA( {
+	FormatMessage( FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+		       NULL,
+		       code,
+		       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		       (LPTSTR)&string,
+		       0,
+		       NULL );
 
-    FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-			  NULL,
-			  code,
-			  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			  (LPTSTR)&string,
-			  0,
-			  NULL );
+	qWarning( "%s\n\tError code %d - %s (###may need fixing in qglobal.h)", msg, code, QString::fromUcs2(string).latin1() );
+    }, {
+	FormatMessageA( FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
+			NULL,
+			code,
+			MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+			(char*)&string,
+			0,
+			NULL );
 
-    qWarning( "%s\n\tError code %d - %s (###may need fixing in qglobal.h)", msg, code, (const char *)string );
-#else
-    char* string;
-
-    FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-			  NULL,
-			  code,
-			  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-			  (char*)&string,
-			  0,
-			  NULL );
-
-    qWarning( "%s\n\tError code %d - %s", msg, code, (const char*)string );
-#endif
-
+	qWarning( "%s\n\tError code %d - %s", msg, code, (const char*)string );
+    } );
     LocalFree( (HLOCAL)string );
 #else
     if ( code != -1 )
