@@ -1012,7 +1012,7 @@ static inline QString usertypeToQString( const TYPEDESC &tdesc, ITypeInfo *info,
 		if ( typeattr ) {
 		    if ( typeattr->typekind == TKIND_ALIAS )
 			userTypeName = guessTypes( typeattr->tdescAlias, usertypeinfo, enumlist, function );
-		    else if ( typeattr->typekind == TKIND_DISPATCH )
+		    else if ( typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_COCLASS )
 			userTypeName = "IDispatch";
 		}
 
