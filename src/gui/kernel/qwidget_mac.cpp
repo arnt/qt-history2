@@ -1988,8 +1988,9 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
                 QWidget *w = (QWidget*)obj;
                 if(!w->isTopLevel()) {
                     w->data->crect = QRect(w->pos() + pd, w->size());
-                    HIRect bounds = CGRectMake(data->crect.x(), data->crect.y(), data->crect.width(), data->crect.height());
-                    HIViewSetFrame((HIViewRef)winId(), &bounds);
+                    HIRect bounds = CGRectMake(w->data->crect.x(), w->data->crect.y(), 
+                                               w->data->crect.width(), w->data->crect.height());
+                    HIViewSetFrame((HIViewRef)w->winId(), &bounds);
                     moved.append(w);
                 }
             }
