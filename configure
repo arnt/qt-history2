@@ -81,6 +81,14 @@ then
     ln -s $relpath/mkspecs $outpath/mkspecs
 
     # symlink the linguist/doc directory (to make the assistant happy)
+    if [ ! -d $outpath/tools ]
+    then
+	mkdir $outpath/tools
+    fi
+    if [ ! -d $outpath/tools/linguist ]
+    then
+	mkdir $outpath/tools/linguist
+    fi
     rm -f $outpath/tools/linguist/doc
     ln -s $relpath/tools/linguist/doc $outpath/tools/linguist/doc
 
