@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.h#3 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.h#4 $
 **
 ** Definition of QSocketDevice class.
 **
@@ -59,7 +59,9 @@ public:
 
     bool	 isValid() const;
     Type	 type() const;
+
     int		 socket() const;
+	int createNewSocket ();
     virtual void setSocket( int socket, Type type );
 
     bool	 open( int mode );

@@ -67,6 +67,9 @@ public:
     int		socket() const;
     virtual void setSocket( int );
 
+    QSocketDevice *socketDevice();
+	virtual void setSocketDevice( QSocketDevice * );
+
 #ifndef QT_NO_DNS
     virtual void connectToHost( const QString &host, Q_UINT16 port );
 #endif
@@ -113,9 +116,6 @@ signals:
 protected slots:
     virtual void sn_read();
     virtual void sn_write();
-
-protected:
-    QSocketDevice *socketDevice();
 
 private slots:
     void	tryConnecting();

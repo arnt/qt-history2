@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#3 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#4 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -123,7 +123,7 @@ public:
   \c QSocketDevice::Datagram for an unreliable, connectionless UDP socket.
 */
 QSocketDevice::QSocketDevice( int socket, Type type )
-    : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ),
+    : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
       d( 0 )
 {
 #if defined(QSOCKETDEVICE_DEBUG)
@@ -134,6 +134,25 @@ QSocketDevice::QSocketDevice( int socket, Type type )
     setSocket( socket, type );
 }
 
+/*!
+  Creates a QSocketDevice object for a stream or datagram socket.
+
+  The \a type argument must be either \c QSocketDevice::Stream for a
+  reliable, connection-oriented TCP socket, or \c
+  QSocketDevice::Datagram for an unreliable UDP socket.
+
+  \sa blocking()
+*/
+QSocketDevice::QSocketDevice( Type type )
+    : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ), d( 0 )
+{
+#if defined(QSOCKETDEVICE_DEBUG)
+    qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
+	    this, type );
+#endif
+    init();
+	setSocket( createNewSocket(), type );
+}
 
 /*!
   Destroys the socket device and closes the socket if it is open.

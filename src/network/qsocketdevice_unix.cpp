@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#3 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#4 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -139,54 +139,44 @@ void QSocketDevice::init()
 {
 }
 
+/*! 
 
-/*!
-  Creates a QSocketDevice object for a stream or datagram socket.
+  Creates a new socket identifier. Returns -1 if there is a failure to
+  create the new identifier, error() explains why.
 
-  The \a type argument must be either \c QSocketDevice::Stream for a
-  reliable, connection-oriented TCP socket, or \c
-  QSocketDevice::Datagram for an unreliable UDP socket.
+  \sa setSocket()
+*/  
 
-  \sa blocking()
-*/
-QSocketDevice::QSocketDevice( Type type )
-    : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ), d( 0 )
+int QSocketDevice::createNewSocket ()
 {
-#if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
-	    this, type );
-#endif
-    init();
-    int s = ::socket( AF_INET, type==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
+    int s = ::socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     if ( s < 0 ) {
-	// leave fd at -1 but set the type
-	t = type;
-	switch( errno ) {
-	case EPROTONOSUPPORT:
-	    e = Bug; // 0 is supposed to work for both types
-	    break;
-	case ENFILE:
-	    e = NoFiles; // special case for this
-	    break;
-	case EACCES:
-	    e = Inaccessible;
-	    break;
-	case ENOBUFS:
-	case ENOMEM:
-	    e = NoResources;
-	    break;
-	case EINVAL:
-	    e = Impossible;
-	    break;
-	default:
-	    e = UnknownError;
-	    break;
-	}
+		switch( errno ) {
+		case EPROTONOSUPPORT:
+			e = Bug; // 0 is supposed to work for both types
+			break;
+		case ENFILE:
+			e = NoFiles; // special case for this
+			break;
+		case EACCES:
+			e = Inaccessible;
+			break;
+		case ENOBUFS:
+		case ENOMEM:
+			e = NoResources;
+			break;
+		case EINVAL:
+			e = Impossible;
+			break;
+		default:
+			e = UnknownError;
+			break;
+		}
     } else {
-	setSocket( s, type );
+		return s;
     }
+	return -1;
 }
-
 
 /*! \reimp
 

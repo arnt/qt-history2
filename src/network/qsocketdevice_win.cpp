@@ -76,48 +76,40 @@ void QSocketDevice::init()
     }
 }
 
-
-QSocketDevice::QSocketDevice( Type type )
-    : fd( -1 ), t( Stream ), p( 0 ), pp( 0 ), e( NoError ), d( 0 )
+int QSocketDevice::createNewSocket( )
 {
-#if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
-	    this, type );
-#endif
-    init();
-    int s = ::socket( AF_INET, type==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
+    int s = ::socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
     if ( s == INVALID_SOCKET ) {
-	// leave fd at -1 but set the type
-	t = type;
-	switch( WSAGetLastError() ) {
+		switch( WSAGetLastError() ) {
 	    case WSANOTINITIALISED:
-		e = Impossible;
-		break;
+			e = Impossible;
+			break;
 	    case WSAENETDOWN:
-		// ### what to use here?
-		e = NetworkFailure;
-		//e = Inaccessible;
-		break;
+			// ### what to use here?
+			e = NetworkFailure;
+			//e = Inaccessible;
+			break;
 	    case WSAEMFILE:
-		e = NoFiles; // special case for this
-		break;
+			e = NoFiles; // special case for this
+			break;
 	    case WSAEINPROGRESS:
 	    case WSAENOBUFS:
-		e = NoResources;
-		break;
+			e = NoResources;
+			break;
 	    case WSAEAFNOSUPPORT:
 	    case WSAEPROTOTYPE:
 	    case WSAEPROTONOSUPPORT:
-	    case WSAESOCKTNOSUPPORT :
-		e = Bug;
-		break;
+	    case WSAESOCKTNOSUPPORT:
+			e = Bug;
+			break;
 	    default:
-		e = UnknownError;
-		break;
-	}
+			e = UnknownError;
+			break;
+		}
     } else {
-	setSocket( s, type );
+		return s;
     }
+	return -1;
 }
 
 

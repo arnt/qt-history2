@@ -54,6 +54,7 @@ class QSocketPrivate {
 public:
     QSocketPrivate( QSocket *o );
    ~QSocketPrivate();
+	void close();
 
     QSocket            *owner;			// the owner of the d pointer
     QSocket::State	state;			// connection state
@@ -88,15 +89,24 @@ QSocketPrivate::~QSocketPrivate()
     // Order is important here - the socket notifiers must go away
     // before the socket does, otherwise libc or the kernel will
     // become unhappy.
-    delete rsn;
-    delete wsn;
+	close();
     delete socket;
 #ifndef QT_NO_DNS
     delete dns;
 #endif
 }
 
-
+void QSocketPrivate::close()
+{
+	delete rsn;
+	rsn = NULL;
+	delete wsn;
+	wsn = NULL;
+	socket->close();
+	rsize = wsize = 0;
+	rba.clear(); wba.clear();
+	rindex = windex = 0;
+}
 
 /*!
   \class QSocket qsocket.h
@@ -159,6 +169,7 @@ QSocket::QSocket( QObject *parent, const char *name )
     : QObject( parent, name )
 {
     d = new QSocketPrivate( this );
+	setSocketDevice(NULL);
     setFlags( IO_Direct );
     setStatus( IO_Ok );
 }
@@ -182,8 +193,7 @@ QSocket::~QSocket()
 
 
 /*!
-  Returns a pointer to the internal socket device.  The returned pointer
-  may be null.
+  Returns a pointer to the internal socket device.  
 
   There is normally no need to manipulate the socket device directly
   since this class does the necessary setup for most applications.
@@ -194,6 +204,30 @@ QSocketDevice *QSocket::socketDevice()
     return d->socket;
 }
 
+/*!
+  Set the internal socket device.  Setting this to NULL will return
+  it to the default platform socket device, any existing connection
+  will be disconnected before using this new device. 
+
+  The new device should not be connected before being attached to a
+  QSocket, instead use /c connectToHost following this.
+*/
+
+void QSocket::setSocketDevice( QSocketDevice *device )
+{
+	if ( state() != Idle )
+		close();
+	if( d->socket )
+		delete d->socket;
+
+    if ( !device )
+	{
+		device = new QSocketDevice( QSocketDevice::Stream );
+		device->setBlocking( FALSE );
+		device->setAddressReusable( TRUE );
+	}
+	d->socket = device;
+}
 
 /*!
   \enum QSocket::State
@@ -242,7 +276,7 @@ void QSocket::connectToHost( const QString &host, Q_UINT16 port )
     qDebug( "QSocket (%s)::connectToHost: host %s, port %d",
 	    name(), host.ascii(), port );
 #endif
-    setSocket( -1 );
+    setSocket( d->socket->createNewSocket());
 
     d->state = HostLookup;
     d->host = host;
@@ -465,8 +499,7 @@ void QSocket::close()
     }
     setFlags( IO_Sequential );
     setStatus( IO_Ok );
-    delete d;
-    d = new QSocketPrivate( this );
+	d->close();
     d->state = Idle;
 }
 
@@ -669,8 +702,7 @@ void QSocket::flush()
 #endif
 	setFlags( IO_Sequential );
 	setStatus( IO_Ok );
-	delete d;
-	d = new QSocketPrivate( this );
+	d->close();
 	d->state = Idle;
 	emit delayedCloseFinished();
 	return;
@@ -1108,23 +1140,11 @@ int QSocket::socket() const
 
 void QSocket::setSocket( int socket )
 {
-    QSocketDevice *sd;
-    if ( socket >= 0 )
-	sd = new QSocketDevice( socket, QSocketDevice::Stream );
-    else
-	sd = new QSocketDevice( QSocketDevice::Stream );
-
     if ( state() != Idle )
-	close();
-    // close may not have actually deleted the thing.  so, we brutally
-    // Act.
-    delete d;
-
-    d = new QSocketPrivate( this );
-    d->socket = sd;
-    d->socket->setBlocking( FALSE );
-    d->socket->setAddressReusable( TRUE );
+		close();
     d->state = Connection;
+
+	d->socket->setSocket(socket, QSocketDevice::Stream );
     d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
 				  this, "read" );
     d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
@@ -1133,6 +1153,7 @@ void QSocket::setSocket( int socket )
     d->rsn->setEnabled( TRUE );
     connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
     d->wsn->setEnabled( FALSE );
+
     // Initialize the IO device flags
     setFlags( IO_Direct );
     setStatus( IO_Ok );
