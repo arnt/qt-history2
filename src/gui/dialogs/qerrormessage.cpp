@@ -26,7 +26,6 @@
 #include "qdialog_p.h"
 #include "qpixmap.h"
 #include <qhash.h>
-#include <Qt3Compat/qstylesheet.h> // ### remove when > TP
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -130,8 +129,7 @@ void jump(QtMsgType t, const char * m)
         rich = QErrorMessage::tr("Fatal Error:");
     }
     rich = QString("<p><b>%1</b></p>").arg(rich);
-    rich += QStyleSheet::convertFromPlainText(m,
-                QStyleSheetItem::WhiteSpaceNormal);
+    rich += QText::convertFromPlainText(m, QText::WhiteSpaceNormal);
 
     // ### work around text engine quirk
     if (rich.endsWith("</p>"))

@@ -90,6 +90,64 @@ QString QText::escape(const QString& plain)
     return rich;
 }
 
+/*!  Auxiliary function. Converts the plain text string \a plain to a
+    rich text formatted paragraph while preserving most of its look.
+
+    \a mode defines the whitespace mode. Possible values are \c
+    QStyleSheetItem::WhiteSpacePre (no wrapping, all whitespaces
+    preserved) and \c QStyleSheetItem::WhiteSpaceNormal (wrapping,
+    simplified whitespaces).
+
+    \sa escape()
+*/
+QString QText::convertFromPlainText(const QString &plain, QText::WhiteSpaceMode mode)
+{
+    int col = 0;
+    QString rich;
+    rich += "<p>";
+    for (int i = 0; i < plain.length(); ++i) {
+        if (plain[i] == '\n'){
+            int c = 1;
+            while (i+1 < plain.length() && plain[i+1] == '\n') {
+                i++;
+                c++;
+            }
+            if (c == 1)
+                rich += "<br>\n";
+            else {
+                rich += "</p>\n";
+                while (--c > 1)
+                    rich += "<br>\n";
+                rich += "<p>";
+            }
+            col = 0;
+        } else {
+            if (mode == QText::WhiteSpacePre && plain[i] == '\t'){
+                rich += 0x00a0U;
+                ++col;
+                while (col % 8) {
+                    rich += 0x00a0U;
+                    ++col;
+                }
+            }
+            else if (mode == QText::WhiteSpacePre && plain[i].isSpace())
+                rich += 0x00a0U;
+            else if (plain[i] == '<')
+                rich +="&lt;";
+            else if (plain[i] == '>')
+                rich +="&gt;";
+            else if (plain[i] == '&')
+                rich +="&amp;";
+            else
+                rich += plain[i];
+            ++col;
+        }
+    }
+    if (col != 0)
+        rich += "</p>";
+    return rich;
+}
+
 /*!
     \class QTextDocument qtextdocument.h
     \brief The QTextDocument class holds formatted text that can be

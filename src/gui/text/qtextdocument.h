@@ -35,9 +35,17 @@ namespace QText
 {
     enum HitTestAccuracy { ExactHit, FuzzyHit };
     enum ChangeOperation { Insert, Remove };
+    enum WhiteSpaceMode {
+        WhiteSpaceNormal,
+        WhiteSpacePre,
+        WhiteSpaceNoWrap,
+        WhiteSpaceModeUndefined = -1
+    };
 
     bool mightBeRichText(const QString&);
     QString escape(const QString& plain);
+
+    QString convertFromPlainText(const QString &plain, WhiteSpaceMode mode = WhiteSpacePre);
 }
 
 class Q_GUI_EXPORT QAbstractUndoItem
