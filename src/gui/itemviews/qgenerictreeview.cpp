@@ -110,7 +110,7 @@ QGenericTreeView::QGenericTreeView(QGenericTreeViewPrivate &dd, QWidget *parent)
 {
     d->rootDecoration = true;
     setSelectionBehavior(QAbstractItemView::SelectRows);
-    
+
     QGenericHeader *header = new QGenericHeader(Qt::Horizontal, this);
     header->setModel(model());
     header->setSelectionModel(selectionModel());
@@ -172,7 +172,7 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
                             this, SLOT(resizeColumnToContents(int)));
         delete d->header;
     }
-    
+
     d->header = header;
 
 //    setViewportMargins(0, d->header->sizeHint().height(), 0, 0);
@@ -185,7 +185,7 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
                      this, SLOT(columnCountChanged(int,int)));
     QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeColumnToContents(int)));
-    
+
 //    updateGeometries();
 }
 
@@ -210,7 +210,7 @@ void QGenericTreeView::setIndentation(int i)
 /*!
   \property QGenericTreeView::showRootDecoration
   \brief whether to show controls for opening and closing items
-  
+
   This property holds whether root items are displayed with controls for opening and
   closing them.
 */
@@ -222,7 +222,7 @@ bool QGenericTreeView::isRootDecorationShown() const
 
 void QGenericTreeView::showRootDecoration(bool show)
 {
-    
+
     d->rootDecoration = show;
     d->viewport->update();
 }
@@ -426,7 +426,7 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     QStyleOptionViewItem option = viewOptions();
     QBrush base = option.palette.base();
     QRect area = e->rect();
-    
+
     if (d->items.isEmpty() || d->header->count() == 0) {
         QPainter painter(d->viewport);
         painter.fillRect(area, base);
@@ -462,7 +462,7 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     int i = d->itemAt(v);
     int s = delegate->sizeHint(fontMetrics, option, model(), items[i].index).height();
     int y = d->coordinateAt(v, s);
-    
+
     while (y < h && i < c) {
         index = items[i].index;
         s = delegate->sizeHint(fontMetrics, option, d->model, index).height();
@@ -510,7 +510,7 @@ void QGenericTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &op
     bool focus = hasFocus() && current.isValid();
     bool reverse = QApplication::reverseLayout();
     QStyle::SFlags state = opt.state;
-    
+
     int position;
     int headerSection;
     QModelIndex modelIndex;
@@ -1128,7 +1128,7 @@ int QGenericTreeView::columnSizeHint(int column) const
 {
     if (d->items.count() <= 0)
         return 0;
-    
+
     QStyleOptionViewItem option = viewOptions();
     QFontMetrics fontMetrics(this->fontMetrics());
     QAbstractItemDelegate *delegate = itemDelegate();
@@ -1197,10 +1197,12 @@ void QGenericTreeViewPrivate::close(int i, bool update)
 {
     int total = items.at(i).total;
     QModelIndex index = items.at(i).index;
-    opened.remove(opened.indexOf(index));
+    int idx = opened.indexOf(index);
+    if (idx >= 0)
+        opened.remove(idx);
     items[i].open = false;
 
-    int idx = i;
+    idx = i;
     QModelIndex tmp = index;
     while (tmp.isValid() && tmp != d->root) {
         items[idx].total -= total;
