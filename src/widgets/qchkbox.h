@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.h#5 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.h#6 $
 **
 ** Definition of QCheckBox class
 **
@@ -30,6 +30,7 @@ public:
 
 protected:
     void    drawButton( QPainter * );
+    void    drawButtonLabel( QPainter * );
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#15 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#16 $
 **
 ** Definition of QPushButton class
 **
@@ -42,7 +42,7 @@ public:
 
 protected:
     void	drawButton( QPainter * );
-    virtual void drawButtonFace( QPainter * );
+    void	drawButtonLabel( QPainter * );
 
 private:
     void	init();

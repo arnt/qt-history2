@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#23 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#24 $
 **
 ** Definition of QButton widget class
 **
@@ -28,7 +28,7 @@ public:
 
     const char *text()		const	{ return btext; }
     void	setText( const char * );
-    QPixmap    *pixmap()	const	{ return bpixmap; }
+    const QPixmap *pixmap()	const	{ return bpixmap; }
     void	setPixmap( const QPixmap & );
 
 public:
@@ -56,6 +56,7 @@ protected:
 
     virtual bool hitButton( const QPoint &pos ) const;
     virtual void drawButton( QPainter * );
+    virtual void drawButtonLabel( QPainter * );
 
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
