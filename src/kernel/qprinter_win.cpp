@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#40 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -32,12 +32,11 @@
 
 #define PST_IDLE	0
 #define PST_ACTIVE	1
-#define PST_ERROR	2
-#define PST_ABORTED	3
+#define PST_ABORTED	2
 
 
 QPrinter::QPrinter()
-    : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )	  // set device type
+    : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
     orient      = Portrait;
     page_size   = A4;
@@ -57,7 +56,7 @@ bool QPrinter::newPage()
     if ( hdc && state == PST_ACTIVE ) {
 	if ( EndPage(hdc) != SP_ERROR && StartPage(hdc) != SP_ERROR )
 	    return TRUE;
-	state = PST_ERROR;
+	state = PST_ABORTED;
     }
     return FALSE;
 }
@@ -123,12 +122,21 @@ bool QPrinter::setup( QWidget *parent )
 }
 
 
-static BITMAPINFO *getWindowsBITMAPINFO( int w, int h, int d,
-					 bool bottomUp=FALSE )
+static BITMAPINFO *getWindowsBITMAPINFO( const QPixmap &pixmap,
+					 const QImage &image )
 {
-    int	ncols = 2;
+    int w=0, h=0, d=0, ncols=2;
+    if ( !pixmap.isNull() ) {
+	w = pixmap.width();
+	h = pixmap.height();
+	d = pixmap.depth();
+    } else {
+	w = image.width();
+	h = image.height();
+	d = image.depth();	
+    }
 
-    if ( w == 0 )				// null pixmap
+    if ( w == 0 || h == 0 || d == 0 )		// invalid image or pixmap
 	return 0;
 
     if ( d > 1 && d <= 8 ) {			// set to nearest valid depth
@@ -147,7 +155,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( int w, int h, int d,
     BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
     bmh->biSize		  = sizeof(BITMAPINFOHEADER);
     bmh->biWidth	  = w;
-    bmh->biHeight	  = bottomUp ? -h : h;
+    bmh->biHeight	  = -h;
     bmh->biPlanes	  = 1;
     bmh->biBitCount	  = d;
     bmh->biCompression	  = BI_RGB;
@@ -155,8 +163,21 @@ static BITMAPINFO *getWindowsBITMAPINFO( int w, int h, int d,
     bmh->biClrUsed	  = ncols;
     bmh->biClrImportant	  = 0;
 
+    if ( ncols > 0 && !image.isNull() ) {	// image with color table
+	RGBQUAD *r = (RGBQUAD*)(bmi_data + sizeof(BITMAPINFOHEADER));
+	ncols = QMIN(ncols,image.numColors());
+	for ( int i=0; i<ncols; i++ ) {
+	    QColor c = image.color(i);
+	    r[i].rgbRed = c.red();
+	    r[i].rgbGreen = c.green();
+	    r[i].rgbBlue = c.blue();
+	    r[i].rgbReserved = 0;
+	}
+    }
+
     return bmi;
 }
+
 
 bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
@@ -180,7 +201,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		DeleteDC( hdc );
 		hdc = 0;
 	    }
-	    state = PST_ERROR;
+	    state = PST_ABORTED;
 	} else {
 	    state = PST_ACTIVE;
 	}
@@ -195,7 +216,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     } else {					// all other commands...
 	if ( state != PST_ACTIVE )		// aborted or error
 	    return FALSE;
-	ASSERT( hdc != 0 );
+	if ( hdc == 0 ) {			// device unexpectedly reset
+	    state = PST_ABORTED;
+	    return FALSE;
+	}
 	if ( c == PDC_DRAWPIXMAP || c == PDC_DRAWIMAGE ) {
 	    QPoint  pos	   = *p[0].point;
 	    QPixmap pixmap;
@@ -217,15 +241,20 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		d = image.depth();
 	    }
 
-	    double xs = 1.0;
-	    double ys = 1.0;
+	    double xs = 1.0;			// x stretch
+	    double ys = 1.0;			// y stretch
 	    if ( paint ) {
-		if ( paint->hasWorldXForm() ) {
+		bool wxf = paint->hasWorldXForm();
+		bool vxf = paint->hasViewXForm();
+		if ( wxf || vxf ) {		// map position
+		    pos = paint->xForm( pos );
+		}
+		if ( wxf ) {
 		    QWMatrix m = paint->worldMatrix();
 		    xs = m.m11();
 		    ys = m.m22();
 		}
-		if ( paint->hasViewXForm() ) {
+		if ( vxf ) {
 		    QRect vr = paint->viewport();
 		    QRect wr = paint->window();
 		    xs = xs * vr.width() / wr.width();
@@ -234,27 +263,37 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    }
 	    int dw = qRound( xs * w );
 	    int dh = qRound( ys * h );
-
-	    BITMAPINFO *bmi = getWindowsBITMAPINFO( w, h, d,TRUE);
+	    BITMAPINFO *bmi = getWindowsBITMAPINFO( pixmap, image );
 	    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
-	    uchar *bits = new uchar[bmh->biSizeImage];
+	    uchar *bits;
 
-	    if ( c == PDC_DRAWPIXMAP)
+	    if ( c == PDC_DRAWPIXMAP ) {
+		bits = new uchar[bmh->biSizeImage];
 		GetDIBits( pixmap.handle(), pixmap.hbm(), 0, h,
 			   bits, bmi, DIB_RGB_COLORS );
-	    else
+	    } else {
 		bits = image.bits();
-
-	    HDC     hdcPrn = CreateCompatibleDC( hdc );
-	    HBITMAP hbm    = CreateDIBitmap( hdc, bmh, CBM_INIT,
+	    }
+	    int rc = GetDeviceCaps(hdc,RASTERCAPS);
+	    if ( (rc & RC_STRETCHDIB) != 0 ) {
+		// StretchDIBits supported
+		StretchDIBits( hdc, pos.x(), pos.y(), dw, dh, 0, 0, w, h,
+			       bits, bmi, DIB_RGB_COLORS, SRCCOPY );
+	    } else if ( (rc & RC_STRETCHBLT) != 0 ) {
+		// StretchBlt supported
+		HANDLE hdcPrn = CreateCompatibleDC( hdc );
+		HANDLE hbm = CreateDIBitmap( hdc, bmh, CBM_INIT,
 					     bits, bmi, DIB_RGB_COLORS );
-	    HBITMAP oldHbm = (HBITMAP)SelectObject( hdcPrn, hbm );
-	    StretchBlt( hdc, pos.x(), pos.y(), dw, dh,
-			hdcPrn, 0, 0, w, h, SRCCOPY );
-	    SelectObject( hdcPrn, oldHbm );
-	    DeleteObject( hbm );
-	    DeleteObject( hdcPrn );
-	    delete [] bits;
+		HANDLE oldHbm = SelectObject( hdcPrn, hbm );
+		StretchBlt( hdc, pos.x(), pos.y(), dw, dh,
+			    hdcPrn, 0, 0, w, h, SRCCOPY );
+		SelectObject( hdcPrn, oldHbm );
+		DeleteObject( hbm );
+		DeleteObject( hdcPrn );
+	    }
+	    if ( c == PDC_DRAWPIXMAP ) {
+		delete [] bits;
+	    }
 	    free( bmi );
 	    return FALSE;			// don't bitblt
 	}
