@@ -95,6 +95,7 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, in
     return NoError;
 }
 
+bool fuck = false;
 void
 QFontEngineMac::draw(QPainter *p, int x, int y, const QGlyphFragment &si, int textFlags)
 {
@@ -176,13 +177,13 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QGlyphFragment &si, int te
 	w = doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, task, x, y, p);
     }
     if(w && textFlags != 0) {
-	int lineWidth = p->fontMetrics().lineWidth();
+	int lw = lineThickness();
 	if(textFlags & Qt::Underline)
-	    p->drawRect(x, (y + 2) - (lineWidth / 2), (si.analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
+	    p->drawRect(x, y+underlinePosition(), (si.analysis.bidiLevel % 2) ? -w : w, lw);
 	if(textFlags & Qt::Overline)
-	    p->drawRect(x, (y - (ascent() + 1)) - (lineWidth / 2), (si.analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
+	    p->drawRect(x, y + (ascent() + 1), (si.analysis.bidiLevel % 2) ? -w : w, lw);
 	if(textFlags & Qt::StrikeOut)
-	    p->drawRect(x, (y - qMax(1, (ascent() / 3))) - (lineWidth / 2), (si.analysis.bidiLevel % 2) ? -w : w, qMax((lineWidth / 2), 1));
+	    p->drawRect(x, y + (ascent() / 3), (si.analysis.bidiLevel % 2) ? -w : w, lw);
     }
 }
 
