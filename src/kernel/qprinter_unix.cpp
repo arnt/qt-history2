@@ -54,10 +54,10 @@
 
 // QPrinter states
 
-#define PST_IDLE	0
-#define PST_ACTIVE	1
-#define PST_ERROR	2
-#define PST_ABORTED	3
+#define PST_IDLE        0
+#define PST_ACTIVE      1
+#define PST_ERROR       2
+#define PST_ABORTED     3
 
 
 /*!
@@ -75,21 +75,21 @@ QPrinter::QPrinter( PrinterMode m )
     from_pg = to_pg = min_pg = max_pg = 0;
     state = PST_IDLE;
     output_file = FALSE;
-    to_edge	= FALSE;
+    to_edge     = FALSE;
     switch ( m ) {
-	case ScreenResolution:
+        case ScreenResolution:
 #ifdef Q_WS_QWS
-	    res = 72;
+            res = 72;
 #else
-	    res = QPaintDevice::x11AppDpiY();
+            res = QPaintDevice::x11AppDpiY();
 #endif
-	    break;
-	case Compatible:
-	case PrinterResolution:
-	    res = 72;
-	    break;
-	case HighResolution:
-	    res = 600;
+            break;
+        case Compatible:
+        case PrinterResolution:
+            res = 72;
+            break;
+        case HighResolution:
+            res = 600;
     }
 }
 
@@ -101,9 +101,9 @@ QPrinter::~QPrinter()
 {
     delete pdrv;
     if ( pid ) {
-	(void)::kill( pid, 6 );
-	(void)::wait( 0 );
-	pid = 0;
+        (void)::kill( pid, 6 );
+        (void)::wait( 0 );
+        pid = 0;
     }
 }
 
@@ -116,7 +116,7 @@ QPrinter::~QPrinter()
 bool QPrinter::newPage()
 {
     if ( state == PST_ACTIVE && pdrv )
-	return ((QPSPrinter*)pdrv)->cmd( QPSPrinter::NewPage, 0, 0 );
+        return ((QPSPrinter*)pdrv)->cmd( QPSPrinter::NewPage, 0, 0 );
     return FALSE;
 }
 
@@ -130,13 +130,13 @@ bool QPrinter::newPage()
 bool QPrinter::abort()
 {
     if ( state == PST_ACTIVE && pdrv ) {
-	((QPSPrinter*)pdrv)->cmd( QPSPrinter::AbortPrinting, 0, 0 );
-	state = PST_ABORTED;
-	if ( pid ) {
-	    (void)::kill( pid, 6 );
-	    (void)::wait( 0 );
-	    pid = 0;
-	}
+        ((QPSPrinter*)pdrv)->cmd( QPSPrinter::AbortPrinting, 0, 0 );
+        state = PST_ABORTED;
+        if ( pid ) {
+            (void)::kill( pid, 6 );
+            (void)::wait( 0 );
+            pid = 0;
+        }
     }
     return state == PST_ABORTED;
 }
@@ -185,9 +185,9 @@ static void closeAllOpenFds()
     i = (int)OPEN_MAX;
 #else
     i = QMAX( 256, fds[0] );
-#endif // Q_OS_OS2EMX 		// ways-to-set i
+#endif // Q_OS_OS2EMX           // ways-to-set i
     while( --i > 0 )
-	::close( i );
+        ::close( i );
 }
 
 /*!
@@ -198,132 +198,132 @@ static void closeAllOpenFds()
 bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
     if ( c ==  PdcBegin ) {
-	if ( state == PST_IDLE ) {
-	    if ( output_file ) {
-		int fd = 0;
-		fd = ::open( output_filename.local8Bit(),
-			     O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
-			     0666 );
-		if ( fd >= 0 ) {
-		    pdrv = new QPSPrinter( this, fd );
-		    state = PST_ACTIVE;
-		}
-	    } else {
-		QString pr;
-		if ( printer_name )
-		    pr = printer_name;
-		QApplication::flushX();
-		int fds[2];
-		if ( pipe( fds ) != 0 ) {
-		    qWarning( "QPSPrinter: could not open pipe to print" );
-		    state = PST_ERROR;
-		    return FALSE;
-		}
+        if ( state == PST_IDLE ) {
+            if ( output_file ) {
+                int fd = 0;
+                fd = ::open( output_filename.local8Bit(),
+                             O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
+                             0666 );
+                if ( fd >= 0 ) {
+                    pdrv = new QPSPrinter( this, fd );
+                    state = PST_ACTIVE;
+                }
+            } else {
+                QString pr;
+                if ( printer_name )
+                    pr = printer_name;
+                QApplication::flushX();
+                int fds[2];
+                if ( pipe( fds ) != 0 ) {
+                    qWarning( "QPSPrinter: could not open pipe to print" );
+                    state = PST_ERROR;
+                    return FALSE;
+                }
 
 // ### shouldn't we use QProcess here????
 #if 0 && defined(Q_OS_OS2EMX)
-		// this code is still not used, and maybe it's not
-		// usable either, any more.  if you want to use it,
-		// you may need to fix it first.
+                // this code is still not used, and maybe it's not
+                // usable either, any more.  if you want to use it,
+                // you may need to fix it first.
 
-		// old comment:
+                // old comment:
 
-		// this code is usable but not in use.  spawn() is
-		// preferable to fork()/exec() for very large
-		// programs.  if fork()/exec() is a problem and you
-		// use OS/2, remove '0 && ' from the #if.
-		int tmp;
-		tmp = dup(0);
-		dup2( fds[0], 0 );
-		::close( fds[0] );
-		fcntl(tmp, F_SETFD, FD_CLOEXEC);
-		fcntl(fds[1], F_SETFD, FD_CLOEXEC);
-		pr.prepend( option_string ? option_string : "-P" ); // ###
-		if ( spawnlp(P_NOWAIT,print_prog.data(), print_prog.data(),
-			     pr.data(), output->name(), 0) == -1 ) {
-		    ;			// couldn't exec, ignored
-		}
-		dup2( tmp, 0 );
-		::close( tmp );
-		pdrv = new QPSPrinter( this, fds[1] );
-		state = PST_ACTIVE;
+                // this code is usable but not in use.  spawn() is
+                // preferable to fork()/exec() for very large
+                // programs.  if fork()/exec() is a problem and you
+                // use OS/2, remove '0 && ' from the #if.
+                int tmp;
+                tmp = dup(0);
+                dup2( fds[0], 0 );
+                ::close( fds[0] );
+                fcntl(tmp, F_SETFD, FD_CLOEXEC);
+                fcntl(fds[1], F_SETFD, FD_CLOEXEC);
+                pr.prepend( option_string ? option_string : "-P" ); // ###
+                if ( spawnlp(P_NOWAIT,print_prog.data(), print_prog.data(),
+                             pr.data(), output->name(), 0) == -1 ) {
+                    ;                   // couldn't exec, ignored
+                }
+                dup2( tmp, 0 );
+                ::close( tmp );
+                pdrv = new QPSPrinter( this, fds[1] );
+                state = PST_ACTIVE;
 #else
-		pid = fork();
-		if ( pid == 0 ) {	// child process
-		    // if possible, exit quickly, so the actual lp/lpr
-		    // becomes a child of init, and ::waitpid() is
-		    // guaranteed not to wait.
-		    if ( fork() > 0 ) {
-			closeAllOpenFds();
-			exit( 0 );
-		    }
-		    dup2( fds[0], 0 );
+                pid = fork();
+                if ( pid == 0 ) {       // child process
+                    // if possible, exit quickly, so the actual lp/lpr
+                    // becomes a child of init, and ::waitpid() is
+                    // guaranteed not to wait.
+                    if ( fork() > 0 ) {
+                        closeAllOpenFds();
+                        exit( 0 );
+                    }
+                    dup2( fds[0], 0 );
 
-		    closeAllOpenFds();
-		    
-		    if ( print_prog ) {
-			pr.prepend( option_string ? option_string :
-				    QString::fromLatin1( "-P" ) );
-			(void)execlp( print_prog.ascii(), print_prog.ascii(),
-				      pr.ascii(), 0 );
-		    } else {
-			// if no print program has been specified, be smart
-			// about the option string too.
-			const char * lprarg = 0;
-			QString lprhack;
-			const char * lparg = 0;
-			QString lphack;
-			if ( pr || option_string ) {
-			    lprhack = pr;
-			    lprhack.prepend( option_string ? option_string :
-					     QString::fromLatin1( "-P" ) );
-			    lprarg = lprhack.ascii();
-			    lphack = pr;
-			    lphack.prepend( option_string ? option_string :
-					    QString::fromLatin1( "-d" ) );
-			    lparg = lphack.ascii();
-			}
-			(void)execlp( "lp", "lp", lparg, 0 );
-			(void)execlp( "lpr", "lpr", lprarg, 0 );
-			(void)execl( "/bin/lp", "lp", lparg, 0 );
-			(void)execl( "/bin/lpr", "lpr", lprarg, 0 );
-			(void)execl( "/usr/bin/lp", "lp", lparg, 0 );
-			(void)execl( "/usr/bin/lpr", "lpr", lprarg, 0 );
-		    }
-		    // if we couldn't exec anything, close the fd,
-		    // wait for a second so the parent process (the
-		    // child of the GUI process) has exited.  then
-		    // exit.
-		    ::close( 0 );
-		    (void)::sleep( 1 );
-		    ::exit( 0 );
-		} else {		// parent process
-		    ::close( fds[0] );
-		    pdrv = new QPSPrinter( this, fds[1] );
-		    state = PST_ACTIVE;
-		}
+                    closeAllOpenFds();
+
+                    if ( print_prog ) {
+                        pr.prepend( option_string ? option_string :
+                                    QString::fromLatin1( "-P" ) );
+                        (void)execlp( print_prog.ascii(), print_prog.ascii(),
+                                      pr.ascii(), 0 );
+                    } else {
+                        // if no print program has been specified, be smart
+                        // about the option string too.
+                        const char * lprarg = 0;
+                        QString lprhack;
+                        const char * lparg = 0;
+                        QString lphack;
+                        if ( pr || option_string ) {
+                            lprhack = pr;
+                            lprhack.prepend( option_string ? option_string :
+                                             QString::fromLatin1( "-P" ) );
+                            lprarg = lprhack.ascii();
+                            lphack = pr;
+                            lphack.prepend( option_string ? option_string :
+                                            QString::fromLatin1( "-d" ) );
+                            lparg = lphack.ascii();
+                        }
+                        (void)execlp( "lp", "lp", lparg, 0 );
+                        (void)execlp( "lpr", "lpr", lprarg, 0 );
+                        (void)execl( "/bin/lp", "lp", lparg, 0 );
+                        (void)execl( "/bin/lpr", "lpr", lprarg, 0 );
+                        (void)execl( "/usr/bin/lp", "lp", lparg, 0 );
+                        (void)execl( "/usr/bin/lpr", "lpr", lprarg, 0 );
+                    }
+                    // if we couldn't exec anything, close the fd,
+                    // wait for a second so the parent process (the
+                    // child of the GUI process) has exited.  then
+                    // exit.
+                    ::close( 0 );
+                    (void)::sleep( 1 );
+                    ::exit( 0 );
+                } else {                // parent process
+                    ::close( fds[0] );
+                    pdrv = new QPSPrinter( this, fds[1] );
+                    state = PST_ACTIVE;
+                }
 #endif // else part of Q_OS_OS2EMX
-	    }
-	    if ( state == PST_ACTIVE && pdrv )
-		return ((QPSPrinter*)pdrv)->cmd( c, paint, p );
-	} else {
-	    // ignore it?  I don't know
-	}
+            }
+            if ( state == PST_ACTIVE && pdrv )
+                return ((QPSPrinter*)pdrv)->cmd( c, paint, p );
+        } else {
+            // ignore it?  I don't know
+        }
     } else {
-	bool r = FALSE;
-	if ( state == PST_ACTIVE && pdrv ) {
-	    r = ((QPSPrinter*)pdrv)->cmd( c, paint, p );
-	    if ( c == PdcEnd ) {
-		state = PST_IDLE;
-		delete pdrv;
-		pdrv = 0;
-		if ( pid ) {
-		    (void)::waitpid( pid, 0, 0 );
-		    pid = 0;
-		}
-	    }
-	}
-	return r;
+        bool r = FALSE;
+        if ( state == PST_ACTIVE && pdrv ) {
+            r = ((QPSPrinter*)pdrv)->cmd( c, paint, p );
+            if ( c == PdcEnd ) {
+                state = PST_IDLE;
+                delete pdrv;
+                pdrv = 0;
+                if ( pid ) {
+                    (void)::waitpid( pid, 0, 0 );
+                    pid = 0;
+                }
+            }
+        }
+        return r;
     }
     return TRUE;
 }
@@ -345,59 +345,59 @@ int QPrinter::metric( int m ) const
 #if defined(QT_CHECK_RANGE)
     Q_ASSERT( (uint)s < (uint)NPageSize );
 #endif
-    static int widths[]	 = { 595, 516, 612, 612, 541,
-			     2384, 1684, 1191, 842, 420, 297, 210, 148, 105,
-			     2920, 2064, 91, 1460, 1032, 729, 516, 363, 258,
-			     181, 127, 461, 297, 312, 595, 1224, 792 };
+    static int widths[]  = { 595, 516, 612, 612, 541,
+                             2384, 1684, 1191, 842, 420, 297, 210, 148, 105,
+                             2920, 2064, 91, 1460, 1032, 729, 363, 258,
+                             181, 127, 461, 297, 312, 595, 1224, 792 };
 
     static int heights[] = { 842, 729, 792, 1009, 720,
-			     3370, 2384, 1684, 1191, 595, 420, 297, 210, 148,
-			     4127, 2920, 127, 2064, 1460, 1032, 729, 516, 363,
-			     258, 181, 648, 684, 624, 935, 792, 1224 };
+                             3370, 2384, 1684, 1191, 595, 420, 297, 210, 148,
+                             4127, 2920, 127, 2064, 1460, 1032, 516, 363,
+                             258, 181, 648, 684, 624, 935, 792, 1224 };
     switch ( m ) {
     case QPaintDeviceMetrics::PdmWidth:
-	val = orient == Portrait ? widths[ s ] : heights[ s ];
-	if ( res != 72 )
-	    val = (val * res + 36) / 72;
-	if ( !fullPage() )
-	    val -= 2*margins().width();
-	break;
+        val = orient == Portrait ? widths[ s ] : heights[ s ];
+        if ( res != 72 )
+            val = (val * res + 36) / 72;
+        if ( !fullPage() )
+            val -= 2*margins().width();
+        break;
     case QPaintDeviceMetrics::PdmHeight:
-	val = orient == Portrait ? heights[ s ] : widths[ s ];
-	if ( res != 72 )
-	    val = (val * res + 36) / 72;
-	if ( !fullPage() )
-	    val -= 2*margins().height();
-	break;
+        val = orient == Portrait ? heights[ s ] : widths[ s ];
+        if ( res != 72 )
+            val = (val * res + 36) / 72;
+        if ( !fullPage() )
+            val -= 2*margins().height();
+        break;
     case QPaintDeviceMetrics::PdmDpiX:
-	val = res;
-	break;
+        val = res;
+        break;
     case QPaintDeviceMetrics::PdmDpiY:
-	val = res;
-	break;
-	case QPaintDeviceMetrics::PdmPhysicalDpiX:
-	case QPaintDeviceMetrics::PdmPhysicalDpiY:
-	    val = 72;
-	    break;
+        val = res;
+        break;
+        case QPaintDeviceMetrics::PdmPhysicalDpiX:
+        case QPaintDeviceMetrics::PdmPhysicalDpiY:
+            val = 72;
+            break;
     case QPaintDeviceMetrics::PdmWidthMM:
-	// double rounding error here.  hooray.
-	val = metric( QPaintDeviceMetrics::PdmWidth );
-	val = (val * 254 + 5*res) / (10*res);
-	break;
+        // double rounding error here.  hooray.
+        val = metric( QPaintDeviceMetrics::PdmWidth );
+        val = (val * 254 + 5*res) / (10*res);
+        break;
     case QPaintDeviceMetrics::PdmHeightMM:
-	val = metric( QPaintDeviceMetrics::PdmHeight );
-	val = (val * 254 + 5*res) / (10*res);
-	break;
+        val = metric( QPaintDeviceMetrics::PdmHeight );
+        val = (val * 254 + 5*res) / (10*res);
+        break;
     case QPaintDeviceMetrics::PdmNumColors:
-	val = 16777216;
-	break;
+        val = 16777216;
+        break;
     case QPaintDeviceMetrics::PdmDepth:
-	val = 24;
-	break;
+        val = 24;
+        break;
     default:
-	val = 0;
+        val = 0;
 #if defined(QT_CHECK_RANGE)
-	qWarning( "QPixmap::metric: Invalid metric command" );
+        qWarning( "QPixmap::metric: Invalid metric command" );
 #endif
     }
     return val;
@@ -421,7 +421,7 @@ margins() is automatically subtracted from the pageSize() by QPrinter.
 QSize QPrinter::margins() const
 {
     if (orient == Portrait)
-	return QSize( res/2, res/3 );
+        return QSize( res/2, res/3 );
 
     return QSize( res/3, res/2 );
 }
