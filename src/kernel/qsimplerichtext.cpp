@@ -51,23 +51,8 @@ public:
     void adjustSize();
 };
 
-static uint int_sqrt(uint n)
-{
-    uint h, p= 0, q= 1, r= n;
-    Q_ASSERT( n < 1073741824U );  // UINT_MAX>>2 on 32-bits architecture
-    while ( q <= n )
-	q <<= 2;
-    while ( q != 1 ) {
-	q >>= 2;
-	h= p + q;
-	p >>= 1;
-	if ( r >= h ) {
-	    p += q;
-	    r -= h;
-	}
-    }
-    return p;
-}
+// Pull this private function in from qglobal.cpp
+extern unsigned int q_int_sqrt( unsigned int n );
 
 void QSimpleRichTextData::adjustSize() {
     QFontMetrics fm( font );
@@ -75,11 +60,11 @@ void QSimpleRichTextData::adjustSize() {
     int w = mw;
     doc->doLayout( 0,w );
     if ( doc->widthUsed() != 0 ) {
-	w = int_sqrt( 5 * doc->height() * doc->widthUsed() / 3 );
+	w = q_int_sqrt( 5 * doc->height() * doc->widthUsed() / 3 );
 	doc->doLayout( 0, QMIN( w, mw) );
 
 	if ( w*3 < 5*doc->height() ) {
-	    w = int_sqrt( 2 * doc->height() * doc->widthUsed() );
+	    w = q_int_sqrt( 2 * doc->height() * doc->widthUsed() );
 	    doc->doLayout( 0,QMIN(w, mw ) );
 	}
     }

@@ -801,3 +801,34 @@ QtMsgHandler qInstallMsgHandler( QtMsgHandler h )
     handler = h;
     return old;
 }
+
+
+/*
+    Dijkstra's bisection algorithm to find the square root as an integer.
+    Deliberately not exported as part of the Qt API, but used in both
+    qsimplerichtext.cpp and qgfxraster_qws.cpp
+*/
+unsigned int q_int_sqrt( unsigned int n )
+{
+    // n must be in the range 0...UINT_MAX/2-1
+    if ( n >= UINT_MAX>>2 ) {
+	unsigned int r = 2 * q_int_sqrt( n / 4 );
+	if ( n / r > r + 1 )
+	    return r + 1;
+	return r;
+    }
+    uint h, p= 0, q= 1, r= n;
+    while ( q <= n )
+        q <<= 2;
+    while ( q != 1 ) {
+        q >>= 2;
+        h= p + q;
+        p >>= 1;
+        if ( r >= h ) {
+            p += q;
+            r -= h;
+        }
+    }
+    return p;
+}
+

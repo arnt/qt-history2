@@ -55,6 +55,9 @@ typedef __signed__ int __s32;
 typedef unsigned int __u32;
 #endif
 
+// Pull this private function in from qglobal.cpp
+extern unsigned int q_int_sqrt( unsigned int n );
+
 #define QGfxRaster_Generic 0
 #define QGfxRaster_VGA16   1
 
@@ -2936,28 +2939,6 @@ double qatan2( double y, double x )
     }
 }
 
-// Dijkstra's bisection algorithm to find the square root as an integer.
-// The argument n must be in the range 0...1'073'741'823 [2^31-1].
-
-static uint int_sqrt(uint n)
-{
-    uint h, p= 0, q= 1, r= n;
-    if ( n >= UINT_MAX >> 2 )
-	return (uint)sqrt( (double)n );
-    while ( q <= n )
-        q <<= 2;
-    while ( q != 1 ) {
-        q >>= 2;
-        h= p + q;
-        p >>= 1;
-        if ( r >= h ) {
-            p += q;
-            r -= h;
-        }
-    }
-    return p;
-}
-
 /*
   Based on lines_intersect from Graphics Gems II, author: Mukesh Prasad
 */
@@ -3027,9 +3008,9 @@ static QPointArray convertThickPolylineToPolygon( const QPointArray &points,int 
 
 	int dx = x2 - x1;
 	int dy = y2 - y1;
-	int w = int_sqrt((dx*dx+dy*dy)*256);
-	int iy = w ? (penwidth * dy * 16)/ w : dy ? 0 : penwidth;
-	int ix = w ? (penwidth * dx * 16)/ w : dx ? 0 : penwidth;
+	int w = q_int_sqrt(dx*dx+dy*dy);
+	int iy = w ? (penwidth * dy)/ w : dy ? 0 : penwidth;
+	int ix = w ? (penwidth * dx)/ w : dx ? 0 : penwidth;
 
 	// rounding dependent on sign
 	int nix, niy;
