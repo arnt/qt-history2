@@ -69,7 +69,7 @@ ${DISTDIR}/qt/util/qdoc/man
 mv ${DISTDIR}/qt/doc/html ${DISTDIR}/qt/doc/man ${DISTDIR}/qt
 mv ${DISTDIR}/qt/src/moc/moc.1 ${DISTDIR}/qt/man/man1
 cd ${DISTDIR}
-mv gif/*.gif html
+mv ${DISTDIR}/qt/gif/*.gif ${DISTDIR}/qt/gif/html
 
 echo "Removing local files..." >&2
 find qt -name .cvsignore | xargs rm -f
