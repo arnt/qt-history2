@@ -4002,6 +4002,7 @@ QRect QWidget::visibleRect() const
 
 void QWidget::adjustSize()
 {
+    QApplication::sendPostedEvents( this, QEvent::LayoutHint );
     if ( !testWState(WState_Polished) )
 	polish();
     QSize s = sizeHint();
