@@ -40,7 +40,7 @@ public:
         float y;
         ElementType type;
 
-        bool operator==(const Element &e) { return x == e.x && y == e.y && type == e.type; }
+        bool operator==(const Element &e) const { return x == e.x && y == e.y && type == e.type; }
     };
 
 
@@ -78,6 +78,9 @@ public:
 
     void addPath(const QPainterPath &path);
 
+    bool contains(const QPointF &pt) const;
+    bool contains(const QRectF &rect) const;
+
     QRectF boundingRect() const;
 
     Qt::FillRule fillRule() const;
@@ -95,6 +98,9 @@ public:
 
     inline QPainterPath &operator +=(const QPainterPath &other) { addPath(other); return *this; }
 
+    bool operator==(const QPainterPath &other) const;
+    bool operator!=(const QPainterPath &other) const;
+
 private:
     QPainterPathPrivate *d_ptr;
     QVector<Element> elements;
@@ -102,7 +108,18 @@ private:
     friend class QPainterPathStroker;
     friend class QPainterPathStrokerPrivate;
     friend class QMatrix;
+
+#ifndef QT_NO_DATASTREAM
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPainterPath &);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPainterPath &);
+#endif
+
 };
+
+#ifndef QT_NO_DATASTREAM
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPainterPath &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPainterPath &);
+#endif
 
 class Q_GUI_EXPORT QPainterPathStroker
 {

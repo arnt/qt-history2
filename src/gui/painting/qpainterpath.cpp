@@ -72,7 +72,7 @@ void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
     }
 }
 
-#if defined (QPP_DEBUG) || defined (QPP_STROKE_DEBUG)
+#ifndef QT_NO_DEBUG
 static void qt_debug_path(const QPainterPath &path)
 {
     const char *names[] = {
@@ -374,6 +374,8 @@ void QPainterPath::moveTo(const QPointF &p)
         elements.append(elm);
     }
     d->cStart = elements.size() - 1;
+
+    d->makeDirty();
 }
 
 /*!
@@ -401,6 +403,8 @@ void QPainterPath::lineTo(const QPointF &p)
     Q_ASSERT(!elements.isEmpty());
     Element elm = { p.x(), p.y(), LineToElement };
     elements.append(elm);
+
+    d->makeDirty();
 }
 
 /*!
@@ -434,6 +438,8 @@ void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &
     Element ce2 = { c2.x(), c2.y(), CurveToDataElement };
     Element ee = { e.x(), e.y(), CurveToDataElement };
     elements << ce1 << ce2 << ee;
+
+    d->makeDirty();
 }
 
 /*!
@@ -697,6 +703,7 @@ Qt::FillRule QPainterPath::fillRule() const
 */
 void QPainterPath::setFillRule(Qt::FillRule fillRule)
 {
+    d->makeDirty();
     d->fillRule = fillRule;
 }
 
@@ -905,6 +912,104 @@ QList<QPolygon> QPainterPath::toFillPolygons() const
 
     return polys;
 }
+
+/*!
+    Returns true if the point \a pt is contained by the path; otherwise
+    returns false.
+*/
+bool QPainterPath::contains(const QPointF &pt) const
+{
+    if (d->containsCache.isEmpty()) {
+        const_cast<QPainterPathPrivate*>(d)->containsCache =
+            QRegion(toFillPolygon().toPointArray(), fillRule());
+    }
+    return d->containsCache.contains(pt.toPoint());
+}
+
+
+/*!
+    Returns true if the rect \a rect is inside the path; otherwise
+    returns false.
+*/
+bool QPainterPath::contains(const QRectF &rect) const
+{
+    if (d->containsCache.isEmpty()) {
+        const_cast<QPainterPathPrivate*>(d)->containsCache =
+            QRegion(toFillPolygon().toPointArray(), fillRule());
+    }
+    return d->containsCache.contains(rect.toRect());
+}
+
+/*!
+    Returns true if this painterpath is equal to \a path.
+
+    Comparing paths may involve a pr element comparrison which
+    can be slow for complex paths.
+*/
+
+bool QPainterPath::operator==(const QPainterPath &path) const
+{
+    if (path.d == d)
+        return true;
+    bool equal = d->fillRule == path.d->fillRule && elements.size() == path.elements.size();
+    for (int i=0; i<elements.size() && equal; ++i)
+        equal = elements.at(i) == path.elements.at(i);
+    return equal;
+}
+
+/*!
+    Returns true if this painterpath differs from \a path.
+
+    Comparing paths may involve a pr element comparrison which
+    can be slow for complex paths.
+*/
+
+bool QPainterPath::operator!=(const QPainterPath &path) const
+{
+    return !(*this==path);
+}
+
+#ifndef QT_NO_DATASTREAM
+QDataStream &operator<<(QDataStream &s, const QPainterPath &p)
+{
+    s << p.elements.size();
+    for (int i=0; i<p.elements.size(); ++i) {
+        const QPainterPath::Element &e = p.elements.at(i);
+        s << int(e.type) << e.x << e.y;
+    }
+    s << p.d->cStart;
+    s << int(p.d->fillRule);
+    return s;
+}
+
+QDataStream &operator>>(QDataStream &s, QPainterPath &p)
+{
+    int size;
+    s >> size;
+
+    if (p.elements.size() == 1) {
+        Q_ASSERT(p.elements.at(0).type == QPainterPath::MoveToElement);
+        p.elements.clear();
+    }
+    p.elements.reserve(p.elements.size() + size);
+    for (int i=0; i<size; ++i) {
+        int type;
+        float x, y;
+        s >> type >> x >> y;
+        Q_ASSERT(type >= 0 && type <= 3);
+        QPainterPath::Element elm = { x, y, QPainterPath::ElementType(type) };
+        p.elements.append(elm);
+    }
+    s >> p.d->cStart;
+    int fillRule;
+    s >> fillRule;
+    Q_ASSERT(fillRule == Qt::OddEvenFill || Qt::WindingFill);
+    p.d->fillRule = Qt::FillRule(fillRule);
+    return s;
+}
+#endif
+
+
 
 /*******************************************************************************
  * class QPainterPathStroker

@@ -31,9 +31,13 @@ public:
     inline bool isClosed() const;
     inline void close();
 
+    inline void makeDirty();
+
     QPainterPath *q_ptr;
     int cStart;
     Qt::FillRule fillRule;
+
+    QRegion containsCache;
 };
 
 void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
@@ -52,6 +56,12 @@ inline void QPainterPathPrivate::close()
     const QPainterPath::Element &last = q_func()->elements.last();
     if (first.x != last.x || first.y != last.y)
         q_func()->lineTo(QPointF(first.x, first.y));
+}
+
+inline void QPainterPathPrivate::makeDirty()
+{
+    if (!containsCache.isEmpty())
+        containsCache = QRegion();
 }
 
 #endif //QPAINTERPATH_P_H
