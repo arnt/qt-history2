@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#24 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#24 $";
 #endif
 
 
@@ -269,13 +269,13 @@ QFont QWidget::font() const			// get font
     return fnt;
 }
 
-void QWidget::setFont( const QFont &f )		// set font
+void QWidget::setFont( const QFont &font )	// set font
 {
 
-    Font fid = f.fontId();
+    Font fid = font.fontId();
     gc = qXChangeGC( gc, fid, bg_col.pixel(), fg_col.pixel(),
 		     !testFlag(WPaintUnclipped) );
-    fnt = f;
+    fnt = font;
 }
 
 QCursor QWidget::cursor() const			// get cursor
@@ -283,11 +283,11 @@ QCursor QWidget::cursor() const			// get cursor
     return curs;
 }
 
-void QWidget::setCursor( const QCursor &c )	// set cursor
+void QWidget::setCursor( const QCursor &cursor )// set cursor
 {
-    ((QCursor*)&c)->update();
-    XDefineCursor( dpy, ident, c.cursor );
-    curs = c;
+    ((QCursor*)&cursor)->update();
+    XDefineCursor( dpy, ident, cursor.cursor );
+    curs = cursor;
 }
 
 
@@ -306,6 +306,7 @@ void QWidget::grabMouse()
 void QWidget::grabMouse( const QCursor &cursor )
 {
     if ( !testFlag(WState_MGrab) ) {
+	((QCursor*)&cursor)->update();
 	setFlag( WState_MGrab );
 	XGrabPointer( dpy, ident, TRUE,
 		      ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
