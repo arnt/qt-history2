@@ -1221,7 +1221,7 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
     uint unum;
     double dob;
     QString comment;
-    if ( w && formwindow->widgets()->find( (QWidget*)w ) )
+    if ( w && formwindow->widgets()->find( (QWidget*)w ) || formwindow->actionList().find( (QAction*)w ) )
 	comment = MetaDataBase::propertyComment( w, name );
     switch ( t ) {
     case QVariant::String:
