@@ -518,6 +518,7 @@ private:
     QGuardedPtr<QHBox> box;
     int k1,k2,k3,k4;
     int num;
+    bool mouseEnter;
 };
 
 class PropertyDatabaseItem : public QObject,
@@ -567,6 +568,9 @@ public:
     QString whatsThisAt( const QPoint &p );
     void showCurrentWhatsThis();
 
+    enum LastEventType { KeyEvent, MouseEvent };
+    LastEventType lastEvent();
+
 public slots:
     void updateEditorSize();
     void resetProperty();
@@ -600,7 +604,7 @@ private:
     bool showSorted;
     QMap<QString, QString> propertyDocs;
     PropertyWhatsThis *whatsThis;
-
+    LastEventType theLastEvent;
 };
 
 class EventList : public HierarchyList

@@ -2406,7 +2406,7 @@ PropertyKeysequenceItem::PropertyKeysequenceItem( PropertyList *l,
 						  PropertyItem *prop,
 						  const QString &propName )
     : PropertyItem( l, after, prop, propName ),
-      k1( 0 ), k2( 0 ), k3( 0 ), k4( 0 ), num( 0 )
+      k1( 0 ), k2( 0 ), k3( 0 ), k4( 0 ), num( 0 ), mouseEnter( FALSE )
 {
     box = new QHBox( listview->viewport() );
     box->hide();
@@ -2442,9 +2442,19 @@ bool PropertyKeysequenceItem::eventFilter( QObject *o, QEvent *e )
     Q_UNUSED( o );
     if ( e->type() == QEvent::KeyPress ) {
         QKeyEvent *k = (QKeyEvent *)e;
+	if ( !mouseEnter &&
+	    (k->key() == QObject::Key_Up ||
+	     k->key() == QObject::Key_Down) )
+	    return FALSE;
         handleKeyEvent( k );
         return TRUE;
+    } else if ( (e->type() == QEvent::FocusIn) || 
+		(e->type() == QEvent::MouseButtonPress) ) {
+	mouseEnter = ( listview->lastEvent() == PropertyList::MouseEvent ) ||
+		     (e->type() == QEvent::MouseButtonPress);
+	return TRUE;
     }
+
     // Lets eat accelerators now..
     if ( e->type() == QEvent::Accel || 
 	 e->type() == QEvent::AccelOverride  || 
@@ -2463,7 +2473,7 @@ void PropertyKeysequenceItem::handleKeyEvent( QKeyEvent *e )
 	 nextKey == QObject::Key_Meta ||
 	 nextKey == QObject::Key_Alt )
 	 return;
-    
+
     nextKey |= translateModifiers( e->state() );
     switch( num ) {
 	case 0:
@@ -2578,6 +2588,7 @@ PropertyList::PropertyList( PropertyEditor *e )
     setColumnWidthMode( 1, Manual );
     mousePressed = FALSE;
     pressItem = 0;
+    theLastEvent = MouseEvent;
     header()->installEventFilter( this );
 }
 
@@ -3126,6 +3137,11 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 	return TRUE;
 
     PropertyItem *i = (PropertyItem*)currentItem();
+    if ( e->type() == QEvent::KeyPress )
+	theLastEvent = KeyEvent;
+    else if ( e->type() == QEvent::MouseButtonPress )
+	theLastEvent = MouseEvent;
+
     if ( o != this &&e->type() == QEvent::KeyPress ) {
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ( ke->key() == Key_Up || ke->key() == Key_Down ) &&
@@ -3488,6 +3504,10 @@ void PropertyList::readPropertyDocs()
     }
 }
 
+PropertyList::LastEventType PropertyList::lastEvent()
+{
+    return theLastEvent;
+}
 // ------------------------------------------------------------
 
 EventList::EventList( QWidget *parent, FormWindow *fw, PropertyEditor *e )
