@@ -583,7 +583,11 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 	    interpretText();
     } else if ( ev->type() == QEvent::KeyPress ) {
 	QKeyEvent* k = (QKeyEvent*)ev;
-	if ( k->key() == Key_Up ) {
+	
+	if( (k->key() == Key_Tab) || (k->key() == Key_BackTab) ){
+	    qApp->sendEvent( this, ev );
+	    return TRUE;
+	} if ( k->key() == Key_Up ) {
 	    stepUp();
 	    return TRUE;
 	} else if ( k->key() == Key_Down ) {
