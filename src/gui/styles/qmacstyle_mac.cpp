@@ -961,7 +961,7 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
 }
 
 QMacStylePrivate::QMacStylePrivate(QMacStyle *style)
-    : useHITheme(false), timerID(-1), progressFrame(0), q(style)
+    : useHITheme(false), timerID(-1), progressFrame(0), focusWidget(0), q(style)
 {
 #if !defined(QMAC_NO_COREGRAPHICS) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER && !getenv("QT_MAC_USE_APPMANAGER")
