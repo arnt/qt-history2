@@ -110,3 +110,18 @@ void QDesignerTaskMenu::createDockWindow()
 {
 }
 
+QDesignerTaskMenuFactory::QDesignerTaskMenuFactory(QExtensionManager *extensionManager)
+    : DefaultExtensionFactory(extensionManager)
+{
+}
+
+QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
+{
+    if (QWidget *widget = qt_cast<QWidget*>(object)) {
+        if (iid == Q_TYPEID(ITaskMenu)) {
+            return new QDesignerTaskMenu(widget, parent);
+        }
+    }
+
+    return 0;
+}

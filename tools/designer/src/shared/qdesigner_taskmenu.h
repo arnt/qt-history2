@@ -17,6 +17,8 @@
 #include "shared_global.h"
 #include <taskmenu.h>
 
+#include <default_extensionfactory.h>
+
 #include <QtCore/QObject>
 #include <QtCore/QPointer>
 
@@ -42,6 +44,16 @@ private:
     QPointer<QWidget> m_widget;
     QAction *m_changeObjectNameAction;
     QAction *m_createDockWindowAction;
+};
+
+class QDesignerTaskMenuFactory: public DefaultExtensionFactory
+{
+    Q_OBJECT
+public:
+    QDesignerTaskMenuFactory(QExtensionManager *extensionManager = 0);
+
+protected:
+    virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
 
 #endif // QDESIGNER_TASKMENU_H

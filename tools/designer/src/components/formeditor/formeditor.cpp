@@ -16,7 +16,6 @@
 #include "widgetdatabase.h"
 #include "widgetfactory.h"
 #include "formwindowmanager.h"
-#include <default_propertysheet.h>
 #include "default_container.h"
 #include "default_layoutdecoration.h"
 #include "qlayoutwidget_propertysheet.h"
@@ -27,6 +26,8 @@
 
 #include <pluginmanager.h>
 #include <qextensionmanager.h>
+#include <qdesigner_taskmenu.h>
+#include <default_propertysheet.h>
 
 FormEditor::FormEditor(QObject *parent)
     : AbstractFormEditor(parent)
@@ -52,6 +53,9 @@ FormEditor::FormEditor(QObject *parent)
     mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(ILayoutDecoration));
     mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(IPropertySheet));
     mgr->registerExtensions(new SpacerPropertySheetFactory(mgr),            Q_TYPEID(IPropertySheet));
+
+    mgr->registerExtensions(new QDesignerTaskMenuFactory(mgr),              Q_TYPEID(ITaskMenu));
+
     setExtensionManager(mgr);
 
     SignalSlotEditor::registerExtensions(this);
