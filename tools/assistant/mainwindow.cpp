@@ -52,14 +52,11 @@ MainWindow::MainWindow()
     updateProfileSettings();
 
     dw = new QDockWindow(this, Qt::DockWindowAreaLeft);
+    dw->setAllowedAreas(Qt::AllDockWindowAreas);
+    dw->setWindowTitle(tr("Sidebar"));
+
     helpDock = new HelpDialog(dw, this);
     dw->setWidget(helpDock);
-
-    dw->setAllowedAreas(Qt::AllDockWindowAreas);
-    dw->setClosable(true);
-    dw->setMovable(true);
-    dw->setFloatable(true);
-    dw->setWindowTitle(tr("Sidebar"));
 
     // read geometry configuration
     setupGoActions();
