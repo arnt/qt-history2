@@ -105,6 +105,7 @@ public:
     void clear();
 
     int remove(const Key &key);
+    T take(const Key &key);
 
     bool contains(const Key &key) const;
     const T value(const Key &key) const;
@@ -493,6 +494,33 @@ Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::remove(const Key &key)
 	} while (deleteNext);
     }
     return oldSize - d->size;
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE T QMap<Key, T>::take(const Key &key)
+{
+    detach();
+
+    QMapData::Node *update[QMapData::LastLevel + 1];
+    QMapData::Node *cur = e;
+    QMapData::Node *next = e;
+
+    for (int i = d->topLevel; i >= 0; i--) {
+	while ((next = cur->forward[i]) != e && concrete(next)->key < key)
+	    cur = next;
+	update[i] = cur;
+    }
+
+    T t;
+    if (next != e && !(key < concrete(next)->key)) {
+	t = concrete(next)->key;
+	concrete(next)->key.~Key();
+	concrete(next)->value.~T();
+	d->node_delete(update, sizeof(Payload), next);
+    } else {
+	qInit(t);
+    }
+    return t;
 }
 
 template <class Key, class T>

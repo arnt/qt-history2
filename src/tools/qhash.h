@@ -547,13 +547,15 @@ Q_OUTOFLINE_TEMPLATE int QHash<Key, T>::remove(const Key &key)
 
     int oldSize = d->size;
     Node **node = findNode(key);
-    if ((*node) != e) {
+    if (*node != e) {
+	bool deleteNext = true;
 	do {
 	    Node *next = (*node)->next;
+            deleteNext = (next != e && next->key == (*node)->key);
 	    delete *node;
 	    *node = next;
 	    --d->size;
-	} while ((*node) != e && (*node)->key == key);
+	} while (deleteNext);
         d->hasShrunk();
     }
     return oldSize - d->size;
@@ -566,7 +568,7 @@ Q_OUTOFLINE_TEMPLATE T QHash<Key, T>::take(const Key &key)
 
     Node **node = findNode(key);
     T t;
-    if ((*node) != e) {
+    if (*node != e) {
 	t = (*node)->value;
 	Node *next = (*node)->next;
 	delete *node;
