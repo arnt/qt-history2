@@ -25,6 +25,7 @@
 #include <qtimer.h>
 #include <qdragobject.h>
 #include <qfontinfo.h>
+#include <qaccel.h>
 
 QPtrList<MainWindow> *MainWindow::windows = 0;
 
@@ -80,6 +81,11 @@ void MainWindow::init()
     QString mainWindowLayout = settings.readEntry( keybase + "MainwindowLayout" );
     QTextStream ts( &mainWindowLayout, IO_ReadOnly );
     ts >> *this;
+
+#if defined(Q_OS_WIN32) || defined(Q_OS_WIN64)
+    QAccel *acl = new QAccel( this );
+    acl->connectItem( acl->insertItem( QKeySequence("SHIFT+CTRL+=") ), actionZoomIn, SIGNAL(activated()) );
+#endif
 
     QTimer::singleShot( 0, this, SLOT( setup() ) );
 }
