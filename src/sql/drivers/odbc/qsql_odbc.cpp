@@ -253,7 +253,7 @@ QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndica
     SQLSMALLINT nullable;
     SQLRETURN r = SQL_ERROR;
 
-    SQLCHAR colName[255];
+    SQLTCHAR colName[255];
     r = SQLDescribeCol( hStmt,
 			column+1,
 			colName,
@@ -274,7 +274,7 @@ QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndica
     if ( colSize > 65536 ) { // read the field in 64 KB chunks
 	colSize = 65536;
     }
-    SQLCHAR* buf = new SQLTCHAR[ colSize ];
+    SQLTCHAR* buf = new SQLTCHAR[ colSize ];
     while ( TRUE ) {
 	r = SQLGetData( hStmt,
 			column+1,
