@@ -212,6 +212,7 @@ int main( int argc, char * argv[] )
 	if ( ifile.open( IO_ReadOnly ) ) {
 	    QTextStream ts( &ifile );
 	    QString s = ts.read();
+	    s = s.simplifyWhiteSpace();
 	    images = QStringList::split( ' ', s );
 	    for ( QStringList::Iterator it = images.begin(); it != images.end(); ++it )
 		*it = (*it).simplifyWhiteSpace();
