@@ -1789,6 +1789,9 @@ QString imestring_to_unicode(char *s, int len)
 #endif
 }
 
+
+static int inputcharset = CP_ACP;
+
 //#define Q_IME_DEBUG
 
 void qt_winEndImeComposition( QWidget *fw )
@@ -2538,6 +2541,16 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    widget->update();
 		break;
 
+	    case WM_INPUTLANGCHANGE: {
+		char info[7];
+		if ( !GetLocaleInfoA( MAKELCID(lParam, SORT_DEFAULT), LOCALE_IDEFAULTANSICODEPAGE, info, 6 ) ) {
+		    qDebug("GetLocaleInfo failed, msg= %d", GetLastError() );
+		    inputcharset = CP_ACP;
+		} else {
+		    inputcharset = QString( info ).toInt();
+		}
+		break;
+	    }
 	    default:
 		result = FALSE;			// event was not processed
 		break;
@@ -3512,8 +3525,7 @@ QChar wmchar_to_unicode(DWORD c)
 	mb[0] = c&0xff;
 	mb[1] = 0;
 	WCHAR wc[1];
-	MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
-	    mb, -1, wc, 1);
+	MultiByteToWideChar( inputcharset, MB_PRECOMPOSED, mb, -1, wc, 1);
 	return QChar(wc[0]);
     }
 #endif
