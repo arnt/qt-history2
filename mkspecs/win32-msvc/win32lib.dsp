@@ -32,13 +32,13 @@ RSC=rc.exe
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
-# PROP BASE Output_Dir "Release"
-# PROP BASE Intermediate_Dir "Release"
+# PROP BASE Output_Dir "$$MSVCDSP_TARGETDIRREL"
+# PROP BASE Intermediate_Dir "$$MSVCDSP_OBJECTSDIRREL"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 0
-# PROP Output_Dir "Release"
-# PROP Intermediate_Dir "Release"
+# PROP Output_Dir "$$MSVCDSP_TARGETDIRREL"
+# PROP Intermediate_Dir "$$MSVCDSP_OBJECTSDIRREL"
 # PROP Target_Dir ""
 # ADD CPP $$MSVCDSP_MTDEF /W3 /O1 $$MSVCDSP_INCPATH /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" $$MSVCDSP_DEFINES /FD /c $$MSVCDSP_CXXFLAGS
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -51,13 +51,13 @@ LIB32=link.exe -lib
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
-# PROP BASE Output_Dir "Debug"
-# PROP BASE Intermediate_Dir "Debug"
+# PROP BASE Output_Dir "$$MSVCDSP_TARGETDIRDEB"
+# PROP BASE Intermediate_Dir "$$MSVCDSP_OBJECTSDIRDEB"
 # PROP BASE Target_Dir ""
 # PROP Use_MFC 0
 # PROP Use_Debug_Libraries 1
-# PROP Output_Dir "Debug"
-# PROP Intermediate_Dir "Debug"
+# PROP Output_Dir "$$MSVCDSP_TARGETDIRDEB"
+# PROP Intermediate_Dir "$$MSVCDSP_OBJECTSDIRDEB"
 # PROP Target_Dir ""
 # ADD CPP $$MSVCDSP_MTDEFD /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od $$MSVCDSP_INCPATH /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" $$MSVCDSP_DEFINES /FD /c $$MSVCDSP_CXXFLAGS
 # ADD RSC /l 0x409 /d "_DEBUG"
