@@ -101,11 +101,12 @@ public:
 
 	png_bytep* row_pointers;
 	uint height = image.height();
-	uchar** jt = image.jumpTable();
+	const uchar* const* jt = image.jumpTable();
 	row_pointers=new png_bytep[height];
 	uint y;
 	for (y=0; y<height; y++) {
-		row_pointers[y]=jt[y];
+            // PNG lib has const issue with the write image function
+            row_pointers[y]=const_cast<png_byte*>(jt[y]);
 	}
 	png_write_image(png_ptr, row_pointers);
 	delete [] row_pointers;
