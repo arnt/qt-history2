@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: layout.doc,v 2.5 1999/05/19 19:21:29 paul Exp $
+** $Id: layout.doc,v 2.6 1999/05/21 09:29:21 warwick Exp $
 **
 ** Explanation of the layout subsystem
 **
@@ -162,7 +162,7 @@ layout, you should implement the following functions:
       <dd> Returns the preferred size of the widget.
   <dt>\link QWidget::minimumSizeHint() minimumSizeHint()\endlink
       <dd> Returns the smallest size the widget can have.
-  <dt>\link \link QWidget::sizePolicy() sizePolicy()\endlink
+  <dt>\link QWidget::sizePolicy() sizePolicy()\endlink
       <dd> Returns a \link QSizePolicy QSizePolicy\endlink; a value
       describing the space requirements of the widget.
 
