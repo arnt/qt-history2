@@ -565,7 +565,7 @@ private:
     uint	 widget_state; // will go away, eventually
     uint widget_attributes;
     bool testAttribute_helper(WidgetAttribute) const;
-    uint	 widget_flags;
+    WFlags	 widget_flags;
     uint	 focus_policy : 4;
     uint 	 sizehint_forced :1;
     uint 	 is_closing :1;

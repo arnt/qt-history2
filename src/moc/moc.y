@@ -540,7 +540,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 43;		// moc output format revision
+const int formatRevision = 44;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum ProperyFlags  {
@@ -2452,9 +2452,7 @@ void generateMetacall()
 		    fprintf(out, "        case %d: %s(*(%s*)_v); break;\n",
 			    propindex,
 			    (const char *)p->write,
-			    isSetType(p->type)
-			    ? "uint"
-			    : (const char *)p->type);
+			    (const char *)p->type);
 		}
 	    }
 	    fprintf(out,

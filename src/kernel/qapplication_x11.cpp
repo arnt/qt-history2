@@ -499,8 +499,8 @@ static bool qt_deferred_map_contains( QWidget* w )
 class QETWidget : public QWidget		// event translator widget
 {
 public:
-    void setWState( WFlags f )		{ QWidget::setWState(f); }
-    void clearWState( WFlags f )	{ QWidget::clearWState(f); }
+    void setWState( WState f )		{ QWidget::setWState(f); }
+    void clearWState( WState f )	{ QWidget::clearWState(f); }
     void setWFlags( WFlags f )		{ QWidget::setWFlags(f); }
     void clearWFlags( WFlags f )	{ QWidget::clearWFlags(f); }
     bool translateMouseEvent( const XEvent * );

@@ -2300,9 +2300,9 @@ extern const char qt_file_dialog_filter_reg_exp[] =
 */
 
 QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
-    : QDialog( parent, name, modal,
+    : QDialog(parent, name, modal,
 	       (modal ?
-		(WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu) : 0) )
+		(WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu) : WFlags(0)))
 {
     init();
     d->mode = ExistingFile;
@@ -2327,9 +2327,9 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
 
 QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 			  QWidget *parent, const char *name, bool modal )
-    : QDialog( parent, name, modal,
-	       (modal ?
-		(WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu) : 0) )
+    : QDialog(parent, name, modal,
+	      (modal ? (WStyle_Customize | WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu)
+	       : WFlags(0)))
 {
     init();
     d->mode = ExistingFile;

@@ -55,7 +55,7 @@ struct QTLWExtra {
     uint     iconic: 1;				// iconified [cur. win32 only]
     uint     fullscreen : 1;			// full-screen mode
     uint     showMode: 2;			// 0 normal, 1 minimized, 2 maximized, 3 reset
-    uint     savedFlags;			// Save widgetflags while showing fullscreen
+    Qt::WFlags savedFlags;			// Save widgetflags while showing fullscreen
     short    basew, baseh;			// base sizes
 #if defined(Q_WS_X11)
     WId  parentWinId;				// parent window Id (valid after reparenting)

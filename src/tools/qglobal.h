@@ -1186,6 +1186,34 @@ inline T qt_cast(const QObject *object)
 template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
 { return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
 
+template<typename Enum>
+class QFlags
+{
+    class Zero;
+public:
+    inline QFlags(const QFlags &f) : u(f.u) {}
+    inline QFlags(Enum f) : u(f) {}
+    inline QFlags(Zero * = 0) : u(0) {}
+
+    inline QFlags &operator=(const QFlags &f) { u = f.u; return *this; }
+    inline operator int() const { return u; }
+    inline QFlags operator|(QFlags f) const { QFlags wf; wf.u = u|f.u; return wf; }
+    inline QFlags operator|(Enum f) const { QFlags wf; wf.u = u|f; return wf; }
+    inline QFlags operator&(int mask) const { QFlags wf; wf.u = u&mask; return wf; }
+
+    inline QFlags &operator&=(int mask) {  u &= mask; return *this; }
+    inline QFlags &operator|=(QFlags f) {  u |= f.u; return *this; }
+    inline QFlags &operator|=(Enum f) {  u |= f; return *this; }
+
+private:
+    int u;
+};
+
+#define Q_DECLARE_OPERATORS_FOR_FLAGS(Enum) \
+inline QFlags<Enum> operator|(Enum f1, Enum f2 ) \
+{ return QFlags<Enum>(f1) | f2; } \
+inline QFlags<Enum> operator|(Enum f1, QFlags<Enum> f2 ) \
+{ return f2 | f1; }
 
 #endif // __cplusplus
 

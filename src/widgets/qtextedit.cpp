@@ -98,7 +98,7 @@ public:
     int maxLogLines;
     int logOffset;
 #endif
-    uint autoFormatting;
+    QFlags<QTextEdit::AutoFormatting> autoFormatting;
 };
 
 #ifndef QT_NO_MIME
@@ -7081,12 +7081,12 @@ void QTextEdit::optimCheckLimit( const QString& str )
     AutoBulletList; future versions of Qt may offer more.
 */
 
-void QTextEdit::setAutoFormatting( uint features )
+void QTextEdit::setAutoFormatting( QFlags<AutoFormatting> features )
 {
     d->autoFormatting = features;
 }
 
-uint QTextEdit::autoFormatting() const
+QFlags<QTextEdit::AutoFormatting> QTextEdit::autoFormatting() const
 {
     return d->autoFormatting;
 }

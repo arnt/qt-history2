@@ -159,10 +159,9 @@ public:
     };
 
     // Widget flags2; documented in qwidget.cpp
-    typedef uint WFlags;
 
     // documented in qwidget.cpp
-    enum WidgetFlags {
+    enum WindowFlags {
 	WType_TopLevel		= 0x00000001,	// widget type flags
 	WType_Dialog		= 0x00000002,
 	WType_Popup		= 0x00000004,
@@ -187,7 +186,7 @@ public:
 	WDestructiveClose	= 0x00010000,	// misc flags
 	WPaintDesktop		= 0x00020000,
 	WPaintUnclipped		= 0x00040000,
-	WPaintClever		= 0x00080000,
+	//reserved WPaintClever		= 0x00080000,
 	//reserved		= 0x00100000, // was ResizeNoErase
 	WMouseNoMask		= 0x00200000,
 
@@ -226,9 +225,13 @@ public:
 	WNorthWestGravity	= WStaticContents,
 	WType_Modal		= WType_Dialog | WShowModal,
 	WStyle_Dialog		= WType_Dialog,
-	WStyle_NoBorderEx	= WStyle_NoBorder
+	WStyle_NoBorderEx	= WStyle_NoBorder,
+	WPaintClever = 0
 #endif
     };
+
+    typedef QFlags<WindowFlags> WFlags;
+
 
     // Image conversion flags.  The unusual ordering is caused by
     // compatibility and default requirements.
@@ -894,6 +897,8 @@ public:
     typedef void * HANDLE;
 #endif
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowFlags);
 
 
 class Q_EXPORT QInternal {

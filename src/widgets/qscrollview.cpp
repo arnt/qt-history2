@@ -93,7 +93,7 @@ public:
 
 class QScrollViewData {
 public:
-    QScrollViewData(QScrollView* parent, int vpwflags) :
+    QScrollViewData(QScrollView* parent, Qt::WFlags vpwflags) :
         hbar( new QScrollBar( QScrollBar::Horizontal, parent, "qt_hbar" ) ),
         vbar( new QScrollBar( QScrollBar::Vertical, parent, "qt_vbar" ) ),
         viewport( new QViewportWidget( parent, "qt_viewport", vpwflags ) ),
@@ -157,7 +157,7 @@ public:
     bool vbarPressed;
     QViewportWidget*	viewport;
     QClipperWidget*	clipped_viewport;
-    int         flags;
+    Qt::WFlags flags;
     QPtrList<QSVChildRec>       children;
     QPtrDict<QSVChildRec>       childDict;
     QWidget*    corner, *defaultCorner;

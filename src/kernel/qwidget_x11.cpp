@@ -399,7 +399,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		      WStyle_MinMax | WStyle_SysMenu);
 
 	    // maximized netwm state
-	    if (testWFlags(WState_Maximized)) {
+	    if (testWState(WState_Maximized)) {
 		net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Maximized_Vert);
 		net_winstates[curr_winstate++] = ATOM(Net_Wm_State_Maximized_Horz);
 	    }

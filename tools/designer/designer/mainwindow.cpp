@@ -106,7 +106,7 @@ static QString textNoAccel( const QString& text)
 
 
 MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
-    : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
+    : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? WFlags(0) : WFlags(WDestructiveClose)) | WGroupLeader ),
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE ), autoSaveEnabled( FALSE ), autoSaveInterval( 1800 )

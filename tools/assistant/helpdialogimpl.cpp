@@ -140,7 +140,7 @@ QString HelpNavigationContentsItem::link() const
 
 
 HelpDialog::HelpDialog( QWidget *parent, MainWindow *h )
-    : HelpDialogBase( parent, 0, FALSE ),  lwClosed( FALSE ), help( h )
+    : HelpDialogBase( parent, 0, 0 ),  lwClosed( FALSE ), help( h )
 {
 }
 

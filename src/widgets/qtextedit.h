@@ -275,8 +275,8 @@ public:
     bool eventFilter( QObject *o, QEvent *e );
     bool tabChangesFocus() const;
 
-    void setAutoFormatting( uint features );
-    uint autoFormatting() const;
+    void setAutoFormatting( QFlags<AutoFormatting> );
+    QFlags<AutoFormatting> autoFormatting() const;
 
 public slots:
     void setEnabled( bool );
@@ -561,6 +561,8 @@ private:	// Disabled copy constructor and operator=
     QTextEdit &operator=( const QTextEdit & );
 #endif
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QTextEdit::AutoFormatting)
 
 inline QTextDocument *QTextEdit::document() const
 {
