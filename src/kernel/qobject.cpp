@@ -56,9 +56,9 @@
 #include <ctype.h>
 
 #ifndef QT_NO_USERDATA
-class QObjectPrivate : public QPtrVector<QObjectUserData> 
-{   
-public: 
+class QObjectPrivate : public QPtrVector<QObjectUserData>
+{
+public:
     QObjectPrivate( uint s ) : QPtrVector<QObjectUserData>(s){ setAutoDelete( TRUE ); }
 };
 #else
@@ -449,7 +449,7 @@ QObject::~QObject()
 	}
 	delete childObjects;
     }
-    
+
     if ( d )
 	delete d;
 }
@@ -2274,8 +2274,11 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	return FALSE;
     int id = meta->findProperty( name, TRUE );
     const QMetaProperty* p = meta->property( id, TRUE );
-    if ( !p || !p->writable() )
+    if ( !p || !p->isValid() || !p->writable() ) {
+	qWarning( "%s::setProperty( \"%s\", value ) failed: property invalid, read-only or does not exist",
+		  className(), name );
 	return FALSE;
+    }
 
     if ( p->isEnumType() ) {
 	if ( v.type() == QVariant::String || v.type() == QVariant::CString ) {
@@ -2321,8 +2324,11 @@ QVariant QObject::property( const char *name ) const
 	return v;
     int id = meta->findProperty( name, TRUE );
     const QMetaProperty* p = meta->property( id, TRUE );
-    if ( !p )
-	return v;
+    if ( !p || !p->isValid() ) {
+	qWarning( "%s::property( \"%s\" ) failed: property invalid or does not exist",
+		  className(), name );
+	return FALSE;
+    }
     QObject* that = (QObject*) this; // moc ensures constness for the qt_property call
     that->qt_property( id, 1, &v );
     return v;

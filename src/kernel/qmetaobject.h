@@ -44,7 +44,7 @@
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 22
+#define Q_MOC_OUTPUT_REVISION 23
 #endif
 
 class QObject;
@@ -108,6 +108,7 @@ public:
 	Readable	= 0x00000001,
 	Writable	= 0x00000002,
 	EnumOrSet	= 0x00000004,
+	UnresolvedEnum	= 0x00000008,
 	StdSet		= 0x00000100,
 	Override	= 0x00000200
     };

@@ -559,7 +559,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you MUST change it in qmetaobject.h too
-const int formatRevision = 22;		// moc output format revision
+const int formatRevision = 23;		// moc output format revision
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum Flags  {
@@ -567,6 +567,7 @@ enum Flags  {
     Readable		= 0x00000001,
     Writable		= 0x00000002,
     EnumOrSet		= 0x00000004,
+    UnresolvedEnum	= 0x00000008,
     StdSet		= 0x00000100,
     Override		= 0x00000200
 };
@@ -2744,8 +2745,11 @@ int generateProps()
 
 	    fprintf( out, "\t{ \"%s\",\"%s\", ", it.current()->type.data(), it.current()->name.data() );
 	    int flags = Invalid;
-	    if ( !isVariantType( it.current()->type ) )
+	    if ( !isVariantType( it.current()->type ) ) {
 		flags |= EnumOrSet;
+		if ( !isEnumType( it.current()->type ) )
+		    flags |= UnresolvedEnum;
+	    }
 	    if ( it.current()->getfunc )
 		flags |= Readable;
 	    if ( it.current()->setfunc ) {
@@ -2756,7 +2760,7 @@ int generateProps()
 	    if ( it.current()->override )
 		flags |= Override;
 
-	    fprintf( out, "%d, ", flags );
+	    fprintf( out, "0x%.4x, ", flags );
 	    fprintf( out, "&%s::metaObj, ", (const char*) qualifiedClassName() );
 	    if ( !isVariantType( it.current()->type ) ) {
 		int enumpos = -1;
@@ -3319,6 +3323,9 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Generate internal qt_property()  and qt_static_property() functions
 //
+
+    fprintf( out, "\nbool %s::qt_property( int id, int f, QVariant* v)\n{\n", qualifiedClassName().data() );
+    fprintf( out, "\treturn qt_static_property(this, id, f, v);\n}\n");
 
     fprintf( out, "\nbool %s::qt_static_property( QObject* oo, int id, int f, QVariant* v)\n{\n", qualifiedClassName().data() );
 
