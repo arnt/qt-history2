@@ -182,13 +182,12 @@ public:
     QPoint pos;
     QPoint offset;
 
-    QWidget *invisibleDrawArea;
     QPainter *rectPainter;
     QRect oldPosRect;
     QRect origPosRect;
     bool oldPosRectValid, movedEnough;
     QMainWindow::ToolBarDock origDock;
-    
+
     QMap< int, bool > dockable;
 };
 
@@ -380,7 +379,6 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
 {
     d = new QMainWindowPrivate;
     d->timer = new QTimer( this );
-    d->invisibleDrawArea = 0;
     d->rectPainter = 0;
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(setUpLayout()) );
@@ -1379,13 +1377,11 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 {
     if ( e->type() == QEvent::MouseButtonPress ) {
 	QApplication::setOverrideCursor( Qt::pointingHandCursor );
-	d->invisibleDrawArea = new QWidget( this );
-	d->invisibleDrawArea->setBackgroundMode( NoBackground );
-	d->invisibleDrawArea->raise();
-	d->invisibleDrawArea->setGeometry( 0, 0, width(), height() );
-	d->invisibleDrawArea->show();
+	uint flags = getWFlags();
+	setWFlags( WPaintUnclipped );
 	d->rectPainter = new QPainter;
-	d->rectPainter->begin( d->invisibleDrawArea );
+	setWFlags( flags );
+	d->rectPainter->begin( this );
 	d->rectPainter->setPen( QPen( color0, 2 ) );
 	d->rectPainter->setRasterOp( NotROP );
 
@@ -1395,17 +1391,18 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->rectPainter->drawRect( r );
 	d->oldPosRect = r;
 	d->origPosRect = r;
-	d->oldPosRectValid = FALSE;
+	d->oldPosRectValid = TRUE;
 	d->pos = mapFromGlobal( e->globalPos() );
 	d->movedEnough = FALSE;
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	QApplication::restoreOverrideCursor();
-	if ( d->rectPainter )	
+	if ( d->rectPainter ) {
+	    if ( d->oldPosRectValid )
+		d->rectPainter->drawRect( d->oldPosRect );
 	    d->rectPainter->end();
-	delete d->invisibleDrawArea;
+	}
 	delete d->rectPainter;
-	d->invisibleDrawArea = 0;
 	d->rectPainter = 0;
 	
 	QPoint pos = mapFromGlobal( e->globalPos() );
