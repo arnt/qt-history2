@@ -986,7 +986,10 @@ class QDataStream;
 #  endif
 #  undef QT_MAKEDLL /* ignore these for other platforms */
 #  undef QT_DLL
-#  ifdef QT_SHARED
+#endif
+
+#if !defined(Q_CORE_EXPORT)
+#  if defined(QT_SHARED)
 #    define Q_CORE_EXPORT Q_DECL_EXPORT
 #    define Q_GUI_EXPORT Q_DECL_EXPORT
 #    define Q_SQL_EXPORT Q_DECL_EXPORT
