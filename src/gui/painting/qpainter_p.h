@@ -30,7 +30,10 @@ public:
     QPainterState(const QPainterState *s) {
         font = s->font;
         deviceFont = s->deviceFont;
-        pfont = new QFont(*s->pfont);
+        if (s->pfont)
+            pfont = new QFont(*s->pfont);
+        else
+            pfont = 0;
         pen = QPen(s->pen);
         brush = QBrush(s->brush);
         bgOrigin = s->bgOrigin;
