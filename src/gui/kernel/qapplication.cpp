@@ -2422,7 +2422,7 @@ void QApplication::saveState(QSessionManager& /* sm */)
 {
 }
 #endif //QT_NO_SESSIONMANAGER
-/*!
+/*
   Sets the time after which a drag should start to \a ms ms.
 
   \sa startDragTime()
@@ -2434,16 +2434,21 @@ void QApplication::setStartDragTime(int ms)
 }
 
 /*!
-  If you support drag and drop in you application and a drag should
-  start after a mouse click and after a certain time elapsed, you
-  should use the value which this method returns as the delay (in ms).
+  \property QApplication::startDragTime
+  \brief the time in milliseconds that a mouse button must be held down
+  before a drag and drop operation will begin
+
+  If you support drag and drop in your application, and want to start a
+  drag and drop operation after the user has held down a mouse button for
+  a certain amount of time, you should use this property's value as the
+  delay.
 
   Qt also uses this delay internally, e.g. in QTextEdit and QLineEdit,
   for starting a drag.
 
   The default value is 500 ms.
 
-  \sa setStartDragTime(), startDragDistance()
+  \sa setStartDragTime() startDragDistance() \link dnd.html Drag and Drop\endlink
 */
 
 int QApplication::startDragTime()
@@ -2451,7 +2456,7 @@ int QApplication::startDragTime()
     return drag_time;
 }
 
-/*!
+/*
   Sets the distance after which a drag should start to \a l pixels.
 
   \sa startDragDistance()
@@ -2463,17 +2468,19 @@ void QApplication::setStartDragDistance(int l)
 }
 
 /*!
-  If you support drag and drop in you application and a drag should
-  start after a mouse click and after moving the mouse a certain
-  distance, you should use the value which this method returns as the
-  distance.
+  \property QApplication::startDragDistance
+
+  If you support drag and drop in your application, and want to start a
+  drag and drop operation after the user has moved the cursor a certain
+  distance with a button held down, you should use this property's value
+  as the minimum distance required.
 
   For example, if the mouse position of the click is stored in \c
   startPos and the current position (e.g. in the mouse move event) is
-  \c currPos, you can find out if a drag should be started with code
+  \c currentPos, you can find out if a drag should be started with code
   like this:
   \code
-  if ((startPos - currPos).manhattanLength() >
+  if ((startPos - currentPos).manhattanLength() >=
        QApplication::startDragDistance())
     startTheDrag();
   \endcode
@@ -2482,7 +2489,7 @@ void QApplication::setStartDragDistance(int l)
 
   The default value is 4 pixels.
 
-  \sa setStartDragDistance(), startDragTime(), QPoint::manhattanLength()
+  \sa setStartDragDistance() startDragTime() QPoint::manhattanLength() \link dnd.html Drag and Drop\endlink
 */
 
 int QApplication::startDragDistance()

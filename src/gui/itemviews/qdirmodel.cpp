@@ -716,7 +716,7 @@ bool QDirModel::resolveSymlinks() const
 
 /*!
   \property QDirModel::readOnly
-  \bried Whether the directory model allows writing to the file system
+  \brief Whether the directory model allows writing to the file system
 
   If this property is set to false, the directory model will allow renaming, copying
   and deleting of files and directories.

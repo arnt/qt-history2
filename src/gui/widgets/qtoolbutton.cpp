@@ -368,7 +368,7 @@ QSize QToolButton::minimumSizeHint() const
 
 /*!
     \property QToolButton::arrowType
-    \brief the arrow type which is displayed as an icon.
+    \brief whether the button displays an arrow instead of a normal icon
 
     This displays an arrow as the icon for the QToolButton.
 */
