@@ -299,6 +299,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 
 	hd = (void *)id;
 	setWinId(id);
+
     } else {
 	while(QWidget::find(++serial_id));
 	setWinId(serial_id);
@@ -724,7 +725,16 @@ void QWidget::showWindow()
 {
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
-	ShowHide( (WindowPtr)winid, 1 );
+
+	if(parentWidget()) {
+	    WindowClass c;
+	    GetWindowClass((WindowPtr)hd, &c);
+	    if(c == kModalWindowClass)
+		TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd, 
+					  kWindowSheetTransitionEffect, kWindowShowTransitionAction, NULL);
+	}
+
+	ShowHide( (WindowPtr)hd, 1 );
 	setActiveWindow();
     }
     update();
@@ -736,7 +746,7 @@ void QWidget::hideWindow()
     dirtyClippedRegion(TRUE);
 
     if ( isTopLevel() ) {
-	ShowHide((WindowPtr)winid,0);
+	ShowHide((WindowPtr)hd,0);
     } else {
 	bool v = testWState(WState_Visible);
 	clearWState(WState_Visible);
