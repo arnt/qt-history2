@@ -1126,7 +1126,7 @@ bool QGLContext::create( const QGLContext* shareContext )
 
 QGLWidget::QGLWidget( QWidget *parent, const char *name,
 		      const QGLWidget* shareWidget, WFlags f )
-    : QWidget( parent, name, f )
+    : QWidget( parent, name, f | Qt::WWinOwnDC )
 {
     init( QGLFormat::defaultFormat(), shareWidget );
 }
@@ -1164,7 +1164,7 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
 QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 		      const char *name, const QGLWidget* shareWidget,
 		      WFlags f )
-    : QWidget( parent, name, f )
+    : QWidget( parent, name, f | Qt::WWinOwnDC )
 {
     init( format, shareWidget );
 }

@@ -198,7 +198,8 @@ public:
 	WX11BypassWM		= 0x01000000,
 	WGroupLeader 		= 0x02000000,
 	WShowModal 	       	= 0x04000000,
-	WNoMousePropagation	= 0x08000000
+	WNoMousePropagation	= 0x08000000,
+	WWinOwnDC		= 0x10000000
 #ifndef QT_NO_COMPAT
 	,
 	WNorthWestGravity	= WStaticContents,
