@@ -270,7 +270,7 @@ public:
     bool dockMenu;
 
     QPopupMenu *rmbMenu;
-    
+
 };
 
 
@@ -880,7 +880,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	    setUpLayout();
 	d->tll->activate();
     }
-    
+
     if ( e->type() == QEvent::MouseButtonPress &&
 	 o->inherits( "QDockWidget" ) && d->dockMenu ) {
 	if ( ( (QMouseEvent*)e )->button() == RightButton ) {
@@ -888,7 +888,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 		return TRUE;
 	}
     }
-    
+
     return QWidget::eventFilter( o, e );
 }
 
@@ -1338,13 +1338,13 @@ bool QMainWindow::showDockMenu( const QPoint &globalPos )
     }
     if ( !id2Widget.isEmpty() )
 	d->rmbMenu->insertSeparator();
-    int config = d->rmbMenu->insertItem( tr( "Configure..." ) );
+    int config = d->rmbMenu->insertItem( tr( "Customize..." ) );
     int result = d->rmbMenu->exec( globalPos );
     if ( result == config ) {
 	qDebug( "todo: Action/Toolbar editing" );
 	return TRUE;
     }
-    
+
     QDockWidget *dw = 0;
     if ( !( dw = id2Widget.find( result ) ) )
 	return TRUE;
