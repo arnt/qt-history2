@@ -45,7 +45,6 @@
 #include <resolv.h>
 
 
-#if !defined(QT_NO_COMPAT)
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
 #define QT_STAT			::stat
@@ -71,30 +70,28 @@
 #define QT_OPEN_CREAT		O_CREAT
 #define QT_OPEN_TRUNC		O_TRUNC
 #define QT_OPEN_APPEND		O_APPEND
-#endif
 
 #define QT_SIGNAL_RETTYPE	void
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
 #if !defined(_XOPEN_UNIX)
+// Solaris 2.5.1
 // Function usleep() is defined in C library but not declared in header files
 // on Solaris 2.5.1. Not really a surprise, usleep() is specified by XPG4v2
 // and XPG4v2 is only supported by Solaris 2.6 and better.
-// Function gethostname() is defined in C library but not declared in <unistd.h>
-// on Solaris 2.5.1.
-// So we are trying to detect Solaris 2.5.1 using macro _XOPEN_UNIX which is
-// not defined by <unistd.h> when XPG4v2 is not supported.
+// Function gethostname() is also defined in C library but not declared in
+// header files on Solaris 2.5.1.
 typedef unsigned int useconds_t;
 extern "C" int usleep(useconds_t);
 extern "C" int gethostname(char *, int);
 #endif
 
 #if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE-0 >= 500) && (_XOPEN_VERSION-0 >= 500)
-// on Solaris 7 and better with specific feature test macros
+// Solaris 7 and better with specific feature test macros
 #define QT_SOCKLEN_T		socklen_t
 #elif defined(_XOPEN_SOURCE_EXTENDED) && (_XOPEN_VERSION-0 >= 4)
-// on Solaris 2.6 and better with specific feature test macros
+// Solaris 2.6 and better with specific feature test macros
 #define QT_SOCKLEN_T		size_t
 #else
 // always this case in practice
@@ -102,10 +99,7 @@ extern "C" int gethostname(char *, int);
 #endif
 
 #if defined(_XOPEN_UNIX)
-// Supported by Solaris 2.6 and better.  XPG4v2 and XPG4v2 is also supported
-// by Solaris 2.6 and better.  So we are trying to detect Solaris 2.6 using
-// macro _XOPEN_UNIX which is not defined by <unistd.h> when XPG4v2 is not
-// supported.
+// Solaris 2.6 and better
 #define QT_SNPRINTF		::snprintf
 #define QT_VSNPRINTF		::vsnprintf
 #endif

@@ -44,7 +44,6 @@
 #include <resolv.h>
 
 
-#if !defined(QT_NO_COMPAT)
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
 #define QT_STAT			::stat
@@ -70,16 +69,15 @@
 #define QT_OPEN_CREAT		O_CREAT
 #define QT_OPEN_TRUNC		O_TRUNC
 #define QT_OPEN_APPEND		O_APPEND
-#endif
 
 #define QT_SIGNAL_RETTYPE	void
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-// On 64-bit platforms (Solaris 7 and better) sockets use socklen_t.
+// On 64-bit platforms sockets use socklen_t
 #define QT_SOCKLEN_T		socklen_t
 
-// Supported on 64-bit platforms (Solaris 7 and better).
+// Only Solaris 7 and better support 64-bit
 #define QT_SNPRINTF		::snprintf
 #define QT_VSNPRINTF		::vsnprintf
 
