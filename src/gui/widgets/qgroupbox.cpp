@@ -14,15 +14,16 @@
 
 #include "qgroupbox.h"
 #ifndef QT_NO_GROUPBOX
+#include "qapplication.h"
+#include "qbitmap.h"
+#include "qcheckbox.h"
+#include "qdrawutil.h"
+#include "qevent.h"
 #include "qlayout.h"
 #include "qpainter.h"
-#include "qbitmap.h"
 #include "qradiobutton.h"
-#include "qdrawutil.h"
-#include "qapplication.h"
-#include "qevent.h"
 #include "qstyle.h"
-#include "qcheckbox.h"
+#include "qstyleoption.h"
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
@@ -262,13 +263,18 @@ void QGroupBox::paintEvent(QPaintEvent *event)
             // ### This should probably be a style primitive.
             qDrawShadeLine(&paint, p1, p2, palette(), true, 1, 0);
     } else {
-        QStyleOption opt(1, 0);
-        QStyle::SFlags flags = QStyle::Style_Default | QStyle::Style_Sunken;
+        Q4StyleOptionFrame opt(0);
+        opt.rect = frameRect;
+        opt.palette = palette();
+
+        opt.state = QStyle::Style_Default | QStyle::Style_Sunken;
         if (hasFocus())
-            flags |= QStyle::Style_HasFocus;
+            opt.state |= QStyle::Style_HasFocus;
         if (testAttribute(Qt::WA_UnderMouse))
-            flags |= QStyle::Style_MouseOver;
-        style().drawPrimitive(QStyle::PE_PanelGroupBox, &paint, frameRect, palette(), flags, opt);
+            opt.state |= QStyle::Style_MouseOver;
+        opt.lineWidth = 1;
+        opt.midLineWidth = 0;
+        style().drawPrimitive(QStyle::PE_PanelGroupBox, &opt, &paint, this);
     }
 }
 
