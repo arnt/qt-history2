@@ -5489,8 +5489,10 @@ QLayout* QWidget::layout() const
 QSizePolicy QWidget::sizePolicy() const
 {
     Q_D(const QWidget);
-    return d->extra ? d->extra->size_policy
-        : QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+    // GCC 2.95.x on FreeBSD can't handle this as a turnary operator.
+    if (d->extra)
+        return d->extra->size_policy;
+    return QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
 
 void QWidget::setSizePolicy(QSizePolicy policy)
