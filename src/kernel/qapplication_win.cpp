@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#278 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#279 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -73,7 +73,6 @@ static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
 
 static bool	app_do_modal	= FALSE;	// modal mode
-static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 
 static QWidgetList *modal_stack = 0;		// stack of modal widgets
 static QWidget	   *popupButtonFocus = 0;
@@ -1178,28 +1177,6 @@ void QApplication::processEvents( int maxtime )
     }
 }
 
-
-int QApplication::enter_loop()
-{
-    loop_level++;
-    quit_now = FALSE;
-
-    bool old_app_exit_loop = app_exit_loop;
-    app_exit_loop = FALSE;
-
-    while ( !quit_now && !app_exit_loop )
-	processNextEvent( TRUE );
-
-    app_exit_loop = old_app_exit_loop;
-    loop_level--;
-
-    return 0;
-}
-
-void QApplication::exit_loop()
-{
-    app_exit_loop = TRUE;
-}
 
 
 bool QApplication::winEventFilter( MSG * )	// Windows event filter
