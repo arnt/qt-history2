@@ -552,7 +552,7 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
     if ( !text.isNull() ) {
 	applyButton->hide();
 	callStatic = TRUE;
-    }	
+    }
 
     textEdit = new TextEdit( centralWidget(), "textedit" );
     Layout4->insertWidget( 0, textEdit );
@@ -679,6 +679,7 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
 
     if ( !callStatic ) {
 	mlined = (QMultiLineEdit*)editWidget;
+	mlined->setReadOnly( TRUE );
 	textEdit->setAlignment( mlined->alignment() );
 	textEdit->setWordWrap( mlined->wordWrap() );
 	textEdit->setWrapColumnOrWidth( mlined->wrapColumnOrWidth() );
@@ -687,7 +688,7 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget,
 	if ( !mlined->text().isEmpty() )
 	    textEdit->selectAll();
     }
-    else {	
+    else {
 	textEdit->setText( text );
 	textEdit->selectAll();
     }
@@ -712,7 +713,8 @@ void MultiLineEditor::okClicked()
 void MultiLineEditor::applyClicked()
 {
     if ( !callStatic ) {
-	PopulateMultiLineEditCommand *cmd = new PopulateMultiLineEditCommand( tr( "Set the text of '%1'" ).arg( mlined->name() ), formwindow, mlined, textEdit->text() );
+	PopulateMultiLineEditCommand *cmd = new PopulateMultiLineEditCommand( tr( "Set the text of '%1'" ).arg( mlined->name() ),
+						formwindow, mlined, textEdit->text() );
 	cmd->execute();
 	formwindow->commandHistory()->addCommand( cmd );
 	textEdit->setFocus();
@@ -735,14 +737,14 @@ void MultiLineEditor::insertTags( const QString &tag )
     tagend.remove( tagend.find( ' ', 0 ), tagend.length() );
     if ( textEdit->hasSelectedText() ) {
 	textEdit->getSelection( &pfrom, &ifrom, &pto, &ito );
-	QString buf = textEdit->selectedText();	
+	QString buf = textEdit->selectedText();
 	buf = QString( "<%1>%2</%3>" ).arg( tag ).arg( buf ).arg( tagend );
 	textEdit->removeSelectedText();
 	textEdit->insertAt( buf, pfrom, ifrom );
-	textEdit->setCursorPosition( pto, ito + 2 + tag.length() );	
+	textEdit->setCursorPosition( pto, ito + 2 + tag.length() );
     }
     else {
-	int para, index;	
+	int para, index;
 	textEdit->getCursorPosition( &para, &index );
 	textEdit->insert( QString( "<%1></%2>" ).arg( tag ).arg( tagend ) );
 	index += 2 + tag.length();
@@ -775,10 +777,10 @@ void MultiLineEditor::showFontDialog()
 	    font = "face=\"" + fd->getFont() + "\"";
 	QString tag( QString( "font %1 %2 %3" )
 	             .arg( color ).arg( size ).arg( font ) );
-	
+
 	if ( selText )
 	    textEdit->setSelection( pfrom, ifrom, pto, ito );
-	insertTags( tag.simplifyWhiteSpace() ); 	
+	insertTags( tag.simplifyWhiteSpace() );
     }
     else if ( selText )
 	textEdit->setSelection( pfrom, ifrom, pto, ito );
