@@ -3010,6 +3010,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
                 case '"':
                     if (!inEscape) {
                         inString = !inString;
+                        curArg += cc;
                         continue;
                     }
                     break;
@@ -3022,7 +3023,32 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
                     if (inString)
                         break;
                     curArg = curArg.trimmed();
-                    vars << curArg;
+                    if (curArg.at(0) == '\"' && curArg.at(curArg.length()-1) == '\"') {
+                        vars << curArg.mid(1, curArg.length() - 2);
+                    } else {
+                        bool isNumber = false;
+                        bool isDouble = false;
+                        int number = curArg.toInt(&isNumber);
+                        double dbl = curArg.toDouble(&isDouble);
+                        if (isNumber) {
+                            vars << number;
+                        } else if (isDouble) {
+                            vars << dbl;
+                        } else {
+                            bool isEnum = false;
+                            for (int enumIndex = 0; enumIndex < metaObject()->enumeratorCount(); ++enumIndex) {
+                                QMetaEnum metaEnum = metaObject()->enumerator(enumIndex);
+                                int value = metaEnum.keyToValue(curArg.latin1());
+                                if (value != -1 && !QByteArray(metaEnum.valueToKey(value)).isEmpty()) {
+                                    vars << value;
+                                    isEnum = true;
+                                    break;
+                                }
+                            }
+                            if (!isEnum)
+                                vars << curArg;
+                        }
+                    }
                     curArg = QString::null;
                     continue;
                 default:
@@ -3073,7 +3099,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
             else
                 paramType = d->metaobj->paramType(name, i, &out);
 
-            if (d->useMetaObject && var.type() == QVariant::String || var.type() == QVariant::ByteArray) {
+            if (!parse && d->useMetaObject && var.type() == QVariant::String || var.type() == QVariant::ByteArray) {
                 int enumIndex = metaObject()->indexOfEnumerator(paramType);
                 if (enumIndex != -1) {
                     QMetaEnum metaEnum = metaObject()->enumerator(enumIndex);
