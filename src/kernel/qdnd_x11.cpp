@@ -1539,7 +1539,7 @@ const char* QDropEvent::format( int n ) const
 
 bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 {
-    if ( object == o )
+    if ( object == o || !o || !o->parent() )
 	return FALSE;
 
     if ( object ) {

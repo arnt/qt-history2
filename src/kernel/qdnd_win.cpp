@@ -356,7 +356,7 @@ QByteArray qt_olednd_obtain_data( const char *format )
 	    fmtetc.dwAspect = DVASPECT_CONTENT;
 	    fmtetc.lindex = -1;
 	    fmtetc.tymed = TYMED_HGLOBAL;
-	
+
 	    hr = current_dropobj->GetData(&fmtetc, &medium);
 	    if (!FAILED(hr)) {
 		hText = medium.hGlobal;
@@ -417,7 +417,8 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 
     if ( object ) {
 	cancel();
-	dragSource->removeEventFilter( this );
+	if ( dragSource )
+	    dragSource->removeEventFilter( this );
 	beingCancelled = FALSE;
     }
 
