@@ -2161,14 +2161,14 @@ static const unsigned char khmerSubscriptType[0x54] = {
     1, 1, 1, 1
 };
 
-static inline KhmerForm khmer_form(unsigned short uc) {
-    if (uc < 0x1780 || uc > 0x17d3)
+static inline KhmerForm khmer_form(const QChar &uc) {
+    if (uc.unicode() < 0x1780 || uc.unicode() > 0x17d3)
 	return Khmer_Other;
-    return (KhmerForm) khmerForm[uc-0x1780];
+    return (KhmerForm) khmerForm[uc.unicode()-0x1780];
 }
 
-static inline unsigned char khmer_subscript_type(unsigned short uc) {
-    return khmerSubscriptType[uc-0x1780];
+static inline unsigned char khmer_subscript_type(const QChar &uc) {
+    return khmerSubscriptType[uc.unicode()-0x1780];
 }
 
 // Khmer syllables are of the form:
