@@ -297,8 +297,7 @@ void VcprojGenerator::initLinkerTool()
 	    vcProject.Configuration.linker.OutputFile = project->first("DESTDIR");
 	    break;
 	case SharedLib:
-	    vcProject.Configuration.linker.ImportLibrary = project->first("DESTDIR");
-	    vcProject.Configuration.linker.ImportLibrary += project->first("QMAKE_ORIG_TARGET") + ".lib";
+	    vcProject.Configuration.linker.parseOptions( project->variables()["MSVCPROJ_LIBOPTIONS"] );
 	    vcProject.Configuration.linker.OutputFile = project->first("DLLDESTDIR");
 	    break;
     }
@@ -777,7 +776,7 @@ void VcprojGenerator::initOld()
 	if ( project->isActiveConfig("dll") ) {
 	    QString imp = dest;
 	    imp.replace(QRegExp("\\.dll"), ".lib");
-	    project->variables()["MSVCPROJ_TARGET"].append(QString(" /IMPLIB:") + imp );
+	    project->variables()["MSVCPROJ_LIBOPTIONS"] += (QString("/IMPLIB:") + imp );
 	}
     }
 
