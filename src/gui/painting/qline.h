@@ -14,9 +14,6 @@
 #ifndef QLINE_H
 #define QLINE_H
 
-#ifndef QT_NO_DEBUG
-#include <qdebug.h>
-#endif
 #include <qpoint.h>
 
 class Q_GUI_EXPORT QLineF {

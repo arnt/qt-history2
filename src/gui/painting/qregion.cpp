@@ -16,9 +16,7 @@
 #include "qbuffer.h"
 #include "qdatastream.h"
 
-#ifndef QT_NO_DEBUG
 #include <qdebug.h>
-#endif
 
 /*!
     \class QRegion

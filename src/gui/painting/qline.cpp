@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qline.h"
+#include "qdebug.h"
 #include <private/qnumeric_p.h>
 
 #include <math.h>

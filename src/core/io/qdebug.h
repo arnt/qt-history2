@@ -87,7 +87,6 @@ public:
     inline QNoDebug(){}
     inline QNoDebug(const QDebug &){}
     inline ~QNoDebug(){}
-    template <typename T> inline QNoDebug &operator<<(const T &) { return *this; }
 #if !defined( QT_NO_TEXTSTREAM )
     inline QNoDebug &operator<<(QTextStreamFunction) { return *this; }
     inline QNoDebug &operator<<(QTextStreamManipulator) { return *this; }
@@ -99,6 +98,9 @@ public:
 #undef qDebug
 inline QNoDebug qDebug() { return QNoDebug(); }
 #define qDebug if(1) ; else qDebug
+
+template<typename T>
+inline QNoDebug operator<<(QNoDebug dbg, const T &) { return dbg; }
 
 #endif
 
