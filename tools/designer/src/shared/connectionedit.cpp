@@ -343,6 +343,13 @@ static CETypes::LineDir closestEdge(const QPoint &p, const QRect &r)
     return result;
 }
 
+static bool pointAboveLine(const QPoint &l1, const QPoint &l2, const QPoint &p)
+{
+    if (l1.x() == l2.x())
+        return p.x() >= l1.x();
+    return p.y() <= l1.y() + (p.x() - l1.x())*(l2.y() - l1.y())/(l2.x() - l1.x());
+}
+
 void Connection::updateKneeList()
 {
     LineDir old_source_label_dir = labelDir(EndPoint::Source);
@@ -397,25 +404,25 @@ void Connection::updateKneeList()
                 m_knee_list.append(QPoint(s.x(), t.y()));
         } else {
             if (sr.topLeft() == r.topLeft()) {
-                if (tr.right() - t.x() < tr.bottom() - t.y())
+                if (pointAboveLine(tr.topLeft(), tr.bottomRight(), t))
                     m_knee_list.append(QPoint(t.x(), s.y()));
                 else
                     m_knee_list.append(QPoint(s.x(), t.y()));
             } else if (sr.topRight() == r.topRight()) {
-                if (t.x() - r.left() < r.bottom() - t.y())
+                if (pointAboveLine(tr.bottomLeft(), tr.topRight(), t))
                     m_knee_list.append(QPoint(t.x(), s.y()));
                 else
                     m_knee_list.append(QPoint(s.x(), t.y()));
             } else if (sr.bottomRight() == r.bottomRight()) {
-                if (t.x() - r.left() < t.y() - r.top())
-                    m_knee_list.append(QPoint(t.x(), s.y()));
-                else
+                if (pointAboveLine(tr.topLeft(), tr.bottomRight(), t))
                     m_knee_list.append(QPoint(s.x(), t.y()));
+                else
+                    m_knee_list.append(QPoint(t.x(), s.y()));
             } else {
-                if (r.right() - t.x() < t.y() - r.top())
-                    m_knee_list.append(QPoint(t.x(), s.y()));
-                else
+                if (pointAboveLine(tr.bottomLeft(), tr.topRight(), t))
                     m_knee_list.append(QPoint(s.x(), t.y()));
+                else
+                    m_knee_list.append(QPoint(t.x(), s.y()));
             }
         }
     }
