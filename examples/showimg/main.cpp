@@ -9,7 +9,7 @@
 *****************************************************************************/
 
 #include "showimg.h"
-//#include "imagefip.h"
+#include "imagefip.h"
 #include <qapplication.h>
 #include <qimage.h>
 
@@ -34,7 +34,7 @@ int main( int argc, char **argv )
     qInitImageIO();
 #endif
 
-    //QFileDialog::setIconProvider(new ImageIconProvider);
+    QFileDialog::setIconProvider(new ImageIconProvider);
 
     if ( argc <= 1 ) {
 	// Create a window which looks after its own existence.
