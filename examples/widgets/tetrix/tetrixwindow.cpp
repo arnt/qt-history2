@@ -50,7 +50,7 @@ TetrixWindow::TetrixWindow()
     layout->addWidget(pauseButton, 5, 2);
 
     setWindowTitle(tr("Tetrix"));
-    resize(320, 270);
+    resize(550, 370);
 }
 
 QLabel *TetrixWindow::createLabel(const QString &text)
