@@ -1482,17 +1482,19 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_SplitterWidth  width of a splitter.
 
     \value PM_TitleBarHeight height of the title bar.
-    \value PM_PopupMenuFrameHorizontalExtra additional border, e.g. for panels
-    \value PM_PopupMenuFrameVerticalExtra additional border, e.g. for panels
 
     \value PM_IndicatorWidth  width of a check box indicator.
     \value PM_IndicatorHeight  height of a checkbox indicator.
     \value PM_ExclusiveIndicatorWidth  width of a radio button indicator.
     \value PM_ExclusiveIndicatorHeight  height of a radio button indicator.
 
-    \value PM_PopupMenuScrollerHeight height of the scroller area in a QMenu.
-    \value PM_PopupMenuScrollerHeight height of the scroller area in a QMenu.
+    \value PM_MenuFrameWidth border width (applied on all sides) for a QMenu.
+    \value PM_MenuFrameHorizontalExtra additional border (used on left and right) for a QMenu.
+    \value PM_MenuFrameVerticalExtra additional border (used for bottom and top) for a QMenu.
+    \value PM_MenuScrollerHeight height of the scroller area in a QMenu.
+    \value PM_MenuScrollerHeight height of the scroller area in a QMenu.
     \value PM_MenuTearoffHeight height of a tear off area in a QMenu.
+
     \value PM_CheckListButtonSize area (width/height) of the
 	checkbox/radiobutton in a QCheckListItem
     \value PM_CheckListControllerSize area (width/height) of the
@@ -1555,6 +1557,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CT_MenuItem
     \value CT_MenuBarItem
     \value CT_MenuBar
+    \value CT_Menu
     \value CT_TabBarTab
     \value CT_Slider
     \value CT_Header

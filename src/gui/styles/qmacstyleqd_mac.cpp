@@ -1710,9 +1710,6 @@ int QMacStyleQD::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	else
 	    ret = sz.width();
 	break; }
-#ifdef QT_COMPAT
-    case PM_Q3PopupMenuScrollerHeight:
-#endif
     case PM_MenuScrollerHeight:
 #if 0
 	SInt16 ash, asw;

@@ -512,7 +512,7 @@ QSize Q4Menu::sizeHint() const
     QSize s(0, 0);
     QList<Q4MenuAction*> actions = d->calcActionRects();
     if(!actions.isEmpty())
-	s.setWidth(actions[0]->rect.width()); //just take the first
+	s.setWidth(s.width()+actions[0]->rect.width()); //just take the first
     for(int i = 0; i < actions.count(); ++i) {
 	if(actions[i]->rect.right() > s.width())
 	    s.setWidth(actions[i]->rect.right());
@@ -520,7 +520,8 @@ QSize Q4Menu::sizeHint() const
     }
     if(d->tearoff)
 	s.setHeight(s.height()+style().pixelMetric(QStyle::PM_MenuTearoffHeight, this));
-    return s.expandedTo(QApplication::globalStrut()); //should consult the QStyle::sizeForContents ####
+    return (style().sizeFromContents(QStyle::CT_Menu, this, 
+				     s.expandedTo(QApplication::globalStrut())));
 }
 
 void Q4Menu::popup(const QPoint &p, QAction *atAction)
@@ -657,9 +658,10 @@ void Q4Menu::paintEvent(QPaintEvent *e)
     d->updateActions();
 
     QPainter p(this);
+    QRegion emptyArea = QRegion(rect());
 
     //draw the items that need updating..
-    QRegion emptyArea = QRegion(rect());
+
     for(int i=0; i<(int)d->actionItems.count(); i++) {
 	Q4MenuAction *action = d->actionItems.at(i);
 	QRect adjustedActionRect = d->actionRect(action);
@@ -1132,6 +1134,14 @@ void Q4MenuBarPrivate::updateActions()
     itemsDirty = 0;
 }
 
+/* I may not really need this function, but I've added it for now so that it
+   is easy to translate code from the menu - I will probably end up removing it
+   later */
+QRect Q4MenuBarPrivate::actionRect(Q4MenuAction *act)
+{
+    return act->rect;
+}
+
 void Q4MenuBarPrivate::setKeyboardMode(bool b)
 {
     d->altPressed = false;
@@ -1156,7 +1166,8 @@ void Q4MenuBarPrivate::popupAction(Q4MenuAction *action, bool activateFirst)
 	activeMenu->d->causedPopup = q;
 	if(activeMenu->parent() != q)
 	    activeMenu->setParent(q, activeMenu->getWFlags());
-	activeMenu->popup(q->mapToGlobal(QPoint(action->rect.left(), action->rect.bottom())));
+	QRect adjustedActionRect = actionRect(action);
+	activeMenu->popup(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom())));
 	if(activateFirst)
 	    activeMenu->d->setFirstActionActive();
     }
@@ -1172,7 +1183,7 @@ void Q4MenuBarPrivate::setCurrentAction(Q4MenuAction *action, bool popup, bool a
 	menu->hide();
     }
     if(currentAction)
-	q->update(currentAction->rect);
+	q->update(actionRect(currentAction));
 
     popupState = popup;
     currentAction = action;
@@ -1180,16 +1191,11 @@ void Q4MenuBarPrivate::setCurrentAction(Q4MenuAction *action, bool popup, bool a
 	action->action->activate(QAction::Hover);
 	if(popup)
 	    popupAction(action, activateFirst);
-	q->update(action->rect);
+	q->update(actionRect(action));
     } else {
 	setKeyboardMode(false);
     }
 }
-
-/* These really are QStyle::pixelMetric()s, but for now I just hard code them.. */
-static const int motifItemHMargin	= 5;	// menu item hor text margin
-static const int motifItemVMargin	= 4;	// menu item ver text margin
-static bool doMenuBarSeparator          = true; //menu separator
 
 QList<Q4MenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
 {
@@ -1210,7 +1216,7 @@ QList<Q4MenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
 
 	//calc what I think the size is..
 	if(action->isSeparator()) {
-	    if(doMenuBarSeparator)
+	    if(q->style().styleHint(QStyle::SH_GUIStyle, q) == MotifStyle)
 		separator = ret.count();
 	} else {
 	    QString s = action->text();
@@ -1301,12 +1307,15 @@ void Q4MenuBar::resizeEvent(QResizeEvent *)
 void Q4MenuBar::paintEvent(QPaintEvent *e)
 {
     d->updateActions();
-    QPainter p(this);
 
+    QPainter p(this);
     QRegion emptyArea(rect());
+
+    //draw the items
     for(int i=0; i<(int)d->actionItems.count(); i++) {
 	Q4MenuAction *action = d->actionItems.at(i);
-	if(!e->rect().intersects(action->rect))
+	QRect adjustedActionRect = d->actionRect(action);
+	if(!e->rect().intersects(adjustedActionRect))
 	   continue;
 
 	QPalette pal = palette();
@@ -1322,10 +1331,10 @@ void Q4MenuBar::paintEvent(QPaintEvent *e)
 	}
 	if(hasFocus() || d->currentAction)
 	    flags |= QStyle::Style_HasFocus;
-	emptyArea -= action->rect;
-	p.setClipRect(action->rect);
+	emptyArea -= adjustedActionRect;
+	p.setClipRect(adjustedActionRect);
 	style().drawControl(QStyle::CE_MenuBarItem, &p, this,
-			    action->rect, pal, flags, QStyleOption(action->action));
+			    adjustedActionRect, pal, flags, QStyleOption(action->action));
     }
     p.setClipRegion(emptyArea);
     style().drawControl(QStyle::CE_MenuBarEmptyArea, &p, this, rect(), palette());
@@ -1339,7 +1348,7 @@ void Q4MenuBar::mousePressEvent(QMouseEvent *e)
     Q4MenuAction *action = d->actionAt(e->pos());
     if(d->currentAction == action && d->popupState) {
 	if((d->closePopupMode = (style().styleHint(QStyle::SH_GUIStyle) == WindowsStyle)))
-	    q->update(action->rect);
+	    q->update(d->actionRect(action));
     } else {
 	d->setCurrentAction(action, true);
     }
@@ -1606,7 +1615,8 @@ QSize Q4MenuBar::sizeHint() const
     QSize s(0, height());
     for(int i = 0; i < d->actionItems.count(); ++i)
 	s.setWidth(s.width() + d->actionItems[i]->rect.width() + 2);
-    return s.expandedTo(QApplication::globalStrut()); //should consult the QStyle::sizeForContents ####
+    return (style().sizeFromContents(QStyle::CT_MenuBar, this, 
+				     s.expandedTo(QApplication::globalStrut())));
 }
 
 QSize Q4MenuBar::minimumSizeHint() const

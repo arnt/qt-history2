@@ -100,6 +100,7 @@ public:
 #endif
     QList<Q4MenuAction*> actionItems;
     QList<Q4MenuAction*> calcActionRects(int width) const;
+    QRect actionRect(Q4MenuAction *);
     void updateActions();
 
     //selection 

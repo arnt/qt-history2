@@ -520,7 +520,7 @@ public:
 	PM_ToolBarItemSpacing,
 
 #ifdef QT_COMPAT
-	PM_Q3PopupMenuScrollerHeight,
+	PM_Q3PopupMenuScrollerHeight = PM_MenuScrollerHeight,
 	PM_Q3MenuBarItemSpacing = PM_MenuBarItemSpacing,
 	PM_PopupMenuFrameHorizontalExtra = PM_MenuFrameVerticalExtra,
 	PM_PopupMenuFrameVerticalExtra = PM_MenuFrameHorizontalExtra,
@@ -546,6 +546,7 @@ public:
 	CT_MenuItem,
 	CT_MenuBarItem,
 	CT_MenuBar,
+	CT_Menu,
 	CT_TabBarTab,
 	CT_Slider,
 	CT_Header,
