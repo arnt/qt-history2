@@ -55,7 +55,8 @@ public:
     QPointArray        mapToPolygon(const QRect &r)        const;
 
     void        reset();
-    bool        isIdentity() const;
+    inline bool isIdentity() const;
+    inline bool isTranslate() const;
 
     QWMatrix   &translate(double dx, double dy);
     QWMatrix   &scale(double sx, double sy);
@@ -89,6 +90,12 @@ private:
     double        _m21, _m22;
     double        _dx,  _dy;
 };
+
+inline bool QWMatrix::isIdentity() const
+{
+    return _m11 == 1.0 && _m22 == 1.0 && _m12 == 0.0 && _m21 == 0.0
+        && _dx == 0.0 && _dy == 0.0;
+}
 
 Q_GUI_EXPORT QWMatrix operator*(const QWMatrix &, const QWMatrix &);
 

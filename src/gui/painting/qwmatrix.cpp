@@ -569,8 +569,14 @@ QPointArray QWMatrix::operator *(const QPointArray &a) const
 */
 QRegion QWMatrix::operator*(const QRegion &r) const
 {
-    if (isIdentity())
-        return r;
+    if (_m11 == 1.0 && _m22 == 1.0 && _m12 == 0.0 && _m21 == 0.0) { // translate or identity
+        if (_dx == 0.0 && _dy == 0.0) // Identity
+            return r;
+        QRegion copy(r);
+        copy.translate(_dx, _dy);
+        return copy;
+    }
+
     QVector<QRect> rects = r.rects();
     QRegion result;
     register QRect *rect = rects.data();
@@ -750,15 +756,12 @@ void QWMatrix::reset()
 }
 
 /*!
+  \fn bool QWMatrix::isIdentity() const
+
     Returns true if the matrix is the identity matrix; otherwise returns false.
 
     \sa reset()
 */
-bool QWMatrix::isIdentity() const
-{
-    return _m11 == 1.0 && _m22 == 1.0 && _m12 == 0.0 && _m21 == 0.0
-        && _dx == 0.0 && _dy == 0.0;
-}
 
 /*!
     Moves the coordinate system \a dx along the X-axis and \a dy along
