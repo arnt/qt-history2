@@ -108,7 +108,7 @@ static const char *printer_text =
 static const char *about_text =
 "<p><b><font size+=4>About Qt Configuration</font></b><br>"
 "A graphical configuration tool for programs using Qt.</p>"
-"<p>Version 1.0-beta</p>"
+"<p>Version 1.0</p>"
 "<p>Copyright (C) 2001-2002 Trolltech AS</p>"
 "<p></p>"
 "<p>This program is licensed to you under the terms of the GNU General "
