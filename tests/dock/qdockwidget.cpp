@@ -408,8 +408,11 @@ bool QDockWidget::isCloseEnabled() const
 
 QSize QDockWidget::sizeHint() const
 {
-    if ( !wid )
+    if ( !wid ) {
+	if ( sizeHintSet )
+	    return sh;
 	return QFrame::sizeHint();
+    }
     QSize s = wid->sizeHint();
     s += QSize( addX, addY );
 
@@ -421,8 +424,11 @@ QSize QDockWidget::sizeHint() const
 
 QSize QDockWidget::minimumSize() const
 {
-    if ( !wid )
+    if ( !wid ) {
+	if ( dockArea && isResizeEnabled() )
+	    return QSize( 0, 0 );
 	return QFrame::minimumSize();
+    }
     QSize s = wid->minimumSize();
     s += QSize( addX, addY );
 
@@ -434,14 +440,17 @@ QSize QDockWidget::minimumSize() const
 
     if ( dockArea && isResizeEnabled() )
 	return QSize( 0, 0 );
-    
+
     return s;
 }
 
 QSize QDockWidget::minimumSizeHint() const
 {
-    if ( !wid )
+    if ( !wid ) {
+	if ( dockArea && isResizeEnabled() )
+	    return QSize( 0, 0 );
 	return QFrame::minimumSizeHint();
+    }
     QSize s = wid->minimumSizeHint();
     s += QSize( addX, addY );
 
