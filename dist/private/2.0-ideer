@@ -87,6 +87,8 @@ All QApplication statics should be virtual methods - use qApp->... to
 Add the "auto completion" concept to the validator concept.
 PNG.  MNG MNG MNG.  !GIF.  Unisys die die die.
 Light-weight KDE stuff (eg. respecting colours, style, etc.)
+QListView *Event() redirection is BAD.  Especially since QScrollView
+ already does something similar.
 
 
 ARNT'S THINGS:
