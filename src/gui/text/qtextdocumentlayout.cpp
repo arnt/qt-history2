@@ -779,8 +779,10 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                 continue;
             }
 
-            LayoutStruct layoutStruct = layoutCell(table, cell, td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
-                                                                - td->columnPositions.at(c) - 2 * td->padding);
+            const int width = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
+                              - td->columnPositions.at(c) - 2 * td->padding;
+
+            LayoutStruct layoutStruct = layoutCell(table, cell, width);
 
             td->heights[r] = qMax(td->heights.at(r), layoutStruct.y + 2*td->padding);
         }
@@ -805,8 +807,10 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                 if (cell.row() != r)
                     continue;
 
-                LayoutStruct layoutStruct = layoutCell(table, cell, td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
-                                                                    - td->columnPositions.at(c) - 2 * td->padding);
+                const int width = td->columnPositions.at(c + cspan - 1) + td->widths.at(c + cspan - 1)
+                                  - td->columnPositions.at(c) - 2 * td->padding;
+
+                LayoutStruct layoutStruct = layoutCell(table, cell, width);
 
                 int heightToDistribute = layoutStruct.y + 2*td->padding;
                 for (int n = 0; n < rspan; ++n) {
