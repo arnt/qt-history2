@@ -5573,6 +5573,20 @@ void QListView::repaintItem( const QListViewItem * item ) const
 }
 
 
+struct QCheckListItemPrivate
+{
+    QCheckListItemPrivate():
+	exclusive( 0 ),
+	currentState( QCheckListItem::Off ),
+	storedState( QCheckListItem::Off ),
+	tristate( FALSE ) {}
+
+    QCheckListItem *exclusive;
+    QCheckListItem::ToggleState currentState;
+    QCheckListItem::ToggleState storedState;
+    bool tristate;
+};
+
 
 /* IGNORE!
     \class QCheckListItem
@@ -5605,13 +5619,15 @@ void QListView::repaintItem( const QListViewItem * item ) const
 
     \value RadioButton
     \value CheckBox
-    \value Controller
-*/
+    \value Controller \obsolete (use RadioButtonController)
+    \value RadioButtonController
+    \value CheckBoxController
+   */
 
 /* IGNORE!
     Constructs a checkable item with parent \a parent, text \a text
     and type \a tt. Note that a \c RadioButton must be the child of a
-    \c Controller, otherwise it will not toggle.
+    \c RadioButtonController, otherwise it will not toggle.
 */
 QCheckListItem::QCheckListItem( QCheckListItem *parent, const QString &text,
 				Type tt )
@@ -5620,18 +5636,18 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, const QString &text,
     myType = tt;
     init();
     if ( myType == RadioButton ) {
-	if ( parent->type() != Controller )
+	if ( parent->type() != RadioButtonController )
 	    qWarning( "QCheckListItem::QCheckListItem(), radio button must be "
 		     "child of a controller" );
 	else
-	    exclusive = parent;
+	    d->exclusive = parent;
     }
 }
 
 /* IGNORE!
     Constructs a checkable item with parent \a parent, which is after \a after in the parent's list of children,
     text \a text and type \a tt. . Note that a \c RadioButton must be the child of a
-    \c Controller, otherwise it will not toggle.
+    \c RadioButtonController, otherwise it will not toggle.
 */
 QCheckListItem::QCheckListItem( QCheckListItem *parent, QListViewItem *after,
  				const QString &text, Type tt )
@@ -5640,18 +5656,18 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, QListViewItem *after,
     myType = tt;
     init();
     if ( myType == RadioButton ) {
- 	if ( parent->type() != Controller )
+ 	if ( parent->type() != RadioButtonController )
  	    qWarning( "QCheckListItem::QCheckListItem(), radio button must be "
 		      "child of a controller" );
  	else
- 	    exclusive = parent;
+ 	    d->exclusive = parent;
     }
 }
 
 /* IGNORE!
     Constructs a checkable item with parent \a parent, text \a text
     and type \a tt. Note that this item must \e not be a \c RadioButton.
-    Radio buttons must be children of a \c Controller.
+    Radio buttons must be children of a \c RadioButtonController.
 */
 QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 				Type tt )
@@ -5668,7 +5684,7 @@ QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 /* IGNORE!
     Constructs a checkable item with parent \a parent, which is after \a after in the parent's list of children,
     text \a text and type \a tt. Note that this item must \e not be a \c RadioButton.
-    Radio buttons must be children of a \c Controller.
+    Radio buttons must be children of a \c RadioButtonController.
 */
 QCheckListItem::QCheckListItem( QListViewItem *parent, QListViewItem *after,
  				const QString &text, Type tt )
@@ -5686,7 +5702,7 @@ QCheckListItem::QCheckListItem( QListViewItem *parent, QListViewItem *after,
 /* IGNORE!
     Constructs a checkable item with parent \a parent, text \a text
     and type \a tt. Note that \a tt must \e not be \c RadioButton. Radio
-    buttons must be children of a \c Controller.
+    buttons must be children of a \c RadioButtonController.
 */
 QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
 				Type tt )
@@ -5702,7 +5718,7 @@ QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
 /* IGNORE!
     Constructs a checkable item with parent \a parent, which is after \a after in the parent's list of children,
     text \a text and type \a tt. Note that \a tt must \e not be \c RadioButton. Radio
-    buttons must be children of a \c Controller.
+    buttons must be children of a \c RadioButtonController.
 */
 QCheckListItem::QCheckListItem( QListView *parent, QListViewItem *after,
  				const QString &text, Type tt )
@@ -5726,35 +5742,34 @@ int QCheckListItem::rtti() const
 }
 
 /* IGNORE!
-    Constructs a \c Controller item with parent \a parent, text \a
+    Constructs a \c RadioButtonController item with parent \a parent, text \a
     text and pixmap \a p.
 */
 QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
 				const QPixmap & p )
     : QListViewItem( parent, text )
 {
-    myType = Controller;
+    myType = RadioButtonController;
     setPixmap( 0, p );
     init();
 }
 
 /* IGNORE!
-    Constructs a \c Controller item with parent \a parent, text \a text
+    Constructs a \c RadioButtonController item with parent \a parent, text \a text
     and pixmap \a p.
 */
 QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 				const QPixmap & p )
     : QListViewItem( parent, text )
 {
-    myType = Controller;
+    myType = RadioButtonController;
     setPixmap( 0, p );
     init();
 }
 
 void QCheckListItem::init()
 {
-    on = FALSE;
-    exclusive = 0;
+    d = new QCheckListItemPrivate();
 }
 
 /* IGNORE!
@@ -5763,9 +5778,9 @@ void QCheckListItem::init()
 */
 QCheckListItem::~QCheckListItem()
 {
-    if ( myType == RadioButton && exclusive && exclusive->exclusive == this )
-	exclusive->turnOffChild();
-    exclusive = 0; // so the children won't try to access us.
+    if ( myType == RadioButton && d->exclusive && d->exclusive->d->exclusive == this )
+	d->exclusive->turnOffChild();
+    d->exclusive = 0; // so the children won't try to access us.
 }
 
 /* IGNORE!
@@ -5775,11 +5790,52 @@ QCheckListItem::~QCheckListItem()
 */
 
 /* IGNORE!
-    \fn  bool QCheckListItem::isOn() const
-
-    Returns TRUE if the item is toggled on; otherwise returns FALSE.
+   Returns TRUE if the item is toggled on; otherwise returns FALSE.
 */
+bool QCheckListItem::isOn() const
+{
+    return (d->currentState == On);
+}
 
+
+/* IGNORE!
+   Sets tristate to \a if the Type is either a CheckBoxController or CheckBox.
+
+   \sa state()
+*/
+void QCheckListItem::setTristate( bool b)
+{
+    if ( ( myType != CheckBoxController ) && ( myType != CheckBox ) )
+	return;
+    d->tristate = b;
+}
+
+/* IGNORE!
+   Returns TRUE if the item is set to tristate.
+*/
+bool QCheckListItem::isTristate() const
+{
+    return d->tristate;
+}
+
+/*
+  Returns the state of the item.
+
+  \sa QCheckListItem::ToggleState
+*/
+QCheckListItem::ToggleState QCheckListItem::state() const
+{
+    return d->currentState;
+}
+
+
+/*!
+  updates the internally stored state
+*/
+void QCheckListItem::updateStoredState( ToggleState newState)
+{
+    d->storedState = newState;
+}
 
 /* IGNORE!
     \fn QString QCheckListItem::text() const
@@ -5789,13 +5845,13 @@ QCheckListItem::~QCheckListItem()
 
 
 /* IGNORE!
-    If this is a \c Controller that has \c RadioButton children, turn
+    If this is a \c RadioButtonController that has \c RadioButton children, turn
     off the child that is on.
 */
 void QCheckListItem::turnOffChild()
 {
-    if ( myType == Controller && exclusive )
-	exclusive->setOn( FALSE );
+    if ( myType == RadioButtonController && d->exclusive )
+	d->exclusive->setOn( FALSE );
 }
 
 /* IGNORE!
@@ -5814,7 +5870,7 @@ void QCheckListItem::activate()
 	//ignore clicks outside the box
 	QRect r;
 	if ( parent() && parent()->rtti() == 1  &&
-	     ((QCheckListItem*) parent())->type() == Controller )
+	     ((QCheckListItem*) parent())->type() == RadioButtonController )
 	    r.setRect( 0, 2, boxsize, boxsize-3 );
 	else
 	    r.setRect( 3, 2, boxsize-3, boxsize-3 );
@@ -5827,8 +5883,12 @@ void QCheckListItem::activate()
 	if ( !r.contains( pos ) )
 	    return;
     }
-    if ( myType == CheckBox ) {
-	setOn( !on );
+    if ( ( myType == CheckBox ) || ( myType == CheckBoxController) )  {
+	if ( d->tristate )
+	    d->currentState == On ? d->currentState = Off : ((int)d->currentState)++;
+	else
+	    setOn( d->currentState != On );
+	updateStoredState( d->currentState );
 	ignoreDoubleClick();
     } else if ( myType == RadioButton ) {
 	setOn( TRUE );
@@ -5842,22 +5902,31 @@ void QCheckListItem::activate()
 */
 void QCheckListItem::setOn( bool b  )
 {
-    if ( b == on )
+    if ( b == (d->currentState == On) )
 	return;
     if ( myType == CheckBox ) {
-	on = b;
+	b ? d->currentState = On : d->currentState = Off;
+	stateChange( b );
+    } else if ( myType == CheckBoxController ) {
+	b ? d->currentState = On : d->currentState = Off;
+	QListViewItem *item = firstChild();
+	while( item ) {
+	    if ( item->rtti() == 1 )
+		((QCheckListItem*)item)->setOn( b );
+	    item = item->nextSibling();
+        }
 	stateChange( b );
     } else if ( myType == RadioButton ) {
 	if ( b ) {
-	    if ( exclusive && exclusive->exclusive != this )
-		exclusive->turnOffChild();
-	    on = TRUE;
-	    if ( exclusive )
-		exclusive->exclusive = this;
+	    if ( d->exclusive && d->exclusive->d->exclusive != this )
+		d->exclusive->turnOffChild();
+	    d->currentState = On;
+	    if ( d->exclusive )
+		d->exclusive->d->exclusive = this;
 	} else {
-	    if ( exclusive && exclusive->exclusive == this )
-		exclusive->exclusive = 0;
-	    on = FALSE;
+	    if ( d->exclusive && d->exclusive->d->exclusive == this )
+		d->exclusive->d->exclusive = 0;
+	    d->currentState = Off;
 	}
 	stateChange( b );
     }
@@ -5895,7 +5964,7 @@ int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int colu
     int r = QListViewItem::width( fm, lv, column );
     if ( column == 0 ) {
 	r += lv->itemMargin();
-	if ( myType == Controller && pixmap( 0 ) ) {
+	if ( myType == RadioButtonController && pixmap( 0 ) ) {
 	    //	     r += 0;
 	} else {
 	    r +=  lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, lv) + 4;
@@ -5940,12 +6009,14 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     bool parentControl = FALSE;
     if ( parent() && parent()->rtti() == 1  &&
-	 ((QCheckListItem*) parent())->type() == Controller )
+	 ((QCheckListItem*) parent())->type() == RadioButtonController )
 	parentControl = TRUE;
 
     int styleflags = QStyle::Style_Default;
-    if ( isOn() )
+    if ( state() == On )
 	styleflags |= QStyle::Style_On;
+    else if ( state() == NoChange )
+	styleflags |= QStyle::Style_NoChange;
     else
 	styleflags |= QStyle::Style_Off;
     if ( isSelected() )
@@ -5953,7 +6024,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
     if ( isEnabled() && lv->isEnabled() )
 	styleflags |= QStyle::Style_Enabled;
 
-    if ( myType == Controller ) {
+    if ( myType == RadioButtonController ) {
 	int x = 0;
 	if(!parentControl)
 	    x += 3;
@@ -5977,7 +6048,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	int y = (fm.height() + 2 + marg - boxsize) / 2;
 	//	p->setPen( QPen( cg.text(), winStyle ? 2 : 1 ) );
 
-	if ( myType == CheckBox ) {
+	if ( ( myType == CheckBox ) || ( myType == CheckBoxController ) ) {
 	    lv->style().drawPrimitive(QStyle::PE_CheckListIndicator, p,
 				      QRect(x, y, boxsize,
 					    fm.height() + 2 + marg),
@@ -6020,9 +6091,9 @@ void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
     }
     bool parentControl = FALSE;
     if ( parent() && parent()->rtti() == 1  &&
-	 ((QCheckListItem*) parent())->type() == Controller )
+	 ((QCheckListItem*) parent())->type() == RadioButtonController )
 	parentControl = TRUE;
-    if ( myType != Controller && intersect &&
+    if ( myType != RadioButtonController && intersect &&
 	 (lv->rootIsDecorated() || myType == RadioButton ||
 	  (myType == CheckBox && parentControl) ) ) {
 	QRect rect;

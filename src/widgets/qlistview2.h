@@ -456,20 +456,26 @@ private:	// Disabled copy constructor and operator=
 class Q_EXPORT QCheckListItem : public QListViewItem
 {
 public:
-    enum Type { RadioButton, CheckBox, Controller };
+    enum Type { RadioButton,
+		CheckBox,
+		Controller,
+		RadioButtonController=Controller,
+		CheckBoxController };
+    // ### should be integrated with qbutton in ver4 perhaps
+    enum ToggleState { Off, NoChange, On };
 
     QCheckListItem( QCheckListItem *parent, const QString &text,
-		    Type = Controller );
+		    Type = RadioButtonController );
     QCheckListItem( QCheckListItem *parent, QListViewItem *after,
- 		    const QString &text, Type = Controller );
+ 		    const QString &text, Type = RadioButtonController );
     QCheckListItem( QListViewItem *parent, const QString &text,
-		    Type = Controller );
+		    Type = RadioButtonController );
     QCheckListItem( QListViewItem *parent, QListViewItem *after,
- 		    const QString &text, Type = Controller );
+ 		    const QString &text, Type = RadioButtonController );
     QCheckListItem( QListView *parent, const QString &text,
-		    Type = Controller );
+		    Type = RadioButtonController );
     QCheckListItem( QListView *parent, QListViewItem *after,
- 		    const QString &text, Type = Controller );
+ 		    const QString &text, Type = RadioButtonController );
     QCheckListItem( QListViewItem *parent, const QString &text,
 		    const QPixmap & );
     QCheckListItem( QListView *parent, const QString &text,
@@ -484,10 +490,14 @@ public:
     void setup();
 
     virtual void setOn( bool );
-    bool isOn() const { return on; }
+    bool isOn() const;
     Type type() const { return myType; }
     QString text() const { return QListViewItem::text( 0 ); }
     QString text( int n ) const { return QListViewItem::text( n ); }
+
+    void setTristate( bool );
+    bool isTristate() const;
+    ToggleState state() const;
 
     int rtti() const;
     static int RTTI;
@@ -499,9 +509,11 @@ protected:
 
 private:
     void init();
+    void updateStoredState( ToggleState );
+
     Type myType;
-    bool on;
-    QCheckListItem *exclusive;
+    bool unused; // ### remove in ver4
+    QCheckListItemPrivate *d;
 };
 
 class Q_EXPORT QListViewItemIterator
