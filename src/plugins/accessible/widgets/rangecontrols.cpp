@@ -489,6 +489,11 @@ int QAccessibleSlider::defaultAction(int /*child*/) const
     return 0;
 }
 
+QString QAccessibleSlider::actionText(int /*action*/, Text /*t*/, int /*child*/) const
+{
+    return QString("");
+}
+
 /*! \reimp */
 bool QAccessibleSlider::doAction(int /*action*/, int /*child*/, const QVariantList &/*params*/)
 {
