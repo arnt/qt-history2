@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#34 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#34 $")
 
 
 /*----------------------------------------------------------------------------
@@ -57,7 +57,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#33 $")
 
 
 /*----------------------------------------------------------------------------
-  \fn void overflow()
+  \fn void QLCDNumber::overflow()
 
   This signal is emitted whenever the QLCDNumber is asked to display a
   too big number or too long string.
