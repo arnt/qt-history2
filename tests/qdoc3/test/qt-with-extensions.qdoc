@@ -1,0 +1,10 @@
+include ( qt.qdoc )
+
+project		= Qt with Extensions
+headerdirs	+= $QUICK/src/extensions \
+		   extensions
+sourcedirs	+= $QUICK/src/extensions \
+		   extensions
+outputdir	= doc/qt-and-extensions
+formats		= ""
+spurious	= ".*"

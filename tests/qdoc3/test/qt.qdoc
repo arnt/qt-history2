@@ -1,9 +1,9 @@
-include( compat.qdoc.inc )
+include( compat.qdoc )
 
 project		= Qt
 language	= C++
 headerdirs	= $QTDIR/include
-#sourcedirs	= $QTDIR/src
+sourcedirs	= $QTDIR/src
 docdirs		= $QTDIR/doc
 exampledirs	= $QTDIR/examples/advanced \
 		  $QTDIR/examples/simple \
@@ -13,4 +13,3 @@ imagedirs	= $QTDIR/gif
 outputdir	= doc/qt
 base		= file:$QTDIR/doc/html/
 versionsym	= QT_VERSION_STR
-formats		= ""

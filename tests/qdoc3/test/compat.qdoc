@@ -1,0 +1,18 @@
+# compat.qdoc.inc
+
+alias.also		= sa
+alias.group		= ingroup
+alias.i			= e
+alias.image		= img
+alias.inheaderfile	= headerfile
+alias.o			= i
+alias.quotefile		= realquotefile
+alias.quotefromfile	= quotefile
+alias.quoteline		= printline
+alias.quoteto		= printto
+alias.quoteuntil	= printuntil
+alias.private		= internal
+alias.related		= relates
+
+spurious		= "Missing comma in .*" \
+			  "Unknown command '\\\\(endlink|link|mainclass)'"

@@ -1,8 +1,0 @@
-include ( compat.qdoc.inc )
-
-project		= QSA Extensions
-language	= C++
-sourcedirs	= $QUICK/src/extensions \
-		  qsa-extensions
-outputdir	= doc/qsa-extensions
-formats		= ""
