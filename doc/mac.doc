@@ -87,6 +87,7 @@ libraries as part of your application.
 
 
 \section1 Combining Libraries
+
 If you want to build a new dynamic library combining the Qt 3.1 dynamic
 libraries, you need to introduce the ld -r flag so that relocation information
 is stored in the the output file, so that this file could be the subject of 
@@ -151,12 +152,12 @@ Do not forget to enclosure this in an #if defined(Q_OS_MACX) macro statement.
 
 \title User Interface
 \section1 Right-Mouse Clicks
-<p>If you want to provide right-mouse click support for MacOSX, use the
+
+If you want to provide right-mouse click support for MacOSX, use the
 QContextMenuEvent class. This will map to a context menu event, in other
 words a menu that will display a popup selection. This is the most common
 use of right-mouse clicks, and maps to a control-click with the MacOSX
 one-button mouse support.
-
 
 \section1 Menubar
 
@@ -177,7 +178,6 @@ created, the default menubar on Qt/Mac is an empty menubar, however you can
 create a different default menubar by creating a parentless QMenuBar, the
 first one created will thus be designated the default menubar, and will be
 used whenever a default menubar is needed.
-
 
 */
 
