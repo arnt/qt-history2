@@ -9,7 +9,6 @@
 *****************************************************************************/
 
 #include <qapplication.h>
-#include <qplatinumstyle.h>
 
 #include "mainwindow.h"
 
