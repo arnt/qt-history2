@@ -31,11 +31,14 @@
 
     \ingroup model-view
 
-    QGenericTreeView implements a tree representation of a QAbstractItemView
-    working on a QAbstractItemModel. This class is used to provide standard
-    hierarchical lists that were previously provided by the \c QListView
-    class, but using the more flexible approach provided by Qt's Model/View
-    architecture.
+    A QGenericTreeView implements a tree representation of items from a
+    model. This class is used to provide standard hierarchical lists that
+    were previously provided by the \c QListView class, but using the more
+    flexible approach provided by Qt's model/view architecture.
+
+    QGenericTreeView implements the interfaces defined by the
+    QAbstractItemView class to allow it to display data provided by
+    models derived from the QAbstractItemModel class.
 
     It is simple to construct a tree view displaying data from a
     model. In the following example, the contents of a directory are

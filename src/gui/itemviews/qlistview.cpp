@@ -116,6 +116,14 @@ void QListModel::append(const QListViewItem &item)
 */
 
 /*!
+    \fn QListViewItem::QListViewItem()
+*/
+
+/*!
+    \fn QListViewItem::~QListViewItem()
+*/
+
+/*!
     \fn QString QListViewItem::text() const
 */
 

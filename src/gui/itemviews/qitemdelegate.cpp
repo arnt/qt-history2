@@ -68,8 +68,22 @@ static const char * const checked_xpm[] = {
 
     Delegates can be used to manipulate data in two complementary ways:
     by processing events in the normal manner, or by implementing a
-    custom editor widget.
+    custom editor widget. The item delegate takes the approach of providing
+    a widget for editing purposes that can be supplied to
+    QAbstractItemView::setDelegate() or the equivalent function in
+    subclasses of QAbstractItemView.
 
+    This class demonstrates how to implement the functions for painting
+    the delegate and editing data from the model. The paint() and
+    sizeHint() virtual functions defined in QAbstractItemDelegate are
+    implemented to ensure that the delegate is presented correctly.
+    Only the standard editing functions for widget-based delegates are
+    reimplemented here: editor() returns the widget used to change data
+    from the model; setEditorData() provides the widget with data to
+    manipulate; updateEditorGeometry() ensures that the editor is displayed
+    correctly with respect to the item view; setModelData() returns the
+    updated data to the model; releaseEditor() indicates that the user has
+    completed editing the data, and that the editor widget can be destroyed.
 
     \sa \link model-view-programming.html Model/View Programming\endlink
         QAbstractItemDelegate

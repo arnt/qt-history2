@@ -76,15 +76,26 @@ static const int default_height = 30;
 
     \ingroup model-view
 
-    Each header has an orientation() and count() sections. Sections
-    can be moved and resized using moveSection() and resizeSection(),
-    and they can be hidden and shown with hideSection() and
-    showSection(). The section at a particular index position is given
-    by section(), and the index position of a particular section by
-    index(). A section can have a sort indicator set with
-    setSortIndicator(). A header can be made movable with
-    setMovable(), can be made clickable with setClickable(), and has
-    resizing behavior in accordance with setResizeMode().
+    A QGenericHeader displays the headers used in item views such as the
+    QGenericTableView and QGenericTreeView classes. It takes the place of
+    the \c QHeader class previously used for the same purpose, but uses
+    the Qt's model/view architecture for consistency with the item view
+    classes.
+
+    Each header has an orientation() and a number of sections, given by
+    the count() function. Sections can be moved and resized using
+    moveSection() and resizeSection(), and they can be hidden and shown
+    with hideSection() and showSection().
+
+    Each section of a header is described by a section ID, specified by
+    its section(), and can be located at a particular index() in the
+    header. A section can have a sort indicator set with
+    setSortIndicator(); this indicates whether the items in the associated
+    item view will be sorted in the order given by the section.
+
+    A header can be fixed in place, or made movable with setMovable().
+    It can be made clickable with setClickable(), and has resizing behavior
+    in accordance with setResizeMode().
 
     A header emits sectionIndexChanged() if the user moves a section,
     sectionSizeChanged() if the user resizes a section, and
@@ -97,6 +108,8 @@ static const int default_height = 30;
     functions. Note that the index can change if a section is moved.
 
     \sa \link model-view-programming.html Model/View Programming\endlink
+        QGenericListView QGenericTableView QGenericTreeView
+
 */
 
 /*!

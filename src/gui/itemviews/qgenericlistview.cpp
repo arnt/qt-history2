@@ -251,24 +251,37 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
     \class QGenericListView qgenericlistview.h
 
     \brief The QGenericListView class provides a default model/view
-    implementation of a list and of an icon view.
+    implementation of a list, and of an icon view.
 
     \ingroup model-view
 
-    This class implements a list representation of a QAbstractItemView
-    working on a QAbstractItemModel.
+    A QGenericListView presents items stored in a model, either as a simple
+    non-hierarchical list, or as a collection of icons. This class is used
+    to provide lists and icon views that were previously provided by the
+    \c QListBox and \c QIconView classes, but using the more flexible
+    approach provided by Qt's model/view architecture.
+
+    QGenericListView implements the interfaces defined by the
+    QAbstractItemView class to allow it to display data provided by
+    models derived from the QAbstractItemModel class.
 
     \omit
     Describe the listview/iconview concept.
     \endomit
 
-    Items in these views flow() in a particular direction, move
-    according to the movement() state, wrap depending on
-    isWrapping(), and have a resizeMode() and a layoutMode() governing
-    how and when they are laid out. Items are spaced according to
-    their spacing() and can exist within a notional grid of size
-    gridSize(). The items can be rendered large or small depending on
-    their iconMode().
+    Items in these views are laid out in the direction specified by the
+    flow() of the list view. The items may be fixed in place, or allowed
+    to move, depending on the view's movement() state.
+
+    If the items in the model cannot be completely laid out in the
+    direction of flow, they can be wrapped at the boundary of the view
+    widget; this depends on isWrapping(). This property is useful when the
+    items are being represented by an icon view.
+
+    The resizeMode() and layoutMode() govern how and when the items are
+    laid out. Items are spaced according to their spacing(), and can exist
+    within a notional grid of size specified by gridSize(). The items can
+    be rendered as large or small icons depending on their iconMode().
 
     \sa \link model-view-programming.html Model/View Programming\endlink
 */
@@ -399,8 +412,8 @@ QGenericListView::Flow QGenericListView::flow() const
     \brief whether the items layout should wrap.
 
     This property holds whether the layout should wrap when there is
-    no more space in the visible area. When the layout wraps depends
-    on the \l flow property.
+    no more space in the visible area. The point at which the layout wraps
+    depends on the \l flow property.
 
     Setting this property when the view is visible will cause the
     items to be laid out again.

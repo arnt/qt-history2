@@ -48,21 +48,37 @@ void QGenericTableViewPrivate::init()
 
     \ingroup model-view
 
-    This class implements a table representation of a QGenericItemView working
-    on a QAbstractItemModel.
+    A QGenericTableView implements a table view that displays items from a
+    model. This class is used to provide standard tables that were
+    previously provided by the \c QTable class, but using the more
+    flexible approach provided by Qt's model/view architecture.
 
-    The table has a vertical header available from verticalHeader() and a
-    horizontal header available from horizontalHeader(). Rows have a
-    rowHeight(), and a y-coordinate can be mapped to a row using
-    rowAt() and a row can be mapped to a contents coordinate with
-    rowViewportPosition(); columns are similar with columnWidth(),
-    columnAt(), and columnViewportPosition(). Rows and columns can be
-    hidden and shown with hideRow(), hideColumn(), showRow(), and
-    showColumn(). They can be selected with selectRow() and
-    selectColumn(). The table will show a grid depending on the \l
-    showGrid property.
+    QGenericTableView implements the interfaces defined by the
+    QAbstractItemView class to allow it to display data provided by
+    models derived from the QAbstractItemModel class.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+    The table has a vertical header that can be obtained using the
+    verticalHeader() function, and a horizontal header that is available
+    through the horizontalHeader() function. Each of the rows in the
+    table can be found by using rowHeight(); similarly, the width of
+    columns can be found using columnWidth().
+
+    Rows and columns can be hidden and shown with hideRow(), hideColumn(),
+    showRow(), and showColumn(). They can be selected with selectRow()
+    and selectColumn(). The table will show a grid depending on the
+    \l showGrid property.
+
+    For some specialized forms of tables it is useful to be able to
+    convert between row and column indices and widget coordinates.
+    The rowAt() function provides the y-coordinate within the view of the
+    specified row; the row index can be used to obtain a corresponding
+    y-coordinate with rowViewportPosition(). The columnAt() and
+    columnViewportPosition() functions provide the equivalent conversion
+    operations between x-coordinates and column indices.
+
+    \sa \link model-view-programming.html Model/View Programming\endlink
+        QAbstractItemModel QAbstractItemView
+
 */
 
 // ### DOC: Where does the model come from?
@@ -713,7 +729,7 @@ bool QGenericTableView::isColumnHidden(int column) const
     \brief whether the grid is shown
 
     If this property is true a grid is drawn for the table; if the
-    property is false no grid is drawn.
+    property is false, no grid is drawn.
 */
 
 void QGenericTableView::setShowGrid(bool show)
