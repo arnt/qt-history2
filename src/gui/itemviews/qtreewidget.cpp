@@ -554,7 +554,10 @@ public:
     inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q_func()->model()); }
     void emitClicked(const QModelIndex &index, int button);
     void emitDoubleClicked(const QModelIndex &index, int button);
-
+    void emitReturnPressed(const QModelIndex &index);
+    void emitSpacePressed(const QModelIndex &index);
+    void emitExpanded(const QModelIndex &index);
+    void emitCollapsed(const QModelIndex &index);
 };
 
 void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, int button)
@@ -565,6 +568,26 @@ void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, int button)
 void QTreeWidgetPrivate::emitDoubleClicked(const QModelIndex &index, int button)
 {
     emit q->doubleClicked(model()->item(index), index.column(), button);
+}
+
+void QTreeWidgetPrivate::emitReturnPressed(const QModelIndex &index)
+{
+    emit q->returnPressed(model()->item(index), index.column());
+}
+
+void QTreeWidgetPrivate::emitSpacePressed(const QModelIndex &index)
+{
+    emit q->spacePressed(model()->item(index), index.column());
+}
+
+void QTreeWidgetPrivate::emitExpanded(const QModelIndex &index)
+{
+    emit q->expanded(model()->item(index));
+}
+
+void QTreeWidgetPrivate::emitCollapsed(const QModelIndex &index)
+{
+    emit q->collapsed(model()->item(index));
 }
 
 /*!
@@ -632,6 +655,14 @@ QTreeWidget::QTreeWidget(QWidget *parent)
             SLOT(emitClicked(const QModelIndex&, int)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),
             SLOT(emitDoubleClicked(const QModelIndex&, int)));
+    connect(this, SIGNAL(returnPressed(const QModelIndex&)),
+            SLOT(emitReturnPressed(const QModelIndex&)));
+    connect(this, SIGNAL(spacePressed(const QModelIndex&)),
+            SLOT(emitSpacePressed(const QModelIndex&)));
+    connect(this, SIGNAL(expanded(const QModelIndex&)),
+            SLOT(emitExpanded(const QModelIndex&)));
+    connect(this, SIGNAL(collapsed(const QModelIndex&)),
+            SLOT(emitCollapsed(const QModelIndex&)));
 }
 
 /*!

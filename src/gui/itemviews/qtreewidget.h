@@ -138,6 +138,10 @@ public:
 signals:
     void clicked(QTreeWidgetItem *item, int column, int button);
     void doubleClicked(QTreeWidgetItem *item, int column, int button);
+    void returnPressed(QTreeWidgetItem *item, int column);
+    void spacePressed(QTreeWidgetItem *item, int column);
+    void expanded(QTreeWidgetItem *item);
+    void collapsed(QTreeWidgetItem *item);
 
 protected:
     void appendItem(QTreeWidgetItem *item);
@@ -147,6 +151,10 @@ protected:
 private:
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
+    Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index));
+    Q_PRIVATE_SLOT(d, void emitSpacePressed(const QModelIndex &index));
+    Q_PRIVATE_SLOT(d, void emitExpanded(const QModelIndex &index));
+    Q_PRIVATE_SLOT(d, void emitCollapsed(const QModelIndex &index));
 };
 
 #endif
