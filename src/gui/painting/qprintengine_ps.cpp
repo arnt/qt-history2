@@ -5439,6 +5439,14 @@ static void ignoreSigPipe(bool b)
     }
 }
 
+static const char * const psToStr[QPrinter::NPageSize+1] =
+{
+    "A4", "B5", "Letter", "Legal", "Executive",
+    "A0", "A1", "A2", "A3", "A5", "A6", "A7", "A8", "A9", "B0", "B1",
+    "B10", "B2", "B3", "B4", "B6", "B7", "B8", "B9", "C5E", "Comm10E",
+    "DLE", "Folio", "Ledger", "Tabloid", 0
+};
+
 bool QPSPrintEngine::begin(QPaintDevice *pdev)
 {
     d->printer = static_cast<QPrinter*>(pdev);
@@ -5489,30 +5497,45 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
             } else {
                 // if no print program has been specified, be smart
                 // about the option string too.
-                const char * lprarg = 0;
-                QString lprhack;
-                const char * lparg = 0;
-                QString lphack;
+                QStringList lprhack;
+                QStringList lphack;
+                QString media;
                 if ( pr || option_string ) {
-                    lprhack = pr;
-                    if ( option_string )
-                        lprhack.prepend( option_string );
-                    else
-                        lprhack.prepend( QLatin1String( "-P" ) );
-                    lprarg = lprhack.ascii();
-                    lphack = pr;
-                    if ( option_string )
-                        lphack.prepend( option_string );
-                    else
-                        lphack.prepend( QLatin1String( "-d" ) );
-                    lparg = lphack.ascii();
+                    if ( option_string ) {
+                        lprhack = QStringList::split(QChar(' '), option_string);
+                        lphack = lprhack;
+                    } else {
+                        lprhack.append( QString::fromLatin1( "-P" ) );
+                        lphack.append( QString::fromLatin1( "-d" ) );
+                    }
+                    lprhack.append(pr);
+                    lphack.append(pr);
                 }
-                (void)execlp( "lp", "lp", lparg, (char *)0 );
-                (void)execlp( "lpr", "lpr", lprarg, (char *)0 );
-                (void)execl( "/bin/lp", "lp", lparg, (char *)0 );
-                (void)execl( "/bin/lpr", "lpr", lprarg, (char *)0 );
-                (void)execl( "/usr/bin/lp", "lp", lparg, (char *)0 );
-                (void)execl( "/usr/bin/lpr", "lpr", lprarg, (char *)0 );
+                char ** lpargs = new char *[lphack.size()+6];
+                lpargs[0] = "lp";
+                uint i;
+                for (i = 0; i < lphack.size(); ++i)
+                    lpargs[i+1] = (char *)lphack[i].ascii();
+                if (psToStr[page_size]) {
+                    lpargs[++i] = "-o";
+                    lpargs[++i] = (char *)psToStr[page_size];
+                    lpargs[++i] = "-o";
+                    media = "media=";
+                    media += psToStr[page_size];
+                    lpargs[++i] = (char *)media.ascii();
+                }
+                lpargs[++i] = 0;
+                char **lprargs = new char *[lprhack.size()+1];
+                lprargs[0] = "lpr";
+                for (uint i = 0; i < lprhack.size(); ++i)
+                    lprargs[i+1] = (char *)lprhack[i].ascii();
+                lprargs[lprhack.size() + 1] = 0;
+                (void)execvp( "lp", lpargs );
+                (void)execvp( "lpr", lprargs );
+                (void)execv( "/bin/lp", lpargs);
+                (void)execv( "/bin/lpr", lprargs);
+                (void)execv( "/usr/bin/lp", lpargs);
+                (void)execv( "/usr/bin/lpr", lprargs);
             }
             // if we couldn't exec anything, close the fd,
             // wait for a second so the parent process (the
