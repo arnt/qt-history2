@@ -986,7 +986,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         return 0;
     } else if (value.type() == QVariant::Pixmap || value.type() == QVariant::Icon) {
         DomResourcePixmap *r = new DomResourcePixmap;
-        QString name = m_core->iconCache()->iconToName(qVariant_to<QIcon>(value));
+        QString name = m_core->iconCache()->iconToFilePath(qVariant_to<QIcon>(value));
         r->setText(name);
         DomProperty *p = new DomProperty;
         p->setElementIconSet(r);

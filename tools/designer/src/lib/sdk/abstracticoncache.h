@@ -13,8 +13,9 @@ class QT_SDK_EXPORT AbstractIconCache : public QObject
 public:
     AbstractIconCache(QObject *parent)
         : QObject(parent) {}
-    virtual QIcon nameToIcon(const QString &name) = 0;
-    virtual QString iconToName(const QIcon &pm) = 0;
+    virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath = QString()) = 0;
+    virtual QString iconToFilePath(const QIcon &pm) = 0;
+    virtual QString iconToQrcPath(const QIcon &pm) = 0;
 };
 
 #endif // ABSTRACTICONCACHE_H

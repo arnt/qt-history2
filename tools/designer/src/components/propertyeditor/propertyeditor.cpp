@@ -129,7 +129,7 @@ void IconPropertyEditor::setIcon(const QIcon &pm)
     if (pm.serialNumber() == m_icon.serialNumber())
         return;
 
-    QString path = m_core->iconCache()->iconToName(pm);
+    QString path = m_core->iconCache()->iconToFilePath(pm);
     if (!path.isEmpty()) {
         m_edit->blockSignals(true);
         m_edit->setText(path);
@@ -154,7 +154,7 @@ void IconProperty::setValue(const QVariant &value)
 
 QString IconProperty::toString() const
 {
-    return m_core->iconCache()->iconToName(m_value);
+    return m_core->iconCache()->iconToFilePath(m_value);
 }
 
 QWidget *IconProperty::createEditor(QWidget *parent, const QObject *target,
