@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#194 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#195 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -801,6 +801,8 @@ void QImage::freeBits()
 // we convert the red,green and blue bytes into a single byte encoded
 // as 6 shades of each of red, green and blue.
 //
+// if dithering is needed, only 1 color at most is available for alpha.
+//
 
 struct QRgbMap {
     QRgbMap() : rgb(0xffffffff) { }
@@ -822,6 +824,9 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
     const int tablesize = 997; // prime
     QRgbMap table[tablesize];
     int   pix=0;
+    QRgb amask = src->hasAlphaBuffer() ? 0xffffffff : 0x00ffffff;
+    if ( src->hasAlphaBuffer() )
+	dst->setAlphaBuffer(TRUE);
 
     if ( palette ) {
 	// Preload palette into table.
@@ -830,10 +835,10 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 	// Almost same code as pixel insertion below
 	while ( palette_count-- > 0 ) {
 	    // Find in table...
-	    int hash = *p % tablesize;
+	    int hash = (*p & amask) % tablesize;
 	    for (;;) {
 		if ( table[hash].used() ) {
-		    if ( table[hash].rgb == (*p & 0x00ffffff) ) {
+		    if ( table[hash].rgb == (*p & amask) ) {
 			// Found previous insertion - use it
 			break;
 		    } else {
@@ -844,9 +849,9 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 		    // Cannot be in table
 		    ASSERT ( pix != 256 );		// too many colors
 		    // Insert into table at this unused position
-		    dst->setColor( pix, *p );
+		    dst->setColor( pix, (*p & amask) );
 		    table[hash].pix = pix++;
-		    table[hash].rgb = *p & 0x00ffffff;
+		    table[hash].rgb = *p & amask;
 		    break;
 		}
 	    }
@@ -863,10 +868,10 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 	    x = src->width();
 	    while ( x-- ) {
 		// Find in table...
-		int hash = *p % tablesize;
+		int hash = (*p & amask) % tablesize;
 		for (;;) {
 		    if ( table[hash].used() ) {
-			if ( table[hash].rgb == (*p & 0x00ffffff) ) {
+			if ( table[hash].rgb == (*p & amask) ) {
 			    // Found previous insertion - use it
 			    break;
 			} else {
@@ -882,9 +887,9 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 			    y = src->height();
 			} else {
 			    // Insert into table at this unused position
-			    dst->setColor( pix, *p );
+			    dst->setColor( pix, (*p & amask) );
 			    table[hash].pix = pix++;
-			    table[hash].rgb = *p & 0x00ffffff;
+			    table[hash].rgb = (*p & amask);
 			}
 			break;
 		    }
@@ -937,7 +942,8 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 	    for ( gc=0; gc<=MAX_G; gc++ )
 		for ( bc=0; bc<=MAX_B; bc++ ) {
 		    dst->setColor( INDEXOF(rc,gc,bc),
-			qRgb( rc*255/MAX_R, gc*255/MAX_G, bc*255/MAX_B ) );
+			(amask&0xff000000)
+			| qRgb( rc*255/MAX_R, gc*255/MAX_G, bc*255/MAX_B ) );
 		}
 
 	int sw = src->width();
@@ -1059,6 +1065,28 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 		} else {
 		    for (x=0; x<sw; x++) {
 			*b++ = INDEXOF(pv[0][x],pv[1][x],pv[2][x]);
+		    }
+		}
+	    }
+	}
+
+	if ( src->hasAlphaBuffer() ) {
+	    const int trans = 216;
+	    dst->setColor(trans, 0x00000000); // transparent
+	    QImage mask = src->createAlphaMask(conversion_flags);
+	    uchar* m;
+	    for ( y=0; y < src->height(); y++ ) {
+		uchar bit = 0x80;
+		m = mask.scanLine(y);
+		b = dst->scanLine(y);
+		int w = src->width();
+		for (int x = 0; x<w; x++) {
+		    if ( !(*m&bit) )
+			b[x] = trans;
+		    if (!(bit >>= 1)) {
+			bit = 0x80;
+			while (*++m == 0xff && x<w) // skip chunks
+			    x+=8;
 		    }
 		}
 	    }
