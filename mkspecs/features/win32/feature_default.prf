@@ -5,3 +5,4 @@
 !release:load(debug)
 !console:load(windows)
 !incremental:load(incremental_off, true)
+!thread:load(thread_off)
