@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#21 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#22 $
 **
 ** Implementation of QDns class.
 **
@@ -35,13 +35,17 @@
 **
 **********************************************************************/
 
+#include <qglobal.h>
+
 // Step 3)
 #if defined(Q_OS_LINUX)
 // I don't know why, I don't know how - but this is needed on Red Hat 7.0.
 #  define _BSD_SOURCE
 #endif
 // Step 4)
+#ifndef Q_WS_WIN
 #include <unistd.h>
+#endif
 
 // 'u_char' and other BSD unsigned things used in <arpa> are undefined
 // on Tru64 4.0f unless...
