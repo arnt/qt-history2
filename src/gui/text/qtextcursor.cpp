@@ -752,6 +752,7 @@ int QTextCursor::selectionEnd() const
 QString QTextCursor::selectedText() const
 {
     // ###########
+    return QString();
 }
 
 QTextDocumentFragment QTextCursor::selection() const
