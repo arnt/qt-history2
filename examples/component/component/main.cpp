@@ -40,8 +40,8 @@ QRESULT ExComponent::queryInterface( const QUuid &iid, QUnknownInterface **iface
 
 bool ExComponent::registerComponents( const QString &filepath ) const
 {
-    return QComponentFactory::registerComponent( Component1::cid, filepath, "Qt.Example", "1", "An example component for Qt" ) &&
-	   QComponentFactory::registerComponent( Component2::cid, filepath, "Qt.AnotherExample", "1", "Another example component for Qt" );
+    return QComponentFactory::registerComponent( Component1::cid, filepath, "Qt.Example", 1, "An example component for Qt" ) &&
+	   QComponentFactory::registerComponent( Component2::cid, filepath, "Qt.AnotherExample", 1, "Another example component for Qt" );
 }
 
 bool ExComponent::unregisterComponents() const
