@@ -725,9 +725,13 @@ void WriteInitialization::initializeListBox(DomWidget *w)
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
 
+    QList<DomItem*> items = w->elementItem();
+
+    if (items.isEmpty())
+        return;
+
     refreshOut << option.indent << varName << "->clear();\n";
 
-    QList<DomItem*> items = w->elementItem();
     for (int i=0; i<items.size(); ++i) {
         DomItem *item = items.at(i);
 
@@ -753,9 +757,13 @@ void WriteInitialization::initializeIconView(DomWidget *w)
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
 
+    QList<DomItem*> items = w->elementItem();
+
+    if (items.isEmpty())
+        return;
+
     refreshOut << option.indent << varName << "->clear();\n";
 
-    QList<DomItem*> items = w->elementItem();
     for (int i=0; i<items.size(); ++i) {
         DomItem *item = items.at(i);
 
@@ -783,8 +791,6 @@ void WriteInitialization::initializeListView(DomWidget *w)
 {
     QString varName = driver->findOrInsertWidget(w);
     QString className = w->attributeClass();
-
-    refreshOut << option.indent << varName << "->clear();\n";
 
     // columns
     QList<DomColumn*> columns = w->elementColumn();
@@ -820,6 +826,11 @@ void WriteInitialization::initializeListView(DomWidget *w)
 
 void WriteInitialization::initializeListViewItems(const QString &className, const QString &varName, const QList<DomItem *> &items)
 {
+    if (items.isEmpty())
+        return;
+
+    refreshOut << option.indent << varName << "->clear();\n";
+
     // items
     for (int i=0; i<items.size(); ++i) {
         DomItem *item = items.at(i);
