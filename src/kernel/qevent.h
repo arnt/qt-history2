@@ -265,8 +265,8 @@ public:
     const QPoint &oldPos()const { return oldp;}
 protected:
     QPoint p, oldp;
-    friend QApplication;
-    friend QBaseApplication;
+    friend class QApplication;
+    friend class QBaseApplication;
 };
 
 
@@ -279,8 +279,8 @@ public:
     const QSize &oldSize()const { return olds;}
 protected:
     QSize s, olds;
-    friend QApplication;
-    friend QBaseApplication;
+    friend class QApplication;
+    friend class QBaseApplication;
 };
 
 
