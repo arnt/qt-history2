@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdio.h>
 
+#ifndef QT_NO_XFTFREETYPE
 #ifdef QT_NO_XFTNAMEUNPARSE
 
 extern "C" {
@@ -290,3 +291,4 @@ XftDraw *XftDrawCreateAlpha( Display *display,
 
 }
 #endif // QT_XFT2
+#endif // QT_NO_XFTFREETYPE

@@ -285,10 +285,12 @@ Qt::HANDLE QPaintDevice::handle() const
     handle could not be created.
 */
 
+#ifndef QT_NO_XFTFREETYPE
 #ifndef QT_XFT2
 // Xft1 doesn't have XftDrawPicture, so we fake it in qtaddons_x11.cpp
 extern "C" Qt::HANDLE XftDrawPicture( XftDraw * );
 #endif // QT_XFT2
+#endif // QT_NO_XFTFREETYPE
 
 Qt::HANDLE QPaintDevice::x11RenderHandle() const
 {
