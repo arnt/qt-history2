@@ -2036,6 +2036,9 @@ void QWidget::setRegionDirty(bool child)
 */
 void QWidget::dirtyClippedRegion(bool dirty_myself)
 {
+    if(qApp->closingDown())
+	return;
+
     if(dirty_myself) {
 	//dirty myself
 	if(extra) {
@@ -2045,8 +2048,8 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	//when I get dirty so do my children
 	if(QObjectList *chldn = queryList()) {
 	    QObjectListIt it(*chldn);
-	    for(QObject *obj; (obj = it.current()); ++it) {
-		if(obj->isWidgetType()) {
+	    for(QObject *obj; (obj = it.current()); ++it ) {
+		if(obj->isWidgetType() && !obj->wasDeleted) {
 		    QWidget *w = (QWidget *)(*it);
 		    if(!w->isTopLevel() && w->isVisible())
 			w->setRegionDirty(TRUE);
@@ -2067,7 +2070,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 
 	if(const QObjectList *chldn = widg->children()) {
 	    for(QObjectListIt it(*chldn); it.current() && it.current() != last; ++it) {
-		if((*it)->isWidgetType()) {
+		if((*it)->isWidgetType() && !(*it)->wasDeleted) {
 		    w = (QWidget *)(*it);
 		    if(!w->isTopLevel() && w->isVisible()) {
 			QPoint wp(px + w->x(), py + w->y());
@@ -2075,8 +2078,8 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 			    w->setRegionDirty(TRUE);
 			    if(QObjectList *chldn2 = w->queryList()) {
 				QObjectListIt it2(*chldn2);
-				for(QObject *obj; (obj = it2.current()); ++it2) {
-				    if(obj->isWidgetType()) {
+				for(QObject *obj; (obj = it2.current()); ++it2 ) {
+				    if(obj->isWidgetType() && !obj->wasDeleted) {
 					QWidget *w = (QWidget *)(*it2);
 					/* this relies on something that may change in the future
 					   if hd for all sub widgets != toplevel widget's hd, then
@@ -2161,7 +2164,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	return extra->clip_sibs = extra->clip_children = QRegion(0, 0, width(), height());
     }
 
-    if(!isVisible() ||  (qApp->closingDown() || qApp->startingUp()))
+    if(wasDeleted || !isVisible() ||  qApp->closingDown() || qApp->startingUp())
 	return QRegion();
 
     createExtra();
@@ -2231,7 +2234,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    const QObjectList *chldnlst=children();
 	    QRect sr(vis_x, vis_y, vis_width, vis_height);
 	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
-		if((*it)->isWidgetType()) {
+		if((*it)->isWidgetType() && !(*it)->wasDeleted) {
 		    QWidget *cw = (QWidget *)(*it);
 		    if(cw->isVisible() && !cw->isTopLevel() && sr.intersects(cw->geometry())) {
 			QRegion childrgn(cw->x(), cw->y(), cw->width(), cw->height());
@@ -2264,7 +2267,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 		QObjectListIt it(*siblst);
 		//loop to this because its in zorder, and i don't care about people behind me
 		for(it.toLast(); it.current() && it.current() != this; --it) {
-		    if((*it)->isWidgetType()) {
+		    if((*it)->isWidgetType() && !(*it)->wasDeleted) {
 			QWidget *sw = (QWidget *)(*it);
 			tmp = posInWindow(sw);
 			QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
