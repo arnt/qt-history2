@@ -62,7 +62,7 @@ QVButtonGroup::QVButtonGroup( const QString &title, QWidget *parent,
 }
 
 /*!
-  Destroys the vertical button group and its child widgets.
+  Destructs the vertical button group, deleting its child widgets.
 */
 QVButtonGroup::~QVButtonGroup()
 {

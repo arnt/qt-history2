@@ -267,7 +267,7 @@ QButton::QButton( QWidget *parent, const char *name, WFlags f )
 }
 
 /*!
-  Destroys the button and all its child widgets.
+  Destructs the button, deleting all its child widgets.
 */
 
 QButton::~QButton()

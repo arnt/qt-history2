@@ -421,7 +421,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 
 
 /*!
-  Destroys the combo box.
+  Destructs the combo box.
 */
 
 QComboBox::~QComboBox()

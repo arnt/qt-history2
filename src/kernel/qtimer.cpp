@@ -100,7 +100,7 @@ QTimer::QTimer( QObject *parent, const char *name )
 }
 
 /*!
-  Destroys the timer.
+  Destructs the timer.
 */
 
 QTimer::~QTimer()

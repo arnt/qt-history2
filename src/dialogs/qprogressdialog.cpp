@@ -202,7 +202,7 @@ QProgressDialog::QProgressDialog( const QString &labelText,
 
 
 /*!
-  Destroys the progress dialog.
+  Destructs the progress dialog.
 */
 
 QProgressDialog::~QProgressDialog()

@@ -149,7 +149,7 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
 }
 
 
-/*! Destroys the object and frees any allocated resources, including,
+/*! Destructs the object and frees any allocated resources, including,
 of course, all pages and controllers.
 */
 

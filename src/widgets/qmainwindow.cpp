@@ -633,7 +633,7 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
 }
 
 
-/*! Destroys the object and frees any allocated resources.
+/*! Destructs the object and frees any allocated resources.
 
 */
 

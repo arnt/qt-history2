@@ -133,7 +133,7 @@ QStyleSheetItem::QStyleSheetItem( const QStyleSheetItem & other )
 
 
 /*!
-  Destroys the style.  Note that QStyleSheetItem objects become owned
+  Destructs the style.  Note that QStyleSheetItem objects become owned
   by QStyleSheet when they are created.
  */
 QStyleSheetItem::~QStyleSheetItem()
@@ -908,7 +908,7 @@ QStyleSheet::QStyleSheet( QObject *parent, const char *name )
 }
 
 /*!
-  Destroys the style sheet.  All styles inserted into the style sheet
+  Destructs the style sheet.  All styles inserted into the style sheet
   will be deleted.
 */
 QStyleSheet::~QStyleSheet()

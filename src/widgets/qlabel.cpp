@@ -165,7 +165,7 @@ QLabel::QLabel( QWidget *buddy,  const QString &text,
 
 
 /*!
-  Destroys the label.
+  Destructs the label.
 */
 
 QLabel::~QLabel()

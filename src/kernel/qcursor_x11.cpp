@@ -243,7 +243,7 @@ QCursor::QCursor( const QCursor &c )
 }
 
 /*!
-  Destroys the cursor.
+  Destructs the cursor.
 */
 
 QCursor::~QCursor()

@@ -167,7 +167,7 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &button,
 }
 
 /*!
-  Destroys the color group.
+  Destructs the color group.
 */
 
 QColorGroup::~QColorGroup()
@@ -440,7 +440,7 @@ QPalette::QPalette( const QPalette &p )
 }
 
 /*!
-  Destroys the palette.
+  Destructs the palette.
 */
 
 QPalette::~QPalette()

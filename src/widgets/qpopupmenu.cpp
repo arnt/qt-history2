@@ -224,7 +224,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 }
 
 /*!
-  Destroys the popup menu.
+  Destructs the popup menu.
 */
 
 QPopupMenu::~QPopupMenu()

@@ -165,7 +165,7 @@ QDataStream::QDataStream( QByteArray a, int mode )
 }
 
 /*!
-  Destroys the data stream.
+  Destructs the data stream.
 
   The destructor will not affect the current IO device, unless it
   is an internal IO device processing a QByteArray passed in the constructor.

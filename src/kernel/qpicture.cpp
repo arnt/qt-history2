@@ -108,7 +108,7 @@ QPicture::QPicture( int formatVer )
 }
 
 /*!
-  Destroys the picture.
+  Destructs the picture.
 */
 QPicture::~QPicture()
 {

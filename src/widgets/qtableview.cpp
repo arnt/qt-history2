@@ -175,7 +175,7 @@ QTableView::QTableView( QWidget *parent, const char *name, WFlags f )
 }
 
 /*!
-  Destroys the table view.
+  Destructs the table view.
 */
 
 QTableView::~QTableView()

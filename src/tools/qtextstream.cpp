@@ -519,7 +519,7 @@ QTextStream::QTextStream( FILE *fh, int mode )
 }
 
 /*!
-  Destroys the text stream.
+  Destructs the text stream.
 
   The destructor does not affect the current IO device.
 */

@@ -185,7 +185,7 @@ QIconSet::QIconSet( const QIconSet& other )
 
 
 /*!
-  Destroys the icon set and frees any allocated resources.
+  Destructs the icon set and frees any allocated resources.
 */
 QIconSet::~QIconSet()
 {

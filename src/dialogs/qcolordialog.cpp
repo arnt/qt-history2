@@ -1124,7 +1124,7 @@ QColor QColorDialog::selectedColor() const
 }
 
 
-/*! Destroys the dialog and frees any memory it allocated.
+/*! Destructs the dialog and frees any memory it allocated.
 
 */
 

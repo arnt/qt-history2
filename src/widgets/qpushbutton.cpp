@@ -221,7 +221,7 @@ QPushButton::QPushButton( const QIconSet& icon, const QString &text,
 
 
 /*!
-  Destroys the push button
+  Destructs the push button
  */
 QPushButton::~QPushButton()
 {

@@ -171,7 +171,7 @@ QLineEdit::QLineEdit( const QString & contents,
 
 
 /*!
-  Destroys the line editor.
+  Destructs the line editor.
 */
 
 QLineEdit::~QLineEdit()

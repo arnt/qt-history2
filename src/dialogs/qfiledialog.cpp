@@ -2360,7 +2360,7 @@ void QFileDialog::changeMode( int id )
 }
 
 /*!
-  Destroys the file dialog.
+  Destructs the file dialog.
 */
 
 QFileDialog::~QFileDialog()

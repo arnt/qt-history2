@@ -95,7 +95,7 @@ QFile::QFile( const QString &name )
 
 
 /*!
-  Destroys a QFile.  Calls close().
+  Destructs a QFile.  Calls close().
 */
 
 QFile::~QFile()

@@ -140,7 +140,7 @@ QFileInfo::QFileInfo( const QFileInfo &fi )
 }
 
 /*!
-  Destroys the QFileInfo.
+  Destructs the QFileInfo.
 */
 
 QFileInfo::~QFileInfo()

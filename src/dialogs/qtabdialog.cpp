@@ -221,7 +221,7 @@ QTabDialog::QTabDialog( QWidget *parent, const char *name, bool modal,
 
 
 /*!
-  Destroys the tab dialog.
+  Destructs the tab dialog.
 */
 
 QTabDialog::~QTabDialog()

@@ -110,7 +110,7 @@ QBuffer::QBuffer( QByteArray buf ) : a(buf)
 }
 
 /*!
-  Destroys the buffer.
+  Destructs the buffer.
 */
 
 QBuffer::~QBuffer()

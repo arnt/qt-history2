@@ -101,7 +101,7 @@ QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
 }
 
 
-/*! Destroys the object and frees any allocated resources. */
+/*! Destructs the object and frees any allocated resources. */
 
 QWidgetStack::~QWidgetStack()
 {

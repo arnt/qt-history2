@@ -202,7 +202,7 @@ QRegExp::QRegExp( const QRegExp &r )
 }
 
 /*!
-  Destroys the regular expression and cleans up its internal data.
+  Destructs the regular expression and cleans up its internal data.
 */
 
 QRegExp::~QRegExp()

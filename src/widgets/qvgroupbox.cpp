@@ -61,7 +61,7 @@ QVGroupBox::QVGroupBox( const QString &title, QWidget *parent,
 }
 
 /*!
-  Destroys the vertical group box and its child widgets.
+  Destructs the vertical group box, deleting its child widgets.
 */
 QVGroupBox::~QVGroupBox()
 {

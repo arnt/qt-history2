@@ -60,7 +60,7 @@ QSemiModal::QSemiModal( QWidget *parent, const char *name, bool modal, WFlags f 
 }
 
 /*!
-  Destroys the QSemiModal and all its children.
+  Destructs the widget, deleting all its children.
 */
 
 QSemiModal::~QSemiModal()

@@ -93,7 +93,7 @@ QPrinter::QPrinter()
 }
 
 /*!
-  Destroys the printer paint device and cleans up.
+  Destructs the printer paint device and cleans up.
 */
 
 QPrinter::~QPrinter()

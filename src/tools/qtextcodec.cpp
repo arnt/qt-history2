@@ -791,7 +791,7 @@ bool QTextCodec::canEncode( const QString& s ) const
 */
 
 /*!
-  Destroys the encoder.
+  Destructs the encoder.
 */
 QTextEncoder::~QTextEncoder()
 {
@@ -821,7 +821,7 @@ QTextEncoder::~QTextEncoder()
 
 
 /*!
-  Destroys the decoder.
+  Destructs the decoder.
 */
 QTextDecoder::~QTextDecoder()
 {

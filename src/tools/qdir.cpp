@@ -200,7 +200,7 @@ void QDir::init()
 }
 
 /*!
-  Destroys the QDir and cleans up.
+  Destructs the QDir and cleans up.
 */
 
 QDir::~QDir()

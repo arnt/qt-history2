@@ -276,7 +276,7 @@ QFont::QFont( const QFont &font )
 }
 
 /*!
-  Destroys the font object.
+  Destructs the font object.
 */
 
 QFont::~QFont()
@@ -1417,7 +1417,7 @@ QFontMetrics::QFontMetrics( const QFontMetrics &fm )
 }
 
 /*!
-  Destroys the font metrics object.
+  Destructs the font metrics object.
 */
 
 QFontMetrics::~QFontMetrics()
@@ -1740,7 +1740,7 @@ QFontInfo::QFontInfo( const QFontInfo &fi )
 }
 
 /*!
-  Destroys the font info object.
+  Destructs the font info object.
 */
 
 QFontInfo::~QFontInfo()

@@ -550,7 +550,7 @@ QMessageBox::QMessageBox( const QString& caption,
 
 
 /*!
-  Destroys the message box.
+  Destructs the message box.
 */
 
 QMessageBox::~QMessageBox()

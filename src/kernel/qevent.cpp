@@ -1307,8 +1307,13 @@ QCustomEvent::QCustomEvent( int type )
 
 
 /*!
-  Destroys the event.  Reports an error if the event is \link
-  QApplication::postEvent() posted \endlink for dispatch to an object.
+  Destructs the event.  If it was \link
+  QApplication::postEvent() posted \endlink,
+  it will be removed from the list of events to be posted.
+
+  \internal
+  It used to print an error (useful for people who posted events
+  that were on the stack).
 */
 
 QEvent::~QEvent()
