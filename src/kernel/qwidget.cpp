@@ -641,6 +641,9 @@ inline bool QWidgetMapper::remove( WId id )
     is minimized. If not customized, the window is decorated with a
     slightly simpler title bar. This is the flag QDialog uses.
 
+    \value WStyle_Splash  indicates that the window is a splash screen.
+    This is the same as \c WStyle_NoBorder|WStyle_StaysOnTop|WX11BypassWM.
+
     Modifier flags:
 
     \value WDestructiveClose  makes Qt delete this widget when the
@@ -3410,7 +3413,7 @@ void QWidget::move( int x, int y )
 	    if ( object->isWidgetType() ) {
 		QWidget *widget = (QWidget*)object;
 		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) &&
-		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() ) 
+		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() )
 		    widget->update();
 	    }
 	}
@@ -3447,7 +3450,7 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	    if ( object->isWidgetType() ) {
 		QWidget *widget = (QWidget*)object;
 		if ( !widget->isHidden() && !widget->isTopLevel() && !widget->testWFlags(Qt::WSubWindow) &&
-		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() ) 
+		     widget->backgroundOrigin() != WidgetOrigin && widget->backgroundPixmap() )
 		    widget->update();
 	    }
 	}
