@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.h#5 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.h#6 $
 **
 ** Definition of QTextCodec class
 **
@@ -46,6 +46,7 @@ public:
     virtual ~QTextCodec();
 
     static QTextCodec* loadCharmap(QIODevice*);
+    static QTextCodec* loadCharmapFile(QString filename);
 
     static QTextCodec* codecForMib(int mib);
     static QTextCodec* codecForName(const char* hint);
@@ -62,6 +63,11 @@ public:
 
     virtual QString toUnicode(const char* chars, int len) const;
     virtual char* fromUnicode(const QString& uc, int& len_in_out) const;
+
+    char* fromUnicode(const QString& uc) const;
+    QString toUnicode(const QByteArray&, int len) const;
+    QString toUnicode(const QByteArray&) const;
+    QString toUnicode(const char* chars) const;
 
     virtual int heuristicContentMatch(const char* chars, int len) const = 0;
     virtual int heuristicNameMatch(const char* hint) const;

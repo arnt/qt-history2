@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#13 $
 **
 ** Implementation of QTextCodec class
 **
@@ -23,7 +23,7 @@
 
 #include "qlist.h"
 #include "qtextcodec.h"
-#include "qiodevice.h"
+#include "qfile.h"
 #include "qstrlist.h"
 #include <stdlib.h>
 #include <ctype.h>
@@ -247,6 +247,9 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
   \fn const char* QTextCodec::name() const
   Subclasses of QTextCodec must override this function.  It returns
   the name of the encoding supported by the subclass.
+
+  Note that this name, with "text/" prepended is a potential
+  encoding for \link QTextDrag text Drag and Drop.\endlink
 */
 
 /*!
@@ -340,6 +343,40 @@ char* QTextCodec::fromUnicode(const QString& uc, int& len_in_out) const
     delete i;
     return result;
 }
+
+/*!
+  \overload QTextCodec::fromUnicode(const QString&, int) const
+*/
+char* QTextCodec::fromUnicode(const QString& uc) const
+{
+    int l = uc.length();
+    return fromUnicode(uc,l);
+}
+
+/*!
+  \overload QTextCodec::toUnicode(const char*, int) const
+*/
+QString QTextCodec::toUnicode(const QByteArray& a, int len) const
+{
+    return toUnicode(a.data(),len);
+}
+
+/*!
+  \overload QTextCodec::toUnicode(const char*, int) const
+*/
+QString QTextCodec::toUnicode(const QByteArray& a) const
+{
+    return toUnicode(a.data(),a.size());
+}
+
+/*!
+  \overload QTextCodec::toUnicode(const char*, int) const
+*/
+QString QTextCodec::toUnicode(const char* chars) const
+{
+    return toUnicode(chars,strlen(chars));
+}
+
 
 
 /*!
@@ -703,6 +740,8 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
   The resulting QTextCodec is returned (and also added to the
   global list of codecs).  The name() of the result is taken
   from the code_set_name.
+
+  \sa loadCharmapFile()
 */
 QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
 {
@@ -712,6 +751,20 @@ QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
 	r = 0;
     }
     return r;
+}
+
+/*!
+  A convenience function for QTextCodec::loadCharmap().
+*/
+QTextCodec* QTextCodec::loadCharmapFile(QString filename)
+{
+    QFile f(filename);
+    if (f.open(IO_ReadOnly)) {
+	QTextCodecFromIOD* r = new QTextCodecFromIOD(&f);
+	if ( !r->ok() )
+	    delete r;
+    }
+    return 0;
 }
 
 
