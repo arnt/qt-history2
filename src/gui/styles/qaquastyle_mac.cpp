@@ -372,7 +372,7 @@ void QAquaAnimate::setFocusWidget(QWidget *w)
 #endif
         if(top && (w->width() < top->width() - 30 || w->height() < top->height() - 40)) {
             if(QComboBox *cmb = ::qt_cast<QComboBox *>(w)) {
-                if(cmb->editable())
+                if(cmb->isEditable())
                     w = cmb->lineEdit();
             }
         } else {

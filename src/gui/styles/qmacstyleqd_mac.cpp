@@ -732,7 +732,7 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
         ret = QEvent::MouseButtonRelease;
         break;
     case SH_ComboBox_Popup:
-        ret = (!w || !((QComboBox*)w)->editable());
+        ret = (!w || !static_cast<QComboBox *>(w)->isEditable());
         break;
     case SH_Workspace_FillSpaceOnMaximize:
         ret = true;
