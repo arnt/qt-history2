@@ -12,8 +12,12 @@
 **
 ****************************************************************************/
 
+#include "qcoreapplication.h"
+#include "qcoreevent.h"
 #include "qsignal.h"
+#include "qthread.h"
 #include "qmetaobject.h"
+#include "private/qobject_p.h"
 
 /*!
     \class QSignal qsignal.h
@@ -172,10 +176,9 @@ bool QSignalEmitter::disconnect(const QObject *receiver, const char *member)
     return QObject::disconnect(this, signal, receiver, member);
 }
 
-
 /*! internal
  */
-bool qInvokeSlot(QObject *obj, const char *slotName,
+bool qInvokeSlot(QObject *obj, const char *slotName, Qt::ConnectionType type,
                  QGenericReturnArgument ret,
                  QGenericArgument val0,
                  QGenericArgument val1,
@@ -232,26 +235,36 @@ bool qInvokeSlot(QObject *obj, const char *slotName,
         return false;
 
     void *param[] = {ret.data(), val0.data(), val1.data(), val2.data(), val3.data(), val4.data(),
-                        val5.data(), val6.data(), val7.data(), val8.data(), val9.data() };
-    obj->qt_metacall(QMetaObject::InvokeSlot, idx, param);
+                     val5.data(), val6.data(), val7.data(), val8.data(), val9.data()};
+    if (type == Qt::AutoConnection)
+        type = QThread::currentThread() == obj->thread() ? Qt::DirectConnection
+                                                         : Qt::QueuedConnection;
 
+    if (type != Qt::QueuedConnection) {
+        return obj->qt_metacall(QMetaObject::InvokeSlot, idx, param) < 0;
+    } else {
+        int nargs = 1; // include return type
+        void **args = (void **) qMalloc(11 * sizeof(void *));
+        int *types = (int *) qMalloc(11 * sizeof(int));
+        const char *typeNames[] = {ret.name(), val0.name(), val1.name(), val2.name(), val3.name(),
+                             val4.name(), val5.name(), val6.name(), val7.name(), val8.name(),
+                             val9.name()};
+        types[0] = 0; // return type
+        args[0] = 0;
+        for (int i = 1; i < 11; ++i) {
+            types[i] = QMetaType::type(typeNames[i]);
+            if (types[i]) {
+                args[i] = QMetaType::copy(types[i], param[i]);
+                ++nargs;
+            } else if (param[i]) {
+                qWarning("Unable to handle unregistered datatype '%s'", typeNames[i]);
+                return false;
+            }
+        }
+
+        QCoreApplication::postEvent(obj,
+               new QMetaCallEvent(QEvent::InvokeSlot, idx, obj, nargs, types, args));
+    }
     return true;
 }
 
-/*! internal
- */
-bool qInvokeSlot(QObject *obj, const char *slotName,
-                 QGenericArgument val0,
-                 QGenericArgument val1,
-                 QGenericArgument val2,
-                 QGenericArgument val3,
-                 QGenericArgument val4,
-                 QGenericArgument val5,
-                 QGenericArgument val6,
-                 QGenericArgument val7,
-                 QGenericArgument val8,
-                 QGenericArgument val9)
-{
-    return qInvokeSlot(obj, slotName, QGenericReturnArgument(), val0, val1, val2, val3,
-                       val4, val5, val6, val7, val8, val9);
-}

@@ -130,6 +130,7 @@ public:
 /*! internal
 */
 Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
+                 Qt::ConnectionType,
                  QGenericReturnArgument ret,
                  QGenericArgument val0 = QGenericArgument(0),
                  QGenericArgument val1 = QGenericArgument(),
@@ -144,7 +145,8 @@ Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
 
 /*! internal
  */
-Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
+inline Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
+                 QGenericReturnArgument ret,
                  QGenericArgument val0 = QGenericArgument(0),
                  QGenericArgument val1 = QGenericArgument(),
                  QGenericArgument val2 = QGenericArgument(),
@@ -154,6 +156,48 @@ Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
                  QGenericArgument val6 = QGenericArgument(),
                  QGenericArgument val7 = QGenericArgument(),
                  QGenericArgument val8 = QGenericArgument(),
-                 QGenericArgument val9 = QGenericArgument());
+                 QGenericArgument val9 = QGenericArgument())
+{
+    return qInvokeSlot(obj, slotName, Qt::AutoConnection, ret, val0, val1, val2, val3, val4, val5,
+                       val6, val7, val8, val9);
+}
+
+/*! internal
+ */
+inline Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
+                 Qt::ConnectionType type,
+                 QGenericArgument val0 = QGenericArgument(0),
+                 QGenericArgument val1 = QGenericArgument(),
+                 QGenericArgument val2 = QGenericArgument(),
+                 QGenericArgument val3 = QGenericArgument(),
+                 QGenericArgument val4 = QGenericArgument(),
+                 QGenericArgument val5 = QGenericArgument(),
+                 QGenericArgument val6 = QGenericArgument(),
+                 QGenericArgument val7 = QGenericArgument(),
+                 QGenericArgument val8 = QGenericArgument(),
+                 QGenericArgument val9 = QGenericArgument())
+{
+    return qInvokeSlot(obj, slotName, type, QGenericReturnArgument(), val0, val1, val2, val3,
+                       val4, val5, val6, val7, val8, val9);
+}
+
+
+/*! internal
+ */
+inline Q_CORE_EXPORT bool qInvokeSlot(QObject *obj, const char *slotName,
+                 QGenericArgument val0 = QGenericArgument(0),
+                 QGenericArgument val1 = QGenericArgument(),
+                 QGenericArgument val2 = QGenericArgument(),
+                 QGenericArgument val3 = QGenericArgument(),
+                 QGenericArgument val4 = QGenericArgument(),
+                 QGenericArgument val5 = QGenericArgument(),
+                 QGenericArgument val6 = QGenericArgument(),
+                 QGenericArgument val7 = QGenericArgument(),
+                 QGenericArgument val8 = QGenericArgument(),
+                 QGenericArgument val9 = QGenericArgument())
+{
+    return qInvokeSlot(obj, slotName, Qt::AutoConnection, QGenericReturnArgument(), val0, val1,
+                       val2, val3, val4, val5, val6, val7, val8, val9);
+}
 
 #endif // QSIGNAL_H
