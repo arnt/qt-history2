@@ -64,13 +64,13 @@ sub-examples: sub-tools FORCE
 	cd examples && $(MAKE)
 
 distclean clean uiclean mocclean:
-	cd qmake && $(MAKE) $@
 	cd tools && $(MAKE) $@
 	cd src/moc && $(MAKE) $@
 	cd src && $(MAKE) $@
 	cd tutorial && $(MAKE) $@
 	cd plugins/src && $(MAKE) $@
 	cd examples && $(MAKE) $@
+	cd qmake && $(MAKE) $@
 
 doc: FORCE
 	qdoc util/qdoc/qdoc.conf
