@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#45 $
+** $Id: //depot/qt/main/src/opengl/src/qgl.cpp#45 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -47,9 +47,7 @@ static QGLFormat* qgl_default_overlay_format = 0;
 static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 /*!
-  \relates QGLFormat
-  Returns the version number string for the Qt OpenGL extension,
-  e.g. "1.0".
+  \obsolete
 */
 
 const char *qGLVersion()
@@ -1182,14 +1180,14 @@ QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 
 QGLWidget::~QGLWidget()
 {
-#if defined(GLX_MESA_release_buffers)
+#if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
     bool doRelease = ( glcx && glcx->windowCreated() );
 #endif
     delete glcx;
 #if defined(Q_WGL)
     delete olcx;
 #endif
-#if defined(GLX_MESA_release_buffers)
+#if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
     if ( doRelease )
 	glXReleaseBuffersMESA( x11Display(), winId() );
 #endif
@@ -1700,12 +1698,12 @@ application must be created with another toolkit, such as Motif on the
 X platform, Microsoft Foundation Classes (MFC) under Windows - or Qt
 on <i>both</i> platforms.
 
-The Qt OpenGL Extension makes it easy to use OpenGL in Qt
+The Qt OpenGL module makes it easy to use OpenGL in Qt
 applications.  It provides an OpenGL widget class that can be used
 just like any other Qt widget, only that it opens an OpenGL display
 buffer where you can use the OpenGL API to render the contents.
  
-The Qt OpenGL Extension is implemented as a platform-independent
+The Qt OpenGL module is implemented as a platform-independent
 Qt/C++ wrapper around the platform-dependent GLX and WGL C APIs. The
 provided functionality is very similar to Mark Kilgard's GLUT library,
 but with much more non-OpenGL-specific GUI functionality: the whole Qt
@@ -1733,17 +1731,6 @@ the Makefiles to use these library names instead. The easiest way to
 do this edit the SYSCONF_LIBS_OPENGL line in the config file you are
 using (qt/configs/*), changing "-lGL -lGLU" to "-lMesaGL -lMesaGLU";
 then run "configure" again.
-
-<h2>Building programs</h2>
-
-Building your own programs that use the Qt OpenGL Extension is done
-just like building other Qt programs, the only extra step needed is:
-<ul>
-  <li> If you use tmake: Just add the 'qgl' keyword to the 'CONFIG' line.
-  <li> Otherwise: Link with the libqgl.a (Unix) or qgl.lib (Windows) library,
-	and add the location of the GL headers to the include path.
-</ul>
-See the example programs for details.
 
 <h2>The QGL Classes</h2>
 
