@@ -26,7 +26,7 @@ class GLStencil : public GLControlWidget
 public:
 
     GLStencil( QWidget* parent = 0, const char* name = 0, WFlags f = 0, 
-	   QGLFormat form = QGLFormat::defaultFormat() );
+	   QGLFormat form = QGLFormat ( StencilBuffer ));
     ~GLStencil();
 
 protected:
@@ -35,10 +35,6 @@ protected:
     void		paintGL();
     void		resizeGL( int w, int h );
 
-    virtual GLuint 	makeObject();
-
-private:
-    GLuint object;
 };
 
 
