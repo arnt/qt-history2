@@ -77,7 +77,8 @@ bool Uic::write(QIODevice *in)
         }
         //qWarning("converting file '%s'", opt.inputFile.latin1());
         BlockingProcess uic3;
-        uic3.setArguments(QStringList() << QLatin1String("uic3") << QLatin1String("-convert") << opt.inputFile);
+        QString exe = QString::fromUtf8(qInstallPathBins()) + QString::fromUtf8("/uic3");
+        uic3.setArguments(QStringList() << exe << QLatin1String("-convert") << opt.inputFile);
         if (!uic3.start()) {
             fprintf(stderr, "Couldn't start uic3\n");
             return false;
