@@ -2209,9 +2209,10 @@ void QWSServer::raiseWindow(QWSWindow *changingw, int /*alt*/)
                 break;
             }
         }
-        if (!in)
+        if (!in) {
             windows.append(changingw);
-        newPos = windows.size()-1;
+            newPos = windows.size()-1;
+        }
     }
 
     if (windowPos != newPos) {
