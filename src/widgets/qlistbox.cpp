@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#260 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#261 $
 **
 ** Implementation of QListBox widget class
 **
@@ -229,10 +229,10 @@ int QListBoxItem::height()  const
 }
 
 // To stop warnings...
-int QListBoxTextItem::width( const QListBox * ) const { return 0; }
-int QListBoxTextItem::height( const QListBox * ) const { return 0; }
-int QListBoxPixmapItem::width( const QListBox * ) const { return 0; }
-int QListBoxPixmapItem::height( const QListBox * ) const { return 0; }
+int QListBoxText::width( const QListBox * ) const { return 0; }
+int QListBoxText::height( const QListBox * ) const { return 0; }
+int QListBoxPixmap::width( const QListBox * ) const { return 0; }
+int QListBoxPixmap::height( const QListBox * ) const { return 0; }
 
 /*!\obsolete
   \fn int QListBoxItem::width(	const QListBox * ) const
