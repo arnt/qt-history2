@@ -47,6 +47,7 @@
 
 class QPopupMenu;
 class QMenuDataData;
+class QObject;
 
 #if defined(INCLUDE_MENUITEM_DEF)
 
