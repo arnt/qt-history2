@@ -391,8 +391,13 @@ QMakeProject::read(QString project, QString pwd)
 	vars["TEMPLATE"].first().replace(QRegExp("\\.t$"), "");
 
     if(vars["TARGET"].isEmpty()) {
-	QFileInfo fi(project);
-	vars["TARGET"].append(fi.fileName().replace(QRegExp("\\.pro$"), ""));
+	QFileInfo fi(pfile);
+	QString tmp = pfile;
+	if(tmp.findRev(Option::dir_sep) != -1)
+	    pfile = pfile.right(pfile.length() - pfile.findRev(Option::dir_sep));
+	if(tmp.findRev('.') != -1)
+	    tmp = tmp.left(tmp.findRev('.'));
+	vars["TARGET"].append(tmp);
     }
 
     return TRUE;
