@@ -208,20 +208,8 @@ public:
 	OpaqueMode
     };
 
-    enum PaintUnit {				// paint unit
-	PixelUnit,
-	LoMetricUnit, // OBSOLETE
-	HiMetricUnit, // OBSOLETE
-	LoEnglishUnit, // OBSOLETE
-	HiEnglishUnit, // OBSOLETE
-	TwipsUnit // OBSOLETE
-    };
-
     enum GUIStyle {
-	MacStyle, // OBSOLETE
 	WindowsStyle,
-	Win3Style, // OBSOLETE
-	PMStyle, // OBSOLETE
 	MotifStyle
     };
 
