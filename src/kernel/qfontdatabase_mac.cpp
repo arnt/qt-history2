@@ -66,6 +66,8 @@ void QFontDatabase::createDatabase()
 	    fam_name = "";
 	    for(unsigned long x = 0; x < len; x+=2)
 		fam_name += QChar(buff[x+1], buff[x]);
+	    free(buff);
+	    DisposeTextToUnicodeInfo(&uni_info);
 
 	    QtFontFamily *family = db->family( fam_name, TRUE );
 	    QtFontFoundry *foundry = family->foundry( foundry_name, TRUE );
