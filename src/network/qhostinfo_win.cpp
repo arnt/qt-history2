@@ -108,20 +108,6 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
         } else {
             results.setError(QHostInfo::UnknownError);
             results.setErrorString(tr("Unknown error"));
-            // Get the error messages returned by getaddrinfo's gai_strerror //### not thread safe why use them!!
-            QT_WA( {
-                typedef char *(*gai_strerrorWProto)(int);
-                gai_strerrorWProto local_gai_strerrorW;
-                local_gai_strerrorW = (gai_strerrorWProto) QLibrary::resolve("ws2_32.dll", "gai_strerrorW");
-                if (local_gai_strerrorW)
-                    results.setErrorString(QString::fromUtf16((ushort *) local_gai_strerrorW(err)));
-            } , {
-                typedef char *(*gai_strerrorAProto)(int);
-                gai_strerrorAProto local_gai_strerrorA;
-                local_gai_strerrorA = (gai_strerrorAProto) QLibrary::resolve("ws2_32.dll", "gai_strerrorA");
-                if (local_gai_strerrorA)
-                    results.setErrorString(QString::fromLocal8Bit(local_gai_strerrorA(err)));
-            } );
         }
     } else {
         // Fall back to gethostbyname, which only supports IPv4.
@@ -173,7 +159,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
 
 QString QHostInfo::localHostName()
 {
-    QSocketLayer bust; // makes sure WSAStartup was callled
+    QWindowsSockInit winSock;
 
     char hostName[512];
     if (gethostname(hostName, sizeof(hostName)) == -1)
