@@ -181,6 +181,7 @@ elif [ -f $relpath/.LICENSE ]; then
 	case $keyTest in
 	4|5|8|9|C|D|G|H|c|d|g|h)
 	    # Enterprise
+	    Products=qt-enterprise
 	    Desc="Enterprise"
 	    Edition="ent"
 	    ;;
