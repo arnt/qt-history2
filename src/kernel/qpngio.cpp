@@ -1070,6 +1070,7 @@ void QPNGFormat::end(png_structp png, png_infop info)
 #endif
     QRect r(0,0,image->width(),image->height());
     consumer->frameDone(QPoint(offx,offy),r);
+    consumer->end();
     state = FrameStart;
     unused_data = (int)png->buffer_size; // Since libpng doesn't tell us
 }
