@@ -155,7 +155,7 @@ if [ -f $outpath/include/qmodules.h ]
 then
     mv -f $outpath/include/qmodules.h qmodules.h-hold
 fi
-echo "// All modules enablee while configuring" >$outpath/include/qmodules.h
+echo "// All modules enabled while configuring" >$outpath/include/qmodules.h
 
 if [ "$1" = -h -o "$1" = -help -o "$1" = --help ]
 then
