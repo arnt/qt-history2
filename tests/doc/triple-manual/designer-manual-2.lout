@@ -586,10 +586,6 @@ name of our new function: @Func{convert()}, then click @OK.
 Select @Func{convert()} from the Slot combobox to complete our connection.
 }
 @EndList
-@Figure
-    @Caption { The Edit Functions dialog }
-    0.45 @Scale @IncludeGraphic { "images/qs-editfunc.eps.gz" }
-@LP
 We will now connect the last few widgets:
 
 @NumberedList
@@ -623,6 +619,10 @@ Click @Option{Save} to save the project.
 }
 @EndList
 @Figure
+    @Caption { The Edit Functions dialog }
+    0.45 @Scale @IncludeGraphic { "images/qs-editfunc.eps.gz" }
+@LP
+@Figure
     @Caption { The View and Edit Connections dialog }
     0.45 @Scale @IncludeGraphic { "images/qs-editconn2.eps.gz" }
 
@@ -654,8 +654,7 @@ the brief explanations below:
             Feet,
             Inches
         };
-@End @RawVerbatim
-@LD @Code @RawVerbatim @Begin
+
         // Retrieve the input
         double input = numberLineEdit->text().toDouble();
         double scaledInput = input;
@@ -675,7 +674,8 @@ the brief explanations below:
 
         //convert to inches
         double result = scaledInput * 0.0393701;
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         switch ( toComboBox->currentItem() ) {
         case Miles:
             result /= 63360;

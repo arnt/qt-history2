@@ -156,7 +156,6 @@ them and use them automatically.
 Note that @File{lrelease} will only incorporate translations that are
 marked as `done'. If a translation is missing, or has failed
 validation, the original text will be used instead.
-@NP
 @End @Section
 @Section
     @Title { Missing Translations }

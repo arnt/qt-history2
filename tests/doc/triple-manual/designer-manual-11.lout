@@ -184,7 +184,6 @@ preferences.dialog @Index{ Preferences Dialog }}
 @EndList
 
 See also @NamePageRef{the.edit.toolbar.buttons}.
-@NP
 @End @Section
 @Section
     @Title { The Project Menu }

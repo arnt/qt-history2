@@ -78,7 +78,6 @@ This tab displays all of the recently opened files or projects
 in a window. Select a file or project and then click @OK to
 open it.
 
-@NP
 @End @SubSubSection
 @EndSubSubSections
 @End @SubSection
@@ -88,9 +87,6 @@ open it.
     @Title { The File Dialogs }
     @Tag { the.file.dialogs }
 @Begin
-@Figure
-    @Caption { The New File dialog }
- 0.45 @Scale @IncludeGraphic { "images/mw-newfile.eps.gz" }
 @BeginSubSections
 @SubSection
     @Title { New File Dialog }
@@ -118,6 +114,9 @@ Project, the 'Insert Into' combobox will be disabled, since it
 is not possible to insert a new @Cpp Project into an existing
 project.
 
+@Figure
+    @Caption { The New File dialog }
+ 0.45 @Scale @IncludeGraphic { "images/mw-newfile.eps.gz" }
 @BeginSubSubSections
 @SubSubSection
     @Title { @Cpp Project Files }
@@ -258,9 +257,6 @@ creating a project.
     @Title {Configure Main-File Dialog }
     @Tag{configure.main.file.dialog}
 @Begin
-@Figure
-    @Caption { The Configure Main-File dialog }
- 0.45 @Scale @IncludeGraphic { "images/rd-configmf.eps.gz" }
 @LP
 Click @Option{File"|"New"|"@Cpp Main-File} to invoke the @Win{Configure
 Main-File} dialog. Use this dialog to configure the main file
@@ -276,6 +272,9 @@ Click @OK to accept the configurations and @QDR
 will create a default @File{"main.cpp"} file. Click @Cancel
 to leave the dialog.
 
+@Figure
+    @Caption { The Configure Main-File dialog }
+ 0.45 @Scale @IncludeGraphic { "images/rd-configmf.eps.gz" }
 @LP
 Note for database programmers: If you create a @File{"main.cpp"}
 file using @QDR, this file will @I{not} include the
@@ -358,9 +357,6 @@ Note: For Windows, the System File Dialogs are used.
     @Title { Save Form As Dialog }
     @Tag{save.form.as.dialog}
 @Begin
-@Figure
-    @Caption { The Save Form As dialog }
- 0.45 @Scale @IncludeGraphic { "images/rd-saveformas.eps.gz" }
 @LP
 Click @Option{File"|"Save As} to invoke the @Win{Save Form As} when
 saving a form.
@@ -382,6 +378,9 @@ the folders or files.
 Click @Option{Save} to save the selected form. Click @Cancel to
 leave the dialog without saving the form.
 
+@Figure
+    @Caption { The Save Form As dialog }
+ 0.45 @Scale @IncludeGraphic { "images/rd-saveformas.eps.gz" }
 @End @SubSection
 @SubSection
     @Title { Create Template Dialog }
@@ -585,9 +584,6 @@ of a pixmap. Click the @Option{Choose a Color} button located to the
 right of the 'Color' radio button to invoke the @Win{Select Color
 Dialog}.
 
-@Figure
-    @Caption { The Preferences dialog's `General' tab }
- 0.45 @Scale @IncludeGraphic { "images/rd-prefgen1.eps.gz" }
 @LP
 The 'General' section of the General tab has three checkboxes that are
 checked by default. Click the 'Restore last workspace on startup'
@@ -624,14 +620,14 @@ The 'Toolbars' section has a 'Show Text Labels' checkbox. Click
 the checkbox to display the text labels for each icon shown in
 the @QDR toolbar.
 
+@Figure
+    @Caption { The Preferences dialog's `General' tab }
+ 0.45 @Scale @IncludeGraphic { "images/rd-prefgen1.eps.gz" }
 @End @SubSubSection
 @SubSubSection
     @Title {@Cpp Editor Tab }
     @Tag{c.editor.tab}
 @Begin
-@Figure
-    @Caption { The Preferences dialog's @Cpp Editor tab }
- 0.45 @Scale @IncludeGraphic { "images/rd-prefedit1.eps.gz" }
 @LP
 The @Cpp Editor tab provides options for customizing the editor.
 The 'Syntax Highlighting' section lets you change the way the
@@ -655,6 +651,9 @@ to de-select them.
 Click @OK to accept changes to @Win{Preferences} dialog. Click
 @Cancel to leave the dialog without making any changes.
 
+@Figure
+    @Caption { The Preferences dialog's @Cpp Editor tab }
+ 0.45 @Scale @IncludeGraphic { "images/rd-prefedit1.eps.gz" }
 @End @SubSubSection
 @EndSubSubSections
 @End @SubSection
@@ -738,9 +737,6 @@ Click the @Close button to leave the dialog.
     @Title { Edit Database Connections Dialog }
     @Tag{edit.database.connections.dialog}
 @Begin
-@Figure
-    @Caption { The Edit Database Connections dialog }
- 0.45 @Scale @IncludeGraphic { "images/rd-dbconn.eps.gz" }
 @LP
 Click @Option{Project"|"Database Connections} to invoke the @Win{Edit
 Database Connections Dialog}. Use this dialog to connect your
@@ -766,6 +762,9 @@ then click the @Option{Delete Connection} button.
 @LP
 Click @Close to leave the @Win{Database Connections} dialog.
 
+@Figure
+    @Caption { The Edit Database Connections dialog }
+ 0.45 @Scale @IncludeGraphic { "images/rd-dbconn.eps.gz" }
 @End @SubSection
 @SubSection
     @Title { Project Settings Dialog }
@@ -1161,9 +1160,6 @@ to leave the dialog without making changes to the text.
     @Title { Title Dialog }
     @Tag{title.dialog}
 @Begin
-@Figure
-    @Caption { The Title dialog }
- 0.45 @Scale @IncludeGraphic { "images/rd-title.eps.gz" }
 @LP
 The @Win{Title} dialog is invoked by right-clicking the following
 widgets: ButtonGroup and GroupBox and selecting @Option{Edit Title}.
@@ -1176,6 +1172,9 @@ the new title in the line edit.
 Click @OK to accept changes to the title. Click @Cancel
 to leave the dialog without making changes to the title.
 
+@Figure
+    @Caption { The Title dialog }
+ 0.45 @Scale @IncludeGraphic { "images/rd-title.eps.gz" }
 @End @SubSection
 @SubSection
     @Title { Page Title Dialog }
@@ -1222,9 +1221,6 @@ to images.
     @Title { Edit Listbox Dialog }
     @Tag{edit.listbox.dialog}
 @Begin
-@Figure
-    @Caption { The Edit Listbox dialog }
- 0.45 @Scale @IncludeGraphic { "images/rd-edlistbox.eps.gz" }
 @LP
 The @Win{Edit Listbox} dialog is invoked by right-clicking the
 Listbox widget and selecting @Option{Edit}.
@@ -1233,6 +1229,9 @@ Listbox widget and selecting @Option{Edit}.
 Use this dialog to add items to the list box and to change the
 item's properties.
 
+@Figure
+    @Caption { The Edit Listbox dialog }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edlistbox.eps.gz" }
 @LP
 To add an item to the listbox, click the @Option{New Item}. If you
 want to change the default name of the item, click the 'Text'
@@ -1361,9 +1360,6 @@ the table.
     @Title {The Columns Tab }
     @Tag{the.column.tab}
 @Begin
-@Figure
-    @Caption { The Edit Table dialog's Columns tab }
- 0.45 @Scale @IncludeGraphic { "images/rd-edtablecol.eps.gz" }
 @LP
 To add a column to the table, click the @Option{New Column} button.
 To delete a column from the table, click the column you want
@@ -1376,6 +1372,9 @@ column of the selected item, click the @Option{Delete Pixmap} button.
 To move a column in the listbox, click the @Option{Move Up} or @B{Move
 Down} buttons.
 
+@Figure
+    @Caption { The Edit Table dialog's Columns tab }
+ 0.45 @Scale @IncludeGraphic { "images/rd-edtablecol.eps.gz" }
 @End @SubSubSection
 @SubSubSection
     @Title {The Rows Tab }
@@ -1455,9 +1454,6 @@ the dialog without choosing a pixmap file.
     @Title { Select Color Dialog }
     @Tag{select.color.dialog}
 @Begin
-@Figure
-    @Caption { The Select Color dialog }
- 0.45 @Scale @IncludeGraphic { "images/rd-selcolor.eps.gz" }
 @LP
 The @Win{Select Color} dialog is invoked by clicking the button
 next to the paletteForegroundColor and the paletteBackgroundColor
@@ -1488,6 +1484,9 @@ Click @OK to accept changes to the @Win{Select Color} dialog.
 Click @Cancel to exit the dialog without selecting a color
 or adding custom colors.
 
+@Figure
+    @Caption { The Select Color dialog }
+ 0.45 @Scale @IncludeGraphic { "images/rd-selcolor.eps.gz" }
 @End @SubSection
 @SubSection
     @Title { Edit Palette Dialog }
@@ -1704,9 +1703,6 @@ dialog.
     @Title { Edit Includes (in Implementation) Dialog }
     @Tag{edit.includes.in.implementation.dialog}
 @Begin
-@Figure
-    @Caption { The Edit Includes (in Implementation) dialog }
- 0.45 @Scale @IncludeGraphic { "images/mw-editincimp.eps.gz" }
 @LP
 From the Source tab in the @Win{Object Explorer} Window, right click
 the 'Includes (in Implementation)' folder and select 'Edit' from
@@ -1726,6 +1722,9 @@ will appear in the line edit, allowing you to change the name.
 Click @Close to leave the @Win{Edit Include (in Implementation)}
 dialog.
 
+@Figure
+    @Caption { The Edit Includes (in Implementation) dialog }
+ 0.45 @Scale @IncludeGraphic { "images/mw-editincimp.eps.gz" }
 @End @SubSection
 @SubSection
     @Title { Edit Class Variables Dialog }

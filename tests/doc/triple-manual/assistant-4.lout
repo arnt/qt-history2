@@ -233,7 +233,7 @@ to keep the previous settings. @QAT will remember
 your settings between sessions, including window sizes and positions,
 and which pages you have open. The Settings dialog contains the
 following tabs:
-
+@NP
 @BulletList
 @LI{ @I{General Settings} --- To change the base font used throughout
 @QAT, select a font type from the Font combobox. To choose a new

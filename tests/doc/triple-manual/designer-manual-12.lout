@@ -47,7 +47,6 @@ then click the name of the tool dock window you wish to restore.
 
  Click the combobox to view the names of the projects that are currently open and select a project name to toggle between the projects.}
 @EndList
-@NP
 @End @Section
 @Section
     @Title { The Edit Toolbar Buttons }
@@ -101,7 +100,13 @@ then click the name of the tool dock window you wish to restore.
     @Title { The Tools Toolbar Buttons }
     @Tag { the.tools.toolbar.buttons }
 @Begin
-@LP
+@LD
+@Tbl
+    strut { no }
+    #rule { yes } rulecolour { red }
+    aformat { @Cell marginleft { 0c } marginright { 0.5c } A | @Cell B }
+{
+    @Rowa A {
 The tools toolbar buttons are available through toolbars (as
 they have always been prior to Qt 3.1), and also via the new
 Toolbox. From Qt 3.1, the tools toolbars are hidden and the Toolbox
@@ -111,25 +116,27 @@ likely to use most often. If you prefer to use the original toolbar
 setup, you can access the toolbars by clicking @Option{Windows"|"Toolbars}
 and then selecting the toolbars you want to be visible from the
 context menu.
-
-@LP
+@SidebarPP
 The Toolbox contains categories describing the type of toolbuttons
 you can find within each catgory. Click a category name to access
 the toolbuttons in that category. To use a widget in a category,
 click the widget to activate it. Click the 'x' in the right hand
 corner of the Toolbox to close it. To make the Toolbox appear
 again, click @Option{Window"|"Views"|"Toolbox}.
-
-@Figure
-    @Caption { @I{The Toolbox} }
- 0.5 @Scale @IncludeGraphic { "images/rtb-toolbox.eps.gz" }
-@LP
+@SidebarPP
 If you want to add the same kind of widget several times to a
 form, for example, several push buttons, @I{double click} the
 widget's toolbar button. After this, each time you click the
 form a new widget will be added. Click the @Option{Pointer} toolbar
 button to leave this mode.
-
+}
+    B {
+@Figure
+    @Caption { @I{The Toolbox} }
+    @Location { Raw }
+ 0.35 @Scale @IncludeGraphic { "images/rtb-toolbox.eps.gz" }
+    }
+}
 @BeginSubSections
 @SubSection
     @Title { Tools }
@@ -163,7 +170,7 @@ button to leave this mode.
 @Begin
 @Figure
     @Caption { @I{Buttons} }
- 0.5 @Scale @IncludeGraphic { "images/rtb-tbbuttons.eps.gz" }
+ 0.35 @Scale @IncludeGraphic { "images/rtb-tbbuttons.eps.gz" }
 @TaggedList labelwidth { 6f }
 @TagItem{
 @Option{PushButton}}{
@@ -189,7 +196,7 @@ button to leave this mode.
 @Begin
 @Figure
     @Caption { @I{Containers} }
- 0.5 @Scale @IncludeGraphic { "images/rtb-tbcontain.eps.gz" }
+ 0.35 @Scale @IncludeGraphic { "images/rtb-tbcontain.eps.gz" }
 @TaggedList labelwidth { 6f }
 @TagItem{
 @Option{GroupBox}}{
@@ -208,7 +215,6 @@ button to leave this mode.
 
  Click this toolbar button, then click the form, to place a TabWidget on the form. To add or remove tabs, right click the tab widget and choose 'Add Page' or 'Remove Page'.}
 @EndList
-@NP
 @End @SubSection
 @SubSection
     @Title { Views }
@@ -216,7 +222,7 @@ button to leave this mode.
 @Begin
 @Figure
     @Caption { @I{Views} }
- 0.5 @Scale @IncludeGraphic { "images/rtb-tbviews.eps.gz" }
+ 0.35 @Scale @IncludeGraphic { "images/rtb-tbviews.eps.gz" }
 @TaggedList labelwidth { 6f }
 @TagItem{
 @Option{ListBox}}{
@@ -242,7 +248,7 @@ button to leave this mode.
 @Begin
 @Figure
     @Caption { @I{Database Toolbuttons} }
- 0.5 @Scale @IncludeGraphic { "images/rtb-tbdatabase.eps.gz" }
+ 0.35 @Scale @IncludeGraphic { "images/rtb-tbdatabase.eps.gz" }
 @TaggedList labelwidth { 6f }
 @TagItem{
 @Option{DataTable}}{
@@ -264,7 +270,7 @@ button to leave this mode.
 @Begin
 @Figure
     @Caption { @I{Input Toolbuttons} }
- 0.5 @Scale @IncludeGraphic { "images/rtb-tbinput.eps.gz" }
+ 0.35 @Scale @IncludeGraphic { "images/rtb-tbinput.eps.gz" }
 @TaggedList labelwidth { 6f }
 @TagItem{
 @Option{LineEdit}}{
@@ -314,7 +320,7 @@ button to leave this mode.
 @Begin
 @Figure
     @Caption { @I{Display Toolbuttons} }
- 0.5 @Scale @IncludeGraphic { "images/rtb-tbdisplay.eps.gz" }
+ 0.35 @Scale @IncludeGraphic { "images/rtb-tbdisplay.eps.gz" }
 @TaggedList labelwidth { 6f }
 @TagItem{
 @Option{TextLabel}}{
@@ -341,7 +347,6 @@ button to leave this mode.
 
  Click this toolbar button, then click the form, to place a TextBrowser on the form.}
 @EndList
-@NP
 @End @SubSection
 @SubSection
     @Title { Custom }
@@ -349,7 +354,7 @@ button to leave this mode.
 @Begin
 @Figure
     @Caption { @I{Custom Widget Toolbutton} }
- 0.5 @Scale @IncludeGraphic { "images/rtb-tbcustom.eps.gz" }
+ 0.35 @Scale @IncludeGraphic { "images/rtb-tbcustom.eps.gz" }
 @TaggedList labelwidth { 6f }
 @TagItem{
 @Option{My Custom @LLP Widget}}{
@@ -400,6 +405,7 @@ button to leave this mode.
 
  Click this toolbar button to add a spacer to widgets that take up too much space on the form. The spacer consumes extra space in the layout.}
 @EndList
+@NP
 @End @Section
 @Section
     @Title { The Help Toolbar Button }

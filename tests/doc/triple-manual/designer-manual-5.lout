@@ -199,7 +199,6 @@ you can still continue to use it. Look upon the @File{.pro}
 file as a file that describes the GUI part of your application.
 All you need to do -- as previously -- is add the @File{.ui}
 files and the images collection to your own Makefiles.
-@NP
 @End @SubSection
 @EndSubSections
 @End @Section

@@ -163,9 +163,6 @@ data in the table. Click the 'Filter' line edit and enter a valid
 SQL @Code{WHERE} clause without the WHERE keyword. The
 filter applies to the data shown in the table.
 
-@Figure
-    @Caption { The Data Table wizard's SQL tab }
-    0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage4.eps.gz" }
 @LP
 To sort the available fields in the table, click the blue left
 and right arrow buttons to move fields from the 'Available Fields'
@@ -179,6 +176,9 @@ to descending and vice versa.
 Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the @NamePageRef{table.properties} wizard page.
 
+@Figure
+    @Caption { The Data Table wizard's SQL tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-datatablewzdpage4.eps.gz" }
 @End @SubSection
 @SubSection
     @Title { Finish }
@@ -239,9 +239,6 @@ Click @Option{Next} to move on to the next wizard page.
     @Title { Displayed Fields }
     @Tag{displayed.fieldsx}
 @Begin
-@Figure
-    @Caption { The Data Browser wizard's Displayed Fields tab }
-    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage2.eps.gz" }
 @LP
 The Displayed Fields wizard page is used to select fields that
 will be displayed in the table. Click the blue left and right
@@ -255,6 +252,9 @@ Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the @NamePageRef{choose.the.database.and.tablex}
 wizard page.
 
+@Figure
+    @Caption { The Data Browser wizard's Displayed Fields tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage2.eps.gz" }
 @End @SubSection
 @SubSection
     @Title { Navigation and Editing }
@@ -264,6 +264,9 @@ wizard page.
 The Navigation and Editing wizard page is used to create navigation
 and editing buttons.
 
+@Figure
+    @Caption { The Data Browser wizard's Navigation and Editing tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage3.eps.gz" }
 @LP
 Check the 'Include Navigation Buttons' checkbox to include navigation
 buttons. In the 'Navigation section, click 'Previous' to display
@@ -284,9 +287,6 @@ to create an 'Insert' button for adding new records. Check the
 records. Check the 'Delete' checkbox to create a 'Delete' button
 for deleting records.
 
-@Figure
-    @Caption { The Data Browser wizard's Navigation and Editing tab }
-    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage3.eps.gz" }
 @LP
 The navigation buttons, and 'Update' and 'Delete' buttons will
 work without requiring any code. Since most database designs
@@ -332,9 +332,6 @@ page.
     @Title { Layout }
     @Tag{layout}
 @Begin
-@Figure
-    @Caption { The Data Browser wizard's Layout tab }
-    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage5.eps.gz" }
 @LP
 The 'Layout' wizard page is used to design the layout of the
 database browser. To choose the number of columns the form will
@@ -358,6 +355,9 @@ your mind.
 Click @Option{Next} to move on to the next wizard page. Click @Option{Back}
 if you want to return to the 'SQL' wizard page.
 
+@Figure
+    @Caption { The Data Browser wizard's Layout tab }
+    0.45 @Scale @IncludeGraphic { "images/qd-databrowserwzdpage5.eps.gz" }
 @End @SubSection
 @SubSection
     @Title { Finish }

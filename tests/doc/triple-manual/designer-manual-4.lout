@@ -47,6 +47,36 @@ Change the slot's name to @Func{editAdd()}, then click @OK. Now
 change the slot we connect to @Func{editAdd()}, then click @OK
 to close the dialog.
 
+@End @SubSection
+@SubSection
+    @Title { Creating the Dialog }
+    @Tag{creating.the.dialogx}
+@Begin
+@BeginSubSubSections
+@SubSubSection
+    @Title { Layouts }
+    @Tag{layoutsx}
+@Begin
+@LP
+Layouts provide a means of laying out widgets, groups of widgets,
+and layouts into horizontal and vertical pairs and into grids.
+If you use layouts your forms, and the widgets they contain,
+will scale automatically when the user resizes the window. This
+is better than using absolute sizes and positions since you don't
+have to write any code to achieve the scaling and your users
+can make the most of their screen size whether they have a laptop
+or a very large screen desktop machine. Layouts use standard
+sizes for margins and widget spacing which helps give your applications
+a consistent and proportional look without requiring any effort
+on your part. Layouts are also easier and faster to use than
+absolute positioning; you can just place your widgets on the
+form in approximate positions and leave the layout tools to size
+and scale the widgets correctly.
+layouts @Index{ Layouts }
+scaling.widgets.and.application.windows @Index{ Scaling widgets and application windows }
+automatically.scaling.widgets.and.application.windows @Index{ Automatically scaling widgets and application windows }
+absolute.positioning @Index{ Absolute positioning }
+
 @LP
 { Selecting Widgets } @Sidebar {
 To @PageMark{selecting.widgets.sidebar} select an individual widget,
@@ -103,36 +133,6 @@ Editor will be applied to @I{all} the selected widgets. This
 is particularly useful for setting common minimum and maximum
 sizes, colors, size policies, cursors, fonts, etc.
 }
-
-@End @SubSection
-@SubSection
-    @Title { Creating the Dialog }
-    @Tag{creating.the.dialogx}
-@Begin
-@BeginSubSubSections
-@SubSubSection
-    @Title { Layouts }
-    @Tag{layoutsx}
-@Begin
-@LP
-Layouts provide a means of laying out widgets, groups of widgets,
-and layouts into horizontal and vertical pairs and into grids.
-If you use layouts your forms, and the widgets they contain,
-will scale automatically when the user resizes the window. This
-is better than using absolute sizes and positions since you don't
-have to write any code to achieve the scaling and your users
-can make the most of their screen size whether they have a laptop
-or a very large screen desktop machine. Layouts use standard
-sizes for margins and widget spacing which helps give your applications
-a consistent and proportional look without requiring any effort
-on your part. Layouts are also easier and faster to use than
-absolute positioning; you can just place your widgets on the
-form in approximate positions and leave the layout tools to size
-and scale the widgets correctly.
-layouts @Index{ Layouts }
-scaling.widgets.and.application.windows @Index{ Scaling widgets and application windows }
-automatically.scaling.widgets.and.application.windows @Index{ Automatically scaling widgets and application windows }
-absolute.positioning @Index{ Absolute positioning }
 
 @End @SubSubSection
 @SubSubSection
@@ -421,11 +421,10 @@ and pressing the @Option{Tab} key.
 @SidebarPP
 If you prefer the tab order that you had before this one, click
 @Option{Edit"|"Undo} (or press @Option{Ctrl+Z}).
-#@LP
-#@Centre @Box linewidth {  none } paint { white }
 @Figure 
     @Caption { Tab Order Mode }
     @Location { Raw }
+    @Box linewidth { none } paint { white }
     0.5 @Scale @IncludeGraphic { "images/dialog1tab.eps.gz" }
 
 }
@@ -525,6 +524,8 @@ qcolor @Index{ QColor }
             accept();
         else
             colorLineEdit->selectAll();
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     }
 @End @RawVerbatim
 The function examines the text that the user has entered. If
@@ -602,6 +603,8 @@ editor.
         }
         color = QColorDialog::getColor( color, this );
         if ( color.isValid() ) {
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
             QPixmap pixmap( 80, 10 );
             pixmap.fill( color );
             ColorNameForm *colorForm = new ColorNameForm( this, "color", TRUE );
@@ -976,8 +979,6 @@ qstring @Index{ QString }
         QString ltext = text.lower();
         QWidget *visible = colorWidgetStack->visibleWidget();
         bool found = FALSE;
-@End @RawVerbatim
-@LD @Code @RawVerbatim @Begin
         if ( visible == tablePage && colorTable->numRows() ) {
             int row = colorTable->currentRow();
             for ( int i = row + 1; i < colorTable->numRows(); ++i )
@@ -985,6 +986,8 @@ qstring @Index{ QString }
                     colorTable->setCurrentCell( i, 0 );
                     colorTable->clearSelection();
                     colorTable->selectRow( i );
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
                     found = TRUE;
                     break;
             }
@@ -1106,9 +1109,6 @@ out at the end. But we can lay out widgets as we go along if
 we prefer. Click the group box, then press @Option{Ctrl+H} (lay out
 horizontally).
 
-@Figure
-    @Caption { Creating the Options dialog }
-    0.5 @Scale @IncludeGraphic { "images/dialog3grpbox.eps.gz" }
 @LP
 Click the ButtonGroup tool and click below the table view group
 box. Change this group's @Prop{title} property to `Copy to Clipboard
@@ -1119,6 +1119,9 @@ We want to add three radio buttons to the clipboard group. When
 there are a lot of identical widgets to add we can use @QDR's multiple
 placement mode to work more quickly.
 
+@Figure
+    @Caption { Creating the Options dialog }
+    0.5 @Scale @IncludeGraphic { "images/dialog3grpbox.eps.gz" }
 @LP
 @I{Double} click the @Option{RadioButton} tool to enter multiple placement
 mode. Now every click on the form will create a radio button.
@@ -1240,6 +1243,8 @@ Now we're ready to code the slot.
         case CLIP_AS_HEX:
             options->hexRadioButton->setChecked( TRUE );
             break;
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         case CLIP_AS_NAME:
             options->nameRadioButton->setChecked( TRUE );
             break;
@@ -1248,8 +1253,6 @@ Now we're ready to code the slot.
             break;
         }
         options->webCheckBox->setChecked( m_show_web );
-@End @RawVerbatim
-@LD @Code @RawVerbatim @Begin
         if ( options->exec() ) {
             if ( options->hexRadioButton->isChecked() )
                 m_clip_as = CLIP_AS_HEX;
@@ -1373,14 +1376,14 @@ qapplication @Index{ QApplication }
     {
         QSettings settings;
         settings.insertSearchPath( QSettings::Windows, WINDOWS_REGISTRY );
-@End @RawVerbatim
-@LD @Code @RawVerbatim @Begin
         int windowWidth = settings.readNumEntry( APP_KEY + "WindowWidth", 550 );
         int windowHeight = settings.readNumEntry( APP_KEY + "WindowHeight", 500 );
         int windowX = settings.readNumEntry( APP_KEY + "WindowX", 0 );
         int windowY = settings.readNumEntry( APP_KEY + "WindowY", 0 );
         m_clip_as = settings.readNumEntry( APP_KEY + "ClipAs", CLIP_AS_HEX );
         m_show_web = settings.readBoolEntry( APP_KEY + "ShowWeb", TRUE );
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         if ( ! settings.readBoolEntry( APP_KEY + "View", TRUE ) )
             colorWidgetStack->raiseWidget( iconsPage );
 

@@ -78,6 +78,8 @@ first.
     public:
         Vcr( QWidget *parent = 0, const char *name = 0 );
         ~Vcr() {}
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     signals:
         void rewind();
         void play();
@@ -149,7 +151,8 @@ file is also brief:
 @LD @Code @RawVerbatim @Begin
     #include <qapplication.h>
     #include "vcr.h"
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     int main( int argc, char ** argv )
     {
         QApplication app( argc, argv );
@@ -324,7 +327,8 @@ qpushbutton @Index{ QPushButton }
 @LD @Code @RawVerbatim @Begin
     #include <qwidget.h>
     #include <qwidgetplugin.h>
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     class QLineEdit;
     class QPushButton;
 @End @RawVerbatim
@@ -467,7 +471,8 @@ goes to the lineEdit.
     {
         lineEdit->setText( fn );
     }
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     QString FileChooser::fileName() const
     {
         return lineEdit->text();
@@ -622,6 +627,8 @@ functions require just a few lines of code
         QString group( const QString& ) const;
         QIconSet iconSet( const QString& ) const;
         QString includeFile( const QString& ) const;
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         QString toolTip( const QString& ) const;
         QString whatsThis( const QString& ) const;
         bool isContainer( const QString& ) const;

@@ -84,9 +84,6 @@ When @QDR starts it shows the @Win{New"/"Open} dialog.
 in the future} checkbox.) We'll just click @Cancel to skip
 over it.
 
-@Figure
-    @Caption { The New"/"Open dialog }
-    0.45 @Scale @IncludeGraphic { "images/mw-startdesign.eps.gz" }
 @LP
 When you've finished using @QDR click @Option{File"|"Exit};
 you will be prompted to save any unsaved changes. Help is available
@@ -123,6 +120,9 @@ change the properties of forms and widgets. We will cover the use of
 @QDR's windows, dialogs, menu options and tools as we create the
 example application.
 
+@Figure
+    @Caption { The New"/"Open dialog }
+    0.45 @Scale @IncludeGraphic { "images/mw-startdesign.eps.gz" }
 @End @Section
 @Section
     @Title { Creating the Project }
@@ -407,9 +407,34 @@ One side effect of these deletions is that the menus now have
 some redundant separators.
 
 @LP
+Click the form's @Option{File} menu. (Note, we're clicking our newly
+created form's @Option{File} menu, not @QDR's @Option{File}
+menu!) There are @I{two} separators above the Exit menu option
+(the @Option{File"|"Print} option was in-between until we deleted
+it). Right click one of these separators, then click @Option{Delete
+Separator}.
+Don't worry if you miss and delete a menu option by accident:
+if you delete the wrong thing click @Option{Edit"|"Undo} to undelete.
+The form's @Option{Edit} menu has a redundant separator at the top
+(the undo and redo options were there). Delete this separator
+in the same way. (Click the form's @Option{Edit} menu, right click
+the separator, click @Option{Delete Separator}.) Again, don't worry if
+you delete a menu option by mistake, just press @Option{Ctrl+Z} to
+undo.
+
+@LP
+Click @Option{File"|"Save} to save the form.
+
+@LP
+The form can now be previewed by clicking @Option{Preview"|"Preview
+Form} (or press @Option{Ctrl+T}).
+
+
+@LP
 {Using the Property Editor} @Sidebar {
     @Tbl
 	#rule { yes } rulecolour {red}
+	strut { no }
 	margin { 0c }
 	cmarginabove { 0.666f }
 	bformat { @Cell A | @Cell width { 4.333c } indent { right } iv { ctr } B }
@@ -450,7 +475,10 @@ number until it reaches the value you want. Some properties have a
 fixed list of values. If you click the @Prop{cursor} property property
 the value will be shown in a drop down combobox; click the down arrow
 to see what values are available. 
-	    }
+@SidebarPP
+Some properties have complex sets of values or special values; for
+example the @Prop{font} property and the @Prop{iconSet} property.
+}
 	    B {
 @Figure
     @Caption { The Property Editor }
@@ -458,9 +486,7 @@ to see what values are available.
     0.45 @Scale @IncludeGraphic { "images/mw-propedit.eps.gz" }
 }
 	@Rowc A {
-Some properties have complex sets of values or special values; for
-example the @Prop{font} property and the @Prop{iconSet} property. If
-you click the font property an ellipsis button (@Option{...}) will
+If you click the font property an ellipsis button (@Option{...}) will
 appear; click this button and a @Win{Select Font} dialog will pop up
 which you can use to change any of the font settings. Other properties
 have ellipsis buttons which lead to different dialogs depending on
@@ -491,29 +517,6 @@ and @Option{Ctrl+Y}).
 	}
 }
 }
-@LP
-Click the form's @Option{File} menu. (Note, we're clicking our newly
-created form's @Option{File} menu, not @QDR's @Option{File}
-menu!) There are @I{two} separators above the Exit menu option
-(the @Option{File"|"Print} option was in-between until we deleted
-it). Right click one of these separators, then click @Option{Delete
-Separator}.
-Don't worry if you miss and delete a menu option by accident:
-if you delete the wrong thing click @Option{Edit"|"Undo} to undelete.
-The form's @Option{Edit} menu has a redundant separator at the top
-(the undo and redo options were there). Delete this separator
-in the same way. (Click the form's @Option{Edit} menu, right click
-the separator, click @Option{Delete Separator}.) Again, don't worry if
-you delete a menu option by mistake, just press @Option{Ctrl+Z} to
-undo.
-
-@LP
-Click @Option{File"|"Save} to save the form.
-
-@LP
-The form can now be previewed by clicking @Option{Preview"|"Preview
-Form} (or press @Option{Ctrl+T}).
-
 @End @SubSection
 @SubSection
     @Title { Adding Custom Actions }
@@ -537,6 +540,45 @@ click @Option{Menu}, then click @Option{Rename Menu Item}. Change its name
 to `"&"View'. The "&" (ampserand) makes the following letter
 an @Option{Alt} key accelerator (i.e. in this case @Option{Alt+V} will
 pop up the @Option{View} menu).
+
+
+@BeginSubSubSections
+@SubSubSection
+    @Title { Adding the Options Action }
+    @Tag{adding.the.options.action}
+@Begin
+@LP
+Right click the first action in the @Win{Action Editor}, then click
+@Option{New Action}. The @Win{Property Editor} now shows the new action's
+properties. Change the action's name to `optionsAction'. Click
+the @Option{...} button on the @Prop{iconSet} property to pop up the
+@Win{Choose an Image} dialog. Click the @Option{Add...} button to pop
+up the @Win{Choose Images...} file selection dialog. Navigate to
+@File{"qt/tools/designer/pics/small"}; click the
+@File{tabwidget.png} image, then click @Option{Open}. The @File{tabwidget.png} image now appears highlighted in the
+@Win{Choose an Image} dialog; click @OK to use it. Change the
+@Prop{text} property to `Options' and change the @Prop{menuText} property
+to `"&"Options...'.
+
+@LP
+Click the optionsAction in the Action Editor and drag it to the
+Edit menu. The Edit menu will pop up; drag the optionsAction
+down the menu (a horizontal red line indicates its position),
+and drop it at the end after the `Find' option.
+
+@LP
+Since we also want to make this option available from the toolbar,
+click the optionsAction again, and this time drag it to the toolbar.
+Drop it to the left of the scissors (Cut) toolbar button. (A
+horizontal red line indicates its position during the drag.)
+
+@LP
+The options action ought to be visually separated from the other
+Edit menu options. Click the form's @Option{Edit} menu, then right click
+the @Option{Find} option, then click @Option{Insert Separator}.
+
+@LP
+We'll connect and code this action later.
 
 @LLP
 { Duplicate Accelerators } @Sidebar {
@@ -566,6 +608,7 @@ Now we'll create our form's custom actions.
 //0c
 @Tbl
     margin { 0c }
+    strut { no }
     aformat { @Cell A | @Cell marginleft { 1f } iv { top } B }
 {
     @Rowa A {
@@ -590,6 +633,7 @@ toolbars.creating @Index{ Toolbars, Creating }
 @DP
 @Tbl
     margin { 0c }
+    strut { no }
     aformat { @Cell A | @Cell marginleft { 1f } iv { top } B }
 {
     @Rowa A {
@@ -614,7 +658,7 @@ adding.toolbar.separators @SubIndex{ Toolbar Separators }
     }
 }
 @LP
-//0.5vx
+//1vx
 All the actions in an action group are added to a toolbar in
 one go, simply by dragging the action group from the Action Editor
 and dropping it on the toolbar.
@@ -683,45 +727,6 @@ action with the widget, and add the action to the toolbar. Widgets
 that can sensibly be inserted directly into a toolbar are @I{ComboBox}es,
 @I{SpinBox}es and @I{Line Edit}s.
 }
-
-@BeginSubSubSections
-@SubSubSection
-    @Title { Adding the Options Action }
-    @Tag{adding.the.options.action}
-@Begin
-@LP
-Right click the first action in the @Win{Action Editor}, then click
-@Option{New Action}. The @Win{Property Editor} now shows the new action's
-properties. Change the action's name to `optionsAction'. Click
-the @Option{...} button on the @Prop{iconSet} property to pop up the
-@Win{Choose an Image} dialog. Click the @Option{Add...} button to pop
-up the @Win{Choose Images...} file selection dialog. Navigate to
-@File{"qt/tools/designer/pics/small"}; click the
-@File{tabwidget.png} image, then click @Option{Open}. The @File{tabwidget.png} image now appears highlighted in the
-@Win{Choose an Image} dialog; click @OK to use it. Change the
-@Prop{text} property to `Options' and change the @Prop{menuText} property
-to `"&"Options...'.
-
-@LP
-Click the optionsAction in the Action Editor and drag it to the
-Edit menu. The Edit menu will pop up; drag the optionsAction
-down the menu (a horizontal red line indicates its position),
-and drop it at the end after the `Find' option.
-
-@LP
-Since we also want to make this option available from the toolbar,
-click the optionsAction again, and this time drag it to the toolbar.
-Drop it to the left of the scissors (Cut) toolbar button. (A
-horizontal red line indicates its position during the drag.)
-
-@LP
-The options action ought to be visually separated from the other
-Edit menu options. Click the form's @Option{Edit} menu, then right click
-the @Option{Find} option, then click @Option{Insert Separator}.
-
-@LP
-We'll connect and code this action later.
-
 @End @SubSubSection
 @SubSubSection
     @Title { Adding the Add Action }
@@ -769,11 +774,75 @@ in the Action Editor, and change its @Prop{menuText} property to
 We can always check to see if there are any accelerator conflicts
 by clicking @Option{Edit"|"Check Accelerators} (or @Option{Alt+R}).
 
+@End @SubSubSection
+@SubSubSection
+    @Title { Adding an Action Group }
+    @Tag{adding.an.action.group}
+@Begin
+@LP
+We want to provide the user with a choice of views, but since
+they can only use one view at a time we need to ensure that the
+menu options and toolbar buttons they use to switch between views
+always stay in sync. We don't have to write any code to achieve
+this: we simply put the relevant actions in an action group and
+let Qt take care of the details.
+
+@LP
+Right click an action in the @Win{Action Editor}, then click @Option{New Action Group}. The action group's properties are now showing
+in the Property Editor. Change the action group's @Prop{name} property
+to `viewActionGroup', and change its @Prop{text} property to `View'.
+We want the action group to be @Prop{exclusive}, i.e. for only one
+of its actions to be `on' at any one time; but there's no need
+to set the @Prop{exclusive} property since it defaults to True which
+is what we want.
+
+@LP
+We'll now create the view actions. The process is virtually the
+same as for actions that are not in an action group; the only
+difference is that when we right click to pop up the context
+menu, we @I{must} right click the relevant action group, not
+just anything in the @Win{Action Editor}.
+
+@LP
+Right click the viewActionGroup, then click @Option{New Action}. Change
+this action's @Prop{name} property to `viewTableAction'. Set its
+@Prop{toggleAction} property to True and set its @Prop{on} property
+to True. We want it to be a toggle action because either the
+user is using this view (it is `on') or another view (it is `off').
+We set this action to `on' because it will be the default view.
+Change its @Prop{iconSet} property to @File{table.png}. (Click
+the @Prop{iconSet} property's ellipsis button, click @Option{Add..},
+click @File{table.png}, then click @Option{Open}, then click
+@OK.) Change the @Prop{text} property to `View Table' and the
+@Prop{menuText} property to `View "&"Table'. Change the @Prop{accel}
+property to `Ctrl+T, and set the @Prop{toolTip} property to `View
+Table (Ctrl+T)'. When the user clicks the @Option{View} menu and hovers
+the mouse over the `View Table' option the tool tip will appear
+in the status bar. Similarly when the user hovers the mouse over
+the `View Table' toolbar button, the tool tip text will appear
+both in the status bar and in a temporary yellow label next to
+the toolbar button.
+
+@LP
+Right click the viewActionGroup, then click @Option{New Action}. Change
+this action's @Prop{name} property to `viewIconsAction'. Set its
+@Prop{toggleAction} property to True. Change its @Prop{iconSet} property
+to @File{iconview.png}. Change the @Prop{text} property to
+`View Icons' and the @Prop{menuText} property to `View "&"Icons'.
+Change the @Prop{toolTip} property to `View Icons (Ctrl+I)', and
+set the @Prop{accel} property to `Ctrl+I'.
+
+@LP
+Note that the Action Editor window is dockable, so if you don't
+want it to float freely you can drag it to one of @QDR's
+dock areas (top, left, right, bottom of the main window) if preferred.
+
 @LP
 { Object Explorer} @Sidebar {
     @Tbl
 	#rule { yes } rulecolour {red}
 	margin { 0c }
+	strut { no }
 	cmarginabove { 0.45f }
 	bformat { @Cell A |
 		  @Cell width { 5.4c } indent { right } iv { ctr } B }
@@ -870,69 +939,6 @@ declarations and variables as your requirements dictate. (See
 }
 }
 }
-@End @SubSubSection
-@SubSubSection
-    @Title { Adding an Action Group }
-    @Tag{adding.an.action.group}
-@Begin
-@LP
-We want to provide the user with a choice of views, but since
-they can only use one view at a time we need to ensure that the
-menu options and toolbar buttons they use to switch between views
-always stay in sync. We don't have to write any code to achieve
-this: we simply put the relevant actions in an action group and
-let Qt take care of the details.
-
-@LP
-Right click an action in the @Win{Action Editor}, then click @Option{New Action Group}. The action group's properties are now showing
-in the Property Editor. Change the action group's @Prop{name} property
-to `viewActionGroup', and change its @Prop{text} property to `View'.
-We want the action group to be @Prop{exclusive}, i.e. for only one
-of its actions to be `on' at any one time; but there's no need
-to set the @Prop{exclusive} property since it defaults to True which
-is what we want.
-
-@LP
-We'll now create the view actions. The process is virtually the
-same as for actions that are not in an action group; the only
-difference is that when we right click to pop up the context
-menu, we @I{must} right click the relevant action group, not
-just anything in the @Win{Action Editor}.
-
-@LP
-Right click the viewActionGroup, then click @Option{New Action}. Change
-this action's @Prop{name} property to `viewTableAction'. Set its
-@Prop{toggleAction} property to True and set its @Prop{on} property
-to True. We want it to be a toggle action because either the
-user is using this view (it is `on') or another view (it is `off').
-We set this action to `on' because it will be the default view.
-Change its @Prop{iconSet} property to @File{table.png}. (Click
-the @Prop{iconSet} property's ellipsis button, click @Option{Add..},
-click @File{table.png}, then click @Option{Open}, then click
-@OK.) Change the @Prop{text} property to `View Table' and the
-@Prop{menuText} property to `View "&"Table'. Change the @Prop{accel}
-property to `Ctrl+T, and set the @Prop{toolTip} property to `View
-Table (Ctrl+T)'. When the user clicks the @Option{View} menu and hovers
-the mouse over the `View Table' option the tool tip will appear
-in the status bar. Similarly when the user hovers the mouse over
-the `View Table' toolbar button, the tool tip text will appear
-both in the status bar and in a temporary yellow label next to
-the toolbar button.
-
-@LP
-Right click the viewActionGroup, then click @Option{New Action}. Change
-this action's @Prop{name} property to `viewIconsAction'. Set its
-@Prop{toggleAction} property to True. Change its @Prop{iconSet} property
-to @File{iconview.png}. Change the @Prop{text} property to
-`View Icons' and the @Prop{menuText} property to `View "&"Icons'.
-Change the @Prop{toolTip} property to `View Icons (Ctrl+I)', and
-set the @Prop{accel} property to `Ctrl+I'.
-
-@LP
-Note that the Action Editor window is dockable, so if you don't
-want it to float freely you can drag it to one of @QDR's
-dock areas (top, left, right, bottom of the main window) if preferred.
-
 @End @SubSubSection
 @SubSubSection
     @Title { Using an Action Group }
@@ -1379,21 +1385,7 @@ all the code is provided in
 simply open the relevant @File{.ui.h} files and copy and
 paste from there into your own version of the project.
 
-@LP
-{ Cutting "&" Pasting into the Code Editor } @Sidebar {
-If you cut and paste code from this manual, because we've indented
-the code for readability, the code will be over-indented in @QDR. This
-is easily solved. Simply select the function containing the pasted
-code (either with the mouse, or @Option{Shift+Arrow}s) and press
-@Option{Tab}: this will make @QDR fix the indentation. Note that you
-must select the @I{entire} function, including its name and
-parameters.
-@SidebarPP
-Remember that if you copy and paste just the body of functions
-into the skeletons @QDR provides, you must manually
-enter the names of the arguments in the functions' parameter
-lists.
-}
+
 @LP
 Click @File{mainform.ui.h} in the @Win{Project Overview} window.
 A code editor window showing the empty slots appears.
@@ -1427,6 +1419,21 @@ they're explained when we cover @Func{loadOptions()} and
 @Cpp into a @File{.ui.h} file including constant declarations
 as we've done here and @Code{"#"include}s, etc.
 qstring @Index{ QString }
+@LP
+{ Cutting "&" Pasting into the Code Editor } @Sidebar {
+If you cut and paste code from this manual, because we've indented
+the code for readability, the code will be over-indented in @QDR. This
+is easily solved. Simply select the function containing the pasted
+code (either with the mouse, or @Option{Shift+Arrow}s) and press
+@Option{Tab}: this will make @QDR fix the indentation. Note that you
+must select the @I{entire} function, including its name and
+parameters.
+@SidebarPP
+Remember that if you copy and paste just the body of functions
+into the skeletons @QDR provides, you must manually
+enter the names of the arguments in the functions' parameter
+lists.
+}
 @End @SubSubSection
 @EndSubSubSections
 @End @SubSection
@@ -1479,6 +1486,8 @@ values.
             m_colors["cyan"] = Qt::cyan;
             m_colors["darkblue"] = Qt::darkBlue;
             m_colors["darkcyan"] = Qt::darkCyan;
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
             m_colors["darkgray"] = Qt::darkGray;
             m_colors["darkgreen"] = Qt::darkGreen;
             m_colors["darkmagenta"] = Qt::darkMagenta;
@@ -1489,8 +1498,6 @@ values.
             m_colors["lightgray"] = Qt::lightGray;
             m_colors["magenta"] = Qt::magenta;
             m_colors["red"] = Qt::red;
-@End @RawVerbatim
-@LD @Code @RawVerbatim @Begin
             m_colors["white"] = Qt::white;
             m_colors["yellow"] = Qt::yellow;
         }
@@ -1533,10 +1540,11 @@ icon view with data.
                 }
                 row++;
             }
-            colorTable->adjustColumn( COL_NAME );
-            colorTable->adjustColumn( COL_HEX );
 @End @RawVerbatim
 @LD @Code @RawVerbatim @Begin
+            colorTable->adjustColumn( COL_NAME );
+            colorTable->adjustColumn( COL_HEX );
+
             if ( m_show_web ) {
                 colorTable->showColumn( COL_WEB );
                 colorTable->adjustColumn( COL_WEB );
@@ -1675,7 +1683,8 @@ MainForm.
 @LD @Code @RawVerbatim @Begin
     #include <qapplication.h>
     #include "mainform.h"
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     int main( int argc, char ** argv )
     {
         QApplication a( argc, argv );
@@ -1833,6 +1842,8 @@ including changing it into a slot.
         int r = color.red();
         int g = color.green();
         int b = color.blue();
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         statusBar()->message( QString( "%1 \"%2\" (%3,%4,%5)%6 {%7 %8 %9}" ).
                                   arg( name ).
                                   arg( color.name().upper() ).
@@ -2041,13 +2052,13 @@ You should now have added the following declaration to your includes
                     m_colors[regex.cap( 4 )] = QColor(
                                                 regex.cap( 1 ).toInt(),
                                                 regex.cap( 2 ).toInt(),
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
                                                 regex.cap( 3 ).toInt() );
             }
             file.close();
             m_filename = filename;
             setCaption( QString( "Color Tool -- %1" ).arg( m_filename ) );
-@End @RawVerbatim
-@LD @Code @RawVerbatim @Begin
             statusBar()->message( QString( "Loaded '%1'" ).arg( m_filename ),
                                   3000 );
             QWidget *visible = colorWidgetStack->visibleWidget();
@@ -2130,7 +2141,7 @@ includes (in implementation):
 "\""qregexp.h"\""
 }
 
-@LD @Box {
+@LD @Box margin { 0.5f } {
 @Centre @Heading @Underline{ The Regular Expression }
 @LP
 The regex we've used can be broken up into the following pieces:
@@ -2319,8 +2330,6 @@ where we deal with dialogs.
                 colorTable->setCurrentCell( colorTable->numRows() - 1, 0 );
             m_icons_dirty = TRUE;
         }
-@End @RawVerbatim
-@LD @Code @RawVerbatim @Begin
         else if ( visible == iconsPage && colorIconView->currentItem() ) {
             QIconViewItem *item = colorIconView->currentItem();
             name = item->text();
@@ -2332,8 +2341,9 @@ where we deal with dialogs.
                 colorIconView->setCurrentItem( current );
             colorIconView->arrangeItemsInGrid();
             m_table_dirty = TRUE;
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         }
-
         if ( ! name.isNull() ) {
             m_colors.remove( name );
             m_changed = TRUE;
@@ -2379,14 +2389,12 @@ qiconviewitem @Index{ QIconViewItem }
                 case CLIP_AS_HEX: text = color.name(); break;
                 case CLIP_AS_NAME: break;
                 case CLIP_AS_RGB:
-                        text = QString( "%1,%2,%3" ).
-                            arg( color.red() ).
-                            arg( color.green() ).
-                            arg( color.blue() );
+                        text = QString( "%1,%2,%3" )
+                                   .arg( color.red() )
+                                   .arg( color.green() )
+                                   .arg( color.blue() );
                         break;
             }
-@End @RawVerbatim
-@LD @Code @RawVerbatim @Begin
             clipboard->setText( text );
             statusBar()->message( "Copied '" + text + "' to the clipboard" );
         }

@@ -345,7 +345,8 @@ qt.tr.noop @Index{ QT_TR_NOOP }
         QT_TRANSLATE_NOOP( "FriendlyConversation", "Hello" ),
         QT_TRANSLATE_NOOP( "FriendlyConversation", "Goodbye" )
     };
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     QString FriendlyConversation::greeting( int greet_type )
     {
         return tr( greeting_strings[greet_type] );
@@ -405,8 +406,8 @@ TRANSLATIONS    = tt1_la.ts
 #include <qapplication.h>
 #include <qpushbutton.h>
 #include <qtranslator.h>
-
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
@@ -932,7 +933,7 @@ In practice we would include calls to @File{lupdate} and @File{lrelease} in
 the application's makefile to ensure that the latest translations
 are used.
 
-@LP
+@NP
 Type
 @LD @Code @RawVerbatim @Begin
     lrelease tt2.pro
@@ -990,6 +991,7 @@ program again. Explain why the result is the same as with
 @LP
 Change one of the accelerators in the Dutch translation to eliminate
 the conflict between @Option{"&"Bestand} and @Option{"&"Boven}.
+@NP
 @End @SubSubSection
 @EndSubSubSections
 @End @SubSection
@@ -1287,12 +1289,11 @@ can save them time:
 @LD @Code @RawVerbatim @Begin
     /* TRANSLATOR ZClientErrorDialog
 
-        Choose Client|Edit to reach the Client Edit dialog, then choose
-        Client Specification from the drop down list at the top and pick
-        client Bartel Leendert van der Waerden. Now check the Profile
-        checkbox and then click the Start Processing button. You should
-        now see a pop up window with the text "Error: Name too long!".
-        This window is a ZClientErrorDialog.
+       Choose Client|Edit to reach the Client Edit dialog, then choose Client
+       Specification from the drop down list at the top and pick client Bartel
+       Leendert van der Waerden. Now check the Profile checkbox and then click
+       the Start Processing button. You should now see a pop up window with the
+       text "Error: Name too long!". This window is a ZClientErrorDialog.
     */
 @End @RawVerbatim
 @End @SubSubSection

@@ -349,6 +349,8 @@ is @File{"qt/tools/designer/examples/credit/creditform.h"}:
         ~CreditForm();
     public slots:
         void setAmount();
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     };
 @End @RawVerbatim
 We've declared the slot, @Func{setAmount()}, that we created
@@ -497,7 +499,8 @@ This form will then load and execute the dynamic dialog.
 @LD @Code @RawVerbatim @Begin
     #include <qapplication.h>
     #include "mainform.h"
-
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
     int main( int argc, char *argv[] )
     {
         QApplication app( argc, argv );
@@ -731,19 +734,21 @@ qobject @Index{ QObject }
 qdialog @Index{ QDialog }
 start with the header file.
 @LD @Code @RawVerbatim @Begin
-#include <qobject.h>
-#include <qdialog.h>
-
-class Receiver : public QObject
-{
-    Q_OBJECT
-public:
-    void setParent( QDialog *parent );
-public slots:
-    void setAmount();
-private:
-    QDialog *p;
-};
+    #include <qobject.h>
+    #include <qdialog.h>
+    
+    class Receiver : public QObject
+    {
+        Q_OBJECT
+    public:
+        void setParent( QDialog *parent );
+    public slots:
+        void setAmount();
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
+    private:
+        QDialog *p;
+    };
 @End @RawVerbatim
 
 Our class must be a @Class{QObject}qobject @Index{ QObject } subclass

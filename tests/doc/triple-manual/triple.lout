@@ -39,7 +39,7 @@
  
 @Use { @BasicSetup
   # @InitialFont	{ Times Base 12p	} # initial font
-  @InitialFont		{ Palatino Base 11p	} # initial font
+  @InitialFont		{ Palatino Base 10p	} # initial font
   # @InitialBreak	{{adjust 1.2fx hyphen} @OrIfPlain {ragged 1fx nohyphen}}
   # @InitialOutdent	{ 2f @OrIfPlain 4s	} # initial outdent
   # @InitialSpace	{ lout			} # initial space style

@@ -130,9 +130,6 @@ that we create.
     @Title { Setting Up Qt Designer's Connections }
     @Tag{setting.up.qt.designer.s.connections}
 @Begin
-@Figure
-    @Caption { @I{Database Connections Dialog} }
- 0.45 @Scale @IncludeGraphic { "images/database-connections.eps.gz" }
 @LP
 Choose @Option{Project"|"Database Connections} from the menu bar.
 The @Win{Database Connections} dialog will appear. Click @B{New
@@ -150,6 +147,9 @@ dialog. You can now close the dialog; the connection settings
 will remain in effect until you change or delete them or exit
 from @QDR.
 
+@Figure
+    @Caption { @I{Database Connections Dialog} }
+ 0.45 @Scale @IncludeGraphic { "images/database-connections.eps.gz" }
 @LP
 @QDR can remember database connection settings in
 projects @RawIndex{ Projects }
@@ -189,27 +189,29 @@ qsqldatabase @Index{ QSqlDatabase }
 qpsql @Index{ QPSQL7 }
 that you can use as a basis for your own code.
 @LD @Code @RawVerbatim @Begin
-bool createConnections()
-{
-    // create the default database connection
-    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QPSQL7" );
-    if ( ! defaultDB ) {
-        qWarning( "Failed to connect to driver" );
-        return FALSE;
+    bool createConnections()
+    {
+        // create the default database connection
+        QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QPSQL7" );
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
+        if ( ! defaultDB ) {
+            qWarning( "Failed to connect to driver" );
+            return FALSE;
+        }
+        defaultDB->setDatabaseName( "book" );
+        defaultDB->setUserName( "bookuser" );
+        defaultDB->setPassword( "bookpw" );
+        defaultDB->setHostName( "bookhost" );
+        if ( ! defaultDB->open() ) {
+            qWarning( "Failed to open books database: " +
+                      defaultDB->lastError().driverText() );
+            qWarning( defaultDB->lastError().databaseText() );
+            return FALSE;
+        }
+    
+        return TRUE;
     }
-    defaultDB->setDatabaseName( "book" );
-    defaultDB->setUserName( "bookuser" );
-    defaultDB->setPassword( "bookpw" );
-    defaultDB->setHostName( "bookhost" );
-    if ( ! defaultDB->open() ) {
-        qWarning( "Failed to open books database: " +
-                  defaultDB->lastError().driverText() );
-        qWarning( defaultDB->lastError().databaseText() );
-        return FALSE;
-    }
-
-    return TRUE;
-}
 @End @RawVerbatim
 @LP
 We call @Func{addDatabase()} passing it the name of the adddatabase
@@ -685,53 +687,6 @@ want the books of the currently selected author showing in the bottom
 @Class{QDataTable}qdatatable @Index{ QDataTable }. We will deal with
 this by filtering the records in the book table according to the
 author selected in the author table.
-@LP
-{ Using the Table Editor} @Sidebar {
-@CD
-@Figure
-    @Caption { @I{Edit Table Dialog} }
-    @Location { Raw }
-    0.45 @Scale @IncludeGraphic { "images/edit-dbtable-dialog.eps.gz" }
-
-@Class{QDataTable}qdatatable @Index{ QDataTable }s are created and set
-up using the SQL Table Wizard. value.editors @RawIndex{ Value Editors
-} value.editors.sql.table.editor @SubIndex{ SQL Table Editor } Like
-any other @QDR widget their properties may be changed in the
-Properties window. Some of the column and row based properties can
-also be be changed using the @Win{Edit Table} dialog. This dialog is
-invoked by right clicking the @Class{QDataTable}qdatatable @Index{
-QDataTable } and left clicking the @Option{Edit} menu item. The right
-hand half of the @Win{Edit Table} dialog is where we choose the fields
-we wish to display, their order and their labels. The procedure for
-creating columns is as follows:
-@NumberedList
-@LI{
-Click the @Option{New Column} button.
-}
-@LI{
-Drop down the Field combobox to list the available fields.
-}
-@LI{
-Click the field you wish to include at this point.
-}
-@LI{
-@I{Optionally} edit the Label if the default isn't appropriate.
-}
-@LI{
-@I{Optionally} click the Pixmap ellipsis (@Option{...}) button to
-choose a pixmap to be displayed to the left of the column's label.
-(The ellipsis button appears when you click in the Value part
-of the Properties list by a @Prop{pixmap} or @Prop{iconSet} property.)
-}
-@EndList
-
-Repeat the steps listed above for each column you wish to add.
-Once all the fields have been added you can change their ordering
-by using the blue up and down arrow buttons. At any point you
-can press @Option{Apply} to see how the table will look. Finally click
-the @OK button to save the properties you have set. You can
-always return to the table editor to change these settings later.
-}
 
 @BeginSubSubSections
 @SubSubSection
@@ -779,6 +734,52 @@ refresh the @Class{QDataTable}qdatatable @Index{ QDataTable } to show
 the results of the filter.
 }
 @EndList
+{ Using the Table Editor} @Sidebar {
+@CD
+@Figure
+    @Caption { @I{Edit Table Dialog} }
+    @Location { Raw }
+    0.45 @Scale @IncludeGraphic { "images/edit-dbtable-dialog.eps.gz" }
+
+@Class{QDataTable}qdatatable @Index{ QDataTable }s are created and set
+up using the SQL Table Wizard. value.editors @RawIndex{ Value Editors
+} value.editors.sql.table.editor @SubIndex{ SQL Table Editor } Like
+any other @QDR widget their properties may be changed in the
+Properties window. Some of the column and row based properties can
+also be be changed using the @Win{Edit Table} dialog. This dialog is
+invoked by right clicking the @Class{QDataTable}qdatatable @Index{
+QDataTable } and left clicking the @Option{Edit} menu item. The right
+hand half of the @Win{Edit Table} dialog is where we choose the fields
+we wish to display, their order and their labels. The procedure for
+creating columns is as follows:
+@NumberedList
+@LI{
+Click the @Option{New Column} button.
+}
+@LI{
+Drop down the Field combobox to list the available fields.
+}
+@LI{
+Click the field you wish to include at this point.
+}
+@LI{
+@I{Optionally} edit the Label if the default isn't appropriate.
+}
+@LI{
+@I{Optionally} click the Pixmap ellipsis (@Option{...}) button to
+choose a pixmap to be displayed to the left of the column's label.
+(The ellipsis button appears when you click in the Value part
+of the Properties list by a @Prop{pixmap} or @Prop{iconSet} property.)
+}
+@EndList
+
+Repeat the steps listed above for each column you wish to add.
+Once all the fields have been added you can change their ordering
+by using the blue up and down arrow buttons. At any point you
+can press @Option{Apply} to see how the table will look. Finally click
+the @OK button to save the properties you have set. You can
+always return to the table editor to change these settings later.
+}
 @End @SubSubSection
 @SubSubSection
     @Title { Preparing the Interface for Drilldown }

@@ -102,6 +102,8 @@ and a single value which is contained within a datatype element.
         <property name="menuText">
             <string>&amp;New</string>
         </property>
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         <property name="accel">
             <number>4194382</number>
         </property>
@@ -233,6 +235,8 @@ and type of any properties that the widget has are also included.
         <signal>clicked()</signal>
         <signal>changed()</signal>
         <property type="Color">color</property>
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         <property type="Pixmap">pixmap</property>
         <property type="Bool">scale</property>
     </customwidget>
@@ -673,11 +677,11 @@ widget.
         <property name="margin">
             <number>11</number>
         </property>
-@End @RawVerbatim
-@LD @Code @RawVerbatim @Begin
         <property name="spacing">
             <number>6</number>
         </property>
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
         <widget class="QTextBrowser">
             <property name="name">
                 <cstring>TextBrowser1</cstring>
@@ -916,6 +920,8 @@ color group. For example:
     <color> ... Highlight     ... </color>
     <color> ... HighlightText ... </color>
   </active>
+@End @RawVerbatim
+@LD @Code @RawVerbatim @Begin
   <disabled>
     <color><red>128</red><green>128</green><blue>128</blue></color>
     ...
