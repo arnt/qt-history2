@@ -404,7 +404,7 @@ DspMakefileGenerator::init()
     if(!project->variables()["QMAKE_PLATFORM"].isEmpty())
         platform = varGlue("QMAKE_PLATFORM", "", " ", "");
 
-    if(!project->isActiveConfig("debug"))
+    if(project->isActiveConfig("debug"))
         configurations << "Release" << "Debug";
     else
         configurations << "Debug" << "Release";
