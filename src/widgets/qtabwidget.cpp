@@ -120,6 +120,14 @@
     \sa QTabDialog, QToolBox
 */
 
+/*!
+  \enum Qt::Corner
+  This enum type specifies a corner in a rectangle:
+  \value TopLeft top left corner
+  \value TopRight top right corner
+  \value BottomLeft bottom left corner
+  \value BottomRight bottom right corner
+*/
 
 /*!
     \enum QTabWidget::TabPosition
@@ -191,7 +199,7 @@ public:
     QTabWidgetData()
         : tabs(0), tabBase(0), stack(0), dirty( TRUE ),
           pos( QTabWidget::Top ), shape( QTabWidget::Rounded ),
-	  tabCloseButton(0) {};
+	  leftCornerWidget(0), rightCornerWidget(0) {};
     ~QTabWidgetData(){};
     QTabBar* tabs;
     QTabBarBase* tabBase;
@@ -200,7 +208,8 @@ public:
     QTabWidget::TabPosition pos;
     QTabWidget::TabShape shape;
     int alignment;
-    QToolButton* tabCloseButton;
+    QWidget* leftCornerWidget;
+    QWidget* rightCornerWidget;
 };
 
 /*!
@@ -211,17 +220,6 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     : QWidget( parent, name, f )
 {
     d = new QTabWidgetData;
-
-    d->tabCloseButton = new QToolButton( this );
-#ifndef QT_NO_CURSOR
-    d->tabCloseButton->setCursor( arrowCursor );
-#endif
-    d->tabCloseButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton,
-						       d->tabCloseButton ) );
-    d->tabCloseButton->setFixedSize( 12, 12 );
-    d->tabCloseButton->hide();
-    QObject::connect( d->tabCloseButton, SIGNAL( clicked() ), this, SLOT( removeCurrentPage() ) );
-
     d->stack = new QWidgetStack( this, "tab pages" );
     d->stack->installEventFilter( this );
     d->tabBase = new QTabBarBase( this, "tab base" );
@@ -267,10 +265,7 @@ QTabWidget::~QTabWidget()
 */
 void QTabWidget::addTab( QWidget *child, const QString &label)
 {
-    QTab * t = new QTab();
-    Q_CHECK_PTR( t );
-    t->label = label;
-    addTab( child, t );
+    insertTab( child, label );
 }
 
 
@@ -284,11 +279,7 @@ void QTabWidget::addTab( QWidget *child, const QString &label)
 */
 void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString &label )
 {
-    QTab * t = new QTab();
-    Q_CHECK_PTR( t );
-    t->label = label;
-    t->iconset = new QIconSet( iconset );
-    addTab( child, t );
+    insertTab( child, iconset, label );
 }
 
 /*!
@@ -301,12 +292,7 @@ void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString 
 */
 void QTabWidget::addTab( QWidget *child, QTab* tab )
 {
-    tab->enabled = TRUE;
-    int id = d->tabs->addTab( tab );
-    d->stack->addWidget( child, id );
-    if ( d->stack->frameStyle() != ( QFrame::TabWidgetPanel | QFrame::Raised ) )
-        d->stack->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
-    setUpLayout();
+    insertTab( child, tab );
 }
 
 
@@ -480,22 +466,30 @@ void QTabWidget::setTabEnabled( QWidget* w, bool enable)
     }
 }
 
-/*!
-    \property QTabWidget::closeButtonVisible
-    \brief whether the tab close button is visible
+/*
+  Sets widget \a w to be the shown in the specified \a corner of the tab widget.
+
+  Only the horizontal element of the \a corner will be used.
+  \sa cornerWidget(), setTabPosition()
 */
-bool QTabWidget::isCloseButtonVisible() const
+void QTabWidget::setCornerWidget( QWidget * w, Qt::Corner corner )
 {
-    return d->tabCloseButton->isVisible();
+    if ( !w )
+	return;
+    if ( (uint)corner & 1 )
+	d->rightCornerWidget = w;
+    else
+	d->leftCornerWidget = w;
 }
 
-void QTabWidget::setCloseButtonVisible( bool visible )
+/*
+  Get the widget shown in the \a corner of the tab widget.
+*/
+QWidget * QTabWidget::cornerWidget( QTabWidget::Corner corner )
 {
-    if ( visible ) {
-	d->tabCloseButton->show();
-    } else {
-	d->tabCloseButton->hide();
-    }
+    if ( (uint)corner & 1 )
+	return d->rightCornerWidget;
+    return d->leftCornerWidget;
 }
 
 /*!
@@ -523,7 +517,7 @@ void QTabWidget::showPage( QWidget * w)
     Removes page \a w from this stack of widgets. Does not delete \a
     w.
 
-    \sa showPage(), QWidgetStack::removeWidget()
+    \sa addPage(), showPage(), QWidgetStack::removeWidget()
 */
 void QTabWidget::removePage( QWidget * w )
 {
@@ -663,22 +657,6 @@ void QTabWidget::showTab( int i )
     }
 }
 
-/*!
-  Removes the current page from this stack of widgets. Does not delete the widget.
-*/
-
-void QTabWidget::removeCurrentPage()
-{
-    int i = currentPageIndex();
-    if ( i > 0 ) {
-	setCurrentPage( i - 1 );
-	removePage( page(i) );
-    } else if ( count() > 1 ) {
-	setCurrentPage( 1 );
-	removePage( page(0) );
-    }
-}
-
 /*
     Set up the layout.
 */
@@ -693,7 +671,9 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     }
 
     QSize t( d->tabs->sizeHint() );
-    int tw = ( d->tabCloseButton->isVisible() ? width() - t.height() : width() );
+    int lcw = ( d->leftCornerWidget && d->leftCornerWidget->isVisible() ? t.height() : 0 );
+    int rcw = ( d->rightCornerWidget && d->rightCornerWidget->isVisible() ? t.height() : 0 );
+    int tw = width() - lcw - rcw;
     if ( t.width() > tw )
 	t.setWidth( tw );
     int lw = d->stack->lineWidth();
@@ -703,10 +683,10 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     exth = style().pixelMetric( QStyle::PM_TabBarBaseHeight, this );
     overlap = style().pixelMetric( QStyle::PM_TabBarBaseOverlap, this );
 
-    if( reverse ) {
-	tabx = QMIN( width() - t.width(), width() - t.width() - lw + 2 );
+    if ( reverse ) {
+	tabx = QMIN( width() - t.width(), width() - t.width() - lw + 2 ) - lcw;
     } else {
-	tabx = QMAX( 0, lw - 2 );
+	tabx = QMAX( 0, lw - 2 ) + lcw;
     }
     if ( d->pos == Bottom ) {
 	taby = height() - t.height() - lw;
@@ -743,9 +723,16 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     if ( autoMask() )
 	updateMask();
 
-    int cy = ( t.height() / 2 ) - ( d->tabCloseButton->height() / 2 );
-    d->tabCloseButton->move( width() - t.height() + cy, cy );
-    d->tabCloseButton->setEnabled( count() > 1 );
+    if ( d->leftCornerWidget ) {
+	int y = ( t.height() / 2 ) - ( d->leftCornerWidget->height() / 2 );
+	int x = ( reverse ?  width() - t.height() + y : y );
+         d->leftCornerWidget->move( x, y );
+    }
+    if ( d->rightCornerWidget ) {
+	int y = ( t.height() / 2 ) - ( d->rightCornerWidget->height() / 2 );
+	int x = ( reverse ? y : width() - t.height() + y );
+	d->rightCornerWidget->move( x, y );
+    }
 }
 
 /*!

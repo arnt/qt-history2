@@ -8,8 +8,24 @@
 *****************************************************************************/
 
 #include <qfileinfo.h>
+#include <qtoolbutton.h>
+#include <qstyle.h>
 
 #include "config.h"
+
+static const char * tab_widget_new_xpm[]={
+"8 8 3 1",
+". c None",
+"# c #000000",
+"a c #ffffff",
+".####...",
+".#aa##..",
+".#aa###.",
+".#aaaa#.",
+".#aaaa#.",
+".#aaaa#.",
+".######.",
+"........"};
 
 static QString reduceLabelLength( const QString &s )
 {
@@ -120,6 +136,20 @@ void TabbedBrowser::init()
 
     connect( tab, SIGNAL( currentChanged( QWidget* ) ),
 	     this, SLOT( transferFocus() ) );
+
+    QToolButton *newTabButton = new QToolButton( this );
+    tab->setCornerWidget( newTabButton, Qt::TopLeft );
+    newTabButton->setCursor( arrowCursor );
+    newTabButton->setPixmap( QPixmap( tab_widget_new_xpm ) );
+    newTabButton->setFixedSize( 12, 12 );
+    QObject::connect( newTabButton, SIGNAL( clicked() ), this, SLOT( newTab() ) );
+
+    QToolButton *closeTabButton = new QToolButton( this );
+    tab->setCornerWidget( closeTabButton, Qt::TopRight );
+    closeTabButton->setCursor( arrowCursor );
+    closeTabButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeTabButton ) );
+    closeTabButton->setFixedSize( 12, 12 );
+    QObject::connect( closeTabButton, SIGNAL( clicked() ), this, SLOT( closeTab() ) );
 }
 
 void TabbedBrowser::setMimePath( QStringList lst )

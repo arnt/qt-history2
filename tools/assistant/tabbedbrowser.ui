@@ -29,9 +29,6 @@
             <property name="name">
                 <cstring>tab</cstring>
             </property>
-            <property name="closeButtonVisible" stdset="0">
-                <bool>true</bool>
-            </property>
             <widget class="QWidget">
                 <property name="name">
                     <cstring>frontpage</cstring>

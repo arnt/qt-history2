@@ -518,11 +518,9 @@ void QTabBar::setTabEnabled( int id, bool enabled )
 
 bool QTabBar::isTabEnabled( int id ) const
 {
-    QTab * t;
-    for( t = l->first(); t; t = l->next() ) {
-	if ( t && t->id == id )
-	    return t->enabled;
-    }
+    QTab * t = tab( id );
+    if ( t )
+	return t->enabled;
     return FALSE;
 }
 
@@ -1124,13 +1122,9 @@ void QTabBar::styleChange( QStyle& old )
 */
 void QTabBar::focusInEvent( QFocusEvent * )
 {
-    QTab *t = l->first();
-    for ( ; t; t = l->next() ) {
-	if ( t->id == d->focus ) {
-	    repaint( t->r );
-	    break;
-	}
-    }
+    QTab *t = tab( d->focus );
+    if ( t )
+	repaint( t->r );
 }
 
 /*!
@@ -1138,13 +1132,9 @@ void QTabBar::focusInEvent( QFocusEvent * )
 */
 void QTabBar::focusOutEvent( QFocusEvent * )
 {
-    QTab *t = l->first();
-    for ( ; t; t = l->next() ) {
-	if ( t->id == d->focus ) {
-	    repaint( t->r );
-	    break;
-	}
-    }
+    QTab *t = tab( d->focus );
+    if ( t )
+	repaint( t->r );
 }
 
 /*!

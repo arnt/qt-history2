@@ -61,14 +61,13 @@ class Q_EXPORT QTabWidget : public QWidget
     Q_PROPERTY( int margin READ margin WRITE setMargin )
     Q_PROPERTY( int currentPage READ currentPageIndex WRITE setCurrentPage )
     Q_PROPERTY( int count READ count )
-    Q_PROPERTY( bool closeButtonVisible READ isCloseButtonVisible WRITE setCloseButtonVisible )
     Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
     QTabWidget( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
     ~QTabWidget();
 
-    virtual void addTab( QWidget *, const QString & );
+    virtual void addTab( QWidget *, const QString & ); // ### make these inline in 4.0
     virtual void addTab( QWidget *child, const QIconSet& iconset,
 			 const QString &label );
     virtual void addTab( QWidget *, QTab* );
@@ -85,8 +84,8 @@ public:
     bool isTabEnabled(  QWidget * ) const;
     void setTabEnabled( QWidget *, bool );
 
-    bool isCloseButtonVisible() const;
-    void setCloseButtonVisible( bool enable );
+    void setCornerWidget( QWidget * w, Qt::Corner corner );
+    QWidget * cornerWidget( Qt::Corner corner );
 
     QString tabLabel( QWidget * ) const;
     void setTabLabel( QWidget *p, const QString &l );
@@ -141,8 +140,7 @@ signals:
 #endif
 
 private slots:
-    void showTab( int i );
-    void removeCurrentPage();
+    void showTab( int );
 
 private:
     QTabWidgetData *d;

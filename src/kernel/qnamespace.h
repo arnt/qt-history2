@@ -842,6 +842,14 @@ public:
         ExactMatch      = 0x00010  // 1 0000
     };
 
+    // Documented in qtabwidget.cpp
+    enum Corner {
+	TopLeft     = 0x00000,
+	TopRight    = 0x00001,
+	BottomLeft  = 0x00002,
+	BottomRight = 0x00003
+    };
+
     // "handle" type for system objects. Documented as \internal in
     // qapplication.cpp
 #if defined(Q_WS_MAC)
