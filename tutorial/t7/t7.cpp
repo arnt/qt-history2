@@ -1,6 +1,6 @@
 /****************************************************************
 **
-** Qt tutorial 5
+** Qt tutorial 7
 **
 ****************************************************************/
 
@@ -10,6 +10,9 @@
 #include <qlcdnum.h>
 #include <qfont.h>
 
+#include "lcdrange.h"
+
+
 class MyWidget : public QWidget
 {
 public:
@@ -18,38 +21,35 @@ protected:
     void resizeEvent( QResizeEvent * );
 private:
     QPushButton *quit;
-    QScrollBar  *sBar;
-    QLCDNumber  *lcd;
+    LCDRange *value[16];
 };
 
 
 MyWidget::MyWidget( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    setMinimumSize( 200, 200 );
+    setMinimumSize( 200, 300 );
 
     quit = new QPushButton( "Quit", this, "quit" );
     quit->setGeometry( 10, 10, 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
+    connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
 
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
-
-    lcd  = new QLCDNumber( 2, this, "lcd" );
-    lcd->move( 10, quit->y() + quit->height() + 10 );
-
-    sBar = new QScrollBar( 0, 99,		       	// range
-			   1, 10, 			// line/page steps
-			   0, 				// inital value
-			   QScrollBar::Horizontal, 	// orientation
-                           this, "scrollbar" );
-
-    connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
+    for( int i = 0 ; i < 16 ; i++ ) {
+	value[i] = new LCDRange( this );
+	if ( i > 0 )
+	    connect( value[i], SIGNAL(valueChanged(int)), 
+		     value[i - 1], SLOT(setValue(int)) );
+    }
 }
 
-void MyWidget::resizeEvent( QResizeEvent * )
+void MyWidget::resizeEvent( QResizeEvent *e )
 {
-    sBar->setGeometry( 10, height() - 10 - 16, width() - 20, 16 );
-    lcd->resize( sBar->width(), sBar->y() - lcd->y() - 5 );
+    int valueWidth = (width() - 20)/4;
+    int valueHeight = (height() - 65)/4;
+    for( int i = 0 ; i < 16 ; i++ )
+	value[i]->setGeometry( 10 + (i%4)*valueWidth,  55 + (i/4)*valueHeight,
+                               valueWidth - 5, valueHeight - 5 );
 }
 
 int main( int argc, char **argv )
@@ -57,7 +57,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     MyWidget w;
-    w.setGeometry( 100, 100, 200, 200 );
+    w.setGeometry( 100, 100, 400, 400 );
     a.setMainWidget( &w );
     w.show();
     return a.exec();

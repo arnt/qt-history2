@@ -22,7 +22,7 @@ private:
     QLCDNumber  *lcd;
 };
 
-LCDRange::LCDRange( QWidget *parent, const char *name )
+LCDRange::LCDRange( QWidget *parent=0, const char *name=0 )
         : QWidget( parent, name )
 {
     lcd  = new QLCDNumber( 2, this, "lcd"  );
@@ -30,12 +30,12 @@ LCDRange::LCDRange( QWidget *parent, const char *name )
     sBar = new QScrollBar( 0, 99,		       	// range
 			   1, 10, 			// line/page steps
 			   0, 				// inital value
-			   QScrollBar::Horizontal, 	// orientation
+			   QScrollBar::Horizontal, 	// direction
                            this, "scrollbar" );
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
 }
 
-void LCDRange::resizeEvent( QResizeEvent * )
+void LCDRange::resizeEvent( QResizeEvent *e )
 {
     sBar->setGeometry( 0, height() - 16, width(), 16 );
     lcd->resize( width(), sBar->y() - 5 );
@@ -63,13 +63,13 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     quit->setGeometry( 10, 10, 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
+    connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
 
     for( int i = 0 ; i < 16 ; i++ )
 	value[i] = new LCDRange( this );
 }
 
-void MyWidget::resizeEvent( QResizeEvent * )
+void MyWidget::resizeEvent( QResizeEvent *e )
 {
     int startx      = 10;
     int starty      = quit->y() + quit->height() + 10;

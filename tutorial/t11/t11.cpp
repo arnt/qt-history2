@@ -1,6 +1,6 @@
 /****************************************************************
 **
-** Qt tutorial 12
+** Qt tutorial 11
 **
 ****************************************************************/
 
@@ -25,7 +25,7 @@ private:
     QPushButton *shoot;
     LCDRange    *angle;
     LCDRange    *force;
-    CannonField *cannonField;
+    CannonField *cannon;
 };
 
 
@@ -37,43 +37,38 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
     quit = new QPushButton( "Quit", this, "quit" );
     quit->setGeometry( 10, 10, 75, 30 );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
+    connect( quit, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
 
-    connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
-
-    angle  = new LCDRange( "ANGLE", this, "angle" );
+    angle  = new LCDRange( this, "angle" );
     angle->setRange( 5, 70 );
-    angle->setGeometry( 10, quit->y() + quit->height() + 10, 75, 130 );
+    angle->move( 10, 45 );
 
-    force  = new LCDRange( "FORCE", this, "force" );
+    force  = new LCDRange( this, "force" );
     force->setRange( 10, 50 );
-    force->setGeometry( 10, angle->y() + angle->height() + 10, 75, 130 );
+    force->move( 10, 180 );
 
-    cannonField = new CannonField( this, "cannonField" );
-    cannonField->move( angle->x() + angle->width() + 10, angle->y() );
-    cannonField->setBackgroundColor( QColor( 250, 250, 200) );
+    cannon = new CannonField( this, "canonfield" );
+    cannon->resize( 400, 300 );
+    cannon->setBackgroundColor( QColor( 250, 250, 200) );
 
-    connect( angle,SIGNAL(valueChanged(int)), cannonField,SLOT(setAngle(int)));
-    connect( cannonField,SIGNAL(angleChanged(int)), angle,SLOT(setValue(int)));
+    connect( angle, SIGNAL(valueChanged(int)), cannon, SLOT(setAngle(int)) );
+    connect( force, SIGNAL(valueChanged(int)), cannon, SLOT(setForce(int)) );
 
-    connect( force,SIGNAL(valueChanged(int)), cannonField,SLOT(setForce(int)));
-    connect( cannonField,SIGNAL(forceChanged(int)), force,SLOT(setValue(int)));
-
-    connect( cannonField, SIGNAL(hit()), cannonField, SLOT(newTarget()) );
-
-    angle->setValue( 60 );
+    angle->setValue( 45 );
     force->setValue( 25 );
 
     shoot = new QPushButton( "Shoot", this, "shoot" );
     shoot->setGeometry( 90, 10, 75, 30 );
     shoot->setFont( QFont( "Times", 18, QFont::Bold ) );
+    connect( shoot, SIGNAL(clicked()), cannon, SLOT(shoot()) );
 
-    connect( shoot, SIGNAL(clicked()), cannonField, SLOT(shoot()) );
 }
 
-void MyWidget::resizeEvent( QResizeEvent * )
+void MyWidget::resizeEvent( QResizeEvent *e )
 {
-    cannonField->resize( width()  - cannonField->x() - 10,
-			 height() - cannonField->y() - 10 );
+    angle->resize( width() - 425, 130 );
+    force->resize( width() - 425, 130 );
+    cannon->move( angle->x() + angle->width() + 5, 45 );
 }
 
 int main( int argc, char **argv )
