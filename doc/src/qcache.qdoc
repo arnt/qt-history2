@@ -122,12 +122,18 @@
     \sa size()
 */
 
+/*! \fn QList<Key> QCache::keys() const
+
+    Returns a list of the keys in the cache.
+*/
+
 /*! \fn void QCache::clear();
 
     Deletes all the items in the cache.
 
     \sa remove(), take()
 */
+
 
 /*! \fn void QCache::insert(const Key &key, T *data, int cost = 1)
 
