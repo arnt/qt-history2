@@ -800,7 +800,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")) {
 	QString header_prefix = project->first("QMAKE_PRECOMP_PREFIX");
-	QString precomph_out_dir = project->first("PRECOMPILED_HEADER").section(Option::dir_sep, -1) + ".gch" + Option::dir_sep;
+	QString precomph_out_dir = project->first("QMAKE_ORIG_TARGET") + ".gch" + Option::dir_sep;
 	t << "-$(DEL_FILE) " << precomph_out_dir << header_prefix + "c " 
 	  << precomph_out_dir << header_prefix << "c++" << "\n\t";
     }
@@ -841,7 +841,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER") ) {
 	QString precomph = fileFixify(project->first("PRECOMPILED_HEADER"));
-	QString precomph_base = precomph.section(Option::dir_sep, -1);
 	t << "###### Prefix headers" << endl;
 	QString comps[] = { "C", "CXX", QString::null };
 	for(int i = 0; !comps[i].isNull(); i++) {
@@ -849,7 +848,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    flags += " $(" + comps[i] + "FLAGS)";
 
 	    QString header_prefix = project->first("QMAKE_PRECOMP_PREFIX");
-	    QString outdir = precomph_base + ".gch" + Option::dir_sep, outfile = outdir;
+	    QString outdir = project->first("QMAKE_ORIG_TARGET") + ".gch" + Option::dir_sep, outfile = outdir;
 	    if(comps[i] == "C")
 		outfile += header_prefix + "c";
 	    else
