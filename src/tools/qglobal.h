@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#53 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#54 $
 **
 ** Global type declarations and definitions
 **
@@ -330,5 +330,6 @@ msg_handler qInstallMsgHandler( msg_handler );	// install message handler
 #if !defined(TEST_OBSOLETE)
 #define OBSOLETE
 #endif
+
 
 #endif // QGLOBAL_H
