@@ -1519,7 +1519,9 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
     if ( f == Qt::ISODate ) {
 	return QDateTime( QDate::fromString( s.mid(0,10), Qt::ISODate ),
 			  QTime::fromString( s.mid(11,8), Qt::ISODate ) );
-    } else if ( f == Qt::TextDate ) {
+    } 
+#ifndef QT_NO_REGEXP
+    else if ( f == Qt::TextDate ) {
 	QString monthName( s.mid( 4, 3 ) );
 	int month = -1;
 	int i = 0;
@@ -1544,6 +1546,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 	}
 	return QDateTime( date, time );
     }
+#endif //QT_NO_REGEXP    
     return QDateTime();
 }
 

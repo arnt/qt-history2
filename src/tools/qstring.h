@@ -443,14 +443,18 @@ public:
     int         find( QChar c, int index=0, bool cs=TRUE ) const;
     int         find( char c, int index=0, bool cs=TRUE ) const;
     int         find( const QString &str, int index=0, bool cs=TRUE ) const;
+#ifndef QT_NO_REGEXP
     int         find( const QRegExp &, int index=0 ) const;
+#endif
 #ifndef QT_NO_CAST_ASCII
     int         find( const char* str, int index=0 ) const;
 #endif
     int         findRev( QChar c, int index=-1, bool cs=TRUE) const;
     int         findRev( char c, int index=-1, bool cs=TRUE) const;
     int         findRev( const QString &str, int index=-1, bool cs=TRUE) const;
+#ifndef QT_NO_REGEXP
     int         findRev( const QRegExp &, int index=-1 ) const;
+#endif
 #ifndef QT_NO_CAST_ASCII
     int         findRev( const char* str, int index=-1 ) const;
 #endif
@@ -461,8 +465,9 @@ public:
     int         contains( const char* str, bool cs=TRUE ) const;
 #endif
     int         contains( const QString &str, bool cs=TRUE ) const;
+#ifndef QT_NO_REGEXP
     int         contains( const QRegExp & ) const;
-
+#endif
     QString     left( uint len )  const;
     QString     right( uint len ) const;
     QString     mid( uint index, uint len=0xffffffff) const;
@@ -489,8 +494,9 @@ public:
     QString    &remove( uint index, uint len );
     QString    &replace( uint index, uint len, const QString & );
     QString    &replace( uint index, uint len, const QChar*, uint clen );
+#ifndef QT_NO_REGEXP
     QString    &replace( const QRegExp &, const QString & );
-
+#endif
     short       toShort( bool *ok=0, int base=10 )      const;
     ushort      toUShort( bool *ok=0, int base=10 )     const;
     int         toInt( bool *ok=0, int base=10 )        const;

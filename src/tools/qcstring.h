@@ -156,14 +156,19 @@ public:
 
     int		find( char c, int index=0, bool cs=TRUE ) const;
     int		find( const char *str, int index=0, bool cs=TRUE ) const;
+#ifndef QT_NO_REGEXP
     int		find( const QRegExp &, int index=0 ) const;
+#endif
     int		findRev( char c, int index=-1, bool cs=TRUE) const;
     int		findRev( const char *str, int index=-1, bool cs=TRUE) const;
+#ifndef QT_NO_REGEXP
     int		findRev( const QRegExp &, int index=-1 ) const;
+#endif
     int		contains( char c, bool cs=TRUE ) const;
     int		contains( const char *str, bool cs=TRUE ) const;
+#ifndef QT_NO_REGEXP
     int		contains( const QRegExp & ) const;
-
+#endif
     QCString	left( uint len )  const;
     QCString	right( uint len ) const;
     QCString	mid( uint index, uint len=0xffffffff) const;
@@ -183,8 +188,9 @@ public:
     QCString    &prepend( const char * );
     QCString    &remove( uint index, uint len );
     QCString    &replace( uint index, uint len, const char * );
+#ifndef QT_NO_REGEXP
     QCString    &replace( const QRegExp &, const char * );
-
+#endif
     short	toShort( bool *ok=0 )	const;
     ushort	toUShort( bool *ok=0 )	const;
     int		toInt( bool *ok=0 )	const;

@@ -1346,7 +1346,7 @@ QCString &QCString::replace( uint index, uint len, const char *str )
     return *this;
 }
 
-
+#ifndef QT_NO_REGEXP
 /*!
   Finds the first occurrence of the regular expression \a rx, starting at
   position \a index.
@@ -1427,6 +1427,7 @@ QCString &QCString::replace( const QRegExp &rx, const char *str )
     setStr( d.ascii() );
     return *this;
 }
+#endif //QT_NO_REGEXP
 
 /*!
   Returns the string converted to a <code>long</code> value.

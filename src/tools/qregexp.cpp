@@ -35,12 +35,14 @@
 **
 **********************************************************************/
 
+#include "qregexp.h"
+#ifndef QT_NO_REGEXP
+
 #include "qmemarray.h"
 #include "qbitarray.h"
 #include "qcache.h"
 #include "qintdict.h"
 #include "qmap.h"
-#include "qregexp.h"
 #include "qstring.h"
 #include "qtl.h"
 #include "qptrvector.h"
@@ -3735,3 +3737,4 @@ void QRegExp::compile( bool caseSensitive )
     priv->captured.detach();
     priv->captured.fill( -1, 2 + 2 * eng->numCaptures() );
 }
+#endif //QT_NO_REGEXP

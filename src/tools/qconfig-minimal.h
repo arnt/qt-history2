@@ -68,6 +68,6 @@
 #define QT_NO_VALIDATOR
 #define QT_NO_SPRINTF
 
-//#define QT_NO_REGEXP //Not actually working yet...
+#define QT_NO_REGEXP
 
 #define QT_NO_IMAGEIO

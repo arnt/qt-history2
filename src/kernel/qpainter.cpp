@@ -2255,8 +2255,10 @@ void qt_format_text( const QFont& font, const QRect &r,
 	// we can use a simple drawText instead of the QTextParag.
 	QFontMetrics fm( font );
 	QString parStr( str.left( len ) );
+#ifndef QT_NO_REGEXP
 	if ( noaccel || showprefix )
 		parStr.replace( QRegExp( "&" ), "" );
+#endif
 	if ( brect ) {
 	    QRect br( r.x(), r.y(), fm.width( parStr ), fm.height() );
 	    *brect = br;
@@ -2348,11 +2350,12 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    formatter->setAllowBreakInWords( TRUE );
 	parag->setFormatter( formatter );
 	QTextFormat *f = parag->formatCollection()->format( font, painter ? painter->pen().color() : QColor() );
+#ifndef QT_NO_REGEXP
 	if ( singleline )
 	    parStr.replace(QRegExp("[\n\r]"), " ");
 	else
 	    parStr.replace(QRegExp("\r"), " ");
-
+#endif
 	if ( showprefix || noaccel ) {
 	    int idx = -1;
 	    int start = 0;

@@ -42,6 +42,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+#ifndef QT_NO_REGEXP
 class QRegExpEngine;
 struct QRegExpPrivate;
 
@@ -94,5 +95,5 @@ private:
     QRegExpEngine *eng;
     QRegExpPrivate *priv;
 };
-
+#endif QT_NO_REGEXP
 #endif // QREGEXP_H

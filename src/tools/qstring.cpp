@@ -13030,7 +13030,7 @@ bool QString::findArg(int& pos, int& len) const
     return lowest != 0;
 }
 
-#if !defined( QT_NO_COMPONENT ) && !defined( QT_LITE_COMPONENT )
+#if !defined( QT_NO_COMPONENT ) && !defined( QT_LITE_COMPONENT ) && !defined(QT_NO_REGEXP)
 static QCleanupHandler<QRegExp> qt_regexp_cleanup;
 #endif
 
@@ -14099,7 +14099,7 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
     return *this;
 }
 
-
+#ifndef QT_NO_REGEXP
 /*!
   \code
     QString string("bananas");
@@ -14216,6 +14216,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
     }
     return *this;
 }
+#endif //QT_NO_REGEXP
 
 static bool ok_in_base( QChar c, int base )
 {

@@ -38,7 +38,6 @@
 #include "qsignal.h"
 #include "qmetaobject.h"
 #include <ctype.h>
-#include "qregexp.h"
 
 /*!
   \class QSignal qsignal.h
@@ -120,6 +119,14 @@ QSignal::~QSignal()
 {
 }
 
+// Does it match ".+(.*int.*"?
+static inline bool intSignature( const char *member )
+{
+    QCString s(member); 
+    int p = s.find('('); 
+    return p > 0 && p < s.find( "int" );
+}
+
 /*!
   Connects the signal to \e member in object \e receiver.
   \sa disconnect(), QObject::connect()
@@ -127,8 +134,7 @@ QSignal::~QSignal()
 
 bool QSignal::connect( const QObject *receiver, const char *member )
 {
-    QRegExp regexp( "*(*int*)", TRUE, TRUE );
-    if ( regexp.exactMatch( member ) )
+    if ( intSignature( member ) )
 	return QObject::connect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
     return QObject::connect( (QObject *)this, SIGNAL(signal(const QVariant&)),
 			     receiver, member );
@@ -141,8 +147,7 @@ bool QSignal::connect( const QObject *receiver, const char *member )
 
 bool QSignal::disconnect( const QObject *receiver, const char *member )
 {
-    QRegExp regexp( "*(*int*)", TRUE, TRUE );
-    if ( regexp.exactMatch( member ) )
+    if ( intSignature( member ) )
 	return QObject::disconnect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
     return QObject::disconnect( (QObject *)this, SIGNAL(signal(const QVariant&)),
 				receiver, member );

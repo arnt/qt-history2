@@ -75,7 +75,6 @@
 #include "qnetwork.h"
 #include "qcursor.h"
 #include "qinterlacestyle.h"
-#include "qregexp.h"
 
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -1375,12 +1374,13 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
     gettimeofday( &watchtime, 0 );
     mouseInWidget = new QGuardedPtr<QWidget>;
 
-    QRegExp r( ":[0-9]" );  // only supports 10 displays
-    int len;
-    int m = r.match( QString(qws_display_spec) , 0, &len );
-    if ( m >= 0 ) {
-	QString num = QString(qws_display_spec).mid( m+1, len-1 );
-	qws_display_id = num.toInt();
+    //We only support 10 displays, so the string should be ".*:[0-9]"
+    //    QRegExp r( ":[0-9]" );  // only supports 10 displays
+    QString disp(qws_display_spec); 
+    //    int m = r.match( QString(qws_display_spec) , 0, &len );
+    if ( disp[disp.length()-2] == ':' && 
+	 disp[disp.length()-1].digitValue() >= 0) {
+	qws_display_id = disp[disp.length()-1].digitValue(); 
     }
 
     if ( type == QApplication::GuiServer ) {

@@ -34,7 +34,6 @@
 #include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qpixmap.h"
-#include "qregexp.h"
 
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -100,10 +99,9 @@ QLinuxFbScreen::~QLinuxFbScreen()
 bool QLinuxFbScreen::connect( const QString &displaySpec )
 {
     // Check for explicitly specified device
-    QRegExp r( "/dev/fb[0-9]+" );
-    int len;
-    int m = r.match( displaySpec, 0, &len );
-
+    const int len = 8; // "/dev/fbx"
+    int m = displaySpec.find( "/dev/fb" );
+    
     QString dev = (m>=0) ? displaySpec.mid( m, len ) : QString("/dev/fb0");
 
     fd=open( dev.latin1(), O_RDWR );

@@ -874,7 +874,6 @@ void QObject::killTimers()
     qKillTimer( this );
 }
 
-
 static void objSearch( QObjectList *result,
 		       QObjectList *list,
 		       const char  *inheritsClass,
@@ -895,8 +894,10 @@ static void objSearch( QObjectList *result,
 	if ( ok ) {
 	    if ( objName )
 		ok = ( qstrcmp(objName,obj->name()) == 0 );
+#ifndef QT_NO_REGEXP
 	    else if ( rx )
 		ok = ( rx->search(QString::fromLatin1(obj->name())) != -1 );
+#endif
 	}
 	if ( ok )				// match!
 	    result->append( obj );
@@ -906,7 +907,6 @@ static void objSearch( QObjectList *result,
 	obj = list->next();
     }
 }
-
 
 /*!
   \fn QObject *QObject::parent() const
@@ -1003,11 +1003,14 @@ QObjectList *QObject::queryList( const char *inheritsClass,
     QObjectList *list = new QObjectList;
     Q_CHECK_PTR( list );
     bool onlyWidgets = ( inheritsClass && qstrcmp(inheritsClass, "QWidget") == 0 );
+#ifndef QT_NO_REGEXP
     if ( regexpMatch && objName ) {		// regexp matching
 	QRegExp rx(QString::fromLatin1(objName));
 	objSearch( list, (QObjectList *)children(), inheritsClass, onlyWidgets,
 		   0, &rx, recursiveSearch );
-    } else {
+    } else 
+#endif
+	{
 	objSearch( list, (QObjectList *)children(), inheritsClass, onlyWidgets,
 		   objName, 0, recursiveSearch );
     }
