@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#190 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#191 $
 **
 ** Implementation of QObject class
 **
@@ -501,18 +501,18 @@ bool QObject::inherits( const char *clname ) const
 }
 
 /*!
-  Returns a list of all super classes. If \e includeLeave is TRUE
+  Returns a list of all super classes. If \e includeThis is TRUE
   then the most derived class name of this object is added, too.
   The most derived classes appear first in the list. That means that
   QObject is always the last entry in the list.
 */
 
-QStringList QObject::superClasses( bool includeLeave ) const
+QStringList QObject::superClasses( bool includeThis ) const
 {
   QStringList lst;
 
   QMetaObject *meta = queryMetaObject();
-  if ( !includeLeave )
+  if ( !includeThis )
     meta = meta->superClass();
 
   while ( meta ) {

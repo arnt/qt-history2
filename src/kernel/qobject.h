@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#63 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#64 $
 **
 ** Definition of QObject class
 **
@@ -53,7 +53,7 @@ public:
 
     bool	isA( const char * )	 const;
     bool	inherits( const char * ) const;
-    QStringList superClasses( bool includeLeave = false ) const;
+    QStringList superClasses( bool includeThis = FALSE ) const;
 
     const char *name( const char * defaultName = "unnamed" ) const;
 
