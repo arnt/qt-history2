@@ -373,20 +373,22 @@ void Q3DnsAnswer::parseA()
     if (next != pp + 4) {
 #if defined(QDNS_DEBUG)
         qDebug("Q3Dns: saw %d bytes long IN A for %s",
-                next - pp, label.ascii());
+               next - pp, label.ascii());
 #endif
         return;
     }
 
     rr = new Q3DnsRR(label);
     rr->t = Q3Dns::A;
-    rr->address = QHostAddress((answer[pp+0] << 24) +
-                                (answer[pp+1] << 16) +
-                                (answer[pp+2] <<  8) +
-                                (answer[pp+3]));
+    QHostAddress tmp;
+    tmp.setAddress((answer[pp+0] << 24) +
+                   (answer[pp+1] << 16) +
+                   (answer[pp+2] <<  8) +
+                   (answer[pp+3]));
+    rr->address = tmp;
 #if defined(QDNS_DEBUG)
     qDebug("Q3Dns: saw %s IN A %s (ttl %d)", label.ascii(),
-            rr->address.toString().ascii(), ttl);
+           rr->address.toString().ascii(), ttl);
 #endif
 }
 
@@ -403,7 +405,9 @@ void Q3DnsAnswer::parseAaaa()
 
     rr = new Q3DnsRR(label);
     rr->t = Q3Dns::Aaaa;
-    rr->address = QHostAddress(answer+pp);
+    QHostAddress tmp;
+    tmp.setAddress(answer + pp);
+    rr->address = tmp;
 #if defined(QDNS_DEBUG)
     qDebug("Q3Dns: saw %s IN Aaaa %s (ttl %d)", label.ascii(),
             rr->address.toString().ascii(), ttl);
@@ -1301,7 +1305,7 @@ QList<Q3DnsRR *> *Q3DnsDomain::cached(const Q3Dns *r)
             // anyway.
             Q3DnsRR *rrTmp = new Q3DnsRR(r->label());
             rrTmp->t = Q3Dns::A;
-            rrTmp->address = QHostAddress(0x7f000001);
+            rrTmp->address = QHostAddress::LocalhostAddress;
             rrTmp->current = true;
             l->append(rrTmp);
             return l;
@@ -2522,8 +2526,11 @@ void Q3Dns::doResInit()
         res_ninit(&res);
         int i;
         // find the name servers to use
-        for(i=0; i < MAXNS && i < res.nscount; i++)
-            ns->append(new QHostAddress(ntohl(res.nsaddr_list[i].sin_addr.s_addr)));
+        for(i=0; i < MAXNS && i < res.nscount; i++) {
+            QHostAddress *tmp = new QHostAddress;
+            tmp->setAddress(ntohl(res.nsaddr_list[i].sin_addr.s_addr));
+            ns->append(tmp);
+        }
 #  if defined(MAXDFLSRCH)
         for(i=0; i < MAXDFLSRCH; i++) {
             if (res.dnsrch[i] && *(res.dnsrch[i]))
