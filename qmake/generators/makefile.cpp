@@ -332,17 +332,17 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 		x++;
 	    if(*(big_buffer + x) == '<') {
 		x++;
-		if(total_size_read >= x + 12 && !strncmp(big_buffer + x, "includehint", 11) &&
-		    (*(big_buffer + x + 11) == ' ' || *(big_buffer + x + 11) == '>')) {
-		    for(x += 12; *(big_buffer + x) != '>'; x++);
+		if(total_size_read >= x + 13 && !strncmp(big_buffer + x, "includehint", 11) &&
+		    (*(big_buffer + x + 12) == ' ' || *(big_buffer + x + 12) == '>')) {
+		    for(x += 13; *(big_buffer + x) != '>'; x++);
 		    int inc_len = 0;
 		    for(x += 1 ; *(big_buffer + x + inc_len) != '<'; inc_len++);
 		    *(big_buffer + x + inc_len) = '\0';
 		    inc = big_buffer + x;
-		} else if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include", 7) &&
-		    (*(big_buffer + x + 7) == ' ' || *(big_buffer + x + 7) == '>')) {
-		    for(x += 8; *(big_buffer + x) != '>'; x++) {
-			if(total_size_read >= x + 9 && *(big_buffer + x) == 'i' &&
+		} else if(total_size_read >= x + 9 && !strncmp(big_buffer + x, "include", 7) &&
+		    (*(big_buffer + x + 8) == ' ' || *(big_buffer + x + 8) == '>')) {
+		    for(x += 9; *(big_buffer + x) != '>'; x++) {
+			if(total_size_read >= x + 9 && *(big_buffer + x) == 'i' && 
 			   !strncmp(big_buffer + x, "impldecl", 8)) {
 			    for(x += 8; *(big_buffer + x) != '='; x++);
 			    if(*(big_buffer + x) != '=')
