@@ -1381,6 +1381,7 @@ fi
 [ "x$CONCURRENT" != "x0" ] && echo "Concurrent........... $CONCURRENT"
 [ "x$DO_INCREMENT" = "xyes" ] && [ ! -z "$INCREMENTAL" ] && echo "Incremental.......... $INCREMENTAL"
 echo "Configuration........ $QMAKE_CONFIG"
+echo "STL support.......... $STL"
 echo "Embedded support..... $EMBEDDED"
 echo "Thread support....... $THREAD"
 echo "GIF support.......... $GIF"
