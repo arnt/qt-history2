@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.h#7 $
+** $Id: //depot/qt/main/src/widgets/qdial.h#8 $
 **
 ** Definition of something or other
 **
@@ -66,19 +66,20 @@ protected:
     void wheelEvent( QWheelEvent * );
     void focusInEvent( QFocusEvent * );
     void focusOutEvent( QFocusEvent * );
-    
+
     void valueChange();
     void rangeChange();
 
 protected slots:
     void blink();
 
-    
+
 private:
     QDialPrivate * d;
 
     int valueFromPoint( const QPoint & ) const;
-
+    double angle( const QPoint &, const QPoint & ) const;
+    
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QDial( const QDial & );
