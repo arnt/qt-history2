@@ -1219,7 +1219,7 @@ void QScrollView::setEnabled( bool enable )
 */
 void QScrollView::removeChild(QWidget* child)
 {
-    if ( !d ) // In case we are destructing
+    if ( !d || !child ) // First check in case we are destructing
         return;
 
     QSVChildRec *r = d->rec(child);
@@ -1243,6 +1243,13 @@ void QScrollView::removeChild(QObject* child)
 */
 void QScrollView::addChild(QWidget* child, int x, int y)
 {
+    if ( !child ) {
+#if defined(QT_CHECK_NULL)
+	qWarning( "QScrollView::addChild(): Cannot add null child" );
+#endif
+	return;
+    }
+
     if ( child->parentWidget() == viewport() ) {
         // May already be there
         QSVChildRec *r = d->rec(child);
