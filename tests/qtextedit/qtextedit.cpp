@@ -474,10 +474,14 @@ void QTextEdit::resizeEvent( QResizeEvent *e )
 	resizeTimer->stop();
     QScrollView::resizeEvent( e );
     if ( !firstResize ) {
+#if defined(_WS_X11_) // ##### fix the data we get from QResizeEvent on windows!!!
 	if ( e->oldSize().width() != e->size().width() )
+#endif
 	    resizeTimer->start( 0, TRUE );
     } else {
+#if defined(_WS_X11_) // ##### fix the data we get from QResizeEvent on windows!!!
 	if ( e->oldSize().width() != e->size().width() )
+#endif
 	    doResize();
     }
 	
