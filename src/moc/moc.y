@@ -64,6 +64,7 @@ void yyerror( const char *msg );
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <qplatformdefs.h> 
 
 bool isEnumType( const char* type );
