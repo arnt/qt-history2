@@ -1,5 +1,5 @@
 TEMPLATE    =	moc.t
-CONFIG	    =   console release yacc
+CONFIG	    =   console release qtinc yacc
 LEXINPUT    =	moc.l
 YACCINPUT   =	moc.y
 INCLUDEPATH =	.;../../include
