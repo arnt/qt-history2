@@ -127,7 +127,7 @@ HelpMainWindow::HelpMainWindow()
 	exit( 0 );
 	return;
     }
-	
+
     if ( !QFile::exists( docDir + "/index" ) ) {
 	QMessageBox::critical( this, tr( "Error" ), tr( "Couldn't find the Qt documentation index file!\n"
 							"Use mkindex to create it!" ) );
@@ -235,15 +235,16 @@ void HelpMainWindow::slotFilePrint()
 	p.setFont( font );
 	QRect view( body );
 	int page = 1;
+	int ls = p->fontMetrics().lineSpacing();
 	do {
 	    richText.draw( &p, body.left(), body.top(), view, colorGroup() );
 	    p.setFont( font );
 	    p.drawText( view.right() - p.fontMetrics().width( viewer->caption() ),
-			view.top() - p.fontMetrics().descent() - 5, viewer->caption() );
+			view.top() - 2*ls, viewer->caption() );
 	    p.setPen(1);
-	    p.drawLine( view.left(), view.top()-2, view.right(), view.top()-2 );
+	    p.drawLine( view.left(), view.top()-ls, view.right(), view.top()-ls );
 	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ),
-			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
+			view.bottom() + p.fontMetrics().ascent() + ls, QString::number(page) );
 	    view.moveBy( 0, body.height() );
 	    p.translate( 0 , -body.height() );
 	    if ( view.top()  >= richText.height() )

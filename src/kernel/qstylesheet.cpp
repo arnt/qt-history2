@@ -667,17 +667,12 @@ bool QStyleSheetItem::selfNesting() const
 
 /*!
   Sets the self nesting property for this style to \a nesting.
-
-  Usually, all styles are self nesting, i.e. they can legally be
-  nested recursively.  A paragraph, for example, might contain other
-  paragraphs as subparagraphs.
-
-  You may nevertheles want to disable self nesting for common HTML
-  tags such as \c &lt;p&gt; or \c &lt;li&gt;, if you want to parse and
-  display rich text documents based on "dirty" HTML.  However, we
-  recommend fixing the documents instead to close all non-empty tags,
-  if that is possible.
-
+  
+  In order to support "dirty" HTML, paragraphs &lt;p&gt and list items
+  &lt;li&gt are not self nesting. This means that starting a new
+  paragraph or list item automatically closes the previous one.
+  
+  \sa selfNesting()
  */
 void QStyleSheetItem::setSelfNesting( bool nesting )
 {
@@ -980,6 +975,7 @@ void QStyleSheet::init()
     style = new QStyleSheetItem( this, QString::fromLatin1("p") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style-> setMargin(QStyleSheetItem::MarginVertical, 4);
+    style->setSelfNesting( FALSE );
 
     style = new QStyleSheetItem( this, QString::fromLatin1("center") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
@@ -1004,6 +1000,7 @@ void QStyleSheet::init()
 
     style = new QStyleSheetItem( this, QString::fromLatin1("li") );
     style->setDisplayMode(QStyleSheetItem::DisplayListItem);
+    style->setSelfNesting( FALSE );
     style->setContexts(QString::fromLatin1("ol ul"));
     //    style-> setMargin(QStyleSheetItem::MarginVertical, 4);
 
