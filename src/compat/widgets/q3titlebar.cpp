@@ -27,6 +27,7 @@
 #include "qstyleoption.h"
 #include "qtimer.h"
 #include "qtooltip.h"
+#include "qdebug.h"
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
@@ -114,7 +115,7 @@ public:
     {
     }
 
-    QStyle::SCFlags buttonDown;
+    QStyle::SubControl buttonDown;
     QPoint moveOffset;
     QToolTip *toolTip;
     bool act                    :1;
@@ -339,6 +340,9 @@ void Q3TitleBar::mouseReleaseEvent(QMouseEvent *e)
         QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                                  e->pos(), this);
         if (ctrl == d->buttonDown) {
+            d->buttonDown = QStyle::SC_None;
+            repaint();
+            d->pressed = false;
             switch(ctrl) {
             case QStyle::SC_TitleBarShadeButton:
             case QStyle::SC_TitleBarUnshadeButton:
@@ -382,9 +386,6 @@ void Q3TitleBar::mouseReleaseEvent(QMouseEvent *e)
                 break;
             }
         }
-        d->buttonDown = QStyle::SC_None;
-        repaint();
-        d->pressed = false;
     } else {
         e->ignore();
     }
@@ -407,7 +408,7 @@ void Q3TitleBar::mouseMoveEvent(QMouseEvent *e)
     case QStyle::SC_TitleBarMaxButton:
     case QStyle::SC_TitleBarCloseButton:
         {
-            QStyle::SCFlags last_ctrl = d->buttonDown;
+            QStyle::SubControl last_ctrl = d->buttonDown;
             QStyleOptionTitleBar opt = d->getStyleOption();
             d->buttonDown = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
             if (d->buttonDown != last_ctrl)
@@ -443,7 +444,7 @@ void Q3TitleBar::mouseMoveEvent(QMouseEvent *e)
                     parentWidget()->move(pp);
             }
         } else {
-            QStyle::SCFlags last_ctrl = d->buttonDown;
+            QStyle::SubControl last_ctrl = d->buttonDown;
             d->buttonDown = QStyle::SC_None;
             if(d->buttonDown != last_ctrl)
                 repaint();

@@ -326,9 +326,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                                 | Qt::WindowContextHelpButtonHint
                                 ));
 
-    // a popup stays on top
-    if (popup)
-        flags |= Qt::WindowStaysOnTopHint;
 
     if(topLevel && parentWidget) { // if our parent stays on top, so must we
         QWidget *ptl = parentWidget->window();

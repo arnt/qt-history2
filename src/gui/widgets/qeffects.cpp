@@ -562,8 +562,7 @@ void qScrollEffect(QWidget* w, QEffects::DirFlags orient, int time)
 
     qApp->sendPostedEvents(w, QEvent::Move);
     qApp->sendPostedEvents(w, QEvent::Resize);
-    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_StaysOnTop
-        | ((w->windowType() == Qt::Popup) ? Qt::WFlags(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
+    Qt::WFlags flags = Qt::Overlay;
 
     // those can be popups - they would steal the focus, but are disabled
     q_roll = new QRollEffect(w, flags, orient);
@@ -583,8 +582,7 @@ void qFadeEffect(QWidget* w, int time)
     qApp->sendPostedEvents(w, QEvent::Move);
     qApp->sendPostedEvents(w, QEvent::Resize);
 
-    Qt::WFlags flags = Qt::WStyle_Customize | Qt::WStyle_StaysOnTop
-        | ((w->windowType() == Qt::Popup) ? QFlag(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
+    Qt::WFlags flags = Qt::Overlay;
 
     // those can be popups - they would steal the focus, but are disabled
     q_blend = new QAlphaWidget(w, flags);

@@ -789,7 +789,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     destroyed (as with any other QObject).
 */
 QMenu::QMenu(QWidget *parent)
-    : QWidget(*new QMenuPrivate, parent, Qt::WType_TopLevel|Qt::WType_Popup)
+    : QWidget(*new QMenuPrivate, parent, Qt::Popup)
 {
     setAttribute(Qt::WA_CustomWhatsThis);
     setFocusPolicy(Qt::StrongFocus);
@@ -812,7 +812,7 @@ QMenu::QMenu(QWidget *parent)
     \sa title
 */
 QMenu::QMenu(const QString &title, QWidget *parent)
-    : QWidget(*new QMenuPrivate, parent, Qt::WType_TopLevel|Qt::WType_Popup)
+    : QWidget(*new QMenuPrivate, parent, Qt::Popup)
 {
     setAttribute(Qt::WA_CustomWhatsThis);
     setFocusPolicy(Qt::StrongFocus);
