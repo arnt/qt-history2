@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#29 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#29 $";
 #endif
 
 
@@ -29,7 +29,7 @@ The QApplication class is central to Qt.  It receives events from
 the underlying window system and sends them to the destination widgets.
 An application object must be created before any widgets can be created!
 
-Only one single QApplication objects should be created, and this is
+Only one single QApplication object should be created, and this is
 normally done in the main() function.  When a QApplication object has
 been created, \c qApp (defined as <code>extern QApplication
 *qApp</code>) will refer to this object.

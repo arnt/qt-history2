@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#16 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#16 $";
 #endif
 
 
@@ -26,7 +26,7 @@ A color is normally specified in terms of RGB (red,green and blue) components,
 but it is also possible to convert from HSV (hue,saturation and value) or
 set a color name (X-Windows color database).
 
-There are 19 also predefined global QColor objects:
+There are 19 predefined global QColor objects:
 \c black, \c white, \c darkGray, \c gray, \c lightGray, \c red, \c green,
 \c blue, \c cyan, \c magenta, \c yellow, \c darkRed, \c darkGreen,
 \c darkBlue, \c darkCyan, \c darkMagenta, \c darkYellow, \c color0 and
@@ -45,7 +45,7 @@ allocate a pixel value (2).
 <li> Check an internal hash table to see if we allocated an equal RGB
 value earlier.  If we did, set the pixel value and return.
 <li> Try to allocate the RGB value. If we succeed, we get a pixel value
-which we save save in the internal table with the RGB value.
+which we save in the internal table with the RGB value.
 Return the pixel value.
 <li> The color could not be allocated.  Find the closest matching
 color and save it in the internal table.
