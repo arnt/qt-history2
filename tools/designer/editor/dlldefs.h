@@ -23,7 +23,8 @@
 
 #include <qglobal.h>
 
-#if defined(Q_OS_WIN32)
+// EDITOR_STATIC must be defined (on Windows) to compile the editor as a static lib.
+#if defined(Q_OS_WIN32) && !defined (EDITOR_STATIC)
 #  if defined(EDITOR_DLL)
 #    define EDITOR_EXPORT __declspec(dllexport)
 #  else
