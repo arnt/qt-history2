@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#4 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#5 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3000,104 +3000,103 @@ void QFileDialog::popupContextMenu( QListBoxItem *item, const QPoint & p )
 void QFileDialog::popupContextMenu( const QString &filename, bool,
 				    PopupAction &action, const QPoint &p )
 {
-// #### todo
-//     action = PA_Cancel;
+    action = PA_Cancel;
 
-//     bool glob = TRUE;
+    bool glob = TRUE;
 
-//     if ( d->moreFiles->isVisible() ) {
-// 	QListBoxItem *i = d->moreFiles->item( d->moreFiles->currentItem() );
-// 	glob = !i || !i->selected();
-//     } else
-// 	glob = filename.isEmpty();
+    if ( d->moreFiles->isVisible() ) {
+	QListBoxItem *i = d->moreFiles->item( d->moreFiles->currentItem() );
+	glob = !i || !i->selected();
+    } else
+	glob = filename.isEmpty();
 
-//     QPopupMenu m( 0, "file dialog context menu" );
-//     m.setCheckable( TRUE );
+    QPopupMenu m( 0, "file dialog context menu" );
+    m.setCheckable( TRUE );
 
-//     if ( !glob ) {
-// 	QString okt =
-// 		     QFileInfo( dirPath() + "/" + filename ).isDir()
-// 		     ? tr( "&Open" )
-// 	 : ( mode() == AnyFile
-// 	     ? tr( "&Save" )
-// 	     : tr( "&Open" ) );
-// 	int ok = m.insertItem( okt );
+    if ( !glob ) {
+	QString okt =
+		     QUrlInfo( d->url, filename ).isDir()
+		     ? tr( "&Open" )
+	 : ( mode() == AnyFile
+	     ? tr( "&Save" )
+	     : tr( "&Open" ) );
+	int ok = m.insertItem( okt );
 
-// 	m.insertSeparator();
-// 	int rename = m.insertItem( tr( "&Rename" ) );
-// 	int del = m.insertItem( tr( "&Delete" ) );
+	m.insertSeparator();
+	int rename = m.insertItem( tr( "&Rename" ) );
+	int del = m.insertItem( tr( "&Delete" ) );
 
-// 	if ( filename.isEmpty() || !QFileInfo( dirPath() ).isWritable() ||
-// 	     filename == ".." ) {
-// 	    if ( filename.isEmpty() || !QFileInfo( dirPath() + "/" + filename ).isReadable() )
-// 		m.setItemEnabled( ok, FALSE );
-// 	    m.setItemEnabled( rename, FALSE );
-// 	    m.setItemEnabled( del, FALSE );
-// 	} else if ( !QFileInfo( dirPath() + "/" + filename ).isFile() )
-// 	    m.setItemEnabled( del, FALSE );
+	if ( filename.isEmpty() || !QUrlInfo( d->url, "." ).isWritable() ||
+	     filename == ".." ) {
+	    if ( filename.isEmpty() || !QUrlInfo( d->url, filename ).isReadable() )
+		m.setItemEnabled( ok, FALSE );
+	    m.setItemEnabled( rename, FALSE );
+	    m.setItemEnabled( del, FALSE );
+	} else if ( !QUrlInfo( d->url, filename ).isFile() )
+	    m.setItemEnabled( del, FALSE );
 
-// 	if ( mode() == QFileDialog::ExistingFiles )
-// 	    m.setItemEnabled( rename, FALSE );
+	if ( mode() == QFileDialog::ExistingFiles )
+	    m.setItemEnabled( rename, FALSE );
 
-// 	m.move( p );
-// 	int res = m.exec();
+	m.move( p );
+	int res = m.exec();
 
-// 	if ( res == ok )
-// 	    action = PA_Open;
-// 	else if ( res == rename )
-// 	    action = PA_Rename;
-// 	else if ( res == del )
-// 	    action = PA_Delete;
-//     } else {
-// 	int reload = m.insertItem( tr( "R&eload" ) );
+	if ( res == ok )
+	    action = PA_Open;
+	else if ( res == rename )
+	    action = PA_Rename;
+	else if ( res == del )
+	    action = PA_Delete;
+    } else {
+	int reload = m.insertItem( tr( "R&eload" ) );
 
-// 	QPopupMenu m2( 0, "sort menu" );
+	QPopupMenu m2( 0, "sort menu" );
 
-// 	int sname = m2.insertItem( tr( "Sort by &Name" ) );
-// 	int stype = m2.insertItem( tr( "Sort by &Type" ) );
-// 	int ssize = m2.insertItem( tr( "Sort by &Size" ) );
-// 	int sdate = m2.insertItem( tr( "Sort by &Date" ) );
-// 	m2.insertSeparator();
-// 	int sunsorted = m2.insertItem( tr( "&Unsorted" ) );
+	int sname = m2.insertItem( tr( "Sort by &Name" ) );
+	int stype = m2.insertItem( tr( "Sort by &Type" ) );
+	int ssize = m2.insertItem( tr( "Sort by &Size" ) );
+	int sdate = m2.insertItem( tr( "Sort by &Date" ) );
+	m2.insertSeparator();
+	int sunsorted = m2.insertItem( tr( "&Unsorted" ) );
 
-// 	m2.setItemEnabled( stype, FALSE );
+	m2.setItemEnabled( stype, FALSE );
 
-// 	if ( sortFilesBy == (int)QDir::Name )
-// 	    m2.setItemChecked( sname, TRUE );
-// 	else if ( sortFilesBy == (int)QDir::Size )
-// 	    m2.setItemChecked( ssize, TRUE );
-// 	else if ( sortFilesBy == 0x16 )
-// 	    m2.setItemChecked( stype, TRUE );
-// 	else if ( sortFilesBy == (int)QDir::Time )
-// 	    m2.setItemChecked( sdate, TRUE );
-// 	else if ( sortFilesBy == (int)QDir::Unsorted )
-// 	    m2.setItemChecked( sunsorted, TRUE );
+	if ( sortFilesBy == (int)QDir::Name )
+	    m2.setItemChecked( sname, TRUE );
+	else if ( sortFilesBy == (int)QDir::Size )
+	    m2.setItemChecked( ssize, TRUE );
+	else if ( sortFilesBy == 0x16 )
+	    m2.setItemChecked( stype, TRUE );
+	else if ( sortFilesBy == (int)QDir::Time )
+	    m2.setItemChecked( sdate, TRUE );
+	else if ( sortFilesBy == (int)QDir::Unsorted )
+	    m2.setItemChecked( sunsorted, TRUE );
 
-// 	m.insertItem( tr( "Sort" ), &m2 );
+	m.insertItem( tr( "Sort" ), &m2 );
 
-// 	m.insertSeparator();
+	m.insertSeparator();
 
-// 	int hidden = m.insertItem( tr( "Show &hidden files" ) );
-// 	m.setItemChecked( hidden, bShowHiddenFiles );
+	int hidden = m.insertItem( tr( "Show &hidden files" ) );
+	m.setItemChecked( hidden, bShowHiddenFiles );
 
-// 	m.move( p );
-// 	int res = m.exec();
+	m.move( p );
+	int res = m.exec();
 
-// 	if ( res == reload )
-// 	    action = PA_Reload;
-// 	else if ( res == hidden )
-// 	    action = PA_Hidden;
-// 	else if ( res == sname )
-// 	    action = PA_SortName;
-// 	else if ( res == stype )
-// 	    action = PA_SortType;
-// 	else if ( res == sdate )
-// 	    action = PA_SortDate;
-// 	else if ( res == ssize )
-// 	    action = PA_SortSize;
-// 	else if ( res == sunsorted )
-// 	    action = PA_SortUnsorted;
-//     }
+	if ( res == reload )
+	    action = PA_Reload;
+	else if ( res == hidden )
+	    action = PA_Hidden;
+	else if ( res == sname )
+	    action = PA_SortName;
+	else if ( res == stype )
+	    action = PA_SortType;
+	else if ( res == sdate )
+	    action = PA_SortDate;
+	else if ( res == ssize )
+	    action = PA_SortSize;
+	else if ( res == sunsorted )
+	    action = PA_SortUnsorted;
+    }
 
 }
 
@@ -3172,15 +3171,15 @@ void QFileDialog::newFolderClicked()
     for ( ; it.current(); ++it )
 	if ( it.current()->text( 0 ).contains( tr( "New Folder" ) ) )
 	    lst.append( it.current()->text( 0 ) );
-    
+
     if ( !lst.count() == 0 )
 	while ( lst.contains( dirname ) )
 	    dirname = tr( "New Folder %1" ).arg( ++i );
-       
+
     d->url.mkdir( dirname );
 }
 
-void QFileDialog::createdDirectory( const QUrlInfo &info ) 
+void QFileDialog::createdDirectory( const QUrlInfo &info )
 {
     if ( d->moreFiles->isVisible() ) {
 	for ( uint i = 0; i < d->moreFiles->count(); ++i ) {

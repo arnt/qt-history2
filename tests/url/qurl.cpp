@@ -529,8 +529,9 @@ void QUrl::setFileName( const QString& name )
 	return;
     }
 
-    d->path.truncate( i + 1 );
-    d->path += name.mid( start );
+    // #### these two lines are not correct!
+    //d->path.truncate( i + 1 );
+    d->path += "/" + name.mid( start );
 }
 
 QString QUrl::encodedPathAndQuery( int trailing, bool noEmptyPath )
