@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.35 1999/01/28 15:40:30 warwick Exp $
+** $Id: misc.doc,v 2.36 1999/03/11 20:54:14 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.35 1999/01/28 15:40:30 warwick Exp $";
+static char ident[] = "$Id: misc.doc,v 2.36 1999/03/11 20:54:14 agulbra Exp $";
 #endif
 
 
@@ -405,6 +405,12 @@ Amen!
 <p>This is not a comprehensive list of books, there are many other
 books worth buying.  This is just a few GUI/UI books that don't gather
 dust in our shelves.
+
+<p><b>Programming with Qt</b> by Kalle Dalheimer, ISBN 1-56592-588-2
+is a simple introduction to programming with Qt.  For those wanting
+something more than our short tutorial, this is it.
+<a href="http://www.amazon.com/exec/obidos/ASIN/1565925882/trolltech/t">
+(Read more or buy it.)</a>
 
 <p><b>The (Psychology|Design) of Everyday Things</b> by Donald Norman,
 ISBN 0-38526774-6, is one of the classics of human interface design.
