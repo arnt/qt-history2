@@ -1,0 +1,3 @@
+CONFIG		= qt warn_on debug console
+DEFINES		+= QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT
+INCLUDEPATH	+= ../include

@@ -82,13 +82,14 @@ int main( int argc, char** argv )
     QFile outfile;
     QTextStream outstream( stdout, IO_WriteOnly ); /* default to stdout */
     if ( !outfilename.isNull() ) {
-	if ( verbose )
-	    qWarning( "output to file:" + outfilename );
 	outfile.setName( outfilename );
 	if ( !outfile.open( IO_Truncate | IO_WriteOnly ) )
 	    die( "could not open file:" + outfilename );
 	outstream.setDevice( &outfile );
     }
+    if ( outfile.isOpen() && verbose )
+	outstream << "output to file:" + outfilename << endl;
+
 
     /* check db dir */
     if ( !dbdirname )
@@ -97,7 +98,7 @@ int main( int argc, char** argv )
     if ( !dbdir.exists() )
 	die( "directory does not exist: " + dbdirname );
     if ( verbose )
-	qWarning( "using database in " + dbdirname );
+	outstream << "using database in " + dbdirname << endl;
     if ( !QDir::setCurrent( dbdirname ) )
 	die( "could not cd: " + dbdirname );
 
@@ -105,7 +106,7 @@ int main( int argc, char** argv )
     if ( !commands ) {
 	if ( infilename ) {
 	    if ( verbose )
-		qWarning( "reading commands from:" + infilename );
+		outstream << "reading commands from:" + infilename << endl;
 	    QFile f( infilename );
 	    if ( !f.exists() )
 		die( "file does not exist:" + infilename );
