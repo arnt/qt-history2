@@ -77,24 +77,26 @@ uint KeyCheck::codeForKey()
     uint code = decodeBaseZ(u);
     delete u;
     
-    char t = k1[0];
-    int i = atoi(&t);
-    if (i == 0 && t != '0') {
-        if (t == 'A')
+    char t[2];    
+    t[0] = k1[0];
+    t[1] = '\0';
+    int i = atoi(t);
+    if (i == 0 && t[0] != '0') {
+        if (t[0]  == 'A')
             i = 10;
-        else if (t== 'B')
+        else if (t[0] == 'B')
             i = 11;
-        else if (t== 'C')
+        else if (t[0] == 'C')
             i = 12;
-        else if (t== 'D')
+        else if (t[0] == 'D')
             i = 13;
-        else if (t== 'E')
+        else if (t[0] == 'E')
             i = 14;
-        else if (t== 'F')
+        else if (t[0] == 'F')
             i = 15;
-        else if (t== 'G')
+        else if (t[0] == 'G')
             i = 16;
-        else if (t== 'H')
+        else if (t[0] == 'H')
             i = 17;
         else
             return 0;
