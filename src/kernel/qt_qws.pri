@@ -30,7 +30,6 @@ embedded {
 		    $$KERNEL_H/qwskde2decoration_qws.h \
 		    $$KERNEL_H/qwskdedecoration_qws.h \
 		    $$KERNEL_H/qwsmanager_qws.h \
-		    $$KERNEL_H/qwsmouse_qws.h \
 		    $$KERNEL_H/qwsproperty_qws.h \
 		    $$KERNEL_H/qwsregionmanager_qws.h \
 		    $$KERNEL_H/qwssocket_qws.h \
@@ -71,7 +70,6 @@ embedded {
 		    $$KERNEL_CPP/qwskde2decoration_qws.cpp \
 		    $$KERNEL_CPP/qwskdedecoration_qws.cpp \
 		    $$KERNEL_CPP/qwsmanager_qws.cpp \
-		    $$KERNEL_CPP/qwsmouse_qws.cpp \
 		    $$KERNEL_CPP/qwsproperty_qws.cpp \
 		    $$KERNEL_CPP/qwsregionmanager_qws.cpp \
 		    $$KERNEL_CPP/qwssocket_qws.cpp \

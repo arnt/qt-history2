@@ -340,7 +340,6 @@
 #include <qwskde2decoration_qws.h>
 #include <qwskdedecoration_qws.h>
 #include <qwsbeosdecoration_qws.h>
-#include <qwsmouse_qws.h>
 #include "qwsproperty_qws.h"
 #include <qwsregionmanager_qws.h>
 #include "qwsevent_qws.h"
@@ -350,6 +349,8 @@
 #include <private/qgfxdriverinterface_p.h>
 #include <qkbddriverplugin_qws.h>
 #include <private/qkbddriverinterface_p.h>
+#include <qmousedriverplugin_qws.h>
+#include <private/qmousedriverinterface_p.h>
 #endif // Q_WS_QWS
 
 

@@ -41,6 +41,8 @@
 #include "qmousepc_qws.h"
 #include "qmousebus_qws.h"
 #include "qmousevr41xx_qws.h"
+#include "qmouseyopy_qws.h"
+#include "qmouselinuxtp_qws.h"
 #include <stdlib.h>
 
 #if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
@@ -101,9 +103,9 @@ QWSMouseHandler *QMouseDriverFactory::create( const QString& key, const QString 
     if ( driver == "qnx" || driver.isEmpty() )
 	return new QWSQnxMouseHandler( key, device );
 #endif
-#ifdef QT_QWS_SHARP
-    if ( driver == "sl5000" || driver.isEmpty() )
-	return new QWSSL5000MouseHandler( key, device );
+#if defined(QT_QWS_SHARP) || defined(QT_QWS_IPAQ)
+    if ( driver == "linuxtp" || driver.isEmpty() )
+	return new QWSLinuxTPMouseHandler( key, device );
 #endif
 #ifdef QT_QWS_YOPY
     if ( driver == "yopy" || driver.isEmpty() )
@@ -156,13 +158,13 @@ QStringList QMouseDriverFactory::keys()
     if ( !list.contains( "Qnx" ) )
 	list << "Qnx";
 #endif
-#ifdef QT_QWS_SHARP
-    if ( !list.contains( "SL5000" ) )
-	list << "SL5000";
+#if defined(QT_QWS_SHARP) || defined(QT_QWS_IPAQ)
+    if ( !list.contains( "LinuxTP" ) )
+	list << "LinuxTP";
 #endif
 #ifdef QT_QWS_YOPY
-    if ( !list.contains( "SL5000" ) )
-	list << "SL5000";
+    if ( !list.contains( "Yopy" ) )
+	list << "Yopy";
 #endif
 #ifdef QT_QWS_CASSIOPEIA
     if ( !list.contains( "VR41xx" ) )

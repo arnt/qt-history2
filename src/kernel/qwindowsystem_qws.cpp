@@ -36,7 +36,7 @@
 #include "qwsutils_qws.h"
 #include "qwscursor_qws.h"
 #include "qwsdisplay_qws.h"
-#include "qwsmouse_qws.h"
+#include "qmouse_qws.h"
 #include "qcopchannel_qws.h"
 
 #include "qapplication.h"
@@ -83,6 +83,7 @@
 
 #include "qgfx_qws.h"
 #include "qkbddriverfactory_qws.h"
+#include "qmousedriverfactory_qws.h"
 
 QWSServer *qwsServer=0;
 
@@ -2345,6 +2346,28 @@ void QWSServer::openMouse()
 #else
     (void)newMouseHandler(mice); //Assume only one
 #endif
+}
+
+QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
+{
+    static int init=0;
+    if ( !init && qt_screen ) {
+	init = 1;
+    }
+
+    int c = spec.find(':');
+    QString mouseProto;
+    QString mouseDev;
+    if ( c >= 0 ) {
+	mouseProto = spec.left(c);
+	mouseDev = spec.mid(c+1);
+    } else {
+	mouseProto = spec;
+    }
+
+    QWSMouseHandler *handler = 0;
+    handler = QMouseDriverFactory::create(mouseProto, mouseDev);
+    return handler;
 }
 
 #ifndef QT_NO_QWS_KEYBOARD

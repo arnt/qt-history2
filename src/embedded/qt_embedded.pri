@@ -149,6 +149,11 @@ embedded {
 	}
 	else:DEFINES += QT_NO_QWS_MOUSE_BUS
 
+	contains( mouse-drivers, linuxtp ) {
+		HEADERS +=$$EMBEDDED_H/qmouselinuxtp_qws.h
+		SOURCES +=$$EMBEDDED_CPP/qmouselinuxtp_qws.cpp
+	}
+
 	contains( mouse-drivers, vr41xx ) {
 		HEADERS +=$$EMBEDDED_H/qmousevr41xx_qws.h
 		SOURCES +=$$EMBEDDED_CPP/qmousevr41xx_qws.cpp
