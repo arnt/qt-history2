@@ -280,15 +280,15 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	} else {
             out() << "<ol type=";
             if ( atom->string() == ATOM_LIST_UPPERALPHA ) {
-		out() << "A";
+		out() << "\"A\"";
             } else if ( atom->string() == ATOM_LIST_LOWERALPHA ) {
-		out() << "a";
+		out() << "\"a\"";
             } else if ( atom->string() == ATOM_LIST_UPPERROMAN ) {
-		out() << "I";
+		out() << "\"I\"";
             } else if ( atom->string() == ATOM_LIST_LOWERROMAN ) {
-		out() << "i";
+		out() << "\"i\"";
             } else { // ( atom->string() == ATOM_LIST_NUMERIC )
-		out() << "1";
+		out() << "\"1\"";
             }
             if ( atom->next() != 0 && atom->next()->string().toInt() != 1 )
 		out() << " start=" << atom->next()->string();
@@ -438,9 +438,9 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
             QStringList spans = atom->string().split(",");
 	    if (spans.size() == 2) {
                 if (spans.at(0) != "1")
-                    out() << " colspan=" << spans.at(0);
+                    out() << " colspan=\"" << spans.at(0) << "\"";
                 if (spans.at(1) != "1")
-                    out() << " rowspan=" << spans.at(1);
+                    out() << " rowspan=\"" << spans.at(1) << "\"";
                 out() << ">";
 	    }
 	    if ( matchAhead(atom, Atom::ParaLeft) )
@@ -572,7 +572,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     out() << "<a name=\"" << registerRef( "details" ) << "\"></a>\n";
 
     if ( !inner->doc().isEmpty() ) {
-	out() << "<hr>\n" << "<h2>" << "Detailed Description" << "</h2>\n";
+	out() << "<hr />\n" << "<h2>" << "Detailed Description" << "</h2>\n";
 	generateBody( inner, marker );
 	generateAlsoList( inner, marker );
     }
@@ -580,7 +580,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     sections = marker->sections(inner, CodeMarker::Detailed, CodeMarker::Okay);
     s = sections.begin();
     while ( s != sections.end() ) {
-	out() << "<hr>\n";
+	out() << "<hr />\n";
 	out() << "<h2>" << protect( (*s).name ) << "</h2>\n";
 
 	NodeList::ConstIterator m = (*s).members.begin();
@@ -659,7 +659,7 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
 
     if (!fake->doc().isEmpty()) {
 	if (!brief.isEmpty())
-	    out() << "<hr>\n" << "<h2>" << "Detailed Description" << "</h2>\n";
+	    out() << "<hr />\n" << "<h2>" << "Detailed Description" << "</h2>\n";
 	generateBody(fake, marker);
 	generateAlsoList(fake, marker);
     }
@@ -674,7 +674,7 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     sections = marker->sections(fake, CodeMarker::Detailed, CodeMarker::Okay);
     s = sections.begin();
     while (s != sections.end()) {
-	out() << "<hr>\n";
+	out() << "<hr />\n";
 	out() << "<h2>" << protect((*s).name) << "</h2>\n";
 
 	NodeList::ConstIterator m = (*s).members.begin();
@@ -694,9 +694,9 @@ QString HtmlGenerator::fileExtension()
 
 void HtmlGenerator::generateHeader(const QString& title, const Node *node)
 {
-#if O
-    out() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-#endif
+
+    out() << "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n";
+
     out() << "<!DOCTYPE html\n"
 	     "    PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"DTD/xhtml1-strict.dtd\">\n"
 	     "<html xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\" lang=\"en\">\n";
@@ -908,7 +908,7 @@ QString HtmlGenerator::generateLowStatusMemberFile(const InnerNode *inner, CodeM
 
     sections = marker->sections(inner, CodeMarker::Detailed, status);
     for (i = 0; i < sections.size(); ++i) {
-	out() << "<hr>\n";
+	out() << "<hr />\n";
 	out() << "<h2>" << protect( sections.at(i).name ) << "</h2>\n";
 
 	NodeList::ConstIterator m = sections.at(i).members.begin();
@@ -974,7 +974,7 @@ void HtmlGenerator::generateAnnotatedList(const Node *relative, CodeMarker *mark
     out() << "<p><table width=\"100%\">\n";
     QMap<QString, const Node *>::ConstIterator n = nodeMap.begin();
     while (n != nodeMap.end()) {
-	out() << "<tr valign=\"top\" bgcolor=#f0f0f0>";
+	out() << "<tr valign=\"top\" bgcolor=\"#f0f0f0\">";
 	out() << "<td><b>";
         generateFullName(*n, relative, marker);
 	out() << "</b>";
@@ -1157,7 +1157,7 @@ void HtmlGenerator::generateLegaleseList(const Node *relative, CodeMarker *marke
     QMap<Text, const Node *>::ConstIterator it = legaleseTexts.begin();
     while (it != legaleseTexts.end()) {
 	Text text = it.key();
-	out() << "<hr>\n";
+	out() << "<hr />\n";
         generateText(text, relative, marker);
         out() << "<ul>\n";
         do {

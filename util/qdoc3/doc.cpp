@@ -696,7 +696,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    getUntilEnd( command );
 		    break;
 		case CMD_OMITVALUE:
-		    leaveValue();
+		    //leaveValue();
 		    x = getArgument();
 		    if (!priv->enumItemList.contains(x))
 			priv->enumItemList.append(x);
