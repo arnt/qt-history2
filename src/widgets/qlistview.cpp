@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#100 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#100 $");
 
 
 const int Unsorted = 16383;
@@ -798,35 +798,34 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     QListView *lv = listView();
     int r = lv ? lv->itemMargin() : 2;
-    QPixmap * icon = 0; // ### temporary! to be replaced with an array
+    const QPixmap * icon = pixmap( column );
 
     p->fillRect( 0, 0, width, height(), cg.base() );
 
+    int marg = lv ? lv->itemMargin() : 2;
+
+    if ( isSelected() &&
+	 (column==0 || listView()->allColumnsShowFocus()) ) {
+	if ( listView()->style() == WindowsStyle ) {
+	    p->fillRect( r - marg, 0, width - r + marg, height(),
+			 QApplication::winStyleHighlightColor() );
+	    p->setPen( white ); // ###
+	} else {
+	    p->fillRect( r - marg, 0, width - r + marg,
+			 height(), cg.text() );
+	    p->setPen( cg.base() );
+	}
+    } else {
+	p->setPen( cg.text() );
+    }
+
     if ( icon && !column ) {
-	p->drawPixmap( 0, (height()-icon->height())/2, *icon );
-	r += icon->width();
-	fatal("I bet you forgot to change width()");
+	p->drawPixmap( r, (height()-icon->height())/2, *icon );
+	r += icon->width() + listView()->itemMargin();
     }
 
     const char * t = text( column );
     if ( t ) {
- 	int marg = lv ? lv->itemMargin() : 2;
- 
-	if ( isSelected() &&
-	     (column==0 || listView()->allColumnsShowFocus()) ) {
-	    if ( listView()->style() == WindowsStyle ) {
- 		p->fillRect( r - marg, 0, width - r + marg,
- 			    height(), QApplication::winStyleHighlightColor() );
-		p->setPen( white ); // ###
-	    } else {
- 		p->fillRect( r - marg, 0, width - r
- 				+ marg, height(), cg.text() );
-		p->setPen( cg.base() );
-	    }
-	} else {
-	    p->setPen( cg.text() );
-	    p->setBackgroundColor( cg.base() );
-	}
 	// should do the ellipsis thing in drawText()
 	p->drawText( r, 0, width-marg-r, height(),
 		     align | AlignVCenter, t );
@@ -843,14 +842,17 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
   The default implementation returns the width of the bounding
   rectangle of the text of column \a c.
 
-  \sa listView() widthChanged() QListView::setColumnWidthMode() QListView::itemMargin()
+  \sa listView() widthChanged() QListView::setColumnWidthMode()
+  QListView::itemMargin()
 */
 int QListViewItem::width(const QFontMetrics& fm, const QListView* lv, int c) const
 {
-    return -fm.minLeftBearing()
-	   +fm.width(text(c))
-	   -fm.minRightBearing() + lv->itemMargin() * 2;
-    // #### add pixmap width
+    int w = -(fm.minLeftBearing()+fm.minRightBearing()) +
+	    fm.width(text(c)) + lv->itemMargin() + 2;
+    const QPixmap * pm = pixmap( c );
+    if ( pm )
+	w += pm->width() + lv->itemMargin(); // ### correct margin stuff?
+    return w;
 }
 
 
