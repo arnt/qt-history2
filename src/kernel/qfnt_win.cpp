@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#29 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -28,7 +28,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#29 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -159,21 +159,6 @@ void QFontCache::deleteItem( GCI d )
 static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
 QFont		     *QFont::defFont = 0;	// default font
-
-
-/*****************************************************************************
-  QFontData member functions
- *****************************************************************************/
-
-QFontData::QFontData()
-{
-    fin = 0;
-}
-
-QFontData::~QFontData()
-{
-  // Font data is cleaned up by font cache and font dict
-}
 
 
 /*****************************************************************************

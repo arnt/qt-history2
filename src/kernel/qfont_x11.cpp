@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#78 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#78 $");
 
 
 static const int fontFields = 14;
@@ -185,21 +185,6 @@ static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
 static QFontNameDict *fontNameDict   = 0;	// dict of matched font names
 QFont		     *QFont::defFont = 0;	// default font
-
-
-/*****************************************************************************
-  QFontData member functions
- *****************************************************************************/
-
-QFontData::QFontData()
-{
-    fin = 0;
-}
-
-QFontData::~QFontData()
-{
-  // Font data is cleaned up by font cache and font dict
-}
 
 
 //
@@ -494,6 +479,7 @@ void QFont::load( HANDLE ) const
 	    if ( !match )
 		name = lastResortFont();
 	} else {
+	    match = TRUE;
 	    name = PRIV->findFont( &match );
 	}
 	fn = new QXFontName( name, match );

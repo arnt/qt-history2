@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#75 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#75 $");
 
 
 /*!
@@ -950,14 +950,13 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 	d->discardNextMousePress = FALSE;
 	return;
     }
+    d->arrowPressed = FALSE;
     if ( style() == WindowsStyle ) {
 	popup();
 	if ( arrowRect().contains( e->pos() ) ) {
 	    d->arrowPressed = TRUE;
 	    d->arrowDown    = TRUE;
 	    repaint( FALSE );
-	} else {
-	    d->arrowPressed = FALSE;
 	}
     } else if ( d->usingListBox ) {
 	if ( e->pos().x() >= width() - 23 ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#89 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#89 $");
 
 
 // Motif style parameters
@@ -260,6 +260,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     autoaccel	  = 0;
     accelDisabled = FALSE;
     popupActive	  = -1;
+    tabCheck	  = 0;
     setTabMark( 0 );
     setNumCols( 1 );				// set number of table columns
     setNumRows( 0 );				// set number of table rows
