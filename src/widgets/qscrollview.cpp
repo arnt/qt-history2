@@ -978,7 +978,7 @@ void QScrollView::wheelEvent( QWheelEvent *e ){
 		    e->globalPos(), e->delta(), e->state());
     viewportWheelEvent(&ce);
     if ( !ce.isAccepted() ) {
-	if ( e->state() & AltButton || !verticalScrollBar()->isVisible() ) {
+	if ( e->state() & AltButton ) {
 	    if ( horizontalScrollBar() )
 		QApplication::sendEvent( horizontalScrollBar(), e);
 	} else 	if (verticalScrollBar() ) {
