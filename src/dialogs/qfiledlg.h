@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#22 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#23 $
 **
 ** Definition of QFileDialog class
 **
@@ -37,9 +37,11 @@ public:
 
     // recommended static functions
 
-    static QString getOpenFileName( const char *dir = 0, const char *filter= 0,
+    static QString getOpenFileName( const char *initially = 0,
+				    const char *filter= 0,
 				    QWidget *parent = 0, const char *name = 0);
-    static QString getSaveFileName( const char *dir = 0, const char *filter= 0,
+    static QString getSaveFileName( const char *initially = 0,
+				    const char *filter= 0,
 				    QWidget *parent = 0, const char *name = 0);
     static QString getExistingDirectory( const char *dir = 0,
 					 QWidget *parent = 0,
