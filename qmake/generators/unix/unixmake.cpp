@@ -194,10 +194,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	t << endl << endl;
 
-	t << "staticlib: $(TARGETA)" << endl << endl;
-	t << "$(TARGETA): $(UICDECLS) $(OBJECTS) $(OBJMOC)" << var("TARGETDEPS") << "\n\t"
-	  << "-rm -f $(TARGETA) " << var("QMAKE_AR_CMD")
-	  << varGlue("QMAKE_RANLIB","",""," $(TARGETA)") << endl << endl;
+	qDebug("TARGETA #%s#", var("TARGETA").latin1());
+
+	if (! project->isActiveConfig("plugin")) {
+	    t << "staticlib: $(TARGETA)" << endl << endl;
+	    t << "$(TARGETA): $(UICDECLS) $(OBJECTS) $(OBJMOC)" <<
+		var("TARGETDEPS") << "\n\t"
+	      << "-rm -f $(TARGETA) " << var("QMAKE_AR_CMD")
+	      << varGlue("QMAKE_RANLIB","",""," $(TARGETA)") << endl << endl;
+	}
     } else {
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
 	t << "staticlib: $(TARGET)" << endl << endl;
