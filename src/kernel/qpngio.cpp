@@ -889,6 +889,8 @@ QPNGFormat::QPNGFormat()
 */
 QPNGFormat::~QPNGFormat()
 {
+    if ( png_ptr )
+        png_destroy_read_struct(&png_ptr, &info_ptr, 0);
 }
 
 
