@@ -351,8 +351,14 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
         }
 
     case PE_FocusRect:
+    {
         p->save();
-        p->setBrush(QBrush(black, Dense4Pattern));
+	QColor bg_col = opt.isDefault() ? p->background().color() : opt.color();
+	if (qGray(bg_col.rgb()) < 128)
+	    p->setBrush(QBrush(white, Dense4Pattern));
+	else
+	    p->setBrush(QBrush(black, Dense4Pattern));
+
         p->setPen(NoPen);
         p->drawRect(r.left(),  r.top(),    r.width(), 1);          // Top
         p->drawRect(r.left(),  r.bottom(), r.width(), 1);          // Bottom
@@ -360,6 +366,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
         p->drawRect(r.right(), r.top(),    1,         r.height()); // Right
         p->restore();
         break;
+    }
 
     case PE_Indicator:
         {
