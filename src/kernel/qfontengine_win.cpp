@@ -25,6 +25,7 @@
 
 #ifdef Q_Q4PAINTER
 #include "q4painter_p.h"
+#include "qabstractgc.h"
 #endif
 
 #ifndef M_PI
@@ -253,9 +254,9 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
     *nglyphs = len;
     return NoError;
 }
-
-#define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
-
+// ### Port properly
+// #define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
+#define COLOR_VALUE(c) c.pixel()
 
 void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
@@ -502,6 +503,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     HDC old_hdc = hdc;
     hdc = p->handle();
     bool nat_xf = (qWinVersion() & Qt::WV_NT_based) && p->d->txop >= QPainter::TxScale;
+    nat_xf = false; // ### remove later
 
     bool force_bitmap = p->d->state->rasterOp != QPainter::CopyROP;
     force_bitmap |= p->d->txop >= QPainter::TxScale
@@ -511,7 +513,6 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     int angle = 0;
     bool transform = FALSE;
 
-#if 0
     if ( force_bitmap || (p->d->txop >= QPainter::TxScale && !nat_xf) ) {
 	// Draw rotated and sheared text on Windows 95, 98
 
@@ -523,7 +524,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
             int tx=-bbox.x(),  ty=-bbox.y();    // text position
-            QWMatrix mat1 = p->xmat;
+            QWMatrix mat1 = p->d->matrix;
 	    if ( aw == 0 || ah == 0 )
 		return;
 	    double rx = (double)w / (double)aw;
@@ -579,7 +580,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 		    0x009b07a8, // SDPSoaxn, NandROP,
 		    0x00891b08  // SDPSnaoxn,NorROP,
 		};
-		HBRUSH b = CreateSolidBrush( COLOR_VALUE(p->cpen.color()) );
+		HBRUSH b = CreateSolidBrush( COLOR_VALUE(p->d->state->pen.color()) );
 		COLORREF tc, bc;
 		b = (HBRUSH)SelectObject( hdc, b );
 		tc = SetTextColor( hdc, COLOR_VALUE(QColor(Qt::black)) );
@@ -594,7 +595,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 		    wx_sy = 0;
 		}
 		BitBlt( hdc, x, y, wx_bm.width(), wx_bm.height(),
-			wx_dc, 0, wx_sy, ropCodes[p->rop] );
+			wx_dc, 0, wx_sy, ropCodes[p->d->state->rasterOp] );
 		SetBkColor( hdc, bc );
 		SetTextColor( hdc, tc );
 		DeleteObject( SelectObject(hdc, b) );
@@ -609,15 +610,18 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	    angle = 3600 - angle;
 
 	transform = TRUE;
+#if 0
     } else if ( nat_xf ) {
 	if( !p->nativeXForm( TRUE ) ) {
  	    p->nativeXForm( FALSE );
 	    return;
 	}
-    } else if ( p->d->txop == QPainter::TxTranslate ) {
+#endif
+    } else if ( !p->d->gc->hasCapability(QAbstractGC::CoordTransform)
+	 && p->d->txop == QPainter::TxTranslate ) {
 	p->map( x, y, &x, &y );
     }
-#endif
+
     if ( textFlags & Qt::Underline || textFlags & Qt::StrikeOut || scale != 1. || angle ) {
 	LOGFONT lf = logfont;
 	lf.lfUnderline = (bool)(textFlags & Qt::Underline);
