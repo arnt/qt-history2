@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#59 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#60 $
 **
 ** Definition of QIconView widget class
 **
@@ -228,10 +228,12 @@ protected:
     void setItemRect( const QRect &r );
     void setTextRect( const QRect &r );
     void setIconRect( const QRect &r );
-
+    void calcTmpText();
+    
 private:
     QIconView *view;
     QString itemText, itemKey;
+    QString tmpText;
     QIconSet itemIcon;
     QIconViewItem *prev, *next;
     bool allow_rename, allow_drag, allow_drop;
@@ -244,7 +246,7 @@ private:
     QIconViewItemLineEdit *renameBox;
     bool isReady;
     QRect oldRect;
-    bool dirty;
+    bool dirty, wordWrapDirty;
 
 };
 
@@ -296,7 +298,7 @@ public:
     QIconViewItem *currentItem() const;
     virtual void setCurrentItem( QIconViewItem *item );
     virtual void setSelected( QIconViewItem *item, bool s, bool cb = FALSE );
-    
+
     unsigned int count() const;
 
     virtual void setViewMode( QIconSet::Size mode );
@@ -351,7 +353,9 @@ public:
     bool sortOrder() const;
     virtual void setRearrangeEnabled( bool b );
     bool rearrangeEnabled() const;
-
+    virtual void setWordWrapIconText( bool b );
+    bool wordWrapIconText() const;
+    
     virtual void setItemFont( const QFont &font );
     virtual void setItemColor( const QColor &color );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#132 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#133 $
 **
 ** Definition of QIconView widget class
 **
@@ -135,7 +135,8 @@ struct QIconViewPrivate
     bool hasOwnColor, hasOwnFont;
     QColor ownColor;
     QFont ownFont;
-
+    bool wordWrapIconText;
+    
     struct SingleClickConfig {
 	SingleClickConfig()
 	    : normalText( 0 ), normalTextCol( 0 ),
@@ -189,12 +190,25 @@ QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *pare
     : QMultiLineEdit( parent, name ), item( theItem ), startText( text )
 {
     setWordWrap( QMultiLineEdit::FixedWidthWrap | QMultiLineEdit::BreakWithinWords );
-    setWrapColumnOrWidth( item->iconView()->maxItemWidth() - ( item->iconView()->itemTextPos() == QIconView::Bottom ?
-			  0 : item->iconRect().width() ) );
+    setWrapColumnOrWidth( item->iconView()->maxItemWidth() - 
+			  ( item->iconView()->itemTextPos() == QIconView::Bottom ?
+			    0 : item->iconRect().width() ) );
     setMaxLength( item->iconView()->maxItemTextLength() );
     setAlignment( Qt::AlignCenter );
     setText( text );
     clearTableFlags();
+
+    int w = width();
+    int h = height();
+    w = totalWidth();
+    h = totalHeight();
+    QSize s( size() );
+    resize( w, h );
+    if ( s != QSize( w, h ) ) {
+	item->calcRect( QMultiLineEdit::text() );
+	item->repaint();
+    }
+    item->calcRect( QMultiLineEdit::text() );
 }
 
 void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
@@ -592,7 +606,7 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
   To remove an item from an iconview, just delete the item. The
   destructor of the QIconViewItem does all the work for removing
   it from the iconview.
-  
+
   As the iconview is designed to use DnD, the iconview item methods for DnD
   too which may be reimplemented.
 
@@ -703,6 +717,7 @@ void QIconViewItem::init()
     if ( view ) {
 	itemKey = itemText;
 	dirty = TRUE;
+	wordWrapDirty = TRUE;
 	fm = new QFontMetrics( view->font() );
 	itemViewMode = view->viewMode();
 
@@ -734,6 +749,7 @@ void QIconViewItem::setText( const QString &text )
     if ( text == itemText )
 	return;
 
+    wordWrapDirty = TRUE;
     itemText = text;
     if ( itemKey.isEmpty() )
 	itemKey = itemText;
@@ -775,6 +791,7 @@ void QIconViewItem::setText( const QString &text, bool recalc )
     if ( text == itemText )
 	return;
 
+    wordWrapDirty = TRUE;
     itemText = text;
 
     if ( recalc ) {
@@ -1279,6 +1296,10 @@ void QIconViewItem::renameItem()
     if ( !renameBox )
 	return;
 
+    if ( !view->d->wordWrapIconText ) {
+	wordWrapDirty = TRUE;
+	calcRect();
+    }
     QRect r = itemRect;
     setText( renameBox->text() );
     view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, oldRect.width() + 2, oldRect.height() + 2, FALSE );
@@ -1340,13 +1361,20 @@ void QIconViewItem::calcRect( const QString &text_ )
     itemIconRect.setWidth( pw );
     itemIconRect.setHeight( ph );
 
+    calcTmpText();
+    
     QString t = text_;
-    if ( t.isEmpty() )
-	t = itemText;
-
+    if ( t.isEmpty() ) {
+	if ( view->d->wordWrapIconText )
+	    t = itemText;
+	else
+	    t = tmpText;
+    }
+    
     int tw = 0;
     int th = 0;
-    QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth() - ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
+    QRect r( fm->boundingRect( 0, 0, iconView()->maxItemWidth() - 
+			       ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
 			       iconRect().width() ),
 			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak, t ) );
     tw = r.width();
@@ -1424,6 +1452,8 @@ void QIconViewItem::paintItem( QPainter *p )
     else if ( !isSelectable() )
 	m = QIconSet::Disabled;
 
+    calcTmpText();
+    
     if ( view->itemTextPos() == QIconView::Bottom ) {
 	int w = itemIcon.pixmap( itemViewMode, QIconSet::Normal ).width();
 
@@ -1438,7 +1468,8 @@ void QIconViewItem::paintItem( QPainter *p )
 	} /*else
 	    p->setPen( view->colorGroup().text() );*/
 
-	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, itemText );
+	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, 
+		     view->d->wordWrapIconText ? itemText : tmpText );
 
 	p->restore();
     } else {
@@ -1455,7 +1486,8 @@ void QIconViewItem::paintItem( QPainter *p )
 	} /*else
 	    p->setPen( view->colorGroup().text() );*/
 
-	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, itemText );
+	p->drawText( textRect( FALSE ), Qt::AlignCenter | Qt::WordBreak, 
+		     view->d->wordWrapIconText ? itemText : tmpText );
 
 	p->restore();
     }
@@ -1559,6 +1591,30 @@ void QIconViewItem::setIconRect( const QRect &r )
     itemIconRect = r;
 }
 
+/*!
+  \internal
+*/
+
+void QIconViewItem::calcTmpText()
+{
+    if ( view->d->wordWrapIconText || !fm || !wordWrapDirty )
+	return;
+    wordWrapDirty = FALSE;
+
+    int w = iconView()->maxItemWidth() - ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
+					   iconRect().width() );
+    if ( fm->width( itemText ) <= w ) {
+	tmpText = itemText;
+	return;
+    }
+    
+    tmpText = "...";
+    int i = 0;
+    while ( fm->width( tmpText + itemText[ i ] ) < w )
+	tmpText += itemText[ i++ ];
+    tmpText.remove( 0, 3 );
+    tmpText += "...";
+}
 
 /*****************************************************************************
  *
@@ -1596,26 +1652,26 @@ void QIconViewItem::setIconRect( const QRect &r )
   Items can also be in-place renamed.
 
   The normal way to insert some items is to create QIconViewItems
-  and pass the iconview as parent. But using insertItem(), items 
+  and pass the iconview as parent. But using insertItem(), items
   can be inserted manually too. The QIconView offers basic methodes
   similar to the QListView and QListBox, like removeItem(), clearSelection(),
   setSelected(), setCurrentItem(), currentItem() and much more.
-  
+
   As the internal structure to store the iconview items is linear, no
   iterator class is needed to iterate over all items. This can be easily
-  done with a code like 
-  
+  done with a code like
+
   \code
   QIconView *iv = the iconview
   for ( QIconViewItem *i = iv->firstItem(); i; i = i->nextItem() ) {
       i->doSmething();
   }
-  
+
   \endcode
-  
+
   To notify the application about changes in the iconview there
-  are several signals which are emitted by the QIconView. 
-  
+  are several signals which are emitted by the QIconView.
+
   The QIconView is designed for Drag'n'Drop, as the icons are also moved inside
   the iconview itself using DnD. So the QIconView provides some methods for
   extended DnD too. To use DnD correctly in the iconview, please read following
@@ -1853,7 +1909,8 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->sortOrder = TRUE;
     d->hasOwnColor = FALSE;
     d->hasOwnFont = FALSE;
-
+    d->wordWrapIconText = TRUE;
+    
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -2716,9 +2773,11 @@ void QIconView::setItemTextPos( ItemTextPos pos )
     d->itemTextPos = pos;
 
     QIconViewItem *item = d->firstItem;
-    for ( ; item; item = item->next )
+    for ( ; item; item = item->next ) {
+	item->wordWrapDirty = TRUE;
 	item->calcRect();
-
+    }
+    
     orderItemsInGrid();
     repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight(), FALSE );
 }
@@ -2934,6 +2993,42 @@ bool QIconView::resortItemsWhenInsert() const
 bool QIconView::sortOrder() const
 {
     return d->sortOrder;
+}
+
+/*!
+  If the width of an item text is larger than the maximal item width,
+  there are two possibilities how the QIconView can deal with this.
+  Either it does a word wrap of the item text, so that it uses
+  multiple lines. Or it truncates the item text so that it shrinks
+  to the maximal item width and appens three dots "..." to the
+  displayed text to indicate that not the full text is displayed.
+  
+  If you set \a b to TRUE, a word wrap is done, else the
+  text is displayed truncated.
+  
+  NOTE: Both possibilities just change the way how the text is
+  displayed, they do NOT modify the item text itslef.
+*/
+
+void QIconView::setWordWrapIconText( bool b )
+{
+    d->wordWrapIconText = b;
+    for ( QIconViewItem *item = d->firstItem; item; item = item->next )
+	item->wordWrapDirty = TRUE;
+    viewport()->repaint( FALSE );
+}
+
+/*!
+  Returns TRUE, if an item text which needs too much
+  space (to the width) is displayed word wrapped, or FALSE 
+  if it gets displayed truncated.
+  
+  \sa QIconView::setWordWrapIconText()
+*/
+
+bool QIconView::wordWrapIconText() const
+{
+    return d->wordWrapIconText;
 }
 
 /*!
