@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
+** $Id: //depot/qt/main/src/kernel/qgfxmach64.cpp#73 $
 **
 ** Implementation of QGfxMach64 (graphics context) class for Mach64 cards
 *

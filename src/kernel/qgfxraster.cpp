@@ -1200,6 +1200,8 @@ void QGfxRaster<depth,type>::setBrush( const QBrush & b )
 #else
 	srccol=closestMatch(tmp.red(),tmp.green(),tmp.blue());
 #endif
+    } else if(depth==1) {
+	srccol==qGray(tmp.red(),tmp.green(),tmp.blue())>127 ? 1 : 0;
     } else {
 	srccol=tmp.alloc();
     }
@@ -2871,6 +2873,11 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
 
+#ifdef QWS_DEPTH_8
+	    if(av!=0 && av!=255) {
+		av=av>127 ? 255 : 0;
+	    }
+#endif
 	    if(av==255) {
 		// Do nothing - we already have source values in r,g,b
 	    } else if(av==0) {
@@ -3079,13 +3086,16 @@ void QGfxRaster<depth,type>::drawRect( int rx,int ry,int w,int h )
 	    if(opaque) {
 		setSource(cbrushpixmap);
 		setAlphaType(IgnoreAlpha);
-		QColor a=backcolor;
-		QColor b=cbrush.color();
-		srcclut[0]=a.alloc();
-		srcclut[1]=b.alloc();
+		useBrush();
+		srcclut[0]=pixel;
+		QBrush tmp=cbrush;
+		cbrush=QBrush(backcolor);
+		useBrush();
+		srcclut[1]=pixel;
+		cbrush=tmp;
 	    } else {
-		QColor a=cbrush.color();
-		srccol=a.alloc();
+		useBrush();
+		srccol=pixel;
 		srctype=SourcePen;
 		setAlphaType(LittleEndianMask);
 		setAlphaSource(cbrushpixmap->scanLine(0),
@@ -3662,6 +3672,29 @@ QScreen::QScreen()
     qDebug("The framebuffer device was mapped to memory successfully at %p",
 	   data);
 
+    // Now read in palette
+    if(vinfo.bits_per_pixel==8) {
+	// Build greyscale palette
+	screencols=256;
+	unsigned int loopc;
+	fb_cmap cmap;
+	cmap.start=0;
+	cmap.len=256;
+	cmap.red=(unsigned short int *)
+		 malloc(sizeof(unsigned short int)*256);
+	cmap.green=(unsigned short int *)
+		   malloc(sizeof(unsigned short int)*256);
+	cmap.blue=(unsigned short int *)
+		  malloc(sizeof(unsigned short int)*256);
+	cmap.transp=(unsigned short int *)
+		    malloc(sizeof(unsigned short int)*256);
+	ioctl(fd,FBIOGETCMAP,&cmap);
+	for(loopc=0;loopc<256;loopc++) {
+	    screenclut[loopc]=qRgb(cmap.red[loopc] >> 8,
+				   cmap.green[loopc] >> 8,
+				   cmap.blue[loopc] >> 8);
+	}
+    }
 }
 
 QScreen::~QScreen()
