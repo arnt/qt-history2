@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qarray.h#6 $
+** $Id: //depot/qt/main/src/tools/qarray.h#7 $
 **
 ** Definition of QArray template/macro class
 **
@@ -34,6 +34,8 @@
 #define QArrayMdeclare(type)						      \
 class QArrayM(type) : public QGArray					      \
 {									      \
+protected:								      \
+    QArrayM(type)( int, int ) : QGArray( 0, 0 ) {}			      \
 public:									      \
     QArrayM(type)()		{}					      \
     QArrayM(type)( int size ) : QGArray(size*sizeof(type)) {}		      \
@@ -85,6 +87,8 @@ public:									      \
 
 template<class type> class QArrayT : public QGArray
 {
+protected:
+    QArrayT( int, int ) : QGArray( 0, 0 ) {}
 public:
     QArrayT()			{}
     QArrayT( int size ) : QGArray(size*sizeof(type)) {}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#4 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#5 $
 **
 ** Definition of QGArray class
 **
@@ -22,6 +22,7 @@ friend class QBuffer;
 public:
     QGArray();
 protected:
+    QGArray( int, int );			// dummy; does not alloc
     QGArray( int size );			// allocate room
     QGArray( const QGArray &a );		// shallow copy
     virtual ~QGArray();
@@ -60,6 +61,9 @@ protected:
 	uint  len;
     };
     array_data *p;
+
+    virtual array_data *newData()		    { return new array_data; }
+    virtual void        deleteData( array_data *p ) { delete p; }
 };
 
 
