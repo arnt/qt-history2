@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#106 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#107 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#107 $");
 
 
 const int Unsorted = 16383;
@@ -1728,8 +1728,9 @@ void QListView::updateGeometries()
 void QListView::handleSizeChange( int section, int, int )
 {
     updateGeometries();
-    viewport()->repaint( section, 0, viewport()->width()-section,
-			 viewport()->height(), FALSE );
+    int left = d->h->cellPos(d->h->mapToActual( section ));
+    viewport()->repaint( left, 0, viewport()->width()-left,
+                         viewport()->height(), FALSE );
 }
 
 
