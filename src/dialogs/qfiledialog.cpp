@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#276 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#277 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1437,6 +1437,17 @@ static QStringList makeFiltersList( const QString &filter )
   </ul>
 */
 
+/*!
+  \fn void QFileDialog::slotIsDir()
+  
+  \internal
+*/
+
+/*!
+  \fn void QFileDialog::slotIsFile()
+  
+  \internal
+*/
 
 /*!
   Constructs a file dialog with a \e parent, \e name and \e modal flag.
@@ -1647,13 +1658,13 @@ void QFileDialog::init()
     d->previewInfo->setPixmap( *previewInfoViewIcon );
     d->previewInfo->setToggleButton( TRUE );
     d->modeButtons->insert( d->previewInfo );
-    
+
     d->previewContents = new QPushButton( this, "preview info view" );
     QToolTip::add( d->previewContents, tr( "Preview File Contents" ) );
     d->previewContents->setPixmap( *previewContentsViewIcon );
     d->previewContents->setToggleButton( TRUE );
     d->modeButtons->insert( d->previewContents );
-    
+
     connect( d->detailView, SIGNAL( clicked() ),
 	     d->moreFiles, SLOT( cancelRename() ) );
     connect( d->detailView, SIGNAL( clicked() ),
