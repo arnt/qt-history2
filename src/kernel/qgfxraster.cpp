@@ -447,7 +447,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     clutcols = 0;
     update_clip();
 
-#if defined(QWS_DEPTH_8)
+#if defined(QWS_DEPTH_8) || defined(QWS_DEPTH_8GRAYSCALE)
     // default colour map
     setClut( qt_screen->clut(), qt_screen->numCols() );
 #endif
@@ -1305,7 +1305,14 @@ void QGfxRaster<depth,type>::setSourcePen()
 {
     QColor c=cpen.color();
     if(depth==8) {
+#if defined(QWS_DEPTH_8GRAYSCALE)
+	srccol=qGray(c.red(),c.green(),c.blue());
+#elif defined(QWS_DEPTH_8DIRECT)
+	srccol=(c.red() >> 5) << 5 | (c.green() >> 6) << 3 |
+	       (c.blue() >> 5);
+#else
 	srccol=closestMatch(c.red(),c.green(),c.blue());
+#endif
     } else {
 	srccol=c.alloc();
     }
@@ -2820,13 +2827,23 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	unsigned char * tempptr=myptr;
 	
         for(loopc=0;loopc<w;loopc++) {
-	    alphabuf[loopc]=get_value(32,8,&tempptr);
+	    int val = *tempptr++;
+#if defined(QWS_DEPTH_8GRAYSCALE)
+	    alphabuf[loopc] = (val << 16) | (val << 8) | val;
+#elif defined(QWS_DEPTH_8DIRECT)
+	    int r=((val & 0xe0) >> 5) << 5;
+	    int g=((val & 0x18) >> 3) << 6;
+	    int b=((val & 0x07)) << 5;
+	    alphabuf[loopc] = (r << 16) | (g << 8) | b;
+#else
+	    alphabuf[loopc]=clut[val];
+#endif
 	}
 
 	// Now blend with source data
 
 	unsigned char * srcptr;
-	unsigned int srcval;
+	unsigned int srcval = 0;
 	if(srctype==SourceImage) {
 	    srcptr=srcdata;
 	} else {
