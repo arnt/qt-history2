@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/qthumbwheel.cpp#2 $
+** $Id: //depot/qt/main/examples/demo/qthumbwheel.cpp#3 $
 **
 ** Definition of QThumbWheel class
 **
@@ -102,7 +102,8 @@ void QThumbWheel::setValue( int value )
 
 void QThumbWheel::valueChange()
 {
-    update();
+//    update();
+    repaint();
     emit valueChanged(value());
 }
 

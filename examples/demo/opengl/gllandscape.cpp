@@ -243,6 +243,7 @@ void GLLandscape::destroyGrid()
 
 void GLLandscape::rotate( GLfloat deg, Axis axis )
 {
+    makeCurrent();
     glMatrixMode( GL_MODELVIEW );
     for ( int i = 0; i < 2; i++ ) {
 	glLoadMatrixf((GLfloat *) views[i].model);
@@ -293,6 +294,7 @@ void GLLandscape::zoom( int z )
 	z = 200 - z;
 	zoom = z / 100.0;
     }
+    makeCurrent();
     glMatrixMode( GL_MODELVIEW );
     // Always scale the original model matrix
     glLoadMatrixf((GLfloat *) views[DefaultView].model);
@@ -431,6 +433,7 @@ void GLLandscape::setWireframe( int state )
 {
     if ( state != 1 ) {
 	// Enable line antialiasing
+	makeCurrent();
 	glEnable( GL_LINE_SMOOTH );
 	glEnable( GL_BLEND );
 	glDisable( GL_DEPTH_TEST );
@@ -448,6 +451,7 @@ void GLLandscape::setWireframe( int state )
 void GLLandscape::setFilled( int state )
 {
     if ( state != 1 ) {
+	makeCurrent();
 	glEnable( GL_DEPTH_TEST );
 	glDisable( GL_LINE_SMOOTH );
 	glDisable( GL_BLEND );
@@ -462,6 +466,7 @@ void GLLandscape::setFilled( int state )
 void GLLandscape::setSmoothShaded( int state )
 {
     if ( state != 1 ) {
+	makeCurrent();
 	glEnable( GL_DEPTH_TEST );
 	glEnable( GL_LIGHTING );
 	glEnable( GL_LIGHT0 );

@@ -149,13 +149,7 @@ static void gear( GLfloat inner_radius, GLfloat outer_radius, GLfloat width,
 
 }
 
-
-static GLfloat view_rotx=20.0, view_roty=30.0, view_rotz=0.0;
-static GLint gear1, gear2, gear3;
-static GLfloat angle = 0.0;
-
-
-static void draw()
+void GLGear::draw()
 {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
@@ -191,6 +185,10 @@ GLGear::GLGear( QWidget *parent, const char *name, WFlags f )
 {
     scale = 1.0;
     setAnimationDelay( 15 );
+    view_rotx = 20.0;
+    view_roty = 30.0;
+    view_rotz = 0.0;
+    angle = 0.0;
 }
 
 void GLGear::initializeGL()
