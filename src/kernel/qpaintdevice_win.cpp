@@ -210,10 +210,11 @@ void qt_AlphaBlend( HDC dst_dc, int dx, int dy, int sw, int sh, HDC src_dc, int 
 		}
 	    }
 	}
-	if ( loadAlphaBlendFailed )
+	if ( loadAlphaBlendFailed ) {
 	    alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
-	else
+	} else {
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, rop );
+	}
     }
 #else
     BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, rop );
