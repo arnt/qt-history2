@@ -56,6 +56,7 @@ BlockingClient::BlockingClient(QWidget *parent)
 
 void BlockingClient::requestNewFortune()
 {
+    getFortuneButton->setEnabled(false);
     thread.requestNewFortune(hostLineEdit->text(),
                              portLineEdit->text().toInt());
 }
@@ -69,6 +70,7 @@ void BlockingClient::showFortune(const QString &nextFortune)
 
     currentFortune = nextFortune;
     statusLabel->setText(currentFortune);
+    getFortuneButton->setEnabled(true);
 }
 
 void BlockingClient::displayError(int socketError, const QString &message)
@@ -91,6 +93,8 @@ void BlockingClient::displayError(int socketError, const QString &message)
                                  tr("The following error occurred: %1.")
                                  .arg(message));
     }
+
+    getFortuneButton->setEnabled(true);
 }
 
 void BlockingClient::enableGetFortuneButton()
