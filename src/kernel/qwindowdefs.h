@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#56 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#57 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -24,7 +24,7 @@ class QPaintDevice;
 class QPaintDeviceMetrics;
 class QWidget;
 class QWidgetMapper;
-class QView;
+class QWindow;
 class QDialog;
 class QColor;
 class QColorGroup;
@@ -126,7 +126,7 @@ struct QXFontStruct;
 
 Display *qt_xdisplay();
 int	 qt_xscreen();
-Window	 qt_xrootwin();
+WId	 qt_xrootwin();
 GC	 qt_xget_readonly_gc( bool monochrome=FALSE );
 GC	 qt_xget_temp_gc( bool monochrome=FALSE );
 
