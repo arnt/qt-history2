@@ -447,7 +447,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	if(testWFlags(WType_Popup) )
 	    wclass = kToolbarWindowClass;
 	else if(testWFlags(WShowModal))
-	    wclass = kDocumentWindowClass;
+	    wclass = kMovableModalWindowClass;
 	else if(dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop())
 	    wclass = kFloatingWindowClass;
 	else if(dialog)
@@ -473,13 +473,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 #else
                     wclass = kToolbarWindowClass;
 #endif
-
-		    if( testWFlags( WStyle_Maximize ) ) 
-			wattr |= kWindowFullZoomAttribute;
-		    if( testWFlags( WStyle_Minimize ) ) 
-			wattr |= kWindowCollapseBoxAttribute;
-		    if( testWFlags( WStyle_SysMenu ) ) 
-			wattr |= kWindowCloseBoxAttribute;
+		if( testWFlags( WStyle_Maximize ) ) 
+		    wattr |= kWindowFullZoomAttribute;
+		if( testWFlags( WStyle_Minimize ) ) 
+		    wattr |= kWindowCollapseBoxAttribute;
+		if( testWFlags( WStyle_Title ) || testWFlags( WStyle_SysMenu ) ) 
+		    wattr |= kWindowCloseBoxAttribute;
 	    }
 	}
 
@@ -494,7 +493,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	}
 	if(wclass == kFloatingWindowClass)
-	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute);
+	    ChangeWindowAttributes((WindowRef)id, wattr, kWindowHideOnSuspendAttribute);
 #ifdef Q_WS_MACX
 	if(testWFlags(WStyle_StaysOnTop)) {
 	    createTLExtra();
