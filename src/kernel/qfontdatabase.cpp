@@ -1255,93 +1255,75 @@ void add_style( QtFontFamily *family, const QString& styleName,
 
 void QFontDatabase::createDatabase()
 {
-  if ( db ) return;
-  db = new QFontDatabasePrivate;
+    if ( db ) return;
+    db = new QFontDatabasePrivate;
 
-  QtFontFoundry *foundry = NULL;
-  if ( !foundry ) {
-    foundry = new QtFontFoundry( "Mac" ); // One foundry on Macintosh
-    db->addFoundry(foundry);        // (and only one db)
-  }
-
-  FMFontFamilyIterator it;
-  if(!FMCreateFontFamilyIterator(NULL, NULL, kFMUseGlobalScopeOption, &it)) {
-    FMFontFamily fam;
-    QString fam_name;
-    while(!FMGetNextFontFamily(&it, &fam)) {
-
-      static Str255 n;
-      if(FMGetFontFamilyName(fam, n))
-	qDebug("Whoa! %s %d", __FILE__, __LINE__);
-
-      TextEncoding encoding;
-      FMGetFontFamilyTextEncoding( fam, &encoding);
-      TextToUnicodeInfo uni_info;
-      CreateTextToUnicodeInfoByEncoding( encoding, &uni_info);
-
-      unsigned long len = n[0] * 2;
-      unsigned char *buff = (unsigned char *)malloc(len);
-      ConvertFromPStringToUnicode(uni_info, n, len, &len, (UniCharArrayPtr)buff);
-      fam_name = "";
-      for(unsigned long x = 0; x < len; x+=2) 
-	  fam_name += QChar(buff[x+1], buff[x]);
-
-      QtFontFamily *family = foundry->familyDict.find( fam_name );
-      if ( !family ) {
-	family = new QtFontFamily( foundry, fam_name );
-	Q_CHECK_PTR(family);
-	foundry->addFamily( family );
-      }
-
-      FMFontFamilyInstanceIterator fit;
-      if(!FMCreateFontFamilyInstanceIterator(fam, &fit)) {
-		
-	FMFont font;
-	FMFontStyle font_style;
-	FMFontSize font_size;
-
-	QString style_nam;
-	bool italic;
-	int weight;
-
-	while(!FMGetNextFontFamilyInstance(&fit, &font, &font_style, &font_size)) {
-
-	  //THESE are all that's left
-	  style_nam = "blah"; //FIXME
-	  italic = TRUE; //FIXME
-	  weight = 0; //FIXME
-
-	  if ( style_nam.isEmpty() ) {
-	    add_style( family, style_nam, FALSE, FALSE, weight );
-	    add_style( family, style_nam, FALSE, TRUE, weight );
-
-	    if ( weight < QFont::DemiBold ) {
-	      add_style( family, style_nam, FALSE, FALSE, QFont::Bold );
-	      add_style( family, style_nam, FALSE, TRUE, QFont::Bold );
-	    }
-	  } else {
-	    if ( italic ) {
-	      add_style( family, style_nam, italic, FALSE, weight );
-	    } else {
-	      add_style( family, style_nam, italic, FALSE, weight );
-	      add_style( family, QString::null, italic, TRUE, weight );
-	    }
-	    if ( weight < QFont::DemiBold ) {
-	      // Can make bolder
-	      if ( italic )
-		add_style( family, QString::null, italic, FALSE, QFont::Bold );
-	      else {
-		add_style( family, QString::null, FALSE, FALSE, QFont::Bold );
-		add_style( family, QString::null, FALSE, TRUE, QFont::Bold );
-	      }
-	    }
-	  }
-	}
-	FMDisposeFontFamilyInstanceIterator(&fit);
-      }
+    QtFontFoundry *foundry = NULL;
+    if ( !foundry ) {
+	foundry = new QtFontFoundry( "Mac" ); // One foundry on Macintosh
+	db->addFoundry(foundry);        // (and only one db)
     }
-    FMDisposeFontFamilyIterator(&it);
-  }
+
+    FMFontFamilyIterator it;
+    if(!FMCreateFontFamilyIterator(NULL, NULL, kFMUseGlobalScopeOption, &it)) {
+	FMFontFamily fam;
+	QString fam_name;
+	while(!FMGetNextFontFamily(&it, &fam)) {
+
+	    static Str255 n;
+	    if(FMGetFontFamilyName(fam, n))
+		qDebug("Whoa! %s %d", __FILE__, __LINE__);
+
+	    TextEncoding encoding;
+	    FMGetFontFamilyTextEncoding( fam, &encoding);
+	    TextToUnicodeInfo uni_info;
+	    CreateTextToUnicodeInfoByEncoding( encoding, &uni_info);
+
+	    unsigned long len = n[0] * 2;
+	    unsigned char *buff = (unsigned char *)malloc(len);
+	    ConvertFromPStringToUnicode(uni_info, n, len, &len, (UniCharArrayPtr)buff);
+	    fam_name = "";
+	    for(unsigned long x = 0; x < len; x+=2) 
+		fam_name += QChar(buff[x+1], buff[x]);
+
+	    QtFontFamily *family = foundry->familyDict.find( fam_name );
+	    if ( !family ) {
+		family = new QtFontFamily( foundry, fam_name );
+		Q_CHECK_PTR(family);
+		foundry->addFamily( family );
+	    }
+
+	    FMFontFamilyInstanceIterator fit;
+	    if(!FMCreateFontFamilyInstanceIterator(fam, &fit)) {
+		FMFont font;
+		FMFontStyle font_style;
+		FMFontSize font_size;
+
+		while(!FMGetNextFontFamilyInstance(&fit, &font, &font_style, &font_size)) {
+		    bool italic = (bool)(font_style & ::italic);
+		    int weight = ((font_style & ::bold) ? QFont::Bold : QFont::Normal);
+
+		    if ( italic ) {
+			add_style( family, QString::null, italic, FALSE, weight );
+		    } else {
+			add_style( family, QString::null, italic, FALSE, weight );
+			add_style( family, QString::null, italic, TRUE, weight );
+		    }
+		    if ( weight < QFont::DemiBold ) {
+			// Can make bolder
+			if ( italic )
+			    add_style( family, QString::null, italic, FALSE, QFont::Bold );
+			else {
+			    add_style( family, QString::null, FALSE, FALSE, QFont::Bold );
+			    add_style( family, QString::null, FALSE, TRUE, QFont::Bold );
+			}
+		    }
+		}
+		FMDisposeFontFamilyInstanceIterator(&fit);
+	    }
+	}
+	FMDisposeFontFamilyIterator(&it);
+    }
 }
 
 #endif // Q_WS_MAC
