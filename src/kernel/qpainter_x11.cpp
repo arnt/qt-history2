@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#314 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#315 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -1290,10 +1290,8 @@ void QPainter::setClipRegion( const QRegion &rgn )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].rgn = &crgn;
-	if (( !pdev->cmd( QPaintDevice::PdcSetClipRegion, this, param )
-	      || !hd ) &&
-	    (pdev->devType() != QInternal::Printer ))
-	    return;
+	if ( !pdev->cmd( QPaintDevice::PdcSetClipRegion, this, param ) )
+	    return; // device cannot clip
     }
     clearf( ClipOn );				// be sure to update clip rgn
     setClipping( TRUE );
