@@ -1122,7 +1122,8 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
 /*!
   \fn bool QContextMenuEvent::isAccepted() const
-  Returns TRUE if the receiver of the event has taken the context.
+  Returns TRUE (which stops propagation of the event) if the receiver
+  has processed the event. 
   \sa accept(), ignore()
 */
 
@@ -1131,8 +1132,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   Sets the accept flag of the context event object.
 
   Setting the accept flag indicates that the receiver of this event has
-  taken the context and whatever input command that caused this event will
-  not be handled as it normally would have.
+  processed the event; the event will not be propagated further.
 
   The accept flag is not set by default.
 
