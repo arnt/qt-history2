@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#88 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#87 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#88 $");
 
 
 const int Unsorted = 32767;
@@ -1119,7 +1119,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
     if ( d->dirtyItems ) {
 	// make a new clip region, including the dirty items
-	QRect br( cx + ox, cy + oy, cw, ch );
+	QRect br( cx - ox, cy - oy, cw, ch );
 	QRegion r( br );
 	QPtrDictIterator<void> it( *(d->dirtyItems) );
 	QListViewItem * i;
@@ -1133,8 +1133,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	}
 	p->setClipRegion( r );
 	// and change the "arguments".  naughty.
-	cx = br.left() - ox;
-	cy = br.top() - oy;
+	cx = br.left() + ox;
+	cy = br.top() + oy;
 	cw = br.width();
 	ch = br.height();
 	delete d->dirtyItems;
@@ -1196,7 +1196,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
             while( c < lc ) {
 		int i = d->h->mapToLogical( c );
                 cs = d->h->cellSize( c );
-                r.setRect( x + ox, current->y + oy, cs, ih );
+                r.setRect( x - ox, current->y - oy, cs, ih );
 		if ( i==0 && current->i->parentItem )
 		    r.setLeft( r.left() + current->l * treeStepSize() );
 
@@ -1233,13 +1233,13 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    int crleft = QMAX( rleft, cx );
 	    int crright = QMIN( rright, cx+cw );
 
-	    r.setRect( crleft+ox, crtop+oy,
+	    r.setRect( crleft-ox, crtop-oy,
 		       crright-crleft, crbottom-crtop );
 
 	    if ( r.isValid() ) {
 		p->save();
 		p->setClipRect( r );
-		p->translate( rleft+ox, crtop+oy );
+		p->translate( rleft-ox, crtop-oy );
 		current->i->paintBranches( p, colorGroup(), treeStepSize(),
 					   rtop - crtop, r.height(), style() );
 		p->restore();
@@ -1250,14 +1250,14 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	if ( current->i == d->focusItem && hasFocus() ) {
 	    p->save();
 	    if ( d->allColumnsShowFocus ) {
-		int x1 = ox < 0 ? -1 : 0;
-		int x2 = d->h->width() + ox;
+		int x1 = ox > 0 ? -1 : 0;
+		int x2 = d->h->width() - ox;
 		int w = QMIN( viewport()->width(), x2-x1+1 );
-		r.setRect( x1, current->y + oy, w, ih );
+		r.setRect( x1, current->y - oy, w, ih );
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
 		current->i->paintFocus( p, colorGroup(), r );
 	    } else {
-		r.setRect( d->h->cellPos( 0 ) + ox, current->y + oy,
+		r.setRect( d->h->cellPos( 0 ) - ox, current->y - oy,
 			   d->h->cellSize( d->h->mapToActual( 0 ) ), ih );
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
 		current->i->paintFocus( p, colorGroup(), r );
@@ -1268,14 +1268,14 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
     }
 
     if ( d->r->totalHeight() < cy + ch )
-	paintEmptyArea( p, QRect( cx + ox, d->r->totalHeight() + oy,
+	paintEmptyArea( p, QRect( cx - ox, d->r->totalHeight() - oy,
 				  cw, cy + ch - d->r->totalHeight() ) );
 
     int c = d->h->count()-1;
     if ( c >= 0 &&
 	 d->h->cellPos( c ) + d->h->cellSize( c ) < cx + cw ) {
 	c = d->h->cellPos( c ) + d->h->cellSize( c );
-	paintEmptyArea( p, QRect( c + ox, cy + oy, cx + cw - c, ch ) );
+	paintEmptyArea( p, QRect( c - ox, cy - oy, cx + cw - c, ch ) );
     }
 }
 
@@ -1309,7 +1309,7 @@ void QListView::buildDrawableList() const
 
     // could mess with cy and ch in order to speed up vertical
     // scrolling
-    int cy = -contentsY();
+    int cy = contentsY();
     int ch = ((QListView *)this)->viewport()->height();
     d->topPixel = cy + ch; // one below bottom
     d->bottomPixel = cy - 1; // one above top
@@ -2254,7 +2254,7 @@ QListViewItem * QListView::itemAt( const QPoint & screenPos ) const
 	buildDrawableList();
 
     QListViewPrivate::DrawableItem * c = d->drawables->first();
-    int g = screenPos.y() - contentsY();
+    int g = screenPos.y() + contentsY();
 
     while( c && c->i && c->y + c->i->height() <= g )
 	c = d->drawables->next();
@@ -2429,7 +2429,7 @@ QRect QListView::itemRect( const QListViewItem * i ) const
 	c = d->drawables->next();
 
     if ( c && c->i == i ) {
-	int y = c->y + contentsY();
+	int y = c->y - contentsY();
 	if ( y + c->i->height() >= 0 &&
 	     y < ((QListView *)this)->viewport()->height() ) {
 	    QRect r( 0, y, d->h->width(), i->height() );
@@ -3143,5 +3143,5 @@ void QListView::ensureItemVisible( const QListViewItem * i )
 	return;
 
     int h = (i->height()+1)/2;
-    ensureVisible( -contentsX(), itemPos( i )+h, 0, h );
+    ensureVisible( contentsX(), itemPos( i )+h, 0, h );
 }

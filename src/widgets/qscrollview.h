@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#15 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#16 $
 **
 ** Definition of QScrollView class
 **
@@ -30,6 +30,7 @@ public:
     ResizePolicy resizePolicy() const;
 
     void addChild(QWidget* child);
+    void removeChild(QWidget* child);
     virtual void addChild(QWidget* child, int x, int y);
     virtual void moveChild(QWidget* child, int x, int y);
     int childX(QWidget* child);

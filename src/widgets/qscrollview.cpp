@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#27 $
 **
 ** Implementation of QScrollView class
 **
@@ -44,15 +44,15 @@ struct ChildRec {
     void hideOrShow(QScrollView* sv)
     {
 	if ( wantshown ) {
-	    if ( sv->contentsX() + x < -child->width()
-	      || sv->contentsX() + x > sv->viewport()->width()
-	      || sv->contentsY() + y < -child->height()
-	      || sv->contentsY() + y > sv->viewport()->height() )
+	    if ( x-sv->contentsX() < -child->width()
+	      || x-sv->contentsX() > sv->viewport()->width()
+	      || y-sv->contentsY() < -child->height()
+	      || y-sv->contentsY() > sv->viewport()->height() )
 	    {
 		child->hide();
 	    } else {
 		if (!child->isVisible()) {
-		    child->move(sv->contentsX() + x, sv->contentsY() + y);
+		    child->move(x-sv->contentsX(), y-sv->contentsY());
 		    child->show();
 		}
 	    }
@@ -83,10 +83,11 @@ struct QScrollViewData {
     }
 
     ChildRec* rec(QWidget* w) { return childDict.find(w); }
-    void removeChild(ChildRec* r)
+    void deleteChildRec(ChildRec* r)
     {
 	childDict.remove(r);
-	children.remove(r);
+	children.removeRef(r);
+	delete r;
     }
     void hideOrShowAll(QScrollView* sv)
     {
@@ -188,14 +189,14 @@ static bool signal_choke=FALSE;
 void QScrollView::hslide( int pos )
 {
     if ( !signal_choke ) {
-	moveContents( -pos, contentsY() );
+	moveContents( -pos, -contentsY() );
     }
 }
 
 void QScrollView::vslide( int pos )
 {
     if ( !signal_choke ) {
-	moveContents( contentsX(), -pos );
+	moveContents( -contentsX(), -pos );
     }
 }
 
@@ -319,17 +320,17 @@ void QScrollView::updateScrollBars()
     if ( d->corner )
 	d->corner->setGeometry( w-sbDim, h-sbDim, sbDim, sbDim );
 
-    if ( -contentsX() > contentsWidth()-d->viewport.width() ) {
+    if ( contentsX()+d->viewport.width() > contentsWidth() ) {
 	int x=QMAX(0,contentsWidth()-d->viewport.width());
 	d->hbar.setValue(x);
 	// Do it even if it is recursive
-	moveContents( -x, contentsY() );
+	moveContents( x, contentsY() );
     }
-    if ( -contentsY() > contentsHeight()-d->viewport.height() ) {
+    if ( contentsY()+d->viewport.height() > contentsHeight() ) {
 	int y=QMAX(0,contentsHeight()-d->viewport.height());
 	d->vbar.setValue(y);
 	// Do it even if it is recursive
-	moveContents( contentsX(), -y );
+	moveContents( contentsX(), y );
     }
 
     // Finally, show the scrollbars.
@@ -520,6 +521,16 @@ QScrollView::ResizePolicy QScrollView::resizePolicy() const
 
 
 /*!
+  Removes a child from the scrolled area.  Note that this happens
+  automatically if the child is deleted.
+*/
+void QScrollView::removeChild(QWidget* child)
+{
+    ChildRec *r = d->rec(child);
+    if ( r ) d->deleteChildRec( r );
+}
+
+/*!
   Inserts \a child into the scrolled area positioned at (\a x, \a y).
 */
 void QScrollView::addChild(QWidget* child, int x, int y)
@@ -611,43 +622,11 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	ChildRec* r = d->rec((QWidget*)obj);
 	if (!r) return FALSE; // spurious
 	switch ( e->type() ) {
-	  case Event_Move:
-	    {
-		if ( d->policy == AutoOne ) {
-		    QMoveEvent* mv = (QMoveEvent*)e;
-		    if ( mv->pos() != mv->oldPos() ) {
-			int cx = mv->pos().x();
-			int cy = mv->pos().y();
-			bool fix=FALSE;
-			if (cx>0) {
-			    fix=TRUE;
-			    cx=0;
-			}
-			if (cy>0) {
-			    fix=TRUE;
-			    cy=0;
-			}
-			if ( !signal_choke ) {
-			    signal_choke=TRUE;
-			    moveContents( cx, cy );
-			    d->vbar.setValue( -cy );
-			    d->hbar.setValue( -cx );
-			    updateScrollBars();
-			    signal_choke=FALSE;
-			}
-			if (fix)
-			    r->child->move(cx,cy);
-		    }
-		}
-		break;
-	    }
 	  case Event_Resize:
-	  //case Event_Show:
-	  //case Event_Hide:
 	    d->autoResize(this);
 	    break;
 	  case Event_Destroy:
-	    d->removeChild(r);
+	    d->deleteChildRec(r);
 	}
     }
     return FALSE;  // always continue with standard event processing
@@ -662,8 +641,8 @@ void QScrollView::viewportPaintEvent( QPaintEvent* pe )
 {
     QPainter p(&d->viewport);
     p.setClipRect(pe->rect());
-    int ex = pe->rect().x() - contentsX();
-    int ey = pe->rect().y() - contentsY();
+    int ex = pe->rect().x() + contentsX();
+    int ey = pe->rect().y() + contentsY();
     int ew = pe->rect().width();
     int eh = pe->rect().height();
     drawContentsOffset(&p, contentsX(), contentsY(), ex, ey, ew, eh);
@@ -707,8 +686,8 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
     int pw=d->viewport.width();
     int ph=d->viewport.height();
 
-    int cx=contentsX();
-    int cy=contentsY();
+    int cx=-contentsX();
+    int cy=-contentsY();
     int cw=contentsWidth();
     int ch=contentsHeight();
 
@@ -754,8 +733,8 @@ void QScrollView::ensureVisible( int x, int y, int xmargin, int ymargin )
 */
 void QScrollView::setContentsPos( int x, int y )
 {
-    if ( x < 0 ) x = 0;
-    if ( y < 0 ) y = 0;
+    if ( x > 0 ) x = 0;
+    if ( y > 0 ) y = 0;
     // Choke signal handling while we update BOTH sliders.
     signal_choke=TRUE;
     moveContents( x, y );
@@ -842,23 +821,21 @@ void QScrollView::moveContents(int x, int y)
 }
 
 /*!
-  Returns the horizontal position of the contents widget/area.
-  Note that this is normally a negative value - the origin of the
-  contents is to the left and above the viewport containing it.
+  Returns the X coordinate of the contents which is at the left
+  edge of the viewport.
 */
 int QScrollView::contentsX() const
 {
-    return d->vx;
+    return -d->vx;
 }
 
 /*!
-  Returns the vertical position of the contents widget/area.
-  Note that this is normally a negative value - the origin of the
-  contents area is to the left and above the viewport containing it.
+  Returns the Y coordinate of the contents which is at the top
+  edge of the viewport.
 */
 int QScrollView::contentsY() const
 {
-    return d->vy;
+    return -d->vy;
 }
 
 /*!
