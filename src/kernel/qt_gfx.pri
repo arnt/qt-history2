@@ -94,7 +94,7 @@ system-mng:win32:LIBS += libmng.lib
 #png support
 HEADERS+=$$KERNEL_H/qpngio.h
 SOURCES+=$$KERNEL_CPP/qpngio.cpp
-png {
+!no-png {
 	INCLUDEPATH  += 3rdparty/libpng
 	SOURCES	+= 3rdparty/libpng/png.c \
 		  3rdparty/libpng/pngerror.c \
@@ -116,6 +116,7 @@ png {
 !no-png:!png:mac:LIBS += -lpng
 !no-png:!png:win32:LIBS += libpng.lib
 no-png:DEFINES += QT_NO_IMAGEIO_PNG
+
 #zlib support
 zlib {
 	INCLUDEPATH       += 3rdparty/zlib
