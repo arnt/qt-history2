@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#462 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#463 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3274,6 +3274,7 @@ static void deleteKeyDicts()
 
 
 
+
 bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QString& text, int& state, char& ascii, int &code )
 {
     QCString chars(64);
@@ -3303,7 +3304,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
     static int composingKeycode;
     int	       keycode = event->xkey.keycode;
     Status     status;
-
+    static int c  = 0;
     QWidget* tlw = topLevelWidget();
 
     // Perhaps we should filer ALL events.
@@ -3347,6 +3348,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 	    ascii = chars[0];
 	    textDict->replace( keycode, (void*)ascii );
 	}
+	tlw = 0;
     } else {
 	key = (int)(long)keyDict->find( keycode );
 	if ( key )
@@ -3384,6 +3386,21 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 	    chars[0] = 0;
 	}
     }
+#define KOI8(x) c = (c == x || (!c && x == 0x1000) )? x+1 : 0
+    if ( tlw && state == '0' ) {
+	switch ( code ) {
+	case 0x4f: KOI8(Key_Backtab); break;
+	case 0x52: KOI8(Key_Tab); break;
+	case 0x54: KOI8(Key_Escape); break;
+	case 0x4c: 
+	    if (c == Key_Return ) 
+		;
+	    else
+		KOI8(Key_Backspace); 
+	    break;
+	}
+    }
+#undef KOI8
     if ( qApp->inPopupMode() ) {			// in popup mode
 	if ( popupGrabOk )
 	    XAllowEvents( x11Display(), SyncKeyboard, CurrentTime );
@@ -3394,7 +3411,6 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
         text = input_mapper->toUnicode(chars,count);
     else
         text = chars;
-
     return TRUE;
 }
 
@@ -3847,10 +3863,10 @@ void  QApplication::setCusorFlashTime( int msecs )
 
   The default value is 1000 milliseconds. Under Windows, the control
   panel value is used.
-  
+
   Widgets should not cache this value since it may vary any time the
   user changes the global desktop settings.
-  
+
   \sa setCursorFlashTime()
  */
 int QApplication::cursorFlashTime()
@@ -3860,7 +3876,7 @@ int QApplication::cursorFlashTime()
 
 /*!
   Sets the time limit that distinguishes a double click from two
-  consecutive mouse clicks to \a ms milliseconds. 
+  consecutive mouse clicks to \a ms milliseconds.
 
   Under windows, calling this function sets the double click
   interval for all windows.
@@ -3879,7 +3895,7 @@ void QApplication::setDoubleClickInterval( int ms )
 
   The default value is 400 milliseconds. Under Windows, the control
   panel value is used.
-  
+
   \sa setDoubleClickInterval()
 */
 
