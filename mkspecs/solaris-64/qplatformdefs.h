@@ -7,11 +7,6 @@
 
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
-// standards(5) explains why this needs to be defined...
-#define _XOPEN_SOURCE 500
-// ...but then we have to redefine __EXTENSIONS__
-#define __EXTENSIONS__
-
 #include <unistd.h>
 
 
