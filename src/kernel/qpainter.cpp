@@ -2244,8 +2244,6 @@ void qt_format_text( const QFont& font, const QRect &r,
     QTextParag *parag;
 
     QRect rect = r;
-    if( !wordbreak && !decode )
-	rect.setWidth(0x1fffffff);	// max width value
 
     if ( decode ) {
 	parag = *internal;
@@ -2254,13 +2252,9 @@ void qt_format_text( const QFont& font, const QRect &r,
 	// need to build paragraph
 	parag = new QTextParag( 0, 0, 0, FALSE );
 	QTextFormatter *formatter;
-	if ( wordbreak ) {
-	    formatter = new QTextFormatterBreakInWords;
-	} else {
-	    formatter = new QTextFormatterBreakWords;
-	    if( singleline )
+	formatter = new QTextFormatterBreakWords;
+	if ( !wordbreak )
 		formatter->setWrapEnabled( FALSE );
-	}
 	parag->setFormatter( formatter );
 	QTextFormat *f = new QTextFormat( font, painter ? painter->pen().color() : QColor() );
 	if ( singleline ) {
