@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#243 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#244 $
 **
 ** Implementation of QApplication class
 **
@@ -24,7 +24,6 @@
 *****************************************************************************/
 
 #include "qapplication.h"
-#include "qdeveloper.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qwidget.h"
@@ -38,6 +37,8 @@
 #include "qtextcodec.h"
 #include "qpngio.h"
 #include "qsessionmanager.h"
+
+
 
 /*!
   \class QApplication qapplication.h
@@ -247,7 +248,7 @@ int	  QApplication::cursor_flash_time = 1000;  // text caret flash time
 int	  QApplication::mouse_double_click_time = 400;  // text caret flash time
 QWidgetList *QApplication::popupWidgets= 0;	// has keyboard input focus
 static bool makeqdevel = FALSE;		// developer tool needed?
-static QDeveloper* qdevel = 0;		// developer tool
+//static QDeveloper* qdevel = 0;		// developer tool
 static QWidget *desktopWidget	= 0;		// root window widget
 static QTextCodec *default_codec	= 0;		// root window widget
 bool QApplication::app_exit_loop = FALSE;	// flag to exit local loop
@@ -278,7 +279,7 @@ static void create_palettes()			// creates default palettes
 {
     if ( stdPalette )
         delete stdPalette;
-    
+
     QColor standardLightGray( 192, 192, 192 );
     QColor light( 255, 255, 255 );
     QColor dark( standardLightGray.dark( 150 ) );
@@ -491,12 +492,12 @@ void QApplication::initialize( int argc, char **argv )
 
     app_style->polish( *app_pal );
     app_style->polish( this ); //##### wrong place, still inside the qapplication constructor...grmbl....
-
+#if 0
     if ( makeqdevel ) {
         qdevel = new QDeveloper;
         qdevel->show();
     }
-
+#endif
     // connect to the session manager
     session_manager = new QSessionManager( this, session_id );
 }
@@ -788,7 +789,7 @@ QPalette QApplication::palette(const QWidget* w)
             create_palettes();
         app_pal = new QPalette( *stdPalette );
     }
-    
+
     if ( w && app_palettes ) {
         QAsciiDictIterator<QPalette> it( *app_palettes );
         const char* name;
@@ -1397,10 +1398,12 @@ const QColor& QApplication::winStyleHighlightColor()
   Tells the -qdevel widget, if any, about a new top-level widget.
 */
 
-void QApplication::noteTopLevel( QWidget* tlw )
+void QApplication::noteTopLevel( QWidget*  )
 {
+#if 0
     if ( qdevel )
 	qdevel->addTopLevelWidget(tlw);
+#endif
 }
 
 
