@@ -14,12 +14,10 @@
 
 QMutexPool *static_qt_global_mutexpool = 0;
 
-QMutexPool *qt_global_mutexpool_func()
+Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func()
 {
     return static_qt_global_mutexpool;
 }
-
-
 
 /*!
     \class QMutexPool qmutexpool_p.h

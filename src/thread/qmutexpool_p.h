@@ -29,6 +29,7 @@
 #include "qmutex.h"
 #endif // QT_H
 #ifdef QT_THREAD_SUPPORT
+
 class Q_CORE_EXPORT QMutexPool
 {
 public:
@@ -46,7 +47,6 @@ private:
 
 Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func();
 #define qt_global_mutexpool qt_global_mutexpool_func()
-
 
 #endif // QT_THREAD_SUPPORT
 #endif // QMUTEXPOOL_P_H
