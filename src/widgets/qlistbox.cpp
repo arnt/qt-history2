@@ -267,7 +267,7 @@ void QListBoxItem::setSelectable( bool b )
 
 /*!
   Returns if this item is selectable or not.
-  
+
   \sa setSelectable()
 */
 
@@ -2006,7 +2006,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		while ( old <= i ) {
 		    c = item( old );
 		    if ( c ) {
-			c->s = !c->s;
+			if ( c->s == TRUE || c->isSelectable() )
+			    c->s = !c->s;
 			updateItem( c );
 		    }
 		    ++old;
@@ -2041,7 +2042,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		while ( old >= i ) {
 		    c = item( old );
 		    if ( c ) {
-			c->s = !c->s;
+			if ( c->s == TRUE || c->isSelectable() )
+			    c->s = !c->s;
 			updateItem( c );
 		    }
 		    --old;
@@ -2082,7 +2084,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		while ( old >= i ) {
 		    c = item( old );
 		    if ( c ) {
-			c->s = !c->s;
+			if ( c->s == TRUE || c->isSelectable() )
+			    c->s = !c->s;
 			updateItem( c );
 		    }
 		    --old;
@@ -2104,7 +2107,8 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		while ( old <= i ) {
 		    c = item( old );
 		    if ( c ) {
-			c->s = !c->s;
+			if ( c->s == TRUE || c->isSelectable() )
+			    c->s = !c->s;
 			updateItem( c );
 		    }
 		    ++old;
@@ -2253,7 +2257,8 @@ void QListBox::toggleCurrentItem()
 	 !d->current )
 	return;
 
-    d->current->s = !d->current->s;
+    if ( d->current->s || d->current->isSelectable() )
+	d->current->s = !d->current->s;
     updateItem( d->current );
     emitChangedSignal( TRUE );
 }
