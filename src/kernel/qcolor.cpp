@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#73 $
 **
 ** Implementation of QColor class
 **
@@ -67,7 +67,8 @@
   color and save it in the internal table.
   </ol>
 
-  \sa QPalette, QColorGroup, QApplication::setColorSpec()
+  \sa QPalette, QColorGroup, QApplication::setColorSpec(),
+  <a href="http://www.inforamp.net/~poynton/Poynton-color.html">Color FAQ.</a>
 */
 
 /*****************************************************************************
