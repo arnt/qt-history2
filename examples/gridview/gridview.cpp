@@ -33,7 +33,7 @@ protected:
     void paintCell( QPainter *p, int row, int col ) {
 	p->drawLine( cellWidth()-1, 0, cellWidth()-1, cellHeight()-1 );
 	p->drawLine( 0, cellHeight()-1, cellWidth()-1, cellHeight()-1 );
-	p->drawText( cellRect(), AlignCenter, QString("%1 / %1").arg(row).arg(col) );
+	p->drawText( cellRect(), AlignCenter, QString("%1 / %2").arg(row).arg(col) );
     }
 };
 
