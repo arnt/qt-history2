@@ -682,6 +682,7 @@ table:SOURCES += table/qtable.cpp
 database:HEADERS += $$DATABASE_H/qsql.h \
 		    $$DATABASE_H/qsql_p.h \
 		    $$DATABASE_H/qsqlform.h \
+		    $$DATABASE_H/qsqlfieldmapper.h \
 		    $$DATABASE_H/qsqlpropertymanager.h \
 		    $$DATABASE_H/qsqlconnection.h \
 		    $$DATABASE_H/qsqldatabase.h \
@@ -699,6 +700,7 @@ database:HEADERS += $$DATABASE_H/qsql.h \
 		    $$DATABASE_H/qsqltable.h 
 database:SOURCES += database/qsql.cpp \
 		    database/qsqlform.cpp \
+		    database/qsqlfieldmapper.cpp \
 		    database/qsqlpropertymanager.cpp \
 		    database/qsqldatabase.cpp \
 		    database/qsqlconnection.cpp \
