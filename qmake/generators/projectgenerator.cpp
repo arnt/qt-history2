@@ -56,7 +56,7 @@ ProjectGenerator::init()
     v["TEMPLATE_ASSIGN"] += templ;
 
     //figure out target
-    if(Option::output.fileName() == "-" || Option::output.fileName().isEmpty())
+    if(Option::output.fileName() == "-")
         v["TARGET"] = QStringList("unknown");
 
     //the scary stuff
