@@ -693,6 +693,7 @@ static const char * const ps_header[] = {
 
 "/Tl {", // draw underline/strikeout line: () w x y lw ->Tl-> () w x
 "    gsave setlinewidth",
+"    PCol SC",
 "    NP 1 index exch MT",
 "    1 index 0 rlineto stroke",
 "    grestore",
@@ -5744,8 +5745,6 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	// turn these off - they confuse the 'avoid font change' logic
 	d->currentSet.setUnderline( FALSE );
 	d->currentSet.setStrikeOut( FALSE );
-	// ### FIXME: should not be needed!
-	*(d->fm) = paint->fontMetrics();
 	break;
     case PdcSetPen:
 	if ( d->cpen != *(p[0].pen) ) {
