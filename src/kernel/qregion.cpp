@@ -87,10 +87,9 @@
 
 /*! \enum QRegion::RegionType
   Determines the shape of the region to be created.
-  <ul>
-  <li>\c Rectangle - the region covers the entire rectangle.
-  <li>\c Ellipse - the region is an ellipse inside the rectangle.
-  </ul>
+
+  \value Rectangle  the region covers the entire rectangle.
+  \value Ellipse  the region is an ellipse inside the rectangle.
  */
 
 

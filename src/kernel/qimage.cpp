@@ -144,17 +144,14 @@
   This enum type is used to describe the endianness of the CPU and
   graphics hardware.
 
-  The current values are: <ul>
+  The current values are:
 
-  <li> \c IgnoreEndian - Does not matter.  Useful for some operations
+  \value IgnoreEndian  Does not matter.  Useful for some operations
   that are independent of endianness.
 
-  <li> \c BigEndian - Network byte order, as on SPARC and Motorola CPUs.
+  \value BigEndian  Network byte order, as on SPARC and Motorola CPUs.
 
-  <li> \c LittleEndian - PC/Alpha byte order.
-
-  </ul>
-
+  \value LittleEndian  PC/Alpha byte order.
 */
 #if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER >= 50190001)
 #pragma message disable narrowptr
@@ -3228,12 +3225,12 @@ static QImageHandler *get_image_handler( const char *format )
 
   \a format is used to select a handler to write a QImage; \a header
   is used to select a handler to read an image file.
-  
+
   If \a readImage is a null pointer, the QImageIO will not be able to
   read images in \a format.  If \a writeImage is a null pointer, the
   QImageIO will not be able to write images in \a format. If both are
   null, the QImageIO object is valid but pointless.
-  
+
   Example:
   \code
     void readGIF( QImageIO *image )
@@ -3258,7 +3255,7 @@ static QImageHandler *get_image_handler( const char *format )
   Before the regexp test, all the 0 bytes in the file header are
   converted to 1 bytes. This is done because while Qt was still
   ASCII-based, QRegExp could not handle 0 bytes in strings.
-  
+
   (Note that if one handlerIO supports writing a format and another
   supports reading it, Qt supports both reading and writing. If two
   handlers support the same operation, Qt chooses one arbitrarily.)

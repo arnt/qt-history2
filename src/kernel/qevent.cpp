@@ -76,86 +76,83 @@
 
 /*! \enum Qt::ButtonState
   This enum type describes the state of the mouse buttons and the
-  modifier buttons.  The currently defined values are:<ul>
+  modifier buttons.  The currently defined values are:
 
-  <li> \c NoButton - used when the button state does not refer to any
+  \value NoButton  used when the button state does not refer to any
   button (see QMouseEvent::button()).
 
-  <li> \c LeftButton - set if the left button is pressed, or this
+  \value LeftButton  set if the left button is pressed, or this
   event refers to the left button.  Note that the left button may be
   the right button on left-handed mice.
 
-  <li> \c RightButton - the right button.
+  \value RightButton  the right button.
 
-  <li> \c MidButton - the middle button
+  \value MidButton  the middle button
 
-  <li> \c ShiftButton - a shift key on the keyboard is also pressed.
+  \value ShiftButton  a shift key on the keyboard is also pressed.
 
-  <li> \c ControlButton - a control key on the keyboard is also pressed.
+  \value ControlButton  a control key on the keyboard is also pressed.
 
-  <li> \c AltButton - an alt (or meta) key on the keyboard is also pressed.
+  \value AltButton  an alt (or meta) key on the keyboard is also pressed.
 
-  <li> \c Keypad - a keypad button is pressed.
-
-  </ul>
+  \value Keypad  a keypad button is pressed.
 */
 
 /*! \enum QEvent::Type
 
   This enum type defines the valid event types in Qt.  The currently
-  defined event types and the specialized classes for each type are as follow: <ul>
+  defined event types and the specialized classes for each type are as follow:
 
-  <li> \c None - not an event
-  <li> \c Timer - regular timer events, QTimerEvent
-  <li> \c MouseButtonPress - mouse press, QMouseEvent
-  <li> \c MouseButtonRelease - mouse release, QMouseEvent
-  <li> \c MouseButtonDblClick - mouse press again, QMouseEvent
-  <li> \c MouseMove - mouse move, QMouseEvent
-  <li> \c KeyPress - key press (including shift, for example), QKeyEvent
-  <li> \c KeyRelease - key release, QKeyEvent
-  <li> \c FocusIn - widget gains keyboard focus, QFocusEvent
-  <li> \c FocusOut - widget loses keyboard focus, QFocusEvent
-  <li> \c Enter - mouse enters widget's space
-  <li> \c Leave - mouse leaves widget's soace
-  <li> \c Paint - screen update necessary, QPaintEvent
-  <li> \c Move - widget's position changed, QMoveEvent
-  <li> \c Resize - widget's size changed, QResizeEvent
-  <li> \c Show - widget was shown on screen, QShowEvent
-  <li> \c Hide - widget was removed from screen, QHideEvent
-  <li> \c Close - widget was closed (permanently), QCloseEvent
-  <li> \c Accel - key press in child for shortcut key handling, QKeyEvent
-  <li> \c Wheel - mouse wheel rolled, QWheelEvent
-  <li> \c AccelAvailable - internal event used by Qt on some platforms
-  <li> \c AccelOverride - key press in child, for overriding shortcut key handling, QKeyEvent
-  <li> \c WindowActivate - the window was activated
-  <li> \c WindowDeactivate - the window was deactivated
-  <li> \c CaptionChange - widget's caption changed
-  <li> \c IconChange - widget's icon changed
-  <li> \c ParentFontChange - the font of the parent widget changed
-  <li> \c ApplicationFontChange - the default application font changed
-  <li> \c ParentPaletteChange - the palette of the parent widget changed
-  <li> \c ApplicationPaletteChange - the default application palette changed
-  <li> \c Clipboard - system clipboard contents have changed
-  <li> \c SockAct - socket activated, used to implement QSocketNotifier
-  <li> \c DragEnter - drag-and-drop enters widget, QDragEnterEvent
-  <li> \c DragMove - drag-and-drop in progress, QDragMoveEvent
-  <li> \c DragLeave - drag-and-drop leaves widget, QDragLeaveEvent
-  <li> \c Drop - drag-and-drop is completed, QDropEvent
-  <li> \c DragResponse - internal event used by Qt on some platforms
-  <li> \c ChildInserted - object gets a child, QChildEvent
-  <li> \c ChildRemoved - object loses a child, QChildEvent
-  <li> \c LayoutHint - a widget child has changed layout properties
-  <li> \c ActivateControl - internal event used by Qt on some platforms
-  <li> \c DeactivateControl - internal event used by Qt on some platforms
-  <li> \c Quit - reserved
-  <li> \c Create - reserved
-  <li> \c Destroy - reserved
-  <li> \c Reparent - reserved
-  <li> \c Configure - reserved
-  <li> \c ConfigureLayout - reserved
+  \value None  not an event
+  \value Timer  regular timer events, QTimerEvent
+  \value MouseButtonPress  mouse press, QMouseEvent
+  \value MouseButtonRelease  mouse release, QMouseEvent
+  \value MouseButtonDblClick  mouse press again, QMouseEvent
+  \value MouseMove  mouse move, QMouseEvent
+  \value KeyPress  key press (including shift, for example), QKeyEvent
+  \value KeyRelease  key release, QKeyEvent
+  \value FocusIn  widget gains keyboard focus, QFocusEvent
+  \value FocusOut  widget loses keyboard focus, QFocusEvent
+  \value Enter  mouse enters widget's space
+  \value Leave  mouse leaves widget's soace
+  \value Paint  screen update necessary, QPaintEvent
+  \value Move  widget's position changed, QMoveEvent
+  \value Resize  widget's size changed, QResizeEvent
+  \value Show  widget was shown on screen, QShowEvent
+  \value Hide  widget was removed from screen, QHideEvent
+  \value Close  widget was closed (permanently), QCloseEvent
+  \value Accel  key press in child for shortcut key handling, QKeyEvent
+  \value Wheel  mouse wheel rolled, QWheelEvent
+  \value AccelAvailable  internal event used by Qt on some platforms
+  \value AccelOverride  key press in child, for overriding shortcut key handling, QKeyEvent
+  \value WindowActivate  the window was activated
+  \value WindowDeactivate  the window was deactivated
+  \value CaptionChange  widget's caption changed
+  \value IconChange  widget's icon changed
+  \value ParentFontChange  the font of the parent widget changed
+  \value ApplicationFontChange  the default application font changed
+  \value ParentPaletteChange  the palette of the parent widget changed
+  \value ApplicationPaletteChange  the default application palette changed
+  \value Clipboard  system clipboard contents have changed
+  \value SockAct  socket activated, used to implement QSocketNotifier
+  \value DragEnter  drag-and-drop enters widget, QDragEnterEvent
+  \value DragMove  drag-and-drop in progress, QDragMoveEvent
+  \value DragLeave  drag-and-drop leaves widget, QDragLeaveEvent
+  \value Drop  drag-and-drop is completed, QDropEvent
+  \value DragResponse  internal event used by Qt on some platforms
+  \value ChildInserted  object gets a child, QChildEvent
+  \value ChildRemoved  object loses a child, QChildEvent
+  \value LayoutHint  a widget child has changed layout properties
+  \value ActivateControl  internal event used by Qt on some platforms
+  \value DeactivateControl  internal event used by Qt on some platforms
+  \value Quit  reserved
+  \value Create  reserved
+  \value Destroy  reserved
+  \value Reparent  reserved
+  \value Configure  reserved
+  \value ConfigureLayout  reserved
 
-  <li> \c User - user defined event
-</ul>
+  \value User  user defined event
 */
 /*!
   \fn QEvent::QEvent( Type type )
@@ -561,15 +558,13 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state )
 /*! \enum Qt::Modifier
 
   This enum type describes the keyboard modifier keys supported by Qt.
-  The currently defined values are:<ul>
+  The currently defined values are:
 
-  <li> SHIFT (0x00200000) - the shift keys provided on all normal keyboards
-  <li> CTRL (0x00400000) - the control keys
-  <li> ALT (0x00800000) - the normal alt keys, but not e.g. AltGr.
-  <li> UNICODE_ACCEL - the accelerator is specified as a Unicode code
+  \value SHIFT (0x00200000) - the shift keys provided on all normal keyboards
+  \value CTRL (0x00400000) - the control keys
+  \value ALT (0x00800000) - the normal alt keys, but not e.g. AltGr.
+  \value UNICODE_ACCEL - the accelerator is specified as a Unicode code
   point, not a Qt Key
-
-  </ul>
 */
 
 /*! \enum Qt::Modifier
@@ -767,18 +762,15 @@ QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
 
 /*! \enum QFocusEvent::Reason
 
-  <ul>
-  <li> \c Mouse - the focus change happened because of a mouse action.
-  <li> \c Tab - the focus change happened because of a Tab press
+  \value Mouse  the focus change happened because of a mouse action.
+  \value Tab  the focus change happened because of a Tab press
         (possibly including Shift/Control).
-  <li> \c ActiveWindow - the window system made this window (in)active.
-  <li> \c Popup - the application opened/closed a popup that grabbed/released focus.
-  <li> \c Shortcut - the focus change happened because of a keyboard shortcut.
-  <li> \c Other - any other reason, usually application-specific.
-  </ul>
+  \value ActiveWindow  the window system made this window (in)active.
+  \value Popup  the application opened/closed a popup that grabbed/released focus.
+  \value Shortcut  the focus change happened because of a keyboard shortcut.
+  \value Other  any other reason, usually application-specific.
 
-   See the \link focus.html focus overview \endlink for more about focus.
-
+  See the keyboard focus overview for more about focus.
 */
 
 /*!
@@ -1275,18 +1267,16 @@ QCustomEvent::QCustomEvent( int type )
   This type describes the action which a source requests that a target
   perform with dropped data.  The values are:
 
-  <ul>
-   <li>\c Copy - the default action.  The source simply users the data
+   \value Copy  the default action.  The source simply users the data
 	    provided in the operation.
-   <li>\c Link. The source should somehow create a link to the location
+   \value Link  The source should somehow create a link to the location
 	    specified by the data.
-   <li>\c Move.  The source should somehow move the object from the location
+   \value Move  The source should somehow move the object from the location
 	    specified by the data to a new location.
-   <li>\c Private.  The target has special knowledge of the MIME type, which
+   \value Private  The target has special knowledge of the MIME type, which
 	    the source should respond to similar to a Copy.
-   <li>\c UserAction.  The source and target can co-operate using special
+   \value UserAction  The source and target can co-operate using special
 	    actions.  This feature is not supported in Qt at this time.
-  </ul>
 
   The Link and Move actions only makes sense if the data is
   a reference, such as text/uri-list file lists (see QUriDrag).

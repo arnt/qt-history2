@@ -350,40 +350,38 @@ void QVariantPrivate::clear()
 /*! \enum QVariant::Type
 
   This enum type defines the types of variable that a QVariant can
-  contain.  The supported enum values and the associated types are <ul>
+  contain.  The supported enum values and the associated types are
 
-  <li> \c Invalid - no type
-  <li> \c List - a QValueList<QVariant>
-  <li> \c Map - a QMap<QString,QVariant>
-  <li> \c String - a QString
-  <li> \c StringList - a QStringList
-  <li> \c Font - a QFont
-  <li> \c Pixmap - a QPixmap
-  <li> \c Brush - a QBrush
-  <li> \c Rect - a QRect
-  <li> \c Size - a QSize
-  <li> \c Color - a QColor
-  <li> \c Palette - a QPalette
-  <li> \c ColorGroup - a QColorGroup
-  <li> \c IconSet - a QIconSet
-  <li> \c Point - a QPoint
-  <li> \c Image - a QImage
-  <li> \c Int - an int
-  <li> \c UInt - an unsigned int
-  <li> \c Bool - a bool
-  <li> \c Double - a double
-  <li> \c CString - a QCString
-  <li> \c PointArray - a QPointArray
-  <li> \c Region - a QRegion
-  <li> \c Bitmap - a QBitmap
-  <li> \c Cursor - a QCursor
-  <li> \c Date - a QDate
-  <li> \c Time - a QTime
-  <li> \c DateTime - a QDateTime
-  <li> \c ByteArray - a QByteArray
-  <li> \c SizePolicy - a QSizePolicy
-
-  </ul>
+  \value Invalid  no type
+  \value List  a QValueList<QVariant>
+  \value Map  a QMap<QString,QVariant>
+  \value String  a QString
+  \value StringList  a QStringList
+  \value Font  a QFont
+  \value Pixmap  a QPixmap
+  \value Brush  a QBrush
+  \value Rect  a QRect
+  \value Size  a QSize
+  \value Color  a QColor
+  \value Palette  a QPalette
+  \value ColorGroup  a QColorGroup
+  \value IconSet  a QIconSet
+  \value Point  a QPoint
+  \value Image  a QImage
+  \value Int  an int
+  \value UInt  an unsigned int
+  \value Bool  a bool
+  \value Double  a double
+  \value CString  a QCString
+  \value PointArray  a QPointArray
+  \value Region  a QRegion
+  \value Bitmap  a QBitmap
+  \value Cursor  a QCursor
+  \value Date  a QDate
+  \value Time  a QTime
+  \value DateTime  a QDateTime
+  \value ByteArray  a QByteArray
+  \value SizePolicy  a QSizePolicy
 
   Note that Qt's definition of bool depends on the compiler.
   qglobal.h has the system-dependent definition of bool.
@@ -458,7 +456,7 @@ QVariant::QVariant( const QCString& val )
   Constructs a new variant with a c-string value if \a val is
   non-null.  The variant creates a deep copy of \a val.
 
-  If \a val is null, the resulting variant has type Invalid.  
+  If \a val is null, the resulting variant has type Invalid.
 */
 QVariant::QVariant( const char* val )
 {
@@ -637,7 +635,7 @@ QVariant::QVariant( const QCursor& val )
 
 /*!
   Constructs a new variant with a point array value.
-  
+
   Because QPointArray is explicitly shared, you may need to pass a deep
   copy to the variant using QPointArray::copy().
 */

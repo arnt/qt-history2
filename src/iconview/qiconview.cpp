@@ -2075,30 +2075,28 @@ void QIconViewItem::checkRect()
 
   This enum type decides how QIconView should treat the positions of
   its icons when the widget is resized.  The currently defined modes
-  are: <ul>
+  are:
 
-  <li> \c Fixed - The icons' positions are not changed.
-  <li> \c Adjust - The icons' positions are adjusted to be within the
+  \value Fixed  The icons' positions are not changed.
+  \value Adjust  The icons' positions are adjusted to be within the
   new geometry, if possible.
-
-  </ul>
 */
 
 /*! \enum QIconView::SelectionMode
 
   This enumerated type is used by QIconView to indicate how it reacts
-  to selection by the user. It has four values: <ul>
+  to selection by the user. It has four values:
 
-  <li> \c Single - When the user selects an item, any already-selected
+  \value Single  When the user selects an item, any already-selected
   item becomes unselected and the user cannot unselect the selected
   item. This means that the user can never clear the selection. (The
   application programmer can, using QIconView::clearSelection().)
 
-  <li> \c Multi - When the user selects an item in the most ordinary
+  \value Multi  When the user selects an item in the most ordinary
   way, the selection status of that item is toggled and the other
   items are left alone.
 
-  <li> \c Extended - When the user selects an item in the most
+  \value Extended  When the user selects an item in the most
   ordinary way, the selection is cleared and the new item selected.
   However, if the user presses the CTRL key when clicking on an item,
   the clicked item gets toggled and all other items are left untouched. And
@@ -2108,9 +2106,7 @@ void QIconViewItem::checkRect()
   Also, multiple items can be selected by dragging the mouse while the
   left mouse button stays pressed.
 
-  <li> \c NoSelection - Items cannot be selected.
-
-  </ul>
+  \value NoSelection  Items cannot be selected.
 
   In other words, \c Single is a real single-selection icon view; \c
   Multi a real multi-selection icon view; \c Extended is an icon view
@@ -2124,23 +2120,19 @@ void QIconViewItem::checkRect()
    This enum type decides in which direction the items flow when the view
    overflows.
 
-   <ul>
-   <li> \c LeftToRight - Items which don't fit onto the view go
+   \value LeftToRight  Items which don't fit onto the view go
    further down (you get a vertical scrollbar)
 
-   <li> \c TopToBottom - Items which don't fit onto the view go
+   \value TopToBottom  Items which don't fit onto the view go
    further right (you get a horizontal scrollbar)
-   </ul>
 */
 
 /*! \enum QIconView::ItemTextPos
 
    This enum type specifies the position of the item text in relation to the icon.
 
-   <ul>
-   <li> \c Bottom - The text is drawn below the icon.
-   <li> \c Right - The text is drawn to the right of the icon.
-   </ul>
+   \value Bottom  The text is drawn below the icon.
+   \value Right  The text is drawn to the right of the icon.
 */
 
 /*! \fn void  QIconView::dropped ( QDropEvent * e, const QValueList<QIconDragItem> &lst )

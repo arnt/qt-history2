@@ -3009,23 +3009,21 @@ bool QApplication::reverseLayout()
 
   This enum type defines the circumstances under which this
   application wants to be restarted by the session manager.  The
-  current values are <ul>
+  current values are
 
-  <li> \c RestartIfRunning - if the application still runs by the time
+  \value RestartIfRunning  if the application still runs by the time
   the session is shut down, it wants to be restarted at the start of
   the next session.
 
-  <li> \c RestartAnyway - the application wants to be started at the
+  \value RestartAnyway  the application wants to be started at the
   start of the next session, no matter what.  (This is useful for
   utilities that run just after startup and then quit.)
 
-  <li> \c RestartImmediately - the application wants to be started
+  \value RestartImmediately  the application wants to be started
   immediately whenever it is not running.
 
-  <li> \c RestartNever - the application does not want to be restarted
+  \value RestartNever  the application does not want to be restarted
   automatically.
-
-  </ul>
 
   The default hint is \c RestartIfRunning.
 */

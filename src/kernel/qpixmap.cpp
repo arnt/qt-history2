@@ -111,12 +111,11 @@
 /*! \enum QPixmap::ColorMode
 
   This enum type defines the color modes that exist for converting
-  QImage objects to QPixmap.  The current values are: <ul>
+  QImage objects to QPixmap.  The current values are:
 
-  <li> \c Auto - select \c Color or \c Mono on a case-by-case basis.
-  <li> \c Color - always create colored pixmaps.
-  <li> \c Mono - always create bitmaps.
-  </ul>
+  \value Auto  select \c Color or \c Mono on a case-by-case basis.
+  \value Color  always create colored pixmaps.
+  \value Mono  always create bitmaps.
 */
 
 /*! \enum QPixmap::Optimization
@@ -127,25 +126,21 @@
   of optimization modes you can set for any pixmap to tweak the
   speed/memory tradeoffs:
 
-  <ul>
-
-  <li> \c DefaultOptim - whatever QPixmap::defaultOptimization()
+  \value DefaultOptim  whatever QPixmap::defaultOptimization()
   returns.  A pixmap with this optimization mode set always has the
   default optimization type, even if the default is changed with
   setDefaultOptimization().
 
-  <li> \c NoOptim - no optimization (currently the same as \c MemoryOptim).
+  \value NoOptim  no optimization (currently the same as \c MemoryOptim).
 
-  <li> \c MemoryOptim - optimize for minimal memory use.
+  \value MemoryOptim  optimize for minimal memory use.
 
-  <li> \c NormalOptim - optimize for typical usage.  Often uses more
+  \value NormalOptim  optimize for typical usage.  Often uses more
   memory than \c MemoryOptim, and is often faster.
 
-  <li> \c BestOptim - optimize for pixmaps that are drawn very often
+  \value BestOptim  optimize for pixmaps that are drawn very often
   and where performance is critical.  Generally uses more memory than
   \c NormalOptim and may provide a little better speed.
-
-  </ul>
 
   We recommend sticking with \c DefaultOptim.
 */
@@ -319,7 +314,7 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 	    p->x11SetScreen( pixmap.data->scrn );
 	    d = p->data;
 	}
-#endif	
+#endif
 	data = d;
 	data->ref();
 	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
@@ -414,7 +409,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 	    d = p->data;
 	    d->ref();
 	}
-#endif	
+#endif
 	data = d;
 	devFlags = pixmap.devFlags;		// copy QPaintDevice flags
 #if defined(Q_WS_WIN)

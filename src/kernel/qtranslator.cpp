@@ -288,10 +288,8 @@ public:
   This enum type defines how QTranslator can write translation files.
   There are two modes:
 
-  <ul>
-  <li> \c Everything - files are saved with all contents
-  <li> \c Stripped - files are saved with just what's needed for end-users
-  </ul>
+  \value Everything  files are saved with all contents
+  \value Stripped  files are saved with just what's needed for end-users
 
   Note that when QTranslator loads a stripped file, most functions do
   not work.  The functions that do work with stripped files are
@@ -791,7 +789,7 @@ void QTranslator::insert( const QTranslatorMessage& message )
 }
 
 
-/*! 
+/*!
   \fn void QTranslator::insert( const char *, const char *, const QString & )
   \overload
   \obsolete
@@ -811,7 +809,7 @@ void QTranslator::remove( const QTranslatorMessage& message )
 }
 
 
-/*! 
+/*!
   \fn void QTranslator::remove( const char *, const char * )
   \overload
   \obsolete
@@ -820,7 +818,7 @@ void QTranslator::remove( const QTranslatorMessage& message )
   "") from this translator.
 */
 
-/*! 
+/*!
   \fn QString QTranslator::find( const char*, const char*, const char* ) const
   \obsolete
 
@@ -967,7 +965,7 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
   text, \e comment), where \a hash is computed from the source text
   and the comment.  Unless you plan to read and write messages
   yourself, you need not worry about the hash value.
-  
+
   QTranslatorMessage stores theis triple or quadruple, the relevant
   translation if there is any, and the status of the message.
 
@@ -1126,14 +1124,12 @@ QTranslatorMessage & QTranslatorMessage::operator=(
 
   Let (\e h, \e c, \e s, \e m) be the extended key.  The possible prefixes are
 
-  <ul>
-  <li> \c NoPrefix - no prefix
-  <li> \c Hash - only (\e h)
-  <li> \c HashContext - only (\e h, \e c)
-  <li> \c HashContextSourceText - only (\e h, \e c, \e s)
-  <li> \c HashContextSourceTextComment - the whole extended key, (\e h, \e c,
+  \value NoPrefix  no prefix
+  \value Hash  only (\e h)
+  \value HashContext  only (\e h, \e c)
+  \value HashContextSourceText  only (\e h, \e c, \e s)
+  \value HashContextSourceTextComment  the whole extended key, (\e h, \e c,
        \e s, \e m)
-  </ul>
 
   \sa write() commonPrefix()
 */

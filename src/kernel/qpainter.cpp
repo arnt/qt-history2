@@ -225,32 +225,33 @@ typedef QStack<QWMatrix> QWMatrixStack;
 */
 
 /*! \enum Qt::RasterOp
+  
+  \keyword raster operation
+  \keyword raster op
 
   This enum type is used to describe the way things are written to the
   paint device. Each bit of the \e src (what you write) interacts with
   the corresponding bit of the \e dst pixel.  The currently defined
-  values are: <ul>
+  values are:
 
-  <li> \c CopyROP - dst = src
-  <li> \c OrROP -  dst = src OR dst
-  <li> \c XorROP -  dst = src XOR dst
-  <li> \c NotAndROP - dst = (NOT src) AND dst
-  <li> \c EraseROP - an alias for \c NotAndROP
-  <li> \c NotCopyROP - dst = NOT src
-  <li> \c NotOrROP - dst = (NOT src) OR dst
-  <li> \c NotXorROP - dst = (NOT src) XOR dst
-  <li> \c AndROP - dst = src AND dst
-  <li> \c NotEraseROP - an alias for \c AndROP
-  <li> \c NotROP - dst = NOT dst
-  <li> \c ClearROP - dst = 0
-  <li> \c SetROP - dst = 1
-  <li> \c NopROP - dst = dst
-  <li> \c AndNotROP - dst = src AND (NOT dst)
-  <li> \c OrNotROP - dst = src OR (NOT dst)
-  <li> \c NandROP - dst = NOT (src AND dst)
-  <li> \c NorROP - dst = NOT (src OR dst)
-
-  </ul>
+  \value CopyROP  dst = src
+  \value OrROP   dst = src OR dst
+  \value XorROP   dst = src XOR dst
+  \value NotAndROP  dst = (NOT src) AND dst
+  \value EraseROP  an alias for \c NotAndROP
+  \value NotCopyROP  dst = NOT src
+  \value NotOrROP  dst = (NOT src) OR dst
+  \value NotXorROP  dst = (NOT src) XOR dst
+  \value AndROP  dst = src AND dst
+  \value NotEraseROP  an alias for \c AndROP
+  \value NotROP  dst = NOT dst
+  \value ClearROP  dst = 0
+  \value SetROP  dst = 1
+  \value NopROP  dst = dst
+  \value AndNotROP  dst = src AND (NOT dst)
+  \value OrNotROP  dst = src OR (NOT dst)
+  \value NandROP  dst = NOT (src AND dst)
+  \value NorROP  dst = NOT (src OR dst)
 
   By far the most useful ones are \c CopyROP and \c XorROP.
 */
@@ -313,55 +314,49 @@ typedef QStack<QWMatrix> QWMatrixStack;
 
   This enum type defines the pen styles supported by Qt, i.e., the
   lines that can be drawn using QPainter. The current styles
-  are: <ul>
+  are: 
 
-  <li> \c NoPen - no line at all.  For example, QPainter::drawRect()
+  \value NoPen  no line at all.  For example, QPainter::drawRect()
   fills but does not draw any explicit boundary line.
 
-  <li> \c SolidLine - a simple line.
+  \value SolidLine  a simple line.
 
-  <li> \c DashLine - dashes separated by a few pixels.
+  \value DashLine  dashes separated by a few pixels.
 
-  <li> \c DotLine - dots separated by a few pixels.
+  \value DotLine  dots separated by a few pixels.
 
-  <li> \c DashDotLine - alternate dots and dashes.
+  \value DashDotLine  alternate dots and dashes.
 
-  <li> \c DashDotDotLine - one dash, two dots, one dash, two dots...
-
-  </ul>
+  \value DashDotDotLine  one dash, two dots, one dash, two dots...
 */
 
 /*! \enum Qt::PenCapStyle
 
   This enum type defines the pen cap styles supported by Qt, i.e., the
   line end caps that can be drawn using QPainter. The
-  available styles are: <ul>
+  available styles are:
 
-  <li> \c FlatCap - a square line end that does not cover the end
+  \value FlatCap  a square line end that does not cover the end
   point of the line.
 
-  <li> \c SquareCap - a square line end that covers the end point and
+  \value SquareCap  a square line end that covers the end point and
   extends beyond it with half the line width.
 
-  <li> \c RoundCap - a rounded line end.
-
-  </ul>
+  \value RoundCap  a rounded line end.
 */
 
 /*! \enum Qt::PenJoinStyle
 
   This enum type defines the pen join styles supported by Qt, i.e., which
   joins between two connected lines can be drawn using
-  QPainter. The available styles are: <ul>
+  QPainter. The available styles are:
 
-  <li> \c MiterJoin - The outer edges of the lines are extended to
+  \value MiterJoin  The outer edges of the lines are extended to
   meet at an angle, and this area is filled.
 
-  <li> \c BevelJoin - The triangular notch between the two lines is filled.
+  \value BevelJoin  The triangular notch between the two lines is filled.
 
-  <li> \c RoundJoin - A circular arc between the two lines is filled.
-
-  </ul>
+  \value RoundJoin  A circular arc between the two lines is filled.
 */
 
 /*!
@@ -2247,7 +2242,7 @@ void qt_format_text( const QFont& font, const QRect &r,
     bool simple = !decode & singleline & !showprefix & !expandtabs;
     if ( simple )
 	simple &= str.simpleText();
-    
+
     if ( simple ) {
 	// we can use a simple drawText instead of the QTextParag.
 	QFontMetrics fm(font);
@@ -2269,7 +2264,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	}
 	return;
     }
-    
+
 #if defined(QT_FORMAT_TEXT_DEBUG)
     qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
 #endif

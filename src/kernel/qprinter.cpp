@@ -66,13 +66,13 @@
   the part the printer can draw on.  The default is FALSE, so that by
   default you can probably paint on (0,0) but the document's margins
   are unknown.
-  
+
   <li> setNumCopies() tells QPrinter how many copies of the document
   it should print.
   <li> setMinMax() tells QPrinter and QPrintDialog what the allowed
   range for fromPage() and toPage() are.
   </ul>
-  
+
   Except where noted, you can only call the set functions before
   setup(), or between QPainter::end() and setup(). (Some may have
   effect between setup() and begin(), or between begin() and end(),
@@ -94,7 +94,7 @@
   <li> fromPage() and toPage() indicate what pages the application
   program should print.
 
-  <li> paperSource() tells the application progam which paper source 
+  <li> paperSource() tells the application progam which paper source
   to print from.
 
   </ul>
@@ -120,17 +120,15 @@
 /*! \enum QPrinter::Orientation
 
   This enum type (not to be confused with Qt::Orientation) is used to
-  decide how Qt should print on each sheet.  <ul>
+  decide how Qt should print on each sheet.
 
-  <li> \c Portrait -  the page's height is greater than its width (the default).
+  \value Portrait   the page's height is greater than its width (the default).
 
-  <li> \c Landscape - the page's width is greater than its height.
+  \value Landscape  the page's width is greater than its height.
 
-  </ul>
-
-  This type interacts with QPrinter::PageSize and QPrinter::setFullPage()
-  to determine the final size of the page available to the
-  application.
+  This type interacts with QPrinter::PageSize and
+  QPrinter::setFullPage() to determine the final size of the page
+  available to the application.
 */
 
 
@@ -141,38 +139,37 @@
   information, together with Orientation and QPrinter::setFullPage(), to
   determine the printable area (see QPaintDeviceMetrics).
 
-  The defined sizes (with setFullPage( TRUE )) are <ul>
-  <li>\c QPrinter::A0 (841 x 1189 mm)
-  <li>\c QPrinter::A1 (594 x 841 mm)
-  <li>\c QPrinter::A2 (420 x 594 mm)
-  <li>\c QPrinter::A3 (297 x 420 mm)
-  <li>\c QPrinter::A4 (210 x 297 mm, 8.26 x 11.7 inches)
-  <li>\c QPrinter::A5 (148 x 210 mm)
-  <li>\c QPrinter::A6 (105 x 148 mm)
-  <li>\c QPrinter::A7 (74 x 105 mm)
-  <li>\c QPrinter::A8 (52 x 74 mm)
-  <li>\c QPrinter::A9 (37 x 52 mm)
-  <li>\c QPrinter::B0 (1030 x 1456 mm)
-  <li>\c QPrinter::B1 (728 x 1030 mm)
-  <li>\c QPrinter::B10 (32 x 45 mm)
-  <li>\c QPrinter::B2 (515 x 728 mm)
-  <li>\c QPrinter::B3 (364 x 515 mm)
-  <li>\c QPrinter::B4 (257 x 364 mm)
-  <li>\c QPrinter::B5 (182 x 257 mm, 7.17 x 10.13 inches)
-  <li>\c QPrinter::B6 (128 x 182 mm)
-  <li>\c QPrinter::B7 (91 x 128 mm)
-  <li>\c QPrinter::B8 (64 x 91 mm)
-  <li>\c QPrinter::B9 (45 x 64 mm)
-  <li>\c QPrinter::C5E (163 x 229 mm)
-  <li>\c QPrinter::Comm10E (105 x 241 mm, US Common #10 Envelope)
-  <li>\c QPrinter::DLE (110 x 220 mm)
-  <li>\c QPrinter::Executive (7.5 x 10 inches, 191 x 254 mm)
-  <li>\c QPrinter::Folio (210 x 330 mm)
-  <li>\c QPrinter::Ledger (432 x 279 mm)
-  <li>\c QPrinter::Legal (8.5 x 14 inches, 216 x 356 mm)
-  <li>\c QPrinter::Letter (8.5 x 11 inches, 216 x 279 mm)
-  <li>\c QPrinter::Tabloid (279 x 432 mm)
-  </ul>
+  The defined sizes (with setFullPage( TRUE )) are
+  \value QPrinter::A0 (841 x 1189 mm)
+  \value QPrinter::A1 (594 x 841 mm)
+  \value QPrinter::A2 (420 x 594 mm)
+  \value QPrinter::A3 (297 x 420 mm)
+  \value QPrinter::A4 (210 x 297 mm, 8.26 x 11.7 inches)
+  \value QPrinter::A5 (148 x 210 mm)
+  \value QPrinter::A6 (105 x 148 mm)
+  \value QPrinter::A7 (74 x 105 mm)
+  \value QPrinter::A8 (52 x 74 mm)
+  \value QPrinter::A9 (37 x 52 mm)
+  \value QPrinter::B0 (1030 x 1456 mm)
+  \value QPrinter::B1 (728 x 1030 mm)
+  \value QPrinter::B10 (32 x 45 mm)
+  \value QPrinter::B2 (515 x 728 mm)
+  \value QPrinter::B3 (364 x 515 mm)
+  \value QPrinter::B4 (257 x 364 mm)
+  \value QPrinter::B5 (182 x 257 mm, 7.17 x 10.13 inches)
+  \value QPrinter::B6 (128 x 182 mm)
+  \value QPrinter::B7 (91 x 128 mm)
+  \value QPrinter::B8 (64 x 91 mm)
+  \value QPrinter::B9 (45 x 64 mm)
+  \value QPrinter::C5E (163 x 229 mm)
+  \value QPrinter::Comm10E (105 x 241 mm, US Common #10 Envelope)
+  \value QPrinter::DLE (110 x 220 mm)
+  \value QPrinter::Executive (7.5 x 10 inches, 191 x 254 mm)
+  \value QPrinter::Folio (210 x 330 mm)
+  \value QPrinter::Ledger (432 x 279 mm)
+  \value QPrinter::Legal (8.5 x 14 inches, 216 x 356 mm)
+  \value QPrinter::Letter (8.5 x 11 inches, 216 x 279 mm)
+  \value QPrinter::Tabloid (279 x 432 mm)
 
   With setFullPage(FALSE) (the default), the metrics will be a bit
   smaller; how much depends on the printer in use.
@@ -182,56 +179,49 @@
 /*! \enum QPrinter::PageOrder
 
   This enum type is used by QPrinter/QPrintDialog to tell the
-  application program how to print.  The possible values are <ul>
+  application program how to print.  The possible values are
 
-  <li> \c QPrinter::FirstPageFirst - the lowest-numbered page should
+  \value QPrinter::FirstPageFirst  the lowest-numbered page should
   be printed first.
 
-  <li> \c QPrinter::LastPageFirst - the highest-numbered page should
+  \value QPrinter::LastPageFirst  the highest-numbered page should
   be printed first.
-
-  </ul>
 */
 
 /*! \enum QPrinter::ColorMode
 
   This enum type is used to indicate whether QPrinter should print in
-  color or not.  The possible values are: <ul>
+  color or not.  The possible values are:
 
-  <li> \c Color - print in color if available, otherwise in grayscale.  This
+  \value Color  print in color if available, otherwise in grayscale.  This
   is the default.
 
-  <li> \c GrayScale - print in grayscale, even on color printers.
+  \value GrayScale  print in grayscale, even on color printers.
   Might be a little faster than \c Color.
-
-  </ul>
 */
 
 /*! \enum QPrinter::PaperSource
 
   This enum type decides what paper source QPrinter is to use.  QPrinter
   does not check that the paper source is available; it just uses this
-  information to try and set the paper source.  Whether it will set the 
+  information to try and set the paper source.  Whether it will set the
   paper source depends on whether the printer has that particular source.
 
   Note: It is currently only implemented for Windows.
 
-  <ul>
-  <li>\c QPrinter::OnlyOne
-  <li>\c QPrinter::Lower
-  <li>\c QPrinter::Middle
-  <li>\c QPrinter::Manual
-  <li>\c QPrinter::Envelope
-  <li>\c QPrinter::EnvelopeManual
-  <li>\c QPrinter::Auto
-  <li>\c QPrinter::Tractor
-  <li>\c QPrinter::SmallFormat
-  <li>\c QPrinter::LargeFormat
-  <li>\c QPrinter::LargeCapacity
-  <li>\c QPrinter::Cassette
-  <li>\c QPrinter::FormSource
-  </ul>
-
+  \value QPrinter::OnlyOne
+  \value QPrinter::Lower
+  \value QPrinter::Middle
+  \value QPrinter::Manual
+  \value QPrinter::Envelope
+  \value QPrinter::EnvelopeManual
+  \value QPrinter::Auto
+  \value QPrinter::Tractor
+  \value QPrinter::SmallFormat
+  \value QPrinter::LargeFormat
+  \value QPrinter::LargeCapacity
+  \value QPrinter::Cassette
+  \value QPrinter::FormSource
 */
 
 /*!

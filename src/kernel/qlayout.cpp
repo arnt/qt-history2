@@ -1566,14 +1566,12 @@ private:
   This type is used to determine the direction of
   a box layout. The possible values are the following:
 
-  <ul>
-  <li>\c LeftToRight - Horizontal, from left to right
-  <li>\c RightToLeft - Horizontal, from right to left
-  <li>\c TopToBottom - Vertical, from top to bottom
-  <li>\c Down - An alias for \c TopToBottom
-  <li>\c BottomToTop - Vertical, from bottom to top
-  <li>\c Up - An alias for \c BottomToTop
-  </ul>
+  \value LeftToRight  Horizontal, from left to right
+  \value RightToLeft  Horizontal, from right to left
+  \value TopToBottom  Vertical, from top to bottom
+  \value Down  An alias for \c TopToBottom
+  \value BottomToTop  Vertical, from bottom to top
+  \value Up  An alias for \c BottomToTop
  */
 
 

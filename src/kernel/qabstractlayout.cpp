@@ -346,7 +346,7 @@ static QSize smartMinSize( const QWidgetItem *i )
 
     if ( i->hasHeightForWidth() && min.height() == 0 && min.width() > 0 )
 	s.setHeight( i->heightForWidth( s.width() ) );
-    
+
     s = s.expandedTo( QSize(1,1) );
     return s;
 }
@@ -1372,55 +1372,52 @@ bool QLayout::activate()
 /*! \enum QSizePolicy::SizeType
 
 The per-dimension sizing types used when constructing a QSizePolicy
-are <ul>
+are
 
-<li> \c Fixed - the sizeHint() is the only acceptable alternative, so
+\value Fixed  the sizeHint() is the only acceptable alternative, so
 the widget can never grow or shrink (e.g., the vertical direction of a
 push button).
 
-<li> \c Minimum - the sizeHint() is minimal, and sufficient. The
+\value Minimum  the sizeHint() is minimal, and sufficient. The
 widget can be expanded, but there is no advantage to it being
 larger (e.g., the horizontal direction of a push button).
 
-<li> \c Maximum - the sizeHint() is a maximum.  The widget can be
+\value Maximum  the sizeHint() is a maximum.  The widget can be
 shrunk any amount without detriment if other widgets need the space
 (e.g., a separator line).
 
-<li> \c Preferred - the sizeHint() is best, but the widget can be
+\value Preferred  the sizeHint() is best, but the widget can be
 shrunk below that and still be useful. The widget can be expanded, but
 there is no advantage to it being larger than sizeHint() (the default
 QWidget policy).
 
-<li> \c MinimumExpanding - the sizeHint() is a minimum.  The widget
+\value MinimumExpanding  the sizeHint() is a minimum.  The widget
 can make use of extra space, so it should get as much space as
 possible (not currently used by any standard Qt widgets).
 
-<li> \c Expanding - the sizeHint() is a sensible size, but the
+\value Expanding  the sizeHint() is a sensible size, but the
 widget can be shrunk below that and still be useful. The widget can
 make use of extra space, so it should get as much space as
 possible (e.g., the horizontal direction of a slider).
-
-</ul>
 */
 
 /*! \enum QSizePolicy::ExpandData
 
 This enum type describes in which directions a widget can make use of
-extra space.  There are four possible values: <ul>
+extra space.  There are four possible values:
 
-<li> \c NoDirection - the widget cannot make use of extra space in any
+\value NoDirection  the widget cannot make use of extra space in any
 direction.
 
-<li> \c Horizontal - the widget can usefully be wider than sizeHint()
+\value Horizontal  the widget can usefully be wider than sizeHint()
 says.
 
-<li> \c Vertical - the widget can usefully be taller than sizeHint()
+\value Vertical  the widget can usefully be taller than sizeHint()
 says.
 
-<li> \c BothDirections - the widget can usefully be both wider and
+\value BothDirections  the widget can usefully be both wider and
 taller than sizeHint() says.
 
-</ul>
 */
 
 /*!
@@ -1655,13 +1652,12 @@ QGLayoutIterator::~QGLayoutIterator()
   \enum QLayout::ResizeMode
 
     The possible values are:
-<ul>
-    <li> \c Fixed - The main widget's size is set to sizeHint(); it
+
+    \value Fixed  The main widget's size is set to sizeHint(); it
     cannot be resized at all.
-    <li> \c Minimum - The main widget's minimum size is set to
+    \value Minimum  The main widget's minimum size is set to
     minimumSize(); it cannot be smaller.
-    <li> \c FreeResize - The widget is not constrained.
-</ul>
+    \value FreeResize  The widget is not constrained.
 
 */
 

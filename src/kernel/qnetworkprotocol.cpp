@@ -246,21 +246,18 @@ struct QNetworkProtocolPrivate
   This enum contains the state that a QNetworkOperation
   can have:
 
-  <ul>
-
-  <li> \c StWaiting - The operation is in the queue of the
+  \value StWaiting  The operation is in the queue of the
   QNetworkProtocol and is waiting for being prcessed.
 
-  <li> \c StInProgress - The operation is being processed.
+  \value StInProgress  The operation is being processed.
 
-  <li> \c StDone - The operation has been processed succesfully.
+  \value StDone  The operation has been processed succesfully.
 
-  <li> \c StFailed - The operation has been processed but an error occured.
+  \value StFailed  The operation has been processed but an error occured.
 
-  <li> \c StStopped - The operation has been processed but has been
+  \value StStopped  The operation has been processed but has been
   stopped before it finished, and is waiting for being prcessed.
 
-  </ul>
 */
 
 /*!
@@ -271,14 +268,12 @@ struct QNetworkProtocolPrivate
   together. Also, the type() or a QNetworkOperation
   is always one of these values.
 
-  <ul>
-  <li> \c OpListChildren - List the children of a URL, e.g., of a directory.
-  <li> \c OpMkdir - Create a directory.
-  <li> \c OpRemove - Remove a child (e.g., file).
-  <li> \c OpRename - Rename a child (e.g., file).
-  <li> \c OpGet - Get data from a location.
-  <li> \c OpPut - Put data to a location.
-  </ul>
+  \value OpListChildren  List the children of a URL, e.g., of a directory.
+  \value OpMkdir  Create a directory.
+  \value OpRemove  Remove a child (e.g., file).
+  \value OpRename  Rename a child (e.g., file).
+  \value OpGet  Get data from a location.
+  \value OpPut  Put data to a location.
 */
 
 /*!
@@ -288,11 +283,9 @@ struct QNetworkProtocolPrivate
   the signal connectionStateChanged(). The first argument is one
   of the following values:
 
-  <ul>
-  <li> \c ConHostFound - Host has been found.
-  <li> \c ConConnected - Connection to the host has been established.
-  <li> \c ConClosed - Connection has been closed.
-  </ul>
+  \value ConHostFound  Host has been found.
+  \value ConConnected  Connection to the host has been established.
+  \value ConClosed  Connection has been closed.
 */
 
 /*!
@@ -301,44 +294,41 @@ struct QNetworkProtocolPrivate
   When an operation fails (finishes without success), the QNetworkOperation
   of the operation returns an error code which is one of the following values:
 
-  <ul>
-  <li>\c NoError - No error occured.
+  \value NoError  No error occured.
 
-  <li>\c ErrValid - The URL you are operating on is not valid.
+  \value ErrValid  The URL you are operating on is not valid.
 
-  <li>\c ErrUnknownProtocol - There is no protocol implementation
+  \value ErrUnknownProtocol  There is no protocol implementation
   available for the protocol of the URL you are operating on (e.g., if the
   protocol is http and no http implementation has been registered).
 
-  <li>\c ErrUnsupported - The operation is not supported by the protocol.
+  \value ErrUnsupported  The operation is not supported by the protocol.
 
-  <li>\c ErrParse - Parse error of the URL.
+  \value ErrParse  Parse error of the URL.
 
-  <li>\c ErrLoginIncorrect - You needed to login but the username and/or
+  \value ErrLoginIncorrect  You needed to login but the username and/or
   password are wrong.
 
-  <li>\c ErrHostNotFound - The specified host (in the URL) couldn't be
+  \value ErrHostNotFound  The specified host (in the URL) couldn't be
   found.
 
-  <li>\c ErrListChlidren - An error occured while listing the children.
+  \value ErrListChlidren  An error occured while listing the children.
 
-  <li>\c ErrMkdir - An error occured when creating a directory.
+  \value ErrMkdir  An error occured when creating a directory.
 
-  <li>\c ErrRemove - An error occured while removing a child.
+  \value ErrRemove  An error occured while removing a child.
 
-  <li>\c ErrRename  - An error occured while renaming a child.
+  \value ErrRename   An error occured while renaming a child.
 
-  <li>\c ErrGet - An error occured while getting (retrieving) data.
+  \value ErrGet  An error occured while getting (retrieving) data.
 
-  <li>\c ErrPut - An error occured while putting (uploading) data.
+  \value ErrPut  An error occured while putting (uploading) data.
 
-  <li>\c ErrFileNotExisting - A file which is needed by the operation
+  \value ErrFileNotExisting  A file which is needed by the operation
   doesn't exist.
 
-  <li>\c ErrPermissionDenied - The permission for doing the operation has
+  \value ErrPermissionDenied  The permission for doing the operation has
   been denied.
-
-  </ul>
 
   You should also use these values of error codes when implementing custom
   network protocols. If this is not possible, you can define your own ones
@@ -1031,7 +1021,7 @@ void QNetworkOperation::setProtocolDetail( const QString &detail )
   If the operation failed, the protocol should set an error code
   to describe the error in more detail. If possible, one of the
   error codes defined in QNetworkProtocol should be used.
-  
+
   \sa setProtocolDetail()
 */
 

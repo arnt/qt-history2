@@ -95,55 +95,52 @@
   The ColorRole enum defines the different symbolic color roles used
   in current GUIs.  The central roles are as follow:
 
-  <ul>
-  <li> \c Background - general background color.
+  \value Background  general background color.
 
-  <li> \c Foreground - general foreground color.
+  \value Foreground  general foreground color.
 
-  <li> \c Base - used as background color for text entry widgets, for example;
+  \value Base  used as background color for text entry widgets, for example;
   usually white or another light color.
 
-  <li> \c Text - the foreground color used with \c Base. Usually this
+  \value Text  the foreground color used with \c Base. Usually this
   is the same as the \c Foreground, in which case it must provide good
   contrast with \c Background and \c Base.
 
-  <li> \c Button - general button background color in which buttons need a
+  \value Button  general button background color in which buttons need a
   background different from \c Background, as in the Macintosh style.
 
-  <li> \c ButtonText - a foreground color used with the \c Button color.
+  \value ButtonText  a foreground color used with the \c Button color.
 
-  </ul> There are some color roles used mostly for 3D bevel and shadow
-  effects: <ul>
+  There are some color roles used mostly for 3D bevel and shadow
+  effects:
 
-  <li> \c Light - lighter than \c Button color.
+  \value Light  lighter than \c Button color.
 
-  <li> \c Midlight - between \c Button and \c Light.
+  \value Midlight  between \c Button and \c Light.
 
-  <li> \c Dark - darker than \c Button.
+  \value Dark  darker than \c Button.
 
-  <li> \c Mid - between \c Button and \c Dark.
+  \value Mid  between \c Button and \c Dark.
 
-  <li> \c Shadow - a very dark color.
+  \value Shadow  a very dark color.
 
-  </ul> All of these are normally derived from \c Background and used
+  All of these are normally derived from \c Background and used
   in ways that depend on that relationship.  For example, buttons
   depend on it to make the bevels look good, and Motif scroll bars
   depend on \c Mid to be slightly different from \c Background.
 
-  Selected (marked) items have two roles: <ul>
+  Selected (marked) items have two roles:
 
-  <li> \c Highlight  - a color to indicate a selected or highlighted item.
+  \value Highlight   a color to indicate a selected or highlighted item.
 
-  <li> \c HighlightedText - a text color that contrasts to \c Highlight.
+  \value HighlightedText  a text color that contrasts to \c Highlight.
 
-  </ul> Finally, there is a special role for text that needs to be
+  Finally, there is a special role for text that needs to be
   drawn where \c Text or \c Foreground would provide bad contrast,
-  such as on pressed push buttons: <ul>
+  such as on pressed push buttons:
 
-  <li> \c BrightText - a text color that is very different from \c
+  \value BrightText a text color that is very different from \c
   Foreground and contrasts well with e.g. \c Dark.
-
-  </ul>
 
   Note that text colors can be used for things other than just words;
   text colors are \e usually used for text, but it's quite common to

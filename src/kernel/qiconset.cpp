@@ -117,7 +117,7 @@ struct QIconSetPrivate: public QShared
   <li> <i>Large Active</i> - same as Large Normal unless you set it.
   </ul>
 
-  An additional set of six icons can be provided for widgets that have an "On" or 
+  An additional set of six icons can be provided for widgets that have an "On" or
   "Off" state, like checkable menuitems or toggleable toolbuttons. An QIconSet
   cannot only have pixmaps for the "On" state, and those pixmaps have to be
   set explicitely using setPixmap().
@@ -180,12 +180,10 @@ struct QIconSetPrivate: public QShared
   provided.
   The currently defined sizes are:
 
-  <ul>
-    <li> \c Automatic - the size of the pixmap is determined from its
+    \value Automatic  the size of the pixmap is determined from its
 		    pixel size. This is a useful default.
-    <li> \c Small - the pixmap is the smaller of two.
-    <li> \c Large - the pixmap is the larger of two.
-  </ul>
+    \value Small  the pixmap is the smaller of two.
+    \value Large  the pixmap is the larger of two.
 
   If a Small pixmap is not set by QIconSet::setPixmap(), the
   Large pixmap may be automatically scaled to two-thirds of its size to
@@ -203,20 +201,18 @@ struct QIconSetPrivate: public QShared
   provided.
   The currently defined modes are:
 
-  <ul>
-    <li> \c Normal
-	- the pixmap to be displayed when the user is
+    \value Normal
+	 the pixmap to be displayed when the user is
 	not interacting with the icon, but the
 	functionality represented by the icon is available.
-    <li> \c Disabled
-	- the pixmap to be displayed when the
+    \value Disabled
+	 the pixmap to be displayed when the
 	functionality represented by the icon is not available.
-    <li> \c Active
-	- the pixmap to be displayed when the
+    \value Active
+	 the pixmap to be displayed when the
 	functionality represented by the icon is available and
 	the user is interacting with the icon, such as by pointing
 	at it or by invoking it.
-  </ul>
 */
 
 /*!

@@ -97,19 +97,17 @@ public:
   This enum type specifies the type of the dialog
   (which kind of input can be done):
 
-  <ul>
-  <li>\c LineEdit - A QLineEdit is used for taking the input, so a textual or
+  \value LineEdit  A QLineEdit is used for taking the input, so a textual or
   (e.g. using a QValidator) a numerical input can be done. Using lineEdit()
   the QLineEdit can be accessed.
-  <li>\c SpinBox - A QSpinBox is used for taking the input, so a decimal
+  \value SpinBox  A QSpinBox is used for taking the input, so a decimal
   input can be done. Using spinBox() the QSpinBox can be accessed.
-  <li>\c ComboBox - A read-only QComboBox is used for taking the input,
+  \value ComboBox  A read-only QComboBox is used for taking the input,
   so one item of a list can be chosen. Using comboBox() the QComboBox
   can be accessed.
-  <li>\c EditableComboBox - An editable QComboBox is used for taking the input,
+  \value EditableComboBox  An editable QComboBox is used for taking the input,
   so either one item of a list can be chosen or a text can be entered. Using
   editableComboBox() the QComboBox can be accessed.
-  </ul>
 */
 
 /*!
@@ -266,9 +264,9 @@ QInputDialog::~QInputDialog()
   Static convenience function to get a textual input from the user. \a caption is the text
   which is displayed in the title bar of the dialog. \a label is the text which
   is shown to the user (it should mention to the user what he/she should input), \a text
-  the default text which will be initially set to the line edit \a mode the echo mode the 
-  lineedit will use, \a ok a pointer to a bool which will be (if not 0!) set to TRUE if the 
-  user pressed ok or to FALSE if the user pressed cancel, \a parent the parent widget of the 
+  the default text which will be initially set to the line edit \a mode the echo mode the
+  lineedit will use, \a ok a pointer to a bool which will be (if not 0!) set to TRUE if the
+  user pressed ok or to FALSE if the user pressed cancel, \a parent the parent widget of the
   dialog, and \a name the name of the dialog. The dialogs pops up modally!
 
   This method returns the text which has been entered in the line edit.

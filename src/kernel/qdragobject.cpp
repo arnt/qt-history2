@@ -401,13 +401,12 @@ void QDragObject::dragCopy()
 /*! \enum QDragObject::DragMode
 
   This enum type decides which of several types of drag each
-  individual drag is.  The available types are: <ul>
-   <li>\c DragDefault - the mode is determined heuristically.
-   <li>\c DragCopy - the data is copied, never moved.
-   <li>\c DragMove - the data is moved, if dragged at all.
-   <li>\c DragCopyOrMove - the user chooses the mode
+  individual drag is.  The available types are:
+   \value DragDefault  the mode is determined heuristically.
+   \value DragCopy  the data is copied, never moved.
+   \value DragMove  the data is moved, if dragged at all.
+   \value DragCopyOrMove  the user chooses the mode
 	    by using control key to switch from the default.
-  </ul>
 */
 
 

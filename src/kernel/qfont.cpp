@@ -190,31 +190,35 @@
 
 /*! \enum QFont::CharSet
 
-  The following character set encodings are available: <ul>
-  <li> \c QFont::ISO_8859_1 - Latin1 , common in much of Europe
-  <li> \c QFont::ISO_8859_2 - Latin2, Central and Eastern European character set
-  <li> \c QFont::ISO_8859_3 - Latin3, less common European character set
-  <li> \c QFont::ISO_8859_4 - Latin4, less common European character set
-  <li> \c QFont::ISO_8859_5, Cyrillic
-  <li> \c QFont::ISO_8859_6, Arabic
-  <li> \c QFont::ISO_8859_7, Greek
-  <li> \c QFont::ISO_8859_8, Hebrew
-  <li> \c QFont::ISO_8859_9, Turkish
-  <li> \c QFont::ISO_8859_10..15, other ISO 8859 characters sets
-  <li> \c QFont::KOI8R - KOI8-R, Cyrillic, defined in
+  The following character set encodings are available:
+  \value QFont::ISO_8859_1  Latin1 , common in much of Europe
+  \value QFont::ISO_8859_2  Latin2, Central and Eastern European character set
+  \value QFont::ISO_8859_3  Latin3, less common European character set
+  \value QFont::ISO_8859_4  Latin4, less common European character set
+  \value QFont::ISO_8859_5  Cyrillic
+  \value QFont::ISO_8859_6  Arabic
+  \value QFont::ISO_8859_7  Greek
+  \value QFont::ISO_8859_8  Hebrew
+  \value QFont::ISO_8859_9  Turkish
+  \value QFont::ISO_8859_10 (other ISO 8859 characters sets)
+  \value QFont::ISO_8859_11 (other ISO 8859 characters sets)
+  \value QFont::ISO_8859_12 (other ISO 8859 characters sets)
+  \value QFont::ISO_8859_13 (other ISO 8859 characters sets)
+  \value QFont::ISO_8859_14 (other ISO 8859 characters sets)
+  \value QFont::ISO_8859_15 (other ISO 8859 characters sets)
+  \value QFont::KOI8R  KOI8-R, Cyrillic, defined in
        <a href="ftp://ftp.nordu.net/rfc/rfc1489.txt">RFC 1489.</a>
-   <li> \c QFont::KOI8U - KOI8-U, Cyrillic/Ukrainian, defined in
+  \value QFont::KOI8U  KOI8-U, Cyrillic/Ukrainian, defined in
        <a href="ftp://ftp.nordu.net/rfc/rfc2319.txt">RFC 2319.</a>
-   <li> \c QFont::AnyCharSet - whatever is handiest.
-  <li> \c QFont::Set_Ja, Japanese
-  <li> \c QFont::Set_Ko, Korean
-  <li> \c QFont::Set_Th_TH
-  <li> \c QFont::Set_Zh
-  <li> \c QFont::Set_Zh_TW
-  <li> \c QFont::Unicode, Unicode character set
-  <li> \c QFont::Set_GBK
-  <li> \c QFont::Set_Big5
-  </ul>
+  \value QFont::AnyCharSet  whatever is handiest.
+  \value QFont::Set_Ja Japanese
+  \value QFont::Set_Ko Korean
+  \value QFont::Set_Th_TH
+  \value QFont::Set_Zh
+  \value QFont::Set_Zh_TW
+  \value QFont::Unicode Unicode character set
+  \value QFont::Set_GBK
+  \value QFont::Set_Big5
 
 */
 
@@ -540,13 +544,12 @@ int QFont::weight() const
 /*!
   \enum QFont::Weight
 
-  Contains the predefined font weights:<ul>
-  <li> \c QFont::Light (25)
-  <li> \c QFont::Normal (50)
-  <li> \c QFont::DemiBold (63)
-  <li> \c QFont::Bold (75)
-  <li> \c QFont::Black (87)
-  </ul>
+  Contains the predefined font weights:
+  \value QFont::Light (25)
+  \value QFont::Normal (50)
+  \value QFont::DemiBold (63)
+  \value QFont::Bold (75)
+  \value QFont::Black (87)
 */
 
 /*!

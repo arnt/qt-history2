@@ -71,7 +71,6 @@ public:
     QStyleSheet* sheet;
 };
 
-// NOT REVISED
 /*!
   \class QStyleSheetItem qstylesheet.h
   \brief The QStyleSheetItem class encapsulates a text format.
@@ -85,33 +84,29 @@ public:
 
 /*! \enum QStyleSheetItem::WhiteSpaceMode
 
-  This enum defines the ways in which QStyleSheet can treat whitespace.  There are three values at present: <ul>
+  This enum defines the ways in which QStyleSheet can treat whitespace.  There are three values at present:
 
-  <li> \c WhiteSpaceNormal - any sequence of whitespace is equivalent
+  \value WhiteSpaceNormal  any sequence of whitespace is equivalent
   to a single space and is a line-break position.
 
-  <li> \c WhiteSpacePre - whitespace must be output exactly as given
+  \value WhiteSpacePre  whitespace must be output exactly as given
   in the input.
 
-  <li> \c WhiteSpaceNoWrap - multiple spaces are collapsed as with
+  \value WhiteSpaceNoWrap  multiple spaces are collapsed as with
   WhiteSpaceNormal, but no automatic linebreaks occur. To break lines manually,
   use the  \c &lt;br&gt; tag.
-
-</ul>
 
 */
 
 /*! \enum QStyleSheetItem::Margin
 
-  <ul>
-  <li> \c MarginLeft - left margin
-  <li> \c MarginRight - right margin
-  <li> \c MarginTop - top margin
-  <li> \c MarginBottom - bottom margin
-  <li> \c MarginAll - all margins (left, right, top and bottom)
-  <li> \c MarginVertical - top and bottom margins
-  <li> \c MarginHorizontal - left and right margins
-  </ul>
+  \value MarginLeft  left margin
+  \value MarginRight  right margin
+  \value MarginTop  top margin
+  \value MarginBottom  bottom margin
+  \value MarginAll  all margins (left, right, top and bottom)
+  \value MarginVertical  top and bottom margins
+  \value MarginHorizontal  left and right margins
 */
 
 /*!
@@ -216,13 +211,18 @@ QStyleSheetItem::DisplayMode QStyleSheetItem::displayMode() const
 
 /*! \enum QStyleSheetItem::DisplayMode
 
-  This enum type defines the way adjacent elements are displayed.  The possible values are: <ul>
+  This enum type defines the way adjacent elements are displayed.  The possible values are:
 
-  <li> \c DisplayBlock - elements are displayed as a rectangular block (e.g., &lt;P&gt; ... &lt;/P&gt;).
-   <li> \c DisplayInline - elements are displayed in a horizontally flowing sequence (e.g., &lt;EM&gt; ... &lt;/EM&gt;).
-   <li> \c DisplayListItem - elements are displayed in a vertically sequence (e.g., &lt;EM&gt; ... &lt;/EM&gt;).
-   <li> \c DisplayNone - elements are not displayed at all.
-  </ul>
+  \value DisplayBlock  elements are displayed as a rectangular block (e.g.,
+    &lt;P&gt; ... &lt;/P&gt;).
+  
+  \value DisplayInline  elements are displayed in a horizontally flowing
+     sequence (e.g., &lt;EM&gt; ... &lt;/EM&gt;).
+
+  \value DisplayListItem  elements are displayed in a vertically sequence
+    (e.g., &lt;EM&gt; ... &lt;/EM&gt;).
+
+  \value DisplayNone  elements are not displayed at all.
 */
 
 /*!
@@ -598,16 +598,14 @@ QStyleSheetItem::ListStyle QStyleSheetItem::listStyle() const
 /*! \enum QStyleSheetItem::ListStyle
 
   This enum type defines how the items in a list are prefixed when
-  displayed.  The currently defined values are: <ul>
+  displayed.  The currently defined values are:
 
-  <li> \c ListDisc - a filled circle
-  <li> \c ListCircle - an unfilled circle
-  <li> \c ListSquare - a filled circle
-  <li> \c ListDecimal - an integer in base 10: \e 1, \e 2, \e 3, ...
-  <li> \c ListLowerAlpha - a lowercase letter: \e a, \e b, \e c, ...
-  <li> \c ListUpperAlpha - an uppercase letter: \e A, \e B, \e C, ...
-  </ul>
-
+  \value ListDisc  a filled circle
+  \value ListCircle  an unfilled circle
+  \value ListSquare  a filled circle
+  \value ListDecimal  an integer in base 10: \e 1, \e 2, \e 3, ...
+  \value ListLowerAlpha  a lowercase letter: \e a, \e b, \e c, ...
+  \value ListUpperAlpha  an uppercase letter: \e A, \e B, \e C, ...
 */
 /*!
   Sets the list style of the style.
@@ -1217,11 +1215,14 @@ QString QStyleSheet::convertFromPlainText( const QString& plain)
   normally done by passing one of the enum values to a setTextFormat()
   function.
 
-  <ul>
-  <li> \c PlainText - The text string is interpreted as a normal text string.
-  <li> \c RichText - The text string is interpreted as a rich text according to the current QStyleSheet::defaultSheet().
-  <li> \c AutoText - The text string is interpreted as for \c RichText if QStyleSheet::mightBeRichText() returns TRUE, otherwise as for \c PlainText.
-  </ul>
+  \value PlainText  The text string is interpreted as a normal text string.
+
+  \value RichText The text string is interpreted as a rich text
+  according to the current QStyleSheet::defaultSheet().
+  
+  \value AutoText The text string is interpreted as for \c RichText if
+  QStyleSheet::mightBeRichText() returns TRUE, otherwise as for \c
+  PlainText.
 */
 
 /*!

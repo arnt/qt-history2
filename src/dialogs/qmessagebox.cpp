@@ -305,8 +305,8 @@ errors which can't be easily fixed:
   }
 \endcode
 
-    Finally, 
-  
+    Finally,
+
   The text part of all message box messages can be either rich text or
   plain text. If you specify a rich text formatted string, it will be
   rendered using the default stylesheet. See
@@ -485,12 +485,16 @@ errors which can't be easily fixed:
   \enum QMessageBox::Icon
 
   This type includes the following values:
-  <ul>
-  <li> \c QMessageBox::NoIcon
-  <li> \c QMessageBox::Information
-  <li> \c QMessageBox::Warning
-  <li> \c QMessageBox::Critical
-  </ul>
+  \value QMessageBox::NoIcon  the message box does not have any icon.
+
+  \value QMessageBox::Information  an icon
+  indicating that the message is nothing out of the ordinary.
+  
+  \value QMessageBox::Warning  an icon indicating that the message
+  is a warning, but can be dealt with.
+  
+  \value QMessageBox::Critical  an icon indicating that the message represents a critical problem.
+
 */
 
 

@@ -369,9 +369,9 @@ static void* qt_resolve_symbol( void* handle, const char* f )
 
   The \e policy can be:
 
-  \value Delayed - The library get's loaded as soon as needed
-  \value Immediately - The library is loaded immediately
-  \value Manual - The library has to be loaded and unloaded manually
+  \value Delayed  The library get's loaded as soon as needed
+  \value Immediately  The library is loaded immediately
+  \value Manual  The library has to be loaded and unloaded manually
 */
 
 /*!

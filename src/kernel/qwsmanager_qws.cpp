@@ -149,25 +149,23 @@ QWSDecoration *QWSManager::newDefaultDecoration()
 
   This enum describes the regions in the window decorations.
 
-  <ul>
-  <li> \c None - used internally.
-  <li> \c All - the entire region used by the window decoration.
-  <li> \c Title - Displays the window title and allows the window to be
+  \value None  used internally.
+  \value All  the entire region used by the window decoration.
+  \value Title  Displays the window title and allows the window to be
 	  moved by dragging.
-  <li> \c Top - allows the top of the window to be resized.
-  <li> \c Bottom - allows the bottom of the window to be resized.
-  <li> \c Left - allows the left edge of the window to be resized.
-  <li> \c Right - allows the right edge of the window to be resized.
-  <li> \c TopLeft - allows the top-left of the window to be resized.
-  <li> \c TopRight - allows the top-right of the window to be resized.
-  <li> \c BottomLeft - allows the bottom-left of the window to be resized.
-  <li> \c BottomRight - allows the bottom-right of the window to be resized.
-  <li> \c Close - clicking in this region closes the window.
-  <li> \c Minimize - clicking in this region minimizes the window.
-  <li> \c Maximize - clicking in this region maximizes the window.
-  <li> \c Normalize - returns a maximized window to previous size.
-  <li> \c Menu - clicking in this region opens the window operations menu.
-  </ul>
+  \value Top  allows the top of the window to be resized.
+  \value Bottom  allows the bottom of the window to be resized.
+  \value Left  allows the left edge of the window to be resized.
+  \value Right  allows the right edge of the window to be resized.
+  \value TopLeft  allows the top-left of the window to be resized.
+  \value TopRight  allows the top-right of the window to be resized.
+  \value BottomLeft  allows the bottom-left of the window to be resized.
+  \value BottomRight  allows the bottom-right of the window to be resized.
+  \value Close  clicking in this region closes the window.
+  \value Minimize  clicking in this region minimizes the window.
+  \value Maximize  clicking in this region maximizes the window.
+  \value Normalize  returns a maximized window to previous size.
+  \value Menu  clicking in this region opens the window operations menu.
 */
 
 /*!
@@ -199,7 +197,7 @@ void QWSDecoration::close( QWidget *widget )
 class MinimisedWindow : public QWidget
 {
 public:
-    MinimisedWindow( QWidget *restore ) : 
+    MinimisedWindow( QWidget *restore ) :
 	QWidget( (QWidget *)restore->parent(), restore->caption(), WStyle_Customize | WStyle_NoBorder ),
 	w(restore)
     {
@@ -210,7 +208,7 @@ public:
 	setMask( p.createHeuristicMask() );
 	show();
     }
- 
+
     void mouseDoubleClickEvent( QMouseEvent * ) { w->show(); delete this; }
     void mousePressEvent( QMouseEvent *e ) { clickPos = e->pos(); }
     void mouseMoveEvent( QMouseEvent *e ) { move( e->globalPos() - clickPos ); }
@@ -232,7 +230,7 @@ public:
 void QWSDecoration::minimize( QWidget * )
 {
 //      new MinimisedWindow( w );
-    
+
     //    qDebug("No minimize functionality provided");
 }
 
@@ -292,7 +290,7 @@ QPopupMenu *QWSDecoration::menu(QWSManager *manager, const QWidget *, const QPoi
     m->insertItem(QObject::tr("Mi&nimize"), (int)Minimize);
     m->insertItem(QObject::tr("Ma&ximize"), (int)Maximize);
     m->insertSeparator();
-    
+
     // Style Menu
     QPopupMenu *styleMenu = new QPopupMenu();
     for (int i = 0; WMStyleList[i].WMStyleName != NULL; i++)

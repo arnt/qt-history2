@@ -2000,13 +2000,12 @@ static QStringList makeFiltersList( const QString &filter )
 
   This enum type is used to set and read QFileDialog's operating mode.
   The defined values are as follow:
-  <ul>
-  <li> \c AnyFile - Returns the name of any file, whether existing or not.
-  <li> \c ExistingFile - Returns the name of a single existing file.
-  <li> \c Directory - Returns the name of a directory.
-  <li> \c DirectoryOnly - Returns the name of a directory and displays no files in the file views of the filedialog.
-  <li> \c ExistingFiles - Returns the names of zero or more existing files.
-  </ul>
+
+  \value AnyFile  Returns the name of any file, whether existing or not.
+  \value ExistingFile  Returns the name of a single existing file.
+  \value Directory  Returns the name of a directory.
+  \value DirectoryOnly  Returns the name of a directory and displays no files in the file views of the filedialog.
+  \value ExistingFiles  Returns the names of zero or more existing files.
 
   Using setMode() you can set this mode to the file dialog.
 */
@@ -2015,11 +2014,11 @@ static QStringList makeFiltersList( const QString &filter )
   \enum QFileDialog::ViewMode
 
   This enum type describes the view mode of the file dialog.
-  <ul>
-  <li> \c Detail - View that shows except the file name; also
+
+  \value Detail  View that shows except the file name; also
   size, date, etc. of a file in columns
-  <li> \c List - Simple view which shows only all file names, plus icons
-  </ul>
+  \value List  Simple view which shows only all file names, plus icons
+
 
   Using setViewMode() you can set this mode to the file dialog.
 */
@@ -2028,13 +2027,12 @@ static QStringList makeFiltersList( const QString &filter )
   \enum QFileDialog::PreviewMode
 
   This enum type describes the preview mode of the file dialog.
-  <ul>
-  <li> \c NoPreview - No preview is shown at all.
-  <li> \c Contents - Besides the view with the files, a preview
+
+  \value NoPreview  No preview is shown at all.
+  \value Contents  Besides the view with the files, a preview
   widget is shown which shows the contents of the currently selected file.
-  <li> \c Info - Besides the view with the files, a preview
+  \value Info  Besides the view with the files, a preview
   widget is shown which shows infos of the currently selected file.
-  </ul>
 
   Using setPreviewMode(), this mode can be set to the file dialog.
 */
@@ -2083,7 +2081,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 	setSelection( dirName );
     else if ( workingDirectory && !workingDirectory->isEmpty() )
 	setDir( *workingDirectory );
-    
+
     if ( !filter.isEmpty() ) {
 	setFilters( filter );
         if ( !dirName.isEmpty() ) {
@@ -2097,7 +2095,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
                     }
                 }
             }
-        } 
+        }
     } else {
         d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
     }
@@ -2621,10 +2619,10 @@ void QFileDialog::setSelectedFilter( const QString& mask )
 /*!
   Returns a list of selected files.
 
-  Note that if the file dialog is set to select a single file or directory, 
+  Note that if the file dialog is set to select a single file or directory,
   the returned list contains a single file. In these modes, it's probably
   easier to call selectedFile().
-  
+
   If no files were selected, thie returned list is empty.
 
   \sa QFileDialog::selectedFile(), QValueList::isEmpty()
@@ -2970,7 +2968,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     //### Problem with the logic here: If a startWith is given and a file
     // with that name exists in D->URL, the box will be opened at D->URL instead of
     // the last directory used ('workingDirectory').
-    // 
+    //
     // hm... isn't that problem exactly the documented behaviour? the
     // documented behaviour sounds meaningful.
     if ( !startWith.isEmpty() ) {

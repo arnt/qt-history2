@@ -84,16 +84,15 @@ public:
 */
 
 /*! \enum QStyle::ScrollControl
-  This enum type defines<ul>
-  <li> \c AddLine - control to scroll one line down, usually an arrow button
-  <li> \c SubLine - control to scroll one line up, usually an arrow button
-  <li> \c AddPage - control to scroll one page down
-  <li> \c SubPage - control to scroll one page up
-  <li> \c First - control to scroll to top of the range
-  <li> \c Last - control to scroll to bottom of the range
-  <li> \c Slider - the slider control
-  <li> \c NoScroll - null value, indicates none of the visible controls
-  </ul>
+  This enum type defines
+  \value AddLine  control to scroll one line down, usually an arrow button
+  \value SubLine  control to scroll one line up, usually an arrow button
+  \value AddPage  control to scroll one page down
+  \value SubPage  control to scroll one page up
+  \value First  control to scroll to top of the range
+  \value Last  control to scroll to bottom of the range
+  \value Slider  the slider control
+  \value NoScroll  null value, indicates none of the visible controls
 */
 
 /*!

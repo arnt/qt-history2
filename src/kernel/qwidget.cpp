@@ -515,43 +515,42 @@ inline bool QWidgetMapper::remove( WId id )
 
 /*! \enum Qt::WidgetFlags
 
-<a name="widgetflags"></a>
+\keyword widget flags
 
 This enum type is used to specify various window-system properties
 of the widget.  They are fairly unusual but necessary in a
 few cases.
 
-The main types are <ul>
+The main types are
 
-<li> \c WType_TopLevel - indicates that this widget is a top-level
+\value WType_TopLevel  indicates that this widget is a top-level
 widget, usually with a window-system frame and so on.
 
-<li> \c WType_Dialog - indicates that this widget is a secondary
+\value WType_Dialog  indicates that this widget is a secondary
 top-level widget.  In combination with WShowModal, the dialog becomes
 a modal dialog ie. it prevents widgets in all other top-level widget
 from getting any input. \cWType_Dialog implies WType_TopLevel.
 
-<li> \c WType_Popup - indicates that this widget is a popup top-level
+\value WType_Popup  indicates that this widget is a popup top-level
 window, ie., that it is modal, but has a window system frame appropriate
 for popup menus.\cWType_Popup implies WType_TopLevel.
 
-<li> \c WType_Desktop - indicates that this widget is the desktop.
+\value WType_Desktop  indicates that this widget is the desktop.
 See also \c WPaintDesktop below. \cWType_Desktop implies WType_TopLevel.
 
-</ul> There are also a number of flags to let you customize the
-appearance of top-level windows.  These have no effect on other
-windows:<ul>
+There are also a number of flags to let you customize the appearance
+of top-level windows.  These have no effect on other windows:
 
-<li> \c WStyle_Customize - indicates that the WStyle_* flags should be
+\value WStyle_Customize  indicates that the WStyle_* flags should be
 used to build the window instead of the default.
 
-<li> \c WStyle_NormalBorder - gives the window a normal border. Cannot
+\value WStyle_NormalBorder  gives the window a normal border. Cannot
 be combined with \c WStyle_DialogBorder or \c WStyle_NoBorder.
 
-<li> \c WStyle_DialogBorder - gives the window a thin dialog border.
+\value WStyle_DialogBorder  gives the window a thin dialog border.
 Cannot be combined with \c WStyle_NormalBorder or \c WStyle_NoBorder.
 
-<li> \c WStyle_NoBorder - gives a borderless window.  Note that the
+\value WStyle_NoBorder  gives a borderless window.  Note that the
 user cannot move or resize a borderless window via the window system.
 Cannot be combined with \c WStyle_NormalBorder or \c WStyle_DialogBorder.
 On Windows, the flag works fine. On X11, it bypasses the window manager
@@ -560,7 +559,7 @@ is not managed at all (i.e. for example no keyboard focus unless you call
 setActiveWindow() manually.) For compatibility, the flag was not changed
 for Qt-2.1. We suggest using WStyle_NoBorderEx instead.
 
-<li> \c WStyle_NoBorderEx - gives a borderless window.  Note that the user
+\value WStyle_NoBorderEx  gives a borderless window.  Note that the user
 cannot move or resize a borderless window via the window system.  Cannot
 be combined with \c WStyle_NormalBorder or \c WStyle_DialogBorder. On X11,
 the result of the flag is depending on the window manager and its ability
@@ -572,22 +571,22 @@ completely. This results in a borderless window for sure, but also in a
 window that is not managed at all (i.e., no keyboard input unless you call
 setActiveWindow() manually).
 
-<li> \c WStyle_Title - gives the window a title bar.
+\value WStyle_Title  gives the window a title bar.
 
-<li> \c WStyle_SysMenu - adds a window system menu.
+\value WStyle_SysMenu  adds a window system menu.
 
-<li> \c WStyle_Minimize - adds a minimize button.  Note that on Windows
+\value WStyle_Minimize  adds a minimize button.  Note that on Windows
 this has to be combined with WStyle_SysMenu for it to work.
 
-<li> \c WStyle_Maximize - adds a maximize button.  Note that on Windows
+\value WStyle_Maximize  adds a maximize button.  Note that on Windows
 this has to be combined with WStyle_SysMenu for it to work.
 
-<li> \c WStyle_MinMax - is equal to \c WStyle_Minimize|WStyle_Maximize.
+\value WStyle_MinMax  is equal to \c WStyle_Minimize|WStyle_Maximize.
 Note that on Windows this has to be combined with WStyle_SysMenu to work.
 
-<li> \c WStyle_ContextHelp - adds a context help button to dialogs.
+\value WStyle_ContextHelp  adds a context help button to dialogs.
 
-<li> \c WStyle_Tool - makes the window a tool window.  A tool window
+\value WStyle_Tool  makes the window a tool window.  A tool window
 is a small window that lives for a short time, and it is typically used
 for creating popup windows.  It there is a parent, the tool window
 will always be kept on top of it.  If there isn't a parent, you may
@@ -595,53 +594,50 @@ consider passing WStyle_StaysOnTop as well.  If the window system
 supports it, a tool window can be decorated with a somewhat lighter
 frame.  It can also be combined with \c WStyle_NoBorder.
 
-<li> \c WStyle_StaysOnTop - informs the window system that the window
+\value WStyle_StaysOnTop  informs the window system that the window
 should stay on top of all other windows.
 
-<li> \c WStyle_Dialog - indicates that the window is a logical subwindow
+\value WStyle_Dialog  indicates that the window is a logical subwindow
 of its parent (in other words, a dialog).  The window will not get its own
 taskbar entry and be kept on top of its parent by the window system.
 Usually it will also be minimized when the parent is minimized.  If not
 customized, the window is decorated with a slightly simpler title bar.
 This is the flag QDialog uses.
 
-</ul> Finally, there are some modifier flags: <ul>
+Finally, there are some modifier flags:
 
-<li> \c WDestructiveClose - makes Qt delete this object when the object has
+\value WDestructiveClose  makes Qt delete this object when the object has
 accepted closeEvent(), or when the widget tried to ignore closeEvent() but
 could not.
 
-<li> \c WPaintDesktop - gives this widget paint events for the desktop.
+\value WPaintDesktop  gives this widget paint events for the desktop.
 
-<li> \c WPaintUnclipped - makes all painters operating on this widget
+\value WPaintUnclipped  makes all painters operating on this widget
 unclipped.  Children of this widget or other widgets in front of it
 do not clip the area the painter can paint on.
 
-<li> \c WPaintClever - indicates that Qt should not try to optimize
+\value WPaintClever  indicates that Qt should not try to optimize
 repainting for the widget, but instead pass on window system repaint
 events directly.  (This tends to produce more events and smaller
 repaint regions.)
 
-<li> \c WResizeNoErase - indicates that resizing the widget should not
+\value WResizeNoErase  indicates that resizing the widget should not
 erase it. This allows smart-repainting to avoid flicker.
 
-<li> \c WMouseNoMask - indicates that even if the widget has a mask,
+\value WMouseNoMask  indicates that even if the widget has a mask,
 it wants mouse events for its entire rectangle.
 
-<li> \c WNorthWestGravity - indicates that the widget contents are
+\value WNorthWestGravity  indicates that the widget contents are
 north-west aligned and static. On resize, such a widget will receive
 paint events only for the newly visible part of itself.
 
-<li> \c WRepaintNoErase - indicates that the widget paints all its
+\value WRepaintNoErase  indicates that the widget paints all its
 pixels.  Updating, scrolling and focus changes should therefore not
 erase the widget.  This allows smart-repainting to avoid flicker.
 
-<li> \c WGroupLeader - makes this widget or window a group
+\value WGroupLeader  makes this widget or window a group
 leader. Modality of secondary windows only affects windows within the
 same group.
-
-</ul>
-
 */
 
 
@@ -2033,33 +2029,31 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
   called.  To minimize flicker, this should be the most common color
   or pixmap in the widget.  For \c PaletteBackground, use
   colorGroup().brush( \c QColorGroup::Background ), and so on.  There
-  are also three special values, listed at the end: <ul>
+  are also three special values, listed at the end:
 
-  <li> \c PaletteForeground
-  <li> \c PaletteBackground
-  <li> \c PaletteButton
-  <li> \c PaletteLight
-  <li> \c PaletteMidlight
-  <li> \c PaletteDark
-  <li> \c PaletteMid
-  <li> \c PaletteText
-  <li> \c PaletteBrightText
-  <li> \c PaletteButtonText
-  <li> \c PaletteBase
-  <li> \c PaletteShadow
-  <li> \c PaletteHighlight
-  <li> \c PaletteHighlightedText
-  <li> \c NoBackground - the widget is not cleared before paintEvent().
+  \value PaletteForeground
+  \value PaletteBackground
+  \value PaletteButton
+  \value PaletteLight
+  \value PaletteMidlight
+  \value PaletteDark
+  \value PaletteMid
+  \value PaletteText
+  \value PaletteBrightText
+  \value PaletteButtonText
+  \value PaletteBase
+  \value PaletteShadow
+  \value PaletteHighlight
+  \value PaletteHighlightedText
+  \value NoBackground - the widget is not cleared before paintEvent().
   If the widget's paint event always draws on all the pixels, using
   this mode can be both fast and flicker-free.
-  <li> \c FixedColor - the widget is cleared to a fixed color,
+  \value FixedColor - the widget is cleared to a fixed color,
   normally different from all the ones in the palette().  Set using
   setBackgroundColor().
-  <li> \c FixedPixmap - the widget is cleared to a fixed pixmap,
+  \value FixedPixmap - the widget is cleared to a fixed pixmap,
   normally different from all the ones in the palette().  Set using
   setBackgroundPixmap().
-
-  </ul>
 
   \c FixedColor and \c FixedPixmap sometimes are just the right
   thing, but if you use them, make sure that your application looks
@@ -3114,15 +3108,15 @@ void QWidget::setGeometry( int x, int y, int w, int h )
   respect to acquiring keyboard focus.
 
   The \e policy can be:
-  <ul>
-  <li> \c QWidget::TabFocus - the widget accepts focus by tabbing.
-  <li> \c QWidget::ClickFocus - the widget accepts focus by clicking.
-  <li> \c QWidget::StrongFocus - the widget accepts focus by both tabbing
+
+  \value QWidget::TabFocus  the widget accepts focus by tabbing.
+  \value QWidget::ClickFocus  the widget accepts focus by clicking.
+  \value QWidget::StrongFocus  the widget accepts focus by both tabbing
   and clicking.
-  <li> \c QWidget::WheelFocus - like StrongFocus plus the widget accepts
+  \value QWidget::WheelFocus  like StrongFocus plus the widget accepts
   focus by using the mouse wheel.
-  <li> \c QWidget::NoFocus - the widget does not accept focus.
-  </ul>
+  \value QWidget::NoFocus  the widget does not accept focus.
+
 */
 
 /*!
@@ -4649,13 +4643,10 @@ bool QWidget::autoMask() const
   This enum defines the origin used to draw a widget's background
   pixmap.
 
-  <ul>
-  <li> \c WidgetOrigin - the pixmap is drawn in the widget's coordinate system.
-  <li>\c ParentOrigin - the pixmap is drawn in the parent's coordinate system.
-  <li>\c WindowOrigin - the pixmap is drawn in the toplevel window's coordinate system.
-  </ul>
-
- */
+  \value WidgetOrigin  the pixmap is drawn in the widget's coordinate system.
+  \value ParentOrigin  the pixmap is drawn in the parent's coordinate system.
+  \value WindowOrigin  the pixmap is drawn in the toplevel window's coordinate system.
+*/
 
 /*!
   Sets the widget's background to be drawn relative to \a origin,
@@ -4668,7 +4659,7 @@ bool QWidget::autoMask() const
   seamlessly.
 
   \sa backgroundOrigin(), backgroundPixmap(), setBackgroundMode()
- */
+*/
 
 
 void QWidget::setBackgroundOrigin( BackgroundOrigin origin )
