@@ -421,7 +421,7 @@ static QPSQLDriver::Protocol getPSQLVersion( PGconn* connection )
     if ( status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ) {
 	QString val( PQgetvalue( result, 0, 0 ) );
 	PQclear( result );	
-	QRegExp rx( "(\\d*)\\.(\\d*)\\.(\\d*)" );
+	QRegExp rx( "(\\d*)\\.(\\d*)" );
 	rx.setMinimal ( TRUE ); // enforce non-greedy RegExp
         if ( rx.search( val ) != -1 ) {
 	    int vMaj = rx.cap( 1 ).toInt();
