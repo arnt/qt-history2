@@ -153,10 +153,12 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + "../PkgInfo");
 	    project->variables()["ALL_DEPS"] += project->first("QMAKE_PKGINFO");
 
-	    QString plist = specdir() + QDir::separator() + "Info.plist." +
-			    project->first("TEMPLATE");
+	    QString plist = fileFixify(project->first("QMAKE_INFO_PLIST"));
+	    if(plist.isEmpty())
+		plist = specdir() + QDir::separator() + "Info.plist." + project->first("TEMPLATE");
 	    if(QFile::exists(Option::fixPathToLocalOS(plist))) {
-		project->variables()["QMAKE_INFO_PLIST"].append(plist);
+		if(project->isEmpty("QMAKE_INFO_PLIST"))
+		    project->variables()["QMAKE_INFO_PLIST"].append(plist);
 		project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") +
 								    "../Info.plist");
 		project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");

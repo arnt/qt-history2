@@ -17,6 +17,7 @@ win32 {
 }
 mac {
    RC_FILE	= designer.icns
+   QMAKE_INFO_PLIST = Info_mac.plist
    staticlib:CONFIG -= global_init_link_order #yuck
 }
 
