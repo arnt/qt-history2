@@ -3263,7 +3263,7 @@ void QFileDialog::okClicked()
 	QUrlInfo f( d->url, nameEdit->text() );
 	if ( f.isDir() ) {
 	    d->currentFileName = d->url;
-	    if ( d->currentFileName.right(1) != '/' )
+	    if ( d->currentFileName.right(1) != "/" )
 		d->currentFileName += '/';
 	    d->currentFileName += f.name();
 	    accept();
