@@ -1322,10 +1322,12 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
     p->painterState()->painter->setPen( Qt::red );
 #endif
 
+    int nGlyphs = 0;
+
     if ( si.right_to_left ) {
 	int i = si.num_glyphs;
 	while( i-- ) {
-	    pos.x += glyphs[i].advance.x;
+	    pos.x += glyphs[i].advance.x + Q26Dot6(glyphs[i].space_18d6, F26Dot6);
 	    pos.y += glyphs[i].advance.y;
 	}
 	i = 0;
@@ -1338,9 +1340,30 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 	    gpos.y += glyphs[i].offset.y;
 	    if ( transform )
 		gpos = map(p->painterState()->worldMatrix, gpos);
-	    glyphSpec[i].x = gpos.x.toInt();
-	    glyphSpec[i].y = gpos.y.toInt();
-	    glyphSpec[i].glyph = glyphs[i].glyph;
+	    glyphSpec[nGlyphs].x = gpos.x.toInt();
+	    glyphSpec[nGlyphs].y = gpos.y.toInt();
+	    glyphSpec[nGlyphs].glyph = glyphs[i].glyph;
+	    ++nGlyphs;
+
+	    if (glyphs[i].nKashidas) {
+		glyphSpec.resize(glyphSpec.size() + glyphs[i].nKashidas);
+		QChar ch(0x640); // Kashida character
+		QGlyphLayout g[8];
+		int nglyphs = 7;
+		stringToCMap( &ch, 1, g, &nglyphs, 0 );
+		for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
+		    pos.x -= g[0].advance.x;
+		    pos.y -= g[0].advance.y;
+
+		    Q26Dot6Offset gpos = pos;
+		    if ( transform )
+			gpos = map(p->painterState()->worldMatrix, gpos);
+		    glyphSpec[nGlyphs].x = gpos.x.toInt();
+		    glyphSpec[nGlyphs].y = gpos.y.toInt();
+		    glyphSpec[nGlyphs].glyph = g[0].glyph;
+		    ++nGlyphs;
+		}
+	    }
 #ifdef FONTENGINE_DEBUG
 	    glyph_metrics_t ci = boundingBox( glyphs[i].glyph );
 	    p->painterState()->painter->drawRect( x + ci.x + glyphs[i].offset.x, y + 100 + ci.y + glyphs[i].offset.y, ci.width, ci.height );
@@ -1372,13 +1395,14 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 	    pos.y += glyphs[i].advance.y;
 	    ++i;
 	}
+	nGlyphs = si.num_glyphs;
     }
 
 #ifdef FONTENGINE_DEBUG
     p->painterState()->painter->restore();
 #endif
 
-    XftDrawGlyphSpec( draw, &col, fnt, glyphSpec, si.num_glyphs );
+    XftDrawGlyphSpec( draw, &col, fnt, glyphSpec, nGlyphs );
 
 }
 

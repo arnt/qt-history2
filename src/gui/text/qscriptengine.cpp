@@ -198,7 +198,7 @@ void q_heuristicPosition(QShaperItem *item)
 
 
 
-// set the glyph attributes heuristically. Assumes a 1 to 1 relationship between chars ang glyphs
+// set the glyph attributes heuristically. Assumes a 1 to 1 relationship between chars and glyphs
 // and no reordering.
 // also computes logClusters heuristically
 static void heuristicSetGlyphAttributes(QShaperItem *item)
@@ -283,6 +283,10 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
 	lastCat = cat;
 	pos++;
     }
+    if (lastCat == QChar::Separator_Space)
+	glyphs[pos-1].attributes.justification = QGlyphLayout::Space;
+    else
+	glyphs[pos-1].attributes.justification = QGlyphLayout::Character;
 }
 
 static bool basic_shape(QShaperItem *item)

@@ -442,6 +442,8 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
     for (unsigned int i = 0; i < str->length; ++i) {
 	glyphs[i].glyph = str->string[i];
 	glyphs[i].attributes = tmpAttributes[str->character_index[i]];
+	if (i && str->character_index[i] == str->character_index[i-1])
+	    glyphs[i].attributes.clusterStart = false;
     }
 
     if (doLogClusters) {

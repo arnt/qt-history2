@@ -1174,16 +1174,19 @@ void set(JustificationPoint *point, int type, QGlyphLayout *glyph, QFontEngine *
 	QGlyphLayout glyphs[8];
 	int nglyphs = 7;
 	fe->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
-	if (glyphs[0].glyph)
+	if (glyphs[0].glyph) {
 	    point->kashidaWidth = glyphs[0].advance.x.value();
-    } else {
-	point->type = QGlyphLayout::NoJustification;
+	} else {
+	    point->type = QGlyphLayout::NoJustification;
+	    point->kashidaWidth = 0;
+	}
     }
 }
 
 
 void QTextEngine::justify(const QScriptLine &line)
 {
+//     qDebug("justify: line.gridfitted = %d, line.justified=%d", line.gridfitted, line.justified);
     if (line.gridfitted && line.justified)
 	return;
 
@@ -1192,13 +1195,11 @@ void QTextEngine::justify(const QScriptLine &line)
 	line.gridfitted = true;
     }
 
-    if (line.justified || (textFlags & Qt::AlignHorizontal_Mask) != Qt::AlignJustify) {
-	line.justified = true;
+    if ((textFlags & Qt::AlignHorizontal_Mask) != Qt::AlignJustify) {
 	return;
     }
+
     // justify line
-
-
     Q26Dot6 minKashidaWidth = 0x100000;
     int maxJustify = 0;
 
@@ -1206,7 +1207,9 @@ void QTextEngine::justify(const QScriptLine &line)
     int nItems = findItem(line.from + line.length - 1) - firstItem + 1;
 
     QVarLengthArray<JustificationPoint> justificationPoints;
-    int currentPoint = 0;
+    int nPoints = 0;
+//     qDebug("justifying from %d len %d, firstItem=%d, nItems=%d", line.from, line.length, firstItem, nItems);
+    Q26Dot6 minKashida = 0x100000;
 
     for (int i = 0; i < nItems; ++i) {
 	QScriptItem &si = items[firstItem + i];
@@ -1220,13 +1223,17 @@ void QTextEngine::justify(const QScriptLine &line)
 	unsigned short *log_clusters = logClusters(&si);
 
 	int gs = log_clusters[start];
-	int ge = (end == length(i) ? si.num_glyphs : log_clusters[end]);
+	int ge = (end == length(firstItem+i) ? si.num_glyphs : log_clusters[end]);
 
 	QGlyphLayout *g = glyphs(&si);
 
 	for (int i = gs; i < ge; ++i) {
+	    g[i].justificationType = QGlyphLayout::JustifyNone;
+	    g[i].nKashidas = 0;
+	    g[i].space_18d6 = 0;
+
+	    justificationPoints.resize(nPoints+3);
 	    int justification = g[i].attributes.justification;
-	    maxJustify = qMax(maxJustify, justification);
 
 	    switch(justification) {
 	    case QGlyphLayout::NoJustification:
@@ -1234,13 +1241,18 @@ void QTextEngine::justify(const QScriptLine &line)
 	    case QGlyphLayout::Space          :
 		// fall through
 	    case QGlyphLayout::Arabic_Space   :
-		if (kashida_pos >= 0)
-		    set(&justificationPoints[currentPoint++], kashida_type, g+kashida_pos, fontEngine(si));
+		if (kashida_pos >= 0) {
+		    set(&justificationPoints[nPoints], kashida_type, g+kashida_pos, fontEngine(si));
+		    minKashida = qMin(minKashida, Q26Dot6(justificationPoints[nPoints].kashidaWidth, F26Dot6));
+		    maxJustify = qMax(maxJustify, justificationPoints[nPoints].type);
+		    ++nPoints;
+		}
 		kashida_pos = -1;
 		kashida_type = QGlyphLayout::Arabic_Normal;
 		// fall through
 	    case QGlyphLayout::Character      :
-		set(&justificationPoints[currentPoint++], justification, g+i, fontEngine(si));
+		set(&justificationPoints[nPoints++], justification, g+i, fontEngine(si));
+		maxJustify = qMax(maxJustify, justification);
 		break;
 	    case QGlyphLayout::Arabic_Normal  :
 	    case QGlyphLayout::Arabic_Waw     :
@@ -1255,22 +1267,37 @@ void QTextEngine::justify(const QScriptLine &line)
 		}
 	    }
 	}
-	if (kashida_pos >= 0)
-	    set(&justificationPoints[currentPoint++], kashida_type, g+kashida_pos, fontEngine(si));
+	if (kashida_pos >= 0) {
+	    set(&justificationPoints[nPoints], kashida_type, g+kashida_pos, fontEngine(si));
+	    minKashida = qMin(minKashida, Q26Dot6(justificationPoints[nPoints].kashidaWidth, F26Dot6));
+	    maxJustify = qMax(maxJustify, justificationPoints[nPoints].type);
+	    ++nPoints;
+	}
     }
+
+    // don't justify last line. Return here, so we ensure justificationType etc. are reset.
+    if (line.from + line.length == string.length()) {
+	line.justified = true;
+	return;
+    }
+
 
     Q26Dot6 need = line.width - line.textWidth;
     Q_ASSERT(need >= 0);
 
+//     qDebug("doing justification: textWidth=%x, requested=%x, maxJustify=%d", line.textWidth.value(), line.width.value(), maxJustify);
+//     qDebug("     minKashida=%x, need=%x", minKashida.value(), need.value());
+
     // distribute in priority order
     if (maxJustify >= QGlyphLayout::Arabic_Normal) {
-	Q26Dot6 minKashida = 0;
 	while (need >= minKashida) {
-	    for (int type = maxJustify; type >= QGlyphLayout::Arabic_Normal; --type) {
-		for (int i = 0; i < currentPoint; ++i) {
+	    for (int type = maxJustify; need >= minKashida && type >= QGlyphLayout::Arabic_Normal; --type) {
+		for (int i = 0; need >= minKashida && i < nPoints; ++i) {
 		    if (justificationPoints[i].type == type && justificationPoints[i].kashidaWidth <= need.value()) {
-			justificationPoints[i].glyph->space_or_nKashidas++;
+			justificationPoints[i].glyph->nKashidas++;
+			justificationPoints[i].glyph->space_18d6 += justificationPoints[i].kashidaWidth;
 			need -= Q26Dot6(justificationPoints[i].kashidaWidth, F26Dot6);
+// 			qDebug("adding kashida type %d with width %x, neednow %x", type, justificationPoints[i].kashidaWidth, need.value());
 		    }
 		}
 	    }
@@ -1281,20 +1308,22 @@ void QTextEngine::justify(const QScriptLine &line)
 	goto end;
 
     maxJustify = qMin(maxJustify, (int)QGlyphLayout::Space);
-    for (int type = maxJustify; need != 0 && type >= QGlyphLayout::Arabic_Normal; --type) {
+    for (int type = maxJustify; need != 0 && type > 0; --type) {
 	int n = 0;
-	for (int i = 0; i < currentPoint; ++i) {
+	for (int i = 0; i < nPoints; ++i) {
 	    if (justificationPoints[i].type == type)
 		++n;
 	}
+// 	qDebug("number of points for justification type %d: %d", type, n);
 
 	if (!n)
 	    continue;
 
-	for (int i = 0; i < currentPoint; ++i) {
+	for (int i = 0; i < nPoints; ++i) {
 	    if (justificationPoints[i].type == type) {
 		Q26Dot6 add = need/n;
-		justificationPoints[i].glyph->space_or_nKashidas = add.value();
+// 		qDebug("adding %x to glyph %x", add.value(), justificationPoints[i].glyph->glyph);
+		justificationPoints[i].glyph->space_18d6 = add.value();
 		need -= add;
 		--n;
 	    }

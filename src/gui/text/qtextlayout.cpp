@@ -558,7 +558,7 @@ void QTextLine::draw( QPainter *p, int xpos, int ypos, int selection ) const
     x += line.x;
     y += line.y + line.ascent;
 
-    // ########## Justification
+    eng->justify(line);
     if (eng->textFlags & Qt::AlignRight)
 	x += line.width - line.textWidth;
     else if (eng->textFlags & Qt::AlignHCenter)
@@ -643,7 +643,7 @@ void QTextLine::draw( QPainter *p, int xpos, int ypos, int selection ) const
 	    gf.glyphs = glyphs + gs;
 	    Q26Dot6 w;
 	    while (gs < gtmp) {
-		w += glyphs[gs].advance.x;
+		w += glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
 		++gs;
 	    }
 	    gf.width = w.toInt();
@@ -656,7 +656,7 @@ void QTextLine::draw( QPainter *p, int xpos, int ypos, int selection ) const
 		gf.glyphs = glyphs + gs;
 		w = 0;
 		while (gs < gtmp) {
-		    w += glyphs[gs].advance.x;
+		    w += glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
 		    ++gs;
 		}
 		gf.width = w.toInt();
@@ -706,10 +706,10 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
 
     if ( reverse ) {
 	for ( int i = si->num_glyphs-1; i >= glyph_pos; i-- )
-	    x += glyphs[i].advance.x;
+	    x += glyphs[i].advance.x + Q26Dot6(glyphs[i].space_18d6, F26Dot6);
     } else {
 	for ( int i = 0; i < glyph_pos; i++ )
-	    x += glyphs[i].advance.x;
+	    x += glyphs[i].advance.x + Q26Dot6(glyphs[i].space_18d6, F26Dot6);
     }
 
     // add the items left of the cursor
@@ -727,7 +727,7 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
 
     x += line.x;
 
-    // ########## Justification
+    eng->justify(line);
     if (eng->textFlags & Qt::AlignRight)
 	x += line.width - line.textWidth;
     else if (eng->textFlags & Qt::AlignHCenter)
@@ -760,7 +760,7 @@ int QTextLine::cursorToX( int *cPos, Edge edge ) const
 	QGlyphLayout *glyphs = eng->glyphs(&si);
 
 	while (gs <= ge) {
-	    x += glyphs[gs].advance.x;
+	    x += glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
 	    ++gs;
 	}
     }
@@ -790,7 +790,7 @@ int QTextLine::xToCursor( int xpos, CursorPosition cpos ) const
 
     x -= line.x;
 
-    // ########## Justification
+    eng->justify(line);
     if (eng->textFlags & Qt::AlignRight)
 	x -= line.width - line.textWidth;
     else if (eng->textFlags & Qt::AlignHCenter)
@@ -843,7 +843,7 @@ int QTextLine::xToCursor( int xpos, CursorPosition cpos ) const
 	    }
 	    if (gs > ge)
 		break;
-	    x -= glyphs[gs].advance.x;
+	    x -= glyphs[gs].advance.x + Q26Dot6(glyphs[gs].space_18d6, F26Dot6);
 	    ++gs;
 	}
     }

@@ -251,7 +251,8 @@ struct QGlyphLayout
 	JustifyKashida
     };
     uint justificationType :2;
-    uint space_or_nKashidas : 30;
+    uint nKashidas : 6; // more do not make sense...
+    uint space_18d6 : 24;
 };
 Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
 
