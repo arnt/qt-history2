@@ -51,6 +51,9 @@ public:
 
     QPicture& operator= (const QPicture&);
 
+    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QPicture & );
+    friend Q_EXPORT QDataStream &operator>>( QDataStream &, QPicture & );
+
 protected:
     bool	cmd( int, QPainter *, QPDevCmdParam * );
     int		metric( int ) const;
@@ -85,6 +88,14 @@ inline const char* QPicture::data() const
 {
     return pictb.buffer().data();
 }
+
+
+/*****************************************************************************
+  QPicture stream functions
+ *****************************************************************************/
+
+Q_EXPORT QDataStream &operator<<( QDataStream &, const QPicture & );
+Q_EXPORT QDataStream &operator>>( QDataStream &, QPicture & );
 
 
 #endif // QPICTURE_H

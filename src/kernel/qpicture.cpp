@@ -761,3 +761,52 @@ void QPicture::resetFormat()
     formatMajor = mfhdr_maj;
     formatMinor = mfhdr_min;
 }
+
+
+/*****************************************************************************
+  QPicture stream functions
+ *****************************************************************************/
+
+/*!
+  \relates QPicture
+
+  Writes a QPicture to the stream and returns a reference to the stream.
+*/
+
+QDataStream &operator<<( QDataStream &s, const QPicture &r )
+{
+    // just write the whole buffer to the stream
+    return s.writeRawBytes ( r.pictb.buffer().data(), r.pictb.buffer().size() );
+}
+
+/*!
+  \relates QPicture
+
+  Reads a QPicture from the stream and returns a reference to the stream.
+*/
+
+QDataStream &operator>>( QDataStream &s, QPicture &r )
+{
+    Q_INT8 c;
+    QDataStream sr;
+
+    // "init"; this code is similar to the beginning of QPicture::cmd()
+    sr.setDevice( &r.pictb );
+    sr.setVersion( r.formatMajor );
+    QByteArray empty( 0 );
+    r.pictb.setBuffer( empty );
+    r.pictb.open( IO_WriteOnly );
+
+    // read all input and put it in the buffer (since it is a stream, I
+    // don't know the size; so I have to loop until the end)
+    while ( !s.atEnd() ) {
+	s >> c;
+	sr << c;
+    }
+
+    // "cleanup"
+    r.pictb.close();
+    r.resetFormat();
+
+    return s;
+}
