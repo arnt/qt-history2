@@ -1041,7 +1041,7 @@ QRect QGenericListView::selectionViewportRect(const QItemSelection &selection) c
                                                 selection.at(0).parent());
         return itemViewportRect(singleItem);
     }
-    return d->viewport->clipRegion().boundingRect();
+    return d->viewport->rect();
 }
 
 /*!

@@ -456,7 +456,8 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     QModelIndex current = selectionModel()->currentItem();
     QStyle::SFlags state = option.state;
 
-    int h = d->viewport->height();
+    int t = area.top();
+    int h = area.bottom() + 1;
     int v = verticalScrollBar()->value();
     int c = d->items.count();
     int i = d->itemAt(v);
@@ -466,11 +467,13 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     while (y < h && i < c) {
         index = items[i].index;
         s = delegate->sizeHint(fontMetrics, option, d->model, index).height();
-        option.rect.setRect(0, y, 0, s);
-        option.state = state|(d->items[i].open ? QStyle::Style_Open : QStyle::Style_Default);
-        d->current = i;
-        drawRow(&painter, option, index);
-        y += option.rect.height();
+        if (y + s >= t) {
+            option.rect.setRect(0, y, 0, s);
+            option.state = state|(d->items[i].open ? QStyle::Style_Open : QStyle::Style_Default);
+            d->current = i;
+            drawRow(&painter, option, index);
+        }
+        y += s;
         ++i;
     }
 
