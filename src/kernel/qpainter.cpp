@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#63 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#62 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#63 $")
 
 
 /*!
@@ -79,6 +79,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#62 $")
   \warning QPainter::begin resets all attributes to their default
   values, from the device, thus setting fonts, brushes, etc, before
   begin() will have \e no effect.
+
+  Pens and brushes are read-only: You cannot change the active brush,
+  only replace it.  This is because Qt can draw much faster if the
+  application can not change the active pen and brush without Qt
+  knowing.
 
   \header qdrawutl.h
 
@@ -249,8 +254,11 @@ void QPainter::restore()			// restore/pop painter state
 /*!
   \fn const QPen &QPainter::pen() const
   Returns the current painter pen.
-  \sa setPen()
-*/
+
+  Pens and brushes are read-only because Qt can draw much faster if
+  the application can not change them without Qt knowing.
+
+  \sa setPen() */
 
 /*!
   Sets a new painter pen.
@@ -268,7 +276,13 @@ void QPainter::setPen( const QPen &pen )
 }
 
 /*!
-  Sets a new painter pen with style \c style, width 0 and black color.
+  Sets a new painter pen with style \e style, width 0 and black color.
+
+  If you don't want a black pen, use 
+  \code
+    setPen( QPen( color, width, style ) );
+  \endcode
+
   \sa pen(), QPen
 */
 
@@ -306,7 +320,12 @@ void QPainter::setPen( const QColor &color )
 
 /*!
   \fn const QBrush &QPainter::brush() const
+
   Returns the current painter brush.
+
+  Pens and brushes are read-only because Qt can draw much faster if
+  the application can not change them without Qt knowing.
+
   \sa QPainter::setBrush()
 */
 
@@ -1249,6 +1268,7 @@ void QBrush::init( const QColor &color, BrushStyle style )
 /*!
   Constructs a default black brush with the style \c NoBrush (will not fill
   shapes).
+
 */
 
 QBrush::QBrush()
