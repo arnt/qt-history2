@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#312 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#313 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1217,13 +1217,14 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     QPoint oldp = pos();
     QSize  olds = size();
     QRect  r( x, y, w, h );
-    if ( isMove == FALSE && r.size() == olds )
-	return;
-    
-    if ( isMove && (!isTopLevel() || usposition ) ) { //### optimize this
-	if (oldp == r.topLeft() && r.size() == olds)
+
+    if ( isMove ) {
+	if ( (!isTopLevel() || usposition )  &&
+	     oldp == r.topLeft() && r.size() == olds)
 	    return;
     }
+    else if ( r.size() == olds )
+	return;
 
     setCRect( r );
 
