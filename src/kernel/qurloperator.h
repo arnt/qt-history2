@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#5 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#6 $
 **
 ** Implementation of QFileDialog class
 **
@@ -34,8 +34,7 @@ struct QUrlOperatorPrivate;
 class QUrlInfo;
 class QNetworkOperation;
 
-class QUrlOperator : public QObject,
-		     public QUrl
+class QUrlOperator : public QObject, public QUrl
 {
     Q_OBJECT
 
