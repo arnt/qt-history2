@@ -12,29 +12,12 @@
 #include <qdatatable.h>
 #include <qsqlcursor.h>
 
-/* This example program expects a table called 'simpletable' to exist
-   in the database.  You can create this table by running the
-   following SQL script (modify to suit your backend, if necessary):
-
-   drop table simpletable;
-   create table simpletable
-   (id number primary key,
-    name varchar(20),
-    address varchar(20) );
-
-   -- optional, some sample data
-   insert into simpletable (id, name, address)
-	  values (1, 'Trond', 'Oslo');
-   insert into simpletable (id, name, address)
-	  values (2, 'Dave', 'Oslo');
-*/
-
 /* Modify the following to match your environment */
-#define DRIVER       "QPSQL6"
-#define DATABASE     "simpledb"
-#define USER         "trond"
-#define PASSWORD     "trond"
-#define HOST         "silverfish.troll.no"
+#define DRIVER       "QPSQL6"  /* see the Qt SQL documentation for a list of available drivers */
+#define DATABASE     "simpledb" /* the name of your database */
+#define USER         "trond"   /* user name with appropriate rights */
+#define PASSWORD     "trond"   /* password for USER */
+#define HOST         "silverfish.troll.no" /* host on which the database is running */
 
 class SimpleCursor : public QSqlCursor
 {
@@ -43,6 +26,7 @@ public:
 protected:
     QSqlRecord* primeInsert()
     {
+	/* a real-world application would use sequences, or the like */
 	QSqlRecord* buf = QSqlCursor::primeInsert();
 	QSqlQuery q( "select max(id)+1 from simpletable;" );
 	if ( q.next() )
@@ -68,13 +52,13 @@ int main( int argc, char ** argv )
 
     SimpleCursor cursor;
 
-    QDataTable table( &cursor );
+    QDataTable table( &cursor ); /* data table uses our cursor */
     table.addColumn( "name", "Name" );
     table.addColumn( "address", "Address" );
     table.setSorting( TRUE );
 
     a.setMainWidget( &table );
-    table.refresh( TRUE, TRUE ); /* load data */
+    table.refresh(); /* load data */
     table.show();    /* show widget */
 
     return a.exec();
