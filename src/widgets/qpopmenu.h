@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.h#18 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.h#19 $
 **
 ** Definition of QPopupMenu class
 **
@@ -13,11 +13,11 @@
 #ifndef QPOPMENU_H
 #define QPOPMENU_H
 
-#include "qtablew.h"
+#include "qtablevw.h"
 #include "qmenudta.h"
 
 
-class QPopupMenu : public QTableWidget, public QMenuData
+class QPopupMenu : public QTableView, public QMenuData
 {
 friend class QMenuData;
 friend class QMenuBar;
@@ -40,9 +40,9 @@ signals:
     void	highlightedRedirect( int itemId );
 
 protected:
-    int		cellHeight( long );
-    int		cellWidth( long );
-    void	paintCell( QPainter *, long, long );
+    int		cellHeight( int );
+    int		cellWidth( int );
+    void	paintCell( QPainter *, int, int );
 
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );

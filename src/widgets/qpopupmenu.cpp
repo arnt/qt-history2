@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#45 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#44 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#45 $";
 #endif
 
 
@@ -107,8 +107,8 @@ static const motifTabSpacing	= 12;		// space between text and tab
   any parent.
 */
 
-QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
-	: QTableWidget( 0, name, WType_Popup )
+QPopupMenu::QPopupMenu( QWidget *, const char *name )
+	: QTableView( 0, name, WType_Popup )
 {
     initMetaObject();
     isPopup = TRUE;
@@ -315,13 +315,13 @@ void QPopupMenu::byeMenuBar()			// tell menubar to deactivate
 
 int QPopupMenu::itemAtPos( const QPoint &pos )	// get item at pos (x,y)
 {
-    long row = findRow( pos.y() );		// ask table for row
-    long col = findCol( pos.x() );		// ask table for column
+    int row = findRow( pos.y() );		// ask table for row
+    int col = findCol( pos.x() );		// ask table for column
     int r = -1;
     if ( row != -1 && col != -1 ) {
-	QMenuItem *mi = mitems->at((int)row);
+	QMenuItem *mi = mitems->at(row);
 	if ( !(mi->isSeparator() || mi->isDisabled()) )
-	    r = (int)row;			// normal item
+	    r = row;				// normal item
     }
     return r;
 }
@@ -616,12 +616,12 @@ void QPopupMenu::hide()
 
 
 // ---------------------------------------------------------------------------
-// Implementation of virtual QTableWidget functions
+// Implementation of virtual QTableView functions
 //
 
-int QPopupMenu::cellHeight( long row )
+int QPopupMenu::cellHeight( int row )
 {
-    QMenuItem *mi = mitems->at( (int)row );
+    QMenuItem *mi = mitems->at( row );
     int h;
     if ( mi->isSeparator() )			// separator height
 	h = motifSepHeight;
@@ -634,16 +634,16 @@ int QPopupMenu::cellHeight( long row )
     return h;
 }
 
-int QPopupMenu::cellWidth( long )
+int QPopupMenu::cellWidth( int )
 {
     return width() - 2*frameWidth();
 }
 
 
-void QPopupMenu::paintCell( QPainter *p, long row, long col )
+void QPopupMenu::paintCell( QPainter *p, int row, int col )
 {
     QColorGroup g = colorGroup();
-    QMenuItem *mi = mitems->at( (int)row );	// get menu item
+    QMenuItem *mi = mitems->at( row );		// get menu item
     int cellh	  = cellHeight( row );
     int cellw	  = cellWidth( col );
     GUIStyle gs	  = style();

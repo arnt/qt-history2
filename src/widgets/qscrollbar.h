@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#19 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#20 $
 **
 ** Definition of QScrollBar class
 **
@@ -25,8 +25,8 @@ public:
 
     QScrollBar( QWidget *parent=0, const char *name=0 );
     QScrollBar( Orientation, QWidget *parent=0, const char *name=0 );
-    QScrollBar( long minValue, long maxValue, long LineStep, long PageStep,
-		long value, Orientation,
+    QScrollBar( int minValue, int maxValue, int LineStep, int PageStep,
+		int value, Orientation,
 		QWidget *parent=0, const char *name=0 );
 
     void	setOrientation( Orientation );
@@ -37,9 +37,9 @@ public:
     virtual void setPalette( const QPalette & );
 
 signals:
-    void	valueChanged( long value );
+    void	valueChanged( int value );
     void	sliderPressed();
-    void	sliderMoved( long value );
+    void	sliderMoved( int value );
     void	sliderReleased();
     void	nextLine();
     void	previousLine();
@@ -66,7 +66,7 @@ protected:
 private:
     void	init();
     void	positionSliderFromValue();
-    long	calculateValueFromSlider() const;
+    int		calculateValueFromSlider() const;
 
     uint	pressedControl	 : 8;
     uint	track		 : 1;
@@ -75,7 +75,7 @@ private:
     uint	thresholdReached : 1;
     uint	isTiming	 : 1;
 
-    long	slidePreviousVal;
+    int		slidePreviousVal;
     QCOORD	sliderPos;
     QCOORD	clickOffset;
 };

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#14 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#15 $
 **
 ** Definition of QListBox widget class
 **
@@ -13,7 +13,7 @@
 #ifndef QLISTBOX_H
 #define QLISTBOX_H
 
-#include "qtablew.h"
+#include "qtablevw.h"
 
 
 #define LBI_String	1			// list box item types
@@ -36,7 +36,7 @@ class QStrList;
 class QLBItemList;
 
 
-class QListBox : public QTableWidget		// list box widget
+class QListBox : public QTableView		// list box widget
 {
     Q_OBJECT
 public:
@@ -49,14 +49,14 @@ public:
     void	insertStrList( const char**, int numStrings=-1, int index=-1 );
 
     void	insertItem( const char *string, int index=-1 );
-    void	insertItem( const QPixmap *pixmap, int index=-1 );
+    void	insertItem( const QPixmap &pixmap, int index=-1 );
     void	inSort( const char *string );
 
     void	removeItem( int index );
     void	clear();
 
     const char *string( int index ) const;
-    QPixmap    *pixmap( int index ) const;
+    const QPixmap *pixmap( int index ) const;
     void	changeItem( const char *string, int index );
     void	changeItem( const QPixmap *pixmap, int index );
 
@@ -111,8 +111,8 @@ protected:
     QLBItem    *item( int index ) const;
     bool	itemVisible( int index );
 
-    int		cellHeight( long );
-    void	paintCell( QPainter *, long row, long col );
+    int		cellHeight( int );
+    void	paintCell( QPainter *, int row, int col );
 
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
