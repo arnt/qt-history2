@@ -7,7 +7,7 @@ QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastr
 	qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o qlibrary.o
 
 CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I@OUT_QTDIR@/include \
-	-I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DQT_LITE_COMPONENT -I@QMAKE_MKSPEC@
+	-I@OUT_QTDIR@/src/tools -DQT_NO_CODECS -DQT_LITE_COMPONENT -I@QMAKEPATH@
 LFLAGS=@QMAKE_LIBRARIES@
 
 qmake: $(OBJS) $(QOBJS)
