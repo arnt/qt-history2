@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: qinterfacemanager.doc,v 2.32 1999/10/25 14:49:09 vohi Exp $
 **
-** QInterfaceManager class documentation
+** QPluginManager class documentation
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -36,21 +36,21 @@
 
 
 /*****************************************************************************
-  QInterfaceManager documentation
+  QPluginManager documentation
  *****************************************************************************/
 
 /*!
-  \class QInterfaceManager qinterfacemanager.h
-  \brief The QInterfaceManager class provides basic functions to access a certain kind of functionality in libraries.
+  \class QPluginManager qpluginmanager.h
+  \brief The QPluginManager class provides basic functions to access a certain kind of functionality in libraries.
   \ingroup componentmodel
 
   A common usage of components is to extend the existing functionality in an application using plugins. The application
   defines interfaces that abstracts a certain group of functionality, and a plugin provides a specialized implementation
   of these interfaces.
-  The QInterfaceManager template has to be instantiated with an interface definition and the IID for this interface. 
+  The QPluginManager template has to be instantiated with an interface definition and the IID for this interface. 
 
   \code
-  QInterfaceManager<MyPluginInterface> *manager = new QInterfaceManager<MyPluginInterface>( IID_MyPluginInterface );
+  QPluginManager<MyPluginInterface> *manager = new QPluginManager<MyPluginInterface>( IID_MyPluginInterface );
   \endcode
 
   It searches a specified directory for all shared libraries, queries for components that implement the specific interface and
@@ -76,11 +76,11 @@
       iface->execute( "feature" );
   \endcode
 
-  The application can use a QInterfaceManager instance to create parts of the user interface based on the list of features 
+  The application can use a QPluginManager instance to create parts of the user interface based on the list of features 
   found in plugins:
 
   \code
-  QInterfaceManager<MyPluginInterface> *manager = new QInterfaceManager<MyPluginInterface>( IID_ImageFilterInterface );
+  QPluginManager<MyPluginInterface> *manager = new QPluginManager<MyPluginInterface>( IID_ImageFilterInterface );
   manager->addLibraryPath(...);
 
   QStringList features = manager->featureList();
@@ -93,9 +93,9 @@
 */
 
 /*!
-  \fn QInterfaceManager::QInterfaceManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+  \fn QPluginManager::QPluginManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 
-  Creates an QInterfaceManager that will load all shared library files in \a path, setting the default policy to \a pol. 
+  Creates an QPluginManager that will load all shared library files in \a path, setting the default policy to \a pol. 
   If \a cs is, FALSE the manager will handle feature strings case insensitive.
   
   \warning
@@ -106,7 +106,7 @@
 */
 
 /*!
-  \fn void QInterfaceManager::addLibraryPath( const QString& path )
+  \fn void QPluginManager::addLibraryPath( const QString& path )
 
   Calls addLibrary for all shared library files in \a path. 
   The current library policy will be used for all new QLibrary objects.
@@ -115,7 +115,7 @@
 */
 
 /*!
-  \fn QLibrary* QInterfaceManager::addLibrary( const QString& file )
+  \fn QLibrary* QPluginManager::addLibrary( const QString& file )
 
   Tries to load the library \a file, adds the library to the managed list and
   returns the created QLibrary object if successful, otherwise returns 0. If
@@ -128,7 +128,7 @@
 */
 
 /*!
-  \fn bool QInterfaceManager::removeLibrary( const QString& file )
+  \fn bool QPluginManager::removeLibrary( const QString& file )
 
   Removes the library \a file from the managed list and returns TRUE if the library could
   be unloaded, otherwise returns FALSE.
@@ -141,7 +141,7 @@
 */
 
 /*!
-  \fn void QInterfaceManager::setDefaultPolicy( QLibrary::Policy pol )
+  \fn void QPluginManager::setDefaultPolicy( QLibrary::Policy pol )
 
   Sets the default policy for this library manager to \a pol. The default policy is
   propagated to all newly created QLibrary objects.
@@ -150,7 +150,7 @@
 */
 
 /*!
-  \fn QLibrary::Policy QInterfaceManager::defaultPolicy() const
+  \fn QLibrary::Policy QPluginManager::defaultPolicy() const
 
   Returns the current default policy.
 
@@ -166,7 +166,7 @@
 */
 
 /*!
-  \fn QLibrary* QInterfaceManager::library( const QString& feature ) const
+  \fn QLibrary* QPluginManager::library( const QString& feature ) const
 
   Returns a pointer to the QLibrary providing \a feature.
 
@@ -174,7 +174,7 @@
 */
 
 /*!
-  \fn QStringList QInterfaceManager::featureList() const
+  \fn QStringList QPluginManager::featureList() const
 
   Returns a list of all features provided by the interfaces managed by this 
   interface manager.

@@ -113,18 +113,6 @@ QString QUuid::toString() const
 }
 
 /*!
-  \fn bool QUuid::operator==( const GUID &guid ) const
-
-  Returns TRUE if the value of \a uuid is the value if this QUuid object, otherwise returns FALSE.
-*/
-
-/*!
-  \fn bool QUuid::operator!=( const GUID &uuid ) const
-
-  Returns TRUE if the value of \a uuid is different from the value if this QUuid object, otherwise returns FALSE.
-*/
-
-/*!
   Returns TRUE if this is the null UUID {00000000-0000-0000-0000-000000000000}, otherwise returns FALSE.
 */
 bool QUuid::isNull() const
