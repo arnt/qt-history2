@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#419 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#420 $
 **
 ** Implementation of QWidget class
 **
@@ -494,13 +494,22 @@ inline bool QWidgetMapper::remove( WId id )
   <li> \c WStyle_Maximize adds a maximize button.
   <li> \c WStyle_MinMax is equal to <code>(WStyle_Minimize | WStyle_Maximize)
   </code>.
-  <li> \c WStyle_Tool makes the window a tool window, usually
-    combined with \c WStyle_NoBorder. A tool window is a small window that
-    lives for a short time and it is typically used for creating popup
-    windows.
+  <li> \c WStyle_Tool makes the window a tool window.
+    A tool window is a small window that lives for a short time and it
+    is typically used for creating popup windows. It there is a
+    parent, the tool window will be kept on top of it.  If there isn't
+    a parent, you may consider passing WStyle_StaysOnTop as well.  If
+    the window system supports it, a tool window will be decorated
+    with a somewhat lighter frame. It can, however, be combined with
+    \c WStyle_NoBorder as well.
   <li> \c WStyle_StaysOnTop informs the window system that the window
-  should stay on top of its parent window or, if there's no parent, on
-  top of the desktop.
+  should stay on top of all windows.
+  <li> \c WStyle_Dialog indicates, that the window is a logical subwindow
+  of its parent, in other words: a dialog. The window will not get its own taskbar entry
+  and be kept on top of its parent by the window system. Usually, it will also be 
+  minimized  when the parent is minized. If not customized, the  window is decorated slightly 
+  less. WStyle_Dialog is implied by WType_Modal. It is implicitely defined when using the 
+  class QDialog.
   </ul>
 
   Note that X11 does not necessarily support all style flag combinations. X11
@@ -1367,11 +1376,8 @@ QPoint QWidget::mapFromParent( const QPoint &p ) const
 
 
 /*!
-  Returns the top-level widget for this widget.
-
-  A top-level widget is an overlapping widget. It usually has no parent.
-  Modal \link QDialog dialog widgets\endlink are the only top-level
-  widgets that can have parent widgets.
+  Returns the top-level widget for this widget, i.e. the parent widget
+  that provides the overlapping window.
 
   \sa isTopLevel()
 */
@@ -2779,7 +2785,7 @@ static bool noVisibleTLW()
     QWidgetList *list   = qApp->topLevelWidgets();
     QWidget     *widget = list->first();
     while ( widget ) {
-	if ( (widget->isVisible() || widget->isMinimized()) 
+	if ( (widget->isVisible() || widget->isMinimized())
 	     && !widget->isDesktop() )
 	    break;
 	widget = list->next();
@@ -3205,6 +3211,8 @@ QSize QWidget::minimumSizeHint() const
   <dt>WStyle_Maximize<dd> The window has a maximize box.
   <dt>WStyle_MinMax<dd> Equals (\c WStyle_Minimize | \c WStyle_Maximize).
   <dt>WStyle_Tool<dd> The window is a tool window.
+  <dt>WStyle_StaysOnTop<dd> The window should stay on top of all other windows
+  <dt>WStyle_Dialog<dd> The window is a dialog
   </dl>
 
   Misc. flags:
@@ -3700,29 +3708,23 @@ void QWidget::moveEvent( QMoveEvent * )
 /*!
   This event handler can be reimplemented in a subclass to receive
   widget resize events. When resizeEvent() is called, the widget
-  already has its new geometry.
+  already has its new geometry. The old size is accessible through
+  QResizeEvent::oldSize(), though.
 
   The widget will be erased and receive a paint event immediately
   after processing the resize event. No drawing has to (and should) be
-  done inside this handler. The only exception of this rule is if the
-  widget was created with the WResizeNoErase flag. In that case the
-  resize handler is also responsible for calling update() for all
-  areas in the \link QResizeEvent::oldSize() previous area\endlink of
-  the widget which look different with the new size.  For example, for
-  a simple label, no areas need to be updated, while for a button with
-  centered text, the area covered by the old and new text needs to be
-  updated and possibly also the right-edge and bottom-edge of the
-  button frame (depending on the actual resize) You should also use
-  QPaintEvent::region() rather than QPaintEvent::rect() when you \link
-  QPainter::setClipRegion() set clipping\endlink in the paintEvent().
-
-  The old size is accessible through QResizeEvent::oldSize().
-
+  done inside this handler.
+  
+  Widgets that have been created with the \c WResizeNoErase flag will not
+  be erased. Nevertheless, they will receive a paint event for their
+  entire area afterwards. Again, no drawing needs to be done inside
+  this handler.
+  
   The default implementation calls updateMask() if the widget
   has \link QWidget::setAutoMask() automatic masking\endlink
   enabled.
 
-  \sa moveEvent(), event(), resize(), QResizeEvent
+  \sa moveEvent(), event(), resize(), QResizeEvent, paintEvent()
 */
 
 void QWidget::resizeEvent( QResizeEvent * )

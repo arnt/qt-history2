@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#497 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#498 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -497,12 +497,9 @@ static bool qt_set_desktop_properties()
 // arguments may override the resource settings.
 static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, const char* bg = 0, const char* button = 0 )
 {
-    if ( qt_set_desktop_properties() ) // qt desktop properties have priority
-	return;
-
     QCString resFont, resFG, resBG;
 
-    if ( QApplication::desktopSettingsAware() ) {
+    if ( QApplication::desktopSettingsAware() && !qt_set_desktop_properties() ) {
 	int format;
 	ulong  nitems, after = 1;
 	QCString res;
@@ -557,12 +554,10 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	resBG = bg;
 
     if ( !resFont.isEmpty() ) {				// set application font
-	//############# fix this with Eng's new fontdatabase: QFont::setRawName(...)
-// 	QFont font;
-// 	font.setRawMode( TRUE );
-// 	font.setFamily( resFont );
-// 	if ( !QApplication::font() || font != *QApplication::font() )
-// 	    QApplication::setFont( font, TRUE );
+ 	QFont font;
+ 	font.setRawName( resFont );
+ 	if ( font != QApplication::font() )
+ 	    QApplication::setFont( font, TRUE );
     }
     if ( button || !resBG.isEmpty() || !resFG.isEmpty() ) {		// set application colors
 	QColor btn;
@@ -571,15 +566,17 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	if ( !resBG.isEmpty() )
 	    bg = QColor(QString(resBG));
 	else
-	    bg = Qt::lightGray;
+	    bg = QApplication::palette().normal().background();
 	if ( !resFG.isEmpty() )
 	    fg = QColor(QString(resFG));
 	else
-	    fg = Qt::black;
+	    fg = QApplication::palette().normal().foreground();
 	if (button)
 	    btn = QColor( button );
-	else
+	else if ( !resBG.isEmpty() )
 	    btn = bg;
+	else
+	    btn = QApplication::palette().normal().button();
 	
 	int h,s,v;
 	fg.hsv(&h,&s,&v);
@@ -2096,10 +2093,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( event->type == PropertyNotify ) {	// some properties changed
 	qt_x_clipboardtime = event->xproperty.time;
 	if ( event->xproperty.window == appRootWin ) { // root properties
-	    if ( event->xproperty.atom == qt_resource_manager && obey_desktop_settings )
-		qt_set_x11_resources();
-	    else if ( event->xproperty.atom == qt_desktop_properties )
-		qt_set_desktop_properties();
+	    if ( obey_desktop_settings ) {
+		if ( event->xproperty.atom == qt_resource_manager )
+		    qt_set_x11_resources();
+		else if ( event->xproperty.atom == qt_desktop_properties )
+		    qt_set_desktop_properties();
+	    }
 	} else if ( widget ) { // widget properties
 	    if ( event->xproperty.atom == qt_embedded_window ) {
 		Atom type;
@@ -3863,9 +3862,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    QResizeEvent * e = new QResizeEvent( newSize, oldSize );
 	    QApplication::postEvent( this, e );
 	}
-	if ( !testWFlags(WResizeNoErase) && isVisibleToTLW() ) {
-	    repaint( TRUE );
-	}
+	if ( isVisibleToTLW() )
+	    repaint( !testWFlags(WResizeNoErase) );
     }
     if ( newPos != geometry().topLeft() ) {
 	QPoint oldPos = pos();
@@ -4181,7 +4179,6 @@ static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
 {
     if (smcConn != smcConnection )
 	return;
-    qDebug("sm_saveYourselfCallback");
     sm_cancel = FALSE;
     sm_smActive = TRUE;
     sm_isshutdown = shutdown;
@@ -4269,7 +4266,6 @@ static void sm_shutdownCancelledCallback( SmcConn smcConn, SmPointer /* clientDa
 {
     if (smcConn != smcConnection )
 	return;
-    qDebug("sm_shutdownCancelledCallback");
     if ( sm_waitingForInteraction )
 	qApp->exit_loop();
     resetSmState();
@@ -4277,10 +4273,8 @@ static void sm_shutdownCancelledCallback( SmcConn smcConn, SmPointer /* clientDa
 
 static void sm_saveCompleteCallback( SmcConn smcConn, SmPointer /*clientData */)
 {
-    qDebug("sm_saveCompleteCallback");
     if (smcConn != smcConnection )
 	return;
-    qDebug("sm_saveCompleteCallback");
     resetSmState();
 }
 
@@ -4381,7 +4375,7 @@ QSessionManager::QSessionManager( QApplication * /* app */, QString &session )
     // avoid showing a warning message below
     if (!::getenv("SESSION_MANAGER") )
 	return;
-    
+
     smcConnection = SmcOpenConnection( 0, 0, 1, 0,
 				       SmcSaveYourselfProcMask |
 				       SmcDieProcMask |

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#25 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#26 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -138,7 +138,7 @@ public:
 	WStyle_MinMax		= WStyle_Minimize | WStyle_Maximize,
 	WStyle_Tool		= 0x00000800,
 	WStyle_StaysOnTop	= 0x00001000,
-	WStyle_Reserved1	= 0x00002000,
+	WStyle_Dialog 		= 0x00002000,
 	WStyle_Reserved2	= 0x00004000,
 	WStyle_Reserved3	= 0x00008000,
 	WStyle_Mask		= 0x0000fff0,
@@ -509,7 +509,7 @@ public:
 	WV_32s
     };
 
-    
+
     // Global cursors
 
     QT_STATIC_CONST QCursor & arrowCursor;	// standard arrow cursor
@@ -528,8 +528,8 @@ public:
     QT_STATIC_CONST QCursor & splitHCursor;	// horizontal bar with up-down
 						// arrows
     QT_STATIC_CONST QCursor & pointingHandCursor;	// pointing hand
-    
-    
+
+
     enum TextFormat {
 	PlainText,
 	RichText,

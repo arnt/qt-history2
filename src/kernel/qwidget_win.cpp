@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#209 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#210 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -76,11 +76,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     static int sw = -1, sh = -1;
 
-    bool   topLevel = testWFlags(WType_TopLevel);
-    bool   popup    = testWFlags(WType_Popup);
-    bool   tool	    = testWFlags(WType_Popup|WStyle_Tool);
-    bool   modal    = testWFlags(WType_Modal);
-    bool   desktop  = testWFlags(WType_Desktop);
+    bool topLevel = testWFlags(WType_TopLevel);
+    bool popup = testWFlags(WType_Popup);
+    bool tool = testWFlags(WType_Popup|WStyle_Tool);
+    bool modal = testWFlags(WType_Modal);
+    bool desktop  = testWFlags(WType_Desktop);
     HINSTANCE appinst  = qWinAppInst();
     HWND   parentw, destroyw = 0;
     WId	   id;
@@ -90,8 +90,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-    if ( popup )				// a popup is a tool window
-	setWFlags(WStyle_Tool);
+    if ( popup ) {				
+	setWFlags(WStyle_Tool); // a popup is a tool window
+	setWFlags(WStyle_StaysOnTop); // a popup stays on top
+    }
+    
+    if ( modal )
+	setWFlags( WStyle_Dialog );
 
     if ( sw < 0 ) {				// get the screen size
 	sw = GetSystemMetrics( SM_CXSCREEN );
@@ -139,10 +144,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    }
 	} else {
 	    style = WS_OVERLAPPED;
-	    if ( !modal )
-		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
-	    else
+	    if ( testWFlags(WStyle_Dialog ) )
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu  );
+	    else
+		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 	}
     }
     if ( !desktop ) {
@@ -191,6 +196,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
     } else if ( topLevel ) {			// create top-level widget
 	// WWA: I cannot get the Unicode versions to work.
+	
+	if ( !popup && !testWFlags( WStyle_Dialog ) )
+	    parentw = 0;
+	
 	if ( exsty )
 	    id = CreateWindowExA( exsty, windowClassName, title, style,
 				 CW_USEDEFAULT, CW_USEDEFAULT,
@@ -202,7 +211,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				 CW_USEDEFAULT, CW_USEDEFAULT,
 				 parentw, 0, appinst, 0 );
 	setWinId( id );
-	if ( tool || ( !parentw && testWFlags( WStyle_StaysOnTop) ) )
+	if ( testWFlags( WStyle_StaysOnTop) )
 	    SetWindowPos( id, HWND_TOPMOST, 0, 0, 100, 100, SWP_NOACTIVATE );
     } else {					// create child widget
 	// WWA: I cannot get the Unicode versions to work.

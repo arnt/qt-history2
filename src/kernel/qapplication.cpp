@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#245 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#246 $
 **
 ** Implementation of QApplication class
 **
@@ -978,7 +978,8 @@ void QApplication::polish(QWidget* w)
   The list is \link QList::isEmpty() empty \endlink if there are no
   top level widgets.
 
-  Note that some of the top level widgets may be hidden.
+  Note that some of the top level widgets may be hidden, for example
+  all the popup menus of a menubar.
 
   Example:
   \code

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#366 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#367 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -144,10 +144,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     Display *dpy = x11Display();
     int	     scr = x11Screen();
 
-    bool   topLevel = testWFlags(WType_TopLevel);
-    bool   popup    = testWFlags(WType_Popup);
-    bool   modal    = testWFlags(WType_Modal);
-    bool   desktop  = testWFlags(WType_Desktop);
+    bool topLevel = testWFlags(WType_TopLevel);
+    bool popup = testWFlags(WType_Popup);
+    bool modal = testWFlags(WType_Modal);
+    if ( modal )
+	setWFlags(WStyle_Dialog);
+    bool desktop = testWFlags(WType_Desktop);
     Window root_win = RootWindow(dpy,scr);
     Window parentw, destroyw = 0;
     WId	   id;
@@ -155,9 +157,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( !window )				// always initialize
 	initializeWindow = TRUE;
 
-    if ( popup )				// a popup is a tool window
-	setWFlags(WStyle_Tool);
-
+    if ( popup ) {				
+	setWFlags(WStyle_Tool); // a popup is a tool window
+	setWFlags(WStyle_StaysOnTop); // a popup stays on top
+    }
+    
     if ( sw < 0 ) {				// get the screen size
 	sw = DisplayWidth(dpy,scr);
 	sh = DisplayHeight(dpy,scr);
@@ -248,7 +252,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( !initializeWindow ) {
 	// do no initialization
     } else if ( popup ) {			// popup widget
-	XSetTransientForHint( dpy, id, parentw );
+	XSetTransientForHint( dpy, id, parentw ); //?!?! this looks pointless
 	wsa.override_redirect = TRUE;
 	wsa.save_under = TRUE;
 	XChangeWindowAttributes( dpy, id, CWOverrideRedirect | CWSaveUnder,
@@ -257,9 +261,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	QWidget *p = parentWidget();	// real parent
 	if (p)
 	    p = p->topLevelWidget();
-	if ( (!testWFlags(WStyle_Customize) && modal)
-	     || testWFlags(WStyle_DialogBorder)
+	if ( testWFlags(WStyle_DialogBorder)
 	     || testWFlags(WStyle_StaysOnTop)
+	     || testWFlags(WStyle_Dialog)
 	     || testWFlags(WStyle_Tool) ) {
 	    if ( p )
 		XSetTransientForHint( dpy, id, p->winId() );
@@ -1213,8 +1217,8 @@ void QWidget::showMinimized()
 
 /*!
   Returns TRUE if this widget is a top-level widget that is minimized
-  (iconified), or else FALSE.  
-  
+  (iconified), or else FALSE.
+
   \sa showMinimized(), isVisible(), show(), hide(), showNormal()
  */
 bool QWidget::isMinimized() const
@@ -1405,8 +1409,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( isResize ) {
 	    QResizeEvent e( r.size(), olds );
 	    QApplication::sendEvent( this, &e );
-	    if ( !testWFlags(WResizeNoErase) && isVisibleToTLW() )
-		repaint( TRUE );
+	    if ( isVisibleToTLW() )
+		repaint( !testWFlags(WResizeNoErase) );
 	}
     } else {
 	if ( isMove )

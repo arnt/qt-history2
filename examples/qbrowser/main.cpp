@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/main.cpp#2 $
+** $Id: //depot/qt/main/examples/qbrowser/main.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -37,8 +37,9 @@ int main( int argc, char ** argv )
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setContexts("dl");
     //
-    // Many HTML files omit the </p>, so we add this for efficiency:
+    // Many HTML files omit the </p> or </li>, so we add this for efficiency:
     QStyleSheet::defaultSheet()->item("p")->setSelfNesting( FALSE );
+    QStyleSheet::defaultSheet()->item("li")->setSelfNesting( FALSE );
 
     QString home;
 

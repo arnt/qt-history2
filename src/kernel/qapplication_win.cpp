@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#300 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#301 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -496,7 +496,7 @@ void qt_init( int *argcptr, char **argv )
 	QApplication::setFont( name, size );
     }
 
-    if ( qApp->desktopSettingsAware() )
+    if ( QApplication::desktopSettingsAware() )
 	qt_set_windows_resources();
 
 #if defined(USE_HEARTBEAT)

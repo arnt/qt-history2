@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#122 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#123 $
 **
 ** Implementation of QLabel widget class
 **
@@ -100,7 +100,7 @@ class QLabelPrivate
   however, can also be specified directly with setTextFormat(). Note
   that buddies will not work yet with rich text labels since there's
   not way to specify the accelerator (yet).
-  
+
   \sa QLineEdit QMovie QTextView
   <a href="guibooks.html#fowler">GUI Design Handbook: Label</a>
 */
@@ -134,9 +134,10 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
 */
 
 QLabel::QLabel( const QString &text, QWidget *parent, const char *name, WFlags f )
-	: QFrame( parent, name, f ), ltext(text)
+	: QFrame( parent, name, f )
 {
     init();
+    setText( text );
 }
 
 
@@ -505,7 +506,6 @@ QSize QLabel::sizeForWidth( int w ) const
 	br = QRect( 0, 0, mov->framePixmap().width(),
 		    mov->framePixmap().height() );
     } else if (doc ){
-	//QRect cr = contentsRect();
 	if ( w < 0 ) {
 	    w = 1000;
 	    doc->setWidth(&p,w);
@@ -839,7 +839,7 @@ void QLabel::movieResized(const QSize& size)
 
   If the label has a buddy, the accelerator is disabled since the
   movie doesn't contain any suitable character.
-  
+
   \sa unsetMovie()
 */
 void QLabel::setMovie( const QMovie& movie )
@@ -882,7 +882,7 @@ void QLabel::unsetMovie()
 /*!
   Returns the QMovie currently displaying in the label, or 0
   if none has been set.
-  
+
   \sa setMovie(), unsetMovie()
 */
 QMovie* QLabel::movie() const
@@ -893,7 +893,7 @@ QMovie* QLabel::movie() const
 
 /*!
   Returns the current text format.
-  
+
   \sa setTextFormat()
  */
 Qt::TextFormat QLabel::textFormat() const
@@ -904,7 +904,7 @@ Qt::TextFormat QLabel::textFormat() const
 /*!
   Sets the text format to \a format. Possible choices are
   <ul>
-  <li> \c PlainText - all characters are displayed verbatimely, 
+  <li> \c PlainText - all characters are displayed verbatimely,
   including all blanks and linebreaks. Word wrap is availbe
   with the \c WordBreak alignment flag (see setAlignment() for
   details).
@@ -912,8 +912,8 @@ Qt::TextFormat QLabel::textFormat() const
   styles are defined in the default stylesheet
   QStyleSheet::defaultSheet().
   <li> \c AutoText - this is also the default. The label
-  autodetects which rendering style suits best, \c PlainText 
-  or \c RichText. Technically, this is done by using the 
+  autodetects which rendering style suits best, \c PlainText
+  or \c RichText. Technically, this is done by using the
   QStyleSheet::mightBeRichText() heuristic.
   </ul>
  */
