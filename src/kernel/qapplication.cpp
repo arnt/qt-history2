@@ -949,6 +949,52 @@ QApplication::~QApplication()
 */
 
 
+
+bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventList *postedEvents)
+{
+    if ( (event->type() == QEvent::UpdateRequest
+#ifdef QT_COMPAT
+	  || event->type() == QEvent::LayoutHint
+#endif
+	  || event->type() == QEvent::LayoutRequest
+	  || event->type() == QEvent::Resize
+	  || event->type() == QEvent::Move
+#ifdef Q_WS_QWS
+	  || event->type() == QEvent::QWSUpdate
+#endif
+	  || event->type() == QEvent::LanguageChange) ) {
+	for (int i = 0; i < postedEvents->size(); ++i) {
+	    const QPostEvent &cur = postedEvents->at(i);
+	    if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type() )
+		continue;
+	    if ( cur.event->type() == QEvent::LayoutRequest
+#ifdef QT_COMPAT
+		 || cur.event->type() == QEvent::LayoutHint
+#endif
+		 || cur.event->type() == QEvent::UpdateRequest ) {
+		;
+	    }
+	    else if ( cur.event->type() == QEvent::Resize ) {
+		((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
+	    } else if ( cur.event->type() == QEvent::Move ) {
+		((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
+#ifdef Q_WS_QWS
+	    } else if ( cur.event->type() == QEvent::QWSUpdate ) {
+		QPaintEvent * p = (QPaintEvent*)(cur.event);
+		p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
+		p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
+#endif
+	    } else if ( cur.event->type() == QEvent::LanguageChange ) {
+		;
+	    } else {
+		continue;
+	    }
+	    return true;
+	}
+    }
+    return false;
+}
+
 #ifndef QT_NO_STYLE
 
 static QString *qt_style_override = 0;

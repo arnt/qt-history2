@@ -28,6 +28,7 @@ class QCoreApplicationPrivate;
 class QTextCodec;
 class QTranslator;
 class QEventLoop;
+class QPostEventList;
 
 class Q_CORE_EXPORT QCoreApplication : public QObject
 {
@@ -114,6 +115,8 @@ signals:
 protected:
     bool event(QEvent *);
 
+    virtual bool compressEvent(QEvent *, QObject *receiver, QPostEventList *);
+    
 private:
     void init();
     static bool      sendSpontaneousEvent( QObject *receiver, QEvent *event );

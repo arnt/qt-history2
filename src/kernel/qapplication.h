@@ -199,6 +199,8 @@ protected:
 protected:
     bool event(QEvent *);
 
+    bool compressEvent(QEvent *, QObject *receiver, QPostEventList *);
+
 #ifdef QT_COMPAT
 public:
     inline static QT_COMPAT bool hasGlobalMouseTracking() {return true;}
