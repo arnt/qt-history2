@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#39 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#40 $
 **
 ** Definition of QPixmap class
 **
@@ -63,8 +63,8 @@ public:
 
     bool	isOptimized()	const;
     void	optimize( bool );
-    static bool allAreOptimized();
-    static void optimizeAll( bool );
+    static bool hasGlobalOptimized();
+    static void optimizeGlobally( bool );
 
     bool	isQBitmap()	const;
 
