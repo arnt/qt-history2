@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#22 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -19,7 +19,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#22 $")
 
 
 #if !defined(QT_HEADER_PS)
@@ -431,24 +431,11 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	case PDC_DRAWPIXMAP: {
 	    if ( p[1].pixmap->isNull() )
 		break;
-	    int depth = p[1].pixmap->depth();
-	    if ( depth == 1 ) {
-		warning( "QPrinter: Sorry, pixmaps with depth 1 are not "
-			 "supported in Qt 0.92 - Try an 8 bit pixmap." );
-		return FALSE;
-	    }
-	    if ( depth != 1 && depth != 8 && depth != 32 ) {
-		warning( "QPrinter::cmd: Unsupported image depth "
-			 "(1, 8 or 24 supported).");
-		break;
-	    }
-
 	    QPoint pnt = *(p[0].point);
 	    stream << pnt.x() << " " << pnt.y() << " TR\n";
 	    QImage img;
 	    img = *(p[1].pixmap);
-	    bool mask = ( paint->backgroundMode() == TransparentMode &&
-			  depth == 1 );
+	    bool mask  = FALSE;
 	    int width  = img.width();
 	    int height = img.height();
 
@@ -503,10 +490,11 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    break;
 	case PDC_SETPEN:
 	    if ( p[0].pen->width() == 0 )
-		stream << p[0].pen->style()	       << " 0.3 "
+		stream << (int)p[0].pen->style()   << " 0.3 "
 		       << COLOR(p[0].pen->color()) << "PE\n";
 	    else
-		stream << p[0].pen->style() << ' ' << p[0].pen->width()
+		stream << (int)p[0].pen->style()   << ' '
+		       << p[0].pen->width()
 		       << COLOR(p[0].pen->color()) << "PE\n";
 	    break;
 	case PDC_SETBRUSH:
@@ -514,7 +502,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		warning( "QPrinter: Pixmap brush not supported" );
 		return FALSE;
 	    }
-	    stream << p[0].brush->style() << ' '
+	    stream << (int)p[0].brush->style()	 << ' '
 		   << COLOR(p[0].brush->color()) << "B\n";
 	    break;
 	case PDC_SETTABSTOPS:
