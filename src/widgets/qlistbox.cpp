@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#5 $
 **
 ** Implementation of QListBox class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#5 $";
 #endif
 
 #include "qstring.h"
@@ -578,7 +578,7 @@ QLBItem *QListBox::newAny( const char *s, const QBitMap *bm )
             tmp->string = s;
         tmp->type = LBI_String;
     } else {
-        tmp->bitmap = (QListBox *)bm;
+        tmp->bitmap = (QBitMap *)bm;
         tmp->type   = LBI_BitMap;
     }
 }
