@@ -15,7 +15,10 @@ HEADERS += \
 	itemviews/qitemselectionmodel.h \
 	itemviews/qitemselectionmodel_p.h \
 	itemviews/qabstractitemmodel.h \
-	itemviews/qdirmodel.h	
+	itemviews/qdirmodel.h \
+	itemviews/qlistwidget.h \
+	itemviews/qtablewidget.h \
+	itemviews/qtreewidget.h
 
 SOURCES += \
 	itemviews/qabstractitemview.cpp \
@@ -27,4 +30,7 @@ SOURCES += \
 	itemviews/qitemdelegate.cpp \
 	itemviews/qitemselectionmodel.cpp \
 	itemviews/qabstractitemmodel.cpp \
-	itemviews/qdirmodel.cpp
+	itemviews/qdirmodel.cpp \
+	itemviews/qlistwidget.cpp \
+	itemviews/qtablewidget.cpp \
+	itemviews/qtreewidget.cpp

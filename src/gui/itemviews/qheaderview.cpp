@@ -329,7 +329,7 @@ QSize QHeaderView::sizeHint() const
     QModelIndex::Type type = orientation() == Qt::Horizontal
                              ? QModelIndex::HorizontalHeader
                              : QModelIndex::VerticalHeader;
-    QModelIndex index = model()->index(row, col, QModelIndex(), type);
+    QModelIndex index = model()->index(row, col, QModelIndex::invalid, type);
     if (!index.isValid())
         return QSize();
     QSize hint = itemDelegate()->sizeHint(fontMetrics(), option, model(), index);
@@ -354,7 +354,7 @@ int QHeaderView::sectionSizeHint(int section) const
     QModelIndex::Type type = orientation() == Qt::Horizontal ?
                              QModelIndex::HorizontalHeader :
                              QModelIndex::VerticalHeader;
-    QModelIndex header = model()->index(row, col, QModelIndex(), type);
+    QModelIndex header = model()->index(row, col, QModelIndex::invalid, type);
     if (orientation() == Qt::Vertical) {
         QSize size = delegate->sizeHint(fontMetrics(), option, model(), header);
         hint = size.height();
@@ -412,7 +412,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
             if (sections[i].hidden)
                 continue;
             section = sections[i].section;
-            index = model()->index(0, section, QModelIndex(), QModelIndex::HorizontalHeader);
+            index = model()->index(0, section, QModelIndex::invalid, QModelIndex::HorizontalHeader);
             if (!index.isValid())
                 continue;
             option.font.setBold((index.column() == current.column()) && focus);
@@ -430,7 +430,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
             if (sections[i].hidden)
                 continue;
             section = sections[i].section;
-            index = model()->index(section, 0, QModelIndex(), QModelIndex::VerticalHeader);
+            index = model()->index(section, 0, QModelIndex::invalid, QModelIndex::VerticalHeader);
             if (!index.isValid())
                 continue;
             option.font.setBold((index.row() == current.row()) && focus);
@@ -1060,13 +1060,13 @@ QModelIndex QHeaderView::itemAt(int x, int y) const
     if (d->orientation == Qt::Horizontal) {
         column = sectionAt(x + offset());
         if (column < 0)
-            return QModelIndex();
-        return model()->index(0, column, QModelIndex(), QModelIndex::HorizontalHeader);
+            return QModelIndex::invalid;
+        return model()->index(0, column, QModelIndex::invalid, QModelIndex::HorizontalHeader);
     } else {
         row = sectionAt(y + offset());
         if (row < 0)
-            return QModelIndex();
-        return model()->index(row, 0, QModelIndex(), QModelIndex::VerticalHeader);
+            return QModelIndex::invalid;
+        return model()->index(row, 0, QModelIndex::invalid, QModelIndex::VerticalHeader);
     }       
 }
 
@@ -1117,7 +1117,7 @@ int QHeaderView::verticalOffset() const
 
 QModelIndex QHeaderView::moveCursor(QAbstractItemView::CursorAction, Qt::ButtonState)
 {
-    return QModelIndex();
+    return QModelIndex::invalid;
 }
 
 /*!
@@ -1142,8 +1142,8 @@ QRect QHeaderView::itemViewportRect(const QModelIndex &index) const
 QModelIndex QHeaderView::item(int section) const
 {
     if (orientation() == Qt::Horizontal)
-        return model()->index(0, section, QModelIndex(), QModelIndex::HorizontalHeader);
-    return model()->index(section, 0, QModelIndex(), QModelIndex::VerticalHeader);
+        return model()->index(0, section, QModelIndex::invalid, QModelIndex::HorizontalHeader);
+    return model()->index(section, 0, QModelIndex::invalid, QModelIndex::VerticalHeader);
 }
 
 /*!

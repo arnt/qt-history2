@@ -38,6 +38,7 @@ public:
     inline bool operator==(const QModelIndex &other) const
     { return (other.r == r && other.c == c && other.d == d && other.t == t); }
     inline bool operator!=(const QModelIndex &other) const { return !(*this == other); }
+    static QModelIndex invalid;
 private:
     inline QModelIndex(int row, int column, void *data, Type type)
         : r(row), c(column), d(data), t(type) {}
@@ -118,7 +119,7 @@ public:
     QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();
 
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::invalid,
                               QModelIndex::Type type = QModelIndex::View) const = 0;
     virtual QModelIndex parent(const QModelIndex &child) const = 0;
 
@@ -130,7 +131,7 @@ public:
     virtual bool hasChildren(const QModelIndex &parent) const;
 
     virtual bool canDecode(QMimeSource *src) const;
-    virtual bool decode(QDropEvent *e, const QModelIndex &parent = QModelIndex());
+    virtual bool decode(QDropEvent *e, const QModelIndex &parent = QModelIndex::invalid);
     virtual QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
 
     virtual QVariant data(const QModelIndex &index, int role = DisplayRole) const = 0;
@@ -141,10 +142,14 @@ public:
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
 
-    virtual bool insertRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
-    virtual bool insertColumns(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
-    virtual bool removeRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
-    virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
+    virtual bool insertRows(int row, const QModelIndex &parent = QModelIndex::invalid,
+                            int count = 1);
+    virtual bool insertColumns(int column, const QModelIndex &parent = QModelIndex::invalid,
+                               int count = 1);
+    virtual bool removeRows(int row, const QModelIndex &parent = QModelIndex::invalid,
+                            int count = 1);
+    virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex::invalid,
+                               int count = 1);
 
     virtual bool isSelectable(const QModelIndex &index) const;
     virtual bool isEditable(const QModelIndex &index) const;
@@ -180,7 +185,7 @@ protected:
 
     bool isValid(int row, int column, const QModelIndex &parent) const;
 
-    void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex());
+    void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex::invalid);
     int persistentIndexesCount() const;
     QModelIndex persistentIndexAt(int position) const;
     void setPersistentIndex(int position, const QModelIndex &index);
@@ -201,7 +206,7 @@ public:
     virtual int rowCount() const = 0;
     virtual int columnCount() const = 0;
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::invalid,
                       QModelIndex::Type type = QModelIndex::View) const;
 
 protected:
@@ -225,7 +230,7 @@ public:
     virtual int rowCount() const = 0;
     int columnCount() const { return 1; }
     
-    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex(),
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex::invalid,
                       QModelIndex::Type type = QModelIndex::View) const;
     
 protected:

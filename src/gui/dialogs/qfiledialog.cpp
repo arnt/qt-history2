@@ -1360,7 +1360,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     QStringList cleanedFilter = qt_clean_filter_list(nameFilter.first());
     model = new QDirModel(QString::null, cleanedFilter, filter, sorting, q);
     selections = new QItemSelectionModel(model, model);
-    QModelIndex current = directory.isEmpty() ? QModelIndex() : model->index(directory);
+    QModelIndex current = directory.isEmpty() ? QModelIndex::invalid : model->index(directory);
 
     // views
     lview = new QListView(q);
@@ -1465,9 +1465,9 @@ void QFileDialogPrivate::setup(const QString &directory,
     lookIn->setAutoCompletion(false);
 
     // insert the paths
-    lookIn->insertItem(model->icons(QModelIndex()), model->path(QModelIndex())); // root
-    for (int r = 0; r < model->rowCount(QModelIndex()); ++r) { // drives
-        QModelIndex index = model->index(r, 0, QModelIndex());
+    lookIn->insertItem(model->icons(QModelIndex::invalid), model->path(QModelIndex::invalid)); // root
+    for (int r = 0; r < model->rowCount(QModelIndex::invalid); ++r) { // drives
+        QModelIndex index = model->index(r, 0, QModelIndex::invalid);
         QString path = model->path(index);
         QIconSet icons = model->icons(index);
         lookIn->insertItem(icons, path);
