@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#7 $
+** $Id: //depot/qt/main/src/xml/qdom.h#8 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -484,9 +484,6 @@ public:
     // DOM read only attributes
     QString tagName() const;
     void setTagName( const QString& name ); // Qt extension
-
-    // Qt extension
-    void normalize();
 
     // Reimplemented from QDomNode
     QDomNamedNodeMap attributes() const;
