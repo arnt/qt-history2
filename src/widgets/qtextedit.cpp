@@ -2295,6 +2295,24 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
     updateCursor( e->pos() );
 }
 
+void QTextEdit::copyToClipboard()
+{
+#ifndef QT_NO_CLIPBOARD
+    if (QApplication::clipboard()->supportsSelection()) {
+	d->clipboard_mode = QClipboard::Selection;
+
+	// don't listen to selection changes
+	disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
+	copy();
+	// listen to selection changes
+	connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
+		 this, SLOT(clipboardChanged()) );
+
+	d->clipboard_mode = QClipboard::Clipboard;
+    }
+#endif
+}
+
 /*!
     \reimp
 */
@@ -2325,20 +2343,7 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 #endif
     if ( mousePressed ) {
 	mousePressed = FALSE;
-#ifndef QT_NO_CLIPBOARD
-	if (QApplication::clipboard()->supportsSelection()) {
-	    d->clipboard_mode = QClipboard::Selection;
-
-	    // don't listen to selection changes
-	    disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
-	    copy();
-	    // listen to selection changes
-	    connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
-		     this, SLOT(clipboardChanged()) );
-
-	    d->clipboard_mode = QClipboard::Clipboard;
-	}
-#endif
+	copyToClipboard();
     }
 #ifndef QT_NO_CLIPBOARD
     else if ( e->button() == MidButton && !isReadOnly() ) {
@@ -6699,7 +6704,6 @@ void QTextEdit::optimMouseReleaseEvent( QMouseEvent * e )
     if ( e->button() != LeftButton )
 	return;
 
-    mousePressed = FALSE;
     if ( scrollTimer->isActive() )
 	scrollTimer->stop();
     if ( !inDoubleClick ) {
@@ -6721,6 +6725,11 @@ void QTextEdit::optimMouseReleaseEvent( QMouseEvent * e )
 	oldMousePos = e->pos();
 	repaintContents( FALSE );
     }
+    if ( mousePressed ) {
+	mousePressed = FALSE;
+	copyToClipboard();
+    }
+    
     inDoubleClick = FALSE;
     emit copyAvailable( optimHasSelection() );
     emit selectionChanged();

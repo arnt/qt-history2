@@ -493,6 +493,7 @@ private:
     bool handleReadOnlyKeyEvent( QKeyEvent *e );
     void makeParagVisible( QTextParagraph *p );
     void normalCopy();
+    void copyToClipboard();
 #ifndef QT_NO_MIME
     QByteArray pickSpecial(QMimeSource* ms, bool always_ask, const QPoint&);
     QTextDrag *dragObject( QWidget *parent = 0 ) const;
