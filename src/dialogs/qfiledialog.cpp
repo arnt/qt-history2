@@ -4344,12 +4344,24 @@ void QFileDialog::setMode( Mode newMode )
     }
 
     QString okt;
-    if ( mode() == AnyFile )
+    if ( mode() == AnyFile ) {
 	okt = tr("Save");
-    else if ( mode() == Directory || mode() == DirectoryOnly )
+	d->fileL->setText( tr("File &name:") );
+	d->types->clear();
+	d->types->insertItem( tr("All Files (*)") );
+    }
+    else if ( mode() == Directory || mode() == DirectoryOnly ) {
 	okt = tr("OK");
-    else
+	d->fileL->setText( tr("Directory:") );
+	d->types->clear();
+	d->types->insertItem( tr("Directories") );
+    }
+    else {
 	okt = tr("Open");
+	d->fileL->setText( tr("File &name:") );
+	d->types->clear();
+	d->types->insertItem( tr("All Files (*)") );
+    }
 
     okB->setText( okt );
 }
