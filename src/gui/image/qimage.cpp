@@ -2289,6 +2289,10 @@ QImage QImage::convertBitOrder(Endian bitOrder) const
         while (p < end)
             *b++ = bitflip[*p++];
     }
+
+    image.setDotsPerMeterX(dotsPerMeterX());
+    image.setDotsPerMeterY(dotsPerMeterY());
+
     memcpy(image.colorTable(), colorTable(), numColors()*sizeof(QRgb));
     return image;
 }
