@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#24 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#24 $";
 #endif
 
 
@@ -251,11 +251,19 @@ QWidget *QApplication::desktop()
 // QApplication management of posted events
 //
 
-class QPEObject : public QObject		// trick to reset pendEvent
+class QPEObject : public QObject		// trick to set/clear pendEvent
 {
 public:
     void setPendEventFlag()	{ pendEvent = TRUE; }
     void clearPendEventFlag()	{ pendEvent = FALSE; }
+};
+
+class QPEvent : public QEvent			// trick to set/clear posted
+{
+public:
+    QPEvent( int type ) : QEvent( type ) {}
+    void setPostedFlag()	{ posted = TRUE; }
+    void clearPostedFlag()	{ posted = FALSE; }
 };
 
 struct QPostEvent {
@@ -281,6 +289,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	warning( "QApplication::postEvent: Unexpeced NULL receiver" );
 #endif
     ((QPEObject*)receiver)->setPendEventFlag();
+    ((QPEvent*)event)->setPostedFlag();
     postedEvents->append( new QPostEvent(receiver,event) );
 }
 
@@ -289,7 +298,10 @@ static void sendPostedEvents()			// transmit posted events
     int count = postedEvents ? postedEvents->count() : 0;
     while ( count-- ) {				// just send to existing recvs
 	register QPostEvent *pe = postedEvents->first();
-	QApplication::sendEvent( pe->receiver, pe->event );
+	if ( pe->event ) {			// valid event
+	    QApplication::sendEvent( pe->receiver, pe->event );
+	    ((QPEvent*)pe->event)->clearPostedFlag();
+	}
 	((QPEObject*)pe->receiver)->clearPendEventFlag();
 	postedEvents->remove( (uint)0 );
     }
@@ -303,11 +315,24 @@ void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
     while ( pe ) {
 	if ( pe->receiver == receiver ) {	// remove this receiver
 	    ((QPEObject*)pe->receiver)->clearPendEventFlag();
+	    ((QPEvent*)pe->event)->clearPostedFlag();
 	    postedEvents->remove();
 	    pe = postedEvents->current();
 	}
 	else
 	    pe = postedEvents->next();
+    }
+}
+
+void qRemovePostedEvent( QEvent *event )	// remove event in list
+{
+    if ( !postedEvents )
+	return;
+    register QPostEvent *pe = postedEvents->first();
+    while ( pe ) {
+	if ( pe->event == event )		// make this event invalid
+	    pe->event = 0;			//   will not be sent!
+	pe = postedEvents->next();
     }
 }
 
