@@ -1688,6 +1688,41 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                         }
                     }
                 }
+            } else if(val.toLower() == "basename" || val.toLower() == "dirname" || val.toLower() == "section") {
+                QString sep, var;
+                int beg=0, end=-1;;
+                if(val.toLower() == "section") {
+                    if(arg_list.count() != 3 && arg_list.count() != 4) {
+                        fprintf(stderr, "%s:%d section(var, sep, begin, end) requires three argument\n",
+                                parser.file.latin1(), parser.line_no);
+                    } else {
+                        var = arg_list[0];
+                        sep = arg_list[1].replace("\"", "");
+                        beg = arg_list[2].toInt();
+                        if(arg_list.count() == 4)
+                            end = arg_list[3].toInt();
+                    }
+                } else {
+                    if(arg_list.count() != 1) {
+                        fprintf(stderr, "%s:%d %s(var) requires one argument\n",
+                                parser.file.latin1(), parser.line_no, val.toLower().latin1());
+                    } else {
+                        var = arg_list[0];
+                        sep = Option::dir_sep;
+                        if(val.toLower() == "dirname") 
+                            end = -2;
+                        else
+                            beg = -1;
+                    }
+                }
+                if(!var.isNull()) {
+                    const QStringList &l = place[varMap(var)];
+                    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+                        if(!replacement.isEmpty())
+                            replacement += Option::field_sep;
+                        replacement += (*it).section(sep, beg, end);
+                    }
+                }
             } else if(val.toLower() == "find") {
                 if(arg_list.count() != 2) {
                     fprintf(stderr, "%s:%d find(var, str) requires two arguments\n",
