@@ -93,8 +93,6 @@ public:
     QDateEdit( const QDate & d, QWidget * parent = 0, const char * name = 0 );
     void    setDate( const QDate & d );
     QDate   date() const;
-    void    setOrder( const QString & order );
-    QString order() const;
     void    setDateSeparator( const QString & separator );
     QString dateSeparator() const;
 
@@ -112,6 +110,10 @@ protected:
     int yearPos, monthPos, dayPos;
     QDate oldDate;
     QString format;
+private:
+    void    setOrder( const QString & order );
+    QString order() const;
+
 };
 
 class Q_EXPORT QTimeEdit : public QDateTimeEditBase

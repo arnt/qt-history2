@@ -158,8 +158,8 @@ QSize QDateTimeEditBase::sizeHint() const
     int h = fm.height();
     if ( h < 12 )       // ensure enough space for the button pixmaps
 	h = 12;
-    int w = 35; // minimum width for the value
-    int wx = fm.width( ' ' )*2;
+    int w = 55; // minimum width for the value
+    int wx = fm.width( 'x' )*9;
     QString s;
     s = ed[0]->text() + sep[0]->text() +ed[1]->text() + sep[1]->text() +
 	ed[2]->text();
@@ -176,7 +176,7 @@ QSize QDateTimeEditBase::sizeHint() const
 
 QSize QDateTimeEditBase::minimumSizeHint() const
 {
-    int w = 35 // minimum for value
+    int w = 55 // minimum for value
 	    + 6; // arrows
     int h = 12; // arrow pixmaps
     return QSize( w, h );
@@ -395,29 +395,31 @@ void QDateTimeEditBase::layoutArrows()
 
 /*!
   \class QDateEdit qdatetimeedit.h
-  \brief The QDateEdit class provides a combined line edit box and spin box to edit dates.
 
-    QDateEdit allows the user to edit the date by using the keyboard or
-    the arrow keys to increase/decrease date values.  The Tab key can be
-    used to move from field to field within the QDateEdit box. Dates
-    appear in year, month, day order by default. This can be changed by
-    calling setOrder(). It is recommended that the QDateEdit is
-    initialised with a date, e.g.
+  \brief The QDateEdit class provides a combined line edit box and
+  spin box to edit dates.
+
+  QDateEdit allows the user to edit dates by using the keyboard or the
+  arrow keys to increase/decrease date values.  The Tab key can be
+  used to move from field to field within the QDateEdit box. Dates
+  appear in year, month, day order by default. It is recommended that
+  the QDateEdit is initialised with a date, e.g.
+
     \dontinclude datetime/main.cpp
     \skipto QDateEdit
     \printline
     <h5 align="center">From \l datetime/main.cpp </h5>
 
-    If illegal values are entered, they will be reverted to the last
-    known legal value when the user presses Return. For example if the
-    user enters 5000 for the year value, and it was 2000 before they
-    stated editing, the value will be reverted to 2000.
+  If illegal values are entered, they will be reverted to the last
+  known legal value when the user presses Return. For example if the
+  user enters 5000 for the year value, and it was 2000 before they
+  started editing, the value will be reverted to 2000.
 
-    See \l examples/datetime for an example. 
+  See \l examples/datetime for an example.
 
-    \sa QTimeEdit QDateTimeEdit
+  \sa QTimeEdit QDateTimeEdit
 
- */
+*/
 
 
 /*!
@@ -679,13 +681,16 @@ void QDateEdit::resizeEvent( QResizeEvent * )
 /*!
 
   \class QTimeEdit qdatetimeedit.h
-  \brief The QTimeEdit class provides a combined line edit box and spin box to edit times.
 
-    QTimeEdit allows the user to edit the time by using the keyboard or
-    the arrow buttons to increase/decrease time values. Times appear in
-    the order hours, minutes, seconds using the 24 hour clock. The Tab
-    key can be used to move from field to field within the QTimeEdit
-    box. It is recommended that the QTimeEdit is initialised with a time, e.g.
+  \brief The QTimeEdit class provides a combined line edit box and
+  spin box to edit times.
+
+  QTimeEdit allows the user to edit times by using the keyboard or the
+  arrow buttons to increase/decrease time values. Times appear in the
+  order hours, minutes, seconds using the 24 hour clock. The Tab key
+  can be used to move from field to field within the QTimeEdit box. It
+  is recommended that the QTimeEdit is initialised with a time, e.g.
+
     \dontinclude datetime/main.cpp
     \skipto QTimeEdit
     \printline
@@ -693,14 +698,14 @@ void QDateEdit::resizeEvent( QResizeEvent * )
 
   If illegal values are entered, these will be reverted to the last
   known legal value when the user presses Return. For example if the
-  user entered 99 for the hour value, and it was 12 before they stated
+  user entered 99 for the hour value, and it was 12 before they started
   editing, the value will be reverted to 12.
 
-    See \l examples/datetime for an example. 
+  See \l examples/datetime for an example.
 
-    \sa QDateEdit QDateTimeEdit
+  \sa QDateEdit QDateTimeEdit
 
-  */
+*/
 
 /*!
 
@@ -852,31 +857,33 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
 /*!
 
   \class QDateTimeEdit qdatetimeedit.h
-  \brief The QDateTimeEdit class combines a QDateEdit and QTimeEdit widget into a single widget for editing datetimes.
 
-    QDateTimeEdit consists of a QDateEdit and QTimeEdit widget placed
-    side by side and offers the functionality of both. The user can edit
-    the date and time by using the keyboard or the arrow keys to
-    increase/decrease date or time values. The Tab key can be used to
-    move from field to field within the QDateTimeEdit box. Dates appear
-    in year, month, day order by default. This can be changed by calling
-    setOrder(). Times appear in the order hours, minutes, seconds using
-    the 24 hour clock. It is recommended that the QDateTimeEdit is
-    initialised with a datetime, e.g.
+  \brief The QDateTimeEdit class combines a QDateEdit and QTimeEdit
+  widget into a single widget for editing datetimes.
+
+  QDateTimeEdit consists of a QDateEdit and QTimeEdit widget placed
+  side by side and offers the functionality of both. The user can edit
+  the date and time by using the keyboard or the arrow keys to
+  increase/decrease date or time values. The Tab key can be used to
+  move from field to field within the QDateTimeEdit box. Dates appear
+  in year, month, day order by default. Times appear in the order
+  hours, minutes, seconds using the 24 hour clock. It is recommended
+  that the QDateTimeEdit is initialised with a datetime, e.g.
+
     \dontinclude datetime/main.cpp
     \skipto QDateTimeEdit
     \printline
     <h5 align="center">From \l datetime/main.cpp </h5>
 
-    If illegal values are entered, they will be reverted to the last
-    known legal value when the user presses Return. For example if the
-    user enters 5000 for the year value, and it was 2000 before they
-    stated editing, the value will be reverted to 2000.
+  If illegal values are entered, they will be reverted to the last
+  known legal value when the user presses Return. For example if the
+  user enters 5000 for the year value, and it was 2000 before they
+  started editing, the value will be reverted to 2000.
 
-    See \l examples/datetime for an example. 
-    
+  See \l examples/datetime for an example.
+
   \sa QDateEdit QTimeEdit
-  */
+*/
 
 /*!
 
@@ -915,7 +922,10 @@ void QDateTimeEdit::resizeEvent( QResizeEvent * )
 
 QSize QDateTimeEdit::minimumSizeHint() const
 {
-    return de->minimumSizeHint() + te->minimumSizeHint();
+    QSize dsh = de->minimumSizeHint();
+    QSize tsh = te->minimumSizeHint();
+    return QSize( dsh.width() + tsh.width() + (frameWidth()*4),
+		  QMAX( dsh.height(), tsh.height() ) );
 }
 
 /*! Moves and resizes the internal date and time editors.
@@ -924,11 +934,12 @@ QSize QDateTimeEdit::minimumSizeHint() const
 void QDateTimeEdit::layoutEditors()
 {
     int h        = height() - frameWidth()*2;
-    int numWidth = (width() - frameWidth()*2) / 2;
+    int dWidth = (width() - frameWidth()*2) * 9/16;
+    int tWidth = (width() - frameWidth()*2) * 7/16;
     int fw       = frameWidth();
 
-    de->resize( numWidth, h );
-    te->resize( numWidth, h );
+    de->resize( dWidth, h );
+    te->resize( tWidth, h );
 
     de->move( fw, fw );
     te->move( de->x() + de->width() + fw, fw );
@@ -954,7 +965,10 @@ void QDateTimeEdit::init()
 
 QSize QDateTimeEdit::sizeHint() const
 {
-    return de->sizeHint() + te->sizeHint();
+    QSize dsh = de->sizeHint();
+    QSize tsh = te->sizeHint();
+    return QSize( dsh.width() + tsh.width() + (frameWidth()*4),
+		  QMAX( dsh.height(), tsh.height() ) );
 }
 
 /*!  Set the datetime in this QDateTimeEdit to \a dt.
