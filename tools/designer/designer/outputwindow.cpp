@@ -5,8 +5,6 @@
 #include <qtextedit.h>
 #include <qapplication.h>
 #include <qheader.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 static QTextEdit *debugoutput = 0;
 bool debugToStderr = FALSE;
@@ -44,11 +42,11 @@ void debugMessageOutput( QtMsgType type, const char *msg )
 
     if ( type != QtFatalMsg ) {
 	if( debugToStderr )
-	    fprintf( stderr, "%s\n", s.latin1() );
+	    qDebug( "%s", msg );
 	else if ( debugoutput )
 	    debugoutput->append( s + "\n" );
     } else {
-	fprintf( stderr, msg );
+	qDebug( msg );
 	abort();
     }
 
