@@ -1147,9 +1147,8 @@ void QLabel::setScaledContents(bool enable)
 
 #endif // QT_NO_IMAGE_SMOOTHSCALE
 
-/*! \fn void QLabel::setAlignment(Qt::AlignmentFlag flag)
-
-    \internal
+/*! 
+    \fn void QLabel::setAlignment(Qt::AlignmentFlag flag)
 
     Without this function, a call to e.g. setAlignment(Qt::AlignTop)
     results in the QT_COMPAT function setAlignment(int) being called,
