@@ -16,9 +16,9 @@ QMakeMetaInfo::readLib(const QString &lib)
     QString meta_file = findLib(lib);
     if(!meta_file.isNull()) {
 	if(meta_file.endsWith(Option::pkgcfg_ext)) {
-	    fprintf(stderr, "Must implement reading in pkg-config files (%s)!!!\n", meta_file.latin1());
+	    return readLibtoolFile(meta_file);
 	} else if(meta_file.endsWith(Option::libtool_ext)) {
-	    fprintf(stderr, "Must implement reading in libtool files (%s)!!!\n", meta_file.latin1());
+	    return readPkgCfgFile(meta_file);
 	} else if(meta_file.endsWith(Option::prl_ext)) {
 	    QMakeProject proj;
 	    if(!proj.read(meta_file, QDir::currentDirPath(), QMakeProject::ReadProFile))
@@ -62,4 +62,19 @@ QMakeMetaInfo::findLib(const QString &lib)
     else
 	debug_msg(2, "QMakeMetaInfo: Found info file %s for %s", ret.latin1(), lib.latin1());
     return ret;
+}
+
+
+bool
+QMakeMetaInfo::readLibtoolFile(const QString &f)
+{
+    fprintf(stderr, "Must implement reading in libtool files (%s)!!!\n", f.latin1());
+    return FALSE;
+}
+
+bool
+QMakeMetaInfo::readPkgCfgFile(const QString &f)
+{
+    fprintf(stderr, "Must implement reading in pkg-config files (%s)!!!\n", f.latin1());
+    return FALSE;
 }

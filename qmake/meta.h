@@ -7,14 +7,15 @@
 
 class QMakeMetaInfo 
 {
-    static QString findLib(const QString &lib);
+    bool readLibtoolFile(const QString &f);
+    bool readPkgCfgFile(const QString &f);
     QMap<QString, QStringList> vars;
     void clear();
 public:
     QMakeMetaInfo();
 
     bool readLib(const QString &lib);
-
+    static QString findLib(const QString &lib);
     static bool libExists(const QString &lib);
 
     bool isEmpty(const QString &v);
