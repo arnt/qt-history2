@@ -757,7 +757,7 @@ public:
     bool isNewLinesAllowed() const;
 
     QString richText() const;
-    
+
 private:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     void drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
@@ -969,7 +969,7 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextCustomItem : public QShared
+class QTextCustomItem
 {
 public:
     QTextCustomItem( QTextDocument *p )
@@ -992,6 +992,8 @@ public:
     virtual int minimumWidth() const { return 0; }
     virtual int widthHint() const { return 0; }
 
+    virtual QString richText() const { return QString::null; }
+    
     int xpos; // used for floating items
     int ypos; // used for floating items
     int width;
@@ -1029,6 +1031,8 @@ public:
     Placement placement() const { return place; }
     void adjustToPainter( QPainter* );
 
+    QString richText() const;
+
     void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
 
 private:
@@ -1036,6 +1040,8 @@ private:
     QPixmap pm;
     Placement place;
     int tmpwidth, tmpheight;
+    QMap<QString, QString> attributes;
+
 };
 
 class QTextHorizontalLine : public QTextCustomItem
@@ -1045,6 +1051,7 @@ public:
     ~QTextHorizontalLine();
     void adjustToPainter( QPainter* );
     void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch, const QColorGroup& cg );
+    QString richText() const;
 
     bool ownLine() const { return TRUE; }
 

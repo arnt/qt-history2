@@ -3124,12 +3124,15 @@ QString QTextParag::richText() const
 	    s += c->format()->makeFormatChangeTags( lastFormat );
 	    lastFormat = c->format();
 	}
-	if ( c->c == '<' )
+	if ( c->c == '<' ) {
 	    s += "&lt;";
-	else if ( c->c == '>' )
+	} else if ( c->c == '>' ) {
 	    s += "&gt;";
-	else
+	} else if ( c->isCustom ) {
+	    s += c->customItem()->richText();
+	} else {
 	    s += c->c;
+	}
     }
     return s;
 }
@@ -4629,12 +4632,24 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 
     tmpwidth = width;
     tmpheight = height;
+    
+    attributes = attr;
 }
 
 QTextImage::~QTextImage()
 {
 }
 
+QString QTextImage::richText() const
+{
+    QString s;
+    s += "<img ";
+    QMap<QString, QString>::ConstIterator it = attributes.begin();
+    for ( ; it != attributes.end(); ++it )
+	s += it.key() + "=" + *it + " ";
+    s += ">";
+    return s;
+}
 
 void QTextImage::adjustToPainter( QPainter* p )
 {
@@ -4697,11 +4712,14 @@ QTextHorizontalLine::QTextHorizontalLine( QTextDocument *p )
     height = tmpheight = 8;
 }
 
-
 QTextHorizontalLine::~QTextHorizontalLine()
 {
 }
 
+QString QTextHorizontalLine::richText() const
+{
+    return "<hr>";
+}
 
 void QTextHorizontalLine::draw( QPainter* p, int x, int y, int , int , int , int , const QColorGroup& cg )
 {
