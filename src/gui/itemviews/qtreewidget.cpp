@@ -408,16 +408,160 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 /*!
   \class QTreeWidgetItem qtreewidget.h
 
-  \brief The QTreeWidgetItem class provides a tree view item for use with the
+  \brief The QTreeWidgetItem class provides an item for use with the
   QTreeWidget convenience class.
 
   \ingroup model-view
 
+  A tree widget item is used to display a row of information in a tree widget.
+  Rows usually contain several columns of data, each of which can contain
+  a text label and an icon.
+
   The QTreeWidgetItem class is a convenience class that replaces the
-  \c QListViewItem class in Qt 3. It provides a list view item for use with
+  \c QListViewItem class in Qt 3. It provides an item for use with
   the QTreeWidget class.
 
+  Items are usually constructed with a parent that is either a QTreeWidget
+  (for top-level items) or a QTreeWidgetItem (for items on lower levels of
+  the tree).
+
+  Each column in an item can have its own background color which is set with
+  the setBackgroundColor() function. The current background color can be
+  found with backgroundColor().
+  The text label for each column can be rendered with its own font and text
+  color. These are specified with the setFont() and setTextColor() functions,
+  and read with font() and textColor().
+
 */
+
+/*!
+    \fn QString QTreeWidgetItem::text(int column) const
+
+    Returns the text in the specified \column.
+
+    \sa setText()
+*/
+
+/*!
+    \fn void QTreeWidgetItem::setText(int column, const QString &text)
+*/
+
+/*!
+    \fn QIconSet QTreeWidgetItem::icon(int column) const
+
+    Returns the icon that is displayed in the specified \a column.
+
+    \sa setIcon()
+*/
+
+/*!
+    \fn void setIcon(int column, const QIconSet &icon)
+*/
+
+/*!
+    \fn QString QTreeWidgetItem::statusTip(int column) const
+
+    Returns the status tip for the contents of the given \a column.
+
+    \sa setStatusTip()
+*/
+
+/*!
+    \fn void QTreeWidgetItem::setStatusTip(int column, const QString &statusTip)
+*/
+
+/*!
+    \fn QString QTreeWidgetItem::toolTip(int column) const
+
+    Returns the tool tip for the given \a column.
+
+    \sa setToolTip()
+*/
+
+/*!
+    \fn void QTreeWidgetItem::setToolTip(int column, const QString &toolTip)
+*/
+
+/*!
+    \fn QString QTreeWidgetItem::whatsThis(int column) const
+
+    Returns the "What's This?" help for the contents of the given \a column.
+
+    \sa setWhatsThis()
+*/
+
+/*!
+    \fn void QTreeWidgetItem::setWhatsThis(int column, const QString &whatsThis)
+*/
+
+/*!
+    \fn QFont QTreeWidgetItem::font(int column) const
+
+    Returns the font used to render the text in the specified \a column.
+
+    \sa setFont()
+*/
+
+/*!
+    \fn void QTreeWidgetItem::setFont(int column, const QFont &font)
+*/
+
+/*!
+    \fn QColor QTreeWidgetItem::backgroundColor(int column) const
+
+    Returns the color used to render the background of the specified \a column.
+
+    \sa textColor() setBackgroundColor()
+*/
+
+/*!
+    \fn void QTreeWidgetItem::setBackgroundColor(int column, const QColor &color)
+*/
+
+/*!
+    \fn QColor QTreeWidgetItem::textColor(int column) const
+
+    Returns the color used to render the text in the specified \a column.
+
+    \sa backgroundColor() setTextColor()
+*/
+
+/*!
+    \fn void QTreeWidgetItem::setTextColor(int column, const QColor &color)
+*/
+
+/*!
+    \fn int QTreeWidgetItem::checkedState(int column) const
+*/
+
+/*!
+    \fn void QTreeWidgetItem::setCheckedState(int column, bool state)
+*/
+
+/*!
+    \fn QTreeWidgetItem *QTreeWidgetItem::parent() const
+
+    Returns this item's parent.
+
+    \sa child()
+*/
+
+/*!
+    \fn QTreeWidgetItem *QTreeWidgetItem::child(int index) const
+
+    Returns the item at the given \a index in the list of this item's children.
+
+    \sa parent()
+*/
+
+/*!
+    \fn int QTreeWidgetItem::childCount() const
+*/
+
+/*!
+    \fn int QTreeWidgetItem::columnCount() const
+*/
+
 
 /*!
   Constructs a tree widget item. The item must be inserted
@@ -716,6 +860,9 @@ void QTreeWidgetItem::closePersistentEditor(int column)
 {
     view->closePersistentEditor(this, column);
 }
+
+/*!
+*/
 
 bool QTreeWidgetItem::isSelected() const
 {
