@@ -135,6 +135,8 @@ QListBoxPrivate::~QListBoxPrivate()
     \class QListBoxItem qlistbox.h
     \brief The QListBoxItem class is the base class of all list box items.
 
+    \ingroup advanced
+
     This class is an abstract base class used for all list box items.
     If you need to insert customized items into a QListBox you must
     inherit this class and reimplement paint(), height() and width().

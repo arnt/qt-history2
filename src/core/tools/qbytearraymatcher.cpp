@@ -49,6 +49,9 @@ static inline int bm_find(const uchar *cc, uint l, int index, const uchar *puc, 
     \brief The QByteArrayMatcher class holds a sequence of bytes that
     can be quickly matched in a byte array.
 
+    \ingroup tools
+    \ingroup text
+
     This class is useful when you have a sequence of bytes that you
     want to repeatedly match against some byte arrays (perhaps in a
     loop), or when you want to search for the same sequence of bytes

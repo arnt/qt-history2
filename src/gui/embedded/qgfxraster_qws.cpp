@@ -106,11 +106,12 @@ volatile int * lastop = &dummy_lastop;
 
 /*!
   \class QScreenCursor qgfx_qws.h
-  \ingroup qws
   \brief The QScreenCursor class manages the onscreen mouse cursor in
   Qt/Embedded.
 
   \internal (for now)
+
+  \ingroup qws
 
   It provides an implementation of a software mouse cursor
   and can be subclassed by hardware drivers which support a hardware mouse
@@ -789,11 +790,12 @@ static const bool gfx_storeLine = false;
 
 /*!
   \class QGfxRasterBase qgfxraster_qws.h
-  \ingroup qws
   \brief The QGfxRasterBase class is the base class of the
   QGfxRaster<depth> template and contains the non-depth-dependent code.
 
   \internal (for now)
+
+  \ingroup qws
 
   The QGfxRaster class is used for drawing in software on raw
   framebuffers of varying depths and  is subclassed by hardware
@@ -2140,13 +2142,14 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
 
 /*!
  \class QGfxRaster qgfxraster_qws.h
-  \ingroup qws
  \brief The QGfxRaster class is QGfxRasterBase specialized for a particular bit
  depth, specified by the depth parameter of the template. The type field
  is currently not used. In future versions, it may be used to specify the
  pixel storage format.
 
  \internal (for now)
+
+  \ingroup qws
 
  Many operations with QGfxRaster are specified along the lines of
 
@@ -5624,9 +5627,10 @@ GFX_INLINE void QGfxRaster<depth,type>::usePen()
 
 /*!
   \class QScreen qgfx_qws.h
-  \ingroup qws
   \brief The QScreen class and its descendants manage the framebuffer and
   palette.
+
+  \ingroup qws
 
   QScreens act as factories for the screen cursor and QGfx's. QLinuxFbScreen
   manages a Linux framebuffer; accelerated drivers subclass QLinuxFbScreen.

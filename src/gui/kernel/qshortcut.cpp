@@ -11,6 +11,8 @@
     \class QShortcut qshortcut.h
     \brief The QShortcut class is used to create keyboard shortcuts.
 
+    \ingroup events
+
     The QShortcut class provides a way of connecting keyboard shortcuts
     to Qt's \link signalsandslots.html signal/slot \endlink mechanism,
     so that objects can be informed when a shortcut is executed.

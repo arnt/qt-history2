@@ -822,11 +822,11 @@ int QStyleSheetItem::lineSpacing() const
 
 /*!
     \class QStyleSheet qstylesheet.h
-    \ingroup text
     \brief The QStyleSheet class is a collection of styles for rich text
     rendering and a generator of tags.
 
-    \ingroup graphics
+    \ingroup text
+    \ingroup multimedia
     \ingroup helpsystem
 
     By creating QStyleSheetItem objects for a style sheet you build a

@@ -65,8 +65,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
     \class QPainter qpainter.h
     \brief The QPainter class does low-level painting e.g. on widgets.
 
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
     \mainclass
 
     The painter provides highly optimized functions to do most of the

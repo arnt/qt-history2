@@ -41,6 +41,8 @@ public:
     \brief The QCopChannel class provides communication capabilities
     between several clients.
 
+    \ingroup qws
+
     The Qt Cop (QCOP) is a COmmunication Protocol, allowing clients to
     communicate both within the same address space and between
     different processes.

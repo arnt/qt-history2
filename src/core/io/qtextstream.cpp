@@ -114,10 +114,12 @@
   \brief The QTSManip class is an internal helper class for the
   QTextStream.
 
+  \internal
+
+    \ingroup text
+
   It is generally a very bad idea to use this class directly in
   application programs.
-
-  \internal
 
   This class makes it possible to give the QTextStream function objects
   with arguments, like this:

@@ -84,8 +84,7 @@ QPixmap qt_pixmapForBrush(int brushStyle, bool invert)
 
     \brief The QBrush class defines the fill pattern of shapes drawn by a QPainter.
 
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
     \ingroup shared
 
     A brush has a style and a color. One of the brush styles is a

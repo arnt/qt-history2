@@ -20,8 +20,7 @@
     \brief The QPen class defines how a QPainter should draw lines and outlines
     of shapes.
 
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
     \ingroup shared
     \mainclass
 

@@ -232,20 +232,14 @@ related classes together. Some classes may appear in more than one group.
 with other classes that can be used without needing QApplication.
 
 \row 
-\i \link graphics.html   Graphics and Printing \endlink
-\i Classes providing drawing (and printing) primitives, including
-OpenGL. (See also \link images.html Image Processing\endlink and \link
-multimedia.html Multimedia\endlink)
+\i \link multimedia.html   Multimedia, Graphics, and Printing \endlink
+\i Classes that provide support for graphics (2D, and with OpenGL, 3D),
+image encoding, decoding, and manipulation, sound, animation,
+printing, etc.
 
 \row 
 \i \link helpsystem.html   Help System \endlink
 \i Classes used to provide online-help for applications.
-
-\row 
-\i \link images.html   Image Processing \endlink
-\i Digital image encoding, decoding and manipulation.
-(See also \link graphics.html Graphics and Printing\endlink and \link
-multimedia.html Multimedia\endlink)
 
 \row 
 \i \link geomanagement.html   Layout Management \endlink
@@ -274,12 +268,6 @@ including menus, toolbars, workspace, etc.
 \row
 \i \link model-view.html Model/View Classes \endlink
 \i Classes that use the Model/View design pattern.
-
-\row
-\i \link multimedia.html Multimedia\endlink
-\i Classes that provide support for graphics, sound, animation, etc.
-(See also \link graphics.html Graphics and Printing\endlink and \link
-images.html Image Processing\endlink)
 
 \row 
 \i \link objectmodel.html   Object Model \endlink
@@ -317,6 +305,10 @@ processing. (See also \link xml-tools.html XML Classes\endlink.)
 \row
 \i \link xml-tools.html XML Classes\endlink
 \i Classes that support XML, via, for example DOM and SAX.
+
+\row
+\i \link qws.html Qt/Embedded Classes\endlink
+\i Classes that are specific to Qt/Embedded.
 
 \endtable
 
@@ -602,20 +594,13 @@ boxes, generally.
 
 */
 
-/*! \defgroup images
+/*! \defgroup multimedia
 
-\title Image Processing Classes
+\title Multimedia, Graphics, and Printing Classes
 
-These classes are used for manipulating images.
-
-*/
-
-/*! \defgroup graphics
-
-\title Graphics Classes
-
-These classes provide powerful graphics drawing primitives for both 2D
-and (with OpenGL) 3D.
+These classes provide support for graphics (2D, and with OpenGL, 3D),
+image encoding, decoding, and manipulation, sound, animation, printing
+etc.
 
 See also this introduction to the \link coordsys.html Qt
 coordinate system. \endlink
@@ -738,13 +723,6 @@ and \link signalsandslots.html Signals and Slots\endlink.
 */
 
 
-/*! \defgroup multimedia
-
-\title Multimedia Classes
-
-These classes provide support for graphics, sound, animation etc.
-*/
-
 /*! \defgroup qtl
 
 \title Qt Template Library Classes
@@ -781,7 +759,7 @@ These classes are relevant to XML users.
 
 /*! \defgroup qws
 
-\title Qt/Embedded
+\title Qt/Embedded Classes
 
 These classes are relevant to Qt/Embedded users.
 */

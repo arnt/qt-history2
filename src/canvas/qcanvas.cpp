@@ -298,8 +298,7 @@ Q_DECLARE_TYPEINFO(QCanvasItemPtr, Q_PRIMITIVE_TYPE);
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     QCanvasItemList is a QList of pointers to \l{QCanvasItem}s.
     This class is used by some methods in QCanvas that need to return
@@ -420,8 +419,7 @@ static int scm(int a, int b)
 \endif
 
     \ingroup abstractwidgets
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
     \mainclass
     \module canvas
 
@@ -1817,8 +1815,7 @@ class QCanvasItemExtra {
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     A variety of QCanvasItem subclasses provide immediately usable
     behavior. This class is a pure abstract superclass providing the
@@ -2433,8 +2430,7 @@ static bool collision_double_dispatch(const QCanvasSprite* s1,
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     A canvas sprite is an object which can contain any number of images
     (referred to as frames), only one of which is current, i.e.
@@ -2750,8 +2746,7 @@ QRect QCanvasItem::boundingRectAdvanced() const
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     If you want to show a single pixmap on a QCanvas use a
     QCanvasSprite with just one pixmap.
@@ -2880,8 +2875,7 @@ QCanvasPixmap::~QCanvasPixmap()
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     This class is used by QCanvasSprite to hold an array of pixmaps.
     It is used to implement animated sprites, i.e. images that change
@@ -3374,8 +3368,7 @@ void QCanvasSprite::draw(QPainter& painter)
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     If you want users to be able to interact with a canvas view, you
     will need to subclass QCanvasView. You might then reimplement some
@@ -3634,8 +3627,7 @@ QSize QCanvasView::sizeHint() const
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     The mostly rectangular classes, such as QCanvasSprite and
     QCanvasText, use the object's bounding rectangle for movement,
@@ -4030,8 +4022,7 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     Paints a polygon with a QBrush. The polygon's points can be set in
     the constructor or set or changed later using setPoints(). Use
@@ -4123,8 +4114,7 @@ void QCanvasPolygon::moveBy(double dx, double dy)
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     A QCanvasSpline is a sequence of 4-point bezier curves joined
     together to make a curved shape.
@@ -4285,8 +4275,7 @@ QPointArray QCanvasPolygon::areaPoints() const
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     The line inherits functionality from QCanvasPolygonalItem, for
     example the setPen() function. The start and end points of the
@@ -4429,8 +4418,7 @@ void QCanvasLine::moveBy(double dx, double dy)
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     This item paints a single rectangle which may have any pen() and
     brush(), but may not be tilted/rotated. For rotated rectangles,
@@ -4567,8 +4555,7 @@ void QCanvasRectangle::drawShape(QPainter & p)
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     A canvas item that paints an ellipse or ellipse segment with a QBrush.
     The ellipse's height, width, start angle and angle length can be set
@@ -4754,8 +4741,7 @@ void QCanvasEllipse::drawShape(QPainter & p)
 \endif
 
     \module canvas
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     A canvas text item has text with font, color and alignment
     attributes. The text and font can be set in the constructor or set

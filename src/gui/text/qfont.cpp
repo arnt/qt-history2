@@ -225,7 +225,7 @@ QFontEngineData::~QFontEngineData()
     \class QFont qfont.h
     \brief The QFont class specifies a font used for drawing text.
 
-    \ingroup graphics
+    \ingroup multimedia
     \ingroup appearance
     \ingroup shared
     \mainclass
@@ -1781,7 +1781,7 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
     \class QFontMetrics qfontmetrics.h
     \brief The QFontMetrics class provides font metrics information.
 
-    \ingroup graphics
+    \ingroup multimedia
     \ingroup shared
 
     QFontMetrics functions calculate the size of characters and
@@ -2473,7 +2473,7 @@ int QFontMetrics::lineWidth() const
 
     \brief The QFontInfo class provides general information about fonts.
 
-    \ingroup graphics
+    \ingroup multimedia
     \ingroup shared
 
     The QFontInfo class provides the same access functions as QFont,

@@ -21,8 +21,7 @@
     \class QRect
     \brief The QRect class defines a rectangle in the plane.
 
-    \ingroup images
-    \ingroup graphics
+    \ingroup multimedia
     \mainclass
 
     A rectangle is internally represented as an upper-left corner and

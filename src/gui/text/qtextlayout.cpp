@@ -27,6 +27,8 @@
 /*!
   \class QTextInlineObject
 
+  \ingroup text
+
   Represents an inline object in a QTextLayout.
 
   Only used if the text layout is used to layout parts of a
@@ -106,6 +108,8 @@ bool QTextInlineObject::isRightToLeft() const
 
 /*!
   \class QTextLayout
+
+  \ingroup text
 
   The QTextLayout class is a class to layout and paint a single
   paragraph of text.
@@ -592,6 +596,8 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 
 /*!
   \class QTextLine
+
+  \ingroup text
 
   This class represents a line of text inside a QtextLayout.
 

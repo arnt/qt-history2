@@ -9,6 +9,8 @@
   \class QAccessibleViewport qaccessiblewidget.h
   \brief The QAccessibleViewport class hides the viewport of scrollviews for accessibility.
   \internal
+
+  \ingroup accessibility
 */
 
 QAccessibleViewport::QAccessibleViewport(QWidget *o, QWidget *sv)

@@ -834,6 +834,8 @@ static char *parseCupsOutput(QListView *printers)
 
   \internal
 
+  \ingroup dialogs
+
   \warning The use of this class is not recommended since it is not
   present on all platforms; use QPrinter::setup() instead.
 

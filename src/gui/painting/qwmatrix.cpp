@@ -26,8 +26,7 @@
     \brief The QWMatrix class specifies 2D transformations of a
     coordinate system.
 
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     The standard coordinate system of a \link QPaintDevice paint
     device\endlink has the origin located at the top-left position. \e

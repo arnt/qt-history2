@@ -25,6 +25,7 @@
     Qt/Embedded graphics driver plugins.
 
     \ingroup plugins
+    \ingroup qws
 
     The graphics driver plugin is a simple plugin interface that makes
     it easy to create custom graphics drivers.

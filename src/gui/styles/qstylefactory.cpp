@@ -45,6 +45,8 @@ Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(QFactoryLoader, loader,
     \class QStyleFactory qstylefactory.h
     \brief The QStyleFactory class creates QStyle objects.
 
+    \ingroup appearance
+
     The style factory creates a QStyle object for a given key with
     QStyleFactory::create(key).
 

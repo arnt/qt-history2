@@ -21,8 +21,7 @@
 \endif
 
     \module OpenGL
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
     QGLColormap provides a platform independent way of specifying and
     installing indexed colormaps into QGLWidgets. QGLColormap is

@@ -32,8 +32,7 @@
     \brief The QPicture class is a paint device that records and
     replays QPainter commands.
 
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
     \ingroup shared
 
     A picture serializes painter commands to an IO device in a
@@ -1312,8 +1311,7 @@ QList<QByteArray> QPicture::outputFormats()
     \brief The QPictureIO class contains parameters for loading and
     saving pictures.
 
-    \ingroup images
-    \ingroup graphics
+    \ingroup multimedia
     \ingroup io
 
     QPictureIO contains a QIODevice object that is used for picture data

@@ -37,8 +37,6 @@
     \class QMovie qmovie.h
     \brief The QMovie class provides incremental loading of animations or images, signalling as it progresses.
 
-    \ingroup images
-    \ingroup graphics
     \ingroup multimedia
     \mainclass
 

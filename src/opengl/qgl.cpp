@@ -46,8 +46,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 \endif
 
     \module OpenGL
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
 
 
     Normally you can ignore this class. QGLWidget and the other
@@ -79,8 +78,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
     \module OpenGL
 
     A display format has several characteristics:
@@ -716,8 +714,7 @@ QGLContext* QGLContext::currentCtx = 0;
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
     \module OpenGL
 
     An OpenGL<sup>*</sup> rendering context is a complete set of
@@ -1103,8 +1100,7 @@ bool QGLContext::create(const QGLContext* shareContext)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
-    \ingroup graphics
-    \ingroup images
+    \ingroup multimedia
     \mainclass
     \module OpenGL
 

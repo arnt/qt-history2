@@ -1462,6 +1462,7 @@ const char* QMetaClassInfo::value() const
 
     \internal
 
+    \ingroup objectmodel
 
     The class is used to queue signals and slots connections.
 */

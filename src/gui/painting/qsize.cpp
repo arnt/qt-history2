@@ -20,8 +20,7 @@
   \class QSize
   \brief The QSize class defines the size of a two-dimensional object.
 
-  \ingroup images
-  \ingroup graphics
+  \ingroup multimedia
 
   A size is specified by a width and a height.
 

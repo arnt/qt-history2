@@ -55,6 +55,8 @@ public:
 
     \internal
 
+    \ingroup basic
+
     Constructs an empty range control widget with parent \a parent
     called \a name.
 

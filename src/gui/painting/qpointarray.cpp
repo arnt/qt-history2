@@ -26,8 +26,7 @@ const double Q_PI = 3.14159265358979323846;
     \brief The QPointArray class provides a vector of points.
     \reentrant
 
-    \ingroup images
-    \ingroup graphics
+    \ingroup multimedia
     \ingroup shared
 
     A QPointArray is a QVector\<QPoint\>. It is implicitly shared. In

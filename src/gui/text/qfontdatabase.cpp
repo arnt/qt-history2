@@ -1235,7 +1235,7 @@ QString QFontDatabase::styleString(const QFont &f)
     \brief The QFontDatabase class provides information about the fonts available in the underlying window system.
 
     \ingroup environment
-    \ingroup graphics
+    \ingroup multimedia
 
     The most common uses of this class are to query the database for
     the list of font families() and for the pointSizes() and styles()

@@ -166,8 +166,7 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
   \brief The QIconSet class provides a set of icons with different
   styles and sizes.
 
-  \ingroup graphics
-  \ingroup images
+  \ingroup multimedia
   \ingroup shared
   \mainclass
 

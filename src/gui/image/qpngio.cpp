@@ -631,8 +631,7 @@ void write_png_image(QImageIO* iio)
     \class QPNGImagePacker qpngio.h
     \brief The QPNGImagePacker class creates well-compressed PNG animations.
 
-    \ingroup images
-    \ingroup graphics
+    \ingroup multimedia
 
     By using transparency, QPNGImagePacker allows you to build a PNG
     image from a sequence of QImages.
@@ -848,8 +847,7 @@ class QPNGFormatType : public QImageFormatType
   \brief The QPNGFormat class provides an incremental image decoder for PNG
   image format.
 
-  \ingroup images
-  \ingroup graphics
+  \ingroup multimedia
 
   This subclass of QImageFormat decodes PNG format images,
   including animated PNGs.
@@ -881,8 +879,7 @@ class QPNGFormatType : public QImageFormatType
   \brief The QPNGFormatType class provides an incremental image decoder
   for PNG image format.
 
-  \ingroup images
-  \ingroup graphics
+  \ingroup multimedia
   \ingroup io
 
   This subclass of QImageFormatType recognizes PNG format images, creating

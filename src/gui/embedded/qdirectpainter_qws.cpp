@@ -56,7 +56,8 @@ public:
     \class QDirectPainter qdirectpainter_qws.h
     \brief The QDirectPainter class provides direct access to the video hardware.
 
-    \ingroup graphics
+    \ingroup multimedia
+    \ingroup qws
 
     Only available in Qt/Embedded.
 

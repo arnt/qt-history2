@@ -60,6 +60,8 @@ QKbdDriverFactoryPrivate::~QKbdDriverFactoryPrivate()
     \brief The QKbdDriverFactory class creates QWSKeyboardHandler objects
     for Qt/Embedded.
 
+    \ingroup qws
+
     The graphics driver factory creates a QWSKeyboardHandler object
     for a given key with QKbdDriverFactory::create(key).
 

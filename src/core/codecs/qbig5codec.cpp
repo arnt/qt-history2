@@ -14,9 +14,9 @@
 
 /*!
     \class QBig5Codec qbig5codec.h
-    \ingroup i18n
-
     \brief The QBig5Codec class provides conversion to and from the Big5 encoding.
+
+    \ingroup i18n
 
     QBig5Codec was originally contributed by Ming-Che Chuang
     \<mingche@cobra.ee.ntu.edu.tw\> for the Big-5+ encoding, and was
@@ -309,9 +309,11 @@ int QBig5Codec::heuristicNameMatch(const char* hint) const
 }
 
 
-/*! \class QBig5hkscsCodec
+/*!
+    \class QBig5hkscsCodec
+    \brief The QBig5hkscsCodec class provides conversion to and from the Big5-HKSCS encoding.
 
-  \brief The QBig5hkscsCodec class provides conversion to and from the Big5-HKSCS encoding.
+    \ingroup i18n
 
   QBig5hkscsCodec grew out of the QBig5Codec originally contributed by
   Ming-Che Chuang \<mingche@cobra.ee.ntu.edu.tw\>.  James Su

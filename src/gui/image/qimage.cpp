@@ -48,8 +48,7 @@
     \brief The QImage class provides a hardware-independent pixmap
     representation with direct access to the pixel data.
 
-    \ingroup images
-    \ingroup graphics
+    \ingroup multimedia
     \ingroup shared
     \mainclass
 
@@ -3603,8 +3602,7 @@ static void swapPixel01(QImage *image)        // 1-bpp: swap 0 and 1 pixels
     \brief The QImageIO class contains parameters for loading and
     saving images.
 
-    \ingroup images
-    \ingroup graphics
+    \ingroup multimedia
     \ingroup io
 
     QImageIO contains a QIODevice object that is used for image data

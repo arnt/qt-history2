@@ -31,8 +31,6 @@ extern void qt_init_image_plugins();
     \class QImageConsumer
     \brief The QImageConsumer class is an abstraction used by QImageDecoder.
 
-    \ingroup images
-    \ingroup graphics
     \ingroup multimedia
 
     The QMovie class, or QLabel::setMovie(), are easy to use and for
@@ -134,8 +132,6 @@ extern void qt_init_image_plugins();
     \class QImageDecoder
     \brief The QImageDecoder class is an incremental image decoder for all supported image formats.
 
-    \ingroup images
-    \ingroup graphics
     \ingroup multimedia
 
     New formats are installed by creating objects of class
@@ -492,8 +488,6 @@ void QImageDecoder::unregisterDecoderFactory(QImageFormatType* f)
     \class QImageFormat
     \brief The QImageFormat class is an incremental image decoder for a specific image format.
 
-    \ingroup images
-    \ingroup graphics
     \ingroup multimedia
 
     By making a derived class of QImageFormatType, which in turn
@@ -544,8 +538,6 @@ QImageFormat::~QImageFormat()
     \class QImageFormatType
     \brief The QImageFormatType class is a factory that makes QImageFormat objects.
 
-    \ingroup images
-    \ingroup graphics
     \ingroup multimedia
 
     Whereas the QImageIO class allows for \e complete loading of
@@ -624,8 +616,7 @@ bool qt_builtin_gif_reader()
   \class QGIFFormat
   \brief Incremental image decoder for GIF image format.
 
-  \ingroup images
-  \ingroup graphics
+  \ingroup multimedia
 
   This subclass of QImageFormat decodes GIF format images,
   including animated GIFs. Internally in
@@ -663,8 +654,7 @@ QGIFFormat::~QGIFFormat()
   \class QGIFFormatType
   \brief Incremental image decoder for GIF image format.
 
-  \ingroup images
-  \ingroup graphics
+  \ingroup multimedia
 
   This subclass of QImageFormatType recognizes GIF
   format images, creating a QGIFFormat when required. An instance

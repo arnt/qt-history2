@@ -32,8 +32,7 @@
   \class QPrinter qprinter.h
   \brief The QPrinter class is a paint device that paints on a printer.
 
-  \ingroup images
-  \ingroup graphics
+  \ingroup multimedia
   \mainclass
 
   On Windows it uses the built-in printer drivers. On X11 it

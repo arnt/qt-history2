@@ -44,6 +44,8 @@ static QAssistantClientPrivate *data( const QAssistantClient *client, bool creat
     \brief The QAssistantClient class provides a means of using Qt
     Assistant as an application's help tool.
 
+    \ingroup helpsystem
+
     Using Qt Assistant is simple: Create a QAssistantClient instance,
     then call showPage() as often as necessary to show your help
     pages. When you call showPage(), Qt Assistant will be launched if

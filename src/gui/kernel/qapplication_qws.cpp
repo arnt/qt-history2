@@ -829,7 +829,10 @@ void QWSDisplay::Data::waitForQCopResponse()
 /*!
     \class QWSDisplay qwsdisplay_qws.h
     \brief The QWSDisplay class provides a display for QWS; it is an internal class.
+
     \internal
+
+    \ingroup qws
 */
 
 QWSDisplay::QWSDisplay()

@@ -4,6 +4,7 @@
     \brief The QSharedData class is a base class for shared data objects.
 
     \reentrant
+    \ingroup misc
 
     QSharedData is designed to be used together with
     QSharedDataPointer to implement custom \l{implicitly shared}
@@ -27,6 +28,7 @@
     \brief The QSharedDataPointer class provides a pointer to a shared data object.
 
     \reentrant
+    \ingroup misc
 
     QSharedDataPointer\<T\> makes it easier to write your own
     implicitly shared classes. It handles reference counting behind
@@ -224,5 +226,8 @@
 /*! \class QExplicitlySharedDataPointer
     \brief The QExplicitlySharedDataPointer class is an internal class
     supporting shared data objects.
+
     \internal
+
+    \ingroup misc
 */

@@ -60,6 +60,8 @@ QMouseDriverFactoryPrivate::~QMouseDriverFactoryPrivate()
     \brief The QMouseDriverFactory class creates QWSMouseHandler
     objects for Qt/Embedded.
 
+    \ingroup qws
+
     The graphics driver factory creates a QWSMouseHandler object for a
     given key with QMouseDriverFactory::create(key).
 

@@ -163,7 +163,10 @@ QString QAccessibleObject::actionText(int action, Text t, int child) const
 /*!
     \class QAccessibleApplication qaccessibleobject.h
     \brief The QAccessibleApplication class implements the QAccessibleInterface for QApplication.
+
     \internal
+
+    \ingroup accessibility
 */
 
 /*!

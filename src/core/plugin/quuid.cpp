@@ -21,6 +21,7 @@
     \brief The QUuid class defines a Universally Unique Identifier (UUID).
 
     \reentrant
+    \ingroup misc
 
     For objects or declarations that must be uniquely identified,
     UUIDs (also known as GUIDs) are widely used in order to assign a
