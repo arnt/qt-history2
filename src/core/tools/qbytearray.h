@@ -337,7 +337,7 @@ inline void QByteArray::reserve(int size)
 { if (d->ref != 1 || size > d->alloc) realloc(size); }
 
 inline void QByteArray::squeeze()
-{ realloc(d->size); }
+{ if (d->size < d->alloc) realloc(d->size); }
 
 class Q_CORE_EXPORT QByteRef {
     QByteArray &a;

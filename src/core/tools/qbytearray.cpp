@@ -1251,29 +1251,30 @@ QByteArray &QByteArray::fill(char ch, int size)
 
 void QByteArray::realloc(int alloc)
 {
-    if (d->ref == 1) {
-        Data *x = (Data*) qRealloc(d, sizeof(Data)+alloc);
+    if (d->ref != 1 || d->data != d->array) {
+        Data *x = static_cast<Data *>(qMalloc(sizeof(Data) + alloc));
         if (!x)
             return;
-        x->data = x->array;
-        d = x;
-    } else {
-        Data *x = (Data *)qMalloc(sizeof(Data)+alloc);
-        if (!x)
-            return;
-        ::memcpy(x, d, sizeof(Data)+qMin(alloc, d->alloc));
+        ::memcpy(x->array, d->data, qMin(alloc, d->alloc) + 1);
         x->ref = 1;
+        x->size = d->size;
         x->data = x->array;
         x = qAtomicSetPtr(&d, x);
         if (!--x->ref)
             qFree(x);
+    } else {
+        Data *x = static_cast<Data *>(qRealloc(d, sizeof(Data) + alloc));
+        if (!x)
+            return;
+        x->data = x->array;
+        d = x;
     }
     d->alloc = alloc;
 }
 
 void QByteArray::expand(int i)
 {
-    resize(qMax(i+1, d->size));
+    resize(qMax(i + 1, d->size));
 }
 
 /*!
