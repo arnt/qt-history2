@@ -397,7 +397,7 @@ void QThread::postEvent( QObject * receiver, QEvent * event )
 
 // helper function to do thread sleeps, since usleep()/nanosleep() aren't reliable
 // enough (in terms of behavior and availability)
-static void thread_sleep(const timespec *ti)
+static void thread_sleep(timespec *ti)
 {
 #ifndef Q_OS_SOLARIS
     pthread_mutex_t mtx;
