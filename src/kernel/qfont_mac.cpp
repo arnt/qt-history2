@@ -35,48 +35,16 @@ static bool qstring_to_pstring( QString s, int len, Str255 str, TextEncoding enc
     return TRUE;
 }
 
-static int qstring_to_text( QString s, int len, Str255 str, TextEncoding encoding )
-{
-    UnicodeMapping mapping;
-    UnicodeToTextInfo info;
-    mapping.unicodeEncoding = CreateTextEncoding( kTextEncodingUnicodeDefault,
-						  kTextEncodingDefaultVariant, kUnicode16BitFormat );
-    mapping.otherEncoding = encoding;
-    mapping.mappingVersion = kUnicodeUseLatestMapping;
-
-    if ( CreateUnicodeToTextInfo( &mapping, &info  ) != noErr )
-      Q_ASSERT( 0 );
-
-    const QChar *uc = s.unicode();
-    UniChar *buf = new UniChar[len];
-    for ( int i = 0; i < len; ++i )
-        buf[i] = uc[i].row() << 8 | uc[i].cell();
-
-    ConvertFromUnicodeToPString( info, len*2, buf, str  );
-    //TODO determine which errors are fatal
-#if 0
-    int err = ConvertFromUnicodeToPString( info, len*2, buf, str  );
-    if (err != noErr) {
-        qDebug( s );
-        qDebug( "ConvertFromUnicodeToPString %d", err );
-	//        Q_ASSERT( 0 );
-    }
-#endif
-    delete buf;
-    
-    int ret = str[0];
-    memcpy(str, str+1, ret);
-    return ret;
-}
-
 /* font information */
 class QMacSetFontInfo : public QMacSavedFontInfo 
 {
+    int fnum;
     TextEncoding enc;
 public:
     //create this for temporary font settting
     inline QMacSetFontInfo(const QFontPrivate *d) : QMacSavedFontInfo(), enc(0) { setMacFont(d, this); }
-    inline TextEncoding encoding() { return enc; }
+    inline TextEncoding encoding() const { return enc; }
+    inline short font() const { return fnum; }
 
     //you can use this to cause font setting, without restoring old
     static bool setMacFont(const QFontPrivate *d, QMacSetFontInfo *sfi=NULL);
@@ -94,6 +62,8 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
     GetFNum(str, &fnum);
     if(!sfi || fnum != sfi->tfont)
 	TextFont(fnum);
+    if(sfi) 
+	sfi->fnum = fnum;
 
     //style
     short face = normal;
@@ -122,6 +92,65 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
     }
 
     return TRUE;
+}
+
+enum text_task { GIMME_WIDTH, GIMME_DRAW };
+static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, text_task task)
+{
+    QMacSetFontInfo fi(d);
+    OSStatus err;
+
+    const QChar *uc = s.unicode();
+    UniChar *unibuf = new UniChar[len];
+    for ( int i = pos; i < len; ++i ) //don't use pos there FIXME!!
+        unibuf[i] = uc[i].row() << 8 | uc[i].cell();
+
+    //create converter
+    UnicodeToTextRunInfo runi;
+    ItemCount scpts = 1 << 31; //hight bit
+    short scpt[1]; 
+    scpt[0] = FontToScript( fi.font() );
+    err =  CreateUnicodeToTextRunInfoByScriptCode(scpts, scpt, &runi);
+    if(err != noErr) {
+	qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
+	return 0;
+    }
+
+    //now convert
+    int buf_len = 2056;     //buffer
+    uchar *buf = (uchar *)malloc(buf_len);
+    ItemCount run_len = 20; //runs
+    ScriptCodeRun runs[run_len];
+    ByteCount read, converted; //returns
+    err = ConvertFromUnicodeToScriptCodeRun( runi, len * 2, unibuf, kUnicodeUseFallbacksMask,
+					     0, NULL, NULL, NULL, buf_len, &read, 
+					     &converted, buf, run_len, &run_len, runs);
+    if(err != noErr && err != kTECUsedFallbacksStatus) {
+	qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
+	delete unibuf;
+	free(buf);
+	return 0;
+    }
+
+    //now do the task
+    int ret = 0;
+    if(run_len) {
+	for(ItemCount i = 0; i < run_len; i++) {
+	    if(runs[i].script)
+		TextFont(GetScriptVariable(runs[i].script, smScriptSysFond));
+	    else
+		TextFont(fi.font());
+	    ByteOffset off = runs[i].offset;
+	    int len = ((i == run_len - 1) ? converted : runs[i+1].offset) - off;
+	    if(task == GIMME_WIDTH) 
+		ret += TextWidth(buf, off, len);
+	    else if(task == GIMME_DRAW) 
+		DrawText(buf, off, len);
+	}
+    }
+    delete unibuf;
+    free(buf);
+    return ret;
 }
 
 /* Qt platform dependant functions */
@@ -155,11 +184,8 @@ int QFontMetrics::descent() const
 
 int QFontMetrics::charWidth( const QString &s, int pos ) const
 {
-    Str255 str;
-    QMacSetFontInfo fi(FI);
     //FIXME: This may not work correctly if str contains double byte characters
-    qstring_to_text( s, s.length(), str, fi.encoding() );
-    return TextWidth( str, pos+1, 1 );
+    return do_text_task(FI, s, pos, 1, GIMME_WIDTH);
 }
 
 int QFontMetrics::width(QChar c) const
@@ -169,11 +195,7 @@ int QFontMetrics::width(QChar c) const
 
 int QFontMetrics::width(const QString &s,int len) const
 {
-    Str255 str;
-    QMacSetFontInfo fi(FI);
-    //FIXME: This may not work correctly if str contains double byte characters
-    int olen = qstring_to_text( s, len < 1 ? s.length() : len, str, fi.encoding() );
-    return TextWidth( str, 1, olen);
+    return do_text_task(FI, s, 0, len < 1 ? s.length() : len, GIMME_WIDTH);
 }
 
 int QFontMetrics::maxWidth() const
@@ -251,10 +273,7 @@ void QFontPrivate::macSetFont(QPaintDevice *v)
 
 void QFontPrivate::drawText( QString s, int len )
 {
-    Str255 str;
-    QMacSetFontInfo fi(this);
-    int olen = qstring_to_text( s, len, str, fi.encoding() );
-    DrawText( str, 0, olen);
+    do_text_task(this, s, 0, len < 1 ? s.length() : len, GIMME_DRAW);
 }
 
 void QFontPrivate::load()
