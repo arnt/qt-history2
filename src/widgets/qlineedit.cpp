@@ -329,11 +329,14 @@ void QLineEdit::init()
 
 void QLineEdit::setText( const QString &text )
 {
+    QString oldText = this->text();
     d->parag->truncate( 0 );
     d->parag->append( text );
     d->cursor->setIndex( QMIN( d->cursor->index(), d->parag->length() - 1 ) );
     deselect();
     update();
+    if ( oldText != text )
+	emit textChanged( text );
 }
 
 
@@ -1563,6 +1566,7 @@ void QLineEdit::insert( const QString &newText )
 	if( hasMarkedText() )
 	    removeSelectedText();
 	d->cursor->insert( t, FALSE );
+	emit textChanged( text() );
     } else {
 	QString text = d->parag->string()->toString();
 	int cp = d->cursor->index();
