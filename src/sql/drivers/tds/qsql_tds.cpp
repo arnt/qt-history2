@@ -331,6 +331,7 @@ bool QTDSResult::reset ( const QString& query )
 	return FALSE;
     setActive( FALSE );
     setAt( QSql::BeforeFirst );
+    dbcanquery( d->dbproc );
     dbfreebuf( d->dbproc );
     if ( dbcmd( d->dbproc , query.local8Bit().data() ) == FAIL ) {
 	setLastError( d->lastError );
