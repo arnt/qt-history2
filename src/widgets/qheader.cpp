@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#3 $
 **
 **  Table header
 **
@@ -398,35 +398,37 @@ void QHeader::paintEvent( QPaintEvent * )
     case WindowsStyle:
     default:
     case MotifStyle:
-	QBrush fill( g.background() );
-	qDrawShadePanel( &p, r, g, FALSE, 2, &fill );
-	for ( int i = 1; i < (int) count(); i++ ) {
-	    if ( orient == Horizontal ) {
-		int x = pPos( i );
-		p.setPen( g.dark() );
-		p.drawLine( x,  r.top()+1, x, r.bottom() );
-		p.setPen( g.light() );
-		p.drawLine( x+1,  r.top(), x+1, r.bottom() - 1 );
-	    } else {
-		int y = pPos( i );
-		p.setPen( g.dark() );
-		p.drawLine( r.left()+1, y, r.right(), y );
-		p.setPen( g.light() );
-		p.drawLine( r.left(), y+1, r.right() - 1, y+1 );
+	{ // h-pux CC wants this
+	    QBrush fill( g.background() );
+	    qDrawShadePanel( &p, r, g, FALSE, 2, &fill );
+	    for ( int i = 1; i < (int) count(); i++ ) {
+		if ( orient == Horizontal ) {
+		    int x = pPos( i );
+		    p.setPen( g.dark() );
+		    p.drawLine( x,  r.top()+1, x, r.bottom() );
+		    p.setPen( g.light() );
+		    p.drawLine( x+1,  r.top(), x+1, r.bottom() - 1 );
+		} else {
+		    int y = pPos( i );
+		    p.setPen( g.dark() );
+		    p.drawLine( r.left()+1, y, r.right(), y );
+		    p.setPen( g.light() );
+		    p.drawLine( r.left(), y+1, r.right() - 1, y+1 );
+		}
 	    }
-	}
-	if ( state == Pressed || state == Moving ) {
-	    if ( orient == Horizontal ) {
-		QRect q( pPos( handleIdx ) + 1, r.top()+1, 
-			 pSize( handleIdx ), r.height()-2 );
-		qDrawShadePanel( &p, q, g, TRUE, 2, &fill );
-	    } else {
-		QRect q( r.left()+1, pPos( handleIdx ) + 1, 
-			 r.width()-2, pSize( handleIdx ) );
-		qDrawShadePanel( &p, q, g, TRUE, 2, &fill );
+	    if ( state == Pressed || state == Moving ) {
+		if ( orient == Horizontal ) {
+		    QRect q( pPos( handleIdx ) + 1, r.top()+1, 
+			     pSize( handleIdx ), r.height()-2 );
+		    qDrawShadePanel( &p, q, g, TRUE, 2, &fill );
+		} else {
+		    QRect q( r.left()+1, pPos( handleIdx ) + 1, 
+			     r.width()-2, pSize( handleIdx ) );
+		    qDrawShadePanel( &p, q, g, TRUE, 2, &fill );
+		}
 	    }
+	    break;
 	}
-	break;
     }
     p.setPen( g.text() );
 
@@ -447,27 +449,27 @@ void QHeader::paintEvent( QPaintEvent * )
 	//debug( "Draw text %s", s );
 	p.drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
 	/*
-	switch ( i ) {
-	case 0:
-	    p.setPen( red );
-	    break;
-	case 1:
-	    p.setPen( yellow );
-	    break;
-	case 2:
-	    p.setPen( green );
-	    break;
-	case 3:
-	    p.setPen( blue );
-	    break;
-	case 4:
-	    p.setPen( cyan );
-	    break;
-	default:
-	    p.setPen( white );
-	}
-	p.drawRect( r );
-	*/
+	  switch ( i ) {
+	  case 0:
+	  p.setPen( red );
+	  break;
+	  case 1:
+	  p.setPen( yellow );
+	  break;
+	  case 2:
+	  p.setPen( green );
+	  break;
+	  case 3:
+	  p.setPen( blue );
+	  break;
+	  case 4:
+	  p.setPen( cyan );
+	  break;
+	  default:
+	  p.setPen( white );
+	  }
+	  p.drawRect( r );
+	  */
     }
     p.end();
 }
