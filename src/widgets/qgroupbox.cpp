@@ -461,8 +461,8 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
  */
 bool QGroupBox::event( QEvent * e )
 {
-    if ( e->type() == QEvent::LayoutHint )
-        setTextSpacer();
+    if ( e->type() == QEvent::LayoutHint && layout() )
+	setTextSpacer();
     return QFrame::event( e );
 }
 
