@@ -480,7 +480,7 @@ int QHeader::findLine( int c )
     if ( c > d->lastPos ) {
 	return d->count;
     } else {
-	int section = sectionAt( c );
+	int section = d->sectionAt( c );
 	if ( section < 0 )
 	    return handleIdx;
 	i = d->s2i[section];
@@ -524,7 +524,7 @@ void QHeader::mousePressEvent( QMouseEvent *e )
     if( reverse() ) 
 	c = d->lastPos - c;
 
-    int section = sectionAt( c );
+    int section = d->sectionAt( c );
     if ( section < 0 )
 	return;
     int index = d->s2i[section];
@@ -620,7 +620,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
     switch( state ) {
     case Idle:
 	hit = FALSE;
-	if ( (section = sectionAt( c )) >= 0 ) {
+	if ( (section = d->sectionAt( c )) >= 0 ) {
 	    int index = d->s2i[section];
 	    if ( (index > 0 && c < d->positions[index] + GRIPMARGIN) ||
 		 (c > d->positions[index] + d->sizes[section] - GRIPMARGIN) ) {
@@ -943,6 +943,17 @@ QSize QHeader::sizeHint() const
     }
 }
 
+
+/*!
+  Returns the leftmost (or uppermost for vertical headers) visible pixel.
+ */
+int QHeader::offset() const
+{
+    if ( reverse() )
+	return d->lastPos - width() - offs;
+    return offs;
+}
+
 /*!
   Scrolls the header such that \a x becomes the leftmost (or uppermost
   for vertical headers) visible pixel.
@@ -950,13 +961,18 @@ QSize QHeader::sizeHint() const
 
 void QHeader::setOffset( int x )
 {
-    int oldOff = offs;
+    int oldOff = offset();
     offs = x;
-    //qDebug("setOffset %d", offs);
+    if( d->lastPos < width() ) {
+	qDebug("setting to 0");
+	offs = 0;
+    } else if ( reverse() )
+	offs = d->lastPos - width() - x;
+    qDebug("setOffset(%d) %d", x, offs);
     if ( orient == Horizontal )
-	scroll( oldOff-offs, 0 );
+	scroll( oldOff-offset(), 0 );
     else
-	scroll( 0, oldOff-offs);
+	scroll( 0, oldOff-offset());
 }
 
 
@@ -1015,15 +1031,6 @@ void QHeader::setPHeight( int i, int h )
     d->heights[section] = h;
 }
 
-
-
-/*!
-  Returns the leftmost (or uppermost for vertical headers) visible pixel.
- */
-int QHeader::offset() const
-{
-    return offs;
-}
 
 /*!
   \obsolete
@@ -1289,18 +1296,23 @@ void QHeader::paintEvent( QPaintEvent *e )
 		     ? e->rect().left()
 		     : e->rect().top();
     int id = mapToIndex( sectionAt( pos + offset() ) );
-    if ( id < 0 )
+    if ( id < 0 ) {
 	if ( pos > 0 )
 	    return;
+	else if ( reverse() )
+	    id = d->count - 1;
 	else
 	    id = 0;
+    }
     if ( reverse() ) {
-	for ( int i = count()-1; i >= id; i-- ) {
+	qDebug("painting from %d", id);
+	for ( int i = id; i >= 0; i-- ) {
 	    QRect r = sRect( i );
 	    paintSection( &p, i, r );
-	    if ( orient == Horizontal && r. right() >= e->rect().right() ||
-		 orient == Vertical && r. bottom() >= e->rect().bottom() )
+	    if ( r.right() >= e->rect().right() ) {
+		qDebug("...to %d", i);
 		return;
+	    }
 	}
     } else {
 	for ( int i = id; i < count(); i++ ) {
@@ -1376,6 +1388,8 @@ int QHeader::sectionPos( int section ) const
 
 int QHeader::sectionAt( int pos ) const
 {
+    if ( reverse() )
+	pos = d->lastPos - pos;
     return d->sectionAt( pos );
 }
 
@@ -1503,10 +1517,12 @@ bool QHeader::reverse () const {
 /*! \reimp */
 void QHeader::resizeEvent( QResizeEvent *e )
 {
-    if( reverse() )
-	offs -= e->size().width() - e->oldSize().width();
     //qDebug("resize: width = %d, oldWidth=%d, offset = %d", e->size().width(), e->oldSize().width(), offs );
     QWidget::resizeEvent( e );
+
+    if( d->lastPos < width() ) {
+	    offs = 0;
+    }
 }
 
 /*!
