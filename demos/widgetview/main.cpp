@@ -66,9 +66,6 @@ int main( int argc, char ** argv ) {
         "to add small child widgets.");
     label->setFrameStyle(QFrame::Box);
     label->setMargin(8);
-    QFont font;
-    font.setPointSize(24);
-    label->setFont(font);
 
     view->show();
 
