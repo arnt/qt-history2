@@ -153,8 +153,8 @@ protected:
 //     void drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,
 // 				  const QColorGroup &g, bool horizontal, const QBrush* fill = 0);
      QColor mixedColor(const QColor &, const QColor &) const;
-//     void drawRiffles( QPainter* p,  int x, int y, int w, int h,
-// 		      const QColorGroup &g, bool horizontal );
+    void drawRiffles( QPainter* p,  int x, int y, int w, int h,
+		      const QColorGroup &g, bool horizontal ) const;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QPlatinumStyle( const QPlatinumStyle & );

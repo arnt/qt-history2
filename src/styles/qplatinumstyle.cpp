@@ -46,7 +46,7 @@
 #include "qpalette.h"
 #include "qpushbutton.h"
 #include "qscrollbar.h"
-#include "qradiobutton.h"
+#include "qslider.h"
 #include <limits.h>
 
 // NOT REVISED
@@ -83,14 +83,22 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 				    void **data ) const
 {
     switch (pe) {
+    case PE_HeaderSection:
+	// I don't know why, but for some reason the qheader is based
+	// sunken.  So flip the bits, to be consistent with the Bevel Buttons..
+	if ( flags & Style_Sunken )
+	    flags ^= Style_Sunken;
+	// fall through...
     case PE_ButtonBevel:
+    case PE_ButtonTool:
 	{
+	    
 	    QPen oldPen = p->pen();
 	    if ( r.width() * r.height() < 1600 ||
 		 QABS(r.width() - r.height()) > 10 ) {
 		// small buttons
 
-		if ( !(flags & Style_Sunken) ) {
+		if ( !(flags & (Style_Sunken | Style_Down)) ) {
 		    p->fillRect( r.x() + 2, r.y() + 2, r.width() - 4,
 				 r.height() - 4,
 				 cg.brush(QColorGroup::Button) );
@@ -159,7 +167,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		}
 	    } else {
 		// big ones
-		if ( !(flags & Style_Sunken) ) {
+		if ( !(flags & (Style_Sunken | Style_Down)) ) {
 		    p->fillRect( r.x() + 3, r.y() + 3, r.width() - 6,
 				 r.height() - 6,
 				 cg.brush(QColorGroup::Button) );
@@ -273,8 +281,6 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    break;
 	}
     case PE_ButtonCommand:
-    case PE_ButtonTool:
-    case PE_HeaderSection:
 	{
 	    QPen oldPen = p->pen();
 	    int x, y, w, h;
@@ -283,7 +289,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    w = r.width();
 	    h = r.height();
 	
-	    if ( !(flags && Style_Sunken) ) {
+	    if ( !(flags & (Style_Down | Style_On)) ) {
 		p->fillRect(x+3, y+3, w-6, h-6,
 			    cg.brush( QColorGroup::Button ));
 		// the bright side
@@ -356,8 +362,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		p->setPen(cg.mid());
 		p->drawPoint(x+w-4, y+h-4);
 	
-	    }
-	    else {
+	    } else {
 		p->fillRect(x+2, y+2, w-4, h-4,
 			    cg.brush( QColorGroup::Dark ));
 		
@@ -421,11 +426,6 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	}
     case PE_Indicator:
 	{
-	    // ### kludgy work around! when I get more widgets completed,
-	    // I will come back and fix this --tws
-	    if ( flags & Style_Down )	
-		flags |= Style_Sunken;
-	
 	    drawPrimitive( PE_ButtonBevel, p, QRect(r.x(), r.y(),
 						    r.width() - 2, r.height()),
 			   cg, flags );
@@ -452,6 +452,9 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		if ( flags & Style_On ) {
 		    amark = QPointArray( sizeof(check_mark)/(sizeof(QCOORD)*2),
 					 check_mark );
+		    // ### KLUDGE!!
+		    flags ^= Style_On;
+		    flags ^= Style_Down;
 		} else if ( flags & Style_NoChange ) {
 		    amark = QPointArray( sizeof(nochange_mark)
 					 / (sizeof(QCOORD) * 2),
@@ -571,7 +574,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 {
     switch( element ) {
     case CE_PushButton:
-	{
+	{	    
 	    QColorGroup myCg( cg );
 	    const QPushButton *btn;
 	    int x1, y1, x2, y2;
@@ -579,6 +582,19 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	    SFlags flags;
 	    flags = Style_Default;
 	    btn = (const QPushButton*)widget;
+	    
+	    // take care of the flags based on what we know...
+	    if ( btn->isDown() )
+		flags |= Style_Down;
+	    if ( btn->isOn() )
+		flags |= Style_On;
+	    if ( btn->isEnabled() )
+		flags |= Style_Enabled;
+	    if ( btn->isDefault() )
+		flags |= Style_Default;
+ 	    if (! btn->isFlat() && !(flags & Style_Down))
+ 		flags |= Style_Raised;
+	    
 	    r.coords( &x1, &y1, &x2, &y2 );
 	
 	    p->setPen( cg.foreground() );
@@ -587,16 +603,12 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	    QBrush fill;
 	    if ( btn->isDown() ) {
 		fill = cg.brush( QColorGroup::Dark );
-		myCg.setBrush( QColorGroup::Dark, fill );
 		// ### this should really be done differently, but this
 		// makes a down Bezel drawn correctly...
 		myCg.setBrush( QColorGroup::Mid, fill );
 	    } else if ( btn->isOn() ) {
 		fill = QBrush( cg.mid(), Dense4Pattern );
 		myCg.setBrush( QColorGroup::Mid, fill );
-	    } else {
-		fill = cg.brush( QColorGroup::Button );
-		myCg.setBrush( QColorGroup::Button, fill );
 	    }
 	    // to quote the old QPlatinumStlye drawPushButton...
 	    // small or square image buttons as well as toggle buttons are
@@ -638,15 +650,14 @@ void QPlatinumStyle::drawControl( ControlElement element,
 
 	    if ( !btn->isFlat() || btn->isOn() || btn->isDown() ) {
 		if ( useBevelButton ) {
-		    if ( btn->isOn() || btn->isDown() )
+		    // fix for toggle buttons...
+		    if ( flags & (Style_Down | Style_On) )
 			flags |= Style_Sunken;
 		    drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1,
 							     x2 - x1 + 1,
 							     y2 - y1 + 1 ),
 				   myCg, flags, data );
 		} else {
-		    if ( btn->isOn() || btn->isDown() )
-			flags |= Style_Sunken;
 		    drawPrimitive( PE_ButtonCommand, p, QRect( x1, y1,
 							       x2 - x1 + 1,
 							       y2 - y1 + 1 ),
@@ -739,6 +750,175 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 					 void **data ) const
 {
     switch ( control ) {
+//     case CC_Slider:
+// 	{
+	
+// 	    const QSlider *slide;
+// 	    slide = (const QSlider*)widget;
+
+// 	    // ### okay stop, need to draw groove, this should be
+// 	    // a primitive, but it isn't for the moment...
+	
+	
+// // 	    QRect ir = r;
+	
+// // 	    p->fillRect( ir.x(), ir.y(), ir.width(), ir.height(),
+// // 			 cg.brush(QColorGroup::Background) );
+// // 	    if ( slid->orientation() == Horizontal ) {
+// // 		ir.setY( ir.y() + c - 3;
+// // 		h = 7;
+// // 	    }
+// // 	    else {
+// // 		x = x+c-3;
+// // 		w = 7;
+// // 	    }
+// // 	    p->fillRect(x, y, w, h, g.brush( QColorGroup::Dark ));
+
+// // 	    // the dark side
+// // 	    p->setPen(g.dark());
+// // 	    p->drawLine(x, y, x+w-1, y);
+// // 	    p->drawLine(x, y, x, y+h-1);
+
+// // 	    p->setPen(g.shadow());
+// // 	    p->drawLine(x+1, y+1, x+w-2, y+1);
+// // 	    p->drawLine(x+1, y+1, x+1, y+h-2);
+
+
+// // 	    // the bright side!
+
+// // 	    p->setPen(g.shadow());
+// // 	    p->drawLine(x+1, y+h-2 ,x+w-2, y+h-2);
+// // 	    p->drawLine(x+w-2, y+1, x+w-2, y+h-2);
+
+// // 	    p->setPen(g.light());
+// // 	    p->drawLine(x, y+h-1,x+w-1, y+h-1);
+// // 	    p->drawLine(x+w-1, y, x+w-1, y+h-1);
+
+// // 	    // top left corner:
+// // 	    p->setPen(g.background());
+// // 	    p->drawPoint(x, y);
+// // 	    p->drawPoint(x+1, y);
+// // 	    p->drawPoint(x, y+1);
+// // 	    p->setPen(g.shadow());
+// // 	    p->drawPoint(x+1, y+1);
+// // 	    // bottom left corner:
+// // 	    p->setPen(g.background());
+// // 	    p->drawPoint(x, y+h-1);
+// // 	    p->drawPoint(x+1, y+h-1);
+// // 	    p->drawPoint(x, y+h-2);
+// // 	    p->setPen(g.light());
+// // 	    p->drawPoint(x+1, y+h-2);
+// // 	    // top right corner:
+// // 	    p->setPen(g.background());
+// // 	    p->drawPoint(x+w-1, y);
+// // 	    p->drawPoint(x+w-2, y);
+// // 	    p->drawPoint(x+w-1, y+1);
+// // 	    p->setPen(g.dark());
+// // 	    p->drawPoint(x+w-2, y+1);
+// // 	    // bottom right corner:
+// // 	    p->setPen(g.background());
+// // 	    p->drawPoint(x+w-1, y+h-1);
+// // 	    p->drawPoint(x+w-2, y+h-1);
+// // 	    p->drawPoint(x+w-1, y+h-2);
+// // 	    p->setPen(g.light());
+// // 	    p->drawPoint(x+w-2, y+h-2);
+// // 	    p->setPen(g.dark());
+// // 	    p->drawPoint(x+w-3, y+h-3);
+	
+	
+// 	    // ### end slider groove
+// 	    const QColor c0 = cg.shadow();
+// 	    const QColor c1 = cg.dark();
+// 	    const QColor c3 = cg.light();
+	
+// 	    int x1 = r.x();
+// 	    int x2 = r.x() + r.width() - 1;
+// 	    int y1 = r.y();
+// 	    int y2 = r.y() + r.height() - 1;
+// 	    int mx = r.width() / 2;
+// 	    int my = r.height() / 2;
+	
+
+	
+// 	    if ( slide->orientation() == Vertical ) {
+// 		// Background
+// 		QBrush oldBrush = p->brush();
+// 		p->setBrush( cg.brush( QColorGroup::Button ) );
+// 		p->setPen( NoPen );
+// 		QPointArray a(6);
+// 		a.setPoint( 0, x1 + 1, y1 + 1 );
+// 		a.setPoint( 1, x2 - my + 2, y1 + 1 );
+// 		a.setPoint( 2, x2 - 1, y1 + my - 1 );
+// 		a.setPoint( 3, x2 - 1, y2 - my + 1 );
+// 		a.setPoint( 4, x2 - my + 2, y2 - 1 );
+// 		a.setPoint( 5, x1 + 1, y2 - 1 );
+// 		p->drawPolygon( a );
+// 		p->setBrush( oldBrush );
+	
+// 		// shadow border
+// 		p->setPen( c0 );
+// 		p->drawLine(x1, y1+1, x1,y2-1);
+// 		p->drawLine( x2-my+2, y1, x2, y1+my-2);
+// 		p->drawLine( x2-my+2, y2, x2, y1+my+2);
+// 		p->drawLine(x2, y1+my-2, x2, y1+my+2);
+// 		p->drawLine(x1+1, y1, x2-my+2, y1);
+// 		p->drawLine(x1+1, y2, x2-my+2, y2);
+
+// 		// light shadow
+// 		p->setPen(c3);
+// 		p->drawLine(x1+1, y1+2, x1+1,y2-2);
+// 		p->drawLine(x1+1, y1+1, x2-my+2, y1+1);
+// 		p->drawLine( x2-my+2, y1+1, x2-1, y1+my-2);
+
+// 		// dark shadow
+// 		p->setPen(c1);
+// 		p->drawLine(x2-1, y1+my-2, x2-1, y1+my+2);
+// 		p->drawLine( x2-my+2, y2-1, x2-1, y1+my+2);
+// 		p->drawLine(x1+1, y2-1, x2-my+2, y2-1);
+	
+// 		drawRiffles( p, r.x(), r.y() + 2, r.width() - 3,
+// 			     r.height() - 4, cg, TRUE );
+// 	    } else {  // Horizontal
+// 		QBrush oldBrush = p->brush();
+// 		p->setBrush( cg.brush( QColorGroup::Button ) );
+// 		p->setPen( NoPen );
+// 		QPointArray a(6);
+// 		a.setPoint( 0, x2-1, y1+1 );
+// 		a.setPoint( 1, x2-1, y2-mx+2 );
+// 		a.setPoint( 2, x2-mx+1, y2-1 );
+// 		a.setPoint( 3, x1+mx-1, y2-1 );
+// 		a.setPoint( 4, x1+1, y2-mx+2 );
+// 		a.setPoint( 5, x1+1, y1+1 );
+// 		p->drawPolygon( a );
+// 		p->setBrush( oldBrush );
+
+// 		// shadow border
+// 		p->setPen( c0 );
+// 		p->drawLine(x1+1,y1,x2-1,y1);
+// 		p->drawLine(x1, y2-mx+2, x1+mx-2, y2);
+// 		p->drawLine(x2, y2-mx+2, x1+mx+2, y2);
+// 		p->drawLine(x1+mx-2, y2, x1+mx+2, y2);
+// 		p->drawLine(x1, y1+1, x1, y2-mx+2);
+// 		p->drawLine(x2, y1+1, x2, y2-mx+2);
+
+// 		// light shadow
+// 		p->setPen(c3);
+// 		p->drawLine(x1+1, y1+1,x2-1, y1+1);
+// 		p->drawLine(x1+1, y1+1, x1+1, y2-mx+2);
+
+// 		// dark shadow
+// 		p->setPen(c1);
+// 		p->drawLine(x2-1, y1+1, x2-1, y2-mx+2);
+// 		p->drawLine(x1+1, y2-mx+2, x1+mx-2, y2-1);
+// 		p->drawLine(x2-1, y2-mx+2, x1+mx+2, y2-1);
+// 		p->drawLine(x1+mx-2, y2-1, x1+mx+2, y2-1);
+
+// 		drawRiffles(p, r.x() + 2, r.y(), r.width() - 4, r.height() - 5,
+// 			    cg, FALSE);
+// 	    }
+// 	    //	    p->setBrush( oldBrush );
+//	    break;
+//	}
     default:
 	QWindowsStyle::drawComplexControl( control, p, widget, r, cg,
 					   how, sub, subActive, data );
@@ -775,6 +955,8 @@ int QPlatinumStyle::pixelMetric( PixelMetric metric,
     case PM_ExclusiveIndicatorWidth:
 	ret = 15;
 	break;
+    case PM_SliderLength:
+	ret = 17;
     default:
 	ret = QWindowsStyle::pixelMetric( metric, widget );
 	break;
@@ -1263,53 +1445,53 @@ QColor QPlatinumStyle::mixedColor(const QColor &c1, const QColor &c2) const
 
 // }
 
-// /*!
-//   Draws the nifty Macintosh decoration used on sliders.
-//   */
-// void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
-// 		      const QColorGroup &g, bool horizontal )
-// {
-// 	if (!horizontal) {
-// 	    if (h > 20) {
-// 		y += (h-20)/2 ;
-// 		h = 20;
-// 	    }
-// 	    if (h > 8) {
-// 		int n = h / 4;
-// 		int my = y+h/2-n;
-// 		int i ;
-// 		p->setPen(g.light());
-// 		for (i=0; i<n; i++) {
-// 		    p->drawLine(x+3, my+2*i, x+w-5, my+2*i);
-// 		}
-// 		p->setPen(g.dark());
-// 		my++;
-// 		for (i=0; i<n; i++) {
-// 		    p->drawLine(x+4, my+2*i, x+w-4, my+2*i);
-// 		}
-// 	    }
-// 	}
-// 	else {
-// 	    if (w > 20) {
-// 		x += (w-20)/2 ;
-// 		w = 20;
-// 	    }
-// 	    if (w > 8) {
-// 		int n = w / 4;
-// 		int mx = x+w/2-n;
-// 		int i ;
-// 		p->setPen(g.light());
-// 		for (i=0; i<n; i++) {
-// 		    p->drawLine(mx+2*i, y+3, mx + 2*i, y+h-5);
-// 		}
-// 		p->setPen(g.dark());
-// 		mx++;
-// 		for (i=0; i<n; i++) {
-// 		    p->drawLine(mx+2*i, y+4, mx + 2*i, y+h-4);
-// 		}
-// 	    }
-// 	}
-// }
+/*!
+  Draws the nifty Macintosh decoration used on sliders.
+  */
+void QPlatinumStyle::drawRiffles( QPainter* p,  int x, int y, int w, int h,
+				  const QColorGroup &g, bool horizontal ) const
+{
+	if (!horizontal) {
+	    if (h > 20) {
+		y += (h-20)/2 ;
+		h = 20;
+	    }
+	    if (h > 8) {
+		int n = h / 4;
+		int my = y+h/2-n;
+		int i ;
+		p->setPen(g.light());
+		for (i=0; i<n; i++) {
+		    p->drawLine(x+3, my+2*i, x+w-5, my+2*i);
+		}
+		p->setPen(g.dark());
+		my++;
+		for (i=0; i<n; i++) {
+		    p->drawLine(x+4, my+2*i, x+w-4, my+2*i);
+		}
+	    }
+	}
+	else {
+	    if (w > 20) {
+		x += (w-20)/2 ;
+		w = 20;
+	    }
+	    if (w > 8) {
+		int n = w / 4;
+		int mx = x+w/2-n;
+		int i ;
+		p->setPen(g.light());
+		for (i=0; i<n; i++) {
+		    p->drawLine(mx+2*i, y+3, mx + 2*i, y+h-5);
+		}
+		p->setPen(g.dark());
+		mx++;
+		for (i=0; i<n; i++) {
+		    p->drawLine(mx+2*i, y+4, mx + 2*i, y+h-4);
+		}
+	    }
+	}
+}
 
 // /*! \reimp */
 
