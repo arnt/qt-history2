@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtl.h#5 $
+** $Id: //depot/qt/main/src/tools/qtl.h#6 $
 **
 ** Definition of Qt template library classes
 **
@@ -215,27 +215,5 @@ inline void qHeapSort( Container c )
   // Do the real sorting here
   qHeapSortHelper( c.begin(), c.end(), *(c.begin()), c.count() );
 }
-
-template <class Container>
-class QInsertIterator
-{
-protected:
-  Container& container;
-  typename Container::Iterator it;
-
-public:
-  QInsertIterator( Container& x, typename Container::Iterator i ) 
-    : container( x ), it(i) {}
-
-  QInsertIterator<Container>&  operator= ( const typename Container::ValueType& x ) { 
-    it = container.insert( it, x );
-    ++it;
-    return *this;
-  }
-
-  QInsertIterator<Container>& operator*() { return *this; }
-  QInsertIterator<Container>& operator++() { return *this; }
-  QInsertIterator<Container>& operator++(int) { return *this; }
-};
 
 #endif
