@@ -318,7 +318,7 @@ void ConfigureApp::generateOutputVars()
 	qmakeDefines += "QT_NO_STL";
     }
 
-    qmakeDefines += "QMAKE_QT_VERSION_OVERRIDE_" + dictionary[ "VERSION" ];
+    qmakeVars += "QMAKE_QT_VERSION_OVERRIDE_" + dictionary[ "VERSION" ];
 
     qmakeVars += QString( "QMAKE_LIBDIR_QT=" ) + QDir::convertSeparators( qtDir + "/lib" );
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
