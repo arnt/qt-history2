@@ -2755,11 +2755,12 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	}
 	return !passiveInteractor;
     case QEvent::MouseMove:
-	if ( isAToolBarChild( o )  && currentTool() != CONNECT_TOOL )
+	if ( isAToolBarChild( o ) && currentTool() != CONNECT_TOOL )
 	    break;
 	w = isAFormWindowChild( o );
 	if ( lastPressWidget != (QWidget*)o && w &&
-	     !o->inherits( "SizeHandle" ) && !o->inherits( "OrderIndicator" ) )
+	     !o->inherits( "SizeHandle" ) && !o->inherits( "OrderIndicator" ) &&
+	     !o->inherits( "QPopupMenu" ) && !o->inherits( "QMenuBar" ) )
 	    return TRUE;
 	if ( lastPressWidget != (QWidget*)o ||
 	     ( !w || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) ) )
