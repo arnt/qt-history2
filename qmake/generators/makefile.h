@@ -93,6 +93,10 @@ protected:
     //for installs
     virtual QString defaultInstall(const QString &);
 
+    //for prl
+    bool processPrlFile(QString &);
+    virtual void processPrlFiles();
+
     QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
     QString varList(const QString &var);

@@ -72,7 +72,8 @@ int main(int argc, char **argv)
     QString oldpwd = sunworkshop42workaround.currentDirPath();
     QMakeProject proj;
     int exit_val = 0;
-    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
+       Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
 	for(QStringList::Iterator pfile = Option::mkfile::project_files.begin();
 	    pfile != Option::mkfile::project_files.end(); pfile++) {
 	    QString fn = (*pfile);
@@ -127,9 +128,9 @@ int main(int argc, char **argv)
 		exit_val = 4;
 	    }
 
-	    if(mkfile) {
+	    bool using_stdout = FALSE;
+	    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE && mkfile) {
 		/* open make file */
-		bool using_stdout = FALSE;
 		if(!(Option::output.state() & IO_Open)) {
 		    QString default_makefile = proj.first("QMAKE_MAKEFILE");
 		    if(default_makefile.isEmpty()) {
@@ -173,12 +174,14 @@ int main(int argc, char **argv)
 			}
 		    }
 		}
-		if(!mkfile->write()) {
-		    fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
-		    if(!using_stdout)
-			QFile::remove(Option::output.name());
-		    exit_val = 6;
-		}
+	    } else {
+		using_stdout = TRUE; //kind of..
+	    }
+	    if(mkfile && !mkfile->write()) {
+		fprintf(stderr, "Unable to generate makefile for: %s\n", (*pfile).latin1());
+		if(!using_stdout)
+		    QFile::remove(Option::output.name());
+		exit_val = 6;
 		delete mkfile;
 	    }
 
@@ -186,7 +189,8 @@ int main(int argc, char **argv)
 	    if(Option::debug_level) {
 		QMap<QString, QStringList> &vars = proj.variables();
 		for( QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
-		    debug_msg(1, "%s === %s", it.key().latin1(), it.data().join(" :: ").latin1());
+		    if(!it.data().isEmpty())
+			debug_msg(1, "%s === %s", it.key().latin1(), it.data().join(" :: ").latin1());
 		}
 	    }
 	}
@@ -244,7 +248,8 @@ int main(int argc, char **argv)
 	if(Option::debug_level) {
 	    QMap<QString, QStringList> &vars = proj.variables();
 	    for( QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
-		debug_msg(1, "%s === %s", it.key().latin1(), it.data().join(" ").latin1());
+		if(!it.data().isEmpty())
+		    debug_msg(1, "%s === %s", it.key().latin1(), it.data().join(" ").latin1());
 	    }
 	}
     }

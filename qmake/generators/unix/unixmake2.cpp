@@ -75,7 +75,7 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
 void
 UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 {
-    QString deps = Option::output.name();
+    QString deps = Option::output.name(), prl;
     fileFixify(deps, QDir::currentDirPath());
     bool do_incremental = (project->isActiveConfig("incremental") &&
 			   !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
@@ -504,7 +504,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
       << "-rm -f " << destdir << "$(TARGET)" << " " << "$(TARGET)" << "\n\t";
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
        !project->isActiveConfig("plugin"))
-	t << "-rm -f " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) " << destdir << "$(TARGET2) $(TARGETA)" << "\n\t";
+	t << "-rm -f " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) " 
+	  << destdir << "$(TARGET2) $(TARGETA)" << "\n\t";
     t << endl << endl;
 
     if ( !project->isEmpty("PRECOMPH") ) {
@@ -515,9 +516,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << outdir << "allmoc.cpp: " << qt_dot_h << " "
 	  << varList("HEADERS_ORIG") << "\n\t"
 	  << "echo '#include \"" << qt_dot_h << "\"' >" << outdir << "allmoc.cpp" << "\n\t"
-	  << "$(CXX) -E -DQT_MOC_CPP -DQT_NO_STL $(CXXFLAGS) $(INCPATH) >" << outdir << "allmoc.h " << outdir << "allmoc.cpp" << "\n\t"
+	  << "$(CXX) -E -DQT_MOC_CPP -DQT_NO_STL $(CXXFLAGS) $(INCPATH) >" << outdir << "allmoc.h " 
+	     << outdir << "allmoc.cpp" << "\n\t"
 	  << "$(MOC) -o " << outdir << "allmoc.cpp " << outdir << "allmoc.h" << "\n\t"
-	  << "perl -pi -e 's{#include \"allmoc.h\"}{#define QT_H_CPP\\n#include \"" << qt_dot_h << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
+	  << "perl -pi -e 's{#include \"allmoc.h\"}{#define QT_H_CPP\\n#include \"" 
+	     << qt_dot_h << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
 	  << "rm " << outdir << "allmoc.h" << endl << endl;
     }
     t <<"FORCE:" << endl << endl;

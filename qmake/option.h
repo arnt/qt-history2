@@ -43,7 +43,7 @@
 #include <qfile.h>
 
 #define QMAKE_VERSION_MAJOR 1
-#define QMAKE_VERSION_MINOR 0
+#define QMAKE_VERSION_MINOR 1
 #define QMAKE_VERSION_PATCH 0
 const char *qmake_version();
 
@@ -84,7 +84,8 @@ struct Option
     static QString fixPathToTargetOS(const QString& in, bool fix_env=TRUE);
 
     //global qmake mode, can only be in one mode per invocation!
-    enum QMAKE_MODE { QMAKE_GENERATE_NOTHING, QMAKE_GENERATE_PROJECT, QMAKE_GENERATE_MAKEFILE };
+    enum QMAKE_MODE { QMAKE_GENERATE_NOTHING, QMAKE_GENERATE_PROJECT, QMAKE_GENERATE_MAKEFILE, 
+		      QMAKE_GENERATE_PRL };
     static QMAKE_MODE qmake_mode;
 
     //all modes
@@ -108,6 +109,7 @@ struct Option
 	static QString qmakespec;
 	static bool do_cache;
 	static bool do_deps;
+	static bool do_mocs;
 	static bool do_dep_heuristics;
 	static bool do_preprocess;
 	static QString cachefile;

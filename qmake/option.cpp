@@ -87,6 +87,7 @@ QStringList Option::projfile::project_dirs;
 QString Option::mkfile::qmakespec;
 int Option::mkfile::cachefile_depth = -1;
 bool Option::mkfile::do_deps = TRUE;
+bool Option::mkfile::do_mocs = TRUE;
 bool Option::mkfile::do_dep_heuristics = TRUE;
 bool Option::mkfile::do_preprocess = FALSE;
 bool Option::mkfile::do_cache = TRUE;
@@ -136,6 +137,7 @@ bool usage(const char *a0)
 	    "\t-spec spec     Use spec as QMAKESPEC       [makefile mode only]\n"
 	    "\t-nocache       Don't use a cache file      [makefile mode only]\n"
 	    "\t-nodepend      Don't generate dependencies [makefile mode only]\n"
+	    "\t-nomoc         Don't generate moc targets  [makefile mode only]\n"
 	    "\t-nopwd         Don't look for files in pwd [ project mode only]\n"
 	    ,a0);
     return FALSE;
@@ -164,6 +166,10 @@ Option::parseCommandLine(int argc, char **argv)
 		bool specified = TRUE;
 		if(opt == "project") {
 		    Option::qmake_mode = Option::QMAKE_GENERATE_PROJECT;
+		} else if(opt == "prl") {
+		    Option::mkfile::do_deps = FALSE;
+		    Option::mkfile::do_mocs = FALSE;
+		    Option::qmake_mode = Option::QMAKE_GENERATE_PRL;
 		} else if(opt == "makefile") {
 		    Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;
 		} else {
@@ -205,9 +211,12 @@ Option::parseCommandLine(int argc, char **argv)
 	    } else if(opt == "Wnone") {
 		Option::warn_level = WarnNone;
 	    } else {
-		if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
+		if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
+		   Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
 		    if(opt == "nodepend") {
 			Option::mkfile::do_deps = FALSE;
+		    } else if(opt == "nomoc") {
+			Option::mkfile::do_mocs = FALSE;
 		    } else if(opt == "nocache") {
 			Option::mkfile::do_cache = FALSE;
 		    } else if(opt == "nodependheuristics") {
@@ -233,7 +242,7 @@ Option::parseCommandLine(int argc, char **argv)
 		}
 	    }
 	} else {
-	    if(x == 1)
+	    if(x == 1) 
 		Option::qmake_mode = default_mode(argv[0]);
 
 	    QString arg = argv[x];
@@ -243,19 +252,20 @@ Option::parseCommandLine(int argc, char **argv)
 		else
 		    Option::after_user_vars.append(arg);
 	    } else {
-		if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
+		if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
+		   Option::qmake_mode == Option::QMAKE_GENERATE_PRL)
 		    Option::mkfile::project_files.append(arg);
 		else
 		    Option::projfile::project_dirs.append(arg);
 	    }
 	}
     }
-
-    if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING) 
 	Option::qmake_mode = default_mode(argv[0]);
 
     //last chance for defaults
-    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
+    if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
+	Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
 	if(Option::mkfile::cachefile.isNull() || Option::mkfile::cachefile.isEmpty()) {
 	    if(Option::mkfile::do_cache) {
 		QString dir = QDir::convertSeparators(QDir::currentDirPath());
@@ -273,20 +283,17 @@ Option::parseCommandLine(int argc, char **argv)
 		}
 	    }
 	}
-
 	if(Option::mkfile::qmakespec.isNull() || Option::mkfile::qmakespec.isEmpty())
 	    Option::mkfile::qmakespec = getenv("QMAKESPEC");
 
 	//try REALLY hard to do it for them, lazy..
-	if(!Option::mkfile::project_files.count()) {
+	if(Option::mkfile::project_files.isEmpty()) {
 	    QString proj = QDir::currentDirPath();
 	    proj = proj.right(proj.length() - (proj.findRev('/') + 1)) + ".pro";
-	    if(QFile::exists(proj)) {
-		Option::qmake_mode = default_mode(argv[0]);
+	    if(QFile::exists(proj)) 
 		Option::mkfile::project_files.append(proj);
-	    } else {
+	    else 
 		return usage(argv[0]);
-	    }
 	}
     }
 

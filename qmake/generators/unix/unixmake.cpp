@@ -233,52 +233,121 @@ UnixMakefileGenerator::init()
     }
     
     init2();
+    project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "QMAKE_LIBDIR_FLAGS" << "QMAKE_LIBS";
+}
+
+void
+UnixMakefileGenerator::processPrlFiles()
+{
+    QPtrList<MakefileDependDir> libdirs;
+    libdirs.setAutoDelete(TRUE);
+    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
+    for(int i = 0; !lflags[i].isNull(); i++) {
+	for(bool ret = FALSE; TRUE; ret = FALSE) {
+	    QStringList l_out;
+	    QStringList &l = project->variables()[lflags[i]];
+	    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+		QString opt = (*it);
+		if(opt.left(1) == "-") {
+		    if(opt.left(2) == "-L") {
+			QString r = opt.right(opt.length() - 2), l = r;
+			fixEnvVariables(l);
+			libdirs.append(new MakefileDependDir(r.replace(QRegExp("\""),""), 
+							     l.replace(QRegExp("\""),"")));
+		    } else if(opt.left(2) == "-l") {
+			QString lib = opt.right(opt.length() - 2), prl;
+			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
+			    prl = mdd->local_dir + Option::dir_sep + "lib" + lib + Option::prl_ext;
+			    if(processPrlFile(prl)) {
+				if(prl.left(mdd->local_dir.length()) == mdd->local_dir)
+				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
+				QRegExp reg("^.*lib(" + lib + "[^.]*)\\..*$");
+				if(reg.exactMatch(prl)) 
+				    prl = "-l" + reg.cap(1);
+				opt = prl;
+				ret = TRUE;
+			    }
+			}
+		    } else if(project->isActiveConfig("macx") && opt == "-framework") {
+			l_out.append(opt);
+			++it;
+			opt = (*it);
+			QString prl = "/System/Library/Frameworks/" + opt + 
+				      ".framework/" + opt + Option::prl_ext;
+			if(processPrlFile(prl))
+			    ret = TRUE;
+		    }
+		    l_out.append(opt);
+		} else {
+		    if(processPrlFile(opt))
+			ret = TRUE;
+		    l_out.append(opt);
+		}
+	    }
+	    if(ret)
+		l = l_out;
+	    else
+		break;
+	}
+    }
 }
 
 QString
 UnixMakefileGenerator::defaultInstall(const QString &t)
 {
+    if(t != "target")
+	return QString();
+
     QString ret, destdir=project->first("DESTDIR");
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
-    QString target="$(TARGET)";
-    QStringList links;
-    if(t == "target") {
-	if(project->first("TEMPLATE") == "app") {
-	    target = "$(QMAKE_TARGET)";
-	} else if(!project->isActiveConfig("staticlib")) {
-	    if(project->isActiveConfig("plugin")) {
-
-	    } else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) {
-		links << "$(TARGET0)";
-	    }else
-		links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
-	} else {
-	    target = "$(TARGETA)";
-	}
-    }
     QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
     if(targetdir.right(1) != Option::dir_sep)
 	targetdir += Option::dir_sep;
-    QString dst_targ = Option::fixPathToTargetOS(targetdir + target, FALSE);
 
+    if(project->isActiveConfig("create_prl") && project->first("TEMPLATE") == "lib") {
+	QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");
+	int slsh = dst_prl.findRev('/');
+	if(slsh != -1)
+	    dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
+	dst_prl = Option::fixPathToTargetOS(targetdir + dst_prl, FALSE);
+	ret += "$(COPY) " + project->first("QMAKE_INTERNAL_PRL_FILE") + " " + dst_prl;
+    }
+
+    QString target="$(TARGET)";
+    QStringList links;
+    if(project->first("TEMPLATE") == "app") {
+	target = "$(QMAKE_TARGET)";
+    } else if(!project->isActiveConfig("staticlib")) {
+	if(project->isActiveConfig("plugin")) {
+	} else if ( !project->variables()["QMAKE_HPUX_SHLIB"].isEmpty() ) {
+	    links << "$(TARGET0)";
+	}else
+	    links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
+    } else {
+	target = "$(TARGETA)";
+    }
     QString src_targ = target;
     if(!destdir.isEmpty())
 	src_targ = Option::fixPathToTargetOS(destdir + target, FALSE);
-
-
-    ret = QString("$(COPY) ") + src_targ + " " + dst_targ;
+    QString dst_targ = Option::fixPathToTargetOS(targetdir + target, FALSE);
+    if(!ret.isEmpty())
+	ret += "\n\t";
+    ret += QString("$(COPY) ") + src_targ + " " + dst_targ;
     if(!project->isEmpty("QMAKE_STRIP"))
 	ret += "\n\t" + var("QMAKE_STRIP") + " " + dst_targ;
     if(!links.isEmpty()) {
 	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
-	    if(Option::target_mode == Option::TARG_WIN_MODE || Option::target_mode == Option::TARG_MAC9_MODE) {
-	    } else if(Option::target_mode == Option::TARG_UNIX_MODE || Option::target_mode == Option::TARG_MACX_MODE) {
+	    if(Option::target_mode == Option::TARG_WIN_MODE || 
+	       Option::target_mode == Option::TARG_MAC9_MODE) {
+	    } else if(Option::target_mode == Option::TARG_UNIX_MODE || 
+		      Option::target_mode == Option::TARG_MACX_MODE) {
 		QString link = Option::fixPathToTargetOS(destdir + (*it), FALSE);
 		int lslash = link.findRev(Option::dir_sep);
 		if(lslash != -1)
 		    link = link.right(link.length() - (lslash + 1));
-		ret += "\n\tln -sf " + dst_targ + " " + Option::fixPathToTargetOS(targetdir + link, FALSE);
+		ret += "\n\tln -sf " + dst_targ + " " + 
+		       Option::fixPathToTargetOS(targetdir + link, FALSE);
 	    }
 	}
     }
