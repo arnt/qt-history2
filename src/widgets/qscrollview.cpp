@@ -797,8 +797,13 @@ void QScrollView::resizeEvent( QResizeEvent* event )
 Pass wheel events to the vertical scrollbar.
 */
 void QScrollView::wheelEvent( QWheelEvent *e ){
-    if (verticalScrollBar())
-	QApplication::sendEvent( verticalScrollBar(), e);
+    QWheelEvent ce( viewport()->mapFromGlobal( e->globalPos() ),
+		    e->globalPos(), e->delta(), e->state());
+    viewportWheelEvent(&ce);
+    if ( !ce.isAccepted() ) {
+	if (verticalScrollBar())
+	    QApplication::sendEvent( verticalScrollBar(), e);
+    }
 }
 
 /*!
@@ -1197,8 +1202,9 @@ void QScrollView::contentsDropEvent( QDropEvent * )
   wheelEvent() - the mouse position is translated to be a
   point on the contents.
 */
-void QScrollView::contentsWheelEvent( QWheelEvent * )
+void QScrollView::contentsWheelEvent( QWheelEvent * e )
 {
+    e->ignore();
 }
 
 
@@ -1814,7 +1820,7 @@ void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety, int 
   {
     // Fill a 40000 by 50000 rectangle at (100000,150000)
 
-    // Calculate the coordinates... 
+    // Calculate the coordinates...
     int x1 = 100000, y1 = 150000;
     int x2 = x1+40000-1, y2 = y1+50000-1;
 
