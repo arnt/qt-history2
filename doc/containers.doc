@@ -2,9 +2,641 @@
 
     \title Generic Containers
 
-    \section1 Overview of the Qt Containers
+    \keyword container class
+    \keyword container classes
 
-	* \l {implicit sharing}
+    The Qt library provides a set of general purpose template-based
+    container classes. These classes can be used to store items of a
+    same type. For example, if you need a resizable array of
+    \l{QString}s, use QVector\<QString\>.
+
+    These container classes are designed to be lighter, safer, and
+    easier to use than the STL containers. If you are unfamiliar with
+    the STL, or prefer the "Qt way" of doing things, can use these
+    classes instead of the STL classes.
+
+    The container classes are \l{implicitly shared}, they are
+    \l{reentrant}, and they are optimized for speed, low memory
+    consumption, and minimal inline code expansion, resulting in
+    smaller executables.
+
+    For traversing the items stored in a container, you can use one
+    of two types of iterators: \l{Java-style iterators} and
+    \l{STL-style iterators}. The Java-style iterators are easier to
+    use and provide high-level functionality, whereas the STL-style
+    iterators are slightly more efficient and can be used together
+    with Qt's and STL's \l{generic algorithms}.
+
+    Qt also offers a \l{foreach} keyword that make it very easy to
+    iterate over all the items stored in a container.
+
+    \section1 The Container Classes
+
+    Qt provides the following container classes:
+
+    \list
+    \i QList\<T\>
+    \i QLinkedList\<T\>
+    \i QVector\<T\>
+    \i QStack\<T\>
+    \i QQueue\<T\>
+    \i QMap\<Key, T\>
+    \i QMultiMap\<Key, T\>
+    \i QHash\<Key, T\>
+    \i QMultiHash\<Key, T\>
+    \endlist
+
+    QList\<T\> is by far the most commonly used container class. It
+    stores a list of values of a given type (T) that can be accessed
+    by index. Items can be added at either end of the list using
+    QList::append() and QList::prepend(), or they can be inserted in
+    the middle using QList::insert(). More than any other container
+    class, QList is highly optimized to expand to as little code as
+    possible in the executable.
+
+    QLinkedList\<T\> is similar to QList, except that it uses
+    iterators rather than plain integers to access items. It also
+    provides better performance than QList when inserting in the
+    middle of a huge list, and it has nicer iterator semantics.
+    (Iterators pointing to an item in a QLinkedList remain valid as
+    long as the item exists, whereas iterators to a QList can become
+    invalid after any insertion or removal.)
+
+    QVector\<T\> stores an array of values of a given type at
+    adjacent positions in memory. Inserting at the front or in the
+    middle of the vector can be quite slow, because it potentially
+    forces moving a large number of items by one position in memory.
+
+    QStack\<T\> is a convenience subclass of QVector that provides
+    "last in, first out" (LIFO) semantics. It adds the following
+    functions to those already present in QVector: \link
+    QStack::push() push()\endlink, \link QStack::pop() pop()\endlink,
+    and \link QStack::top() top()\endlink.
+
+    QQueue\<T\> is a convenience subclass of QList that provides
+    "first in, first out" (FIFO) semantics. It adds the following
+    functions to those already present in QList: \link
+    QQueue::enqueue() enqueue()\endlink, \link QQueue::dequeue()
+    dequeue()\endlink, and \link QQueue::head() head()\endlink.
+
+    QMap\<Key, T\> provides an associative container that maps keys
+    of type Key to values of type T. Normally, only one value can be
+    associated to a single key, but it's possible to insert multiple
+    values for the same key by calling QMap::insertMulti().
+
+    QMultiMap\<Key, T\> is a convenience subclass of QMap that
+    provides a nicer interface for multi-valued maps.
+
+    QHash\<Key, T\> is has almost the same API as QMap. Internally,
+    it uses hashing to provide drastically faster lookups.
+
+    QMultiHash\<Key, T\> is a convenience subclass of QHash that
+    provides a nicer interface for multi-valued hashes.
+
+    \keyword assignable data type
+
+    The values stored in the various containers can be of any
+    \e{assignable data type}. To qualify, a type must provide a
+    default constructor, a copy constructor, and an assignment
+    operator. This covers most data types you are likely to want to
+    store in a container, including basic types such as \c int and \c
+    double, pointer types, and Qt data types such as QString, QDate,
+    and QTime, but it doesn't cover QObject or any QObject subclass
+    (QWidget, QDialog, QTimer, etc.). If you attempt to instantiate a
+    QList\<QWidget\>, the compiler will complain that QWidget's copy
+    constructor and assignment operators are disabled. If you want to
+    store these kinds of objects in a container, store them as
+    pointers.
+
+    \keyword default-constructed values
+
+    The documentation of certain container class functions refer to
+    \e{default-constructed values}; for example, QMap::value()
+    returns a default-constructed value if the specified key doesn't
+    occur in the map. For most value types, this simply means a value
+    created using the default constructor (e.g. an empty string for
+    QString). But for built-in types like \c{int} and \c{double}, as
+    well as for pointer types, the C++ language doesn't specify any
+    initialization; in those cases, Qt's containers automatically
+    clear the value to 0.
+
+    Here's an example custom data type that meets the requirement of
+    an assignable data type:
+
+    \code
+	class Employee
+        {
+	public:
+	    Employee() {}
+            Employee(const Employee &other);
+
+	    Employee &operator=(const Employee &other);
+
+	private:
+	    QString myName;
+            QDate myDateOfBirth;
+	};
+    \endcode
+
+    If we don't provide a copy constructor or an assignment operator,
+    C++ provides a default implementation that performs a
+    member-by-member copy. In the example above, that would have been
+    sufficient. Also, if you don't provide any constructors, C++
+    provides a default constructor that initializes its member using
+    default constructors. Although it doesn't provide any
+    explicit constructors or assignment operator, the following data
+    type can be stored in a container:
+
+    \code
+	struct Movie
+        {
+	    int id;
+	    QString title;
+            int year;
+        };
+    \endcode
+
+    Some containers have further requirements on the type they store.
+    For example, the Key type of a QMap\<Key, T\> must provide \c
+    operator<(). These additional requirements are documented for
+    each class. Furthermore, certain functions have special
+    requirements; these are specified on a per-function basis. The
+    compiler will always emit an error if a requirement isn't met.
+
+    Qt's containers provide operator<<() and operator>>() so that
+    they can easily be read and written using a QDataStream. This
+    requires the data type(s) stored in the container to support
+    operator<<() and operator>>() as well. Here's how we could
+    support it for the Movie struct above:
+
+    \code
+	inline QDataStream &operator<<(QDataStream &out, const Movie &movie)
+        {
+	    out << (Q_UINT32)movie.id << movie.title
+		<< (Q_UINT32)movie.year;
+	    return out;
+	}
+
+	inline QDataStream &operator>>(QDataStream &in, Movie &movie)
+	{
+	    Q_UINT32 id, year;
+	    in >> id >> movie.title >> year;
+            movie.id = (int)id;
+            movie.year = (int)year;
+	    return in;
+        }
+    \endcode
+
+    \section1 The Iterator Classes
+
+    Iterators provide a uniform means to access items in a container.
+    Qt's container classes provide two types of iterators: Java-style
+    iterators and STL-style iterators.
+
+    \section2 Java-Style Iterators
+
+    The Java-style iterators are new in Qt 4.0 and are expected to
+    become the norm in Qt applications. They are designed to be more
+    convenient to use than the STL-style iterators, at the price of
+    being slightly less efficient. Their API is modelled after Java's
+    iterator classes.
+
+    For each container class, there are two Java-style iterator data
+    types: one that provides read-only access and one that provides
+    read-write access.
+
+    \table
+    \header \i Containers                             \i Read-only iterator
+						      \i Read-write iterator
+    \row    \i QList\<T\>, QQueue\<T\>                \i QListIterator\<T\>
+						      \i QListMutableIterator\<T\>
+    \row    \i QLinkedList\<T\>                       \i QLinkedListIterator\<T\>
+						      \i QLinkedListMutableIterator\<T\>
+    \row    \i QVector\<T\>, QStack\<T\>              \i QVectorIterator\<T\>
+						      \i QVectorMutableIterator\<T\>
+    \row    \i QMap\<Key, T\>, QMultiMap\<Key, T\>    \i QMapIterator\<Key, T\>
+						      \i QMapMutableIterator\<Key, T\>
+    \row    \i QHash\<Key, T\>, QMultiHash\<Key, T\>  \i QHashIterator\<Key, T\>
+						      \i QHashMutableIterator\<Key, T\>
+    \endtable
+
+    In this discussion, we will concentrate on QList and QMap. The
+    iterator types for QLinkedList and QVector have exactly the same
+    interface as for QList; likewise, the iterator types for QHash
+    have the same interface as for QMap.
+
+    Unlike STL-style iterators (covered \link {STL-style iterators} below \endlink),
+    Java-style iterators don't point directly at items. They are
+    either located at the very beginning of the container (before the
+    first item), at the very end of the container (after the last
+    item), or between two items. The diagram below shows the valid
+    iterator positions as red arrows for a list containing four
+    items:
+
+    \img javaiterators1.png
+
+    Here's a typical loop for iterating through all the elements of a
+    QList\<QString\> in order and printing them to the console:
+
+    \code
+	QList<QString> list;
+        list << "A" << "B" << "C" << "D";
+
+	QListIterator<QString> i(list);
+        while (i.hasNext())
+	    cout << i.next().ascii() << endl;
+    \endcode
+
+    It works as follows: The QList to iterate over is passed to the
+    QListIterator constructor. At that point, the iterator is located
+    just in front of the first item in the list ("A").
+    Then we call \link QListIterator::hasNext() hasNext() \endlink
+    to check whether there is an item on the
+    right side of the iterator. If there is, we call \link QListIterator::next() next() \endlink
+    to jump over that item. The next() function returns the item that
+    it jumps over. For a QList\<QString\>, that item is of type
+    QString.
+
+    Here's how to iterate backward in a QList:
+
+    \code
+	QListIterator<QString> i(list);
+        i.toBack();
+        while (i.hasPrev())
+	    cout << i.prev().ascii() << endl;
+    \endcode
+
+    The code is symmetric with iterating forward, except that we
+    start by calling \link QListIterator::toBack() toBack() \endlink
+    to move the iterator beyond the last item in the list.
+
+    The diagram below illustrates the effect of calling
+    \link QListIterator::next() next() \endlink and
+    \link QListIterator::prev() prev() \endlink on an iterator:
+
+    \img javaiterators2.png
+
+    The following table summarizes the QListIterator API:
+
+    \table
+    \header \i Function \i Behavior
+    \row    \i \link QListIterator::toFront() toFront() \endlink
+	    \i Moves the iterator to the front of the list (before the first item)
+    \row    \i \link QListIterator::toBack() toBack() \endlink
+	    \i Moves the iterator to the back of the list (after the last item)
+    \row    \i \link QListIterator::hasNext() hasNext() \endlink
+	    \i Returns true if the iterator isn't at the back of the list
+    \row    \i \link QListIterator::next() next() \endlink
+	    \i Returns the next item and advances the iterator by one position
+    \row    \i \link QListIterator::peekNext() peekNext() \endlink
+	    \i Returns the next item without advancing the iterator
+    \row    \i \link QListIterator::hasPrev() hasPrev() \endlink
+	    \i Returns true if the iterator isn't at the front of the list
+    \row    \i \link QListIterator::prev() prev() \endlink
+	    \i Returns the previous item and moves the iterator back by one position
+    \row    \i \link QListIterator::peekPrev() peekPrev() \endlink
+	    \i Returns the previous item without moving the iterator
+    \endtable
+
+    QListIterator provides no functions to insert or remove items
+    from the list as we iterate. To accomplish this, you must use
+    QListMutableIterator. Here's an example where we remove all
+    non-pair numbers from a QList\<int\> using QListMutableIterator:
+
+    \code
+	QListMutableIterator<int> i(list);
+        while (i.hasNext()) {
+	    if (i.next() % 2 != 0)
+		i.remove();
+        }
+    \endcode
+
+    The \link QListIterator::remove() remove() \endlink function
+    removes the last item that we jumped over from the list. After
+    the call to \link QListIterator::remove() remove() \endlink, the
+    iterator can be used to iterate further. This works just as well
+    when iterating backward:
+
+    \code
+	QListMutableIterator<int> i(list);
+        i.toBack();
+        while (i.hasPrev()) {
+	    if (i.prev() % 2 != 0)
+		i.remove();
+        }
+    \endcode
+
+    If all we want is to modify the value of an existing item, we can
+    use \link QListIterator::setValue() setValue() \endlink.
+    In the code below, we replace any value larger than 128 with 128:
+
+    \code
+	QListMutableIterator<int> i(list);
+        while (i.hasNext()) {
+	    if (i.next() > 128)
+		i.setValue(128);
+        }
+    \endcode
+
+    The \link QListIterator::next() next() \endlink function returns a
+    non-const reference to the item in the list. For simple operations,
+    we don't even need \link QListIterator::setValue() setValue() \endlink:
+
+    \code
+	QListMutableIterator<int> i(list);
+        while (i.hasNext())
+	    i.next() *= 2;
+    \endcode
+
+    Just like \link QListIterator::remove() remove() \endlink, \link
+    QListIterator::setValue() setValue() \endlink operates on the
+    last item that we jumped over. If we iterate forward, this is the
+    item just before the iterator; if we iterate backward, this is
+    the item just after the iterator.
+
+    As mentioned above, QLinkedList's and QVector's iterator classes
+    have exactly the same API as QList. We will now turn to
+    QMapIterator, which is somewhat different because it iterates on
+    (key, value) pairs.
+
+    Like QListIterator, QMapIterator provides \link
+    QMapIterator::toFront() toFront() \endlink, \link
+    QMapIterator::toBack() toBack() \endlink, \link
+    QMapIterator::hasNext() hasNext() \endlink, \link
+    QMapIterator::next() next() \endlink, \link
+    QMapIterator::peekNext() peekNext() \endlink, \link
+    QMapIterator::hasPrev() hasPrev() \endlink, \link
+    QMapIterator::prev() prev() \endlink, \link
+    QMapIterator::peekPrev() peekPrev() \endlink, and \link
+    QMapIterator::remove() peekPrev() \endlink. The key and value
+    components are extracted by calling key() and value() on the
+    object returned by next(), peekNext(), prev(), or peekPrev().
+
+    The following example removes all (capital, country) pairs where
+    the capital's name ends with "City":
+
+    \code
+	QMap<QString, QString> map;
+        map.insert("Paris", "France");
+        map.insert("Guatemala City", "Guatemala");
+        map.insert("Mexico City", "Mexico");
+        map.insert("Moscow", "Russia");
+        ...
+
+	QMapIterator<QString, QString> i(map);
+        while (i.hasNext()) {
+	    if (i.next().key().endsWith("City"))
+		it.remove();
+	}
+    \endcode
+
+    QMapIterator also provides a key() and a value() function that
+    operate directly on the iterator and that return the key and
+    value of the last item that the iterator jumped above. For
+    example, the following code copies the contents of a QMap into a
+    QHash:
+
+    \code
+	QMap<int, QWidget *> map;
+        QHash<int, QWidget *> hash;
+
+	QMapMutableIterator<int, QWidget *> i(map);
+        while (i.hasNext()) {
+	    i.next();
+            hash.insert(i.key(), i.value());
+        }
+    \endcode
+
+    If we want to iterate through all items with the same
+    value, we can use \link QMapIterator::findNext() findNext()
+    \endlink or \link QMapIterator::findPrev() findPrev() \endlink.
+    Here's an example where we remove all items with a certain value:
+
+    \code
+	QMapMutableIterator<int, QWidget *> i(map);
+        while (i.findNext(widget))
+	    i.remove();
+    \endcode
+
+    Similarly, the \link QMapIterator::findNextKey() findNextKey()
+    \endlink or \link QMapIterator::findPrevKey() findPrevKey()
+    \endlink functions allow us to iterate through all items with the
+    same key. For example:
+
+    \code
+	QMapMutableIterator<int, QWidget *> i(map);
+        while (i.findNextKey(-1))
+	    i.remove();
+    \endcode
+
+    \section2 STL-Style Iterators
+
+    The STL-style iterators have been around since Qt 2.0. They are
+    compatible with Qt's and STL's \l{generic algorithms} and are
+    optimized for speed.
+
+    For each container class, there are two STL-style iterator data
+    types: one that provides read-only access and one that provides
+    read-write access.
+
+    \table
+    \header \i Containers                             \i Read-only iterator
+						      \i Read-write iterator
+    \row    \i QList\<T\>, QQueue\<T\>                \i QList\<T\>::const_iterator
+						      \i QList\<T\>::iterator
+    \row    \i QLinkedList\<T\>                       \i QLinkedList\<T\>::const_iterator
+						      \i QLinkedList\<T\>::iterator
+    \row    \i QVector\<T\>, QStack\<T\>              \i QVector\<T\>::const_iterator
+						      \i QVector\<T\>::iterator
+    \row    \i QMap\<Key, T\>, QMultiMap\<Key, T\>    \i QMap\<Key, T\>::const_iterator
+						      \i QMap\<Key, T\>::iterator
+    \row    \i QHash\<Key, T\>, QMultiHash\<Key, T\>  \i QHash\<Key, T\>::const_iterator
+						      \i QHash\<Key, T\>::iterator
+    \endtable
+
+    The API of STL iterator is modelled after that of pointers in an
+    array. For example, the ++ operator advances the iterator to the
+    next item, and the * operator returns the item that the iterator
+    refers to. In fact, for QVector and QStack, the \link
+    QVector::iterator iterator \endlink type is just a typedef for T
+    *, and the \link QVector::iterator const_iterator \endlink type
+    is just a typedef for const T *.
+
+    In this discussion, we will concentrate on QList and QMap. The
+    iterator types for QLinkedList and QVector have exactly the same
+    interface as for QList; likewise, the iterator types for QHash
+    have the same interface as for QMap.
+
+    Here's a typical loop for iterating through all the elements of a
+    QList\<QString\> in order and printing them to the console:
+
+    \code
+	QList<QString> list;
+        list << "A" << "B" << "C" << "D";
+
+	QList<QString>::iterator i;
+        for (i = list.begin(); i != list.end(); ++i)
+	    cout << (*i).ascii() << endl;
+    \endcode
+
+    If the list is empty, begin() equals end(), so we never execute
+    the loop.
+
+    Unlike Java-style iterators (covered \link {Java-style iterators}
+    above \endlink), STL-style iterators point directly at items. The
+    begin() function of a container returns an iterator that points
+    at the first item in the container. The end() function of a
+    container returns an iterator to the imaginary item one position
+    past the last item in the container. end() marks an invalid position; it must never be
+    dereferenced. It is typically used in the break condition of an iteration.
+
+    The diagram below shows the valid iterator positions as red
+    arrows for a vector containing four items:
+
+    \img stliterators1.png
+
+    Iterating backward with an STL-style iterator requires us to
+    decrement the iterator \e before we access the item. This
+    requires a \c while loop:
+
+    \code
+	QList<QString> list;
+        list << "A" << "B" << "C" << "D";
+
+	QList<QString>::iterator i = list.end();
+        while (i != list.begin()) {
+	    --i;
+	    cout << (*i).ascii() << endl;
+	}
+    \endcode
+
+    In the code snippets so far, we used the unary \c * operator to
+    retrieve the item (of type QString) stored at a certain iterator
+    position, and we then called QString::ascii() on it. Most C++
+    compilers also allow us to write \c{i->ascii()}, but some don't.
+
+    The following table summarizes the STL-style iterators' API:
+
+    \table
+    \header \i Expression \i Behavior
+    \row    \i \c{*i}     \i Returns the current item
+    \row    \i \c{++i}    \i Advances the iterator to the next item
+    \row    \i \c{i += n} \i Advances the iterator by \c n items
+    \row    \i \c{--i}    \i Moves the iterator back by one item
+    \row    \i \c{i -= n} \i Moves the iterator back by \c n items
+    \row    \i \c{i - j}  \i Returns the number of items between iterators \c i and \c j
+    \endtable
+
+    The \c{++} and \c{--} operators are available both as prefix
+    (\c{++i}, \c{--i}) and postfix (\c{i++}, \c{i--}) operators. The
+    prefix versions modify the iterators and return a reference to
+    the modified iterator; the postfix versions take a copy of the
+    iterator before they modify it, and return that copy. In
+    expressions where the return value is ignored, we recommend that
+    you use the prefix operators (\c{++i}, \c{--i}), as these are
+    slightly faster.
+
+    For non-const iterator types, the return value of the unary \c{*}
+    operator can be used on the left side of the assignment operator.
+
+    For QMap and QHash, the \c{*} operator returns the value
+    component of an item. If you want to retrieve the key, call key()
+    on the iterator. For symmetry, the iterator types also provide a
+    value() function to retrieve the value. For example, here's how
+    we would print all items in a QMap to the console:
+
+    \code
+	QMap<int, int> map;
+        ...
+        QMap<int, int>::const_iterator i;
+        for (i = map.begin(); i != map.end(); ++i)
+	    cout << i.key() << ": " << i.value() << endl;
+    \endcode
+
+    \target foreach
+    \section1 The foreach Keyword
+
+    If all you need is to iterate over all the items in a container
+    in order, you can use Qt's \c foreach keyword. The keyword is a
+    Qt-specific addition to the C++ language, and is implemented
+    using the preprocessor.
+
+    Its syntax is: \c foreach (\e variable, \e container) \e
+    statement. For example, here's how to use \c foreach to iterate
+    over a QLinkedList\<QString\>:
+
+    \code
+	QLinkedList<QString> list;
+        ...
+	QString str;
+	foreach (str, list)
+	    cout << str.ascii() << endl;
+    \endcode
+
+    The \c foreach code is significantly shorter than the equivalent
+    code that uses iterators:
+
+    \code
+	QLinkedList<QString> list;
+        ...
+        QLinkedListIterator<QString> i(list);
+        while (i.hasNext())
+	    cout << i.next().ascii() << endl;
+    \endcode
+
+    Just like with C++'s \c for loop, the variable used for iteration
+    can be defined within the \c foreach statement:
+
+    \code
+	QLinkedList<QString> list;
+        ...
+	foreach (QString str, list)
+	    cout << str.ascii() << endl;
+    \endcode
+
+    And like with any other C++ loop construct, you can use braces
+    around the body of a \c foreach loop:
+
+    \code
+	QLinkedList<QString> list;
+        ...
+	foreach (QString str, list) {
+	    if (str.isEmpty())
+		break;
+	    cout << str.ascii() << endl;
+        }
+    \endcode
+
+    With QMap and QHash, \c foreach accesses the value component of
+    the (key, value) pairs. If you want to iterate over both the keys
+    and the values, you can either use iterators, or you can write
+    code like this:
+
+    \code
+	QMap<QString, int> map;
+        ...
+        foreach (QString str, map.keys())
+	    foreach (int i, maps.values(str))
+		cout << str.ascii() << ": " << i << endl;
+    \endcode
+
+    Qt automatically takes a copy of the container when it enters a
+    \c foreach loop. If you modify the container as you are
+    iterating, that won't affect the loop. (If you don't modify the
+    container, the copy still takes place, but thanks to \l{implicit
+    sharing} copying a container is very fast.)
+
+    To be able to use \c foreach in your application, you must define
+    the \c QT_KEYWORDS preprocessor symbol. If you use qmake to build
+    your application, simply add the following line to your .pro
+    file:
+
+    \code
+	DEFINES += QT_KEYWORDS
+    \endcode
+
+    Without the \c QT_KEYWORDS symbol defined, \c foreach is
+    accessible under the name \c Q_FOREACH.
 
     \section1 Running Times
 
@@ -46,43 +678,23 @@
        number of items stored in the container.
     \endlist
 
-    \section1
+    \section1 Other Container-Like Classes
 
-	* how to override operator<() to provide a different kind of sorting
+    Qt includes three template classes that resemble containers in
+    some respects. These classes don't provide iterators and cannot
+    be used together with the \c foreach keyword.
 
-    \section1 Pointers vs. Values
-
-	* previous versions of Qt used to distinguish between pointer-based containers
-          and value-based containers.
-
-	* this distinction was artificial and abolished in Qt 4.
-
-    \section1 Iterators
-
-    Qt's container classes provide two types of iterators:
-    
     \list
-    \i The \e{Java-style iterators} are new in Qt 4.0 and are expected to become
-       the norm in Qt applications. They are designed to be more
-       convenient to use than the STL-style iterators, at the price
-       of being slightly less efficient.
+    \i QVarLengthArray\<T, Prealloc\> provides a low-level
+       variable-length array. It can be used instead of QVector in
+       places where speed is particularly important.
 
-    \i The \e{STL-style iterators} have been around since Qt 2.0.
-       They are compatible with Qt's and STL's \l{generic algorithms}
-       and are optimized for speed.
+    \i QCache\<Key, T\> provides a cache to store objects of a certain
+       type T associated with keys of type Key.
+
+    \i QPair\<T1, T2\> stores a pair of elements.
     \endlist
 
-    \section2 Java-Style Iterators
-
-
-
-    \section2 STL-Style Iterators
-
-	* ConstIterator const_iterator
-        * Iterator iterator
-
-	* begin()
-        * end()
-	* erase() etc.
-
+    Additional non-template types that compete with Qt's template
+    containers are QBitArray, QByteArray, QString, and QStringList.
 */
