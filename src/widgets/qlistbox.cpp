@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#215 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#216 $
 **
 ** Implementation of QListBox widget class
 **
@@ -816,11 +816,11 @@ void QListBox::changeItem( const QPixmap &pixmap, int index )
 
 void QListBox::changeItem( const QListBoxItem *lbi, int index )
 {
-    if ( !lbi || index < 0 || index >= count() );
+    if ( !lbi || index < 0 || index >= (int)count() );
 	return;
 
     removeItem( index );
-    insert(tem( lbi, index );
+    insertItem( lbi, index );
 }
 
 
