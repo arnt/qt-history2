@@ -45,53 +45,55 @@
 */
 
 /*!
+  Creates a QUuid object from the string \a text. Right now, the function 
+  can only convert the format {00000000-0000-0000-0000-000000000000} and
+  will create the NULL UUID when the conversion fails.
+*/
+QUuid::QUuid( const QString &text )
+{
+    bool ok;
+    QString temp = text.upper();
+    
+    data1 = temp.mid( 1, 8 ).toULong( &ok, 16 );
+    if ( !ok ) {
+	*this = QUuid();
+	return;
+    }
+    
+    data2 = temp.mid( 10, 4 ).toUInt( &ok, 16 );
+    if ( !ok ) {
+	*this = QUuid();
+	return;
+    }
+    data3 = temp.mid( 15, 4 ).toUInt( &ok, 16 );
+    if ( !ok ) {
+	*this = QUuid();
+	return;
+    }
+    data4[0] = temp.mid( 20, 2 ).toUInt( &ok, 16 );
+    if ( !ok ) {
+	*this = QUuid();
+	return;
+    }
+    data4[1] = temp.mid( 22, 2 ).toUInt( &ok, 16 );
+    if ( !ok ) {
+	*this = QUuid();
+	return;
+    }
+    for ( int i = 2; i<8; i++ ) {
+	data4[i] = temp.mid( 25 + (i-2)*2, 2 ).toUShort( &ok, 16 );
+	if ( !ok ) {
+	    *this = QUuid();
+	    return;
+	}
+    }
+}
+
+/*!
   \fn QUuid QUuid::operator=(const QUuid &uuid )
 
   Assigns the value of \a uuid to this QUuid object.
 */
-
-/*!
-  Tries to convert \a text to a valid QUuid and returns this when successfull. Otherwise returns
-  the null-QUuid.
-  Right now, the function can only convert the format {00000000-0000-0000-0000-000000000000}.
-*/
-QUuid QUuid::fromString( const QString &text )
-{
-    QUuid result;
-    bool ok;
-    QString tmp;
-    QString temp = text.lower();
-    
-    tmp = temp.mid( 1, 8 );
-    result.data1 = tmp.toULong( &ok, 16 );
-    if ( !ok )
-	return QUuid();
-    
-    tmp = temp.mid( 10, 4 );
-    result.data2 = tmp.toUInt( &ok, 16 );
-    if ( !ok )
-	return QUuid();
-    tmp = temp.mid( 15, 4 );
-    result.data3 = tmp.toUInt( &ok, 16 );
-    if ( !ok )
-	return QUuid();
-    tmp = temp.mid( 20, 2 );
-    result.data4[0] = tmp.toUInt( &ok, 16 );
-    if ( !ok )
-	return QUuid();
-    tmp = temp.mid( 22, 2 );
-    result.data4[1] = tmp.toUInt( &ok, 16 );
-    if ( !ok )
-	return QUuid();
-    for ( int i = 2; i<8; i++ ) {
-	tmp = temp.mid( 25 + (i-2)*2, 2 );
-	result.data4[i] = tmp.toUShort( &ok, 16 );
-	if ( !ok )
-	    return QUuid();
-    }
-
-    return result;
-}
 
 /*!
   QString QUuid::toString() const

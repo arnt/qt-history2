@@ -29,6 +29,8 @@ struct Q_EXPORT QUuid
     {
 	memcpy( this, &uuid, sizeof(QUuid) );
     }
+    QUuid( const QString & );
+
     QUuid operator=(const QUuid &orig )
     {
 	QUuid uuid;
@@ -37,7 +39,6 @@ struct Q_EXPORT QUuid
     }
 
     QString toString() const;
-    static QUuid fromString( const QString & );
 
     bool operator==( const QUuid &uuid ) const
     {
