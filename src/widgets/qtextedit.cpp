@@ -1867,11 +1867,23 @@ void QTextEdit::removeSelectedText( int selNum )
 
 void QTextEdit::moveCursor( CursorAction action, bool select )
 {
+#ifdef Q_WS_MACX
+    QTextCursor c1 = *cursor;
+    QTextCursor c2;
+#endif
     drawCursor( FALSE );
     if ( select ) {
 	if ( !doc->hasSelection( QTextDocument::Standard ) )
 	    doc->setSelectionStart( QTextDocument::Standard, *cursor );
 	moveCursor( action );
+#ifdef Q_WS_MACX
+	c2 = *cursor;
+	if (c1 == c2)
+	    if (action == MoveDown || action == MovePgDown)
+		moveCursor( MoveEnd );
+	    else if (action == MoveUp || action == MovePgUp)
+		moveCursor( MoveHome );
+#endif
 	if ( doc->setSelectionEnd( QTextDocument::Standard, *cursor ) ) {
 	    cursor->paragraph()->document()->nextDoubleBuffered = TRUE;
 	    repaintChanged();
@@ -1884,6 +1896,14 @@ void QTextEdit::moveCursor( CursorAction action, bool select )
     } else {
 	bool redraw = doc->removeSelection( QTextDocument::Standard );
 	moveCursor( action );
+#ifdef Q_WS_MACX
+	c2 = *cursor;
+	if (c1 == c2)
+	    if (action == MoveDown)
+		moveCursor( MoveEnd );
+	    else if (action == MoveUp)
+		moveCursor( MoveHome );
+#endif
 	if ( !redraw ) {
 	    ensureCursorVisible();
 	    drawCursor( TRUE );
