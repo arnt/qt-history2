@@ -388,7 +388,7 @@ public:
     void	repolishStyle( QStyle &style ) { setStyle(&style); }
     void	reparentWorkaround()
     {
-	((QWidgetIntDict*)QWidget::wmapper())->remove((long)winid);
+	((QWidgetMapper*)QWidget::wmapper())->remove((WId)winid);
 	clearWState(WState_Created);
 	winid = 0;
 	QRect geom = geometry();
