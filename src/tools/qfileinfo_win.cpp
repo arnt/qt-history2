@@ -179,6 +179,7 @@ QDateTime QFileInfo::lastRead() const
 
 void QFileInfo::doStat() const
 {
+    UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS);
     QFileInfo *that = ((QFileInfo*)this);	// mutable function
     if ( !that->fic )
 	that->fic = new QFileInfoCache;
@@ -230,6 +231,8 @@ void QFileInfo::doStat() const
 	delete that->fic;
 	that->fic = 0;
     }
+
+    SetErrorMode(oldmode);
 }
 
 QString QFileInfo::dirPath( bool absPath ) const
