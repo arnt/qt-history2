@@ -59,6 +59,11 @@
 #include "qtextengine_p.h"
 
 // #define QFONTCACHE_DEBUG
+#ifdef QFONTCACHE_DEBUG
+#  define FC_DEBUG qDebug
+#else
+#  define FC_DEBUG if (FALSE) qDebug
+#endif
 
 
 
@@ -136,49 +141,47 @@ QFontPrivate::~QFontPrivate()
 
 void QFontPrivate::resolve( const QFontPrivate *other )
 {
-    {
 #ifdef QT_CHECK_STATE
-	Q_ASSERT( other != 0 );
+    Q_ASSERT( other != 0 );
 #endif
 
-	if ( ( mask & Complete ) == Complete ) return;
+    if ( ( mask & Complete ) == Complete ) return;
 
-	// assign the unset-bits with the set-bits of the other font def
-	if ( ! ( mask & Family ) )
-	    request.family = other->request.family;
+    // assign the unset-bits with the set-bits of the other font def
+    if ( ! ( mask & Family ) )
+	request.family = other->request.family;
 
-	if ( ! ( mask & Size ) ) {
-	    request.pointSize = other->request.pointSize;
-	    request.pixelSize = other->request.pixelSize;
-	}
-
-	if ( ! ( mask & StyleHint ) )
-	    request.styleHint = other->request.styleHint;
-
-	if ( ! ( mask & StyleStrategy ) )
-	    request.styleStrategy = other->request.styleStrategy;
-
-	if ( ! ( mask & Weight ) )
-	    request.weight = other->request.weight;
-
-	if ( ! ( mask & Italic ) )
-	    request.italic = other->request.italic;
-
-	if ( ! ( mask & FixedPitch ) )
-	    request.fixedPitch = other->request.fixedPitch;
-
-	if ( ! ( mask & Stretch ) )
-	    request.stretch = other->request.stretch;
-
-	if ( ! ( mask & Underline ) )
-	    underline = other->underline;
-
-	if ( ! ( mask & Overline ) )
-	    overline = other->overline;
-
-	if ( ! ( mask & StrikeOut ) )
-	    strikeOut = other->strikeOut;
+    if ( ! ( mask & Size ) ) {
+	request.pointSize = other->request.pointSize;
+	request.pixelSize = other->request.pixelSize;
     }
+
+    if ( ! ( mask & StyleHint ) )
+	request.styleHint = other->request.styleHint;
+
+    if ( ! ( mask & StyleStrategy ) )
+	request.styleStrategy = other->request.styleStrategy;
+
+    if ( ! ( mask & Weight ) )
+	request.weight = other->request.weight;
+
+    if ( ! ( mask & Italic ) )
+	request.italic = other->request.italic;
+
+    if ( ! ( mask & FixedPitch ) )
+	request.fixedPitch = other->request.fixedPitch;
+
+    if ( ! ( mask & Stretch ) )
+	request.stretch = other->request.stretch;
+
+    if ( ! ( mask & Underline ) )
+	underline = other->underline;
+
+    if ( ! ( mask & Overline ) )
+	overline = other->overline;
+
+    if ( ! ( mask & StrikeOut ) )
+	strikeOut = other->strikeOut;
 }
 
 
@@ -2935,10 +2938,9 @@ QFontCache::~QFontCache()
 	while ( it != end ) {
 	    if ( it.data()->count == 0 )
 		delete it.data();
-#ifdef QFONTCACHE_DEBUG
 	    else
-		qDebug("QFontCache::~QFontCache: engineData %p still has refcount %d", it.data(), it.data()->count);
-#endif
+		FC_DEBUG("QFontCache::~QFontCache: engineData %p still has refcount %d",
+			 it.data(), it.data()->count);
 	    ++it;
 	}
     }
@@ -2947,18 +2949,17 @@ QFontCache::~QFontCache()
     while ( it != end ) {
 	if ( it.data().data->count == 0 ) {
 	    if ( --it.data().data->cache_count == 0 ) {
-#ifdef QFONTCACHE_DEBUG
-		qDebug("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
-		       it.data().data, it.key().script, it.key().def.pointSize,
-		       it.key().def.pixelSize, it.key().def.weight, it.key().def.italic, it.key().def.fixedPitch);
-#endif
+		FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
+			 it.data().data, it.key().script, it.key().def.pointSize,
+			 it.key().def.pixelSize, it.key().def.weight, it.key().def.italic,
+			 it.key().def.fixedPitch);
+
 		delete it.data().data;
 	    }
+	} else {
+	    FC_DEBUG("QFontCache::~QFontCache: engine = %p still has refcount %d",
+		     it.data().data, it.data().data->count);
 	}
-#ifdef QFONTCACHE_DEBUG
-	else
-		qDebug("QFontCache::~QFontCache: engine = %p still has refcount %d", it.data().data, it.data().data->count);
-#endif
 	++it;
     }
     instance = 0;
@@ -2983,18 +2984,16 @@ void QFontCache::clear()
     while ( it != end ) {
 	if ( it.data().data->count == 0 ) {
 	    if ( --it.data().data->cache_count == 0 ) {
-#ifdef QFONTCACHE_DEBUG
-		qDebug("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
-		       it.data().data, it.key().script, it.key().def.pointSize,
-		       it.key().def.pixelSize, it.key().def.weight, it.key().def.italic, it.key().def.fixedPitch);
-#endif
+		FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %d %d %d %d %d)",
+			 it.data().data, it.key().script, it.key().def.pointSize,
+			 it.key().def.pixelSize, it.key().def.weight, it.key().def.italic,
+			 it.key().def.fixedPitch);
 		delete it.data().data;
 	    }
+	} else {
+	    FC_DEBUG("QFontCache::~QFontCache: engine = %p still has refcount %d",
+		     it.data().data, it.data().data->count);
 	}
-#ifdef QFONTCACHE_DEBUG
-	else
-		qDebug("QFontCache::~QFontCache: engine = %p still has refcount %d", it.data().data, it.data().data->count);
-#endif
 	++it;
     }
 }
@@ -3012,9 +3011,7 @@ QFontEngineData *QFontCache::findEngineData( const Key &key ) const
 
 void QFontCache::insertEngineData( const Key &key, QFontEngineData *engineData )
 {
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontCache: inserting new engine data %p", engineData );
-#endif // QFONTCACHE_DEBUG
+    FC_DEBUG( "QFontCache: inserting new engine data %p", engineData );
 
     engineDataCache.insert( key, engineData );
     increaseCost( sizeof( QFontEngineData ) );
@@ -3030,22 +3027,18 @@ QFontEngine *QFontCache::findEngine( const Key &key )
     it.data().hits++;
     it.data().timestamp = ++current_timestamp;
 
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontCache: found font engine\n"
+    FC_DEBUG( "QFontCache: found font engine\n"
 	    "  %p: timestamp %4u hits %3u ref %2d/%2d, type '%s'",
 	    it.data().data, it.data().timestamp, it.data().hits,
 	    it.data().data->count, it.data().data->cache_count,
 	    it.data().data->name() );
-#endif // QFONTCACHE_DEBUG
 
     return it.data().data;
 }
 
 void QFontCache::insertEngine( const Key &key, QFontEngine *engine )
 {
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontCache: inserting new engine %p", engine );
-#endif // QFONTCACHE_DEBUG
+    FC_DEBUG( "QFontCache: inserting new engine %p", engine );
 
     Engine data( engine );
     data.timestamp = ++current_timestamp;
@@ -3065,18 +3058,14 @@ void QFontCache::increaseCost( uint cost )
     cost = cost > 0 ? cost : 1;
     total_cost += cost;
 
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "  COST: increased %u kb, total_cost %u kb, max_cost %u kb",
+    FC_DEBUG( "  COST: increased %u kb, total_cost %u kb, max_cost %u kb",
 	    cost, total_cost, max_cost );
-#endif // QFONTCACHE_DEBUG
 
     if ( total_cost > max_cost) {
 	max_cost = total_cost;
 
 	if ( timer_id == -1 || ! fast ) {
-#ifdef QFONTCACHE_DEBUG
-	    qDebug( "  TIMER: starting fast timer (%d ms)", fast_timeout );
-#endif // QFONTCACHE_DEBUG
+	    FC_DEBUG( "  TIMER: starting fast timer (%d ms)", fast_timeout );
 
 	    if (timer_id != -1) killTimer( timer_id );
 	    timer_id = startTimer( fast_timeout );
@@ -3092,23 +3081,17 @@ void QFontCache::decreaseCost( uint cost )
     Q_ASSERT( cost <= total_cost );
     total_cost -= cost;
 
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "  COST: decreased %u kb, total_cost %u kb, max_cost %u kb",
+    FC_DEBUG( "  COST: decreased %u kb, total_cost %u kb, max_cost %u kb",
 	    cost, total_cost, max_cost );
-#endif // QFONTCACHE_DEBUG
 }
 
 void QFontCache::timerEvent( QTimerEvent * )
 {
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "QFontCache::timerEvent: performing cache maintenance (timestamp %u)",
-	    current_timestamp );
-#endif // QFONTCACHE_DEBUG
+    FC_DEBUG( "QFontCache::timerEvent: performing cache maintenance (timestamp %u)",
+	      current_timestamp );
 
     if ( total_cost <= max_cost && max_cost <= min_cost ) {
-#ifdef QFONTCACHE_DEBUG
-	qDebug( "  cache redused sufficiently, stopping timer" );
-#endif // QFONTCACHE_DEBUG
+	FC_DEBUG( "  cache redused sufficiently, stopping timer" );
 
 	killTimer( timer_id );
 	timer_id = -1;
@@ -3121,9 +3104,7 @@ void QFontCache::timerEvent( QTimerEvent * )
     uint in_use_cost = 0;
 
     {
-#ifdef QFONTCACHE_DEBUG
-	qDebug( "  SWEEP engine data:" );
-#endif // QFONTCACHE_DEBUG
+	FC_DEBUG( "  SWEEP engine data:" );
 
 	// make sure the cost of each engine data is at least 1kb
         const uint engine_data_cost =
@@ -3133,13 +3114,13 @@ void QFontCache::timerEvent( QTimerEvent * )
 	                              end = engineDataCache.end();
 	for ( ; it != end; ++it ) {
 #ifdef QFONTCACHE_DEBUG
-	    qDebug( "    %p: ref %2d", it.data(), it.data()->count );
+	    FC_DEBUG( "    %p: ref %2d", it.data(), it.data()->count );
 
-#if defined(Q_WS_X11) || defined(Q_WS_WIN)
+#  if defined(Q_WS_X11) || defined(Q_WS_WIN)
 	    // print out all engines
 	    for ( int i = 0; i < QFont::LastPrivateScript; ++i ) {
 		if ( ! it.data()->engines[i] ) continue;
-		qDebug( "      contains %p", it.data()->engines[i] );
+		FC_DEBUG( "      contains %p", it.data()->engines[i] );
 	    }
 #  endif // Q_WS_X11 || Q_WS_WIN
 #endif // QFONTCACHE_DEBUG
@@ -3150,19 +3131,15 @@ void QFontCache::timerEvent( QTimerEvent * )
     }
 
     {
-#ifdef QFONTCACHE_DEBUG
-	qDebug( "  SWEEP engine:" );
-#endif // QFONTCACHE_DEBUG
+	FC_DEBUG( "  SWEEP engine:" );
 
 	EngineCache::ConstIterator it = engineCache.begin(),
 				  end = engineCache.end();
 	for ( ; it != end; ++it ) {
-#ifdef QFONTCACHE_DEBUG
-	    qDebug( "    %p: timestamp %4u hits %2u ref %2d/%2d, cost %u bytes",
-		    it.data().data, it.data().timestamp, it.data().hits,
-		    it.data().data->count, it.data().data->cache_count,
-		    it.data().data->cache_cost );
-#endif // QFONTCACHE_DEBUG
+	    FC_DEBUG( "    %p: timestamp %4u hits %2u ref %2d/%2d, cost %u bytes",
+		      it.data().data, it.data().timestamp, it.data().hits,
+		      it.data().data->count, it.data().data->cache_count,
+		      it.data().data->cache_cost );
 
 	    if ( it.data().data->count > 0 )
 		in_use_cost += it.data().data->cache_cost / it.data().data->cache_count;
@@ -3184,16 +3161,12 @@ void QFontCache::timerEvent( QTimerEvent * )
     */
     uint new_max_cost = QMAX( QMAX( max_cost / 2, in_use_cost ), min_cost );
 
-#ifdef QFONTCACHE_DEBUG
-    qDebug( "  after sweep, in use %u kb, total %u kb, max %u kb, new max %u kb",
-	    in_use_cost, total_cost, max_cost, new_max_cost );
-#endif // QFONTCACHE_DEBUG
+    FC_DEBUG( "  after sweep, in use %u kb, total %u kb, max %u kb, new max %u kb",
+	      in_use_cost, total_cost, max_cost, new_max_cost );
 
     if ( new_max_cost == max_cost ) {
 	if ( fast ) {
-#ifdef QFONTCACHE_DEBUG
-	    qDebug( "  cannot shrink cache, slowing timer" );
-#endif // QFONTCACHE_DEBUG
+	    FC_DEBUG( "  cannot shrink cache, slowing timer" );
 
 	    killTimer( timer_id );
 	    timer_id = startTimer( slow_timeout );
@@ -3202,9 +3175,7 @@ void QFontCache::timerEvent( QTimerEvent * )
 
 	return;
     } else if ( ! fast ) {
-#ifdef QFONTCACHE_DEBUG
-	qDebug( "  dropping into passing gear" );
-#endif // QFONTCACHE_DEBUG
+	FC_DEBUG( "  dropping into passing gear" );
 
 	killTimer( timer_id );
 	timer_id = startTimer( fast_timeout );
@@ -3214,9 +3185,7 @@ void QFontCache::timerEvent( QTimerEvent * )
     max_cost = new_max_cost;
 
     {
-#ifdef QFONTCACHE_DEBUG
-	qDebug( "  CLEAN engine data:" );
-#endif // QFONTCACHE_DEBUG
+	FC_DEBUG( "  CLEAN engine data:" );
 
 	// clean out all unused engine datas
 	EngineDataCache::Iterator it = engineDataCache.begin(),
@@ -3231,9 +3200,7 @@ void QFontCache::timerEvent( QTimerEvent * )
 
 	    decreaseCost( sizeof( QFontEngineData ) );
 
-#ifdef QFONTCACHE_DEBUG
-	    qDebug( "    %p", rem.data() );
-#endif // QFONTCACHE_DEBUG
+	    FC_DEBUG( "    %p", rem.data() );
 
 	    delete rem.data();
 	    engineDataCache.remove( rem );
@@ -3261,9 +3228,7 @@ void QFontCache::timerEvent( QTimerEvent * )
 	    }
 	}
 
-#ifdef QFONTCACHE_DEBUG
-	qDebug( "    oldest %u least popular %u", oldest, least_popular );
-#endif // QFONTCACHE_DEBUG
+	FC_DEBUG( "    oldest %u least popular %u", oldest, least_popular );
 
 	for ( it = engineCache.begin(); it != end; ++it ) {
 	    if ( it.data().data->count == 0 &&
@@ -3273,17 +3238,13 @@ void QFontCache::timerEvent( QTimerEvent * )
 	}
 
 	if ( it != end ) {
-#ifdef QFONTCACHE_DEBUG
-	    qDebug( "    %p: timestamp %4u hits %2u ref %2d/%2d, type '%s'",
-		    it.data().data, it.data().timestamp, it.data().hits,
-		    it.data().data->count, it.data().data->cache_count,
-		    it.data().data->name() );
-#endif // QFONTCACHE_DEBUG
+	    FC_DEBUG( "    %p: timestamp %4u hits %2u ref %2d/%2d, type '%s'",
+		      it.data().data, it.data().timestamp, it.data().hits,
+		      it.data().data->count, it.data().data->cache_count,
+		      it.data().data->name() );
 
 	    if ( --it.data().data->cache_count == 0 ) {
-#ifdef QFONTCACHE_DEBUG
-		qDebug( "    DELETE: last occurence in cache" );
-#endif // QFONTCACHE_DEBUG
+		FC_DEBUG( "    DELETE: last occurence in cache" );
 
 		decreaseCost( it.data().data->cache_cost );
 		delete it.data().data;
