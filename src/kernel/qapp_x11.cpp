@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#263 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#264 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -62,12 +62,14 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 
 #if defined(_OS_AIX_)
 // for FD_ZERO
-static inline void bzero( void * s, int n ) {
-    memset( s, n, sizeof( char ) );
+static inline void bzero( void *s, int n )
+{
+    memset( s, 0, n );
 }
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#263 $");
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#264 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
