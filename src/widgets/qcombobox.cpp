@@ -1282,11 +1282,9 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
 	d->arrowPressed = FALSE;
 
 	if ( d->usingListBox() ) {
-	    blockSignals( TRUE );
 	    listBox()->blockSignals( TRUE );
 	    qApp->sendEvent( listBox(), e ); // trigger the listbox's autoscroll
 	    listBox()->blockSignals( FALSE );
-	    blockSignals( FALSE );
 	    popup();
 	    QRect arrowRect = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
 							      QStyle::SC_ComboBoxArrow);
