@@ -21,7 +21,11 @@ public:
     QSpinBox* maxBox;
     QSpinBox* valBox;
     QCheckBox* wrapCheck;
+    QCheckBox* palCheck;
+    QCheckBox* disableCheck;
+    QCheckBox* styleCheck;
     QLineEdit* suffixEd;
+    QLineEdit* prefixEd;
     QLineEdit* minTxtEd;
 
 public slots:
@@ -29,7 +33,10 @@ public slots:
     void updateWrap();
     void updateStep();
     void updateRange();
-    void updateMinValTxt( const char* s );
+    void updatePalette();
+    void updateDisabled();
+    void updateStyle();
+    void updateSpecValTxt( const char* s );
     void showValue( int i );
 
 };
@@ -89,22 +96,39 @@ Main::Main(QWidget* parent, const char* name, int f)
     connect( valBox, SIGNAL(valueChanged(int)), mainBox, SLOT( setValue(int) ) );
 
 
+    QLabel* prefixPre = new QLabel("Set Prefix:", this );
+    prefixPre->setMinimumSize( prefixPre->sizeHint() );
+    prefixEd = new QLineEdit( this );
+    connect( prefixEd, SIGNAL(textChanged(const char*)), mainBox, SLOT(setPrefix(const char*)));
+
     QLabel* suffixPre = new QLabel("Set Suffix:", this );
     suffixPre->setMinimumSize( suffixPre->sizeHint() );
     suffixEd = new QLineEdit( this );
     connect( suffixEd, SIGNAL(textChanged(const char*)), mainBox, SLOT(setSuffix(const char*)));
 
-    QLabel* minTxtPre = new QLabel("Set minValueText:", this );
+    QLabel* minTxtPre = new QLabel("Set specialValueText:", this );
     minTxtPre->setMinimumSize( minTxtPre->sizeHint() );
     minTxtEd = new QLineEdit( this );
-    connect( minTxtEd, SIGNAL(textChanged(const char*)), this, SLOT(updateMinValTxt(const char*)));
+    connect( minTxtEd, SIGNAL(textChanged(const char*)), this, SLOT(updateSpecValTxt(const char*)));
+
+    palCheck = new QCheckBox("Custom palette", this );
+    palCheck->setMinimumSize( palCheck->sizeHint() );
+    connect( palCheck, SIGNAL(clicked()), this, SLOT(updatePalette()) );
+
+    disableCheck = new QCheckBox("Disabled", this );
+    disableCheck->setMinimumSize( disableCheck->sizeHint() );
+    connect( disableCheck, SIGNAL(clicked()), this, SLOT(updateDisabled()) );
+
+    styleCheck = new QCheckBox("WinStyle", this );
+    styleCheck->setMinimumSize( styleCheck->sizeHint() );
+    connect( styleCheck, SIGNAL(clicked()), this, SLOT(updateStyle()) );
 
     QPushButton* ok = new QPushButton( "Ok", this );
     ok->setMinimumSize( 75, ok->sizeHint().height() );
     ok->setDefault( TRUE );
     QObject::connect( ok, SIGNAL(clicked()), this, SLOT(accept()) );
 
-    QGridLayout* dl = new QGridLayout( this, 9, 3, 5 );
+    QGridLayout* dl = new QGridLayout( this, 11, 3, 5 );
     dl->addWidget( mainPre,	0, 0 );
     dl->addWidget( mainBox,	0, 1 );
     dl->addWidget( stepPre,	1, 0 );
@@ -116,11 +140,16 @@ Main::Main(QWidget* parent, const char* name, int f)
     dl->addWidget( maxBox,	4, 1 );
     dl->addWidget( valPre,	5, 0 );
     dl->addWidget( valBox,	5, 1 );
-    dl->addWidget( suffixPre,	6, 0 );
-    dl->addWidget( suffixEd,	6, 1 );
-    dl->addWidget( minTxtPre,	7, 0 );
-    dl->addWidget( minTxtEd,	7, 1 );
-    dl->addWidget( ok,		8, 2 );
+    dl->addWidget( prefixPre,	6, 0 );
+    dl->addWidget( prefixEd,	6, 1 );
+    dl->addWidget( suffixPre,	7, 0 );
+    dl->addWidget( suffixEd,	7, 1 );
+    dl->addWidget( minTxtPre,	8, 0 );
+    dl->addWidget( minTxtEd,	8, 1 );
+    dl->addWidget( palCheck,	9, 0 );
+    dl->addWidget( disableCheck,9, 1 );
+    dl->addWidget( styleCheck,	9, 2 );
+    dl->addWidget( ok,		10, 2 );
     dl->activate();
 
     resize( 350, 300 );
@@ -143,9 +172,31 @@ void Main::updateRange()
     mainBox->setRange( minBox->value(), maxBox->value() );
 }
 
-void Main::updateMinValTxt( const char* s )
+void Main::updateDisabled()
 {
-    mainBox->setMinValueText( s );
+    mainBox->setEnabled( !disableCheck->isChecked() );
+}
+
+void Main::updateStyle()
+{
+    mainBox->setStyle( styleCheck->isChecked() ? WindowsStyle : MotifStyle );
+}
+
+
+void Main::updatePalette()
+{
+    if ( palCheck->isChecked() ) {
+	QPalette myPal( green );
+	mainBox->setPalette( myPal );
+    }
+    else {
+	mainBox->setPalette( *qApp->palette() );
+    }
+}
+
+void Main::updateSpecValTxt( const char* s )
+{
+    mainBox->setSpecialValueText( s );
 }
 
 void Main::showValue( int i )

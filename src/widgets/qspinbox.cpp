@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#25 $
 **
 ** Implementation of QSpinBox widget class
 **
-** Created : yes
+** Created : 1997
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
@@ -45,21 +45,22 @@
   is 99, clicking Up will give 0. Use setWrapping() to if you want
   circular behavior.
 
-  The displayed value can be appended with an arbitray string
-  indicating for example the unit of measurement. See setSuffix().
+  The displayed value can be appended and/or prepended with an
+  arbitray string indicating for example the unit of measurement. See
+  setPrefix() and setSuffix().
 
   It is often desirable to give the user a special, often default,
   choice in addition to the range of numeric values. See
-  setMinValueText() for how to do this with QSpinBox.
+  setSpecialValueText() for how to do this with QSpinBox.
 
   The default \link setFocusPolicy() focus policy \endlink is
   StrongFocus.
 
   QSpinBox can easily be subclassed to allow the user to input other
   things than a numeric value, as long as the allowed input can be
-  mapped down to a range of integers. Override the virtual functions
-  mapValueToText() and mapTextToValue() and set another, suitable
-  validator using setValidator().
+  mapped down to a range of integers. This can be done by overriding
+  the virtual functions mapValueToText() and mapTextToValue() and
+  setting another, suitable validator using setValidator().
 
   <img src=qspinbox-m.gif> <img src=qspinbox-w.gif>
 */
@@ -159,19 +160,25 @@ const char * QSpinBox::text() const
 
 
 /*!
-  Returns a copy of the current text of the spin box with any suffix
-  and white space at the start and end removed.
+  Returns a copy of the current text of the spin box with any prefix
+  and/or suffix and white space at the start and end removed.
 
-  \sa text(), suffix(), setSuffix()
+  \sa text(), setPrefix(), setSuffix()
 */
 
-QString QSpinBox::textWithoutSuffix() const
+QString QSpinBox::cleanText() const
 {
     QString s = QString(text()).stripWhiteSpace();
+    if ( prefix() ) {
+	QString px = QString(prefix()).stripWhiteSpace();
+	int len = px.length();
+	if ( len && s.left(len) == px )  // Remove _only_ if it is the prefix
+	    s.remove( 0, len );
+    }
     if ( suffix() ) {
-	QString x = QString(suffix()).stripWhiteSpace();
-	int len = x.length();
-	if ( len && s.right(len) == x )  // Remove _only_ if it is the suffix
+	QString sx = QString(suffix()).stripWhiteSpace();
+	int len = sx.length();
+	if ( len && s.right(len) == sx )  // Remove _only_ if it is the suffix
 	    s.truncate( s.length() - len );
     }
     return s.stripWhiteSpace();
@@ -179,10 +186,10 @@ QString QSpinBox::textWithoutSuffix() const
 
 
 /*!
-  Sets the minimum-value text to \a text. If set, the spin box will
+  Sets the special-value text to \a text. If set, the spin box will
   display this text in stead of a numeric value whenever the current
   value is equal to minVal(). Typically used for indicating that this
-  choice has a special (default) meaning. 
+  choice has a special (default) meaning.
   
   For example, if you use a spin box for letting the user choose
   margin width in a print dialog, and your application is able to
@@ -191,43 +198,62 @@ QString QSpinBox::textWithoutSuffix() const
   \code
     QSpinBox marginBox( -1, 20, 1, parent, "marginBox" );
     marginBox->setSuffix( " mm" );
-    marginBox->setMinValueText( "Auto" );
+    marginBox->setSpecialValueText( "Auto" );
   \endcode 
   The user will then be able to choose a margin width from 0-20
   millimeters, or select "Auto" to leave it to the application to
   choose. Your code must then interpret the spin box value of -1 as
   the user requesting automatic margin width.
 
-  The \link setSuffix suffix,\endlink if set, is not appended to the
-  minimum-value text when displayed.
+  Neither \link setPrefix prefix\endlink nor \link setSuffix
+  suffix,\endlink if set, are added to the special-value text when
+  displayed.
 
-  To turn off the minimum-value text display, call this function with
-  0 or an empty string as parameter. The default is no minimum-value
+  To turn off the special-value text display, call this function with
+  0 or an empty string as parameter. The default is no special-value
   text, i.e. the numeric value is shown as usual.
   
-  \sa minValueText()
+  \sa specialValueText()
 */
 
-void QSpinBox::setMinValueText( const char* text )
+void QSpinBox::setSpecialValueText( const char* text )
 {
-    minText = text;
+    specText = text;
     updateDisplay();
 }
 
 
 /*!
-  Returns the currently minimum-value text, or 0 if no minimum-value
+  Returns the currently special-value text, or 0 if no special-value
   text is currently set.
 
-  \sa setMinValueText()
+  \sa setSpecialValueText()
 */
 
-const char* QSpinBox::minValueText() const
+const char* QSpinBox::specialValueText() const
 {
-    if ( minText.isEmpty() )
+    if ( specText.isEmpty() )
 	return 0;
     else
-	return minText;
+	return specText;
+}
+
+
+/*!
+  Sets the prefix to \a text. The prefix is prepended to the start of
+  the displayed value. Typical use is to indicate the unit of
+  measurement to the user.
+
+  To turn off the prefix display, call this function with 0 or an
+  empty string as parameter. The default is no prefix.
+
+  \sa prefix(), setSuffix(), suffix()
+*/
+
+void QSpinBox::setPrefix( const char* text )
+{
+    pfix = text;
+    updateDisplay();
 }
 
 
@@ -239,7 +265,7 @@ const char* QSpinBox::minValueText() const
   To turn off the suffix display, call this function with 0 or an
   empty string as parameter. The default is no suffix.
 
-  \sa suffix()
+  \sa suffix(), setPrefix(), prefix()
 */
 
 void QSpinBox::setSuffix( const char* text )
@@ -250,10 +276,26 @@ void QSpinBox::setSuffix( const char* text )
 
 
 /*!
+  Returns the currently set prefix, or 0 if no prefix is currently
+  set.
+
+  \sa setPrefix(), setSuffix(), suffix()
+*/
+
+const char* QSpinBox::prefix() const
+{
+    if ( pfix.isEmpty() )
+	return 0;
+    else
+	return pfix;
+}
+
+
+/*!
   Returns the currently set suffix, or 0 if no suffix is currently
   set.
 
-  \sa setSuffix()
+  \sa setSuffix(), setPrefix(), suffix()
 */
 
 const char* QSpinBox::suffix() const
@@ -305,12 +347,14 @@ QSize QSpinBox::sizeHint() const
     int wx = fm.width( "  " );
     QString s;
     s.setNum( minValue() );
+    s.prepend( prefix() );
     s.append( suffix() );
     w = QMAX( w, fm.width( s ) + wx );
     s.setNum( maxValue() );
+    s.prepend( prefix() );
     s.append( suffix() );
     w = QMAX( w, fm.width( s ) + wx );
-    s = minValueText();
+    s = specialValueText();
     w = QMAX( w, fm.width( s ) + wx );
     
     return QSize( h // buttons AND frame both sides - see resizeevent()
@@ -530,13 +574,13 @@ void QSpinBox::setValidator( QValidator* v )
 
 void QSpinBox::updateDisplay()
 {    
-    if ( (value() == minValue()) && minValueText() ) {
-	vi->setText( minText );
+    if ( (value() == minValue()) && specialValueText() ) {
+	vi->setText( specialValueText() );
     }
     else { 
-	QString s = mapValueToText( value() );
-	if ( suffix() )
-	    s.append( suffix() );
+	QString s = prefix();
+	s.append( mapValueToText( value() ) );
+	s.append( suffix() );
 	vi->setText( s );
     }
     edited = FALSE;
@@ -556,9 +600,9 @@ void QSpinBox::interpretText()
     bool ok = TRUE;
     bool done = FALSE;
     int newVal = 0;
-    if ( minValueText() ) {
+    if ( specialValueText() ) {
 	QString s = QString(text()).stripWhiteSpace();
-	QString t = minText.stripWhiteSpace();
+	QString t = QString(specialValueText()).stripWhiteSpace();
 	if ( s == t ) {
 	    newVal = minValue();
 	    done = TRUE;
@@ -621,9 +665,9 @@ void QSpinBox::textChanged()
 
   Override this in in a subclass if you want a specialized spin box,
   handling something else than integers. This function need not be
-  concerned with \link setSuffix() suffix \endlink or \link
-  setMinValueText() minimum-value text, \endlink the QSpinBox handles
-  that automatically.
+  concerned with \link setPrefix() prefix \endlink or \link
+  setSuffix() suffix \endlink or \link setSpecialValueText() special-value
+  text, \endlink the QSpinBox handles that automatically.
 
   \sa updateDisplay(), mapTextToValue()
 */
@@ -644,13 +688,13 @@ QString QSpinBox::mapValueToText( int v )
 
   Override this in in a subclass if you want a specialized spin box,
   handling something else than integers. It should call text() (or
-  textWithoutSuffix() ) and return the value corresponding to that
+  cleanText() ) and return the value corresponding to that
   text. If the text does not represent a legal value
   (uninterpretable), the bool pointed to by \a ok should be set to
   FALSE.
 
-  This function need not be concerned with \link setMinValueText()
-  minimum-value text, \endlink the QSpinBox handles that
+  This function need not be concerned with \link setSpecialValueText()
+  special-value text, \endlink the QSpinBox handles that
   automatically.
   
   \sa interpretText(), mapValueToText()
@@ -660,8 +704,8 @@ int QSpinBox::mapTextToValue( bool* ok )
 {
     QString s = text();
     int newVal = s.toInt( ok );
-    if ( !(*ok) && suffix() ) {	// Try removing any suffix
-	s = textWithoutSuffix();
+    if ( !(*ok) && ( prefix() || suffix() ) ) {	// Try removing any pre/suffix
+	s = cleanText();
 	newVal = s.toInt( ok );
     }
     return newVal;
@@ -669,11 +713,60 @@ int QSpinBox::mapTextToValue( bool* ok )
 
 
 /*!
-  Sets the palette of the spin box to \a p.
+  Reimplemented for internal purposes.
 */
 
-void QSpinBox::setPalette( const QPalette& p )
+void QSpinBox::paletteChange( const QPalette& )
 {
-    // Currently just uses default implementation:
-    QWidget::setPalette( p );
+    vi->setPalette( palette() );
+    up->setPalette( palette() );
+    down->setPalette( palette() );
+    update();
+}
+
+
+/*!
+  Reimplemented for internal purposes.
+*/
+
+void QSpinBox::enabledChange( bool )
+{
+    if ( !isEnabled() ) {
+	vi->setEnabled( FALSE );
+	up->setEnabled( FALSE );
+	down->setEnabled( FALSE );
+    }
+    else {
+	vi->setEnabled( TRUE );
+	up->setEnabled( wrapping() || value() < maxValue() );
+	down->setEnabled( wrapping() || value() > minValue() );
+    }
+    update();
+}
+
+
+/*!
+  Reimplemented for internal purposes.
+*/
+
+void QSpinBox::fontChange( const QFont& )
+{
+    vi->setFont( font() );
+}
+
+
+/*!
+  Reimplemented for internal purposes.
+*/
+
+void QSpinBox::styleChange( GUIStyle )
+{
+    vi->setStyle( style() );
+    up->setStyle( style() );
+    down->setStyle( style() );
+    if ( style() == WindowsStyle )
+	setFrameStyle( WinPanel | Sunken );
+    else
+	setFrameStyle( Panel | Sunken );
+    update();
 }

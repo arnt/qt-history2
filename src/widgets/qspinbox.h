@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#14 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#15 $
 **
 ** Definition of QSpinBox widget class
 **
-** Created : 940206
+** Created : 1997
 **
 ** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
 **
@@ -32,11 +32,12 @@ public:
     ~QSpinBox();
 
     const char* 	text() const;
+    virtual const char*	prefix() const;
     virtual const char*	suffix() const;
-    virtual QString 	textWithoutSuffix() const;
+    virtual QString 	cleanText() const;
 
-    void		setMinValueText( const char* text );
-    const char* 	minValueText() const;
+    void		setSpecialValueText( const char* text );
+    const char* 	specialValueText() const;
 
     void 		setWrapping( bool on );
     bool 		wrapping() const;
@@ -44,10 +45,10 @@ public:
     void		setValidator( QValidator* v );
 
     QSize 		sizeHint() const;
-    void		setPalette( const QPalette& p );
 
 public slots:
     virtual void	setValue( int value );
+    virtual void	setPrefix( const char* text );
     virtual void	setSuffix( const char* text );
     virtual void	stepUp();
     virtual void	stepDown();
@@ -72,6 +73,11 @@ protected:
     bool		eventFilter( QObject* obj, QEvent* ev );
     void		resizeEvent( QResizeEvent* ev );
 
+    void		paletteChange( const QPalette& );
+    void		enabledChange( bool );
+    void		fontChange( const QFont& );
+    void		styleChange( GUIStyle );
+
 protected slots:
     void		textChanged();
 
@@ -82,8 +88,9 @@ private:
     QPushButton* down;
     QLineEdit* vi;
     QValidator* validator;
+    QString pfix;
     QString sfix;
-    QString minText;
+    QString specText;
     bool wrap;
     bool edited;
 };
