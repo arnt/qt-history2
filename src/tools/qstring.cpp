@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#233 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#234 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9909,6 +9909,11 @@ static inline QChar::Decomposition format(QChar ch, QString & str,
     return QChar::Isolated;
 } // format()
 
+/*
+  QString::compose() and visual() were developed by Gordon Tisher
+  <tisher@uniserve.ca>, with input from Lars Knoll <knoll@mpi-hd.mpg.de>,
+  who developed the unicode data tables.
+*/
 /*!
   Note that this function is not supported in Qt 2.0, and is merely
   for experimental and illustrative purposes.  It is mainly of interest
@@ -9969,12 +9974,11 @@ static inline bool is_arabic(unsigned short x) {
 	    ((x >= 0xfe70) && (x <= 0xfeff)));
 }
 
-static inline bool is_neutral(QChar ch) {
-    QChar::Direction dir = ch.direction();
-    return ((dir == QChar::DirB) ||
-	    (dir == QChar::DirS) ||
-	    (dir == QChar::DirWS) ||
-	    (dir == QChar::DirON));
+static inline bool is_neutral(unsigned short dir) {
+  return ((dir == QChar::DirB) ||
+		  (dir == QChar::DirS) ||
+		  (dir == QChar::DirWS) ||
+		  (dir == QChar::DirON));
 }
 
 /*!
@@ -10005,9 +10009,7 @@ QChar::Direction QString::basicDirection()
 // reverses part of the QChar array to get visual ordering
 // called from QString::visual()
 //
-// ###### Test efficiency - why use QChar* rather than QString?
-// ######    The call to this end up making a copy because of it.
-static unsigned int reverse(QChar *chars, unsigned char *level,
+static unsigned int reverse(QString &chars, unsigned char *level,
 		     unsigned int a, unsigned int b) {
 
     unsigned char lev = level[a];
@@ -10044,6 +10046,19 @@ public:
     signed   char override;
 	
     QBidiState(unsigned char l, signed char o) : level(l), override(o) {};
+};
+
+// matrix for resolving neutral types
+
+#define NEG1 (QChar::Direction)(-1)
+
+static QChar::Direction resolv[5][5] = 
+{
+	{ NEG1,         QChar::DirR, QChar::DirL, QChar::DirEN, QChar::DirAN },
+	{ QChar::DirR,  QChar::DirR, NEG1,        QChar::DirR,  QChar::DirR  },
+	{ QChar::DirL,  NEG1,        QChar::DirL, QChar::DirL,  NEG1         },
+	{ QChar::DirEN, QChar::DirR, QChar::DirL, QChar::DirEN, QChar::DirR  },
+	{ QChar::DirAN, QChar::DirR, NEG1,        NEG1,         QChar::DirAN }
 };
 
 /*!
@@ -10161,13 +10176,13 @@ QString QString::visual(int index, int len)
 	    while ((i >= 0) &&
 		   !(at(i).direction() == QChar::DirAN) &&
 		   !((at(i).direction() == QChar::DirR) &&
-		     is_arabic(at(i).direction())) &&
+		     is_arabic(at(i).unicode())) &&
 		   !(at(i).direction() == QChar::DirB))
 		i--;
 			
 	    if ((i >= 0) &&
 		((at(i).direction() == QChar::DirAN) ||
-		 is_arabic(at(i).direction())))
+		 is_arabic(at(i).unicode())))
 		dir[pos] = QChar::DirAN;
 			
 	    break;
@@ -10195,29 +10210,37 @@ QString QString::visual(int index, int len)
 	
     // neutral type pass
     for (pos = 0; pos < l; pos++) {
-	QChar::Direction l,r;
+	  QChar::Direction left,right; // declaring l here shadowed previous l
 		
-	if (is_neutral(at(pos))) {
+	if (is_neutral(dir[pos])) {
 	    if (pos > 0)
-		l = at(pos-1).direction();
+		left = dir[pos-1];
 	    else
-		l = (base == 0 ? QChar::DirL : QChar::DirR);
+		left = (base == 0 ? QChar::DirL : QChar::DirR);
 
 	    int i = pos;
 			
-	    while ((i < (int)l-1) && is_neutral(at(i+1)))
+	    while ((i < (int)l-1) && is_neutral(dir[i+1]))
 		i++;
 			
 	    if (i < (int)l-1)
-		r = at(i+1).direction();
+		right = dir[i+1];
 	    else
-		r = (base == 0 ? QChar::DirL : QChar::DirR);
+		right = (base == 0 ? QChar::DirL : QChar::DirR);
 			
 	    for (int j=pos; j <= i; j++) {
-		if (r == l)
-		    dir[j] = l;
-		else
-		    dir[j] = (base == 0 ? QChar::DirL : QChar::DirR);
+		  int a = 1, b = 1;
+		  while ((a < 5) && (left != resolv[0][a]))
+			a++;
+		  while ((b < 5) && (right != resolv[0][b]))
+			b++;
+		  if ((a == 5) || (b == 5))
+			dir[j] = (base == 0 ? QChar::DirL : QChar::DirR);
+		  else
+			dir[j] = resolv[a][b];
+		  
+		  if (dir[j] == (QChar::Direction)(-1))
+			dir[j] = (base == 0 ? QChar::DirL : QChar::DirR);
 	    }
 	}
     }
@@ -10246,7 +10269,7 @@ QString QString::visual(int index, int len)
 		break;
 	    case QChar::DirEN:
 		if (prec == QChar::DirL)
-		    break;
+		    continue;
 				// fall through
 	    case QChar::DirAN:
 		level[pos] += 2;
@@ -10259,20 +10282,13 @@ QString QString::visual(int index, int len)
 	prec = dir[pos];
     }
 	
-
-    QChar *chars = new QChar[len];
-
-    int i = 0;
-    for ( pos = index; pos < (uint)(index+len); i++, pos++)
-	chars[i] = at(pos);
-
-    reverse(chars, level, index, index+len);
+	// now do the work!
+	QString ret(*this);
+    reverse(ret, level, index, index+len);
 
     delete [] level;
     delete [] dir;
 
-    QString ret(chars, len);
-    delete chars;
     return ret;
 }
 
