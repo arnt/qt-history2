@@ -1320,7 +1320,12 @@ int QApplication::macProcessEvent(MSG * m)
     } else if(er->what == activateEvt) {
 	widget = QWidget::find( (WId)er->message );	
 	if(widget && !widget->isPopup() && (er->modifiers & 0x01)) {
+	    widget->raise();
 	    setActiveWindow(widget);
+	    if (widget->focusWidget())
+		widget->focusWidget()->setFocus();
+	    else
+		widget->setFocus();
 	} else {
 	    if(!inPopupMode() && widget == active_window) 
 		setActiveWindow(NULL);
@@ -1427,8 +1432,7 @@ int QApplication::macProcessEvent(MSG * m)
 		    }
 		    if(QWidget *tlw = widget->topLevelWidget()) {
 			tlw->raise();
-			if(active_window != tlw)
-			    setActiveWindow(tlw);
+			setActiveWindow(tlw);
 		    }
 		}
 
