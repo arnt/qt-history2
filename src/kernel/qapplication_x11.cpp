@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#50 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#49 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#50 $";
 #endif
 
 
@@ -38,32 +38,39 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#49 $
 //
 
 static char    *appName;			// application name
-static char    *appFont = 0;			// application font
-static char    *appBGCol = 0;			// application bg color
-static char    *appFGCol = 0;			// application fg color
-static char    *tlwGeometry = 0;		// top level widget geometry
-static char    *tlwTitle = 0;			// top level widget title
-static bool     tlwIconic = FALSE;		// top level widget iconified
+static char    *appFont         = 0;		// application font
+static char    *appBGCol        = 0;		// application bg color
+static char    *appFGCol        = 0;		// application fg color
+static char    *tlwGeometry     = 0;		// top level widget geometry
+static char    *tlwTitle        = 0;		// top level widget title
+static bool     tlwIconic       = FALSE;	// top level widget iconified
 static int	appArgc;			// argument count
 static char   **appArgv;			// argument vector
 static Display *appDpy;				// X11 application display
-static char    *appDpyName = 0;			// X11 display name
-static bool	appSync = FALSE;		// X11 synchronization
+static char    *appDpyName      = 0;		// X11 display name
+static bool	appSync         = FALSE;	// X11 synchronization
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
-static GC	app_gc_ro     = 0;		// read-only GC
-static GC	app_gc_tmp    = 0;		// temporary GC
-static GC	app_gc_ro_m   = 0;		// read-only GC (monochrome)
-static GC	app_gc_tmp_m  = 0;		// temporary GC (monochrome)
-static QWidget *desktopWidget = 0;		// root window widget
+static bool	app_do_modal	= FALSE;	// modal mode
+static int	app_loop_level  = 1;		// event loop level
+static bool	app_exit_loop   = FALSE;	// flag to exit local loop
+static int	app_Xfd;			// X network socket
+static int	app_Xfd_width;
+static fd_set	app_fdset;
+
+static GC	app_gc_ro       = 0;		// read-only GC
+static GC	app_gc_tmp      = 0;		// temporary GC
+static GC	app_gc_ro_m     = 0;		// read-only GC (monochrome)
+static GC	app_gc_tmp_m    = 0;		// temporary GC (monochrome)
+static QWidget *desktopWidget   = 0;		// root window widget
 Atom		q_wm_delete_window;		// delete window protocol
 #if defined(DEBUG)
-static bool	appMemChk = FALSE;		// memory checking (debugging)
+static bool	appMemChk	= FALSE;	// memory checking (debugging)
 #endif
 
-static Window	mouseActWindow = 0;		// window where mouse is
-static int	mouseButtonPressed = 0;		// last mouse button pressed
-static int	mouseButtonState = 0;		// mouse button state
+static Window	mouseActWindow 	     = 0;	// window where mouse is
+static int	mouseButtonPressed   = 0;	// last mouse button pressed
+static int	mouseButtonState     = 0;	// mouse button state
 static Time	mouseButtonPressTime = 0;	// when was a button pressed
 static short	mouseXPos, mouseYPos;		// mouse position in act window
 
@@ -83,6 +90,8 @@ static void	cleanupTimers();
 static timeval *waitTimer();
 static bool	activateTimer();
 static timeval	watchtime;			// watch if time is turned back
+
+static bool	doModal( QWidget *, XEvent * );	// defined below
 
 void		qResetColorAvailFlag();		// defined in qcolor.cpp
 
@@ -213,6 +222,9 @@ int main( int argc, char **argv )
 	return 1;
     }
 
+    app_Xfd = XConnectionNumber( appDpy );	// set X network socket
+    app_Xfd_width = app_Xfd + 1;
+
     if ( appSync )				// if "-sync" argument
 	XSynchronize( appDpy, TRUE );
 
@@ -232,6 +244,21 @@ int main( int argc, char **argv )
     QCursor::initialize();
     QPainter::initialize();
     gettimeofday( &watchtime, 0 );
+
+    if ( appFont ) {				// set application font
+	QFont font;
+	font.setRawMode( TRUE );
+	font.setFamily( appFont );
+	QApplication::setFont( font );
+    }
+    if ( appBGCol || appFGCol ) {		// set application colors
+	QColor bg = appBGCol ? QColor(appBGCol) : lightGray;
+	QColor fg = appFGCol ? QColor(appFGCol) : black;
+	QColorGroup cg( fg, bg, bg.light(), bg.dark(), bg.dark(150), fg,
+			white );
+	QPalette pal( cg, cg, cg );
+	QApplication::setPalette( pal );
+    }
 
   // Call user-provided main routine
 
@@ -590,29 +617,47 @@ QETWidget *qPRFindWidget( Window oldwin )
 // Main event loop
 //
 
-int QApplication::exec( QWidget *mainWidget )	// main event loop
+int QApplication::exec( QWidget *mainWidget )	// enter main event loop
 {
-    fd_set in_fdset;				// used by select()
-    int	   x_fd = XConnectionNumber( appDpy );	// X network socket
-    int	   fd_width = x_fd + 1;
-
-    XEvent event;
     main_widget = mainWidget;			// set main widget
-    if ( main_widget )				// give WM command line
+    if ( main_widget ) {			// give WM command line
 	XSetWMProperties( main_widget->display(), main_widget->id(),
 			  0, 0, appArgv, appArgc, 0, 0, 0 );
+	if ( tlwTitle )
+	    XStoreName( appDpy, main_widget->id(), tlwTitle );
+	if ( tlwGeometry ) {			// parse geometry
+	    int  x, y;
+	    uint w, h;
+	    int m = XParseGeometry( tlwGeometry, &x, &y, &w, &h );
+	    if ( (m & XValue) == 0 )	  x = main_widget->geometry().x();
+	    if ( (m & YValue) == 0 )	  y = main_widget->geometry().y();
+	    if ( (m & WidthValue) == 0 )  w = main_widget->width();
+	    if ( (m & HeightValue) == 0 ) h = main_widget->height();	    
+	    main_widget->setGeometry( x, y, w, h );
+	}
+    }
+    app_loop_level = 0;
+    enter_loop();
+    return quit_code;
+}
 
-    while ( quit_now == FALSE ) {		// until qapp->quit() called
+
+int QApplication::enter_loop()			// local event loop
+{
+    app_loop_level++;				// increment loop level
+
+    while ( quit_now == FALSE && !app_exit_loop ) {
 
 	if ( postedEvents && postedEvents->count() )
 	    sendPostedEvents();
 
+	XEvent event;
 	while ( XPending(appDpy) ) {		// also flushes output buffer
 
 	    if ( quit_now )			// quit between events
 		break;
 	    XNextEvent( appDpy, &event );	// get next event
-
+	    
 	    if ( x11EventFilter( &event ) )	// send event through filter
 		continue;
 
@@ -635,6 +680,10 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 	    }
 	    if ( !widget )			// don't know this window
 		continue;
+
+	    if ( app_do_modal )			// modal event handling
+		if ( !doModal(widget, &event) )
+		    continue;
 
 	    switch ( event.type ) {
 
@@ -694,13 +743,11 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 		    if ( (event.xclient.format == 32) ) {
 			long *l = event.xclient.data.l;
 			if ( *l == q_wm_delete_window ) {
-			    if ( widget->translateCloseEvent( &event ) )
+			    if ( widget->translateCloseEvent( &event )
+				 && app_loop_level < 2 )
 				delete widget;
 			}
 		    }
-		    break;
-
-		case CirculateRequest:		// change stacking order
 		    break;
 
 		case ReparentNotify:		// window manager reparents
@@ -739,15 +786,20 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 	if ( quit_now )				// break immediatly
 	    break;
 
-	FD_ZERO( &in_fdset );
-	FD_SET( x_fd, &in_fdset );
+	FD_ZERO( &app_fdset );
+	FD_SET( app_Xfd, &app_fdset );
 	timeval *tm = waitTimer();		// wait for timer or X event
-	select( fd_width, &in_fdset, NULL, NULL, tm );
+	select( app_Xfd_width, &app_fdset, NULL, NULL, tm );
 	qResetColorAvailFlag();			// color approx. optimization
 	activateTimer();			// activate timer(s)
     }
+    app_exit_loop = FALSE;
+    return 0;
+}
 
-    return quit_code;
+void QApplication::exit_loop()
+{
+    app_exit_loop = TRUE;
 }
 
 
@@ -758,29 +810,176 @@ bool QApplication::x11EventFilter( XEvent * )	// X11 event filter
 
 
 // --------------------------------------------------------------------------
-// Modal windows; Since Xlib has little support for this we have to check
-// that no other modeless application windows can be raised in front of
-// the modal window.
+// Modal widgets; Since Xlib has little support for this we roll our own
+// modal widget mechanism.
+// A modal widget without a parent becomes application-modal.
+// A modal widget with a parent becomes modal to its parent and grandparents..
 //
 // qXEnterModal()
-//	Enters modal window mode and returns when the window is closed
+//	Enters modal state and returns when the widget is hidden/closed
 //	Arguments:
 //	    QWidget *widget	A modal widget
-//	Returns:
-//	    int			The return code from QWidget::close()
+//
+// qXLeaveModal()
+//	Leaves modal state for a widget
+//	Arguments:
+//	    QWidget *widget	A modal widget
+//
 
-#include "qstack.h"
+typedef declare(QListM,QWidgetList) QWLList;	// list of widget lists
 
-declare(QStackM,QWidget) *modalWidgets;		// stack of modal widgets
+static QWidgetList *app_modals = 0;		// list of app-modal widgets
+static QWLList     *modal_list = 0;		// list of modal lists
 
-int qXEnterModal( QWidget *widget )
+
+void qXEnterModal( QWidget *widget )		// enter modal state
 {
-    if ( !modalWidgets ) {			// create modal widget stack
-	modalWidgets = new QStack(QWidget);
-	CHECK_PTR( modalWidgets );
+    QWidget *parent = widget->parentWidget();
+    if ( !parent ) {				// no parent: app modal
+	if ( !app_modals ) {			// create modal widget stack
+	    app_modals = new QWidgetList;
+	    CHECK_PTR( app_modals );
+	}
+	app_modals->append( widget );
     }
-    modalWidgets->push( widget );
-    return qApp->exec( 0 );
+    else {					// has parent: relative modal
+	if ( !modal_list ) {
+	    modal_list = new QWLList;
+	    CHECK_PTR( modal_list );
+	    modal_list->setAutoDelete( TRUE );
+	}
+	QWidgetList *wl;
+	bool create_new_list = TRUE;
+	if ( parent->testFlag(WType_Modal) ) {	// has modal parent
+	    wl = modal_list->first();
+	    while ( wl ) {			// scan all lists
+		if ( wl->findRef(parent) >= 0 ) {
+		    create_new_list = FALSE;
+		    break;
+		}
+		wl = modal_list->next();
+	    }
+	}
+	if ( create_new_list ) {
+	    wl = new QWidgetList;
+	    CHECK_PTR( wl );
+	    modal_list->append( wl );
+	}
+	wl->append( widget );
+    }
+    app_do_modal = TRUE;
+    qApp->enter_loop();
+}
+
+
+void qXLeaveModal( QWidget *widget )		// leave modal state
+{
+    bool found = FALSE;
+    if ( app_modals ) {				// widget in app-modal list?
+	if ( app_modals->findRef(widget) >= 0 ) {
+	    found = TRUE;
+	    app_modals->remove();
+	    if ( app_modals->isEmpty() ) {	// no more app-modal widgets
+		delete app_modals;
+		app_modals = 0;
+	    }
+	}
+    }
+    if ( !found && modal_list ) {		// relatively modal?
+	QWidgetList *wl = modal_list->first();
+	while ( wl ) {				// scan all lists
+	    if ( wl->findRef(widget) >= 0 ) {
+		found = TRUE;
+		wl->remove();
+		if ( wl->isEmpty() )
+		    modal_list->remove();
+		break;
+	    }
+	    wl = modal_list->next();
+	}
+	if ( modal_list->isEmpty() ) {
+	    delete modal_list;
+	    modal_list = 0;
+	}
+    }
+    if ( found )
+	qApp->exit_loop();
+    app_do_modal = !(app_modals == 0 && modal_list == 0);
+}
+
+
+static bool doModal( QWidget *widget, XEvent *event )
+{
+    bool block_event  = FALSE;
+    bool expose_event = FALSE;
+
+    QWidget *modal = 0;
+
+    switch ( event->type ) {
+	case ButtonPress:			// disallow mouse/key events
+	case ButtonRelease:
+	case MotionNotify:
+	case KeyPress:
+	case KeyRelease:
+	case ClientMessage:
+	    block_event  = TRUE;
+	    break;
+	case Expose:
+	    expose_event = TRUE;
+	    break;
+    }
+
+    if ( !widget->testFlag(WType_Modal) ) {	// widget is not modal
+	while ( TRUE ) {			// find an overlapped parent
+	    if ( widget->testFlag(WType_Overlap) )
+		 break;
+	    widget = widget->parentWidget();
+	    if ( !widget )
+		break;
+	}
+	if ( widget->testFlag(WType_Modal) )
+	    modal = widget;
+    }
+    else					// widget is modal
+	modal = widget;
+
+    if ( app_modals ) {				// application-modal
+	if ( modal == app_modals->last() )
+	    block_event = expose_event = FALSE;
+	if ( (block_event || expose_event) )	// force raise
+	    XRaiseWindow( appDpy, app_modals->last()->id() );
+    }
+    else if ( block_event ) {			// relative-modal
+	bool found = FALSE;
+	ASSERT( modal_list );
+	QWidgetList *wl = modal_list->first();
+	while ( wl ) {
+	    if ( modal ) {
+		if ( modal == wl->last() )
+		    break;
+	    }
+	    else {
+		QWidget *m = wl->first();
+		ASSERT( m );
+		while ( m && !found ) {
+		    if ( m->parentWidget() == widget )
+			found = TRUE;
+		    else
+			m = wl->next();
+		}
+	    }
+	    if ( found )
+		break;
+	    else
+		wl = modal_list->next();
+	}
+	if ( !found ) {
+	    block_event = FALSE;
+//	    debug( "WIN NOT FOUND" );
+	}
+    }
+
+    return !block_event;
 }
 
 
