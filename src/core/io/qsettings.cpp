@@ -34,16 +34,17 @@
 #include "qt_windows.h"
 #include "qlibrary.h"
 
+#endif // Q_OS_WIN
+#endif // QT_NO_QOBJECT
+
+
 #ifndef CSIDL_COMMON_APPDATA
-#define CSIDL_COMMON_APPDATA            0x0023        // All Users\Application Data
+#define CSIDL_COMMON_APPDATA	0x0023  // All Users\Application Data
 #endif
 
 #ifndef CSIDL_APPDATA
-#define CSIDL_APPDATA 0x001a
+#define CSIDL_APPDATA		0x001a	// <username>\Application Data
 #endif
-
-#endif // Q_OS_WIN
-#endif // QT_NO_QOBJECT
 
 // ************************************************************************
 // QConfFile
@@ -832,10 +833,10 @@ static QString windowsConfigPath(int type)
     if (result.isEmpty()) {
         switch (type) {
             case CSIDL_COMMON_APPDATA:
-                defPath = QLatin1String("C:\\temp\\qt-common");
+                result = QLatin1String("C:\\temp\\qt-common");
                 break;
             case CSIDL_APPDATA:
-                defPath = QLatin1String("C:\\temp\\qt-user");
+                result = QLatin1String("C:\\temp\\qt-user");
                 break;
             default:
                 break;
