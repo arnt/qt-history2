@@ -32,10 +32,10 @@
 #define NOTIFYTIMEOUT 100
 #define MAXSINGLEWRITE qint64(10000) //### may not need this now
 
-class QIncrimentalSleepTimer
+class QIncrementalSleepTimer
 {
 public:
-    QIncrimentalSleepTimer(int msecs)
+    QIncrementalSleepTimer(int msecs)
         : totalTimeOut(msecs)
         , nextSleep(qMin(SLEEPMIN, totalTimeOut))
     {
@@ -64,7 +64,7 @@ public:
         return timer.elapsed() >= totalTimeOut; 
     }
 
-    void resetIncriments()
+    void resetIncrements()
     {
         nextSleep = qMin(SLEEPMIN, timeLeft());
     }
@@ -519,24 +519,24 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 {
     Q_Q(QProcess);
 
-    QIncrimentalSleepTimer timer(msecs);
+    QIncrementalSleepTimer timer(msecs);
 
     forever {
 
         if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
             canWrite();
-            timer.resetIncriments();
+            timer.resetIncrements();
         }
 
         bool readyReadEmitted = false;
         if (bytesAvailableFromStdout() != 0) {
             readyReadEmitted = canReadStandardOutput() ? true : readyReadEmitted;
-            timer.resetIncriments();
+            timer.resetIncrements();
         }
 
         if (bytesAvailableFromStderr() != 0) {
             readyReadEmitted = canReadStandardError() ? true : readyReadEmitted;
-            timer.resetIncriments();
+            timer.resetIncrements();
         }
 
         if (readyReadEmitted)
@@ -565,7 +565,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 
     Q_Q(QProcess);
 
-    QIncrimentalSleepTimer timer(msecs);
+    QIncrementalSleepTimer timer(msecs);
 
     forever {
 
@@ -576,12 +576,12 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 
         if (bytesAvailableFromStdout() != 0) {
             canReadStandardOutput();
-            timer.resetIncriments();
+            timer.resetIncrements();
         }
 
         if (bytesAvailableFromStderr() != 0) {
             canReadStandardError();
-            timer.resetIncriments();
+            timer.resetIncrements();
         }
 
         if (!pid)
@@ -613,22 +613,22 @@ bool QProcessPrivate::waitForFinished(int msecs)
     qDebug("QProcessPrivate::waitForFinished(%d)", msecs);
 #endif
 
-    QIncrimentalSleepTimer timer(msecs);
+    QIncrementalSleepTimer timer(msecs);
 
     forever {
         if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
             canWrite();
-            timer.resetIncriments();
+            timer.resetIncrements();
         }
 
         if (bytesAvailableFromStdout() != 0) {
             canReadStandardOutput();
-            timer.resetIncriments();
+            timer.resetIncrements();
         }
 
         if (bytesAvailableFromStderr() != 0) {
             canReadStandardError();
-            timer.resetIncriments();
+            timer.resetIncrements();
         }
 
         if (!pid)
