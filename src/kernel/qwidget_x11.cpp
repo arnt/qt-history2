@@ -262,6 +262,35 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    destroyw = winid;
 	id = window;
 	setWinId( window );
+	XWindowAttributes a;
+	XGetWindowAttributes( dpy, window, &a );
+	crect.setRect( a.x, a.y, a.width, a.height );
+
+	if ( a.map_state == IsUnmapped )
+	    clearWState( WState_Visible );
+	else
+	    setWState( WState_Visible );
+
+	QPaintDeviceX11Data* xd = getX11Data( TRUE );
+
+	// find which screen the window is on...
+	xd->x_screen = QPaintDevice::x11AppScreen(); // by default, use the default :)
+	int i;
+	for ( i = 0; i < ScreenCount( dpy ); i++ ) {
+	    if ( RootWindow( dpy, i ) == a.root ) {
+		xd->x_screen = i;
+		break;
+	    }
+	}
+
+	xd->x_depth = a.depth;
+	xd->x_cells = DisplayCells( dpy, xd->x_screen );
+	xd->x_visual = a.visual;
+	xd->x_defvisual = ( XVisualIDFromVisual( a.visual ) ==
+			    XVisualIDFromVisual( (Visual*)x11AppVisual(x11Screen()) ) );
+	xd->x_colormap = a.colormap;
+	xd->x_defcolormap = ( a.colormap == x11AppColormap( x11Screen() ) );
+	setX11Data( xd );    
     } else if ( desktop ) {			// desktop widget
 	id = (WId)parentw;			// id = root window
 	QWidget *otherDesktop = find( id );	// is there another desktop?
@@ -499,38 +528,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if ( initializeWindow )
 	    XDefineCursor( dpy, winid, oc ? oc->handle() : cursor().handle() );
 	setWState( WState_OwnCursor );
-    }
-
-    if ( window ) {				// got window from outside
-	XWindowAttributes a;
-	XGetWindowAttributes( dpy, window, &a );
-	crect.setRect( a.x, a.y, a.width, a.height );
-
-	if ( a.map_state == IsUnmapped )
-	    clearWState( WState_Visible );
-	else
-	    setWState( WState_Visible );
-
-	QPaintDeviceX11Data* xd = getX11Data( TRUE );
-
-	// find which screen the window is on...
-	xd->x_screen = QPaintDevice::x11AppScreen(); // by default, use the default :)
-	int i;
-	for ( i = 0; i < ScreenCount( dpy ); i++ ) {
-	    if ( RootWindow( dpy, i ) == a.root ) {
-		xd->x_screen = i;
-		break;
-	    }
-	}
-
-	xd->x_depth = a.depth;
-	xd->x_cells = DisplayCells( dpy, xd->x_screen );
-	xd->x_visual = a.visual;
-	xd->x_defvisual = ( XVisualIDFromVisual( a.visual ) ==
-			    XVisualIDFromVisual( (Visual*)x11AppVisual(x11Screen()) ) );
-	xd->x_colormap = a.colormap;
-	xd->x_defcolormap = ( a.colormap == x11AppColormap( x11Screen() ) );
-	setX11Data( xd );
     }
 
     if ( destroyw )
