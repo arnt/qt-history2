@@ -125,6 +125,11 @@ sub shouldMasterInclude {
 sub classNames {
     my @ret;
     my ($iheader) = @_;
+    if(basename($iheader) eq "qglobal.h") {
+	push @ret, "QtGlobal";
+    } elsif(basename($iheader) eq "qalgorithms.h") {
+	push @ret, "QtAlgorithms";
+    }
 
     my $parsable = "";
     if(open(F, "<$iheader")) {
