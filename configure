@@ -1293,17 +1293,19 @@ if [ "$OPT_FAST" = "auto" ]; then
 fi
 
 # find a make command
-MAKE=
-for mk in gmake make; do
-    if $WHICH $mk >/dev/null 2>&1; then
-	MAKE=`$WHICH $mk`
-	break
-    fi
-done
 if [ -z "$MAKE" ]; then
-    echo "You don't seem to have 'make' or 'gmake' in your PATH."
-    echo "Cannot proceed."
-    exit 1
+    MAKE=
+    for mk in gmake make; do
+        if $WHICH $mk >/dev/null 2>&1; then
+	    MAKE=`$WHICH $mk`
+	    break
+        fi
+    done
+    if [ -z "$MAKE" ]; then
+	echo "You don't seem to have 'make' or 'gmake' in your PATH."
+	echo "Cannot proceed."
+	exit 1
+    fi
 fi
 
 fi ### help
