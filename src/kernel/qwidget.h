@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#167 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#168 $
 **
 ** Definition of QWidget class
 **
@@ -290,7 +290,6 @@ protected:
     virtual void dragLeaveEvent( QDragLeaveEvent * );
     virtual void dropEvent( QDropEvent * );
 
-    virtual void childEvent( QChildEvent * );
     virtual void showEvent( QShowEvent * );
     virtual void hideEvent( QHideEvent * );
     virtual void customEvent( QCustomEvent * );

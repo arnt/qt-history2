@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#129 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -306,8 +306,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     reparentFocusWidgets( parent );		// fix focus chains
 
     if ( parentObj ) {				// remove from parent
-	QChildEvent e( QEvent::ChildRemoved, this );
-	QApplication::sendEvent( parentObj, &e );
 	parentObj->removeChild( this );
     }
     if ( parent ) {				// insert into new parent
@@ -354,10 +352,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	((QAccel*)obj)->repairEventFilter();
     }
     delete accelerators;
-    if ( parent ) {
-	QChildEvent *e = new QChildEvent( QEvent::ChildInserted, this );
-	QApplication::postEvent( parent, e );
-    } else {
+    if ( !parent ) {
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );

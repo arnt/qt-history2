@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#99 $
+** $Id: //depot/qt/main/src/moc/moc.y#100 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1260,7 +1260,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.33 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.34 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1327,6 +1327,15 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "QMetaObject *%s::metaObj = 0;\n\n", (const char*)className);
 
 //
+// Generate static meta-object constructor-object (we don't rely on
+// it, except for QBuilder).
+//
+    fprintf( out, "\n#if QT_VERSION >= 200\n" );
+    fprintf( out, "static QMetaObjectInit init_%s(&%s::staticMetaObject);\n\n",
+	(const char*)className, (const char*)className );
+    fprintf( out, "#endif\n\n" );
+
+//
 // Generate initMetaObject member function
 //
     fprintf( out, "void %s::initMetaObject()\n{\n", (const char*)className );
@@ -1335,20 +1344,31 @@ void generateClass()		      // generate C++ source code for a class
 	          "\tbadSuperclassWarning(\"%s\",\"%s\");\n",
              (const char*)superclassName, (const char*)superclassName,
              (const char*)className, (const char*)superclassName );
-    fprintf( out, "    if ( !%s::metaObject() )\n\t%s::initMetaObject();\n",
-	     (const char*)superclassName, (const char*)superclassName );
+    fprintf( out, "\n#if QT_VERSION >= 200\n" );
+    fprintf( out, "    staticMetaObject();\n");
+    fprintf( out, "}\n\n");
+
 //
-// Build slots array in initMetaObject()
+// Generate staticMetaObject member function
+//
+    fprintf( out, "void %s::staticMetaObject()\n{\n", (const char*)className );
+    fprintf( out, "    if ( metaObj )\n\treturn;\n" );
+    fprintf( out, "    %s::staticMetaObject();\n", (const char*)superclassName );
+    fprintf( out, "#else\n\n" );
+    fprintf( out, "    %s::initMetaObject();\n", (const char*)superclassName );
+    fprintf( out, "#endif\n\n" );
+//
+// Build slots array in staticMetaObject()
 //
     generateFuncs( &slots, "slot", Slot_Num );
 
 //
-// Build signals array in initMetaObject()
+// Build signals array in staticMetaObject()
 //
     generateFuncs( &signals, "signal", Signal_Num );
 
 //
-// Finally code to create meta object
+// Finally code to create and return meta object
 //
     fprintf( out, "    metaObj = new QMetaObject( \"%s\", \"%s\",\n",
 	     (const char*)className, (const char*)superclassName );
@@ -1360,6 +1380,7 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\tsignal_tbl, %d );\n", signals.count());
     else
 	fprintf( out, "\t0, 0 );\n" );
+
     fprintf( out, "}\n" );
 
 //

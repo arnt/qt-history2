@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#38 $
 **
 ** Implementation of QMetaObject class
 **
@@ -250,3 +250,29 @@ QMetaData *QMetaObject::mdata( int code, int index, bool super ) const
     return 0;
 #endif
 }
+
+struct Function {
+    Function( void(*fn)(), Function* n ) : f(fn), next(n) { }
+    ~Function() { delete next; }
+    void(*f)();
+    Function* next;
+};
+
+static Function* functions_head = 0;
+
+QMetaObjectInit::QMetaObjectInit(void(*f)())
+{
+    functions_head = new Function(f,functions_head);
+}
+
+int QMetaObjectInit::init()
+{
+    int i=0;
+    for (Function* f = functions_head; f; f = f->next) {
+	(*(f->f))();
+	i++;
+    }
+    delete functions_head;
+    return i;
+}
+

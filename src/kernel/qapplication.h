@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#87 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#88 $
 **
 ** Definition of QApplication class
 **
@@ -170,7 +170,7 @@ private:
     bool inPopupMode() { return popupWidgets != 0; }
     void closePopup( QWidget *popup );
     void openPopup( QWidget *popup );
-
+    void noteTopLevel( QWidget* tlw );
 
     friend class QWidget;
     friend class QETWidget;

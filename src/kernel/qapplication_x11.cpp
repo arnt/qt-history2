@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#347 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#348 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -165,9 +165,6 @@ static int	mouseButtonPressed   = 0;	// last mouse button pressed
 static int	mouseButtonState     = 0;	// mouse button state
 static Time	mouseButtonPressTime = 0;	// when was a button pressed
 static short	mouseXPos, mouseYPos;		// mouse position in act window
-#if defined(DEBUG)
-static int	debug_level = 0;
-#endif
 
 static QWidgetList *modal_stack  = 0;		// stack of modal widgets
 static QWidget     *popupButtonFocus = 0;
@@ -627,27 +624,6 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 		    mwGeometry = argv[i];
 	    } else if ( arg == "-iconic" ) {
 		mwIconic = !mwIconic;
-	    } else if ( stricmp(arg, "-style=windows") == 0 ) {
-		qApp->setStyle( new QWindowsStyle );
-	    } else if ( stricmp(arg, "-style=motif") == 0 ) {
-		qApp->setStyle( new QMotifStyle );
- 	    } else if ( stricmp(arg, "-style=platinum") == 0 ) {
- 		qApp->setStyle( new QPlatinumStyle() );
-// 	    } else if ( stricmp(arg, "-style=hwindows") == 0 ) {
-// 		qApp->setStyle( new QHWindowsStyle() );
-// 	    } else if ( stricmp(arg, "-style=hmotif") == 0 ) {
-// 		qApp->setStyle( new QHMotifStyle() );
-	    } else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
-		Q1String s = argv[++i];
-		s = s.lower();
-		if ( s == "windows" )
-		    qApp->setStyle( new QWindowsStyle() );
-		else if ( s == "motif" )
-		    qApp->setStyle( new QMotifStyle() );
-#if defined(DEBUG)
-	    } else if ( arg == "-qdebug" ) {
-		debug_level++;
-#endif
 	    } else if ( arg == "-ncols" ) {   // xv and netscape use this name
 		if ( ++i < argc )
 		    qt_ncols_option = QMAX(0,atoi(argv[i]));
@@ -3250,23 +3226,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    ascii[0] = 0;
 	}
     }
-#if defined(DEBUG)
-    if ( debug_level > 0
-	 && type==QEvent::KeyPress
-	 && code==Key_D
-	 && (state&QMouseEvent::ControlButton)
-	 && (state&QMouseEvent::AltButton) )
-	{
-	    QWidgetList *list   = qApp->topLevelWidgets();
-	    QWidget     *widget = list->first();
-	    while ( widget ) {
-		widget->dumpObjectTree();
-		widget = list->next();
-	    }
-	    delete list;
-	    return TRUE;
-	}
-#endif
     if ( qApp->inPopupMode() ) {			// in popup mode
 	if ( popupGrabOk )
 	    XAllowEvents( dpy, SyncKeyboard, CurrentTime );

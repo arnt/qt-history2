@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#15 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#16 $
 **
 ** Definition of QMetaObject class
 **
@@ -76,6 +76,12 @@ private:	// Disabled copy constructor and operator=
     QMetaObject( const QMetaObject & );
     QMetaObject &operator=( const QMetaObject & );
 #endif
+};
+
+class Q_EXPORT QMetaObjectInit {
+public:
+    QMetaObjectInit(void(*f)());
+    static int init();
 };
 
 

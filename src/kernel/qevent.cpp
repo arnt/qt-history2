@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#66 $
 **
 ** Implementation of event classes
 **
@@ -759,22 +759,19 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
 /*!
   \class QChildEvent qevent.h
-  \brief The QChildEvent class contains event parameters for child widget
+  \brief The QChildEvent class contains event parameters for child object
   events.
 
   \ingroup event
 
 
-  Child events are sent to widgets when children are inserted or removed.
+  Child events are sent to objects when children are inserted or removed.
 
-  In this release of Qt, no event handlers are defined to receive
-  child events. Reimplement QObject::event() or install an
-  QObject::eventFilter() to handle these events.
-
+  The handler for these events is QObject::childEvent().
 */
 
 /*!
-  \fn QChildEvent::QChildEvent( Type type, QWidget *child )
+  \fn QChildEvent::QChildEvent( Type type, QObject *child )
   Constructs a child event object.
 
   The \a type parameter must be either \a QEvent::ChildInserted
@@ -782,7 +779,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 */
 
 /*!
-  \fn QWidget *QChildEvent::child() const
+  \fn QObject *QChildEvent::child() const
   Returns the child widget inserted or removed.
 */
 
@@ -793,7 +790,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 
 /*!
   \fn bool QChildEvent::removed() const
-  Returns TRUE if the widget lost a child.
+  Returns TRUE if the object lost a child.
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#64 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#65 $
 **
 ** Definition of event classes
 **
@@ -344,13 +344,13 @@ protected:
 class Q_EXPORT QChildEvent : public QEvent
 {
 public:
-    QChildEvent( Type type, QWidget *child )
+    QChildEvent( Type type, QObject *child )
 	: QEvent(type), c(child) {}
-    QWidget *child() const	{ return c; }
+    QObject *child() const	{ return c; }
     bool inserted() const { return t == ChildInserted; }
     bool removed() const { return t == ChildRemoved; }
 protected:
-    QWidget *c;
+    QObject *c;
 };
 
 

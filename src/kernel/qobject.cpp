@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#168 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#169 $
 **
 ** Implementation of QObject class
 **
@@ -562,9 +562,15 @@ bool QObject::event( QEvent *e )
 	if ( activate_filters(e) )		// stopped by a filter
 	    return TRUE;
     }
-    if ( e->type() == QEvent::Timer ) {		// timer event
+    switch ( e->type() ) {
+      case QEvent::Timer:
 	timerEvent( (QTimerEvent*)e );
 	return TRUE;
+      case QEvent::ChildInserted: case QEvent::ChildRemoved:
+	childEvent( (QChildEvent*)e );
+	return TRUE;
+      default:
+	break;
     }
     return FALSE;
 }
@@ -582,6 +588,22 @@ bool QObject::event( QEvent *e )
 */
 
 void QObject::timerEvent( QTimerEvent * )
+{
+}
+
+
+/*!
+  This event handler can be reimplemented in a subclass to receive
+  child events.
+
+  Child events are sent to objects when children are inserted or removed.
+
+  The default implementation does nothing.
+
+  \sa event(), QChildEvent
+*/
+
+void QObject::childEvent( QChildEvent * )
 {
 }
 
@@ -912,6 +934,9 @@ void QObject::insertChild( QObject *obj )
 	childObjects->insert( 0, obj );		// high priority inserts
     else
 	childObjects->append( obj );		// normal priority appends
+
+    QChildEvent *e = new QChildEvent( QEvent::ChildInserted, obj );
+    QApplication::postEvent( this, e );
 }
 
 /*!
@@ -928,10 +953,14 @@ void QObject::removeChild( QObject *obj )
 {
     if ( childObjects && childObjects->removeRef(obj) ) {
 	obj->parentObj = 0;
+	obj->parentObj = 0;
 	if ( childObjects->isEmpty() ) {
 	    delete childObjects;		// last child removed
 	    childObjects = 0;			// reset children list
 	}
+
+	QChildEvent e( QEvent::ChildRemoved, obj );
+        QApplication::sendEvent( this, &e );
     }
 }
 
@@ -1593,6 +1622,14 @@ QMetaObject *QObject::queryMetaObject() const
   \sa metaObject()
 */
 void QObject::initMetaObject()
+{
+    staticMetaObject();
+}
+
+/*!
+  The functionality of initMetaObject(), provided as a static function.
+*/
+void QObject::staticMetaObject()
 {
     if ( metaObj )
 	return;

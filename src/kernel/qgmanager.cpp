@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#41 $
 **
 ** Implementation of QGGeometry class
 **
@@ -832,9 +832,11 @@ bool QGManager::eventFilter( QObject *o, QEvent *e )
     }
     case QEvent::ChildRemoved: {
 	QChildEvent *c = (QChildEvent*)e;
-	remove( c->child() );
-	QEvent *lh = new QEvent( QEvent::LayoutHint );
-	QApplication::postEvent( o, lh );
+	if ( c->child()->isWidgetType() ) {
+	    remove( (QWidget*)(c->child()) );
+	    QEvent *lh = new QEvent( QEvent::LayoutHint );
+	    QApplication::postEvent( o, lh );
+	}
 	break;
     }
     case QEvent::LayoutHint:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#33 $
 **
 ** Implementation of QMainWindow class
 **
@@ -662,7 +662,7 @@ bool QMainWindow::event( QEvent * e )
     if ( e->type() == QEvent::ChildRemoved ) {
 	QChildEvent * c = (QChildEvent *) e;
 	if ( c->child() == 0 ||
-	     c->child()->testWFlags( WType_TopLevel ) ) {
+	     ((QWidget*)c->child())->testWFlags( WType_TopLevel ) ) {
 	    // nothing
 	} else if ( c->child() == d->sb ) {
 	    d->sb = 0;
@@ -673,7 +673,7 @@ bool QMainWindow::event( QEvent * e )
 	} else if ( c->child() == d->mc ) {
 	    d->mc = 0;
 	    triggerLayout();
-	} else {
+	} else if ( c->child()->isWidgetType() ) {
 	    removeToolBar( (QToolBar *)(c->child()) );
 	    triggerLayout();
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#27 $
+** $Id: //depot/qt/main/src/kernel/qobjectdefs.h#28 $
 **
 ** Macros and definitions related to QObject
 **
@@ -37,13 +37,14 @@
 #define emit					// emit signal
 
 /* tmake ignore Q_OBJECT */
-#define Q_OBJECT							      \
-public:									      \
-    QMetaObject *metaObject() const { return metaObj; }			      \
-    const char  *className()  const;					      \
-protected:								      \
-    void	 initMetaObject();					      \
-private:								      \
+#define Q_OBJECT							\
+public:									\
+    QMetaObject *metaObject() const { return metaObj; }			\
+    const char  *className()  const;					\
+    static void staticMetaObject();					\
+protected:								\
+    void	 initMetaObject();					\
+private:								\
     static QMetaObject *metaObj;
 
 /* tmake ignore Q_OBJECT */

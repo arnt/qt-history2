@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#31 $
 **
 **  Splitter widget
 **
@@ -277,13 +277,14 @@ void QSplitter::childRemoveEvent( QChildEvent *c )
 */
 void QSplitter::childInsertEvent( QChildEvent *c )
 {
-    if ( c->child() == d ||  c->child() == w1 || c->child() == w2 )
+    if ( !c->child()->isWidgetType() || c->child() == d ||
+         	c->child() == w1 || c->child() == w2 )
 	return;
 
     if ( !w1  ) {
-	w1 = c->child();
+	w1 = (QWidget*)c->child();
     } else if ( !w2 ) {
-	w2 = c->child();
+	w2 = (QWidget*)c->child();
     }
 #if defined CHECK_RANGE
     else

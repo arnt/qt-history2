@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#154 $
 **
 ** Implementation of QApplication class
 **
@@ -22,6 +22,7 @@
 *****************************************************************************/
 
 #include "qapplication.h"
+#include "qbuilder.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qwidget.h"
@@ -105,6 +106,8 @@ QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
 QWidget	 *QApplication::active_window  = 0;	// toplevel that has keyboard input focus
 QWidgetList *QApplication::popupWidgets= 0;	// has keyboard input focus
+static bool makebuilder = FALSE;	// application builder needed?
+static QBuilder* builder = 0;		// application builder
 
 
 int	 QApplication::app_cspec = QApplication::NormalColor;
@@ -136,6 +139,45 @@ static void destroy_palettes()
     delete stdPalette;
 }
 
+static
+void process_cmdline( int* argcptr, char ** argv )
+{
+    // process platform-indep command line
+
+    int argc = *argcptr;
+    int i, j;
+
+    j = 1;
+    for ( i=1; i<argc; i++ ) {
+	if ( argv[i] && *argv[i] != '-' ) {
+	    argv[j++] = argv[i];
+	    continue;
+	}
+	Q1String arg = argv[i];
+	if ( arg == "-builder" || arg == "-qdebug") {
+	    makebuilder = !makebuilder;
+	} else if ( stricmp(arg, "-style=windows") == 0 ) {
+	    qApp->setStyle( new QWindowsStyle );
+	} else if ( stricmp(arg, "-style=motif") == 0 ) {
+	    qApp->setStyle( new QMotifStyle );
+	} else if ( stricmp(arg, "-style=platinum") == 0 ) {
+	    qApp->setStyle( new QPlatinumStyle() );
+//	} else if ( stricmp(arg, "-style=hwindows") == 0 ) {
+//	    qApp->setStyle( new QHWindowsStyle() );
+//	} else if ( stricmp(arg, "-style=hmotif") == 0 ) {
+//	    qApp->setStyle( new QHMotifStyle() );
+	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
+	    Q1String s = argv[++i];
+	    s = s.lower();
+	    if ( s == "windows" )
+		qApp->setStyle( new QWindowsStyle() );
+	    else if ( s == "motif" )
+		qApp->setStyle( new QMotifStyle() );
+	} else
+	    argv[j++] = argv[i];
+    }
+    *argcptr = j;
+}
 
 /*!
   Initializes the window system and onstructs an application object
@@ -164,7 +206,16 @@ static void destroy_palettes()
   See <a href="debug.html">Debugging Techniques</a> for a more
   detailed explanation.
 
-  The X11 version of Qt supports a few more command line options:
+  All Qt programs automatically support the following command line options:
+  <ul>
+  <li> \c -style= \e style, sets the application GUI style. Possible values
+       are \c motif, \c windows, and \c platinum.
+  <li> \c -builder activates the Application Builder window, which allows
+       run-time inspection of the program.
+  </ul>
+
+  The X11 version of Qt also supports some traditional X11
+  command line options:
   <ul>
   <li> \c -display \e display, sets the X display (default is $DISPLAY).
   <li> \c -geometry \e geometry, sets the client geometry of the
@@ -175,8 +226,6 @@ static void destroy_palettes()
   <li> \c -fg or \c -foreground \e color, sets the default foreground color.
   <li> \c -name \e name, sets the application name.
   <li> \c -title \e title, sets the application title (caption).
-  <li> \c -style= \e style, sets the application GUI style. Possible values
-       are \c motif and \c windows
   <li> \c -visual \c TrueColor, forces the application to use a TrueColor visual
        on an 8-bit display.
   <li> \c -ncols \e count, limits the number of colors allocated in the
@@ -211,8 +260,15 @@ QApplication::QApplication( int &argc, char **argv )
 	argv = &empty;
     }
     qt_init( &argc, argv );
+    process_cmdline( &argc, argv );
+
     initialize( argc, argv );
     app_style->initialize( this );
+
+    if ( makebuilder ) {
+	builder = new QBuilder;
+	builder->show();
+    }
 }
 
 
@@ -953,4 +1009,13 @@ void QApplication::setDoubleClickInterval( int ms )
 int QApplication::doubleClickInterval()
 {
     return mouseDoubleClickInterval;
+}
+
+/*!
+  Tells the builder, if any, about a new top-level widget.
+*/
+void QApplication::noteTopLevel( QWidget* tlw )
+{
+    if ( builder )
+	builder->addTopLevelWidget(tlw);
 }

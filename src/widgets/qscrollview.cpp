@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#61 $
 **
 ** Implementation of QScrollView class
 **
@@ -701,7 +701,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	    viewportMouseMoveEvent( (QMouseEvent*)e );
 	    break;
 	case QEvent::ChildRemoved:
-	    removeChild(((QChildEvent*)e)->child());
+	    removeChild((QWidget*)((QChildEvent*)e)->child());
 	    break;
 	default:
 	    break;

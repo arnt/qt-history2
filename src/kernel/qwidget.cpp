@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#279 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#280 $
 **
 ** Implementation of QWidget class
 **
@@ -641,10 +641,9 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 	    }
 	}
     }
-    if ( parent ) {
-	QChildEvent *e = new QChildEvent( QEvent::ChildInserted, this );
-	QApplication::postEvent( parent, e );
-    }
+
+    if ( !parent )
+	qApp->QApplication::noteTopLevel(this);
 }
 
 
@@ -662,10 +661,6 @@ QWidget::~QWidget()
     if ( f )
 	f->focusWidgets.removeRef( this );
 
-    if ( parentObj ) {
-	QChildEvent e( QEvent::ChildRemoved, this );
-	QApplication::sendEvent( parentObj, &e );
-    }
     if ( deferredMoves ) {
 	deferredMoves->take( this );	// clean deferred move/resize
 	deferredResizes->take( this );
@@ -2956,9 +2951,6 @@ bool QWidget::event( QEvent *e )
 	case QEvent::DragLeave:
 	    dragLeaveEvent( (QDragLeaveEvent*) e);
 	    break;	
-	case QEvent::ChildInserted: case QEvent::ChildRemoved:
-	    childEvent( (QChildEvent*) e);
-	    break;
 	case QEvent::Show:
 	    showEvent( (QShowEvent*) e);
 	    break;
@@ -3350,21 +3342,6 @@ void QWidget::dropEvent( QDropEvent * )
 {
 }
 
-
-/*!
-  This event handler can be reimplemented in a subclass to receive
-  child widgets events.
-
-  Child events are sent to widgets when children are inserted or removed.
-
-  The default implementation does nothing.
-
-  \sa event(), QChildEvent
-*/
-
-void QWidget::childEvent( QChildEvent * )
-{
-}
 
 /*!
   This event handler can be reimplemented in a subclass to receive
