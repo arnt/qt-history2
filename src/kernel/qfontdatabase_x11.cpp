@@ -1146,7 +1146,6 @@ static inline QFontEngine *loadEngine( int styleStrategy, int styleHint,
 
 	XftPatternAddInteger( pattern, XFT_WEIGHT, weight );
 	XftPatternAddInteger( pattern, XFT_SLANT, slant_value );
-
 	/*
 	  Xft1 doesn't obey user settings for turning off anti-aliasing using
 	  the following:
@@ -1247,10 +1246,15 @@ static unsigned int bestFoundry( unsigned int score, int styleStrategy,
 	    for ( int i = 0; i < fnd->count; i++ ) {
 		QtFontStyle *sty = fnd->styles[i];
 		int d = QABS( styleKey.weight - sty->key.weight );
-		if ( styleKey.italic && !sty->key.italic )
-		    d += sty->key.oblique ? 0x100 : 0x1000;
-		if ( styleKey.oblique && !sty->key.oblique )
-		    d += sty->key.italic ? 0x100 : 0x1000;
+		if ( styleKey.italic ) {
+		    if ( !sty->key.italic )
+			d += sty->key.oblique ? 0x100 : 0x1000;
+		} else if ( styleKey.oblique ) {
+		    if (!sty->key.oblique )
+			d += sty->key.italic ? 0x100 : 0x1000;
+		} else if ( sty->key.italic || sty->key.oblique ) {
+		    d += 0x1000;
+		}
 		if ( d < dist ) {
 		    best = i;
 		    dist = d;
@@ -1346,8 +1350,8 @@ QFontEngine *QFontDatabase::findFont( QFont::Script script,
     if ( !db )
 	initializeDb();
 
-//     qDebug( "---> QFontDatabase::findFont: looking for font '%s' with script %d '%s', weight=%d",
-// 	    family.latin1(), script, scriptName( script ).latin1(), weight );
+//     qDebug( "---> QFontDatabase::findFont: looking for font '%s' with script %d '%s', weight=%d, italic=%d",
+//  	    family.latin1(), script, scriptName( script ).latin1(), weight, italic );
 
     QFontEngine *fe = 0;
 
@@ -1414,11 +1418,11 @@ QFontEngine *QFontDatabase::findFont( QFont::Script script,
 	return 0;
 
 //     qDebug( "BEST: family '%s' foundry '%s'",
-// 	    best_fam->name.latin1(), best_fnd->name.latin1() );
+//  	    best_fam->name.latin1(), best_fnd->name.latin1() );
 //     qDebug( "  using weight %d italic %d oblique %d",
-// 	    best_sty->key.weight, best_sty->key.italic, best_sty->key.oblique );
+//  	    best_sty->key.weight, best_sty->key.italic, best_sty->key.oblique );
 //     qDebug( "  using size %d pitch '%c' encoding id %d '%s'",
-// 	    best_px, best_pt, best_encoding_id, xlfd_for_id( best_encoding_id ) );
+//  	    best_px, best_pt, best_encoding_id, xlfd_for_id( best_encoding_id ) );
 
     fe = loadEngine( styleStrategy, styleHint, best_fam->name, best_fnd->name,
 		     best_sty->key.weight, best_sty->key.italic,
