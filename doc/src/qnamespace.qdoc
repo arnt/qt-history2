@@ -1191,3 +1191,17 @@
 
     Use Qt::KeyboardModifier instead.
 */
+
+/*!
+    \enum Qt::CheckState
+
+    This enum describes the state of checkable items, controls, and widgets.
+
+    \value Unchecked        The item is unchecked.
+    \value PartiallyChecked The item is partially checked. Items in hierarchical models
+                            may be partially checked if some, but not all, of their
+                            children are checked.
+    \value Checked          The item is checked.
+
+    \sa QCheckBox, QAbstractItemModel::ItemFlag, QAbstractItemModel::Role
+*/
