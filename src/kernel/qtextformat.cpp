@@ -78,7 +78,7 @@ QDebug &operator<<(QDebug &debug, const QTextFormatProperty &property)
 
 typedef QMap<int, QTextFormatProperty> QTextFormatPropertyMap;
 
-class QTextFormatPrivate
+class QTextFormatPrivate : public QSharedObject
 {
 public:
     QTextFormatPrivate(int _type = -1, int _inheritedType = -1) : type(_type), inheritedType(_inheritedType) {}
@@ -110,7 +110,7 @@ public:
     int indexToReference(int idx) const;
     int referenceToIndex(int ref) const;
 
-    QVector<QTextFormatPrivate> formats;
+    QVector<QSharedPointer<QTextFormatPrivate> > formats;
     QVector<int> formatReferences;
 };
 
@@ -203,7 +203,7 @@ bool QTextFormatPrivate::operator==(const QTextFormatPrivate &rhs) const
 }
 
 QTextFormat::QTextFormat()
-    : d(new QTextFormatPrivate(-1, -1))
+    : d(new QTextFormatPrivate)
 {
 }
 
@@ -212,30 +212,24 @@ QTextFormat::QTextFormat(int type, int inheritedType)
 {
 }
 
-QTextFormat::QTextFormat(const QTextFormatPrivate &priv)
-    : d(new QTextFormatPrivate(priv))
+QTextFormat::QTextFormat(const QSharedPointer<QTextFormatPrivate> &priv)
+    : d(priv)
 {
 }
 
 QTextFormat::QTextFormat(const QTextFormat &rhs)
-    : d(new QTextFormatPrivate)
 {
     (*this) = rhs;
 }
 
 QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
 {
-    if (&rhs == this)
-	return *this;
-
-    *d = *rhs.d;
-
+    d = rhs.d;
     return *this;
 }
 
 QTextFormat::~QTextFormat()
 {
-    delete d;
 }
 
 void QTextFormat::merge(const QTextFormat &other)
@@ -265,35 +259,35 @@ QTextBlockFormat QTextFormat::toBlockFormat() const
 {
     if (!isBlockFormat())
 	return QTextBlockFormat();
-    return QTextBlockFormat(*d);
+    return QTextBlockFormat(d);
 }
 
 QTextCharFormat QTextFormat::toCharFormat() const
 {
     if (!isCharFormat())
 	return QTextCharFormat();
-    return QTextCharFormat(*d);
+    return QTextCharFormat(d);
 }
 
 QTextListFormat QTextFormat::toListFormat() const
 {
     if (!isListFormat())
 	return QTextListFormat();
-    return QTextListFormat(*d);
+    return QTextListFormat(d);
 }
 
 QTextTableFormat QTextFormat::toTableFormat() const
 {
     if (!isTableFormat())
 	return QTextTableFormat();
-    return QTextTableFormat(*d);
+    return QTextTableFormat(d);
 }
 
 QTextImageFormat QTextFormat::toImageFormat() const
 {
     if (!isImageFormat())
 	return QTextImageFormat();
-    return QTextImageFormat(*d);
+    return QTextImageFormat(d);
 }
 
 bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
@@ -487,7 +481,7 @@ int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 {
     // certainly need speedup
     for (int i = 0; i < d->formats.size(); ++i)
-	if (d->formats[i] ==
+	if (*d->formats[i] ==
 #undef d
 	    *format.d)
 #define d d_func()
@@ -495,7 +489,7 @@ int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 
     int idx = d->formats.size();
 #undef d
-    static_cast<QTextFormatCollectionPrivate *>(d_func())->formats.append(*format.d);
+    static_cast<QTextFormatCollectionPrivate *>(d_func())->formats.append(format.d);
 #define d d_func()
     return idx;
 }
