@@ -147,7 +147,7 @@ class Q_EXPORT QValueListConstIterator
 #ifndef QT_NO_STL
     typedef ptrdiff_t  difference_type;
 #else
-    typedefl int difference_type;
+    typedef int difference_type;
 #endif
     typedef size_t size_type;
     typedef const T*   pointer;
