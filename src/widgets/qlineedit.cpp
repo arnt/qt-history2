@@ -2059,22 +2059,25 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent * e )
     d->separate();
 
     QGuardedPtr<QPopupMenu> popup = createPopupMenu();
+    QGuardedPtr<QLineEdit> that = this;
     QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :
 		 mapToGlobal( QPoint(e->pos().x(), 0) ) + QPoint( width() / 2, height() / 2 );
     int r = popup->exec( pos );
     delete popup;
-    switch ( d->menuId - r ) {
-    case IdClear: clear(); break;
-    case IdSelectAll: selectAll(); break;
-    case IdUndo: undo(); break;
-    case IdRedo: redo(); break;
+    if ( that && d->menuId ) {
+	switch ( d->menuId - r ) {
+	case IdClear: clear(); break;
+	case IdSelectAll: selectAll(); break;
+	case IdUndo: undo(); break;
+	case IdRedo: redo(); break;
 #ifndef QT_NO_CLIPBOARD
-    case IdCut: cut(); break;
-    case IdCopy: copy(); break;
-    case IdPaste: paste(); break;
+	case IdCut: cut(); break;
+	case IdCopy: copy(); break;
+	case IdPaste: paste(); break;
 #endif
-    default:
-	; // nothing selected or lineedit destroyed. Be careful.
+	default:
+	    ; // nothing selected or lineedit destroyed. Be careful.
+	}
     }
 #endif //QT_NO_POPUPMENU
 }
