@@ -737,12 +737,24 @@ void qt_event_send_clipboard_changed()
 #endif
 }
 
+/* app menu */
+static QMenu *qt_mac_dock_menu = 0;
+void qt_mac_set_dock_menu(QMenu *menu)
+{
+    qt_mac_dock_menu = menu;
+    SetApplicationDockTileMenu(menu->macMenu());
+}
+
 /* events that hold pointers to widgets, must be cleaned up like this */
 void qt_mac_event_release(QWidget *w)
 {
     if (w) {
         // cleanup show sheet pending
         qt_mac_event_release(w, request_showsheet_pending);
+        if(w == qt_mac_dock_menu) {
+            qt_mac_dock_menu = 0;
+            SetApplicationDockTileMenu(0);
+        }
     }
 }
 
@@ -2392,7 +2404,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         }
         break;
     case kEventClassAppleEvent:
-        handled_event = false;
         if(ekind == kEventAppleEvent) {
             EventRecord erec;
             if(!ConvertEventRefToEventRecord(event, &erec))
@@ -2408,22 +2419,37 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             HICommand cmd;
             GetEventParameter(event, kEventParamDirectObject, typeHICommand,
                               0, sizeof(cmd), 0, &cmd);
-            if(cmd.commandID == kHICommandQuit) {
-                HiliteMenu(0);
-                if (!qt_modal_state()) {
-                    QCloseEvent ev;
-                    QApplication::sendSpontaneousEvent(app, &ev);
-                    if(ev.isAccepted())
-                        app->quit();
-                } else {
-                    QApplication::beep();
-                }
-            } else if(cmd.commandID == kHICommandAbout) {
-                QMessageBox::aboutQt(0);
-                HiliteMenu(0);
-            }
-        } else {
             handled_event = false;
+            if(!cmd.menu.menuRef && GetApplicationDockTileMenu()) {
+                EventRef copy = CopyEvent(event);
+                HICommand copy_cmd;
+                GetEventParameter(event, kEventParamDirectObject, typeHICommand,
+                                  0, sizeof(copy_cmd), 0, &copy_cmd);
+                copy_cmd.menu.menuRef = GetApplicationDockTileMenu();
+                SetEventParameter(copy, kEventParamDirectObject, typeHICommand, sizeof(copy_cmd), &copy_cmd);
+                OSStatus err = SendEventToMenu(copy, copy_cmd.menu.menuRef);
+                if(err == noErr) 
+                    handled_event = true;
+            }
+            if(!handled_event) {
+                if(cmd.commandID == kHICommandQuit) {
+                    HiliteMenu(0);
+                    if (!qt_modal_state()) {
+                        QCloseEvent ev;
+                        QApplication::sendSpontaneousEvent(app, &ev);
+                        if(ev.isAccepted()) {
+                            handled_event = true;
+                            app->quit();
+                        }
+                    } else {
+                        QApplication::beep();
+                    }
+                } else if(cmd.commandID == kHICommandAbout) {
+                    QMessageBox::aboutQt(0);
+                    HiliteMenu(0);
+                    handled_event = true;
+                }
+            }
         }
         break;
     }
