@@ -369,11 +369,21 @@ void QDateTimeEditor::init()
 
 bool QDateTimeEditor::event( QEvent *e )
 {
-    if ( e->type() == QEvent::FocusIn ) {
+    if ( e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut ) {
 	repaint( rect(), FALSE);
-    }
-    if( e->type() == QEvent::FocusOut ){
-	repaint( rect(), FALSE );
+    } else if ( e->type() == QEvent::AccelOverride ) {
+	QKeyEvent* ke = (QKeyEvent*) e;
+	switch ( ke->key() ) {
+	case Key_Delete:
+	case Key_Backspace:
+	case Key_Up:
+	case Key_Down:
+	case Key_Left:
+	case Key_Right:
+	    ke->accept();
+	default:
+	    break;
+	}
     }
     return QWidget::event( e );
 }
