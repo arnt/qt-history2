@@ -74,7 +74,8 @@ void Steering::addPage( PageDoc *doc )
 void Steering::addExample( ExampleDoc *doc )
 {
     examples.append( doc );
-    addHtmlFile( doc->fileName() );
+    addHtmlFile( config->verbatimHref(doc->fileName()) );
+    eglist.insert( doc->fileName() );
 }
 
 void Steering::addHtmlChunk( const QString& link, const HtmlChunk& chk )
@@ -129,10 +130,10 @@ void Steering::nailDownDocs()
 	      Add header files to list.
 	    */
 	    if ( !classDecl->headerFile().isEmpty() )
-		hflist.insert( classDecl->headerFile() );
+		hlist.insert( classDecl->headerFile() );
 	    if ( classDecl->classDoc() != 0 &&
 		 !classDecl->classDoc()->headers().isEmpty() )
-		hflist = reunion( hflist, classDecl->classDoc()->headers() );
+		hlist = reunion( hlist, classDecl->classDoc()->headers() );
 
 	    clist.insert( classDecl->name(), classDecl->whatsThis() );
 	    wmap[classDecl->whatsThis()].insert( classDecl->name() );
@@ -171,8 +172,8 @@ void Steering::nailDownDocs()
 	++child;
     }
 
-    StringSet::ConstIterator s = hflist.begin();
-    while( s != hflist.end() ) {
+    StringSet::ConstIterator s = hlist.begin();
+    while ( s != hlist.end() ) {
 	addHtmlFile( config->verbatimHref(*s) );
 	++s;
     }
@@ -185,12 +186,13 @@ void Steering::emitHtml() const
     HtmlWriter::setAddress( config->address() );
 
     DeclResolver resolver( &root );
-    resolver.setHeaderFileList( hflist );
-    resolver.setHtmlFileList( htmlflist );
+    resolver.setExampleFileList( eglist );
+    resolver.setHeaderFileList( hlist );
+    resolver.setHtmlFileList( htmllist );
     resolver.setHtmlChunkMap( chkmap );
 
     Doc::setResolver( &resolver );
-    Doc::setHeaderFileList( hflist );
+    Doc::setHeaderFileList( hlist );
     Doc::setClassList( clist );
     Doc::setFunctionIndex( findex );
     Doc::setClassHierarchy( chierarchy );
@@ -198,8 +200,8 @@ void Steering::emitHtml() const
     /*
       Generate the verbatim header files.
     */
-    StringSet::ConstIterator s = hflist.begin();
-    while ( s != hflist.end() ) {
+    StringSet::ConstIterator s = hlist.begin();
+    while ( s != hlist.end() ) {
 	QString headerFilePath = config->findDepth( *s,
 						    config->includeDirList() );
 	if ( headerFilePath.isEmpty() )
@@ -210,7 +212,8 @@ void Steering::emitHtml() const
     }
 
     /*
-      Examples have to be done first, so that the documentation can link to it.
+      Examples have to be done first, so that the documentation can link to
+      them.
     */
     QValueList<ExampleDoc *>::ConstIterator ex = examples.begin();
     while ( ex != examples.end() ) {
@@ -368,7 +371,10 @@ void Steering::emitHtml() const
 
 void Steering::addHtmlFile( const QString& fileName )
 {
-    if ( htmlflist.contains(fileName) )
+    if ( htmllist.contains(fileName) )
 	warning( 1, "HTML file '%s' overwritten", fileName.latin1() );
-    htmlflist.insert( fileName );
+    else if ( fileName.right(5) != QString(".html") )
+	warning( 1, "HTML file '%s' lacking '.html' extension",
+		 fileName.latin1() );
+    htmllist.insert( fileName );
 }

@@ -54,8 +54,9 @@ private:
     QMap<QString, HtmlChunk> chkmap;
     QMap<QString, StringSet> lmap;
 
-    StringSet htmlflist;
-    StringSet hflist;
+    StringSet eglist;
+    StringSet hlist;
+    StringSet htmllist;
     QMap<QString, QString> clist;
     QMap<QString, StringSet> findex;
     QMap<QString, StringSet> chierarchy;

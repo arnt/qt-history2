@@ -32,6 +32,8 @@ public:
 					  const QString& html ) const;
 
     void setCurrentClass( const ClassDecl *classDecl ) { c = classDecl; }
+    void setExampleFileList( const StringSet& exampleFiles )
+    { eg = exampleFiles; }
     void setHeaderFileList( const StringSet& headerFiles ) { h = headerFiles; }
     void setHtmlFileList( const StringSet& htmlFiles ) { html = htmlFiles; }
     void setHtmlChunkMap( const QMap<QString, HtmlChunk>& chunkMap )
@@ -45,6 +47,7 @@ private:
 
     const Decl *r;
     const ClassDecl *c;
+    StringSet eg;
     StringSet h;
     StringSet html;
     QMap<QString, HtmlChunk> chkmap;

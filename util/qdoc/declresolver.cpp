@@ -22,12 +22,13 @@ QString DeclResolver::resolve( const QString& name ) const
     if ( name.isEmpty() || (c != 0 && c->fullName() == name) ) {
 	return QString::null;
     } else if ( y == 0 ) {
-	if ( html.contains(name) )
-	    return name;
-	else if ( h.contains(name) )
+	if ( eg.contains(name) || h.contains(name) ) {
 	    return config->verbatimHref( name );
-	else
+	} else if ( html.contains(name) ) {
+	    return name;
+	} else {
 	    return QString::null;
+	}
     } else if ( y->kind() == Decl::Class ) {
 	return config->classRefHref( y->fullName() );
     } else {
