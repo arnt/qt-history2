@@ -28,8 +28,8 @@ public:
         :
         printer(0),
         options(QAbstractPrintDialog::PrintToFile),
-        minPage(0),
-        maxPage(0),
+        minPage(1),
+        maxPage(1),
         fromPage(0),
         toPage(0)
     {
@@ -37,7 +37,7 @@ public:
 
     QPrinter *printer;
     QAbstractPrintDialog::PrintDialogOptions options;
-    QAbstractPrintDialog::PageRange pageRange;
+    QAbstractPrintDialog::PrintRange printRange;
     int minPage, maxPage, fromPage, toPage;
 };
 

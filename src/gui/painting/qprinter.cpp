@@ -357,6 +357,11 @@ QString QPrinter::printerName() const
     return d->printEngine->printerName();
 }
 
+void QPrinter::setPrinterName(const QString &name)
+{
+    d->printEngine->setPrinterName(name);
+}
+
 
 /*!
   \fn bool QPrinter::outputToFile() const

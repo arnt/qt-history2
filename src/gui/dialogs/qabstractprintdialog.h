@@ -25,10 +25,10 @@ class Q_GUI_EXPORT QAbstractPrintDialog : public QDialog
     Q_DECLARE_PRIVATE(QAbstractPrintDialog)
 public:
 
-    enum PageRange {
-        All,
+    enum PrintRange {
+        AllPages,
         Selection,
-        Pages
+        PageRange
     };
 
     enum PrintDialogOption {
@@ -50,8 +50,8 @@ public:
     PrintDialogOptions enabledOptions() const;
     bool isOptionEnabled(PrintDialogOption option) const;
 
-    void setPageRange(PageRange range);
-    PageRange pageRange() const;
+    void setPrintRange(PrintRange range);
+    PrintRange printRange() const;
 
     void setMinMax(int min, int max);
     int minPage() const;

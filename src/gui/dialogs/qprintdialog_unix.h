@@ -1,4 +1,3 @@
-#if 0
 /****************************************************************************
 **
 ** Definition of print dialog.
@@ -17,24 +16,24 @@
 #define QPRINTDIALOG_H
 
 #ifndef QT_H
-#include "qdialog.h"
+#include "qabstractprintdialog.h"
 #endif // QT_H
 
 #ifndef QT_NO_PRINTDIALOG
 
 class QGroupBox;
-class QPrintDialogPrivate;
+class QPrintDialogUnixPrivate;
 class QListView;
 
-class Q_GUI_EXPORT QPrintDialog : public QDialog
+class Q_GUI_EXPORT QPrintDialogUnix : public QAbstractPrintDialog
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QPrintDialogUnix)
 public:
-    QPrintDialog(QPrinter *, QWidget* parent=0, const char* name=0);
-    ~QPrintDialog();
+    QPrintDialogUnix(QPrinter *, QWidget* parent=0);
+    ~QPrintDialogUnix();
 
-    static bool getPrinterSetup(QPrinter *, QWidget* = 0);
-    static void setGlobalPrintDialog(QPrintDialog *);
+    int exec();
 
     void setPrinter(QPrinter *, bool = false);
     QPrinter * printer() const;
@@ -59,8 +58,6 @@ private slots:
     void fileNameEditChanged(const QString &text);
 
 private:
-    QPrintDialogPrivate *d;
-
     QGroupBox * setupDestination();
     QGroupBox * setupOptions();
     QGroupBox * setupPaper();
@@ -68,12 +65,11 @@ private:
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QPrintDialog(const QPrintDialog &);
-    QPrintDialog &operator=(const QPrintDialog &);
+    QPrintDialogUnix(const QPrintDialogUnix &);
+    QPrintDialogUnix &operator=(const QPrintDialogUnix &);
 #endif
 };
 
 #endif
 
 #endif // QPRINTDIALOG_H
-#endif // 0

@@ -79,9 +79,9 @@ int QPrintDialogWin::exec()
     if(!(d->options & PrintToFile))
         pd.Flags |= PD_DISABLEPRINTTOFILE;
 
-    if (d->pageRange == Selection)
+    if (d->printRange == Selection)
         pd.Flags |= PD_SELECTION;
-    else if (d->pageRange == Pages)
+    else if (d->printRange == PageRange)
         pd.Flags |= PD_PAGENUMS;
     else
         pd.Flags |= PD_ALLPAGES;
@@ -111,15 +111,15 @@ int QPrintDialogWin::exec()
     // write values back...
     if (result) {
         if (pd.Flags & PD_SELECTION) {
-            d->pageRange = Selection;
+            d->printRange = Selection;
             d->fromPage = 0;
             d->toPage = 0;
         } else if (pd.Flags & PD_PAGENUMS) {
-            d->pageRange = Pages;
+            d->printRange = PageRange;
             d->fromPage = pd.nFromPage;
             d->toPage = pd.nToPage;
         } else {
-            d->pageRange = All;
+            d->printRange = AllPages;
             d->fromPage = d->minPage;
             d->toPage = d->maxPage;
         }

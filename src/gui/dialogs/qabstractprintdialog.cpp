@@ -51,14 +51,14 @@ bool QAbstractPrintDialog::isOptionEnabled(PrintDialogOption option) const
     return d->options & option;
 }
 
-void QAbstractPrintDialog::setPageRange(PageRange range)
+void QAbstractPrintDialog::setPrintRange(PrintRange range)
 {
-    d->pageRange = range;
+    d->printRange = range;
 }
 
-QAbstractPrintDialog::PageRange QAbstractPrintDialog::pageRange() const
+QAbstractPrintDialog::PrintRange QAbstractPrintDialog::printRange() const
 {
-    return d->pageRange;
+    return d->printRange;
 }
 
 void QAbstractPrintDialog::setMinMax(int min, int max)
