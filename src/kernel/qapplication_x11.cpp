@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#815 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#816 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -241,7 +241,6 @@ Window		*qt_net_virtual_root_list	= 0;
 // Display
 bool	qt_use_xrender	= FALSE;
 
-static Window	lastFocusWindow	     = 0;	// window where focus is
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
 static int	mouseButtonState     = 0;	// mouse button state
@@ -3097,27 +3096,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 }
 
 
-/*
- * Process a crossing event for focus changes
- *
- * Synthesize a focus event from an appropriate crossing event,
- * those are any with 'focus' set which are not the current focus window
- */
-#define x11ProcessCrossing(_c_) \
- if ((_c_)->xcrossing.focus && (_c_)->xcrossing.window != lastFocusWindow) { \
-     XEvent  _f_; \
-     _f_.type = (_c_)->type == EnterNotify ? XFocusIn : XFocusOut; \
-     _f_.xfocus.serial = (_c_)->xcrossing.serial; \
-     _f_.xfocus.send_event = (_c_)->xcrossing.send_event | 2; \
-     _f_.xfocus.display = (_c_)->xcrossing.display; \
-     _f_.xfocus.window = (_c_)->xcrossing.window; \
-     if ((_c_)->xcrossing.mode == NotifyUngrab) \
- 	_f_.xfocus.mode = NotifyNormal; \
-     else \
- 	_f_.xfocus.mode = (_c_)->xcrossing.mode; \
-     _f_.xfocus.detail = (_c_)->xcrossing.detail; \
-     x11ProcessEvent (&_f_); \
- }
+
 
 
 /*! This virtual does the core processing of individual X events,
@@ -3404,36 +3383,25 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    widget->translateConfigEvent( event );
 	break;
 
-    case XFocusIn:				// got focus
-	if (!(event->xfocus.send_event & 2))
-	    lastFocusWindow = event->xfocus.window;
+    case XFocusIn: {				// got focus
 	if ( widget->isDesktop() )
+	    break;
+	if ( inPopupMode() ) // some delayed focus event to ignore
 	    break;
 	if ( !widget->isTopLevel() )
 	    break;
 	if ( event->xfocus.mode != NotifyNormal )
 	    break;
 	if ( event->xfocus.detail != NotifyAncestor &&
-      	     event->xfocus.detail != NotifyVirtual &&
-      	     event->xfocus.detail != NotifyNonlinearVirtual &&
-      	     event->xfocus.detail != NotifyNonlinear &&
-      	     event->xfocus.detail != NotifyPointer )
+	     event->xfocus.detail != NotifyInferior &&
+	     event->xfocus.detail != NotifyNonlinear )
 	    break;
-	if ( inPopupMode() ) { // some delayed focus event to ignore
-	    if (widget->isPopup ())
- 		break;
- 	    if (activeBeforePopup)
- 		*activeBeforePopup = widget;
-  	    break;
- 	}
 	widget->createInputContext();
 	setActiveWindow( widget );
-
+    }
 	break;
 
     case XFocusOut:				// lost focus
-	if (!(event->xfocus.send_event & 2))
- 	    lastFocusWindow = 0;
 	if ( widget->isDesktop() )
 	    break;
 	if ( !widget->isTopLevel() )
@@ -3450,25 +3418,16 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( event->xfocus.mode != NotifyNormal )
 	    break;
 	if ( event->xfocus.detail != NotifyAncestor &&
- 	     event->xfocus.detail != NotifyVirtual &&
-  	     event->xfocus.detail != NotifyNonlinearVirtual &&
- 	     event->xfocus.detail != NotifyNonlinear &&
- 	     event->xfocus.detail != NotifyPointer )
- 	    break;
-	if (widget != active_window)
- 	    break;
- 	if (inPopupMode ()) {
- 	    if (activeBeforePopup)
- 		*activeBeforePopup = 0;
-  	    break;
- 	}
-        setActiveWindow( 0 );
+	     event->xfocus.detail != NotifyNonlinearVirtual &&
+	     event->xfocus.detail != NotifyNonlinear )
+	    break;
+	if ( !inPopupMode() && widget == active_window )
+	    setActiveWindow( 0 );
 	break;
 
     case EnterNotify: {			// enter window
 	qt_x_time = event->xcrossing.time;
- 	if (widget->isTopLevel() && !widget->isDesktop())
- 	    x11ProcessCrossing (event);
+
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
 	if ( inPopupMode() && widget->topLevelWidget() != activePopupWidget() )
@@ -3480,12 +3439,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	qt_dispatchEnterLeave( widget, QWidget::find( curWin ) );
 	curWin = widget->winId();
 	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
-    	break; }
+    }
+	break;
 
     case LeaveNotify: {			// leave window
 	qt_x_time = event->xcrossing.time;
-	if (widget->isTopLevel() && !widget->isDesktop())
-	    x11ProcessCrossing (event);
+
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
 	if ( curWin && widget->winId() != curWin )
@@ -3503,7 +3462,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		XPutBackEvent( widget->x11Display(), &ev );
 		break;
 	    }
-	    x11ProcessCrossing (&ev);
 	    if (  ev.xcrossing.mode != NotifyNormal ||
 		  ev.xcrossing.detail == NotifyVirtual  ||
 		  ev.xcrossing.detail == NotifyNonlinearVirtual )
@@ -3516,7 +3474,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    qt_dispatchEnterLeave( widget, 0 );
 	qt_dispatchEnterLeave( enter, widget );
 	curWin = enter ? enter->winId() : 0;
-	break; }
+    }
+	break;
 
     case UnmapNotify:			// window hidden
 	if ( widget->isTopLevel() && widget->isVisible() && !widget->isPopup() ) {
@@ -3777,22 +3736,20 @@ void QApplication::openPopup( QWidget *popup )
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse
-	int r;
-	r = XGrabKeyboard( popup->x11Display(), popup->winId(), TRUE,
-			   GrabModeSync, GrabModeAsync, CurrentTime );
-
-	if ( (popupGrabOk = (r == GrabSuccess)) ) {
-	    r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
+	int r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
 				     ButtonMotionMask | EnterWindowMask |
 				     LeaveWindowMask | PointerMotionMask),
 			      GrabModeSync, GrabModeAsync,
 			      None, None, CurrentTime );
-
-	    if ( (popupGrabOk = (r == GrabSuccess)) )
-		XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
-	    else
-		XUngrabKeyboard( popup->x11Display(), CurrentTime );
+	if ( (popupGrabOk = (r == GrabSuccess)) ) {
+	    XAllowEvents( popup->x11Display(), SyncPointer, CurrentTime );
+	}
+	if ( !active_window ) {
+	    QWidget *tlw = popup->topLevelWidget();
+	    XSetInputFocus( tlw->x11Display(), tlw->winId(), RevertToNone, CurrentTime );
+	} else {
+	    XSetInputFocus( active_window->x11Display(), active_window->winId(), RevertToNone, CurrentTime );
 	}
     } else if ( popupGrabOk ) {
 	XAllowEvents(  popup->x11Display(), SyncPointer, CurrentTime );
@@ -3835,7 +3792,6 @@ void QApplication::closePopup( QWidget *popup )
 	    XUngrabPointer( popup->x11Display(), CurrentTime );
 	    XFlush( popup->x11Display() );
 	}
-	XUngrabKeyboard (popup->x11Display(), CurrentTime);
 	active_window = (*activeBeforePopup);
 	// restore the former active window immediately, although
 	// we'll get a focusIn later from X
