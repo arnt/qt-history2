@@ -2148,7 +2148,7 @@ void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt
 
     glRasterPos2i( x, y );
     glListBase( displayListBase( fnt, listBase ) );
-    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit().data() );
+    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit() );
 
     // restore the matrix stacks and GL state
     glPopMatrix();
@@ -2170,7 +2170,7 @@ void QGLWidget::renderText( double x, double y, double z, const QString & str, c
     makeCurrent();
     glRasterPos3d( x, y, z );
     glListBase( displayListBase( fnt, listBase ) );
-    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit().data() );
+    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit() );
 }
 
 /*****************************************************************************
