@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#36 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -31,7 +31,7 @@
 #include <process.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#36 $");
 
 
 /*****************************************************************************
@@ -172,14 +172,22 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 		}
 		if ( fork() == 0 ) {	// child process
 		    dup2( fds[0], 0 );
-#if defined(_WS_X11_)		    
-		    // it would be better to set CLOEXEC for all file
-		    // descriptors... but that would require
-		    // #ifdeffery, so we just CLOEXEC the X
-		    // connection.  that's the most important one.
-		    extern Display *qt_xdisplay();
-		    int i = XConnectionNumber( qt_xdisplay() );
-		    ::fcntl( i, F_SETFD, FD_CLOEXEC | ::fcntl( i, F_GETFD ) );
+#if defined(_WS_X11_)
+		    // ###
+		    // hack time... getting the maximum number of open
+		    // files, if possible.  if not we assume it's 256.
+		    int i;
+#if defined(_SC_OPEN_MAX)
+		    i = (int)sysconf( _SC_OPEN_MAX );
+#elif defined(_POSIX_OPEN_MAX)
+		    i = (int)_POSIX_OPEN_MAX;
+#elif defined(OPEN_MAX)
+		    i = (int)OPEN_MAX;
+#else
+		    i = 256;
+#endif
+		    while( --i > 0 )
+			::close( i );
 #endif
 		    (void)execlp( print_prog.data(), print_prog.data(),
 				  pr.data(), 0 );
