@@ -3570,11 +3570,7 @@ void QImageIO::init()
     d = new QImageIOData();
     d->parameters = 0;
     d->quality = -1; // default quality of the current format
-#if defined(Q_OS_MAC)
-    d->gamma=1.7f;
-#else
-    d->gamma=2.2f;
-#endif
+    d->gamma=0.0f;
     iostat = 0;
     iodev  = 0;
 }
@@ -3955,7 +3951,7 @@ void QImageIO::setParameters( const char *parameters )
   then this setting will be used to modify the image. Setting to 0.0 will disable
   gamma correction (ie. any specification in the file will be ignored).
 
-  The default value is platform-dependent.
+  The default value is 0.0.
 
   \sa gamma()
 */
