@@ -207,7 +207,7 @@ public:
     \sa shell()
 */
 QMotifDialog::QMotifDialog( Widget parent, Qt::WFlags flags )
-    : QDialog( 0, flags )
+    : QDialog( *new QMotifDialogPrivate, 0, flags )
 {
     init( parent );
 }
@@ -234,7 +234,7 @@ QMotifDialog::QMotifDialog( Widget parent, Qt::WFlags flags )
     \sa shell() dialog()
 */
 QMotifDialog::QMotifDialog( QWidget *parent, Qt::WFlags flags )
-    : QDialog( parent, flags )
+    : QDialog( *new QMotifDialogPrivate, parent, flags )
 {
     init();
 }
@@ -461,13 +461,11 @@ void QMotifDialog::realize( Widget w )
 */
 void QMotifDialog::insertChild( Widget w )
 {
-#if defined(QT_CHECK_STATE)
     if ( d->dialog != NULL && d->dialog != w ) {
 	qWarning( "QMotifDialog::insertChild: cannot insert widget since one child\n"
 		  "                           has been inserted already." );
 	return;
     }
-#endif
 
     d->dialog = w;
 
