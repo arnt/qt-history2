@@ -37,16 +37,16 @@ public:
 	DatabaseConnection( Project *p ) : connection( 0 ), project( p ), loaded( FALSE ) {}
 	QString name;
 	QString driver, dbName, username, password, hostname;
-	QSqlDatabase *connection;
-	Project *project;
-	bool loaded;
-
 	QStringList tables;
 	QMap<QString, QStringList> fields;
 
-	bool connect( bool keepOpen = FALSE );
-	bool sync( bool keepOpen = FALSE );
+	bool refreshCatalog();
+	bool open();
 	void close();
+    private:
+	QSqlDatabase *connection;
+	Project *project;
+	bool loaded;
     };
 
     Project( const QString &fn, const QString &pName = QString::null );

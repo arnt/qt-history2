@@ -352,9 +352,27 @@ Project::DatabaseConnection *Project::databaseConnection( const QString &name )
     return 0;
 }
 
+bool Project::DatabaseConnection::refreshCatalog()
+{
+    if ( loaded )
+	return TRUE;
+    if ( !open() )
+	return FALSE;
+    tables = connection->tables();
+    fields.clear();
+    for ( QStringList::Iterator it = tables.begin(); it != tables.end(); ++it ) {
+	QSqlRecord fil = connection->record( *it );
+	QStringList lst;
+	for ( uint j = 0; j < fil.count(); ++j )
+	    lst << fil.field( j )->name();
+	fields.insert( *it, lst );
+    }
+    loaded = TRUE;
+    connection->close();
+    return loaded;
+}
 
-
-bool Project::DatabaseConnection::connect( bool keepOpen )
+bool Project::DatabaseConnection::open()
 {
     // register our name, if nec
     if ( name == "(default)" ) {
@@ -372,34 +390,7 @@ bool Project::DatabaseConnection::connect( bool keepOpen )
     connection->setUserName( username );
     connection->setPassword( password );
     connection->setHostName( hostname );
-    if ( !connection->open() )
-	return FALSE;
-
-    tables = connection->tables();
-    fields.clear();
-    for ( QStringList::Iterator it = tables.begin(); it != tables.end(); ++it ) {
-	QSqlRecord fil = connection->record( *it );
-	QStringList lst;
-	for ( uint j = 0; j < fil.count(); ++j )
-	    lst << fil.field( j )->name();
-	fields.insert( *it, lst );
-    }
-
-    if ( !keepOpen )
-	connection->close();
-    loaded = TRUE;
-
-    return TRUE;
-}
-
-bool Project::DatabaseConnection::sync( bool keepOpen )
-{
-    if ( loaded )
-	return TRUE;
-    connect( keepOpen );
-    if ( loaded )
-	return TRUE;
-    return FALSE;
+    return connection->open();
 }
 
 void Project::DatabaseConnection::close()
@@ -492,6 +483,10 @@ void Project::loadConnections()
     }
 }
 
+/*! Opens the database \a connection.  The connection remains open and
+can be closed again with closeDatabase().
+*/
+
 void Project::openDatabase( const QString &connection )
 {
     DatabaseConnection *conn = databaseConnection( connection );
@@ -499,9 +494,11 @@ void Project::openDatabase( const QString &connection )
 	conn = databaseConnection( "(default)" );
     if ( !conn )
 	return;
-    conn->connect( TRUE );
+    conn->open();
 }
 
+/*! Closes the database \a connection.
+*/
 void Project::closeDatabase( const QString &connection )
 {
     DatabaseConnection *conn = databaseConnection( connection );
@@ -529,7 +526,8 @@ void Project::connectTables( QObject *toplevel, const QMap<QString, QStringList>
 	    conn = databaseConnection( "(default)" );
 	if ( !conn )
 	    continue;
-	conn->connect( TRUE );
+	if ( !conn->open() )
+	    continue;
 
 	QSqlCursor* c = 0;
 	if ( connection.isEmpty() || connection == "(default)" )

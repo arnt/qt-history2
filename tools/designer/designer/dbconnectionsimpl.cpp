@@ -70,7 +70,7 @@ void DatabaseConnection::doConnect()
 	conn->username = editUsername->text();
 	conn->password = editPassword->text();
 	conn->hostname = editHostname->text();
-	if ( conn->connect( FALSE ) ) {
+	if ( conn->refreshCatalog() ) {
 	    project->addDatabaseConnection( conn );
 	    listConnections->insertItem( conn->name );
 	    listConnections->setCurrentItem( listConnections->count() - 1 );
@@ -80,7 +80,7 @@ void DatabaseConnection::doConnect()
 	}
     } else { // sync // ### should this do something else? right now it just overwrites all info about the connection...
 	Project::DatabaseConnection *conn = project->databaseConnection( listConnections->currentText() );
-	conn->connect( FALSE );
+	conn->refreshCatalog();
     }
 }
 
