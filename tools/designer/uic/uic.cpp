@@ -34,6 +34,8 @@
 
 #undef main
 
+static bool isMainWindow = FALSE;
+
 static QString mkBool( bool b )
 {
     return b? "TRUE" : "FALSE";
@@ -369,7 +371,7 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "class QVBoxLayout; " << endl;
     out << "class QHBoxLayout; " << endl;
     out << "class QGridLayout; " << endl;
-    if ( objClass == "QMainWindow" )
+    if ( objClass == "QMainWindow" ) 					
 	out << "class QAction;" << endl;
 
 
@@ -466,6 +468,7 @@ void Uic::createFormDecl( const QDomElement &e )
 	if ( dbAware ) {
 	    out << "    " << nameOfClass << "( QSqlCursor* cursor, QWidget* parent = 0, const char* name = 0, WFlags fl = WType_TopLevel );" << endl;
 	}
+	isMainWindow = TRUE;
     } else {
 	out << "    " << nameOfClass << "( QWidget* parent = 0, const char* name = 0 );" << endl;
     }
@@ -798,6 +801,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << " */" << endl;
 	out << nameOfClass << "::" << nameOfClass << "( QWidget* parent,  const char* name, WFlags fl )" << endl;
 	out << "    : " << objClass << "( parent, name, fl )" << endl;
+	isMainWindow = TRUE;
     } else {
 	out << "/* " << endl;
 	out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the " << endl;
@@ -808,6 +812,9 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     out << "{" << endl;
+
+    if ( objClass == "QMainWindow" )
+	out << indent << "setCentralWidget( new QWidget( this, \"qt_central_widget\" ) );" << endl;
 
     if ( dbAware ) {
 	out << indent << "init" << nameOfClass << "();" << endl;
@@ -1440,9 +1447,11 @@ void Uic::createActionDecl( const QDomElement& e )
 
   \sa createObjectDecl()
  */
-QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass, const QString& parent, const QString& layout )
+QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass, const QString& par, const QString& layout )
 {
-
+    QString parent( par );
+    if ( parent == "this" && isMainWindow )
+	parent = "centralWidget()";
     QDomElement n;
     QString objClass, objName;
 
