@@ -595,7 +595,7 @@ void PopupMenuEditor::resizeToContents()
     dropLine->resize( s.width(), 2 );
     s.rwidth() += borderSize * 2;
     s.rheight() += borderSize * 2;
-    drawAll = 2;
+    drawAll = 3;
     resize( s );
     // FIXME: the multilevel drawAll is a hack to keep the drawAll flag for two paint events.
     // It was added because the popup gets two paintEvents after the resize, and is erased
