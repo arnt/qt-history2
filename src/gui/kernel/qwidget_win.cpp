@@ -1677,6 +1677,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     UpdateWindow(winId());
 }
 
+extern Q_GUI_EXPORT HDC qt_display_dc();
 
 int QWidget::metric(int m) const
 {
@@ -1686,7 +1687,7 @@ int QWidget::metric(int m) const
     } else if (m == QPaintDeviceMetrics::PdmHeight) {
         val = data->crect.height();
     } else {
-        HDC gdc = GetDC(0);
+        HDC gdc = qt_display_dc();
         switch (m) {
         case QPaintDeviceMetrics::PdmDpiX:
         case QPaintDeviceMetrics::PdmPhysicalDpiX:
