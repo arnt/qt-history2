@@ -60,17 +60,18 @@ void QSocketDevice::init()
     static bool init = FALSE;
     if ( !init ) {
 	WSAData wsadata;
-	bool error = WSAStartup( MAKEWORD(1,1), &wsadata ) != 0;
-	if ( error ) {
+	if ( WSAStartup( MAKEWORD(1,1), &wsadata ) != 0 ) {
 #if defined(QT_CHECK_NULL)
 	    qWarning( "QSocketDevice: WinSock initialization failed" );
+#endif
+#if defined(QSOCKETDEVICE_DEBUG)
+	    qDebug( "QSocketDevice: WinSock initialization failed"  );
 #endif
 	    return;
 	}
 	qAddPostRoutine( cleanupWinSock );
-#if defined(QSOCKETDEVICE_DEBUG) || defined(QSOCKETDEVICE_DEBUG)
-	qDebug( "QSocketDevice: WinSock initialization %s",
-		(error ? "failed" : "OK") );
+#if defined(QSOCKETDEVICE_DEBUG)
+	qDebug( "QSocketDevice: WinSock initialization OK" );
 #endif
 	init = TRUE;
     }
