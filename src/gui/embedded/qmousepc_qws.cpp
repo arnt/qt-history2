@@ -37,6 +37,8 @@
 
 #include <qscreen_qws.h>
 
+//#define QWS_MOUSE_DEBUG
+
 /*
  * Automatic-detection mouse driver
  */
@@ -94,6 +96,14 @@ public:
     {
         int pbstate = bstate;
         int n = tryData();
+#ifdef QWS_MOUSE_DEBUG
+        if (n) {
+            printf("QWSPcMouseSubHandler tryData read %d bytes:", n);
+            for (int i=0; i<n; ++i)
+                printf(" %02x", buffer[i]);
+            printf("\n");
+        }
+#endif
         if (n > 0) {
             if (n<nbuf)
                 memmove(buffer, buffer+n, nbuf-n);
@@ -166,6 +176,9 @@ public:
                 int wheel = packetsize > 3 ? (signed char)buffer[3] : 0;
                 if (wheel < -2 || wheel > 2)
                     wheel = 0;
+#ifdef QWS_MOUSE_DEBUG
+                printf("Intellimouse: motion %d,%d, state %d, wheel %d\n", motion.x(), motion.y(), nbstate, wheel);
+#endif
                 if (motion.x() || motion.y() || bstate != nbstate || wheel) {
                     bstate = nbstate;
                     goodness++;
