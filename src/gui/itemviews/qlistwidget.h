@@ -78,10 +78,10 @@ public:
     inline void setTextColor(const QColor &color)
         { setData(QAbstractItemModel::TextColorRole, color); }
 
-    inline int checked() const
-        { return data(QAbstractItemModel::CheckStateRole).toInt(); }
-    inline void setChecked(const bool checked)
-        { setData(QAbstractItemModel::CheckStateRole, checked); }
+    inline Qt::CheckState checkState() const
+        { return static_cast<Qt::CheckState>(data(QAbstractItemModel::CheckStateRole).toInt()); }
+    inline void setCheckState(const Qt::CheckState state)
+        { setData(QAbstractItemModel::CheckStateRole, state); }
 
     virtual QVariant data(int role) const;
     virtual void setData(int role, const QVariant &value);

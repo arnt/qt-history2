@@ -80,9 +80,9 @@ public:
     inline void setTextColor(int column, const QColor &color)
         { setData(column, QAbstractItemModel::TextColorRole, color); }
 
-    inline int checkedState(int column) const
-        { return data(column, QAbstractItemModel::CheckStateRole).toInt(); }
-    inline void setCheckedState(int column, bool state)
+    inline Qt::CheckState checkState(int column) const
+        { return static_cast<Qt::CheckState>(data(column, QAbstractItemModel::CheckStateRole).toInt()); }
+    inline void setCheckState(int column, Qt::CheckState state)
         { setData(column, QAbstractItemModel::CheckStateRole, state); }
 
     virtual QVariant data(int column, int role) const;
@@ -107,6 +107,7 @@ public:
 private:
     QTreeWidgetItem();
     void sortChildren(int column, Qt::SortOrder order, bool climb);
+    QVariant childrenCheckState(int column) const;
 
     struct Data {
         Data() : role(-1) {}

@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
   for (int i = 0; i < 10; ++i) {
       QTreeWidgetItem *item = new QTreeWidgetItem(view);
       item->setText(0, "Song " + QString::number(i));
-      item->setData(0, DownloadDelegate::CheckRole, (i % 5) != 0);
+      item->setData(0, DownloadDelegate::CheckRole, (i % 5) != 0 ? Qt::Checked : Qt::Unchecked);
       item->setData(1, DownloadDelegate::DateRole, QDate(2004, 9, 11 + i));
       item->setData(2, DownloadDelegate::ProgressRole, 0.25 * (i % 4) + 0.10);
       item->setData(3, DownloadDelegate::RatingRole, (i % 6) + 1);

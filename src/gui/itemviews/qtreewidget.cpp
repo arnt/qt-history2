@@ -896,11 +896,11 @@ void QTreeModel::invalidatePersistentIndexRow(QTreeWidgetItem *item)
 */
 
 /*!
-    \fn int QTreeWidgetItem::checkedState(int column) const
+    \fn Qt::CheckedState QTreeWidgetItem::checkedState(int column) const
 
     Returns the checked state of the label in the given \a column.
 
-    \sa QCheckBox::ToggleState
+    \sa Qt::CheckedState
 */
 
 /*!
@@ -1080,8 +1080,13 @@ QTreeWidgetItem::~QTreeWidgetItem()
 */
 void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 {
-    role = (role == QAbstractItemModel::EditRole
-            ? QAbstractItemModel::DisplayRole : role);
+    // special case for check state in tristate
+    if (role == QAbstractItemModel::CheckStateRole
+        && (itemFlags & QAbstractItemModel::ItemIsTristate))
+        for (int i = 0; i < children.count(); ++i)
+            children.at(i)->setData(column, role, value);
+    // set the item data
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (column >= values.count())
         values.resize(column + 1);
     QVector<Data> column_values = values.at(column);
@@ -1101,6 +1106,11 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
 */
 QVariant QTreeWidgetItem::data(int column, int role) const
 {
+    // special case for check state in tristate
+    if (role == QAbstractItemModel::CheckStateRole
+        && (itemFlags & QAbstractItemModel::ItemIsTristate) && children.count())
+        return childrenCheckState(column);
+    // return the item data
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (column < values.size()) {
         const QVector<Data> column_values = values.at(column);
@@ -1227,6 +1237,24 @@ void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
     QList<QTreeWidgetItem*>::iterator it = children.begin();
     for (; it != children.end(); ++it)
         (*it)->sortChildren(column, order, climb);
+}
+
+/*!
+  \internal
+*/
+QVariant QTreeWidgetItem::childrenCheckState(int column) const
+{
+    int checkedChildrenCount = 0;
+    for (int i = 0; i < children.count(); ++i) {
+        QVariant value = children.at(i)->data(column, QAbstractItemModel::CheckStateRole);
+        if (static_cast<Qt::CheckState>(value.toInt()) != Qt::Unchecked)
+            ++checkedChildrenCount;
+    }
+    if (checkedChildrenCount == children.count())
+        return Qt::Checked;
+    if (checkedChildrenCount == 0)
+        return Qt::Unchecked;
+    return Qt::PartiallyChecked;
 }
 
 #define d d_func()
@@ -1481,9 +1509,6 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     // model signals
     connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
             this, SLOT(emitItemChanged(QModelIndex)));
-//     // header signals
-//     connect(header(), SIGNAL(sectionPressed(int,Qt::MouseButton,Qt::KeyboardModifiers)),
-//             this, SLOT(sortItems(int)));
 }
 
 /*!

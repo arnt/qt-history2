@@ -146,7 +146,7 @@ void QItemDelegate::paint(QPainter *painter,
 
     value = model->data(index, QAbstractItemModel::CheckStateRole);
     QRect checkRect = check(opt, value);
-    bool checked = value.toBool();
+    Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
 
     doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
 
@@ -156,7 +156,7 @@ void QItemDelegate::paint(QPainter *painter,
         painter->fillRect(option.rect, value.toColor());
 
     // draw the item
-    drawCheck(painter, opt, checkRect, checked);
+    drawCheck(painter, opt, checkRect, checkState);
     drawDecoration(painter, opt, pixmapRect, pixmap);
     drawDisplay(painter, opt, textRect, text);
     drawFocus(painter, opt, textRect);
@@ -379,10 +379,28 @@ void QItemDelegate::drawFocus(QPainter *painter,
 
 void QItemDelegate::drawCheck(QPainter *painter,
                               const QStyleOptionViewItem &option,
-                              const QRect &rect, bool checked) const
+                              const QRect &rect, Qt::CheckState state) const
 {
-    if (rect.isValid())
-        painter->drawPixmap(rect, decoration(option, checked));
+    if (!rect.isValid())
+        return;
+
+    switch (state) {
+    case Qt::Unchecked: {
+        static QPixmap checked(QApplication::style()->standardPixmap(
+                                   QStyle::SP_ItemChecked, &option));
+        painter->drawPixmap(rect, checked);
+        return; }
+    case Qt::PartiallyChecked: {
+        static QPixmap partially(QApplication::style()->standardPixmap(
+                                     QStyle::SP_ItemPartiallyChecked, &option));
+        painter->drawPixmap(rect, partially);
+        return; }
+    case Qt::Checked: {
+        static QPixmap unchecked(QApplication::style()->standardPixmap(
+                                     QStyle::SP_ItemUnchecked, &option));
+        painter->drawPixmap(rect, unchecked);
+        return; }
+    }
 }
 
 /*!

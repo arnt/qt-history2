@@ -141,7 +141,8 @@ public:
         ItemIsDragEnabled = 4,
         ItemIsDropEnabled = 8,
         ItemIsCheckable = 16,
-        ItemIsEnabled = 32
+        ItemIsEnabled = 32,
+        ItemIsTristate = 64
     };
 
     Q_DECLARE_FLAGS(ItemFlags, ItemFlag)

@@ -503,7 +503,7 @@ QAbstractItemModel::ItemFlags QDirModel::flags(const QModelIndex &index) const
 void QDirModel::sort(int column, Qt::SortOrder order)
 {
     QDir::SortFlags sort = 0;
-    if(order == Qt::DescendingOrder)
+    if (order == Qt::DescendingOrder)
         sort |= QDir::Reversed;
 
     switch (column) {
@@ -522,7 +522,7 @@ void QDirModel::sort(int column, Qt::SortOrder order)
         break;
     default:
         break;
-    };
+    }
 
     setSorting(sort);
 }

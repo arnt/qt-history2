@@ -899,7 +899,7 @@ static char * trashcan_xpm[] = {
 static const char * const unchecked_xpm[] = {
 "16 16 2 1",
 "  c None",
-"# c #000000000000",
+"# c #000000",
 "                ",
 "                ",
 "  ###########   ",
@@ -920,7 +920,7 @@ static const char * const unchecked_xpm[] = {
 static const char * const checked_xpm[] = {
 "16 16 2 1",
 "  c None",
-"# c #000000000000",
+"# c #000000",
 "                ",
 "                ",
 "  ###########   ",
@@ -933,6 +933,28 @@ static const char * const checked_xpm[] = {
 "  #   #     #   ",
 "  #         #   ",
 "  #         #   ",
+"  ###########   ",
+"                ",
+"                ",
+"                ",};
+
+static const char * const partially_checked_xpm[] = {
+"16 16 3 1",
+"  c None",
+"# c #000000",
+". c #c0c0c0",
+"                ",
+"                ",
+"  ###########   ",
+"  #.........#   ",
+"  #.......#.#   ",
+"  #......##.#   ",
+"  #.#...##..#   ",
+"  #.##.##...#   ",
+"  #..###....#   ",
+"  #...#.....#   ",
+"  #.........#   ",
+"  #.........#   ",
 "  ###########   ",
 "                ",
 "                ",
@@ -1001,6 +1023,8 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
         return QPixmap((const char **)checked_xpm);
     case SP_ItemUnchecked:
         return QPixmap((const char **)unchecked_xpm);
+    case SP_ItemPartiallyChecked:
+        return QPixmap((const char **)partially_checked_xpm);
     default:
         break;
     }

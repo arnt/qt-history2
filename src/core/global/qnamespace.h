@@ -1182,6 +1182,12 @@ public:
         RightToLeft
     };
 
+    enum CheckState {
+        Unchecked,
+        PartiallyChecked,
+        Checked
+    };
+
 #if defined(Q_WS_MAC)
     typedef void * HANDLE;
 #elif defined(Q_WS_WIN)

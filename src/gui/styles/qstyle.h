@@ -549,6 +549,7 @@ public:
         SP_FileLinkIcon,
         SP_ItemChecked,
         SP_ItemUnchecked,
+        SP_ItemPartiallyChecked,
         SP_ToolBarHorizontalExtensionButton,
         SP_ToolBarVerticalExtensionButton,
         SP_FileDialogStart,

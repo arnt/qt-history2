@@ -62,7 +62,7 @@ protected:
     virtual void drawFocus(QPainter *painter, const QStyleOptionViewItem &option,
                            const QRect &rect) const;
     virtual void drawCheck(QPainter *painter, const QStyleOptionViewItem &option,
-                           const QRect &rect, bool checked) const;
+                           const QRect &rect, Qt::CheckState state) const;
 
     void doLayout(const QStyleOptionViewItem &option,
                   QRect *checkRect, QRect *iconRect, QRect *textRect, bool hint) const;
