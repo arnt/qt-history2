@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#205 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#206 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -1993,6 +1993,9 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 }
 
 
+/*!
+  \internal
+*/
 int QPixmap::x11SetDefaultScreen( int screen )
 {
     int old = defaultScreen;
@@ -2000,6 +2003,9 @@ int QPixmap::x11SetDefaultScreen( int screen )
     return old;
 }
 
+/*!
+  \internal
+*/
 void QPixmap::x11SetScreen( int screen )
 {
     if ( screen < 0 )

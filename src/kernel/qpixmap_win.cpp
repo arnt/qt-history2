@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#127 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#128 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -938,6 +938,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     return pm;
 }
 
+/*!
+  \fn HBITMAP QPixmap::hbm() const
+  \internal
+*/
 
 /*!
   \fn bool QPixmap::isMultiCellPixmap() const
