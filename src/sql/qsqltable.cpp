@@ -44,6 +44,7 @@
 #include "qpainter.h"
 #include "qpopupmenu.h"
 #include "qmessagebox.h"
+#include "qbitarray.h"
 
 #ifndef QT_NO_SQL
 
@@ -70,7 +71,7 @@ public:
 	  insertRowLast( -1 ),
 	  insertPreRows( -1 ),
 	  editBuffer( 0 ),
-	  confEdits( FALSE ),
+	  confEdits( 3 ),
 	  confCancs( FALSE ),
 	  cancelMode( FALSE ),
 	  autoDelete( FALSE )
@@ -93,7 +94,7 @@ public:
     QString insertHeaderLabelLast;
     int insertPreRows;
     QSqlRecord* editBuffer;
-    bool confEdits;
+    QBitArray confEdits;
     bool confCancs;
     bool cancelMode;
     bool autoDelete;
@@ -362,22 +363,83 @@ QStringList QSqlTable::sort() const
     return QSqlCursorNavigator::sort();
 }
 
-/*! If \a confirm is TRUE, all edits will be confirmed by the user
-  through a message box.  If \a confirm is FALSE (the default), all
-  edits are posted to the database immediately.
-*/
+/*! If \a confirm is TRUE, all edit operations (inserts, updates and
+  deletes) will be confirmed by the user.  If \a confirm is FALSE (the
+  default), all edits are posted to the database immediately.
 
+*/
 void QSqlTable::setConfirmEdits( bool confirm )
 {
-    d->confEdits = confirm;
+    d->confEdits.fill( confirm );
 }
 
-/*! Returns TRUE if the table confirms edits, otherwise returns FALSE.
+/*! If \a confirm is TRUE, all inserts will be confirmed by the user.
+  If \a confirm is FALSE (the default), all edits are posted to the
+  database immediately.
+
+*/
+
+void QSqlTable::setConfirmInsert( bool confirm )
+{
+    d->confEdits[ Insert ] = confirm;
+}
+
+/*! If \a confirm is TRUE, all updates will be confirmed by the user.
+  If \a confirm is FALSE (the default), all edits are posted to the
+  database immediately.
+
+*/
+
+void QSqlTable::setConfirmUpdate( bool confirm )
+{
+    d->confEdits[ Update ] = confirm;
+}
+
+/*! If \a confirm is TRUE, all deletes will be confirmed by the user.
+  If \a confirm is FALSE (the default), all edits are posted to the
+  database immediately.
+
+*/
+
+void QSqlTable::setConfirmDelete( bool confirm )
+{
+    d->confEdits[ Delete ] = confirm;
+}
+
+/*! Returns TRUE if the table confirms all edit operations (inserts,
+  updates and deletes), otherwise returns FALSE.
 */
 
 bool QSqlTable::confirmEdits() const
 {
-    return d->confEdits;
+    return ( confirmInsert() && confirmUpdate() && confirmDelete() );
+}
+
+/*! Returns TRUE if the table confirms inserts, otherwise returns
+  FALSE.
+*/
+
+bool QSqlTable::confirmInsert() const
+{
+    return ( d->confEdits[ Insert ] );
+}
+
+/*! Returns TRUE if the table confirms updates, otherwise returns
+  FALSE.
+*/
+
+bool QSqlTable::confirmUpdate() const
+{
+    return ( d->confEdits[ Update ] );
+}
+
+/*! Returns TRUE if the table confirms deletes, otherwise returns
+  FALSE.
+*/
+
+bool QSqlTable::confirmDelete() const
+{
+    return ( d->confEdits[ Delete ] );
 }
 
 /*! If \a confirm is TRUE, all cancels will be confirmed by the user
@@ -767,8 +829,9 @@ QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
 /*!  For an editable table, issues an insert on the current cursor
   using the values of the cursor's edit buffer. If there is no current
   cursor or there is no current "insert" row, nothing happens.  If
-  confirmEdits() is TRUE, confirmEdit() is called to confirm the
-  insert. Returns TRUE if the insert succeeded, otherwise returns FALSE.
+  confirmEdits() or confirmInsert() is TRUE, confirmEdit() is called
+  to confirm the insert. Returns TRUE if the insert succeeded,
+  otherwise returns FALSE.
 
 */
 
@@ -785,7 +848,7 @@ void QSqlTable::insertCurrent()
     }
     int b = 0;
     int conf = Yes;
-    if ( confirmEdits() )
+    if ( confirmEdits() || confirmInsert() )
 	conf = confirmEdit( QSqlTable::Insert );
     switch ( conf ) {
     case Yes: {
@@ -827,9 +890,9 @@ void QSqlTable::updateRow( int row )
 
 /*!  For an editable table, issues an update using the cursor's edit
   buffer.  If there is no current cursor or there is no current
-  selection, nothing happens.  If confirmEdits() is TRUE,
-  confirmEdit() is called to confirm the update. Returns TRUE if the
-  update succeeded, otherwise returns FALSE.
+  selection, nothing happens.  If confirmEdits() or confirmUpdate() is
+  TRUE, confirmEdit() is called to confirm the update. Returns TRUE if
+  the update succeeded, otherwise returns FALSE.
 
   The underlying cursor must have a valid primary index to ensure that a
   unique record is updated within the database otherwise the database
@@ -857,7 +920,7 @@ void QSqlTable::updateCurrent()
     }
     int b = 0;
     int conf = Yes;
-    if ( confirmEdits() )
+    if ( confirmEdits() || confirmUpdate() )
 	conf = confirmEdit( QSqlTable::Update );
     switch ( conf ) {
     case Yes: {
@@ -891,9 +954,9 @@ void QSqlTable::updateCurrent()
 /*!  For an editable table, issues a delete on the current cursor's
   primary index using the values of the currently selected row.  If
   there is no current cursor or there is no current selection, nothing
-  happens. If confirmEdits() is TRUE, confirmEdit() is called to
-  confirm the delete. Returns TRUE if the delete succeeded, otherwise
-  FALSE.
+  happens. If confirmEdits() or confirmDelete() is TRUE, confirmEdit()
+  is called to confirm the delete. Returns TRUE if the delete
+  succeeded, otherwise FALSE.
 
   The underlying cursor must have a valid primary index to ensure that a
   unique record is deleted within the database otherwise the database
@@ -917,7 +980,7 @@ void QSqlTable::deleteCurrent()
 	return;
     int b = 0;
     int conf = Yes;
-    if ( confirmEdits() )
+    if ( confirmEdits() || confirmDelete() )
 	conf = confirmEdit( QSqlTable::Delete );
     switch ( conf ) {
     case Yes:

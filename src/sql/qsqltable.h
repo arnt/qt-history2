@@ -62,6 +62,9 @@ class Q_EXPORT QSqlTable : public QTable, public QSqlCursorNavigator
     Q_PROPERTY( QString trueText READ trueText WRITE setTrueText )
     Q_PROPERTY( QString falseText READ falseText WRITE setFalseText )
     Q_PROPERTY( bool confirmEdits READ confirmEdits WRITE setConfirmEdits )
+    Q_PROPERTY( bool confirmInsert READ confirmInsert WRITE setConfirmInsert )
+    Q_PROPERTY( bool confirmUpdate READ confirmUpdate WRITE setConfirmUpdate )
+    Q_PROPERTY( bool confirmDelete READ confirmDelete WRITE setConfirmDelete )
     Q_PROPERTY( bool confirmCancels READ confirmCancels WRITE setConfirmCancels )
     Q_PROPERTY( QString filter READ filter WRITE setFilter )
     Q_PROPERTY( QStringList sort READ sort WRITE setSort )
@@ -81,6 +84,9 @@ public:
     QString      trueText() const;
     QString      falseText() const;
     bool         confirmEdits() const;
+    bool         confirmInsert() const;
+    bool         confirmUpdate() const;
+    bool         confirmDelete() const;
     bool         confirmCancels() const;
     bool         autoDelete() const;
     QString      filter() const;
@@ -91,6 +97,9 @@ public:
     virtual void setTrueText( const QString& trueText );
     virtual void setFalseText( const QString& falseText );
     virtual void setConfirmEdits( bool confirm );
+    virtual void setConfirmInsert( bool confirm );
+    virtual void setConfirmUpdate( bool confirm );
+    virtual void setConfirmDelete( bool confirm );
     virtual void setConfirmCancels( bool confirm );
     virtual void setAutoDelete( bool enable );
     virtual void setFilter( const QString& filter );
@@ -135,16 +144,16 @@ protected slots:
 
 protected:
     friend class QSqlTablePrivate;
+    enum Mode {
+	None = -1,
+	Insert = 0,
+	Update = 1,
+	Delete = 2
+    };
     enum Confirm {
 	Yes = 0,
 	No = 1,
 	Cancel = 2
-    };
-    enum Mode {
-	None,
-	Insert,
-	Update,
-	Delete
     };
 
     virtual Confirm confirmEdit( QSqlTable::Mode m );
