@@ -28,8 +28,8 @@ main(int argc, char **argv)
     bool show_help = false, recursive = false, 
 	   verbose = false, path = true;;
     char *error = 0;
-    int compress_level = -1;
-    QString outputFile, prefix;
+    int compress_level = -1, compress_threshold = 70;
+    QString output_file, prefix, init_name;
     QFileInfoList files;
 
     //parse options
@@ -41,7 +41,13 @@ main(int argc, char **argv)
                     error = "Missing output name";
                     break;
                 }
-                outputFile = argv[++i];
+                output_file = argv[++i];
+            } else if(opt == "name") {
+                if (!(i < argc-1)) {
+                    error = "Missing target name";
+                    break;
+                }
+                init_name = argv[++i];
             } else if(opt == "prefix") {
                 if (!(i < argc-1)) {
                     error = "Missing prefix path";
@@ -56,6 +62,12 @@ main(int argc, char **argv)
                     break;
                 }
                 compress_level = QString(argv[++i]).toInt();
+            } else if(opt == "threshold") {
+                if (!(i < argc-1)) {
+                    error = "Missing compression threshold";
+                    break;
+                }
+                compress_threshold = QString(argv[++i]).toInt();
             } else if(opt == "r") {
                 recursive = true;
             } else if(opt == "verbose") {
@@ -88,6 +100,8 @@ main(int argc, char **argv)
         fprintf(stderr, "Usage: %s  [options] <inputs>\n\n"
                 "Options:\n"
                 "\t-o file           Write output to file rather than stdout\n"
+                "\t-target targ      Create initialization function for targ\n"
+                "\t-threshold level  Threshold to consider compressing files\n"
                 "\t-compress level   Compress input files by level\n"
                 "\t-prefix path      Prefix resource acesspath with path\n"
                 "\t-no-compress      Disable all compression\n"
@@ -100,9 +114,9 @@ main(int argc, char **argv)
 
     //open output
     FILE *out = stdout;
-    if (!outputFile.isEmpty() && outputFile != "-") {
-	if (!(out = fopen(outputFile.utf8(), "w"))) {
-	    qWarning("%s: Could not open output file '%s'", argv[0], outputFile.latin1());
+    if (!output_file.isEmpty() && output_file != "-") {
+	if (!(out = fopen(output_file.utf8(), "w"))) {
+	    qWarning("%s: Could not open output file '%s'", argv[0], output_file.latin1());
 	    return 1;
 	}
     }
@@ -117,6 +131,7 @@ main(int argc, char **argv)
     fprintf(out, "\n#include <qresource.h>\n");
 
     //process files
+    QStringList global_resources;
     for(int file = 0; file < files.size(); file++) {
         if(files[file].isDir()) {
             QDir dir(files[file].filePath());
@@ -138,7 +153,7 @@ main(int argc, char **argv)
             if(compress_level && input.length() > 100) {
                 QByteArray compress = qCompress((uchar *)input.data(), input.size(), compress_level);
                 compressRatio = (int)(((float)input.size())/compress.size()*100);
-                if(compressRatio >= 70) 
+                if(compressRatio >= compress_threshold) 
                     input = compress;
                 else
                     compressRatio = 0;
@@ -193,10 +208,28 @@ main(int argc, char **argv)
             fprintf(out, "\n};\n");
 
             //QMetaResource
-            fprintf(out, "static QMetaResource MetaResource_%s(%s);\n", 
+            fprintf(out, "Q_GLOBAL_STATIC_WITH_ARGS(QMetaResource, resource_%s, (%s))\n", 
                     resource_name.latin1(), resource_name.latin1());
+            global_resources << "resource_" + resource_name;
         }
     }
+    //initialization functions
+    bool no_name = init_name.isEmpty();
+    if(no_name) { //need to make up one..
+        init_name = output_file;
+        if(QDir::isRelativePath(init_name))
+            init_name.prepend(QDir::currentPath() + "_");
+    }
+    init_name.replace(QRegExp("[^a-zA-Z0-9_]"), "_");        
+    fprintf(out, "\n//resource initialization function\n");
+    fprintf(out, "%sint qInitResources_%s()\n{\n", 
+            no_name ? "static " : "", init_name.latin1());
+    for(int resource = 0; resource < global_resources.count(); resource++)
+        fprintf(out, "\t(void)%s();\n", global_resources[resource].latin1());
+    fprintf(out, "\treturn %d;\n}\n", global_resources.count());
+    fprintf(out, "static int %s_static_init = qInitResources_%s();\n", 
+            init_name.latin1(), init_name.latin1());
+    //close
     fclose(out);
 
     //done
