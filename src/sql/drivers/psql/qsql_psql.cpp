@@ -46,7 +46,9 @@ public:
 
 static QSqlError qMakeError( const QString& err, int type, const QPSQLPrivate* p )
 {
-    return QSqlError("QPSQL: " + err, QString(PQerrorMessage( p->connection )), type);
+    const char *s = PQerrorMessage(p->connection);
+    QString msg = p->isUtf8 ? QString::fromUtf8(s) : QString::fromLocal8Bit(s);
+    return QSqlError("QPSQL: " + err, msg, type);
 }
 
 static QCoreVariant::Type qDecodePSQLType( int t )
