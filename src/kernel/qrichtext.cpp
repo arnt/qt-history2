@@ -191,9 +191,7 @@ QTextImage::QTextImage(const QMap<QString, QString> &attr, const QString& contex
 	    height = img.height();
 	}
 	pm.convertFromImage( img );
-	qDebug("image conversion");
 	if ( pm.mask() ) {
-	    qDebug("image with a mask!");
 	    QRegion mask( *pm.mask() );
 	    QRegion all( 0, 0, pm.width(), pm.height() );
 	    reg = new QRegion( all.subtract( mask ) );
@@ -1995,7 +1993,6 @@ void QTextCursor::updateParagraph( QPainter* p )
 	 uy = QMIN( uy, prevliney );
 
      if ( ph != paragraph->height ) {
-	 qDebug("height different ");
 	 if ( paragraph->nextInDocument() )
 	     paragraph->nextInDocument()->invalidateLayout();
 	 flow->invalidateRect( QRect( QPoint(0, uy), QPoint(width, INT_MAX-1000) ) );
