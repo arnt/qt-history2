@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#99 $
 **
 ** Implementation of QMenuData class
 **
@@ -693,7 +693,7 @@ int QMenuData::insertItem( const QIconSet& icon,
 /*!
   to be documented #####
  */
-int QMenuData::insertItem( QWidget* widget, int id=-1, int index=-1 )
+int QMenuData::insertItem( QWidget* widget, int id, int index )
 {
     return insertAny( 0, 0, 0, 0, id, index, widget );
 }
