@@ -1,6 +1,6 @@
 /****************************************************************
 **
-** Implementation Cannonfield class, Qt tutorial 13
+** Implementation CannonField class, Qt tutorial 13
 **
 ****************************************************************/
 

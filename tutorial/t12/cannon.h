@@ -1,6 +1,6 @@
 /****************************************************************
 **
-** Definition of Cannonfield class, Qt tutorial 12
+** Definition of CannonField class, Qt tutorial 12
 **
 ****************************************************************/
 
