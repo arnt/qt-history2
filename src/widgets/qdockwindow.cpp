@@ -108,7 +108,7 @@ QDockWindowResizeHandle::QDockWindowResizeHandle( Qt::Orientation o, QWidget *pa
 
 QSize QDockWindowResizeHandle::sizeHint() const
 {
-    int sw = style().pixelMetric(QStyle::PM_SplitterWidth, this);
+    int sw = 2 * style().pixelMetric(QStyle::PM_SplitterWidth, this) / 3;
     return (style().sizeFromContents(QStyle::CT_DockWindow, this, QSize(sw, sw)).
 	    expandedTo(QApplication::globalStrut()));
 }
