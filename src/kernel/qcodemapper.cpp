@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcodemapper.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qcodemapper.cpp#2 $
 **
 ** Implementation of QCodeMapper class
 **
@@ -23,8 +23,798 @@
 
 #include "qlist.h"
 #include "qcodemapper.h"
+#include <stdlib.h>
+#include <ctype.h>
 
 static QList<QCodeMapper> all;
+
+/*! perl this
+
+open IN,"< /home/warwick/csets";
+while (<IN>) {
+    chomp;
+    if ( ($key,$value) = /(\S*): (.*)/ ) {
+	chomp $value;
+	if ( $info{$key} ) {
+	    if ( $key eq "Alias" ) {
+		$value =~ s/\s*\(preferred .*.//;
+		$info{$key} .= " $value";
+	    }
+	} else {
+	    $info{$key}=$value;
+	}
+	$curkey = $key;
+    } elsif ( ($extra) = /^\s+(.*)/ ) {
+	$info{$curkey}.=" $extra";
+    } elsif ( /^$/ ) {
+	if ( $info{"Name"} ) {
+	    ($name,$rfc) = $info{"Name"} =~ /(\S+)\s*(\S*)/;
+	    $mib = $info{MIBenum};
+	    $mib =~ s/\s//g;
+	    if ( $mib =~ /[0-9]+/ ) {
+		for $a ( split ' ',$info{Alias} ) {
+		    # "cs" aliases are excluded - they are artificial
+		    $name2mib{$a}=$mib unless $a =~ "^cs";
+		}
+		$name2mib{$name}=$mib;
+		$mib2name{$mib}=$name;
+	    }
+	}
+	%info=();
+    }
+}
+
+@k = keys %name2mib;
+print "struct QMibName { int mib; const char* name; };\n\n";
+print "static const int nname2mib = ".($#k+1).";\n";
+print "struct QMibName name2mib[nname2mib] = {\n";
+for $name ( sort {lc($a) cmp lc($b)} @k ) {
+    print "  { $name2mib{$name}, \"$name\" },\n";
+}
+print "};\n\n";
+
+@k = keys %mib2name;
+print "static const int nmib2name = ".($#k+1).";\n";
+print "struct QMibName mib2name[nmib2name] = {\n";
+for $mib ( sort {$a <=> $b} @k ) {
+    print "  { $mib, \"$mib2name{$mib}\" },\n";
+}
+print "};\n\n";
+__END__
+*/
+
+struct QMibName { int mib; const char* name; };
+
+static const int nname2mib = 507;
+struct QMibName name2mib[nname2mib] = {
+  { 2011, "437" },
+  { 2009, "850" },
+  { 2045, "851" },
+  { 2010, "852" },
+  { 2046, "855" },
+  { 2047, "857" },
+  { 2048, "860" },
+  { 2049, "861" },
+  { 2013, "862" },
+  { 2050, "863" },
+  { 2052, "865" },
+  { 2086, "866" },
+  { 2054, "869" },
+  { 2060, "904" },
+  { 2005, "Adobe-Standard-Encoding" },
+  { 2020, "Adobe-Symbol-Encoding" },
+  { 74, "ANSI_X3.110-1983" },
+  { 3, "ANSI_X3.4-1968" },
+  { 3, "ANSI_X3.4-1986" },
+  { 9, "arabic" },
+  { 65, "arabic7" },
+  { 3, "ASCII" },
+  { 9, "ASMO-708" },
+  { 65, "ASMO_449" },
+  { 2026, "Big5" },
+  { 20, "BS_4730" },
+  { 50, "BS_viewdata" },
+  { 78, "ca" },
+  { 57, "chinese" },
+  { 56, "cn" },
+  { 2053, "cp-ar" },
+  { 2054, "cp-gr" },
+  { 2049, "cp-is" },
+  { 2028, "cp037" },
+  { 2029, "cp038" },
+  { 2063, "CP1026" },
+  { 2030, "CP273" },
+  { 2031, "CP274" },
+  { 2032, "cp275" },
+  { 2034, "CP278" },
+  { 2035, "CP280" },
+  { 2036, "cp281" },
+  { 2037, "CP284" },
+  { 2038, "CP285" },
+  { 2039, "cp290" },
+  { 2040, "cp297" },
+  { 3, "cp367" },
+  { 2041, "cp420" },
+  { 2042, "cp423" },
+  { 2043, "cp424" },
+  { 2011, "cp437" },
+  { 2044, "CP500" },
+  { 2087, "cp775" },
+  { 4, "CP819" },
+  { 2009, "cp850" },
+  { 2045, "cp851" },
+  { 2010, "cp852" },
+  { 2046, "cp855" },
+  { 2047, "cp857" },
+  { 2048, "cp860" },
+  { 2049, "cp861" },
+  { 2013, "cp862" },
+  { 2050, "cp863" },
+  { 2051, "cp864" },
+  { 2052, "cp865" },
+  { 2086, "cp866" },
+  { 2053, "CP868" },
+  { 2054, "cp869" },
+  { 2055, "CP870" },
+  { 2056, "CP871" },
+  { 2057, "cp880" },
+  { 2058, "cp891" },
+  { 2059, "cp903" },
+  { 2060, "cp904" },
+  { 2061, "CP905" },
+  { 2062, "CP918" },
+  { 74, "CSA_T500-1983" },
+  { 78, "CSA_Z243.4-1985-1" },
+  { 79, "CSA_Z243.4-1985-2" },
+  { 80, "CSA_Z243.4-1985-gr" },
+  { 86, "CSN_369103" },
+  { 92, "cuba" },
+  { 8, "cyrillic" },
+  { 24, "de" },
+  { 2008, "dec" },
+  { 2008, "DEC-MCS" },
+  { 24, "DIN_66003" },
+  { 99, "dk" },
+  { 101, "dk-us" },
+  { 99, "DS2089" },
+  { 99, "DS_2089" },
+  { 73, "e13b" },
+  { 2064, "EBCDIC-AT-DE" },
+  { 2065, "EBCDIC-AT-DE-A" },
+  { 2031, "EBCDIC-BE" },
+  { 2032, "EBCDIC-BR" },
+  { 2066, "EBCDIC-CA-FR" },
+  { 2041, "ebcdic-cp-ar1" },
+  { 2062, "ebcdic-cp-ar2" },
+  { 2044, "ebcdic-cp-be" },
+  { 2028, "ebcdic-cp-ca" },
+  { 2044, "ebcdic-cp-ch" },
+  { 2033, "EBCDIC-CP-DK" },
+  { 2037, "ebcdic-cp-es" },
+  { 2034, "ebcdic-cp-fi" },
+  { 2040, "ebcdic-cp-fr" },
+  { 2038, "ebcdic-cp-gb" },
+  { 2042, "ebcdic-cp-gr" },
+  { 2043, "ebcdic-cp-he" },
+  { 2056, "ebcdic-cp-is" },
+  { 2035, "ebcdic-cp-it" },
+  { 2028, "ebcdic-cp-nl" },
+  { 2033, "EBCDIC-CP-NO" },
+  { 2055, "ebcdic-cp-roece" },
+  { 2034, "ebcdic-cp-se" },
+  { 2061, "ebcdic-cp-tr" },
+  { 2028, "ebcdic-cp-us" },
+  { 2028, "ebcdic-cp-wt" },
+  { 2055, "ebcdic-cp-yu" },
+  { 2057, "EBCDIC-Cyrillic" },
+  { 2067, "EBCDIC-DK-NO" },
+  { 2068, "EBCDIC-DK-NO-A" },
+  { 2074, "EBCDIC-ES" },
+  { 2075, "EBCDIC-ES-A" },
+  { 2076, "EBCDIC-ES-S" },
+  { 2069, "EBCDIC-FI-SE" },
+  { 2070, "EBCDIC-FI-SE-A" },
+  { 2071, "EBCDIC-FR" },
+  { 2029, "EBCDIC-INT" },
+  { 2072, "EBCDIC-IT" },
+  { 2036, "EBCDIC-JP-E" },
+  { 2039, "EBCDIC-JP-kana" },
+  { 2073, "EBCDIC-PT" },
+  { 2077, "EBCDIC-UK" },
+  { 2078, "EBCDIC-US" },
+  { 9, "ECMA-114" },
+  { 10, "ECMA-118" },
+  { 77, "ECMA-cyrillic" },
+  { 10, "ELOT_928" },
+  { 23, "ES" },
+  { 61, "ES2" },
+  { 18, "EUC-JP" },
+  { 38, "EUC-KR" },
+  { 19, "Extended_UNIX_Code_Fixed_Width_for_Japanese" },
+  { 18, "Extended_UNIX_Code_Packed_Format_for_Japanese" },
+  { 35, "FI" },
+  { 26, "fr" },
+  { 20, "gb" },
+  { 2025, "GB2312" },
+  { 56, "GB_1988-80" },
+  { 57, "GB_2312-80" },
+  { 94, "GOST_19768-74" },
+  { 10, "greek" },
+  { 91, "greek-ccitt" },
+  { 64, "greek7" },
+  { 44, "greek7-old" },
+  { 10, "greek8" },
+  { 11, "hebrew" },
+  { 2021, "HP-DeskTop" },
+  { 2017, "HP-Legal" },
+  { 2019, "HP-Math8" },
+  { 2018, "HP-Pi-font" },
+  { 2004, "hp-roman8" },
+  { 62, "hu" },
+  { 2085, "HZ-GB-2312" },
+  { 2015, "IBM-Symbols" },
+  { 2016, "IBM-Thai" },
+  { 2028, "IBM037" },
+  { 2029, "IBM038" },
+  { 2063, "IBM1026" },
+  { 2030, "IBM273" },
+  { 2031, "IBM274" },
+  { 2032, "IBM275" },
+  { 2033, "IBM277" },
+  { 2034, "IBM278" },
+  { 2035, "IBM280" },
+  { 2036, "IBM281" },
+  { 2037, "IBM284" },
+  { 2038, "IBM285" },
+  { 2039, "IBM290" },
+  { 2040, "IBM297" },
+  { 3, "IBM367" },
+  { 2041, "IBM420" },
+  { 2042, "IBM423" },
+  { 2043, "IBM424" },
+  { 2011, "IBM437" },
+  { 2044, "IBM500" },
+  { 2087, "IBM775" },
+  { 4, "IBM819" },
+  { 2009, "IBM850" },
+  { 2045, "IBM851" },
+  { 2010, "IBM852" },
+  { 2046, "IBM855" },
+  { 2047, "IBM857" },
+  { 2048, "IBM860" },
+  { 2049, "IBM861" },
+  { 2013, "IBM862" },
+  { 2050, "IBM863" },
+  { 2051, "IBM864" },
+  { 2052, "IBM865" },
+  { 2086, "IBM866" },
+  { 2053, "IBM868" },
+  { 2054, "IBM869" },
+  { 2055, "IBM870" },
+  { 2056, "IBM871" },
+  { 2057, "IBM880" },
+  { 2058, "IBM891" },
+  { 2059, "IBM903" },
+  { 2060, "IBM904" },
+  { 2061, "IBM905" },
+  { 2062, "IBM918" },
+  { 88, "IEC_P27-1" },
+  { 51, "INIS" },
+  { 52, "INIS-8" },
+  { 53, "INIS-cyrillic" },
+  { 29, "INVARIANT" },
+  { 30, "irv" },
+  { 1003, "ISO-10646" },
+  { 1000, "ISO-10646-UCS-2" },
+  { 1001, "ISO-10646-UCS-4" },
+  { 1002, "ISO-10646-UCS-Basic" },
+  { 1003, "ISO-10646-Unicode-Latin1" },
+  { 27, "ISO-10646-UTF-1" },
+  { 104, "ISO-2022-CN" },
+  { 105, "ISO-2022-CN-EXT" },
+  { 39, "ISO-2022-JP" },
+  { 40, "ISO-2022-JP-2" },
+  { 37, "ISO-2022-KR" },
+  { 1004, "ISO-8859-1" },
+  { 2000, "ISO-8859-1-Windows-3.0-Latin-1" },
+  { 2001, "ISO-8859-1-Windows-3.1-Latin-1" },
+  { 5, "ISO-8859-2" },
+  { 2002, "ISO-8859-2-Windows-Latin-2" },
+  { 6, "ISO-8859-3" },
+  { 7, "ISO-8859-4" },
+  { 8, "ISO-8859-5" },
+  { 9, "ISO-8859-6" },
+  { 10, "ISO-8859-7" },
+  { 11, "ISO-8859-8" },
+  { 12, "ISO-8859-9" },
+  { 2003, "ISO-8859-9-Windows-Latin-5" },
+  { 35, "iso-ir-10" },
+  { 4, "iso-ir-100" },
+  { 5, "iso-ir-101" },
+  { 75, "iso-ir-102" },
+  { 76, "iso-ir-103" },
+  { 6, "iso-ir-109" },
+  { 21, "iso-ir-11" },
+  { 7, "iso-ir-110" },
+  { 77, "iso-ir-111" },
+  { 78, "iso-ir-121" },
+  { 79, "iso-ir-122" },
+  { 80, "iso-ir-123" },
+  { 10, "iso-ir-126" },
+  { 9, "iso-ir-127" },
+  { 83, "iso-ir-128" },
+  { 41, "iso-ir-13" },
+  { 11, "iso-ir-138" },
+  { 86, "iso-ir-139" },
+  { 42, "iso-ir-14" },
+  { 87, "iso-ir-141" },
+  { 14, "iso-ir-142" },
+  { 88, "iso-ir-143" },
+  { 8, "iso-ir-144" },
+  { 89, "iso-ir-146" },
+  { 90, "iso-ir-147" },
+  { 12, "iso-ir-148" },
+  { 36, "iso-ir-149" },
+  { 22, "iso-ir-15" },
+  { 91, "iso-ir-150" },
+  { 92, "iso-ir-151" },
+  { 93, "iso-ir-152" },
+  { 94, "iso-ir-153" },
+  { 95, "iso-ir-154" },
+  { 96, "iso-ir-155" },
+  { 13, "iso-ir-157" },
+  { 97, "iso-ir-158" },
+  { 98, "iso-ir-159" },
+  { 43, "iso-ir-16" },
+  { 23, "iso-ir-17" },
+  { 44, "iso-ir-18" },
+  { 45, "iso-ir-19" },
+  { 30, "iso-ir-2" },
+  { 24, "iso-ir-21" },
+  { 46, "iso-ir-25" },
+  { 47, "iso-ir-27" },
+  { 48, "iso-ir-37" },
+  { 20, "iso-ir-4" },
+  { 49, "iso-ir-42" },
+  { 50, "iso-ir-47" },
+  { 51, "iso-ir-49" },
+  { 52, "iso-ir-50" },
+  { 53, "iso-ir-51" },
+  { 54, "iso-ir-54" },
+  { 55, "iso-ir-55" },
+  { 56, "iso-ir-57" },
+  { 57, "iso-ir-58" },
+  { 3, "iso-ir-6" },
+  { 25, "iso-ir-60" },
+  { 58, "iso-ir-61" },
+  { 26, "iso-ir-69" },
+  { 59, "iso-ir-70" },
+  { 31, "iso-ir-8-1" },
+  { 32, "iso-ir-8-2" },
+  { 60, "iso-ir-84" },
+  { 61, "iso-ir-85" },
+  { 62, "iso-ir-86" },
+  { 63, "iso-ir-87" },
+  { 64, "iso-ir-88" },
+  { 65, "iso-ir-89" },
+  { 33, "iso-ir-9-1" },
+  { 34, "iso-ir-9-2" },
+  { 66, "iso-ir-90" },
+  { 67, "iso-ir-91" },
+  { 68, "iso-ir-92" },
+  { 69, "iso-ir-93" },
+  { 70, "iso-ir-94" },
+  { 71, "iso-ir-95" },
+  { 72, "iso-ir-96" },
+  { 73, "iso-ir-98" },
+  { 74, "iso-ir-99" },
+  { 1005, "ISO-Unicode-IBM-1261" },
+  { 1008, "ISO-Unicode-IBM-1264" },
+  { 1009, "ISO-Unicode-IBM-1265" },
+  { 1006, "ISO-Unicode-IBM-1268" },
+  { 1007, "ISO-Unicode-IBM-1276" },
+  { 54, "ISO5427Cyrillic1981" },
+  { 78, "ISO646-CA" },
+  { 79, "ISO646-CA2" },
+  { 56, "ISO646-CN" },
+  { 92, "ISO646-CU" },
+  { 24, "ISO646-DE" },
+  { 99, "ISO646-DK" },
+  { 23, "ISO646-ES" },
+  { 61, "ISO646-ES2" },
+  { 35, "ISO646-FI" },
+  { 26, "ISO646-FR" },
+  { 46, "ISO646-FR1" },
+  { 20, "ISO646-GB" },
+  { 62, "ISO646-HU" },
+  { 22, "ISO646-IT" },
+  { 42, "ISO646-JP" },
+  { 68, "ISO646-JP-OCR-B" },
+  { 102, "ISO646-KR" },
+  { 25, "ISO646-NO" },
+  { 58, "ISO646-NO2" },
+  { 43, "ISO646-PT" },
+  { 60, "ISO646-PT2" },
+  { 35, "ISO646-SE" },
+  { 21, "ISO646-SE2" },
+  { 3, "ISO646-US" },
+  { 87, "ISO646-YU" },
+  { 96, "ISO_10367-box" },
+  { 73, "ISO_2033-1983" },
+  { 48, "ISO_5427" },
+  { 54, "ISO_5427:1981" },
+  { 55, "ISO_5428:1980" },
+  { 28, "ISO_646.basic:1983" },
+  { 30, "ISO_646.irv:1983" },
+  { 3, "ISO_646.irv:1991" },
+  { 93, "ISO_6937-2-25" },
+  { 14, "ISO_6937-2-add" },
+  { 4, "ISO_8859-1" },
+  { 13, "ISO_8859-10:1992" },
+  { 4, "ISO_8859-1:1987" },
+  { 5, "ISO_8859-2" },
+  { 5, "ISO_8859-2:1987" },
+  { 6, "ISO_8859-3" },
+  { 6, "ISO_8859-3:1988" },
+  { 7, "ISO_8859-4" },
+  { 7, "ISO_8859-4:1988" },
+  { 8, "ISO_8859-5" },
+  { 8, "ISO_8859-5:1988" },
+  { 9, "ISO_8859-6" },
+  { 81, "ISO_8859-6-E" },
+  { 82, "ISO_8859-6-I" },
+  { 9, "ISO_8859-6:1987" },
+  { 10, "ISO_8859-7" },
+  { 10, "ISO_8859-7:1987" },
+  { 11, "ISO_8859-8" },
+  { 84, "ISO_8859-8-E" },
+  { 85, "ISO_8859-8-I" },
+  { 11, "ISO_8859-8:1988" },
+  { 12, "ISO_8859-9" },
+  { 12, "ISO_8859-9:1989" },
+  { 95, "ISO_8859-supp" },
+  { 65, "ISO_9036" },
+  { 22, "IT" },
+  { 41, "JIS_C6220-1969" },
+  { 41, "JIS_C6220-1969-jp" },
+  { 42, "JIS_C6220-1969-ro" },
+  { 49, "JIS_C6226-1978" },
+  { 63, "JIS_C6226-1983" },
+  { 67, "JIS_C6229-1984-a" },
+  { 68, "JIS_C6229-1984-b" },
+  { 69, "JIS_C6229-1984-b-add" },
+  { 70, "JIS_C6229-1984-hand" },
+  { 71, "JIS_C6229-1984-hand-add" },
+  { 72, "JIS_C6229-1984-kana" },
+  { 16, "JIS_Encoding" },
+  { 15, "JIS_X0201" },
+  { 63, "JIS_X0208-1983" },
+  { 98, "JIS_X0212-1990" },
+  { 42, "jp" },
+  { 67, "jp-ocr-a" },
+  { 68, "jp-ocr-b" },
+  { 69, "jp-ocr-b-add" },
+  { 70, "jp-ocr-hand" },
+  { 71, "jp-ocr-hand-add" },
+  { 87, "js" },
+  { 87, "JUS_I.B1.002" },
+  { 90, "JUS_I.B1.003-mac" },
+  { 89, "JUS_I.B1.003-serb" },
+  { 41, "katakana" },
+  { 2084, "KOI8-R" },
+  { 2088, "KOI8-U" },
+  { 36, "korean" },
+  { 36, "KS_C_5601-1987" },
+  { 36, "KS_C_5601-1989" },
+  { 102, "KSC5636" },
+  { 36, "KSC_5601" },
+  { 4, "l1" },
+  { 5, "l2" },
+  { 6, "l3" },
+  { 7, "l4" },
+  { 12, "l5" },
+  { 13, "l6" },
+  { 97, "lap" },
+  { 45, "latin-greek" },
+  { 47, "Latin-greek-1" },
+  { 97, "latin-lap" },
+  { 4, "latin1" },
+  { 95, "latin1-2-5" },
+  { 5, "latin2" },
+  { 6, "latin3" },
+  { 7, "latin4" },
+  { 12, "latin5" },
+  { 13, "latin6" },
+  { 2027, "mac" },
+  { 90, "macedonian" },
+  { 2027, "macintosh" },
+  { 2023, "Microsoft-Publishing" },
+  { 2081, "MNEM" },
+  { 2080, "MNEMONIC" },
+  { 17, "MS_Kanji" },
+  { 62, "MSZ_7795.3" },
+  { 74, "NAPLPS" },
+  { 33, "NATS-DANO" },
+  { 34, "NATS-DANO-ADD" },
+  { 31, "NATS-SEFI" },
+  { 32, "NATS-SEFI-ADD" },
+  { 92, "NC_NC00-10:81" },
+  { 26, "NF_Z_62-010" },
+  { 46, "NF_Z_62-010_(1973)" },
+  { 25, "no" },
+  { 58, "no2" },
+  { 104, "NONE" },
+  { 25, "NS_4551-1" },
+  { 58, "NS_4551-2" },
+  { 2012, "PC8-Danish-Norwegian" },
+  { 2014, "PC8-Turkish" },
+  { 43, "PT" },
+  { 60, "PT2" },
+  { 2004, "r8" },
+  { 28, "ref" },
+  { 2004, "roman8" },
+  { 35, "se" },
+  { 21, "se2" },
+  { 35, "SEN_850200_B" },
+  { 21, "SEN_850200_C" },
+  { 89, "serbian" },
+  { 17, "Shift_JIS" },
+  { 94, "ST_SEV_358-88" },
+  { 83, "T.101-G2" },
+  { 76, "T.61" },
+  { 75, "T.61-7bit" },
+  { 76, "T.61-8bit" },
+  { 2259, "TIS-620" },
+  { 20, "uk" },
+  { 1010, "UNICODE-1-1" },
+  { 103, "UNICODE-1-1-UTF-7" },
+  { 2079, "UNKNOWN-8BIT" },
+  { 3, "us" },
+  { 3, "US-ASCII" },
+  { 100, "us-dk" },
+  { 104, "UTF-7" },
+  { 106, "UTF-8" },
+  { 2007, "Ventura-International" },
+  { 2022, "Ventura-Math" },
+  { 2006, "Ventura-US" },
+  { 59, "videotex-suppl" },
+  { 2083, "VIQR" },
+  { 2082, "VISCII" },
+  { 2250, "windows-1250" },
+  { 2251, "windows-1251" },
+  { 2253, "windows-1253" },
+  { 2254, "windows-1254" },
+  { 2255, "windows-1255" },
+  { 2256, "windows-1256" },
+  { 2257, "windows-1257" },
+  { 2258, "windows-1258" },
+  { 2024, "Windows-31J" },
+  { 15, "X0201" },
+  { 41, "x0201-7" },
+  { 63, "x0208" },
+  { 98, "x0212" },
+  { 87, "yu" },
+};
+
+static const int nmib2name = 213;
+struct QMibName mib2name[nmib2name] = {
+  { 3, "ANSI_X3.4-1968" },
+  { 4, "ISO_8859-1:1987" },
+  { 5, "ISO_8859-2:1987" },
+  { 6, "ISO_8859-3:1988" },
+  { 7, "ISO_8859-4:1988" },
+  { 8, "ISO_8859-5:1988" },
+  { 9, "ISO_8859-6:1987" },
+  { 10, "ISO_8859-7:1987" },
+  { 11, "ISO_8859-8:1988" },
+  { 12, "ISO_8859-9:1989" },
+  { 13, "latin6" },
+  { 14, "ISO_6937-2-add" },
+  { 15, "JIS_X0201" },
+  { 16, "JIS_Encoding" },
+  { 17, "Shift_JIS" },
+  { 18, "Extended_UNIX_Code_Packed_Format_for_Japanese" },
+  { 19, "Extended_UNIX_Code_Fixed_Width_for_Japanese" },
+  { 20, "BS_4730" },
+  { 21, "SEN_850200_C" },
+  { 22, "IT" },
+  { 23, "ES" },
+  { 24, "DIN_66003" },
+  { 25, "NS_4551-1" },
+  { 26, "NF_Z_62-010" },
+  { 27, "ISO-10646-UTF-1" },
+  { 28, "ISO_646.basic:1983" },
+  { 29, "INVARIANT" },
+  { 30, "ISO_646.irv:1983" },
+  { 31, "NATS-SEFI" },
+  { 32, "NATS-SEFI-ADD" },
+  { 33, "NATS-DANO" },
+  { 34, "NATS-DANO-ADD" },
+  { 35, "SEN_850200_B" },
+  { 36, "KS_C_5601-1987" },
+  { 37, "ISO-2022-KR" },
+  { 38, "EUC-KR" },
+  { 39, "ISO-2022-JP" },
+  { 40, "ISO-2022-JP-2" },
+  { 41, "JIS_C6220-1969-jp" },
+  { 42, "JIS_C6220-1969-ro" },
+  { 43, "PT" },
+  { 44, "greek7-old" },
+  { 45, "latin-greek" },
+  { 46, "NF_Z_62-010_(1973)" },
+  { 47, "Latin-greek-1" },
+  { 48, "ISO_5427" },
+  { 49, "JIS_C6226-1978" },
+  { 50, "BS_viewdata" },
+  { 51, "INIS" },
+  { 52, "INIS-8" },
+  { 53, "INIS-cyrillic" },
+  { 54, "ISO_5427:1981" },
+  { 55, "ISO_5428:1980" },
+  { 56, "GB_1988-80" },
+  { 57, "GB_2312-80" },
+  { 58, "NS_4551-2" },
+  { 59, "videotex-suppl" },
+  { 60, "PT2" },
+  { 61, "ES2" },
+  { 62, "MSZ_7795.3" },
+  { 63, "JIS_C6226-1983" },
+  { 64, "greek7" },
+  { 65, "ASMO_449" },
+  { 66, "iso-ir-90" },
+  { 67, "JIS_C6229-1984-a" },
+  { 68, "JIS_C6229-1984-b" },
+  { 69, "JIS_C6229-1984-b-add" },
+  { 70, "JIS_C6229-1984-hand" },
+  { 71, "JIS_C6229-1984-hand-add" },
+  { 72, "JIS_C6229-1984-kana" },
+  { 73, "ISO_2033-1983" },
+  { 74, "ANSI_X3.110-1983" },
+  { 75, "T.61-7bit" },
+  { 76, "T.61-8bit" },
+  { 77, "ECMA-cyrillic" },
+  { 78, "CSA_Z243.4-1985-1" },
+  { 79, "CSA_Z243.4-1985-2" },
+  { 80, "CSA_Z243.4-1985-gr" },
+  { 81, "ISO_8859-6-E" },
+  { 82, "ISO_8859-6-I" },
+  { 83, "T.101-G2" },
+  { 84, "ISO_8859-8-E" },
+  { 85, "ISO_8859-8-I" },
+  { 86, "CSN_369103" },
+  { 87, "JUS_I.B1.002" },
+  { 88, "IEC_P27-1" },
+  { 89, "JUS_I.B1.003-serb" },
+  { 90, "JUS_I.B1.003-mac" },
+  { 91, "greek-ccitt" },
+  { 92, "NC_NC00-10:81" },
+  { 93, "ISO_6937-2-25" },
+  { 94, "GOST_19768-74" },
+  { 95, "ISO_8859-supp" },
+  { 96, "ISO_10367-box" },
+  { 97, "latin-lap" },
+  { 98, "JIS_X0212-1990" },
+  { 99, "DS_2089" },
+  { 100, "us-dk" },
+  { 101, "dk-us" },
+  { 102, "KSC5636" },
+  { 103, "UNICODE-1-1-UTF-7" },
+  { 104, "UTF-7" },
+  { 105, "ISO-2022-CN-EXT" },
+  { 106, "UTF-8" },
+  { 1000, "ISO-10646-UCS-2" },
+  { 1001, "ISO-10646-UCS-4" },
+  { 1002, "ISO-10646-UCS-Basic" },
+  { 1003, "ISO-10646-Unicode-Latin1" },
+  { 1004, "ISO-8859-1" },
+  { 1005, "ISO-Unicode-IBM-1261" },
+  { 1006, "ISO-Unicode-IBM-1268" },
+  { 1007, "ISO-Unicode-IBM-1276" },
+  { 1008, "ISO-Unicode-IBM-1264" },
+  { 1009, "ISO-Unicode-IBM-1265" },
+  { 1010, "UNICODE-1-1" },
+  { 2000, "ISO-8859-1-Windows-3.0-Latin-1" },
+  { 2001, "ISO-8859-1-Windows-3.1-Latin-1" },
+  { 2002, "ISO-8859-2-Windows-Latin-2" },
+  { 2003, "ISO-8859-9-Windows-Latin-5" },
+  { 2004, "hp-roman8" },
+  { 2005, "Adobe-Standard-Encoding" },
+  { 2006, "Ventura-US" },
+  { 2007, "Ventura-International" },
+  { 2008, "DEC-MCS" },
+  { 2009, "IBM850" },
+  { 2010, "IBM852" },
+  { 2011, "IBM437" },
+  { 2012, "PC8-Danish-Norwegian" },
+  { 2013, "IBM862" },
+  { 2014, "PC8-Turkish" },
+  { 2015, "IBM-Symbols" },
+  { 2016, "IBM-Thai" },
+  { 2017, "HP-Legal" },
+  { 2018, "HP-Pi-font" },
+  { 2019, "HP-Math8" },
+  { 2020, "Adobe-Symbol-Encoding" },
+  { 2021, "HP-DeskTop" },
+  { 2022, "Ventura-Math" },
+  { 2023, "Microsoft-Publishing" },
+  { 2024, "Windows-31J" },
+  { 2025, "GB2312" },
+  { 2026, "Big5" },
+  { 2027, "macintosh" },
+  { 2028, "IBM037" },
+  { 2029, "IBM038" },
+  { 2030, "IBM273" },
+  { 2031, "IBM274" },
+  { 2032, "IBM275" },
+  { 2033, "IBM277" },
+  { 2034, "IBM278" },
+  { 2035, "IBM280" },
+  { 2036, "IBM281" },
+  { 2037, "IBM284" },
+  { 2038, "IBM285" },
+  { 2039, "IBM290" },
+  { 2040, "IBM297" },
+  { 2041, "IBM420" },
+  { 2042, "IBM423" },
+  { 2043, "IBM424" },
+  { 2044, "IBM500" },
+  { 2045, "IBM851" },
+  { 2046, "IBM855" },
+  { 2047, "IBM857" },
+  { 2048, "IBM860" },
+  { 2049, "IBM861" },
+  { 2050, "IBM863" },
+  { 2051, "IBM864" },
+  { 2052, "IBM865" },
+  { 2053, "IBM868" },
+  { 2054, "IBM869" },
+  { 2055, "IBM870" },
+  { 2056, "IBM871" },
+  { 2057, "IBM880" },
+  { 2058, "IBM891" },
+  { 2059, "IBM903" },
+  { 2060, "IBM904" },
+  { 2061, "IBM905" },
+  { 2062, "IBM918" },
+  { 2063, "IBM1026" },
+  { 2064, "EBCDIC-AT-DE" },
+  { 2065, "EBCDIC-AT-DE-A" },
+  { 2066, "EBCDIC-CA-FR" },
+  { 2067, "EBCDIC-DK-NO" },
+  { 2068, "EBCDIC-DK-NO-A" },
+  { 2069, "EBCDIC-FI-SE" },
+  { 2070, "EBCDIC-FI-SE-A" },
+  { 2071, "EBCDIC-FR" },
+  { 2072, "EBCDIC-IT" },
+  { 2073, "EBCDIC-PT" },
+  { 2074, "EBCDIC-ES" },
+  { 2075, "EBCDIC-ES-A" },
+  { 2076, "EBCDIC-ES-S" },
+  { 2077, "EBCDIC-UK" },
+  { 2078, "EBCDIC-US" },
+  { 2079, "UNKNOWN-8BIT" },
+  { 2080, "MNEMONIC" },
+  { 2081, "MNEM" },
+  { 2082, "VISCII" },
+  { 2083, "VIQR" },
+  { 2084, "KOI8-R" },
+  { 2085, "HZ-GB-2312" },
+  { 2086, "IBM866" },
+  { 2087, "IBM775" },
+  { 2088, "KOI8-U" },
+  { 2250, "windows-1250" },
+  { 2251, "windows-1251" },
+  { 2253, "windows-1253" },
+  { 2254, "windows-1254" },
+  { 2255, "windows-1255" },
+  { 2256, "windows-1256" },
+  { 2257, "windows-1257" },
+  { 2258, "windows-1258" },
+  { 2259, "TIS-620" },
+};
+
+
+
 
 QCodeMapper::QCodeMapper()
 {
@@ -36,15 +826,110 @@ QCodeMapper::~QCodeMapper()
     all.remove(this);
 }
 
-QCodeMapper* QCodeMapper::mapperFor(const char* locale)
+static int heuristicMatch(const char* approx, const char* actual)
+{
+    int r = -10;
+    int toggle = 0;
+    while ( *approx && *actual ) {
+	// Skip punctuation
+	while ( approx[1] && !isalnum(*approx) )
+	    approx++;
+	while ( actual[1] && !isalnum(*actual) )
+	    actual++;
+
+	if ( tolower(*approx) == tolower(*actual) ) {
+	    approx++;
+	    actual++;
+	    r+=3;
+	} else if ( tolower(approx[1]) == tolower(*actual) ) {
+	    approx++;
+	    r+=1;
+	} else if ( tolower(*approx) == tolower(actual[1]) ) {
+	    actual++;
+	    r+=1;
+	} else {
+	    if ( toggle ) {
+		actual++;
+		r--;
+	    } else {
+		approx++;
+		r--;
+	    }
+	    toggle = !toggle;
+	}
+    }
+    return r;
+}
+
+int QCodeMapper::heuristicMibFor(const char* name)
+{
+    int result = mibFor(name);
+    if ( result )
+	return result;
+    // Not found.  Find "closest" heuristically.
+    int best=0;
+    int bestscore=0;
+    while (*name) {
+	for (int i=0; i<nname2mib; i++) {
+	    int score = heuristicMatch(name,name2mib[i].name);
+	    if ( score > bestscore ) {
+		best = name2mib[i].mib;
+		bestscore = score;
+	    }
+	}
+	// Try from next punctuation
+	while (isalnum(*name))
+	    name++;
+	if ( *name )
+	    name++;
+    }
+    return best;
+}
+
+static int cmp_name( const void *va, const void *vb )
+{
+    const char* a = (const char*)va;
+    const QMibName* b = (QMibName*)vb;
+    return stricmp(a,b->name);
+}
+
+int QCodeMapper::mibFor(const char* encoding_name)
+{
+    QMibName* n = (QMibName*)bsearch( encoding_name, name2mib,
+		nname2mib, sizeof(QMibName), cmp_name );
+    return n ? n->mib : 0;
+}
+
+static int cmp_mib( const void *va, const void *vb )
+{
+    int a = *((int*)va);
+    const QMibName* b = (QMibName*)vb;
+    return a - b->mib;
+}
+
+const char* QCodeMapper::mibName(int mib)
+{
+    QMibName* n = (QMibName*)bsearch( &mib, mib2name,
+		nmib2name, sizeof(QMibName), cmp_mib );
+    return n ? n->name : 0;
+}
+
+QCodeMapper* QCodeMapper::mapperFor(int mib)
 {
     QListIterator<QCodeMapper> i(all);
     QCodeMapper* result;
     while ( (result=i) ) {
-	if ( result->canConvert(locale) )
+	if ( result->canConvert(mib) )
 	    break;
 	++i;
     }
     return result;
 }
 
+bool QCodeMapper::canConvert(int mib) const
+{
+    int m;
+    for (int i=0; (m=this->mib(i)); i++)
+	if ( m == mib ) return TRUE;
+    return FALSE;
+}

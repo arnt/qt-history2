@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qeucmapper.h#1 $
+** $Id: //depot/qt/main/src/kernel/qeucmapper.h#2 $
 **
 ** Definition of QEUCMapper class
 **
@@ -28,9 +28,9 @@
 
 class QEUCMapper : public QCodeMapper {
 public:
-    virtual bool canConvert(const char* locale) const;
-    virtual char* fromUnicode(QString uc) const;
-    virtual QString toUnicode(const char* chars) const;
+    virtual int mib(int) const;
+    virtual char* fromUnicode(QString uc, int mib) const;
+    virtual QString toUnicode(const char* chars, int mib) const;
 };
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qeucmapper.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qeucmapper.cpp#3 $
 **
 ** Implementation of QEUCMapper class
 **
@@ -16446,43 +16446,68 @@ static ushort unicode_to_euc[0x10000] = {
 	};
 
 
-bool QEUCMapper::canConvert(const char* locale) const
+int QEUCMapper::mib(int i) const
 {
-    return locale[0]=='j' && locale[1]=='a';
+    static int mibs[]={63,18,0};
+    return mibs[i];
 }
 
-char* QEUCMapper::fromUnicode(QString uc) const
+char* QEUCMapper::fromUnicode(QString uc, int mib) const
 {
     char* result = new char[uc.length()*2+1];
     char* cursor = result;
-    for (int i=0; i<(int)uc.length(); i++) {
-	QChar ch = uc[i];
-	if ( !ch.row && ch.cell < 128 ) {
-	    *cursor++ = ch.row;
-	} else {
-	    int u = unicode_to_euc[(ch.row<<8)|ch.cell];
-	    *cursor++ = u >> 8;
-	    *cursor++ = u & 0xff;
+    if ( mib == 18 ) {
+	for (int i=0; i<(int)uc.length(); i++) {
+	    QChar ch = uc[i];
+	    if ( !ch.row && ch.cell < 128 ) {
+		*cursor++ = ch.row;
+	    } else {
+		int u = unicode_to_euc[(ch.row<<8)|ch.cell];
+		*cursor++ = u >> 8;
+		*cursor++ = u & 0xff;
+	    }
+	}
+    } else {
+	for (int i=0; i<(int)uc.length(); i++) {
+	    QChar ch = uc[i];
+	    if ( !ch.row && ch.cell < 128 ) {
+		*cursor++ = 0x23;
+		*cursor++ = ch.row;
+	    } else {
+		int u = unicode_to_euc[(ch.row<<8)|ch.cell] & 0x7f7f;
+		*cursor++ = u >> 8;
+		*cursor++ = u & 0xff;
+	    }
 	}
     }
     return result;
 }
 
-QString QEUCMapper::toUnicode(const char* chars) const
+QString QEUCMapper::toUnicode(const char* chars, int mib) const
 {
     QString result;
-    while (*chars) {
-	uchar ch = *chars;
-	if ( ch < 128 || !chars[1] ) {
-	    result += ch;
-	    chars+=1;
-//debug("%02x (%c)",ch,ch);
-	} else {
+    if ( mib == 18 ) {
+	while (*chars) {
+	    uchar ch = *chars;
+	    if ( ch < 128 || !chars[1] ) {
+		result += ch;
+		chars+=1;
+	    } else {
+		uchar c2 = chars[1];
+		int i = (ch << 8) | c2;
+		ushort rc = euc_to_unicode[i];
+		result += QChar(rc&0xff,(rc>>8)&0xff);
+		chars+=2;
+	    }
+	}
+    } else {
+	while (*chars) {
+	    uchar ch = *chars;
 	    uchar c2 = chars[1];
+	    if ( !c2 ) break;
 	    int i = (ch << 8) | c2;
 	    ushort rc = euc_to_unicode[i];
 	    result += QChar(rc&0xff,(rc>>8)&0xff);
-//debug("%02x %02x -> %02x %02x", ch,c2, rc&0xff,(rc>>8)&0xff);
 	    chars+=2;
 	}
     }

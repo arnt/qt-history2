@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#363 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#364 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -208,6 +208,7 @@ static XIMStyle xim_style = 0;
 static XIMStyle xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
 static XFontSet xim_fixed_fontset;
 static QCodeMapper * xim_mapper = 0;
+static int	xim_mib;
 #endif
 
 timeval        *qt_wait_timer();
@@ -807,7 +808,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 
     if ( xim ) {
 	// Built-in code mappers
-	new QEUCMapper;
+	(void)new QEUCMapper;
 
 	XIMStyles *styles;
 	XGetIMValues(xim, XNQueryInputStyle, &styles, NULL, NULL);
@@ -843,7 +844,8 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    }
 	}
 	const char* locale = XLocaleOfIM(xim);
-	xim_mapper = QCodeMapper::mapperFor(locale);
+	xim_mib = QCodeMapper::heuristicMibFor(locale);
+	xim_mapper = QCodeMapper::mapperFor(xim_mib);
     }
 #endif
 }
@@ -3397,7 +3399,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     // convert chars (8bit) to text (unicode).
     QString text;
     if ( xim_mapper )
-        text = xim_mapper->toUnicode(chars);
+        text = xim_mapper->toUnicode(chars,xim_mib);
     else
         text = chars;
 #endif
