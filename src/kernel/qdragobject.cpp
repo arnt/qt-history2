@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#101 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -378,7 +378,7 @@ void QDragObject::dragCopy()
 }
 
 
-/*! \enum QDragOBject::DragMode
+/*! \enum QDragObject::DragMode
 
   This enum type decides which of several types of drag each
   individual drag is.  The available types are: <ul>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#554 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#555 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2720,7 +2720,7 @@ void QApplication::closePopup( QWidget *popup )
   The popup widgets are organized in a stack.
   This function returns the active popup widget on top of the stack.
 
-  \sa currentModalWidget(), topLevelWidgets()
+  \sa activeModalWidget(), topLevelWidgets()
 */
 
 QWidget *QApplication::activePopupWidget()
@@ -2740,7 +2740,7 @@ QWidget *QApplication::activePopupWidget()
   The modal widgets are organized in a stack.
   This function returns the active modal widget on top of the stack.
 
-  \sa currentPopupWidget(), topLevelWidgets()
+  \sa activePopupWidget(), topLevelWidgets()
 */
 
 QWidget *QApplication::activeModalWidget()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#104 $
 **
 ** Implementation of event classes
 **
@@ -56,7 +56,7 @@
   event.
 
   \sa QObject::event() QObject::installEventFilter() QWidget::event()
-  QApplication::sendEvent() QApplcation::postEvent()
+  QApplication::sendEvent() QAppilcation::postEvent()
   QApplication::processEvents()
 */
 

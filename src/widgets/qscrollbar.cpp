@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#136 $
 **
 ** Implementation of QScrollBar class
 **
@@ -57,8 +57,8 @@
 
   QScrollBar has not much of an API of its own; it mostly relies on
   QRangeControl.  The most useful functions are setValue() to set the
-  scrollbar directly to some value; addPage(), addLine(), subPage()
-  and subLine() to simulate the effects of clicking (neat for
+  scrollbar directly to some value; addPage(), addLine(), subtractPage()
+  and subtractLine() to simulate the effects of clicking (neat for
   accelerator keys; setSteps() to define the values of pageStep() and
   lineStep(); and last but NOT least setRange() to set the minValue()
   and maxValue() of the scrollbar.  (QScrollBar has a convenience

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#49 $
 **
 ** Implementation of QBitArray class
 **
@@ -58,7 +58,7 @@
 */
 
 /*!
-  \fn QBitVal& QBitVal::operator= (int v)
+  \fn QBitVal& QBitVal::operator= (bool v)
 
   Sets the value referenced by the QBitVal.
 */

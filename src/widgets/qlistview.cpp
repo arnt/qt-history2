@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#306 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#307 $
 **
 ** Implementation of QListView widget class
 **
@@ -165,7 +165,7 @@ struct QListViewPrivate
     int fontMetricsHeight;
     bool allColumnsShowFocus;
     bool autoResort;
-    
+
     // currently typed prefix for the keyboard interface, and the time
     // of the last key-press
     QString currentPrefix;
@@ -1595,7 +1595,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->iterators = 0;
     d->scrollTimer = 0;
     d->autoResort = FALSE;
-    
+
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
     connect( d->dirtyItemTimer, SIGNAL(timeout()),
@@ -2211,7 +2211,7 @@ void QListView::show()
 
 
 /*!  Updates the sizes of the viewport, header, scrollbars and so on.
-  Don't call this directly; call triggerUpdates() instead.
+  Don't call this directly; call triggerUpdate() instead.
 */
 
 void QListView::updateContents()
@@ -3412,7 +3412,7 @@ void QListView::refreshSorting()
 /*!
   When setting \a b to TRUE, changing the text of an item will
   resort the listview immediately. But this only works, if the
-  current sortcolumn is valid, this means if you didn't set 
+  current sortcolumn is valid, this means if you didn't set
   it to -1 before (using QListView::setSorting()).
   If \a b is FALSE, this listview is never resorted if an item
   text changed.
@@ -3426,11 +3426,11 @@ void QListView::setAutoResort( bool b )
 }
 
 /*!
-  Returns the state of autoResorting. 
-  
+  Returns the state of autoResorting.
+
   \sa QListView::setAutoResort()
 */
-  
+
 bool QListView::autoResort() const
 {
     return d->autoResort;
@@ -4044,7 +4044,7 @@ void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 
 
 /*!  Returns a size suitable for this scroll view.  This is as wide as
-  QHeader's sizeHint() recommends and tall enough for perhaps 10 items.
+  QHeader::sizeHint() recommends and tall enough for perhaps 10 items.
 */
 
 QSize QListView::sizeHint() const

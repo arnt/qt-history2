@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#79 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#80 $
 **
 ** Implementation of QTextCodec class
 **
@@ -598,11 +598,10 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
   the name of the encoding supported by the subclass.  When choosing
   a name for an encoding, consider these points:
   <ul>
-    <li>On X11,
-	\link heuristicNameMatch() \code heuristicNameMatch(\e charset)\endcode \endlink
+    <li>On X11, heuristicNameMatch( const char * hint )
 	is used to test if a the QTextCodec
 	can convert between Unicode and the encoding of a font
-	with encoding \e charset, such as "iso8859-1" for Latin-1 fonts,
+	with encoding \e hint, such as "iso8859-1" for Latin-1 fonts,
 	"koi8-r" for Russian KOI8 fonts.
 	The default algorithm of heuristicNameMatch() uses name().
     <li>Some applications may use this function to present
@@ -1161,7 +1160,7 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
 /*!
   Reads a POSIX2 charmap definition from \a iod.
   The parser recognises the following lines:
-\code
+<pre>
    &lt;code_set_name&gt; <i>name</i>
    &lt;escape_char&gt; <i>character</i>
    % alias <i>alias</i>
@@ -1171,7 +1170,8 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
    &lt;<i>token</i>&gt; /<i>octbyte</i> &lt;U<i>unicode</i>&gt; ...
    &lt;<i>token</i>&gt; /<i>any</i>/<i>any</i>... &lt;U<i>unicode</i>&gt; ...
    END CHARMAP
-\endcode
+</pre>
+
   The resulting QTextCodec is returned (and also added to the
   global list of codecs).  The name() of the result is taken
   from the code_set_name.
@@ -1194,7 +1194,7 @@ QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
 }
 
 /*!
-  A convenience function for QTextCodec::loadCharmap().
+  A convenience function for loadCharmap().
 */
 QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#396 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#397 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -761,7 +761,7 @@ void QWidget::setCursor( const QCursor &cursor )
   Unset the cursor for this widget. The widget will use the cursor of
   its parent from now on.
 
-  This functions does nothing for toplevel windows.
+  This functions does nothing for top-level windows.
 
   \sa cursor(), setCursor(), QApplication::setOverrideCursor()
  */
