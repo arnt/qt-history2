@@ -77,6 +77,7 @@ static const char * book_xpm[]={
 #include <qptrstack.h>
 #include <qptrlist.h>
 #include <qcursor.h>
+#include <qstatusbar.h>
 //#ifdef QT_PALMTOPCENTER_DOCS
 #include <qsettings.h>
 //#endif
@@ -202,6 +203,8 @@ void HelpDialog::initialize()
     connect( listBookmarks, SIGNAL( currentChanged(QListViewItem*) ),
 	     this, SLOT( currentBookmarkChanged(QListViewItem*) ) );
 
+    fullTextIndex = 0;
+    needNewIndex = FALSE;
     bookPixmap = new QPixmap( book_xpm );
     QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
     mime->setExtensionType( "html", "text/html;charset=UTF-8" );
@@ -325,6 +328,7 @@ void HelpDialog::loadIndexFile()
 
     setCursor( waitCursor );
     indexDone = TRUE;
+    labelPrepare->setText( tr( "Prepare..." ) );
     framePrepare->show();
     qApp->processEvents();
     QString num = generateFileNumber();
@@ -366,11 +370,13 @@ void HelpDialog::loadIndexFile()
 	bar->setProgress( bar->totalSteps() );
 	qApp->processEvents();
 	buildDb = FALSE;
+	needNewIndex = FALSE;
     }
 
  build_db:
     if ( buildDb ) {
 	if ( f.open( IO_ReadOnly ) ) {
+	    needNewIndex = TRUE;
 	    QTextStream ts( &f );
 	    while ( !ts.atEnd() && !lastWindowClosed() ) {
 		qApp->processEvents();
@@ -579,6 +585,8 @@ void HelpDialog::currentTabChanged( const QString &s )
     } else if ( s.contains( tr( "Con&tents" ) ) ) {
 	if ( !contentsInserted )
 	    insertContents();
+    } else if ( s.contains( tr( "&Search" ) ) ) {
+	    QTimer::singleShot( 0, this, SLOT( setupFullTextIndex() ) );
     }
 }
 
@@ -1098,4 +1106,107 @@ void HelpDialog::toggleBookmarks()
     }
     else
 	parentWidget()->hide();
+}
+
+void HelpDialog::setupFullTextIndex()
+{
+    if ( fullTextIndex )
+	return;
+    fullTextIndex = new Index( documentationPath, QDir::homeDirPath() );
+    connect( fullTextIndex, SIGNAL( indexingProgress( int ) ),
+	     this, SLOT( setIndexingProgress( int ) ) );
+    QFile f( QDir::homeDirPath() + "/.indexdb.dict" );
+    if ( !f.exists() || needNewIndex ) {
+	help->statusBar()->clear();
+	setCursor( waitCursor );
+	labelPrepare->setText( tr( "indexing files..." ) );
+	progressPrepare->setTotalSteps( 100 );
+	progressPrepare->reset();
+	progressPrepare->show();
+	framePrepare->show();
+	qApp->processEvents();
+	fullTextIndex->makeIndex();
+	fullTextIndex->writeDict();
+	progressPrepare->setProgress( 100 );
+	framePrepare->hide();
+	needNewIndex = FALSE;
+	setCursor( arrowCursor );
+    } else {
+	setCursor( waitCursor );
+	help->statusBar()->message( tr( "reading dictionary..." ) );
+	qApp->processEvents();
+	fullTextIndex->readDict();
+	help->statusBar()->message( tr( "done." ), 3000 );
+	setCursor( arrowCursor );
+    }
+}
+
+void HelpDialog::setIndexingProgress( int prog )
+{
+    progressPrepare->setProgress( prog );
+    qApp->processEvents();
+}
+
+void HelpDialog::startSearch()
+{
+    setCursor( waitCursor );
+    QString str = termsEdit->text();
+    terms = QStringList::split( " ", str );
+    QStringList termSeq;
+    QStringList seqWords;
+    QStringList::iterator it = terms.begin();
+    for ( ; it != terms.end(); ++it ) {
+	(*it) = (*it).simplifyWhiteSpace();
+	(*it) = (*it).lower();
+	(*it) = (*it).replace( "\"", "" );
+    }
+    if ( str.contains( '\"' ) && (str.contains( '\"' ))%2 == 0 ) {
+	int beg = 0;
+	int end = 0;
+	QString s;
+	beg = str.find( '\"', beg );
+	while ( beg != -1 ) {
+	    beg++;
+	    end = str.find( '\"', beg );
+	    s = str.mid( beg, end - beg );
+	    s = s.lower();
+	    s = s.simplifyWhiteSpace();
+	    if ( s.contains( '*' ) )
+		return;
+	    seqWords += QStringList::split( ' ', s );
+	    termSeq << s;
+	    beg = str.find( '\"', end + 1);
+	}
+    }
+    foundDocs.clear();
+    foundDocs = fullTextIndex->query( terms, termSeq, seqWords );
+    QString msg( QString( "%1 documents found." ).arg( foundDocs.count() ) );
+    help->statusBar()->message( tr( msg ), 3000 );
+    resultBox->clear();
+    for ( it = foundDocs.begin(); it != foundDocs.end(); ++it )
+	resultBox->insertItem( fullTextIndex->getDocumentTitle( *it ) );
+    setCursor( arrowCursor );
+}
+
+void HelpDialog::showSearchHelp()
+{
+    emit showLink( documentationPath + "/assistant-5.html" );
+}
+
+void HelpDialog::showResultPage( int page )
+{
+    help->showLink( documentationPath + "/" + foundDocs[page] );
+    viewer->sync();
+
+#if 0
+    QStringList::ConstIterator it = terms.begin();
+    for ( ; it != terms.end(); ++it ) {
+	int pos = INT_MAX;
+	bool found = viewer->find( *it, FALSE, TRUE, FALSE, &pos, &pos );
+	while ( found ) {
+	    viewer->setColor( QColor( "red" ) );
+	    found = viewer->find( *it, FALSE, TRUE, FALSE );
+	}
+    }
+#endif
 }

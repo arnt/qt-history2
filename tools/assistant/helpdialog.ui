@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>492</width>
-            <height>411</height>
+            <width>268</width>
+            <height>448</height>
         </rect>
     </property>
     <property name="caption">
@@ -79,7 +79,7 @@
                             <property name="clickable">
                                 <bool>true</bool>
                             </property>
-                            <property name="resizeable">
+                            <property name="resizable">
                                 <bool>true</bool>
                             </property>
                         </column>
@@ -169,7 +169,7 @@
                             <property name="clickable">
                                 <bool>true</bool>
                             </property>
-                            <property name="resizeable">
+                            <property name="resizable">
                                 <bool>true</bool>
                             </property>
                         </column>
@@ -195,7 +195,7 @@
                                 <number>6</number>
                             </property>
                             <spacer>
-                                <property name="name" stdset="0">
+                                <property name="name">
                                     <cstring>Spacer1</cstring>
                                 </property>
                                 <property name="orientation">
@@ -242,6 +242,117 @@
                         </hbox>
                     </widget>
                 </vbox>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>searchTab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>&amp;Search</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>5</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <spacer row="3" column="0">
+                        <property name="name">
+                            <cstring>Spacer3</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Fixed</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QLabel" row="0" column="0">
+                        <property name="name">
+                            <cstring>TextLabel1_2</cstring>
+                        </property>
+                        <property name="text">
+                            <string>S&amp;earching for:</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>termsEdit</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit" row="1" column="0">
+                        <property name="name">
+                            <cstring>termsEdit</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QListBox" row="5" column="0">
+                        <property name="name">
+                            <cstring>resultBox</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="4" column="0">
+                        <property name="name">
+                            <cstring>TextLabel2</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Found Documents:</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>resultBox</cstring>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="2" column="0">
+                        <property name="name">
+                            <cstring>Layout2</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>helpButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>&amp;Help</string>
+                                </property>
+                            </widget>
+                            <spacer>
+                                <property name="name">
+                                    <cstring>Spacer2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>61</width>
+                                        <height>21</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QPushButton">
+                                <property name="name">
+                                    <cstring>searchButton</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Sea&amp;rch</string>
+                                </property>
+                            </widget>
+                        </hbox>
+                    </widget>
+                </grid>
             </widget>
         </widget>
         <widget class="QFrame">
@@ -294,19 +405,65 @@
         <receiver>HelpDialogBase</receiver>
         <slot>removeBookmark()</slot>
     </connection>
+    <connection>
+        <sender>termsEdit</sender>
+        <signal>returnPressed()</signal>
+        <receiver>searchButton</receiver>
+        <slot>animateClick()</slot>
+    </connection>
+    <connection>
+        <sender>helpButton</sender>
+        <signal>clicked()</signal>
+        <receiver>HelpDialogBase</receiver>
+        <slot>showSearchHelp()</slot>
+    </connection>
+    <connection>
+        <sender>searchButton</sender>
+        <signal>clicked()</signal>
+        <receiver>HelpDialogBase</receiver>
+        <slot>startSearch()</slot>
+    </connection>
+    <connection>
+        <sender>resultBox</sender>
+        <signal>selected(int)</signal>
+        <receiver>HelpDialogBase</receiver>
+        <slot>showResultPage(int)</slot>
+    </connection>
+    <connection>
+        <sender>resultBox</sender>
+        <signal>highlighted(int)</signal>
+        <receiver>HelpDialogBase</receiver>
+        <slot>showResultPage(int)</slot>
+    </connection>
 </connections>
-<slots>
-    <slot access="protected">init()</slot>
-    <slot access="protected">destroy()</slot>
-    <slot access="protected">addBookmark()</slot>
-    <slot access="protected">currentBookmarkChanged( QListViewItem * )</slot>
-    <slot access="protected">currentIndexChanged( QListBoxItem * )</slot>
-    <slot access="protected">currentTabChanged( const QString &amp; )</slot>
-    <slot access="protected">loadIndexFile()</slot>
-    <slot access="protected">currentContentsChanged( QListViewItem * )</slot>
-    <slot access="protected">removeBookmark()</slot>
-    <slot access="protected">searchInIndex( const QString &amp; )</slot>
-    <slot access="protected">showTopic()</slot>
-</slots>
+<tabstops>
+    <tabstop>tabWidget</tabstop>
+    <tabstop>listContents</tabstop>
+    <tabstop>editIndex</tabstop>
+    <tabstop>listIndex</tabstop>
+    <tabstop>listBookmarks</tabstop>
+    <tabstop>buttonAdd</tabstop>
+    <tabstop>buttonRemove</tabstop>
+    <tabstop>termsEdit</tabstop>
+    <tabstop>searchButton</tabstop>
+    <tabstop>helpButton</tabstop>
+    <tabstop>resultBox</tabstop>
+</tabstops>
+<functions>
+    <function type="slot" access="protected">init()</function>
+    <function type="slot" access="protected">destroy()</function>
+    <function type="slot" access="protected">addBookmark()</function>
+    <function type="slot" access="protected">currentBookmarkChanged( QListViewItem * )</function>
+    <function type="slot" access="protected">currentIndexChanged( QListBoxItem * )</function>
+    <function type="slot" access="protected">currentTabChanged( const QString &amp; )</function>
+    <function type="slot" access="protected">loadIndexFile()</function>
+    <function type="slot" access="protected">currentContentsChanged( QListViewItem * )</function>
+    <function type="slot" access="protected">removeBookmark()</function>
+    <function type="slot" access="protected">searchInIndex( const QString &amp; )</function>
+    <function type="slot" access="protected">showTopic()</function>
+    <function type="slot" access="protected">showSearchHelp()</function>
+    <function type="slot" access="protected">startSearch()</function>
+    <function type="slot" access="protected">showResultPage( int )</function>
+</functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

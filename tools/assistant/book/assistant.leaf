@@ -9,6 +9,7 @@ divided into the following sections:
 \i Introduction to the Qt Reference Documentation
 \i The 1 Minute Guide to using Qt Assistant
 \i Qt Assistant in More Detail
+\i The Qt Assistant full text search
 \i Adding none Qt Documentation
 \endlist
 
@@ -133,6 +134,9 @@ button and a \Button{Delete Bookmark} button at the bottom. Click
 \Button{New Bookmark} to bookmark the page that is showing in the
 documentation window. Click a bookmark in the list, then click 
 \Button{Delete Bookmark} to delete the highlighted bookmark.
+\i The \Toolbutton Search tab provides a full text search over all
+documents. For further informations see \l{The Qt Assistant full text 
+search}.
 \endlist
 
 If you want the documentation window to use as much space as possible,
@@ -290,6 +294,34 @@ available documentation. To remove a category, select it from the list
 box and click \Button Delete. For further information about
 categories read the next chapter, \l {Adding Documentation to Qt Assistant}.
 \endlist
+
+\chapter The Qt Assistant full text search
+
+\QA offers a powerfull full text search. In order to search for certain
+words or parts of a text, go to the tab widget 'Search' on the sidebar.
+Then enter the words you are looking for and hit enter or click \Button
+Search. Note: The search is always case insensitive, i.e. Foo, fOo or
+FOO will return the same. The following search patterns can be used:
+
+foo -> returns all documents containing exactly the word foo
+
+foo* -> returns all documents containing words starting with foo
+
+foo bla -> returns all documents containing the words foo and bla
+
+"foo bla" -> returns all documents in which bla occurs directly after foo. 
+
+Note: It does not make any sense if the wildcard character(*) is used 
+within quotes and therefore the search will be aborted. The search
+will become slower if there are used wildcards or quoted text parts.
+
+
+If there are documents in which the requested words are, those
+documents are displayed in a ordered form. This order or ranking 
+represents the frequency of the words in the found documents.
+By clicking on a document in this list, the documents will be displayed
+and all searched words will be highlighted.
+
 
 \chapter Adding Documentation to Qt Assistant
 

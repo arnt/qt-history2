@@ -21,11 +21,13 @@
 #ifndef HELPDIALOGIMPL_H
 #define HELPDIALOGIMPL_H
 
-#include "helpdialog.h"
 #include <qlistbox.h>
 #include <qlistview.h>
 #include <qmap.h>
 #include <qstringlist.h>
+
+#include "index.h"
+#include "helpdialog.h"
 
 class QProgressBar;
 class MainWindow;
@@ -79,6 +81,8 @@ protected slots:
     void removeBookmark();
     void currentBookmarkChanged( QListViewItem *i );
     void currentContentsChanged( QListViewItem *i );
+    void startSearch();
+    void showSearchHelp();
 
 public slots:
     void initialize();
@@ -91,6 +95,9 @@ signals:
 
 private slots:
     void lastWinClosed();
+    void setupFullTextIndex();
+    void showResultPage( int page );
+    void setIndexingProgress( int prog );
 
 private:
     void showIndexTopic();
@@ -100,7 +107,7 @@ private:
     void setupTitleMap();
     void saveBookmarks();
     void showContentsTopic();
-    bool insertContents( const QString &filename, 
+    bool insertContents( const QString &filename,
 			 HelpNavigationContentsItem *newEntry );
     void insertContents( const QString &filename, const QString &title,
 			 HelpNavigationContentsItem *lastItem,
@@ -116,7 +123,9 @@ private:
     MainWindow *help;
     QTextBrowser *viewer;
     QString documentationPath;
-
+    Index *fullTextIndex;
+    QStringList terms, foundDocs;
+    bool needNewIndex;
 };
 
 #endif
