@@ -34,9 +34,14 @@ class QTemporaryFileEngine : public QFSFileEngine
     Q_DECLARE_PRIVATE(QFSFileEngine)
 public:
     QTemporaryFileEngine(const QString &file) : QFSFileEngine(file) { }
+    ~QTemporaryFileEngine();
 
     bool open(int flags);
 };
+
+QTemporaryFileEngine::~QTemporaryFileEngine()
+{
+}
 
 bool QTemporaryFileEngine::open(int)
 {

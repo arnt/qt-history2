@@ -36,6 +36,7 @@ class Q_CORE_EXPORT QFontLaoCodec : public QTextCodec
 {
 public:
     QFontLaoCodec();
+    ~QFontLaoCodec();
 
     QByteArray name() const;
     int mibEnum() const;

@@ -138,6 +138,7 @@ class QFSFileEnginePrivate;
 class QFSFileEngine : public QFileEngine
 {
 public:
+    ~QFSFileEngine();
     QFSFileEngine(const QString &file);
     QFSFileEngine();
 

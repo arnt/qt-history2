@@ -38,6 +38,7 @@ private:
     Q_DECLARE_PRIVATE(QResourceFileEngine)
 public:
     QResourceFileEngine(const QString &path);
+    ~QResourceFileEngine();
 
     virtual void setFileName(const QString &file);
 

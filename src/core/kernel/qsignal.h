@@ -25,7 +25,7 @@ class Q_CORE_EXPORT QSignalEmitter : public QObject{
 public:
     QSignalEmitter(const char *type = 0);
     ~QSignalEmitter();
-    const QMetaObject *metaObject() const { return &staticMetaObject; }
+    const QMetaObject *metaObject() const;
     void *qt_metacast(const char *);
     int qt_metacall(QMetaObject::Call, int, void **);
     void activate(const void * = 0);

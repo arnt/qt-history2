@@ -32,6 +32,7 @@
 class QIsciiCodec : public QTextCodec {
 public:
     QIsciiCodec(int i):idx(i){}
+    ~QIsciiCodec();
 
     QByteArray name() const;
     int mibEnum() const;

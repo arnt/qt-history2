@@ -1857,13 +1857,13 @@ public:
     QImageDecoder *decoder;
     int framecount;
 
-    void changed(const QRect&) { }
-    void end() { }
-    void frameDone(const QPoint&, const QRect&) { framecount++; }
-    void frameDone() { framecount++; }
-    void setLooping(int) { }
-    void setFramePeriod(int) { }
-    void setSize(int, int) { }
+    inline void changed(const QRect&) { }
+    inline void end() { }
+    inline void frameDone(const QPoint&, const QRect&) { framecount++; }
+    inline void frameDone() { framecount++; }
+    inline void setLooping(int) { }
+    inline void setFramePeriod(int) { }
+    inline void setSize(int, int) { }
 };
 
 static void read_async_image(QImageIO *iio)

@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <qstringlist.h>
+
 /*! \typedef QStringListIterator
     \relates QStringList
 
@@ -184,8 +186,6 @@
 */
 
 /*!
-    \fn QStringList::sort()
-
     Sorts the list of strings in ascending order (case sensitively).
 
     Sorting is performed using Qt's qHeapSort() algorithm,
@@ -200,19 +200,29 @@
 
     \sa qHeapSort()
 */
+void QStringList::sort()
+{
+    qHeapSort(*this);
+}
+
 
 #ifdef QT_COMPAT
-/*! \fn QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
-
+/*!
     \overload
 
     This version of the function uses a QChar as separator.
 
     \sa join() QString::section()
 */
+QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
+{
+    if (str.isEmpty())
+        return QStringList();
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyParts
+                                            : QString::SkipEmptyParts);
+}
 
-/*! \fn QStringList QStringList::split(const QString &sep, const QString &str, bool allowEmptyEntries)
-
+/*!
     \overload
 
     This version of the function uses a QString as separator.
@@ -227,10 +237,17 @@
 
     \sa join() QString::section()
 */
+QStringList QStringList::split(const QString &sep, const QString &str,
+                                      bool allowEmptyEntries)
+{
+    if (str.isEmpty())
+        return QStringList();
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyParts
+                                            : QString::SkipEmptyParts);
+}
 
 #ifndef QT_NO_REGEXP
-/*! \fn QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allowEmptyEntries)
-
+/*!
     Splits the string \a str into strings wherever the regular
     expression \a sep occurs, and returns the list of those strings.
 
@@ -252,12 +269,18 @@
 
     \sa join() QString::section()
 */
+QStringList QStringList::split(const QRegExp &sep, const QString &str,
+                                      bool allowEmptyEntries)
+{
+    if (str.isEmpty())
+        return QStringList();
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyParts
+                                            : QString::SkipEmptyParts);
+}
 #endif
 #endif // QT_COMPAT
 
 /*!
-    \fn QStringList::find(const QString &str, Qt::CaseSensitivity cs) const
-
     Returns a list of all the strings containing the substring \a str.
 
     If \a cs is \l Qt::CaseSensitive (the default), the string
@@ -273,25 +296,48 @@
 
     \sa QString::contains()
 */
+QStringList QStringList::find(const QString &str, Qt::CaseSensitivity cs) const
+{
+    QStringMatcher matcher(str, cs);
+    QStringList res;
+    for (int i = 0; i < size(); ++i)
+        if (matcher.indexIn(at(i)) != -1)
+            res << at(i);
+    return res;
+}
+
 
 /*!
-    \fn QBool QStringList::contains(const QString &str, Qt::CaseSensitivity cs) const
-
     Returns true if the list contains the string \a str.
     Does a case insensitive search if \a cs is Qt::CaseSensitive,
     otherwise the search will be case insensitive.
  */
+QBool QStringList::contains(const QString &str, Qt::CaseSensitivity cs) const
+{
+    QStringMatcher matcher(str, cs);
+    for (int i = 0; i < size(); ++i) {
+        QString string(at(i));
+        if (string.length() == str.length() && matcher.indexIn(string) == 0)
+            return QBool(true);
+    }
+    return QBool(false);
+}
 
 #ifndef QT_NO_REGEXP
 /*!
-    \fn QStringList QStringList::find(const QRegExp &rx) const
-
     \overload
 
     Returns a list of all the strings that match the regular
     expression \a rx.
 */
-
+QStringList QStringList::find(const QRegExp &rx) const
+{
+    QStringList res;
+    for (int i = 0; i < size(); ++i)
+        if (at(i).contains(rx))
+            res << at(i);
+    return res;
+}
 #endif
 
 /*! \fn void QStringList::replace(int i, const QString &s)
@@ -300,8 +346,6 @@
 */
 
 /*!
-    \fn QStringList &QStringList::replace(const QString &before, const QString &after, Qt::CaseSensitivity cs)
-
     Returns a string list where every string has had the \a before
     text replaced with the \a after text wherever the \a before text
     is found. The \a before text is matched case-sensitively or not
@@ -317,6 +361,13 @@
 
     \sa QString::replace()
 */
+QStringList &QStringList::replace(const QString &before, const QString &after, Qt::CaseSensitivity cs)
+{
+    for (int i = 0; i < size(); ++i)
+        (*this)[i].replace(before, after, cs);
+    return *this;
+}
+
 
 #ifndef QT_NO_REGEXP
 /*!
@@ -351,17 +402,31 @@
 
     \sa replace()
 */
+QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
+{
+    for (int i = 0; i < size(); ++i)
+        (*this)[i].replace(rx, after);
+    return *this;
+}
 #endif
 
 /*!
-    \fn QString QStringList::join(const QString &sep) const
-
     Joins the all the string list's strings into a single string with
     each element separated by the string \a sep (which can be an empty
     string).
 
     \sa QString::split()
 */
+QString QStringList::join(const QString &sep) const
+{
+    QString res;
+    for (int i = 0; i < size(); ++i) {
+        if (i)
+            res += sep;
+        res += at(i);
+    }
+    return res;
+}
 
 /*!
     \fn QStringList QStringList::operator+(const QStringList &other) const
@@ -448,8 +513,6 @@
 
 #ifndef QT_NO_REGEXP
 /*!
-    \fn int QStringList::indexOf(const QRegExp &rx, int from) const
-
     \overload
 
     Returns the index position of the first exact match of \a rx in
@@ -458,10 +521,18 @@
 
     \sa lastIndexOf, QRegExp::exactMatch
 */
+int QStringList::indexOf(const QRegExp &rx, int from) const
+{
+   if (from < 0)
+       from = qMax(from + size(), 0);
+   for (int i = from; i < size(); ++i) {
+        if (rx.exactMatch(at(i)))
+            return i;
+    }
+    return -1;
+}
 
 /*!
-    \fn int QStringList::lastIndexOf(const QRegExp &rx, int from) const
-
     \overload
 
     Returns the index position of the last exact match of \a rx in
@@ -471,5 +542,16 @@
 
     \sa indexOf, QRegExp::exactMatch
 */
-
+int QStringList::lastIndexOf(const QRegExp &rx, int from) const
+{
+    if (from < 0)
+        from += size();
+    else if (from >= size())
+        from = size() - 1;
+    for (int i = from; i >= 0; --i) {
+        if (rx.exactMatch(at(i)))
+            return i;
+        }
+    return -1;
+}
 #endif

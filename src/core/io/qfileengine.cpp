@@ -636,6 +636,11 @@ QFSFileEngine::QFSFileEngine() : QFileEngine(*new QFSFileEnginePrivate)
 {
 }
 
+
+QFSFileEngine::~QFSFileEngine()
+{
+}
+
 void
 QFSFileEngine::setFileName(const QString &file)
 {

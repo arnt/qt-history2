@@ -1578,6 +1578,8 @@ void QTableWidget::setup()
             SLOT(emitItemChanged(QModelIndex,QModelIndex)));
 }
 
+QTableWidgetItemCreatorBase::~QTableWidgetItemCreatorBase() {}
+
 /*!
     \fn QTableItemCreator::setItemCreator(QTableItemCreator *creator)
 */

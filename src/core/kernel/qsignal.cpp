@@ -122,6 +122,11 @@ static const uint qt_meta_data_QSignalEmitter[] = {
        0        // eod
 };
 
+const QMetaObject *QSignalEmitter::metaObject() const
+{
+    return &staticMetaObject;
+}
+
 QSignalEmitter::QSignalEmitter(const char *type)
 {
     stringdata = QByteArray("QSignalEmitter\0\0activated(", 26);

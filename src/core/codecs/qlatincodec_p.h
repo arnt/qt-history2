@@ -30,6 +30,8 @@
 class QLatin1Codec : public QTextCodec
 {
 public:
+    ~QLatin1Codec();
+
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 
@@ -40,9 +42,11 @@ public:
 
 
 
-class QLatin15Codec: public QLatin1Codec
+class QLatin15Codec: public QTextCodec
 {
 public:
+    ~QLatin15Codec();
+
     QString convertToUnicode(const char *, int, ConverterState *) const;
     QByteArray convertFromUnicode(const QChar *, int, ConverterState *) const;
 

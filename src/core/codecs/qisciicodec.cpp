@@ -42,6 +42,10 @@ static const Codecs codecs [] = {
     { "Iscii-Mlm", 0xd00 }
 };
 
+QIsciiCodec::~QIsciiCodec()
+{
+}
+
 QByteArray QIsciiCodec::name() const
 {
   return codecs[idx].name;

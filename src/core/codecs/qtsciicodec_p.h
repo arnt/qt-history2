@@ -60,6 +60,8 @@
 
 class Q_CORE_EXPORT QTsciiCodec : public QTextCodec {
 public:
+    ~QTsciiCodec();
+
     QByteArray name() const;
     int mibEnum() const;
 

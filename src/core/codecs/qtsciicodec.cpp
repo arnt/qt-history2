@@ -77,6 +77,10 @@ static unsigned int qt_TSCIIToUnicode(unsigned int code, uint *s);
 
 #define IsTSCIIChar(c)        (((c) >= 0x80) && ((c) <= 0xfd))
 
+QTsciiCodec::~QTsciiCodec()
+{
+}
+
 QByteArray QTsciiCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
     char replacement = '?';

@@ -14,6 +14,10 @@
 #include "qlatincodec_p.h"
 #include "qlist.h"
 
+QLatin1Codec::~QLatin1Codec()
+{
+}
+
 QString QLatin1Codec::convertToUnicode(const char *chars, int len, ConverterState *) const
 {
     if (chars == 0)
@@ -66,6 +70,9 @@ int QLatin1Codec::mibEnum() const
 }
 
 
+QLatin15Codec::~QLatin15Codec()
+{
+}
 
 QString QLatin15Codec::convertToUnicode(const char* chars, int len, ConverterState *) const
 {

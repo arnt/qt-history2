@@ -16,6 +16,10 @@
 
 #ifndef QT_NO_TEXTCODEC
 
+QUtf8Codec::~QUtf8Codec()
+{
+}
+
 QByteArray QUtf8Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {
     uchar replacement = '?';
@@ -196,6 +200,10 @@ int QUtf8Codec::mibEnum() const
 }
 
 enum { Swap = 0, Data = 1 };
+
+QUtf16Codec::~QUtf16Codec()
+{
+}
 
 QByteArray QUtf16Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
 {

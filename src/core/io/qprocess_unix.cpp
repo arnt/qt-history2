@@ -42,6 +42,8 @@ class QProcessManager : public QObject
 {
     Q_OBJECT
 public:
+    ~QProcessManager();
+
     static inline QProcessManager &instance()
     {
         // ### add reentrancy
@@ -49,31 +51,7 @@ public:
         return singleton;
     }
 
-    inline void initialize()
-    {
-        QMutexLocker lock(&mutex);
-        if (qt_sa_old_sigchld_handler == 0) {
-            ::pipe(qt_qprocess_deadChild_pipe);
-            ::fcntl(qt_qprocess_deadChild_pipe[0], F_SETFL,
-                    ::fcntl(qt_qprocess_deadChild_pipe[0], F_GETFL) | O_NONBLOCK);
-            struct sigaction oldAction;
-            struct sigaction action;
-            memset(&action, 0, sizeof(action));
-            action.sa_handler = qt_sa_sigchld_handler;
-            action.sa_flags = SA_NOCLDSTOP;
-            ::sigaction(SIGCHLD, &action, &oldAction);
-            if (oldAction.sa_handler != qt_sa_sigchld_handler) {
-                old_sigchld_handler = qt_sa_old_sigchld_handler = oldAction.sa_handler;
-	    }
-
-            if (QAbstractEventDispatcher::instance(thread())) {
-                shutdownNotifier = new QSocketNotifier(qt_qprocess_deadChild_pipe[0],
-                                                       QSocketNotifier::Read, this);
-                connect(shutdownNotifier, SIGNAL(activated(int)),
-                        this, SLOT(deadChildNotification(int)));
-            }
-        }
-    }
+    void initialize();
 
     inline void add(pid_t pid, QProcess *process)
         {
@@ -87,27 +65,7 @@ public:
         }
 
 public slots:
-    void deadChildNotification(int)
-        {
-            char c;
-            ::read(qt_qprocess_deadChild_pipe[0], &c, 1);
-
-            for (;;) {
-                int result;
-                pid_t childpid = waitpid(0, &result, WNOHANG);
-                if (childpid <= 0)
-                    break;
-
-                QMutexLocker lock(&mutex);
-                QProcess *child = children.value(childpid, 0);
-                if (child) {
-                    ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
-                    ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
-                    qInvokeMetaMember(child, "processDied");
-                    children.remove(childpid);
-                }
-            }
-        }
+    void deadChildNotification(int);
 
 protected:
     inline QProcessManager() : old_sigchld_handler(0) { }
@@ -121,6 +79,58 @@ private:
 
     QSocketNotifier *shutdownNotifier;
 };
+
+QProcessManager::~QProcessManager()
+{
+}
+
+void QProcessManager::initialize()
+{
+    QMutexLocker lock(&mutex);
+    if (qt_sa_old_sigchld_handler == 0) {
+        ::pipe(qt_qprocess_deadChild_pipe);
+        ::fcntl(qt_qprocess_deadChild_pipe[0], F_SETFL,
+                ::fcntl(qt_qprocess_deadChild_pipe[0], F_GETFL) | O_NONBLOCK);
+        struct sigaction oldAction;
+        struct sigaction action;
+        memset(&action, 0, sizeof(action));
+        action.sa_handler = qt_sa_sigchld_handler;
+        action.sa_flags = SA_NOCLDSTOP;
+        ::sigaction(SIGCHLD, &action, &oldAction);
+        if (oldAction.sa_handler != qt_sa_sigchld_handler) {
+            old_sigchld_handler = qt_sa_old_sigchld_handler = oldAction.sa_handler;
+        }
+
+        if (QAbstractEventDispatcher::instance(thread())) {
+            shutdownNotifier = new QSocketNotifier(qt_qprocess_deadChild_pipe[0],
+                                                   QSocketNotifier::Read, this);
+            connect(shutdownNotifier, SIGNAL(activated(int)),
+                    this, SLOT(deadChildNotification(int)));
+        }
+    }
+}
+
+void QProcessManager::deadChildNotification(int)
+{
+    char c;
+    ::read(qt_qprocess_deadChild_pipe[0], &c, 1);
+
+    for (;;) {
+        int result;
+        pid_t childpid = waitpid(0, &result, WNOHANG);
+        if (childpid <= 0)
+            break;
+
+        QMutexLocker lock(&mutex);
+        QProcess *child = children.value(childpid, 0);
+        if (child) {
+            ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
+            ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
+            qInvokeMetaMember(child, "processDied");
+            children.remove(childpid);
+        }
+    }
+}
 
 static void qt_create_pipe(int *pipe)
 {

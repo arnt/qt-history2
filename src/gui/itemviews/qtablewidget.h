@@ -121,7 +121,7 @@ private:
 class Q_GUI_EXPORT QTableWidgetItemCreatorBase
 {
 public:
-    virtual ~QTableWidgetItemCreatorBase() {}
+    virtual ~QTableWidgetItemCreatorBase();
     virtual QTableWidgetItem *createItem() const = 0;
 };
 
@@ -211,7 +211,7 @@ public:
     using QTableView::currentChanged;
     using QTableView::ensureVisible;
 #endif
-    
+
 public slots:
     void ensureVisible(const QTableWidgetItem *item);
     void insertRow(int row);

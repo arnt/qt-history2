@@ -29,13 +29,20 @@ class QResourceFileEngineHandler : public QFileEngineHandler
 {
 public:
     QResourceFileEngineHandler() { }
-    QFileEngine *createFileEngine(const QString &path)
-    {
-        if (path.size() > 0 && path[0] == QLatin1Char(':'))
-            return new QResourceFileEngine(path);
-        return 0;
-    }
+    ~QResourceFileEngineHandler();
+    QFileEngine *createFileEngine(const QString &path);
 };
+
+QResourceFileEngineHandler::~QResourceFileEngineHandler()
+{
+}
+
+QFileEngine *QResourceFileEngineHandler::createFileEngine(const QString &path)
+{
+    if (path.size() > 0 && path[0] == QLatin1Char(':'))
+        return new QResourceFileEngine(path);
+    return 0;
+}
 
 class QResourceFileEnginePrivate : public QFileEnginePrivate
 {
@@ -115,6 +122,10 @@ QResourceFileEngine::QResourceFileEngine(const QString &file) : QFileEngine(*new
 {
     Q_D(QResourceFileEngine);
     d->file = file;
+}
+
+QResourceFileEngine::~QResourceFileEngine()
+{
 }
 
 void QResourceFileEngine::setFileName(const QString &file)

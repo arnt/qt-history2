@@ -55,11 +55,7 @@ protected:
     void setError(QFile::Error err, int errNum);
 
 private:
-    inline static QByteArray locale_encode(const QString &f)
-           { return f.toLocal8Bit(); }
     static QFile::EncoderFn encoder;
-    inline static QString locale_decode(const QByteArray &f)
-           { return QString::fromLocal8Bit(f); }
     static QFile::DecoderFn decoder;
 };
 

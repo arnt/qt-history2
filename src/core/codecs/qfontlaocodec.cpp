@@ -50,6 +50,10 @@ QFontLaoCodec::QFontLaoCodec()
 {
 }
 
+QFontLaoCodec::~QFontLaoCodec()
+{
+}
+
 QByteArray QFontLaoCodec::name() const
 {
     return "mulelao-1";

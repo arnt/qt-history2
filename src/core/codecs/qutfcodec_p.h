@@ -31,6 +31,8 @@
 
 class QUtf8Codec : public QTextCodec {
 public:
+    ~QUtf8Codec();
+
     QByteArray name() const;
     int mibEnum() const;
 
@@ -40,6 +42,8 @@ public:
 
 class QUtf16Codec : public QTextCodec {
 public:
+    ~QUtf16Codec();
+
     QByteArray name() const;
     QList<QByteArray> aliases() const;
     int mibEnum() const;

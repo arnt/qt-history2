@@ -31,9 +31,19 @@
 
 static const int read_cache_size = 4096;
 
+static QByteArray locale_encode(const QString &f)
+{
+    return f.toLocal8Bit();
+}
+
+static QString locale_decode(const QByteArray &f)
+{
+    return QString::fromLocal8Bit(f);
+}
+
 //************* QFilePrivate
-QFile::EncoderFn QFilePrivate::encoder = QFilePrivate::locale_encode;
-QFile::DecoderFn QFilePrivate::decoder = QFilePrivate::locale_decode;
+QFile::EncoderFn QFilePrivate::encoder = locale_encode;
+QFile::DecoderFn QFilePrivate::decoder = locale_decode;
 
 QFilePrivate::QFilePrivate() :
 #ifndef QT_NO_FILE_BUFFER
