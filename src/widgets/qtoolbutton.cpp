@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#68 $
 **
 ** Implementation of QToolButton class
 **
@@ -363,6 +363,11 @@ void QToolButton::drawButton( QPainter * p )
 	style().drawToolButton( p, 0, 0, width(), height(), colorGroup(),
 				(isOn()&&!son)||isDown(),
 				&colorGroup().brush( QColorGroup::Button ) );
+    } else if ( parentWidget() && parentWidget()->backgroundPixmap() ){
+	// pseudo tranparency
+	p->drawTiledPixmap( 0, 0, width(), height(), 
+			   *parentWidget()->backgroundPixmap(), 
+			   x(), y() );
     }
     drawButtonLabel( p );
 
@@ -457,6 +462,18 @@ void QToolButton::leaveEvent( QEvent * e )
     QButton::leaveEvent( e );
 }
 
+
+
+/*! 
+  Reimplemented to handle pseudo transparency in case the toolbars has
+  a fancy pixmap background.
+ */
+void QToolButton::moveEvent( QMoveEvent * )
+{
+    if ( parentWidget() && parentWidget()->backgroundPixmap() && 
+	 autoRaise() && !uses3D() )
+	repaint( FALSE );
+}
 
 
 /*!  Returns TRUE if this button should be drawn using raised edges.

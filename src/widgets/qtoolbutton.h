@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#19 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#20 $
 **
 ** Definition of a buttom customized for tool bar use
 **
@@ -69,7 +69,7 @@ public:
 
     void setPopupDelay( int delay );
     int popupDelay() const;
-    
+
     void setAutoRaise( bool enable );
     bool autoRaise() const;
 	
@@ -89,6 +89,7 @@ protected:
 
     void enterEvent( QEvent * );
     void leaveEvent( QEvent * );
+    void moveEvent( QMoveEvent * );
 
     bool uses3D() const;
 
