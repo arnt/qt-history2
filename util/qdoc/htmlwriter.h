@@ -12,6 +12,8 @@
 
 #include "stringset.h"
 
+#undef putchar
+
 class HtmlWriter
 {
 public:
