@@ -2472,7 +2472,7 @@ static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QSt
 	    qWarning( "QAxBase: Error calling IDispatch member %s: Exception thrown by server.", name.latin1());
 #endif
 	    const QMetaObject *mo = that->metaObject();
-	    int exceptionSignal = mo->indexOfSignal( "exception(int,const QString&,const QString&,const QString&)" );
+	    int exceptionSignal = mo->indexOfSignal( "exception(int,QString,QString,QString)" );
 	    if ( exceptionSignal >= 0 ) {
 		if ( exc->pfnDeferredFillIn )
 		    exc->pfnDeferredFillIn( exc );
@@ -2486,7 +2486,7 @@ static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QSt
 		if (helpContext && !help.isEmpty())
 		    help += QString(" [%1]").arg(helpContext);
 
-		void *argv[] = {&code, &source, &desc, &help, 0};
+		void *argv[] = {0, &code, &source, &desc, &help};
 		that->qt_metacall(QMetaObject::EmitSignal, exceptionSignal, argv);
 	    }
 	}
@@ -2652,6 +2652,8 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
 
 int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 {
+    bool bo = qObject()->signalsBlocked();
+
     Q_ASSERT(call == QMetaObject::InvokeSlot);
 
     // get the IDispatch
@@ -2774,6 +2776,8 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
 */
 bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QList<QVariant> &vars, QString &type )
 {
+    bool bo = qObject()->signalsBlocked();
+
     IDispatch *disp = d->dispatch();
     if ( !disp )
 	return FALSE;
