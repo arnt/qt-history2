@@ -728,6 +728,49 @@ void QObject::customEvent( QCustomEvent * )
     the event \a e, out, i.e. stop it being handled further, return
     TRUE; otherwise return FALSE.
 
+    Example:
+    \code
+    class MyMainWindow : public QMainWindow
+    {
+    public:
+	MyMainWindow( QWidget *parent = 0, const char *name = 0 );
+
+    protected:
+	bool eventFilter( QObject *obj, QEvent *ev );
+
+    private:
+	QTextEdit *textEdit;
+    };
+
+    MyMainWindow::MyMainWindow( QWidget *parent, const char *name )
+	: QMainWindow( parent, name )
+    {
+	textEdit = new QTextEdit( this );
+	setCentralWidget( textEdit );
+	textEdit->installEventFilter( this );
+    }
+
+    bool MyMainWindow::eventFilter( QObject *obj, QEvent *ev )
+    {
+	if ( obj == textEdit ) {
+	    if ( e->type() == QEvent::KeyPress ) {
+		qDebug( "Ate key press %d", k->key() );
+		return TRUE;
+	    } else {
+		return FALSE;
+	    }
+	} else {
+	    // pass the event on to the parent class
+	    return QMainWindow::eventFilter( obj, ev );
+	}
+    }
+    \endcode
+
+    Notice in the example above that unhandled events should be
+    passed to the base class's eventFilter() function, since the
+    base class might have reimplemented eventFilter() for its own
+    internal purposes.
+
     \warning If you delete the receiver object in this function, be
     sure to return TRUE. Otherwise, Qt will forward the event to the
     deleted object and the program might crash.
@@ -1149,7 +1192,12 @@ void QObject::removeChild( QObject *obj )
 
 
 /*!
-    Installs an event filter \a obj on this object.
+    \fn void QObject::installEventFilter( const QObject *filterObj )
+
+    Installs an event filter \a filterObj on this object. For example:
+    \code
+    monitoredObj->installEventFilter( filterObj );
+    \endcode
 
     An event filter is an object that receives all events that are
     sent to this object. The filter can either stop the event or
@@ -1161,29 +1209,17 @@ void QObject::removeChild( QObject *obj )
     If multiple event filters are installed on a single object, the
     filter that was installed last is activated first.
 
-    Example:
+    Here's a \c KeyPressEater class that eats the key presses of its
+    monitored objects:
     \code
-    #include <qwidget.h>
-
-    class MyWidget : public QWidget
+    class KeyPressEater : public QObject
     {
-	Q_OBJECT
-    public:
-	MyWidget( QWidget *parent = 0, const char *name = 0 );
-
+	...
     protected:
-	bool eventFilter( QObject *, QEvent * );
+	bool eventFilter( QObject *o, QEvent *e );
     };
 
-    MyWidget::MyWidget( QWidget *parent, const char *name )
-	: QWidget( parent, name )
-    {
-	// install a filter on the parent (if any)
-	if ( parent )
-	    parent->installEventFilter( this );
-    }
-
-    bool MyWidget::eventFilter( QObject *o, QEvent *e )
+    bool KeyPressEater::eventFilter( QObject *o, QEvent *e )
     {
 	if ( e->type() == QEvent::KeyPress ) {
 	    // special processing for key press
@@ -1192,9 +1228,19 @@ void QObject::removeChild( QObject *obj )
 	    return TRUE; // eat event
 	} else {
 	    // standard event processing
-	    return QWidget::eventFilter( o, e );
+	    return FALSE;
 	}
     }
+    \endcode
+
+    And here's how to install it on two widgets:
+    \code
+	KeyPressEater *keyPressEater = new KeyPressEater( this );
+	QPushButton *pushButton = new QPushButton( this );
+	QListView *listView = new QListView( this );
+
+	pushButton->installEventFilter( keyPressEater );
+	listView->installEventFilter( keyPressEater );
     \endcode
 
     The QAccel class, for example, uses this technique to intercept
