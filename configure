@@ -311,6 +311,10 @@ else
     fi
 fi
 
+# Remove the build options file
+[ -f $outpath/.qmake.cache ] && rm $outpath/.qmake.cache
+
+fi # help
 
 # Check licensed modules
 if [ -z "$MODULES" ]; then
@@ -318,11 +322,6 @@ if [ -z "$MODULES" ]; then
     [ "$Products" != "qt-professional" ] && MODULES="$MODULES network canvas table xml opengl sql"
 fi
 QMAKE_VARS="$QMAKE_VARS \"QT_PRODUCT=$Products\""
-
-# Remove the build options file
-[ -f $outpath/.qmake.cache ] && rm $outpath/.qmake.cache
-
-fi # help
 
 # Defaults
 DO_INCREMENT=auto
