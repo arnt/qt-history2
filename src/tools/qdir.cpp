@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#114 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#115 $
 **
 ** Implementation of QDir class
 **
@@ -420,7 +420,7 @@ QString QDir::filePath( const QString &fileName,
     if ( acceptAbsPath && !isRelativePath(fileName) )
 	return QString(fileName);
 
-    QString tmp = dPath.copy();
+    QString tmp = dPath;
     if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && !!fileName &&
 			   fileName[0] != '/') )
 	tmp += '/';
@@ -1828,7 +1828,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
   win32, this returns a number of QFileInfo objects containing "C:/",
   "D:/" etc.  On other operating systems, it returns a list containing
   just one root directory (e.g. "/").
-  
+
   The returned pointer is owned by Qt. Callers should \e not delete or
   modify it.
 */
