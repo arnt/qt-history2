@@ -5,6 +5,8 @@
 
 /*! \quickenum QWidget.BackgroundOrigin
 
+    \internal
+
     This enum is funny. Here are the values:
 
     \value WidgetOrigin A

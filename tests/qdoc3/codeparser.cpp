@@ -68,44 +68,22 @@ Set<QString> CodeParser::commonMetaCommands()
 			  << COMMAND_PRELIMINARY << COMMAND_PRIVATE;
 }
 
-void CodeParser::processCommonMetaCommand( const Location& location,
+void CodeParser::processCommonMetaCommand( const Location& /* location */,
 					   const QString& command,
 					   const QString& /* arg */,
 					   Node *node )
 {
-    bool noNode = FALSE;
-
     if ( command == COMMAND_DEPRECATED ) {
-	if ( node == 0 ) {
-	    noNode = TRUE;
-	} else {
-	    node->setStatus( Node::Deprecated );
-	}
+	node->setStatus( Node::Deprecated );
     } else if ( command == COMMAND_INGROUP ) {
 	/* ... */
     } else if ( command == COMMAND_INMODULE ) {
 	/* ... */
     } else if ( command == COMMAND_OBSOLETE ) {
-	if ( node == 0 ) {
-	    noNode = TRUE;
-	} else {
-	    node->setStatus( Node::Obsolete );
-	}
+	node->setStatus( Node::Obsolete );
     } else if ( command == COMMAND_PRELIMINARY ) {
-	if ( node == 0 ) {
-	    noNode = TRUE;
-	} else {
-	    node->setStatus( Node::Preliminary );
-	}
+	node->setStatus( Node::Preliminary );
     } else if ( command == COMMAND_PRIVATE ) {
-	if ( node == 0 ) {
-	    noNode = TRUE;
-	} else {
-	    node->setAccess( Node::Private );
-	}
+	node->setAccess( Node::Private );
     }
-
-    if ( noNode )
-	location.warning( tr("Cannot use '\\%1' in stand-alone documentation")
-			  .arg(command) );
 }

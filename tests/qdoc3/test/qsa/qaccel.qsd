@@ -13,9 +13,3 @@
 
     \include scribblescripter/scribblescript.qsa?main.qs
 */
-
-/*
-
-    \replace /qApp/Application/
-
-*/

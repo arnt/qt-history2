@@ -202,21 +202,23 @@ QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
 
 	NodeList::ConstIterator c = classe->childNodes().begin();
 	while ( c != classe->childNodes().end() ) {
-	    if ( (*c)->type() == Node::Enum ) {
-		insert( enums, *c );
-	    } else if ( (*c)->type() == Node::Function ) {
-		const FunctionNode *func = (const FunctionNode *) *c;
-		if ( func->metaness() == FunctionNode::Signal ) {
-		    insert( signalz, *c );
-		} else {
-		    insert( functions, *c );
-		}
-	    } else if ( (*c)->type() == Node::Property ) {
-		const PropertyNode *property = (const PropertyNode *) *c;
-		if ( property->setter().isEmpty() ) {
-		    insert( readOnlyProperties, *c );
-		} else {
-		    insert( writableProperties, *c );
+	    if ( (*c)->access() == Node::Public ) {
+		if ( (*c)->type() == Node::Enum ) {
+		    insert( enums, *c );
+		} else if ( (*c)->type() == Node::Function ) {
+		    const FunctionNode *func = (const FunctionNode *) *c;
+		    if ( func->metaness() == FunctionNode::Signal ) {
+			insert( signalz, *c );
+		    } else {
+			insert( functions, *c );
+		    }
+		} else if ( (*c)->type() == Node::Property ) {
+		    const PropertyNode *property = (const PropertyNode *) *c;
+		    if ( property->setter().isEmpty() ) {
+			insert( readOnlyProperties, *c );
+		    } else {
+			insert( writableProperties, *c );
+		    }
 		}
 	    }
 	    ++c;

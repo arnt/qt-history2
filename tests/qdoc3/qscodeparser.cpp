@@ -175,10 +175,11 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 {
     if ( command == COMMAND_QUICKFN ) {
 	QStringList path;
+	FunctionNode *quickFunc = 0;
 	FunctionNode *clone;
 
 	if ( makeFunctionNode(arg, &path, &clone) ) {
-	    FunctionNode *quickFunc = qsTre->findFunctionNode( path, clone );
+	    quickFunc = qsTre->findFunctionNode( path, clone );
 	    if ( quickFunc == 0 ) {
 		doc.location().warning( tr("Cannot resolve '%1' specified with"
 					   " '\\%2'")
@@ -193,18 +194,18 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 				       " '\\%2'")
 				    .arg(arg).arg(command) );
 	}
-	return 0;
+	return quickFunc;
     } else if ( nodeTypeMap.contains(command) ) {
 	QStringList path = QStringList::split( ".", arg );
-	Node *node = qsTre->findNode( path, nodeTypeMap[command] );
-	if ( node == 0 ) {
+	Node *quickNode = qsTre->findNode( path, nodeTypeMap[command] );
+	if ( quickNode == 0 ) {
 	    doc.location().warning( tr("Cannot resolve '%1' specified with"
 				       " '\\%2'")
 				    .arg(arg).arg(command) );
 	} else {
-	    setQuickDoc( node, doc );
+	    setQuickDoc( quickNode, doc );
 	}
-	return 0;
+	return quickNode;
     } else {
 	return CppCodeParser::processTopicCommand( doc, command, arg );
     }
