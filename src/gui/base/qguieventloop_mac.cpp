@@ -130,8 +130,8 @@ bool QGuiEventLoop::unregisterTimers(QObject *obj)
     if(!d->macTimerList)				// not initialized
 	return false;
     MacTimerList removes;
-    for (MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) {
-	const MacTimerInfo &t = *it;
+    for (int i = 0; i < d->macTimerList->size(); ++i) {
+	const MacTimerInfo &t = d->macTimerList->at(i);
 	if (t.obj == obj) {
 	    if (t.mac_timer) {
 		RemoveEventLoopTimer(t.mac_timer);
@@ -143,7 +143,7 @@ bool QGuiEventLoop::unregisterTimers(QObject *obj)
 	    } else {
 		d->zero_timer_count--;
 	    }
-	    removes += (*it);
+	    removes += t;
 	}
     }
     for (MacTimerList::Iterator it = removes.begin(); it != removes.end(); ++it) {
@@ -174,8 +174,8 @@ void QGuiEventLoop::cleanup()
     //timer cleanup
     d->zero_timer_count = 0;
     if(d->macTimerList) {
-	for (MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) {
-	    const MacTimerInfo &t = *it;
+	for (int i = 0; i < d->macTimerList->size(); ++i) {
+	    const MacTimerInfo &t = d->macTimerList->at(i);
 	    if (t.mac_timer) {
 		RemoveEventLoopTimer(t.mac_timer);
 		if (t.pending) {
@@ -388,8 +388,8 @@ int QGuiEventLoop::activateTimers()
     if(!d->zero_timer_count)
 	return 0;
     int ret = 0;
-    for(MacTimerList::Iterator it = d->macTimerList->begin(); it != d->macTimerList->end(); ++it) {
-	const MacTimerInfo &t = *it;
+    for (int i = 0; i < d->macTimerList->size(); ++i) {
+	const MacTimerInfo &t = d->macTimerList->at(i);
 	if(!t.interval) {
 	    ret++;
 	    QTimerEvent e(t.id);
