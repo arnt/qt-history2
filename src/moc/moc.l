@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#6 $
+** $Id: //depot/qt/main/src/moc/moc.l#7 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -10,7 +10,7 @@
 **
 ** --------------------------------------------------------------------------
 ** This file contains the lexical analyzer for the meta object compiler (moc)
-** if the Quasar application framework.
+** of the Qt development framework.
 *****************************************************************************/
 
 %{

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#26 $
+** $Id: //depot/qt/main/src/moc/moc.y#27 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -10,13 +10,13 @@
 **
 ** --------------------------------------------------------------------------
 ** This file contains the parser and code generator for the meta object
-** compiler (moc) of the Quasar application framework.
+** compiler (moc) of the Qt development framework.
 **
 ** This compiler reads a C++ header file with class definitions and ouputs
 ** C++ code to build a meta class. The meta data includes public methods
 ** (not constructors, destructors or operator functions), signals and slot
 ** definitions. The output file should be compiled and linked into the
-** target Quasar application.
+** target application.
 **
 ** C++ header files are assumed to have correct syntax, and we are therefore
 ** doing less strict checking that C++ compilers.
@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#27 $";
 #endif
 
 
@@ -537,7 +537,7 @@ int main( int argc, char **argv )		// program starts here
     if ( fileName.isNull() )
 	error = "No input file specified";
     if ( argc < 2 || error ) {			// incomplete/wrong args
-	fprintf( stderr, "Quasar meta object compiler\n" );
+	fprintf( stderr, "Qt meta object compiler\n" );
 	if ( error )
 	    fprintf( stderr, "moc: %s\n", error );
 	fprintf( stderr, "Usage:  moc [-i] [-o output] <header-file>\n" );
@@ -666,7 +666,7 @@ void generate()                                 // generate C++ source code
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: Quasar Meta Object Compiler (moc)\n**\n";
+		 "**      by: The Qt Meta Object Compiler (moc)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     static int gen_count = 0;
