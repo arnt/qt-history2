@@ -23,6 +23,7 @@
 using namespace TokenStreamAdapter;
 using namespace TokenEngine;
 using namespace CodeModel;
+using namespace std;
 
 // ### FIXME!! typeSpecToString is invoked only for sub-declarators?!!?
 QByteArray Semantic::typeSpecToString(TypeSpecifierAST* typeSpec)
