@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#76 $
 **
 ** Implementation of QAccel class
 **
@@ -478,9 +478,9 @@ int QAccel::shortcutKey( const QString &str )
    For instance CTRL+Key_O gives "Ctrl+O".  The "Ctrl" etc.
    are \link QObject::tr() translated\endlink in the "QAccel" scope.
 
-   \sa stringAccel()
+   \sa stringToKey()
 */
-QString QAccel::accelString( int k )
+QString QAccel::keyToString( int k )
 {
     QString s;
     if ( (k & CTRL) == CTRL ) {
@@ -591,7 +591,7 @@ QString QAccel::accelString( int k )
 
 /*!
    Creates an accelerator code for the string \a s.
-   For instance "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'.
+   For example "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'.
    The strings "Ctrl", "Shift", "Alt" and their
    \link QObject::tr() translated\endlink equivalents
    in the "QAccel" scope are recognized.
@@ -602,14 +602,14 @@ QString QAccel::accelString( int k )
    \code
 	QPopupMenu* file = new QPopupMenu(this);
 	file->insertItem( p1, tr("&Open..."), this, SLOT(open()),
-	    QAccel::stringAccel(tr("Ctrl+O")) );
+	    QAccel::stringToKey(tr("Ctrl+O")) );
    \endcode
 
    Note that this function currently only supports character
-   accelerators (unlike accelString() which will produce
-   Ctrl+Backspace, etc.).
+   accelerators (unlike keyToString() which can produce
+   Ctrl+Backspace, etc. from the appropriate key codes).
 */
-int QAccel::stringAccel( const QString & s )
+int QAccel::stringToKey( const QString & s )
 {
     int k = 0;
     int p = s.findRev('+');

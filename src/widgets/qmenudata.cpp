@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#83 $
 **
 ** Implementation of QMenuData class
 **
@@ -279,6 +279,13 @@ void QMenuData::setAllDirty( bool dirty )
     fileMenu->insertItem( "New",  myView, SLOT(newFile()), CTRL+Key_N );
     fileMenu->insertItem( "Open", myView, SLOT(open()),    CTRL+Key_O );
     mainMenu->insertItem( "File", fileMenu );
+  \endcode
+
+  If you will need to translate accelerators, use QAccel::stringToKey()
+  to calculate the accelerator key:
+  \code
+    fileMenu->insertItem( tr("Open"), myView, SLOT(open()),
+			  QAccel::stringToKey( tr("Ctrl+O") ) );
   \endcode
 
   In the example above, pressing CTRL+N or selecting "open" from the
@@ -747,10 +754,16 @@ int QMenuData::accel( int id ) const
     QMenuBar   *mainMenu = new QMenuBar;
     QPopupMenu *fileMenu = new QPopupMenu;	// file sub menu
     fileMenu->insertItem( "Open Document", 67 );// add "Open" item
-    fileMenu->setAccel( CTRL + Key_O, 67 );
+    fileMenu->setAccel( CTRL + Key_O, 67 );     // Control and O to open
     fileMenu->insertItem( "Quit", 69 );		// add "Quit" item
     fileMenu->setAccel( CTRL + ALT + Key_Delete, 69 );
     mainMenu->insertItem( "File", fileMenu );	// add the file menu
+  \endcode
+
+  If you will need to translate accelerators, use QAccel::stringToKey():
+
+  \code
+    fileMenu->setAccel( QAccel::stringToKey(tr("Ctrl+O")), 67 );
   \endcode
 
   You can also specify the accelerator in the insertItem() function.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#231 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#232 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -631,7 +631,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	    if ( !mi->text().isNull() ) {
 		QString s = mi->text();
 		int i = s.find('\t');
-		QString t = QAccel::accelString( k );
+		QString t = QAccel::keyToString( k );
 		if ( i >= 0 )
 		    s.replace( i+1, s.length()-i, t );
 		else {
