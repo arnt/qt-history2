@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#22 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -268,8 +268,9 @@ QTextDragObject::~QTextDragObject()
 }
 
 
-/*
-
+/*!
+  Sets the text to be dragged.  You will need to call this if you did
+  not pass the text during construction.
 */
 
 void QTextDragObject::setText( const char * text )
@@ -324,8 +325,9 @@ QImageDragObject::~QImageDragObject()
 }
 
 
-/*
-
+/*!
+  Sets the image to be dragged.  You will need to call this if you did
+  not pass the image during construction.
 */
 void QImageDragObject::setImage( QImage image )
 {
