@@ -1418,18 +1418,9 @@ bool QWidget::isMaximized() const
 
 void QWidget::showMinimized()
 {
-    if(isMinimized())
-	return;
-    if(isTopLevel()) {
-	if(isVisible() && !isMinimized()) {
-	    CollapseWindow((WindowPtr)hd, TRUE);
-	} else {
-	    topData()->showMode = 1;
-	    show();
-	}
-    } else {
-	show();
-    }
+    show();
+    if(isTopLevel() && !IsWindowCollapsed((WindowRef)hd)) 
+	CollapseWindow((WindowPtr)hd, TRUE);
 
     QEvent e(QEvent::ShowMinimized);
     QApplication::sendEvent(this, &e);
