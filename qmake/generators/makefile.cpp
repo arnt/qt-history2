@@ -1166,6 +1166,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
             }
             if(project->isEmpty("QMAKE_NOFORCE"))
                 t <<  " FORCE";
+            t << "\n\t";
             const QStringList &dirs = project->variables()[pvar];
             for(QStringList::ConstIterator pit = dirs.begin(); pit != dirs.end(); ++pit) {
                 QString tmp_dst = fileFixify((*pit), FileFixifyAbsolute, false);
