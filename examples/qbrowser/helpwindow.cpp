@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#8 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#9 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -50,21 +50,21 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
     file->insertItem( tr("&Close"), this, SLOT( close() ), ALT | Key_Q );
     file->insertItem( tr("E&xit"), qApp, SLOT( closeAllWindows() ), ALT | Key_X );
 
-    QPopupMenu* navigate = new QPopupMenu( this );
-    backwardId = navigate->insertItem( QPixmap("back.xpm"),
+    QPopupMenu* go = new QPopupMenu( this );
+    backwardId = go->insertItem( QPixmap("back.xpm"),
 				       tr("&Backward"), browser, SLOT( backward() ),
 				       ALT | Key_Left );
-    forwardId = navigate->insertItem( QPixmap("forward.xpm"),
+    forwardId = go->insertItem( QPixmap("forward.xpm"),
 				      tr("&Forward"), browser, SLOT( forward() ),
 				       ALT | Key_Right );
-    navigate->insertItem( QPixmap("home.xpm"), tr("&Home"), browser, SLOT( home() ) );
+    go->insertItem( QPixmap("home.xpm"), tr("&Home"), browser, SLOT( home() ) );
 
     QPopupMenu* help = new QPopupMenu( this );
     help->insertItem( tr("&About ..."), this, SLOT( about() ) );
     help->insertItem( tr("About &Qt ..."), this, SLOT( aboutQt() ) );
 
     menuBar()->insertItem( tr("&File"), file );
-    menuBar()->insertItem( tr("&Navigate"), navigate );
+    menuBar()->insertItem( tr("&Go"), go );
     menuBar()->insertSeparator();
     menuBar()->insertItem( tr("&Help"), help );
 
