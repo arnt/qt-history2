@@ -81,7 +81,10 @@ QString DspMakefileGenerator::replaceExtraCompilerVariables(const QString &var, 
     QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out);
     ret.replace("$(DEFINES)",  varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") +
                 varGlue("DEFINES"," -D"," -D",""));
-    ret.replace("$(INCPATH)",  this->var("MSVCDSP_INCPATH"));
+
+    QString incpath = this->var("MSVCDSP_INCPATH");
+    incpath.replace("/I", "-I");
+    ret.replace("$(INCPATH)", incpath);
     return ret;
 }
 
@@ -181,7 +184,6 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
                 else
                     buildStep += " \\\n\t";
                 QString command(compilerCommands.join(" "));
-                qDebug("replaceExtraCompilerVariables('%s', '%s', '%s')", qPrintable(command), qPrintable(fileIn), qPrintable(fileOut));
                 // Might be a macro, and not a valid filename, so the replaceExtraCompilerVariables() would eat it
                 command.replace("${QMAKE_FILE_IN}", fileIn);
                 command = replaceExtraCompilerVariables(command, fileIn, fileOut);
