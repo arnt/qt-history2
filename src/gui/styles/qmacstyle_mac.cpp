@@ -46,6 +46,7 @@
 #include <qsplitter.h>
 #include <qstyleoption.h>
 #include <qtextedit.h>
+#include <qtextstream.h>
 #include <qtoolbar.h>
 #include <qtreeview.h>
 #include <qtimer.h>
