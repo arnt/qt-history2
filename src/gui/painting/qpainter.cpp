@@ -1618,7 +1618,7 @@ Qt::BGMode QPainter::backgroundMode() const
 
 void QPainter::setPen(const QColor &color)
 {
-    QPen newPen = QPen(color, 0, Qt::SolidLine);
+    QPen newPen = QPen(color.isValid() ? color : Qt::black, 0, Qt::SolidLine);
     if (newPen == d->state->pen)
         return;
     d->state->pen = newPen;
@@ -1641,6 +1641,8 @@ void QPainter::setPen(const QPen &pen)
     if (d->state->pen == pen)
         return;
     d->state->pen = pen;
+    if (!pen.color().isValid())
+        d->state->pen.setColor(Qt::black);
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyPen);
 }
@@ -1692,6 +1694,8 @@ void QPainter::setBrush(const QBrush &brush)
     if (d->state->brush == brush)
         return;
     d->state->brush = brush;
+    if (!brush.color().isValid())
+        d->state->brush.setColor(Qt::black);
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyBrush);
 }
