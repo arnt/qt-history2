@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#50 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#51 $
 **
 ** Definition of QFileDialog class
 **
@@ -77,7 +77,7 @@ class QFileListBox : public QListBox
 
 public:
     QFileListBox( QWidget *parent, QFileDialog *d );
-
+    
     void clear();
     void show();
     void startRename();
@@ -100,8 +100,7 @@ private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
     bool renaming;
-    QTimer renameTimer;
-    
+    QTimer* renameTimer;
 };
 
 class QFileListView : public QListView
@@ -132,8 +131,7 @@ private:
     QRenameEdit *lined;
     QFileDialog *filedialog;
     bool renaming;
-    QTimer renameTimer;
-    
+    QTimer* renameTimer;
 };
 
 class Q_EXPORT QFileDialog : public QDialog
