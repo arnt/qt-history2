@@ -494,6 +494,9 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     be instantiated directly. Instead, you should subclass it to create
     new models.
 
+    The QAbstractItemModel class is one of the \l{Model/View Classes}
+    and is part of Qt's \l{Model/View Programming}{model/view framework}.
+
     If you need a model to use with a QListView or a QTableView, you
     should consider subclassing QAbstractListModel or QAbstractTableModel
     instead of this class.
