@@ -1386,19 +1386,16 @@ QList<QTableWidgetSelectionRange> QTableWidget::selectedRanges() const
 }
 
 /*!
-  Returns a list of all selected items. If a cell is empty and \a fillEmptyCells is true,
-  the item is created and set in that cell.
+  Returns a list of all selected items.
 */
 
-QList<QTableWidgetItem*> QTableWidget::selectedItems(bool fillEmptyCells)
+QList<QTableWidgetItem*> QTableWidget::selectedItems()
 {
     QModelIndexList indexes = selectedIndexes();
     QList<QTableWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex index = indexes.at(i);
         QTableWidgetItem *item = d->model()->item(index);
-        if (!item && index.isValid() && fillEmptyCells)
-            setItem(index.row(), index.column(), item = d->model()->createItem());
         if (item)
             items.append(item);
     }
@@ -1415,33 +1412,21 @@ QList<QTableWidgetItem*> QTableWidget::findItems(const QRegExp &rx) const
 }
 
 /*!
-  Returns the visual row of the given \a item.
+  Returns the visual row of the given \a logicalRow.
 */
 
-int QTableWidget::visualRow(const QTableWidgetItem *item) const
+int QTableWidget::visualRow(int logicalRow) const
 {
-    return verticalHeader()->visualIndex(row(item));
+    return verticalHeader()->visualIndex(logicalRow);
 }
 
 /*!
-  Returns the visual column of the given \a item.
+  Returns the visual column of the given \a logicalColumn.
 */
 
-int QTableWidget::visualColumn(const QTableWidgetItem *item) const
+int QTableWidget::visualColumn(int logicalColumn) const
 {
-    return horizontalHeader()->visualIndex(column(item));
-}
-
-/*!
-  Returns a pointer to the item at the \a visualRow
-  and \a visualColumn in the view.
-*/
-
-QTableWidgetItem *QTableWidget::visualItem(int visualRow, int visualColumn) const
-{
-    int row = verticalHeader()->logicalIndex(visualRow);
-    int column = horizontalHeader()->logicalIndex(visualColumn);
-    return item(row, column);
+    return horizontalHeader()->visualIndex(logicalColumn);
 }
 
 /*!

@@ -189,12 +189,11 @@ public:
     void setSelected(const QTableWidgetSelectionRange &range, bool select);
 
     QList<QTableWidgetSelectionRange> selectedRanges() const;
-    QList<QTableWidgetItem*> selectedItems(bool fillEmptyCells = false);
+    QList<QTableWidgetItem*> selectedItems();
     QList<QTableWidgetItem*> findItems(const QRegExp &rx) const;
 
-    int visualRow(const QTableWidgetItem *item) const;
-    int visualColumn(const QTableWidgetItem *item) const;
-    QTableWidgetItem *visualItem(int visualRow, int visualColumn) const;
+    int visualRow(int logicalRow) const;
+    int visualColumn(int logicalColumn) const;
 
     QTableWidgetItem *itemAt(int x, int y) const;
     inline QTableWidgetItem *itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
@@ -224,8 +223,6 @@ signals:
     
     void currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous);
     void itemSelectionChanged();
-
-    void aboutToShowContextMenu(QMenu *menu, QTableWidgetItem *item);
 
 protected:
     void setModel(QAbstractItemModel *model);
