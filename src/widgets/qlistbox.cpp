@@ -3365,8 +3365,10 @@ int QListBox::itemHeight( int index ) const
 int QListBox::columnAt( int x ) const
 {
     if ( x < 0 )
-	return 0;
-    if ( x >= d->columnPos[( int)d->columnPos.size()-1 ] )
+	return -1;
+    if ( !d->columnPos.size() )
+	return -1;
+    if ( x >= d->columnPos[(int)d->columnPos.size()-1 ] )
 	return numColumns() - 1;
 
     int col = 0;
@@ -3385,11 +3387,13 @@ int QListBox::columnAt( int x ) const
 int QListBox::rowAt( int y ) const
 {
     if ( y < 0 )
-	return 0;
+	return -1;
 
     // find the top item, use bsearch for speed
     int l = 0;
     int r = d->rowPos.size() - 2;
+    if ( r < 0 )
+	return -1;
     int i = ( (l+r+1) / 2 );
     static int n = 0;
     n = 0;
