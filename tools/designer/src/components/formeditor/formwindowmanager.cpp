@@ -154,8 +154,9 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
         } break;
 
         default: {
-            if (fw->handleEvent(widget, managedWidget, e))
+            if (fw->handleEvent(widget, managedWidget, e)) {
                 return true;
+            }
         } break;
 
         } // end switch

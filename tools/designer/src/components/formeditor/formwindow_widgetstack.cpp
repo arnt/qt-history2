@@ -43,7 +43,6 @@ AbstractFormWindowTool *FormWindowWidgetStack::currentTool() const
 
 void FormWindowWidgetStack::setCurrentTool(int index)
 {
-    qDebug() << "FormWindowWidgetStack::setCurrentTool():" << index;
     if (index < 0 || index >= count()) {
         qWarning("FormWindowWidgetStack::setCurrentTool(): invalid index: %d", index);
         return;
@@ -139,7 +138,7 @@ void FormWindowWidgetStack::resizeEvent(QResizeEvent *event)
     AbstractFormWindowTool *cur_tool = currentTool();
     if (cur_tool == widget_tool)
         return;
-            
+
     if (cur_tool != 0 && cur_tool->editor() != 0)
         cur_tool->editor()->setGeometry(r);
 }

@@ -53,6 +53,9 @@ void AbstractPropertyGroup::setDirty(bool b)
 
 QWidget *AbstractPropertyGroup::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
+    Q_UNUSED(target);
+    Q_UNUSED(receiver);
+
     return new QLabel(parent);
 }
 
@@ -1102,6 +1105,5 @@ void KeySequenceProperty::updateValue(QWidget *editor)
         }
     }
 }
-
 
 

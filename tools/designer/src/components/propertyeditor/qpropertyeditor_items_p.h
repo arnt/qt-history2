@@ -50,7 +50,7 @@ public:
 
     bool isBold() const { return m_bold; }
     void setBold(bool b) { m_bold = b; }
-    
+
     // ### pure
     bool changed() const { return m_changed; }
     void setChanged(bool b) { m_changed = b; m_dirty = b; }

@@ -21,6 +21,7 @@
 
 #include <QtGui/qevent.h>
 #include <QtGui/QAction>
+#include <QtCore/qdebug.h>
 
 WidgetEditorTool::WidgetEditorTool(FormWindow *formWindow)
     : AbstractFormWindowTool(formWindow),

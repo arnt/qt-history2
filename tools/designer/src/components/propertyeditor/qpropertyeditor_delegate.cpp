@@ -49,8 +49,7 @@ bool Delegate::eventFilter(QObject *object, QEvent *event)
             QKeyEvent *ke = static_cast<QKeyEvent*>(event);
             if (!(ke->modifiers() & Qt::ControlModifier)
                 && (ke->key() == Qt::Key_Up || ke->key() == Qt::Key_Down)) {
-                QWidget *p = static_cast<QWidget*>(object)->parentWidget();
-                QApplication::sendEvent(p, ke);
+                event->ignore();
                 return true;
             }
             if (ke->key() == Qt::Key_Enter || ke->key() == Qt::Key_Return) {
@@ -66,7 +65,7 @@ bool Delegate::eventFilter(QObject *object, QEvent *event)
             break;
     }
 
-    return QItemDelegate::eventFilter(object, event);
+    return QItemDelegate::eventFilter(object->parent(), event);
 }
 
 void Delegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
@@ -177,7 +176,7 @@ QWidget *Delegate::createEditor(QWidget *parent,
     const IProperty *property = model->privateData(index);
     if (property == 0)
         return 0;
-        
+
     QWidget *editor = 0;
 
     if (!isReadOnly() && property->hasEditor()) { // ### always true
@@ -190,15 +189,15 @@ QWidget *Delegate::createEditor(QWidget *parent,
             connect(editor_w_reset, SIGNAL(sync()), this, SLOT(sync()));
             connect(editor_w_reset, SIGNAL(resetProperty(const QString&)),
                         model, SIGNAL(resetProperty(const QString&)));
-            
+
             editor = editor_w_reset;
+            child_editor->installEventFilter(const_cast<Delegate *>(this));
         } else {
             editor = property->createEditor(parent, this, SLOT(sync()));
+            editor->installEventFilter(const_cast<Delegate *>(this));
         }
     }
-    
-    if (editor != 0)
-        editor->installEventFilter(const_cast<Delegate *>(this));
+
 
     return editor;
 }
@@ -222,7 +221,7 @@ void Delegate::setModelData(QWidget *editor,
 {
     if (EditorWithReset *editor_w_reset = qobject_cast<EditorWithReset*>(editor))
         editor = editor_w_reset->childEditor();
-    
+
     if (IProperty *property = static_cast<const Model*>(model)->privateData(index)) {
         property->updateValue(editor);
         model->setData(index, property->value(), Model::EditRole);
