@@ -1943,22 +1943,21 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
 	if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
 	if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
 
-	fe->draw(this, x + si->x,  y + si->y - ascent, engine->glyphs( si ), engine->advances( si ),
-		 engine->offsets( si ), si->num_glyphs, si->analysis.bidiLevel % 2, textFlags);
+	fe->draw(this, x + si->x,  y + si->y - ascent, engine, si, textFlags );
     }
 }
 
 void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
 {
-#if 0
-    if( testf(ExtDev) || txop >= TxScale ) {
-	drawText(x+ti.x(), y+ti.y(), ti.engine->string, ti.from(), ti.length(),
-		 (ti.engine->items[ti.item].analysis.bidiLevel %2) ? QPainter::RTL : QPainter::LTR);
-	return;
+    if ( testf(ExtDev) ) {
+        QPDevCmdParam param[2];
+        QPoint p(x, y);
+        param[0].point = &p;
+        param[1].textItem = &ti;
+        bool retval = pdev->cmd(QPaintDevice::PdcDrawTextItem, this, param);
+        if ( !retval || !hd )
+            return;
     }
-#endif
-    if ( txop == TxTranslate )
-        map( x, y, &x, &y );
 
     QTextEngine *engine = ti.engine;
     QScriptItem &si = engine->items[ti.item];
@@ -1975,32 +1974,10 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
 
     x += d->offx;
     y += d->offy;
-#if 0
-    /* I have no idea how to implement this here.. FIXME --Sam */
-    if(bg_mode == OpaqueMode) {
-	QRect br = fontMetrics().boundingRect(str.mid(pos), len);
-	Rect r;
-	r.left = x + br.x();
-	r.top = y + br.y();
-	r.right = r.left + br.width();
-	r.bottom = r.top + br.height();
-	::RGBColor f;
-	f.red = bg_col.red()*256;
-	f.green = bg_col.green()*256;
-	f.blue = bg_col.blue()*256;
-	RGBForeColor(&f);
-	PaintRect(&r);
-    }
-#endif
+
     updatePen();
 
-    if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
-    if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
-    if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
-
-    fe->draw(this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
-	     engine->offsets( &si ), si.num_glyphs, si.analysis.bidiLevel % 2, textFlags);
-
+    fe->draw(this, x,  y, engine, &si, textFlags );
 }
 
 QPoint QPainter::pos() const

@@ -61,19 +61,25 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance
 }
 
 void
-QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
-		      const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
+QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
+		     const QScriptItem *si, int textFlags )
 {
     uchar task = DRAW;
+
     if( textFlags != 0 )
 	task |= WIDTH; //I need the width for these..
     int w = 0;
     const QRegion &rgn = qt_mac_update_painter(p, FALSE);
-    if(reverse) {
-	offsets += numGlyphs;
-	advances += numGlyphs;
-	glyphs += numGlyphs;
-	for(int i = 0; i < numGlyphs; i++) {
+
+    glyph_t *glyphs = engine->glyphs( si );
+    advance_t *advances = engine->advances( si );
+    offset_t *offsets = engine->offsets( si );
+
+    if(si->analysis.bidiLevel % 2 ) {
+	offsets += si->num_glyphs;
+	advances += si->num_glyphs;
+	glyphs += si->num_glyphs;
+	for(int i = 0; i < si->num_glyphs; i++) {
 	    glyphs--;
 	    offsets--;
 	    advances--;
@@ -83,7 +89,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
 	}
     } else {
 	MoveTo(x, y);
-	w = doTextTask((QChar*)glyphs, 0, numGlyphs, numGlyphs, task, x, y, p->device(), &rgn);
+	w = doTextTask((QChar*)glyphs, 0, si->num_glyphs, si->num_glyphs, task, x, y, p->device(), &rgn);
     }
     if(w && textFlags != 0) {
 	int lineWidth = p->fontMetrics().lineWidth();
