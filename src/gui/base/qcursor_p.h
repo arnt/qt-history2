@@ -39,6 +39,8 @@
 #ifdef Q_WS_MAC
 #  if QT_MACOSX_VERSION >= 0x1030
 #    define QMAC_USE_BIG_CURSOR_API
+#  else
+     class QMacCursorWidget;
 #  endif
 class QMacAnimateCursor;
 #endif
