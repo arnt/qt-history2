@@ -41,7 +41,7 @@ public:
 
     // from the abstract layout
     void draw(QPainter *painter, const PaintContext &context);
-    int hitTest(const QPoint &point, Qt::HitTestAccuracy accuracy) const;
+    int hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const;
 
 
     int pageCount() const;
@@ -56,7 +56,7 @@ public:
     // internal, to support the ugly FixedColumnWidth wordwrap mode in QTextEdit
     void setFixedColumnWidth(int width);
 
-    virtual QRect frameBoundingRect(QTextFrame *frame) const;
+    virtual QRectF frameBoundingRect(QTextFrame *frame) const;
 
 protected:
     void documentChange(int from, int oldLength, int length);

@@ -70,7 +70,7 @@ public:
     void setCursorPosition(const QPoint &pos);
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
-    void repaintContents(const QRect &contentsRect);
+    void repaintContents(const QRectF &contentsRect);
     void repaintCursor();
 
     inline QPoint mapToContents(const QPoint &point) const

@@ -20,8 +20,6 @@
 #include <QtGui/qtextcursor.h>
 #include <QtGui/qpalette.h>
 
-class QRect;
-class QRegion;
 class QAbstractTextDocumentLayoutPrivate;
 class QTextBlock;
 class QTextObjectInterface;
@@ -44,17 +42,17 @@ public:
         QTextCursor cursor;
         QPalette palette;
         bool showCursor;
-        QRect rect;
+        QRectF clip;
     };
 
     virtual void draw(QPainter *painter, const PaintContext &context) = 0;
-    virtual int hitTest(const QPoint &point, Qt::HitTestAccuracy accuracy) const = 0;
-    QString anchorAt(const QPoint& pos) const;
+    virtual int hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const = 0;
+    QString anchorAt(const QPointF& pos) const;
 
     virtual int pageCount() const = 0;
     virtual QSizeF documentSize() const = 0;
 
-    virtual QRect frameBoundingRect(QTextFrame *frame) const;
+    virtual QRectF frameBoundingRect(QTextFrame *frame) const;
 
     void setPaintDevice(QPaintDevice *device);
     QPaintDevice *paintDevice() const;
@@ -62,7 +60,7 @@ public:
     QTextDocument *document() const;
 
 signals:
-    void update(const QRect & = QRect(0, 0, 0x10000000, 0x10000000));
+    void update(const QRectF & = QRectF(0., 0., 1000000000., 1000000000.));
     void documentSizeChanged(const QSizeF &newSize);
     void pageCountChanged(int newPages);
 

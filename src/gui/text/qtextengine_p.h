@@ -301,6 +301,14 @@ public:
         item++;
         return (item < layoutData->items.size() ? layoutData->items[item].position : layoutData->string.length()) - from;
     }
+    int length(const QScriptItem *si) {
+        int end;
+        if (si + 1 < layoutData->items.constData()+ layoutData->items.size())
+            end = (si+1)->position;
+        else
+            end = layoutData->string.length();
+        return end - si->position;
+    }
 
     QFontEngine *fontEngine(const QScriptItem &si) const;
     QFont font(const QScriptItem &si) const;
@@ -326,6 +334,7 @@ public:
     inline QTextFormatCollection *formats() const {
         return block.docHandle()->formatCollection();
     }
+    QTextFormat format(const QScriptItem *si);
     inline QAbstractTextDocumentLayout *docLayout() const {
         return block.docHandle()->document()->documentLayout();
     }

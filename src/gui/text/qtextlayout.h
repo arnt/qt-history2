@@ -90,7 +90,7 @@ public:
     QString preeditAreaText() const;
 
     struct FormatRange {
-        int from;
+        int start;
         int length;
         QTextCharFormat format;
     };
@@ -118,7 +118,7 @@ public:
     int nextCursorPosition(int oldPos, CursorMode mode = SkipCharacters) const;
     int previousCursorPosition(int oldPos, CursorMode mode = SkipCharacters) const;
 
-    void draw(QPainter *p, const QPointF &pos, const QRect &clip = QRect()) const;
+    void draw(QPainter *p, const QPointF &pos, const QRectF &clip = QRectF()) const;
     void drawCursor(QPainter *p, const QPointF &pos, int cursorPosition) const;
 
     QPointF position() const;

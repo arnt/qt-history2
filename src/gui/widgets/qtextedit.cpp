@@ -344,7 +344,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
             doc = new QTextDocument(q);
         }
 
-        QObject::connect(doc->documentLayout(), SIGNAL(update(QRect)), q, SLOT(repaintContents(QRect)));
+        QObject::connect(doc->documentLayout(), SIGNAL(update(QRectF)), q, SLOT(repaintContents(QRectF)));
         QObject::connect(doc->documentLayout(), SIGNAL(documentSizeChanged(const QSizeF &)), q, SLOT(adjustScrollbars()));
         cursor = QTextCursor(doc);
 
@@ -438,13 +438,13 @@ void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
     }
 }
 
-void QTextEditPrivate::repaintContents(const QRect &contentsRect)
+void QTextEditPrivate::repaintContents(const QRectF &contentsRect)
 {
     const int xOffset = hbar->value();
     const int yOffset = vbar->value();
     const QRect visibleRect(xOffset, yOffset, viewport->width(), viewport->height());
 
-    QRect r = contentsRect.intersect(visibleRect);
+    QRect r = contentsRect.toRect().intersect(visibleRect);
     if (r.isEmpty())
         return;
 
@@ -1645,7 +1645,7 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     ctx.showCursor = (cursorOn && q->isEnabled());
     ctx.cursor = cursor;
     ctx.palette = q->palette();
-    ctx.rect = r;
+    ctx.clip = r;
 
     doc->documentLayout()->draw(p, ctx);
 }
@@ -1950,7 +1950,7 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
         QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
         if (f.isValid()) {
             QTextLayout::FormatRange o;
-            o.from = a.start + d->cursor.position() - block.position();
+            o.start = a.start + d->cursor.position() - block.position();
             o.length = a.length;
             o.format = f;
             overrides.append(o);

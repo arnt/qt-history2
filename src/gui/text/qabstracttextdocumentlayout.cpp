@@ -76,7 +76,7 @@
 */
 
 /*!
-    \fn int QAbstractTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy accuracy) const
+    \fn int QAbstractTextDocumentLayout::hitTest(const QPointF &point, QText::HitTestAccuracy accuracy) const
 
     \internal
 
@@ -308,7 +308,7 @@ QTextDocument *QAbstractTextDocumentLayout::document() const
     Returns the reference of the anchor at the given \a position, or an empty
     string if no anchor exists at that point.
 */
-QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
+QString QAbstractTextDocumentLayout::anchorAt(const QPointF& pos) const
 {
     int cursorPos = hitTest(pos, Qt::ExactHit);
     if (cursorPos == -1)
@@ -323,10 +323,10 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPoint& pos) const
 /*!
     Returns the bounding rectacle of \a frame .
 */
-QRect QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
+QRectF QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
 {
     Q_UNUSED(frame)
-    return QRect();
+    return QRectF();
 }
 
 void QAbstractTextDocumentLayout::setPaintDevice(QPaintDevice *device)

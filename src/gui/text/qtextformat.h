@@ -47,21 +47,21 @@ public:
 
     inline QTextLength() : lengthType(VariableLength), fixedValueOrPercentage(0) {}
 
-    inline explicit QTextLength(Type type, int value)
+    inline explicit QTextLength(Type type, qreal value)
         : lengthType(type), fixedValueOrPercentage(value) {}
 
     inline Type type() const { return lengthType; }
-    inline int value(int maximumLength) const
+    inline qreal value(qreal maximumLength) const
     {
         switch (lengthType) {
             case FixedLength: return fixedValueOrPercentage;
             case VariableLength: return maximumLength;
-            case PercentageLength: return fixedValueOrPercentage * maximumLength / 100;
+            case PercentageLength: return fixedValueOrPercentage * maximumLength / qreal(100);
         }
         return -1;
     }
 
-    inline int rawValue() const { return fixedValueOrPercentage; }
+    inline qreal rawValue() const { return fixedValueOrPercentage; }
 
     inline bool operator==(const QTextLength &other) const
     { return lengthType == other.lengthType && fixedValueOrPercentage == other.fixedValueOrPercentage; }
@@ -71,7 +71,7 @@ public:
 
 private:
     Type lengthType;
-    int fixedValueOrPercentage;
+    qreal fixedValueOrPercentage;
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QTextLength &);
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QTextLength &);
 };

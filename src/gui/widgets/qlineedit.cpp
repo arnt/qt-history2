@@ -1746,7 +1746,7 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
         QTextCharFormat f = qvariant_cast<QTextFormat>(a.value).toCharFormat();
         if (f.isValid()) {
             QTextLayout::FormatRange o;
-            o.from = a.start + d->cursor;
+            o.start = a.start + d->cursor;
             o.length = a.length;
             o.format = f;
             d->formatOverrides.append(o);
@@ -1902,13 +1902,13 @@ void QLineEdit::paintEvent(QPaintEvent *)
         QTextLayout::FormatRange o;
         const QPalette &pal = palette();
         if (d->selstart < d->selend) {
-            o.from = d->selstart;
+            o.start = d->selstart;
             o.length = d->selend - d->selstart;
             o.format.setBackgroundColor(pal.color(QPalette::Highlight));
             o.format.setTextColor(pal.color(QPalette::HighlightedText));
         } else {
             // mask selection
-            o.from = d->cursor;
+            o.start = d->cursor;
             o.length = 1;
             o.format.setBackgroundColor(pal.color(QPalette::Text));
             o.format.setTextColor(pal.color(QPalette::Background));

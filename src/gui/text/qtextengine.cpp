@@ -1348,6 +1348,26 @@ int QTextEngine::formatIndex(const QScriptItem *si) const
     return it.value()->format;
 }
 
+
+QTextFormat QTextEngine::format(const QScriptItem *si)
+{
+    QTextFormat format = formats()->format(formatIndex(si));
+#if 0
+    if (specialData) {
+        int end = si->position + length(si);
+        qDebug("checking item from %d len %d", si->position, end-si->position);
+        for (int i = 0; i < specialData->addFormats.size(); ++i) {
+            const QTextLayout::FormatRange &r = specialData->addFormats.at(i);
+            if (r.start <= si->position && r.start + r.length >= end) {
+                qDebug("adding special format (%d/%d) for item from %d len %d", r.start, r.length, si->position, end-si->position);
+                format.merge(r.format);
+            }
+        }
+    }
+#endif
+    return format;
+}
+
 void QTextEngine::addRequiredBoundaries() const
 {
     int position = 0;
@@ -1371,6 +1391,16 @@ void QTextEngine::addRequiredBoundaries() const
             position += frag->size;
         }
     }
+#if 0
+    if (specialData) {
+        for (int i = 0; i < specialData->addFormats.size(); ++i) {
+            const QTextLayout::FormatRange &r = specialData->addFormats.at(i);
+            setBoundary(r.start);
+            setBoundary(r.start + r.length);
+            qDebug("adding boundaries %d %d", r.start, r.start+r.length);
+        }
+    }
+#endif
 }
 
 bool QTextEngine::atWordSeparator(int position) const

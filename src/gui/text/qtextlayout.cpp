@@ -796,7 +796,7 @@ qreal QTextLayout::maximumWidth() const
     Draws the whole layout on the \a painter at point \a pos with the
     given \a cursorPos.
 */
-void QTextLayout::draw(QPainter *p, const QPointF &pos, const QRect &clip) const
+void QTextLayout::draw(QPainter *p, const QPointF &pos, const QRectF &clip) const
 {
     Q_ASSERT(lineCount() != 0);
 
@@ -1388,6 +1388,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
         }
 
         if (eng->block.docHandle()) {
+//             QTextFormat fmt = eng->format(&si);
             QTextFormat fmt = eng->formats()->format(eng->formatIndex(&si));
             Q_ASSERT(fmt.isCharFormat());
             QTextCharFormat chf = fmt.toCharFormat();
@@ -1405,7 +1406,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
                 p->setPen(pen);
 
             if (bg.isValid())
-                p->fillRect(QRectF(x, line.y, gf.width, line.height()), bg);
+                p->fillRect(QRectF(x, y - line.ascent, gf.width, line.height()), bg);
             if (c.isValid())
                 p->setPen(c);
         }
@@ -1429,8 +1430,8 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
             if (eng->specialData) {
                 for (int i = 0; i < eng->specialData->addFormats.size(); ++i) {
                     const QTextLayout::FormatRange &o = eng->specialData->addFormats.at(i);
-                    int from = qMax(start, o.from) - si.position;
-                    int to = qMin(end, o.from + o.length) - si.position;
+                    int from = qMax(start, o.start) - si.position;
+                    int to = qMin(end, o.start + o.length) - si.position;
                     if (from >= to)
                         continue;
                     int start_glyph = logClusters[from];
