@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form interface generated from reading ui file 'richedit.ui'
 **
-** Created: Mon Feb 5 13:10:29 2001
+** Created: Mon Feb 5 16:02:29 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file 'richedit.ui'
 **
-** Created: Mon Feb 5 13:10:32 2001
+** Created: Mon Feb 5 16:02:34 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -450,7 +450,7 @@ EditorForm::EditorForm( QWidget* parent,  const char* name, WFlags fl )
     QPixmap image13( ( const char** ) image13_data );
     if ( !name )
 	setName( "EditorForm" );
-    resize( 686, 484 ); 
+    resize( 678, 480 ); 
     setCaption( tr( "Rich Edit" ) );
     setCentralWidget( new QWidget( this, "qt_central_widget" ) );
     EditorFormLayout = new QHBoxLayout( centralWidget() ); 
@@ -582,7 +582,7 @@ EditorForm::EditorForm( QWidget* parent,  const char* name, WFlags fl )
     fontComboBox = new QComboBox( FALSE, Toolbar, "fontComboBox" );
 
     SpinBox2 = new QSpinBox( Toolbar, "SpinBox2" );
-    SpinBox2->setMinValue( 5 );
+    SpinBox2->setMinValue( 6 );
     SpinBox2->setValue( 10 );
 
     fileMenu = new QPopupMenu( this ); 
@@ -753,6 +753,7 @@ void EditorForm::saveAndContinue( int &continueAction,const QString &action )
 void EditorForm::init()
 {
     textEdit->setFocus();  
+ 
     QFontDatabase fonts;
     fontComboBox->insertStringList( fonts.families() );
     QString font = textEdit->family();

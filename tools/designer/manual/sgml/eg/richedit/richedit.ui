@@ -12,8 +12,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>686</width>
-            <height>484</height>
+            <width>678</width>
+            <height>480</height>
         </rect>
     </property>
     <property name="caption">
@@ -103,7 +103,7 @@
                 <cstring>SpinBox2</cstring>
             </property>
             <property name="minValue">
-                <number>5</number>
+                <number>6</number>
             </property>
             <property name="value">
                 <number>10</number>
@@ -625,6 +625,7 @@
 <functions>
     <function name="init()" >{
     textEdit-&gt;setFocus();  
+ 
     QFontDatabase fonts;
     fontComboBox-&gt;insertStringList( fonts.families() );
     QString font = textEdit-&gt;family();
