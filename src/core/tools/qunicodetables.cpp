@@ -341,8 +341,9 @@ QString QUnicodeTables::normalize(const QString &str, QString::NormalizationForm
 
 }
 
-int QUnicodeTables::script(uint uc)
+int QUnicodeTables::script(const QChar &c)
 {
+    const uint uc = ch.unicode();
     if (uc > 0xffff)
         return Common;
     int script = uc_scripts[uc >> 7];
