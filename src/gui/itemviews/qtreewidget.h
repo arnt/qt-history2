@@ -157,7 +157,7 @@ public:
 
     QTreeWidgetItem *itemAt(const QPoint &p) const;
     inline QTreeWidgetItem *itemAt(int x, int y) const { return itemAt(QPoint(x, y)); }
-    QRect viewportRectForItem(const QTreeWidgetItem *item) const;
+    QRect visualItemRect(const QTreeWidgetItem *item) const;
 
     void sortItems(int column, Qt::SortOrder order);
     void setSortingEnabled(bool enable);
@@ -166,8 +166,8 @@ public:
     void openPersistentEditor(QTreeWidgetItem *item, int column = 0);
     void closePersistentEditor(QTreeWidgetItem *item, int column = 0);
 
-    bool isSelected(const QTreeWidgetItem *item) const;
-    void setSelected(const QTreeWidgetItem *item, bool select);
+    bool isItemSelected(const QTreeWidgetItem *item) const;
+    void setItemSelected(const QTreeWidgetItem *item, bool select);
     QList<QTreeWidgetItem*> selectedItems() const;
     QList<QTreeWidgetItem*> findItems(const QRegExp &rx) const;
 
@@ -195,12 +195,12 @@ signals:
     void currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *previous);
     void itemSelectionChanged();
 
-protected:
+private:
     void setModel(QAbstractItemModel *model);
 
-private:
     Q_DECLARE_PRIVATE(QTreeWidget)
     Q_DISABLE_COPY(QTreeWidget)
+
     Q_PRIVATE_SLOT(d, void emitItemPressed(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitItemClicked(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitItemDoubleClicked(const QModelIndex &index))

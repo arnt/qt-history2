@@ -74,7 +74,7 @@ public:
     void setColumn(int column);
     int column() const;
 
-    QRect viewportRectForIndex(const QModelIndex &index) const;
+    QRect visualRect(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index);
     QModelIndex indexAt(const QPoint &p) const;
 
@@ -113,7 +113,7 @@ protected:
     QRect rectForIndex(const QModelIndex &index) const;
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
-    QRect selectionViewportRect(const QItemSelection &selection) const;
+    QRect visualRectForSelection(const QItemSelection &selection) const;
     QModelIndexList selectedIndexes() const;
 
     void updateGeometries();

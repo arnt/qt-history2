@@ -183,9 +183,9 @@ public:
     void openPersistentEditor(QTableWidgetItem *item);
     void closePersistentEditor(QTableWidgetItem *item);
 
-    bool isSelected(const QTableWidgetItem *item) const;
-    void setSelected(const QTableWidgetItem *item, bool select);
-    void setSelected(const QTableWidgetSelectionRange &range, bool select);
+    bool isItemSelected(const QTableWidgetItem *item) const;
+    void setItemSelected(const QTableWidgetItem *item, bool select);
+    void setRangeSelected(const QTableWidgetSelectionRange &range, bool select);
 
     QList<QTableWidgetSelectionRange> selectedRanges() const;
     QList<QTableWidgetItem*> selectedItems();
@@ -196,12 +196,10 @@ public:
 
     QTableWidgetItem *itemAt(const QPoint &p) const;
     inline QTableWidgetItem *itemAt(int x, int y) const  { return itemAt(QPoint(x, y)); }
-    QRect viewportRectForItem(const QTableWidgetItem *item) const;
+    QRect visualItemRect(const QTableWidgetItem *item) const;
 
     QTableWidgetItemCreatorBase *itemCreator() const;
     void setItemCreator(QTableWidgetItemCreatorBase *factory);
-
-    bool isItemVisible(const QTableWidgetItem *item) const;
 
 public slots:
     void scrollToItem(const QTableWidgetItem *item);
@@ -223,14 +221,12 @@ signals:
     void currentItemChanged(QTableWidgetItem *current, QTableWidgetItem *previous);
     void itemSelectionChanged();
 
-protected:
-    void setModel(QAbstractItemModel *model);
-    void setup();
-    
-
 private:
+    void setModel(QAbstractItemModel *model);
+
     Q_DECLARE_PRIVATE(QTableWidget)
     Q_DISABLE_COPY(QTableWidget)
+
     Q_PRIVATE_SLOT(d, void emitItemPressed(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitItemClicked(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void emitItemDoubleClicked(const QModelIndex &index))

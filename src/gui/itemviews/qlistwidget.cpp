@@ -606,6 +606,7 @@ class QListWidgetPrivate : public QListViewPrivate
 public:
     QListWidgetPrivate() : QListViewPrivate() {}
     inline QListModel *model() const { return ::qt_cast<QListModel*>(q_func()->model()); }
+    void setup();
     void emitItemPressed(const QModelIndex &index);
     void emitItemClicked(const QModelIndex &index);
     void emitItemDoubleClicked(const QModelIndex &index);
@@ -614,6 +615,26 @@ public:
     void emitItemChanged(const QModelIndex &index);
     void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current);
 };
+
+void QListWidgetPrivate::setup()
+{
+    q->setModel(new QListModel(q));
+    // view signals
+    QObject::connect(q, SIGNAL(pressed(QModelIndex)), q, SLOT(emitItemPressed(QModelIndex)));
+    QObject::connect(q, SIGNAL(clicked(QModelIndex)), q, SLOT(emitItemClicked(QModelIndex)));
+    QObject::connect(q, SIGNAL(doubleClicked(QModelIndex)),
+                     q, SLOT(emitItemDoubleClicked(QModelIndex)));
+    QObject::connect(q, SIGNAL(activated(QModelIndex)), q, SLOT(emitItemActivated(QModelIndex)));
+    QObject::connect(q, SIGNAL(entered(QModelIndex)), q, SLOT(emitItemEntered(QModelIndex)));
+    // model signals
+    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(emitItemChanged(QModelIndex)));
+    // selection signals
+    QObject::connect(q->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
+    QObject::connect(q->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                     q, SIGNAL(itemSelectionChanged()));
+}
 
 void QListWidgetPrivate::emitItemPressed(const QModelIndex &index)
 {
@@ -782,7 +803,7 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 
     This signal is emitted whenever the selection changes.
 
-    \sa selectedItems() isSelected()
+    \sa selectedItems() isItemSelected()
 */
 
 /*!
@@ -807,7 +828,7 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 QListWidget::QListWidget(QWidget *parent)
     : QListView(*new QListWidgetPrivate(), parent)
 {
-    setup();
+    d->setup();
 }
 
 /*!
@@ -938,12 +959,12 @@ QListWidgetItem *QListWidget::itemAt(const QPoint &p) const
 /*!
   Returns the rectangle on the viewport occupied by the item at \a item.
 */
-QRect QListWidget::viewportRectForItem(const QListWidgetItem *item) const
+QRect QListWidget::visualItemRect(const QListWidgetItem *item) const
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     Q_ASSERT(index.isValid());
-    return viewportRectForIndex(index);
+    return visualRect(index);
 }
 
 /*!
@@ -981,7 +1002,7 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
 /*!
   Returns true if \a item is selected and not hidden; otherwise returns false.
 */
-bool QListWidget::isSelected(const QListWidgetItem *item) const
+bool QListWidget::isItemSelected(const QListWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     return selectionModel()->isSelected(index) && !isIndexHidden(index);
@@ -991,7 +1012,7 @@ bool QListWidget::isSelected(const QListWidgetItem *item) const
   Selects or deselects the given \a item depending on whether \a select is
   true of false.
 */
-void QListWidget::setSelected(const QListWidgetItem *item, bool select)
+void QListWidget::setItemSelected(const QListWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     selectionModel()->select(index, select
@@ -1038,18 +1059,6 @@ void QListWidget::setItemHidden(const QListWidgetItem *item, bool hide)
 }
 
 /*!
-  Returns true if the \a item is in the viewport; otherwise returns false.
-*/
-
-bool QListWidget::isItemVisible(const QListWidgetItem *item) const
-{
-    Q_ASSERT(item);
-    QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
-    QRect rect = viewportRectForIndex(index);
-    return rect.isValid() && d->viewport->rect().contains(rect);
-}
-
-/*!
   Scrolls the view if necessary to ensure that the \a item is visible.
 */
 
@@ -1076,28 +1085,6 @@ void QListWidget::clear()
 void QListWidget::setModel(QAbstractItemModel *model)
 {
     QListView::setModel(model);
-}
-
-/*!
-  \internal
-*/
-void QListWidget::setup()
-{
-    setModel(new QListModel(this));
-    // view signals
-    connect(this, SIGNAL(pressed(QModelIndex)), SLOT(emitItemPressed(QModelIndex)));
-    connect(this, SIGNAL(clicked(QModelIndex)), SLOT(emitItemClicked(QModelIndex)));
-    connect(this, SIGNAL(doubleClicked(QModelIndex)), SLOT(emitItemDoubleClicked(QModelIndex)));
-    connect(this, SIGNAL(activated(QModelIndex)), SLOT(emitItemActivated(QModelIndex)));
-    connect(this, SIGNAL(entered(QModelIndex)), SLOT(emitItemEntered(QModelIndex)));
-    // model signals
-    connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitItemChanged(QModelIndex)));
-    // selection signals
-    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
-    connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SIGNAL(itemSelectionChanged()));
 }
 
 #include "moc_qlistwidget.cpp"

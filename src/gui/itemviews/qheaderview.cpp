@@ -1427,7 +1427,7 @@ void QHeaderView::rowsInserted(const QModelIndex &, int, int)
   Empty implementation because the header doesn't show QModelIndex items.
 */
 
-QRect QHeaderView::viewportRectForIndex(const QModelIndex &) const
+QRect QHeaderView::visualRect(const QModelIndex &) const
 {
     return QRect();
 }
@@ -1500,7 +1500,7 @@ void QHeaderView::setSelection(const QRect&, QItemSelectionModel::SelectionFlags
     Empty implementation because the header doesn't have selections.
 */
 
-QRect QHeaderView::selectionViewportRect(const QItemSelection &selection) const
+QRect QHeaderView::visualRectForSelection(const QItemSelection &selection) const
 {
     if (orientation() == Qt::Horizontal) {
         int left = d->model->columnCount(rootIndex()) - 1;

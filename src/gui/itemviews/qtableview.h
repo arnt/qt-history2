@@ -57,7 +57,7 @@ public:
     Qt::PenStyle gridStyle() const;
     void setGridStyle(Qt::PenStyle style);
 
-    QRect viewportRectForIndex(const QModelIndex &index) const;
+    QRect visualRect(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index);
     QModelIndex indexAt(const QPoint &p) const;
 
@@ -92,7 +92,7 @@ protected:
                            Qt::KeyboardModifiers modifiers);
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
-    QRect selectionViewportRect(const QItemSelection &selection) const;
+    QRect visualRectForSelection(const QItemSelection &selection) const;
     QModelIndexList selectedIndexes() const;
 
     void updateGeometries();

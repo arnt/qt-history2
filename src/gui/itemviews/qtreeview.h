@@ -58,7 +58,7 @@ public:
     bool isExpanded(const QModelIndex &index) const;
     void setExpanded(const QModelIndex &index, bool expand);
 
-    QRect viewportRectForIndex(const QModelIndex &index) const;
+    QRect visualRect(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index);
     QModelIndex indexAt(const QPoint &p) const;
     QModelIndex indexAbove(const QModelIndex &index) const;
@@ -100,7 +100,7 @@ protected:
     int verticalOffset() const;
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
-    QRect selectionViewportRect(const QItemSelection &selection) const;
+    QRect visualRectForSelection(const QItemSelection &selection) const;
     QModelIndexList selectedIndexes() const;
 
     void paintEvent(QPaintEvent *e);

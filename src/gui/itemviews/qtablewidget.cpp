@@ -943,6 +943,7 @@ class QTableWidgetPrivate : public QTableViewPrivate
 public:
     QTableWidgetPrivate() : QTableViewPrivate(), sortingEnabled(false) {}
     inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
+    void setup();
     // view signals
     void emitItemPressed(const QModelIndex &index);
     void emitItemClicked(const QModelIndex &index);
@@ -956,6 +957,25 @@ public:
     // data
     bool sortingEnabled;
 };
+
+void QTableWidgetPrivate::setup()
+{
+    // view signals
+    QObject::connect(q, SIGNAL(pressed(QModelIndex)), q, SLOT(emitItemPressed(QModelIndex)));
+    QObject::connect(q, SIGNAL(clicked(QModelIndex)), q, SLOT(emitItemClicked(QModelIndex)));
+    QObject::connect(q, SIGNAL(doubleClicked(QModelIndex)),
+                     q, SLOT(emitItemDoubleClicked(QModelIndex)));
+    QObject::connect(q, SIGNAL(activated(QModelIndex)), q, SLOT(emitItemActivated(QModelIndex)));
+    QObject::connect(q, SIGNAL(entered(QModelIndex)), q, SLOT(emitItemEntered(QModelIndex)));
+    // model signals
+    QObject::connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(emitItemChanged(QModelIndex)));
+    // selection signals
+    QObject::connect(q->selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
+    QObject::connect(q->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                     q, SIGNAL(itemSelectionChanged()));
+}
 
 void QTableWidgetPrivate::emitItemPressed(const QModelIndex &index)
 {
@@ -1019,7 +1039,7 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 
     This signal is emitted whenever the selection changes.
 
-    \sa selectedItems() isSelected()
+    \sa selectedItems() isItemSelected()
 */
 
 /*!
@@ -1045,7 +1065,7 @@ QTableWidget::QTableWidget(QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
     setModel(new QTableModel(0, 0, this));
-    setup();
+    d->setup();
 }
 
 /*!
@@ -1055,7 +1075,7 @@ QTableWidget::QTableWidget(int rows, int columns, QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
     setModel(new QTableModel(rows, columns, this));
-    setup();
+    d->setup();
 }
 
 /*!
@@ -1326,7 +1346,7 @@ void QTableWidget::closePersistentEditor(QTableWidgetItem *item)
   Returns true if the \a item is selected, otherwise returns false.
 */
 
-bool QTableWidget::isSelected(const QTableWidgetItem *item) const
+bool QTableWidget::isItemSelected(const QTableWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(item);
     return selectionModel()->isSelected(index) && !isIndexHidden(index);
@@ -1335,7 +1355,7 @@ bool QTableWidget::isSelected(const QTableWidgetItem *item) const
 /*!
   Selects or deselects \a item depending on \a select.
 */
-void QTableWidget::setSelected(const QTableWidgetItem *item, bool select)
+void QTableWidget::setItemSelected(const QTableWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(item);
     selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
@@ -1344,7 +1364,7 @@ void QTableWidget::setSelected(const QTableWidgetItem *item, bool select)
 /*!
   Selects or deselects the \a range depending on \a select.
 */
-void QTableWidget::setSelected(const QTableWidgetSelectionRange &range, bool select)
+void QTableWidget::setRangeSelected(const QTableWidgetSelectionRange &range, bool select)
 {
     if (!model()->hasIndex(range.topRow(), range.leftColumn(), rootIndex()) ||
         !model()->hasIndex(range.bottomRow(), range.rightColumn(), rootIndex()))
@@ -1431,26 +1451,12 @@ QTableWidgetItem *QTableWidget::itemAt(const QPoint &p) const
 /*!
   Returns the rectangle on the viewport occupied by the item at \a item.
 */
-QRect QTableWidget::viewportRectForItem(const QTableWidgetItem *item) const
+QRect QTableWidget::visualItemRect(const QTableWidgetItem *item) const
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
     Q_ASSERT(index.isValid());
-    return viewportRectForIndex(index);
-}
-
-/*!
-  Returns true if the \a item is in the viewport, otherwise returns false.
-*/
-
-bool QTableWidget::isItemVisible(const QTableWidgetItem *item) const
-{
-    Q_ASSERT(item);
-    QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
-    QRect rect = viewportRectForIndex(index);
-    if (rect.isValid())
-        return d->viewport->rect().contains(rect);
-    return false;
+    return visualRect(index);
 }
 
 /*!
@@ -1523,27 +1529,6 @@ void QTableWidget::clear()
 void QTableWidget::setModel(QAbstractItemModel *model)
 {
     QTableView::setModel(model);
-}
-
-/*!
-  \internal
-*/
-void QTableWidget::setup()
-{
-    // view signals
-    connect(this, SIGNAL(pressed(QModelIndex)), SLOT(emitItemPressed(QModelIndex)));
-    connect(this, SIGNAL(clicked(QModelIndex)), SLOT(emitItemClicked(QModelIndex)));
-    connect(this, SIGNAL(doubleClicked(QModelIndex)), SLOT(emitItemDoubleClicked(QModelIndex)));
-    connect(this, SIGNAL(activated(QModelIndex)), SLOT(emitItemActivated(QModelIndex)));
-    connect(this, SIGNAL(entered(QModelIndex)), SLOT(emitItemEntered(QModelIndex)));
-    // model signals
-    connect(model(), SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-            SLOT(emitItemChanged(QModelIndex)));
-    // selection signals
-    connect(selectionModel(), SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(emitCurrentItemChanged(QModelIndex,QModelIndex)));
-    connect(selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SIGNAL(itemSelectionChanged()));
 }
 
 QTableWidgetItemCreatorBase::~QTableWidgetItemCreatorBase() {}

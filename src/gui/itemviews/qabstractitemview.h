@@ -120,7 +120,7 @@ public:
     void setKeyboardInputInterval(int msec);
     int keyboardInputInterval() const;
 
-    virtual QRect viewportRectForIndex(const QModelIndex &index) const = 0;
+    virtual QRect visualRect(const QModelIndex &index) const = 0;
     virtual void scrollTo(const QModelIndex &index) = 0;
     virtual QModelIndex indexAt(const QPoint &p) const = 0;
     inline QModelIndex indexAt(int x, int y) const  { return indexAt(QPoint(x, y)); }
@@ -187,7 +187,7 @@ protected:
     virtual bool isIndexHidden(const QModelIndex &index) const = 0;
 
     virtual void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command) = 0;
-    virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
+    virtual QRect visualRectForSelection(const QItemSelection &selection) const = 0;
     virtual QModelIndexList selectedIndexes() const;
 
     virtual bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);

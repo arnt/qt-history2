@@ -133,22 +133,20 @@ public:
 
     QListWidgetItem *itemAt(const QPoint &p) const;
     inline QListWidgetItem *itemAt(int x, int y) const { return itemAt(QPoint(x, y)); }
-    QRect viewportRectForItem(const QListWidgetItem *item) const;
+    QRect visualItemRect(const QListWidgetItem *item) const;
 
     void sortItems(Qt::SortOrder order = Qt::AscendingOrder);
 
     void openPersistentEditor(QListWidgetItem *item);
     void closePersistentEditor(QListWidgetItem *item);
 
-    bool isSelected(const QListWidgetItem *item) const;
-    void setSelected(const QListWidgetItem *item, bool select);
+    bool isItemSelected(const QListWidgetItem *item) const;
+    void setItemSelected(const QListWidgetItem *item, bool select);
     QList<QListWidgetItem*> selectedItems() const;
     QList<QListWidgetItem*> findItems(const QRegExp &rx) const;
 
     bool isItemHidden(const QListWidgetItem *item) const;
     void setItemHidden(const QListWidgetItem *item, bool hide);
-
-    bool isItemVisible(const QListWidgetItem *item) const;
 
 public slots:
     void scrollToItem(const QListWidgetItem *item);
@@ -167,11 +165,9 @@ signals:
 
     void itemSelectionChanged();
 
-protected:
-    void setModel(QAbstractItemModel *model);
-    void setup();
-
 private:
+    void setModel(QAbstractItemModel *model);
+
     Q_DECLARE_PRIVATE(QListWidget)
     Q_DISABLE_COPY(QListWidget)
 

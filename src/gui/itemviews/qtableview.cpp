@@ -512,10 +512,10 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         visualRow = bottom;
         break;
     case MovePageUp: {
-        int newRow = rowAt(viewportRectForIndex(current).top() - d->viewport->height());
+        int newRow = rowAt(visualRect(current).top() - d->viewport->height());
         return model()->index(newRow <= bottom ? newRow : 0, current.column(), rootIndex());}
     case MovePageDown: {
-        int newRow = rowAt(viewportRectForIndex(current).bottom() + d->viewport->height());
+        int newRow = rowAt(visualRect(current).bottom() + d->viewport->height());
         return model()->index(newRow >= 0 ? newRow : bottom, current.column(), rootIndex());}
     }
 
@@ -560,7 +560,7 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
     Returns the rectangle from the viewport of the items in the given
     \a selection.
 */
-QRect QTableView::selectionViewportRect(const QItemSelection &selection) const
+QRect QTableView::visualRectForSelection(const QItemSelection &selection) const
 {
     int top = d->model->rowCount(rootIndex()) - 1;
     int left = d->model->columnCount(rootIndex()) - 1;
@@ -844,7 +844,7 @@ void QTableView::setGridStyle(Qt::PenStyle style)
     Returns the rectangle on the viewport occupied by the given \a
     index.
 */
-QRect QTableView::viewportRectForIndex(const QModelIndex &index) const
+QRect QTableView::visualRect(const QModelIndex &index) const
 {
     if (!index.isValid() || index.parent() != rootIndex())
         return QRect();
@@ -866,7 +866,7 @@ void QTableView::scrollTo(const QModelIndex &index)
     if (isIndexHidden(index))
         return;
     QRect area = d->viewport->rect();
-    QRect rect = viewportRectForIndex(index);
+    QRect rect = visualRect(index);
     if (area.contains(rect)) {
         d->viewport->update(rect);
         return;
@@ -904,7 +904,7 @@ void QTableView::scrollTo(const QModelIndex &index)
         horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
     }
 
-    d->viewport->update(viewportRectForIndex(index));
+    d->viewport->update(visualRect(index));
 }
 
 /*!

@@ -496,7 +496,7 @@ void QListView::setRowHidden(int row, bool hide)
 /*!
   \reimp
 */
-QRect QListView::viewportRectForIndex(const QModelIndex &index) const
+QRect QListView::visualRect(const QModelIndex &index) const
 {
     return d->mapToViewport(rectForIndex(index));
 }
@@ -507,7 +507,7 @@ QRect QListView::viewportRectForIndex(const QModelIndex &index) const
 void QListView::scrollTo(const QModelIndex &index)
 {
     QRect area = d->viewport->rect();
-    QRect rect = viewportRectForIndex(index);
+    QRect rect = visualRect(index);
 
     if (index.parent() != rootIndex() || index.column() != d->column)
         return;
@@ -753,7 +753,7 @@ void QListView::internalDrop(QDropEvent *e)
         if (isRightToLeft())
             dest.setX(d->flipX(dest.x()) - rect.width());
         d->moveItem(index.row(), dest);
-        d->viewport->update(viewportRectForIndex(index));
+        d->viewport->update(visualRect(index));
     }
     stopAutoScroll();
     d->draggedItems.clear();
@@ -827,7 +827,7 @@ void QListView::paintEvent(QPaintEvent *e)
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
         Q_ASSERT((*it).isValid());
-        option.rect = viewportRectForIndex(*it);
+        option.rect = visualRect(*it);
         option.state = state;
         option.state |= (selections && selections->isSelected(*it)
                          ? QStyle::State_Selected : QStyle::State_None);
@@ -855,7 +855,7 @@ QModelIndex QListView::indexAt(const QPoint &p) const
     d->intersectingSet(rect);
     QModelIndex index = d->intersectVector.count() > 0
                         ? d->intersectVector.first() : QModelIndex();
-    if (index.isValid() && viewportRectForIndex(index).contains(p))
+    if (index.isValid() && visualRect(index).contains(p))
         return index;
     return QModelIndex();
 }
@@ -1009,7 +1009,7 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
 /*!
   \reimp
 */
-QRect QListView::selectionViewportRect(const QItemSelection &selection) const
+QRect QListView::visualRectForSelection(const QItemSelection &selection) const
 {
     // if we are updating just one, get the rect
     if (selection.count() == 1 && selection.at(0).isValid()
@@ -1018,7 +1018,7 @@ QRect QListView::selectionViewportRect(const QItemSelection &selection) const
         int column = selection.at(0).left();
         QModelIndex parent = selection.at(0).parent();
         QModelIndex single = model()->index(row, column, parent);
-        return viewportRectForIndex(single);
+        return visualRect(single);
     }
     // otherwise, just update the whole viewport
     return d->viewport->rect();

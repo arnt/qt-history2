@@ -1667,12 +1667,12 @@ QTreeWidgetItem *QTreeWidget::itemAt(const QPoint &p) const
 /*!
   Returns the rectangle on the viewport occupied by the item at \a item.
 */
-QRect QTreeWidget::viewportRectForItem(const QTreeWidgetItem *item) const
+QRect QTreeWidget::visualItemRect(const QTreeWidgetItem *item) const
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     Q_ASSERT(index.isValid());
-    return viewportRectForIndex(index);
+    return visualRect(index);
 }
 
 /*!
@@ -1737,7 +1737,7 @@ void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
   Returns true if the \a item is selected and not-hidden and does not
   have hidden parents; otherwise returns false.
 */
-bool QTreeWidget::isSelected(const QTreeWidgetItem *item) const
+bool QTreeWidget::isItemSelected(const QTreeWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     if (selectionModel()->isSelected(index)) {
@@ -1754,7 +1754,7 @@ bool QTreeWidget::isSelected(const QTreeWidgetItem *item) const
   deselected.
 */
 
-void QTreeWidget::setSelected(const QTreeWidgetItem *item, bool select)
+void QTreeWidget::setItemSelected(const QTreeWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     selectionModel()->select(index, (select ? QItemSelectionModel::Select

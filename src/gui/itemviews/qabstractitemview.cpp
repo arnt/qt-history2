@@ -358,7 +358,7 @@ and keyboard modifiers are specified by \a button and \a modifiers.
 */
 
 /*!
-    \fn QRect QAbstractItemView::selectionViewportRect(const QItemSelection &selection) const = 0
+    \fn QRect QAbstractItemView::visualRectForSelection(const QItemSelection &selection) const = 0
 
     Returns the rectangle from the viewport of the items in the given
     \a selection.
@@ -1049,7 +1049,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
     if (d->canDecode(e)) {
         if (index.isValid()) {
             // update the drag indicator geometry
-            QRect rect = viewportRectForIndex(index);
+            QRect rect = visualRect(index);
             QRect global(d->viewport->mapToGlobal(rect.topLeft()), rect.size());
             switch (d->position(e->pos(), rect, 2)) {
             case QAbstractItemViewPrivate::Above: {
@@ -1127,7 +1127,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
         int row = -1; // prepend
         if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled
             || model()->flags(index.parent()) & QAbstractItemModel::ItemIsDropEnabled) {
-            switch(d->position(pos, viewportRectForIndex(index), 2)) {
+            switch(d->position(pos, visualRect(index), 2)) {
             case QAbstractItemViewPrivate::Above:
                 row = index.row();
                 index = index.parent();
@@ -1157,7 +1157,7 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
     QViewport::focusInEvent(e);
     QModelIndex index = currentIndex();
     if (index.isValid())
-        d->viewport->update(viewportRectForIndex(index));
+        d->viewport->update(visualRect(index));
 }
 
 /*!
@@ -1169,7 +1169,7 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *e)
     QViewport::focusOutEvent(e);
     QModelIndex index = currentIndex();
     if (index.isValid())
-        d->viewport->update(viewportRectForIndex(index));
+        d->viewport->update(visualRect(index));
 }
 
 /*!
@@ -1232,12 +1232,12 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
             if (command & QItemSelectionModel::Current) {
                 selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
                 QPoint offset(horizontalOffset(), verticalOffset());
-                QRect rect(d->pressedPosition - offset, viewportRectForIndex(newCurrent).center());
+                QRect rect(d->pressedPosition - offset, visualRect(newCurrent).center());
                 setSelection(rect.normalize(), command);
             } else {
                 selectionModel()->setCurrentIndex(newCurrent, command);
                 QPoint offset(horizontalOffset(), verticalOffset());
-                d->pressedPosition = viewportRectForIndex(newCurrent).center() + offset;
+                d->pressedPosition = visualRect(newCurrent).center() + offset;
             }
             return;
         }
@@ -1339,7 +1339,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
     QModelIndex buddy = model()->buddy(index);
 
     QStyleOptionViewItem options = viewOptions();
-    options.rect = viewportRectForIndex(buddy);
+    options.rect = visualRect(buddy);
     options.state |= (buddy == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
 
     if (event && itemDelegate()->editorEvent(event, model(), options, buddy))
@@ -1381,7 +1381,7 @@ void QAbstractItemView::updateEditorGeometries()
     QStyleOptionViewItem option = viewOptions();
     QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it) {
-        option.rect = viewportRectForIndex(it.key());
+        option.rect = visualRect(it.key());
         if (option.rect.isValid())
             it.value()->show();
         else
@@ -1652,7 +1652,7 @@ int QAbstractItemView::sizeHintForColumn(int column) const
 void QAbstractItemView::openPersistentEditor(const QModelIndex &index)
 {
     QStyleOptionViewItem options = viewOptions();
-    options.rect = viewportRectForIndex(index);
+    options.rect = visualRect(index);
     options.state |= (index == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
 
     QWidget *editor = d->editor(index, options);
@@ -1701,7 +1701,7 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
         if (d->editors.contains(topLeft))
             itemDelegate()->setEditorData(d->editors.value(topLeft), topLeft);
         else
-            d->viewport->update(viewportRectForIndex(topLeft));
+            d->viewport->update(visualRect(topLeft));
         return;
     }
     updateEditorData(); // we are counting on having relatively few editors
@@ -1709,8 +1709,8 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     bool sameRow = topLeft.row() == bottomRight.row() && topLeft.isValid();
     bool sameCol = topLeft.column() == bottomRight.column() && topLeft.isValid();
     if (sameRow || sameCol) {
-        QRect tl = viewportRectForIndex(topLeft);
-        QRect br = viewportRectForIndex(bottomRight);
+        QRect tl = visualRect(topLeft);
+        QRect br = visualRect(bottomRight);
         d->viewport->update(tl.unite(br));
         return;
     }
@@ -1751,8 +1751,8 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &, int, int)
 void QAbstractItemView::selectionChanged(const QItemSelection &selected,
                                          const QItemSelection &deselected)
 {
-    QRect deselectedRect = selectionViewportRect(deselected);
-    QRect selectedRect = selectionViewportRect(selected);
+    QRect deselectedRect = visualRectForSelection(deselected);
+    QRect selectedRect = visualRectForSelection(selected);
     viewport()->update(deselectedRect.unite(selectedRect));
 }
 
@@ -1769,7 +1769,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
     if (previous.isValid()) {
         // repaint the previous item; if it is not selected, this is the only place to do this
         int behavior = selectionBehavior();
-        QRect rect = viewportRectForIndex(previous);
+        QRect rect = visualRect(previous);
         if (behavior & SelectRows) {
             rect.setLeft(0);
             rect.setRight(d->viewport->width());
@@ -1805,10 +1805,10 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
     QModelIndexList indexes = selectionModel()->selectedIndexes();
     if (indexes.count() > 0) {
         // setup pixmap
-        QRect rect = viewportRectForIndex(indexes.at(0));
+        QRect rect = visualRect(indexes.at(0));
         QList<QRect> rects;
         for (int i = 0; i < indexes.count(); ++i) {
-            rects.append(viewportRectForIndex(indexes.at(i)));
+            rects.append(visualRect(indexes.at(i)));
             rect |= rects.at(i);
         }
         rect = rect.intersect(d->viewport->rect());
@@ -2084,7 +2084,7 @@ void QAbstractItemViewPrivate::fetchMore()
     if (last < 0)
         return;
     QModelIndex index = model->index(last, 0, root);
-    QRect rect = q->viewportRectForIndex(index);
+    QRect rect = q->visualRect(index);
     if (viewport->rect().contains(rect))
         model->fetchMore(root);
 }

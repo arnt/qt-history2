@@ -432,7 +432,7 @@ void QTreeView::setExpanded(const QModelIndex &index, bool expand)
   Returns the rectangle on the viewport occupied by the item at \a
   index.
 */
-QRect QTreeView::viewportRectForIndex(const QModelIndex &index) const
+QRect QTreeView::visualRect(const QModelIndex &index) const
 {
     if (!index.isValid())
         return QRect();
@@ -461,7 +461,7 @@ void QTreeView::scrollTo(const QModelIndex &index)
     // check if we really need to do anything
     if (isIndexHidden(index))
         return;
-    QRect rect = viewportRectForIndex(index);
+    QRect rect = visualRect(index);
     if (rect.isEmpty())
         return;
     QRect area = d->viewport->rect();
@@ -873,7 +873,7 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
   Returns the rectangle from the viewport of the items in the given
   \a selection.
 */
-QRect QTreeView::selectionViewportRect(const QItemSelection &selection) const
+QRect QTreeView::visualRectForSelection(const QItemSelection &selection) const
 {
     if (selection.count() <= 0 || d->viewItems.count() <= 0)
         return QRect();

@@ -143,7 +143,7 @@ protected:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void rowsInserted(const QModelIndex &parent, int start, int end);
 
-    QRect viewportRectForIndex(const QModelIndex &index) const;
+    QRect visualRect(const QModelIndex &index) const;
     void scrollTo(const QModelIndex &index);
 
     QModelIndex indexAt(const QPoint &p) const;
@@ -151,7 +151,7 @@ protected:
 
     QModelIndex moveCursor(QAbstractItemView::CursorAction, Qt::KeyboardModifiers);
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags);
-    QRect selectionViewportRect(const QItemSelection &selection) const;
+    QRect visualRectForSelection(const QItemSelection &selection) const;
 
 private:
     Q_DECLARE_PRIVATE(QHeaderView)
