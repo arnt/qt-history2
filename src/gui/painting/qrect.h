@@ -362,10 +362,10 @@ inline void QRect::addCoords(int xp1, int yp1, int xp2, int yp2)
 }
 
 inline void QRect::setWidth(int w)
-{ x2 = (x1 + w); }
+{ x2 = (x1 + w - 1); }
 
 inline void QRect::setHeight(int h)
-{ y2 = (y1 + h); }
+{ y2 = (y1 + h - 1); }
 
 inline void QRect::setSize(const QSize &s)
 {
