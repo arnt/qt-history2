@@ -1250,7 +1250,7 @@ int QFtp::cd( const QString &dir )
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
 
-  \sa newData() dataSize() dataProgress() start() finishedSuccess() finishedError()
+  \sa newData() dataTransferProgress() start() finishedSuccess() finishedError()
 */
 int QFtp::get( const QString &file )
 {
@@ -1283,7 +1283,7 @@ int QFtp::get( const QString &file, QIODevice *dev )
 
 /*! \overload
   Stores the data \a data under \a file on the server. The progress of the
-  upload is reported by the dataSize() and dataProgress() signals.
+  upload is reported by the dataTransferProgress() signal.
 
   This function returns immediately; the command is scheduled and its execution
   is done asynchronous. In order to identify this command, the function returns
@@ -1292,7 +1292,7 @@ int QFtp::get( const QString &file, QIODevice *dev )
   When the command is started the start() signal is emitted. When it is
   finished, either the finishedSuccess() or finishedError() signal is emitted.
 
-  \sa dataSize() dataProgress() start() finishedSuccess() finishedError()
+  \sa dataTransferProgress() start() finishedSuccess() finishedError()
 */
 int QFtp::put( const QByteArray &data, const QString &file )
 {
