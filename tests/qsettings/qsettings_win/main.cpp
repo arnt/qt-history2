@@ -3,11 +3,15 @@
 int main ( int argc, char **argv )
 {
     {
-	QSettings settings( QSettings::Ini );
-	settings.writeEntry( "/Trolltech/QSettings/string", "String" );
-	settings.writeEntry( "/Trolltech/QSettings/int", 0xffff );
-	settings.writeEntry( "/Trolltech/QSettings/bool", true );
-	settings.writeEntry( "/Trolltech/QSettings/double", 3.1415927 );
+	QSettings settings;
+	settings.setPath( "trolltech.com", "QSettings", QSettings::User );
+
+	settings.writeEntry( "/string", "String" );
+	settings.writeEntry( "/int", 0xffff );
+	settings.writeEntry( "/bool", true );
+	settings.writeEntry( "/double", 3.1415927 );
+
+	settings.resetGroup();
 
 	QStringList subkeys = settings.subkeyList( "/Trolltech" );
 	for ( QStringList::Iterator it = subkeys.begin(); it != subkeys.end(); ++it ) {
@@ -20,7 +24,7 @@ int main ( int argc, char **argv )
     }
 
     {
-	QSettings settings( QSettings::Ini );
+	QSettings settings;
 	qDebug( settings.readEntry( "/Trolltech/QSettings/string" ) );
 	qDebug( "%d", settings.readNumEntry( "/Trolltech/QSettings/int" ) );
 	qDebug( "%d", settings.readBoolEntry( "/Trolltech/QSettings/bool" ) );
