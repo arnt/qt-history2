@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#76 $
 **
 ** Implementation of QMenuData class
 **
@@ -778,7 +778,7 @@ QIconSet* QMenuData::iconSet( int id ) const
 QString QMenuData::text( int id ) const
 {
     QMenuItem *mi = findItem( id );
-    return mi->text();
+    return mi ? mi->text() : QString::null;
 }
 
 /*!
