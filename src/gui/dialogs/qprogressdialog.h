@@ -42,7 +42,7 @@ public:
     explicit QProgressDialog(const QString &labelText,
                              const QString &cancelButtonText,
                              int minimum, int maximum,
-			     QWidget *parent = 0, Qt::WFlags f = 0);
+                             QWidget *parent = 0, Qt::WFlags f = 0);
     ~QProgressDialog();
 
     void setLabel(QLabel *label);
