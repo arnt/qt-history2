@@ -1,9 +1,27 @@
 #include "projectsettingsinterfaceimpl.h"
 #include "projectsettings.h"
 
-ProjectSettingsInterfaceImpl::ProjectSettingsInterfaceImpl()
+ProjectSettingsInterfaceImpl::ProjectSettingsInterfaceImpl( QUnknownInterface *outer )
+    : parent( outer ),
+      ref( 0 ),
+      settingsTab( 0 )
 {
-    settingsTab = 0;
+}
+
+ulong ProjectSettingsInterfaceImpl::addRef()
+{
+    return parent ? parent->addRef() : ref++;
+}
+
+ulong ProjectSettingsInterfaceImpl::release()
+{
+    if ( parent )
+	return parent->release();
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
+    return ref;
 }
 
 ProjectSettingsInterface::ProjectSettings *ProjectSettingsInterfaceImpl::projectSetting()
@@ -38,15 +56,6 @@ void ProjectSettingsInterfaceImpl::deleteProjectSettingsObject( ProjectSettings 
 
 QRESULT ProjectSettingsInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    *iface = 0;
-    if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_ProjectSettings )
-	*iface = (ProjectSettingsInterface*)this;
-    else
-	return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-    return QS_OK;
+    return parent->queryInterface( uuid, iface );
 }
 

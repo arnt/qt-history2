@@ -5,17 +5,20 @@ class CppProjectSettings;
 class ProjectSettingsInterfaceImpl : public ProjectSettingsInterface
 {
 public:
-    ProjectSettingsInterfaceImpl();
-    
+    ProjectSettingsInterfaceImpl( QUnknownInterface *outer );
+
+    ulong addRef();
+    ulong release();
+
     ProjectSettings *projectSetting();
     QStringList projectSettings() const;
     void connectTo( QUnknownInterface *appInterface );
     void deleteProjectSettingsObject( ProjectSettings * );
     QRESULT queryInterface( const QUuid &uuid, QUnknownInterface **iface );
-    Q_REFCOUNT
-    
+
 private:
+    QUnknownInterface *parent;
+    int ref;
     CppProjectSettings *settingsTab;
-    
 };
 

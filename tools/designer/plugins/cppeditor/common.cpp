@@ -53,7 +53,7 @@ CommonInterface::CommonInterface()
     langIface->addRef();
     prefIface = new PreferenceInterfaceImpl;
     prefIface->addRef();
-    proIface = new ProjectSettingsInterfaceImpl;
+    proIface = new ProjectSettingsInterfaceImpl( this );
     proIface->addRef();
     srcIface = new SourceTemplateInterfaceImpl;
     srcIface->addRef();
