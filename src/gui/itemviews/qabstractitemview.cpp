@@ -683,7 +683,8 @@ bool QAbstractItemView::event(QEvent *e)
         if (!statustip.isEmpty())
             setStatusTip(statustip);
         return true; }
-    case QEvent::ActivationChange:
+    case QEvent::WindowActivate:
+    case QEvent::WindowDeactivate:
         d->viewport->update();
         break;
     default:
