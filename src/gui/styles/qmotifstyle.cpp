@@ -61,6 +61,13 @@ static const int motifCheckMarkSpace    = 12;
     resembles the original Motif look as defined by the Open Group,
     but with some minor improvements. The Motif style is Qt's default
     GUI style on UNIX platforms.
+
+    Most of the functions are documented in the base classes,
+    \l{QCommonStyle} and \l{QStyle}, but the functions overloaded by
+    QMotifStyle, drawComplexControl(), drawControl(), drawPrimitive(),
+    querySubControlMetrics(), setUseHighlightColors(),
+    sizeFromContents(), subRect(), and useHighlightColors(), are
+    documented here.
 */
 
 /*!
@@ -76,7 +83,10 @@ QMotifStyle::QMotifStyle(bool useHighlightCols) : QCommonStyle()
     highlightCols = useHighlightCols;
 }
 
-/*!\reimp
+/*!
+    \overload
+
+    Destroys the style.
 */
 QMotifStyle::~QMotifStyle()
 {
@@ -174,7 +184,13 @@ static void rot(QPointArray& a, int n)
 }
 
 
-/*!\reimp
+/*!
+    \overload
+
+    Draws the primitive element \a pe on painter \a p. The confining
+    rectangle is \a r and the palette to be used is \a pal. The
+    drawing respects the style \a flags and the style options
+    specified by \a opt.
 */
 void QMotifStyle::drawPrimitive(PrimitiveElement pe,
                                  QPainter *p,
@@ -746,7 +762,13 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe,
 }
 
 
-/*!\reimp
+/*!
+    \overload
+
+    Draws the control \a element on painter \a p. The parent widget is
+    \a widget. The confining rectangle is given by \a r and the
+    palette to be used by \a pal. The drawing respects the style \a
+    flags and the style options specified by \a opt.
 */
 void QMotifStyle::drawControl(ControlElement element,
                                QPainter *p,
@@ -1345,7 +1367,14 @@ static void get_combo_parameters(const QRect &r,
     ax  += (ew-awh)/2;
 }
 
-/*!\reimp
+/*!
+    \overload
+
+    Draws the complex \a control using the painter \a p. The \a widget
+    may be given and may be useful for drawing the element. The
+    confining rectangle is \a r, and the palette to be used is \a pal.
+    The style flags are given by \a flags, \a sub, and \a subActive,
+    and the style options by \a opt.
 */
 void QMotifStyle::drawComplexControl(ComplexControl control,
                                      QPainter *p,
@@ -1667,7 +1696,12 @@ int QMotifStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 }
 
 
-/*!\reimp
+/*!
+    \overload
+
+    Returns the rectangle needed by the given sub-control \a{sc}, in
+    the complex \a control in the given \a widget with the style
+    options specified by \a opt.
 */
 QRect QMotifStyle::querySubControlMetrics(ComplexControl control,
                                            const QWidget *widget,
@@ -1847,7 +1881,13 @@ QRect QMotifStyle::querySubControlMetrics(ComplexControl control,
     return QCommonStyle::querySubControlMetrics(control, widget, sc, opt);
 }
 
-/*!\reimp
+/*!
+    \overload
+
+    Returns the size required by the given \a contents using the \a
+    contentsSize, and the style options specified by \a opt. The \a
+    widget is optional and may contain a widget that is useful for
+    calculating the size.
 */
 QSize QMotifStyle::sizeFromContents(ContentsType contents,
                                      const QWidget *widget,
@@ -1981,7 +2021,12 @@ QSize QMotifStyle::sizeFromContents(ContentsType contents,
     return sz;
 }
 
-/*!\reimp
+/*!
+    \overload
+
+    Returns the rectangle for the given sub-rectangle \a r. The \a
+    widget is optional and may contain a widget that is useful for
+    drawing the sub-rectangle.
 */
 QRect QMotifStyle::subRect(SubRect r, const QWidget *widget) const
 {

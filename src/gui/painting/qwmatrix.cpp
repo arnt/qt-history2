@@ -313,7 +313,7 @@ void QWMatrix::setMatrix(double m11, double m12, double m21, double m22,
 /*!
     \overload
 
-    Transforms (\a x, \a y) to (\a *tx, \a *ty) using the
+    Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the
     following formulae:
 
     \code
@@ -328,7 +328,7 @@ void QWMatrix::map(double x, double y, double *tx, double *ty) const
 }
 
 /*!
-    Transforms (\a x, \a y) to (\a *tx, \a *ty) using the formulae:
+    Transforms (\a{x}, \a{y}) to (\c{*}\a{tx}, \c{*}\a{ty}) using the formulae:
 
     \code
         *tx = m11*x + m21*y + dx  (rounded to the nearest integer)
@@ -867,9 +867,9 @@ QWMatrix &QWMatrix::rotate(double a)
     If the matrix is singular (not invertible), the identity matrix is
     returned.
 
-    If \a invertible is not 0: the value of \a *invertible is set
-    to true if the matrix is invertible; otherwise \a *invertible is
-    set to false.
+    If \a invertible is not 0: the value of \c{*}\a{invertible} is set
+    to true if the matrix is invertible; otherwise \c{*}\a{invertible}
+    is set to false.
 
     \sa isInvertible()
 */

@@ -16,8 +16,9 @@
 
 /*!
     \class QStyleOption qstyleoption.h
-    \brief QStyleOption and its sub-classes describe parameters that are used
-    by QStyle functions.
+    \brief The QStyleOption class and its sub-classes are used to
+    describe the parameters used by QStyle functions.
+
     \ingroup appearance
 
     In previous Qt versions, many QStyle functions required a QWidget parameter
@@ -145,8 +146,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionFocusRect qstyleoption.h
-    \brief QStyleOptionFocusRect describes the parameters for drawing a focus
-    rect with QStyle.
+    \brief The QStyleOptionFocusRect class is used to describe the
+    parameters for drawing a focus rect with QStyle.
 
     Note that on Mac OS X, the focus rect is handled by a FocusWidget, so be
     sure that you only use the focus rect for things that really need a focus
@@ -169,7 +170,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionFrame qstyleoption.h
-    \brief QStyleOptionFrame describes the parameters for drawing a frame.
+    \brief The QStyleOptionFrame class is used to describe the
+    parameters for drawing a frame.
 
     QStyleOptionFrame is used for drawing several objects inside of Qt. Among
     them: QFrame, QGroupBox, QLineEdits, and the frame around a QMenu.
@@ -197,7 +199,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionHeader qstyleoption.h
-    \brief QStyleOptionHeader describes parameters for drawing a header.
+    \brief The QStyleOptionHeader class is used to describe the
+    parameters for drawing a header.
 
     The QStleOptionHeader structure is used for drawing the header pane, the
     header sort arrow, and the header label.
@@ -231,7 +234,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionButton qstyleoption.h
-    \brief QStyleOptionButton describes the parameters to draw buttons.
+    \brief The QStyleOptionButton class is used to describe the
+    parameters for drawing buttons.
 
     The QStyleOptionButton structure is used to draw \l QPushbuttons, \l
     QCheckBoxes, and \l QRadioButtons. \l QStyleOptionToolButton is used to draw
@@ -278,7 +282,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionTab qstyleoption.h
-    \brief The QStyleOptionTab structure describe parameters for drawing a TabBar.
+    \brief The QStyleOptionTab class is used to describe the
+    parameters for drawing a TabBar.
 
     The QStyleOptionTab structure is used for drawing the \l QTabBar and the
     pane for \l QTabWidget.
@@ -317,7 +322,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionProgressBar qstyleoption.h
-    \brief QStyleOptionProgressBar describes the parameters necessary for drawing a progress bar.
+    \brief The QStyleOptionProgressBar class is used to describe the
+    parameters necessary for drawing a progress bar.
 
     The QStyleOptionProgressBar structure is used to draw \l QProgressBars.
 */
@@ -384,7 +390,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionMenuItem qstyleoption.h
-    \brief QStyleOptionMenuItem describes the parameter necessary for drawing a menu item.
+    \brief The QStyleOptionMenuItem class is used to describe the
+    parameter necessary for drawing a menu item.
 
     The QStyleOptionMenuItem is used for drawing menu items from \l QMenu.
     It is also used for drawing a variety of other menu related things.
@@ -485,7 +492,7 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionComplex qstyleoption.h
-    \brief The QStyleOptionComplex structure contains parameters that are
+    \brief The QStyleOptionComplex class is used to hold parameters that are
     common to all complex controls.
 
     This class is not used on its own. Instead it is used to derive other
@@ -520,7 +527,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionSlider qstyleoption.h
-    \brief QStyleOptionSlider describes the parameters needed for drawing a slider.
+    \brief The QStyleOptionSlider class is used to describe the
+    parameters needed for drawing a slider.
 
     The QStyleOptionSlider structure is used for drawing both a \l QSlider and a \l QScrollBar.
 */
@@ -607,7 +615,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionSpinBox qstyleoption.h
-    \brief QStyleOptionSpinBox describes the parameters necessary for drawing a spin box.
+    \brief The QStyleOptionSpinBox class is used to describe the
+    parameters necessary for drawing a spin box.
 
     The QStyleOptionSpinBox is used for drawing a QSpinBox and QDateTimeEdit.
 */
@@ -646,7 +655,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionListViewItem qsytleoption.h
-    \brief QStyleOptionListViewItem describes an item drawn in a Q3ListView
+    \brief The QStyleOptionListViewItem class is used to describe an
+    item drawn in a Q3ListView.
 
     This is used by the compat Q3ListView to draw its items. It should be
     avoided for new clases.
@@ -712,7 +722,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionListView qstyleoption.h
-    \brief QStyleOptionListView describes the parameters for drawing a Q3ListView.
+    \brief The QStyleOptionListView class is used to describe the
+    parameters for drawing a Q3ListView.
 
     The structure is used for drawing the compat \l Q3ListView. It is not
     recommended for use in new code.
@@ -780,8 +791,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionDockWindow
-    \brief The QStyleOptionDockWindow describes parameters for drawing various
-    parts of \l Q3DockWindows.
+    \brief The QStyleOptionDockWindow class is used to describe the
+    parameters for drawing various parts of \l Q3DockWindows.
 
     This structure is used for drawing the old Q3DockWindow and its parts. It
     is not recommended for new classes.
@@ -807,7 +818,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionToolButton qstyleoption.h
-    \brief QStyleOptionToolButton describes the parameters for drawing a tool button.
+    \brief The QStyleOptionToolButton class is used to describe the
+    parameters for drawing a tool button.
 
     The QStyleOptionToolButton structure is used for drawing \l {QToolButton}s
 */
@@ -871,19 +883,6 @@ void QStyleOption::init(const QWidget *w)
 */
 
 /*!
-    \property QStyleOptionToolButton::parentBGRole
-    \brief The background role of the parent of the tool button
-
-    This can also be the same as bgRole if the button has no parent.
-    \sa QWidget::backgroundRole()
-*/
-
-/*!
-    \property QStyleOptionToolButton::parentPalette
-    \brief The parent's palette (if the tool button has one).
-*/
-
-/*!
     \property QStyleOptionToolButton::pos
     \brief The position of the tool button
 */
@@ -906,7 +905,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionComboBox qstyleoption.h
-    \brief QStyleOptionComboBox describes the parameter for drawing a combobox.
+    \brief The QStyleOptionComboBox class is used to describe the
+    parameter for drawing a combobox.
 
     The QStyleOptionComboBox structure is used for drawing QComboBox.
 */
@@ -933,7 +933,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionToolBox qstyleoption.h
-    \brief QStyleOptionToolBox describes the parameters needed for drawing a tool box.
+    \brief The QStyleOptionToolBox class is used to describe the
+    parameters needed for drawing a tool box.
 
     The QStyleOptionToolBox structure is used for drawing parts of the \l QToolBox.
 */
@@ -977,7 +978,8 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionTitleBar qstyleoption.h
-    \brief QStyleOptionTitleBar describes the parameters for drawing a title bar.
+    \brief The QStyleOptionTitleBar class is used to describe the
+    parameters for drawing a title bar.
 
     The QStyleOptionTitleBar structure is used to draw QTitleBar an internal
     class.
@@ -1016,9 +1018,11 @@ void QStyleOption::init(const QWidget *w)
 
 /*!
     \class QStyleOptionViewItem qstyleoption.h
-    \brief QStyleOptionViewItem describes parameters to draw an item in Interviews.
+    \brief The QStyleOptionViewItem class is used to describe the
+    parameters used to draw an item in item/views.
 
-    The QStyleOptionViewItem structure is used by Interviews to draw its items.
+    The QStyleOptionViewItem structure is used by Qt's model/view
+    classes to draw their items.
 */
 
 /*!

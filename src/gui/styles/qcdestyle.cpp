@@ -34,9 +34,10 @@
     text/foreground color, the style looks quite attractive (at least
     for Motif fans).
 
-    Note that the functions provided by QCDEStyle are
+    Note that most of the functions provided by QCDEStyle are
     reimplementations of QStyle functions; see QStyle for their
-    documentation.
+    documentation. QCDEStyle provides overloads for drawControl() and
+    drawPrimitive() which are documented here.
 */
 
 /*!
@@ -83,7 +84,14 @@ int QCDEStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     return ret;
 }
 
-/*! \reimp
+/*!
+    \overload
+
+    The control element to be drawn is specified by \a element. It is
+    drawn on painter \a p. The \a widget may be given and may be
+    useful for drawing the element. The rectangle in which the drawing
+    must take place is \a r, and the palette to use is \a pal. The
+    style flags are given by \a how, and the style options by \a opt.
 */
 void QCDEStyle::drawControl(ControlElement element,
                              QPainter *p,
@@ -125,7 +133,13 @@ void QCDEStyle::drawControl(ControlElement element,
 
 }
 
-/*! \reimp
+/*!
+    \overload
+
+    The primitive element to be drawn is specified by \a pe. It is
+    drawn on the painter \a p. The rectangle in which the primitive is
+    to be drawn is given by \a r, the palette by \a pal, the style
+    flags by \a flags, and the options by \a opt.
 */
 void QCDEStyle::drawPrimitive(PrimitiveElement pe,
                                QPainter *p,

@@ -79,6 +79,13 @@ public:
 
     This class implements the SGI look and feel. It resembles the
     SGI/Irix Motif GUI style as closely as QStyle allows.
+
+    Most of the functions are documented in the base classes
+    \l{QMotifStyle}, \l{QCommonStyle}, and \l{QStyle}, but the
+    QSGIStyle overloads of drawComplexControl(), drawControl(),
+    drawPrimitive(), querySubControlMetrics(),
+    setUseHighlightColors(), sizeFromContents(), subRect(), and
+    useHighlightColors(), are documented here.
 */
 
 /*!
@@ -564,7 +571,12 @@ static void get_combo_parameters(const QRect &r,
     ax  += (ew-awh)/2;
 }
 
-/*! \reimp */
+/*!
+    Draws the primitive element \a pe on painter \a p. The confining
+    rectangle is \a r and the palette to be used is \a pal. The
+    drawing respects the style \a flags and the style options
+    specified by \a opt.
+*/
 void QSGIStyle::drawPrimitive(PrimitiveElement pe,
                     QPainter *p,
                     const QRect &r,
@@ -897,7 +909,15 @@ void QSGIStyle::drawPrimitive(PrimitiveElement pe,
     }
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Draws the control \a element on painter \a p. The \a widget may be
+    given and may be useful for drawing the element. The confining
+    rectangle is \a r and the palette to use is \a pal. The drawing
+    respects the style \a flags and uses the style options specified
+    by \a opt.
+*/
 void QSGIStyle::drawControl(ControlElement element,
                   QPainter *p,
                   const QWidget *widget,
@@ -1322,7 +1342,15 @@ void QSGIStyle::drawControl(ControlElement element,
     }
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Draws the complex \a control on the painter \a p. The \a widget
+    may be given and may be useful for drawing the element. The
+    confining rectangle is \a r and the palette to use is \a pal. The
+    style flags are specified by \a flags, \a sub, and \a subActive,
+    and the style options by \a opt.
+*/
 void QSGIStyle::drawComplexControl(ComplexControl control,
                          QPainter *p,
                          const QWidget* widget,
@@ -1546,7 +1574,12 @@ void QSGIStyle::drawComplexControl(ComplexControl control,
     }
 }
 
-/*!\reimp
+/*!
+    \overload
+
+    Returns the size needed by the \a contents with the specified \a
+    contentsSize and style options, \a opt. The \a widget is optional
+    and may contain a widget that is useful for calculating the size.
 */
 QSize QSGIStyle::sizeFromContents(ContentsType contents,
                                      const QWidget *widget,
@@ -1605,7 +1638,13 @@ QSize QSGIStyle::sizeFromContents(ContentsType contents,
     return sz;
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Returns the rectangle needed by the given sub-rectangle \a r. The
+    \a widget is optional and may contain a widget that is useful for
+    drawing the sub-rectangle.
+*/
 QRect QSGIStyle::subRect(SubRect r, const QWidget *widget) const
 {
     QRect rect;
@@ -1629,7 +1668,14 @@ QRect QSGIStyle::subRect(SubRect r, const QWidget *widget) const
     return rect;
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Returns the rectangle needed by the sub-control \a sub in the
+    complex \a control using the style options specified by \a opt.
+    The \a widget may contain a widget that is useful for drawing the
+    sub-control.
+*/
 QRect QSGIStyle::querySubControlMetrics(ComplexControl control,
                                            const QWidget *widget,
                                            SubControl sub,

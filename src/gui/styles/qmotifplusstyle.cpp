@@ -109,6 +109,12 @@ static void drawMotifPlusShade(QPainter *p, const QRect &r,
     This class implements a Motif-ish look and feel with the more
     sophisticated bevelling as used by the GIMP Toolkit (GTK+) for
     Unix/X11.
+
+    Most of the functions are documented in the base classes,
+    \l{QMotifStyle}, \l{QCommonStyle}, and \l{QStyle}, but
+    QMotifPlusStyle overloads of drawComplexControl(), drawControl(),
+    drawPrimitive(), querySubControlMetrics(), and subRect() are
+    documented here.
 */
 
 /*!
@@ -128,7 +134,11 @@ QMotifPlusStyle::QMotifPlusStyle(bool hoveringHighlight) : QMotifStyle(true)
     useHoveringHighlight = hoveringHighlight;
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Destroys the style.
+*/
 QMotifPlusStyle::~QMotifPlusStyle()
 {
     if (singleton && --singleton->ref <= 0) {
@@ -236,7 +246,13 @@ int QMotifPlusStyle::pixelMetric(PixelMetric metric, const QWidget *widget) cons
 }
 
 
-/*! \reimp */
+/*!
+    \overload
+
+    Draws the primitive element \a pe on painter \a p. The confining
+    rectangle is \a r and the palette to use is \a pal. The drawing
+    respects the style \a flags and the style options given by \a opt.
+*/
 void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
                                      QPainter *p, const QRect &r, const QPalette &pal,
                                      SFlags flags, const Q3StyleOption& opt) const
@@ -606,7 +622,13 @@ void QMotifPlusStyle::drawPrimitive(PrimitiveElement pe,
 }
 
 
-/*! \reimp
+/*!
+    \overload
+
+    Draws the given control \a element on painter \a p. The parent
+    widget is \a widget. The confining rectangle is \a r and the
+    palette to use is \a pal. The drawing respects the given style \a
+    flags and the style options \a opt.
 */
 void QMotifPlusStyle::drawControl(ControlElement element,
                                    QPainter *p,
@@ -1118,7 +1140,12 @@ void QMotifPlusStyle::drawControl(ControlElement element,
 }
 
 
-/*! \reimp
+/*!
+    \overload
+
+    Returns the rectangle for the sub-rectangle \a r. The \a widget is
+    optional and may contain a widget that is useful for drawing the
+    sub-rectangle.
 */
 QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 {
@@ -1210,7 +1237,15 @@ QRect QMotifPlusStyle::subRect(SubRect r, const QWidget *widget) const
 }
 
 
-/*! \reimp */
+/*!
+    \overload
+
+    Draws the complex \a control on the painter \a p. The \a widget
+    may be given and may be useful for drawing the element. The
+    confining rectangle is given by \a r. The palette to use is \a
+    pal. The flags are given by \a flags, \a controls and \a active,
+    and the style options by \a opt.
+*/
 void QMotifPlusStyle::drawComplexControl(ComplexControl control,
                             QPainter *p,
                             const QWidget *widget,
@@ -1492,7 +1527,13 @@ void QMotifPlusStyle::drawComplexControl(ComplexControl control,
 }
 
 
-/*! \reimp
+/*!
+    \overload
+
+    This function returns the rectangle that would be occupied by a
+    complex control of the type specified by \a control with the
+    parent widget \a widget, sub control \a subcontrol, and with the
+    style options \a opt.
 */
 QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
                                               const QWidget *widget,

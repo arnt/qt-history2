@@ -48,7 +48,12 @@
     that is common to all GUI styles provided and shipped as part of
     Qt.
 
-    All the functions are documented in \l QStyle.
+    All the functions are full documented in \l{QStyle}, although the
+    extra functions that QCommonStyle provides, e.g.
+    drawComplexControl(), drawComplexControlMask(), drawControl(),
+    drawControlMask(), drawPrimitive(), querySubControl(),
+    querySubControlMetrics(), sizeFromContents(), and subRect() are
+    documented here.
 */
 
 /*!
@@ -74,7 +79,11 @@ QCommonStyle::QCommonStyle() : QStyle()
     activePainter = 0;
 }
 
-/*! \reimp */
+/*!
+    \overload
+
+    Destroys the style
+*/
 QCommonStyle::~QCommonStyle()
 {
     activePainter = 0;
@@ -134,7 +143,8 @@ static const char * const tree_branch_closed_xpm[] = {
 
 /*!
     Draws the primitive element \a pe, with style options \a opt, on
-    painter \a p, with the given parent \a widget.
+    painter \a p. The \a widget is optional and may contain a widget
+    that is useful for drawing the primitive.
 */
 void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                                  const QWidget *widget) const
@@ -650,7 +660,8 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
 
 /*!
     Draws the control \a ce, with style options \a opt, on painter \a
-    p, with parent widget \a widget.
+    p. The \a widget is optional and may contain a widget that is
+    useful for drawing the control.
 */
 void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                                QPainter *p, const QWidget *widget) const
@@ -1113,7 +1124,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
 
 /*!
     Draws the mask for the given control \a ce, with style options
-    \a opt, on painter \a p, with parent widget \a w.
+    \a opt, on painter \a p. The widget \a w is optional and may contain
+    a widget that is useful for drawing the primitive.
 */
 void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, QPainter *p,
                                    const QWidget *w) const
@@ -1135,7 +1147,8 @@ void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, Q
 
 /*!
     Returns the rectangle occupied by sub-rectangle \a sr, with style
-    options \a opt, and parent widget \a w.
+    options \a opt. The widget \a w is optional and may contain a widget
+    that is useful for drawing the sub-rectangle.
 */
 QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) const
 {
@@ -1323,7 +1336,8 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
 
 /*!
     Draws the complex control \a cc, with style options \a opt, on painter
-    \a p, with parent widget \a widget.
+    \a p. The \a widget is optional and may contain a widget that is
+    useful for drawing the primitive.
 */
 void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                       QPainter *p, const QWidget *widget) const
@@ -1762,7 +1776,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
 /*!
     Draws the mask for the given complex control \a cc, with style
-    options \a opt, on painter \a p, with parent widget \a w.
+    options \a opt, on painter \a p. The widget \a w is optional and may
+    contain a widget that is useful for drawing the mask.
 */
 void QCommonStyle::drawComplexControlMask(ComplexControl , const QStyleOptionComplex *opt,
                                           QPainter *p, const QWidget *) const
@@ -1865,8 +1880,9 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
 
 /*!
     Returns the rectangle occupied by the complex control \a cc, with
-    style options \a opt, sub-control \a sc, and with the given parent
-    \a widget.
+    style options \a opt, sub-control \a sc. The \a widget is optional
+    and may contain a widget that is useful for drawing the
+    sub-control.
 
     \sa querySubControl()
 */
@@ -2375,8 +2391,9 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
 
 /*!
     Returns the size required by the contents of type \a ct, with
-    style options \a opt, original size \a csz, font metrics \a fm,
-    and parent widget \a widget.
+    style options \a opt, original size \a csz, font metrics \a fm.
+    The \a widget is optional and may contain a widget that is useful
+    for calculating the size.
 */
 QSize QCommonStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, const QSize &csz,
                                      const QFontMetrics &fm, const QWidget *widget) const

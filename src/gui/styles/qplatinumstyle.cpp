@@ -38,6 +38,12 @@
     style with the QStyle system. The emulation is currently far from
     perfect.
 
+    Most of the functions are documented in the base classes
+    \l{QWindowsStyle}, \l{QCommonStyle}, and \l{QStyle}, but the
+    QPlatinumStyle overloads of drawComplexControl(), drawControl(),
+    drawPrimitive(), querySubControlMetrics(), and subRect(), are
+    documented here.
+
     \sa QMacStyle
 */
 
@@ -49,14 +55,23 @@ QPlatinumStyle::QPlatinumStyle()
 {
 }
 
-/*!\reimp
+/*!
+    \overload
+
+    Destroys the style.
 */
 QPlatinumStyle::~QPlatinumStyle()
 {
 }
 
 
-/*!\reimp
+/*!
+    \overload
+
+    Draws the primitive element \a pe on painter \a p. The confining
+    rectangle is \a r and the palette to use is \a pal. The drawing
+    respects the style \a flags and the style options specified by \a
+    opt.
  */
 void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
                                     QPainter *p,
@@ -707,7 +722,13 @@ void QPlatinumStyle::drawPrimitive(PrimitiveElement pe,
 
 }
 
-/*!\reimp
+/*!
+    \overload
+
+    Draws the control \a element on painter \a p. The \a widget may be
+    given and may be useful for drawing the element. The confining
+    rectangle is \a r and the palette to use is \a pal. The drawing
+    respects the style flags, \a how, and the style options, \a opt.
  */
 void QPlatinumStyle::drawControl(ControlElement element,
                                   QPainter *p,
@@ -894,7 +915,14 @@ void QPlatinumStyle::drawControl(ControlElement element,
     }
 }
 
-/*!\reimp
+/*!
+    \overload
+
+    Draws the complex \a control on the painter \a p. The \a widget
+    may be given and may be useful for drawing the element. The
+    confining rectangle is \a r and the palette to use is \a pal. The
+    style flags are specified by \a how, \a sub, and \a subActive, and
+    the style options by \a opt.
  */
 void QPlatinumStyle::drawComplexControl(ComplexControl control,
                                          QPainter *p,
@@ -1284,7 +1312,13 @@ void QPlatinumStyle::drawComplexControl(ComplexControl control,
 
 
 
-/*!\reimp
+/*!
+    \overload
+
+    Returns the rectangle required by the sub-control \a sc in the
+    complex \a control with the style options specified by \a opt. The
+    \a widget may contain a widget that is useful for drawing the
+    sub-control.
  */
 QRect QPlatinumStyle::querySubControlMetrics(ComplexControl control,
                                               const QWidget *widget,
@@ -1444,7 +1478,12 @@ int QPlatinumStyle::pixelMetric(PixelMetric metric,
     return ret;
 }
 
-/*!\reimp
+/*!
+    \overload
+
+    Returns the rectangle for the given sub-rectangle \a r. The \a
+    widget is optional and may contain a widget that is useful for
+    drawing the sub-rectangle.
  */
 QRect QPlatinumStyle::subRect(SubRect r, const QWidget *widget) const
 {

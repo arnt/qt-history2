@@ -116,7 +116,7 @@ void drawPopupMenuItem(QPainter* p, bool checkable,
 
 }
 
-/*! \reimp */
+/*! \overload */
 void QCompactStyle::drawControl(ControlElement element, QPainter *p, const QWidget *widget,
                                  const QRect &r, const QPalette &pal,
                                  SFlags flags, const Q3StyleOption& opt)
