@@ -17,6 +17,15 @@
 **
 *****************************************************************************/
 
+#include "qglobal.h"
+#if !defined( Q_WS_QWS ) || defined( QT_NO_QWS_MULTIPROCESS )
+#define QLock QWSSemaphore
+#undef QT_NO_QWS_MULTIPROCESS
+#include "../../src/kernel/qlock_qws.cpp"
+#else
+#include "qws_lock.h"
+#endif
+
 #include "qvfbview.h"
 #include "qvfbhdr.h"
 
@@ -36,14 +45,13 @@
 #include <sys/types.h>
 #include <sys/shm.h>
 #include <sys/stat.h>
-#include <sys/sem.h>
 #include <fcntl.h>
 #include <errno.h>
 #include <math.h>
 
 QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
 		    const char *name, uint flags )
-    : QScrollView( parent, name, flags ), lockId(-1)
+    : QScrollView( parent, name, flags ), qwslock(NULL)
 {
     displayid = display_id;
     viewport()->setMouseTracking( TRUE );
@@ -131,6 +139,7 @@ QVFbView::~QVFbView()
 {
     stopAnimation();
     sendKeyboardData( 0, 0, 0, TRUE, FALSE ); // magic die key
+    delete qwslock;
     struct shmid_ds shm;
     shmdt( (char*)data );
     shmctl( shmId, IPC_RMID, &shm );
@@ -246,43 +255,21 @@ void QVFbView::initLock()
     const char *logname = getenv("LOGNAME");
     if ( logname )
 	username = logname;
-    QString dataDir = "/tmp/qtembedded-" + username;
-
-    QString pipe = dataDir + "/" + QString( QTE_PIPE ).arg( displayid );
-    int semkey = ftok( pipe.latin1(), 'd' );
-    lockId = semget( semkey, 0, 0 );
+    qwslock = new QLock("/tmp/qtembedded-" + username + "/" + QString( QTE_PIPE ).arg( displayid ),
+			'd', TRUE);
 }
 
 void QVFbView::lock()
 {
-    if ( lockId == -1 )
+    if ( !qwslock )
 	initLock();
-
-    sembuf sops;
-    sops.sem_num = 0;
-    sops.sem_flg = SEM_UNDO;
-    sops.sem_op = -1;
-    int rv;
-    do {
-	rv = semop(lockId,&sops,1);
-    } while ( rv == -1 && errno == EINTR );
-
-    if ( rv == -1 )
-	lockId = -1;
+    qwslock->lock(QLock::Read);
 }
 
 void QVFbView::unlock()
 {
-    if ( lockId >= 0 ) {
-	sembuf sops;
-	sops.sem_num = 0;
-	sops.sem_op = 1;
-	sops.sem_flg = SEM_UNDO;
-	int rv;
-	do {
-	    rv = semop(lockId,&sops,1);
-	} while ( rv == -1 && errno == EINTR );
-    }
+    if ( qwslock ) 
+	qwslock->unlock();
 }
 
 void QVFbView::sendMouseData( const QPoint &pos, int buttons )
