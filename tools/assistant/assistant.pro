@@ -10,6 +10,6 @@ INSTALLS        += target
 PROJECTNAME	= Assistant
 FORMS	= mainwindow.ui topicchooser.ui finddialog.ui helpdialog.ui settingsdialog.ui 
 TEMPLATE	=app
-CONFIG	+= qt warn_on debug
+CONFIG	+= qt warn_off release
 DBFILE	= assistant.db
 LANGUAGE	= C++
