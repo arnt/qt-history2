@@ -2955,6 +2955,9 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	actionSearchGotoLine->setEnabled( FALSE );
 	incrementalSearch->setEnabled( FALSE );
     }
+
+    if ( currentTool() == ORDER_TOOL )
+	emit currentToolChanged();
 }
 
 void MainWindow::updateUndoRedo( bool undoAvailable, bool redoAvailable,

@@ -1443,7 +1443,7 @@ void FormWindow::currentToolChanged()
 {
     toolFixed = FALSE;
     int t = mainwindow->currentTool();
-    if ( currTool == t )
+    if ( currTool == t && t != ORDER_TOOL )
 	return;
 
     // tool cleanup
@@ -1493,12 +1493,14 @@ void FormWindow::currentToolChanged()
 	restoreCursors( this, this );
 	break;
     case ORDER_TOOL:
-	mainWindow()->statusBar()->message( tr( "Click widgets to change tab order...") );
-	orderedWidgets.clear();
-	showOrderIndicators();
-	if ( mainWindow()->formWindow() == this )
-	    emitShowProperties( mainContainer() );
-	setCursorToAll( ArrowCursor, this );
+	if ( mainWindow()->formWindow() == this ) {
+	    mainWindow()->statusBar()->message( tr( "Click widgets to change tab order...") );
+	    orderedWidgets.clear();
+	    showOrderIndicators();
+	    if ( mainWindow()->formWindow() == this )
+		emitShowProperties( mainContainer() );
+	    setCursorToAll( ArrowCursor, this );
+	}
 	break;
     case CONNECT_TOOL:
 	mainWindow()->statusBar()->message( tr( "Drag a line to create a connection...") );
