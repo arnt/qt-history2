@@ -793,7 +793,7 @@ struct QFileDialogPrivate {
 	      const QUrlInfo * fi, QListView * parent, QListViewItem * after )
 	    : QListViewItem( parent, after ), info( *fi ), d(dlgp), i( 0 ), hasMimePixmap( FALSE )
 	{ setup(); if ( !nextSibling() ) dlgp->last = this; }
-	~File() 
+	~File()
 	{ if ( d->pendingItems.findRef( this ) ) d->pendingItems.removeRef( this ); }
 	
 	QString text( int column ) const;
@@ -887,7 +887,7 @@ struct QFileDialogPrivate {
 
     QTimer *mimeTypeTimer;
     const QNetworkOperation *currListChildren;
-    
+
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
@@ -1929,7 +1929,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
     rereadDir();
     if ( !dirName.isEmpty() )
 	setSelection( dirName );
-    else if ( workingDirectory )
+    else if ( workingDirectory && !workingDirectory->isEmpty() )
 	setDir( *workingDirectory );
 
 
@@ -1968,7 +1968,7 @@ void QFileDialog::init()
     d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
     d->currListChildren = 0;
-    
+
     connect( &d->url, SIGNAL( start( QNetworkOperation * ) ),
              this, SLOT( urlStart( QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( finished( QNetworkOperation * ) ),
@@ -4337,7 +4337,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	    rereadDir();
 	} else
 	    ; // another error happened, no need to go back to last dir
-    } else if ( op->operation() == QNetworkProtocol::OpListChildren && 
+    } else if ( op->operation() == QNetworkProtocol::OpListChildren &&
 		op == d->currListChildren ) {
 	if ( !d->hadDotDot && !isRoot( d->url ) ) {
 
