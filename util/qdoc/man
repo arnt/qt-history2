@@ -280,7 +280,8 @@ foreach $url ( sort keys %name ) { #'qstring.html'
     close F;
     unlink( "> ../man/man3/" . $manpage );
     open( M, "> ../man/man3/" . $manpage ) || die "cannot open /man/man3/" . $manpage;
-    print M ".TH ", $name, " 3qt \"", $day, " ", $mname, " ", 1900+$year,
+    print M "'\\\" t
+.TH ", $name, " 3qt \"", $day, " ", $mname, " ", 1900+$year,
 "\" \"Trolltech AS\" \\\" -*- nroff -*-
 .\\\" Copyright 1992-2001 Trolltech AS.  All rights reserved.  See the
 .\\\" license file included in the distribution for a complete license
