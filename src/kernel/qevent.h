@@ -123,9 +123,6 @@ protected:
     Type  t;
 private:
     bool  posted;
-#if defined(_CC_MSVC_)
-    friend class QEvent;
-#endif
 
     friend class QApplication;
     friend class QBaseApplication;
