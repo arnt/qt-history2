@@ -225,7 +225,7 @@ void MainWindow::setupEditActions()
 #endif
 
     actionEditPreferences = new QAction( tr( "Preferences" ), QPixmap(),
-					 tr( "P&references..." ), 0, this, 0 );
+					 tr( "Preferences..." ), 0, this, 0 );
     actionEditPreferences->setStatusTip( tr("Opens a dialog to change preferences") );
     actionEditPreferences->setWhatsThis( tr("<b>Change preferences</b>"
 					    "<p>The settings will be saved on exit. They will be restored "
