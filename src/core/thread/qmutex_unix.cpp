@@ -47,7 +47,7 @@
         number /= 4;
     }
 
-    void method1()
+    void method2()
     {
         number *= 3;
         number /= 2;
