@@ -328,7 +328,7 @@ bool QAccessibleApplication::doAction(int action, int child, const QVariantList 
             w = topLevelWidgets().at(0);
         if (!w)
             return false;
-        w->setActiveWindow();
+        w->activateWindow();
         return true;
     }
     return QAccessibleObject::doAction(action, child, param);

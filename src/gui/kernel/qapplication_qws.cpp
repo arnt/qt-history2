@@ -2138,7 +2138,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 if (!widget->isActiveWindow() &&
                      (!app_do_modal || QApplication::activeModalWidget() == widget) &&
                      !widget->testWFlags(Qt::WStyle_NoBorder|Qt::WStyle_Tool)) {
-                    widget->setActiveWindow();
+                    widget->activateWindow();
                     if (widget->raiseOnClick())
                         widget->raise();
                 }
@@ -2266,7 +2266,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 QWidget *w = widget->focusWidget();
                 while (w && w->focusProxy())
                     w = w->focusProxy();
-                if (w && w->isFocusEnabled())
+                if (w && (w->focusPolicy() != Qt::NoFocus))
                     w->setFocus();
                 else
                     widget->focusNextPrevChild(true);
@@ -2287,7 +2287,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 //QApplicationPrivate::active_window = 0;
                 if (old)
                     old->repaintDecoration(desktop()->rect(), false);
-                /* setActiveWindow() sends focus events
+                /* activateWindow() sends focus events
                 QFocusEvent out(QEvent::FocusOut);
                 QWidget *widget = QApplicationPrivate::focus_widget;
                 QApplicationPrivate::focus_widget = 0;
@@ -2942,7 +2942,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
                 //### why not use r here as well?
                 QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent(clipRegion()));
             } else {
-                QPaintEvent e(r&clipRegion());
+                QPaintEvent e(r&visibleRegion());
                 QApplication::sendEvent(d->topData()->qwsManager, &e);
             }
         }

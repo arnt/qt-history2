@@ -1365,13 +1365,13 @@ QWidget *QWidget::keyboardGrabber()
     return mac_keyboard_grabber;
 }
 
-void QWidget::setActiveWindow()
+void QWidget::activateWindow()
 {
     QWidget *tlw = topLevelWidget();
     if(!tlw->isVisible() || !tlw->isTopLevel() || tlw->isDesktop())
         return;
     qt_event_remove_activate();
-    qt_mac_set_fullscreen_mode((tlw->windowState() & Qt::WindowFullScreen) && 
+    qt_mac_set_fullscreen_mode((tlw->windowState() & Qt::WindowFullScreen) &&
                                !qApp->desktop()->screenNumber(this));
     WindowPtr window = qt_mac_window_for(tlw);
     if(tlw->isPopup() || tlw->testWFlags(Qt::WStyle_Tool) || qt_mac_is_macdrawer(tlw)) {
@@ -1517,9 +1517,9 @@ void QWidget::setWindowState(uint newstate)
             if(newstate & Qt::WindowFullScreen) {
                 if(QTLWExtra *tlextra = d->topData()) {
                     if(tlextra->normalGeometry.width() < 0) {
-                        if(testAttribute(Qt::WA_Resized)) 
+                        if(testAttribute(Qt::WA_Resized))
                             tlextra->normalGeometry = geometry();
-                        else 
+                        else
                             tlextra->normalGeometry = QRect(pos(), qt_initial_size(this));
                     }
                     tlextra->savedFlags = getWFlags();
@@ -1541,15 +1541,15 @@ void QWidget::setWindowState(uint newstate)
             }
         }
 
-        if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized)) 
+        if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized))
             CollapseWindow(window, (newstate & Qt::WindowMinimized) ? true : false);
 
         if((newstate & Qt::WindowMaximized) && !((newstate & Qt::WindowFullScreen))) {
             if(QTLWExtra *tlextra = d->topData()) {
                 if(tlextra->normalGeometry.width() < 0) {
-                    if(testAttribute(Qt::WA_Resized)) 
+                    if(testAttribute(Qt::WA_Resized))
                         tlextra->normalGeometry = geometry();
-                    else 
+                    else
                         tlextra->normalGeometry = QRect(pos(), qt_initial_size(this));
                 }
             }
@@ -1629,7 +1629,7 @@ void QWidget::setWindowState(uint newstate)
         show();
 
     if(newstate & Qt::WindowActive)
-        setActiveWindow();
+        activateWindow();
 
     qt_event_request_window_change();
     QEvent e(QEvent::WindowStateChange);
@@ -1820,7 +1820,7 @@ void QWidgetPrivate::setWSGeometry()
 
 void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 {
-    if(isTopLevel() && isMove) 
+    if(isTopLevel() && isMove)
         d->topData()->is_moved = 1;
     if(isDesktop())
         return;
@@ -1989,7 +1989,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
                 QWidget *w = (QWidget*)obj;
                 if(!w->isTopLevel()) {
                     w->data->crect = QRect(w->pos() + pd, w->size());
-                    HIRect bounds = CGRectMake(w->data->crect.x(), w->data->crect.y(), 
+                    HIRect bounds = CGRectMake(w->data->crect.x(), w->data->crect.y(),
                                                w->data->crect.width(), w->data->crect.height());
                     HIViewSetFrame((HIViewRef)w->winId(), &bounds);
                     moved.append(w);
@@ -2132,7 +2132,7 @@ void QWidget::resetInputContext()
     qt_mac_unicode_reset_input(this);
 }
 
-void QWidget::setWindowOpacity(double level)
+void QWidget::setWindowOpacity(qReal level)
 {
     if(!isTopLevel())
         return;
@@ -2142,7 +2142,7 @@ void QWidget::setWindowOpacity(double level)
     d->topData()->opacity = (uchar)(level * 255);
 }
 
-double QWidget::windowOpacity() const
+qReal QWidget::windowOpacity() const
 {
     return isTopLevel() ? ((QWidget*)this)->d->topData()->opacity / 255.0 : 0.0;
 }

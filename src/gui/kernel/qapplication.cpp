@@ -1927,7 +1927,7 @@ void QApplication::syncX()        {}                // do nothing
   handlers.
 
   \warning This function does \e not set the keyboard focus to the
-  active widget. Call QWidget::setActiveWindow() instead.
+  active widget. Call QWidget::activateWindow() instead.
 
   It sets the activeWindow() and focusWidget() attributes and sends
   proper WindowActivate/WindowDeactivate and FocusIn/FocusOut events
@@ -1935,7 +1935,7 @@ void QApplication::syncX()        {}                // do nothing
   active state (e.g. cursors in line edits will blink), and it will
   have tool tips enabled.
 
-  \sa activeWindow(), QWidget::setActiveWindow()
+  \sa activeWindow(), QWidget::activateWindow()
  */
 void QApplication::setActiveWindow(QWidget* act)
 {

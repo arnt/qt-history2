@@ -1740,7 +1740,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             if (app_do_modal && LOWORD(wParam) == WA_ACTIVE) {
                 QWidget *top = 0;
                 if (!qt_tryModalHelper(widget, &top) && top && widget != top)
-                    top->setActiveWindow();
+                    top->activateWindow();
             }
             if (LOWORD(wParam) == WA_INACTIVE)
                 clear_key_rec(); // Ensure nothing gets consider an auto-repeat press later
@@ -2155,7 +2155,7 @@ static bool qt_try_modal(QWidget *widget, MSG *msg, int& ret)
 #ifndef Q_OS_TEMP
     else if (type == WM_MOUSEACTIVATE || type == WM_NCLBUTTONDOWN){
         if (!top->isActiveWindow()) {
-            top->setActiveWindow();
+            top->activateWindow();
         } else {
             QApplication::beep();
         }

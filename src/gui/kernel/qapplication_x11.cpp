@@ -2462,7 +2462,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
                             p = p->parentWidget();
                         if (!p || !X11->net_supported_list)
                             amw->raise(); // help broken window managers
-                        amw->setActiveWindow();
+                        amw->activateWindow();
                     }
                 }
 #ifndef QT_NO_WHATSTHIS

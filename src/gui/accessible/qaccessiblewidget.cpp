@@ -779,7 +779,7 @@ bool QAccessibleWidget::doAction(int action, int child, const QVariantList &para
         if (widget()->focusPolicy() != Qt::NoFocus)
             widget()->setFocus();
         else if (widget()->isTopLevel())
-            widget()->setActiveWindow();
+            widget()->activateWindow();
         else
             return false;
         return true;

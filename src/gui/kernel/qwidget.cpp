@@ -154,7 +154,7 @@ QWidgetPrivate::~QWidgetPrivate()
         windowIconText(),
         setWindowIconText(),
         isActiveWindow(),
-        setActiveWindow(),
+        activateWindow(),
         showMinimized().
         showMaximized(),
         showFullScreen(),
@@ -215,7 +215,7 @@ QWidgetPrivate::~QWidgetPrivate()
         setMouseTracking(),
         isUpdatesEnabled(),
         setUpdatesEnabled(),
-        clipRegion().
+        visibleRegion().
 
     \row \i Look and feel \i
         style(),
@@ -232,7 +232,6 @@ QWidgetPrivate::~QWidgetPrivate()
         fontInfo().
 
     \row \i Keyboard focus<br>functions \i
-        isFocusEnabled(),
         setFocusPolicy(),
         focusPolicy(),
         hasFocus(),
@@ -572,7 +571,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     modern window managers can handle this. With \c WX11BypassWM, you
     can bypass the window manager completely. This results in a
     borderless window that is not managed at all (i.e. no keyboard
-    input unless you call setActiveWindow() manually).
+    input unless you call activateWindow() manually).
 
     \value WStyle_Title  gives the window a title bar.
 
@@ -1601,7 +1600,7 @@ void QWidget::showFullScreen()
     show();
     if (!isTopLevel())
 	QApplication::sendPostedEvents(this, QEvent::ShowFullScreen);
-    setActiveWindow();
+    activateWindow();
 }
 
 /*!
@@ -3272,7 +3271,7 @@ QWidget *QWidget::nextInFocusChain() const
     When popup windows are visible, this property is true for both the
     active window \e and for the popup.
 
-    \sa setActiveWindow(), QApplication::activeWindow()
+    \sa activateWindow(), QApplication::activeWindow()
 */
 bool QWidget::isActiveWindow() const
 {
@@ -3703,7 +3702,7 @@ void QWidget::setUpdatesEnabled(bool enable)
     You almost never have to reimplement this function. If you need to
     change some settings before a widget is shown, use showEvent()
     instead. If you need to do some delayed initialization use
-    polishEvent().
+    the Polish event delivered to the event() method.
 
     \sa showEvent(), hide(), showMinimized(), showMaximized(),
     showNormal(), isVisible()
@@ -3934,7 +3933,7 @@ void QWidget::hide_helper()
 
 #if defined(Q_WS_WIN)
     if (isTopLevel() && !isPopup() && parentWidget() && isActiveWindow())
-        parentWidget()->setActiveWindow();        // Activate parent
+        parentWidget()->activateWindow();        // Activate parent
 #endif
 
     setAttribute(Qt::WA_Mapped, false);
@@ -4223,7 +4222,7 @@ QRect QWidget::visibleRect() const
     general you do not need to call it.
 
 */
-QRegion QWidget::clipRegion() const
+QRegion QWidget::visibleRegion() const
 {
     return d->clipRect();
 }
@@ -4513,7 +4512,6 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::Polish: {
-        polishEvent(e);
         qApp->polish(this);
         if (!testAttribute(Qt::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
             d->resolveFont();
@@ -5489,9 +5487,7 @@ bool QWidget::qwsEvent(QWSEvent *)
     Ensures delayed initialization of a widget and its children.
 
     This function will be called \e after a widget has been fully
-    created and \e before it is shown the very first time.  Children
-    will be polished after the polishEvent() handler for this widget
-    is called.
+    created and \e before it is shown the very first time.
 
     Polishing is useful for final initialization which depends on
     having an instantiated widget. This is something a constructor
@@ -5502,9 +5498,9 @@ bool QWidget::qwsEvent(QWSEvent *)
     and palette and QApplication::polish() has been called.
 
     If you need to change some settings when a widget is polished,
-    use polishEvent().
+    use the Polish event delivered to event().
 
-    \sa polishEvent(), QApplication::polish()
+    \sa event(), QApplication::polish()
 */
 void QWidget::ensurePolished() const
 {
@@ -5526,18 +5522,6 @@ void QWidget::ensurePolished() const
         QChildEvent e(QEvent::ChildPolished, const_cast<QWidget *>(this));
         QCoreApplication::sendEvent(d->parent, &e);
     }
-}
-
-/*!
-    \fn void QWidget::polishEvent(QEvent *event)
-
-    This event handler can be reimplemented in a subclass to receive
-    widget polish events passed in the \a event parameter.
-
-    \sa ensurePolished(), QApplication::polish()
-*/
-void QWidget::polishEvent(QEvent *)
-{
 }
 
 /*!

@@ -613,7 +613,7 @@ QWidget *QWidget::keyboardGrabber()
     return keyboardGrb;
 }
 
-void QWidget::setActiveWindow()
+void QWidget::activateWindow()
 {
     QWidget *tlw = topLevelWidget();
     if (tlw->isVisible()) {
@@ -625,13 +625,13 @@ void QWidget::setActiveWindow()
 void QWidget::update()
 {
     if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible)
-        QApplication::postEvent(this, new QWSUpdateEvent(clipRegion()));
+        QApplication::postEvent(this, new QWSUpdateEvent(visibleRegion()));
 }
 
 void QWidget::update(const QRegion &rgn)
 {
      if ((data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible)
-         QApplication::postEvent(this, new QWSUpdateEvent(rgn&clipRegion()));
+         QApplication::postEvent(this, new QWSUpdateEvent(rgn & visibleRegion()));
 }
 
 void QWidget::update(const QRect &r)
@@ -644,7 +644,7 @@ void QWidget::update(const QRect &r)
             h = data->crect.height() - y;
         if (w != 0 && h != 0)
             QApplication::postEvent(this,
-                    new QWSUpdateEvent(clipRegion().intersect(QRect(x,y,w,h))));
+                    new QWSUpdateEvent(visibleRegion().intersect(QRect(x, y, w, h))));
     }
 }
 
@@ -1001,7 +1001,7 @@ void QWidget::setWindowState(uint newstate)
         show();
 
     if (newstate & Qt::WindowActive)
-        setActiveWindow();
+        activateWindow();
 
     QEvent e(QEvent::WindowStateChange);
     QApplication::sendEvent(this, &e);
@@ -1017,7 +1017,7 @@ void QWidget::raise()
     if (isTopLevel()) {
 #ifdef QT_NO_WINDOWGROUPHINT
         if (!testWFlags(Qt::WStyle_Tool))
-            setActiveWindow();
+            activateWindow();
         qwsDisplay()->setAltitude(winId(), 0);
 #else
         QWidget* act=0;
@@ -1042,7 +1042,7 @@ void QWidget::raise()
 
                 if (w->isVisible()) {
                     bool wastool = w->testWFlags(Qt::WStyle_Tool);
-                    w->setWFlags(Qt::WStyle_Tool); // avoid setActiveWindow flicker
+                    w->setWFlags(Qt::WStyle_Tool); // avoid activateWindow flicker
                     w->raise();
                     if (!wastool) {
                         w->clearWFlags(Qt::WStyle_Tool);
@@ -1052,7 +1052,7 @@ void QWidget::raise()
             }
         }
         if (act)
-            act->setActiveWindow();
+            act->activateWindow();
 #endif // QT_NO_WINDOWGROUPHINT
     } else if (p) {
         p->setChildrenAllocatedDirty(geometry(), this);
@@ -1280,10 +1280,8 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             qwsUpdateActivePainters();
         }
 #ifndef QT_NO_QWS_MANAGER
-        if (isResize && d->extra && d->extra->topextra && d->extra->topextra->qwsManager) {
-            QApplication::postEvent(d->topData()->qwsManager,
-                                    new QPaintEvent(clipRegion()));
-        }
+        if (isResize && d->extra && d->extra->topextra && d->extra->topextra->qwsManager)
+            QApplication::postEvent(d->topData()->qwsManager, new QPaintEvent(visibleRegion()));
 #endif
         isSettingGeometry = false;
         dirtyChildren = QRegion();
@@ -1824,11 +1822,11 @@ void QWidget::updateCursor(const QRegion &r) const
 #endif
 
 
-void QWidget::setWindowOpacity(double)
+void QWidget::setWindowOpacity(qReal)
 {
 }
 
-double QWidget::windowOpacity() const
+qReal QWidget::windowOpacity() const
 {
     return 1.0;
 }

@@ -1420,7 +1420,7 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
             if(!widget->isActiveWindow() && widget->isTopLevel() && !widget->isDesktop()
                && !widget->isPopup() && !qt_mac_is_macsheet(widget)
                && (widget->isModal() || !::qt_cast<QDockWindow *>(widget))) {
-                widget->setActiveWindow();
+                widget->activateWindow();
                 if(windowPart == inContent) {
                     HIViewRef child;
                     const HIPoint hiPT = CGPointMake(pt->h - widget->geometry().x(), pt->v - widget->geometry().y());
@@ -1611,7 +1611,7 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     switch(eclass) {
     case kEventClassMouse:
         if(!top->isActiveWindow())
-            top->setActiveWindow();
+            top->activateWindow();
         block_event = true;
         break;
     case kEventClassKeyboard:
@@ -1729,7 +1729,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             if(request_activate_pending.widget) {
                 QWidget *tlw = request_activate_pending.widget->topLevelWidget();
                 request_activate_pending.widget = 0;
-                tlw->setActiveWindow();
+                tlw->activateWindow();
                 SelectWindow((WindowPtr)tlw->handle());
             }
         } else if(ekind == kEventQtRequestContext) {
@@ -1960,7 +1960,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         //although it looks hacky it is VERY intentional..
         if(widget && app_do_modal && !qt_try_modal(widget, event)) {
             if(ekind == kEventMouseDown && qt_mac_is_macsheet(QApplication::activeModalWidget())) {
-                QApplication::activeModalWidget()->parentWidget()->setActiveWindow(); //sheets have a parent
+                QApplication::activeModalWidget()->parentWidget()->activateWindow(); //sheets have a parent
                 app->d->do_mouse_down(&where, 0);
             }
             break;
@@ -2160,7 +2160,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                             QApplication::sendSpontaneousEvent(doc->inputWidget(), &imend);
                             if(imend.isAccepted()) {
                                 handled_event = true;
-                                QInputMethodEvent imstart(QEvent::InputMethodStart, 
+                                QInputMethodEvent imstart(QEvent::InputMethodStart,
                                                           text.mid(fixed_length / sizeof(UniChar)),
                                                           (fixed_length - text.length()) / sizeof(UniChar));
                                 QApplication::sendSpontaneousEvent(doc->inputWidget(), &imstart);
@@ -2409,8 +2409,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             QApplication::sendSpontaneousEvent(widget, &qse);
         } else if(ekind == kEventWindowBoundsChanged) {
             //implicitly removes the maximized bit
-            if(widget->testWState(Qt::WState_Maximized) && 
-               IsWindowInStandardState((WindowPtr)widget->handle(), 0, 0)) 
+            if(widget->testWState(Qt::WState_Maximized) &&
+               IsWindowInStandardState((WindowPtr)widget->handle(), 0, 0))
                 widget->clearWState(Qt::WState_Maximized);
 
             handled_event = false;
@@ -2438,7 +2438,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         } else if(ekind == kEventWindowShown) {
 #if 0
             if(!widget->testWFlags(Qt::WType_Popup))
-                widget->setActiveWindow();
+                widget->activateWindow();
 #endif
         } else if(ekind == kEventWindowActivated) {
             if(QApplicationPrivate::app_style) {

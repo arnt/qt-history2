@@ -333,14 +333,13 @@ protected:
 class Q_GUI_EXPORT QInputMethodEvent : public QInputEvent
 {
 public:
-    enum CommandType {
-
-    };
-    QInputMethodEvent(Type type, const QString &text, int cursorPosition, int selLength = 0);
+    QInputMethodEvent(const QString &text);
 
     enum AttributeType {
        UnderLineColor,
        BackgroundColor,
+       CursorPosition,
+       ReplaceString,
        Language,
        RubyText
     };
@@ -356,6 +355,7 @@ public:
 
 private:
     QList<Attribute> attributes;
+    QString preedit;
 };
 #else
 class Q_GUI_EXPORT QInputMethodEvent : public QInputEvent

@@ -1326,7 +1326,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
         deltaSegPosition = useItemSize ? batchSavedDeltaSeg : gridSize.width(); // dx
         deltaSegHint = gridSize.width();
     }
-    
+
     for (int row = first; row <= last; ++row) {
         if (hiddenRows.contains(row)) {
             flowPositions.append(flowPosition);
@@ -1373,7 +1373,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
     q->resizeContents(rect.right(), rect.bottom());
     // if the new items are visble, update the viewport
     QRect changedRect(topLeft, rect.bottomRight());
-    if (q->clipRegion().boundingRect().intersects(changedRect))
+    if (q->visibleRegion().boundingRect().intersects(changedRect))
         viewport->update();
 }
 
@@ -1462,7 +1462,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         tree.climbTree(tree.item(row).rect(), &QBinTree<QListViewItem>::insert, row);
     // if the new items are visble, update the viewport
     QRect changedRect(topLeft, rect.bottomRight());
-    if (q->clipRegion().boundingRect().intersects(changedRect))
+    if (q->visibleRegion().boundingRect().intersects(changedRect))
         viewport->update();
 }
 

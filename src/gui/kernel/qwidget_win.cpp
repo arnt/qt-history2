@@ -735,7 +735,7 @@ QWidget *QWidget::keyboardGrabber()
     return keyboardGrb;
 }
 
-void QWidget::setActiveWindow()
+void QWidget::activateWindow()
 {
     SetForegroundWindow(topLevelWidget()->winId());
 }
@@ -1815,7 +1815,7 @@ void QWidget::updateFrameStrut() const
     that->data->fstrut_dirty = false;
 }
 
-void QWidget::setWindowOpacity(double level)
+void QWidget::setWindowOpacity(qReal level)
 {
     if(!isTopLevel())
         return;
@@ -1845,7 +1845,7 @@ void QWidget::setWindowOpacity(double level)
     d->topData()->opacity = (uchar)(level * 255);
 }
 
-double QWidget::windowOpacity() const
+qReal QWidget::windowOpacity() const
 {
     return isTopLevel() ? (d->topData()->opacity / 255.0) : 0.0;
 }

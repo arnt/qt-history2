@@ -133,7 +133,6 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
 #endif
     Q_PROPERTY(bool mouseTracking READ hasMouseTracking WRITE setMouseTracking)
     Q_PROPERTY(bool isActiveWindow READ isActiveWindow)
-    Q_PROPERTY(bool focusEnabled READ isFocusEnabled)
     Q_PROPERTY(Qt::FocusPolicy focusPolicy READ focusPolicy WRITE setFocusPolicy)
     Q_PROPERTY(bool focus READ hasFocus)
     Q_PROPERTY(bool updatesEnabled READ isUpdatesEnabled WRITE setUpdatesEnabled DESIGNABLE false)
@@ -146,7 +145,6 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(QSize sizeHint READ sizeHint)
     Q_PROPERTY(QSize minimumSizeHint READ minimumSizeHint)
     Q_PROPERTY(bool acceptDrops READ acceptDrops WRITE setAcceptDrops)
-    Q_PROPERTY(bool autoMask READ autoMask WRITE setAutoMask DESIGNABLE false SCRIPTABLE false)
     Q_PROPERTY(QString windowTitle READ windowTitle WRITE setWindowTitle DESIGNABLE isTopLevel)
     Q_PROPERTY(QPixmap windowIcon READ windowIcon WRITE setWindowIcon DESIGNABLE isTopLevel)
     Q_PROPERTY(QString windowIconText READ windowIconText WRITE setWindowIconText DESIGNABLE isTopLevel)
@@ -172,10 +170,8 @@ public:
     WId winId() const;
 #ifndef QT_NO_STYLE
     // GUI style setting
-
     QStyle *style() const;
     void setStyle(QStyle *);
-    QStyle *setStyle(const QString&);
 #endif
     // Widget types and states
 
@@ -290,8 +286,8 @@ public:
     void setWindowRole(const QString &);
     QString windowRole() const;
 
-    void setWindowOpacity(double level);
-    double windowOpacity() const;
+    void setWindowOpacity(qReal level);
+    qReal windowOpacity() const;
 
     bool isWindowModified() const;
     void setWindowModified(bool);
@@ -324,8 +320,7 @@ public slots:
 
 public:
     bool isActiveWindow() const;
-    void setActiveWindow();
-    bool isFocusEnabled() const;
+    void activateWindow();
     void clearFocus();
 
     Qt::FocusPolicy focusPolicy() const;
@@ -351,12 +346,11 @@ public:
 
     // Update/refresh functions
     bool isUpdatesEnabled() const;
+    void setUpdatesEnabled(bool enable);
 
 #if 0 //def Q_WS_QWS
     void repaintUnclipped(const QRegion &, bool erase = true);
 #endif
-
-    void setUpdatesEnabled(bool enable);
 
 public slots:
     void update();
@@ -410,13 +404,13 @@ public:
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
-    virtual QSizePolicy sizePolicy() const;
-    void setSizePolicy(QSizePolicy);
 
+    QSizePolicy sizePolicy() const;
+    void setSizePolicy(QSizePolicy);
     inline void setSizePolicy(QSizePolicy::SizeType horizontal, QSizePolicy::SizeType vertical);
     virtual int heightForWidth(int) const;
 
-    QRegion clipRegion() const;
+    QRegion visibleRegion() const;
 
     void setContentsMargins(int left, int top, int right, int bottom);
     QRect contentsRect() const;
@@ -525,13 +519,6 @@ protected:
     virtual void showEvent(QShowEvent *);
     virtual void hideEvent(QHideEvent *);
 
-    virtual void polishEvent(QEvent *);
-
-    virtual void inputMethodEvent(QInputMethodEvent *);
-public:
-    virtual QVariant inputMethodQuery(Qt::InputMethodQuery) const;
-protected:
-
 #if defined(Q_WS_MAC)
     virtual bool macEvent(EventHandlerCallRef, EventRef);
 #endif
@@ -554,6 +541,10 @@ protected:
 
     int metric(PaintDeviceMetric) const;
 
+    virtual void inputMethodEvent(QInputMethodEvent *);
+public:
+    virtual QVariant inputMethodQuery(Qt::InputMethodQuery) const;
+protected:
     void resetInputContext();
     void updateMicroFocus();
 
@@ -648,6 +639,7 @@ private:
 
 #ifdef QT_COMPAT
 public:
+    QT_COMPAT QStyle *setStyle(const QString&);
     inline QT_COMPAT bool isVisibleToTLW() const;
     QT_COMPAT QRect visibleRect() const;
     inline QT_COMPAT void iconify() { showMinimized(); }
@@ -731,6 +723,7 @@ public:
     inline QT_COMPAT QString iconText() const            { return windowIconText(); }
     inline QT_COMPAT void setInputMethodEnabled(bool b) { setAttribute(Qt::WA_InputMethodEnabled, b); }
     inline QT_COMPAT bool isInputMethodEnabled() const { return testAttribute(Qt::WA_InputMethodEnabled); }
+    inline QT_COMPAT void setActiveWindow() { activateWindow(); }
 
 private:
     void drawText_helper(int x, int y, const QString &);
@@ -840,9 +833,6 @@ inline bool QWidget::hasMouseTracking() const
 
 inline bool QWidget::underMouse() const
 { return testAttribute(Qt::WA_UnderMouse); }
-
-inline bool  QWidget::isFocusEnabled() const
-{ return focusPolicy() != Qt::NoFocus; }
 
 inline bool QWidget::isUpdatesEnabled() const
 { return !testWState(Qt::WState_BlockUpdates); }

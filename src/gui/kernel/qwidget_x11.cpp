@@ -1279,7 +1279,7 @@ QWidget *QWidget::keyboardGrabber()
     the title bar of a top-level window. On X11, the result depends on
     the Window Manager. If you want to ensure that the window is
     stacked on top as well you should also call raise(). Note that the
-    window must be visible, otherwise setActiveWindow() has no effect.
+    window must be visible, otherwise activateWindow() has no effect.
 
     On Windows, if you are calling this when the application is not
     currently the active one then it will not make it the active
@@ -1291,7 +1291,7 @@ QWidget *QWidget::keyboardGrabber()
     \sa isActiveWindow(), topLevelWidget(), show()
 */
 
-void QWidget::setActiveWindow()
+void QWidget::activateWindow()
 {
     QWidget *tlw = topLevelWidget();
     if (tlw->isVisible() && !tlw->d->topData()->embedded && !X11->deferred_map.contains(tlw)) {
@@ -1707,7 +1707,7 @@ void QWidget::setWindowState(uint newstate)
         show();
 
     if (newstate & Qt::WindowActive)
-        setActiveWindow();
+        activateWindow();
 
     QEvent e(QEvent::WindowStateChange);
     QApplication::sendEvent(this, &e);
@@ -2357,8 +2357,8 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     bool just_update = qAbs(dx) > width() || qAbs(dy) > height();
     if (just_update)
         update();
-    QRect sr = valid_rect?r:clipRegion().boundingRect();
-    int x1, y1, x2, y2, w=sr.width(), h=sr.height();
+    QRect sr = valid_rect ? r : visibleRegion().boundingRect();
+    int x1, y1, x2, y2, w = sr.width(), h = sr.height();
     if (dx > 0) {
         x1 = sr.x();
         x2 = x1+dx;
@@ -2812,11 +2812,11 @@ void QWidgetPrivate::unfocusInputContext()
 #endif // QT_NO_IM
 }
 
-void QWidget::setWindowOpacity(double)
+void QWidget::setWindowOpacity(qReal)
 {
 }
 
-double QWidget::windowOpacity() const
+qReal QWidget::windowOpacity() const
 {
     return 1.0;
 }
