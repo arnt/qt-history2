@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#11 $
+** $Id: //depot/qt/main/src/tools/qdir.h#12 $
 **
 ** Definition of QDir class
 **
@@ -51,8 +51,7 @@ public:
 		      DefaultSort   = -1 };
 
     QDir();
-    QDir( const char *path );
-    QDir( const char *path, const char *nameFilter,
+    QDir( const char *path, const char *nameFilter = 0,
 	  int sortSpec = Name | IgnoreCase, int filterSpec = All );
     QDir( const QDir & );
    ~QDir();
@@ -82,6 +81,9 @@ public:
 
     bool	matchAllDirs() const;
     void	setMatchAllDirs( bool );
+
+    uint	count() const;
+    const char *operator[]( int ) const;
 
     const QStrList *entryList( int filterSpec = DefaultFilter,
 			       int sortSpec   = DefaultSort  ) const;
