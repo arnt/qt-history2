@@ -1240,6 +1240,9 @@ void QDockWindow::updateGui()
 
 void QDockWindow::updatePosition( const QPoint &globalPos )
 {
+    if ( curPlace == OutsideDock && state == InDock )
+	lastSize = size();
+
     bool doAdjustSize = curPlace != state && state == OutsideDock;
     bool doUpdate = TRUE;
     bool doOrientationChange = TRUE;
@@ -1289,6 +1292,12 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	dockArea = 0;
 	move( currRect.topLeft() );
     }
+
+    if ( curPlace == InDock && state == OutsideDock && !inherits( "QToolBar" ) ) {
+	if ( lastSize != QSize( -1, -1 ) )
+	    resize( lastSize );
+    }
+
     if ( doUpdate ) {
 	curPlace = state;
 	updateGui();
@@ -1303,7 +1312,9 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	show();
 	if ( parentWidget() && isTopLevel() )
 	    parentWidget()->setActiveWindow();
+
     }
+
     emit placeChanged( curPlace );
 }
 
