@@ -90,6 +90,7 @@ class Q_GUI_EXPORT QVariant : public QKernelVariant
 
     // Copied from qkernelvariant.h
     inline QVariant(Type type, void *v = 0);
+    inline QVariant(const QKernelVariant &other);
     inline QVariant(const QVariant &other);
 
     inline QVariant(int i);
@@ -167,7 +168,8 @@ private:
 
 // Copied from qkernelvariant.h
 inline QVariant::QVariant(Type type, void *v) : QKernelVariant(type, v) { }
-inline QVariant::QVariant(const QVariant &other) : QKernelVariant(other) { };
+inline QVariant::QVariant(const QVariant &other) : QKernelVariant(other) { }
+inline QVariant::QVariant(const QKernelVariant &other) : QKernelVariant(other) { }
 
 inline QVariant::QVariant(int i) : QKernelVariant(i) {};
 inline QVariant::QVariant(uint ui) : QKernelVariant(ui) {};
@@ -192,7 +194,9 @@ inline QVariant::QVariant(const QList<QKernelVariant> &list) : QKernelVariant(li
 inline QVariant::QVariant(const QMap<QString,QKernelVariant> &map) : QKernelVariant(map) {};
 #endif
 
-
+inline QVariant::QVariant()
+    : QKernelVariant()
+{ }
 inline QVariant::QVariant(const QFont &val)
 { d = create(Font, &val); }
 inline QVariant::QVariant(const QImage &val)
