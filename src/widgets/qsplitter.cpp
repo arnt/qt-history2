@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#72 $
 **
 **  Splitter widget
 **
@@ -244,6 +244,7 @@ QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
 
 QSplitter::~QSplitter()
 {
+    data->list.setAutoDelete( TRUE );
     delete data;
 }
 
