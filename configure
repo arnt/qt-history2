@@ -2293,10 +2293,10 @@ for config_option in $QMAKE_CONFIG; do
     internal|enterprise)			;;
 
     # image format
-    system-png|qt-png|no-png)			;;
-    system-mng|qt-mng|no-mng)			;;
-    system-jpeg|qt-jpeg|no-jpeg)		;;
-    system-zlib|qt-zlib|no-zlib)		;;
+    system-png|png|no-png)			;;
+    system-mng|mng|no-mng)			;;
+    system-jpeg|jpeg|no-jpeg)			;;
+    system-zlib|zlib|no-zlib)			;;
     gif|no-gif)					;;
 
     # x11
