@@ -110,6 +110,7 @@ struct QFontDef
 	if ( pixelSize != other.pixelSize ) return pixelSize < other.pixelSize;
 	if ( weight != other.weight ) return weight < other.weight;
 	if ( italic != other.italic ) return italic < other.italic;
+	if ( underline != other.underline ) return underline < other.underline;
 	if ( fixedPitch != other.fixedPitch ) return fixedPitch < other.fixedPitch;
 	if ( stretch != other.stretch ) return stretch < other.stretch;
 	if ( styleHint != other.styleHint ) return styleHint < other.styleHint;

@@ -466,7 +466,6 @@ void QFontPrivate::load(QFont::Script script)
 	QFontDef req = request;
 	req.pixelSize = qt_mac_pixelsize(request, paintdevice);
 	req.pointSize = 0;
-	req.underline = req.strikeOut = 0;
 	req.mask = 0;
 	QFontCache::Key key = QFontCache::Key(req, QFont::NoScript, screen);
 
