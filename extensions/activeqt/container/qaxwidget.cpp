@@ -148,6 +148,7 @@ class QAxHostWindow : public IDispatch,
                     public IAdviseSink
 {
     friend class QAxHostWidget;
+    friend class QAxWidget;
 public:
     QAxHostWindow(QAxWidget *c, bool inited);
     virtual ~QAxHostWindow();
@@ -357,7 +358,7 @@ private:
     QSize sizehint;
     
     unsigned long ref;
-    QPointer<QAxWidget> widget;
+    QAxWidget *widget;
     QPointer<QAxHostWidget> host;
     QPointer<QMenuBar> menuBar;
     QMap<QAction*,OleMenuItem> menuItemMap;
@@ -1464,6 +1465,8 @@ QAxWidget::QAxWidget(IUnknown *iface, QWidget *parent, Qt::WFlags f)
 */
 QAxWidget::~QAxWidget()
 {
+    if (container)
+        container->widget = 0;
     clear();
 }
 
