@@ -982,6 +982,9 @@ void FormDefinitionView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 	case HierarchyItem::VarProtected:
 	case HierarchyItem::VarPrivate: {
 	    VariableDialog varDia( formWindow, this );
+	    QListViewItem *i = selectedItem();
+	    if ( i )
+		varDia.setCurrentItem( i->text( 0 ) );
 	    varDia.exec();
 	    break;
 	}
@@ -1055,6 +1058,9 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
 	case HierarchyItem::VarPrivate:
 	case HierarchyItem::Variable: {
 	    VariableDialog varDia( formWindow, this );
+	    QListViewItem *i = selectedItem();
+	    if ( i )
+		varDia.setCurrentItem( i->text( 0 ) );
 	    if ( varDia.exec() == QDialog::Accepted )
 		formWindow->commandHistory()->setModified( TRUE );
 	    break;

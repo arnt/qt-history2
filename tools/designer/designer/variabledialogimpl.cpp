@@ -54,6 +54,13 @@ VariableDialog::~VariableDialog()
 {
 }
 
+void VariableDialog::setCurrentItem( QString text )
+{
+    QListViewItem *i = varView->findItem( text, 0 );
+    if ( i )
+	varView->setCurrentItem( i );    
+}
+
 void VariableDialog::okClicked()
 {
     QValueList<MetaDataBase::Variable> lst;
