@@ -499,6 +499,8 @@ protected:
 
     int		 metric( int )	const;
 
+    void	 resetInputContext();
+
     virtual void create( WId = 0, bool initializeWindow = TRUE,
 			 bool destroyOldWindow = TRUE );
     virtual void destroy( bool destroyWindow = TRUE,
@@ -531,6 +533,7 @@ protected:
     virtual QString useDescription() const;
 #endif
 
+
 private slots:
     void	 focusProxyDestroyed();
 
@@ -547,7 +550,6 @@ private:
     friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle, RgnHandle, void *);
     friend class QDragManager;
 #endif
-    void	 resetInputContext();
 
 #ifndef QT_NO_LAYOUT
     void 	 setLayout( QLayout *l );

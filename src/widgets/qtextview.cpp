@@ -120,7 +120,7 @@ static bool block_set_alignment = FALSE;
     (plain text or HTML) and display accordingly, but you can control
     this with setTextFormat().
 
-    By default the text view wraps words at whitespace to fit within 
+    By default the text view wraps words at whitespace to fit within
     the text view widget. The setWordWrap() function is used to specify
     the kind of word wrap you want, or \c NoWrap if you don't want any
     wrapping.
@@ -190,7 +190,7 @@ static bool block_set_alignment = FALSE;
   to Qt (because that would easily double Qt's size and only a few
   applications would benefit from it). In particular, the rich text
   support in Qt is designed to provide a fast, portable and efficient
-  way to add reasonable online help facilities to applications. 
+  way to add reasonable online help facilities to applications.
 
 */
 
@@ -959,6 +959,7 @@ void QTextView::moveCursor( MoveDirectionPrivate direction, bool shift, bool con
 
 void QTextView::moveCursor( MoveDirectionPrivate direction, bool control )
 {
+    resetInputContext();
     switch ( direction ) {
     case MoveLeft: {
         if ( !control )
@@ -1451,6 +1452,7 @@ void QTextView::placeCursor( const QPoint &pos, QTextCursor *c )
     if ( !c )
         c = cursor;
 
+    resetInputContext();
     c->restoreState();
     QTextParag *s = doc->firstParag();
     c->place( pos,  s );
@@ -1528,6 +1530,7 @@ bool QTextView::eventFilter( QObject *o, QEvent *e )
 
     if ( o == this || o == viewport() ) {
         if ( e->type() == QEvent::FocusIn ) {
+	    resetInputContext();
             blinkTimer->start( QApplication::cursorFlashTime() / 2 );
             return TRUE;
         } else if ( e->type() == QEvent::FocusOut ) {
