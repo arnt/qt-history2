@@ -19,10 +19,11 @@
 QAxBase *qax_create_object_wrapper(QObject *object)
 {
     IDispatch *dispatch = 0;
-    QAxBase *wrapper = 0;
+    QAxObject *wrapper = 0;
     qAxFactory()->createObjectWrapper(object, &dispatch);
     if (dispatch) {
         wrapper = new QAxObject(dispatch, object);
+        wrapper->setObjectName(object->objectName() + "_ScriptWrapper");
         dispatch->Release();
     }
     return wrapper;
