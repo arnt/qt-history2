@@ -88,15 +88,15 @@
 struct QButtonItem
 {
     QButton *button;
-    int	     id;
+    int id;
 };
 
-
-class QButtonList: public QList<QButtonItem*>
+// ### 4.0: get rid of QButtonList class
+class QButtonList : public QList<QButtonItem *>
 {
 public:
     QButtonList() {}
-   ~QButtonList() {}
+    ~QButtonList() {}
 };
 
 
@@ -170,7 +170,6 @@ QButtonGroup::QButtonGroup( int strips, Orientation orientation,
 void QButtonGroup::init()
 {
     buttons = new QButtonList;
-    buttons->setAutoDelete( TRUE );
     excl_grp = FALSE;
     radio_excl = TRUE;
 }
@@ -179,13 +178,14 @@ void QButtonGroup::init()
 
 QButtonGroup::~QButtonGroup()
 {
-    QButtonList * tmp = buttons;
+    QButtonList *tmp = buttons;
     buttons = 0;
-    for (int i=0; i<tmp->size(); ++i) {
+    for (int i = 0; i < tmp->size(); ++i) {
 	QButtonItem *bi = tmp->at(i);
 	if (bi)
 	    bi->button->setGroup(0);
     }
+    tmp->deleteAll();
     delete tmp;
 }
 
@@ -273,10 +273,10 @@ void QButtonGroup::remove( QButton *button )
 	return;
 
     QButtonItem *item = 0;
-    for (int i=0; i<buttons->size(); ++i) {
+    for (int i = 0; i < buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (item && item->button == button) {
-	    buttons->removeAt(i);
+	    delete buttons->takeAt(i);
 	    button->setGroup(0);
 	    button->disconnect(this);
 	    return;
@@ -293,7 +293,7 @@ void QButtonGroup::remove( QButton *button )
 QButton *QButtonGroup::find( int id ) const
 {
     QButtonItem *item = 0;
-    for (int i=0; i<buttons->size(); ++i) {
+    for (int i = 0; i < buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (item && item->id == id)
 	    return item->button;
@@ -346,7 +346,7 @@ void QButtonGroup::buttonPressed()
     QButtonItem *item = 0;
     QButton *senderButton = ::qt_cast<QButton*>(sender());		// object that sent the signal
     Q_ASSERT(senderButton);
-    for (int i=0; i<buttons->size(); ++i) {
+    for (int i = 0; i < buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (item && senderButton == item->button) {
 	    id = item->id;
@@ -370,7 +370,7 @@ void QButtonGroup::buttonReleased()
     QButtonItem *item = 0;
     QButton *senderButton = ::qt_cast<QButton*>(sender());		// object that sent the signal
     Q_ASSERT(senderButton);
-    for (int i=0; i<buttons->size(); ++i) {
+    for (int i = 0; i < buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (item && senderButton == item->button) {
 	    id = item->id;
@@ -393,7 +393,7 @@ void QButtonGroup::buttonClicked()
     QButtonItem *item = 0;
     QButton *senderButton = ::qt_cast<QButton*>(sender());		// object that sent the signal
     Q_ASSERT(senderButton);
-    for (int i=0; i<buttons->size(); ++i) {
+    for (int i = 0; i < buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (item && senderButton == item->button) {
 	    id = item->id;
@@ -428,7 +428,7 @@ void QButtonGroup::buttonToggled( bool on )
     QButtonItem *item = 0;
     int i;
 
-    for (i=0; i<buttons->size(); ++i) {
+    for (i = 0; i < buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (item && (excl_grp || ::qt_cast<QRadioButton*>(item->button))
 	    && (item->button->focusPolicy() & TabFocus)) {
@@ -437,7 +437,7 @@ void QButtonGroup::buttonToggled( bool on )
 	}
     }
     
-    for (i=0,item=0; i<buttons->size(); ++i) {
+    for (i = 0, item = 0; i < buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (senderButton != item->button && item->button->isToggleButton()
 	     && item->button->isOn() && (excl_grp || qt_cast<QRadioButton*>(item->button)))
@@ -481,7 +481,7 @@ void QButtonGroup::moveFocus( int key )
 
     int i;
     QButtonItem *item;
-    for (i=0,item=0; i<buttons->size(); ++i) {
+    for (i = 0, item = 0; i < buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (item && item->button == f )
 	    break;
@@ -495,7 +495,7 @@ void QButtonGroup::moveFocus( int key )
 
     QPoint goal( f->mapToGlobal( f->geometry().center() ) );
 
-    for (i=0,item=0; i<buttons->size(); ++i) {
+    for (i = 0, item = 0; i < buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (!item || !item->button)
 	    break;
@@ -593,7 +593,7 @@ QButton *QButtonGroup::selected() const
 	return 0;
     QButton *candidate = 0;
     QButtonItem *item = 0;
-    for (int i=0; i<buttons->size(); ++i) {
+    for (int i = 0; i < buttons->size(); ++i) {
         item = buttons->at(i);
 	if (item
 	    && item->button
@@ -636,7 +636,7 @@ int QButtonGroup::selectedId() const
 int QButtonGroup::id( QButton * button ) const
 {
     QButtonItem *item = 0;
-    for (int i=0; i<buttons->size(); ++i) {
+    for (int i = 0; i < buttons->size(); ++i) {
 	item = buttons->at(i);
 	if (item->button == button)
 	    return item->id;

@@ -96,7 +96,7 @@ public:
 	bool p;
     };
 
-    QList<SBItem*> items;
+    QList<SBItem *> items;
     QString tempItem;
 
     QBoxLayout * box;
@@ -120,7 +120,6 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
     : QWidget( parent, name )
 {
     d = new QStatusBarPrivate;
-    d->items.setAutoDelete( TRUE );
     d->box = 0;
     d->timer = 0;
 
@@ -139,8 +138,8 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
 */
 QStatusBar::~QStatusBar()
 {
+    d->items.deleteAll();
     delete d;
-    d = 0;
 }
 
 
@@ -178,12 +177,12 @@ void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
     QStatusBarPrivate::SBItem* item
 	= new QStatusBarPrivate::SBItem( widget, stretch, permanent );
 
-    int i=d->items.size() - 1;
+    int i = d->items.size() - 1;
     if ( !permanent )
 	for (; i>=0; --i)
 	    if (!(d->items.at(i) && d->items.at(i)->p))
 		break;
-    d->items.insert(i>=0 ? i+1 : 0, item);
+    d->items.insert( i >= 0 ? i + 1 : 0, item);
 
     if ( !d->tempItem.isEmpty() && !permanent )
 	widget->hide();
@@ -214,6 +213,7 @@ void QStatusBar::removeWidget( QWidget* widget )
 	    break;
 	if ( item->w == widget ) {
 	    d->items.removeAt(i);
+            delete item;
 	    found = true;
 	    break;
 	}
@@ -505,8 +505,10 @@ bool QStatusBar::event( QEvent *e )
 	    item = d->items.at(i);
 	    if (!item)
 		break;
-	    if (item->w == ((QChildEvent*)e)->child())
+	    if (item->w == ((QChildEvent*)e)->child()) {
 		d->items.removeAt(i);
+                delete item;
+	    }
 	}
     }
     return QWidget::event( e );

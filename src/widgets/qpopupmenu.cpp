@@ -368,6 +368,8 @@ void QPopupMenu::performDelayedContentsChanged()
     }
     QPopupMenu* p = QMenuData::d->aPopup;
     if ( p && p->isVisible() ) {
+	if (p->mitemsAutoDelete)
+	    p->mitems->deleteAll();
 	p->mitems->clear();
 	for (int i = 0; i < mitems->size(); ++i) {
 	    QMenuItem *mi = mitems->at(i);
@@ -2607,7 +2609,7 @@ void QPopupMenu::toggleTearOff()
     if ( active_popup_menu && active_popup_menu->tornOff ) {
 	active_popup_menu->close();
     } else  if (QMenuData::d->aPopup ) {
-	delete (QPopupMenu*) QMenuData::d->aPopup; // delete the old one
+	delete (QPopupMenu *)QMenuData::d->aPopup; // delete the old one
     } else {
 	// create a tear off menu
 	QPopupMenu* p = new QPopupMenu( parentWidget(), "tear off menu" );
@@ -2617,10 +2619,10 @@ void QPopupMenu::toggleTearOff()
 #endif
 	p->setCheckable( isCheckable() );
 	QPoint geo = geometry().topLeft();
-	p->setParent( parentWidget(), WType_TopLevel | WStyle_Tool | WDestructiveClose);
+	p->setParent(parentWidget(), WType_TopLevel | WStyle_Tool | WDestructiveClose);
 	p->move(geo);
-	p->mitems->setAutoDelete( FALSE );
-	p->tornOff = TRUE;
+	p->mitemsAutoDelete = false;
+	p->tornOff = true;
 	for (int i = 0; i < mitems->size(); ++i) {
 	    QMenuItem *mi = mitems->at(i);
 	    if ( mi->id() != QMenuData::d->aInt && !mi->widget() )

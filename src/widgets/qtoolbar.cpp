@@ -564,11 +564,10 @@ void QToolBar::createPopup()
     }
 
     d->extensionPopup->clear();
+
     // clear doesn't delete submenus, so do this explicitly
-    {
-    	QObjectList popups = d->extensionPopup->queryList( "QPopupMenu", 0, FALSE, TRUE );
-    	popups.setAutoDelete(TRUE);
-    }
+    QObjectList popups = d->extensionPopup->queryList( "QPopupMenu", 0, FALSE, TRUE );
+    popups.deleteAll();
 
     QObjectList childlist = queryList( "QWidget", 0, FALSE, TRUE );
     bool hide = FALSE;

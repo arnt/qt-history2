@@ -542,7 +542,7 @@ QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const ch
 
 QDockArea::~QDockArea()
 {
-    dockWindows.setAutoDelete( TRUE );
+    dockWindows.deleteAll();
 }
 
 /*!

@@ -156,9 +156,9 @@ public:
 	QComboBox *combo;
 	int id;
     };
-    QList<MenuItem*> menuitems;
-    QList<QToolButton*> toolbuttons;
-    QList<ComboItem*> comboitems;
+    QList<MenuItem *> menuitems;
+    QList<QToolButton *> toolbuttons;
+    QList<ComboItem *> comboitems;
 
     enum Update { Icons = 1, Visibility = 2, State = 4, EverythingElse = 8 };
     void update( uint upd = EverythingElse );
@@ -182,8 +182,6 @@ QActionPrivate::QActionPrivate(QAction *act)
 #endif
       , d_group( 0 ), action(act)
 {
-    menuitems.setAutoDelete( TRUE );
-    comboitems.setAutoDelete( TRUE );
 #ifndef QT_NO_TOOLTIP
     tipGroup.setDelay( FALSE );
 #endif
@@ -1227,9 +1225,10 @@ bool QAction::removeFrom( QWidget* w )
 	    if ( mi->popup == w ) {
 		disconnect( mi->popup, SIGNAL(highlighted(int)), this, SLOT(menuStatusText(int)) );
 		disconnect( mi->popup, SIGNAL(aboutToHide()), this, SLOT(clearStatusText()) );
-		disconnect( mi->popup, SIGNAL( destroyed() ), this, SLOT( objectDestroyed() ) );
+		disconnect( mi->popup, SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
 		mi->popup->removeItem( mi->id );
-		d->menuitems.remove( mi );
+		d->menuitems.remove(mi);
+                delete mi;
 	    }
 	}
     } else if (::qt_cast<QComboBox*>(w)) {
@@ -1241,6 +1240,7 @@ bool QAction::removeFrom( QWidget* w )
 	    if ( ci->combo == w ) {
 		disconnect( ci->combo, SIGNAL(destroyed()), this, SLOT(objectDestroyed()) );
 		d->comboitems.remove( ci );
+                delete ci;
 	    }
 	}
     } else {
@@ -1260,16 +1260,20 @@ void QAction::objectDestroyed()
     for (int i = 0; i < d->menuitems.size();) {
 	mi = d->menuitems.at(i);
 	++i;
-	if (mi->popup == obj)
+	if (mi->popup == obj) {
 	    d->menuitems.remove(mi);
+            delete mi;
+	}
     }
     QActionPrivate::ComboItem *ci;
     QList<QActionPrivate::ComboItem*>::Iterator it2(d->comboitems.begin());
     while (it2 != d->comboitems.end()) {
 	ci = *it2;
 	++it2;
-	if (ci->combo == obj)
+	if (ci->combo == obj) {
 	    d->comboitems.remove(ci);
+            delete ci;
+	}
     }
     d->toolbuttons.remove((QToolButton*)obj);
 }
@@ -1541,10 +1545,10 @@ QActionGroup::~QActionGroup()
     }
 
     delete d->separatorAction;
-    d->menubuttons.setAutoDelete( TRUE );
-    d->comboboxes.setAutoDelete( TRUE );
-    d->menuitems.setAutoDelete( TRUE );
-    d->popupmenus.setAutoDelete( TRUE );
+    d->menubuttons.deleteAll();
+    d->comboboxes.deleteAll();
+    d->menuitems.deleteAll();
+    d->popupmenus.deleteAll();
     delete d;
 }
 
@@ -2132,10 +2136,11 @@ void QActionGroup::objectDestroyed()
 {
     const QObject* obj = sender();
     d->menubuttons.remove((QToolButton*)obj);
-    for (QList<QActionGroupPrivate::MenuItem*>::Iterator mi(d->menuitems.begin());
+    for (QList<QActionGroupPrivate::MenuItem *>::Iterator mi(d->menuitems.begin());
 	 mi != d->menuitems.end(); ++mi) {
 	if ((*mi)->popup == obj) {
 	    d->menuitems.remove(*mi);
+            delete *mi;
 	    break;
 	}
     }

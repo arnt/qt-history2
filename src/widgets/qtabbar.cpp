@@ -219,8 +219,8 @@ struct QTabPrivate {
     QToolButton* leftB;
     bool  scrolls;
     QTabBarToolTip * toolTips;
-    QList<QTab*> l;
-    QList<QTab*> lstatic;
+    QList<QTab *> l;
+    QList<QTab *> lstatic;
     int btnWidth;
 };
 
@@ -331,7 +331,6 @@ QTabBar::QTabBar( QWidget * parent, const char *name )
     connect( d->rightB, SIGNAL( clicked() ), this, SLOT( scrollTabs() ) );
     d->rightB->hide();
     d->btnWidth = style().pixelMetric(QStyle::PM_TabBarScrollButtonWidth, this);
-    d->lstatic.setAutoDelete( TRUE );
     setFocusPolicy( TabFocus );
     setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
 }
@@ -347,8 +346,8 @@ QTabBar::~QTabBar()
     if ( d->toolTips )
 	delete d->toolTips;
 #endif
+    d->lstatic.deleteAll();
     delete d;
-    d = 0;
 }
 
 
@@ -394,7 +393,7 @@ int QTabBar::insertTab( QTab * newTab, int index )
 
     newTab->setTabBar( this );
     d->l.insert( 0, newTab );
-    if ( index < 0 || index > int(d->lstatic.count()) )
+    if ( index < 0 || index > d->lstatic.count() )
 	d->lstatic.append( newTab );
     else
 	d->lstatic.insert( index, newTab );
@@ -434,6 +433,7 @@ void QTabBar::removeTab( QTab * t )
     t->setTabBar( 0 );
     d->l.remove( t );
     d->lstatic.remove( t );
+    delete t;
     layoutTabs();
     updateArrowButtons();
     makeVisible( tab( currentTab() ) );
@@ -964,9 +964,7 @@ QTab * QTabBar::tab( int id ) const
 
 QTab * QTabBar::tabAt( int index ) const
 {
-    QTab * t;
-    t = (index < 0 || index >= d->lstatic.size()) ? 0 : d->lstatic.at(index);
-    return t;
+    return (index < 0 || index >= d->lstatic.size()) ? 0 : d->lstatic.at(index);
 }
 
 

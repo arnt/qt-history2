@@ -37,7 +37,7 @@ QMenuDataData::QMenuDataData()
 {}
 
 /*!
-    \class QMenuData qmenudata.h
+    \class QMenuData
     \brief The QMenuData class is a base class for QMenuBar and QPopupMenu.
 
     \ingroup misc
@@ -133,8 +133,8 @@ QMenuData::QMenuData()
 {
     actItem = -1;				// no active menu item
     mitems = new QMenuItemList;			// create list of menu items
-    mitems->setAutoDelete( TRUE );
-    parentMenu = 0;				// assume top level
+    mitemsAutoDelete = true;
+    parentMenu = 0;				// assume top-level
     isPopupMenu = FALSE;
     isMenuBar = FALSE;
     mouseBtDn = FALSE;
@@ -151,7 +151,9 @@ QMenuData::QMenuData()
 
 QMenuData::~QMenuData()
 {
-    delete mitems;				// delete menu item list
+    if (mitemsAutoDelete)
+	mitems->deleteAll();
+    delete mitems;
     delete d;
 }
 
@@ -210,8 +212,6 @@ uint QMenuData::count() const
 {
     return mitems->count();
 }
-
-
 
 /*!
   \internal
@@ -783,6 +783,8 @@ void QMenuData::removeItemAt( int index )
     if ( mi->popup_menu )
 	menuDelPopup( mi->popup_menu );
     mitems->removeAt(index);
+    if (mitemsAutoDelete)
+	delete mi;
     if ( !QApplication::closingDown() )		// avoid trouble
 	menuContentsChanged();
 }
@@ -801,6 +803,8 @@ void QMenuData::clear()
 	if ( mi->popup_menu )
 	    menuDelPopup( mi->popup_menu );
     }
+    if (mitemsAutoDelete)
+	mitems->deleteAll();
     mitems->clear();
     if ( !QApplication::closingDown() )		// avoid trouble
 	menuContentsChanged();
@@ -813,7 +817,7 @@ void QMenuData::clear()
     item \a id, or 0 if it has no accelerator key or if there is no
     such menu item.
 
-    \sa setAccel(), QAccel, qnamespace.h
+    \sa setAccel(), QAccel
 */
 
 QKeySequence QMenuData::accel( int id ) const

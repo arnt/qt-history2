@@ -229,10 +229,11 @@ protected:
     int		   actItem;
     QMenuItemList *mitems;
     QMenuData	  *parentMenu;
-    uint	   isPopupMenu	: 1;
-    uint	   isMenuBar	: 1;
-    uint	   badSize	: 1;
-    uint	   mouseBtDn	: 1;
+    uint	   mitemsAutoDelete : 1;
+    uint	   isPopupMenu : 1;
+    uint	   isMenuBar : 1;
+    uint	   badSize : 1;
+    uint	   mouseBtDn : 1;
     uint	avoid_circularity : 1;
     uint	actItemDown : 1;
     virtual void   menuContentsChanged();

@@ -21,10 +21,8 @@
 
 #ifndef QT_NO_BUTTONGROUP
 
-
 class QButton;
 class QButtonList;
-
 
 class Q_GUI_EXPORT QButtonGroup : public QGroupBox
 {
@@ -80,15 +78,14 @@ private:
     void	init();
     bool	excl_grp;
     bool	radio_excl;
-    QButtonList *buttons;
+    QButtonList *buttons; // ### 4.0: move to d-pointer
 
-private:	// Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QButtonGroup( const QButtonGroup & );
     QButtonGroup &operator=( const QButtonGroup & );
 #endif
 };
-
 
 #endif // QT_NO_BUTTONGROUP
 

@@ -197,7 +197,7 @@ public:
 	: opaque( FALSE ), firstShow( TRUE ), childrenCollapsible( TRUE ),
 	  handleWidth( 0 ) { }
 
-    QList<QSplitterLayoutStruct*> list;
+    QList<QSplitterLayoutStruct *> list;
     bool opaque : 8;
     bool firstShow : 8;
     bool childrenCollapsible : 8;
@@ -286,14 +286,13 @@ QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
 
 QSplitter::~QSplitter()
 {
+    d->list.deleteAll();
     delete d;
 }
-
 
 void QSplitter::init()
 {
     d = new QSplitterPrivate;
-    d->list.setAutoDelete( TRUE );
     QSizePolicy sp( QSizePolicy::Expanding, QSizePolicy::Preferred );
     if ( orient == Vertical )
 	sp.transpose();
@@ -335,7 +334,7 @@ void QSplitter::setOrientation( Orientation o )
     for (int i = 0; i < d->list.size(); ++i) {
 	QSplitterLayoutStruct *s = d->list.at(i);
 	if ( s->isHandle )
-	    static_cast<QSplitterHandle*>(s->wid)->setOrientation( o );
+	    static_cast<QSplitterHandle *>(s->wid)->setOrientation( o );
     }
     recalc( isVisible() );
 }
@@ -453,7 +452,7 @@ void QSplitter::childEvent( QChildEvent *c )
 	if ( ((QWidget*)c->child())->testWFlags( WType_TopLevel ) )
 	    return;
 
-	QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
+	QList<QSplitterLayoutStruct *>::iterator it = d->list.begin();
 	while ( it != d->list.end() ) {
 	    if ( (*it)->wid == c->child() )
 		return;
@@ -468,10 +467,12 @@ void QSplitter::childEvent( QChildEvent *c )
 	QList<QSplitterLayoutStruct*>::iterator it = d->list.begin();
 	while ( it != d->list.end() ) {
 	    if ( (*it)->wid == c->child() ) {
+		delete *it;
 		d->list.erase( it );
 		if ( prev && prev->isHandle ) {
 		    QWidget *w = prev->wid;
 		    d->list.remove(prev);
+                    delete prev;
 		    delete w; // will call childEvent()
 		}
 		recalcId();
@@ -637,7 +638,7 @@ void QSplitter::setGeo( QWidget *w, int p, int s, bool splitterMoved )
 void QSplitter::doMove( bool backwards, int pos, int id, int delta, bool upLeft,
 			bool mayCollapse )
 {
-    if ( id < 0 || id >= (int) d->list.count() )
+    if (id < 0 || id >= d->list.count())
 	return;
 
     QSplitterLayoutStruct *s = d->list.at( id );
@@ -681,7 +682,7 @@ int QSplitter::findWidgetJustBeforeOrJustAfter( int id, int delta, int &collapsi
 	    return id;
 	}
 	id += 2 * delta; // go to previous (or next) widget, skip the handle
-    } while ( id >= 0 && id < (int)d->list.count() );
+    } while ( id >= 0 && id < d->list.count() );
 
     return -1;
 }
@@ -1032,8 +1033,8 @@ void QSplitter::moveToFirst( QWidget *w )
 	    QSplitterLayoutStruct *s = *it;
 	    QSplitterLayoutStruct *p = *(--it);
 	    if ( it != d->list.begin()) { // not already at first place
-		d->list.take(p);
-		d->list.take(s);
+		d->list.remove(p);
+		d->list.remove(s);
 		d->list.prepend(p);
 		d->list.prepend(s);
 	    }
@@ -1062,10 +1063,10 @@ void QSplitter::moveToLast( QWidget *w )
 	    QSplitterLayoutStruct *s = *it;
 	    QSplitterLayoutStruct *p = *(++it);
 	    if ( it != d->list.end() ) { // the splitter handle after s
-		d->list.take(p);
+		d->list.remove(p);
 		d->list.append(p);
 	    }
-	    d->list.take(s);
+	    d->list.remove(s);
 	    d->list.append(s);
 	    break;
 	}
