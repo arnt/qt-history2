@@ -50,7 +50,7 @@ int main( int argc, char ** argv )
     db->setHostName( HOST );
 
     if( !db->open() ){
-	db->lastError().showMessage( "An error occured. Please read the README file in the sqltable"
+	db->lastError().showMessage( "An error occurred. Please read the README file in the sqltable"
 				     "dir for more information.\n\n" );
 	return 1;
     }

@@ -119,7 +119,7 @@ void SqlEx::execQuery()
 	    txt += ", returned rows: " + QString::number( cursor->size() );
 	lbl->setText( txt );
     } else {
-	// an error occured if the cursor is not active
+	// an error occurred if the cursor is not active
 	if ( !cursor->isActive() ) {
 	    showError( cursor->lastError(), this );
 	} else {

@@ -10,7 +10,7 @@
 $0 =~ s#.*/##;
 
 # Execute a command, keeping the output of the command in an array.
-# Returns the array, unless an error occured, in which case the an
+# Returns the array, unless an error occurred, in which case the an
 # exception is thrown (via die) with an appropriate message.
 sub command {
     my($command) = @_;

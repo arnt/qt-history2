@@ -302,10 +302,10 @@ This function outputs the string given and then makes \e qmake exit.
 For example:
 
 \code
-    error( "An error has occured" )
+    error( "An error has occurred" )
 \endcode
 
-The text "An error has occured" will be displayed on the console and
+The text "An error has occurred" will be displayed on the console and
 \e qmake will exit.
 
 \section2 exists( filename )

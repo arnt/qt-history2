@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of the QAxScriptEngine, QAxScript and QAxScriptManager classes
 **
@@ -854,7 +854,7 @@ QAxBase *QAxScript::findObject(const QString &name)
     \fn void QAxScript::error(int code, const QString &description,
 				    int sourcePosition, const QString &sourceText)
 
-    This signal is emitted when an execution error occured while
+    This signal is emitted when an execution error occurred while
     running a script.
 
     \a code, \a description, \a sourcePosition and \a sourceText
@@ -1199,7 +1199,7 @@ QString QAxScriptManager::scriptFileFilter()
     \fn void QAxScriptManager::error(QAxScript *script, int code, const QString &description,
 	int sourcePosition, const QString &sourceText)
 
-    This signal is emitted when an execution error occured while
+    This signal is emitted when an execution error occurred while
     running \a script.
 
     \a code, \a description, \a sourcePosition and \a sourceText
