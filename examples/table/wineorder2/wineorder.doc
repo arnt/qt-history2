@@ -1,0 +1,46 @@
+/*
+$Id$
+*/
+     
+/*! \page wineorder2-example.html
+
+  \ingroup table-examples
+
+  \title Custom cell editors: a wine order list
+ 
+  The following example demonstrates how to write
+  editors other than QLineEdit with \l{QTableItem}s. 
+
+  The example implements a wine order list 
+  where the user can choose the amount of
+  bottles via \l{QSpinBox}es.
+
+  <hr>
+
+  The API of the SpinBoxItem class: 
+ 
+  \include table/wineorder2/spinboxitem.h
+  <hr>
+
+  The Implementation of the SpinBoxItem class:
+
+  \include table/wineorder2/spinboxitem.cpp
+
+  <hr>
+
+  The API of the ProductList class: 
+ 
+  \include table/wineorder2/productlist.h
+
+  <hr>
+ 
+  Its Implementation:
+ 
+  \include table/wineorder2/productlist.cpp
+
+  <hr>
+ 
+  The main program:
+ 
+  \include table/wineorder2/wineorder.cpp
+*/
