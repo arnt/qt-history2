@@ -20,7 +20,7 @@
 
 class QModelIndex;
 class QItemSelection;
-class QFileDialogArgs;
+struct QFileDialogArgs;
 class QFileIconProvider;
 class QFileDialogPrivate;
 class QAbstractItemDelegate;
