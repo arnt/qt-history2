@@ -45,7 +45,8 @@ win32 {
    SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp
    *-msvc:LIBS += ole32.lib
 }
-macx-*: LIBS += -framework Carbon
+macx-*: LIBS += -framework CoreServices
+
 qnx {
     CFLAGS += -fhonor-std
     LFLAGS += -lcpp
