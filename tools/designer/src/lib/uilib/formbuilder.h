@@ -20,6 +20,8 @@
 #include <QtCore/QMap>
 
 class QAction;
+class QListWidget;
+class QComboBox;
 
 class QT_UILIB_EXPORT FormBuilder: public Resource
 {
@@ -39,10 +41,19 @@ protected:
 
     virtual void createConnections(DomConnections *connections, QWidget *widget);
 
+    virtual void saveExtraInfo(QWidget *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget);
+    virtual void loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
+
     virtual bool addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout);
     virtual bool addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
 
     static QWidget *widgetByName(QWidget *topLevel, const QString &name);
+
+    void loadListWidgetExtraInfo(DomWidget *ui_widget, QListWidget *listWidget, QWidget *parentWidget);
+    void loadComboBoxExtraInfo(DomWidget *ui_widget, QComboBox *comboBox, QWidget *parentWidget);
+
+    void saveListWidgetExtraInfo(QListWidget *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget);
+    void saveComboBoxExtraInfo(QComboBox *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget);
 
 private:
     QMap<QString, QAction*> m_actions;

@@ -118,8 +118,6 @@ protected:
     static QString toString(const DomString *str);
     static QHash<QString, DomProperty*> propertyMap(const QList<DomProperty*> &properties);
 
-    static bool isVertical(const QString &str);
-
     QHash<QObject*, bool> m_laidout;
     QHash<QString, QAction*> m_actions;
     QHash<QString, QActionGroup*> m_actionGroups;

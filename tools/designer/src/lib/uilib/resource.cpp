@@ -24,7 +24,6 @@
 #include <QtGui/QWidget>
 #include <QtGui/QIcon>
 #include <QtGui/QPixmap>
-#include <QtGui/QListWidget>
 
 #include <QtXml/QDomDocument>
 
@@ -396,12 +395,6 @@ QLayoutItem *Resource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWi
     }
 
     return 0;
-}
-
-bool Resource::isVertical(const QString &str) // ### remove me
-{
-    return str == QLatin1String("Qt::Vertical")
-        || str == QLatin1String("Vertical"); // ### compat
 }
 
 void Resource::applyProperties(QObject *o, const QList<DomProperty*> &properties)
@@ -1064,67 +1057,16 @@ DomResources *Resource::saveResources()
 
 void Resource::saveExtraInfo(QWidget *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget)
 {
+    Q_UNUSED(widget);
+    Q_UNUSED(ui_widget);
     Q_UNUSED(ui_parentWidget);
-
-    if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
-        QList<DomItem*> ui_items = ui_widget->elementItem();
-
-        for (int i=0; i<listWidget->count(); ++i) {
-            QListWidgetItem *item = listWidget->item(i);
-            DomItem *ui_item = new DomItem();
-
-            QList<DomProperty*> properties;
-
-            // text
-            DomString *str = new DomString;
-            str->setText(item->text());
-
-            DomProperty *p = 0;
-
-            p = new DomProperty;
-            p->setAttributeName(QLatin1String("text"));
-            p->setElementString(str);
-            properties.append(p);
-
-#if 0 // ### implement me
-            p = new DomProperty;
-            p->setAttributeName(QLatin1String("icon"));
-            p->setElementIconSet();
-            properties.append(p);
-#endif
-
-            ui_item->setElementProperty(properties);
-
-            ui_items.append(ui_item);
-        }
-
-        ui_widget->setElementItem(ui_items);
-    }
 }
 
 void Resource::loadExtraInfo(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
+    Q_UNUSED(ui_widget);
+    Q_UNUSED(widget);
     Q_UNUSED(parentWidget);
-
-    if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
-        foreach (DomItem *ui_item, ui_widget->elementItem()) {
-            QHash<QString, DomProperty*> properties = propertyMap(ui_item->elementProperty());
-            QListWidgetItem *item = new QListWidgetItem(listWidget);
-
-            DomProperty *p = 0;
-
-            p = properties.value(QLatin1String("text"));
-            if (p && p->kind() == DomProperty::String) {
-                item->setText(p->elementString()->text());
-            }
-
-            p = properties.value(QLatin1String("icon"));
-            if (p && p->kind() == DomProperty::IconSet) {
-                // ### not implemented yet
-            }
-        }
-    }
 }
-
 
 #include "resource.moc"
