@@ -30,6 +30,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#define QT_NO_LIBRARY_UNLOAD
 
 #include <sys/types.h>
 #include <sys/ioctl.h>

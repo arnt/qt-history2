@@ -39,6 +39,7 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#define QT_NO_LIBRARY_UNLOAD
 
 // DNS header files are not fully covered by X/Open specifications.
 // In particular nothing is said about res_* :/

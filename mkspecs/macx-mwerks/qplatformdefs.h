@@ -32,6 +32,13 @@
 #include <ioctl.h>
 #include <wait.h>
 #include <pwd.h>
+#define QT_NO_LIBRARY_UNLOAD
+
+// DNS header files are not fully covered by X/Open specifications.
+// In particular nothing is said about res_* :/
+// On BSDs header files <netinet/in.h> and <arpa/nameser.h> are not
+// included by <resolv.h>. Note that <arpa/nameser.h> must be included
+// before <resolv.h>.
 #include <nameser.h>
 #include <netinet/in.h>
 #include <resolv.h>
