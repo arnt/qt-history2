@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#47 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -182,7 +182,6 @@ static QPrinter::PageSize mapDevmodePageSize( int s )
     int i = 0;
     while ( (names[i].winSizeName > 0) && (names[i].winSizeName != s) )
 	i++;
-    debug( "returning %i", (int)names[i].qtSizeName);
     return names[i].qtSizeName;
 }
 
