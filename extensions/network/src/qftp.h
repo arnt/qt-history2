@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#16 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#17 $
 **
 ** Implementation of Network Extension Library
 **
@@ -49,7 +49,6 @@ protected:
     virtual void operationMkDir( QNetworkOperation *op );
     virtual void operationRemove( QNetworkOperation *op );
     virtual void operationRename( QNetworkOperation *op );
-    virtual void operationCopy( QNetworkOperation *op );
     virtual void operationGet( QNetworkOperation *op );
 
     QSocket *commandSocket, *dataSocket;
@@ -65,7 +64,7 @@ private:
     void okButNeedMoreInfo( int code, const QCString &data );
     void errorForNow( int code, const QCString &data );
     void errorForgetIt( int code, const QCString &data );
-    
+
 protected slots:
     void hostFound();
     void connected();

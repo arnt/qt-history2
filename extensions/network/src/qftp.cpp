@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#31 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#32 $
 **
 ** Implementation of Network Extension Library
 **
@@ -81,10 +81,6 @@ void QFtp::operationRename( QNetworkOperation *op )
 {
 }
 
-void QFtp::operationCopy( QNetworkOperation *op )
-{
-}
-
 void QFtp::operationGet( QNetworkOperation *op )
 {
     commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
@@ -126,7 +122,7 @@ void QFtp::close()
 
 int QFtp::supportedOperations() const
 {
-    return OpListChildren | OpMkdir | OpRemove | OpRename | OpCopy | OpMove | OpGet;
+    return OpListChildren | OpMkdir | OpRemove | OpRename | OpGet | OpPut;
 }
 
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
@@ -325,11 +321,11 @@ void QFtp::dataConnected()
 	tmp = QString::null;
     } break;
     case OpGet: { // retrieve file
-	if ( url()->fileName().isEmpty() ) {
+	if ( !operationInProgress() || operationInProgress()->arg1().isEmpty() ) {
 	    qWarning( "no filename" );
 	    break;
 	}
-	QString cmd = "RETR " + url()->path() + "\r\n";
+	QString cmd = "RETR " + QUrl( operationInProgress()->arg1() ).path() + "\r\n";
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
     } break;
     }
@@ -371,7 +367,7 @@ void QFtp::dataReadyRead()
     QCString s;
     s.resize( dataSocket->bytesAvailable() );
     dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
-    
+
     switch ( operationInProgress()->operation() ) {
     case OpListChildren: { // parse directory entry
 	QString ss = QString::fromLatin1( s.copy() );

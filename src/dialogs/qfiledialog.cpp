@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#320 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#321 $
 **
 ** Implementation of QFileDialog class
 **
@@ -551,10 +551,11 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	if ( item ) {
 	    if ( !itemRect( item ).contains( e->pos() ) )
 		return;
-	    QString source = filedialog->dirPath() + item->text();
-	    if ( QFile::exists( source ) ) {
+	    QUrl u( filedialog->url(), item->text() );
+	    // ###########
+	    // 	    if ( QFile::exists( source ) ) {
 		QUriDrag* drag = new QUriDrag( viewport() );
-		drag->setFilenames( source );
+		drag->setUnicodeUris( u.toString() );
 
 		if ( lined->isVisible() )
 		    cancelRename();
@@ -564,7 +565,7 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 		drag->drag();
 
 		mousePressed = FALSE;
-	    }
+// 	    }
 	}
     }
 
@@ -658,9 +659,10 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 	return;
     }
 
+    
     QStringList l;
-    QUrlDrag::decodeLocalFiles( e, l );
-
+    QUrlDrag::decodeToUnicodeUris( e, l );
+    
     bool move = FALSE;
     bool supportAction = TRUE;
     if ( e->action() == QDropEvent::Move )
@@ -969,9 +971,10 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 			      itemAt( e->pos() );
 	if ( item ) {
 	    QString source = filedialog->dirPath() + item->text( 0 );
-	    if ( QFile::exists( source ) ) {
+	    // #############
+	    // 	    if ( QFile::exists( source ) ) {
 		QUriDrag* drag = new QUriDrag( viewport() );
-		drag->setFilenames( source );
+		drag->setUnicodeUris( source );
 
 		if ( lined->isVisible() )
 		    cancelRename();
@@ -981,7 +984,7 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 		drag->drag();
 
 		mousePressed = FALSE;
-	    }
+// 	    }
 	}
     }
 
@@ -1076,7 +1079,7 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
     }
 
     QStringList l;
-    QUrlDrag::decodeLocalFiles( e, l );
+    QUrlDrag::decodeToUnicodeUris( e, l );
 
     bool move = FALSE;
     bool supportAction = TRUE;
@@ -3600,13 +3603,15 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	    d->cdToParent->setEnabled( FALSE );
 	else
 	    d->cdToParent->setEnabled( TRUE );
-    } else if ( op->operation() == QNetworkProtocol::OpCopy ) {
-	d->progressDia = new QProgressDialog( this, "", TRUE );
-	d->progressDia->setCaption( tr( "Copy File" ) );
-    } else if ( op->operation() == QNetworkProtocol::OpMove ) {
-	d->progressDia = new QProgressDialog( this, "", TRUE );
-	d->progressDia->setCaption( tr( "Move File" ) );
     }
+    // ############ todo prgress dia
+//     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
+// 	d->progressDia = new QProgressDialog( this, "", TRUE );
+// 	d->progressDia->setCaption( tr( "Copy File" ) );
+//     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
+// 	d->progressDia = new QProgressDialog( this, "", TRUE );
+// 	d->progressDia->setCaption( tr( "Move File" ) );
+//     }
 }
 
 void QFileDialog::urlFinished( QNetworkOperation *op )
@@ -3635,13 +3640,15 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	    insertEntry( ui, 0 );
 	}
 	resortDir();
-    } else if ( ( op->operation() == QNetworkProtocol::OpCopy ||
-		  op->operation() == QNetworkProtocol::OpMove ) &&
-		d->progressDia ) {
-	delete d->progressDia;
-	d->progressDia = 0;
-	rereadDir();
     }
+    // ############# todo progressdia
+//     } else if ( ( op->operation() == QNetworkProtocol::OpCopy ||
+// 		  op->operation() == QNetworkProtocol::OpMove ) &&
+// 		d->progressDia ) {
+// 	delete d->progressDia;
+// 	d->progressDia = 0;
+// 	rereadDir();
+//     }
 }
 
 void QFileDialog::copyProgress( int step, int total, QNetworkOperation *op )
