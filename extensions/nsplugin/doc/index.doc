@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.2 1997/09/25 13:33:29 warwick Exp $
+** $Id: index.doc,v 1.3 1997/09/29 14:30:04 warwick Exp $
 **
 ** Index page
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: index.doc,v 1.2 1997/09/25 13:33:29 warwick Exp $";
+static char ident[] = "$Id: index.doc,v 1.3 1997/09/29 14:30:04 warwick Exp $";
 #endif
 
 /*! \page index.html
@@ -48,7 +48,9 @@ WWW browser supporting the same protocol.
 	for the file, such as by editing the <tt>mime.types</tt> file
 	of Apache.  If the files are viewed via a <tt>file://...</tt>
 	URL, then the browser will use the filename extension to decide
-	the file type (and hence the plugin to load).
+	the file type (and hence the plugin to load) - the user may need
+	to set the filename extension in the Helpers or Applications
+	section of their browser preferences.
 </ol>
 
 We are working on streamlining the build process for Qt-based Netscape Plugins.
@@ -86,7 +88,6 @@ All of these have known solutions which we are working to implement.
 <ul>
  <li> Crashes on X11 if window is closed via window manager.
  <li> Keyboard problems on Windows.
- <li> Enter/Leave event problems on Windows.
 </ul>
 
 */
