@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#88 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#89 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#89 $");
 
 
 static const int fontFields = 14;
@@ -405,8 +405,8 @@ static void resetFontDef( QFontDef *def )	// used by initFontInfo()
     def->strikeOut     = FALSE;
     def->fixedPitch    = FALSE;
     def->hintSetByUser = FALSE;
-    def->lbearing      = -1;
-    def->rbearing      = -1;
+    def->lbearing      = SHRT_MIN;
+    def->rbearing      = SHRT_MIN;
 }
 
 /*!
@@ -1012,6 +1012,7 @@ int QFontMetrics::rightBearing(char ch) const
 */
 int QFontMetrics::leftBearing() const
 {
+    // Don't need def->lbearing, the FS stores it.
     return FS->min_bounds.lbearing;
 }
 
@@ -1028,7 +1029,7 @@ int QFontMetrics::rightBearing() const
     // Safely cast away const, as we cache rbearing there.
     QFontDef* def = (QFontDef*)spec();
 
-    if ( def->rbearing < 0 ) {
+    if ( def->rbearing != SHRT_MIN ) {
 	XFontStruct *f = FS;
 	XCharStruct *c = f->per_char;
 	int nc = f->max_char_or_byte2 - f->min_char_or_byte2 + 1;
