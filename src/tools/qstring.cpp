@@ -12241,6 +12241,7 @@ QString::QString( const QChar* unicode, uint length )
 {
     if ( !unicode && !length ) {
 	d = shared_null ? shared_null : makeSharedNull();
+	d->ref();
     } else {
 	QChar* uc = QT_ALLOC_QCHAR_VEC( length );
 	if ( unicode )
@@ -14587,6 +14588,7 @@ QString& QString::setUnicode( const QChar *unicode, uint len )
 	if ( d != shared_null ) {		// beware of nullstring being set to nullstring
 	    deref();
 	    d = shared_null ? shared_null : makeSharedNull();
+	    d->ref();
 	}
     } else if ( d->count != 1 || len > d->maxl ||
 	 ( len*4 < d->maxl && d->maxl > 4 ) ) {	// detach, grown or shrink
@@ -14960,7 +14962,9 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
 QDataStream &operator>>( QDataStream &s, QString &str )
 {
 #ifdef QT_QSTRING_UCS_4
+#if defined(_CC_GNU_)
 #warning "operator>> not working properly"
+#endif
 #endif
     if ( s.version() == 1 ) {
 	QCString l;
