@@ -1,0 +1,290 @@
+\chapter Reference: The .ui File Format
+
+\QD stores forms in \c .ui files. These files use an XML format to
+represent form elements and their characteristics. This document
+provides an overview of the XML format used, and should provide enough
+information for developers to write their own \c .ui parsers so that
+they can read and modify \c .ui files programatically.
+
+One way to parse a \c .ui file is to use Qt and the QDom class; this
+is how \QD does it: see the the \c resource.h and \c resource.cpp
+source files. 
+
+The doctype of a \c .ui file is simply "UI", so the doctype tag is:
+
+\code
+<DOCTYPE "UI">
+\endcode
+
+The root element is a "UI", which encloses the entire contents:
+
+\code
+<UI version="3.0" stdsetdef="1">
+...
+</UI>
+\endcode
+
+Within the UI entity, there may one or zero of the following element
+types:
+
+\list
+\i \link actions actions\endlink - actions, for QMainWindow forms
+\i \link author author\endlink - the form's author
+\i \link class class\endlink - the form's class name
+\i \link comment comment\endlink - comments, e.g. copyright notices
+\i \link connections connections\endlink - signal/slot connections
+\i \link customwidgets customwidgets\endlink - custom widgets
+\i \link exportmacro exportmacro\endlink - ###
+\i \link forwards forwards\endlink - forward declarations
+\i \link images images\endlink - embedded images: only for \c .ui files than include embedded images; images are normally stored in a separate \c images directory
+\i \link includes includes\endlink - include files
+\i \link layoutdefaults layoutdefaults\endlink - default values for layout attributes
+\i \link menubar menubar\endlink - menu bar, for QMainWindow forms
+\i \link pixmapfunction pixmapfunction\endlink - the name of the function to use for retrieving pixmaps if neither embedded nor external pixmaps are being used
+\i \link pixmapinproject pixmapinproject\endlink - an element whose
+presence ndicates that the pixmaps are handled by the \c .pro file
+\i \link signals signals\endlink - signal declarations
+\i \link slots slots\endlink - slot declarations
+\i \link tabstops tabstops\endlink - the form's tab order
+\i \link toolbars toolbars\endlink - toolbars, for QMainWindow forms
+\i \link variables variables\endlink - class variables
+\i \link widget widget\endlink - the form itself; this element may contain other elements, including other \c widget elements
+\i \link forward forward\endlink - Qt 3.x beta backwards compatibility
+\i \link include include\endlink - Qt 2.x backwards compatibility
+\i \link variable variable\endlink - Qt 3.x beta backwards compatibility
+\endlist
+
+The ordering of elements is arbitrary, although it is common for the
+\link class class\endlink element to be first.
+
+\section1 UI Elements
+
+\target actions
+\section2 actions
+
+This element is used to store the form's actions. It only occurs in
+QMainWindow forms. 
+
+The \c actions element contains one or more \c action elements. Each
+\c action element contains one or more properties. Each property has a
+\c name attribute, and a single value which is contained within a
+\link datatype datatype\endlink element.
+
+\code
+<actions>
+    <action>
+        <property name="name">
+            <cstring>fileNewAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>filenew</iconset>
+        </property>
+        <property name="text">
+            <string>New</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;New</string>
+        </property>
+        <property name="accel">
+            <number>4194382</number>
+        </property>
+    </action>
+    ...
+</actions>
+\endcode
+
+\target author
+\section2 author
+
+This element is used to store the author's name as a simple string.
+
+\code
+<author>Barney Rubble</author>
+\endcode
+
+\target class
+\section2 class
+
+This element is used to store the form's class name as a simple string.
+
+\code
+<class>InsuranceForm</class>
+\endcode
+
+
+\target comment
+\section2 comment
+
+\target connections
+\section2 connections
+
+\target customwidgets
+\section2 customwidgets
+
+\target exportmacro
+\section2 exportmacro
+
+\target forwards
+\section2 forwards
+
+\target images
+\section2 images
+
+\target includes
+\section2 includes
+
+\target layoutdefaults
+\section2 layoutdefaults
+
+\target menubar
+\section2 menubar
+
+\target pixmapfunction
+\section2 pixmapfunction
+
+\target pixmapinproject
+\section2 pixmapinproject
+
+\target signals
+\section2 signals
+
+\target slots
+\section2 slots
+
+\target tabstops
+\section2 tabstops
+
+\target toolbars
+\section2 toolbars
+
+\target variables
+\section2 variables
+
+\target widget
+\section2 widget
+
+\target forward
+\section2 forward
+
+\target include
+\section2 include
+
+\target variable
+\section2 variable
+
+\target datatype
+\section1 Datatype Elements
+
+\target color
+\list
+\i \c bool - a boolean value (0 or 1), e.g. \c{<bool>1</bool>}
+\i \c color - a color, e.g.
+\c{<color><red>192</red><green>0</green><blue>255</blue></color>}
+\i \c cstring - a C string value (8-bit), e.g. \c{<cstring>Some text</cstring>}
+\i \c cursor - an integer which indicates the cursor type, e.g.
+\c{<cursor>4</cursor>}. The valid integers for the cursor type are:
+    \list
+    \i 0 - ArrowCursor
+    \i 1 - UpArrowCursor
+    \i 2 - CrossCursor
+    \i 3 - WaitCursor
+    \i 4 - IbeamCursor
+    \i 5 - SizeVerCursor
+    \i 6 - SizeHorCursor
+    \i 7 - SizeBDiagCursor
+    \i 8 - SizeFDiagCursor
+    \i 9 - SizeAllCursor
+    \i 10 - BlankCursor
+    \i 11 - SplitVCursor
+    \i 12 - SplitHCursor
+    \i 13 - PointingHandCursor
+    \i 14 - ForbiddenCursor
+    \endlist
+\i \c enum - an enum name, e.g. \c{<enum>StrongFocus</enum>}
+\i \c font - a font description, e.g.
+\code
+<font>
+    <family>Helvetica</family>
+    <pointsize>16</pointsize>
+    <weight>50</weight>
+    <italic>1</italic>
+    <underline>0</underline>
+    <strikeout>0</strikeout>
+</font>
+\endcode
+\i \c iconset - an iconset (see \c pixmap), e.g.
+\c{<iconset>filenew</iconset>}
+\i \c number - an integer with an optional sign, e.g.
+\c{<number>947</number>}
+\i \c palette - a \link palette palette\endlink
+\i \c pixmap - a pixmap, normally the name or "key" of the pixmap;
+the name is used if pixmaps are stored in the project, the key is used
+if a user defined function is used to access the pixmap. It is also
+possible for pixmaps to be included inline. Example:
+\c{<pixmap>chair</pixmap>}
+\i \c point - a point, e.g. \c{<point><x>15</x><y>95</y></point>}
+\i \c rect - a rectangle, e.g.
+\code
+<rect>
+    <x>20</x>
+    <y>35</y>
+    <width>225</width>
+    <height>45</height>
+</rect>
+\endcode
+\i \c set - a list of names separated by |'s, e.g.
+\c{<set>AlignLeft|AlignTop</set>}
+\i \c size - a size, e.g. \c{<size><width>150</width><height>105</height></size>}
+\i \c sizepolicy - an integer which indicates the size type, e.g.
+\c{<hsizetype>5</hsizetype><vsizetype>4</vsizetype>}. The valid
+integers for the size type are:
+    \list
+    \i 0 - Fixed
+    \i 1 - Minimum
+    \i 3 - MinimumExpanding
+    \i 4 - Maximum
+    \i 5 - Preferred
+    \i 7 - Expanding
+    \endlist
+\i \c string - a Unicode string value (in UTF8), e.g. 
+\c{<string>Some text</string>}
+\endlist
+
+\section2 Complex Datatype Elements
+
+\target palette
+\section3 palette
+
+This element holds colors for user interface elements for each color
+group. For example:
+\code
+<palette>
+  <active>
+    <color> ... Foreground    ... </color>
+    <color> ... Button        ... </color>
+    <color> ... Light         ... </color>
+    <color> ... Midlight      ... </color>
+    <color> ... Dark	      ... </color>
+    <color> ... Mid	      ... </color>
+    <color> ... Text          ... </color>
+    <color> ... BrightText    ... </color>
+    <color> ... ButtonText    ... </color>
+    <color> ... Base          ... </color>
+    <color> ... Background    ... </color>
+    <color> ... Shadow	      ... </color>
+    <color> ... Highlight     ... </color>
+    <color> ... HighlightText ... </color>
+  </active>
+  <disabled>
+    <color><red>128</red><green>128</green><blue>128</blue></color>
+    ...
+    <color><red>255</red><green>255</green><blue>255</blue></color>
+  </disabled>
+  <inactive>
+    <color><red>0</red><green>0</green><blue>0</blue></color>
+    ...
+    <color><red>255</red><green>255</green><blue>255</blue></color>
+  </inactive>
+</palette>
+\endcode
+See \link color color\endlink for the format of the \c{<color>} element.

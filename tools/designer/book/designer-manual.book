@@ -16,3 +16,4 @@
 \input chap-mdialogs.leaf
 \input chap-wizards.leaf
 \input chap-windows.leaf
+\input chap-ui-format.leaf
