@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#23 $
 **
 ** Implementation of movie classes
 **
@@ -122,7 +122,7 @@ public:
     int framenumber;
     int frameperiod;
     int speed;
-    QTimer frametimer;
+    QTimer *frametimer;
     int lasttimerinterval;
     int loop;
 
@@ -152,11 +152,11 @@ QMoviePrivate::QMoviePrivate()
 // NOTE:  The ownership of the QDataSource is transferred to the QMoviePrivate
 QMoviePrivate::QMoviePrivate(QDataSource* src, QMovie* movie, int bufsize) :
     that(movie),
-    buf_size(bufsize),
-    frametimer(this)
+    buf_size(bufsize)
 {
+    frametimer = new QTimer(this);
     pump = new QDataPump(src, this);
-    QObject::connect(&frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
+    QObject::connect(frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
     source = src;
     buffer = 0;
     decoder = 0;
@@ -192,7 +192,7 @@ void QMoviePrivate::init(bool fully)
     stepping = -1;
     framenumber = 0;
     frameperiod = -1;
-    frametimer.stop();
+    frametimer->stop();
     lasttimerinterval = -1;
     changed_area.setRect(0,0,-1,-1);
     valid_area = changed_area;
@@ -286,7 +286,7 @@ void QMoviePrivate::showChanges()
 // QMoviePrivate as QImageConsumer
 bool QMoviePrivate::changed(const QRect& rect)
 {
-    if (!frametimer.isActive()) frametimer.start(0);
+    if (!frametimer->isActive()) frametimer->start(0);
     changed_area = changed_area.unite(rect);
     return TRUE;
 }
@@ -301,7 +301,7 @@ bool QMoviePrivate::frameDone()
     if (stepping > 0) {
 	stepping--;
 	if (!stepping) {
-	    frametimer.stop();
+	    frametimer->stop();
 	    emit dataStatus( QMovie::Paused );
 	}
     } else {
@@ -318,12 +318,12 @@ void QMoviePrivate::restartTimer()
 {
     if (speed > 0) {
 	int i = frameperiod >= 0 ? frameperiod * 100/speed : 0;
-	if ( i != lasttimerinterval || !frametimer.isActive() ) {
+	if ( i != lasttimerinterval || !frametimer->isActive() ) {
 	    lasttimerinterval = i;
-	    frametimer.start( i );
+	    frametimer->start( i );
 	}
     } else {
-	frametimer.stop();
+	frametimer->stop();
     }
 }
 
@@ -420,7 +420,7 @@ void QMoviePrivate::pause()
 {
     if ( stepping ) {
 	stepping = 0;
-	frametimer.stop();
+	frametimer->stop();
 	emit dataStatus( QMovie::Paused );
     }
 }
@@ -433,7 +433,7 @@ void QMoviePrivate::refresh()
     }
 
     if (!buf_usage) {
-	frametimer.stop();
+	frametimer->stop();
     }
 
     waitingForFrameTick = FALSE;
@@ -658,7 +658,7 @@ void QMovie::step(int steps)
     if (d->isNull()) return;
 
     d->stepping = steps;
-    d->frametimer.start(0);
+    d->frametimer->start(0);
     d->waitingForFrameTick = FALSE; // Full speed ahead!
 }
 
@@ -817,7 +817,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.22 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.23 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
