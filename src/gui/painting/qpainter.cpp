@@ -238,6 +238,12 @@ void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &bru
     take integer coordinates; there are no floating-point versions
     since we want drawing to be as fast as possible.
 
+    The functions that draw curved primitives accept angles measured
+    in 1/16s of a degree. Angles are measured in an counter-clockwise
+    direction from the rightmost edge of the primitive being drawn.
+
+    \img qpainter-angles.png
+
     There are functions to draw pixmaps/images, namely drawPixmap(),
     drawImage() and drawTiledPixmap(). drawPixmap() and drawImage()
     produce the same result, except that drawPixmap() is faster
