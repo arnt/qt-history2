@@ -135,8 +135,6 @@ QWidget *QSeparatorAction::widget() const
 
 
 
-static bool doReinsert = TRUE;
-
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     : QToolBar( mw ), lastIndicatorPos( -1, -1 )
 {
@@ -180,9 +178,7 @@ void QDesignerToolBar::findFormWindow()
 
 void QDesignerToolBar::addAction( QAction *a )
 {
-    doReinsert = FALSE;
     actionList.append( a );
-    doReinsert = TRUE;
     connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
     if ( a->inherits( "QActionGroup" ) ) {
 	( (QDesignerActionGroup*)a )->widget()->installEventFilter( this );
@@ -514,7 +510,6 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 
 void QDesignerToolBar::reInsert()
 {
-    doReinsert = FALSE;
     QAction *a = 0;
     actionMap.clear();
     clear();
@@ -534,7 +529,6 @@ void QDesignerToolBar::reInsert()
     }
     QApplication::sendPostedEvents();
     adjustSize();
-    doReinsert = TRUE;
 }
 
 void QDesignerToolBar::actionRemoved()

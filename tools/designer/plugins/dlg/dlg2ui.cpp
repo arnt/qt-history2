@@ -1101,7 +1101,6 @@ void Dlg2Ui::matchGridSpacer( const QDomElement& gridSpacer )
 
 void Dlg2Ui::matchLayoutWidget( const QDomElement& layoutWidget )
 {
-    QDomNodeList nodes = layoutWidget.childNodes();
     QDomElement children;
     QString widget;
 

@@ -2121,7 +2121,6 @@ QColorGroup Resource::loadColorGroup( const QDomElement &e )
 	    r++;
 	    cg.setColor( (QColorGroup::ColorRole)r, (col = DomTool::readColor( n ) ) );
 	} else if ( n.tagName() == "pixmap" ) {
-	    QImage img = loadFromCollection( n.firstChild().toText().data() );
 	    QPixmap pix = loadPixmap( n );
 	    cg.setBrush( (QColorGroup::ColorRole)r, QBrush( col, pix ) );
 	}
@@ -2416,7 +2415,7 @@ void Resource::saveFunctions( QTextStream &ts, int indent )
 	QMap<QString, QString> functionBodies = MetaDataBase::functionBodies( formwindow );
 	if ( functionBodies.isEmpty() )
 	    return;
-	
+
 	QValueList<LanguageInterface::Function> funcs;
 	QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
 	QValueList<MetaDataBase::Slot>::Iterator sit = slotList.begin();
@@ -2430,7 +2429,7 @@ void Resource::saveFunctions( QTextStream &ts, int indent )
 	    // ###### return type
 	    funcs.append( func );
 	}
-	
+
 	QValueList<LanguageInterface::Connection> conns;
 	QValueList<MetaDataBase::Connection> mconns = langConnections[ lang ];
 	for ( QValueList<MetaDataBase::Connection>::Iterator it = mconns.begin();
@@ -2441,7 +2440,7 @@ void Resource::saveFunctions( QTextStream &ts, int indent )
 	    conn.slot = (*it).slot;
 	    conns.append( conn );
 	}
-	
+
 	iface->saveFormCode( formwindow->name(), currFileName + iface->formCodeExtension(),
 			     funcs, QStringList(), QStringList(), QStringList(),
 			     MetaDataBase::variables( formwindow ), conns );

@@ -2052,7 +2052,6 @@ void FormWindow::editConnections()
     if ( !connectSender || !connectReceiver )
 	return;
     mainWindow()->statusBar()->clear();
-    QWidgetList  selection = selectedWidgets();
     ConnectionEditor editor( mainwindow, connectSender, connectReceiver, this );
     mainWindow()->statusBar()->message( tr( "Edit connections...") );
     editor.exec();
