@@ -303,9 +303,12 @@ QSize QHeaderView::sizeHint() const
 {
     if (d->sections.isEmpty())
         return QSize();
-    QSize hint = sectionSizeFromContents(logicalIndex(count() - 1));
     // FIXME: we should check all sections (slow)
-    return QSize(hint.width(), hint.height());
+    QSize firstHint = sectionSizeFromContents(logicalIndex(0));
+    QSize lastHint = sectionSizeFromContents(logicalIndex(count() - 1));
+    int width = qMax(firstHint.width(), lastHint.width());
+    int height = qMax(firstHint.height(), lastHint.height());
+    return QSize(width, height);
 }
 
 /*!
