@@ -2895,7 +2895,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    left = QMIN( left, lineLeft );
 	    right = QMAX( right, lineRight );
 
-	    if ( state != QTextLayout::LineEmpty ) {
+	    if ( state != QTextLayout::LineEmpty || linesep ) {
 		//qDebug("finalizing line: ascent = %d, descent=%d", ascent, descent );
 		height += ascent + descent;
 		add = 0;
