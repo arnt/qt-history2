@@ -1994,7 +1994,6 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
             }
             dbg.nospace() << "QKeyEvent("  << n
                         << ", " << ke->key()
-                        << ", " << ke->ascii()
                         << ", " << hex << ke->state()
                         << ", \"" << ke->text()
                         << "\", " << ke->isAutoRepeat()
