@@ -861,10 +861,12 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	    const QToolBox *tb = (const QToolBox*)widget;
 
-	    if ( flags & Style_Selected && tb->item(tb->currentIndex()) )
-		p->setBrush( tb->item(tb->currentIndex())->palette().background() );
-	    else
-		p->setBrush( pal.background() );
+	    if ( flags & Style_Selected && tb->item(tb->currentIndex()) ) {
+		QWidget *tbW = tb->item(tb->currentIndex());
+		p->setBrush(tbW->palette().brush(tbW->backgroundRole()));
+	    } else {
+		p->setBrush(pal.brush(tb->backgroundRole()));
+	    }
 
 	    p->setPen( pal.mid().color().dark( 150 ) );
 	    p->drawPolygon( a );
@@ -1545,7 +1547,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    QPalette pal2 = pal;
 	    if ( toolbutton->backgroundRole() != QPalette::Button )
 		pal2.setBrush( QPalette::Button,
-			    toolbutton->palette().background() );
+			    toolbutton->palette().brush(toolbutton->backgroundRole()) );
 	    QRect button, menuarea;
 	    button   = visualRect( querySubControlMetrics(control, widget, SC_ToolButton, opt), widget );
 	    menuarea = visualRect( querySubControlMetrics(control, widget, SC_ToolButtonMenu, opt), widget );
@@ -1865,7 +1867,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
     case CC_ListView:
 	if ( controls & SC_ListView ) {
 	    QListView *listview = (QListView*)widget;
-	    p->fillRect( r, listview->viewport()->palette().background() );
+	    p->fillRect( r, listview->viewport()->palette().brush(listview->viewport()->backgroundRole()) );
 	}
 	break;
 #endif //QT_NO_LISTVIEW
@@ -2651,7 +2653,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
 	break;
 
     case SH_GroupBox_TextLabelColor:
-	ret = (int) ( w ? w->palette().foreground().color().rgb() : 0 );
+	ret = (int) ( w ? w->palette().color(w->foregroundRole()).rgb() : 0 );
 	break;
 
     case SH_ListViewExpand_SelectMouseType:

@@ -1049,7 +1049,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 #endif
     paintDocument( TRUE, p, cx, cy, cw, ch );
     int v;
-    p->setPen(palette().foreground().color());
+    p->setPen(palette().color(foregroundRole()));
     if ( document()->isPageBreakEnabled() &&  ( v = document()->flow()->pageSize() ) > 0 ) {
 	int l = int(cy / v) * v;
 	while ( l < cy + ch ) {

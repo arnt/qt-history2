@@ -808,13 +808,13 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
     const QPalette &pal = palette();
     QColor lightColor,darkColor,fgColor;
     if ( erase ){
-        lightColor = pal.background();
+        lightColor = pal.color(backgroundRole());
         darkColor  = lightColor;
         fgColor    = lightColor;
     } else {
         lightColor = pal.light();
         darkColor  = pal.dark();
-        fgColor    = pal.foreground();
+        fgColor    = pal.color(foregroundRole());
     }
 
 
