@@ -55,14 +55,15 @@ menu with additional options for the slot. To add new slots, choose
 change the properties of the selected slot, choose 'Properties' which
 invokes the \Dialog{Edit Slots Dialog}. To open the C++ editor and
 jump to the implementation of the selected slot, choose 'Goto
-Implementation'. To remove the selected slot, choose 'Delete'. 
+Implementation'. To remove the selected slot, choose 'Delete'. Signals
+can be added or deleted in the same way as slots.
 
 Right click 'Forward Declarations', 'Includes (in declaration)',
 'Class Variables', and 'Includes (in implementation)' to invoke a
 context menu with the 'new' or 'edit' options. Choose 'New' to invoke
 a line edit for typing a declaration, variable, or include. Right
 click 'Forward Declarations' and choose 'Edit' to invoke the \Dialog
-{Edit Forward Declarations Dialog'. Right click 'Includes (in
+{Edit Forward Declarations Dialog}. Right click 'Includes (in
 declaration)' and choose'Edit' to invoke the \Dialog {Edit Includes
 (in Declaration) Dialog}. Right click 'Class variables' and choose
 'Edit' to invoke the \Dialog {Edit Class Variables Dialog}. Right
