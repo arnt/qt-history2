@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#51 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -808,7 +808,7 @@ void QProcess::socketRead( int fd )
 
     // read data
     oldSize = buffer.size();
-    buffer.resize( oldSize + 4096 );
+    buffer.resize( oldSize + bufsize );
     n = ::read( fd, buffer.data()+oldSize, bufsize );
     if ( n > 0 )
 	buffer.resize( oldSize + n );
@@ -839,7 +839,7 @@ void QProcess::socketRead( int fd )
     // read all data that is available
     while ( n == bufsize ) {
 	oldSize = buffer.size();
-	buffer.resize( oldSize + 4096 );
+	buffer.resize( oldSize + bufsize );
 	n = ::read( fd, buffer.data()+oldSize, bufsize );
 	if ( n > 0 )
 	    buffer.resize( oldSize + n );
