@@ -461,7 +461,7 @@ DspMakefileGenerator::init()
 	    "TargetPath=" + project->first("TARGET") + "\n"
 	    "SOURCE=$(InputPath)\n"
 	    "PostBuild_Desc=Copy DLL to " + project->first("DLLDESTDIR") + "\n"
-	    "PostBuild_Cmds=copy " + project->first("TARGET") + " \"" + project->first("DLLDESTDIR") + "\"\n"
+	    "PostBuild_Cmds=copy \"" + project->first("TARGET") + "\" \"" + project->first("DLLDESTDIR") + "\"\n"
 	    "# End Special Build Tool");
     }
     if ( project->isActiveConfig("moc") ) {
