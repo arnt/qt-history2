@@ -917,7 +917,7 @@ void QMenuBar::changeEvent(QEvent *e)
 */
 void QMenuBar::contextMenuEvent(QContextMenuEvent *e)
 {
-    e->accept();
+    e->ignore();
 }
 
 /*!
