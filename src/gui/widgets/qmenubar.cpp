@@ -46,8 +46,10 @@ void QMenuBarPrivate::updateActions()
             d->rightWidget->setGeometry(QRect(QPoint(q->width()-sz.width()-hmargin, vmargin), sz));
         }
     }
+#if 0
     if(itemsWidth == q_width && q_start == itemsStart)
         return;
+#endif
 
 #ifdef Q_WS_MAC
     if(d->mac_menubar) {//nothing to see here folks, move along..
@@ -259,9 +261,9 @@ void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent actio
     menu items with addMenu(). For example, asuming that \c menubar
     is a pointer to a QMenuBar and \c filemenu is a pointer to a
     QMenu, the following statement inserts the menu into the menu bar:
-    \code 
-      menubar->addMenu("&File", filemenu); 
-    \endcode 
+    \code
+      menubar->addMenu("&File", filemenu);
+    \endcode
 
     The ampersand in the menu item's text sets Alt+F as a shortcut for
     this menu. (You can use "\&\&" to get a real ampersand in the menu
@@ -413,7 +415,7 @@ QAction *QMenuBar::insertMenu(QAction *before, const QString &text, QMenu *menu)
     return ret;
 }
 
-/*!  
+/*!
   Returns the QAction that is currently highlighted. A null pointer
   will be returned if no action is currently selected.
 */
@@ -1091,7 +1093,7 @@ bool QMenuBar::setItemParameter(int id, int param)
 
 int QMenuBar::itemParameter(int id) const
 {
-    if(QAction *act = findActionForId(id)) 
+    if(QAction *act = findActionForId(id))
         return reinterpret_cast<QMenuItem*>(act)->signalValue();
     return id;
 }
