@@ -38,7 +38,7 @@
 #include "qcomponentinterface.h"
 #ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
-//#define QT_DEBUG_COMPONENT
+// #define QT_DEBUG_COMPONENT 1
 
 #ifndef QT_H
 #include "qstring.h" // char*->QString conversion
@@ -62,7 +62,7 @@ static HINSTANCE qt_load_library( const QString& lib )
 	handle = LoadLibraryA( (const char*)lib.local8Bit() );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !handle )
-	qSystemWarning( "Failed to load library!" );
+	qSystemWarning( QString("Failed to load library %1!").arg( lib ) );
 #endif
 
     return handle;
@@ -351,13 +351,13 @@ QUnknownInterface* QLibrary::load()
 	pHnd = qt_load_library( libfile );
 
     if ( pHnd && !entry ) {
-#if defined(QT_DEBUG_COMPONENT)
+#if QT_DEBUG_COMPONENT == 2
 	qDebug( "%s has been loaded.", libfile.latin1() );
 #endif
 	typedef QUnknownInterface* (*QtLoadInfoProc)();
 	QtLoadInfoProc infoProc;
 	infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
-#if defined(QT_DEBUG_COMPONENT)
+#if QT_DEBUG_COMPONENT == 2
 	if ( !infoProc )
 	    qDebug( "%s: Symbol \"qt_load_interface\" not found.", libfile.latin1() );
 #endif
@@ -383,13 +383,13 @@ QUnknownInterface* QLibrary::load()
 		}
 	    }
 	}
-#if defined(QT_DEBUG_COMPONENT)
+#if QT_DEBUG_COMPONTENT == 2
 	else {
 	    qDebug( "%s: No interface implemented.", libfile.latin1() );
 	}
 #endif
     }
-#if defined(QT_DEBUG_COMPONENT)
+#if QT_DEBUG_COMPONENT == 2
     else {
 	qDebug( "%s could not be loaded.", libfile.latin1() );
     }
@@ -434,7 +434,7 @@ bool QLibrary::unload( bool force )
 		bool can = piface->canUnload();
 		piface->release();
 		if ( !can ) {
-#if defined(QT_DEBUG_COMPONENT)
+#if QT_DEBUG_COMPONENT == 2
 		    qDebug( "%s refuses to be unloaded!", libfile.latin1() );
 #endif
 		    if ( !force )
@@ -456,7 +456,7 @@ bool QLibrary::unload( bool force )
 	    entry = 0;
 	}
 	if ( !qt_free_library( pHnd ) )
-#if defined(QT_DEBUG_COMPONENT)
+#if QT_DEBUG_COMPONENT == 2
 	{
 	    qDebug( "%s could not be unloaded.", libfile.latin1() );
 #endif
@@ -464,7 +464,7 @@ bool QLibrary::unload( bool force )
 	} else {
 	    delete unloadTimer;
 	    unloadTimer = 0;
-#if defined(QT_DEBUG_COMPONENT)
+#if QT_DEBUG_COMPONENT == 2
 	    qDebug( "%s has been unloaded.", libfile.latin1() );
 	}
 #endif
@@ -538,8 +538,13 @@ void QLibrary::tryUnload()
 {
     // This slot is only called when there is a QLibraryInterface 
     // implemented in the component, so there won't be accidental unloadings
-    if ( libPol != Manual )
+    if ( libPol != Manual ) 
+#if QT_DEBUG_COMPONENT == 1
+	if ( unload() )
+	    qDebug( "%s has been automatically unloaded", libfile.latin1() );
+#else
 	unload();
+#endif
 }
 
 #endif // QT_NO_COMPONENT
