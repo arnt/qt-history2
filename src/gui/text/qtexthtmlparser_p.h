@@ -79,6 +79,10 @@ enum QTextHTMLElements {
     Html_th,
     Html_html,
 
+    // misc...
+    Html_style,
+    Html_title,
+
     Html_NumElements
 };
 

@@ -424,7 +424,7 @@ void QTextHTMLImporter::import()
                 hasBlock = false;
         }
 
-        if (node->tag == QLatin1String("style")) {
+        if (node->id == Html_style) {
             // ignore the body of style tags
             continue;
         } else if (node->isListStart) {
@@ -434,7 +434,7 @@ void QTextHTMLImporter::import()
             if (node->id == Html_ul && !node->hasOwnListStyle && node->parent) {
                 const QTextHtmlParserNode *n = &at(node->parent);
                 while (n) {
-                    if (n->tag == QLatin1String("ul")) {
+                    if (n->id == Html_ul) {
                         style = nextListStyle(node->listStyle);
                     }
                     if (n->parent)
@@ -553,7 +553,7 @@ void QTextHTMLImporter::import()
             appendImage(fmt);
             hasBlock = false;
             continue;
-        } else if (node->tag == QLatin1String("title")) {
+        } else if (node->id == Html_title) {
             d->hasTitle = true;
             d->title = node->text;
             continue;
@@ -584,7 +584,7 @@ bool QTextHTMLImporter::closeTag(int i)
     bool blockTagClosed = false;
 
     while (depth > endDepth) {
-        if (closedNode->tag == QLatin1String("tr")) {
+        if (closedNode->id == Html_tr) {
             Q_ASSERT(!tables.isEmpty());
 
             Table &t = tables[tables.size() -1];
@@ -601,7 +601,7 @@ bool QTextHTMLImporter::closeTag(int i)
 
             t.currentColumnCount = 0;
             blockTagClosed = true;
-        } else if (closedNode->tag == QLatin1String("table") && !tables.isEmpty()) {
+        } else if (closedNode->id == Html_table && !tables.isEmpty()) {
             QTextCharFormat charFmt;
             charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
             QTextBlockFormat fmt;
@@ -635,7 +635,7 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
     bool inFirstRow = true;
     int effectiveRow = 0;
     foreach (int row, at(tableNodeIdx).children) {
-        if (at(row).tag == QLatin1String("tr")) {
+        if (at(row).id == Html_tr) {
             int colsInRow = 0;
 
             foreach (int cell, at(row).children)
