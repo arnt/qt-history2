@@ -102,8 +102,8 @@ bool DownloadDelegate::editorEvent(QEvent *event, const QStyleOptionViewItem &op
     if ((static_cast<QMouseEvent*>(event)->x() - option.rect.x()) < 20) {
         const QAbstractItemModel *model = index.model();
         bool checked = model->data(index, DownloadDelegate::CheckedRole).toBool();
-        const_cast<QAbstractItemModel*>(model)->setData(index, DownloadDelegate::CheckedRole,
-                                                        !checked);
+        const_cast<QAbstractItemModel*>(model)->setData(index, !checked,
+                                                        DownloadDelegate::CheckedRole);
         return true;
     }
 
