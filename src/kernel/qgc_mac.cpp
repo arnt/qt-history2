@@ -171,7 +171,8 @@ QQuickDrawGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
     }
     d->unclipped = unclipped;
 #ifndef USE_CORE_GRAPHICS
-    setupQDPort(true); //force setting paint device, this does unclipped fu
+    if(type() != CoreGraphics)
+	setupQDPort(true); //force setting paint device, this does unclipped fu
 #endif
 
     updateXForm(ps);
@@ -713,7 +714,8 @@ QQuickDrawGC::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
 	return;
     setupQDPen();
 #ifdef USE_CORE_GRAPHICS
-    QMacSavedPortInfo::setClipRegion(d->clip.paintable);
+    if(type() != CoreGraphics)
+	QMacSavedPortInfo::setClipRegion(d->clip.paintable);
 #endif
     unclippedBitBlt(d->pdev, r.x(), r.y(), &pixmap, sr.x(), sr.y(), sr.width(), sr.height(), (RasterOp)d->current.rop, false, false);
 }
@@ -977,7 +979,8 @@ void QQuickDrawGC::setupQDPort(bool force, QPoint *off, QRegion *rgn)
     if(remade_clip || qt_mac_current_gc != this) {
 	QMacSavedPortInfo::setPaintDevice(d->pdev);
 #ifndef USE_CORE_GRAPHICS
-	QMacSavedPortInfo::setClipRegion(d->clip.paintable);
+	if(type() != CoreGraphics)
+	    QMacSavedPortInfo::setClipRegion(d->clip.paintable);
 #endif
 	qt_mac_current_gc = this;
     }
@@ -986,8 +989,6 @@ void QQuickDrawGC::setupQDPort(bool force, QPoint *off, QRegion *rgn)
     if(rgn)
 	*rgn = d->clip.paintable;
 }
-
-#ifdef USE_CORE_GRAPHICS
 
 /*****************************************************************************
   QCoreGraphicsGC utility functions
@@ -1099,13 +1100,13 @@ bool
 QCoreGraphicsGC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
 {
     if(isActive()) {                         // already active painting
-        qWarning( "QQuickDrawGC::begin: Painter is already active."
+        qWarning( "QCoreGraphicsGC::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()" );
 	return false;
     }
     if(pdev->devType() == QInternal::Widget &&
        !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
-	qWarning("QQuickDrawGC::begin: Widget painting can only begin as a "
+	qWarning("QCoreGraphicsGC::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
 //	return false;
     }
@@ -1752,4 +1753,3 @@ QCoreGraphicsGC::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QP
     CGPatternRelease(pat);
 }
 
-#endif
