@@ -893,17 +893,6 @@ private:
     \sa QGrid, \link layout.html Layout Overview \endlink
 */
 
-/*!
-    \enum QGridLayout::Corner
-
-    This enum identifies which corner is the origin (0, 0) of the
-    layout.
-
-    \value TopLeft the top-left corner
-    \value TopRight the top-right corner
-    \value BottomLeft the bottom-left corner
-    \value BottomRight the bottom-right corner
-*/
 
 /*!
     Constructs a new QGridLayout with \a nRows rows, \a nCols columns

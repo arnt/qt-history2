@@ -224,7 +224,7 @@ public:
   WStyle_Title | WStyle_SysMenu in \a f.
 
 
-  \sa QWidget::setWFlags() Qt::WidgetFlags
+  \sa QWidget::setWFlags() Qt::WindowFlags
 */
 
 QDialog::QDialog( QWidget *parent, WFlags f )

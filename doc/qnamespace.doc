@@ -1,0 +1,45 @@
+/****************************************************************************
+**
+** Qt's global enums etc.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the kernel module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+/*!
+    \enum Qt::GlobalColor
+
+    Qt's 19 predefined QColor objects
+
+    \value white
+    \value black
+    \value red
+    \value darkRed
+    \value green
+    \value darkGreen
+    \value blue
+    \value darkBlue
+    \value cyan
+    \value darkCyan
+    \value magenta
+    \value darkMagenta
+    \value yellow
+    \value darkYellow
+    \value gray
+    \value darkGray
+    \value lightGray
+    \value color0 0 pixel value (for bitmaps)
+    \value color1 1 pixel value (for bitmaps)
+
+    \img qt-colors.png Qt Colors
+
+    \sa QColor
+
+*/
+

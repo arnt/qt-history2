@@ -2155,9 +2155,10 @@ void QCanvasItem::setVisible(bool yes)
 	}
     }
 }
+
 /*!
-    \obsolete
     \fn bool QCanvasItem::visible() const
+    \obsolete
     Use isVisible() instead.
 */
 
@@ -2177,8 +2178,8 @@ void QCanvasItem::setVisible(bool yes)
 */
 
 /*!
-    \obsolete
     \fn bool QCanvasItem::selected() const
+    \obsolete
     Use isSelected() instead.
 */
 
@@ -2207,8 +2208,8 @@ void QCanvasItem::setSelected(bool yes)
 }
 
 /*!
-    \obsolete
     \fn bool QCanvasItem::enabled() const
+    \obsolete
     Use isEnabled() instead.
 */
 
@@ -2237,8 +2238,8 @@ void QCanvasItem::setEnabled(bool yes)
 }
 
 /*!
-    \obsolete
     \fn bool QCanvasItem::active() const
+    \obsolete
     Use isActive() instead.
 */
 

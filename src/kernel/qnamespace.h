@@ -27,7 +27,7 @@ class Q_CORE_EXPORT Qt {
     Q_FLAGS( AlignmentFlags )
 #endif
 public:
-    // documented in qcolor.cpp
+    // documented in qnamespace.doc
     enum GlobalColor {
 	color0,
 	color1,

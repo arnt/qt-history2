@@ -484,9 +484,9 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \internal */
 
 /*!
-    \enum Qt::WidgetFlags
+    \enum Qt::WindowFlags
 
-    \keyword widget flag
+    \keyword window flag
 
     This enum type is used to specify various window-system properties
     for the widget. They are fairly unusual but necessary in a few
@@ -699,7 +699,7 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     The widget flags argument, \a f, is normally 0, but it can be set
     to customize the window frame of a top-level widget (i.e. \a
     parent must be 0). To customize the frame, set the \c
-    WStyle_Customize flag OR'ed with any of the \l Qt::WidgetFlags.
+    WStyle_Customize flag OR'ed with any of the \l Qt::WindowFlags.
 
     If you add a child widget to an already visible widget you must
     explicitly show the child to make it visible.
@@ -1255,7 +1255,7 @@ QWidget *QWidget::find( WId id )
 
     Returns the widget flags for this this widget.
 
-    Widget flags are a combination of \l{Qt::WidgetFlags}.
+    Widget flags are a combination of \l{Qt::WindowFlags}.
 
     \sa testWFlags(), setWFlags(), clearWFlags()
 */
@@ -1265,7 +1265,7 @@ QWidget *QWidget::find( WId id )
 
     Sets the widget flags \a f.
 
-    Widget flags are a combination of \l{Qt::WidgetFlags}.
+    Widget flags are a combination of \l{Qt::WindowFlags}.
 
     \sa testWFlags(), getWFlags(), clearWFlags()
 */
@@ -1275,7 +1275,7 @@ QWidget *QWidget::find( WId id )
 
     Clears the widget flags \a f.
 
-    Widget flags are a combination of \l{Qt::WidgetFlags}.
+    Widget flags are a combination of \l{Qt::WindowFlags}.
 
     \sa testWFlags(), getWFlags(), setWFlags()
 */
@@ -4186,7 +4186,7 @@ QSize QWidget::minimumSizeHint() const
 
     Returns the bitwise AND of the widget flags and \a f.
 
-    Widget flags are a combination of \l{Qt::WidgetFlags}.
+    Widget flags are a combination of \l{Qt::WindowFlags}.
 
     \sa getWFlags(), setWFlags(), clearWFlags()
 */

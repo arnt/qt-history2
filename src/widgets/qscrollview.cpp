@@ -475,7 +475,7 @@ void QScrollViewData::viewportResized( int w, int h )
     When you construct a QScrollView, some of the widget flags apply
     to the viewport() instead of being sent to the QWidget constructor
     for the QScrollView. This applies to \c WNoAutoErase, \c
-    WStaticContents, and \c WPaintClever. See \l Qt::WidgetFlags for
+    WStaticContents, and \c WPaintClever. See \l Qt::WindowFlags for
     documentation about these flags. Here are some examples:
 
     \list

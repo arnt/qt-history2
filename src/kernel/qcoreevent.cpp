@@ -66,91 +66,98 @@
     types and the specialized classes for each type are these:
 
     \value None  Not an event.
-    \value Accessibility  Accessibility information is requested
-    \value Timer  Regular timer events, \l{QTimerEvent}.
-    \value MouseButtonPress  Mouse press, \l{QMouseEvent}.
-    \value MouseButtonRelease  Mouse release, \l{QMouseEvent}.
-    \value MouseButtonDblClick  Mouse press again, \l{QMouseEvent}.
-    \value MouseMove  Mouse move, \l{QMouseEvent}.
-    \value KeyPress  Key press (including Shift, for example), \l{QKeyEvent}.
-    \value KeyRelease  Key release, \l{QKeyEvent}.
-    \value IMStart  The start of input method composition.
-    \value IMCompose  Input method composition is taking place.
-    \value IMEnd  The end of input method composition.
-    \value FocusIn  Widget gains keyboard focus, \l{QFocusEvent}.
-    \value FocusOut  Widget loses keyboard focus, \l{QFocusEvent}.
-    \value Enter  Mouse enters widget's boundaries.
-    \value Leave  Mouse leaves widget's boundaries.
-    \value Paint  Screen update necessary, \l{QPaintEvent}.
-    \value UpdateRequest The widget should be repainted.
-    \value Move  Widget's position changed, \l{QMoveEvent}.
-    \value Resize  Widget's size changed, \l{QResizeEvent}.
-    \value Show  Widget was shown on screen, \l{QShowEvent}.
-    \value Hide  Widget was hidden, \l{QHideEvent}.
-    \value ShowToParent  A child widget has been shown.
-    \value HideToParent  A child widget has been hidden.
-    \value Close  Widget was closed (permanently), \l{QCloseEvent}.
-    \value ShowNormal  Widget should be shown normally (obsolete).
-    \value ShowMaximized  Widget should be shown maximized (obsolete).
-    \value ShowMinimized  Widget should be shown minimized (obsolete).
-    \value ShowFullScreen  Widget should be shown full-screen (obsolete).
-    \value ShowWindowRequest  Widget's window should be shown (obsolete).
-    \value DeferredDelete  The object will be deleted after it has
-    cleaned up.
+
     \value Accel  Key press in child for shortcut key handling, \l{QKeyEvent}.
-    \value Wheel  Mouse wheel rolled, \l{QWheelEvent}.
-    \value ContextMenu  Context popup menu, \l{QContextMenuEvent}
-    \value AccelOverride  Key press in child, for overriding shortcut key handling, \l{QKeyEvent}.
     \value AccelAvailable internal.
-    \value WindowActivate  Window was activated.
-    \value WindowDeactivate  Window was deactivated.
-    \value CaptionChange  Widget's caption changed.
-    \value IconChange  Widget's icon changed.
+    \value AccelOverride  Key press in child, for overriding shortcut key handling, \l{QKeyEvent}.
+    \value Accessibility  Accessibility information is requested
+    \value ActivateControl  Internal event used by Qt on some platforms.
+    \value ActivationChange Widget's top level window activation state has changed
     \value ApplicationFontChange  Default application font changed.
-    \value PaletteChange  Palette of the widget changed.
     \value ApplicationPaletteChange  Default application palette changed.
-    \value Clipboard  Clipboard contents have changed.
-    \value SockAct  Socket activated, used to implement \l{QSocketNotifier}.
-    \value DragEnter  A drag-and-drop enters widget, \l{QDragEnterEvent}.
-    \value DragMove  A drag-and-drop is in progress, \l{QDragMoveEvent}.
-    \value DragLeave  A drag-and-drop leaves widget, \l{QDragLeaveEvent}.
-    \value Drop  A drag-and-drop is completed, \l{QDropEvent}.
-    \value DragResponse  Internal event used by Qt on some platforms.
-    \value Polish The object is polished.
-    \value PolishRequest The object should be polished.
+    \value CaptionChange  Widget's caption changed.
     \value ChildAdded  Object gets a child, \l{QChildEvent}.
+    \value ChildInserted internal.
     \value ChildPolished  Object child gets polished, \l{QChildEvent}.
     \value ChildRemoved  Object loses a child, \l{QChildEvent}.
-    \value ChildInserted internal.
-    \value LayoutRequest  Widget layout needs to be redone.
-    \value LayoutHint  internal.
-    \value ActivateControl  Internal event used by Qt on some platforms.
+    \value Clipboard  Clipboard contents have changed.
+    \value Close  Widget was closed (permanently), \l{QCloseEvent}.
+    \value ContextMenu  Context popup menu, \l{QContextMenuEvent}
+    \value Create  Reserved.
     \value DeactivateControl  Internal event used by Qt on some platforms.
+    \value DeferredDelete  The object will be deleted after it has cleaned up.
+    \value Destroy  Reserved.
+    \value DragEnter  A drag-and-drop enters widget, \l{QDragEnterEvent}.
+    \value DragLeave  A drag-and-drop leaves widget, \l{QDragLeaveEvent}.
+    \value DragMove  A drag-and-drop is in progress, \l{QDragMoveEvent}.
+    \value DragResponse  Internal event used by Qt on some platforms.
+    \value Drop  A drag-and-drop is completed, \l{QDropEvent}.
+    \value EmitSignal
+    \value EnabledChange Widget's enabled state has changed
+    \value Enter  Mouse enters widget's boundaries.
+    \value FocusIn  Widget gains keyboard focus, \l{QFocusEvent}.
+    \value FocusOut  Widget loses keyboard focus, \l{QFocusEvent}.
+    \value FontChange Widget's font has changed
+    \value HelpRequest  Internal event used by Qt on some platforms.
+    \value Hide  Widget was hidden, \l{QHideEvent}.
+    \value HideToParent  A child widget has been hidden.
+    \value IMCompose  Input method composition is taking place.
+    \value IMEnd  The end of input method composition.
+    \value IMStart  The start of input method composition.
+    \value IconChange  Widget's icon changed.
+    \value IconDrag     Internal event used by Qt on some platforms when proxy icon is dragged.
+    \value IconTextChange Widget's icon text has been changed
+    \value InvokeSlot
+    \value KeyPress  Key press (including Shift, for example), \l{QKeyEvent}.
+    \value KeyRelease  Key release, \l{QKeyEvent}.
     \value LanguageChange  The application translation changed, \l{QTranslator}
     \value LayoutDirectionChange  The direction of layouts changed
+    \value LayoutHint  internal.
+    \value LayoutRequest  Widget layout needs to be redone.
+    \value Leave  Mouse leaves widget's boundaries.
     \value LocaleChange  The system locale changed
+    \value ModifiedChange Widgets modification state has been changed
+    \value MouseButtonDblClick  Mouse press again, \l{QMouseEvent}.
+    \value MouseButtonPress  Mouse press, \l{QMouseEvent}.
+    \value MouseButtonRelease  Mouse release, \l{QMouseEvent}.
+    \value MouseMove  Mouse move, \l{QMouseEvent}.
+    \value Move  Widget's position changed, \l{QMoveEvent}.
+    \value OkRequest  Internal event used by Qt on some platforms.
+    \value Paint  Screen update necessary, \l{QPaintEvent}.
+    \value PaletteChange  Palette of the widget changed.
+    \value Polish The object is polished.
+    \value PolishRequest The object should be polished.
+    \value QWSUpdate internal.
     \value Quit  Reserved.
-    \value Create  Reserved.
-    \value Destroy  Reserved.
     \value Reparent  Reserved.
+    \value Resize  Widget's size changed, \l{QResizeEvent}.
+    \value Show  Widget was shown on screen, \l{QShowEvent}.
+    \value ShowFullScreen  Widget should be shown full-screen (obsolete).
+    \value ShowMaximized  Widget should be shown maximized (obsolete).
+    \value ShowMinimized  Widget should be shown minimized (obsolete).
+    \value ShowNormal  Widget should be shown normally (obsolete).
+    \value ShowToParent  A child widget has been shown.
+    \value ShowWindowRequest  Widget's window should be shown (obsolete).
+    \value SockAct  Socket activated, used to implement \l{QSocketNotifier}.
     \value Speech  Reserved for speech input.
-    \value TabletMove  A Wacom Tablet Move Event.
+    \value StatusTip
     \value Style  Internal use only
+    \value StyleChange Widget's style has been changed
+    \value TabletMove  A Wacom Tablet Move Event.
     \value TabletPress  A Wacom Tablet Press Event
     \value TabletRelease  A Wacom Tablet Release Event
-    \value OkRequest  Internal event used by Qt on some platforms.
-    \value IconDrag     Internal event used by Qt on some platforms when proxy icon is dragged.
-    \value HelpRequest  Internal event used by Qt on some platforms.
-    \value FontChange Widget's font has changed
-    \value EnabledChange Widget's enabled state has changed
-    \value ActivationChange Widget's top level window activation state has changed
-    \value StyleChange Widget's style has been changed
-    \value IconTextChange Widget's icon text has been changed
-    \value ModifiedChange Widgets modification state has been changed
-    \value QWSUpdate internal.
-
-    \value WindowStateChange The window's state, i.e. minimized,
-    maximized or full-screen, has changed. See \l{QWidget::windowState()}.
+    \value Timer  Regular timer events, \l{QTimerEvent}.
+    \value ToolTip
+    \value UpdateRequest The widget should be repainted.
+    \value WhatsThis
+    \value Wheel  Mouse wheel rolled, \l{QWheelEvent}.
+    \value WindowActivate  Window was activated.
+    \value WindowBlocked
+    \value WindowDeactivate  Window was deactivated.
+    \value WindowIconChange
+    \value WindowStateChange The window's state, i.e. minimized, maximized or full-screen, has changed. See \l{QWidget::windowState()}.
+    \value WindowTitleChange
+    \value WindowUnblocked
 
     \value User  User defined event.
     \value MaxUser  Last user event id.

@@ -1986,7 +1986,7 @@ QSize QCheckTableItem::sizeHint() const
     Call setNumRows() and setNumCols() to set the table size before
     populating the table if you're using QTableItems.
 
-    \sa QWidget::clearWFlags() Qt::WidgetFlags
+    \sa QWidget::clearWFlags() Qt::WindowFlags
 */
 
 QTable::QTable( QWidget *parent, const char *name )
@@ -2007,7 +2007,7 @@ QTable::QTable( QWidget *parent, const char *name )
     and insert them into the table using setItem(). (See the notes on
     large tables for an alternative to using QTableItems.)
 
-    \sa QWidget::clearWFlags() Qt::WidgetFlags
+    \sa QWidget::clearWFlags() Qt::WindowFlags
 */
 
 QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
