@@ -157,9 +157,9 @@ void QActionPrivate::update( Update upd )
 		if ( accel )
 		    QToolTip::add( btn, text + 
 			" (" + QAccel::keyToString( accel->key( accelid )) + ")" , 
-			tipGroup, statustip.isNull() ? tooltip : statustip );
+			tipGroup, statustip.isNull() ? text : statustip );
 		else 
-		    QToolTip::add( btn, text, tipGroup, statustip.isNull() ? tooltip : statustip );
+		    QToolTip::add( btn, text, tipGroup, statustip.isNull() ? text : statustip );
 	    }
 	    QWhatsThis::remove( btn );
 	    if ( !whatsthis.isEmpty() )
@@ -572,16 +572,20 @@ bool QAction::addTo( QWidget* w )
 	d->update( QActionPrivate::Everything );
 	connect( btn, SIGNAL( clicked() ), this, SIGNAL( activated() ) );
 	connect( btn, SIGNAL( toggled(bool) ), this, SLOT( toolButtonToggled(bool) ) );
-
-	if ( parent()->inherits( "QMainWindow" ) 
-	    && ((QMainWindow*)parent())->statusBar() ) {
-	    QStatusBar* s = ((QMainWindow*)parent())->statusBar();
+	QObject* par = 0;
+	if ( parent() ) {
+	    if ( parent()->inherits( "QActionGroup" ) )
+		par = parent()->parent();
+	    else
+		par = parent();
+	}
+	if ( par->inherits( "QMainWindow" ) 
+	    && ((QMainWindow*)par)->statusBar() ) {
+	    QStatusBar* s = ((QMainWindow*)par)->statusBar();
 
 	    connect( d->tipGroup, SIGNAL(showTip(const QString&)), s, SLOT(message(const QString&)) );
 	    connect( d->tipGroup, SIGNAL(removeTip()), s, SLOT(clear()) );
 	}
-
-	
     } else if ( w->inherits( "QPopupMenu" ) ) {
 	QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
 	mi->popup = (QPopupMenu*) w;
@@ -634,6 +638,8 @@ void QAction::menuStatusText( int id )
 		QStatusBar* s = ((QMainWindow*)par)->statusBar();
 		if ( !statusTip().isEmpty() )
 		    s->message( statusTip() );
+		else
+		    s->clear();
 		break;
 	    }
 	}
