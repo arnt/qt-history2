@@ -132,12 +132,11 @@ const uint stdWidgetEventMask =			// X event mask
 	);
 
 const uint stdDesktopEventMask =			// X event mask
-	(uint)(
-	    KeyPressMask | KeyReleaseMask |
-	    KeymapStateMask |
-	    EnterWindowMask | LeaveWindowMask |
-	    FocusChangeMask | PropertyChangeMask
-	);
+       (uint)(
+           KeymapStateMask |
+	   EnterWindowMask | LeaveWindowMask |
+	   PropertyChangeMask
+       );
 
 
 /*
@@ -581,6 +580,10 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     if ( accept_drops )
 	setAcceptDrops( FALSE ); // dnd unregister (we will register again below)
 
+    // clear mouse tracking, re-enabled below
+    bool mouse_tracking = hasMouseTracking();
+    clearWState(WState_MouseTracking);
+
     QWidget* oldtlw = topLevelWidget();
     QWidget *oldparent = parentWidget();
     WId old_winid = winid;
@@ -672,6 +675,10 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
 	    parent->checkChildrenDnd();
 	qt_dnd_enable(this, (extra && extra->children_use_dnd));
     }
+
+    // re-enable mouse tracking
+    if (mouse_tracking)
+	setMouseTracking(mouse_tracking);
 }
 
 
