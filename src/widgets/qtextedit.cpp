@@ -1626,10 +1626,13 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 	if ( c.parag() && c.parag()->at( c.index() ) &&
 	     c.parag()->at( c.index() )->format()->isAnchor() &&
 	     !c.parag()->at( c.index() )->format()->anchorHref().isEmpty() ) {
+	    if ( c.index() < c.parag()->length() - 1 )
+		onLink = c.parag()->at( c.index() )->format()->anchorHref();
+	    else
+		onLink = QString::null;
 #ifndef QT_NO_CURSOR
-	    viewport()->setCursor( pointingHandCursor );
+	    viewport()->setCursor( onLink.isEmpty() ? arrowCursor : pointingHandCursor );
 #endif
-	    onLink = c.parag()->at( c.index() )->format()->anchorHref();
 	    QUrl u( doc->context(), onLink, TRUE );
 	    emitHighlighted( u.toString( FALSE, FALSE ) );
 	} else {

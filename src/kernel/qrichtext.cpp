@@ -4037,6 +4037,9 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 
     QPainter::TextDirection dir = rightToLeft ? QPainter::RTL : QPainter::LTR;
 
+    if ( start + len == length() ) // don't draw the last character (trailing space)
+	len--;
+
     if ( str[ start ] != '\t' && str[ start ].unicode() != 0xad ) {
 	if ( lastFormat->vAlign() == QTextFormat::AlignNormal ) {
 	    painter.drawText( startX, lastY + baseLine, str, start, len, dir );
