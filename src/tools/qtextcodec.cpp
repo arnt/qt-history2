@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#56 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#57 $
 **
 ** Implementation of QTextCodec class
 **
@@ -444,9 +444,9 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
   \fn int QTextCodec::mibEnum() const
 
   Subclasses of QTextCodec must override this function.  It returns the
-  MIBenum (see 
-  <a href=ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets> 
-  the IANA character-sets encoding file</a> for more information).  
+  MIBenum (see
+  <a href=ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets>
+  the IANA character-sets encoding file</a> for more information).
   It is important that each QTextCodec subclass return the correct unique
   value for this function.
 */
@@ -1030,7 +1030,6 @@ const char* QTextCodec::locale()
 	if ( lang.isEmpty() )
 	    lang = "C";
     }
-    debug( "l <%s>", lang.data() );
     return lang;
 }
 
