@@ -5,7 +5,9 @@
 #define QT_NO_QWS_DEPTH_1
 #endif
 
-#define QT_NO_CHECK
+#ifndef QT_NO_CHECK
+# define QT_NO_CHECK
+#endif
 #define QT_NO_PROCESS
 #define QT_NO_PALETTE
 #define QT_NO_ACTION
