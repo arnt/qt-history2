@@ -21,6 +21,7 @@ public:
     virtual ~QUnknownInterface();
 
     virtual QString interfaceID() const;
+    QString demangledID( QString *unique = 0, QString *hierarchy = 0 ) const;
 
     virtual bool initialize( QApplicationInterface* = 0 );
     virtual bool cleanUp( QApplicationInterface* = 0 );
@@ -35,7 +36,7 @@ public:
 
     QUnknownInterface *parent() const;
 
-    const char *name() const;
+    const char *name() const;   
 
 protected:
     void insertChild( QUnknownInterface * );

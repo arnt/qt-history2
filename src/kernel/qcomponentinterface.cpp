@@ -157,11 +157,40 @@ bool QUnknownInterface::release()
   Returns a string identifying the interface. Subclasses of QUnknownInterface
   have to reimplement this function, so that implementations of the interfaces
   can be recognized.
+
+  \sa demangledID
 */
 
 QString QUnknownInterface::interfaceID() const
 {
     return "QUnknownInterface";
+}
+
+/*!
+  Returns a readable version of the interface identifier. If provided, \a unique
+  will receive the unique part of the ID, and \a hierarchy will receive the interface
+  path.
+
+  \sa interfaceID
+*/
+
+QString QUnknownInterface::demangledID( QString *unique, QString *hierarchy ) const
+{
+    const QString id = interfaceID();
+
+    QString uni;
+    QString hier;
+
+    int end = id.findRev( '%' );
+    uni = ( end == -1 ) ? QString::null : id.right( id.length() - end - 1 );
+    hier = ( end == -1 ) ? id : id.left( end );
+    if ( unique )
+	*unique = uni;
+    if ( hierarchy )
+	*hierarchy = hier;
+
+    int last = hier.findRev( '/' );
+    return ( last == -1 ) ? hier : hier.right( hier.length() - last - 1 );
 }
 
 /*!
