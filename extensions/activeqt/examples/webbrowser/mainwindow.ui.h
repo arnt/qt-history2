@@ -24,8 +24,9 @@ void MainWindow::init()
 
     connect( WebBrowser, SIGNAL(ProgressChange(int,int)), this, SLOT(setProgress(int,int)) );
     connect( WebBrowser, SIGNAL(StatusTextChange(const QString&)), statusBar(), SLOT(message(const QString&)) );
+    connect( addressEdit, SIGNAL(textChanged(const QString&)), WebBrowser, SLOT(Navigate(const QString&)) );
 
-    WebBrowser->dynamicCall( "GoHome()" );
+    WebBrowser->dynamicCall( "Navigate(http://intern)" );
 }
 
 void MainWindow::go()
@@ -71,6 +72,9 @@ void MainWindow::navigateBegin()
 void MainWindow::navigateComplete()
 {
     actionStop->setEnabled( FALSE );
+    WebBrowser->setProperty("Offline", true);
+    WebBrowser->setWindowTitle("Blah");
+    QString str = WebBrowser->property("LocationURL").toString();
 }
 
 void MainWindow::newWindow()
