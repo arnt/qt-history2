@@ -34,6 +34,7 @@
 #include "qobject.h"
 #include "qapplication.h"
 #include "qintdict.h"
+#include <private/qmutexpool_p.h>
 
 #include <private/qcriticalsection_p.h>
 
