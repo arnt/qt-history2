@@ -1,4 +1,4 @@
-#			 !/bin/sh
+#!/bin/sh
 #
 # Configures to build the Qt library
 #
@@ -702,7 +702,7 @@ do
 	        png) PNG=$OPT ;;
 	        *) ERROR="yes" ;;
 	        esac
-            else 
+            else
 	        ERROR=yes
 	    fi
 	elif [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
@@ -784,13 +784,13 @@ if [ "$JPEG" = "auto" ]
 then
     JPEG=plugin
     [ "$EMBEDDED" = "no" ] || JPEG=no
-fi 
+fi
 
 if [ "$MNG" = "auto" ]
 then
     MNG=plugin
     [ "$EMBEDDED" = "no" ] || MNG=no
-fi 
+fi
 
 
 if [ -z "$PLATFORM" ]
@@ -1268,7 +1268,7 @@ Image Formats:
     -plugin-imgfmt-<format> Enable format (png, jpeg, or mng) to
                             be linked to at runtime. Uses specified
 			    lib<format>.
-    -qt-imgfmt-<format> ... Enable format (png, jpeg, or mng) to 
+    -qt-imgfmt-<format> ... Enable format (png, jpeg, or mng) to
                             be linked into Qt. Uses specified
 			    lib<format>.
     -no-imgfmt-<format> ... Fully disable format (png, jpeg, or mng)
@@ -1467,7 +1467,7 @@ then
    echo "As of aCC A.3.0.30 you may enable STL support in Qt by adding -AA"
    echo "to the QMAKE_CXXFLAGS and QMAKE_LFLAGS variables in"
    echo "$XQMAKESPEC/qmake.conf"
-   echo "and re-running configure. Make sure to use the -AA compiler switch" 
+   echo "and re-running configure. Make sure to use the -AA compiler switch"
    echo "in all your software projects using Qt as it turns on the "
    echo "new C++ Standard Library which is not binary compatible"
    echo "to the old one."
