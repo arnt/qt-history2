@@ -105,7 +105,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		QStringList &list = project->variables()["SOURCES"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    t << "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
-
 		    if ( project->isActiveConfig("moc") &&
 			 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
 			QString base = (*it);
@@ -144,7 +143,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		QStringList &list = project->variables()["HEADERS"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    t << "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl << endl;
-
 		    if ( project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
 			QString base = (*it);
 			base.replace(QRegExp("\\..*$"), "").upper();
@@ -225,13 +223,18 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		     "\"" + fpath + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 		     "\t$(BuildCmds)\n\n"
 		     "\"" + mocFile + "moc_" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-		     "\t$(BuildCmds)\n\n"
-		     "\"" + project->first("QMAKE_IMAGE_COLLECTION") + "\"" + " : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
-		     "\t$(BuildCmds)\n\n" "# End Custom Build\n\n";
+		     "\t$(BuildCmds)\n\n";
+
+		    if ( imagesBuild.isNull() ) {
+			build.append("\"" + project->first("QMAKE_IMAGE_COLLECTION") + "\"" + " : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" 
+			    "\n" "\t$(BuildCmds)\n\n");
+		    }
+		    build.append("# End Custom Build\n\n");
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
 		      << "!ENDIF \n\n" << build << "# End Source File" << endl;
+		    
 		}
 	    } else if(variable == "MSVCDSP_LEXSOURCES") {
 		if(project->variables()["LEXSOURCES"].isEmpty())
