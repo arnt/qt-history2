@@ -60,6 +60,7 @@ public:
 
     int numRows() const;
     int numCols() const;
+    QRect cellGeometry( int row, int col ) const;;
 
     bool hasHeightForWidth() const;
     int heightForWidth( int ) const;
@@ -85,7 +86,7 @@ public:
     void setOrigin( Corner );
     QLayoutIterator iterator();
     void setGeometry( const QRect& );
-
+    
 protected:
     bool findWidget( QWidget* w, int *r, int *c );
     void add( QLayoutItem*, int row, int col );

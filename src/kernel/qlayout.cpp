@@ -117,6 +117,7 @@ public:
 
     void getNextPos( int &row, int &col ) { row = nextR; col = nextC; }
     uint count() const { return things.count() + (multi?multi->count():0); }
+    QRect cellGeometry( int row, int col ) const;
 private:
     void setNextPosAfter( int r, int c );
     void recalcHFW( int w, int s );
@@ -702,6 +703,25 @@ void QLayoutArray::distribute( QRect r, int spacing )
     }
 }
 
+/*!
+  Returns the geometry of the cell with row \a row, and column
+  \a col in the grid. Returns an invalid rectangle if \a row or
+  \a col is outsiude the grid.
+  
+  \warning in the current version of Qt, this function does not return
+  valid results until setGeometry() has been called, ie. after the
+  mainWidget() is visible.
+  
+*/
+QRect QLayoutArray::cellGeometry( int row, int col ) const
+{
+    if ( row < 0 || row >= rr || col < 0 || col >= cc )
+	return QRect();
+    return QRect( colData[col].pos, colData[col].size,
+		  rowData[row].pos, rowData[row].size );
+}
+
+
 
 class QLayoutArrayIterator : public QGLayoutIterator
 {
@@ -1014,6 +1034,14 @@ void QGridLayout::setGeometry( const QRect &s )
     array->distribute( s, spacing() );
     }
 }
+
+
+QRect QGridLayout::cellGeometry( int row, int col ) const
+{
+    return array->cellGeometry( row, col );
+}
+
+
 
 /*!
   Expands this grid so that it will have \a nRows rows and \a nCols columns.
