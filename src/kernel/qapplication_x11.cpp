@@ -880,7 +880,7 @@ bool QApplication::x11_apply_settings()
 	QString fam, skey;
 	QStringList::Iterator it = fontsubs.begin();
 	while (it != fontsubs.end()) {
-	    fam = (*it++).latin1();
+	    fam = (*it++);
 	    skey = "/qt/Font Substitutions/" + fam;
 	    subs = settings.readListEntry(skey);
 	    QFont::insertSubstitutions(fam, subs);

@@ -369,13 +369,15 @@ void QFontPrivate::load( QFont::Script script )
 	subs_list += QFont::substitutes( *it );
     family_list += subs_list;
 
-#ifdef Q_WS_X11
+#ifndef QT_XFT2
+    // with Xft2, we want to use fontconfig to determine better fallbacks,
+    // otherwise we might run into trouble with default fonts as "serif"
+
     // append the default fallback font for the specified script
     extern QString qt_fallback_font_family( QFont::Script );
     QString fallback = qt_fallback_font_family( script );
     if ( ! fallback.isEmpty() && ! family_list.contains( fallback ) )
 	family_list << fallback;
-#endif // Q_WS_X11
 
     // add the default family
     QString defaultFamily = QApplication::font().family();
@@ -385,6 +387,7 @@ void QFontPrivate::load( QFont::Script script )
     // add QFont::defaultFamily() to the list, for compatibility with
     // previous versions
     family_list << QApplication::font().defaultFamily();
+#endif // QT_XFT2
 
     // null family means find the first font matching the specified script
     family_list << QString::null;
