@@ -776,6 +776,7 @@ bool QOCIResult::reset ( const QString& query )
 #ifdef QT_CHECK_RANGE
 	qWarning( "QOCIResult::reset: unable to alloc statement: " + qOraWarn( d ) );
 #endif
+	setLastError( qMakeError( "Unable to alloc statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
     QString cleanQuery ( query );
@@ -793,6 +794,7 @@ bool QOCIResult::reset ( const QString& query )
 #ifdef QT_CHECK_RANGE
 	qWarning( "QOCIResult::reset: unable to prepare statement: " + qOraWarn( d ) );
 #endif
+	setLastError( qMakeError( "Unable to prepare statement", QSqlError::Statement, d ) );
 	return FALSE;
     }
     ub2 stmtType;
