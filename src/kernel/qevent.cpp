@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#110 $
 **
 ** Implementation of event classes
 **
@@ -106,29 +106,29 @@
   <li> \c Paint - screen update necessary, QPaintEvent
   <li> \c Move - widget's position changed, QMoveEvent
   <li> \c Resize - widget's size changed, QResizeEvent
-  <li> \c Create - 
-  <li> \c Destroy - 
+  <li> \c Create -
+  <li> \c Destroy -
   <li> \c Show - widget was shown on screen, QShowEvent
   <li> \c Hide - widget was removed from screen, QHideEvent
   <li> \c Close - widget was closed (permanently), QCloseEvent
-  <li> \c Quit - 
+  <li> \c Quit -
   <li> \c Accel - key press in child, for shortcut key handling, QKeyEvent
   <li> \c Wheel - mouse wheel rolled, QWheelEvent
-  <li> \c AccelAvailable - 
-  <li> \c CaptionChange - 
-  <li> \c Clipboard - 
-  <li> \c SockAct - 
-  <li> \c DragEnter - 
-  <li> \c DragMove - 
-  <li> \c DragLeave - 
-  <li> \c Drop - 
-  <li> \c DragResponse - 
-  <li> \c ChildInserted - 
-  <li> \c ChildRemoved - 
-  <li> \c LayoutHint - 
-  <li> \c ActivateControl - 
-  <li> \c DeactivateControl - 
-  <li> \c User - 
+  <li> \c AccelAvailable -
+  <li> \c CaptionChange -
+  <li> \c Clipboard -
+  <li> \c SockAct -
+  <li> \c DragEnter -
+  <li> \c DragMove -
+  <li> \c DragLeave -
+  <li> \c Drop -
+  <li> \c DragResponse -
+  <li> \c ChildInserted -
+  <li> \c ChildRemoved -
+  <li> \c LayoutHint -
+  <li> \c ActivateControl -
+  <li> \c DeactivateControl -
+  <li> \c User -
 */
 /*!
   \fn QEvent::QEvent( Type type )
@@ -315,8 +315,12 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \fn ButtonState QMouseEvent::stateAfter() const
 
   Returns the state of buttons after the event.
+  
+  \warning This function cannot be trusted.
+  
   \sa state()
 */
+//###### We must check with XGetModifierMapping 
 Qt::ButtonState QMouseEvent::stateAfter() const
 {
     if ( type() == QEvent::MouseButtonDblClick ) {
@@ -932,7 +936,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   private:
     QColor c;
   };
-  
+
   // To send an event of this custom event type:
 
   ColorChangeEvent* ce = new ColorChangeEvent( blue );
