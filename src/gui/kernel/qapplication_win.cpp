@@ -3419,7 +3419,7 @@ bool QETWidget::translateCloseEvent(const MSG &)
 
 void QETWidget::eraseWindowBackground(HDC hdc)
 {
-    if (testAttribute(Qt::WA_NoSystemBackground) || testAttribute(Qt::BlockSystemBackground))
+    if (testAttribute(Qt::WA_NoSystemBackground) || testAttribute(Qt::WA_UpdatesDisabled))
         return;
 
     const QWidget *w = this;
