@@ -20,7 +20,7 @@
 #include "qapplication.h"
 #include "qstyle.h"
 #include "qwidget.h"
-#include "qpopupmenu.h"
+#include "qmenu.h"
 #include "qpainter.h"
 #include "private/qpainter_p.h"
 #include "qregion.h"
@@ -114,7 +114,7 @@ public:
 
     QWSDecoration::Region activeRegion;
     QWidget *managed;
-    QPopupMenu *popup;
+    QMenu *popup;
     QWSButton *menuBtn;
     QWSButton *closeBtn;
     QWSButton *minimizeBtn;
@@ -492,7 +492,7 @@ void QWSManager::menu(const QPoint &pos)
 #ifndef QT_NO_POPUPMENU
     if (!d->popup) {
         // Basic window operation menu
-        d->popup = new QPopupMenu();
+        d->popup = new QMenu();
         d->menuActions[QWSManagerPrivate::NormalizeAction] = new QAction(qApp->translate("QWSDecoration",  "&Restore"));
         d->menuActions[QWSManagerPrivate::TitleAction] = new QAction(qApp->translate("QWSDecoration",  "&Move"));
         d->menuActions[QWSManagerPrivate::BottomRightAction] = new QAction(qApp->translate("QWSDecoration",  "&Size"));
@@ -510,7 +510,7 @@ void QWSManager::menu(const QPoint &pos)
         connect(d->popup, SIGNAL(activated(QAction*)), SLOT(menuActivated(QAction*)));
 
         // Add Style menu
-        QPopupMenu *styleMenu = new QPopupMenu();
+        QMenu *styleMenu = new QMenu();
         for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++)
             styleMenu->addAction(qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()));
         styleMenu->addSeparator();

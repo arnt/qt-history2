@@ -17,7 +17,6 @@
 
 #include "qapplication.h"
 #include "qdrawutil.h"
-#include "qpopupmenu.h"
 #include "qpainter.h"
 #include "qregion.h"
 
