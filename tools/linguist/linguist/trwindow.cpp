@@ -59,6 +59,8 @@
 
 #include <images.h>
 
+#include <stdlib.h> // getenv()
+
 #ifdef Q_WS_MACX
 //logo is 40x40 on the mac, if it changes - please notify the Qt/Mac team
 static const char *logo_xpm[] = {
