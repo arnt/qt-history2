@@ -352,7 +352,7 @@ then
 else
     EMBEDDED=no
 fi
-CONFIG_FAST=auto
+CONFIG_FAST=no
 VERBOSE=no
 DEBUG=no
 SHARED=yes
