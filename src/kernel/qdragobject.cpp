@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#33 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -434,8 +434,8 @@ bool QImageDrag::decode( QDropEvent* e, QPixmap& pm )
 {
     QImage img;
     if ( decode( e, img ) )
-	return pm.convertFromImage( img );
-    return TRUE;
+	return pm.convertFromImage( img ); 
+    return FALSE;
 }
 
 
