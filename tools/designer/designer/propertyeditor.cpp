@@ -432,7 +432,6 @@ void PropertyItem::placeEditor( QWidget *w )
 #endif
 	r = listview->itemRect( this );
     }
-    QRect ir = r;
     r.setX( listview->header()->sectionPos( 1 ) );
     r.setWidth( listview->header()->sectionSize( 1 ) - 1 );
     r.setWidth( r.width() - resetButton->width() - 2 );
