@@ -18,22 +18,18 @@
 #include <QtSql/qsqldriver.h>
 #include <QtSql/private/qsqlcachedresult_p.h>
 
-#include <oci.h>
-
 #ifdef QT_PLUGIN
 #define Q_EXPORT_SQLDRIVER_OCI
 #else
 #define Q_EXPORT_SQLDRIVER_OCI Q_SQL_EXPORT
 #endif
 
-#ifdef OCI_STMT_SCROLLABLE_READONLY
-// Switch this on if you want scrollable server-side cursors (Oracle version >= 9)
-#define QOCI_USES_VERSION_9
-#endif
-
 class QOCIPrivate;
 class QOCIResultPrivate;
 class QOCIDriver;
+
+typedef struct OCIEnv OCIEnv;
+typedef struct OCISvcCtx OCISvcCtx;
 
 class Q_EXPORT_SQLDRIVER_OCI QOCIResult : public QSqlCachedResult
 {
@@ -63,7 +59,7 @@ class Q_EXPORT_SQLDRIVER_OCI QOCIDriver : public QSqlDriver
 {
 public:
     explicit QOCIDriver(QObject* parent = 0);
-    QOCIDriver(OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* parent = 0);
+    QOCIDriver(OCIEnv* env, OCISvcCtx* ctx, QObject* parent = 0);
     ~QOCIDriver();
     bool hasFeature(DriverFeature f) const;
     bool open(const QString & db,

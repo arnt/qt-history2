@@ -29,7 +29,19 @@
 
 #include <qdebug.h>
 
+#include <oci.h>
+
 #include <stdlib.h>
+
+#ifdef OCI_UTF16
+// for Oracle >= 9
+#define QOCI_UNICODE_API
+#endif
+
+#ifdef OCI_ATTR_RESERVED_19
+// for a bug in CLOB handling in oracle 10g
+# define QOCI_ORACLE10_WORKAROUND
+#endif
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
 #define QOCI_PREFETCH_MEM  10240
@@ -155,20 +167,6 @@ void QOCIPrivate::setCharset(OCIBind* hbnd)
     int r = 0;
 
     Q_ASSERT(hbnd);
-#if 0
-    if (serverVersion > 8) {
-
-        r = OCIAttrSet((void*)hbnd,
-                        OCI_HTYPE_BIND,
-                        (void*) &CSID_NCHAR,
-                        (ub4) 0,
-                        (ub4) OCI_ATTR_CHARSET_FORM,
-                        err);
-
-        if (r != 0)
-            qOraWarning("QOCIPrivate::setCharset: Couldn't set OCI_ATTR_CHARSET_FORM: ", this);
-    }
-#endif //QOCI_USES_VERSION_9
 
     r = OCIAttrSet((void*)hbnd,
                     OCI_HTYPE_BIND,
@@ -348,7 +346,7 @@ QString qOraWarn(const QOCIPrivate* d)
                 errbuf,
                 (ub4)(sizeof(errbuf)),
                 OCI_HTYPE_ERROR);
-#ifdef QOCI_USES_VERSION_9
+#ifdef QOCI_UNICODE_API
     return QString::fromUtf16((const unsigned short *)errbuf);
 #else
     return QString::fromLocal8Bit((const char *)errbuf);
@@ -573,7 +571,7 @@ OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
         colLength = 0;
 
     // colNameLen is length in bytes
-#ifdef QOCI_USES_VERSION_9
+#ifdef QOCI_UNICODE_API
     ofi.name = QString((const QChar*)colName, colNameLen / 2);
 #else
     ofi.name = QString::fromLocal8Bit(reinterpret_cast<char *>(colName), colNameLen);
@@ -932,10 +930,13 @@ int qReadLob(T &buf, QOCIPrivate *d, OCILobLocator *lob, const int sz)
         ub4 amount = ub4(-1); // read maximum amount of data
         r = OCILobRead(d->svc, d->err, lob, &amount, read + 1, (char*)(buf.constData()) + read * sz,
                 (buf.size() - read) * sz, 0, 0, QOCIEncoding, 0);
+
+#ifdef QOCI_ORACLE10_WORKAROUND
         /* Hack, because Oracle suddently returns the amount in bytes when not reading from 0
            offset. */
         if (read && amount)
             amount /= sz;
+#endif
 
         read += amount;
         if (r == OCI_NEED_DATA)
@@ -1196,7 +1197,7 @@ bool QOCIResult::prepare(const QString& query)
         return false;
     }
     d->setStatementAttributes();
-#ifdef QOCI_USES_VERSION_9
+#ifdef QOCI_UNICODE_API
     const OraText *txt = (const OraText *)query.utf16();
     const int len = query.length() * sizeof(QChar);
 #else
@@ -1320,7 +1321,7 @@ QOCIDriver::QOCIDriver(QObject* parent)
 {
     d = new QOCIPrivate();
 
-#ifdef QOCI_USES_VERSION_9
+#ifdef QOCI_UNICODE_API
     static const ub4 mode = OCI_UTF16 | OCI_OBJECT;
 #else
     static const ub4 mode = OCI_OBJECT;
@@ -1347,14 +1348,21 @@ QOCIDriver::QOCIDriver(QObject* parent)
                      QSqlError::ConnectionError, d));
 }
 
-QOCIDriver::QOCIDriver(OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* parent)
+QOCIDriver::QOCIDriver(OCIEnv* env, OCISvcCtx* ctx, QObject* parent)
     : QSqlDriver(parent)
 {
     d = new QOCIPrivate();
     d->env = env;
-    d->err = err;
     d->svc = ctx;
-    if (env && err && ctx) {
+
+    int r = OCIHandleAlloc((dvoid *) d->env,
+                           (dvoid **) &d->err,
+                           OCI_HTYPE_ERROR,
+                           (size_t) 0,
+                           (dvoid **) 0);
+    if (r != 0)
+        qOraWarning("QOCIDriver: unable to alloc error handle:", d);
+    if (env && ctx) {
         setOpen(true);
         setOpenError(false);
     }
@@ -1435,7 +1443,7 @@ bool QOCIDriver::open(const QString & db,
 
     qParseOpts(opts, d);
 
-#ifdef QOCI_USES_VERSION_9
+#ifdef QOCI_UNICODE_API
     r = OCILogon(d->env,
                 d->err,
                 &d->svc,
@@ -1478,7 +1486,7 @@ bool QOCIDriver::open(const QString & db,
         qWarning("QOCIDriver::open: could not get Oracle server version.");
     } else {
         QString versionStr;
-#ifdef QOCI_USES_VERSION_9
+#ifdef QOCI_UNICODE_API
         versionStr = QString::fromUtf16(reinterpret_cast<unsigned short *>(vertxt));
 #else
         versionStr = QString::fromLocal8Bit(static_cast<char *>(vertxt), sizeof(vertxt));
