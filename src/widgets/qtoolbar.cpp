@@ -156,7 +156,8 @@ QSizePolicy QToolBarSeparator::sizePolicy() const
 // NOT REVISED
 /*! \class QToolBar qtoolbar.h
 
-  \brief The QToolBar class provides a tool bar.
+  \brief The QToolBar class provides a movable panel containing widgets such
+	    as tool buttons.
 
   \ingroup application
 
