@@ -1229,7 +1229,7 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 	}
 	QColorGroup g = colorGroup();
 	g.setColor( QColorGroup::Background,  colorGroup().color( QColorGroup::Highlight ) );
-	g.setColor( QColorGroup::Text,  colorGroup().color( QColorGroup::HighlightedText) );
+	g.setColor( QColorGroup::Foreground,  colorGroup().color( QColorGroup::HighlightedText) );
 	if ( win32 ) {
 	    titleL->setPalette( QPalette( g, g, g), TRUE );
 	    iconL->setPalette( QPalette( g, g, g), TRUE );
@@ -1246,7 +1246,7 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 	QColorGroup g = colorGroup();
 	if ( win32 ) {
 	    g.setColor( QColorGroup::Background,  colorGroup().color( QColorGroup::Dark ) );
-	    g.setColor( QColorGroup::Text,  colorGroup().color( QColorGroup::Background) );
+	    g.setColor( QColorGroup::Foreground,  colorGroup().color( QColorGroup::Background) );
 	    titleL->setPalette( QPalette( g, g, g), TRUE );
 	    iconL->setPalette( QPalette( g, g, g), TRUE );
 	} else {
