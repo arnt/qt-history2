@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#164 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#165 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -829,9 +829,9 @@ void QComboBox::internalActivate( int index )
     d->poppedUp = FALSE;
 
     QString t( text( index ) );
-    emit activated( index );
     if ( d->ed )
 	d->ed->setText( t );
+    emit activated( index );
     emit activated( t );
 }
 
@@ -1198,9 +1198,9 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
     }
 
     c = currentItem();
-    emit highlighted( c );
     if ( !text( c ).isNull() )
 	emit activated( text( c ) );
+    emit highlighted( c );
     emit activated( c );
 }
 
