@@ -726,6 +726,7 @@ private:
 	QArray<int> occ1; // first-occurrence array
 #endif
     };
+    friend class Box;
 
     /*
       This is the lexical analyzer for regular expressions.
@@ -1464,7 +1465,7 @@ bool QRegExpEngine::matchHere()
 			in = bref <= ncap && mmCurCapBegin[ell] != EmptyCapture;
 			if ( in ) {
 			    if ( cs )
-				in = ( mmIn[mmPos + mmCurCapBegin[ell]] == ch );
+				in = ( mmIn[mmPos + mmCurCapBegin[ell]] == QChar(ch) );
 			    else
 				in = ( mmIn[mmPos + mmCurCapBegin[ell]].lower()
 				       == QChar(ch).lower() );
