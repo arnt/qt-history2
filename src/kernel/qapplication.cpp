@@ -2714,14 +2714,14 @@ int QApplication::loopLevel() const
   Returns TRUE if the Qt library mutex is locked by a different thread,
   otherwise returns FALSE.
 
-  \note Due to differing implementations of recursive mutexes on supported
+  \warning Due to differing implementations of recursive mutexes on supported
   platforms, calling this function from the same thread that previous locked
   the mutex will give undefined results.
 
   \sa lock() unlock()
 */
 
-/*! \fn bool QApplication::trylock()
+/*! \fn bool QApplication::tryLock()
   Attempts to lock the Qt library mutex.  If the lock was obtained, this
   function returns TRUE.  If another thread has locked the mutex, this
   function returns FALSE, instead of waiting for the lock to become available.
