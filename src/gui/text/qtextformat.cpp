@@ -4,7 +4,7 @@
 #include <qdatastream.h>
 #include <qdebug.h>
 #include <qmap.h>
-
+#include <qhash.h>
 
 
 class QTextFormatProperty
@@ -41,8 +41,10 @@ public:
         mutable void *ptr;
     } data;
 
-    inline QString stringValue() const
-    { return *reinterpret_cast<QString *>(&data.ptr); }
+    inline const QString &stringValue() const
+    { return *reinterpret_cast<const QString *>(&data.ptr); }
+
+    uint hash() const;
 
 private:
     void free();
@@ -56,18 +58,40 @@ static QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop);
 class QTextFormatPrivate : public QSharedData
 {
 public:
+    QTextFormatPrivate() : hashDirty(true), hashValue(0) {}
+
     // keep Q_INT* types here, so we can safely stream to a datastream
     typedef QMap<Q_INT32, QTextFormatProperty> PropertyMap;
 
-    PropertyMap properties;
     Q_INT32 type;
 
     inline bool operator==(const QTextFormatPrivate &rhs) const {
-        if (type != rhs.type)
+        if (type != rhs.type || hash() != rhs.hash())
             return false;
 
-        return properties == rhs.properties;
+        return props == rhs.props;
     }
+
+    inline void insertProperty(Q_INT32 key, const QTextFormatProperty &value)
+    {
+        hashDirty = true;
+        props.insert(key, value);
+    }
+
+    const PropertyMap &properties() const { return props; }
+
+    inline void load(QDataStream &stream)
+    {
+        stream >> type >> props;
+    }
+
+private:
+    PropertyMap props;
+
+    uint hash() const;
+
+    mutable bool hashDirty;
+    mutable uint hashValue;
 };
 
 
@@ -90,6 +114,20 @@ QTextFormatProperty::QTextFormatProperty(const QString &value)
 {
     type = QTextFormat::String;
     new (&data.ptr) QString(value);
+}
+
+uint QTextFormatProperty::hash() const
+{
+    switch (type) {
+        case QTextFormat::Undefined: return 0;
+        case QTextFormat::Bool: return data.boolValue;
+        case QTextFormat::FormatObject:
+        case QTextFormat::Integer: return data.intValue;
+        case QTextFormat::Float: return static_cast<int>(data.floatValue);
+        case QTextFormat::String: return qHash(stringValue());
+        default: Q_ASSERT(false);
+    }
+    return 0;
 }
 
 QTextFormatProperty &QTextFormatProperty::operator=(const QTextFormatProperty &rhs)
@@ -182,6 +220,20 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
     }
 
     return stream;
+}
+
+uint QTextFormatPrivate::hash() const
+{
+    if (!hashDirty)
+        return hashValue;
+
+    hashValue = 0;
+    for (PropertyMap::ConstIterator it = props.begin();
+         it != props.end(); ++it)
+        hashValue += (it.key() << 16) + it->hash();
+
+    hashDirty = false;
+    return hashValue;
 }
 
 /*!
@@ -437,9 +489,9 @@ void QTextFormat::merge(const QTextFormat &other)
         return;
 
     // don't use QMap's += operator, as it uses insertMulti!
-    for (QTextFormatPrivate::PropertyMap::ConstIterator it = other.d->properties.begin();
-         it != other.d->properties.end(); ++it) {
-        d->properties.insert(it.key(), it.value());
+    for (QTextFormatPrivate::PropertyMap::ConstIterator it = other.d->properties().begin();
+         it != other.d->properties().end(); ++it) {
+        d->insertProperty(it.key(), it.value());
     }
 }
 
@@ -520,7 +572,7 @@ QTextImageFormat QTextFormat::toImageFormat() const
 */
 bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 {
-    const QTextFormatProperty prop = d->properties.value(propertyId);
+    const QTextFormatProperty prop = d->properties().value(propertyId);
     if (prop.type != QTextFormat::Bool)
         return defaultValue;
     return prop.data.boolValue;
@@ -535,7 +587,7 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 */
 int QTextFormat::intProperty(int propertyId, int defaultValue) const
 {
-    const QTextFormatProperty prop = d->properties.value(propertyId);
+    const QTextFormatProperty prop = d->properties().value(propertyId);
     if (prop.type != QTextFormat::Integer)
         return defaultValue;
     return prop.data.intValue;
@@ -550,7 +602,7 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
 */
 float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 {
-    const QTextFormatProperty prop = d->properties.value(propertyId);
+    const QTextFormatProperty prop = d->properties().value(propertyId);
     if (prop.type != QTextFormat::Float)
         return defaultValue;
     return prop.data.floatValue;
@@ -565,7 +617,7 @@ float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 */
 QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue) const
 {
-    const QTextFormatProperty prop = d->properties.value(propertyId);
+    const QTextFormatProperty prop = d->properties().value(propertyId);
     if (prop.type != QTextFormat::String)
         return defaultValue;
     return prop.stringValue();
@@ -580,7 +632,7 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
 */
 void QTextFormat::setProperty(int propertyId, bool value)
 {
-    d->properties.insert(propertyId, value);
+    d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -592,7 +644,7 @@ void QTextFormat::setProperty(int propertyId, bool value)
 */
 void QTextFormat::setProperty(int propertyId, int value)
 {
-    d->properties.insert(propertyId, value);
+    d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -604,7 +656,7 @@ void QTextFormat::setProperty(int propertyId, int value)
 */
 void QTextFormat::setProperty(int propertyId, float value)
 {
-    d->properties.insert(propertyId, value);
+    d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -614,7 +666,7 @@ void QTextFormat::setProperty(int propertyId, float value)
 */
 void QTextFormat::setProperty(int propertyId, const QString &value)
 {
-    d->properties.insert(propertyId, value);
+    d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -640,7 +692,7 @@ void QTextFormat::setProperty(int propertyId, const QString &value)
 */
 int QTextFormat::objectIndex() const
 {
-    const QTextFormatProperty prop = d->properties.value(ObjectIndex);
+    const QTextFormatProperty prop = d->properties().value(ObjectIndex);
     if (prop.type != QTextFormat::FormatObject)
         return -1;
     return prop.data.intValue;
@@ -656,7 +708,7 @@ void QTextFormat::setObjectIndex(int o)
     QTextFormatProperty prop;
     prop.type = FormatObject;
     prop.data.intValue = o;
-    d->properties.insert(ObjectIndex, prop);
+    d->insertProperty(ObjectIndex, prop);
 }
 
 /*!
@@ -667,7 +719,7 @@ void QTextFormat::setObjectIndex(int o)
 */
 bool QTextFormat::hasProperty(int propertyId) const
 {
-    return d->properties.contains(propertyId);
+    return d->properties().contains(propertyId);
 }
 
 /*!
@@ -680,7 +732,7 @@ QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
     if (!d)
         return QTextFormat::Undefined;
 
-    return d->properties.value(propertyId).type;
+    return d->properties().value(propertyId).type;
 }
 
 /*!
@@ -693,7 +745,7 @@ QList<int> QTextFormat::allPropertyIds() const
     if (!d)
         return QList<int>();
 
-    return d->properties.keys();
+    return d->properties().keys();
 }
 
 
@@ -723,12 +775,13 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 
 QDataStream &operator<<(QDataStream &stream, const QTextFormat &format)
 {
-    return stream << format.d->type << format.d->properties;
+    return stream << format.d->type << format.d->properties();
 }
 
 QDataStream &operator>>(QDataStream &stream, QTextFormat &format)
 {
-    return stream >> format.d->type >> format.d->properties;
+    format.d->load(stream);
+    return stream;
 }
 
 /*!
