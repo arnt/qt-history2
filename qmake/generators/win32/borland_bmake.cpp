@@ -82,6 +82,7 @@ BorlandMakefileGenerator::init()
     }
 
     processVars();
+    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
 
     MakefileGenerator::init();
 
