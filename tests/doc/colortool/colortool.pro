@@ -2,6 +2,5 @@ TEMPLATE = app
 
 # Input
 SOURCES += main.cpp
-FORMS += optionsform.ui
-FORMS += colornameform.ui
+FORMS += optionsform.ui colornameform.ui findform.ui
 TARGET = test
