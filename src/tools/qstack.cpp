@@ -74,7 +74,7 @@
 
 
 /*!
-    \fn void  QValueStack::push(const T& t)
+    \fn void  QStack::push(const T& t)
 
     Adds element, \a t, to the top of the stack. Last in, first out.
 
@@ -91,7 +91,7 @@
 
 
 /*!
-    \fn const T& QValueStack::top() const
+    \fn const T& QStack::top() const
 
     \overload
 
@@ -101,7 +101,7 @@
 */
 
 /*!
-    \fn T QValueStack::pop()
+    \fn T QStack::pop()
 
     Removes the top item from the stack, if there is any, and returns it.
 
