@@ -142,7 +142,6 @@ private:
     QString documentationPath;
     Index *fullTextIndex;
     QStringList terms, foundDocs;
-    bool newFullTextIndex;
     bool initDoneMsgShown;
     void getAllContents();
     QDict<ContentList> contentList;

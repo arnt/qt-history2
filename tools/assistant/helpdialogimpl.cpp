@@ -884,7 +884,7 @@ void HelpDialog::setupFullTextIndex()
     connect( fullTextIndex, SIGNAL( indexingProgress( int ) ),
 	     this, SLOT( setIndexingProgress( int ) ) );
     QFile f( cacheFilesPath + "/indexdb.dict." + pname );
-    if ( !f.exists() || newFullTextIndex ) {
+    if ( !f.exists() ) {
 	help->statusBar()->clear();
 	setCursor( waitCursor );
 	labelPrepare->setText( tr( "Indexing files..." ) );
