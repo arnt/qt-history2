@@ -15,7 +15,7 @@ DISTDIR		= /tmp/qt-0.93
 CFLAGS		= -O2
 CDBGFLAGS	= -g
 CSTATICFLAGS	=
-CSHAREDFLAGS	= -fPIC -b i486-linux
+CSHAREDFLAGS	= -fPIC
 CC		= gcc
 
 ####### Targets
