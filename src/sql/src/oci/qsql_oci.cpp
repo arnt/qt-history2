@@ -36,10 +36,6 @@
 
 #include "qsql_oci.h"
 
-#define OCIEXTP_ORACLE // not needed
-#define OCI8DP_ORACLE // not needed
-#define OCIEXTP_ORACLE // not needed
-#include <oci.h>
 #include <qdatetime.h>
 #include <qvector.h>
 #include <qarray.h>
@@ -486,6 +482,11 @@ QOCIResult::~QOCIResult()
     delete d;
     if ( cols )
 	delete cols;
+}
+
+OCIStmt* QOCIResult::statement()
+{
+    return d->sql;
 }
 
 bool QOCIResult::reset ( const QString& query )
@@ -1072,4 +1073,14 @@ QString QOCIDriver::formatValue( const QSqlField* field ) const
 	break;
     }
     return QSqlDriver::formatValue( field );
+}
+
+OCIEnv* QOCIDriver::environment()
+{
+    return d->env;
+}
+
+OCISvcCtx* QOCIDriver::serviceContext()
+{
+    return d->svc;
 }

@@ -41,10 +41,15 @@
 #include <qsqlfield.h>
 #include <qsqldriver.h>
 #include <qstring.h>
+#define OCIEXTP_ORACLE // not needed
+#define OCI8DP_ORACLE // not needed
+#define OCIEXTP_ORACLE // not needed
+#include <oci.h>
 
 class QOCIPrivate;
 class QOCIResultPrivate;
 class QOCIDriver;
+
 class QOCIResult : public QSqlResult
 {
     friend class QOCIDriver;
@@ -53,6 +58,8 @@ public:
     ~QOCIResult();
     bool        isForwardOnly() const {return forwardOnly;}
     void        setForwardOnly( bool forward ) { forwardOnly = forward; }
+    OCIStmt*    statement();
+
 protected:
     bool	fetchNext();
     bool	fetchFirst();
@@ -63,6 +70,7 @@ protected:
     bool	isNull( int field );
     int         size();
     int         numRowsAffected();
+
 private:
     typedef QMap< uint, QSqlField > RowCache;
     typedef QMap< uint, RowCache > RowsetCache;
@@ -95,6 +103,10 @@ public:
     QSqlRecord          record( const QSqlQuery& query ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
     QString             formatValue( const QSqlField* field ) const;
+
+    OCIEnv*             environment();
+    OCISvcCtx*          serviceContext();
+
 protected:
     bool	        beginTransaction();
     bool	        commitTransaction();
