@@ -5,9 +5,74 @@
 #include <qstring.h>
 #include <stdlib.h>
 #include <qnamespace.h>
-#include <qtextmemory.h>
 
 #include <assert.h>
+#include <malloc.h>
+
+// align on 8 byte boundary, this should work on all platforms
+static inline unsigned int align( unsigned int n ) {
+    return (n + 7) & ~((unsigned int)7);
+}
+
+struct QTextMemory {
+    QTextMemory();
+    ~QTextMemory();
+
+    // Memory management functions
+    void* alloc(size_t size);
+    void* realloc(void *ptr, size_t size);
+
+    // currently jsut used for consistency checking
+    unsigned int magic;
+    void **allocated;
+    unsigned int current;
+    unsigned int size;
+};
+
+
+inline QTextMemory::QTextMemory()
+{
+    magic = 0xacedaced;
+    allocated = (void **)malloc( 256*sizeof(void**) );
+    current = 0;
+    size = 256;
+}
+
+inline QTextMemory::~QTextMemory()
+{
+    magic = 0xdeadbeef;
+    void **ptr = allocated;
+    while ( ptr )
+	free( ptr++ );
+    free( allocated );
+}
+
+inline void *QTextMemory::alloc( size_t size )
+{
+    assert( magic = 0xacedaced );
+    void *ptr = malloc( size );
+    if ( current == size ) {
+	allocated = (void **)::realloc( allocated, (size+256)*sizeof(void **) );
+	size += 256;
+    }
+    allocated[current++] = ptr;
+    return ptr;
+}
+
+inline void *QTextMemory::realloc( void *ptr, size_t size )
+{
+    assert( magic = 0xacedaced );
+
+    void *newptr = realloc( ptr, size );
+    unsigned int index = 0;
+    while ( allocated[index] != ptr )
+	index++;
+    assert( index < current );
+    allocated[index] = newptr;
+    return newptr;
+}
+
+
 
 class QFontPrivate;
 class QString;
