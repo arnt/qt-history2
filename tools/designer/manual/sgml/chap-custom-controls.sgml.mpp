@@ -108,6 +108,11 @@ Once we're satisfied that the custom widget compiles and runs we are
 ready to incorporate it into \qd.
 </para>
 
+<para>
+In <xref linkend="baseclasstemplates"> "Base-class Templates" 
+the creation of a container custom widget is described.
+</para>
+
 </sect2>
 
 <sect2 id="addingthecustomwidgettoqtdesigner">

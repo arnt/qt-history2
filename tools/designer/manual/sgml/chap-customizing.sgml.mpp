@@ -115,8 +115,135 @@ ignore the list.
 <sect1 id="creatingandusingtemplates">
 <title>Creating and Using Templates </title>
 <para>
-
+\qd supports two approaches to template forms. The simplest approach
+involves little more than saving a <filename>.ui</filename> file into
+the templates directory. The second approach involves creating a
+container widget class to be used as a base class for forms that use the
+template. We will explain both techniques.
 </para>
+
+
+<sect2 id="simpletemplates">
+<title>Simple Templates </title>
+<para>
+These templates are most useful when you want to create a whole set of
+forms which all have some common widgets. For example you might have a
+project that will require many forms all of which need to be branded
+with a company name and logo.
+</para>
+
+<para>
+First we'll create the simple template.
+<orderedlist numeration="arabic">
+<listitem>
+<para>
+Click <guimenuitem>File|New</guimenuitem> to invoke the New Form dialog.
+Click the Dialog template then click \ok.
+</para>
+</listitem>
+<listitem>
+<para>
+Click the <guibutton>Text Label</guibutton> toolbar button, then click
+near the top left of the form. Change the font Point Size property to 16
+and change the text property to your or your company's name. Click the
+<guibutton>Line</guibutton> toolbar button, then click the form below
+the label; click Horizontal on the pop-up menu.
+</para>
+</listitem>
+<listitem>
+<para>
+Select the label and the line. (Ctrl+Click the form, then drag the
+rubber band so that it touches or includes the line and the label.)
+Press <keycap>Ctrl+L</keycap> to lay them out vertically.
+</para>
+</listitem>
+<listitem>
+<para>
+Click the <guibutton>Save</guibutton> toolbar button. In the Save as
+dialog, navigate to \qd's templates directory,
+(<filename>qt/tools/designer/templates</filename> relative to wherever
+Qt is installed). Type in the name 'Simple_Dialog.ui' and click
+<guibutton>Save</guibutton>. 
+</para>
+</listitem>
+<listitem>
+<para>
+Right click the form in the Forms list, then click Remove form from
+project.
+</para>
+</listitem>
+</orderedlist>
+</para>
+
+<para>
+Now that we have the simple template we are ready to use it. Click
+<guimenuitem>File|New</guimenuitem> to invoke the New Form dialog. One
+of the templates that will appear is 'Simple Dialog'. Click the simple
+dialog, then click \ok. A new form will appear with the same widgets and
+layout as the template. Add any other widgets and functionality. When
+you attempt to save the form you will be prompted for a new form name. 
+</para>
+
+</sect2>
+
+<sect2 id="baseclasstemplates">
+<title>Base-class Templates </title>
+<para>
+These templates are useful when you want to provide some default
+functionality that all the forms based on the base class can inherit.
+In our example we'll use a class called
+<classname>SizeAware</classname> that remembers and restores its size as
+the basis of a template.
+We won't describe the class itself, but will focus instead on making use
+of it as a \qd template. The source for the class is in
+<filename>qt/tools/designer/eg/sizeaware</filename>.
+</para>
+
+<para>
+There are two stages to creating a base-class template, first making the
+class a custom widget, and second, making the custom widget into a
+template.
+<orderedlist numeration="arabic">
+<listitem>
+<para>
+Click <guimenuitem>Tools|Custom|Edit Custom Widgets</guimenuitem> to
+invoke the Edit Custom Widgets dialog. (This dialog is explained in more
+detail in <xref linkend="old-custom-widgets"> "Simple Custom Widgets".)
+Click <guibutton>New Widget</guibutton>. Change the Class from
+'MyCustomWidget' to 'SizeAware'. Click the Headerfile ellipsis button
+and select the file 
+<filename>qt/tools/designer/eg/sizeaware/sizeaware.h</filename>. Check
+the Container Widget checkbox. This
+class provides two properties. Click the Properties tab. Click
+<guibutton>New Property</guibutton> and change the property name to
+'company'. Click the <guibutton>New Property</guibutton> again and change
+the property name to 'settingsFile'. Click <guibutton>Close</guibutton>.
+</para>
+</listitem>
+<listitem>
+<para>
+Click <guimenuitem>File|Create Template</guimenuitem> to invoke the
+Create Template dialog. Change the Template Name to 'SizeAware' and
+click the SizeAware base class, then click <guibutton>Create</guibutton>.
+The dialog will create the template and close itself immediately. Close
+\qd and restart it.
+</para>
+</listitem>
+</orderedlist>
+</para>
+
+<para>
+A new template, 'SizeAware' is now available from the list of templates.
+Click <guimenuitem>File|New</guimenuitem>, click SizeAware and click
+\ok. Note that the two properties, company and settingsFile, are
+available in the Properties window. Any forms based on this template
+will remember their size and resize when reloaded. (In practical
+applications having one settingsFile per form is not recommended, so
+this template would only really be useful for applications that have a
+single main window.)
+</para>
+
+</sect2>
 
 </sect1>
 
@@ -150,12 +277,12 @@ A new toolbar will appear in Visual Studio with the following toolbar
 buttons:
 <itemizedlist>
 <listitem><para>New Qt Project -- A small application wizard</para></listitem>
-<listitem><para>Generate Qt Project -- Runs the TMAKE tool with a .pro-file</para></listitem>
+<listitem><para>Generate Qt Project -- Runs \cmd[qmake] with a <filename>.pro</filename> file</para></listitem>
 <listitem><para>New Qt Dialog -- Add an empty Qt Dialog to the active project</para></listitem>
-<listitem><para>Qt GUI Designer -- Run the Qt Designer</para></listitem>
+<listitem><para>Qt GUI Designer -- Run \qd</para></listitem>
 <listitem><para>Use Qt -- Add the Qt libraries to the active project</para></listitem>
-<listitem><para>Add MOC -- Add the MOC precompiler to the active file</para></listitem>
-<listitem><para>Add UIC -- Add the UIC precompiler to the active file</para></listitem></itemizedlist>
+<listitem><para>Add MOC -- Add the \cmd[moc] precompiler to the active file</para></listitem>
+<listitem><para>Add UIC -- Add the \cmd[uic] precompiler to the active file</para></listitem></itemizedlist>
 Double clicking a <filename>.ui</filename> file in the workspace
 overview will now launch \qd.
 </para>
