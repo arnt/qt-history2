@@ -872,7 +872,7 @@ void SetupWizardImpl::assistantDone()
     } else if ( count == 1 ) {
 	contentFile = "qt-script-for-applications.xml";
     } else {
-	doIDEIntegration);
+	doIDEIntegration();
 	return;
     }
     ++count;

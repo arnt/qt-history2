@@ -464,7 +464,7 @@ void SetupWizardImpl::cleanDone()
 	    outFile.close();
 	}
 	logOutput( "Doing the final integration steps..." );
-	doFinalIntegration();
+	doIDEIntegration();
 	buildPage->compileProgress->setTotalSteps( buildPage->compileProgress->totalSteps() );
 	showPage( finishPage );
     }
@@ -998,7 +998,7 @@ void SetupWizardImpl::showPageConfig()
 #if !defined(NON_COMMERCIAL)
 #if !defined(Q_OS_MACX)
 	item = new CheckListItem( folder, "DB2", QCheckListItem::CheckBox );
-	item->addRequiredFile("db2cli.dll");
+	item->addRequiredFiles("db2cli.dll");
 	db2PluginInstall = item;
 	db2PluginInstall->setHelpText( tr(
 		    "Installs the DB2 driver. This driver can "
@@ -1009,7 +1009,7 @@ void SetupWizardImpl::showPageConfig()
 		    ), configPage->explainOption );
 
 	item = new CheckListItem( folder, "TDS", QCheckListItem::CheckBox );
-	item->addRequiredFile("ntwdblib.dll");
+	item->addRequiredFiles("ntwdblib.dll");
 	tdsPluginInstall = item;
 	tdsPluginInstall->setHelpText( tr(
 		    "Installs the TDS driver to access Sybase Adaptive "
@@ -1020,7 +1020,7 @@ void SetupWizardImpl::showPageConfig()
 		    ), configPage->explainOption );
 
 	item = new CheckListItem( folder, "Oracle (OCI)", QCheckListItem::CheckBox );
-	item->addRequiredFile( "oci.dll" );
+	item->addRequiredFiles( "oci.dll" );
 	ociPluginInstall = item;
 	ociPluginInstall->setHelpText( tr(
 		    "<p>Installs the Oracale Call Interface (OCI) driver.</p> "
@@ -1033,6 +1033,7 @@ void SetupWizardImpl::showPageConfig()
 	if ( globalInformation.sysId() != GlobalInformation::Borland ) {
 	    // I was not able to make Postgres work with Borland
 	    item = new CheckListItem( folder, "PostgreSQL", QCheckListItem::CheckBox );
+	    item->addRequiredFiles( "libpq.dll" );
 	    item->setOn( TRUE );
 	    psqlPluginInstall = item;
 	    psqlPluginInstall->setHelpText( tr(
@@ -1045,6 +1046,7 @@ void SetupWizardImpl::showPageConfig()
 	}
 
 	item = new CheckListItem( folder, "MySQL", QCheckListItem::CheckBox );
+	item->addRequiredFiles( "libmySQL.dll" );
 	item->setOn( TRUE );
 	mysqlPluginInstall = item;
 	mysqlPluginInstall->setHelpText( tr(
