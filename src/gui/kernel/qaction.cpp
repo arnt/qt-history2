@@ -24,6 +24,28 @@
 #define q q_func()
 
 /* QAction code */
+
+QActionPrivate::QActionPrivate() : group(0), icons(0), shortcutId(-1), enabled(1), forceDisabled(0),
+                                   visible(1), forceInvisible(0), checkable(0), checked(0), separator(0)
+{
+#ifdef QT_COMPAT
+    static int qt_static_action_id = -1;
+    param = id = --qt_static_action_id;
+    act_signal = 0;
+#endif
+}
+
+QActionPrivate::~QActionPrivate() 
+{
+    delete icons;
+    if(menu)
+        delete menu;
+    if(shortcutId != -1) {
+        if(QWidget *p = q_func()->parentWidget())
+            p->releaseShortcut(shortcutId);
+    }
+}
+
 void QActionPrivate::sendDataChanged()
 {
     emit q->dataChanged();
