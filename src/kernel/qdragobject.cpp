@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#12 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -22,7 +22,7 @@
 extern void qt_xdnd_send_move( Window, QDragObject *, const QPoint & );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#12 $");
 
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
@@ -78,8 +78,6 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	if ( e->type() == Event_KeyRelease &&
 	     ((QKeyEvent*)e)->key() == Key_Escape ) {
 	    dragSource->removeEventFilter( this );
-	    if ( object && object->autoDelete() )
-		delete object;
 	    object = 0;
 	    dragSource = 0;
 	    beingCancelled = FALSE;
@@ -93,10 +91,18 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 	return TRUE;
     } else if ( e->type() == Event_MouseButtonRelease ) {
 	drop();
+	dragSource->removeEventFilter( this );
+	object = 0;
+	dragSource = 0;
+	beingCancelled = FALSE;
 	return TRUE;
     } else if ( e->type() == Event_KeyPress &&
 		((QKeyEvent*)e)->key() == Key_Escape ) {
 	cancel();
+	dragSource->removeEventFilter( this );
+	object = 0;
+	dragSource = 0;
+	beingCancelled = FALSE;
 	return TRUE;
     } else if ( e->type() == Event_DragResponse ) {
 	if ( ((QDragResponseEvent *)e)->dragAccepted() ) {
