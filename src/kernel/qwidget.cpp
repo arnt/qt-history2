@@ -1042,8 +1042,6 @@ void QWidget::deleteExtra()
 #endif
 	    delete extra->topextra;
 	}
-#if defined(DEUBG)
-#endif
 	delete extra;
 	// extra->xic destroyed in QWidget::destroy()
 	extra = 0;
