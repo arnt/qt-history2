@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#2 $
 **
 **  Studies in Geometry Management
 **
@@ -12,7 +12,7 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#1 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#2 $")
 
 
 
@@ -71,9 +71,9 @@ static inline QBasicManager::Direction perp( QBasicManager::Direction dir )
 /*!
   Creates a new QGeomManager with direction \e d and main widget \e parent.
 
-  /e border is space between edge of widget and area controlled by QGeomManager
-  /e autoBorder is default space between objects. If /e autoBorder is -1 the 
-  value of /e border is used. 
+  \e border is space between edge of widget and area controlled by QGeomManager
+  \e autoBorder is default space between objects. If \e autoBorder is -1 the 
+  value of \e border is used. 
   \sa QBox, QBox::direction()
  */
 
@@ -143,7 +143,8 @@ QBox::QBox( QGeomManager *geom, QGeomManager::Direction d )
 }
 
 /*!
-  For esoteric or internal use. Don't use it if you don't mean it.
+  Constructs a new box using QBasicManager functionality.
+  Don't use it if you don't mean it.
   */
 QBox::QBox( QGeomManager * g, QChain * p, QChain * s, QGeomManager::Direction d )
 {
