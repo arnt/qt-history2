@@ -211,7 +211,7 @@ QTextFormat::QTextFormat( const QTextFormat &f )
     : fm( f.fm )
 {
     ref = 0;
-    collection = f.collection;
+    collection = 0;
     fn = f.fn;
     col = f.col;
     painter = f.painter;
