@@ -21,7 +21,7 @@ class QPolygon;
 
 class QPainterPathPrivate
 {
-    Q_DECLARE_PUBLIC(QPainterPath);
+    Q_DECLARE_PUBLIC(QPainterPath)
 public:
     QPainterPathPrivate(QPainterPath *path) :
         q_ptr(path), cStart(0), fillRule(Qt::OddEvenFill)
