@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#71 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#70 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#71 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -81,6 +81,8 @@ static QLineEditExtra * lookInLEDict( const QLineEdit * that )
 
   \ingroup realwidgets
 
+  \define QLineEdit::EchoMode
+
   The default QLineEdit object has its own frame as specified by the
   Windows/Motif style guides, you can turn off the frame by calling
   setFrame( FALSE ).
@@ -89,6 +91,13 @@ static QLineEditExtra * lookInLEDict( const QLineEdit * that )
   \endlink \link QColorGroup::text() colorGroup().text() \endlink on
   \link QColorGroup::base() colorGroup().base(). \endlink  The cursor
   and frame use other colors from same color group, of course.
+
+  QLineEdit can display the content of itself in three ways, depending
+  on the current \link setEchoMode() echo mode. \endlink The echo
+  modes available are: <ul> <li> \c Normal - display characters as
+  they are entered.  This is the default. <li> \c NoEcho - do not
+  display anything. <li> \c Password - display asterisks instead of
+  the characters actually entered. </ul>
 
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.
@@ -1057,8 +1066,13 @@ int QLineEdit::maxMark() const
 
 
 
-/*!
+/*!  Sets the line edit to draw itself inside a two-pixel frame iff \a
+  enable is TRUE, and to draw itself without any frame if \a enable is
+  FALSE.
 
+  The default is TRUE.
+
+  \sa frame() QComboBox
 */
 
 void QLineEdit::setFrame( bool enable )
@@ -1072,8 +1086,12 @@ void QLineEdit::setFrame( bool enable )
 }
 
 
-/*!
+/*!  Returns TRUE if the line edit draws itself inside a frame, FALSE
+  if it draws itself without any frame.
 
+  The default is to use a frame.
+
+  \sa setFrame()
 */
 
 bool QLineEdit::frame() const
@@ -1083,8 +1101,17 @@ bool QLineEdit::frame() const
 }
 
 
-/*!
+/*!  Sets the echo mode of the line edit widget.
 
+  The echo modes available are: <ul> <li> \c Normal - display
+  characters as they are entered.  This is the default. <li> \c NoEcho
+  - do not display anything. <li> \c Password - display asterisks
+  instead of the characters actually entered. </ul>
+
+  It is always possible to cut and paste any marked text; only the
+  widget's own display is affected.
+
+  \sa echoMode()
 */
 
 void QLineEdit::setEchoMode( EchoMode mode )
@@ -1099,7 +1126,9 @@ void QLineEdit::setEchoMode( EchoMode mode )
 
 
 /*!
+  Returns the current echo mode of the line edit.
 
+  \sa setEchoMode()
 */
 
 QLineEdit::EchoMode QLineEdit::echoMode() const
