@@ -3737,6 +3737,7 @@ bool qt_try_modal( QWidget *widget, XEvent *event )
 	case XKeyRelease:
 	case EnterNotify:
 	case LeaveNotify:
+	case ClientMessage:
 	    block_event	 = TRUE;
 	    break;
     	default:
