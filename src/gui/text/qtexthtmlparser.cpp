@@ -429,12 +429,6 @@ static int scaleFontPointSize(int fontPointSize, int logicalFontSize, int logica
 void QTextHtmlParserNode::setAttributesFromId()
 {
     switch (id) {
-        case Html_qt:
-            isBlock = true;
-            break;
-        case Html_a:
-            isAnchor = true;
-            break;
         case Html_em:
         case Html_i:
             fontItalic = true;
@@ -452,65 +446,51 @@ void QTextHtmlParserNode::setAttributesFromId()
         case Html_h1:
             fontWeight = QFont::Bold;
             fontPointSize = scaleFontPointSize(DefaultFontSize, 6);
-            isBlock = true;
             margin[QTextHtmlParser::MarginTop] = 18;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h2:
             fontWeight = QFont::Bold;
             fontPointSize = scaleFontPointSize(DefaultFontSize, 5);
-            isBlock = true;
             margin[QTextHtmlParser::MarginTop] = 16;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h3:
             fontWeight = QFont::Bold;
             fontPointSize = scaleFontPointSize(DefaultFontSize, 4);
-            isBlock = true;
             margin[QTextHtmlParser::MarginTop] = 14;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h4:
             fontWeight = QFont::Bold;
             fontPointSize = scaleFontPointSize(DefaultFontSize, 3);
-            isBlock = true;
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h5:
             fontWeight = QFont::Bold;
             fontPointSize = scaleFontPointSize(DefaultFontSize, 2);
-            isBlock = true;
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 4;
             break;
         case Html_p:
-            isBlock = true;
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_center:
-            isBlock = true;
             alignment = Qt::AlignCenter;
             break;
         case Html_ul:
-            isListStart = true;
-            isBlock = true;
             listStyle = QTextListFormat::ListDisc;
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 12;
             // no left margin as we use indenting instead
             break;
         case Html_ol:
-            isListStart = true;
-            isBlock = true;
             listStyle = QTextListFormat::ListDecimal;
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 12;
             // no left margin as we use indenting instead
-            break;
-        case Html_li:
-            isListItem = true;
             break;
         case Html_code:
         case Html_tt:
@@ -522,32 +502,19 @@ void QTextHtmlParserNode::setAttributesFromId()
         // ##### sub / sup
         case Html_pre:
             fontFamily = QString::fromLatin1("Courier New,courier");
-            isBlock = true;
             wsm = WhiteSpacePre;
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_blockquote:
-            isBlock = true;
             margin[QTextHtmlParser::MarginLeft] = 40;
             margin[QTextHtmlParser::MarginRight] = 40;
             break;
-        case Html_body:
-            isBlock = true;
-            break;
-        case Html_div:
-            isBlock = true;
-            break;
         case Html_dl:
-            isBlock = true;
             margin[QTextHtmlParser::MarginTop] = 8;
             margin[QTextHtmlParser::MarginBottom] = 8;
             break;
-        case Html_dt:
-            isBlock = true;
-            break;
         case Html_dd:
-            isBlock = true;
             margin[QTextHtmlParser::MarginLeft] = 30;
             break;
         case Html_u:
@@ -822,6 +789,7 @@ void QTextHtmlParser::parseTag()
     node->isListItem = (node->id == Html_li);
     node->isListStart = (node->id == Html_ol || node->id == Html_ul);
     node->isTableCell = (node->id == Html_td || node->id == Html_th);
+    node->isAnchor = (node->id == Html_a);
 
     resolveParent();
     resolveNode();
