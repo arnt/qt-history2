@@ -297,17 +297,23 @@ QString QSqlDriver::nullText() const
 
   The default implementation returns the value formatted as a string
   according to the following rules:
+  
+  <ul>
 
-  If \a field is null, nullText() is returned.
+  <li> If \a field is null, nullText() is returned.
 
-  If \a field is character data, the value is returned enclosed by
-  single quotation marks, which is appropriate for many SQL databases.
+  <li> If \a field is character data, the value is returned enclosed
+  by single quotation marks, which is appropriate for many SQL
+  databases.
 
-  If \a field is date/time data, the value is formatted in ISO format
-  and enclosed by single quotation marks.
+  <li> If \a field is date/time data, the value is formatted in ISO
+  format and enclosed by single quotation marks.  If the date/time
+  data is invalid, nullText() is returned.
 
-  If \a field is bytearray data, and the driver can edit binary
+  <li> If \a field is bytearray data, and the driver can edit binary
   fields, the value is formatted as a hexadecimal string.
+  
+  </ul>
 
   \sa QVariant::toString().
 
@@ -320,13 +326,22 @@ QString QSqlDriver::formatValue( const QSqlField* field ) const
     else {
 	switch ( field->type() ) {
 	case QVariant::Date:
-	    r = "'" + field->value().toDate().toString( Qt::ISODate ) + "'";
+	    if ( field->value().toDate().isValid() )
+		r = "'" + field->value().toDate().toString( Qt::ISODate ) + "'";
+	    else 
+		r = nullText();
 	    break;
 	case QVariant::Time:
-	    r = "'" + field->value().toTime().toString( Qt::ISODate ) + "'";
+	    if ( field->value().toTime().isValid() )
+		r = "'" + field->value().toTime().toString( Qt::ISODate ) + "'";
+	    else 
+		r = nullText();
 	    break;
 	case QVariant::DateTime:
-	    r = "'" + field->value().toDateTime().toString( Qt::ISODate ) + "'";
+	    if ( field->value().toDateTime().isValid() )
+		r = "'" + field->value().toDateTime().toString( Qt::ISODate ) + "'";
+	    else 
+		r = nullText();
 	    break;
 	case QVariant::String:
 	case QVariant::CString:
