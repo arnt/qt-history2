@@ -73,7 +73,10 @@ static QWidget * owner = 0;
 static bool inSelectionMode = FALSE;
 static bool timer_event_clear = FALSE;
 static int timer_id = 0;
-static int timer_flags = 0;
+
+class QClipboardWatcher; // forward decl
+static QClipboardWatcher *selection_watcher = 0;
+static QClipboardWatcher *clipboard_watcher = 0;
 
 static void cleanup()
 {
@@ -93,6 +96,7 @@ void setupOwner()
 class QClipboardWatcher : public QMimeSource {
 public:
     QClipboardWatcher();
+    ~QClipboardWatcher();
     bool empty() const;
     const char* format( int n ) const;
     QByteArray encodedData( const char* fmt ) const;
@@ -553,12 +557,11 @@ bool QClipboard::event( QEvent *e )
 	    timer_id = 0;
 
 	    timer_event_clear = TRUE;
-	    if (timer_flags & 0x01) // clear selection
+	    if ( selection_watcher ) // clear selection
 		selectionData()->clear();
-	    if (timer_flags & 0x02) // clear clipboard
+	    if ( clipboard_watcher ) // clear clipboard
 		clipboardData()->clear();
 	    timer_event_clear = FALSE;
-	    timer_flags = 0;
 
 	    return TRUE;
 	} else
@@ -816,6 +819,14 @@ QClipboardWatcher::QClipboardWatcher()
     setupOwner();
 }
 
+QClipboardWatcher::~QClipboardWatcher()
+{
+    if( selection_watcher == this )
+        selection_watcher = 0;
+    if( clipboard_watcher == this )
+        clipboard_watcher = 0;
+}
+
 bool QClipboardWatcher::empty() const
 {
     Display *dpy = owner->x11Display();
@@ -945,9 +956,16 @@ QMimeSource* QClipboard::data() const
 	d = clipboardData();
 
     if ( ! d->source() && ! timer_event_clear ) {
-	d->setSource(new QClipboardWatcher());
+	if ( inSelectionMode ) {
+	    if ( ! selection_watcher )
+		selection_watcher = new QClipboardWatcher;
+	    d->setSource( selection_watcher );
+	} else {
+	    if ( ! clipboard_watcher )
+		clipboard_watcher = new QClipboardWatcher;
+	    d->setSource( clipboard_watcher );
+	}
 
-	timer_flags |= inSelectionMode ? 0x01 : 0x02;
 	if (! timer_id) {
 	    // start a zero timer - we will clear cached data when the timer
 	    // times out, which will be the next time we hit the event loop...
