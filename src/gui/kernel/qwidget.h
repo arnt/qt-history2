@@ -394,7 +394,7 @@ public:
     void adjustSize();
     bool isVisible() const;
     bool isVisibleTo(QWidget*) const;
-    bool isExplicitlyHidden() const;
+    inline bool isExplicitlyHidden() const;
 
     bool isMinimized() const;
     bool isMaximized() const;
