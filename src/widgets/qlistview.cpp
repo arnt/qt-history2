@@ -2714,12 +2714,13 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 void QListView::paintEmptyArea( QPainter * p, const QRect & rect )
 {
+    QStyleOption opt( d->sortcolumn, 0 ); // ### hack; in 3.1, add a property in QListView and QHeader
     QStyle::SFlags how = QStyle::Style_Default;
     if ( isEnabled() )
 	how |= QStyle::Style_Enabled;
 
-    style().drawComplexControl( QStyle::CC_ListView, 
-				p, this, rect, colorGroup(), 
+    style().drawComplexControl( QStyle::CC_ListView,
+				p, this, rect, colorGroup(),
 				how, QStyle::SC_ListView, QStyle::SC_None,
 				opt );
 }
