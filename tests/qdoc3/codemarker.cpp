@@ -49,6 +49,16 @@ void CodeMarker::terminate()
     }
 }
 
+QString CodeMarker::functionBeginRegExp( const QString& /* funcName */ )
+{
+    return "";
+}
+
+QString CodeMarker::functionEndRegExp( const QString& /* funcName */ )
+{
+    return "";
+}
+
 CodeMarker *CodeMarker::markerForCode( const QString& code )
 {
     CodeMarker *defaultMarker = markerForLanguage( defaultLang );

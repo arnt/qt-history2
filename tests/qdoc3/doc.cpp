@@ -207,7 +207,7 @@ private:
     void startNewParagraph();
     void enterParagraph();
     void leaveParagraph();
-    void quoteFromFile( int command );
+    CodeMarker *quoteFromFile( int command );
     void expandMacro( const QString& name, const QString& def, int numParams );
     Doc::SectioningUnit getSectioningUnit();
     QString getArgument( bool verbatim = FALSE );
@@ -226,6 +226,7 @@ private:
     static QString untabifyEtc( const QString& str );
     static int indentLevel( const QString& str );
     static QString unindent( int level, const QString& str );
+    static QString slashed( const QString& str );
     static int editDistance( const QString& actual, const QString& expected );
 
     QValueStack<int> openedInputs;
@@ -576,11 +577,13 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_QUOTEFUNCTION:
 		    leaveParagraph();
-		    quoteFromFile( command );
-		    quoter.quoteTo( location(), commandStr, getRestOfLine() );
+		    marker = quoteFromFile( command );
+		    x = getRestOfLine();
+		    quoter.quoteTo( location(), commandStr,
+				    slashed(marker->functionBeginRegExp(x)) );
 		    append( Atom::Code,
 			    quoter.quoteUntil(location(), commandStr,
-					      "/^\\}/") );
+				    slashed(marker->functionEndRegExp(x))) );
 		    quoter.reset();
 		    break;
 		case CMD_RAW:
@@ -1162,7 +1165,7 @@ void DocParser::leaveParagraph()
     }
 }
 
-void DocParser::quoteFromFile( int /* command */ )
+CodeMarker *DocParser::quoteFromFile( int /* command */ )
 {
     quoter.reset();
 
@@ -1190,6 +1193,7 @@ void DocParser::quoteFromFile( int /* command */ )
     CodeMarker *marker = CodeMarker::markerForFileName( fileName );
     quoter.quoteFromFile( userFriendlyFilePath, code,
 			  marker->markedUpCode(code, 0, dirPath) );
+    return marker;
 }
 
 void DocParser::expandMacro( const QString& name, const QString& def,
@@ -1576,6 +1580,14 @@ QString DocParser::unindent( int level, const QString& str )
 	}
     }
     return t;
+}
+
+QString DocParser::slashed( const QString& str )
+{
+    QString result;
+    // ### remove QRegExp cast in Qt 3.1
+    result.replace( QRegExp("/"), "\\/" );
+    return "/" + result + "/";
 }
 
 int DocParser::editDistance( const QString& actual, const QString& expected )

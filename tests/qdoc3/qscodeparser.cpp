@@ -429,10 +429,8 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 	     "^([ \t]*)(const[ \t]+)?Q([A-Z][A-Za-z_0-9]*)\\s+"
 	     "([a-z][A-Za-z_0-9]*)\\s*(?:\\((" + balancedParens +
 	     ")\\))?\\s*;" );
-    QRegExp connectRegExp(
-	     "^(connect\\(\\s*[^,]*,\\s*)SIGNAL\\((" +
-	     balancedParens + ")\\)(,[^,]*,\\s*)SLOT\\((" + balancedParens +
-	     ")\\)(\\s*\\))" );
+    QRegExp signalOrSlotRegExp(
+	     "^(SIGNAL|SLOT)\\((" + balancedParens + ")\\)" );
     QString result;
     bool inString = FALSE;
     QChar quote;
@@ -514,19 +512,17 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 			    !code[i].isLetterOrNumber() && code[i] != '\n' )
 			i++;
 		}
-	    } else if ( code[i] == 'c' && leftWordBoundary(code, i) &&
-			code.mid(i, 8) == "connect(" ) {
-		if ( connectRegExp.search(code, i
+	    } else if ( code[i] == 'S' && leftWordBoundary(code, i) &&
+			(code.mid(i, 7) == "SIGNAL(" ||
+			 code.mid(i, 5) == "SLOT(") ) {
+		if ( signalOrSlotRegExp.search(code, i
 #if QT_VERSION >= 0x030100
-						 , QRegExp::CaretAtOffset
+						      , QRegExp::CaretAtOffset
 #endif
 					 ) == i ) {
-		    result += connectRegExp.cap( 1 ) + "SIGNAL(\"" +
-			      connectRegExp.cap( 2 ) + "\")" +
-			      connectRegExp.cap( 3 ) + "SLOT(\"" +
-			      connectRegExp.cap( 4 ) + "\")" +
-			      connectRegExp.cap( 5 );
-		    i += connectRegExp.matchedLength();
+		    result += signalOrSlotRegExp.cap( 1 ) + "(\"" +
+			      signalOrSlotRegExp.cap( 2 ) + "\")";
+		    i += signalOrSlotRegExp.matchedLength();
 		}
 	    } else if ( code[i] == 'T' && leftWordBoundary(code, i) &&
 			code.mid(i, 4) == "TRUE" &&

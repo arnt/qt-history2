@@ -31,6 +31,8 @@ public:
     virtual QString markedUpFullName( const Node *node,
 				      const Node *relative ) = 0;
     virtual QString markedUpIncludes( const QStringList& includes ) = 0;
+    virtual QString functionBeginRegExp( const QString& funcName );
+    virtual QString functionEndRegExp( const QString& funcName );
     virtual const Node *resolveTarget( const QString& target,
 				       const Node *relative ) = 0;
 

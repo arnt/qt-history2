@@ -184,6 +184,21 @@ QString CppCodeMarker::markedUpIncludes( const QStringList& includes )
     return addMarkUp( code, 0, "" );
 }
 
+QString CppCodeMarker::functionBeginRegExp( const QString& funcName )
+{
+    return "^[ \t]*" +
+#if QT_VERSION >= 0x030100
+	   QRegExp::escape
+#endif
+	   ( funcName ) + "[^\n]*(\n[ \t][^\n]*)*\\{";
+
+}
+
+QString CppCodeMarker::functionEndRegExp( const QString& /* funcName */ )
+{
+    return "^}";
+}
+
 const Node *CppCodeMarker::resolveTarget( const QString& /* target */,
 					  const Node * /* relative */ )
 {
@@ -201,7 +216,7 @@ QString CppCodeMarker::addMarkUp( const QString& protectedCode,
 	if ( s.startsWith("#") ) {
 	    s = "<@preprocessor>" + s + "</@preprocessor>";
 	} else {
-	    ///
+	    // ###
 	}
 	*li = s;
 	++li;

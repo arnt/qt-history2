@@ -143,6 +143,20 @@ QString QsCodeMarker::markedUpIncludes( const QStringList& /* includes */ )
     return "";
 }
 
+QString QsCodeMarker::functionBeginRegExp( const QString& funcName )
+{
+    return "^function[ \t].*\\b" +
+#if QT_VERSION >= 0x030100
+	   QRegExp::escape
+#endif
+	   ( funcName );
+}
+
+QString QsCodeMarker::functionEndRegExp( const QString& /* funcName */ )
+{
+    return "^}";
+}
+
 const Node *QsCodeMarker::resolveTarget( const QString& /* target */,
 					 const Node * /* relative */ )
 {
