@@ -55,7 +55,8 @@
   subkeys. A subkey is a slash, '/', followed by one or more unicode
   characters (excluding slashes, newlines, carriage returns and equals,
   '=', signs). The associated data, called the entry or value, may be a
-  boolean, an integer, a double, a string or a list of strings.
+  boolean, an integer, a double, a string or a list of strings. Strings
+  may contain any unicode characters.
 
     Example settings:
     \code
