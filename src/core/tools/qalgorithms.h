@@ -120,8 +120,6 @@ void qBubbleSort(BiIterator begin, BiIterator end, LessThan lessThan)
 template <typename BiIterator, typename T>
 void qBubbleSortHelper(BiIterator begin, BiIterator end, T)
 {
-    if (begin == end)
-        return;
     qBubbleSort(begin, end, qLess<T>);
 }
 
@@ -168,7 +166,7 @@ void qHeapSortPushDown(T *heap, int first, int last, LessThan lessThan)
 }
 
 template <typename BiIterator, typename T, typename LessThan>
-void qHeapSortHelper(BiIterator begin, BiIterator end, T, LessThan lessThan)
+void qHeapSortHelper(BiIterator begin, BiIterator end, const T & /* dummy */, LessThan lessThan)
 {
     BiIterator it = begin;
     uint n = 0;
@@ -206,13 +204,11 @@ void qHeapSortHelper(BiIterator begin, BiIterator end, T, LessThan lessThan)
 }
 
 template <typename BiIterator, typename T>
-void qHeapSortHelper(BiIterator begin, BiIterator end, T dummy)
+void qHeapSortHelper(BiIterator begin, BiIterator end, const T &dummy)
 {
-    if (begin == end)
-        return;
-    // Don't pass qLess<T> directly (compile workaround for MSVC)
-    bool (*qLessFunction)(const T &a, const T &b) = qLess<T>;
-    qHeapSortHelper(begin, end, dummy, qLessFunction);
+    // Don't pass qLess<T> directly (workaround for MSVC)
+    bool (*qLessFunc)(const T &a, const T &b) = qLess<T>;
+    qHeapSortHelper(begin, end, dummy, qLessFunc);
 }
 
 template <typename BiIterator, typename LessThan>
