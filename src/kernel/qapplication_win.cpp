@@ -1874,12 +1874,12 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    else
 #endif
 			DefWindowProcA( hwnd, WM_NCPAINT, 1, 0 );
-#if defined(QT_NON_COMMERCIAL)
-		} else if ( wParam == IDM_ABOUTQT ) {
-		    QMessageBox::aboutQt( widget->topLevelWidget(), "About Qt" );
-		}
-#endif
 		    break;
+#if defined(QT_NON_COMMERCIAL)
+		case IDM_ABOUTQT:
+		    QMessageBox::aboutQt( widget->topLevelWidget(), "About Qt" );
+		    break;
+#endif
 		case SC_MAXIMIZE:
 		    QApplication::postEvent( widget, new QEvent( QEvent::ShowMaximized ) );
 		    result = FALSE;

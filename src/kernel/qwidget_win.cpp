@@ -708,6 +708,8 @@ void QWidget::setCaption( const QString &caption )
 	cap = caption;
     else if ( inherits("QFileDialog") || inherits("QMessageBox") || inherits("QFontDialog") || inherits("QColorDialog") )
 	cap = caption;
+    else
+	cap = QString(f) + caption;
 
     delete[] t;
     delete[] q;

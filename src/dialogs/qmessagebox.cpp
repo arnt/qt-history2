@@ -685,7 +685,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	    *translatedTextAboutQt = tr( "<h3>About Qt</h3>"
 		  "<p>This application was created with Qt version %1.</p>" ).arg( QT_VERSION_STR );
 	}
-	*translatedTextAboutQt += 	    "<p>This program uses Qt version %1.</p>"
+	*translatedTextAboutQt += tr ("<p>This program uses Qt version %1.</p>"
 	    "<p>Qt is a multi-platform C++ "
 	    "GUI application framework from Trolltech. "
 	    "Qt provides single-source "
@@ -693,7 +693,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	    "HP-UX and many other versions of Unix with X11. "
 	    "Qt is also available for embedded devices.</p>"
 	    "<p>See <tt>http://www.trolltech.com/qt/</tt> "
-	    "for more information.</p>";
+	    "for more information.</p>").arg( QT_VERSION_STR );
 
 	delete[] q;
 	delete[] t;
