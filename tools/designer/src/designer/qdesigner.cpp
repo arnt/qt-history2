@@ -13,6 +13,10 @@
 
 #include <QtGui/QFileOpenEvent>
 #include <QtGui/QCloseEvent>
+#include <QtCore/QFile>
+#include <QtCore/QLibraryInfo>
+#include <QtCore/QLocale>
+#include <QtCore/QTranslator>
 #include <QtCore/qdebug.h>
 
 // designer
@@ -67,18 +71,32 @@ void QDesigner::initialize()
     // initialize the sub components
     int arg = 1;
 
+    QString resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+
     for (int i = 1; i < argc(); ++i)
     {
-        if (QString::fromLocal8Bit(argv()[i]) == "-server")
-        {
+        if (QString::fromLocal8Bit(argv()[i]) == "-server") {
             m_server = new QDesignerServer();
             printf("%d\n", m_server->serverPort());
             fflush(stdout);
-            arg = i + 1; //rest is files
+        } else if (QString::fromLocal8Bit(argv()[i]) == "-resourcedir") {
+            if (i + 1 < argc()) {
+                resourceDir = QFile::decodeName(argv()[++i]);
+            } else {
+                // issue a warning
+            }
+        } else {
             break;
         }
     }
-
+    
+    QTranslator *translator = new QTranslator;
+    QTranslator *qtTranslator = new QTranslator;
+    translator->load(QLatin1String("designer_") + QLatin1String(QLocale::system().name().toLower()), resourceDir);
+    qtTranslator->load(QLatin1String("qt_") + QLatin1String(QLocale::system().name().toLower()), resourceDir);
+    QApplication::instance()->installTranslator(translator);
+    QApplication::instance()->installTranslator(qtTranslator);
+    
     m_session = new QDesignerSession();
     m_workbench = new QDesignerWorkbench();
 
