@@ -824,7 +824,10 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
     if ( isLocalFile() ) {
 	emit start();
 	QDir dir( d->path );
-	const QFileInfoList *filist = dir.entryInfoList( nameFilter, filterSpec, sortSpec );
+	dir.setNameFilter( nameFilter );
+	dir.setMatchAllDirs( TRUE );
+	
+	const QFileInfoList *filist = dir.entryInfoList( filterSpec, sortSpec );
 	if ( !filist )
 	    return;
 	QFileInfoListIterator it( *filist );
@@ -925,7 +928,7 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 {
     QString de = dest;
     if ( de.left( QString( "file:" ).length() ) == "file:" )
-	de.remove( 0, QString( "file:" ).length() ); 
+	de.remove( 0, QString( "file:" ).length() );
     QStringList::ConstIterator it = files.begin();
     for ( ; it != files.end(); ++it ) {
 	if ( TRUE /*isFile*/) {
