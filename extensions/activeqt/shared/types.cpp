@@ -1356,8 +1356,22 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 
     QVariant::Type proptype = hint ? QVariant::nameToType( hint ) : QVariant::Invalid;
     if ( proptype != QVariant::Invalid && var.type() != proptype ) {
-	if ( var.canCast( proptype ) )
+	if ( var.canCast( proptype ) ) {
 	    var.cast( proptype );
+	} else if (proptype == QVariant::StringList && var.type() == QVariant::List) {
+	    bool allStrings = TRUE;
+	    QStringList strings;
+	    const QValueList<QVariant> list(var.toList());
+	    for (QValueList<QVariant>::ConstIterator it(list.begin()); it != list.end(); ++it) {
+		QVariant variant = *it;
+		if (variant.canCast(QVariant::String))
+		    strings << variant.toString();
+		else
+		    allStrings = FALSE;
+	    }
+	    if (allStrings)
+		var = strings;
+	}
     }
     return var;
 }
