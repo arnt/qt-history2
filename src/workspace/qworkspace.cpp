@@ -2158,6 +2158,7 @@ void QWorkspaceChild::showShaded()
 	shademode = FALSE;
 	resize( shadeRestore );
 	setMinimumSize( shadeRestoreMin );
+	style().polish(this);
     } else {
 	shadeRestore = size();
 	shadeRestoreMin = minimumSize();
@@ -2167,7 +2168,11 @@ void QWorkspaceChild::showShaded()
 	fake->setWState( WState_Minimized );
 	setWState( WState_Minimized );
 
-	resize( width(), titlebar->height() + 2*lineWidth() + 1 );
+	if ( style().styleHint( QStyle::SH_TitleBar_NoBorder ) )
+	    resize( width(), titlebar->height() );
+	else
+	    resize( width(), titlebar->height() + 2*lineWidth() + 1 );
+	style().polish(this);
     }
     titlebar->update();
 }

@@ -630,8 +630,13 @@ void QWindowsXPStyle::updateRegion( QWidget *widget )
 	XPThemeData theme2( widget->parentWidget(), 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
 	theme2.setTransparency();
     } else if ( widget->inherits( "QWorkspaceChild" ) ) {
-	XPThemeData theme( widget, 0, "WINDOW", WP_CAPTION, CS_ACTIVE, widget->rect() );
-	theme.setTransparency();
+	if (widget->isMinimized()) {
+	    XPThemeData theme( widget, 0, "WINDOW", WP_SMALLCAPTION, CS_ACTIVE, widget->rect() );
+	    theme.setTransparency();
+	} else {
+	    XPThemeData theme( widget, 0, "WINDOW", WP_CAPTION, CS_ACTIVE, widget->rect() );
+	    theme.setTransparency();
+	}
     }
 }
 
@@ -1990,14 +1995,32 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			stateId = RBS_NORMAL;
 		    theme.drawBackground( partId, stateId );
 		}
-#if 0
 		if ( sub & SC_TitleBarShadeButton ) {
-		    qDebug( "TODO: XP Shade button" );
+		    theme.rec = visualRect( querySubControlMetrics( CC_TitleBar, w, SC_TitleBarShadeButton ), w );
+		    partId = titlebar->testWFlags( WStyle_Tool ) ? WP_MINBUTTON : WP_MINBUTTON;
+		    if ( !w->isEnabled() )
+			stateId = MINBS_DISABLED;
+		    else if ( subActive == SC_TitleBarShadeButton )
+			stateId = MINBS_PUSHED;
+		    else if ( theme.rec.contains( d->hotSpot ) )
+			stateId = MINBS_HOT;
+		    else
+			stateId = MINBS_NORMAL;
+		    theme.drawBackground( partId, stateId );
 		}
 		if ( sub & SC_TitleBarUnshadeButton ) {
-		    qDebug( "TODO: XP Unshade button" );
+		    theme.rec = visualRect( querySubControlMetrics( CC_TitleBar, w, SC_TitleBarUnshadeButton ), w );
+		    partId = titlebar->testWFlags( WStyle_Tool ) ? WP_RESTOREBUTTON : WP_RESTOREBUTTON;
+		    if ( !w->isEnabled() )
+			stateId = RBS_DISABLED;
+		    else if ( subActive == SC_TitleBarUnshadeButton )
+			stateId = RBS_PUSHED;
+		    else if ( theme.rec.contains( d->hotSpot ) )
+			stateId = RBS_HOT;
+		    else
+			stateId = RBS_NORMAL;
+		    theme.drawBackground( partId, stateId );
 		}
-#endif
 	    }
 	    if ( sub & SC_TitleBarCloseButton ) {
 		theme.rec = visualRect( querySubControlMetrics( CC_TitleBar, w, SC_TitleBarCloseButton ), w );
