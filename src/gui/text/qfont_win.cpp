@@ -275,7 +275,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
 	int to = qMin( (int)str.length(), pos + 8 );
 	QString cstr( str.unicode()+from, to-from);
 	QTextEngine layout( cstr, d );
-        layout.setMode(QTextLayout::WidthOnly);
+        layout.setMode(QTextEngine::WidthOnly);
 	layout.itemize();
 	width = layout.width( pos-from, 1 );
     } else if (::category(ch) == QChar::Mark_NonSpacing) {
