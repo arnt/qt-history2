@@ -1879,6 +1879,80 @@ void qt_init_internal( int *argcptr, char **argv,
 	QApplication::setFont( f );
 
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
+
+#if defined (QT_TABLET_SUPPORT)
+	int ndev, i, j;
+	XDeviceInfo *devices;
+	XInputClassInfo *ip;
+	XAnyClassPtr any;
+	XValuatorInfoPtr v;
+	XAxisInfoPtr a;
+
+
+	if ( (devices = XListInputDevices( appDpy, &ndev)) == NULL ) {
+	    qWarning( "Failed to get list of devices" );
+	    ndev = -1;
+	}
+	for ( i = 0; i < ndev; i++, devices++ ) {
+	    if ( !strncmp( devices->name, WACOM_NAME, sizeof(WACOM_NAME) - 1 ) ) {
+		dev = XOpenDevice( appDpy, devices->id );
+		if ( dev == NULL ) {
+		    qWarning( "Failed to open device" );
+		}
+		if ( dev->num_classes > 0 ) {
+		    for ( ip = dev->classes, j = 0; j < devices->num_classes;
+			  ip++, j++ ) {
+			switch ( ip->input_class ) {
+			    case KeyClass:
+				DeviceKeyPress( dev, xinput_key_press,
+						event_list[curr_xinput_events] );
+				curr_xinput_events++;
+				DeviceKeyRelease( dev, xinput_key_release,
+						  event_list[curr_xinput_events] );
+				curr_xinput_events++;
+				break;
+			    case ButtonClass:
+				DeviceButtonPress( dev, xinput_button_press,
+						   event_list[curr_xinput_events] );
+				curr_xinput_events++;
+				DeviceButtonRelease( dev, xinput_button_release,
+						     event_list[curr_xinput_events] );
+				curr_xinput_events++;
+				break;
+			    case ValuatorClass:
+				// I'm only going to be interested in motion when the
+				// stylus is already down anyway!
+				DeviceMotionNotify( dev, xinput_motion,
+						    event_list[curr_xinput_events] );
+				curr_xinput_events++;
+				break;
+			    default:
+				break;
+			}
+		    }
+		}
+		// get the min/max value for pressure!
+		any = (XAnyClassPtr) ( devices->inputclassinfo );
+		for (j = 0; j < devices->num_classes; j++) {
+		    if ( any->c_class == ValuatorClass ) {
+			v = (XValuatorInfoPtr) any;
+			a = (XAxisInfoPtr) ((char *) v +
+					    sizeof (XValuatorInfo));
+			max_pressure = a[WAC_PRESSURE_I].max_value;
+			// got the max pressure no need to go further...
+			break;
+		    }
+		    any = (XAnyClassPtr) ((char *) any + any->length);
+		}
+
+		// at this point we are assuming there is only one
+		// wacom device...
+		break;
+	    }
+	}
+	XFreeDeviceList( devices );
+#endif // QT_TABLET_SUPPORT
+
     } else {
 	// read some non-GUI settings when not using the X server...
 
@@ -1903,79 +1977,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_resolve_symlinks =
 	    settings.readBoolEntry("/qt/resolveSymlinks", TRUE);
     }
-
-#if defined (QT_TABLET_SUPPORT)
-    int ndev, i, j;
-    XDeviceInfo *devices;
-    XInputClassInfo *ip;
-    XAnyClassPtr any;
-    XValuatorInfoPtr v;
-    XAxisInfoPtr a;
-
-
-    if ( (devices = XListInputDevices( appDpy, &ndev)) == NULL ) {
-	qWarning( "Failed to get list of devices" );
-	ndev = -1;
-    }
-    for ( i = 0; i < ndev; i++, devices++ ) {
-	if ( !strncmp( devices->name, WACOM_NAME, sizeof(WACOM_NAME) - 1 ) ) {
-	    dev = XOpenDevice( appDpy, devices->id );
-	    if ( dev == NULL ) {
-		qWarning( "Failed to open device" );
-	    }
-	    if ( dev->num_classes > 0 ) {
-		for ( ip = dev->classes, j = 0; j < devices->num_classes;
-		      ip++, j++ ) {
-		    switch ( ip->input_class ) {
-		    case KeyClass:
-			DeviceKeyPress( dev, xinput_key_press,
-					event_list[curr_xinput_events] );
-			curr_xinput_events++;
-		        DeviceKeyRelease( dev, xinput_key_release,
-					  event_list[curr_xinput_events] );
-			curr_xinput_events++;
-			break;
-		    case ButtonClass:
-			DeviceButtonPress( dev, xinput_button_press,
-					   event_list[curr_xinput_events] );
-			curr_xinput_events++;
-			DeviceButtonRelease( dev, xinput_button_release,
-					     event_list[curr_xinput_events] );
-			curr_xinput_events++;
-			break;
-		    case ValuatorClass:
-			// I'm only going to be interested in motion when the
-			// stylus is already down anyway!
-			DeviceMotionNotify( dev, xinput_motion,
-					    event_list[curr_xinput_events] );
-			curr_xinput_events++;
-			break;
-		    default:
-			break;
-		    }
-		}
-	    }
-	    // get the min/max value for pressure!
-	    any = (XAnyClassPtr) ( devices->inputclassinfo );
-	    for (j = 0; j < devices->num_classes; j++) {
-		if ( any->c_class == ValuatorClass ) {
-		    v = (XValuatorInfoPtr) any;
-		    a = (XAxisInfoPtr) ((char *) v +
-					sizeof (XValuatorInfo));
-		    max_pressure = a[WAC_PRESSURE_I].max_value;
-		    // got the max pressure no need to go further...
-		    break;
-		}
-		any = (XAnyClassPtr) ((char *) any + any->length);
-	    }
-
-	    // at this point we are assuming there is only one
-	    // wacom device...
-	    break;
-	}
-    }
-    XFreeDeviceList( devices );
-#endif // QT_TABLET_SUPPORT
 
 #if defined(Q_OS_UNIX)
     pipe( qt_thread_pipe );
