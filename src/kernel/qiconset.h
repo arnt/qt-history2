@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.h#28 $
+** $Id: //depot/qt/main/src/kernel/qiconset.h#29 $
 **
 ** Definition of QIconSet class
 **
@@ -45,6 +45,7 @@
 #ifndef QT_NO_ICONSET
 
 class QIconSetPrivate;
+
 class Q_EXPORT QIconSet
 {
 public:
@@ -80,8 +81,6 @@ public:
     static const QSize & iconSize( Size );
 
 private:
-    static QSize large;
-    static QSize small;
     QIconSetPrivate * d;
 };
 

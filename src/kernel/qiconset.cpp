@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#71 $
 **
 ** Implementation of QIconSet class
 **
@@ -43,6 +43,7 @@
 #include "qbitmap.h"
 #include "qapplication.h"
 #include "qpainter.h"
+#include "qcleanuphandler.h"
 
 
 class QIconSetPrivate: public QShared
@@ -80,6 +81,9 @@ public:
     Variant on_largeActive;
     Variant on_smallDisabled;
     Variant on_largeDisabled;
+
+    static QSize *large_size;
+    static QSize *small_size;
 };
 
 // REVISED: not revised
@@ -380,7 +384,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
     } else {
 	d = new QIconSetPrivate;
     }
-    if ( size == Large || (size == Automatic && pm.width() > small.width()) ) {
+    if ( size == Large || (size == Automatic && pm.width() > iconSize( Small ).width()) ) {
 	switch( mode ) {
 	case Active:
 	    if ( state == Off ) {
@@ -418,7 +422,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 	    break;
 	}
     } else if ( size == Small  ||
-		(size == Automatic && pm.width() <= small.width()) ) 
+		(size == Automatic && pm.width() <= iconSize( Small ).width()) ) 
     {
 	switch( mode ) {
 	case Active:
@@ -504,7 +508,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		if ( !p->vlarge.pm ) {
 		    Q_ASSERT( p->vsmall.pm );
 		    i = p->vsmall.pm->convertToImage();
-		    i = i.smoothScale( large.width(), large.height() );
+		    i = i.smoothScale( iconSize( Large ).width(), iconSize( Large ).height() );
 		    p->vlarge.pm = new QPixmap;
 		    p->vlarge.generated = TRUE;
 		    p->vlarge.pm->convertFromImage( i );
@@ -533,7 +537,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			// but the normal big one is null or generated, use the
 			// hand-drawn one to generate this one.
 			i = p->smallDisabled.pm->convertToImage();
-			i = i.smoothScale( large.width(), large.height() );
+			i = i.smoothScale( iconSize( Large ).width(), iconSize( Large ).height() );
 			p->largeDisabled.pm = new QPixmap;
 			p->largeDisabled.generated = TRUE;
 			p->largeDisabled.pm->convertFromImage( i );
@@ -585,7 +589,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		if ( !p->vsmall.pm ) {
 		    Q_ASSERT( p->vlarge.pm );
 		    i = p->vlarge.pm->convertToImage();
-		    i = i.smoothScale( small.width(), small.height() );
+		    i = i.smoothScale( iconSize( Small ).width(), iconSize( Small ).height() );
 		    p->vsmall.pm = new QPixmap;
 		    p->vsmall.generated = TRUE;
 		    p->vsmall.pm->convertFromImage( i );
@@ -614,7 +618,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 			// but the normal small one is NULL or generated, use the
 			// hand-drawn one to generate this one.
 			i = p->largeDisabled.pm->convertToImage();
-			i = i.smoothScale( large.width(), large.height() );
+			i = i.smoothScale( iconSize( Large ).width(), iconSize( Large ).height() );
 			p->smallDisabled.pm = new QPixmap;
 			p->smallDisabled.generated = TRUE;
 			p->smallDisabled.pm->convertFromImage( i );
@@ -675,7 +679,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		    }
 		    Q_ASSERT( fallback );
 		    i = fallback->convertToImage();
-		    i = i.smoothScale( large.width(), large.height() );
+		    i = i.smoothScale( iconSize( Large ).width(), iconSize( Large ).height() );
 		    p->on_vlarge.pm = new QPixmap;
 		    p->on_vlarge.generated = TRUE;
 		    p->on_vlarge.pm->convertFromImage( i );
@@ -714,7 +718,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		    if ( disBase ) {
 			i = disBase->convertToImage();
 			if ( mustScale )
-			    i = i.smoothScale( large.width(), large.height() );
+			    i = i.smoothScale( iconSize( Large ).width(), iconSize( Large ).height() );
 			p->on_largeDisabled.pm = new QPixmap;
 			p->on_largeDisabled.generated = TRUE;
 			p->on_largeDisabled.pm->convertFromImage( i );
@@ -772,7 +776,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		    }
 		    Q_ASSERT( fallback );
 		    i = fallback->convertToImage();
-		    i = i.smoothScale( small.width(), small.height() );
+		    i = i.smoothScale( iconSize( Small ).width(), iconSize( Small ).height() );
 		    p->on_vsmall.pm = new QPixmap;
 		    p->on_vsmall.generated = TRUE;
 		    p->on_vsmall.pm->convertFromImage( i );
@@ -811,7 +815,7 @@ QPixmap QIconSet::pixmap( Size size, Mode mode, State state ) const
 		    if ( disBase ) {
 			i = disBase->convertToImage();
 			if ( mustScale )
-			    i = i.smoothScale( small.width(), small.height() );
+			    i = i.smoothScale( iconSize( Small ).width(), iconSize( Small ).height() );
 			p->on_smallDisabled.pm = new QPixmap;
 			p->on_smallDisabled.generated = TRUE;
 			p->on_smallDisabled.pm->convertFromImage( i );
@@ -988,8 +992,10 @@ void QIconSet::detach()
 
 // static stuff
 
-QSize QIconSet::small( 16, 16 ); // default small size
-QSize QIconSet::large( 32, 32 ); // default large size
+QSize *QIconSetPrivate::small_size = 0;
+QSize *QIconSetPrivate::large_size = 0;
+
+QCleanupHandler<QSize> qt_iconset_sizes_cleanup;
 
 /*!
   Set the preferred size for the large/small generated icons.
@@ -998,10 +1004,16 @@ QSize QIconSet::large( 32, 32 ); // default large size
 */
 void QIconSet::setIconSize( Size s, const QSize & size )
 {
+    if ( !QIconSetPrivate::small_size ) {
+	QIconSetPrivate::small_size = new QSize( 16, 16 ); // default small size
+	QIconSetPrivate::large_size = new QSize( 32, 32 ); // default large size
+	qt_iconset_sizes_cleanup.add( QIconSetPrivate::small_size );
+	qt_iconset_sizes_cleanup.add( QIconSetPrivate::large_size );
+    }
     if ( s == Small )
-	small = size;
+	*QIconSetPrivate::small_size = size;
     else if ( s == Large )
-	large = size;
+	*QIconSetPrivate::large_size = size;
 }
 
 /*!
@@ -1011,9 +1023,15 @@ void QIconSet::setIconSize( Size s, const QSize & size )
 */
 const QSize & QIconSet::iconSize( Size s )
 {
+    if ( !QIconSetPrivate::small_size ) {
+	QIconSetPrivate::small_size = new QSize( 16, 16 );
+	QIconSetPrivate::large_size = new QSize( 32, 32 );
+	qt_iconset_sizes_cleanup.add( QIconSetPrivate::small_size );
+	qt_iconset_sizes_cleanup.add( QIconSetPrivate::large_size );
+    }
     if ( s == Small )
-	return small;
+	return *QIconSetPrivate::small_size;
     else
-	return large;
+	return *QIconSetPrivate::large_size;
 }
 #endif // QT_NO_ICONSET
