@@ -20,6 +20,25 @@
 
 #ifndef QT_VSNPRINTF
 
+/*!
+  \relates QByteArray
+
+  A portable vsnprintf() function. Will call ::vsnprintf(),
+  ::_vsnprintf() or ::vsnprintf_s depending on the system
+  or fall back to an internal version.
+
+  The caller is responsible to call va_end on \a ap.
+
+  \warning Since vsnprintf() shows different behavior on certain
+  platforms, you should not rely on the return value or on the fact
+  that you will always get a 0 terminated string back.
+
+  Ideally, you should never call this function but use QString::sprintf()
+  instead.
+
+  \sa qsnprintf(), QString::sprintf()
+*/
+
 int qvsnprintf(char *str, size_t n, const char *fmt, va_list ap)
 {
     if (!str || !fmt)
@@ -50,31 +69,7 @@ int qvsnprintf(char *str, size_t n, const char *fmt, va_list ap)
 
 #endif
 
-// qsnprintf and qvsnprintf are declared in qbytearray.h
-
-
-/*! \fn int qvsnprintf(char *str, size_t n, char const *fmt, va_list ap)
-
-  \relates QByteArray
-
-  A portable vsnprintf() function. Will call ::vsnprintf(),
-  ::_vsnprintf() or ::vsnprintf_s depending on the system
-  or fall back to an internal version.
-
-  The caller is responsible to call va_end on \a ap.
-
-  \warning Since vsnprintf() shows different behavior on certain
-  platforms, you should not rely on the return value or on the fact
-  that you will always get a 0 terminated string back.
-
-  Ideally, you should never call this function but use QString::sprintf()
-  instead.
-
-  \sa qvsnprintf, QString::sprintf()
-*/
-
-/*! \fn int qsnprintf(char *str, size_t n, char const *fmt, ...);
-
+/*!
   \relates QByteArray
 
   A portable snprintf() function, calls qvsnprintf.
@@ -83,7 +78,7 @@ int qvsnprintf(char *str, size_t n, const char *fmt, va_list ap)
   since it shows different behavior on certain platforms.
   Use QString::sprintf() to format a string instead.
 
-  \sa qvsnprintf, QString::sprintf()
+  \sa qvsnprintf(), QString::sprintf()
 */
 
 int qsnprintf(char *str, size_t n, const char *fmt, ...)

@@ -254,14 +254,6 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::rootChanged(const QModelIndex &old, const QModelIndex &root)
-
-    This signal is emitted when the model's root index changes. The
-    previous index is specified by \a old, and the new root index is
-    specified by \a root.
-*/
-
-/*!
   \fn void QAbstractItemView::entered(const QModelIndex &index)
 
   This signal is emitted when the mouse cursor enters the item
@@ -280,11 +272,12 @@ void QAbstractItemViewPrivate::init()
     This signal is emitted when a mouse button is pressed. The item the
     mouse was pressed on is specified by \a index (which may be invalid if
     the mouse was not pressed on an item).
+
     \omit
     ###
     The state of the mouse buttons
     and keyboard modifiers are specified by \a button and \a modifiers.
-    \emdomit
+    \endomit
 */
 
 /*!
@@ -297,7 +290,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn void QAbstractItemView::doubleClicked(const QModelIndex &index,)
+    \fn void QAbstractItemView::doubleClicked(const QModelIndex &index)
 
     This signal is emitted when a mouse button is double-clicked. The
     item the mouse was double-clicked on is specified by \a index (which

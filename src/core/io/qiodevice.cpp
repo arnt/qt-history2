@@ -190,16 +190,17 @@ QIODevicePrivate::~QIODevicePrivate()
 
 /*!
     \enum QIODevice::Offset
-    \obsolete
+    \compat
 
-    Use qint64 instead.
+    Use \c qint64 instead.
 */
 
 /*!
     \enum QIODevice::Status
-    \obsolete
+    \compat
 
-    Use OpenMode instead, or see the documentation for specific devices.
+    Use QIODevice::OpenMode instead, or see the documentation for
+    specific devices.
 */
 
 /*!
@@ -1014,158 +1015,136 @@ QString QIODevice::errorString() const
 
 /*!
     \fn QIODevice::Offset QIODevice::status() const
-    \obsolete
 
-    QIODevice no longer provides the status() function. For device
-    specific error handling, please refer to the individual device
-    documentation.
+    For device specific error handling, please refer to the
+    individual device documentation.
 
     \sa qobject_cast<>()
 */
 
-/*!     \fn void QIODevice::resetStatus()
-    \obsolete
+/*! fn void QIODevice::resetStatus()
 
-    QIODevice no longer provides the resetStatus() function. For
-    device specific error handling, please refer to the individual
-    device documentation.
+    For device specific error handling, please refer to the
+    individual device documentation.
 
     \sa qobject_cast<>()
 */
 
 /*!
-    \fn Offset QIODevice::at() const
-    \obsolete
+    \fn QIODevice::Offset QIODevice::at() const
 
     Use pos() instead.
 */
 
 /*!
-    \fn bool QIODevice::at(Offset)
-    \obsolete
+    \fn bool QIODevice::at(Offset offset)
 
-    Use seek() instead.
+    Use seek(\a offset) instead.
 */
 
-/*!     \fn int QIODevice::flags() const
-    \obsolete
+/*! \fn int QIODevice::flags() const
 
     Use openMode() instead.
 */
 
-/*!     \fn int QIODevice::getch()
-    \obsolete
+/*! \fn int QIODevice::getch()
 
     Use getChar() instead.
 */
 
 /*!
     \fn bool QIODevice::isAsynchronous() const
-    \obsolete
 
-    This function is no longer available.
+    This functionality is no longer available. This function always
+    returns true.
 */
 
 /*!
     \fn bool QIODevice::isBuffered() const
-    \obsolete
 
-    Use openMode() instead.
+    Use !(openMode() & QIODevice::Unbuffered) instead.
 */
 
 /*!
     \fn bool QIODevice::isCombinedAccess() const
-    \obsolete
 
     Use openMode() instead.
 */
 
 /*!
     \fn bool QIODevice::isDirectAccess() const
-    \obsolete
 
     Use !isSequential() instead.
 */
 
 /*!
     \fn bool QIODevice::isInactive() const
-    \obsolete
 
     Use isOpen(), isReadable(), or isWritable() instead.
 */
 
 /*!
     \fn bool QIODevice::isRaw() const
-    \obsolete
 
     Use openMode() instead.
 */
 
 /*!
     \fn bool QIODevice::isSequentialAccess() const
-    \obsolete
 
     Use isSequential() instead.
 */
 
 /*!
     \fn bool QIODevice::isSynchronous() const
-    \obsolete
 
-    This function is no longer available.
+    This functionality is no longer available. This function always
+    returns false.
 */
 
 /*!
     \fn bool QIODevice::isTranslated() const
-    \obsolete
 
     Use openMode() instead.
 */
 
 /*!
     \fn bool QIODevice::mode() const
-    \obsolete
 
     Use openMode() instead.
 */
 
-/*!     \fn int QIODevice::putch(int)
-    \obsolete
+/*! \fn int QIODevice::putch(int ch)
 
-    Use putChar() instead.
+    Use putChar(\a ch) instead.
 */
 
-/*!     \fn int QIODevice::ungetch(int)
-    \obsolete
+/*! \fn int QIODevice::ungetch(int ch)
 
-    Use ungetChar() instead.
+    Use ungetChar(\a ch) instead.
 */
 
 /*!
-    \fn Q_LONG QIODevice::readBlock(char *, Q_ULONG)
-    \obsolete
+    \fn quint64 QIODevice::readBlock(char *data, quint64 size)
 
-    Use read() instead.
+    Use read(\a data, \a size) instead.
 */
 
-/*!     \fn int QIODevice::state() const
-    \obsolete
+/*! \fn int QIODevice::state() const
 
     Use isOpen() instead.
 */
 
 /*!
-    \fn Q_LONG QIODevice::writeBlock(const char *, Q_ULONG)
-    \obsolete
+    \fn qint64 QIODevice::writeBlock(const char *data, quint64 size)
 
-    Use write() instead.
+    Use write(\a data, \a size) instead.
 */
 
 /*!
-    \fn Q_LONG QIODevice::writeBlock(const QByteArray &)
-    \obsolete
+    \fn qint64 QIODevice::writeBlock(const QByteArray &data)
 
-    Use write() instead.
+    Use write(\a data) instead.
 */
 
 #if defined QT3_SUPPORT

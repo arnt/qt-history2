@@ -97,7 +97,7 @@ public:
 
     inline Qt::CheckState checkState() const
         { return static_cast<Qt::CheckState>(data(QAbstractItemModel::CheckStateRole).toInt()); }
-    inline void setCheckState(const Qt::CheckState state)
+    inline void setCheckState(Qt::CheckState state)
         { setData(QAbstractItemModel::CheckStateRole, state); }
 
     virtual QVariant data(int role) const;

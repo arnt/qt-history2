@@ -860,7 +860,7 @@ QDataStream &QTableWidgetItem::operator>>(QDataStream &stream)
 }
 
 /*!
-    \class QTableWidget qtablewidget.h
+    \class QTableWidget
     \brief The QTableWidget class provides an item-based table view with a default model.
 
     \ingroup model-view
@@ -1523,15 +1523,29 @@ void QTableWidget::setModel(QAbstractItemModel *model)
 QTableWidgetItemCreatorBase::~QTableWidgetItemCreatorBase() {}
 
 /*!
-    \fn QTableWidgetItemCreator::setItemCreator(QTableWidgetItemCreator *creator)
+    \fn void QTableWidgetItemCreator::setItemCreator(QTableWidgetItemCreatorBase *factory)
+*/
+
+/*!
+    \class QTableWidgetItemCreatorBase
+*/
+
+/*!
+    \fn QTableWidgetItemCreatorBase::~QTableWidgetItemCreatorBase()
+*/
+
+/*!
+    \fn QTableWidgetItem *QTableWidgetItemCreatorBase::createItem() const
 */
 
 /*!
     \class QTableWidgetItemCreator
+
+    \omit Explain that it's a template class, QTableWidgetItemCreator<T> \endomit
 */
 
 /*!
-    \fn QTableWidgetItemCreator::QTableWidgetItemCreator()
+    \fn QTableWidgetItem *QTableWidgetItemCreator::createItem() const
 */
 
 #include "moc_qtablewidget.cpp"

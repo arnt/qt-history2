@@ -781,7 +781,7 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn void QListWidget::itemEntered(QListWidgetItem *item, const QMouseEvent *event)
+    \fn void QListWidget::itemEntered(QListWidgetItem *item)
 
     This signal is emitted when the mouse cursor enters an item. The
     \a item is the item entered. This signal is only emitted when
