@@ -1,16 +1,66 @@
 #include "listviewitemdrag.h"
 #include <qdatastream.h>
 
+QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item );
+QDataStream & operator>> ( QDataStream & stream, QListViewItem & item );
+
+ListViewItemDrag::ListViewItemDrag( ListViewItemList &items, QWidget * parent, const char * name )
+    : QStoredDrag( "qt/listviewitem", parent, name )
+{
+    // ### FIX!
+    QByteArray data( sizeof( Q_INT32 ) + sizeof( QListViewItem ) * items.count() );
+    QDataStream stream( data, IO_WriteOnly );
+
+    stream << (Q_INT32)items.count();
+
+    QListViewItem *i = items.first();
+    while ( i ) {
+        stream << *i;
+	i = items.next();
+    }
+
+    setEncodedData( data );
+}
+
+bool ListViewItemDrag::canDecode( QDragMoveEvent * event )
+{
+    return event->provides( "qt/listviewitem" );
+}
+
+bool ListViewItemDrag::decode( QDropEvent * event, QListView *parent, QListViewItem *below )
+{
+    QByteArray data = event->encodedData( "qt/listviewitem" );
+
+    // Which current??
+    // src->setCurrentItem( item );
+
+    if ( data.size() ) {
+	event->accept();
+	QDataStream stream( data, IO_ReadOnly );
+    
+	int count = 0;
+	stream >> (Q_INT32) count;
+
+	for( int i = 0; i < count; i++ ) {
+	    below = new QListViewItem( parent, below );
+	    stream >> *below;
+	}
+	return TRUE;
+    }
+    return FALSE;
+}
+
+
 QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
 {
-    int columns = item.listView()->columns();    
-    stream << columns;
-
+    int columns = item.listView()->columns();
+    stream << (Q_INT32) columns;
+ 
     Q_UINT8 b = 0;
 
     int i;
     for ( i = 0; i < columns; i++ ) {
-	b = (Q_UINT8) ( item.text( i ) != QString::null ); // column i has string ?
+	b = (Q_UINT8) ( item.text( i ) != QString::null ); // does column i have a string ?
 	stream << b;
 	if ( b ) {
 	    stream << item.text( i );
@@ -18,7 +68,7 @@ QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
     }
     
     for ( i = 0; i < columns; i++ ) {
-	b = (Q_UINT8) ( !!item.pixmap( i ) ); // column i has pixmap ?
+	b = (Q_UINT8) ( !!item.pixmap( i ) ); // does column i have a pixmap ?
 	stream << b;
 	if ( b ) {
 	    stream << ( *item.pixmap( i ) );
@@ -36,11 +86,9 @@ QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
 	stream << (Q_UINT8) item.renameEnabled( i );
     }
 
-    //FIXME: RTTI
-
     stream << (Q_UINT8) item.multiLinesEnabled();
     stream << item.childCount();
-    
+
     if ( item.childCount() > 0 ) {
 	QListViewItem * child = item.firstChild();
 	while ( child ) {
@@ -55,7 +103,7 @@ QDataStream & operator<< ( QDataStream & stream, const QListViewItem & item )
 QDataStream & operator>> ( QDataStream & stream, QListViewItem & item )
 {
     int columns;
-    stream >> columns;
+    stream >> (Q_INT32) columns;
 
     Q_UINT8 b = 0;
 
@@ -101,47 +149,20 @@ QDataStream & operator>> ( QDataStream & stream, QListViewItem & item )
 	item.setRenameEnabled( i, b );
     }
 
-    //FIXME: RTTI
-
     stream >> b;
     item.setMultiLinesEnabled( b );
 
     int childCount;
     stream >> childCount;
 
-    QListViewItem * child;
+    QListViewItem *child = 0;
+    QListViewItem *prevchild = 0;
     for ( i = 0; i < childCount; i++ ) {
-	child = new QListViewItem( &item );
+	child = new QListViewItem( &item, prevchild );
 	stream >> ( *child );
 	item.insertItem( child );
+	prevchild = child;
     }
 
     return stream;
-}
-
-ListViewItemDrag::ListViewItemDrag( QListViewItem * item, QWidget * parent, const char * name )
-    : QStoredDrag( "qt/listviewitem", parent, name ), QListViewItem( item )
-{
-    QByteArray data( sizeof( QListViewItem ) );
-    QDataStream stream( data, IO_WriteOnly );
-    stream << (*item);
-    setEncodedData( data );
-}
-
-bool ListViewItemDrag::canDecode( QDragMoveEvent * event )
-{
-    return event->provides( "qt/listviewitem" );
-}
-
-bool ListViewItemDrag::decode( QDropEvent * event, QListViewItem * item )
-{
-    QByteArray data = event->encodedData( "qt/listviewitem" );
-
-    if ( data.size() ) {
-	event->accept();
-	QDataStream stream( data, IO_ReadOnly );
-	stream >> (*item);
-	return TRUE;
-    }
-    return FALSE;
 }

@@ -26,161 +26,185 @@
 
 void ConfigToolboxDialog::init()
 {
-	listViewTools->setSorting( -1 );
-	listViewCommon->setSorting( -1 );
-	
-	ListViewDnd *toolsDnd = new ListViewDnd( listViewTools );
-	toolsDnd->setDragMode( ListViewDnd::External | ListViewDnd::NullDrop );
-	ListViewDnd *commonDnd = new ListViewDnd( listViewCommon );
-	commonDnd->setDragMode( ListViewDnd::Both | ListViewDnd::Move );
-	
-	QObject::connect( commonDnd, SIGNAL( deleting( QListViewItem * ) ),
-			  this, SLOT( removeDraggedTool( QListViewItem * ) ) );
-	QObject::connect( commonDnd, SIGNAL( added( QListViewItem * ) ),
-			  this, SLOT( addDroppedTool( QListViewItem * ) ) );
-	QObject::connect( toolsDnd, SIGNAL( dropped( QListViewItem * ) ),
-			  commonDnd, SLOT( confirmDrop( QListViewItem * ) ) );
-	QObject::connect( commonDnd, SIGNAL( dropped( QListViewItem * ) ),
-			  commonDnd, SLOT( confirmDrop( QListViewItem * ) ) );
-	
-	QDict<QListViewItem> groups;
-	QAction *a;
-	for ( a = MainWindow::self->toolActions.last(); a;
-	a = MainWindow::self->toolActions.prev() ) {
-		QString grp = ( (WidgetAction*)a )->group();
-		QListViewItem *parent = groups.find( grp );
-		if ( !parent ) {
-			parent = new QListViewItem( listViewTools );
-			parent->setText( 0, grp );
-			parent->setOpen( TRUE );
-			groups.insert( grp, parent );
-		}
-		QListViewItem *i = new QListViewItem( parent );
-		i->setText( 0, a->text() );
-		i->setPixmap( 0, a->iconSet().pixmap() );
+    listViewTools->setSorting( -1 );
+    listViewCommon->setSorting( -1 );
+    
+    ListViewDnd *toolsDnd = new ListViewDnd( listViewTools );
+    toolsDnd->setDragMode( ListViewDnd::External | ListViewDnd::NullDrop | ListViewDnd::Flat );
+
+    ListViewDnd *commonDnd = new ListViewDnd( listViewCommon );
+    commonDnd->setDragMode( ListViewDnd::Both | ListViewDnd::Move | ListViewDnd::Flat );
+    
+    QObject::connect( toolsDnd, SIGNAL( dropped( QListViewItem * ) ),
+			commonDnd, SLOT( confirmDrop( QListViewItem * ) ) );
+    QObject::connect( commonDnd, SIGNAL( dropped( QListViewItem * ) ),
+			commonDnd, SLOT( confirmDrop( QListViewItem * ) ) );
+    
+    QDict<QListViewItem> groups;
+    QAction *a;
+    for ( a = MainWindow::self->toolActions.last(); 
+	  a;
+	  a = MainWindow::self->toolActions.prev() ) {
+	QString grp = ( (WidgetAction*)a )->group();
+	QListViewItem *parent = groups.find( grp );
+	if ( !parent ) {
+	    parent = new QListViewItem( listViewTools );
+	    parent->setText( 0, grp );
+	    parent->setOpen( TRUE );
+	    groups.insert( grp, parent );
 	}
-	for ( a = MainWindow::self->commonWidgetsPage.last(); a;
-	a = MainWindow::self->commonWidgetsPage.prev() ) {
-		QListViewItem *i = new QListViewItem( listViewCommon );
-		i->setText( 0, a->text() );
-		i->setPixmap( 0, a->iconSet().pixmap() );
-	}
-	
+	QListViewItem *i = new QListViewItem( parent );
+	i->setText( 0, a->text() );
+	i->setPixmap( 0, a->iconSet().pixmap() );
+    }
+    for ( a = MainWindow::self->commonWidgetsPage.last(); a;
+    a = MainWindow::self->commonWidgetsPage.prev() ) {
+	QListViewItem *i = new QListViewItem( listViewCommon );
+	i->setText( 0, a->text() );
+	i->setPixmap( 0, a->iconSet().pixmap() );
+    }
+    
 }
 
 
 void ConfigToolboxDialog::addTool()
 {
-	QAction *a = 0;
-	for ( a = MainWindow::self->toolActions.last(); a;
-	a = MainWindow::self->toolActions.prev() ) {
-		if ( a->text() == listViewTools->currentItem()->text( 0 ) )
-			break;
+    QListView *src = listViewTools;
+
+    bool addKids = FALSE;
+    QListViewItem *nextSibling = 0;
+    QListViewItem *nextParent = 0;
+    QListViewItemIterator it = src->firstChild();
+    for ( ; *it; it++ ) {
+	// Hit the nextSibling, turn of child processing
+	if ( (*it) == nextSibling )
+	    addKids = FALSE;
+
+	if ( (*it)->isSelected() ) {
+	    if ( (*it)->childCount() == 0 ) {
+		// Selected, no children
+		QListViewItem *i = new QListViewItem( listViewCommon, listViewCommon->lastItem() );
+		i->setText( 0, (*it)->text(0) );
+		i->setPixmap( 0, *((*it)->pixmap(0)) );
+		listViewCommon->setCurrentItem( i );
+		listViewCommon->ensureItemVisible( i );
+	    } else if ( !addKids ) {
+		// Children processing not set, so set it
+		// Also find the item were we shall quit
+		// processing children...if any such item
+		addKids = TRUE;
+		nextSibling = (*it)->nextSibling();
+		nextParent = (*it)->parent();
+		while ( nextParent && !nextSibling ) {
+		    nextSibling = nextParent->nextSibling();
+		    nextParent = nextParent->parent();
+		}
+	    }
+	} else if ( ((*it)->childCount() == 0) && addKids ) {
+	    // Leaf node, and we _do_ process children
+	    QListViewItem *i = new QListViewItem( listViewCommon, listViewCommon->lastItem() );
+	    i->setText( 0, (*it)->text(0) );
+	    i->setPixmap( 0, *((*it)->pixmap(0)) );
+	    listViewCommon->setCurrentItem( i );
+	    listViewCommon->ensureItemVisible( i );
 	}
-	if ( !a )
-		return;
-	QListViewItem *i = new QListViewItem( listViewCommon, listViewCommon->lastItem() );
-	i->setText( 0, a->text() );
-	i->setPixmap( 0, a->iconSet().pixmap() );
-	listViewCommon->setCurrentItem( i );
-	listViewCommon->ensureItemVisible( i );
-	MainWindow::self->commonWidgetsPage.append( a );
+    }
 }
 
 
 void ConfigToolboxDialog::removeTool()
 {
-	QListViewItem *item = listViewCommon->firstChild();
-	for ( int i = 0; i < listViewCommon->childCount(); ++i ) {
-		if ( item == listViewCommon->currentItem() ) {
-			delete item;
-			MainWindow::self->commonWidgetsPage.remove( i );
-			break;
-		}
-		item = item->itemBelow();
-	}		
+    QListViewItemIterator it = listViewCommon->firstChild();
+    while ( *it ) {
+	if ( (*it)->isSelected() )
+	    delete (*it);
+	else
+	    it++;
+    }
 }
 
 
 void ConfigToolboxDialog::moveToolUp()
 {
-	QListViewItem *item = listViewCommon->firstChild();
-	for ( int i = 0; i < listViewCommon->childCount(); ++i ) {
-		if ( item == listViewCommon->currentItem() ) {
-			item->itemAbove()->moveItem( item );
-			QAction *a = MainWindow::self->commonWidgetsPage.at( i );
-			MainWindow::self->commonWidgetsPage.take( i );
-			MainWindow::self->commonWidgetsPage.insert( i - 1, a );
-			currentCommonToolChanged( item );
-			break;
-		}
-		item = item->itemBelow();
-	}		
+    QListViewItem *next = 0;
+    QListViewItem *item = listViewCommon->firstChild();
+    for ( int i = 0; i < listViewCommon->childCount(); ++i ) {
+	next = item->itemBelow();
+	if ( item->isSelected() && (i > 0) && !item->itemAbove()->isSelected() ) 
+	    item->itemAbove()->moveItem( item );
+	item = next;
+    }
 }
 
 
 void ConfigToolboxDialog::moveToolDown()
 {
-	QListViewItem *item = listViewCommon->firstChild();
-	for ( int i = 0; i < listViewCommon->childCount(); ++i ) {
-		if ( item == listViewCommon->currentItem() ) {
-			item->moveItem( item->itemBelow() );
-			QAction *a = MainWindow::self->commonWidgetsPage.at( i );
-			MainWindow::self->commonWidgetsPage.take( i );
-			MainWindow::self->commonWidgetsPage.insert( i + 1, a );
-			currentCommonToolChanged( item );
-			break;
-		}
-		item = item->itemBelow();
-	}		
+    int count = listViewCommon->childCount();
+    QListViewItem *next = 0;
+    QListViewItem *item = listViewCommon->lastItem();
+    for ( int i = 0; i < count; ++i ) {
+	next = item->itemAbove();
+	if ( item->isSelected() && (i > 0) && !item->itemBelow()->isSelected() ) 
+	    item->moveItem( item->itemBelow() );
+	item = next;
+    }
+
+ //   QListViewItem *item = listViewCommon->firstChild();
+ //   for ( int i = 0; i < listViewCommon->childCount(); ++i ) {
+	//if ( item == listViewCommon->currentItem() ) {
+	//    item->moveItem( item->itemBelow() );
+	//    currentCommonToolChanged( item );
+	//    break;
+	//}
+	//item = item->itemBelow();
+ //   }		
 }
 
 
 void ConfigToolboxDialog::currentToolChanged( QListViewItem *i )
 {
-	buttonAdd->setEnabled( i && i->parent() );
+    bool canAdd = FALSE;
+    QListViewItemIterator it = listViewTools->firstChild();
+    for ( ; *it; it++ ) {
+	if ( (*it)->isSelected() ) {
+	    canAdd = TRUE;
+	    break;
+	}
+    }
+    buttonAdd->setEnabled( canAdd || ( i && i->isSelected() ) );
 }
 
 
 void ConfigToolboxDialog::currentCommonToolChanged( QListViewItem *i )
 {
-	buttonUp->setEnabled( i && i->itemAbove() );
-	buttonDown->setEnabled( i && i->itemBelow() );
-	buttonRemove->setEnabled( i );
+    buttonUp->setEnabled( i && i->itemAbove() );
+    buttonDown->setEnabled( i && i->itemBelow() );
+
+    bool canRemove = FALSE;
+    QListViewItemIterator it = listViewCommon->firstChild();
+    for ( ; *it; it++ ) {
+	if ( (*it)->isSelected() ) {
+	    canRemove = TRUE;
+	    break;
+	}
+    }
+    buttonRemove->setEnabled( canRemove || ( i && i->isSelected() ) );
 }
 
 
-void ConfigToolboxDialog::addDroppedTool( QListViewItem *i )
+void ConfigToolboxDialog::ok()
 {
-	QAction *a = 0;
-	for ( a = MainWindow::self->toolActions.last(); a;
-	a = MainWindow::self->toolActions.prev() ) {
-		if ( a->text() == i->text( 0 ) ) // FIXME: signal may be recieved _after_ i has been deleted
-			break;
+    MainWindow::self->commonWidgetsPage.clear();
+    QListViewItem *item = listViewCommon->firstChild();
+    for ( int j = 0; j < listViewCommon->childCount(); item = item->itemBelow(), ++j ) {
+        QAction *a = 0;
+	for ( a = MainWindow::self->toolActions.last(); 
+	    a;
+	    a = MainWindow::self->toolActions.prev() ) {
+	    if ( a->text() == item->text( 0 ) )
+		break;
 	}
-	if ( !a )
-		return;
-	
-	int j = 0;
-	QListViewItem *f = 0;
-	for ( f = i->listView()->firstChild(); j < i->listView()->childCount();
-	f = f->itemBelow(), ++j ) {
-		if ( f == i )
-			break;
-	}
-	
-	bool ok = MainWindow::self->commonWidgetsPage.insert( j, a );
-	// FIXME: check return value
-}
-
-void ConfigToolboxDialog::removeDraggedTool( QListViewItem *i )
-{
-	QListViewItem *item = listViewCommon->firstChild();
-	for ( int j = 0; j < listViewCommon->childCount(); ++j ) {
-		if ( item == i ) {
-			MainWindow::self->commonWidgetsPage.remove( j );
-			break;
-		}
-		item = item->itemBelow();
-	}
+	if ( a )
+	    MainWindow::self->commonWidgetsPage.insert( j, a );
+    }
 }

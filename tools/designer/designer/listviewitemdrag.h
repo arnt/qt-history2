@@ -3,15 +3,18 @@
 
 #include <qdragobject.h>
 #include <qlistview.h>
+#include <qvaluelist.h>
 
-class ListViewItemDrag : public QStoredDrag, public QListViewItem
+typedef QPtrList<QListViewItem> ListViewItemList;
+
+class ListViewItemDrag : public QStoredDrag
 {
 public:
-    ListViewItemDrag( QListViewItem * item, QWidget * parent = 0, const char * name = 0 );
+    ListViewItemDrag( ListViewItemList &items, QWidget * parent = 0, const char * name = 0 );
     ~ListViewItemDrag() {};
 
     static bool canDecode( QDragMoveEvent * event );
-    static bool decode( QDropEvent * event, QListViewItem * item );
+    static bool decode( QDropEvent * event, QListView *parent, QListViewItem *below );
 };
 
 #endif // LISTVIEWITEMDRAG_H

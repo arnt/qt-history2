@@ -6,19 +6,17 @@
 #include <qlistview.h>
 
 ListViewDnd::ListViewDnd( QListView * eventSource, const char *name )
-    : QObject( eventSource, name )
+    : QObject( eventSource, name ), 
+      dragInside( FALSE ), dragDelete( TRUE ), dropConfirmed( FALSE ), dMode( Both )
 {
     src = eventSource;
     src->setAcceptDrops( true );
     src->installEventFilter( this );
 
-    dragInside = FALSE;
-    dragDelete = TRUE;
-    dropConfirmed = FALSE;
-    dMode = Both;
-
     line = new QWidget( src->viewport(), 0, Qt::WStyle_NoBorder | WStyle_StaysOnTop );
-    line->resize( src->viewport()->width(), 1 );
+    line->setBackgroundColor( Qt::black );
+    line->resize( src->viewport()->width(), 2 );
+    line->hide();
     
 }
 
@@ -73,8 +71,12 @@ bool ListViewDnd::dragEnterEvent( QDragEnterEvent * event )
 	dragInside = TRUE;
 	if ( !( dMode & NullDrop ) ) {
 	    dragPos = event->pos();
-	    line->resize( src->viewport()->width(), 1 );
-	    line->move( 0, moveItemTo( 0, dragPos ) );
+	    line->resize( src->viewport()->width(), line->height() );
+	    QListViewItem *item = itemAt(dragPos);
+	    int pos = item ? 
+		( src->itemRect( item ).bottom() - ( line->height() / 2 ) ) : 
+		( src->itemRect( src->firstChild() ).top() );
+	    line->move( 0, pos );
 	    line->show();
 	}
     }
@@ -92,8 +94,12 @@ bool ListViewDnd::dragLeaveEvent( QDragLeaveEvent * )
 bool ListViewDnd::dragMoveEvent( QDragMoveEvent * event )
 {
     if ( dragInside && dMode && !( dMode & NullDrop ) ) {
-	dragPos = event->pos();
-	line->move( 0, moveItemTo( 0, dragPos ) );
+	QPoint dragPos = event->pos();
+	QListViewItem *item = itemAt(dragPos);
+	int pos = item ? 
+	    ( src->itemRect( item ).bottom() - ( line->height() / 2 ) ) : 
+	    ( src->itemRect( src->firstChild() ).top() );
+	line->move( 0, pos );
     }
     return TRUE;
 }
@@ -108,17 +114,10 @@ bool ListViewDnd::dropEvent( QDropEvent * event )
 	    return TRUE;
 	}
 	
-	QListViewItem * item = new QListViewItem( src );
-
-	if ( ListViewItemDrag::decode( event, item ) ) {
+	QPoint pos = event->pos();
+	if ( ListViewItemDrag::decode( event, src, itemAt( pos ) ) ) {
 	    event->accept();
-	    emit dropped( item );
-	    src->insertItem( item );
-	    QPoint pos = event->pos();
-	    moveItemTo( item, pos );
-	    src->setCurrentItem( item );
-	    src->ensureItemVisible( item );
-	    emit added( item ); // NOTE: signal is emitted _after_ item has been added
+	    emit dropped( 0 ); // Use ID instead of item?
 	}
     }
 
@@ -139,56 +138,80 @@ bool ListViewDnd::mouseMoveEvent( QMouseEvent * event )
 {
     if ( event->state() & LeftButton ) {
 	if ( ( event->pos() - mousePressPos ).manhattanLength() > 3 ) {
-	    QListViewItem * item = src->selectedItem();
-	    ListViewItemDrag * dragobject = new ListViewItemDrag( item, src );
+	    ListViewItemList list;
+
+	    if ( dMode & Flat )
+		buildFlatList( list );
+	    else
+		buildTreeList( list );
+
+	    ListViewItemDrag * dragobject = new ListViewItemDrag( list, src );
+
 	    dragobject->dragCopy();
-	    emit dragged( item );
+	    // Did the target accept the drop?
 	    if ( ( dMode & Move ) && dropConfirmed ) {
-		emit deleting( item ); // NOTE: signal is emitted _before_ item is deleted
-		//delete item;
-		src->takeItem( item ); //FIXME: memleak
+		// Shouldn't autoDelete handle this?
+		for( list.first(); list.current(); list.next() ) 
+		    delete list.current();
 		dropConfirmed = FALSE;
 	    }
 	}
     }
     return FALSE;
 }
-
-int ListViewDnd::moveItemTo( QListViewItem * item, QPoint & pos )
+int ListViewDnd::buildFlatList( ListViewItemList &list )
 {
-    QListViewItem * current = src->firstChild();
-    QListViewItem * below;
-    int top, mid, bot, line = 0;
-    QPoint vp = src->viewportToContents( pos );
-    int y = vp.y() - src->header()->height();
+    bool addKids = FALSE;
+    QListViewItem *nextSibling = 0;
+    QListViewItem *nextParent = 0;
+    QListViewItemIterator it = src->firstChild();
+    for ( ; *it; it++ ) {
+	// Hit the nextSibling, turn of child processing
+	if ( (*it) == nextSibling )
+	    addKids = FALSE;
 
-    while ( current ) {
-
-	top = current->itemPos();
-	mid = top + current->height() / 2;
-	bot = top + current->height();
-
-	if ( y >= top && y < mid ) { // in upper half of item
-	    line = top; // line above current item
-	    break; // insert above
-	}
-
-	line = bot; // line below current item
-	below = current->itemBelow();
-
-	if ( !below ) {
-	    break; // always return last item if we are at the end of the list
-	}
-
-	current = below; // next item
-	
-	if ( y >= mid && y <= bot ) { // in lower half of item
-	    break; // insert below
+	if ( (*it)->isSelected() ) {
+	    if ( (*it)->childCount() == 0 ) {
+		// Selected, no children
+		list.append( *it );
+	    } else if ( !addKids ) {
+		// Children processing not set, so set it
+		// Also find the item were we shall quit
+		// processing children...if any such item
+		addKids = TRUE;
+		nextSibling = (*it)->nextSibling();
+		nextParent = (*it)->parent();
+		while ( nextParent && !nextSibling ) {
+		    nextSibling = nextParent->nextSibling();
+		    nextParent = nextParent->parent();
+		}
+	    }
+	} else if ( ((*it)->childCount() == 0) && addKids ) {
+	    // Leaf node, and we _do_ process children
+	    list.append( *it );
 	}
     }
+    return list.count();
+}
 
-    if ( item ) // if item is 0, this function was only used to find line
-	item->moveItem( current );
-   
-    return line + ( pos.y() - vp.y() );
+int ListViewDnd::buildTreeList( ListViewItemList &list )
+{
+    QListViewItemIterator it = src->firstChild();
+    for ( ; *it; it++ ) {
+	if ( (*it)->isSelected() )
+	    list.append( *it );
+    }
+    return list.count();
+}
+
+QListViewItem *ListViewDnd::itemAt( QPoint & pos )
+{
+    pos.ry() -= src->header()->height() * 1.5;
+    QListViewItem *result = src->itemAt( pos );
+    while ( result && result->parent() )
+	result = result->parent();
+    if ( !result && src->firstChild() )
+	if ( pos.y() > src->itemRect( src->firstChild() ).bottom() )
+	    result = src->lastItem();
+    return result;
 }

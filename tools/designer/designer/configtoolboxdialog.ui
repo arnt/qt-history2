@@ -116,6 +116,9 @@
                     <property name="name">
                         <cstring>listViewTools</cstring>
                     </property>
+                    <property name="selectionMode">
+                        <enum>Extended</enum>
+                    </property>
                     <property name="resizeMode">
                         <enum>LastColumn</enum>
                     </property>
@@ -156,6 +159,9 @@
                     <property name="name">
                         <cstring>listViewCommon</cstring>
                     </property>
+                    <property name="selectionMode">
+                        <enum>Extended</enum>
+                    </property>
                     <property name="resizeMode">
                         <enum>LastColumn</enum>
                     </property>
@@ -171,7 +177,7 @@
                         <string></string>
                     </property>
                     <property name="pixmap">
-                        <pixmap>s_down.png</pixmap>
+                        <pixmap></pixmap>
                     </property>
                 </widget>
                 <spacer row="1" column="1">
@@ -202,7 +208,7 @@
                         <string></string>
                     </property>
                     <property name="pixmap">
-                        <pixmap>s_up.png</pixmap>
+                        <pixmap></pixmap>
                     </property>
                 </widget>
             </grid>
@@ -236,13 +242,13 @@
     </connection>
     <connection>
         <sender>listViewTools</sender>
-        <signal>currentChanged(QListViewItem*)</signal>
+        <signal>clicked(QListViewItem*)</signal>
         <receiver>ConfigToolboxDialog</receiver>
         <slot>currentToolChanged(QListViewItem*)</slot>
     </connection>
     <connection>
         <sender>listViewCommon</sender>
-        <signal>currentChanged(QListViewItem*)</signal>
+        <signal>clicked(QListViewItem*)</signal>
         <receiver>ConfigToolboxDialog</receiver>
         <slot>currentCommonToolChanged(QListViewItem*)</slot>
     </connection>
@@ -258,6 +264,24 @@
         <receiver>ConfigToolboxDialog</receiver>
         <slot>reject()</slot>
     </connection>
+    <connection>
+        <sender>PushButton3</sender>
+        <signal>clicked()</signal>
+        <receiver>ConfigToolboxDialog</receiver>
+        <slot>ok()</slot>
+    </connection>
+    <connection>
+        <sender>listViewCommon</sender>
+        <signal>doubleClicked(QListViewItem*)</signal>
+        <receiver>ConfigToolboxDialog</receiver>
+        <slot>removeTool()</slot>
+    </connection>
+    <connection>
+        <sender>listViewTools</sender>
+        <signal>doubleClicked(QListViewItem*)</signal>
+        <receiver>ConfigToolboxDialog</receiver>
+        <slot>addTool()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">configtoolboxdialog.ui.h</include>
@@ -269,8 +293,7 @@
     <slot>moveToolDown()</slot>
     <slot>currentToolChanged( QListViewItem * i )</slot>
     <slot>currentCommonToolChanged( QListViewItem * i )</slot>
-    <slot>addDroppedTool( QListViewItem * i )</slot>
-    <slot>removeDraggedTool( QListViewItem * i )</slot>
+    <slot>ok()</slot>
 </slots>
 <functions>
     <function access="private">init()</function>
