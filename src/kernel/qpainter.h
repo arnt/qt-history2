@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#1 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#2 $
 **
 ** Definition of QPainter class
 **
@@ -175,7 +175,7 @@ private:
     int	      extPDev	 : 1;			// external paint device
     int	      sx, sy, sw, sh;			// source rect
     int	      tx, ty, tw, th;			// target rect
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
     HDC	      hdc;				// device context
 #elif defined(_WS_PM_)
     HPS	      hps;				// presentation space

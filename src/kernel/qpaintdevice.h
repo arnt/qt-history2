@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#3 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#4 $
 **
 ** Definition of QPaintDevice class
 **
@@ -88,7 +88,7 @@ protected:
     int	     devType()	      const { return devFlags & PDT_MASK; }
     void     setDevType( uint t )   { devFlags = t; }
 				
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
     HDC	     hdc;				// device context
 #elif defined(_WS_PM_)
     HPS	     hps;				// presentation space

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#1 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#2 $
 **
 ** Definition of QRegion class
 **
@@ -44,7 +44,7 @@ public:
 
 private:
     struct QRegionData : QShared {		// region data
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
 	HANDLE rgn;
 #elif defined(_WS_PM_)
 	HANDLE rgn;

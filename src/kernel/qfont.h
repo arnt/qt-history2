@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#1 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#2 $
 **
 ** Definition of QFont class
 **
@@ -42,8 +42,9 @@ public:
 
 private:
     struct QFontData : QShared {		// font data
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
 	HANDLE hfont;
+#elif defined(_WS_PM_)
 #elif defined(_WS_X11_)
 	QXFontStruct *f;
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#1 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#2 $
 **
 ** Definition of QFontMetrics class
 **
@@ -28,7 +28,8 @@ public:
     int	 width( const char *, int len = -1 ) const;
 
 private:
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
+#elif defined(_WS_PM_)
 #elif defined(_WS_X11_)
     QXFontStruct *f;
 #endif

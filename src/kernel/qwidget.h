@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#1 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#2 $
 **
 ** Definition of QWidget class
 **
@@ -121,7 +121,7 @@ protected:
 
 #if defined(_WS_MAC_)
     virtual bool macEvent( MSG * );		// Macintosh event
-#elif defined(_WS_WIN_) || defined(_WS_WIN32_)
+#elif defined(_WS_WIN_)
     virtual bool winEvent( MSG * );		// Windows (+NT) event
 #elif defined(_WS_PM_)
     virtual bool pmEvent( QMSG * );		// OS/2 PM event
@@ -143,8 +143,7 @@ protected:
     void     setNCRect( const QRect & );	// set ncrect, update rect
     static   ulong nWidgets();			// get number of widgets
 
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
-#elif defined(_WS_PM_)
+#if defined(_WS_PM_)
     int	     convertYPos( int );
     void     reposChildren();
     WId	     frm_wnd;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#1 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#2 $
 **
 ** Definition of QBrush class
 **
@@ -40,7 +40,7 @@ public:
     void      setColor( const QColor & );
 
 private:
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
     bool      update( HDC );
 #elif defined(_WS_PM_)
     bool      update( HPS );
@@ -48,7 +48,7 @@ private:
     struct QBrushData : QShared {		// brush data
 	BrushStyle style;
 	QColor	  color;
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
 	HANDLE	  hbrush;
 	HANDLE	  hbmp;
 	int	  invalid    : 1;

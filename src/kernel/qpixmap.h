@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#1 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#2 $
 **
 ** Definition of QPixMap class
 **
@@ -36,7 +36,7 @@ public:
 private:
     QSize  sz;					// size of pixmap
     int	   bitPlanes;				// # bit planes
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
     HANDLE allocMemDC();
     void   freeMemDC();
     HANDLE hbm;					// bitmap

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#2 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#3 $
 **
 ** Definition of QCursor class
 **
@@ -38,7 +38,7 @@ private:
     void   update();
     int	   cshape;
     static QCursor *locate( int );
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
     HANDLE hcurs;
 public:
     HANDLE handle() const { return hcurs; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#1 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#2 $
 **
 ** Definition of QPen class
 **
@@ -40,7 +40,7 @@ public:
     void      setColor( const QColor & );
 
 private:
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
     bool      update( HDC );
 #elif defined(_WS_PM_)
     bool      update( HPS );
@@ -49,7 +49,7 @@ private:
 	PenStyle  style;
 	uint	  width;
 	QColor	  color;
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
 	HANDLE	  hpen;
 	int	  invalid  : 1;
 	bool	  stockPen : 1;

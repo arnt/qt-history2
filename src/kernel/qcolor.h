@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#4 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#5 $
 **
 ** Definition of QColor class
 **
@@ -20,6 +20,7 @@ const ulong RGB_DIRTY = 0x80000000;		// flags unset color
 const ulong RGB_INVALID = 0x40000000;		// flags invalid color
 const ulong RGB_MASK = 0x00ffffff;		// masks RGB values
 
+
 class QColor					// RGB based color
 {
 public:
@@ -37,7 +38,7 @@ public:
     bool   setNamedColor( const char *name );	// load color from database
 
     void   getRGB( int *r, int *g, int *b ) const; // get RGB value
-    ulong  getRGB() const { return rgb & 0x7fffffff; }
+    ulong  getRGB() const { return rgb & RGB_MASK; }
     bool   setRGB( int r, int g, int b );	// set RGB value
     bool   setRGB( ulong rgb );
 
@@ -48,14 +49,15 @@ public:
     void   getHSV( int *h, int *s, int *v ) const; // get HSV value
     bool   setHSV( int h, int s, int v );	// set HSV value
     
-    bool   isValid()const { return !(rgb & 0x80000000); }
+    bool   isValid()const { return (rgb & RGB_INVALID) == 0; }
+    bool   isDirty()const { return (rgb & RGB_DIRTY) == RGB_DIRTY; }
 
     QColor light( double f = 1.12) const;	// get lighter color
     QColor dark( double f = 2.0 )  const;	// get darker color
 
     ulong  pixel()  const;			// get pixel value
 
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
     static HANDLE hPal()  { return hpal; }
     static uint	  realizePal( QWidget * );
 #endif
@@ -65,7 +67,7 @@ public:
 
 private:
     static bool aalloc;
-#if defined(_WS_WIN_) || defined(_WS_WIN32_)
+#if defined(_WS_WIN_)
     static HANDLE hpal;
     ulong  pix;
 #elif defined(_WS_PM_)
@@ -77,12 +79,19 @@ private:
 };
 
 
+#if defined(_WS_WIN_) || defined(_WS_PM_)
 inline ulong QColor::pixel() const
 {
-    if ( rgb & RGB_DIRTY )
+    return pix;
+}
+#else
+inline ulong QColor::pixel() const
+{
+    if ( isDirty() )
 	((QColor*)this)->alloc();
     return pix;
 }
+#endif
 
 
 // --------------------------------------------------------------------------
