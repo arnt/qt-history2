@@ -116,6 +116,34 @@ static QString getFmtString(const QString& f, const QTime* dt = 0, const QDate* 
     return buf;
 }
 
+// checks if there is an unqoted 'AP' or 'ap' in the string
+static bool hasUnqutedAP(const QString &f)
+{
+    const QLatin1Char quote('\'');
+    QChar status = QLatin1Char('0');
+    for (int i=0; i<f.size(); ++i) {
+        if (f.at(i) == quote) {
+            if (status == quote) {
+                if (f.at(i - 1) != '\\')
+                    status = QLatin1Char('0');
+            } else {
+                status = quote;
+            }
+        } else if (status != quote) {
+            if (f.at(i).toUpper() == QLatin1Char('A')) {
+                status = f.at(i);
+            } else if ((f.at(i) == 'p' && status == QLatin1Char('a')) || (f.at(i) == 'P' && status == QLatin1Char('A'))) {
+                return true;
+                break;
+            } else {
+                status = QLatin1Char('0');
+            }
+        }
+    }
+
+    return false;
+}
+
 // Parses the format string and uses getFmtString to get the values for the tokens. Ret
 static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* dd = 0)
 {
@@ -126,35 +154,48 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
     if (dd && !dd->isValid())
         return QString();
 
-    bool ap = (f.contains(QLatin1String("AP"), Qt::CaseInsensitive));
+    bool ap = hasUnqutedAP(f);
 
     QString buf;
     QString frm;
+    const QLatin1Char quote('\'');
     QChar status = QLatin1Char('0');
 
     for (int i = 0; i < (int)f.length(); ++i) {
-
-        if (f[i] == status) {
-            if ((ap) && ((f[i] == QLatin1Char('P')) || (f[i] == QLatin1Char('p'))))
+        if (f.at(i) == quote){
+            if (status == quote) {
+                if (!buf.isEmpty() && f.at(i - 1) == QLatin1Char('\\')) {
+                    buf[buf.length() - 1] = quote;
+                } else {
+                    status = QLatin1Char('0');
+                }
+            } else {
+                status = quote;
+            }
+        } else if (status == quote) {
+            buf += f.at(i);
+        } else if (f.at(i) == status) {
+            if ((ap) && ((f.at(i) == QLatin1Char('P')) || (f.at(i) == QLatin1Char('p'))))
                 status = QLatin1Char('0');
-            frm += f[i];
+            frm += f.at(i);
         } else {
             buf += getFmtString(frm, dt, dd, ap);
             frm.clear();
-            if ((f[i] == QLatin1Char('h')) || (f[i] == QLatin1Char('m')) || (f[i] == QLatin1Char('s')) || (f[i] == QLatin1Char('z'))) {
-                status = f[i];
-                frm += f[i];
-            } else if ((f[i] == QLatin1Char('d')) || (f[i] == QLatin1Char('M')) || (f[i] == QLatin1Char('y'))) {
-                status = f[i];
-                frm += f[i];
-            } else if ((ap) && (f[i] == QLatin1Char('A'))) {
+            if ((f.at(i) == QLatin1Char('h')) || (f.at(i) == QLatin1Char('m'))
+                || (f.at(i) == QLatin1Char('s')) || (f.at(i) == QLatin1Char('z'))) {
+                status = f.at(i);
+                frm += f.at(i);
+            } else if ((f.at(i) == QLatin1Char('d')) || (f.at(i) == QLatin1Char('M')) || (f.at(i) == QLatin1Char('y'))) {
+                status = f.at(i);
+                frm += f.at(i);
+            } else if ((ap) && (f.at(i) == QLatin1Char('A'))) {
                 status = QLatin1Char('P');
-                frm += f[i];
-            } else  if((ap) && (f[i] == QLatin1Char('a'))) {
+                frm += f.at(i);
+            } else  if((ap) && (f.at(i) == QLatin1Char('a'))) {
                 status = QLatin1Char('p');
-                frm += f[i];
+                frm += f.at(i);
             } else {
-                buf += f[i];
+                buf += f.at(i);
                 status = QLatin1Char('0');
             }
         }
@@ -803,7 +844,9 @@ QString QDate::toString(Qt::DateFormat f) const
     \row \i yyyy \i the year as four digit number (1752 to 8000)
     \endtable
 
-    All other input characters will be ignored.
+    All other input characters will be ignored. Any sequence of characters that
+    are enclosed in singlequotes will be treated as text and not be used as an
+    expression.
 
     Example format strings (assuming that the QDate is the
     20<sup><small>th</small></sup> July 1969):
@@ -811,6 +854,7 @@ QString QDate::toString(Qt::DateFormat f) const
     \header \i Format \i Result
     \row \i dd.MM.yyyy    \i 20.07.1969
     \row \i ddd MMMM d yy \i Sun July 20 69
+    \row \i 'The day is' dddd \i The day is Sunday
     \endtable
 
     If the datetime is invalid, an empty string will be returned.
@@ -1439,7 +1483,9 @@ QString QTime::toString(Qt::DateFormat f) const
          \i use am/pm display. \e ap will be replaced by either "am" or "pm".
     \endtable
 
-    All other input characters will be ignored.
+    All other input characters will be ignored. Any sequence of characters that
+    are enclosed in singlequotes will be treated as text and not be used as an
+    expression.
 
     Example format strings (assuming that the QTime is 14:13:09.042)
 
@@ -2284,7 +2330,9 @@ QString QDateTime::toString(Qt::DateFormat f) const
             \i use am/pm display. \e ap will be replaced by either "am" or "pm".
     \endtable
 
-    All other input characters will be ignored.
+    All other input characters will be ignored. Any sequence of characters that
+    are enclosed in singlequotes will be treated as text and not be used as an
+    expression.
 
     Example format strings (assumed that the QDateTime is
     21<small><sup>st</sup></small> May 2001 14:13:09)
