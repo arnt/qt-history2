@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#35 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#36 $
 #
 # this is a massive hack, written very quickly
 #
@@ -714,8 +714,12 @@ sub printout {
 
 	    if (defined($members{$url})) {
 		my (%m, $mode);
-		print O "<p>\n", $brief{$url}, "\n"
-		    if (defined($brief{$url}));
+		if (defined($brief{$url})) {
+		    print O "<p>\n", $brief{$url}, "\n";
+		    print O "(<a href=#details>Details</a>.)\n"
+			if ($doc{$url} ne "");
+		}
+
 		undef %m;
 		$mode = "Private";
 		foreach (split(/;/, $members{$url})) {
@@ -787,19 +791,22 @@ sub printout {
 				my($name);
 				$name = $1;
 				$_ = &html($_);
-				s;(\w+[^:\(\{]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
+				s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
 			    } else {
 				$_ = &html($_);
-				s;(\w+[^:\(\{]*)\b(\w+);$1<strong>$2</strong>;s;
+				s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong>$2</strong>;s;
 			    }
 			}
 			print O "<li>", $_, "\n";
 		    }
 		    print O "</ul>\n";
 		}
-		print O "<p><h2>Detailed Description</h2>\n", $doc{$url}, "\n";
+		print O "<p><h2>Detailed Description</h2>\n";
+		print O $brief{$url}, "\n<p><a name=details>\n</a>" 
+		    if ($brief{$url} =~ /\S/s);
+		print O $doc{$url}, "\n";
 	    }
-	} elsif (($type{$url} eq "fn") && ($doc{$url} =~ /\S/)) {
+	} elsif (($type{$url} eq "fn") && ($doc{$url} =~ /\S/s)) {
 	    my ($name);
 	    print O $fnheader;
 	    $fnheader = "";
@@ -845,7 +852,7 @@ EOTAIL
 }
 
 
-umask 111;
+umask 0x111;
 $cfile = "VOLD";
 #$debug = 1;
 $internal = 1;
