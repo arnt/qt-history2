@@ -747,7 +747,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(project->first("TEMPLATE") == "app") {
 	    if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
 		targ += ".app";
-	} else if(!project->isActiveConfig("staticlib") &&
+	} else if(!project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin") && 
 	   !project->isActiveConfig("frameworklib")) {
 	    QString li[] = { "TARGET_", "TARGET_x", "TARGET_x.y", QString::null };
 	    for(int n = 0; !li[n].isNull(); n++) {
@@ -787,12 +787,14 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    sht << "#!/bin/sh" << endl;
 	    //copy the actual target
 	    sht << "OUT_TARG=\"${TARGET_BUILD_DIR}/${FULL_PRODUCT_NAME}\"\n" 
-                << "[ \"$OUT_TARG\" = \"" 
+                << "if [ -e \"$OUT_TARG\" ]; then" << "\n"
+                << "  [ \"$OUT_TARG\" = \"" 
 		<< (dstdir.isEmpty() ? QDir::currentDirPath() + QDir::separator(): dstdir) << targ << "\" ] || " 
 		<< "[ \"$OUT_TARG\" = \"" << targ << "\" ] || " 
-		<< "cp -r \"$OUT_TARG\" " << "\"" << dstdir << targ << "\"" << endl;
+		<< "cp -r \"$OUT_TARG\" " << "\"" << dstdir << targ << "\"" << "\n"
+                << "fi" << endl;
 	    //rename as a framework
-	    if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("frameworklib"))
+	    if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("frameworklib") && !project->isActiveConfig("plugin"))
 		sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << targ << "\"" << endl;
 	    //create all the version symlinks (just to be like unixmake)
 	    for(QStringList::Iterator it = links.begin(); it != links.end(); ++it) {
