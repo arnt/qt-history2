@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#105 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#106 $
 **
 ** Implementation of QTextStream class
 **
@@ -1194,7 +1194,7 @@ QTextStream &QTextStream::operator>>( char *s )
 QTextStream &QTextStream::operator>>( QString &str )
 {
     CHECK_STREAM_PRECOND
-    str="";
+    str=QString::fromLatin1("");
     QChar	c = eat_ws();
 
     while ( c != QEOF ) {
@@ -1299,24 +1299,24 @@ QString QTextStream::read()
 #endif
     QString   result;
     QChar     c = ts_getc();
-    bool      skipcr = TRUE;
+    bool      skipped_cr = FALSE;
 
     while ( c != QEOF ) {
 	if ( c == '\r' ) {
 	    // Only skip single cr's preceeding lf's
-	    if ( skipcr ) {
-		skipcr = FALSE;
-	    } else {
+	    if ( skipped_cr ) {
 		result += c;
+	    } else {
+		skipped_cr = TRUE;
 	    }
 	} else {
-	    if ( c == '\n' ) {
-		if ( skipcr ) {
+	    if ( c != '\n' ) {
+		if ( skipped_cr ) {
 		    // Should not have skipped it, append now
 		    result += '\r';
 		}
 	    }
-	    skipcr = TRUE;
+	    skipped_cr = FALSE;
 	    result += c;
 	}
 	c = ts_getc();
