@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#235 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#236 $
 **
 ** Implementation of QApplication class
 **
@@ -691,29 +691,26 @@ int QApplication::colorSpec()
   The choices are:
   <ul>
   <li> \c QApplication::NormalColor.
-    This is the default color allocation strategy.
-    Use this choice if your application uses buttons, menus,
-    texts and pixmaps with few colors.
-    With this choice, the application allocates system global colors.
-    This work fine for most applications under X11, but Windows dithers to
-    the 20 standard colors unless the display has true color support (more
-    than 256 colors).
+    This is the default color allocation strategy.  Use this choice if
+    your application uses buttons, menus, texts and pixmaps with few
+    colors.  With this choice, the application allocates system global
+    colors.  This work fine for most applications under X11, but on
+    Windows machines it can cause dithering of non-standard colours in
+    256-color mode.
 
   <li> \c QApplication::CustomColor.
-    Use this choice if your application needs a small number of
-    custom colors.  This choice only makes a difference on Windows
-    - the application gets more colors when it is active, but the
-    background windows look less good.
-    Under X11 this is the same as \c
-    NormalColor. Under Windows, Qt creates a Windows palette if the display
-    supports 256 colors.
-
+    Use this choice if your application needs a small number of custom
+    colors.  This choice only makes a difference on Windows - the
+    application gets more colors when it is active, but the background
+    windows look less good.  Under X11 this is the same as \c
+    NormalColor. Under Windows, Qt creates a Windows palette if the
+    display supports 256 colors.
+    
   <li> \c QApplication::ManyColor.
     Use this choice if your application is very color hungry
     (e.g. it wants thousands of colors).
-    Under Windows, this is equal to \c CustomColor.
-    Under X11 the effect is:
-    <ul>
+    Under Windows, this is currently the same as \c CustomColor.
+    Under X11 the effect is: <ul>
       <li> For 256-color displays which have at best a 256 color true color
 	    visual, the default visual is used, and a colors are allocated
 	    from a color cube.
@@ -723,9 +720,11 @@ int QApplication::colorSpec()
 	    the \link QApplication::QApplication() -visual \endlink
 	    option.
       <li> For 256-color displays which have a true color visual with more
-	    than 256 colors, use that visual.  Silicon Graphics X servers
-	    have this feature. They provide an 8 bit visual as default but
-	    can deliver true color when asked.
+            than 256 colors, use that visual.  Silicon Graphics X
+            servers have this feature, for eample.  They provide an 8
+            bit visual by default but can deliver true color when
+            asked.
+
     </ul>
   </ul>
 
