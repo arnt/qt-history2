@@ -1228,7 +1228,7 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         rect.setBottom(layoutWraps == 0 ? flowPosition : bounds.bottom());
     }
     resizeContents(rect.right(), rect.bottom());
-    // if the new items are visble, repaint the viewport
+    // if the new items are visble, update the viewport
     QRect changedRect(topLeft, rect.bottomRight());
     if (clipRegion().boundingRect().intersects(changedRect))
         d->viewport->update();
@@ -1307,37 +1307,17 @@ void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
         }
     }
     d->translate = deltaWrapPosition;
-
-    int insertFrom = first;
     resizeContents(rect.width(), rect.height());
-
-    QModelIndex bottomRight = model()->index(0, 0, root());
-    if (first == 0 || last >= bottomRight.row()) { // resize tree
-
-        // remove all items from the tree
-        int leafCount = d->tree.leafCount();
-        for (int i = 0; i < leafCount; ++i)
-            d->tree.clearLeaf(i);
+    // resize tree
+    int insertFrom = first;
+    if (first == 0 || last >= model()->rowCount(root()) - 1) {
+        d->initBinaryTree(rect.size());
         insertFrom = 0;
-
-        int h = d->contentsSize.height();
-        int w = d->contentsSize.width();
-
-        // initialize tree
-        // we have to get the bounding rect of the items before we can initialize the tree
-        QBinTree<QListViewItem>::Node::Type type =
-            QBinTree<QListViewItem>::Node::Both; // use 2D bsp by default
-        if (h / w >= 3)    // simple heuristics to get better bsp
-            type = QBinTree<QListViewItem>::Node::HorizontalPlane;
-        else if (w / h >= 3)
-            type = QBinTree<QListViewItem>::Node::VerticalPlane;
-        d->tree.init(QRect(0, 0, w, h), type); // build tree for bounding rect (not contents rect)
     }
-
     // insert items in tree
-    for (int i = insertFrom; i <= last; ++i)
-        d->tree.climbTree(d->tree.item(i).rect(), &QBinTree<QListViewItem>::insert, i);
-
+    for (int row = insertFrom; row <= last; ++row)
+        d->tree.climbTree(d->tree.item(row).rect(), &QBinTree<QListViewItem>::insert, row);
+    // if the new items are visble, update the viewport
     QRect changedRect(topLeft, rect.bottomRight());
     if (clipRegion().boundingRect().intersects(changedRect))
         d->viewport->update();
@@ -1689,6 +1669,23 @@ QPoint QListViewPrivate::initDynamicLayout(const QRect &bounds, int spacing, int
             y += (gridSize.isValid() ? gridSize.height() : item.h) + spacing;
     }
     return QPoint(x, y);
+}
+
+void QListViewPrivate::initBinaryTree(const QSize &contents)
+{
+    // remove all items from the tree
+    int leafCount = tree.leafCount();
+    for (int l = 0; l < leafCount; ++l)
+        d->tree.clearLeaf(l);
+    // we have to get the bounding rect of the items before we can initialize the tree
+    QBinTree<QListViewItem>::Node::Type type = QBinTree<QListViewItem>::Node::Both; // 2D
+    // simple heuristics to get better bsp
+    if (contents.height() / contents.width() >= 3)
+        type = QBinTree<QListViewItem>::Node::HorizontalPlane;
+    else if (contents.width() / contents.height() >= 3)
+        type = QBinTree<QListViewItem>::Node::VerticalPlane;
+    // build tree for the bounding rect (not just the contents rect)
+    tree.init(QRect(0, 0, contents.width(), contents.height()), type);
 }
 
 void QListViewPrivate::insertItem(int index, QListViewItem &item)

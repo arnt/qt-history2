@@ -282,6 +282,7 @@ public:
 
     QPoint initStaticLayout(const QRect &bounds, int spacing, int first);
     QPoint initDynamicLayout(const QRect &bounds, int spacing, int first);
+    void initBinaryTree(const QSize &contents);
 
     void insertItem(int index, QListViewItem &item);
     void removeItem(int index);
