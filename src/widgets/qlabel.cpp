@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#131 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#132 $
 **
 ** Implementation of QLabel widget class
 **
@@ -504,6 +504,14 @@ QSize QLabel::sizeForWidth( int w ) const
     QRect br;
     QPixmap *pix = pixmap();
     QMovie *mov = movie();
+    int fw = frameWidth();
+    int m  = 2*indent();
+    if ( m < 0 ) {
+	if ( fw > 0 )
+	    m = p.fontMetrics().width( 'x' );
+	else
+	    m = 0;
+    }
     if ( pix ) {
 	br = QRect( 0, 0, pix->width(), pix->height() );
     } else if ( mov ) {
@@ -511,17 +519,12 @@ QSize QLabel::sizeForWidth( int w ) const
 		    mov->framePixmap().height() );
     } else if (doc ){
 	if ( w < 0 ) {
-	    w = 1000;
-	    doc->setWidth(&p,w);
-	    w = int(sqrt(5*doc->height()/3*doc->widthUsed()));
-	    doc->setWidth(&p,w);
-	    if ( w*3 < 5*doc->height() ) {
-		w = int(sqrt(6*doc->height()/3*doc->widthUsed()));
-	    }
-	} else {
-	    w -= 2*frameWidth();
+	    doc->adjustSize( &p );
 	}
-	doc->setWidth(&p, w);
+	else {
+	    w -= 2*fw + m;
+	    doc->setWidth( &p, w );
+	}
 	br = QRect( 0, 0, doc->widthUsed(), doc->height() );
     } else {
 	bool tryWidth = w < 0 && align&WordBreak;
@@ -538,14 +541,6 @@ QSize QLabel::sizeForWidth( int w ) const
 	// adjust so "Yes" and "yes" will have the same height
 	int h = fontMetrics().lineSpacing();
 	br.setHeight( ((br.height() + h-1) / h)*h - fontMetrics().leading() );
-    }
-    int m  = 2*indent();
-    int fw = frameWidth();
-    if ( m < 0 ) {
-	if ( fw > 0 )
-	    m = p.fontMetrics().width( 'x' );
-	else
-	    m = 0;
     }
     int wid = br.width() + m + 2*fw;
     int hei = br.height() + m + 2*fw;

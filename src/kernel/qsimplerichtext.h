@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.h#3 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.h#4 $
 **
 ** Definition of the QSimpleRichText class
 **
@@ -51,10 +51,12 @@ public:
     int widthUsed() const;
 
     int height() const;
+    
+    void adjustSize( QPainter* p );
 
     void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
 	       const QPalette& pal, const QBrush* paper = 0) const;
-    
+
     void draw( QPainter*,  int x, int y, const QRegion& clipRegion,
 	       const QColorGroup& cg, const QBrush* paper = 0) const;
 

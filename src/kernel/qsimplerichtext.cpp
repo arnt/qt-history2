@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#6 $
 **
 ** Implementation of the QSimpleRichText class
 **
@@ -25,6 +25,7 @@
 
 #include "qsimplerichtext.h"
 #include "qrichtextintern.cpp"
+#include "qapplication.h"
 
 
 /*!
@@ -100,7 +101,7 @@ QSimpleRichText::~QSimpleRichText()
   Sets the width of the document to \a w pixels, recalculating the layout
   as if it were to be drawn with \a p.
 
-  \sa height()
+  \sa height(), adjustSize()
 */
 void QSimpleRichText::setWidth( QPainter* p, int w)
 {
@@ -215,4 +216,22 @@ QString QSimpleRichText::anchor( QPainter* p, const QPoint& pos )
       return ( act->attributes()->operator[]("href") );
 
     return QString::null;
+}
+
+
+/*!
+  Adjusts the richt text document to a reasonable size.
+  
+  \sa setWidth()
+ */
+void QSimpleRichText::adjustSize( QPainter* p )
+{
+    int w = QApplication::desktop()->width();
+    d->doc->setWidth( p,w );
+    w = int(sqrt(5*d->doc->height/3*d->doc->widthUsed));
+    d->doc->setWidth( p,w );
+    if ( w*3 < 5*d->doc->height ) {
+	w = int(sqrt(6*d->doc->height/3*d->doc->widthUsed));
+	d->doc->setWidth( p,w );
+    }
 }

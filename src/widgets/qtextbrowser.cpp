@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#12 $
 **
 ** Implementation of the QTextView class
 **
@@ -139,7 +139,7 @@ QTextBrowser::~QTextBrowser()
 void QTextBrowser::setSource(const QString& name)
 {
     if ( isVisibleToTLW() )
-	qApp->setOverrideCursor( waitCursor ); 
+	qApp->setOverrideCursor( waitCursor );
     QString source = name;
     QString mark;
     int hash = name.find('#');
@@ -165,6 +165,20 @@ void QTextBrowser::setSource(const QString& name)
 		qWarning("QTextBrowser: cannot decode %s", source.latin1() );
 	    }
 	}
+
+	if ( isVisibleToTLW() ) {
+	    QString firstTag = txt.left( txt.find('>' )+1 );
+	    QRichText tmp( firstTag );
+	    static QString s_type = QString::fromLatin1("type");
+	    static QString s_detail = QString::fromLatin1("detail");
+	    if (tmp.attributes() && tmp.attributes()->contains(s_type)
+		&& (*tmp.attributes())[s_type] == s_detail ) {
+		popupDetail( txt, d->lastClick );
+		qApp->restoreOverrideCursor();
+		return;
+	    }
+	}
+
 	d->curmain = url;
 	setText( txt, url );
     }
@@ -194,7 +208,7 @@ void QTextBrowser::setSource(const QString& name)
 /*!
   Returns the source of the currently display document. If no document is displayed or
   the source is unknown, a null string is returned.
-  
+
   \sa setSource()
  */
 QString QTextBrowser::source() const
@@ -391,29 +405,19 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
 {
 
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
-    const int normalMargin = 12; // *2
-    const int leftMargin = 18;   // *3
+    const int vMargin = 8;
+    const int hMargin = 12; 
 
     QWidget* popup = new QTextDetailPopup;
     popup->setBackgroundMode( QWidget::NoBackground );
 
-    QWidget * desktop = QApplication::desktop();
-
-    int w = desktop->width() / 3;
-    if ( w < 200 )
-	w = 200;
-    else if ( w > 300 )
-	w = 300;
-
-
     QPainter p( popup );
-
     QSimpleRichText* qmlDoc = new QSimpleRichText( contents, popup->font() );
-    qmlDoc->setWidth( &p, w );
+    qmlDoc->adjustSize( &p );
     QRect r( 0, 0, qmlDoc->width(), qmlDoc->height() );
 
-    int h = r.height() + normalMargin + normalMargin;
-    w = w + leftMargin + normalMargin;
+    int w = r.width() + 2*hMargin;
+    int h = r.height() + 2*vMargin;
 
     popup->resize( w + shadowWidth, h + shadowWidth );
 
@@ -444,7 +448,7 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
     p.drawRect( 1, 1, w-2, h-2 );
     p.setPen( black );
 
-    qmlDoc->draw( &p, leftMargin, normalMargin, r, popup->colorGroup(), 0 );
+    qmlDoc->draw( &p, hMargin, vMargin, r, popup->colorGroup(), 0 );
     delete qmlDoc;
 
     p.drawPoint( w + 5, 6 );

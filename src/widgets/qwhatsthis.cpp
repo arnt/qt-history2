@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#54 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -407,8 +407,8 @@ void QWhatsThisPrivate::leaveWhatsThisMode()
 void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint& ppos)
 {
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
-    const int normalMargin = 12; // *2
-    const int leftMargin = 18;   // *3
+    const int vMargin = 8;
+    const int hMargin = 12; 
 
     // make the widget, and set it up
     if ( !whatsThat ) {
@@ -419,14 +419,6 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 	whatsThat->installEventFilter( this );
     }
 
-    QWidget * desktop = QApplication::desktop();
-
-    int w = desktop->width() / 3;
-    if ( w < 200 )
-	w = 200;
-    else if ( w > 300 )
-	w = 300;
-
 
     QPainter p( whatsThat );
 
@@ -435,17 +427,23 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
 
     if ( QStyleSheet::mightBeRichText( text ) ) {
 	qmlDoc = new QSimpleRichText( text, whatsThat->font() );
-	qmlDoc->setWidth( &p, w );
+	qmlDoc->adjustSize( &p );
 	r.setRect( 0, 0, qmlDoc->width(), qmlDoc->height() );
     }
     else {
-	r = p.boundingRect( 0, 0, w, 1000,
+	int sw = QApplication::desktop()->width() / 3;
+	if ( sw < 200 )
+	    sw = 200;
+	else if ( sw > 300 )
+	    sw = 300;
+
+	r = p.boundingRect( 0, 0, sw, 1000,
 			    AlignLeft + AlignTop + WordBreak + ExpandTabs,
 			    text );
     }
 
-    int h = r.height() + normalMargin + normalMargin;
-    w = w + leftMargin + normalMargin;
+    int w = r.width() + 2*hMargin;
+    int h = r.height() + 2*vMargin;
 
     // okay, now to find a suitable location
 
@@ -507,11 +505,11 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, const QPoint
     p.setPen( whatsThat->colorGroup().foreground() );
 
     if ( qmlDoc ) {
-	qmlDoc->draw( &p, leftMargin, normalMargin, r, whatsThat->colorGroup(), 0 );
+	qmlDoc->draw( &p, hMargin, vMargin, r, whatsThat->colorGroup(), 0 );
 	delete qmlDoc;
     }
     else {
-	p.drawText( leftMargin, normalMargin, r.width(), r.height(),
+	p.drawText( hMargin, vMargin, r.width(), r.height(),
 		    AlignLeft + AlignTop + WordBreak + ExpandTabs,
 		    text );
     }
