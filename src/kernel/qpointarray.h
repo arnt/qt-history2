@@ -21,10 +21,6 @@
 #endif // QT_H
 
 
-#if defined(Q_TEMPLATEDLL)
-//Q_TEMPLATE_EXTERN template class Q_EXPORT QMemArray<QPoint>;
-#endif
-
 class Q_EXPORT QPointArray : public QVector<QPoint>
 {
 public:
