@@ -1487,7 +1487,6 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
 */
 QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
 {
-    return 0;
 #if 0
     QTextCodecFromIOD* r = new QTextCodecFromIOD(iod);
     if ( !r->ok() ) {
@@ -1495,6 +1494,9 @@ QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
 	r = 0;
     }
     return r;
+#else
+    Q_UNUSED(iod);
+    return 0;
 #endif
 }
 
@@ -1513,8 +1515,10 @@ QTextCodec* QTextCodec::loadCharmapFile(QString filename)
 	else
 	    return r;
     }
-#endif
+#else
+    Q_UNUSED(filename);
     return 0;
+#endif
 }
 
 #endif //QT_NO_CODECS
