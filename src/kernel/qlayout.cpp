@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#78 $
 **
 ** Implementation of layout classes
 **
@@ -432,6 +432,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain,
 	w += chain[i].minimumSize;
 	exp = exp || chain[i].expansive &&
 	             chain[i].maximumSize > chain[i].minimumSize;
+	chain[i].empty = FALSE;
     }
     if ( w < minSize ) {
 	//	debug( "Big multicell" );
