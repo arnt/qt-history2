@@ -25,8 +25,8 @@
 #include <abstractformwindow.h>
 #include <abstractformwindowcursor.h>
 #include <qdesigner_promotedwidget.h>
+#include <qdesigner_command.h>
 #include <layoutinfo.h>
-#include <qtundo.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QLayout>
@@ -461,11 +461,20 @@ void FormWindowManager::slotActionBreakLayoutActivated()
 
 void FormWindowManager::slotActionAdjustSizeActivated()
 {
+    Q_ASSERT(m_activeFormWindow != 0);
+
+    m_activeFormWindow->beginCommand(tr("Adjust Size"));
+
     AbstractFormWindowCursor *cursor = m_activeFormWindow->cursor();
+
     for (int index = 0; index < cursor->selectedWidgetCount(); ++index) {
         QWidget *widget = cursor->selectedWidget(index);
-        widget->adjustSize();
+        AdjustWidgetSizeCommand *cmd = new AdjustWidgetSizeCommand(m_activeFormWindow);
+        cmd->init(widget);
+        m_activeFormWindow->commandHistory()->push(cmd);
     }
+
+    m_activeFormWindow->endCommand();
 }
 
 void FormWindowManager::slotActionSelectAllActivated()

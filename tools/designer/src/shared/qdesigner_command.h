@@ -171,6 +171,21 @@ private:
     QPointer<QWidget> m_widget;
 };
 
+class AdjustWidgetSizeCommand: public AbstractFormWindowCommand
+{
+    Q_OBJECT
+public:
+    AdjustWidgetSizeCommand(AbstractFormWindow *formWindow);
+
+    void init(QWidget *widget);
+
+    virtual void redo();
+    virtual void undo();
+
+private:
+    QPointer<QWidget> m_widget;
+};
+
 class DeleteWidgetCommand: public AbstractFormWindowCommand
 {
     Q_OBJECT

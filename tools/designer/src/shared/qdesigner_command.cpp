@@ -1000,3 +1000,23 @@ void AddDockWidgetCommand::undo()
     m_mainWindow->removeDockWidget(m_dockWidget);
 }
 
+// ---- AdjustWidgetSizeCommand ----
+AdjustWidgetSizeCommand::AdjustWidgetSizeCommand(AbstractFormWindow *formWindow)
+    : AbstractFormWindowCommand(QString::null, formWindow)
+{
+}
+
+void AdjustWidgetSizeCommand::init(QWidget *widget)
+{
+    m_widget = widget;
+    setDescription(tr("Adjust Size of '%1'").arg(widget->objectName()));
+}
+
+void AdjustWidgetSizeCommand::redo()
+{
+    m_widget->adjustSize();
+}
+
+void AdjustWidgetSizeCommand::undo()
+{
+}
