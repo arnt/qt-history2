@@ -17,7 +17,8 @@
 extern "C" {
 
     /*
-     * int q_cas_32(volatile int *ptr, int expected, int newval);
+     * \fn int q_cas_32(volatile int *ptr, int expected, int newval);
+     * \internal
      *
      * Atomic compare-and-set for 32-bit integers.
      *
@@ -41,8 +42,9 @@ extern "C" {
 	return newval;
     }
 
-    /*! \internal
-     *  \function void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
+    /*
+     * \fn void *q_cas_ptr(void * volatile *ptr, void *expected, void *newval)
+     * \internal
      *
      * Atomic compare-and-set for pointers.
      *

@@ -143,9 +143,9 @@ QFileInfo::QFileInfo( const QFile &file )
 
 /*!
     Constructs a new QFileInfo that gives information about the file
-    called \a fileName in the directory \a d.
+    called \a fileName in the directory \a dir.
 
-    If \a d has a relative path, the QFileInfo will also have a
+    If \a dir has a relative path, the QFileInfo will also have a
     relative path.
 
     \sa isRelative()
@@ -285,19 +285,6 @@ void QFileInfo::refresh() const
 {
     d->cache = false;
 }
-
-/*!
-    \fn bool QFileInfo::caching() const
-
-  \obsolete
-*/
-
-/*!
-  \fn void QFileInfo::setCaching( bool enable )
-
-  \obsolete
-*/
-
 
 /*!
     Returns the file name, including the path (which may be absolute

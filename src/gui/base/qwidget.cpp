@@ -3267,13 +3267,14 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 
 
 /*!
-  Sets the margins around the contents of the widget. The margins are used by
-  the layout system, and may be used by subclasses to specify the area to draw in
-  (eg. excluding the frame).
+    Sets the margins around the contents of the widget to have the
+    sizes \a left, \a top, \a right, and \a bottom. The margins are
+    used by the layout system, and may be used by subclasses to
+    specify the area to draw in (e.g. excluding the frame).
 
-  Changing the margins will trigger a resizeEvent().
+    Changing the margins will trigger a resizeEvent().
 
-  \sa contentsRect()
+    \sa contentsRect()
 */
 void QWidget::setContentsMargins(int left, int top, int right, int bottom)
 {
@@ -3299,10 +3300,10 @@ void QWidget::setContentsMargins(int left, int top, int right, int bottom)
     }
 }
 
-/*
-  Returns the area inside the margins.
+/*!
+    Returns the area inside the widget's margins.
 
-  \sa setContentsMargins()
+    \sa setContentsMargins()
 */
 QRect QWidget::contentsRect() const
 {

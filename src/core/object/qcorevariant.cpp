@@ -1184,7 +1184,7 @@ QCoreVariant::QCoreVariant(QDataStream &s)
 */
 
 /*!
-  \fn QCoreVariant::QCoreVariant(const QCoreVariantList &val)
+    \fn QCoreVariant::QCoreVariant(const QList<QCoreVariant> &val)
 
     Constructs a new variant with a list value, \a val.
 */

@@ -75,8 +75,6 @@ const int QSysInfo::ByteOrder = ((*((unsigned char *) &qt_one) == 0) ? BigEndian
     In debug mode, this function calls qFatal() with a message if the
     computer is truly weird (i.e. different endianness for 16 bit and
     32 bit integers); in release mode it returns false.
-
-    \sa QSysInfo
 */
 
 #if !defined(QWS) && defined(Q_OS_MAC)

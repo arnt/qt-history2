@@ -324,7 +324,7 @@ QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
     Joins the string list into a single string with each element
     separated by the string \a sep (which can be empty).
 
-    \sa split()
+    \sa QString::split()
 */
 QString QStringList::join(const QString &sep) const
 {
