@@ -1290,6 +1290,9 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    popup->setFirstItemActive();
 	    subMenuTimer();
 	    break;
+	} else if ( actItem == -1 && ( parentMenu && !parentMenu->isMenuBar )) {
+	    dy = 1;
+	    break;
 	}
 	if ( ncols > 1 && actItem >= 0 ) {
 	    QRect r( itemGeometry( actItem ) );
