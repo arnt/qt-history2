@@ -172,7 +172,6 @@ static const int motifItemVMargin       = 4;    // menu item ver text margin
 /*!
   Constructs a menu bar with a \e parent and a \e name.
 */
-
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
     : QFrame( parent, name, 0 )
 {
@@ -182,6 +181,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 	setFixedHeight(22);
 	reparent( parent, WType_Dialog | WStyle_Customize | WStyle_NoBorder,
 		  QPoint(0, 0) );
+#define TOP_LEVEL_MENUBAR
     }
 #endif
 
@@ -232,6 +232,10 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     }
     setFrameStyle( QFrame::MenuBarPanel );
     setBackgroundMode( PaletteButton );
+
+#ifdef TOP_LEVEL_MENUBAR
+    show();
+#endif
 }
 
 
