@@ -881,6 +881,8 @@ void QWorkspace::showWindow(QWidget* w)
 {
     if (d->maxWindow && w->testWFlags(WStyle_Maximize) && !w->testWFlags(WStyle_Tool))
         maximizeWindow(w);
+    else if (w->isMinimized() && !w->testWFlags(WStyle_Tool))
+	minimizeWindow(w);
     else if (!w->testWFlags(WStyle_Tool))
         normalizeWindow(w);
     else
