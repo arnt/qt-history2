@@ -319,6 +319,7 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 #else
     dblbuf = 1;
 #endif
+    glcx_dblbuf = 2;
     clp_serial = 0;
     macInternalDoubleBuffer(FALSE); //just get things going
     macInternalRecreateContext(format, shareWidget ? shareWidget->context() : NULL, FALSE);
@@ -365,7 +366,7 @@ void QGLWidget::resizeEvent( QResizeEvent * )
     if ( !isValid() )
 	return;
     if(macInternalDoubleBuffer(FALSE))
-	macInternalRecreateContext(req_format);
+        macInternalRecreateContext(req_format);
     makeCurrent();
     if ( !glcx->initialized() )
 	glInit();
@@ -436,6 +437,7 @@ void QGLWidget::setContext( QGLContext *context,
 	glcx->doneCurrent();
     QGLContext* oldcx = glcx;
     glcx = context;
+    glcx_dblbuf = dblbuf;
 
     if ( !glcx->isValid() ) {
 	const QGLContext *share = shareContext;
@@ -478,9 +480,8 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
 	QRegion rgn = clippedRegion();
 	clp_serial = clippedSerial();
 	QPoint p = posInWindow(this);
-	bool old_dblbuf = dblbuf;
 	dblbuf = (!rgn.isNull() && rgn != QRegion(QRect(p, size())));
-	if(old_dblbuf != dblbuf) 
+	if(glcx_dblbuf != dblbuf) 
 	    need_fix = TRUE;
     }
     if(pending_fix || need_fix) {
@@ -502,14 +503,23 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
     pending_fix = FALSE;
     if(dblbuf) {
 	setBackgroundMode(NoBackground);
-	if(!gl_pix || gl_pix->width() != width() || gl_pix->height() != height()) {
+	if(gl_pix && glcx_dblbuf == dblbuf) { //currently double buffered, just resize
+	    int w = width(), h = height();
+	    if(gl_pix->width() != w || gl_pix->height() != h) {
+		aglSetDrawable((AGLContext)glcx->cx, NULL);
+		gl_pix->resize(w, h);
+		PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)gl_pix->handle());
+		aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(), 
+				GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
+	    }
+	} else {
 	    if(gl_pix && glcx && glcx->cx) {
 		aglSetDrawable((AGLContext)glcx->cx, NULL);
 		delete gl_pix;
 	    }
 	    gl_pix = new QPixmap(width(), height(), QPixmap::BestOptim);
+	    setContext(new QGLContext(format, gl_pix), NULL, FALSE);
 	}
-	setContext(new QGLContext(format, gl_pix), NULL, FALSE);
     } else {
 	setEraseColor(black);
 	setContext(new QGLContext(format, this ), share_ctx, FALSE);
