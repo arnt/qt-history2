@@ -1,0 +1,11 @@
+This is a precompiled library version of Qt 0.96.
+
+
+operating system : Solaris
+compiler         : gcc 2.7.2 or higher
+libc version     : 5.0.9 or higher
+library type     : dynamic
+
+
+Read the file INSTALL.lib for installation instructions and README.QT for
+license information.

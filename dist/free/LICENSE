@@ -1,0 +1,54 @@
+                     TROLL TECH NON-COMMERCIAL LICENSE
+
+Copyright (C) 1992-1996 Troll Tech AS.  All rights reserved.
+
+This is the non-commercial license for Qt version 0.97; it covers
+private use and development of free software for the free software
+community.
+
+
+                        COPYRIGHT AND RESTRICTIONS
+
+The Qt toolkit is a product of Troll Tech AS. This license is limited to
+use on computers running the X Window System.
+
+You may copy this beta version of the Qt toolkit provided that the entire
+archive is distributed unchanged and as a whole, including this notice.
+
+You may use the Qt toolkit to create application programs provided that:
+  - You accept this license.
+  - Your software is distributed including source code.
+  - Your software does not require modifications to Qt.
+  - Third parties may legally modify and/or redistribute your software for
+    no charge.
+
+If you are paid to develop something with Qt or it is a part of your job
+the following conditions also apply:
+  - Your software must be suitable for use outside your organization.
+  - You must upload your software (including source) to ftp.troll.no
+    before you start using it.
+  - When you change your software in any significant way, you must upload
+    the new version of your software (including source) to ftp.troll.no
+    before you start using it.
+
+You may also use the Qt toolkit to create reusable components (such as
+libraries) provided that you accept the terms above, and in addition that:
+  - Your components' license includes the following text:
+	[Your package] requires the Qt library, which is copyright
+	Troll Tech AS.  Freely distributable programs may generally
+	use Qt for free, see [README.QT] for details.
+  - README.QT is distributed along with your components.
+  - Qt is not distributed as an integral part of your components.
+
+
+                       LIMITATIONS OF LIABILITY
+ 
+Troll Tech AS makes no obligation under this license to support or upgrade
+Qt, or assist in the use of Qt.
+
+In no event shall Troll Tech AS be liable for any lost revenue or profits
+or other direct, indirect, special, incidental or consequential damages,
+even if Troll Tech has been advised of the possibility of such damages.
+
+QT IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY
+OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
