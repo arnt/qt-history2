@@ -16,7 +16,7 @@
 
 #include "qpainter.h"
 
-class Q_GUI_EXPORT Q3Painter : public QPainter
+class Q_COMPAT_EXPORT Q3Painter : public QPainter
 {
 public:
     Q3Painter() : QPainter() { }
