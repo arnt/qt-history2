@@ -464,6 +464,15 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	} else {
 	    CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
 	}
+	if(testWFlags(WStyle_StaysOnTop)) {
+	    createTLExtra();
+	    if(extra->topextra->group)
+		ReleaseWindowGroup(extra->topextra->group);
+	    CreateWindowGroup(kWindowActivationScopeNone, &extra->topextra->group);
+	    SetWindowGroupLevel(extra->topextra->group, 666);
+	    SetWindowGroup((WindowPtr)id, extra->topextra->group);
+	}
+
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(qt_erase), 0, this);
 	if(testWFlags( WType_Popup ))
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
@@ -1572,6 +1581,8 @@ void QWidget::createTLSysExtra()
 
 void QWidget::deleteTLSysExtra()
 {
+    if(extra->topextra->group)
+	ReleaseWindowGroup(extra->topextra->group);
 }
 
 bool QWidget::acceptDrops() const
