@@ -8,7 +8,7 @@ class QItemSelectionModelPrivate: public QObjectPrivate
     Q_DECLARE_PUBLIC(QItemSelectionModel);
 public:
     QItemSelectionModelPrivate()
-        : model(0), toggleState(false) {}
+        : model(0), currentCommand(QItemSelectionModel::NoUpdate) {}
 
     inline void remove(QList<QItemSelectionRange> &r)
     {
@@ -23,7 +23,7 @@ public:
     QItemSelection ranges;
     QItemSelection currentSelection;
     QModelIndex currentItem;
-    bool toggleState;
+    int currentCommand;
 };
 
 #endif

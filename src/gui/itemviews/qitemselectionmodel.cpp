@@ -83,12 +83,15 @@ QModelIndexList QItemSelection::items(QAbstractItemModel *model) const
   Merges selection \a other with this QItemSelection using the \a update mode.
   This method guarantees that no ranges are overlapping.
 
-  Note: Only QItemSelectionModel::Toggle and
-  QItemSelectionModel::Select are supported.
+  Note: Only QItemSelectionModel::Select,
+  QItemSelectionModel::Deselect and QItemSelectionModel::Toggle are
+  supported.
 */
-void QItemSelection::merge(const QItemSelection &other, int update)
+void QItemSelection::merge(const QItemSelection &other, int selectionCommand)
 {
-    if (!(update & QItemSelectionModel::Toggle || update & QItemSelectionModel::Select) ||
+    if (!(selectionCommand & QItemSelectionModel::Select ||
+          selectionCommand & QItemSelectionModel::Deselect ||
+          selectionCommand & QItemSelectionModel::Toggle) ||
         other.isEmpty())
         return;
 
@@ -113,7 +116,7 @@ void QItemSelection::merge(const QItemSelection &other, int update)
             }
         }
         // only split newSelection if Toggle is specified
-        for (int n = 0; (update & QItemSelectionModel::Toggle) && n < newSelection.count();) {
+        for (int n = 0; (selectionCommand & QItemSelectionModel::Toggle) && n < newSelection.count();) {
             if (newSelection.at(n).intersects(intersections.at(i))) {
                 split(newSelection.at(n), intersections.at(i), &newSelection);
                 newSelection.remove(n);
@@ -122,7 +125,9 @@ void QItemSelection::merge(const QItemSelection &other, int update)
             }
         }
     }
-    operator+=(newSelection);
+    // do not add newSelection for Deselect
+    if (!(selectionCommand & QItemSelectionModel::Deselect))
+        operator+=(newSelection);
 }
 
 /*!
@@ -188,6 +193,26 @@ void QItemSelectionModel::select(const QModelIndex &item, int selectionCommand)
     select(selection, selectionCommand);
 }
 
+/*!
+  \enum QItemSelectionModel::SelectionCommand
+
+  This enum type is used to describe in what way the selectionmodel will be updated.
+
+  The states are
+
+  \value NoUpdate No selection will happen
+  \value Clear The complete selection will be cleared
+  \value Select All specified indices will be selected
+  \value  Deselect All specified indices will be deselected
+  \value Toggle All specified indicies will be selected or deselected depending on their current state
+  \value Current The current selection will be updated
+  \value Rows All indices will be expanded to span rows
+  \value Columns All indices will be expanded to span columns
+  \value SelectCurrent Convenience combination of Select and Current
+  \value ToggleCurrent  Convenience combination of Toggle and Current
+  \value ClearAndSelect Convenience combination of Clear and Select
+*/
+
 void QItemSelectionModel::select(const QItemSelection &selection, int selectionCommand)
 {
     if (selectionCommand == NoUpdate)
@@ -196,7 +221,7 @@ void QItemSelectionModel::select(const QItemSelection &selection, int selectionC
     // store old selection
     QItemSelection sel = selection;
     QItemSelection old = d->ranges;
-    old.merge(d->currentSelection, d->toggleState ? Toggle : Select);
+    old.merge(d->currentSelection, d->currentCommand);
 
     // expand selection according to SelectionBehavior
     if (selectionCommand & Rows || selectionCommand & Columns)
@@ -210,19 +235,19 @@ void QItemSelectionModel::select(const QItemSelection &selection, int selectionC
 
     // merge and clear currentSelection if Current was not set (ie. start new currentSelection)
     if (!(selectionCommand & Current)) {
-        d->ranges.merge(d->currentSelection, d->toggleState ? Toggle : Select);
+        d->ranges.merge(d->currentSelection, d->currentCommand);
         d->currentSelection.clear();
     }
 
     // update currentSelection
-    if (selectionCommand & Toggle || selectionCommand & Select) {
-        d->toggleState = (selectionCommand & Toggle);
+    if (selectionCommand & Toggle || selectionCommand & Select || selectionCommand & Deselect) {
+        d->currentCommand = selectionCommand;
         d->currentSelection = sel;
     }
 
     // generate new selection, compare with old and emit selectionChanged()
     QItemSelection newSelection = d->ranges;
-    newSelection.merge(d->currentSelection, d->toggleState ? Toggle : Select);
+    newSelection.merge(d->currentSelection, d->currentCommand);
     emitSelectionChanged(old, newSelection);
     return;
 }
@@ -232,7 +257,7 @@ void QItemSelectionModel::clear()
     if (d->ranges.count() == 0 && d->currentSelection.count() == 0)
         return;
     QItemSelection selection = d->ranges;
-    selection.merge(d->currentSelection, d->toggleState ? Toggle : Select);
+    selection.merge(d->currentSelection, d->currentCommand);
     d->ranges.clear();
     d->currentSelection.clear();
     emit selectionChanged(selection, QItemSelection());
@@ -263,10 +288,12 @@ bool QItemSelectionModel::isSelected(const QModelIndex &item) const
         if ((*it).contains(item, model()))
             selected = true;
     // check  currentSelection
-    if (d->currentSelection.size()) {
-        if (d->toggleState)
+    if (d->currentSelection.count()) {
+        if (d->currentCommand & Deselect && selected)
+            selected != d->currentSelection.contains(item, model());
+        else if (d->currentCommand & Toggle)
             selected ^= d->currentSelection.contains(item, model());
-        else if (!selected)
+        else if (d->currentCommand & Select && !selected)
             selected = d->currentSelection.contains(item, model());
     }
     return selected;
@@ -274,21 +301,31 @@ bool QItemSelectionModel::isSelected(const QModelIndex &item) const
 
 bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) const
 {
-    QList<QItemSelectionRange> joined = d->ranges;
-    if (d->toggleState && d->currentSelection.size()) {
-        // return false if ranges in both currentSelection and the selection model
-        // intersect and have the same row contained
-        QList<QItemSelectionRange> toggle = d->currentSelection;
-        for (int i=0; i<toggle.count(); ++i)
-            if (toggle.at(i).top() <= row && toggle.at(i).bottom() >= row)
-                for (int j=0; j<joined.count(); ++j)
-                    if (joined.at(j).top() <= row && joined.at(j).bottom() >= row
-                        && toggle.at(i).intersect(joined.at(j)).isValid())
+    // return false if row exist in currentSelection (Deselect)
+    if (d->currentCommand & Deselect && d->currentSelection.count()) {
+        for (int i=0; i<d->currentSelection.count(); ++i) {
+            if (d->currentSelection.at(i).parent() == parent &&
+                row >= d->currentSelection.at(i).top() &&
+                row <= d->currentSelection.at(i).bottom())
+                return false;
+        }
+    }
+    // return false if ranges in both currentSelection and ranges
+    // intersect and have the same row contained
+    if (d->currentCommand & Toggle && d->currentSelection.count()) {
+        for (int i=0; i<d->currentSelection.count(); ++i)
+            if (d->currentSelection.at(i).top() <= row &&
+                d->currentSelection.at(i).bottom() >= row)
+                for (int j=0; j<d->ranges.count(); ++j)
+                    if (d->ranges.at(j).top() <= row && d->ranges.at(j).bottom() >= row
+                        && d->currentSelection.at(i).intersect(d->ranges.at(j)).isValid())
                         return false;
     }
+    // add ranges and currentSelection and check through them all
     QModelIndex item;
     QList<QItemSelectionRange>::const_iterator it;
-    if (d->currentSelection.size())
+    QList<QItemSelectionRange> joined = d->ranges;
+    if (d->currentSelection.count())
         joined += d->currentSelection;
     for (int i = 0; i < model()->columnCount(parent); ++i) {
         item = model()->index(row, i, parent);
@@ -305,25 +342,35 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
 
 bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent) const
 {
-    QList<QItemSelectionRange> joined = d->ranges;
-    if (d->toggleState && d->currentSelection.size()) {
-        // return false if ranges in both currentSelection and the selection model
-        // intersect and have the same column contained
-        QList<QItemSelectionRange> toggle = d->currentSelection;
-        for (int i=0; i<toggle.count(); ++i) {
-            if (toggle.at(i).left() <= column && toggle.at(i).right() >= column) {
-                for (int j=0; j<joined.count(); ++j) {
-                    if (joined.at(j).left() <= column && joined.at(j).right() >= column
-                        && toggle.at(i).intersect(joined.at(j)).isValid()) {
+    // return false if column exist in currentSelection (Deselect)
+    if (d->currentCommand & Deselect && d->currentSelection.count()) {
+        for (int i=0; i<d->currentSelection.count(); ++i) {
+            if (d->currentSelection.at(i).parent() == parent &&
+                column >= d->currentSelection.at(i).left() &&
+                column <= d->currentSelection.at(i).right())
+                return false;
+        }
+    }
+    // return false if ranges in both currentSelection and the selection model
+    // intersect and have the same column contained
+    if (d->currentCommand & Toggle && d->currentSelection.count()) {
+        for (int i=0; i<d->currentSelection.count(); ++i) {
+            if (d->currentSelection.at(i).left() <= column &&
+                d->currentSelection.at(i).right() >= column) {
+                for (int j=0; j<d->ranges.count(); ++j) {
+                    if (d->ranges.at(j).left() <= column && d->ranges.at(j).right() >= column
+                        && d->currentSelection.at(i).intersect(d->ranges.at(j)).isValid()) {
                         return false;
                     }
                 }
             }
         }
     }
+    // add ranges and currentSelection and check through them all
     QModelIndex item;
     QList<QItemSelectionRange>::const_iterator it;
-    if (d->currentSelection.size())
+    QList<QItemSelectionRange> joined = d->ranges;
+    if (d->currentSelection.count())
         joined += d->currentSelection;
     for (int i = 0; i < model()->rowCount(parent); ++i) {
          item = model()->index(i, column, parent);
@@ -347,7 +394,7 @@ QAbstractItemModel *QItemSelectionModel::model() const
 QModelIndexList QItemSelectionModel::selectedItems() const
 {
     QItemSelection selected = d->ranges;
-    selected.merge(d->currentSelection, d->toggleState ? Toggle : Select);
+    selected.merge(d->currentSelection, d->currentCommand);
     return selected.items(model());
 }
 

@@ -69,7 +69,7 @@ public:
     void select(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QAbstractItemModel *model);
     bool contains(const QModelIndex &item, const QAbstractItemModel *model) const;
     QModelIndexList items(QAbstractItemModel *model) const;
-    void merge(const QItemSelection &other, int update);
+    void merge(const QItemSelection &other, int selectionCommand);
 };
 
 class QItemSelectionModelPrivate;
@@ -85,10 +85,11 @@ public:
         NoUpdate       = 0x0000,
         Clear          = 0x0001,
         Select         = 0x0002,
-        Toggle         = 0x0004,
-        Current        = 0x0008,
-        Rows           = 0x0010,
-        Columns        = 0x0020,
+        Deselect       = 0x0004,
+        Toggle         = 0x0008,
+        Current        = 0x0010,
+        Rows           = 0x0020,
+        Columns        = 0x0040,
         SelectCurrent  = Select | Current,
         ToggleCurrent  = Toggle | Current,
         ClearAndSelect = Clear | Select
