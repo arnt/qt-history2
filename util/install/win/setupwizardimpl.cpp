@@ -751,7 +751,9 @@ void SetupWizardImpl::readMakeOutput()
 
 void SetupWizardImpl::readAssistantOutput()
 {
+#if defined(QSA)
     updateOutputDisplay( &assistant );
+#endif
 }
 
 void SetupWizardImpl::readCleanerError()
@@ -771,7 +773,9 @@ void SetupWizardImpl::readMakeError()
 
 void SetupWizardImpl::readAssistantError()
 {
+#if defined(QSA)
     updateOutputDisplay( &assistant );
+#endif
 }
 
 void SetupWizardImpl::updateOutputDisplay( QProcess* proc )
