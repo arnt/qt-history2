@@ -24,12 +24,25 @@
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qmap.h>
+#include <qsqldatabase.h>
+#include <qlist.h>
 
 class FormWindow;
 
 class Project
 {
 public:
+    struct DatabaseConnection
+    {
+	DatabaseConnection() : connection( 0 ) {}
+	QString name;
+	QString driver, dbName, username, password, hostname;
+	QSqlDatabase *connection;
+	
+	bool connect();
+	bool sync();
+    };
+
     Project( const QString &fn, const QString &pName = QString::null );
 
     void setFileName( const QString &fn, bool doClear = TRUE );
@@ -58,6 +71,11 @@ public:
     QString makeAbsolute( const QString &f );
 
     void save();
+
+    QList<Project::DatabaseConnection> databaseConnections() const;
+    void setDatabaseConnections( const QList<Project::DatabaseConnection> &lst );
+    void addDatabaseConnection( Project::DatabaseConnection *conn );
+    Project::DatabaseConnection *databaseConnection( const QString &name );
     
 private:
     void parse();
@@ -71,7 +89,8 @@ private:
     QStringList loadedForms;
     QString desc;
     QMap<FormWindow*, QString> formWindows;
-
+    QList<Project::DatabaseConnection> dbConnections;
+    
 };
 
 #endif

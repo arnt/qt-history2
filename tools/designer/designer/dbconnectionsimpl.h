@@ -23,19 +23,29 @@
 
 #include "dbconnections.h"
 
+class Project;
+
 class DatabaseConnection : public DatabaseConnectionBase
 {
     Q_OBJECT
 
 public:
-    DatabaseConnection( QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    DatabaseConnection( Project *pro, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
     ~DatabaseConnection();
 
 protected slots:
     void deleteConnection();
     void newConnection();
     void doConnect();
+    void currentConnectionChanged( const QString & );
+    void connectionNameChanged( const QString &s );
 
+private:
+    void enableAll( bool b );
+    
+private:
+    Project *project;
+    
 };
 
 #endif // DATABASECONNECTION_H

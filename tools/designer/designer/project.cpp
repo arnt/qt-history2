@@ -303,3 +303,48 @@ void Project::save()
 
     f.close();
 }
+
+QList<Project::DatabaseConnection> Project::databaseConnections() const
+{
+    return dbConnections;
+}
+
+void Project::setDatabaseConnections( const QList<Project::DatabaseConnection> &lst )
+{
+    dbConnections = lst;
+}
+
+void Project::addDatabaseConnection( Project::DatabaseConnection *conn )
+{
+    dbConnections.append( conn );
+}
+
+Project::DatabaseConnection *Project::databaseConnection( const QString &name )
+{
+    for ( Project::DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() ) {
+	if ( conn->name == name )
+	    return conn;
+    }
+    return 0;
+}
+
+
+
+bool Project::DatabaseConnection::connect()
+{
+    if ( name != "(default)" )
+	connection = QSqlDatabase::addDatabase( driver );
+    else
+	connection = QSqlDatabase::addDatabase( driver, name );
+    connection->setDatabaseName( dbName );
+    connection->setUserName( username );
+    connection->setPassword( password );
+    connection->setHostName( hostname );
+    
+    return TRUE; // #### do error checking
+}
+
+bool Project::DatabaseConnection::sync()
+{
+    return TRUE;
+}

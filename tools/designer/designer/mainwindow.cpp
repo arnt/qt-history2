@@ -1614,7 +1614,7 @@ void MainWindow::editProjectSettings()
 
 void MainWindow::editDatabaseConnections()
 {
-    DatabaseConnection dia( this, 0, TRUE );
+    DatabaseConnection dia( currentProject, this, 0, TRUE );
     dia.exec();
 }
 

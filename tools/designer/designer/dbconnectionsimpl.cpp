@@ -19,6 +19,12 @@
 **********************************************************************/
 
 #include "dbconnectionsimpl.h"
+#include <qlist.h>
+#include "project.h"
+#include <qlistbox.h>
+#include <qcombobox.h>
+#include <qlineedit.h>
+#include <qpushbutton.h>
 
 /*
  *  Constructs a DatabaseConnection which is a child of 'parent', with the
@@ -27,9 +33,13 @@
  *  The dialog will by default be modeless, unless you set 'modal' to
  *  TRUE to construct a modal dialog.
  */
-DatabaseConnection::DatabaseConnection( QWidget* parent,  const char* name, bool modal, WFlags fl )
-    : DatabaseConnectionBase( parent, name, modal, fl )
+DatabaseConnection::DatabaseConnection( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
+    : DatabaseConnectionBase( parent, name, modal, fl ), project( pro )
 {
+    QList<Project::DatabaseConnection> lst = project->databaseConnections();
+    for ( Project::DatabaseConnection *conn = lst.first(); conn; conn = lst.next() )
+	listConnections->insertItem( conn->name );
+    enableAll( FALSE );
 }
 
 DatabaseConnection::~DatabaseConnection()
@@ -38,16 +48,79 @@ DatabaseConnection::~DatabaseConnection()
 
 void DatabaseConnection::deleteConnection()
 {
-    qWarning( "DatabaseConnection::deleteConnection() not yet implemented!" );
 }
 
 void DatabaseConnection::newConnection()
 {
-    qWarning( "DatabaseConnection::newConnection() not yet implemented!" );
+    enableAll( TRUE );
+    listConnections->clearSelection();
+    listConnections->setCurrentItem( FALSE );
+    editName->setText( "(default)" ); // #### only if we don't have already a default connection
 }
 
 void DatabaseConnection::doConnect()
 {
-    qWarning( "DatabaseConnection::doConnect() not yet implemented!" );
+    if ( listConnections->currentItem() == -1 ) { // new connection
+	// ### do error checking for duplicated connection names
+	Project::DatabaseConnection *conn = new Project::DatabaseConnection;
+	conn->name = editName->text();
+	conn->driver = comboDriver->lineEdit()->text();
+	conn->dbName = comboDatabase->lineEdit()->text();
+	conn->username = editUsername->text();
+	conn->password = editPassword->text();
+	conn->hostname = editHostname->text();
+	if ( conn->connect() ) {
+	    project->addDatabaseConnection( conn );
+	    listConnections->insertItem( conn->name );
+	    listConnections->setCurrentItem( listConnections->count() - 1 );
+	} else {
+	    // ### error handling
+	    delete conn;
+	}
+    } else { // sync
+    }
 }
 
+static bool blockChanges = FALSE;
+
+void DatabaseConnection::currentConnectionChanged( const QString &s )
+{
+    Project::DatabaseConnection *conn = project->databaseConnection( s );
+    blockChanges = TRUE;
+    enableAll( (bool)conn );
+    blockChanges = FALSE;
+    if ( !conn)
+	return;
+    blockChanges = TRUE;
+    editName->setText( conn->name );
+    blockChanges = FALSE;
+    comboDriver->lineEdit()->setText( conn->driver );
+    comboDatabase->lineEdit()->setText( conn->dbName );
+    editUsername->setText( conn->username );
+    editPassword->setText( conn->password );
+    editHostname->setText( conn->hostname );
+}
+
+void DatabaseConnection::connectionNameChanged( const QString &s )
+{
+    if ( listConnections->currentItem() == -1 || blockChanges )
+	return;
+    listConnections->changeItem( s, listConnections->currentItem() );
+}
+
+void DatabaseConnection::enableAll( bool b )
+{
+    editName->setEnabled( b );
+    editName->setText( "" );
+    comboDriver->setEnabled( b );
+    comboDriver->clear();
+    comboDatabase->setEnabled( b );
+    comboDatabase->clear();
+    editUsername->setEnabled( b );
+    editUsername->setText( "" );
+    editPassword->setEnabled( b );
+    editPassword->setText( "" );
+    editHostname->setEnabled( b );
+    editHostname->setText( "" );
+    buttonConnect->setEnabled( b );
+}
