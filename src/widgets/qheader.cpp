@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#88 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -590,7 +590,7 @@ void QHeader::handleColumnResize( int index, int s, bool final )
         repaint(0, repaintPos-oldSize+2, width(), height());
     if ( tracking() && oldSize != newSize )
 	emit sizeChange( lIdx, oldSize, newSize );
-    else if ( final && oldHIdxSize != newSize )
+    else if ( !tracking() && final && oldHIdxSize != newSize )
 	emit sizeChange( lIdx, oldHIdxSize, newSize );
 }
 
@@ -621,7 +621,7 @@ void QHeader::setLabel( int i, const QIconSet& iconset, const QString &s, int si
   Sets the text on logical section \a i to \a s. If the section does not exist,
   nothing happens.
   If \a size is non-negative, the section width is set to \a size.
-  
+
   Any icon set that has been defined for this section remains
   unchanged.
 */
@@ -696,20 +696,20 @@ int QHeader::addLabel( const QString &s, int size )
 	iw = data->iconsets[n-1]->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 2;
 	ih = data->iconsets[n-1]->pixmap( QIconSet::Small, QIconSet::Normal ).height();
     }
-    
+
     QFontMetrics fm = fontMetrics();
     int height = QMAX( fm.lineSpacing() + 6, ih );
     int width = -fm.minLeftBearing()
 		+fm.width( s )
 		-fm.minRightBearing() + QH_MARGIN*2 + iw;
-    
+
     if ( size < 0 ) {
 	if ( orient == Horizontal )
 	    size = width;
 	else
 	    size = height;
     }
-    
+
     data->sizes[n-1] = size;
     // we abuse the heights as widths for vertical layout
     data->heights[n-1] = orient == Horizontal ? height : width;
