@@ -21,12 +21,15 @@ set -e
 # Use this if something mysterious exits
 #set -x
 
+release=HEAD
+
 while true ; do
   case "$1" in
     "-nodoc") nodoc="yes"; shift;;
     "-local") local="yes"; shift;;
     "-noch")  noch="yes"; shift;;
     "-msonly") msonly="yes"; shift;;
+    "-r") release=$2; shift; shift;;
     *) break;;
   esac
 done
@@ -82,7 +85,7 @@ if [ "$local" = "yes" ]; then
   rm -f ${DISTDIR}/qt/src/moc/moc
 else
   echo "Exporting the entire Qt archive..." >&2
-  cvs -Q export -rHEAD qt
+  cvs -Q export -r$release qt
   echo "Exporting the latest tmake" >&2
   cvs -Q export -rHEAD tmake
   export TMAKEDIR=$DISTDIR/tmake
@@ -142,6 +145,10 @@ echo "Auto-detected the Qt version number -- " $VERSION >&2
 if [ -z "$noch" -a ! -f "${DISTDIR}/qt/dist/changes-$VERSION" ]
 then
     echo "You must create qt/dist/changes-$VERSION first (or run with -noch)"
+    V=`sed -e s/[^0-9]//g`
+    echo "Tag the release:  cvs update; cvs tag release-$V"
+    echo "Find the logs:    ./changelog dd/mm/yyyy-previous-release-date >changes-$VERSION"
+    echo "Print the logs:   aprint -w80 -4 changes-$VERSION"
     exit 1
 fi
 
