@@ -223,6 +223,10 @@ bool QSqlDatabaseManager::contains( const QString& name )
     the output of drivers() to determine whether a particular driver
     is available or not.
 
+    The returned QSqlDatabase object is owned by the framework and 
+    must not be deleted. If you want to explicitely remove the connection,
+    use removeDatabase()
+
     \sa QSqlDatabase database()
 */
 
