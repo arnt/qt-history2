@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#60 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -933,7 +933,7 @@ static void init_context_stack()
 
 int QColor::enterAllocContext()
 {
-    static context_seq_no = 0;
+    static int context_seq_no = 0;
     init_context_stack();
     if ( context_ptr+1 == MAX_CONTEXTS ) {
 #if defined(CHECK_STATE)
