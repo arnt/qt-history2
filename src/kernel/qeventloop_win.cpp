@@ -591,7 +591,6 @@ int QEventLoop::activateSocketNotifiers()
 
 static LRESULT CALLBACK win_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 {
-    qDebug("socket_notifier::win_proc, msg: %0.4x :: %s\n", msg, mapMessageName(msg));
     if ( msg == qt_sn_msg ) {	// socket notifier message
 	int type = -1;
 #ifndef Q_OS_TEMP
@@ -614,7 +613,6 @@ static LRESULT CALLBACK win_proc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp)
 	    qt_sn_activate_fd( wp, type );
 	return 0;
     } else {
-	qDebug("socket_notifier::win_proc(), using default..");
 	return  DefWindowProc(hwnd, msg, wp, lp);
     }
 }
