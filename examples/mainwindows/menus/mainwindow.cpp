@@ -192,6 +192,7 @@ void MainWindow::createActions()
     connect(pasteAct, SIGNAL(triggered()), this, SLOT(paste()));
 
     boldAct = new QAction(tr("&Bold"), this);
+    boldAct->setCheckable(true);
     boldAct->setShortcut(tr("Ctrl+B"));
     boldAct->setStatusTip(tr("Make the text bold"));
     connect(boldAct, SIGNAL(triggered()), this, SLOT(bold()));
@@ -201,6 +202,7 @@ void MainWindow::createActions()
     boldAct->setFont(boldFont);
 
     italicAct = new QAction(tr("&Italic"), this);
+    italicAct->setCheckable(true);
     italicAct->setShortcut(tr("Ctrl+I"));
     italicAct->setStatusTip(tr("Make the text italic"));
     connect(italicAct, SIGNAL(triggered()), this, SLOT(italic()));
