@@ -146,15 +146,15 @@ void QFont::initialize()
 #ifndef QT_NO_BIG_CODECS
     static bool codecs_once = false;
     if (! codecs_once) {
-        (void) new QFontJis0201Codec;
-        (void) new QFontJis0208Codec;
-        (void) new QFontKsc5601Codec;
-        (void) new QFontGb2312Codec;
-        (void) new QFontGbkCodec;
-        (void) new QFontGb18030_0Codec;
-        (void) new QFontBig5Codec;
-        (void) new QFontBig5hkscsCodec;
-        (void) new QFontLaoCodec;
+//         (void) new QFontJis0201Codec;
+//         (void) new QFontJis0208Codec;
+//         (void) new QFontKsc5601Codec;
+//         (void) new QFontGb2312Codec;
+//         (void) new QFontGbkCodec;
+//         (void) new QFontGb18030_0Codec;
+//         (void) new QFontBig5Codec;
+//         (void) new QFontBig5hkscsCodec;
+//         (void) new QFontLaoCodec;
         codecs_once = true;
     }
 #endif // QT_NO_BIG_CODECS

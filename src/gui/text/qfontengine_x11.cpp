@@ -245,10 +245,21 @@ bool QFontEngineXLFD::stringToCMap(const QChar *str, int len, QGlyphLayout *glyp
             for (int i = 0; i < len; i++)
                 chars[i] = (str[i].unicode() == 0xa0 ? 0x20 : str[i].unicode());
         }
-        QVarLengthArray<glyph_t> g(len);
-        _codec->fromUnicode(chars, g.data(), len);
-        for (int i = 0; i < len; i++)
-            glyphs[i].glyph = g[i];
+        QTextCodec::ConverterState state;
+        state.flags = QTextCodec::ConvertInvalidToNull;
+        QByteArray ba = _codec->fromUnicode(chars, len, &state);
+        if (ba.length() == 2*len) {
+            // double byte encoding
+            const uchar *data = (const uchar *)ba.constData();
+            for (int i = 0; i < len; i++) {
+                glyphs[i].glyph = ((ushort)data[0] << 8) + data[1];
+                data += 2;
+            }
+        } else {
+            const uchar *data = (const uchar *)ba.constData();
+            for (int i = 0; i < len; i++)
+                glyphs[i].glyph = (ushort)data[i];
+        }
     } else {
         QGlyphLayout *g = glyphs + len;
         const QChar *c = str + len;
