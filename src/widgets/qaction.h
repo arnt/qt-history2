@@ -81,6 +81,9 @@ q_properties:
     virtual void setAccel( int );
     virtual int accel() const;
 
+    virtual void setToolTip( const QString& );
+    virtual QString toolTip() const;
+    
 protected slots:
     virtual void slotDestroyed();
 
@@ -112,7 +115,8 @@ private:
     bool m_bIconSet;
     QString m_group;
     int m_accel;
-
+    QString m_toolTip;
+    
     struct Container
     {
 	Container() { m_container = 0; m_representative = 0; m_id = 0; }
@@ -208,7 +212,7 @@ public:
 
     void setEditable( bool );
     bool isEditable() const;
-    
+
     int plug( QWidget* );
 
     virtual void setItems( const QStringList& );

@@ -11,6 +11,7 @@
 #include "qpopupmenu.h"
 #include "qvalidator.h"
 #include "qtl.h"
+#include "qtooltip.h"
 
 // NOT REVISED
 
@@ -402,7 +403,7 @@ int QAction::plug( QWidget* widget )
 	else if ( hasIconSet() )
 	    b = new QToolButton( m_iconSet, plainText(), m_groupText, this, SLOT( slotActivated() ), bar );
 	else
-        {
+	{
 	    b = new QToolButton( bar );
 	    b->setTextLabel( plainText() );
 	    connect( b, SIGNAL( clicked() ), this, SLOT( slotActivated() ) );
@@ -413,6 +414,9 @@ int QAction::plug( QWidget* widget )
 	addContainer( bar, b );
 	connect( bar, SIGNAL( destroyed() ), this, SLOT( slotDestroyed() ) );
 	
+	if ( !m_toolTip.isEmpty() )
+	    QToolTip::add( b, m_toolTip );
+		
 	return m_containers.count() - 1;
     }
 
@@ -448,6 +452,27 @@ void QAction::unplug( QWidget* widget )
 	if ( i != -1 )
 	    removeContainer( i );
     }
+}
+
+void QAction::setToolTip( const QString& tt )
+{
+    m_toolTip = tt;
+    
+    int len = containerCount();
+    for( int i = 0; i < len; ++i )
+    {
+	QWidget* w = container( i );
+	QWidget* r = representative( i );
+	if ( w->inherits( "QToolBar" ) && r->inherits( "QToolButton" ) )
+	    QToolTip::add( w, m_toolTip );
+	else if ( w->inherits( "QActionWidget" ) )
+	    ((QActionWidget*)w)->updateAction( this );	
+    }
+}
+
+QString QAction::toolTip() const
+{
+    return m_toolTip;
 }
 
 void QAction::setText( const QString& text )
@@ -768,6 +793,9 @@ int QActionMenu::plug( QWidget* widget )
 	}
 
 	b->setEnabled( isEnabled() );
+
+	if ( !toolTip().isEmpty() )
+	    QToolTip::add( b, toolTip() );
 
 	addContainer( bar, b );
 	connect( bar, SIGNAL( destroyed() ), this, SLOT( slotDestroyed() ) );
