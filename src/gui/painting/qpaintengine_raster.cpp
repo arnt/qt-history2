@@ -882,7 +882,8 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
     QPainterPath path;
     path.addRect(r);
 
-    fillPath(path, &fillData);
+    FillData clippedFill = d->clipForFill(&fillData);
+    fillPath(path, &clippedFill);
 }
 
 void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &sr)
@@ -929,8 +930,8 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
         textureData.dy = -( + d->matrix.dy()) + sr.y();
     }
 
-    fillPath(path, &fillData);
-
+    FillData clippedFill = d->clipForFill(&fillData);
+    fillPath(path, &clippedFill);
 }
 
 
@@ -1472,6 +1473,25 @@ QPoint QRasterPaintEngine::coordinateOffset() const
 }
 
 
+/* Sets up potential clipping for this FillData object.
+ * Note that the data object must be valid throughout the lifetime of
+ * the return value.
+ */
+FillData QRasterPaintEnginePrivate::clipForFill(FillData *data)
+{
+    if (clipEnabled && data->callback) {
+        FillData clipFillData = {
+            data->rasterBuffer,
+            qt_span_fill_clipped,
+            data
+        };
+        return clipFillData;
+    } else {
+        return *data;
+    }
+}
+
+
 FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPainterPath *path)
 {
     Q_ASSERT(fillData);
@@ -1624,16 +1644,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
         break;
     }
 
-    if (clipEnabled && fillData->callback) {
-        FillData clipFillData = {
-            fillData->rasterBuffer,
-            qt_span_fill_clipped,
-            fillData
-        };
-        return clipFillData;
-    } else {
-        return *fillData;
-    }
+    return clipForFill(fillData);
 }
 
 

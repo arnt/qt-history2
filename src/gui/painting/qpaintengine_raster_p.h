@@ -102,6 +102,7 @@ class QRasterPaintEnginePrivate : public QPaintEnginePrivate
 public:
 
     FillData fillForBrush(const QBrush &brush, const QPainterPath *path);
+    FillData clipForFill(FillData *data);
     void updateClip_helper(const QPainterPath &path, Qt::ClipOperation);
 
     QImage colorizeBitmap(const QImage &image, const QColor &color);
