@@ -161,6 +161,7 @@ public:
     static QString fromLatin1(const char*, int size=-1);
     static QString fromUtf8(const char*, int size=-1);
     static QString fromLocal8Bit(const char*, int size=-1);
+    static QString fromUcs2( const unsigned short *ucs2 );
 
     QString &setUnicode(const QChar *unicode, int size);
     QString &setUnicodeCodes(const ushort *unicode_as_ushorts, int size);

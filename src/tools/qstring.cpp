@@ -2495,6 +2495,24 @@ QString QString::fromUtf8( const char* utf8, int len )
 }
 
 /*!
+  Constructs a string that is a deep copy of \a str, interpreted as a
+  UCS2 encoded, zero terminated, Unicode string.
+
+  If \a str is 0, then a null string is created.
+
+  \sa isNull()
+*/
+QString QString::fromUcs2( const unsigned short *str )
+{
+    if ( !str )
+	return QString();
+    int length = 0;
+    while ( str[length] != 0 )
+	length++;
+    return QString((const QChar *)str, length);
+}
+
+/*!
     Resizes the string to \a size characters and copies \a unicode
     into the string. If \a unicode is 0, nothing is copied, but the
     string is still resized to \a size.
