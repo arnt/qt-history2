@@ -1338,6 +1338,8 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
 		    QAction *a = findAction( n2.attribute( "name" ) );
 		    if ( a )
 			a->addTo( popup );
+		} else if ( n2.tagName() == "separator" ) {
+		    popup->insertSeparator();
 		}
 		n2 = n2.nextSibling().toElement();
 	    }

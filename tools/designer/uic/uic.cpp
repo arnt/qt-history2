@@ -1670,6 +1670,8 @@ void Uic::createMenuBarImpl( const QDomElement &n )
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "action" )
 		out << indent << n2.attribute( "name" ) << "->addTo( popup );" << endl;
+	    else if ( n2.tagName() == "separator" )
+		out << indent << "popup->insertSeparator();" << endl;
 	}
 	out << indent << "menuBar()->insertItem( " << trmacro << "(" << fixString( ae.attribute( "text" ) ) << "), popup );" << endl;
     }

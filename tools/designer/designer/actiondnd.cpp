@@ -60,6 +60,10 @@ bool QSeparatorAction::addTo( QWidget *w )
 	QToolBar *tb = (QToolBar*)w;
 	wid = new QDesignerToolBarSeparator( tb->orientation(), tb );
 	return TRUE;
+    } else if ( w->inherits( "QPopupMenu" ) ) {
+	idx = ( (QPopupMenu*)w )->count();
+	( (QPopupMenu*)w )->insertSeparator( idx );
+	return TRUE;
     }
     return FALSE;
 }
@@ -68,6 +72,9 @@ bool QSeparatorAction::removeFrom( QWidget *w )
 {
     if ( w->inherits( "QToolBar" ) ) {
 	delete wid;
+	return TRUE;
+    } else if ( w->inherits( "QPopupMenu" ) ) {
+	( (QPopupMenu*)w )->removeItemAt( idx );
 	return TRUE;
     }
     return FALSE;
@@ -158,6 +165,7 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 	} else if ( res == ID_SEP ) {
 	    calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
 	    QAction *a = new QSeparatorAction( 0 );
+	    connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
 	    a->addTo( this );
 	    ( (QSeparatorAction*)a )->widget()->installEventFilter( this );
 	    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
@@ -525,7 +533,8 @@ void QDesignerMenuBar::mouseReleaseEvent( QMouseEvent *e )
 void QDesignerMenuBar::dragEnterEvent( QDragEnterEvent *e )
 {
     if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) )
+	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
     if ( e->provides( "application/x-designer-menuitem" ) )
 	e->accept();
@@ -537,12 +546,14 @@ void QDesignerMenuBar::dragMoveEvent( QDragMoveEvent *e )
 {
     if ( e->provides( "application/x-designer-actions" ) ||
 	 e->provides( "application/x-designer-menuitem" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) )
+	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
     else
 	return;
     if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) ) {
+	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-separator" ) ) {
 	int item = itemAtPos( e->pos() );
 	activateItemAt( item );
 	if ( item == -1 )
@@ -651,11 +662,24 @@ void QDesignerPopupMenu::mousePressEvent( QMouseEvent *e )
 	int itm = itemAtPos( e->pos() );
 	if ( itm == -1 )
 	    return;
-	QPopupMenu menu( this );
-	menu.insertItem( tr( "Delete Item" ) );
-	if ( menu.exec( e->globalPos() ) != -1 ) {
+	QPopupMenu menu( 0 );
+	const int ID_DELETE = 1;
+	const int ID_SEP = 2;
+	menu.insertItem( tr( "Delete Item" ), ID_DELETE );
+	menu.insertItem( tr( "Insert Separator" ), ID_SEP );
+	int res = menu.exec( e->globalPos() );
+	if ( res == ID_DELETE ) {
 	    removeItemAt( itm );
 	    actionList.remove( itm );
+	} else if ( res == ID_SEP ) {
+	    calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
+	    QAction *a = new QSeparatorAction( 0 );
+	    a->addTo( this );
+	    actionList.insert( insertAt, a );
+	    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
+	    ( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
+	    reInsert();
+	    connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
 	}
 	return;
     }
@@ -674,7 +698,7 @@ void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	QPopupMenu::mouseMoveEvent( e );
 	return;
     }
-    int itm = itemAtPos( dragStartPos );
+    int itm = itemAtPos( dragStartPos, FALSE );
     if ( itm == -1 )
 	return;
     QAction *a = actionList.at( itm );
@@ -683,7 +707,8 @@ void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )
     a->removeFrom( this );
     actionList.remove( itm );
 
-    QString type = a->inherits( "QActionGroup" ) ? QString( "application/x-designer-actiongroup" ) : QString( "application/x-designer-actions" );
+    QString type = a->inherits( "QActionGroup" ) ? QString( "application/x-designer-actiongroup" ) :
+	a->inherits( "QSeparatorAction" ) ? QString( "application/x-designer-separator" ) : QString( "application/x-designer-actions" );
     QStoredDrag *drag = new QStoredDrag( type, this );
     QString s = QString::number( (long)a ); // #### huha, that is evil
     drag->setEncodedData( QCString( s.latin1() ) );
@@ -708,7 +733,8 @@ void QDesignerPopupMenu::dragEnterEvent( QDragEnterEvent *e )
     mousePressed = FALSE;
     lastIndicatorPos = QPoint( -1, -1 );
     if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) )
+	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
 }
 
@@ -716,7 +742,8 @@ void QDesignerPopupMenu::dragMoveEvent( QDragMoveEvent *e )
 {
     mousePressed = FALSE;
     if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) )
+	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
     else
 	return;
@@ -735,7 +762,8 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
 {
     mousePressed = FALSE;
     if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) )
+	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
     else
 	return;
@@ -763,8 +791,15 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
 	reInsert();
 	connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
     } else {
-	QString s( e->encodedData( "application/x-designer-actions" ) );
-	QDesignerAction *a = (QDesignerAction*)s.toLong(); // #### huha, that is evil
+	QString s;
+	QAction *a = 0;
+	if ( e->provides( "application/x-designer-separator" ) ) {
+	    s = QString( e->encodedData( "application/x-designer-separator" ) );
+	    a = (QSeparatorAction*)s.toLong(); // #### huha, that is evil
+	} else {
+	    s = QString( e->encodedData( "application/x-designer-actions" ) );
+	    a = (QDesignerAction*)s.toLong(); // #### huha, that is evil
+	}
 	a->addTo( this );
 	actionList.insert( insertAt, a );
 	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();

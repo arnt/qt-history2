@@ -2117,8 +2117,12 @@ void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 	if ( !m )
 	    continue;
 	QList<QAction> actionList = ( (QDesignerPopupMenu*)m->popup() )->insertedActions();
-	for ( QAction *a = actionList.first(); a; a = actionList.next() )
-	    ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
+	for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
+	    if ( a->inherits( "QSeparatorAction" ) )
+		ts <<  makeIndent( indent ) << "<separator/>" << endl;
+	    else
+		ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
+	}
 	indent--;
 	ts << makeIndent( indent ) << "</item>" << endl;
     }
@@ -2172,6 +2176,10 @@ void Resource::loadMenuBar( const QDomElement &e )
 			a->addTo( popup );
 			popup->addAction( a );
 		    }
+		} else if ( n2.tagName() == "separator" ) {
+		    QAction *a = new QSeparatorAction( 0 );
+		    a->addTo( popup );
+		    popup->addAction( a );
 		}
 		n2 = n2.nextSibling().toElement();
 	    }

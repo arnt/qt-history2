@@ -95,9 +95,11 @@ public:
     bool addTo( QWidget *w );
     bool removeFrom( QWidget *w );
     QWidget *widget() const;
+    int index() const;
 
 private:
     QWidget *wid;
+    int idx;
 
 };
 

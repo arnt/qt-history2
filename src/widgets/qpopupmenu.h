@@ -111,7 +111,7 @@ protected:
     bool	focusNextPrevChild( bool next );
 
     QRect	itemGeometry( int index );
-    int		itemAtPos( const QPoint & ) const;
+    int		itemAtPos( const QPoint &, bool ignoreSeparator = TRUE ) const;
 
 private slots:
     void	subActivated( int itemId );

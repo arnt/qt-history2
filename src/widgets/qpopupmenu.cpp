@@ -698,7 +698,7 @@ void QPopupMenu::byeMenuBar()
   it is a separator item.
 */
 
-int QPopupMenu::itemAtPos( const QPoint &pos ) const
+int QPopupMenu::itemAtPos( const QPoint &pos, bool ignoreSeparator ) const
 {
     if ( !contentsRect().contains(pos) )
 	return -1;
@@ -723,7 +723,7 @@ int QPopupMenu::itemAtPos( const QPoint &pos ) const
 	++row;
     }
 
-    if ( mi && !mi->isSeparator() )
+    if ( mi && ( !ignoreSeparator || !mi->isSeparator() ) )
 	return row;
     return -1;
 }
