@@ -1,4 +1,4 @@
-!contains(TEMPLATE, subdirs):shared:!win32-msvc:!macx-xcode {
+!contains(TEMPLATE, subdirs):!win32-msvc:!macx-xcode {
   !build_pass {
      DebugPackage.target = debug
      DebugPackage.CONFIG = debug
