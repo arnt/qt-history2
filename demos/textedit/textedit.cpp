@@ -306,7 +306,8 @@ void TextEdit::fileSave()
         if (!file.open(QFile::WriteOnly))
             return;
         QTextStream ts(&file);
-        ts << currentEditor->document()->toPlainText();
+        ts.setEncoding(QTextStream::UnicodeUTF8);
+        ts << currentEditor->document()->toHtml("utf-8");
         currentEditor->document()->setModified(false);
     }
 }
