@@ -51,11 +51,14 @@ public:
 /*!
 
   \class QDataView qdataview.h
-  \brief SQL form manipulation
+  \brief This class provides SQL forms that support navigation but are
+  read-only.
 
   \module sql
 
-  This class is used to ...//###
+    This class provides SQL forms that users can navigate to view data.
+    Because QDataViews don't support editing they use less resources
+    than QDataBrowsers making them a good choice for read-only forms.
 
 */
 
@@ -78,8 +81,9 @@ QDataView::~QDataView()
     delete d;
 }
 
-/*!  Clears the default form values.  If there is no default form,
-  nothing happens,
+/*!  Clears the default form's values.  If there is no default form,
+  nothing happens. All the values are set to their 'zero state', e.g. 0
+  for numeric fields, "" for string fields. 
 
 */
 
@@ -89,8 +93,8 @@ void QDataView::clearValues()
 }
 
 /*! Sets the form used by the data view to \a form.  If a record has
-  already been assigned to the data view, that record is also used by
-  the \a form to display data.
+  already been assigned to the data view, the form will display that
+  record's data.
 
   \sa form()
 
@@ -116,8 +120,8 @@ QSqlForm* QDataView::form()
 
 
 /*! Sets the record used by the data view to \a record.  If a form has
-  already been assigned to the data view, \a record is also used by
-  the default form to display data.
+  already been assigned to the data view, the form will display this \a
+  record's data.
 
   \sa record()
 
@@ -141,8 +145,8 @@ QSqlRecord* QDataView::record()
 }
 
 
-/*! Causes the default form to read its fields .  If there is no
-  default form, nothing happens.
+/*! Causes the default form to read its fields from the record buffer.  If
+   there is no default form, or no record, nothing happens.
 
   \sa setForm()
 
@@ -153,8 +157,8 @@ void QDataView::readFields()
     d->frm.readFields();
 }
 
-/*! Causes the default form to write its fields .  If there is no
-  default form, nothing happens.
+/*! Causes the default form to write its fields to the record buffer.
+   If there is no default form, or no record, nothing happens.
 
   \sa setForm()
 
