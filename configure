@@ -864,6 +864,21 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$KDE" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG kde"
 [ -z "$QMAKE_PROJECTS" ] && QMAKE_PROJECTS=`find $relpath/. -name '*.pro' -print | sort | sed 's-/\./-/-'`
 
+# Make sure QMAKE_PROJECTS contains src/qt.pro and src/moc/moc.pro
+TMP="*src/qt.pro*"
+if [ -n "${QMAKE_PROJECTS%%$TMP}" ]
+then
+    echo "Adding src/qt.pro to list of projects"
+    QMAKE_PROJECTS="src/qt.pro ${QMAKE_PROJECTS}"
+fi
+
+TMP="*src/moc/moc.pro*"
+if [ -n "${QMAKE_PROJECTS%%$TMP}" ]
+then
+    echo "Adding src/moc/moc.pro to list of projects"
+    QMAKE_PROJECTS="src/moc/moc.pro ${QMAKE_PROJECTS}"
+fi
+
 [ ! -z "$D_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"DEFINES+=$D_FLAGS\""
 if [ ! -z "$l_FLAGS" ] || [ ! -z "$L_FLAGS" ]
 then
