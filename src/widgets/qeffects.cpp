@@ -215,7 +215,7 @@ void QAlphaWidget::render()
     else
         elapsed = tempel;
 
-    alpha = double(tempel) / duration;
+    alpha = tempel / double(duration);
     if ( alpha >= 1 || !showWidget) {
 	anim.stop();
 	widget->removeEventFilter( this );
@@ -452,11 +452,11 @@ void QRollEffect::scroll()
             elapsed = tempel;
 
 	if ( currentWidth != totalWidth ) {
-	    currentWidth = double( totalWidth * elapsed ) / (double)duration;
+	    currentWidth = totalWidth * elapsed / (double)duration;
 	    done = (currentWidth >= totalWidth);
 	}
 	if ( currentHeight != totalHeight ) {
-	    currentHeight = double( totalHeight * elapsed ) / (double)duration;
+	    currentHeight = totalHeight * elapsed / (double)duration;
 	    done = (currentHeight >= totalHeight);
 	}
 	done = ( ( currentHeight >= totalHeight ) && 
