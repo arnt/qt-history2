@@ -519,7 +519,7 @@ void QPixmap::resize(int w, int h)
 */
 QBitmap QPixmap::mask() const
 {
-    return *data->mask;
+    return data->mask ? *data->mask : QBitmap();
 }
 
 
