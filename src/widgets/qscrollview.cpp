@@ -2670,9 +2670,11 @@ QSize QScrollView::sizeHint() const
 	return d->cachedSizeHint;
 
     constPolish();
-    QSize sz = QSize( frameWidth() * 2, frameWidth() * 2 );
+    int f = 2 * frameWidth();
+    int h = fontMetrics().height();
+    QSize sz( f, f );
     if ( d->policy > Manual ) {
-	QSVChildRec* r = d->children.first();
+	QSVChildRec *r = d->children.first();
 	if ( r ) {
 	    QSize cs = r->child->sizeHint();
 	    if ( cs.isValid() )
@@ -2683,7 +2685,8 @@ QSize QScrollView::sizeHint() const
     } else {
 	sz += QSize( contentsWidth(), contentsHeight() );
     }
-    return sz;
+    return sz.expandedTo( QSize(12 * h, 8 * h) )
+	     .boundedTo( QSize(36 * h, 24 * h) );
 }
 
 
