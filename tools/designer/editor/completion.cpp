@@ -353,10 +353,12 @@ bool EditorCompletion::continueComplete()
     QString txt2 = searchString;
     strip( txt1 );
     strip( txt2 );
-    if ( txt1 == txt2 )
+    if ( txt1 == txt2 && !i->next() )
 	return FALSE;
 
     QStringList res = cList.grep( QRegExp( "^" + searchString ) );
+    if ( res.isEmpty() )
+	return FALSE;
     completionListBox->clear();
     completionListBox->insertStringList( res );
     completionListBox->setCurrentItem( 0 );
