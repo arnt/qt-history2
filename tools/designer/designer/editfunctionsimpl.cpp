@@ -94,9 +94,9 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
     lastType = "function";
 
     // Enable rename for all QListViewItems
-    QListViewItemIterator it = functionListView->firstChild();
-    for ( ; *it; it++ )
-	(*it)->setRenameEnabled( 0, TRUE );
+    QListViewItemIterator lvit = functionListView->firstChild();
+    for ( ; *lvit; lvit++ )
+	(*lvit)->setRenameEnabled( 0, TRUE );
     
     // Connect listview signal to signal-relay
     QObject::connect( functionListView,
