@@ -493,12 +493,13 @@ Q_EXPORT int qWinVersion();
 #endif
 #if defined(QT_NO_WARNINGS)
 #  if defined(Q_CC_MSVC)
-#    pragma warning(disable: 4244)
-#    pragma warning(disable: 4275)
-#    pragma warning(disable: 4514)
-#    pragma warning(disable: 4800)
-#    pragma warning(disable: 4097)
-#    pragma warning(disable: 4706)
+#    pragma warning(disable: 4244) // 'conversion' conversion from 'type1' to 'type2', possible loss of data
+#    pragma warning(disable: 4275) // non - DLL-interface classkey 'identifier' used as base for DLL-interface classkey 'identifier'
+#    pragma warning(disable: 4514) // unreferenced inline/local function has been removed
+#    pragma warning(disable: 4800) // 'type' : forcing value to bool 'true' or 'false' (performance warning)
+#    pragma warning(disable: 4097) // typedef-name 'identifier1' used as synonym for class-name 'identifier2'
+#    pragma warning(disable: 4706) // assignment within conditional expression
+#    pragma warning(disable: 4099) // type name first seen using 'objecttype1' now seen using 'objecttype2'
 #  elif defined(Q_CC_BOR)
 #    pragma option -w-inl
 #    pragma option -w-aus
