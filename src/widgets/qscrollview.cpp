@@ -2687,16 +2687,22 @@ bool QScrollView::dragAutoScroll() const
 
 #endif // QT_NO_DRAGANDDROP
 
+/*!\internal
+ */
 void QScrollView::setCachedSizeHint( const QSize &sh ) const
 {
     d->cachedSizeHint = sh;
 }
 
+/*!\internal
+ */
 void QScrollView::disableSizeHintCaching()
 {
     d->use_cached_size_hint = FALSE;
 }
 
+/*!\internal
+ */
 QSize QScrollView::cachedSizeHint() const
 {
     return d->use_cached_size_hint ? d->cachedSizeHint : QSize();
