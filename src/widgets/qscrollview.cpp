@@ -2790,6 +2790,12 @@ bool QScrollView::dragAutoScroll() const
     return d->drag_autoscroll;
 }
 
+void QScrollView::setAcceptDrops( bool b )
+{
+    QWidget::setAcceptDrops( b );
+    viewport()->setAcceptDrops( b );
+}
+
 #endif // QT_NO_DRAGANDDROP
 
 /*!\internal
