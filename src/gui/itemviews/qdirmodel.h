@@ -40,6 +40,7 @@ class Q_GUI_EXPORT QDirModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_PROPERTY(bool resolveSymlinks READ resolveSymlinks WRITE setResolveSymlinks)
+    Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
 
 public:
     QDirModel(const QString &path = QString::null,
@@ -84,13 +85,18 @@ public:
 
     void setNameFilters(const QStringList &filters);
     QStringList nameFilters() const;
+ 
     void setFilter(QDir::Filters filters);
     QDir::Filters filter() const;
+
     void setSorting(QDir::SortFlags sort);
     QDir::SortFlags sorting() const;
 
     void setResolveSymlinks(bool enable);
     bool resolveSymlinks() const;
+
+    void setReadOnly(bool enable);
+    bool isReadOnly() const;
 
     void refresh(const QModelIndex &parent = QModelIndex());
 

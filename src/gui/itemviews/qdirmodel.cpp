@@ -173,6 +173,7 @@ public:
     QDirModelPrivate()
         : rootIsVirtual(true),
           resolveSymlinks(true),
+          readOnly(true),
           iconProvider(&defaultProvider) {}
 
     void init(const QDir &directory);
@@ -196,6 +197,7 @@ public:
     mutable QDirNode root;
     bool rootIsVirtual;
     bool resolveSymlinks;
+    bool readOnly;
 
     QDir::Filters filters;
     QDir::SortFlags sort;
@@ -542,6 +544,8 @@ QAbstractItemModel::ItemFlags QDirModel::flags(const QModelIndex &index) const
 
 bool QDirModel::isEditable(const QModelIndex &index) const
 {
+    if (d->readOnly)
+        return false;
     if (!index.isValid()) {
         qWarning("isEditable: the index is invalid");
         return false;
@@ -850,6 +854,26 @@ void QDirModel::setResolveSymlinks(bool enable)
 bool QDirModel::resolveSymlinks() const
 {
     return d->resolveSymlinks;
+}
+
+/*!
+  \property QDirModel::readOnly
+  \bried Whether the directory model allows writing to the file system
+
+  If this property is set to false, the directory model will allow renaming, copying
+  and deleting of files and directories.
+
+  This property is true by default
+*/
+
+void QDirModel::setReadOnly(bool enable)
+{
+    d->readOnly = enable;
+}
+
+bool QDirModel::isReadOnly() const
+{
+    return d->readOnly;
 }
 
 /*!

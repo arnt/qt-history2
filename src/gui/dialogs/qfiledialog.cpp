@@ -1421,6 +1421,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     QAbstractItemView::SelectionMode selMode = selectionMode(fileMode);
     QStringList cleanedFilter = qt_clean_filter_list(nameFilter.first());
     model = new QDirModel(QString::null, cleanedFilter, filters, sort, q);
+    model->setReadOnly(false);
     selections = new QItemSelectionModel(model);
     QModelIndex current = directory.isEmpty() ? QModelIndex() : model->index(directory);
 
