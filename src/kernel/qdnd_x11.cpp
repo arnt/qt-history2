@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#28 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -242,7 +242,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
 
     if ( l[1] & 1 ) {
 	// should retrieve that property
-	//debug( "more types than expected from %08lx", qt_xdnd_dragsource_xid );
+	//debug( "more types from %08lx", qt_xdnd_dragsource_xid );
     }
 }
 
@@ -255,15 +255,11 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     QWidget * c = find_child( w, p );
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
-	debug( "xdnd drag position from unexpected source (%08lx not %08lx)",
-	       l[0], qt_xdnd_dragsource_xid );
+	//	debug( "xdnd drag position from unexpected source (%08lx not %08lx)",
+	//       l[0], qt_xdnd_dragsource_xid );
 	return;
     }
-
-    qt_xdnd_current_widget = c;
-    qt_xdnd_current_position = p;
-    qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
-
+    
     XClientMessageEvent response;
     response.type = ClientMessage;
     response.window = qt_xdnd_dragsource_xid;
@@ -275,11 +271,35 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
     response.data.l[3] = 0; // w, h
     response.data.l[4] = 0; // just null
 
+    QRect answerRect( c->mapToGlobal( p ), QSize( 1,1 ) );
+
+    if ( qt_xdnd_current_widget != c ) {
+	if ( qt_xdnd_current_widget ) {
+	    QDragLeaveEvent e;
+	    QApplication::sendEvent( qt_xdnd_current_widget, &e );
+	}
+	QDragEnterEvent de( p );
+	QApplication::sendEvent( c, &de );
+	if ( de.isAccepted() )
+	    response.data.l[1] = 1; // yess!!!!
+	answerRect= QRect( c->mapToGlobal( de.answerRect().topLeft() ),
+			   de.answerRect().size() );
+    }
+
+    qt_xdnd_current_widget = c;
+    qt_xdnd_current_position = p;
+    qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
+
     QDragMoveEvent me( p );
     QApplication::sendEvent( c, &me );
     if ( me.isAccepted() )
 	response.data.l[1] = 1; // yess!!!!
+    answerRect= QRect( c->mapToGlobal( me.answerRect().topLeft() ),
+		       me.answerRect().size() );
 
+    response.data.l[2] = answerRect.x() << 16 + answerRect.y();
+    response.data.l[2] = answerRect.width() << 16 + answerRect.height();
+    
     QWidget * source = QWidget::find( qt_xdnd_dragsource_xid );
     if ( source )
 	qt_handle_xdnd_status( source, (const XEvent *)&response );
@@ -301,16 +321,18 @@ void qt_handle_xdnd_status( QWidget * w, const XEvent * xe )
 void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
 {
     if ( !qt_xdnd_current_widget ||
-	 w->topLevelWidget() != qt_xdnd_current_widget->topLevelWidget() )
+	 w->topLevelWidget() != qt_xdnd_current_widget->topLevelWidget() ) {
+	qt_xdnd_dragsource_xid = 0;
 	return; // sanity
+    }
 
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
     //debug( "xdnd leave" );
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
-	debug( "xdnd drag leave from unexpected source (%08lx not %08lx",
-	       l[0], qt_xdnd_dragsource_xid );
+	//debug( "xdnd drag leave from unexpected source (%08lx not %08lx",
+	//       l[0], qt_xdnd_dragsource_xid );
 	qt_xdnd_current_widget = 0;
 	return;
     }
@@ -344,7 +366,7 @@ static void qt_xdnd_send_leave()
 
     QWidget * w = QWidget::find( qt_xdnd_current_target );
     if ( w ) {
-	qt_handle_xdnd_status( w, (const XEvent *)&leave );
+	qt_handle_xdnd_leave( w, (const XEvent *)&leave );
     } else {
 	XSendEvent( w->x11Display(), qt_xdnd_current_target, FALSE,
 		    NoEventMask, (XEvent*)&leave );
@@ -356,20 +378,26 @@ static void qt_xdnd_send_leave()
 
 void qt_handle_xdnd_drop( QWidget *, const XEvent * xe )
 {
-    if ( !qt_xdnd_current_widget )
+    if ( !qt_xdnd_current_widget ) {
+	qt_xdnd_dragsource_xid = 0;
 	return; // sanity
+    }
 
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
     //debug( "xdnd drop" );
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
-	debug( "xdnd drop from unexpected source (%08lx not %08lx",
-	       l[0], qt_xdnd_dragsource_xid );
+	//debug( "xdnd drop from unexpected source (%08lx not %08lx",
+	//       l[0], qt_xdnd_dragsource_xid );
 	return;
     }
     QDropEvent de( qt_xdnd_current_position );
     QApplication::sendEvent( qt_xdnd_current_widget, &de );
+    QDragLeaveEvent e;
+    QApplication::sendEvent( qt_xdnd_current_widget, &e );
+    qt_xdnd_dragsource_xid = 0;
+    qt_xdnd_current_widget = 0;
 }
 
 
@@ -497,7 +525,7 @@ void QDragManager::move( const QPoint & globalPos )
     if ( target == 0 )
 	target = qt_xrootwin();
 
-    
+
     QWidget * w = QWidget::find( (WId)target );
 
     if ( target != qt_xdnd_current_target ) {
@@ -578,6 +606,7 @@ void QDragManager::drop()
     else
 	XSendEvent( qt_xdisplay(), qt_xdnd_current_target, FALSE, NoEventMask,
 		    (XEvent*)&drop );
+    qt_xdnd_current_target = 0;
     if ( restoreCursor ) {
 	QApplication::restoreOverrideCursor();
 	restoreCursor = FALSE;
@@ -628,7 +657,7 @@ const char * QDragMoveEvent::format( int n )
 
 /*!  Returns TRUE if this drag object provides format \a mimeType or
   FALSE if it does not.
-  
+
   This function is provided for drop sites that accept only one mime
   types.  Drop sites that accept more than one mime type are probably
   better off using format().
