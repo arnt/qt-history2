@@ -1,0 +1,845 @@
+\chapter Creating Main Windows with Actions, Toolbars and Menus
+
+\index Actions and Action Groups
+\index Main Window!Creating
+\index Creating Main Windows
+\index Creating Menus
+\index Menus!Adding
+\index Creating Toolbars
+\index Toolbars, Creating
+\index Toolbar Buttons!Adding
+\index Adding!Menus
+\index Adding!Toolbars
+\index Adding!Actions and Action Groups
+\index Adding!Toolbar Buttons
+In this chapter we will explain how to create an application's main
+window and how to add actions (explained shortly), menus and toolbars.
+We will also demonstrate how some common actions, like cut and paste in
+a \Class QTextEdit, can be performed automatically simply by making the
+appropriate signals and slots connections. We will build the \e richedit
+application to illustrate the necessary techniques.
+\img richedit-main.png
+\caption The Richedit Application
+
+\index Projects
+We begin by creating a project file. Start \QD or if it is already
+running, close any existing project and files. Click
+\Menu {File|New Project} to invoke the \Dialog {Project Settings} dialog. Enter a
+name for the project, e.g. richedit, and a name for the  project file,
+e.g. richedit.pro. Click \OK. If you're unfamiliar with Actions and
+Action Groups the sidebar provides the necessary introduction; otherwise
+skip ahead to "Designing the Main Window".
+
+\sidebar Actions and Action Groups
+
+An \e action is an operation that the user initiates through the user
+interface, for example, saving a file or changing some text's font
+weight to bold.
+
+We often want the user to be able to perform an action using a variety
+of means. For example, to save a file we might want the user to be able
+to press \Key Ctrl+S, or to click the \Button Save toolbar button
+or to click the \Menu File|Save menu option. Although the means of
+invoking the action are all different, the underlying operation is the
+same and we don't want to duplicate the code that performs the
+operation. In Qt we can create an action (a \Class QAction object)
+which will call the appropriate function when the action is invoked. We
+can assign an accelerator, (e.g. \Key Ctrl+S), to an action. We
+can also add an action to a menu item and to a toolbar button.
+
+If the action has an on/off state, e.g. bold is on or off, when the user
+changes the state, for example by clicking a toolbar button, the state
+of everything associated with the action, e.g. menu items and toolbar
+buttons, are updated.
+
+Some actions should operate together like radio buttons. For example, if
+we have left align, center align and right align actions, only one
+should be 'on' at any one time. An \e {action group} (a
+\Class QActionGroup object) is used to group a set of actions together.
+If the action group's \c {exclusive} property is TRUE then only one of
+the actions in the group can be on at any one time. If the user changes
+the state of an action in an action group where \c {exclusive} is TRUE,
+everything associated with the actions in the action group, e.g. menu
+items and toolbar buttons, are updated.
+
+\index Actions and Action Groups
+\QD can create actions and action groups visually, can assign
+accelerators to them, and can associate them with menu items and toolbar
+buttons.
+
+\endsidebar
+
+    \section1 Designing the Main Window
+
+    \index Main Window!Creating
+\index Creating Main Windows
+\index Main Window!Wizard
+\index Wizards!Main Window
+\index Creating Menus
+\index Menus!Adding
+\index Adding!Menus
+\index Creating Toolbars
+\index Toolbars, Creating
+\index Toolbar Buttons!Adding
+\index Adding!Toolbars
+\index Adding!Actions and Action Groups
+\index Adding!Toolbar Buttons
+We will use the main window wizard to build a main window. The
+    wizard allows us to create actions and a menu bar and a toolbar
+    through which the user can invoke the actions. We will also create
+    our own actions, menus and toolbar. We will add some widgets to the
+    toolbar and add a main widget to the main window. Finally we will
+    connect signals to slots to take advantage of Qt's default
+    functionality and minimize our coding.
+
+	\section2 Creating the Main Window
+
+	Click \Menu File|New to invoke the \Dialog {New Form} dialog, click
+	Mainwindow, then click \OK. A new \Class QMainWindow form will
+	be created and the Mainwindow Wizard will pop up.
+
+	\list 1
+
+	\i
+
+	The \e {Choose available menus and toolbars} wizard page appears
+	first. It presents three categories of default actions, File
+	Actions, Edit Actions and Help Actions. For each category you
+	can choose to have \QD create menu items, toolbar buttons and
+	signal/slots connections for the relevant actions. You can
+	always add or delete actions, menu items, toolbar buttons and
+	connections later.
+
+	\index Creating Menus
+\index Menus!Adding
+\index Creating Toolbars
+\index Toolbars, Creating
+\index Toolbar Buttons!Adding
+\index Adding!Menus
+\index Adding!Toolbars
+\index Adding!Actions and Action Groups
+\index Adding!Toolbar Buttons
+\index Signals and Slots!Connecting Actions
+We will accept the defaults for File Actions, i.e. have menu
+	items, toolbar buttons and the relevant connections created. But
+	for the Edit Actions we don't want any connections created since
+	we'll be connecting the actions directly to the
+	\Class QTextEdit we'll create later, so uncheck the Edit Action's
+	Create Slots and Connections checkbox. We won't have any Help
+	Actions on the toolbar so uncheck the Help Action's Toolbar
+	checkbox. Click \Button Next to move on to the next wizard
+	page.
+
+	\i
+
+	\index Creating Toolbars
+\index Toolbars, Creating
+\index Toolbar Buttons!Adding
+\index Adding!Toolbar Buttons
+\index Separator!Menu item
+\index Separator!Toolbar button
+The \e {Setup Toolbar} wizard page is used to populate a toolbar
+	with actions from each of the default action categories. The
+	Category combobox is used to select which set of actions you
+	wish to work on. The Actions list box lists the actions
+	available for the current category. The Toolbar listbox lists
+	the toolbar buttons you want to create. The blue left and right
+	arrow buttons are used to move actions into or out of the
+	Toolbar list box. The blue up and down arrow buttons are used to
+	move actions up and down within the Toolbar list box. Note that
+	the '\<Separator\>' item in the Actions list box may be moved to
+	the Toolbar list box as often as required and will cause a
+	separator to appear in the finished toolbar.
+
+	Copy the New, Open and Save Actions to the
+	Toolbar list box. Copy a \<Separator\> to the Toolbar list
+	box. Change the Category to Edit and copy the Undo, Redo, Cut
+	Copy and Paste actions to the Toolbar list box. Click
+	\Button Next and then click \Button Finish.
+
+	\endlist
+
+	If you preview the form (\Key {Ctrl+T}) the File and Edit
+	menus will be available and you'll be able to drag the toolbar
+	either into an independent window of its own, or to dock it to
+	the left, right, bottom or top of the window. The menus and
+	toolbars are not functional yet but we will rectify this as we
+	progress.
+
+	\section2 Creating and Deleting Actions and Action Groups
+
+	    \section3 Creating Actions
+
+	    \index Actions and Action Groups!Adding Actions
+\index Adding!Actions and Action Groups
+Our application requires more menu items and toolbar buttons
+	    than the the defaults we created with the main window wizard.
+	    But before we create the menu items and toolbar buttons we
+	    will create the actions that they'll invoke. The Action
+	    Editor appears automatically when you create a main window.
+	    You can also access it through the Window menu (click
+	    \Menu {Window|Action Editor}).
+
+	    For the richedit application we need to create actions for
+	    indicating bold, italic and underlined font attributes, and to
+	    set text alignment.
+
+	    Right click in the \Dialog {Action Editor} where the actions are
+	    listed, then left click New Action. This will create a new
+	    action called 'Action' at the top of the list of actions.
+	    The Property Editor will change to show the default settings
+	    for the new action. We'll now go through all the properties
+	    we need to change.
+	    \list 1
+	    \i
+
+	    Change the \Property name of the action to 'boldAction'.
+
+	    \i
+
+	    Since bold can only be on or off change the
+	    \Property toggleAction property to True.
+
+	    \i
+
+	    \index Adding!Pixmaps
+\index Pixmaps!Adding
+The \Property iconSet property is used to set an icon which will
+	    appear to the left of the action's name in any menu you
+	    associate the action with. The \Property iconSet is also used for the
+	    toolbar button if you associate the action with a toolbar.
+	    Click the ellipsis button (\Key {...}) to invoke the
+	    \Dialog {Edit Pixmap Collection} dialog. The pixmap we require
+	    is not in the default collection. Click the \Button Add
+	    button and a file dialog will appear. The icons we require
+	    are in the Qt examples directory, \File qt/examples/textedit/.
+	    Navigate to the textedit directory and select the
+	    \File textbold.xpm file. Click the new textbold icon in the
+	    pixmap collection then click \OK.
+
+	    \i
+
+	    Change the \Property text property to 'bold'. This automatically
+	    changes the \Property menuText, \Property toolTip and \Property statusTip
+	    properties.
+
+	    \i
+
+	    Change the menu text to '\&Bold'. If we choose to
+	    associate this action with a menu item then this property is
+	    used; otherwise it is ignored.
+
+	    \i
+
+	    Change the \Property accel property to 'CTRL+B'. This will associate
+	    the \Key Ctrl+B keyboard accelerator with this action.
+
+	    \endlist
+	    Note that at this point the only way to invoke this action is to
+	    use the keyboard accelerator (\Key {Ctrl+B}), because we
+	    have not yet associated the action with a menu item or with a
+	    toolbar button.
+
+	    \index Adding!Actions and Action Groups
+We need to add two more actions, italic and underline. For each
+	    one right click the \Dialog {Action Editor} and click New
+	    Action. Then repeat the steps listed above to change each
+	    action's properties:
+	    \list
+	    \i
+
+	    For the italic action change its \Property name to 'italicAction' and
+	    ensure its \Property toggleAction property is True. The
+	    \Property iconSet is in
+	    the textedit directory and is called \File textitalic.xpm; add
+	    its pixmap in the same way that we added the bold pixmap.
+	    (For example, click the ellipsis (\Key {...}), click
+	    \Button Add, navigate to the textedit directory and click
+	    the \File textitalic.xpm pixmap. Then click the textitalic
+	    pixmap in the pixmap collection and click \OK). Change the
+	    action's \Property text to 'italic', its \Property menuText
+	    to '\&Italic' and
+	    its \Property accel to 'CTRL+I'.
+
+	    \i
+
+	    For the underline action change its \Property name
+	    to 'underlineAction'
+	    and set its \Property toggleAction property to True. The
+	    \Property iconSet is in
+	    the same directory and is called \File textunder.xpm; add it
+	    in the same way as the previous pixmaps. Change its \Property text to
+	    'underline', its \Property menuText to '\&Underline' and its
+	    \Property accel to 'CTRL+U'.
+
+	    \endlist
+
+	    \section3 Creating Action Groups
+
+	    \index Actions and Action Groups!Adding Action Groups
+\index Adding!Actions and Action Groups
+It is perfectly possible to have bold, italic and underline
+	    all active at once. But for alignment, i.e. left align,
+	    right align and centered, it only makes sense for one of
+	    them to be active at any one time. Because we need the
+	    alignment actions to operate in sync with one another we
+	    must create an Action Group which will automatically
+	    manage the behaviour of the actions it contains in the way
+	    we require.
+
+	    \index Actions and Action Groups!Exclusive Actions
+\index Exclusive Actions, Actions and Action Groups
+Right click the \Dialog {Action Editor} then left click New Action
+	    Group. Change the action group's \Property name in the Property
+	    Editor to 'alignActionGroup', and change its \Property text to
+	    'align'. The '\Property {exclusive}' property's default is True.
+	    This ensures that only one action within the action group
+	    can be 'on' at any one time which is the behaviour we
+	    require.
+
+	    We create the actions within the action group in almost the
+	    same way as before. The only difference is that we must
+	    right click the alignActionGroup (rather than an Action) and
+	    then left click New Action to create a new action \e within
+	    the action group. We will create three new actions within
+	    the alignActionGroup:
+	    \list 1
+	    \i
+
+	    \index Adding!Pixmaps
+\index Pixmaps!Adding
+Create a new action within the alignActionGroup action
+	    group. Change the \Property name of this action to 'leftAlignAction'
+	    and ensure its \Property toggleAction property is True. Use the
+	    \Property iconSet in the textedit directory called \File textleft.xpm,
+	    adding the pixmap to the pixmap collection in the same way
+	    as we added the textbold pixmap earlier. Change its \Property text to
+	    'left', its menuText to '\&Left' and its \Property accel to
+	    'CTRL+L'.
+
+	    \i
+
+	    Create another new action within alignActionGroup. Change
+	    this action's \Property name to 'rightAlignAction' and set its
+	    \Property toggleAction property to True. Set its \Property iconSet to
+	    \File textright.xpm using the pixmap collection as before.
+	    Change its \Property text to 'right', its menuText to
+	    '\&Right' and its \Property accel to 'CTRL+R'.
+
+	    \i
+
+	    Create a third action within alignActionGroup. Change its
+	    \Property name to 'centerAlignAction' and make its
+	    \Property toggleAction property True. Change its \Property iconSet
+	    to \File textcenter.xpm. Change its \Property text to 'center'
+	    and its \Property menuText to '\&Center'. We won't set an
+	    accelerator for this action.
+
+	    \endlist
+
+	    Note that the \Property toolTip and \Property statusTip properties were
+	    inherited from the action group; you may wish to change
+	    these to be specific to the actions concerned.
+
+	    \section3 Deleting Actions and Action Groups
+
+	    \index Actions and Action Groups!Deleting
+\index Deleting!Actions and Action Groups
+We have some actions that we don't intend providing for this
+	    first release, for example, the editFindAction and the
+	    filePrintAction. Click editFindAction and then click the
+	    \Toolbutton {Delete Action} toolbar button. Delete the
+	    filePrintAction in the same way. Action Groups (including
+	    any actions they contain) can also be deleted with the
+	    \Toolbutton {Delete Action} toolbar button.
+
+	\section2 Creating and Populating a Toolbar
+
+	\index Creating Toolbars
+\index Adding!Toolbars
+\index Toolbars, Creating
+All the actions we require are now in place and we are ready to
+	create a new toolbar and add some of our actions to it. Right
+	click on the right hand side of the toolbar area, or on the
+	form, then left click Add Toolbar. The new toolbar is empty and
+	is visible only by its \e {toolbar handle}. (Toolbar handle's are
+	usually represented as a gray area containing either two thick
+	vertical lines or with many small pits).
+
+	\index Actions and Action Groups!Adding to a Toolbar
+\index Separator!Toolbar button
+\index Adding!Actions and Action Groups to a Toolbar
+\index Adding!Toolbar Separators
+We'll add the new actions we've just created. Drag the
+	alignActionGroup, (not any action it contains), to the new
+	toolbar and drop it on the toolbar handle to the right
+	of the vertical lines. The three alignment actions will be added
+	to the toolbar. The bold, italic and underline actions do not
+	belong to an action group, and must be dragged to the toolbar
+	individually. Drag the bold action to the toolbar: when the
+	mouse is over the toolbar a thick red line will appear
+	indicating the position at which the toolbar button will be
+	inserted; drop the bold action on the toolbar. Drag the italic
+	and underline actions to the toolbar and drop them next to the
+	bold button. Separate the alignment toolbar buttons from the
+	font related buttons by right clicking the centered toolbar
+	button and clicking Insert Separator.
+
+	\index Separator!Toolbar button
+\index Deleting!Toolbar Separators
+\index Deleting!Toolbars
+Toolbar buttons and separators (usually represented as indented
+	vertical gray lines), can be dragged and dropped into new
+	positions in the toolbar at any time. Separators can be inserted
+	by right clicking a toolbar button and clicking Insert
+	Separator. Toolbar buttons and separators can be deleted by
+	right clicking them and clicking Delete Item. Toolbars can be
+	deleted by right clicking their toolbar handle and clicking
+	Delete Toolbar.
+
+	\index Previewing!Toolbars
+If you preview the application you'll find that both the
+	original and new toolbar can be dragged to different docking
+	points or dragged out of the application as independent tool
+	windows.
+
+	    \section3 Adding Widgets to the Toolbar
+
+	    \index Toolbars!Adding Widgets
+\index Widgets!Adding to Toolbars
+\index Adding!Widgets
+We want our users to be able to choose the font and font size
+	    from the toolbar. To achieve this we'll create a font combobox
+	    and a font size spinbox and place them in the formatting toolbar
+	    we created in the previous section.
+
+	    \index Widgets!ComboBox
+\index Widgets!SpinBox
+\index Separator!Toolbar button
+Click \QD's \Toolbutton ComboBox toolbar button and click
+	    the last (right-most) toolbar button in the application's
+	    new toolbar. Change the combobox's name to 'fontComboBox'.
+	    Click the \Toolbutton SpinBox toolbar button and click the
+	    combobox we've just added to insert the spinbox next to it.
+	    Change the spinbox's \Property minValue property to 6, its
+	    \Property value property to 10 and its \Property suffix to a space
+	    followed by 'pt'. Insert a separator to the left of the
+	    combobox.
+
+	   Although you can put any widget into a toolbar we recommend
+	   that widgets which can be associated with an action should
+	   \e not be added to the toolbar directly. For these widgets,
+	   i.e. menu items, toolbar buttons and lists of items, you should
+	   create an action (drop down action for a list of items),
+	   associate the action with the widget, and add the action to
+	   the toolbar. Widgets that can sensibly be inserted directly
+	   into a toolbar are \Widget {ComboBox}es, \Widget {SpinBox}es
+	   and \Widget {Line Edit}s.
+
+	\section2 Creating Menus
+
+	\index Creating Menus
+\index Menus!Adding
+\index Adding!Menus
+We'll now add the actions we added to the new toolbar to a new
+	menu and modify the existing menus slightly.
+
+	\index Menus!Adding Menu Items
+\index Adding!Menu Items
+Right click our application's menu bar and click Add Menu Item.
+	A new menu item called 'Menu' will appear. Right click this menu
+	item and click Rename Item. Change its name to 'F\&ormat'.
+	Click the menu item and a red bar will appear beneath it --
+	this is the empty menu. Drag the alignActionGroup to the Format
+	menu item and drop the action group on the menu. (The menu's red
+	bar will appear and a thick red line will be drawn where the new
+	menu items will appear -- drop when the red line is in the
+	position you require.) Now if you click the Format menu item
+	the three alignment actions will be displayed. Just like the
+	toolbar we must add the bold, italic and underline actions
+	individually. Drag the bold action to the Format menu and move
+	the mouse so that the red line is positioned at the bottom of
+	the menu, then drop the action. Repeat this process for the
+	italic and underline actions.
+
+	\index Creating Menus
+\index Menus!Adding
+\index Separator!Menu item
+\index Menus!Adding Menu Separators
+\index Adding!Menu Separators
+\index Menus!Deleting
+\index Deleting!Menus
+\index Deleting!Menu Items
+\index Deleting!Menu Separators
+We'll now deal with the separators in the menus. Firstly we'll
+	add a separator in the Format menu and then we'll remove some
+	redundant separators from the other menus. Click the Format menu
+	and right click the bold item; click Insert Separator. Click the
+	File menu and right click one of the separators above the Exit
+	action; click Delete Item. Click the Edit menu, right click the
+	separator at the very bottom of the menu and click Delete Item.
+	Delete Item can be used to delete separators, menu
+	items and menus.
+
+	\index Menus!Moving
+Click the Format menu and drag it to the left of the Help menu,
+	then drop the Format menu. (A thick red bar will appear to
+	indicate the insertion postion.) Both menus and menu items may
+	be dragged and dropped to different positions in the same way.
+
+	\index Previewing!Menus
+Preview the application and try clicking the alignment and font
+	style toolbar buttons and menu items. Qt will automatically keep
+	the state of the menu items and the toolbar buttons
+	synchronized.
+
+	\section2 Adding and Connecting the Main Widget
+
+	\index Main Widget
+\index Adding!Main Widgets
+\index Widgets!Adding a Main Widget
+\index Main Window!Adding a Main Widget
+\index Signals and Slots
+Our application is a rich text editor, but so far there has been
+	nowhere for the user to edit text. We'll add a \Class QTextEdit
+	widget and use Qt's signals and slots mechanism to minimize the
+	code we have to write to make it functional.
+
+	Click \QD's Richtext Editor (\Toolbutton {Text Edit}) toolbar
+	button and click in the center of the form. Click the form, then
+	click the \Toolbutton {Lay Out Horizontally} toolbar button. We're
+	now ready to make the connections we need; but first we will do
+	some renaming to make things easier to understand. Click on the
+	\Widget {Text Edit} widget and change its \Property name property to
+	'textEdit'. Change the \Property textFormat property to 'RichText'.
+	Change the \Property name of the form to 'EditorForm' and its
+	caption to 'Rich Edit'.
+
+	\index Clipboard
+\index Cut and Paste (in Applications)
+The \Class QTextEdit widget contains built-in functionality for
+	cut and paste and various other editing functions. By connecting
+	the appropriate signals to our textEdit we can take advantage of
+	this functionality without the need to write any code.
+
+	    \section3 Connecting Actions to Change Font Attributes
+
+	    \index Signals and Slots!Connecting Actions
+Click the underlineAction in the \Dialog {Action Editor}, then
+	    click the Connect button. The \Dialog {Edit Connections} dialog will
+	    appear. Click the \index toggled()
+\SignalOrSlot toggled() signal. Since we wish to
+	    connect this signal to the text edit widget drop down the
+	    Slots combobox and click textEdit. The text edit's slots
+	    that can respond to a toggled signal will appear in the
+	    right hand list box. Click the \index setUnderline()
+\SignalOrSlot setUnderline() slot,
+	    then click \OK.
+
+	    Connect up the bold and italic actions in the same way. (For
+	    example, click the bold action and click Connect. Click the
+	    \index toggled()
+\SignalOrSlot toggled() signal, change the Slots combobox item to
+	    textEdit and click the \index setBold()
+\SignalOrSlot setBold() slot. Click \OK.) If
+	    you preview the form you'll find that you can enter text and
+	    that choosing bold, italic or underline will work.
+
+	    \section3 Connecting Actions to Implement Cut, Copy, Paste, Undo and Redo
+
+	    \index Clipboard
+\index Cut and Paste (in Applications)
+\index Signals and Slots!Connecting for Cut
+\index Signals and Slots!Connecting for Copy
+\index Signals and Slots!Connecting for Paste
+\index Signals and Slots!Connecting for Undo
+\index Signals and Slots!Connecting for Redo
+\index Previewing!Signals and Slots
+\index Signals and Slots!Previewing
+The cut, copy, paste, undo and redo actions are connected in
+	    the same way as the font attributes. For example, click the
+	    editPasteAction action and click Connect. Click the
+	    \index activated()
+\SignalOrSlot activated() signal, change the Slots combobox item to
+	    textEdit and click the \index paste()
+\SignalOrSlot paste() slot. Click \OK to
+	    save the connection. Connect the cut, copy, undo and redo
+	    actions in the same way. (For example, click the
+	    editCopyAction action, click Connect, click the
+	    \index activated()
+\SignalOrSlot activated() signal, change the Slots combobox item to
+	    textEdit, click the \index copy()
+\SignalOrSlot copy() slot then click \OK.) Then
+	    the cut, copy, paste, undo and redo actions will all work in
+	    preview mode.
+
+	    \section3 Connecting for Text Alignment
+
+	    \index Signals and Slots!Connecting for Text Alignment
+\index Text Alignment
+We need to create a slot to receive signals from alignment
+	    actions and set the textEdit widget's alignment state
+	    accordingly. One approach would be to connect each
+	    individual alignment action to our slot, but because the
+	    align actions are in a group we will connect the
+	    alignActionGroup to our slot and determine which alignment
+	    the user chose from the \Class QAction pointer that is
+	    passed.
+
+	    Create a new slot with the signature
+	    \SignalOrSlot changeAlignment(QAction *align). (Click
+	    \Menu Edit|Slots, click \Button {New Slot}, enter the slot's
+	    signature and click \OK.) Click alignActionGroup in the
+	    \Dialog {Action Editor}, then click \Button Connect. Connect the
+	    \index selected(QAction*)
+\SignalOrSlot selected(QAction*) signal to our change alignment slot,
+	    then click \OK.
+
+	    We'll have to write the code to set the alignment ourselves;
+	    we'll cover this in \l {Aligning
+	    Text}.
+
+	    \section3 Connecting for Font Names and Sizes
+
+	    \index Connecting!Signals and Slots
+\index Signals and Slots!Connecting for Font Sizes
+\index Signals and Slots!Connecting for Font Names
+\index Font Sizes
+\index Previewing!Signals and Slots
+\index Signals and Slots!Previewing
+We'll start by dealing with font size since it's easiest.
+	    Click the \Toolbutton {Connect Signals/Slots} toolbar button then
+	    click the spinbox and drag to the text edit widget; release
+	    on the text edit. Click the \index valueChanged(int)
+\SignalOrSlot valueChanged(int) signal
+	    and on the textEdit's \index setPointSize(int)
+\SignalOrSlot setPointSize(int) slot. Click \OK
+	    and font sizes are done. (Since font sizes are handled
+	    purely through built-in signals and slots they work in
+	    preview mode.)
+
+	    Connect the fontComboBox's \index activated()
+\SignalOrSlot activated() signal to the
+	    textEdit's \index setFamily()
+\SignalOrSlot setFamily() slot. This connection will
+	    handle updating the textEdit's font family with the user's
+	    choice of font. Note that when you invoke the
+	    \Dialog {Edit Connections} dialog the first signal that is
+	    highlighted is \SignalOrSlot activated(int). Since the
+	    \index setFamily()
+\SignalOrSlot setFamily() slot takes a \Class QString argument it
+	    does \e not appear in the list of slots. Only those slots
+	    which are compatible with the highlighted signal are
+	    shown, in this case, slots which take no argument or which
+	    take an integer argument. Click the
+	    \SignalOrSlot activated(const QString\&) signal and the list of
+	    slots will change to those which take no argument or which
+	    take a \Class QString argument; the list will now include
+	    \index setFamily()
+\SignalOrSlot setFamily() since this takes a \Class QString
+	    argument. We will have to populate the combobox with the
+	    font names for the user to choose from in code. (See the
+	    \index init()
+\Func init() function in \l {Changing Fonts}.) It's a good idea to connect the
+	    fontComboBox's \index activate()
+\SignalOrSlot activate() signal to the textEdit's
+	    \index setFocus()
+\SignalOrSlot setFocus() slot; this will ensure that after the user
+	    has changed font the focus will return
+	    to the text.
+
+	    The richedit application is nearly complete. We will have to
+	    write code to handle text alignment, font family and
+	    file loading and saving. We will also write the code
+	    for application exit to deal correctly with any unsaved changes.
+
+    \section1 Converting the Design into an Executable Application
+
+    \index Code Editing
+\index Adding!Code!Code Editing
+We've built the user interface through \QD and connected those slots
+    that provided sufficient default functionality. The last steps are to
+    code the slots that require customization and then to create
+    \index main.cpp
+\File main.cpp so that we can compile and build our application.
+
+   	\section2 Implementing the Main Window's Functionality
+
+	When the user starts the richedit application we want the focus
+	to be in the textEdit widget so we'll add one line of code to
+	the \index init()
+\Func init() function to achieve this. (All the code snippets
+	are from \File qt/tools/designer/examples/richedit/richedit.ui.
+\code
+textEdit->setFocus();
+\endcode
+
+	    \section3 New Files and Loading and Saving Existing Files
+
+	    The code for these tasks is straightforward. When the user
+	    clicks \Menu File|New we check to see if there are
+	    unsaved changes in the existing text and give them the
+	    opportunity to save, continue without saving or cancel the
+	    operation. When the user opts to open an existing file or
+	    exit the application we perform the same check and offer
+	    them the same choices.
+
+\quotefile richedit/richedit.cpp
+\skipto ::fileNew
+\printuntil }
+
+	    The \Func fileNew() function clears the text and the filename.
+
+\quotefile richedit/richedit.cpp
+\skipto ::fileOpen
+\printuntil setText
+\printline }
+\printline }
+\printline }
+\printline }
+
+	    The \Func fileOpen() function asks the user to choose a file
+	    using \index QFileDialog::getOpenFileName()
+\Func QFileDialog::getOpenFileName(). If they
+	    choose a file we set the fileName member to its name, open
+	    it and read its contents directly into the text edit via a
+	    text stream.
+
+\quotefile richedit/richedit.cpp
+\skipto ::fileSave(
+\printuntil setModified
+\printline }
+\printline }
+\printline }
+
+	    If there is no current file name we call
+	    \Func fileSaveAs() which will prompt for a
+	    file name and if a file name is given calls
+	    \Func fileSave(). If we have a file name we
+	    open a file and write the text from the text edit into the
+	    file via a text stream. We also set the text edit's modified
+	    property to FALSE.
+
+\quotefile richedit/richedit.cpp
+\skipto ::fileSaveAs
+\printuntil fileSave()
+\printline }
+\printline }
+
+	    The \Func fileSaveAs function prompts the user for a file
+	    name and if they give a file name, saves the text to the
+	    file by calling \Func fileSave().
+
+\quotefile richedit/richedit.cpp
+\skipto ::fileExit
+\printuntil }
+
+	    When we exit the application we must perform the same check
+	    for unsaved changes as we've done in the preceding
+	    functions, so we've included the \Func fileExit() function's
+	    code here.
+
+\quotefile richedit/richedit.cpp
+\skipto ::saveAndContinue
+\printuntil return
+\printline }
+
+	    The \Func saveAndContinue() function is included for
+	    completeness.
+
+	    \section3 Aligning Text
+
+\quotefile richedit/richedit.cpp
+\skipto ::changeAlignment
+\printuntil }
+
+	    We compare the chosen alignment action's pointer to the
+	    the pointers stored in the form and if we get a match set
+	    the appropriate alignment in the textEdit widget.
+
+	    \section3 Changing Fonts
+
+	    We've already connected the fontComboBox's \index activated()
+\SignalOrSlot activated()
+	    signal to the textEdit's \index setFamily()
+\SignalOrSlot setFamily() slot so we just
+	    have to populate the combobox with the font names when we
+	    call \index init()
+\Func init().
+
+\quotefile richedit/richedit.cpp
+\skipto ::init
+\printuntil }
+\printline }
+\printline }
+
+	    The first line sets the focus as we've already mentioned. We
+	    then create a \Class QFontDatabase object and insert its
+	    list of font families into the fontComboBox. Finally we set
+	    the fontComboBox's current item to the textEdit's current
+	    font.
+
+	\section2 Making the Application Run
+
+	\index Object Hierarchy
+\index Forms!Forward declarations
+\index Forward declarations
+\index Includes
+\index Adding!Forward declarations
+\index Adding!Includes
+With all the connections and code in place we are now ready to
+	make our application run. Click on the Source tab of the Object
+	Hierarchy window and click on the Includes (in Implementation)
+	item. We need to include the files that our source code
+	depends on. Right click the Includes item and click New. Type in
+	\c {<qapplication.h>} for \Func {fileExit()}'s \index exit()
+\Func exit() call.
+	In the same way add \c {<qmessagebox.h>} for
+	\Func {saveAndContinue()}'s message box, \c {<qfiledialog.h>}
+	for the \Func fileOpen() and \Func fileSaveAs() functions, and
+	\c {<qfontdatabase.h>} for the \Class QFontDatabase class
+	in \index init()
+\Func init().
+
+	\index Forms!Class variables
+\index Adding!Class variables
+\index Class variables
+We referred to a member variable, \c {fileName},
+	in our source code so we must add it to the form. Click the
+	Source tab, right click the Class Variables item, click New from
+	the pop up menu, then enter 'QString fileName;'.
+
+	\index Adding!Files to Projects
+\index Projects!Adding Files
+Create a \index main.cpp
+\File main.cpp file in a plain text editor. Ours looks
+	like this:
+
+\quotefile richedit/main.cpp
+\skipto #include
+\printuntil }
+
+	In a plain text editor open the \index richedit.pro
+\File richedit.pro project file
+	and add the line \c {SOURCES += main.cpp} to the end of the file.
+	The file should look similar to this:
+
+\include richedit/richedit.pro
+
+	\index Makefiles
+All that's left to do is to generate the Makefile, compile and
+	run. The Makefile is created with \Cmd qmake:
+	\c {qmake -o Makefile richedit.pro}.
+
+	The richedit application demonstrates how easy it is to create a
+	Qt application's main window with menus and dockable toolbars. A
+	great deal of functionality was obtained by connecting the
+	appropriate built-in signals and slots. The remaining
+	functionality was achieved by connecting built-in signals to our
+	own custom slots. We could continue developing the application,
+	for example updating the fontComboBox, the font size spinbox and
+	the actions with the font attributes as the user moves the
+	cursor through their text. But our objective has been to
+	demonstrate the creation of a main window with actions, menus
+	and toolbars so we must stop at this point and leave further
+	development and experimentation to you.
