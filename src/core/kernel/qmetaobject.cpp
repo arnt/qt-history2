@@ -542,7 +542,7 @@ QMetaProperty QMetaObject::property(int index) const
         const char *type = d.stringdata + d.data[handle + 1];
         if ((flags & Override) && d.superdata){
             result = property(d.superdata->indexOfProperty(name));
-            if (qstrcmp(result.type(), type)) // type missmatch, no override
+            if (qstrcmp(result.typeName(), type)) // type missmatch, no override
                 ::memset(&result, 0, sizeof(QMetaProperty));
         }
         if (flags & EnumOrFlag) {
@@ -826,7 +826,7 @@ const char *QMetaMember::parameters() const
     Returns the return type of this member, or an empty string if the
     return type is \e void.
 */
-const char *QMetaMember::type() const
+const char *QMetaMember::typeName() const
 {
     if (!mobj)
         return 0;
@@ -914,7 +914,7 @@ const char* QMetaEnum::name() const
 
     \sa key()
 */
-int QMetaEnum::numKeys() const
+int QMetaEnum::keyCount() const
 {
     if (!mobj)
         return 0;
@@ -1114,14 +1114,29 @@ const char *QMetaProperty::name() const
 }
 
 /*!
-    Returns this property's type.
+    Returns the name of this property's type.
  */
-const char *QMetaProperty::type() const
+const char *QMetaProperty::typeName() const
 {
     if (!mobj[QMetaObject::ReadProperty])
         return 0;
     int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
     return mobj[QMetaObject::ReadProperty]->d.stringdata + mobj[QMetaObject::ReadProperty]->d.data[handle + 1];
+}
+
+/*!
+    Returns this property's type. The return value is one 
+    of the values of the QCoreVariant::Type enumeration, or
+    -1 for properties of type QVariant.
+*/
+uint QMetaProperty::type() const
+{
+    if (!mobj[QMetaObject::ReadProperty])
+        return 0;
+
+    int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
+    int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
+    return (QCoreVariant::Type)flags >> 24;
 }
 
 
@@ -1210,7 +1225,7 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
     if ((uint)t == 0xffffffff) {
         argv[0] = &value;
     } else if (t == QCoreVariant::UserType) {
-        qVariantSet(value, user, type());
+        qVariantSet(value, user, typeName());
         argv[0] = &user;
     } else {
         value = QCoreVariant(t, (void*)0);
@@ -1220,7 +1235,7 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
                      idx[QMetaObject::ReadProperty] + mobj[QMetaObject::ReadProperty]->propertyOffset(),
                      argv);
     if (t == QCoreVariant::UserType)
-        qVariantSet(value, user, type());
+        qVariantSet(value, user, typeName());
     else if ((uint)t != 0xffffffff && argv[0] != value.data())
         return QCoreVariant(t, argv[0]);
     return value;
@@ -1492,7 +1507,7 @@ public:
 static QVector<QCustomTypeInfo> customTypes;
 
 /*
-   returns the type name associated for \a type or 0 if no type was
+   Returns the type name associated for \a type or 0 if no type was
    found. The returned pointer must not be deleted.
  */
 const char *QMetaType::typeName(int type)

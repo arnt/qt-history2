@@ -28,7 +28,7 @@ public:
 
     const char *signature() const;
     const char *parameters() const;
-    const char *type() const;
+    const char *typeName() const;
     const char *tag() const;
     enum Access { Private, Protected, Public };
     Access access() const;
@@ -49,7 +49,7 @@ public:
     const char *name() const;
     bool isFlag() const;
 
-    int numKeys() const;
+    int keyCount() const;
     const char *key(int index) const;
     int value(int index) const;
 
@@ -58,7 +58,7 @@ public:
     int keysToValue(const char * keys) const;
     QByteArray valueToKeys(int value) const;
 
-    inline operator bool() const { return name() != 0; }
+    inline isValid() const { return name() != 0; }
 private:
     const QMetaObject *mobj;
     uint handle;
@@ -71,7 +71,8 @@ public:
     QMetaProperty();
 
     const char *name() const;
-    const char *type() const;
+    const char *typeName() const;
+    uint type() const;
 
     bool isReadable() const;
     bool isWritable() const;
@@ -89,7 +90,7 @@ public:
     bool reset(QObject *obj) const;
 
     bool hasStdCppSet() const;
-    inline operator bool() const { return isReadable(); }
+    inline isValid() const { return isReadable(); }
 
 private:
     const QMetaObject *mobj[10];

@@ -221,7 +221,7 @@ bool qInvokeSlot(QObject *obj, const char *slotName, Qt::ConnectionType type,
         return false;
 
     // check return type
-    if (ret.data() && qstrcmp(ret.name(), obj->metaObject()->slot(idx).type()) != 0)
+    if (ret.data() && qstrcmp(ret.name(), obj->metaObject()->slot(idx).typeName()) != 0)
         return false;
 
     void *param[] = {ret.data(), val0.data(), val1.data(), val2.data(), val3.data(), val4.data(),
