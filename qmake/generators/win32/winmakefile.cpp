@@ -437,12 +437,14 @@ void Win32MakefileGenerator::processVars()
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
     }
-    processQtConfig();
     fixTargetExt();
-    processMocConfig();
     processLibsVar();
     processRcFileVar();
     processExtraWinCompilersVar();
+    processFileTagsVar();
+    processQtConfig();
+    processMocConfig();
+    processDllConfig();
 }
 
 void Win32MakefileGenerator::processLibsVar()
@@ -556,5 +558,27 @@ void Win32MakefileGenerator::processQtConfig()
 	    if (!project->isActiveConfig("dll") && !project->isActiveConfig("plugin")) 
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
 	}
+    }
+}
+
+void Win32MakefileGenerator::processDllConfig()
+{
+    if(project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+	project->variables()["CONFIG"].remove("staticlib");
+	project->variables()["QMAKE_APP_OR_DLL"].append("1");
+    } else {
+	project->variables()["CONFIG"].append("staticlib");
+    }
+}
+
+void Win32MakefileGenerator::processFileTagsVar()
+{
+    char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
+    for(int i = 0; filetags[i]; i++) {
+	project->variables()["QMAKE_FILETAGS"] << filetags[i];
+	//clean path
+	QStringList &gdmf = project->variables()[filetags[i]];
+	for(QStringList::Iterator it = gdmf.begin(); it != gdmf.end(); ++it)
+	    (*it) = Option::fixPathToTargetOS((*it), FALSE);
     }
 }

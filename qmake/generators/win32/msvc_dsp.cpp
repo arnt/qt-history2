@@ -576,12 +576,7 @@ DspMakefileGenerator::init()
 
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
-    if(project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	project->variables()["CONFIG"].remove("staticlib");
-	project->variables()["QMAKE_APP_OR_DLL"].append("1");
-    } else {
-	project->variables()["CONFIG"].append("staticlib");
-    }
+    processDllConfig();
 
     if(!project->variables()["VERSION"].isEmpty()) {
 	QString version = project->variables()["VERSION"][0];
@@ -656,14 +651,7 @@ DspMakefileGenerator::init()
 
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
 
-    char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
-    for(int i = 0; filetags[i]; i++) {
-	project->variables()["QMAKE_FILETAGS"] << filetags[i];
-	//clean path
-	QStringList &gdmf = project->variables()[filetags[i]];
-	for(QStringList::Iterator it = gdmf.begin(); it != gdmf.end(); ++it)
-	    (*it) = Option::fixPathToTargetOS((*it), FALSE);
-    }
+    processFileTagsVar();
 
     MakefileGenerator::init();
     if(msvcdsp_project.isEmpty())
@@ -703,7 +691,6 @@ DspMakefileGenerator::init()
     project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_WINDOWS"];
 
     processPrlFiles();
-
     processLibsVar();
 
     project->variables()["MSVCDSP_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];

@@ -420,13 +420,6 @@ MingwMakefileGenerator::init()
 	    project->variables()[project->isActiveConfig("target_qt") ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
     }
 
-    if(project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	project->variables()["CONFIG"].remove("staticlib");
-	project->variables()["QMAKE_APP_OR_DLL"].append("1");
-    } else {
-	project->variables()["CONFIG"].append("staticlib");
-    }
-
     if(project->isActiveConfig("warn_off")) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_WARN_OFF"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_WARN_OFF"];
@@ -558,16 +551,7 @@ MingwMakefileGenerator::init()
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_EXCEPTIONS_OFF"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_EXCEPTIONS_OFF"];
     }
-    
-    char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
-    for(int i = 0; filetags[i]; i++) {
-	project->variables()["QMAKE_FILETAGS"] << filetags[i];
-	//clean path
-	QStringList &gdmf = project->variables()[filetags[i]];
-	for(QStringList::Iterator it = gdmf.begin(); it != gdmf.end(); ++it)
-	    (*it) = Option::fixPathToTargetOS((*it), FALSE);
-    }
-  
+ 
     if(project->isActiveConfig("dll")) {
 		QString destDir = "";
 		if(!project->first("DESTDIR").isEmpty())

@@ -951,13 +951,7 @@ void VcprojGenerator::initOld()
     if(project->variables()["QMAKESPEC"].isEmpty())
 	project->variables()["QMAKESPEC"].append(getenv("QMAKESPEC"));
 
-    // If we are a dll, then we cannot be a staticlib at the same time...
-    if(project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	project->variables()["CONFIG"].remove("staticlib");
-	project->variables()["QMAKE_APP_OR_DLL"].append("1");
-    } else {
-	project->variables()["CONFIG"].append("staticlib");
-    }
+    processDllConfig();
 
     // Decode version, and add it to $$MSVCPROJ_VERSION --------------
     if(!project->variables()["VERSION"].isEmpty()) {
@@ -1017,17 +1011,7 @@ void VcprojGenerator::initOld()
     }
 
     processLibsVar();
-
-    // Run through all variables containing filepaths, and -----------
-    // slash-slosh them correctly depending on current OS  -----------
-    char *filetags[] = { "HEADERS", "SOURCES", "DEF_FILE", "RC_FILE", "TARGET", "QMAKE_LIBS", "DESTDIR", "DLLDESTDIR", "INCLUDEPATH", NULL };
-    for(int i = 0; filetags[i]; i++) {
-	project->variables()["QMAKE_FILETAGS"] << filetags[i];
-	//clean path
-	QStringList &gdmf = project->variables()[filetags[i]];
-	for(QStringList::Iterator it = gdmf.begin(); it != gdmf.end(); ++it)
-	    (*it) = Option::fixPathToTargetOS((*it), FALSE);
-    }
+    processFileTagsVar();
 
      // Get filename w/o extention -----------------------------------
     QString msvcproj_project = "";

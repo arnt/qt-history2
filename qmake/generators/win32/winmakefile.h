@@ -45,6 +45,8 @@ protected:
     virtual void processRcFileVar();
     virtual void processExtraWinCompilersVar();
     virtual void processQtConfig();
+    virtual void processDllConfig();
+    virtual void processFileTagsVar();
 };
 
 inline Win32MakefileGenerator::~Win32MakefileGenerator()
