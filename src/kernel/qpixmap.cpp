@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#47 $
 **
 ** Implementation of QPixmap class
 **
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#47 $")
 
 
 /*----------------------------------------------------------------------------
@@ -164,20 +164,18 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 /*----------------------------------------------------------------------------
   \fn QSize QPixmap::size() const
-  Returns the size of the pixmap.  A null pixmap has size (0,0).
-  \sa width(), height(), rect(), isNull().
+  Returns the size of the pixmap.
+  \sa width(), height(), rect()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QRect QPixmap::rect() const
-  Returns the enclosing rectangle of the pixmap, or (0,0,0,0) for a
-  null pixmap.
-  \sa width(), height(), size(), isNull()
+  Returns the enclosing rectangle (0,0,width(),height()) of the pixmap.
+  \sa width(), height(), size()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QPixmap::depth() const
-
   Returns the depth of the image.
 
   The pixmap depth is also called bits per pixel (bpp) or bit planes

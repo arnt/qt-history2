@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#74 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#73 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#74 $")
 
 
 /*----------------------------------------------------------------------------
@@ -891,8 +891,8 @@ void QPainter::setViewport( const QRect &r )
   \fn const QRegion &QPainter::clipRegion() const
 
   Returns the clip region currently set.  Note that the clip region is
-  \e not subject to \link setWorldMatrix() coordinate
-  transformation. \endlink
+  given in physical device coordinates and \e not subject to any
+  \link setWorldMatrix() coordinate transformation\endlink.
 
   \sa setClipRegion(), setClipRect()
  ----------------------------------------------------------------------------*/
@@ -900,8 +900,9 @@ void QPainter::setViewport( const QRect &r )
 /*----------------------------------------------------------------------------
   Sets the clip region to \e (x,y,w,h) and enables clipping.
 
-  Note that the clip region is \e not subject to \link setWorldMatrix()
-  coordinate transformation. \endlink
+  Note that the clip region is given in physical device coordinates and \e
+  not subject to any \link setWorldMatrix() coordinate
+  transformation\endlink.
 
   \sa setClipRegion(), setClipping()
  ----------------------------------------------------------------------------*/
