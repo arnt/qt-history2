@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#587 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#588 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3266,28 +3266,32 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
     QEvent::Type type;				// event parameters
     QPoint pos;
     QPoint globalPos;
-    int	   button = 0;
-    int	   state;
-
+    int button = 0;
+    int state;
+    XEvent nextEvent;
+    
     if ( sm_blockUserInput ) // block user interaction during session management
 	return TRUE;
 
     if ( event->type == MotionNotify ) { // mouse move
-	XEvent *xevent = (XEvent *)event;
-	unsigned int xstate = event->xmotion.state;
-	while ( XCheckTypedWindowEvent( appDpy, event->xmotion.window, MotionNotify, xevent ) ) {
-	    // compress motion events
-	    if ( xevent->xmotion.state != xstate ) {
-		XPutBackEvent( appDpy, xevent );
+	while( XPending( appDpy ) )  { // compres mouse moves
+	    XNextEvent( appDpy, &nextEvent );
+
+	    if ( nextEvent.type != MotionNotify || 
+		 nextEvent.xmotion.window != event->xmotion.window ||
+		 nextEvent.xmotion.state != event->xmotion.state ) {
+		XPutBackEvent( appDpy, &nextEvent );
 		break;
 	    }
+	    event = &nextEvent;
 	}
+	
 	type = QEvent::MouseMove;
-	pos.rx() = xevent->xmotion.x;
-	pos.ry() = xevent->xmotion.y;
-	globalPos.rx() = xevent->xmotion.x_root;
-	globalPos.ry() = xevent->xmotion.y_root;
-	state = translateButtonState( xevent->xmotion.state );
+	pos.rx() = event->xmotion.x;
+	pos.ry() = event->xmotion.y;
+	globalPos.rx() = event->xmotion.x_root;
+	globalPos.ry() = event->xmotion.y_root;
+	state = translateButtonState( event->xmotion.state );
 	if ( qt_button_down && (state & (LeftButton |
 					 MidButton |
 					 RightButton ) ) == 0 )
