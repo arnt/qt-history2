@@ -122,7 +122,7 @@ public:
 
     QByteArray left(int len)  const;
     QByteArray right(int len) const;
-    QByteArray mid(int index, int len=-1) const;
+    QByteArray mid(int index, int len = -1) const;
 
     bool startsWith(const QByteArray& a) const;
     bool startsWith(char c) const;
@@ -190,49 +190,48 @@ public:
     inline bool operator>=(const QString &s2) const;
 #endif
 
-    short  toShort(bool *ok=0, int base=10) const;
-    ushort toUShort(bool *ok=0, int base=10) const;
-    int toInt(bool *ok=0, int base=10)   const;
-    uint toUInt(bool *ok=0, int base=10)  const;
-    long toLong(bool *ok=0, int base=10)  const;
-    ulong toULong(bool *ok=0, int base=10) const;
-    Q_LLONG toLongLong(bool *ok=0, int base=10) const;
-    Q_ULLONG toULongLong(bool *ok=0, int base=10) const;
-    float toFloat(bool *ok=0) const;
-    double toDouble(bool *ok=0) const;
+    short toShort(bool *ok = 0, int base = 10) const;
+    ushort toUShort(bool *ok = 0, int base = 10) const;
+    int toInt(bool *ok = 0, int base = 10)   const;
+    uint toUInt(bool *ok = 0, int base = 10)  const;
+    long toLong(bool *ok = 0, int base = 10)  const;
+    ulong toULong(bool *ok = 0, int base = 10) const;
+    Q_LLONG toLongLong(bool *ok = 0, int base = 10) const;
+    Q_ULLONG toULongLong(bool *ok = 0, int base = 10) const;
+    float toFloat(bool *ok = 0) const;
+    double toDouble(bool *ok = 0) const;
 
-    QByteArray &setNum(short, int base=10);
-    QByteArray &setNum(ushort, int base=10);
-    QByteArray &setNum(int, int base=10);
-    QByteArray &setNum(uint, int base=10);
-    QByteArray &setNum(long, int base=10);
-    QByteArray &setNum(ulong, int base=10);
-    QByteArray &setNum(Q_LLONG, int base=10);
-    QByteArray &setNum(Q_ULLONG, int base=10);
-    QByteArray &setNum(float, char f='g', int prec=6);
-    QByteArray &setNum(double, char f='g', int prec=6);
+    QByteArray &setNum(short, int base = 10);
+    QByteArray &setNum(ushort, int base = 10);
+    QByteArray &setNum(int, int base = 10);
+    QByteArray &setNum(uint, int base = 10);
+    QByteArray &setNum(long, int base = 10);
+    QByteArray &setNum(ulong, int base = 10);
+    QByteArray &setNum(Q_LLONG, int base = 10);
+    QByteArray &setNum(Q_ULLONG, int base = 10);
+    QByteArray &setNum(float, char f = 'g', int prec = 6);
+    QByteArray &setNum(double, char f = 'g', int prec = 6);
 
-    static QByteArray number(long, int base=10);
-    static QByteArray number(ulong, int base=10);
-    static QByteArray number(int, int base=10);
-    static QByteArray number(uint, int base=10);
-    static QByteArray number(Q_LLONG, int base=10);
-    static QByteArray number(Q_ULLONG, int base=10);
-    static QByteArray number(double, char f='g', int prec=6);
+    static QByteArray number(long, int base = 10);
+    static QByteArray number(ulong, int base = 10);
+    static QByteArray number(int, int base = 10);
+    static QByteArray number(uint, int base = 10);
+    static QByteArray number(Q_LLONG, int base = 10);
+    static QByteArray number(Q_ULLONG, int base = 10);
+    static QByteArray number(double, char f = 'g', int prec = 6);
 
-
-    typedef char *Iterator;
-    typedef const char *ConstIterator;
-    Iterator begin();
-    ConstIterator begin() const;
-    ConstIterator constBegin() const;
-    Iterator end();
-    ConstIterator end() const;
-    ConstIterator constEnd() const;
+    typedef char *iterator;
+    typedef const char *const_iterator;
+    typedef iterator Iterator;
+    typedef const_iterator ConstIterator;
+    iterator begin();
+    const_iterator begin() const;
+    const_iterator constBegin() const;
+    iterator end();
+    const_iterator end() const;
+    const_iterator constEnd() const;
 
     // stl compatibility
-    typedef Iterator iterator;
-    typedef ConstIterator const_iterator;
     void push_back(char c);
     void push_back(const char *c);
     void push_back(const QByteArray &a);
@@ -373,17 +372,17 @@ inline QByteRef QByteArray::operator[](int i)
 { Q_ASSERT(i >= 0); return QByteRef(*this, i); }
 inline QByteRef QByteArray::operator[](uint i)
 { return QByteRef(*this, i); }
-inline QByteArray::Iterator QByteArray::begin()
+inline QByteArray::iterator QByteArray::begin()
 { detach(); return d->data; }
-inline QByteArray::ConstIterator QByteArray::begin() const
+inline QByteArray::const_iterator QByteArray::begin() const
 { return d->data; }
-inline QByteArray::ConstIterator QByteArray::constBegin() const
+inline QByteArray::const_iterator QByteArray::constBegin() const
 { return d->data; }
-inline QByteArray::Iterator QByteArray::end()
+inline QByteArray::iterator QByteArray::end()
 { detach(); return d->data + d->size; }
-inline QByteArray::ConstIterator QByteArray::end() const
+inline QByteArray::const_iterator QByteArray::end() const
 { return d->data + d->size; }
-inline QByteArray::ConstIterator QByteArray::constEnd() const
+inline QByteArray::const_iterator QByteArray::constEnd() const
 { return d->data + d->size; }
 inline QByteArray &QByteArray::operator+=(char c)
 { return append(c); }
