@@ -15,6 +15,7 @@
 #include "qtextimagehandler_p.h"
 #include "qtexttable.h"
 #include "qtextlist.h"
+#include "qtextengine_p.h"
 
 #include <qpainter.h>
 #include <qdebug.h>
@@ -41,10 +42,12 @@
 
 // ################ should probably add frameFormatChange notification!
 
+struct LayoutStruct;
+
 class QTextFrameData : public QTextFrameLayoutData
 {
 public:
-    QTextFrameData() : minimumWidth(0) {}
+    QTextFrameData() : minimumWidth(0), currentLayoutStruct(0) {}
 
     // relative to parent frame
     QRect boundingRect;
@@ -61,6 +64,8 @@ public:
 
     QTextFrameFormat::Position position;
     QList<QTextFrame *> layoutedFrames;
+
+    LayoutStruct *currentLayoutStruct;
 
     bool dirty;
 };
@@ -601,8 +606,7 @@ static bool isFrameInCell(const QTextTableCell &cell, QTextFrame *frame)
     const int frameStart = frame->firstPosition();
     const int frameEnd = frame->lastPosition();
 
-    return frameStart <= frameEnd
-           && cellStart <= frameStart && cellStart <= frameEnd
+    return cellStart <= frameStart && cellStart <= frameEnd
            && cellEnd >= frameStart && cellEnd >= frameEnd;
 }
 
@@ -904,7 +908,11 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     int endPos = f->lastPosition();
     if (startPos > endPos) {
         // inline image
-        data(f)->dirty = false;
+        QTextCharFormat format = q->format(startPos - 1);
+        QTextObjectInterface *iface = q->handlerForObject(format.objectType());
+        if (iface)
+            fd->boundingRect = QRect(QPoint(0, 0), iface->intrinsicSize(q->document(), format));
+        fd->dirty = false;
         return;
     }
 
@@ -997,6 +1005,8 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
 {
     QTextFrameData *fd = data(layoutStruct->frame);
 
+    fd->currentLayoutStruct = layoutStruct;
+
     for ( ; !it.atEnd(); ++it) {
         QTextFrame *c = it.currentFrame();
 
@@ -1022,6 +1032,8 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
             layoutBlock(it.currentBlock(), layoutStruct);
         }
     }
+
+    fd->currentLayoutStruct = 0;
 }
 
 void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layoutStruct)
@@ -1240,6 +1252,24 @@ void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat
         pos = frame->format().position();
     if (pos == QTextFrameFormat::InFlow)
         return;
+
+    QTextFrame *parent = frame->parentFrame();
+    QTextFrameData *pd = data(parent);
+    if (!pd || !pd->currentLayoutStruct)
+        return;
+
+    QTextFrameData *fd = data(frame);
+    int left, right;
+    d->floatMargins(pd->currentLayoutStruct, &left, &right);
+    if (pos == QTextFrameFormat::FloatLeft)
+        fd->boundingRect.moveTopLeft(QPoint(left, pd->currentLayoutStruct->y));
+    else
+        fd->boundingRect.moveTopRight(QPoint(right, pd->currentLayoutStruct->y));
+
+    fd->boundingRect.moveBy(-item.engine()->position);
+
+    pd->layoutedFrames.append(frame);
+
 #if 0
     if (d->floats.contains(obj))
         return;
@@ -1281,6 +1311,9 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInline
     QTextFrame *frame = qt_cast<QTextFrame *>(document()->objectForFormat(f));
     QRect r = rect;
     if (frame) {
+        QTextFrameData *fd = data(frame);
+        r = fd->boundingRect;
+        r.moveBy(item.engine()->position);
 #if 0
         pos = frame->format().position();
         if (frame != QTextFrameFormat::None) {
@@ -1290,7 +1323,7 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInline
         }
 #endif
     }
-//     qDebug() << "drawObject at" << r;
+//    qDebug() << "drawObject at" << r;
     QAbstractTextDocumentLayout::drawObject(p, r, item, format, selType);
 }
 
