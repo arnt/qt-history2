@@ -486,7 +486,12 @@ static int hex2int( QChar hexchar )
 void QColor::setNamedColor( const QString& name )
 {
     if ( name.isEmpty() ) {
-	setRgb( 0 );
+	d.argb = 0;
+	if ( colormodel == d8 ) {
+	    d.d8.invalid = TRUE;
+	} else {
+	    d.d32.argb = Invalid;
+	}
     } else if ( name[0] == '#' ) {
 	const QChar *p = name.unicode()+1;
 	int len = name.length()-1;
