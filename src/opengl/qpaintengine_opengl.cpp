@@ -612,9 +612,9 @@ void QOpenGLPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoi
 // Need to allocate space for new vertices on intersecting lines and
 // they need to be alive until gluTessEndPolygon() has returned
 static QList<GLdouble *> vertexStorage;
-static void CALLBACK qglTessCombine(GLdouble coords[3], 
-				    GLdouble *vertex_data[4],
-				    GLfloat weight[4], GLdouble **dataOut)
+static void CALLBACK qglTessCombine(GLdouble coords[3],
+				    GLdouble *[4],
+				    GLfloat [4], GLdouble **dataOut)
 {
     GLdouble *vertex;
     vertex = (GLdouble *) malloc(3 * sizeof(GLdouble));
@@ -665,7 +665,7 @@ static void qglDrawPoly(const QPointArray &pa, int index, int npoints)
     gluTessEndPolygon(qglTess);
     // clean up after the qglTessCombine callback
     for (int i=0; i < vertexStorage.size(); ++i)
-	delete vertexStorage[i];
+	free(vertexStorage[i]);
     vertexStorage.clear();
 #else
     glBegin(GL_POLYGON);
@@ -675,7 +675,7 @@ static void qglDrawPoly(const QPointArray &pa, int index, int npoints)
     }
     glEnd();
 #endif
-}					    
+}
 
 
 void QOpenGLPaintEngine::drawPolygon(const QPointArray &pa, bool, int index, int npoints)
@@ -1032,10 +1032,10 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
 	glBegin(GL_POLYGON);
 	{
 	    glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	    glVertex2i(0, yleft1); 
+	    glVertex2i(0, yleft1);
 	    glVertex2i(rect.width(), yright1);
 	    glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	    glVertex2i(rect.width(), yright2); 
+	    glVertex2i(rect.width(), yright2);
 	    glVertex2i(0, yleft2);
 	}
 	glEnd();
