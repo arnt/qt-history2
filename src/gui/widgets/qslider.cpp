@@ -18,12 +18,10 @@
 #include "qaccessible.h"
 #endif
 #include "qapplication.h"
-#include "qbitmap.h"
-#include "qdrawutil.h"
 #include "qevent.h"
 #include "qpainter.h"
 #include "qstyle.h"
-#include "qtimer.h"
+#include "qstyleoption.h"
 #include "private/qabstractslider_p.h"
 
 static const int thresholdTime = 300;
@@ -41,6 +39,7 @@ public:
     void init();
     int pixelPosToRangeValue(int pos) const;
     inline int pick(const QPoint &pt) const;
+    Q4StyleOptionSlider getStyleOption() const;
 };
 
 #define d d_func()
@@ -82,6 +81,26 @@ int QSliderPrivate::pixelPosToRangeValue(int pos) const
 inline int QSliderPrivate::pick(const QPoint &pt) const
 {
     return orientation == Horizontal ? pt.x() : pt.y();
+}
+
+
+Q4StyleOptionSlider QSliderPrivate::getStyleOption() const
+{
+    Q4StyleOptionSlider opt(0);
+    opt.init(q);
+    opt.parts = QStyle::SC_None;
+    opt.activeParts = QStyle::SC_None;
+    opt.orientation = orientation;
+    opt.maximum = maximum;
+    opt.minimum = minimum;
+    opt.tickmarks = (QSlider::TickSetting)tickSetting;
+    opt.tickInterval = tickInterval;
+    opt.useRightToLeft = !(orientation == Horizontal) == !invertedAppearance;
+    opt.sliderPosition = position;
+    opt.sliderValue = value;
+    opt.singleStep = singleStep;
+    opt.pageStep = pageStep;
+    return opt;
 }
 
 /*!
@@ -236,19 +255,14 @@ QSlider::~QSlider()
 void QSlider::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
+    Q4StyleOptionSlider opt = d->getStyleOption();
 
-    QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled())
-        flags |= QStyle::Style_Enabled;
-    if (hasFocus())
-        flags |= QStyle::Style_HasFocus;
-
-    QStyle::SCFlags sub = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
+    opt.parts = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
     if (d->tickSetting != NoMarks)
-        sub |= QStyle::SC_SliderTickmarks;
+        opt.parts |= QStyle::SC_SliderTickmarks;
+    opt.activeParts = d->pressedControl;
 
-    style().drawComplexControl(QStyle::CC_Slider, &p, this, rect(), palette(),
-                               flags, sub, d->pressedControl);
+    style().drawComplexControl(QStyle::CC_Slider, &opt, &p, this);
 }
 
 /*!
@@ -262,7 +276,8 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
         return;
     }
     ev->accept();
-    d->pressedControl = style().querySubControl(QStyle::CC_Slider, this, ev->pos());
+    Q4StyleOptionSlider opt = d->getStyleOption();
+    d->pressedControl = style().querySubControl(QStyle::CC_Slider, &opt, ev->pos(), this);
     SliderAction action = SliderNoAction;
     if (d->pressedControl == QStyle::SC_SliderGroove) {
         int pressValue = d->pixelPosToRangeValue(d->pick(ev->pos()));
@@ -270,13 +285,13 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
             action = SliderPageStepAdd;
         else if (pressValue < d->value)
             action = SliderPageStepSub;
-
         if (action) {
             triggerAction(action);
             setRepeatAction(action);
         }
     } else if (d->pressedControl == QStyle::SC_SliderHandle) {
-        QRect sr = style().querySubControlMetrics(QStyle::CC_Slider, this, QStyle::SC_SliderHandle);
+        opt.parts = QStyle::SC_SliderHandle;
+        QRect sr = style().querySubControlMetrics(QStyle::CC_Slider, &opt, this);
         d->clickOffset = d->pick(ev->pos() - sr.topLeft());
         d->snapBackPosition = d->position;
         update(sr);
@@ -319,7 +334,9 @@ void QSlider::mouseReleaseEvent(QMouseEvent *ev)
     setRepeatAction(SliderNoAction);
     if (oldPressed == QStyle::SC_SliderHandle)
         setSliderDown(false);
-    update(style().querySubControlMetrics(QStyle::CC_Slider, this, oldPressed));
+    Q4StyleOptionSlider opt = d->getStyleOption();
+    opt.parts = oldPressed;
+    update(style().querySubControlMetrics(QStyle::CC_Slider, &opt, this));
 }
 
 /*!
@@ -339,8 +356,9 @@ QSize QSlider::sizeHint() const
         w = SliderLength;
         h = thick;
     }
-    return style().sizeFromContents(QStyle::CT_Slider, this,
-                                    QSize(w, h)).expandedTo(QApplication::globalStrut());
+    Q4StyleOptionSlider opt = d->getStyleOption();
+    return style().sizeFromContents(QStyle::CT_Slider, &opt, QSize(w, h), fontMetrics(),
+                                    this).expandedTo(QApplication::globalStrut());
 }
 
 /*!

@@ -72,7 +72,7 @@ struct Q4StyleOptionComplex : public Q4StyleOption
 {
     enum { Type = Complex };
     QStyle::SCFlags parts;
-    QStyle::SCFlags activeparts;
+    QStyle::SCFlags activeParts;
     Q4StyleOptionComplex(int version, int type) : Q4StyleOption(version, type) {}
 };
 
@@ -82,11 +82,13 @@ struct Q4StyleOptionSlider : public Q4StyleOptionComplex {
     int minimum;
     int maximum;
     QSlider::TickSetting tickmarks;
-    int tickinterval;
+    int tickInterval;
     bool useRightToLeft;
     // These two values are typically the same, but different if tracking is not enabled.
-    int sliderposition;
-    int slidervalue;
+    int sliderPosition;
+    int sliderValue;
+    int singleStep;
+    int pageStep;
     Q4StyleOptionSlider(int version) : Q4StyleOptionComplex(version, Slider) {}
 };
 

@@ -2644,21 +2644,219 @@ QRect QWindowsStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget
     return r;
 }
 
-void QWindowsStyle::drawComplexControl(ComplexControl , const Q4StyleOptionComplex *, QPainter *,
-                                const QWidget *) const
+void QWindowsStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
+                                       QPainter *p, const QWidget *widget) const
 {
-}
+    switch (cc) {
+    case CC_Slider:
+        if (const Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+            int thickness  = pixelMetric(PM_SliderControlThickness, widget);
+            int len        = pixelMetric(PM_SliderLength, widget);
+            int ticks = slider->tickmarks;
+            Q4StyleOptionSlider querySlider = *slider;
+            querySlider.parts = SC_SliderGroove;
+            QRect groove = QCommonStyle::querySubControlMetrics(CC_Slider, &querySlider, widget);
+            querySlider.parts = SC_SliderHandle;
+            QRect handle = QCommonStyle::querySubControlMetrics(CC_Slider, &querySlider, widget);
 
-QStyle::SubControl QWindowsStyle::querySubControl(ComplexControl , const Q4StyleOptionComplex *,
-                                   const QPoint &, const QWidget *) const
-{
-    return SC_None;
-}
+            if ((slider->parts & SC_SliderGroove) && groove.isValid()) {
+                int mid = thickness / 2;
 
-QRect QWindowsStyle::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex *,
-                                     const QWidget *) const
-{
-    return QRect();
+                if (ticks & QSlider::Above)
+                    mid += len / 8;
+                if (ticks & QSlider::Below)
+                    mid -= len / 8;
+
+                p->setPen(slider->palette.shadow());
+                if (slider->orientation == Horizontal) {
+                    qDrawWinPanel(p, groove.x(), groove.y() + mid - 2,
+                                   groove.width(), 4, slider->palette, true);
+                    p->drawLine(groove.x() + 1, groove.y() + mid - 1,
+                                groove.x() + groove.width() - 3, groove.y() + mid - 1);
+                } else {
+                    qDrawWinPanel(p, groove.x() + mid - 2, groove.y(),
+                                  4, groove.height(), slider->palette, true);
+                    p->drawLine(groove.x() + mid - 1, groove.y() + 1,
+                                groove.x() + mid - 1, groove.y() + groove.height() - 3);
+                }
+            }
+
+            if (slider->parts & SC_SliderTickmarks) {
+                querySlider.parts = SC_SliderTickmarks;
+                QCommonStyle::drawComplexControl(cc, &querySlider, p, widget);
+            }
+
+            if (slider->parts & SC_SliderHandle) {
+                // 4444440
+                // 4333310
+                // 4322210
+                // 4322210
+                // 4322210
+                // 4322210
+                // *43210*
+                // **410**
+                // ***0***
+                const QColor c0 = slider->palette.shadow();
+                const QColor c1 = slider->palette.dark();
+                // const QColor c2 = g.button();
+                const QColor c3 = slider->palette.midlight();
+                const QColor c4 = slider->palette.light();
+
+                int x = handle.x(), y = handle.y(),
+                   wi = handle.width(), he = handle.height();
+
+                int x1 = x;
+                int x2 = x+wi-1;
+                int y1 = y;
+                int y2 = y+he-1;
+
+                Orientation orient = slider->orientation;
+                bool tickAbove = slider->tickmarks == QSlider::Above;
+                bool tickBelow = slider->tickmarks == QSlider::Below;
+
+                p->fillRect(x, y, wi, he, slider->palette.brush(QPalette::Background));
+
+                if (slider->state & Style_HasFocus) {
+                    Q4StyleOptionFocusRect fropt(0);
+                    fropt.rect = subRect(SR_SliderFocusRect, slider, widget);
+                    fropt.palette = slider->palette;
+                    fropt.state = Style_Default;
+                    drawPrimitive(PE_FocusRect, &fropt, p, widget);
+                }
+
+                if ((tickAbove && tickBelow) || (!tickAbove && !tickBelow)) {
+                    qDrawWinButton(p, QRect(x, y, wi, he), slider->palette, false,
+                                   &slider->palette.brush(QPalette::Button));
+                    return;
+                }
+
+                QSliderDirection dir;
+
+                if (orient == Horizontal)
+                    if (tickAbove)
+                        dir = SlUp;
+                    else
+                        dir = SlDown;
+                else
+                    if (tickAbove)
+                        dir = SlLeft;
+                    else
+                        dir = SlRight;
+
+                QPointArray a;
+
+                int d = 0;
+                switch (dir) {
+                case SlUp:
+                    y1 = y1 + wi/2;
+                    d =  (wi + 1) / 2 - 1;
+                    a.setPoints(5, x1,y1, x1,y2, x2,y2, x2,y1, x1+d,y1-d);
+                    break;
+                case SlDown:
+                    y2 = y2 - wi/2;
+                    d =  (wi + 1) / 2 - 1;
+                    a.setPoints(5, x1,y1, x1,y2, x1+d,y2+d, x2,y2, x2,y1);
+                    break;
+                case SlLeft:
+                    d =  (he + 1) / 2 - 1;
+                    x1 = x1 + he/2;
+                    a.setPoints(5, x1,y1, x1-d,y1+d, x1,y2, x2,y2, x2,y1);
+                    break;
+                case SlRight:
+                    d =  (he + 1) / 2 - 1;
+                    x2 = x2 - he/2;
+                    a.setPoints(5, x1,y1, x1,y2, x2,y2, x2+d,y1+d, x2,y1);
+                    break;
+                }
+
+                QBrush oldBrush = p->brush();
+                p->setBrush(slider->palette.brush(QPalette::Button));
+                p->setPen(NoPen);
+                p->drawRect(x1, y1, x2-x1+1, y2-y1+1);
+                p->drawPolygon(a);
+                p->setBrush(oldBrush);
+
+                if (dir != SlUp) {
+                    p->setPen(c4);
+                    p->drawLine(x1, y1, x2, y1);
+                    p->setPen(c3);
+                    p->drawLine(x1, y1+1, x2, y1+1);
+                }
+                if (dir != SlLeft) {
+                    p->setPen(c3);
+                    p->drawLine(x1+1, y1+1, x1+1, y2);
+                    p->setPen(c4);
+                    p->drawLine(x1, y1, x1, y2);
+                }
+                if (dir != SlRight) {
+                    p->setPen(c0);
+                    p->drawLine(x2, y1, x2, y2);
+                    p->setPen(c1);
+                    p->drawLine(x2-1, y1+1, x2-1, y2-1);
+                }
+                if (dir != SlDown) {
+                    p->setPen(c0);
+                    p->drawLine(x1, y2, x2, y2);
+                    p->setPen(c1);
+                    p->drawLine(x1+1, y2-1, x2-1, y2-1);
+                }
+
+                switch (dir) {
+                case SlUp:
+                    p->setPen(c4);
+                    p->drawLine(x1, y1, x1+d, y1-d);
+                    p->setPen(c0);
+                    d = wi - d - 1;
+                    p->drawLine(x2, y1, x2-d, y1-d);
+                    d--;
+                    p->setPen(c3);
+                    p->drawLine(x1+1, y1, x1+1+d, y1-d);
+                    p->setPen(c1);
+                    p->drawLine(x2-1, y1, x2-1-d, y1-d);
+                    break;
+                case SlDown:
+                    p->setPen(c4);
+                    p->drawLine(x1, y2, x1+d, y2+d);
+                    p->setPen(c0);
+                    d = wi - d - 1;
+                    p->drawLine(x2, y2, x2-d, y2+d);
+                    d--;
+                    p->setPen(c3);
+                    p->drawLine(x1+1, y2, x1+1+d, y2+d);
+                    p->setPen(c1);
+                    p->drawLine(x2-1, y2, x2-1-d, y2+d);
+                    break;
+                case SlLeft:
+                    p->setPen(c4);
+                    p->drawLine(x1, y1, x1-d, y1+d);
+                    p->setPen(c0);
+                    d = he - d - 1;
+                    p->drawLine(x1, y2, x1-d, y2-d);
+                    d--;
+                    p->setPen(c3);
+                    p->drawLine(x1, y1+1, x1-d, y1+1+d);
+                    p->setPen(c1);
+                    p->drawLine(x1, y2-1, x1-d, y2-1-d);
+                    break;
+                case SlRight:
+                    p->setPen(c4);
+                    p->drawLine(x2, y1, x2+d, y1+d);
+                    p->setPen(c0);
+                    d = he - d - 1;
+                    p->drawLine(x2, y2, x2+d, y2-d);
+                    d--;
+                    p->setPen(c3);
+                    p->drawLine(x2, y1+1, x2+d, y1+1+d);
+                    p->setPen(c1);
+                    p->drawLine(x2, y2-1, x2+d, y2-1-d);
+                    break;
+                }
+            }
+        }
+        break;
+    default:
+        QCommonStyle::drawComplexControl(cc, opt, p, widget);
+    }
 }
 
 QSize QWindowsStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &csz,

@@ -50,10 +50,6 @@ public:
     QRect subRect(SubRect r, const Q4StyleOption *opt, const QWidget *widget = 0) const;
     void drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt, QPainter *p,
                                     const QWidget *w = 0) const;
-    SubControl querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
-                                       const QPoint &pt, const QWidget *w = 0) const;
-    QRect querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
-                                         const QWidget *w) const;
     QSize sizeFromContents(ContentsType ct, const Q4StyleOption *opt, const QSize &contentsSize,
                            const QFontMetrics &fm, const QWidget *widget = 0) const;
 

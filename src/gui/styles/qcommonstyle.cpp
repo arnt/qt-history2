@@ -1796,15 +1796,89 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
             r = r.intersect(btn->rect);
         }
         break;
+    case SR_SliderFocusRect:
+        if (const Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+            int tickOffset = pixelMetric(PM_SliderTickmarkOffset, w);
+            int thickness  = pixelMetric(PM_SliderControlThickness, w);
+            if (slider->orientation == Horizontal)
+                r.setRect(0, tickOffset - 1, slider->rect.width(), thickness + 2);
+            else
+                r.setRect(tickOffset - 1, 0, thickness + 2, slider->rect.height());
+            r = r.intersect(slider->rect);
+        }
+        break;
     default:
         qWarning("QCommonStyle::SubRect case not handled %d", sr);
     }
     return r;
 }
 
-void QCommonStyle::drawComplexControl(ComplexControl , const Q4StyleOptionComplex *, QPainter *,
-                                    const QWidget *) const
+void QCommonStyle::drawComplexControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
+                                      QPainter *p, const QWidget *widget) const
 {
+    switch (cc) {
+    case CC_Slider:
+        if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+            if (slider->parts == SC_SliderTickmarks) {
+                int tickOffset = pixelMetric(PM_SliderTickmarkOffset, widget);
+                int ticks = slider->tickmarks;
+                int thickness = pixelMetric(PM_SliderControlThickness, widget);
+                int len = pixelMetric(PM_SliderLength, widget);
+                int available = pixelMetric(PM_SliderSpaceAvailable, widget);
+                int interval = slider->tickInterval;
+                if (interval <= 0) {
+                    interval = slider->singleStep;
+                    if (QStyle::positionFromValue(slider->minimum, slider->maximum, interval,
+                                                  available)
+                            - QStyle::positionFromValue(slider->minimum, slider->maximum,
+                                                        0, available) < 3)
+                        interval = slider->pageStep;
+                }
+                if (!interval)
+                    interval = 1;
+                int fudge = len / 2;
+                int pos;
+                if (slider->orientation == Horizontal) {
+                    if (ticks & QSlider::Above)
+                        p->fillRect(0, 0, slider->rect.width(), tickOffset,
+                                    slider->palette.brush(QPalette::Background));
+                    if (ticks & QSlider::Below)
+                        p->fillRect(0, tickOffset + thickness, slider->rect.width(), tickOffset,
+                                    slider->palette.brush(QPalette::Background));
+                } else {
+                    if (ticks & QSlider::Above)
+                        p->fillRect(0, 0, tickOffset, slider->rect.width(),
+                                    slider->palette.brush(QPalette::Background));
+                    if (ticks & QSlider::Below)
+                        p->fillRect(tickOffset + thickness, 0, tickOffset, slider->rect.height(),
+                                    slider->palette.brush(QPalette::Background));
+                }
+                p->setPen(slider->palette.foreground());
+                int v = slider->minimum;
+                while (v <= slider->maximum + 1) {
+                    pos = QStyle::positionFromValue(slider->minimum, slider->maximum,
+                            v, available) + fudge;
+                    if (slider->orientation == Horizontal) {
+                        if (ticks & QSlider::Above)
+                            p->drawLine(pos, 0, pos, tickOffset - 2);
+                        if (ticks & QSlider::Below)
+                            p->drawLine(pos, tickOffset + thickness + 1, pos,
+                                        tickOffset + thickness + 1 + available - 2);
+                    } else {
+                        if (ticks & QSlider::Above)
+                            p->drawLine(0, pos, tickOffset - 2, pos);
+                        if (ticks & QSlider::Below)
+                            p->drawLine(tickOffset + thickness + 1, pos,
+                                        tickOffset + thickness + 1 + available - 2, pos);
+                    }
+                    v += interval;
+                }
+            }
+        }
+        break;
+    default:
+        qWarning("drawComplexControl control not handled %d", cc);
+    }
 }
 
 void QCommonStyle::drawComplexControlMask(ComplexControl , const Q4StyleOptionComplex *opt,
@@ -1813,16 +1887,71 @@ void QCommonStyle::drawComplexControlMask(ComplexControl , const Q4StyleOptionCo
     p->fillRect(opt->rect, color1);
 }
 
-QStyle::SubControl QCommonStyle::querySubControl(ComplexControl , const Q4StyleOptionComplex *,
-                                                   const QPoint &, const QWidget *) const
+QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const Q4StyleOptionComplex *opt,
+                                                 const QPoint &pt, const QWidget *widget) const
 {
-    return SC_None;
+    SubControl sc = SC_None;
+    switch (cc) {
+    case CC_Slider:
+        if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+            slider->parts = SC_SliderHandle;
+            QRect r = visualRect(querySubControlMetrics(cc, slider, widget), widget);
+            if (r.isValid() && r.contains(pt)) {
+                sc = SC_SliderHandle;
+            } else {
+                slider->parts = SC_SliderGroove;
+                r = visualRect(querySubControlMetrics(cc, slider, widget), widget);
+                if (r.isValid() && r.contains(pt))
+                    sc = SC_SliderGroove;
+            }
+        }
+        break;
+    default:
+        qWarning("QCommonStyle::querySubControl case not handled %d", cc);
+    }
+    return sc;
 }
 
-QRect QCommonStyle::querySubControlMetrics(ComplexControl , const Q4StyleOptionComplex *,
-                                         const QWidget *) const
+QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const Q4StyleOptionComplex *opt,
+                                           const QWidget *widget) const
 {
-    return QRect();
+    QRect ret;
+    switch (cc) {
+    case CC_Slider:
+        if (Q4StyleOptionSlider *slider = qt_cast<Q4StyleOptionSlider *>(opt)) {
+            int tickOffset = pixelMetric(PM_SliderTickmarkOffset, widget);
+            int thickness = pixelMetric(PM_SliderControlThickness, widget);
+
+            switch (slider->parts) {
+            case SC_SliderHandle: {
+                int sliderPos = 0;
+                int len = pixelMetric(PM_SliderLength, widget);
+                bool horizontal = slider->orientation == Horizontal;
+                sliderPos = positionFromValue(slider->minimum, slider->maximum,
+                                              slider->sliderPosition,
+                                              (horizontal ? slider->rect.width()
+                                                          : slider->rect.height()) - len,
+                                              slider->useRightToLeft);
+                if (horizontal)
+                    ret.setRect(sliderPos, tickOffset, len, thickness);
+                else
+                    ret.setRect(tickOffset, sliderPos, thickness, len);
+                break; }
+            case SC_SliderGroove:
+                if (slider->orientation == Horizontal)
+                    ret.setRect(0, tickOffset, slider->rect.width(), thickness);
+                else
+                    ret.setRect(tickOffset, 0, thickness, slider->rect.height());
+                break;
+            default:
+                break;
+            }
+        }
+        break;
+    default:
+        qWarning("QCommonStyle::querySubControlMetrics case not handled %d", cc);
+    }
+    return ret;
 }
 
 /*! \reimp */
@@ -2406,7 +2535,6 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl control,
 
         switch (sc) {
         case SC_SliderHandle: {
-
             int sliderPos = 0;
             int len = pixelMetric(PM_SliderLength, sl);
             bool horizontal = sl->orientation() == Horizontal;
@@ -3091,6 +3219,15 @@ QSize QCommonStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt, 
             sz.setHeight(qMax(sz.height(), h));
         }
         break;
+    case CT_MenuBar:
+    case CT_Menu:
+    case CT_MenuBarItem:
+    case CT_LineEdit:
+    case CT_Header:
+    case CT_Slider:
+    case CT_ProgressBar:
+        // just return the contentsSize for now
+        // fall through intended
     default:
         break;
     }
