@@ -485,16 +485,9 @@ QAction::~QAction()
 */
 void QAction::setIconSet( const QIconSet& icon )
 {
-#if 0
-    // be nice to do this, but at present QIconSet can't test for
-    // equality, and it's not obvious to me what the test should do.
-    if ( d->iconset && *(d->iconset) == icon )
-	return;
-    #else
-    if ( !d->iconset )
-	d->iconset = new QIconSet;
-#endif
-    *(d->iconset) = icon;
+    register QIconSet *i = d->iconset;
+    d->iconset = new QIconSet( icon );
+    delete i;
     updateVectors();
 }
 
@@ -902,6 +895,8 @@ bool QAction::addTo( QWidget* w )
 	    addedTo( btn, w );
 	    btn->setToggleButton( d->type == Toggle );
 	    d->widgets.append( btn );
+	    if ( d->iconset )
+		btn->setIconSet( *d->iconset );
 	    needUpdate = TRUE;
 	    connect( btn, SIGNAL( clicked() ),
 		     this, SIGNAL( activated() ) );
@@ -963,7 +958,11 @@ bool QAction::addTo( QWidget* w )
 	QPopupMenu * p = (QPopupMenu *)w;
 	if ( d->type == Command || d->type == Toggle ) {
 	    QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
-	    mi->id = p->insertItem( QString::null );
+	    QIconSet* diconset = d->iconset; // stupid GCC 2.7.x compiler
+	    if ( diconset )
+		mi->id = p->insertItem( *diconset, QString::fromLatin1("") );
+	    else
+		mi->id = p->insertItem( QString::fromLatin1("") );
 	    needUpdate = TRUE; // very, very TRUE :)
 	    mi->popup = p;
 	    d->menuitems.append( mi );
