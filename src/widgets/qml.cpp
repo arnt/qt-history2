@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#28 $
 **
 ** Implementation of QML classes
 **
@@ -510,10 +510,10 @@ public:
     inline QMLNode* nextLayout(QMLNode* tag, QMLContainer* &parent);
     inline QMLNode* nextLeaf(QMLNode* tag, QMLContainer* &parent);
 
-    QChar c;
+    QString c;
 
-    inline bool isSpace() const {return c.isSpace();}
-    inline bool isNewline() const {return c == '\n';}
+    inline bool isSpace() const {return c[0].isSpace();}
+    inline bool isNewline() const {return c[0] == '\n';}
     inline bool isNull() const {return c == QChar::null;}
 
     inline QMLContainer* parent() const;
@@ -1060,7 +1060,7 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
 	return new QMLHorizontalLine(attr, provider);
     else if (style->name() == "br") {
 	QMLNode* result = new QMLNode;
-	result->c = '\n';
+	result->c = "\n";
 	return result;
     }
     else if (style->name() == "multicol")
@@ -1104,7 +1104,7 @@ private:
     bool eatCloseTag(const QString& doc, int& pos, const QString& open);
     QChar parseHTMLSpecialChar(const QString& doc, int& pos);
     QString parseWord(const QString& doc, int& pos, bool insideTag = FALSE, bool lower = FALSE);
-    QString parsePlainText(const QString& doc, int& pos, bool pre);
+    QString parsePlainText(const QString& doc, int& pos, bool pre, bool justOneWord);
     bool hasPrefix(const QString& doc, int pos, const QChar& c);
     bool hasPrefix(const QString& doc, int pos, const QString& s);
     bool valid;
@@ -1160,7 +1160,7 @@ QMLImage::QMLImage(const QDict<QString> &attr, QMLProvider &provider)
 	width = attr["width"]->toInt();
     if ( attr["height"] )
 	height = attr["height"]->toInt();
-    
+
     reg = 0;
     QString* imageName = attr["source"];
     if (!imageName)
@@ -1170,18 +1170,18 @@ QMLImage::QMLImage(const QDict<QString> &attr, QMLProvider &provider)
 	
 	if (!pm.isNull() && (pm.width() != width || pm.height() != height) ){
 	    pm.convertFromImage( pm.convertToImage().smoothScale(width, height) );
+	    width = pm.width();
+	    height = pm.height();
 	}
 	
 	pm.setMask( pm.createHeuristicMask() );
-	width = pm.width();
-	height = pm.height();
 	if ( pm.mask() ) {
 	    QRegion mask( *pm.mask() );
 	    QRegion all( 0, 0, pm.width(), pm.height() );
 	    reg = new QRegion( all.subtract( mask ) );
 	}
     }
-    
+
     if ( pm.isNull() && (width*height)==0 ) {
 	width = height = 50;
     }
@@ -1196,7 +1196,7 @@ void QMLImage::draw(QPainter* p, int x, int y,
 		    QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* /*bg*/)
 {
     if ( pm.isNull() ) {
-	p->fillRect( x-ox , y-oy, 50, 50,  cg.dark() );
+	p->fillRect( x-ox , y-oy, width, height,  cg.dark() );
 	return;
     }
     if ( reg ){
@@ -3023,11 +3023,7 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		pos = beforePos;
 		return FALSE;
 	    }
-// 	    if (tagname == "p"  && current->style->name() == tagname ) {
-// 		pos = beforePos;
-// 		return FALSE;
-// 	    }
-	
+	    
 	    QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
 	    if (tag->isContainer ) {
 		QMLContainer* ctag = (QMLContainer*) tag;
@@ -3095,31 +3091,49 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		    tag->isLastSibling = 1;
 		    lastChild = tag;
 			
-		    if (!pre && tag->isSimpleNode && tag->c == '\n')
+		    if (!pre && tag->isSimpleNode && tag->c[0] == '\n')
 			eatSpace(doc, pos);
 		}
 	    }
 	}
 	else {
-	    QString word = parsePlainText(doc, pos, pre);
+// 	    QString word = parsePlainText(doc, pos, pre);
+// 	    if (valid){
+// 		QMLNode* l = lastChild;
+// 		for (int i = 0; i < int(word.length()); i++){
+// 		    QMLNode* n = new QMLNode;
+// 		    n->c = word[i];
+// 		    if (!l)
+// 			current->child = n;
+// 		    else {
+// 			l->isLastSibling = 0;
+// 			l->next = n;
+// 		    }
+// 		    n->next = current;
+// 		    n->isLastSibling = 1;
+// 		    lastChild = n;
+// 		    l = n;
+// 		}
+// 		if (!pre)
+// 		    sep |= eatSpace(doc, pos);
+// 	    }
+	    QString word = parsePlainText(doc, pos, pre, TRUE);
 	    if (valid){
 		QMLNode* l = lastChild;
-		for (int i = 0; i < int(word.length()); i++){
-		    QMLNode* n = new QMLNode;
-		    n->c = word[i];
-		    if (!l)
-			current->child = n;
-		    else {
-			l->isLastSibling = 0;
-			l->next = n;
-		    }
-		    n->next = current;
-		    n->isLastSibling = 1;
-		    lastChild = n;
-		    l = n;
+		QMLNode* n = new QMLNode;
+		n->c = word;
+		if (!l)
+		    current->child = n;
+		else {
+		    l->isLastSibling = 0;
+		    l->next = n;
 		}
-		if (!pre)
-		    sep |= eatSpace(doc, pos);
+		n->next = current;
+		n->isLastSibling = 1;
+		lastChild = n;
+		l = n;
+ 		if (!pre && doc[pos] == '<')
+ 		    sep |= eatSpace(doc, pos);
 	    }
 	}
     }
@@ -3217,12 +3231,15 @@ QString QMLDocument::parseWord(const QString& doc, int& pos, bool insideTag, boo
     return s;
 }
 
-QString QMLDocument::parsePlainText(const QString& doc, int& pos, bool pre)
+QString QMLDocument::parsePlainText(const QString& doc, int& pos, bool pre, bool justOneWord)
 {
     QString s;
     while( pos < int(doc.length()) &&
 	   doc[pos] != '<' ) {
 	if (doc[pos].isSpace()){
+	    if ( justOneWord && !s.isEmpty() ) {
+		return s;
+	    }
 	    while ( !pre && pos+1 < int(doc.length() ) && doc[pos+1].isSpace() ){
 		pos++;
 	    }
@@ -3231,6 +3248,8 @@ QString QMLDocument::parsePlainText(const QString& doc, int& pos, bool pre)
 	    else
 		s += ' ';
 	    pos++;
+	    if ( justOneWord )
+		return s;
 	}
 	else if ( doc[pos] == '&')
 		s += parseHTMLSpecialChar( doc, pos );
