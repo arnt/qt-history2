@@ -189,7 +189,7 @@ class QAxHostWindow : public IDispatch,
 {
     friend class QAxHostWidget;
 public:
-    QAxHostWindow( QAxWidget *c, IUnknown **ppUnk );
+    QAxHostWindow( QAxWidget *c, bool inited );
     ~QAxHostWindow();
     void releaseAll();
     void deactivate();
@@ -329,7 +329,7 @@ private:
     QMap<int,OleMenuItem> menuItemMap;
 };
 
-QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
+QAxHostWindow::QAxHostWindow( QAxWidget *c, bool bInited )
 : ref(1), widget( c )
 {
     host = new QAxHostWidget( widget, this );
@@ -348,14 +348,6 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
     menuBar = 0;
 
     HRESULT hr = S_OK;
-
-    hr = CoCreateInstance( QUuid(widget->control()), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ppUnk );
-    bool bInited = hr == S_FALSE;
-    
-    if ( !SUCCEEDED(hr) || !*ppUnk )
-	return;
-
-    hr = S_OK;
 
     m_spOleObject = 0;
     widget->queryInterface( IID_IOleObject, (void**)&m_spOleObject );
@@ -1327,13 +1319,24 @@ bool QAxWidget::initialize( IUnknown **ptr )
 
     *ptr = 0;
 
-    container = new QAxHostWindow( this, ptr );
-
-    if ( !*ptr ) {
-	container->Release();
-	container = 0;
+    HRESULT hres = CoCreateInstance( QUuid(control()), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr );
+    if ( !SUCCEEDED(hres) )
 	return FALSE;
-    }
+
+    return createHostWindow( hres == S_FALSE );
+}
+
+/*!
+    Creates the client site for the ActiveX control, and returns TRUE if
+    the control could be embedded successfully, otherwise returns FALSE.
+
+    This function is called by initialize(). If you reimplement initialize
+    to customize the actual control instantiation, call this function in your
+    reimplementation to have the control embedded by the default client side.
+*/
+bool QAxWidget::createHostWindow( bool initialized )
+{
+    container = new QAxHostWindow( this, initialized );
 
     if ( !hhook ) {
 #if defined(UNICODE)

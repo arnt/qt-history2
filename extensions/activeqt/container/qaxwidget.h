@@ -56,6 +56,7 @@ public:
 
 protected:
     bool initialize( IUnknown** );
+    virtual bool createHostWindow( bool );
 
     void enabledChange( bool old );
     void paletteChange( const QPalette &old );
