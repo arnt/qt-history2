@@ -248,21 +248,15 @@ void Q3SVGPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 
 }
 
-void Q3SVGPaintEngine::drawRect(const QRect &r)
+void Q3SVGPaintEngine::drawRect(const QRectF &r)
 {
     QDomElement e;
-    int x, y, width, height;
-
     e = d->doc.createElement("rect");
-    x = r.x();
-    y = r.y();
-    width = r.width();
-    height = r.height();
 
-    e.setAttribute("x", x);
-    e.setAttribute("y", y);
-    e.setAttribute("width", width);
-    e.setAttribute("height", height);
+    e.setAttribute("x", r.x());
+    e.setAttribute("y", r.y());
+    e.setAttribute("width", r.width());
+    e.setAttribute("height", r.height());
     d->appendChild(e, QPicturePrivate::PdcDrawRect);
 }
 
@@ -474,19 +468,11 @@ void Q3SVGPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
     e.setAttribute("width", r.width());
     e.setAttribute("height", r.height());
 
-    // ### fix the image drawing - converting to pixmaps first is going to
-    // slow things down considerably
-//     if (c == QPicturePrivate::PdcDrawImage) {
-//         ImgElement ie;
-//         ie.element = e;
-//         ie.image = *p[1].image;
-//         d->images.append(ie);
-//     } else {
-        PixElement pe;
-        pe.element = e;
-        pe.pixmap = pm;
-        d->pixmaps.append(pe);
-//     }
+    PixElement pe;
+    pe.element = e;
+    pe.pixmap = pm;
+    d->pixmaps.append(pe);
+
     // saving to disk and setting the xlink:href attribute will be
     // done later in save() once we now the svg document name.
     d->appendChild(e, QPicturePrivate::PdcDrawPixmap);
@@ -527,6 +513,24 @@ void Q3SVGPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
     e.setAttribute("y", p.y());
     e.appendChild(d->doc.createTextNode(QString(ti.chars, ti.num_chars)));
 }
+
+void Q3SVGPaintEngine::drawImage(const QRectF &r, const QImage &im,
+                                 const QRectF &sr, Qt::ImageConversionFlags flags )
+{
+    QDomElement e = d->doc.createElement("image");
+    e.setAttribute("x", r.x());
+    e.setAttribute("y", r.y());
+    e.setAttribute("width", r.width());
+    e.setAttribute("height", r.height());
+    ImgElement ie;
+    ie.element = e;
+    ie.image = im;
+    d->images.append(ie);
+    // saving to disk and setting the xlink:href attribute will be
+    // done later in save() once we now the svg document name.
+    d->appendChild(e, QPicturePrivate::PdcDrawImage);
+}
+
 
 /*!
     Returns the SVG as a single string of XML.

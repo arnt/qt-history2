@@ -39,27 +39,29 @@ public:
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
     void updateRenderHints(QPainter::RenderHints hints);
 
-    void drawLine(const QLineF &line);
-    void drawLines(const QLineF *lines, int lineCount);
-    void drawRect(const QRect &r);
-    void drawPoint(const QPointF &p);
-    void drawPoints(const QPointF *points, int pointCount);
     void drawRoundRect(const QRect &r, int xRnd, int yRnd);
     void drawEllipse(const QRect &r);
     void drawArc(const QRect &r, int a, int alen);
     void drawPie(const QRect &r, int a, int alen);
     void drawChord(const QRect &r, int a, int alen);
+    void drawCubicBezier(const QPolygon &, int index = 0);
+
+    void drawLine(const QLineF &line);
+    void drawLines(const QLineF *lines, int lineCount);
+    void drawRect(const QRectF &r);
+    void drawPoint(const QPointF &p);
+    void drawPoints(const QPointF *points, int pointCount);
+
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
     void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode);
-#ifndef QT_NO_BEZIER
-    void drawCubicBezier(const QPolygon &, int index = 0);
-#endif
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                     Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 				 Qt::PixmapDrawingMode mode = Qt::ComposePixmap);
     void drawTextItem(const QPointF &p, const QTextItem &ti);
+    void drawImage(const QRectF &r, const QImage &pm, const QRectF &sr,
+                   Qt::ImageConversionFlags flags = Qt::AutoColor);
 
 #if defined Q_WS_WIN // ### not liking this!!
     HDC handle() const { return 0; }
