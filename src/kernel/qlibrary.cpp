@@ -432,6 +432,8 @@ QUnknownInterface* QLibrary::load()
 	typedef QUnknownInterface* (*QtLoadInfoProc)();
 	QtLoadInfoProc infoProc;
 	infoProc = (QtLoadInfoProc) qt_resolve_symbol( d->pHnd, "qt_load_interface" );
+	if ( !infoProc )
+	    infoProc = (QtLoadInfoProc) qt_resolve_symbol( d->pHnd, "_qt_load_interface" );
 #if QT_DEBUG_COMPONENT == 2
 	if ( !infoProc )
 	    qDebug( "%s: Symbol \"qt_load_interface\" not found.", libfile.latin1() );
