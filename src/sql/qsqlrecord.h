@@ -71,6 +71,15 @@ public:
     virtual QVariant     value( const QString& name ) const;
     virtual void         setValue( int i, const QVariant& val );
     virtual void         setValue( const QString& name, const QVariant& val );
+    bool                 isGenerated( int i ) const;
+    bool                 isGenerated( const QString& name ) const;
+    virtual void         setGenerated( const QString& name, bool generated );
+    virtual void         setGenerated( int i, bool generated );
+    virtual void         setNull( int i );
+    virtual void         setNull( const QString& name );
+    bool                 isNull( int i );
+    bool                 isNull( const QString& name );
+
     int                  position( const QString& name ) const;
     QString              fieldName( int i ) const;
     QSqlField*           field( int i );
@@ -90,9 +99,6 @@ public:
     virtual QString      toString( const QString& prefix = QString::null,
 				   const QString& sep = "," ) const;
     virtual QStringList  toStringList( const QString& prefix = QString::null ) const;
-
-    virtual void         setGenerated( const QString& name, bool generated );
-    bool                 isGenerated( const QString& name ) const;
 
 private:
     QString              createField( int i, const QString& prefix ) const;

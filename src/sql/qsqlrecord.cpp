@@ -412,11 +412,11 @@ void QSqlRecord::clearValues( bool nullify )
 	v.cast( field( i )->type() );
 	field( i )->setValue( v );
 	if ( nullify )
-	    field( i )->setNull( TRUE );
+	    field( i )->setNull();
     }
 }
 
-/*! Sets the generated flag for field \a name to \a generated.  If the
+/*! Sets the generated flag for the field \a name to \a generated.  If the
   field does not exist, nothing happens. Only fields that have \a
   generated set to TRUE are included in the SQL that is generated, e.g.
   by QSqlCursor.
@@ -426,11 +426,78 @@ void QSqlRecord::clearValues( bool nullify )
 
 void QSqlRecord::setGenerated( const QString& name, bool generated )
 {
-    checkDetach();
-    if ( !field( name ) )
-	return;
-    sh->d->fieldInfo( position( name ) )->nogen = !generated;
+    setGenerated( position( name ), generated );
 }
+
+/*!  \overload
+
+  Sets the generated flag for the field \a i to \a generated.
+
+  \sa isGenerated()
+*/
+
+void QSqlRecord::setGenerated( int i, bool generated )
+{
+    checkDetach();
+    if ( !field( i ) )
+	return;
+    sh->d->fieldInfo( i )->nogen = !generated;
+}
+
+/*!  \overload
+
+  Returns TRUE if the field \a i is currently null, otherwise returns FALSE.
+  If the index \a i doesn't exist the return value is TRUE.
+
+  \sa fieldName()
+*/
+bool QSqlRecord::isNull( int i )
+{
+    checkDetach();
+    QSqlField* f = field( i );
+    if ( f ) {
+	return f->isNull();
+    }
+    return TRUE;
+}
+
+/*!
+
+  Returns TRUE if the field \a name is currently null, otherwise returns FALSE.
+  If the field \a name doesn't exist the return value is TRUE.
+
+  \sa position()
+*/
+bool QSqlRecord::isNull( const QString& name )
+{
+    return isNull( position( name ) );
+}
+
+/*!
+
+  Sets the value of field \a i to NULL.  If the field does not
+  exist, nothing happens.
+
+*/
+void QSqlRecord::setNull( int i )
+{
+    checkDetach();
+    QSqlField* f = field( i );
+    if ( f ) {
+	f->setNull();
+    }
+}
+
+/*!  \overload
+
+  Sets the value of field \a name to NULL.  If the field does not
+  exist, nothing happens.
+*/
+void QSqlRecord::setNull( const QString& name )
+{
+    setNull( position( name ) );
+}
+
 
 /*! Returns TRUE if the field \a name is to be generated (the
   default), otherwise returns FALSE.  If the field does not exist,
@@ -438,13 +505,26 @@ void QSqlRecord::setGenerated( const QString& name, bool generated )
 
   \sa setGenerated()
 */
-
 bool QSqlRecord::isGenerated( const QString& name ) const
 {
-    if ( !field( name ) )
-	return FALSE;
-    return !sh->d->fieldInfo( position( name ) )->nogen;
+    return isGenerated( position( name ) );
 }
+
+/*! \overload
+
+  Returns TRUE if the field with the index \a i is to be generated
+  (the default), otherwise returns FALSE.  If the field does not exist,
+  FALSE is returned.
+
+  \sa setGenerated()
+*/
+bool QSqlRecord::isGenerated( int i ) const
+{
+    if ( !field( i ) )
+	return FALSE;
+    return !sh->d->fieldInfo( i )->nogen;
+}
+
 
 /*!  Returns a list of all the record's field names as a string
     separated by \a sep.
@@ -537,10 +617,7 @@ void QSqlRecord::setValue( int i, const QVariant& val )
 
 void QSqlRecord::setValue( const QString& name, const QVariant& val )
 {
-    checkDetach();
-    QSqlField* f = field( name );
-    if ( f )
-	f->setValue( val );
+    setValue( position( name ), val );
 }
 
 #endif

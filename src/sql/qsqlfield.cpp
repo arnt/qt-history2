@@ -194,7 +194,7 @@ void QSqlField::setValue( const QVariant& value )
     } else
 	val = value;
     if ( val.type() != QVariant::Invalid )
-	setNull( FALSE );
+	nul = FALSE;
 }
 
 /*!  Clears the value of the field.  If the field is read-only, nothing
@@ -218,6 +218,35 @@ void QSqlField::clear( bool nullify )
   Sets the name of the field to \a name.
 */
 
+void QSqlField::setName( const QString& name )
+{
+    nm = name;
+}
+
+/*! \fn void QSqlField::setNull()
+
+  Sets the field to NULL and clears the value using clear().
+  If the field is read-only, nothing happens.
+
+  \sa isReadOnly() clear()
+*/
+
+void QSqlField::setNull()
+{
+    clear( TRUE );
+}
+
+/*! \fn void QSqlField::setReadOnly( bool readOnly )
+
+  Sets the read only flag of the field's value to \a readOnly.
+
+  \sa setValue()
+*/
+void QSqlField::setReadOnly( bool readOnly )
+{
+    ro = readOnly;
+}
+
 /*! \fn QString QSqlField::name() const
 
   Returns the name of the field.
@@ -228,25 +257,9 @@ void QSqlField::clear( bool nullify )
   Returns the field's type.
 */
 
-/*! \fn void QSqlField::setReadOnly( bool readOnly )
-
-  Sets the read only flag of the field's value to \a readOnly.
-
-  \sa setValue()
-*/
-
 /*! \fn bool QSqlField::isReadOnly() const
 
   Returns TRUE if the field's value is read only, otherwise FALSE.
-*/
-
-/*! \fn void QSqlField::setNull( bool n )
-
-  Sets the null flag of the field to \a n.  If the field is read-only,
-  nothing happens.  If \a n is TRUE, the field is also cleared with
-  clear().
-
-  \sa isReadOnly()
 */
 
 /*! \fn bool QSqlField::isNull() const

@@ -63,24 +63,39 @@ public:
     bool operator==(const QSqlField& other) const;
     virtual ~QSqlField();
 
-    virtual void       setValue( const QVariant& value );
-    virtual QVariant   value() const { return val; }
-    virtual void       setName( const QString& name ) { nm = name; }
-    QString            name() const { return nm; }
-    virtual void       setNull( bool n ) { if ( !ro ) { nul = n; if ( nul ) clear( FALSE ); } }
-    bool               isNull() const { return nul; }
-    virtual void       setReadOnly( bool readOnly ) { ro = readOnly; }
-    bool               isReadOnly() const { return ro; }
-    void               clear( bool nullify = TRUE );
-    QVariant::Type     type() const { return val.type(); }
+    virtual void	setValue( const QVariant& value );
+    virtual QVariant	value() const;
+    virtual void	setName( const QString& name );
+    QString		name() const;
+    virtual void	setNull();
+    bool		isNull() const;
+    virtual void	setReadOnly( bool readOnly );
+    bool		isReadOnly() const;
+    void		clear( bool nullify = TRUE );
+    QVariant::Type	type() const;
 
 private:
     QString       nm;
     QVariant      val;
-    bool          ro;
-    bool          nul;
+    uint          ro: 1;
+    uint          nul: 1;
     QSqlFieldPrivate* d;
 };
+
+inline QVariant QSqlField::value() const
+{ return val; }
+
+inline QString QSqlField::name() const
+{ return nm; }
+
+inline bool QSqlField::isNull() const
+{ return nul; }
+
+inline bool QSqlField::isReadOnly() const
+{ return ro; }
+
+inline QVariant::Type QSqlField::type() const
+{ return val.type(); }
 
 #endif	// QT_NO_SQL
 #endif

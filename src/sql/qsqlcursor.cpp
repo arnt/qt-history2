@@ -439,6 +439,31 @@ void QSqlCursor::remove( int pos )
     QSqlRecord::remove( pos );
 }
 
+/*! Sets the generated flag for the field \a name to \a generated.  If the
+  field does not exist, nothing happens. Only fields that have \a
+  generated set to TRUE are included in the SQL that is generated, e.g.
+  by QSqlCursor.
+
+  \sa isGenerated()
+*/
+
+void QSqlCursor::setGenerated( const QString& name, bool generated )
+{
+    QSqlRecord::setGenerated( name, generated );
+    d->editBuffer.setGenerated( name, generated );
+}
+/*!  \overload
+
+  Sets the generated flag for the field \a i to \a generated.
+
+  \sa isGenerated()
+*/
+void QSqlCursor::setGenerated( int i, bool generated )
+{
+    QSqlRecord::setGenerated( i, generated );
+    d->editBuffer.setGenerated( i, generated );
+}
+
 /*!  Returns the primary index associated with the cursor as defined
   in the database, or an empty index if there is no primary index.  If
   \a setFromCursor is TRUE (the default), the index fields are populated
@@ -688,6 +713,7 @@ void QSqlCursor::setCalculated( const QString& name, bool calculated )
 	return;
     d->fieldInfo[ position( name ) ].calc = calculated;
     setGenerated( name, !calculated );
+    d->editBuffer.setGenerated( name, !calculated );
 }
 
 /*! Returns TRUE if the field \a name is calculated, otherwise FALSE is
@@ -792,7 +818,12 @@ QString QSqlCursor::toString( const QString& prefix, QSqlField* field, const QSt
     QString f;
     if ( field && driver() ) {
 	f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
-	f += " " + fieldSep + " " + driver()->formatValue( field );
+	f += " " + fieldSep + " ";
+	if ( field->isNull() ) {
+	    f += "NULL";
+	} else {
+	    f += driver()->formatValue( field );
+	}
     }
     return f;
 }
@@ -886,21 +917,30 @@ int QSqlCursor::insert( bool invalidate )
     int k = d->editBuffer.count();
     if ( k == 0 )
 	return 0;
-    QString str = "insert into " + name();
-    str += " (" + d->editBuffer.toString() + ")";
-    str += " values (";
-    QString vals;
+
+    QString fList;
+    QString vList;
     bool comma = FALSE;
-    for( int j = 0; j < k; ++j ){
+
+    for( int j = 0; j < k; ++j ) {
 	QSqlField* f = d->editBuffer.field( j );
-	if ( !isCalculated( f->name() ) ) {
-	    if( comma )
-		vals += ",";
-	    vals += driver()->formatValue( f );
+	if ( ( d->editBuffer.isGenerated( j ) ) && ( !isCalculated( f->name() ) ) ) {
+	    if ( comma ) {
+		fList += ",";
+		vList += ",";
+	    }
+	    fList += f->name();
+	    vList += driver()->formatValue( f );
 	    comma = TRUE;
-	}
+	}	
     }
-    str += vals + ")";
+
+    if ( !comma ) {
+	// no valid fields found
+	return 0;
+    }
+
+    QString str = QString( "insert into %1 (%2) values (%3)" ).arg( name() ).arg( fList ).arg( vList );
     return apply( str, invalidate );
 }
 
@@ -916,8 +956,14 @@ int QSqlCursor::insert( bool invalidate )
 QSqlRecord* QSqlCursor::editBuffer( bool copy )
 {
     if ( copy ) {
-	for(uint i = 0; i < d->editBuffer.count(); i++)
-	    d->editBuffer.setValue( i, value( i ) );
+	for(uint i = 0; i < d->editBuffer.count(); i++) {	
+	    if ( QSqlRecord::isNull( i ) ) {
+		d->editBuffer.setNull( i );
+	    } else {
+		d->editBuffer.setValue( i, value( i ) );
+	    }
+	    d->editBuffer.setGenerated( i, isGenerated( i ) );
+	}
     }
     return &d->editBuffer;
 }
@@ -935,9 +981,7 @@ QSqlRecord* QSqlCursor::editBuffer( bool copy )
 
 QSqlRecord* QSqlCursor::primeUpdate()
 {
-    for(uint i = 0; i < d->editBuffer.count(); i++)
-	d->editBuffer.setValue( i, value( i ) );
-    return &d->editBuffer;
+    return editBuffer( TRUE );
 }
 
 /*!  'Primes' the field values of the edit buffer for delete and
@@ -953,9 +997,7 @@ QSqlRecord* QSqlCursor::primeUpdate()
 
 QSqlRecord* QSqlCursor::primeDelete()
 {
-    for(uint i = 0; i < d->editBuffer.count(); i++)
-	d->editBuffer.setValue( i, value( i ) );
-    return &d->editBuffer;
+    return editBuffer( TRUE );
 }
 
 /*!  'Primes' the field values of the edit buffer for insert and
@@ -1043,7 +1085,6 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     str += " set " + toString( &d->editBuffer, QString::null, "=", "," );
     if ( filter.length() )
 	str+= " where " + filter;
-//    qDebug( str );
     return apply( str, invalidate );
 }
 
@@ -1186,7 +1227,8 @@ void QSqlCursor::sync()
 		     d->fieldInfo[ i ].trim )
 		    v = qTrim( v.toString() );
 		QSqlRecord::setValue( i, v );
-		QSqlRecord::field( i )->setNull( QSqlQuery::isNull( j ) );
+		if ( QSqlQuery::isNull( j ) )
+		    QSqlRecord::field( i )->setNull();
 		j++;
 	    } else
 		haveCalculatedFields = TRUE;
