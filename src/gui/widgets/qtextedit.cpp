@@ -2005,7 +2005,7 @@ void QTextEdit::scrollToAnchor(const QString &name)
 }
 
 /*!
-    \fn QTextEdit::zoomIn()
+    \fn QTextEdit::zoomIn(int range)
 
     Zooms in on the text by by making the base font size \a range
     points larger and recalculating all font sizes to be the new size.
@@ -2021,7 +2021,7 @@ void QTextEdit::zoomIn(int range)
 }
 
 /*!
-    \fn QTextEdit::zoomOut()
+    \fn QTextEdit::zoomOut(int range)
 
     \overload
 
