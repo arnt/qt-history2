@@ -53,8 +53,6 @@
 
 //////////// QWellArray BEGIN
 
-// #include "qobjectdict.h"
-
 //
 //  W A R N I N G
 //  -------------

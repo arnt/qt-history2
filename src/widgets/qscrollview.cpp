@@ -39,7 +39,6 @@
 #ifndef QT_NO_SCROLLVIEW
 #include "qscrollbar.h"
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 #include "qpainter.h"
 #include "qpixmap.h"
 #include "qcursor.h"

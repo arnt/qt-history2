@@ -34,7 +34,6 @@
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 #include "qaccel.h"
 #include "qimage.h"
 #include "qfocusdata.h"

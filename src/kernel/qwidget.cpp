@@ -37,7 +37,6 @@
 
 
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 #include "qwidget.h"
 #include "qwidgetlist.h"
 #include "qwidgetintdict.h"

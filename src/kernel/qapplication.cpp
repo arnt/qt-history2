@@ -36,7 +36,6 @@
 **********************************************************************/
 
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 #include "qapplication.h"
 #include "qwidget.h"
 #include "qwidgetlist.h"
@@ -832,16 +831,6 @@ QApplication::~QApplication()
     delete app_cursor;
     app_cursor = 0;
 #endif
-    /*
-      Cannot delete objectDict, as then all Class::metaObj variables
-      become invalid.  We could make a separate function to do this
-      to allow apps to assert "I will not use Qt any more". It is
-      not sufficient to assume that here, as a new QApplication might
-      be constructed.
-
-      delete objectDict;
-      objectDict = 0;
-    */
 
     qApp = 0;
     is_app_running = FALSE;

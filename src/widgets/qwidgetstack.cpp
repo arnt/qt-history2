@@ -39,7 +39,6 @@
 #ifndef QT_NO_WIDGETSTACK
 
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 #include "qbutton.h"
 #include "qbuttongroup.h"
 

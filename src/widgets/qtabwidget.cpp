@@ -38,7 +38,6 @@
 #include "qtabwidget.h"
 #ifndef QT_NO_TABWIDGET
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 #include "qtabbar.h"
 #include "qapplication.h"
 #include "qwidgetstack.h"
