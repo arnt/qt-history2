@@ -433,7 +433,7 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
         QLOAD(QSize);
         break;
     case QCoreVariant::Rect:
-        QLOAD(QSize);
+        QLOAD(QRect);
         break;
     case QCoreVariant::Point:
         QLOAD(QPoint);
