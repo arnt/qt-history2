@@ -39,7 +39,8 @@ struct Q_CORE_EXPORT QMapData
     int topLevel;
     int size;
     uint randomBits;
-    bool insertInOrder;
+    uint insertInOrder : 1;
+    uint sharable : 1;
 
     static QMapData *createData();
     void continueFreeData(int offset);
@@ -69,22 +70,25 @@ class QMap
         QMapData::Node *backward;
         QMapData::Node *forward[1];
     };
-    struct Payload
-    {
-        Key key;
-        T value;
-    };
     union {
         QMapData *d;
         QMapData::Node *e;
     };
 
+    struct PayloadNode
+    {
+        Key key;
+        T value;
+        QMapData::Node *backward;
+    };
+    enum { Payload = sizeof(PayloadNode) - sizeof(QMapData::Node *) };
+
     static inline Node *concrete(QMapData::Node *node) {
-        return reinterpret_cast<Node *>(reinterpret_cast<char *>(node) - sizeof(Payload));
+        return reinterpret_cast<Node *>(reinterpret_cast<char *>(node) - Payload);
     }
 public:
     inline QMap() : d(&QMapData::shared_null) { ++d->ref; }
-    inline QMap(const QMap<Key, T> &other) : d(other.d) { ++d->ref; }
+    inline QMap(const QMap<Key, T> &other) : d(other.d) { ++d->ref; if (!d->sharable) detach(); }
     inline ~QMap() { if (!d) return; if (!--d->ref) freeData(d); }
 
     QMap<Key, T> &operator=(const QMap<Key, T> &other);
@@ -102,6 +106,8 @@ public:
 
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
+    inline void setSharable(bool sharable) { if (!sharable) detach(); d->sharable = sharable; }
+
     static inline bool sameKey(const Key &key1, const Key &key2)
         { return !(key1 < key2 || key2 < key1); }
 
@@ -290,6 +296,8 @@ Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator=(const QMap<Key, T> &othe
         x = qAtomicSetPtr(&d, x);
         if (!--x->ref)
             freeData(x);
+        if (!d->sharable)
+            detach_helper();
     }
     return *this;
 }
@@ -304,7 +312,7 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE typename QMapData::Node *
 QMap<Key, T>::node_create(QMapData *d, QMapData::Node *update[], const Key &key, const T &value)
 {
-    QMapData::Node *abstractNode = d->node_create(update, sizeof(Payload));
+    QMapData::Node *abstractNode = d->node_create(update, Payload);
     Node *concreteNode = concrete(abstractNode);
     new (&concreteNode->key) Key(key);
     new (&concreteNode->value) T(value);
@@ -478,7 +486,7 @@ Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::freeData(QMapData *x)
             concreteNode->value.~T();
         }
     }
-    x->continueFreeData(sizeof(Payload));
+    x->continueFreeData(Payload);
 }
 
 template <class Key, class T>
@@ -505,7 +513,7 @@ Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::remove(const Key &key)
             deleteNext = (next != e && !(concrete(cur)->key < concrete(next)->key));
             concrete(cur)->key.~Key();
             concrete(cur)->value.~T();
-            d->node_delete(update, sizeof(Payload), cur);
+            d->node_delete(update, Payload, cur);
         } while (deleteNext);
     }
     return oldSize - d->size;
@@ -531,7 +539,7 @@ Q_OUTOFLINE_TEMPLATE T QMap<Key, T>::take(const Key &key)
         t = concrete(next)->value;
         concrete(next)->key.~Key();
         concrete(next)->value.~T();
-        d->node_delete(update, sizeof(Payload), next);
+        d->node_delete(update, Payload, next);
     } else {
         qInit(t);
     }
@@ -560,7 +568,7 @@ Q_OUTOFLINE_TEMPLATE typename QMap<Key, T>::iterator QMap<Key, T>::erase(iterato
         if (cur == it) {
             concrete(cur)->key.~Key();
             concrete(cur)->value.~T();
-            d->node_delete(update, sizeof(Payload), cur);
+            d->node_delete(update, Payload, cur);
             return iterator(next);
         }
 

@@ -18,7 +18,7 @@
 QMapData QMapData::shared_null = {
     reinterpret_cast<Node *>(&shared_null),
     { reinterpret_cast<Node *>(&shared_null), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Q_ATOMIC_INIT(1), 0,
-    0, 0, false
+    0, 0, false, true
 };
 
 QMapData *QMapData::createData()
@@ -32,6 +32,7 @@ QMapData *QMapData::createData()
     d->size = 0;
     d->randomBits = 0;
     d->insertInOrder = false;
+    d->sharable = true;
     return d;
 }
 
