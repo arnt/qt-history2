@@ -407,7 +407,7 @@ void QOpenGLPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBru
 
 void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
 {
-    GLfloat mat[4][4];
+    GLdouble mat[4][4];
 
     mat[0][0] = qToDouble(mtx.m11());
     mat[0][1] = qToDouble(mtx.m12());
@@ -431,7 +431,7 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
 
     dgl->makeCurrent();
     glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(&mat[0][0]);
+    glLoadMatrixd(&mat[0][0]);
 }
 
 void QOpenGLPaintEngine::updateClipRegion(const QRegion &rgn, Qt::ClipOperation op)
@@ -500,8 +500,8 @@ void QOpenGLPaintEngine::drawLine(const QLineF &line)
     dgl->qglColor(d->cpen.color());
     glBegin(GL_LINES);
     {
-        glVertex2f(qToDouble(line.startX()), qToDouble(line.startY()));
-        glVertex2f(qToDouble(line.endX()), qToDouble(line.endY()));
+        glVertex2d(qToDouble(line.startX()), qToDouble(line.startY()));
+        glVertex2d(qToDouble(line.endX()), qToDouble(line.endY()));
     }
     glEnd();
 }
@@ -535,14 +535,14 @@ void QOpenGLPaintEngine::drawRect(const QRectF &r)
         dgl->qglColor(d->cpen.color());
         glBegin(GL_LINES);
         {
-            glVertex2f(x, y);
-            glVertex2f(x+w, y);
-            glVertex2f(x+w, y-1);
-            glVertex2f(x+w, y+h);
-            glVertex2f(x+w, y+h);
-            glVertex2f(x, y+h);
-            glVertex2f(x, y+h);
-            glVertex2f(x, y);
+            glVertex2d(x, y);
+            glVertex2d(x+w, y);
+            glVertex2d(x+w, y-1);
+            glVertex2d(x+w, y+h);
+            glVertex2d(x+w, y+h);
+            glVertex2d(x, y+h);
+            glVertex2d(x, y+h);
+            glVertex2d(x, y);
         }
         glEnd();
     }
@@ -553,7 +553,7 @@ void QOpenGLPaintEngine::drawPoint(const QPointF &p)
     dgl->makeCurrent();
     glBegin(GL_POINTS);
     {
-        glVertex2f(qToDouble(p.x()), qToDouble(p.y()));
+        glVertex2d(qToDouble(p.x()), qToDouble(p.y()));
     }
     glEnd();
 }
@@ -564,8 +564,8 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
     glBegin(GL_LINES);
     {
         for (int i = 0; i < lineCount; ++i) {
-            glVertex2f(qToDouble(lines[i].startX()), qToDouble(lines[i].startY()));
-            glVertex2f(qToDouble(lines[i].endX()), qToDouble(lines[i].endY()));
+            glVertex2d(qToDouble(lines[i].startX()), qToDouble(lines[i].startY()));
+            glVertex2d(qToDouble(lines[i].endX()), qToDouble(lines[i].endY()));
         }
     }
     glEnd();
@@ -630,8 +630,8 @@ static void qgl_draw_poly(const QPointF *points, int pointCount)
 	gluTessBeginContour(qgl_tess);
 	{
 	    for (int i = 0; i < pointCount; ++i) {
-		v[i*3] = (GLdouble) qToDouble(points[i].x());
-		v[i*3+1] = (GLdouble) qToDouble(points[i].y());
+		v[i*3] = qToDouble(points[i].x());
+		v[i*3+1] = qToDouble(points[i].y());
 		v[i*3+2] = 0.0;
 		gluTessVertex(qgl_tess, &v[i*3], &v[i*3]);
 	    }
@@ -647,7 +647,7 @@ static void qgl_draw_poly(const QPointF *points, int pointCount)
     glBegin(GL_POLYGON);
     {
         for (int i = 0; i < pointCount; ++i)
-	    glVertex2f(points[i].x(), points[i].y());
+	    glVertex2d(points[i].x(), points[i].y());
     }
     glEnd();
 #endif
@@ -672,9 +672,9 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
         glBegin(GL_LINE_STRIP);
         {
             for (int i = 0; i < pointCount; ++i)
-                glVertex2f(qToDouble(points[i].x()), qToDouble(points[i].y()));
+                glVertex2d(qToDouble(points[i].x()), qToDouble(points[i].y()));
             if (mode != PolylineMode && !(x1 == x2 && y1 == y2))
-                glVertex2f(x1, y1);
+                glVertex2d(x1, y1);
         }
         glEnd();
     }
@@ -715,21 +715,21 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
 
-    GLfloat tc_w = qToDouble(qreal(r.width())/pm.width());
-    GLfloat tc_h = qToDouble(qreal(r.height())/pm.height());
+    GLdouble tc_w = qToDouble(qreal(r.width())/pm.width());
+    GLdouble tc_h = qToDouble(qreal(r.height())/pm.height());
 
     // Rotate the texture so that it is aligned correctly and the
     // wrapping is done correctly
     glMatrixMode(GL_TEXTURE);
     glPushMatrix();
-    glRotatef(180.0, 0.0, 1.0, 0.0);
-    glRotatef(180.0, 0.0, 0.0, 1.0);
+    glRotated(180.0, 0.0, 1.0, 0.0);
+    glRotated(180.0, 0.0, 0.0, 1.0);
     glBegin(GL_QUADS);
     {
-        glTexCoord2f(0.0, 0.0); glVertex2f(qToDouble(r.x()), qToDouble(r.y()));
-        glTexCoord2f(tc_w, 0.0); glVertex2f(qToDouble(r.x()+r.width()), qToDouble(r.y()));
-        glTexCoord2f(tc_w, tc_h); glVertex2f(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
-        glTexCoord2f(0.0, tc_h); glVertex2f(qToDouble(r.x()), qToDouble(r.y()+r.height()));
+        glTexCoord2d(0.0, 0.0); glVertex2d(qToDouble(r.x()), qToDouble(r.y()));
+        glTexCoord2d(tc_w, 0.0); glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()));
+        glTexCoord2d(tc_w, tc_h); glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
+        glTexCoord2d(0.0, tc_h); glVertex2d(qToDouble(r.x()), qToDouble(r.y()+r.height()));
     }
     glEnd();
     glPopMatrix();
@@ -761,10 +761,10 @@ void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRec
         qreal x2 = x1 + sr.width() / tx_width;
         qreal y1 = sr.y() / tx_height;
         qreal y2 = y1 + sr.height() / tx_height;
-        glTexCoord2f(qToDouble(x1), qToDouble(y2)); glVertex2f(qToDouble(r.x()), qToDouble(r.y()));
-        glTexCoord2f(qToDouble(x2), qToDouble(y2)); glVertex2f(qToDouble(r.x()+r.width()), qToDouble(r.y()));
-        glTexCoord2f(qToDouble(x2), qToDouble(y1)); glVertex2f(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
-        glTexCoord2f(qToDouble(x1), qToDouble(y1)); glVertex2f(qToDouble(r.x()), qToDouble(r.y()+r.height()));
+        glTexCoord2d(qToDouble(x1), qToDouble(y2)); glVertex2d(qToDouble(r.x()), qToDouble(r.y()));
+        glTexCoord2d(qToDouble(x2), qToDouble(y2)); glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()));
+        glTexCoord2d(qToDouble(x2), qToDouble(y1)); glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
+        glTexCoord2d(qToDouble(x1), qToDouble(y1)); glVertex2d(qToDouble(r.x()), qToDouble(r.y()+r.height()));
     }
     glEnd();
 
@@ -859,11 +859,11 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 	glBegin(GL_POLYGON);
 	{
 	    glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	    glVertex2f(xbot1, qToDouble(rect.height()));
-	    glVertex2f(xtop1, 0);
+	    glVertex2d(xbot1, qToDouble(rect.height()));
+	    glVertex2d(xtop1, 0);
 	    glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	    glVertex2f(xtop2, 0);
-	    glVertex2f(xbot2, qToDouble(rect.height()));
+	    glVertex2d(xtop2, 0);
+	    glVertex2d(xbot2, qToDouble(rect.height()));
 	}
 	glEnd();
     } else {
@@ -913,11 +913,11 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 	glBegin(GL_POLYGON);
 	{
 	    glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	    glVertex2f(0, yleft1);
-	    glVertex2f(qToDouble(rect.width()), yright1);
+	    glVertex2d(0, yleft1);
+	    glVertex2d(qToDouble(rect.width()), yright1);
 	    glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	    glVertex2f(qToDouble(rect.width()), yright2);
-	    glVertex2f(0, yleft2);
+	    glVertex2d(qToDouble(rect.width()), yright2);
+	    glVertex2d(0, yleft2);
 	}
 	glEnd();
     }
