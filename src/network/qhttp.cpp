@@ -422,9 +422,9 @@ bool QHttpHeader::parse( const QString& str )
     QStringList lst;
     int pos = str.indexOf( '\n' );
     if ( pos > 0 && str.at( pos - 1 ) == '\r' )
-	lst = str.trimmed().split("\r\n"); 
+	lst = str.trimmed().split("\r\n");
     else
-	lst = str.trimmed().split("\n"); 
+	lst = str.trimmed().split("\n");
     lst.remove(QString()); // No empties
 
     if ( lst.isEmpty() )
@@ -1944,7 +1944,8 @@ void QHttp::slotReadyRead()
 	// one chunk.
 	if (d->response.statusCode() != 100) {
 	    d->readHeader = FALSE;
-	    if ( d->response.hasKey( "transfer-encoding" ) && d->response.value( "transfer-encoding" ).contains( "chunked" ) )
+	    if ( d->response.hasKey( "transfer-encoding" ) &&
+		 d->response.value( "transfer-encoding" ).toLower().contains( "chunked" ) )
 		d->chunkedSize = 0;
 
 	    emit responseHeaderReceived( d->response );
@@ -2070,7 +2071,7 @@ void QHttp::slotReadyRead()
 
 	if ( everythingRead ) {
 	    // Handle "Connection: close"
-	    if ( d->response.value("connection") == "close" ) {
+	    if ( d->response.value("connection").toLower() == "close" ) {
 		closeConn();
 	    } else {
 		setState( Connected );
