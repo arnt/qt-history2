@@ -747,7 +747,7 @@ void QWidget::update(bool erase)
 void QWidget::update(const QRegion &rgn, bool erase)
 {
     if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
-	InvalidateRgn(winId(), rgn.handle());
+	InvalidateRgn(winId(), rgn.handle(), erase);
 }
 
 void QWidget::update(int x, int y, int w, int h, bool erase)
