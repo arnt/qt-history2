@@ -1,4 +1,16 @@
-#define BAD_DOUBLE_COMPARISON
+/****************************************************************************
+**
+** Implementation of QLocale class.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the tools module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
 
 #include <stdlib.h>
 #include <math.h>
@@ -10,75 +22,6 @@
 
 #include "qlocale.h"
 #include "qlocale_p.h"
-#include "qcleanuphandler.h"
-#include "qmutex.h"
-
-#ifdef QT_THREAD_SUPPORT
-#  include <private/qmutexpool_p.h>
-#endif // QT_THREAD_SUPPORT
-
-class QLocaleStaticData
-{
-public:
-    static const double &inf() { init(); return d->m_inf; }
-    static const double &nan() { init(); return d->m_nan; }
-    static bool bigEndian() { init(); return d->m_big_endian; }
-    static const QString &nanStr() { init(); return d->m_nan_str; }
-    static const QString &infStr() { init(); return d->m_inf_str; }
-    static void init() {
-    	if (d == 0)
-	    initStaticData();
-    }
-
-private:
-    QLocaleStaticData();
-    static void initStaticData();
-
-    double m_inf, m_nan;
-    bool m_big_endian;
-    QString m_nan_str, m_inf_str;
-
-    static QLocaleStaticData *d;
-};
-
-QLocaleStaticData *QLocaleStaticData::d = 0;
-
-static QCleanupHandler<QLocaleStaticData> g_static_data_cleanup_handler;
-
-void QLocaleStaticData::initStaticData()
-{
-#ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool ?
-                         qt_global_mutexpool->get(&d) : 0 );
-    if (d != 0)
-    	return;
-#endif // QT_THREAD_SUPPORT
-
-    d = new QLocaleStaticData;
-    g_static_data_cleanup_handler.add(&d);
-}
-
-QLocaleStaticData::QLocaleStaticData()
-{
-    int word_size;
-    qSysInfo(&word_size, &m_big_endian);
-
-    const unsigned char be_inf_bytes[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
-    const unsigned char le_inf_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
-    const unsigned char be_nan_bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
-    const unsigned char le_nan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
-
-    if (m_big_endian) {
-    	m_inf = *(const double*)be_inf_bytes;
-    	m_nan = *(const double*)be_nan_bytes;
-    } else {
-    	m_inf = *(const double*)le_inf_bytes;
-    	m_nan = *(const double*)le_nan_bytes;
-    }
-
-    m_nan_str = "nan";
-    m_inf_str = "inf";
-}
 
 #if defined (Q_WS_WIN) && !defined(Q_CC_GNU)
 #   define isnan(d) _isnan(d)
@@ -95,11 +38,27 @@ QLocaleStaticData::QLocaleStaticData()
 #endif
 
 #if !defined(INFINITY)
-#   define INFINITY (QLocaleStaticData::inf())
+static const unsigned char be_inf_bytes[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
+static const unsigned char le_inf_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
+static inline double inf()
+{
+    return (QSysInfo::ByteOrder == QSysInfo::BigEndian ?
+	    *((const double *) be_inf_bytes) :
+	    *((const double *) le_inf_bytes));
+}
+#   define INFINITY (::inf())
 #endif
 
 #if !defined(NAN)
-#   define NAN (QLocaleStaticData::nan())
+static const unsigned char be_nan_bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
+static const unsigned char le_nan_bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
+static inline double nan()
+{
+    return (QSysInfo::ByteOrder == QSysInfo::BigEndian ?
+	    *((const double *) be_nan_bytes) :
+	    *((const double *) le_nan_bytes));
+}
+#   define NAN (::nan())
 #endif
 
 // Sizes as defined by the ISO C99 standard - fallback
@@ -1170,14 +1129,14 @@ static const uint country_name_index[] = {
 
 const QLocalePrivate *QLocale::default_d = 0;
 
-const QString &QLocalePrivate::infinity() const
+QString QLocalePrivate::infinity() const
 {
-    return QLocaleStaticData::infStr();
+    return QString::fromLatin1("inf");
 }
 
-const QString &QLocalePrivate::nan() const
+QString QLocalePrivate::nan() const
 {
-    return QLocaleStaticData::nanStr();
+    return QString::fromLatin1("nan");
 }
 
 static const QLocalePrivate *findLocale(QLocale::Language language,
@@ -2988,14 +2947,14 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 
 static inline ULong &word0(double &x)
 {
-    if (QLocaleStaticData::bigEndian())
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian)
     	return ((ULong *)&x)[0];
     return ((ULong *)&x)[1];
 }
 
 static inline ULong &word1(double &x)
 {
-    if (QLocaleStaticData::bigEndian())
+    if (QSysInfo::ByteOrder == QSysInfo::BigEndian)
     	return ((ULong *)&x)[1];
     return ((ULong *)&x)[0];
 }
@@ -3005,7 +2964,7 @@ static inline ULong &word1(double &x)
  * #define Storeinc(a,b,c) (*a++ = b << 16 | c & 0xffff)
  */
 
-/* 
+/*
 #if defined(IEEE_LITTLE_ENDIAN) + defined(VAX) + defined(__arm32__)
 #define Storeinc(a,b,c) (((unsigned short *)a)[1] = (unsigned short)b, \
 ((unsigned short *)a)[0] = (unsigned short)c, a++)
@@ -3030,7 +2989,7 @@ static inline void Storeinc(ULong *&a, const ULong &b, const ULong &c)
 #   	define USE_IEEE 0
 #   endif
 
-    if (!QLocaleStaticData::bigEndian() && USE_IEEE || USE_LITTLE_ENDIAN) {
+    if (QSysInfo::ByteOrder == QSysInfo::LittleEndian && USE_IEEE || USE_LITTLE_ENDIAN) {
 	((unsigned short *)a)[1] = (unsigned short)b;
 	((unsigned short *)a)[0] = (unsigned short)c;
     } else {
@@ -3900,13 +3859,16 @@ static CONST double tinytens[] = { 1e-16, 1e-32 };
 #endif
 #endif
 
-#ifdef BAD_DOUBLE_COMPARISON
-/* The pre-release gcc3.3 shipped with SuSE 8.2 has a bug which causes
-   the comparison 1e-100 == 0.0 to return true. As a workaround, we compare
-   it to a global variable containing 0.0, which produces correct assembler
-   output. */
+/*
+  The pre-release gcc3.3 shipped with SuSE 8.2 has a bug which causes
+  the comparison 1e-100 == 0.0 to return true. As a workaround, we
+  compare it to a global variable containing 0.0, which produces
+  correct assembler output.
+
+  ### consider detecting the broken compilers and using the static
+  ### double for these, and use a #define for all working compilers
+*/
 static double g_double_zero = 0.0;
-#endif
 
 static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
 {
@@ -3919,12 +3881,12 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
     Bigint *bb1, *bd0;
     Bigint *bb = NULL, *bd = NULL, *bs = NULL, *delta = NULL;/* pacify gcc */
 
-/*
-  #ifndef KR_headers
-  CONST char decimal_point = localeconv()->decimal_point[0];
-  #else
-  CONST char decimal_point = '.';
-  #endif */
+    /*
+      #ifndef KR_headers
+      CONST char decimal_point = localeconv()->decimal_point[0];
+      #else
+      CONST char decimal_point = '.';
+      #endif */
     if (ok != 0)
 	*ok = true;
 
@@ -4109,7 +4071,7 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
 	if (e1 &= ~15) {
 	    if (e1 > DBL_MAX_10_EXP) {
 	    ovfl:
-//				errno = ERANGE;
+		//				errno = ERANGE;
 		if (ok != 0)
 		    *ok = false;
 #ifdef __STDC__
@@ -4164,23 +4126,15 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
 	    /* The last multiplication could underflow. */
 	    rv0 = rv;
 	    rv *= tinytens[j];
-#ifdef BAD_DOUBLE_COMPARISON
 	    if (rv == g_double_zero)
-#else
-		if (!rv)
-#endif
 		{
 		    rv = 2.*rv0;
 		    rv *= tinytens[j];
-#ifdef BAD_DOUBLE_COMPARISON
 		    if (rv == g_double_zero)
-#else
-    	    	    	if (!rv)
-#endif
 			{
 			undfl:
 			    rv = 0.;
-//					errno = ERANGE;
+			    //					errno = ERANGE;
 			    if (ok != 0)
 				*ok = false;
 			    if (bd0)
@@ -4280,11 +4234,11 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
 		    &&  word1(rv) == 0xffffffff) {
 		    /*boundary case -- increment exponent*/
 		    word0(rv) = (word0(rv) & Exp_mask)
-			+ Exp_msk1
+				+ Exp_msk1
 #ifdef IBM
-			| Exp_msk1 >> 4
+				| Exp_msk1 >> 4
 #endif
-			;
+				;
 		    word1(rv) = 0;
 		    break;
 		}
@@ -4322,12 +4276,8 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
 	    else {
 		rv -= ulp(rv);
 #ifndef Sudden_Underflow
-#ifdef BAD_DOUBLE_COMPARISON
 		if (rv == g_double_zero)
-#else
-		    if (!rv)
-#endif
-			goto undfl;
+		    goto undfl;
 #endif
 	    }
 #endif
@@ -4404,14 +4354,14 @@ static double qstrtod(CONST char *s00, CONST char **se, bool *ok)
 #else
 		    if ((word0(rv) & Exp_mask) <= P*Exp_msk1)
 #endif
-		    {
-			if (word0(rv0) == Tiny0
-			    && word1(rv0) == Tiny1)
-			    goto undfl;
-			word0(rv) = Tiny0;
-			word1(rv) = Tiny1;
-			goto cont;
-		    }
+			{
+			    if (word0(rv0) == Tiny0
+				&& word1(rv0) == Tiny1)
+				goto undfl;
+			    word0(rv) = Tiny0;
+			    word1(rv) = Tiny1;
+			    goto cont;
+			}
 		    else
 			word0(rv) -= P*Exp_msk1;
 	    }
@@ -4603,38 +4553,39 @@ static int quorem(Bigint *b, Bigint *S)
 
 static char *qdtoa (double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
 {
-    /*	Arguments ndigits, decpt, sign are similar to those
-	of ecvt and fcvt; trailing zeros are suppressed from
-	the returned string.  If not null, *rve is set to point
-	to the end of the return value.  If d is +-Infinity or NaN,
-	then *decpt is set to 9999.
+    /*
+      Arguments ndigits, decpt, sign are similar to those
+      of ecvt and fcvt; trailing zeros are suppressed from
+      the returned string.  If not null, *rve is set to point
+      to the end of the return value.  If d is +-Infinity or NaN,
+      then *decpt is set to 9999.
 
-	mode:
-	0 ==> shortest string that yields d when read in
-	and rounded to nearest.
-	1 ==> like 0, but with Steele & White stopping rule;
-	e.g. with IEEE P754 arithmetic , mode 0 gives
-	1e23 whereas mode 1 gives 9.999999999999999e22.
-	2 ==> max(1,ndigits) significant digits.  This gives a
-	return value similar to that of ecvt, except
-	that trailing zeros are suppressed.
-	3 ==> through ndigits past the decimal point.  This
-	gives a return value similar to that from fcvt,
-	except that trailing zeros are suppressed, and
-	ndigits can be negative.
-	4-9 should give the same return values as 2-3, i.e.,
-	4 <= mode <= 9 ==> same return as mode
-	2 + (mode & 1).  These modes are mainly for
-	debugging; often they run slower but sometimes
-	faster than modes 2-3.
-	4,5,8,9 ==> left-to-right digit generation.
-	6-9 ==> don't try fast floating-point estimate
-	(if applicable).
+      mode:
+      0 ==> shortest string that yields d when read in
+      and rounded to nearest.
+      1 ==> like 0, but with Steele & White stopping rule;
+      e.g. with IEEE P754 arithmetic , mode 0 gives
+      1e23 whereas mode 1 gives 9.999999999999999e22.
+      2 ==> max(1,ndigits) significant digits.  This gives a
+      return value similar to that of ecvt, except
+      that trailing zeros are suppressed.
+      3 ==> through ndigits past the decimal point.  This
+      gives a return value similar to that from fcvt,
+      except that trailing zeros are suppressed, and
+      ndigits can be negative.
+      4-9 should give the same return values as 2-3, i.e.,
+      4 <= mode <= 9 ==> same return as mode
+      2 + (mode & 1).  These modes are mainly for
+      debugging; often they run slower but sometimes
+      faster than modes 2-3.
+      4,5,8,9 ==> left-to-right digit generation.
+      6-9 ==> don't try fast floating-point estimate
+      (if applicable).
 
-	Values of mode other than 0-9 are treated as mode 0.
+      Values of mode other than 0-9 are treated as mode 0.
 
-	Sufficient space is allocated to the return value
-	to hold the suppressed trailing zeros.
+      Sufficient space is allocated to the return value
+      to hold the suppressed trailing zeros.
     */
 
     int bbits, b2, b5, be, dig, i, ieps, ilim0,
@@ -4665,31 +4616,27 @@ static char *qdtoa (double d, int mode, int ndigits, int *decpt, int *sign, char
 #else
 	if (word0(d)  == 0x8000)
 #endif
-	{
-	    /* Infinity or NaN */
-	    *decpt = 9999;
-	    s =
+	    {
+		/* Infinity or NaN */
+		*decpt = 9999;
+		s =
 #ifdef IEEE_Arith
-		!word1(d) && !(word0(d) & 0xfffff) ? (char*)"Infinity" :
+		    !word1(d) && !(word0(d) & 0xfffff) ? (char*)"Infinity" :
 #endif
-		(char*)"NaN";
-	    if (rve)
-		*rve =
+		    (char*)"NaN";
+		if (rve)
+		    *rve =
 #ifdef IEEE_Arith
-		    s[3] ? s + 8 :
+			s[3] ? s + 8 :
 #endif
-		    s + 3;
-	    return s;
-	}
+			s + 3;
+		return s;
+	    }
 #endif
 #ifdef IBM
     d += 0; /* normalize */
 #endif
-#ifdef BAD_DOUBLE_COMPARISON
     if (d == g_double_zero)
-#else
-	if (!d)
-#endif
 	{
 	    *decpt = 1;
 	    s = "0";
@@ -4956,12 +4903,8 @@ static char *qdtoa (double d, int mode, int ndigits, int *decpt, int *sign, char
 		}
 		break;
 	    }
-#ifdef BAD_DOUBLE_COMPARISON
 	    if ((d *= 10.) == g_double_zero)
-#else
-		if (!(d *= 10.))
-#endif
-		    break;
+		break;
 	}
 	goto ret1;
     }
@@ -5129,7 +5072,7 @@ static char *qdtoa (double d, int mode, int ndigits, int *decpt, int *sign, char
 #ifndef ROUND_BIASED
 			  && !(word1(d) & 1)
 #endif
-		    )) {
+			  )) {
 		if (j1 > 0) {
 		    b = lshift(b, 1);
 		    j1 = cmp(b, S);
