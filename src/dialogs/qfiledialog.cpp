@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#270 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#271 $
 **
 ** Implementation of QFileDialog class
 **
@@ -675,7 +675,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
     if ( currDropItem )
 	dest = QUrl( filedialog->d->url, currDropItem->text() );
     else
-	dest = QUrl( filedialog->d->url, "." );
+	dest = filedialog->d->url;
     filedialog->d->url.copy( l, dest, move );
 
     e->acceptAction();
@@ -1050,7 +1050,7 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
     if ( currDropItem )
 	dest = QUrl( filedialog->d->url, currDropItem->text( 0 ) );
     else
-	dest = QUrl( filedialog->d->url, "." );
+	dest = filedialog->d->url;
     filedialog->d->url.copy( l, dest, move );
 
     e->acceptAction();
@@ -2322,7 +2322,7 @@ void QFileDialog::okClicked()
 	    f = QUrlInfo( d->url, nameEdit->text() );
 	if ( f.isDir() ) {
 	    setDir( QUrl( d->url, nameEdit->text() ) );
-	    trySetSelection( TRUE, QUrl( d->url, "/." ), TRUE );
+	    trySetSelection( TRUE, d->url, TRUE );
 	}
     }
 }
@@ -2605,7 +2605,7 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
 	setDir( QUrl( d->url, i->info.name() ) );
 	if ( mode() == Directory ) {
 	    QUrlInfo f ( d->url, QString::fromLatin1(".") );
-	    trySetSelection( f.isDir(), QUrl( d->url, "." ), TRUE );
+	    trySetSelection( f.isDir(), d->url, TRUE );
 	}
     } else if ( newItem->isSelectable() && trySetSelection( i->info.isDir(), QUrl( d->url, i->info.name() ), TRUE ) ) {
 	if ( mode() != Directory ) {
@@ -2996,7 +2996,7 @@ void QFileDialog::setMode( Mode newMode )
 	}
 	rereadDir();
 	QUrlInfo f( d->url, "." );
-	trySetSelection( f.isDir(), QUrl( d->url, "." ), TRUE );
+	trySetSelection( f.isDir(), d->url, TRUE );
     }
 }
 
@@ -3414,8 +3414,12 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
     if ( dlg->exec() == QDialog::Accepted ) {
 	QListViewItem * i = dlg->files->firstChild();
 	while( i ) {
-	    if ( i->isSelected() )
-		s.append( QUrl( dlg->url(), ((QFileDialogPrivate::File*)i)->info.name() ) );
+	    if ( i->isSelected() ) {
+		QString u = QUrl( dlg->url(), ((QFileDialogPrivate::File*)i)->info.name() );
+		if ( u.left( 5 ) == "file:" )
+		    u.remove( 0, 5 );
+		s.append( u );
+	    }
 	    i = i->nextSibling();
 	}
 	*workingDirectory = dlg->dirPath();
