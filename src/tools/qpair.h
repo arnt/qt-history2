@@ -33,6 +33,9 @@
 **
 **********************************************************************/
 
+#ifndef QT_H
+#endif // QT_H
+
 template <class T1, class T2>
 struct QPair
 {
