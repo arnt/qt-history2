@@ -13,6 +13,7 @@ INCLUDEPATH += \
     ../../../lib/sdk \
     ../../../lib/extension \
     $$IDEDIR/src/uilib
+LIBS += -lQtDesigner
 
 # Input
 SOURCES += plugin.cpp

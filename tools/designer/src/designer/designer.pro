@@ -2,14 +2,7 @@ DESTDIR = ../../../../bin
 QT += xml network
 CONFIG += qt
 
-mac:TARGETDEPS += ../../../../lib/libQtDesigner.dylib \
-    ../../lib/libformeditor.dylib \
-    ../../lib/libobjectinspector.dylib \
-    ../../lib/libimagecollection.dylib \
-    ../../lib/libshared.dylib \
-    ../../lib/libpropertyeditor.dylib \
-    ../../lib/libspecialeditor.dylib \
-    ../../lib/libsignalsloteditor.dylib
+mac:TARGETDEPS += ../../../../lib/libQtDesigner.dylib
 
 unix:!mac:TARGETDEPS += ../../../../lib/libQtDesigner.so \
     ../../lib/libformeditor.a \
