@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#12 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -46,7 +46,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#12 $";
 #endif
 
 
@@ -435,6 +435,8 @@ Cursor QCursor::handle() const
   (variable size, see QBitmap), hot spot x and y (16 bits each) are
   written as well.
 
+  \relates QCursor
+
   \todo big/little-endianness looks doubtful */
 
 QDataStream &operator<<( QDataStream &s, const QCursor &c )
@@ -449,7 +451,9 @@ QDataStream &operator<<( QDataStream &s, const QCursor &c )
 
 /*! This function will read back a cursor from a stream.  It is
   intended for programs to load and save their state, not for
-  communication with humans.  See operator<<() for details. */
+  communication with humans.  See operator<<() for details.
+
+  \relates QCursor */
 
 QDataStream &operator>>( QDataStream &s, QCursor &c )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#14 $
 **
 ** Implementation of QColor class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#14 $";
 #endif
 
 
@@ -51,9 +51,16 @@ Return the pixel value.
 color and save it in the internal table.
 </ol>
 
-This method seems to work fine even with thousands of allocated colors.
+This method seems to work well even with thousands of allocated colors.
 */
 
+/*! \example wheel.cpp
+
+  <h1>Color Wheel</h1>
+
+  This example draws a color wheel.  It shows how to use QColor and
+  QPainter. */
+*/
 
 // --------------------------------------------------------------------------
 // Global colors
@@ -406,20 +413,18 @@ or FALSE if they have equal RGB values.
 // QColor stream functions
 //
 
-/*!
-Writes a color object to the stream.
+/*! Writes a color object to the stream.
 
-Format: RGB value serialized as UINT32.
-*/
+  Format: RGB value serialized as UINT32.
+
+  \relates QColor */
 
 QDataStream &operator<<( QDataStream &s, const QColor &c )
 {
     return s << c.getRGB();
 }
 
-/*!
-Reads a color object from the stream.
-*/
+/*! Reads a color object from the stream. \related QColor */
 
 QDataStream &operator>>( QDataStream &s, QColor &c )
 {
