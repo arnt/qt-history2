@@ -3,12 +3,13 @@ CONFIG += ordered
 
 # this order is important
 win32:SUBDIRS += winmain
-SUBDIRS += moc core gui opengl sql 
+SUBDIRS += moc core gui sql 
+opengl: SUBDIRS +=  opengl
 !contains(QT_PRODUCT, qt-professional):SUBDIRS += xml network canvas
 SUBDIRS += compat
 SUBDIRS += plugins
 
-embedded:SUBDIRS -= qopengl.pro
+embedded:SUBDIRS -= opengl
 
 # This gives us a top level debug/release
 unix {
