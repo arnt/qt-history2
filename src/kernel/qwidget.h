@@ -274,6 +274,11 @@ public:
     const QPixmap *	backgroundPixmap() const; // obsolete, use erasePixmap()
     virtual void	setBackgroundPixmap( const QPixmap & ); // obsolete, use setErasePixmap()
 
+#ifndef QT_NO_REMOTE
+    QString		alias() const;
+    void		setAlias( const QString & );
+#endif
+
 public slots:
 #ifndef QT_NO_WIDGET_TOPEXTRA
     virtual void	setCaption( const QString &);
@@ -286,11 +291,6 @@ public slots:
 
     virtual void	setFocus();
     void		clearFocus();
-
-#ifndef QT_NO_REMOTE
-    QString		alias() const;
-    void		setAlias( const QString & );
-#endif
 
 public:
     enum FocusPolicy {
