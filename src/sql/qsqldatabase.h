@@ -55,22 +55,19 @@ class QSqlDatabasePrivate;
 class Q_EXPORT QSqlDatabase : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY( QString databaseName  READ databaseName WRITE setDatabaseName )
+    Q_PROPERTY( QString userName  READ userName WRITE setUserName )
+    Q_PROPERTY( QString password  READ password WRITE setPassword )
+    Q_PROPERTY( QString hostName  READ hostName WRITE setHostName )
+
 public:
-    QT_STATIC_CONST char * const defaultDatabase;
-
-    static QSqlDatabase* addDatabase( const QString& type, const QString& name = defaultDatabase );
-    static QSqlDatabase* database( const QString& name = defaultDatabase, bool open = TRUE );
-    static void          removeDatabase( const QString& name );
-    static bool          contains( const QString& name = defaultDatabase );
-    static QStringList   drivers();
-
     ~QSqlDatabase();
 
     bool	 open();
     bool	 open( const QString& user, const QString& password );
     void	 close();
-    bool 	 isOpen() const;
-    bool 	 isOpenError() const;
+    bool	 isOpen() const;
+    bool	 isOpenError() const;
     QStringList  tables() const;
     QSqlIndex    primaryIndex( const QString& tablename ) const;
     QSqlRecord   record( const QString& tablename ) const;
@@ -86,16 +83,27 @@ public:
     virtual void setUserName( const QString& name );
     virtual void setPassword( const QString& password );
     virtual void setHostName( const QString& host );
-    QString 	 databaseName() const;
-    QString 	 userName() const;
-    QString 	 password() const;
-    QString 	 hostName() const;
+    QString	 databaseName() const;
+    QString	 userName() const;
+    QString	 password() const;
+    QString	 hostName() const;
 
     QSqlDriver*  driver() const;
+
+    // MOC_SKIP_BEGIN
+    QT_STATIC_CONST char * const defaultDatabase;
+    // MOC_SKIP_END
+
+    static QSqlDatabase* addDatabase( const QString& type, const QString& name = defaultDatabase );
+    static QSqlDatabase* database( const QString& name = defaultDatabase, bool open = TRUE );
+    static void          removeDatabase( const QString& name );
+    static bool          contains( const QString& name = defaultDatabase );
+    static QStringList   drivers();
+
 protected:
     QSqlDatabase( const QString& type, const QString& name, QObject * parent=0, const char * objname=0 );
 private:
-    void 	init( const QString& type, const QString& name );
+    void	init( const QString& type, const QString& name );
     QSqlDatabasePrivate* d;
 };
 
