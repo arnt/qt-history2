@@ -27,6 +27,7 @@ public:
         : xfd(-1)
     { }
     int xfd;
+    QList<XEvent> queuedUserInputEvents;
 };
 
 QEventDispatcherX11::QEventDispatcherX11(QObject *parent)
@@ -46,38 +47,51 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
 
     // Two loops so that posted events accumulate
     do {
-        while (!d->interrupt && XEventsQueued(X11->display, QueuedAlready)) {
-            // process events from the X server
+        while (!d->interrupt) {
             XEvent event;
-            XNextEvent(X11->display, &event);
+            if (!(flags & QEventLoop::ExcludeUserInputEvents)
+                && !d->queuedUserInputEvents.isEmpty()) {
+                // process a pending user input event
+                event = d->queuedUserInputEvents.takeFirst();
+            } else if (XEventsQueued(X11->display, QueuedAlready)) {
+                // process events from the X server
+                XNextEvent(X11->display, &event);
 
-            if (flags & QEventLoop::ExcludeUserInputEvents) {
-                switch (event.type) {
-                case ButtonPress:
-                case ButtonRelease:
-                case MotionNotify:
-                case XKeyPress:
-                case XKeyRelease:
-                case EnterNotify:
-                case LeaveNotify:
-                    continue;
-
-                case ClientMessage: {
-                    // only keep the wm_take_focus and
-                    // qt_qt_scrolldone protocols, discard all
-                    // other client messages
-                    if (event.xclient.format != 32)
+                if (flags & QEventLoop::ExcludeUserInputEvents) {
+                    // queue user input events
+                    switch (event.type) {
+                    case ButtonPress:
+                    case ButtonRelease:
+                    case MotionNotify:
+                    case XKeyPress:
+                    case XKeyRelease:
+                    case EnterNotify:
+                    case LeaveNotify:
+                        d->queuedUserInputEvents.append(event);
                         continue;
 
-                    if (event.xclient.message_type == ATOM(WM_PROTOCOLS) ||
-                        (Atom) event.xclient.data.l[0] == ATOM(WM_TAKE_FOCUS))
-                        break;
-                    if (event.xclient.message_type == ATOM(_QT_SCROLL_DONE))
-                        break;
-                }
+                    case ClientMessage:
+                        // only keep the wm_take_focus and
+                        // _qt_scrolldone protocols, queue all other
+                        // client messages
+                        if (event.xclient.format == 32) {
+                            if (event.xclient.message_type == ATOM(WM_PROTOCOLS) ||
+                                (Atom) event.xclient.data.l[0] == ATOM(WM_TAKE_FOCUS)) {
+                                break;
+                            } else if (event.xclient.message_type == ATOM(_QT_SCROLL_DONE)) {
+                                break;
+                            }
+                        }
+                        d->queuedUserInputEvents.append(event);
+                        continue;
 
-                default: break;
+                    default:
+                        break;
+                    }
                 }
+            } else {
+                // no event to process
+                break;
             }
 
             // send through event filter
