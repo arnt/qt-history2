@@ -126,7 +126,7 @@ QWidgetStack::~QWidgetStack()
   If you pass an id >= 0 this id is used. If you pass an \a id of -1
   (the default), the widgets will be numbered automatically starting
   at 0. If you pass any other negative integer a unique negative
-  integer (<= -2) will be generated. No widget has an id of -1.
+  integer (\<= -2) will be generated. No widget has an id of -1.
 
   The aboutToShow(int) signal is only emitted for widgets with id >=
   0. The aboutToShow(QWidget *) signal is emitted for any widget.
@@ -139,17 +139,19 @@ QWidgetStack::~QWidgetStack()
 
 int QWidgetStack::addWidget( QWidget * w, int id )
 {
-    static int seq_no = -2;
+    static int nseq_no = -2;
+    static int pseq_no = 0;
 
     if ( !w || w == invisible )
 	return -1;
 
     if ( id < -1 )
-	id = seq_no--;
+	id = nseq_no--;
     else if ( id == -1 )
-	id = dict->count();
+	id = pseq_no++;
+    // else use id >= 0 as-is
 
-    dict->insert( id+1, w );
+    dict->insert( id, w );
 
     // preserve existing focus
     QWidget * f = w->focusWidget();
@@ -182,7 +184,7 @@ void QWidgetStack::removeWidget( QWidget * w )
 	return;
     int i = id( w );
     if ( i != -1 )
-	dict->take( i+1 );
+	dict->take( i );
     if ( w == topWidget )
 	topWidget = 0;
     if ( dict->isEmpty() )
@@ -199,7 +201,7 @@ void QWidgetStack::raiseWidget( int id )
 {
     if ( id == -1 )
 	return;
-    QWidget * w = dict->find( id+1 );
+    QWidget * w = dict->find( id );
     if ( w )
 	raiseWidget( w );
 }
@@ -398,7 +400,7 @@ void QWidgetStack::show()
 
 QWidget * QWidgetStack::widget( int id ) const
 {
-    return id != -1 ? dict->find( id+1 ) : 0;
+    return id != -1 ? dict->find( id ) : 0;
 }
 
 
@@ -416,7 +418,7 @@ int QWidgetStack::id( QWidget * widget ) const
     QIntDictIterator<QWidget> it( *dict );
     while ( it.current() && it.current() != widget )
 	++it;
-    return it.current() == widget ? it.currentKey()-1 : -1;
+    return it.current() == widget ? it.currentKey() : -1;
 }
 
 
