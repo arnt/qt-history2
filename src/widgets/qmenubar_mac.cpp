@@ -16,6 +16,7 @@
 #include <qapplication.h>
 #include <qaccel.h>
 #include <qregexp.h>
+#include <qmessagebox.h>
 
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 MenuRef createMacPopup(QPopupMenu *d, bool, bool=FALSE);
