@@ -53,6 +53,7 @@ void yyerror( char *msg );
 #include <stdlib.h>
 
 
+
 static QCString rmWS( const char * );
 
 enum AccessPerm { _PRIVATE, _PROTECTED, _PUBLIC };
@@ -174,6 +175,45 @@ public:
 };
 
 
+/* 
+  Attention! 
+  This table is copied from qvariant.cpp. If you change 
+  one, change both.  
+*/
+static const int ntypes = 21;
+static const char* type_map[ntypes] =
+{
+    0,
+    "QValueList<QVariant>",
+    "QString",
+    "QStringList",
+    "QValueList<int>",
+    "QValueList<double>",
+    "QFont",
+    "QPixmap",
+    "QBrush",
+    "QRect",
+    "QSize",
+    "QColor",
+    "QPalette",
+    "QColorGroup",
+    "QIconSet",
+    "QPoint",
+    "QImage",
+    "int",
+    "bool",
+    "double",
+    "QCString"
+};
+
+int qvariant_nameToType( const char* name )
+{
+    for ( int i = 0; i < ntypes; i++ ) {
+	if ( !qstrcmp( type_map[i], name ) )
+	    return i;
+    }
+    return 0;
+}
 
 
 ArgList *addArg( Argument * );			// add arg to tmpArgList
@@ -1697,40 +1737,11 @@ void generateTypedef( Function* f, int num )
 
 
 
-/*
-  This map is copied from QVariant ( kernel/qvariant.cpp )
- */
-static const int ntypes = 20;
-static const char* type_map[ntypes] =
-{
-    0,
-    "QString",
-    "QStringList",
-    "QValueList<int>",
-    "QValueList<double>",
-    "QFont",
-    "QPixmap",
-    "QBrush",
-    "QRect",
-    "QSize",
-    "QColor",
-    "QPalette",
-    "QColorGroup",
-    "QIconSet",
-    "QPoint",
-    "QImage",
-    "int",
-    "bool",
-    "double",
-    "QCString"
-};
 
 bool isPropertyType( const char* type, bool test_enums = TRUE )
 {
-    for ( int i = 0; i < ntypes; i++ ) {
-	if ( !qstrcmp( type_map[i], type ) )
-	    return TRUE;
-    }
+    if ( qvariant_nameToType( type ) != 0 )
+	return TRUE;
 
     if ( !test_enums )
 	return FALSE;
@@ -2423,3 +2434,6 @@ void checkIdentifier( const char* ident )
 	++p;
     }
 }
+
+
+

@@ -40,7 +40,6 @@
 
 class QMetaObject;
 class QVariant;
-struct QMetaProperty;
 
 class Q_EXPORT QObject: public Qt
 {

@@ -733,7 +733,12 @@ void QVariant::clear()
     typ = Invalid;
 }
 
-static const int ntypes = 20;
+/*
+  Attention! 
+  For dependency reasons, this table is duplicated in moc.y. If you
+  change one, change both.
+*/
+static const int ntypes = 21;
 static const char* type_map[ntypes] =
 {
     0,
