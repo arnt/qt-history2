@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#51 $
 **
 ** Implementation of QTextStream class
 **
@@ -689,6 +689,28 @@ QTextStream &QTextStream::operator>>( char *s )
     }
 
     *s = '\0';
+    return *this;
+}
+
+/*!
+  Reads a word from the stream and returns a reference to the stream.
+*/
+
+QTextStream &QTextStream::operator>>( Q2String &str )
+{
+    CHECK_STREAM_PRECOND
+    str="";
+    int	i = 0;
+    int	c = eat_ws(dev);
+
+    while ( c != EOF ) {
+	if ( isspace(c) ) {
+	    dev->ungetch( c );
+	    break;
+	}
+	str[i++] = c;
+	c = dev->getch();
+    }
     return *this;
 }
 

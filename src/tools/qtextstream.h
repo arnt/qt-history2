@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#26 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#27 $
 **
 ** Definition of QTextStream class
 **
@@ -56,6 +56,7 @@ public:
     QTextStream &operator>>( float & );
     QTextStream &operator>>( double & );
     QTextStream &operator>>( char * );
+    QTextStream &operator>>( Q2String & );
     QTextStream &operator>>( QString & );
 
     QTextStream &operator<<( char );

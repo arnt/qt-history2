@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#52 $
+** $Id: //depot/qt/main/src/tools/qstring.h#53 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -141,6 +141,240 @@ Q_DECLARE(QArrayM,char);
 
 QDataStream &operator<<( QDataStream &, const QByteArray & );
 QDataStream &operator>>( QDataStream &, QByteArray & );
+
+
+/*****************************************************************************
+  Q2String class
+ *****************************************************************************/
+
+class QRegExp;
+
+class Q2String
+{
+public:
+    Q2String();					// make null string
+    Q2String( int size );			// allocate size incl. \0
+    Q2String( const Q2String & );			// impl-shared copy
+    Q2String( const char *str );			// deep copy
+    Q2String( const char *str, uint maxlen );	// deep copy, max length
+    ~Q2String();
+
+    Q2String    &operator=( const Q2String &s );	// impl-shared copy
+    Q2String    &operator=( const char *str );	// deep copy
+
+    bool	isNull()	const;
+    bool	isEmpty()	const;
+    uint	length()	const;
+    void	truncate( uint pos );
+    void	setLength( uint pos );
+    void	resize( uint pos ); // OBS
+    void	fill( ushort c, int len = -1 );
+
+    Q2String	copy()	const;
+
+    Q2String    &sprintf( const char* format, ... );
+
+    int		find( ushort c, int index=0, bool cs=TRUE ) const;
+    int		find( const Q2String &str, int index=0, bool cs=TRUE ) const;
+    int		find( const QRegExp &, int index=0 ) const;
+    int		findRev( ushort c, int index=-1, bool cs=TRUE) const;
+    int		findRev( const Q2String &str, int index=-1, bool cs=TRUE) const;
+    int		findRev( const QRegExp &, int index=-1 ) const;
+    int		contains( ushort c, bool cs=TRUE ) const;
+    int		contains( const char* str, bool cs=TRUE ) const;
+    int		contains( const Q2String &str, bool cs=TRUE ) const;
+    int		contains( const QRegExp & ) const;
+
+    Q2String	left( uint len )  const;
+    Q2String	right( uint len ) const;
+    Q2String	mid( uint index, uint len) const;
+
+    Q2String	leftJustify( uint width, ushort fill=' ', bool trunc=FALSE)const;
+    Q2String	rightJustify( uint width, ushort fill=' ',bool trunc=FALSE)const;
+
+    Q2String	lower() const;
+    Q2String	upper() const;
+
+    Q2String	stripWhiteSpace()	const;
+    Q2String	simplifyWhiteSpace()	const;
+
+    Q2String    &insert( uint index, const Q2String& );
+    Q2String    &insert( uint index, ushort );
+    Q2String    &append( const Q2String& );
+    Q2String    &prepend( const Q2String& );
+    Q2String    &remove( uint index, uint len );
+    Q2String    &replace( uint index, uint len, const Q2String& );
+    Q2String    &replace( const QRegExp &, const Q2String& );
+
+    short	toShort( bool *ok=0 )	const;
+    ushort	toUShort( bool *ok=0 )	const;
+    int		toInt( bool *ok=0 )	const;
+    uint	toUInt( bool *ok=0 )	const;
+    long	toLong( bool *ok=0 )	const;
+    ulong	toULong( bool *ok=0 )	const;
+    float	toFloat( bool *ok=0 )	const;
+    double	toDouble( bool *ok=0 )	const;
+
+    Q2String    &setStr( const char* );
+    Q2String    &setNum( short );
+    Q2String    &setNum( ushort );
+    Q2String    &setNum( int );
+    Q2String    &setNum( uint );
+    Q2String    &setNum( long );
+    Q2String    &setNum( ulong );
+    Q2String    &setNum( float, char f='g', int prec=6 );
+    Q2String    &setNum( double, char f='g', int prec=6 );
+
+    void	setExpand( uint index, ushort c );
+
+		operator const char *() const;
+    Q2String    &operator+=( const Q2String&str );
+    Q2String    &operator+=( ushort c );
+
+    // Your compiler is smart enough to use the const one if it can.
+    ushort at( uint i ) const { return i<d->len ? unicode()[i] : 0; }
+    ushort& at( uint i ); // detaches, enlarges
+    ushort operator[]( int i ) const { return at(i); }
+    ushort& operator[]( int i ) { return at(i); }
+
+    const ushort* unicode() const { return d->unicode; }
+    char* ascii() const;
+
+    static ushort* asciiToUnicode( const char*, uint& len );
+    static char* unicodeToAscii( const ushort*, uint len );
+
+    friend QDataStream &operator>>( QDataStream &, Q2String & );
+
+private:
+    void deref();
+    void detach();
+
+    struct Data : public QShared {
+	Data() : unicode(0), len(0), maxl(0) { }
+	Data(ushort *u, uint l, uint m) : unicode(u), len(l), maxl(m) { }
+	~Data() { delete unicode; }
+	ushort *unicode;
+	uint len;
+	uint maxl;
+    };
+    Data *d;
+    static Data shared_empty;
+    static Data shared_null;
+    friend int ucstrcmp( const Q2String &a, const Q2String &b );
+};
+
+
+/*****************************************************************************
+  Q2String stream functions
+ *****************************************************************************/
+
+QDataStream &operator<<( QDataStream &, const Q2String & );
+QDataStream &operator>>( QDataStream &, Q2String & );
+
+
+/*****************************************************************************
+  Q2String inline functions
+ *****************************************************************************/
+
+//inline Q2String &Q2String::operator=( const Q2String &s )
+//{ return (Q2String&)assign( s ); }
+
+//inline Q2String &Q2String::operator=( const char *str )
+//{ return (Q2String&)duplicate( str, strlen(str)+1 ); }
+
+inline bool Q2String::isNull() const
+{ return unicode() == 0; }
+
+inline bool Q2String::isEmpty() const
+{ return length() == 0; }
+
+inline uint Q2String::length() const
+{ return d->len; }
+
+inline Q2String Q2String::copy() const
+{ return Q2String( *this ); }
+
+inline Q2String &Q2String::prepend( const Q2String& s )
+{ return insert(0,s); }
+
+inline Q2String &Q2String::append( const Q2String& s )
+{ return operator+=(s); }
+
+inline Q2String &Q2String::setNum( short n )
+{ return setNum((long)n); }
+
+inline Q2String &Q2String::setNum( ushort n )
+{ return setNum((ulong)n); }
+
+inline Q2String &Q2String::setNum( int n )
+{ return setNum((long)n); }
+
+inline Q2String &Q2String::setNum( uint n )
+{ return setNum((ulong)n); }
+
+inline Q2String &Q2String::setNum( float n, char f, int prec )
+{ return setNum((double)n,f,prec); }
+
+
+
+/*****************************************************************************
+  Q2String non-member operators
+ *****************************************************************************/
+
+bool operator==( const Q2String &s1, const Q2String &s2 );
+bool operator==( const Q2String &s1, const char *s2 );
+bool operator==( const char *s1, const Q2String &s2 );
+bool operator!=( const Q2String &s1, const Q2String &s2 );
+bool operator!=( const Q2String &s1, const char *s2 );
+bool operator!=( const char *s1, const Q2String &s2 );
+bool operator<( const Q2String &s1, const Q2String &s2 );
+bool operator<( const Q2String &s1, const char *s2 );
+bool operator<( const char *s1, const Q2String &s2 );
+bool operator<=( const Q2String &s1, const Q2String &s2 );
+bool operator<=( const Q2String &s1, const char *s2 );
+bool operator<=( const char *s1, const Q2String &s2 );
+bool operator>( const Q2String &s1, const Q2String &s2 );
+bool operator>( const Q2String &s1, const char *s2 );
+bool operator>( const char *s1, const Q2String &s2 );
+bool operator>=( const Q2String &s1, const Q2String &s2 );
+bool operator>=( const Q2String &s1, const char *s2 );
+bool operator>=( const char *s1, const Q2String &s2 );
+
+inline Q2String operator+( const Q2String &s1, const Q2String &s2 )
+{
+    Q2String tmp( s1 );
+    tmp += s2;
+    return tmp;
+}
+
+inline Q2String operator+( const Q2String &s1, const char *s2 )
+{
+    Q2String tmp( s1 );
+    tmp += s2;
+    return tmp;
+}
+
+inline Q2String operator+( const char *s1, const Q2String &s2 )
+{
+    Q2String tmp( s1 );
+    tmp += s2;
+    return tmp;
+}
+
+inline Q2String operator+( const Q2String &s1, char c2 )
+{
+    Q2String tmp( s1 );
+    tmp += c2;
+    return tmp;
+}
+
+inline Q2String operator+( char c1, const Q2String &s2 )
+{
+    Q2String tmp;
+    tmp += c1;
+    tmp += s2;
+    return tmp;
+}
 
 
 /*****************************************************************************
@@ -364,10 +598,10 @@ inline QString operator+( const QString &s1, char c2 )
 
 inline QString operator+( char c1, const QString &s2 )
 {
-    QString tmp( c1 );
+    QString tmp;
+    tmp += c1;
     tmp += s2;
     return tmp;
 }
-
 
 #endif // QSTRING_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#50 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#51 $
 **
 ** Implementation of QRegExp class
 **
@@ -819,6 +819,126 @@ void QRegExp::compile()
 /*****************************************************************************
   QString member functions that use QRegExp
  *****************************************************************************/
+
+/*!
+  Finds the first occurrence of the regular expression \e rx, starting at
+  position \e index.
+
+  Returns the position of the next match, or -1 if \e rx was not found.
+*/
+
+int Q2String::find( const QRegExp &rx, int index ) const
+{
+    char* a = ascii();
+    int r = (uint)index >= length() ? -1 : rx.match( a, index );
+    delete [] a;
+    return r;
+}
+
+/*!
+  Finds the first occurrence of the regular expression \e rx, starting at
+  position \e index and searching backwards.
+
+  The search will start from the end of the string if \e index is negative.
+
+  Returns the position of the next match (backwards), or -1 if \e rx was not
+  found.
+*/
+
+int Q2String::findRev( const QRegExp &rx, int index ) const
+{
+    char* a = ascii();
+    if ( index < 0 ) {				// neg index ==> start from end
+	if ( length() ) {
+	    index = strlen( a );
+	} else {				// empty string
+	    delete [] a;
+	    return -1;
+	}
+    }
+    else if ( (uint)index >= length() ) {		// bad index
+	delete [] a;
+	return -1;
+    }
+    while( index >= 0 ) {
+	if ( rx.match(a,index) == index )
+	    return index;
+	index--;
+    }
+    delete [] a;
+    return -1;
+}
+
+/*!
+  Counts the number of overlapping occurrences of \e rx in the string.
+
+  Example:
+  \code
+    Q2String s = "banana and panama";
+    QRegExp r = QRegExp("a[nm]a", TRUE, FALSE);
+    s.contains( r );				// 4 matches
+  \endcode
+
+  \sa find(), findRev()
+*/
+
+int Q2String::contains( const QRegExp &rx ) const
+{
+    if ( isEmpty() )
+	return 0;
+    char* a = ascii();
+    int count = 0;
+    int index = -1;
+    int len = length();
+    while ( index < len ) {			// count overlapping matches
+	index = rx.match( a, index+1 );
+	if ( index < 0 )
+	    break;
+	count++;
+    }
+    delete [] a;
+    return count;
+}
+
+
+/*!
+  Replaces every occurrence of \e rx in the string with \e str.
+  Returns a reference to the string.
+
+  Example:
+  \code
+    Q2String s = "banana";
+    s.replace( QRegExp("a.*a"), "" );		// becomes "b"
+
+    Q2String s = "banana";
+    s.replace( QRegExp("^[bn]a"), " " );	// becomes " nana"
+
+    Q2String s = "banana";
+    s.replace( QRegExp("^[bn]a"), "" );		// NOTE! becomes ""
+  \endcode
+  
+*/
+
+Q2String &Q2String::replace( const QRegExp &rx, const Q2String &str )
+{
+    if ( isEmpty() )
+	return *this;
+    int index = 0;
+    int slen  = strlen( str );
+    int len;
+    char * a=ascii();
+    while ( index < (int)length()-1 ) {
+	if ( (index = rx.match(a, index, &len)) >= 0 ) {
+	    remove( index, len );
+	    insert( index, str );
+	    index += slen;
+	}
+	else
+	    break;
+    }
+    delete [] a;
+    return *this;
+}
 
 /*!
   Finds the first occurrence of the regular expression \e rx, starting at
