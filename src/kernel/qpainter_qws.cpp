@@ -1595,7 +1595,7 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 	param[1].str = &string;
 	param[2].ival = QFont::Latin;// #######
 	bool retval = pdev->cmd(QPaintDevice::PdcDrawText2, this, param);
-	if ( !retval || !gfx )
+	if ( !retval )
 	    return;
     }
 
