@@ -63,6 +63,7 @@ namespace QGL
         StereoBuffers           = 0x0040,
         DirectRendering         = 0x0080,
         HasOverlay              = 0x0100,
+        SampleBuffers           = 0x0200,
         SingleBuffer            = DoubleBuffer    << 16,
         NoDepthBuffer           = DepthBuffer     << 16,
         ColorIndex              = Rgba            << 16,
@@ -71,7 +72,8 @@ namespace QGL
         NoStencilBuffer         = StencilBuffer   << 16,
         NoStereoBuffers         = StereoBuffers   << 16,
         IndirectRendering       = DirectRendering << 16,
-        NoOverlay               = HasOverlay      << 16
+        NoOverlay               = HasOverlay      << 16,
+        NoSampleBuffers         = SampleBuffers   << 16
     };
     Q_DECLARE_FLAGS(FormatOptions, FormatOption)
 };
@@ -101,6 +103,12 @@ public:
 
     void setStencilBufferSize(int size);
     int  stencilBufferSize() const;
+
+    void setSampleBuffers(bool enable);
+    bool sampleBuffers() const;
+
+    void setSamples(int numSamples);
+    int  samples() const;
 
     bool doubleBuffer() const;
     void setDoubleBuffer(bool enable);
@@ -372,4 +380,8 @@ inline bool QGLFormat::hasOverlay() const
     return testOption(QGL::HasOverlay);
 }
 
+inline bool QGLFormat::sampleBuffers() const
+{
+    return testOption(QGL::SampleBuffers);
+}
 #endif // QGL_H

@@ -71,6 +71,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     \value StereoBuffers
     \value DirectRendering
     \value HasOverlay
+    \value SampleBuffers
     \value SingleBuffer
     \value NoDepthBuffer
     \value ColorIndex
@@ -80,6 +81,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     \value NoStereoBuffers
     \value IndirectRendering
     \value NoOverlay
+    \value NoSampleBuffers
 */
 
 /*****************************************************************************
@@ -106,6 +108,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     \i \link setDirectRendering() Direct rendering.\endlink
     \i \link setOverlay() Presence of an overlay.\endlink
     \i \link setPlane() The plane of an overlay format.\endlink
+    \i \link setSampleBuffers() Multisample buffers.\endlink
     \endlist
 
     You can also specify preferred bit depths for the depth buffer,
@@ -186,6 +189,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     \i \link setDirectRendering() Direct rendering:\endlink Enabled.
     \i \link setOverlay() Overlay:\endlink Disabled.
     \i \link setPlane() Plane:\endlink 0 (i.e., normal plane).
+    \i \link setSampleBuffers() Multisample buffers:\endlink Disabled.
     \endlist
 */
 
@@ -195,6 +199,7 @@ QGLFormat::QGLFormat()
     d->opts = QGL::DoubleBuffer | QGL::DepthBuffer | QGL::Rgba | QGL::DirectRendering;
     d->pln = 0;
     d->depthSize = d->alphaSize = d->stencilSize = d->accumSize = 1;
+    d->numSamples = -1;
 }
 
 
@@ -501,6 +506,51 @@ void QGLFormat::setDirectRendering(bool enable)
     setOption(enable ? QGL::DirectRendering : QGL::IndirectRendering);
 }
 
+/*!
+    \fn bool QGLFormat::sampleBuffers() const
+
+    Returns true if multisample buffer support is enabled; otherwise
+    returns false.
+
+    The multisample buffer is disabled by default.
+
+    \sa setSampleBuffers()
+*/
+
+/*!
+    If \a enable is true, a GL context with multisample buffer support
+    is picked; otherwise ignored.
+
+    \sa sampleBuffers(), setSamples(), samples()
+*/
+void QGLFormat::setSampleBuffers(bool enable)
+{
+    setOption(enable ? QGL::SampleBuffers : QGL::NoSampleBuffers);
+}
+
+/*!
+    Returns the number of samples per pixel when multisampling is
+    enabled. By default, the highest number of samples that is
+    available is used.
+
+    \sa setSampleBuffers(), sampleBuffers(), setSamples()
+*/
+int QGLFormat::samples() const
+{
+   return d->numSamples;
+}
+
+/*!
+    Set the preferred number of samples per pixel when multisampling
+    is enabled. By default, the highest number of samples available is
+    used.
+
+    \sa setSampleBuffers(), sampleBuffers(), samples()
+*/
+void QGLFormat::setSamples(int numSamples)
+{
+    d->numSamples = numSamples;
+}
 
 /*!
     \fn bool QGLFormat::hasOverlay() const
@@ -609,8 +659,7 @@ int QGLFormat::depthBufferSize() const
 }
 
 /*!
-    Set the preferred alpha buffer to the given \a size, and turns on the
-    alpha format option.
+    Set the preferred alpha buffer size to \a size.
 
     \sa alpha(), setAlpha(), alphaBufferSize()
 */

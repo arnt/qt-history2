@@ -35,6 +35,7 @@ public:
     int accumSize;
     int stencilSize;
     int alphaSize;
+    int numSamples;
 };
 
 class QGLWidgetPrivate : public QWidgetPrivate
