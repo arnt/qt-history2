@@ -4,6 +4,7 @@
 #include <qwidget.h>
 #include <qdialog.h>
 #include <qpushbutton.h>
+#include <qlabel.h>
 #include <qlayout.h>
 
 class Dialog : public QDialog
@@ -20,9 +21,15 @@ public:
 	button = new QPushButton( "done", this );
 	l->addWidget( button );
 	connect( button, SIGNAL( clicked() ), this, SLOT( accept() ) );
+	button = new QPushButton( "show popup", this );
+	l->addWidget( button );
+	connect( button, SIGNAL( clicked() ), this, SLOT( showPopup() ) );
+	popup = new QLabel( "Popup Label", this, 0, WType_Popup );
+	popup->setFrameStyle( QFrame::Panel | QFrame::Raised );
     }
     ~Dialog()
     {
+	delete popup;
     }
 
 public slots:
@@ -31,6 +38,14 @@ public slots:
 	Dialog d( this );
 	d.exec();
     }
+    void showPopup()
+    {
+	popup->move( x(), y() );
+	popup->show();
+    }
+    
+private:
+    QLabel* popup;
 };
 
 #endif
