@@ -873,6 +873,8 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 		}
 		emit orientationChanged( tmpDockArea->orientation() );
 		doOrientationChange = FALSE;
+	    } else {
+		updateGui();
 	    }
 	    dockArea->moveDockWindow( this, globalPos, currRect, startOrientation != oo );
 	}
