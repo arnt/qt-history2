@@ -1,4 +1,11 @@
 #!/usr/bin/perl
+#
+# Compresses a postscript file, for example kernel/qpshdr.txt.
+# Makes a C string out of it.
+#
+# Usage:
+#    genpshdr psfile > output
+#
 
 while ( <> ) {
     s/%%(.*)$/~~$1~~/;		# keep until later
