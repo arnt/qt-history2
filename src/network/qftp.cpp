@@ -323,9 +323,7 @@ void QFtpPI::processReply()
 	    state = Idle;
 	    // no break!
 	case Idle:
-	    if ( startNextCmd() )
-		state = Waiting;
-	    else
+	    if ( !startNextCmd() )
 		emit finished( Ok, replyText );
 	    break;
 	case Waiting:
@@ -338,18 +336,23 @@ void QFtpPI::processReply()
 	    break;
     }
 #if defined(QFTPPI_DEBUG)
-//    qDebug( "QFtpPI state: %d [processReply()] end", state );
+//    qDebug( "QFtpPI state: %d [processReply() end]", state );
 #endif
 }
 
 bool QFtpPI::startNextCmd()
 {
+#if defined(QFTPPI_DEBUG)
+    if ( state != Idle )
+	qDebug( "QFtpPI startNextCmd: Internal error! QFtpPI called in non-Idle state %d", state );
+#endif
     QStringList::iterator nextCmd = pendingCommands.begin();
     if ( nextCmd == pendingCommands.end() )
 	return FALSE;
 #if defined(QFTPPI_DEBUG)
     qDebug( "QFtpPI send: %s", (*nextCmd).left( (*nextCmd).length()-2 ).latin1() );
 #endif
+    state = Waiting;
     commandSocket.writeBlock( (*nextCmd).latin1(), (*nextCmd).length() );
     pendingCommands.remove( nextCmd );
     return TRUE;
@@ -371,7 +374,7 @@ public:
 class QFtpPrivate
 {
 public:
-    QFtpPrivate() : idCounter(0)
+    QFtpPrivate() : idCounter(0), redirectConnectState(FALSE)
     {
 	pending.setAutoDelete( TRUE );
     }
@@ -379,6 +382,7 @@ public:
     QFtpPI pi;
     QPtrList<QFtpCommand> pending;
     int idCounter;
+    bool redirectConnectState;
 };
 
 static QPtrDict<QFtpPrivate> *d_ptr = 0;
@@ -514,15 +518,18 @@ void QFtp::init()
 */
 
 /*!
-   Connects to the FTP server \a host at the \a port. This function returns
-   immediately and does not block until the connection succeeded. The
-   connectState() signal is emitted when the state of the connecting
-   process changes.
+  Connects to the FTP server \a host at the \a port. This function returns
+  immediately and does not block until the connection succeeded. The
+  connectState() signal is emitted when the state of the connecting
+  process changes.
 
-   Returns ###
-   ### mention start() and finished...() signals
+  This function returns immediately; it returns a unique identifier for the
+  scheduled command.
 
-   \sa connectState()
+  When the command is started the start() signal is emitted. When it is
+  finished, either the finishedSuccess() or finishedError() signal is emitted.
+
+  \sa connectState() start() finishedSuccess() finishedError()
 */
 int QFtp::connectToHost( const QString &host, Q_UINT16 port )
 {
@@ -533,7 +540,16 @@ int QFtp::connectToHost( const QString &host, Q_UINT16 port )
 }
 
 /*!
-  ###
+  Logins to the FTP server with the username \a user and the password \a
+  password.
+
+  This function returns immediately; it returns a unique identifier for the
+  scheduled command.
+
+  When the command is started the start() signal is emitted. When it is
+  finished, either the finishedSuccess() or finishedError() signal is emitted.
+
+  \sa start() finishedSuccess() finishedError()
 */
 int QFtp::login( const QString &user, const QString &password )
 {
@@ -541,6 +557,22 @@ int QFtp::login( const QString &user, const QString &password )
     cmds << "USER " + ( user.isNull() ? QString("anonymous") : user ) + "\r\n";
     cmds << "PASS " + ( password.isNull() ? QString("anonymous@") : password ) + "\r\n";
     return addCommand( Login, cmds );
+}
+
+/*!
+  Closes the connection to the FTP server.
+
+  This function returns immediately; it returns a unique identifier for the
+  scheduled command.
+
+  When the command is started the start() signal is emitted. When it is
+  finished, either the finishedSuccess() or finishedError() signal is emitted.
+
+  \sa connectState() start() finishedSuccess() finishedError()
+*/
+int QFtp::close()
+{
+    return addCommand( Close, QStringList("QUIT\r\n") );
 }
 
 /*!
@@ -609,6 +641,26 @@ void QFtp::piFinished( int status, const QString &text )
 	return;
 
     if ( status == QFtpPI::Ok ) {
+	if ( c->command == Close ) {
+	    // The order of in which the slots are called is arbitrary, so
+	    // disconnect the SIGNAL-SIGNAL temporary to make sure that we
+	    // don't get the finishedSuccess() signal before the connectState()
+	    // signal.
+	    if ( d->redirectConnectState ) {
+		d->redirectConnectState = FALSE;
+		connect( &d->pi, SIGNAL(connectState(int)),
+			this, SIGNAL(connectState(int)) );
+		disconnect( &d->pi, SIGNAL(connectState(int)),
+			this, SLOT(piConnectState(int)) );
+	    } else {
+		d->redirectConnectState = TRUE;
+		disconnect( &d->pi, SIGNAL(connectState(int)),
+			this, SIGNAL(connectState(int)) );
+		connect( &d->pi, SIGNAL(connectState(int)),
+			this, SLOT(piConnectState(int)) );
+		return;
+	    }
+	}
 	emit finishedSuccess( c->id );
 
 	d->pending.removeFirst();
@@ -622,6 +674,13 @@ void QFtp::piFinished( int status, const QString &text )
 	d->pending.clear();
 	emit doneError( text );
     }
+}
+
+void QFtp::piConnectState( int state )
+{
+    emit connectState( state );
+    if ( state == CsClosed )
+	piFinished( QFtpPI::Ok, tr( "Connection closed" ) );
 }
 
 //
@@ -643,7 +702,7 @@ QFtp::~QFtp()
     qDebug( "QFtp::~QFtp" );
 #endif
 
-    close();
+    closeInternal();
     delete commandSocket;
     delete dataSocket;
     delete_d( this );
@@ -778,7 +837,7 @@ bool QFtp::checkConnection( QNetworkOperation * )
   Closes the command and data connections to the FTP server
 */
 
-void QFtp::close()
+void QFtp::closeInternal()
 {
 #if defined(QFTP_DEBUG)
     qDebug( "QFtp:: close and quit" );
@@ -1288,7 +1347,7 @@ void QFtp::errorForgetIt( int code, const QCString &data )
 
     switch ( code ) {
     case 530: { // Login incorrect
-	close();
+	closeInternal();
 	QString msg( tr( "Login Incorrect" ) );
 	QNetworkOperation *op = operationInProgress();
 	if ( op ) {

@@ -79,7 +79,7 @@ public:
 	None,
 	ConnectToHost,
 	Login,
-//###	Close,
+	Close,
 //###	Cd,
 //###	Get,
 //###	Put,
@@ -94,6 +94,7 @@ public:
 
     int connectToHost( const QString &host, Q_UINT16 port=21 );
     int login( const QString &user=QString::null, const QString &password=QString::null );
+    int close();
 
     int currentId() const;
     Command currentCommand() const;
@@ -126,7 +127,7 @@ protected:
 private:
     void init();
     bool checkConnection( QNetworkOperation *op );
-    void close();
+    void closeInternal();
     void reinitCommandSocket();
     void okButTryLater( int code, const QCString &data );
     void okGoOn( int code, const QCString &data );
@@ -139,6 +140,7 @@ private:
 private slots:
     void startNextCommand();
     void piFinished( int, const QString& );
+    void piConnectState( int );
 
 protected slots:
     // ### make these private in Qt 4.0
