@@ -1,7 +1,9 @@
 #ifndef VV_HTTP_H
 #define VV_HTTP_H
 
+#ifndef QT_H
 #include <qmap.h>
+#endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
 

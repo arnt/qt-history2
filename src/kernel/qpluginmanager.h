@@ -3,8 +3,10 @@
 
 #ifndef QT_NO_PLUGIN
 
+#ifndef QT_H
 #include <qdict.h>
 #include <qdir.h>
+#endif // QT_H
 
 template<class Type>
 class Q_EXPORT QPlugInManager

@@ -1,7 +1,9 @@
 #ifndef QAPPLICATIONINTERFACES_H
 #define QAPPLICATIONINTERFACES_H
 
+#ifndef QT_H
 #include <qobject.h>
+#endif // QT_H
 
 #ifndef QT_NO_PLUGIN
 

@@ -3,9 +3,11 @@
 
 #ifndef QT_NO_PLUGIN
 
+#ifndef QT_H
 #include <qstringlist.h>
 #include <qstrlist.h>
 #include <qdict.h>
+#endif // QT_H
 
 class QApplication;
 

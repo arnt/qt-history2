@@ -1,8 +1,10 @@
 #ifndef QCLEANUPHANDLER_H
 #define QCLEANUPHANDLER_H
 
+#ifndef QT_H
 #include <qlist.h>
 #include <qguardedptr.h>
+#endif // QT_H
 
 template<class Type>
 class Q_EXPORT QGuardedCleanUpHandler
