@@ -17,8 +17,8 @@
 #include <qt_windows.h>
 #include <oaidl.h>
 #include "../../shared/types.h"
+#include <qaxfactory.h>
 
-extern bool qAxWrapObject(QObject *o, IDispatch **disp);
 QAxObject *ax_mainWindow = 0;
 
 static QTextEdit *debuglog = 0;
@@ -356,11 +356,12 @@ void MainWindow::loadScript()
 		this,   SLOT(logMacro(int,  const QString&, int, const QString&)));
 
 	IDispatch *mainWindowDispatch = 0;
-	qAxWrapObject(this, &mainWindowDispatch);
+	qAxFactory()->createObjectWrapper(this, &mainWindowDispatch);
 	if (mainWindowDispatch) {
 	    ax_mainWindow = new QAxObject(mainWindowDispatch, this, "MainWindow");
 	    mainWindowDispatch->Release();
 	}
+	script->addObject(ax_mainWindow);
     }
 
     QWidgetList widgets = workspace->windowList();
@@ -372,7 +373,6 @@ void MainWindow::loadScript()
 	    continue;
 	script->addObject(ax);
     }
-    script->addObject(ax_mainWindow);
 
     QAxScriptEngine *scriptlet = script->load(file, file);
     if (scriptlet) {
