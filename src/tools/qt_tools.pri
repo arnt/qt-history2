@@ -58,7 +58,6 @@ tools {
 		  $$TOOLS_H/qptrvector.h \
 	          $$TOOLS_H/qvaluelist.h \
 		  $$TOOLS_H/qvaluestack.h \
-		  $$TOOLS_H/qvaluevector.h \
 		  $$TOOLS_P/qcom_p.h \
 		  $$TOOLS_P/qucom_p.h \
 		  $$TOOLS_H/quuid.h \

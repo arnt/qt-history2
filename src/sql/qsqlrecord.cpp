@@ -69,7 +69,7 @@ public:
 	bool    nogen;
     };
 
-    QSqlRecordPrivate(): cnt(0) 
+    QSqlRecordPrivate(): cnt(0)
     {
     }
     QSqlRecordPrivate( const QSqlRecordPrivate& other )
@@ -138,7 +138,7 @@ public:
 	return i >= 0 && i < (int)fi.count() && fi[ i ].isValid();
     }
 private:
-    QValueVector< info > fi;
+    QVector< info > fi;
     uint		 cnt;
 };
 
@@ -492,7 +492,7 @@ bool QSqlRecord::isNull( int i )
     return TRUE;
 }
 
-/*! 
+/*!
     \internal
     ### Remove in 4.0
 */

@@ -115,7 +115,7 @@ public:
 
     // convenience container for QSqlQuery
     // to map holders <-> positions
-    typedef QValueVector<Holder> HolderVector;
+    typedef QVector<Holder> HolderVector;
     HolderVector holders;
 };
 
