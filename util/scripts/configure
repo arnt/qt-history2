@@ -39,6 +39,7 @@ GIF=no
 SM=no
 ZLIB=yes
 LIBPNG=yes
+LINKFLAGS=""
 
 # Parse the arguments, setting things to "yes" or "no".
 
@@ -89,6 +90,9 @@ while [ -n "$1" ]; do
    -v)
        VERBOSE=yes
         ;;
+   -lflags)
+       shift; LINKFLAGS="$LINKFLAGS $1"
+	;;
    *)
        echo $1: unknown argument
        HELP=yes;
@@ -130,6 +134,8 @@ each option:
 
     -platform target ... See the PLATFORMS file for a list of supported
                          operating systems and compilers.
+
+    -lflags string ..... Add string to the linker options. 
 
 EOF
    [ "x$ERROR" = "xyes" ] && exit 1
@@ -314,7 +320,7 @@ QT_ZLIB=""
 
 cat > .buildopts <<EOF
 QT_CXXFLAGS_OPT =$QT_CXX
-QT_LIBS_OPT	=$QT_LIBS
+QT_LIBS_OPT	=$LINKFLAGS$QT_LIBS
 QT_PNG_OBJ      =$QT_PNG
 QT_ZLIB_OBJ	=$QT_ZLIB
 
@@ -329,7 +335,7 @@ QTDIR='$(QTDIR)'
 echo
 echo "Build type:    $TARGET"
 echo "Compile flags: $QT_CXX"
-echo "Link flags:    $QT_LIBS"
+echo "Link flags:    $LINKFLAGS$QT_LIBS"
 echo "GIF supports:  $GIF"
 echo
 echo Creating makefiles...
