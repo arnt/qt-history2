@@ -1184,7 +1184,10 @@ void QActionGroupPrivate::update( const QActionGroup* that )
 	int index;
 	parent->findPopup( popup, &index );
 	int id = parent->idAt( index );
-	parent->changeItem( id, that->iconSet(), that->menuText() );
+	if ( !that->iconSet().isNull() )
+	    parent->changeItem( id, that->iconSet(), that->menuText() );
+	else
+	    parent->changeItem( id, that->menuText() );
 	parent->setItemEnabled( id, that->isEnabled() );
 #ifndef QT_NO_ACCEL
 	parent->setAccel( that->accel(), id );

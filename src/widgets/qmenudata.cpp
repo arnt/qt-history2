@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QMenuData class
 **
 ** Created : 941128
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -266,7 +266,7 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
     } else if ( custom != 0 ) {
 	mi->extra()->custom_item = custom;
 	mi->is_separator = custom->isSeparator();
-	if ( iconset )
+	if ( iconset && !iconset->isNull() )
 	    mi->iconset_data = new QIconSet( *iconset );
     } else if ( text == 0 && pixmap == 0 && popup == 0 ) {
 	mi->is_separator = TRUE;		// separator
@@ -275,11 +275,11 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 #ifndef QT_NO_ACCEL
 	mi->accel_key = Qt::Key_unknown;
 #endif
-	if ( pixmap )
+	if ( pixmap && !pixmap->isNull() )
 	    mi->pixmap_data = new QPixmap( *pixmap );
 	if ( (mi->popup_menu = popup) )
 	    menuInsPopup( popup );
-	if ( iconset )
+	if ( iconset && !iconset->isNull() )
 	    mi->iconset_data = new QIconSet( *iconset );
     }
 
@@ -1008,7 +1008,10 @@ void QMenuData::changeItem( int id, const QPixmap &pixmap )
 	    !mi->text();
 	if ( !mi->text_data.isNull() )		// delete text
 	    mi->text_data = QString::null;
-	mi->pixmap_data = new QPixmap( pixmap );
+	if ( !pixmap.isNull() )
+	    mi->pixmap_data = new QPixmap( pixmap );
+	else
+	    mi->pixmap_data = 0;
 	delete i; // old mi->pixmap_data, could be &pixmap
 	if ( fast_refresh )
 	    parent->updateItem( id );
@@ -1028,8 +1031,8 @@ void QMenuData::changeItem( int id, const QPixmap &pixmap )
 
 void QMenuData::changeItem( int id, const QIconSet &icon, const QString &text )
 {
-    changeItem(id, text);
-    changeItemIconSet(id,  icon);
+    changeItem( id, text );
+    changeItemIconSet( id, icon );
 }
 
 /*!
@@ -1043,8 +1046,8 @@ void QMenuData::changeItem( int id, const QIconSet &icon, const QString &text )
 
 void QMenuData::changeItem( int id, const QIconSet &icon, const QPixmap &pixmap )
 {
-    changeItem(id, pixmap);
-    changeItemIconSet(id,  icon);
+    changeItem( id, pixmap );
+    changeItemIconSet( id, icon );
 }
 
 
@@ -1062,7 +1065,10 @@ void QMenuData::changeItemIconSet( int id, const QIconSet &icon )
     if ( mi ) {					// item found
 	register QIconSet *i = mi->iconset_data;
 	bool fast_refresh = i != 0;
-	mi->iconset_data = new QIconSet( icon );
+	if ( !mi->iconset_data->isNull() )
+	    mi->iconset_data = new QIconSet( icon );
+	else
+	    mi->iconset_data = 0;
 	delete i; // old mi->iconset_data, could be &icon
 	if ( fast_refresh )
 	    parent->updateItem( id );
