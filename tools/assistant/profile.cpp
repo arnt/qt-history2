@@ -35,7 +35,7 @@ Profile *Profile::createDefaultProfile()
     profile->props["abouturl"] = "about_qt";
     profile->props["title"] = "Qt Assistant";
     profile->props["basepath"] = path;
-    profile->props["startpage"] = path + "/index.html";
+    profile->props["startpage"] = path + "index.html";
 
     profile->addDCFTitle( path + "qt.dcf", QT_TITLE );
     profile->addDCFTitle( path + "designer.dcf", DESIGNER_TITLE );
