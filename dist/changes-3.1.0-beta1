@@ -82,6 +82,14 @@ known from editors like GNU Emacs, e.g. "Ctrl+X,Ctrl+F".
 
 - QClipboard was extended to simplify data exchange between programs. ###
 
+- Thread support - almost all methods in the tools classes have been
+made reentrant. QApplication::postEvent() and a few other methods are
+now threadsafe if Qt is compiled as a multithreaded library. Added
+a QMutexLocker class to simplify locking and unlocking of mutextes.
+
+- Input methods - Add a selectionLength() method to QIMEvent, handle
+japanese compositions correctly. Added support for AIMM based input
+methods (those working on non asian versions of Win95/98/ME).
 
 ##### SQL!!
 
@@ -96,8 +104,12 @@ New classes
 - QIconFactory
 - QOCI9Result
 - QMutexLocker
+A simple class to make handling of Mutex locking and unlocking easier.
+
 - QBackInsertIterator
 - QSyntaxHighlighter
+- QEventLoop
+
 
 QAction
 ------------------
@@ -111,11 +123,6 @@ New functions:
 	void invalidate()
 	bool isValid() const
 
-QUtf{8,16}Codec
-------------------
-New functions:
-	QString toUnicode(const char* chars, int len) const
-
 QColorDialog
 ------------------
 New functions:
@@ -128,6 +135,10 @@ New signals:
 
 QApplication
 ------------------
+Handling of the event loop has been moved to the QEventLoop class,
+making the integration of other toolkits with Qt easier.
+
+
 New functions:
 	QEventLoop *eventLoop() const
 	void setEventLoop( QEventLoop * )
@@ -159,7 +170,7 @@ New functions:
 	const QRect& availableGeometry( QWidget *widget ) const
 	const QRect& availableGeometry( const QPoint &point ) const
 
-QKeyEvent
+QImEvent
 ------------------
 New functions:
 	in selectionLength() const
@@ -191,7 +202,7 @@ Both functions are inherited by QMenuBar and QPopupMenu
 
 QPaintDevice
 ------------------
-New functions:
+New functions (x11 only):
 	static Qt::HANDLE x11AppRootWindow()
 	static int x11AppDepth( int screen )
 	static int x11AppCells( int screen )
@@ -222,6 +233,10 @@ QPrinter
 New functions:
 	void setMargins( uint top, uint left, uint bottom, uint right )
 	void margins( uint *top, uint *left, uint *bottom, uint *right ) const
+
+Improvements:
+	Handle masked images and pixmaps correctly. Add code to handle
+	asymmetrical printer margins correctly.
 
 QSessionManager
 ------------------
@@ -272,6 +287,9 @@ New enum values:
 
 QWMatrix
 ------------------
+Two different transformation modes for painter transformations are
+now available. See QWmatrix documentation for details.
+
 New functions:
 	QPointArray mapToPolygon( const QRect &r ) const
 	double det() const
@@ -354,11 +372,19 @@ New functions:
 
 QCString
 ------------------
+New functions
+    	QCString    &replace( char c, const char *after )
+    	QCString    &replace( const char *, const char * )
+    	QCString    &replace( char, char )
+
 New global functions
 	QByteArray qCompress( const uchar* data, int nbytes )
 	QByteArray qUncompress( const uchar* data, int nbytes )
 	QByteArray qCompress( const QByteArray& data )
 	QByteArray qUncompress( const QByteArray& data )
+Improvements:
+	Speed optimisations in lots of the old search&replace
+	functions.
 
 QDate
 ------------------
@@ -391,6 +417,7 @@ QRegExp
 New functions:
 	QString errorString()
 	static QString escape( const QString& str )
+	int numCaptures() const
 
 QSettings
 ------------------
@@ -406,12 +433,17 @@ New enums:
 	Format { Native = 0, Ini }
 	Scope { User, Global }
 
+QChar
+------------------
+Updated Unicode tables to Unicode-3.2
+
+
 QString
 ------------------
 New functions:
-	QString &append( const QCString & )
+	QString &append( const QByteArray & )
 	QString &append( const char * )
-	QString &prepend( const QCString & )
+	QString &prepend( const QByteArray & )
 	QString &prepend( const char * )
 	QString &remove( QChar c )
 	QString &remove( char c )
@@ -424,7 +456,7 @@ New functions:
 	QString &replace( char c, const QString & after )
 	QString &replace( const QString &, const QString & )
 	QString &replace( QChar, QChar )
-	QString &operator+=( const QCString &str )
+	QString &operator+=( const QByteArray &str )
 	QString &operator+=( const char *str )
 	static QString fromUcs2( const unsigned short *ucs2 )
 	const unsigned short *ucs2() const
@@ -432,7 +464,7 @@ New functions:
 Improvements:
 	find, findRef, contains use either a fast hashing
 	algorithmen (for short input) or an optimized Boyer-Moore
-	implementation
+	implementation. Lots of smaller performance optimisations.
 
 QTextStream
 ------------------
@@ -536,3 +568,15 @@ QDomDocument
 New functions:
 	QString toString( int ) const
 	QCString toCString( int ) const
+
+QFont on X11 
+------------------ 
+Improvements:
+	Safe handling of huge font sizes. Added support for the new
+	Xft2 font library on XFree-4.x.
+
+QRegion on X11 
+------------------ 
+Improvements:
+	Removed the 16 bit size limitation
+
