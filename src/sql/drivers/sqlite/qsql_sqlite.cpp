@@ -93,7 +93,7 @@ void QSQLiteResultPrivate::cleanup()
     rInf.clear();
     skippedStatus = false;
     skipRow = false;
-    q->setAt(QSql::BeforeFirst);
+    q->setAt(QSql::BeforeFirstRow);
     q->setActive(false);
     q->cleanup();
 }
@@ -170,7 +170,7 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
         if (rInf.isEmpty())
             // must be first call.
             initColumns();
-        q->setAt(QSql::AfterLast);
+        q->setAt(QSql::AfterLastRow);
         return false;
     case SQLITE_ERROR:
     case SQLITE_MISUSE:
@@ -179,7 +179,7 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
         q->setLastError(qMakeError(access, QLatin1String("Unable to fetch row"),
                         QSqlError::ConnectionError, res));
         finalize();
-        q->setAt(QSql::AfterLast);
+        q->setAt(QSql::AfterLastRow);
         return false;
     }
     return false;

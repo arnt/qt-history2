@@ -1004,7 +1004,7 @@ bool QOCIResult::reset (const QString& query)
 
 bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
 {
-    if (at() == QSql::AfterLast)
+    if (at() == QSql::AfterLastRow)
         return false;
     int r = 0;
     r = OCIStmtFetch (d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT);
@@ -1041,7 +1041,7 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
                 values[i + index] = cols->value(i);
         }
     } else {
-        setAt(QSql::AfterLast);
+        setAt(QSql::AfterLastRow);
     }
     return r == 0;
 }
@@ -1168,7 +1168,7 @@ bool QOCIResult::exec()
         }
         setSelect(false);
     }
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
     setActive(true);
 
     if (hasOutValues())
@@ -1249,7 +1249,7 @@ bool QOCI9Result::cacheNext(int r)
                 cols->fs[i] = cols->value(i);
         }
     } else {
-        setAt(QSql::AfterLast);
+        setAt(QSql::AfterLastRow);
     }
     return r == 0;
 }
@@ -1293,7 +1293,7 @@ bool QOCI9Result::fetch(int i)
 bool QOCI9Result::fetchFirst()
 {
     if (isForwardOnly()) {
-        if (at() == QSql::BeforeFirst)
+        if (at() == QSql::BeforeFirstRow)
             return fetchNext();
     } else {
         int r = OCIStmtFetch2(d->sql, d->err, 1, OCI_FETCH_FIRST, (sb4) 1, OCI_DEFAULT);
@@ -1311,7 +1311,7 @@ bool QOCI9Result::fetchLast()
         int i = at();
         while (fetchNext())
             i++; /* brute force */
-        if (at() == QSql::AfterLast) {
+        if (at() == QSql::AfterLastRow) {
             setAt(i);
             return true;
         }
@@ -1328,7 +1328,7 @@ bool QOCI9Result::fetchLast()
                             d->err);
             if (r != 0) {
                 qWarning("QOCI9Result::fetchLast(): Cannot get current position");
-                setAt(QSql::AfterLast);
+                setAt(QSql::AfterLastRow);
                 return false;
             }
             setAt(currentPos - 1);
@@ -1487,7 +1487,7 @@ bool QOCI9Result::exec()
         }
         setSelect(false);
     }
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
     setActive(true);
 
     if (hasOutValues())

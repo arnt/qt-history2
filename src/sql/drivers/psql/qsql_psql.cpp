@@ -216,7 +216,7 @@ void QPSQLResult::cleanup()
     if (d->result)
         PQclear(d->result);
     d->result = 0;
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
     d->currentSize = -1;
     setActive(false);
 }

@@ -292,7 +292,7 @@ bool QTDSResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
 {
     STATUS stat = dbnextrow(d->dbproc);
     if (stat == NO_MORE_ROWS) {
-        setAt(QSql::AfterLast);
+        setAt(QSql::AfterLastRow);
         return false;
     }
     if ((stat == FAIL) || (stat == BUF_FULL)) {
@@ -358,7 +358,7 @@ bool QTDSResult::reset (const QString& query)
     if (!driver() || !driver()-> isOpen() || driver()->isOpenError())
         return false;
     setActive(false);
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
     if (dbcmd(d->dbproc, const_cast<char*>(query.local8Bit())) == FAIL) {
         setLastError(d->lastError);
         return false;

@@ -497,7 +497,7 @@ QDB2Result::~QDB2Result()
 bool QDB2Result::reset (const QString& query)
 {
     setActive(false);
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
     SQLRETURN r;
 
     d->recInf.clear();
@@ -532,7 +532,7 @@ bool QDB2Result::reset (const QString& query)
 bool QDB2Result::prepare(const QString& query)
 {
     setActive(false);
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
     SQLRETURN r;
 
     d->recInf.clear();
@@ -558,7 +558,7 @@ bool QDB2Result::exec()
     QVarLengthArray<SQLINTEGER, 32> indicators(boundValues().count());
 
     setActive(false);
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
     SQLRETURN r;
 
     d->recInf.clear();
@@ -810,7 +810,7 @@ bool QDB2Result::fetch(int i)
     d->valueCache.fill(0);
     int actualIdx = i + 1;
     if (actualIdx <= 0) {
-        setAt(QSql::BeforeFirst);
+        setAt(QSql::BeforeFirstRow);
         return false;
     }
     SQLRETURN r;
@@ -851,7 +851,7 @@ bool QDB2Result::fetchNext()
 
 bool QDB2Result::fetchFirst()
 {
-    if (isForwardOnly() && at() != QSql::BeforeFirst)
+    if (isForwardOnly() && at() != QSql::BeforeFirstRow)
         return false;
     if (isForwardOnly())
         return fetchNext();
@@ -874,7 +874,7 @@ bool QDB2Result::fetchLast()
     d->valueCache.fill(0);
 
     int i = at();
-    if (i == QSql::AfterLast) {
+    if (i == QSql::AfterLastRow) {
         if (isForwardOnly()) {
             return false;
         } else {
@@ -887,8 +887,8 @@ bool QDB2Result::fetchLast()
     while (fetchNext())
         ++i;
 
-    if (i == QSql::BeforeFirst) {
-        setAt(QSql::AfterLast);
+    if (i == QSql::BeforeFirstRow) {
+        setAt(QSql::AfterLastRow);
         return false;
     }
 

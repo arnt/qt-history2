@@ -624,7 +624,7 @@ QODBCResult::~QODBCResult()
 bool QODBCResult::reset (const QString& query)
 {
     setActive(false);
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
     SQLRETURN r;
 
     d->rInf.clear();
@@ -700,7 +700,7 @@ bool QODBCResult::fetch(int i)
     d->clearValues();
     int actualIdx = i + 1;
     if (actualIdx <= 0) {
-        setAt(QSql::BeforeFirst);
+        setAt(QSql::BeforeFirstRow);
         return false;
     }
     SQLRETURN r;
@@ -736,7 +736,7 @@ bool QODBCResult::fetchNext()
 
 bool QODBCResult::fetchFirst()
 {
-    if (isForwardOnly() && at() != QSql::BeforeFirst)
+    if (isForwardOnly() && at() != QSql::BeforeFirstRow)
         return false;
     SQLRETURN r;
     d->clearValues();
@@ -775,9 +775,9 @@ bool QODBCResult::fetchLast()
     if (isForwardOnly()) {
         // cannot seek to last row in forwardOnly mode, so we have to use brute force
         int i = at();
-        if (i == QSql::AfterLast)
+        if (i == QSql::AfterLastRow)
             return false;
-        if (i == QSql::BeforeFirst)
+        if (i == QSql::BeforeFirstRow)
             i = 0;
         while (fetchNext())
             ++i;
@@ -916,7 +916,7 @@ int QODBCResult::numRowsAffected()
 bool QODBCResult::prepare(const QString& query)
 {
     setActive(false);
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
     SQLRETURN r;
 
     d->rInf.clear();
@@ -976,7 +976,7 @@ bool QODBCResult::exec()
     QVarLengthArray<SQLINTEGER, 32> indicators(boundValues().count());
 
     setActive(false);
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
     d->rInf.clear();
 
     if (!d->hStmt) {

@@ -518,7 +518,7 @@ bool QIBaseResult::prepare(const QString& query)
         return false;
     d->cleanup();
     setActive(false);
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
 
     createDA(d->sqlda);
     createDA(d->inda);
@@ -568,7 +568,7 @@ bool QIBaseResult::exec()
     if (!driver() || !driver()->isOpen() || driver()->isOpenError())
         return false;
     setActive(false);
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
 
     if (d->inda) {
         QVector<QCoreVariant>& values = boundValues();
@@ -668,7 +668,7 @@ bool QIBaseResult::reset (const QString& query)
         return false;
     d->cleanup();
     setActive(false);
-    setAt(QSql::BeforeFirst);
+    setAt(QSql::BeforeFirstRow);
 
     createDA(d->sqlda);
 
@@ -723,7 +723,7 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
 
     if (stat == 100) {
         // no more rows
-        setAt(QSql::AfterLast);
+        setAt(QSql::AfterLastRow);
         return false;
     }
     if (d->isError(QLatin1String("Could not fetch next item"), QSqlError::StatementError))
