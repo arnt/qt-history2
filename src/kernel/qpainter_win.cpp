@@ -784,10 +784,12 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     }
     updatePen();
     updateBrush();
-    if ( pdev == paintEventDevice )
-	SelectClipRgn( hdc, paintEventClipRegion->handle() );
-    else
-	SelectClipRgn( hdc, 0 );
+    if ( hdc ) {
+	if ( pdev == paintEventDevice )
+	    SelectClipRgn( hdc, paintEventClipRegion->handle() );
+	else
+	    SelectClipRgn( hdc, 0 );
+    }
     setf(DirtyFont);
 
     return TRUE;
@@ -2387,7 +2389,7 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 QPoint QPainter::pos() const
 {
     QPoint p;
-    if ( !isActive() )
+    if ( !isActive() || !hdc )
 	return p;
 #ifndef Q_OS_TEMP
     POINT pt;
