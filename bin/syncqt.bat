@@ -15,7 +15,7 @@ goto endofperl
 @rem ';
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt.bat#13 $
+# $Id: //depot/qt/main/bin/syncqt.bat#14 $
 #
 # Synchronizes Qt header files - internal Troll Tech tool.
 #   - Creates symlinks on Unix.
@@ -52,7 +52,8 @@ undef $/;
 	  "src/dialogs",
 	  "src/compat",
 	  "extensions/opengl/src",
-	  "extensions/nsplugin/src" );
+	  "extensions/nsplugin/src",
+	  "src/3rdparty/zlib" );
 
 foreach $p ( @dirs ) {
     chdir "$basedir/$p";
