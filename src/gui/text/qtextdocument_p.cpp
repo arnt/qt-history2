@@ -797,6 +797,8 @@ void QTextDocumentPrivate::enableUndoRedo(bool enable)
         truncateUndoStack();
 
         lastUnmodifiedUndoStackPos = -1;
+        emit q->undoAvailable(false);
+        emit q->redoAvailable(false);
         setModified(false);
     }
     undoEnabled = enable;
