@@ -1511,12 +1511,9 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     copied.translate( -p.x(), -p.y() );
     copied &= QRegion(sr);
     copied.translate(dx,dy);
-    if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd))) {
-	QRegion clean(copied);
-	clean.translate(p.x(), p.y());
-	QMacSavedPortInfo::flush(this, clean, TRUE);
-    }
     repaint( QRegion(sr) - copied, !testWFlags(WRepaintNoErase) );
+    if(QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
+	QMacSavedPortInfo::flush(this);
 }
 
 void QWidget::drawText( int x, int y, const QString &str )
