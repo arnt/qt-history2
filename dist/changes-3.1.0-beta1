@@ -2,7 +2,7 @@ Qt 3.1 introduces many significant new features and many improvements
 over the 3.0.x series. This file provides an overview of the main
 changes since version 3.0.5. For further details see the online
 documentation which is included in this distribution, and also
-available at http://doc.trolltech.com/
+available at http://doc.trolltech.com/.
 
 The Qt version 3.1 series is binary compatible with the 3.0.x series:
 applications compiled for 3.0 will continue to run with 3.1.
@@ -148,8 +148,8 @@ New classes
 QAction
 ------------------
 New functions:
-	void setVisible( bool );
-	bool isVisible() const;
+	void setVisible( bool )
+	bool isVisible() const
 
 
 QCanvas
@@ -161,7 +161,7 @@ New functions:
 
 QColorDialog
 ------------------
-New function:
+New functions:
 	static void setStandardColor( int, QRgb )
 
 
@@ -266,8 +266,8 @@ New functions:
 QMenuData
 ------------------
 New functions:
-	bool isItemVisible( int id ) const;
-	void setItemVisible( int id, bool visible );
+	bool isItemVisible( int id ) const
+	void setItemVisible( int id, bool visible )
 Both functions are inherited by QMenuBar and QPopupMenu
 
 
@@ -321,7 +321,7 @@ New functions:
 QStyleOption
 ------------------
 New functions:
-	QStyleOption(QCheckListItem* i)
+	QStyleOption( QCheckListItem* i )
 	QCheckListItem* checkListItem() const
 
 New enums values:
@@ -376,10 +376,10 @@ available. See the QWMatrix documentation for details.
 New functions:
 	QPointArray mapToPolygon( const QRect &r ) const
 	double det() const
-	static void setTransformationMode( QWMatrix::TransformationMode m );
-	static TransformationMode transformationMode();
+	static void setTransformationMode( QWMatrix::TransformationMode m )
+	static TransformationMode transformationMode()
 
-New enum:
+New enums:
 	TransformationMode { Points, Areas }
 
 
@@ -442,12 +442,12 @@ New functions:
 
 QCString
 ------------------
-New functions
+New functions:
     	QCString &replace( char c, const char *after )
     	QCString &replace( const char *, const char * )
     	QCString &replace( char, char )
 
-New global functions
+New global functions:
 	QByteArray qCompress( const uchar* data, int nbytes )
 	QByteArray qUncompress( const uchar* data, int nbytes )
 	QByteArray qCompress( const QByteArray& data )
@@ -500,7 +500,7 @@ New functions:
 	void resetGroup()
 	QString group() const
 
-New enums: 
+New enums:
 	Format { Native = 0, Ini }
 	Scope { User, Global }
 
@@ -555,13 +555,13 @@ New functions:
 	uint display() const
 	void setDisplay( uint )
 
-New enum:
+New enums:
 	Display { Hours, Minutes, Seconds, AMPM }
 
 
 QFrame
 ------------------
-New enum value:
+New enum values:
 	GroupBoxPanel
 
 
@@ -637,13 +637,13 @@ New functions:
 	void setTextPosition( TextPosition pos )
 
 New enums:
-	TextPosition{ Right, Under }
+	TextPosition { Right, Under }
 
 
 QTooltip
 ------------------
 New functions:
-	static void setWakeUpDelay(int)
+	static void setWakeUpDelay( int )
 
 
 QWhatsThis
