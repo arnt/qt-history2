@@ -82,6 +82,8 @@ public:
     virtual void moveTo( int,int );
     virtual void lineTo( int,int );
 
+    virtual QPoint pos() const;
+    
     virtual void setOpaqueBackground(bool b) { opaque=b; }
     virtual void setBackgroundColor(QColor c) { backcolor=c; }
 

@@ -38,6 +38,7 @@
 #include "qnamespace.h"
 #include "qimage.h"
 #include "qfontmanager_qws.h"
+#include "qpoint.h"
 #endif // QT_H
 
 
@@ -302,6 +303,9 @@ public:
     virtual void drawLine( int,int,int,int )=0;
     virtual void drawPolyline( const QPointArray &,int,int )=0;
 
+    // current position
+    virtual QPoint pos() const = 0;
+    
     // Fill operations - these use the current source (pixmap,
     // color, etc), and draws outline
     virtual void fillRect( int,int,int,int )=0;

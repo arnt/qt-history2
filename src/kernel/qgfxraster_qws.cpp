@@ -813,6 +813,11 @@ void QGfxRasterBase::lineTo( int x,int y )
     peny=y;
 }
 
+QPoint QGfxRasterBase::pos() const
+{
+    return QPoint(penx, peny);
+}
+
 void QGfxRasterBase::setSourceWidgetOffset(int x ,int y)
 {
     srcwidgetoffs = QPoint(x,y);
