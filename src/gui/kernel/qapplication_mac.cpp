@@ -439,7 +439,7 @@ void qt_mac_update_os_settings()
             { "QTitleBar", kThemeWindowTitleFont },
             { "QMenuBar", kThemeMenuTitleFont },
             { "QMenu", kThemeMenuItemFont },
-            { "QComboMenuItem", kThemeEmphasizedSystemFont },
+            { "QComboMenuItem", kThemeSystemFont },
             { "QHeaderView", kThemeSmallSystemFont },
             { "Q3Header", kThemeSmallSystemFont },
             { "QTipLabel", kThemeSmallSystemFont },
