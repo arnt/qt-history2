@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#443 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#444 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -944,12 +944,8 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
     w = QWidget::find( win );
     if ( !w )
 	return 0;
-
-    if ( !child ) {
-	while ( parent = GetParent( win ) )
-	    win = parent;
-	w = QWidget::find( win );
-    }
+    if ( child && !w->isTopLevel() )
+        w = w->topLevelWidget();
     return w;
 }
 
