@@ -32,6 +32,9 @@ class QApplicationPrivate;
 class QPaintEngine;
 class QX11Info;
 
+//######################
+//#define QT_OLD_GFX
+
 class Q_GUI_EXPORT QPaintDevice				// device for QPainter
 {
 public:
@@ -63,7 +66,9 @@ public:
     static QWSDisplay *qwsDisplay();
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
+#if 1//def QT_OLD_GFX
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
+#endif
 #endif
 
 protected:

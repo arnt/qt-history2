@@ -111,6 +111,11 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
 
     fb_fix_screeninfo finfo;
     fb_var_screeninfo vinfo;
+    //#######################
+    // Shut up Valgrind
+    memset(&vinfo, 0, sizeof(vinfo));
+    memset(&finfo, 0, sizeof(finfo));
+    //#######################
 
     /* Get fixed screen information */
     if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
@@ -249,6 +254,11 @@ bool QLinuxFbScreen::initDevice()
     // Grab current mode so we can reset it
     fb_var_screeninfo vinfo;
     fb_fix_screeninfo finfo;
+    //#######################
+    // Shut up Valgrind
+    memset(&vinfo, 0, sizeof(vinfo));
+    memset(&finfo, 0, sizeof(finfo));
+    //#######################
 
     if (ioctl(fd, FBIOGET_VSCREENINFO, &vinfo)) {
 	qFatal("Error reading variable information in card init");
@@ -781,6 +791,11 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
 {
     fb_fix_screeninfo finfo;
     fb_var_screeninfo vinfo;
+    //#######################
+    // Shut up Valgrind
+    memset(&vinfo, 0, sizeof(vinfo));
+    memset(&finfo, 0, sizeof(finfo));
+    //#######################
 
     if (ioctl(fd, FBIOGET_FSCREENINFO, &finfo)) {
 	perror("reading /dev/fb0");

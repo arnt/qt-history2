@@ -146,7 +146,9 @@ public:
 #endif
 
 #if defined(Q_WS_QWS)
+#if 1//def QT_OLD_GFX
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
+#endif
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
     QRgb * clut() const;

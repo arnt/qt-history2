@@ -22,6 +22,10 @@
 #include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
 
+//#### HACK:
+#include "private/qpainter_p.h"
+#include "qpaintengine_qws.h"
+
 QPaintDevice::QPaintDevice( uint devflags )
 {
     if ( !qApp ) {				// global constructor
@@ -227,7 +231,14 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( sw <= 0 || sh <= 0 )
 	return;
 
-    QGfx * mygfx = dst->graphicsContext();
+//    QGfx * mygfx = dst->graphicsContext();
+    //##### HACK to get to the gfx #####
+    QPaintEngine *p = dst->engine();
+    QPainterState ps;
+    p->begin(dst, &ps);
+    QGfx * mygfx=static_cast<QWSPaintEngine*>(p)->gfx();
+
+
     if ( dst->devType() == QInternal::Widget )
 	mygfx->setClipRegion( ((QWidget *)dst)->rect() );
     QBitmap * mymask=0;
@@ -250,8 +261,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
     }
     mygfx->blt(dx,dy,sw,sh,sx,sy);
-
-    delete mygfx;
+    p->end();
+//    delete mygfx;
 }
 
 /*!
@@ -283,6 +294,8 @@ int QPaintDevice::bytesPerLine() const
     return 0;
 }
 
+
+#if 1//def QT_OLD_GFX
 // We should maybe return an extended-device Gfx by default here
 // at the moment, it appears to return 0.
 /*!
@@ -293,6 +306,7 @@ QGfx * QPaintDevice::graphicsContext(bool) const
     //qFatal("QGfx requested for QPaintDevice");
     return 0;
 }
+#endif
 
 void QPaintDevice::setResolution( int )
 {

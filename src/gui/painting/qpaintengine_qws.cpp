@@ -15,12 +15,19 @@
 #include "qpaintengine_qws.h"
 #include "qpainter_p.h"
 #include <private/qfontengine_p.h>
+#include "qwsdisplay_qws.h"
+#include "qwidget.h"
+#include "private/qwidget_p.h"
+#include "qwsregionmanager_qws.h"
 
+#include "qpixmap.h"
 #include "qgfx_qws.h"
 #include "qregion.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include <private/qpaintengine_p.h>
+
+#include <qmemorymanager_qws.h>
 
 /* paintevent magic to provide Windows semantics on Qt/E
  */
@@ -124,11 +131,11 @@ QGfx *QWSPaintEngine::gfx()
 bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
     if ( isActive() ) {                         // already active painting
-         qWarning( "QWSC::begin: Painter is already active."
-                   "\n\tYou must end() the painter before a second begin()" );
+	qWarning( "QWSC::begin: Painter is already active."
+		  "\n\tYou must end() the painter before a second begin()" );
 	return true;
     }
-    if(pdev->devType() == QInternal::Widget &&
+    if(0 && pdev->devType() == QInternal::Widget &&
        !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
@@ -138,8 +145,83 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped
     Q_ASSERT(d->gfx == 0);
 
     d->pdev = pdev;
+
+#ifdef QT_OLD_GFX
     d->gfx = pdev->graphicsContext();
-///    qDebug("QWSPaintEngine::begin %p gfx %p", this, d->gfx);
+#else
+//////////////////////////////////
+    if (d->pdev->devType() == QInternal::Widget) {
+        QWidget *w =  static_cast<QWidget *>(d->pdev) ;
+
+        d->gfx=QPaintDevice::qwsDisplay()->screenGfx();
+
+        QPoint offset=w->mapToGlobal(QPoint(0,0));
+        QRegion r; // empty if not visible
+        if ( w->isVisible() && w->topLevelWidget()->isVisible() ) {
+            int rgnIdx = w->topLevelWidget()->data->alloc_region_index;
+            if ( rgnIdx >= 0 ) {
+                r = (unclipped || w->testWFlags(WPaintUnclipped)) ? w->allocatedRegion() : w->paintableRegion();
+                QRegion req;
+                bool changed = FALSE;
+                QWSDisplay::grab();
+                const int *rgnRev = QPaintDevice::qwsDisplay()->regionManager()->revision( rgnIdx );
+                if ( w->topLevelWidget()->data->alloc_region_revision != *rgnRev ) {
+                    // The TL region has changed, so we better make sure we're
+                    // not writing to any regions we don't own anymore.
+                    // We'll get a RegionModified event soon that will get our
+                    // regions back in sync again.
+                    req = QPaintDevice::qwsDisplay()->regionManager()->region( rgnIdx );
+                    changed = TRUE;
+                }
+                d->gfx->setGlobalRegionIndex( rgnIdx );
+                QWSDisplay::ungrab();
+                if ( changed ) {
+                    r &= req;
+                }
+            }
+        }
+        d->gfx->setWidgetDeviceRegion(r);
+        d->gfx->setOffset(offset.x(),offset.y());
+        // Clip the window decoration for TL windows.
+        // It is possible for these windows to draw on the wm decoration if
+ 	// they change the clip region.  Bug or feature?
+#ifndef QT_NO_QWS_MANAGER
+         if ( w->d->extra && w->d->extra->topextra && w->d->extra->topextra->qwsManager )
+            d->gfx->setClipRegion(w->rect());
+#endif
+    } else if ( d->pdev->devType() == QInternal::Pixmap ) {     
+        QPixmap *p = static_cast<QPixmap*>(d->pdev);
+        if(p->isNull()) {
+            qDebug("Can't make QGfx for null pixmap\n");
+            d->gfx = 0;
+        } else {
+            uchar * mydata;
+            int xoffset,linestep;
+            QPixmap::QPixmapData *data=p->data;
+            int depth = p->depth();
+
+            memorymanager->findPixmap(data->id,data->rw,p->depth(),&mydata,&xoffset,&linestep);
+
+            d->gfx = QGfx::createGfx( p->depth(), mydata, data->w,data->h, linestep );
+            if(depth <= 8) {
+                if(depth==1 && !(data->clut)) {
+                    data->clut=new QRgb[2];
+                    data->clut[0]=qRgb(255,255,255);
+                    data->clut[1]=qRgb(0,0,0);
+                    data->numcols = 2;
+                }
+                if ( data->numcols )
+                    d->gfx->setClut(data->clut,data->numcols);
+            }
+        }
+
+    } else {
+        qFatal("QWSPaintEngine can only do widgets and pixmaps");
+    }
+//////////////////////////////////
+#endif // QT_OLD_GFX
+
+//    qDebug("QWSPaintEngine::begin %p gfx %p", this, d->gfx);
     setActive(true);
 
     updatePen(ps);
@@ -150,7 +232,7 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped
 }
 bool QWSPaintEngine::end(){
     setActive(false);
-///    qDebug("QWSPaintEngine::end %p (gfx %p)", this, d->gfx);
+//    qDebug("QWSPaintEngine::end %p (gfx %p)", this, d->gfx);
     delete d->gfx;
     d->gfx = 0;
     return true;
@@ -227,25 +309,18 @@ void QWSPaintEngine::updateBrush(QPainterState *ps)
 	    dd=16;
     }
     if ( bs == CustomPattern || pat ) {
-        QPixmap *pm;
         if ( pat ) {
+            QPixmap pm;
             QString key="$qt-brush$" + QString::number( bs );
-            pm = QPixmapCache::find( key );
-            bool del = FALSE;
-            if ( !pm ) {                        // not already in pm dict
-		pm = new QBitmap( dd, dd, pat, TRUE );
-		del = !QPixmapCache::insert( key, pm );
+            if (!QPixmapCache::find(key, pm)) {                        // not already in pm dict
+                pm = QBitmap( dd, dd, pat, TRUE );
+                QPixmapCache::insert( key, pm );
             }
-	    if ( ps->brush.d->pixmap )
-		delete ps->brush.d->pixmap;
-	    ps->brush.d->pixmap = new QPixmap( *pm );
-	    if (del) delete pm;
-	}
-	pm = ps->brush.d->pixmap;
+            ps->brush.setPixmap(pm);
+        }
     }
-
     d->gfx->setBrush(ps->brush);
-    d->gfx->setBrushPixmap( ps->brush.d->pixmap );
+    d->gfx->setBrushPixmap( ps->brush.pixmap() );
 }
 
 void QWSPaintEngine::updateFont(QPainterState *ps)

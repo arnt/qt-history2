@@ -445,7 +445,7 @@ public:
     QWidget *childAt(int x, int y) const;
     inline QWidget *childAt(const QPoint &p) const { return childAt(p.x(), p.y()); }
 
-#if defined(Q_WS_QWS)
+#if defined(Q_WS_QWS) //&& defined(QT_OLD_GFX)
     virtual QGfx * graphicsContext(bool clip_children=true) const;
 #endif
 #if defined(Q_WS_X11)
@@ -607,6 +607,7 @@ private:
     QRegion dirtyChildren;
     bool isSettingGeometry;
     friend class QWSManager;
+    friend class QWSPaintEngine;
 #endif
     static int instanceCounter;  // Current number of widget instances
     static int maxInstances;     // Maximum number of widget instances

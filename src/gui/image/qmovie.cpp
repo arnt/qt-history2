@@ -361,7 +361,10 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint &off, const QRect &area)
 		&lines, off.x(), off.y(), area.width(), area.height());
     }
 
-#ifdef Q_WS_QWS
+#if 0 //def Q_WS_QWS
+
+//########################
+// part of QT_OLD_GFX, but do we need it at all ???
     if(display_widget) {
 	QGfx *mygfx = display_widget->graphicsContext();
 	if(mygfx) {

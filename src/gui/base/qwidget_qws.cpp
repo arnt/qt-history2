@@ -1103,7 +1103,10 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 		    QRegion upd( (QRegion(r) | oldr) & p->rect() );
 		    dirtyChildren |= upd;
 		    QRegion paintRegion = dirtyChildren;
+#ifdef QT_OLD_GFX
+		    //###################
 #define FAST_WIDGET_MOVE
+#endif
 #ifdef FAST_WIDGET_MOVE
 		    if ( isMove && ( w==olds.width() && h==olds.height() ) ) {
 			QSize s( qt_screen->width(), qt_screen->height() );
@@ -1286,15 +1289,19 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     QPoint td2 = qt_screen->mapToDevice( QPoint(dx,dy), s );
     dAlloc.translate( td2.x()-td1.x(), td2.y()-td1.y() );
 
+#ifdef QT_OLD_GFX
     QRegion scrollRegion( alloc & dAlloc );
-
+    
     if ( w > 0 && h > 0 ) {
 	QGfx * mygfx=graphicsContext( FALSE );
 	mygfx->setClipDeviceRegion( scrollRegion );
 	mygfx->scroll(x2,y2,w,h,x1,y1);
 	delete mygfx;
     }
-
+#else
+     //######################
+    QRegion scrollRegion;
+#endif
     data->paintable_region_dirty = TRUE;
 
     QPoint gpos = mapToGlobal( QPoint() );
@@ -1633,11 +1640,13 @@ void QWidget::clearMask()
     setMask( QRegion() );
 }
 
+#if 1 //def QT_OLD_GFX
 /*!
     \internal
 */
 QGfx * QWidget::graphicsContext(bool clip_children) const
 {
+#ifdef QT_OLD_GFX
     QGfx * qgfx_qws;
     qgfx_qws=qwsDisplay()->screenGfx();
 
@@ -1677,8 +1686,12 @@ QGfx * QWidget::graphicsContext(bool clip_children) const
 #endif
 
     return qgfx_qws;
-}
 
+#else
+    return 0; //###########    
+#endif
+}
+#endif
 /*!
     \internal
 */

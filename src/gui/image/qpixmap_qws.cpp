@@ -29,6 +29,11 @@
 #include "qmemorymanager_qws.h"
 #include "qpaintengine_qws.h"
 
+
+//#### HACK:
+#include "private/qpainter_p.h"
+
+
 /*****************************************************************************
   Internal functions
  *****************************************************************************/
@@ -640,13 +645,17 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     deref();
     init( w, h, dd, ibm, optim );
 
-    QGfx * mygfx=graphicsContext();
+    //##### HACK to get to the gfx #####
+    QPaintEngine *p = engine();
+    QPainterState ps;
+    p->begin(this, &ps);
+    QGfx * mygfx=static_cast<QWSPaintEngine*>(p)->gfx();
     if ( mygfx ) {
 	mygfx->setAlphaType(QGfx::IgnoreAlpha);
 	mygfx->setSource(&rimg);
 	mygfx->blt(0,0,data->w,data->h,0,0);
-	delete mygfx;
     }
+    p->end();
     if ( image.hasAlphaBuffer() ) {
 #ifndef QT_NO_IMAGE_DITHER_TO_1
 	if ( !partialalpha ) {
@@ -665,7 +674,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
+    //#############################
     QPixmap pm;
+#ifdef QT_OLD_GFX
+
     QWidget *widget = QWidget::find( window );
     if ( widget ) {
 	if ( w <= 0 || h <= 0 ) {
@@ -685,6 +697,9 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 	    delete gfx;
 	}
     }
+#else
+#warning "QPixmap::grabWindow"
+#endif
     return pm;
 }
 
@@ -709,6 +724,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
     QWMatrix mat( matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0. );
 
+//#######################################
+#ifdef QT_OLD_GFX
     if ( matrix.m12() == 0.0F && matrix.m21() == 0.0F ) {
 	if ( matrix.m11() == 1.0F && matrix.m22() == 1.0F )
 	    return *this;			// identity matrix
@@ -739,7 +756,11 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	     pm.data->hasAlpha = data->hasAlpha;
 	     return pm;
 	 }
-    } else {					// rotation or shearing
+    } else
+#else
+#warning "QPixmap::xForm"
+#endif
+    {					// rotation or shearing
 	QPointArray a( QRect(0,0,ws+1,hs+1) );
 	a = mat.map( a );
 	QRect r = a.boundingRect().normalize();
@@ -795,7 +816,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	if ( qt_screen->isTransformed() )
 	    destImg.fill( 0x00FFFFFF );
 	else
-	    pm.fill( 0x00FFFFFF );
+	    pm.fill( QColor(0x00FFFFFF,0x00FFFFFF) );
     } else
 	memset( dptr, 0xff, dbytes );
 
@@ -834,8 +855,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 /*!
     \internal
 */
+#if 1//def QT_OLD_GFX
 QGfx * QPixmap::graphicsContext(bool) const
 {
+#ifdef QT_OLD_GFX
     if(isNull()) {
 	qDebug("Can't make QGfx for null pixmap\n");
 	return 0;
@@ -856,8 +879,12 @@ QGfx * QPixmap::graphicsContext(bool) const
 	    ret->setClut(data->clut,data->numcols);
     }
     return ret;
+#else
+    qWarning( "QPixmap::graphicsContext");
+    return 0; //####
+#endif    
 }
-
+#endif
 /*!
     \internal
 */
