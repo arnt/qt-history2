@@ -39,31 +39,7 @@
 
 #include "qplatformdefs.h"
 
-#ifdef    Q_OS_SOLARIS
-// Solaris
-typedef mutex_t Q_MUTEX_T;
-typedef cond_t  Q_COND_T;
-
-// helpers
-#define Q_COND_INIT(a)            cond_init((a), NULL, NULL)
-#define Q_COND_DESTROY(a)         cond_destroy((a));
-#define Q_COND_BROADCAST(a)       cond_broadcast((a));
-#define Q_COND_SIGNAL(a)          cond_signal((a));
-#define Q_COND_WAIT(a, b)         cond_wait((a), (b));
-#define Q_COND_TIMEDWAIT(a, b, c) cond_timedwait((a), (b), (c));
-#else // !Q_OS_SOLARIS
-// Pthreads
 typedef pthread_mutex_t Q_MUTEX_T;
-typedef pthread_cond_t  Q_COND_T;
-
-// helpers
-#define Q_COND_INIT(a)            pthread_cond_init((a), NULL)
-#define Q_COND_DESTROY(a)         pthread_cond_destroy((a));
-#define Q_COND_BROADCAST(a)       pthread_cond_broadcast((a));
-#define Q_COND_SIGNAL(a)          pthread_cond_signal((a));
-#define Q_COND_WAIT(a, b)         pthread_cond_wait((a), (b));
-#define Q_COND_TIMEDWAIT(a, b, c) pthread_cond_timedwait((a), (b), (c));
-#endif // Q_OS_SOLARIS
 
 #include "qwaitcondition.h"
 #include "qmutex.h"
@@ -74,7 +50,7 @@ typedef pthread_cond_t  Q_COND_T;
 
 
 struct QWaitConditionPrivate {
-    Q_COND_T cond;
+    pthread_cond_t cond;
     QMutex mutex;
 };
 
@@ -170,7 +146,7 @@ QWaitCondition::QWaitCondition()
 {
     d = new QWaitConditionPrivate;
 
-    int ret = Q_COND_INIT(&d->cond);
+    int ret = pthread_cond_init(&d->cond, NULL);
 
 #ifdef QT_CHECK_RANGE
     if (ret)
@@ -184,7 +160,7 @@ QWaitCondition::QWaitCondition()
 */
 QWaitCondition::~QWaitCondition()
 {
-    int ret = Q_COND_DESTROY(&d->cond);
+    int ret = pthread_cond_destroy(&d->cond);
 
     if (ret) {
 #ifdef QT_CHECK_RANGE
@@ -192,7 +168,7 @@ QWaitCondition::~QWaitCondition()
 #endif
 
 	// seems we have threads waiting on us, lets wake them up
-	Q_COND_BROADCAST(&d->cond);
+	pthread_cond_broadcast(&d->cond);
     }
 
     delete d;
@@ -209,7 +185,7 @@ void QWaitCondition::wakeOne()
 {
     d->mutex.lock();
 
-    int ret = Q_COND_SIGNAL(&d->cond);
+    int ret = pthread_cond_signal(&d->cond);
 
 #ifdef QT_CHECK_RANGE
     if (ret)
@@ -230,7 +206,7 @@ void QWaitCondition::wakeAll()
 {
     d->mutex.lock();
 
-    int ret = Q_COND_BROADCAST(&d->cond);
+    int ret = pthread_cond_broadcast(&d->cond);
 
 #ifdef QT_CHECK_RANGE
     if (ret)
@@ -267,9 +243,9 @@ bool QWaitCondition::wait(unsigned long time)
 	ti.tv_sec = tv.tv_sec + (time / 1000);
 	ti.tv_nsec = (tv.tv_usec * 1000) + (time % 1000) * 1000000;
 
-	ret = Q_COND_TIMEDWAIT(&d->cond, &d->mutex.d->handle, &ti);
+	ret = pthread_cond_timedwait(&d->cond, &d->mutex.d->handle, &ti);
     } else
-	ret = Q_COND_WAIT(&d->cond, &d->mutex.d->handle);
+	ret = pthread_cond_wait(&d->cond, &d->mutex.d->handle);
 
     d->mutex.unlock();
 
@@ -326,9 +302,9 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 	ti.tv_sec = tv.tv_sec + (time / 1000);
 	ti.tv_nsec = (tv.tv_usec * 1000) + (time % 1000) * 1000000;
 
-	ret = Q_COND_TIMEDWAIT(&d->cond, &mutex->d->handle, &ti);
+	ret = pthread_cond_timedwait(&d->cond, &mutex->d->handle, &ti);
     } else
-	ret = Q_COND_WAIT(&d->cond, &mutex->d->handle);
+	ret = pthread_cond_wait(&d->cond, &mutex->d->handle);
 
 #ifdef QT_CHECK_RANGE
     if (ret && ret != ETIMEDOUT)

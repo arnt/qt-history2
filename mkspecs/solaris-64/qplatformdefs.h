@@ -14,7 +14,7 @@
 
 
 #ifdef QT_THREAD_SUPPORT
-#include <thread.h>
+#  include <pthread.h>
 #endif
 
 #include <dirent.h>

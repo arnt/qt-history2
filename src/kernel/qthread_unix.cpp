@@ -71,35 +71,9 @@ static QIntDict<QThread> *thrDict = 0;
 extern "C" { static void *start_thread(void *t); }
 
 
-#ifdef    Q_OS_SOLARIS
-// Solaris
-typedef thread_t Q_THREAD_T;
-
-// helpers
-#define Q_THREAD_SELF()    thr_self()
-#define Q_THREAD_EXIT(a)   thr_exit((a))
-#define Q_THREAD_CREATE(a) (a) = thr_create(0, 0, start_thread, that, THR_DETACHED, \
-                                            &thread_id);
-#else // !Q_OS_SOLARIS
-// Pthreads
-typedef pthread_t Q_THREAD_T;
-
-// helpers
-#define Q_THREAD_SELF()    pthread_self()
-#define Q_THREAD_EXIT(a)   pthread_exit((a))
-#define Q_THREAD_CREATE(a) pthread_attr_t attr; \
-                           pthread_attr_init(&attr); \
-	                   pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED); \
-                           pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED); \
-	                   (a) = pthread_create(&thread_id, &attr, start_thread, \
-                                                (void *) that); \
-	                   pthread_attr_destroy(&attr);
-#endif // Q_OS_SOLARIS
-
-
 class QThreadPrivate {
 public:
-    Q_THREAD_T thread_id;
+    pthread_t thread_id;
     QWaitCondition thread_done;      // Used for QThread::wait()
     bool finished, running;
 
@@ -133,7 +107,13 @@ public:
 	that->d->finished = FALSE;
 
 	int ret;
-	Q_THREAD_CREATE(ret);
+	pthread_attr_t attr;
+	pthread_attr_init(&attr);
+	pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
+	pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED);
+	ret = pthread_create(&thread_id, &attr, start_thread,
+			     (void *) that);
+	pthread_attr_destroy(&attr);
 
 #ifdef QT_CHECK_RANGE
 	if (ret)
@@ -294,7 +274,7 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 */
 Qt::HANDLE QThread::currentThread()
 {
-    return (HANDLE) Q_THREAD_SELF();
+    return (HANDLE) pthread_self();
 }
 
 
@@ -354,20 +334,6 @@ void QThread::postEvent( QObject * receiver, QEvent * event )
 // enough (in terms of behavior and availability)
 static void thread_sleep(struct timespec *ti)
 {
-#ifdef    Q_OS_SOLARIS
-    mutex_t mtx;
-    cond_t cnd;
-
-    mutex_init(&mtx, 0, 0);
-    cond_init(&cnd, 0, 0);
-
-    mutex_lock(&mtx);
-    (void) cond_timedwait(&cnd, &mtx, ti);
-    mutex_unlock(&mtx);
-
-    cond_destroy(&cnd);
-    mutex_destroy(&mtx);
-#else // !Q_OS_SOLARIS
     pthread_mutex_t mtx;
     pthread_cond_t cnd;
 
@@ -380,7 +346,6 @@ static void thread_sleep(struct timespec *ti)
 
     pthread_cond_destroy(&cnd);
     pthread_mutex_destroy(&mtx);
-#endif // Q_OS_SOLARIS
 }
 
 
@@ -476,7 +441,7 @@ void QThread::exit()
 
     dictMutex->unlock();
 
-    Q_THREAD_EXIT(0);
+    pthread_exit(0);
 }
 
 
