@@ -31,7 +31,7 @@
 class QM_EXPORT_SQL QEditorFactory : public QObject
 {
 public:
-    QEditorFactory ( QObject * parent = 0, const char * name = 0 );
+    QEditorFactory (QObject * parent = 0);
     ~QEditorFactory();
     
     virtual QWidget * createEditor( QWidget * parent, const QVariant & v );

@@ -32,7 +32,7 @@ class QSqlField;
 class QM_EXPORT_SQL QSqlEditorFactory : public QEditorFactory
 {
 public:
-    QSqlEditorFactory ( QObject * parent = 0, const char * name = 0 );
+    QSqlEditorFactory (QObject * parent = 0);
     ~QSqlEditorFactory();
     virtual QWidget * createEditor( QWidget * parent, const QVariant & variant );
     virtual QWidget * createEditor( QWidget * parent, const QSqlField * field );

@@ -107,8 +107,8 @@ public:
 /*!
     Constructs a QSqlForm with parent \a parent and called \a name.
 */
-QSqlForm::QSqlForm( QObject * parent, const char * name )
-    : QObject( parent, name )
+QSqlForm::QSqlForm(QObject * parent)
+    : QObject(parent)
 {
     d = new QSqlFormPrivate();
 }

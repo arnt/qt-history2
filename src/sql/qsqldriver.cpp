@@ -51,8 +51,8 @@ inline QSqlDriverPrivate::QSqlDriverPrivate(QSqlDriver* d)
 
 */
 
-QSqlDriver::QSqlDriver( QObject * parent, const char * name )
-: QObject(parent, name)
+QSqlDriver::QSqlDriver( QObject * parent)
+    : QObject(parent)
 {
     d = new QSqlDriverPrivate(this);
 }

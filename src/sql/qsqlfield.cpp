@@ -19,13 +19,16 @@
 class QSqlFieldPrivate
 {
 public:
-    QSqlFieldPrivate(QSqlField* pd): p(pd), ro(FALSE), type(QVariant::Invalid)
+    QSqlFieldPrivate(QSqlField* pd, const QString &name = QString(),
+		     QVariant::Type tpe = QVariant::Invalid): 
+	q(pd), nm(name), ro(false), bin(false), type(tpe)
     {}
     
-    QSqlField* p;
-    QString       nm;
-    QVariant      val;
-    uint          ro: 1;
+    QSqlField *q;
+    QString nm;
+    QVariant val;
+    uint ro: 1;
+    uint bin: 1;
     QVariant::Type type;
 };
 
@@ -87,9 +90,7 @@ public:
 
 QSqlField::QSqlField( const QString& fieldName, QVariant::Type type )
 {
-    d = new QSqlFieldPrivate(this);
-    d->type = type;
-    d->nm = fieldName;
+    d = new QSqlFieldPrivate(this, fieldName, type);
     d->val.cast( type );
 }
 
@@ -99,12 +100,10 @@ QSqlField::QSqlField( const QString& fieldName, QVariant::Type type )
 
 QSqlField::QSqlField( const QSqlField& other )
 {
-    d = new QSqlFieldPrivate(this);
-    d->type = other.d->type;
-    d->nm = other.d->nm;
+    d = new QSqlFieldPrivate(this, other.d->nm, other.d->type);
     d->val = other.d->val;
     d->ro = other.d->ro;
-    
+    d->bin = other.d->bin;
 }
 
 /*!
@@ -116,6 +115,7 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
     d->nm = other.d->nm;
     d->val = other.d->val;
     d->ro = other.d->ro;
+    d->bin = other.d->bin;
     d->type = other.d->type;
     return *this;
 }
@@ -138,6 +138,7 @@ bool QSqlField::operator==(const QSqlField& other) const
     return ( d->nm == other.d->nm &&
 	     d->val == other.d->val &&
 	     d->ro == other.d->ro &&
+	     d->bin == other.d->bin &&
 	     d->type == other.d->type );
 }
 
@@ -204,17 +205,13 @@ void QSqlField::setName( const QString& name )
 }
 
 /*!
+    \fn void QSqlField::setNull()
     \obsolete
 
     use clear() instead.
     
     \sa clear().
 */
-
-void QSqlField::setNull()
-{
-    clear();
-}
 
 /*!
     \fn void QSqlField::setReadOnly( bool readOnly )

@@ -477,7 +477,7 @@ bool QSqlResult::exec()
 	    QVariant var = d->values[ idx ];
 	    QSqlField f( "", var.type() );
 	    if ( var.isNull() )
-		f.setNull();
+		f.clear();
 	    else
 		f.setValue( var );
 	    val = driver()->formatValue( &f );

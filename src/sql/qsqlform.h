@@ -39,7 +39,7 @@ class QM_EXPORT_SQL QSqlForm : public QObject
 {
     Q_OBJECT
 public:
-    QSqlForm( QObject * parent = 0, const char * name = 0 );
+    QSqlForm(QObject * parent = 0);
     ~QSqlForm();
 
     virtual void insert( QWidget * widget, const QString& field );

@@ -44,7 +44,7 @@ public:
     virtual void setName( const QString& name );
     QString name() const;
 #ifndef QT_NO_COMPAT
-    void setNull();
+    inline void setNull() { clear(); }
 #endif
     bool isNull() const;
     virtual void setReadOnly( bool readOnly );

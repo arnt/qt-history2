@@ -44,7 +44,7 @@ public:
     enum DriverFeature { Transactions, QuerySize, BLOB, Unicode, PreparedQueries,
 			 NamedPlaceholders, PositionalPlaceholders };
 
-    QSqlDriver( QObject * parent=0, const char * name=0 );
+    QSqlDriver(QObject * parent=0);
     ~QSqlDriver();
     virtual bool	isOpen() const;
     bool		isOpenError() const;

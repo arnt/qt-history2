@@ -54,9 +54,9 @@ public:
 			    int button0, int button1=0, int button2=0 );
     static int information( QWidget *parent, const QString &caption,
 			    const QString& text,
-			    const QString& button0Text = QString::null,
-			    const QString& button1Text = QString::null,
-			    const QString& button2Text = QString::null,
+			    const QString& button0Text = QString(),
+			    const QString& button1Text = QString(),
+			    const QString& button2Text = QString(),
 			    int defaultButtonNumber = 0,
 			    int escapeButtonNumber = -1 );
 
@@ -65,9 +65,9 @@ public:
 			 int button0, int button1=0, int button2=0 );
     static int question( QWidget *parent, const QString &caption,
 			 const QString& text,
-			 const QString& button0Text = QString::null,
-			 const QString& button1Text = QString::null,
-			 const QString& button2Text = QString::null,
+			 const QString& button0Text = QString(),
+			 const QString& button1Text = QString(),
+			 const QString& button2Text = QString(),
 			 int defaultButtonNumber = 0,
 			 int escapeButtonNumber = -1 );
 
@@ -76,9 +76,9 @@ public:
 			int button0, int button1, int button2=0 );
     static int warning( QWidget *parent, const QString &caption,
 			const QString& text,
-			const QString& button0Text = QString::null,
-			const QString& button1Text = QString::null,
-			const QString& button2Text = QString::null,
+			const QString& button0Text = QString(),
+			const QString& button1Text = QString(),
+			const QString& button2Text = QString(),
 			int defaultButtonNumber = 0,
 			int escapeButtonNumber = -1 );
 
@@ -87,9 +87,9 @@ public:
 			 int button0, int button1, int button2=0 );
     static int critical( QWidget *parent, const QString &caption,
 			 const QString& text,
-			 const QString& button0Text = QString::null,
-			 const QString& button1Text = QString::null,
-			 const QString& button2Text = QString::null,
+			 const QString& button0Text = QString(),
+			 const QString& button1Text = QString(),
+			 const QString& button2Text = QString(),
 			 int defaultButtonNumber = 0,
 			 int escapeButtonNumber = -1 );
 
@@ -97,12 +97,12 @@ public:
 		       const QString& text );
 
     static void aboutQt( QWidget *parent,
-			 const QString& caption=QString::null );
+			 const QString& caption=QString() );
 
 /* OBSOLETE */
     static int message( const QString &caption,
 			const QString& text,
-			const QString& buttonText=QString::null,
+			const QString& buttonText=QString(),
 			QWidget *parent=0, const char * =0 ) {
 	return QMessageBox::information( parent, caption, text,
 				     buttonText.isEmpty()
@@ -112,8 +112,8 @@ public:
 /* OBSOLETE */
     static bool query( const QString &caption,
 		       const QString& text,
-		       const QString& yesButtonText=QString::null,
-		       const QString& noButtonText=QString::null,
+		       const QString& yesButtonText=QString(),
+		       const QString& noButtonText=QString(),
 		       QWidget *parent=0, const char * = 0 ) {
 	return QMessageBox::information( parent, caption, text,
 				     yesButtonText.isEmpty()

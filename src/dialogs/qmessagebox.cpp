@@ -1497,7 +1497,7 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QString c = caption;
-    if ( c.isNull() )
+    if ( c.isEmpty() )
         c = tr( "About Qt" );
     mb->setWindowCaption( c );
 #endif

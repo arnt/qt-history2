@@ -51,8 +51,8 @@
     name.
 */
 
-QSqlEditorFactory::QSqlEditorFactory ( QObject * parent, const char * name )
-    : QEditorFactory( parent, name )
+QSqlEditorFactory::QSqlEditorFactory (QObject * parent)
+    : QEditorFactory(parent)
 {
 
 }

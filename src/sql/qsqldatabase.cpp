@@ -91,7 +91,7 @@ typedef QDict<QSqlDriverCreatorBase> QDriverDict;
 class QSqlDatabaseManager : public QObject
 {
 public:
-    QSqlDatabaseManager( QObject * parent = 0, const char * name = 0 );
+    QSqlDatabaseManager(QObject * parent = 0);
     ~QSqlDatabaseManager();
     static QSqlDatabase* database( const QString& name, bool open );
     static QSqlDatabase* addDatabase( QSqlDatabase* db, const QString & name );
@@ -110,8 +110,8 @@ protected:
     Constructs an SQL database manager.
 */
 
-QSqlDatabaseManager::QSqlDatabaseManager( QObject * parent, const char * name )
-    : QObject( parent, name ), dbDict( 1 ), drDict( 0 )
+QSqlDatabaseManager::QSqlDatabaseManager(QObject * parent)
+    : QObject(parent), dbDict( 1 ), drDict( 0 )
 {
 }
 
@@ -158,7 +158,7 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
 		    "instantiated in order to use the SQL module." );
 	    return 0;
 	}
-	sqlConnection = new QSqlDatabaseManager( qApp, "database manager" );
+	sqlConnection = new QSqlDatabaseManager(qApp);
     }
     return (QSqlDatabaseManager*)sqlConnection;
 }
@@ -520,10 +520,10 @@ bool QSqlDatabase::contains( const QString& connectionName )
     \sa registerSqlDriver()
 */
 
-QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * parent, const char * objname )
-    : QObject( parent, objname )
+QSqlDatabase::QSqlDatabase(const QString &type, const QString &name, QObject *parent)
+    : QObject(parent)
 {
-    init( type, name );
+    init(type, name);
 }
 
 
@@ -537,8 +537,8 @@ QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * 
      so it should not be deleted.
 */
 
-QSqlDatabase::QSqlDatabase( QSqlDriver* driver, QObject * parent, const char * objname )
-    : QObject( parent, objname )
+QSqlDatabase::QSqlDatabase(QSqlDriver *driver, QObject *parent)
+    : QObject(parent)
 {
     d = new QSqlDatabasePrivate();
     d->driver = driver;

@@ -113,8 +113,8 @@ public:
     static bool 	 isDriverAvailable( const QString& name );
     
 protected:
-    QSqlDatabase( const QString& type, const QString& name, QObject * parent=0, const char * objname=0 );
-    QSqlDatabase( QSqlDriver* driver, QObject * parent=0, const char * objname=0 );
+    QSqlDatabase(const QString& type, const QString& name, QObject * parent=0);
+    QSqlDatabase(QSqlDriver* driver, QObject * parent=0);
 private:
     void 	init( const QString& type, const QString& name );
     QSqlDatabasePrivate* d;

@@ -483,7 +483,7 @@ void QSqlRecord::setNull( int i )
     if (!d->contains(i))
 	return;
     detach();
-    d->fieldInfo(i)->field.setNull();
+    d->fieldInfo(i)->field.clear();
 }
 
 /*!

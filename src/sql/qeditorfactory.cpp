@@ -46,8 +46,8 @@
     Constructs an editor factory with parent \a parent, called \a name.
 */
 
-QEditorFactory::QEditorFactory ( QObject * parent, const char * name )
-    : QObject( parent, name )
+QEditorFactory::QEditorFactory (QObject * parent)
+    : QObject(parent)
 {
 
 }

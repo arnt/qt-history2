@@ -719,7 +719,7 @@ bool QDataManager::autoEdit() const
 */
 void QDataManager::setConfirmEdits( bool confirm )
 {
-    d->confEdits.fill( confirm );
+    d->confEdits = QBitArray(d->confEdits.size(), confirm);
 }
 
 /*! \internal
