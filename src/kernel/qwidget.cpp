@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#256 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#257 $
 **
 ** Implementation of QWidget class
 **
@@ -649,7 +649,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 QWidget::~QWidget()
 {
     // remove myself from the can-take-focus list
-    QFocusData *f = focusData();
+    QFocusData *f = focusData( FALSE );
     if ( f )
 	f->focusWidgets.removeRef( this );
 
@@ -2106,7 +2106,7 @@ QWidget *QWidget::focusWidget() const
 
 /*!
   Returns a pointer to the focus data for this widget's top-level
-  widget, optionally creating focus data.
+  widget.
 
   Focus data always belongs to the top-level widget.  The focus data
   list contains all the widgets in this top-level widget that can
