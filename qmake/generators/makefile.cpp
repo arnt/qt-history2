@@ -769,6 +769,7 @@ MakefileGenerator::init()
 			}
 			if(!found) {
 			    QString dir, regex = (*val_it), real_dir;
+			    qDebug("LOoking for %s", regex.latin1());
 			    if(regex.findRev(Option::dir_sep) != -1) {
 				dir = regex.left(regex.findRev(Option::dir_sep) + 1);
 				real_dir = fileFixify(Option::fixPathToLocalOS(dir), QDir::currentDirPath(),
@@ -1987,6 +1988,8 @@ MakefileGenerator::openOutput(QFile &file) const
 	if(!outdir.isEmpty() || file.name().isEmpty())
 	    file.setName(outdir + "Makefile");
     }
+    if(QDir::isRelativePath(file.name())) 
+	file.setName(Option::output_dir + file.name()); //pwd when qmake was run
     if(project->isEmpty("QMAKE_MAKEFILE"))
 	project->variables()["QMAKE_MAKEFILE"].append(file.name());
     int slsh = file.name().findRev(Option::dir_sep);

@@ -59,6 +59,9 @@ int main(int argc, char **argv)
 
     QDir sunworkshop42workaround = QDir::current();
     QString oldpwd = sunworkshop42workaround.currentDirPath();
+    Option::output_dir = oldpwd; //for now this is the output dir
+    if(!Option::output_dir.right(1) != QString(QChar(QDir::separator())))
+	Option::output_dir += QDir::separator();
     QMakeProject proj;
     int exit_val = 0;
     QStringList files;
@@ -119,10 +122,11 @@ int main(int argc, char **argv)
 			fprintf(stderr, "Failure to open file: %s\n",
 				Option::output.name().isEmpty() ? "(stdout)" : Option::output.name().latin1());
 			return 5;
-		    } else {
-			QFileInfo fi(Option::output);
-			Option::output_dir = Option::fixPathToTargetOS((fi.isSymLink() ? fi.readLink() : fi.dirPath()) );
 		    }
+		    QFileInfo fi(Option::output);
+		    Option::output_dir = Option::fixPathToTargetOS((fi.isSymLink() ? fi.readLink() : fi.dirPath()) );
+		    if(QDir::isRelativePath(Option::output_dir)) 
+			Option::output_dir.prepend(oldpwd);
 		}
 	    }
 	} else {

@@ -418,7 +418,7 @@ QMakeProject::read(QString project, QString)
 	/* parse the cache */
 	if(Option::mkfile::do_cache) {
 	    if(Option::mkfile::cachefile.isEmpty())  { //find it as it has not been specified
-		QString dir = QDir::convertSeparators(QDir::currentDirPath());
+		QString dir = QDir::convertSeparators(Option::output_dir);
 		while(!QFile::exists((Option::mkfile::cachefile = dir +
 				      QDir::separator() + ".qmake.cache"))) {
 		    dir = dir.left(dir.findRev(QDir::separator()));
