@@ -105,7 +105,7 @@ void **QThreadStorageData::set( void *p )
 	      id, (unsigned long) GetCurrentThreadId());
 	void *q = d->thread_storage[id];
 	d->thread_storage[id] = 0;
-	thread_storage_usage[id].func( d->thread_storage[id] );
+	thread_storage_usage[id].func( q );
     }
 
     // store new data
