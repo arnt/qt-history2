@@ -110,16 +110,13 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$TOOLS_H/qvector.h \
 		  $$WIDGETS_H/qbttngrp.h \
 		  $$WIDGETS_H/qbutton.h \
-		  $$WIDGETS_H/qbuttonrow.h \
 		  $$WIDGETS_H/qchkbox.h \
 		  $$WIDGETS_H/qcombo.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgrpbox.h \
 		  $$WIDGETS_H/qgrid.h \
-		  $$WIDGETS_H/qhbox.h \
 		  $$WIDGETS_H/qheader.h \
 		  $$WIDGETS_H/qlabel.h \
-		  $$WIDGETS_H/qlabelled.h \
 		  $$WIDGETS_H/qlcdnum.h \
 		  $$WIDGETS_H/qlined.h \
 		  $$WIDGETS_H/qlistbox.h \
@@ -145,7 +142,6 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$WIDGETS_H/qtoolbutton.h \
 		  $$WIDGETS_H/qtooltip.h \
 		  $$WIDGETS_H/qvalidator.h \
-		  $$WIDGETS_H/qvbox.h \
 		  $$WIDGETS_H/qwellarray.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h
@@ -215,16 +211,13 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  tools/qtstream.cpp \
 		  widgets/qbttngrp.cpp \
 		  widgets/qbutton.cpp \
-		  widgets/qbuttonrow.cpp \
 		  widgets/qchkbox.cpp \
 		  widgets/qcombo.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgrpbox.cpp \
 		  widgets/qgrid.cpp \
-		  widgets/qhbox.cpp \
 		  widgets/qheader.cpp \
 		  widgets/qlabel.cpp \
-		  widgets/qlabelled.cpp \
 		  widgets/qlcdnum.cpp \
 		  widgets/qlined.cpp \
 		  widgets/qlistbox.cpp \
@@ -250,7 +243,6 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  widgets/qtoolbutton.cpp \
 		  widgets/qtooltip.cpp \
 		  widgets/qvalidator.cpp \
-		  widgets/qvbox.cpp \
 		  widgets/qwellarray.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp
