@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#62 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -291,9 +291,11 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 
     vbox = new QVBoxLayout( this, 8, 0 );
 
-    const QFontMetrics & fm = fontMetrics();
-    vbox->addSpacing( fm.lineSpacing() );
-
+    if ( !str.isEmpty() ) {
+	//### we should have a changeable spacer item 
+	const QFontMetrics & fm = fontMetrics();
+	vbox->addSpacing( fm.lineSpacing() );
+    }
     dir = direction;
     if ( dir == Horizontal ) {
       nCols = columns;
