@@ -1204,6 +1204,7 @@ QListBox::~QListBox()
 
 void QListBox::setFont( const QFont &font )
 {
+    d->sizeHint = QSize();		// invalidate size hint
     QScrollView::setFont( font );
     triggerUpdate( TRUE );
 }

@@ -5080,6 +5080,7 @@ int QListView::itemMargin() const
 */
 void QListView::styleChange( QStyle& old )
 {
+    d->sizeHint = QSize();		// invalidate size hint
     reconfigureItems();
     QScrollView::styleChange( old );
 }
@@ -5089,6 +5090,7 @@ void QListView::styleChange( QStyle& old )
 */
 void QListView::setFont( const QFont & f )
 {
+    d->sizeHint = QSize();		// invalidate size hint
     d->h->setFont( f );
     QScrollView::setFont( f );
     reconfigureItems();
