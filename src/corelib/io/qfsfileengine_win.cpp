@@ -636,73 +636,69 @@ QFSFileEngine::drives()
     return ret;
 }
 
-bool
-QFSFileEnginePrivate::doStat() const
+bool QFSFileEnginePrivate::doStat() const
 {
-    if(!tried_stat) {
-	tried_stat = true;
-	could_stat = false;
-
-        if(file.isEmpty())
+    if (!tried_stat) {
+        tried_stat = true;
+        could_stat = false;
+        
+        if (file.isEmpty())
             return could_stat;
-
+        
 #ifdef Q_CC_BOR
         // Borland can stat dir/* which is not what we would expect
         if (file.contains("*") || file.contains("?"))
             return could_stat;
 #endif	
-
-	UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
-
-        // Stat on windows doesn't accept drivename : without \ so append \ it if this is the case
-        QString statName = file;
-        if(statName.length() == 2 && statName.at(1) == ':')
-            statName += '\\';
-	else if(statName.at(statName.length()-1) == '\\')
-	    statName = statName.left(statName.length()-2);
-        if(d->fd != -1) {
+        
+        UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
+    
+        if (d->fd != -1) {
             could_stat = (QT_FSTAT(d->fd, &st) != -1);
         } else {
+            // Stat on windows doesn't accept drivename : without \ so append \ it if this is the case
+            QString statName = QDir::convertSeparators(file);
+            if(statName.length() == 2 && statName.at(1) == ':')
+                statName += '\\';
+            else if(statName.at(statName.length() - 1) == '\\')
+                statName.truncate(statName.length() - 1);
             QT_WA({
                 could_stat = (QT_TSTAT((TCHAR*)statName.utf16(), (QT_STATBUF4TSTAT*)&st) != -1);
             } , {
                 could_stat = (QT_STAT(QFSFileEnginePrivate::win95Name(statName), &st) != -1);
             });
-        }
-        if(could_stat) {
-            bool is_dir=false;
-            if (file.length() >= 2
-                && (file.at(0) == '/' && file.at(1) == '/'
-                || file.at(0) == '\\' && file.at(1) == '\\'))
-            {
-                // UNC - stat doesn't work for all cases (Windows bug)
-                int s = file.indexOf(file.at(0),2);
-                if (s > 0) {
-                    // "\\server\..."
-                    s = file.indexOf(file.at(0),s+1);
+            if (!could_stat) {
+                bool is_dir = false;
+                if (statName.startsWith("\\\\")) {
+                    // UNC - stat doesn't work for all cases (Windows bug)
+                    int s = statName.indexOf(statName.at(0),2);
                     if (s > 0) {
-                        // "\\server\share\..."
-                        if (s == file.size() - 1) {
-                            // "\\server\share\"
-                            is_dir=true;
+                        // "\\server\..."
+                        s = statName.indexOf(statName.at(0),s+1);
+                        if (s > 0) {
+                            // "\\server\share\..."
+                            if (s == statName.size() - 1) {
+                                // "\\server\share\"
+                                is_dir = true;
+                            } else {
+                                // "\\server\share\notfound"
+                            }
                         } else {
-                            // "\\server\share\notfound"
+                            // "\\server\share"
+                            is_dir = true;
                         }
                     } else {
-                        // "\\server\share"
-                        is_dir=true;
+                        // "\\server"
+                        is_dir = true;
                     }
-                } else {
-                    // "\\server"
-                    is_dir=true;
                 }
-            }
-            if (is_dir) {
-                // looks like a UNC dir, is a dir.
-                memset(&st,0,sizeof(st));
-                st.st_mode = QT_STAT_DIR;
-                st.st_nlink = 1;
-                could_stat = true;;
+                if (is_dir) {
+                    // looks like a UNC dir, is a dir.
+                    memset(&st,0,sizeof(st));
+                    st.st_mode = QT_STAT_DIR;
+                    st.st_nlink = 1;
+                    could_stat = true;
+                }
             }
         }
         SetErrorMode(oldmode);
