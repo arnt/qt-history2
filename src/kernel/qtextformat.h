@@ -105,7 +105,9 @@ public:
     QTextFormat &operator=(const QTextFormat &rhs);
     ~QTextFormat();
 
-    void merge(const QTextFormat &other);
+    QTextFormat &operator+=(const QTextFormat &other);
+    inline QTextFormat operator+(const QTextFormat &other) const
+    { QTextFormat result(*this); result += other; return result; }
 
     bool isValid() const { return type() != -1; }
 

@@ -164,17 +164,14 @@ QTextFormat::~QTextFormat()
 {
 }
 
-void QTextFormat::merge(const QTextFormat &other)
+QTextFormat &QTextFormat::operator+=(const QTextFormat &other)
 {
-    if (!other.d)
-	return;
-
-    if (!d) {
+    if (!d)
 	d = other.d;
-	return;
-    }
+    else if (other.d)
+	d->properties += other.d->properties;
 
-    d->properties += other.d->properties;
+    return *this;
 }
 
 QTextBlockFormat QTextFormat::toBlockFormat() const
