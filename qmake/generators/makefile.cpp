@@ -1683,13 +1683,15 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     QString ofile = Option::fixPathToTargetOS(Option::output.fileName());
     if(ofile.lastIndexOf(Option::dir_sep) != -1)
         ofile = ofile.right(ofile.length() - ofile.lastIndexOf(Option::dir_sep) -1);
-    t << "MAKEFILE =        " << ofile << endl;
-    t << "QMAKE    =        " << var("QMAKE_QMAKE") << endl;
-    t << "DEL_FILE =    " << var("QMAKE_DEL_FILE") << endl;
+    t << "MAKEFILE      = " << ofile << endl;
+    t << "QMAKE         = " << var("QMAKE_QMAKE") << endl;
+    t << "DEL_FILE      = " << var("QMAKE_DEL_FILE") << endl;
     t << "CHK_DIR_EXISTS= " << var("QMAKE_CHK_DIR_EXISTS") << endl;
-    t << "MKDIR    = " << var("QMAKE_MKDIR") << endl;
-    t << "INSTALL_FILE= " << var("QMAKE_INSTALL_FILE") << endl;
-    t << "INSTALL_DIR = " << var("QMAKE_INSTALL_DIR") << endl;
+    t << "MKDIR         = " << var("QMAKE_MKDIR") << endl;
+    t << "COPY_FILE     = " << var("QMAKE_COPY_FILE") << endl;
+    t << "COPY_DIR      = " << var("QMAKE_COPY_DIR") << endl;
+    t << "INSTALL_FILE  = " << var("QMAKE_INSTALL_FILE") << endl;
+    t << "INSTALL_DIR   = " << var("QMAKE_INSTALL_DIR") << endl;
     writeExtraVariables(t);
     t << "SUBTARGETS =        ";     // subtargets are sub-directory
     for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it)

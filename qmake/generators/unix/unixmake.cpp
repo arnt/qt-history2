@@ -31,25 +31,10 @@ UnixMakefileGenerator::init()
         return;
 
     QStringList &configs = project->variables()["CONFIG"];
-    /* this should probably not be here, but I'm using it to wrap the .t files */
-    if(project->first("TEMPLATE") == "app")
-        project->variables()["QMAKE_APP_FLAG"].append("1");
-    else if(project->first("TEMPLATE") == "lib")
-        project->variables()["QMAKE_LIB_FLAG"].append("1");
-    else if(project->first("TEMPLATE") == "subdirs") {
-        MakefileGenerator::init();
-        if(project->isEmpty("MAKEFILE"))
-            project->variables()["MAKEFILE"].append("Makefile");
-        if(project->isEmpty("QMAKE_QMAKE"))
-            project->variables()["QMAKE_QMAKE"].append("qmake");
-        if(project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].indexOf("qmake_all") == -1)
-            project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].append("qmake_all");
-        return; /* subdirs is done */
-    }
 
+    //defaults
     if(project->isEmpty("ICON") && !project->isEmpty("RC_FILE"))
         project->variables()["ICON"] = project->variables()["RC_FILE"];
-
     if(project->isEmpty("QMAKE_EXTENSION_SHLIB")) {
         if(project->isEmpty("QMAKE_CYGWIN_SHLIB")) {
             project->variables()["QMAKE_EXTENSION_SHLIB"].append("so");
@@ -75,6 +60,23 @@ UnixMakefileGenerator::init()
         project->variables()["QMAKE_INSTALL_DIR"].append("$(COPY_DIR)");
     if(project->isEmpty("QMAKE_LIBTOOL"))
         project->variables()["QMAKE_LIBTOOL"].append("libtool --silent");
+
+    /* this should probably not be here, but I'm using it to wrap the .t files */
+    if(project->first("TEMPLATE") == "app")
+        project->variables()["QMAKE_APP_FLAG"].append("1");
+    else if(project->first("TEMPLATE") == "lib")
+        project->variables()["QMAKE_LIB_FLAG"].append("1");
+    else if(project->first("TEMPLATE") == "subdirs") {
+        MakefileGenerator::init();
+        if(project->isEmpty("MAKEFILE"))
+            project->variables()["MAKEFILE"].append("Makefile");
+        if(project->isEmpty("QMAKE_QMAKE"))
+            project->variables()["QMAKE_QMAKE"].append("qmake");
+        if(project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].indexOf("qmake_all") == -1)
+            project->variables()["QMAKE_INTERNAL_QMAKE_DEPS"].append("qmake_all");
+        return; /* subdirs is done */
+    }
+
     //If the TARGET looks like a path split it into DESTDIR and the resulting TARGET
     if(!project->isEmpty("TARGET")) {
         QString targ = project->first("TARGET");
