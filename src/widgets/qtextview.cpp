@@ -647,7 +647,7 @@ QString QTextView::selectedText() const
 {
     if ( !d->selection )
 	return QString::null;
-    
+
     QRichTextIterator it( richText() );
     it.goTo( d->selstart );
     int column = 0;
@@ -659,7 +659,7 @@ QString QTextView::selectedText() const
 		txt += '\n';
 		column = 0;
 	    }
-	    if ( s[s.length()-1]== '\n' )
+	    if ( s[(int)s.length()-1]== '\n' )
 		column = 0;
 	    txt += s;
 	    column += s.length();
@@ -835,7 +835,7 @@ void QTextView::updateLayout()
     d->fcresize = new QRichTextFormatter( richText() );
     d->fcresize->initParagraph( 0, &richText() );
     d->fcresize->updateLayout( 0, ymax );
-    
+
     QTextFlow* flow = richText().flow();
     QSize vs( viewportSize( flow->widthUsed, flow->height ) );
 
