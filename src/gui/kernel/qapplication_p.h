@@ -143,7 +143,9 @@ public:
                && qt_dispatchAccelEvent;
     }
 #endif
-    QInputContext *inputContext;
+#ifdef Q_WS_X11
+    static QInputContext *inputContext;
+#endif
 
     static Qt::MouseButtons mouse_buttons;
     static Qt::KeyboardModifiers modifier_buttons;

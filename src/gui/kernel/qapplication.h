@@ -199,7 +199,6 @@ public:
     void setInputContext(const QString &);
     QInputContext *inputContext() const;
     static QString defaultInputMethod();
-    static void close_im();
 
     static bool x11_apply_settings();
 #endif

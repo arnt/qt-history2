@@ -1231,6 +1231,7 @@ void qt_init(QApplicationPrivate *priv, int,
     X11->motifdnd_active = false;
 
     X11->default_im = "imsw-multi";
+    priv->inputContext = 0;
 
     // colormap control
     X11->visual_class = -1;
@@ -1830,27 +1831,6 @@ void QApplication::x11_initialize_style()
 /*****************************************************************************
   qt_cleanup() - cleans up when the application is finished
  *****************************************************************************/
-static void deleteInputContexts(QWidget *parent)
-{
-    QObjectList children = parent->children();
-    for (QObjectList::const_iterator it = children.constBegin(); it != children.constEnd(); ++it) {
-        QWidget *c = qt_cast<QWidget *>(*it);
-        if (!c)
-            continue;
-        // change to something that doesn't exist
-	c->setInputContext("qt_nonexistant_im");
-        deleteInputContexts(c);
-    }
-}
-
-void QApplication::close_im()
-{
-    QWidgetList widgets = topLevelWidgets();
-    for (QWidgetList::const_iterator it = widgets.constBegin(); it != widgets.constEnd(); ++it) {
-	delete (*it)->d->ic;
-        deleteInputContexts(*it);
-    }
-}
 
 void qt_cleanup()
 {
@@ -1874,7 +1854,8 @@ void qt_cleanup()
 #endif
 
 #if !defined(QT_NO_IM)
-    QApplication::close_im();
+    delete QApplicationPrivate::inputContext;
+    QApplicationPrivate::inputContext = 0;
 #endif
 
 #define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<X11->screenCount;i++){if(g[i])XFreeGC(X11->display,g[i]);} delete [] g; g = 0; }
