@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 1.1 1996/01/10 15:00:28 agulbra Exp $
+** $Id: moc.doc,v 1.2 1996/01/10 15:35:04 agulbra Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -77,7 +77,7 @@ Here is a useful makefile rule if you only use GNU make:
 
 <pre>
     m%.cpp: %.h
-            moc $< -o $@
+            moc $lt; -o $@
 </pre>
 
 <p>
@@ -87,7 +87,7 @@ following form:
 
 <pre>
     mNAME.cpp: NAME.h
-            moc $< -o $@
+            moc $&lt; -o $@
 </pre>
 
 <p>
@@ -111,7 +111,7 @@ a makefile rule like this:
     NAME.o: mNAME.cpp
     
     mNAME.cpp: NAME.cpp
-            moc -i $< -o $@
+            moc -i $&lt; -o $@
 </pre>
 
 <p>
