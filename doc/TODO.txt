@@ -38,6 +38,8 @@ QPicture
   file. This will allow a more clean implementation of the streaming operator
   that read from a QDataStream.
 
+QSpinBox
+  Don't use buttons in the box, and make it styleable.
 
 Specific enhancements
 ---------------------
