@@ -103,12 +103,13 @@ void* qt_load_library( const QString& lib )
 
 bool qt_free_library( void* handle )
 {
-    return dlclose( handle );
+    int ok = dlclose( handle );
 #ifdef CHECK_RANGE
     char* error = dlerror();
     if ( error )
 	qWarning( error );
 #endif
+    return ok != 0;
 }
 
 void* qt_resolve_symbol( void* handle, const char* f )
