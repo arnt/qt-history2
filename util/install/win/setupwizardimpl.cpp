@@ -22,6 +22,8 @@
 #include <qarchive.h>
 #include <qvalidator.h>
 
+#include "../md4/qrsync.h"
+
 #define FILESTOCOPY 4582
 
 static bool createDir( const QString& fullPath )
@@ -553,7 +555,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 					 "is present in the PATH environment variable.\n"
 					 "The installation can't continue." );
 	} else {
-	    setNextEnabled( licensePage, true );
+	    licenseChanged();
 	}
 	setInstallStep( 3 );
     } else if( newPage == foldersPage ) {
@@ -1776,17 +1778,37 @@ void SetupWizardImpl::configPageChanged()
     }
 }
 
-void SetupWizardImpl::licenseChanged( const QString & )
+void SetupWizardImpl::licenseChanged()
 {
+    QString proKey = productKey->text();
+    if ( proKey.length() < 19 ) {
+	setNextEnabled( licensePage, FALSE );
+	return;
+    }
     QString customer = customerID->text();
     QString license = licenseID->text();
     QString name = licenseeName->text();
     QString date = expiryDate->text();
+    QString products = productsString->currentText();
+#if 0
+    QStringList proKey = QStringList::split( "-", productKey->text() );
+    if ( proKey.count() != 3 ) {
+	setNextEnabled( licensePage, FALSE );
+	return;
+    }
+#else
+    int i = proKey.find( '-' );
+    if ( i <= 0 || i >= (int)proKey.length()-1 ) {
+	setNextEnabled( licensePage, FALSE );
+	return;
+    }
+#endif
 
-    setNextEnabled( licensePage, !customer.isEmpty() && 
-				 !license.isEmpty() && 
-				 !name.isEmpty() && 
-				 !date.isEmpty() );
+qDebug( proKey.left( i ) );
+    QString keyString = customer + license + products + date + proKey.left( i );
+    QMd4Sum sum( keyString );
+qDebug( proKey.mid( i+1, 17 ) );
+    setNextEnabled( licensePage, sum.scrambled() == proKey.mid( i+1, 17 ) );
 }
 
 void SetupWizardImpl::logFiles( const QString& entry, bool close )

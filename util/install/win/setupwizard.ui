@@ -1587,25 +1587,25 @@ Alternatively, the installation wizard may read them from a license file.</strin
         <sender>customerID</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>SetupWizard</receiver>
-        <slot>licenseChanged(const QString&amp;)</slot>
+        <slot>licenseChanged()</slot>
     </connection>
     <connection>
         <sender>licenseID</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>SetupWizard</receiver>
-        <slot>licenseChanged(const QString&amp;)</slot>
+        <slot>licenseChanged()</slot>
     </connection>
     <connection>
         <sender>licenseeName</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>SetupWizard</receiver>
-        <slot>licenseChanged(const QString&amp;)</slot>
+        <slot>licenseChanged()</slot>
     </connection>
     <connection>
         <sender>expiryDate</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>SetupWizard</receiver>
-        <slot>licenseChanged(const QString&amp;)</slot>
+        <slot>licenseChanged()</slot>
     </connection>
     <connection>
         <sender>configList</sender>
@@ -1649,6 +1649,18 @@ Alternatively, the installation wizard may read them from a license file.</strin
         <receiver>SetupWizard</receiver>
         <slot>configPageChanged()</slot>
     </connection>
+    <connection>
+        <sender>productsString</sender>
+        <signal>activated(int)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>licenseChanged()</slot>
+    </connection>
+    <connection>
+        <sender>productKey</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>SetupWizard</receiver>
+        <slot>licenseChanged()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>introText</tabstop>
@@ -1682,9 +1694,6 @@ Alternatively, the installation wizard may read them from a license file.</strin
     <tabstop>finishText</tabstop>
     <tabstop>advancedList</tabstop>
 </tabstops>
-<includes>
-    <include location="local" impldecl="in implementation">setupwizard.ui.h</include>
-</includes>
 <slots>
     <slot>clickedDevSysPath()</slot>
     <slot>clickedEnvironmentButton()</slot>
@@ -1695,7 +1704,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
     <slot access="protected">destroy()</slot>
     <slot access="protected">init()</slot>
     <slot>licenseAction( int )</slot>
-    <slot>licenseChanged( const QString &amp; )</slot>
+    <slot>licenseChanged()</slot>
     <slot access="protected">configPageChanged()</slot>
     <slot>optionClicked( QListViewItem * )</slot>
     <slot>optionSelected( QListViewItem * )</slot>
