@@ -1857,8 +1857,24 @@ void QDataTable::handleError( const QSqlError& e )
 /*! \reimp
   */
 
-void QDataTable::keyPressEvent( QKeyEvent* )
+void QDataTable::keyPressEvent( QKeyEvent* e )
 {
+    switch( e->key() ) {
+    case Key_Left:
+    case Key_Right:
+    case Key_Up:
+    case Key_Down:
+    case Key_Prior:
+    case Key_Next:
+    case Key_Home:
+    case Key_End:
+    case Key_F2:
+    case Key_Enter: case Key_Return:
+    case Key_Tab: case Key_BackTab:
+	QTable::keyPressEvent( e );
+    default:
+	return;
+    }
 }
 
 /*!  \reimp
