@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#3 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -122,10 +122,12 @@ public:
     virtual void rename( const QString &oldname, const QString &newname );
     virtual void copy( const QString &from, const QString &to );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
-
     virtual bool isDir();
     virtual bool isFile();
-
+    virtual void get();
+    virtual void put( const QString &data );
+    
+    
     virtual void setNameFilter( const QString &nameFilter );
     QString nameFilter() const;
 
@@ -145,6 +147,7 @@ public:
     void emitData( const QString &d );
     void emitUrlIsDir();
     void emitUrlIsFile();
+    void emitPutSuccessful( const QString &d );
 
 signals:
     void entry( const QUrlInfo & );
@@ -155,6 +158,7 @@ signals:
     void itemChanged( const QString &oldname, const QString &newname );
     void error( int ecode, const QString &msg );
     void data( const QString & );
+    void putSuccessful( const QString & );
     void urlIsDir();
     void urlIsFile();
 
@@ -221,6 +225,11 @@ inline void QUrl::emitUrlIsDir()
 inline void QUrl::emitUrlIsFile()
 {
     emit urlIsFile();
+}
+
+inline void QUrl::emitPutSuccessful( const QString &d )
+{
+    emit putSuccessful( d );
 }
 
 #endif

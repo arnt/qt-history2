@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#6 $
 **
 ** Implementation of QFileDialog class
 **
@@ -55,7 +55,7 @@ struct QUrlPrivate
 
 /*!
   \class QUrl qurl.h
-  
+
   Mention that URL has some restrictions regarding the path
   encoding. URL works intern with the decoded path and
   and encoded query. For example in
@@ -67,7 +67,96 @@ struct QUrlPrivate
   Since path is internally always encoded you may NOT use
   "%00" in the path while this is ok for the query.
 */
+
+/*!
+  \fn void QUrl::entry( const QUrlInfo &i )
   
+  This signal is emitted after listEntries() was called and 
+  a new entry (file) has been read from the list of files. \a i
+  holds the information about the new etry.
+*/
+
+/*!
+  \fn void QUrl::finished()
+  
+  This signal is emitted when a data transfer of some sort finished.
+*/
+
+/*!
+  \fn void QUrl::start()
+
+  This signal is emitted when a data transfer of some sort started.
+*/
+
+/*!
+  \fn void QUrl::createdDirectory( const QUrlInfo &i )
+  
+  This signal is emitted when mkdir() has been succesful
+  and the directory has been created. \a i holds the information
+  about the new directory.
+*/
+
+/*!
+  \fn void QUrl::removed( const QString &name )
+
+  This signal is emitted when remove() has been succesful
+  and the file has been removed. \a name is the filename
+  of the removed file.
+*/
+
+/*!
+  \fn void QUrl::itemChanged( const QString &oldname, const QString &newname )
+
+  This signal is emitted whenever a file, which is a child of this URL,
+  has been changed e.g. by successfully calling rename(). \a oldname is
+  the original name of the file and \a newname is the name which the file
+  go now.
+*/
+
+/*!
+  \fn void QUrl::error( int ecode, const QString &msg )
+  
+  This signal is emitted whenever an error occures. \a ecode
+  is the error code, and \a msg an error message which can be
+  e.g. displayed to the user.
+  
+  \a ecode is one of
+	DeleteFile
+	RenameFile
+	CopyFile
+	ReadDir
+	CreateDir
+	UnknownProtocol
+	ParseError
+*/
+
+/*!
+  \fn void QUrl::data( const QString &data )
+  
+  This signal is emitted when new \a data has been received after e.g. calling get().
+*/
+
+/*!
+  \fn void QUrl::putSuccessful( const QString &data )
+  
+  This signal is emitted after successfully calling put(). \a data is the data
+  which has been put.
+*/
+
+/*!
+  \fn void QUrl::urlIsDir()
+  
+  When calling isFile() or isDir() and the URL is a dir, this signal
+  is emitted.
+*/
+
+/*!
+  \fn void QUrl::urlIsFile()
+  
+  When calling isFile() or isDir() and the URL is a file, this signal
+  is emitted.
+*/
+
 /*!
   \a url is considered to be encoded. You can pass strings like
   "/home/weis", in this case the protocol "file" is assumed.
@@ -566,6 +655,12 @@ NodeOk:
     delete []orig;
     if ( d->networkProtocol )
  	delete d->networkProtocol;
+    if ( d->port == -1 ) {
+	if ( d->protocol == "ftp" )
+	    d->port = 21;
+	else if ( d->protocol == "http" )
+	    d->port = 80;
+    }
     getNetworkProtocol();
 
     return;
@@ -1278,6 +1373,26 @@ bool QUrl::isFile()
     }
 
     return TRUE;
+}
+
+/*!
+  #### todo
+*/
+
+void QUrl::get()
+{
+    if ( d->networkProtocol )
+	d->networkProtocol->get();
+}
+
+/*!
+  #### todo
+*/
+
+void QUrl::put( const QString &data )
+{
+    if ( d->networkProtocol )
+	d->networkProtocol->put( data );
 }
 
 /*!
