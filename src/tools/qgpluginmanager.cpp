@@ -176,6 +176,9 @@ void QGPluginManager::addLibraryPath( const QString& path )
     QStringList plugins = QDir(path).entryList( "*." + filter );
     for ( QStringList::Iterator p = plugins.begin(); p != plugins.end(); ++p ) {
 	QString lib = path + "/" + *p;
+	if ( libList.contains( lib ) )
+	    continue;
+
 	libList.append( lib );
 
 	if ( defPol == QLibrary::Immediately ) {
@@ -243,14 +246,15 @@ QStringList QGPluginManager::featureList() const
 {
     // Make sure that all libraries have been loaded once.
     QGPluginManager *that = (QGPluginManager*)this;
-    QStringList::ConstIterator it = libList.begin();
-    while ( it != libList.end() ) {
+    QStringList theLibs = libList;
+    QStringList::Iterator it = theLibs.begin();
+    while ( it != theLibs.end() ) {
 	QString lib = *it;
 	++it;
 	that->addLibrary( lib );
     }
 
-    QStringList list;
+    QStringList list;    
     QDictIterator<QLibrary> pit( plugDict );
     while( pit.current() ) {
 	list << pit.currentKey();

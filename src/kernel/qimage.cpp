@@ -3711,10 +3711,6 @@ void qt_init_image_plugins()
 
     plugin_manager = new QPluginManager<QImageFormatInterface>( IID_QImageFormat );
 
-    QString defpath(getenv("QTDIR"));
-    if (! defpath.isNull() && ! defpath.isEmpty())
-	plugin_manager->addLibraryPath(defpath + "/plugins/imageformats");
-
     QStringList paths(QApplication::libraryPaths());
     QStringList::Iterator it = paths.begin();
     while (it != paths.end()) {
