@@ -75,23 +75,7 @@ QThreadInstance *QThreadInstance::current()
 {
     create_tls();
     QThreadInstance *ret = (QThreadInstance *) TlsGetValue( qt_tls_index );
-    if ( ! ret ) {
-        if (main_instance.running) {
-            qWarning("QThread: ERROR: creating QThreadInstance for unknown thread %lx\n"
-                     "This instance and all per-thread data will be leaked.",
-                     QThread::currentThread());
-        }
-
-	ret = new QThreadInstance;
-        ret->init(0);
-	ret->args[1] = ret;
-	ret->running = TRUE;
-	ret->orphan = TRUE;
-	ret->handle = GetCurrentThread();
-	ret->thread_id = GetCurrentThreadId();
-
-	TlsSetValue( qt_tls_index, ret );
-    }
+    if ( ! ret ) return &main_instance;
     return ret;
 }
 
@@ -200,32 +184,19 @@ Qt::HANDLE QThread::currentThread()
 void QThread::initialize()
 {
     if ( ! qt_global_mutexpool )
-	qt_global_mutexpool = new QMutexPool( TRUE );
+	qt_global_mutexpool = new QMutexPool( TRUE, 73 );
     if ( ! qt_thread_mutexpool )
-	qt_thread_mutexpool = new QMutexPool( FALSE );
-
-    // get a QThreadInstance for the main() thread
-    create_tls();
-    if (! main_instance.running) {
-        main_instance.init(0);
-        main_instance.args[1] = &main_instance;
-        main_instance.running = TRUE;
-        main_instance.handle = GetCurrentThread();
-        main_instance.thread_id = GetCurrentThreadId();
-
-	TlsSetValue( qt_tls_index, &main_instance );
-    }
+	qt_thread_mutexpool = new QMutexPool( FALSE, 127 );
 }
 
 void QThread::cleanup()
 {
     delete qt_global_mutexpool;
-    qt_global_mutexpool = 0;
     delete qt_thread_mutexpool;
+    qt_global_mutexpool = 0;
     qt_thread_mutexpool = 0;
 
-    QThreadInstance::finish( &main_instance );
-    TlsSetValue( qt_tls_index, 0 );
+    QThreadInstance::finish(&main_instance);
 }
 
 void QThread::sleep( unsigned long secs )

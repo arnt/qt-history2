@@ -73,22 +73,7 @@ QThreadInstance *QThreadInstance::current()
 {
     pthread_once( &storage_key_once, create_storage_key );
     QThreadInstance *ret = (QThreadInstance *) pthread_getspecific( storage_key );
-    if ( ! ret ) {
-        if (main_instance.running) {
-            qWarning("QThread: ERROR: creating QThreadInstance for unknown thread %lx\n"
-                     "This instance and all per-thread data will be leaked.",
-                     (long)QThread::currentThread());
-        }
-
-	ret = new QThreadInstance;
-        ret->init(0);
-	ret->args[1] = ret;
-	ret->running = TRUE;
-	ret->orphan = TRUE;
-	ret->thread_id = pthread_self();
-
-	pthread_setspecific(storage_key, ret);
-    }
+    if ( ! ret ) return &main_instance;
     return ret;
 }
 
@@ -195,18 +180,6 @@ void QThread::initialize()
 	qt_global_mutexpool = new QMutexPool( TRUE, 73 );
     if ( ! qt_thread_mutexpool )
 	qt_thread_mutexpool = new QMutexPool( FALSE, 127 );
-
-    // create a QThreadInstance for the main() thread
-    pthread_once( &storage_key_once, create_storage_key );
-
-    if (! main_instance.running) {
-        main_instance.init(0);
-        main_instance.args[1] = &main_instance;
-        main_instance.running = TRUE;
-        main_instance.thread_id = pthread_self();
-
-	pthread_setspecific(storage_key, &main_instance);
-    }
 }
 
 /*! \internal
@@ -220,7 +193,6 @@ void QThread::cleanup()
     qt_thread_mutexpool = 0;
 
     QThreadInstance::finish(&main_instance);
-    pthread_setspecific(storage_key, 0);
 }
 
 /*!
