@@ -6,7 +6,6 @@ int main(int argc, char **argv)
 
     QLabel label;
     label.setText("Hello world!");
-    a.setMainWidget(&label);
     label.show();
 
     return a.exec();

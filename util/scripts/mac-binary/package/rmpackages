@@ -1,6 +1,6 @@
 #!/bin/sh
 
-
+cd `dirname $0` #now we live in the rmpackage location
 PACKAGE_DIR=`(cd ../install && pwd)`
 PACKAGES=
 

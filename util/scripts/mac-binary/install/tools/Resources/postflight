@@ -2,5 +2,5 @@
 #fix the doc path
 PACK_LOCATION="$1"
 INST_LOCATION="$3"
-$PACK_LOCATION/Contents/Resources/qtconf.pl -version $VERSION_MAJOR$.$VERSION_MINOR$ -value "$INST_LOCATION/Developer/Applications/Qt" Binaries
-$PACK_LOCATION/Contents/Resources/qtconf.pl -version $VERSION_MAJOR$.$VERSION_MINOR$ -value "$INST_LOCATION/usr/local/Qt$VERSION_MAJOR$.$VERSION_MINOR$" Data
+"$PACK_LOCATION/Contents/Resources/qtconf.pl" -version $VERSION_MAJOR$.$VERSION_MINOR$ -value "$INST_LOCATION/Developer/Applications/Qt" Binaries
+"$PACK_LOCATION/Contents/Resources/qtconf.pl" -version $VERSION_MAJOR$.$VERSION_MINOR$ -value "$INST_LOCATION/usr/local/Qt$VERSION_MAJOR$.$VERSION_MINOR$" Data
