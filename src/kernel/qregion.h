@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#3 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#4 $
 **
 ** Definition of QRegion class
 **
@@ -71,8 +71,7 @@ private:
 };
 
 
-#define QRGN_NOP	0			// region stream commands
-#define QRGN_SETRECT	1
+#define QRGN_SETRECT	1			// region stream commands
 #define QRGN_SETELLIPSE	2
 #define QRGN_SETPTARRAY	3
 #define QRGN_MOVE	4
@@ -80,6 +79,14 @@ private:
 #define QRGN_AND	6
 #define QRGN_SUB	7
 #define QRGN_XOR	8
+
+
+// --------------------------------------------------------------------------
+// QRegion stream functions
+//
+
+QDataStream &operator<<( QDataStream &, const QRegion & );
+QDataStream &operator>>( QDataStream &, QRegion & );
 
 
 #endif // QREGION_H
