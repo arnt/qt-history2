@@ -1609,6 +1609,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 	    if ( !hasPrefix( doc, length, pos+1, QChar('/') ) ) {
 		// open tag
 		QMap<QString, QString> attr;
+		QMap<QString, QString>::ConstIterator it, end = attr.end();
 		bool emptyTag = FALSE;
 		QString tagname = parseOpenTag(doc, length, pos, attr, emptyTag);
 		if ( tagname.isEmpty() )
@@ -1690,14 +1691,16 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			custom = parseTable( attr, format, doc, length, pos, curpar );
 #endif
 		    } else if ( tagname == "qt" || tagname == "body" ) {
-			if ( attr.contains( "bgcolor" ) ) {
-			    QBrush *b = new QBrush( QColor( attr["bgcolor"] ) );
+			it = attr.find("bgcolor");
+			if (it != end) {
+			    QBrush *b = new QBrush(QColor(*it));
 			    setPaper( b );
 			}
-			if ( attr.contains( "background" ) ) {
+			it = attr.find("background");
+			if (it != end) {
 #ifndef QT_NO_MIME
 			    QImage img;
-			    QString bg = attr["background"];
+			    QString bg = *it;
 			    const QMimeSource* m = factory_->data( bg, contxt );
 			    if ( !m ) {
 				qWarning("QRichText: no mimesource for %s", bg.latin1() );
@@ -1712,20 +1715,24 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			    }
 #endif
 			}
-			if ( attr.contains( "text" ) ) {
-			    QColor c( attr["text"] );
+			it = attr.find("text");
+			if (it != end) {
+			    QColor c(*it);
 			    initag.format.setColor( c );
 			    curtag.format.setColor( c );
 			    bodyText = c;
 			}
-			if ( attr.contains( "link" ) )
-			    linkColor = QColor( attr["link"] );
-			if ( attr.contains( "title" ) )
-			    attribs.replace( "title", attr["title"] );
+			it = attr.find("link");
+			if (it != end)
+			    linkColor = QColor(*it);
+			it = attr.find("title");
+			if (it != end)
+			    attribs.replace("title", *it);
 
 			if ( textEditMode ) {
-			    if ( attr.contains("style" ) ) {
-				QString a = attr["style"];
+			    it = attr.find("style");
+			    if (it != end) {
+				QString a = *it;
 				int count = a.count(';') + 1;
 				for ( int s = 0; s < count; s++ ) {
 				    QString style = a.section( ';', s, s );
@@ -1859,8 +1866,9 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			if ( nstyle->name() == "ul" )
 			    curtag.style = sheet_->item( "ol" );
 
-			if ( attr.contains( "align" ) ) {
-			    QString align = attr["align"].lower();
+			it = attr.find("align");
+			if (it != end) {
+			    QString align = (*it).lower();
 			    if ( align == "center" )
 				curtag.alignment = Qt::AlignCenter;
 			    else if ( align == "right" )
@@ -1868,8 +1876,9 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			    else if ( align == "justify" )
 				curtag.alignment = Qt::AlignJustify;
 			}
-			if ( attr.contains( "dir" ) ) {
-			    QString dir = attr["dir"];
+			it = attr.find("dir");
+			if (it != end) {
+			    QString dir = (*it).lower();
 			    if ( dir == "rtl" )
 				curtag.direction = QChar::DirR;
 			    else if ( dir == "ltr" )
@@ -1879,12 +1888,14 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 			NEWPAR;
 
 			if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
-			    if ( attr.contains( "value " ) )
-				curpar->setListValue( attr["value"].toInt() );
+			    it = attr.find("value");
+			    if (it != end)
+				curpar->setListValue( (*it).toInt() );
 			}
 
-			if ( attr.contains( "style" ) ) {
-			    QString a = attr["style"];
+			it = attr.find("style");
+			if (it != end) {
+			    QString a = *it;
 			    bool ok = TRUE;
 			    int count = a.count(';')+1;
 			    for ( int s = 0; ok && s < count; s++ ) {
@@ -6311,23 +6322,23 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
     if ( style->definesFontStrikeOut() )
 	format.fn.setStrikeOut( style->fontStrikeOut() );
 
+    QMap<QString, QString>::ConstIterator it, end = attr.end();
 
     if ( style->name() == "font") {
-	if ( attr.contains("color") ) {
-	    QString s = attr["color"];
-	    if ( !s.isEmpty() ) {
-		format.col.setNamedColor( s );
-		format.linkColor = FALSE;
-	    }
+	it = attr.find("color");
+	if (it != end && ! (*it).isEmpty()){
+	    format.col.setNamedColor( *it );
+	    format.linkColor = FALSE;
 	}
-	if ( attr.contains("face") ) {
-	    QString a = attr["face"];
-	    QString family = a.section( ',', 0, 0 );
+	it = attr.find("face");
+	if (it != end) {
+	    QString family = (*it).section( ',', 0, 0 );
 	    if ( !!family )
 		format.fn.setFamily( family );
 	}
-	if ( attr.contains("size") ) {
-	    QString a = attr["size"];
+	it = attr.find("size");
+	if (it != end) {
+	    QString a = *it;
 	    int n = a.toInt();
 	    if ( a[0] == '+' || a[0] == '-' )
 		n += 3;
@@ -6339,8 +6350,10 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	    style->styleSheet()->scaleFont( format.fn, format.logicalFontSize );
 	}
     }
-    if ( attr.contains("style" ) ) {
-	QString a = attr["style"];
+
+    it = attr.find("style");
+    if (it != end) {
+	QString a = *it;
 	int count = a.count(';')+1;
 	for ( int s = 0; s < count; s++ ) {
 	    QString style = a.section( ';', s, s );
@@ -6405,10 +6418,14 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
     : QTextCustomItem( p )
 {
     width = height = 0;
-    if ( attr.contains("width") )
-	width = attr["width"].toInt();
-    if ( attr.contains("height") )
-	height = attr["height"].toInt();
+
+    QMap<QString, QString>::ConstIterator it, end = attr.end();
+    it = attr.find("width");
+    if (it != end)
+	width = (*it).toInt();
+    it = attr.find("height");
+    if (it != end)
+	height = (*it).toInt();
 
     reg = 0;
     QString imageName = attr["src"];
@@ -6598,9 +6615,11 @@ QTextHorizontalLine::QTextHorizontalLine( QTextDocument *p, const QMap<QString, 
     : QTextCustomItem( p )
 {
     height = tmpheight = 8;
-    if ( attr.find( "color" ) != attr.end() )
-	color = QColor( *attr.find( "color" ) );
-    shade = attr.find( "noshade" ) == attr.end();
+    QMap<QString, QString>::ConstIterator it, end = attr.end();
+    it = attr.find("color");
+    if (it != end)
+	color = QColor(*it);
+    shade = attr.find("noshade") == end;
 }
 
 QTextHorizontalLine::~QTextHorizontalLine()
@@ -7395,18 +7414,22 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
 {
     cells.setAutoDelete( FALSE );
     cellspacing = 2;
-    if ( attr.contains("cellspacing") )
-	cellspacing = attr["cellspacing"].toInt();
     cellpadding = 1;
-    if ( attr.contains("cellpadding") )
-	cellpadding = attr["cellpadding"].toInt();
     border = innerborder = 0;
-    if ( attr.contains("border" ) ) {
-	QString s( attr["border"] );
-	if ( s == "TRUE" )
+
+    QMap<QString, QString>::ConstIterator it, end = attr.end();
+    it = attr.find("cellspacing");
+    if (it != end)
+	cellspacing = (*it).toInt();
+    it = attr.find("cellpadding");
+    if (it != end)
+	cellpadding = (*it).toInt();
+    it = attr.find("border");
+    if (it != end) {
+	if ( *it == "TRUE" )
 	    border = 1;
 	else
-	    border = attr["border"].toInt();
+	    border = (*it).toInt();
     }
     us_b = border;
 
@@ -7424,9 +7447,10 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
 
     fixwidth = 0;
     stretch = 0;
-    if ( attr.contains("width") ) {
+    it = attr.find("width");
+    if (it != end) {
 	bool b;
-	QString s( attr["width"] );
+	QString s(*it);
 	int w = s.toInt( &b );
 	if ( b ) {
 	    fixwidth = w;
@@ -7885,8 +7909,11 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     richtext->formatCollection()->setPaintDevice( table->parent->formatCollection()->paintDevice() );
     richtext->bodyText = fmt.color();
     richtext->setTableCell( this );
-    QString a = *attr.find( "align" );
-    if ( !a.isEmpty() ) {
+
+    QMap<QString,QString>::ConstIterator it, end = attr.end();
+    it = attr.find("align");
+    if (it != end && ! (*it).isEmpty()) {
+        QString a = (*it).lower();
 	a = a.lower();
 	if ( a == "left" )
 	    richtext->setAlignment( Qt::AlignLeft );
@@ -7896,9 +7923,9 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 	    richtext->setAlignment( Qt::AlignRight );
     }
     align = 0;
-    QString va = *attr.find( "valign" );
-    if ( !va.isEmpty() ) {
-	va = va.lower();
+    it = attr.find( "valign" );
+    if (it != end && ! (*it).isEmpty() ) {
+	QString va = (*it).lower();
 	if ( va == "center" )
 	    align |= Qt::AlignVCenter;
 	else if ( va == "bottom" )
@@ -7913,21 +7940,25 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     richtext->setRichText( doc, context );
     rowspan_ = 1;
     colspan_ = 1;
-    if ( attr.contains("colspan") )
-	colspan_ = attr["colspan"].toInt();
-    if ( attr.contains("rowspan") )
-	rowspan_ = attr["rowspan"].toInt();
+
+    it = attr.find("colspan");
+    if (it != end)
+	colspan_ = (*it).toInt();
+    it = attr.find("rowspan");
+    if (it != end)
+	rowspan_ = (*it).toInt();
 
     background = 0;
-    if ( attr.contains("bgcolor") ) {
-	background = new QBrush(QColor( attr["bgcolor"] ));
+    it = attr.find("bgcolor");
+    if (it != end) {
+	background = new QBrush(QColor(*it));
     }
 
-
     hasFixedWidth = FALSE;
-    if ( attr.contains("width") ) {
+    it = attr.find("width");
+    if (it != end) {
 	bool b;
-	QString s( attr["width"] );
+	QString s(*it);
 	int w = s.toInt( &b );
 	if ( b ) {
 	    maxw = w;
