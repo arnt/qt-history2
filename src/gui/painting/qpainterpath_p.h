@@ -32,6 +32,8 @@ struct QPainterPathElement
         struct { float x, y, w, h, start, length; } arcData;
     };
 
+    inline QPointF end() const;
+
     /*! Some factory functions */
     static inline QPainterPathElement line(float x, float y);
     static inline QPainterPathElement curve(float c1x, float c1y, float c2x, float c2y,
@@ -75,6 +77,8 @@ struct QPainterSubpath
     void curveTo(const QPointF &p2, const QPointF &p3, const QPointF &p4);
     void arcTo(const QRectF &rect, float startAngle, float arcLength);
 
+    inline QPointF lastCurrent() const;
+
     QList<QPainterPathElement> elements;
     QPointF currentPoint;
     QPointF startPoint;
@@ -89,7 +93,7 @@ public:
     };
 
     QPainterPathPrivate() :
-        fillMode(QPainterPath::OddEven)
+        fillMode(QPainterPath::Winding)
     {
     }
 
@@ -109,6 +113,17 @@ public:
 void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
                             QPointF* startPoint, QPointF *endPoint);
 
+inline QPointF QPainterPathElement::end() const
+{
+    switch (type) {
+    case Line:
+        return QPointF(lineData.x, lineData.y);
+    case Curve:
+        return QPointF(curveData.ex, curveData.ey);
+    }
+    Q_ASSERT(!"unhandled case");
+    return QPoint();
+}
 
 inline QPainterPathElement QPainterPathElement::line(float x, float y)
 {
@@ -148,6 +163,21 @@ inline QPainterPathElement QPainterPathElement::arc(float x, float y, float w, f
     return e;
 }
 
+inline QPointF QPainterSubpath::lastCurrent() const
+{
+    if (elements.isEmpty() || elements.size() == 1)
+        return startPoint;
+    const QPainterPathElement &elm = elements.at(elements.size()-2);
+    switch (elm.type) {
+    case QPainterPathElement::Line:
+        return QPointF(elm.lineData.x, elm.lineData.y);
+    case QPainterPathElement::Curve:
+        return QPointF(elm.curveData.ex, elm.curveData.ey);
+    default:
+        Q_ASSERT(!"unhandled case");
+    }
+    return QPointF();
+}
 
 
 #endif //QPAINTERPATH_P_H
