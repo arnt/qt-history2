@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#18 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#19 $
 **
 ** Definition of QSlider class
 **
@@ -43,7 +43,7 @@ public:
     QSize	sizeHint() const;
 
     virtual void setTickmarks( TickSetting );
-    QSlider::TickSetting tickmarks() const { return ticks; }
+    TickSetting tickmarks() const { return ticks; }
 
     virtual void setTickInterval( int );
     int 	tickInterval() const { return tickInt; }

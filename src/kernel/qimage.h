@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#51 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#52 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -44,7 +44,7 @@ public:
     QRect	rect()		const	{ return QRect(0,0,data->w,data->h); }
     int		depth()		const	{ return data->d; }
     int		numColors()	const	{ return data->ncols; }
-    QImage::Endian bitOrder()	const	{ return (Endian) data->bitordr; }
+    Endian 	bitOrder()	const	{ return (Endian) data->bitordr; }
 
     QRgb	color( int i )	const;
     void	setColor( int i, QRgb c );
@@ -61,16 +61,16 @@ public:
     int		bytesPerLine()	const;
 
     bool	create( int width, int height, int depth, int numColors=0,
-			QImage::Endian bitOrder=IgnoreEndian );
+			Endian bitOrder=IgnoreEndian );
     bool	create( const QSize&, int depth, int numColors=0,
-			QImage::Endian bitOrder=IgnoreEndian );
+			Endian bitOrder=IgnoreEndian );
     void	reset();
 
     void	fill( uint pixel );
 
     QImage	convertDepth( int ) const;
     QImage	convertDepth( int, int conversion_flags ) const;
-    QImage	convertBitOrder( QImage::Endian ) const;
+    QImage	convertBitOrder( Endian ) const;
 
 #if defined(HAS_BOOL_TYPE)
     // Needed for binary compatibility - calls createAlphaMask(int)
@@ -83,8 +83,8 @@ public:
     QImage	createAlphaMask( int conversion_flags ) const;
     QImage	createHeuristicMask( bool clipTight=TRUE ) const;
 
-    static QImage::Endian systemBitOrder();
-    static QImage::Endian systemByteOrder();
+    static Endian systemBitOrder();
+    static Endian systemByteOrder();
 
     static const char *imageFormat( const char *fileName );
     static QStrList inputFormats();

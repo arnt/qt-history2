@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#43 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#44 $
 **
 ** Definition of QComboBox class
 **
@@ -68,8 +68,8 @@ public:
     enum Policy { NoInsertion, AtTop, AtCurrent, AtBottom,
 		  AfterCurrent, BeforeCurrent };
 
-    void	setInsertionPolicy( QComboBox::Policy policy );
-    QComboBox::Policy insertionPolicy() const;
+    void	setInsertionPolicy( Policy policy );
+    Policy 	insertionPolicy() const;
 
     void	setStyle( GUIStyle );
 
