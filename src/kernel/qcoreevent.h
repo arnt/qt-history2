@@ -103,9 +103,9 @@ public:
 	StyleChange = 100,                      // style has changed
 	IconTextChange = 101,                   // icon text has changed
 	ModifiedChange = 102,                   // modified state has changed
-	EnterModal = 103,			// widget is about to enter modal blocking
-	LeaveModal = 104,			// widget has left modal blocking
 
+	WindowBlocked = 103,			// window is about to be blocked modally
+	WindowUnblocked = 104,			// windows modal blocking has ended
 	WindowStateChange = 105,
 
 #ifndef QT_NO_COMPAT
