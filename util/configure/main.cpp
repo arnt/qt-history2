@@ -26,6 +26,8 @@ int main( int argc, char** argv )
 	    app.displayConfig();
 	if( !app.isDone() )
 	    app.buildQmake();
+	if( !app.isOk() )
+	    return 2;
 #endif
 	if( !app.isDone() )
 	    app.generateMakefiles();

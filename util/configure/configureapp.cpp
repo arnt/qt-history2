@@ -1384,7 +1384,7 @@ void Configure::buildQmake()
 	args += dictionary[ "QMAKEMAKEFILE" ];
 	if( int r = system( args.join( " " ).latin1() ) ) {
 	    cout << "Building qmake failed, return code " << r << endl << endl;
-	    dictionary[ "DONE" ] = "yes";
+	    dictionary[ "DONE" ] = "error";
 	}
 	QDir::setCurrent( pwd );
     }
@@ -1575,7 +1575,7 @@ void Configure::generateMakefiles()
 		QDir::setCurrent( QDir::convertSeparators( dirPath ) );
 		if( int r = system( args.join( " " ).latin1() ) ) {
 		    cout << "Qmake failed, return code " << r  << endl << endl;
-		    dictionary[ "DONE" ] = "yes";
+		    dictionary[ "DONE" ] = "error";
 		}
 	    }
 	}
@@ -1697,4 +1697,9 @@ void Configure::saveCmdLine()
 bool Configure::isDone()
 {
     return( dictionary[ "DONE" ] == "yes" );
+}
+
+bool Configure::isOk()
+{
+    return( dictionary[ "DONE" ] != "error" );
 }

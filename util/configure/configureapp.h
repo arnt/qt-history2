@@ -41,6 +41,7 @@ public:
 
     ProjectType projectType( const QString& proFileName );
     bool isDone();
+    bool isOk();
 private:
     // Our variable dictionaries
     QMap<QString,QString> dictionary;
