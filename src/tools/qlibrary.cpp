@@ -254,7 +254,7 @@ bool QLibrary::unload()
 #if !defined(QT_NO_LIBRARY_UNLOAD)
     if ( !d->freeLibrary() ) {
 #if defined(QT_DEBUG_COMPONENT)
-	qWarning( "%s could not be unloaded.", library().latin1() );
+	qWarning( "%s could not be unloaded.", (const char*) QFile::encodeName(library()) );
 #endif
 	return FALSE;
 #else
@@ -264,7 +264,7 @@ bool QLibrary::unload()
     }
 
 #if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-    qWarning( "%s has been unloaded.", library().latin1() );
+    qWarning( "%s has been unloaded.", (const char*) QFile::encodeName(library()) );
 #endif
 
     d->pHnd = 0;

@@ -36,11 +36,11 @@
 #include "qcomlibrary_p.h"
 
 #ifndef QT_NO_COMPONENT
-#include "qapplication.h"
-#include "qsettings.h"
-#include "qfileinfo.h"
-#include "qdatetime.h"
-#include "qcleanuphandler.h"
+#include <qapplication.h>
+#include <qsettings.h>
+#include <qfileinfo.h>
+#include <qdatetime.h>
+#include <qcleanuphandler.h>
 
 #ifdef QT_THREAD_SUPPORT
 #  include "qmutexpool_p.h"
@@ -82,7 +82,7 @@ bool QComLibrary::unload()
     return QLibrary::unload();
 }
 
-static bool verify( const QString& library, uint version, uint flags,
+static bool qt_verify( const QString& library, uint version, uint flags,
 		    const QCString &key, bool warn )
 {
     uint our_flags = 1;
@@ -95,14 +95,14 @@ static bool verify( const QString& library, uint version, uint flags,
 	    qWarning( "Conflict in %s:\n"
 		      "  Plugin cannot be queried successfully!",
 		      (const char*) QFile::encodeName(library) );
-    } else if ( (version >  QT_VERSION)  ||
+    } else if ( ( version > QT_VERSION ) ||
 		( ( QT_VERSION & 0xff0000 ) > ( version & 0xff0000 ) ) ) {
 	if ( warn )
 	    qWarning( "Conflict in %s:\n"
 		      "  Plugin uses incompatible Qt library (%d.%d.%d)!",
 		      (const char*) QFile::encodeName(library),
 		      (version&0xff0000) >> 16, (version&0xff00) >> 8, version&0xff );
-    } else if ( (flags & 2) != (our_flags & 2 ) ) {
+    } else if ( (flags & 2) != (our_flags & 2) ) {
 	if ( warn )
 	    qWarning( "Conflict in %s:\n"
 		      "  Plugin uses %s Qt library!",
@@ -111,7 +111,7 @@ static bool verify( const QString& library, uint version, uint flags,
     } else if ( key != QT_BUILD_KEY ) {
 	if ( warn )
 	    qWarning( "Conflict in %s:\n"
-		      "  Plugin uses incompatible Qt library.\n"
+		      "  Plugin uses incompatible Qt library!\n"
 		      "  expected build key \"%s\", got \"%s\".",
 		      (const char*) QFile::encodeName(library),
 		      QT_BUILD_KEY,
@@ -321,7 +321,7 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 {
     QFile file( library );
     if (! file.open( IO_ReadOnly ) ) {
-	perror( library.latin1() );
+	perror( (const char*) QFile::encodeName(library) ); // ### remove debuggery!
 	return FALSE;
     }
 
@@ -337,17 +337,17 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 	// mmap succeeded
 	filedata = mapaddr;
 	fdlen = maplen;
-    } else
+    } else {
+	// mmap failed
+	perror( "mmap" ); // ### remove debuggery!
 #endif // USE_MMAP
-	{
-	    // mmap failed
-	    // perror( "mmap" );
-
-	    // try reading the data into memory instead
-	    data = file.readAll();
-	    filedata = data.data();
-	    fdlen = data.size();
-	}
+	// try reading the data into memory instead
+	data = file.readAll();
+	filedata = data.data();
+	fdlen = data.size();
+#ifdef USE_MMAP
+    }
+#endif // USE_MMAP
 
     // verify that the pattern is present in the plugin
     const char *pattern = "pattern=QT_UCM_VERIFICATION_DATA";
@@ -360,9 +360,8 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
     }
 
 #ifdef USE_MMAP
-    if ( mapaddr != MAP_FAILED &&
-	 munmap(mapaddr, maplen) != 0 ) {
-	perror( "munmap" );
+    if ( mapaddr != MAP_FAILED && munmap(mapaddr, maplen) != 0 ) {
+	perror( "munmap" ); // ### remove debuggery!
     }
 #endif // USE_MMAP
 
@@ -399,7 +398,7 @@ void QComLibrary::createInstanceInternal()
 	QMutexLocker locker( qt_global_mutexpool->get( &cache ) );
 #endif // QT_THREAD_SUPPORT
 
-	if (! cache ) {
+	if ( ! cache ) {
 	    cache = new QSettings;
 	    cache->insertSearchPath( QSettings::Windows, "/Trolltech" );
 	    cleanup_cache.set( &cache );
@@ -483,7 +482,7 @@ void QComLibrary::createInstanceInternal()
 	return;
     }
 
-    if ( ! verify( library(), qt_version, flags, key, warn_mismatch ) ) {
+    if ( ! qt_verify( library(), qt_version, flags, key, warn_mismatch ) ) {
 	unload();
 	return;
     } else if ( !isLoaded() ) {
@@ -501,7 +500,7 @@ void QComLibrary::createInstanceInternal()
     ucmInstanceProc = (UCMInstanceProc) resolve( "ucm_instantiate" );
 #if defined(QT_DEBUG_COMPONENT)
     if ( !ucmInstanceProc )
-	qWarning( "%s: Not a UCOM library.", library().latin1() );
+	qWarning( "%s: Not a UCOM library.", (const char*) QFile::encodeName(library()) );
 #endif
     entry = ucmInstanceProc ? ucmInstanceProc() : 0;
 
@@ -516,7 +515,7 @@ void QComLibrary::createInstanceInternal()
 	}
     } else {
 #if defined(QT_DEBUG_COMPONENT)
-	qWarning( "%s: No exported component provided.", library().latin1() );
+	qWarning( "%s: No exported component provided.", (const char*) QFile::encodeName(library()) );
 #endif
 	unload();
     }
