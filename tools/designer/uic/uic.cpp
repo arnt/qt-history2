@@ -371,7 +371,7 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "class QVBoxLayout; " << endl;
     out << "class QHBoxLayout; " << endl;
     out << "class QGridLayout; " << endl;
-    if ( objClass == "QMainWindow" ) 					
+    if ( objClass == "QMainWindow" )
 	out << "class QAction;" << endl;
 
 
@@ -517,21 +517,23 @@ void Uic::createFormDecl( const QDomElement &e )
 	    if ( !(*it).isEmpty() ) {
 		if ( (*it) == "(default)" )
 		    out << "    QSqlDatabase* defaultConnection;" << endl;
-		else
+		else if ( !(*it).isEmpty() )
 		    out << "    QSqlDatabase* " << *it << "Connection;" << endl;
 		QStringList::Iterator it2;
 		dbCursors[ (*it) ] = unique( dbCursors[ (*it) ] );
 		for( it2 = dbCursors[ (*it) ].begin();
 		      it2 != dbCursors[ (*it) ].end();
 		      ++it2 ) {
-		    out << "    QSqlCursor* " << (*it2) << "Cursor;" << endl;
+		    if ( !(*it2).isEmpty() )
+			out << "    QSqlCursor* " << (*it2) << "Cursor;" << endl;
 		}
 		if ( dbForm ) {
 		    dbForms[ (*it) ] = unique( dbForms[ (*it) ] );
 		    for ( it2 = dbForms[ (*it) ].begin();
 			  it2 != dbForms[ (*it) ].end();
 			  ++it2 ) {
-			out << "    QSqlForm* " << (*it2) << "Form;" << endl;
+			if ( !(*it2).isEmpty() )
+			    out << "    QSqlForm* " << (*it2) << "Form;" << endl;
 		    }
 		}
 	    }
@@ -972,14 +974,16 @@ void Uic::createFormImpl( const QDomElement &e )
 		for( it2 = dbCursors[ (*it) ].begin();
 		      it2 != dbCursors[ (*it) ].end();
 		      ++it2 ) {
-		    out << indent << (*it2) << "Cursor = 0;" << endl;
+		    if ( !(*it2).isEmpty() )
+			out << indent << (*it2) << "Cursor = 0;" << endl;
 		}
 		dbForms[ (*it) ] = unique( dbForms[ (*it) ] );
 		for ( it2 = dbForms[ (*it) ].begin();
 		      it2 != dbForms[ (*it) ].end();
 		      ++it2 ) {
 		    dbFormCount++;
-		    out << indent << (*it2) << "Form = new QSqlForm( this, \"" << (*it2) << "\" );" << endl;
+		    if ( !(*it2).isEmpty() )
+			out << indent << (*it2) << "Form = new QSqlForm( this, \"" << (*it2) << "\" );" << endl;
 		}
 	    }
 	}
@@ -1142,7 +1146,7 @@ void Uic::createFormImpl( const QDomElement &e )
 		    QString c = getObjectName( n );
 		    QString conn = getDatabaseInfo( n, "connection" );
 		    QString tab = getDatabaseInfo( n, "table" );
-		    if ( !(conn == QString::null || tab == QString::null) ) {
+		    if ( !( conn.isEmpty() || tab.isEmpty() ) ) {
 			out << indent << indent << "QSqlCursor* c = " << c << "->defaultCursor();" << endl;
 			out << indent << indent << "if ( !c ) {" << endl;
 			if ( conn == "(default)" )
@@ -1340,11 +1344,15 @@ void Uic::createDatabaseImpl( const QDomElement& e )
     out << " */" << endl;
     out << "QSqlCursor* " << nameOfClass << "::defaultCursor()" << endl;
     out << "{" << endl;
-    out << indent << "if ( !" << defaultTable << "Cursor ) {" << endl;
-    out << indent << indent << defaultTable << "Cursor = createCursor( \"" << defaultTable << "\" );" << endl;
-    out << indent << indent << "setCursor( " << defaultTable << "Cursor );" << endl;
-    out << indent << "}" << endl;
-    out << indent << "return " << defaultTable << "Cursor;" << endl;
+    if ( !defaultTable.isEmpty() ) {
+	out << indent << "if ( !" << defaultTable << "Cursor ) {" << endl;
+	out << indent << indent << defaultTable << "Cursor = createCursor( \"" << defaultTable << "\" );" << endl;
+	out << indent << indent << "setCursor( " << defaultTable << "Cursor );" << endl;
+	out << indent << "}" << endl;
+	out << indent << "return " << defaultTable << "Cursor;" << endl;
+    } else {
+	out << indent << "return 0;" << endl;
+    }
     out << "}" << endl;
     out << endl;
 
