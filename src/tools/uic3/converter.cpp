@@ -317,6 +317,12 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
             DomString *str = new DomString();
             str->setText(objectName);
             prop->setElementString(str);
+        } else if (isActionGroup && name == QLatin1String("exclusive")) {
+            // continue
+        } else if (isActionGroup) {
+            fprintf(stderr, "property %s not supported\n", name.latin1());
+            delete prop;
+            it.remove();
         } else if (name == QLatin1String("menuText")) {
             hasMenuText = true;
             prop->setAttributeName("text");
@@ -326,11 +332,11 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
             prop->setAttributeName(QLatin1String("icon"));
         } else if (name == QLatin1String("accel")) {
             prop->setAttributeName(QLatin1String("shortcut"));
-        } else if (!isActionGroup && name == QLatin1String("toggleAction")) {
+        } else if (name == QLatin1String("toggleAction")) {
             prop->setAttributeName(QLatin1String("checkable"));
-        } else if (!isActionGroup && name == QLatin1String("on")) {
+        } else if (name == QLatin1String("on")) {
             prop->setAttributeName(QLatin1String("checked"));
-        } else if (isActionGroup || !WidgetInfo::isValidProperty(QLatin1String("QAction"), name)) {
+        } else if (!WidgetInfo::isValidProperty(QLatin1String("QAction"), name)) {
             fprintf(stderr, "property %s not supported\n", name.latin1());
             delete prop;
             it.remove();
