@@ -1,0 +1,41 @@
+#!/bin/sh
+
+# Put the old and new packages into one directory, then run the
+# script. After that you have the new versions and the patches in the
+# directory.
+
+OLD_VERSION="3.1.0"
+NEW_VERSION="3.1.1"
+
+PLATFORMS="embedded-commercial embedded-free win-commercial x11-commercial x11-free"
+
+rm *.bz2
+
+echo "... gunzip packages ..."
+for f in *.gz; do
+    gunzip $f
+done
+    
+
+echo "... produce patches and create other package formats ..."
+for i in $PLATFORMS; do
+    if [ -f qt-$i-$OLD_VERSION.tar ]; then
+	echo "    ... patch-qt-$i-$NEW_VERSION"
+	xdelta delta qt-$i-$OLD_VERSION.tar qt-$i-$NEW_VERSION.tar patch-qt-$i-$NEW_VERSION
+	echo "    .... create qt-$i-$NEW_VERSION.tar.gz"
+	gzip -c qt-$i-$NEW_VERSION.tar > qt-$i-$NEW_VERSION.tar.gz
+	echo "    .... create qt-$i-$NEW_VERSION.tar.bz2"
+	bzip2 qt-$i-$NEW_VERSION.tar
+    fi
+done
+
+for i in $PLATFORMS; do
+    if [ -f qt-$i-$OLD_VERSION.exe ]; then
+	echo "    ... patch-qt-$i-$NEW_VERSION"
+	xdelta delta qt-$i-$OLD_VERSION.exe qt-$i-$NEW_VERSION.exe patch-qt-$i-$NEW_VERSION
+    fi
+done
+
+rm *$OLD_VERSION*
+rm *.tar
+
