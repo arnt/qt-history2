@@ -141,7 +141,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "UIC      = "        << var("QMAKE_UIC") << endl;
     t << "QMAKE    = "        << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
     t << "TAR      = "        << var("QMAKE_TAR") << endl;
-    t << "GZIP     = " << var("QMAKE_GZIP") << endl;
+    t << "COMPRESS = " << var("QMAKE_GZIP") << endl;
     if(project->isActiveConfig("compile_libtool"))
         t << "LIBTOOL        = " << var("QMAKE_LIBTOOL") << endl;
     t << "COPY     = " << var("QMAKE_COPY") << endl;
@@ -723,7 +723,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     t << "(cd `dirname " << ddir_c << "` && "
       << "$(TAR) " << var("QMAKE_ORIG_TARGET") << ".tar " << ddir << " && "
-      << "$(GZIP) " << var("QMAKE_ORIG_TARGET") << ".tar) && "
+      << "$(COMPRESS) " << var("QMAKE_ORIG_TARGET") << ".tar) && "
       << "$(MOVE) `dirname " << ddir_c << "`" << Option::dir_sep << var("QMAKE_ORIG_TARGET") << ".tar.gz . && "
       << "$(DEL_FILE) -r " << ddir_c
       << endl << endl;
