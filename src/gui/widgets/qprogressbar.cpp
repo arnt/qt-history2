@@ -76,12 +76,20 @@ bool QProgressBarPrivate::repaintRequired() const
         return false;
 
     int valueDifference = qAbs(value - lastPaintedValue);
+  
+    // Check if the text needs to be repainted
     if ((value == minimum || value == maximum)
             || (textVisible && valueDifference >= qAbs((maximum - minimum) / 100)))
         return true;
+    
+    // Check if the bar needs to be repainted
     QStyleOptionProgressBar opt = getStyleOption();
     int cw = q->style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, q);
-    return valueDifference >= cw;
+    QRect groove  = q->style()->subRect(QStyle::SR_ProgressBarGroove, &opt, q);
+    // This expression is basically 
+    // (valueDifference / (maximum - minimum) > cw / groove.width()) 
+    // transformed to avoid integer division.
+    return (valueDifference * groove.width() > cw * (maximum - minimum));
 }
 
 /*!
