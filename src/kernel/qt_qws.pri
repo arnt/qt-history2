@@ -2,7 +2,6 @@
 
 embedded {
 	CONFIG -= opengl
-	CONFIG -= jpeg
 	CONFIG -= x11
 	LIBS -= -dl
 	KERNEL_P        = kernel
