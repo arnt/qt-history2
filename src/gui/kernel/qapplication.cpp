@@ -2512,7 +2512,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
         QPostEventList *postedEvents = QThreadPrivate::postEventList(receiver->thread());
         if (postedEvents) {
-            QSpinLockLocker locker(&postedEvents->spinlock);
+            QMutexLocker locker(&postedEvents->mutex);
 
             // the QObject destructor calls QObject::removeChild, which calls
             // QCoreApplication::sendEvent() directly.  this can happen while the event

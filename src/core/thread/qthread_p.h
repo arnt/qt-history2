@@ -2,6 +2,7 @@
 #define QTHREAD_P_H
 
 #include <private/qobject_p.h>
+#include "qmutex.h"
 #include "qwaitcondition.h"
 
 class QEventLoop;
@@ -23,7 +24,7 @@ class QPostEventList : public QList<QPostEvent>
 {
 public:
     int offset;
-    QSpinLock spinlock;
+    QMutex mutex;
 
     inline QPostEventList()
         : QList<QPostEvent>(), offset(0)

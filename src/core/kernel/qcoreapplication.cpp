@@ -288,7 +288,7 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
     if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
         QPostEventList *postedEvents = QThreadPrivate::postEventList(receiver->thread());
         if (postedEvents) {
-            QSpinLockLocker locker(&postedEvents->spinlock);
+            QMutexLocker locker(&postedEvents->mutex);
 
             // the QObject destructor calls QObject::removeChild, which calls
             // QCoreApplication::sendEvent() directly.  this can happen while the event
@@ -550,7 +550,7 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
                "Cannot post events to threads without an event loop");
 
     {
-        QSpinLockLocker locker(&postedEvents->spinlock);
+        QMutexLocker locker(&postedEvents->mutex);
 
         // if this is one of the compressible events, do compression
         if (receiver->d->hasPostedEvents
@@ -623,7 +623,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         sendPostedEvents(0, QEvent::ChildInserted);
 #endif
 
-    QSpinLockLocker locker(&postedEvents->spinlock);
+    QMutexLocker locker(&postedEvents->mutex);
 
     if (postedEvents->size() == 0 || (receiver && !receiver->d->hasPostedEvents))
         return;
@@ -664,14 +664,14 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
             // posted or removed.
             int backup = postedEvents->size();
 
-            locker.release();
+            locker.unlock();
             // after all that work, it's time to deliver the event.
             if (e->type() == QEvent::PolishRequest) {
                 r->ensurePolished();
             } else {
                 QCoreApplication::sendEvent(r, e);
             }
-            locker.acquire();
+            locker.relock();
 
             if (backup != postedEvents->size()) // events got posted or removed ...
                 i = postedEvents->offset; // ... so start all over again.
@@ -734,7 +734,7 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
     QPostEventList *postedEvents = QThreadPrivate::postEventList(receiver->thread());
     if (!postedEvents) return;
 
-    QSpinLockLocker locker(&postedEvents->spinlock);
+    QMutexLocker locker(&postedEvents->mutex);
 
     // the QObject destructor calls this function directly.  this can
     // happen while the event loop is in the middle of posting events,
@@ -778,7 +778,7 @@ void QCoreApplication::removePostedEvent(QEvent * event)
     QPostEventList *postedEvents = QThreadPrivate::postEventList(QThread::currentQThread());
     if (!postedEvents) return;
 
-    QSpinLockLocker locker(&postedEvents->spinlock);
+    QMutexLocker locker(&postedEvents->mutex);
 
     if (postedEvents->size() == 0) {
 #if defined(QT_DEBUG)
