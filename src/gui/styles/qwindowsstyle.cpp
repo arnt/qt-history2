@@ -81,10 +81,11 @@ protected:
 private:
     QList<const QWidget *> seenAlt;
     bool alt_down;
+    int menuBarTimer;
 };
 
 QWindowsStyle::Private::Private(QWindowsStyle *parent)
-: QObject(parent, "QWindowsStylePrivate"), alt_down(FALSE)
+: QObject(parent, "QWindowsStylePrivate"), alt_down(FALSE), menuBarTimer(0)
 {
 }
 
@@ -145,15 +146,27 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
     case QEvent::FocusOut:
 	{
 	    // Menubars toggle based on focus
-	    QMenuBar *menuBar = ::qt_cast<QMenuBar*>(o);
-	    if (menuBar)
-		menuBar->repaint();
+	    QMenuBar *menuBar = qt_cast<QMenuBar*>(o);
+	    if (menuBar && !menuBarTimer) // delayed repaint to avoid flicker
+		menuBarTimer = menuBar->startTimer(0);
 	}
 	break;
     case QEvent::Close:
 	// Reset widget when closing
 	seenAlt.remove(widget);
 	seenAlt.remove(widget->topLevelWidget());
+	break;
+    case QEvent::Timer:
+	{
+	    QMenuBar *menuBar = qt_cast<QMenuBar*>(o);
+	    QTimerEvent *te = (QTimerEvent*)e;
+	    if (menuBar && te->timerId() == menuBarTimer) {
+		menuBar->killTimer(te->timerId());
+		menuBarTimer = 0;
+		menuBar->repaint(FALSE);
+		return TRUE;
+	    }
+	}
 	break;
     default:
 	break;
