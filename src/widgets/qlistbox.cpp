@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#29 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#29 $";
 #endif
 
 
@@ -121,69 +121,6 @@ int QListBox::count() const
     return itemList->count();
 }
 
-
-/*----------------------------------------------------------------------------
-  Sets the list box' contents to \e list.  The list box is cleared in
-  various ways; scrolled to the top of the list and so on.  \sa
-  insertStrList(), insertItem().
- ----------------------------------------------------------------------------*/
-/*
-void QListBox::setStrList( const QStrList *list )
-{
-    clearList();
-    bool wasAuto = autoUpdate();
-    setAutoUpdate( FALSE );
-    if ( !list ) {
-#if defined(CHECK_NULL)
-	ASSERT( list != 0 );
-#endif
-	setNumRows( 0 );
-	return;
-    }
-    QStrListIterator it( *list );
-    const char *tmp;
-    while ( (tmp = it.current()) ) {
-	itemList->append( newAny(tmp,0) );
-	++it;
-    }
-    updateNumRows( TRUE );
-    updateCellWidth();
-    setTopCell( 0 );
-    if ( wasAuto ) {
-	setAutoUpdate( TRUE );
-	update();
-    }
-}
-*/
-/*----------------------------------------------------------------------------
-  Sets the list box' contents to the \e numStrings of the array \e strings.
-  The list box is cleared in various ways; scrolled to the top of the list
-  and so on.  \sa insertStrList(), insertItem().
- ----------------------------------------------------------------------------*/
-/*
-void QListBox::setStrList( const char **strings, int numStrings )
-{
-    clearList();
-    bool wasAuto = autoUpdate();
-    setAutoUpdate( FALSE );
-    if ( !strings ) {
-#if defined(CHECK_NULL)
-	ASSERT( strings != 0 );
-#endif
-	setNumRows( 0 );
-	return;
-    }
-    for( int i=0 ; i<numStrings; i++ )
-	itemList->append( newAny( strings[i], 0 ) );
-    updateNumRows( TRUE );
-    updateCellWidth();
-    setTopCell( 0 );
-    if ( wasAuto ) {
-	setAutoUpdate( TRUE );
-	update();
-    }
-}
-*/
 /*----------------------------------------------------------------------------
   Inserts the string list \e list into the list at item \e index.  If
   \e index is negative, \e list is inserted at the end of the list.  If

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#13 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#14 $
 **
 ** Definition of QListBox widget class
 **
@@ -44,9 +44,6 @@ public:
    ~QListBox();
 
     int		count() const;
-
-    void	setStrList( const QStrList * );
-    void	setStrList( const char **, int numStrings=-1 );
 
     void	insertStrList( const QStrList *, int index=-1 );
     void	insertStrList( const char**, int numStrings=-1, int index=-1 );
@@ -107,8 +104,9 @@ protected:
     virtual void     deleteItem( QLBItem * );
 
     virtual void paintItem( QPainter *, int index );
+
+
     void	insertItem( const QLBItem*, int index=-1 );
-//    void	inSort( const QLBItem * );
     void	changeItem( const QLBItem*, int index );
     QLBItem    *item( int index ) const;
     bool	itemVisible( int index );
