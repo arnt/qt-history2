@@ -98,6 +98,7 @@ BorlandMakefileGenerator::init()
 
 void BorlandMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 {
+    t << "first: all" << endl;
     t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(TARGET)" << endl << endl;
     t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
     if(project->isActiveConfig("staticlib")) {
