@@ -1,5 +1,6 @@
 Sub QAxWidget2_Click
 	QAxWidget2.lineWidth = QAxWidget2.lineWidth + 1
+	MainWindow.logMacro 0, "Hello from VBScript: QAxWidget2_Click", 0, ""
 End Sub
 
 Sub fatLines
