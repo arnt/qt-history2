@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#8 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.h#9 $
 **
 ** Definition of QWhatsThis class
 **
@@ -29,20 +29,24 @@
 class QToolButton;
 class QPopupMenu;
 
-// it's a class! it's a struct! it's a namespace! IT'S WHATS THIS?!
-class Q_EXPORT QWhatsThis
+
+class Q_EXPORT QWhatsThis: public QObject
 {
 public:
+    QWhatsThis( QWidget * parent, const char * name = 0 );
+    ~QWhatsThis();
+
+    virtual const char * text( const QPoint & ) const = 0;
+
+    // the common static functions
     static void add( QWidget *, const QString &);
     static void add( QWidget *, const QPixmap &, const QString&, const QString &);
     static void remove( QWidget * );
     static QString textFor( QWidget * );
 
     static QToolButton * whatsThisButton( QWidget * parent );
-    //static void enterWhatsThisMode();
 
-    //static void say( const QString &, QWidget * near );
-
+    static void enterWhatsThisMode();
     //static int addMenuEntry( QPopupMenu *, QWidget *, const QString &= 0 );
 };
 

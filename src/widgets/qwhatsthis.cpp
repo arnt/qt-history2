@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#19 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -48,7 +48,7 @@
   typically a little slower to call up, a little separated from the
   user's work, and often users feel that using online help is a
   digression from their real task. </ul>
-  
+
   QWhatsThis, then, offers a single window with a single explanatory
   text, which pops up quickly when the user asks "what's this?", and
   goes away as soon as the user does something else.  There are two
@@ -56,11 +56,11 @@
   then click on some other widget to get help for that other widget,
   or press Shift-F1 to get help for the widget that has keyboard
   focus.
-  
+
   QWhatsThis provides functions to add() and remove() What's This help
   for a widget, and it provides a function to create a What's This
   button suitable for typical tool bars.
-  
+
   <img src="whatsthis.gif" width="376" height="239">
 
   More functionality will be provided in the coming releases of Qt.
@@ -273,18 +273,18 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 
     switch( state ) {
     case FinalPress:
-	if( e->type() == Event_MouseButtonRelease ) {
+	if( e->type() == QEvent::MouseButtonRelease ) {
 	    state = Inactive;
 	    qApp->removeEventFilter( this );
 	    if ( whatsThat )
 		whatsThat->hide();
 	    return TRUE;
-	} else if ( e->type() == Event_MouseMove ) {
+	} else if ( e->type() == QEvent::MouseMove ) {
 	    return TRUE;
 	}
 	break;
     case Displaying:
-	if ( e->type() == Event_MouseButtonPress ) {
+	if ( e->type() == QEvent::MouseButtonPress ) {
 	    if ( !qstrcmp( "QWhatsThisPrivate::Button", o->className() ) ) {
 		state = Inactive;
 		qApp->removeEventFilter( this );
@@ -294,17 +294,17 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    if ( whatsThat )
 		whatsThat->hide();
 	    return TRUE;
-	} else if ( e->type() == Event_MouseButtonRelease ||
-		    e->type() == Event_MouseMove ) {
+	} else if ( e->type() == QEvent::MouseButtonRelease ||
+		    e->type() == QEvent::MouseMove ) {
 	    return TRUE;
-	} else if ( e->type() == Event_Accel ) {
+	} else if ( e->type() == QEvent::Accel ) {
 	    if ( whatsThat )
 		whatsThat->hide();
 	    ((QKeyEvent *)e)->accept();
 	    state = Inactive;
 	    qApp->removeEventFilter( this );
-	} else if ( e->type() == Event_FocusOut ||
-		    e->type() == Event_FocusIn ) {
+	} else if ( e->type() == QEvent::FocusOut ||
+		    e->type() == QEvent::FocusIn ) {
 	    if ( whatsThat )
 		whatsThat->hide();
 	    state = Inactive;
@@ -312,7 +312,7 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	}
 	break;
     case Waiting:
-	if ( e->type() == Event_MouseButtonPress && o->isWidgetType() ) {
+	if ( e->type() == QEvent::MouseButtonPress && o->isWidgetType() ) {
 	    QWidget * w = (QWidget *) o;
 	    QWhatsThisPrivate::Item * i = 0;
 	    while( w && !i ) {
@@ -334,13 +334,13 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    }
 	    QApplication::restoreOverrideCursor();
 	    return TRUE;
-	} else if ( e->type() == Event_MouseButtonPress ||
-		    e->type() == Event_MouseMove ) {
+	} else if ( e->type() == QEvent::MouseButtonPress ||
+		    e->type() == QEvent::MouseMove ) {
 	    return TRUE;
-	} else if ( e->type() == Event_FocusOut ||
-		    e->type() == Event_FocusIn ||
-		    e->type() == Event_Accel ||
-		    e->type() == Event_KeyPress ) {
+	} else if ( e->type() == QEvent::FocusOut ||
+		    e->type() == QEvent::FocusIn ||
+		    e->type() == QEvent::Accel ||
+		    e->type() == QEvent::KeyPress ) {
 	    QPtrDictIterator<Button> it( *(wt->buttons) );
 	    Button * b;
 	    while( (b=it.current()) != 0 ) {
@@ -353,11 +353,11 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	}
 	break;
     case Inactive:
-	if ( e->type() == Event_Accel &&
+	if ( e->type() == QEvent::Accel &&
 	     ((QKeyEvent *)e)->key() == Key_F1 &&
 	     !o->parent() &&
 	     o->isWidgetType() &&
-	     ((QKeyEvent *)e)->state() == ShiftButton ) {
+	     ((QKeyEvent *)e)->state() == QMouseEvent::ShiftButton ) {
 	    ((QKeyEvent *)e)->accept();
 	    QWidget * w = ((QWidget *)o)->focusWidget();
 	    QWhatsThisPrivate::Item * i = 0;
@@ -701,3 +701,50 @@ bcvW7/4O8Hne7tr97rROKPK+IfQeTfk94RVe29Hd4gJf7uZe8S0+8Nl+8LGk7KG+8J1h7zmx
 HvL4buj6rt/8juH93vTmPvG3nvEx3/PeXua/HkeedvK6Te5uvvTo3vUpj/HXbfAcHxhBfx1D
 rzs7fu9vvu5V7vNkv+uwXvWQfu0flepw3+dyL/N03+lFf/Rsny9u3/JSv/cqERAAOw==
 */
+
+
+/*!  Constructs a dynamic What's This object for \a parent.  \a name
+  is sent to the QObject constructor.
+*/
+
+QWhatsThis::QWhatsThis( QWidget * parent, const char * name )
+    : QObject( parent, name )
+{
+    QWhatsThisPrivate::setUpWhatsThis();
+
+}
+
+
+/*! Destroys the object and frees any allocated resources.
+
+*/
+
+QWhatsThis::~QWhatsThis()
+{
+
+}
+
+
+/*! \fn const char * QWhatsThistext( const QPoint & ) const
+
+ */
+
+
+/*!  Enters What's This? queston mode.  What's This will install a
+  special cursor and take over mouse input until the user click
+  somewhere, then show any help avaiable and switch out of What's This
+  mode.
+
+  Finally, What's This removes its cursor and help window.  At this
+  point the left mouse button is not pressed.
+*/
+
+void QWhatsThis::enterWhatsThisMode()
+{
+    QWhatsThisPrivate::setUpWhatsThis();
+    if ( wt->state == QWhatsThisPrivate::Inactive ) {
+	QApplication::setOverrideCursor( *wt->cursor, FALSE );
+	wt->state = QWhatsThisPrivate::Waiting;
+	qApp->installEventFilter( wt );
+    }
+}
