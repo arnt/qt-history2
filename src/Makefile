@@ -7,7 +7,6 @@
 BASEDIR		= $(QTDIR)
 INCDIR		= $(BASEDIR)/include
 LIBDIR		= $(BASEDIR)/lib
-DISTDIR		= /tmp/qt-0.98
 
 ####### Compiler
 
@@ -25,7 +24,7 @@ CC		= gcc
 ####### Targets
 
 STATICTARGET	= $(LIBDIR)/libqt.a
-SHAREDTARGET	= $(LIBDIR)/libqt.so.0.9.8
+SHAREDTARGET	= $(LIBDIR)/libqt.so.1.0
 
 #######	Sub directories (excluding moc)
 
@@ -41,7 +40,6 @@ all:
 	@echo "  make shareddbg - creates a shared library w/debug info"
 	@echo "  make moc       - creates the meta object compiler"
 	@echo "  make tools     - creates the tools library"
-	@echo "  make dist      - make libraries for a distribution"
 	@exit 1
 
 #
