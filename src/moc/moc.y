@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#244 $
+** $Id: //depot/qt/main/src/moc/moc.y#245 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2171,10 +2171,15 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 	    while ( a ) {
 		QCString type = a->leftType + ' ' + a->rightType;
 		type = type.simplifyWhiteSpace();
-		fprintf( out, "\t{ %s, pUType_%s, %s, UParameter::%s }",
-			 a->name ? (QCString("\"")+a->name + "\"").data()  : "0",
-			 uType( type ).data(), uTypeExtra( type ).data(),
-			 isInOut( type ) ? "InOut" : "In" );
+		if( a->name.isEmpty() ) 
+		    fprintf( out, "\t{ 0, pUType_%s, %s, UParameter::%s }",
+			     uType( type ).data(), uTypeExtra( type ).data(),
+			     isInOut( type ) ? "InOut" : "In" );
+		else
+		    fprintf( out, "\t{ %s, pUType_%s, %s, UParameter::%s }",
+			     (QCString("\"")+a->name + "\"").data(),
+			     uType( type ).data(), uTypeExtra( type ).data(),
+			     isInOut( type ) ? "InOut" : "In" );
 		a = f->args->next();
 		if ( a )
 		    fprintf( out, ",\n" );
@@ -2635,7 +2640,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#244 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#245 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
