@@ -2233,6 +2233,8 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                     }
                     if(i < str.size()-1)
                         c = str.at(++i);
+                    else
+                        c = QChar();
                 }
                 if(!term.isNull()) {
                     if(c != term) {
@@ -2240,7 +2242,7 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                         return false;
                     }
                     c = QChar();
-                } else if(i >= str.size()) {
+                } else if(i > str.size()-1) {
                     c = QChar();
                 }
 
