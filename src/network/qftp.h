@@ -168,7 +168,7 @@ private:
 private slots:
     void startNextCommand();
     void piFinished( const QString& );
-    void piError( QFtp::Error, const QString& );
+    void piError( int, const QString& );
     void piConnectState( int );
     void piFtpReply( int, const QString& );
 

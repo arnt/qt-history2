@@ -185,7 +185,7 @@ public:
 signals:
     void connectState( int );
     void finished( const QString& );
-    void error( QFtp::Error, const QString& );
+    void error( int, const QString& );
     void rawFtpReply( int, const QString& );
 
 private slots:
@@ -1066,8 +1066,8 @@ void QFtp::init()
 	    SLOT(piConnectState(int)) );
     connect( &d->pi, SIGNAL(finished( const QString& )),
 	    SLOT(piFinished( const QString& )) );
-    connect( &d->pi, SIGNAL(error(QFtp::Error, const QString&)),
-	    SLOT(piError(QFtp::Error, const QString&)) );
+    connect( &d->pi, SIGNAL(error(int, const QString&)),
+	    SLOT(piError(int, const QString&)) );
     connect( &d->pi, SIGNAL(rawFtpReply(int, const QString&)),
 	    SLOT(piFtpReply(int, const QString&)) );
 
@@ -1581,7 +1581,7 @@ void QFtp::piFinished( const QString& )
 	startNextCommand();
 }
 
-void QFtp::piError( QFtp::Error errorCode, const QString &text )
+void QFtp::piError( int errorCode, const QString &text )
 {
     QFtpPrivate *d = ::d( this );
     QFtpCommand *c = d->pending.getFirst();
@@ -1594,7 +1594,7 @@ void QFtp::piError( QFtp::Error errorCode, const QString &text )
 	return;
     }
 
-    d->error = errorCode;
+    d->error = (Error)errorCode;
     switch ( currentCommand() ) {
 	case ConnectToHost:
 	    d->errorString = tr( "Connecting to host failed:\n%1" ).arg( text );
