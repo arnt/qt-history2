@@ -43,7 +43,25 @@
     Drag and drop is similar in function to the clipboard's
     cut-and-paste mechanism.
 
-  <h3>Dragging</h3>
+<ul>
+<li><a href="#dragging">Dragging</a></li>
+<li><a href="#dropping">Dropping</a></li>
+<li><a href="#the-clipboard">The Clipboard</a></li>
+<li><a href="#drag-and-drop-action">Drag and Drop Actions</a></li>
+<li><a href="#adding-new-drag-and-drop-types">Adding New Drag and Drop
+Types</a></li>
+<li><a href="#advanced">Advanced Drag-and-Drop</a></li>
+<li><a href="#inter-operating-with-other-applications">Inter-operating
+with Other Applications</a></li> 
+</ul>
+
+  For drag and drop examples see (in increasing order of
+  sophistication): \c examples/iconview/simple_dd, \c examples/dragdrop
+  and \c examples/fileiconview. See also the QMultiLineEdit widget
+  source code.
+
+
+  <h3><a name="dragging">Dragging</a></h3>
 
   To start a drag, for example in a \link QWidget::mouseMoveEvent
   mouse motion event\endlink, create an object of the
@@ -70,7 +88,7 @@
   object deleted.  For this reason, you should be careful what the
   object references.
 
-  <h3>Dropping</h3>
+  <h3><a name="dropping">Dropping</a></h3>
 
   To be able to receive media dropped on a widget, call
   \link QWidget::setAcceptDrops() setAcceptDrops(TRUE)\endlink
@@ -113,11 +131,7 @@
   }
   \endcode
 
-  For drag and drop examples see (in increasing order of
-  sophistication): examples/iconview/simple_dd, examples/dragdrop and
-  examples/fileiconview.
-
-  <h3>The Clipboard</h3>
+  <h3><a name="the-clipboard">The Clipboard</a></h3>
 
   The QDragObject, QDragEnterEvent, QDragMoveEvent, and QDropEvent
   classes are all subclasses of QMimeSource - the class of objects
@@ -127,9 +141,12 @@
   transfers on QDragObject, you not only get drag-and-drop, but you
   also get traditional cut-and-paste for free - the QClipboard has
   two functions:
-  \code setData(QMimeSource*)\endcode and
-  \code QMimeSource* data()const \endcode.  With these, you can trivially
-  put your drag-and-drop oriented information on the clipboard:
+  \code 
+      setData(QMimeSource*)
+      QMimeSource* data()const
+  \endcode  
+  With these functions you can trivially put your drag-and-drop oriented
+  information on the clipboard:
   \code
   void MyWidget::copy()
   {
@@ -161,7 +178,7 @@
   void MyWidget::load()
   {
     QFile in(current_file_name);
-    in.open(IO_ReayOnly);
+    in.open(IO_ReadOnly);
     if ( !MyCadDrag::decode(in.readAll(), current_design) ) {
 	QMessageBox::warning( this, "Format error",
 	    tr("The file \"%1\" is not in any supported format")
@@ -175,38 +192,38 @@
   provide DXF, DWG, SVF, WMF, or even QPicture data to other
   applications.
 
-  <h3>Drag-and-drop action</h3>
+  <h3><a name="drag-and-drop-action">Drag and Drop Actions</a></h3>
 
   In the simpler cases, the target of a drag-and-drop receives
   a copy of the data being dragged and the source decides whether
   to delete the original.  This is the "Copy" action in QDropEvent.
   The target may also choose to understand other actions, specifically
   the Move and Link actions.  If the target understands the Move action,
-  \e it
+  <em>the target</em>
   is responsible for both the copy and delete operations and the source
   will not attempt to delete the data itself.  If the target
-  understands the Link, it stores some kind of reference to the original
+  understands the Link, it stores its own reference to the original
   information, and again the source does not delete the original.
   The most common use of drag-and-drop actions is when performing a Move
   within the same widget - see the
   <a href=#advanced>Advanced Drag-and-Drop</a> section below.
 
   The other major use of drag actions is when using a reference
-  type such as text/uri-list, where the dragged data is actually references
+  type such as text/uri-list, where the dragged data are actually references
   to files or objects.
 
-  <h3>Adding new drag-and-drop types</h3>
+  <h3><a name="adding-new-drag-and-drop-types">Adding New Drag and Drop
+  Types</a></h3>
 
   As suggested in the DXF example above,
   drag-and-drop is not limited to text and images.  Any information
   can be dragged and dropped.  To drag information between applications,
-  the two applications need a way to agree on the type of information
-  they both understand.
-  The way they do it is using
+  the two applications must be able to indicate to each other which data
+  formats they can accept and which they can produce. This is achieved using
   <i><a href="http://www.rfc-editor.org/rfc/rfc1341.txt">MIME types</a></i>
   - the drag source provides a list of MIME types that it can produce
   (ordered from most appropriate to least appropriate), and the drop target
-  chooses which of those it can handle. For example, QTextDrag provides
+  chooses which of those it can accept. For example, QTextDrag provides
    support for the "<tt>text/plain</tt>" MIME type (ordinary unformatted
    text), and the Unicode formats "<tt>text/utf16</tt>" and
    "<tt>text/utf8</tt>"; QImageDrag provides for "<tt>image/</tt><tt>*</tt>",
@@ -223,8 +240,8 @@
   hierarchical list of MIME media types</a>
   at the Information Sciences Institute
   (<a href="http://www.isi.edu">ISI</a>).
-  This maximizes inter-operability of your software with other
-  software now and in the future.
+  Using standard MIME types maximizes the inter-operability of your
+  application with other software now and in the future.
 
   To support an additional media type, subclass either QDragObject
   or QStoredDrag. Subclass QDragObject when you need to provide
@@ -256,7 +273,7 @@
   the media data and the same static members canDecode()
   and decode() to decode incoming data.
 
-  <a name=advanced><h3>Advanced Drag-and-Drop</h3></a>
+  <h3><a name="advanced">Advanced Drag-and-Drop</a></h3>
 
   In the clipboard model, the user can \e cut or \e copy the source
   information, then later paste it.  Similarly in the drag-and-drop
@@ -264,7 +281,7 @@
   drag the information itself to a new place (\e moving it).  The
   drag-and-drop model however has an additional complication for
   the programmer: the
-  program doesn't know whether the user want to cut or copy until
+  program doesn't know whether the user wants to cut or copy until
   the drop (paste) is done! For dragging between applications,
   it makes no difference, but for dragging within an application,
   the application must take a little extra care not to tread on
@@ -273,7 +290,7 @@
   drop event might look like this:
 
   \code
-  void MyEditor::startDragging()
+  void MyEditor::startDrag()
   {
     QDragObject *d = new QTextDrag(myHighlightedText(), this);
     if ( d->drag() && d->target() != this )
@@ -313,7 +330,7 @@
   }
   \endcode
   If the computations to find objects are particularly slow,
-  you might find improved performance if you tell the system
+  you might achieve improved performance if you tell the system
   an area for which you promise the acceptance persists:
   \code
   void MyWidget::dragMoveEvent(QDragMoveEvent* event)
@@ -332,15 +349,12 @@
   \endcode
 
   The dragMoveEvent() can also be used if you need to give
-  visual feedback as the drag progresses, to start timers to
-  scroll the window, or whatever you need (don't forget to
-  stop scrolling timers in a dragLeaveEvent() though).
+  visual feedback as the drag progresses, to start timers, to
+  scroll the window, or whatever is appropriate (don't forget to
+  stop the scrolling and timers in a dragLeaveEvent() though).
 
-  For a complete example of drag and drop, examine the
-  \c dragdrop example program, or the QMultiLineEdit widget
-  source code.
-
-  <h3>Inter-operating with other applications</h3>
+  <h3><a name="inter-operating-with-other-applications">Inter-operating
+  with Other Applications</a></h3>
   On X11, the public
   <a class="r" href="http://www.cco.caltech.edu/~jafl/xdnd/">XDND protocol</a>
   is used, while on Windows Qt uses the OLE standard.  On X11,
