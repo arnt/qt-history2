@@ -585,10 +585,10 @@ QMap<int, QTextParagraphSelection> &QTextParagraph::selections() const
 }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-QPtrList<QTextCustomItem> &QTextParagraph::floatingItems() const
+QList<QTextCustomItem *> &QTextParagraph::floatingItems() const
 {
     if ( !mFloatingItems )
-	((QTextParagraph *)this)->mFloatingItems = new QPtrList<QTextCustomItem>;
+	((QTextParagraph *)this)->mFloatingItems = new QList<QTextCustomItem *>;
     return *mFloatingItems;
 }
 #endif

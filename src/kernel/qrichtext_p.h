@@ -41,14 +41,14 @@
 #include "qobject.h"
 #include "qpainter.h"
 #include "qpixmap.h"
-#include "qptrlist.h"
-#include "qptrvector.h"
+#include "qlist.h"
+#include "qvector.h"
 #include "qrect.h"
 #include "qsize.h"
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qstylesheet.h"
-#include "qvaluestack.h"
+#include "qstack.h"
 #endif // QT_H
 
 #ifndef QT_NO_RICHTEXT
@@ -277,9 +277,8 @@ inline bool QTextString::validCursorPosition( int idx )
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QValueStack<int>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QValueStack<QTextParagraph*>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QValueStack<bool>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QStack<int>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QStack<QTextParagraph*>;
 // MOC_SKIP_END
 #endif
 
@@ -370,10 +369,10 @@ private:
     QTextParagraph *para;
     int idx, tmpIndex;
     int ox, oy;
-    QValueStack<int> indices;
-    QValueStack<QTextParagraph*> paras;
-    QValueStack<int> xOffsets;
-    QValueStack<int> yOffsets;
+    QStack<int> indices;
+    QStack<QTextParagraph*> paras;
+    QStack<int> xOffsets;
+    QStack<int> yOffsets;
     uint valid : 1;
 
 };
@@ -401,7 +400,7 @@ protected:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QTextCommand>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QTextCommand *>;
 // MOC_SKIP_END
 #endif
 
@@ -427,7 +426,7 @@ public:
     int currentPosition() const { return current; }
 
 private:
-    QPtrList<QTextCommand> history;
+    QList<QTextCommand *> history;
     int current, steps;
 
 };
@@ -550,7 +549,7 @@ private:
 #ifndef QT_NO_TEXTCUSTOMITEM
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QTextCustomItem>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QTextCustomItem *>;
 // MOC_SKIP_END
 #endif
 #endif
@@ -594,8 +593,8 @@ private:
     int pagesize;
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QPtrList<QTextCustomItem> leftItems;
-    QPtrList<QTextCustomItem> rightItems;
+    QList<QTextCustomItem *> leftItems;
+    QList<QTextCustomItem *> rightItems;
 #endif
 };
 
@@ -670,7 +669,7 @@ private:
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QTextTableCell>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QTextTableCell *>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<QTextCursor*, int>;
 // MOC_SKIP_END
 #endif
@@ -707,7 +706,7 @@ public:
 
     int minimumWidth() const;
 
-    QPtrList<QTextTableCell> tableCells() const { return cells; }
+    QList<QTextTableCell *> tableCells() const { return cells; }
 
     bool isStretching() const { return stretch; }
 
@@ -717,7 +716,7 @@ private:
 
 private:
     QGridLayout* layout;
-    QPtrList<QTextTableCell> cells;
+    QList<QTextTableCell *> cells;
     int cachewidth;
     int fixwidth;
     int cellpadding;
@@ -753,7 +752,7 @@ struct Q_EXPORT QTextDocumentSelection
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QColor>;
 //Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, bool>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QMap<int, QTextDocumentSelection>;
-Q_TEMPLATE_EXTERN template class Q_EXPORT QPtrList<QTextDocument>;
+Q_TEMPLATE_EXTERN template class Q_EXPORT QList<QTextDocument *>;
 // MOC_SKIP_END
 #endif
 
@@ -933,8 +932,8 @@ public:
 
     virtual QTextParagraph *createParagraph( QTextDocument *, QTextParagraph *pr = 0, QTextParagraph *nx = 0, bool updateIds = TRUE );
     void insertChild( QTextDocument *dc ) { childList.append( dc ); }
-    void removeChild( QTextDocument *dc ) { childList.removeRef( dc ); }
-    QPtrList<QTextDocument> children() const { return childList; }
+    void removeChild( QTextDocument *dc ) { childList.remove( dc ); }
+    QList<QTextDocument *> children() const { return childList; }
 
     bool hasFocusParagraph() const;
     QString focusHref() const;
@@ -963,7 +962,7 @@ private:
     QString parseWord(const QChar* doc, int length, int& pos, bool lower = TRUE);
     QChar parseChar(const QChar* doc, int length, int& pos, QStyleSheetItem::WhiteSpaceMode wsm );
     void setRichTextInternal( const QString &text, QTextCursor* cursor = 0 );
-    void setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheetItem> >& styles, QTextParagraph* stylesPar );
+    void setRichTextMarginsInternal( QList< QVector<QStyleSheetItem *> *>& styles, QTextParagraph* stylesPar );
 
 private:
     struct Q_EXPORT Focus {
@@ -1018,7 +1017,7 @@ private:
     int tStopWidth;
     int uDepth;
     QString oText;
-    QPtrList<QTextDocument> childList;
+    QList<QTextDocument *> childList;
     QColor linkColor, bodyText;
     double scaleFontsFactor;
 
@@ -1325,7 +1324,7 @@ protected:
 private:
     QMap<int, QTextParagraphSelection> &selections() const;
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QPtrList<QTextCustomItem> &floatingItems() const;
+    QList<QTextCustomItem *> &floatingItems() const;
 #endif
     inline QBrush backgroundBrush( const QPalette &pal ) {
 	if ( bgcol )
@@ -1358,7 +1357,7 @@ private:
     QTextString *str;
     QMap<int, QTextParagraphSelection> *mSelections;
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QPtrList<QTextCustomItem> *mFloatingItems;
+    QList<QTextCustomItem *> *mFloatingItems;
 #endif
     short utm, ubm, ulm, urm, uflm, ulinespacing;
     short tabStopWidth;
@@ -2048,7 +2047,7 @@ inline void QTextParagraph::registerFloatingItem( QTextCustomItem *i )
 
 inline void QTextParagraph::unregisterFloatingItem( QTextCustomItem *i )
 {
-    floatingItems().removeRef( i );
+    floatingItems().remove( i );
 }
 #endif
 

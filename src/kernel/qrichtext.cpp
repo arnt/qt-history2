@@ -96,7 +96,7 @@ inline bool isBreakable( QTextString *string, int pos )
 void QTextCommandHistory::addCommand( QTextCommand *cmd )
 {
     if ( current < (int)history.count() - 1 ) {
-	QPtrList<QTextCommand> commands;
+	QList<QTextCommand *> commands;
 	commands.setAutoDelete( FALSE );
 
 	for( int i = 0; i <= current; ++i ) {
@@ -445,7 +445,7 @@ bool QTextCursor::operator==( const QTextCursor &c ) const
 int QTextCursor::totalOffsetX() const
 {
     int xoff = ox;
-    for ( QValueStack<int>::ConstIterator xit = xOffsets.begin(); xit != xOffsets.end(); ++xit )
+    for ( QStack<int>::ConstIterator xit = xOffsets.begin(); xit != xOffsets.end(); ++xit )
 	xoff += *xit;
     return xoff;
 }
@@ -453,7 +453,7 @@ int QTextCursor::totalOffsetX() const
 int QTextCursor::totalOffsetY() const
 {
     int yoff = oy;
-    for ( QValueStack<int>::ConstIterator yit = yOffsets.begin(); yit != yOffsets.end(); ++yit )
+    for ( QStack<int>::ConstIterator yit = yOffsets.begin(); yit != yOffsets.end(); ++yit )
 	yoff += *yit;
     return yoff;
 }
@@ -478,8 +478,8 @@ void QTextCursor::gotoIntoNested( const QPoint &globalPos )
 void QTextCursor::invalidateNested()
 {
     if ( nestedDepth() ) {
-	QValueStack<QTextParagraph*>::Iterator it = paras.begin();
-	QValueStack<int>::Iterator it2 = indices.begin();
+	QStack<QTextParagraph*>::Iterator it = paras.begin();
+	QStack<int>::Iterator it2 = indices.begin();
 	for ( ; it != paras.end(); ++it, ++it2 ) {
 	    if ( *it == para )
 		continue;
@@ -1470,7 +1470,7 @@ void QTextDocument::setPlainText( const QString &text )
 	lParag = fParag = createParagraph( this, 0, 0 );
 }
 
-struct Q_EXPORT QTextDocumentTag {
+struct QTextDocumentTag {
     QTextDocumentTag(){}
     QTextDocumentTag( const QString&n, const QStyleSheetItem* s, const QTextFormat& f )
 	:name(n),style(s), format(f), alignment(Qt::AlignAuto), direction(QChar::DirON),liststyle(QStyleSheetItem::ListDisc) {
@@ -1511,24 +1511,30 @@ struct Q_EXPORT QTextDocumentTag {
 };
 
 
-#define NEWPAR       do{ if ( !hasNewPar) { \
-		    if ( !textEditMode && curpar && curpar->length()>1 && curpar->at( curpar->length()-2)->c == QChar_linesep ) \
-			curpar->remove( curpar->length()-2, 1 ); \
-		    curpar = createParagraph( this, curpar, curpar->next() ); styles.append( vec ); vec = 0;} \
-		    hasNewPar = TRUE; \
-		    curpar->rtext = TRUE;  \
-		    curpar->align = curtag.alignment; \
-		    curpar->lstyle = curtag.liststyle; \
-		    curpar->litem = ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ); \
-		    curpar->str->setDirection( (QChar::Direction)curtag.direction ); \
-		    space = TRUE; \
-		    tabExpansionColumn = 0; \
-		    delete vec; vec = new QPtrVector<QStyleSheetItem>( (uint)tags.count() + 1); \
-		    int i = 0; \
-		    for ( QValueStack<QTextDocumentTag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
-			vec->insert( i++, (*it).style ); \
-		    vec->insert( i, curtag.style ); \
-		    }while(FALSE);
+#define NEWPAR \
+    do{ \
+        if ( !hasNewPar) { \
+	    if ( !textEditMode && curpar && curpar->length()>1 \
+		 && curpar->at( curpar->length()-2)->c == QChar_linesep ) \
+		curpar->remove( curpar->length()-2, 1 ); \
+	    curpar = createParagraph( this, curpar, curpar->next() ); \
+	    styles.append( vec ); \
+	    vec = 0; \
+	} \
+	hasNewPar = TRUE; \
+	curpar->rtext = TRUE;  \
+	curpar->align = curtag.alignment; \
+	curpar->lstyle = curtag.liststyle; \
+	curpar->litem = ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ); \
+	curpar->str->setDirection( (QChar::Direction)curtag.direction ); \
+	space = TRUE; \
+	tabExpansionColumn = 0; \
+	delete vec; \
+	vec = new QVector<QStyleSheetItem *>(); \
+	for ( QStack<QTextDocumentTag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
+	    vec->append(const_cast<QStyleSheetItem *>((*it).style) ); \
+	vec->append(const_cast<QStyleSheetItem *>(curtag.style) ); \
+    } while(FALSE);
 
 
 void QTextDocument::setRichText( const QString &text, const QString &context )
@@ -1548,7 +1554,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 {
     QTextParagraph* curpar = lParag;
     int pos = 0;
-    QValueStack<QTextDocumentTag> tags;
+    QStack<QTextDocumentTag> tags;
     QTextDocumentTag initag( "", sheet_->item(""), *formatCollection()->defaultFormat() );
     if ( bodyText.isValid() )
 	initag.format.setColor( bodyText );
@@ -1566,8 +1572,8 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 
     // style sheet handling for margin and line spacing calculation below
     QTextParagraph* stylesPar = curpar;
-    QPtrVector<QStyleSheetItem>* vec = 0;
-    QPtrList< QPtrVector<QStyleSheetItem> > styles;
+    QVector<QStyleSheetItem *>* vec = 0;
+    QList< QVector<QStyleSheetItem *> *> styles;
     styles.setAutoDelete( TRUE );
 
     if ( cursor ) {
@@ -2044,18 +2050,21 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
     delete vec;
 }
 
-void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheetItem> >& styles, QTextParagraph* stylesPar )
+void QTextDocument::setRichTextMarginsInternal( QList< QVector<QStyleSheetItem *> *>& styles, QTextParagraph* stylesPar )
 {
     // margin and line spacing calculation
-    QPtrVector<QStyleSheetItem>* prevStyle = 0;
-    QPtrVector<QStyleSheetItem>* curStyle = styles.first();
-    QPtrVector<QStyleSheetItem>* nextStyle = styles.next();
+    qDebug("setRichTextMarginsInternal: styles.size() = %d", styles.size());
+    QVector<QStyleSheetItem *>* prevStyle = 0;
+    int stylesIndex = 0;
+    QVector<QStyleSheetItem *>* curStyle = styles.size() ? styles.first() : 0;
+    QVector<QStyleSheetItem *>* nextStyle =
+	(++stylesIndex) < styles.size() ? styles.at(stylesIndex) : 0;
     while ( stylesPar ) {
 	if ( !curStyle ) {
 	    stylesPar = stylesPar->next();
 	    prevStyle = curStyle;
 	    curStyle = nextStyle;
-	    nextStyle = styles.next();
+	    nextStyle = (++stylesIndex) < styles.size() ? styles.at(stylesIndex) : 0;
 	    continue;
 	}
 
@@ -2197,7 +2206,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	stylesPar = stylesPar->next();
 	prevStyle = curStyle;
 	curStyle = nextStyle;
-	nextStyle = styles.next();
+	nextStyle = (++stylesIndex) < styles.size() ? styles.at(stylesIndex) : 0;
     }
 }
 
@@ -2228,9 +2237,11 @@ QString QTextDocument::plainText() const
 		    if ( p->at( i )->customItem()->isNested() ) {
 			s += "\n";
 			QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			QPtrList<QTextTableCell> cells = t->tableCells();
-			for ( QTextTableCell *c = cells.first(); c; c = cells.next() )
+			QList<QTextTableCell *> cells = t->tableCells();
+			for (int idx = 0; idx < cells.size(); ++idx) {
+			    QTextTableCell *c = cells.at(idx);
 			    s += c->richText()->plainText() + "\n";
+			}
 			s += "\n";
 		    }
 		} else
@@ -2668,8 +2679,10 @@ void QTextDocument::selectAll( int id )
 	p = p->next();
     }
 
-    for ( QTextDocument *dc = childList.first(); dc; dc = childList.next() )
+    for ( int idx = 0; idx < childList.size(); ++idx) {
+	QTextDocument *dc = childList.at(idx);
 	dc->selectAll( id );
+    }
 }
 
 bool QTextDocument::removeSelection( int id )
@@ -2782,9 +2795,11 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 		    if ( p->at( i )->customItem()->isNested() ) {
 			s += "\n";
 			QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			QPtrList<QTextTableCell> cells = t->tableCells();
-			for ( QTextTableCell *c = cells.first(); c; c = cells.next() )
+			QList<QTextTableCell *> cells = t->tableCells();
+			for (int idx = 0; idx < cells.size(); ++idx) {
+			    QTextTableCell *c = cells.at(idx);
 			    s += c->richText()->plainText() + "\n";
+			}
 			s += "\n";
 		    }
 		} else
@@ -2812,9 +2827,11 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 			if ( p->at( i )->customItem()->isNested() ) {
 			    s += "\n";
 			    QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			    QPtrList<QTextTableCell> cells = t->tableCells();
-			    for ( QTextTableCell *c = cells.first(); c; c = cells.next() )
+			    QList<QTextTableCell *> cells = t->tableCells();
+			    for (int idx = 0; idx < cells.size(); ++idx) {
+				QTextTableCell *c = cells.at(idx);
 				s += c->richText()->plainText() + "\n";
+			    }
 			    s += "\n";
 			}
 		    } else
@@ -3294,8 +3311,10 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 void QTextDocument::setDefaultFormat( const QFont &font, const QColor &color )
 {
     bool reformat = font != fCollection->defaultFormat()->font();
-    for ( QTextDocument *dc = childList.first(); dc; dc = childList.next() )
+    for ( int idx = 0; idx < childList.size(); ++idx) {
+	QTextDocument *dc = childList.at(idx);
 	dc->setDefaultFormat( font, color );
+    }
     fCollection->updateDefaultFormat( font, color, sheet_ );
 
     if ( !reformat )
@@ -3389,11 +3408,12 @@ bool QTextDocument::focusNextPrevChild( bool next )
 		} else if ( p->at( i )->isCustom() ) {
 		    if ( p->at( i )->customItem()->isNested() ) {
 			QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			QPtrList<QTextTableCell> cells = t->tableCells();
+			QList<QTextTableCell *> cells = t->tableCells();
 			// first try to continue
-			QTextTableCell *c;
+			int idx;
 			bool resetCells = TRUE;
-			for ( c = cells.first(); c; c = cells.next() ) {
+			for (idx = 0; idx < cells.size(); ++idx) {
+			    QTextTableCell *c = cells.at(idx);
 			    if ( c->richText()->hasFocusParagraph() ) {
 				if ( c->richText()->focusNextPrevChild( next ) ) {
 				    p->setChanged( TRUE );
@@ -3405,15 +3425,16 @@ bool QTextDocument::focusNextPrevChild( bool next )
 				    return TRUE;
 				} else {
 				    resetCells = FALSE;
-				    c = cells.next();
+				    ++idx;
 				    break;
 				}
 			    }
 			}
 			// now really try
 			if ( resetCells )
-			    c = cells.first();
-			for ( ; c; c = cells.next() ) {
+			    idx = 0;
+			for (; idx < cells.size(); ++idx) {
+			    QTextTableCell *c = cells.at(idx);
 			    if ( c->richText()->focusNextPrevChild( next ) ) {
 				p->setChanged( TRUE );
 				focusIndicator.parag = p;
@@ -3460,11 +3481,12 @@ bool QTextDocument::focusNextPrevChild( bool next )
 		} else if ( p->at( i )->isCustom() ) {
 		    if ( p->at( i )->customItem()->isNested() ) {
 			QTextTable *t = (QTextTable*)p->at( i )->customItem();
-			QPtrList<QTextTableCell> cells = t->tableCells();
+			QList<QTextTableCell *> cells = t->tableCells();
 			// first try to continue
-			QTextTableCell *c;
+			int idx;
 			bool resetCells = TRUE;
-			for ( c = cells.last(); c; c = cells.prev() ) {
+			for (idx = cells.size()-1; idx >= 0; --idx) {
+			    QTextTableCell *c = cells.at(idx);
 			    if ( c->richText()->hasFocusParagraph() ) {
 				if ( c->richText()->focusNextPrevChild( next ) ) {
 				    p->setChanged( TRUE );
@@ -3476,17 +3498,16 @@ bool QTextDocument::focusNextPrevChild( bool next )
 				    return TRUE;
 				} else {
 				    resetCells = FALSE;
-				    c = cells.prev();
+				    --idx;
 				    break;
 				}
 			    }
-			    if ( cells.at() == 0 )
-				break;
 			}
 			// now really try
 			if ( resetCells )
-			    c = cells.last();
-			for ( ; c; c = cells.prev() ) {
+			    idx = cells.size()-1;
+			for (; idx >= 0; --idx) {
+			    QTextTableCell *c = cells.at(idx);
 			    if ( c->richText()->focusNextPrevChild( next ) ) {
 				p->setChanged( TRUE );
 				focusIndicator.parag = p;
@@ -3496,8 +3517,6 @@ bool QTextDocument::focusNextPrevChild( bool next )
 				focusIndicator.name = c->richText()->focusName();
 				return TRUE;
 			    }
-			    if ( cells.at() == 0 )
-				break;
 			}
 		    }
 #endif
@@ -3835,8 +3854,10 @@ void QTextDocument::setStyleSheet( QStyleSheet *s )
 
 void QTextDocument::setUnderlineLinks( bool b ) {
     underlLinks = b;
-    for ( QTextDocument *dc = childList.first(); dc; dc = childList.next() )
+    for ( int idx = 0; idx < childList.size(); ++idx) {
+	QTextDocument *dc = childList.at(idx);
 	dc->setUnderlineLinks( b );
+    }
 }
 
 void QTextStringChar::setFormat( QTextFormat *f )
@@ -4062,8 +4083,10 @@ void QTextParagraph::invalidate( int chr )
 	invalid = QMIN( invalid, chr );
 #ifndef QT_NO_TEXTCUSTOMITEM
     if ( mFloatingItems ) {
-	for ( QTextCustomItem *i = mFloatingItems->first(); i; i = mFloatingItems->next() )
+	for (int idx = 0; idx < mFloatingItems->size(); ++idx) {
+	    QTextCustomItem *i = mFloatingItems->at(idx);
 	    i->ypos = -1;
+	}
     }
 #endif
     invalidateStyleCache();
@@ -4188,8 +4211,10 @@ void QTextParagraph::move( int &dy )
     r.moveBy( 0, dy );
 #ifndef QT_NO_TEXTCUSTOMITEM
     if ( mFloatingItems ) {
-	for ( QTextCustomItem *i = mFloatingItems->first(); i; i = mFloatingItems->next() )
+	for (int idx = 0; idx < mFloatingItems->size(); ++idx) {
+	    QTextCustomItem *i = mFloatingItems->at(idx);
 	    i->ypos += dy;
+	}
     }
 #endif
     if ( p )
@@ -4232,7 +4257,8 @@ void QTextParagraph::format( int start, bool doMove )
     r.setWidth( documentWidth() );
 #ifndef QT_NO_TEXTCUSTOMITEM
     if ( hasdoc && mFloatingItems ) {
-	for ( QTextCustomItem *i = mFloatingItems->first(); i; i = mFloatingItems->next() ) {
+	for (int idx = 0; idx < mFloatingItems->size(); ++idx) {
+	    QTextCustomItem *i = mFloatingItems->at(idx);
 	    i->ypos = r.y();
 	    if ( i->placement() == QTextCustomItem::PlaceRight ) {
 		i->xpos = r.x() + r.width() - i->width;
@@ -6698,9 +6724,10 @@ bool QTextDocument::hasPrefix( const QChar* doc, int length, int pos, const QStr
 }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-static bool qt_is_cell_in_use( QPtrList<QTextTableCell>& cells, int row, int col )
+static bool qt_is_cell_in_use( QList<QTextTableCell *>& cells, int row, int col )
 {
-    for ( QTextTableCell* c = cells.first(); c; c = cells.next() ) {
+    for (int idx = 0; idx < cells.size(); ++idx) {
+	QTextTableCell *c = cells.at(idx);
 	if ( row >= c->row() && row < c->row() + c->rowspan()
 	     && col >= c->column() && col < c->column() + c->colspan() )
 	    return TRUE;
@@ -6720,7 +6747,7 @@ QTextCustomItem* QTextDocument::parseTable( const QMap<QString, QString> &attr, 
     QString rowalign;
     QString tablebgcolor = attr["bgcolor"];
 
-    QPtrList<QTextTableCell> multicells;
+    QList<QTextTableCell *> multicells;
 
     QString tagname;
     (void) eatSpace(doc, length, pos);
@@ -7326,7 +7353,8 @@ void QTextFlow::setWidth( int width )
 int QTextFlow::adjustLMargin( int yp, int, int margin, int space )
 {
 #ifndef QT_NO_TEXTCUSTOMITEM
-    for ( QTextCustomItem* item = leftItems.first(); item; item = leftItems.next() ) {
+    for (int idx = 0; idx < leftItems.size(); ++idx) {
+	QTextCustomItem* item = leftItems.at(idx);
 	if ( item->ypos == -1 )
 	    continue;
 	if ( yp >= item->ypos && yp < item->ypos + item->height )
@@ -7339,7 +7367,8 @@ int QTextFlow::adjustLMargin( int yp, int, int margin, int space )
 int QTextFlow::adjustRMargin( int yp, int, int margin, int space )
 {
 #ifndef QT_NO_TEXTCUSTOMITEM
-    for ( QTextCustomItem* item = rightItems.first(); item; item = rightItems.next() ) {
+    for (int idx = 0; idx < rightItems.size(); ++idx) {
+	QTextCustomItem* item = rightItems.at(idx);
 	if ( item->ypos == -1 )
 	    continue;
 	if ( yp >= item->ypos && yp < item->ypos + item->height )
@@ -7366,8 +7395,8 @@ int QTextFlow::adjustFlow( int y, int /*w*/, int h )
 #ifndef QT_NO_TEXTCUSTOMITEM
 void QTextFlow::unregisterFloatingItem( QTextCustomItem* item )
 {
-    leftItems.removeRef( item );
-    rightItems.removeRef( item );
+    leftItems.remove( item );
+    rightItems.remove( item );
 }
 
 void QTextFlow::registerFloatingItem( QTextCustomItem* item )
@@ -7386,15 +7415,13 @@ QRect QTextFlow::boundingRect() const
 {
     QRect br;
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QPtrListIterator<QTextCustomItem> l( leftItems );
-    while( l.current() ) {
-	br = br.unite( l.current()->geometry() );
-	++l;
+    for (int idx = 0; idx < leftItems.size(); ++idx) {
+	QTextCustomItem* item = leftItems.at(idx);
+	br = br.unite( item->geometry() );
     }
-    QPtrListIterator<QTextCustomItem> r( rightItems );
-    while( r.current() ) {
-	br = br.unite( r.current()->geometry() );
-	++r;
+    for (int idx = 0; idx < rightItems.size(); ++idx) {
+	QTextCustomItem* item = rightItems.at(idx);
+	br = br.unite( item->geometry() );
     }
 #endif
     return br;
@@ -7405,14 +7432,15 @@ void QTextFlow::drawFloatingItems( QPainter* p, int cx, int cy, int cw, int ch,
 				   const QPalette &pal, bool selected )
 {
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QTextCustomItem *item;
-    for ( item = leftItems.first(); item; item = leftItems.next() ) {
+    for (int idx = 0; idx < leftItems.size(); ++idx) {
+	QTextCustomItem* item = leftItems.at(idx);
 	if ( item->xpos == -1 || item->ypos == -1 )
 	    continue;
 	item->draw( p, item->xpos, item->ypos, cx, cy, cw, ch, pal, selected );
     }
 
-    for ( item = rightItems.first(); item; item = rightItems.next() ) {
+    for (int idx = 0; idx < rightItems.size(); ++idx) {
+	QTextCustomItem* item = rightItems.at(idx);
 	if ( item->xpos == -1 || item->ypos == -1 )
 	    continue;
 	item->draw( p, item->xpos, item->ypos, cx, cy, cw, ch, pal, selected );
@@ -7507,10 +7535,8 @@ QString QTextTable::richText() const
 
     int lastRow = -1;
     bool needEnd = FALSE;
-    QPtrListIterator<QTextTableCell> it2( cells );
-    while ( it2.current() ) {
-	QTextTableCell *cell = it2.current();
-	++it2;
+    for (int idx = 0; idx < cells.size(); ++idx) {
+	QTextTableCell *cell = cells.at(idx);
 	if ( lastRow != cell->row() ) {
 	    if ( lastRow != -1 )
 		s += "</tr>\n";
@@ -7541,17 +7567,17 @@ void QTextTable::adjustToPainter( QPainter* p )
     outerborder = scale( us_ob ,p );
     width = 0;
     cachewidth = 0;
-    for ( QTextTableCell* cell = cells.first(); cell; cell = cells.next() )
+    for (int idx = 0; idx < cells.size(); ++idx) {
+	QTextTableCell *cell = cells.at(idx);
 	cell->adjustToPainter( p );
+    }
 }
 
 void QTextTable::adjustCells( int y , int shift )
 {
-    QPtrListIterator<QTextTableCell> it( cells );
-    QTextTableCell* cell;
     bool enlarge = FALSE;
-    while ( ( cell = it.current() ) ) {
-	++it;
+    for (int idx = 0; idx < cells.size(); ++idx) {
+	QTextTableCell *cell = cells.at(idx);
 	QRect r = cell->geometry();
 	if ( y <= r.top() ) {
 	    r.moveBy(0, shift );
@@ -7578,10 +7604,8 @@ void QTextTable::pageBreak( int  yt, QTextFlow* flow )
 	height = layout->geometry().height()+2*outerborder;
     }
     pageBreakFor = yt;
-    QPtrListIterator<QTextTableCell> it( cells );
-    QTextTableCell* cell;
-    while ( ( cell = it.current() ) ) {
-	++it;
+    for (int idx = 0; idx < cells.size(); ++idx) {
+	QTextTableCell *cell = cells.at(idx);
 	int y = yt + outerborder + cell->geometry().y();
 	int shift = flow->adjustFlow( y - cellspacing, width, cell->richText()->height() + 2*cellspacing );
 	adjustCells( y - outerborder - yt, shift );
@@ -7597,7 +7621,8 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	y = ypos;
     }
 
-    for (QTextTableCell* cell = cells.first(); cell; cell = cells.next() ) {
+    for (int idx = 0; idx < cells.size(); ++idx) {
+	QTextTableCell *cell = cells.at(idx);
 	if ( cx < 0 && cy < 0 ||
 	     QRect( cx, cy, cw, ch ).intersects( QRect( x + outerborder + cell->geometry().x(),
 							y + outerborder + cell->geometry().y(),
