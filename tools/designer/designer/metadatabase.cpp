@@ -1061,11 +1061,6 @@ bool MetaDataBase::hasEvents( const QString &lang )
     return !!(EventInterface*)eventInterfaceManager->queryInterface( lang );
 }
 
-static QString get_function_name( const QString &s )
-{
-    return s.left( s.find( "(" ) );
-}
-
 static QStringList get_arguments( const QString &s )
 {
     QString str = s.mid( s.find( "(" ) + 1, s.find( ")" ) - 1 - s.find( "(" ) );
@@ -1094,7 +1089,7 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o, con
     QStringList lst = iface->events( o );
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	EventDescription d;
-	d.name = get_function_name( *it );
+	d.name = *it;
 	d.args = get_arguments( *it );
 	list << d;
     }
@@ -1104,7 +1099,7 @@ QValueList<MetaDataBase::EventDescription> MetaDataBase::events( QObject *o, con
 }
 
 bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &lang,
-				      const QString &event, const QStringList &functions, bool addIfNotExisting )
+				      const QString &e, const QStringList &functions, bool addIfNotExisting )
 {
     if ( !o )
 	return FALSE;
@@ -1125,12 +1120,17 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 	return FALSE;
     }
 
+    QString event = e;
+    int i = event.find( "(" );
+    if ( i != -1 )
+	event = event.left( i );
+
     r->eventFunctions.remove( event );
     EventDescription ed;
     ed.name = "<none>";
     QValueList<EventDescription> eds = events( o, lang );
     for ( QValueList<EventDescription>::Iterator eit = eds.begin(); eit != eds.end(); ++eit ) {
-	if ( (*eit).name == event ) {
+	if ( (*eit).name == e ) {
 	    ed = *eit;
 	    break;
 	}
@@ -1142,8 +1142,10 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
 	QString fName = *fit + "(";
 	if ( ed.name != "<none>" ) {
 	    QStringList args;
-	    for ( QStringList::Iterator it = ed.args.begin(); it != ed.args.end(); ++it )
+	    for ( QStringList::Iterator it = ed.args.begin(); it != ed.args.end(); ++it ) {
+		qDebug( *it );
 		args << *it;
+	    }
 	    LanguageInterface *iface = languageInterface( lang );
 	    if ( iface )
 		fName += iface->createArguments( args );
@@ -1172,7 +1174,7 @@ bool MetaDataBase::setEventFunctions( QObject *o, QObject *form, const QString &
     return !slotExists;
 }
 
-QStringList MetaDataBase::eventFunctions( QObject *o, const QString &event )
+QStringList MetaDataBase::eventFunctions( QObject *o, const QString &e )
 {
     if ( !o )
 	return QStringList();
@@ -1184,6 +1186,10 @@ QStringList MetaDataBase::eventFunctions( QObject *o, const QString &event )
 	return QString::null;
     }
 
+    QString event = e;
+    int i = event.find( "(" );
+    if ( i != -1 )
+	event = event.left( i );
     return *r->eventFunctions.find( event );
 }
 

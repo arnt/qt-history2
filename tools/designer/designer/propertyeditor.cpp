@@ -2842,7 +2842,11 @@ void EventList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     menu.insertItem( tr( "Delete Event-Handler" ), DEL_ITEM );
     int res = menu.exec( pos );
     if ( res == NEW_ITEM ) {
- 	QString s = QString( editor->widget()->name() ) + "_" + ( i->parent() ? i->parent() : i )->text( 0 );
+	QString s1 = ( i->parent() ? i->parent() : i )->text( 0 );
+	int pt = s1.find( "(" );
+	if ( pt != -1 )
+	    s1 = s1.left( pt );
+ 	QString s = QString( editor->widget()->name() ) + "_" + s1;
 	HierarchyItem *item = new HierarchyItem( i->parent() ? i->parent() : i, s, QString::null, QString::null );
 	item->setPixmap( 0, PixmapChooser::loadPixmap( "editslots.xpm" ) );
 	item->setRenameEnabled( 0, TRUE );
