@@ -77,6 +77,7 @@
 #define QTDSNUMERIC SQLNUMERIC
 #define QTDSTEXT SQLTEXT
 #define QTDSVARCHAR SQLVARCHAR
+#define QTDSBIT SQLBIT
 #else
 #define QMSGHANDLE MHANDLEFUNC
 #define QERRHANDLE EHANDLEFUNC
@@ -98,6 +99,7 @@
 #define QTDSNUMERIC SYBNUMERIC
 #define QTDSTEXT SYBTEXT
 #define QTDSVARCHAR SYBVARCHAR
+#define QTDSBIT SYBBIT
 #endif  //DBNTWIN32
 
 #define TDS_CURSOR_SIZE 50
@@ -249,6 +251,7 @@ QVariant::Type qDecodeTDSType( int type )
     case QTDSINT2:
     case QTDSINT4:
     case QTDSINT4_N:
+    case QTDSBIT:
 	t = QVariant::Int;
 	break;
     case QTDSFLT4:
