@@ -23,7 +23,7 @@ template <typename T>
 inline T qAtomicSetPtr(T * volatile pointer, T value)
 {
     Q_ASSERT(sizeof(T) == 4);
-    return static_cast<T>(qAtomicSetPtr_helper((void**volatile)pointer, value));
+    return static_cast<T>(qAtomicSetPtr_helper( *((void **volatile*) &pointer ), value));
 }
 
 #if defined(Q_CC_BOR)
