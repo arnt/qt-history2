@@ -282,52 +282,51 @@ public:		   \
 #endif
 #endif
 
-// this is duplicated at Q_UCM_VERIFICATION_DATA in qgplugin.h
-#define Q_UCM_VERIFICATION_DATA \
-	const char *ucm_instance_verification_data =			\
-            "pattern=UCM_INSTANCE_VERIFICATION_DATA\n"			\
+// this is duplicated at Q_PLUGIN_VERIFICATION_DATA in qgplugin.h
+// NOTE: if you change pattern, you MUST change the pattern in
+// qcomlibrary.cpp as well.  changing the pattern will break all
+// backwards compatibility as well (no old plugins will be loaded).
+#ifndef Q_UCM_VERIFICATION_DATA
+#  define Q_UCM_VERIFICATION_DATA \
+	static const char *qt_ucm_verification_data =			\
+            "pattern=QT_UCM_VERIFICATION_DATA\n"			\
             "version="QT_VERSION_STR"\n"				\
             "flags="Q_UCM_FLAGS_STRING"\n"				\
 	    "buildkey="QT_BUILD_KEY"\0";
+#endif // Q_UCM_VERIFICATION_DATA
 
 // This macro expands to the default implementation of ucm_instantiate.
 #ifndef Q_CREATE_INSTANCE
 #    define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
-	Q_UCM_VERIFICATION_DATA				\
 	IMPLEMENTATION *i = new IMPLEMENTATION;		\
 	QUnknownInterface* iface = 0; 			\
 	i->queryInterface( IID_QUnknown, &iface );	\
 	return iface;
-#endif
+#endif // Q_CREATE_INSTANCE
 
-#define Q_UCM_QUERY \
-	{ \
-	    switch ( flag ) { \
-	    case 1:  *(uint*)out = QT_VERSION; break;\
-	    case 2:  *(uint*)out = 1; \
-		if ( QT_THREADED_BUILD ) \
-		    *(uint*)out |= 2;\
-	    break; \
-	    case 3:  *(const char**)out  = QT_BUILD_KEY; break;\
-	    default: return 1; }\
-	    return 0; \
-	}
 #    ifdef Q_WS_WIN
 #	ifdef Q_CC_BOR
 #	    define Q_EXPORT_COMPONENT() \
-		Q_EXTERN_C __declspec(dllexport) int __stdcall qt_ucm_query( int flag, void* out ) \
-		    Q_UCM_QUERY \
-		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* __stdcall ucm_instantiate()
+	        Q_UCM_VERIFICATION_DATA \
+		Q_EXTERN_C __declspec(dllexport) \
+                const char * __stdcall qt_ucm_query_verification_data() \
+                { return qt_ucm_verification_data; } \
+		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* \
+                __stdcall ucm_instantiate()
 #	else
 #	    define Q_EXPORT_COMPONENT() \
-		Q_EXTERN_C __declspec(dllexport) int qt_ucm_query( int flag, void* out ) \
-		    Q_UCM_QUERY \
+	        Q_UCM_VERIFICATION_DATA \
+		Q_EXTERN_C __declspec(dllexport) \
+                const char *qt_ucm_query_verification_data() \
+                { return qt_ucm_verification_data; } \
 		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate()
 #	endif
 #    else
 #	define Q_EXPORT_COMPONENT() \
-	    Q_EXTERN_C int qt_ucm_query( int flag, void* out ) \
-	        Q_UCM_QUERY \
+	    Q_UCM_VERIFICATION_DATA \
+	    Q_EXTERN_C \
+            const char *qt_ucm_query_verification_data() \
+            { return qt_ucm_verification_data; } \
 	    Q_EXTERN_C QUnknownInterface* ucm_instantiate()
 #    endif
 #    define Q_EXPORT_INTERFACE() Q_EXPORT_COMPONENT()

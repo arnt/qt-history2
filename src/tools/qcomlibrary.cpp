@@ -123,71 +123,24 @@ static bool verify( const QString& library, uint version, uint flags,
     return FALSE;
 }
 
-#if defined(Q_OS_FREEBSD) || defined(Q_OS_LINUX)
-#include <sys/types.h>
-#include <sys/mman.h>
-#include <sys/time.h>
 
-static long qt_unix_verify_strstr( const char *s, ulong s_len,
-				   const char *find, ulong find_len )
+struct qt_token_info
 {
-    /*
-      this uses the same algorithm as QString::findRev...
-
-      we search from the end of the file because on the supported
-      systems, the read-only data/text segments are placed at the end
-      of the file.  HOWEVER, when building with debugging enabled, all
-      the debug symbols are placed AFTER the data/text segments.
-
-      what does this mean?  when building in release mode, the search
-      is fast because the data we are looking for is at the end of the
-      file... when building in debug mode, the search is slower
-      because we have to skip over all the debugging symbols first
-    */
-
-    if ( find_len > s_len ) return -1;
-    ulong i, hs = 0, hfind = 0, delta = s_len - find_len;
-
-    for (i = 0; i < find_len; ++i ) {
-	hs += s[delta + i];
-	hfind += find[i];
-    }
-    i = delta;
-    for (;;) {
-	if ( hs == hfind && qstrncmp( s + i, find, find_len ) == 0 )
-	    return i;
-	if ( i == 0 )
-	    break;
-	--i;
-	hs -= s[i + find_len];
-	hs += s[i];
-    }
-
-    return -1;
-}
-
-
-struct qt_unix_token_info
-{
-    qt_unix_token_info( const char *f, const ulong fc )
-	: fields( f ), field_count( fc )
+    qt_token_info( const char *f, const ulong fc )
+	: fields( f ), field_count( fc ), results( fc ), lengths( fc )
     {
-	results = new const char*[ field_count ];
-	lens = new ulong[ field_count ];
-	memset( lens, 0, field_count * sizeof( ulong ) );
+	results.fill( 0 );
+	lengths.fill( 0 );
     }
-    ~qt_unix_token_info()
+    ~qt_token_info()
     {
-	delete [] lens;
     }
 
     const char *fields;
     const ulong field_count;
 
-    const char **results;
-    ulong *lens;
-
-    const char minchar, maxchar;
+    QMemArray<const char *> results;
+    QMemArray<ulong> lengths;
 };
 
 
@@ -197,8 +150,8 @@ struct qt_unix_token_info
        0 eos
       -1 parse error
 */
-static int qt_unix_tokenize( const char *s, ulong s_len, ulong *advance,
-			     const qt_unix_token_info &token_info )
+static int qt_tokenize( const char *s, ulong s_len, ulong *advance,
+			const qt_token_info &token_info )
 {
     ulong pos = 0, field = 0, fieldlen = 0;
     char current;
@@ -215,7 +168,7 @@ static int qt_unix_tokenize( const char *s, ulong s_len, ulong *advance,
 	if ( ! current || pos == s_len + 1 ) {
 	    // save result
 	    token_info.results[ field ] = s;
-	    token_info.lens[ field ] = fieldlen - 1;
+	    token_info.lengths[ field ] = fieldlen - 1;
 
 	    // end of string
 	    ret = 0;
@@ -225,7 +178,7 @@ static int qt_unix_tokenize( const char *s, ulong s_len, ulong *advance,
 	if ( current == token_info.fields[ field ] ) {
 	    // save result
 	    token_info.results[ field ] = s;
-	    token_info.lens[ field ] = fieldlen - 1;
+	    token_info.lengths[ field ] = fieldlen - 1;
 
 	    // end of field
 	    fieldlen = 0;
@@ -250,40 +203,48 @@ static int qt_unix_tokenize( const char *s, ulong s_len, ulong *advance,
 }
 
 
-static bool qt_unix_parse_pattern( const char *s, uint *version, uint *flags,
+/*
+  returns TRUE if the string s was correctly parsed, FALSE otherwise.
+*/
+static bool qt_parse_pattern( const char *s, uint *version, uint *flags,
 				   QCString *key )
 {
     bool ret = TRUE;
 
-    qt_unix_token_info pi("=\n", 2);
+    qt_token_info pinfo("=\n", 2);
     int parse;
     ulong at = 0, advance, parselen = qstrlen( s );
     do {
-	parse = qt_unix_tokenize( s + at, parselen, &advance, pi );
+	parse = qt_tokenize( s + at, parselen, &advance, pinfo );
+	if ( parse == -1 ) {
+	    ret = FALSE;
+	    break;
+	}
+
 	at += advance;
 	parselen -= advance;
 
-	if ( qstrncmp( "version", pi.results[ 0 ], pi.lens[ 0 ] ) == 0 ) {
+	if ( qstrncmp( "version", pinfo.results[ 0 ], pinfo.lengths[ 0 ] ) == 0 ) {
 	    // parse version string
-	    qt_unix_token_info pi2("..-", 3);
-	    if ( qt_unix_tokenize( pi.results[ 1 ], pi.lens[ 1 ], \
-				   &advance, pi2 ) != -1 ) {
-		QCString m( pi2.results[ 0 ], pi2.lens[ 0 ] + 1 );
-		QCString n( pi2.results[ 1 ], pi2.lens[ 1 ] + 1 );
-		QCString p( pi2.results[ 2 ], pi2.lens[ 2 ] + 1 );
+	    qt_token_info pinfo2("..-", 3);
+	    if ( qt_tokenize( pinfo.results[ 1 ], pinfo.lengths[ 1 ],
+			      &advance, pinfo2 ) != -1 ) {
+		QCString m( pinfo2.results[ 0 ], pinfo2.lengths[ 0 ] + 1 );
+		QCString n( pinfo2.results[ 1 ], pinfo2.lengths[ 1 ] + 1 );
+		QCString p( pinfo2.results[ 2 ], pinfo2.lengths[ 2 ] + 1 );
 		*version  = (m.toUInt() << 16) | (n.toUInt() << 8) | p.toUInt();
 	    } else {
 		ret = FALSE;
 		break;
 	    }
-	} else if ( qstrncmp( "flags", pi.results[ 0 ], pi.lens[ 0 ] ) == 0 ) {
+	} else if ( qstrncmp( "flags", pinfo.results[ 0 ], pinfo.lengths[ 0 ] ) == 0 ) {
 	    // parse flags string
 	    char ch;
 	    *flags = 0;
 	    ulong p = 0, c = 0, bit = 0;
-	    while ( p < pi.lens[ 1 ] ) {
-		ch = pi.results[ 1 ][ p ];
-		bit = pi.lens[ 1 ] - p - 1;
+	    while ( p < pinfo.lengths[ 1 ] ) {
+		ch = pinfo.results[ 1 ][ p ];
+		bit = pinfo.lengths[ 1 ] - p - 1;
 		c = 1 << bit;
 		if ( ch == '1' ) {
 		    *flags |= c;
@@ -293,19 +254,71 @@ static bool qt_unix_parse_pattern( const char *s, uint *version, uint *flags,
 		}
 		++p;
 	    }
-	} else if ( qstrncmp( "buildkey", pi.results[ 0 ], pi.lens[ 0 ] ) == 0 ){
+	} else if ( qstrncmp( "buildkey", pinfo.results[ 0 ],
+			      pinfo.lengths[ 0 ] ) == 0 ){
 	    // save buildkey
-	    *key = QCString( pi.results[ 1 ], pi.lens[ 1 ] + 1 );
+	    *key = QCString( pinfo.results[ 1 ], pinfo.lengths[ 1 ] + 1 );
 	}
     } while ( parse == 1 && parselen > 0 );
 
     return ret;
 }
 
+
+#if defined(Q_OS_FREEBSD) || defined(Q_OS_LINUX)
+
+#include <sys/types.h>
+#include <sys/mman.h>
+
+
+static long qt_find_pattern( const char *s, ulong s_len,
+				  const char *pattern, ulong p_len )
+{
+    /*
+      this uses the same algorithm as QString::findRev...
+
+      we search from the end of the file because on the supported
+      systems, the read-only data/text segments are placed at the end
+      of the file.  HOWEVER, when building with debugging enabled, all
+      the debug symbols are placed AFTER the data/text segments.
+
+      what does this mean?  when building in release mode, the search
+      is fast because the data we are looking for is at the end of the
+      file... when building in debug mode, the search is slower
+      because we have to skip over all the debugging symbols first
+    */
+
+    if ( p_len > s_len ) return -1;
+    ulong i, hs = 0, hp = 0, delta = s_len - p_len;
+
+    for (i = 0; i < p_len; ++i ) {
+	hs += s[delta + i];
+	hp += pattern[i];
+    }
+    i = delta;
+    for (;;) {
+	if ( hs == hp && qstrncmp( s + i, pattern, p_len ) == 0 )
+	    return i;
+	if ( i == 0 )
+	    break;
+	--i;
+	hs -= s[i + p_len];
+	hs += s[i];
+    }
+
+    return -1;
+}
+
+
 /*
-  returns FALSE if version/flags/key information is not present, or if the
-                information could not be read
-  returns  TRUE if version/flags/key information is present and succesfully read
+  This opens the specified library, mmaps it into memory, and searches
+  for the QT_UCM_VERIFICATION_DATA.  The advantage of this approach is that
+  we can get the verification data without have to actually load the library.
+  This lets us detect mismatches more safely.
+
+  Returns FALSE if version/flags/key information is not present, or if the
+                information could not be read.
+  Returns  TRUE if version/flags/key information is present and succesfully read.
 */
 static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 			   QCString *key )
@@ -326,13 +339,13 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
     }
 
     // verify that the pattern is present in the plugin
-    const char *pattern = "pattern=UCM_INSTANCE_VERIFICATION_DATA";
+    const char *pattern = "pattern=QT_UCM_VERIFICATION_DATA";
     const ulong plen = qstrlen( pattern );
-    long pos = qt_unix_verify_strstr( mapaddr, maplen, pattern, plen );
+    long pos = qt_find_pattern( mapaddr, maplen, pattern, plen );
 
     bool ret = FALSE;
     if ( pos >= 0 ) {
-	ret = qt_unix_parse_pattern( mapaddr + pos, version, flags, key );
+	ret = qt_parse_pattern( mapaddr + pos, version, flags, key );
     }
 
     if ( munmap(mapaddr, maplen) != 0 ) {
@@ -344,6 +357,7 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 
 #endif // Q_OS_FREEBSD || Q_OS_LINUX
 
+
 static QSettings *cache = 0;
 static QSingleCleanupHandler<QSettings> cleanup_cache;
 
@@ -352,12 +366,12 @@ void QComLibrary::createInstanceInternal()
     if ( library().isEmpty() )
 	return;
 
-    QString regkey = QString("/qt_plugin%1.%2/%3").arg( QT_VERSION >> 16 ).arg( (QT_VERSION & 0xff00 ) >> 8 ).arg( library() );
+    QFileInfo fileinfo( library() );
+    QString lastModified  = fileinfo.lastModified().toString();
+    QString regkey = QString("/Qt Plugin/%1").arg( library() );
     QStringList reg;
     uint flags;
     QCString key;
-    QFileInfo fileinfo( library() );
-    QString lastModified  = fileinfo.lastModified().toString();
     bool query_done = FALSE;
     bool warn_mismatch = TRUE;
 
@@ -390,8 +404,8 @@ void QComLibrary::createInstanceInternal()
 #if defined(Q_OS_FREEBSD) || defined(Q_OS_LINUX)
     if ( ! query_done ) {
 	if ( qt_unix_query( library(), &qt_version, &flags, &key ) ) {
-	    // info read succesfully from library
-	    query_done = TRUE;
+ 	    // info read succesfully from library
+ 	    query_done = TRUE;
 	}
     }
 #endif // Q_OS_FREEBSD || Q_OS_LINUX
@@ -404,26 +418,22 @@ void QComLibrary::createInstanceInternal()
 	}
 
 #  ifdef Q_CC_BOR
-	typedef int __stdcall (*UCMQueryProc)( int, void* );
+	typedef const char * __stdcall (*UCMQueryVerificationDataProc)();
 #  else
-	typedef int (*UCMQueryProc)( int, void* );
+	typedef const char * (*UCMQueryVerificationDataProc)();
 #  endif
-	UCMQueryProc ucmQueryProc;
-	ucmQueryProc = (UCMQueryProc) resolve( "qt_ucm_query" );
-	const char *qkey = 0;
+	UCMQueryVerificationDataProc ucmQueryVerificationdataProc;
+	ucmQueryVerificationdataProc =
+	    (UCMQueryVerificationDataProc) resolve( "qt_ucm_query_verification_data" );
 
-	if ( !ucmQueryProc
-	     || ucmQueryProc( 1, &qt_version) != 0
-	     || ucmQueryProc( 2, &flags ) != 0
-	     || ucmQueryProc( 3, &qkey ) != 0
-	     ) {
+	if ( !ucmQueryVerificationdataProc ||
+	     !qt_parse_pattern( ucmQueryVerificationdataProc(),
+				&qt_version, &flags, &key ) ) {
 	    qt_version = flags = 0;
-	    qkey = "unknown";
+	    key = "unknown";
 	} else {
 	    query_done = TRUE;
 	}
-
-	key = qkey;
     }
 
     QStringList queried;
@@ -451,7 +461,6 @@ void QComLibrary::createInstanceInternal()
 	}
 	unload();
 	return;
-
     }
 
     if ( ! verify( library(), qt_version, flags, key, warn_mismatch ) ) {
