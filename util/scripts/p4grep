@@ -30,7 +30,7 @@ while ( @ARGV ) {
 }
 
 $pattern && $file || die
-    "Usage:  p4grep pattern p4files\n".
+    "Usage:  p4grep [-a|-all] [-l|-long] [-s|-short] [-u user] pattern p4files\n".
     "   p4files - eg. //.../qwidget.cpp\n";
 
 open P4, "p4 files $file |";
