@@ -8,6 +8,7 @@
 \row \i15
 <b>General</b><br>
 \list
+\i \link porting.html Porting to Qt 3.x \endlink
 \i \link commonproblems.html Common Problems and Special Use Cases \endlink
 \i \link component.html The Qt Component Model \endlink
 \i \link datastreamformat.html Format of the QDataStream Operators \endlink
@@ -24,7 +25,6 @@
 \i \link nsplugin.html Qt-based LiveConnect Plugins \endlink
 \i \link mailinglists.html Mailing Lists \endlink
 \i \link opengl.html Qt OpenGL 3D Graphics \endlink
-\i \link porting.html Porting to Qt 3.x \endlink
 \i \link appicon.html Setting the Application Icon \endlink
 \i \link session.html Session Management \endlink
 \i \link shclass.html Shared Classes \endlink
@@ -51,7 +51,6 @@
 <b>Internationalization</b><br>
 \list
 \i \link i18n.html Internationalization with Qt \endlink
-\i \link bidi.html Porting applications to Arabic and Hebrew \endlink
 \i \link scripts.html Qt's Text Engine \endlink
 \i \link unicode.html About Unicode \endlink
 \endlist
