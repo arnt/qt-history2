@@ -363,8 +363,8 @@ for $platform ( "x11", "qws" ) {
 
     find(
 	sub {
-	    unlink $_ if ( ( /_[a-z]*.cpp$/ && !/_$platform.cpp$/ && !/_unix.cpp$/ ) ||
-		   ( /qt_[a-z]*.h$/ && !/^qt_$platform.h$/ ) );
+	    unlink $_ if ( ( /_[a-z1]*.cpp$/ && !/_$platform.cpp$/ && !/_unix.cpp$/ ) ||
+		   ( /qt_[a-z1]*.h$/ && !/^qt_$platform.h$/ ) );
 	}, $qtdir
     );
 
