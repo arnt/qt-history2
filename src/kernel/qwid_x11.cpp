@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#177 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#178 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#177 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#178 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -57,6 +57,32 @@ const uint stdWidgetEventMask =			// X event mask
 	FocusChangeMask |
 	ExposureMask |
 	StructureNotifyMask | SubstructureRedirectMask;
+
+
+/*
+  Internal Qt functions to create X windows.  We have put them in
+  separate functions to allow the programmer to override them by custom
+  versions.
+*/
+
+Window qt_XCreateWindow( Display *display, Window parent,
+			 int x, int y, uint w, uint h,
+			 int borderwidth, int depth,
+			 uint windowclass, Visual *visual,
+			 ulong valuemask, XSetWindowAttributes *attributes )
+{
+    return XCreateWindow( display, parent, x, y, w, h, borderwidth, depth,
+			  windowclass, visual, valuemask, attributes );
+}
+
+
+Window qt_XCreateSimpleWindow( Display *display, Window parent,
+			       int x, int y, uint w, uint h, int borderwidth,
+			       ulong border, ulong background )
+{
+    return XCreateSimpleWindow( display, parent, x, y, w, h, borderwidth,
+				border, background );
+}
 
 
 /*!
@@ -148,23 +174,23 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
     } else {
 	if ( x11DefaultVisual() && x11DefaultColormap() ) {
-	    id = XCreateSimpleWindow( dpy, parentw,
-				      frect.left(), frect.top(),
-				      frect.width(), frect.height(),
-				      0,
-				      black.pixel(),
-				      bg_col.pixel() );
+	    id = qt_XCreateSimpleWindow( dpy, parentw,
+					 frect.left(), frect.top(),
+					 frect.width(), frect.height(),
+					 0,
+					 black.pixel(),
+					 bg_col.pixel() );
 	} else {
 	    wsa.background_pixel = bg_col.pixel();
 	    wsa.border_pixel = black.pixel();		
 	    wsa.colormap = (Colormap)x11Colormap();
-	    id = XCreateWindow( dpy, parentw,
-				frect.left(), frect.top(),
-				frect.width(), frect.height(),
-				0, x11Depth(), InputOutput,
-				(Visual*)x11Visual(),
-				CWBackPixel|CWBorderPixel|CWColormap,
-				&wsa );
+	    id = qt_XCreateWindow( dpy, parentw,
+				   frect.left(), frect.top(),
+				   frect.width(), frect.height(),
+				   0, x11Depth(), InputOutput,
+				   (Visual*)x11Visual(),
+				   CWBackPixel|CWBorderPixel|CWColormap,
+				   &wsa );
 	}
 	setWinId( id );				// set widget id/handle + hd
     }
