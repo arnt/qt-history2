@@ -761,22 +761,12 @@ void QTextLayout::setDirection(QChar::Direction dir)
 }
 
 /*!
-    \fn void QTextLayout::draw(QPainter *painter, const QPointF &pos, int cursorPos, const QVector<Selection> &selections) const
+    \fn void QTextLayout::draw(QPainter *painter, const QPointF &pos, int cursorPos, const QRect &clipRect) const
 
     Draws the whole layout on the \a painter at point \a pos with the
-    given \a cursorPos. The list of \a selections specified (which may be
-    empty) is also rendered with the contents of the layout.
+    given \a cursorPos.
 */
-
-/*!
-    \internal
-
-    The number of selections (which may be 0) is given by \a
-    nSelections, and the selections themselves are passed in \a
-    selections.
-*/
-void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos,
-                       const Selection *selections, int nSelections, const QRect &cr) const
+void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos, const QRect &cr) const
 {
     Q_ASSERT(numLines() != 0);
 
@@ -801,7 +791,7 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos,
         if (sl.y > clipe || (sl.y + sl.height()) < clipy)
             continue;
 
-        l.draw(p, position, selections, nSelections);
+        l.draw(p, position);
         if ((sl.from <= cursorPos && sl.from + (int)sl.length > cursorPos)
             || (sl.from + (int)sl.length == cursorPos && cursorPos == d->layoutData->string.length())) {
 
@@ -1182,41 +1172,6 @@ int QTextLine::length() const
     return eng->lines[i].length;
 }
 
-
-static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type, const QRectF &rect)
-{
-    QColor bg;
-    QColor text;
-    switch(type) {
-    case QTextLayout::Highlight:
-        bg = pal->highlight().color();
-        text = pal->highlightedText().color();
-        break;
-    case QTextLayout::ImText: {
-        int h1, s1, v1, h2, s2, v2;
-        pal->color(QPalette::Base).getHsv(&h1, &s1, &v1);
-        pal->color(QPalette::Background).getHsv(&h2, &s2, &v2);
-        bg.setHsv(h1, s1, (v1 + v2) / 2);
-        break;
-    }
-    case QTextLayout::ImSelection:
-        bg = pal->text().color();
-        text = pal->background().color();
-        break;
-    case QTextLayout::FocusIndicatorSelection:
-        return; // handled in QTextLine directly
-    case QTextLayout::NoSelection:
-        Q_ASSERT(false); // should never happen.
-        return;
-    }
-    p->fillRect(rect, bg);
-    if (type == QTextLayout::ImText)
-        p->drawLine(QPointF(rect.x(), rect.y() + rect.height()),
-                    QPointF(rect.x() + rect.width(), rect.y() + rect.height()));
-    if (text.isValid())
-        p->setPen(text);
-}
-
 static void drawMenuText(QPainter *p, qReal x, qReal y, const QScriptItem &si, QTextItem &gf, QTextEngine *eng,
                          int start, int glyph_start)
 {
@@ -1285,8 +1240,7 @@ static void drawMenuText(QPainter *p, qReal x, qReal y, const QScriptItem &si, Q
     Draws a line on painter \a p at position \a xpos, \a ypos. \a
     selection is reserved for internal use.
 */
-void QTextLine::draw(QPainter *p, const QPointF &pos,
-                     const QTextLayout::Selection *selections, int nSelections) const
+void QTextLine::draw(QPainter *p, const QPointF &pos) const
 {
     const QScriptLine &line = eng->lines[i];
 
@@ -1320,8 +1274,6 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
         levels[i] = eng->layoutData->items[i+firstItem].analysis.bidiLevel;
     QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
 
-    QRectF focusRect;
-
     QFont f = eng->font();
     for (int i = 0; i < nItems; ++i) {
         int item = visualOrder[i]+firstItem;
@@ -1330,26 +1282,12 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
             eng->shape(item);
 
         if (si.isObject || si.isTab) {
-            QTextLayout::SelectionType selType = QTextLayout::NoSelection;
-            int s = 0;
-            if (nSelections) {
-                for (int i = 0; i < nSelections; ++i) {
-                    if (selections[i].from() <= si.position
-                        && selections[i].from() + selections[i].length() > si.position) {
-                        selType = selections[nSelections-1].type();
-                        s = i;
-                    }
-                }
-            }
+            // ############## use format overrides here!
             p->save();
-            if (selType != QTextLayout::NoSelection) {
-                QRectF rect(x, y - line.ascent, si.width, line.height());
-                drawSelection(p, eng->pal, selections[s].type(), rect);
-            }
             if (eng->block.docHandle()) {
                 QTextFormat format = eng->formats()->format(eng->formatIndex(&si));
                 eng->docLayout()->drawObject(p, QRectF(x, y-si.ascent, si.width, si.height()),
-                                             QTextInlineObject(item, eng), format, selType);
+                                             QTextInlineObject(item, eng), format);
             }
             p->restore();
 
@@ -1463,57 +1401,9 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
                     p->restore();
                 }
             }
-#if 0
-            for (int s = 0; s < nSelections; ++s) {
-                int from = qMax(start, selections[s].from()) - si.position;
-                int to = qMin(end, selections[s].from() + selections[s].length()) - si.position;
-                if (from >= to)
-                    continue;
-                int start_glyph = logClusters[from];
-                int end_glyph = (to == eng->length(item)) ? si.num_glyphs : logClusters[to];
-                qReal soff = 0;
-                qReal swidth = 0;
-                if (si.analysis.bidiLevel %2) {
-                    for (int g = ge - 1; g >= end_glyph; --g)
-                        soff += glyphs[g].advance.x() + qReal(glyphs[g].space_18d6)/qReal(64);
-                    for (int g = end_glyph - 1; g >= start_glyph; --g)
-                        swidth += glyphs[g].advance.x() + qReal(glyphs[g].space_18d6)/qReal(64);
-                } else {
-                    for (int g = gs; g < start_glyph; ++g)
-                        soff += glyphs[g].advance.x() + qReal(glyphs[g].space_18d6)/qReal(64);
-                    for (int g = start_glyph; g < end_glyph; ++g)
-                        swidth += glyphs[g].advance.x() + qReal(glyphs[g].space_18d6)/qReal(64);
-                }
-
-                QRectF rect(x + soff, y - line.ascent, swidth, line.height());
-
-                if (selections[s].type() == QTextLayout::FocusIndicatorSelection) {
-                    if (!focusRect.isValid())
-                        focusRect = rect;
-                    else
-                        focusRect = focusRect.unite(rect);
-                    continue;
-                }
-
-                p->save();
-                p->setClipRect(rect);
-                drawSelection(p, eng->pal, selections[s].type(), rect);
-                p->drawTextItem(QPointF(x, itemBaseLine), gf);
-                p->restore();
-            }
-#endif
         }
         x += gf.width;
     }
-
-    if (focusRect.isValid()) {
-        QStyleOptionFocusRect opt;
-        opt.rect = focusRect.toRect();
-        opt.state = QStyle::State_None;
-        opt.palette = *eng->pal;
-        QApplication::style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p);
-    }
-
 }
 
 /*!

@@ -1849,7 +1849,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
     // selection phase of input method, so the ordinary cursor should be
     // invisible if we have a preedit string.
     bool showCursor = (d->cursorVisible && !supressCursor && !d->textLayout.preeditAreaText().length());
-    d->textLayout.draw(&p, topLeft, showCursor ? d->cursor : -1, 0, 0);
+    d->textLayout.draw(&p, topLeft, showCursor ? d->cursor : QTextLayout::NoCursor);
 
 }
 

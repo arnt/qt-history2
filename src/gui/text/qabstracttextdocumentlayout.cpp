@@ -217,7 +217,7 @@ void QAbstractTextDocumentLayout::layoutObject(QTextInlineObject item, const QTe
     \sa layoutObject()
 */
 void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
-                                             const QTextFormat &format, QTextLayout::SelectionType selType)
+                                             const QTextFormat &format)
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
@@ -227,6 +227,7 @@ void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QT
 
     handler.iface->drawObject(p, rect, document(), format);
 
+#if 0
     if (selType == QTextLayout::Highlight && item.engine()->pal) {
 #if defined (Q_WS_WIN)
         static QPixmap tile;
@@ -249,6 +250,7 @@ void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QT
         p->fillRect(rect, brush);
 #endif
     }
+#endif
 }
 
 void QAbstractTextDocumentLayoutPrivate::handlerDestroyed(QObject *obj)

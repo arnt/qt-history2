@@ -1565,7 +1565,6 @@ void QTextEdit::paintEvent(QPaintEvent *e)
     ctx.palette = palette();
     ctx.textColorFromPalette = true;
     ctx.rect = r;
-    ctx.focusIndicator = d->focusIndicator;
 
     d->doc->documentLayout()->draw(&p, ctx);
 }

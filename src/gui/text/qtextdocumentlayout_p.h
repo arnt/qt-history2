@@ -47,7 +47,7 @@ public:
     void setSize(QTextInlineObject item, const QTextFormat &format);
     void layoutObject(QTextInlineObject item, const QTextFormat &format);
     void drawObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
-                    const QTextFormat &format, QTextLayout::SelectionType selType);
+                    const QTextFormat &format);
 
     int numPages() const;
 

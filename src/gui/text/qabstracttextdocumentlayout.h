@@ -37,16 +37,13 @@ public:
     struct PaintContext
     {
         PaintContext()
-            : showCursor(false), textColorFromPalette(false),
-              imStart(0), imEnd(0), imSelectionStart(0), imSelectionEnd(0)
+            : showCursor(false), textColorFromPalette(false)
             {}
         QTextCursor cursor;
         QPalette palette;
         bool showCursor;
         bool textColorFromPalette;
         QRect rect;
-        int imStart, imEnd, imSelectionStart, imSelectionEnd;
-        QTextCursor focusIndicator;
     };
 
     QAbstractTextDocumentLayout(QTextDocument *doc);
@@ -63,8 +60,7 @@ public:
 
     virtual void setSize(QTextInlineObject item, const QTextFormat &format);
     virtual void layoutObject(QTextInlineObject item, const QTextFormat &format);
-    virtual void drawObject(QPainter *painter, const QRectF &rect, QTextInlineObject object, const QTextFormat &format,
-                            QTextLayout::SelectionType selection);
+    virtual void drawObject(QPainter *painter, const QRectF &rect, QTextInlineObject object, const QTextFormat &format);
 
     virtual void setPageSize(const QSize &size) = 0;
     virtual QSize pageSize() const = 0;

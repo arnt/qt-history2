@@ -225,7 +225,7 @@ public:
     void drawBlock(const QPoint &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                    QTextBlock bl) const;
     void drawListItem(const QPoint &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
-                      QTextBlock bl, const QTextLayout::Selection &selection) const;
+                      QTextBlock bl, bool highlight) const;
 
     enum HitPoint {
         PointBefore,
@@ -571,47 +571,43 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
         painter->fillRect(r , bgCol);
     }
 
-    QTextLayout::Selection s[3];
-    int nSel = 0;
+    QList<QTextLayout::FormatOverride> overrides = tl->formatOverrides();
+    bool highlightListItem = false;
     if (context.cursor.hasSelection()) {
-        const int selStart = context.cursor.selectionStart();
-        const int selEnd = context.cursor.selectionEnd();
-        s[nSel].setRange(selStart - bl.position(), selEnd - selStart);
-        s[nSel].setType(QTextLayout::Highlight);
-        ++nSel;
-    }
-    if (context.imStart != context.imEnd) {
-        s[nSel].setRange(context.imStart - bl.position(), context.imEnd - context.imStart);
-        s[nSel].setType(QTextLayout::ImText);
-        ++nSel;
-    }
-    if (context.imSelectionStart != context.imSelectionEnd) {
-        s[nSel].setRange(context.imSelectionStart - bl.position(), context.imSelectionEnd - context.imSelectionStart);
-        s[nSel].setType(QTextLayout::ImSelection);
-        ++nSel;
-    }
-    if (context.focusIndicator.hasSelection()) {
-        const int selStart = context.focusIndicator.selectionStart();
-        const int selEnd = context.focusIndicator.selectionEnd();
-        s[nSel].setRange(selStart - bl.position(), selEnd - selStart);
-        s[nSel].setType(QTextLayout::FocusIndicatorSelection);
-        ++nSel;
+        int blpos = bl.position();
+        int bllen = bl.length();
+        const int selStart = context.cursor.selectionStart() - blpos;
+        const int selEnd = context.cursor.selectionEnd() - blpos;
+        if (selStart < bllen && selEnd > 0) {
+            QTextLayout::FormatOverride o;
+            o.from = selStart;
+            o.length = selEnd - selStart;
+            o.format.setBackgroundColor(context.palette.color(QPalette::Highlight));
+            o.format.setTextColor(context.palette.color(QPalette::HighlightedText));
+            QList<QTextLayout::FormatOverride> newOverrides = overrides;
+            newOverrides.append(o);
+            const_cast<QTextLayout *>(tl)->setFormatOverrides(newOverrides);
+        }
+        if (selStart <= 0 && selEnd >= 1)
+            highlightListItem = true;
     }
 
     QTextObject *object = q->document()->objectForFormat(bl.blockFormat());
     if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
-        drawListItem(offset, painter, context, bl, s[0]);
+        drawListItem(offset, painter, context, bl, highlightListItem);
 
     const_cast<QTextLayout *>(tl)->setPalette(context.palette,
                                               context.textColorFromPalette ? QTextLayout::UseTextColor : QTextLayout::None);
 
-    tl->draw(painter, offset, cursor, s, nSel, context.rect);
+    tl->draw(painter, offset, cursor, context.rect);
+
+    const_cast<QTextLayout *>(tl)->setFormatOverrides(overrides);
 }
 
 
 void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *painter,
                                               const QAbstractTextDocumentLayout::PaintContext &context,
-                                              QTextBlock bl, const QTextLayout::Selection &selection) const
+                                              QTextBlock bl, bool highlight) const
 {
     Q_Q(const QTextDocumentLayout);
     const QTextBlockFormat blockFormat = bl.blockFormat();
@@ -670,9 +666,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
 
     painter->save();
 
-    if (selection.type() == QTextLayout::Highlight
-        && (selection.from() + selection.length() > 0)
-        && (selection.from() < 1)) {
+    if (highlight) {
         painter->setPen(context.palette.highlightedText().color());
 
         painter->fillRect(r, context.palette.highlight());
@@ -1565,7 +1559,7 @@ void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat
 }
 
 void QTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
-                                     const QTextFormat &format, QTextLayout::SelectionType selType)
+                                     const QTextFormat &format)
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
@@ -1579,7 +1573,7 @@ void QTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QTextInlin
         }
     }
 //    qDebug() << "drawObject at" << r;
-    QAbstractTextDocumentLayout::drawObject(p, r, item, format, selType);
+    QAbstractTextDocumentLayout::drawObject(p, r, item, format);
 }
 
 

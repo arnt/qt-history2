@@ -140,35 +140,9 @@ public:
     int nextCursorPosition(int oldPos, CursorMode mode = SkipCharacters) const;
     int previousCursorPosition(int oldPos, CursorMode mode = SkipCharacters) const;
 
-    enum SelectionType {
-        NoSelection = 0,
-        Highlight = -1,
-        ImText = -2,
-        ImSelection = -3,
-        FocusIndicatorSelection = -4
-    };
-    class Selection {
-        int f;
-        int l;
-        int t;
-    public:
-        Selection() : f(-1), l(0), t(NoSelection) {}
-        //Selection(int f, int l, int formatIndex) : from(f), length(l), selectionType(formatIndex) {}
-        Selection(int from, int length, SelectionType type) : f(from), l(length), t(type) {}
-        inline int from() const { return f; }
-        inline int length() const { return l; }
-        inline SelectionType type() const { return static_cast<SelectionType>(t); }
-        inline void setRange(int from, int length) { f = from; l = length; }
-        inline void setType(SelectionType type) { t = type; }
-    };
-
     enum { NoCursor = -1 };
 
-    inline void draw(QPainter *p, const QPointF &pos, int cursorPos, const QVector<Selection> &selections) const {
-        draw(p, pos, cursorPos, selections.constData(), selections.size());
-    }
-    void draw(QPainter *p, const QPointF &pos, int cursorPos = NoCursor,
-              const Selection *selections = 0, int nSelections = 0, const QRect &cr = QRect()) const;
+    void draw(QPainter *p, const QPointF &pos, int cursorPos = NoCursor, const QRect &cr = QRect()) const;
 
     QPointF position() const;
     void setPosition(const QPointF &p);
@@ -234,8 +208,7 @@ public:
     QTextEngine *engine() const { return eng; }
     int line() const { return i; }
 
-    void draw(QPainter *p, const QPointF &point,
-              const QTextLayout::Selection *selections = 0, int nSelections = 0) const;
+    void draw(QPainter *p, const QPointF &point) const;
 
 private:
     QTextLine(int line, QTextEngine *e) : i(line), eng(e) {}
