@@ -2657,9 +2657,16 @@ bool QImage::save( const QString &fileName, const char* format, int quality ) co
 	return FALSE;				// nothing to save
     QImageIO io( fileName, format );
     io.setImage( *this );
+    if ( quality > 100  || quality < -1 ) {
+#if defined(CHECK_RANGE)
+	qWarning( "QPixmap::save: quality out of range [-1,100]" );
+#endif
+        if ( quality > 100 )
+	    quality = 100;
+    }
     if ( quality >= 0 ) {
 	QString s;
-	s.setNum( quality > 100 ? 100 : quality );
+	s.setNum( quality );
 	io.setParameters( s.latin1() );
     }
     return io.write();
