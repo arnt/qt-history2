@@ -413,6 +413,30 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 #endif // QMAC_PIXMAP_ALPHA
 }
 
+void qt_mac_clip_cg_handle(CGContextRef hd, const QRegion &rgn, const QRect &geometry, bool combine)
+{
+    if(!combine) {
+	QRect qr = rgn.boundingRect();
+	CGContextClipToRect(hd, CGRectMake(qr.x(), qr.y(), qr.width()+1, qr.height()+1));
+    } 
+
+    QVector<QRect> rects = rgn.rects();
+    const int count = rects.size();
+    CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);
+    for(int i = 0; i < count; i++) {
+	const QRect &r = rects[i];
+#ifdef USE_TRANSLATED_CG_CONTEXT
+	cg_rects[i] = CGRectMake(r.x()+geometry.x(), r.y()+geometry.y(), r.width()+1, r.height()+1);
+#else
+	cg_rects[i] = CGRectMake(r.x()+geometry.x(), geometry.height()-r.y()-geometry.y(), r.width()+1, -(r.height()+1));
+#endif
+    }
+    CGContextBeginPath(hd);
+    CGContextAddRects(hd, cg_rects, count);
+    CGContextClip(hd);
+    free(cg_rects);
+}
+
 /*!
     Returns the window system handle of the paint device for
     CoreGraphics support. Use of this function is not portable. This

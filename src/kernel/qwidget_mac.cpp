@@ -57,6 +57,7 @@ int mac_window_count = 0;
   Externals
  *****************************************************************************/
 QString cfstring2qstring(CFStringRef); //qglobal.cpp
+void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QRect &, bool); //qpaintdevice_mac.cpp
 void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_cleanup(QWidget *); //qapplication_mac.cpp
@@ -2318,14 +2319,8 @@ Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 	CGContextScaleCTM((CGContextRef)cg_hd, 1, -1);
 #endif
     }
-    //do clipping
-    QRegion rgn = ((QWidget*)this)->clippedRegion(do_children);
-    if(!rgn.handle()) {
-	QRect qr = rgn.boundingRect();
-	CGContextClipToRect((CGContextRef)cg_hd, CGRectMake(qr.x(), qr.y(), qr.width(), qr.height()));
-    } else {
-	ClipCGContextToRegion((CGContextRef)cg_hd, &port_rect, rgn.handle());
-    }
+    qt_mac_clip_cg_handle((CGContextRef)cg_hd, ((QWidget*)this)->clippedRegion(do_children), 
+			  QRect(0, 0, port_rect.right-port_rect.left, port_rect.bottom-port_rect.top), false);
     return cg_hd;
 }
 

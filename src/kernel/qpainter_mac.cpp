@@ -110,6 +110,7 @@ bool qt_recreate_root_win(); //qwidget_mac.cpp
 static void drawTile(QPainter *, int, int, int, int, const QPixmap &, int, int);
 QPoint posInWindow(QWidget *w);
 QRegion make_region(RgnHandle handle);
+void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QRect &, bool); //qpaintdevice_mac.cpp
 void unclippedBitBlt(QPaintDevice *dst, int dx, int dy,
 		     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 		     Qt::RasterOp rop, bool imask, bool set_fore_colour); //qpaintdevice_mac.cpp
@@ -157,6 +158,9 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
     delete paintevents.pop();
 }
 
+
+
+
 static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *paint_d)
 {
     CGContextRef ret = 0;
@@ -167,17 +171,11 @@ static inline CGContextRef qt_mac_get_cg(QPaintDevice *pdev, QPainterPrivate *pa
     //apply paint event region (in global coords)
     if(paintevent_item *pevent = paintevents.current()) {
 	if((*pevent) == pdev) {
-	    QVector<QRect> rects = pevent->region().rects();
-	    const int count = rects.size();
-	    CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);
-	    for(int i = 0; i < count; i++) {
-		const QRect &r = rects[i];
-		paint_d->cg_mac_rect(r.x(), r.y(), r.width()+1, r.height()+1, cg_rects+i, true);
-	    }
-	    CGContextBeginPath(ret);
-	    CGContextAddRects(ret, cg_rects, count);
-	    CGContextClip(ret);
-	    free(cg_rects);
+#ifdef USE_TRANSLATED_CG_CONTEXT
+	    qt_mac_clip_cg_handle(ret, pevent->region(), QRect(0, 0, 0, 0), true);
+#else
+	    qt_mac_clip_cg_handle(ret, pevent->region(), QRect(0, 0, paint_d->cg_info.width, paint_d->cg_info.height), true);
+#endif
 	}
     }
     return ret;
@@ -405,7 +403,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 	}
     }
     CGRect rect = CGRectMake(0, 0, w, h);
-#ifdef USE_TRANSLATED_CG_CONTEXT
+#if defined( USE_TRANSLATED_CG_CONTEXT ) && 0
     /* For whatever reason HIViews are top, left - so we'll just use this convenience function to
        actually render the CGImageRef. If this proves not to be an efficent funciton call (I doubt
        it), we'll just flip the image in the conversion above. */
@@ -969,17 +967,11 @@ void QPainter::setClipping(bool b)
 		CGContextRetain((CGContextRef)hd);
 	}
 	if(hd && b) {
-	    QVector<QRect> rects = crgn.rects();
-	    const int count = rects.size();
-	    CGRect *cg_rects = (CGRect *)malloc(sizeof(CGRect)*count);
-	    for(int i = 0; i < count; i++) {
-		const QRect &r = rects[i];
-		d->cg_mac_rect(r.x(), r.y(), r.width()+1, r.height()+1, cg_rects+i);
-	    }
-	    CGContextBeginPath((CGContextRef)hd);
-	    CGContextAddRects((CGContextRef)hd, cg_rects, count);
-	    CGContextClip((CGContextRef)hd);
-	    free(cg_rects);
+#ifdef USE_TRANSLATED_CG_CONTEXT
+	    qt_mac_clip_cg_handle((CGContextRef)hd, crgn, QRect(d->offx, d->offy, 0, 0), true);
+#else
+	    qt_mac_clip_cg_handle((CGContextRef)hd, crgn, QRect(d->offx, d->offy, d->cg_info.width, d->cg_info.height), true);
+#endif
 	}
     }
 #endif
