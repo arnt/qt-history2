@@ -70,7 +70,7 @@ void qRemovePostRoutine(QtCleanUpFunction p)
 
 static QThreadStorage<QPostEventList*> postEventLists;
 
-static QStaticSpinLock spinlock;
+static QStaticSpinLock spinlock = 0;
 static QHash<Qt::HANDLE, QPostEventList *> postEventListHash;
 
 Q_CORE_EXPORT QPostEventList *qt_postEventList(Qt::HANDLE thread)

@@ -24,7 +24,7 @@
 #define d d_func()
 #define q q_func()
 
-static QStaticSpinLock spinlock;
+static QStaticSpinLock spinlock = 0;
 static QHash<Qt::HANDLE, QEventLoop *> eventloops;
 
 QEventLoopPrivate::QEventLoopPrivate()

@@ -97,25 +97,22 @@ private:
 };
 
 // QStaticSpinLock allows you to have static-global spinlocks
-class Q_CORE_EXPORT QStaticSpinLock
-{
-    static QSpinLock *static_lock;
-public:
-    inline operator QSpinLock *()
-    {
-	if (!static_lock) {
-	    QSpinLock *x = new QSpinLock;
-	    if (!q_atomic_test_and_set_ptr(&static_lock, 0, x))
-		delete x;
-	}
-	return static_lock;
-    }
-};
+typedef void *QStaticSpinLock;
 
 // similar to QMutexLocker, but for spinlocks
 class Q_CORE_EXPORT QSpinLockLocker
 {
 public:
+    inline QSpinLockLocker(QStaticSpinLock &s)
+    {
+	if (!s) { // spinlock not yet initialized... do it now
+	    QSpinLock *x = new QSpinLock;
+	    if (!q_atomic_test_and_set_ptr(&s, 0, x))
+		delete x; // someone beat us to it
+	}
+	sx = reinterpret_cast<QSpinLock *>(s);
+	acquire();
+    }
     inline QSpinLockLocker(QSpinLock *s)
 	: sx(s)
     { acquire(); }
@@ -145,16 +142,12 @@ public:
     static inline void release() { }
 };
 
-class Q_CORE_EXPORT QStaticSpinLock
-{
-public:
-    inline operator QSpinLock *()
-    { return 0; }
-};
+typedef void *QStaticSpinLock;
 
 class Q_CORE_EXPORT QSpinLockLocker
 {
 public:
+    inline QSpinLockLocker(QStaticSpinLock &) { }
     inline QSpinLockLocker(QSpinLock *) { }
     inline ~QSpinLockLocker() { }
 
