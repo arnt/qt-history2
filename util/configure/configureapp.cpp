@@ -608,9 +608,6 @@ void Configure::parseCmdLine()
     for( QStringList::Iterator it = disabledModules.begin(); it != disabledModules.end(); ++it )
 	qtConfig.removeAll(*it);
 
-    if( !qtConfig.contains("opengl") )
-	dictionary[ "OPENGL" ] = "no";
-
     if( ( dictionary[ "REDO" ] != "yes" ) && ( dictionary[ "HELP" ] != "yes" ) )
 	saveCmdLine();
 #endif
@@ -818,6 +815,9 @@ void Configure::generateOutputVars()
 
     if (dictionary[ "QT3SUPPORT" ] == "yes")
         qtConfig += "qt3support";
+
+    if (dictionary[ "OPENGL" ] == "yes")
+        qtConfig += "opengl";
 
  //   if( dictionary[ "MNG" ] == "no" )
 	//qtConfig += "no-mng";
