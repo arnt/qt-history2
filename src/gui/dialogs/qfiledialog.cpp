@@ -957,8 +957,8 @@ void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current
 /*!
     \internal
 
-    This is called when the filename is changed; the new name is
-    passed in \a text.
+    This is called when the text in the filename lineedit is changed; the new text
+    is passed as \a text. This function provides autocompletion for filenames.
 */
 
 void QFileDialog::fileNameChanged(const QString &text)
@@ -999,7 +999,8 @@ void QFileDialog::lookInChanged(const QString &text)
         int key = d->lookInEdit->lastKeyPressed();
         if (key == separator)
             return;
-        QString pth = text.left(text.lastIndexOf(separator));
+        int sep = text.lastIndexOf(separator);
+        QString pth = (sep == 0 ? "/" : text.left(sep));
         QModelIndex dirIndex = d->model->index(pth);
         QString searchText = text.section(separator, -1);
         int rowCount = d->model->rowCount(dirIndex);
