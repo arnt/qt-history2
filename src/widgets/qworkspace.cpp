@@ -893,9 +893,11 @@ void QWorkspace::closeActiveWindow()
 
 void QWorkspace::closeAllWindows()
 {
-    for ( QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
-	if ( !c->windowWidget()->testWState( WState_ForceHide ) )
-	    c->windowWidget()->close();
+    QListIterator<QWorkspaceChild> it( d->windows );
+    QWorkspaceChild *c = 0;
+    while ( ( c = it.current() ) != 0 ) {
+	++it;
+	c->windowWidget()->close();
     }
 }
 
