@@ -4035,7 +4035,7 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
     {
         QTabletEvent *c = (QTabletEvent*)e;
         QTabletEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), c->device(), c->pressure(),
-                       c->xTilt(), c->yTilt(), c->uniqueId());
+                        c->minPressure(), c->maxPressure(), c->xTilt(), c->yTilt(), c->uniqueId());
         return QApplication::sendEvent(w, &s);
     }
     case QEvent::ContextMenu:

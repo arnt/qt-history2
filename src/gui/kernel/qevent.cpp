@@ -1553,7 +1553,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
 */
 
 QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, int device,
-                            int pressure, int xTilt, int yTilt,
+                            int pressure, int minPressure, int maxPressure, int xTilt, int yTilt,
                             const QPair<int, int> &uId)
     : QInputEvent(t),
       mPos(pos),
@@ -1563,7 +1563,9 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
       mXT(xTilt),
       mYT(yTilt),
       mType(uId.first),
-      mPhy(uId.second)
+      mPhy(uId.second),
+      mMinPressure(minPressure),
+      mMaxPressure(maxPressure)
 {
 }
 

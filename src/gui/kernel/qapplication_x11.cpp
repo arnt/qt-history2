@@ -322,31 +322,12 @@ bool qt_has_accelerated_xrender = false;
 Q_GUI_EXPORT int qt_xfocusout_grab_counter = 0;
 
 #if defined (QT_TABLET_SUPPORT)
-// since XInput event classes aren't created until we actually open an XInput
-// device, here is a static list that we will use later on...
-enum {
-    INVALID_EVENT = -1,
-    TOTAL_XINPUT_EVENTS = 7
-};
+Q_GLOBAL_STATIC(TabletDeviceDataList, tablet_devices)
+TabletDeviceDataList *qt_tablet_devices()
+{
+    return tablet_devices();
+}
 
-XDevice *devStylus = 0;
-XDevice *devEraser = 0;
-XEventClass event_list_stylus[TOTAL_XINPUT_EVENTS];
-XEventClass event_list_eraser[TOTAL_XINPUT_EVENTS];
-
-int qt_curr_events_stylus = 0;
-int qt_curr_events_eraser = 0;
-
-static int xinput_motion = INVALID_EVENT;
-static int xinput_key_press = INVALID_EVENT;
-static int xinput_key_release = INVALID_EVENT;
-static int xinput_button_press = INVALID_EVENT;
-static int xinput_button_release = INVALID_EVENT;
-
-// making this assumption on XFree86, since we can only use 1 device,
-// the pressure for the eraser and the stylus should be the same, if they aren't
-// well, they certainly have a strange pen then...
-static int max_pressure;
 extern bool chokeMouse;
 #endif
 
@@ -440,7 +421,7 @@ public:
     bool translateScrollDoneEvent(const XEvent *);
     bool translateWheelEvent(int global_x, int global_y, int delta, int state, Qt::Orientation orient);
 #if defined (QT_TABLET_SUPPORT)
-    bool translateXinputEvent(const XEvent*);
+    bool translateXinputEvent(const XEvent*, const TabletDeviceData *tablet);
 #endif
     bool translatePropertyEvent(const XEvent *);
 };
@@ -1773,14 +1754,12 @@ void qt_init(QApplicationPrivate *priv, int,
             XValuatorInfoPtr v;
             XAxisInfoPtr a;
             XDevice *dev;
-            XEventClass *ev_class;
-            int curr_event_count;
 
 #if !defined(Q_OS_IRIX)
             // XFree86 divides a stylus and eraser into 2 devices, so we must do for both...
-            const QString XFREENAMESTYLUS = "stylus";
-            const QString XFREENAMEPEN = "pen";
-            const QString XFREENAMEERASER = "eraser";
+            const QString XFREENAMESTYLUS = QLatin1String("stylus");
+            const QString XFREENAMEPEN = QLatin1String("pen");
+            const QString XFREENAMEERASER = QLatin1String("eraser");
 #endif
 
             devices = XListInputDevices(X11->display, &ndev);
@@ -1788,142 +1767,142 @@ void qt_init(QApplicationPrivate *priv, int,
                 qWarning("Failed to get list of devices");
                 ndev = -1;
             }
+            QTabletEvent::TabletDevice deviceType;
             dev = 0;
             for (devs = devices, i = 0; i < ndev; i++, devs++) {
+                gotStylus = false;
                 gotEraser = false;
-#if defined(Q_OS_IRIX)
-
-                gotStylus = (!strncmp(devs->name,
-                                       WACOM_NAME, sizeof(WACOM_NAME) - 1));
-#else
+                
                 QString devName = devs->name;
-                devName = devName.lower();
-                gotStylus = (devName.startsWith(XFREENAMEPEN)
-                              || devName.startsWith(XFREENAMESTYLUS));
-                if (!gotStylus)
-                    gotEraser = devName.startsWith(XFREENAMEERASER);
-
+                devName = devName.toLower();
+#if defined(Q_OS_IRIX)
+                if (devName == QLatin1String(WACOM_NAME)) {
+                    deviceType = QTabletEvent::Stylus;
+                    gotStylus = true;
+                }
+#else
+                if (devName.startsWith(XFREENAMEPEN)
+                              || devName.startsWith(XFREENAMESTYLUS)) {
+                    deviceType = QTabletEvent::Stylus;
+                    gotStylus = true;
+                } else if (devName.startsWith(XFREENAMEERASER)) {
+                    deviceType = QTabletEvent::Eraser;
+                    gotEraser = true;
+                }
 #endif
-                if (gotStylus || gotEraser) {
-                    // I only wanted to do this once, so wrap pointers around these
-                    curr_event_count = 0;
 
-                    if (gotStylus) {
-                        devStylus = XOpenDevice(X11->display, devs->id);
-                        dev = devStylus;
-                        ev_class = event_list_stylus;
-                    } else if (gotEraser) {
-                        devEraser = XOpenDevice(X11->display, devs->id);
-                        dev = devEraser;
-                        ev_class = event_list_eraser;
-                    }
+                if (gotStylus || gotEraser) {
+                    dev = XOpenDevice(X11->display, devs->id);
+                    
                     if (!dev) {
                         qWarning("Failed to open device");
-                    } else {
-                        if (dev->num_classes > 0) {
-                            for (ip = dev->classes, j = 0; j < devs->num_classes;
-                                  ip++, j++) {
-                                switch (ip->input_class) {
-                                case KeyClass:
-                                    DeviceKeyPress(dev, xinput_key_press,
-                                                    ev_class[curr_event_count]);
-                                    curr_event_count++;
-                                    DeviceKeyRelease(dev, xinput_key_release,
-                                                      ev_class[curr_event_count]);
-                                    curr_event_count++;
-                                    break;
-                                case ButtonClass:
-                                    DeviceButtonPress(dev, xinput_button_press,
-                                                       ev_class[curr_event_count]);
-                                    curr_event_count++;
-                                    DeviceButtonRelease(dev, xinput_button_release,
-                                                         ev_class[curr_event_count]);
-                                    curr_event_count++;
-                                    break;
-                                case ValuatorClass:
-                                    // I'm only going to be interested in motion when the
-                                    // stylus is already down anyway!
-                                    DeviceMotionNotify(dev, xinput_motion,
-                                                        ev_class[curr_event_count]);
-                                    curr_event_count++;
-                                    break;
-                                default:
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    // get the min/max value for pressure!
-                    any = (XAnyClassPtr) ( devs->inputclassinfo );
-                    if (dev == devStylus) {
-                        qt_curr_events_stylus = curr_event_count;
-                        for (j = 0; j < devs->num_classes; j++) {
-                            if (any->c_class == ValuatorClass) {
-                                v = (XValuatorInfoPtr) any;
-                                a = (XAxisInfoPtr) ((char *) v +
-                                                    sizeof (XValuatorInfo));
-#if defined (Q_OS_IRIX)
-                                max_pressure = a[WAC_PRESSURE_I].max_value;
-#else
-                                max_pressure = a[2].max_value;
-#endif
-                                // got the max pressure no need to go further...
+                        continue;
+                    }                    
+                        
+                    TabletDeviceData device_data;
+                    device_data.deviceType = deviceType;
+                    device_data.eventCount = 0;
+                    device_data.device = dev;
+                    device_data.xinput_motion = -1;
+                    device_data.xinput_key_press = -1;
+                    device_data.xinput_key_release = -1;
+                    device_data.xinput_button_press = -1;
+                    device_data.xinput_button_release = -1;
+                    
+                    if (dev->num_classes > 0) {
+                        for (ip = dev->classes, j = 0; j < devs->num_classes;
+                                ip++, j++) {
+                            switch (ip->input_class) {
+                            case KeyClass:
+                                DeviceKeyPress(dev, device_data.xinput_key_press,
+                                                device_data.eventList[device_data.eventCount]);
+                                ++device_data.eventCount;
+                                DeviceKeyRelease(dev, device_data.xinput_key_release,
+                                                    device_data.eventList[device_data.eventCount]);
+                                ++device_data.eventCount;
+                                break;
+                            case ButtonClass:
+                                DeviceButtonPress(dev, device_data.xinput_button_press,
+                                                    device_data.eventList[device_data.eventCount]);
+                                ++device_data.eventCount;
+                                DeviceButtonRelease(dev, device_data.xinput_button_release,
+                                                        device_data.eventList[device_data.eventCount]);
+                                ++device_data.eventCount;
+                                break;
+                            case ValuatorClass:
+                                // I'm only going to be interested in motion when the
+                                // stylus is already down anyway!
+                                DeviceMotionNotify(dev, device_data.xinput_motion,
+                                                    device_data.eventList[device_data.eventCount]);
+                                ++device_data.eventCount;
+                                break;
+                            default:
                                 break;
                             }
-                            any = (XAnyClassPtr) ((char *) any + any->length);
                         }
-                    } else {
-                        qt_curr_events_eraser = curr_event_count;
                     }
-                    // at this point we are assuming there is only one
-                    // wacom device...
+                    
+                    // get the min/max value for pressure!
+                    any = (XAnyClassPtr) ( devs->inputclassinfo );
+                    for (j = 0; j < devs->num_classes; j++) {
+                        if (any->c_class == ValuatorClass) {
+                            v = (XValuatorInfoPtr) any;
+                            a = (XAxisInfoPtr) ((char *) v +
+                                                sizeof (XValuatorInfo));
 #if defined (Q_OS_IRIX)
-                    if (devStylus != 0) {
+                            device_data.maxPressure = a[WAC_PRESSURE_I].max_value;
+                            device_data.minPressure = a[WAC_PRESSURE_I].min_value;
 #else
-                        if (devStylus != 0 && devEraser != 0) {
+                            device_data.maxPressure = a[2].max_value;
+                            device_data.minPressure = a[2].min_value;
 #endif
+                            
+                            // got the max pressure no need to go further...
                             break;
                         }
-                    }
-                } // end of for loop
-                XFreeDeviceList(devices);
+                        any = (XAnyClassPtr) ((char *) any + any->length);
+                    } // end of for loop
+                    
+                    tablet_devices()->append(device_data);
+                } // if (gotStylus || gotEraser)
             }
+            XFreeDeviceList(devices);            
+        }
 #endif // QT_TABLET_SUPPORT
+    } else {
+        // read some non-GUI settings when not using the X server...
 
-        } else {
-            // read some non-GUI settings when not using the X server...
+        if (QApplication::desktopSettingsAware()) {
+            QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
+            settings.beginGroup(QLatin1String("Qt"));
 
-            if (QApplication::desktopSettingsAware()) {
-                QSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
-                settings.beginGroup(QLatin1String("Qt"));
-
-                // read library (ie. plugin) path list
-                QString libpathkey = QString(QLatin1String("%1.%2/libraryPath"))
-                                     .arg(QT_VERSION >> 16)
-                                     .arg((QT_VERSION & 0xff00) >> 8);
-                QStringList pathlist =
-                    settings.value(libpathkey).toString().split(QLatin1Char(':'));
-                if (! pathlist.isEmpty()) {
-                    QStringList::ConstIterator it = pathlist.begin();
-                    while (it != pathlist.end())
-                        QApplication::addLibraryPath(*it++);
-                }
-
-                QString defaultcodec = settings.value(QLatin1String("defaultCodec"),
-                                                        QVariant(QLatin1String("none"))).toString();
-                if (defaultcodec != QLatin1String("none")) {
-                    QTextCodec *codec = QTextCodec::codecForName(defaultcodec.latin1());
-                    if (codec)
-                        qApp->setDefaultCodec(codec);
-                }
-
-                qt_resolve_symlinks =
-                    settings.value(QLatin1String("resolveSymlinks"), true).toBool();
-
-                settings.endGroup(); // Qt
+            // read library (ie. plugin) path list
+            QString libpathkey = QString(QLatin1String("%1.%2/libraryPath"))
+                                    .arg(QT_VERSION >> 16)
+                                    .arg((QT_VERSION & 0xff00) >> 8);
+            QStringList pathlist =
+                settings.value(libpathkey).toString().split(QLatin1Char(':'));
+            if (! pathlist.isEmpty()) {
+                QStringList::ConstIterator it = pathlist.begin();
+                while (it != pathlist.end())
+                    QApplication::addLibraryPath(*it++);
             }
+
+            QString defaultcodec = settings.value(QLatin1String("defaultCodec"),
+                                                    QVariant(QLatin1String("none"))).toString();
+            if (defaultcodec != QLatin1String("none")) {
+                QTextCodec *codec = QTextCodec::codecForName(defaultcodec.latin1());
+                if (codec)
+                    qApp->setDefaultCodec(codec);
+            }
+
+            qt_resolve_symlinks =
+                settings.value(QLatin1String("resolveSymlinks"), true).toBool();
+
+            settings.endGroup(); // Qt
         }
     }
+}
 
 
 #ifndef QT_NO_STYLE
@@ -1995,10 +1974,9 @@ void qt_cleanup()
     }
 
 #if defined (QT_TABLET_SUPPORT)
-    if (devStylus != NULL)
-        XCloseDevice(X11->display, devStylus);
-    if (devEraser != NULL)
-        XCloseDevice(X11->display, devEraser);
+    TabletDeviceDataList *devices = qt_tablet_devices();
+    for (int i = 0; i < devices->size(); ++i)
+        XCloseDevice(X11->display, (XDevice*)devices->at(i).device);
 #endif
 
 #if !defined(QT_NO_XIM)
@@ -2843,11 +2821,15 @@ int QApplication::x11ProcessEvent(XEvent* event)
     if (widget->x11Event(event))                // send through widget filter
         return 1;
 #if defined (QT_TABLET_SUPPORT)
-    if (event->type == xinput_motion ||
-         event->type == xinput_button_release ||
-         event->type == xinput_button_press) {
-        widget->translateXinputEvent(event);
-        return 0;
+    TabletDeviceDataList *tablets = qt_tablet_devices();
+    for (int i = 0; i < tablets->size(); ++i) {
+        const TabletDeviceData &tab = tablets->at(i);
+        if (event->type == tab.xinput_motion ||
+            event->type == tab.xinput_button_release ||
+            event->type == tab.xinput_button_press) {
+            widget->translateXinputEvent(event, &tab);
+            return 0;
+        }
     }
 #endif
 
@@ -3558,6 +3540,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
         }
         if (event->type == ButtonPress) {        // mouse button pressed
 #if defined(Q_OS_IRIX) && defined(QT_TABLET_SUPPORT)
+#warning "Trenton has to come back and fix this"
             XEvent myEv;
             if (XCheckTypedEvent(X11->display, xinput_button_press, &myEv)) {
                 if (translateXinputEvent(&myEv)) {
@@ -3591,6 +3574,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             mouseGlobalYPos = globalPos.y();
         } else {                                // mouse button released
 #if defined(Q_OS_IRIX) && defined(QT_TABLET_SUPPORT)
+#warning "Trenton has to come back and fix this"
             XEvent myEv;
             if (XCheckTypedEvent(X11->display, xinput_button_release, &myEv)) {
                 if (translateXinputEvent(&myEv)) {
@@ -3771,7 +3755,7 @@ bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta, int s
 // XInput Translation Event
 //
 #if defined (QT_TABLET_SUPPORT)
-bool QETWidget::translateXinputEvent(const XEvent *ev)
+bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *tablet)
 {
 #if defined (Q_OS_IRIX)
     // Wacom has put defines in their wacom.h file so it would be quite wise
@@ -3782,6 +3766,9 @@ bool QETWidget::translateXinputEvent(const XEvent *ev)
     XValuatorState *vs;
     int j;
 #endif
+
+    Q_ASSERT(tablet != 0);
+
     QWidget *w = this;
     QPoint global,
         curr;
@@ -3792,17 +3779,16 @@ bool QETWidget::translateXinputEvent(const XEvent *ev)
     QPair<int, int> tId;
     XEvent xinputMotionEvent;
     XEvent mouseMotionEvent;
-    XDevice *dev;
     const XDeviceMotionEvent *motion = 0;
     XDeviceButtonEvent *button = 0;
     QEvent::Type t;
 
-    if (ev->type == xinput_motion) {
+    if (ev->type == tablet->xinput_motion) {
         motion = (const XDeviceMotionEvent*)ev;
         for (;;) {
             if (!XCheckTypedWindowEvent(x11Display(), winId(), MotionNotify, &mouseMotionEvent))
                 break;
-            if (!XCheckTypedWindowEvent(x11Display(), winId(), xinput_motion, &xinputMotionEvent)) {
+            if (!XCheckTypedWindowEvent(x11Display(), winId(), tablet->xinput_motion, &xinputMotionEvent)) {
                 XPutBackEvent(x11Display(), &mouseMotionEvent);
                 break;
             }
@@ -3816,7 +3802,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev)
         t = QEvent::TabletMove;
         curr = QPoint(motion->x, motion->y);
     } else {
-        if (ev->type == xinput_button_press) {
+        if (ev->type == tablet->xinput_button_press) {
             t = QEvent::TabletPress;
         } else {
             t = QEvent::TabletRelease;
@@ -3842,40 +3828,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev)
 */
         curr = QPoint(button->x, button->y);
     }
-#if defined(Q_OS_IRIX)
-    // default...
-    dev = devStylus;
-#else
-    if (ev->type == xinput_motion) {
-        if (motion->deviceid == devStylus->device_id) {
-            dev = devStylus;
-            deviceType = QTabletEvent::Stylus;
-        } else if (motion->deviceid == devEraser->device_id) {
-            dev = devEraser;
-            deviceType = QTabletEvent::Eraser;
-        }
-    } else {
-        if (button->deviceid == devStylus->device_id) {
-            dev = devStylus;
-            deviceType = QTabletEvent::Stylus;
-        } else if (button->deviceid == devEraser->device_id) {
-            dev = devEraser;
-            deviceType = QTabletEvent::Eraser;
-        }
-    }
-#endif
 
-    const int PRESSURE_LEVELS = 255;
-    // we got the maximum pressure at start time, since various tablets have
-    // varying levels of distinguishing pressure changes, let's standardize and
-    // scale everything to 256 different levels...
-    static int scaleFactor = -1;
-    if (scaleFactor == -1) {
-        if (max_pressure > PRESSURE_LEVELS)
-            scaleFactor = max_pressure / PRESSURE_LEVELS;
-        else
-            scaleFactor = PRESSURE_LEVELS / max_pressure;
-    }
 #if defined (Q_OS_IRIX)
     s = XQueryDeviceState(X11->display, dev);
     if (s == NULL)
@@ -3907,10 +3860,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev)
             // apparently Wacom needs a cast for the +/- values to make sense
             xTilt = short(vs->valuators[WAC_XTILT_I]);
             yTilt = short(vs->valuators[WAC_YTILT_I]);
-            if (max_pressure > PRESSURE_LEVELS)
-                pressure = vs->valuators[WAC_PRESSURE_I] / scaleFactor;
-            else
-                pressure = vs->valuators[WAC_PRESSURE_I] * scaleFactor;
+            pressure = vs->valuators[WAC_PRESSURE_I];
             global = QPoint(vs->valuators[WAC_XCOORD_I],
                              vs->valuators[WAC_YCOORD_I]);
             break;
@@ -3919,28 +3869,33 @@ bool QETWidget::translateXinputEvent(const XEvent *ev)
     }
     XFreeDeviceState(s);
 #else
-    if (motion) {
+    TabletDeviceDataList *tablet_list = qt_tablet_devices();
+    int device_id = ev->type == tablet->xinput_motion ? motion->deviceid : button->deviceid;
+    for (int i = 0; i < tablet_list->size(); ++i) {
+        const TabletDeviceData &t = tablet_list->at(i);
+        if (device_id == static_cast<XDevice *>(t.device)->device_id) {
+            deviceType = t.deviceType;
+            break;
+        }
+    }    
+    
+    if (motion) {        
         xTilt = short(motion->axis_data[3]);
         yTilt = short(motion->axis_data[4]);
-        if (max_pressure > PRESSURE_LEVELS)
-            pressure = motion->axis_data[2] / scaleFactor;
-        else
-            pressure = motion->axis_data[2] * scaleFactor;
+        pressure = motion->axis_data[2];
         global = QPoint(motion->axis_data[0], motion->axis_data[1]);
     } else {
         xTilt = short(button->axis_data[3]);
         yTilt = short(button->axis_data[4]);
-        if (max_pressure > PRESSURE_LEVELS)
-            pressure = button->axis_data[2]  / scaleFactor;
-        else
-            pressure = button->axis_data[2] * scaleFactor;
+        pressure = button->axis_data[2];
         global = QPoint(button->axis_data[0], button->axis_data[1]);
     }
     // The only way to get these Ids is to scan the XFree86 log, which I'm not going to do.
     tId.first = tId.second = -1;
 #endif
 
-    QTabletEvent e(t, curr, global, deviceType, pressure, xTilt, yTilt, tId);
+    QTabletEvent e(t, curr, global, deviceType, pressure, tablet->maxPressure, tablet->minPressure,
+                    xTilt, yTilt, tId);
     QApplication::sendSpontaneousEvent(w, &e);
     return true;
 }

@@ -120,17 +120,13 @@ protected:
 };
 #endif
 
-
 class Q_GUI_EXPORT QTabletEvent : public QInputEvent
 {
 public:
     enum TabletDevice { NoDevice = -1, Puck, Stylus, Eraser };
     QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, int device,
-                  int pressure, int xTilt, int yTilt, const QPair<int,int> &uId);
-    inline QTabletEvent(const QPoint &pos, const QPoint &globalPos, int device,
-                        int pressure, int xTilt, int yTilt, const QPair<int,int> &uId)
-        : QInputEvent(TabletMove), mPos(pos), mGPos(globalPos), mDev(device),
-          mPress(pressure), mXT(xTilt), mYT(yTilt), mType(uId.first), mPhy(uId.second) {}
+                  int pressure, int minPressure, int maxPressure, int xTilt, int yTilt, 
+                  const QPair<int,int> &uId);
     inline int pressure() const { return mPress; }
     inline int xTilt() const { return mXT; }
     inline int yTilt() const { return mYT; }
@@ -142,9 +138,13 @@ public:
     inline int globalY() const { return mGPos.y(); }
     inline TabletDevice device() const { return TabletDevice(mDev); }
     inline QPair<int, int> uniqueId() { return QPair<int,int>(mType, mPhy); }
+    inline int minPressure() const { return mMinPressure; }
+    inline int maxPressure() const { return mMaxPressure; }
+    
 protected:
     QPoint mPos, mGPos;
     int mDev, mPress, mXT, mYT, mType, mPhy;
+    int mMinPressure, mMaxPressure;
 };
 
 

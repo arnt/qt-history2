@@ -143,15 +143,6 @@ extern bool qt_broken_wm;
 // defined in qapplication_x11.cpp
 extern bool qt_net_supports(Atom);
 
-#if defined (QT_TABLET_SUPPORT)
-extern XDevice *devStylus;
-extern XDevice *devEraser;
-extern XEventClass event_list_stylus[7];
-extern XEventClass event_list_eraser[7];
-extern int qt_curr_events_stylus;
-extern int qt_curr_events_eraser;
-#endif
-
 const uint stdWidgetEventMask =                        // X event mask
         (uint)(
             KeyPressMask | KeyReleaseMask |
@@ -664,10 +655,12 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     } else {
         XSelectInput(dpy, id, stdWidgetEventMask);
 #if defined (QT_TABLET_SUPPORT)
-        if (devStylus != NULL)
-            XSelectExtensionEvent(dpy, id, event_list_stylus, qt_curr_events_stylus);
-        if (devEraser != NULL)
-            XSelectExtensionEvent(dpy, id, event_list_eraser, qt_curr_events_eraser);
+        TabletDeviceDataList *tablet_list = qt_tablet_devices();
+        for (int i = 0; i < tablet_list->size(); ++i) {
+            TabletDeviceData tablet = tablet_list->at(i);
+            XSelectExtensionEvent(dpy, id, reinterpret_cast<XEventClass*>(tablet.eventList), 
+                                    tablet.eventCount);
+        }
 #endif
     }
 

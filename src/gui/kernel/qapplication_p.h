@@ -67,6 +67,32 @@ extern QSysInfo::MacVersion qt_macver;
 extern void qt_dispatchEnterLeave(QWidget*, QWidget*);
 extern bool qt_tryModalHelper(QWidget *, QWidget ** = 0);
 
+#ifdef QT_TABLET_SUPPORT
+enum {
+    TOTAL_XINPUT_EVENTS = 64
+};
+struct TabletDeviceData
+{
+    int deviceType;
+    int minPressure;
+    int maxPressure;
+#ifdef Q_WS_X11
+    void *device;
+    int eventCount;
+    long unsigned int eventList[TOTAL_XINPUT_EVENTS]; // XEventClass is in fact a long unsigned int
+
+    int xinput_motion;
+    int xinput_key_press;
+    int xinput_key_release;
+    int xinput_button_press;
+    int xinput_button_release;
+#endif
+};
+
+typedef QList<TabletDeviceData> TabletDeviceDataList;
+TabletDeviceDataList *qt_tablet_devices();
+#endif
+
 #ifndef QT_NO_COMPAT
 extern "C" {
     typedef bool (*Ptrqt_tryAccelEvent)(QWidget *w, QKeyEvent *e);
