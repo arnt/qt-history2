@@ -94,13 +94,13 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
 
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
     QString file = settings.readEntry( "/CLSID/" + cid.toString() + "/InprocServer32/Default", QString::null, &ok );
+    if ( !ok )
+	return QE_NOCOMPONENT;
+
     int dot = file.findRev( '.' );
     QString ext = file.right( file.length() - dot );
     if ( ext == ".dll" || ext == ".so" || ext == ".dylib" )
 	file = file.left( dot );
-
-    if ( !ok )
-	return QS_FALSE;
 
     QLibrary *library = new QLibrary( file );
 
