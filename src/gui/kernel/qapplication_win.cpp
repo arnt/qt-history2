@@ -728,7 +728,7 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
       	if (QSysInfo::WindowsVersion == QSysInfo::WV_XP)
 	    style |= 0x00020000;		// CS_DROPSHADOW
 #endif
-	icon  = FALSE;
+	icon = false;
     } else {
         cname = "QPopup";
         style = CS_DBLCLKS;
@@ -737,7 +737,7 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
 #endif
         if (QSysInfo::WindowsVersion == QSysInfo::WV_XP)
             style |= 0x00020000;                // CS_DROPSHADOW
-        icon  = false;
+        icon = false;
     }
 
 #ifdef Q_OS_TEMP
