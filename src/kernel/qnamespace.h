@@ -667,6 +667,26 @@ public:
 	LocalDate      // locale dependant
     };
 
+    enum BackgroundMode {
+	FixedColor,
+	FixedPixmap,
+	NoBackground,
+	PaletteForeground,
+	PaletteButton,
+	PaletteLight,
+	PaletteMidlight,
+	PaletteDark,
+	PaletteMid,
+	PaletteText,
+	PaletteBrightText,
+	PaletteBase,
+	PaletteBackground,
+	PaletteShadow,
+	PaletteHighlight,
+	PaletteHighlightedText,
+	PaletteButtonText,
+	X11ParentRelative
+    };
 
     // "handle" type for system objects.
 #if defined(Q_WS_MAC)

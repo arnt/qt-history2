@@ -68,10 +68,10 @@ class Q_EXPORT QComboBox : public QWidget
     Q_PROPERTY( bool autoCompletion READ autoCompletion WRITE setAutoCompletion )
     Q_PROPERTY( bool duplicatesEnabled READ duplicatesEnabled WRITE setDuplicatesEnabled )
 
-public:
+    public:
     QComboBox( QWidget *parent=0, const char *name=0 );
     QComboBox( bool rw, QWidget *parent=0, const char *name=0 );
-   ~QComboBox();
+    ~QComboBox();
 
     int		count() const;
 
@@ -102,7 +102,6 @@ public:
     virtual void setAutoResize( bool );
     QSize	sizeHint() const;
 
-    void	setBackgroundColor( const QColor & );
     void	setPalette( const QPalette & );
     void	setFont( const QFont & );
     void	setEnabled( bool );
@@ -137,6 +136,15 @@ public:
 
     bool 	editable() const;
     void 	setEditable( bool );
+
+    virtual const QColor &	foregroundColor() const;
+    virtual void		setForegroundColor( const QColor & );
+
+    virtual const QColor &	backgroundColor() const;
+    virtual void		setBackgroundColor( const QColor & );
+
+    virtual const QPixmap *	backgroundPixmap() const;
+    virtual void		setBackgroundPixmap( const QPixmap & );
 
 public slots:
     void	clearValidator();

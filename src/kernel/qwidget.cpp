@@ -1880,57 +1880,27 @@ QWidget *QWidget::topLevelWidget() const
 
 void QWidget::setBackgroundColor( const QColor &color )
 {
+    setBackgroundColorForMode(backgroundMode(), color);
+}
+
+void QWidget::setBackgroundColorForMode( BackgroundMode mode, const QColor &color )
+{
     QPalette pal = palette();
 
-    switch (backgroundMode()) {
-        case PaletteBackground:
-            pal.setColor(QColorGroup::Background, color);
-            break;
-        case PaletteForeground:
-            pal.setColor(QColorGroup::Foreground, color);
-            break;
-        case PaletteButton:
-            pal.setColor(QColorGroup::Button, color);
-            break;
-        case PaletteLight:
-            pal.setColor(QColorGroup::Light, color);
-            break;
-        case PaletteMidlight:
-            pal.setColor(QColorGroup::Midlight, color);
-            break;
-        case PaletteDark:
-            pal.setColor(QColorGroup::Dark, color);
-            break;
-        case PaletteMid:
-            pal.setColor(QColorGroup::Mid, color);
-            break;
-        case PaletteText:
-            pal.setColor(QColorGroup::Text, color);
-            break;
-        case PaletteBrightText:
-            pal.setColor(QColorGroup::BrightText, color);
-            break;
-        case PaletteButtonText:
-            pal.setColor(QColorGroup::ButtonText, color);
-            break;
-        case PaletteBase:
-            pal.setColor(QColorGroup::Base, color);
-            break;
-        case PaletteShadow:
-            pal.setColor(QColorGroup::Shadow, color);
-            break;
-        case PaletteHighlight:
-            pal.setColor(QColorGroup::Highlight, color);
-            break;
-        case PaletteHighlightedText:
-            pal.setColor(QColorGroup::HighlightedText, color);
-            break;
-        default:
-            setEraseColor(color);
-            return;
+    switch(mode) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	setEraseColor(color);
+	break;
+    default:
+	pal.setBackgroundColorForMode(QPalette::Active, mode, color);
+	pal.setBackgroundColorForMode(QPalette::Inactive, mode, color);
+	pal.setBackgroundColorForMode(QPalette::Disabled, mode, color);
+	setPalette(pal);
+	break;
     }
-
-    setPalette(pal);
 }
 
 /*!
@@ -1948,21 +1918,15 @@ void QWidget::setBackgroundColor( const QColor &color )
 
 void QWidget::setForegroundColor( const QColor & color )
 {
+    setForegroundColorForMode(backgroundMode(), color);
+}
+
+void QWidget::setForegroundColorForMode( BackgroundMode mode, const QColor & color )
+{
     QPalette pal = palette();
-
-    switch (backgroundMode()) {
-        case PaletteButton:
-            pal.setColor(QColorGroup::ButtonText, color);
-            break;
-        case PaletteBase:
-            pal.setColor(QColorGroup::Text, color);
-            break;
-        case PaletteBackground:
-        default:
-            pal.setColor(QColorGroup::Foreground, color);
-            break;
-    }
-
+    pal.setForegroundColorForMode(QPalette::Active, mode, color);
+    pal.setForegroundColorForMode(QPalette::Inactive, mode, color);
+    pal.setForegroundColorForMode(QPalette::Disabled, mode, color);
     setPalette(pal);
 }
 
@@ -2029,63 +1993,25 @@ void QWidget::setEraseColor( const QColor & color )
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
-    QColorGroup::ColorRole cr;
+    setBackgroundPixmapForMode(backgroundMode(), pixmap);
+}
 
-    switch (backgroundMode()) {
-        case PaletteBackground:
-            cr = QColorGroup::Background;
-            break;
-        case PaletteForeground:
-            cr = QColorGroup::Foreground;
-            break;
-        case PaletteButton:
-            cr = QColorGroup::Button;
-            break;
-        case PaletteLight:
-            cr = QColorGroup::Light;
-            break;
-        case PaletteMidlight:
-            cr = QColorGroup::Midlight;
-            break;
-        case PaletteDark:
-            cr = QColorGroup::Dark;
-            break;
-        case PaletteMid:
-            cr = QColorGroup::Mid;
-            break;
-        case PaletteText:
-            cr = QColorGroup::Text;
-            break;
-        case PaletteBrightText:
-            cr = QColorGroup::BrightText;
-            break;
-        case PaletteButtonText:
-            cr = QColorGroup::ButtonText;
-            break;
-        case PaletteBase:
-            cr = QColorGroup::Base;
-            break;
-        case PaletteShadow:
-            cr = QColorGroup::Shadow;
-            break;
-        case PaletteHighlight:
-            cr = QColorGroup::Highlight;
-            break;
-        case PaletteHighlightedText:
-            cr = QColorGroup::HighlightedText;
-            break;
-        default:
-            setErasePixmap(pixmap);
-            return;
+void QWidget::setBackgroundPixmapForMode( BackgroundMode mode, const QPixmap &pixmap )
+{
+    switch(mode) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	setErasePixmap(pixmap);
+	break;
+    default:
+	pal.setBackgroundPixmapForMode(QPalette::Active, mode, pixmap);
+	pal.setBackgroundPixmapForMode(QPalette::Inactive, mode, pixmap);
+	pal.setBackgroundPixmapForMode(QPalette::Disabled, mode, pixmap);
+	setPalette(pal);
+	break;
     }
-
-    QPalette pal = palette();
-    QBrush brush = colorGroup().brush(cr);
-
-    brush.setPixmap(pixmap);
-    pal.setBrush(cr, brush);
-
-    setPalette(pal);
 }
 
 /*!
@@ -2192,13 +2118,13 @@ void QWidget::setBackgroundFromMode()
 
   \sa BackgroundMode setBackgroundMode()
 */
-QWidget::BackgroundMode QWidget::backgroundMode() const
+Qt::BackgroundMode QWidget::backgroundMode() const
 {
     return extra ? (BackgroundMode)extra->bg_mode : PaletteBackground;
 }
 
 
-/*! \enum QWidget::BackgroundMode
+/*! \enum Qt::BackgroundMode
 
   This enum describes how the background of a widget changes, as the
   widget's palette changes.
@@ -2314,56 +2240,21 @@ void QWidget::setBackgroundModeDirect( BackgroundMode m )
 
 const QColor & QWidget::backgroundColor() const
 {
-    QColorGroup::ColorRole cr;
+    return backgroundColorForMode(backgroundMode());
+}
 
-    switch (backgroundMode()) {
-        case PaletteBackground:
-            cr = QColorGroup::Background;
-            break;
-        case PaletteForeground:
-            cr = QColorGroup::Foreground;
-            break;
-        case PaletteButton:
-            cr = QColorGroup::Button;
-            break;
-        case PaletteLight:
-            cr = QColorGroup::Light;
-            break;
-        case PaletteMidlight:
-            cr = QColorGroup::Midlight;
-            break;
-        case PaletteDark:
-            cr = QColorGroup::Dark;
-            break;
-        case PaletteMid:
-            cr = QColorGroup::Mid;
-            break;
-        case PaletteText:
-            cr = QColorGroup::Text;
-            break;
-        case PaletteBrightText:
-            cr = QColorGroup::BrightText;
-            break;
-        case PaletteButtonText:
-            cr = QColorGroup::ButtonText;
-            break;
-        case PaletteBase:
-            cr = QColorGroup::Base;
-            break;
-        case PaletteShadow:
-            cr = QColorGroup::Shadow;
-            break;
-        case PaletteHighlight:
-            cr = QColorGroup::Highlight;
-            break;
-        case PaletteHighlightedText:
-            cr = QColorGroup::HighlightedText;
-            break;
-        default:
-            return eraseColor();
+const QColor & QWidget::backgroundColorForMode( BackgroundMode mode ) const
+{
+    QPalette pal = palette();
+    switch(mode) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	return eraseColor();
+    default:
+	return  pal.backgroundColorForMode(QPalette::Normal, mode);
     }
-
-    return colorGroup().color(cr);
 }
 
 /*!
@@ -2377,18 +2268,16 @@ const QColor & QWidget::backgroundColor() const
 const QColor &QWidget::foregroundColor() const
 {
 #ifndef QT_NO_PALETTE
-    switch (backgroundMode()) {
-        case PaletteButton:
-            return colorGroup().buttonText();
-        case PaletteBase:
-            return colorGroup().text();
-        case PaletteBackground:
-        default:
-            return colorGroup().foreground();
-    }
+    return foregroundColorForMode(backgroundMode());
 #else
     return black; //###
 #endif
+}
+
+const QColor &QWidget::foregroundColorForMode( BackgroundMode mode ) const
+{
+    QPalette pal = palette();
+    return pal.foregroundColorForMode(QPalette::Normal, mode);
 }
 
 
@@ -2423,57 +2312,23 @@ void QWidget::backgroundColorChange( const QColor & )
 
 const QPixmap *QWidget::backgroundPixmap() const
 {
-    QColorGroup::ColorRole cr;
-
-    switch (backgroundMode()) {
-        case PaletteBackground:
-            cr = QColorGroup::Background;
-            break;
-        case PaletteForeground:
-            cr = QColorGroup::Foreground;
-            break;
-        case PaletteButton:
-            cr = QColorGroup::Button;
-            break;
-        case PaletteLight:
-            cr = QColorGroup::Light;
-            break;
-        case PaletteMidlight:
-            cr = QColorGroup::Midlight;
-            break;
-        case PaletteDark:
-            cr = QColorGroup::Dark;
-            break;
-        case PaletteMid:
-            cr = QColorGroup::Mid;
-            break;
-        case PaletteText:
-            cr = QColorGroup::Text;
-            break;
-        case PaletteBrightText:
-            cr = QColorGroup::BrightText;
-            break;
-        case PaletteButtonText:
-            cr = QColorGroup::ButtonText;
-            break;
-        case PaletteBase:
-            cr = QColorGroup::Base;
-            break;
-        case PaletteShadow:
-            cr = QColorGroup::Shadow;
-            break;
-        case PaletteHighlight:
-            cr = QColorGroup::Highlight;
-            break;
-        case PaletteHighlightedText:
-            cr = QColorGroup::HighlightedText;
-            break;
-        default:
-            return erasePixmap();
-    }
-
-    return colorGroup().brush(cr).pixmap();
+    return backgroundPixmapForMode(backgroundMode());
 }
+
+const QPixmap *QWidget::backgroundPixmapForMode( BackgroundMode mode ) const
+{
+    switch(mode) {
+    case FixedColor:
+    case FixedPixmap :
+    case NoBackground:
+    case X11ParentRelative:
+	return erasePixmap();
+    default:
+	QPalette pal = palette();
+	return pal.backgroundPixmapForMode(QPalette::Normal, mode);
+    }
+}
+
 
 /*!
   Returns the erase pixmap if one has been set.  If the widget

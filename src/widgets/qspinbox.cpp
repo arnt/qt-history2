@@ -341,10 +341,10 @@ void QSpinBox::setPrefix( const QString &text )
   \walkthrough table/wineorder2/spinboxitem.cpp
   \skipto setSuffix
   \printline setSuffix
- 
+
   (Code taken from \link wineorder2-example.html
-  table/wineorder2/spinboxitem.cpp and 
-  table/wineorder2/productlist.cpp \endlink )      
+  table/wineorder2/spinboxitem.cpp and
+  table/wineorder2/productlist.cpp \endlink )
 
   To turn off the suffix display, call this function with an empty
   string as \a text.  The default is no suffix.
@@ -1050,13 +1050,13 @@ void QSpinBox::setMinValue( int i )
 /*!
   A convenience function that just calls
   setRange( minValue(), i ).
-  
+
   \walkthrough table/wineorder2/spinboxitem.cpp
   \skipto setMaxValue
   \printline MaxValue
- 
+
   (Code taken from \link wineorder2-example.html
-  table/wineorder2/spinboxitem.cpp \endlink )      
+  table/wineorder2/spinboxitem.cpp \endlink )
 
   \sa setRange()
 */
@@ -1092,5 +1092,56 @@ void QSpinBox::setLineStep( int i )
 int QSpinBox::value() const
 {
     return QRangeControl::value();
+}
+
+/*!
+  \reimp
+*/
+const QColor & QSpinBox::foregroundColor() const
+{
+    return vi ? foregroundColorForMode(vi->backgroundMode()) : QWidget::foregroundColor();
+}
+
+/*!
+  \reimp
+*/
+void QSpinBox::setForegroundColor( const QColor & color )
+{
+    if(!vi) return;
+    setForegroundColorForMode(vi->backgroundMode(), color);
+}
+
+/*!
+  \reimp
+*/
+const QColor & QSpinBox::backgroundColor() const
+{
+    return vi ? backgroundColorForMode(vi->backgroundMode()) : QWidget::backgroundColor();
+}
+
+/*!
+  \reimp
+*/
+void QSpinBox::setBackgroundColor( const QColor & color )
+{
+    if(!vi) return;
+    setBackgroundColorForMode(vi->backgroundMode(), color);
+}
+
+/*!
+  \reimp
+*/
+const QPixmap* QSpinBox::backgroundPixmap() const
+{
+    return vi ? backgroundPixmapForMode(vi->backgroundMode()) : QWidget::backgroundPixmap();
+}
+
+/*!
+  \reimp
+*/
+void QSpinBox::setBackgroundPixmap( const QPixmap & pixmap )
+{
+    if(!vi) return;
+    setBackgroundPixmapForMode(vi->backgroundMode(), pixmap);
 }
 #endif

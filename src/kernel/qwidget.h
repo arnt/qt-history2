@@ -209,14 +209,6 @@ public:
 
     // Widget attribute functions
 
-    enum BackgroundMode { FixedColor, FixedPixmap, NoBackground,
-			  PaletteForeground, PaletteButton, PaletteLight,
-			  PaletteMidlight, PaletteDark, PaletteMid,
-			  PaletteText, PaletteBrightText, PaletteBase,
-			  PaletteBackground, PaletteShadow, PaletteHighlight,
-			  PaletteHighlightedText, PaletteButtonText,
-			  X11ParentRelative };
-
     BackgroundMode	backgroundMode() const;
     virtual void	setBackgroundMode( BackgroundMode );
 
@@ -378,7 +370,7 @@ public:
 #ifndef QT_NO_COMPAT
     void		recreate( QWidget *parent, WFlags f, const QPoint & p,
 				  bool showIt=FALSE )
-    { reparent(parent,f,p,showIt); }
+{ reparent(parent,f,p,showIt); }
 #endif
 
     void		erase();
@@ -484,6 +476,15 @@ protected:
     virtual void updateMask();
 
     // Misc. protected functions
+
+    const QColor &	foregroundColorForMode( BackgroundMode ) const;
+    void		setForegroundColorForMode( BackgroundMode, const QColor & );
+
+    const QColor &	backgroundColorForMode( BackgroundMode ) const;
+    void		setBackgroundColorForMode( BackgroundMode, const QColor & );
+
+    const QPixmap *	backgroundPixmapForMode( BackgroundMode ) const;
+    void		setBackgroundPixmapForMode( BackgroundMode, const QPixmap & );
 
 protected:
 #ifndef QT_NO_STYLE

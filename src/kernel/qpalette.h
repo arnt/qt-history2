@@ -113,7 +113,7 @@ public:
     QPalette( const QColorGroup &active, const QColorGroup &disabled,
 	      const QColorGroup &inactive );
     QPalette( const QPalette & );
-   ~QPalette();
+    ~QPalette();
     QPalette &operator=( const QPalette & );
 
     enum ColorGroup { Disabled, Active, Inactive, NColorGroups, Normal=Active };
@@ -144,10 +144,19 @@ public:
 
     bool	operator==( const QPalette &p ) const;
     bool	operator!=( const QPalette &p ) const
-					{ return !(operator==(p)); }
+              { return !(operator==(p)); }
     bool	isCopyOf( const QPalette & );
 
     int		serialNumber() const	{ return data->ser_no; }
+
+    const QColor &backgroundColorForMode( ColorGroup, Qt::BackgroundMode );
+    void setBackgroundColorForMode( ColorGroup, Qt::BackgroundMode,  const QColor& );
+
+    const QColor &foregroundColorForMode(  ColorGroup, Qt::BackgroundMode );
+    void setForegroundColorForMode( ColorGroup, Qt::BackgroundMode,  const QColor& );
+
+    const QPixmap *backgroundPixmapForMode( ColorGroup, Qt::BackgroundMode );
+    void setBackgroundPixmapForMode( ColorGroup, Qt::BackgroundMode, const QPixmap& );	
 
 private:
     void	detach();

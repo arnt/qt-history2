@@ -1017,21 +1017,6 @@ void QComboBox::internalClickTimeout()
     d->shortClick = FALSE;
 }
 
-
-/*!
-  Reimplements QWidget::setBackgroundColor().
-
-  Sets the background color for both the combo box button and the
-  combo box popup list.
-*/
-
-void QComboBox::setBackgroundColor( const QColor &color )
-{
-    QWidget::setBackgroundColor( color );
-    if ( !d->usingListBox() )
-	d->popup()->setBackgroundColor( color );
-}
-
 /*!
   Reimplements QWidget::setPalette().
 
@@ -2081,5 +2066,52 @@ void QComboBox::setUpLineEdit()
     connect( d->ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
 }
 
+/*!
+  \reimp
+*/
+const QColor & QComboBox::foregroundColor() const
+{
+    return foregroundColorForMode(PaletteBase);
+}
+
+/*!
+  \reimp
+*/
+void QComboBox::setForegroundColor( const QColor & color )
+{
+    setForegroundColorForMode(PaletteBase, color);
+}
+
+/*!
+  \reimp
+*/
+const QColor & QComboBox::backgroundColor() const
+{
+    return backgroundColorForMode(PaletteBase);
+}
+
+/*!
+  \reimp
+*/
+void QComboBox::setBackgroundColor( const QColor & color )
+{
+    setBackgroundColorForMode(PaletteBase, color);
+}
+
+/*!
+  \reimp
+*/
+const QPixmap* QComboBox::backgroundPixmap() const
+{
+    return backgroundPixmapForMode(PaletteBase);
+}
+
+/*!
+  \reimp
+*/
+void QComboBox::setBackgroundPixmap( const QPixmap & pixmap )
+{
+    setBackgroundPixmapForMode(PaletteBase, pixmap);
+}
 
 #endif // QT_NO_COMBOBOX

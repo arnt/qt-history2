@@ -2309,7 +2309,7 @@ bool QScrollView::hasStaticBackground() const
 */
 const QColor & QScrollView::foregroundColor() const
 {
-    return viewport()->foregroundColor();
+    return foregroundColorForMode(viewport()->backgroundMode());
 }
 
 /*!
@@ -2317,7 +2317,7 @@ const QColor & QScrollView::foregroundColor() const
 */
 void QScrollView::setForegroundColor( const QColor & color )
 {
-    viewport()->setForegroundColor(color);
+    setForegroundColorForMode(viewport()->backgroundMode(), color);
 }
 
 /*!
@@ -2325,7 +2325,7 @@ void QScrollView::setForegroundColor( const QColor & color )
 */
 const QColor & QScrollView::backgroundColor() const
 {
-    return viewport()->backgroundColor();
+    return backgroundColorForMode(viewport()->backgroundMode());
 }
 
 /*!
@@ -2333,7 +2333,7 @@ const QColor & QScrollView::backgroundColor() const
 */
 void QScrollView::setBackgroundColor( const QColor & color )
 {
-    viewport()->setBackgroundColor(color);
+    setBackgroundColorForMode(viewport()->backgroundMode(), color);
 }
 
 /*!
@@ -2341,7 +2341,7 @@ void QScrollView::setBackgroundColor( const QColor & color )
 */
 const QPixmap* QScrollView::backgroundPixmap() const
 {
-    return viewport()->backgroundPixmap();
+    return backgroundPixmapForMode(viewport()->backgroundMode());
 }
 
 /*!
@@ -2349,7 +2349,7 @@ const QPixmap* QScrollView::backgroundPixmap() const
 */
 void QScrollView::setBackgroundPixmap( const QPixmap & pixmap )
 {
-    viewport()->setBackgroundPixmap(pixmap);
+    setBackgroundPixmapForMode(viewport()->backgroundMode(), pixmap);
 }
 
 /*!

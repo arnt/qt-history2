@@ -960,6 +960,246 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
     return data->active.br[QColorGroup::Foreground]; // Satisfy compiler
 }
 
+// The next six functions are not documented by intention.  They are internal.
+const QColor &QPalette::backgroundColorForMode( ColorGroup cg, Qt::BackgroundMode mode )
+{
+    QColorGroup::ColorRole cr;
+
+    switch (mode) {
+    case Qt::PaletteBackground:
+    default:
+	cr = QColorGroup::Background;
+	break;
+    case Qt::PaletteForeground:
+	cr = QColorGroup::Foreground;
+	break;
+    case Qt::PaletteButton:
+	cr = QColorGroup::Button;
+	break;
+    case Qt::PaletteLight:
+	cr = QColorGroup::Light;
+	break;
+    case Qt::PaletteMidlight:
+	cr = QColorGroup::Midlight;
+	break;
+    case Qt::PaletteDark:
+	cr = QColorGroup::Dark;
+	break;
+    case Qt::PaletteMid:
+	cr = QColorGroup::Mid;
+	break;
+    case Qt::PaletteText:
+	cr = QColorGroup::Text;
+	break;
+    case Qt::PaletteBrightText:
+	cr = QColorGroup::BrightText;
+	break;
+    case Qt::PaletteButtonText:
+	cr = QColorGroup::ButtonText;
+	break;
+    case Qt::PaletteBase:
+	cr = QColorGroup::Base;
+	break;
+    case Qt::PaletteShadow:
+	cr = QColorGroup::Shadow;
+	break;
+    case Qt::PaletteHighlight:
+	cr = QColorGroup::Highlight;
+	break;
+    case Qt::PaletteHighlightedText:
+	cr = QColorGroup::HighlightedText;
+	break;
+    }
+
+    return color(cg, cr);
+}
+
+void QPalette::setBackgroundColorForMode( ColorGroup cg, Qt::BackgroundMode mode, const QColor& color  )
+{
+    switch (mode) {
+    case Qt::PaletteBackground:
+    default:	
+	setColor(cg, QColorGroup::Background, color);
+	break;
+    case Qt::PaletteForeground:
+	setColor(cg, QColorGroup::Foreground, color);
+	break;
+    case Qt::PaletteButton:
+	setColor(cg, QColorGroup::Button, color);
+	break;
+    case Qt::PaletteLight:
+	setColor(cg, QColorGroup::Light, color);
+	break;
+    case Qt::PaletteMidlight:
+	setColor(cg, QColorGroup::Midlight, color);
+	break;
+    case Qt::PaletteDark:
+	setColor(cg, QColorGroup::Dark, color);
+	break;
+    case Qt::PaletteMid:
+	setColor(cg, QColorGroup::Mid, color);
+	break;
+    case Qt::PaletteText:
+	setColor(cg, QColorGroup::Text, color);
+	break;
+    case Qt::PaletteBrightText:
+	setColor(cg, QColorGroup::BrightText, color);
+	break;
+    case Qt::PaletteButtonText:
+	setColor(cg, QColorGroup::ButtonText, color);
+	break;
+    case Qt::PaletteBase:
+	setColor(cg, QColorGroup::Base, color);
+	break;
+    case Qt::PaletteShadow:
+	setColor(cg, QColorGroup::Shadow, color);
+	break;
+    case Qt::PaletteHighlight:
+	setColor(cg, QColorGroup::Highlight, color);
+	break;
+    case Qt::PaletteHighlightedText:
+	setColor(cg, QColorGroup::HighlightedText, color);
+	break;
+    }
+}
+
+const QColor &QPalette::foregroundColorForMode( ColorGroup cg, Qt::BackgroundMode mode)
+{
+    switch (mode) {
+    case Qt::PaletteButton:
+	return color(cg, QColorGroup::ButtonText);
+    case Qt::PaletteBase:
+	return color(cg, QColorGroup::Text);
+    case Qt::PaletteBackground:
+    default:
+	return color(cg, QColorGroup::Foreground);
+    }
+}
+
+void QPalette::setForegroundColorForMode( ColorGroup cg, Qt::BackgroundMode mode,  const QColor& color )
+{
+    switch (mode) {
+    case Qt::PaletteButton:
+	setColor(cg, QColorGroup::ButtonText, color);
+	break;
+    case Qt::PaletteBase:
+	setColor(cg, QColorGroup::Text, color);
+	break;
+    case Qt::PaletteBackground:
+    default:
+	setColor(cg, QColorGroup::Foreground, color);
+	break;
+    }
+}
+
+const QPixmap *QPalette::backgroundPixmapForMode( ColorGroup cg,  Qt::BackgroundMode mode )
+{
+    QColorGroup::ColorRole cr;
+
+    switch (mode) {
+    case Qt::PaletteBackground:
+    default:	
+	cr = QColorGroup::Background;
+	break;
+    case Qt::PaletteForeground:
+	cr = QColorGroup::Foreground;
+	break;
+    case Qt::PaletteButton:
+	cr = QColorGroup::Button;
+	break;
+    case Qt::PaletteLight:
+	cr = QColorGroup::Light;
+	break;
+    case Qt::PaletteMidlight:
+	cr = QColorGroup::Midlight;
+	break;
+    case Qt::PaletteDark:
+	cr = QColorGroup::Dark;
+	break;
+    case Qt::PaletteMid:
+	cr = QColorGroup::Mid;
+	break;
+    case Qt::PaletteText:
+	cr = QColorGroup::Text;
+	break;
+    case Qt::PaletteBrightText:
+	cr = QColorGroup::BrightText;
+	break;
+    case Qt::PaletteButtonText:
+	cr = QColorGroup::ButtonText;
+	break;
+    case Qt::PaletteBase:
+	cr = QColorGroup::Base;
+	break;
+    case Qt::PaletteShadow:
+	cr = QColorGroup::Shadow;
+	break;
+    case Qt::PaletteHighlight:
+	cr = QColorGroup::Highlight;
+	break;
+    case Qt::PaletteHighlightedText:
+	cr = QColorGroup::HighlightedText;
+	break;
+    }
+
+    return brush(cg, cr).pixmap();
+}
+
+void QPalette::setBackgroundPixmapForMode( ColorGroup cg, Qt::BackgroundMode mode, const QPixmap& pixmap)
+{
+    QColorGroup::ColorRole cr;
+
+    switch (mode) {
+    case Qt::PaletteBackground:
+    default:
+	cr = QColorGroup::Background;
+	break;
+    case Qt::PaletteForeground:
+	cr = QColorGroup::Foreground;
+	break;
+    case Qt::PaletteButton:
+	cr = QColorGroup::Button;
+	break;
+    case Qt::PaletteLight:
+	cr = QColorGroup::Light;
+	break;
+    case Qt::PaletteMidlight:
+	cr = QColorGroup::Midlight;
+	break;
+    case Qt::PaletteDark:
+	cr = QColorGroup::Dark;
+	break;
+    case Qt::PaletteMid:
+	cr = QColorGroup::Mid;
+	break;
+    case Qt::PaletteText:
+	cr = QColorGroup::Text;
+	break;
+    case Qt::PaletteBrightText:
+	cr = QColorGroup::BrightText;
+	break;
+    case Qt::PaletteButtonText:
+	cr = QColorGroup::ButtonText;
+	break;
+    case Qt::PaletteBase:
+	cr = QColorGroup::Base;
+	break;
+    case Qt::PaletteShadow:
+	cr = QColorGroup::Shadow;
+	break;
+    case Qt::PaletteHighlight:
+	cr = QColorGroup::Highlight;
+	break;
+    case Qt::PaletteHighlightedText:
+	cr = QColorGroup::HighlightedText;
+	break;
+    }
+
+    QBrush brush(brush(cg, cr));
+    brush.setPixmap(pixmap);
+    setBrush(cg, cr, brush);
+}
+
 
 /*! \base64 palette.png
 
