@@ -1388,11 +1388,10 @@ void QMainWindow::setUpLayout()
 #ifndef QT_NO_MENUBAR
     if ( d->mb && d->mb->isVisibleTo( this ) ) {
 	d->tll->setMenuBar( d->mb );
+	if (style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this))
+	    d->tll->addSpacing( d->movable ? 1  : 2 );
     }
 #endif
-
-    if (style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this))
-	d->tll->addSpacing( d->movable ? 1  : 2 );
 
     d->tll->addWidget( d->hideDock );
     d->tll->addWidget( d->topDock );
