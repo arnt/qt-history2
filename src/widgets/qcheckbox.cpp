@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#103 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#104 $
 **
 ** Implementation of QCheckBox class
 **
@@ -175,7 +175,9 @@ void QCheckBox::drawButton( QPainter *paint )
 	kf |= 1;
     if ( isEnabled() )
 	kf |= 2;
-    kf |= state() << 2;
+    if ( hasFocus() )
+	kf |= 4;				// active vs. normal colorgroup
+    kf |= state() << 3;
     QTextOStream(&pmkey) << "$qt_check_" << style().className() << "_"
 			 << palette().serialNumber() << "_" << kf;
     QPixmap *pm = QPixmapCache::find( pmkey );
