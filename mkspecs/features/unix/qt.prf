@@ -2,6 +2,10 @@ CONFIG *= moc thread
 
 !debug:DEFINES += QT_NO_DEBUG
 
+# make sure that the Qt includes are before all others... this
+# prevents us from picking up "stale" includes
+INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH
+
 !isEmpty(QMAKE_RTLDIR_QT):QMAKE_LIBDIR += $$QMAKE_RTLDIR_QT
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
 for(QTLIB, QT) {
@@ -34,9 +38,5 @@ for(QTLIB, QT) {
       }
    }
 }
-
-# make sure that the Qt includes are before all others... this
-# prevents us from picking up "stale" includes
-INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH
 
 plugin:DEFINES += QT_PLUGIN
