@@ -1,10 +1,15 @@
 #include "qaccessiblecompat.h"
 #include "qwidgetstack.h"
 
-/*!
-\fn QAccessibleScrollView::QAccessibleScrollView(QWidget* widget, Role role)
+#include <q3listview.h>
+#include <q3textedit.h>
+#include <qiconview.h>
+#include <qlistbox.h>
 
-Constructs a QAccessibleScrollView object for a \a widget.
+/*!
+\fn Q3AccessibleScrollView::Q3AccessibleScrollView(QWidget* widget, Role role)
+
+Constructs a Q3AccessibleScrollView object for a \a widget.
 The \a role is propagated to the QAccessibleWidget constructor.
 */
 Q3AccessibleScrollView::Q3AccessibleScrollView(QWidget *w, Role role)
@@ -614,4 +619,155 @@ int QAccessibleWidgetStack::navigate(Relation rel, int entry, QAccessibleInterfa
     }
     *target = QAccessible::queryAccessibleInterface(targetObject);
     return *target ? 0 : -1;
+}
+
+/*!
+  \class QAccessibleListBox qaccessiblewidget.h
+  \brief The QAccessibleListBox class implements the QAccessibleInterface for list boxes.
+
+  \ingroup accessibility
+*/
+
+/*!
+  \fn QAccessibleListBox::QAccessibleListBox(QWidget* widget)
+
+  Constructs a QAccessibleListBox object for a \a widget.
+*/
+QAccessibleListBox::QAccessibleListBox(QWidget *o)
+    : Q3AccessibleScrollView(o, List)
+{
+    Q_ASSERT(widget()->inherits("QListBox"));
+}
+
+/*! Returns the list box. */
+QListBox *QAccessibleListBox::listBox() const
+{
+    return (QListBox*)widget();
+}
+
+/*! \reimp */
+int QAccessibleListBox::itemAt(int x, int y) const
+{
+    QListBoxItem *item = listBox()->itemAt(QPoint(x, y));
+    return listBox()->index(item) + 1;
+}
+
+/*! \reimp */
+QRect QAccessibleListBox::itemRect(int item) const
+{
+    return listBox()->itemRect(listBox()->item(item-1));
+}
+
+/*! \reimp */
+int QAccessibleListBox::itemCount() const
+{
+    return listBox()->count();
+}
+
+/*! \reimp */
+QString QAccessibleListBox::text(Text t, int child) const
+{
+    if (!child || t != Name)
+        return Q3AccessibleScrollView::text(t, child);
+
+    QListBoxItem *item = listBox()->item(child - 1);
+    if (item)
+        return item->text();
+    return QString();
+}
+
+/*! \reimp */
+QAccessible::Role QAccessibleListBox::role(int child) const
+{
+    if (!child)
+        return Q3AccessibleScrollView::role(child);
+    return ListItem;
+}
+
+/*! \reimp */
+int QAccessibleListBox::state(int child) const
+{
+    int state = Q3AccessibleScrollView::state(child);
+    QListBoxItem *item;
+    if (!child || !(item = listBox()->item(child - 1)))
+        return state;
+
+    if (item->isSelectable()) {
+        if (listBox()->selectionMode() == QListBox::Multi)
+            state |= MultiSelectable;
+        else if (listBox()->selectionMode() == QListBox::Extended)
+            state |= ExtSelectable;
+        else if (listBox()->selectionMode() == QListBox::Single)
+            state |= Selectable;
+        if (item->isSelected())
+            state |= Selected;
+    }
+    if (listBox()->focusPolicy() != Qt::NoFocus) {
+        state |= Focusable;
+        if (item->isCurrent())
+            state |= Focused;
+    }
+    if (!listBox()->itemVisible(item))
+        state |= Invisible;
+
+    return state;
+}
+
+/* \reimp
+bool QAccessibleListBox::setFocus(int child)
+{
+    bool res = Q3AccessibleScrollView::setFocus(0);
+    if (!child || !res)
+        return res;
+
+    QListBoxItem *item = listBox()->item(child -1);
+    if (!item)
+        return false;
+    listBox()->setCurrentItem(item);
+    return true;
+}*/
+
+bool QAccessibleListBox::setSelected(int child, bool on, bool extend)
+{
+    if (!child || (extend &&
+        listBox()->selectionMode() != QListBox::Extended &&
+        listBox()->selectionMode() != QListBox::Multi))
+        return false;
+
+    QListBoxItem *item = listBox()->item(child -1);
+    if (!item)
+        return false;
+    if (!extend) {
+        listBox()->setSelected(item, on);
+    } else {
+        int current = listBox()->currentItem();
+        bool down = child > current;
+        for (int i = current; i != child;) {
+            down ? i++ : i--;
+            listBox()->setSelected(i, on);
+        }
+
+    }
+    return true;
+}
+
+void QAccessibleListBox::clearSelection()
+{
+    listBox()->clearSelection();
+}
+
+QVector<int> QAccessibleListBox::selection() const
+{
+    QVector<int> array;
+    uint size = 0;
+    const uint c = listBox()->count();
+    array.resize(c);
+    for (uint i = 0; i < c; ++i) {
+        if (listBox()->isSelected(i)) {
+            ++size;
+            array[(int)size-1] = i+1;
+        }
+    }
+    array.resize(size);
+    return array;
 }

@@ -36,6 +36,8 @@ QStringList CompatAccessibleFactory::keys() const
     list << "Q3DockWindowResizeHandle";
     list << "Q3MainWindow";
     list << "Q3Header";
+    list << "QListBox";
+    list << "QTable";
 
     return list;
 }
@@ -57,6 +59,10 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
         iface = new QAccessibleListView(widget);
     } else if (classname == "QWidgetStack") {
         iface = new QAccessibleWidgetStack(widget);
+    } else if (classname == "QListBox") {
+        iface = new QAccessibleListBox(widget);
+    } else if (classname == "QTable") {
+        iface = new Q3AccessibleScrollView(widget, Table);
     } else if (classname == "Q3GroupBox") {
         iface = new Q3AccessibleDisplay(widget, Grouping);
     } else if (classname == "Q3ToolBar") {

@@ -9,7 +9,6 @@
 #include <qcombobox.h>
 #include <qgenericlistview.h>
 #include <qlineedit.h>
-#include <qlistbox.h>
 #include <private/qtitlebar_p.h>
 #include <qstyle.h>
 #include <qstyleoption.h>

@@ -39,8 +39,6 @@ QStringList AccessibleFactory::keys() const
     list << "QButton";
     list << "QViewportWidget";
     list << "QClipperWidget";
-    list << "QListBox";
-    list << "QTable";
     list << "QDialog";
     list << "QMessageBox";
     list << "QMainWindow";
@@ -113,10 +111,6 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleViewport(widget, widget->parentWidget());
     } else if (classname == "QClipperWidget") {
         iface = new QAccessibleViewport(widget, widget->parentWidget()->parentWidget());
-    } else if (classname == "QListBox") {
-        iface = new QAccessibleListBox(widget);
-    } else if (classname == "QTable") {
-        iface = new QAccessibleScrollView(widget, Table);
     } else if (classname == "QDialog") {
         iface = new QAccessibleWidget(widget, Dialog);
     } else if (classname == "QMessageBox") {
