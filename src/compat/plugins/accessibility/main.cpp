@@ -1,13 +1,15 @@
 #include "qaccessiblecompat.h"
 
 #include <qaccessibleplugin.h>
+#include <qplugin.h>
+#include <qstringlist.h>
 
-class CompatAccessibleFactory : public QAccessiblePlugin, QAccessible
+class CompatAccessibleFactory : public QAccessiblePlugin
 {
 public:
     CompatAccessibleFactory();
 
-    QStringList keys();
+    QStringList keys() const;
     QAccessibleInterface *create(const QString &classname, QObject *object);
 };
 
@@ -15,14 +17,14 @@ CompatAccessibleFactory::CompatAccessibleFactory()
 {
 }
 
-QStringList CompatAccessibleFactory::keys()
+QStringList CompatAccessibleFactory::keys() const
 {
     QStringList list;
-    list << "QTextEdit";
+    list << "Q3TextEdit";
 #ifndef QT_NO_ICONVIEW
     list << "QIconView";
 #endif
-    list << "QListView";
+    list << "Q3ListView";
     list << "QWidgetStack";
 
     return list;
@@ -35,13 +37,13 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
         return iface;
     QWidget *widget = static_cast<QWidget*>(object);
 
-    if (classname == "QTextEdit") {
+    if (classname == "Q3TextEdit") {
         iface = new QAccessibleTextEdit(widget);
 #ifndef QT_NO_ICONVIEW
     } else if (classname == "QIconView") {
         iface = new QAccessibleIconView(widget);
 #endif
-    } else if (classname == "QListView") {
+    } else if (classname == "Q3ListView") {
         iface = new QAccessibleListView(widget);
     } else if (classname == "QWidgetStack") {
         iface = new QAccessibleWidgetStack(widget);

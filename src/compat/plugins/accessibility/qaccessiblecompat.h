@@ -3,8 +3,8 @@
 
 #include <qaccessiblewidget.h>
 #include <qiconview.h>
-#include <qlistview.h>
-#include <qtextedit.h>
+#include <q3listview.h>
+#include <q3textedit.h>
 
 #ifndef QT_NO_ACCESSIBILITY
 
@@ -36,7 +36,7 @@ public:
     QVector<int> selection() const;
 
 protected:
-    QListView *listView() const;
+    Q3ListView *listView() const;
 };
 
 #ifndef QT_NO_ICONVIEW
@@ -76,7 +76,7 @@ public:
     Role        role(int child) const;
 
 protected:
-    QTextEdit *textEdit() const;
+    Q3TextEdit *textEdit() const;
 };
 
 class QWidgetStack;

@@ -42,11 +42,11 @@ int Q3AccessibleScrollView::itemCount() const
   \brief The QAccessibleListView class implements the QAccessibleInterface for list views.
 */
 
-static QListViewItem *findLVItem(QListView* listView, int child)
+static Q3ListViewItem *findLVItem(Q3ListView* listView, int child)
 {
     int id = 1;
-    QListViewItemIterator it(listView);
-    QListViewItem *item = it.current();
+    Q3ListViewItemIterator it(listView);
+    Q3ListViewItem *item = it.current();
     while (item && id < child) {
         ++it;
         ++id;
@@ -66,20 +66,20 @@ QAccessibleListView::QAccessibleListView(QWidget *o)
 }
 
 /*! Returns the list view. */
-QListView *QAccessibleListView::listView() const
+Q3ListView *QAccessibleListView::listView() const
 {
-    Q_ASSERT(widget()->inherits("QListView"));
-    return (QListView*)widget();
+    Q_ASSERT(widget()->inherits("Q3ListView"));
+    return (Q3ListView*)widget();
 }
 
 /*! \reimp */
 int QAccessibleListView::itemAt(int x, int y) const
 {
-    QListViewItem *item = listView()->itemAt(QPoint(x, y));
+    Q3ListViewItem *item = listView()->itemAt(QPoint(x, y));
     if (!item)
         return 0;
 
-    QListViewItemIterator it(listView());
+    Q3ListViewItemIterator it(listView());
     int c = 1;
     while (it.current()) {
         if (it.current() == item)
@@ -93,7 +93,7 @@ int QAccessibleListView::itemAt(int x, int y) const
 /*! \reimp */
 QRect QAccessibleListView::itemRect(int child) const
 {
-    QListViewItem *item = findLVItem(listView(), child);
+    Q3ListViewItem *item = findLVItem(listView(), child);
     if (!item)
         return QRect();
     return listView()->itemRect(item);
@@ -102,7 +102,7 @@ QRect QAccessibleListView::itemRect(int child) const
 /*! \reimp */
 int QAccessibleListView::itemCount() const
 {
-    QListViewItemIterator it(listView());
+    Q3ListViewItemIterator it(listView());
     int c = 0;
     while (it.current()) {
         ++c;
@@ -118,7 +118,7 @@ QString QAccessibleListView::text(Text t, int child) const
     if (!child || t != Name)
         return Q3AccessibleScrollView::text(t, child);
 
-    QListViewItem *item = findLVItem(listView(), child);
+    Q3ListViewItem *item = findLVItem(listView(), child);
     if (!item)
         return QString();
     return item->text(0);
@@ -136,21 +136,21 @@ QAccessible::Role QAccessibleListView::role(int child) const
 int QAccessibleListView::state(int child) const
 {
     int state = Q3AccessibleScrollView::state(child);
-    QListViewItem *item;
+    Q3ListViewItem *item;
     if (!child || !(item = findLVItem(listView(), child)))
         return state;
 
     if (item->isSelectable()) {
-        if (listView()->selectionMode() == QListView::Multi)
+        if (listView()->selectionMode() == Q3ListView::Multi)
             state |= MultiSelectable;
-        else if (listView()->selectionMode() == QListView::Extended)
+        else if (listView()->selectionMode() == Q3ListView::Extended)
             state |= ExtSelectable;
-        else if (listView()->selectionMode() == QListView::Single)
+        else if (listView()->selectionMode() == Q3ListView::Single)
             state |= Selectable;
         if (item->isSelected())
             state |= Selected;
     }
-    if (listView()->focusPolicy() != QWidget::NoFocus) {
+    if (listView()->focusPolicy() != Qt::NoFocus) {
         state |= Focusable;
         if (item == listView()->currentItem())
             state |= Focused;
@@ -174,11 +174,11 @@ int QAccessibleListView::state(int child) const
 /* \reimp
 QAccessibleInterface *QAccessibleListView::focusChild(int *child) const
 {
-    QListViewItem *item = listView()->currentItem();
+    Q3ListViewItem *item = listView()->currentItem();
     if (!item)
         return 0;
 
-    QListViewItemIterator it(listView());
+    Q3ListViewItemIterator it(listView());
     int c = 1;
     while (it.current()) {
         if (it.current() == item) {
@@ -198,7 +198,7 @@ bool QAccessibleListView::setFocus(int child)
     if (!child || !res)
         return res;
 
-    QListViewItem *item = findLVItem(listView(), child);
+    Q3ListViewItem *item = findLVItem(listView(), child);
     if (!item)
         return false;
     listView()->setCurrentItem(item);
@@ -209,21 +209,21 @@ bool QAccessibleListView::setFocus(int child)
 bool QAccessibleListView::setSelected(int child, bool on, bool extend)
 {
     if (!child || (extend &&
-        listView()->selectionMode() != QListView::Extended &&
-        listView()->selectionMode() != QListView::Multi))
+        listView()->selectionMode() != Q3ListView::Extended &&
+        listView()->selectionMode() != Q3ListView::Multi))
         return false;
 
-    QListViewItem *item = findLVItem(listView(), child);
+    Q3ListViewItem *item = findLVItem(listView(), child);
     if (!item)
         return false;
     if (!extend) {
         listView()->setSelected(item, on);
     } else {
-        QListViewItem *current = listView()->currentItem();
+        Q3ListViewItem *current = listView()->currentItem();
         if (!current)
             return false;
         bool down = item->itemPos() > current->itemPos();
-        QListViewItemIterator it(current);
+        Q3ListViewItemIterator it(current);
         while (it.current()) {
             listView()->setSelected(it.current(), on);
             if (it.current() == item)
@@ -250,7 +250,7 @@ QVector<int> QAccessibleListView::selection() const
     uint size = 0;
     int id = 1;
     array.resize(size);
-    QListViewItemIterator it(listView());
+    Q3ListViewItemIterator it(listView());
     while (it.current()) {
         if (it.current()->isSelected()) {
             ++size;
@@ -361,7 +361,7 @@ int QAccessibleIconView::state(int child) const
     }
     if (iconView()->itemsMovable())
         state |= Moveable;
-    if (iconView()->focusPolicy() != QWidget::NoFocus) {
+    if (iconView()->focusPolicy() != Qt::NoFocus) {
         state |= Focusable;
         if (item == iconView()->currentItem())
             state |= Focused;
@@ -479,14 +479,14 @@ QVector<int> QAccessibleIconView::selection() const
 QAccessibleTextEdit::QAccessibleTextEdit(QWidget *o)
 : Q3AccessibleScrollView(o, Pane)
 {
-    Q_ASSERT(widget()->inherits("QTextEdit"));
+    Q_ASSERT(widget()->inherits("Q3TextEdit"));
 }
 
 /*! Returns the text edit. */
-QTextEdit *QAccessibleTextEdit::textEdit() const
+Q3TextEdit *QAccessibleTextEdit::textEdit() const
 {
 
-    return (QTextEdit*)widget();
+    return (Q3TextEdit*)widget();
 }
 
 /*! \reimp */
@@ -604,9 +604,6 @@ int QAccessibleWidgetStack::navigate(Relation rel, int entry, QAccessibleInterfa
     QObject *targetObject = 0;
     switch (rel) {
     // Hierarchical
-    case Self:
-        const_cast<QAccessibleWidgetStack*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
-        return 0;
     case Child:
         if (entry != 1)
             return -1;
@@ -615,6 +612,6 @@ int QAccessibleWidgetStack::navigate(Relation rel, int entry, QAccessibleInterfa
     default:
         return QAccessibleWidget::navigate(rel, entry, target);
     }
-    QAccessible::queryAccessibleInterface(targetObject, target);
+    *target = QAccessible::queryAccessibleInterface(targetObject);
     return *target ? 0 : -1;
 }
