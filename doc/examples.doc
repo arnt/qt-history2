@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.24 1999/06/02 20:19:26 paul Exp $
+** $Id: examples.doc,v 2.25 1999/06/03 10:22:58 paul Exp $
 **
 ** Documentation for the examples
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.24 1999/06/02 20:19:26 paul Exp $";
+static char ident[] = "$Id: examples.doc,v 2.25 1999/06/03 10:22:58 paul Exp $";
 #endif
 
 
@@ -339,13 +339,13 @@ static char ident[] = "$Id: examples.doc,v 2.24 1999/06/02 20:19:26 paul Exp $";
 
   Header file:
 
-  \include linedits/linedits.h
+  \include lineedits/lineedits.h
 
   <hr>
 
   Implementation:
 
-  \include linedits/linedits.cpp
+  \include lineedits/lineedits.cpp
 
   <hr>
 
@@ -587,7 +587,7 @@ static char ident[] = "$Id: examples.doc,v 2.24 1999/06/02 20:19:26 paul Exp $";
 
   <h1 align=center>Rot13</h1><br clear="all">
 
-  In this example you can enter a text in one Mulitilinedit widget
+  In this example you can enter a text in one Mulitilineedit widget
   and it is displayed in the edit widget at the right transformed using 
   the rot13 algorithm.
 
