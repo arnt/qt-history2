@@ -668,6 +668,27 @@ void QToolBar::createPopup()
 }
 
 
+void QToolBar::actionEvent(QActionEvent *e)
+{
+    if (e->type() == QEvent::ActionAdded) {
+	QAction *a = e->action();
+	if (a->isSeparator()) {
+	    addSeparator();
+	} else {
+	    QToolButton* btn = new QToolButton(this);
+	    btn->setToggleButton(a->isCheckable());
+	    if (!a->iconSet().isNull())
+		btn->setIconSet(a->iconSet());
+	    btn->setTextLabel(a->text());
+	    connect( btn, SIGNAL( clicked() ), a, SIGNAL( triggered() ) );
+	}
+    } else {
+	// ActionRemoved
+	// #############
+    }
+}
+
+
 /*!
     \reimp
 */
