@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#26 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#26 $");
 
 
 /*!
@@ -157,14 +157,14 @@ void QLayout::addChildLayout( QLayout *l )
 
 /*!
   \fn QChain *QLayout::horChain( QLayout * )
-  This function works around a terrible case of brain damage in
+  This function works around a dubious feature in
   the C++ language definition, to provide access to mainHorizontalChain().
  */
 
 
 /*!
   \fn QChain *QLayout::verChain( QLayout * )
-  This function works around a terrible case of brain damage in
+  This function works around a dubious feature in
   the C++ language definition, to provide access to mainVerticalChain().
 */
 
