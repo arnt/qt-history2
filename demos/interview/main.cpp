@@ -23,7 +23,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QSplitter page;
 
-    QAbstractItemModel *data = new Model(1000, 10, &page);
+    QAbstractItemModel *data = new Model(1000, 10, 5, &page);
     QItemSelectionModel *selections = new QItemSelectionModel(data, data);
 
     QTableView *table = new QTableView(&page);

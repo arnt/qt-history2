@@ -22,7 +22,7 @@ class Model : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    Model(int rows, int columns, QObject *parent = 0);
+    Model(int rows, int columns, int depth, QObject *parent = 0);
     ~Model();
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
@@ -39,7 +39,7 @@ public:
     bool isDragEnabled(const QModelIndex &index) const;
 
 private:
-    
+
     struct Node
     {
 	Node(Node *parent = 0) : parent(parent), children(0) {}
@@ -51,10 +51,11 @@ private:
     Node *node(int row, Node *parent) const;
     Node *parent(Node *child) const;
     int row(Node *node) const;
-    
-    int rc, cc;
+    int depth(Node *node) const;
+
+    int rc, cc, d;
     QVector<Node> *tree;
-    
+
     mutable QChar strbuf[65];
 };
 
