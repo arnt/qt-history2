@@ -96,7 +96,8 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^configure"),
-			  new RegExp("^LICENSE.PREVIEW") ];
+			  new RegExp("^LICENSE.PREVIEW"),
+			  new RegExp("^README.qws") ];
 platformKeep["win"] = [ new RegExp(".") ];
 
 platformRemove["x11"] = [ new RegExp("^gif"),
@@ -112,7 +113,8 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^.LICENSE"),
-			  new RegExp("^bin/configure.exe") ];
+			  new RegExp("^bin/configure.exe"),
+			  new RegExp("^README.qws") ];
 platformKeep["x11"] = [ new RegExp(".") ];
 
 platformRemove["mac"] = [ new RegExp("^gif"),
@@ -127,7 +129,8 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^.LICENSE"),
-			  new RegExp("^bin/configure.exe") ];
+			  new RegExp("^bin/configure.exe"),
+			  new RegExp("^README.qws") ];
 platformKeep["mac"] = [ new RegExp(".") ];
 
 platformRemove["embedded"] = [ new RegExp("^gif"),
@@ -155,7 +158,8 @@ editionRemove["opensource"] = [ new RegExp("^qmake/generators/win32/borland"),
 				new RegExp("^qmake/generators/mac/pbuilder"),
 				new RegExp("^mkspecs/macx-mwerks"),
 				new RegExp("^mkspecs/macx-pbuilder"),
-				new RegExp("^mkspecs/macx-xcode") ];
+				new RegExp("^mkspecs/macx-xcode"),
+				new RegExp("^README-QT.TXT") ];
 editionKeep["opensource"] = [ new RegExp(".") ];
 
 editionRemove["preview"] = [ new RegExp("GPL") ];
@@ -201,6 +205,7 @@ moduleMap["assistant application"]       = new RegExp("^tools/assistant");
 moduleMap["linguist application"]        = new RegExp("^tools/linguist");
 moduleMap["qtconfig application"]        = new RegExp("^tools/qtconfig");
 moduleMap["virtual framebuffer"]         = new RegExp("^tools/qvfb");
+moduleMap["porting application"]         = new RegExp("^tools/porting");
 
 /*******************************************************************************
  * Here we go
@@ -574,7 +579,7 @@ function compress(platform, edition, packageDir)
  */
 function compile(platform, edition, platformName)
 {
-    if (!options["binaries"] || !binaryHosts[platform])
+    if (!options["binaries"] || !(platform in binaryHosts))
 	return;
 
     var login = binaryUser + "@" + binaryHosts[platform];
