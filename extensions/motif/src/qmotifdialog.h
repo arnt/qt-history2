@@ -41,6 +41,7 @@ class QMotifDialog : public QDialog
     Q_OBJECT
 
 public:
+    // obsolete
     enum DialogType {
 	Prompt,
 	Selection,
@@ -54,12 +55,19 @@ public:
 	Warning,
 	Working
     };
-
-    QMotifDialog( DialogType dialogtype, Widget parent = NULL,
-                  ArgList args = NULL, Cardinal argcount = 0,
+    // obsolete
+    QMotifDialog( DialogType dialogtype,
+		  Widget parent, ArgList args = NULL, Cardinal argcount = 0,
 		  const char *name = 0, bool modal = FALSE, WFlags flags = 0 );
-    QMotifDialog( Widget = NULL, ArgList = NULL, Cardinal = 0,
-		  const char * = 0, bool = FALSE, WFlags = 0 );
+    // obsolete
+    QMotifDialog( Widget parent, ArgList args = NULL, Cardinal argcount = 0,
+		  const char *name = 0, bool modal = FALSE, WFlags flags = 0 );
+
+    QMotifDialog( Widget parent, const char *name = 0,
+		  bool modal = FALSE, WFlags flags = 0 );
+    QMotifDialog( QWidget *parent, const char *name = 0,
+		  bool modal = FALSE, WFlags flags = 0 );
+
     virtual ~QMotifDialog();
 
     Widget shell() const;
@@ -81,9 +89,11 @@ protected:
 private:
     QMotifDialogPrivate *d;
 
-    void realize( Widget );
-    void insertChild( Widget );
-    void deleteChild( Widget );
+    void init( Widget parent = NULL, ArgList args = NULL, Cardinal argcount = 0);
+
+    void realize( Widget w );
+    void insertChild( Widget w );
+    void deleteChild( Widget w );
 
     friend void qmotif_dialog_realize( Widget, XtValueMask *, XSetWindowAttributes *);
     friend void qmotif_dialog_insert_child( Widget );
