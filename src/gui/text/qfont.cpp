@@ -1646,7 +1646,7 @@ bool QFont::fromString(const QString &descrip)
         setPointSizeFloat(l[1].toDouble());
     if (count == 9) {
         setStyleHint((StyleHint) l[2].toInt());
-        setWeight(l[3].toInt());
+        setWeight(qMax(qMin(99, l[3].toInt()), 0));
         setItalic(l[4].toInt());
         setUnderline(l[5].toInt());
         setStrikeOut(l[6].toInt());
@@ -1656,7 +1656,7 @@ bool QFont::fromString(const QString &descrip)
         if (l[2].toInt() > 0)
             setPixelSize(l[2].toInt());
         setStyleHint((StyleHint) l[3].toInt());
-        setWeight(l[4].toInt());
+        setWeight(qMax(qMin(99, l[4].toInt()), 0));
         setItalic(l[5].toInt());
         setUnderline(l[6].toInt());
         setStrikeOut(l[7].toInt());
