@@ -21,6 +21,7 @@ private:
     QLabel *statusLabel;
     QPushButton *quitButton;
     QTcpServer *fortuneServer;
+    QStringList fortunes;
 };
 
 #endif

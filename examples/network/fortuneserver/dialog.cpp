@@ -8,17 +8,6 @@
 
 static const int NumFortunes = 8;
 
-static const char * const fortunes[NumFortunes] = {
-    "You've been leading a dog's life. Stay off the furniture.",
-    "You've got to think about tomorrow.",
-    "You will be surprised by a loud noise.",
-    "You will feel hungry again in another hour.",
-    "You might have mail.",
-    "You cannot kill time without injuring eternity.",
-    "You cannot achieve the impossible without attempting the absurd.",
-    "Computers are not intelligent. They only think they are."
-};
-
 Dialog::Dialog(QWidget *parent)
     : QDialog(parent)
 {
@@ -26,11 +15,6 @@ Dialog::Dialog(QWidget *parent)
     quitButton = new QPushButton(tr("&Quit"), this);
 
     fortuneServer = new QTcpServer(this);
-
-    connect(quitButton, SIGNAL(clicked()), SLOT(close()));
-    connect(fortuneServer, SIGNAL(newConnection()),
-            this, SLOT(sendFortune()));
-
     if (!fortuneServer->listen()) {
         QMessageBox::critical(this, tr("Fortune Server"),
                               tr("Unable to start the server: %1.")
@@ -41,6 +25,18 @@ Dialog::Dialog(QWidget *parent)
 
     statusLabel->setText(tr("The server is running on port %1")
                          .arg(fortuneServer->serverPort()));
+
+    fortunes << tr("You've been leading a dog's life. Stay off the furniture.")
+             << tr("You've got to think about tomorrow.")
+             << tr("You will be surprised by a loud noise.")
+             << tr("You will feel hungry again in another hour.")
+             << tr("You might have mail.")
+             << tr("You cannot kill time without injuring eternity.")
+             << tr("Computers are not intelligent. They only think they are.");
+
+    connect(quitButton, SIGNAL(clicked()), SLOT(close()));
+    connect(fortuneServer, SIGNAL(newConnection()),
+            this, SLOT(sendFortune()));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
