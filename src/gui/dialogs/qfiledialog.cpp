@@ -475,6 +475,8 @@ void QFileDialog::selectFile(const QString &filename)
     QModelIndex index = d->model->index(r, 0, d->root());
     if (index.isValid())
         d->selections->select(index, QItemSelectionModel::Select);
+    else
+        d->fileName->setText(filename);
 }
 
 /*!
