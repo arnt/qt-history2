@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id:  qt/qmetaobject.h   3.0.0-beta5   edited Sep 12 10:50 $
+** $Id$
 **
 ** Definition of QMetaObject class
 **
