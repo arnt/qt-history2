@@ -2544,7 +2544,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
     // Look for font name in fontNameDict based on QFont::key()
     QXFontName *qxfn = fontNameDict->find(k);
-    double scale = -1.;
+    double scale = 1.;
     if (! qxfn) {
 	// if we don't find the name in the dict, we need to find a font name
 
