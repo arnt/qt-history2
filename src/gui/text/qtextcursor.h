@@ -114,6 +114,8 @@ public:
 
 
     bool atBlockStart() const;
+    bool atBlockEnd() const;
+    bool atStart() const;
     bool atEnd() const;
 
     void insertBlock();

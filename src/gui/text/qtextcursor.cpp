@@ -1130,7 +1130,7 @@ void QTextCursor::mergeCharFormat(const QTextCharFormat &modifier)
     Returns true if the cursor is at the start of a block; otherwise
     returns false.
 
-    \sa atEnd()
+    \sa atBlockEnd(), atStart()
 */
 bool QTextCursor::atBlockStart() const
 {
@@ -1141,10 +1141,38 @@ bool QTextCursor::atBlockStart() const
 }
 
 /*!
+    Returns true if the cursor is at the end of a block; otherwise
+    returns false.
+
+    \sa atBlockStart(), atEnd()
+*/
+bool QTextCursor::atBlockEnd() const
+{
+    if (!d || !d->priv)
+        return false;
+
+    return d->position == d->block().position() + d->block().length() - 1;
+}
+
+/*!
+    Returns true if the cursor is at the start of the document;
+    otherwise returns false.
+
+    \sa atBlockStart(), atEnd()
+*/
+bool QTextCursor::atStart() const
+{
+    if (!d || !d->priv)
+        return false;
+
+    return d->position == 0;
+}
+
+/*!
     Returns true if the cursor is at the end of the document;
     otherwise returns false.
 
-    \sa atBlockStart()
+    \sa atStart(), atBlockEnd()
 */
 bool QTextCursor::atEnd() const
 {
