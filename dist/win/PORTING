@@ -2,7 +2,7 @@
 
 Read this file if you want to port Qt to other NT platforms or C++
 compilers. Our internal development environment is Windows 95 and NT
-with Microsoft Visual C++ (MSVC++) 4.1 on Intel.
+with Microsoft Visual C++ (MSVC++) 4.2 on Intel.
 
 
                                REQUIREMENTS
@@ -15,10 +15,8 @@ CFront-based compilers.
 
                                  PATCHES
 
-Note that you may not distribute your port without our explicit
-permission.  Please send us the patches you had to make so we can add them
-to the code base; then we can support the new platform in an orderly
-manner.
+Please send us the patches you had to make so we can add them to the code
+base; then we can support the new platform in an orderly manner.
 
                            PORTING INSTRUCTIONS
 

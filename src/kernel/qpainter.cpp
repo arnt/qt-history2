@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#87 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#87 $");
 
 
 /*!
@@ -46,7 +46,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#86 $");
   <li> Call end() to finish painting.
   </ol>
 
-  Example of use:
+  Example:
   \code
     void MyWidget::paintEvent()
     {
@@ -1017,7 +1017,7 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 
   Use the QBrush class for specifying fill styles.
 
-  Example of how to use a pen:
+  Example:
   \code
     QPainter painter;
     QPen     pen( red, 2 );		// red solid line, 2 pixel width
@@ -1029,7 +1029,9 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
     painter.end();			// painting done
   \endcode
 
-  The setStyle() function lists the pen styles.
+  See the setStyle() function for a complete list of pen styles.
+
+  \sa QPainter, QPainter::setPen()
 */
 
 
@@ -1148,14 +1150,14 @@ QPen QPen::copy() const
   Sets the pen style to \e s.
 
   The pen styles are:
-  <dl compact>
-  <dt> NoPen <dd> no outline is drawn.
-  <dt> SolidLine <dd> solid line (default).
-  <dt> DashLine <dd> - - - (dashes) line.
-  <dt> DotLine <dd> * * * (dots) line.
-  <dt> DashDotLine <dd> - * - * line.
-  <dt> DashDotDotLine <dd> - ** - ** line.
-  </dl>
+  <ul>
+  <li> \c NoPen  no outline is drawn.
+  <li> \c SolidLine  solid line (default).
+  <li> \c DashLine  - - - (dashes) line.
+  <li> \c DotLine  * * * (dots) line.
+  <li> \c DashDotLine  - * - * line.
+  <li> \c DashDotDotLine  - ** - ** line.
+  </ul>
 
   \sa style()
 */
@@ -1297,7 +1299,7 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
 
   Use the QPen class for specifying line/outline styles.
 
-  Example of how to use a brush:
+  Example:
   \code
     QPainter painter;
     QBrush   brush( yellow );		// yellow solid pattern
@@ -1311,7 +1313,9 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
     painter.end();			// painting done
   \endcode
 
-  The setStyle() function lists the brush styles.
+  See the setStyle() function for a complete list of brush styles.
+
+  \sa QPainter, QPainter::setBrush(), QPainter::setBrushOrigin()
 */
 
 
@@ -1456,24 +1460,24 @@ QBrush QBrush::copy() const
   Sets the brush style to \e s.
 
   The brush styles are:
-  <dl compact>
-  <dt> NoBrush <dd> will not fill shapes (default).
-  <dt> SolidPattern <dd> solid (100%) fill pattern.
-  <dt> Dense1Pattern <dd> 94% fill pattern.
-  <dt> Dense2Pattern <dd> 88% fill pattern.
-  <dt> Dense3Pattern <dd> 63% fill pattern.
-  <dt> Dense4Pattern <dd> 50% fill pattern.
-  <dt> Dense5Pattern <dd> 37% fill pattern.
-  <dt> Dense6Pattern <dd> 12% fill pattern.
-  <dt> Dense7Pattern <dd> 6% fill pattern.
-  <dt> HorPattern <dd> horizontal lines pattern.
-  <dt> VerPattern <dd> vertical lines pattern.
-  <dt> CrossPattern <dd> crossing lines pattern.
-  <dt> BDiagPattern <dd> diagonal lines (directed / ) pattern.
-  <dt> FDiagPattern <dd> diagonal lines (directed \ ) pattern.
-  <dt> DiagCrossPattern <dd> diagonal crossing lines pattern.
-  <dt> CustomPattern <dd> set when a pixmap pattern is being used.
-  </dl>
+  <ul>
+  <li> \c NoBrush  will not fill shapes (default).
+  <li> \c SolidPattern  solid (100%) fill pattern.
+  <li> \c Dense1Pattern  94% fill pattern.
+  <li> \c Dense2Pattern  88% fill pattern.
+  <li> \c Dense3Pattern  63% fill pattern.
+  <li> \c Dense4Pattern  50% fill pattern.
+  <li> \c Dense5Pattern  37% fill pattern.
+  <li> \c Dense6Pattern  12% fill pattern.
+  <li> \c Dense7Pattern  6% fill pattern.
+  <li> \c HorPattern  horizontal lines pattern.
+  <li> \c VerPattern  vertical lines pattern.
+  <li> \c CrossPattern  crossing lines pattern.
+  <li> \c BDiagPattern  diagonal lines (directed / ) pattern.
+  <li> \c FDiagPattern  diagonal lines (directed \ ) pattern.
+  <li> \c DiagCrossPattern  diagonal crossing lines pattern.
+  <li> \c CustomPattern  set when a pixmap pattern is being used.
+  </ul>
 
   \sa style()
 */
