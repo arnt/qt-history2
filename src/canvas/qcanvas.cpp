@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/canvas/qcanvas.cpp#59 $
+** $Id: //depot/qt/main/src/canvas/qcanvas.cpp#60 $
 **
 ** Implementation of QCanvas and associated classes
 **
@@ -3531,6 +3531,7 @@ QPointArray QCanvasPolygonalItem::areaPointsAdvanced() const
     int dx = int(x()+xVelocity())-int(x());
     int dy = int(y()+yVelocity())-int(y());
     QPointArray r = areaPoints();
+    r.detach(); // Explicit sharing is stupid.
     if ( dx || dy )
 	r.translate(dx,dy);
     return r;
@@ -3671,8 +3672,10 @@ QPointArray QCanvasPolygonalItem::chunks() const
 {
     QPointArray pa = areaPoints();
 
-    if ( !pa.size() )
+    if ( !pa.size() ) {
+	pa.detach(); // Explicit sharing is stupid.
 	return pa;
+    }
 
     QPolygonalProcessor processor(canvas(),pa);
 
@@ -3823,6 +3826,7 @@ void QCanvasPolygon::setPoints(QPointArray pa)
 {
     removeFromChunks();
     poly = pa;
+    poly.detach(); // Explicit sharing is stupid.
     poly.translate((int)x(),(int)y());
     addToChunks();
 }
