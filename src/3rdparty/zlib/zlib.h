@@ -666,7 +666,7 @@ ZEXTERN int Q_ZEXPORT uncompress OF((Bytef *dest,   uLongf *destLen,
 
 typedef voidp gzFile;
 
-ZEXTERN gzFile ZEXPORT gzopen  OF((const char *path, const char *mode));
+ZEXTERN gzFile Q_ZEXPORT gzopen  OF((const char *path, const char *mode));
 /*
      Opens a gzip (.gz) file for reading or writing. The mode parameter
    is as in fopen ("rb" or "wb") but can also include a compression level
@@ -703,7 +703,7 @@ ZEXTERN int ZEXPORT gzsetparams OF((gzFile file, int level, int strategy));
    opened for writing.
 */
 
-ZEXTERN int ZEXPORT    gzread  OF((gzFile file, voidp buf, unsigned len));
+ZEXTERN int Q_ZEXPORT  gzread  OF((gzFile file, voidp buf, unsigned len));
 /*
      Reads the given number of uncompressed bytes from the compressed file.
    If the input file was not in gzip format, gzread copies the given number
@@ -804,7 +804,7 @@ ZEXTERN int ZEXPORT gzeof OF((gzFile file));
    input stream, otherwise zero.
 */
 
-ZEXTERN int ZEXPORT    gzclose OF((gzFile file));
+ZEXTERN int Q_ZEXPORT  gzclose OF((gzFile file));
 /*
      Flushes all pending output if necessary, closes the compressed file
    and deallocates all the (de)compression state. The return value is the zlib
