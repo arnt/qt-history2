@@ -1207,7 +1207,7 @@ QStyle& QApplication::style()
 		!(app_style = QStyleFactory::create( "Compact" ) ) &&
 		!(app_style = QStyleFactory::create( QStyleFactory::keys()[0]  ) ) )
 		qFatal( "No %s style available!", style.latin1() );
-	    app_style->polish( *app_pal );
+            setPalette( *app_pal, TRUE );
 	    app_style->polish( qApp );
 	}
     } else {
