@@ -1251,9 +1251,9 @@ int QSqlCursor::del( bool invalidate )
 {
     QSqlIndex idx = primaryIndex( FALSE );
     if ( idx.isEmpty() )
-	return del( toString( &d->editBuffer, d->nm, "=", "and" ), invalidate );
+	return del( toString( &d->editBuffer, QString::null, "=", "and" ), invalidate );
     else
-	return del( toString( primaryIndex(), &d->editBuffer, d->nm,
+	return del( toString( primaryIndex(), &d->editBuffer, QString::null,
 			  "=", "and" ), invalidate );
 }
 
