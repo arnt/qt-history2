@@ -1,5 +1,7 @@
 \chapter The Designer Approach
 
+\target the-designer-approach
+
 \section1 Introduction
 
 In Qt 2.x, \QD was a visual form designer for editing files in the

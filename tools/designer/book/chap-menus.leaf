@@ -240,8 +240,8 @@ pointer at any time.
 \i \Menu{Tools|Connect Signals and Slots}\BR Click this menu option
 (or press \Key F3) to connect signals and slots. Click on a widget and
 drag the connection line to the widget (or form) that you want to
-connect to. Release the mouse button and the \l{Edit Connections
-Dialog} will appear. 
+connect to. Release the mouse button and the \l{View and Edit
+Connections Dialog} will appear. 
 
     \index Tab Order
 \i \Menu {Tools|Tab Order}\BR Click this menu option (or press \Key
@@ -399,7 +399,7 @@ this menu option only appears if you have created a widget using
 \Menu{Tools|Custom|Edit Custom Widgets}.
 
 \i \Menu {Tools|Configure Toolbox}\BR Click this menu option to invoke
-the \l{Configure Toolbox Dialog}.
+the \Widget{Configure Toolbox Dialog}.
 
 \endlist
 

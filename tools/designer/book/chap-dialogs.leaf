@@ -34,24 +34,6 @@ dialog.
 
 \sidebar Selecting Widgets
 
-\index Layouts
-\index Scaling widgets and application windows
-\index Automatically scaling widgets and application windows
-\index Absolute positioning
-Layouts provide a means of laying out widgets, groups of widgets, and
-layouts into horizontal and vertical pairs and into grids. If
-you use layouts your forms and the widgets they contain will scale
-automatically when the user resizes the window. This is better than
-using absolute sizes and positions since you don't have to write any
-code to achieve the scaling and your users can make the most of their
-screen size whether they have a laptop or a very large screen desktop
-machine. Layouts use standard sizes for margins and widget spacing
-which helps give your applications a consistent and proportional look
-without requiring any effort on your part. Layouts are also easier and
-faster to use than absolute positioning; you can just place your
-widgets on the form in approximate positions and leave the layout
-tools to size and scale the widgets correctly.
-
 \index Object Explorer
 \index Selecting Widgets
 \index Rubber band, Selecting
@@ -98,6 +80,26 @@ cursors, fonts, etc.
 \endsidebar
 
 \section2 Creating the Dialog
+
+\section3 Layouts
+
+\index Layouts
+\index Scaling widgets and application windows
+\index Automatically scaling widgets and application windows
+\index Absolute positioning
+Layouts provide a means of laying out widgets, groups of widgets, and
+layouts into horizontal and vertical pairs and into grids. If
+you use layouts your forms and the widgets they contain will scale
+automatically when the user resizes the window. This is better than
+using absolute sizes and positions since you don't have to write any
+code to achieve the scaling and your users can make the most of their
+screen size whether they have a laptop or a very large screen desktop
+machine. Layouts use standard sizes for margins and widget spacing
+which helps give your applications a consistent and proportional look
+without requiring any effort on your part. Layouts are also easier and
+faster to use than absolute positioning; you can just place your
+widgets on the form in approximate positions and leave the layout
+tools to size and scale the widgets correctly.
 
 \section3 Adding the Widgets
 

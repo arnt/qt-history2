@@ -33,7 +33,7 @@
     of building a Qt application with \QD. Here's a brief overview of
     the chapters:
     \list 
-    \i Chapter one, \l{Creating a Dialog Application}, is a fast
+    \i Chapter one, \l{Quick Start}, is a fast
     hands-on tutorial that takes you through the creation of a short,
     simple dialog application. The aim of this chapter is to give you
     a feel for how \QD works, with explanations and details deferred

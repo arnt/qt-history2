@@ -1,43 +1,41 @@
-\chapter The Quick Start to Using Designer
+\chapter Quick Start
 
-This chapter is intended to provide a quick start for users of \QD.
-The chapter will cover a very basic dialog and walk you step-by-step
-through using layouts, widgets, and adding a very small amount of code
-to the dialog. The dialog's functionality will be Metric conversion.
-Although the dialog is a complete application, this example is not
-intended to cover all of \QD. For a bigger and more thorough example,
-you can try the \C application in the chapters that follow. And for
-more information about specific functionality of \QD, please go to the
-### \l Reference section ###. 
+This chapter provides a quick start for users of \QD. The chapter
+takes you step-by-step through the creation of a small dialog-style
+metric conversion application. It introduces adding widgets to a form,
+setting widget properties, making signals and slots connections,
+laying out and adding custom code. This chapter only covers a
+proportion of \QD's functionality and explanations and details are
+mostly left for the more detailed \c colortool tutorial presented in
+chapters two and three.
 
-\img ####
-\img The Metric Conversion Dialog
+\img ###.png The Metric Conversion Dialog
 
 \section1 Starting and Exiting \QD
 
 \section2 Starting 
+
 \list
 \i To start \QD under Windows click the \Menu Start button
 and click \Menu {Programs|Qt X.x.x|Designer}. (X.x.x is the Qt version
 number, e.g. 3.1.0.)
 \i If you're running a Unix or Linux operating system you can either
-double click the \QD icon or enter ##\c## {designer &} in an xterm.
+double click the \QD icon or enter \c{designer &} in an xterm.
 \i Start \QD now. When \QD starts, it shows the \Widget{New/Open}
 dialog. We'll just click \CANCEL to skip past it.
 \endlist
 
 \section2 Exiting
 
-When you've finished using \QD click \Menu File|Exit; you will be
+When you've finished using \QD click \Menu{File|Exit}; you will be
 prompted to save any unsaved changes.
 
 \section1 Creating the Project
 
-Our metric conversion application is going to be a standard C++
-application, so we need to create a C++ project and add our files and
-code to this project.
+The metric conversion application is a standard C++ application, so we
+must create a C++ project and add our files and code to this project.
 
-Create a new project as follows:
+Create the new project as follows:
 \list 
 \i Click \Menu File|New to invoke the \Widget{New File} dialog. 
 \i Click "C++ Project" to create a C++ project, then click \OK to pop
@@ -46,13 +44,13 @@ up the \Widget{Project Settings} dialog.
 Use this dialog to navigate to where you want to create the new
 project, ideally creating a new folder for it (e.g. called
 "metric"), using the \Button{Create New Folder} toolbar button. 
-\i Enter a filename of "colortool.pro", then click \OK. The project's
+\i Enter a filename of "metric.pro", then click \OK. The project's
 name will now be "metric"; click \OK to close the \Widget{Project
 Settings} dialog.
 \i Click \Menu File|Save to save the project.
 \endlist
 
-###link for learning more about projects###
+See also \l{Creating the Project}.
 
 \section1 Creating the Dialog
 
@@ -62,177 +60,187 @@ click "Dialog", then click \OK.
 \i Drag a corner of the new form to make it a lot smaller. Change the
 form's name (in the Property Editor) to "ConversionForm", and change
 its caption to "Metric Conversion".
-\i Click \Menu{File|Save}, accept the default form name, and then click \Save to save it.
+\i Click \Menu{File|Save}, accept the default form name, and then
+click \Button Save to save it.
 \endlist
 
-###link for more about dialogs and layouts###
+See \l{Creating Dialogs} and \l{Layouts}.
 
 \section2 Adding Widgets to the Dialog
 
 \section3 Adding Text Labels
+
 \list
-\i Click the \Button {Common Widgets} button listed in the Toolbox
-toolbar on the left side of \QD. 
+\i Click the \Button{Common Widgets} button listed in the Toolbox
+toolbar at the left of \QD's main window. 
 \i Double click the \Button TextLabel button and click towards the top
 left of the dialog.  
-\i Click 4 more times below the top textlabel until you have 5 labels
-from top to bottom. Don't worry about exact placement of the labels
-since the layout tools will handle this for you. Click the \Button
-Pointer toolbar button to deselect the textlabel.
+\i Click four more times below the top text label until you have 5
+labels from top to bottom. Don't worry about exact placement of the
+labels since the layout tools will handle this automatically.
+\i Click the \Button Pointer toolbar button to deselect the text label.
 \endlist
 
-###link for more about adding widgets###
+See \l{Adding the Widgets}.
 
-Now we need to change the properties of the text labels before we
-continue adding widgets.
+Now we will change the properties of the text labels to suit the
+application.
 
 \list
-\i Click on the top text label. Go to the Property Editor window and change
-the label's \Property{text} property to "Enter &Number:".
+\i Click on the top text label. Go to the \Widget{Property Editor}
+window and change the label's \Property{text} property to "Enter
+\&Number:".
 \i Click the second label. Change the label's \Property{text} property
-to "Convert &From:".
+to "Convert \&From:".
 \i Click the third label. Change the label's \Property{text} property to
-"Convert &To:".
+"Convert \&To:".
 \i Click the fourth label. Change the label's \Property{text} property to
 "Result:".
 \i  Click the fifth label. Change the label's \Property{text} property to
-"&Decimals:".
+"\&Decimals:".
 \endlist
 
-###link to more about property editor/properties###
+See \l{Using the Property Editor}.
 
-\section3 Adding Line Edits, Combo Boxes, and Spin Boxes
+\section3 Adding Line Edits, Comboboxes, and Spinboxes
 
 \list
-\i Click the \Button {Common Widgets} button listed in the Toolbox
-toolbar on the left side of \QD.
+\i Click the \Button{Common Widgets} button listed in the Toolbox
+toolbar at the left of \QD's main window.
 \i Click the \Button LineEdit button and then click to the right of
 the Enter Number label. Change its \Property name property to
-"numberLineEdit". Note that any time you click a widget, its
-properties show up in the Property Editor.
+"numberLineEdit". Note that whenever you click a widget, its
+properties appear in the \Widget{Property Editor}.
 \i Double click the \Button ComboBox button and click to the right of
-the Convert From label and the Convert To label. Click the \Button
-Pointer toolbar button to deselect the combobox. Change the
-\Property{name} property of the first combobox to "fromComboBox".
-Change the \Property{name} property of the second 
+the Convert From label. Now click to the right of the Convert To
+label. Click the \Button Pointer toolbar button to deselect the
+ComboBox. Change the \Property{name} property of the first combobox to
+"fromComboBox". Change the \Property{name} property of the second to
+"toComboBox".
 \i Click the \Button LineEdit button and then click to the right of
 the "Result" label. Change its \Property{name} property to
 "resultLineEdit". Now change the \Property{readOnly} property to
-'False'. 
+"False". 
 \i Click the \Button SpinBox button and then click to the right of the
-Decimals label. Try to place the spinbox below the right side of the
+Decimals label. Place the SpinBox below the right side of the
 resultLineEdit. Change the spinbox's \Property{name} property to
 "decimalsSpinBox". Change its \Property{max value} property to "6" and
 the \Property{value} to "3". 
-\i Click \Menu File|Save.
+\i Click \Menu{File|Save}.
 \endlist
 
 Now we need to relate each of the text labels to the corresponding
 widget. We do this by creating "buddies". 
 
+A widget that does not accept focus itself, e.g. a QLabel, can have an
+accelerator that will pass the focus to its "buddy", e.g. a QLineEdit,
+by setting the first widget's \Property{buddy} property to the name of
+the buddy widget.
+
 \list
-\i Click the \Button {Set Buddy} button (\Key F5). Click the Enter
+\i Click the \Button{Set Buddy} button (\Key F5). Click the Enter
 Number label and drag the rubber band to the numberLineEdit; then
 release.
-\i Click the \Button {Set Buddy} button. Click the Convert
-From label and drag the rubber band to the fromComboBox; then release.
-\i Click the \Button {Set Buddy} button. Click the Convert To label and drag the rubber band to the toComboBox; then release.
-\i Click the \Button {Set Buddy} button. Click the Decimals label and drag the rubber band tothe decimalsSpinBox; then release.
+\i Click the \Button{Set Buddy} button. Click the Convert From label
+and drag the rubber band to the fromComboBox; then release.
+\i Click the \Button{Set Buddy} button. Click the Convert To label
+and drag the rubber band to the toComboBox; then release.
+\i Click the \Button{Set Buddy} button. Click the Decimals label and
+drag the rubber band tothe decimalsSpinBox; then release.
 \endlist
-
-###link to more about buddies###
-
-We will also need to edit some of the widgets, but we will do that
-after we finish adding the final widgets and laying out the dialog.
 
 \section3 Adding Push Buttons
+
 \list
-\i Click the \Button {Common Widgets} button listed in the Toolbox
-toolbar on the left side of \QD. 
+\i Click the \Button{Common Widgets} button in the Toolbox.
 \i Double click the \Button Pushbutton button and click towards the
 bottom left of the dialog, below the Decimals label. 
-\i Click to the right of the new pushbutton twice more so that you
-have three pushbuttons horizontally in a row at the bottom of the
-dialog. Click the \Button Pointer toolbar button to deselect the pushbutton.
+\i Click to the right of the new push button twice more so that you
+have three push buttons horizontally in a row at the bottom of the
+dialog.
+\i Click the \Button Pointer toolbar button to deselect the
+push button.
 \endlist
 
-We will change a few properties for each of the pushbuttons in the
-Property Editor window.
+We will change a few properties for each of the push buttons in the
+\Widget{Property Editor} window.
 
 \list
-\i Click the first pushbutton starting from the left of the dialog.
-Change its name to "clearButton" and its text to "&Clear".
-\i Click the second pushbutton and change its name to
-"calculateButton", its text to "Calculate" and its default to "True".
-\i Click the third pushbutton and change its name to "quitButton" and its
-text to "&Quit".
+\i Click the first push button starting from the left of the dialog.
+Change its name to "clearPushButton" and its text to "\&Clear".
+\i Click the second push button and change its name to
+"calculatePushButton", its text to "Calculate" and its default
+property to "True".
+\i Click the third push button and change its name to "quitPushButton"
+and its text to "\&Quit".
 \endlist
 
 \section3 Adding Spacers 
 
-We need to add spacers to absorb the extra spaces in our dialog so
-that it will lay out nicely. Usually spacers are added as you
-experiment with the layout, but since this is intended to be a quick
-guide to \QD, we will add the spacers now since we already know that
-they will be needed.
+We need to add spacers to absorb redundant space in our dialog so that
+it will lay out nicely at whatever size the user resizes it to.
+Usually spacers are added as you experiment with the layout, but since
+this is a quick guide to \QD, we will add the spacers now since we
+already know that they will be needed.
 
 \list
-\i Click the \Button {Common Widgets} button listed in the Toolbox
-toolbar on the left side of \QD. 
-\i Click the \Button Spacer button and click to the right of the Decimal label
-and drag right towards the spinbox; then release. A horizontal spacer will appear. Try to align the spacer so that it starts at the same place that the resultLineEdit does and drag it horizontally towards the spinbox.
-\i Click the \Button Spacer button again and click to the left of the Calculate pushbutton and drag right towards the Quit pushbutton; then release.  
-\i We'll add one more spacer between the buttons and the group box.
-Click the \Button Spacer button and click right below the group box
-and grag it vertically towards the buttons; then release. A vertical
+\i Click the \Button{Common Widgets} button in the Toolbox.
+\i Click the \Button Spacer button and click to the right of the
+Decimal label and drag right towards the spinbox; then release. A
+horizontal spacer will appear.
+\i Click the \Button Spacer button again and click to the left of the
+Calculate push button and drag right towards the Quit push button; then
+release.  
+\i Click the \Button Spacer button and click just below the line edits
+and drag vertically towards the buttons; then release. A vertical
 spacer will appear.
 \endlist
 
 Click \Button Save to save the dialog.
 
-###link to more about spacers###
-
 \section3 Editing Widgets
 
-We'll now edit some of the widgets to contain values we will need for
+We'll now edit some of the widgets to contain the values needed for
 the conversions.
 
 The fromComboBox:
 \list
-\i Right click the fromComboBox and then click \Menu Edit from the context
-menu.
-\i Click {New Item} and then delete the "New Item" text and type "Kilometers". Click \Button
-{New Item} and change the text to "Meters". Repeat two more times
-changing the text to "Centimeters" and to "Millimeters".
+\i Right click the fromComboBox and then click \Menu Edit from the
+context menu.
+\i Click \Button{New Item} and then delete the "New Item" text and type
+"Kilometers". Click \Button{New Item} and change the text to
+"Meters". Repeat this twice more, changing the text to "Centimeters"
+and to "Millimeters" respectively.
 \i Click \Button OK to close the Edit Listbox dialog.
 \endlist
 
 The toComboBox:
 \list
-\i Right click the toComboBox and then click \Menu Edit from the context
-menu.
-\i Delete the "New Item" text and type "Miles". Click \Button
-{New Item} and change the text to "Yards". Repeat two more times
+\i Right click the toComboBox and then click \Menu Edit from the
+context menu.
+\i Delete the "New Item" text and type "Miles". Click \Button{New
+Item} and change the text to "Yards". Repeat this twice more,
 changing the text to "Feet" and to "Inches".
 \i Click \Button OK to close the Edit Listbox dialog.
 \endlist
 
 \section2 Laying Out the Dialog
 
-We'll lay out the textlabels and their corresponding widgets first and
-we'll do the pushbuttons last.
+We'll lay out the text labels and their corresponding widgets first
+and we'll do the push buttons last.
 
 \list
-\i Click the decimalsSpinBox and \Key {Shift+Click} the spacer next to
-it. Click the \Button{Lay Out Horizontally} (\Key Ctrl+H) toolbar button.
+\i Click the decimalsSpinBox and press \Key{Shift+Click} on the spacer
+next to it. Click the \Button{Lay Out Horizontally} (\Key Ctrl+H)
+toolbar button.
 \i Click the form to the left of the text labels and then drag the
 rubber band so that it touches every label and widget and spacer
-except for the pushbuttons and the spacer between the pushbuttons.
+except for the push buttons and the spacer between the push buttons.
 Release the rubberband and notice that the desired widgets are
 selected. Click the \Button{Lay Out in a Grid} (\Key Ctrl+G) toolbar button.
-\i Click the Clear pushbutton in the Object Explorer window (Objects
-tab) and then \Key Shift+Click the Calculate pushbutton, the Quit
-pushbutton and the Spacer between the pushbuttons. Click the
+\i Click the Clear push button in the \Widget{Object Explorer} window
+(Objects tab) and then \Key Shift+Click the Calculate push button, the
+Quit push button and the Spacer between the push buttons. Click the
 \Button{Lay Out Horizontally} toolbar button.
 \i Click the form to deselect all widgets and layouts and then click
 the \Button{Lay Out Vertically} (\Key Ctrl+L) toolbar button.
@@ -242,7 +250,7 @@ the \Button{Lay Out Vertically} (\Key Ctrl+L) toolbar button.
 
 Click \Button Save to save the dialog.
 
-###link to more about layouts###
+See \l{Laying Out the Widgets}.
 
 \section3 Tab Order
 
@@ -253,29 +261,29 @@ We should make sure that our dialog's tab order is set correctly.
 circle will appear next to every widget that can accept focus.
 \i Click every widget in turn in the order you want them to accept focus. 
 \i Press \Key Esc to leave tab order mode. 
+\endlist
 
-###link for more about tab order###
+See \l{Changing the Tab Order}.
 
 \section2 Previewing the Dialog
 
-To preview the dialog, click \Key Ctrl+T. Try dragging the corner of
+To preview the dialog, click \Key{Ctrl+T}. Try dragging the corner of
 the dialog to adjust the size. Note that the the widgets always stay
 in proportion no matter what size you make the dialog. Check the tab
-order of the widgets by pressing the \Key tab key. The order should be
-what you selected in the section above.
+order of the widgets by pressing the \Key Tab key.
 
 \section2 Connecting the Widgets
 
 We need to connect three buttons; the Clear button, the Calculate
 button and the Quit button. We also need to connect some of the other
 widgets. For convenience, we can do all of our connections in one go
-with the View/Edit Connections dialog.
+using the \Widget{View and Edit Connections} dialog.
 
 We will now connect our clearButton:
 
 \list
-\i Click \Menu {Edit} and then click Connections to invoke the View
-and Edit Connections dialog.
+\i Click \Menu{Edit|Connections} to invoke the \Widget{View and Edit
+Connections} dialog.
 \i Click \Button New to enter a new connection.
 \i For the first connection, select clearButton for the Sender,
 clicked() for the Signal, numberLineEdit for the Receiver, and clear()
@@ -284,7 +292,8 @@ for the Slot.
 \i Select clearButton for the Sender, clicked() for the Signal,
 resultLineEdit for the Receiver, and clear() for the Slot. 
 \i Click \Button New again.
-\i Select clearButton for the Sender, clicked() for the Signal, numberLineEdit for the Receiver, and setfocus() for the Slot.
+\i Select clearButton for the Sender, clicked() for the Signal,
+numberLineEdit for the Receiver, and setfocus() for the Slot.
 \endlist
 
 We also need to connect the quit button to the form:
@@ -294,18 +303,18 @@ We also need to connect the quit button to the form:
 for Receiver, and close() for Slot.
 \endlist
 
-We want to connect the calculate button and the other widgets,
-but the slot we want to use is not listed in the combobox. We will need to create
-a new slot so that we can select it from the list to complete our
-connections.
+We want to connect the calculate button and the other widgets, but the
+slot we want to use is not listed in the combobox. We will need to
+create a new slot so that we can select it from the list to complete
+our connections.
 
 \list
 \i Click \Button New.
 \i Select calculateButton for the Sender, clicked() for the Signal,
 and ConversionForm for the Receiver. 
-\i Click \Button {Edit Slots} to invoke the Edit Functions dialog.
-Type over the Function name with the name of our new function:
-convert(). Click \OK.
+\i Click \Button{Edit Slots} to invoke the \Widget{Edit Functions}
+dialog. Type over the Function name with the name of our new function:
+convert(), then click \OK.
 \i Select convert() from the Slot combobox to complete our connection.
 \endlist
 
@@ -320,27 +329,31 @@ Signal, ConversionForm as the Receiver, and convert() as the Slot.
 \i Click \Button New.
 \i Select toComboBox as the Sender, activated(int) as the
 Signal, ConversionForm as the Receiver, and convert() as the Slot.
-\i Click \OK to exit the View and Edit Connections dialog.
-\i Click \Menu File|Save to save the project.
 \endlist
+
+Click \OK to exit the View and Edit Connections dialog.
+
+Click \Menu File|Save to save the project.
 
 \section1 Coding the Dialog
 
-Click "conversionform.ui.h" in the Project Overview window to invoke the code
-editor. We'll implement the \Func{convert()} function and also the
-\Func{init()} function. For faster implementation, copy the code from this
-section and then follow the brief explanations below:
+Click "conversionform.ui.h" in the \Widget{Project Overview} window to
+invoke the code editor. We'll implement the \Func{convert()} function
+and also the \Func{init()} function. For faster implementation, copy
+the code from this section and then follow the brief explanations
+below:
 
 \quotefile metric/metric.ui.h
 \skipto ConversionForm::convert
+\printuntil decimals
 \printuntil }
 
-First, we define some enums for the input and output units. Then we retrieve
-the input from the numberLineEdit. We internally convert the
-input to millimeters because this is the most precise metric unit we
-support. Then we convert it to inches which is the most precise
-(English) output unit we support. We then scale it up to the selected
-output unit. Finally, we set the result to the resultLineEdit.
+First, we define some enums for the input and output units. Then we
+retrieve the input from the numberLineEdit. We convert the input to
+millimeters because this is the most precise metric unit we support.
+Then we convert it to inches which is the most precise output unit we
+support. We then scale it to the selected output unit. Finally, we
+put the result in the resultLineEdit.
 
 Next, we will implement the \Func {init()} function which is called when
 the dialog is created. 
@@ -351,54 +364,35 @@ the dialog is created.
 
 For this function, we set a validator on the numberLineEdit so that
 the user can only input numbers. To be able to do this, we also need
-to #include <qvalidator.h> at the top of the form, right above the
-\Func init(). Lastly, we set the initial input.
+to add \c{#include <qvalidator.h>} at the top of the form, right above
+the \Func init(). Lastly, we set the initial input.
 
 We are almost ready to run the application. Before we compile the
-application, we need a main.cpp file.
+application, we need a \c main.cpp file.
 
 \list
-\i Click \Menu {File|New} and click main.cpp.
+\i Click \Menu{File|New} and click \c{main.cpp}.
 \i Accept the default selections for the Configure Main-File dialog. 
-\i \Button Save the project. 
+\i Click \Button Save to save the project. 
 \endlist
 
 Compiling and Running the Application
 
 \list
-\i Open a console and navigate to the directory where you saved your project.
-\i Run \e qmake on the project file (metric.pro) by typing qmake -o
-Makefile metric.pro.
-\i Run \e make  (or nmake depending on your system).
-\i After the project has compiled, run the application with ./metric.
+\i Start or switch to a console and navigate to the directory where
+you saved your project.
+\i Run \e qmake on the project file (\c metric.pro) by typing \c{qmake -o
+Makefile metric.pro}.
+\i Run \e make  (or \e nmake depending on your system).
+\i After the project has compiled, run the application.
 \endlist
 
-###conclusion####
+\section1 Wrapping Up
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+This application has given a very quick introduction to \QD. It has
+introduced adding widgets to a form, setting widget properties, making
+signals and slots connections, laying out and adding custom code. Much
+of the detail and explanations have been deferred. The next two
+chapters provide a tutorial that covers the development of a small but
+complete application, and the reference chapters complete the detailed
+coverage.
