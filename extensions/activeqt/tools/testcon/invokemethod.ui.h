@@ -8,8 +8,6 @@
 **
 *****************************************************************************/
 
-#include <qlistbox.h>
-
 void InvokeMethod::invoke()
 {
     if (!activex)
@@ -19,18 +17,17 @@ void InvokeMethod::invoke()
     QString method = comboMethods->currentText();
     QList<QVariant> vars;
 
-#if 0
-    QListViewItemIterator it(listParameters);
+    Q3ListViewItemIterator it(listParameters);
     while (it.current()) {
-	QListViewItem *parameter = it.current();
+	Q3ListViewItem *parameter = it.current();
 	++it;
 	vars << parameter->text(2);
     }
     QVariant result = activex->dynamicCall(method, vars);
-    it = QListViewItemIterator(listParameters);
+    it = Q3ListViewItemIterator(listParameters);
     int v = 0;
     while (it.current()) {
-	QListViewItem *parameter = it.current();
+	Q3ListViewItem *parameter = it.current();
 	++it;
 	parameter->setText(2, vars[v++].toString());
     }
@@ -38,7 +35,6 @@ void InvokeMethod::invoke()
     QString resString = result.toString();
     QString resType = result.typeName();
     editReturn->setText(resType + " " + resString);
-#endif
 }
 
 void InvokeMethod::methodSelected(const QString &method)
@@ -121,9 +117,8 @@ void InvokeMethod::setControl(QAxBase *ax)
             if (member.memberType() == QMetaMember::Slot)
 	        comboMethods->insertItem(member.signature());
 	}
-#if 0
-        comboMethods->listBox()->sort();
-#endif
+        comboMethods->model()->sort(0);
+
 	methodSelected(comboMethods->currentText());
     }
 }
