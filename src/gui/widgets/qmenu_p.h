@@ -19,13 +19,10 @@
 #include <qdatetime.h>
 #include <qmenubar.h>
 #include <qstyleoption.h>
+#include <qmap.h>
 
 class QTornOffMenu;
 
-struct QMenuAction {
-    QAction *action;
-    QRect rect;
-};
 #ifdef Q_WS_MAC
 struct QMacMenuAction {
     uint command;
@@ -48,8 +45,6 @@ public:
     { }
     ~QMenuPrivate()
     {
-        for(QList<QMenuAction*>::Iterator it = actionItems.begin(); it != actionItems.end(); ++it)
-            delete (*it);
         delete scroll;
 #ifdef Q_WS_MAC
         delete mac_menu;
@@ -58,19 +53,20 @@ public:
 
     //item calculations
     mutable uint itemsDirty : 1, maxIconWidth : 8, tabWidth : 8;
-    QRect actionRect(QMenuAction *) const;
-    QList<QMenuAction*> actionItems;
-    QList<QMenuAction*> calcActionRects() const;
+    QRect actionRect(QAction *) const;
+    mutable QMap<QAction*, QRect> actionRects;
+    mutable QList<QAction*> actionList;
+    void calcActionRects() const;
     void updateActions();
     uint ncols : 4; //4 bits is probably plenty
 
     //selection
     uint mouseDown : 1;
-    QMenuAction *currentAction;
-    QMenuAction *actionAt(QPoint p) const;
+    QAction *currentAction;
+    QAction *actionAt(QPoint p) const;
     void setFirstActionActive();
-    void setCurrentAction(QMenuAction *, int =-1, bool =false);
-    void popupAction(QMenuAction *, int, bool);
+    void setCurrentAction(QAction *, int =-1, bool =false);
+    void popupAction(QAction *, int, bool);
 
     //scrolling support
     struct QMenuScroller {
@@ -109,7 +105,7 @@ public:
     uint checkable : 1;
 
     //sloppy selection
-    QMenuAction *sloppyAction;
+    QAction *sloppyAction;
     QRegion sloppyRegion;
 
     //default action

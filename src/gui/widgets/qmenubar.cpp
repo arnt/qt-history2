@@ -36,12 +36,12 @@
 #define d d_func()
 #define q q_func()
 
-QMenuAction *QMenuBarPrivate::actionAt(QPoint p) const
+QAction *QMenuBarPrivate::actionAt(QPoint p) const
 {
-    for(int i = 0; i < actionItems.count(); i++) {
-        QMenuAction *act = actionItems[i];
-        if(actionRect(act).contains(p))
-            return act;
+    for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
+         i != actionRects.constEnd(); ++i) {
+        if(i.value().contains(p))
+            return i.key();
     }
     return 0;
 }
@@ -74,16 +74,17 @@ void QMenuBarPrivate::updateActions()
         return;
     }
 #endif
-    actionItems = calcActionRects(q_width, q_start);
+    calcActionRects(q_width, q_start);
     itemsWidth = q_width;
     itemsStart = q_start;
+    currentAction = 0;
     if(itemsDirty) {
         for(int j = 0; j < shortcutIndexMap.size(); ++j)
             q->releaseShortcut(shortcutIndexMap.value(j));
         shortcutIndexMap.resize(0); // faster than clear
-        for(int i = 0; i < actionItems.count(); i++)
-            shortcutIndexMap.append(
-                q->grabShortcut(QKeySequence::mnemonic(actionItems.at(i)->action->text())));
+        QList<QAction*> items = q->actions();
+        for(int i = 0; i < items.count(); i++)
+            shortcutIndexMap.append(q->grabShortcut(QKeySequence::mnemonic(items.at(i)->text())));
     }
     itemsDirty = 0;
 
@@ -93,9 +94,9 @@ void QMenuBarPrivate::updateActions()
 #endif
 }
 
-QRect QMenuBarPrivate::actionRect(QMenuAction *act) const
+QRect QMenuBarPrivate::actionRect(QAction *act) const
 {
-    QRect ret = act->rect;
+    QRect ret = actionRects.value(act);
     const int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
     ret.moveBy(fw, fw);
     return QStyle::visualRect(ret, q);
@@ -116,12 +117,12 @@ void QMenuBarPrivate::setKeyboardMode(bool b)
     }
 }
 
-void QMenuBarPrivate::popupAction(QMenuAction *action, bool activateFirst)
+void QMenuBarPrivate::popupAction(QAction *action, bool activateFirst)
 {
     popupState = true;
-    if(action && action->action->menu()) {
+    if(action && action->menu()) {
         closePopupMode = 0;
-        activeMenu = action->action->menu();
+        activeMenu = action->menu();
         activeMenu->d->causedPopup = q;
 
         QRect dh = QApplication::desktop()->availableGeometry();
@@ -140,7 +141,7 @@ void QMenuBarPrivate::popupAction(QMenuAction *action, bool activateFirst)
     }
 }
 
-void QMenuBarPrivate::setCurrentAction(QMenuAction *action, bool popup, bool activateFirst)
+void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activateFirst)
 {
     if(currentAction == action && popup == popupState)
         return;
@@ -155,18 +156,19 @@ void QMenuBarPrivate::setCurrentAction(QMenuAction *action, bool popup, bool act
     popupState = popup;
     currentAction = action;
     if(action) {
-        activateAction(action->action, QAction::Hover);
+        activateAction(action, QAction::Hover);
         if(popup)
             popupAction(action, activateFirst);
         q->update(actionRect(action));
     }
 }
 
-QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width, int start) const
+void QMenuBarPrivate::calcActionRects(int max_width, int start) const
 {
     if(!itemsDirty && itemsWidth == max_width && itemsStart == start)
-        return actionItems;
-    QList<QMenuAction*> ret;
+        return;
+    actionRects.clear();
+    actionList.clear();
     int max_item_height = 0, separator = -1, separator_start = 0, separator_len = 0;
     QList<QAction*> items = q->actions();
 
@@ -182,7 +184,7 @@ QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width, int start) c
         //calc what I think the size is..
         if(action->isSeparator()) {
             if(q->style().styleHint(QStyle::SH_GUIStyle, q) == Qt::MotifStyle)
-                separator = ret.count();
+                separator = actionRects.count();
             continue; //we don't really position these!
         } else {
             QString s = action->text();
@@ -204,10 +206,8 @@ QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width, int start) c
                 separator_len += sz.width();
             max_item_height = qMax(max_item_height, sz.height());
             //append
-            QMenuAction *item = new QMenuAction;
-            item->action = action;
-            item->rect = QRect(0, 0, sz.width(), sz.height());
-            ret.append(item);
+            actionRects.insert(action, QRect(0, 0, sz.width(), sz.height()));
+            actionList.append(action);
         }
     }
 
@@ -216,10 +216,11 @@ QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width, int start) c
               vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
     const int itemSpacing = q->style().pixelMetric(QStyle::PM_MenuBarItemSpacing, q);
     int x = start == -1 ? hmargin : start + itemSpacing, y = vmargin;
-    for(int i = 0; i != ret.count(); i++) {
-        QMenuAction *item = ret.at(i);
+    for(int i = 0; i < actionList.count(); i++) {
+        QAction *action = actionList.at(i);
+        QRect &rect = actionRects[action];
         //resize
-        item->rect.setHeight(max_item_height);
+        rect.setHeight(max_item_height);
 
         //move
         if(separator != -1 && i >= separator) { //after the separator
@@ -228,22 +229,21 @@ QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width, int start) c
                 separator_start = x = hmargin;
                 y += max_item_height;
             }
-            item->rect.moveLeft(left);
+            rect.moveLeft(left);
         } else {
-            if(x+item->rect.width() >= max_width-vmargin) { //wrap
+            if(x+rect.width() >= max_width-vmargin) { //wrap
                 y += max_item_height;
                 separator_start -= x;
                 x = hmargin;
             } else {
-                item->rect.moveLeft(x);
+                rect.moveLeft(x);
             }
         }
-        item->rect.moveTop(y);
+        rect.moveTop(y);
 
         //keep moving along..
-        x += item->rect.width() + itemSpacing;
+        x += rect.width() + itemSpacing;
     }
-    return ret;
 }
 
 void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent action_e)
@@ -288,7 +288,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
         opt.state |= QStyle::Style_Enabled;
     else
         opt.palette.setCurrentColorGroup(QPalette::Disabled);
-    if (currentAction && currentAction->action == action) {
+    if (currentAction && currentAction == action) {
         opt.state |= QStyle::Style_Active;
         if (popupState && !closePopupMode)
             opt.state |= QStyle::Style_Down;
@@ -537,7 +537,7 @@ QAction *QMenuBar::insertMenu(QAction *before, QMenu *menu)
 */
 QAction *QMenuBar::activeAction() const
 {
-    return d->currentAction ? d->currentAction->action : 0;
+    return d->currentAction;
 }
 
 /*!
@@ -593,14 +593,16 @@ void QMenuBar::paintEvent(QPaintEvent *e)
     QRegion emptyArea(rect());
 
     //draw the items
-    for (int i = 0; i < d->actionItems.count(); ++i) {
-        QMenuAction *action = d->actionItems.at(i);
+    for (int i = 0; i < d->actionList.count(); ++i) {
+        QAction *action = d->actionList.at(i);
         QRect adjustedActionRect = d->actionRect(action);
+        if (adjustedActionRect.isEmpty())
+            continue;
         if(!e->rect().intersects(adjustedActionRect))
            continue;
 
         emptyArea -= adjustedActionRect;
-        QStyleOptionMenuItem opt = d->getStyleOption(action->action);
+        QStyleOptionMenuItem opt = d->getStyleOption(action);
         opt.rect = adjustedActionRect;
         p.setClipRect(adjustedActionRect);
         style().drawControl(QStyle::CE_MenuBarItem, &opt, &p, this);
@@ -640,7 +642,7 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
 {
     if(e->button() != Qt::LeftButton)
         return;
-    QMenuAction *action = d->actionAt(e->pos());
+    QAction *action = d->actionAt(e->pos());
     if (!action) {
         d->setCurrentAction(0);
         return;
@@ -664,10 +666,10 @@ void QMenuBar::mouseReleaseEvent(QMouseEvent *e)
     if(e->button() != Qt::LeftButton || !d->mouseDown)
         return;
     d->mouseDown = false;
-    QMenuAction *action = d->actionAt(e->pos());
-    if((d->closePopupMode && action == d->currentAction) || !action || !action->action->menu()) {
+    QAction *action = d->actionAt(e->pos());
+    if((d->closePopupMode && action == d->currentAction) || !action || !action->menu()) {
         if(action)
-            d->activateAction(action->action, QAction::Trigger);
+            d->activateAction(action, QAction::Trigger);
         d->setCurrentAction(action, false);
     }
     d->closePopupMode = 0;
@@ -697,10 +699,10 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Return: {
         if(!style().styleHint(QStyle::SH_MenuBar_AltKeyNavigation, this) || !d->currentAction)
            break;
-        if(d->currentAction->action->menu()) {
+        if(d->currentAction->menu()) {
             d->popupAction(d->currentAction, true);
         } else if(key == Qt::Key_Enter || key == Qt::Key_Return || key == Qt::Key_Space) {
-            d->activateAction(d->currentAction->action, QAction::Trigger);
+            d->activateAction(d->currentAction, QAction::Trigger);
             d->setCurrentAction(d->currentAction, false);
         }
         key_consumed = true;
@@ -709,24 +711,24 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Right:
     case Qt::Key_Left: {
         if(d->currentAction) {
-            QMenuAction *nextAction = 0;
-            for(int i=0; i<(int)d->actionItems.count(); i++) {
-                if(d->actionItems.at(i) == d->currentAction) {
+            QAction *nextAction = 0;
+            for(int i=0; i<(int)d->actionList.count(); i++) {
+                if(d->actionList.at(i) == d->currentAction) {
                     if(key == Qt::Key_Left) {
                         if(i > 0)
-                            nextAction = d->actionItems.at(i-1);
+                            nextAction = d->actionList.at(i-1);
                     } else {
-                        if(i < d->actionItems.count()-1)
-                            nextAction = d->actionItems.at(i+1);
+                        if(i < d->actionList.count()-1)
+                            nextAction = d->actionList.at(i+1);
                     }
                     break;
                 }
             }
             if(!nextAction) {
                 if(key == Qt::Key_Left)
-                    nextAction = d->actionItems.last();
+                    nextAction = d->actionList.last();
                 else
-                    nextAction = d->actionItems.first();
+                    nextAction = d->actionList.first();
             }
             if(nextAction) {
                 d->setCurrentAction(nextAction, d->popupState, true);
@@ -748,12 +750,12 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
     if(!key_consumed &&
        (!e->state() || (e->state()&(Qt::MetaButton|Qt::AltButton))) && e->text().length()==1 && !d->popupState) {
         int clashCount = 0;
-        QMenuAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
+        QAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
         {
             QChar c = e->text()[0].toUpper();
-            for(int i = 0; i < d->actionItems.size(); ++i) {
-                register QMenuAction *act = d->actionItems.at(i);
-                QString s = act->action->text();
+            for(int i = 0; i < d->actionList.size(); ++i) {
+                register QAction *act = d->actionList.at(i);
+                QString s = act->text();
                 if(!s.isEmpty()) {
                     int ampersand = s.indexOf('&');
                     if(ampersand >= 0) {
@@ -770,7 +772,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
                 }
             }
         }
-        QMenuAction *next_action = 0;
+        QAction *next_action = 0;
         if(clashCount >= 1) {
             if(clashCount == 1 || !d->currentAction || (currentSelected && !firstAfterCurrent))
                 next_action = first;
@@ -792,7 +794,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
 void QMenuBar::mouseMoveEvent(QMouseEvent *e)
 {
     d->mouseDown = e->state() & Qt::LeftButton;
-    QMenuAction *action = d->actionAt(e->pos());
+    QAction *action = d->actionAt(e->pos());
     bool popupState = d->popupState || d->mouseDown;
     if(action || !popupState)
         d->setCurrentAction(action, popupState);
@@ -837,8 +839,9 @@ void QMenuBar::actionEvent(QActionEvent *e)
 */
 void QMenuBar::focusInEvent(QFocusEvent *)
 {
-    if(!d->currentAction && !d->actionItems.isEmpty())
-        d->setCurrentAction(d->actionItems.first());
+    d->updateActions();
+    if(!d->currentAction && !d->actionList.isEmpty())
+        d->setCurrentAction(d->actionList.first());
 }
 
 /*!
@@ -998,9 +1001,7 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
 QAction *QMenuBar::actionAtPos(const QPoint &pt) const
 {
     const_cast<QMenuBarPrivate*>(d)->updateActions();
-    if(QMenuAction *ret = d->actionAt(pt))
-        return ret->action;
-    return 0;
+    return d->actionAt(pt);
 }
 
 /*!
@@ -1011,11 +1012,7 @@ QAction *QMenuBar::actionAtPos(const QPoint &pt) const
 QRect QMenuBar::actionGeometry(QAction *act) const
 {
     const_cast<QMenuBarPrivate*>(d)->updateActions();
-    for(QList<QMenuAction*>::ConstIterator it = d->actionItems.begin(); it != d->actionItems.end(); ++it) {
-        if((*it)->action == act)
-            return d->actionRect((*it));
-    }
-    return QRect();
+    return d->actionRect(act);
 }
 
 /*!
@@ -1040,9 +1037,10 @@ QSize QMenuBar::sizeHint() const
     ensurePolished();
     QSize ret(0, 0);
     if(as_gui_menubar) {
-        QList<QMenuAction*> actions = d->calcActionRects(width()-(style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this)*2), 0);
-        for(int i = 0; i < actions.count(); ++i) {
-            QRect actionRect(actions[i]->rect);
+        d->calcActionRects(width()-(style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this)*2), 0);
+        for (QMap<QAction*, QRect>::const_iterator i = d->actionRects.begin();
+             i != d->actionRects.constEnd(); ++i) {
+            QRect actionRect(i.value());
             if(actionRect.right() > ret.width())
                 ret.setWidth(actionRect.right());
             if(actionRect.bottom() > ret.height())
@@ -1096,9 +1094,10 @@ int QMenuBar::heightForWidth(int max_width) const
 
     int height = 0;
     if(as_gui_menubar) {
-        QList<QMenuAction*> actions = d->calcActionRects(max_width, 0);
-        for(int i = 0; i < actions.count(); ++i)
-            height = qMax(height, actions[i]->rect.bottom());
+        d->calcActionRects(max_width, 0);
+        for (QMap<QAction*, QRect>::const_iterator i = d->actionRects.begin();
+             i != d->actionRects.constEnd(); ++i)
+            height = qMax(height, i.value().bottom());
         height += (q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2) + q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
     }
     if(d->leftWidget)
@@ -1124,7 +1123,7 @@ int QMenuBar::heightForWidth(int max_width) const
 */
 void QMenuBarPrivate::internalShortcutActivated(int id)
 {
-    QMenuAction *act = actionItems.at(id);
+    QAction *act = actionList.at(id);
     setCurrentAction(act, true);
 }
 

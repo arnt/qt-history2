@@ -28,13 +28,11 @@ public:
 #endif
     { }
     ~QMenuBarPrivate()
-    {
-        for(QList<QMenuAction*>::Iterator it = actionItems.begin(); it != actionItems.end(); ++it)
-            delete (*it);
+        {
 #ifdef Q_WS_MAC
-        delete mac_menubar;
+            delete mac_menubar;
 #endif
-    }
+        }
 
     void init();
     QStyleOptionMenuItem getStyleOption(const QAction *action) const;
@@ -44,17 +42,18 @@ public:
     int itemsWidth, itemsStart;
 
     QVector<int> shortcutIndexMap;
-    QList<QMenuAction*> actionItems;
-    QList<QMenuAction*> calcActionRects(int width, int start) const;
-    QRect actionRect(QMenuAction *) const;
+    mutable QMap<QAction*, QRect> actionRects;
+    mutable QList<QAction*> actionList;
+    void calcActionRects(int width, int start) const;
+    QRect actionRect(QAction *) const;
     void updateActions();
 
     //selection
-    QMenuAction *currentAction;
+    QPointer<QAction>currentAction;
     uint mouseDown : 1, closePopupMode : 1, defaultPopDown;
-    QMenuAction *actionAt(QPoint p) const;
-    void setCurrentAction(QMenuAction *, bool =false, bool =false);
-    void popupAction(QMenuAction *, bool);
+    QAction *actionAt(QPoint p) const;
+    void setCurrentAction(QAction *, bool =false, bool =false);
+    void popupAction(QAction *, bool);
 
     //active popup state
     uint popupState : 1;
