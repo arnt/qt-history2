@@ -971,10 +971,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    XFreePixmap( data->xinfo->display(), hd );
 	}
 
-	// make sure image.color(0) == color0 (white) and
-	// image.color(1) == color1 (black)
-	if (image.color(0) == Qt::black.rgb() && image.color(1) == Qt::white.rgb())
+	// make sure image.color(0) == color0 (white) and image.color(1) == color1 (black)
+	if (image.color(0) == Qt::black.rgb() && image.color(1) == Qt::white.rgb()) {
 	    image.invertPixels();
+	    image.setColor(0, Qt::white.rgb());
+	    image.setColor(1, Qt::black.rgb());
+	}
 
 	char  *bits;
 	uchar *tmp_bits;
@@ -1028,9 +1030,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    delete [] tmp_bits;
 	data->w = w;  data->h = h;  data->d = 1;
 
-	if ( img.hasAlphaBuffer() ) {
+	if ( image.hasAlphaBuffer() ) {
 	    QBitmap m;
-	    m = img.createAlphaMask( conversion_flags );
+	    m = image.createAlphaMask( conversion_flags );
 	    setMask( m );
 	}
 	return TRUE;
@@ -1455,17 +1457,17 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     data->h = h;
     data->d = dd;
 
-    if ( img.hasAlphaBuffer() ) {
+    if ( image.hasAlphaBuffer() ) {
 	QBitmap m;
-	m = img.createAlphaMask( conversion_flags );
+	m = image.createAlphaMask( conversion_flags );
 	setMask( m );
 
 #ifndef QT_NO_XFTFREETYPE
 	// does this image have an alphamap (and not just a 1bpp mask)?
-	bool alphamap = img.depth() == 32;
-	if (img.depth() == 8) {
-	    const QRgb * const rgb = img.colorTable();
-	    for (int i = 0, count = img.numColors(); i < count; ++i) {
+	bool alphamap = image.depth() == 32;
+	if (image.depth() == 8) {
+	    const QRgb * const rgb = image.colorTable();
+	    for (int i = 0, count = image.numColors(); i < count; ++i) {
 		const int alpha = qAlpha(rgb[i]);
 		if (alpha != 0 && alpha != 0xff) {
 		    alphamap = true;
@@ -1499,13 +1501,13 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		Q_CHECK_PTR( axi->data );
 		char *aptr = axi->data;
 
-		if (img.depth() == 32) {
-		    const int *iptr = (const int *) img.bits();
+		if (image.depth() == 32) {
+		    const int *iptr = (const int *) image.bits();
 		    int max = w * h;
 		    while (max--)
 			*aptr++ = *iptr++ >> 24; // squirt
-		} else if (img.depth() == 8) {
-		    const QRgb * const rgb = img.colorTable();
+		} else if (image.depth() == 8) {
+		    const QRgb * const rgb = image.colorTable();
 		    for (uint y = 0; y < h; ++y) {
 			const uchar *iptr = image.scanLine(y);
 			for (uint x = 0; x < w; ++x)
