@@ -60,6 +60,10 @@ void FormItem::insert( Project *pro )
     fw = new FormWindow( ff, MainWindow::self, MainWindow::self->qWorkspace(), n );
     fw->setProject( pro );
     MetaDataBase::addEntry( fw );
+    fw->setCaption( n );
+    fw->resize( 600, 480 );
+    MainWindow::self->insertFormWindow( fw );
+
     if ( fType == Widget ) {
 	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QWidget" ),
 					    fw, n.latin1() );
@@ -77,9 +81,6 @@ void FormItem::insert( Project *pro )
 	fw->setMainContainer( w );
     }
 
-    fw->setCaption( n );
-    fw->resize( 600, 480 );
-    MainWindow::self->insertFormWindow( fw );
 
     TemplateWizardInterface *iface =
 	MainWindow::self->templateWizardInterface( fw->mainContainer()->className() );
