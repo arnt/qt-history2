@@ -27,10 +27,10 @@ class QProgressBar;
 class FtpMainWindow : public QMainWindow
 {
     Q_OBJECT
-    
+
 public:
     FtpMainWindow();
-    
+
     QSplitter *mainSplitter() const {
 	return splitter;
     }
@@ -40,7 +40,7 @@ private:
     void setupRightSide();
     void setupCenterCommandBar();
     void setup();
-    
+
 private slots:
     void slotLocalDirChanged( const QString &path );
     void slotLocalDirChanged( const QUrlInfo &info );
@@ -59,6 +59,7 @@ private slots:
     void slotLocalRemove();
     void slotRemoteMkdir();
     void slotRemoteRemove();
+    void slotConnectionStateChanged( int, const QString &msg );
     
 private:
     QSplitter *splitter;
@@ -70,7 +71,7 @@ private:
     QUrlOperator localOperator, remoteOperator, oldLocal, oldRemote;
     QLabel *progressLabel1, *progressLabel2;
     QProgressBar *progressBar1, *progressBar2;
-    
+
 };
 
 #endif

@@ -24,6 +24,7 @@
 #include <qdir.h>
 #include <qlinedialog.h>
 #include <qapplication.h>
+#include <qstatusbar.h>
 
 FtpMainWindow::FtpMainWindow()
     : QMainWindow(),
@@ -58,9 +59,14 @@ FtpMainWindow::FtpMainWindow()
 	     this, SLOT( slotRemoteDirChanged( const QUrlInfo & ) ) );
     connect( &remoteOperator, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
              this, SLOT( slotRemoteDataTransferProgress( int, int, QNetworkOperation * ) ) );
+    connect( &remoteOperator, SIGNAL( connectionStateChanged( int, const QString & ) ),
+             this, SLOT( slotConnectionStateChanged( int, const QString & ) ) );
 
     // read the local filesystem at the beginning once
     localOperator.listChildren();
+
+    // create status bar
+    (void)statusBar();
 }
 
 void FtpMainWindow::setupLeftSide()
@@ -518,4 +524,9 @@ void FtpMainWindow::slotRemoteMkdir()
 
 void FtpMainWindow::slotRemoteRemove()
 {
+}
+
+void FtpMainWindow::slotConnectionStateChanged( int, const QString &msg )
+{
+    statusBar()->message( msg );
 }
