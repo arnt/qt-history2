@@ -258,6 +258,7 @@
 
 
   \value Unicode includes all the above scripts.
+*/
 
 /*! \internal
 
