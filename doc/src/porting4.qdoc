@@ -3352,7 +3352,7 @@
     \section1 QStyleSheet
 
     The QStyleSheet and QStyleSheetItem classes have been renamed
-    Q3StyleSheet and Q3StyleSheetItemm, and have been moved to the
+    Q3StyleSheet and Q3StyleSheetItem, and have been moved to the
     \l{Qt 3 compatibility library}.
 
     See \l{richtext.html}{Rich Text} for an overview of the Qt 4 rich
