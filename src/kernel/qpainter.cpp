@@ -2784,13 +2784,16 @@ void qt_format_text( const QFont& font, const QRect &_r,
     // tabs by spaces
     QChar *chr = (QChar*)text.unicode();
     const QChar *end = chr + len;
+    bool haveLineSep = FALSE;
     while ( chr != end ) {
-	if ( *chr == '\r' || ( singleline && *chr == '\n' ) )
+	if ( *chr == '\r' || ( singleline && *chr == '\n' ) ) {
 	    *chr = ' ';
-	else if ( *chr == '\n' )
+	} else if ( *chr == '\n' ) {
 	    *chr = QChar_linesep;
-	else if ( *chr == '&' )
+	    haveLineSep = TRUE;
+	} else if ( *chr == '&' ) {
 	    ++maxUnderlines;
+	}
 	chr++;
     }
     if ( !expandtabs ) {
@@ -2841,7 +2844,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	left = right = 0;
 	tf |= QPainter::DontPrint;
     } else {
-	textLayout.beginLayout();
+	textLayout.beginLayout( (haveLineSep || expandtabs || wordbreak) ? QTextLayout::MultiLine : QTextLayout::SingleLine );
 
 	// break underline chars into items of their own
 	for( int i = 0; i < numUnderlines; i++ ) {

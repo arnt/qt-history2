@@ -82,7 +82,11 @@ public:
     QTextItem itemAt( int i ) const;
     QTextItem findItem( int strPos ) const;
 
-    void beginLayout();
+    enum LayoutMode {
+	MultiLine,
+	SingleLine
+    };
+    void beginLayout( LayoutMode m = MultiLine );
     void beginLine( int width );
 
     bool atEnd() const;

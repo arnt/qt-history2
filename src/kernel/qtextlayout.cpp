@@ -242,10 +242,10 @@ QTextItem QTextLayout::findItem( int strPos ) const
 }
 
 
-void QTextLayout::beginLayout()
+void QTextLayout::beginLayout( QTextLayout::LayoutMode m )
 {
     d->items.clear();
-    d->itemize();
+    d->itemize( m == SingleLine ? QTextEngine::SingleLine : QTextEngine::Full );
     d->currentItem = 0;
     d->firstItemInLine = -1;
 }
@@ -472,7 +472,7 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
 	visual = new int[numRuns];
     }
     int i;
-//     qDebug("reordering %d runs:", numRuns );
+//     qDebug("reordering %d runs, numSpaceItems=%d", numRuns, numSpaceItems );
     for ( i = 0; i < numRuns; i++ ) {
 	levels[i] = d->items[i+d->firstItemInLine].analysis.bidiLevel;
 // 	qDebug("    level = %d", d->items[i+d->firstItemInLine].analysis.bidiLevel );

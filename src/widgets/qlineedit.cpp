@@ -2078,7 +2078,7 @@ void QLineEditPrivate::updateTextLayout()
 {
     textLayout.setText( q->displayText(), q->font() );
     // ### want to do textLayout.setRightToLeft( text.isRightToLeft() );
-    textLayout.beginLayout();
+    textLayout.beginLayout( QTextLayout::SingleLine );
     textLayout.beginLine( INT_MAX );
     while ( !textLayout.atEnd() )
 	textLayout.addCurrentItem();
