@@ -68,10 +68,10 @@
   When Qt needs to draw text, it will look up the closest
   matching installed font, load it and use it.
   If a choosen X11 font does not cover all characters to be displayed,
-  QFont blends in the missing characters from other fonts if possible. 
+  QFont blends in the missing characters from other fonts if possible.
 
   The most important attributes of a QFont are its font family (family()),
-  its size (pointSize()), its boldness (weight()) and 
+  its size (pointSize()), its boldness (weight()) and
   whether it is italic() or not. There are
   QFont constructors that take these attributes as arguments, for example:
 
@@ -97,7 +97,7 @@
 
   To draw this button's label 12pt Lucida, bold italic is used.
 
-  (Code taken from \link simple-font-demo-example.html 
+  (Code taken from \link simple-font-demo-example.html
   fonts/simple-qfont-demo/viewer.cpp \endlink)
 
   The default QFont constructor keeps a copy of the application's default
@@ -111,8 +111,8 @@
   whether the font is underlined or not; setStrikeOut() can be used to get
   overstrike (a horizontal line through the middle of the characters);
   setFixedPitch() determines whether Qt should give preference to
-  fixed-pitch (also known as fixed-width or typewriter fonts) 
-  or variable-pitch fonts when it needs to choose an installed font. 
+  fixed-pitch (also known as fixed-width or typewriter fonts)
+  or variable-pitch fonts when it needs to choose an installed font.
 
   setStyleHint() can be used to offer
   more general help to the font matching algorithm, and on X11
@@ -134,10 +134,10 @@
 
   QFont also offers a few static functions, mostly to tune the font
   matching algorithm: You can control what happens if a font family
-  isn't installed using insertSubstitution(), insertSubstitutions() 
+  isn't installed using insertSubstitution(), insertSubstitutions()
   and removeSubstitution().
 
-  This is especially important when different character sets are 
+  This is especially important when different character sets are
   used at the same time. As a Times font for example does not include
   Arabic characters, an Arabic substitution font for Times can
   be specified and will be used when Arabic characters show up.
@@ -146,7 +146,7 @@
   characters can be displayed even if no Unicode fonts are available.
   How good this approximation works depends on the variety
   of fonts installed.
-  
+
   You can get a complete list of the fallback families using substitutions().
 
   Finally, QApplication::setFont() allows you to set the default font.
@@ -392,7 +392,7 @@ QFont &QFont::operator=( const QFont &font )
   \walkthrough fonts/simple-qfont-demo/viewer.cpp
   \skipto messageText
   \printline messageText
-  \printuntil font.family() 
+  \printuntil font.family()
   \skipto Font used
   \printline Font used
   \printuntil info.pointSize()
@@ -808,7 +808,7 @@ QFont::StyleHint QFont::styleHint() const
   \printline setStyleHint
 
   \skipto setFont
-  \printline setFont 
+  \printline setFont
 
   \sa QFont::StyleHint, styleHint(), QFont::StyleStrategy, styleStrategy(), QFontInfo
 */
@@ -1005,7 +1005,8 @@ static void initFontSubst()
 	0,              0
     };
 
-    if (fontSubst) return;
+    if (fontSubst)
+	return;
 
     fontSubst = new QFontSubst(17, FALSE);
     Q_CHECK_PTR( fontSubst );
@@ -1050,7 +1051,7 @@ QString QFont::substitute( const QString &familyName )
   \skipto QFont::substitutes(
 
   (Code taken from \link simple-font-demo-example.html
-   fonts/simple-qfont-demo/viewer.cpp \endlink)                                   
+   fonts/simple-qfont-demo/viewer.cpp \endlink)
 
    \sa substitute()
  */
@@ -1089,10 +1090,10 @@ void QFont::insertSubstitution(const QString &familyName,
     if (! list) {
 	list = new QStringList;
 	fontSubst->insert(familyName, list);
-    } else
-	list->remove(substituteName);
+    }
 
-    list->prepend(substituteName);
+    if (! list->contains(substituteName))
+	list->append(substituteName);
 }
 
 
@@ -1126,7 +1127,12 @@ void QFont::insertSubstitutions(const QString &familyName,
 	fontSubst->insert(familyName, list);
     }
 
-    *list += substituteNames;
+    QStringList::ConstIterator it = substituteNames.begin();
+    while (it != substituteNames.end()) {
+	if (! list->contains(*it))
+	    list->append(*it);
+	it++;
+    }
 }
 
 
