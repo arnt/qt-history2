@@ -2494,7 +2494,7 @@ QFileDialog::~QFileDialog()
   Returns the selected file name.
 
   If a file name was selected, the returned string contains the
-  absolute path name.  The returned string is a null string if no file
+  absolute path name.  The returned string is an empty string if no file
   name was selected.
 
   \sa QString::isNull(), QFileDialog::selectedFiles(), QFileDialog::selectedFilter()
