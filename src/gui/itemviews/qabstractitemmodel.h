@@ -124,7 +124,7 @@ public:
         { return setData(index, Edit, value); }
 
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
-    bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
+    virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
 
     virtual bool insertRow(int row, const QModelIndex &parent = 0, int count = 1);
     virtual bool insertColumn(int column, const QModelIndex &parent = 0, int count = 1);

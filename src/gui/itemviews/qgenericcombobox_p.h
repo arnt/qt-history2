@@ -34,21 +34,26 @@ class QGenericComboBoxPrivate: public QAbstractItemViewPrivate
 public:
     QGenericComboBoxPrivate()
         : QAbstractItemViewPrivate(),
-          editable(false),
+          editor(0),
           listView(0),
-          insertion(QGenericComboBox::AtBottom),
+          insertionPolicy(QGenericComboBox::AtBottom),
           autoCompletion(false),
+          duplicatesEnabled(false),
           sizeLimit(10),
           ignoreMousePressEvent(false) {}
     ~QGenericComboBoxPrivate() {}
     void init();
+    void handleReturnPressed();
+    void itemSelected(const QModelIndex &item);
 
-    bool editable;
+    QWidget *editor;
     ComboListView *listView;
-    QGenericComboBox::InsertionPolicy insertion;
+    QGenericComboBox::InsertionPolicy insertionPolicy;
     bool autoCompletion;
+    bool duplicatesEnabled;
     int sizeLimit;
     bool ignoreMousePressEvent;
+    mutable QSize sizeHint;
 };
 
 #endif //QGENERICCOMBOBOX_P_H
