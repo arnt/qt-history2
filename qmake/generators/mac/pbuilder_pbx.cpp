@@ -402,19 +402,18 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << "\t\t\t" << "refType = 4;" << "\n"
 	      << "\t\t" << "};" << "\n";
 	}
-	tmp = project->variables()["QMAKE_PBX_BUILD_LIBRARIES"];
-	if(!tmp.isEmpty()) {
-	    QString grp("Frameworks & Libraries"), key = keyFor(grp);
-	    project->variables()["QMAKE_PBX_BUILDPHASES"].append(key);
-	    t << "\t\t" << key << " = {" << "\n"
-	      << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
-	      << "\t\t\t" << "files = (" << "\n"
-	      << varGlue("QMAKE_PBX_BUILD_LIBRARIES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
-	      << "\t\t\t" << ");" << "\n"
-	      << "\t\t\t" << "isa = PBXFrameworksBuildPhase;" << "\n"
-	      << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
-	      << "\t\t" << "};" << "\n";
-	}
+    }
+    {
+	QString grp("Frameworks & Libraries"), key = keyFor(grp);
+	project->variables()["QMAKE_PBX_BUILDPHASES"].append(key);
+	t << "\t\t" << key << " = {" << "\n"
+	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
+	  << "\t\t\t" << "files = (" << "\n"
+	  << varGlue("QMAKE_PBX_BUILD_LIBRARIES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "isa = PBXFrameworksBuildPhase;" << "\n"
+	  << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
+	  << "\t\t" << "};" << "\n";
     }
 
     //DUMP EVERYTHING THAT TIES THE ABOVE TOGETHER
@@ -431,8 +430,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "refType = 4;" << "\n"
 	  << "\t\t" << "};" << "\n";
     }
-    //INSTALL BUILDPHASE (sh script)
-    if(!project->isEmpty("DESTDIR")) {
+    { //INSTALL BUILDPHASE (sh script)
 	QString targ = project->first("TARGET");
 	if(project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib") &&
 	   project->isActiveConfig("frameworklib"))
@@ -460,31 +458,33 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	QFile shf(script);
 	if(shf.open(IO_WriteOnly | IO_Translate)) {
 	    debug_msg(1, "Creating file: %s", script.latin1());
-	    QString lib = project->first("QMAKE_ORIG_TARGET");
+	    QString targ = project->first("QMAKE_ORIG_TARGET"), cpflags;
 	    if(project->first("TEMPLATE") == "app") {
-		lib += ".app";
+		cpflags += "-r ";
+		targ += ".app";
 	    } else if(!project->isActiveConfig("frameworklib")) {
 		if(project->isActiveConfig("staticlib"))
-		    lib = project->first("TARGET");
+		    targ = project->first("TARGET");
 		else
-		    lib = project->first("TARGET_");
-		int slsh = lib.findRev(Option::dir_sep);
+		    targ = project->first("TARGET_");
+		int slsh = targ.findRev(Option::dir_sep);
 		if(slsh != -1)
-		    lib = lib.right(lib.length() - slsh - 1);
+		    targ = targ.right(targ.length() - slsh - 1);
 	    }
 	    QTextStream sht(&shf);
 	    QString dstdir = project->first("DESTDIR");
 	    fixEnvVariables(dstdir);
+
 	    sht << "#!/bin/sh" << endl;
-	    sht << "OUT_TARG=\"" << lib << "\"\n" 
-		<< "[ -z \"$BUILD_ROOT\" ] || OUT_TARG=\"${BUILD_ROOT}/${OUT_TARG}\"" << endl;
-	    sht << "cp -r \"$OUT_TARG\" " << "\"" <<
-		dstdir << targ << "\"" << endl;
+	    if(QDir::currentDirPath() != QDir::cleanDirPath(dstdir)) 
+		sht << "cp " << cpflags << "\"$BUILD_ROOT/" << targ << "\" " << "\"" <<
+		    dstdir << targ << "\"" << endl;
 	    if(project->first("TEMPLATE") == "lib" && project->isActiveConfig("frameworklib"))
-		sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << lib << "\"" << endl;
-	    for(QStringList::Iterator it = links.begin(); it != links.end(); ++it)
-		sht << "ln -sf \"" << targ <<  "\" " <<
-		    "\"" << dstdir << (*it) << "\"" << endl;
+		sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << targ << "\"" << endl;
+	    for(QStringList::Iterator it = links.begin(); it != links.end(); ++it) {
+		if(targ != (*it)) 
+		    sht << "ln -sf \"" << targ <<  "\" " << "\"" << dstdir << (*it) << "\"" << endl;
+	    }
 	    shf.close();
 #ifdef Q_OS_UNIX
 	    chmod(script.latin1(), S_IRWXU | S_IRWXG);
@@ -736,7 +736,7 @@ ProjectBuilderMakefileGenerator::keyFor(QString block)
 
     QString ret;
     if(!keys.contains(block)) {
-#if 0
+#if 1
 	static unsigned int r = 0;
 	ret.sprintf("%024x", ++r);
 #else //not really necesary, but makes it look more interesting..
