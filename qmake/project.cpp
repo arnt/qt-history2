@@ -1411,7 +1411,9 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 {
     bool ret = false;
     for(QStringList::ConstIterator it = deps.begin(); it != deps.end(); ++it) {
-        QString chk = (*it);
+        QString chk = (*it).trimmed();
+        if(!chk.isEmpty() && (chk[0] == '\'' || chk[0] == '"') && chk.right(1) == chk.left(1))
+            chk = chk.mid(1, chk.length() - 2);
         if(chk.isEmpty())
             continue;
         bool invert_test = (chk.left(1) == "!");
@@ -1421,7 +1423,7 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
         bool test=false;
         int lparen = chk.indexOf('(');
         if(lparen != -1) { // if there is an lparen in the chk, it IS a function
-            int rparen = chk.lastIndexOf(')');
+            int rparen = chk.indexOf(')', lparen);
             if(rparen == -1) {
                 QByteArray error;
                 error.reserve(256);
