@@ -80,7 +80,7 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
         view = new QVFbView( display_id, w, h, d, skin );
         skin->setView( view );
         view->setFixedSize( w, h );
-        setCenterWidget( skin );
+        setCentralWidget( skin );
         adjustSize();
         view->show();
         if ( vis ) show();
@@ -95,7 +95,7 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
         scroller = new QWidgetView(this);
         view = new QVFbView( display_id, w, h, d, scroller );
         scroller->setWidget(view);
-        setCenterWidget(scroller);
+        setCentralWidget(scroller);
         scroller->show();
         resize(sizeHint());
     }

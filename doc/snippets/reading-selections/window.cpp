@@ -50,7 +50,7 @@ MainWindow::MainWindow(QWidget *parent)
     selectionModel = table->selectionModel();
 
     statusBar();
-    setCenterWidget(table);
+    setCentralWidget(table);
 }
 
 void MainWindow::fillSelection()

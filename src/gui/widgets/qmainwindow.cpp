@@ -42,7 +42,7 @@ public:
     |   | Dock Window Area                                 |   |
     |   |   +------------------------------------------+   |   |
     |   |   |                                          |   |   |
-    |   |   | Center Widget                            |   |   |
+    |   |   | Central Widget                           |   |   |
     |   |   |                                          |   |   |
     |   |   |                                          |   |   |
     |   |   |                                          |   |   |
@@ -175,29 +175,29 @@ void QMainWindow::setStatusBar(QStatusBar *statusbar)
 }
 
 /*!
-    Returns the center widget for the main window.  This function
-    returns zero if the center widget has not been set.
+    Returns the central widget for the main window.  This function
+    returns zero if the central widget has not been set.
 
-    \sa setCenterWidget()
+    \sa setCentralWidget()
 */
-QWidget *QMainWindow::centerWidget() const
-{ return d->layout->centerWidget(); }
+QWidget *QMainWindow::centralWidget() const
+{ return d->layout->centralWidget(); }
 
 /*!
-    Sets the given \a widget to be the main window's center widget.
+    Sets the given \a widget to be the main window's central widget.
 
     \warning This function should be called at most once for each main
     window instance
 
-    \sa centerWidget()
+    \sa centralWidget()
 */
-void QMainWindow::setCenterWidget(QWidget *widget)
+void QMainWindow::setCentralWidget(QWidget *widget)
 {
     Q_ASSERT_X(widget != 0,
-	       "QMainWindow::setCenterWidget()", "parameter cannot be zero");
-    Q_ASSERT_X(!d->layout->centerWidget(),
-	       "QMainWindow::setCenterWidget()", "center widget already set");
-    d->layout->setCenterWidget(widget);
+	       "QMainWindow::setCentralWidget()", "parameter cannot be zero");
+    Q_ASSERT_X(!d->layout->centralWidget(),
+	       "QMainWindow::setCentralWidget()", "central widget already set");
+    d->layout->setCentralWidget(widget);
 }
 
 /*!
@@ -279,16 +279,3 @@ void QMainWindow::childEvent(QChildEvent *event)
 /*! \reimp */
 bool QMainWindow::event(QEvent *event)
 { return QWidget::event(event); }
-
-/*!
-    \fn void QMainWindow::setCentralWidget(QWidget *w)
-
-    Use setCenterWidget() instead.
-*/
-
-/*!
-    \fn QWidget *QMainWindow::centralWidget() const
-
-    Use centerWidget() instead.
-*/
-

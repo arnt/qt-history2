@@ -8,11 +8,10 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow();
+    MainWindow(QWidget *parent = 0);
 
 protected:
-    void contextMenuEvent(QContextMenuEvent *);
-    void resizeEvent(QResizeEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
 
 private slots:
     void fileNew();
@@ -36,7 +35,12 @@ private slots:
     void helpAboutQt();
 
 private:
+    void createMenus();
+
+    QMenu *fileMenu;
     QMenu *editMenu;
+    QMenu *formatMenu;
+    QMenu *helpMenu;
     QLabel *infoLabel;
     QLabel *usageLabel;
 };

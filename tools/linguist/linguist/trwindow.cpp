@@ -196,7 +196,7 @@ TrWindow::TrWindow()
 
     messageIsShown = FALSE;
     me = new MessageEditor( &tor, this);
-    setCenterWidget( me );
+    setCentralWidget( me );
     slv = me->sourceTextList();
     plv = me->phraseList();
 

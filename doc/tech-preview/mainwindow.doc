@@ -209,8 +209,8 @@ Finally, once all of the main window components have been set up, the
 center widget is created and installed:
 
 \code
-    QWidget *centerWidget = new QWidget(this);
-    setCenterWidget(centerWidget);
+    QWidget *centralWidget = new QWidget(this);
+    setCentralWidget(centralWidget);
 \endcode
 
 The center widget can be any subclass of \c QWidget.
@@ -281,7 +281,7 @@ In Qt 4:
 \endcode
 
 The central widget in a main window is now defined using
-\c setCenterWidget().
+\c setCentralWidget().
 
 In Qt 3:
 \code
@@ -289,7 +289,7 @@ In Qt 3:
 \endcode
 In Qt 4:
 \code
-    setCenterWidget(centerWidget);
+    setCentralWidget(centralWidget);
 \endcode
 
 These changes provide more than a cosmetic improvement to Qt's API.

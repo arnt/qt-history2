@@ -51,7 +51,7 @@ TextEdit::TextEdit(QWidget *parent)
     tabWidget = new QTabWidget(this);
     connect(tabWidget, SIGNAL(currentChanged(int)),
             this, SLOT(editorChanged()));
-    setCenterWidget(tabWidget);
+    setCentralWidget(tabWidget);
 
     connect(QApplication::clipboard(), SIGNAL(dataChanged()), this, SLOT(clipboardDataChanged()));
 

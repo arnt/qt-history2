@@ -1,82 +1,38 @@
 #include "mainwindow.h"
 
-MainWindow::MainWindow()
-    : QMainWindow(0)
+MainWindow::MainWindow(QWidget *parent)
+    : QMainWindow(parent)
 {
-    infoLabel = new QLabel(tr("<i>Choose a menu option</i>"), this);
-    infoLabel->setFrameStyle(QFrame::StyledPanel|QFrame::Sunken);
+    QVBox *vbox = new QVBox(this);
+    vbox->setMargin(11);
+    setCentralWidget(vbox);
+
+    QWidget *filler1 = new QWidget(vbox);
+    filler1->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    infoLabel = new QLabel(tr("<i>Choose a menu option</i>"), vbox);
+    infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     infoLabel->setAlignment(Qt::AlignCenter);
+
+    QWidget *filler2 = new QWidget(vbox);
+    filler2->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
     usageLabel = new QLabel(tr(
-            "<p align=\"center\">A context menu is available."
-            "<br>Right-click or press the context menu button."),
-                            this);
-    usageLabel->setAlignment(Qt::AlignCenter);
+            "A context menu is available if you right-click on the window "
+            "or press your keyboard's context menu button"), vbox);
+    usageLabel->setWordWrap(true);
 
-    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
-    fileMenu->addAction(tr("&New..."), this, SLOT(fileNew()), tr("Ctrl+N"));
-    fileMenu->addAction(tr("&Open..."), this, SLOT(fileOpen()), tr("Ctrl+O"));
-    fileMenu->addAction(tr("&Save"), this, SLOT(fileSave()), tr("Ctrl+S"));
-    fileMenu->addAction(tr("&Print"), this, SLOT(filePrint()), tr("Ctrl+P"));
-    fileMenu->addSeparator();
-    fileMenu->addAction(tr("&Quit"), this, SLOT(fileQuit()), tr("Ctrl+Q"));
-
-    editMenu = menuBar()->addMenu(tr("&Edit"));
-    editMenu->addAction(tr("&Undo"), this, SLOT(editUndo()), tr("Ctrl+Z"));
-    editMenu->addAction(tr("&Redo"), this, SLOT(editRedo()), tr("Ctrl+Y"));
-    editMenu->addAction(tr("Cu&t"), this, SLOT(editCut()), tr("Ctrl+X"));
-    editMenu->addAction(tr("&Copy"), this, SLOT(editCopy()), tr("Ctrl+C"));
-    editMenu->addAction(tr("&Paste"), this, SLOT(editPaste()), tr("Ctrl+V"));
-
-    QList<QAction*> alignments;
-    QMenu *formatMenu = editMenu->addMenu(tr("&Format"));
-    alignments.append(formatMenu->addAction(tr("&Left Align"), this,
-                            SLOT(editFormatLeftAlign()), tr("Ctrl+L")));
-    alignments.append(formatMenu->addAction(tr("&Right Align"), this,
-                            SLOT(editFormatRightAlign()), tr("Ctrl+R")));
-    alignments.append(formatMenu->addAction(tr("&Justify"), this,
-                            SLOT(editFormatJustify()), tr("Ctrl+J")));
-    alignments.append(formatMenu->addAction(tr("&Center"), this,
-                            SLOT(editFormatCenter()), tr("Ctrl+E")));
-    formatMenu->addSeparator();
-    formatMenu->addAction(tr("Set &Line Spacing..."), this,
-                          SLOT(editFormatSetLineSpacing()));
-    formatMenu->addAction(tr("Set &Paragraph Spacing..."), this,
-                          SLOT(editFormatSetParagraphSpacing()));
-
-    QActionGroup *group = new QActionGroup(this);
-    foreach (QAction *action, alignments) {
-        action->setCheckable(true);
-        group->addAction(action);
-    }
-    alignments[0]->setChecked(true);
-
-    QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
-    helpMenu->addAction(tr("&About"), this, SLOT(helpAbout()));
-    helpMenu->addAction(tr("About &Qt"), this, SLOT(helpAboutQt()));
+    createMenus();
 
     setWindowTitle(tr("Menus"));
-
     setMinimumSize(160, 160);
-    resize(640, 480);
+    resize(480, 320);
 }
 
-
-void MainWindow::contextMenuEvent(QContextMenuEvent *)
+void MainWindow::contextMenuEvent(QContextMenuEvent *event)
 {
-    editMenu->exec(QCursor::pos());
+    editMenu->exec(event->globalPos());
 }
-
-
-void MainWindow::resizeEvent(QResizeEvent *event)
-{
-    int w = event->size().width();
-    int h = event->size().height();
-    infoLabel->resize(w - 40, 40);
-    infoLabel->move(20, h / 2);
-    usageLabel->resize(w - 40, 80);
-    usageLabel->move(20, h - 80);
-}
-
 
 void MainWindow::fileNew()
 {
@@ -158,12 +114,10 @@ void MainWindow::editFormatSetLineSpacing()
     infoLabel->setText("Invoked <b>Edit|Format|Set Line Spacing</b>");
 }
 
-
 void MainWindow::editFormatSetParagraphSpacing()
 {
     infoLabel->setText("Invoked <b>Edit|Format|Set Paragraph Spacing</b>");
 }
-
 
 void MainWindow::helpAbout()
 {
@@ -172,9 +126,52 @@ void MainWindow::helpAbout()
                "menu-bar menus and context menus."));
 }
 
-
 void MainWindow::helpAboutQt()
 {
     QMessageBox::aboutQt(this);
 }
 
+void MainWindow::createMenus()
+{
+    fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(tr("&New..."), this, SLOT(fileNew()), tr("Ctrl+N"));
+    fileMenu->addAction(tr("&Open..."), this, SLOT(fileOpen()), tr("Ctrl+O"));
+    fileMenu->addAction(tr("&Save"), this, SLOT(fileSave()), tr("Ctrl+S"));
+    fileMenu->addAction(tr("&Print"), this, SLOT(filePrint()), tr("Ctrl+P"));
+    fileMenu->addSeparator();
+    fileMenu->addAction(tr("&Quit"), this, SLOT(fileQuit()), tr("Ctrl+Q"));
+
+    editMenu = menuBar()->addMenu(tr("&Edit"));
+    editMenu->addAction(tr("&Undo"), this, SLOT(editUndo()), tr("Ctrl+Z"));
+    editMenu->addAction(tr("&Redo"), this, SLOT(editRedo()), tr("Ctrl+Y"));
+    editMenu->addAction(tr("Cu&t"), this, SLOT(editCut()), tr("Ctrl+X"));
+    editMenu->addAction(tr("&Copy"), this, SLOT(editCopy()), tr("Ctrl+C"));
+    editMenu->addAction(tr("&Paste"), this, SLOT(editPaste()), tr("Ctrl+V"));
+
+    QList<QAction *> alignmentActions;
+    formatMenu = editMenu->addMenu(tr("&Format"));
+    alignmentActions.append(formatMenu->addAction(tr("&Left Align"), this,
+                            SLOT(editFormatLeftAlign()), tr("Ctrl+L")));
+    alignmentActions.append(formatMenu->addAction(tr("&Right Align"), this,
+                            SLOT(editFormatRightAlign()), tr("Ctrl+R")));
+    alignmentActions.append(formatMenu->addAction(tr("&Justify"), this,
+                            SLOT(editFormatJustify()), tr("Ctrl+J")));
+    alignmentActions.append(formatMenu->addAction(tr("&Center"), this,
+                            SLOT(editFormatCenter()), tr("Ctrl+E")));
+    formatMenu->addSeparator();
+    formatMenu->addAction(tr("Set &Line Spacing..."), this,
+                          SLOT(editFormatSetLineSpacing()));
+    formatMenu->addAction(tr("Set &Paragraph Spacing..."), this,
+                          SLOT(editFormatSetParagraphSpacing()));
+
+    QActionGroup *group = new QActionGroup(this);
+    foreach (QAction *action, alignmentActions) {
+        action->setCheckable(true);
+        group->addAction(action);
+    }
+    alignmentActions[0]->setChecked(true);
+
+    helpMenu = menuBar()->addMenu(tr("&Help"));
+    helpMenu->addAction(tr("&About"), this, SLOT(helpAbout()));
+    helpMenu->addAction(tr("About &Qt"), this, SLOT(helpAboutQt()));
+}

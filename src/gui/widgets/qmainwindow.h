@@ -37,8 +37,8 @@ public:
     QStatusBar *statusBar() const;
     void setStatusBar(QStatusBar *statusbar);
 
-    QWidget *centerWidget() const;
-    void setCenterWidget(QWidget *widget);
+    QWidget *centralWidget() const;
+    void setCentralWidget(QWidget *widget);
 
     void setCorner(Qt::Corner corner, Qt::DockWindowArea area);
     Qt::DockWindowArea corner(Qt::Corner corner) const;
@@ -48,8 +48,6 @@ public:
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);
-    inline QT_COMPAT void setCentralWidget(QWidget *w) { setCenterWidget(w); }
-    inline QT_COMPAT QWidget *centralWidget() const { return centerWidget(); }
 #endif
 
 protected:

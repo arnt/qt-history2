@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
     BrowserWidget browser(&mainWin);
     app.setMainWidget(&mainWin);
-    mainWin.setCenterWidget(&browser);
+    mainWin.setCentralWidget(&browser);
 
     QMenu *menu = mainWin.menuBar()->addMenu(QObject::tr("SqlBrowser"));
     menu->addAction(QObject::tr("Add connection"), &browser, SLOT(addConnection()));

@@ -45,14 +45,14 @@ brightness of the separations.
     enough space for images to be displayed.
 */
 
-Viewer::Viewer() : QMainWindow()
+Viewer::Viewer()
 {
     setWindowTitle(tr("QImage Color Separations"));
 
     brightness = 255;
 
     createMenus();
-    setCenterWidget(createCentralWidget());
+    setCentralWidget(createCentralWidget());
 }
 
 /*

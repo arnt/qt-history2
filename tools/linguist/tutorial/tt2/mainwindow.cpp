@@ -16,7 +16,7 @@ MainWindow::MainWindow( QWidget *parent, const char *name )
 {
     setObjectName(name);
     ArrowPad *ap = new ArrowPad( this );
-    setCenterWidget( ap );
+    setCentralWidget( ap );
 
     QMenu *file = new QMenu( this );
     QAction *exitAction = file->addAction( tr("E&xit"), qApp, SLOT(quit()));

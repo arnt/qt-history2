@@ -44,7 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
         this, SLOT(changeCurrent(const QModelIndex &, const QModelIndex &)));
 
     statusBar();
-    setCenterWidget(table);
+    setCentralWidget(table);
 }
 
 void MainWindow::updateSelection(const QItemSelection &deselected,

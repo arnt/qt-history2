@@ -67,7 +67,7 @@ void ABMainWindow::setupStatusBar()
 void ABMainWindow::setupCentralWidget()
 {
     view = new ABCentralWidget(this);
-    setCenterWidget(view);
+    setCentralWidget(view);
 }
 
 void ABMainWindow::closeWindow()

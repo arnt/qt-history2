@@ -38,7 +38,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(openAction, SIGNAL(triggered()), this, SLOT(selectOpenFile()));
     connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
 
-    setCenterWidget(view);
+    setCentralWidget(view);
 }
 
 void MainWindow::setupModelView()

@@ -162,10 +162,10 @@ QStatusBar *QMainWindowLayout::statusBar() const
 void QMainWindowLayout::setStatusBar(QStatusBar *sb)
 { statusbar = new QWidgetItem(sb); }
 
-QWidget *QMainWindowLayout::centerWidget() const
+QWidget *QMainWindowLayout::centralWidget() const
 { return layout_info[CENTER].item ? layout_info[CENTER].item->widget() : 0; }
 
-void QMainWindowLayout::setCenterWidget(QWidget *cw)
+void QMainWindowLayout::setCentralWidget(QWidget *cw)
 {
     addChildWidget(cw);
     Q_ASSERT(!layout_info[CENTER].item);

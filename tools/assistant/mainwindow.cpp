@@ -58,7 +58,7 @@ MainWindow::MainWindow()
 
     windows.append(this);
     tabs = new TabbedBrowser(this);
-    setCenterWidget(tabs);
+    setCentralWidget(tabs);
     settingsDia = 0;
 
     Config *config = Config::configuration();

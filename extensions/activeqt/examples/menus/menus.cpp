@@ -99,7 +99,7 @@ QMenus::QMenus(QWidget *parent)
     menuBar()->addMenu(help)->setText("&Help");
 
     editor = new QTextEdit(this);
-    setCenterWidget(editor);
+    setCentralWidget(editor);
 
     statusBar();
 }

@@ -19,7 +19,7 @@ MainWindow::MainWindow( QWidget *parent, const char *name )
     setWindowTitle( tr("Troll Print 1.0") );
 
     PrintPanel *pp = new PrintPanel( this );
-    setCenterWidget( pp );
+    setCentralWidget( pp );
 
     QMenu *file = new QMenu( this );
     QAction *exitAction = file->addAction( tr("E&xit"), qApp, SLOT(quit()));

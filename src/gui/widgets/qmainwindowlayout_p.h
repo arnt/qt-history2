@@ -45,8 +45,8 @@ class QMainWindowLayout : public QLayout
     QStatusBar *statusBar() const;
     void setStatusBar(QStatusBar *sb);
 
-    QWidget *centerWidget() const;
-    void setCenterWidget(QWidget *cw);
+    QWidget *centralWidget() const;
+    void setCentralWidget(QWidget *cw);
 
     QDockWindowLayout *layoutForArea(Qt::DockWindowArea area);
 

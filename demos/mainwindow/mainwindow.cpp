@@ -61,7 +61,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
     center->setReadOnly(true);
     center->setHtml(tr(message));
     center->setMinimumSize(400, 200);
-    setCenterWidget(center);
+    setCentralWidget(center);
 
     statusBar()->message(tr("Status Bar"));
 }
