@@ -5,7 +5,6 @@
 MainWindow::MainWindow()
 {
     QVBoxWidget *vbox = new QVBoxWidget(this);
-    vbox->setMargin(11);
     setCentralWidget(vbox);
 
     QWidget *filler1 = new QWidget(vbox);

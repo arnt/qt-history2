@@ -1,3 +1,3 @@
-HEADERS	+= mainwindow.h
-SOURCES	+= mainwindow.cpp
-SOURCES	+= main.cpp
+HEADERS       = mainwindow.h
+SOURCES       = mainwindow.cpp \
+                main.cpp

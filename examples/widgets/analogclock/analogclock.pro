@@ -1,3 +1,3 @@
-HEADERS         += analogclock.h
-SOURCES         += analogclock.cpp \
-                   main.cpp
+HEADERS       = analogclock.h
+SOURCES       = analogclock.cpp \
+                main.cpp

@@ -1,4 +1,3 @@
-CONFIG      = qt
-HEADERS     = tabdialog.h
-SOURCES     = main.cpp \
-              tabdialog.cpp
+HEADERS       = tabdialog.h
+SOURCES       = main.cpp \
+                tabdialog.cpp

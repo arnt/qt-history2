@@ -159,20 +159,17 @@ Dialog::Dialog(QWidget *parent)
 void Dialog::setInteger()
 {
     bool ok;
-    int i =
-        QInputDialog::getInteger(tr("QInputDialog::getInteger()"),
-                                 tr("Percentage:"), 25, 0, 100, 1, &ok, this);
+    int i = QInputDialog::getInteger(tr("QInputDialog::getInteger()"),
+                                     tr("Percentage:"), 25, 0, 100, 1, &ok, this);
     if (ok)
-        integerLabel->setText(QString("%1%%").arg(i));
+        integerLabel->setText(tr("%1%").arg(i));
 }
 
 void Dialog::setDouble()
 {
     bool ok;
-    double d =
-        QInputDialog::getDouble(tr("QInputDialog::getDouble()"),
-                                tr("Amount:"), 37.56, -10000, 10000, 2,
-                                &ok, this);
+    double d = QInputDialog::getDouble(tr("QInputDialog::getDouble()"),
+                                       tr("Amount:"), 37.56, -10000, 10000, 2, &ok, this);
     if (ok)
         doubleLabel->setText(QString("$%1").arg(d));
 }
@@ -181,22 +178,21 @@ void Dialog::setItem()
 {
     QStringList items;
     items << tr("Spring") << tr("Summer") << tr("Fall") << tr("Winter");
+
     bool ok;
-    QString season = QInputDialog::getItem(tr("QInputDialog::getItem()"),
-                                           tr("Season:"), items, 0,
-                                           false, &ok, this);
-    if (ok && !season.isEmpty())
-        itemLabel->setText(season);
+    QString item = QInputDialog::getItem(tr("QInputDialog::getItem()"),
+                                         tr("Season:"), items, 0, false, &ok, this);
+    if (ok && !item.isEmpty())
+        itemLabel->setText(item);
 }
 
 void Dialog::setText()
 {
     bool ok;
-    QString name = QInputDialog::getText(tr("QInputDialog::getText()"),
-                                         tr("User name:"), QLineEdit::Normal,
-                                         QString(), &ok, this);
-    if (ok && !name.isEmpty())
-        textLabel->setText(name);
+    QString text = QInputDialog::getText(tr("QInputDialog::getText()"),
+                                         tr("User name:"), QLineEdit::Normal, "", &ok, this);
+    if (ok && !text.isEmpty())
+        textLabel->setText(text);
 }
 
 void Dialog::setColor()
@@ -218,30 +214,27 @@ void Dialog::setFont()
 
 void Dialog::setExistingDirectory()
 {
-    QString directory = QFileDialog::getExistingDirectory(
-                                this, tr("QFileDialog::getExistingDirectory()"),
-                                directoryLabel->text(),
-                                QFileDialog::DontResolveSymlinks |
-                                QFileDialog::ShowDirsOnly);
+    QString directory = QFileDialog::getExistingDirectory(this,
+                                tr("QFileDialog::getExistingDirectory()"), directoryLabel->text(),
+                                QFileDialog::DontResolveSymlinks | QFileDialog::ShowDirsOnly);
     if (!directory.isEmpty())
         directoryLabel->setText(directory);
 }
 
 void Dialog::setOpenFileName()
 {
-    QString filename = QFileDialog::getOpenFileName(
-                                this, tr("QFileDialog::getOpenFileName()"),
+    QString fileName = QFileDialog::getOpenFileName(this,
+                                tr("QFileDialog::getOpenFileName()"),
                                 openFileNameLabel->text(),
                                 tr("All (*);;Text files (*.txt)"));
-    if (!filename.isEmpty())
-        openFileNameLabel->setText(filename);
+    if (!fileName.isEmpty())
+        openFileNameLabel->setText(fileName);
 }
 
 void Dialog::setOpenFileNames()
 {
     QStringList files = QFileDialog::getOpenFileNames(
-                                this, tr("QFileDialog::getOpenFileNames()"),
-                                openFilesPath,
+                                this, tr("QFileDialog::getOpenFileNames()"), openFilesPath,
                                 tr("All (*);;Text files (*.txt)"));
     if (files.count()) {
         openFilesPath = files[0];
@@ -251,12 +244,11 @@ void Dialog::setOpenFileNames()
 
 void Dialog::setSaveFileName()
 {
-    QString filename = QFileDialog::getSaveFileName(
-                                this, tr("QFileDialog::getSaveFileName()"),
-                                saveFileNameLabel->text(),
+    QString fileName = QFileDialog::getSaveFileName(this,
+                                tr("QFileDialog::getSaveFileName()"), saveFileNameLabel->text(),
                                 tr("All (*);;Text files (*.txt)"));
-    if (!filename.isEmpty())
-        saveFileNameLabel->setText(filename);
+    if (!fileName.isEmpty())
+        saveFileNameLabel->setText(fileName);
 }
 
 void Dialog::criticalMessage()
@@ -317,6 +309,6 @@ void Dialog::errorMessage()
                "but if the user unchecks the box the message "
                "will not appear again if QMessageBox::message() "
                "is called with the same message."));
-    errorLabel->setText(tr("If the box is unchecked the message "
+    errorLabel->setText(tr("If the box is unchecked, the message "
                            "won't appear again."));
 }

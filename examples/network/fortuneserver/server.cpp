@@ -6,8 +6,6 @@
 
 #include "server.h"
 
-static const int NumFortunes = 8;
-
 Server::Server(QWidget *parent)
     : QDialog(parent)
 {
@@ -46,7 +44,7 @@ Server::Server(QWidget *parent)
     mainLayout->addLayout(buttonLayout);
 
     setWindowTitle(tr("Fortune Server"));
-    srand(QDateTime::currentDateTime().toTime_t());
+    std::srand(QDateTime::currentDateTime().toTime_t());
 }
 
 void Server::sendFortune()
@@ -55,7 +53,7 @@ void Server::sendFortune()
 
     QDataStream out(clientConnection);
     out.setVersion(7);
-    out << fortunes[std::rand() % NumFortunes];
+    out << fortunes.at(std::rand() % fortunes.size());
 
     connect(clientConnection, SIGNAL(closed()),
             clientConnection, SLOT(deleteLater()));

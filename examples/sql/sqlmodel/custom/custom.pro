@@ -1,7 +1,2 @@
-TEMPLATE        = app
-TARGET          = customsqlmodel
-
-QT              += sql
-
-SOURCES         = main.cpp
-
+SOURCES       = main.cpp
+QT           += sql

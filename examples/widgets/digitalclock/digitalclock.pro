@@ -1,3 +1,3 @@
-HEADERS         += digitalclock.h
-SOURCES         += digitalclock.cpp \
-		   main.cpp
+HEADERS       = digitalclock.h
+SOURCES       = digitalclock.cpp \
+                main.cpp

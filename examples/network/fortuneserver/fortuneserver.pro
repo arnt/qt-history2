@@ -1,4 +1,4 @@
-HEADERS += server.h
-SOURCES += server.cpp
-SOURCES += main.cpp
-QT += network
+HEADERS       = server.h
+SOURCES       = server.cpp \
+                main.cpp
+QT           += sql

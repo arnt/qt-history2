@@ -1,4 +1,1 @@
-TEMPLATE = subdirs
-
-SUBDIRS = simple custom editable
-
+TEMPLATE      = subdirs

@@ -78,7 +78,7 @@ PermissionsTab::PermissionsTab(QWidget *parent, const QFileInfo &fileInfo)
     if (fileInfo.isReadable())
         readable->setChecked(true);
 
-    QCheckBox *writable = new QCheckBox(tr("Writeable"), permissionsGroup);
+    QCheckBox *writable = new QCheckBox(tr("Writable"), permissionsGroup);
     if ( fileInfo.isWritable() )
         writable->setChecked(true);
 

@@ -1,4 +1,1 @@
-TEMPLATE = subdirs
-
-SUBDIRS = simple
-
+TEMPLATE      = subdirs

@@ -1,7 +1,2 @@
-TEMPLATE        = app
-TARGET          = cachedsqltablemodel
-
-QT              += sql
-
-SOURCES         = main.cpp
-
+SOURCES       = main.cpp
+QT           += sql

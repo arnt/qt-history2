@@ -1,3 +1,3 @@
-HEADERS += dialog.h
-SOURCES += dialog.cpp
-SOURCES += main.cpp
+HEADERS       = dialog.h
+SOURCES       = dialog.cpp \
+                main.cpp

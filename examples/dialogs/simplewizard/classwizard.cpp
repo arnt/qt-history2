@@ -104,7 +104,7 @@ void ClassWizard::accept()
                              .arg(headerFile.errorString()));
         return;
     }
-    headerFile.writeBlock(block);
+    headerFile.write(block);
 
     block.clear();
 
@@ -160,8 +160,7 @@ void ClassWizard::accept()
                              .arg(implementationFile.errorString()));
         return;
     }
-    implementationFile.writeBlock(block);
-
+    implementationFile.write(block);
 
     QDialog::accept();
 }

@@ -1,4 +1,1 @@
-TEMPLATE = subdirs
-
-SUBDIRS = sqlmodel
-
+TEMPLATE      = subdirs
