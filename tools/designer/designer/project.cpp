@@ -1533,7 +1533,7 @@ QObjectList *Project::run()
 	}
     }
 
-    for ( QPtrListIterator<SourceFile> sources = sourceFiles();
+    for ( QPtrListIterator<SourceFile> sources( sourceFiles() );
 	  sources.current(); ++sources ) {
 	SourceFile* f = sources.current();
 	QStringList error;
