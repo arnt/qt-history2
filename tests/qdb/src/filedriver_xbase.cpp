@@ -25,6 +25,9 @@
 
 #include "sqlinterpreter.h"
 
+#include <xdb/xbase.h>
+#include <xdb/xbexcept.h>
+
 #include <qarray.h>
 #include <qdatetime.h>
 #include <qvariant.h>
@@ -34,8 +37,6 @@
 #include <qdir.h>
 #include <qfileinfo.h>
 #include <qstringlist.h>
-#include <xdb/xbase.h>
-#include <xdb/xbexcept.h>
 
 // #define DEBUG_XBASE
 // #define VERBOSE_DEBUG_XBASE
