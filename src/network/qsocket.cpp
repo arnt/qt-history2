@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#21 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#22 $
 **
 ** Implementation of QSocket class.
 **
@@ -278,7 +278,7 @@ void QSocket::connectToHost( const QString &host, Q_UINT16 port )
     qDebug( "QSocket (%s)::connectToHost: host %s, port %d",
 	    name(), host.ascii(), port );
 #endif
-    setSocket( d->socket->createNewSocket() );
+    setSocketIntern( d->socket->createNewSocket() );
 
     d->state = HostLookup;
     d->host = host;
@@ -1125,6 +1125,8 @@ void QSocket::tryConnection()
 	qDebug( "QSocket (%s): sn_write: Got connection to %s",
 		name(), peerName().ascii() );
 #endif
+	if ( d->rsn )
+	    d->rsn->setEnabled( TRUE );
 	emit connected();
     } else {
 	d->state = Idle;
@@ -1145,7 +1147,6 @@ int QSocket::socket() const
     return d->socket->socket();
 }
 
-
 /*!
   Sets the socket to use \a socket and the state() to \c Connected. The socket
   should already be connected.
@@ -1156,32 +1157,45 @@ int QSocket::socket() const
 
 void QSocket::setSocket( int socket )
 {
-    if ( state() != Idle )
-		close();
-    d->state = Connected;
+    setSocketIntern( socket );
+    d->state = Connection;
+    d->rsn->setEnabled( TRUE );
+}
 
+
+/*!
+  Sets the socket to \a socket. This is both used by setSocket() and
+  connectToHost() and can be used also on unconnected sockets.
+*/
+
+void QSocket::setSocketIntern( int socket )
+{
+    if ( state() != Idle )
+	close();
+    d->state = Idle;
+ 
     d->socket->setSocket(socket, QSocketDevice::Stream );
     d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
-				  this, "read" );
+                                  this, "read" );
     d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
-				  this, "write" );
+                                  this, "write" );
     connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
-    d->rsn->setEnabled( TRUE );
+    d->rsn->setEnabled( FALSE );
     connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
     d->wsn->setEnabled( FALSE );
-
+ 
     // Initialize the IO device flags
     setFlags( IO_Direct );
     setStatus( IO_Ok );
     open( IO_ReadWrite );
-
+ 
     // hm... this is not very nice.
     d->host = QString::null;
     d->port = 0;
 #ifndef QT_NO_DNS
     delete d->dns;
     d->dns = 0;
-#endif
+#endif                                                                                                                                                                                
 }
 
 

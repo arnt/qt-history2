@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.h#8 $
+** $Id: //depot/qt/main/src/network/qsocket.h#9 $
 **
 ** Definition of QSocket class.
 **
@@ -130,6 +130,7 @@ private:
     bool	 consumeWriteBuf( int nbytes );
     bool	 scanNewline( QByteArray * = 0 );
     void	 tryConnection();
+    void         setSocketIntern( int socket );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
