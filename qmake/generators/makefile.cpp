@@ -1320,7 +1320,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
     if(pfile != "(stdin)") {
 	QString qmake = build_args();
 	fileFixify(pfile, Option::output_dir);
-	if(!ofile.isEmpty()) {
+	if(!ofile.isEmpty() && !project->isActiveConfig("no_autoqmake")) {
 	    t << ofile << ": " << pfile << " ";
 	    if(Option::mkfile::do_cache) {
 		QString s = Option::mkfile::cachefile;
