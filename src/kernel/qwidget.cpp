@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#335 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#336 $
 **
 ** Implementation of QWidget class
 **
@@ -2805,13 +2805,13 @@ void QWidget::show()
     if ( testWFlags(WType_Modal) ) {
 	// qt_enter_modal *before* show, otherwise the initial
 	// stacking might be wrong
-	qt_enter_modal( this ); 
+	qt_enter_modal( this );
 	showWindow();
     }
     else {
 	showWindow();
 	if ( testWFlags(WType_Popup) )
-	    qt_open_popup( this );
+	    qApp->openPopup( this );
     }
 }
 

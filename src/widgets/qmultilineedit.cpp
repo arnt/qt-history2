@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#4 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1135,12 +1135,13 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
 	int nw = textWidth( textLine );
 	if ( nw > w ) w = nw;
     } while ( i );
+    mlData->maxLineWidth = w;
 
     setNumRows( contents->count() );
-    // do not use setWidth(...) because we _definitely_ need the check in 
+    // do not use setWidth(...) because we _definitely_ need the check in
     // QTableView, otherwise we cannot react on a new vertical scrollbar.
     setCellWidth( QMAX( contentsRect().width(), mlData->maxLineWidth ) );
-    
+
     if ( autoUpdate() ) //### && visibleChanges
 	repaint( FALSE );
 
