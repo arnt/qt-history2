@@ -32,6 +32,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#if defined(_OS_WIN32_)
+#define vsnprintf _vsnprintf
+#endif
+
 // NOT REVISED
 
 /*!
