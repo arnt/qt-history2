@@ -192,11 +192,14 @@ QSubMenuAction::QSubMenuAction( QObject *parent )
 
 bool QSubMenuAction::addTo( QWidget *w )
 {
+    //FIXME: nothing yet. mmonsen 21112002.
+    /*
     idx = ( (QPopupMenu*)w )->count();
     if ( !popup )
 	popup = new QDesignerPopupMenu( MainWindow::self );
     ( (QPopupMenu*)w )->insertItem( menuText(), popup, -1, idx );
     return TRUE;
+    */
 }
 
 bool QSubMenuAction::removeFrom( QWidget *w )
@@ -751,8 +754,8 @@ void QDesignerToolBar::installEventFilters( QWidget *w )
     delete l;
 }
 
-
-
+//FIXME: classes removed. mmonsen 21112002.
+/*
 QDesignerMenuBar::QDesignerMenuBar( QWidget *mw )
     : QMenuBar( mw, 0 )
 {
@@ -795,9 +798,9 @@ void QDesignerMenuBar::contextMenuEvent( QContextMenuEvent *e )
 	QMenuItem *item = findItem( idAt( itm ) );
 	RemoveMenuCommand *cmd = new RemoveMenuCommand( tr( "Delete Menu '%1'" ).arg( item->text() ),
 							formWindow,
-							(QMainWindow*)parentWidget(), this,
+							(QMainWindow*)parentWidget(), /this/0,
 							(QDesignerPopupMenu*)item->popup(),
-							idAt( itm ), itm, item->text() );
+							/idAt( itm ),/ itm/, item->text()/ );
 	formWindow->commandHistory()->addCommand( cmd );
 	cmd->execute();
 	// #### need to do a proper invalidate and re-layout
@@ -811,7 +814,7 @@ void QDesignerMenuBar::contextMenuEvent( QContextMenuEvent *e )
 	if ( ok ) {
 	    RenameMenuCommand *cmd = new RenameMenuCommand(
 		tr( "Rename Menu '%1' to '%2'" ).arg( old ).arg( txt ),
-		formWindow, this, idAt( itm ), old, txt );
+		formWindow, /this/0, /idAt( itm )/itm, old, txt );
 	    formWindow->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	}
@@ -1348,5 +1351,5 @@ void QDesignerPopupMenu::findFormWindow()
 	w = w->parentWidget();
     }
 }
-
+*/
 #include "actiondnd.moc"

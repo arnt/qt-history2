@@ -37,6 +37,8 @@
 #include "hierarchyview.h"
 #include <stdlib.h>
 #include <qmetaobject.h>
+#include "popupmenueditor.h"
+#include "menubareditor.h"
 
 DesignerInterfaceImpl::DesignerInterfaceImpl( MainWindow *mw )
     : mainWindow( mw )
@@ -924,47 +926,49 @@ void DesignerFormWindowImpl::onModificationChange( QObject *receiver, const char
 
 void DesignerFormWindowImpl::addMenu( const QString &text, const QString &name )
 {
+    // FIXME: edited. mmonsen 21112002
     if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
 	return;
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
-    QDesignerPopupMenu *popup = new QDesignerPopupMenu( mw );
+    PopupMenuEditor *popup = new PopupMenuEditor( formWindow, mw );
     QString n = name;
     formWindow->unify( popup, n, TRUE );
     popup->setName( n );
-    if ( !mw->child( 0, "QMenuBar" ) ) {
-	QMenuBar *mb = new QDesignerMenuBar( (QWidget*)mw );
-	mb->setName( "menubar" );
+    MenuBarEditor *mb = (MenuBarEditor *)mw->child( 0, "MenuBarEditor" );
+    if ( !mb ) {
+	mb = new MenuBarEditor( formWindow, mw );
+	mb->setName( "MenuBar" );
     }
-    mw->menuBar()->insertItem( text, popup );
+    mb->insertItem( text, popup );
 }
 
 void DesignerFormWindowImpl::addMenuAction( const QString &menu, QAction *a )
 {
+    //FIXME: edited. mmonsen 21112002
     if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
 	return;
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
-    if ( !mw->child( 0, "QMenuBar" ) )
+    if ( !mw->child( 0, "MenuBarEditor" ) )
 	return;
-    QDesignerPopupMenu *popup = (QDesignerPopupMenu*)mw->child( menu, "QDesignerPopupMenu" );
+    PopupMenuEditor *popup = (PopupMenuEditor*)mw->child( menu, "PopupMenuEditor" );
     if ( !popup )
 	return;
-    a->addTo( popup );
-    popup->addAction( a );
+    popup->insert( a );
 }
 
 void DesignerFormWindowImpl::addMenuSeparator( const QString &menu )
 {
+    //FIXME: edited. mmonsen 21112002.
     if ( !formWindow->mainContainer()->inherits( "QMainWindow" ) )
 	return;
     QMainWindow *mw = (QMainWindow*)formWindow->mainContainer();
-    if ( !mw->child( 0, "QMenuBar" ) )
+    if ( !mw->child( 0, "MenuBarEditor" ) )
 	return;
-    QDesignerPopupMenu *popup = (QDesignerPopupMenu*)mw->child( menu, "QDesignerPopupMenu" );
+    PopupMenuEditor *popup = (PopupMenuEditor*)mw->child( menu, "PopupMenuEditor" );
     if ( !popup )
 	return;
     QAction *a = new QSeparatorAction( 0 );
-    a->addTo( popup );
-    popup->addAction( a );
+    popup->insert( a );
 }
 
 void DesignerFormWindowImpl::addToolBar( const QString &text, const QString &name )

@@ -31,7 +31,7 @@
 #include <qguardedptr.h>
 #include "../shared/widgetdatabase.h"
 
-class QDesignerPopupMenu;
+//class QDesignerPopupMenu;
 class QDesignerIndicatorWidget;
 class FormWindow;
 class QPopupMenu;
@@ -219,7 +219,8 @@ private:
     FormWindow *formWindow;
 
 };
-
+//FIXME: classes removed. mmonsen 21112002.
+/*
 class QDesignerMenuBar : public QMenuBar
 {
     Q_OBJECT
@@ -315,5 +316,5 @@ private:
     QPoint popupLocalPos;
 
 };
-
+*/
 #endif

@@ -90,6 +90,23 @@ void ActionEditor::setCurrentAction( QAction *a )
     }
 }
 
+QAction *ActionEditor::newActionEx() // FIXME: rename. mmonsen 21112002.
+{
+    ActionItem *i = new ActionItem( listActions, (bool)FALSE );
+    MetaDataBase::addEntry( i->action() );
+    QString n = "Action";
+    formWindow->unify( i->action(), n, TRUE );
+    i->setText( 0, n );
+    i->action()->setName( n );
+    i->action()->setText( i->action()->name() );
+    MetaDataBase::setPropertyChanged( i->action(), "text", TRUE );
+    MetaDataBase::setPropertyChanged( i->action(), "name", TRUE );
+    formWindow->actionList().append( i->action() );
+    if ( formWindow->formFile() )
+	formWindow->formFile()->setModified( TRUE );
+    return i->action();
+}
+
 void ActionEditor::deleteAction()
 {
     if ( !currentAction )

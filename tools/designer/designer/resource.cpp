@@ -37,6 +37,8 @@
 #include "project.h"
 #include "pixmapcollection.h"
 #include "formfile.h"
+#include "popupmenueditor.h"
+#include "menubareditor.h"
 
 #include <qfeatures.h>
 #include <qfile.h>
@@ -2748,20 +2750,22 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 
 void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 {
-    if ( !mw->child( 0, "QMenuBar" ) )
+    MenuBarEditor *mb = (MenuBarEditor *)mw->child( 0, "MenuBarEditor" );
+    if ( !mb )
 	return;
     ts << makeIndent( indent ) << "<menubar>" << endl;
     indent++;
-    saveObjectProperties( mw->menuBar(), ts, indent );
+    saveObjectProperties( mb, ts, indent );
 
-    for ( int i = 0; i < (int)mw->menuBar()->count(); ++i ) {
-	ts << makeIndent( indent ) << "<item text=\"" << entitize( mw->menuBar()->text( mw->menuBar()->idAt( i ) ) )
-	   << "\" name=\"" << entitize( mw->menuBar()->findItem( mw->menuBar()->idAt( i ) )->popup()->name() ) << "\">" << endl;
-	indent++;
-	QMenuItem *m = mw->menuBar()->findItem( mw->menuBar()->idAt( i ) );
+    for ( int i = 0; i < (int)mb->count(); ++i ) {
+	MenuBarEditorItem *m = mb->item( i );
 	if ( !m )
 	    continue;
-	QPtrList<QAction> actionList = ( (QDesignerPopupMenu*)m->popup() )->insertedActions();
+	ts << makeIndent( indent ) << "<item text=\"" << entitize( m->menuText() )
+	   << "\" name=\"" << entitize( m->menu()->name() ) << "\">" << endl;
+	indent++;
+	QPtrList<QAction> actionList;
+	( (PopupMenuEditor*)m->menu() )->insertedActions( actionList );
 	for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
 	    if ( a->inherits( "QSeparatorAction" ) )
 		ts <<  makeIndent( indent ) << "<separator/>" << endl;
@@ -2783,7 +2787,7 @@ void Resource::loadToolBars( const QDomElement &e )
     while ( !n.isNull() ) {
 	if ( n.tagName() == "toolbar" ) {
 	    Qt::Dock dock = (Qt::Dock)n.attribute( "dock" ).toInt();
-	    tb = new QDesignerToolBar( mw, dock );
+	    tb = new QDesignerToolBar( mw, dock ); // FIXME: add menu bar to layout
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
@@ -2815,24 +2819,22 @@ void Resource::loadToolBars( const QDomElement &e )
 void Resource::loadMenuBar( const QDomElement &e )
 {
     QDomElement n = e.firstChild().toElement();
-    QMainWindow *mw = ( (QMainWindow*)formwindow->mainContainer() );
-    QDesignerMenuBar *mb = new QDesignerMenuBar( mw );
+    QMainWindow *mw = (QMainWindow*)formwindow->mainContainer();
+    MenuBarEditor *mb = new MenuBarEditor( formwindow, mw );
     while ( !n.isNull() ) {
 	if ( n.tagName() == "item" ) {
-	    QDesignerPopupMenu *popup = new QDesignerPopupMenu( mw );
+	    PopupMenuEditor *popup = new PopupMenuEditor( formwindow, mw );
 	    popup->setName( n.attribute( "name" ) );
 	    QDomElement n2 = n.firstChild().toElement();
 	    while ( !n2.isNull() ) {
 		if ( n2.tagName() == "action" ) {
 		    QAction *a = formwindow->findAction( n2.attribute( "name" ) );
 		    if ( a ) {
-			a->addTo( popup );
-			popup->addAction( a );
+			popup->insert( a );
 		    }
 		} else if ( n2.tagName() == "separator" ) {
 		    QAction *a = new QSeparatorAction( 0 );
-		    a->addTo( popup );
-		    popup->addAction( a );
+		    popup->insert( a );
 		}
 		n2 = n2.nextSibling().toElement();
 	    }

@@ -42,6 +42,7 @@ public:
     void setWantToBeShown( bool b ) { explicitlyClosed = !b; }
 
     void setCurrentAction( QAction *a );
+    QAction *newActionEx(); //FIXME: rename. mmonsen 21112002.
 
 protected:
     void closeEvent( QCloseEvent *e );

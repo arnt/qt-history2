@@ -33,6 +33,8 @@
 #include "actiondnd.h"
 #include "actioneditorimpl.h"
 #include "variabledialogimpl.h"
+#include "popupmenueditor.h"
+#include "menubareditor.h"
 
 #include <qpalette.h>
 #include <qobjectlist.h>
@@ -497,12 +499,13 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 	QMenuBar *m = (QMenuBar*)o->parent()->child( 0, "QDesignerMenuBar" );
 	if ( m )
 	    insertObject( m, item );
-    } else if ( o->inherits( "QDesignerToolBar" ) || o->inherits( "QDesignerPopupMenu" ) ) {
+    } else if ( o->inherits( "QDesignerToolBar" ) || o->inherits( "PopupMenuEditor" ) ) {
 	QPtrList<QAction> actions;
 	if ( o->inherits( "QDesignerToolBar" ) )
 	    actions = ( (QDesignerToolBar*)o )->insertedActions();
 	else
-	    actions = ( (QDesignerPopupMenu*)o )->insertedActions();
+	    ( (PopupMenuEditor*)o )->insertedActions( actions );
+	    
 	QPtrListIterator<QAction> it( actions );
 	it.toLast();
 	while ( it.current() ) {
@@ -531,13 +534,18 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 		insertObject( obj, item );
 	    }
 	}
-    } else if ( o->inherits( "QMenuBar" ) ) {
-	QMenuBar *mb = (QMenuBar*)o;
+	//} else if ( o->inherits( "QMenuBar" ) ) {
+    } else if ( o->inherits( "MenuBarEditor" ) ) {
+	//QMenuBar *mb = (QMenuBar*)o;
+	MenuBarEditor *mb = (MenuBarEditor*)o;
 	for ( int i = mb->count() -1; i >= 0; --i ) {
-	    QMenuItem *md = mb->findItem( mb->idAt( i ) );
-	    if ( !md || !md->popup() )
+	    //QMenuItem *md = mb->findItem( mb->idAt( i ) );
+	    MenuBarEditorItem *md = mb->item( i );
+	    //if ( !md || !md->popup() )
+	    if ( !md || !md->menu() )
 		continue;
-	    insertObject( md->popup(), item );
+	    //insertObject( md->popup(), item );
+	    insertObject( md->menu(), item );
 	}
     }
 

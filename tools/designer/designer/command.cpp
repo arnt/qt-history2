@@ -30,6 +30,8 @@
 #include "actiondnd.h"
 #include "formfile.h"
 #include "../interfaces/languageinterface.h"
+#include "menubareditor.h"
+#include "popupmenueditor.h"
 
 #include <qfeatures.h>
 #include <qwidget.h>
@@ -1834,156 +1836,7 @@ void AddActionToToolBarCommand::unexecute()
 
 // ------------------------------------------------------------
 
-AddActionToPopupCommand::AddActionToPopupCommand( const QString &n, FormWindow *fw,
-						  QAction *a, QDesignerPopupMenu *p, int idx )
-    : Command( n, fw ), action( a ), popup( p ), index( idx )
-{
-}
-
-void AddActionToPopupCommand::execute()
-{
-    if ( action->inherits( "QActionGroup" ) ) {
-	if ( ( (QActionGroup*)action )->usesDropDown() ) {
-	    action->addTo( popup );
-	    popup->insertAction( index, action );
-	} else {
-	    action->addTo( popup );
-	    if ( action->children() ) {
-		QObjectListIt it( *action->children() );
-		int i = 0;
-		while ( it.current() ) {
-		    QObject *o = it.current();
-		    ++it;
-		    if ( !o->inherits( "QAction" ) )
-			continue;
-		    QDesignerAction *ac = (QDesignerAction*)o;
-		    popup->insertAction( index + (i++), ac );
-		    QObject::connect( o, SIGNAL( destroyed() ), popup, SLOT( actionRemoved() ) );
-		}
-	    }
-	}
-	popup->reInsert();
-	QObject::connect( action, SIGNAL( destroyed() ), popup, SLOT( actionRemoved() ) );
-    } else {
-	if ( !action->inherits( "QDesignerAction" ) || ( (QDesignerAction*)action )->supportsMenu() ) {
-	    action->addTo( popup );
-	    popup->insertAction( index, action );
-	    popup->reInsert();
-	    QObject::connect( action, SIGNAL( destroyed() ), popup, SLOT( actionRemoved() ) );
-	}
-    }
-    formWindow()->mainWindow()->objectHierarchy()->rebuild();
-}
-
-void AddActionToPopupCommand::unexecute()
-{
-    action->removeFrom( popup );
-    popup->removeAction( action );
-    QObject::disconnect( action, SIGNAL( destroyed() ), popup, SLOT( actionRemoved() ) );
-    if ( !action->inherits( "QActionGroup" ) || ( (QActionGroup*)action )->usesDropDown()) {
-	action->removeEventFilter( popup );
-    } else {
-	if ( action->children() ) {
-	    QObjectListIt it( *action->children() );
-	    while ( it.current() ) {
-		QObject *o = it.current();
-		++it;
-		if ( !o->inherits( "QAction" ) )
-		    continue;
-		if ( o->inherits( "QDesignerAction" ) ) {
-		    o->removeEventFilter( popup );
-		    popup->removeAction( (QAction*)o );
-		}
-		QObject::disconnect( o, SIGNAL( destroyed() ), popup, SLOT( actionRemoved() ) );
-	    }
-	}
-    }
-    formWindow()->mainWindow()->objectHierarchy()->rebuild();
-}
-
-// ------------------------------------------------------------
-
-AddMenuCommand::AddMenuCommand( const QString &n, FormWindow *fw, QMainWindow *mw )
-    : Command( n, fw ), menuBar( 0 ), popup( 0 ), mainWindow( mw ), id( -1 ), name( "Menu" )
-{
-}
-
-void AddMenuCommand::execute()
-{
-    if ( !popup ) {
-	QString n = "PopupMenu";
-	popup = new QDesignerPopupMenu( mainWindow );
-	formWindow()->unify( popup, n, TRUE );
-	popup->setName( n );
-    }
-    if ( !mainWindow->child( 0, "QMenuBar" ) ) {
-	menuBar = new QDesignerMenuBar( (QWidget*)mainWindow );
-	menuBar->setName( "menubar" );
-    } else {
-	menuBar = (QDesignerMenuBar*)mainWindow->menuBar();
-    }
-    if ( id == -1 )
-	id = mainWindow->menuBar()->insertItem( name, popup );
-    else
-	id = mainWindow->menuBar()->insertItem( name, popup, id, index );
-    formWindow()->killAccels( formWindow() );
-    formWindow()->mainWindow()->objectHierarchy()->rebuild();
-}
-
-void AddMenuCommand::unexecute()
-{
-    if ( !popup || !menuBar )
-	return;
-    menuBar->removeItem( id );
-    formWindow()->killAccels( formWindow() );
-    formWindow()->mainWindow()->objectHierarchy()->rebuild();
-}
-
-// ------------------------------------------------------------
-
-RenameMenuCommand::RenameMenuCommand( const QString &n, FormWindow *fw, QDesignerMenuBar *mb,
-				      int i, const QString &on, const QString &nn )
-    : Command( n, fw ), menuBar( mb ), id( i ), oldName( on ), newName( nn )
-{
-}
-
-void RenameMenuCommand::execute()
-{
-    menuBar->changeItem( id, newName );
-    formWindow()->killAccels( formWindow() );
-    formWindow()->mainWindow()->objectHierarchy()->rebuild();
-}
-
-void RenameMenuCommand::unexecute()
-{
-    menuBar->changeItem( id, oldName );
-    formWindow()->killAccels( formWindow() );
-    formWindow()->mainWindow()->objectHierarchy()->rebuild();
-}
-
-// ------------------------------------------------------------
-
-MoveMenuCommand::MoveMenuCommand( const QString &n, FormWindow *fw, QDesignerMenuBar *mb,
-				  QDesignerPopupMenu *p, int fidx, int tidx, const QString &txt )
-    : Command( n, fw ), menuBar( mb ), popup( p ), fromIdx( fidx ), toIdx( tidx ), text( txt )
-{
-}
-
-void MoveMenuCommand::execute()
-{
-    menuBar->removeItem( menuBar->idAt( fromIdx ) );
-    menuBar->insertItem( text, popup, -1, toIdx );
-    formWindow()->killAccels( formWindow() );
-    formWindow()->mainWindow()->objectHierarchy()->rebuild();
-}
-
-void MoveMenuCommand::unexecute()
-{
-    menuBar->removeItem( menuBar->idAt( toIdx ) );
-    menuBar->insertItem( text, popup, -1, fromIdx );
-    formWindow()->killAccels( formWindow() );
-    formWindow()->mainWindow()->objectHierarchy()->rebuild();
-}
+// MenuCommands
 
 // ------------------------------------------------------------
 
@@ -2147,3 +2000,211 @@ void RenameContainerPageCommand::unexecute()
     // #### show and update pages in object hierarchy view
 }
 
+// ------------------------------------------------------------
+
+AddActionToPopupCommand::AddActionToPopupCommand( const QString &n,
+						  FormWindow *fw,
+						  PopupMenuEditor *m,
+						  PopupMenuEditorItem *i,
+						  int idx )
+    : Command( n, fw ), menu( m ), item( i ), index( idx )
+{ }
+
+void AddActionToPopupCommand::execute()
+{
+    menu->insert( item, index );
+    //menu->update();
+}
+
+void AddActionToPopupCommand::unexecute()
+{
+    item->hideMenu();
+    int i = menu->find( item->anyAction() );
+    menu->remove( i );
+    //menu->update();
+}
+
+// ------------------------------------------------------------
+
+RemoveActionFromPopupCommand::RemoveActionFromPopupCommand( const QString &n,
+							    FormWindow *fw,
+							    PopupMenuEditor *m,
+							    int idx )
+    : AddActionToPopupCommand( n, fw, m, 0, idx )
+{
+    item = menu->at( index );
+}
+
+void RemoveActionFromPopupCommand::execute()
+{
+    AddActionToPopupCommand::unexecute();
+}
+
+void RemoveActionFromPopupCommand::unexecute()
+{
+    AddActionToPopupCommand::execute();
+}
+
+// ------------------------------------------------------------
+
+ExchangeActionInPopupCommand::ExchangeActionInPopupCommand( const QString &n,
+							    FormWindow *fw,
+							    PopupMenuEditor *m,
+							    int a,
+							    int b )
+    : Command( n, fw ), menu( m ), c( a ), d( b )
+{ }
+
+void ExchangeActionInPopupCommand::execute()
+{
+    menu->exchange( c, d );
+}
+
+void ExchangeActionInPopupCommand::unexecute()
+{
+    execute();
+}
+
+// ------------------------------------------------------------
+
+RenameActionCommand::RenameActionCommand( const QString &n,
+					  FormWindow *fw,
+					  PopupMenuEditor *m,
+					  QAction *a,
+					  QString nm )
+    : Command( n, fw ), menu( m ), action( a ), newName( nm )
+{
+    oldName = action->menuText();
+}
+
+void RenameActionCommand::execute()
+{
+    action->setMenuText( newName );
+    action->setName( newName );
+    menu->update();
+}
+
+void RenameActionCommand::unexecute()
+{
+    action->setMenuText( oldName );
+    // FIXME: setName to old name ?
+    menu->update();
+}
+
+// ------------------------------------------------------------
+
+AddMenuCommand::AddMenuCommand( const QString &n,
+				FormWindow *fw,
+				MenuBarEditor *b,
+				MenuBarEditorItem *i,
+				int idx )
+    : Command( n, fw ), bar( b ), item( i ), name( 0 ), index( idx )
+{ }
+
+AddMenuCommand::AddMenuCommand( const QString &n,
+				FormWindow *fw,
+				QMainWindow *mw,
+				const QString &nm )
+    : Command( n, fw ), item( 0 ), name( nm ), index( -1 )
+{
+    bar = (MenuBarEditor *)mw->child( 0, "MenuBarEditor" );
+}
+
+void AddMenuCommand::execute()
+{
+    QMainWindow *mw = (QMainWindow*)formWindow()->mainContainer();
+    if ( !bar ) {
+	bar = new MenuBarEditor( formWindow(), mw );
+	bar->setName( "MenuBar" );
+	bar->show();
+    }
+    if ( !item ) {
+	QString n = "PopupMenu";
+	PopupMenuEditor *popup = new PopupMenuEditor( formWindow(), mw );
+	formWindow()->unify( popup, n, TRUE );
+	popup->setName( n );
+	bar->insertItem( name, popup, index );
+    } else {
+	bar->insertItem( item, index );
+	bar->update();
+    }
+}
+
+void AddMenuCommand::unexecute()
+{
+    item->menu()->hide();
+    int i = bar->findItem( item );
+    bar->removeItemAt( i );
+    bar->update();
+}
+
+// ------------------------------------------------------------
+
+RemoveMenuCommand::RemoveMenuCommand( const QString &n,
+				      FormWindow *fw,
+				      MenuBarEditor *b,
+				      int idx )
+    : AddMenuCommand( n, fw, b, 0, idx )
+{
+    item = bar->item( index );
+}
+
+void RemoveMenuCommand::execute()
+{
+    AddMenuCommand::unexecute();
+}
+
+void RemoveMenuCommand::unexecute()
+{
+    AddMenuCommand::execute();
+}
+
+// ------------------------------------------------------------
+
+ExchangeMenuCommand::ExchangeMenuCommand( const QString &n,
+					  FormWindow *fw,
+					  MenuBarEditor *b,
+					  int i,
+					  int j )
+    : Command( n, fw ), bar( b ), k( i ), l( j )
+{ }
+
+void ExchangeMenuCommand::execute()
+{
+    bar->exchange( k, l );
+    bar->update();
+}
+
+void ExchangeMenuCommand::unexecute()
+{
+    execute();
+}
+
+// ------------------------------------------------------------
+
+RenameMenuCommand::RenameMenuCommand( const QString &n,
+				      FormWindow *fw,
+				      MenuBarEditor *b,
+				      QString nm,
+				      MenuBarEditorItem *i )
+    : Command( n, fw ), bar( b ), item( i ), newName( nm )
+{
+    oldName = item->menuText();
+}
+
+void RenameMenuCommand::execute()
+{
+    item->setMenuText( newName );
+    QString s = newName;
+    //item->setName( s.remove( '&' ).lower() );
+    bar->update();
+}
+
+void RenameMenuCommand::unexecute()
+{
+    item->setMenuText( oldName );
+    // FIXME: setName to old name ?
+    bar->update();
+}
+
+// ------------------------------------------------------------

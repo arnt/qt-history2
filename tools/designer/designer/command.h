@@ -45,10 +45,13 @@ class QTable;
 class QAction;
 class QDesignerToolBar;
 class QMainWindow;
-class QDesignerPopupMenu;
-class QDesignerMenuBar;
 class QTextEdit;
 struct LanguageInterface;
+
+class MenuBarEditor;
+class MenuBarEditorItem;
+class PopupMenuEditor;
+class PopupMenuEditorItem;
 
 class Command : public Qt
 {
@@ -92,12 +95,6 @@ public:
 	PopulateTable,
 	AddActionToToolBar,
 	RemoveActionFromToolBar,
-	AddActionToPopup,
-	RemoveActionFromPopup,
-	AddMenu,
-	RemoveMenu,
-	RenameMenu,
-	MoveMenu,
 	AddToolBar,
 	RemoveToolBar,
 	AddFunction,
@@ -109,7 +106,15 @@ public:
 	EditDefinitions,
 	AddContainerPage,
 	DeleteContainerPage,
-	RenameContainerPage
+	RenameContainerPage,
+	AddActionToPopup,
+	RemoveActionFromPopup,
+	ExchangeActionInPopup,
+	RenameAction,
+	AddMenu,
+	RemoveMenu,
+	ExchangeMenu,
+	RenameMenu
     };
 
     QString name() const;
@@ -893,102 +898,7 @@ public:
 
 };
 
-class AddActionToPopupCommand : public Command
-{
-public:
-    AddActionToPopupCommand( const QString &n, FormWindow *fw,
-			       QAction *a, QDesignerPopupMenu *p, int idx );
-
-    void execute();
-    void unexecute();
-    Type type() const { return AddActionToPopup; }
-
-private:
-    QAction *action;
-    QDesignerPopupMenu *popup;
-    int index;
-
-};
-
-class RemoveActionFromPopupCommand : public AddActionToPopupCommand
-{
-public:
-    RemoveActionFromPopupCommand( const QString &n, FormWindow *fw,
-				    QAction *a, QDesignerPopupMenu *p, int idx )
-	: AddActionToPopupCommand( n, fw, a, p, idx ) {}
-
-    void execute() { AddActionToPopupCommand::unexecute(); }
-    void unexecute() { AddActionToPopupCommand::execute(); }
-    Type type() const { return RemoveActionFromPopup; }
-
-};
-
-class AddMenuCommand : public Command
-{
-public:
-    AddMenuCommand( const QString &n, FormWindow *fw, QMainWindow *mw );
-
-    void execute();
-    void unexecute();
-    Type type() const { return AddMenu; }
-
-protected:
-    QDesignerMenuBar *menuBar;
-    QDesignerPopupMenu *popup;
-    QMainWindow *mainWindow;
-    int id;
-    int index;
-    QString name;
-
-};
-
-class RemoveMenuCommand : public AddMenuCommand
-{
-public:
-    RemoveMenuCommand( const QString &n, FormWindow *fw, QMainWindow *mw,
-		       QDesignerMenuBar *mb, QDesignerPopupMenu *p, int i, int idx, const QString &mn )
-	: AddMenuCommand( n, fw, mw ) { menuBar = mb; popup = p; id = i; index = idx, name = mn; }
-
-    void execute() { AddMenuCommand::unexecute(); }
-    void unexecute() { AddMenuCommand::execute(); }
-    Type type() const { return RemoveMenu; }
-
-};
-
-class RenameMenuCommand : public Command
-{
-public:
-    RenameMenuCommand( const QString &n, FormWindow *fw, QDesignerMenuBar *mb,
-		       int i, const QString &on, const QString &nn );
-
-    void execute();
-    void unexecute();
-    Type type() const { return RenameMenu; }
-
-private:
-    QDesignerMenuBar *menuBar;
-    int id;
-    QString oldName, newName;
-
-};
-
-class MoveMenuCommand : public Command
-{
-public:
-    MoveMenuCommand( const QString &n, FormWindow *fw, QDesignerMenuBar *mb,
-		     QDesignerPopupMenu *p, int fidx, int tidx, const QString &txt );
-
-    void execute();
-    void unexecute();
-    Type type() const { return MoveMenu; }
-
-private:
-    QDesignerMenuBar *menuBar;
-    QDesignerPopupMenu *popup;
-    int fromIdx, toIdx;
-    QString text;
-
-};
+// MenuCommands
 
 class AddToolBarCommand : public Command
 {
@@ -1081,6 +991,151 @@ private:
     QString oldLabel, newLabel;
     QWidgetContainerInterfacePrivate *wiface;
 
+};
+
+class AddActionToPopupCommand : public Command
+{
+public:
+    AddActionToPopupCommand( const QString &n,
+			     FormWindow *fw,
+			     PopupMenuEditor *m,
+			     PopupMenuEditorItem *i,
+			     int idx = -1 );
+    void execute();
+    void unexecute();
+    Type type() const { return AddActionToPopup; }
+protected:
+    PopupMenuEditor *menu;
+    PopupMenuEditorItem *item;
+    int index;
+private:
+};
+
+class RemoveActionFromPopupCommand : public AddActionToPopupCommand
+{
+public:
+    RemoveActionFromPopupCommand( const QString &n,
+				  FormWindow *fw,
+				  PopupMenuEditor *m,
+				  int idx );
+    void execute();
+    void unexecute();
+    Type type() const { return RemoveActionFromPopup; }
+protected:
+private:
+};
+
+class ExchangeActionInPopupCommand : public Command
+{
+public:
+    ExchangeActionInPopupCommand( const QString &n,
+				  FormWindow *fw,
+				  PopupMenuEditor *m,
+				  int a,
+				  int b );
+    void execute();
+    void unexecute();
+    Type type() const { return ExchangeActionInPopup; }
+protected:
+private:
+    PopupMenuEditor *menu;
+    int c;
+    int d;
+};
+
+class RenameActionCommand : public Command
+{
+public:
+    RenameActionCommand( const QString &n,
+			 FormWindow *fw,
+			 PopupMenuEditor *m,
+			 QAction *a,
+			 QString nm );
+    void execute();
+    void unexecute();
+    Type type() const { return RenameAction; }
+protected:
+private:
+    PopupMenuEditor *menu;
+    QAction *action;
+    QString newName;
+    QString oldName;
+};
+
+class AddMenuCommand : public Command
+{
+public:
+    AddMenuCommand( const QString &n,
+		    FormWindow *fw,
+		    MenuBarEditor *b,
+		    MenuBarEditorItem *i,
+		    int idx = -1 );
+
+    AddMenuCommand( const QString &n,
+		    FormWindow *fw,
+		    QMainWindow *mw,
+		    const QString &nm = "Menu" );
+    
+    void execute();
+    void unexecute();
+    Type type() const { return AddMenu; }
+protected:
+    MenuBarEditor *bar;
+    MenuBarEditorItem *item;
+    QString name;
+    int index;
+private:
+};
+
+class RemoveMenuCommand : public AddMenuCommand
+{
+public:
+    RemoveMenuCommand( const QString &n,
+		       FormWindow *fw,
+		       MenuBarEditor *b,
+		       int idx );
+    void execute();
+    void unexecute();
+    Type type() const { return RemoveMenu; }
+protected:
+private:
+};
+
+class ExchangeMenuCommand : public Command
+{
+public:
+    ExchangeMenuCommand( const QString &n,
+			 FormWindow *fw,
+			 MenuBarEditor *b,
+			 int i,
+			 int j );
+    void execute();
+    void unexecute();
+    Type type() const { return ExchangeMenu; }
+protected:
+private:
+    MenuBarEditor *bar;
+    int k;
+    int l;
+};
+
+class RenameMenuCommand : public Command
+{
+public:
+    RenameMenuCommand( const QString &n,
+		       FormWindow *fw,
+		       MenuBarEditor *m,
+		       QString nm,
+		       MenuBarEditorItem *i );
+    void execute();
+    void unexecute();
+    Type type() const { return RenameMenu; }
+protected:
+private:
+    MenuBarEditor *bar;
+    MenuBarEditorItem *item;
+    QString newName;
+    QString oldName;
 };
 
 #endif

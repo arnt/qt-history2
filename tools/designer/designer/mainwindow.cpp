@@ -885,6 +885,15 @@ void MainWindow::updateProperties( QObject * )
 
 bool MainWindow::eventFilter( QObject *o, QEvent *e )
 {
+    if ( o->inherits( "MenuBarEditor" ) ||
+	 o->inherits( "PopupMenuEditor" ) ||
+	 (o->parent() && o->parent()->inherits( "PopupMenuEditor" ) ) ||
+	 (o->parent() && o->parent()->inherits( "MenuBarEditor" ) ) ) {
+	if ( o->inherits( "PopupMenuEditor" ) && e->type() == QEvent::Accel )
+	    return TRUE;// FIXME: consume accel events from popup editor. mmonsen 21112002.
+	return QMainWindow::eventFilter( o, e );
+    }
+    
     if ( !o || !e || !o->isWidgetType() )
 	return QMainWindow::eventFilter( o, e );
 
@@ -921,12 +930,13 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	break;
     case QEvent::ContextMenu:
     case QEvent::MouseButtonPress:
-	if ( o->inherits( "QDesignerPopupMenu" ) )
-	    break;
-	if ( o && currentTool() == POINTER_TOOL && ( o->inherits( "QDesignerMenuBar" ) ||
-		    o->inherits( "QDesignerToolBar" ) ||
-		    ( o->inherits( "QComboBox") || o->inherits( "QToolButton" ) || o->inherits( "QDesignerToolBarSeparator" ) ) &&
-		    o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
+	//if ( o->inherits( "PopupMenuEditor" ) )
+	//    break;
+	if ( o && currentTool() == POINTER_TOOL && ( /*o->inherits( "MenuBarEditor" ) ||*/
+		 o->inherits( "QDesignerToolBar" ) ||
+		 ( o->inherits( "QComboBox") || o->inherits( "QToolButton" ) ||
+		   o->inherits( "QDesignerToolBarSeparator" ) ) &&
+		 o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
 	    QWidget *w = (QWidget*)o;
 	    if ( w->inherits( "QToolButton" ) || w->inherits( "QComboBox" ) || w->inherits( "QDesignerToolBarSeparator" ) )
 		w = w->parentWidget();
@@ -935,7 +945,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 		if ( pw->inherits( "FormWindow" ) ) {
 		    ( (FormWindow*)pw )->emitShowProperties( w );
 		    if ( !o->inherits( "QDesignerToolBar" ) )
-			return !o->inherits( "QToolButton" ) && !o->inherits( "QMenuBar" ) &&
+			return !o->inherits( "QToolButton" ) && !o->inherits( "MenuBarEditor" ) &&
 			    !o->inherits( "QComboBox" ) && !o->inherits( "QDesignerToolBarSeparator" );
 		}
 		pw = pw->parentWidget();
@@ -1049,7 +1059,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	break;
     case QEvent::Enter:
     case QEvent::Leave:
-	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) || o->inherits( "QDesignerMenuBar" ) )
+	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) /*|| o->inherits( "MenuBarEditor" )*/ )
 	    break;
 	return TRUE;
     case QEvent::Resize:
@@ -1104,7 +1114,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	return TRUE;
     case QEvent::FocusIn:
 	if ( !o->inherits( "FormWindow" ) && isAFormWindowChild( o ) )
-	    return TRUE;
+	    return TRUE; //FIXME
 	if ( qworkspace->activeWindow() &&
 	     qworkspace->activeWindow()->inherits( "SourceEditor" ) )
 	    ed = (QWidget*)qworkspace->activeWindow()->child( 0, "Editor" );
@@ -3413,7 +3423,6 @@ bool MainWindow::openProjectSettings( Project *pro )
 
 void MainWindow::popupProjectMenu( const QPoint &pos )
 {
-
     projectMenu->exec( pos );
 }
 
