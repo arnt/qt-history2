@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#80 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#80 $");
 
 
 /*!
@@ -164,35 +164,6 @@ QPixmap::QPixmap( const char *xpm[] )
 
 
 /*!
-  Special-purpose function that detaches the pixmap from shared pixmap data.
-
-  A pixmap is automatically detached by Qt whenever its contents is about
-  to change.  This is done in all QPixmap member functions that modify the
-  pixmap (fill(), resize(), convertFromImage(), load() etc.), in bitBlt()
-  for the destination pixmap and in QPainter::begin() on a pixmap.
-
-  It is possible to modify a pixmap without letting Qt know.
-  You can first obtain the \link handle() system-dependent handle\endlink
-  and then call system-specific functions (for instance BitBlt under Windows)
-  that modifies the pixmap contents.  In this case, you can call detach()
-  to cut the pixmap loose from other pixmaps that share data with this one.
-
-  detach() returns immediately if there is just a single reference or if
-  the pixmap has not been initialized yet.
-*/
-
-void QPixmap::detach()
-{
-    if ( data->optim )
-	data->dirty = TRUE;
-    if ( data->uninit || data->count == 1 ) {
-	data->uninit = FALSE;
-	return;
-    }
-    *this = copy();
-}
-
-/*!
   Returns a
   \link shclass.html deep copy\endlink of the pixmap using the bitBlt()
   function to copy the pixels.
@@ -202,8 +173,9 @@ void QPixmap::detach()
 QPixmap QPixmap::copy() const
 {
     QPixmap tmp( data->w, data->h, data->d );
-    tmp.data->optim  = data->optim;		// copy optim flag
+    tmp.data->optim  = data->optim;		// copy optimization flag
     tmp.data->bitmap = data->bitmap;		// copy bitmap flag
+    tmp.data->opt    = data->opt;		// copy optimization setting
     if ( !tmp.isNull() ) {			// copy the bitmap
 	bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
 	if ( data->mask )			// copy the mask
@@ -355,6 +327,7 @@ void QPixmap::resize( int w, int h )
 	QPixmap pm;
 	pm.data->optim	= data->optim;		// keep optimization flag
 	pm.data->bitmap = data->bitmap;		// keep is-a flag
+	pm.data->opt	= data->opt;		// keep optimization setting
 	*this = pm;
 	return;
     }
@@ -369,8 +342,9 @@ void QPixmap::resize( int w, int h )
 	bitBlt( &pm, 0, 0, this, 0, 0,		// copy old pixmap
 		QMIN(width(), w),
 		QMIN(height(),h), CopyROP, TRUE );
-    pm.data->optim  = data->optim;		// keep optim flag
+    pm.data->optim  = data->optim;		// keep optimization flag
     pm.data->bitmap = data->bitmap;		// keep bitmap flag
+    pm.data->opt    = data->opt;		// keep optimization setting
     if ( data->mask ) {				// resize mask as well
 	QBitmap m = *data->mask;
 	m.resize( w, h );

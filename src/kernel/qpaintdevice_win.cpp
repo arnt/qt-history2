@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#34 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -25,7 +25,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#34 $");
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -75,6 +75,67 @@ int QPaintDevice::fontMet( QFont *, int, const char *, int ) const
 int QPaintDevice::fontInf( QFont *, int ) const
 {
     return 0;
+}
+
+
+bool qt_bitblt_bsm = FALSE;			// ######### experimental
+
+/*
+  Draw transparent pixmap using the black source method.
+*/
+
+static void qDrawTransparentPixmap( HDC hdc_dest, bool destIsPixmap,
+				    int dx, int dy,
+				    const QPixmap *pixmap,
+				    const QBitmap *mask,
+				    int sx, int sy, int sw, int sh,
+				    QPixmap **blackSourcePixmap )
+{
+#if defined(DEBUG)
+    ASSERT( sw > 0 && sh > 0 && pixmap->handle() && mask->handle() );
+#endif
+    HDC	     hdc;
+    HDC	     hdc_buf = 0;
+    HBITMAP  hbm_buf, hbm_buf_old;
+    int	     nx, ny;
+
+    if ( destIsPixmap ) {			// blt directly into pixmap
+	hdc = hdc_dest;
+	nx = dx;
+	ny = dy;
+    } else {					// use off-screen buffer
+	hdc_buf = CreateCompatibleDC( hdc_dest );
+	hbm_buf = CreateCompatibleBitmap( hdc_dest, sw, sh );
+	hbm_buf_old = SelectObject( hdc_buf, hbm_buf );
+	BitBlt( hdc_buf, 0, 0, sw, sh, hdc_dest, dx, dy, SRCCOPY );
+	hdc = hdc_buf;
+	nx = ny = 0;
+    }
+
+    QPixmap *bs = *blackSourcePixmap;
+    bool newPixmap = bs == 0;
+    if ( newPixmap ) {
+	bs = new QPixmap( sw, sh, pixmap->depth() );
+	CHECK_PTR( bs );
+	bs->setOptimization( QPixmap::NormalOptim );
+	BitBlt( bs->handle(), 0, 0, sw, sh, pixmap->handle(),
+		sx, sy, SRCCOPY );
+	QBitmap masknot( sw, sh );
+	masknot.setOptimization( QPixmap::NormalOptim );
+	BitBlt( masknot.handle(), 0, 0, sw, sh, mask->handle(),
+		sx, sy, NOTSRCCOPY );
+	BitBlt( bs->handle(), 0, 0, sw, sh, masknot.handle(),
+		sx, sy, SRCAND );
+    }
+    BitBlt( hdc, nx, ny, sw, sh, mask->handle(), sx, sy, SRCAND );
+    BitBlt( hdc, nx, ny, sw, sh, bs->handle(), sx, sy, SRCPAINT );
+    *blackSourcePixmap = bs;
+
+    if ( hdc_buf ) {				// blt off-screen buffer
+	BitBlt( hdc_dest, dx, dy, sw, sh, hdc_buf, 0, 0, SRCCOPY );
+	DeleteObject( SelectObject(hdc_buf,hbm_buf_old) );
+	DeleteDC( hdc_buf );
+    }
 }
 
 
@@ -170,13 +231,24 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     HDC	 src_dc	 = src->hdc, dst_dc  = dst->hdc;
     bool src_tmp = FALSE,    dst_tmp = FALSE;
+
+    QPixmap *src_pm;
+    QBitmap *mask;
+    if ( ts == PDT_PIXMAP ) {
+	src_pm = (QPixmap *)src;
+	mask   = ignoreMask ? 0 : (QBitmap *)src_pm->mask();
+    } else {
+	src_pm = 0;
+	mask   = 0;
+    }
+
     if ( !src_dc ) {
 	switch ( ts ) {
 	    case PDT_WIDGET:
 		src_dc = GetDC( ((QWidget*)src)->winId() );
 		break;
 	    case PDT_PIXMAP:
-		src_dc = ((QPixmap*)src)->allocMemDC();
+		src_dc = src_pm->allocMemDC();
 		break;
 	}
 	src_tmp = TRUE;
@@ -198,31 +270,34 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( !(src_dc && dst_dc) )			// not ready, (why?)
 	return;
 
-    const QBitmap *mask;
-    if ( ts == PDT_PIXMAP && !ignoreMask )
-	mask = ((QPixmap*)src)->mask();
-    else
-	mask = 0;
-
     if ( mask ) {
-	if ( qt_winver == WV_NT ) {
+	bool do_bsm = qt_winver == WV_95 || qt_bitblt_bsm;
+	if ( src_pm->data->selfmask ) {
+	    HBRUSH b = CreateSolidBrush( black.pixel() );
+	    COLORREF tc, bc;
+	    b = SelectObject( dst_dc, b );
+	    tc = SetTextColor( dst_dc, black.pixel() );
+	    bc = SetBkColor( dst_dc, white.pixel() );
+	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, 0x00b8074a );
+	    SetBkColor( dst_dc, bc );
+	    SetTextColor( dst_dc, tc );
+	    DeleteObject( SelectObject(dst_dc, b) );		
+	} else if ( do_bsm ) {
+	    bool mask_tmp = mask->handle() == 0;
+	    if ( mask_tmp )
+		mask->allocMemDC();
+	    qDrawTransparentPixmap( dst_dc, td == PDT_PIXMAP,
+				    dx, dy, src_pm, mask,
+				    sx, sy, sw, sh, &src_pm->data->maskpm );
+	    if ( src_pm->data->opt != QPixmap::BestOptim ) {
+		delete src_pm->data->maskpm;
+		src_pm->data->maskpm = 0;
+	    }
+	    if ( mask_tmp )
+		mask->freeMemDC();
+	} else {
 	    MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
 		     sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
-	} else {
-	    if ( ((QPixmap*)src)->data->selfmask ) {
-		HBRUSH b = CreateSolidBrush( black.pixel() );
-		COLORREF tc, bc;
-		b = SelectObject( dst_dc, b );
-		tc = SetTextColor( dst_dc, black.pixel() );
-		bc = SetBkColor( dst_dc, white.pixel() );
-		BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, 0x00b8074a );
-		SetBkColor( dst_dc, bc );
-		SetTextColor( dst_dc, tc );
-		DeleteObject( SelectObject(dst_dc, b) );		
-	    } else {
-		BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy,
-			ropCodes[rop] );
-	    }
 	}
     } else {
 	BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
@@ -233,8 +308,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		ReleaseDC( ((QWidget*)src)->winId(), src_dc );
 		break;
 	    case PDT_PIXMAP:
-		if ( !((QPixmap*)src)->isOptimized() )
-		    ((QPixmap*)src)->freeMemDC();
+		src_pm->freeMemDC();
 		break;
 	}
     }
@@ -244,8 +318,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		ReleaseDC( ((QWidget*)dst)->winId(), dst_dc );
 		break;
 	    case PDT_PIXMAP:
-		if ( !((QPixmap*)dst)->isOptimized() )
-		    ((QPixmap*)dst)->freeMemDC();
+		((QPixmap*)dst)->freeMemDC();
 		break;
 	}
     }

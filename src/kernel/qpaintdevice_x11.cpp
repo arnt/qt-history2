@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#77 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#77 $");
 
 
 /*!
@@ -213,9 +213,11 @@ int QPaintDevice::fontInf( QFont *, int ) const
 
 //
 // Internal functions for simple GC caching for blt'ing masked pixmaps.
+// This cache is used when the pixmap optimization is set to Normal
+// and the pixmap size doesn't exceed 128x128.
 //
 
-static bool  init_mask_gc = FALSE;
+static bool      init_mask_gc = FALSE;
 static const int max_mask_gcs = 11;		// suitable for hashing
 
 struct mask_gc {
@@ -236,7 +238,7 @@ static void cleanup_mask_gc()
     }
 }
 
-static GC get_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
+static GC cache_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
 {
     if ( !init_mask_gc ) {			// first time initialization
 	init_mask_gc = TRUE;
@@ -398,12 +400,15 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     bool mono_dst;
     bool include_inferiors = FALSE;
     bool graphics_exposure = FALSE;
+    QPixmap *src_pm;
     QBitmap *mask;
 
     if ( ts == PDT_PIXMAP ) {
-	mono_src = ((QPixmap*)src)->depth() == 1;
-	mask = ignoreMask ? 0 : ((QPixmap*)src)->data->mask;
+	src_pm = (QPixmap*)src;
+	mono_src = src_pm->depth() == 1;
+	mask = ignoreMask ? 0 : src_pm->data->mask;
     } else {
+	src_pm = 0;
 	mono_src = FALSE;
 	mask = 0;
 	include_inferiors = ((QWidget*)src)->testWFlags(WPaintUnclipped);
@@ -428,8 +433,31 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     GC gc;
 
     if ( mask && !mono_src ) {			// fast masked blt
-	gc = get_mask_gc( dpy, dst->handle(), mask->data->ser_no,
-			  mask->handle() );
+	bool temp_gc = FALSE;
+	if ( mask->data->maskgc ) {
+	    gc = (GC)mask->data->maskgc;	// we have a premade mask GC
+	} else {
+	    if ( src_pm->optimization() == QPixmap::NormalOptim &&
+		 mask->width()*mask->height() < 16384 ) {
+		    // Compete for the global cache if the size of the source
+		    // pixmap (and mask) doesn't exceed about 128x128 pixels
+		    gc = cache_mask_gc( dpy, dst->handle(),
+					mask->data->ser_no,
+					mask->handle() );
+	    } else {
+		// Create a new mask GC. If BestOptim, we store the mask GC
+		// with the mask (not at the pixmap). This way, many pixmaps
+		// which have a common mask will be optimized at no extra cost.
+		gc = XCreateGC( dpy, dst->handle(), 0, 0 );
+		XSetGraphicsExposures( dpy, gc, FALSE );
+		XSetClipMask( dpy, gc, mask->handle() );
+		if ( src_pm->optimization() == QPixmap::BestOptim ) {
+		    mask->data->maskgc = gc;
+		} else {
+		    temp_gc = TRUE;
+		}
+	    }
+	}
 	XSetClipOrigin( dpy, gc, dx-sx, dy-sy );
 	if ( rop != CopyROP )			// use non-default ROP code
 	    XSetFunction( dpy, gc, ropCodes[rop] );
@@ -443,12 +471,14 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		       dx, dy );
 	}
 
-	if ( rop != CopyROP )			// restore ROP
+	if ( temp_gc )				// delete temporary GC
+	    XFreeGC( dpy, gc );
+	else if ( rop != CopyROP )		// restore ROP
 	    XSetFunction( dpy, gc, GXcopy );
 	return;
-    } else {					// get a reusable GC
-	gc = qt_xget_temp_gc( mono_dst );
     }
+
+    gc = qt_xget_temp_gc( mono_dst );		// get a reusable GC
 
     if ( rop != CopyROP )			// use non-default ROP code
 	XSetFunction( dpy, gc, ropCodes[rop] );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#121 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#122 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#121 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#122 $");
 
 
 // For thread-safety:
@@ -210,6 +210,8 @@ static void build_scale_table( uint **table, uint nBits )
  *****************************************************************************/
 
 bool QPixmap::optimAll = TRUE;
+QPixmap::Optimization QPixmap::defOpt = QPixmap::NormalOptim;
+
 
 /*!
   \internal
@@ -224,14 +226,15 @@ void QPixmap::init( int w, int h, int d )
     data = new QPixmapData;
     CHECK_PTR( data );
 
-    data->dirty	   = FALSE;
     data->optim	   = optimAll;
     data->uninit   = TRUE;
     data->bitmap   = FALSE;
     data->selfmask = FALSE;
     data->ser_no   = ++serial;
+    data->opt	   = defOpt;
     data->mask	   = 0;
     data->ximage   = 0;
+    data->maskgc   = 0;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -243,7 +246,7 @@ void QPixmap::init( int w, int h, int d )
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
 	data->w = data->h = 0;
 	data->d = 0;
-	hd = None;
+	hd = 0;
 #if defined(CHECK_RANGE)
 	if ( !make_null )
 	    warning( "QPixmap: Invalid pixmap parameters" );
@@ -253,6 +256,27 @@ void QPixmap::init( int w, int h, int d )
     data->w = w;
     data->h = h;
     hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
+}
+
+
+void QPixmap::reset()
+{
+    if ( data->mask ) {
+	delete data->mask;
+	data->mask = 0;
+    }
+    if ( data->maskgc ) {
+	XFreeGC( dpy, (GC)data->maskgc );
+	data->maskgc = 0;
+    }
+    if ( data->ximage ) {
+	qSafeXDestroyImage( (XImage*)data->ximage );
+	data->ximage = 0;
+    }
+    if ( hd && qApp ) {
+	XFreePixmap( dpy, hd );
+	hd = 0;
+    }
 }
 
 
@@ -269,7 +293,9 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	return;
 
     data->uninit = FALSE;
-    data->w = w;  data->h = h;	data->d = 1;
+    data->w = w;
+    data->h = h;
+    data->d = 1;
     uchar *flipped_bits;
     if ( isXbitmap ) {
 	flipped_bits = 0;
@@ -307,13 +333,44 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 QPixmap::~QPixmap()
 {
     if( data->deref() ) {			// last reference lost
-	if ( data->mask )
-	    delete data->mask;
-	if ( data->ximage )
-	    qSafeXDestroyImage( (XImage*)data->ximage );
-	if ( hd && qApp )
-	    XFreePixmap( dpy, hd );
+	reset();
 	delete data;
+    }
+}
+
+
+/*!
+  Special-purpose function that detaches the pixmap from shared pixmap data.
+
+  A pixmap is automatically detached by Qt whenever its contents is about
+  to change.  This is done in all QPixmap member functions that modify the
+  pixmap (fill(), resize(), convertFromImage(), load() etc.), in bitBlt()
+  for the destination pixmap and in QPainter::begin() on a pixmap.
+
+  It is possible to modify a pixmap without letting Qt know.
+  You can first obtain the \link handle() system-dependent handle\endlink
+  and then call system-specific functions (for instance BitBlt under Windows)
+  that modifies the pixmap contents.  In this case, you can call detach()
+  to cut the pixmap loose from other pixmaps that share data with this one.
+
+  detach() returns immediately if there is just a single reference or if
+  the pixmap has not been initialized yet.
+*/
+
+void QPixmap::detach()
+{
+    if ( data->uninit || data->count == 1 )
+	data->uninit = FALSE;
+    else
+	*this = copy();
+    // reset the cache data
+    if ( data->ximage ) {
+	qSafeXDestroyImage( (XImage*)data->ximage );
+	data->ximage = 0;
+    }
+    if ( data->maskgc ) {
+	XFreeGC( dpy, (GC)data->maskgc );
+	data->maskgc = 0;
     }
 }
 
@@ -333,20 +390,15 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     }
     pixmap.data->ref();				// avoid 'x = x'
     if ( data && data->deref() ) {		// last reference lost
-	if ( data->mask )
-	    delete data->mask;
-	if ( data->ximage )
-	    qSafeXDestroyImage( (XImage*)data->ximage );
-	if ( hd )
-	    XFreePixmap( dpy, hd );
+	reset();
 	delete data;
     }
     if ( pixmap.paintingActive() ) {		// make a deep copy
 	init( pixmap.width(), pixmap.height(), pixmap.depth() );
-	data->dirty  = FALSE;
 	data->uninit = FALSE;
-	data->optim  = pixmap.data->optim;	// copy optim flag
+	data->optim  = pixmap.data->optim;	// copy optimization flag
 	data->bitmap = pixmap.data->bitmap;	// copy bitmap flag
+	data->opt    = pixmap.data->opt;	// copy optimization setting
 	if ( !isNull() ) {
 	    bitBlt( this, 0, 0, &pixmap, pixmap.width(), pixmap.height(),
 		    CopyROP, TRUE );
@@ -376,66 +428,122 @@ int QPixmap::defaultDepth()
 
 
 /*!
-  \fn bool QPixmap::isOptimized() const
+  \fn Optimization QPixmap::optimization() const
 
-  Returns the optimization flag for the pixmap.
+  Returns the optimization setting for this pixmap.
 
-  The optimization flag is initially set to the global pixmap optimization
-  flag allAreOptimized(), which is TRUE by default.
+  The default optimization setting is \c QPixmap::NormalOptim. You may
+  change this settings in two ways:
+  <ul>
+  <li> Call setDefaultOptimization() to set the default optimization
+  for all new pixmaps.
+  <li> Call setOptimization() to set a the optimization for individual
+  pixmaps.
+  </ul>
 
-  \sa optimize(), optimizeGlobally(), isGloballyOptimized()
+  \sa setOptimization(), setDefaultOptimization(), defaultOptimization()
 */
 
 /*!
-  Enables pixmap optimization if \e enable is TRUE, or disables
-  optimization if \e enable is FALSE.
+  Sets pixmap drawing optimization for this pixmap.
 
-  Pixmap optimization makes some pixmap operations faster. The
-  disadvantage is that pixmap optimization consumes some extra memory,
-  rougly width()*depth()*height()/8 bytes.
+  The optimization setting affects pixmap operations, in particular
+  drawing of transparent pixmaps (bitBlt() a pixmap with a mask set) and
+  pixmap transformations (the xForm() function).
 
-  \sa isOptimized(), optimizeGlobally(), isGloballyOptimized()
+  Pixmap optimization involves keeping intermediate results in a cache
+  buffer and use the data in the cache to speed up bitBlt() and xForm().
+  The cost is more memory consumption, up to width()*height()*depth()/8
+  bytes per cached pixmap.
+
+  The \a optimization parameter can be:
+  <ul>
+  <li> \c QPixmap::NoOptim, avoid optimization. Little or no caching is
+  done. Use this setting if memory is scarce and the speed of pixmap
+  operations is not critical to your application.
+  <li> \c QPixmap::NormalOptim, normal optimization to make pixmap drawing
+  faster. This option is the default and is suitable for most purposes.
+  <li> \c QPixmap::BestOptim, heavily optimized pixmap drawing. Use this
+  option for pixmap animation (sprites).
+  </ul>
+
+  Use the setDefaultOptimization() to change the default optimization
+  for all new pixmaps.
+
+  \sa optimization(), setDefaultOptimization(), defaultOptimization()
 */
 
-void QPixmap::optimize( bool enable )
+void QPixmap::setOptimization( Optimization optimization )
 {
-    if ( enable == (bool)data->optim )
+    if ( optimization == data->opt )
 	return;
-    data->optim = enable;
-    data->dirty = FALSE;
-    if ( data->ximage ) {
+    data->optim = optimization != NoOptim;	// ### compatibility setting
+    data->opt = optimization;
+    if ( optimization == NoOptim && data->ximage ) {
 	qSafeXDestroyImage( (XImage*)data->ximage );
 	data->ximage = 0;
     }
 }
 
 /*!
-  Returns the global pixmap optimization flag.	The default value is TRUE.
-  \sa optimizeGlobally(), optimize(), isOptimized()
+  Returns the default pixmap optimization setting.
+  \sa setDefaultOptimization(), setOptimization(), optimization()
+*/
+
+QPixmap::Optimization QPixmap::defaultOptimization()
+{
+    return defOpt;
+}
+
+/*!
+  Sets the default pixmap optimization.
+
+  All new pixmaps that are created will use this default optimization.
+  You may also set optimization for individual pixmaps using the
+  setOptimization() function.
+
+  The initial default optimization setting is \c QPixmap::Normal.
+
+  \sa defaultOptimization(), setOptimization(), optimization()
+*/
+
+void QPixmap::setDefaultOptimization( Optimization optimization )
+{
+    defOpt = optimization;
+    optimAll = optimization != NoOptim;		// ### compatibility setting
+}
+
+
+/*!
+  \fn bool QPixmap::isOptimized() const
+  Deprecated function, replaced by optimization();
+*/
+
+/*!
+  Deprecated function, replaced by setOptimization().
+*/
+
+void QPixmap::optimize( bool enable )
+{
+    setOptimization( enable ? NormalOptim : NoOptim );
+}
+
+/*!
+  Deprecated function, replaced by defaultOptimization().
 */
 
 bool QPixmap::isGloballyOptimized()
 {
-    return optimAll;
+    return defOpt != NoOptim;
 }
 
 /*!
-  Sets the global pixmap optimization flag.
-
-  All new pixmaps that are created will be optimized (equivalent to
-  calling optimize() for each pixmap) if \e enable is TRUE. Global
-  optimization is turned off if \e enable is FALSE.
-
-  Optimization can be overridden for individual pixmaps by optimize().
-
-  The default value is TRUE.
-
-  \sa isGloballyOptimized(), optimize(), isOptimized()
+  Deprecated function, replaced by setDefaultOptimization.
 */
 
 void QPixmap::optimizeGlobally( bool enable )
 {
-    optimAll = enable;
+    setDefaultOptimization( enable ? NormalOptim : NoOptim );
 }
 
 
@@ -443,7 +551,7 @@ void QPixmap::optimizeGlobally( bool enable )
   Fills the pixmap with the color \e fillColor.
 */
 
-void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
+void QPixmap::fill( const QColor &fillColor )
 {
     if ( isNull() )
 	return;
@@ -527,21 +635,13 @@ QImage QPixmap::convertToImage() const
     bool    mono = d == 1;
     Visual *visual = (Visual *)x11Visual();
     bool    trucol = (visual->c_class == TrueColor) && !mono;
-    XImage *xi = 0;				// get pixmap data from server
 
     if ( d > 1 && d <= 8 )			// set to nearest valid depth
 	d = 8;					//   2..8 ==> 8
     else if ( d > 8 || trucol )
 	d = 32;					//   > 8  ==> 32
 
-    if ( data->optim ) {
-	if ( !data->dirty ) {
-	    xi = (XImage *)data->ximage;
-	} else if ( data->ximage ) {
-	    qSafeXDestroyImage( (XImage*)data->ximage );
-	    ((QPixmap *)this)->data->ximage = 0;
-	}
-    }
+    XImage *xi = (XImage *)data->ximage;	// any cached ximage?
     if ( !xi )					// fetch data from X server
 	xi = XGetImage( dpy, hd, 0, 0, w, h, AllPlanes,
 			mono ? XYPixmap : ZPixmap );
@@ -799,12 +899,10 @@ QImage QPixmap::convertToImage() const
 	}
 	delete [] carr;
     }
-    if ( data->optim ) {			// keep ximage that we fetched
-	((QPixmap*)this)->data->dirty  = FALSE;
-	((QPixmap*)this)->data->ximage = xi;
-    } else {
+    if ( data->opt == NoOptim )			// throw away image data
 	qSafeXDestroyImage( xi );
-    }
+    else					// keep ximage data
+	((QPixmap*)this)->data->ximage = xi;
     return image;
 }
 
@@ -890,11 +988,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	delete data->mask;
 	data->mask = 0;
     }
-    if ( data->ximage ) {			// throw old image data
-	qSafeXDestroyImage( (XImage*)data->ximage );
-	data->ximage = 0;
-    }
-
     if ( force_mono ) {				// must be monochrome
 	if ( d != 1 ) {
 	    image = image.convertDepth( 1, conversion_flags );	// dither
@@ -962,8 +1055,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
 	delete [] tmp_bits;
 	data->w = w;  data->h = h;  data->d = 1;
-	if ( data->optim )
-	    data->dirty = FALSE;
 
 	if ( image.hasAlphaBuffer() ) {
 	    QBitmap m;
@@ -1227,8 +1318,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, dd );
 
     XPutImage( dpy, hd, qt_xget_readonly_gc(), xi, 0, 0, 0, 0, w, h );
-    if ( data->optim ) {			// keep ximage that we created
-	data->dirty  = FALSE;
+    if ( data->opt == BestOptim ) {		// keep ximage that we created
 	data->ximage = xi;
     } else {
 	qSafeXDestroyImage( xi );
@@ -1436,15 +1526,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     bool use_mitshm = xshmimg && !depth1 &&
 		      xshmimg->width >= w && xshmimg->height >= h;
 #endif
-    XImage *xi = 0;				// get bitmap data from server
-    if ( data->optim ) {
-	if ( !data->dirty )
-	    xi = (XImage*)data->ximage;
-	else if ( data->ximage ) {
-	    qSafeXDestroyImage( (XImage*)data->ximage );
-	    data->ximage = 0;
-	}
-    }
+    XImage *xi = (XImage*)data->ximage;		// any cached ximage?
     if ( !xi )
 	xi = XGetImage( dpy, handle(), 0, 0, ws, hs, AllPlanes,
 			depth1 ? XYPixmap : ZPixmap );
@@ -1636,11 +1718,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	m22ydy += m22;
 	p += p_inc;
     }
-    if ( data->optim ) {			// keep ximage that we fetched
-	data->dirty  = FALSE;
-	data->ximage = xi;
-    } else {
+    if ( data->opt == NoOptim ) {		// throw away ximage
 	qSafeXDestroyImage( xi );
+    } else {					// keep ximage that we fetched
+	data->ximage = xi;
     }
 
     if ( depth1 ) {				// mono bitmap

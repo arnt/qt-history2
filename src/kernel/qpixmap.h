@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#77 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#78 $
 **
 ** Definition of QPixmap class
 **
@@ -84,10 +84,19 @@ public:
 
     int		serialNumber()	const;
 
+    enum Optimization { NoOptim, NormalOptim, BestOptim };
+
+    Optimization	optimization() const;
+    void		setOptimization( Optimization );
+    static Optimization defaultOptimization();
+    static void		setDefaultOptimization( Optimization );
+    
+#if 1
     bool	isOptimized()	const;
     void	optimize( bool );
     static bool isGloballyOptimized();
     static void optimizeGlobally( bool );
+#endif
 
     virtual void detach();
 
@@ -105,7 +114,7 @@ protected:
     struct QPixmapData : public QShared {	// internal pixmap data
 	QCOORD	w, h;
 	short	d;
-	uint	dirty	 : 1;
+	uint	dirtyNU	 : 1;
 	uint	optim	 : 1;
 	uint	uninit	 : 1;
 	uint	bitmap	 : 1;
@@ -115,18 +124,23 @@ protected:
 #if defined(_WS_WIN_)
 	HANDLE	hbm;
 	void   *bits;
+	QPixmap *maskpm;
 #elif defined(_WS_PM_)
 	HANDLE	hdcmem;
 	HANDLE	hbm;
 #elif defined(_WS_X11_)
 	void   *ximage;
+	void   *maskgc;
 #endif
+	Optimization opt;
     } *data;
 
 private:
     void	init( int, int, int );
+    void	reset();
     QPixmap	copy() const;
     static bool optimAll;
+    static Optimization defOpt;
     friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
 			int, int, int, int, RasterOp, bool );
 };
@@ -171,6 +185,11 @@ inline HANDLE QPixmap::hbm() const
 inline int QPixmap::serialNumber() const
 {
     return data->ser_no;
+}
+
+inline QPixmap::Optimization QPixmap::optimization() const
+{
+    return data->opt;
 }
 
 inline bool QPixmap::isOptimized() const

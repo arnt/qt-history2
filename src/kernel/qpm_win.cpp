@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#65 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,12 +23,13 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#64 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#65 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 bool QPixmap::optimAll = TRUE;
+QPixmap::Optimization QPixmap::defOpt = QPixmap::NormalOptim;
 
 
 void QPixmap::init( int w, int h, int d )
@@ -39,14 +40,16 @@ void QPixmap::init( int w, int h, int d )
     data = new QPixmapData;
     CHECK_PTR( data );
 
-    data->dirty	   = FALSE;
     data->optim	   = optimAll;
     data->uninit   = TRUE;
     data->bitmap   = FALSE;
     data->selfmask = FALSE;
     data->ser_no   = ++serial;
+    data->opt	   = defOpt;
     data->mask	   = 0;
     data->hbm	   = 0;
+    data->bits     = 0;
+    data->maskpm   = 0;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -66,31 +69,41 @@ void QPixmap::init( int w, int h, int d )
     }
     data->w = w;
     data->h = h;
-    data->bits = 0;
 
     if ( data->d == dd ) {			// compatible bitmap
 	HANDLE hdc = GetDC( 0 );
-#if 1
 	data->hbm  = CreateCompatibleBitmap( hdc, w, h );
-	data->bits = 0;
-#else
-	BITMAPINFOHEADER b;
-	memset( &b, 0, sizeof(b) );
-	b.biSize = sizeof(BITMAPINFOHEADER);
-	b.biWidth = w;
-	b.biHeight = h;
-	b.biPlanes = 1;
-	b.biBitCount = data->d;
-	b.biCompression = BI_RGB;
-	data->hbm = CreateDIBSection( hdc, (BITMAPINFO*)&b, DIB_PAL_COLORS,
-				      &data->bits, 0, 0 );
-#endif
 	ReleaseDC( 0, hdc );
     } else {					// monocrome bitmap
 	data->hbm = CreateBitmap( w, h, 1, 1, 0 );
     }
     if ( data->optim )
 	allocMemDC();
+}
+
+
+void QPixmap::reset()
+{
+    if ( hdc ) {
+	DeleteDC( hdc );
+	hdc = 0;
+    }
+    if ( data->mask ) {
+	delete data->mask;
+	data->mask = 0;
+    }
+    if ( data->hbm ) {
+	DeleteObject( data->hbm );
+	data->hbm = 0;
+    }
+    if ( data->bits ) {
+	delete [] data->bits;
+	data->bits = 0;
+    }
+    if ( data->maskpm ) {
+	delete data->maskpm;
+	data->maskpm = 0;
+    }
 }
 
 
@@ -102,7 +115,9 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	return;
 
     data->uninit = FALSE;
-    data->w = w;  data->h = h;	data->d = 1;
+    data->w = w;
+    data->h = h;
+    data->d = 1;
 
     int bitsbpl = (w+7)/8;			// original # bytes per line
     int bpl	= ((w+15)/16)*2;		// bytes per scanline
@@ -127,7 +142,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	}
     }
     data->hbm = CreateBitmap( w, h, 1, 1, newbits );
-    if ( data->optim )
+    if ( data->opt != NoOptim )
 	allocMemDC();
     delete [] newbits;
 }
@@ -149,12 +164,26 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 QPixmap::~QPixmap()
 {
     if ( data->deref() ) {			// last reference lost
-	freeMemDC();
-	if ( data->mask )
-	    delete data->mask;
-	if ( data->hbm )
-	    DeleteObject( data->hbm );
+	reset();
 	delete data;
+    }
+}
+
+
+void QPixmap::detach()
+{ 
+    if ( data->uninit || data->count == 1 )
+	data->uninit = FALSE;
+    else
+	*this = copy();
+    // reset the cache data
+    if ( data->bits ) {
+	delete [] data->bits;
+	data->bits = 0;
+    }
+    if ( data->maskpm ) {
+	delete data->maskpm;
+	data->maskpm = 0;
     }
 }
 
@@ -193,19 +222,15 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     }
     pixmap.data->ref();				// avoid 'x = x'
     if ( data && data->deref() ) {		// last reference lost
-	freeMemDC();
-	if ( data->mask )
-	    delete data->mask;
-	if ( data->hbm )
-	    DeleteObject( data->hbm );
+	reset();
 	delete data;
     }
     if ( pixmap.paintingActive() ) {		// make a deep copy
 	init( pixmap.width(), pixmap.height(), pixmap.depth() );
-	data->dirty  = FALSE;
 	data->uninit = FALSE;
-	data->optim  = pixmap.data->optim;	// copy optim flag
+	data->optim  = pixmap.data->optim;	// copy optimization flag
 	data->bitmap = pixmap.data->bitmap;	// copy bitmap flag
+	data->opt    = pixmap.data->opt;	// copy optimization setting
 	if ( !isNull() ) {
 	    bitBlt( this, 0, 0, &pixmap, pixmap.width(), pixmap.height(),
 		    CopyROP, TRUE );
@@ -234,28 +259,56 @@ int QPixmap::defaultDepth()
 }
 
 
-void QPixmap::optimize( bool enable )
+void QPixmap::setOptimization( Optimization optimization )
 {
-    if ( enable == (bool)data->optim )
+    if ( optimization == data->opt )
 	return;
-    data->optim = enable;
-    data->dirty = FALSE;
+    data->optim = optimization != NoOptim;	// ### compatibility setting
+    data->opt = optimization;
     if ( paintingActive() )			// wait until QPainter::end()
 	return;
-    if ( enable )
-	allocMemDC();
-    else
-	freeMemDC();
+    if ( optimization == NoOptim ) {
+	if ( data->bits ) {
+	    delete [] data->bits;
+	    data->bits = 0;
+	}
+	if ( data->maskpm ) {
+	    delete data->maskpm;
+	    data->maskpm = 0;
+	}
+	if ( data->count == 1 )			// affects non-shared hdc
+	    freeMemDC();
+    } else {
+	if ( data->count == 1 )			// affects non-shared hdc
+	    allocMemDC();
+    }
+}
+
+QPixmap::Optimization QPixmap::defaultOptimization()
+{
+    return defOpt;
+}
+
+void QPixmap::setDefaultOptimization( Optimization optimization )
+{
+    defOpt = optimization;
+    optimAll = optimization != NoOptim;		// ### compatibility setting
+}
+
+
+void QPixmap::optimize( bool enable )
+{
+    setOptimization( enable ? NormalOptim : NoOptim );
 }
 
 bool QPixmap::isGloballyOptimized()
 {
-    return optimAll;
+    return defOpt != NoOptim;
 }
 
 void QPixmap::optimizeGlobally( bool enable )
 {
-    optimAll = enable;
+    setDefaultOptimization( enable ? NormalOptim : NoOptim );
 }
 
 
@@ -412,11 +465,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     bool force_mono = (dd == 1 || isQBitmap() ||
 		       (conversion_flags & ColorMode_Mask)==MonoOnly );
 
-    if ( data->mask ) {				// get rid of the mask
-	delete data->mask;
-	data->mask = 0;
-    }
-
     if ( force_mono ) {				// must be monochrome
 	if ( d != 1 ) {
 	    image = image.convertDepth( 1, conversion_flags );	// dither
@@ -429,8 +477,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		conversion_flags = (conversion_flags & ~DitherMode_Mask)
 					| PreferDither;
 	    conv8 = TRUE;
-	} else if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {			// native depth wanted
-	    conv8 = d == 1;
+	} else if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {
+	    conv8 = d == 1;			// native depth wanted
 	} else if ( d == 1 ) {
 	    if ( image.numColors() == 2 ) {
 		QRgb c0 = image.color(0);	// Auto: convert to best
@@ -453,12 +501,23 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     int w = image.width();
     int h = image.height();
 
-    if ( width() != w || height() != h || (d == 1 && depth() != 1) ) {
+    if ( width() == w && height() == h && ( (d == 1 && depth() == 1) ||
+					    (d != 1 && depth() != 1) ) ) {
+	// same size etc., use the existing pixmap
+	detach();
+	if ( data->mask ) {			// get rid of the mask
+	    delete data->mask;
+	    data->mask = 0;
+	}
+    } else {
+	// different size or depth, make a new pixmap
 	QPixmap pm( w, h, d == 1 ? 1 : -1 );
 	pm.data->optim  = data->optim;		// keep optimization flag
 	pm.data->bitmap = data->bitmap;		// keep is-a flag
+	pm.data->opt	= data->opt;		// keep optimization setting
 	*this = pm;
     }
+
     bool tmp_dc = handle() == 0;
     if ( tmp_dc )
 	allocMemDC();
@@ -852,7 +911,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 
 QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
-{						// get true wxform matrix
+{
     const float dt = 0.0001F;
     float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
     float xx = (float)w - 1;
