@@ -123,14 +123,14 @@ void Porting::readXML(QString fileName, RuleList *renamedHeaders, RuleList *rena
 */
     QString rulesFileName = "q3porting.xml";
     if(fileName.isEmpty()) {
-        fileName = QDir::cleanPath(QFile::encodeName(qInstallPathLibs()) + "/qt3to4/" + rulesFileName);
+        fileName = QDir::cleanPath(QFile::decodeName(qInstallPathLibs()) + "/qt3to4/" + rulesFileName);
         QFile f(fileName);
         if (!f.exists())
             fileName=QString();
     }
     
     if(fileName.isEmpty()) {
-        fileName= QDir::cleanPath(QString(qgetenv("QTDIR")) + "/tools/porting/src/rules.xml" + rulesFileName);
+        fileName= QDir::cleanPath(QFile::decodeName(qgetenv("QTDIR")) + "/tools/porting/src/rules.xml" + rulesFileName);
         QFile f(fileName);
         if (!f.exists())
             fileName=QString();
