@@ -20,28 +20,32 @@ class QM_EXPORT_SQL QSqlQueryBuilder
 public:
     enum JoinType { Natural = 0, LeftOuter = 1, RightOuter = 2, FullOuter = 3 };
     
-    QSqlQueryBuilder( const QString& table, bool autoPopulate = TRUE );
+    QSqlQueryBuilder( const QString& baseTable );
     QSqlQueryBuilder( const QSqlQueryBuilder& other );
     ~QSqlQueryBuilder();
-    
+
     QSqlQueryBuilder& join( const QString& table, const QString& joinCondition );
     QSqlQueryBuilder& leftOuterJoin( const QString& table, const QString& joinCondition );
     QSqlQueryBuilder& rightOuterJoin( const QString& table, const QString& joinCondition );
     QSqlQueryBuilder& fullOuterJoin( const QString& table, const QString& joinCondition );
+    void setPrimaryKey( const QString& table, const QStringList& index );
+    void setBaseTable( const QString& table );
+    QString baseTable();
+    void setFieldList( const QString& table, const QStringList& fields );
+    void addField( const QString& table, const QString& field );
+    void reset( const QString& baseTable );
     
+    // used by QSqlCursor to be able to build/execute the correct queries
     QString selectQuery() const;
     QStringList insertQueries() const;
     QStringList updateQueries() const;
     QStringList deleteQueries() const;
-    QString table( int i ) const;
-    QString joinCondition( int i ) const;
-    
-    void setPrimaryKey( const QString& table, const QStringList& index );
     void setTable( int i, const QString& table );
+    QString table( int i ) const;
     void setJoinCondition( int i, const QString& condition );
-    
-    void setFieldList( const QString& table, const QStringList& fields );
-    void addField( const QString& table, const QString& field );
+    QString joinCondition( int i ) const;
+    int tableCount() const;
+    QStringList fieldList( const QString& table ) const;
     
 private:
     QSqlQueryBuilder& doJoin( const QString& table, const QString& joinCondition, QSqlQueryBuilder::JoinType type );
