@@ -9,13 +9,32 @@ extensive internationalization support ensures that Qt applications
 can reach the widest possible market. 
 \endquote
 
+The Qt C++ toolkit has been at the heart of commercial applications
+since its creation in 1992. Qt 3.0 retains the ease-of-use and power
+of earlier versions, adds significant functionality to existing
+classes and introduces many new classes. Qt is designed to make
+developers productive. Qt's classes are full-featured to reduce
+workload, and have consistent APIs to speed learning. Qt is, and
+always has been, fully object oriented. 
+
+This whitepaper gives an overview of the tools and functionality that
+Qt provides. Each section begins with a broad non-technical
+introduction, then presents the technical detail in increasing depth.
+Code extracts and tiny but complete applications are presented. We're
+proud of Qt and provide a free edition, downloadable from
+\l{http://www.trolltech.com}, that you can try for yourself.
+
+\section1 Executive Summary
+
 Qt provides a rich set of \l{Widgets} ('controls' in Windows
 terminology) that provide standard GUI functionality. Qt introduces an
 innovative alternative to the old and unsafe callbacks technique for
-inter-object communication, called \l{Signals and Slots}. Qt's
-cross-platform \l{GUI Applications} can utilize all the user interface
-functionality required by modern GUI applications, including menus,
-context menus, dockable toolbars, balloon help, drag and drop, etc. 
+inter-object communication, called \l{Signals and Slots}. Qt also
+provides a conventional \l{Events} model, e.g. for mouse clicks and
+key presses. Qt's cross-platform \l{GUI Applications} can utilize all
+the user interface functionality required by modern GUI applications,
+including menus, context menus, dockable toolbars, balloon help, drag
+and drop, etc. 
 
 Qt's classes use intuitive naming conventions and a consistent
 programming approach to simplify hand coding. Qt also includes a
@@ -37,11 +56,39 @@ and any built-in or custom widget can be made data-aware.
 Recompilation is all that is required to produce applications for
 Windows 95/98/NT4/ME/2000, Mac OS X, Linux, Solaris, HP-UX and many
 other versions of Unix with X11. Qt applications can even be compiled
-to run on embedded devices. Qt has excellent support for
-\l{Internationalization}. Qt's use of Unicode, along with the \l{Qt
-Linguist} application and other tools to support translators, means
-that Qt applications can be localized for any country in the world.
-Applications can easily use and mix text in Arabic, English, Hebrew,
-Japanese, Russian and all the other languages supported by Unicode.
+to run on embedded devices. Multi-platform builds are supported by
+using a single source tree, along with the \c qmake build tool which
+produces Makefiles (or .dsp files) appropriate to the target platform.
+Qt has excellent support for \l{Internationalization}. Qt's use of
+Unicode, along with the \l{Qt Linguist} application and other tools to
+support translators, means that Qt applications can be localized for
+any country in the world. Applications can easily use and mix text in
+Arabic, English, Hebrew, Japanese, Russian and all the other languages
+supported by Unicode. 
+
+Qt includes a variety of domain-specific classes to provide a complete
+development environment. Qt's \l{XML} support, for example, includes
+both SAX and DOM parsers. Qt programs can use any of the supplied
+window styles. Qt's powerful \l{Styles and Themes} support provides
+open-ended scope for look and feel customization. \l{I/O and
+Networking} is provided with a variety of classes that provide
+inter-process communication, and local and remote file handling using
+common protocols such as FTP and HTTP. In-memory data can be stored
+using Qt's collection classes which are STL (standard template
+library) compatible.
+
+Qt applications can have their functionality extended by 'components'
+that make it easy to upgrade or extend functionality, without having to
+replace the entire application. Components can also be created as
+products in their own right.
+
+Qt is a mature, solid, C++ toolkit that is widely used across the
+world. Qt is used by many commercial companies, and is the base upon
+which KDE, the de-facto Linux standard desktop is built. Qt makes
+creating applications as painless as possible with its visual form
+design, its elegant API, and its cross-platform build system.
+
+
+
 
 
