@@ -1388,7 +1388,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         return;
     }
 
-    if (mask && !hasClipping() && systemClip.isEmpty()) {
+    if (mask && !hasClipping() && systemClip().isEmpty()) {
         if (mono) {                           // needs GCs pen // color
             bool selfmask = pixmap.data->selfmask;
             if (selfmask) {
@@ -1521,10 +1521,10 @@ void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
 
 void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
 {
+    QRegion sysClip = systemClip();
     if (op == Qt::NoClip) {
         clearf(ClipOn);
         d->crgn = QRegion();
-        QRegion sysClip = systemClip();
         if (!sysClip.isEmpty()) {
             x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->xft_hd, sysClip);
         } else {
@@ -1535,7 +1535,6 @@ void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperat
 
     switch (op) {
     case Qt::ReplaceClip:
-        QRegion sysClip = systemClip();
         if (!sysClip.isEmpty())
             d->crgn = clipRegion.intersect(sysClip);
         else

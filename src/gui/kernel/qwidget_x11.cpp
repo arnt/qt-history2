@@ -1493,7 +1493,7 @@ void QWidget::repaint(const QRegion& rgn)
     QApplication::sendSpontaneousEvent(this, &e);
 
     if (do_clipping)
-        engine->setSystemClip(QRegion());
+        paintEngine()->setSystemClip(QRegion());
 
     if (!redirectionOffset.isNull())
         QPainter::restoreRedirected(this);
@@ -2658,7 +2658,8 @@ QPaintEngine *QWidget::paintEngine() const
     if (qt_widget_paintengine()->isActive()) {
         if (d->extraPaintEngine)
             return d->extraPaintEngine;
-        d->extraPaintEngine = new QX11PaintEngine();
+        QWidget *self = const_cast<QWidget *>(this);
+        self->d->extraPaintEngine = new QX11PaintEngine();
         return d->extraPaintEngine;
     }
     return qt_widget_paintengine();
