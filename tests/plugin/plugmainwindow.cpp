@@ -41,7 +41,7 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
 
     pluginMenu = 0;
     pluginTool = 0;
-    
+
     statusBar();
 
     sv = new QScrollView( this );
@@ -49,7 +49,7 @@ PlugMainWindow::PlugMainWindow( QWidget* parent, const char* name, WFlags f )
     box->setFixedHeight( 200 );
     sv->addChild( box );
     setCentralWidget( sv );
-    
+
     QStringList wl = QWidgetFactory::widgetList();
     for ( uint w = 0; w < wl.count(); w++ )
 	menuIDs.insert( wl[w], new int(widgetMenu->insertItem( wl[w] )) );
@@ -67,12 +67,12 @@ void PlugMainWindow::fileOpen()
 
     // creating all available widgets and adding them to the little test scenario
     QPlugIn* plugin = 0;
-    if ( plugin = widgetManager->addLibrary( file ) ) {
+    if ( ( plugin = widgetManager->addLibrary( file ) ) ) {
 	statusBar()->message( tr("Widget-Plugin \"%1\" loaded").arg( plugin->name() ), 3000 );
 	QStringList wl = ((QWidgetPlugIn*)plugin)->widgets();
 	for ( uint i = 0; i < wl.count(); i++ )
 	    menuIDs.insert( wl[i], new int(widgetMenu->insertItem( wl[i] )) );
-    } else if ( plugin = actionManager->addLibrary( file ) ) {
+    } else if ( ( plugin = actionManager->addLibrary( file ) ) ) {
 	statusBar()->message( tr("Action-Plugin \"%1\" loaded").arg( plugin->name() ), 3000 );
 	QStringList wl = ((QActionPlugIn*)plugin)->actions();
 	for ( uint i = 0; i < wl.count(); i++ )
@@ -167,7 +167,7 @@ void PlugMainWindow::fileClose()
 		// Make sure to have a deep copy of the string, else it
 		// would be corrupted with the unloading of the library
 		// Also make sure the stringlist is deleted before the
-		// plugin is unloaded for the same reason 
+		// plugin is unloaded for the same reason
 		// (the data is part of the library)
 		info = QString( "\"%1\"").arg( ((QPlugIn*)plugin)->name() );
 		{
@@ -247,7 +247,7 @@ void PlugMainWindow::runAction( int id )
     if ( !self ) {
 	if ( !pluginMenu ) {
 	    pluginMenu = new QPopupMenu( this );
-	    menuBar()->insertItem( "&PlugIn", pluginMenu );	    
+	    menuBar()->insertItem( "&PlugIn", pluginMenu );	
 	}
 	if ( !pluginTool ) {
 	    pluginTool = new QToolBar( this );
