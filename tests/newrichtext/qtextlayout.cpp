@@ -4,6 +4,7 @@
 #include "scriptenginebasic.h"
 #include "scriptenginesyriac.h"
 #include "scriptenginearabic.h"
+#include "scriptenginedevanagari.h"
 
 #include <stdlib.h>
 
@@ -133,6 +134,7 @@ const TextLayout *TextLayout::instance()
 		scriptEngines[i] = scriptEngines[0];
 	    scriptEngines[QFont::Arabic] = new ScriptEngineArabic;
 	    scriptEngines[QFont::Syriac] = new ScriptEngineSyriac;
+	    scriptEngines[QFont::Devanagari] = new ScriptEngineDevanagari;
 	}
     }
     return _instance;

@@ -8,7 +8,7 @@
 #include <qdatetime.h>
 #include "editwidget.h"
 
-const char *family = "Serto Jerusalem";
+const char *family = "Mangal";
 
 class MyWidget : public QWidget
 {
@@ -123,7 +123,11 @@ int MyWidget::getCursorPosition( int _x )
 // const char *s = "Tại sao họ không thể chỉ nói tiệ̣̣́ng.";
 
 // Syriac
-const char *s = "ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ";
+// const char *s = "ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ";
+
+// Hindi
+const char *s = "क्यों नहीं बोल सकते हैं";
+
 
 // mixed
 // const char *s = "Thai: ทำไมเขาถึงไม่พูด �าษาไทย "

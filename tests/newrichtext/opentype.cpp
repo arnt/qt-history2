@@ -64,6 +64,25 @@ const Features syriacFeatures[] = {
     { 0,  0 }
 };
 
+const Features devanagariFeatures[] = {
+    // Language based forms
+    { FT_MAKE_TAG( 'n', 'u', 'k', 't' ), 0x0001 },
+    { FT_MAKE_TAG( 'a', 'k', 'h', 'n' ), 0x0002 },
+    { FT_MAKE_TAG( 'r', 'p', 'h', 'f' ), 0x0004 },
+    { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), 0x0008 },
+    { FT_MAKE_TAG( 'h', 'a', 'l', 'f' ), 0x0010 },
+    { FT_MAKE_TAG( 'p', 's', 'b', 'f' ), 0x0020 },
+    { FT_MAKE_TAG( 'v', 'a', 't', 'u' ), 0x0040 },
+    // Conjunkts and typographical forms
+    { FT_MAKE_TAG( 'p', 'r', 'e', 's' ), 0x0080 },
+    { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), 0x0100 },
+    { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), 0x0200 },
+    { FT_MAKE_TAG( 'p', 's', 't', 's' ), 0x0400 },
+    // halant forms
+    { FT_MAKE_TAG( 'h', 'a', 'l', 'n' ), 0x0800 },
+    { 0,  0 }
+};
+
 
 
 struct SupportedScript {
@@ -107,7 +126,8 @@ const SupportedScript supported_scripts [] = {
 
 // 	// South and Southeast Asian Scripts
 // 	Devanagari,
-    { FT_MAKE_TAG( 'd', 'e', 'v', 'a' ), standardFeatures, 0x0000, 0x8000 },
+    // #### MS Mangal doens't have pstf. Required for Devanagari?
+    { FT_MAKE_TAG( 'd', 'e', 'v', 'a' ), devanagariFeatures, 0x0fdf, 0x8000 },
 // 	Bengali,
     { FT_MAKE_TAG( 'b', 'e', 'n', 'g' ), standardFeatures, 0x0000, 0x8000 },
 // 	Gurmukhi,
@@ -239,10 +259,10 @@ bool OpenTypeIface::loadTables( FT_ULong script)
 				&feature_index );
 	TT_GSUB_Add_Feature( gsub, feature_index, f->bit );
 
-// 	char featureString[5];
-// 	tag_to_string( featureString, r->FeatureTag );
-// 	qDebug("found feature '%s' in GSUB table", featureString );
-// 	qDebug("setting bit %x for feature, feature_index = %d", f->bit, feature_index );
+	char featureString[5];
+	tag_to_string( featureString, r->FeatureTag );
+	qDebug("found feature '%s' in GSUB table", featureString );
+	qDebug("setting bit %x for feature, feature_index = %d", f->bit, feature_index );
     }
     if ( hasGPos ) {
 	FT_UShort script_index;
@@ -266,13 +286,13 @@ bool OpenTypeIface::loadTables( FT_ULong script)
 
 	    char featureString[5];
 	    tag_to_string( featureString, r->FeatureTag );
-// 	    qDebug("found feature '%s' in GPOS table", featureString );
+	    qDebug("found feature '%s' in GPOS table", featureString );
 	}
 
 
     }
-    if ( found_bits & s->required_bits == s->required_bits ) {
-	qDebug( "not all required features for arabic found! found_bits=%x", found_bits );
+    if ( found_bits & s->required_bits != s->required_bits ) {
+	qDebug( "not all required features for script found! found_bits=%x", found_bits );
 	TT_GSUB_Clear_Features( gsub );
 	return FALSE;
     }
@@ -296,10 +316,14 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     if ( current_script == supported_scripts[script].tag )
 	return TRUE;
 
+    char featureString[5];
+    tag_to_string( featureString, supported_scripts[script].tag );
+    qDebug("trying to load tables for script %d (%s))", script, featureString);
+
     FT_Error error;
     if ( !gdef ) {
 	if ( (error = TT_Load_GDEF_Table( face, &gdef )) ) {
-// 	    qDebug("error loading gdef table: %d", error );
+	    qDebug("error loading gdef table: %d", error );
 	    hasGDef = FALSE;
 	    return FALSE;
 	}
@@ -308,10 +332,10 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     if ( !gsub ) {
 	if ( (error = TT_Load_GSUB_Table( face, &gsub, gdef )) ) {
 	    if ( error != FT_Err_Table_Missing ) {
-// 		qDebug("error loading gsub table: %d", error );
+		qDebug("error loading gsub table: %d", error );
 		return FALSE;
 	    } else {
-// 		qDebug("face doesn't have a gsub table" );
+		qDebug("face doesn't have a gsub table" );
 		hasGSub = FALSE;
 	    }
 	}
@@ -320,10 +344,10 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     if ( !gpos ) {
 	if ( (error = TT_Load_GPOS_Table( face, &gpos, gdef )) ) {
 	    if ( error != FT_Err_Table_Missing ) {
-// 		qDebug("error loading gpos table: %d", error );
+		qDebug("error loading gpos table: %d", error );
 		return FALSE;
 	    } else {
-// 		qDebug("face doesn't have a gpos table" );
+		qDebug("face doesn't have a gpos table" );
 		hasGPos = FALSE;
 	    }
 	}
@@ -362,7 +386,7 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
       in->string[i] = shaped->d->glyphs[i];
       in->logClusters[i] = i;
       in->properties[i] = ~featuresToApply[i];
-//       qDebug("    glyph[%d] = %x apply=%x, logcluster=%d", i, shaped->d->glyphs[i], featuresToApply[i], i );
+//        qDebug("    glyph[%d] = %x apply=%x, logcluster=%d", i, shaped->d->glyphs[i], featuresToApply[i], i );
     }
     in->max_ligID = 0;
 
@@ -389,7 +413,7 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
 	    clusterStart = i;
 	    oldlc = lc;
 	}
-//  	qDebug("    glyph[%d] logcluster=%d mark=%d", i, out->logClusters[i], shaped->d->glyphAttributes[i].mark );
+//   	qDebug("    glyph[%d]=%4x logcluster=%d mark=%d", i, out->string[i], out->logClusters[i], shaped->d->glyphAttributes[i].mark );
 	// ### need to fix logclusters aswell!!!!
     }
     for ( int j = oldlc; j < shaped->d->length; j++ )
