@@ -36,7 +36,7 @@ static void printHtmlDataType( HtmlWriter& out, const CodeChunk& type,
 static void printHtmlListEntry( HtmlWriter& out, const QString& funcName,
 				const QString& className )
 {
-    out.printfMeta( "<li><a href=\"%s#%s\">%s</a>\n",
+    out.printfMeta( "<li><a href=\"%s#%s\">%s</a>()\n",
 		    config->classRefHref(className).latin1(),
 		    Decl::ref(funcName).latin1(), funcName.latin1() );
 }
@@ -77,17 +77,12 @@ static QString htmlShortName( const Decl *decl )
 	    warning( 2, decl->location(), "Undocumented function '%s'",
 		     decl->fullMangledName().latin1() );
 	else if ( decl->kind() == Decl::Property )
-#if 0
 	    warning( 2, decl->location(), "Undocumented property '%s'",
 		     decl->fullName().latin1() );
-#else
-	    ; // ###
-#endif
 	else
 	    warning( 3, decl->location(), "Undocumented member '%s'",
 		     decl->fullName().latin1() );
-    } else if ( (config->isInternal() || !decl->internal()) &&
-		!decl->obsolete() ) {
+    } else if ( config->isInternal() || !decl->internal() ) {
 	html = QString( "<a href=\"#%1\">%2</a>" ).arg( decl->ref() )
 	       .arg( html );
     }
@@ -939,9 +934,12 @@ void ClassDecl::fillInDocsForThis()
 
 		QString brief = (*q)->propertyDoc()->brief()
 				.simplifyWhiteSpace();
-		bool whether = brief.startsWith( QString("whether ") );
-		if ( whether )
-		    brief = QString( "if " ) + brief.mid( 8 );
+		if ( !brief.isEmpty() ) {
+		    brief[0] = brief[0].lower();
+		    if ( brief.right(1) == QChar('.') )
+			brief.truncate( brief.length() - 1 );
+		}
+		bool whether = brief.lower().startsWith( QString("whether ") );
 
 		/*
 		  The function has the right name. Let's see if it
@@ -1202,15 +1200,13 @@ void ClassDecl::emitHtmlListOfAllMemberFunctions() const
 		    name().latin1() );
     out.putsMeta( "<ul>\n" );
 
-    QString dtorName = QChar( '~' ) + name();
-
     /*
       Put the constructor and destructor first.
     */
-    if ( all.contains(name()) )
+    if ( all.contains(name() + parenParen) )
 	printHtmlListEntry( out, name(), name() );
-    if ( all.contains(dtorName) )
-	printHtmlListEntry( out, dtorName, name() );
+    if ( all.contains(QChar('~') + name() + parenParen) )
+	printHtmlListEntry( out, QChar('~') + name(), name() );
 
     f = all.begin();
     while ( f != all.end() ) {
@@ -1218,7 +1214,8 @@ void ClassDecl::emitHtmlListOfAllMemberFunctions() const
 	    FunctionDecl *funcDecl = (FunctionDecl *) *f;
 	    if ( !funcDecl->isConstructor() && !funcDecl->isDestructor() &&
 		 funcDecl->context() == funcDecl->relatesContext() )
-		printHtmlListEntry( out, f.key(), funcDecl->context()->name() );
+		printHtmlListEntry( out, funcDecl->name(),
+				    funcDecl->context()->name() );
 	}
 	++f;
     }

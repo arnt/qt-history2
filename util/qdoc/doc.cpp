@@ -21,6 +21,8 @@
 #include "resolver.h"
 #include "stringset.h"
 
+static QString parenParen( QString("()") );
+
 /*
   These three macros are used so often that all-upper-case names are
   undesirable.
@@ -465,6 +467,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     StringSet documentedParams, documentedValues;
     QStringList seeAlso, important, footnotes;
     bool obsolete = FALSE;
+    int base;
     int briefBegin = -1;
     int briefEnd = 0;
     int mustquoteBegin = -1;
@@ -494,7 +497,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    begin = yyPos;
 	    while ( yyPos < yyLen ) {
 		ch = yyIn[yyPos];
-		if ( isalnum(ch.latin1()) )
+		if ( isalpha(ch.latin1()) )
 		    command += ch;
 		else
 		    break;
@@ -565,15 +568,11 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		numBugs++;
 		yyOut += QString( "<li>" );
 		break;
-	    case hash( 'b', 5 ):
-		consume( "brief" );
-		skipSpaces( yyIn, yyPos );
-		briefBegin = yyOut.length();
-		briefEnd = INT_MAX;
-		setKindHasToBe( Doc::Class, command );
-		break;
-	    case hash( 'b', 6 ):
-		consume( "base64" );
+	    case hash( 'b', 4 ):
+		consume( "base" );
+		base = getWord( yyIn, yyPos ).toInt();
+		if ( base != 64 )
+		    warning( 2, location(), "Base has to be 64" );
 		fileName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
@@ -584,6 +583,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    yyOut = yyIn.mid( yyPos );
 		    setKind( Doc::Base64, command );
 		}
+		break;
+	    case hash( 'b', 5 ):
+		consume( "brief" );
+		skipSpaces( yyIn, yyPos );
+		briefBegin = yyOut.length();
+		briefEnd = INT_MAX;
+		setKindHasToBe( Doc::Class, command );
 		break;
 	    case hash( 'c', 1 ):
 		consume( "c" );
@@ -1920,7 +1926,7 @@ QString Doc::htmlFunctionIndex()
 	StringSet::ConstIterator s = (*f).begin();
 	while ( s != (*f).end() ) {
 	    html += QChar( ' ' );
-	    html += href( *s + gulbrandsen + f.key(), *s );
+	    html += href( *s + gulbrandsen + f.key() + parenParen, *s );
 	    ++s;
 	}
 	++f;

@@ -40,7 +40,7 @@
   <img src="commands.png" align=right width=192 height=192
   alt="An obeying duck">
 
-  \section 1 Giving commands to qdoc
+  \section1 Giving commands to qdoc
 
   A happy qdoc recognizes the following commands:
   \link #_amp \\\& \endlink,
@@ -110,7 +110,7 @@
   \link #walkthrough \\walkthrough \endlink,
   \link #warning \\warning \endlink.
 
-  \section 2 Ubiquitous commands
+  \section2 Ubiquitous commands
 
   \list
     \i <a name="a"></a>
@@ -336,7 +336,7 @@
     \link #l \\l&nbsp;(ell) \endlink command.
   \endlist
 
-  \section 2 Fairly common commands
+  \section2 Fairly common commands
 
   \list
    \i <a name="_amp"></a>
@@ -487,7 +487,7 @@
     See above for a complete example.
   \endlist
 
-  \section 2 Less common commands
+  \section2 Less common commands
 
   \list
    \i <a name="internal"></a>
@@ -622,15 +622,6 @@
     between the title (\<title\>...\</title\>) and the heading
     (\<h1\>...\</h1\>).
 
-   \i <a name="heading"></a>
-    <b>\\heading</b> sets the heading of a documentation page, or
-    allows you to override it. See also the
-    \link #title \\title \endlink entry.
-
-    Do not confuse this command with \link #header \\header \endlink.
-
-    ### heading is obsoleted by section 1
-
    \i <a name="base64"></a>
     <b>\\base64</b> embeds binary files
     <img src="finland.png" width=26 height=16 alt="finland.png">
@@ -693,34 +684,24 @@
 
    \i <a name="section"></a>
     <b>\\section</b> starts a new section, subsection, subsubsection
-    or whatever. The first level is "\\section 1"; the second level is
-    "\\section 2"; and so on up to "\\section 5":
+    or whatever. The first level is "\\section1"; the second level is
+    "\\section2"; and so on up to "\\section5":
     <pre>
     /*! \\page norway-sports.html
 
       \\title Sports in Norway
 
-      <u>\\section 1</u> Winter Sports
+      <u>\\section1</u> Winter Sports
 
-      ...
+	<u>\\section2</u> Skating
 
-	<u>\\section 2</u> Skating
+	  <u>\\section3</u> Conventional Skating
 
-	...
+	  <u>\\section3</u> Long-distance Skating
 
-	  <u>\\section 3</u> Conventional Skating
-
-	  ...
-
-	  <u>\\section 3</u> Long-distance Skating
-
-	  ...
-
-      <u>\\section 1</u> Summer Sports
-	
-      ...
+      <u>\\section1</u> Summer Sports
     *&#47;</pre>
-    After "\\section \e {N}" comes the section heading, until the next
+    After "\\section\e {N}" comes the section heading, until the next
     blank line.
 
     Skipping from section \e N to section \e N + \e k where \e k \> 1
@@ -763,12 +744,12 @@
 
    \i <a name="r"></a>
     <b>\\r</b> ...
-  \endlist
 
    \i <a name="omit"></a>
     <b>\\omit ... \\endomit</b> comments out a block of text.
+  \endlist
 
-  \section 2 Exotic commands
+  \section2 Exotic commands
 
   \list
    \i <a name="keyword"></a>
@@ -1061,7 +1042,7 @@
     variable \link #VERSIONSTR VERSIONSTR \endlink.
   \endlist
 
-  \section 2 Discouraged commands
+  \section2 Discouraged commands
 
   \list
    \i <a name="link"></a>
@@ -1100,7 +1081,7 @@
     at least two people thought it did and started using it. Avoid it.
   \endlist
 
-  \section 2 Antediluvian commands
+  \section2 Antediluvian commands
 
   \list
    \i <a name="arg"></a>
@@ -1116,7 +1097,7 @@
   <img src="food.png" align=right width=192 height=192
   alt="A piece of meat">
 
-  \section 1 Feeding qdoc
+  \section1 Feeding qdoc
 
   qdoc will run only if you provide it with a configuration file. The
   name of that configuration file can be passed to qdoc as
@@ -1156,7 +1137,7 @@
 		      tools \\
 		      widgets</pre>
 
-  \section 2 Boring variables
+  \section2 Boring variables
 
   All projects require setting up most of the following variables.
 
@@ -1246,7 +1227,7 @@
     is used for the copyright notice at the bottom of every page.
   \endlist
 
-  \section 2 Exciting variables
+  \section2 Exciting variables
 
   The following configuration variables are interesting enough to
   deserve a command-line option with a similar name.
@@ -1314,7 +1295,7 @@
     <pre>
     FALSE = 0 "GNOMOVISION_VER < .*"</pre>
     will make qdoc behave as if "0" were false (indeed, it is in C++)
-    and "GNOMOVISION_VER < 3" were false.
+    and, say, "GNOMOVISION_VER < 3" were false.
 
    \i <a name="INTERNAL"></a>
     <b>INTERNAL</b> (cf. \link #--internal --internal \endlink)
@@ -1379,7 +1360,7 @@
   <img src="run.png" align=right width=192 height=192
   alt="A running duck">
 
-  \section 1 Running qdoc
+  \section1 Running qdoc
 
   Let's assume you have a \link #food qdoc.conf \endlink file in the
   current directory. The command
@@ -1501,7 +1482,7 @@
   <img src="join.png" align=right width=192 height=192
   alt="Three bath ducks">
 
-  \section 1 Joining the qdoc community
+  \section1 Joining the qdoc community
 
   To join Badegakk (the qdoc user group), send your name with your
   address and a $2.56 check to
