@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#193 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#194 $
 **
 ** Implementation of QListBox widget class
 **
@@ -538,7 +538,7 @@ uint QListBox::count() const
 {
     int c=0;
     QListBoxItem * i = d->head;
-    while( i ) {
+    while ( i ) {
 	i = i->n;
 	c++;
     }
@@ -682,7 +682,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	item->update();
     } else {
 	QListBoxItem * i = d->head;
-	while( i->n && index > 1 ) {
+	while ( i->n && index > 1 ) {
 	    i = i->n;
 	    index--;
 	}
@@ -747,7 +747,7 @@ void QListBox::clear()
     d->current = 0;
     QListBoxItem * i = d->head;
     d->head = 0;
-    while( i ) {
+    while ( i ) {
 	QListBoxItem * n = i->n;
 	i->n = i->p = 0;
 	i->parent = 0;
@@ -866,14 +866,14 @@ int QListBox::numItemsVisible() const
 
     int x = contentsX();
     int i=0;
-    while( i < (int)d->columnPos.size()-1 &&
+    while ( i < (int)d->columnPos.size()-1 &&
 	   d->columnPos[i] < x )
 	i++;
     if ( i < (int)d->columnPos.size()-1 &&
 	 d->columnPos[i] > x )
 	columns++;
     x += viewport()->width();
-    while( i < (int)d->columnPos.size()-1 &&
+    while ( i < (int)d->columnPos.size()-1 &&
 	   d->columnPos[i] < x ) {
 	i++;
 	columns++;
@@ -881,14 +881,14 @@ int QListBox::numItemsVisible() const
 
     int y = contentsY();
     int rows = 0;
-    while( i < (int)d->rowPos.size()-1 &&
+    while ( i < (int)d->rowPos.size()-1 &&
 	   d->rowPos[i] < y )
 	i++;
     if ( i < (int)d->rowPos.size()-1 &&
 	 d->rowPos[i] > y )
 	rows++;
     y += viewport()->height();
-    while( i < (int)d->rowPos.size()-1 &&
+    while ( i < (int)d->rowPos.size()-1 &&
 	   d->rowPos[i] < y ) {
 	i++;
 	rows++;
@@ -911,7 +911,7 @@ int QListBox::currentItem() const
 
     QListBoxItem * i = d->current;
     int c = 0;
-    while( i ) {
+    while ( i ) {
 	i = i->p;
 	c++;
     }
@@ -932,6 +932,7 @@ void QListBox::setCurrentItem( int index )
 
 void QListBox::setCurrentItem( QListBoxItem * i )
 {
+    //debug( "sci %p (%s)", i, i ? i->text().ascii() : "sex" );
     if ( d->current == i )
 	return;
     QListBoxItem * o = d->current;
@@ -985,7 +986,7 @@ int QListBox::index( QListBoxItem * lbi ) const
 	return -1;
     int c = -1;
     QListBoxItem * i = lbi;
-    while( i ) {
+    while ( i ) {
 	c++;
 	i = i->p;
     }
@@ -1079,7 +1080,7 @@ void QListBox::viewportMouseMoveEvent( QMouseEvent *e )
 		int i = QMIN( itemClicked, currentItem() );
 		if ( i < 0 )
 		    i = 0;
-		while( i <= itemClicked || i <= currentItem() ) {
+		while ( i <= itemClicked || i <= currentItem() ) {
 		    setSelected( i, s );
 		    i++;
 		}
@@ -1295,7 +1296,7 @@ void QListBox::updateItem( int index )
     int h = d->rowPos[row+1] - d->rowPos[row];
     if ( x + w > 0 && x < viewport()->width() &&
 	 y + h > 0 && y < viewport()->height() )
-	repaint( x, y, w, h, FALSE );
+	viewport()->repaint( x, y, w, h, FALSE );
 }
 
 
@@ -1306,7 +1307,7 @@ void QListBox::updateItem( int index )
 void QListBox::updateItem( QListBoxItem * i )
 {
     if ( i )
-	repaint( index( i ) );
+	updateItem( index( i ) );
 }
 
 
@@ -1447,12 +1448,7 @@ void QListBox::clearSelection()
 	    setSelected( i, FALSE );
     } else {
 	QListBoxItem * i = d->current;
-	if ( hasFocus() ) {
-	    d->current = d->head;
-	    updateItem( d->current );
-	} else {
-	    d->current = 0;
-	}
+	setCurrentItem( hasFocus() ? d->head : 0 );
 	updateItem( i );
     }
 }
@@ -1513,7 +1509,7 @@ void QListBox::triggerUpdate( bool doLayout )
 
 void QListBox::refreshSlot()
 {
-    repaint();
+    viewport()->repaint();
 }
 
 
@@ -1672,7 +1668,7 @@ void QListBox::doLayout() const
 	    // this is basically the FitToWidth code, but edited to use rows.
 	    int maxh = 0;
 	    QListBoxItem * i = d->head;
-	    while( i ) {
+	    while ( i ) {
 		int h = i->width();
 		if ( maxh < h )
 		    maxh = h;
@@ -1688,7 +1684,7 @@ void QListBox::doLayout() const
 		do {
 		    ++rows;
 		    tryGeometry( rows, (c+rows-1)/c );
-		} while( rows <= c && d->rowPos[d->rowPos.size()-1] <= v );
+		} while ( rows <= c && d->rowPos[d->rowPos.size()-1] <= v );
 		--rows;
 	    }
 	    tryGeometry( rows, (c+rows-1)/c );
@@ -1703,7 +1699,7 @@ void QListBox::doLayout() const
 	} else if ( d->head ) { // FitToWidth, at least one item
 	    int maxw = 0;
 	    QListBoxItem * i = d->head;
-	    while( i ) {
+	    while ( i ) {
 		int w = i->width();
 		if ( maxw < w )
 		    maxw = w;
@@ -1720,7 +1716,7 @@ void QListBox::doLayout() const
 		do {
 		    columns++;
 		    tryGeometry( (c+columns-1)/columns, columns );
-		} while( columns <= c &&
+		} while ( columns <= c &&
 			 d->columnPos[d->columnPos.size()-1] <= v );
 		// and as the perceptive reader will understand, we Work
 		// even Harder than we really have to...
@@ -1768,7 +1764,7 @@ void QListBox::tryGeometry( int rows, int columns ) const
 	d->rowPos[r] = 0;
     r = c = 0;
     QListBoxItem * i = d->head;
-    while( i && c < columns) {
+    while ( i && c < columns) {
 	if ( i == d->current ) {
 	    d->currentRow = r;
 	    d->currentColumn = c;
@@ -1901,18 +1897,24 @@ QListBoxItem * QListBox::itemAt( QPoint p ) const
 	doLayout();
     int x = p.x() + contentsX();
     int y = p.y() + contentsY();
-    // the column is the MSD
+
     int col=0;
-    while( col < d->numColumns &&
+    while ( col < numColumns() &&
 	   x > d->columnPos[col] )
 	col++;
-    if ( col == d->numColumns )
-	return 0;
+    if ( col && x < d->columnPos[col] )
+	col--;
+
     int row=0;
-    while( row < d->numRows &&
+    while ( row < numRows() &&
 	   y > d->rowPos[row] )
 	row++;
-    return item( col*numRows()+col );
+    if ( row && y < d->rowPos[row] )
+	row--;
+
+    //debug( "x: %d,%d, %d,%d", x, y, col, row );
+
+    return item( col*numRows()+row );
 }
 
 
@@ -2014,7 +2016,7 @@ int QListBox::topItem() const
 {
     doLayout();
     int col=0;
-    while( col < numColumns() && d->columnPos[col] < contentsX() )
+    while ( col < numColumns() && d->columnPos[col] < contentsX() )
 	col++;
     if ( ( col < numColumns() &&
 	   d->columnPos[col+1] <= contentsX()+viewport()->width() ) ||
@@ -2080,6 +2082,7 @@ void QListBox::drawContents( QPainter * p, int x, int y, int w, int h )
     if ( !d->layoutDirty )
 	doLayout();
 
+    //debug( "rp %d,%d, %d,%d", x, y, w, h );
     QListBoxItem * i = itemAt( QPoint( x - contentsX(), y - contentsY() ) );
     int n = index( i );
     int col = n/numRows();
@@ -2089,11 +2092,11 @@ void QListBox::drawContents( QPainter * p, int x, int y, int w, int h )
     QColorGroup g = colorGroup();
     p->setPen( g.text() );
     p->setBackgroundColor( g.base() );
-    while( i && col < numCols() && d->columnPos[col] < x + w ) {
+    while ( i && col < numCols() && d->columnPos[col] < x + w ) {
 	int cw = d->columnPos[col+1] - d->columnPos[col];
-	while( i && row < top )
+	while ( i && row < top )
 	    i = i->n;
-	while( i && row < numRows() && d->rowPos[row] < y + h ) {
+	while ( i && row < numRows() && d->rowPos[row] < y + h ) {
 	    p->save();
 	    p->translate( d->columnPos[col], d->rowPos[row] );
 	    int ch = d->rowPos[row+1] - d->rowPos[row];
@@ -2106,13 +2109,15 @@ void QListBox::drawContents( QPainter * p, int x, int y, int w, int h )
 	    }
 	    i->paint( p );
 	    if ( d->current == i && hasFocus() )
-		style().drawFocusRect( p, QRect( 0, 0, cw, ch ),
-				       g, &g.highlight() );
+		style().drawFocusRect( p, QRect( d->columnPos[col],
+						 d->rowPos[row],
+						 cw, ch ),
+				       g, &g.highlight(), TRUE );
 	    p->restore();
 	    row++;
 	    i = i->n;
 	}
-	while( i && row < numRows() )
+	while ( i && row < numRows() )
 	    i = i->n;
 	row = 0;
 	col++;
