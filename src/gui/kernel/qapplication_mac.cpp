@@ -1035,7 +1035,7 @@ QWidget *QApplication::topLevelAt(int x, int y)
 
 QWidget *QApplication::widgetAt_sys(int x, int y)
 {
-    QWidget widget = topLevelAt(x, y);
+    QWidget *widget = topLevelAt(x, y);
     //find the child
     QPoint p = widget->mapFromGlobal(QPoint(x, y));
     widget = qt_recursive_match(widget, p.x(), p.y());
