@@ -77,7 +77,7 @@ public:
     void drawListItem(QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                              QTextBlockIterator bl, const QTextLayout::Selection &selection) const;
     void drawBlock(QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context, QTextBlockIterator bl) const;
-    int indent(QTextBlockIterator bl) const;
+    static int indent(QTextBlockIterator bl);
     int hitTest(QTextBlockIterator bl, const QPoint &point, QText::HitTestAccuracy accuracy) const;
 
     void relayoutDocument();
@@ -124,7 +124,8 @@ int QTextDocumentLayoutPrivate::hitTest(QTextBlockIterator bl, const QPoint &poi
     return -1;
 }
 
-int QTextDocumentLayoutPrivate::indent(QTextBlockIterator bl) const
+// ### could be moved to QTextBlockIterator
+int QTextDocumentLayoutPrivate::indent(QTextBlockIterator bl)
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
     int indent = blockFormat.listFormat().indent() + blockFormat.indent();
