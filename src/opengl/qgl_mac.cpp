@@ -376,12 +376,8 @@ void QGLWidget::init(QGLContext *context, const QGLWidget* shareWidget)
 {
     d->glcx = d->olcx = 0;
     d->autoSwap = true;
-    { //just make it black (for now)..
-        QPalette p = palette(); 
-        p.setColor(QPalette::Background, Qt::black); 
-        setPalette(p);
-    }
 
+    setAttribute(Qt::WA_NoBackground);
     setContext(context, shareWidget ? shareWidget->context() : 0);
     if(isValid() && d->glcx->format().hasOverlay()) {
         d->olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
