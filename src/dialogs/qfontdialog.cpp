@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#5 $
 **
 ** C++ file skeleton
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfontdialog.cpp#5 $");
 
 
 struct QFontDialogPrivate
@@ -103,9 +103,9 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
     d->effects = new QGroupBox( this, "font effects" );
     d->effects->setTitle( "Effects" );
     d->strikeout = new QCheckBox( d->effects, "strikeout on/off" );
-    d->strikeout->setText( "Strikeout" );
+    d->strikeout->setText( "Stri&keout" );
     d->underline = new QCheckBox( d->effects, "underline on/off" );
-    d->underline->setText( "Underline" );
+    d->underline->setText( "&Underline" );
     d->color = new QComboBox( TRUE, d->effects, "pen color" );
     d->colorAccel
 	= new QLabel( d->color, "&Color", d->effects, "color label" );
@@ -266,12 +266,13 @@ QListBox * QFontDialog::fontFamilyListBox() const
 void QFontDialog::updateFontFamilies()
 {
     QListBox * l = fontFamilyListBox();
-    l->clear();
-    l->insertItem( "Times" );
-    l->insertItem( "Helvetica" );
-    l->insertItem( "Courier" );
-    l->insertItem( "Palatino" );
-    l->insertItem( "Gill Sans" );
+    if ( l->count() == 0 ) {
+	l->insertItem( "Times" );
+	l->insertItem( "Helvetica" );
+	l->insertItem( "Courier" );
+	l->insertItem( "Palatino" );
+	l->insertItem( "Gill Sans" );
+    }
 }
 
 
@@ -292,10 +293,11 @@ QListBox * QFontDialog::fontStyleListBox() const
 void QFontDialog::updateFontStyles()
 {
     QListBox * l = fontStyleListBox();
-    l->clear();
-    l->insertItem( "Roman" );
-    l->insertItem( "Italic" );
-    l->insertItem( "Oblique" );
+    if ( l->count() == 0 ) {
+	l->insertItem( "Roman" );
+	l->insertItem( "Italic" );
+	l->insertItem( "Oblique" );
+    }
 }
 
 
@@ -316,22 +318,19 @@ QListBox * QFontDialog::fontSizeListBox() const
 void QFontDialog::updateFontSizes()
 {
     QListBox * l = fontSizeListBox();
-    l->clear();
-    l->insertItem( "10.0" );
-    l->insertItem( "12.0" );
-    l->insertItem( "14.0" );
-    l->insertItem( "16.0" );
-    l->insertItem( "18.0" );
-    l->insertItem( "20.0" );
-    l->insertItem( "22.0" );
-    l->insertItem( "24.0" );
-    l->insertItem( "26.0" );
-    l->insertItem( "28.0" );
-    l->insertItem( "30.0" );
-    l->insertItem( "32.0" );
-    l->insertItem( "34.0" );
-    l->insertItem( "36.0" );
-    l->insertItem( "39.0" );
+    if ( l->count() == 0 ) {
+	l->insertItem( "10" );
+	l->insertItem( "12" );
+	l->insertItem( "14" );
+	l->insertItem( "16" );
+	l->insertItem( "18" );
+	l->insertItem( "20" );
+	l->insertItem( "24" );
+	l->insertItem( "30" );
+	l->insertItem( "36" );
+	l->insertItem( "48" );
+	l->insertItem( "72" );
+    }
 }
 
 
