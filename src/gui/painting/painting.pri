@@ -24,6 +24,7 @@ HEADERS += \
 	painting/qprinter.h \
 	painting/qprinter_p.h \
 	painting/qregion.h \
+        painting/qstylepainter.h \
 	painting/qmatrix.h \
 	painting/qwmatrix.h
 
@@ -45,6 +46,7 @@ SOURCES += \
 	painting/qpolygon.cpp \
 	painting/qpolygonscanner.cpp \
 	painting/qprinter.cpp \
+        painting/qstylepainter.cpp \
 	painting/qregion.cpp \
 	painting/qmatrix.cpp
 
