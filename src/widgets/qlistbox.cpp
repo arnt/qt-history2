@@ -3325,7 +3325,7 @@ void QListBoxPrivate::findItemByName( const QString &text )
     if ( inputTimer->isActive() )
 	inputTimer->stop();
     inputTimer->start( 500, TRUE );
-    currInputString += text;
+    currInputString += text.lower();
     QListBoxItem *item = listBox->findItem( currInputString );
     if ( item )
 	listBox->setCurrentItem( item );

@@ -4455,7 +4455,7 @@ void QIconView::findItemByName( const QString &text )
     if ( d->inputTimer->isActive() )
 	d->inputTimer->stop();
     d->inputTimer->start( 500, TRUE );
-    d->currInputString += text;
+    d->currInputString += text.lower();
     QIconViewItem *item = findItem( d->currInputString );
     if ( item )
 	setCurrentItem( item );
