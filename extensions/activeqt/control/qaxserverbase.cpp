@@ -107,6 +107,10 @@ class QAxServerBase :
     public IDispatch,
     public IOleObject,
     public IOleControl,
+#if defined Q_CC_GNU
+    public IViewObject, // this should not be needed as IViewObject2 is meant to inherit from this,
+                        // untill the mingw headers are fixed this will need to stay.
+#endif
     public IViewObject2,
     public IOleInPlaceObject,
     public IOleInPlaceActiveObject,
