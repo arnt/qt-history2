@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#111 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#112 $
 **
 ** Implementation of QLabel widget class
 **
@@ -191,6 +191,7 @@ void QLabel::init()
     d = 0;
 }
 
+
 /*!
   \fn QString QLabel::text() const
 
@@ -217,6 +218,7 @@ void QLabel::setText( const QString &text )
 	return;
     ltext = text;
     isqml = FALSE;
+
     if (qmlDoc ) {
 	delete qmlDoc;
 	qmlDoc = 0;
@@ -225,17 +227,17 @@ void QLabel::setText( const QString &text )
 	delete lpixmap;
 	lpixmap = 0;
     }
+
     if ( accel )
 	accel->clear();
-    QString p = strchr( ltext, '&' );
-    while( !p.isEmpty() && p[1] == '&' )
-	p = strchr( ((const char*)p)+2, '&' );
-    if ( !p.isEmpty() && isalpha(p[1]) ) {
+    int p = QAccel::shortcutKey( ltext );
+    if ( p ) {
 	if ( !accel )
 	    accel = new QAccel( this, "accel label accel" );
-	accel->connectItem( accel->insertItem( ALT+toupper(p[1]) ),
+	accel->connectItem( accel->insertItem( p ),
 			    this, SLOT(acceleratorSlot()) );
     }
+
     if ( autoresize ) {
 	QSize s = sizeHint();
 	if ( s.isValid() && s != size() )
@@ -245,8 +247,10 @@ void QLabel::setText( const QString &text )
     } else {
 	updateLabel();
     }
+
     if ( !isTopLevel() )
-	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
+	QApplication::postEvent( parentWidget(),
+				 new QEvent( QEvent::LayoutHint ) );
 }
 
 
@@ -721,15 +725,12 @@ void QLabel::setBuddy( QWidget *buddy )
     if ( !lbuddy )
 	return;
 
-    // ### the next bit is not terribly unicode-friendly...
-    QString p = ltext.isEmpty() ? 0 : strchr( ltext, '&' );
-    while( !p.isEmpty() && p[1] == '&' )
-	p = strchr( ((const char*)p)+2, '&' );
-    if ( !p.isEmpty() && isalnum(p[1]) ) {
+    int p = QAccel::shortcutKey( ltext );
+    if ( p ) {
 	if ( !accel )
 	    accel = new QAccel( this, "accel label accel" );
-	accel->connectItem( accel->insertItem(ALT+toupper(p[1])),
-				  this, SLOT(acceleratorSlot()) );
+	accel->connectItem( accel->insertItem( p ),
+			    this, SLOT(acceleratorSlot()) );
     }
 
     connect( lbuddy, SIGNAL(destroyed()), this, SLOT(buddyDied()) );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#60 $
 **
 ** Implementation of QAccel class
 **
@@ -412,6 +412,34 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
 void QAccel::tlwDestroyed()
 {
     d->tlw = 0;
+}
+
+
+/*!
+  Returns the shortcut key for \a string, or 0 if \a string has no
+  shortcut sequence.
+  
+  For example, shortcutChar("E&xit") returns ALT+Key_X,
+  shortcutChar("&Exit") returns ALT+Key_E and shortcutChar("Exit")
+  returns 0.  (In code that does not inherit the Qt namespace class,
+  you need to write e.g. Qt::ALT+Qt::Key_X.)
+*/
+
+int QAccel::shortcutKey( const QString &str )
+{
+    int p = 0;
+    while ( p >= 0 ) {
+	p = str.find( '&', p ) + 1;
+	if ( p <= 0 || p == (int)str.length() )
+	    return 0;
+	if ( str[p] != '&' ) {
+	    int c = str[p].unicode();
+	    if ( c < 32 || ( c > 126 && c < 160 ) || c > 255 )
+		return 0;
+	    return c + ALT;
+	}
+    }
+    return 0;
 }
 
 

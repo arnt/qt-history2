@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#52 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -122,28 +122,6 @@ void QGroupBox::init()
 }
 
 
-/*
-  Internal function that returns the shortcut character in a string.
-  Returns zero if no shortcut character was found.
-  Example:
-    shortcutChar("E&xit") returns 'x'.
-*/
-
-static QChar shortcutChar( const QString &str )
-{
-    int p = 0;
-    while ( p >= 0 ) {
-	p = str.find('&',p);
-	if ( p < 0 )
-	    return QChar::null;
-	p++;
-	if ( str[p] != '&' )
-	    return str[p];
-    }
-    return QChar::null;
-}
-
-
 /*!
   Sets the group box title text to \a title, and add a focus-change
   accelerator if the \a title contains & followed by an appropriate
@@ -163,10 +141,10 @@ void QGroupBox::setTitle( const QString &title )
 	delete accel;
     accel = 0;
     str = title;
-    QChar s( shortcutChar( title ) );
-    if ( s != QChar::null ) {
+    int s = QAccel::shortcutKey( title );
+    if ( s ) {
 	accel = new QAccel( this, "automatic focus-change accelerator" );
-	accel->connectItem( accel->insertItem( Qt::ALT + (char)s, 0 ),
+	accel->connectItem( accel->insertItem( s, 0 ),
 			    this, SLOT(fixFocus()) );
     }
     repaint();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#37 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#38 $
 **
 ** Definition of QAccel class
 **
@@ -62,6 +62,8 @@ public:
 				const QObject *receiver, const char* member );
 
     void	repairEventFilter();
+
+    static int shortcutKey( const QString & );
 
 signals:
     void	activated( int id );

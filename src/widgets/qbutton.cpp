@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#136 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#137 $
 **
 ** Implementation of QButton widget class
 **
@@ -101,28 +101,6 @@ QTimer *QButton::timer()
 {
     ensureData();
     return &d->timer;
-}
-
-
-/*
-  Internal function that returns the shortcut character in a string.
-  Returns zero if no shortcut character was found.
-  Example:
-    shortcutChar("E&xit") returns 'x'.
-*/
-
-static QChar shortcutChar( const QString &str )
-{
-    int p = 0;
-    while ( p >= 0 ) {
-	p = str.find('&',p);
-	if ( p < 0 )
-	    return QChar::null;
-	p++;
-	if ( str[p] != '&' )
-	    return str[p];
-    }
-    return QChar::null;
 }
 
 
@@ -330,23 +308,16 @@ void QButton::setText( const QString &text )
 {
     if ( btext == text )
 	return;
-    QChar oldAccelChar = shortcutChar(btext);
-    QChar newAccelChar = shortcutChar(text);
     btext = text;
+
     if ( bpixmap ) {
 	delete bpixmap;
 	bpixmap = 0;
     }
     if ( autoresize )
 	adjustSize();
-    if ( oldAccelChar!=QChar::null
-	&& newAccelChar!=QChar::null && !accel() )
-	setAccel( 0 );
 
-    // ##### Just ASCII accelerators for now
-    char ascii = newAccelChar;
-    if ( ascii )
-	setAccel( ALT+toupper(ascii) );
+    setAccel( QAccel::shortcutKey( btext ) );
 
     repaint( FALSE );
 }
@@ -388,13 +359,11 @@ void QButton::setPixmap( const QPixmap &pixmap )
     }
     if ( bpixmap->depth() == 1 && !bpixmap->mask() )
 	bpixmap->setMask( *((QBitmap *)bpixmap) );
-    int oldAccelChar = shortcutChar(btext);
     if ( !btext.isNull() )
 	btext = QString::null;
     if ( autoresize && newSize )
 	adjustSize();
-    if ( oldAccelChar )
-	setAccel( 0 );
+    setAccel( 0 );
     repaint( FALSE );
     if ( autoMask() )
 	updateMask();
@@ -409,7 +378,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
 
 int QButton::accel() const
 {
-    return d && d->a ? d->a->key(0) : 0;
+    return d && d->a ? d->a->key( 0 ) : 0;
 }
 
 /*!
@@ -437,23 +406,15 @@ int QButton::accel() const
 
 void QButton::setAccel( int key )
 {
-    if ( key == -1 ) {				// guess from the text
-	int c = shortcutChar( text() );
-	key = c ? ALT+toupper(c) : 0;
-    }
-
+    if ( d && d->a )
+	d->a->clear();
+    if ( !key )
+	return;
     ensureData();
-    if ( key == 0 ) {				// delete accel
-	delete d->a;
-	d->a = 0;
-    } else {
-	if ( d->a )
-	    d->a->clear();
-	else
-	    d->a = new QAccel( this, "buttonAccel" );
-	d->a->connectItem( d->a->insertItem(key,0),
-			   this, SLOT(animateClick()) );
-    }
+    if ( !d->a )
+	d->a = new QAccel( this, "buttonAccel" );
+    d->a->connectItem( d->a->insertItem( key, 0 ),
+		       this, SLOT(animateClick()) );
 }
 
 

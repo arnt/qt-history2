@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#52 $
 **
 ** Implementation of QTabBar class
 **
@@ -171,11 +171,9 @@ int QTabBar::addTab( QTab * newTab )
     newTab->id = d->id++;
     l->append( newTab );
 
-    QString p = strchr( newTab->label, '&' );
-    while( !p.isEmpty() && p[1] == '&' )
-	p = strchr( ((const char*)p)+2, '&' );
-    if ( !p.isEmpty() && isalpha(p[1]) )
-	d->a->insertItem( ALT + toupper(p[1]), newTab->id );
+    int p = QAccel::shortcutKey( newTab->label );
+    if ( p )
+	d->a->insertItem( p, newTab->id );
 
     return newTab->id;
 }

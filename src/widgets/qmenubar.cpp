@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#133 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#134 $
 **
 ** Implementation of QMenuBar class
 **
@@ -1004,7 +1004,7 @@ void QMenuBar::resizeEvent( QResizeEvent * )
 
     badSize = TRUE;
     calculateRects();
-    
+
 }
 
 
@@ -1080,6 +1080,7 @@ void QMenuBar::setWindowsAltMode( bool enable, int index )
 void QMenuBar::setupAccelerators()
 {
     delete autoaccel;
+    autoaccel = 0;
 
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
@@ -1087,11 +1088,8 @@ void QMenuBar::setupAccelerators()
 	++it;
 	QString s = mi->text();
 	if ( !s.isEmpty() ) {
-	    int i = s.find( '&' );
-	    if ( i >= 0 && isalnum(s[i+1]) ) {
-		int k = s[i+1];
-		if ( isalpha(k) )
-		    k = toupper(k) - 'A' + Key_A;
+	    int i = QAccel::shortcutKey( s );
+	    if ( i ) {
 		if ( !autoaccel ) {
 		    autoaccel = new QAccel( this );
 		    CHECK_PTR( autoaccel );
@@ -1100,7 +1098,7 @@ void QMenuBar::setupAccelerators()
 		    connect( autoaccel, SIGNAL(destroyed()),
 			     SLOT(accelDestroyed()) );
 		}
-		autoaccel->insertItem( ALT+k, mi->id() );
+		autoaccel->insertItem( i, mi->id() );
 	    }
 	}
 	if ( mi->popup() ) {
