@@ -69,7 +69,8 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 	    QMenuItem *item = d->findItem(d->idAt(x));
 	
 	    if(item->custom()) {
-		qDebug("Ooops, don't think I can handle that yet! %s:%d %d", __FILE__, __LINE__, x);
+		//FIXME
+		//qDebug("Ooops, don't think I can handle that yet! %s:%d %d", __FILE__, __LINE__, x);
 		continue;
 	    }
 	    if(item->widget()) {

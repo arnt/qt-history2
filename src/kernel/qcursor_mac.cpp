@@ -339,7 +339,7 @@ void QCursor::update() const
 					&d->fg, &d->bg, d->hx, d->hy );
 
 #else
-	qDebug("Oops.. fix this.. %s:%d", __FILE__, __LINE__);
+//	qDebug("Oops.. fix this.. %s:%d", __FILE__, __LINE__); //FIXME
 #endif
 	return;
     }
