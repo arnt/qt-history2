@@ -789,7 +789,7 @@ void FormDefinitionView::showRMBMenu( QListViewItem *i, const QPoint &pos )
     if ( i->rtti() == HierarchyItem::Definition || i->rtti() == HierarchyItem::DefinitionParent ) {
 	if ( i->text( 0 ) == "Class Variables" ||
 	     i->parent() && i->parent()->text( 0 ) == "Class Variables" )
-	    menu.insertItem( tr( "Edit...\tALT+V" ), EDIT_ITEM );
+	    menu.insertItem( tr( "Edit...\tAlt+V" ), EDIT_ITEM );
 	else
 	    menu.insertItem( tr( "Edit..." ), EDIT_ITEM );
     }
