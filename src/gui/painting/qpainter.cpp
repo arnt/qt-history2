@@ -2913,7 +2913,7 @@ QPointArray QPainter::xFormDev(const QPointArray &ad, int index, int npoints) co
     If \a enable is true, sets the painter's render hint, \a hint on;
     otherwise switches the render hint off.
 */
-void QPainter::setRenderHint(QPainter::RenderHint hint, bool enable)
+void QPainter::setRenderHint(RenderHint hint, bool enable)
 {
     if (!isActive()) {
         qWarning("Painter must be active to set rendering hints");
