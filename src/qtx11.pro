@@ -111,7 +111,8 @@ HEADERS     =	dialogs/qfiledlg.h \
 		widgets/qslider.h \
 		widgets/qtabbar.h \
 		widgets/qtablevw.h \
-		widgets/qtooltip.h
+		widgets/qtooltip.h \
+		widgets/qvalidator.h
 SOURCES     =	dialogs/qfiledlg.cpp \
 		dialogs/qmsgbox.cpp \
 		dialogs/qprndlg.cpp \
@@ -210,7 +211,8 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qslider.cpp \
 		widgets/qtabbar.cpp \
 		widgets/qtablevw.cpp \
-		widgets/qtooltip.cpp
+		widgets/qtooltip.cpp \
+		widgets/qvalidator.cpp
 TARGET      =	qt
 VERSION     =	1.3
 DESTDIR     =	../lib

@@ -1,5 +1,6 @@
 TEMPLATE    =	lib
 CONFIG      =	qt warn_on release
+INCLUDEPATH =	tmp
 MOC_DIR     =	tmp
 HEADERS     =	../include/qfiledlg.h \
 		../include/qmsgbox.h \
@@ -110,7 +111,8 @@ HEADERS     =	../include/qfiledlg.h \
 		../include/qslider.h \
 		../include/qtabbar.h \
 		../include/qtablevw.h \
-		../include/qtooltip.h
+		../include/qtooltip.h \
+		../include/qvalidator.h
 SOURCES     =	dialogs/qfiledlg.cpp \
 		dialogs/qmsgbox.cpp \
 		dialogs/qprogdlg.cpp \
@@ -205,7 +207,8 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qslider.cpp \
 		widgets/qtabbar.cpp \
 		widgets/qtablevw.cpp \
-		widgets/qtooltip.cpp
+		widgets/qtooltip.cpp \
+		widgets/qvalidator.cpp
 TARGET      =	qt
 VERSION     =	1.3
 DESTDIR     =	../lib
