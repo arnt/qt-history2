@@ -384,7 +384,12 @@ void QDesignerActions::createForm()
 
 void QDesignerActions::openForm()
 {
-    QString fileName = QFileDialog::getOpenFileName(core()->topLevel(),
+    QString fileName = QFileDialog::getOpenFileName(
+#ifdef Q_WS_MAC
+            0,
+#else
+            core()->topLevel(),
+#endif
             tr("Open Form"), QString(),
             tr("Designer UI files (*.ui)"));
 
