@@ -1187,8 +1187,7 @@ void QMultiCellPixmap::debugger()
 }
 
 
-// ### rename 3.0 - qt_mcp_debugger()
-Q_EXPORT void mcp_debugger()
+Q_EXPORT void qt_mcp_debugger()
 {
     int i, s=16;
     const char *info = "pixmaps";
