@@ -302,9 +302,6 @@ public:
     virtual void setOpen( QListViewItem *, bool );
     bool isOpen( const QListViewItem * ) const;
 
-    virtual void setFocusItem( QListViewItem * );
-    QListViewItem * focusItem() const;
-    
     virtual void setCurrentItem( QListViewItem * );
     QListViewItem * currentItem() const;
 

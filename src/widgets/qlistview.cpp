@@ -5085,47 +5085,25 @@ QListViewItem * QListView::firstChild() const
     return d->r->childItem;
 }
 
-/*! Returns the last visible item in the QListView.
+/*! Returns the last item in the list view tree is returned.
 
     Returns 0 if there are no items in the QListView.
+
+    This function is slow, and should not be used unless necessary.
 */
 
 QListViewItem* QListView::lastItem() const
 {
-    d->r->enforceSortOrder();
-    
-    QListViewItem* item;
-    if ( currentItem() )
-	item = currentItem();
-    else
-	item = firstChild();
-
-    while ( item ) {
-	if ( item->itemBelow() )
-	    item = item->itemBelow();
-	else
-	    break;
-    }
-
-    return item;
-}
-
-/*! Sets the focus to the item \a item */
-
-void QListView::setFocusItem( QListViewItem* item )
-{
+    QListViewItem* item = firstChild();
     if ( item ) {
-	d->focusItem = item;
-	emit currentChanged( d->focusItem );
-	repaintItem( d->focusItem );
-    }
-}
-
-/*! Returns the currently focused item, or 0 if no item currently has the focus */
-
-QListViewItem* QListView::focusItem() const
-{
-    return d->focusItem;
+	while ( item->nextSibling() || item->firstChild() ) {
+	    if ( item->nextSibling() )
+		item = item->nextSibling();
+	    else
+		item = item->firstChild();
+	}
+    }	 
+    return item;
 }
 
 /*!  Repaints this item on the screen if it is currently visible. */
