@@ -210,9 +210,13 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 		if ( parentPath.isEmpty() && !lastPath.isEmpty() )
 		    func = tre->findFunctionNode( lastPath, clone );
 		if ( func == 0 ) {
-		    doc.location().warning( tr("Cannot resolve '%1' in '\\%2'")
-					    .arg(clone->name() + "()")
-					    .arg(COMMAND_FN) );
+		    doc.location().warning(tr("Cannot resolve '%1' in '\\%2'")
+					   .arg(clone->name() + "(...)")
+					   .arg(COMMAND_FN),
+                                           tr("I cannot find any function of that name with the "
+                                              "specified signature. Make sure that the signature "
+                                              "is identical to the declaration, including 'const' "
+                                              "qualifiers."));
 		} else {
 		    doc.location().warning( tr("Missing '%1::' for '%2' in '\\%3'")
 					    .arg(lastPath.join("::"))
