@@ -146,6 +146,15 @@ void QCoreApplicationPrivate::createEventDispatcher()
 #endif
 }
 
+void QCoreApplicationPrivate::moveToMainThread(QObject *o)
+{
+    if (!o || !o->thread())
+        return;
+    Q_ASSERT(o->parent() == 0);
+
+    QCoreApplication::sendPostedEvents(o, 0);
+    o->d->thread = 0;
+}
 
 #ifdef QT_COMPAT
 void QCoreApplicationPrivate::removePostedChildInsertedEvents(QObject *receiver, QObject *child)

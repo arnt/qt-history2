@@ -15,6 +15,7 @@
 #define QDNS_P_H
 
 #include <qcoreapplication.h>
+#include <private/qcoreapplication_p.h>
 #include "qdns.h"
 #include <qmutex.h>
 #include <qobject.h>
@@ -57,8 +58,9 @@ public:
     inline QDnsAgent()
     {
         connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(cleanup()));
+        QCoreApplicationPrivate::moveToMainThread(this);
     }
-    ~QDnsAgent()
+    inline ~QDnsAgent()
     { cleanup(); }
 
     void run();

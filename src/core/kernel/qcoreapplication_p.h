@@ -39,6 +39,7 @@ public:
     ~QCoreApplicationPrivate();
 
     virtual void createEventDispatcher();
+    static void moveToMainThread(QObject *o);
 
 #ifdef QT_COMPAT
     void removePostedChildInsertedEvents(QObject *receiver, QObject *child);
