@@ -948,13 +948,14 @@ void QListViewItem::cancelRename( int )
 
 QListViewItem::~QListViewItem()
 {
+    if ( renameBox ) {
+	delete renameBox;
+	renameBox = 0;
+    }
+
     QListView *lv = listView();
 
     if ( lv ) {
-	if ( renameBox ) {
-	    delete renameBox;
-	    renameBox = 0;
-	}
 	if ( lv->d->oldFocusItem == this )
 	    lv->d->oldFocusItem = 0;
 	for (int j = 0; j < lv->d->iterators.size(); ++j) {
