@@ -1251,12 +1251,11 @@ void QTreeViewPrivate::layout(int i)
     if (hidden > 0)
         qCollapse<QTreeViewItem>(viewItems, last, hidden);
 
-    int k = i;
     QModelIndex root = q->root();
-    while (parent != root) {
-        viewItems[k].total += count;
+    while (parent != root && i > -1) {
+        viewItems[i].total += count;
         parent = parent.parent();
-        k = viewIndex(parent);
+        i = viewIndex(parent);
     }
 }
 
