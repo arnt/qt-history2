@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qapplication.h"
+#include "qcoreapplication.h"
 #include "qvector.h"
 #include "qt_windows.h"
 
