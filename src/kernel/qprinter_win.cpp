@@ -126,7 +126,6 @@ static void setPrinterMapping( HDC hdc, int res )
 	qWarning( "QPrinter:: setting window failed rastercaps=%x", GetDeviceCaps(hdc,RASTERCAPS) );
     if ( !SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL) )
 	qWarning( "QPrinter:: setting viewport failed rastercaps=%x", GetDeviceCaps(hdc,RASTERCAPS) );
-
 }
 
 // ### deal with ColorMode GrayScale in qprinter_win.cpp.
@@ -228,8 +227,9 @@ bool QPrinter::newPage()
             success = TRUE;
         else
             state = PST_ABORTED;
-        if ( restorePainter ) {
+        if ( qWinVersion() & Qt::WV_DOS_based )
 	    setPrinterMapping( hdc, res );
+        if ( restorePainter ) {
             painter->restore();
 	}
         if ( fullPage() ) {
@@ -1038,46 +1038,38 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 ok = FALSE;
         }
 #if defined(UNICODE)
-#ifndef Q_OS_TEMP
         if ( qWinVersion() & Qt::WV_NT_based ) {
-#endif
             DOCINFO di;
             memset( &di, 0, sizeof(DOCINFO) );
             di.cbSize = sizeof(DOCINFO);
             di.lpszDocName = (TCHAR*)qt_winTchar(doc_name,TRUE);
             if ( ok && StartDoc(hdc, &di) == SP_ERROR )
                 ok = FALSE;
-#ifndef Q_OS_TEMP
         } else
 #endif
-#endif
-#ifndef Q_OS_TEMP
 	{
             DOCINFOA di;
-            memset( &di, 0, sizeof(DOCINFO) );
-            di.cbSize = sizeof(DOCINFO);
+            memset( &di, 0, sizeof(DOCINFOA) );
+            di.cbSize = sizeof(DOCINFOA);
 #if defined(__MINGW32__)
             di.lpszDocName = (const TCHAR*)doc_name.unicode();
 #else
-            di.lpszDocName = doc_name.ascii();
+            di.lpszDocName = qt_winQString2MB( doc_name ).data();
 #endif
             if ( ok && StartDocA(hdc, &di) == SP_ERROR )
                 ok = FALSE;
         }
-#endif
         if ( ok && StartPage(hdc) == SP_ERROR )
             ok = FALSE;
+	if ( qWinVersion() & Qt::WV_DOS_based )
+	    // StartPage resets DC on Win95/98
+	    setPrinterMapping( hdc, res );
         if ( ok && fullPage() && !viewOffsetDone ) {
-	    if ( qWinVersion() & Qt::WV_DOS_based ) {
-		// StartPage resets DC on Win95/98
-		setPrinterMapping( hdc, res );
-            }
 	    QSize margs = margins();
 	    POINT p;
 	    GetViewportOrgEx( hdc, &p );
             OffsetViewportOrgEx( hdc, -p.x - margs.width(), -p.y - margs.height(), 0 );
             //### CS097 viewOffsetDone = TRUE;
-
         }
         if ( !ok ) {
             if ( hdc ) {
