@@ -14,7 +14,7 @@
   \title SQL Overview
 
   These example show how to use the various Qt SQL classes from within
-  your application.  See the <a href=sql.html">Qt SQL Module</a>
+  your application.  See the <a href="sql.html">Qt SQL Module</a>
   documentation for details.
 
   <hr>
@@ -22,6 +22,6 @@
   The examples in the examples/sql/overview directory explain
   many aspects of the Qt SQL classes and their use.  For a
   complete walkthrough of these examples, see the <a
-  href=sql.html">SQL walkthrough documentation</a>.
+  href="sql.html">SQL walkthrough documentation</a>.
 
 */
