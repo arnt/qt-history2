@@ -155,7 +155,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
             bool increment = false;
             for(QStringList::Iterator incrit = incrs.begin(); incrit != incrs.end(); ++incrit) {
-                if((*objit).indexOf(QRegExp((*incrit), QString::CaseSensitive,
+                if((*objit).indexOf(QRegExp((*incrit), Qt::CaseSensitive,
                                     QRegExp::Wildcard)) != -1) {
                     increment = true;
                     incrs_out.append((*objit));
@@ -186,7 +186,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         for(QStringList::Iterator objit = objs.begin(); objit != objs.end(); ++objit) {
             bool increment = false;
             for(QStringList::Iterator incrit = incrs.begin(); incrit != incrs.end(); ++incrit) {
-                if((*objit).indexOf(QRegExp((*incrit), QString::CaseSensitive,
+                if((*objit).indexOf(QRegExp((*incrit), Qt::CaseSensitive,
                                     QRegExp::Wildcard)) != -1) {
                     increment = true;
                     incrs_out.append((*objit));
@@ -1074,7 +1074,7 @@ UnixMakefileGenerator::writeLibtoolFile()
     if(slsh != -1)
         lname = lname.right(lname.length() - slsh - 1);
     QFile ft(fname);
-    if(!ft.open(IO_WriteOnly)) 
+    if(!ft.open(IO_WriteOnly))
         return;
     project->variables()["ALL_DEPS"].append(fname);
 

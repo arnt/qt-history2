@@ -1280,11 +1280,11 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         const QStringList &tmp_inputs = project->variables()[(*it) + ".input"];
 	{
 	    int input_count = 0;
-            for(QStringList::ConstIterator it2 = tmp_inputs.begin(); 
+            for(QStringList::ConstIterator it2 = tmp_inputs.begin();
 		it2 != tmp_inputs.end(); ++it2) {
                 const QStringList &tmp = project->variables()[(*it2)];
-                for(QStringList::ConstIterator input = tmp.begin(); 
-		    input != tmp.end(); ++input) 
+                for(QStringList::ConstIterator input = tmp.begin();
+		    input != tmp.end(); ++input)
 		    input_count++;
 	    }
 	    if(!input_count)
@@ -1438,7 +1438,7 @@ MakefileGenerator::writeExtraVariables(QTextStream &t)
     QStringList &exports = project->variables()["QMAKE_EXTRA_VARIABLES"];
     for(QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it) {
         for(QStringList::Iterator exp_it = exports.begin(); exp_it != exports.end(); ++exp_it) {
-            QRegExp rx((*exp_it), QString::CaseInsensitive, QRegExp::Wildcard);
+            QRegExp rx((*exp_it), Qt::CaseInsensitive, QRegExp::Wildcard);
             if(rx.exactMatch(it.key())) {
                 if(first) {
                     t << "\n####### Custom Variables" << endl;

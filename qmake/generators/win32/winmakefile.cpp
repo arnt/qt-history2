@@ -42,7 +42,7 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
     int biggest=-1;
     QStringList entries = dir.entryList();
     QString dllStem = stem + QTDLL_POSTFIX;
-    QRegExp regx("(" + dllStem + "([0-9]*)).(lib|prl)$", QString::CaseInsensitive);
+    QRegExp regx("(" + dllStem + "([0-9]*)).(lib|prl)$", Qt::CaseInsensitive);
     for(QStringList::Iterator it = entries.begin(); it != entries.end(); ++it) {
         if(regx.exactMatch((*it)))
             biggest = qMax(biggest, (regx.cap(1) == dllStem ||

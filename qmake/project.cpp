@@ -638,7 +638,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
             global = func[3].indexOf('g') != -1;
             case_sense = func[3].indexOf('i') == -1;
         }
-        QRegExp regexp(func[1], case_sense ? QString::CaseSensitive : QString::CaseInsensitive);
+        QRegExp regexp(func[1], case_sense ? Qt::CaseSensitive : Qt::CaseInsensitive);
         for(QStringList::Iterator varit = varlist.begin();
             varit != varlist.end(); ++varit) {
             if((*varit).contains(regexp)) {
@@ -973,7 +973,7 @@ QMakeProject::isActiveConfig(const QString &x, bool regex, QMap<QString, QString
         return true;
 
 
-    QRegExp re(x, QString::CaseSensitive, QRegExp::Wildcard);
+    QRegExp re(x, Qt::CaseSensitive, QRegExp::Wildcard);
     QString spec = Option::mkfile::qmakespec.right(Option::mkfile::qmakespec.length() -
                                                    (Option::mkfile::qmakespec.lastIndexOf(QDir::separator())+1));
     if((regex && re.exactMatch(spec)) || (!regex && spec == x))
@@ -1191,7 +1191,7 @@ QMakeProject::doProjectInclude(QString file, bool feature, QMap<QString, QString
     } else {
         parsed = read(file.latin1(), place);
     }
-    if(parsed) 
+    if(parsed)
         place["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
     else
         warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
@@ -1718,7 +1718,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     } else {
                         var = arg_list[0];
                         sep = Option::dir_sep;
-                        if(val.toLower() == "dirname") 
+                        if(val.toLower() == "dirname")
                             end = -2;
                         else
                             beg = -1;
@@ -1799,7 +1799,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                             parser.file.latin1(), parser.line_no);
                 } else {
                     bool recursive = false;
-                    if(arg_list.count() == 2) 
+                    if(arg_list.count() == 2)
                         recursive = (arg_list[1].toLower() == "true" || arg_list[1].toInt());
                     QStringList dirs;
                     QString r = Option::fixPathToLocalOS(arg_list[0]).replace("\"", "");
@@ -1811,7 +1811,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                         dirs.append(QDir::currentPath());
                     }
 
-                    const QRegExp regex(r, QString::CaseSensitive, QRegExp::Wildcard);
+                    const QRegExp regex(r, Qt::CaseSensitive, QRegExp::Wildcard);
                     for(int d = 0; d < dirs.count(); d++) {
                         QString dir = dirs[d];
                         if(!dir.endsWith(Option::dir_sep))
@@ -1822,7 +1822,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                                 continue;
                             QString fname = dir + qdir[i];
                             if(QFileInfo(fname).isDir()) {
-                                if(recursive) 
+                                if(recursive)
                                     dirs.append(fname);
                             } else if(regex.exactMatch(fname)) {
                                 if(!replacement.isEmpty())

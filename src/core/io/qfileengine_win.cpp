@@ -155,7 +155,7 @@ QString QFSFileEnginePrivate::fixToQtSlashes(const QString &path)
     QString ret;
     for (int i=0, lastSlash=-1; i<(int)path.length(); i++) {
 	if(path[i] == '/' || path[i] == '\\') {
-	    if(i <= 3 || 
+	    if(i <= 3 ||
 	       (i < path.length() - 1) && (lastSlash == -1 || i != lastSlash+1))
 		ret += '/';
 	    lastSlash = i;
@@ -200,7 +200,7 @@ bool isValidFile(const QString& fileName)
         return fileName[0].isLetter();
 }
 
-void 
+void
 QFSFileEnginePrivate::init()
 {
 }
@@ -214,7 +214,7 @@ QFSFileEnginePrivate::sysOpen(const QString &fileName, int flags)
 	return QT_OPEN(QFSFileEnginePrivate::win95Name(fileName), flags, 0666);
     });
 }
-    
+
 bool
 QFSFileEngine::remove()
 {
@@ -225,13 +225,13 @@ QFSFileEngine::remove()
     });
 }
 
-bool 
+bool
 QFSFileEngine::rename(const QString &newName)
 {
     QT_WA({
         return ::_wrename((TCHAR*)d->file.utf16(), (TCHAR*)newName.utf16()) == 0;
     } , {
-        return ::rename(QFSFileEnginePrivate::win95Name(d->file), 
+        return ::rename(QFSFileEnginePrivate::win95Name(d->file),
 			QFSFileEnginePrivate::win95Name(newName)) == 0;
     });
 }
@@ -261,7 +261,7 @@ uchar
     return 0;
 }
 
-bool 
+bool
 QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
 {
     QString dirName = name;
@@ -303,7 +303,7 @@ QFSFileEngine::mkdir(const QString &name, QDir::Recursion recurse) const
     });
 }
 
-bool 
+bool
 QFSFileEngine::rmdir(const QString &name, QDir::Recursion recurse) const
 {
     QString dirName = name;
@@ -441,7 +441,7 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
         if(!(filterSpec & QDir::AllDirs && isDir)) {
             bool matched = false;
             for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
-                QRegExp rx(*sit, QString::CaseInsensitive, QRegExp::Wildcard);
+                QRegExp rx(*sit, Qt::CaseInsensitive, QRegExp::Wildcard);
                 if (rx.exactMatch(fname)) {
                     matched = true;
                 }
@@ -651,7 +651,7 @@ QFSFileEnginePrivate::doStat() const
         }
 	if (could_stat) {
 	    bool is_dir=false;
-	    if (file.length() >= 2 
+	    if (file.length() >= 2
 		&& (file.at(0) == '/' && file.at(1) == '/'
 		    || file.at(0) == '\\' && file.at(1) == '\\'))
 	    {
