@@ -1,13 +1,13 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
-HEADERS		= pingpongfrontend.h \
+HEADERS		= cursors.h \
 		  dialogs.h \
-		  cursors.h \
+		  pingpongfrontend.h \
 		  widgets.h
-SOURCES		= pingpongfrontend.cpp \
+SOURCES		= cursors.cpp \
 		  dialogs.cpp \
 		  main.cpp \
-		  cursors.cpp \
+		  pingpongfrontend.cpp \
 		  widgets.cpp
-TARGET		= pingpong
+INTERFACES	= matchdialogbase.ui
 unix:LIBS      += -lpthread

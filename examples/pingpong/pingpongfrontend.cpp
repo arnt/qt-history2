@@ -31,7 +31,7 @@ PingpongFrontEnd::PingpongFrontEnd( QWidget * parent, const char * name )
 void PingpongFrontEnd::init()
 {
     setCaption( "Skandinavisk Bordtennis Forbund (SBF) - Ligatabell" );
-    QPixmap icon( "pingpong.xpm" );
+    QPixmap icon( "pingpong.png" );
     setIcon( icon );
 
     // Menus

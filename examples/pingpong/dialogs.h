@@ -1,7 +1,8 @@
 #ifndef DIALOGS_H
 #define DIALOGS_H
 
-#include <qdialog.h>
+//#include <qdialog.h>
+#include "matchdialogbase.h"
 
 class QSqlForm;
 class QSqlRecord;
@@ -9,7 +10,7 @@ class TeamPicker;
 class QSpinBox;
 class QLineEdit;
 
-class MatchDialog : public QDialog
+class MatchDialog : public MatchDialogBase
 {
     Q_OBJECT
 
@@ -28,11 +29,11 @@ private slots:
 private:
     QSqlForm   * form;
     QSqlRecord * matchRecord;
-    TeamPicker * wteam;
-    TeamPicker * lteam;
-    QSpinBox   * wins;
-    QSpinBox   * losses;
-    QLineEdit  * sets;
+//     TeamPicker * wteam;
+//     TeamPicker * lteam;
+//     QSpinBox   * wins;
+//     QSpinBox   * losses;
+//     QLineEdit  * sets;
     Mode mMode;
 };
 
