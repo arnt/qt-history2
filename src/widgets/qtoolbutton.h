@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#6 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#7 $
 **
 ** Definition of a buttom customized for tool bar use
 **
@@ -54,7 +54,7 @@ public:
 
     QSize sizeHint() const;
 
-    void setIconSet( const QIconSet & );
+    virtual void setIconSet( const QIconSet & );
     QIconSet iconSet() const;
 
     bool usesBigPixmap() const { return ubp; }
@@ -66,9 +66,9 @@ public slots:
     virtual void setUsesTextLabel( bool enable );
     virtual void setTextLabel( const char *, bool = TRUE );
 
-    void setToggleButton( bool enable );
+    virtual void setToggleButton( bool enable );
 
-    void setOn( bool enable );
+    virtual void setOn( bool enable );
     void toggle();
 
 protected:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#60 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#61 $
 **
 ** Definition of QButton widget class
 **
@@ -41,25 +41,25 @@ public:
    ~QButton();
 
     const char *text() const;
-    void	setText( const char * );
+    virtual void	setText( const char * );
     const QPixmap *pixmap() const;
-    void	setPixmap( const QPixmap & );
+    virtual void	setPixmap( const QPixmap & );
 
     int		accel()	const;
-    void	setAccel( int );
+    virtual void	setAccel( int );
 
     bool	isToggleButton() const;
 
-    void	setDown( bool );
+    virtual void	setDown( bool );
     bool	isDown() const;
 
     bool	isOn() const;
 
     bool	autoResize() const;
-    void	setAutoResize( bool );
+    virtual void	setAutoResize( bool );
 
     bool	autoRepeat() const;
-    void	setAutoRepeat( bool );
+    virtual void	setAutoRepeat( bool );
 
 public slots:
     void	animateClick();
@@ -72,8 +72,8 @@ signals:
     void	toggled( bool );
 
 protected:
-    void	setToggleButton( bool );
-    void	setOn( bool );
+    virtual void	setToggleButton( bool );
+    virtual void	setOn( bool );
 
     virtual bool hitButton( const QPoint &pos ) const;
     virtual void drawButton( QPainter * );
@@ -108,7 +108,7 @@ private:
     friend class QButtonGroup;
     void          ensureData();
     QButtonGroup *group() const;
-    void	  setGroup( QButtonGroup* );
+    virtual void	  setGroup( QButtonGroup* );
     QTimer	 *timer();
 private:	// Disabled copy constructor and operator=
     QButton( const QButton & );

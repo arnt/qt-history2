@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#31 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#32 $
 **
 ** Definition of QMenuBar class
 **
@@ -48,7 +48,7 @@ public:
 
     enum	Separator { Never=0, InWindowsStyle=1 };
     Separator 	separator() const;
-    void	setSeparator( Separator when );
+    virtual void	setSeparator( Separator when );
 
 signals:
     void	activated( int itemId );
@@ -83,8 +83,8 @@ private:
     void	openActPopup();
     void	hidePopups();
 
-    void	setActItem( int, bool );
-    void	setWindowsAltMode( bool, int = 0 );
+    virtual void	setActItem( int, bool );
+    virtual void	setWindowsAltMode( bool, int = 0 );
 
     int		calculateRects( int max_width = -1 );
     int		itemAtPos( const QPoint & );

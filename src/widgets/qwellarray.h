@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.h#6 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.h#7 $
 **
 ** Definition of QWellArray widget class
 **
@@ -38,7 +38,7 @@ public:
 
     ~QWellArray() {}
     const char* cellContent( int row, int col ) const;
-    void setCellContent( int row, int col, const char* );
+    virtual void setCellContent( int row, int col, const char* );
 
     int numCols() { return nCols; }
     int numRows() { return nRows; }
@@ -46,11 +46,11 @@ public:
     QSize sizeHint() const;
 
     virtual void setDimension( int rows, int cols );
-    void setCellBrush( int row, int col, const QBrush & );
+    virtual void setCellBrush( int row, int col, const QBrush & );
 
 protected:
-    void setSelected( int row, int col );
-    void setCurrent( int row, int col );
+    virtual void setSelected( int row, int col );
+    virtual void setCurrent( int row, int col );
 
     void drawContents( QPainter *, int row, int col, const QRect& );
     void drawContents( QPainter * );

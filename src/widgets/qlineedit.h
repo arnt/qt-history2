@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#55 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#56 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -45,32 +45,32 @@ public:
 
     const char *text() const;
     int		maxLength()	const;
-    void	setMaxLength( int );
+    virtual void	setMaxLength( int );
 
-    void	setFrame( bool );
+    virtual void	setFrame( bool );
     bool	frame() const;
 
     enum	EchoMode { Normal, NoEcho, Password };
-    void	setEchoMode( EchoMode );
+    virtual void	setEchoMode( EchoMode );
     EchoMode 	echoMode() const;
 
-    void	setValidator( QValidator * );
+    virtual void	setValidator( QValidator * );
     QValidator * validator() const;
 
     QSize	sizeHint() const;
 
-    void	setEnabled( bool );
-    void	setFont( const QFont & );
-    void	setPalette( const QPalette & );
+    virtual void	setEnabled( bool );
+    virtual void	setFont( const QFont & );
+    virtual void	setPalette( const QPalette & );
 
-    void	setSelection( int, int );
-    void	setCursorPosition( int );
+    virtual void	setSelection( int, int );
+    virtual void	setCursorPosition( int );
     int		cursorPosition() const;
 
     bool	validateAndSet( const char *, int, int, int );
 
  public slots:
-    void	setText( const char * );
+    virtual void	setText( const char * );
     void	selectAll();
     void	deselect();
 

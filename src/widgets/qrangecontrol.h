@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#16 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#17 $
 **
 ** Definition of QRangeControl class
 **
@@ -33,7 +33,7 @@ public:
 		   int lineStep, int pageStep, int value );
 
     int		value()		const;
-    void	setValue( int );
+    virtual void	setValue( int );
     void	addPage();
     void	subtractPage();
     void	addLine();
@@ -41,11 +41,11 @@ public:
 
     int		minValue()	const;
     int		maxValue()	const;
-    void	setRange( int minValue, int maxValue );
+    virtual void	setRange( int minValue, int maxValue );
 
     int		lineStep()	const;
     int		pageStep()	const;
-    void	setSteps( int line, int page );
+    virtual void	setSteps( int line, int page );
 
 protected:
     void	directSetValue( int val );

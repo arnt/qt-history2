@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#23 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#24 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -49,13 +49,13 @@ public:
     virtual const char*	suffix() const;
     virtual QString 	cleanText() const;
 
-    void		setSpecialValueText( const char* text );
+    virtual void		setSpecialValueText( const char* text );
     const char* 	specialValueText() const;
 
-    void 		setWrapping( bool on );
+    virtual void 		setWrapping( bool on );
     bool 		wrapping() const;
 
-    void		setValidator( QValidator* v );
+    virtual void		setValidator( QValidator* v );
 
     QSize 		sizeHint() const;
 

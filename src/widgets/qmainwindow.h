@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#17 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#18 $
 **
 ** Definition of QMainWindow class
 **
@@ -52,7 +52,7 @@ public:
 
     enum ToolBarDock { Unmanaged, TornOff, Top, Bottom, Right, Left };
 
-    void setDockEnabled( ToolBarDock dock, bool enable );
+    virtual void setDockEnabled( ToolBarDock dock, bool enable );
     bool isDockEnabled( ToolBarDock dock ) const;
 
     void addToolBar( QToolBar *, const char * label,
@@ -67,14 +67,14 @@ public:
     bool eventFilter( QObject*, QEvent* );
 
 public slots:
-    void setRightJustification( bool );
-    void setUsesBigPixmaps( bool );
+    virtual void setRightJustification( bool );
+    virtual void setUsesBigPixmaps( bool );
 
 signals:
     void pixmapSizeChanged( bool );
 
 protected slots:
-    void setUpLayout();
+    virtual void setUpLayout();
 
 protected:
     void paintEvent( QPaintEvent * );

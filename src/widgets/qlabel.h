@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#36 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#37 $
 **
 ** Definition of QLabel widget class
 **
@@ -46,23 +46,23 @@ public:
     QMovie     *movie()		const;
 
     int		alignment()	const	{ return align; }
-    void	setAlignment( int );
+    virtual void	setAlignment( int );
     int		margin()	const	{ return extraMargin; }
-    void	setMargin( int );
+    virtual void	setMargin( int );
 
     bool	autoResize()	const	{ return autoresize; }
-    void	setAutoResize( bool );
+    virtual void	setAutoResize( bool );
     QSize	sizeHint() const;
 
-    void	setBuddy( QWidget * );
+    virtual void	setBuddy( QWidget * );
     QWidget    *buddy() const;
 
 public slots:
-    void	setText( const char * );
-    void	setPixmap( const QPixmap & );
-    void	setMovie( const QMovie & );
-    void	setNum( int );
-    void	setNum( double );
+    virtual void	setText( const char * );
+    virtual void	setPixmap( const QPixmap & );
+    virtual void	setMovie( const QMovie & );
+    virtual void	setNum( int );
+    virtual void	setNum( double );
     void	clear();
 
 protected:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#19 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#20 $
 **
 ** Definition of layout classes
 **
@@ -47,7 +47,7 @@ public:
     void freeze( int w, int h );
     void freeze() { freeze( 0, 0 ); }
 
-    void  setMenuBar( QMenuBar *w );
+    virtual void  setMenuBar( QMenuBar *w );
 
     QWidget *mainWidget();
 
@@ -163,8 +163,8 @@ public:
 			       int fromCol, int toCol, int align = 0 );
     void addLayout( QLayout *layout, int row, int col);
 
-    void setRowStretch( int row, int stretch );
-    void setColStretch( int col, int stretch );
+    virtual void setRowStretch( int row, int stretch );
+    virtual void setColStretch( int col, int stretch );
     void addRowSpacing( int row, int minsize );
     void addColSpacing( int col, int minsize );
 

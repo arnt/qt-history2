@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#34 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#35 $
 **
 ** Definition of QScrollBar class
 **
@@ -42,14 +42,14 @@ public:
 		int value, Orientation,
 		QWidget *parent=0, const char *name=0 );
 
-    void	setOrientation( Orientation );
+    virtual void	setOrientation( Orientation );
     Orientation orientation() const;
-    void	setTracking( bool enable );
+    virtual void	setTracking( bool enable );
     bool	tracking() const;
 
     bool	draggingSlider() const;
 
-    void	setPalette( const QPalette & );
+    virtual void	setPalette( const QPalette & );
     QSize	sizeHint() const;
 
 signals:

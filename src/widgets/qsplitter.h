@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#11 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#12 $
 **
 ** Defintion of  QSplitter class
 **
@@ -39,14 +39,14 @@ public:
     QSplitter( QWidget *parent=0, const char *name=0 );
     QSplitter( Orientation, QWidget *parent=0, const char *name=0 );
 
-    void setOrientation( Orientation );
+    virtual void setOrientation( Orientation );
     Orientation orientation() const { return orient; }
 
-    void setResizeMode( QWidget *w, ResizeMode );
+    virtual void setResizeMode( QWidget *w, ResizeMode );
 
     bool event( QEvent * );
 
-    void setOpaqueResize( bool = TRUE );
+    virtual void setOpaqueResize( bool = TRUE );
     bool opaqueResize() const { return opaque; }
 
     void moveToFirst( QWidget * );
@@ -68,7 +68,7 @@ protected:
 			       QCOORD w, QCOORD h );
 
     int adjustPos( int );
-    void setRubberband( int );
+    virtual void setRubberband( int );
     // virtual int border2()
 
 private:

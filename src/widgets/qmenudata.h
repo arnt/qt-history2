@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#51 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#52 $
 **
 ** Definition of QMenuData class
 **
@@ -137,7 +137,7 @@ public:
     void	clear();
 
     int		accel( int id )		const;
-    void	setAccel( int key, int id );
+    virtual void	setAccel( int key, int id );
 
     const char *text( int id )		const;
     QPixmap    *pixmap( int id )	const;
@@ -146,16 +146,16 @@ public:
     void	changeItem( const QPixmap &pixmap, const char *text, int id );
 
     bool	isItemEnabled( int id ) const;
-    void	setItemEnabled( int id, bool enable );
+    virtual void	setItemEnabled( int id, bool enable );
 
     bool	isItemChecked( int id ) const;
-    void	setItemChecked( int id, bool check );
+    virtual void	setItemChecked( int id, bool check );
 
     virtual void updateItem( int id );
 
     int		indexOf( int id )	const;
     int		idAt( int index )	const;
-    void	setId( int index, int id );
+    virtual void	setId( int index, int id );
 
     bool	connectItem( int id,
 			     const QObject *receiver, const char *member );
@@ -184,7 +184,7 @@ private:
     int		insertAny( const char *, const QPixmap *, QPopupMenu *,
 			   int, int );
     void	removePopup( QPopupMenu * );
-    void	setAllDirty( bool );
+    virtual void	setAllDirty( bool );
 
 private:	//Disabled copy constructor and operator=
     QMenuData( const QMenuData & );

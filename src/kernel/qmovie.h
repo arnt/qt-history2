@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#12 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#13 $
 **
 ** Definition of movie classes
 **
@@ -44,7 +44,7 @@ public:
     QMovie& operator=(const QMovie&);
 
     const QColor& backgroundColor() const;
-    void setBackgroundColor(const QColor&);
+    virtual void setBackgroundColor(const QColor&);
 
     const QRect& getValidRect() const;
     const QPixmap& framePixmap() const;
@@ -64,7 +64,7 @@ public:
     void restart();
 
     int  speed() const;
-    void setSpeed(int);
+    virtual void setSpeed(int);
 
     void connectResize(QObject* receiver, const char* member);
     void disconnectResize(QObject* receiver, const char* member);

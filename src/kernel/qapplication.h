@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#81 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#82 $
 **
 ** Definition of QApplication class
 **
@@ -78,7 +78,7 @@ public:
     static QFontMetrics fontMetrics();
 
     QWidget	    *mainWidget()  const;
-    void	     setMainWidget( QWidget * );
+    virtual void	     setMainWidget( QWidget * );
 
     static QWidgetList *allWidgets();
     static QWidgetList *topLevelWidgets();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#155 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#156 $
 **
 ** Definition of QWidget class
 **
@@ -79,26 +79,26 @@ public:
 
     QSize	 minimumSize()	const;
     QSize	 maximumSize()	const;
-    void	 setMinimumSize( const QSize & );
-    void	 setMinimumSize( int minw, int minh );
-    void	 setMaximumSize( const QSize & );
-    void	 setMaximumSize( int maxw, int maxh );
-    void	 setMinimumWidth( int minw );
-    void	 setMinimumHeight( int minh );
-    void	 setMaximumWidth( int maxw );
-    void	 setMaximumHeight( int maxh );
-    void	 setMask(QBitmap);
-    void	 setMask(const QRegion&);
+    virtual void	 setMinimumSize( const QSize & );
+    virtual void	 setMinimumSize( int minw, int minh );
+    virtual void	 setMaximumSize( const QSize & );
+    virtual void	 setMaximumSize( int maxw, int maxh );
+    virtual void	 setMinimumWidth( int minw );
+    virtual void	 setMinimumHeight( int minh );
+    virtual void	 setMaximumWidth( int maxw );
+    virtual void	 setMaximumHeight( int maxh );
+    virtual void	 setMask(QBitmap);
+    virtual void	 setMask(const QRegion&);
     void	 clearMask();
 
     QSize	 sizeIncrement() const;
-    void	 setSizeIncrement( const QSize & );
-    void	 setSizeIncrement( int w, int h );
+    virtual void	 setSizeIncrement( const QSize & );
+    virtual void	 setSizeIncrement( int w, int h );
 
-    void	 setFixedSize( const QSize & );
-    void	 setFixedSize( int w, int h );
-    void	 setFixedWidth( int w );
-    void	 setFixedHeight( int h );
+    virtual void	 setFixedSize( const QSize & );
+    virtual void	 setFixedSize( int w, int h );
+    virtual void	 setFixedWidth( int w );
+    virtual void	 setFixedHeight( int h );
 
   // Widget coordinate mapping
 
@@ -117,7 +117,7 @@ public:
 			  PaletteText, PaletteBase };
 
     BackgroundMode backgroundMode() const;
-    void	   setBackgroundMode( BackgroundMode );
+    virtual void	   setBackgroundMode( BackgroundMode );
 
     const QColor  &backgroundColor() const;
     const QColor  &foregroundColor() const;
@@ -139,10 +139,10 @@ public:
 			   SameFont, SamePalette = SameFont };
 
     PropagationMode fontPropagation() const;
-    void	 setFontPropagation( PropagationMode );
+    virtual void	 setFontPropagation( PropagationMode );
 
     PropagationMode palettePropagation() const;
-    void	 setPalettePropagation( PropagationMode );
+    virtual void	 setPalettePropagation( PropagationMode );
 
     const QCursor &cursor() const;
     virtual void setCursor( const QCursor & );
@@ -153,10 +153,10 @@ public:
     bool	 hasMouseTracking() const;
 
 public slots:
-    void	 setCaption( const char * );
-    void	 setIcon( const QPixmap & );
-    void	 setIconText( const char * );
-    void	 setMouseTracking( bool enable );
+    virtual void	 setCaption( const char * );
+    virtual void	 setIcon( const QPixmap & );
+    virtual void	 setIconText( const char * );
+    virtual void	 setMouseTracking( bool enable );
 
   // Keyboard input focus functions
 
@@ -165,15 +165,15 @@ public:
     { NoFocus = 0, TabFocus = 0x1, ClickFocus = 0x2, StrongFocus = 0x3 };
 
     bool	 isActiveWindow() const;
-    void	 setActiveWindow();
+    virtual void	 setActiveWindow();
     bool	 isFocusEnabled() const;
     FocusPolicy	 focusPolicy() const;
-    void	 setFocusPolicy( FocusPolicy );
+    virtual void	 setFocusPolicy( FocusPolicy );
     bool	 hasFocus() const;
-    void	 setFocus();
+    virtual void	 setFocus();
     void	 clearFocus();
     static void  setTabOrder( QWidget *, QWidget * );
-    void	 setFocusProxy( QWidget * );
+    virtual void	 setFocusProxy( QWidget * );
     QWidget *	 focusProxy() const;
 
   // Grab functions
@@ -190,7 +190,7 @@ public:
 
     bool	 isUpdatesEnabled() const;
 public slots:
-    void	 setUpdatesEnabled( bool enable );
+    virtual void	 setUpdatesEnabled( bool enable );
     void	 update();
     void	 update( int x, int y, int w, int h);
     void	 update( const QRect& );
@@ -218,7 +218,7 @@ public slots:
     virtual void resize( int w, int h );
     void	 resize( const QSize & );
     virtual void setGeometry( int x, int y, int w, int h );
-    void	 setGeometry( const QRect & );
+    virtual void	 setGeometry( const QRect & );
 
 public:
     virtual QSize sizeHint() const;
@@ -241,7 +241,7 @@ public:
 
   // drag and drop
 
-    void	 setAcceptDrops( bool on );
+    virtual void	 setAcceptDrops( bool on );
     bool	 acceptDrops() const;
 				
 public:
@@ -302,7 +302,7 @@ protected:
 
 #if 1	/* OBSOLETE */
     bool	 acceptFocus()	const;
-    void	 setAcceptFocus( bool );
+    virtual void	 setAcceptFocus( bool );
 #endif
     int		 metric( int )	const;
 
@@ -310,10 +310,10 @@ protected:
     void	 create( WId, bool initializeWindow, bool destroyOldWindow );
     void	 destroy( bool destroyWindow, bool destroySubWindows );
     WFlags	 getWFlags()	const;
-    void	 setWFlags( WFlags );
+    virtual void	 setWFlags( WFlags );
     void	 clearWFlags( WFlags n );
-    void	 setFRect( const QRect & );
-    void	 setCRect( const QRect & );
+    virtual void	 setFRect( const QRect & );
+    virtual void	 setCRect( const QRect & );
 
     virtual bool focusNextPrevChild( bool next );
 
@@ -331,7 +331,7 @@ private slots:
     void	 focusProxyDestroyed();
 
 private:
-    void	 setWinId( WId );
+    virtual void	 setWinId( WId );
     bool	 create();
     bool	 destroy();
     void	 showWindow();
@@ -350,10 +350,10 @@ private:
     void	 sendDeferredEvents();
     void 	 reparentFocusWidgets( QWidget *parent );
     QFocusData  *focusData( bool create );
-    void	 setBackgroundColorFromMode();
-    void	 setBackgroundColorDirect( const QColor & );
-    void	 setBackgroundModeDirect( BackgroundMode );
-    void	 setBackgroundEmpty();
+    virtual void	 setBackgroundColorFromMode();
+    virtual void	 setBackgroundColorDirect( const QColor & );
+    virtual void	 setBackgroundModeDirect( BackgroundMode );
+    virtual void	 setBackgroundEmpty();
 
     WId		 winid;
     WFlags	 flags;

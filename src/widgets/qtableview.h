@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#23 $
+** $Id: //depot/qt/main/src/widgets/qtableview.h#24 $
 **
 ** Definition of QTableView class
 **
@@ -36,8 +36,8 @@ class QTableView : public QFrame
 {
     Q_OBJECT
 public:
-    void	setBackgroundColor( const QColor & );
-    void	setPalette( const QPalette & );
+    virtual void	setBackgroundColor( const QColor & );
+    virtual void	setPalette( const QPalette & );
     void	show();
 
     void	repaint( bool erase=TRUE );
@@ -49,39 +49,39 @@ protected:
    ~QTableView();
 
     int		numRows()	const;
-    void	setNumRows( int );
+    virtual void	setNumRows( int );
     int		numCols()	const;
-    void	setNumCols( int );
+    virtual void	setNumCols( int );
 
     int		topCell()	const;
-    void	setTopCell( int row );
+    virtual void	setTopCell( int row );
     int		leftCell()	const;
-    void	setLeftCell( int col );
-    void	setTopLeftCell( int row, int col );
+    virtual void	setLeftCell( int col );
+    virtual void	setTopLeftCell( int row, int col );
 
     int		xOffset()	const;
-    void	setXOffset( int );
+    virtual void	setXOffset( int );
     int		yOffset()	const;
-    void	setYOffset( int );
-    void	setOffset( int x, int y, bool updateScrBars = TRUE );
+    virtual void	setYOffset( int );
+    virtual void	setOffset( int x, int y, bool updateScrBars = TRUE );
 
     virtual int cellWidth( int col );
     virtual int cellHeight( int row );
     int		cellWidth()	const;
     int		cellHeight()	const;
-    void	setCellWidth( int );
-    void	setCellHeight( int );
+    virtual void	setCellWidth( int );
+    virtual void	setCellHeight( int );
 
     virtual int totalWidth();
     virtual int totalHeight();
 
     uint	tableFlags()	const;
     bool	testTableFlags( uint f ) const;
-    void	setTableFlags( uint f );
+    virtual void	setTableFlags( uint f );
     void	clearTableFlags( uint f = ~0 );
 
     bool	autoUpdate()	 const;
-    void	setAutoUpdate( bool );
+    virtual void	setAutoUpdate( bool );
 
     void	updateCell( int row, int column, bool erase=TRUE );
 
@@ -137,8 +137,8 @@ protected:
 private:
     void	coverCornerSquare( bool );
     void	snapToGrid( bool horizontal, bool vertical );
-    void	setHorScrollBar( bool on, bool update = TRUE );
-    void	setVerScrollBar( bool on, bool update = TRUE );
+    virtual void	setHorScrollBar( bool on, bool update = TRUE );
+    virtual void	setVerScrollBar( bool on, bool update = TRUE );
     void	updateView();
     int		findRawRow( int yPos, int *cellMaxY, int *cellMinY = 0,
 			    bool goOutsideView = FALSE ) const;

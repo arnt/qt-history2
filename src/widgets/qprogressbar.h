@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#10 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#11 $
 **
 ** Definition of QProgressBar class
 **
@@ -45,8 +45,8 @@ public:
 
 public slots:
     void	reset();
-    void	setTotalSteps( int totalSteps );
-    void	setProgress( int progress );
+    virtual void	setTotalSteps( int totalSteps );
+    virtual void	setProgress( int progress );
 
 protected:
     void	drawContents( QPainter * );

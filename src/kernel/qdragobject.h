@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#26 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#27 $
 **
 ** Definition of QDragObject
 **
@@ -47,8 +47,8 @@ public:
     virtual const char * format(int) const=0;
     virtual QByteArray encodedData(const char*) const=0;
 
-    void setPixmap(QPixmap);
-    void setPixmap(QPixmap, QPoint hotspot);
+    virtual void setPixmap(QPixmap);
+    virtual void setPixmap(QPixmap, QPoint hotspot);
     QPixmap pixmap() const;
     QPoint pixmapHotSpot() const;
 
@@ -72,7 +72,7 @@ public:
 		 QWidget * dragSource = 0, const char * name = 0 );
     ~QStoredDrag();
 
-    void setEncodedData( const QByteArray & );
+    virtual void setEncodedData( const QByteArray & );
 
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
@@ -86,7 +86,7 @@ public:
     QTextDrag( QWidget * dragSource = 0, const char * name = 0 );
     ~QTextDrag();
 
-    void setText( const char * );
+    virtual void setText( const char * );
 
     static bool canDecode( QDragMoveEvent* e );
     static bool decode( QDropEvent* e, QString& s );
@@ -104,7 +104,7 @@ public:
     QImageDrag( QWidget * dragSource = 0, const char * name = 0 );
     ~QImageDrag();
 
-    void setImage( QImage image );
+    virtual void setImage( QImage image );
 
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
@@ -124,7 +124,7 @@ public:
     QUrlDrag( QWidget * dragSource = 0, const char * name = 0 );
     ~QUrlDrag();
 
-    void setUrls( QStrList urls );
+    virtual void setUrls( QStrList urls );
 
     static QString urlToLocalFile(const char*);
     static bool canDecode( QDragMoveEvent* e );

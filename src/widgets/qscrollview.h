@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#23 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#24 $
 **
 ** Definition of QScrollView class
 **
@@ -80,7 +80,7 @@ signals:
 public slots:
     virtual void resizeContents( int w, int h );
     void	scrollBy( int dx, int dy );
-    void        setContentsPos( int x, int y );
+    virtual void        setContentsPos( int x, int y );
     void	ensureVisible(int x, int y);
     void	ensureVisible(int x, int y, int xmargin, int ymargin);
     void	center(int x, int y);
@@ -103,7 +103,7 @@ protected:
 		    int cx, int cy, int cw, int ch);
     void	frameChanged();
 
-    void setMargins(int left, int top, int right, int bottom);
+    virtual void setMargins(int left, int top, int right, int bottom);
     int leftMargin() const;
     int topMargin() const;
     int rightMargin() const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#25 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#26 $
 **
 ** Definition of QSlider class
 **
@@ -47,12 +47,12 @@ public:
     QSlider( int minValue, int maxValue, int pageStep, int value, Orientation,
 	     QWidget *parent=0, const char *name=0 );
 
-    void	setOrientation( Orientation );
+    virtual void	setOrientation( Orientation );
     Orientation orientation() const;
-    void	setTracking( bool enable );
+    virtual void	setTracking( bool enable );
     bool	tracking() const;
 
-    void 	setPalette( const QPalette & );
+    virtual void 	setPalette( const QPalette & );
     QRect	sliderRect() const;
     QSize	sizeHint() const;
 
@@ -63,7 +63,7 @@ public:
     int 	tickInterval() const { return tickInt; }
 
 public slots:
-    void	setValue( int );
+    virtual void	setValue( int );
     void	addStep();
     void	subtractStep();
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#17 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#18 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -61,12 +61,12 @@ private:
 
     void matrixSetup( QPainter * );
     void clippingSetup( QPainter * );
-    void setClippingOff( QPainter * );
+    virtual void setClippingOff( QPainter * );
     void orientationSetup();
     void newPageSetup( QPainter * );
     void resetDrawingTools( QPainter * );
     void emitHeader( bool finished );
-    void setFont( const QFont & );
+    virtual void setFont( const QFont & );
     void drawImage( QPainter *, const QPoint &, const QImage & );
 
     // Disabled copy constructor and operator=

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.h#6 $
+** $Id: //depot/qt/main/src/kernel/qthread.h#7 $
 **
 ** Definition of QThread class
 **
@@ -66,7 +66,7 @@ public:
     QThreadID	id() const;
 
     int		priority() const;
-    void	setPriority( int );
+    virtual void	setPriority( int );
 
     void	suspend();
     void	resume();

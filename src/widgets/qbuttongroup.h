@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#22 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.h#23 $
 **
 ** Definition of QButtonGroup class
 **
@@ -42,13 +42,13 @@ public:
    ~QButtonGroup();
 
     bool	isExclusive() const;
-    void	setExclusive( bool );
+    virtual void	setExclusive( bool );
 
     int		insert( QButton *, int id=-1 );
     void	remove( QButton * );
     QButton    *find( int id ) const;
 
-    void	setButton( int id );
+    virtual void	setButton( int id );
 
 signals:
     void	pressed( int id );

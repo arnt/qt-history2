@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#55 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#56 $
 **
 ** Definition of QComboBox class
 **
@@ -63,38 +63,38 @@ public:
     void	changeItem( const QPixmap &pixmap, int index );
 
     int		currentItem() const;
-    void	setCurrentItem( int index );
+    virtual void	setCurrentItem( int index );
 
     bool	autoResize()	const;
-    void	setAutoResize( bool );
+    virtual void	setAutoResize( bool );
     QSize	sizeHint() const;
 
-    void	setBackgroundColor( const QColor & );
-    void	setPalette( const QPalette & );
-    void	setFont( const QFont & );
-    void	setEnabled( bool );
+    virtual void	setBackgroundColor( const QColor & );
+    virtual void	setPalette( const QPalette & );
+    virtual void	setFont( const QFont & );
+    virtual void	setEnabled( bool );
 
-    void	setSizeLimit( int );
+    virtual void	setSizeLimit( int );
     int		sizeLimit() const;
 
-    void	setMaxCount( int );
+    virtual void	setMaxCount( int );
     int		maxCount() const;
 
     enum Policy { NoInsertion, AtTop, AtCurrent, AtBottom,
 		  AfterCurrent, BeforeCurrent };
 
-    void	setInsertionPolicy( Policy policy );
+    virtual void	setInsertionPolicy( Policy policy );
     Policy 	insertionPolicy() const;
 
-    void	setStyle( GUIStyle );
+    virtual void	setStyle( GUIStyle );
 
-    void	setValidator( QValidator * );
+    virtual void	setValidator( QValidator * );
     QValidator * validator() const;
 
-    void	setListBox( QListBox * );
+    virtual void	setListBox( QListBox * );
     QListBox * 	listBox() const;
     
-    void	setAutoCompletion( bool );
+    virtual void	setAutoCompletion( bool );
     bool	autoCompletion() const;
 
     bool	eventFilter( QObject *object, QEvent *event );
@@ -102,7 +102,7 @@ public:
 public slots:
     void	clearValidator();
     void	clearEdit();
-    void	setEditText( const char * );
+    virtual void	setEditText( const char * );
 
 signals:
     void	activated( int index );

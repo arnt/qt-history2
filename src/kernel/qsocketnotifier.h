@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#16 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#17 $
 **
 ** Definition of QSocketNotifier class
 **
@@ -42,7 +42,7 @@ public:
     Type	type()		const;
 
     bool	isEnabled()	const;
-    void	setEnabled( bool );
+    virtual void	setEnabled( bool );
 
 signals:
     void	activated( int socket );

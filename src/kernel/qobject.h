@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#50 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#51 $
 **
 ** Definition of QObject class
 **
@@ -53,7 +53,7 @@ public:
 							     ? objname
 							     : defaultName; }
 
-    void	setName( const char *name );
+    virtual void	setName( const char *name );
     bool	isWidgetType()	  const { return isWidget; }
     bool	highPriority()	  const { return hiPriority; }
 

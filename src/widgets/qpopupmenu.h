@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#43 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#44 $
 **
 ** Definition of QPopupMenu class
 **
@@ -42,7 +42,7 @@ public:
     void	popup( const QPoint & pos, int indexAtPoint = 0 );// open popup
     void	updateItem( int id );
 
-    void	setCheckable( bool );
+    virtual void	setCheckable( bool );
     bool	isCheckable() const;
 
     void	setFont( const QFont & );	// reimplemented set font
@@ -52,7 +52,7 @@ public:
     int		exec();
     int 	exec( const QPoint & pos, int indexAtPoint = 0 );// modal popup
 
-    void	setActiveItem( int );
+    virtual void	setActiveItem( int );
 
 signals:
     void	activated( int itemId );
@@ -92,7 +92,7 @@ private:
     void	paintAll();
     void	actSig( int );
     void	hilitSig( int );
-    void	setFirstItemActive();
+    virtual void	setFirstItemActive();
     void	hideAllPopups();
     void	hidePopups();
     bool	tryMenuBar( QMouseEvent * );
@@ -105,9 +105,9 @@ private:
     void	updateAccel( QWidget * );
     void	enableAccel( bool );
 
-    void	setTabMark( int );
+    virtual void	setTabMark( int );
     int		tabMark();
-    void	setCheckableFlag( bool );
+    virtual void	setCheckableFlag( bool );
 
     QMenuItem  *selfItem;
     QAccel     *autoaccel;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.h#4 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.h#5 $
 **
 ** Definition of QSignalMapper class
 **
@@ -39,8 +39,8 @@ public:
     QSignalMapper( QObject* parent, const char* name=0 );
     ~QSignalMapper();
 
-    void setMapping( const QObject* sender, int identifier );
-    void setMapping( const QObject* sender, const char* identifier );
+    virtual void setMapping( const QObject* sender, int identifier );
+    virtual void setMapping( const QObject* sender, const char* identifier );
     void removeMappings( const QObject* sender );
 
 signals:

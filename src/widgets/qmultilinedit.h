@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#39 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#40 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -47,30 +47,30 @@ public:
     bool	isReadOnly() const;
     bool	isOverwriteMode() const;
 
-    void	setFont( const QFont &font );
+    virtual void	setFont( const QFont &font );
     virtual void insertLine( const char *s, int line = -1 );
     virtual void insertAt( const char *s, int line, int col );
     virtual void removeLine( int line );
 
     void 	cursorPosition( int *line, int *col ) const;
-    void	setCursorPosition( int line, int col, bool mark = FALSE );
+    virtual void	setCursorPosition( int line, int col, bool mark = FALSE );
     void	getCursorPosition( int *line, int *col );
     bool	atBeginning() const;
     bool	atEnd() const;
 
     bool	autoUpdate()	const;
-    void	setAutoUpdate( bool );
+    virtual void	setAutoUpdate( bool );
 
-    void	setFixedVisibleLines( int lines );
+    virtual void	setFixedVisibleLines( int lines );
 
 public slots:
     void       clear();
-    void       setText( const char * );
+    virtual void       setText( const char * );
     void       append( const char * );
     void       deselect();
     void       selectAll();
-    void       setReadOnly( bool );
-    void       setOverwriteMode( bool );
+    virtual void       setReadOnly( bool );
+    virtual void       setOverwriteMode( bool );
     void       paste();
     void       copyText();
     void       cut();
@@ -151,11 +151,11 @@ private:
     int		mapFromView( int xPos, int row );
     int		mapToView( int xIndex, int row );
 
-    void	setWidth( int );
+    virtual void	setWidth( int );
     void	updateCellWidth();
     bool 	partiallyInvisible( int row );
     void	makeVisible();
-    void	setBottomCell( int row );
+    virtual void	setBottomCell( int row );
 
     void 	newMark( int posx, int posy, bool copy=TRUE );
     void 	markWord( int posx, int posy );

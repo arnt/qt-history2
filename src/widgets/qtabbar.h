@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#12 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#13 $
 **
 ** Definition of QTabBar class
 **
@@ -56,13 +56,13 @@ public:
 		 TriangularAbove, TriangularBelow };
 
     Shape shape() const;
-    void setShape( Shape );
+    virtual void setShape( Shape );
 
     void show();
 
     virtual int addTab( QTab * );
 
-    void setTabEnabled( int, bool );
+    virtual void setTabEnabled( int, bool );
     bool isTabEnabled( int ) const;
 
     QSize sizeHint() const;
@@ -73,8 +73,8 @@ public:
     QTab * tab( int );
 
 public slots:
-    void setCurrentTab( int );
-    void setCurrentTab( QTab * );
+    virtual void setCurrentTab( int );
+    virtual void setCurrentTab( QTab * );
 
 signals:
     void  selected( int );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#20 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#21 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -41,18 +41,18 @@ public:
     ~QHeader();
 
     int		addLabel( const char *, int size = -1 );
-    void	setLabel( int, const char *, int size = -1 );
+    virtual void	setLabel( int, const char *, int size = -1 );
     const char*	label( int );
-    void	setOrientation( Orientation );
+    virtual void	setOrientation( Orientation );
     Orientation orientation() const;
-    void	setTracking( bool enable );
+    virtual void	setTracking( bool enable );
     bool	tracking() const;
 
-    void 	setClickEnabled( bool, int logIdx = -1 );
-    void	setResizeEnabled( bool, int logIdx = -1 );
-    void	setMovingEnabled( bool );
+    virtual void 	setClickEnabled( bool, int logIdx = -1 );
+    virtual void	setResizeEnabled( bool, int logIdx = -1 );
+    virtual void	setMovingEnabled( bool );
 
-    void	setCellSize( int i, int s );
+    virtual void	setCellSize( int i, int s );
     int		cellSize( int i ) const;
     int		cellPos( int i ) const;
     int		cellAt( int i ) const;
@@ -66,7 +66,7 @@ public:
     int		mapToActual( int ) const;
 
 public slots:
-    void	setOffset( int );
+    virtual void	setOffset( int );
 
 signals:
     void	sectionClicked( int );

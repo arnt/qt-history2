@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.h#4 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.h#5 $
 **
 ** Definition of QSemiModal class
 **
@@ -42,8 +42,8 @@ public:
     void	move( const QPoint &p );
     void	resize( int w, int h );
     void	resize( const QSize & );
-    void	setGeometry( int x, int y, int w, int h );
-    void	setGeometry( const QRect & );
+    virtual void	setGeometry( int x, int y, int w, int h );
+    virtual void	setGeometry( const QRect & );
 
 private:
     uint	did_move   : 1;

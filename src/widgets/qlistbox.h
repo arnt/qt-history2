@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#60 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#61 $
 **
 ** Definition of QListBox widget class
 **
@@ -111,7 +111,7 @@ public:
     QListBox( QWidget *parent=0, const char *name=0, WFlags f=0  );
    ~QListBox();
 
-    void	setFont( const QFont & );
+    virtual void	setFont( const QFont & );
 
     uint	count() const;
 
@@ -135,31 +135,31 @@ public:
     void	changeItem( const QPixmap &pixmap, int index );
 
     bool	autoUpdate()	const;
-    void	setAutoUpdate( bool );
+    virtual void	setAutoUpdate( bool );
 
     int		numItemsVisible() const;
-    void	setFixedVisibleLines( int lines );
+    virtual void	setFixedVisibleLines( int lines );
 
     int		currentItem()	const;
-    void	setCurrentItem( int index );
+    virtual void	setCurrentItem( int index );
     void	centerCurrentItem();
     int		topItem()	const;
-    void	setTopItem( int index );
+    virtual void	setTopItem( int index );
 
     bool	dragSelect()		const;
-    void	setDragSelect( bool );
+    virtual void	setDragSelect( bool );
     bool	autoScroll()		const;
-    void	setAutoScroll( bool );
+    virtual void	setAutoScroll( bool );
     bool	autoScrollBar()		const;
-    void	setAutoScrollBar( bool );
+    virtual void	setAutoScrollBar( bool );
     bool	scrollBar()		const;
-    void	setScrollBar( bool );
+    virtual void	setScrollBar( bool );
     bool	autoBottomScrollBar()	const;
-    void	setAutoBottomScrollBar( bool );
+    virtual void	setAutoBottomScrollBar( bool );
     bool	bottomScrollBar()	const;
-    void	setBottomScrollBar( bool );
+    virtual void	setBottomScrollBar( bool );
     bool	smoothScrolling()	const;
-    void	setSmoothScrolling( bool );
+    virtual void	setSmoothScrolling( bool );
 
     int		itemHeight()		const;
     int		itemHeight( int index ) const;
@@ -167,9 +167,9 @@ public:
     long	maxItemWidth() const;
 
     bool	isMultiSelection() const;
-    void	setMultiSelection( bool );
+    virtual void	setMultiSelection( bool );
 
-    void	setSelected( int, bool );
+    virtual void	setSelected( int, bool );
     bool	isSelected( int ) const;
 
     QSize	sizeHint() const;
@@ -215,7 +215,7 @@ private:
     void	updateNumRows( bool );
     void	insert( const QListBoxItem *, int, bool );
     void	change( const QListBoxItem *lbi, int );
-    void	setMaxItemWidth( int );
+    virtual void	setMaxItemWidth( int );
     void	ensureCurrentVisible( int = -1 );
 
     void	emitChangedSignal( bool );

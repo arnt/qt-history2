@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#25 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#26 $
 **
 ** Definition of QFrame widget class
 **
@@ -51,18 +51,18 @@ public:
     int		frameStyle()	const;
     int		frameShape()	const;
     int		frameShadow()	const;
-    void	setFrameStyle( int );
+    virtual void	setFrameStyle( int );
 
     bool	lineShapesOk()	const;
 
     int		lineWidth()	const;
-    void	setLineWidth( int );
+    virtual void	setLineWidth( int );
 
     int		margin()	const;
-    void	setMargin( int );
+    virtual void	setMargin( int );
 
     int		midLineWidth()	const;
-    void	setMidLineWidth( int );
+    virtual void	setMidLineWidth( int );
 
     int		frameWidth()	const;
     QRect	frameRect()	const;
@@ -71,7 +71,7 @@ public:
     QSize	sizeHint() const;
 
 protected:
-    void	setFrameRect( const QRect & );
+    virtual void	setFrameRect( const QRect & );
     void	paintEvent( QPaintEvent * );
     void	resizeEvent( QResizeEvent * );
     virtual void drawFrame( QPainter * );

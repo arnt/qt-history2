@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#24 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#25 $
 **
 ** Definition of QPrinter class
 **
@@ -45,38 +45,38 @@ public:
     enum ColorMode   { GrayScale, Color };
 
     const char *printerName()	const;
-    void	setPrinterName( const char * );
+    virtual void	setPrinterName( const char * );
     bool	outputToFile()	const;
-    void	setOutputToFile( bool );
+    virtual void	setOutputToFile( bool );
     const char *outputFileName()const;
-    void	setOutputFileName( const char * );
+    virtual void	setOutputFileName( const char * );
     const char *printProgram()	const;
-    void	setPrintProgram( const char * );
+    virtual void	setPrintProgram( const char * );
 
     const char *docName()	const;
-    void	setDocName( const char * );
+    virtual void	setDocName( const char * );
     const char *creator()	const;
-    void	setCreator( const char * );
+    virtual void	setCreator( const char * );
 
     Orientation orientation()	const;
-    void	setOrientation( Orientation );
+    virtual void	setOrientation( Orientation );
     PageSize	pageSize()	const;
-    void	setPageSize( PageSize );
+    virtual void	setPageSize( PageSize );
 
-    void	setPageOrder( PageOrder );
+    virtual void	setPageOrder( PageOrder );
     PageOrder	pageOrder() const;
 
-    void	setColorMode( ColorMode );
+    virtual void	setColorMode( ColorMode );
     ColorMode	colorMode() const;
 
     int		fromPage()	const;
     int		toPage()	const;
-    void	setFromTo( int fromPage, int toPage );
+    virtual void	setFromTo( int fromPage, int toPage );
     int		minPage()	const;
     int		maxPage()	const;
-    void	setMinMax( int minPage, int maxPage );
+    virtual void	setMinMax( int minPage, int maxPage );
     int		numCopies()	const;
-    void	setNumCopies( int );
+    virtual void	setNumCopies( int );
 
     bool	newPage();
     bool	abort();
@@ -89,8 +89,8 @@ protected:
     int		metric( int ) const;
 
 #if defined(_WS_WIN_)
-    void	setActive();
-    void	setIdle();
+    virtual void	setActive();
+    virtual void	setIdle();
 #endif
 
 private:
