@@ -883,6 +883,9 @@ void QDataTable::doInsertCurrent()
 void QDataTable::doUpdateCurrent()
 {
     updateCurrent();
+    if ( d->dat.mode() == QSql::None ) {
+	viewport()->setFocus();
+    }
 }
 
 /*! \reimp */
