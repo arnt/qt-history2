@@ -176,12 +176,15 @@ void EditFunctions::okClicked()
 							function.returnType ) );
 	    if ( MetaDataBase::normalizeFunction( (*it).newName ) != MetaDataBase::normalizeFunction( (*it).oldName ) ||
 		 (*it).spec != (*it).oldSpec || (*it).access != (*it).oldAccess || (*it).type != (*it).oldType ||
-		 (*it).retTyp != (*it).oldRetTyp )
+		 (*it).retTyp != (*it).oldRetTyp ) {
+		QString normalizedOldName = MetaDataBase::normalizeFunction( (*it).oldName );
+		if ((*it).oldName.endsWith("const")) // make sure we get the 'const' when we remove the old name
+		    normalizedOldName += " const";
 		commands.append( new ChangeFunctionAttribCommand( tr( "Change function attributes" ),
-								  formWindow, function,
-								  MetaDataBase::normalizeFunction( (*it).oldName ),
+								  formWindow, function, normalizedOldName,
 								  (*it).oldSpec, (*it).oldAccess, (*it).oldType,
 								  formWindow->project()->language(), (*it).oldRetTyp ) );
+	    }
 	    lst.append( function.function );
 	}
     }
