@@ -228,7 +228,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 {
     QString fn = fileFixify(f);
     QStringList &fndeps = findDependencies(fn);
-    if(!fndeps.isEmpty())
+    if(!fndeps.isEmpty()) 
 	return TRUE;
 
     fn = Option::fixPathToLocalOS(fn, FALSE);
@@ -406,6 +406,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 	    if(project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH") &&
 	       !stat(fix_env_fndir + inc, &fst) && !S_ISDIR(fst.st_mode)) {
 		fqn = fndir + inc;
+		goto handle_fqn;
 	    } else {
 		if((Option::target_mode == Option::TARG_MAC9_MODE && inc.find(':')) ||
 		   (Option::target_mode == Option::TARG_WIN_MODE && inc[1] != ':') ||
@@ -417,17 +418,17 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 			if(!stat(mdd->local_dir + QDir::separator() + inc, &fst) &&
 			   !S_ISDIR(fst.st_mode)) {
 			    fqn = mdd->real_dir + QDir::separator() + inc;
-			    break;
+			    goto handle_fqn;
 			}
 		    }
 		}
 	    }
-	    if(fqn.isEmpty()) {
+	    if(fqn.isEmpty() && Option::mkfile::do_dep_heuristics) {
 		//these are some hacky heuristics it will try to do on an include
 		//however these can be turned off at runtime, I'm not sure how
 		//reliable these will be, most likely when problems arise turn it off
 		//and see if they go away..
-		if(Option::mkfile::do_dep_heuristics && depHeuristics.contains(inc)) {
+		if(depHeuristics.contains(inc)) {
 		    fqn = depHeuristics[inc];
 		} else if(Option::mkfile::do_dep_heuristics) { //some heuristics..
 		    //is it a file from a .ui?
@@ -449,11 +450,11 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 				if(!fqn.isEmpty() && !fqn.endsWith(Option::dir_sep))
 				    fqn += Option::dir_sep;
 				fqn += inc_file;
-				break;
+				goto handle_fqn;
 			    }
 			}
 		    }
-		    if(fqn.isEmpty()) { //is it from a .y?
+		    { //is it from a .y?
 			QString rhs = Option::yacc_mod + Option::h_ext.first();
 			if(inc.endsWith(rhs)) {
 			    QString lhs = inc.left(inc.length() - rhs.length()) + Option::yacc_ext;
@@ -469,41 +470,44 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 				    d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
 				if(s == lhs) {
 				    fqn = d + inc;
-				    break;
+				    goto handle_fqn;
 				}
 			    }
 			}
 		    }
-		    if(fqn.isEmpty() && mocAware()) { //is it a moc file?
+		    if(mocAware() &&  		    //is it a moc file?
+		       (inc.endsWith(Option::cpp_ext.first()) || inc.endsWith(Option::moc_ext))) {
 			QString mocs[] = { QString("_HDRMOC"), QString("_SRCMOC"), QString::null };
-			for(int moc = 0; fqn.isEmpty() && !mocs[moc].isNull(); moc++) {
+			for(int moc = 0; !mocs[moc].isNull(); moc++) {
 			    QStringList &l = project->variables()[mocs[moc]];
 			    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 				QString file = Option::fixPathToTargetOS((*it));
 				if(file.section(Option::dir_sep, -(inc.contains('/')+1)) == inc) {
 				    fqn = (*it);
-				    from_source_dir = FALSE;
 				    if(mocs[moc] == "_HDRMOC") {
+ 				        //Since it is include, no need to link it in as well
 					project->variables()["_SRCMOC"].append((*it));
 					l.remove(it);
 				    } else if(findMocSource(fqn) != fn) {
 					/* Not really a very good test, but this will at least avoid confusion
 					   if it really does happen (since tmake/qmake previously didn't even 
 					   allow this the test is mostly accurate) */
-					warn_msg(WarnLogic, "Found potential multiple MOC include (%s) in '%s'",
-						 fqn.latin1(), fn.latin1());
+					warn_msg(WarnLogic, 
+						 "Found potential multiple MOC include %s (%s) in '%s'",
+						 inc.latin1(), fqn.latin1(), fix_env_fn.latin1());
 				    }
-				    break;
+				    from_source_dir = FALSE; //mocs go in the output_dir (so don't fix them)
+				    goto handle_fqn;
 				}
 			    }
 			}
 		    }
 		    depHeuristics.insert(inc, fqn);
 		}
-		if(!Option::mkfile::do_dep_heuristics || fqn.isEmpty()) //I give up
-		    continue;
 	    }
-
+	handle_fqn:
+	    if(fqn.isEmpty()) //I give up
+	      continue;
 	    fqn = Option::fixPathToTargetOS(fqn, FALSE);
 	    if(from_source_dir)
 		fqn = fileFixify(fqn);
@@ -1230,6 +1234,8 @@ MakefileGenerator::writePrlFile(QTextStream &t)
 	t << "QMAKE_PRL_DEFINES = " << project->variables()["PRL_EXPORT_DEFINES"].join(" ") << endl;
     if(!project->isEmpty("CONFIG"))
 	t << "QMAKE_PRL_CONFIG = " << project->variables()["CONFIG"].join(" ") << endl;
+    if(!project->isEmpty("VERSION"))
+        t << "QMAKE_PRL_VERSION = " << project->first("VERSION") << endl;
     if(project->isActiveConfig("staticlib") || project->isActiveConfig("explicitlib")) {
 	QStringList libs;
 	if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
