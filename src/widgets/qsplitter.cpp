@@ -1187,7 +1187,7 @@ QValueList<int> QSplitter::sizes() const
     QSplitterLayoutStruct *s = d->list.first();
     while ( s ) {
 	if ( !s->isHandle )
-	    list.append( isCollapsed( s->wid ) ? 0 : s->getSizer(orient) );
+	    list.append( isCollapsed(s->wid) ? 0 : pick(s->wid->size()));
 	s = d->list.next();
     }
     return list;
