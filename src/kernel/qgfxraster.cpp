@@ -443,7 +443,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     opaque=false;
     backcolor=QColor(0,0,0);
     globalRegionRevision = 0;
-    src_normal_palette=true;
+    src_normal_palette=false;
     clutcols = 0;
     update_clip();
 
@@ -1917,21 +1917,30 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	} else if(sdepth==8) {
 	    unsigned char val=*((*srcdata));
 #if defined(QWS_DEPTH_8GRAYSCALE)
-	    ret=((val >> 3) << 11) | ((val >> 2) << 5) | (val >> 3);
+	    if(src_normal_palette) {
+		ret=((val >> 3) << 11) | ((val >> 2) << 5) | (val >> 3);
+	    } else {
 #elif defined(QWS_DEPTH_8DIRECT)
-	    qDebug("Not implemented yet");
+	    if(src_normal_palette) {
+	    r=((val & 0xe0) >> 5) << 2;
+	    g=((val & 0x18) >> 3) << 4;
+	    b=((val & 0x07)) << 2;
+	    ret=(r << 11) | (g << 6) | b;
+	    } else {
 #else
-	    unsigned int hold=srcclut[val];
-	    r=(hold & 0xff0000) >> 16;
-	    g=(hold & 0x00ff00) >> 8;
-	    b=(hold & 0x0000ff);
-	    r=r >> 3;
-	    g=g >> 2;
-	    b=b >> 3;
-	    r=r << 11;
-	    g=g << 5;
-	    ret=r | g | b;
+	    if(true) {
 #endif
+		unsigned int hold=srcclut[val];
+		r=(hold & 0xff0000) >> 16;
+		g=(hold & 0x00ff00) >> 8;
+		b=(hold & 0x0000ff);
+		r=r >> 3;
+		g=g >> 2;
+		b=b >> 3;
+		r=r << 11;
+		g=g << 5;
+		ret=r | g | b;
+	    }
 	    if(reverse) {
 		(*srcdata)--;
 	    } else {

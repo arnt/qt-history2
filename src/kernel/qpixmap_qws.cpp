@@ -409,11 +409,28 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     memorymanager->deletePixmap(data->id);
 
     bool manycolors=(qt_screen->depth() > 8);
-    
-    if ( image.hasAlphaBuffer() && dd > 8 && manycolors ) {
-	dd=32;
-    }
 
+    bool partialalpha=false;
+
+    if(image.hasAlphaBuffer() && image.depth()==32 && dd>8 && manycolors) {
+	int loopc,loopc2;
+	for(loopc=0;loopc<image.height();loopc++) {
+	    QRgb * tmp=(QRgb *)image.scanLine(loopc);
+	    for(loopc2=0;loopc2<image.width();loopc2++) {
+		int t=qAlpha(*tmp);
+		if(t>0 && t<255) {
+		    partialalpha=true;
+		    loopc2=image.width();
+		    loopc=image.height();
+		}
+	    }
+	}
+    }
+    
+    if ( partialalpha ) {
+    	dd=32;
+    }
+    
     init( w, h, dd, FALSE, defOptim );
 
     QGfx * mygfx=graphicsContext();
@@ -424,11 +441,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     delete mygfx;
 
     if ( image.hasAlphaBuffer() ) {
-	if ( (data->d != 32) || (!manycolors) ) {
+	if ( !partialalpha ) {
 	    QBitmap m;
 	    m = image.createAlphaMask( conversion_flags );
 	    setMask( m );
-	}
+        }
     }
 
     return true;
