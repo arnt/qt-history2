@@ -59,6 +59,7 @@ public:
     }
 
     QValueVectorPrivate( const QValueVectorPrivate<T>& x )
+	: QShared()
     {
 	if ( x.size() > 0 ) {
 	    start = new T[ x.size() ];
