@@ -241,6 +241,8 @@ QString Project::makeRelative( const QString &f )
 
 void Project::save()
 {
+    if ( filename == "<No Project>" )
+	return;
     QFile f( filename );
     QString contents;
     if ( f.open( IO_ReadOnly ) ) {
@@ -307,7 +309,7 @@ void Project::save()
 	contents += "PROJECTNAME\t= " + proName + "\n";
 
     if ( !f.open( IO_WriteOnly ) ) {
-	qWarning( "Couldn't write project file...." );
+	qWarning( "Couldn't write project file " + filename );
 	return;
     }
 
@@ -414,7 +416,6 @@ QStringList Project::databaseTableList( const QString &connection )
 {
     DatabaseConnection *conn = databaseConnection( connection );
     if ( !conn ) {
-	qDebug("no connection returned");
 	return QStringList();
     }
     return conn->tables;
