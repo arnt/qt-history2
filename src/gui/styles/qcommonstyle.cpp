@@ -1551,7 +1551,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarSubLine, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & SC_ScrollBarSubLine) ?
-                                          ~0 : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Down | State_MouseOver);
                     drawControl(CE_ScrollBarSubLine, &newScrollbar, p, widget);
                 }
             }
@@ -1563,7 +1563,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarAddLine, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarAddLine) ?
-                                          ~0 : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Down | State_MouseOver);
                     drawControl(CE_ScrollBarAddLine, &newScrollbar, p, widget);
                 }
             }
@@ -1575,7 +1575,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarSubPage, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarSubPage) ?
-                                          ~0 : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Down | State_MouseOver);
                     drawControl(CE_ScrollBarSubPage, &newScrollbar, p, widget);
                 }
             }
@@ -1587,7 +1587,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarAddPage, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarAddPage) ?
-                                          ~0 : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Down | State_MouseOver);
                     drawControl(CE_ScrollBarAddPage, &newScrollbar, p, widget);
                 }
             }
@@ -1599,7 +1599,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarFirst, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarFirst) ?
-                                          ~0 : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Down | State_MouseOver);
                     drawControl(CE_ScrollBarFirst, &newScrollbar, p, widget);
                 }
             }
@@ -1611,7 +1611,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarLast, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarLast) ?
-                                          ~0 : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Down | State_MouseOver);
                     drawControl(CE_ScrollBarLast, &newScrollbar, p, widget);
                 }
             }
@@ -1623,7 +1623,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarSlider, widget));
                 if (newScrollbar.rect.isValid()) {
                     newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarSlider) ?
-                                          ~0 : ~(State_Down | State_MouseOver);
+                                          ~State(0) : ~(State_Down | State_MouseOver);
                     drawControl(CE_ScrollBarSlider, &newScrollbar, p, widget);
 
                     if (scrollbar->state & State_HasFocus) {
