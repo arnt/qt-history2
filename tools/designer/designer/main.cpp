@@ -133,12 +133,6 @@ static void crashHandler( int )
 
 int main( int argc, char *argv[] )
 {
-#ifdef Q_OS_MACX
-    QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + "..");
-    setenv("QTDIR", qdir, 0);
-    setenv("PATH",  qdir + QDir::separator() + "bin" + ":" + getenv("PATH"), 0);
-#endif
-
 #if defined(QT_NO_DEBUG)
 #if 0
     signal( SIGSEGV, crashHandler );
@@ -151,6 +145,12 @@ int main( int argc, char *argv[] )
     DesignerApplication a( argc, argv, "Qt Designer" );
 #else
     DesignerApplication a( argc, argv );
+#endif
+
+#ifdef Q_OS_MACX
+    QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + "..");
+    setenv("QTDIR", qdir, 0);
+    setenv("PATH",  qdir + QDir::separator() + "bin" + ":" + getenv("PATH"), 0);
 #endif
 
 #if defined (QT_REMOTE_CONTROL)
