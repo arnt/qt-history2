@@ -30,19 +30,19 @@
 class ActionItem : public QListViewItem
 {
 public:
-    ActionItem( QListView *lv, bool group ) 
+    ActionItem( QListView *lv, bool group )
 	: QListViewItem( lv ),
 	  a( group ? new QActionGroup( 0 ) : new QAction( 0 ) ) {}
     ActionItem( ActionItem *parent )
 	: QListViewItem( parent ),
 	  a( new QAction( parent->action() ) ) {}
     ~ActionItem() { if ( !a->parent() ) delete a; }
-    
+
     QAction *action() const { return a; }
-    
+
 private:
     QAction *a;
-    
+
 };
 
 ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
@@ -72,6 +72,9 @@ void ActionEditor::currentActionChanged( QListViewItem *i )
 	return;
     }
     enableAll( TRUE );
+
+    updateEditors( ( (ActionItem*)i )->action() );
+    currentAction = ( (ActionItem*)i )->action();
 }
 
 void ActionEditor::deleteAction()
@@ -86,14 +89,20 @@ void ActionEditor::menuTextChanged( const QString & )
 {
 }
 
-void ActionEditor::nameChanged( const QString & )
+void ActionEditor::nameChanged( const QString &s )
 {
+    if ( !currentAction || !listActions->currentItem() )
+	return;
+    currentAction->setName( s );
+    listActions->currentItem()->setText( 0, s );
 }
 
 void ActionEditor::newAction()
 {
     ActionItem *i = new ActionItem( listActions, FALSE );
     i->setText( 0, tr( "Action" ) );
+    i->action()->setName( tr( "Action" ) );
+    i->action()->setText( tr( "Action" ) );
     listActions->setCurrentItem( i );
 }
 
@@ -141,4 +150,15 @@ void ActionEditor::enableAll( bool enable )
     checkOn->setEnabled( enable );
     checkEnabled->setEnabled( enable );
     buttonConnections->setEnabled( enable );
+}
+
+void ActionEditor::updateEditors( QAction *a )
+{
+    //editAccel->setText( a->accel() );
+    editStatusTip->setText( a->statusTip() );
+    editText->setText( a->text() );
+    editName->setText( a->name() );
+    editToolTip->setText( a->toolTip() );
+    editMenuText->setText( a->menuText() );
+    editWhatsThis->setText( a->whatsThis() );
 }

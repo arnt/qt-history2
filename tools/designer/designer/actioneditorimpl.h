@@ -57,10 +57,11 @@ signals:
 
 private:
     void enableAll( bool enable );
-
+    void updateEditors( QAction *a );
+    
 private:
     QAction *currentAction;
-    
+
 };
 
 #endif // ACTIONEDITOR_H
