@@ -632,7 +632,9 @@ inline bool QWidgetMapper::remove( WId id )
     also be combined with \c WStyle_NoBorder.
 
     \value WStyle_StaysOnTop  informs the window system that the
-    window should stay on top of all other windows.
+    window should stay on top of all other windows. Note that on some
+    window managers on X11 you also have to pass \c WX11BypassWM for
+    this flag to work correctly.
 
     \value WStyle_Dialog  indicates that the window is a logical
     subwindow of its parent (i.e. a dialog). The window will not get
