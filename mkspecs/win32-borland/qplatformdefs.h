@@ -126,6 +126,8 @@
 # endif
 #endif
 
+#define QT_SIGNAL_ARGS		int
+
 #define QT_VSNPRINTF		::_vsnprintf
 #define QT_SNPRINTF		::_snprintf
 

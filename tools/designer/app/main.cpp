@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -33,8 +33,9 @@
 #include <stdlib.h>
 #include <signal.h>
 
-#if defined(Q_OS_SCO) && defined(raise)
-#  undef raise
+// SCO OpenServer redefines raise -> kill
+#if defined(raise)
+# undef raise
 #endif
 
 #if defined(Q_WS_WIN)
@@ -93,11 +94,7 @@ static void signalHandler( QT_SIGNAL_ARGS )
 extern "C" {
 #endif
 
-#if defined(Q_OS_IRIX) && defined(Q_CC_GNU) && !defined(_LANGUAGE_C_PLUS_PLUS) && defined(_SGIAPI)
-static void exitHandler()
-#else
-static void exitHandler( int )
-#endif
+static void exitHandler( QT_SIGNAL_ARGS )
 {
     QDir d( QDir::homeDirPath() );
     d.remove( ".designerpid" );
