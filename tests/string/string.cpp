@@ -218,6 +218,11 @@ main(int argc, char** argv)
     TEST(a.find('g',0,TRUE),-1)
     TEST(a.find("fgh",0,FALSE),5)
     TEST(a.find("fgh",0,TRUE),-1)
+    TEST(a.find("EFG",5,TRUE),12)
+    TEST(a.find("EFG",5,FALSE),9)
+    TEST(a.find("EFG",4,TRUE),4)
+    TEST(a.find("EfG",4,FALSE),4)
+    TEST(a.find("EfG",4,TRUE),9)
     //TEST(a.find("efg",-1,FALSE),12)    // -ve does what?  Parameter should be uint?
     //TEST(a.find("efg",-2,FALSE),12)    // -ve does what?  Parameter should be uint?
     //TEST(a.find("efg",-3,FALSE),12)    // -ve does what?  Parameter should be uint?
@@ -357,6 +362,10 @@ main(int argc, char** argv)
     TEST(a.replace(4,1,""),"ACABCAB");
     TEST(a.replace(0,9999,"XX"),"XX");
     TEST(a.replace(0,9999,""),"");
+    a="ABC";
+    TEST(a.replace(QRegExp("B"),"-"),"A-C");
+    a="p";
+    TEST(a.replace(QRegExp("p"),"."),".");
     a="ABC";
     #ifdef QT1_METHODS
     TEST(a.replace(1,9999,0),"A");  // Rather unexpected
