@@ -563,6 +563,8 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 	    ct = QStyle::CT_LineEdit;
 	else if(widg->inherits("QHeader")) 
 	    ct = QStyle::CT_Header;
+	else if(widg->inherits("QMenuBar"))
+	    ct = QStyle::CT_MenuBar;
 	else
 	    return ret;
     }
@@ -712,6 +714,12 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     else if(ct == QStyle::CT_Header) {
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricListHeaderHeight));
+    } else if(ct == QStyle::CT_MenuBar) {
+	if(sz == QAquaSizeLarge) {
+	    SInt16 size;
+	    if(!GetThemeMenuBarHeight(&size))
+		ret = QSize(-1, size);
+	}
     }
 #endif
     return ret;

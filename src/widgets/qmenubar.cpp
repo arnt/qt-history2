@@ -1488,7 +1488,8 @@ QSize QMenuBar::sizeHint() const
 	    s.setWidth( s.width() + irects[ i ].width() + 2 );
     }
     s.setHeight( h );
-    return s.expandedTo( QApplication::globalStrut() );
+    return (style().sizeFromContents(QStyle::CT_MenuBar, this, s.
+				     expandedTo(QApplication::globalStrut())));
 }
 
 /*!

@@ -469,6 +469,7 @@ public:
 	CT_Slider,
 	CT_Header,
 	CT_LineEdit,
+	CT_MenuBar,
 
 	// do not add any values below/greater than this
 	CT_CustomBase =		0xf0000000
