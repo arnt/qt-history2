@@ -2104,7 +2104,7 @@ void QActionGroup::internalComboBoxHighlighted( int index )
     if ( a )
 	a->showStatusText(a->statusTip());
     else
-	a->clearStatusText();
+	clearStatusText();
 }
 
 /*! \internal
