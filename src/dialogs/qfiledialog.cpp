@@ -3850,6 +3850,7 @@ QFileDialog::Mode QFileDialog::mode() const
 
 void QFileDialog::done( int i )
 {
+#if 0 // ### fix this properly, make sure that getSaveFileName doesn't use ExistingFile, etc.
     if ( i == QDialog::Accepted && (d->mode == ExistingFile || d->mode == ExistingFiles) ) {
 	    QStringList files = selectedFiles();
 	    for ( uint f = 0; f < files.count(); f++ ) {
@@ -3862,7 +3863,7 @@ void QFileDialog::done( int i )
 		}
 	    }
     }
-
+#endif
     QDialog::done( i );
 }
 
