@@ -47,6 +47,8 @@ public:
     void interrupt();
     void flush();
 
+    void startingUp();
+
 private:
     friend LRESULT CALLBACK qt_socketnotifier_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp);
     friend void CALLBACK qt_timer_proc(HWND, UINT, UINT idEvent, DWORD);

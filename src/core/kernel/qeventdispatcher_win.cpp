@@ -70,7 +70,6 @@ QEventDispatcherWin32Private::QEventDispatcherWin32Private()
 {
     wakeUpNotifier.setHandle(QT_WA_INLINE(CreateEventW(0, false, false, L"Wakeup event"),
                                           CreateEventA(0, false, false, "Wakeup event")));
-    wakeUpNotifier.setEnabled(true);
 }
 
 QEventDispatcherWin32Private::~QEventDispatcherWin32Private()
@@ -561,3 +560,11 @@ void QEventDispatcherWin32::interrupt()
 
 void QEventDispatcherWin32::flush()
 { }
+
+
+void QEventDispatcherWin32::startingUp()
+{
+    Q_D(QEventDispatcherWin32);
+
+    if (d->wakeUpNotifier.handle()) d->wakeUpNotifier.setEnabled();
+}
