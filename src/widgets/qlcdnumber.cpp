@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#17 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#17 $";
 #endif
 
 
@@ -495,8 +495,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
     int width = segLen/5;
 
 #define LINETO(X,Y) p.lineTo(QPoint(pt.x() + (X),pt.y() + (Y)))
-#define LIGHT p.pen().setColor(lightColor)
-#define DARK  p.pen().setColor(darkColor)
+#define LIGHT p.setPen(lightColor)
+#define DARK  p.setPen(darkColor)
 
     switch ( segmentNo ) {
 	case 0 :

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#29 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#29 $";
 #endif
 
 
@@ -433,7 +433,9 @@ void QLineEdit::paintText( QPainter *p, const QSize &sz, bool frame)
 		      fm.width( displayText, cursorPos - offset ) - 1;
 	if ( style() == MotifStyle ) {
 	    if ( !hasFocus() ) {
-		p->pen().setStyle( DotLine );
+		QPen new_pen = p->pen();
+		new_pen.setStyle( DotLine );
+		p->setPen( new_pen );
 		p->setBackgroundMode( OpaqueMode );
 	    }
 	    p->drawLine( curPos - 2, TOP_MARGIN, curPos + 2, TOP_MARGIN );

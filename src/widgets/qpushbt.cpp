@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#35 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#35 $";
 #endif
 
 
@@ -280,19 +280,20 @@ void QPushButton::drawButton( QPainter *paint )
     p->setBrush( QBrush(fillcol,NoBrush) );
     if ( gs == MacStyle ) {			// Macintosh push button
 	if ( defButton ) {
-	    p->pen().setWidth( 3 );
+	    p->setPen( QPen(g.foreground(), 3) );
 	    x1++; y1++; x2--; y2--;
 	    p->drawRoundRect( x1, y1, x2-x1+1, y2-y1+1, 25, 25 );
 	    x1 += extraMacWidth/2;
 	    y1 += extraMacHeight/2;
 	    x2 -= extraMacWidth/2;
 	    y2 -= extraMacHeight/2;
-	    p->pen().setWidth( 0 );
+	    p->setPen( g.foreground() );
 	}
 	if ( updated ) {			// fill
-	    p->brush().setStyle( SolidPattern );
 	    if ( isDown() )
-		p->brush().setColor( g.foreground() );
+		p->setBrush( g.foreground() );
+	    else
+		p->setBrush( fillcol );
 	}
 	p->drawRoundRect( x1, y1, x2-x1+1, y2-y1+1, 20, 20 );
     }
@@ -360,17 +361,17 @@ void QPushButton::drawButton( QPainter *paint )
 			       2, fillcol, updated );
     }
     else if ( gs == PMStyle ) {			// PM push button
-	p->pen().setColor( g.dark() );
+	p->setPen( g.dark() );
 	if ( updated )				// fill
-	    p->brush().setStyle( SolidPattern );
+	    p->setBrush( fillcol );
 	p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
 	if ( !defButton ) {
-	    p->pen().setColor( g.background() );
+	    p->setPen( g.background() );
 	    p->drawPoint( x1, y1 );
 	    p->drawPoint( x1, y2 );
 	    p->drawPoint( x2, y1 );
 	    p->drawPoint( x2, y2 );
-	    p->pen().setColor( g.dark() );
+	    p->setPen( g.dark() );
 	}
 	x1++; y1++;
 	x2--; y2--;
@@ -386,9 +387,9 @@ void QPushButton::drawButton( QPainter *paint )
 	    tc = g.light();
 	    bc = g.dark();
 	}
-	p->pen().setColor( tc );
+	p->setPen( tc );
 	p->drawPolyline( atop );
-	p->pen().setColor( bc );
+	p->setPen( bc );
 	p->drawPolyline( abottom );
     }
     else if ( gs == MotifStyle ) {		// Motif push button
@@ -413,7 +414,7 @@ void QPushButton::drawButton( QPainter *paint )
 			   2, fillcol, updated );
     }
     if ( p->brush().style() != NoBrush )
-	p->brush().setStyle( NoBrush );
+	p->setBrush( NoBrush );
 
 #if defined(SAVE_PUSHBUTTON_PIXMAPS)
     if ( use_pm ) {
@@ -445,7 +446,7 @@ void QPushButton::drawButtonFace( QPainter *paint )
     int		dt = 0;
     switch ( gs ) {
 	case MacStyle:
-	    p->pen().setColor( isDown() ? white : g.text() );
+	    p->setPen( isDown() ? white : g.text() );
 	    break;
 	case Win3Style:
 	    dt = 1;
@@ -453,7 +454,7 @@ void QPushButton::drawButtonFace( QPainter *paint )
 	    dt++;
 	case PMStyle:
 	case MotifStyle:
-	    p->pen().setColor( g.text() );
+	    p->setPen( g.text() );
 	    break;
     }
     QRect r = rect();

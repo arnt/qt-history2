@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#36 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#35 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#36 $";
 #endif
 
 
@@ -625,7 +625,7 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
     if ( mi->isSeparator() ) {			// draw separator
 	p->setPen( g.dark() );
 	p->drawLine( 0, 0, cellw, 0 );
-	p->pen().setColor( g.light() );
+	p->setPen( g.light() );
 	p->drawLine( 0, 1, cellw, 1 );
 	return;
     }

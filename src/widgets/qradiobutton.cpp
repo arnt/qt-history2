@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#27 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#27 $";
 #endif
 
 
@@ -172,7 +172,7 @@ void QRadioButton::drawButton( QPainter *paint )
     if ( pm ) {					// pixmap exists
 	p->drawPixmap( x, y, *pm );
 	if ( text() ) {				// draw text extra
-	    p->pen().setColor( g.text() );
+	    p->setPen( g.text() );
 	    p->drawText( w+6-wless, sz.height()/2+fm.height()/2-fm.descent(),
 			 text() );
 	}
@@ -302,11 +302,11 @@ void QRadioButton::drawButton( QPainter *paint )
 	    bp = pts3;
 	    bl = QCOORDARRLEN(pts3);
 	}
-	p->pen().setColor( tc );
+	p->setPen( tc );
 	a.setPoints( QCOORDARRLEN(pts2), pts2 );
 	a.move( x, y );
 	p->drawLineSegments( a );		// draw top shadow
-	p->pen().setColor( bc );
+	p->setPen( bc );
 	a.setPoints( bl, bp );
 	a.move( x, y );
 	p->drawLineSegments( a );
@@ -317,12 +317,12 @@ void QRadioButton::drawButton( QPainter *paint )
 		y1++;
 	    }
 	    p->setBrush( g.foreground() );
-	    p->pen().setColor( g.foreground() );
+	    p->setPen( g.foreground() );
 	    a.setPoints( QCOORDARRLEN(pts5), pts5 );
 	    a.move( x1, y1 );
 	    p->drawPolygon( a );
-	    p->brush().setStyle( NoBrush );
-	    p->pen().setColor( g.dark() );
+	    p->setBrush( NoBrush );
+	    p->setPen( g.dark() );
 	    a.setPoints( QCOORDARRLEN(pts6), pts6 );
 	    a.move( x1, y1 );
 	    p->drawLineSegments( a );
@@ -342,13 +342,12 @@ void QRadioButton::drawButton( QPainter *paint )
 	p->setBrush( showUp ? g.background() : g.mid() );
 	a.move( x, y );
 	p->drawPolygon( a );			// clear inner area
-	p->pen().setStyle( SolidLine );
-	p->pen().setColor( showUp ? g.light() : g.dark() );
-	p->brush().setStyle( NoBrush );
+	p->setPen( showUp ? g.light() : g.dark() );
+	p->setBrush( NoBrush );
 	a.setPoints( QCOORDARRLEN(top_pts), top_pts );
 	a.move( x, y );
 	p->drawPolyline( a );			// draw top part
-	p->pen().setColor( showUp ? g.dark() : g.light() );
+	p->setPen( showUp ? g.dark() : g.light() );
 	a.setPoints( QCOORDARRLEN(bottom_pts), bottom_pts );
 	a.move( x, y );
 	p->drawPolyline( a );			// draw bottom part
@@ -365,7 +364,7 @@ void QRadioButton::drawButton( QPainter *paint )
 #endif
     if ( text() ) {
 	QFontMetrics fm = fontMetrics();
-	p->pen().setColor( g.text() );
+	p->setPen( g.text() );
 	p->drawText( w+6-wless, sz.height()/2+fm.height()/2-fm.descent(),
 		     text() );
     }
