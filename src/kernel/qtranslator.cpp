@@ -244,16 +244,19 @@ public:
   than findMessage() work.  save() has an argument indicating whether
   to save just this minimum of information or to save everything.
 
-  "Everything" means that for each translation item the following information
-  is kept: <ul>
-  <li> The \e translated \e text - the return value from tr().
-  <li> The input key: <ul>
-    <li> The \e source \e text - usually the argument to tr().
-    <li> The \e context - usually the class name for the tr() caller.
-    <li> The \e comment - a comment that helps disambiguate different uses
-    of the same text in the same context.
-  </ul>
-  </ul>
+  "Everything" means that for each translation item the following
+  information is kept:
+
+  \list
+   \i The \e {translated text} - the return value from tr().
+   \i The input key:
+    \list
+     \i The \e {source text} - usually the argument to tr().
+     \i The \e context - usually the class name for the tr() caller.
+     \i The \e comment - a comment that helps disambiguate different uses
+	of the same text in the same context.
+    \endlist
+  \endlist
 
   The minimum for each item is just the information necessary for
   findMessage() to return the right text.  This may include the source,
@@ -319,29 +322,32 @@ QTranslator::~QTranslator()
 
 
 /*!  Loads \a filename, which may be an absolute file name or relative
-  to \a directory.  If the full file name does not exist, other file names
+  to \a directory.  The previous contents of this translator object is
+  discarted.
+
+  If the full file name does not exist, other file names
   are tried in the following order:
 
-  <ol>
-   <li>File name with \a suffix appended (".qm" if suffix is QString::null).
-   <li>File name with text after a character in \a search_delimiters stripped
+  \list 1
+   \i File name with \a suffix appended (".qm" if suffix is QString::null).
+   \i File name with text after a character in \a search_delimiters stripped
        ("_." is the default for \a search_delimiters if it is QString::null).
-   <li>File name stripped and \a suffix appended.
-   <li>File name stripped further, etc.
-  </ol>
+   \i File name stripped and \a suffix appended.
+   \i File name stripped further, etc.
+  \endlist
 
   For example, an application running in the fr_CA locale
-  (Frech-speaking Canada) might call load("foo.fr_ca", "/opt/foolib"),
+  (French-speaking Canada) might call load("foo.fr_ca", "/opt/foolib"),
   which would then try to open these files:
 
-  <ol>
-   <li>/opt/foolib/foo.fr_ca
-   <li>/opt/foolib/foo.fr_ca.qm
-   <li>/opt/foolib/foo.fr
-   <li>/opt/foolib/foo.fr.qm
-   <li>/opt/foolib/foo
-   <li>/opt/foolib/foo.qm
-  </ol>
+  \list 1
+   \i /opt/foolib/foo.fr_ca
+   \i /opt/foolib/foo.fr_ca.qm
+   \i /opt/foolib/foo.fr
+   \i /opt/foolib/foo.fr.qm
+   \i /opt/foolib/foo
+   \i /opt/foolib/foo.qm
+  \endlist
 
   \sa save()
 */
