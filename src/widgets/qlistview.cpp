@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#3 $
 **
 ** Implementation of something useful
 **
@@ -16,7 +16,16 @@
 #include "qscrbar.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#3 $");
+
+/*!
+  \class QListViewItem qlistview.h
+  \brief The QListViewItem class implements a listview item.
+
+  This class is not documented
+ */
+
+
 
 /*!  Create a new list view item in the QListView \a parent
   and is named \a name.
@@ -108,7 +117,7 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 }
 
 
-/*!
+/* !
 
 */
 
@@ -374,7 +383,19 @@ void QListViewRoot::invalidateHeight()
     timer->start( 0, TRUE );
 }
 
+
+
 /*!
+  \class QListView qlistview.h
+  \brief The QListView class implements a list view.
+
+  This class is not documented at all
+ */
+
+
+
+
+/* !
 
 */
 
@@ -399,7 +420,7 @@ QListView::QListView( QWidget * parent, const char * name )
 }
 
 
-/*!
+/* !
 
 */
 
@@ -409,7 +430,7 @@ QListView::~QListView()
 }
 
 
-/*!
+/* !
 
 */
 
@@ -596,7 +617,7 @@ void QListView::insertItem( QListViewItem * i )
 }
 
 
-/*!
+/* !
 
 */
 
@@ -612,7 +633,7 @@ void QListView::clear()
 }
 
 
-/*!
+/* !
 
 */
 
@@ -625,7 +646,7 @@ void QListView::setColumn( const char * label, int size, int column )
 }
 
 
-/*!
+/* !
 
 */
 
@@ -640,7 +661,7 @@ void QListView::show()
 }
 
 
-/*!
+/* !
 
 */
 
@@ -659,7 +680,7 @@ void QListView::updateContents()
 }
 
 
-/*!
+/* !
 
 */
 
@@ -670,7 +691,7 @@ void QListView::triggerUpdate()
 }
 
 
-/*!
+/* !
 
 */
 
@@ -681,7 +702,7 @@ void QListView::resizeEvent( QResizeEvent * e )
 }
 
 
-/*!
+/* !
 
 */
 
