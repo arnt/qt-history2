@@ -485,7 +485,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 		}
 	    }
 	}
-	if (sl.from <= cursorPos && sl.from + sl.length >= cursorPos) {
+	if (sl.from <= cursorPos && sl.from + sl.length > cursorPos) {
 	    int x = l.cursorToX(cursorPos);
 	    p->drawLine(pos.x() + x, pos.y() + sl.y, pos.x() + x, pos.y() + sl.y + sl.ascent + sl.descent );
 	}
