@@ -92,7 +92,7 @@ if [ "${platform}" = "win" ]; then
   rm -rf makefiles
   echo "Converting Unix text files to DOS" >&2
   cd ${DISTDIR}
-  find qt -type f | xargs ${curdir}/unix_to_dos
+  find qt -type f -a ! -name '*.exe' | xargs ${curdir}/unix_to_dos
 fi
 
 if [ "${platform}" = "x11" ]; then
