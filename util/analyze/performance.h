@@ -208,15 +208,14 @@
 // __________________________________________________________________
 // Globals
 #ifndef EXTERN_PERFORMANCE_DATA
-    const char* PM_str_header1 = "> Performance measurements ------- @ %11" PM_LLI "u";
-    const char* PM_str_header1b= "                                  -> %11" PM_LLI "u, using ";
-    const char* PM_str_header2 = "  1 ms           : %7" PM_LLI "u cycles %s";
-    const char* PM_str_header3 = "  Delta overhead : %7" PM_LLI "u cycles %s";
-    const char* PM_str_header4 = "  [From]-> [ To] : ( Totaltime)  Separatetime  ( CPU clockcycle)  To's textlabel";
-    const char* PM_str_sep     = "  -----------------------------------------------------------------------------";
-    const char* PM_str_main1   = "  [%03d] -> [%03d] : (%6.2lf %3s)  %9.2lf ms  (%11" PM_LLI "u cyc)  ";
-    const char* PM_str_footer1 = "< Total execution: (%6.2lf %3s)  %9.2lf ms  (%11" PM_LLI "u cycles)";
-
+    const char* PM_str_header1 = ">Performance measurements ------- @ %11" PM_LLI "u";
+    const char* PM_str_header1b= "                                 -> %11" PM_LLI "u, using ";
+    const char* PM_str_header2 = " 1 ms        : %7" PM_LLI "u cycles %s";
+    const char* PM_str_header3 = " Delta overhd: %7" PM_LLI "u cycles %s";
+    const char* PM_str_header4 = " [Frm]->[ To]:( Totaltime) Separatetime ( CPU clockcycle) To's textlabel";
+    const char* PM_str_sep     = " ----------------------------------------------------------------------------";
+    const char* PM_str_main1   = " [%03d]->[%03d]:(%6.2lf %3s) %9.2lf ms (%11" PM_LLI "u cyc) ";
+    const char* PM_str_footer1 = "<Total exec  :(%6.2lf %3s) %9.2lf ms (%11" PM_LLI "u cycles)";
     const char* PM_str_nocount = "<>Performance measurements ---- (no measurements done since init()) ------";
     const char* PM_str_crt1    = "*** CRITICAL: Reached maximium number of performance measurements (%u)!";
     const char* PM_str_crt2    = "              Measurement aborted... (Increase ";
