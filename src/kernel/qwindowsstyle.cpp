@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#21 $
 **
 ** Implementation of Windows-like style class
 **
@@ -176,9 +176,12 @@ void QWindowsStyle::drawWinShades( QPainter *p,
 void
 QWindowsStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 		const QColorGroup &g, bool sunken,
-		   int /* lineWidth */, const QBrush* fill)
+		   int lineWidth, const QBrush* fill)
 {
-    qDrawWinPanel(p, x, y, w, h, g, sunken, fill);
+    if ( lineWidth == 2 )
+	qDrawWinPanel(p, x, y, w, h, g, sunken, fill);
+    else
+	QStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
 }
 
 /*! \reimp */
@@ -285,7 +288,7 @@ void QWindowsStyle::drawExclusiveIndicator( QPainter* p,
     a.translate( x, y );
     QColor fillColor = down ? g.button() : g.base();
     p->setPen( fillColor );
-    p->setBrush( down ?  g.brush( QColorGroup::Button ) : 
+    p->setBrush( down ?  g.brush( QColorGroup::Button ) :
                          g.brush( QColorGroup::Base ) ) ;
     p->drawPolygon( a );
     if ( on ) {
@@ -330,7 +333,7 @@ void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 {
     if (sunken)
 	drawWinShades( p, x, y, w, h,
-		       g.shadow(), g.light(), g.dark(), g.button(), 
+		       g.shadow(), g.light(), g.dark(), g.button(),
                        fill?fill: &g.brush( QColorGroup::Button ) );
     else
 	drawWinShades( p, x, y, w, h,
@@ -559,7 +562,7 @@ void QWindowsStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, in
 		   subB.width()-4, subB.height()-4, g, !maxedOut );
     }
     p->setBrush( g.brush( QColorGroup::Light ).pixmap() ?
-                 g.brush( QColorGroup::Light )     : 
+                 g.brush( QColorGroup::Light )     :
                  QBrush(g.light(), Dense4Pattern) );
     p->setPen( NoPen );
     p->setBackgroundMode( OpaqueMode );
