@@ -81,7 +81,7 @@ void TabbedBrowser::newTab( const QString &lnk )
     }
 
     HelpWindow *win = new HelpWindow( mainWin, this, "qt_assistant_helpwin" );
-    win->setFont( font() );
+    win->setFont( browserFont() );
     win->setPalette( palette() );
     win->setLinkUnderline( tabLinkUnderline );
     win->setStyleSheet( tabStyleSheet );
@@ -204,7 +204,7 @@ void TabbedBrowser::setup()
     QFontInfo fntInfo( fnt );
     fnt.setFamily( config->fontFamily() );
     fnt.setPointSize( config->fontSize() );
-    setFont( fnt );
+    setBrowserFont( fnt );
 
     QPalette pal = palette();
     QColor lc( config->linkColor() );
@@ -233,11 +233,16 @@ void TabbedBrowser::setLinkUnderline( bool uline )
 	( (QTextBrowser*) tab->page( i ) )->setLinkUnderline( tabLinkUnderline );
 }
 
-void TabbedBrowser::setFont( const QFont &fnt )
+QFont TabbedBrowser::browserFont()
+{
+    return tabFont;  
+}
+
+void TabbedBrowser::setBrowserFont( const QFont &fnt )
 {
     if( font()==fnt )
 	return;
-    QWidget::setFont( fnt );
+    tabFont = fnt;
     int cnt = tab->count();
     for( int i=0; i<cnt; i++ )
 	( (QTextBrowser*) tab->page( i ) )->setFont( fnt );

@@ -97,6 +97,7 @@
     <variable access="private">bool tabLinkUnderline;</variable>
     <variable access="private">QMimeSourceFactory *mimeSourceFactory;</variable>
     <variable access="private">QWidget *lastCurrentTab;</variable>
+    <variable access="private">QFont tabFont;</variable>
 </variables>
 <slots>
     <slot>init()</slot>
@@ -116,7 +117,6 @@
     <slot>initHelpWindow( HelpWindow * win )</slot>
     <slot>setup()</slot>
     <slot>setLinkUnderline( bool uline )</slot>
-    <slot>setFont( const QFont &amp; fnt )</slot>
     <slot>setPalette( const QPalette &amp; pal )</slot>
     <slot>copy()</slot>
     <slot>closeTab()</slot>
@@ -130,6 +130,8 @@
     <function specifier="non virtual" returnType="QStringList">sources()</function>
     <function specifier="non virtual">setMimePath( QStringList lst )</function>
     <function specifier="non virtual">setMimeExtension( const QString &amp; ext )</function>
+    <function specifier="non virtual">setBrowserFont( const QFont &amp; fnt )</function>
+    <function specifier="non virtual" returnType="QFont">browserFont()</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
