@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.41 1999/04/23 20:41:21 paul Exp $
+** $Id: porting.doc,v 1.42 1999/04/26 23:18:50 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -89,31 +89,33 @@ in the collective conscious that is the Qt Developer Community!
  <li><b><a href=#Namespace>Namespace</a></b>
  <li><b><a href=#Virtual>Virtual Functions</a></b>
  <li><b><a href=#Collection>Collection classes</a></b>
+
  <li><b><a href=#QApplication>QApplication</a></b>
- <li><b><a href=#QColor>QColor</a></b>
- <li><b><a href=#QRgb>QRgb</a></b>
- <li><b><a href=#QRegion>QRegion</a></b>
- <li><b><a href=#QWidget>QWidget</a></b>
- <li><b><a href=#QLabel>QLabel</a></b>
- <li><b><a href=#QDialog>QDialog</a></b>
- <li><b><a href=#QString>QString</a></b>
- <li><b><a href=#QStrList>QStrList</a></b>
- <li><b><a href=#QLayout>QLayout</a></b>
- <li><b><a href=#QMultiLineEdit>QMultiLineEdit</a></b>
  <li><b><a href=#QClipboard>QClipboard</a></b>
+ <li><b><a href=#QColor>QColor</a></b>
+ <li><b><a href=#QDialog>QDialog</a></b>
  <li><b><a href=#QDropSite>QDropSite</a></b>
- <li><b><a href=#QTextStream>QTextStream</a></b>
- <li><b><a href=#QPainter>QPainter</a></b>
- <li><b><a href=#QPixmap>QPixmap</a></b>
+ <li><b><a href=#QEvent>QEvent</a></b>
+ <li><b><a href=#QFontMetrics>QFontMetrics</a></b>
+ <li><b><a href=#QIODevice>QIODevice</a></b>
+ <li><b><a href=#QLabel>QLabel</a></b>
+ <li><b><a href=#QLayout>QLayout</a></b>
  <li><b><a href=#QMenuData>QMenuData</a></b>
  <li><b><a href=#QMenuData>QPopupMenu</a></b>
- <li><b><a href=#QValidator>QValidator</a></b>
- <li><b><a href=#QValidator>QLineEdit</a></b>
+ <li><b><a href=#QMultiLineEdit>QMultiLineEdit</a></b>
+ <li><b><a href=#QPainter>QPainter</a></b>
+ <li><b><a href=#QPixmap>QPixmap</a></b>
+ <li><b><a href=#QRegion>QRegion</a></b>
+ <li><b><a href=#QRgb>QRgb</a></b>
+ <li><b><a href=#QStrList>QStrList</a></b>
+ <li><b><a href=#QString>QString</a></b>
+ <li><b><a href=#QTextStream>QTextStream</a></b>
  <li><b><a href=#QValidator>QComboBox</a></b>
+ <li><b><a href=#QValidator>QLineEdit</a></b>
  <li><b><a href=#QValidator>QSpinBox</a></b>
- <li><b><a href=#QFontMetrics>QFontMetrics</a></b>
+ <li><b><a href=#QValidator>QValidator</a></b>
+ <li><b><a href=#QWidget>QWidget</a></b>
  <li><b><a href=#QWindow>QWindow</a></b>
- <li><b><a href=#QEvent>QEvent</a></b>
 </ul>
 </multicol>
 
@@ -283,6 +285,15 @@ Never pass 0 as the argument to paintEvent().  You probably
 just want repaint() or update() instead.
 
 
+<h3><a name=QIODevice>QIODevice</a></h3>
+<p>
+The protected member QIODevice::index is renamed to QIODevice::ioIndex
+to avoid warnings and to allow compilation with bad C libraries that
+#define index to strchr.  If you have made a subclass of QIODevice,
+check every occurence of the string "index" in the implementation, since
+a compiler will not always catch cases like \code(uint)index\endcode
+that need to be changed.
+
 <h3><a name=QLabel>QLabel</a></h3>
 
 <h4>\code QLabel::setMovie()\endcode</h4>
@@ -334,13 +345,19 @@ to be like this:
     }
 \endcode
 
-The following functions now use QStringList rather than QStrList.
+The following functions now use QStringList rather than QStrList
+for return types/parameters.
 
 <ul>
  <li><tt>void QFileDialog::setFilters(const QStrList&)</tt>
+      becomes <tt><b><tt>void QFileDialog::setFilters(const QStringList&)</b></tt>
  <li><tt>QStrList QFileDialog::getOpenFileNames(...)</tt>
+      becomes <tt><b><tt>QStringList QFileDialog::getOpenFileNames(...)</b></tt>
  <li><tt>bool QUrlDrag::decodeLocalFiles(QMimeSource*, QStrList&)</tt>
+      becomes <tt><b><tt>bool QUrlDrag::decodeLocalFiles(QMimeSource*, QStringList&)</b></tt>
  <li><tt>const QStrList *QDir::entryList(...) const</tt>
+      becomes <tt><b><tt>QStringList QDir::entryList(...) const</b></tt>
+	(note that the return type is no longer a pointer)
 </ul>
 
 The following functions are added:
@@ -385,7 +402,10 @@ functionality in Qt 2.0, the following steps are required:
 	    to catch places where
 	    Unicode information is being converted to ASCII (loosing
 	    information if your user in not using Latin1).  Qt has
-	    a small number of calls to this - ignore those.
+	    a small number of calls to this - ignore those.  As a stricter
+	    alternative, compile your code with QT_NO_ASCII_CAST defined,
+	    which hides the automatic conversion of QString to const char*,
+	    so you can catch problems at compile time.
      <li> See the Qt \link i18n.html Internationalization page\endlink
 	    for information about the full process of internationalizing
 	    your software.
