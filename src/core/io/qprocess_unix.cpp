@@ -53,6 +53,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 #include "qprocess_p.h"
 
 #include <qabstracteventdispatcher.h>
+#include <private/qcoreapplication_p.h>
 #include <qdatetime.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -78,14 +79,11 @@ class QProcessManager : public QObject
 {
     Q_OBJECT
 public:
-    ~QProcessManager();
-
-    static inline QProcessManager &instance()
+    inline QProcessManager() : old_sigchld_handler(0)
     {
-        // ### add reentrancy
-        static QProcessManager singleton;
-        return singleton;
+        QCoreApplicationPrivate::moveToMainThread(this);
     }
+    ~QProcessManager();
 
     void initialize();
 
@@ -107,9 +105,6 @@ public:
 public slots:
     void deadChildNotification(int);
 
-protected:
-    inline QProcessManager() : old_sigchld_handler(0) { }
-
 private:
 
     QMutex mutex;
@@ -119,6 +114,8 @@ private:
 
     QSocketNotifier *shutdownNotifier;
 };
+
+Q_GLOBAL_STATIC(QProcessManager, processManager)
 
 QProcessManager::~QProcessManager()
 {
@@ -262,7 +259,7 @@ void QProcessPrivate::startProcess()
     processState = QProcess::Starting;
     emit q->stateChanged(processState);
 
-    QProcessManager::instance().initialize();
+    processManager()->initialize();
 
     pid = (Q_PID) fork();
     if (pid == 0) {
@@ -270,7 +267,7 @@ void QProcessPrivate::startProcess()
         ::_exit(-1);
     }
 
-    QProcessManager::instance().add(pid, q);
+    processManager()->add(pid, q);
 
     // parent
     ::close(childStartedPipe[1]);
@@ -530,7 +527,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
     qDebug("QProcessPrivate::waitForReadyRead(%d)", msecs);
 #endif
 
-    if (QProcessManager::instance().has(pid)) {
+    if (processManager()->has(pid)) {
         QTime stopWatch;
         stopWatch.start();
         forever {
@@ -571,7 +568,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
             if (writePipe[1] != -1 && FD_ISSET(writePipe[1], &fdwrite))
                 canWrite();
             if (FD_ISSET(qt_qprocess_deadChild_pipe[0], &fdread)) {
-                QProcessManager::instance().deadChildNotification(0);
+                processManager()->deadChildNotification(0);
                 if (processState != QProcess::Running)
                     return readyReadEmitted;
             }
@@ -587,7 +584,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
     qDebug("QProcessPrivate::waitForBytesWritten(%d)", msecs);
 #endif
 
-    if (QProcessManager::instance().has(pid)) {
+    if (processManager()->has(pid)) {
         QTime stopWatch;
         stopWatch.start();
         forever {
@@ -626,7 +623,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
             if (FD_ISSET(errorReadPipe[0], &fdread))
                 canReadStandardError();
             if (FD_ISSET(qt_qprocess_deadChild_pipe[0], &fdread)) {
-                QProcessManager::instance().deadChildNotification(0);
+                processManager()->deadChildNotification(0);
                 if (processState != QProcess::Running)
                     return false;
             }
@@ -642,7 +639,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
     qDebug("QProcessPrivate::waitForFinished(%d)", msecs);
 #endif
 
-    if (QProcessManager::instance().has(pid)) {
+    if (processManager()->has(pid)) {
         QTime stopWatch;
         stopWatch.start();
         forever {
@@ -679,7 +676,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
             if (FD_ISSET(errorReadPipe[0], &fdread))
                 canReadStandardError();
             if (FD_ISSET(qt_qprocess_deadChild_pipe[0], &fdread)) {
-                QProcessManager::instance().deadChildNotification(0);
+                processManager()->deadChildNotification(0);
                 if (processState != QProcess::Running)
                     return true;
             }
