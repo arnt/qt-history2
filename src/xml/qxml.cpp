@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#65 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#66 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -939,9 +939,9 @@ QString QXmlInputSource::inputToString( QByteArray *data )
     if ( encMapper == 0 ) {
 	QTextCodec *codec = 0;
 	// look for byte order mark and read the first 5 characters
-	if ( data->size() >= 2 && 
-		( (data->at(0)==(uchar)0xfe && data->at(1)==(uchar)0xff ) ||
-		  (data->at(0)==(uchar)0xff && data->at(1)==(uchar)0xfe ) )) {
+	if ( data->size() >= 2 &&
+		( (data->at(0)==(char)0xfe && data->at(1)==(char)0xff ) ||
+		  (data->at(0)==(char)0xff && data->at(1)==(char)0xfe ) )) {
 	    codec = QTextCodec::codecForMib( 1000 ); // UTF-16
 	} else {
 	    codec = QTextCodec::codecForMib( 106 ); // UTF-8
