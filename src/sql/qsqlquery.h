@@ -96,6 +96,11 @@ public:
     virtual bool        first();
     virtual bool        last();
 
+    // prepared query support
+    bool 		exec();
+    bool 		prepare( const QString& query );
+    void 		setValue( const QString& placeholder, const QVariant& val );
+    
 protected:
     virtual void        beforeSeek();
     virtual void        afterSeek();

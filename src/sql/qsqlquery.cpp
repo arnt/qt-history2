@@ -44,6 +44,8 @@
 #include "qsqldriver.h"
 #include "qsqldatabase.h"
 #include "qsql.h"
+#include "qregexp.h"
+#include "private/qsqlextension_p.h"
 
 
 /*!
@@ -761,5 +763,88 @@ void QSqlQuery::afterSeek()
 
 }
 
+// XXX: Hack to keep BCI - remove in 4.0. QSqlExtension should be
+// removed, and the prepare(), exec() and setValue() fu's should be
+// made virtual members of QSqlResult
+
+/*! Prepares a SQL statement for execution. The statement
+  may contain place holders for binding variables. Placeholders
+  are usually specified using a \c : character, but may
+  be database dependent.
+*/
+bool QSqlQuery::prepare( const QString& query )
+{
+    if ( !d->sqlResult )
+	return FALSE;
+    d->sqlResult->setActive( FALSE );
+    d->sqlResult->setLastError( QSqlError() );
+    d->sqlResult->setAt( QSql::BeforeFirst );
+    if ( !driver() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QSqlQuery::prepare: no driver" );
+#endif
+	return FALSE;
+    }
+    if ( d->count > 1 )
+	*this = driver()->createQuery();
+    d->sqlResult->setQuery( query.stripWhiteSpace() );
+    if ( !driver()->isOpen() || driver()->isOpenError() ) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QSqlQuery::prepare: database not open" );
+#endif
+	return FALSE;
+    }
+    if ( query.isNull() || query.length() == 0 ) {
+#ifdef QT_CHECK_RANGE
+	qWarning("QSqlQuery::prepare: empty query" );
+#endif
+	return FALSE;
+    }
+#ifdef QT_DEBUG_SQL
+    qDebug( "\n QSqlQuery: " + query );
+#endif
+
+    if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
+	return d->sqlResult->extension()->prepare( query );
+    } else {
+	return TRUE; // fake prepares should always succeed
+    }
+}
+
+/*! Executes a previously prepared SQL statement.
+  
+ If the statement is executed successfully TRUE is returned, otherwise
+ FALSE is returned.
+*/
+bool QSqlQuery::exec()
+{
+    if ( !d->sqlResult || !d->sqlResult->extension() )
+	return FALSE;
+    if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
+	return d->sqlResult->extension()->exec();
+    } else {
+	// fake preparation - just replace the place holders..
+	QString query = d->sqlResult->lastQuery();
+	QMap<QString, QVariant>::Iterator it;
+	for ( it = d->sqlResult->extension()->values.begin();
+	      it != d->sqlResult->extension()->values.end(); ++it ) {
+	    query = query.replace( QRegExp( it.key() ), "'" + it.data().toString() + "'" ); 
+	}
+	return exec( query );
+    }
+}
+
+/*! Set the place holder \c place to be bound to value \c val in a
+  prepared statement. Note that the place holder escape character (e.g
+  \c :) should be included when specifying the name.
+  
+  The place holder values are cleared when prepare() is called.
+*/
+void QSqlQuery::setValue( const QString& placeholder, const QVariant& val )
+{
+    if ( !d->sqlResult || !d->sqlResult->extension() )
+	return;
+    d->sqlResult->extension()->setValue( placeholder, val );
+}
 
 #endif // QT_NO_SQL

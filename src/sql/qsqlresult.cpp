@@ -35,6 +35,7 @@
 **********************************************************************/
 
 #include "qsqlresult.h"
+#include "private/qsqlextension_p.h"
 
 #ifndef QT_NO_SQL
 
@@ -47,6 +48,7 @@ public:
     bool            active;
     bool            isSel;
     QSqlError	    error;
+    QSqlExtension * ext;
 };
 
 /*! \class QSqlResult
@@ -77,6 +79,7 @@ QSqlResult::QSqlResult( const QSqlDriver * db ): forwardOnly( FALSE )
     d->idx = QSql::BeforeFirst;
     d->isSel = FALSE;
     d->active = FALSE;
+    d->ext = new QSqlExtension();
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -85,6 +88,8 @@ QSqlResult::QSqlResult( const QSqlDriver * db ): forwardOnly( FALSE )
 
 QSqlResult::~QSqlResult()
 {
+    if ( d->ext )
+	delete d->ext;
     delete d;
 }
 
@@ -330,4 +335,18 @@ void QSqlResult::setForwardOnly( bool forward )
     forwardOnly = forward;
 }
 
+// XXX BCI HACK - remove in 4.0
+/*! \internal */
+void QSqlResult::setExtension( QSqlExtension * ext )
+{
+    if ( d->ext )
+	delete d->ext;
+    d->ext = ext;
+}
+
+/*! \internal */
+QSqlExtension * QSqlResult::extension()
+{
+    return d->ext;
+}
 #endif // QT_NO_SQL

@@ -66,7 +66,9 @@ public:
     QOCIResult( const QOCIDriver * db, QOCIPrivate* p );
     ~QOCIResult();
     OCIStmt*    statement();
-
+    bool 	prepare( const QString& query );
+    bool 	exec();
+    
 protected:
     bool	fetchNext();
     bool	fetchFirst();

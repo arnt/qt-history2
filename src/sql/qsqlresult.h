@@ -57,6 +57,7 @@ class QSqlDriver;
 class QSql;
 class QSqlResultInfo;
 class QSqlResultPrivate;
+class QSqlExtension;
 
 class QM_EXPORT_SQL QSqlResult
 {
@@ -64,6 +65,11 @@ friend class QSqlQuery;
 friend class QSqlResultShared;
 public:
     virtual ~QSqlResult();
+    
+    // BCI HACK - remove in 4.0
+    void 	    setExtension( QSqlExtension * ext );
+    QSqlExtension * extension();
+
 protected:
     QSqlResult(const QSqlDriver * db );
     int		    at() const;
@@ -95,13 +101,11 @@ private:
     QSqlResultPrivate* d;
     bool forwardOnly;
 
-
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QSqlResult( const QSqlResult & );
     QSqlResult &operator=( const QSqlResult & );
 #endif
-
 };
 
 #endif	// QT_NO_SQL

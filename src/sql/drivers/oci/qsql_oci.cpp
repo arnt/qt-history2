@@ -41,6 +41,7 @@
 #include <qmemarray.h>
 #include <qstringlist.h>
 #include <qregexp.h>
+#include <private/qsqlextension_p.h>
 #include <stdlib.h>
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
@@ -58,6 +59,25 @@ public:
     bool             transaction;
     int		     serverVersion;
     QString          user;
+};
+
+class QOCIPreparedExtension : public QSqlExtension
+{
+public:
+    QOCIPreparedExtension( QOCIResult * r )
+	: result( r ) {}
+
+    bool prepare( const QString& query )
+    {
+	return result->prepare( query );
+    }
+
+    bool exec()
+    {
+	return result->exec();
+    }
+    
+    QOCIResult * result;
 };
 
 struct OraFieldInfo
@@ -728,6 +748,7 @@ QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
 {
     d = new QOCIPrivate();
     (*d) = (*p);
+    setExtension( new QOCIPreparedExtension( this ) );
 }
 
 QOCIResult::~QOCIResult()
@@ -751,118 +772,9 @@ OCIStmt* QOCIResult::statement()
 
 bool QOCIResult::reset ( const QString& query )
 {
-    int r(0);
-    if ( cols ) {
-	delete cols;
-	cols = 0;
-    }
-    rowCache.clear();
-    fs.clear();
-    if ( d->sql ) {
-	r = OCIHandleFree( d->sql, OCI_HTYPE_STMT );
-#ifdef QT_CHECK_RANGE
-	if ( r != 0 )
-	    qWarning( "QOCIResult::reset: unable to free statement handle: " + qOraWarn( d ) );
-#endif
-    }
-    cached = FALSE;
-    if ( query.isNull() || query.length() == 0 )
+    if ( !prepare( query ) )
 	return FALSE;
-    r = OCIHandleAlloc( (dvoid *) d->env,
-			(dvoid **) &d->sql,
-			OCI_HTYPE_STMT,
-			0,
-			0);
-    if ( r != 0 ) {
-#ifdef QT_CHECK_RANGE
-	qWarning( "QOCIResult::reset: unable to alloc statement: " + qOraWarn( d ) );
-#endif
-	setLastError( qMakeError( "Unable to alloc statement", QSqlError::Statement, d ) );
-	return FALSE;
-    }
-    QString cleanQuery ( query );
-    int delim = cleanQuery.findRev( ";" );
-    int len = cleanQuery.length()-1;
-    if ( delim > -1 && delim == len )
-	cleanQuery.replace( cleanQuery.length()-1, 1, "" );
-    r = OCIStmtPrepare( d->sql,
-			d->err,
-			(unsigned char*)cleanQuery.local8Bit().data(),
-			cleanQuery.length(),
-			OCI_NTV_SYNTAX,
-			OCI_DEFAULT );
-    if ( r != 0 ) {
-#ifdef QT_CHECK_RANGE
-	qWarning( "QOCIResult::reset: unable to prepare statement: " + qOraWarn( d ) );
-#endif
-	setLastError( qMakeError( "Unable to prepare statement", QSqlError::Statement, d ) );
-	return FALSE;
-    }
-    ub2 stmtType;
-    r = OCIAttrGet( d->sql,
-			OCI_HTYPE_STMT,
-			(dvoid*)&stmtType,
-			NULL,
-			OCI_ATTR_STMT_TYPE,
-			d->err );
-    if ( stmtType == OCI_STMT_SELECT )
-    {
-	r = OCIStmtExecute( d->svc,
-				d->sql,
-				d->err,
-				0,
-				0,
-				(CONST OCISnapshot *) NULL,
-				(OCISnapshot *) NULL,
-				OCI_DEFAULT );
-	if ( r != 0 ) {
-#ifdef QT_CHECK_RANGE
-	    qWarning( "QOCIResult::reset: unable to execute statement: " + qOraWarn( d ) );
-#endif
-	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
-	    return FALSE;
-	}
-	ub4 parmCount = 0;
-	int r = OCIAttrGet( d->sql, OCI_HTYPE_STMT, (dvoid*)&parmCount, NULL, OCI_ATTR_PARAM_COUNT, d->err );
-	if ( r == 0 )
-	    cols = new QOCIResultPrivate( parmCount, d );
-	OCIParam* param = 0;
-	sb4 parmStatus = 0;
-	ub4 count = 1;
-	parmStatus = OCIParamGet( d->sql,
-				  OCI_HTYPE_STMT,
-				  d->err,
-				  (void**)&param,
-				  count );
-	while ( parmStatus == OCI_SUCCESS ) {
-	    OraFieldInfo ofi = qMakeOraField( d, param );
-	    QSqlField fi( ofi.name, ofi.type );
-	    fs.append( fi );
-	    count++;
-	    parmStatus = OCIParamGet( d->sql,
-				      OCI_HTYPE_STMT,
-				      d->err,
-				      (void**)&param,
-				      count );
-	}
-	setSelect( TRUE );
-    } else { /* non-SELECT */
-	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
-				(CONST OCISnapshot *) NULL,
-				(OCISnapshot *) NULL,
-				d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS  );
-	if ( r != 0 ) {
-#ifdef QT_CHECK_RANGE
-	    qWarning( "QOCIResult::reset: unable to execute statement: " + qOraWarn( d ) );
-#endif
-	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
-	    return FALSE;
-	}
-	setSelect( FALSE );
-    }
-    setAt( QSql::BeforeFirst );
-    setActive( TRUE);
-    return TRUE;
+    return exec();
 }
 
 bool QOCIResult::cacheNext()
@@ -1007,6 +919,178 @@ int QOCIResult::numRowsAffected()
 		OCI_ATTR_ROW_COUNT,
 		d->err);
     return rowCount;
+}
+
+bool QOCIResult::prepare( const QString& query )
+{
+    int r(0);
+    
+    extension()->values.clear(); // clear any placeholder values
+    if ( cols ) {
+	delete cols;
+	cols = 0;
+    }
+    rowCache.clear();
+    fs.clear();
+    if ( d->sql ) {
+	r = OCIHandleFree( d->sql, OCI_HTYPE_STMT );
+#ifdef QT_CHECK_RANGE
+	if ( r != 0 )
+	    qWarning( "QOCIResult::prepare: unable to free statement handle: " + qOraWarn( d ) );
+#endif
+    }
+    cached = FALSE;
+    if ( query.isNull() || query.length() == 0 )
+	return FALSE;
+    r = OCIHandleAlloc( (dvoid *) d->env,
+			(dvoid **) &d->sql,
+			OCI_HTYPE_STMT,
+			0,
+			0);
+    if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QOCIResult::prepare: unable to alloc statement: " + qOraWarn( d ) );
+#endif
+	setLastError( qMakeError( "Unable to alloc statement", QSqlError::Statement, d ) );
+	return FALSE;
+    }
+    QString cleanQuery ( query );
+    int delim = cleanQuery.findRev( ";" );
+    int len = cleanQuery.length()-1;
+    if ( delim > -1 && delim == len )
+	cleanQuery.replace( cleanQuery.length()-1, 1, "" );
+    r = OCIStmtPrepare( d->sql,
+			d->err,
+			(unsigned char*)cleanQuery.local8Bit().data(),
+			cleanQuery.length(),
+			OCI_NTV_SYNTAX,
+			OCI_DEFAULT );
+    if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
+	qWarning( "QOCIResult::prepare: unable to prepare statement: " + qOraWarn( d ) );
+#endif
+	setLastError( qMakeError( "Unable to prepare statement", QSqlError::Statement, d ) );
+	return FALSE;
+    }
+    // do something with the placeholders? into a map?    
+    return TRUE;
+}
+
+bool QOCIResult::exec()
+{
+    int r = 0;
+    ub2 stmtType;
+    
+    r = OCIAttrGet( d->sql,
+		    OCI_HTYPE_STMT,
+		    (dvoid*)&stmtType,
+		    NULL,
+		    OCI_ATTR_STMT_TYPE,
+		    d->err );
+
+    // bind placeholders
+    if ( stmtType != OCI_STMT_SELECT && extension()->values.count() > 0 ) {
+	QMap<QString, QVariant>::Iterator it;
+	for ( it = extension()->values.begin(); it != extension()->values.end(); ++it ) {
+	    OCIBind * hbnd = 0;
+	    switch ( it.data().type() ) {
+		case QVariant::ByteArray:
+		    r = OCIBindByName( d->sql, &hbnd, d->err,
+				       (text *) it.key().local8Bit().data(),
+				       it.key().length(),
+ 				       (dvoid *) it.data().asByteArray().data(),
+ 				       it.data().asByteArray().size(),
+				       SQLT_BIN, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+		    break;
+		case QVariant::Int:
+		    r = OCIBindByName( d->sql, &hbnd, d->err,
+				       (text *) it.key().local8Bit().data(),
+				       it.key().length(),
+				       (ub1 *) &it.data().asInt(),
+				       sizeof(int),
+				       SQLT_INT, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+		    break;
+		default:
+		    r = OCIBindByName( d->sql, &hbnd, d->err,
+				       (text *) it.key().local8Bit().data(),
+				       it.key().length(),
+				       (ub1 *) it.data().asString().local8Bit().data(),
+				       it.data().asString().length() + 1,
+				       SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
+		    break;
+	    }
+	    if ( r != OCI_SUCCESS ) {
+#ifdef QT_CHECK_RANGE
+		qWarning( "QOCIResult::exec: unable to bind variable: " + qOraWarn( d ) );
+#endif
+		setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
+		return FALSE;
+	    }
+	}
+    }
+    
+    // execute
+    if ( stmtType == OCI_STMT_SELECT )
+    {
+	r = OCIStmtExecute( d->svc,
+			    d->sql,
+			    d->err,
+			    0,
+			    0,
+			    (CONST OCISnapshot *) NULL,
+			    (OCISnapshot *) NULL,
+			    OCI_DEFAULT );
+	if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
+	    qWarning( "QOCIResult::exec: unable to execute statement: " + qOraWarn( d ) );
+#endif
+	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	    return FALSE;
+	}
+	ub4 parmCount = 0;
+	int r = OCIAttrGet( d->sql, OCI_HTYPE_STMT, (dvoid*)&parmCount, NULL, OCI_ATTR_PARAM_COUNT, d->err );
+	if ( r == 0 )
+	    cols = new QOCIResultPrivate( parmCount, d );
+	OCIParam* param = 0;
+	sb4 parmStatus = 0;
+	ub4 count = 1;
+	parmStatus = OCIParamGet( d->sql,
+				  OCI_HTYPE_STMT,
+				  d->err,
+				  (void**)&param,
+				  count );
+	while ( parmStatus == OCI_SUCCESS ) {
+	    OraFieldInfo ofi = qMakeOraField( d, param );
+	    QSqlField fi( ofi.name, ofi.type );
+	    fs.append( fi );
+	    count++;
+	    parmStatus = OCIParamGet( d->sql,
+				      OCI_HTYPE_STMT,
+				      d->err,
+				      (void**)&param,
+				      count );
+	}
+	setSelect( TRUE );
+    } else { /* non-SELECT */
+	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
+				(CONST OCISnapshot *) NULL,
+				(OCISnapshot *) NULL,
+				d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS  );
+	if ( r != 0 ) {
+#ifdef QT_CHECK_RANGE
+	    qWarning( "QOCIResult::exec: unable to execute statement: " + qOraWarn( d ) );
+#endif
+	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
+	    return FALSE;
+	}
+	setSelect( FALSE );
+    }
+    setAt( QSql::BeforeFirst );
+    setActive( TRUE);
+    return TRUE;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -1396,6 +1480,8 @@ bool QOCIDriver::hasFeature( DriverFeature f ) const
 	return TRUE;
     case Unicode:
 	return d->serverVersion >= 9;
+    case PreparedQueries:
+	return TRUE;	    
     default:
 	return FALSE;
     }

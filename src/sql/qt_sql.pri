@@ -19,6 +19,7 @@ sql {
 		    $$SQL_H/qsqleditorfactory.h \
 		    $$SQL_H/qsqldriver.h \
 		    $$SQL_P/qsqldriverinterface_p.h \
+		    $$SQL_P/qsqlextension_p.h \
 		    $$SQL_H/qsqldriverplugin.h \
 		    $$SQL_H/qsqlerror.h \
 		    $$SQL_H/qsqlresult.h \
@@ -38,6 +39,7 @@ sql {
 		    $$SQL_CPP/qeditorfactory.cpp \
 		    $$SQL_CPP/qsqleditorfactory.cpp \
 		    $$SQL_CPP/qsqldriver.cpp \
+		    $$SQL_CPP/qsqlextension_p.cpp \
 		    $$SQL_CPP/qsqldriverplugin.cpp \
 		    $$SQL_CPP/qsqlerror.cpp \
 		    $$SQL_CPP/qsqlresult.cpp \
