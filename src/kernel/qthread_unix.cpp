@@ -298,7 +298,7 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
   handle returned by this function is used for internal reasons and
   should not be used in any application code.
 */
-HANDLE QThread::currentThread()
+Qt::HANDLE QThread::currentThread()
 {
 #if defined(_OS_SOLARIS_)
     return (HANDLE) thr_self();

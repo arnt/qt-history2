@@ -770,7 +770,7 @@ public:
     {
 	dictMutex->lock();
 	if (thread_id)
-	    thrDict->remove((HANDLE) thread_id);
+	    thrDict->remove((Qt::HANDLE) thread_id);
 	dictMutex->unlock();
 
 	thread_id = 0;
