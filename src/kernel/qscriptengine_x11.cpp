@@ -461,6 +461,7 @@ enum Position {
     Split,
     Base,
     Reph,
+    Vattu,
     Inherit
 };
 
@@ -1044,7 +1045,7 @@ static const unsigned short sinhala_o[2]   = { 0xdd9, 0xdcf };
 static const unsigned short sinhala_oo[2]   = { 0xddc, 0xdca };
 static const unsigned short sinhala_au[2]   = { 0xdd9, 0xddf };
 
-inline void splitMatra( int script, unsigned short *reordered, int matra, int &len)
+inline void splitMatra( int script, unsigned short *reordered, int matra, int &len, int &base)
 {
     const unsigned short *split = 0;
     unsigned short matra_uc = reordered[matra];
@@ -1103,6 +1104,7 @@ inline void splitMatra( int script, unsigned short *reordered, int matra, int &l
 	reordered[matra] = split[1];
 	memmove(reordered + 1, reordered, len*sizeof(unsigned short));
 	reordered[0] = split[0];
+	base++;
     } else {
 	memmove(reordered + matra + 1, reordered + matra, (len-matra)*sizeof(unsigned short));
 	reordered[matra] = split[0];
@@ -1111,6 +1113,7 @@ inline void splitMatra( int script, unsigned short *reordered, int matra, int &l
     len++;
 }
 
+// #define INDIC_DEBUG
 #ifdef INDIC_DEBUG
 #define IDEBUG qDebug
 #else
@@ -1185,39 +1188,63 @@ static void indic_shape( int script, const QString &string, int from, int syllab
  	// * In Kannada and Telugu, the base consonant cannot be
  	//   farther than 3 consonants from the end of the syllable.
 	if (form(*uc) == Consonant) {
-	    beginsWithRa = ((len > 1) && *uc == ra && *(uc+1) == halant);
-	    IDEBUG("    length = %d, beginsWithRa = %d", len, beginsWithRa );
+	    beginsWithRa = ((len > 2) && *uc == ra && *(uc+1) == halant);
+	    base = (beginsWithRa && (properties & HasReph) ? 2 : 0);
+	    IDEBUG("    length = %d, beginsWithRa = %d, base=%d", len, beginsWithRa, base );
 
 	    int lastConsonant = 0;
 	    int matra = -1;
-	    bool excludeRa = beginsWithRa && (properties & HasReph);
 	    int skipped = 0;
 	    Position pos = Post;
 	    // we remember:
 	    // * the last consonant since we need it for rule 2
 	    // * the matras position for rule 3 and 4
-	    for (int i = len-1; i > 0; i--) {
-		Form f = form(uc[i]);
-		if (f == Consonant) {
-		    if (!lastConsonant)
-			lastConsonant = i;
-		    Position charPosition = indic_position(uc[i]);
-		    if (pos == Post && charPosition == Post) {
-			;
-		    } else if ((pos == Post || pos == Below) && charPosition == Below) {
-			pos = Below;
-		    } else if ( !excludeRa || uc[i] != ra ) {
-			base = i;
-			break;
+
+	    // figure out possible base glyphs
+	    memset(position, 0, len);
+	    if (script == QFont::Devanagari || script == QFont::Gujarati) {
+		bool vattu = FALSE;
+		for (int i = base; i < len; ++i) {
+		    position[i] = form(uc[i]);
+		    if (position[i] == Consonant) {
+			vattu = (!vattu && uc[i] == ra);
+			if (vattu) {
+			    IDEBUG("excluding vattu glyph at %d from base candidates", i);
+			    position[i] = Vattu;
+			}
+		    } else if (position[i] == Matra) {
+			matra = i;
 		    }
-		    if (skipped == 2 && (script == QFont::Kannada || script == QFont::Telugu)) {
-			base = i;
-			break;
-		    }
-		    ++skipped;
-		} else if (f == Matra) {
-		    matra = i;
 		}
+	    } else {
+		for (int i = base; i < len; ++i) {
+		    position[i] = form(uc[i]);
+		    if (position[i] == Matra)
+			matra = i;
+		}
+	    }
+	    for (int i = len-1; i > base; i--) {
+		if (position[i] != Consonant)
+		    continue;
+
+		if (!lastConsonant)
+		    lastConsonant = i;
+		Position charPosition = indic_position(uc[i]);
+		if (pos == Post && charPosition == Post) {
+		    pos = Below;
+		} else if ((pos == Post || pos == Below) && charPosition == Below) {
+		    pos = None;
+		    if (script == QFont::Devanagari || script == QFont::Gujarati)
+			base = i;
+		} else {
+		    base = i;
+		    break;
+		}
+		if (skipped == 2 && (script == QFont::Kannada || script == QFont::Telugu)) {
+		    base = i;
+		    break;
+		}
+		++skipped;
 	    }
 
 	    IDEBUG("    base consonant at %d skipped=%d, lastConsonant=%d", base, skipped, lastConsonant );
@@ -1249,7 +1276,7 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 	    Position matra_position = None;
 	    if (matra > 0)
 		matra_position = indic_position( uc[matra] );
-	    IDEBUG("    matra at %d with form %d", matra, matra_position);
+	    IDEBUG("    matra at %d with form %d, base=%d", matra, matra_position, base);
 
  	    if (beginsWithRa && base != 0) {
 		int toPos = base+1;
@@ -1288,7 +1315,7 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 	    //      to be at the begining of the syllable, so we just move
 	    //      them there now.
 	    if (matra_position == Split)
-		splitMatra(script, uc, matra, len);
+		splitMatra(script, uc, matra, len, base);
 	    else if (matra_position == Pre) {
 		unsigned short m = uc[matra];
 		while (matra--)
@@ -1331,7 +1358,7 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 	int toMove = 0;
 	while ( fixed < len-1 ) {
 	    IDEBUG("        fixed = %d", fixed );
-	    for ( int i = fixed; i < len; i++ ) {
+	    for ( int i = fixed + 1; i < len; i++ ) {
 		if ( form( uc[i] ) == finalOrder[toMove].form &&
 		     position[i] == finalOrder[toMove].position ) {
 		    // need to move this glyph
@@ -1425,9 +1452,21 @@ static void indic_shape( int script, const QString &string, int from, int syllab
 	    where[reph] = where[reph+1] = FALSE;
 	}
 
-	for (int i = 0; i < len; ++i)
+	for (int i = base+1; i < len; ++i)
 	    where[i] = TRUE;
-	where[base] = FALSE;
+	if (script == QFont::Devanagari || script == QFont::Gujarati) {
+	    // vattu glyphs need this aswell
+	    bool vattu = FALSE;
+	    for (int i = base-2; i > 1; --i) {
+		if (form(reordered[i]) == Consonant) {
+		    vattu = (!vattu && reordered[i] == ra);
+		    if (vattu) {
+			IDEBUG("forming vattu ligature at %d", i);
+			where[i] = where[i+1] = TRUE;
+		    }
+		}
+	    }
+	}
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), where);
 	memset(where, 0, len*sizeof(bool));
 	for (int i = 0; i < base; ++i)

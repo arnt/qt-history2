@@ -1871,59 +1871,6 @@ const Features standardFeatures[] = {
     { 0, 0 }
 };
 
-// always keep in sync with Shape enum in scriptenginearabic.cpp
-const Features arabicFeatures[] = {
-    { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x8000 },
-    { FT_MAKE_TAG( 'i', 's', 'o', 'l' ), 0x01 },
-    { FT_MAKE_TAG( 'f', 'i', 'n', 'a' ), 0x02 },
-    { FT_MAKE_TAG( 'm', 'e', 'd', 'i' ), 0x04 },
-    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), 0x08 },
-    { FT_MAKE_TAG( 'r', 'l', 'i', 'g' ), 0x4000 },
-    { FT_MAKE_TAG( 'c', 'a', 'l', 't' ), 0x8000 },
-    { FT_MAKE_TAG( 'l', 'i', 'g', 'a' ), 0x4000 },
-    { FT_MAKE_TAG( 'd', 'l', 'i', 'g' ), 0x8000 },
-    // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
-    { FT_MAKE_TAG( 'm', 's', 'e', 't' ), 0x8000 },
-    { 0, 0 }
-};
-
-const Features syriacFeatures[] = {
-    { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x8000 },
-    { FT_MAKE_TAG( 'i', 's', 'o', 'l' ), 0x01 },
-    { FT_MAKE_TAG( 'f', 'i', 'n', 'a' ), 0x02 },
-    { FT_MAKE_TAG( 'f', 'i', 'n', '2' ), 0x02 },
-    { FT_MAKE_TAG( 'f', 'i', 'n', '3' ), 0x02 },
-    { FT_MAKE_TAG( 'm', 'e', 'd', 'i' ), 0x04 },
-    { FT_MAKE_TAG( 'm', 'e', 'd', '2' ), 0x04 },
-    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), 0x08 },
-    { FT_MAKE_TAG( 'r', 'l', 'i', 'g' ), 0x4000 },
-    { FT_MAKE_TAG( 'c', 'a', 'l', 't' ), 0x8000 },
-    { FT_MAKE_TAG( 'l', 'i', 'g', 'a' ), 0x8000 },
-    { FT_MAKE_TAG( 'd', 'l', 'i', 'g' ), 0x8000 },
-    { 0, 0 }
-};
-
-const Features indicFeatures[] = {
-    // Language based forms
-    { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), CcmpFeature },
-    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), InitFeature },
-    { FT_MAKE_TAG( 'n', 'u', 'k', 't' ), NuktaFeature },
-    { FT_MAKE_TAG( 'a', 'k', 'h', 'n' ), AkhantFeature },
-    { FT_MAKE_TAG( 'r', 'p', 'h', 'f' ), RephFeature },
-    { FT_MAKE_TAG( 'b', 'l', 'w', 'f' ), BelowFormFeature },
-    { FT_MAKE_TAG( 'h', 'a', 'l', 'f' ), HalfFormFeature },
-    { FT_MAKE_TAG( 'p', 's', 'b', 'f' ), PostFormFeature },
-    { FT_MAKE_TAG( 'v', 'a', 't', 'u' ), VattuFeature },
-    // Conjunkts and typographical forms
-    { FT_MAKE_TAG( 'p', 'r', 'e', 's' ), PreSubstFeature },
-    { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), BelowSubstFeature },
-    { FT_MAKE_TAG( 'a', 'b', 'v', 's' ), AboveSubstFeature },
-    { FT_MAKE_TAG( 'p', 's', 't', 's' ), PostSubstFeature },
-    // halant forms
-    { FT_MAKE_TAG( 'h', 'a', 'l', 'n' ), HalantFeature },
-    { 0, 0 }
-};
-
 const Features tibetanFeatures[] = {
     { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x8000 },
     { FT_MAKE_TAG( 'b', 'l', 'w', 's' ), BelowSubstFeature },
@@ -2230,6 +2177,7 @@ void QOpenType::init(glyph_t *glyphs, GlyphAttributes *glyphAttributes, int num_
 	qDebug("   glyph=%4x char_index=%d", str->string[i], str->character_index[i]);
 #endif
     str->length = num_glyphs;
+    orig_nglyphs = num_glyphs;
 
     tmpLogClusters = (unsigned short *) realloc( tmpLogClusters, length*sizeof(unsigned short) );
     memcpy( tmpLogClusters, logClusters, length*sizeof(unsigned short) );
@@ -2257,16 +2205,19 @@ void QOpenType::applyGSUBFeature(unsigned int featureTag, bool *where)
     if (str->length > 255)
 	where_to_apply = (unsigned char *)malloc(str->length*sizeof(unsigned char));
 
+    memset(where_to_apply, 1, str->length);
     if (where) {
-	for ( unsigned int i = 0; i < str->length; i++) {
-	    where_to_apply[i] = where[str->character_index[i]] ? 1 : 0;
+	int j = str->length-1;
+	for (int i = orig_nglyphs; i >= 0; --i) {
+	    if (str->character_index[j] > i)
+		--j;
+	    if (!where[i])
+		where_to_apply[j] = 0;
+	}
 #ifdef OT_DEBUG
+	for (int i = 0; i < (int)str->length; ++i)
 	    qDebug("   apply=%s", where_to_apply[i] ? "true" : "false");
 #endif
-	}
-    } else {
-	for ( unsigned int i = 0; i < str->length; i++)
-	    where_to_apply[i] = 1;
     }
 
     TT_GSUB_Apply_Feature(gsub, feature_index, where_to_apply, &str, &tmp);
@@ -2276,7 +2227,7 @@ void QOpenType::applyGSUBFeature(unsigned int featureTag, bool *where)
 
 #ifdef OT_DEBUG
     qDebug("after applying:");
-    for ( int i = 0; i < str->length; i++) {
+    for ( int i = 0; i < (int)str->length; i++) {
       qDebug("   %4x", str->string[i]);
     }
 #endif

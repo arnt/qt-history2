@@ -461,6 +461,7 @@ private:
     GlyphAttributes *tmpAttributes;
     unsigned short *tmpLogClusters;
     int length;
+    int orig_nglyphs;
 };
 #endif // QT_NO_XFTFREETYPE
 
