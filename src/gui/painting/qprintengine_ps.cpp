@@ -4285,12 +4285,12 @@ QPSPrintEngineFont::QPSPrintEngineFont(QFontEngine *engine, QPSPrintEnginePrivat
 
 #ifndef QT_NO_XFT
         if (X11->has_xft && engine && engine->type() == QFontEngine::Xft) {
-            XftPattern *pattern = static_cast<QFontEngineXft *>(engine)->pattern();
-            char *filename = 0;
-            XftPatternGetString (pattern, XFT_FILE, 0, &filename);
+            FcPattern *pattern = static_cast<QFontEngineXft *>(engine)->pattern();
+            FcChar8 *filename = 0;
+            FcPatternGetString (pattern, FC_FILE, 0, &filename);
             //qDebug("filename for font is '%s'", filename);
             if (filename) {
-                fontfilename = QString::fromLocal8Bit(filename);
+                fontfilename = QString::fromLocal8Bit((const char *)filename);
                 xfontname = fontfilename;
             }
         } else
