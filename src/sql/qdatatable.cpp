@@ -656,7 +656,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	if ( ( ke->key() == Key_Tab || ke->key() == Qt::Key_BackTab )
 	    && ke->state() & Qt::ControlButton )
 	    return FALSE;
-	
+
 	if ( ke->key() == Key_Escape && d->dat.mode() == QSql::Insert ){
 	    if ( confirmCancels() && !d->cancelMode ) {
 		d->cancelMode = TRUE;
@@ -953,7 +953,7 @@ bool QDataTable::beginInsert()
 	return FALSE;
     int i = 0;
     int row = currentRow();
-        
+
     d->insertPreRows = numRows();
     if ( row < 0 || numRows() < 1 )
 	row = 0;
@@ -2076,7 +2076,7 @@ void QDataTable::refresh( QDataTable::Refresh mode )
     setSize( cur );
     // keep others aware
     if ( d->lastAt == -1 ) {
-	setCurrentSelection( 0, 0 );
+	setCurrentSelection( -1, 0 );
     } else if ( d->lastAt != currentRow() ) {
 	setCurrentSelection( currentRow(), currentColumn() );
     }
@@ -2154,7 +2154,7 @@ void QDataTable::swapColumns( int col1, int col2, bool )
     QString fldLabel = d->fldLabel[ col1 ];
     QIconSet fldIcon = d->fldIcon[ col1 ];
     int fldWidth = d->fldWidth[ col1 ];
-    
+
     d->fld[ col1 ] = d->fld[ col2 ];
     d->fldLabel[ col1 ] = d->fldLabel[ col2 ];
     d->fldIcon[ col1 ] = d->fldIcon[ col2 ];
@@ -2164,7 +2164,7 @@ void QDataTable::swapColumns( int col1, int col2, bool )
     d->fldLabel[ col2 ] = fldLabel;
     d->fldIcon[ col2 ] = fldIcon;
     d->fldWidth[ col2 ] = fldWidth;
-    
+
     int colIndex = d->colIndex[ col1 ];
     d->colIndex[ col1 ] = d->colIndex[ col2 ];
     d->colIndex[ col2 ] = colIndex;
