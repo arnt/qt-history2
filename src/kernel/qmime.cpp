@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qmime.cpp#18 $
 **
 ** Implementation of MIME support
 **
@@ -291,6 +291,30 @@ const QMimeSource* QMimeSourceFactory::data(const QString& abs_name) const
     return r;
 }
 
+#ifdef QT_BUILDER
+
+QPixmap QMimeSourceFactory::pixmap(const QString& abs_name) const
+{
+    if ( abs_name.isEmpty() )
+	return QPixmap();
+    
+    const QMimeSource* m = data( abs_name );
+    if ( !m )
+	return QPixmap();
+
+    QPixmap pix;
+    QImageDrag::decode( m, pix );
+    
+    return pix;
+}
+
+QPixmap QMimeSourceFactory::pixmap( const QString& abs_or_rel_name, const QString& context ) const
+{
+    return pixmap( makeAbsolute( abs_or_rel_name, context ) );
+}
+
+#endif
+
 /*!
   Sets a list of directories which will be searched when named data
   is requested.
@@ -312,7 +336,7 @@ QStringList QMimeSourceFactory::filePath() const
 
 /*!
   Adds another search path.
-  
+
   \sa setFilePath()
 */
 void QMimeSourceFactory::addFilePath( const QString& p )
