@@ -1438,7 +1438,7 @@ void QDomNodePrivate::setParent( QDomNodePrivate* n )
 QDomDocumentPrivate* QDomNodePrivate::ownerDocument()
 {
     QDomNodePrivate* p = this;
-    while ( p && p->isDocumentType() )
+    while ( p && !p->isDocument() )
 	p = p->parent;
 
     return (QDomDocumentPrivate*)p;
@@ -6337,7 +6337,7 @@ QDomNode::NodeType QDomDocument::nodeType() const
 }
 
 /*!
-  Returns TRUE
+  Returns TRUE.
 */
 bool QDomDocument::isDocument() const
 {
