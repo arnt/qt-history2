@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#5 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#6 $
 **
 ** Implementation of tab dialog
 **
@@ -11,7 +11,7 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#6 $");
 
 
 // a small private class to show the tabs on top
@@ -283,7 +283,7 @@ void QTabDialog::setCancelButton( bool enable )
 	    setSizes();
 	    cb->show();
 	}
-	connect( db, SIGNAL(clicked()),
+	connect( cb, SIGNAL(clicked()),
 		 this, SIGNAL(cancelButtonPressed()) );
 	connect( cb, SIGNAL(clicked()),
 		 this, SLOT(reject()) );
