@@ -2373,15 +2373,6 @@ void QPainter::setBrush(const QBrush &brush)
 
     QBrush newBrush = brush;
 
-    // Move brush coords to device so that the state is preserved even if
-    // we transform later.
-    if (brush.style() == Qt::LinearGradientPattern) {
-        newBrush = QBrush(brush.gradientStart() * d->state->matrix,
-                          brush.color(),
-                          brush.gradientStop() * d->state->matrix,
-                          brush.gradientColor());
-    }
-
     if (d->state->brush == newBrush) {
         return;
     }
