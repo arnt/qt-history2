@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#19 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#20 $
 **
 ** Definition of the abstract layout base class
 **
@@ -40,9 +40,7 @@ class QLayoutItem;
 class Q_EXPORT QGLayoutIterator : public QShared
 {
 public:
-    virtual uint count() const = 0;
-    virtual void toFirst() = 0;
-    virtual void next() = 0;
+    virtual QLayoutItem *next() = 0;
     virtual QLayoutItem *current() = 0;
     virtual void removeCurrent() = 0;
 };
@@ -61,12 +59,7 @@ public:
 	if ( it ) it->ref();
 	return *this;
     }
-
-    uint count() const { return it ? it->count() : 0; }
-    bool isNull() const { return it == 0; }
-    bool isEmpty() const { return count() == 0; }
-    void toFirst() { if ( it ) it->toFirst(); }
-    void next() { if ( it ) it->next(); }
+    QLayoutItem *operator++() { return it ? it->next() : 0; }
     QLayoutItem *current() { return it ? it->current() : 0; }
     void removeCurrent() { if ( it ) it->removeCurrent(); }
 private:

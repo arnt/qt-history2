@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#46 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -774,7 +774,7 @@ static bool removeWidget( QLayoutItem *lay, QWidget *w )
 	    lay->invalidate();
 	    return TRUE;
 	}
-	it.next();
+	++it;
     }
     return FALSE;
 }
@@ -841,7 +841,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 
 /*!
   \internal
-  Also takes margin() and menu bar into account. 
+  Also takes margin() and menu bar into account.
 */
 
 int QLayout::totalHeightForWidth( int w ) const
@@ -855,7 +855,7 @@ int QLayout::totalHeightForWidth( int w ) const
 
 /*!
   \internal
-  Also takes margin() and menu bar into account. 
+  Also takes margin() and menu bar into account.
 */
 
 QSize QLayout::totalMinimumSize() const
@@ -873,7 +873,7 @@ QSize QLayout::totalMinimumSize() const
 
 /*!
   \internal
-  Also takes margin() and menu bar into account. 
+  Also takes margin() and menu bar into account.
 */
 
 QSize QLayout::totalSizeHint() const
@@ -890,7 +890,7 @@ QSize QLayout::totalSizeHint() const
 
 /*!
   \internal
-  Also takes margin() and menu bar into account. 
+  Also takes margin() and menu bar into account.
 */
 
 QSize QLayout::totalMaximumSize() const
@@ -1008,7 +1008,7 @@ void QLayout::setMenuBar( QMenuBar *w )
   Returns the minimum size of this layout. This is the smallest size
   that the layout can have, while still respecting the specifications.
   Does not include what's  needed by margin() or menuBar().
-  
+
   The default implementation allows unlimited resizing.
 */
 
@@ -1056,7 +1056,7 @@ static void  invalidateRecursive( QLayoutItem *lay )
     QLayoutItem *child;
     while ( (child = it.current() ) ) {
 	invalidateRecursive( child );
-	it.next();
+	++it;
     }
 }
 
@@ -1218,7 +1218,8 @@ Sets the hasHeightForWidth() flag to \a b.
   \class QGLayoutIterator qabstractlayout.h
   \brief The abstract base class of internal layout iterators.
 
-  To be subclassed by custom layout implementors.
+  To be subclassed by custom layout implementors. The functions that
+  need to be implemented are next(), current() and removeCurrent().
 
   The QGLayoutIterator implements the functionality of
   QLayoutIterator. Each subclass of QLayout needs a
@@ -1226,22 +1227,14 @@ Sets the hasHeightForWidth() flag to \a b.
 */
 
 
-/*! \fn uint QGLayoutIterator::count() const
-  Implemented in subclasses to return the number of items in the layout.
- */
-
-/*! \fn void QGLayoutIterator::toFirst()
-  Implemented in subclasses to move the iterator to the first item
-  in the layout.
-*/
-
-/*! \fn void QGLayoutIterator::next()
-  Implemented in subclasses to move the iterator to the next item.
+/*! \fn QLayoutItem *QGLayoutIterator::next()
+  Implemented in subclasses to move the iterator to the next item and
+  return that item, or 0 if there is no next item.
  */
 
 /*! \fn QLayoutItem *QGLayoutIterator::current()
   Implemented in subclasses to return the current item, or 0 if there
-  is no next element.
+  is no current item.
  */
 
 /*! \fn void QGLayoutIterator::removeCurrent()

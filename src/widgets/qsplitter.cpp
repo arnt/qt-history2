@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#66 $
 **
 **  Splitter widget
 **
@@ -633,7 +633,7 @@ void QSplitter::doResize()
 	}
     }
 
-    qGeomCalc( a, n, pick( r.topLeft() ), pick( r.size() ), 0 );
+    qGeomCalc( a, 0, n, pick( r.topLeft() ), pick( r.size() ), 0 );
     for ( i = 0; i< n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
 	if ( orient == Horizontal )

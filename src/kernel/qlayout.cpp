@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#94 $
 **
 ** Implementation of layout classes
 **
@@ -215,7 +215,7 @@ int QLayoutArray::heightForWidth( int w, int spacing )
 {
     setupLayoutData();
     if ( has_hfw && w != hfw_width ) {
-	qGeomCalc( colData, cc, 0, w, spacing );
+	qGeomCalc( colData, 0, cc, 0, w, spacing );
 	recalcHFW( w, spacing );
     }
     return hfw_height;
@@ -628,14 +628,14 @@ void QLayoutArray::distribute( QRect r, int spacing )
 {
     setupLayoutData();
 
-    qGeomCalc( colData, cc, r.x(), r.width(), spacing );
+    qGeomCalc( colData, 0, cc, r.x(), r.width(), spacing );
     QArray<QLayoutStruct> *rDataPtr;
     if ( has_hfw ) {
 	recalcHFW( r.width(), spacing );
-	qGeomCalc( *hfwData, rr, r.y(), r.height(), spacing );
+	qGeomCalc( *hfwData, 0, rr, r.y(), r.height(), spacing );
 	rDataPtr = hfwData;
     } else {
-	qGeomCalc( rowData, rr, r.y(), r.height(), spacing );
+	qGeomCalc( rowData, 0, rr, r.y(), r.height(), spacing );
 	rDataPtr = &rowData;
     }
     QArray<QLayoutStruct> &rData = *rDataPtr; //cannot assign to reference
@@ -704,11 +704,12 @@ public:
 	}
     }
     void toFirst() { multi = FALSE; idx = 0; }
-    void next() {
+    QLayoutItem *next() {
 	idx++;
 	if ( !multi && idx >= int(array->things.count()) ) {
 	    multi = TRUE; idx = 0;
 	}
+	return current();
     }
     void removeCurrent() {
 	if ( multi ) array->multi->remove( idx );

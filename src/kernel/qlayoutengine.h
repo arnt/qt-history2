@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayoutengine.h#2 $
+** $Id: //depot/qt/main/src/kernel/qlayoutengine.h#3 $
 **
 ** Definition of something or other
 **
@@ -39,7 +39,7 @@ struct QLayoutStruct
 };
 
 
-void qGeomCalc( QArray<QLayoutStruct> &chain, int count, int pos,
+void qGeomCalc( QArray<QLayoutStruct> &chain, int start, int count, int pos,
 		      int space, int spacer );
 
 
