@@ -2109,7 +2109,7 @@ GC qt_xget_temp_gc(int scrn, bool monochrome)                // get temporary GC
  *****************************************************************************/
 
 /*!
-    \fn QWidget *QApplication::mainWidget() const
+    \fn QWidget *QApplication::mainWidget()
 
     Returns the main application widget, or 0 if there is no main
     widget.
@@ -2357,15 +2357,6 @@ QWidget *QApplication::widgetAt_sys(int x, int y)
         return c;
     return w;
 }
-
-/*!
-    \fn QWidget *QApplication::widgetAt(const QPoint &pos)
-    \overload
-
-    Returns a pointer to the widget at global screen position \a pos,
-    or 0 if there is no Qt widget there.
-*/
-
 
 /*!
     Synchronizes with the X server in the X11 implementation. This

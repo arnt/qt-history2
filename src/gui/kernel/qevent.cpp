@@ -20,7 +20,7 @@
 #include "qdnd_p.h"
 
 /*!
-    \class QInputEvent qevent.h
+    \class QInputEvent
     \ingroup events
 
     \brief The QInputEvent class is the base class for events that
@@ -38,10 +38,8 @@ QInputEvent::~QInputEvent()
 {
 }
 
-
-
 /*!
-    \class QMouseEvent qevent.h
+    \class QMouseEvent
     \ingroup events
 
     \brief The QMouseEvent class contains parameters that describe a mouse event.
@@ -276,7 +274,7 @@ QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,
 
 
 /*!
-    \class QWheelEvent qevent.h
+    \class QWheelEvent
     \brief The QWheelEvent class contains parameters that describe a wheel event.
 
     \ingroup events
@@ -460,7 +458,7 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, 
 
 
 /*!
-    \class QKeyEvent qevent.h
+    \class QKeyEvent
     \brief The QKeyEvent class contains describes a key event.
 
     \ingroup events
@@ -580,7 +578,7 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
 
 
 /*!
-    \class QFocusEvent qevent.h
+    \class QFocusEvent
     \brief The QFocusEvent class contains event parameters for widget focus
     events.
 
@@ -637,7 +635,7 @@ Qt::FocusReason QFocusEvent::reason()
 
 
 /*!
-    \class QPaintEvent qevent.h
+    \class QPaintEvent
     \brief The QPaintEvent class contains event parameters for paint events.
 
     \ingroup events
@@ -729,7 +727,7 @@ QWSUpdateEvent::~QWSUpdateEvent()
 
 
 /*!
-    \class QMoveEvent qevent.h
+    \class QMoveEvent
     \brief The QMoveEvent class contains event parameters for move events.
 
     \ingroup events
@@ -769,7 +767,7 @@ QMoveEvent::~QMoveEvent()
 
 
 /*!
-    \class QResizeEvent qevent.h
+    \class QResizeEvent
     \brief The QResizeEvent class contains event parameters for resize events.
 
     \ingroup events
@@ -808,7 +806,7 @@ QResizeEvent::~QResizeEvent()
 
 
 /*!
-    \class QCloseEvent qevent.h
+    \class QCloseEvent
     \brief The QCloseEvent class contains parameters that describe a close event.
 
     \ingroup events
@@ -876,7 +874,7 @@ QCloseEvent::~QCloseEvent()
 }
 
 /*!
-   \class QIconDragEvent qevent.h
+   \class QIconDragEvent
    \brief The QIconDragEvent class indicates that a main icon drag has begun.
 
    \ingroup events
@@ -906,42 +904,7 @@ QIconDragEvent::~QIconDragEvent()
 }
 
 /*!
-    \fn bool QIconDragEvent::isAccepted() const
-
-    Returns true if the receiver of the event has started a drag and
-    drop operation; otherwise returns false.
-
-    \sa accept(), ignore()
-*/
-
-/*!
-    \fn void QIconDragEvent::accept()
-
-    Sets the accept flag of the icon drag event object.
-
-    Setting the accept flag indicates that the receiver of this event
-    has started a drag and drop operation.
-
-    By default, the accept flag is \e not set.
-
-    \sa ignore(), QWidget::hide()
-*/
-
-/*!
-    \fn void QIconDragEvent::ignore()
-
-    Clears the accept flag of the icon drag object.
-
-    Clearing the accept flag indicates that the receiver of this event
-    has not handled the icon drag.
-
-    By default, the accept flag is \e not set.
-
-    \sa accept()
-*/
-
-/*!
-    \class QContextMenuEvent qevent.h
+    \class QContextMenuEvent
     \brief The QContextMenuEvent class contains parameters that describe a context menu event.
 
     \ingroup events
@@ -1113,7 +1076,7 @@ Qt::ButtonState QContextMenuEvent::state() const
 
 
 /*!
-    \class QInputMethodEvent qevent.h
+    \class QInputMethodEvent
     \brief The QInputMethodEvent class provides parameters for input method events.
 
     \ingroup events
@@ -1269,7 +1232,7 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
 }
 
 /*!
-    \class QTabletEvent qevent.h
+    \class QTabletEvent
     \brief The QTabletEvent class contains parameters that describe a Tablet event.
 
     \ingroup events
@@ -1752,36 +1715,41 @@ void QDropEvent::setDropAction(Qt::DropAction action)
 */
 
 /*!
-    \fn void QDropEvent::setAction(Action action)
+    \fn void QDropEvent::setDropAction(Qt::DropAction action)
 
     Sets the \a action to be performed on the data by the target.
     This is used internally, you should not need to call this in your
-    code: the \e source decides the action, not the target.
+    code. The \e source decides the action, not the target.
+
+    \sa dropAction()
 */
 
 /*!
-    \fn Action QDropEvent::action() const
-    \compat
+    \fn Qt::DropAction QDropEvent::dropAction() const
 
-    Returns the Action that the target is expected to perform on the
+    Returns the action that the target is expected to perform on the
     data. If your application understands the action and can
     process the supplied data, call acceptAction(); if your
     application can process the supplied data but can only perform the
     Copy action, call accept().
-*/
 
-/*!
-    \fn void QDropEvent::ignore()
-
-    The opposite of accept(); i.e. you have ignored the drop event.
+    \sa setDropAction()
 */
 
 #ifdef QT3_SUPPORT
 /*!
-    \fn bool QDropEvent::isActionAccepted () const
+    Use dropAction() instead.
 
-    Returns true if the drop action was accepted by the drop site;
-    otherwise returns false.
+    The table below shows the correspondance between the return type
+    of action() and the return type of dropAction().
+
+    \table
+    \header \i Old enum value   \i New enum value
+    \row    \i QDropEvent::Copy \i Qt::CopyAction
+    \row    \i QDropEvent::Move \i Qt::MoveAction
+    \row    \i QDropEvent::Link \i Qt::LinkAction
+    \row    \i other            \i Qt::CopyAction
+    \endtable
 */
 
 QT3_SUPPORT QDropEvent::Action QDropEvent::action() const
@@ -1810,7 +1778,7 @@ QT3_SUPPORT QDropEvent::Action QDropEvent::action() const
 
 
 /*!
-    \class QDragEnterEvent qevent.h
+    \class QDragEnterEvent
     \brief The QDragEnterEvent class provides an event which is sent to a widget when a drag and drop action enters it.
 
     \ingroup events
@@ -1848,7 +1816,7 @@ QDragResponseEvent::~QDragResponseEvent()
 }
 
 /*!
-    \class QDragMoveEvent qevent.h
+    \class QDragMoveEvent
     \ingroup events
     \ingroup draganddrop
     \brief The QDragMoveEvent class provides an event which is sent while a drag and drop action is in progress.
@@ -1871,7 +1839,7 @@ QDragResponseEvent::~QDragResponseEvent()
 */
 
 /*!
-    \class QDragLeaveEvent qevent.h
+    \class QDragLeaveEvent
     \brief The QDragLeaveEvent class provides an event that is sent to a widget when a drag and drop action leaves it.
 
     \ingroup events
@@ -1931,7 +1899,7 @@ QActionEvent::~QActionEvent()
 }
 
 /*!
-    \class QHideEvent qevent.h
+    \class QHideEvent
     \brief The QHideEvent class provides an event which is sent after a widget is hidden.
 
     \ingroup events
@@ -1961,7 +1929,7 @@ QHideEvent::~QHideEvent()
 }
 
 /*!
-    \class QShowEvent qevent.h
+    \class QShowEvent
     \brief The QShowEvent class provides an event that is sent when a widget is shown.
 
     \ingroup events
@@ -1997,7 +1965,7 @@ QShowEvent::~QShowEvent()
 */
 
 /*!
-    \class QFileOpenEvent qevent.h
+    \class QFileOpenEvent
     \brief The QFileOpenEvent class provides an event that will be
     sent when there is a request to open a file.
 
@@ -2033,7 +2001,7 @@ QFileOpenEvent::~QFileOpenEvent()
 */
 
 /*!
-    \class QToolBarChangeEvent qevent.h
+    \class QToolBarChangeEvent
     \brief The QToolBarChangeEvent class provides an event that is
     sent whenever a the toolbar button is clicked on Mac OS X.
 
@@ -2213,7 +2181,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
 /*!
     \internal
 
-    \class QClipboardEvent qevent.h
+    \class QClipboardEvent
     \ingroup events
 
     \brief The QClipboard class contains the parameters for a clipboard event

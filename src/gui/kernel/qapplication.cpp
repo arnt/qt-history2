@@ -985,7 +985,7 @@ QApplication::~QApplication()
     Returns a pointer to the widget at global screen position
     \a p, or 0 if there is no Qt widget there.
 
-    This function is normally rather slow.
+    This function can be slow.
 
     \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
 */
@@ -2571,9 +2571,9 @@ QCursor *QApplication::overrideCursor()
 }
 
 /*!
-  Changes the currently active application override cursor to \a cursor.
+    Changes the currently active application override cursor to \a cursor.
 
-  This function has no effect if setOverrideCursor() wasn't called.
+    This function has no effect if setOverrideCursor() wasn't called.
 
     \sa setOverrideCursor() overrideCursor() restoreOverrideCursor() changeOverrideCursor() QWidget::setCursor()
  */
@@ -2588,8 +2588,28 @@ void QApplication::changeOverrideCursor(const QCursor &cursor)
 
 #endif
 
-/*! \reimp
- */
+/*!
+    Enters the main event loop and waits until exit() is called or the
+    main widget is destroyed, and returns the value that was set to
+    exit() (which is 0 if exit() is called via quit()).
+
+    It is necessary to call this function to start event handling. The
+    main event loop receives events from the window system and
+    dispatches these to the application widgets.
+
+    Generally speaking, no user interaction can take place before
+    calling exec(). As a special case, modal widgets like QMessageBox
+    can be used before calling exec(), because modal widgets call
+    exec() to start a local event loop.
+
+    To make your application perform idle processing, i.e. executing a
+    special function whenever there are no pending events, use a
+    QTimer with 0 timeout. More advanced idle processing schemes can
+    be achieved using processEvents().
+
+    \sa quit(), exit(), processEvents(), QApplication::setMainWidget(),
+        QCoreApplication::exec()
+*/
 int QApplication::exec()
 {
 #ifndef QT_NO_ACCESSIBILITY
