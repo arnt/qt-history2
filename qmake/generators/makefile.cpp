@@ -790,13 +790,15 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 	QFileInfo fi((*it));
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 
-	QString lexflags = "$(LEXFLAGS)";
-	if(!project->isActiveConfig("yacc_no_name_mangle"))
-	    lexflags += " -P" + fi.baseName();
+	QString lexflags = "$(LEXFLAGS)", stub="yy";
+	if(!project->isActiveConfig("yacc_no_name_mangle")) {
+	    stub = fi.baseName();
+	    lexflags += " -P" + stub;
+	}
 	t << impl << ": " << (*it) << " " << depends[(*it)].join(" \\\n\t\t") << "\n\t"
 	  << ( "$(LEX) " + lexflags + " " ) << (*it) << "\n\t"
 	  << "-$(DEL) " << impl << " " << "\n\t"
-	  << "-$(MOVE) lex." << fi.baseName() << ".c " << impl << endl << endl;
+	  << "-$(MOVE) lex." << stub << ".c " << impl << endl << endl;
     }
 }
 
