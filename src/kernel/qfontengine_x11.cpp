@@ -23,7 +23,6 @@ extern void qt_draw_transformed_rect( QPainter *p,  int x, int y, int w,  int h,
 
 static void drawLines( QPainter *p, QFontEngine *fe, int baseline, int x1,  int w, int textFlags )
 {
-    --w;
     int lw = fe->lineThickness();
     if ( textFlags & QFontEngine::Underline ) {
     	int pos = fe->underlinePosition();
