@@ -1834,15 +1834,15 @@ void QListViewItem::setText( int column, const QString &text )
 
 void QListViewItem::setPixmap( int column, const QPixmap & pm )
 {
+    if ( column < 0 )
+	return;
+
     int oldW = 0;
     int oldH = 0;
     if ( pixmap( column ) ) {
 	oldW = pixmap( column )->width();
 	oldH = pixmap( column )->height();
     }
-
-    if ( column < 0 )
-	return;
 
     QListViewPrivate::ItemColumnInfo * l
 	= (QListViewPrivate::ItemColumnInfo*) columns;
