@@ -270,6 +270,10 @@ QDockWindow
   Be able to dock a window on top of itself so that it makes it like a QTabWidget.  
   (see support/arc-11/23889)
 
+QPrinter\QPainter??
+  Export the graphics to a WMF (Window Metafile) - I doubt we will do this, but I'll
+  add it all the same.
+
 
 New functionality
 -----------------
