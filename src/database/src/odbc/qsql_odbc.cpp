@@ -227,6 +227,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
 	qColName = qstrdup( (const char*)colName );
     }
 #else
+    SQLCHAR colName[255];
     r = SQLDescribeCol( hStmt,
 			column+1,
 			colName,
@@ -381,7 +382,7 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
 			 tablename.length(),
 			 (SQLTCHAR*)qt_winTchar( fieldname, TRUE ),
 			 fieldname.length() );
-    else 
+    else
 	r =  SQLColumnsA( hStmt,
 			 NULL,
 			 0,
