@@ -35,12 +35,12 @@ QWidgetResizeHandler::QWidgetResizeHandler(QWidget *parent, QWidget *cw)
       fw(0), extrahei(0), buttonDown(false), moveResizeMode(false), sizeprotect(true), movingEnabled(true)
 {
     mode = Nowhere;
-    //widget->setMouseTracking(true);
+    widget->setMouseTracking(true);
     QFrame *frame = qobject_cast<QFrame*>(widget);
     range = frame ? frame->frameWidth() : RANGE;
     range = qMax(RANGE, range);
     activeForMove = activeForResize = true;
-    qApp->installEventFilter(this);
+    widget->installEventFilter(this);
 }
 
 void QWidgetResizeHandler::setActive(Action ac, bool b)
@@ -63,21 +63,9 @@ bool QWidgetResizeHandler::isActive(Action ac) const
     return b;
 }
 
-static QWidget *childOf(QWidget *w, QWidget *child)
-{
-    while (child) {
-        if (child == w)
-            return child;
-        if (child->isWindow())
-            break;
-        child = child->parentWidget();
-    }
-    return 0;
-}
-
 bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
 {
-    if (!isActive() || !o->isWidgetType() || !ee->spontaneous())
+    if (!isActive() || !ee->spontaneous())
         return false;
 
     if (ee->type() != QEvent::MouseButtonPress &&
@@ -87,12 +75,9 @@ bool QWidgetResizeHandler::eventFilter(QObject *o, QEvent *ee)
          ee->type() != QEvent::ShortcutOverride)
         return false;
 
-    QWidget *w = childOf(widget, (QWidget*)o);
-    if (!w
-#ifndef QT_NO_SIZEGRIP
-         || qobject_cast<QSizeGrip*>(o)
-#endif
-         || qApp->activePopupWidget()) {
+    Q_ASSERT(o == widget);
+    QWidget *w = widget;
+    if (QApplication::activePopupWidget()) {
         if (buttonDown && ee->type() == QEvent::MouseButtonRelease)
             buttonDown = false;
         return false;
@@ -289,6 +274,13 @@ void QWidgetResizeHandler::mouseMoveEvent(QMouseEvent *e)
 void QWidgetResizeHandler::setMouseCursor(MousePosition m)
 {
 #ifndef QT_NO_CURSOR
+    QObjectList children = widget->children();
+    for (int i = 0; i < children.size(); ++i) {
+        if (QWidget *w = qobject_cast<QWidget*>(children.at(i)))
+            if (!w->testAttribute(Qt::WA_SetCursor))
+                w->setCursor(Qt::ArrowCursor);
+    }
+
     switch (m) {
     case TopLeft:
     case BottomRight:
