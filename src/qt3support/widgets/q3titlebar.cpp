@@ -520,7 +520,7 @@ bool Q3TitleBar::isActive() const
 bool Q3TitleBar::usesActiveColor() const
 {
     return (isActive() && isActiveWindow()) ||
-           (!window() && window()->isActiveWindow());
+        (!window() && QWidget::window()->isActiveWindow());
 }
 
 QWidget *Q3TitleBar::window() const
