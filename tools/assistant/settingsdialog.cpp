@@ -52,8 +52,8 @@ void SettingsDialog::init()
 void SettingsDialog::on_colorButton_clicked()
 {
     QPalette pal = ui.colorButton->palette();
-    QColor c = QColorDialog::getColor(pal.color(backgroundRole()), this);
-    pal.setColor(backgroundRole(), c);
+	QColor c = QColorDialog::getColor(pal.color(QPalette::Button), this);
+	pal.setColor(QPalette::Button, c);
     ui.colorButton->setPalette(pal);
 }
 

@@ -514,7 +514,7 @@ void MainWindow::showSettingsDialog(int page)
     settingsDia->linkUnderlineCB()->setChecked(tabs->linkUnderline());
 
     QPalette pal = settingsDia->colorButton()->palette();
-    pal.setColor(QPalette::Active, settingsDia->colorButton()->backgroundRole(), tabs->palette().color(QPalette::Active, QPalette::Link));
+	pal.setColor(QPalette::Active, QPalette::Button, tabs->palette().color(QPalette::Active, QPalette::Link));
     settingsDia->colorButton()->setPalette(pal);
 
     if (page != -1)
@@ -542,7 +542,7 @@ void MainWindow::showSettingsDialog(int page)
     tabs->setLinkUnderline(settingsDia->linkUnderlineCB()->isChecked());
 
     pal = tabs->palette();
-    QColor lc = settingsDia->colorButton()->palette().color(backgroundRole());
+	QColor lc = settingsDia->colorButton()->palette().color(QPalette::Button);
     pal.setColor(QPalette::Active, QPalette::Link, lc);
     pal.setColor(QPalette::Inactive, QPalette::Link, lc);
     pal.setColor(QPalette::Disabled, QPalette::Link, lc);
