@@ -395,17 +395,6 @@ QString QStringList::join(const QString &sep) const
     return res;
 }
 
-// ##### move away from here!!!!
-#include <qstrlist.h>
-QStringList QStrList::toStringList() const
-{
-    QStringList res;
-    const char * s;
-    for ( QStrListIterator it(*this); (s=it.current()); ++it )
-	res << s;
-    return res;
-}
-
 #ifndef QT_NO_DATASTREAM
 template <class T>
 QDataStream& operator>>( QDataStream& s, QStringList& l )

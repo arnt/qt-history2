@@ -1230,3 +1230,14 @@ QPtrCollection::Item QGListIterator::operator-=( uint jumps )
 	curNode = curNode->prev;
     return curNode ? curNode->getData() : 0;
 }
+
+// If you use QStrList you need qglist.cpp anyway
+#include <qstrlist.h>
+QStringList QStrList::toStringList() const
+{
+    QStringList res;
+    const char * s;
+    for ( QStrListIterator it(*this); (s=it.current()); ++it )
+	res << s;
+    return res;
+}
