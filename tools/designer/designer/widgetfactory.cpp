@@ -308,6 +308,9 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout*  layout, LayoutT
     if ( !layout && widget && widget->inherits( "QWizard" ) )
 	widget = ((QWizard*)widget)->currentPage();
 
+    if ( !layout && widget && widget->inherits( "QMainWindow" ) )
+	widget = ((QMainWindow*)widget)->centralWidget();
+    
     if ( !layout && widget && widget->inherits( "QWidgetStack" ) )
 	widget = ((QWidgetStack*)widget)->visibleWidget();
 
@@ -414,6 +417,8 @@ void WidgetFactory::deleteLayout( QWidget *widget )
 	widget = ((QTabWidget*)widget)->currentPage();
     if ( widget->inherits( "QWizard" ) )
 	widget = ((QWizard*)widget)->currentPage();
+    if ( widget->inherits( "QMainWindow" ) )
+	widget = ((QMainWindow*)widget)->centralWidget();
     if ( widget->inherits( "QWidgetStack" ) )
 	widget = ((QWidgetStack*)widget)->visibleWidget();
     delete widget->layout();
@@ -556,7 +561,7 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return new QComboBox( FALSE, parent, name );
     } else if ( className == "QWidget" ) {
 	if ( parent &&
-	     ( parent->inherits( "FormWindow" ) || parent->inherits( "QWizard" ) || parent->inherits( "QTabWidget" ) ) ) {
+	     ( parent->inherits( "FormWindow" ) || parent->inherits( "QWizard" ) || parent->inherits( "QTabWidget" ) || parent->inherits( "QMainWindow" ) ) ) {
 	    FormWindow *fw = find_formwindow( parent );
 	    if ( fw ) {
 		QDesignerWidget *dw = new QDesignerWidget( fw, parent, name );
@@ -682,6 +687,8 @@ WidgetFactory::LayoutType WidgetFactory::layoutType( QWidget *w, QLayout *&layou
 	w = ((QTabWidget*)w)->currentPage();
     if ( w && w->inherits( "QWizard" ) )
 	w = ((QWizard*)w)->currentPage();
+    if ( w && w->inherits( "QMainWindow" ) )
+	w = ((QMainWindow*)w)->centralWidget();
     if ( w && w->inherits( "QWidgetStack" ) )
 	w = ((QWidgetStack*)w)->visibleWidget();
 
@@ -793,7 +800,7 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
 {
     if ( QApplication::activePopupWidget() ) // if a popup is open, we have to make sure that this one is closed, else X might do funny things
 	return TRUE;
-    
+
     if ( o->inherits( "QTabBar" ) )
 	return TRUE;
     else if ( o->inherits( "QSizeGrip" ) )
