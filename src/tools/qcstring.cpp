@@ -460,7 +460,8 @@ QCString::QCString( const char *str, uint maxlen )
     for (len=0; len<maxlen-1; len++) {
 	if (!str[len]) break;
     }
-    duplicate( str, len+1 );
+    QByteArray::resize( len+1 );
+    memcpy( data(), str, len );
     data()[len] = 0;
 }
 
