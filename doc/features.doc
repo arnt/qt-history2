@@ -94,17 +94,17 @@ The available options are:
     8-bit-per-pixel - 256 levels of gray.
     Incompatible with QWS_DEPTH_8
 
-<tr><td valign=top>QT_NO_QWS_DEPTH_8
+<tr><td valign=top>QT_NO_QWS_DEPTH_8 <td valign=top>
     8-bit-per-pixel - 216-color color-cube with 40 auxiliary colors.
     Incompatible with QWS_DEPTH_8GRAYSCALE.
 
-<tr><td valign=top>QT_NO_QWS_DEPTH_15
+<tr><td valign=top>QT_NO_QWS_DEPTH_15 <td valign=top>
     15-bit-per-pixel - 32 levels each of Red, Blue, and Green.
 
-<tr><td valign=top>QT_NO_QWS_DEPTH_16
+<tr><td valign=top>QT_NO_QWS_DEPTH_16 <td valign=top>
     16-bit-per-pixel - 32 levels each of Red and Blue, 64 of Green.
 
-<tr><td valign=top>QT_NO_QWS_DEPTH_32
+<tr><td valign=top>QT_NO_QWS_DEPTH_32 <td valign=top>
     32-bit-per-pixel - 256 levels for each of Red, Green, and Blue.
 
 <tr><td valign=top>QT_NO_QWS_MACH64 <td valign=top>
