@@ -1581,7 +1581,7 @@ fi
 CACHEFILE=$outpath/.qmake.cache
 [ -f $CACHEFILE ] && rm -f $CACHEFILE
 cat >>$CACHEFILE <<EOF
-CONFIG += $QMAKE_CONFIG
+CONFIG += $QMAKE_CONFIG dylib
 QMAKESPEC = $XPLATFORM
 EOF
 #cmdline args
