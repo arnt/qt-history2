@@ -27,7 +27,7 @@
 FontRowTable::FontRowTable( QWidget* parent, const char* name ) :
     QFrame(parent,name)
 {
-    setBackgroundMode(PaletteBase);
+    setBackgroundMode(Qt::PaletteBase);
     setFrameStyle(Panel|Sunken);
     setRow(0);
     tablefont = QApplication::font();
@@ -139,8 +139,8 @@ void FontRowTable::chooseFont()
 	tablefont = oldfont;
 }
 
-FontDisplayer::FontDisplayer( QWidget* parent, const char* name ) :
-    QMainWindow(parent,name)
+FontDisplayer::FontDisplayer( QWidget* parent, const char* ) :
+    QMainWindow(parent)
 {
     FontRowTable* table = new FontRowTable(this);
     QToolBar* controls = new QToolBar(this);
