@@ -807,14 +807,14 @@ static void loadXft()
 
     QString familyName;
     QString rawName;
-    char *value;
+    char *value = 0;
     int weight_value;
     int slant_value;
     int spacing_value;
     char *file_value;
     int index_value;
-    char *foundry_value = 0;
-    FcBool scalable = FcTrue;
+    char *foundry_value;
+    FcBool scalable;
 
     fonts =
         XftListFonts(QX11Info::appDisplay(),
@@ -833,18 +833,27 @@ static void loadXft()
         rawName = familyName = QString::fromUtf8(value);
         familyName.replace('-', ' ');
         familyName.replace("/", "");
-
         slant_value = XFT_SLANT_ROMAN;
         weight_value = XFT_WEIGHT_MEDIUM;
         spacing_value = XFT_PROPORTIONAL;
-        XftPatternGetInteger (fonts->fonts[i], XFT_SLANT, 0, &slant_value);
-        XftPatternGetInteger (fonts->fonts[i], XFT_WEIGHT, 0, &weight_value);
-        XftPatternGetInteger (fonts->fonts[i], XFT_SPACING, 0, &spacing_value);
-        XftPatternGetString (fonts->fonts[i], XFT_FILE, 0, &file_value);
-        XftPatternGetInteger (fonts->fonts[i], XFT_INDEX, 0, &index_value);
-        FcPatternGetBool(fonts->fonts[i], FC_SCALABLE, 0, &scalable);
-        foundry_value = 0;
-        XftPatternGetString(fonts->fonts[i], FC_FOUNDRY, 0, &foundry_value);
+	file_value = 0;
+	index_value = 0;
+	scalable = FcTrue;
+
+        if (XftPatternGetInteger (fonts->fonts[i], XFT_SLANT, 0, &slant_value) != XftResultMatch)
+	    slant_value = XFT_SLANT_ROMAN;
+        if (XftPatternGetInteger (fonts->fonts[i], XFT_WEIGHT, 0, &weight_value) != XftResultMatch)
+	    weight_value = XFT_WEIGHT_MEDIUM;
+        if (XftPatternGetInteger (fonts->fonts[i], XFT_SPACING, 0, &spacing_value) != XftResultMatch)
+	    spacing_value = XFT_PROPORTIONAL;
+        if (XftPatternGetString (fonts->fonts[i], XFT_FILE, 0, &file_value) != XftResultMatch)
+	    file_value = 0;
+        if (XftPatternGetInteger (fonts->fonts[i], XFT_INDEX, 0, &index_value) != XftResultMatch)
+	    index_value = 0;
+        if (FcPatternGetBool(fonts->fonts[i], FC_SCALABLE, 0, &scalable) != XftResultMatch)
+	    scalable = FcTrue;
+        if (XftPatternGetString(fonts->fonts[i], FC_FOUNDRY, 0, &foundry_value) != XftResultMatch)
+	    foundry_value = 0;
         QtFontFamily *family = db->family(familyName, true);
         family->rawName = rawName;
         family->hasXft = true;
