@@ -542,7 +542,7 @@ QFileDialog::~QFileDialog()
 }
 
 /*!
-    Sets the file dialog's current \a directory. 
+    Sets the file dialog's current \a directory.
 */
 
 void QFileDialog::setDirectory(const QDir &directory)
@@ -1243,11 +1243,11 @@ void QFileDialogPrivate::setup()
     grid->setMargin(11);
     grid->setSpacing(6);
 
-    // model    
+    // model
     model = new QDirModel(QString::null, q);
     model->setFilter(model->filter() | QDir::AllDirs);
     model->setSorting(QDir::DirsFirst);
-    
+
     // views
     lview = new QGenericListView(q);
     lview->setModel(model);
@@ -1345,19 +1345,19 @@ void QFileDialogPrivate::setup()
     QObject::connect(lookIn, SIGNAL(activated(const QString&)),
                      q, SLOT(setCurrentDir(const QString&)));
     grid->addWidget(d->lookIn, 0, 1, 1, 3);
-    
+
     lookInEdit = new QFileDialogLineEdit(lookIn);
     lookIn->setLineEdit(lookInEdit);
     QObject::connect(lookInEdit, SIGNAL(textChanged(const QString&)),
                      q, SLOT(lookInChanged(const QString&)));
     QObject::connect(lookInEdit, SIGNAL(returnPressed()), q, SLOT(lookIn()));
-    
+
     fileName = new QFileDialogLineEdit(q);
     QObject::connect(fileName, SIGNAL(textChanged(const QString&)),
                      q, SLOT(fileNameChanged(const QString&)));
     QObject::connect(fileName, SIGNAL(returnPressed()), q, SLOT(accept()));
     grid->addWidget(fileName, 2, 2, 1, 3);
-    
+
     fileType = new QComboBox(q);
     fileType->setDuplicatesEnabled(false);
     fileType->insertStringList(QFileDialog::tr("All Files (*)"));
@@ -1967,3 +1967,12 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
 
     return lst;
 }
+
+
+#ifdef QT_COMPAT
+QString QFileDialog::selectedFile() const
+{
+    QStringList files = selectedFiles();
+    return files.size() ? files.at(0) : QString();
+}
+#endif

@@ -57,6 +57,14 @@ public:
     enum FileMode { AnyFile, ExistingFile, Directory, ExistingFiles, DirectoryOnly };
     void setFileMode(FileMode mode);
     FileMode fileMode() const;
+#ifdef QT_COMPAT
+    typedef FileMode Mode;
+    inline QT_COMPAT void setMode(FileMode m) { setFileMode(m); }
+    inline QT_COMPAT FileMode mode() const { return fileMode(); }
+    inline QT_COMPAT void setDir(const QString &directory) { setDirectory(directory); }
+    inline QT_COMPAT void setDir( const QDir &directory ) { setDirectory(directory); }
+    QT_COMPAT QString selectedFile() const;
+#endif
 
     enum Option { DontResolveSymlinks = 0x01, ShowDirsOnly = 0x02 };
 
