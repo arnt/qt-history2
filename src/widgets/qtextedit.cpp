@@ -5900,7 +5900,7 @@ QString QTextEdit::optimText() const
     // concatenate all strings
     int i;
     int offset;
-    QMapConstIterator<int,QTextEditOptimPrivate::Tag *> it;
+    QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
     QTextEditOptimPrivate::Tag * ftag = 0;
     for ( i = 0; i < d->od->numLines; i++ ) {
 	if ( d->od->lines[ LOGOFFSET(i) ].isEmpty() ) { // CR lines are empty
@@ -6192,7 +6192,7 @@ void QTextEdit::optimAppend( const QString &str )
 QTextEditOptimPrivate::Tag * QTextEdit::optimPreviousLeftTag( int line )
 {
     QTextEditOptimPrivate::Tag * ftag = 0;
-    QMapConstIterator<int,QTextEditOptimPrivate::Tag *> it;
+    QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
     if ( (it = d->od->tagIndex.find( LOGOFFSET(line) )) != d->od->tagIndex.end() )
 	ftag = it.data();
     if ( !ftag ) {
@@ -6318,7 +6318,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     // add tag formatting
     if ( d->od->tags ) {
 	int i = startLine;
-	QMapConstIterator<int,QTextEditOptimPrivate::Tag *> it;
+	QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
 	QTextEditOptimPrivate::Tag * tag = 0, * tmp = 0;
   	QTextCursor cur( td );
 	// Step 1 - find previous left-tag
@@ -6805,11 +6805,11 @@ void QTextEdit::optimCheckLimit( const QString& str )
 	    itr = itr->next;
 	}
 	// ...in the tag index as well
-	QMapIterator<int, QTextEditOptimPrivate::Tag *> idx;
+	QMap<int, QTextEditOptimPrivate::Tag *>::Iterator idx;
 	if ( (idx = d->od->tagIndex.find( d->logOffset )) != d->od->tagIndex.end() )
 	    d->od->tagIndex.remove( idx );
 
-	QMapIterator<int,QString> it;
+	QMap<int,QString>::Iterator it;
 	if ( (it = d->od->lines.find( d->logOffset )) != d->od->lines.end() ) {
 	    d->od->len -= (*it).length();
 	    d->od->lines.remove( it );

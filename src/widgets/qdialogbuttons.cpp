@@ -36,7 +36,7 @@ QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, Q_UINT32 butto
 }
 #endif // QT_NO_DIALOG
 
-QDialogButtons::QDialogButtons(QWidget *parent, Q_UINT32 buttons, 
+QDialogButtons::QDialogButtons(QWidget *parent, Q_UINT32 buttons,
 			       Orientation orient, const char *name ) : QWidget(parent, name)
 {
     init(buttons, orient);
@@ -77,7 +77,7 @@ QDialogButtons::questionMode() const
 void
 QDialogButtons::setButtonEnabled(Button button, bool enabled)
 {
-    if(enabled) 
+    if(enabled)
 	d->enabled |= button;
     else
 	d->enabled ^= button;
@@ -182,7 +182,7 @@ QDialogButtons::setOrientation(Orientation orient)
     if(d->orient != orient) {
 	d->orient = orient;
 	if(d->custom && d->custom->layout())
-	    ((QBoxLayout*)d->custom->layout())->setDirection(orient == Horizontal ? QBoxLayout::LeftToRight : 
+	    ((QBoxLayout*)d->custom->layout())->setDirection(orient == Horizontal ? QBoxLayout::LeftToRight :
 							     QBoxLayout::TopToBottom);
 	layoutButtons();
     }
@@ -263,7 +263,7 @@ QDialogButtons::handleClicked()
     if(!s)
 	return;
 
-    for(QMapIterator<QDialogButtons::Button, QWidget *> it = d->buttons.begin(); it != d->buttons.end(); ++it) {
+    for(QMap<QDialogButtons::Button, QWidget *>::Iterator it = d->buttons.begin(); it != d->buttons.end(); ++it) {
 	if(it.data() == s) {
 	    emit clicked((QDialogButtons::Button)it.key());
 	    switch(it.key()) {
@@ -326,7 +326,7 @@ QDialogButtons::layoutButtons()
 
     QStyle::SubRect rects[] = {
     	QStyle::SR_DialogButtonAccept, QStyle::SR_DialogButtonReject,
-	QStyle::SR_DialogButtonApply,  QStyle::SR_DialogButtonHelp, 
+	QStyle::SR_DialogButtonApply,  QStyle::SR_DialogButtonHelp,
 	QStyle::SR_DialogButtonCustom, QStyle::SR_DialogButtonAll,
         QStyle::SR_DialogButtonRetry,  QStyle::SR_DialogButtonIgnore,
         QStyle::SR_DialogButtonAbort };

@@ -263,7 +263,7 @@ public:
 
     QString tipForTab( QTab * tab ) const
     {
-	QMapConstIterator<QTab *, QString> it;
+	QMap<QTab *, QString>::ConstIterator it;
 	it = tabTips.find( tab );
 	if ( it != tabTips.end() )
 	    return it.data();
@@ -290,7 +290,7 @@ protected:
 
 #ifndef QT_NO_TOOLTIP
 	// find and show the tool tip for the tab under the point p
-	QMapIterator<QTab *, QString> it;
+	QMap<QTab *, QString>::Iterator it;
 	for ( it = tabTips.begin(); it != tabTips.end(); ++it ) {
 	    if ( it.key()->rect().contains( p ) )
 		tip( it.key()->rect(), it.data() );
