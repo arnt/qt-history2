@@ -104,7 +104,7 @@ bool QApplicationInterface::requestEvents( QObject* f )
   mainwindow, and therefore the mainwindow interface can give access to the menubar by providing
   an interface.
 */
-QApplicationInterface* QApplicationInterface::requestInterface( const QCString& request )
+QApplicationInterface* QApplicationInterface::requestInterface( const QCString& /*request*/ )
 {
     return 0;
 }
