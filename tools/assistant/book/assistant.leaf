@@ -271,13 +271,12 @@ to keep the previous settings. \QA will remember your
 settings between sessions, including window sizes and positions, 
 and which pages you have open. The Settings dialog contains the
 following tabs:
-
 \list
 \i General Settings
 
 To change the base font used throughout \QA, select a 
 font type from the Font combobox. To choose a new fixed-width 
-font, to show code snippets for example, choose a font type from 
+font, for example, to show code snippets, choose a font type from 
 the 'Fixed font' combobox. To change the color of hypertext 
 links, click the 'Link color' color button. Uncheck the 
 'Underline links' checkbox if you don't want underlined links. 
@@ -285,21 +284,26 @@ links, click the 'Link color' color button. Uncheck the
 \i Web Settings 
 
 Some pages contain links to external web pages. In order to display
-these links, you must specify a web browser. Click \Button ... to
-invoke the \Widget Assistant dialog and navigate until you find the
-web browser you wish to use. Click \OK to accept the selection.
-Alternatively, type in the name of your browser's executable in the
-line edit. If you want to change \QA's home page, enter the
-file name in the line edit below, or use the bottom \Button ... button
-to select the file.
+these links, you must specify a web browser. Type the name of your
+browser's executable in the Web Browser Application line edit.
+Alternatively, click the \Button {(ellipsis)} button to invoke the
+\Widget {Set Web Browser} dialog and navigate until you find the web
+browser you want to use. Click \Button {Save} to accept the selection.
+
+To change \QA's default home page, enter the file name in the Home
+Page line edit. Alternatively, click the corresponding \Button
+{(ellipsis)} button to invoke the \Widget {Set Homepage} dialog.
+Navigate until you find the home page file you want to use and then
+click \Button {Save} to accept the selection.
 
 \i PDF Settings
 
 Some pages contain links to PDF documents. In order to display these
-links, you must specify a PDF viewer. Click \Button ... to invoke the
-\Widget Assistant dialog and navigate until you find the PDF viewer
-you wish to use. Click \OK to accept the selection. Alternatively,
-type in the name of your PDF viewer's executable in the line edit.
+links, you must specify a PDF viewer. Type in the name of your PDF viewer's
+executable in the line edit. Alternatively, click the \Button {(ellipsis)}
+button to invoke the \Widget {Set PDF Browser} dialog and navigate
+until you find the PDF viewer you want to use. Click \Button Save to
+accept the selection. 
 
 \i Profiles
 
