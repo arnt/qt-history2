@@ -283,9 +283,11 @@ void DesignerProjectImpl::breakPoints( QMap<QString, QValueList<int> > &bps ) co
 	SourceFile* f = sources.current();
 	bps.insert( project->makeRelative( f->fileName() ) + " <Source-File>", MetaDataBase::breakPoints( f ) );
     }
-    QPtrList<FormWindow> forms = project->forms();
-    for ( FormWindow *fw = forms.first(); fw; fw = forms.next() )
-	bps.insert( QString( fw->name() ) + " <Form>", MetaDataBase::breakPoints( fw ) );
+    for ( QPtrListIterator<FormFile> forms = project->formFiles();
+	  forms.current(); ++forms ) {
+	if ( forms.current()->formWindow() )
+	    bps.insert( QString( forms.current()->formWindow()->name() ) + " <Form>", MetaDataBase::breakPoints( forms.current()->formWindow() ) );
+    }
 }
 
 void DesignerProjectImpl::clearAllBreakpoints() const
@@ -296,10 +298,12 @@ void DesignerProjectImpl::clearAllBreakpoints() const
 	SourceFile* f = sources.current();
 	MetaDataBase::setBreakPoints( f, empty );
     }
-    QPtrList<FormWindow> forms = project->forms();
-    for ( FormWindow *fw = forms.first(); fw; fw = forms.next() )
-	MetaDataBase::setBreakPoints( fw, empty );
-    MainWindow::self->resetBreakPoints();
+    for ( QPtrListIterator<FormFile> forms = project->formFiles();
+	  forms.current(); ++forms ) {
+	if ( forms.current()->formWindow() )
+	    MetaDataBase::setBreakPoints( forms.current()->formWindow(), empty );
+	MainWindow::self->resetBreakPoints();
+    }
 }
 
 void DesignerProjectImpl::setIncludePath( const QString &platform, const QString &path )

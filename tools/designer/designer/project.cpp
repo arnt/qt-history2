@@ -257,11 +257,6 @@ QString Project::fileName() const
     return filename;
 }
 
-QStringList Project::uiFiles() const
-{
-    return uifiles;
-}
-
 QString Project::databaseDescription() const
 {
     return dbFile;
@@ -397,7 +392,7 @@ void Project::parse()
 	dbFile = parse_part( part );
     }
 
-    uifiles = parse_multiline_part( contents, "FORMS" );
+    QStringList uifiles = parse_multiline_part( contents, "FORMS" );
     uifiles += parse_multiline_part( contents, "INTERFACES" ); // compatibility
     for ( it = uifiles.begin(); it != uifiles.end(); ++it )
 	(void) new FormFile( *it, FALSE, this );
@@ -463,40 +458,6 @@ void Project::clear()
     desc = "";
 }
 
-void Project::addUiFile( const QString &f, FormWindow *fw )
-{
-    if ( !f.isEmpty() ) {
-	if ( hasUiFile( f ) )
-	    return;
-	uifiles << f;
-    }
-    if ( fw )
-	formWindows.insert( fw, f );
-    modified = TRUE;
-}
-
-FormWindow *Project::formWindow( const QString &filename )
-{
-    for ( QMap<FormWindow*, QString>::Iterator it = formWindows.begin();
-	  it != formWindows.end(); ++it ) {
-	if ( filename == *it )
-	    return it.key();
-    }
-    return 0;
-}
-
-bool Project::hasUiFile( const QString &filename ) const
-{
-    return !filename.isEmpty() && uifiles.find( filename ) != uifiles.end();
-}
-
-void Project::removeUiFile( const QString &f, FormWindow *fw )
-{
-    formWindows.remove( fw );
-    uifiles.remove( f );
-    modified = TRUE;
-}
-
 bool Project::removeSourceFile( SourceFile *sf )
 {
     if ( !sourcefiles.containsRef( sf ) )
@@ -524,11 +485,6 @@ QString Project::description() const
     return desc;
 }
 
-void Project::setUiFiles( const QStringList &lst )
-{
-    uifiles = lst;
-    modified = TRUE;
-}
 
 bool Project::isValid() const
 {
@@ -537,30 +493,6 @@ bool Project::isValid() const
 	return FALSE;
 
     return TRUE;
-}
-
-bool Project::hasFormWindow( FormWindow* fw ) const
-{
-    return formWindows.contains( fw );
-}
-
-void Project::setFormWindow( const QString &f, FormWindow *fw )
-{
-    QString fn = makeRelative( f );
-    if ( !hasUiFile( fn ) )
-	modified = TRUE;
-    formWindows.remove( fw );
-    formWindows.insert( fw, fn );
-}
-
-void Project::setFormWindowFileName( FormWindow *fw, const QString &f )
-{
-    QString s = *formWindows.find( fw );
-    uifiles.remove( s );
-    uifiles << f;
-    formWindows.remove( fw );
-    formWindows.insert( fw, f );
-    modified = TRUE;
 }
 
 QString Project::makeAbsolute( const QString &f )
@@ -1013,16 +945,20 @@ void Project::closeDatabase( const QString &connection )
 #endif
 }
 
-void Project::formClosed( FormWindow *fw )
-{
-    formWindows.remove( fw );
-}
+// void Project::formClosed( FormWindow *fw )
+// {
+//     formWindows.remove( fw );
+// }
 
 QObjectList *Project::formList() const
 {
     QObjectList *l = new QObjectList;
-    for ( QMap<FormWindow*, QString>::ConstIterator it = formWindows.begin(); it != formWindows.end(); ++it )
-	l->append( it.key()->child( 0, "QWidget" ) );
+    for ( QPtrListIterator<FormFile> forms(formfiles);   forms.current(); ++forms ) {
+	FormFile* f = forms.current();
+	if ( f->formWindow() ) {
+	    l->append( f->formWindow()->child( 0, "QWidget" ) );
+	}
+    }
     return l;
 }
 
@@ -1124,24 +1060,6 @@ FormFile* Project::findFormFile( const QString& filename ) const
 	++it;
     }
     return 0;
-}
-
-QPtrList<FormWindow> Project::unnamedForms() const
-{
-    QPtrList<FormWindow> fws;
-    for ( QMap<FormWindow*, QString>::ConstIterator it = formWindows.begin(); it != formWindows.end(); ++it ) {
-	if ( (*it).isEmpty() )
-	    fws.append( it.key() );
-    }
-    return fws;
-}
-
-QPtrList<FormWindow> Project::forms() const
-{
-    QPtrList<FormWindow> fws;
-    for ( QMap<FormWindow*, QString>::ConstIterator it = formWindows.begin(); it != formWindows.end(); ++it )
-	fws.append( it.key() );
-    return fws;
 }
 
 void Project::setIncludePath( const QString &platform, const QString &path )

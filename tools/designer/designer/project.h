@@ -121,22 +121,11 @@ public:
     void setLanguage( const QString &l );
     QString language() const;
 
-    QStringList uiFiles() const;
-    void addUiFile( const QString &f, FormWindow *fw );
-    void removeUiFile( const QString &f, FormWindow *fw );
-    void setUiFiles( const QStringList &lst );
-    void formClosed( FormWindow *fw );
-    FormWindow *formWindow( const QString &filename );
 
     bool isValid() const;
 
     // returns TRUE if this project is the <No Project> project
     bool isDummy() const;
-
-    bool hasFormWindow( FormWindow* fw ) const;
-    bool hasUiFile( const QString &filename ) const;
-    void setFormWindow( const QString &f, FormWindow *fw );
-    void setFormWindowFileName( FormWindow *fw, const QString &f );
 
     QString makeAbsolute( const QString &f );
     QString makeRelative( const QString &f );
@@ -180,9 +169,6 @@ public:
     bool removeFormFile( FormFile *ff );
     FormFile* findFormFile( const QString& filename ) const;
 
-    QPtrList<FormWindow> unnamedForms() const;
-    QPtrList<FormWindow> forms() const;
-
     void setIncludePath( const QString &platform, const QString &path );
     void setLibs( const QString &platform, const QString &path );
     void setDefines( const QString &platform, const QString &path );
@@ -223,7 +209,7 @@ private:
     QString proName;
     QStringList loadedForms;
     QString desc;
-    QMap<FormWindow*, QString> formWindows;
+//     QMap<FormWindow*, QString> formWindows;
     QString dbFile;
 #ifndef QT_NO_SQL
     QPtrList<DatabaseConnection> dbConnections;

@@ -477,9 +477,9 @@ QObjectList *MainWindow::runProject()
 
     previewing = TRUE;
 
-    QStringList forms = currentProject->uiFiles();
-    for ( QStringList::Iterator it = forms.begin(); it != forms.end(); ++it ) {
-	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it ), 0, invisibleGroupLeader );
+    
+    for ( QPtrListIterator<FormFile> it = currentProject->formFiles(); it.current(); ++it ) {
+	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( (*it)->fileName() ), 0, invisibleGroupLeader );
 
 	if ( w ) {
 	    w->hide();
@@ -554,8 +554,14 @@ QObjectList *MainWindow::runProject()
 
     QObjectList *l = new QObjectList;
     if ( iiface ) {
-	QPtrList<FormWindow> frms = currentProject->forms();
-	for ( FormWindow *fw = frms.first(); fw; fw = frms.next() ) {
+	bool hasForms = FALSE;
+	for ( QPtrListIterator<FormFile> forms = currentProject->formFiles();
+	      forms.current(); ++forms ) {
+	    FormFile* f = forms.current();
+	    if ( !f->formWindow() )
+		continue;
+	    hasForms = TRUE;
+	    FormWindow* fw = f->formWindow();
 	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
 	    if ( !bps.isEmpty() )
 		iiface->setBreakPoints( fw, bps );
@@ -569,11 +575,11 @@ QObjectList *MainWindow::runProject()
 		iiface->setBreakPoints( f, bps );
 	}
 
-	if ( !forms.isEmpty() )
+	if ( hasForms )
 	    iiface->exec( 0, "main" );
 
-	for ( QStringList::Iterator it2 = forms.begin(); it2 != forms.end(); ++it2 ) {
-	    QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it2 ), 0, invisibleGroupLeader );
+	for ( QPtrListIterator<FormFile> it2 = currentProject->formFiles(); it2.current(); ++it2 ) {
+	    QWidget *w = QWidgetFactory::create( (*it2)->absFileName(), 0, invisibleGroupLeader );
 	    if ( w ) {
 		l->append( w );
 		w->hide();
@@ -1262,7 +1268,6 @@ void MainWindow::insertFormWindow( FormWindow *fw )
 	//workspace()->addForm( fw );
     } else {
 	fw->setProject( currentProject );
-	currentProject->setFormWindow( fw->fileName(), fw );
     }
     fw->show();
     fw->currentToolChanged();
