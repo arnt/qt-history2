@@ -130,7 +130,7 @@ public:
     QString makeAbsolute( const QString &f );
     QString makeRelative( const QString &f );
 
-    void save();
+    void save( bool onlyProjectFile = FALSE );
 
 #ifndef QT_NO_SQL
     QPtrList<DatabaseConnection> databaseConnections() const;

@@ -545,18 +545,20 @@ static void remove_multiline_contents( QString &contents, const QString &s, int 
     }
 }
 
-void Project::save()
+void Project::save( bool onlyProjectFile )
 {
-    for ( SourceFile *sf = sourcefiles.first(); sf; sf = sourcefiles.next() ) {
-	if ( !sf->save() )
-	    return;
+    if ( !onlyProjectFile ) {
+	for ( SourceFile *sf = sourcefiles.first(); sf; sf = sourcefiles.next() ) {
+	    if ( !sf->save() )
+		return;
+	}
+
+	for ( FormFile *ff = formfiles.first(); ff; ff = formfiles.next() ) {
+	    if ( !ff->save() )
+		return;
+	}
     }
 
-    for ( FormFile *ff = formfiles.first(); ff; ff = formfiles.next() ) {
-	if ( !ff->save() )
-	    return;
-    }
-	
     if ( isDummy()  || filename.isEmpty() )
 	return;
 
@@ -768,13 +770,13 @@ void Project::saveConnections()
     if ( dbFile.isEmpty() ) {
 	QFileInfo fi( fileName() );
 	dbFile = fi.baseName() + ".db";
-	save();
+	save( TRUE );
     }
 
     if ( !QFile::exists( makeAbsolute( dbFile ) ) ) {
 	QFileInfo fi( fileName() );
 	setDatabaseDescription( fi.baseName() + ".db" );
-	save();
+	save( TRUE );
     }
 
     /* .db xml */
