@@ -128,7 +128,7 @@ installed in C:\\MYSQL):
 
 \code
 cd %QTDIR%\plugins\src\sqldrivers\mysql
-qmake -o Makefile "INCLUDEPATH+=C:\\MYSQL\\INCLUDE" "LIBS+=C:\\MYSQL\\LIB\\OPT\\LIBMYSQL.LIB" mysql.pro
+qmake -o Makefile "INCLUDEPATH+=C:\MYSQL\INCLUDE" "LIBS+=C:\MYSQL\LIB\OPT\LIBMYSQL.LIB" mysql.pro
 nmake
 \endcode
 
@@ -198,7 +198,7 @@ installed in C:\oracle):
 
 \code
 cd %QTDIR%\plugins\src\sqldrivers\oci
-qmake -o Makefile "INCLUDEPATH+=C:\\oracle\\oci\\include" oci.pro
+qmake -o Makefile "INCLUDEPATH+=C:\oracle\oci\include" oci.pro
 nmake
 \endcode
 
@@ -255,7 +255,7 @@ The ODBC header and include files should already be installed in the
 right directories. You just have to build the plugin as follows:
 
 \code
-cd %QTDIR%\\plugins\\src\\sqldrivers\\odbc
+cd %QTDIR%\plugins\src\sqldrivers\odbc
 qmake -o Makefile odbc.pro
 nmake
 \endcode
@@ -335,14 +335,14 @@ You can either use the DB-Library supplied by Microsoft or the Sybase Open Clien
 to build the plugin:
 
 \code
-cd %QTDIR%\\plugins\\src\\sqldrivers\\tds
+cd %QTDIR%\plugins\src\sqldrivers\tds
 qmake -o Makefile "LIBS+=NTWDBLIB.LIB" tds.pro
 nmake
 \endcode
 
 By default the Microsoft library is used on Windows, if you want to force
 the use of the Sybase Open Client, you have to define
-Q_USE_SYBASE in %QTDIR%\\src\\sql\\drivers\\tds\\qsql_tds.cpp.
+Q_USE_SYBASE in %QTDIR%\src\sql\drivers\tds\qsql_tds.cpp.
 
 
 
