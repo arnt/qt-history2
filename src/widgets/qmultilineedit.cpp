@@ -210,6 +210,7 @@ struct QMultiLineData
     int	 scrollTime;
     int	 scrollAccel;
     int  align;
+    int  numlines;
     int  maxlines;
     int  maxlinelen;
     int  maxlen;
@@ -406,7 +407,6 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     setCellHeight( fm.lineSpacing() );
     setNumCols( 1 );
 
-    setNumRows( 0 );
     contents = new QList<QMultiLineEditRow>;
     contents->setAutoDelete( TRUE );
 
@@ -454,7 +454,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
     int w  = textWidth( QString::fromLatin1("") );
     contents->append( new QMultiLineEditRow(QString::fromLatin1(""), w) );
-    setNumRows( 1 );
+    (void)setNumRowsAndTruncate();
     setWidth( w );
     setAcceptDrops(TRUE);
     if ( d->maxlines >= 0 && d->maxlines <= 6 ) {
@@ -1383,7 +1383,7 @@ void QMultiLineEdit::pageUp( bool mark )
 	turnMark( FALSE );
 }
 
-
+// THE CORE INSERTION FUNCTION
 void QMultiLineEdit::insertAtAux( const QString &txt, int line, int col, bool mark )
 {
     dummy = FALSE;
@@ -1432,6 +1432,8 @@ void QMultiLineEdit::insertAtAux( const QString &txt, int line, int col, bool ma
     }
     if ( mark )
 	newMark( cursorX, cursorY, FALSE );
+
+    setNumRowsAndTruncate();
 
     textDirty = TRUE;
     d->edited = TRUE;
@@ -1500,7 +1502,8 @@ void QMultiLineEdit::removeLine( int line )
 	setWidth( w );
 	dummy = TRUE;
     }
-    setNumRows( contents->count() );
+    if ( setNumRowsAndTruncate() )
+	recalc = updt = FALSE;
     if ( recalc )
 	updateCellWidth();
     makeVisible();
@@ -1534,7 +1537,6 @@ void QMultiLineEdit::insertChar( QChar c )
 
 void QMultiLineEdit::insert( const QString& str, bool mark )
 {
-
     dummy = FALSE;
     bool wasMarkedText = hasMarkedText();
     if ( wasMarkedText )
@@ -1847,7 +1849,7 @@ void QMultiLineEdit::delAux()
 	    cursorY  = markBeginY;
 	    curXPos  = 0;
 
-	    setNumRows( contents->count() );
+	    setNumRowsAndTruncate();
 	    updateCellWidth();
 	    setAutoUpdate( oldAuto );
 	    if ( autoUpdate() )
@@ -2506,7 +2508,7 @@ void QMultiLineEdit::clear()
     cursorX = cursorY = 0;
     int w  = textWidth( QString::fromLatin1("") );
     contents->append( new QMultiLineEditRow(QString::fromLatin1(""), w) );
-    setNumRows( 1 );
+    setNumRowsAndTruncate();
     setWidth( w );
     dummy = TRUE;
     turnMark( FALSE );
@@ -3151,32 +3153,24 @@ int QMultiLineEdit::maxLineLength() const
   Sets the maximum number of lines to \a m.  Use -1 for unlimited
   (the default).  Existing excess lines will be deleted.
 
-  \sa maxLines()
+  Note that excess lines are deleted from the \e bottom of the
+  lines. If you want teletype behaviour with lines disappearing
+  from the \e top as the limit is exceed, you probably just want
+  to use removeLine(0) prior to adding an excess line.
+
+  \sa maxLines(), numLines()
 */
 void QMultiLineEdit::setMaxLines(int m)
 {
-    bool trunc = d->maxlines >= 0 && d->maxlines < m;
+    if ( m == 0 ) // bad value
+	m = -1;
     d->maxlines = m;
     if ( d->maxlines >= 0 && d->maxlines <= 6 ) {
 	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
     } else {
 	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
     }
-    if ( trunc ) {
-	if ( cursorY > m ) {
-	    cursorX = 0;
-	    cursorY = m;
-	}
-	if ( markAnchorY > m ) {
-	    markAnchorX = 0;
-	    markAnchorY = m;
-	}
-	if ( markDragY > m ) {
-	    markDragX = 0;
-	    markDragY = m;
-	}
-	while ( contents->remove(m) )
-	    ;
+    if ( setNumRowsAndTruncate() ) {
 	updateCellWidth();
 	update();
     }
@@ -3419,16 +3413,26 @@ void QMultiLineEdit::wrapLine( int line, int removed )
     setWidth( QMAX( maxLineWidth(), w ) );
     bool oldAuto = autoUpdate();
     setAutoUpdate( FALSE );
-    setNumRows( contents->count() );
+    (void)setNumRowsAndTruncate();
     setAutoUpdate( oldAuto );
 
     yPos += (nlines+1)  * cellHeight();
     int sh = (nlines-removed)  * cellHeight();
     if ( autoUpdate() ) {
-	if ( sh && yPos >= contentsRect().top() && yPos < contentsRect().bottom() )
+	if ( sh && yPos >= contentsRect().top() && yPos < contentsRect().bottom() ) {
+	    int h = contentsRect().bottom() - yPos + 1;
+	    if ( d->maxlines >= 0 ) {
+		int maxy;
+		if ( rowYPos( d->maxlines-1, &maxy ) ) {
+		    maxy += cellHeight();
+		    if ( maxy < contentsRect().bottom() && maxy > yPos )
+			h = maxy - yPos + 1;
+		}
+	    }
 	    QWidget::scroll( 0, sh, QRect( contentsRect().left(), yPos,
 					   contentsRect().width(),
-					   contentsRect().bottom() - yPos + 1 ) );
+					   h ) );
+	}
 	for (int ul = 0; ul <= nlines; ++ul )
 	    updateCell( line + ul, 0, FALSE );
     }
@@ -3986,6 +3990,29 @@ void QMultiLineEdit::dndTimeout()
 #if QT_FEATURE_DRAGANDDROP
     doDrag();
 #endif
+}
+
+int QMultiLineEdit::setNumRowsAndTruncate()
+{
+    int n = contents->count();
+    int r = 0;
+    while ( d->maxlines >= 0 && n > d->maxlines ) {
+	// truncate
+	contents->at(n-2)->newline = TRUE;
+	contents->removeLast();
+	if ( markAnchorY == n-1 )
+	    markAnchorY--;
+	if ( markDragY == n-1 )
+	    markDragY--;
+	if ( cursorY == n-1 ) {
+	    cursorY--;
+	    cursorX = contents->at(cursorY)->s.length();
+	}
+	n--;
+	r++;
+    }
+    setNumRows( n );
+    return r;
 }
 
 #endif

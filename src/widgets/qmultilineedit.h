@@ -292,6 +292,7 @@ private:
     bool	inMark( int posx, int posy ) const;
     bool	beforeMark( int posx, int posy ) const;
     bool	afterMark( int posx, int posy ) const;
+    int		setNumRowsAndTruncate();
 
 #if QT_FEATURE_DRAGANDDROP
     void	doDrag();
