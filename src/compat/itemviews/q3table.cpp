@@ -3465,12 +3465,12 @@ int Q3Table::addSelection(const Q3TableSelection &s)
 
     const int maxr = numRows()-1;
     const int maxc = numCols()-1;
-    Q3TableSelection *sel = new Q3TableSelection(QMIN(s.anchorRow(), maxr), QMIN(s.anchorCol(), maxc),
+    currentSel = new Q3TableSelection(QMIN(s.anchorRow(), maxr), QMIN(s.anchorCol(), maxc),
 				    QMIN(s.bottomRow(), maxr), QMIN(s.rightCol(), maxc));
 
-    selections.append(sel);
+    selections.append(currentSel);
 
-    repaintSelections(0, sel, true, true);
+    repaintSelections(0, currentSel, true, true);
 
     emit selectionChanged();
 
@@ -3585,6 +3585,8 @@ void Q3Table::selectRow(int row)
 void Q3Table::selectColumn(int col)
 {
     col = QMIN(numCols()-1, col);
+    if (col < 0)
+        return;
     Q3TableSelection sel(0, col, numRows() - 1, col);
     addSelection(sel);
 }
