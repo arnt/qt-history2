@@ -401,7 +401,7 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 }
 
 // ### DOC: Couldn't we call this selection() (and setSelection() and clearSelection()) ?
-// ### DEV: This may be confused with actually selecting items.
+// This may be confused with actually selecting items.
 /*!
     Returns the current selection.
 
@@ -507,11 +507,11 @@ void QAbstractItemView::edit(const QModelIndex &index)
         qWarning("edit: editing failed");
 }
 
-// ### DOC: Guessed
 /*!
     \internal
 
-    
+    This function is intended to lay out the items in the view.
+    The default implementation will just call update() on the viewport.
 */
 void QAbstractItemView::doItemsLayout()
 {
@@ -543,7 +543,7 @@ int QAbstractItemView::startEditActions() const
 
     If this property is set to true (the default), the
     QAbstractItemView automatically scrolls the contents of the view
-    if the user drags past the left or bottom edge. This only works if
+    if the user drags within 16 pixels of the viewport edge. This only works if
     the viewport accepts drops. Autoscroll is switched off by setting
     the property to false.
 */
@@ -904,7 +904,6 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     }
 }
 
-// ### DOC: Guessed
 /*!
     This function is called when a resize event \a e occurs.
 */
@@ -922,15 +921,12 @@ void QAbstractItemView::showEvent(QShowEvent *e)
 {
     QViewport::showEvent(e);
     updateGeometries();
-
-    QApplication::postEvent(q, new QMetaCallEvent(
-                                QEvent::InvokeSlot,
-                                q->metaObject()->indexOfSlot("doItemsLayout()"), q));
+    int slot = metaObject()->indexOfSlot("doItemsLayout()");
+    QApplication::postEvent(this, new QMetaCallEvent(QEvent::InvokeSlot, slot, this));
 }
 
-// ### DOC: Guessed
 /*!
-    \internal
+  This function is called when a timer event \a e occurs.
 */
 void QAbstractItemView::timerEvent(QTimerEvent *e)
 {
@@ -960,7 +956,7 @@ bool QAbstractItemView::startEdit(const QModelIndex &index,
         if (buddy.isValid() && d->shouldEdit(action, buddy))
             edit = buddy;
     }
-
+    
     if (edit.isValid()) {
         itemDelegate()->event(event, edit);
         if (d->requestEditor(action, event, edit))
@@ -1023,11 +1019,12 @@ QWidget *QAbstractItemView::currentEditor() const
 */
 void QAbstractItemView::updateEditors()
 {
-    //  this presumes that only one editor is open at one time
-    QModelIndex item = currentItem(); // the edited item
     QItemOptions options = viewOptions();
-    options.itemRect = itemViewportRect(currentItem());
-    itemDelegate()->updateEditorGeometry(d->currentEditor.second, options, item);
+    if (d->state == Editing) {
+        options.itemRect = itemViewportRect(d->currentEditor.first);
+        itemDelegate()->updateEditorGeometry(d->currentEditor.second, options,
+                                             d->currentEditor.first);
+    }
 
     QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it) {
@@ -1089,6 +1086,8 @@ bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
     return false;
 }
 
+// ###DOC: this value is also used by the "scroll in item units" algorithm to
+// enable the scrolling in fractions of item units (one step == itemHeight / verticalFraction)
 /*!
     Sets the horizontal scrollbar's stepping factor to \a factor.
 
@@ -1132,7 +1131,8 @@ int QAbstractItemView::verticalFactor() const
 }
 
 /*!
-  Moves to and selects the item best matching the string \a search. If no item is found nothing happens.
+  Moves to and selects the item best matching the string \a search.
+  If no item is found nothing happens.
 */
 void QAbstractItemView::keyboardSearch(const QString &search) {
     QModelIndex start = currentItem().isValid() ? currentItem() : model()->index(0, 0);
