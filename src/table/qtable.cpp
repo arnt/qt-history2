@@ -4033,7 +4033,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	break;
     case Key_Prior:
 	r = QMAX( 0, rowAt( rowPos( tmpRow ) - visibleHeight() ) );
-	if ( r < tmpRow )
+	if ( r < tmpRow || tmpRow < 0 )
 	    tmpRow = r;
 	navigationKey = TRUE;
 	break;
