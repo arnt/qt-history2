@@ -1,7 +1,7 @@
 /*
 $Id$
 */
-/*! \page tinyeditor-example.html
+/*! \page actiongroup-example.html
 
   \ingroup qaction-examples
  
@@ -17,7 +17,7 @@ $Id$
  
   Main:
  
-  \include action/actiongroup/tiny_editor.cpp
+  \include action/actiongroup/main.cpp
  
   <hr>
  

@@ -9,7 +9,7 @@ $Id$
 \title Walkthrough: A Tiny Editor Illustrating QActionGroup
 
 In the following we will step through a very rudimental 
-\link tinyeditor-example.html editor program \endlink
+\link actiongroup-example.html editor program \endlink
 that shows one of the most common uses of the \l QActionGroup class:
 how to combine several toggle actions in a way that allows one-of-many choices.
 
@@ -20,15 +20,15 @@ Walkthrough featuring QAction</A>.
 
 <h2>A tiny main program</h2>
 
-\walkthrough action/actiongroup/tiny_editor.cpp
+\walkthrough action/actiongroup/main.cpp
 \skipto include
 \printline include
 \printuntil }
 
-As its name, \e tiny_editor, suggests this is a very small program. It might
-be unusual for an editor but it does not even provide the possibility  
-to open a file given as a commandline argument. The reason for this
-is simple: It has nothing to to with QActionGroups. 
+This tiny editor is a very small program. It might be unusual for an 
+editor but it does not even provide the possibility to open a file given 
+as a commandline argument. The reason for this is simple: It has nothing 
+to to with QActionGroups. 
 
 The crucial point in the above \e main() is that we make \e editor, an object
 constructed from a self-written class \e Editor, the main widget in our
@@ -90,12 +90,7 @@ Then we create our first action, the one that sets the font color back
 to default black. It is called \e setBlackFont and is equipped with a descriptive 
 QAction::text() reading \e black, a QAction::menuText() reading 
 <em>Font color: black</em>, a QAction::iconSet()
-derived from the file \e black.xpm and \e ALT+B as keyboard accelerator.
-(Note that with this QPixmap constructor \e black.xpm must be found in the 
-working directory when the \e tiny_editor binary is called. If you wish to compile the pixmap
-into the binary the 
-<A HREF="simple-application.html#ApplicationWindow">Simple Application Walkthrough</A>
-shows how to do this.)
+derived from the pixmap \e black_xpm and \e ALT+B as keyboard accelerator.
 
 The last argument of the action constructor, \e TRUE, is responsible 
 for making \e setBlackFont  a toggle action

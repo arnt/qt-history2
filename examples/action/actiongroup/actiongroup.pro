@@ -1,8 +1,8 @@
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
 HEADERS		= editor.h
-SOURCES		= tiny_editor.cpp \
+SOURCES		= main.cpp \
                   editor.cpp 
-TARGET		= tiny_editor
+TARGET		= actiongroup
 DEPENDPATH=../../../include
 REQUIRES=full-config
