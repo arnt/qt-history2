@@ -159,11 +159,6 @@ public:
     static void cacheStatistics();
 #endif
 
-#if defined(Q_WS_QWS)
-    void qwsRenderToDisk(bool all=true);
-#endif
-
-
     // a copy of this lives in qunicodetables.cpp, as we can't include
     // qfont.h it in tools/. Do not modify without changing the script
     // enum in qunicodetable_p.h aswell.

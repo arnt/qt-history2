@@ -263,21 +263,3 @@ QRect QFontMetrics::boundingRect(const QString &str, int len) const
     return QRect(0,-(ascent()),width(str,len),height());
 }
 
-/*!
-    Saves the glyphs in the font that have previously been accessed as
-    a QPF file. If \a all is true (the default), then before saving,
-    all glyphs are marked as used.
-
-    If the font is large and you are sure that only a subset of
-    characters will ever be required on the target device, passing
-    false for the \a all parameter can save a significant amount of
-    disk space.
-
-    Note that this function is only applicable on Qt/Embedded.
-*/
-void QFont::qwsRenderToDisk(bool all)
-{
-#ifndef QT_NO_QWS_SAVEFONTS
-//     memorymanager->savePrerenderedFont(handle(), all);
-#endif
-}
