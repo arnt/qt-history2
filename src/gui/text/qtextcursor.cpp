@@ -1152,6 +1152,8 @@ QTextDocumentFragment QTextCursor::selection() const
 */
 QTextBlock QTextCursor::block() const
 {
+    if (!d || !d->priv)
+        return QTextBlock();
     return d->block();
 }
 
