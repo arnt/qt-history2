@@ -51,9 +51,6 @@
 #if defined(Q_CC_MSVC)
 #pragma warning(default: 4273)
 #endif
-#ifndef Q_WS_MAC
-#include <utils/geo_decls.h>
-#endif
 #include <math.h>
 
 extern
