@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/xform/xform.cpp#2 $
+** $Id: //depot/qt/main/examples/xform/xform.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -203,6 +203,12 @@ void XFormControl::newMtx()
 
 void XFormControl::selectFont()
 {
+#if 1
+    bool ok;
+    QFont f = QFontDialog::getFont( &ok );
+    if ( ok )
+	fontSelected( f );
+#else
     if (!fd) {
 	fd   = new QFontDialog(this);
 	connect( fd, SIGNAL(fontSelected(const QFont&)),
@@ -212,6 +218,7 @@ void XFormControl::selectFont()
 	fd->show();
     else
 	fd->hide();
+#endif
 }
 
 void XFormControl::fontSelected( const QFont &font )
