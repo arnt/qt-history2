@@ -436,13 +436,11 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
         if(mini != QSize(-1, -1))
             return QAquaSizeMini;
         return QAquaSizeUnknown;
-    } else if(mini == QSize(-1, -1)) {
-        if(small != QSize(-1, -1))
-            return QAquaSizeSmall;
-        return QAquaSizeLarge;
     } else if(small == QSize(-1, -1)) {
         if(mini != QSize(-1, -1))
             return QAquaSizeMini;
+        return QAquaSizeLarge;
+    } else if(mini == QSize(-1, -1)) {
         return QAquaSizeLarge;
     }
 
