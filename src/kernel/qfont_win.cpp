@@ -246,7 +246,14 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	chr = ch.latin1();
     }
     if ( chr ) {
-	DWORD res = GetGlyphOutline( fin->dc(), chr, GGO_METRICS, &gm, 0, 0, mat );
+	DWORD res = 0;
+#ifdef UNICODE
+	if ( qt_winver & Qt::WV_NT_based )
+	    res = GetGlyphOutlineW( fin->dc(), chr, GGO_METRICS, &gm, 0, 0, mat );
+	else
+#endif
+	    res = GetGlyphOutlineA( fin->dc(), chr, GGO_METRICS, &gm, 0, 0, mat );
+
 	if ( res != GDI_ERROR )
 	    return QRect(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
 // This is supposed to fail sometimes as we use it in inFont.
