@@ -2757,8 +2757,12 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
     case QEvent::MouseMove:
 	if ( isAToolBarChild( o )  && currentTool() != CONNECT_TOOL )
 	    break;
+	w = isAFormWindowChild( o );
+	if ( lastPressWidget != (QWidget*)o && w &&
+	     !o->inherits( "SizeHandle" ) && !o->inherits( "OrderIndicator" ) )
+	    return TRUE;
 	if ( lastPressWidget != (QWidget*)o ||
-	     ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) ) )
+	     ( !w || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) ) )
 	    break;
 	if ( !passiveInteractor )
 	    ( (FormWindow*)w )->handleMouseMove( (QMouseEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
@@ -2864,6 +2868,11 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
 	    break;
 	return TRUE;
+    case QEvent::FocusIn:
+    case QEvent::FocusOut:
+	if ( isAFormWindowChild( o ) )
+	    return TRUE;
+	break;
     default:
 	return QMainWindow::eventFilter( o, e );
     }
