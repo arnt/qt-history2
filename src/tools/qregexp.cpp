@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#14 $
 **
 ** Implementation of QRegExp class
 **
@@ -8,8 +8,6 @@
 **
 ** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
 **
-** --------------------------------------------------------------------------
-** This regular expression implementation is inspired by Ozan Yigit's regexp.
 *****************************************************************************/
 
 #include "qregexp.h"
@@ -21,7 +19,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#14 $";
 #endif
 
 
@@ -41,11 +39,12 @@ QRegExp knows these regexp primitives:
 <li><dfn>a*</dfn> matches a sequence of zero or more a's
 <li><dfn>a+</dfn> matches a sequence of one or more a's
 <li><dfn>a?</dfn> matches an optional a
-<li><dfn>\</dfn>  escape code for matching special characters like \, [, *, +, . etc.
+<li><dfn>\c</dfn>  escape code for matching special characters like \, [, *, +, . etc.
 <li><dfn>\b</dfn> matches the BELL character (7)
 <li><dfn>\t</dfn> matches the TAB character (9)
 <li><dfn>\n</dfn> matches newline (10)
 <li><dfn>\r</dfn> matches return (13)
+<li><dfn>\s</dfn> matches white space (9,10,11,12,13,32)
 <li><dfn>\x12</dfn> matches the character hex 12.
 <li><dfn>\022</dfn> matches the character octal 22.
 </ul>
@@ -58,9 +57,6 @@ In wildcard mode, it only knows three primitives:
 e.g. [a-zA-Z0-9\.] matches upper and lower case ASCII letters, digits,
 and dot.
 </ul>
-
-\todo make \s match any white space for regexp mode
-
 */
 
 
@@ -109,9 +105,11 @@ QRegExp::QRegExp()
 /*!
 Constructs a regular expression.
 \arg \e pattern is the regular expression pattern string.
-\arg \e caseSensitive specifies wether or not to use case sensitive matching.
-\arg \e wildcard specifies whether the pattern string is a regular
-expression or globbing expression (see setWildcard()).
+\arg \e caseSensitive specifies whether or not to use case sensitive matching.
+\arg \e wildcard specifies whether the pattern string should be used for
+wildcard matching (also called globbing expression), normally used for matching
+file names.
+\sa setWildcard().
 */
 
 QRegExp::QRegExp( const char *pattern, bool caseSensitive, bool wildcard )
@@ -125,6 +123,7 @@ QRegExp::QRegExp( const char *pattern, bool caseSensitive, bool wildcard )
 
 /*!
 Constructs a regular expression which is a copy of \e r.
+\sa operator=(const QRegExp&).
 */
 
 QRegExp::QRegExp( const QRegExp &r )
@@ -147,8 +146,7 @@ QRegExp::~QRegExp()
 
 /*!
 Copies the regexp \e r and returns a reference to this regexp.
-
-The case-sensitivity and wildcard options are copied, too.
+The case-sensitivity and wildcard options are copied, as well.
 */
 
 QRegExp &QRegExp::operator=( const QRegExp &r )
@@ -160,7 +158,6 @@ QRegExp &QRegExp::operator=( const QRegExp &r )
 
 /*!
 Sets the pattern string to \e pattern and returns a reference to this regexp.
-
 The case-sensitivity or wildcard options do not change.
 */
 
@@ -174,6 +171,8 @@ QRegExp &QRegExp::operator=( const char *pattern )
 
 /*!
 Returns TRUE if this regexp is equal to \e r.
+Two regexp objects are equal if they have the equal pattern strings,
+case-sensitivity options and wildcard options.
 */
 
 bool QRegExp::operator==( const QRegExp &r ) const
@@ -223,23 +222,23 @@ void QRegExp::setWildcard( bool wildcard )
 
 /*!
 \fn bool QRegExp::caseSensitive() const
-Returns TRUE if case-sensitivity is on, otherwise FALSE.
+Returns TRUE if case-sensitivity is enabled, otherwise FALSE.
 
 See also: setCaseSensitive().
 */
 
 /*!
-Enables/disables case-sensitive matching.
+Enables or disables case-sensitive matching.
 
 In case-sensitive mode, "a.e" matches "axe" but not "Axe".
 
 See also: caseSensitive().
 */
 
-void QRegExp::setCaseSensitive( bool cases )
+void QRegExp::setCaseSensitive( bool enable )
 {
-    if ( cases != cs ) {
-	cs = cases;
+    if ( cs != enable ) {
+	cs = enable;
 	compile();
     }
 }
@@ -561,10 +560,10 @@ ushort *dump( ushort *p )			// DEBUG !!!
 		QString buf;
 		for ( int n=0; n<256; n++ ) {
 		    if ( p[n >> 4] & (1 << (n & 0xf)) ) {
-			if ( isprint(n) )
+			if ( isgraph(n) )
 			    s += (char)n;
 			else {
-			    buf.sprintf( "\\X%.2X", n );
+			    buf.sprintf( "\\x%.2X", n );
 			    s += buf;
 			}
 		    }
@@ -735,9 +734,24 @@ void QRegExp::compile()
 
 	    default:
 		prev_d = d;
-		if ( *p == '\\' && (*(p+1) == '<' || *(p+1) == '>') ) {
-		    GEN( *++p == '<' ? BOW : EOW );
-		    p++;
+		if ( *p == '\\' ) {
+		    if ( *(p+1) == 's' ) {	// white space
+			GEN( CCL );		//   represent as char class
+			if ( d + 16 >= rxarray + maxlen ) {
+			    error = PatOverflow;// pattern too long
+			    return;
+			}
+			memset( d, 0, 16*sizeof(ushort) );
+			d[0] |= 0x3e00;		// 9, 10, 11, 12, 13
+			d[32 >> 4] |= (1 << (32 & 0xf)); // 32
+			d += 16;
+			p++;
+			p++;
+		    }
+		    else if ( *(p+1) == '<' || *(p+1) == '>' ) {
+			GEN( *++p == '<' ? BOW : EOW );
+			p++;
+		    }
 		}
 		else {
 		    int c = char_val(&p);
