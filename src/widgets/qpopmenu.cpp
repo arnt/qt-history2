@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#105 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#104 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#105 $");
 
 
 // Motif style parameters
@@ -886,7 +886,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( gs == WindowsStyle ) {
 	    p->fillRect( 0, 0, rw, cellh, act ? darkBlue : g.background() );
 	} else if ( gs == MotifStyle ) {
-	    if ( act )				// active item frame
+	    if ( act && !dis )			// active item frame
 		qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, pw );
 	    else				// incognito frame
 		qDrawPlainRect( p, 0, 0, rw, cellh, g.background(), pw );
