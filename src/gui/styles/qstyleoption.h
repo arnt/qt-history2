@@ -121,11 +121,17 @@ public:
     enum { Type = SO_Header };
     enum { Version = 1 };
 
+    enum SectionPosition { Beginning, Middle, End, OnlyOneSection };
+    enum SelectedPosition { NotAdjacent, NextIsSelected, PreviousIsSelected,
+                            NextAndPreviousAreSelected };
+
     int section;
     QString text;
     Qt::Alignment textAlignment;
     QIcon icon;
     Qt::Alignment iconAlignment;
+    SectionPosition position;
+    SelectedPosition selectedPosition;
 
     QStyleOptionHeader();
 

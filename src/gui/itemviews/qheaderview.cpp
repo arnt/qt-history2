@@ -1284,30 +1284,25 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
 
 void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
 {
-    bool showSortIndicator = isSortIndicatorShown() && sortIndicatorSection() == logicalIndex;
-
+    // get the state of the section
     QStyle::State state = QStyle::State_None;
     if (isEnabled())
         state |= QStyle::State_Enabled;
-
     if (window()->isActiveWindow())
         state |= QStyle::State_Active;
-
     if (d->clickableSections) {
         if (logicalIndex == d->pressed)
             state |= QStyle::State_Sunken;
         else if (d->highlightSelected && d->isSectionSelected(logicalIndex))
             state |= QStyle::State_On;
     }
-    if (showSortIndicator) {
+    if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex)
         state |= (sortIndicatorOrder() == Qt::AscendingOrder
-                     ? QStyle::State_Down : QStyle::State_Up);
+                  ? QStyle::State_Down : QStyle::State_Up);
 
-    }
-
+    // setup the style options structure
     int textAlignment = d->model->headerData(logicalIndex, orientation(),
                                              QAbstractItemModel::TextAlignmentRole).toInt();
-
     QStyleOptionHeader opt = d->getStyleOption();
     opt.rect = rect;
     opt.section = logicalIndex;
@@ -1318,7 +1313,28 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
                                     QAbstractItemModel::DisplayRole).toString();
     opt.icon = qvariant_cast<QIcon>(d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DecorationRole));
-
+    // the section position
+    int visual = visualIndex(logicalIndex);
+    if (visual == 0)
+        opt.position = QStyleOptionHeader::Beginning;
+    else if (visual == count())
+        opt.position = QStyleOptionHeader::End;
+    else if (count() == 1)
+        opt.position = QStyleOptionHeader::OnlyOneSection;
+    else
+        opt.position = QStyleOptionHeader::Middle;
+    // the selected position
+    bool previousSelected = d->isSectionSelected(this->logicalIndex(visual - 1));
+    bool nextSelected =  d->isSectionSelected(this->logicalIndex(visual + 1));
+    if (previousSelected && nextSelected)
+        opt.selectedPosition = QStyleOptionHeader::NextAndPreviousAreSelected;
+    else if (previousSelected)
+        opt.selectedPosition = QStyleOptionHeader::PreviousIsSelected;
+    else if (nextSelected)
+        opt.selectedPosition = QStyleOptionHeader::NextIsSelected;
+    else
+        opt.selectedPosition = QStyleOptionHeader::NotAdjacent;
+    // draw the section
     style()->drawControl(QStyle::CE_Header, &opt, painter, this);
 }
 
