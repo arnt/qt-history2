@@ -540,23 +540,21 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
         return QTextStreamPrivate::TS_END_OF_OUTPUT;
     }
 
-    Q_D(QTextStream);
-
     //just read directly from the string (optimization)
-    if (d->sourceType == QTextStreamPrivate::String) {
-        const int remaining = d->str->length()-(d->strOff/sizeof(QChar));
-        const QChar *data = (QChar*)((char*)d->str->unicode()+d->strOff);
+    if (sourceType == QTextStreamPrivate::String) {
+        const int remaining = str->length()-(strOff/sizeof(QChar));
+        const QChar *data = (QChar*)((char*)str->unicode()+strOff);
         for(int i = 0; i < len; i++) {
             if(i == remaining) {
                 if(l)
                     *l = i;
-                d->strOff += i * sizeof(QChar);
+                strOff += i * sizeof(QChar);
                 return QTextStreamPrivate::TS_END_OF_INPUT;
             } else if(int end = ts_end(data+i, remaining - i, end_flags)) {
                 i += end - 1;
                 if(l)
                     *l = i;
-                d->strOff += i * sizeof(QChar);
+                strOff += i * sizeof(QChar);
                 return QTextStreamPrivate::TS_END_FOUND;
             }
             if(out)
@@ -564,7 +562,7 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
         }
         if(l)
             *l = len;
-        d->strOff += len * sizeof(QChar);
+        strOff += len * sizeof(QChar);
         return QTextStreamPrivate::TS_END_OF_OUTPUT;
     }
 
@@ -573,29 +571,29 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
     QTextStreamPrivate::GetBufEnd ret = QTextStreamPrivate::TS_END_UNKNOWN;
     int rnum = 0;   // the number of QChars really read
 
-    if (d->doUnicodeHeader) {
-        d->doUnicodeHeader = false; // only at the top
-        int c1 = d->dev->getch();
+    if (doUnicodeHeader) {
+        doUnicodeHeader = false; // only at the top
+        int c1 = dev->getch();
         if (c1 == EOF) {
             if(l)
                 *l = rnum;
             return QTextStreamPrivate::TS_END_OF_INPUT;
         }
-        int c2 = d->dev->getch();
+        int c2 = dev->getch();
         if (c1 == (int)0xfe && c2 == (int)0xff) {
-            d->mapper = 0;
-            d->latin1 = false;
-            d->internalOrder = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
-            d->networkOrder = true;
+            mapper = 0;
+            latin1 = false;
+            internalOrder = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
+            networkOrder = true;
         } else if (c1 == (int)0xff && c2 == (int)0xfe) {
-            d->mapper = 0;
-            d->latin1 = false;
-            d->internalOrder = (QSysInfo::ByteOrder != QSysInfo::BigEndian);
-            d->networkOrder = false;
+            mapper = 0;
+            latin1 = false;
+            internalOrder = (QSysInfo::ByteOrder != QSysInfo::BigEndian);
+            networkOrder = false;
         } else {
             if (c2 != EOF) {
-                d->dev->ungetch(c2);
-                d->dev->ungetch(c1);
+                dev->ungetch(c2);
+                dev->ungetch(c1);
             } else {
                 /*
                   A small bug might hide here. If only the first byte
@@ -603,7 +601,7 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
                   is half of the byte-order mark, then the utfness
                   will not be detected. --Sam
                 */
-                d->dev->ungetch(c1);
+                dev->ungetch(c1);
             }
         }
     }
@@ -611,9 +609,9 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
     char buff[getbuf_cache_size];
     while(ret == QTextStreamPrivate::TS_END_UNKNOWN) {
         //read out of the unget buffer
-        if (d->ungetcBuf.length()) {
-            int ungetc_len = d->ungetcBuf.length(), ungetc_used = 0;
-            const QChar *ungetc_buff = d->ungetcBuf.unicode();
+        if (ungetcBuf.length()) {
+            int ungetc_len = ungetcBuf.length(), ungetc_used = 0;
+            const QChar *ungetc_buff = ungetcBuf.unicode();
             while(rnum < ungetc_len && ungetc_used < ungetc_len) {
                 if(int end = ts_end(ungetc_buff+ungetc_used, 
 				    ungetc_len-ungetc_used, end_flags)) {
@@ -630,7 +628,7 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
                     break;
                 }
             }
-            d->ungetcBuf = d->ungetcBuf.mid(ungetc_used);
+            ungetcBuf = ungetcBuf.mid(ungetc_used);
             if (ret != QTextStreamPrivate::TS_END_UNKNOWN) {
                 if(l)
                     *l = rnum;
@@ -639,18 +637,18 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
         }
 
         //read from the device
-        const int buff_len = d->dev->read(buff, getbuf_cache_size);
+        const int buff_len = dev->read(buff, getbuf_cache_size);
         if(buff_len <= 0) {
             ret = QTextStreamPrivate::TS_END_OF_INPUT;
             break;
         }
 
 #ifndef QT_NO_TEXTCODEC
-        if(d->mapper) {
-            if (!d->decoder)
-                d->decoder = d->mapper->makeDecoder();
+        if(mapper) {
+            if (!decoder)
+                decoder = mapper->makeDecoder();
 
-            QString s = d->decoder->toUnicode(buff, buff_len);
+            QString s = decoder->toUnicode(buff, buff_len);
             int used_len = qMin(len - rnum, s.length());
             if(end_flags) {
                 for(int i = 0; i < used_len; i++) {
@@ -667,10 +665,10 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
             if(ret == TS_END_FOUND)
                 rnum -= 1;
             if(used_len != s.length())
-                d->ungetcBuf += s.mid(used_len);
+                ungetcBuf += s.mid(used_len);
         } else
 #endif
-        if (d->latin1) {
+        if (latin1) {
             int used_len = 0;
             for(char *it = buff, *end = it + buff_len; rnum < len && it < end; it++) {
                 if(out)
@@ -700,12 +698,12 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
                 used_len++;
                 rnum++;
             }
-            d->ungetcBuf += QByteArray(buff+used_len, buff_len-used_len);
+            ungetcBuf += QByteArray(buff+used_len, buff_len-used_len);
         } else { // ISO-10646-UCS-2 or UTF-16
             int used_len = 0;
             for(int i = 0; rnum < len && i+1 < buff_len; i+=2) {
                 QChar next_c;
-                if (d->networkOrder)
+                if (networkOrder)
                     next_c = QChar(buff[i+1], buff[i]);
                 else
                     next_c = QChar(buff[i], buff[i+1]);
@@ -714,7 +712,7 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
                     if((end_flags & 0x0F) == TS_EOL) {
                         if(next_c == QLatin1Char('\r') && i + 4 <= buff_len) {
                             QChar n;
-                            if (d->networkOrder)
+                            if (networkOrder)
                                 n = QChar(buff[i+3], buff[i+2]);
                             else
                                 n = QChar(buff[i+2], buff[i+3]);
@@ -735,7 +733,7 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
                     }
                 }
                 if(ret == QTextStreamPrivate::TS_END_FOUND) {
-                    d->ungetcBuf += next_c;
+                    ungetcBuf += next_c;
                 } else {
                     if(out)
                         *(out++) = next_c;
@@ -757,45 +755,43 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
 */
 void QTextStreamPrivate::ts_putc(QChar c)
 {
-    Q_D(QTextStream);
-
     //just append directly onto the string (optimization)
-    if (d->sourceType == QTextStreamPrivate::String) {
-        d->str->append(c);
+    if (sourceType == QTextStreamPrivate::String) {
+        str->append(c);
         return;
     }
 
     //put it into the device
 #ifndef QT_NO_TEXTCODEC
-    if (d->mapper) {
-        if (!d->encoder)
-            d->encoder = d->mapper->makeEncoder();
+    if (mapper) {
+        if (!encoder)
+            encoder = mapper->makeEncoder();
         int len = 1;
         QString s(c);
-        QByteArray block = d->encoder->fromUnicode(s, len);
-        d->dev->write(block, len);
+        QByteArray block = encoder->fromUnicode(s, len);
+        dev->write(block, len);
     } else
 #endif
-    if (d->latin1) {
+    if (latin1) {
         if (c.row())
-            d->dev->putch('?'); // unknown character
+            dev->putch('?'); // unknown character
         else
-            d->dev->putch(c.cell());
+            dev->putch(c.cell());
     } else {
-        if (d->doUnicodeHeader) {
-            d->doUnicodeHeader = false;
-            if (!d->dev->isSequentialAccess() && d->dev->at() == 0)
+        if (doUnicodeHeader) {
+            doUnicodeHeader = false;
+            if (!dev->isSequentialAccess() && dev->at() == 0)
                 ts_putc(QChar::ByteOrderMark);
         }
-        if (d->internalOrder) {
+        if (internalOrder) {
             // this case is needed by QStringBuffer
-            d->dev->write((char*)&c, sizeof(QChar));
-        } else if (d->networkOrder) {
-            d->dev->putch(c.row());
-            d->dev->putch(c.cell());
+            dev->write((char*)&c, sizeof(QChar));
+        } else if (networkOrder) {
+            dev->putch(c.row());
+            dev->putch(c.cell());
         } else {
-            d->dev->putch(c.cell());
-            d->dev->putch(c.row());
+            dev->putch(c.cell());
+            dev->putch(c.row());
         }
     }
 }
@@ -813,16 +809,14 @@ void QTextStreamPrivate::ts_ungetc(QChar c)
     if (c.unicode() == 0xffff)
         return;
 
-    Q_D(QTextStream);
-
     //just append directly onto the string (optimization)
-    if (d->sourceType == QTextStreamPrivate::String) {
-        if(d->strOff > 0)
-            *((QChar*)((char*)d->str->data()+(d->strOff-=2))) = c;
+    if (sourceType == QTextStreamPrivate::String) {
+        if(strOff > 0)
+            *((QChar*)((char*)str->data()+(strOff-=2))) = c;
         return;
     }
     //stick it into the buffer
-    d->ungetcBuf.prepend(c);
+    ungetcBuf.prepend(c);
 }
 
 
@@ -901,81 +895,79 @@ bool QTextStream::seek(Q_LONGLONG offset)
 
 QTextStream &QTextStreamPrivate::write(const char* p, uint len)
 {
-    Q_D(QTextStream);
     Q_Q(QTextStream);
     //just append directly onto the string (optimization)
-    if (d->sourceType == QTextStreamPrivate::String) {
-        d->str->append(QString::fromLatin1(p, len));
+    if (sourceType == QTextStreamPrivate::String) {
+        str->append(QString::fromLatin1(p, len));
         return *q;
     }
 
     //from device
-    if (d->doUnicodeHeader) {
-        d->doUnicodeHeader = false;
-        if (!d->mapper && !d->latin1 && !d->dev->isSequentialAccess() && d->dev->at() == 0)
-            d->ts_putc(QChar::ByteOrderMark);
+    if (doUnicodeHeader) {
+        doUnicodeHeader = false;
+        if (!mapper && !latin1 && !dev->isSequentialAccess() && dev->at() == 0)
+            ts_putc(QChar::ByteOrderMark);
     }
     // QByteArray and const char * are treated as Latin1
-    if (!d->mapper && d->latin1) {
-        d->dev->write(p, len);
-    } else if (!d->mapper && d->internalOrder) {
+    if (!mapper && latin1) {
+        dev->write(p, len);
+    } else if (!mapper && internalOrder) {
         QChar *u = new QChar[len];
         for (uint i = 0; i < len; i++)
             u[i] = QLatin1Char(p[i]);
-        d->dev->write((char*)u, len * sizeof(QChar));
+        dev->write((char*)u, len * sizeof(QChar));
         delete [] u;
     }
 #ifndef QT_NO_TEXTCODEC
-    else if (d->mapper) {
-        if (!d->encoder)
-            d->encoder = d->mapper->makeEncoder();
+    else if (mapper) {
+        if (!encoder)
+            encoder = mapper->makeEncoder();
         QString s = QString::fromLatin1(p, len);
         int l = len;
-        QByteArray block = d->encoder->fromUnicode(s, l);
-        d->dev->write(block, l);
+        QByteArray block = encoder->fromUnicode(s, l);
+        dev->write(block, l);
     }
 #endif
     else {
         for (uint i = 0; i < len; i++)
-            d->ts_putc((uchar)p[i]);
+            ts_putc((uchar)p[i]);
     }
     return *q;
 }
 
 QTextStream &QTextStreamPrivate::write(const QChar* p, uint len)
 {
-    Q_D(QTextStream);
     Q_Q(QTextStream);
     //just append directly onto the string (optimization)
-    if (d->sourceType == QTextStreamPrivate::String) {
-        d->str->append(QString(p, len));
+    if (sourceType == QTextStreamPrivate::String) {
+        str->append(QString(p, len));
         return *q;
     }
 
     //from device
 #ifndef QT_NO_TEXTCODEC
-    if (d->mapper) {
-        if (!d->encoder)
-            d->encoder = d->mapper->makeEncoder();
+    if (mapper) {
+        if (!encoder)
+            encoder = mapper->makeEncoder();
         QString s(p, len);
         int l = len;
-        QByteArray block = d->encoder->fromUnicode(s, l);
-        d->dev->write(block, l);
+        QByteArray block = encoder->fromUnicode(s, l);
+        dev->write(block, l);
     } else
 #endif
-    if (d->latin1) {
+    if (latin1) {
         QString cstr = QString::fromRawData(p, len);
-        d->dev->write(cstr.latin1(), len);
-    } else if (d->internalOrder) {
-        if (d->doUnicodeHeader) {
-            d->doUnicodeHeader = false;
-            if (!d->dev->isSequentialAccess() && d->dev->at() == 0)
-                d->ts_putc(QChar::ByteOrderMark);
+        dev->write(cstr.latin1(), len);
+    } else if (internalOrder) {
+        if (doUnicodeHeader) {
+            doUnicodeHeader = false;
+            if (!dev->isSequentialAccess() && dev->at() == 0)
+                ts_putc(QChar::ByteOrderMark);
         }
-        d->dev->write((char*)p, sizeof(QChar)*len);
+        dev->write((char*)p, sizeof(QChar)*len);
     } else {
         for (uint i=0; i<len; i++)
-            d->ts_putc(p[i]);
+            ts_putc(p[i]);
     }
     return *q;
 }
@@ -1101,14 +1093,12 @@ QTextStream &QTextStream::operator>>(QChar &c)
 
 ulong QTextStreamPrivate::input_bin()
 {
-    Q_D(QTextStream);
-
     uint l;
     ulong val = 0;
     const int buf_size = getnum_tmp_size;
     QChar buf[buf_size];
     while(1) {
-        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_BIN, &l);
+        QTextStreamPrivate::GetBufEnd end = ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_BIN, &l);
         for(uint i = 0; i < l; i++)
             val = (val << 1) + buf[i].digitValue();
         if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
@@ -1143,14 +1133,12 @@ ulong QTextStreamPrivate::input_oct()
 
 ulong QTextStreamPrivate::input_dec()
 {
-    Q_D(QTextStream);
-
     uint l;
     ulong val = 0;
     const int buf_size = getnum_tmp_size;
     QChar buf[buf_size];
     while(1) {
-        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_DIGIT, &l);
+        QTextStreamPrivate::GetBufEnd end = ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_DIGIT, &l);
         for(uint i = 0; i < l; i++)
             val = val * 10 + buf[i].digitValue();
         if(end != QTextStreamPrivate::TS_END_OF_OUTPUT)
@@ -1161,14 +1149,12 @@ ulong QTextStreamPrivate::input_dec()
 
 ulong QTextStreamPrivate::input_hex()
 {
-    Q_D(QTextStream);
-
     uint l;
     ulong val = 0;
     const int buf_size = getnum_tmp_size;
     QChar buf[buf_size];
     while(1) {
-        QTextStreamPrivate::GetBufEnd end = d->ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_HEX, &l);
+        QTextStreamPrivate::GetBufEnd end = ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_HEX, &l);
         for(uint i = 0; i < l; i++) {
             char c = buf[i].toLower().latin1();
             val = (val << 4) + (buf[i].isDigit() ? c - '0' : 10 + c-'a');
@@ -1181,7 +1167,6 @@ ulong QTextStreamPrivate::input_hex()
 
 long QTextStreamPrivate::input_int()
 {
-    Q_D(QTextStream);
     Q_Q(QTextStream);
 
     long val=0;
@@ -1699,7 +1684,6 @@ QTextStream &QTextStream::operator<<(char c)
 
 QTextStream &QTextStreamPrivate::output_int(int format, ulong n, bool neg)
 {
-    Q_D(QTextStream);
     Q_Q(QTextStream);
 
     static const char hexdigits_lower[] = "0123456789abcdef";
@@ -1771,21 +1755,21 @@ QTextStream &QTextStreamPrivate::output_int(int format, ulong n, bool neg)
                 *--p = '-';
             else if (q->flags() & q->showpos)
                 *--p = '+';
-            if ((q->flags() & q->internal) && d->fwidth && !QChar(QLatin1Char(*p)).isDigit()) {
-                d->ts_putc(*p);                        // special case for internal
+            if ((q->flags() & q->internal) && fwidth && !QChar(QLatin1Char(*p)).isDigit()) {
+                ts_putc(*p);                        // special case for internal
                 ++p;                                //   padding
-                d->fwidth--;
+                fwidth--;
                 return *q << (const char*)p;
             }
     }
-    if (d->fwidth) {                                // adjustment required
+    if (fwidth) {                                // adjustment required
         if (!(q->flags() & q->left)) {                // but NOT left adjustment
             len = qstrlen(p);
-            int padlen = d->fwidth - len;
+            int padlen = fwidth - len;
             if (padlen <= 0) {                // no padding required
                 write(p, len);
             } else if (padlen < (int)(p-buf)) { // speeds up padding
-                memset(p-padlen, d->fillchar, padlen);
+                memset(p-padlen, fillchar, padlen);
                 write(p-padlen, padlen+len);
             }
             else                                // standard padding
@@ -1793,7 +1777,7 @@ QTextStream &QTextStreamPrivate::output_int(int format, ulong n, bool neg)
         }
         else
             *q << (const char*)p;
-        d->fwidth = 0;                                // reset field width
+        fwidth = 0;                                // reset field width
     }
     else
         write(p, qstrlen(p));
@@ -2540,10 +2524,9 @@ bool QTextStream::atEnd() const
 
 QChar QTextStreamPrivate::ts_getc()
 {
-    Q_D(QTextStream);
     QChar r;
     uint l;
-    d->ts_getbuf(&r, 1, 0, &l);
+    ts_getbuf(&r, 1, 0, &l);
     if(!l)
         r = QChar(0xffff);
     return r;

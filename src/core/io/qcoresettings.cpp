@@ -240,12 +240,11 @@ void QCoreSettingsPrivate::setStatus(QCoreSettings::Status status)
 
 void QCoreSettingsPrivate::requestUpdate()
 {
-    Q_D(QCoreSettings);
     Q_Q(QCoreSettings);
 
-    if (!d->pendingChanges) {
+    if (!pendingChanges) {
         QCoreApplication::postEvent(q, new QEvent(QEvent::UpdateRequest));
-        d->pendingChanges = true;
+        pendingChanges = true;
     }
 }
 
