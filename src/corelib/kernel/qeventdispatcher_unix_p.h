@@ -27,7 +27,6 @@
 
 #include "QtCore/qabstracteventdispatcher.h"
 #include "qabstracteventdispatcher_p.h"
-#include <qbitarray.h>
 #include <qlist.h>
 #include <sys/types.h>
 #include <sys/time.h>
@@ -72,9 +71,10 @@ public:
     void registerSocketNotifier(QSocketNotifier *notifier);
     void unregisterSocketNotifier(QSocketNotifier *notifier);
 
-    int registerTimer(int timerInterval, QObject *object);
+    void registerTimer(int timerId, int interval, QObject *object);
     bool unregisterTimer(int timerId);
     bool unregisterTimers(QObject *object);
+    QList<TimerInfo> registeredTimers(QObject *object) const;
 
     void wakeUp();
     void interrupt();
@@ -114,7 +114,6 @@ public:
     // 3 socket notifier types - read, write and exception
     QSockNotType sn_vec[3];
 
-    QBitArray timerBitVec;
     QList<QTimerInfo*> timerList;
     bool timerWait(timeval &);
     void timerInsert(QTimerInfo *);

@@ -19,6 +19,20 @@
 #include <private/qcoreapplication_p.h>
 
 
+static QBasicAtomic timerId = Q_ATOMIC_INIT(1);
+static int nextTimerId()
+{
+    register int id;
+    forever {
+        id = timerId;
+        if (timerId.testAndSet(id, id + 1))
+            break;
+    }
+    Q_ASSERT_X(id >= 1, "QTimer", "timer id overflow, please contact qt-bugs@trolltech.com");
+    return id;
+}
+
+
 void QAbstractEventDispatcherPrivate::init()
 {
     Q_Q(QAbstractEventDispatcher);
@@ -182,6 +196,19 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
 
     Register a timer with the specified \a interval for the given \a object.
 */
+int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
+{
+    int id = nextTimerId();
+    registerTimer(id, interval, object);
+    return id;
+}
+
+/*!
+    \fn void QAbstractEventDispatcher::registerTimer(int timerId, int interval, QObject *object)
+
+    Register a timer with the specified \a timerId and \a interval for
+    the given \a object.
+*/
 
 /*!
     \fn bool QAbstractEventDispatcher::unregisterTimer(int timerId)
@@ -193,6 +220,13 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
     \fn bool QAbstractEventDispatcher::unregisterTimers(QObject *object)
 
     Unregister all the timers associated with the given \a object.
+*/
+
+/*!
+    \fn QList<TimerInfo> registeredTimers(QObject *object) const
+
+    Returns a list of registered timers for \a object.  The timer id
+    is the first member in each pair; the interval is the second.
 */
 
 /*! \fn void QAbstractEventDispatcher::wakeUp()

@@ -16,6 +16,7 @@
 #include "qcoreapplication.h"
 #include "qhash.h"
 #include "qlibrary.h"
+#include "qpair.h"
 #include "qsocketnotifier.h"
 #include "qwineventnotifier_p.h"
 
@@ -32,6 +33,7 @@ typedef QHash<int, QSockNot *> QSNDict;
 
 struct TimerInfo {                              // internal timer info
     int     ind;                                // - Qt timer identifier - 1
+    int interval;
     uint     id;                                // - Windows timer identifier
     QObject *obj;                               // - object to receive events
     int    type;                                // GDI timer, fast multimedia timer or zero timer
@@ -531,12 +533,13 @@ void QEventDispatcherWin32::unregisterSocketNotifier(QSocketNotifier *notifier)
 #endif
 }
 
-int QEventDispatcherWin32::registerTimer(int interval, QObject *object)
+void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *object)
 {
     Q_D(QEventDispatcherWin32);
 
     register TimerInfo *t = new TimerInfo;
-    t->ind  = d->timerVec.isEmpty() ? 1 : d->timerVec.last()->ind + 1;
+    t->ind  = timerId;
+    t->interval = interval;
     t->obj  = object;
     t->dispatcher = 0;
     t->type = TimerInfo::Normal;
@@ -559,13 +562,12 @@ int QEventDispatcherWin32::registerTimer(int interval, QObject *object)
     if (t->id == 0) {
         qErrnoWarning("QEventDispatcherWin32::registerTimer: Failed to create a timer");
         delete t;                               // could not set timer
-        return 0;
+        return;
     }
 
     d->timerVec.append(t);                      // store in timer vector
     if (t->type != TimerInfo::Fast)
         d->timerDict.insert(t->id, t);          // store regular timers in dict
-    return t->ind;                              // return index in vector
 }
 
 bool QEventDispatcherWin32::unregisterTimer(int timerId)
@@ -630,6 +632,19 @@ bool QEventDispatcherWin32::unregisterTimers(QObject *object)
         }
     }
     return true;
+}
+
+QList<QEventDispatcherWin32::TimerInfo>
+QEventDispatcherWin32::registeredTimers(QObject *object) const
+{
+    Q_D(const QEventDispatcherWin32);
+    QList<TimerInfo> list;
+    for (int i = 0; i < d->timerVec.size(); ++i) {
+        const TimerInfo *t = d->timerVec.at(i);
+        if (t && t->obj == object)
+            list << TimerInfo(t->ind, t->interval);
+    }
+    return list;
 }
 
 bool QEventDispatcherWin32::registerEventNotifier(QWinEventNotifier *notifier)

@@ -35,9 +35,10 @@ public:
     void registerSocketNotifier(QSocketNotifier *notifier);
     void unregisterSocketNotifier(QSocketNotifier *notifier);
 
-    int registerTimer(int interval, QObject *object);
+    void registerTimer(int timerId, int interval, QObject *object);
     bool unregisterTimer(int timerId);
     bool unregisterTimers(QObject *object);
+    QList<TimerInfo> registeredTimers(QObject *object) const;
 
     bool registerEventNotifier(QWinEventNotifier *notifier);
     void unregisterEventNotifier(QWinEventNotifier *notifier);

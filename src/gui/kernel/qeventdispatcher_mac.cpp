@@ -69,18 +69,17 @@ static void qt_mac_activate_timer(EventLoopTimerRef, void *data)
     qt_event_request_timer(tmr);
 }
 
-int QEventDispatcherMac::registerTimer(int interval, QObject *obj)
+void QEventDispatcherMac::registerTimer(int timerId, int interval, QObject *obj)
 {
     if (!d->macTimerList)
         d->macTimerList = new MacTimerList;
 
-    static int serial_id = 777;
     MacTimerInfo t;
+    t.id = timerId;
+    t.interval = interval;
     t.obj = obj;
     t.mac_timer = 0;
-    t.interval = interval;
     t.pending = true;
-    t.id = serial_id++;
     if (interval) {
         if (!timerUPP)
             timerUPP = NewEventLoopTimerUPP(qt_mac_activate_timer);
@@ -89,7 +88,7 @@ int QEventDispatcherMac::registerTimer(int interval, QObject *obj)
         if (InstallEventLoopTimer(GetMainEventLoop(), mint, mint,
                                  timerUPP, &d->macTimerList->last(), &d->macTimerList->last().mac_timer)) {
             qFatal("This cannot really happen, can it!?!");
-            return 0; //exceptional error
+            return; //exceptional error
         }
         d->macTimerList->last().pending = false;
     } else {
@@ -99,7 +98,6 @@ int QEventDispatcherMac::registerTimer(int interval, QObject *obj)
         d->macTimerList->prepend(t); //zero timers come first
         d->macTimerList->first().pending = false;
     }
-    return t.id;
 }
 
 static Boolean find_timer_event(EventRef event, void *data)
@@ -160,6 +158,20 @@ bool QEventDispatcherMac::unregisterTimers(QObject *obj)
         }
     }
     return true;
+}
+
+QList<QEventDispatcherMac::TimerInfo>
+QEventDispatcherMac::registeredTimers(QObject *object) const
+{
+    QList<TimerInfo> list;
+    if (!d->macTimerList)
+        return list;
+    for (int i = 0; i < d->macTimerList->size(); ++i) {
+        const MacTimerInfo &t = d->macTimerList->at(i);
+        if (t.obj == object)
+            list << TimerInfo(t.id, t.interval);
+    }
+    return list;
 }
 
 
