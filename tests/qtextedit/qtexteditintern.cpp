@@ -1,6 +1,6 @@
 #include "qtexteditintern_p.h"
 #include "qtextedit.h"
-#include "../../src/kernel/qrichtext_p.h"
+#include "qrichtext_p.h"
 
 #include <qstringlist.h>
 #include <qfont.h>
