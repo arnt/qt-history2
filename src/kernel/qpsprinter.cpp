@@ -5636,32 +5636,39 @@ void QPSPrinterPrivate::emitHeader( bool finished )
     outStream << "%!PS-Adobe-1.0";
     QPaintDeviceMetrics m( printer );
     scale = 72. / ((float) m.logicalDpiY());
-    int dpi = printer->resolution();
-    printer->setResolution( 72 );
+    int mx = printer->margins().width();
+    int my = printer->margins().height();
+    int width = m.width();
+    int height = m.height();
+    bool fullPage = printer->fullPage();
     if ( finished && pageCount == 1 && printer->numCopies() == 1 &&
-         printer->fullPage() && qt_gen_epsf ) {
+         ( ( printer->fullPage() && qt_gen_epsf ) ||
+	   ( printer->outputToFile() && printer->outputFileName().endsWith( ".eps" ) ) )
+	) {
         if ( !boundingBox.isValid() )
-            boundingBox.setRect( 0, 0, m.width(), m.height() );
-        if ( printer->orientation() == QPrinter::Landscape )
-            // ### fixme: won't work with resolution != 72
-            outStream << " EPSF-3.0\n%%BoundingBox: "
-                   << m.height() - boundingBox.bottom() << " " // llx
-                   << m.width() - boundingBox.right() << " " // lly
-                   << m.height() - boundingBox.top() << " " // urx
-                   << m.width() - boundingBox.left();// ury
-        else
-            outStream << " EPSF-3.0\n%%BoundingBox: "
-                   << boundingBox.left() << " "
-                   << m.height() - boundingBox.bottom() - 1 << " "
-                   << boundingBox.right() + 1 << " "
-                   << m.height() - boundingBox.top();
+            boundingBox.setRect( 0, 0, width, height );
+	if ( printer->orientation() == QPrinter::Landscape ) {
+	    if ( !fullPage )
+		boundingBox.moveBy( -mx, -my );
+	    outStream << " EPSF-3.0\n%%BoundingBox: "
+		      << (int)(m.height() - boundingBox.bottom())*scale << " " // llx
+		      << (int)(m.width() - boundingBox.right())*scale - 1 << " " // lly
+		      << (int)(m.height() - boundingBox.top())*scale + 1 << " " // urx
+		      << (int)(m.width() - boundingBox.left())*scale; // ury
+	} else {
+	    if ( !fullPage )
+		boundingBox.moveBy( mx, -my );
+	    outStream << " EPSF-3.0\n%%BoundingBox: "
+		      << (int)(boundingBox.left())*scale << " "
+		      << (int)(m.height() - boundingBox.bottom())*scale - 1 << " "
+		      << (int)(boundingBox.right())*scale + 1 << " "
+		      << (int)(m.height() - boundingBox.top())*scale;
+	}
     } else {
-        int w = m.width();
-        int h = m.height();
-        if ( !printer->fullPage() ) {
-            w += 2*printer->margins().width();
-            h += 2*printer->margins().height();
-        }
+	int w = width + (fullPage ? 0 : 2*mx);
+        int h = height + (fullPage ? 0 : 2*my);
+	w = (int)(w*scale);
+	h = (int)(h*scale);
         // set a bounding box according to the DSC
         if ( printer->orientation() == QPrinter::Landscape )
             outStream << "\n%%BoundingBox: 0 0 " << h << " " << w;
@@ -5707,19 +5714,18 @@ void QPSPrinterPrivate::emitHeader( bool finished )
 
     outStream << lineStyles;
 
-
     outStream << "/pageinit {\n";
     if ( !printer->fullPage() ) {
         if ( printer->orientation() == QPrinter::Portrait )
-            outStream << printer->margins().width() << " "
-                   << printer->margins().height() << " translate\n";
+            outStream << mx*scale << " "
+                   << my*scale << " translate\n";
         else
-            outStream << printer->margins().height() << " "
-                   << printer->margins().width() << " translate\n";
+            outStream << my*scale << " "
+                   << mx*scale << " translate\n";
     }
     if ( printer->orientation() == QPrinter::Portrait ) {
         outStream << "% " << m.widthMM() << "*" << m.heightMM()
-               << "mm (portrait)\n0 " << m.height()
+               << "mm (portrait)\n0 " << height*scale
                << " translate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
     } else {
         outStream << "% " << m.heightMM() << "*" << m.widthMM()
@@ -5758,7 +5764,6 @@ void QPSPrinterPrivate::emitHeader( bool finished )
     fontStream.unsetDevice();
     delete fontBuffer;
     fontBuffer = 0;
-    printer->setResolution( dpi );
 }
 
 
