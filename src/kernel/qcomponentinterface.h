@@ -16,21 +16,22 @@ class QRegExp;
 class Q_EXPORT QUnknownInterface
 {
     friend class QPlugIn;
+    friend class QApplicationInterface;
 public:
     QUnknownInterface( QUnknownInterface *parent = 0, const char* name = 0 );
     virtual ~QUnknownInterface();
 
-    virtual QString interfaceID() const;
+    virtual QString interfaceId() const;
     QString ID() const;
 
     virtual bool initialize( QApplicationInterface* = 0 );
     virtual bool cleanUp( QApplicationInterface* = 0 );
 
-    virtual bool hasInterface( const QString&, bool rec = TRUE ) const;
-    virtual QUnknownInterface* queryInterface( const QString&, bool rec = TRUE );
-    virtual QStringList interfaceList( bool rec = TRUE) const;
+    virtual bool hasInterface( const QString&, bool recursive = TRUE, bool regexp = TRUE ) const;
+    virtual QUnknownInterface* queryInterface( const QString&, bool recursive = TRUE, bool regexp = TRUE );
+    virtual QStringList interfaceList( bool recursive = TRUE ) const;
 
-    virtual bool ref();
+    virtual bool addRef();
     virtual bool release();
 
     QApplicationInterface *applicationInterface() const;
@@ -43,7 +44,7 @@ protected:
     virtual void insertChild( QUnknownInterface * );
     virtual void removeChild( QUnknownInterface * );
     QUnknownInterface *child( const QString & ) const;
-    QString createID( const QString& parent, const QString& that ) const;
+    QString createId( const QString& parent, const QString& that ) const;
 
 private:
     QInterfaceList* children;
@@ -58,7 +59,7 @@ class Q_EXPORT QPlugInInterface : public QUnknownInterface
 public:
     QPlugInInterface( const char* name = 0 );
 
-    QString interfaceID() const;
+    QString interfaceId() const;
 
     virtual QString brief() const;
     virtual QString description() const;
@@ -70,7 +71,7 @@ class Q_EXPORT QApplicationInterface : public QPlugInInterface
 {
 public:
     QApplicationInterface( const char* name = 0 );
-    QString interfaceID() const;
+    QString interfaceId() const;
 
     QString brief() const;
 
@@ -89,7 +90,7 @@ class Q_EXPORT QApplicationComponentInterface : public QUnknownInterface
 public:
     QApplicationComponentInterface( QObject* c, QUnknownInterface *parent, const char* name = 0 );
 
-    QString interfaceID() const;
+    QString interfaceId() const;
 
 #ifndef QT_NO_PROPERTIES
     virtual QVariant requestProperty( const QCString& p );
@@ -118,15 +119,5 @@ private:
 #endif
 
 #endif
-
-#define Q_INTERFACE( ID, base )				    \
-    class Q_EXPORT ID : public base			    \
-    {							    \
-    public:						    \
-	QString interfaceID() const			    \
-	{						    \
-	    return createID( base::interfaceID(), ##ID );   \
-	}						    \
-    private:
 
 #endif //QCOMPONENTINTERFACE_H

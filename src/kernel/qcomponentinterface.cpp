@@ -119,13 +119,13 @@ QUnknownInterface* QUnknownInterface::parent() const
 
   \sa release
 */
-bool QUnknownInterface::ref()
+bool QUnknownInterface::addRef()
 {
     if ( !refcount && !initialize( appInterface ) )
 	return FALSE;
 
     if ( parent() )
-	parent()->ref();
+	parent()->addRef();
 
 /*
     if ( objname )
@@ -179,9 +179,9 @@ bool QUnknownInterface::release()
 
     ...
 
-    QString MyInterface::interfaceID() const
+    QString MyInterface::interfaceId() const
     {
-	return createID( QUnknownInterface::interfaceID(), "MyInterface" );
+	return createId( QUnknownInterface::interfaceId(), "MyInterface" );
     }
 
   \endcode
@@ -192,20 +192,20 @@ bool QUnknownInterface::release()
   \sa ID
 */
 
-QString QUnknownInterface::interfaceID() const
+QString QUnknownInterface::interfaceId() const
 {
-    return createID( "","QUnknownInterface" );
+    return createId( "","QUnknownInterface" );
 }
 
 /*!
-  Returns a the ID of this interface, that is, the last part of the interfaceID.
+  Returns a the Id of this interface, that is, the last part of the interfaceId.
 
-  \sa interfaceID
+  \sa interfaceId
 */
 
 QString QUnknownInterface::ID() const
 {
-    const QString id = interfaceID();
+    const QString id = interfaceId();
 
     int last = id.findRev( '/' );
     return ( last == -1 ) ? id : id.right( id.length() - last - 1 );
@@ -214,10 +214,10 @@ QString QUnknownInterface::ID() const
 /*!
   Returns a QString that represents the interface hierarchy using \a parent and \a id
 
-  \sa interfaceID, ID
+  \sa interfaceId, Id
 */
 
-QString QUnknownInterface::createID( const QString &parent, const QString &id ) const
+QString QUnknownInterface::createId( const QString &parent, const QString &id ) const
 {
     return parent + "/" + id;
 }
@@ -253,58 +253,71 @@ bool QUnknownInterface::cleanUp( QApplicationInterface* )
 }
 
 /*!
-  Returns TRUE if this interface has a child interface with an interfaceID
-  \a request. If \a rec is TRUE, this function will look for the requested interface
+  Returns TRUE if this interface has a child interface with an interfaceId
+  \a request. If \a recursive is TRUE, this function will look for the requested interface
   in the child interfaces, too.
+  If \a regexp is TRUE, \a request will be interpreted as a regular expression with wildcards.
 
   \sa queryInterface
 */
 
-bool QUnknownInterface::hasInterface( const QString &request, bool rec ) const
+bool QUnknownInterface::hasInterface( const QString &request, bool recursive, bool regexp ) const
 {
-    QRegExp regexp( request, TRUE, TRUE );
-    if ( regexp.match( interfaceID() ) )
-	return TRUE;
+    if ( regexp ) {
+	QRegExp re( request, TRUE, TRUE );
+	if ( re.match( interfaceId() ) )
+	    return TRUE;
+    } else {
+	if ( interfaceId() == request )
+	    return TRUE;
+    }
     if ( !children )
 	return FALSE;
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
-	if ( regexp.match( it.current()->interfaceID() ) ) {
-	    return TRUE;
-	} else if ( rec ) {
-	    bool has = it.current()->hasInterface( request, rec );
+	if ( regexp ) {
+	    QRegExp re( request, TRUE, TRUE );
+	    if ( re.match( it.current()->interfaceId() ) )
+		return TRUE;
+	} else {
+	    if ( it.current()->interfaceId() == request )
+		return TRUE;
+	} 
+	if ( recursive ) {
+	    bool has = it.current()->hasInterface( request, recursive, regexp );
 	    if ( has )
 		return TRUE;
 	}
+
 	++it;
     }
     return FALSE;
 }
 
 /*!
-  Returns the list of interface IDs this interface can provide. If \a rec is TRUE, this function
+  Returns the list of interface IDs this interface can provide. If \a recursive is TRUE, this function
   will return all interface IDs the child interfaces can provide, too.
 
   \sa hasInterface
 */
 
-QStringList QUnknownInterface::interfaceList( bool rec ) const
+QStringList QUnknownInterface::interfaceList( bool recursive ) const
 {
     QStringList list;
 
-    list << interfaceID();
+    list << interfaceId();
 
     if ( !children )
 	return list;
 
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
-	if ( rec ) {
-	    QStringList clist = it.current()->interfaceList( rec );
+	if ( recursive ) {
+	    QStringList clist = it.current()->interfaceList( recursive );
 	    for ( QStringList::Iterator ct = clist.begin(); ct != clist.end(); ct++ )
 		list << *ct ;
 	} else {
-	    list << it.current()->interfaceID();
+	    list << it.current()->interfaceId();
 	}
 	++it;
     }
@@ -313,18 +326,25 @@ QStringList QUnknownInterface::interfaceList( bool rec ) const
 }
 
 /*!
-  Returns an interface that matches \a request. If \a rec is TRUE, this function will
+  Returns an interface that matches \a request. If \a recursive is TRUE, this function will
   look for the requested interface in the child interfaces, too.
+  if \a regexp is TRUE, \a request will be interpreted as a regular expression with wildcards.
   The function returns NULL if this interface can't provide the requested interface.
 
-  \sa interfaceID, hasInterface, interfaceList, 
+  \sa interfaceId, hasInterface, interfaceList
 */
 
-QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bool rec )
+QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bool recursive, bool regexp )
 {
-    QRegExp regexp( request, TRUE, TRUE );
-    if ( regexp.match( interfaceID() ) ) {
-	if ( ref() )
+    bool amI;
+    if ( regexp ) {
+	QRegExp re( request, TRUE, TRUE );
+	amI = re.match( interfaceId() );
+    } else {
+	amI = interfaceId() == request;
+    }
+    if ( amI ) {
+	if ( addRef() )
 	    return this;
 	return 0;
     }
@@ -332,13 +352,21 @@ QUnknownInterface* QUnknownInterface::queryInterface( const QString& request, bo
 	return 0;
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
-	if ( regexp.match( it.current()->interfaceID() ) ) {
+	bool isIt;
+	if ( regexp ) {
+	    QRegExp re( request, TRUE, TRUE );
+	    QString iid = it.current()->interfaceId();
+	    isIt = re.match( it.current()->interfaceId() );
+	} else {
+	    isIt = it.current()->interfaceId() == request;
+	}
+	if ( isIt ) {
 	    it.current()->appInterface = appInterface;
-	    if ( it.current()->ref() )
+	    if ( it.current()->addRef() )
 		return it.current();
 	    return 0;
-	} else if ( rec ) {
-	    QUnknownInterface *iface = it.current()->queryInterface( request, rec );
+	} else if ( recursive ) {
+	    QUnknownInterface *iface = it.current()->queryInterface( request, recursive, regexp );
 	    if ( iface )
 		return iface;
 	}
@@ -361,7 +389,7 @@ QUnknownInterface* QUnknownInterface::child( const QString &request ) const
 
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
-	if ( regexp.match( it.current()->interfaceID() ) )
+	if ( regexp.match( it.current()->interfaceId() ) )
 	    return it.current();
 	++it;
     }
@@ -399,9 +427,9 @@ QPlugInInterface::QPlugInInterface( const char* name )
   \reimp
 */
 
-QString QPlugInInterface::interfaceID() const
+QString QPlugInInterface::interfaceId() const
 {
-    return createID( QUnknownInterface::interfaceID(), "QPlugInInterface" );
+    return createId( QUnknownInterface::interfaceId(), "QPlugInInterface" );
 }
 
 /*!
@@ -458,15 +486,16 @@ QString QPlugInInterface::version() const
 QApplicationInterface::QApplicationInterface( const char* name )
 : QPlugInInterface( name )
 {
+    appInterface = this;
 }
 
 /*!
   \reimp
 */
 
-QString QApplicationInterface::interfaceID() const
+QString QApplicationInterface::interfaceId() const
 {
-    return createID( QPlugInInterface::interfaceID(), "QApplicationInterface" );
+    return createId( QPlugInInterface::interfaceId(), "QApplicationInterface" );
 }
 
 /*!
@@ -521,9 +550,9 @@ QApplicationComponentInterface::QApplicationComponentInterface( QObject* object,
   \reimp
 */
 
-QString QApplicationComponentInterface::interfaceID() const
+QString QApplicationComponentInterface::interfaceId() const
 {
-    return createID( QUnknownInterface::interfaceID(), "QApplicationComponentInterface" );
+    return createId( QUnknownInterface::interfaceId(), "QApplicationComponentInterface" );
 }
 
 /*!
