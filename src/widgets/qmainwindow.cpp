@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#44 $
 **
 ** Implementation of QMainWindow class
 **
@@ -222,7 +222,7 @@ QMenuBar * QMainWindow::menuBar() const
     else
 	b = new QMenuBar( (QMainWindow *)this, "automatic menu bar" );
     delete l;
-    ((QMainWindowPrivate*)d)->mb = b;
+    d->mb = b;
     d->mb->installEventFilter( this );
     ((QMainWindow *)this)->triggerLayout();
     return b;
@@ -507,7 +507,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
     } else {
 	dockLayout = tl;
     }
-    
+
     QBoxLayout * toolBarRowLayout = 0;
     QMainWindowPrivate::ToolBar * t = dock->first();
     int cw = 0;
@@ -548,9 +548,6 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 
 void QMainWindow::setUpLayout()
 {
-    d->timer->stop();
-    delete d->tll;
-    d->tll = new QBoxLayout( this, QBoxLayout::Down );
     if ( !d->mb ) {
 	// slightly evil hack here.  reconsider this after 1.40.
 	QObjectList * l
@@ -559,10 +556,24 @@ void QMainWindow::setUpLayout()
 	    d->mb = menuBar();
 	delete l;
     }
+    if ( !d->sb ) {
+	// as above.
+	QObjectList * l
+	    = ((QObject*)this)->queryList( "QStatusBar", 0, FALSE, FALSE );
+	if ( l && l->count() )
+	    d->sb = statusBar();
+	delete l;
+    }
+
+    d->timer->stop();
+    delete d->tll;
+    d->tll = new QBoxLayout( this, QBoxLayout::Down );
+
     if ( d->mb && !d->mb->testWFlags(WState_ForceHide) )
 	d->tll->setMenuBar( d->mb );
     if ( style() == WindowsStyle )
 	d->tll->addSpacing( 1 );
+
     addToolBarToLayout( d->top, d->tll,
 			QBoxLayout::LeftToRight, QBoxLayout::Down, FALSE,
 			d->justify, style() );
@@ -581,19 +592,12 @@ void QMainWindow::setUpLayout()
     addToolBarToLayout( d->bottom, d->tll,
 			QBoxLayout::LeftToRight, QBoxLayout::Up, TRUE,
 			d->justify, style() );
-    if ( !d->sb ) {
-	// as above.
-	QObjectList * l
-	    = ((QObject*)this)->queryList( "QStatusBar", 0, FALSE, FALSE );
-	if ( l && l->count() )
-	    d->sb = statusBar();
-	delete l;
-    }
+
     if ( d->sb && !d->sb->testWFlags(WState_ForceHide) )
 	d->tll->addWidget( d->sb, 0 );
     //debug( "act %d, %d", x(), y() );
     d->tll->activate();
-    
+
 }
 
 
@@ -653,7 +657,7 @@ void QMainWindow::paintEvent( QPaintEvent * )
 
 bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 {
-    if ( e->type() == QEvent::Show || e->type() == QEvent::Hide ||  e->type() == QEvent::LayoutHint) 
+    if ( e->type() == QEvent::Show || e->type() == QEvent::Hide ||  e->type() == QEvent::LayoutHint)
 	triggerLayout();
     else if ( ( e->type() == QEvent::MouseButtonPress ||
 		  e->type() == QEvent::MouseMove ||
