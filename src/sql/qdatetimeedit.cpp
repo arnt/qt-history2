@@ -168,11 +168,8 @@ public:
 
 	p.translate( xoff, yoff );
 	parag->paint( p, cg, 0, TRUE );
-	if ( frm ) {
+	if ( frm )
 	    p.translate( -xoff, -yoff );
-	    style.drawPanel( &p, 0, 0, rect.width(), rect.height(), cg,
-			       TRUE, style.defaultFrameWidth() );
-	}
     }
 
     void resize( const QSize& size )
@@ -345,8 +342,8 @@ void QDateTimeEditBase::layoutArrows( const QSize& s )
 
     QSize bs;
     bs.setHeight( height()/2 - fw );
-    if ( bs.height() < 6 )
-	bs.setHeight( 6 );
+    if ( bs.height() < 5 )
+	bs.setHeight( 5 );
     bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
 
     int y = fw;
@@ -367,7 +364,7 @@ void QDateTimeEditBase::layoutArrows( const QSize& s )
 
     up->move( x, y );
     down->move( x, height() - y - up->height() );
-    QSize pmSize( s.width() - (s.width()-x), s.height() );
+    QSize pmSize( s.width(), s.height() );
     d->resize( pmSize );
 }
 
@@ -378,6 +375,7 @@ void QDateTimeEditBase::layoutArrows( const QSize& s )
 void QDateTimeEditBase::resizeEvent( QResizeEvent *e )
 {
     layoutArrows( e->size() );
+    QWidget::resizeEvent( e );
 
 #if 0
     int fw       = 0;
@@ -411,6 +409,10 @@ void QDateTimeEditBase::paintEvent( QPaintEvent * )
     QBrush bg = g.brush( QColorGroup::Base );
     p.fillRect( 0, 0, width(), height(), bg );
     d->paint( txt, hasFocus(), p, colorGroup(), rect(), style() );
+    if ( frame() ) {
+	style().drawPanel( &p, 0, 0, rect().width(), rect().height(), colorGroup(),
+			   TRUE, style().defaultFrameWidth() );
+    }
     p.end();
     bitBlt( this, 0, 0, d->pixmap() );
 }
@@ -943,6 +945,7 @@ void QDateEdit::addNumber( int sec, int num )
     if ( sec == -1 )
 	return;
     killTimer( d->timerId );
+    bool overwrite = FALSE;
     QString txt;
     if ( sec == d->yearSection ) {
 	txt = QString::number( d->y );
@@ -951,8 +954,10 @@ void QDateEdit::addNumber( int sec, int num )
 	} else {
 	    txt += QString::number( num );
 	    d->y = txt.toInt();
-	    if ( d->adv && txt.length() == 4 )
+	    if ( d->adv && txt.length() == 4 ) {
 		setFocusSection( focusSection()+1 );
+		overwrite = TRUE;
+	    }
 	}
     } else if ( sec == d->monthSection ) {
 	txt = QString::number( d->m );
@@ -966,8 +971,10 @@ void QDateEdit::addNumber( int sec, int num )
 	    else
 		d->m = temp;
 	    txt = QString::number( d->m );
-	    if ( d->adv && txt.length() == 2 )
+	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
+		overwrite = TRUE;
+	    }
 	}
     } else if ( sec == d->daySection ) {
 	txt = QString::number( d->d );
@@ -981,11 +988,13 @@ void QDateEdit::addNumber( int sec, int num )
 	    else
 		d->d = temp;
 	    txt = QString::number( d->d );
-	    if ( d->adv && txt.length() == 2 )
+	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
+		overwrite = TRUE;
+	    }
 	}
     }
-    d->overwrite = FALSE;
+    d->overwrite = overwrite;
     d->timerId = startTimer( qApp->doubleClickInterval()*4 );
     repaint( rect(), FALSE );
 }
@@ -998,8 +1007,8 @@ void QDateEdit::addNumber( int sec, int num )
 bool QDateEdit::setFocusSection( int s )
 {
     if ( s != focusSection() ) {
-	d->overwrite = TRUE;
 	killTimer( d->timerId );
+	d->overwrite = TRUE;
 	fix();
     }
     return QDateTimeEditBase::setFocusSection( s );
@@ -1370,6 +1379,7 @@ void QTimeEdit::addNumber( int sec, int num )
     if ( sec == -1 )
 	return;
     killTimer( d->timerId );
+    bool overwrite = FALSE;
     QString txt;
     if ( sec == 0 ) {
 	txt = QString::number( d->h );
@@ -1383,8 +1393,10 @@ void QTimeEdit::addNumber( int sec, int num )
 	    else
 		d->h = temp;
 	    txt = QString::number( d->h );
-	    if ( d->adv && txt.length() == 2 )
+	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
+		overwrite = TRUE;
+	    }
 	}
     } else if ( sec == 1 ) {
 	txt = QString::number( d->m );
@@ -1398,8 +1410,10 @@ void QTimeEdit::addNumber( int sec, int num )
 	    else
 		d->m = temp;
 	    txt = QString::number( d->m );
-	    if ( d->adv && txt.length() == 2 )
+	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
+		overwrite = TRUE;
+	    }
 	}
     } else if ( sec == 2 ) {
 	txt = QString::number( d->s );
@@ -1413,11 +1427,13 @@ void QTimeEdit::addNumber( int sec, int num )
 	    else
 		d->s = temp;
 	    txt = QString::number( d->s );
-	    if ( d->adv && txt.length() == 2 )
+	    if ( d->adv && txt.length() == 2 ) {
 		setFocusSection( focusSection()+1 );
+		overwrite = TRUE;
+	    }
 	}
     }
-    d->overwrite = FALSE;
+    d->overwrite = overwrite;
     d->timerId = startTimer( qApp->doubleClickInterval()*4 );
     repaint( rect(), FALSE );
 }
