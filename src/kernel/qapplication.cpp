@@ -1593,6 +1593,9 @@ void QApplication::closeAllWindows()
   Sends an event directly to a receiver, using the notify() function.
   Returns the value that was returned from the event handler.
 
+  The event is usually allocated on the stack here, as it is \e not
+  deleted when the event has been sent.
+
   \sa postEvent(), notify()
 */
 
@@ -2062,7 +2065,7 @@ QString QApplication::translate( const char * context, const char * key,
   When control returns to the main event loop, all events that are
   stored in the queue will be sent using the notify() function.
 
-  \sa sendEvent()
+  \sa sendEvent(), notify()
 */
 
 void QApplication::postEvent( QObject *receiver, QEvent *event )
