@@ -101,7 +101,6 @@ public:
     bool	autoResize()	const;
     virtual void setAutoResize( bool );
     QSize	sizeHint() const;
-    QSizePolicy sizePolicy() const;
 
     void	setBackgroundColor( const QColor & );
     void	setPalette( const QPalette & );

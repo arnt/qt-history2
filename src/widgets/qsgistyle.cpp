@@ -35,6 +35,7 @@
 **
 **********************************************************************/
 
+#define INCLUDE_MENUITEM_DEF
 #include "qsgistyle.h"
 #ifndef QT_NO_STYLE_SGI
 #include "qapplication.h"
@@ -46,15 +47,8 @@
 #include "qwidget.h"
 #include "qpushbutton.h"
 #include "qscrollbar.h"
-#define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
 #include <limits.h>
-
-
-typedef void (QStyle::*QDrawMenuBarItemImpl) (QPainter *, int, int, int, int, QMenuItem *,
-					      QColorGroup &, bool, bool);
-
-QDrawMenuBarItemImpl qt_set_draw_menu_bar_impl(QDrawMenuBarItemImpl impl);
 
 
 static const int sgiItemFrame		= 2;	// menu item frame width
@@ -166,7 +160,6 @@ QSGIStyle::polish( QApplication* app)
     QApplication::setPalette( pal, TRUE, "QMenuBar" );
     QApplication::setPalette( pal, TRUE, "QToolBar" );
 
-    qt_set_draw_menu_bar_impl((QDrawMenuBarItemImpl) &QSGIStyle::drawMenuBarItem);
 }
 
 /*! \reimp
@@ -179,8 +172,6 @@ QSGIStyle::unPolish( QApplication* /* app */ )
     QApplication::setFont( f, TRUE, "QPopupMenu" );
     QApplication::setFont( f, TRUE, "QMenuBar" );
     QApplication::setFont( f, TRUE, "QComboBox" );
-
-    qt_set_draw_menu_bar_impl(0);
 }
 
 /*!

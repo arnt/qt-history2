@@ -37,6 +37,7 @@
 
 #include "qcommonstyle.h"
 #if !defined(QT_NO_STYLE_WINDOWS) || !defined(QT_NO_STYLE_MOTIF)
+#define INCLUDE_MENUITEM_DEF
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -45,24 +46,8 @@
 #include "qtabbar.h"
 #include "qscrollbar.h"
 #include "qtoolbutton.h"
+#include "qmenubar.h"
 #include <limits.h>
-
-#define INCLUDE_MENUITEM_DEF
-#include "qmenudata.h" // for now
-// #undef INCLUDE_MENUITEM_DEF
-#include "qmotifplusstyle.h" // fo rnow
-
-typedef void (QStyle::*QDrawMenuBarItemImpl) (QPainter *, int, int, int, int, QMenuItem *,
-					      QColorGroup &, bool, bool);
-
-static QDrawMenuBarItemImpl draw_menu_bar_impl = 0;
-
-QDrawMenuBarItemImpl qt_set_draw_menu_bar_impl(QDrawMenuBarItemImpl impl)
-{
-    QDrawMenuBarItemImpl old_impl = draw_menu_bar_impl;
-    draw_menu_bar_impl = impl;
-    return old_impl;
-}
 
 
 // NOT REVISED
@@ -337,7 +322,7 @@ void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 #warning "doesn't really belong here... fix 3.0"
 #endif
 
-QRect QStyle::pushButtonContentsRect( QPushButton* btn ) const
+QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     int fw = 0;
@@ -351,7 +336,7 @@ QRect QStyle::pushButtonContentsRect( QPushButton* btn ) const
 
 void QCommonStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
 				bool highlight, const QColorGroup &cg,
-				bool drawBorder )
+				bool )
 {
     p->save();
     p->translate( r.x(), r.y() );
@@ -375,7 +360,7 @@ void QCommonStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientati
 }
 
 
-void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
+void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     if ( !btn )
@@ -420,7 +405,7 @@ void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
     }
 #else
     if ( btn->uses3D() || btn->isDown() || ( btn->isOn() && !btn->son ) ) {
-	drawToolButton( p, x, y, w, h, g, sunken, &fill );
+	QStyle::drawToolButton( p, x, y, w, h, g, sunken, &fill );
     } else if ( btn->parentWidget() && btn->parentWidget()->backgroundPixmap() &&
 	      !btn->parentWidget()->backgroundPixmap()->isNull() ) {
  	p->drawTiledPixmap( 0, 0, btn->width(), btn->height(),
@@ -429,33 +414,10 @@ void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
     } else {
 	if ( btn->parentWidget() )
 	    fill = QBrush( btn->parentWidget()->backgroundColor() );
-	drawToolButton( p, x - 10, y - 10, w + 20, h + 20, g, sunken, &fill );
+	QStyle::drawToolButton( p, x - 10, y - 10, w + 20, h + 20, g, sunken, &fill );
     }
 #endif
 #endif
 }
 
-//### remove in Version 3.0
-void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-				    QMenuItem* mi, QColorGroup& g,
-				    bool enabled, bool active )
-{
-#ifndef QT_NO_COMPLEXWIDGETS
-#ifndef QT_NO_STYLE_SGI
-    if (draw_menu_bar_impl != 0) {
-	QDrawMenuBarItemImpl impl = draw_menu_bar_impl;
-	(this->*impl)(p, x, y, w, h, mi, g, enabled, active);
-	//    } else if ( inherits("QSGIStyle" ) ) {
-	//	QSGIStyle* sg = (QSGIStyle*) this;
-	//	sg->drawMenuBarItem( p, x, y, w, h, mi, g, enabled, active );
-    } else {
-        drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
-		  g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
-    }
-#else
-    drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
-	      g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
-#endif	// QT_NO_STYLE_SGI
-#endif
-}
 #endif

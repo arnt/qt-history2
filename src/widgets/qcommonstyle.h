@@ -71,6 +71,7 @@ public:
 
     // push buttons
     void drawPushButtonLabel( QPushButton* btn, QPainter *p);
+    QRect pushButtonContentsRect( QPushButton* btn ) const;
 
     void getButtonShift( int &x, int &y ) const;
 
@@ -102,6 +103,8 @@ public:
 				    QMenuItem* mi, QColorGroup& g,
 				    bool enabled, bool active );
 
+    // toolbars
+    virtual void drawToolButton( QToolButton* btn, QPainter *p);
     void drawToolBarHandle( QPainter *p, const QRect &r,
 			    Qt::Orientation orientation,
 			    bool highlight, const QColorGroup &cg,

@@ -50,7 +50,7 @@
 
 class QToolButtonPrivate;
 class QToolBar;
-class QStyle;
+class QCommonStyle;
 
 class Q_EXPORT QToolButton: public QButton
 {
@@ -144,7 +144,7 @@ private:
     uint ubp: 1;
     uint hasArrow : 1;
 
-    friend class QStyle;
+    friend class QCommonStyle;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

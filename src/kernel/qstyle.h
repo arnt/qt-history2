@@ -129,7 +129,7 @@ public:
     virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
-    virtual void drawToolButton( QToolButton* btn, QPainter *p);
+    virtual void drawToolButton( QToolButton* btn, QPainter *p) = 0;
 
     virtual QRect toolButtonRect(  int x, int y, int w, int h);
 
@@ -187,7 +187,7 @@ public:
     /// ### add this in 3.0
     // virtual void drawPushButtonMask(QPushButton *btn, QPainter *p) = 0;
     virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p) = 0;
-    virtual QRect pushButtonContentsRect( QPushButton* btn ) const;
+    virtual QRect pushButtonContentsRect( QPushButton* btn ) const = 0;
     virtual int menuButtonIndicatorWidth( int h ) const;
     virtual void getButtonShift( int &x, int &y) const = 0;
 
@@ -263,7 +263,7 @@ public:
     // menu bars
     virtual void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				  QMenuItem* mi, QColorGroup& g,
-				  bool enabled, bool active );
+				  bool enabled, bool active ) = 0;
 
     QSize scrollBarExtent() const;
     int buttonDefaultIndicatorWidth() const;

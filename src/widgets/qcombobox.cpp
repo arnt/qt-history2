@@ -963,15 +963,6 @@ QSize QComboBox::sizeHint() const
 }
 
 
-/*!\reimp
-*/
-QSizePolicy QComboBox::sizePolicy() const
-{
-    //### removeme 3.0
-    return QWidget::sizePolicy();
-}
-
-
 /*!
   \internal
   Receives activated signals from an internal popup list and emits
@@ -1100,15 +1091,25 @@ void QComboBox::paintEvent( QPaintEvent * )
 	return;
     }
 
+    bool reverse = QApplication::reverseLayout();
     if ( !d->usingListBox() ) {			// motif 1.x style
 	int dist, buttonH, buttonW;
 	getMetrics( &dist, &buttonW, &buttonH );
-	int xPos = width() - dist - buttonW - 1;
+	int xPos;
+	int x0;
+	int w = width() - dist - buttonW - 1;
+	if ( reverse ) {
+	    xPos = dist + 1;
+	    x0 = xPos + 4;
+	} else {
+	    xPos = w;
+	    x0 = 4;
+	}
 	qDrawShadePanel( &p, rect(), g, FALSE, style().defaultFrameWidth(),
 			 &g.brush( QColorGroup::Button ) );
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
 			 buttonW, buttonH, g, FALSE, style().defaultFrameWidth() );
-	QRect clip( 4, 2, xPos - 2 - 4 - 5, height() - 4 );
+	QRect clip( x0, 2, w - 2 - 4 - 5, height() - 4 );
 	QString str = d->popup()->text( this->d->current );
 	if ( !str.isNull() ) {
 	    p.drawText( clip, AlignCenter | SingleLine, str );

@@ -53,13 +53,6 @@ n** $Id: //depot/qt/main/src/widgets/qmotifplusstyle.cpp#17 $
 #include "qlayout.h"
 
 
-typedef void (QStyle::*QDrawMenuBarItemImpl) (QPainter *, int, int, int, int,
-					      QMenuItem *, QColorGroup &,
-					      bool, bool);
-
-QDrawMenuBarItemImpl qt_set_draw_menu_bar_impl(QDrawMenuBarItemImpl impl);
-
-
 struct QMotifPlusStylePrivate
 {
     QMotifPlusStylePrivate()
@@ -292,7 +285,7 @@ void QMotifPlusStyle::unPolish(QWidget *widget)
 */
 void QMotifPlusStyle::polish(QApplication *)
 {
-    qt_set_draw_menu_bar_impl((QDrawMenuBarItemImpl) &QMotifPlusStyle::drawMenuBarItem);
+
 }
 
 
@@ -302,8 +295,6 @@ void QMotifPlusStyle::polish(QApplication *)
 void QMotifPlusStyle::unPolish(QApplication *app)
 {
     app->setPalette(singleton->oldpalette);
-
-    qt_set_draw_menu_bar_impl(0);
 }
 
 
