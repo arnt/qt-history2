@@ -391,12 +391,12 @@ void QFontEngineXLFD::draw(QPaintEngine *p, int xpos, int ypos, const QTextItem 
         paint.d->engine->updateState(paint.d->state);
         QTextItem nsi = si;
         QVarLengthArray<QGlyphLayout> nglyphs(si.num_glyphs);
-        memcpy(nglyphs, si.glyphs, si.num_glyphs*sizeof(QGlyphLayout));
+        memcpy(nglyphs.data(), si.glyphs, si.num_glyphs*sizeof(QGlyphLayout));
         for (int i = 0; i < si.num_glyphs; ++i) {
             nglyphs[i].advance.rx() /= tmp;
             nglyphs[i].advance.ry() /= tmp;
         }
-        nsi.glyphs = nglyphs;
+        nsi.glyphs = nglyphs.data();
         nsi.ascent = qRound(nsi.ascent/tmp);
         nsi.descent = qRound(nsi.descent/tmp);
         nsi.width = qRound(nsi.width/tmp);
