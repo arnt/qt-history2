@@ -50,9 +50,9 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     return width(str.at(pos));
 }
 
-#ifndef QT_NO_COMPAT
 int QFontMetrics::width(QChar c) const
 {
+    qObsolete( "QFontMetrics", "width" );
     // Grr. How do we force the Mac to speak Unicode?
     // This currently won't work outside of ASCII
     TextFont(FI->fin->fnum);
@@ -62,7 +62,6 @@ int QFontMetrics::width(QChar c) const
     TextSize(QFontStruct::currentFsize);
     return char_width;
 }
-#endif
 
 #if 0
 const QFontDef *QFontMetrics::spec() const

@@ -2088,12 +2088,11 @@ QFont::StyleHint QFontInfo::styleHint() const
 
   \sa QFont::charSet()
 */
-#ifndef QT_NO_COMPAT
 QFont::CharSet QFontInfo::charSet() const
 {
+    qObsolete( "QFontInfo", "charSet" );
     return d->charsetcompat;
 }
-#endif
 
 
 /*!

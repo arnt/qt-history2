@@ -751,13 +751,12 @@ int QFontMetrics::lineSpacing() const
     return TMX->tmHeight + TMX->tmExternalLeading;
 }
 
-#ifndef QT_NO_COMPAT
 int QFontMetrics::width( QChar ch ) const
 {
+    qObsolete( "QFontMetrics", "width" );
     QString s(ch);
     return width(s,1);
 }
-#endif
 
 
 int QFontMetrics::width( const QString &str, int len ) const

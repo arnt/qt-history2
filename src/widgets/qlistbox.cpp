@@ -3431,9 +3431,9 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 
   \sa insertItem(), sort()
 */
-#ifndef QT_NO_COMPAT
 int QListBox::inSort( const QListBoxItem * lbi )
 {
+    qObsolete( "QListBox", "inSort", "insertItem" );
     if ( !lbi )
 	return -1;
 
@@ -3447,7 +3447,6 @@ int QListBox::inSort( const QListBoxItem * lbi )
     insertItem( lbi, c );
     return c;
 }
-#endif
 
 
 /*!
@@ -3465,12 +3464,11 @@ int QListBox::inSort( const QListBoxItem * lbi )
 
   \sa insertItem(), sort()
 */
-#ifndef QT_NO_COMPAT
 int QListBox::inSort( const QString& text )
 {
+    qObsolete( "QListBox", "inSort", "insertItem" );
     return inSort( new QListBoxText(text) );
 }
-#endif
 
 
 /*! \reimp */

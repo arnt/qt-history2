@@ -2580,9 +2580,9 @@ int QFontMetrics::lineSpacing() const
 
   \sa boundingRect()
 */
-#ifndef QT_NO_COMPAT
 int QFontMetrics::width(QChar ch) const
 {
+    qObsolete( "QFontMetrics", "width" );
     QFontPrivate::Script script = d->scriptForChar(ch);
 
     if (script == QFontPrivate::UnknownScript) {
@@ -2599,7 +2599,6 @@ int QFontMetrics::width(QChar ch) const
     XCharStruct *xcs = charStr(qfs->codec, ((XFontStruct *) qfs->handle), ch, 0);
     return xcs ? xcs->width : 0;
 }
-#endif
 
 
 /*!
