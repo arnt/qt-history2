@@ -5837,8 +5837,6 @@ QSize QListView::minimumSizeHint() const
   expandable, and to be closed if \a open is FALSE.  Repaints
   accordingly.
 
-  Does nothing if \a item is not expandable.
-
   \sa QListViewItem::setOpen() QListViewItem::setExpandable()
 */
 
