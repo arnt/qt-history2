@@ -37,11 +37,14 @@
 <!-- -->without having to install another library.
 </font></i>
 </ul>
-<p>To use the Qt Free Edition under the QPL, simply meet the
-<!-- -->requirements therein.  Your software can be licensed by any license
+Free software development with the Qt Free Edition is additionally protected
+by the <a href=http://www.troll.no/kde-freeqt/>KDE Free Qt Foundation</a>.
+
+<p>To develop software with the Qt Free Edition, simply meet
+<!-- -->the requirements in the QPL.
+<!-- -->Your software can be licensed by any license
 <!-- -->that meets the requirements.
-<!-- -->
-<p>To use this license
+<p>To use the license
 <!-- -->for you own software, add a notice to the software saying
 <!-- -->your software may be distributed under the terms of the Qt
 <!-- -->Public License version 0.8.
@@ -56,9 +59,11 @@
 
 		   Copyright (C) 1998 Troll Tech AS, Norway.
 <br>
+<small>
 		       Everyone is permitted to copy and
 <br>
 		       distribute this license document.
+</small>
 </small>
 </h1>
 
