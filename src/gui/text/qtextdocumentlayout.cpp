@@ -869,7 +869,7 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                 lastTotalWidth = totalWidth;
             }
 
-            if (totalWidth > 0) {
+            if (totalWidth > 0 && !anySizeColumns.isEmpty()) {
                 const int widthPerAnySizedCol = totalWidth / anySizeColumns.count();
                 for (int k = 0; k < anySizeColumns.count(); ++k) {
                     const int col = anySizeColumns[k];
