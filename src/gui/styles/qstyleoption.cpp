@@ -474,6 +474,15 @@ void QStyleOption::init(const QWidget *w)
     shortcut if it contains one.
 */
 
+
+/*!
+    \property QStyleOptionMenuItem::font
+    \brief The font used for the menu item text.
+
+    This is the font that should be used for drawing the menu text minus the
+    shortcut. The shortcut is usually drawn using the painter's font.
+*/
+
 /*!
     \class QStyleOptionComplex qstyleoption.h
     \brief The QStyleOptionComplex structure contains parameters that are
