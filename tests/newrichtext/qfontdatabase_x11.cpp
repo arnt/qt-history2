@@ -716,7 +716,7 @@ static inline void tag_to_string( char *string, Q_UINT32 tag )
     string[4] = 0;
 }
 
-static Q_UINT16 getGlyphIndex( unsigned char *table, Q_UINT16 format, unsigned short unicode )
+static Q_UINT16 getglyph_t( unsigned char *table, Q_UINT16 format, unsigned short unicode )
 {
     if ( format == 0 ) {
 	if ( unicode < 256 )
@@ -739,11 +739,11 @@ static Q_UINT16 getGlyphIndex( unsigned char *table, Q_UINT16 format, unsigned s
 	idx += segCountX2;
 	Q_INT16 idDelta = (Q_INT16)getUShort( idx );
 	idx += segCountX2;
-	Q_UINT16 idRangeOffset = (Q_UINT16)getUShort( idx );
+	Q_UINT16 idRangeoffset_t = (Q_UINT16)getUShort( idx );
 
 	Q_UINT16 glyphIndex;
-	if ( idRangeOffset ) {
-	    Q_UINT16 id = getUShort( idRangeOffset + 2*(unicode - startIndex) + idx);
+	if ( idRangeoffset_t ) {
+	    Q_UINT16 id = getUShort( idRangeoffset_t + 2*(unicode - startIndex) + idx);
 	    if ( id )
 		glyphIndex = ( idDelta + id ) % 0x10000;
 	    else
@@ -763,16 +763,16 @@ static inline void checkXftCoverage( QtFontFamily *family )
 #ifdef _POSIX_MAPPED_FILES
     QCString ext = family->fontFilename.mid( family->fontFilename.findRev( '.' ) ).lower();
     if ( family->fontFileIndex == 0 && ( ext == ".ttf" || ext == ".otf" ) ) {
+	void *map;
 // 	qDebug("using own ttf code coverage checking of '%s'!", family->name.latin1() );
 	int fd = open( family->fontFilename.data(), O_RDONLY );
+	size_t pagesize = getpagesize();
+	off_t offset = 0;
+	size_t length = (8192 / pagesize + 1) * pagesize;
 
 	if ( fd == -1 )
 	    goto xftCheck;
 	{
-	    void *map;
-	    size_t pagesize = getpagesize();
-	    off_t offset = 0;
-	    size_t length = (8192 / pagesize + 1) * pagesize;
 	    if ( (map = mmap( 0, length, PROT_READ, MAP_SHARED, fd, offset ) ) == MAP_FAILED )
 		goto error;
 
@@ -780,7 +780,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    Q_UINT32 version = getUInt( ttf );
 	    if ( version != 0x00010000 ) {
 		qDebug("file has wrong version %x",  version );
-		goto error;
+		goto error1;
 	    }
 	    Q_UINT16 numTables =  getUShort( ttf+4 );
 
@@ -797,7 +797,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    }
 	    if ( !cmap_offset ) {
 		qDebug("no cmap found" );
-		goto error;
+		goto error1;
 	    }
 
 	    if ( cmap_offset + cmap_length > length ) {
@@ -814,7 +814,7 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    version = getUShort( cmap );
 	    if ( version != 0 ) {
 		qDebug("wrong cmap version" );
-		goto error;
+		goto error1;
 	    }
 	    numTables = getUShort( cmap + 2 );
 	    unsigned char *unicode_table = 0;
@@ -830,16 +830,16 @@ static inline void checkXftCoverage( QtFontFamily *family )
 
 	    if ( !unicode_table ) {
 		qDebug("no unicode table found" );
-		goto error;
+		goto error1;
 	    }
 
 	    Q_UINT16 format = getUShort( unicode_table );
 	    if ( format != 4 )
-		goto error;
+		goto error1;
 
 	    for ( int i = 0; i < QFont::NScripts+1; i++ ) {
 		QChar ch = sampleCharacter( (QFont::Script)i );
-		if ( getGlyphIndex( unicode_table, format, ch.unicode() ) ) {
+		if ( getglyph_t( unicode_table, format, ch.unicode() ) ) {
 		    // 		qDebug("font can render script %d",  i );
 		    family->scripts[i] = QtFontFamily::Supported;
 		} else {
@@ -848,13 +848,15 @@ static inline void checkXftCoverage( QtFontFamily *family )
 	    }
 	    family->xftScriptCheck = TRUE;
 	}
- error:
+    error1:
+	munmap( map, length );
+    error:
 	close( fd );
 	if ( family->xftScriptCheck )
 	    return;
     }
-#endif
  xftCheck:
+#endif
 
 //     qDebug("using Freetype for checking of '%s'", family->name.latin1() );
 
@@ -943,7 +945,7 @@ void QFontDatabase::createDatabase()
 //       incremental loading, instead of fully creating the database all
 //       at once.
 //     */
-//     loadXlfds( 0, -1 ); // full load
+     loadXlfds( 0, -1 ); // full load
 
     for ( int i = 0; i < db->count; i++ ) {
 	checkXftCoverage( db->families[i] );

@@ -82,7 +82,7 @@ QShapedItem &QShapedItem::operator =( const QShapedItem &other )
     return *this;
 }
 
-const GlyphIndex *QShapedItem::glyphs() const
+const glyph_t *QShapedItem::glyphs() const
 {
     return d->glyphs;
 
@@ -93,7 +93,7 @@ int QShapedItem::count() const
     return d->num_glyphs;
 }
 
-const Offset *QShapedItem::offsets() const
+const offset_t *QShapedItem::offsets() const
 {
     return d->offsets;
 }
@@ -384,12 +384,12 @@ bool QTextEngine::split( QScriptItemArray &items, int item, QShapedItem &shaped,
 	// split the shapedItem
 	QShapedItemPrivate *sd = splitoff->d;
 	sd->num_glyphs = d->num_glyphs - splitGlyph - 1;
-	sd->glyphs = (GlyphIndex *) realloc( sd->glyphs, sd->num_glyphs*sizeof(GlyphIndex) );
-	memcpy( sd->glyphs, d->glyphs + splitGlyph, sd->num_glyphs*sizeof(GlyphIndex) );
-	sd->offsets = (Offset *) realloc( sd->offsets, sd->num_glyphs*sizeof(Offset) );
-	sd->advances = (Offset *) realloc( sd->advances, sd->num_glyphs*sizeof(Offset) );
-	memcpy( sd->offsets, d->offsets + splitGlyph, sd->num_glyphs*sizeof(Offset) );
-	memcpy( sd->advances, d->advances + splitGlyph, sd->num_glyphs*sizeof(Offset) );
+	sd->glyphs = (glyph_t *) realloc( sd->glyphs, sd->num_glyphs*sizeof(glyph_t) );
+	memcpy( sd->glyphs, d->glyphs + splitGlyph, sd->num_glyphs*sizeof(glyph_t) );
+	sd->offsets = (offset_t *) realloc( sd->offsets, sd->num_glyphs*sizeof(offset_t) );
+	sd->advances = (offset_t *) realloc( sd->advances, sd->num_glyphs*sizeof(offset_t) );
+	memcpy( sd->offsets, d->offsets + splitGlyph, sd->num_glyphs*sizeof(offset_t) );
+	memcpy( sd->advances, d->advances + splitGlyph, sd->num_glyphs*sizeof(offset_t) );
 	sd->glyphAttributes = (GlyphAttributes *) realloc( sd->glyphAttributes, sd->num_glyphs*sizeof(GlyphAttributes) );
 	memcpy( sd->glyphAttributes, d->glyphAttributes + splitGlyph, sd->num_glyphs*sizeof(GlyphAttributes) );
 	sd->from = d->from + lastBreak;

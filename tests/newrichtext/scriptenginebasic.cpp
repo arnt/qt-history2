@@ -28,7 +28,7 @@ static inline void positionCluster( QShapedItem *shaped, int gfrom,  int glast )
     QRect attachmentRect;
 
     for( i = 1; i <= nmarks; i++ ) {
-	GlyphIndex mark = shaped->d->glyphs[gfrom+i];
+	glyph_t mark = shaped->d->glyphs[gfrom+i];
 	QPoint p;
 	QGlyphMetrics markInfo = f->boundingBox( mark );
 	QRect markRect( markInfo.x, markInfo.y, markInfo.width, markInfo.height );
@@ -255,10 +255,10 @@ void QScriptEngineBasic::shape( QShapedItem *result )
 
     QShapedItemPrivate *d = result->d;
     d->num_glyphs = len;
-    d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+    d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
     int error = d->fontEngine->stringToCMap( text.unicode() + from, len, d->glyphs, &d->num_glyphs );
     if ( error == QFontEngineIface::OutOfMemory ) {
-	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+	d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
 	d->fontEngine->stringToCMap( text.unicode() + from, len, d->glyphs, &d->num_glyphs );
     }
 
@@ -270,9 +270,9 @@ void QScriptEngineBasic::shape( QShapedItem *result )
 void QScriptEngineBasic::calculateAdvances( QShapedItem *shaped )
 {
     QShapedItemPrivate *d = shaped->d;
-    d->offsets = (Offset *) realloc( d->offsets, d->num_glyphs * sizeof( Offset ) );
-    memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
-    d->advances = (Offset *) realloc( d->advances, d->num_glyphs * sizeof( Offset ) );
+    d->offsets = (offset_t *) realloc( d->offsets, d->num_glyphs * sizeof( offset_t ) );
+    memset( d->offsets, 0, d->num_glyphs * sizeof( offset_t ) );
+    d->advances = (offset_t *) realloc( d->advances, d->num_glyphs * sizeof( offset_t ) );
     d->ascent = d->fontEngine->ascent();
     d->descent = d->fontEngine->descent();
     for ( int i = 0; i < d->num_glyphs; i++ ) {

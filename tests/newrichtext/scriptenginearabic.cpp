@@ -569,10 +569,10 @@ void QScriptEngineArabic::shape( QShapedItem *result )
     shapedString( text, from, len, shaped, &d->num_glyphs, (d->analysis.bidiLevel%2),
 		  d->glyphAttributes, d->logClusters );
 
-    d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+    d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
     int error = d->fontEngine->stringToCMap( shaped, d->num_glyphs, d->glyphs, &d->num_glyphs );
     if ( error == QFontEngineIface::OutOfMemory ) {
-	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+	d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
 	d->fontEngine->stringToCMap( shaped, d->num_glyphs, d->glyphs, &d->num_glyphs );
     }
 
@@ -588,10 +588,10 @@ void QScriptEngineArabic::openTypeShape( int script, const QOpenType *openType, 
     int len = d->length;
 
     d->num_glyphs = len;
-    d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+    d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
     int error = d->fontEngine->stringToCMap( text.unicode()+from, len, d->glyphs, &d->num_glyphs );
     if ( error == QFontEngineIface::OutOfMemory ) {
-	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+	d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
 	d->fontEngine->stringToCMap( text.unicode()+from, len, d->glyphs, &d->num_glyphs );
     }
 

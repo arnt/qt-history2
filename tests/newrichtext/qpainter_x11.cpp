@@ -2747,17 +2747,17 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 /* Internal, used by drawTiledPixmap */
 
 static void drawTile( QPainter *p, int x, int y, int w, int h,
-                      const QPixmap &pixmap, int xOffset, int yOffset )
+                      const QPixmap &pixmap, int xoffset_t, int yoffset_t )
 {
     int yPos, xPos, drawH, drawW, yOff, xOff;
     yPos = y;
-    yOff = yOffset;
+    yOff = yoffset_t;
     while( yPos < y + h ) {
         drawH = pixmap.height() - yOff;    // Cropping first row
         if ( yPos + drawH > y + h )        // Cropping last row
             drawH = y + h - yPos;
         xPos = x;
-        xOff = xOffset;
+        xOff = xoffset_t;
         while( xPos < x + w ) {
             drawW = pixmap.width() - xOff; // Cropping first column
             if ( xPos + drawW > x + w )    // Cropping last column

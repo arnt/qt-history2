@@ -1057,7 +1057,7 @@ int QFontMetrics::leftBearing(QChar ch) const
     if ( fe->type() == QFontEngineIface::Box )
 	return 0;
 
-    GlyphIndex glyphs[10];
+    glyph_t glyphs[10];
     int nglyphs = 9;
     fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
@@ -1088,7 +1088,7 @@ int QFontMetrics::rightBearing(QChar ch) const
     if ( fe->type() == QFontEngineIface::Box )
 	return 0;
 
-    GlyphIndex glyphs[10];
+    glyph_t glyphs[10];
     int nglyphs = 9;
     fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
@@ -1235,7 +1235,7 @@ int QFontMetrics::width(QChar ch) const
     if ( fe->type() == QFontEngineIface::Box )
 	return ((QFontEngineBox *)fe)->size();
 
-    GlyphIndex glyphs[10];
+    glyph_t glyphs[10];
     int nglyphs = 9;
     fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
     // ### can nglyphs != 1 happen at all? Not currently I think
@@ -1270,7 +1270,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	if ( fe->type() == QFontEngineIface::Box )
 	    return ((QFontEngineBox *)fe)->size();
 
-	GlyphIndex glyphs[10];
+	glyph_t glyphs[10];
 	int nglyphs = 9;
 	fe->stringToCMap( str.unicode()+pos, 1, glyphs, &nglyphs );
 	// ### can nglyphs != 1 happen at all? Not currently I think

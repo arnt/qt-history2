@@ -66,6 +66,7 @@ int main( int argc, char **argv )
 
     QFontDatabase fdb;
 
+    return 0;
 
     QFont f( family );
     f.setPointSize( 24 );

@@ -17,9 +17,12 @@ Some of the ideas are stolen from the Uniscribe API or from Pango.
 #ifndef QTEXTLAYOUT_H
 #define QTEXTLAYOUT_H
 
+#include <qstring.h>
+#include <qnamespace.h>
 
-#if 0
-class QTextItem
+struct QTextLayoutPrivate;
+
+class Q_EXPORT QTextItem
 {
 public:
     int width() const;
@@ -44,30 +47,21 @@ public:
     void setBaselineAdjustment( int adjust );
 
 private:
+    friend class QTextLayout;
+    QTextItem( int i, QTextLayoutPrivate *l ) : item( i ), layout( l ) {}
     int item;
-    QTextLayout *layout;
-}
-
-// to CPP file
-struct QTextItemData {
-    int y;
-    int x;
-    short baselineAdjustment;
-    short width;
-    short ascent;
-    short descent;
-    ScriptAnalysis analysis;
-    int from;
+    QTextLayoutPrivate *layout;
 };
 
-class QTextLayoutPrivate;
-class QPaintDevice;
 
-class QTextLayout
+class QPainter;
+
+class Q_EXPORT QTextLayout
 {
 public:
     // does itemization
     QTextLayout( const QString &string, QPainter * = 0 );
+    virtual ~QTextLayout();
 
     enum LineBreakStrategy {
 	AtWordBoundaries,
@@ -80,12 +74,12 @@ public:
     bool validCursorPosition( int strPos );
 
     int numItems() const;
-    QTextItem *at( int i );
+    QTextItem itemAt( int i );
 
     void beginLayout();
     void beginLine( int width );
 
-    QTextItem *nextItem();
+    QTextItem nextItem();
     /* ## maybe also currentItem() */
     void setLineWidth( int newWidth );
     int availableWidth() const;
@@ -100,6 +94,9 @@ private:
     /* disable copy and assignment */
     QTextLayout( const QTextLayout & ) {}
     void operator = ( const QTextLayout & ) {}
+
+    friend class QTextItem;
+    QTextLayoutPrivate *d;
 };
 
 
@@ -109,6 +106,5 @@ private:
       void drawTextItem( int x, int y, QTextItem *item );
   };
 */
-#endif
 
 #endif

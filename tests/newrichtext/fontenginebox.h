@@ -10,14 +10,14 @@ public:
     QFontEngineBox( int size );
     ~QFontEngineBox();
 
-    Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const;
+    Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const;
 
-    void draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
-	       const Offset *advances, const Offset *offsets, int numGlyphs, bool reverse );
+    void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
+	       const offset_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
 
-    virtual QGlyphMetrics boundingBox( const GlyphIndex *glyphs,
-				    const Offset *advances, const Offset *offsets, int numGlyphs );
-    QGlyphMetrics boundingBox( GlyphIndex glyph );
+    virtual QGlyphMetrics boundingBox( const glyph_t *glyphs,
+				    const offset_t *advances, const offset_t *offsets, int numGlyphs );
+    QGlyphMetrics boundingBox( glyph_t glyph );
 
     int ascent() const;
     int descent() const;

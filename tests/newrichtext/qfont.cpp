@@ -1872,7 +1872,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 
     QFontEngineIface *fe = d->x11data.fontstruct[script];
 
-    GlyphIndex glyphs[10];
+    glyph_t glyphs[10];
     int nglyphs = 9;
     fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
     QGlyphMetrics gi = fe->boundingBox( glyphs[0] );

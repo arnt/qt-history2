@@ -397,7 +397,7 @@ TTO_GSUB_String *QOpenType::substitute( QShapedItem *shaped, unsigned short *fea
     TT_GSUB_Apply_String (gsub, in, out);
 
     if ( shaped->d->num_glyphs < (int)out->length ) {
-	shaped->d->glyphs = ( GlyphIndex *) realloc( shaped->d->glyphs, out->length*sizeof(GlyphIndex) );
+	shaped->d->glyphs = ( glyph_t *) realloc( shaped->d->glyphs, out->length*sizeof(glyph_t) );
     }
     shaped->d->num_glyphs = out->length;
 
@@ -443,8 +443,8 @@ void QOpenType::position( QShapedItem *shaped, TTO_GSUB_String *in )
 	// ### is FT_LOAD_DEFAULT the right thing to do?
 	TT_GPOS_Apply_String( face, gpos, FT_LOAD_DEFAULT, in, &out, FALSE, reverse );
 
-	Offset *advances = shaped->d->advances;
-	Offset *offsets = shaped->d->offsets;
+	offset_t *advances = shaped->d->advances;
+	offset_t *offsets = shaped->d->offsets;
 
 	//     qDebug("positioned glyphs:" );
 	for ( int i = 0; i < shaped->d->num_glyphs; i++) {

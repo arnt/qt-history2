@@ -463,10 +463,10 @@ void QScriptEngineTamil::shape( QShapedItem *result )
 	d->logClusters[i] = pos;
     }
 
-    d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+    d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
     int error = d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
     if ( error == QFontEngineIface::OutOfMemory ) {
-	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
+	d->glyphs = (glyph_t *)realloc( d->glyphs, d->num_glyphs*sizeof( glyph_t ) );
 	d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
     }
 

@@ -23,7 +23,7 @@ QFontEngineBox::~QFontEngineBox()
 {
 }
 
-QFontEngineIface::Error QFontEngineBox::stringToCMap( const QChar *,  int len, GlyphIndex *glyphs, int *nglyphs ) const
+QFontEngineIface::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_t *glyphs, int *nglyphs ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -36,8 +36,8 @@ QFontEngineIface::Error QFontEngineBox::stringToCMap( const QChar *,  int len, G
     return NoError;
 }
 
-void QFontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs*/,
-			  const Offset */*advances*/, const Offset */*offsets*/, int numGlyphs, bool )
+void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t */*glyphs*/,
+			  const offset_t */*advances*/, const offset_t */*offsets*/, int numGlyphs, bool )
 {
 //     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 
@@ -87,7 +87,7 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs
 #endif
 }
 
-QGlyphMetrics QFontEngineBox::boundingBox( const GlyphIndex *, const Offset *, const Offset *, int numGlyphs )
+QGlyphMetrics QFontEngineBox::boundingBox( const glyph_t *, const offset_t *, const offset_t *, int numGlyphs )
 {
     QGlyphMetrics overall;
     overall.x = overall.y = 0;
@@ -98,7 +98,7 @@ QGlyphMetrics QFontEngineBox::boundingBox( const GlyphIndex *, const Offset *, c
     return overall;
 }
 
-QGlyphMetrics QFontEngineBox::boundingBox( GlyphIndex )
+QGlyphMetrics QFontEngineBox::boundingBox( glyph_t )
 {
     return QGlyphMetrics( 0, _size, _size, _size, _size, 0 );
 }

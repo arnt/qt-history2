@@ -63,7 +63,7 @@ QFontEngineXft::~QFontEngineXft()
     delete _openType;
 }
 
-QFontEngineIface::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const
+QFontEngineIface::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, glyph_t *glyphs, int *nglyphs ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -82,8 +82,8 @@ QFontEngineIface::Error QFontEngineXft::stringToCMap( const QChar *str,  int len
     return NoError;
 }
 
-void QFontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
-			   const Offset *advances, const Offset *offsets, int numGlyphs, bool reverse )
+void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
+			   const offset_t *advances, const offset_t *offsets, int numGlyphs, bool reverse )
 {
     if ( !numGlyphs )
 	return;
@@ -125,7 +125,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
     if ( reverse ) {
 	int i = numGlyphs;
 	while( i-- ) {
-	    Offset adv = advances[i];
+	    offset_t adv = advances[i];
 	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
 	    x += adv.x;
 	    y += adv.y;
@@ -143,7 +143,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 	while ( i < numGlyphs ) {
 	    XftDrawString16 (draw, &col, _font, x+offsets[i].x, y+offsets[i].y,
 			     (XftChar16 *) (glyphs+i), 1);
-	    Offset adv = advances[i];
+	    offset_t adv = advances[i];
 	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
 	    x += adv.x;
 	    y += adv.y;
@@ -170,7 +170,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 #endif
 }
 
-QGlyphMetrics QFontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *advances, const Offset *offsets, int numGlyphs )
+QGlyphMetrics QFontEngineXft::boundingBox( const glyph_t *glyphs, const offset_t *advances, const offset_t *offsets, int numGlyphs )
 {
     XGlyphInfo xgi;
 
@@ -194,7 +194,7 @@ QGlyphMetrics QFontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offse
     return overall;
 }
 
-QGlyphMetrics QFontEngineXft::boundingBox( GlyphIndex glyph )
+QGlyphMetrics QFontEngineXft::boundingBox( glyph_t glyph )
 {
     XGlyphInfo xgi;
     getGlyphInfo( &xgi, _font, glyph );
@@ -236,11 +236,11 @@ const char *QFontEngineXft::name() const
 
 bool QFontEngineXft::canRender( const QChar *string,  int len )
 {
-    GlyphIndex glyphs[256];
+    glyph_t glyphs[256];
     int nglyphs = 255;
-    GlyphIndex *g = glyphs;
+    glyph_t *g = glyphs;
     if ( stringToCMap( string, len, g, &nglyphs ) == OutOfMemory ) {
-	g = (GlyphIndex *)malloc( nglyphs*sizeof(GlyphIndex) );
+	g = (glyph_t *)malloc( nglyphs*sizeof(glyph_t) );
 	stringToCMap( string, len, g, &nglyphs );
     }
 

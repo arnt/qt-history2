@@ -64,6 +64,12 @@ struct QScriptItem
 {
     int position;
     QScriptAnalysis analysis;
+    int y;
+    int x;
+    short baselineAdjustment;
+    short width;
+    short ascent;
+    short descent;
 };
 
 struct QScriptItemArrayPrivate
@@ -79,7 +85,7 @@ public:
     QScriptItemArray() : d( 0 ) {}
     ~QScriptItemArray();
 
-    const QScriptItem &operator[] (int i) const {
+    QScriptItem &operator[] (int i) const {
 	return d->items[i];
     }
     void append( const QScriptItem &item ) {
@@ -104,7 +110,7 @@ public:
     QScriptItemArrayPrivate *d;
 };
 
-struct Offset {
+struct offset_t {
     short x;
     short y;
 };
@@ -138,7 +144,7 @@ struct GlyphAttributes {
     unsigned char combiningClass :8;
 };
 
-typedef unsigned short GlyphIndex;
+typedef unsigned short glyph_t;
 
 class QShapedItemPrivate : public QShared
 {
@@ -156,9 +162,9 @@ public:
 	free( glyphAttributes );
     }
     int num_glyphs;
-    GlyphIndex * glyphs;
-    Offset *advances;
-    Offset *offsets;
+    glyph_t * glyphs;
+    offset_t *advances;
+    offset_t *offsets;
     unsigned short *logClusters;
     GlyphAttributes *glyphAttributes;
     QFontEngineIface *fontEngine;
@@ -182,10 +188,10 @@ public:
 
     QShapedItem &operator =( const QShapedItem &other );
 
-    const GlyphIndex *glyphs() const;
+    const glyph_t *glyphs() const;
     int count() const;
-    const Offset *offsets() const;
-    const Offset *advances() const { return d->advances; }
+    const offset_t *offsets() const;
+    const offset_t *advances() const { return d->advances; }
     int ascent() const;
     int descent() const;
 
