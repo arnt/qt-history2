@@ -34,27 +34,43 @@ int main(int argc, char *argv[])
     table->setModel(model);
 
     QItemSelectionModel *selectionModel = table->selectionModel();
+    QModelIndex topLeft;
+    QModelIndex bottomRight;
 
-    QModelIndex topLeft = model->index(3, 1, QModelIndex(), QModelIndex::View);
-    QModelIndex bottomRight = model->index(4, 2, QModelIndex(),
+    topLeft = model->index(0, 0, QModelIndex(), QModelIndex::View);
+    bottomRight = model->index(5, 2, QModelIndex(),
         QModelIndex::View);
 
     QItemSelection selection(topLeft, bottomRight, model);
     selectionModel->select(selection, QItemSelectionModel::Select);
 
-    for (int row = 0; row < 8; row += 2) {
-        for (int column = 0; column < 4; column += 1) {
+    QItemSelection toggleSelection;
 
-            QModelIndex topLeft = model->index(row, column, QModelIndex(),
-                QModelIndex::View);
-            QModelIndex bottomRight = model->index(row+1, column+1,
-                QModelIndex(), QModelIndex::View);
+    topLeft = model->index(2, 1, QModelIndex(), QModelIndex::View);
+    bottomRight = model->index(7, 3, QModelIndex(), QModelIndex::View);
+    toggleSelection.select(topLeft, bottomRight, model);
 
-            QItemSelection selection(topLeft, bottomRight, model);
-            if (((row % 4) ^ (column % 2)) != 0)
-                selectionModel->select(selection, QItemSelectionModel::Toggle);
-        }
-    }
+    selectionModel->select(toggleSelection, QItemSelectionModel::Toggle);
+
+    QItemSelection columnSelection;
+
+    topLeft = model->index(0, 1, QModelIndex(), QModelIndex::View);
+    bottomRight = model->index(0, 2, QModelIndex(), QModelIndex::View);
+
+    columnSelection.select(topLeft, bottomRight, model);
+
+    selectionModel->select(columnSelection,
+        QItemSelectionModel::Select | QItemSelectionModel::Columns);
+
+    QItemSelection rowSelection;
+
+    topLeft = model->index(0, 0, QModelIndex(), QModelIndex::View);
+    bottomRight = model->index(1, 0, QModelIndex(), QModelIndex::View);
+
+    rowSelection.select(topLeft, bottomRight, model);
+
+    selectionModel->select(rowSelection,
+        QItemSelectionModel::Select | QItemSelectionModel::Rows);
 
     table->setWindowTitle("Selected items in a table model");
     table->show();
