@@ -3132,12 +3132,18 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
 	return;
 
     // If first is redirected, set first to the last child of first
-    // so that second is inserted after that last child, and the
-    // focus order within first is (more likely to be) preserved.
+    // that can take keyboard focus so that second is inserted after 
+    // that last child, and the focus order within first is (more 
+    // likely to be) preserved.
     if ( first->focusProxy() ) {
 	QObjectList l = first->queryList( "QWidget" );
-	if ( l.size() )
-	    first = static_cast<QWidget*>(l.last());
+	if ( l.size() ) {
+            for (int i = l.size()-1; i >= 0; --i) {
+		first = static_cast<QWidget*>(l.at(i));
+		if (first->focusPolicy() != NoFocus)
+		    break;
+	    }
+	}
     }
     while ( first->focusProxy() )
 	first = first->focusProxy();
