@@ -50,18 +50,6 @@ int main(int argc, char * argv[])
     QByteArray pchFile;
     QCoreApplication app(argc, argv);
 
-    QString keybase(QLatin1String("/Qt Designer/")
-        + QString::number((QT_VERSION >> 16) & 0xff)
-        + QLatin1String(".")
-        + QString::number((QT_VERSION >> 8) & 0xff)
-        + QLatin1String("/"));
-
-    QSettings config(Qt::UserScope, QLatin1String("Trolltech"));
-    QStringList pluginPaths
-                    = config.value(keybase + QLatin1String("PluginPaths")).toStringList();
-    if (pluginPaths.count())
-        QCoreApplication::setLibraryPaths(pluginPaths);
-
     for (int n = 1; n < argc && error == 0; n++) {
         QByteArray arg = argv[n];
         if (arg[0] == '-') {                        // option
