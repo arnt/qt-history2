@@ -113,7 +113,7 @@ public:
 	DateTime,
 	ByteArray,
 	BitArray,
-	KeySequence,
+	KeySequence
     };
 
     QVariant();
