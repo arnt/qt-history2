@@ -708,6 +708,7 @@ ConnectionEdit::ConnectionEdit(QWidget *parent, AbstractFormWindow *form)
     m_undo_stack = form->commandHistory();
     m_active_color = Qt::red;
     m_inactive_color = Qt::blue;
+    m_enabled = true;
     setAttribute(Qt::WA_MouseTracking, true);
     setFocusPolicy(Qt::ClickFocus);
 
@@ -875,6 +876,9 @@ void ConnectionEdit::paintEvent(QPaintEvent *e)
 
 void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 {
+    if (!m_enabled)
+        return;
+    
     e->accept();
 
     Connection *con_under_mouse = connectionAt(e->pos());
@@ -909,6 +913,9 @@ void ConnectionEdit::mousePressEvent(QMouseEvent *e)
 
 void ConnectionEdit::mouseDoubleClickEvent(QMouseEvent *e)
 {
+    if (!m_enabled)
+        return;
+    
     e->accept();
 
     switch (state()) {
@@ -928,6 +935,9 @@ void ConnectionEdit::mouseDoubleClickEvent(QMouseEvent *e)
 
 void ConnectionEdit::mouseReleaseEvent(QMouseEvent *e)
 {
+    if (!m_enabled)
+        return;
+    
     e->accept();
 
     switch (state()) {
@@ -977,6 +987,9 @@ void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
 
 void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
 {
+    if (!m_enabled)
+        return;
+
     findObjectsUnderMouse(e->pos());
 
     switch (state()) {
@@ -1002,6 +1015,9 @@ void ConnectionEdit::mouseMoveEvent(QMouseEvent *e)
 
 void ConnectionEdit::keyPressEvent(QKeyEvent *e)
 {
+    if (!m_enabled)
+        return;
+    
     switch (e->key()) {
         case Qt::Key_Delete:
             if (state() == Editing)
@@ -1029,7 +1045,9 @@ void ConnectionEdit::endConnection(QWidget *target, const QPoint &pos)
     QWidget *source = m_tmp_con->widget(EndPoint::Source);
     Q_ASSERT(source != 0);
     Q_ASSERT(target != 0);
+    m_enabled = false;
     Connection *new_con = createConnection(source, target);
+    m_enabled = true;
     if (new_con != 0) {
         new_con->setEndPoint(EndPoint::Source, source, m_tmp_con->endPointPos(EndPoint::Source));
         new_con->setEndPoint(EndPoint::Target, target, m_tmp_con->endPointPos(EndPoint::Target));

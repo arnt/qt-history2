@@ -186,5 +186,8 @@ void WidgetEditorTool::activated()
 
 void WidgetEditorTool::deactivated()
 {
+    if (m_formWindow == 0)
+        return;
+    m_formWindow->clearSelection();
 }
 

@@ -57,6 +57,8 @@ void FormWindowWidgetStack::setCurrentIndex(int index)
     }
 
     m_currentIndex = index;
+    m_widgets.at(m_currentIndex)->raise();
+    
     emit currentIndexChanged(m_currentIndex);
 }
 

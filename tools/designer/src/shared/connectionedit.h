@@ -145,6 +145,7 @@ private:
     QWidget *m_bg_widget;
     QtUndoStack *m_undo_stack;
     QPixmap m_bg_pixmap;
+    bool m_enabled;
 
     Connection *m_tmp_con; // the connection we are currently editing
     ConnectionList m_con_list;

@@ -1985,12 +1985,11 @@ void FormWindow::registerTool(AbstractFormWindowTool *tool)
         editor->setParent(m_widgetStack, 0);
         m_widgetStack->insertWidget(-1, editor);
         editor->show();
+        m_widgetStack->setCurrentIndex(0);
     }
 
-   m_widgetStack->setCurrentIndex(0);
-
-   if (m_mainContainer)
-       m_mainContainer->update();
+    if (m_mainContainer)
+        m_mainContainer->update();
 }
 
 void FormWindow::setCurrentTool(int index)

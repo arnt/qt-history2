@@ -17,6 +17,8 @@
 #include <abstractformwindow.h>
 #include <abstractformeditor.h>
 
+#include <qdebug.h>
+
 SignalSlotEditorTool::SignalSlotEditorTool(AbstractFormWindow *formWindow, QObject *parent)
     : AbstractFormWindowTool(parent),
       m_formWindow(formWindow)
