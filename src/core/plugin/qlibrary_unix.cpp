@@ -80,6 +80,8 @@ bool QLibraryPrivate::load_sys()
     }
 # endif
     if (!pHnd)
+        pHnd = dlopen(QFile::encodeName(fileName), RTLD_LAZY);
+    if (!pHnd)
         qWarning("%s", dlerror());
     return (pHnd != 0);
 }
