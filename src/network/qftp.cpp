@@ -436,23 +436,23 @@ bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo
 
     int p = 0;
     if ( perms[ user ][ readable ] )
-	p |= QFileInfo::ReadUser;
+	p |= QUrlInfo::ReadOwner;
     if ( perms[ user ][ writable ] )
-	p |= QFileInfo::WriteUser;
+	p |= QUrlInfo::WriteOwner;
     if ( perms[ user ][ executable ] )
-	p |= QFileInfo::ExeUser;
+	p |= QUrlInfo::ExeOwner;
     if ( perms[ group ][ readable ] )
-	p |= QFileInfo::ReadGroup;
+	p |= QUrlInfo::ReadGroup;
     if ( perms[ group ][ writable ] )
-	p |= QFileInfo::WriteGroup;
+	p |= QUrlInfo::WriteGroup;
     if ( perms[ group ][ executable ] )
-	p |= QFileInfo::ExeGroup;
+	p |= QUrlInfo::ExeGroup;
     if ( perms[ other ][ readable ] )
-	p |= QFileInfo::ReadOther;
+	p |= QUrlInfo::ReadOther;
     if ( perms[ other ][ writable ] )
-	p |= QFileInfo::WriteOther;
+	p |= QUrlInfo::WriteOther;
     if ( perms[ other ][ executable ] )
-	p |= QFileInfo::ExeOther;
+	p |= QUrlInfo::ExeOther;
     info->setPermissions( p );
 
     // size

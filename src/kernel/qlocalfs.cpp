@@ -84,6 +84,30 @@ QLocalFs::QLocalFs()
 {
 }
 
+static int convertPermissions(QFileInfo *fi)
+{
+    int p = 0;
+    if ( fi->permission( QFileInfo::ReadOwner ) )
+	p |= QUrlInfo::ReadOwner;
+    if ( fi->permission( QFileInfo::WriteOwner ) )
+	p |= QUrlInfo::WriteOwner;
+    if ( fi->permission( QFileInfo::ExeOwner ) )
+	p |= QUrlInfo::ExeOwner;
+    if ( fi->permission( QFileInfo::ReadGroup ) )
+	p |= QUrlInfo::ReadGroup;
+    if ( fi->permission( QFileInfo::WriteGroup ) )
+	p |= QUrlInfo::WriteGroup;
+    if ( fi->permission( QFileInfo::ExeGroup ) )
+	p |= QUrlInfo::ExeGroup;
+    if ( fi->permission( QFileInfo::ReadOther ) )
+	p |= QUrlInfo::ReadOther;
+    if ( fi->permission( QFileInfo::WriteOther ) )
+	p |= QUrlInfo::WriteOther;
+    if ( fi->permission( QFileInfo::ExeOther ) )
+	p |= QUrlInfo::ExeOther;
+    return p;
+}
+
 /*!
     \reimp
 */
@@ -124,26 +148,7 @@ void QLocalFs::operationListChildren( QNetworkOperation *op )
     QValueList<QUrlInfo> infos;
     while ( ( fi = it.current() ) != 0 ) {
 	++it;
-	int p = 0;
-	if ( fi->permission( QFileInfo::ReadUser ) )
-	    p |= QFileInfo::ReadUser;
-	if ( fi->permission( QFileInfo::WriteUser ) )
-	    p |= QFileInfo::WriteUser;
-	if ( fi->permission( QFileInfo::ExeUser ) )
-	    p |= QFileInfo::ExeUser;
-	if ( fi->permission( QFileInfo::ReadGroup ) )
-	    p |= QFileInfo::ReadGroup;
-	if ( fi->permission( QFileInfo::WriteGroup ) )
-	    p |= QFileInfo::WriteGroup;
-	if ( fi->permission( QFileInfo::ExeGroup ) )
-	    p |= QFileInfo::ExeGroup;
-	if ( fi->permission( QFileInfo::ReadOther ) )
-	    p |= QFileInfo::ReadOther;
-	if ( fi->permission( QFileInfo::WriteOther ) )
-	    p |= QFileInfo::WriteOther;
-	if ( fi->permission( QFileInfo::ExeOther ) )
-	    p |= QFileInfo::ExeOther;
-	infos << QUrlInfo( fi->fileName(), p, fi->owner(), fi->group(),
+	infos << QUrlInfo( fi->fileName(), convertPermissions(fi), fi->owner(), fi->group(),
 			   fi->size(), fi->lastModified(), fi->lastRead(), fi->isDir(), fi->isFile(),
 			   fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
     }
@@ -167,7 +172,7 @@ void QLocalFs::operationMkDir( QNetworkOperation *op )
     dir = QDir( url()->path() );
     if ( dir.mkdir( dirname ) ) {
 	QFileInfo fi( dir, dirname );
-	QUrlInfo inf( fi.fileName(), 0/*permissions*/, fi.owner(), fi.group(),
+	QUrlInfo inf( fi.fileName(), convertPermissions(&fi), fi.owner(), fi.group(),
 		      fi.size(), fi.lastModified(), fi.lastRead(), fi.isDir(), fi.isFile(),
 		      fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
 	emit newChild( inf, op );

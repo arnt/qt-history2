@@ -53,6 +53,11 @@ class QUrlInfoPrivate;
 class Q_EXPORT QUrlInfo
 {
 public:
+    enum PermissionSpec {
+	ReadOwner = 00400, WriteOwner = 00200, ExeOwner = 00100,
+	ReadGroup = 00040, WriteGroup = 00020, ExeGroup = 00010,
+	ReadOther = 00004, WriteOther = 00002, ExeOther = 00001 };
+
     QUrlInfo();
     QUrlInfo( const QUrlOperator &path, const QString &file );
     QUrlInfo( const QUrlInfo &ui );

@@ -98,6 +98,23 @@ public:
 */
 
 /*!
+    \enum QUrlInfo::PermissionSpec
+
+    This enum is used by the permissions() function to report the
+    permissions of a file.
+
+    \value ReadOwner The file is readable by the owner of the file.
+    \value WriteOwner The file is writable by the owner of the file.
+    \value ExeOwner The file is executable by the owner of the file.
+    \value ReadGroup The file is readable by the group.
+    \value WriteGroup The file is writable by the group.
+    \value ExeGroup The file is executable by the group.
+    \value ReadOther The file is readable by anyone.
+    \value WriteOther The file is writable by anyone.
+    \value ExeOther The file is executable by anyone.
+*/
+
+/*!
     Constructs an invalid QUrlInfo object with default values.
 
     \sa isValid()
@@ -477,7 +494,8 @@ QString QUrlInfo::name() const
 }
 
 /*!
-    Returns the permissions of the URL.
+    Returns the permissions of the URL. You can use the \c PermissionSpec flags
+    to test for certain permissions.
 
     \sa isValid()
 */
