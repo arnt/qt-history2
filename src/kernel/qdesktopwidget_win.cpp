@@ -57,6 +57,7 @@ public:
     static EnumFunc enumDisplayMonitors;
     static InfoFunc getMonitorInfo;
     static HMODULE user32hnd;
+    static int refcount;
 };
 
 int QDesktopWidgetPrivate::screenCount = 1;
@@ -67,6 +68,7 @@ HMODULE QDesktopWidgetPrivate::user32hnd = 0;
 QMemArray<QRect> *QDesktopWidgetPrivate::rects = 0;
 QMemArray<QRect> *QDesktopWidgetPrivate::workrects = 0;
 static int screen_number = 0;
+int QDesktopWidgetPrivate::refcount = 0;
 
 BOOL CALLBACK enumCallback( HMONITOR hMonitor, HDC, LPRECT, LPARAM )
 {
@@ -146,20 +148,23 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 	rects->resize( 1 );
 	rects->at( 0 ) = that->rect();
     }
+    refcount++;
 }
 
 QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 {
-    screen_number = 0;
-    screenCount = 1;
-    primaryScreen = 0;
-    enumDisplayMonitors = 0;
-    getMonitorInfo = 0;
-    user32hnd = 0;
-    delete rects;
-    rects = 0;
-    delete workrects;
-    workrects = 0;
+    if ( !--refcount ) {
+	screen_number = 0;
+	screenCount = 1;
+	primaryScreen = 0;
+	enumDisplayMonitors = 0;
+	getMonitorInfo = 0;
+	user32hnd = 0;
+	delete rects;
+	rects = 0;
+	delete workrects;
+	workrects = 0;
+    }
 }
 
 /*
@@ -220,6 +225,7 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
   size of the virtual desktop; otherwise this widget will have the size
   of the primary screen.
 
+  Instead of using QDesktopWidget directly, use QAppliation::desktop().
 */
 QDesktopWidget::QDesktopWidget()
 : QWidget( 0, "desktop", WType_Desktop )
