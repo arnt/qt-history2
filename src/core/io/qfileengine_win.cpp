@@ -1143,9 +1143,25 @@ QFSFileEngine::owner(FileOwner own) const
     return QString("");
 }
 
-bool QFSFileEngine::chmod(uint /* perms */)
+bool QFSFileEngine::chmod(uint perms)
 {
-    return false;
+    bool ret = false;
+    int mode = 0;
+
+    if (perms & QFile::ReadOwner || perms & QFile::ReadUser || perms & QFile::ReadGroup || perms & QFile::ReadOther)
+        mode |= _S_IREAD;
+    if (perms & QFile::WriteOwner || perms & QFile::WriteUser || perms & QFile::WriteGroup || perms & QFile::WriteOther)
+        mode |= _S_IWRITE;
+
+    if (mode == 0) // not supported 
+        return false;
+
+   QT_WA({
+        ret = ::_wchmod((TCHAR*)d->file.utf16(), mode) == 0;
+   } , {
+        ret = ::_chmod(d->file.toLocal8Bit(), mode) == 0;
+   });
+   return ret;
 }
 
 bool QFSFileEngine::setSize(QIODevice::Offset size)
