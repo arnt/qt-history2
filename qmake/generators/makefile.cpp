@@ -93,68 +93,92 @@ MakefileGenerator::generateMocList(QString fn_target)
     close(file);
 
     bool ignore_qobject = FALSE;
+    int line_count = 0;
 #define COMP_LEN 8 //strlen("Q_OBJECT")
 #define OBJ_LEN 8 //strlen("Q_OBJECT")
 #define DIS_LEN 10 //strlen("Q_DISPATCH")
     for(int x = 0; x < (total_size_read-COMP_LEN); x++) {
 	if(*(big_buffer + x) == '/') {
-		x++;
-		if(total_size_read >= x) {
-		    if(*(big_buffer + x) == '/') { //c++ style comment
-			for( ;x < total_size_read && *(big_buffer + x) != '\n'; x++);
-		    } else if(*(big_buffer + x) == '*') { //c style comment
-			for( ;x < total_size_read; x++) {
-			    if(*(big_buffer + x) == 't' || *(big_buffer + x) == 'q') { //ignore
-				if(total_size_read >= (x + 20)) {
-				    if(!strncmp(big_buffer + x + 1, "make ignore Q_OBJECT", 20)) {
-					x += 20;
-					ignore_qobject = !ignore_qobject;
-				    }
-				}
-			    } else if(*(big_buffer + x) == '*') {
-				if(total_size_read >= (x+1) && *(big_buffer + (x+1)) == '/') {
-				    x += 2;
-				    break;
+	    x++;
+	    if(total_size_read >= x) {
+		if(*(big_buffer + x) == '/') { //c++ style comment
+		    for( ;x < total_size_read && *(big_buffer + x) != '\n'; x++);
+		    line_count++;
+		} else if(*(big_buffer + x) == '*') { //c style comment
+		    for( ;x < total_size_read; x++) {
+			if(*(big_buffer + x) == 't' || *(big_buffer + x) == 'q') { //ignore
+			    if(total_size_read >= (x + 20)) {
+				if(!strncmp(big_buffer + x + 1, "make ignore Q_OBJECT", 20)) {
+				    debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"", 
+					      fn_target.latin1(), line_count);
+				    x += 20;
+				    ignore_qobject = !ignore_qobject;
 				}
 			    }
+			} else if(*(big_buffer + x) == '*') {
+			    if(total_size_read >= (x+1) && *(big_buffer + (x+1)) == '/') {
+				x += 2;
+				break;
+			    }
+			} else if(*(big_buffer + x) == '\n') {
+			    line_count++;
 			}
 		    }
 		}
-	}
-	if(*(big_buffer+x) == 'Q' &&
-	   ((!ignore_qobject && !strncmp(big_buffer+x, "Q_OBJECT", OBJ_LEN)) ||
-	    !strncmp(big_buffer+x, "Q_DISPATCH", DIS_LEN))) {
-	    int ext_pos = fn_target.findRev('.');
-	    int ext_len = fn_target.length() - ext_pos;
-	    int dir_pos =  fn_target.findRev(Option::dir_sep, ext_pos);
-	    QString mocFile;
-	    if(!project->variables()["MOC_DIR"].isEmpty())
-		mocFile = project->first("MOC_DIR");
-	    else
-		mocFile = "." + Option::dir_sep; //fn_target.left(dir_pos+1);
-
-	    if(fn_target.right(ext_len) == Option::cpp_ext) {
-		mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
-		depends[fn_target].append(mocFile);
-		project->variables()["_SRCMOC"].append(mocFile);
-	    } else if(fn_target.right(ext_len) == Option::h_ext &&
-		    project->variables()["HEADERS"].findIndex(fn_target) != -1) {
-		mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
-		project->variables()["_HDRMOC"].append(mocFile);
 	    }
-
-	    if(!mocFile.isEmpty()) {
-		mocFile = Option::fixPathToTargetOS(mocFile);
-		mocablesToMOC[cleanFilePath(fn_target)] = mocFile;
-		mocablesFromMOC[cleanFilePath(mocFile)] = fn_target;
-	    }
-	    break;
 	}
-	while(x < total_size_read &&
-	      ((*(big_buffer+x) >= 'a' && *(big_buffer+x) <= 'z') ||
-	       (*(big_buffer+x) >= 'A' && *(big_buffer+x) <= 'Z') ||
-	       (*(big_buffer+x) <= '0' && *(big_buffer+x) >= '9') ||
-	       *(big_buffer+x) == '_')) x++;
+#define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
+			(x <= '0' && x >= '9') || x == '_') 
+	bool interesting = *(big_buffer+x) == 'Q' && (!strncmp(big_buffer+x, "Q_OBJECT", OBJ_LEN) ||
+						      !strncmp(big_buffer+x, "Q_DISPATCH", DIS_LEN));
+	if(interesting) {
+	    int len = 0;
+	    if(!strncmp(big_buffer+x, "Q_OBJECT", OBJ_LEN)) {
+		if(ignore_qobject) {
+		    debug_msg(2, "Mocgen: %s:%d Ignoring Q_OBJECT", fn_target.latin1(), line_count);
+		    interesting = FALSE;
+		}
+		len=OBJ_LEN;
+	    } else if(!strncmp(big_buffer+x, "Q_DISPATH", DIS_LEN)) {
+		len=DIS_LEN;
+	    }
+	    if(SYMBOL_CHAR(*(big_buffer+x)))
+		interesting = FALSE;
+	    if(interesting) {
+		*(big_buffer+x+len) = '\0';
+		debug_msg(2, "Mocgen: %s:%d Found MOC symbol %s", fn_target.latin1(), line_count, big_buffer+x);
+
+		int ext_pos = fn_target.findRev('.');
+		int ext_len = fn_target.length() - ext_pos;
+		int dir_pos =  fn_target.findRev(Option::dir_sep, ext_pos);
+		QString mocFile;
+		if(!project->variables()["MOC_DIR"].isEmpty())
+		    mocFile = project->first("MOC_DIR");
+		else
+		    mocFile = "." + Option::dir_sep; //fn_target.left(dir_pos+1);
+
+		if(fn_target.right(ext_len) == Option::cpp_ext) {
+		    mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
+		    depends[fn_target].append(mocFile);
+		    project->variables()["_SRCMOC"].append(mocFile);
+		} else if(fn_target.right(ext_len) == Option::h_ext &&
+			  project->variables()["HEADERS"].findIndex(fn_target) != -1) {
+		    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
+		    project->variables()["_HDRMOC"].append(mocFile);
+		}
+		
+		if(!mocFile.isEmpty()) {
+		    mocFile = Option::fixPathToTargetOS(mocFile);
+		    mocablesToMOC[cleanFilePath(fn_target)] = mocFile;
+		    mocablesFromMOC[cleanFilePath(mocFile)] = fn_target;
+		}
+		break;
+	    }
+	}
+	    while(x < total_size_read && SYMBOL_CHAR(*(big_buffer+x)))
+		x++;
+	if(*(big_buffer+x) == '\n') 
+	    line_count++;
     }
 #undef OBJ_LEN
 #undef DIS_LEN
