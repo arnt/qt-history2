@@ -108,6 +108,9 @@ public:
     typedef QMap<QUuid,IConnectionPoint*>::Iterator ConnectionPointsIterator;
 
     QAxServerBase( const QString &classname );
+    QAxServerBase( QObject *o );
+
+    void init();
 
     ~QAxServerBase();
 
@@ -271,6 +274,7 @@ private:
 	QObject* object;
     } qt;
     unsigned isWidget		:1;
+    unsigned ownObject		:1;
     unsigned initNewCalled	:1;
     unsigned dirtyflag		:1;
     unsigned hasStockEvents	:1;
@@ -317,6 +321,14 @@ private:
     ITypeInfo *m_spTypeInfo;
     IStorage *m_spStorage;
 };
+
+IDispatch *create_object_wrapper( QObject *o )
+{
+    IDispatch *disp = 0;
+    QAxServerBase *obj = new QAxServerBase( o );
+    obj->QueryInterface( IID_IDispatch, (void**)&disp );
+    return disp;
+}
 
 /*
     Helper class to enumerate all supported event interfaces.
@@ -726,8 +738,34 @@ QAxServerBase::QAxServerBase( const QString &classname )
   slotlist(0), signallist(0),proplist(0), proplist2(0),
   m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0)
 {
+    init();
+    points[qAxFactory()->eventsID(class_name)] = new QAxConnection( this, qAxFactory()->eventsID(class_name) );
+
+    internalCreate();
+}
+
+/*!
+    Constructs a QAxServerBase object wrapping \a o.
+*/
+QAxServerBase::QAxServerBase( QObject *o )
+: aggregatedObject( 0 ), ref( 0 ),
+  slotlist(0), signallist(0),proplist(0), proplist2(0),
+  m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0)
+{
+    init();
+
+    qt.object = o;
+    isWidget = o->isWidgetType();
+}
+
+/*!
+    Initializes data members.
+*/
+void QAxServerBase::init()
+{
     qt.object = 0;
     isWidget		= FALSE;
+    ownObject		= FALSE;
     initNewCalled	= FALSE;
     dirtyflag		= FALSE;
     hasStockEvents	= FALSE;
@@ -760,9 +798,6 @@ QAxServerBase::QAxServerBase( const QString &classname )
     qAxLock();
 
     points[IID_IPropertyNotifySink] = new QAxConnection( this, IID_IPropertyNotifySink );
-    points[qAxFactory()->eventsID(class_name)] = new QAxConnection( this, qAxFactory()->eventsID(class_name) );
-
-    internalCreate();
 }
 
 /*!
@@ -784,7 +819,8 @@ QAxServerBase::~QAxServerBase()
 	qt.object->disconnect( this );
 	QObject *aqt = qt.object;
 	qt.object = 0;
-	delete aqt;
+	if ( ownObject )
+	    delete aqt;
     }
 
     if ( m_spAdviseSink ) m_spAdviseSink->Release();
@@ -889,6 +925,7 @@ bool QAxServerBase::internalCreate()
     if ( !qt.object )
 	return FALSE;
 
+    ownObject = TRUE;
     isWidget = qt.object->isWidgetType();
     hasStockEvents = qAxFactory()->hasStockEvents( class_name );
     stayTopLevel = qAxFactory()->stayTopLevel( class_name );
@@ -984,7 +1021,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 
     case WM_QUERYENDSESSION:
     case WM_DESTROY:
-	if ( that->qt.widget ) {
+	if ( that->qt.widget && that->ownObject ) {
 	    if ( that->aggregatedObject )
 		that->aggregatedObject->the_object = 0;
 	    delete that->qt.widget;
