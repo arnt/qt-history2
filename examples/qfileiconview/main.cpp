@@ -24,6 +24,8 @@ int main( int argc, char **argv )
 	fiv.setFrameStyle( QFrame::NoFrame );
 	fiv.setCaption( "desktop" );
 	fiv.setSelectionMode( QIconView::Extended );
+	fiv.viewport()->setBackgroundMode( QWidget::NoBackground );
+	fiv.setItemTextBackground( Qt::lightGray );
 	fiv.setDirectory( "/" );
 	fiv.showMaximized();
 	return a.exec();
