@@ -37,7 +37,7 @@
 
 #include "qgl.h"
 
-#if defined(Q_GLX)
+#if defined(Q_WS_X11)
 
 #include <qpixmap.h>
 #include <qapplication.h>
