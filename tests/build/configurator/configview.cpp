@@ -69,7 +69,7 @@ QString CConfigView::m_Modules[ NUM_MODULES ] =
 
 QString CConfigView::m_ConfigOpts[ NUM_MODULES ] =
 {
-	"internal", "tools kernel widgets dialogs iconview workspace", "network", "canvas", "table", "xml", "opengl", "sql",
+	"internal", "tools kernel widgets dialogs iconview workspace styles", "network", "canvas", "table", "xml", "opengl", "sql",
 	"", "gif", "jpeg", "png", "mng", "zlib"
 };
 

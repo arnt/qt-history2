@@ -19,7 +19,7 @@
 extern QApplication* pApp;
 
 CDialogWidget::CDialogWidget( QWidget* pParent, const char* pName, WFlags f ) :
-    QWidget( pParent, pName, f ),
+    QWidget( pParent, pName, f | WDestructiveClose ),
     m_bShared( true ),
     m_bThreaded( false )
 {
@@ -97,6 +97,7 @@ CDialogWidget::CDialogWidget( QWidget* pParent, const char* pName, WFlags f ) :
 
 CDialogWidget::~CDialogWidget( )
 {
+	qDebug( "~CDialogWidget()\n" );
 }
 
 void CDialogWidget::generate()

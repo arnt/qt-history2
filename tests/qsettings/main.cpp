@@ -8,6 +8,7 @@
 #include <qbitmap.h>
 #include <qiconset.h>
 #include <qpointarray.h>
+#include <qcursor.h>
 
 #ifdef Q_OS_UNIX
 #include <sys/time.h>
