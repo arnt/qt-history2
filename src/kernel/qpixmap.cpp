@@ -620,6 +620,7 @@ QPixmap &QPixmap::operator=( const QImage &image )
 void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 {
     const QPixmap* bgpm = widget->backgroundPixmap();
+    fill( widget->backgroundColor() );
     if ( bgpm ) {
 	if ( !bgpm->isNull() ) {
 	    QPoint ofs = widget->backgroundOffset();
@@ -629,13 +630,9 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 	    QPainter p;
 	    p.begin( this );
 	    p.setPen( NoPen );
-	    p.setBrush( QBrush( Qt::black,*widget->backgroundPixmap() ) );
-	    p.setBrushOrigin( -xofs, -yofs );
-	    p.drawRect( 0, 0, width(), height() );
+	    p.drawTiledPixmap( 0, 0, width(), height(), *widget->backgroundPixmap(), xofs, yofs );
 	    p.end();
 	}
-    } else {
-	fill( widget->backgroundColor() );
     }
 }
 
