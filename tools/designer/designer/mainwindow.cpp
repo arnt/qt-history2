@@ -917,7 +917,8 @@ void MainWindow::showProperties( QObject *o )
 	hierarchyView->setFormWindow( 0, 0 );
     }
 
-    if ( currentTool() == POINTER_TOOL && fw )
+    if ( currentTool() == POINTER_TOOL && fw &&
+	 ( !workspace->activeWindow() || !workspace->activeWindow()->inherits( "SourceEditor" ) ) )
 	fw->setFocus();
 }
 
@@ -1353,6 +1354,11 @@ void MainWindow::activeWindowChanged( QWidget *w )
     selectionChanged();
 
     if ( w && w->inherits( "SourceEditor" ) ) {
+	if ( ( (SourceEditor*)w )->object() &&
+	     ( (SourceEditor*)w )->object()->inherits( "FormWindow" ) &&
+	     lastActiveFormWindow != (FormWindow*)( (SourceEditor*)w )->object() ) {
+	    activeWindowChanged( (FormWindow*)( (SourceEditor*)w )->object() );
+	}
 	actionSearchFind->setEnabled( TRUE );
 	actionSearchIncremetal->setEnabled( TRUE );
 	actionSearchReplace->setEnabled( TRUE );
