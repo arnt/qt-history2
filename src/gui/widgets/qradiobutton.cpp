@@ -33,8 +33,11 @@
     a time can be checked; if the user selects another button, the
     previously selected button is switched off.
 
-    The easiest way to implement a "one of many" choice is simply to
-    put the radio buttons into a QButtonGroup.
+    Radio buttons are autoExclusive by default. If autoExclusive is
+    enabled, radio buttons that belong to the same parent widget
+    behave as if they were part of the same exclusive button group. If
+    you need multiple exclusive button groups for radio buttons that
+    belong to the same parent widget, put them into a QButtonGroup.
 
     Whenever a button is switched on or off it emits the toggled() signal.
     Connect to this signal if you want to trigger an action each time the
