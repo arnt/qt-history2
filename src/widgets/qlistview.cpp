@@ -3705,7 +3705,9 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
+    bool didEdit = FALSE;
     if ( currentItem() && currentItem()->renameBox ) {
+	didEdit = TRUE;
 	if ( d->defRenameAction == Reject )
 	    currentItem()->cancelRename( currentItem()->renameCol );
 	else
@@ -3722,7 +3724,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     QListViewItem * i = itemAt( vp );
     if ( i && !i->isEnabled() )
 	return;
-    if ( i == currentItem() && i && i->isSelected() && e->button() == LeftButton ) {
+    if ( i == currentItem() && i && i->isSelected() && e->button() == LeftButton && !didEdit ) {
 	QRect r = itemRect( currentItem() );
 	r = QRect( viewportToContents( r.topLeft() ), r.size() );
 	d->pressedColumn = header()->sectionAt(  e->pos().x() );
