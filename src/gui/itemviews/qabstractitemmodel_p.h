@@ -6,12 +6,15 @@
 class QPersistentModelIndexData
 {
 public:
-    QPersistentModelIndexData() : model(0) {}
+    QPersistentModelIndexData() : model(0)
+    {
+        ref = 0;
+    }
     QAbstractItemModel *model;
     QModelIndex index;
     QAtomic ref;
     static QPersistentModelIndexData shared_null;
-    
+
     static QPersistentModelIndexData *create(const QModelIndex &index, QAbstractItemModel *model);
     static void destroy(QPersistentModelIndexData *data);
 };
@@ -21,7 +24,7 @@ class QAbstractItemModelPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QAbstractItemModel)
 
 public:
-    
+
     QList<QPersistentModelIndexData*> persistentIndices;
 };
 
