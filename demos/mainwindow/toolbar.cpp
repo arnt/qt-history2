@@ -229,6 +229,7 @@ void ToolBar::order()
     }
 
     clear();
+    addAction(menu->menuAction());
     addActions(ordered);
 
     orderAction->setEnabled(false);
