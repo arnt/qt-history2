@@ -748,8 +748,8 @@ QTextBlockFormat QTextCursor::blockFormat() const
 }
 
 /*!
-  Modifies the format of the selection by \a modifier. Does nothing if the cursor
-  doesn't have a selection.
+  Applies all the properties set in \a modifier to all the formats that are part
+  of the selection. Does nothing if the cursor doesn't have a selection.
 */
 void QTextCursor::applyCharFormatModifier(const QTextCharFormat &modifier)
 {
