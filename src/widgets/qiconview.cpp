@@ -143,7 +143,7 @@ struct QIconViewPrivate
     int minLeftBearing, minRightBearing;
     bool containerUpdateLocked;
     bool firstSizeHint;
-    
+
     struct ItemContainer {
 	ItemContainer( ItemContainer *pr, ItemContainer *nx, const QRect &r )
 	    : p( pr ), n( nx ), rect( r ) {
@@ -2024,7 +2024,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->firstContainer = d->lastContainer = 0;
     d->containerUpdateLocked = FALSE;
     d->firstSizeHint = TRUE;
-    
+
     connect( d->adjustTimer, SIGNAL( timeout() ),
 	     this, SLOT( adjustItems() ) );
     connect( d->updateTimer, SIGNAL( timeout() ),
@@ -3485,7 +3485,8 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 
     d->mousePressed = FALSE;
     d->startDrag = FALSE;
-
+    bool emitClicked = TRUE;
+    
     if ( d->rubber ) {
 	QPainter p;
 	p.begin( viewport() );
@@ -3499,6 +3500,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 
 	delete d->rubber;
 	d->rubber = 0;
+	emitClicked = FALSE;
     }
 
     if ( d->scrollTimer ) {
@@ -3508,10 +3510,12 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 	d->scrollTimer = 0;
     }
 
-    emit mouseButtonClicked( e->button(), item, e->globalPos() );
-    emit clicked( item );
-    emit clicked( item, e->globalPos() );
-
+    if ( emitClicked ) {
+	emit mouseButtonClicked( e->button(), item, e->globalPos() );
+	emit clicked( item );
+	emit clicked( item, e->globalPos() );
+    }
+    
     if ( e->button() == RightButton ) {
 	emit rightButtonClicked( item, e->globalPos() );
 	if ( item )
@@ -4749,7 +4753,7 @@ QSize QIconView::sizeHint() const
 	( (QIconView*)this )->alignItemsInGrid( FALSE );
 	d->firstSizeHint = FALSE;
     }
-    
+
     d->dirty = TRUE;
 
     return QSize( QMIN( 400, contentsWidth() + style().scrollBarExtent().width()),
