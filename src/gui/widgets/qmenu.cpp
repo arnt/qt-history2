@@ -533,7 +533,7 @@ Q4StyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 /*!
     \class QMenu qmenu.h
     \brief The QMenu class provides a menu widget for use in menu
-    bars, context menus, and similar.
+    bars, context menus, and other popup menus.
 
     \ingroup application
     \ingroup basic
@@ -647,9 +647,9 @@ QAction *QMenu::addAction(const QString &text)
 /*!
     \overload
 
-    This convenience function creates a new action with the icon \a
-    icon, and text \a text. The function adds the newly created action
-    to the menu's list of actions and returns it.
+    This convenience function creates a new action with an \a icon
+    and some \a text. The function adds the newly created action to the
+    menu's list of actions, and returns it.
 
     \sa QWidget::addAction()
 */
@@ -683,9 +683,9 @@ QAction *QMenu::addAction(const QString &text, const QObject *receiver, const ch
 /*!
     \overload
 
-    This convenience function creates a new action with the icon \a
-    icon, the text \a text, and a keyboard shortcut of \a
-    shortcut. The action's triggered() signal is connected to the \a
+    This convenience function creates a new action with an \a icon,
+    some \a text, and a keyboard shortcut of \a shortcut.
+    The action's triggered() signal is connected to the \a
     receiver's \a member slot. The function adds the newly created
     action to the menu's list of actions and returns it.
 
@@ -838,8 +838,8 @@ bool QMenu::isCheckable() const
 }
 
 /*!
-    Returns the QAction that is currently highlighted, or a null
-    pointer if no action is currently highlighted.
+    Returns the currently highlighted action, or 0 if no
+    action is currently highlighted.
 */
 QAction *QMenu::activeAction() const
 {
@@ -876,7 +876,7 @@ int QMenu::columnCount() const
 /*!
   \internal
 
-  Return the item at \a pt, or 0 if there is no item there or if it is
+  Returns the item at \a pt; returns 0 if there is no item there, or if it is
   a separator item (and ignoreSeparator is true).
 */
 QAction *QMenu::actionAtPos(const QPoint &pt, bool ignoreSeparator) const
