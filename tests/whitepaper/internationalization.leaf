@@ -1,138 +1,146 @@
 \chapter Internationalization
 
-\section1 Summary
+\omit ### Mark, I'll need your help here ### \endomit
 
+Qt provides full Unicode support. Applications can mix Arabic,
+English, Japanese freely in their application.
 
-\section1 Features of Internationalization
+Applications are translated using the graphical tool \e {Qt
+Linguist}. It is easy to use by non-technical people.
 
-\section2 Unicode
+Enabling translation requires minimal programmer effort.
 
-Qt provides the class \Class QString to store Unicode strings, and
-uses it thoroughly in the API and internally. \Class QString replaces
+All in all, Qt allows you to quickly and easily translate
+applications into foreign languages to open up new markets.
+
+\section1 Unicode
+
+\omit ### Mark, I edited the following paragraph \endomit
+
+Qt provides the \Class QString class to store Unicode strings, and
+uses it throughout in the API and internally. \Class QString replaces
 the crude \c {const char *} and the 16-bit \Class QChar class
-replaces \c char. Thanks to operator overloading, \Class QString has
-a familiar syntax. Conventional \c {const char *} strings are
-automatically converted into \Class {QString}s, and vice versa. You
-might not even notice that you are using Unicode. And you can
-confidently copy around \Class {QString}s, as they are \l {implicitly
-shared}.
+replaces \c char. Constructors and operators are provided to
+automatically convert to and from 8-bit strings. And you can
+confidently copy \Class {QString}s by value, as they are \l
+{implicitly shared}.
 
 \Class QString is more than a 16-bit character string. Functions such
 as \Func QChar::lower() and \Func QChar::isPunct() replace \Func
-tolower() and \Func ispunct() and work for the whole Unicode range.
+tolower() and \Func ispunct() and work over the whole Unicode range.
 Qt's regular expression engine, provided by class \Class QRegExp,
-uses Unicode string both for the regular expression pattern and the
-string to match. Items in widget classes such as \Class QListBox and
-\Class QTable can be sorted in the local<e> dictionary order (only on
-Windows so far).
+uses Unicode strings both for the regular expression pattern and the
+string to match.
 
-Conversion from and to different encodings and charsets is handled by
-subclasses of \Class QTextCodec. Qt uses \Class QTextCodec internally
-for fonts, input methods and I/O. You can use it for your own
-purposes as well.
+\omit
+Items in widget classes such as \Class QListBox and \Class QTable can
+be sorted in the locale's dictionary order (only on Windows so far).
+\endomit
 
-Qt 3.0 supports 37 encodings, including Big5 and GBK for Chinese,
-EUC-JP, JIS and Shift-JIS for Japanese, KOI8-R for Russian, and the
-ISO 8859 series. You can add their own encodings by providing a
-charmap or by subclassing \Class QTextCodec.
+Conversion to and from different encodings and charsets is handled by
+\Class QTextCodec subclasses. Qt uses \Class QTextCodec for fonts,
+input methods and I/O; you can use it for your own purposes as well.
 
-\section2 Text Rendering
+Qt 3.0 supports 37 different encodings, including Big5 and GBK for
+Chinese, EUC-JP, JIS and Shift-JIS for Japanese, KOI8-R for Russian
+and the ISO 8859 series; see \l
+http://doc.trolltech.com/qtextcodec.html for the complete list.
+Programmers can add their own encodings by providing a charmap or by
+subclassing \Class QTextCodec.
 
-Qt provides a sophisticated text-rendering engine for all text that
-is displayed on screen, from the simplest label to the most
+\section1 Text Rendering
+
+Qt provides a powerful text-rendering engine for all text that is
+displayed on screen, from the simplest label to the most
 sophisticated rich-text editor. The engine supports advanced features
 such as  special line breaking behavior, bidirectional writing and
 diacritical marks. It renders most of the world's writing systems,
-including Latin, Cyrillic, Greek, Hebrew, Arabic, Chinese, Japanese,
-Korean, Thai and Vietnamese. If necessary, Qt will automatically
-combine many of the installed fonts to render multi-language text.
+including Arabic, Chinese, Cyrillic, Greek, Hebrew, Japanese, Korean,
+Latin, Thai and Vietnamese. Qt will automatically combine many of the
+installed fonts to render multi-language text.
 
-\section2 Input Methods
+\section1 Input Methods
 
-Far-East writing systems require far more characters than are
-available on a keyboard. The conversion from a sequence of keyboard
+Far-Eastern writing systems require many more characters than are
+available on a keyboard. The conversion from a sequence of key
 presses to actual characters is performed at the window-system level
-by software called \e {input methods}. Qt naturally supports
+by software called \e {input methods}. Qt automatically supports the
 installed input methods.
 
-\section2 Date and Time
+\section1 Dates and Times
 
 The editor classes for dates and times (\Class QDateEdit, \Class
-QTimeEdit, \Class QDateTimeEdit) respect the user's locale for
+QTimeEdit and \Class QDateTimeEdit) respect the user's locale for
 separators and ordering.
 
-\section1 Internationalizing Your Application
+\section1 Translating Your Application
 
-The features covered so far are interesting even for applications
-targeted at only one market. Qt provides some more features if many
-languages are to be supported.
+\omit ### Mark, I edited the following paragraph \endomit
 
-For application programmers, most of the work is to put all
-user-visible strings within a \Func tr() (read "translate") function
-call:
+Qt provides functions and tools to help you provide applications
+translated to many languages.
+
+To make a string translatable, simply wrap it in a call to \Func tr()
+(read "translate"):
 \code
-    okButton->setText( tr("OK") );
+    saveButton->setText( tr("Save") );
 \endcode
-\Func tr() attempts to translate a string literal (\c "OK"), and
-returns a translation if one is available, the original text
-(converted to Unicode) otherwise. You can use English as the source
-language and Chinese as the translated language, or vice versa.
+\Func tr() attempts to replace a string literal (e.g. \c "Save") with
+a translation if one is available; otherwise it uses the original
+text. You can use English as the source language and Chinese as the
+translated language, or vice versa. The argument to \Func tr() is
+converted to Unicode from the application's default encoding.
 
 \Func tr()'s general syntax is
 \code
     Context::tr("source text", "comment")
 \endcode
+The \e context is the name of a \Class QObject subclass. It is
+usually omitted, in which case the class containing the \Func tr()
+call is used as the context. The \e {source text} is the text to
+translate. The \e {comment} is optional; along with the context, it
+provides additional information to the human translators.
 
-The \e context is the name of a \Class QObject subclass. It is left
-out most of the time, and then the class in which the \Func tr() call
-occurs is taken as the context. Contexts are not strictly necessary,
-but they are very useful to keep strings in different widgets apart.
-The \e {source text} is the text to translate. The \e {comment} is
-optional; it may provide additional contextual information to the
-human translator.
-
-Available translations are stored in a \Class QTranslator object in
-memory, and in a \c .qm file (Qt Message File) on disk. By selecting
-a given \c .qm file, one chooses the language as well. It is
-therefore possible to choose the language at run-time, according to
-the locale or to user preferences.
+Translations are stored in \Class QTranslator objects, which use
+disk-based \c .qm files (Qt Message files). Each \c .qm file contains
+the translations for a particular language. It is possible to choose
+the language at run-time; for example, according to the locale or
+user preferences.
 
 Qt provides three tools for preparing \c .qm files: \Cmd lupdate, \e
-{Qt Linguist} and \Cmd lrelease:
+{Qt Linguist} and \Cmd lrelease.
 
 \list 1
 
-\i \Cmd lupdate extracts all the \<context, source text, comment\>
+\i \Cmd lupdate extracts all the (context, source text, comment)
    triples from the source code and generates a \c .ts file
-   (Translation Source file). \c .ts files are in a human-readable
-   XML format, but otherwise are the same as \c .qm files.
+   (Translation Source file). \c .ts files are in human-readable XML
+   format.
 
-\i A translator edits the \c .ts file and adds a translation for
-   every \<context, source text, comment\> triple, using \e {Qt
-   Linguist} or a text editor.
+\i Translators use the \e {Qt Linguist} tool to provide translations
+   for the source texts in the \c .ts files.
 
-\i A machine-ready \c .qm file is generated by running \e lrelease.
+\i Highly compressed \c .qm files are generated by running \e
+   lrelease on the \c .ts files.
 
 \endlist
 
-These steps may be repeated many times during the lifetime of an
-application. It is perfectly safe to run \e lupdate frequently, as it
-reuses existing translations, and marks translations for obsolete
-texts as obsolete without eliminating them. \e lupdate also detects
-strings that change only slightly and tries to provide translations
-automatically. These translations are marked as "unfinished" so that
-a human translator can go over them easily.
+These steps are repeated as often as necessary during the lifetime of
+an application. It is perfectly safe to run \e lupdate frequently, as
+it reuses existing translations and marks translations for obsolete
+source texts without eliminating them. \e lupdate also detects slight
+changes in source texts and automatically suggests translations.
+These translations are marked as unfinished so that a translator
+can easily check them.
 
-Qt itself contains a modest 400 strings. Trolltech provides a French
-and a German translation of Qt. Other total or partial translations
-of Qt from other sources circulate on the Internet.
+Qt itself contains a modest 400 user-visible strings, for which
+Trolltech provides French and German translations.
 
 \section1 Further Reading
 
-http://doc.trolltech.com/i18n.html
-http://doc.trolltech.com/unicode.html
-http://doc.trolltech.com/scripts.html
-http://doc.trolltech.com/liguist-manual.html
-
-http://doc.trolltech.com/qtextcodec.html
-	For the complete list of encodings.
+\list
+\i \l http://doc.trolltech.com/i18n.html
+\i \l http://doc.trolltech.com/unicode.html
+\i \l http://doc.trolltech.com/scripts.html
+\i \l http://doc.trolltech.com/liguist-manual.html
+\endlist
