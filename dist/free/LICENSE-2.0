@@ -1,5 +1,5 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<!-- Copyright © Troll Tech -- See http://www.troll.no/copright.html for license terms -->
+<!-- Copyright © Troll Tech -- See http://www.troll.no/copyright.html for license terms -->
 <html><head><title> The License for the Qt Free Edition
 </title><style type="text/css"><!-- H1, H2, H3, H4 {font-family: Univers, Helvetica, "Lucida Sans", Arial, Geneva, sans-serif;} BODY {font-family: "Times New Roman", Georgia, Times, "New York", serif; background: white; color: black;} TT, PRE, CODE {font-family: "Courier New", "Courier", fixed; background: white; color: black;} -->
 </style></head><body bgcolor="#ffffff" onload="if(top.frames.length!=0)top.location=self.location;">
@@ -113,7 +113,8 @@ apply to each patch:
   1. The patch must not modify copyright notices in the Software.
 
 <p>
-  2. The patch must include the following copyright notice:
+  2. The patch must licensed by the following clause without
+	additional restriction:
 
 <blockquote>
         Permission is hereby granted, free of charge, to any person
