@@ -13895,6 +13895,9 @@ QString QString::section( QString sep, int start, int count, int flags ) const
     QString s = line.section( sep, 1, -2 ); // s == "middlename"
     \endcode
 
+    \warning Section on QRegExp is much more expensive than the overloaded
+    string and character versions.
+    
     \sa QStringList::split() simplifyWhiteSpace()
 */
 class section_chunk {
@@ -13941,6 +13944,11 @@ QString QString::section( const QRegExp &reg, int start, int count, int flags ) 
     int i = 0;
     QString ret;
     for ( section_chunk *chk=l.first(); chk; chk=l.next(), i++ ) {
+	if((flags & SectionSkipEmpty) && chk->length == (int)chk->string.length()) {
+	    if(i <= start)
+		start++;
+	    count++;
+	}
 	if(i == start) {
 	    ret = (flags & SectionIncludeLeadingSep) ? chk->string : chk->string.mid(chk->length);
 	} else if(i > start) {
