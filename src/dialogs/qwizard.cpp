@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#5 $
 **
 ** Implementation of something useful.
 **
@@ -170,6 +170,8 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
 	     this, SLOT(back()) );
     connect( d->nextButton, SIGNAL(clicked()),
 	     this, SLOT(next()) );
+    connect( d->helpButton, SIGNAL(clicked()),
+	     this, SLOT(help()) );
 }
 
 
