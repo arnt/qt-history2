@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#9 $
+** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#10 $
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
@@ -96,10 +96,13 @@ void addTranslation( QTranslator* translator, const QString& msgid, const QStrin
 }
 
 
+
 void translate( const QString& filename, const QString& qmfile )
 {
-    // #### TODO: use encoding mentioned in msg file, if any,
-    // ####       only default to locale if no other choice.
+    //we start in locale-specific mode, thenswitch when we find the char set
+    
+    bool firstRound = TRUE;
+    
     QFile f(filename);
     if ( !f.open( IO_ReadOnly) )
 	return;
@@ -151,6 +154,30 @@ void translate( const QString& filename, const QString& qmfile )
 	    }
 	    //debug("%s --> %s", msgid.ascii(), msgstr.ascii() );
 	    addTranslation( translator, msgid, msgstr);
+	    if ( firstRound && msgid.isEmpty() ) {
+		// Check for the encoding. We are not supposed to
+		// change encodings in mid-stream, but it is reasonably safe
+		// when we are doing just readLine().
+		//###### should be done better in the final version.
+		int cpos = msgstr.find( "charset=" );
+		if ( cpos >= 0 ) {
+		    cpos = cpos + 8; //skip "charset="
+		    int i = cpos;
+		    int len = msgstr.length();
+		    while ( i < len && !msgstr[i].isSpace() )
+			i++;
+		    QString charset = msgstr.mid( cpos, i-cpos );
+		    QTextCodec *codec = QTextCodec::codecForName( charset.ascii() );
+		    if ( codec ) {
+			debug( "codec for %s is %s", 
+			       charset.ascii(), codec->name() );
+			t.setCodec( codec );		      
+		    } else {
+			debug( "No codec for %s", charset.ascii() );
+		    }
+		}
+	    }
+	    firstRound = FALSE;
 	}
 	else
 	    line = QString::null;
