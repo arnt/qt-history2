@@ -392,7 +392,8 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("accessibility" ) ) {
 	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
 	if ( !project->variables()["DEFINES"].contains("QT_DLL") ) {
-	    project->variables()["QMAKE_LIBS"] += "oleacc.lib";
+	    project->variables()["QMAKE_LIBS"] += "oleacc.lib delayimp.lib";
+	    project->variables()["QMAKE_LFLAGS"] += "/DELAYLOAD:oleacc.dll";
 	}
     }
     if ( project->isActiveConfig("dll") ) {

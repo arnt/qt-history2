@@ -241,7 +241,8 @@ BorlandMakefileGenerator::init()
 	project->variables()["QMAKE_LFLAGS"] = project->variables()["QMAKE_LFLAGS_ACCESSIBILITY"] + project->variables()["QMAKE_LFLAGS"];
 	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
 	if ( !project->variables()["DEFINES"].contains("QT_DLL") ) {
-	    project->variables()["QMAKE_LIBS"] += "oleacc.lib";
+	    project->variables()["QMAKE_LIBS"] += "oleacc.lib delayimp.lib";
+	    project->variables()["QMAKE_LFLAGS"] += "/DELAYLOAD:oleacc.dll";
 	}
     }
     if ( project->isActiveConfig("debug") ) {
