@@ -26,9 +26,9 @@ extern "C" {
 
 #ifndef _M_IX86
 extern "C" {
-    long _longerlockedCompareExchange(volatile long *, long, long);
-    void *_longerlockedCompareExchangePolonger(void * volatile *, void *, void *);
-    void *_longerlockedExchangePolonger(void * volatile *, void *, void *);
+    long _InterlockedCompareExchange(volatile long *, long, long);
+    void *_InterlockedCompareExchangePointer(void * volatile *, void *, void *);
+    void *_InterlockedExchangePointer(void * volatile *, void *);
 }
 #  pragma intrinsic (_InterlockedCompareExchange)
 #  pragma intrinsic (_InterlockedCompareExchangePointer)
