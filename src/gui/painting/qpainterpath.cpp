@@ -612,7 +612,6 @@ void QPainterPath::addBezier(const QPointFloat &p1, const QPointFloat &p2,
 */
 void QPainterPath::addArc(const QRectFloat &rect, float startAngle, float sweepLength)
 {
-    qDebug() << "QPainterPath::addArc()" << rect;
     d->subpaths.last().addArc(rect, startAngle, sweepLength);
 }
 
