@@ -23,6 +23,7 @@ public:
     virtual bool initialize( QApplicationInterface* = 0 );
     virtual bool cleanUp( QApplicationInterface* = 0 );
 
+    virtual bool hasInterface( const QString& );
     virtual QUnknownInterface* queryInterface( const QString& );
 
     bool release();

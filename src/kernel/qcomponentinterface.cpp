@@ -14,7 +14,7 @@ public:
 */
 
 QUnknownInterface::QUnknownInterface( QUnknownInterface *p )
-: children( 0 ), refcount( 1 ), par( p )
+: children( 0 ), refcount( 0 ), par( p ), appInterface( 0 )
 {   
     if ( par )
 	par->insertChild( this );
@@ -39,12 +39,15 @@ QUnknownInterface* QUnknownInterface::parent() const
 
 bool QUnknownInterface::ref()
 {
+    if ( parent() )
+	parent()->ref();
+
     QUnknownInterface *tlp = 0;
     QUnknownInterface *p = this;
     while ( ( p = p->parent() ) )
 	tlp = p;
 
-    if ( refcount == 1 && !initialize( (tlp ? tlp->applicationInterface() : 0 ) ) )
+    if ( !refcount && !initialize( (tlp ? tlp->applicationInterface() : applicationInterface() ) ) )
 	return FALSE;
 
     ++refcount;
@@ -53,14 +56,18 @@ bool QUnknownInterface::ref()
 
 bool QUnknownInterface::release()
 {
+    if ( parent() )
+	parent()->release();
+
+    QUnknownInterface *tlp = 0;
+    QUnknownInterface *p = this;
+    while ( ( p = p->parent() ) )
+	tlp = p;
+
     bool deref = !--refcount;
     if ( deref ) {
-	QUnknownInterface *tlp = 0;
-	QUnknownInterface *p = this;
-	while ( ( p = parent() ) )
-	    tlp = p;
 
-	cleanUp( tlp ? tlp->applicationInterface() : 0 );
+	cleanUp( tlp ? tlp->applicationInterface() : applicationInterface() );
     }
 
     return deref;
@@ -81,20 +88,41 @@ bool QUnknownInterface::cleanUp( QApplicationInterface* )
     return TRUE; 
 }
 
+bool QUnknownInterface::hasInterface( const QString &request )
+{
+    if ( !children )
+	return FALSE;
+    QListIterator<QUnknownInterface> it( *children );
+    while ( it.current() ) {
+	if ( it.current()->interfaceID() == request ) {
+	    return TRUE;
+	} else {
+	    QUnknownInterface *iface;
+	    if ( ( iface = it.current()->queryInterface( request ) ) )
+		return iface;
+	}
+	++it;
+    }
+    return FALSE;
+}
+
 QUnknownInterface* QUnknownInterface::queryInterface( const QString& request )
 { 
+    if ( !children )
+	return 0;
     QListIterator<QUnknownInterface> it( *children );
     while ( it.current() ) {
 	if ( it.current()->interfaceID() == request ) {
 	    if ( it.current()->ref() )
 		return it.current();
 	    return 0;
+	} else {
+	    QUnknownInterface *iface;
+	    if ( ( iface = it.current()->queryInterface( request ) ) )
+		return iface;
 	}
 	++it;
     }
-#ifdef CHECK_RANGE
-    qDebug( "%s doesn't know %s", interfaceID().latin1(), request.latin1() );
-#endif
     return 0;
 }
 
