@@ -50,8 +50,10 @@ public:
     bool transaction;
     int serverVersion;
     QString user;
+    int prefetchRows, prefetchMem;
 
     void setCharset(OCIBind* hbnd);
+    void setStatementAttributes();
     int bindValues(QVector<QCoreVariant> &values, IndicatorArray &indicators,
                    QList<QByteArray> &tmpStorage);
     void outValues(QVector<QCoreVariant> &values, IndicatorArray &indicators,
@@ -60,12 +62,42 @@ public:
 };
 
 QOCIPrivate::QOCIPrivate(): q(0), env(0), err(0),
-        svc(0), sql(0), transaction(false), serverVersion(-1)
+        svc(0), sql(0), transaction(false), serverVersion(-1), prefetchRows(-1), prefetchMem(-1)
 {
 }
 
 QOCIPrivate::~QOCIPrivate()
 {
+}
+
+void QOCIPrivate::setStatementAttributes()
+{
+    Q_ASSERT(sql);
+
+    int r = 0;
+
+    if (prefetchRows >= 0) {
+        r = OCIAttrSet((void*)sql,
+                       OCI_HTYPE_STMT,
+                       (void*) &prefetchRows,
+                       (ub4) 0,
+                       (ub4) OCI_ATTR_PREFETCH_ROWS,
+                       err);
+        if (r != 0)
+            qOraWarning("QOCIPrivate::setStatementAttributes:"
+                        " Couldn't set OCI_ATTR_PREFETCH_ROWS: ", this);
+    }
+    if (prefetchMem >= 0) {
+        r = OCIAttrSet((void*)sql,
+                       OCI_HTYPE_STMT,
+                       (void*) &prefetchMem,
+                       (ub4) 0,
+                       (ub4) OCI_ATTR_PREFETCH_MEMORY,
+                       err);
+        if (r != 0)
+            qOraWarning("QOCIPrivate::setStatementAttributes:"
+                        " Couldn't set OCI_ATTR_PREFETCH_MEMORY: ", this);
+    }
 }
 
 void QOCIPrivate::setCharset(OCIBind* hbnd)
@@ -967,7 +999,6 @@ QCoreVariant QOCIResultPrivate::value(int i)
     return v;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////
 
 QOCIResult::QOCIResult(const QOCIDriver * db, QOCIPrivate* p)
@@ -1088,6 +1119,7 @@ bool QOCIResult::prepare(const QString& query)
         setLastError(qMakeError(QLatin1String("Unable to alloc statement"), QSqlError::StatementError, d));
         return false;
     }
+    d->setStatementAttributes();
 #ifdef QOCI_USES_VERSION_9
     const OraText *txt = (const OraText *)query.utf16();
     const int len = query.length() * sizeof(QChar);
@@ -1407,6 +1439,7 @@ bool QOCI9Result::prepare(const QString& query)
         qOraWarning("QOCI9Result::reset: unable to alloc statement: ", d);
         return false;
     }
+    d->setStatementAttributes();
 #ifdef QOCI_USES_VERSION_9
     const OraText *txt = (const OraText *)query.utf16();
     const int len = query.length() * sizeof(QChar);
@@ -1591,17 +1624,46 @@ bool QOCIDriver::hasFeature(DriverFeature f) const
     }
 }
 
+static void qParseOpts(const QString &options, QOCIPrivate *d)
+{
+    const QStringList opts(options.split(QLatin1Char(';'), QString::SkipEmptyParts));
+    for (int i = 0; i < opts.count(); ++i) {
+        const QString tmp(opts.at(i));
+        int idx;
+        if ((idx = tmp.indexOf(QLatin1Char('='))) == -1) {
+            qWarning("QOCIDriver::parseArgs: Invalid parameter: '%s'", tmp.latin1());
+            continue;
+        }
+        const QString opt = tmp.left(idx);
+        const QString val = tmp.mid(idx + 1).simplified();
+        bool ok;
+        if (opt == QLatin1String("OCI_ATTR_PREFETCH_ROWS")) {
+            d->prefetchRows = val.toInt(&ok);
+            if (!ok)
+                d->prefetchRows = -1;
+        } else if (opt == QLatin1String("OCI_ATTR_PREFETCH_MEMORY")) {
+            d->prefetchMem = val.toInt(&ok);
+            if (!ok)
+                d->prefetchMem = -1;
+        } else {
+            qWarning ("QOCIDriver::parseArgs: Invalid parameter: '%s'", opt.latin1());
+        }
+    }
+}
+
 bool QOCIDriver::open(const QString & db,
                        const QString & user,
                        const QString & password,
                        const QString & ,
                        int,
-                       const QString &)
+                       const QString &opts)
 {
     int r;
 
     if (isOpen())
         close();
+
+    qParseOpts(opts, d);
 #ifdef QOCI_USES_VERSION_9
    r = OCILogon(d->env,
                 d->err,
