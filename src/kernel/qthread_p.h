@@ -1,4 +1,4 @@
-/****************************************************************************
+S/****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qthread_p.h#1 $
 **
 ** QThread class for Unix
@@ -77,11 +77,11 @@
 #  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
 #  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
 #elif defined(_OS_HPUX_)
-// HP/UX 10.30 (from documentation on hp.com)
+// We only support HP/UX 11.x
 #  define Q_HAS_RECURSIVE_MUTEX
-#  define Q_USE_PTHREAD_MUTEX_SETKIND
-#  define Q_NORMAL_MUTEX_TYPE MUTEX_NONRECURSIVE_NP
-#  define Q_RECURSIVE_MUTEX_TYPE MUTEX_RECURSIVE_NP
+#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
+#  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
+#  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
 #elif defined (_OS_FREEBSD_) || defined(_OS_OPENBSD_)
 // FreeBSD and OpenBSD use the same user-space thread implementation
 #  define Q_HAS_RECURSIVE_MUTEX
@@ -129,7 +129,7 @@ extern "C" { static void * start_thread(void * t); }
 class QMutexPrivate {
 public:
     mutex_t mutex;
-    
+
     QMutexPrivate(bool recursive = FALSE)
     {
 #ifdef CHECK_RANGE
@@ -142,7 +142,7 @@ public:
 	    qWarning( "QMutex::QMutex: init failure: %s", strerror( ret ) );
 #endif
     }
-    
+
     virtual ~QMutexPrivate()
     {
 #ifdef CHECK_RANGE
@@ -227,8 +227,8 @@ public:
 #endif
 
 	count = 0;
-    }    
-    
+    }
+
     ~QRMutexPrivate()
     {
 #ifdef CHECK_RANGE
@@ -259,7 +259,7 @@ public:
 
 	mutex_unlock(&mutex2);
     }
-	
+
     void unlock()
     {
 	mutex_lock(&mutex2);
@@ -284,7 +284,7 @@ public:
 
 	mutex_unlock(&mutex2);
     }
-	
+
     bool locked()
     {
 	mutex_lock(&mutex2);
@@ -336,7 +336,7 @@ public:
 
 	int ret = thr_create( NULL, NULL, start_thread, that, THR_DETACHED,
 			      &thread_id );
-    
+
 #ifdef CHECK_RANGE
 	if (ret)
 	    qWarning("QThread::start: thread creation error: %s", strerror(ret));
@@ -387,7 +387,7 @@ public:
 	    qWarning( "QWaitCondition::QWaitCondition: event init failure %s", strerror( ret ) );
 #endif
     }
-    
+
     ~QWaitConditionPrivate()
     {
 	int ret = cond_destroy(&cond);
@@ -400,7 +400,7 @@ public:
 	    cond_broadcast(&cond);
 	}
     }
-    
+
     void wakeOne()
     {
 	mutex.lock();
@@ -416,7 +416,7 @@ public:
 
 	mutex.unlock();
     }
-    
+
     void wakeAll()
     {
 	mutex.lock();
@@ -456,13 +456,13 @@ public:
 
 	return (ret == 0);
     }
-    
-    bool wait(QMutex *mutex, unsigned long time)
+
+    bool wait(QMutex *mtx, unsigned long time)
     {
-	if (! mutex) return FALSE;
+	if (! mtx) return FALSE;
 
 #ifdef CHECK_RANGE
-	if (mutex->d->type() == Q_MUTEX_RECURSIVE)
+	if (mtx->d->type() == Q_MUTEX_RECURSIVE)
 	    qWarning("QWaitCondition::wait: warning - using recursive mutexes with\n"
 		     "                      conditions is undefined!");
 #endif
@@ -471,8 +471,8 @@ public:
 	int c = 0;
 	HANDLE id = 0;
 
-	if (mutex->d->type() == Q_MUTEX_RECURSIVE) {
-	    QRMutexPrivate *rmp = (QRMutexPrivate *) mutex->d;
+	if (mtx->d->type() == Q_MUTEX_RECURSIVE) {
+	    QRMutexPrivate *rmp = (QRMutexPrivate *) mtx->d;
 	    mutex_lock(&(rmp->mutex2));
 
 	    if (! rmp->count) {
@@ -499,14 +499,14 @@ public:
 	    ti.tv_sec = (time / 1000);
 	    ti.tv_nsec = (time % 1000) * 1000000;
 
-	    ret = cond_timedwait(&(cond), &(mutex->d->mutex), &ti);
+	    ret = cond_timedwait(&(cond), &(mtx->d->mutex), &ti);
 	} else {
-	    ret = cond_wait ( &(cond), &(mutex->d->mutex) );
+	    ret = cond_wait ( &(cond), &(mtx->d->mutex) );
 	}
 
 #ifndef Q_HAS_RECURSIVE_MUTEX
-	if (mutex->d->type() == Q_MUTEX_RECURSIVE) {
-	    QRMutexPrivate *rmp = (QRMutexPrivate *) mutex->d;
+	if (mtx->d->type() == Q_MUTEX_RECURSIVE) {
+	    QRMutexPrivate *rmp = (QRMutexPrivate *) mtx->d;
 	    mutex_lock(&(rmp->mutex2));
 	    rmp->count = c;
 	    rmp->owner = id;
@@ -519,7 +519,7 @@ public:
 #endif
 
 	return (ret == 0);
-    }	
+    }
 };
 
 
@@ -544,7 +544,7 @@ public:
 
 #if defined(Q_HAS_RECURSIVE_MUTEX)
 	if (recursive) {
-	
+
 #  if defined(Q_RECURSIVE_MUTEX_TYPE)
 #    if defined(Q_USE_PTHREAD_MUTEX_SETKIND)
 	    pthread_mutexattr_setkind_np(&attr, Q_RECURSIVE_MUTEX_TYPE);
@@ -552,10 +552,10 @@ public:
 	    pthread_mutexattr_settype(&attr, Q_RECURSIVE_MUTEX_TYPE);
 #    endif
 #  endif
-	
+
 	} else {
 #endif
-	
+
 #if defined(Q_NORMAL_MUTEX_TYPE)
 #  if defined(Q_USE_PTHREAD_MUTEX_SETKIND)
 	    pthread_mutexattr_setkind_np(&attr, Q_NORMAL_MUTEX_TYPE);
@@ -567,7 +567,7 @@ public:
 #if defined(Q_HAS_RECURSIVE_MUTEX)
 	}
 #endif
-    
+
 #ifdef CHECK_RANGE
 	int ret =
 #endif
@@ -715,7 +715,7 @@ public:
 	pthread_mutex_unlock(&mutex2);
 
 	return ret;
-    }    
+    }
 #endif
 
     QRMutexPrivate()
@@ -740,7 +740,7 @@ public:
 	count = 0;
 #endif
     }
-    
+
 #if defined(CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
     int type() const { return Q_MUTEX_RECURSIVE; }
 #endif
@@ -775,12 +775,12 @@ public:
 
 	thread_id = 0;
     }
-    
+
     void init(QThread *that)
     {
 	that->d->running = TRUE;
 	that->d->finished = FALSE;
-	
+
 	pthread_attr_t attr;
 	pthread_attr_init(&attr);
 	pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
@@ -804,7 +804,7 @@ public:
 	dictMutex->lock();
 	thrDict->insert(QThread::currentThread(), that);
 	dictMutex->unlock();
-    
+
 	that->run();
 
 	dictMutex->lock();
@@ -845,7 +845,7 @@ public:
 	    qWarning( "QWaitCondition::QWaitCondition: event init failure %s", strerror( ret ) );
 #endif
     }
-    
+
     ~QWaitConditionPrivate()
     {
 	int ret = pthread_cond_destroy(&cond);
@@ -857,7 +857,7 @@ public:
 	    // seems we have threads waiting on us, lets wake them up
 	    pthread_cond_broadcast(&cond);
 	}
-    }	
+    }
 
     void wakeOne()
     {
@@ -874,7 +874,7 @@ public:
 
 	mutex.unlock();
     }
-    
+
     void wakeAll()
     {
 	mutex.lock();
@@ -890,7 +890,7 @@ public:
 
 	mutex.unlock();
     }
-    
+
     bool wait(unsigned long time)
     {
 	mutex.lock();
@@ -914,13 +914,13 @@ public:
 
 	return (ret == 0);
     }
-    
-    bool wait(QMutex *mutex, unsigned long time)
+
+    bool wait(QMutex *mtx, unsigned long time)
     {
-	if (! mutex) return FALSE;
+	if (! mtx) return FALSE;
 
 #ifdef CHECK_RANGE
-	if (mutex->d->type() == Q_MUTEX_RECURSIVE)
+	if (mtx->d->type() == Q_MUTEX_RECURSIVE)
 	    qWarning("QWaitCondition::unlockAndWait: warning - using recursive mutexes"
 		     " with\n                               conditions is undefined!");
 #endif
@@ -929,8 +929,8 @@ public:
 	int c = 0;
 	HANDLE id = 0;
 
-	if (mutex->d->type() == Q_MUTEX_RECURSIVE) {
-	    QRMutexPrivate *rmp = (QRMutexPrivate *) mutex->d;
+	if (mtx->d->type() == Q_MUTEX_RECURSIVE) {
+	    QRMutexPrivate *rmp = (QRMutexPrivate *) mtx->d;
 	    pthread_mutex_lock(&(rmp->mutex2));
 
 	    if (! rmp->count) {
@@ -957,14 +957,14 @@ public:
 	    ti.tv_sec = (time / 1000);
 	    ti.tv_nsec = (time % 1000) * 1000000;
 
-	    ret = pthread_cond_timedwait(&(cond), &(mutex->d->mutex), &ti);
+	    ret = pthread_cond_timedwait(&(cond), &(mtx->d->mutex), &ti);
 	} else {
-	    ret = pthread_cond_wait ( &(cond), &(mutex->d->mutex) );
+	    ret = pthread_cond_wait ( &(cond), &(mtx->d->mutex) );
 	}
 
 #ifndef Q_HAS_RECURSIVE_MUTEX
 	if (mutex->d->type() == Q_MUTEX_RECURSIVE) {
-	    QRMutexPrivate *rmp = (QRMutexPrivate *) mutex->d;
+	    QRMutexPrivate *rmp = (QRMutexPrivate *) mtx->d;
 	    pthread_mutex_lock(&(rmp->mutex2));
 	    rmp->count = c;
 	    rmp->owner = id;
@@ -979,7 +979,7 @@ public:
 	return (ret == 0);
     }
 };
-     
+
 
 #endif // defined(_OS_SOLARIS_)
 
