@@ -17,15 +17,19 @@
 #include "qdesigner_widget.h"
 
 class FormWindow;
+struct AbstractWidgetDataBaseItem;
 
 class QDesignerCustomWidget: public QDesignerWidget
 {
     Q_OBJECT
     Q_PROPERTY(QString widgetClassName READ widgetClassName WRITE setWidgetClassName)
-    Q_PROPERTY(bool compat READ isCompat WRITE setCompat)
+    Q_PROPERTY(bool compat READ isCompat WRITE setCompat STORED false)
+    Q_PROPERTY(bool container READ isContainer WRITE setContainer STORED false)
 public:
     QDesignerCustomWidget(FormWindow *formWindow, QWidget *parent = 0);
     virtual ~QDesignerCustomWidget();
+    
+    AbstractWidgetDataBaseItem *widgetItem() const;
 
     QString widgetClassName() const;
     void setWidgetClassName(const QString &widgetClassName);
@@ -33,11 +37,11 @@ public:
     bool isCompat() const;
     void setCompat(bool compat);
     
-    // ### extends
-
+    bool isContainer() const;
+    void setContainer(bool container);
+    
 private:
     QString m_widgetClassName;
-    bool m_compat;
 };
 
 #endif // QDESIGNER_CUSTOMWIDGET_H

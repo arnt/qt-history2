@@ -36,6 +36,9 @@ class QT_FORMEDITOR_EXPORT QDesignerWidget : public QWidget
 public:
     QDesignerWidget(FormWindow* formWindow, QWidget *parent = 0);
     virtual ~QDesignerWidget();
+    
+    inline FormWindow* formWindow() const
+    { return m_formWindow; }
 
     void updatePixmap();
 

@@ -42,11 +42,14 @@ struct WidgetDataBaseItem: public AbstractWidgetDataBaseItem
     void setWhatsThis(const QString &whatsThis);
 
     QString includeFile() const;
-    void setInludeFile(const QString &includeFile);
+    void setIncludeFile(const QString &includeFile);
 
     QIcon icon() const;
     void setIcon(const QIcon &icon);
 
+    bool isCompat() const;
+    void setCompat(bool compat);
+    
     bool isContainer() const;
     void setContainer(bool b);
 
@@ -63,6 +66,7 @@ private:
     QString m_whatsThis;
     QString m_includeFile;
     QIcon m_icon;
+    uint m_compat: 1;
     uint m_container: 1;
     uint m_form: 1;
     uint m_custom: 1;

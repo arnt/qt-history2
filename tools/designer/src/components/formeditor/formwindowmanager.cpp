@@ -820,9 +820,13 @@ void FormWindowManager::endDrag(const QPoint &pos)
                 Q_ASSERT(dom_ui != 0);
                                 
                 QRect geometry = item->decoration()->geometry();
-                if (LayoutInfo::layoutType(core(), parent) != LayoutInfo::NoLayout
-                        && core()->metaDataBase()->item(parent->layout()))
+                
+                QWidget *container = m_last_form_under_mouse->findContainer(parent, false);
+                if (container 
+                        && LayoutInfo::layoutType(core(), container) != LayoutInfo::NoLayout
+                        && core()->metaDataBase()->item(container->layout())) {
                     geometry.moveTopLeft(pos);
+                }
                     
                 QWidget *widget = form->createWidget(dom_ui, geometry, parent);                
                 form->selectWidget(widget, true);
@@ -845,9 +849,12 @@ void FormWindowManager::endDrag(const QPoint &pos)
                     if (m_source_form != 0)
                         m_source_form->deleteWidgets(QList<QWidget*>() << widget);
                         
-                    if (LayoutInfo::layoutType(core(), parent) != LayoutInfo::NoLayout
-                            && core()->metaDataBase()->item(parent->layout()))
+                    QWidget *container = m_last_form_under_mouse->findContainer(parent, false);
+                    if (container 
+                            && LayoutInfo::layoutType(core(), container) != LayoutInfo::NoLayout
+                            && core()->metaDataBase()->item(container->layout())) {
                         geometry.moveTopLeft(pos);
+                    }
                         
                     form->insertWidget(widget, geometry, parent);
                 }           

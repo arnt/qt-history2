@@ -25,6 +25,7 @@
 WidgetDataBaseItem::WidgetDataBaseItem(const QString &name, const QString &group)
     : m_name(name),
       m_group(group),
+      m_compat(0),
       m_container(0),
       m_form(0),
       m_custom(0)
@@ -76,7 +77,7 @@ QString WidgetDataBaseItem::includeFile() const
     return m_includeFile;
 }
 
-void WidgetDataBaseItem::setInludeFile(const QString &includeFile)
+void WidgetDataBaseItem::setIncludeFile(const QString &includeFile)
 {
     m_includeFile = includeFile;
 }
@@ -89,6 +90,16 @@ QIcon WidgetDataBaseItem::icon() const
 void WidgetDataBaseItem::setIcon(const QIcon &icon)
 {
     m_icon = icon;
+}
+
+bool WidgetDataBaseItem::isCompat() const
+{
+    return m_compat;
+}
+
+void WidgetDataBaseItem::setCompat(bool b)
+{
+    m_compat = b;
 }
 
 bool WidgetDataBaseItem::isContainer() const
@@ -211,7 +222,7 @@ void WidgetDataBase::loadPlugins()
             item->setForm(c->isForm());
             item->setGroup(c->group());
             item->setIcon(c->icon());
-            item->setInludeFile(c->includeFile());
+            item->setIncludeFile(c->includeFile());
             item->setName(c->name());
             item->setToolTip(c->toolTip());
             item->setWhatsThis(c->whatsThis());

@@ -12,17 +12,32 @@
 ****************************************************************************/
 
 #include "qdesigner_customwidget.h"
+#include "formwindow.h"
+
+#include <abstractformeditor.h>
+#include <abstractwidgetdatabase.h>
 
 QDesignerCustomWidget::QDesignerCustomWidget(FormWindow *formWindow, QWidget *parent)
     : QDesignerWidget(formWindow, parent),
-      m_widgetClassName(QLatin1String("QWidget")),
-      m_compat(false)
+      m_widgetClassName(QLatin1String("QWidget"))
 {
 }
 
 QDesignerCustomWidget::~QDesignerCustomWidget()
 {
 }
+
+AbstractWidgetDataBaseItem *QDesignerCustomWidget::widgetItem() const
+{
+    AbstractFormEditor *core = formWindow()->core();
+    int index = core->widgetDataBase()->indexOfClassName(widgetClassName());
+    if (index != -1)
+        return core->widgetDataBase()->item(index);
+        
+    qWarning("no widget item for %s", widgetClassName().latin1());
+    return 0;
+}
+
 
 QString QDesignerCustomWidget::widgetClassName() const
 {
@@ -31,16 +46,38 @@ QString QDesignerCustomWidget::widgetClassName() const
 
 void QDesignerCustomWidget::setWidgetClassName(const QString &widgetClassName)
 {
-    m_widgetClassName = widgetClassName;
+    m_widgetClassName = widgetClassName;    
 }
 
 bool QDesignerCustomWidget::isCompat() const
 {
-    return m_compat;
+    if (AbstractWidgetDataBaseItem *item = widgetItem())
+        return item->isCompat();
+        
+    return false;
 }
 
 void QDesignerCustomWidget::setCompat(bool compat)
 {
-    m_compat = compat;
-    update();
+    if (AbstractWidgetDataBaseItem *item = widgetItem()) {
+        item->setCompat(compat);
+        update();
+    }
 }
+
+bool QDesignerCustomWidget::isContainer() const
+{
+    if (AbstractWidgetDataBaseItem *item = widgetItem())
+        return item->isContainer();
+        
+    return false;
+}
+
+void QDesignerCustomWidget::setContainer(bool container)
+{
+    if (AbstractWidgetDataBaseItem *item = widgetItem()) {
+        item->setContainer(container);
+        update();
+    }
+}
+
