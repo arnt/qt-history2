@@ -495,7 +495,7 @@ void QTextHTMLImporter::import()
             // ####################
 //                block.setFloatPosition(node->cssFloat);
 
-            if (node->wsm == QStyleSheetItem::WhiteSpacePre)
+            if (node->wsm == QTextHtmlParserNode::WhiteSpacePre)
                 block.setNonBreakableLines(true);
 
             if (node->bgColor.isValid())

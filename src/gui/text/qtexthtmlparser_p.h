@@ -107,6 +107,13 @@ struct QTextHtmlParserAttribute {
 Q_DECLARE_TYPEINFO(QTextHtmlParserAttribute, Q_MOVABLE_TYPE);
 
 struct QTextHtmlParserNode {
+    enum WhiteSpaceMode {
+        WhiteSpaceNormal,
+        WhiteSpacePre,
+        WhiteSpaceNoWrap,
+        WhiteSpaceModeUndefined = -1
+    };
+
     QTextHtmlParserNode();
     QString tag;
     QString text;
@@ -141,7 +148,7 @@ struct QTextHtmlParserNode {
 
     QTextCharFormat charFormat() const;
 
-    QStyleSheetItem::WhiteSpaceMode wsm;
+    WhiteSpaceMode wsm;
 
     inline bool isNotSelfNesting() const
     { return id == Html_p || id == Html_li; }
@@ -159,6 +166,14 @@ Q_DECLARE_TYPEINFO(QTextHtmlParserNode, Q_MOVABLE_TYPE);
 class QTextHtmlParser
 {
 public:
+    enum Margin {
+        MarginLeft,
+        MarginRight,
+        MarginTop,
+        MarginBottom,
+        MarginFirstLine
+    };
+
     inline const QTextHtmlParserNode &at(int i) const { return nodes.at(i); }
     inline QTextHtmlParserNode &operator[](int i) { return nodes[i]; }
     inline int count() const { return nodes.count(); }
@@ -166,9 +181,9 @@ public:
     int depth(int i) const;
     int topMargin(int i) const;
     int bottomMargin(int i) const;
-    inline int leftMargin(int i) const { return margin(i, QStyleSheetItem::MarginLeft); }
-    inline int rightMargin(int i) const { return margin(i, QStyleSheetItem::MarginRight); }
-    inline int firstLineMargin(int i) const { return margin(i, QStyleSheetItem::MarginFirstLine); }
+    inline int leftMargin(int i) const { return margin(i, MarginLeft); }
+    inline int rightMargin(int i) const { return margin(i, MarginRight); }
+    inline int firstLineMargin(int i) const { return margin(i, MarginFirstLine); }
     int findChild(int i, const char *tag) const;
     int findNextChild(int parent, int currentChild) const;
 

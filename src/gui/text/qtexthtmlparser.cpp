@@ -453,41 +453,41 @@ void QTextHtmlParserNode::setAttributesFromId()
             fontWeight = QFont::Bold;
             fontPointSize = scaleFontPointSize(DefaultFontSize, 6);
             isBlock = true;
-            margin[QStyleSheetItem::MarginTop] = 18;
-            margin[QStyleSheetItem::MarginBottom] = 12;
+            margin[QTextHtmlParser::MarginTop] = 18;
+            margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h2:
             fontWeight = QFont::Bold;
             fontPointSize = scaleFontPointSize(DefaultFontSize, 5);
             isBlock = true;
-            margin[QStyleSheetItem::MarginTop] = 16;
-            margin[QStyleSheetItem::MarginBottom] = 12;
+            margin[QTextHtmlParser::MarginTop] = 16;
+            margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h3:
             fontWeight = QFont::Bold;
             fontPointSize = scaleFontPointSize(DefaultFontSize, 4);
             isBlock = true;
-            margin[QStyleSheetItem::MarginTop] = 14;
-            margin[QStyleSheetItem::MarginBottom] = 12;
+            margin[QTextHtmlParser::MarginTop] = 14;
+            margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h4:
             fontWeight = QFont::Bold;
             fontPointSize = scaleFontPointSize(DefaultFontSize, 3);
             isBlock = true;
-            margin[QStyleSheetItem::MarginTop] = 12;
-            margin[QStyleSheetItem::MarginBottom] = 12;
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_h5:
             fontWeight = QFont::Bold;
             fontPointSize = scaleFontPointSize(DefaultFontSize, 2);
             isBlock = true;
-            margin[QStyleSheetItem::MarginTop] = 12;
-            margin[QStyleSheetItem::MarginBottom] = 4;
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 4;
             break;
         case Html_p:
             isBlock = true;
-            margin[QStyleSheetItem::MarginTop] = 12;
-            margin[QStyleSheetItem::MarginBottom] = 12;
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_center:
             isBlock = true;
@@ -497,16 +497,16 @@ void QTextHtmlParserNode::setAttributesFromId()
             isListStart = true;
             isBlock = true;
             listStyle = QTextListFormat::ListDisc;
-            margin[QStyleSheetItem::MarginTop] = 12;
-            margin[QStyleSheetItem::MarginBottom] = 12;
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 12;
             // no left margin as we use indenting instead
             break;
         case Html_ol:
             isListStart = true;
             isBlock = true;
             listStyle = QTextListFormat::ListDecimal;
-            margin[QStyleSheetItem::MarginTop] = 12;
-            margin[QStyleSheetItem::MarginBottom] = 12;
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 12;
             // no left margin as we use indenting instead
             break;
         case Html_li:
@@ -523,14 +523,14 @@ void QTextHtmlParserNode::setAttributesFromId()
         case Html_pre:
             fontFamily = QString::fromLatin1("Courier New,courier");
             isBlock = true;
-            wsm = QStyleSheetItem::WhiteSpacePre;
-            margin[QStyleSheetItem::MarginTop] = 12;
-            margin[QStyleSheetItem::MarginBottom] = 12;
+            wsm = WhiteSpacePre;
+            margin[QTextHtmlParser::MarginTop] = 12;
+            margin[QTextHtmlParser::MarginBottom] = 12;
             break;
         case Html_blockquote:
             isBlock = true;
-            margin[QStyleSheetItem::MarginLeft] = 40;
-            margin[QStyleSheetItem::MarginRight] = 40;
+            margin[QTextHtmlParser::MarginLeft] = 40;
+            margin[QTextHtmlParser::MarginRight] = 40;
             break;
         case Html_body:
             isBlock = true;
@@ -540,15 +540,15 @@ void QTextHtmlParserNode::setAttributesFromId()
             break;
         case Html_dl:
             isBlock = true;
-            margin[QStyleSheetItem::MarginTop] = 8;
-            margin[QStyleSheetItem::MarginBottom] = 8;
+            margin[QTextHtmlParser::MarginTop] = 8;
+            margin[QTextHtmlParser::MarginBottom] = 8;
             break;
         case Html_dt:
             isBlock = true;
             break;
         case Html_dd:
             isBlock = true;
-            margin[QStyleSheetItem::MarginLeft] = 30;
+            margin[QTextHtmlParser::MarginLeft] = 30;
             break;
         case Html_u:
             fontUnderline = true;
@@ -557,7 +557,7 @@ void QTextHtmlParserNode::setAttributesFromId()
             fontStrikeOut = true;
             break;
         case Html_nobr:
-            wsm = QStyleSheetItem::WhiteSpaceNoWrap;
+            wsm = WhiteSpaceNoWrap;
             break;
         case Html_th:
             fontWeight = QFont::Bold;
@@ -581,7 +581,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       fontStrikeOut(false), fontFixedPitch(false), hasOwnListStyle(false), fontPointSize(DefaultFontSize), fontWeight(QFont::Normal),
       alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
       imageWidth(-1), imageHeight(-1),
-      wsm(QStyleSheetItem::WhiteSpaceModeUndefined), style(0)
+      wsm(WhiteSpaceModeUndefined), style(0)
 {
     margin[0] = margin[1] = margin[2] = margin[3] = margin[4] = 0;
 }
@@ -642,10 +642,6 @@ QTextHtmlParserNode *QTextHtmlParser::newNode(int parent)
 
 void QTextHtmlParser::parse(const QString &text)
 {
-    // ###
-    QStyleSheet::defaultSheet()->item("ul")->setMargin(QStyleSheetItem::MarginLeft, 0);
-    QStyleSheet::defaultSheet()->item("ol")->setMargin(QStyleSheetItem::MarginLeft, 0);
-
     nodes.clear();
     nodes.resize(1);
     txt = text;
@@ -669,9 +665,9 @@ int QTextHtmlParser::depth(int i) const
 int QTextHtmlParser::margin(int i, int mar) const {
     int m = 0;
     const QTextHtmlParserNode *node;
-    if (mar == QStyleSheetItem::MarginLeft
-        || mar == QStyleSheetItem::MarginRight
-        || mar == QStyleSheetItem::MarginFirstLine) {
+    if (mar == MarginLeft
+        || mar == MarginRight
+        || mar == MarginFirstLine) {
         while (i) {
             node = &at(i);
             if (!node->isBlock)
@@ -691,7 +687,7 @@ int QTextHtmlParser::topMargin(int i) const
         node = &at(i);
         if (!node->isBlock)
             return 0;
-        m = qMax(m, node->margin[QStyleSheetItem::MarginTop]);
+        m = qMax(m, node->margin[MarginTop]);
 
         // get previous block
         while (i-1 && !at(i-1).isBlock)
@@ -711,7 +707,7 @@ int QTextHtmlParser::bottomMargin(int i) const
         node = &at(i);
         if (!node->isBlock)
             return 0;
-        m = qMax(m, node->margin[QStyleSheetItem::MarginTop]);
+        m = qMax(m, node->margin[MarginTop]);
 
         // get next block
         while (i+1 < count() && !at(i+1).isBlock)
@@ -763,7 +759,7 @@ void QTextHtmlParser::eatSpace()
 }
 
 void QTextHtmlParser::parse() {
-    QStyleSheetItem::WhiteSpaceMode wsm = QStyleSheetItem::WhiteSpaceNormal;
+    QTextHtmlParserNode::WhiteSpaceMode wsm = QTextHtmlParserNode::WhiteSpaceNormal;
     while (pos < len) {
         QChar c = txt.at(pos++);
         if (c == QLatin1Char('<')) {
@@ -773,7 +769,7 @@ void QTextHtmlParser::parse() {
             nodes.last().text += parseEntity();
         } else {
             if (c.isSpace() && c != QChar(QChar::Nbsp) && c != QChar::ParagraphSeparator) {
-                if (wsm == QStyleSheetItem::WhiteSpacePre) {
+                if (wsm == QTextHtmlParserNode::WhiteSpacePre) {
                     if (c == QLatin1Char('\n'))
                         c = QChar::LineSeparator;
                     else if (c == QLatin1Char('\r'))
@@ -843,7 +839,7 @@ void QTextHtmlParser::parseTag()
     while (pos < len && txt.at(pos++) != QLatin1Char('>'))
         ;
 
-    if (node->wsm != QStyleSheetItem::WhiteSpacePre)
+    if (node->wsm != QTextHtmlParserNode::WhiteSpacePre)
         eatSpace();
 }
 
