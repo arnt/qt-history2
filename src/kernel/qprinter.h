@@ -139,7 +139,9 @@ public:
 #endif
 
 protected:
+#ifndef Q_WS_MAC
     bool        cmd( int, QPainter *, QPDevCmdParam * );
+#endif
     int         metric( int ) const;
 
 #if defined(Q_WS_WIN)
@@ -161,6 +163,10 @@ private:
     bool prepare(PMPageFormat *);
     void interpret(PMPrintSettings *);
     void interpret(PMPageFormat *);
+    
+    friend class QPrinterGC;
+    bool printerBegin();
+    bool printerEnd();
 #endif
 #if defined(Q_WS_WIN)
     void        readPdlg( void* );

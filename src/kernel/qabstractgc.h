@@ -105,6 +105,8 @@ public:
 	QuickDraw, CoreGraphics,
 	//QWS
 	QWindowSystem,
+	//Magic wrapper type
+	Wrapper,
 
 	User = 50,				// first user type id
 	MaxUser = 100				// last user type id
@@ -157,8 +159,61 @@ protected:
 private:
     QAbstractGCPrivate *d_ptr;
 
+    friend class QWrapperGC;
     friend class QPainter;
 };
+
+class QWrapperGC : public QAbstractGC
+{
+public:
+    QWrapperGC(QAbstractGC *w) : QAbstractGC(w->gccaps), wrap(w) { }
+
+    virtual bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped) { return wrap->begin(pdev, state, unclipped); }
+    virtual bool end() { return wrap->end(); }
+
+    virtual void updatePen(QPainterState *ps) { wrap->updatePen(ps); }
+    virtual void updateBrush(QPainterState *ps) { wrap->updateBrush(ps); }
+    virtual void updateFont(QPainterState *ps) { wrap->updateFont(ps); }
+    virtual void updateRasterOp(QPainterState *ps) { wrap->updateRasterOp(ps); }
+    virtual void updateBackground(QPainterState *ps) { wrap->updateBackground(ps); }
+    virtual void updateXForm(QPainterState *ps) { wrap->updateXForm(ps); }
+    virtual void updateClipRegion(QPainterState *ps) { wrap->updateClipRegion(ps); }
+
+    virtual void drawLine(int x1, int y1, int x2, int y2) { wrap->drawLine(x1, y1, x2, y2); }
+    virtual void drawRect(int x, int y, int w, int h) { wrap->drawRect(x, y, w, h); }
+    virtual void drawPoint(int x, int y) { wrap->drawPoint(x, y); }
+    virtual void drawPoints(const QPointArray &pa, int index, int npoints) { wrap->drawPoints(pa, index, npoints); }
+    virtual void drawWinFocusRect(int x, int y, int w, int h, bool xorPaint, const QColor &bgColor) { wrap->drawWinFocusRect(x, y, w, h, xorPaint, bgColor); }
+    virtual void drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd) { wrap->drawRoundRect(x, y, w, h, xRnd, yRnd); }
+    virtual void drawEllipse(int x, int y, int w, int h) { wrap->drawEllipse(x, y, w, h); }
+    virtual void drawArc(int x, int y, int w, int h, int a, int alen) { wrap->drawArc(x, y, w, h, a, alen); }
+    virtual void drawPie(int x, int y, int w, int h, int a, int alen) { wrap->drawPie(x, y, w, h, a, alen); }
+    virtual void drawChord(int x, int y, int w, int h, int a, int alen) { wrap->drawChord(x, y, w, h, a, alen); }
+    virtual void drawLineSegments(const QPointArray &pa, int index, int nlines) { wrap->drawLineSegments(pa, index, nlines); }
+    virtual void drawPolyline(const QPointArray &pa, int index, int npoints) { wrap->drawPolyline(pa, index, npoints); }
+    virtual void drawPolygon(const QPointArray &pa, bool winding, int index, int npoints) { wrap->drawPolygon(pa, winding, index, npoints); }
+    virtual void drawConvexPolygon(const QPointArray &pa, int index, int npoints) { wrap->drawConvexPolygon(pa, index, npoints); }
+#ifndef QT_NO_BEZIER
+    virtual void drawCubicBezier(const QPointArray &pa, int index) { wrap->drawCubicBezier(pa, index); }
+#endif
+
+    virtual void drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh) { wrap->drawPixmap(x, y, pm, sx, sy, sw, sh); }
+    virtual void drawTextItem(int x, int y, const QTextItem &ti, int textflags) { wrap->drawTextItem(x, y, ti, textflags); }
+    virtual void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim) { wrap->drawTiledPixmap(x, y, w, h, pixmap, sx, sy, optim); }
+
+#if defined Q_WS_WIN // ### not liking this!!
+    virtual HDC handle() const { return wrap->handle(); }
+#else
+    virtual Qt::HANDLE handle() const { return wrap->handle(); }
+#endif
+
+    inline QAbstractGC *wrapped() const { return wrap; }
+    virtual Type type() const { return QAbstractGC::Wrapper; }
+
+private:
+    QAbstractGC *wrap;
+};
+
 
 //
 // inline functions

@@ -28,6 +28,7 @@
 #include <qstyle.h>
 #include <stdlib.h>
 #include "qprinter_p.h"
+#include "qabstractgc.h"
 
 // NOT REVISED
 
@@ -42,6 +43,30 @@
 #define PST_ERROR       2
 #define PST_ABORTED     3
 
+class QPrinterGC : public QWrapperGC
+{
+    QPrinter *print;
+public:
+    QPrinterGC(QPrinter *pm, QAbstractGC *gc) : QWrapperGC(gc), print(pm) { }
+
+    virtual bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped);
+    virtual bool end();
+};
+bool
+QPrinterGC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
+{
+    if(!print->printerBegin())
+	return FALSE;
+    return QWrapperGC::begin(pdev, state, unclipped); 
+}
+bool 
+QPrinterGC::end()
+{
+    if(!print->printerEnd())
+	return FALSE;
+    return QWrapperGC::end();
+}
+
 QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice)
 {
     d = new QPrinterPrivate;
@@ -54,7 +79,7 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
 	// fall through
     case PrinterResolution:
     case HighResolution: {
-	bool found = FALSE;
+	bool found = false;
 	PMPrinter printer = 0;
         if(psession && PMSessionGetCurrentPrinter(psession, &printer) == noErr) {
 	    PMResolution pres;
@@ -62,7 +87,7 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
 	    if (PMPrinterGetPrinterResolutionCount( printer, &count ) == noErr && count)
 		for( ; count > 0; --count )
 		    if (PMPrinterGetIndexedPrinterResolution( printer, count, &pres ) == noErr) {
-			found = TRUE;
+			found = true;
 			maxRes = qMax( (uint)pres.vRes, maxRes );
 			res = maxRes;
 		    }
@@ -87,8 +112,8 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
     ncopies = 1;
     from_pg = to_pg = min_pg = max_pg = 0;
     state = PST_IDLE;
-    output_file = FALSE;
-    to_edge     = FALSE;
+    output_file = false;
+    to_edge     = false;
 
     //mac specific
     pformat = kPMNoPageFormat;
@@ -100,9 +125,13 @@ QPrinter::QPrinter(PrinterMode m) : QPaintDevice(QInternal::Printer | QInternal:
     setPrintRange( AllPages );
 
     d->printerOptions = 0;
-    setOptionEnabled( PrintToFile, TRUE );
-    setOptionEnabled( PrintPageRange, TRUE );
+    setOptionEnabled( PrintToFile, true );
+    setOptionEnabled( PrintPageRange, true );
     setPrintRange( AllPages );
+#ifndef Q_Q3PAINTER
+    deviceGC = new QPrinterGC(this, deviceGC);
+#endif
+
 }
 
 QPrinter::~QPrinter()
@@ -120,68 +149,68 @@ bool QPrinter::newPage()
 {
     if(PMSessionEndPage(psession) != noErr)  {//end the last page
         state = PST_ERROR;
-        return FALSE;
+        return false;
     }
     if(PMSessionBeginPage(psession, pformat, NULL) != noErr)  { //start a new one
         state = PST_ERROR;
-        return FALSE;
+        return false;
     }
-    return TRUE;
+    return true;
 }
 
 
 bool QPrinter::abort()
 {
-    return FALSE;
+    return false;
 }
 
 bool QPrinter::aborted() const
 {
-    return FALSE;
+    return false;
 }
 
 bool
 QPrinter::prepare(PMPrintSettings *s)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
-        return FALSE;
+        return false;
     if(*s == kPMNoPrintSettings) {
         if(PMCreatePrintSettings(s) != noErr)
-            return FALSE;
+            return false;
         if(PMSessionDefaultPrintSettings(psession, *s) != noErr)
-            return FALSE;
+            return false;
     } else {
         if(PMSessionValidatePrintSettings(psession, *s, kPMDontWantBoolean) != noErr )
-            return FALSE;
+            return false;
     }
     PMSetPageRange(*s, minPage()+1, maxPage()+1);
-    PMSetFirstPage(*s, fromPage(), TRUE);
-    PMSetLastPage(*s, toPage(), TRUE);
+    PMSetFirstPage(*s, fromPage(), true);
+    PMSetLastPage(*s, toPage(), true);
     PMSetColorMode(*s, colorMode() == GrayScale ? kPMGray : kPMColor);
-    PMSetCopies(*s, numCopies(), TRUE);
-    return TRUE;
+    PMSetCopies(*s, numCopies(), true);
+    return true;
 }
 
 bool
 QPrinter::prepare(PMPageFormat *f)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
-        return FALSE;
+        return false;
     if(*f == kPMNoPageFormat) {
         if(PMCreatePageFormat(f) != noErr)
-            return FALSE;
+            return false;
         if(PMSessionDefaultPageFormat(psession, *f) != noErr)
-            return FALSE;
+            return false;
     } else {
         if(PMSessionValidatePageFormat(psession, *f,kPMDontWantBoolean) != noErr)
-            return FALSE;
+            return false;
     }
-    PMSetOrientation(*f, orientation() == Portrait ? kPMPortrait : kPMLandscape, TRUE);
+    PMSetOrientation(*f, orientation() == Portrait ? kPMPortrait : kPMLandscape, true);
     PMResolution pres;
     pres.hRes = res;
     pres.vRes = res;
     PMSetResolution(*f, &pres);
-    return TRUE;
+    return true;
 }
 
 
@@ -200,15 +229,15 @@ void QPrinter::setPrinterName(const QString &name)
 bool QPrinter::setup(QWidget *w)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
-        return FALSE;
+        return false;
     if(qApp->style().inherits("QMacStyle")) {
 	return (printSetup(w) && pageSetup(w));
     } else if(QPrintDialog::getPrinterSetup(this)) {
         if(!prepare(&pformat) || !prepare(&psettings))
-            return FALSE;
-        return TRUE;
+            return false;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 void QPrinter::interpret(PMPrintSettings *s)
@@ -249,19 +278,19 @@ void QPrinter::interpret(PMPageFormat *f)
 bool QPrinter::printSetup(QWidget *)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
-        return FALSE;
+        return false;
     if(qApp->style().inherits("QMacStyle")) {
         Boolean ret;
 	QMacBlockingFunction block;
         //setup
         if(!prepare(&psettings))
-            return FALSE;
+            return false;
         if(PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret )
-            return FALSE;
+            return false;
 	interpret(&psettings);
-	return TRUE;
+	return true;
     }
-    return FALSE;
+    return false;
 }
 
 // shows the native mac page setup dialog
@@ -271,75 +300,76 @@ bool QPrinter::printSetup(QWidget *)
 bool QPrinter::pageSetup(QWidget *)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
-        return FALSE;
+        return false;
     if(qApp->style().inherits("QMacStyle")) {
         Boolean ret;
 	QMacBlockingFunction block;
         //page format
         if(!prepare(&pformat))
-            return FALSE;
+            return false;
         if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret)
-            return FALSE;
+            return false;
 	interpret(&pformat);
-        return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-
-bool QPrinter::cmd(int c, QPainter *, QPDevCmdParam *)
+bool
+QPrinter::printerBegin()
 {
     if(!psession && PMCreateSession(&psession) != noErr)
-        return FALSE;
+        return false;
 
-    if (c ==  PdcBegin) {                     // begin; start printing
-        if(state != PST_IDLE) {
-            qDebug("Qt: internal: printer: two PdcBegin(s).");
-            return FALSE;
-        }
-
-        PMRect rect;
-        OSStatus r;
-
-        //validate the settings
-        if(PMSessionValidatePrintSettings(psession, psettings, kPMDontWantBoolean) != noErr)
-            return FALSE;
-        if(PMSessionValidatePageFormat(psession, pformat, kPMDontWantBoolean) != noErr)
-            return FALSE;
-        if((r=PMGetAdjustedPageRect(pformat, &rect)) != noErr)
-            return FALSE;
-
-        if(PMSessionBeginDocument(psession, psettings, pformat) != noErr) //begin the document
-            return FALSE;
-        if(PMSessionBeginPage(psession, pformat, &rect) != noErr ) //begin the page
-            return FALSE;
-        if(PMSessionGetGraphicsContext(psession, kPMGraphicsContextQuickdraw,
-					&hd) != noErr) { //get the gworld
-	    cg_hd = 0;
-            return FALSE;
-	}
-	if(fullPage()) {
-	    QSize marg(margins());
-	    QMacSavedPortInfo mp(this);
-	    SetOrigin(marg.width(), marg.height());
-	} else {
-	    SetOrigin(0, 0);
-	}
-        state = PST_ACTIVE;
-    } else if(c == PdcEnd) {
-        if(hd && state != PST_IDLE) {
-	    CGContextRelease((CGContextRef)cg_hd);
-	    cg_hd = 0;
-            PMSessionEndPage(psession);
-            PMSessionEndDocument(psession);
-            hd = NULL;
-        }
-        state  = PST_IDLE;
-    } else {                                    // all other commands...
-        if((state == PST_ACTIVE || state == PST_ERROR ) && PMSessionError(psession) != noErr)
-            return FALSE;
+    if(state != PST_IDLE) {
+	qDebug("Qt: internal: printer: two PdcBegin(s).");
+	return false;
     }
-    return TRUE;
+    
+    PMRect rect;
+    OSStatus r;
+
+    //validate the settings
+    if(PMSessionValidatePrintSettings(psession, psettings, kPMDontWantBoolean) != noErr)
+	return false;
+    if(PMSessionValidatePageFormat(psession, pformat, kPMDontWantBoolean) != noErr)
+	return false;
+    if((r=PMGetAdjustedPageRect(pformat, &rect)) != noErr)
+	return false;
+    
+    if(PMSessionBeginDocument(psession, psettings, pformat) != noErr) //begin the document
+	return false;
+    if(PMSessionBeginPage(psession, pformat, &rect) != noErr ) //begin the page
+	return false;
+    if(PMSessionGetGraphicsContext(psession, kPMGraphicsContextQuickdraw,
+					&hd) != noErr) { //get the gworld
+	cg_hd = 0;
+	return false;
+    }
+    if(fullPage()) {
+	QSize marg(margins());
+	QMacSavedPortInfo mp(this);
+	SetOrigin(marg.width(), marg.height());
+    } else {
+	SetOrigin(0, 0);
+    }
+    state = PST_ACTIVE;
+    return true;
+}
+
+bool
+QPrinter::printerEnd()
+{
+    if(hd && state != PST_IDLE) {
+	CGContextRelease((CGContextRef)cg_hd);
+	cg_hd = 0;
+	PMSessionEndPage(psession);
+	PMSessionEndDocument(psession);
+	hd = NULL;
+	state  = PST_IDLE;
+	return true;
+    }
+    return false;
 }
 
 

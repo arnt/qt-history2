@@ -310,6 +310,7 @@ QQuickDrawGC::drawRect(int x, int y, int w, int h)
 	    if(d->current.brush.style() == QBrush::CustomPattern) {
 		pm = d->current.brush.pixmap();
 	    } else {
+		qDebug("%d: a brush style pix..", __LINE__);
 		pm = d->brush_style_pix;
 		if(d->current.bg.mode == OpaqueMode) {
 		    ::RGBColor f;
@@ -461,6 +462,7 @@ QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
 	    if(d->current.brush.style() == QBrush::CustomPattern) {
 		pm = d->current.brush.pixmap();
 	    } else {
+		qDebug("%d: a brush style pix..", __LINE__);
 		pm = d->brush_style_pix;
 		if(d->current.bg.mode == OpaqueMode) {
 		    ::RGBColor f;
@@ -520,6 +522,7 @@ QQuickDrawGC::drawEllipse(int x, int y, int w, int h)
 	    if(d->current.brush.style() == QBrush::CustomPattern) {
 		pm = d->current.brush.pixmap();
 	    } else {
+		qDebug("%d: a brush style pix..", __LINE__);
 		pm = d->brush_style_pix;
 		if(d->current.bg.mode == OpaqueMode) {
 		    ::RGBColor f;
@@ -866,6 +869,14 @@ QQuickDrawGC::setupQDBrush()
     d->brush_style_pix = 0;
     int bs = d->current.brush.style();
     if(bs >= Dense1Pattern && bs <= DiagCrossPattern) {
+
+#if 1
+	::RGBColor f;
+	f.green = f.blue = 192*256;
+	f.red = 256*256;
+	RGBForeColor(&f);
+#endif
+
 	QString key;
 	key.sprintf("$qt-brush$%d", bs);
 	d->brush_style_pix = QPixmapCache::find(key);
