@@ -19,7 +19,7 @@
 #include "qapplication.h"
 #include "qdecorationdefault_qws.h"
 #include "qdecorationwindows_qws.h"
-#include "qdecorationkde2_qws.h"
+#include "qdecorationstyled_qws.h"
 #include "qdecorationbeos_qws.h"
 #include "qdecorationhydro_qws.h"
 
@@ -67,9 +67,9 @@ QDecoration *QDecorationFactory::create(const QString& key)
         ret = new QDecorationWindows;
     else
 #endif
-#ifndef QT_NO_QWS_DECORATION_KDE2
-    if (decoration == "kde2")
-        ret = new QDecorationKDE2;
+#ifndef QT_NO_QWS_DECORATION_STYLED
+    if (decoration == "styled")
+        ret = new QDecorationStyled;
     else
 #endif
 #ifndef QT_NO_QWS_DECORATION_BEOS
@@ -77,7 +77,7 @@ QDecoration *QDecorationFactory::create(const QString& key)
         ret = new QDecorationBeOS;
     else
 #endif
-#if 0 // ndef QT_NO_QWS_DECORATION_HYDRO
+#ifndef QT_NO_QWS_DECORATION_HYDRO
     if (decoration == "hydro")
         ret = new QDecorationHydro;
     else
@@ -113,15 +113,15 @@ QStringList QDecorationFactory::keys()
     if (!list.contains("Windows"))
         list << "Windows";
 #endif
-#ifndef QT_NO_QWS_DECORATION_KDE2
-    if (!list.contains("KDE2"))
+#ifndef QT_NO_QWS_DECORATION_STYLED
+    if (!list.contains("Styled"))
         list << "KDE2";
 #endif
 #ifndef QT_NO_QWS_DECORATION_BEOS
     if (!list.contains("BeOS"))
         list << "BeOS";
 #endif
-#if 0 // ndef QT_NO_QWS_DECORATION_HYDRO
+#ifndef QT_NO_QWS_DECORATION_HYDRO
     if (!list.contains("Hydro"))
         list << "Hydro";
 #endif

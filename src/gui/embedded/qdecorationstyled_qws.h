@@ -11,18 +11,18 @@
 **
 ****************************************************************************/
 
-#ifndef QDECORATIONKDE2_QWS_H
-#define QDECORATIONKDE2_QWS_H
+#ifndef QDECORATIONSTYLED_QWS_H
+#define QDECORATIONSTYLED_QWS_H
 
 #include "qdecorationdefault_qws.h"
 
-#if !defined(QT_NO_QWS_DECORATION_KDE2) || defined(QT_PLUGIN)
+#if !defined(QT_NO_QWS_DECORATION_STYLED) || defined(QT_PLUGIN)
 
-class QDecorationKDE2 : public QDecorationDefault
+class QDecorationStyled : public QDecorationDefault
 {
 public:
-    QDecorationKDE2();
-    virtual ~QDecorationKDE2();
+    QDecorationStyled();
+    virtual ~QDecorationStyled();
 
     QRegion region(const QWidget *widget, const QRect &rect, int decorationRegion = All);
     bool paint(QPainter *painter, const QWidget *widget, int decorationRegion = All,
@@ -30,6 +30,6 @@ public:
     int titleBarHeight(const QWidget *widget);
 };
 
-#endif // QT_NO_QWS_DECORATION_KDE2
+#endif // QT_NO_QWS_DECORATION_STYLED
 
-#endif // QDECORATIONKDE2_QWS_H
+#endif // QDECORATIONSTYLED_QWS_H

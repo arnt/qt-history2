@@ -109,9 +109,9 @@ embedded {
     	SOURCES += embedded/qdecorationhydro_qws.cpp
     }
 
-    contains( decorations, kde2 ) {
-    	HEADERS += embedded/qdecorationkde2_qws.h
-    	SOURCES += embedded/qdecorationkde2_qws.cpp
+    contains( decorations, styled ) {
+    	HEADERS += embedded/qdecorationstyled_qws.h
+    	SOURCES += embedded/qdecorationstyled_qws.cpp
     }
 
     contains( decorations, windows ) {

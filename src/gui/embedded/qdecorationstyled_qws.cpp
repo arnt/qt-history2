@@ -14,22 +14,22 @@
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
-#include "qdecorationkde2_qws.h"
+#include "qdecorationstyled_qws.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
 
-#if !defined(QT_NO_QWS_DECORATION_KDE2) || defined(QT_PLUGIN)
+#if !defined(QT_NO_QWS_DECORATION_STYLED) || defined(QT_PLUGIN)
 
-QDecorationKDE2::QDecorationKDE2()
+QDecorationStyled::QDecorationStyled()
     : QDecorationDefault()
 {
 }
 
-QDecorationKDE2::~QDecorationKDE2()
+QDecorationStyled::~QDecorationStyled()
 {
 }
 
-int QDecorationKDE2::titleBarHeight(const QWidget *widget)
+int QDecorationStyled::titleBarHeight(const QWidget *widget)
 {
     QStyleOptionTitleBar opt;
     opt.subControls = QStyle::SC_TitleBarLabel
@@ -50,7 +50,7 @@ int QDecorationKDE2::titleBarHeight(const QWidget *widget)
     return style->pixelMetric(QStyle::PM_TitleBarHeight, &opt, widget);
 }
 
-bool QDecorationKDE2::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
+bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
                             DecorationState state)
 {
     if (decorationRegion == None)
@@ -147,7 +147,7 @@ bool QDecorationKDE2::paint(QPainter *painter, const QWidget *widget, int decora
     return handled;
 }
 
-QRegion QDecorationKDE2::region(const QWidget *widget, const QRect &rect, int decorationRegion)
+QRegion QDecorationStyled::region(const QWidget *widget, const QRect &rect, int decorationRegion)
 {
     int titleHeight = titleBarHeight(widget);
     QRect inside(rect.x(), rect.top() - titleHeight, rect.width(), titleHeight);
@@ -215,4 +215,4 @@ QRegion QDecorationKDE2::region(const QWidget *widget, const QRect &rect, int de
     return region;
 }
 
-#endif // QT_NO_QWS_DECORATION_KDE2
+#endif // QT_NO_QWS_DECORATION_STYLED
