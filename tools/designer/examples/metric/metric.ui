@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>320</width>
-            <height>213</height>
+            <height>217</height>
         </rect>
     </property>
     <property name="caption">
@@ -147,7 +147,7 @@
                 </widget>
                 <widget class="QLabel" row="3" column="1">
                     <property name="name">
-                        <cstring>resultTextLabel</cstring>
+                        <cstring>resultLineEdit</cstring>
                     </property>
                     <property name="paletteBackgroundColor">
                         <color>
@@ -309,7 +309,7 @@
     <connection>
         <sender>clearButton</sender>
         <signal>clicked()</signal>
-        <receiver>resultTextLabel</receiver>
+        <receiver>resultLineEdit</receiver>
         <slot>clear()</slot>
     </connection>
     <connection>
