@@ -384,10 +384,6 @@ void QToolBar::init()
     d->extension->button()->setPopupDelay( -1 );
     sw = 0;
 
-#if defined(QT_CHECK_NULL)
-    if ( !mw )
-	qWarning( "QToolBar::QToolBar main window cannot be 0." );
-#endif
     setBackgroundMode( PaletteButton);
     setFocusPolicy( NoFocus );
     setFrameStyle( QFrame::ToolBarPanel | QFrame::Raised);
