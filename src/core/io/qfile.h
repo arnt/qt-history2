@@ -89,7 +89,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QIODevice::write;
 #else
-    inline Q_LLONG write(const QByteArray &ba) { return write(ba.constData(), ba.size()); }
+    inline Q_LLONG write(const QByteArray &ba) { return QIODevice::write(ba); }
 #endif
 
     virtual void flush();
