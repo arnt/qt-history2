@@ -75,7 +75,7 @@ extern "C" {
 #include <sys/vt.h>
 #endif
 
-#ifdef QT_QWS_CUSTOM
+#ifdef QT_QWS_SHARP
 #include <asm/sharp_char.h>
 #endif
 
@@ -113,7 +113,7 @@ private:
     QSocketNotifier *notifier;
 };
 
-#ifdef QT_QWS_CUSTOM
+#ifdef QT_QWS_SHARP
 static const QWSServer::KeyMap keyM[] = {
     {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }, // 00
     {	Qt::Key_A,		'a'     , 'A'     , 'A'-64  }, // 01
@@ -407,7 +407,7 @@ private:
     bool shift;
     bool alt;
     bool ctrl;
-#if defined(QT_QWS_CUSTOM)
+#if defined(QT_QWS_SHARP)
     bool meta;
     bool fn;
     bool numLock;
@@ -526,7 +526,7 @@ QWSPC101KeyboardHandler::QWSPC101KeyboardHandler()
     prevuni = 0;
     prevkey = 0;
     caps = FALSE;
-#if defined(QT_QWS_CUSTOM)
+#if defined(QT_QWS_SHARP)
     meta = FALSE;
     fn = FALSE;
 
@@ -564,7 +564,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     int keyCode = Qt::Key_unknown;
     bool release = false;
     int keypad = 0;
-#if !defined(QT_QWS_CUSTOM)
+#if !defined(QT_QWS_SHARP)
     if (code == 224) {
 	// extended
 	extended = true;
@@ -617,7 +617,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	    break;
 	}
     } else {
-#if defined(QT_QWS_CUSTOM)
+#if defined(QT_QWS_SHARP)
 	if ( fn && !meta && (code >= 0x42 && code <= 0x52) ) {
 	    ushort unicode=0;
 	    int scan=0;
@@ -638,7 +638,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 #if defined(QT_QWS_IPAQ) || defined(QT_QWS_EBX) // need autorepeat implemented here?
 	bool repeatable = TRUE;
 
-#if defined(QT_QWS_IPAQ) || defined(QT_QWS_EBX) && !defined(QT_QWS_CUSTOM)
+#if defined(QT_QWS_IPAQ) || defined(QT_QWS_EBX) && !defined(QT_QWS_SHARP)
 	switch (code) {
 	    case 0x7a: case 0x7b: case 0x7c: case 0x7d:
 		keyCode = code - 0x7a + Key_F9;
@@ -670,7 +670,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	}
 #endif
 
-#if defined(QT_QWS_CUSTOM)
+#if defined(QT_QWS_SHARP)
 	if ( release && ( keyCode == Key_F34 || keyCode == Key_F35 ) )
 	    return; // no release for power and light keys
 	if ( keyCode >= Key_F1 && keyCode <= Key_F35
@@ -717,7 +717,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	return;
     }
 
-#if defined(QT_QWS_CUSTOM)
+#if defined(QT_QWS_SHARP)
     // Ctrl-Alt-Delete exits qws
     if (ctrl && alt && keyCode == Qt::Key_Delete) {
 	qApp->quit();
@@ -729,7 +729,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     }
 #endif
 
-#if defined(QT_QWS_CUSTOM)
+#if defined(QT_QWS_SHARP)
     if (keyCode == Qt::Key_F22) { /* Fn key */
 	fn = !release;
     } else if ( keyCode == Key_NumLock ) {
@@ -744,13 +744,13 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	ctrl = !release;
     } else if (keyCode == Qt::Key_Shift) {
 	shift = !release;
-#if defined(QT_QWS_CUSTOM)
+#if defined(QT_QWS_SHARP)
     } else if (keyCode == Qt::Key_Meta) {
 	meta = !release;
 #endif
     } else if ( keyCode == Qt::Key_CapsLock && release ) {
 	caps = !caps;
-#if defined(_OS_LINUX_) && !defined(QT_QWS_CUSTOM)
+#if defined(_OS_LINUX_) && !defined(QT_QWS_SHARP)
 	char leds;
 	ioctl(0, KDGETLED, &leds);
 	leds = leds & ~LED_CAP;
@@ -765,7 +765,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
 	int unicode = 0;
 	if (code < keyMSize) {
 	    if (!extended) {
-#if !defined(QT_QWS_CUSTOM)
+#if !defined(QT_QWS_SHARP)
                 bool bCaps = shift ||
 		    (caps ? QChar(QWSServer::keyMap()[code].unicode).isLetter() : FALSE);
 #else

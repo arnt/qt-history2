@@ -69,7 +69,7 @@ typedef struct {
 } TS_EVENT;
 #elif defined(QT_QWS_EBX)
 #define QT_QWS_EBX_RAW
-#ifndef QT_QWS_CUSTOM
+#ifndef QT_QWS_SHARP
 typedef struct {
         unsigned short pressure;
         unsigned short x;
@@ -1218,7 +1218,7 @@ void QTPanelHandlerPrivate::readMouseData()
 	uchar *mb = mouseBuf+idx;
 	data = (TS_EVENT *) mb;
 	if(data->pressure >= QT_QWS_TP_PRESSURE_THRESHOLD) {
-#ifdef QT_QWS_CUSTOM
+#ifdef QT_QWS_SHARP
 	    samples[currSample] = QPoint( 1000 - data->x, data->y );
 #else
 	    samples[currSample] = QPoint( data->x, data->y );
