@@ -22,7 +22,6 @@ class QEmptyModel : public QAbstractItemModel
 {
 public:
     QEmptyModel(QObject *parent = 0) : QAbstractItemModel(parent) {}
-
     QModelIndex index(int, int, const QModelIndex &) const { return QModelIndex::Null; }
     QModelIndex parent(const QModelIndex &) const { return QModelIndex::Null; }
     int rowCount(const QModelIndex &) const { return 0; }
@@ -60,64 +59,40 @@ QProxyModel::~QProxyModel()
 
 void QProxyModel::setModel(QAbstractItemModel *model)
 {
-    if (d->model) {
-        disconnect(d->model,
-                   SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-                   this,
-                   SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)));
-        disconnect(d->model,
-                   SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
-                   this,
-                   SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
-        disconnect(d->model,
-                   SIGNAL(rowsInserted(const QModelIndex&, int, int)),
-                   this,
-                   SIGNAL(rowsInserted(const QModelIndex&, int, int)));
-        disconnect(d->model,
-                   SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
-                   this,
-                   SIGNAL(rowsRemoved(const QModelIndex&, int, int)));
-        disconnect(d->model,
-                   SIGNAL(columnsInserted(const QModelIndex&, int, int)),
-                   this,
-                   SIGNAL(columnsInserted(const QModelIndex&, int, int)));
-        disconnect(d->model,
-                   SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
-                   this,
-                   SIGNAL(columnsRemoved(const QModelIndex&, int, int)));
+    if (d->model && d->model != &d->empty) {
+        disconnect(d->model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+                   this, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)));
+        disconnect(d->model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
+                   this, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
+        disconnect(d->model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
+                   this, SIGNAL(rowsInserted(const QModelIndex&, int, int)));
+        disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
+                   this, SIGNAL(rowsRemoved(const QModelIndex&, int, int)));
+        disconnect(d->model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
+                   this, SIGNAL(columnsInserted(const QModelIndex&, int, int)));
+        disconnect(d->model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
+                   this, SIGNAL(columnsRemoved(const QModelIndex&, int, int)));
         disconnect(d->model, SIGNAL(reset()), this, SIGNAL(reset()));
     }
 
-    if (model)
+    if (model) {
         d->model = model;
-    else
+        connect(d->model, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
+                this, SIGNAL(dataChanged(const QModelIndex&, const QModelIndex &)));
+        connect(d->model, SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
+                this, SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
+        connect(d->model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
+                this, SIGNAL(rowsInserted(const QModelIndex&, int, int)));
+        connect(d->model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
+                this, SIGNAL(rowsRemoved(const QModelIndex&, int, int)));
+        connect(d->model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
+                this, SIGNAL(columnsInserted(const QModelIndex&, int, int)));
+        connect(d->model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
+                this, SIGNAL(columnsRemoved(const QModelIndex&, int, int)));
+        connect(d->model, SIGNAL(reset()), this, SIGNAL(reset()));
+    } else {
         d->model = &d->empty;
-
-    connect(d->model,
-            SIGNAL(dataChanged(const QModelIndex&, const QModelIndex&)),
-            this,
-            SIGNAL(dataChanged(const QModelIndex&, const QModelIndex &)));
-    connect(d->model,
-            SIGNAL(headerDataChanged(Qt::Orientation, int, int)),
-            this,
-            SIGNAL(headerDataChanged(Qt::Orientation, int, int)));
-    connect(d->model,
-            SIGNAL(rowsInserted(const QModelIndex&, int, int)),
-            this,
-            SIGNAL(rowsInserted(const QModelIndex&, int, int)));
-    connect(d->model,
-            SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
-            this,
-            SIGNAL(rowsRemoved(const QModelIndex&, int, int)));
-    connect(d->model,
-            SIGNAL(columnsInserted(const QModelIndex&, int, int)),
-            this,
-            SIGNAL(columnsInserted(const QModelIndex&, int, int)));
-    connect(d->model,
-            SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
-            this,
-            SIGNAL(columnsRemoved(const QModelIndex&, int, int)));
-    connect(d->model, SIGNAL(reset()), this, SIGNAL(reset()));
+    }
 }
 
 QAbstractItemModel *QProxyModel::model()
