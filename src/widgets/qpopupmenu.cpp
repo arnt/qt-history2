@@ -1472,7 +1472,7 @@ void QPopupMenu::drawContents( QPainter* p )
 				colorGroup(), flags, QStyleOption(maxPMWidth));
 	}
     }
-#if defined( DEBUG_SLOPPY_SUBMENU ) 
+#if defined( DEBUG_SLOPPY_SUBMENU )
     if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this )) {
 	p->setClipRegion( d->mouseMoveBuffer );
 	p->fillRect( d->mouseMoveBuffer.boundingRect(), colorGroup().brush( QColorGroup::Highlight ) );
@@ -1695,16 +1695,16 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	if ( actItem == item )
 	    return;
 
-	if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this) && 
+	if ( style().styleHint(QStyle::SH_PopupMenu_SloppySubMenus, this) &&
 	     d->mouseMoveBuffer.contains( e->pos() ) ) {
 	    actItem = item;
-	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this) * 2, 
+	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this) * 2,
 			       this );
 	    return;
 	}
 
 	if ( mi->popup() || ( popupActive >= 0 && popupActive != item ))
-	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this), 
+	    popupSubMenuLater( style().styleHint(QStyle::SH_PopupMenu_SubMenuPopupDelay, this),
 			       this );
 	else if ( singleSingleShot )
 	    singleSingleShot->stop();
@@ -2228,7 +2228,7 @@ void QPopupMenu::subMenuTimer() {
 	     repaint();
 	 }
     }
-    
+
     popupActive = actItem;
     popup->popup( p );
 }
@@ -2240,16 +2240,17 @@ void QPopupMenu::allowAnimation()
 
 void QPopupMenu::updateRow( int row )
 {
-    if ( badSize ){
+    if ( !isVisible() )
+	return;
+
+    if ( badSize ) {
 	updateSize();
 	update();
 	return;
     }
-    if ( !isVisible() )
-	return;
-    QRect r = itemGeometry(row);
-    if(!r.isNull()) //can happen via the scroller
-	repaint(r);
+    QRect r = itemGeometry( row );
+    if ( !r.isNull() ) // can happen via the scroller
+	repaint( r );
 }
 
 
@@ -2274,11 +2275,11 @@ void QPopupMenu::updateRow( int row )
     Common usage is to position the popup at the current mouse
     position:
     \code
-	exec(QCursor::pos());
+	exec( QCursor::pos() );
     \endcode
     or aligned to a widget:
     \code
-	exec(somewidget.mapToGlobal(QPoint(0,0)));
+	exec( somewidget.mapToGlobal(QPoint(0, 0)) );
     \endcode
 
     When positioning a popup with exec() or popup(), bear in mind that
