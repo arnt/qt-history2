@@ -1045,7 +1045,7 @@ void QAbstractItemView::contextMenuEvent(QContextMenuEvent *e)
 void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
 {
     if (d->canDecode(e))
-        e->acceptProposedAction();
+        e->accept();
 }
 
 /*!
@@ -1057,10 +1057,32 @@ void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
 */
 void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
 {
-    if (d->canDecode(e))
-        e->acceptProposedAction();
+    // the ignore by default
+    e->ignore();
+
+    QModelIndex index = itemAt(e->pos());
+
+    // set the item under the cursor to current
+//     if (index.isValid())
+//         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+
+    if (d->canDecode(e)) {
+        if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled)
+            e->accept(); // allow dropping on dropenabled items
+        else if (!index.isValid())
+            e->accept(); // allow dropping in empty areas
+    }
+
     if (d->shouldAutoScroll(e->pos()))
         startAutoScroll();
+}
+
+/*!
+
+*/
+void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
+{
+    stopAutoScroll();
 }
 
 /*!
@@ -1078,6 +1100,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
         if (model()->dropMimeData(e->mimeData(), e->proposedAction(), parent))
             e->acceptProposedAction();
     }
+    stopAutoScroll();
 }
 
 /*!
@@ -1716,7 +1739,8 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
             rect.setTop(0);
             rect.setBottom(d->viewport->height());
         }
-        d->viewport->repaint(rect); // painting in the next paint event is too late (because of scrolling)
+        // painting in the next paint event is too late (because of scrolling)
+        d->viewport->repaint(rect);
         // if we are editing, commit the data and close the editor
         if (state() == EditingState) {
             QWidget *editor = d->editors.value(previous);
@@ -1753,7 +1777,8 @@ void QAbstractItemView::startDrag()
         QPainter painter(&pixmap);
         QStyleOptionViewItem option = viewOptions();
         for (int j = 0; j < indexes.count(); ++j) {
-            option.rect = QRect(rects.at(j).topLeft() - rect.topLeft(), rects.at(j).size());
+            option.rect = QRect(rects.at(j).topLeft() - rect.topLeft(),
+                                rects.at(j).size());
             itemDelegate()->paint(&painter, option, indexes.at(j));
         }
         painter.end();
@@ -1829,9 +1854,12 @@ void QAbstractItemView::stopAutoScroll()
 */
 void QAbstractItemView::doAutoScroll()
 {
-    if (d->autoScrollCount < qMax(verticalScrollBar()->pageStep(),
-                                  horizontalScrollBar()->pageStep()))
+    // find how much we should scroll with
+    int verticalStep = verticalScrollBar()->pageStep();
+    int horizontalStep = horizontalScrollBar()->pageStep();
+    if (d->autoScrollCount < qMax(verticalStep, horizontalStep))
         ++d->autoScrollCount;
+
     int margin = d->autoScrollMargin;
     int verticalValue = verticalScrollBar()->value();
     int horizontalValue = horizontalScrollBar()->value();
@@ -1839,22 +1867,20 @@ void QAbstractItemView::doAutoScroll()
     QPoint pos = d->viewport->mapFromGlobal(QCursor::pos());
     QRect area = d->viewport->clipRegion().boundingRect();
 
-    int delta = 0;
+    // do the scrolling if we are in the scroll margins
     if (pos.y() - area.top() < margin)
-        delta = -d->autoScrollCount;
+        verticalScrollBar()->setValue(verticalValue - d->autoScrollCount);
     else if (area.bottom() - pos.y() < margin)
-        delta = d->autoScrollCount;
-    verticalScrollBar()->setValue(verticalValue + delta);
-
+        verticalScrollBar()->setValue(verticalValue + d->autoScrollCount);
     if (pos.x() - area.left() < margin)
-        delta = -d->autoScrollCount;
+        horizontalScrollBar()->setValue(horizontalValue - d->autoScrollCount);
     else if (area.right() - pos.x() < margin)
-        delta = d->autoScrollCount;
-    horizontalScrollBar()->setValue(horizontalValue + delta);
-
-    if (verticalValue == verticalScrollBar()->value()
-        && horizontalValue == horizontalScrollBar()->value()
-        || state() != DraggingState)
+        horizontalScrollBar()->setValue(horizontalValue + d->autoScrollCount);
+    
+    // if nothing changed or we are no longer dragging, stop scrolling
+    bool verticalUnchanged = (verticalValue == verticalScrollBar()->value());
+    bool horizontalUnchanged = (horizontalValue == horizontalScrollBar()->value());
+    if ((verticalUnchanged && horizontalUnchanged) || (state() != DraggingState))
         stopAutoScroll();
 }
 

@@ -690,50 +690,52 @@ void QListView::resizeEvent(QResizeEvent *e)
 */
 void QListView::dragMoveEvent(QDragMoveEvent *e)
 {
-    if (!d->canDecode(e)) {
-        e->ignore();
-        return;
+    // the ignore by default
+    e->ignore();
+        
+    if (d->canDecode(e)) {
+
+        // get old dragged items rect
+        QRect itemsRect = d->itemsRect(d->draggedItems);
+        QRect oldRect = itemsRect;
+        oldRect.translate(d->draggedItemsDelta());
+        
+        // update position
+        d->draggedItemsPos = e->pos();
+
+        // get new items rect
+        QRect newRect = itemsRect;
+        newRect.translate(d->draggedItemsDelta());
+
+        d->viewport->repaint(oldRect|newRect);
+        
+        // set the item under the cursor to current
+        QModelIndex index = QAbstractItemView::itemAt(e->pos());
+//         if (index.isValid())
+//             selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
+
+        // check if we allow drops here
+        if (e->source() == this && d->draggedItems.contains(index))
+            e->accept(); // allow changing item position
+        else if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled)
+            e->accept(); // allow dropping on dropenabled items
+        else if (!index.isValid())
+            e->accept(); // allow dropping in empty areas
     }
 
-    QPoint pos = e->pos();
-    if (d->shouldAutoScroll(pos))
+    // do autoscrolling
+    if (d->shouldAutoScroll(e->pos()))
         startAutoScroll();
-
-    // get old dragged items rect
-    QRect itemsRect = d->itemsRect(d->draggedItems);
-    QRect oldRect = itemsRect;
-    oldRect.translate(d->draggedItemsDelta());
-
-    // update position
-    d->draggedItemsPos = pos;
-
-    // get new items rect
-    QRect newRect = itemsRect;
-    newRect.translate(d->draggedItemsDelta());
-
-    d->viewport->repaint(oldRect|newRect);
-
-    // check if we allow drops here
-    QModelIndex index = itemAt(pos.x(), pos.y());
-    if (!index.isValid()) {
-        e->accept();
-    } else if (e->source() == this && d->draggedItems.contains(index)) {
-        e->accept();
-    } else if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled) {
-        setCurrentIndex(index);
-        e->accept();
-    } else {
-        e->ignore();
-    }
 }
 
 /*!
   \reimp
 */
-void QListView::dragLeaveEvent(QDragLeaveEvent *)
+void QListView::dragLeaveEvent(QDragLeaveEvent *e)
 {
     d->viewport->update(d->draggedItemsRect()); // erase the area
     d->draggedItemsPos = QPoint(-1, -1); // don't draw the dragged items
+    QAbstractItemView::dragLeaveEvent(e);
 }
 
 /*!
