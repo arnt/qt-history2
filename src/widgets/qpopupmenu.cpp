@@ -1111,12 +1111,14 @@ void QPopupMenu::updateSize()
 	QMenuItemListIt it(*mitems);
 	QMenuItem *mi;
 	QSize sz;
-	int row = 0;
 	int x = contentsRect().x();
 	int y = contentsRect().y();
 	int itemw = contentsRect().width() / ncols;
 	while ( (mi=it.current()) ) {
 	    ++it;
+	    if ( !mi->isVisible() )
+		continue;
+ 
 	    int itemh = itemHeight( mi );
 
 	    sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
@@ -1133,7 +1135,6 @@ void QPopupMenu::updateSize()
 	    if ( mi->widget() )
 		mi->widget()->setGeometry( x, y, itemw, mi->widget()->height() );
 	    y += itemh;
-	    ++row;
 	}
     }
 }
@@ -1996,6 +1997,9 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		    i = c - 1;
 	    }
 	    mi = mitems->at( i );
+	    if ( !mi->isVisible() )
+		continue;
+
 	    if ( !mi->isSeparator() &&
 		 ( style().styleHint(QStyle::SH_PopupMenu_AllowActiveAndDisabled, this)
 		   || mi->isEnabledAndVisible() ) )
