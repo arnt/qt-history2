@@ -947,6 +947,8 @@ public:
     bool hadDotDot;
 
     bool ignoreNextKeyPress;
+    // ignores the next refresh operation in case the user forced a selection
+    bool ignoreNextRefresh;
     QFDProgressDialog *progressDia;
     bool checkForFilter;
     bool ignoreReturn;
@@ -2253,6 +2255,7 @@ void QFileDialog::init()
     d->progressDia = 0;
     d->checkForFilter = FALSE;
     d->ignoreReturn = FALSE;
+    d->ignoreNextRefresh = FALSE;
     d->ignoreStop = FALSE;
     d->pendingItems.setAutoDelete( FALSE );
     d->mimeTypeTimer = new QTimer( this );
@@ -2836,10 +2839,10 @@ void QFileDialog::setSelection( const QString & filename )
     if ( !isDir ) {
 	QUrlOperator u( d->url );
 	d->url.setPath( d->url.dirPath() );
-	trySetSelection( FALSE, d->url, FALSE );
+	trySetSelection( FALSE, u, TRUE );
+	d->ignoreNextRefresh = TRUE;
 	rereadDir();
 	emit dirEntered( d->url.dirPath() );
-	nameEdit->setText( u.fileName() );
     } else {
 	if ( !d->url.path().isEmpty() &&
 	     d->url.path().right( 1 ) != "/" ) {
@@ -3702,6 +3705,11 @@ void QFileDialog::listBoxSelectionChanged()
 {
     if ( d->mode != ExistingFiles )
 	return;
+
+    if ( d->ignoreNextRefresh ) {
+	d->ignoreNextRefresh = FALSE;
+	return;
+    }
 
     nameEdit->clear();
     QString str;
