@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#25 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#26 $
 **
 ** Definition of QPixmap class
 **
@@ -95,6 +95,9 @@ protected:
 
 private:
     void    init();
+
+    friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
+			int, int, int, int, RasterOp ); // needs detach()
 };
 
 
