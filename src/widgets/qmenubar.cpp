@@ -470,6 +470,10 @@ void QMenuBar::frameChanged()
 #endif
 }
 
+void QMenuBar::languageChange()
+{
+    menuContentsChanged(); 
+}
 
 /*!
     \internal

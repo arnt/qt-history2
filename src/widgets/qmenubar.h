@@ -120,6 +120,8 @@ private slots:
     void	popupDestroyed( QObject* );
     void 	performDelayedChanges();
 
+    void	languageChange();
+
 private:
     void 	performDelayedContentsChanged();
     void 	performDelayedStateChanged();
