@@ -27,7 +27,6 @@ Q_GUI_EXPORT HDC qt_winHDC(const QPaintDevice *device);
 class QGLCmapPrivate
 {
 public:
-    // ####### use atomic refcounting
     QGLCmapPrivate() : count(1) { }
     void ref()                { ++count; }
     bool deref()        { return !--count; }
@@ -183,7 +182,7 @@ void QGLCmap::resize(int newSize)
     }
     int oldSize = size();
     detach();
-    //### if shrinking; remove the lost elems from colorMap
+    //if shrinking; remove the lost elems from colorMap
     d->colorArray.resize(newSize);
     d->allocArray.resize(newSize);
     d->contextArray.resize(newSize);
@@ -579,7 +578,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         return false;
     }
 
-    if (!(rc = wglCreateLayerContext(myDc, 0))) { //### just createcontext() if not overlay?
+    if (!(rc = wglCreateLayerContext(myDc, 0))) {
         qwglError("QGLContext::chooseContext()", "wglCreateContext");
         if (win)
             ReleaseDC(win, myDc);
@@ -810,8 +809,6 @@ void QGLContext::doneCurrent()
     if (currentCtx != this)
         return;
     currentCtx = 0;
-    //#### should use wglRealizeLayerPalette to release colors here?
-    // depending on visibility of window?
     wglMakeCurrent(0, 0);
     if (win && dc) {
         ReleaseDC(win, dc);
@@ -824,7 +821,7 @@ void QGLContext::swapBuffers() const
 {
     if (dc && glFormat.doubleBuffer() && !deviceIsPixmap()) {
         if (glFormat.plane())
-            wglSwapLayerBuffers(dc, WGL_SWAP_OVERLAY1);  //### hardcoded ol1
+            wglSwapLayerBuffers(dc, WGL_SWAP_OVERLAY1);
         else {
             if (glFormat.hasOverlay())
                 wglSwapLayerBuffers(dc, WGL_SWAP_MAIN_PLANE);

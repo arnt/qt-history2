@@ -155,6 +155,7 @@ public:
     virtual void setFormat(const QGLFormat& format);
 
     virtual void makeCurrent();
+    virtual void doneCurrent();
     virtual void swapBuffers() const;
 
     QPaintDevice* device() const;
@@ -165,7 +166,6 @@ public:
 
 protected:
     virtual bool chooseContext(const QGLContext* shareContext = 0);
-    virtual void doneCurrent(); // ### 4.0: make this public - needed for multithreading stuff
 
 #if defined(Q_WS_WIN)
     virtual int choosePixelFormat(void* pfd, HDC pdc);

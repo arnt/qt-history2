@@ -579,7 +579,6 @@ void QGLContext::swapBuffers() const
 
 QColor QGLContext::overlayTransparentColor() const
 {
-    //### make more efficient using the transpColor member
     if (isValid()) {
         if (!trans_colors_init)
             find_trans_colors();
