@@ -165,7 +165,8 @@ struct QTabPrivate {
 */
 
 QTabBar::QTabBar( QWidget * parent, const char *name )
-    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase  )
+    : QWidget( parent, name, WRepaintNoErase | WResizeNoErase |
+	       WNoMousePropagation  )
 {
     d = new QTabPrivate;
     d->id = 0;
@@ -491,7 +492,7 @@ QTab * QTabBar::selectTab( const QPoint & p ) const
 {
     QTab * selected = 0;
     bool moreThanOne = FALSE;
-
+        
     QPtrListIterator<QTab> i( *l );
     while( i.current() ) {
 	QTab * t = i.current();
@@ -952,6 +953,11 @@ void QTabBar::makeVisible( QTab* tab  )
     d->leftB->setEnabled( offset != 0 );
     d->rightB->setEnabled( lstatic->last()->r.right() >= d->leftB->x() );
 
+    // Make sure disabled buttons pop up again
+    if ( !d->leftB->isEnabled() && d->leftB->isDown() )
+	d->leftB->setDown( FALSE );
+    if ( !d->rightB->isEnabled() && d->rightB->isDown() )
+	d->rightB->setDown( FALSE );
 
     update();
 }
