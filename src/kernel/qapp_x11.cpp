@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#111 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,7 +40,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#110 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#111 $")
 
 
 // --------------------------------------------------------------------------
@@ -152,7 +152,7 @@ void qt_init( int *argcptr, char **argv )
 
   // Set application name
 
-    char *p = strrchr( (const char *)argv[0], '/' );
+    char *p = strrchr( argv[0], '/' );
     appName = p ? p + 1 : argv[0];
 
   // Get command line params
