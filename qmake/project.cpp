@@ -395,7 +395,7 @@ QMakeProject::read(QString project, QString)
 	/* prefer $QTDIR if it is set */
 	if (getenv("QTDIR"))
 	    mkspec_roots << getenv("QTDIR");
-	mkspec_roots << QT_INSTALL_DATA;
+	mkspec_roots << qInstallPathData();
 	if(Option::mkfile::qmakespec.isEmpty()) {
 	    for(QStringList::Iterator it = mkspec_roots.begin(); it != mkspec_roots.end(); ++it) {
 		QString mkspec = (*it) + QDir::separator() + QString("mkspecs") +
