@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#67 $
 **
 ** Implementation of QListView widget class
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#66 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#67 $");
 
 
 const int Unsorted = 32767;
@@ -319,7 +319,7 @@ void QListViewItem::removeItem( QListViewItem * tbg )
     }
 
     if ( lv && lv->d->focusItem ) {
-	QListViewItem * c = lv->d->focusItem;
+	const QListViewItem * c = lv->d->focusItem;
 	while( c && c != tbg )
 	    c = c->parentItem;
 	if ( c == tbg )
@@ -687,7 +687,7 @@ const char * QListViewItem::text( int column ) const
 */
 
 void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
-			       int column, int width, bool showFocus ) const
+			       int column, int width ) const
 {
     if ( !p )
 	return;
@@ -708,7 +708,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	if ( lv )
 	    p->setFont( lv->font() );
 
-	if ( isSelected() && column==0 ) {
+	if ( isSelected() &&
+	     (column==0 || listView()->allColumnsShowFocus()) ) {
 	    p->fillRect( r-2, 0, width - r + 2, height(),
 			 QApplication::winStyleHighlightColor() );
 	    p->setPen( white ); // ###
@@ -719,14 +720,27 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	// should do the ellipsis thing here
 	p->drawText( r, 0, width-2-r, height(), AlignLeft + AlignVCenter, t );
     }
+}
 
-    if ( showFocus && !column ) {
-	if ( lv->style() == WindowsStyle ) {
-	    p->drawWinFocusRect( r-2, 0, width-r+2, height() );
-	} else {
-	    p->setPen( black );
-	    p->drawRect( r-2, 0, width-r+2, height() );
-	}
+
+/*!  \fn void QListViewItem::paintFocus( QPainter *p, const QColorGroup & cg, const QRect & r ) const
+
+  Paints a focus indication on the rectangle \a r using painter \a p
+  and colors \a cg.
+  
+  \a p is already clipped.
+  
+  \sa paintCell() paintBranches() QListView::setAllColumnsShowFocus()
+*/
+
+void QListViewItem::paintFocus( QPainter *p, const QColorGroup &, 
+				const QRect & r ) const
+{
+    if ( listView()->style() == WindowsStyle ) {
+	p->drawWinFocusRect( r );
+    } else {
+	p->setPen( black );
+	p->drawRect( r );
     }
 }
 
@@ -1020,6 +1034,7 @@ QListView::QListView( QWidget * parent, const char * name )
     d->r->setSelectable( FALSE );
 
     setFocusProxy( viewport() );
+    setFocusPolicy( TabFocus );
 }
 
 
@@ -1076,7 +1091,6 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	d->dirtyItemTimer->stop();
     }
 
-
     QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 
     QRect r;
@@ -1118,8 +1132,14 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		lc = c;
 		// also make sure that the top item indicates focus,
 		// if nothing would otherwise
-		if ( !d->focusItem )
+		if ( !d->focusItem && hasFocus() ) {
 		    d->focusItem = current->i;
+		    if ( !isMultiSelection() ) {
+			current->i->setSelected( TRUE );
+			emit selectionChanged( current->i );
+			emit selectionChanged();
+		    }
+		}
 	    }
 
 	    x = fx;
@@ -1137,10 +1157,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
                 p->translate( r.left(), r.top() );
 		current->i->paintCell( p, colorGroup(),
-				       d->h->mapToLogical( c ), r.width(),
-				       hasFocus() &&
-				       (d->allColumnsShowFocus ||
-					current->i == d->focusItem) );
+				       d->h->mapToLogical( c ), r.width() );
 		p->restore();
 		x += cs;
 		c++;
@@ -1181,6 +1198,26 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		p->restore();
 	    }
 	}
+	
+	// does current need focus indication?
+	if ( current->i == d->focusItem && hasFocus() ) {
+	    p->save();
+	    if ( d->allColumnsShowFocus ) {
+		int x1 = ox < 0 ? -1 : 0;
+		int x2 = d->h->width() + ox;
+		int w = QMIN( viewport()->width(), x2-x1+1 );
+		r.setRect( x1, current->y + oy, w, ih );
+                p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
+		current->i->paintFocus( p, colorGroup(), r );
+	    } else {
+		r.setRect( d->h->cellPos( 0 ) + ox, current->y + oy,
+			   d->h->cellSize( d->h->mapToActual( 0 ) ), ih );
+                p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
+		current->i->paintFocus( p, colorGroup(), r );
+	    }
+	    p->restore();
+	}
+	
     }
 
     if ( d->r->totalHeight() < cy + ch )
@@ -1858,8 +1895,8 @@ void QListView::focusInEvent( QFocusEvent * )
 {
     if ( d->focusItem )
 	repaintItem( d->focusItem );
-    else if ( !d->timer->isActive() )
-	viewport()->repaint();
+    else
+	triggerUpdate();
     return;
 }
 
@@ -1875,8 +1912,8 @@ void QListView::focusOutEvent( QFocusEvent * )
 {
     if ( d->focusItem )
 	repaintItem( d->focusItem );
-    else if ( !d->timer->isActive() )
-	viewport()->repaint();
+    else
+	triggerUpdate();
     return;
 }
 
@@ -2609,7 +2646,7 @@ void QCheckListItem::setup()
   Paints this item.
  */
 void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
-			       int column, int width, bool showFocus ) const
+			       int column, int width ) const
 {
     if ( !p )
 	return;
@@ -2736,36 +2773,8 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	r += BoxSize + 4;
     }
 
-#if 1
     p->translate( r, 0 );
-    QListViewItem::paintCell( p, cg, column, width - r, showFocus );
-#else
-    const char * t = text();
-    if ( t ) {
-	if ( lv )
-	    p->setFont( lv->font() );
-
-	if ( isSelected() && column==0 ) {
-	    p->fillRect( r-2, 0, width - r + 2, height(),
-			 QApplication::winStyleHighlightColor() );
-	    p->setPen( white ); // ###
-	} else {
-	    p->setPen( cg.text() );
-	}
-
-	// should do the ellipsis thing here
-	p->drawText( r, 0, width-2-r, height(), AlignLeft + AlignVCenter, t );
-    }
-
-    if ( showFocus && !column ) {
-	if ( lv->style() == WindowsStyle ) {
-	    p->drawWinFocusRect( r-2, 0, width-r+2, height() );
-	} else {
-	    p->setPen( black );
-	    p->drawRect( r-2, 0, width-r+2, height() );
-	}
-    }
-#endif
+    QListViewItem::paintCell( p, cg, column, width - r );
 }
 
 /*!
