@@ -31,13 +31,18 @@
 #ifndef QWSQNXFB_H
 #define QWSQNXFB_H
 
-#include <display.h>
-#include <disputil.h>
+
 #include <qgfxraster_qws.h>
+
+#ifdef Q_OS_QNX6
+
 #include <qgfx_qws.h>
 #include <qpolygonscanner.h>
 #include <qpen.h>
 #include <qstring.h>
+
+#include <display.h>
+#include <disputil.h>
 
 // QnxFb Gfx class
 template <const int depth, const int type>
@@ -107,4 +112,5 @@ private:
 #endif // QT_NO_QWS_CURSOR
 
 
+#endif
 #endif
