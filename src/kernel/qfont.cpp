@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#105 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -121,7 +121,10 @@
   a default, too: The default default default font!
 
   For more general information on fonts, see the
-  <a href="http://www.nwalsh.com/comp.fonts/FAQ/">comp.fonts FAQ.</a>
+  <a href="http://www.nwalsh.com/comp.fonts/FAQ/">comp.fonts FAQ</a>
+  and for more general information on encodings, see or <a
+  href="http://czyborra.com/charsets/">Roman Czyborra's font
+  encodings.</a>
 
   \sa QFontMetrics QFontInfo QApplication::setFont()
   QWidget::setFont() QPainter::setFont() QFont::StyleHint
