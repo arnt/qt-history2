@@ -28,12 +28,12 @@
     applications.
 
     To use this class, create a QBasicTimer, and call its start()
-    function with a single-shot timeout interval and with a pointer to
-    a QObject subclass. When the timer times out it will send a timer
-    event to the QObject subclass. The timer can be stopped at any
-    time using stop(). isActive() returns true for a timer that is
-    running; i.e. it has been started, has not reached the timeout time,
-    and has not been stopped. The timer's ID can be retrieved using
+    function with a timeout interval and with a pointer to a QObject
+    subclass. When the timer times out it will send a timer event to
+    the QObject subclass. The timer can be stopped at any time using
+    stop(). isActive() returns true for a timer that is running;
+    i.e. it has been started, has not reached the timeout time, and
+    has not been stopped. The timer's ID can be retrieved using
     timerId().
 */
 
