@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#55 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -399,7 +399,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	}
 	if ( ok && StartPage(hdc) == SP_ERROR )
 	    ok = FALSE;
-	if ( ok && printToEdge() && !viewOffsetDone ) {
+	if ( ok && fullPage() && !viewOffsetDone ) {
 	    QSize margs = margins();
 	    OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
 	    viewOffsetDone = TRUE;
@@ -517,13 +517,13 @@ int QPrinter::metric( int m ) const
     int val;
     switch ( m ) {
     case QPaintDeviceMetrics::PdmWidth:
-	val = GetDeviceCaps( hdc, printToEdge() ? PHYSICALWIDTH : HORZRES );
+	val = GetDeviceCaps( hdc, fullPage() ? PHYSICALWIDTH : HORZRES );
 	break;
     case QPaintDeviceMetrics::PdmHeight:
-	val = GetDeviceCaps( hdc, printToEdge() ? PHYSICALHEIGHT : VERTRES );
+	val = GetDeviceCaps( hdc, fullPage() ? PHYSICALHEIGHT : VERTRES );
 	break;
     case QPaintDeviceMetrics::PdmWidthMM:
-	if ( !printToEdge() ) {
+	if ( !fullPage() ) {
 	    val = GetDeviceCaps( hdc, HORZSIZE );
 	}
 	else {
@@ -532,7 +532,7 @@ int QPrinter::metric( int m ) const
 	}
 	break;
     case QPaintDeviceMetrics::PdmHeightMM:
-	if ( !printToEdge() ) {
+	if ( !fullPage() ) {
 	    val = GetDeviceCaps( hdc, VERTSIZE );
 	}
 	else {
