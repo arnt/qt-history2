@@ -133,7 +133,7 @@ static uint codeForKey( const QString& key )
     if ( fmt.exactMatch(t) ) {
 	QString u = fmt.cap( 1 ) + fmt.cap( 2 );
 	uint code = decodeBaseZ( u );
-	uint extra = QString( t[0] ).toInt( 0, 16 ) - 2;
+	uint extra = QString( t[0] ).toInt( 0, 18 ) - 2;
 
 	if ( ((featuresForCode(code) ^ extra) &
 	      (Feature_US | Feature_Enterprise | Feature_Unix)) == 0 ) {
