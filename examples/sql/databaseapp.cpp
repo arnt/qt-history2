@@ -278,26 +278,29 @@ void DatabaseApp::init()
 
 void DatabaseApp::updateCustomerInfo( const QSqlRecord * fields )
 {
+    static int row = d->customers->currentRow();
     QString cap;
 
-    // Compile the customer information into a string and display it
-    for ( uint i = 0; i < fields->count(); ++i ) {
-	const QSqlField * f  = fields->field(i);
-	if( f->isVisible() )
-	    cap += f->displayLabel().leftJustify(15) + ": " +
-		   f->value().toString().rightJustify(20) + "\n";
+    if( row != d->customers->currentRow() ){
+	// Compile the customer information into a string and display it
+	for ( uint i = 0; i < fields->count(); ++i ) {
+	    const QSqlField * f  = fields->field(i);
+	    if( f->isVisible() )
+		cap += f->displayLabel().leftJustify(15) + ": " +
+		       f->value().toString().rightJustify(20) + "\n";
+	}
+
+
+	d->customer->setText( cap );
+	d->customer->setMinimumSize( 0, d->customer->height() );
+
+	// Only show the invoice(s) for a particular customer
+	// Use the customer id to filter the invoice cursor
+	invoiceCr.select( "customerid = " +
+			  fields->field(0)->value().toString() );
+	d->invoices->refresh();
     }
-
-
-    d->customer->setText( cap );
-    d->customer->setMinimumSize( 0, d->customer->height() );
-
-    // Only show the invoice(s) for a particular customer
-    // Use the customer id to filter the invoice cursor
-    invoiceCr.select( "customerid = " +
-		      fields->field(0)->value().toString() );
-    d->invoices->refresh();
-
+    row = d->customers->currentRow();
 }
 
 void DatabaseApp::createDB()
