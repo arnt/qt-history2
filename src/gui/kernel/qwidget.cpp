@@ -229,7 +229,7 @@ QWidgetPrivate::~QWidgetPrivate()
         fontMetrics(),
         fontInfo().
 
-    \row \i Keyboard focus<br>functions \i
+    \row \i Keyboard focus functions \i
         setFocusPolicy(),
         focusPolicy(),
         hasFocus(),
@@ -238,7 +238,7 @@ QWidgetPrivate::~QWidgetPrivate()
         setTabOrder(),
         setFocusProxy().
 
-    \row \i Mouse and<br>keyboard grabbing \i
+    \row \i Mouse and keyboard grabbing \i
         grabMouse(),
         releaseMouse(),
         grabKeyboard(),

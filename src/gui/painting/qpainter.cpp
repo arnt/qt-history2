@@ -1691,7 +1691,7 @@ void QPainter::rotate(qreal a)
 
     \overload
 
-    Translates the coordinate system by the given \a offset.
+    Translates the coordinate system by the vector (\a dx, \a dy).
 */
 
 /*!
@@ -2884,7 +2884,7 @@ void QPainter::drawLines(const QLineF *lines, int lineCount)
 
 
 /*!
-    void QPainter::drawLines(const QVector<QPointF> &pointPairs)
+    \fn void QPainter::drawLines(const QVector<QPointF> &pointPairs)
 
     \overload
 
@@ -2896,7 +2896,7 @@ void QPainter::drawLines(const QLineF *lines, int lineCount)
 */
 
 /*!
-    void QPainter::drawLines(const QVector<QPoint> &pointPairs)
+    \fn void QPainter::drawLines(const QVector<QPointF> &pointPairs)
 
     \overload
 
@@ -3526,15 +3526,14 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
 
 /*!
     \fn void QPainter::drawText(int x, int y, int w, int h, int flags,
-                                const QString &str, int len, QRect *br)
+                                const QString &text, QRect *br)
 
     \overload
 
     Draws the string \a str within the rectangle with origin (\a{x},
-    \a{y}), width \a w and height \a h. If \a len is -1 (the default)
-    all the text is drawn, otherwise only the first \a len characters
-    are drawn. The flags that are given in the \a flags parameter are
-    \l{Qt::AlignmentFlag}s and \l{Qt::TextFlag}s OR'd together. \a br
+    \a{y}), width \a w and height \a h. The flags that are given in the
+    \a flags parameter are a selection of flags from \l{Qt::AlignmentFlag}s
+    and \l{Qt::TextFlag}s combined using the bitwise OR operator. \a br
     (if not null) is set to the actual bounding rectangle of the
     output.
 */
@@ -3580,12 +3579,11 @@ void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
 /*!
     \overload
 
-    Draws the string \a str within the rectangle \a r. If \a len is -1
-    (the default) all the text is drawn, otherwise only the first \a
-    len characters are drawn. The flags that are given in the \a flags
-    parameter are \l{Qt::AlignmentFlag}s and \l{Qt::TextFlag}s OR'd
-    together. \a br (if not null) is set to the actual bounding
-    rectangle of the output.
+    Draws the string \a str within the rectangle \a r. The flags that
+    are given in the \a flags parameter are a selection of flags from
+    \l{Qt::AlignmentFlag}s and \l{Qt::TextFlag}s combined using the
+    bitwise OR operator. \a br (if not null) is set to the actual
+    bounding rectangle of the output.
 */
 void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br)
 {
@@ -3616,12 +3614,10 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
 
 /*! \overload
 
-    Draws the string \a str within the rectangle \a r. If \a len is -1
-    (the default) all the text is drawn, otherwise only the first \a
-    len characters are drawn. The flags that are given in the \a flags
-    parameter are \l{Qt::AlignmentFlag}s and \l{Qt::TextFlag}s OR'd
-    together. \a br (if not null) is set to the actual bounding
-    rectangle of the output.
+    Draws the string \a str within the rectangle \a r. The specified \a flags
+    are constructed from \l{Qt::AlignmentFlag}s and \l{Qt::TextFlag}s,
+    combined using the bitwise OR operator. If \a br is not null, it is set
+    to the actual bounding rectangle of the output.
 */
 void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *br)
 {
@@ -3640,7 +3636,13 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *
     qt_format_text(font(), r, flags, str, br, 0, 0, 0, this);
 }
 
+/*!
+    \fn void QPainter::drawText(const QRectF &rectangle, const QString &text,
+        const QTextOption &option)
 
+    Draws the given \a text in the \a rectangle specified using the \a option
+    to control its positioning and orientation.
+*/
 void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption &o)
 {
 #ifdef QT_DEBUG_DRAW
@@ -3714,13 +3716,13 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
 
 /*!
     \fn QRect QPainter::boundingRect(int x, int y, int w, int h, int flags,
-                                     const QString &str, int len);
+                                     const QString &text);
 
     \overload
 
-    Returns the bounding rectangle of the first \a len characters of
-    the string \a str constrained by the rectangle that begins at
-    point (\a{x}, \a{y}) with width \a w and height \a h.
+    Returns the bounding rectangle of the characters in the string \a str
+    constrained by the rectangle beginning at the point (\a{x}, \a{y})
+    with width \a w and height \a h.
 */
 
 /*!
@@ -3785,7 +3787,14 @@ QRectF QPainter::boundingRect(const QRectF &rect, int flags, const QString &str)
     return brect;
 }
 
+/*!
+    \fn QRectF QPainter::boundingRect(const QRectF &rectangle,
+        const QString &text, const QTextOption &option)
 
+    Returns the bounding rectangle for the given \a text when placed within
+    the specified \a rectangle. The \a option can be used to control the
+    way the text is positioned and orientated.
+*/
 QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextOption &o)
 {
     if (!isActive() || text.length() == 0)
@@ -5211,3 +5220,40 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     Use redirected() instead.
 */
 
+/*!
+    \fn QRect QPainter::boundingRect(const QRect &rect, int flags,
+                                     const QString &text, int len)
+    \compat
+*/
+
+/*!
+    \fn void QPainter::drawText(const QRect &r, int flags, const QString &str,
+                                int len, QRect *br)
+    \compat
+*/
+
+/*!
+    \fn QRect QPainter::boundingRect(int x, int y, int w, int h, int flags,
+                                     const QString &text, int len);
+
+    \compat
+
+    Returns the bounding rectangle of the first \a len characters of
+    the string \a str constrained by the rectangle that begins at
+    point (\a{x}, \a{y}) with width \a w and height \a h.
+*/
+
+/*!
+    \fn void QPainter::drawText(int x, int y, int w, int h, int flags,
+                                const QString &str, int len, QRect *br)
+
+    \compat
+
+    Draws the string \a str within the rectangle with origin (\a{x},
+    \a{y}), width \a w and height \a h. If \a len is -1 (the default)
+    all the text is drawn, otherwise only the first \a len characters
+    are drawn. The flags that are given in the \a flags parameter are
+    \l{Qt::AlignmentFlag}s and \l{Qt::TextFlag}s OR'd together. \a br
+    (if not null) is set to the actual bounding rectangle of the
+    output.
+*/

@@ -385,13 +385,12 @@ QDebug operator<<(QDebug d, const QPointF &p)
     for accuracy. If you only need the accuracy of integers, you may want to
     use QPoint instead of this class.
 
-
-
     Convenience functions are provided for reading and writing the individual
     coordinates used to define the point: x(), y(), setX(), and setY().
+    QPointF also provides support for the standard arithmetic operators,
+    treating each point as a vector from the origin.
 
-
-    \sa QPointF
+    \sa QPoint
 */
 
 /*!
