@@ -69,13 +69,13 @@ public:
     virtual QRect itemRect( QPainter *p, int x, int y, int w, int h,
 		    int flags, bool enabled,
 		    const QPixmap *pixmap,
-		    const QString& text, int len=-1 ); // ### const 3.0
+		    const QString& text, int len=-1 ) const;
 
     virtual void drawItem( QPainter *p, int x, int y, int w, int h,
 		    int flags, const QColorGroup &g, bool enabled,
 		    const QPixmap *pixmap, const QString& text,
 			   int len=-1, const QColor* penColor = 0 );
-    
+
     enum PrimitiveOperation {
 	PO_ArrowUp,
 	PO_ArrowDown,
@@ -102,7 +102,7 @@ public:
 	PO_ScrollBarLinePageSlider
 	
     };
-    
+
     enum PrimitiveOperationFlags {
 	PStyle_Default = 		0x00000000,
 	PStyle_Enabled = 		0x00000001,
@@ -116,18 +116,18 @@ public:
     };
     typedef uint Pflags
 
-    virtual void drawPrimitive( PrimitiveOperation op, 
-				QPainter *p, 
-				const QRect& r, 
-				const QColorGroup &cg, 
-				PFlags flags = PStyle_Default, 
+    virtual void drawPrimitive( PrimitiveOperation op,
+				QPainter *p,
+				const QRect& r,
+				const QColorGroup &cg,
+				PFlags flags = PStyle_Default,
 				void* data = 0 );
-    
+
     enum ControlElement{
 	CE_Tab,
 	CE_MenuBarItem,
 	CE_PushButton,
-	CE_PushButtonLabel // support QPushButton::drawButtonLabel() function for subclasses 
+	CE_PushButtonLabel // support QPushButton::drawButtonLabel() function for subclasses
     }
 
     enum ControlElementFlags{
@@ -142,10 +142,22 @@ public:
 			      const QColorGroup& cg,
 			      const QRect& r,
 			      CFlags how = CStyle_Default,
-			      void* data = 0
-		       );
+			      void* data = 0 );
 
-    
+
+    enum SubRect {
+	SR_DefaultFrameContents,
+	SR_PopupFrameContents,
+	SR_MenuFrameContents,
+	
+	SR_ButtonContents,
+	SR_BevelButtonContents,
+	SR_PushButtonContents,
+	SR_ToolButtonContents,
+    }
+
+    virtual QRect subRect( SubRect r, QWidget* w );
+
     enum ComplexControl{
 	CC_ScrollBar,
 	CC_SpinWidget,
@@ -153,7 +165,7 @@ public:
 	CC_MenuItem,
 	CC_ComboBox
     }
-    
+
     enum SubControl {
 	SC_None = 		0x00000000,
 	
@@ -182,7 +194,7 @@ public:
     }
     typedef uint SCFlags;
 
-    
+
     virtual void drawComplexControl( ComplexControl control,
 				     QPainter* p,
 				     QWidget* w,
@@ -193,38 +205,16 @@ public:
 				     SCFlags subActive = SC_None,
 				     void* data = 0
 				     );
-    
-    virtual QRect querySubControlMetrics( ComplexControl control, 
-					  QWidget* w,  
-					  SubControl sc, 
+
+    virtual QRect querySubControlMetrics( ComplexControl control,
+					  QWidget* w,
+					  SubControl sc,
 					  void* data = 0 );
-    virtual SubControl querySubControl( ComplexControl control, 
-					QWidget* w,  
-					const QPoint& pos, 
+    virtual SubControl querySubControl( ComplexControl control,
+					QWidget* w,
+					const QPoint& pos,
 					void* data = 0 );
-    
 
-    enum SizeHintConstraint {
-	SHC_PushButton,
-    }
-    virtual QSize sizeHintConstraint( SizeHintConstraint s, 
-				      QWidget* w, 
-				      const QSize& sizeHint, 
-				      void* data = 0 );
-
-
-    enum SubRect {
-	SR_DefaultFrameContents,
-	SR_PopupFrameContents,
-	SR_MenuFrameContents,
-	
-	SR_ButtonContents,
-	SR_BevelButtonContents,
-	SR_PushButtonContents,
-	SR_ToolButtonContents,
-    }
-
-    virtual QRect subRect( SubRect r, QWidget* w );
 
     enum PixelMetric {
 	PM_DefaultFrameWidth,
@@ -253,13 +243,23 @@ public:
 	
 	PM_ScrollBarExtent
     }
-    
+
     virtual int pixelMetric( PixelMetric m, QWidget* w = 0 );
+
+
+    enum SizeHintConstraint {
+	SHC_PushButton,
+    }
+    virtual QSize sizeHintConstraint( SizeHintConstraint s,
+				      QWidget* w,
+				      const QSize& sizeHint,
+				      void* data = 0 );
+
     
     enum FeelHint  {
 	FH_TabBarCentered
     }
-    
+
     virtual int feelHint( FeelHint f, QWidget* w = 0, void** returnData = 0 );
 
 
