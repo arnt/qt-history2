@@ -147,10 +147,8 @@ sql {
 	}
 
 	contains(sql-drivers, tds) {
-		HEADERS += $$SQL_CPP/drivers/tds/qsql_tds.h \
-			   $$SQL_CPP/drivers/shared/qsql_result.h
-		SOURCES += $$SQL_CPP/drivers/tds/qsql_tds.cpp \
-			   $$SQL_CPP/drivers/shared/qsql_result.cpp
+		HEADERS += $$SQL_CPP/drivers/tds/qsql_tds.h
+		SOURCES += $$SQL_CPP/drivers/tds/qsql_tds.cpp
 		DEFINES += QT_SQL_TDS
 		unix {
 			LIBS += -L$SYBASE/lib -lsybdb
