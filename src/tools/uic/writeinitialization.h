@@ -64,7 +64,7 @@ struct WriteInitialization : public TreeWalker
 private:
     static QString domColor2QString(DomColor *c);
 
-    QString pixCall(const QString &pix) const;
+    QString pixCall(DomResourcePixmap *pix) const;
     QString trCall(const QString &str, const QString &className) const;
     QString trCall(const DomString *str, const QString &className) const;
 

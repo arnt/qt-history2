@@ -976,8 +976,9 @@ void WriteInitialization::initializeTableItems(const QString &className, const Q
     Q_UNUSED(items);
 }
 
-QString WriteInitialization::pixCall(const QString &pix) const
+QString WriteInitialization::pixCall(DomResourcePixmap *r) const
 {
+    QString pix = r->text();
     QString s = pix;
 
     bool declaredPix = driver->containsPixmap(pix);

@@ -23,6 +23,8 @@
 class DomUI;
 class DomIncludes;
 class DomInclude;
+class DomResources;
+class DomResource;
 class DomActionGroup;
 class DomAction;
 class DomActionRef;
@@ -57,6 +59,7 @@ class DomDate;
 class DomTime;
 class DomDateTime;
 class DomStringList;
+class DomResourcePixmap;
 class DomString;
 class DomProperty;
 
@@ -119,6 +122,9 @@ public:
     inline DomIncludes * elementIncludes() const { return m_eIncludes; }
     inline void setElementIncludes(DomIncludes * a) { m_eIncludes = a; };
 
+    inline DomResources * elementResources() const { return m_eResources; }
+    inline void setElementResources(DomResources * a) { m_eResources = a; };
+
     inline QString text() const { return m_text; }
     inline void setText(const QString &text) { m_text = text; }
 private:
@@ -145,6 +151,7 @@ private:
     DomTabStops * m_eTabStops;
     DomImages * m_eImages;
     DomIncludes * m_eIncludes;
+    DomResources * m_eResources;
 };
 
 class DomIncludes
@@ -209,6 +216,72 @@ private:
     bool m_hasLocation;
     QString m_aImpldecl;
     bool m_hasImpldecl;
+
+    // elements
+};
+
+class DomResources
+{
+    DomResources(const DomResources &other);
+    void operator = (const DomResources &other);
+
+public:
+    DomResources();
+    ~DomResources();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString::null);
+
+    inline QString attributeName() const { return m_aName; }
+    inline bool hasAttributeName() const { return m_hasName; }
+    inline void setAttributeName(const QString & a) { m_aName = a; m_hasName = true; }
+    inline void clearAttributeName() { m_hasName = false; }
+
+    inline QList<DomResource *> elementInclude() const { return m_eInclude; }
+    inline void setElementInclude(const QList<DomResource *> & a) { m_eInclude = a; };
+
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &text) { m_text = text; }
+private:
+    QString m_text;
+
+    inline void reset(bool full=true);
+
+    // attributes
+    QString m_aName;
+    bool m_hasName;
+
+    // elements
+    QList<DomResource *> m_eInclude;
+};
+
+class DomResource
+{
+    DomResource(const DomResource &other);
+    void operator = (const DomResource &other);
+
+public:
+    DomResource();
+    ~DomResource();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString::null);
+
+    inline QString attributeLocation() const { return m_aLocation; }
+    inline bool hasAttributeLocation() const { return m_hasLocation; }
+    inline void setAttributeLocation(const QString & a) { m_aLocation = a; m_hasLocation = true; }
+    inline void clearAttributeLocation() { m_hasLocation = false; }
+
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &text) { m_text = text; }
+private:
+    QString m_text;
+
+    inline void reset(bool full=true);
+
+    // attributes
+    QString m_aLocation;
+    bool m_hasLocation;
 
     // elements
 };
@@ -1514,6 +1587,37 @@ private:
     QStringList m_eString;
 };
 
+class DomResourcePixmap
+{
+    DomResourcePixmap(const DomResourcePixmap &other);
+    void operator = (const DomResourcePixmap &other);
+
+public:
+    DomResourcePixmap();
+    ~DomResourcePixmap();
+
+    void read(const QDomElement &node);
+    QDomElement write(QDomDocument &doc, const QString &tagName = QString::null);
+
+    inline QString attributeResource() const { return m_aResource; }
+    inline bool hasAttributeResource() const { return m_hasResource; }
+    inline void setAttributeResource(const QString & a) { m_aResource = a; m_hasResource = true; }
+    inline void clearAttributeResource() { m_hasResource = false; }
+
+    inline QString text() const { return m_text; }
+    inline void setText(const QString &text) { m_text = text; }
+private:
+    QString m_text;
+
+    inline void reset(bool full=true);
+
+    // attributes
+    QString m_aResource;
+    bool m_hasResource;
+
+    // elements
+};
+
 class DomString
 {
     DomString(const DomString &other);
@@ -1611,11 +1715,11 @@ public:
     inline DomFont * elementFont() const { return m_eFont; }
     inline void setElementFont(DomFont * a) { reset(false); m_eFont = a; m_kind = Font; };
 
-    inline QString elementIconSet() const { return m_eIconSet; }
-    inline void setElementIconSet(const QString & a) { reset(false); m_eIconSet = a; m_kind = IconSet; };
+    inline DomResourcePixmap * elementIconSet() const { return m_eIconSet; }
+    inline void setElementIconSet(DomResourcePixmap * a) { reset(false); m_eIconSet = a; m_kind = IconSet; };
 
-    inline QString elementPixmap() const { return m_ePixmap; }
-    inline void setElementPixmap(const QString & a) { reset(false); m_ePixmap = a; m_kind = Pixmap; };
+    inline DomResourcePixmap * elementPixmap() const { return m_ePixmap; }
+    inline void setElementPixmap(DomResourcePixmap * a) { reset(false); m_ePixmap = a; m_kind = Pixmap; };
 
     inline DomPalette * elementPalette() const { return m_ePalette; }
     inline void setElementPalette(DomPalette * a) { reset(false); m_ePalette = a; m_kind = Palette; };
@@ -1674,8 +1778,8 @@ private:
     int m_eCursor;
     QString m_eEnum;
     DomFont * m_eFont;
-    QString m_eIconSet;
-    QString m_ePixmap;
+    DomResourcePixmap * m_eIconSet;
+    DomResourcePixmap * m_ePixmap;
     DomPalette * m_ePalette;
     DomPoint * m_ePoint;
     DomRect * m_eRect;
@@ -1703,6 +1807,7 @@ inline DomUI::DomUI()
     m_eTabStops = 0;
     m_eImages = 0;
     m_eIncludes = 0;
+    m_eResources = 0;
 }
 
 inline DomIncludes::DomIncludes()
@@ -1713,6 +1818,16 @@ inline DomInclude::DomInclude()
 {
     m_hasLocation = false;
     m_hasImpldecl = false;
+}
+
+inline DomResources::DomResources()
+{
+    m_hasName = false;
+}
+
+inline DomResource::DomResource()
+{
+    m_hasLocation = false;
 }
 
 inline DomActionGroup::DomActionGroup()
@@ -1921,6 +2036,11 @@ inline DomStringList::DomStringList()
 {
 }
 
+inline DomResourcePixmap::DomResourcePixmap()
+{
+    m_hasResource = false;
+}
+
 inline DomString::DomString()
 {
     m_hasNotr = false;
@@ -1935,6 +2055,8 @@ inline DomProperty::DomProperty()
     m_eColor = 0;
     m_eCursor = 0;
     m_eFont = 0;
+    m_eIconSet = 0;
+    m_ePixmap = 0;
     m_ePalette = 0;
     m_ePoint = 0;
     m_eRect = 0;
@@ -1961,6 +2083,16 @@ inline DomIncludes::~DomIncludes()
 }
 
 inline DomInclude::~DomInclude()
+{
+    reset();
+}
+
+inline DomResources::~DomResources()
+{
+    reset();
+}
+
+inline DomResource::~DomResource()
 {
     reset();
 }
@@ -2135,6 +2267,11 @@ inline DomStringList::~DomStringList()
     reset();
 }
 
+inline DomResourcePixmap::~DomResourcePixmap()
+{
+    reset();
+}
+
 inline DomString::~DomString()
 {
     reset();
@@ -2169,6 +2306,7 @@ inline void DomUI::read(const QDomElement &node)
         else if (tag == QLatin1String("tabstops")) { DomTabStops* v = new DomTabStops(); v->read(e); m_eTabStops = v; }
         else if (tag == QLatin1String("images")) { DomImages* v = new DomImages(); v->read(e); m_eImages = v; }
         else if (tag == QLatin1String("includes")) { DomIncludes* v = new DomIncludes(); v->read(e); m_eIncludes = v; }
+        else if (tag == QLatin1String("resources")) { DomResources* v = new DomResources(); v->read(e); m_eResources = v; }
 
         e = e.nextSibling().toElement();
     }
@@ -2195,6 +2333,37 @@ inline void DomInclude::read(const QDomElement &node)
     // attributes
     if (node.hasAttribute(QString::fromLatin1("location").toLower())) setAttributeLocation(node.attribute(QString::fromLatin1("location").toLower()));
     if (node.hasAttribute(QString::fromLatin1("impldecl").toLower())) setAttributeImpldecl(node.attribute(QString::fromLatin1("impldecl").toLower()));
+
+    // elements
+    QDomElement e = node.firstChild().toElement();
+    while (!e.isNull()) {
+        QString tag = e.tagName().toLower();
+
+        e = e.nextSibling().toElement();
+    }
+    m_text = node.firstChild().toText().data();
+}
+
+inline void DomResources::read(const QDomElement &node)
+{
+    // attributes
+    if (node.hasAttribute(QString::fromLatin1("name").toLower())) setAttributeName(node.attribute(QString::fromLatin1("name").toLower()));
+
+    // elements
+    QDomElement e = node.firstChild().toElement();
+    while (!e.isNull()) {
+        QString tag = e.tagName().toLower();
+        if (tag == QLatin1String("include")) { DomResource* v = new DomResource(); v->read(e); m_eInclude.append(v); }
+
+        e = e.nextSibling().toElement();
+    }
+    m_text = node.firstChild().toText().data();
+}
+
+inline void DomResource::read(const QDomElement &node)
+{
+    // attributes
+    if (node.hasAttribute(QString::fromLatin1("location").toLower())) setAttributeLocation(node.attribute(QString::fromLatin1("location").toLower()));
 
     // elements
     QDomElement e = node.firstChild().toElement();
@@ -2787,6 +2956,21 @@ inline void DomStringList::read(const QDomElement &node)
     m_text = node.firstChild().toText().data();
 }
 
+inline void DomResourcePixmap::read(const QDomElement &node)
+{
+    // attributes
+    if (node.hasAttribute(QString::fromLatin1("resource").toLower())) setAttributeResource(node.attribute(QString::fromLatin1("resource").toLower()));
+
+    // elements
+    QDomElement e = node.firstChild().toElement();
+    while (!e.isNull()) {
+        QString tag = e.tagName().toLower();
+
+        e = e.nextSibling().toElement();
+    }
+    m_text = node.firstChild().toText().data();
+}
+
 inline void DomString::read(const QDomElement &node)
 {
     // attributes
@@ -2820,8 +3004,8 @@ inline void DomProperty::read(const QDomElement &node)
         else if (tag == QLatin1String("cursor")) { m_eCursor = e.firstChild().toText().data().toInt(); m_kind = Cursor; }
         else if (tag == QLatin1String("enum")) { m_eEnum = e.firstChild().toText().data(); m_kind = Enum; }
         else if (tag == QLatin1String("font")) { DomFont* v = new DomFont(); v->read(e); m_eFont = v; m_kind = Font; }
-        else if (tag == QLatin1String("iconset")) { m_eIconSet = e.firstChild().toText().data(); m_kind = IconSet; }
-        else if (tag == QLatin1String("pixmap")) { m_ePixmap = e.firstChild().toText().data(); m_kind = Pixmap; }
+        else if (tag == QLatin1String("iconset")) { DomResourcePixmap* v = new DomResourcePixmap(); v->read(e); m_eIconSet = v; m_kind = IconSet; }
+        else if (tag == QLatin1String("pixmap")) { DomResourcePixmap* v = new DomResourcePixmap(); v->read(e); m_ePixmap = v; m_kind = Pixmap; }
         else if (tag == QLatin1String("palette")) { DomPalette* v = new DomPalette(); v->read(e); m_ePalette = v; m_kind = Palette; }
         else if (tag == QLatin1String("point")) { DomPoint* v = new DomPoint(); v->read(e); m_ePoint = v; m_kind = Point; }
         else if (tag == QLatin1String("rect")) { DomRect* v = new DomRect(); v->read(e); m_eRect = v; m_kind = Rect; }
@@ -2911,6 +3095,9 @@ inline QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
     if (m_eIncludes)
         node.appendChild(m_eIncludes->write(doc, QString::fromLatin1("includes").toLower()));
 
+    if (m_eResources)
+        node.appendChild(m_eResources->write(doc, QString::fromLatin1("resources").toLower()));
+
     if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
     return node;
 }
@@ -2938,6 +3125,38 @@ inline QDomElement DomInclude::write(QDomDocument &doc, const QString &tagName)
 
     if (m_hasImpldecl)
         node.setAttribute(QString::fromLatin1("impldecl").toLower(), m_aImpldecl);
+
+
+    QDomElement child;
+    QDomText t;
+
+    if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
+    return node;
+}
+
+inline QDomElement DomResources::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Resources").toLower());
+    if (m_hasName)
+        node.setAttribute(QString::fromLatin1("name").toLower(), m_aName);
+
+
+    QDomElement child;
+    QDomText t;
+
+    for (int i=0; i<m_eInclude.size(); ++i) {
+        node.appendChild(m_eInclude.at(i)->write(doc, QString::fromLatin1("include").toLower()));
+    }
+
+    if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
+    return node;
+}
+
+inline QDomElement DomResource::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("Resource").toLower());
+    if (m_hasLocation)
+        node.setAttribute(QString::fromLatin1("location").toLower(), m_aLocation);
 
 
     QDomElement child;
@@ -3771,6 +3990,20 @@ inline QDomElement DomStringList::write(QDomDocument &doc, const QString &tagNam
     return node;
 }
 
+inline QDomElement DomResourcePixmap::write(QDomDocument &doc, const QString &tagName)
+{
+    QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("ResourcePixmap").toLower());
+    if (m_hasResource)
+        node.setAttribute(QString::fromLatin1("resource").toLower(), m_aResource);
+
+
+    QDomElement child;
+    QDomText t;
+
+    if (m_text.size()) node.appendChild(doc.createTextNode(m_text));
+    return node;
+}
+
 inline QDomElement DomString::write(QDomDocument &doc, const QString &tagName)
 {
     QDomElement node = doc.createElement(tagName.size() ? tagName.toLower() : QString::fromLatin1("String").toLower());
@@ -3850,22 +4083,14 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
     break;
 
     case DomProperty::IconSet: {
-    if (m_eIconSet.size()) {
-        child = doc.createElement(QString::fromLatin1("iconSet").toLower());
-        t = doc.createTextNode(m_eIconSet);
-        child.appendChild(t);
-        node.appendChild(child);
-    }
+    if (m_eIconSet)
+        node.appendChild(m_eIconSet->write(doc, QString::fromLatin1("iconSet").toLower()));
     }
     break;
 
     case DomProperty::Pixmap: {
-    if (m_ePixmap.size()) {
-        child = doc.createElement(QString::fromLatin1("pixmap").toLower());
-        t = doc.createTextNode(m_ePixmap);
-        child.appendChild(t);
-        node.appendChild(child);
-    }
+    if (m_ePixmap)
+        node.appendChild(m_ePixmap->write(doc, QString::fromLatin1("pixmap").toLower()));
     }
     break;
 
@@ -3970,6 +4195,7 @@ inline void DomUI::reset(bool full)
     delete m_eTabStops; m_eTabStops = 0;
     delete m_eImages; m_eImages = 0;
     delete m_eIncludes; m_eIncludes = 0;
+    delete m_eResources; m_eResources = 0;
     m_text = QString::null;
 }
 
@@ -3987,6 +4213,25 @@ inline void DomInclude::reset(bool full)
     if (full) {
     m_hasLocation = false;
     m_hasImpldecl = false;
+    }
+
+    m_text = QString::null;
+}
+
+inline void DomResources::reset(bool full)
+{
+    if (full) {
+    m_hasName = false;
+    }
+
+    qDeleteAll(m_eInclude);
+    m_text = QString::null;
+}
+
+inline void DomResource::reset(bool full)
+{
+    if (full) {
+    m_hasLocation = false;
     }
 
     m_text = QString::null;
@@ -4326,6 +4571,15 @@ inline void DomStringList::reset(bool full)
     m_text = QString::null;
 }
 
+inline void DomResourcePixmap::reset(bool full)
+{
+    if (full) {
+    m_hasResource = false;
+    }
+
+    m_text = QString::null;
+}
+
 inline void DomString::reset(bool full)
 {
     if (full) {
@@ -4346,6 +4600,8 @@ inline void DomProperty::reset(bool full)
 
     delete m_eColor; m_eColor = 0;
     delete m_eFont; m_eFont = 0;
+    delete m_eIconSet; m_eIconSet = 0;
+    delete m_ePixmap; m_ePixmap = 0;
     delete m_ePalette; m_ePalette = 0;
     delete m_ePoint; m_ePoint = 0;
     delete m_eRect; m_eRect = 0;
