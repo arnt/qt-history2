@@ -9,7 +9,6 @@
 #include <qframe.h>
 
 class QLabel;
-class QSplitter;
 class QSqlForm;
 
 class DatabaseFrontEnd : public QFrame
@@ -31,12 +30,10 @@ public slots:
 
 protected:
     void init();
-    void resizeEvent( QResizeEvent * );
 
 private:
     QSqlTable * invoiceTable, * customerTable;
     QLabel    * customerInfo;
-    QSplitter * vSplitter, * hSplitter;
 
     CustomerCursor customerCr;
     InvoiceCursor invoiceCr;

@@ -32,7 +32,10 @@ DatabaseFrontEnd::DatabaseFrontEnd( QWidget * parent, const char * name )
  */
 void DatabaseFrontEnd::init()
 {
+    QSplitter * vSplitter, * hSplitter;    
+    QGridLayout* gl = new QGridLayout( this );
     hSplitter   = new QSplitter( QSplitter::Horizontal, this );
+    gl->addWidget( hSplitter, 0, 0 );
     QFrame * f1 = new QFrame( hSplitter );
     vSplitter   = new QSplitter( QSplitter::Vertical, hSplitter  );
     QFrame * f2 = new QFrame( vSplitter );
@@ -188,14 +191,6 @@ void DatabaseFrontEnd::updateCustomerInfo( const QSqlRecord * fields )
 }
 
 /*!
-  Handle resizing properly.
- */
-void DatabaseFrontEnd::resizeEvent( QResizeEvent * )
-{
-    hSplitter->resize( width(), height() );
-}
-
-/*!
   Pops up a data entry form for inserting new customers into the
   database.
  */
@@ -212,7 +207,7 @@ void DatabaseFrontEnd::insertCustomer()
 
 /*!
   Pops up a data entry form for editing an existing customer. The
-  fields in the form will contain the current values for the currently 
+  fields in the form will contain the current values for the currently
   selected customer.
  */
 void DatabaseFrontEnd::updateCustomer()
@@ -272,8 +267,8 @@ void DatabaseFrontEnd::insertingInvoice( QSqlRecord* buf )
 
 /*!
   Pops up a data entry form for updating an invoice for a customer.
-  The fields in the form will contain the current values for the currently 
-  selected invoice. 
+  The fields in the form will contain the current values for the currently
+  selected invoice.
 */
 void DatabaseFrontEnd::updateInvoice()
 {
@@ -333,13 +328,14 @@ void DatabaseApp::init()
     setCentralWidget( frontend );
 
     // Setup menus
-    QPopupMenu * p = new QPopupMenu( this );    
+    QPopupMenu * p = new QPopupMenu( this );
+    p->insertItem( "Customer &Report", this, SLOT( customerReport() ), CTRL+Key_R );    
+    p->insertSeparator();
     p->insertItem( "&Quit", qApp, SLOT( quit() ), CTRL+Key_Q );
-    p->insertItem( "&Customer Report", this, SLOT( customerReport() ), CTRL+Key_C );    
     menuBar()->insertItem( "&File", p );
     p = new QPopupMenu( this );
-    p->insertItem( "&Create database", this, SLOT( createDB()), CTRL+Key_O );
-    p->insertItem( "&Drop database", this, SLOT( dropDB()), CTRL+Key_D );
+    p->insertItem( "&Create database", this, SLOT( createDatabase()), CTRL+Key_O );
+    p->insertItem( "&Drop database", this, SLOT( dropDatabase()), CTRL+Key_D );
     menuBar()->insertItem( "&Tools", p );
 }
 
@@ -364,7 +360,7 @@ void DatabaseApp::customerReport()
 	t << "<title>Customer Report</title>";
 	t << "<body bgcolor=#fff8f8>";
 	t << "<h1>Customer Report - Unpaid and Paid Invoices</h1>";
-	
+
 	/* unpaid invoices */
 	t << "<h2>Unpaid Invoices</h2>";
 	t << "<table border=1 cellpadding=0 cellspacing=0 width=50%>\n";
@@ -373,7 +369,7 @@ void DatabaseApp::customerReport()
 	t << "<td>Customer Name</td>";
 	t << "<td>Invoices</td>";
 	t << "<td>Total</td>\n";
-	t << "</tr></h3>";	    
+	t << "</tr></h3>";
 	unpaidInvoices.exec( "select a.name, count(b.id), sum(b.total) from customer a, invoice b "
 			   "where b.customerid=a.id and b.paid=0 group by a.name order by a.name;" );
 	while ( unpaidInvoices.next() ) {
@@ -381,11 +377,11 @@ void DatabaseApp::customerReport()
 	    t << "<td>" << unpaidInvoices.value(0).toString().rightJustify(30) << "</td>";
 	    t << "<td>" << unpaidInvoices.value(1).toString().rightJustify(30) << "</td>";
 	    t << "<td>" << unpaidInvoices.value(2).toString().rightJustify(30) << "</td>\n";
-	    t << "</tr>";	    
+	    t << "</tr>";
 	}
 	t << "</table>";
-	
-	
+
+
 	/* paid invoices */
 	t << "<h2>Paid Invoices</h2>";
 	t << "<table border=1 cellpadding=0 cellspacing=0 width=50%>\n";
@@ -394,7 +390,7 @@ void DatabaseApp::customerReport()
 	t << "<td>Customer Name</td>";
 	t << "<td>Invoices</td>";
 	t << "<td>Total</td>\n";
-	t << "</tr></h3>";	    
+	t << "</tr></h3>";
 	paidInvoices.exec( "select a.name, count(b.id), sum(b.total) from customer a, invoice b "
 			   "where b.customerid=a.id and b.paid=1 group by a.name order by a.name;" );
 	while ( paidInvoices.next() ) {
@@ -402,10 +398,10 @@ void DatabaseApp::customerReport()
 	    t << "<td>" << paidInvoices.value(0).toString().rightJustify(30) << "</td>";
 	    t << "<td>" << paidInvoices.value(1).toString().rightJustify(30) << "</td>";
 	    t << "<td>" << paidInvoices.value(2).toString().rightJustify(30) << "</td>\n";
-	    t << "</tr>";	    
+	    t << "</tr>";
 	}
 	t << "</table>";
-	
+
 	t << "</body>";
 	t << "</html>";
 
