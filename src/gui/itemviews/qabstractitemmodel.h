@@ -16,8 +16,6 @@
 #ifndef QT_H
 #include <qobject.h>
 #include <qvariant.h>
-#include <qlist.h>
-#include <qmap.h>
 #endif
 
 class QAbstractItemModel;
@@ -74,14 +72,19 @@ private:
     QPersistentModelIndexData *d;
 };
 
+template<typename T>
+class QList;
 typedef QList<QModelIndex> QModelIndexList;
-typedef QList<QCoreVariant> QCoreVariantList;
 
 class QWidget;
 class QDropEvent;
 class QDragObject;
 class QMimeSource;
+class QVariant;
 class QAbstractItemModelPrivate;
+template <class Key, class T>
+class QMap;
+
 
 class Q_GUI_EXPORT QAbstractItemModel : public QObject
 {
@@ -108,7 +111,7 @@ public:
         MatchWrap = 8,
         MatchDefault = MatchFromStart | MatchWrap
     };
-    
+
     Q_DECLARE_FLAGS(ItemMatchFlags, ItemMatch);
 
     QAbstractItemModel(QObject *parent = 0);
@@ -171,7 +174,7 @@ signals:
 
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
-    
+
     inline QModelIndex createIndex(int row = -1, int column = -1, void *data = 0,
                                    QModelIndex::Type type = QModelIndex::View) const
         { return QModelIndex(row, column, data, type); }

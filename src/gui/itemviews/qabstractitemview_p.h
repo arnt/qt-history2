@@ -4,6 +4,7 @@
 class QRubberBand;
 
 #include <private/qviewport_p.h>
+#include <qmap.h>
 
 class QAbstractItemViewPrivate : public QViewportPrivate
 {

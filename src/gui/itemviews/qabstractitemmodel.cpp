@@ -14,6 +14,7 @@
 #include <qevent.h>
 #include <qdragobject.h>
 #include <qdatastream.h>
+#include <qmap.h>
 #include <qmime.h>
 #include <qatomic.h>
 #include <qdebug.h>
