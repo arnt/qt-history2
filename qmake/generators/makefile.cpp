@@ -218,7 +218,7 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 			    QStringList uil = project->variables()["INTERFACES"];
 			    for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
 				if((*it).find(QRegExp(uip)) != -1) { 
-				    fqn = (*it);
+				    fqn = (*it).left((*it).length()-3) + uip.right(uip.length()-extn);
 				    break;
 				}
 			    }
