@@ -63,5 +63,5 @@ msgstr "Ansicht"
 
 #: qaccel.cpp:656
 msgid "QAccel::Ctrl"
-msgstr "Strng"
+msgstr "Strg"
 
