@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#7 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#8 $
 **
 ** Definition of QIODevice class
 **
@@ -25,8 +25,8 @@
 
 // IO handling modes
 
-#define IO_Raw			0x0010		// raw access (not buffered)
-#define IO_Async		0x0020		// asynchronous mode
+#define IO_Raw			0x0040		// raw access (not buffered)
+#define IO_Async		0x0080		// asynchronous mode
 
 // IO device open modes
 
