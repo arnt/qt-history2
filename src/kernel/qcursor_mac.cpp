@@ -40,7 +40,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-// NOT REVISED
+#ifdef MACOSX_102
+# define QMAC_USE_BIG_CURSOR_API
+#endif
 
 
 /*****************************************************************************
@@ -124,7 +126,7 @@ struct QCursorData : public QShared
     int hx, hy;
     QBitmap  *bm, *bmm;
 
-    enum { TYPE_None, TYPE_CursorImage, TYPE_CursPtr, TYPE_ThemeCursor, TYPE_FakeCursor } type;
+    enum { TYPE_None, TYPE_CursorImage, TYPE_CursPtr, TYPE_ThemeCursor, TYPE_FakeCursor, TYPE_BigCursor } type;
     union {
 	struct {
 	    uint my_cursor:1;
@@ -135,6 +137,9 @@ struct QCursorData : public QShared
 	    QMacCursorWidget *widget;
 	    CursPtr empty_curs;
 	} fc;
+#endif
+#ifdef QMAC_USE_BIG_CURSOR_API
+	char *big_cursor_name;
 #endif
 	CursorImageRec *ci;
 	ThemeCursor tc;
@@ -181,6 +186,10 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
 		SetThemeCursor(c->data->curs.tc);
 		break;
 	    }
+#ifdef QMAC_USE_BIG_CURSOR_API
+	} else if(c->data->type == QCursorData::TYPE_BigCursor) {
+	    QDSetNamedPixMapCursor(c->data->curs.big_cursor_name);
+#endif
 	} else {
 //	    qDebug("whoa! that shouldn't happen!");
 	}
@@ -206,12 +215,17 @@ QCursorData::~QCursorData()
 	    free(curs.cp.hcurs);
     } else if(type == TYPE_CursorImage) {
 	free(curs.ci);
+#ifdef QMAC_USE_BIG_CURSOR_API
+    } else if(type == TYPE_BigCursor) {
+	QDUnregisterNamedPixMapCursur(curs.big_cursor_name);
+	free(curs.big_cursor_name);
+#endif
     } else if(type == TYPE_FakeCursor) {
 #ifndef QMAC_NO_FAKECURSOR
 	free(curs.fc.empty_curs);
 	delete curs.fc.widget;
 #endif
-    }
+    } 
     type = TYPE_None;
 
     if(bm)
@@ -457,7 +471,28 @@ void QCursor::update() const
 			*(((uchar*)d->curs.cp.hcurs->data) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
 		}
 	    }
-	} else {
+#ifdef QMAC_USE_BIG_CURSOR_API
+	} else if(d->bm->width() < 64 && d->bm->height() < 64) {
+	    d->curs.big_cursor_name = (char *)malloc(128);
+	    static int big_cursor_cnt = 0;
+	    sprintf(d->curs.big_cursor_name, "qt_QCursor_%d_%d", getpid(), big_cursor_cnt++);
+	    Point hotspot;
+	    if((hotspot.v = data->hx) < 0)
+		hotspot.v = 0;
+	    if((hotspot.h = data->hy) < 0)
+		hotspot.h = 0;
+	    OSStatus ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap((GWorldPtr)data->bm->handle()),
+						       GetGWorldPixMap((GWorldPtr)data->bmm->handle()), hotspot, 
+						       d->curs.big_cursor_name);
+	    if(ret == noErr) {
+		qDebug("Whoa! Untested cursor case! %s:%d", __FILE__, __LINE__);
+		d->type = QCursorData::TYPE_BigCursor;		
+	    } else {
+		free(d->curs.big_cursor_name);
+	    }
+#endif
+	}
+	if(d->type == QCursorData::TYPE_None) {
 #ifndef QMAC_NO_FAKECURSOR
 	    d->type = QCursorData::TYPE_FakeCursor;
 	    d->curs.fc.widget = new QMacCursorWidget(d->bm, d->bmm);
@@ -602,7 +637,7 @@ void QCursor::update() const
 	    0x0f,0x1f,0x0f,0x0f,0x3e,0x0f,0x1f,0xfc,0x0f,0x1e,0xf8,0x07,0x3e,0xf0,0x07,
 	    0xfc,0xe0,0x03,0xf8,0xff,0x01,0xf0,0xff,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00};
 	QBitmap bm(20, 20, forbidden_bits, TRUE), bmm(20, 20, forbiddenm_bits, TRUE);
-	setBitmap(bm, bmm, 10, 10);
+	((QCursor*)this)->setBitmap(bm, bmm, 10, 10);
 	break;
 #else
 //need a forbidden cursor! FIXME
