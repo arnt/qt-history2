@@ -1,19 +1,23 @@
 #!/usr/bin/perl
 
-use FileHandle;
+$version="1.3";                      # May include "beta", etc.
+$file="qtwin13.zip";                 # Name as presented to customer
+$source="~/qt/windows/qtwin13.zip";  # File on zen.linpro.no
+$dryrun="warwick@troll.no";          # 0 for real, or email address of tester
+$message=			     # Footer of message
+"Please send me mail when I can delete the files, and feel free to send
+any questions to support\@troll.no."
 
-open( C,'< /etc/zmailer.conf' );
-while( <C> ) {
-    $zmconf{$1} = $2 if ( /^([a-zA-Z]+)\s*=\s*(.*)/ );
-}
-close C;
+--",$USER;
 
-open( K, "< /home/agulbra/troll/kunder.txt" ) || die "1";
-open( S, "| ssh zen.linpro.no" ) || die "2";
-S->autoflush(1);
-print S "umask 002\n";
 
-foreach $line ( <K> ) {
+
+
+open( CUSTOMERS, "< ~/troll/kunder.txt" ) || die "1";
+open( SSH, "| ssh zen.linpro.no" ) || die "2";
+print SSH "cd www/ftp/.private\n";
+
+foreach $customer ( <CUSTOMERS> ) {
     $exp = "";
     chomp $line;
     ($name, $addr, $platform, $exp, $org) = split( / *\t+ */, $line );
@@ -21,83 +25,41 @@ foreach $line ( <K> ) {
 
     next unless ( $platform =~ /w/ );
 
-    $name = "\"$name\"" unless ( $name =~ /^[a-zA-Z ]*$/ );
-
     $key = lc $org;
     $key =~ s/[^a-z0-9].*//;
     $_ = `mcookie`;
     $_ =~ s/(........).*/\1/s;
     $key = "$key-$_";
 
-    $submit = $zmconf{'POSTOFFICE'} . "/public/kunder.$key";
 
-    if ( open( O, "> $submit" ) ) {
-	print O 
-"from paul\@troll.no
-envid $key
-notaryret FULL
-todsn NOTIFY=FAILURE
-to $addr
-todsn NOTIFY=FAILURE
-to support\@troll.no
-env-end
-Organization: Troll Tech AS; fax +47 22646949; http://www.troll.no
-To: $name <$addr>
-Cc: support\@troll.no
-Reply-To: support\@troll.no
-From: Paul Olav Tvete <paul\@troll.no>
-Subject: Qt 1.3 beta for Windows
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+    $to = $dryrun ? $dryrun : $a;
+
+    open( MAIL, "| /usr/sbin/sendmail -t" );
+    print MAIL  "To: ",$to,"\n"
+		"Subject: Qt ",$version," released\n",
+		"Organization: Troll Tech AS; fax +47 22646949; http://www.troll.no\n",
+		"Cc: support\@troll.no\n",
+		"Reply-To: support\@troll.no\n",
+		"MIME-Version: 1.0\n",
+		"Content-Type: text/plain; charset=US-ASCII\n",
+		"\n" ;
+
+    print MAIL "
+Qt ",$version," for Windows 95/NT is now ready to be downloaded
+from the Troll Tech FTP site:
+
+    ftp://ftp.troll.no/.private/",$key,"/",$file,"
 
 ";
 
-	print O
-"Dear Qt customer,
+    print SSH "mkdir ", $key, "\n";
 
-Qt 1.3 is now entering the final beta-testing stage, and we are
-inviting you to take part in beta-testing it.
+    print SSH "ln ",$source," ", $key, "\n";
 
-All known Windows-specific bugs have been corrected.  If you can find
-any more bugs, we would appreciate hearing from you.  (If you can't,
-we're very happy :)
-
-Of course, we cannot guarantee that this beta version is suitable for
-production work.
-
+    print MAIL "
+",$message,"
 ";
-
-	print S "mkdir www/ftp/.beta/$key\nchgrp troll www/ftp/.beta/$key\n";
-	if ( $platform =~ /w/ ) {
-	    print S "ln /home/paul/qtwin13beta3.zip www/ftp/.beta/$key\n";
-	    print O "The complete URL for your Windows archive is:\n    ftp://ftp.troll.no/.beta/$key/qtwin13beta3.zip\n\nThis file will be deleted in ten days.\n\n";
-	} else {
-	    print O "\n\n";
-	}
-	if ( $platform =~ /x/ ) {
-	    print O 
-"As announced on the qt-beta mailing list, the current X beta is located at
-
-    ftp://ftp.troll.no/.beta/gettingbetta/qt-1.3beta3.tar.gz
-
-";
-#	    print S "ln qt/unix/qt-1.21-commercial.tar.gz www/ftp/.private/$key\n";
-#	    print O "The complete URL for your X11 archive is:\n    ftp://ftp.troll.no/.private/$key/qt-1.21-commercial.tar.gz\n\n";
-	}
-	print O "As always, feel free to send any questions to support\@troll.no.\n\n- Paul\n";
-	close O;
-	$send{$submit}++;
-    } else {
-	die "canot open $submit, stopped";
-    }
+    close MAIL;
 }
 
-close K;
-close S;
-
-foreach ( keys %send ) {
-    $inode = (stat($_))[1];
-    if ( defined( $inode ) ) {
-	rename( $_, "$zmconf{'POSTOFFICE'}/router/$inode" );
-    }
-}
+close SSH;
