@@ -233,31 +233,34 @@ enum {
     kEventQtRequestWakeup = 16,
     kEventQtRequestShowSheet = 17
 };
-static bool request_updates_pending = FALSE;
+static EventRef request_updates_pending = NULL;
 void qt_event_request_updates()
 {
-    if(request_updates_pending)
-	return;
-    request_updates_pending = TRUE;
+    if(request_updates_pending) {
+	if(IsEventInQueue(GetMainEventQueue(), request_updates_pending))
+	    return;
+	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+    }
 
-    EventRef upd = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagateWindowUpdates,
-		GetCurrentEventTime(), kEventAttributeUserEvent, &upd);
-    PostEventToQueue(GetMainEventQueue(), upd, kEventPriorityHigh);
-    ReleaseEvent(upd);
+		GetCurrentEventTime(), kEventAttributeUserEvent, &request_updates_pending);
+    PostEventToQueue(GetMainEventQueue(), request_updates_pending, kEventPriorityHigh);
+    ReleaseEvent(request_updates_pending);
 }
-static bool request_select_pending = FALSE;
+static EventRef request_select_pending = NULL;
 void qt_event_request_select(QEventLoop *loop) {
-    if(request_select_pending)
-	return;
-    request_select_pending = TRUE;
+    if(request_select_pending) {
+	if(IsEventInQueue(GetMainEventQueue(), request_select_pending))
+	    return;
+	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+    }
 
-    EventRef sel = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestSelect, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &sel);
-    SetEventParameter(sel, kEventParamQEventLoop, typeQEventLoop, sizeof(loop), &loop);
-    PostEventToQueue(GetMainEventQueue(), sel, kEventPriorityStandard);
-    ReleaseEvent(sel);
+		kEventAttributeUserEvent, &request_select_pending);
+    SetEventParameter(request_select_pending, 
+		      kEventParamQEventLoop, typeQEventLoop, sizeof(loop), &loop);
+    PostEventToQueue(GetMainEventQueue(), request_select_pending, kEventPriorityStandard);
+    ReleaseEvent(request_select_pending);
 }
 void qt_event_request_showsheet(QWidget *w)
 {
@@ -298,17 +301,20 @@ void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
     }
     request_updates_pending_list.append(w->winId());
 }
-static bool request_wakeup_pending = FALSE;
+static EventRef request_wakeup_pending = NULL;
 void qt_event_request_wakeup()
 {
-    if(request_wakeup_pending)
-	return;
-    request_wakeup_pending = TRUE;
-    EventRef upd = NULL;
+    if(request_wakeup_pending) {
+	if(IsEventInQueue(GetMainEventQueue(), request_wakeup_pending))
+	    return;
+	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+    }
+
     CreateEvent(NULL, kEventClassQt, kEventQtRequestWakeup, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &upd);
-    PostEventToQueue(GetMainEventQueue(), upd, kEventPriorityHigh);
-    ReleaseEvent(upd);
+		kEventAttributeUserEvent, &request_wakeup_pending);
+    PostEventToQueue(GetMainEventQueue(), request_wakeup_pending, 
+		     kEventPriorityHigh);
+    ReleaseEvent(request_wakeup_pending);
 }
 void qt_event_request_timer(TimerInfo *tmr)
 {
@@ -329,18 +335,19 @@ TimerInfo *qt_event_get_timer(EventRef event)
 }
 
 #ifndef QMAC_QMENUBAR_NO_NATIVE
-static bool request_menubarupdate_pending = FALSE;
+static EventRef request_menubarupdate_pending = NULL;
 void qt_event_request_menubarupdate()
 {
-    if(request_menubarupdate_pending)
-	return;
-    request_menubarupdate_pending = TRUE;
+    if(request_menubarupdate_pending) {
+	if(IsEventInQueue(GetMainEventQueue(), request_menubarupdate_pending))
+	    return;
+	qDebug("%s:%d Whoa, we dropped an event on the floor!", __FILE__, __LINE__);
+    }
 
-    EventRef upd = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestMenubarUpdate, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &upd);
-    PostEventToQueue(GetMainEventQueue(), upd, kEventPriorityHigh);
-    ReleaseEvent(upd);
+		kEventAttributeUserEvent, &request_menubarupdate_pending);
+    PostEventToQueue(GetMainEventQueue(), request_menubarupdate_pending, kEventPriorityHigh);
+    ReleaseEvent(request_menubarupdate_pending);
 }
 #endif
 
@@ -1128,7 +1135,7 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
 }
 
 //context menu hack
-static bool request_context_pending = FALSE;
+static EventRef request_context_pending = NULL;
 QMAC_PASCAL void
 QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
 {
@@ -1139,14 +1146,12 @@ QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
     if(r != otc || w != qt_button_down ||
        request_context_pending || QMacBlockingFunction::blocking())
 	return;
-    request_context_pending = TRUE;
 
-    EventRef ctx = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestContext, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &ctx );
-    SetEventParameter(ctx, kEventParamQWidget, typeQWidget, sizeof(w), &w);
-    PostEventToQueue(GetMainEventQueue(), ctx, kEventPriorityStandard);
-    ReleaseEvent(ctx);
+		kEventAttributeUserEvent, &request_context_pending );
+    SetEventParameter(request_context_pending, kEventParamQWidget, typeQWidget, sizeof(w), &w);
+    PostEventToQueue(GetMainEventQueue(), request_context_pending, kEventPriorityStandard);
+    ReleaseEvent(request_context_pending);
 }
 
 bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, WindowPtr pt)
@@ -1216,7 +1221,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	    request_updates_pending_list.clear();
 	} else if(ekind == kEventQtRequestPropagateWindowUpdates) {
-	    request_updates_pending = FALSE;
+	    request_updates_pending = NULL;
 	    QApplication::sendPostedEvents();
 	    if(QWidgetList *list   = qApp->topLevelWidgets()) {
 		for (QWidget *widget = list->first(); widget; widget = list->next()) {
@@ -1232,14 +1237,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(widget)
 		ShowSheetWindow((WindowPtr)widget->hd, (WindowPtr)widget->parentWidget()->hd);
 	} else if(ekind == kEventQtRequestWakeup) {
-	    request_wakeup_pending = FALSE; 	    //do nothing else, we just woke up!
+	    request_wakeup_pending = NULL; 	    //do nothing else, we just woke up!
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	} else if(ekind == kEventQtRequestMenubarUpdate) {
-	    request_menubarupdate_pending = FALSE;
+	    request_menubarupdate_pending = NULL;
 	    QMenuBar::macUpdateMenuBar();
 #endif
 	} else if(ekind == kEventQtRequestSelect) {
-	    request_select_pending = FALSE;
+	    request_select_pending = NULL;
 	    QEventLoop *l = NULL;
 	    if(GetEventParameter(event, kEventParamQEventLoop, typeQEventLoop, NULL, sizeof(l), NULL, &l))
 		l = app->eventLoop();
@@ -1248,7 +1253,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    l->macHandleSelect(&tm);
 	} else if(ekind == kEventQtRequestContext) {
 	    if(request_context_pending) {
-		request_context_pending = FALSE;
+		request_context_pending = NULL;
 		//figure out which widget to send it to
 		QPoint where = QCursor::pos();
 		QWidget *widget = NULL;
@@ -2060,15 +2065,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    mac_context_timer = NULL;
 	}
 	if(request_context_pending) {
-	    request_context_pending = FALSE;
-	    EventRef er;
-	    const EventTypeSpec eventspec = { kEventClassQt, kEventQtRequestContext };
-	    for(;;) {
-		OSStatus ret = ReceiveNextEvent(1, &eventspec, kEventDurationNoWait, TRUE, &er);
-		if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
-		    break;
-		ReleaseEvent(er);
-	    }
+	    RemoveEventFromQueue(GetMainEventQueue(), request_context_pending);
+	    ReleaseEvent(request_context_pending);
+	    request_context_pending = NULL;
 	}
     }
 
