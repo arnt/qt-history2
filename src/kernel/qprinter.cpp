@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#23 $
 **
 ** Implementation of QPrinter class
 **
@@ -12,7 +12,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#23 $");
 
 
 /*!
@@ -273,8 +273,6 @@ void QPrinter::setCreator( const char *creator )
   The printer driver reads this setting and prints using the specified
   orientation.
 
-  \warning Not yet implemented for X-Windows.
-
   \sa orientation()
 */
 
@@ -301,8 +299,6 @@ void QPrinter::setOrientation( Orientation orientation )
   <li>\c QPrinter::Legal ( 8.5x14 inches, 216x356 mm)
   <li>\c QPrinter::Executive (7.5x10 inches, 191x254 mm)
   </ul>
-
-  \warning Not yet implemented for X-Windows.
 
   \sa pageSize()
 */
