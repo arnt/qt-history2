@@ -2808,6 +2808,8 @@ void QTextEdit::setCursorPosition( int para, int index )
     cursor->setIndex( index );
     ensureCursorVisible();
     drawCursor( TRUE );
+    emit cursorPositionChanged( cursor );
+    emit cursorPositionChanged( cursor->parag()->paragId(), cursor->index() );
 }
 
 /*!
