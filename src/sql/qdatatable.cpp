@@ -1896,8 +1896,10 @@ void QDataTable::refresh( QDataTable::Refresh mode )
     viewport()->setUpdatesEnabled( FALSE );
     d->haveAllRows = FALSE;
     if ( refreshData ) {
-	if ( !d->cur.refresh() && d->cur.cursor() )
+	if ( !d->cur.refresh() && d->cur.cursor() ) {
 	    handleError( d->cur.cursor()->lastError() );
+	}
+	d->lastAt = -1;
     }
     if ( refreshCol ) {
 	setNumCols( 0 );
@@ -1926,13 +1928,10 @@ void QDataTable::refresh( QDataTable::Refresh mode )
     horizontalHeader()->repaint();
     setSize( cur );
     // keep others aware
-    if ( d->lastAt != -1 && d->lastAt != currentRow() ) {
-	setCurrentSelection( currentRow(), currentColumn() );
-    } else {
-	int i = d->lastAt;
-	if ( i == -1 )
-	    i = 0;
+    if ( d->lastAt == -1 ) {
 	setCurrentSelection( 0, 0 );
+    } else if ( d->lastAt != currentRow() ) {
+	setCurrentSelection( currentRow(), currentColumn() );
     }
 }
 
