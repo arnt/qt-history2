@@ -27,6 +27,15 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     return str;
 }
 
+bool qIsQuoted( QVariant::Type t )
+{
+    return ( t == QVariant::String ||
+	     t == QVariant::CString ||
+	     t == QVariant::Date ||
+	     t == QVariant::Time ||
+	     t == QVariant::DateTime );
+}
+
 /*!
   Constructs a view on database \a db.  If \a autopopulate is TRUE, the \a name of the view
   must correspond to an existing table or view name in the database so that field information
@@ -330,8 +339,7 @@ QString qMakeFieldValue( const QSqlDriver* driver, const QString& prefix, QSqlFi
 {
     QString f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
     if ( !field->isNull() ) {
-	if( (field->type() == QVariant::String) || (field->type() == QVariant::CString) \
-	    || (field->type() == QVariant::Date) || (field->type() == QVariant::Time) || (field->type() == QVariant::DateTime) )
+	if( qIsQuoted( field->type() ) )
 	    f += " " + op + " '" + field->value().toString() + "'";
 	else
 	    f += " " + op + " " + field->value().toString();
@@ -394,7 +402,7 @@ int QSqlView::insert( bool invalidate )
 	if( j > 0 )
 	    vals += ",";
 	if ( !field(j)->isNull() ) {
-	    if( (type == QVariant::String) || (type == QVariant::CString) )
+	    if( qIsQuoted( type ) )
 		vals += "'" + val.toString() + "'";
 	    else
 		vals += val.toString();
