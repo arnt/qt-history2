@@ -876,6 +876,15 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     if (!isTopLevel() && size() == olds && oldp == pos() )
 	return;
+    
+    if(isVisible() && isMove) { //I have moved flag..
+	posInTLChanged = TRUE;
+	QObjectList	*objs = queryList();
+	QObjectListIt it( *objs );
+	for ( QObject *obj; (obj=it.current()); ++it ) 
+	    if(obj->isWidgetType()) 			
+		((QWidget *)obj)->posInTLChanged = TRUE;
+    }
     dirtyClippedRegion(TRUE);
 
     if ( isTopLevel() && isMove && own_id )
@@ -887,12 +896,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
     if ( isVisible() ) {
 	if ( isMove ) {
-	    posInTLChanged = TRUE;
-	    QObjectList	*objs = queryList();
-	    QObjectListIt it( *objs );
-	    for ( QObject *obj; (obj=it.current()); ++it ) 
-		if(obj->isWidgetType()) 			
-		    ((QWidget *)obj)->posInTLChanged = TRUE;
 	    QMoveEvent e( pos(), oldp );
 	    QApplication::sendEvent( this, &e );
 	}
@@ -1231,6 +1234,8 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 
 void QWidget::dirtyClippedRegion(bool tell_parent)
 {
+    if(extra)
+	extra->clip_dirty = TRUE;
     for(QWidget *widg = this; widg; widg = tell_parent ? widg->parentWidget() : NULL) {
 	if(widg->extra)
 	    widg->extra->child_dirty = TRUE;
@@ -1243,14 +1248,12 @@ void QWidget::dirtyClippedRegion(bool tell_parent)
 	for ( QObject *obj; (obj=it.current()); ++it ) {
 	    if(obj->isWidgetType()) {
 		QWidget *w = (QWidget *)(*it);
-		if(!w->isTopLevel() && w->isVisible() && w->extra && !w->extra->clip_dirty) {
+		if(w->topLevelWidget() == topLevelWidget() && 
+		   !w->isTopLevel() && w->isVisible() && w->extra && !w->extra->clip_dirty) {
 		    QPoint wp(posInWindow(w));
-		    if(widgr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height())))
+		    if(1 || widgr.intersects(QRect(wp.x(), wp.y(), w->width(), w->height())))
 			w->extra->clip_dirty = TRUE;
 		}
-
-		if(w->extra && !w->isTopLevel() && w->isVisible()) 
-		    w->extra->child_dirty = w->extra->clip_dirty = TRUE;
 	    }
 	}
 	delete chldn;
