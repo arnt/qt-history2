@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#17 $
 **
 ** Implementation of QFont and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#17 $";
 #endif
 
 // #define DEBUG_FONT
@@ -150,10 +150,13 @@ int computeLineWidth( const char *fontName )
 
     if ( strcmp( tokens[ResolutionX], "75") != 0 || // adjust if not 75 dpi
          strcmp( tokens[ResolutionY], "75") != 0 )
-        pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + 1 ) / ( 75 * 2 );
+        pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + 75 ) / ( 75 * 2 );
 
                 // Ad hoc algorithm, correct for bitstream charter
-    int lw = ( pSize*weight*2 /* + 500*/ ) / 1400;
+    int score = pSize*weight;
+    int lw = ( score ) / 700;
+    if ( lw < 2 && score >= 1050 ) // looks better with thicker line 
+        lw = 2;                    // for small pointsizes
 
     return lw ? lw : 1;
 }
@@ -530,7 +533,7 @@ int QFont_Private::fontMatchScore( char  *fontName, QString &buffer,
             score |= ResolutionScore;
         } else {
             exactMatch = FALSE;
-            pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + 1 ) / ( 75 * 2 );
+            pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + 75 ) / ( 75 * 2 );
 #if defined(DEBUG_FONT)
             debug("Res = %s, adjusting pSize from %s to %i",
                   tokens[ResolutionY], tokens[PointSize], pSize );
