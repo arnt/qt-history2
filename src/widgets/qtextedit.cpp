@@ -3802,6 +3802,10 @@ QTextEdit::WrapPolicy QTextEdit::wrapPolicy() const
 
 void QTextEdit::clear()
 {
+    // make clear undoable
+    doc->selectAll( QTextDocument::Temp );
+    removeSelectedText( QTextDocument::Temp );
+
     setContentsPos( 0, 0 );
     cursor->restoreState();
     doc->clear( TRUE );
