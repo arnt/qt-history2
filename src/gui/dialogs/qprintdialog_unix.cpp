@@ -1053,6 +1053,11 @@ QGroupBox *QPrintDialogUnix::setupDestination()
                               QLatin1String(""));
     }
 
+
+    d->model = new QPrinterModel(d->printers, this);
+    d->view = new QGenericTreeView(d->model, g);
+    d->view->setShowRootDecoration(false);
+
     // bang the best default into the listview
     int quality = 0;
     int best = 0;
@@ -1085,10 +1090,6 @@ QGroupBox *QPrintDialogUnix::setupDestination()
 
     if (etcLpDefault)                 // Avoid purify complaint
         delete[] etcLpDefault;
-
-    d->model = new QPrinterModel(d->printers, this);
-    d->view = new QGenericTreeView(d->model, g);
-    d->view->setShowRootDecoration(false);
 
 //     int h = fontMetrics().height();
 //     if (d->printers.size())
