@@ -1,8 +1,11 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MainView</class>
-<include location="local" impldecl="in declaration">qurloperator.h</include>
 <include location="global" impldecl="in implementation">qapplication.h</include>
+<include location="local" impldecl="in declaration">qnetworkprotocol.h</include>
+<include location="local" impldecl="in declaration">qurloperator.h</include>
+<include location="local" implDecl="in declaration">mainview.ui.h</include>
 <variable>QUrlOperator urlOp</variable>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>MainView</cstring>
@@ -11,8 +14,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>572</width>
-            <height>466</height>
+            <width>564</width>
+            <height>462</height>
         </rect>
     </property>
     <property name="caption">
@@ -840,7 +843,7 @@
         <receiver>MainView</receiver>
         <slot>stop()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">url_dataTransferProgress( int, int, QNetworkOperation * )</slot>
     <slot access="protected" language="C++" returnType="void">init()</slot>
     <slot access="public" language="C++" returnType="void">quit()</slot>
     <slot access="public" language="C++" returnType="void">start_copy()</slot>
@@ -851,128 +854,14 @@
     <slot access="public" language="C++" returnType="void">start_remove()</slot>
     <slot access="public" language="C++" returnType="void">start_rename()</slot>
     <slot access="public" language="C++" returnType="void">stop()</slot>
-    <slot access="public" language="C++" returnType="void">url_connectionStateChanged( int i )</slot>
-    <slot access="public" language="C++" returnType="void">url_createdDirectory()</slot>
-    <slot access="public" language="C++" returnType="void">url_data()</slot>
-    <slot access="public" language="C++" returnType="void">url_dataTransferProgress( int bytesDone, int bytesTotal )</slot>
-    <slot access="public" language="C++" returnType="void">url_finished()</slot>
-    <slot access="public" language="C++" returnType="void">url_itemChanged()</slot>
-    <slot access="public" language="C++" returnType="void">url_newChildren()</slot>
-    <slot access="public" language="C++" returnType="void">url_nextCopy()</slot>
-    <slot access="public" language="C++" returnType="void">url_removed()</slot>
-    <slot access="public" language="C++" returnType="void">url_start()</slot>
-    <slot access="protected" language="C++" returnType="void">url_startedNextCopy()</slot>
+    <slot access="public" language="C++" returnType="void">url_createdDirectory( const QUrlInfo &amp;, QNetworkOperation * )</slot>
+    <slot access="public" language="C++" returnType="void">url_data( const QByteArray &amp;, QNetworkOperation * )</slot>
+    <slot access="public" language="C++" returnType="void">url_finished( QNetworkOperation * )</slot>
+    <slot access="public" language="C++" returnType="void">url_itemChanged( QNetworkOperation * )</slot>
+    <slot access="public" language="C++" returnType="void">url_newChildren( const QValueList&lt;QUrlInfo&gt; &amp;, QNetworkOperation * )</slot>
+    <slot access="public" language="C++" returnType="void">url_removed( QNetworkOperation * )</slot>
+    <slot access="public" language="C++" returnType="void">url_start( QNetworkOperation * )</slot>
+    <slot access="protected" language="C++" returnType="void">url_startedNextCopy( const QPtrList&lt;QNetworkOperation&gt; &amp; )</slot>
+    <slot access="public" language="C++" returnType="void">url_connectionStateChanged( int i, const QString &amp; s )</slot>
 </connections>
-<functions>
-    <function name="destroy()" >{
-}</function>
-    <function name="init()" >{
-    connect( &amp;urlOp, SIGNAL(connectionStateChanged( int, const QString&amp;)),
-    	SLOT(url_connectionStateChanged(int)) );
-    connect( &amp;urlOp, SIGNAL(createdDirectory(const QUrlInfo&amp;, QNetworkOperation*)),
-    	SLOT(url_createdDirectory()) ); 
-    connect( &amp;urlOp, SIGNAL(data(const QByteArray&amp;, QNetworkOperation*)),
-    	SLOT(url_data()) );  
-    connect( &amp;urlOp, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
-    	SLOT(url_dataTransferProgress(int,int)) );  
-    connect( &amp;urlOp, SIGNAL(finished(QNetworkOperation*)),
-    	SLOT(url_finished()) );  
-    connect( &amp;urlOp, SIGNAL(itemChanged(QNetworkOperation*)),
-    	SLOT(url_itemChanged()) );  
-    connect( &amp;urlOp, SIGNAL(newChildren(const QValueList&lt;QUrlInfo&gt;&amp;,QNetworkOperation*)),
-    	SLOT(url_newChildren()) );  
-    connect( &amp;urlOp, SIGNAL(removed (QNetworkOperation*)),
-    	SLOT(url_removed()) );  
-    connect( &amp;urlOp, SIGNAL(start(QNetworkOperation*)),
-    	SLOT(url_start()) );  
-    connect( &amp;urlOp, SIGNAL(startedNextCopy(const QPtrList&lt;QNetworkOperation&gt;&amp;)),
-    	SLOT(url_startedNextCopy()) ); 
-}</function>
-    <function name="quit()" >{
-    QApplication::exit();
-}</function>
-    <function name="start_copy()" >{
-    logWindow-&gt;append( "START: copy()\n" );
-    urlOp = urlEdit-&gt;displayText(); 
-    urlOp.copy( copyFrom-&gt;displayText(), copyTo-&gt;displayText(), copyMove-&gt;isChecked() );  
-}</function>
-    <function name="start_get()" >{
-    logWindow-&gt;append( "START: get()\n" ); 
-    urlOp = urlEdit-&gt;displayText();
-    QString location = getLocation-&gt;displayText();
-    if ( location.isEmpty() )
-	urlOp.get();
-    else
-	urlOp.get( location );
-}</function>
-    <function name="start_listChildren()" >{
-    logWindow-&gt;append( "START: listChildren()\n" );
-    urlOp = urlEdit-&gt;displayText();
-    urlOp.listChildren();
-}</function>
-    <function name="start_mkdir()" >{
-    logWindow-&gt;append( "START: mkdir()\n" );
-    urlOp = urlEdit-&gt;displayText();
-    urlOp.mkdir( mkdirDirName-&gt;displayText() );
-}</function>
-    <function name="start_put()" >{
-    logWindow-&gt;append( "START: put()\n" );
-    urlOp = urlEdit-&gt;displayText(); 
-    QString location = getLocation-&gt;displayText(); 
-    QByteArray ba( 50 );
-    for ( int i=0; i&lt;50; i++ )
-	ba[i] = 'a' + i%26;
-    if ( location.isEmpty() ) 
-	urlOp.put( ba ); 
-    else 
-	urlOp.put( ba, location ); 
-}</function>
-    <function name="start_remove()" >{
-    logWindow-&gt;append( "START: remove()\n" );  
-    urlOp = urlEdit-&gt;displayText(); 
-    urlOp.remove( removeFileName-&gt;displayText() ); 
-}</function>
-    <function name="start_rename()" >{
-    logWindow-&gt;append( "START: rename()\n" );  
-    urlOp = urlEdit-&gt;displayText(); 
-    urlOp.rename( renameOldName-&gt;displayText(), renameNewName-&gt;displayText() ); 
-}</function>
-    <function name="stop()" >{
-    urlOp.stop();
-}</function>
-    <function name="url_connectionStateChanged(int)" >{
-    logWindow-&gt;append( QString("SIGNAL: connectionStateChanged %1\n").arg(i) );
-}</function>
-    <function name="url_createdDirectory()" >{
-    logWindow-&gt;append( "SIGNAL: createdDirectory\n" ); 
-}</function>
-    <function name="url_data()" >{
-    logWindow-&gt;append( "SIGNAL: data\n" ); 
-}</function>
-    <function name="url_dataTransferProgress(int,int)" >{
-    logWindow-&gt;append( QString("SIGNAL: dataTransferProgress %1 of %2\n")
-    	.arg(bytesDone).arg(bytesTotal) ); 
-}</function>
-    <function name="url_finished()" >{
-    logWindow-&gt;append( "SIGNAL: finished\n" ); 
-}</function>
-    <function name="url_itemChanged()" >{
-    logWindow-&gt;append( "SIGNAL: itemChanged\n" ); 
-}</function>
-    <function name="url_newChildren()" >{
-    logWindow-&gt;append( "SIGNAL: newChildren\n" ); 
-}</function>
-    <function name="url_nextCopy()" >{
-    logWindow-&gt;append( "SIGNAL: nextCopy\n" ); 
-}</function>
-    <function name="url_removed()" >{
-    logWindow-&gt;append( "SIGNAL: removed\n" ); 
-}</function>
-    <function name="url_start()" >{
-    logWindow-&gt;append( "SIGNAL: start\n" ); 
-}</function>
-    <function name="url_startedNextCopy()" >{
-    logWindow-&gt;append( "SIGNAL: startedNextCopy\n" );  
-}</function>
-</functions>
 </UI>
