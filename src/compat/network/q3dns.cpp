@@ -369,7 +369,7 @@ QString Q3DnsAnswer::readString(bool multipleLabels, bool isTxt)
         if ( p >= 0 && p < size )
 	    b = answer[p];
 
-        // b should be less than 64 unless it is a txt record in which case it can be 0-255 
+        // b should be less than 64 unless it is a txt record in which case it can be 0-255
         if (b >> 6 == 0 || isTxt) {
             p++;
 
@@ -405,7 +405,7 @@ QString Q3DnsAnswer::readString(bool multipleLabels, bool isTxt)
             // Ignore unrecognized control character, or p was out of
             // range.
 	    goto not_ok;
-        }	
+        }
     }
 not_ok:
     ok = FALSE;
@@ -1932,8 +1932,8 @@ QString Q3Dns::toInAddrArpaDomain(const QHostAddress &address)
         s = "ip6.arpa";
         uint b = 0;
         while(b < 16) {
-            s = QString::number(i.c[b]%16, 16) + "." +
-                QString::number(i.c[b]/16, 16) + "." + s;
+            s = QString::number(i[b]%16, 16) + "." +
+                QString::number(i[b]/16, 16) + "." + s;
             b++;
         }
     }

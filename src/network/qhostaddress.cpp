@@ -59,7 +59,7 @@ void QHostAddressPrivate::setAddress(Q_UINT32 a_)
 void QHostAddressPrivate::setAddress(const Q_UINT8 *a_)
 {
     for (int i = 0; i < 16; i++)
-        a6.c[i] = a_[i];
+        a6[i] = a_[i];
     protocol = Qt::IPv6Protocol;
     isParsed = true;
 }
@@ -406,10 +406,10 @@ Qt::NetworkLayerProtocol QHostAddress::protocol() const
 
     \code
         Q_IPV6ADDR addr = hostAddr.ip6Addr();
-        // addr.c[] contains 16 unsigned characters
+        // addr contains 16 unsigned characters
 
         for (int i = 0; i < 16; ++i) {
-            // process addr.c[i]
+            // process addr[i]
         }
     \endcode
 
@@ -446,7 +446,7 @@ QString QHostAddress::toString() const
     if (d->protocol == Qt::IPv6Protocol) {
         Q_UINT16 ugle[8];
         for (int i = 0; i < 8; i++) {
-            ugle[i] = (Q_UINT16(d->a6.c[2*i]) << 8) | Q_UINT16(d->a6.c[2*i+1]);
+            ugle[i] = (Q_UINT16(d->a6[2*i]) << 8) | Q_UINT16(d->a6[2*i+1]);
         }
         QString s;
         s.sprintf("%X:%X:%X:%X:%X:%X:%X:%X",

@@ -25,9 +25,15 @@
 
 class QHostAddressPrivate;
 
-typedef struct {
+class QIPv6Address
+{
+public:
+    inline Q_UINT8 &operator [](int index) { return c[index]; }
+    inline Q_UINT8 operator [](int index) const { return c[index]; }
     Q_UINT8 c[16];
-} Q_IPV6ADDR;
+};
+
+typedef QIPv6Address Q_IPV6ADDR;
 
 class QM_EXPORT_NETWORK QHostAddress
 {
