@@ -70,8 +70,8 @@ public:
 private:
     Type lengthType;
     int fixedValueOrPercentage;
-    friend QDataStream &operator<<(QDataStream &, const QTextLength &);
-    friend QDataStream &operator>>(QDataStream &, QTextLength &);
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QTextLength &);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QTextLength &);
 };
 
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QTextFormat &);
@@ -237,8 +237,8 @@ public:
 private:
     QSharedDataPointer<QTextFormatPrivate> d;
     friend class QTextFormatCollection;
-    friend QDataStream &operator<<(QDataStream &, const QTextFormat &);
-    friend QDataStream &operator>>(QDataStream &, QTextFormat &);
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QTextFormat &);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QTextFormat &);
 };
 
 class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
