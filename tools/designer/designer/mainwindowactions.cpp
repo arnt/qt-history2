@@ -1177,7 +1177,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 {
     statusBar()->message( tr( "Open a file...") );
 
-    QPluginManager<ImportFilterInterface> manager( IID_ImportFilter, QApplication::libraryPaths(), "/designer" );
+    QPluginManager<ImportFilterInterface> manager( IID_ImportFilter, QApplication::libraryPaths(), pluginDirectory() );
 
     Project* project = inProject ? currentProject : eProject;
 

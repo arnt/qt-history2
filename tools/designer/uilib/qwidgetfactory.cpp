@@ -117,11 +117,19 @@ bool qwf_execute_code = TRUE;
 bool qwf_stays_on_top = FALSE;
 QString qwf_currFileName = "";
 QObject *qwf_form_object = 0;
+QString *qwf_plugin_dir = 0;
+
+static void setupPluginDir()
+{
+    if ( !qwf_plugin_dir )
+	qwf_plugin_dir = new QString( "/designer" );
+}
 
 static void setupWidgetListAndMap()
 {
     if ( availableWidgetMap )
 	return;
+    setupPluginDir();
     availableWidgetList = new QStringList;
     (*availableWidgetList) << "QPushButton" << "QToolButton" << "QCheckBox" << "QRadioButton"
 			   << "QGroupBox" << "QButtonGroup" << "QIconView" << "QTable"
@@ -137,7 +145,8 @@ static void setupWidgetListAndMap()
 			   << "QVBox" << "QHBox" << "QGrid";
 
     if ( !widgetInterfaceManager )
-	widgetInterfaceManager = new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), "/designer" );
+	widgetInterfaceManager =
+	    new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), *qwf_plugin_dir );
 
     QStringList l = widgetInterfaceManager->featureList();
     QStringList::Iterator it;
@@ -316,10 +325,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 
     if ( !languageInterfaceManager )
 	languageInterfaceManager =
-	    new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(), "/designer" );
+	    new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(), *qwf_plugin_dir );
     if ( !interpreterInterfaceManager )
 	interpreterInterfaceManager =
-	    new QPluginManager<InterpreterInterface>( IID_Interpreter, QApplication::libraryPaths(), "/designer" );
+	    new QPluginManager<InterpreterInterface>( IID_Interpreter, QApplication::libraryPaths(), *qwf_plugin_dir );
 
     widgetFactory->loadExtraSource();
 
@@ -1507,7 +1516,8 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 
     // try to create it using the loaded widget plugins
     if ( !widgetInterfaceManager )
-	widgetInterfaceManager = new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), "/designer" );
+	widgetInterfaceManager =
+	    new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), *qwf_plugin_dir );
 
     QInterfacePtr<WidgetInterface> iface = 0;
     widgetInterfaceManager->queryInterface( className, &iface );

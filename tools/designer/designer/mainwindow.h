@@ -90,7 +90,7 @@ class MainWindow : public QMainWindow
 public:
     enum LineMode { Error, Step, StackFrame };
 
-    MainWindow( bool asClient, bool single = FALSE );
+    MainWindow( bool asClient, bool single = FALSE, const QString &plgDir = "/designer" );
     ~MainWindow();
 
     HierarchyView *objectHierarchy() const;
@@ -185,6 +185,8 @@ public:
     void writeConfig();
 
     void openProject( const QString &fn );
+    void setPluginDirectory( const QString &pd );
+    QString pluginDirectory() const { return pluginDir; }
 
 public slots:
     void showProperties( QObject *w );
@@ -472,6 +474,7 @@ private:
     AssistProc *assistant;
 #endif
     bool shStartDialog;
+    QString pluginDir;
 
 public:
     QString lastSaveFilter;

@@ -98,6 +98,7 @@ extern bool qwf_execute_code;
 extern bool qwf_stays_on_top;
 extern void set_splash_status( const QString &txt );
 extern QObject* qwf_form_object;
+extern QString *qwf_plugin_dir;
 /*### static bool tbSettingsRead = FALSE; */
 
 MainWindow *MainWindow::self = 0;
@@ -125,7 +126,7 @@ static QString textNoAccel( const QString& text)
 }
 
 
-MainWindow::MainWindow( bool asClient, bool single )
+MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
 #if defined(HAVE_KDE)
     : KMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
 #else
@@ -136,6 +137,8 @@ MainWindow::MainWindow( bool asClient, bool single )
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
       previewing( FALSE ), databaseAutoEdit( FALSE )
 {
+    self = this;
+    setPluginDirectory( plgDir );
     customWidgetToolBar = customWidgetToolBar2 = 0;
     guiStuffVisible = TRUE;
     init_colors();
@@ -155,7 +158,6 @@ MainWindow::MainWindow( bool asClient, bool single )
     if ( !single )
 	qApp->setMainWidget( this );
     QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );
-    self = this;
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
 
     actionGroupTools = 0;
@@ -2883,7 +2885,7 @@ void MainWindow::showDialogHelp()
 
 void MainWindow::setupActionManager()
 {
-    actionPluginManager = new QPluginManager<ActionInterface>( IID_Action, QApplication::libraryPaths(), "/designer" );
+    actionPluginManager = new QPluginManager<ActionInterface>( IID_Action, QApplication::libraryPaths(), pluginDirectory() );
 
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator ait = lst.begin(); ait != lst.end(); ++ait ) {
@@ -3103,17 +3105,23 @@ TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& cl
 
 void MainWindow::setupPluginManagers()
 {
-    editorPluginManager = new QPluginManager<EditorInterface>( IID_Editor, QApplication::libraryPaths(), "/designer" );
+    editorPluginManager = new QPluginManager<EditorInterface>( IID_Editor, QApplication::libraryPaths(), pluginDirectory() );
     MetaDataBase::setEditor( editorPluginManager->featureList() );
 
-    templateWizardPluginManager = new QPluginManager<TemplateWizardInterface>( IID_TemplateWizard, QApplication::libraryPaths(), "/designer" );
+    templateWizardPluginManager =
+	new QPluginManager<TemplateWizardInterface>( IID_TemplateWizard, QApplication::libraryPaths(), pluginDirectory() );
 
     MetaDataBase::setupInterfaceManagers();
-    programPluginManager = new QPluginManager<ProgramInterface>( IID_Program, QApplication::libraryPaths(), "/designer" );
-    interpreterPluginManager = new QPluginManager<InterpreterInterface>( IID_Interpreter, QApplication::libraryPaths(), "/designer" );
-    preferencePluginManager = new QPluginManager<PreferenceInterface>( IID_Preference, QApplication::libraryPaths(), "/designer" );
-    projectSettingsPluginManager = new QPluginManager<ProjectSettingsInterface>( IID_ProjectSettings, QApplication::libraryPaths(), "/designer" );
-    sourceTemplatePluginManager = new QPluginManager<SourceTemplateInterface>( IID_SourceTemplate, QApplication::libraryPaths(), "/designer" );
+    programPluginManager =
+	new QPluginManager<ProgramInterface>( IID_Program, QApplication::libraryPaths(), pluginDirectory() );
+    interpreterPluginManager =
+	new QPluginManager<InterpreterInterface>( IID_Interpreter, QApplication::libraryPaths(), pluginDirectory() );
+    preferencePluginManager =
+	new QPluginManager<PreferenceInterface>( IID_Preference, QApplication::libraryPaths(), pluginDirectory() );
+    projectSettingsPluginManager =
+	new QPluginManager<ProjectSettingsInterface>( IID_ProjectSettings, QApplication::libraryPaths(), pluginDirectory() );
+    sourceTemplatePluginManager =
+	new QPluginManager<SourceTemplateInterface>( IID_SourceTemplate, QApplication::libraryPaths(), pluginDirectory() );
 
     if ( preferencePluginManager ) {
 	QStringList lst = preferencePluginManager->featureList();
@@ -3747,4 +3755,13 @@ void MainWindow::showGUIStuff( bool b )
 	actionFileSave->addTo( projectToolBar );
 	actionFileExit->addTo( fileMenu );
     }
+}
+
+void MainWindow::setPluginDirectory( const QString &pd )
+{
+    pluginDir = pd;
+    if ( !qwf_plugin_dir )
+	qwf_plugin_dir = new QString( pd );
+    else
+	*qwf_plugin_dir = pd;
 }

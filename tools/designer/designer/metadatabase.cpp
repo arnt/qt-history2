@@ -334,24 +334,24 @@ void MetaDataBase::setMargin( QObject *o, int margin )
     r->margin = margin;
     QLayout * layout = 0;
     WidgetFactory::layoutType( (QWidget*)o, layout );
-    
+
     bool isInnerLayout = TRUE;
-   
-    QWidget *widget = (QWidget*)o; 
+
+    QWidget *widget = (QWidget*)o;
     if ( widget && !widget->inherits( "QLayoutWidget" ) &&
 	( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) ||
-	widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) ) 
+	widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) )
 	isInnerLayout = FALSE;
-    
-    
+
+
     if ( layout ) {
 	int mardef = 11;
 	if ( MainWindow::self->formWindow() )
 	    mardef = MainWindow::self->formWindow()->layoutDefaultMargin();
 	if ( margin == -1 ) {
-	    if ( isInnerLayout ) 
+	    if ( isInnerLayout )
 		layout->setMargin( 1 );
-	    else 
+	    else
 		layout->setMargin( QMAX( 1, mardef ) );
 	}
 	else
@@ -1400,7 +1400,8 @@ void MetaDataBase::setupInterfaceManagers()
 {
     if ( !languageInterfaceManager ) {
 	languageInterfaceManager =
-	    new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(), "/designer" );
+	    new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(),
+						   MainWindow::self->pluginDirectory() );
 
 	langList = languageInterfaceManager->featureList();
 	langList.remove( "C++" );

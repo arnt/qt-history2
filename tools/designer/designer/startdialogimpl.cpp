@@ -186,7 +186,8 @@ void StartDialog::initFileOpen()
     fd->setSizeGripEnabled ( FALSE );
     tabLayout->addWidget( fd );
 
-    QPluginManager<ImportFilterInterface> manager( IID_ImportFilter, QApplication::libraryPaths(), "/designer" );
+    QPluginManager<ImportFilterInterface> manager( IID_ImportFilter, QApplication::libraryPaths(),
+						   MainWindow::self->pluginDirectory() );
     QStringList filterlist;
     filterlist << tr( "Designer Files (*.ui *.pro)" );
     filterlist << tr( "Qt User-Interface Files (*.ui)" );

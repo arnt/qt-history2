@@ -1152,7 +1152,9 @@ HierarchyView::HierarchyView( QWidget *parent )
     setTabToolTip( fView, tr( "List of all members of the current form" ) );
 
     if ( !classBrowserInterfaceManager ) {
-	classBrowserInterfaceManager = new QPluginManager<ClassBrowserInterface>( IID_ClassBrowser, QApplication::libraryPaths(), "/designer" );
+	classBrowserInterfaceManager =
+	    new QPluginManager<ClassBrowserInterface>( IID_ClassBrowser, QApplication::libraryPaths(),
+						       MainWindow::self->pluginDirectory() );
     }
 
     classBrowsers = new QMap<QString, ClassBrowser>();
