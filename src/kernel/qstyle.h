@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#100 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#101 $
 **
 ** Definition of QStyle class
 **
@@ -114,7 +114,9 @@ public:
 	PO_SpinWidgetMinus,
 
 	PO_Indicator,
-	PO_IndicatorMask
+	PO_IndicatorMask,
+	PO_ExclusiveIndicator,
+	PO_ExclusiveIndicatorMask
 
 	/*
 	  PO_Panel,
@@ -122,8 +124,6 @@ public:
 	  PO_PanelMenu,
 	  PO_PanelToolbar,
 
-	  PO_ExclusiveIndicator,
-	  PO_ExclusiveIndicatorMask,
 	  PO_CheckMark,
 
 	  PO_ScrollBarLineUp,
@@ -243,7 +243,7 @@ public:
 	SC_ComboBoxEditField =		0x00000020,
 	SC_ComboBoxArrow =		0x00000021,
 	SC_ComboBoxFocusRect =		0x00000022,
-	
+
 	SC_SliderGroove =		0x00000030,
 	SC_SliderHandle = 		0x00000031
 
@@ -289,7 +289,7 @@ public:
 
 	PM_ScrollBarExtent,
 	PM_ScrollBarMaximumDragDistance,
-	
+
 	PM_SliderThickness,	       	// total slider thickness
 	PM_SliderControlThickness,    	// thickness of the business part
 	PM_SliderLength,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#48 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#49 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -578,6 +578,21 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 			    &cg.brush(QColorGroup::Button));
 	break; }
 
+    case PO_IndicatorMask: {
+	// make sure the indicator is square
+	QRect ir = r;
+
+	if (r.width() < r.height()) {
+	    ir.setTop(r.top() + (r.height() - r.width()) / 2);
+	    ir.setHeight(r.width());
+	} else if (r.height() < r.width()) {
+	    ir.setLeft(r.left() + (r.width() - r.height()) / 2);
+	    ir.setWidth(r.height());
+	}
+
+	p->fillRect(ir, color1);
+	break; }
+
     default:
 	break;
     }
@@ -694,7 +709,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	break; }
 
     case CE_CheckBoxMask:
-	drawPrimitive(PO_Indicator, p, r, cg, PStyle_Default, data);
+	drawPrimitive(PO_IndicatorMask, p, r, cg, PStyle_Default, data);
 	break;
 
     default:
@@ -957,13 +972,13 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	case SC_SliderHandle: {
 	    QSlider * sl = (QSlider *) w;
 	    void ** sdata = (void **) data;
-	    int sliderPos = 0, tickOffset = 0, 
+	    int sliderPos = 0, tickOffset = 0,
 		thickness = pixelMetric( PM_SliderControlThickness, sl );
 	    int len   = pixelMetric( PM_SliderLength, sl );
-	    int space = (sl->orientation() == Horizontal) ? sl->height() : 
+	    int space = (sl->orientation() == Horizontal) ? sl->height() :
 		        sl->width();
 	    int ticks = sl->tickmarks();
-		
+
 	    if ( sdata ) {
 		sliderPos = *((int *) sdata[0]);
 		tickOffset = *((int *) sdata[1]);
@@ -974,10 +989,10 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    else
 		rect.setRect( tickOffset, sliderPos, thickness, len );
 	    break; }
-	
+
 	case SC_SliderGroove:
 	    break;
-	default: 
+	default:
 	    break;
 	}
 	break; }
@@ -1068,7 +1083,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_SliderThickness:
 	ret = 16;
 	break;
-		
+
     default:
 	ret = 0;
 	break;

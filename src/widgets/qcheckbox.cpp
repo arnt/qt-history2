@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#157 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#158 $
 **
 ** Implementation of QCheckBox class
 **
@@ -232,7 +232,7 @@ void QCheckBox::drawButton( QPainter *paint )
 	    QBitmap bm( pm->size() );
 	    bm.fill( color0 );
 	    pmpaint.begin( &bm );
-	    style().drawIndicatorMask( &pmpaint, 0, 0, bm.width(), bm.height(), isOn() );
+	    style().drawControl(QStyle::CE_CheckBoxMask, &pmpaint, this, irect, cg);
 	    pmpaint.end();
 	    pm->setMask( bm );
 	}
@@ -287,51 +287,15 @@ void QCheckBox::updateMask()
 {
     QBitmap bm(width(),height());
     bm.fill(color0);
-    QPainter p( &bm, this );
-    int x, y, w, h;
-    GUIStyle gs = style().guiStyle();
-    QFontMetrics fm = fontMetrics();
-    QSize lsz = fm.size(ShowPrefix, text());
-    QSize sz = style().indicatorSize();
-    y = 0;
-    x = sz.width() + extraWidth(gs);
-    w = width() - x;
-    if ( QApplication::reverseLayout() )
-	x = 0;
-    h = height();
 
+    QPainter p( &bm, this );
+    QRect irect = style().subRect(QStyle::SR_CheckBoxIndicator, this);
+    QRect crect = style().subRect(QStyle::SR_CheckBoxContents, this);
     QColorGroup cg(color1,color1,color1,color1,color1,color1,color1,color1,color0);
 
-    style().drawItem( &p, x, y, w, h,
-		      AlignAuto|AlignVCenter|ShowPrefix,
-		      cg, TRUE,
-		      pixmap(), text() );
-    y = (height() - lsz.height() + fm.height() - sz.height())/2;
+    style().drawControl(QStyle::CE_CheckBoxMask, &p, this, irect, cg);
+    p.fillRect(crect, color1);
 
-    style().drawIndicatorMask(&p, 0, y, sz.width(), sz.height(), state() );
-
-    if ( hasFocus() ) {
-	y = 0;
-	QRect br = style().itemRect( &p, x, y, w, h,
-				     AlignAuto|AlignVCenter|ShowPrefix,
-				     isEnabled(),
-				     pixmap(), text() );
-	br.setLeft( br.left()-3 );
-	br.setRight( br.right()+2 );
-	br.setTop( br.top()-2 );
-	br.setBottom( br.bottom()+2 );
-	br = br.intersect( QRect(0,0,width(),height()) );
-
-	if ( !text().isEmpty() )
-	    style().drawFocusRect( &p, br, cg );
-	else {
-	    br.setRight( br.left() );
-	    br.setLeft( br.left()-17 );
-	    br.setTop( br.top() );
-	    br.setBottom( br.bottom() );
-	    style().drawFocusRect( &p, br, cg );
-	}
-    }
     setMask(bm);
 }
 
