@@ -70,12 +70,11 @@ QTextLayout *QTextBlockIterator::layout() const
             int lastTextPosition = 0;
             int textLength = 0;
 
-            int pos = position();
-            const int endPos = pos + length() - 1; // -1 do omit the block separator char
-            int lastFormatIdx = pt->find(pos).value()->format;
-            QTextPieceTable::FragmentIterator it = pt->find(pos);
+            QTextPieceTable::FragmentIterator it = pt->find(position());
+            QTextPieceTable::FragmentIterator end = pt->find(position() + length() - 1); // -1 to omit the block separator char
+            int lastFormatIdx = it.value()->format;
 
-            while (pos < endPos) {
+            for (; it != end; ++it) {
                 const QTextFragment * const frag = it.value();
 
                 const int formatIndex = frag->format;
@@ -88,12 +87,7 @@ QTextLayout *QTextBlockIterator::layout() const
                     textLength = 0;
                 }
 
-                const int inFragmentOffset = pos - it.position();
-                const int size = qMin(int(frag->size - inFragmentOffset), endPos - pos);
-
-                pos += size;
-                textLength += size;
-                ++it;
+                textLength += frag->size;
             }
 
             Q_ASSERT(lastFormatIdx != -1);
@@ -135,21 +129,11 @@ QString QTextBlockIterator::blockText() const
     const QString buffer = pt->buffer();
     QString text;
 
-    int pos = position();
-    const int endPos = pos + length() - 1; // -1 do omit the block separator char
-    QTextPieceTable::FragmentIterator it = pt->find(pos);
-
-    while (pos < endPos) {
+    QTextPieceTable::FragmentIterator it = pt->find(position());
+    QTextPieceTable::FragmentIterator end = pt->find(position() + length() - 1); // -1 to omit the block separator char
+    for (; it != end; ++it) {
         const QTextFragment * const frag = it.value();
-
-        Q_ASSERT(pos >= it.position());
-        const int inFragmentOffset = pos - it.position();
-
-        const int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
-
-        text += QString::fromRawData(buffer.constData() + frag->stringPosition + inFragmentOffset, charsToCopy);
-        pos += charsToCopy;
-        ++it;
+        text += QString::fromRawData(buffer.constData() + frag->stringPosition, frag->size);
     }
 
     return text;
