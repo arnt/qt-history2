@@ -177,6 +177,7 @@ QtFontFamily *QtFontScript::family( const QString &f, bool create )
 class QFontDatabasePrivate {
 public:
     QtFontScript scripts[ QFont::NScripts + 1 ];
+    QStringList families;
 };
 
 static QFontDatabasePrivate *db=0;
@@ -191,7 +192,6 @@ static QFontDatabasePrivate *db=0;
 #  include "qfontdatabase_qws.cpp"
 #endif
 
-#if 0
 
 /*!
     Returns a string that describes the style of the font \a f. For
@@ -377,6 +377,31 @@ QFontDatabase::QFontDatabase()
 }
 
 
+static int ucstrcmp( const QString &as, const QString &bs )
+{
+    const QChar *a = as.unicode();
+    const QChar *b = bs.unicode();
+    if ( a == b )
+	return 0;
+    if ( a == 0 )
+	return 1;
+    if ( b == 0 )
+	return -1;
+    int l=QMIN(as.length(),bs.length());
+    while ( l-- && *a == *b )
+	a++,b++;
+    if ( l==-1 )
+	return ( as.length()-bs.length() );
+    return a->unicode() - b->unicode();
+}
+
+static int sortFamilies( const void *one, const void *two )
+{
+    const QtFontFamily **as = (const QtFontFamily **)one;
+    const QtFontFamily **bs = (const QtFontFamily **)two;
+    return ucstrcmp( (*as)->name, (*bs)->name );
+}
+
 /*! Returns a sorted list of the names of the available font families.
 
     If a family exists in several foundries, the returned name for
@@ -385,9 +410,51 @@ QFontDatabase::QFontDatabase()
 */
 QStringList QFontDatabase::families() const
 {
-    return d->families();
+    if ( d->families.isEmpty() ) {
+	QtFontFamily **f = 0;
+	int count = 0;
+	int allocated = 0;
+	for ( int s = 0; s < QFont::NScripts+1; s++ ) {
+	    QtFontScript &script = d->scripts[s];
+	    int ncount = count + script.count;
+	    if ( ncount > allocated ) {
+		allocated = (((ncount+128) >> 7 ) << 7);
+		f = (QtFontFamily **) realloc( f, allocated*sizeof( QtFontFamily * ) );
+	    }
+	    memcpy( f + count, script.families, script.count*sizeof( QtFontFamily * ) );
+	    count = ncount;
+	}
+	qsort( f, count, sizeof( QtFontFamily * ), sortFamilies );
+
+	QString currentFamily = f[0]->name;
+	int start = 0;
+	for ( int i = 1; i < count; i++ ) {
+	    if ( f[i]->name != currentFamily ) {
+		QtFontFamily allFoundries( currentFamily );
+		for ( int j = start; j < i; j++ ) {
+		    QtFontFamily *family = f[j];
+		    for ( int k = 0; k < family->count; k++ ) {
+			if ( *(family->foundries[k]->name.unicode()) == QChar ( 0xfffd ) )
+			    continue;
+			allFoundries.foundry( family->foundries[k]->name,  TRUE );
+		    }
+		}
+		bool printFoundries = ( allFoundries.count > 1 );
+		for ( int j = 0; j < allFoundries.count; j++ ) {
+		    QString str = currentFamily;
+		    if ( printFoundries && !allFoundries.foundries[j]->name.isEmpty() )
+			str += " [" + allFoundries.foundries[j]->name + "]";
+		    d->families.append( str );
+		}
+		currentFamily = f[i]->name;
+		start = i;
+	    }
+	}
+    }
+    return d->families;
 }
 
+#if 0
 
 /*!
     Returns a list of the styles available for the font family, \a
@@ -1104,6 +1171,6 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
 	family = name.lower();
     }
 }
-#endif
 
 #endif // QT_NO_FONTDATABASE
+#endif

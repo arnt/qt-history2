@@ -40,7 +40,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#define QFONTDATABASE_DEBUG
+// #define QFONTDATABASE_DEBUG
 
 // ----- begin of generated code -----
 
@@ -487,6 +487,17 @@ static int getXftWeight(int xftweight)
 #endif // QT_NO_XFTFREETYPE
 
 
+static inline void capitalize ( char *s )
+{
+    bool space = TRUE;
+    while( *s ) {
+	if ( space )
+	    *s = toupper( *s );
+	space = ( *s == ' ' );
+	++s;
+    }
+}
+
 extern bool qt_has_xft; // defined in qfont_x11.cpp
 
 
@@ -508,8 +519,10 @@ static void loadXlfdEncoding( int encoding_id )
 	if ( !QFontPrivate::parseXFontName( fontList[i], tokens ) )
 	    continue;
 
-	const char *familyName = tokens[QFontPrivate::Family];
-	const char *foundryName = tokens[QFontPrivate::Foundry];
+	char *familyName = tokens[QFontPrivate::Family];
+	capitalize( familyName );
+	char *foundryName = tokens[QFontPrivate::Foundry];
+	capitalize( foundryName );
 	QtFontStyle::Key styleKey = getStyle( tokens );
 
 	bool smooth_scalable = FALSE;
@@ -581,6 +594,7 @@ static void loadXft()
 	if (XftPatternGetString(fonts->fonts[i],
 				XFT_FAMILY, 0, &value) != XftResultMatch )
 	    continue;
+// 	capitalize( value );
 	familyName = value;
 
 	slant_value = XFT_SLANT_ROMAN;
@@ -597,7 +611,7 @@ static void loadXft()
 	styleKey.oblique = (slant_value == XFT_SLANT_OBLIQUE);
 	styleKey.weight = getXftWeight( weight_value );
 
-	QtFontFamily *family = db->scripts[script].family( familyName.lower(), TRUE );
+	QtFontFamily *family = db->scripts[script].family( familyName, TRUE );
 	QtFontFoundry *foundry = family->foundry( QString( QChar(0xfffd) ),  TRUE );
 	QtFontStyle *style = foundry->style( styleKey,  TRUE );
 
