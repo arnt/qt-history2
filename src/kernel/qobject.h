@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#25 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#26 $
 **
 ** Definition of QObject class
 **
@@ -81,6 +81,8 @@ protected:
     QObject	*sender();			// sender of last signal
 
     virtual void initMetaObject();		// initialize meta object
+
+    virtual void timerEvent( QTimerEvent * );
 
     uint	isSignal   : 1;			// is signal object
     uint	isWidget   : 1;			// is widget object
