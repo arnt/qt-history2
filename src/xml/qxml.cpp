@@ -2022,7 +2022,7 @@ bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
     } else if ( name == "http://trolltech.com/xml/features/report-whitespace-only-CharData" ) {
 	return d->reportWhitespaceCharData;
     } else {
-	qWarning( "Unknown feature " + name );
+	qWarning( "Unknown feature %s", name.latin1() );
 	if ( ok != 0 )
 	    *ok = FALSE;
     }
@@ -2056,7 +2056,7 @@ void QXmlSimpleReader::setFeature( const QString& name, bool value )
     } else if ( name == "http://trolltech.com/xml/features/report-whitespace-only-CharData" ) {
 	d->reportWhitespaceCharData = value;
     } else {
-	qWarning( "Unknown feature " + name );
+	qWarning( "Unknown feature %s", name.latin1() );
     }
 }
 
