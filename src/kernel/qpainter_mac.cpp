@@ -1964,13 +1964,34 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int *ulChars, int
     engine->shape( ti.item );
     QFontEngine *fe = si.fontEngine;
 
-    qDebug( "drawing text item with width %d (numglyphs =%d) at %d/%d",
-	    ti.width(), si.num_glyphs, x + si.x, y + si.y );
-
     Q_ASSERT(fe);
     x += si.x;
     y += si.y;
 
+    initPaintDevice();
+    if(d->cache.paintreg.isEmpty())
+	return;
+
+    x += d->offx;
+    y += d->offy;
+#if 0
+    /* I have no idea how to implement this here.. FIXME --Sam */
+    if(bg_mode == OpaqueMode) {
+	QRect br = fontMetrics().boundingRect(str.mid(pos), len);
+	Rect r;
+	r.left = x + br.x();
+	r.top = y + br.y();
+	r.right = r.left + br.width();
+	r.bottom = r.top + br.height();
+	::RGBColor f;
+	f.red = bg_col.red()*256;
+	f.green = bg_col.green()*256;
+	f.blue = bg_col.blue()*256;
+	RGBForeColor(&f);
+	PaintRect(&r);
+    }
+#endif
+    updatePen();
     fe->draw(this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
 	     engine->offsets( &si ), si.num_glyphs, si.analysis.bidiLevel % 2);
 
