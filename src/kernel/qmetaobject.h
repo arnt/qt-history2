@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#21 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#22 $
 **
 ** Definition of QMetaObject class
 **
@@ -33,7 +33,7 @@
 
 struct QMetaData				// member function meta data
 {						//   for signal and slots
-    char   *name;				// - member name
+    const char *name;				// - member name
     QMember ptr;				// - member pointer
 };
 
