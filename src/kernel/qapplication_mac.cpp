@@ -87,7 +87,7 @@ typedef int timeval;
 /*****************************************************************************
   QApplication debug facilities
  *****************************************************************************/
-//#define DEBUG_EVENTS
+//#define DEBUG_EVENTS [like EventDebug but more specific to Qt]
 //#define DEBUG_DROPPED_EVENTS
 //#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
@@ -1094,6 +1094,13 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 {
     QWidget *widget;
     short windowPart = qt_mac_find_window(pt->h, pt->v, &widget);
+    if(windowPart != inContent) {
+	if(inPopupMode() && widget != activePopupWidget()) {
+	    while(inPopupMode())
+		activePopupWidget()->close();
+	}
+    }
+
     if(mouse_down_unhandled)
 	(*mouse_down_unhandled) = FALSE;
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -1367,8 +1374,8 @@ bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, Win
 	    }
 	}
     }
-    if(pt)
-	return !SendEventToWindow(event, pt);
+    if(pt && SendEventToWindow(event, pt) != eventNotHandledErr)
+	return TRUE;
     return !SendEventToEventTarget(event, GetEventDispatcherTarget());
 }
 
@@ -1619,7 +1626,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    mouse_button_state = after_state;
 	    if(ekind == kEventMouseDown && qt_mac_is_macsheet(activeModalWidget())) {
 		activeModalWidget()->parentWidget()->setActiveWindow(); //sheets have a parent
-		if(!app->do_mouse_down(&where, NULL))
+		if(!app->do_mouse_down(&where, NULL)) 
 		    mouse_button_state = 0;
 	    }
 #ifdef DEBUG_MOUSE_MAPS
@@ -1627,10 +1634,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 	    break;
 	}
-	if((ekind == kEventMouseDown || ekind == kEventMouseWheelMoved) &&
-	   app->inPopupMode() && widget->topLevelWidget()->isPopup() &&
-	   QApplication::widgetAt(where.h, where.v, true) != widget)
-	    widget->topLevelWidget()->close();
 
 	if(ekind == kEventMouseDown) {
 	    bool mouse_down_unhandled;

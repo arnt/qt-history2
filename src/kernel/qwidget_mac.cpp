@@ -482,11 +482,21 @@ QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, voi
 	    }
 	    break; }
 	}
+    } else if(eclass == kEventClassMouse && ekind == kEventMouseDown) {
+	Point where;
+	GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, NULL,
+			  sizeof(where), NULL, &where);
+	bool ok;	
+	if(!qApp->do_mouse_down(&where, &ok)) {
+	    if(!ok)
+		return noErr;
+	}
     }
-    return CallNextEventHandler(er, event); //let the event go through
+    return eventNotHandledErr;
 }
 static EventTypeSpec window_events[] = {
-    { kEventClassWindow, kEventWindowGetRegion }
+    { kEventClassWindow, kEventWindowGetRegion },
+    { kEventClassMouse, kEventMouseDown }
 };
 static EventHandlerUPP mac_win_eventUPP = NULL;
 static void cleanup_win_eventUPP()
