@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#14 $
 **
 ** Implementation of movie classes
 **
@@ -543,25 +543,19 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		    }
 		}
 
-		switch (disposal) {
-		  case NoDisposal:
-		    break;
-		  case DoNotChange:
-		    break;
-		  case RestoreBackground:
-		    break;
-		  case RestoreImage:
+		if ( disposal == RestoreImage ) {
 		    if (backingstore.width() < width
-		    || backingstore.height() < height)
-		    {
-			// We just use the basking store as a byte array
-			backingstore.create(
-			    QMAX(backingstore.width(),width),
-			    QMAX(backingstore.height(),height),8,1);
+			|| backingstore.height() < height) {
+			// We just use the backing store as a byte array
+			backingstore.create( QMAX(backingstore.width(),
+						  width),
+					     QMAX(backingstore.height(),
+						  height),
+					     8,1);
 		    }
 		    for (int y=0; y<height; y++) {
 			memcpy(backingstore.scanLine(y),
-			    line[top+y]+left, width);
+			       line[top+y]+left, width);
 		    }
 		}
 
