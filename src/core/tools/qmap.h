@@ -45,8 +45,8 @@ struct Q_CORE_EXPORT QMapData
 #if !defined(QT_NO_DATASTREAM)
 class QDataStream;
 template <class Key, class T> class QMap;
-template <class Key, class T>
-QDataStream &operator>>(QDataStream &out, QMap<Key, T> &map);
+template <class aKey, class aT>
+QDataStream &operator>>(QDataStream &in, QMap<aKey, aT> &map);
 #endif
 
 template <class Key, class T>
@@ -261,8 +261,12 @@ private:
                                 const T &value);
 
 #if !defined(QT_NO_DATASTREAM)
-    template <typename aKey, typename aT>
-    friend QDataStream &operator>> (QDataStream &out, QMap<aKey, aT> &map);
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+    friend QDataStream &operator>> (QDataStream &in, QMap &map);
+#else
+    template <class aKey, class aT> 
+    friend QDataStream &operator>> (QDataStream &in, QMap<aKey, aT> &map);
+#endif
 #endif
 };
 

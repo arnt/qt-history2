@@ -276,8 +276,8 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator<<(QDataStream &out, const QHash<Key, 
     return out;
 }
 
-template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<Key, T> &map)
+template <class aKey, class aT>
+Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<aKey, aT> &map)
 {
     map.clear();
     Q_UINT32 n;
@@ -286,8 +286,8 @@ Q_OUTOFLINE_TEMPLATE QDataStream &operator>>(QDataStream &in, QMap<Key, T> &map)
     map.d->insertInOrder = true;
 #endif
     for (Q_UINT32 i = 0; i < n; ++i) {
-        Key key;
-        T value;
+        aKey key;
+        aT value;
         in >> key >> value;
         map.insert(key, value);
         if (in.atEnd())
