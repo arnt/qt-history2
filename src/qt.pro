@@ -12,7 +12,7 @@ CONFIG		+= builder
 # unix:LIBS	+= -lpng -lz
 
 # for now, dunno how to make this configurable, also requires a #define in qapplication_x11.cpp
-unix:LIBS += $$TMAKE_LIBS_X11SM
+unix:LIBS += $$TMAKE_LIBS_X11SM -lpthread
 DEFINES += QT_SM_SUPPORT QT_THREAD_SUPPORT
 
 #DEFINES	+= QT_NO_ASCII_CAST
