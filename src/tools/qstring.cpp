@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#165 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#166 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -496,10 +496,10 @@ QString &QString::operator=( const char *str )
   \sa size(), isNull(), isEmpty()
 */
 
-/*!  
+/*!
   Truncates the string at position \a newLen. If newLen is less than the
   current length, this is equivalent to setLength( newLen ). Otherwise,
-  nothing happens. 
+  nothing happens.
 
   Example:
   \code
@@ -507,14 +507,14 @@ QString &QString::operator=( const char *str )
     s.truncate( 5 );				// s == "trunc"
   \endcode
 
-  \sa setLength() 
+  \sa setLength()
 */
 //### different behaviour than 1.x - but insignificant?
 void QString::truncate( uint newLen )
 {
     if ( newLen < d->len )
 	setLength( newLen );
-	    
+	
     //### Is there any point in extending the array if newlen > d->len ?
     // (Qt 1.x did, but there, one could access the data directly...)
 }
@@ -530,14 +530,14 @@ void QString::resize( uint newlenp1 )
     truncate(newlenp1 ? newlenp1-1 : 0);
 }
 
-/*!  
+/*!
   Ensures that at least \a len characters are allocated, and sets the
   length to \a len. Will detach. New space is \e not defined.
 
   If \a len is 0, this string becomes empty, unless this string is null,
   in which case it remains null.
 
-  \sa truncate(), isNull(), isEmpty() 
+  \sa truncate(), isNull(), isEmpty()
 */
 
 void QString::setLength( uint newLen )
@@ -708,7 +708,7 @@ bool QString::findArg(int& pos, int& len) const
   Safely builds a formatted string from a format string and an
   arbitrary list of arguments.  The format string supports all
   the escape sequences of printf() in the standard C library.
-  
+
   This method offers no Unicode support. For typesafe string building,
   with full Unicode support, you can use QTextOStream like this:
 
@@ -796,7 +796,7 @@ QString &QString::sprintf( const char* cformat, ... )
 	     format[pos+len] == 'S' ||
 	     format[pos+len] == 'c' )
 	{
-	    bool rightjust = ( f.find('-') < 0 ); 
+	    bool rightjust = ( f.find('-') < 0 );
 	    // Yes, %-5s really means left adjust in sprintf
 //if ( rightjust ) debug("rightjust");
 
@@ -1467,7 +1467,7 @@ QString &QString::insert( uint index, const QChar* s, uint len )
 	return *this;
     uint olen = length();
     int nlen = olen + len;
-    
+
     if ( index >= olen ) {			// insert after end of string
 	setLength( nlen+index-olen );
 	int n = index-olen;
@@ -1666,7 +1666,7 @@ int QString::contains( const QRegExp &rx ) const
 
 /*!
   Replaces every occurrence of \a rx in the string with \a str.
-  Returns a reference to the string. 
+  Returns a reference to the string.
 
   Examples:
   \code
@@ -1679,7 +1679,7 @@ int QString::contains( const QRegExp &rx ) const
     QString s = "banana";
     s.replace( QRegExp("^[bn]a"), "" );		// NOTE! becomes ""
   \endcode
-  
+
 */
 
 QString &QString::replace( const QRegExp &rx, const QString &str )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#44 $
 **
 ** Implementation of QTextCodec class
 **
@@ -37,6 +37,11 @@
 #include <ctype.h>
 #include "qstring.h"
 
+#include "qutfcodec.h"
+#include "qeuccodec.h"
+#include "qkoi8codec.h"
+
+
 static QList<QTextCodec> * all = 0;
 static bool destroying_is_ok; // starts out as 0
 
@@ -57,18 +62,16 @@ static bool destroying_is_ok; // starts out as 0
 
 void QTextCodec::deleteAllCodecs()
 {
+    if ( !all )
+	return;
+
+    destroying_is_ok = TRUE;
     QList<QTextCodec> * ball = all;
     all = 0;
-    if ( ball ) {
-	destroying_is_ok = TRUE;
-	delete ball;
-	if ( all ) { // try -once- more if some were created...
-	    ball = all;
-	    all = 0;
-	    delete ball;
-	}
-	destroying_is_ok = FALSE;
-    }
+    ball->clear();
+    delete ball;
+    destroying_is_ok = FALSE;
+    debug( "ball over (%p)", all );
 }
 
 
@@ -77,6 +80,10 @@ static void setupBuiltinCodecs();
 
 static void realSetup()
 {
+#if defined(CHECK_STATE)
+    if ( destroying_is_ok )
+	warning( "creating new codec during codec cleanup" );
+#endif
     all = new QList<QTextCodec>;
     all->setAutoDelete( TRUE );
     setupBuiltinCodecs();
@@ -171,8 +178,8 @@ QTextCodec::~QTextCodec()
 {
     if ( !destroying_is_ok )
 	warning("QTextCodec::~QTextCodec() called by application");
-    setup();
-    all->remove(this);
+    if ( all )
+	all->remove( this );
 }
 
 
@@ -1207,9 +1214,8 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 	int i = 0;
 	while( i < 128 ) {
 	    if ( unicodevalues[forwardIndex].values[i] > m &&
-		 unicodevalues[forwardIndex].values[i] < 0xfffd ) {
+		 unicodevalues[forwardIndex].values[i] < 0xfffd )
 		m = unicodevalues[forwardIndex].values[i];
-	    }
 	    i++;
 	}
 	m++;
@@ -1217,15 +1223,10 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 	    reverseMap = new QArray<char>( m );
 	if ( m > (int)(reverseMap->size()) )
 	    reverseMap->resize( m );
-	i=0;
-	while( i < 128 && i < m ) {
+	for( i = 0; i < 128 && i < m; i++ )
 	    (*reverseMap)[i] = (char)i;
-	    i++;
-	}
-	while( i < m ) {
+	for( ;i < m; i++ )
 	    (*reverseMap)[i] = '?';
-	    i++;
-	}
 	for( i=128; i<255; i++ ) {
 	    int u = unicodevalues[forwardIndex].values[i-128];
 	    if ( u < m )
@@ -1286,7 +1287,6 @@ static void setupBuiltinCodecs()
 	(void)new QSimpleTextCodec( i );
     } while( unicodevalues[i++].mib != LAST_MIB );
 
-    // Built-in code mappers
     (void)new QEucCodec;
     (void)new QKoi8Codec;
     (void)new QUtf8Codec;
