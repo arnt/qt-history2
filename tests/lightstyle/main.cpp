@@ -69,13 +69,13 @@ unsigned long LightStyleIface::release()
 QStringList LightStyleIface::featureList() const
 {
     QStringList list;
-    list << "LightStyle";
+    list << "Light";
     return list;
 }
 
 QStyle* LightStyleIface::create( const QString& s )
 {
-    if ( s.lower() == "lightstyle" ) {
+    if ( s.lower() == "light" ) {
 	QStyle *style = new LightStyle();
 	styles.add( style );
 	return style;
