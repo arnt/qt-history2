@@ -642,7 +642,6 @@ void QPushButton::setPopup( QPopupMenu* popup )
 	connect( this, SIGNAL( pressed() ), this, SLOT( popupPressed() ) );
 
     d->popup = popup;
-    autoDefButton = FALSE;
     setIsMenuButton( popup != 0 );
 }
 
