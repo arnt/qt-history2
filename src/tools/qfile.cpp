@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#38 $
 **
 ** Implementation of QFile class
 **
@@ -13,7 +13,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#38 $");
 
 
 /*!
@@ -751,16 +751,17 @@ int QFile::ungetch( int ch )
 
 
 /*!
-  Returns the file handle of the file.  This is a small positive
-  integer, suitable for use with C library functions such as fdopen()
-  and fcntl(), as well as with QSocketNotifier.
+  Returns the file handle of the file.
 
-  If the file isn't open or there is an error, handle() returns -1.
+  This is a small positive integer, suitable for use with C library
+  functions such as fdopen() and fcntl(), as well as with QSocketNotifier.
+
+  If the file is not open or there is an error, handle() returns -1.
 
   \sa QSocketNotifier
 */
 
-int QFile::handle()
+int QFile::handle() const
 {
     if ( !isOpen() )
 	return -1;

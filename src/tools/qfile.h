@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#15 $
+** $Id: //depot/qt/main/src/tools/qfile.h#16 $
 **
 ** Definition of QFile class
 **
@@ -51,7 +51,8 @@ public:
     int		getch();
     int		putch( int );
     int		ungetch( int );
-    int		handle();
+
+    int		handle() const;
 
 protected:
     QString	fn;
