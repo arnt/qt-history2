@@ -22,6 +22,7 @@
 #include <qapplication.h>
 #include <qcursor.h>
 #include <qdir.h>
+#include <qevent.h>
 #include <qeventloop.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -763,7 +764,7 @@ void HelpDialog::insertContents()
 	    ContentItem item = *it;
 	    if( item.depth == 0 ){
 		newEntry = new HelpNavigationContentsItem( listContents, 0 );
-		newEntry->setPixmap( 0, QPixmap::fromMimeSource( "book.png" ) );	
+		newEntry->setPixmap( 0, QPixmap::fromMimeSource( "book.png" ) );
 		newEntry->setText( 0, item.title );
 		newEntry->setLink( item.reference );
 		stack.push( newEntry );

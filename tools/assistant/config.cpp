@@ -31,7 +31,7 @@ Config::Config()
 {
     if( !static_configuration ) {
 	static_configuration = this;
-    } else { 
+    } else {
 	qWarning( "Multiple configurations not allowed!" );
     }
 }
@@ -39,14 +39,14 @@ Config::Config()
 Config *Config::loadConfig(const QString &profileFileName)
 {
     Config *config = new Config();
-    
+
     if (profileFileName.isEmpty()) { // no profile
 	config->profil = Profile::createDefaultProfile();
 	config->load();
-	config->loadDefaultProfile();	
+	config->loadDefaultProfile();
 	return config;
     }
-    
+
     QFile file(profileFileName);
     if (!file.exists()) {
 	qWarning( "File does not exist: " + profileFileName );
@@ -59,12 +59,12 @@ Config *Config::loadConfig(const QString &profileFileName)
     }
     if (parser->parserVersion() < DocuParser::Qt320) {
 	qWarning( "File does not contain profile information" );
-	return 0;	
+	return 0;
     }
     DocuParser320 *profileParser = static_cast<DocuParser320*>(parser);
     parser->parse(&file);
     config->profil = profileParser->profile();
-    if (!config->profil) {	
+    if (!config->profil) {
 	qWarning( "Config::loadConfig(), no profile in: " + profileFileName );
 	return 0;
     }
@@ -102,7 +102,7 @@ void Config::load()
     linkUnder = settings.readBoolEntry( key + "LinkUnderline", TRUE );
     linkCol = settings.readEntry( key + "LinkColor", "#0000FF" );
     src = settings.readEntry( profkey + "Source" );
-    sideBar = settings.readNumEntry( key + "SideBarPage" );    
+    sideBar = settings.readNumEntry( key + "SideBarPage" );
     geom.setRect( settings.readNumEntry( key + "GeometryX", 0 ),
 		  settings.readNumEntry( key + "GeometryY", 0 ),
 		  settings.readNumEntry( key + "GeometryWidth", 800 ),
@@ -176,7 +176,7 @@ void Config::loadDefaultProfile()
     profil->imageDirs.clear();
     profil->docs.clear();
     profil->dcfTitles.clear();
-    
+
     QStringList titles = settings.readListEntry( profKey + "Titles" );
     QStringList iconLst = settings.readListEntry( profKey + "DocIcons" );
     QStringList indexLst = settings.readListEntry( profKey + "IndexPages" );
@@ -184,14 +184,14 @@ void Config::loadDefaultProfile()
     QStringList dcfs = settings.readListEntry( profKey + "DocFiles" );
 
     QStringList::ConstIterator it = titles.begin();
-    QValueListConstIterator<QString> iconIt = iconLst.begin();
-    QValueListConstIterator<QString> indexIt = indexLst.begin();
-    QValueListConstIterator<QString> imageIt = imgDirLst.begin();
-    QValueListConstIterator<QString> dcfIt = dcfs.begin();
+    QStringList::ConstIterator iconIt = iconLst.begin();
+    QStringList::ConstIterator indexIt = indexLst.begin();
+    QStringList::ConstIterator imageIt = imgDirLst.begin();
+    QStringList::ConstIterator dcfIt = dcfs.begin();
     for( ; it != titles.end();
 	++it, ++iconIt, ++indexIt, ++imageIt, ++dcfIt )
     {
-	profil->addDCFIcon( *it, *iconIt );       
+	profil->addDCFIcon( *it, *iconIt );
 	profil->addDCFIndexPage( *it, *indexIt );
 	profil->addDCFImageDir( *it, *imageIt );
 	profil->addDCFTitle( *dcfIt, *it );
@@ -215,15 +215,15 @@ void Config::saveProfile( Profile *profile )
     const QString profKey = key + "Profile/" + profile->props["name"] + "/";
 
     QStringList indexes, icons, imgDirs, dcfs;
-    QValueList<QString> titles = profile->dcfTitles.keys();
-    QValueListConstIterator<QString> it = titles.begin();
+    QStringList titles = profile->dcfTitles.keys();
+    QStringList::ConstIterator it = titles.begin();
     for ( ; it != titles.end(); ++it ) {
 	indexes << profile->indexPages[*it];
 	icons << profile->icons[*it];
 	imgDirs << profile->imageDirs[*it];
-	dcfs << profile->dcfTitles[*it];	
+	dcfs << profile->dcfTitles[*it];
     }
- 
+
     settings.writeEntry( profKey + "Titles", titles );
     settings.writeEntry( profKey + "DocFiles", dcfs );
     settings.writeEntry( profKey + "IndexPages", indexes );
@@ -245,17 +245,17 @@ QStringList Config::mimePaths()
 
     if( lst.count() > 0 )
 	return lst;
-    
+
     for (QMap<QString,QString>::ConstIterator it = profil->dcfTitles.begin();
 	 it != profil->dcfTitles.end(); ++it ) {
 
 	// Mime source for .dcf file path
-	QFileInfo info( *it ); 
+	QFileInfo info( *it );
 	QString dcfPath = info.dirPath(TRUE);
 	if (lst.contains(dcfPath) == 0)
 	    lst << dcfPath;
-	
-	// Image dir for .dcf 	
+
+	// Image dir for .dcf
 	QString imgDir = QDir::convertSeparators( dcfPath + QDir::separator()
 						  + profil->imageDirs[it.key()] );
 	if (lst.contains(imgDir) == 0)
@@ -325,7 +325,7 @@ QString Config::docImageDir( const QString &docfile ) const
 QString Config::indexPage( const QString &title ) const
 {
     return profil->indexPages
-	[title];    
+	[title];
 }
 
 void Config::hideSideBar( bool b )
