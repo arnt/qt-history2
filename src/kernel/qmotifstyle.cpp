@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#26 $
 **
 ** Implementation of Motif-like style class
 **
@@ -610,4 +610,48 @@ void QMotifStyle::drawSliderGroove( QPainter *p,
 				      Orientation )
 {
     qDrawShadePanel( p, x, y, w, h, g, TRUE );
+}
+
+
+/*! \reimp
+*/
+
+int QMotifStyle::splitterWidth() const
+{
+    return 10;
+}
+
+
+/*! \reimp
+*/
+
+void QMotifStyle::drawSplitter( QPainter *p, int x, int y, int w, int h,
+  const QColorGroup &g, Orientation orient)
+{
+    const int motifOffset = 10;
+    int sw = splitterWidth();
+    if ( orient == Horizontal ) {
+	    QCOORD xPos = x + w/2;
+	    QCOORD kPos = motifOffset;
+	    QCOORD kSize = sw - 2;
+
+	    qDrawShadeLine( p, xPos, kPos + kSize - 1 ,
+			    xPos, h, g );
+	    qDrawShadePanel( p, xPos-sw/2+1, kPos,
+			     kSize, kSize, g, FALSE, 1,
+			     &g.brush( QColorGroup::Button ));
+	    qDrawShadeLine( p, xPos, 0, xPos, kPos, g );
+	} else {
+	    QCOORD yPos = y + h/2;
+	    QCOORD kPos = w - motifOffset - sw;
+	    QCOORD kSize = sw - 2;
+
+	    qDrawShadeLine( p, 0, yPos, kPos, yPos, g );
+	    qDrawShadePanel( p, kPos, yPos-sw/2+1,
+			     kSize, kSize, g, FALSE, 1,
+			     &g.brush( QColorGroup::Button ));
+	    qDrawShadeLine( p, kPos + kSize -1, yPos,
+			    w, yPos, g );
+	}
+
 }

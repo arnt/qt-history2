@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#33 $
 **
 ** Implementation of QStyle class
 **
@@ -627,3 +627,24 @@ int QStyle::maximumSliderDragDistance() const
 
 
 
+/*!
+  \fn int QStyle::splitterWidth() const
+  
+  Returns the width of a splitter handle.
+
+  \sa drawSplitter()
+*/
+
+/*!
+  \fn void QStyle::drawSplitter( QPainter *p,
+			     int x, int y, int w, int h,
+			     const QColorGroup &g,
+			     Orientation orient)
+
+  Draws a splitter handle in the rectangle described by \a x, \a y,
+  \a w, \a h using painter \a p and color group \a g. The orientation
+  is \a orient.
+  
+  \sa splitterWidth()
+*/
+			     

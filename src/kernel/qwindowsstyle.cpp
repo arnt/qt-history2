@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#26 $
 **
 ** Implementation of Windows-like style class
 **
@@ -853,4 +853,23 @@ void QWindowsStyle::drawSliderGroove( QPainter *p,
 int QWindowsStyle::maximumSliderDragDistance() const
 {
     return 20;
+}
+
+
+/*! \reimp
+*/
+
+int QWindowsStyle::splitterWidth() const
+{
+    return 6;
+}
+
+
+/*! \reimp
+*/
+
+void QWindowsStyle::drawSplitter( QPainter *p,  int x, int y, int w, int h,
+				  const QColorGroup &g,  Orientation)
+{
+	qDrawWinPanel( p, x, y, w, h, g );
 }

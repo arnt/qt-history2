@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#12 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#13 $
 **
 ** Definition of something or other
 **
@@ -61,6 +61,10 @@ public:
 			   int x, int y, int w, int h,
 			   const QColorGroup& g, QCOORD c,
 			   Orientation );
+
+    int splitterWidth() const;
+    void drawSplitter( QPainter *p, int x, int y, int w, int h,
+		       const QColorGroup &g, Orientation);
 private:
     bool highlightCols;
 };

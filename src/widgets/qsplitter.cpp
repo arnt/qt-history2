@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#59 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#60 $
 **
 **  Splitter widget
 **
@@ -86,26 +86,9 @@ QSizePolicy QSplitterHandle::sizePolicy() const
 
 QSize QSplitterHandle::sizeHint() const
 {
-    if ( style() == WindowsStyle )
-	return QSize(6,6);
-    else
-	return QSize(10,10);
+    int sw = style().splitterWidth();
+    return QSize(sw,sw);
 }
-
-
-#if 0
-int QSplitter::hit( QPoint pnt )
-{
-    //### fancy 2-dim hit for Motif...
-    QCOORD p = pick(pnt);
-    if ( w1 && p > pick( w1->geometry().bottomRight() ) &&
-	 w2 && p < pick( w2->pos() ) )
-	return 1;
-    else
-	return 0;
-}
-#endif
-
 
 void QSplitterHandle::setOrientation( Qt::Orientation o )
 {
@@ -209,7 +192,7 @@ public:
 
   If you hide() a child, its space will be distributed among the other
   children. When you show() it again, it will be reinstated.
-  
+
   <img src=qsplitter-m.gif> <img src=qsplitter-w.gif>
 
   \sa QTabBar
@@ -250,11 +233,6 @@ QSplitter::~QSplitter()
 void QSplitter::init()
 {
     data = new QSplitterData;
-
-    if ( style() == WindowsStyle )
-	bord = 3;
-    else
-	bord = 5;
 }
 
 /*!
@@ -394,20 +372,20 @@ void QSplitter::setRubberband( int p )
     paint.setBrush( gray );
     paint.setRasterOp( XorROP );
     QRect r = contentsRect();
-    const int rBord = 3; //###
-
+    const int rBord = 3; //Themable????
+    const int sw = style().splitterWidth();
     if ( orient == Horizontal ) {
 	if ( opaqueOldPos >= 0 )
-	    paint.drawRect( opaqueOldPos + bord - rBord , r.y(),
+	    paint.drawRect( opaqueOldPos + sw/2 - rBord , r.y(),
 			    2*rBord, r.height() );
 	if ( p >= 0 )
-	    paint.drawRect( p  + bord - rBord, r.y(), 2*rBord, r.height() );
+	    paint.drawRect( p  + sw/2 - rBord, r.y(), 2*rBord, r.height() );
     } else {
 	if ( opaqueOldPos >= 0 )
-	    paint.drawRect( r.x(), opaqueOldPos + bord - rBord,
+	    paint.drawRect( r.x(), opaqueOldPos + sw/2 - rBord,
 			    r.width(), 2*rBord );
 	if ( p >= 0 )
-	    paint.drawRect( r.x(), p + bord - rBord, r.width(), 2*rBord );
+	    paint.drawRect( r.x(), p + sw/2 - rBord, r.width(), 2*rBord );
     }
     opaqueOldPos = p;
 }
@@ -429,37 +407,11 @@ bool QSplitter::event( QEvent *e )
 /*!
   Draws the splitter handle in the rectangle described by \a x, \a y,
   \a w, \a h using painter \a p.
+  \sa QStyle::drawSplitter
 */
 void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD h )
 {
-    static const int motifOffset = 10;
-    if ( style() == WindowsStyle ) {
-	qDrawWinPanel( p, x, y, w, h, colorGroup() );
-    } else {
-    	if ( orient == Horizontal ) {
-	    QCOORD xPos = x + w/2;
-	    QCOORD kPos = motifOffset;
-	    QCOORD kSize = bord*2 - 2;
-
-	    qDrawShadeLine( p, xPos, kPos + kSize - 1 ,
-			    xPos, h, colorGroup() );
-	    qDrawShadePanel( p, xPos-bord+1, kPos,
-			     kSize, kSize, colorGroup(), FALSE, 1,
-			     &colorGroup().brush( QColorGroup::Button ));
-	    qDrawShadeLine( p, xPos, 0, xPos, kPos ,colorGroup() );
-	} else {
-	    QCOORD yPos = y + h/2;
-	    QCOORD kPos = w - motifOffset - 2*bord;
-	    QCOORD kSize = bord*2 - 2;
-
-	    qDrawShadeLine( p, 0, yPos, kPos, yPos, colorGroup() );
-	    qDrawShadePanel( p, kPos, yPos-bord+1,
-			     kSize, kSize, colorGroup(), FALSE, 1,
-			     &colorGroup().brush( QColorGroup::Button ));
-	    qDrawShadeLine( p, kPos + kSize -1, yPos,
-			    w, yPos, colorGroup() );
-	}
-    }
+    style().drawSplitter( p, x, y, w, h, colorGroup(), orient );
 }
 
 /*!
@@ -522,7 +474,7 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
 	return;
     QWidget *w = s->wid;
     if ( w->testWState(WState_ForceHide) ) {
-	moveBefore( pos, id-1, upLeft ); 
+	moveBefore( pos, id-1, upLeft );
     } else if ( s->isSplitter ) {
 	int d = s->sizer;
 	if ( upLeft ) {
@@ -556,7 +508,7 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 	return;
     QWidget *w = s->wid;
     if ( w->testWState(WState_ForceHide) ) {
-	moveAfter( pos, id+1, upLeft ); 
+	moveAfter( pos, id+1, upLeft );
     } else if ( s->isSplitter ) {
 	int d = s->sizer;
 	if ( upLeft ) {
@@ -694,7 +646,7 @@ void QSplitter::recalc( bool update )
 	} else {
 	    int splid = first?i+1:i-1;
 	    QSplitterLayoutStruct *p = splid < (int)data->list.count() ?
-				      data->list.at( splid ) : 0;	    
+				      data->list.at( splid ) : 0;	
 	    if ( !s->wid->testWState(WState_ForceHide) ) {
 		minl += pick( s->wid->minimumSize() );
 		maxl += pick( s->wid->maximumSize() );
@@ -998,4 +950,21 @@ void QSplitter::setSizes( QValueList<int> list )
 void QSplitter::processChildEvents()
 {
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+}
+
+
+/*!
+  \reimp
+*/
+
+void QSplitter::styleChange( GUIStyle )
+{
+    int sw = style().splitterWidth();
+    QSplitterLayoutStruct *s = data->list.first();
+    while ( s ) {
+	if ( s->isSplitter )
+	    s->sizer = sw;
+	s = data->list.next();
+    }
+    doResize();
 }

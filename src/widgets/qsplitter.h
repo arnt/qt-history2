@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#24 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#25 $
 **
 ** Defintion of  QSplitter class
 **
@@ -75,7 +75,7 @@ protected:
     void moveSplitter( QCOORD pos, int id );
     virtual void drawSplitter( QPainter*, QCOORD x, QCOORD y,
 			       QCOORD w, QCOORD h );
-
+    void styleChange( GUIStyle );
     int adjustPos( int , int );
     virtual void setRubberband( int );
     void getRange( int id, int*, int* );
@@ -106,7 +106,6 @@ private:
     QSplitterData *data;
 
     Orientation orient;
-    QCOORD bord; //half border
     friend class QSplitterHandle;
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#24 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#25 $
 **
 ** Definition of QStyle class
 **
@@ -168,6 +168,12 @@ public:
 				       QCOORD c,
 				       Orientation );
     virtual int maximumSliderDragDistance() const;
+
+    virtual int splitterWidth() const = 0;
+    virtual void drawSplitter( QPainter *p,
+			     int x, int y, int w, int h,
+			     const QColorGroup &g,
+			     Orientation) = 0;
 
 };
 

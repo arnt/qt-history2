@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#10 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.h#11 $
 **
 ** Definition of something or other
 **
@@ -77,6 +77,10 @@ public:
 			   Orientation );
 
     int maximumSliderDragDistance() const;
+
+    int splitterWidth() const;
+    void drawSplitter( QPainter *p, int x, int y, int w, int h,
+			     const QColorGroup &g, Orientation);
 
 protected:
     void drawWinShades( QPainter *p,
