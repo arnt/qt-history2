@@ -64,16 +64,16 @@ private:
   \class QHostAddress qhostaddress.h
   \brief QHostAddress provides an IP address.
 
-  \ingroup kernel
+  \extension network
 
   This class contains an IP address in a platform- and protocol-independent
   manner.  That is, it'll store the address in a way you can access easily on
   any platform, and it'll store both IPv4 and IPv6 addresses.
 
-  QHostAddress is normally used with the classes QSocketDevice and QSocket to
-  set up a server or to connect to a host.
+  QHostAddress is normally used with the classes QSocket, QServerSocket and
+  QSocketDevice to set up a server or to connect to a host.
 
-  \sa QSocket, QSocketDevice
+  \sa QSocket, QServerSocket, QSocketDevice
 */
 
 

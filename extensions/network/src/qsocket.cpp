@@ -95,7 +95,7 @@ QSocketPrivate::~QSocketPrivate()
   \class QSocket qsocket.h
   \brief The QSocket class provides a buffered socket connection.
 
-  \ingroup kernel
+  \extension network
 
   This class provides a buffered TCP connection over a socket.
   Both read and write operations are buffered.

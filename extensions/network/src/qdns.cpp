@@ -1430,20 +1430,21 @@ void QDnsSocket::answer()
   information is correctly cached, and correctly timed out.)
 
   The API is made up of a constructor, functions to set the DNS node
-  (the domain in DNS terminology) and record type: setLabel() and
-  setRecordType(), the corresponding getters, an isWorking() function
+  (the domain in DNS terminology) and record type (setLabel() and
+  setRecordType()), the corresponding getters, an isWorking() function
   to determine whether QDns is working or reading, a resultsReady()
   signal, and finally query functions for the result.
 
   There is one query function for each RecordType, namely addresses(),
-  mailServers(), servers(), hostNames() and texts().  There are also two
+  mailServers(), servers(), hostNames() and texts(). There are also two
   generic query functions: canonicalName() return the name you'll presumably
   end up using (the exact meaning of that depends on the record type)
   and qualifiedNames() returns a list of the fully qualified names
   label() maps to.
 */
 
-/*!  Constructs a DNS query object with invalid settings both for the
+/*!
+  Constructs a DNS query object with invalid settings both for the
   label and the search type.
 */
 
@@ -1460,7 +1461,7 @@ QDns::QDns()
   Constructs a DNS query object that will return \a rr
   information about \a label.
 
-  The DNS lookup is started the next time the application goes into the event
+  The DNS lookup is started the next time the application enters the event
   loop. When the result is found the signal resultsReady() is emmitted.
 
   \a rr defaults to \c A, IPv4 addresses.
@@ -1480,9 +1481,9 @@ QDns::QDns( const QString & label, QDns::RecordType rr )
   Constructs a DNS query object that will return \a rr information about
   \a address.  The label is set to the IN-ADDR.ARPA domain name. This is useful
   in combination with the Ptr record type (i.e. if you want to look up a
-  hostname for a given address.
+  hostname for a given address).
 
-  The DNS lookup is started the next time the application goes into the event
+  The DNS lookup is started the next time the application enters the event
   loop. When the result is found the signal resultsReady() is emmitted.
 
   \a rr defaults to \c Ptr, that maps addresses to hostnames.
@@ -1519,11 +1520,13 @@ QDns::~QDns()
 
 
 
-/*!  Sets this query object to query for information about \a label.
+/*!
+  Sets this query object to query for information about \a label.
+
   This does not change the recordType(), but its isWorking() most
   likely changes as a result.
 
-  The DNS lookup is started the next time the application goes into the event
+  The DNS lookup is started the next time the application enters the event
   loop. When the result is found the signal resultsReady() is emmitted.
 */
 
@@ -1572,7 +1575,7 @@ void QDns::setLabel( const QString & label )
   This does not change the recordType(), but its isWorking() most
   likely changes as a result.
 
-  The DNS lookup is started the next time the application goes into the event
+  The DNS lookup is started the next time the application enters the event
   loop. When the result is found the signal resultsReady() is emmitted.
 */
 
@@ -1601,7 +1604,9 @@ void QDns::setLabel( const QHostAddress & address )
   This enum type defines the record types QDns can handle.  The DNS
   provides many more; these are the ones we've judged to be in current
   use, useful for GUI programs and important enough to support right
-  away: <ul>
+  away:
+
+  <ul>
 
   <li> \c None - no information.  This exists only so that QDns can
   have a default.
@@ -1632,7 +1637,7 @@ void QDns::setLabel( const QHostAddress & address )
 /*!
   Sets this object to query for \a rr records.
 
-  The DNS lookup is started the next time the application goes into the event
+  The DNS lookup is started the next time the application enters the event
   loop. When the result is found the signal resultsReady() is emmitted.
 
   \sa RecordType
@@ -1688,7 +1693,8 @@ QString QDns::toInAddrArpaDomain( const QHostAddress &address )
 }
 
 
-/*! \fn QDns::RecordType QDns::recordType() const
+/*!
+  \fn QDns::RecordType QDns::recordType() const
 
   Returns the record type of this query object.
 
@@ -1702,10 +1708,11 @@ QString QDns::toInAddrArpaDomain( const QHostAddress &address )
   the qualifiedNames().
 */
 
-/*! Returns TRUE if QDns is doing a lookup for this object, and FALSE
-if this object has the information it wants.
+/*!
+  Returns TRUE if QDns is doing a lookup for this object, and FALSE
+  if this object has the information it wants.
 
-QDns emits the resultsReady() signal when the status changes to FALSE.
+  QDns emits the resultsReady() signal when the status changes to FALSE.
 */
 
 bool QDns::isWorking() const
@@ -1732,7 +1739,8 @@ bool QDns::isWorking() const
 }
 
 
-/*!  Returns a list of the addresses for this name if this QDns object
+/*!
+  Returns a list of the addresses for this name if this QDns object
   has a recordType() of \a QDns::A or \a QDns::Aaaa and the answer is
   available, or an empty list else.
 
@@ -1889,17 +1897,19 @@ QStringList QDns::texts() const
 }
 
 
-/*!  Returns the canonical name for this DNS node.  (This works
-regardless of what recordType() is set to.)
+/*!
+  Returns the canonical name for this DNS node.  (This works
+  regardless of what recordType() is set to.)
 
-If the canonical name isn't known, this function returns a null
-string.
+  If the canonical name isn't known, this function returns a null
+  string.
 
-The canonical name of a DNS node is its full name, or the full name of
-the target of its CNAME.  For example, if l.trolltech.com is a CNAME to
-lupinella.troll.no, and the search path for QDns is "trolltech.com", then
-the canonical name for all of "lupinella", "l", "lupinella.troll.no."
-and "l.trolltech.com" is "lupinella.troll.no.".  */
+  The canonical name of a DNS node is its full name, or the full name of
+  the target of its CNAME.  For example, if l.trolltech.com is a CNAME to
+  lupinella.troll.no, and the search path for QDns is "trolltech.com", then
+  the canonical name for all of "lupinella", "l", "lupinella.troll.no."
+  and "l.trolltech.com" is "lupinella.troll.no.".
+*/
 
 QString QDns::canonicalName() const
 {

@@ -39,7 +39,7 @@ public:
   \class QServerSocket qserversocket.h
   \brief The QServerSocket class provides a TCP-based server.
 
-  \ingroup kernel
+  \extension network
 
   This class is a convenience class for accepting incoming TCP
   connections.  You can specify port or have QSocketServer pick one,
@@ -137,7 +137,8 @@ QServerSocket::~QServerSocket()
 }
 
 
-/*! \fn void QServerSocket::newConnection( int socket )
+/*!
+  \fn void QServerSocket::newConnection( int socket )
 
   This pure virtual function is responsible for setting up a new
   incoming connection.  \a socket is the fd of the newly accepted
@@ -153,12 +154,13 @@ void QServerSocket::incomingConnection( int )
 }
 
 
-/*!  Returns the port number on which this object listens.  This is
-always non-zero; if you specify 0 in the constructor, QServerSocket
-picks a port itself and port() returns its number. ok() must be TRUE before
-calling this function.
+/*!
+  Returns the port number on which this object listens.  This is
+  always non-zero; if you specify 0 in the constructor, QServerSocket
+  picks a port itself and port() returns its number. ok() must be TRUE before
+  calling this function.
 
-\sa address() QSocketDevice::port()
+  \sa address() QSocketDevice::port()
 */
 
 uint QServerSocket::port() const
@@ -167,7 +169,8 @@ uint QServerSocket::port() const
 }
 
 
-/*! Returns the operating system socket.
+/*!
+  Returns the operating system socket.
 */
 
 int QServerSocket::socket() const
@@ -175,11 +178,12 @@ int QServerSocket::socket() const
     return d->s->socket();
 }
 
-/*!  Returns the address on which this object listens, or 0.0.0.0 if
-this object listens on more than one address. ok() must be TRUE before
-calling this function.
+/*!
+  Returns the address on which this object listens, or 0.0.0.0 if
+  this object listens on more than one address. ok() must be TRUE before
+  calling this function.
 
-\sa port() QSocketDevice::address()
+  \sa port() QSocketDevice::address()
 */
 
 QHostAddress QServerSocket::address() const
@@ -188,7 +192,8 @@ QHostAddress QServerSocket::address() const
 }
 
 
-/*! Returns a pointer to the internal socket device. The returned pointer is
+/*!
+  Returns a pointer to the internal socket device. The returned pointer is
   null if there is no connection or pending connection. 
  
   There is normally no need to manipulate the socket device directly since this
@@ -216,17 +221,15 @@ QServerSocket::QServerSocket( QObject *parent, const char *name )
 
 
 /*!
-  Set the socket device of the server socket to \a sd. This is a very low-level
-  interface to the class and it is only useful when you want to implement a
-  server socket that should listen to sockets that are bound to something
-  exotic.
+  Low level function to set the socket device. There will only be rare
+  situations where you will find this useful. 
 
   If you call this function, take care that the socket device \a sd is already
   bound. This function will handle the rest. It returns TRUE on success,
   otherwise FALSE.
 
-  Attention: This class will delete the socket device \a sd when it does not
-  need it any more!
+  Attention: This class will delete the socket device if it is no longer
+  needed.
 */
 
 bool QServerSocket::setSocketDevice( QSocketDevice *sd, int backlog )
