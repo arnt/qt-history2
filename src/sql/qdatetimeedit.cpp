@@ -163,13 +163,17 @@ public:
 	/* color all QDATETIMEEDIT_HIDDEN_CHAR chars to background color */
 	QTextFormat *fb = parag->formatCollection()->format( p.font(),
 							     cg.base() );
+	QTextFormat *nf = parag->formatCollection()->format( p.font(),
+							     cg.text() );
 	for ( uint i = 0; i < txt.length(); ++i ) {
+	    parag->setFormat( i, 1, nf );
 	    if ( inSectionSelection( i ) )
 		continue;
 	    if ( txt.at(i) == QDATETIMEEDIT_HIDDEN_CHAR )
 		parag->setFormat( i, 1, fb );
 	}
 	fb->removeRef();
+	nf->removeRef();
 
 	QRect r( rect.x(), rect.y(), rect.width() - 2 * ( 2 + fw ), rect.height() );
 	parag->setDocumentRect( r );
@@ -193,7 +197,7 @@ public:
     }
 
     QPixmap* pixmap() { return pm; }
-    
+
 protected:
     void applyFocusSelection()
     {
@@ -219,7 +223,7 @@ public:
     QDateTimeEditor( QWidget * parent = 0,
 		       const char * name = 0 );
     ~QDateTimeEditor();
-    
+
     void setControlWidget( QDateTimeEditBase * widget );
     QDateTimeEditBase * controlWidget() const;
 	
@@ -256,14 +260,14 @@ QDateTimeEditor::QDateTimeEditor( QWidget * parent, const char * name )
     init();
 }
 
-/*! 
+/*!
  */
 void QDateTimeEditor::setControlWidget( QDateTimeEditBase * widget )
 {
     cw = widget;
 }
 
-/*! 
+/*!
  */
 QDateTimeEditBase * QDateTimeEditor::controlWidget() const
 {
@@ -588,7 +592,7 @@ public:
 */
 
 /*!
-    \fn bool QDateEdit::frame() const 
+    \fn bool QDateEdit::frame() const
     \internal
 */
 /*!
@@ -634,7 +638,7 @@ void QDateEdit::init()
     d->ed = new QDateTimeEditor( this, "date editor" );
     d->ed->setControlWidget( this );
     d->controls->setEditWidget( d->ed );
-    
+
     connect( d->controls, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
     connect( d->controls, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
     d->ed->appendSection( QNumberSection( 0,4 ) );
@@ -711,7 +715,7 @@ void QDateEdit::setRange( const QDate& min, const QDate& max )
 	d->max = max;
 }
 
-/*! \reimp 
+/*! \reimp
  */
 void QDateEdit::resizeEvent( QResizeEvent * )
 {
@@ -725,7 +729,7 @@ QSize QDateEdit::sizeHint() const
 {
     QFontMetrics fm( font() );
     int h = fm.height();
-    int w = fm.width( '9' ) * 10 + d->controls->upRect().width() + 
+    int w = fm.width( '9' ) * 10 + d->controls->upRect().width() +
 	    style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ) * 4;
 
     return QSize( w, h + 2 ).expandedTo( QApplication::globalStrut() );
@@ -1421,7 +1425,7 @@ void QTimeEdit::init()
     d->ed->appendSection( QNumberSection( 0,0 ) );
     d->ed->appendSection( QNumberSection( 0,0 ) );
     d->ed->setSeparator( ":" );
-    
+
     d->h = 0;
     d->m = 0;
     d->s = 0;
@@ -1902,7 +1906,7 @@ void QTimeEdit::removeLastNumber( int sec )
     d->ed->repaint( d->ed->rect(), FALSE );
 }
 
-/*! \reimp 
+/*! \reimp
  */
 void QTimeEdit::resizeEvent( QResizeEvent * )
 {
@@ -1917,8 +1921,8 @@ QSize QTimeEdit::sizeHint() const
 {
     QFontMetrics fm( font() );
     int h = fm.height();
-    int w = fm.width( '9' ) * 6 + fm.width( d->ed->separator() ) * 2 + 
-	    d->controls->upRect().width() + 
+    int w = fm.width( '9' ) * 6 + fm.width( d->ed->separator() ) * 2 +
+	    d->controls->upRect().width() +
 	    style().pixelMetric( QStyle::PM_DefaultFrameWidth, this ) * 4;
 
     return QSize( w, h + 2 ).expandedTo( QApplication::globalStrut() );
