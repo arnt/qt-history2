@@ -172,6 +172,19 @@ void QSqlDriver::setTransactionSupport( bool t )
     hasTrans = t;
 }
 
+/*! Protected method which allows derived classed to set the query size  support of
+    the database to \a s.
+
+    \sa hasQuerySizeSupport()
+
+*/
+
+void QSqlDriver::setQuerySizeSupport( bool s )
+{
+    hasQuerySize = s;    
+}
+
+
 /*! Protected method which derived classes can override to begin a transaction.
     If successful, return TRUE, otherwise return FALSE.  The default implementation returns FALSE.
 
@@ -270,6 +283,11 @@ QSqlFieldList QSqlDriver::fields( const QString& tablename ) const
 
 
 #endif // QT_NO_SQL
+
+
+
+
+
 
 
 

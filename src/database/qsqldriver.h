@@ -31,10 +31,10 @@ public:
     virtual QSqlIndex     primaryIndex( const QString& tablename ) const;
     virtual QSqlFieldList fields( const QString& tablename ) const;
     QSqlError	          lastError() const;
-    
+
     bool    	          hasTransactionSupport() const;
     bool                  hasQuerySizeSupport() const;
-    
+
     virtual bool          open( const QString & db,
 				const QString & user = QString::null,
 				const QString & password = QString::null,
@@ -45,6 +45,7 @@ protected:
     void 	          setOpen( bool o );
     void 	          setOpenError( bool e );
     void	          setTransactionSupport( bool t );
+    void                  setQuerySizeSupport( bool s );
     void	          setLastError( const QSqlError& e );
 private:
     int 	          dbState;
