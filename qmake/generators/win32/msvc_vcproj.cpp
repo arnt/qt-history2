@@ -1024,6 +1024,8 @@ void VcprojGenerator::initGeneratedFiles()
     vcProject.GeneratedFiles.addFiles(project->variables()["IDLSOURCES"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["RES_FILE"]);                 // compat
     vcProject.GeneratedFiles.addFiles(project->variables()["QMAKE_IMAGE_COLLECTION"]);   // compat
+    if(!extraCompilerOutputs.isEmpty())
+        vcProject.GeneratedFiles.addFiles(extraCompilerOutputs.keys());
 
     vcProject.GeneratedFiles.Project = this;
     vcProject.GeneratedFiles.Config = &(vcProject.Configuration);
@@ -1158,21 +1160,6 @@ void VcprojGenerator::initExtraCompilerOutputs()
         extraCompile.Config = &(vcProject.Configuration);
         extraCompile.CustomBuild = none;
 
-        vcProject.ExtraCompilersFiles.append(extraCompile);
-    }
-
-    // Now add all files which is a result of a moc'ed source file
-    QStringList keys = extraCompilerOutputs.keys();
-    if (!keys.isEmpty()) {
-        VCFilter extraCompile;
-        extraCompile.Name = "Generated Files";
-        extraCompile.ParseFiles = _False;
-        extraCompile.Filter = "";
-        extraCompile.Guid = QString(_GUIDExtraCompilerFiles) + "-" + extraCompile.Name;
-        extraCompile.Project = this;
-        extraCompile.Config = &(vcProject.Configuration);
-        extraCompile.CustomBuild = none;
-        extraCompile.addFiles(keys);
         vcProject.ExtraCompilersFiles.append(extraCompile);
     }
 }
