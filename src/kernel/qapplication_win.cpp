@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#332 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#333 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2723,7 +2723,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		if ( qt_winver == Qt::WV_NT )
 		    SetWindowText( winId(), (TCHAR*)qt_winTchar(txt,TRUE) );
 		else
-		    SetWindowTextA( winId(), txt.ascii() );
+		    SetWindowTextA( winId(), txt.local8Bit() );
 	    }
 	}
 	if ( msg.wParam != SIZE_MINIMIZED ) {
