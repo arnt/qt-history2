@@ -1307,7 +1307,7 @@ void QGridLayout::configureEvent( QConfigureLayoutEvent* ev )
 {
     const QDomElement* element = ev->element();
     QWidget* mainwidget = ev->widget();
-	
+
     int r = 0;
 
     QDomElement row = element->firstChild().toElement();
@@ -1343,7 +1343,7 @@ void QGridLayout::configureEvent( QConfigureLayoutEvent* ev )
 			ev->ignore();
 			return;
 		    }
-		    
+
 		    int align = 0;
 		    int x,y;
 		    if ( stringToAlign( cell.attribute( "valign" ), &y ) )
@@ -1387,7 +1387,7 @@ void QGridLayout::configureEvent( QConfigureLayoutEvent* ev )
 			ev->ignore();
 			return;
 		    }
-		    
+
 		    if ( w )
 		    {
 			if ( multicol != 1 || multirow != 1 )
@@ -1775,12 +1775,14 @@ void QBoxLayout::addStretch( int stretch )
 void QBoxLayout::addStrut( int size )
 {
     if ( horz( dir ) ) {
-	QLayoutItem *b = new QSpacerItem( 0, size );
+	QLayoutItem *b = new QSpacerItem( 0, size, QSizePolicy::Fixed,
+					  QSizePolicy::Minimum );
 	QLayoutBox *box = new QLayoutBox( b );
 	data->add( box, 0, 0 );
 
     } else {
-	QLayoutItem *b = new QSpacerItem( size, 0 );
+	QLayoutItem *b = new QSpacerItem( size, 0, QSizePolicy::Minimum,
+					  QSizePolicy::Fixed );
 	QLayoutBox *box = new QLayoutBox( b );
 	data->add( box, 0, 0 );
     }
@@ -1977,7 +1979,7 @@ void QHBoxLayout::configureEvent( QConfigureLayoutEvent* ev )
 {
     const QDomElement* element = ev->element();
     QWidget* mainwidget = ev->widget();
-    
+
     QDomElement cell = element->firstChild().toElement();
     for( ; !cell.isNull(); cell = cell.nextSibling().toElement() )
     {
@@ -2033,7 +2035,7 @@ void QHBoxLayout::configureEvent( QConfigureLayoutEvent* ev )
 	}
 
     }
-    
+
     QBoxLayout::configureEvent( ev );
 }
 #endif // QT_BUILDER
@@ -2171,7 +2173,7 @@ void QVBoxLayout::configureEvent( QConfigureLayoutEvent* ev )
 	}
 
     }
-    
+
     QBoxLayout::configureEvent( ev );
 }
 
