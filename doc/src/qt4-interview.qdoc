@@ -5,9 +5,8 @@
     The Interview classes provide a model/view framework for Qt
     applications based on the well known Model-View-Controller design
     pattern. In this document, we will describe Qt's model/view
-    architecture, discuss the current state of the implementation,
-    provide some examples, show the improvements offered over Qt 3,
-    and indicate the future direction of the implementation.
+    architecture, provide some examples, and show the improvements
+    offered over Qt 3's item view classes.
 
     \tableofcontents
 
@@ -33,8 +32,8 @@
     design and implementation of a framework based on these
     principles. In Interview, we also introduce the concept of the \e
     delegate to provide further user input functionality. The
-    advantage of using a delegate is that it allows input methods to
-    be defined instead of those provided by the view.
+    advantage of using a delegate is that it allows custom input
+    widgets to be used instead of the default ones provided by views.
 
     Interview defines the interfaces and common functionality for the
     models, views, and delegates at the \bold{abstract level}. All
@@ -53,10 +52,11 @@
     view classes: QAbstractTableModel is a useful starting point for
     providing a model to use with QTableView; QAbstractListModel
     can be subclassed to produce a list-based model to use with
-    QListView.
-    The QDirModel is provided as an example model, providing
-    directory information for use with QListView and
-    QTreeView.
+    QListView. In addition, two standard model classes are supplied
+    for use with the view classes: the QStandardItemModel class is a
+    minimal convenience model that developers can use to manage items
+    of data; QDirModel provides directory information for use with
+    QListView and QTreeView.
 
     At the \bold{convenience level}, we find classes that are provided
     to help those who are familiar with the conventional list, tree,
@@ -198,12 +198,13 @@
 
     This example shows that it can be easy to populate views with data
     from a simple model. The standard models and views planned for
-    Qt 4 will make the process even easier.
+    Qt 4 will make the process even easier, and the convenience widgets
+    supplied provide support for the classic item-based approach.
 
     \section1 What's Changed Since Qt 3?
 
     The table and item view classes in Qt 3 implemented widgets that
-    served both as containers and as views onto their contents. These
+    served both as models and as views onto their contents. These
     classes were designed to be easy-to-use and consistent. The
     equivalent classes in Qt 4 are designed to be extensible while
     remaining easy-to-use; the introduction of the model/view
@@ -226,10 +227,7 @@
 
     Since the model takes responsibility for managing items,
     and the view takes care of their presentation to the user,
-    we do not require classes to represent individual items.
-    As a result, there are no equivalent classes to the item
-    classes provided by Qt 3 such as QListViewItem,
-    QTableItem, and QIconViewItem.
+    we do not require item classes to represent individual items.
     The delegate now handles the painting and editing of items
     from the model, and selections of items are stored in selection
     ranges.
@@ -237,12 +235,15 @@
     For developers who wish to continue to use old-style item views,
     there are a number of convenience classes that will provide
     familiar interfaces without requiring the use of compatibility
-    classes. The QListView class provides a widget to display a
+    classes. The QListWidget class provides a widget to display a
     list of items, as found in Qt 3's QListBox class, and the
-    QTreeView class implements the equivalent of Qt 3's QListView
+    QTreeWidget class implements the equivalent of Qt 3's QListView
     class. User's of Qt 3's QTable class will find that
-    QTableView provides comparable functionality with a familiar
-    interface.
+    QTableWidget provides comparable functionality with a familiar
+    interface. Each of the convenience classes have a corresponding
+    item class: QListWidgetItem, QTreeWidgetItem, and
+    QTableWidgetItem are the Qt 4 equivalents of Qt 3's QListBoxItem,
+    QListViewItem, and QTableItem respectively.
 
     The move towards a model/view architecture presents both
     challenges and opportunities for developers. Although the approach
