@@ -381,9 +381,9 @@ QRollEffect::QRollEffect( QWidget* w, WFlags f, DirFlags orient )
     currentHeight = totalHeight;
     currentWidth = totalWidth;
 
-    if ( orientation & RightScroll || orientation & LeftScroll )
+    if ( orientation & (RightScroll|LeftScroll) )
 	currentWidth = 0;
-    if ( orientation & DownScroll || orientation & UpScroll )
+    if ( orientation & (DownScroll|UpScroll) )
 	currentHeight = 0;
 
     pm.setOptimization( QPixmap::BestOptim );
@@ -477,9 +477,15 @@ void QRollEffect::run( int time )
     duration  = time;
     elapsed = 0;
 
-    if ( duration < 0 )
-	duration = QMIN( QMAX((totalWidth - currentWidth) +
-			      (totalHeight - currentHeight), 75 ), 150 );
+    if ( duration < 0 ) {
+	int dist = 0;
+	if ( orientation & (RightScroll|LeftScroll) )
+	    dist += totalWidth - currentWidth;
+	if ( orientation & (DownScroll|UpScroll) ) 
+	    dist += totalHeight - currentHeight;
+	duration = QMIN( QMAX( dist/3, 50 ), 120 );
+    }
+
     connect( &anim, SIGNAL(timeout()), this, SLOT(scroll()));
 
     widget->setWState( WState_Visible );
