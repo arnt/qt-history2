@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#96 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#95 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#96 $");
 
 
 /*----------------------------------------------------------------------------
@@ -890,6 +890,11 @@ void QObject::removeChild( QObject *obj )
 
   The QAccel class was implemented using this technique.
 
+  \warning
+  If you delete the receiver object in your eventFilter() function, be
+  sure to return TRUE. If you return FALSE, Qt sends the event to the
+  deleted object and the program will crash.
+  
   \sa removeEventFilter(), eventFilter(), event()
  ----------------------------------------------------------------------------*/
 
