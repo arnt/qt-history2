@@ -2681,6 +2681,8 @@ bool QTextDocument::removeSelection( int id )
 	}
 	start.gotoNextLetter();
     }
+    p = start.paragraph();
+    p->removeSelection( id );
     selections.remove( id );
     return TRUE;
 }
@@ -4716,9 +4718,7 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 		extendRight = (fullSelectionWidth != 0);
  		if (!extendRight && !rightToLeft)
 		    tmpw += painter.fontMetrics().width(' ');
-	    } else {
-		extendRight = ( fullSelectionWidth && this->str->at(selEnd).lineStart);
-	    }
+	    } 
 	    if (fullSelectionWidth && (selStart == 0 || this->str->at(selStart).lineStart)) {
 		extendLeft = TRUE;
 	    }
@@ -4731,7 +4731,8 @@ void QTextParagraph::drawString( QPainter &painter, const QString &str, int star
 		extendRight = tmp;
 	    }
 
-	    if (selStart < selEnd &&
+	    if ((selStart < selEnd || 
+		 (fullSelected(0) && fullSelectionWidth && extendRight)) &&
 		// don't draw the standard selection on a printer=
 		(it.key() != QTextDocument::Standard || !is_printer( &painter))) {
 		int selection = it.key();
