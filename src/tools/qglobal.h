@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#21 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#22 $
 **
 ** Global type declarations and definitions
 **
@@ -227,6 +227,13 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #pragma warn -sig
 #endif
 #endif // NO_WARNINGS
+
+//
+// So, sometimes we don't use an argument.
+//
+#if !defined(UNUSED)
+#define UNUSED(argument) argument=argument;
+#endif
 
 //
 // we like RCS but do not like 'char ident[54] defined but not used'
