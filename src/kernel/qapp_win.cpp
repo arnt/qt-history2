@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#76 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#76 $");
 
 
 /*****************************************************************************
@@ -1648,10 +1648,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     int code;
     int ascii = 0;
     int state = 0;
-    bool syskey = FALSE;
 
-    if ( msg.message == WM_SYSKEYDOWN )
-	syskey = TRUE;
     if ( GetKeyState(VK_SHIFT) < 0 )
 	state |= ShiftButton;
     if ( GetKeyState(VK_CONTROL) < 0 )
