@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#233 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#234 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1456,8 +1456,10 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 void QListBox::focusInEvent( QFocusEvent * )
 {
     emitChangedSignal( FALSE );
-    if ( currentItem() < 0 && numRows() > 0 )
+    if ( currentItem() < 0 && numRows() > 0 ) {
 	setCurrentItem( topItem() );
+    }
+    updateItem( currentItem() );
 }
 
 
@@ -1697,7 +1699,12 @@ void QListBox::emitChangedSignal( bool lazy ) {
 */
 QSize QListBox::sizeHint() const
 {
-    return QSize( 50, 150 ); // ### !!! ### !!!
+    int x, y;
+    QSize s( d->columnPos[numColumns()] + 2*frameWidth() + verticalScrollBar()->width(), 
+			 d->rowPos[numRows()] + 2*frameWidth() );
+     d->layoutDirty= TRUE;
+    doLayout();
+    return s;
 }
 
 
@@ -1856,7 +1863,6 @@ void QListBox::doLayout() const
 {
     if ( !d->layoutDirty )
 	return;
-
     int c = count();
     switch( rowMode() ) {
     case FixedNumber:
@@ -1905,8 +1911,6 @@ void QListBox::doLayout() const
 	if ( columnMode() == FixedNumber ) {
 	    tryGeometry( (count()+d->numColumns-1)/d->numColumns,
 			 d->numColumns );
-	    if ( d->numColumns == 1 && d->columnPos[1] < visibleWidth() )
-		d->columnPos[1] = visibleWidth();
 	} else if ( d->head ) { // FitToWidth, at least one item
 	    int maxw = 0;
 	    QListBoxItem * i = d->head;
@@ -1946,12 +1950,19 @@ void QListBox::doLayout() const
 	}
 	break;
     }
+    
     d->layoutDirty = FALSE;
     QSize s( viewportSize( d->columnPos[numColumns()],
 			   d->rowPos[numRows()] ) );
     int x, y;
     x = QMAX( d->columnPos[numColumns()], s.width() );
     y = QMAX( d->rowPos[numRows()], s.height() );
+    
+    // extend the column for simple single-column listboxes
+    if ( rowMode() == Variable && columnMode() == FixedNumber
+	 && d->numColumns == 1 && d->columnPos[1] < x )
+	d->columnPos[1] = x;
+
     ((QListBox *)this)->resizeContents( x, y );
 }
 
@@ -2335,15 +2346,17 @@ void QListBox::refreshSlot()
 
 void QListBox::viewportPaintEvent( QPaintEvent * e )
 {
-    if ( d->layoutDirty )
+    if ( d->layoutDirty ) {
 	// in this case, we know we'll do the wrong thing now, and the
 	// right thing as soon as refreshSlot() is called.  so skip this
 	// event.
 	return;
+    }
 
     QWidget* vp = viewport();
     QPainter p( vp );
     QRegion r = e->region();
+    p.setClipRegion( r );
 
     int x = contentsX();
     int y = contentsY();
@@ -2475,14 +2488,14 @@ void QListBox::inSort( const QString& text )
 
 /*! \reimp */
 
-void QListBox::resizeEvent( QResizeEvent * e )
+void QListBox::resizeEvent( QResizeEvent *e )
 {
     if ( d->layoutDirty ||
-         rowMode() == FitToHeight || columnMode() == FitToWidth ) {
-        d->layoutDirty = TRUE;
-        d->updateTimer->stop();
-        doLayout();
-        repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight(), FALSE );
+	 rowMode() == FitToHeight || columnMode() == FitToWidth || columnMode() == FixedNumber) {
+	d->layoutDirty = TRUE;
+	d->updateTimer->stop();
+	doLayout();
+	repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight(), FALSE );
     }
     QScrollView::resizeEvent( e );
 }
@@ -2546,3 +2559,4 @@ bool QListBox::itemYPos( int index, int *yPos ) const
     if ( yPos ) *yPos = i->y;
     return TRUE;
 }
+
