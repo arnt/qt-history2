@@ -1513,8 +1513,8 @@ int QByteArray::count(const QByteArray& a) const
 }
 
 /*!
-    Returns true when the byte array starts with \a a,
-    otherwise false.
+    Returns true if the byte array starts with the byte array \a a;
+    otherwise returns false.
  */
 bool QByteArray::startsWith(const QByteArray& a) const
 {
@@ -1529,6 +1529,9 @@ bool QByteArray::startsWith(const QByteArray& a) const
 
 /*!
     \overload
+
+    Returns true if the byte array's first character is \a c;
+    otherwise returns false.
  */
 bool QByteArray::startsWith(char c) const
 {
@@ -1539,6 +1542,9 @@ bool QByteArray::startsWith(char c) const
 
 /*!
     \overload
+
+    Returns true if the byte array's first character is \a c;
+    otherwise returns false.
  */
 bool QByteArray::startsWith(const char *c) const
 {
@@ -1553,8 +1559,8 @@ bool QByteArray::startsWith(const char *c) const
 }
 
 /*!
-    Returns true when the byte array ends with \a a,
-    otherwise false.
+    Returns true if the byte array ends with the byte array \a a;
+    otherwise returns false.
  */
 bool QByteArray::endsWith(const QByteArray& a) const
 {
@@ -1569,6 +1575,9 @@ bool QByteArray::endsWith(const QByteArray& a) const
 
 /*!
     \overload
+
+    Returns true if the byte array's last character is \a c;
+    otherwise returns false.
  */
 bool QByteArray::endsWith(char c) const
 {
@@ -1581,6 +1590,9 @@ bool QByteArray::endsWith(char c) const
 
 /*!
     \overload
+
+    Returns true if the byte array's last character is \a c;
+    otherwise returns false.
  */
 bool QByteArray::endsWith(const char *c) const
 {

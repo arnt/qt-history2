@@ -1625,6 +1625,9 @@ bool QWidget::isEnabledTo( QWidget* ancestor ) const
     return !w->testAttribute(WA_ForceDisabled);
 }
 
+/*!
+    Appends the action \a action to this widget's list of actions.
+*/
 void
 QWidget::addAction(QAction *action)
 {
@@ -1639,6 +1642,10 @@ QWidget::addAction(QAction *action)
     action->addedTo(this);
 }
 
+/*!
+    Inserts the action \a action to this widget's list of actions,
+    before the action \a before.
+*/
 void
 QWidget::insertAction(QAction *before, QAction *action)
 {
@@ -1656,7 +1663,10 @@ QWidget::insertAction(QAction *before, QAction *action)
     action->addedTo(this);
 }
 
-void 
+/*!
+    Removes the action \a action from this widget's list of actions.
+*/
+void
 QWidget::removeAction(QAction *action)
 {
     if(d->actions && d->actions->remove(action)) {
@@ -1666,6 +1676,9 @@ QWidget::removeAction(QAction *action)
     }
 }
 
+/*!
+    Returns the (possibly empty) list of this widget's actions.
+*/
 QList<QAction*>
 QWidget::actions() const
 {
