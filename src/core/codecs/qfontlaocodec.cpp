@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qfontlaocodec_p.h"
+#include "qlist.h"
 
 #ifndef QT_NO_CODECS
 #ifndef QT_NO_BIG_CODECS
