@@ -1,0 +1,70 @@
+.TH lupdate 1 "17 May 2001" "Trolltech AS" \" -*- nroff -*-
+.\"
+.\" Copyright 2001 Trolltech AS.  All rights reserved.
+.\"
+.\" This file is part of Qt and may be distributed and used according to
+.\" the terms and conditions described in the LICENSE file.
+.\"
+.SH NAME
+lupdate \- update Qt Linguist translation files
+.SH SYNOPSIS
+.B lupdate
+[options] project-file
+.SH DESCRIPTION
+This page documents the
+.B Qt Linguist Update
+tool for the Qt GUI application framework.
+.B Lupdate
+reads a tmake/qmake project file (.pro file), finds the translatable
+strings in the specified source, header and interface files, and
+updates the translation files (.ts files) specified in it. The
+translation files are given to the translator who uses
+.B Qt Linguist
+to read the files and insert the translations.
+.PP
+The .ts file format is a simple human-readable XML format that can be
+used with version control systems if required.
+.SH OPTIONS
+.TP
+.I "-help"
+Displays the usage and exits.
+.TP
+.I "-verbose"
+Explains what is being done.
+.TP
+.I "-version"
+Displays the version of
+.B lupdate
+and exits.
+.SH USAGE
+Here is an example .pro file that can be given to
+.B lupdate:
+.PP
+.in +4
+.nf
+HEADERS         = funnydialog.h \\
+                  wackywidget.h
+SOURCES         = funnydialog.cpp \\
+                  main.cpp \\
+                  wackywidget.cpp
+INTERFACES      = fancybox.ui
+TRANSLATIONS    = gnomovision_dk.ts \\
+                  gnomovision_fi.ts \\
+                  gnomovision_no.ts \\
+                  gnomovision_se.ts
+.fi
+.in -4
+.PP
+When running
+.B lupdate
+on this project file, the translatable strings in all the files
+listed in the HEADERS, SOURCES and INTERFACES entries will be put in
+the translation files listed in the TRANSLATIONS entry. Previous
+translations will be reused as far as possible, and translated
+strings that have vanished from the source files are marked obsolete.
+.SH "SEE ALSO"
+.BR lrelease (1)
+and
+.BR http://doc.trolltech.com/i18n.html
+.SH AUTHOR
+Jasmin Blanchette, Trolltech AS <jasmin@trolltech.com>
