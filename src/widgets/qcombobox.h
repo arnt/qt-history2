@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#37 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#38 $
 **
 ** Definition of QComboBox class
 **
@@ -64,7 +64,8 @@ public:
     void	setMaxCount( int );
     int		maxCount() const;
 
-    enum Policy { NoInsertion, AtTop, AtCurrent, AtBottom };
+    enum Policy { NoInsertion, AtTop, AtCurrent, AtBottom,
+		  AfterCurrent, BeforeCurrent };
 
     void	setInsertionPolicy( QComboBox::Policy policy );
     QComboBox::Policy insertionPolicy() const;

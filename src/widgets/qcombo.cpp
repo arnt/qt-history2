@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#74 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#73 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#74 $");
 
 
 /*!
@@ -1399,32 +1399,36 @@ void QComboBox::returnPressed()
 {
     const char * s = d->ed->text();
     if ( s ) {
+	int c = 0;
 	switch ( insertionPolicy() ) {
 	case AtCurrent:
-	    if ( qstrcmp( s, text( currentItem() ) ) ) {
+	    if ( qstrcmp( s, text( currentItem() ) ) )
 		changeItem( s, currentItem() );
-		emit activated( currentItem() );
-		emit activated( s );
-	    }
-	    break;
-	case AtTop:
-	    if ( count() == d->maxCount )
-		removeItem( count() - 1 );
-	    insertItem( s, 0 );
-	    emit activated( count()-1 );
+	    emit activated( currentItem() );
 	    emit activated( s );
-	    break;
-	case AtBottom:
-	    if ( count() == d->maxCount )
-		removeItem( 0 );
-	    insertItem( s );
-	    emit activated( 0 );
-	    emit activated( s );
-	    break;
+	    return;
 	case NoInsertion:
 	    emit activated( s );
+	    return;
+	case AtTop:
+	    c = 0;
+	    break;
+	case AtBottom:
+	    c = count() - 1;
+	    break;
+	case BeforeCurrent:
+	    c = currentItem();
+	    break;
+	case AfterCurrent:
+	    c = currentItem() + 1;
 	    break;
 	}
+	if ( count() == d->maxCount )
+	    removeItem( count() - 1 );
+	insertItem( s, c );
+	setCurrentItem( c );
+	emit activated( c );
+	emit activated( s );
     }
 }
 
