@@ -1149,7 +1149,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
             QFontDef def = request;
             if (def.family.isEmpty()) {
                 def.family = fp->request.family;
-                def.family = def.family.left(def.family.find(','));
+                def.family = def.family.left(def.family.indexOf(','));
             }
             QFontCache::Key key(def, script,
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC)
