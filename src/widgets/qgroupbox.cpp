@@ -314,7 +314,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	QRect r( x, 0, tw, h );
 	int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, this);
 	if(va & AlignTop)
-	    r.setTop(fm.descent());
+	    r.moveBy(0, fm.descent());
 	style().drawItem( &paint, r, ShowPrefix | AlignHCenter | va, colorGroup(),
 			  isEnabled(), 0, str );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
