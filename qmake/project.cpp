@@ -232,7 +232,7 @@ static QStringList split_arg_list(QString params)
             parens--;
         } else if(params[x] == '(') {
             parens++;
-        } else if(!quote.unicode() && params[x] == quote) {
+        } else if(quote.unicode() && params[x] == quote) {
             quote = 0;
         } else if(params[x] == '\'' || params[x] == '"') {
             quote = params[x];
@@ -246,6 +246,11 @@ static QStringList split_arg_list(QString params)
             args << mid;
             last = x+1;
         }
+    }
+    for(int i = 0; i < args.count(); i++) {
+        QString &arg = args[i];
+        if((arg[0] == '\"' || arg[0] == '\'') && arg[arg.length()-1] == arg[0])
+            arg = arg.mid(1, arg.length()-2);
     }
     return args;
 }
