@@ -99,7 +99,7 @@
 
 #include "qeucjpcodec.h"
 
-#ifndef QT_NO_I18N
+#ifndef QT_NO_CODECS
 
 static const uchar Esc = 0x1b;
 static const uchar Ss2 = 0x8e;	// Single Shift 2

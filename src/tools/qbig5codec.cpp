@@ -31,7 +31,7 @@
 
 #include "qbig5codec.h"
 
-#ifndef QT_NO_I18N
+#ifndef QT_NO_CODECS
 
 static unsigned int qt_UnicodeToBig5(unsigned int unicode);
 static unsigned int qt_Big5ToUnicode(unsigned int code);

@@ -32,37 +32,76 @@
 
 #include <qconfig.h>
 
-// images
+// Images
+/*!
+    The Windows Bitmap (BMP) image format common on MS-Windows.
+    <p>This is an uncompressed image format
+    offering few advantages over PNG or JPEG.
+*/
 //#define QT_NO_IMAGEIO_BMP
+/*!
+    The Portable PixMap (PPM) image format common on Unix.
+    <p>This is an uncompressed image format
+    offering few advantages over PNG or JPEG.
+*/
 //#define QT_NO_IMAGEIO_PPM
+/*!
+    The X11 BitMap (XBM) image format common on X11.
+    <p>This is an uncompressed monochrome image format.
+    Qt uses this format for some internal images (eg. mouse cursors).
+*/
 //#define QT_NO_IMAGEIO_XBM
+/*!
+    The X11 PixMap (XPM) image format common on X11.
+    <p>This is an uncompressed image format.
+    XPM images have the small advantage that they can be trivially
+    included in source files as they are C code.
+    Qt uses this format for some internal images (eg. QMessageBox icons).
+*/
 //#define QT_NO_IMAGEIO_XPM
+/*!
+   The Portable Network Graphics (PNG) image format.
+   <p>This is a compressed image format.
+   <p>See <a href=http://www.libpng.org/pub/png/>The PNG Home Site</a> for
+   details of the format.
+*/
 //#define QT_NO_IMAGEIO_PNG
+/*!
+   The Joint Photographic Experts Group (JPEG) image format.
+   <p>This is a compressed lossy image format that gives high compression
+	for real-world and photo-realistic images.
+   <p><b>Note: this currently also requires <tt>QT_JPEG_SUPPORT</tt> to
+	be defined when building Qt.</b>
+*/
 //#define QT_NO_IMAGEIO_JPEG // currently also requires QT_JPEG_SUPPORT
 
 //#define QT_NO_ASYNC_IO
 //#define QT_NO_ASYNC_IMAGE_IO
 #if defined(QT_NO_ASYNC_IO) || defined(QT_NO_ASYNC_IMAGE_IO)
+    /*!
+	Animated images.
+	<p>This includes animated GIFs.
+	<p><b>Note: this currently also requires <tt>QT_BUILTIN_GIF_READER</tt> to
+	be defined when building Qt.</b>
+    */
     #define QT_NO_MOVIE
 #endif
 
-// fonts
+// Fonts
 //#define QT_NO_TRUETYPE
 //#define QT_NO_BDF
 //#define QT_NO_FONTDATABASE
 
-// i18n
+// Internationalization
 
 //#define QT_NO_TRANSLATION
-#if defined(QT_NO_CODECS)
-    #define QT_NO_I18N
-#endif
+//#define QT_NO_CODECS
 
 #if defined(QT_LITE_UNICODE)
     #define QT_NO_UNICODETABLES
 #endif
 
-// misc
+// MIME-typed data
 //#define QT_NO_MIME
 #if defined(QT_NO_MIME)
     #define QT_NO_RICHTEXT
@@ -70,8 +109,10 @@
     #define QT_NO_CLIPBOARD
 #endif
 
+// Sound
 //#define QT_NO_SOUND
 
+// Scripting
 //#define QT_NO_PROPERTIES
 
 // Qt/Embedded-specific
@@ -85,7 +126,6 @@
 #define QT_NO_QWS_DEPTH_15
 //#define QT_NO_QWS_DEPTH_16
 //#define QT_NO_QWS_DEPTH_32
-
 
 //#define QT_NO_DRAWUTIL
 //#define QT_NO_IMAGE_32_BIT
@@ -101,7 +141,7 @@
 
 
 
-// network
+// Networking
 //#define QT_NO_DNS
 //#define QT_NO_NETWORKPROTOCOL
 #if defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS)
@@ -109,20 +149,22 @@
     #define QT_NO_NETWORKPROTOCOL_HTTP
 #endif
 
-// painting
+// Painting
 //#define QT_NO_COLORNAMES
 //#define QT_NO_TRANSFORMATIONS
 
+// Printing
 //#define QT_NO_PSPRINTER
 #if defined(QT_NO_PSPRINTER) && !defined(_WS_WIN_)
     #define QT_NO_PRINTER
 #endif
 
+// Metafiles
 //#define QT_NO_PICTURE
 
 //define QT_NO_LAYOUT
 
-// widgets
+// Widgets
 #if defined(QT_NO_PALETTE)
     #define QT_NO_WIDGETS
 #endif
@@ -151,7 +193,6 @@
     #define QT_NO_ACTION
     #define QT_NO_DIALOGS
 
-    // styles
     #define QT_NO_STYLE_WINDOWS
     #define QT_NO_STYLE_MOTIF
     #define QT_NO_STYLE_PLATINUM

@@ -110,7 +110,7 @@
 
 #include "qcstring.h"
 
-#ifndef QT_NO_I18N
+#ifndef QT_NO_CODECS
 
 #include <stdlib.h>
 #include <ctype.h>
