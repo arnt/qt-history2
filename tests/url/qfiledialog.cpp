@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#28 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#29 $
 **
 ** Implementation of QFileDialog class
 **
@@ -295,56 +295,6 @@ static void makeVariables() {
 
 /************************************************************************
  *
- * Internal Class: QCopyFileDialog
- *
- ************************************************************************/
-
-// class QCopyFileDialog : public QDialog
-// {
-// public:
-//     QCopyFileDialog( QWidget *parent = 0, const char *name = 0 );
-
-//     QLabel *from() { return lfrom; }
-//     QLabel *to() { return lto; }
-//     QProgressBar *progress() { return pprogress; }
-
-// protected:
-//     void resizeEvent( QResizeEvent *e ) {
-// 	QDialog::resizeEvent( e );
-// 	if ( back )
-// 	    back->setGeometry( QRect(QPoint(0,0), size()) );
-//     }
-
-// private:
-//     QVBox *back;
-//     QLabel *lfrom, *lto;
-//     QProgressBar *pprogress;
-//     QPushButton *cancel;
-// };
-
-// QCopyFileDialog::QCopyFileDialog( QWidget *parent, const char *name )
-//     : QDialog( parent, name, FALSE )
-// {
-//     back = new QVBox( this );
-//     back->setMargin( 5 );
-//     back->setSpacing( 5 );
-//     lfrom = new QLabel( back );
-//     lto = new QLabel( back );
-//     pprogress = new QProgressBar( back );
-//     QHBox *hbox = new QHBox( back );
-//     (void)new QWidget( hbox );
-//     cancel = new QPushButton( QFileDialog::tr( "&Cancel" ), hbox );
-//     (void)new QWidget( hbox );
-//     hbox->setMinimumHeight( cancel->height() );
-
-//     connect( cancel, SIGNAL( clicked() ),
-// 	     this, SLOT( reject() ) );
-
-//     setResult( Accepted );
-// }
-
-/************************************************************************
- *
  * Private QFileDialog members
  *
  ************************************************************************/
@@ -538,10 +488,6 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
     if ( e->button() != LeftButton ) {
 	if ( filedialog->mode() != QFileDialog::ExistingFiles )
 	    QListBox::viewportMousePressEvent( e );
-	
-//	    if ( e->button() == RightButton && currentItem() != -1 )
-//		filedialog->popupContextMenu( item( currentItem() ), mapToGlobal( e->pos() ) );
-
 	firstMousePressEvent = FALSE;
 	return;
     }
@@ -1571,16 +1517,11 @@ void QFileDialog::init()
     files = new QFileListView( d->stack, this );
     QFontMetrics fm = fontMetrics();
     files->addColumn( tr("Name") );
-    //files->setColumnWidthMode( 0, QListView::Maximum );
     files->addColumn( tr("Size") );
-    //files->setColumnWidthMode( 1, QListView::Maximum );
     files->setColumnAlignment( 1, AlignRight );
     files->addColumn( tr("Type") );
-    //files->setColumnWidthMode( 2, QListView::Maximum );
     files->addColumn( tr("Date") );
-    //files->setColumnWidthMode( 3, QListView::Maximum );
     files->addColumn( tr("Attributes") );
-    //files->setColumnWidthMode( 0, QListView::Maximum );
 
     files->setMinimumSize( 50, 25 + 2*fm.lineSpacing() );
 
@@ -2909,7 +2850,7 @@ void QFileDialog::deleteFile( const QString &filename )
 void QFileDialog::error( int ecode, const QString &msg )
 {
     QMessageBox::critical( this, tr( "ERROR" ), msg );
-    
+
     if ( ecode == QUrl::ReadDir ) {
 	// #### todo
 	d->url = "/";
@@ -2944,7 +2885,7 @@ void QFileDialog::cdUpClicked()
 
 //     if ( d->url.cdUp() ) {
 // 	//d->url.convertToAbs();
-// 	emit dirEntered( d->url.path() ); // ### same
+// 	emit dirEntered( d->url.path() );
 // 	rereadDir();
 //     }
 }
@@ -3036,16 +2977,16 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     }
 
     QString result;
-// #### todo
-//     if ( dialog->exec() == QDialog::Accepted ) {
-// 	result = dialog->selectedFile();
-// 	QFileInfo f( result );
-// 	if ( f.isDir() ) {
-// 	    *workingDirectory = result;
-// 	} else {
-// 	    result = QString::null;
-// 	}
-//     }
+
+    if ( dialog->exec() == QDialog::Accepted ) {
+	result = dialog->selectedFile();
+	QFileInfo f( result );
+	if ( f.isDir() ) {
+	    *workingDirectory = result;
+	} else {
+	    result = QString::null;
+	}
+    }
     delete dialog;
     return result;
 }
@@ -3516,7 +3457,7 @@ void QFileDialog::clearView()
     files->clear();
     d->moreFiles->clear();
     files->setSorting( -1 );
-    
+
     QString cp( d->url );//.dirPath() );
     int i = d->paths->count() - 1;
     while( i >= 0 && d->paths->text( i ) <= cp )

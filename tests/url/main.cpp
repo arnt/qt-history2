@@ -31,14 +31,15 @@ int main( int argc, char* argv[]  )
 
 //     QFileDialog *fd = new QFileDialog();
 //     fd->setContentsPreviewWidget( new MyFilePreview );
-        
+
 //     fd->resize( 600, 400 );
 //     a.setMainWidget( fd );
 //     fd->show();
 
-    QString s = QFileDialog::getOpenFileName( "/bin/ls", "*;;*.txt" );
+//    QString s = QFileDialog::getOpenFileName( "/bin/ls", "*;;*.txt" );
+    QString s = QFileDialog::getExistingDirectory();
     qDebug( "%s", s.latin1() );
-    
+
     a.exec();
 }
 

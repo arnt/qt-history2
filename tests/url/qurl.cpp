@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qurl.cpp#30 $
+** $Id: //depot/qt/main/tests/url/qurl.cpp#31 $
 **
 ** Implementation of QFileDialog class
 **
@@ -999,8 +999,6 @@ QUrlInfo QUrl::makeInfo() const
 			 inf.size(), inf.lastModified(), inf.lastRead(), inf.isDir(), inf.isFile(),
 			 inf.isSymLink(), inf.isWritable(), inf.isReadable(), inf.isExecutable() );
     }
-
-    qDebug( "shiiiiiiiiit: %s", toString().latin1() );
 
     return QUrlInfo();
 }
