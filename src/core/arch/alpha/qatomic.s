@@ -10,12 +10,15 @@
 q_atomic_test_and_set_int:
 	.frame $30,0,$26,0
 	.prologue 0
-	ldl_l $0,0($16)
+1:	ldl_l $0,0($16)
 	cmpeq $0,$17,$0
-	beq   $0,1f
+	beq   $0,3f
 	mov   $18,$0
 	stl_c $0,0($16)
-1:	addl  $31,$0,$0
+	beq   $0,2f
+	br    3f
+2:	br    1b
+3:	addl  $31,$0,$0
 	ret   $31,($26),1
 	.end q_atomic_test_and_set_int
 	.align 2
@@ -25,12 +28,15 @@ q_atomic_test_and_set_int:
 q_atomic_test_and_set_ptr:
 	.frame $30,0,$26,0
 	.prologue 0
-	ldq_l $0,0($16)
+1:	ldq_l $0,0($16)
 	cmpeq $0,$17,$0
-	beq   $0,1f
+	beq   $0,3f
 	mov   $18,$0
 	stq_c $0,0($16)
-1:	addl  $31,$0,$0
+	beq   $0,2f
+	br    3f
+2:	br    1b
+3:	addl  $31,$0,$0
 	ret   $31,($26),1
 	.end q_atomic_test_and_set_ptr
 	.align 2
