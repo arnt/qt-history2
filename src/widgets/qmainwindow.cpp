@@ -244,7 +244,7 @@ int QMainWindowLayout::layoutItems( const QRect &r, bool testonly )
 	if ( right )
 	    right->setGeometry( QRect( g.x() + g.width() - wr, g.y() + diff, wr, r.height() - diff ) );
 	if ( central )
-	    central->setGeometry( g.x() + wl, g.y() + diff, w, r.height() - diff );
+	    central->setGeometry( g.x() + wl, g.y() + diff, w, r.height() - diff - 2 );
     }
 
     w = wl + wr;
