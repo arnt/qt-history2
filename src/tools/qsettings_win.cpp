@@ -234,9 +234,6 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t, bool *
 		else
 #endif
 		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, &type, NULL, &size );
-
-		if ( res != ERROR_SUCCESS && handle )
-		    RegCloseKey( handle );
 	    }
 	}
 	if ( size )
@@ -266,9 +263,6 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t, bool *
 		else
 #endif
 		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, &type, NULL, &size );
-
-		if ( res != ERROR_SUCCESS )
-		    RegCloseKey( handle );
 	    }
 	    if ( size )
 		break;
@@ -278,6 +272,8 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, ulong t, bool *
     if ( !size || type != t ) {
 	if ( ok )
 	    *ok = FALSE;
+	if ( handle )
+	    RegCloseKey( handle );
 	return QByteArray();
     }
 
@@ -527,8 +523,9 @@ bool QSettings::removeEntry( const QString &key )
     LONG res2 = RegEnumValueA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, NULL );
     LONG res3 = RegEnumKeyExA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, &lastWrite ); 
     if ( res2 == ERROR_NO_MORE_ITEMS && res3 == ERROR_NO_MORE_ITEMS )
-	RegDeleteKey( handle, NULL );
-
+	RegDeleteKeyA( handle, NULL );
+    else
+	RegCloseKey( handle );
     return TRUE;
 }
 
