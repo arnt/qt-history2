@@ -9,5 +9,6 @@ SOURCES		= qperf.cpp	\
 		  object.cpp	\
 		  painter.cpp	\
 		  pixmap.cpp	\
-		  string.cpp
+		  string.cpp	\
+		  textstream.cpp
 TARGET		= qperf
