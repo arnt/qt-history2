@@ -169,8 +169,8 @@ Qt/Embedded supports four font formats:
 \table
 \row
 \i <b>TrueType (TTF)</b>
-\i The scalable font technology now standard on Microsoft Windows and
-Apple Macintosh, and becoming popular on X11.
+\i The scalable font technology now standard on Microsoft Windows
+Mac OS X, and becoming popular on X11.
 \row
 \i <b>Postscript Type1 (PFA/PFB)</b>
 \i Scalable fonts often used by printers, also popular on X11. These
@@ -190,7 +190,7 @@ storage space. Instead, render the BDF to a QPF.
 
 Support for each of these font formats (except QPF which is always
 enabled) can be enabled or disabled independently by using the \link
-emb-features.html Qt/Embedded Features Definitions\endlink. There is
+emb-features.html Qt/Embedded Feature Definition File\endlink. There is
 support in Qt/Embedded for writing a QPF font file from any font, so
 you can initially enable TTF and BDF formats, save QPF files for the
 fonts and sizes you need, then remove TTF and BDF support.
@@ -307,7 +307,7 @@ TrueType and Type1 support.
 
 \title Running Qt/Embedded applications
 
-A Qt/Embedded application requires a master application to be running
+A Qt/Embedded application requires a master application to be running,
 or to be the master application itself. The master application is
 primarily responsible for managing top-level window regions, and
 pointer and keyboard input.
