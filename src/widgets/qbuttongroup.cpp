@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#3 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -16,7 +16,7 @@
 #include "qlist.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#3 $";
 #endif
 
 
@@ -70,9 +70,9 @@ void QButtonGroup::buttonClicked()
     int id = -1;
     QObject *sobj = sender();			// object that sent the signal
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
-	if ( sobj == i->button )
-	    id = i->button->id();
-	else
+	if ( sobj == i->button )		// button was clicked
+	    id = i->id;
+	else					// switch all other off
 	    i->button->switchOff();
     }
     if ( id != -1 )
