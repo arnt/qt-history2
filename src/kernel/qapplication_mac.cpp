@@ -97,6 +97,11 @@ QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
 
+//special case popup handlers - look where these are used, they are very hacky, 
+//and very special case, if you plan on using these variables be VERY careful!!
+static bool qt_closed_popup = FALSE;
+EventRef qt_replay_event = NULL;
+
 void qt_mac_destroy_widget(QWidget *w)
 {
     if(qt_button_down == w)
@@ -719,6 +724,13 @@ bool QApplication::processNextEvent( bool  )
 	EventRecord ev;
 	EventAvail(everyEvent, &ev);
 
+	if(qt_replay_event) { 	//ick
+	    EventRef ev = qt_replay_event;
+	    qt_replay_event = NULL;
+	    SendEventToApplication(ev);
+	    ReleaseEvent(ev);
+	}
+
 	EventRef event;
 	OSStatus ret;
 	do {
@@ -801,7 +813,7 @@ bool QApplication::processNextEvent( bool  )
 #else
 //#warning "need to implement sockets on mac9"
 #endif
-
+    
     return (nevents > 0);
 }
 
@@ -855,11 +867,11 @@ static int get_key(int key)
 {
     for(int i = 0; key_syms[i].desc; i++) {
 	if(key_syms[i].mac_code == key) {
-	    qDebug("got key: %s", key_syms[i].desc);
+//	    qDebug("got key: %s", key_syms[i].desc);
 	    return key_syms[i].qt_code;
 	}
     }
-    qDebug("Falling back to ::%d::", key);
+//    qDebug("Falling back to ::%d::", key);
     return key;
 }
 
@@ -1142,7 +1154,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	//handle popup's first
 	QWidget *popupwidget = NULL;
+	bool special_close = FALSE;
 	if( app->inPopupMode() ) {
+	    qt_closed_popup = FALSE;
 	    QMacSavedPortInfo savedInfo;
 
 	    WindowPtr wp;
@@ -1168,6 +1182,18 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
 		QApplication::sendEvent( popupwidget, &qme );
 	    }
+
+	    if(etype == QEvent::MouseButtonPress && app->activePopupWidget() != popupwidget &&
+	       qt_closed_popup) 
+		special_close = TRUE;
+	}
+
+	if(ekind == kEventMouseDown && !app->do_mouse_down( &where )) 
+	    return 0;
+
+	if(special_close) {
+	    qt_replay_event = CopyEvent(event);
+	    return 0;
 	}
 
 	//figure out which widget to send it to
@@ -1180,8 +1206,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	if ( widget && app_do_modal && !qt_try_modal(widget, event) )
 	    return 1;
-	if(ekind == kEventMouseDown && !app->do_mouse_down( &where )) 
-	    return 0;
 
 	mouse_button_state = after_state;
 	switch(ekind) {
@@ -1484,6 +1508,8 @@ void QApplication::closePopup( QWidget *popup )
 	return;
 
     popupWidgets->removeRef( popup );
+
+    qt_closed_popup = !popup->geometry().contains( QCursor::pos() );
     if (popup == popupOfPopupButtonFocus) {
 	popupButtonFocus = 0;
 	popupOfPopupButtonFocus = 0;
