@@ -65,7 +65,7 @@ void IntroScreen::paintEvent(QPaintEvent *)
 
     QTextDocumentLayout *layout = static_cast<QTextDocumentLayout*>(textLayout);
 
-    int blockHeight = layout->totalHeight();
+    int blockHeight = layout->rootFrameSize().height();
     int ypos = (-animationStep % blockHeight);
 
     p.translate(textRect.x(), ypos);
