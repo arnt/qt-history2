@@ -1,3 +1,5 @@
+#include <qobjectlist.h>
+
 void WidgetsBase::init()
 {
 	timeEdit->setTime( QTime::currentTime() );
