@@ -904,7 +904,7 @@ void QTextHtmlParser::parseAttributes()
 	    QString a = value;
 	    int count = a.count(';')+1;
 	    for (int s = 0; s < count; s++) {
-		QString style = a.section(';', s, s);
+		QString style = a.section(';', s, s).trimmed();
 		if (style.startsWith(QLatin1String("font-size:")) && style.endsWith(QLatin1String("pt"))) {
 		    node->fontPointSize = int(style.mid(10, style.length() - 12).toDouble());
 		} if (style.startsWith(QLatin1String("font-style:"))) {
@@ -945,6 +945,8 @@ void QTextHtmlParser::parseAttributes()
 		node->alignment = Qt::AlignRight;
 	    else if (value == QLatin1String("center"))
 		node->alignment = Qt::AlignHCenter;
+	    else if (value == QLatin1String("justify"))
+		node->alignment = Qt::AlignJustify;
 	}
     }
 }
