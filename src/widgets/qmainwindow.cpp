@@ -1796,22 +1796,22 @@ QList<QToolBar> QMainWindow::toolBarsOnDock( ToolBarDock dock ) const
     QList<QToolBar> lst;
     QMainWindowPrivate::ToolBarDock *tdock = 0;
     switch ( dock ) {
-    case QMainWindow::Left:
+    case Left:
 	tdock = d->left;
 	break;
-    case QMainWindow::Right:
+    case Right:
 	tdock = d->right;
 	break;
-    case QMainWindow::Top:
+    case Top:
 	tdock = d->top;
 	break;
-    case QMainWindow::Bottom:
+    case Bottom:
 	tdock = d->bottom;
 	break;
-    case QMainWindow::Unmanaged:
+    case Unmanaged:
 	tdock = d->unmanaged;
 	break;
-    case QMainWindow::TornOff:
+    case TornOff:
 	tdock = d->tornOff;
 	break;
     }
