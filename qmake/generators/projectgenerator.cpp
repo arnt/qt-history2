@@ -67,11 +67,18 @@ ProjectGenerator::init()
 
     //the scary stuff
     if(project->first("TEMPLATE_ASSIGN") != "subdirs") {
-	QString builtin_regex("*.ui; *.c; *.y; *.l");
-	for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit)
-	    builtin_regex += "; *" + (*hit);
-	for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
-	    builtin_regex += "; *" + (*cppit);
+	QString builtin_regex;
+	{ //calculate the builtin regular expression..
+	    QStringList builtin_exts(".c");
+	    builtin_exts << Option::ui_ext << Option::yacc_ext << Option::lex_ext;
+	    builtin_exts += Option::h_ext + Option::cpp_ext;
+	    for(QStringList::Iterator ext_it = builtin_exts.begin(); 
+		ext_it != builtin_exts.end(); ++ext_it) {
+		if(!builtin_regex.isEmpty())
+		    builtin_regex += "; ";
+		builtin_regex += QString("*") + (*ext_it);
+	    }
+	}
 	QStringList dirs = Option::projfile::project_dirs;
 	if(Option::projfile::do_pwd)
 	    dirs.prepend(QDir::currentDirPath());
