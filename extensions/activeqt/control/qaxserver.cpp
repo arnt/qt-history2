@@ -405,7 +405,7 @@ static const char* const keyword_map[][2] =
     { 0,		0		    }
 };
 
-static QString replaceKeyword(const QString &name)
+static QByteArray replaceKeyword(const QByteArray &name)
 {
     int i = 0;
     while (keyword_map[i][0]) {
@@ -416,14 +416,14 @@ static QString replaceKeyword(const QString &name)
     return name;
 }
 
-static QMap<QString, int> *mapping = 0;
+static QMap<QByteArray, int> *mapping = 0;
 
-static QString renameOverloads(const QString &name)
+static QByteArray renameOverloads(const QByteArray &name)
 {
-    QString newName = name;
+    QByteArray newName = name;
     
     if (!mapping)
-        mapping = new QMap<QString, int>();
+        mapping = new QMap<QByteArray, int>();
     
     int n = (*mapping)[name];
     if (n) {
@@ -526,42 +526,42 @@ bool ignoreProps(const char *test)
 
 #define STRIPCB(x) x = x.mid(1, x.length()-2)
 
-static QString prototype(const QStringList &ptypes, const QStringList &pnames, bool *ok)
+static QByteArray prototype(const QList<QByteArray> &parameterTypes, const QList<QByteArray> &parameterNames, bool *ok)
 {
-    QString prototype;
+    QByteArray prototype;
     
-    for (int p = 0; p < ptypes.count() && *ok; ++p) {
+    for (int p = 0; p < parameterTypes.count() && *ok; ++p) {
         bool out = false;
-        QString ptype(ptypes.at(p));
+        QByteArray type(parameterTypes.at(p));
+        QByteArray name(parameterNames.at(p));
         
-        if (ptype.endsWith("&")) {
+        if (type.endsWith("&")) {
             out = true;
-            ptype.truncate(ptype.length() - 1);
-        } else if (ptype.endsWith("**")) {
+            type.truncate(type.length() - 1);
+        } else if (type.endsWith("**")) {
             out = true;
-            ptype.truncate(ptype.length() - 1);
-        } else if (ptype.endsWith("*") && (!subtypes || !subtypes->contains(ptype))) {
-            ptype.truncate(ptype.length() - 1);
+            type.truncate(type.length() - 1);
+        } else if (type.endsWith("*") && (!subtypes || !subtypes->contains(type))) {
+            type.truncate(type.length() - 1);
         }
-        if (ptype.isEmpty()) {
+        if (type.isEmpty()) {
             ok = false;
             break;
         }
-        QString pname(pnames.at(p));
-        ptype = convertTypes(ptype, ok);
+        type = convertTypes(type, ok);
         if (!out)
-            prototype += "[in] " + ptype + " ";
+            prototype += "[in] " + type + " ";
         else
-            prototype += "[in,out] " + ptype + " ";
+            prototype += "[in,out] " + type + " ";
         
         if (out)
             prototype += "*";
-        if (pname.isEmpty())
+        if (name.isEmpty())
             prototype += "p" + QString::number(p);
         else
-            prototype += "p_" + replaceKeyword(pname);
+            prototype += "p_" + replaceKeyword(name);
         
-        if (p < ptypes.count() - 1)
+        if (p < parameterTypes.count() - 1)
             prototype += ", ";
     }
     
@@ -749,23 +749,19 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
             outBuffer = QString();
         }
         
-        QString signature(slot.signature());
-        QString name(signature.left(signature.indexOf('(')));
-        if (i <= qtSlots && ignoreSlots(name.latin1()))
+        QByteArray signature(slot.signature());
+        QByteArray name(signature.left(signature.indexOf('(')));
+        if (i <= qtSlots && ignoreSlots(name))
             continue;
-        
+
         signature = signature.mid(name.length() + 1);
         signature.truncate(signature.length() - 1);
-        QStringList ptypes;
-        QStringList pnames;
-        if (!signature.isEmpty()) {
-            ptypes = signature.split(',');
-            pnames = QString(slot.parameters()).split(',');
-        }
-        
         name = renameOverloads(replaceKeyword(name));
-        if (ignoreSlots(name.latin1()))
+        if (ignoreSlots(name))
             continue;
+
+        QList<QByteArray> parameterTypes(slot.parameterTypes());
+        QList<QByteArray> parameterNames(slot.parameterNames());
         
         bool ok = true;
         QString type = slot.typeName();
@@ -774,7 +770,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
         else
             type = convertTypes(type, &ok);
         
-        QString ptype(prototype(ptypes, pnames, &ok));
+        QByteArray ptype(prototype(parameterTypes, parameterNames, &ok));
         if (!ok)
             outBuffer += "\t/****** Slot parameter uses unsupported datatype\n";
         
@@ -823,27 +819,23 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
             if (signal.memberType() != QMetaMember::Signal)
                 continue;
             
-            QString signature(signal.signature());
-            QString name(signature.left(signature.indexOf('(')));
-            
+            QByteArray signature(signal.signature());
+            QByteArray name(signature.left(signature.indexOf('(')));
             signature = signature.mid(name.length() + 1);
             signature.truncate(signature.length() - 1);
-            QStringList ptypes;
-            QStringList pnames;
-            if (!signature.isEmpty()) {
-                ptypes = signature.split(',');
-                pnames = QString(signal.parameters()).split(',');
-            }
+
+            QList<QByteArray> parameterTypes(signal.parameterTypes());
+            QList<QByteArray> parameterNames(signal.parameterNames());
             
             bool isDefault = defSignal == name;
             name = renameOverloads(replaceKeyword(name));
             bool ok = true;
             
-            QString type = signal.typeName();
+            QByteArray type = signal.typeName();
             if (!type.isEmpty()) // signals with return value not supported
                 continue;
             
-            QString ptype(prototype(ptypes, pnames, &ok));
+            QByteArray ptype(prototype(parameterTypes, parameterNames, &ok));
             if (!ok)
                 out << "\t/****** Signal parameter uses unsupported datatype" << endl;
             
