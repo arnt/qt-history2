@@ -7862,7 +7862,7 @@ void QListView::adjustColumn( int col )
 
     d->h->adjustHeaderSize( oldw - w );
     d->h->resizeSection( col, w );
-    handleSizeChange( col, oldw, w );
+    d->h->sizeChange( col, oldw, w);
 }
 
 #endif // QT_NO_LISTVIEW
