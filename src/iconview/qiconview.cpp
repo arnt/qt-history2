@@ -508,7 +508,7 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
     object using append().
 
     The data in QIconDragItems is stored in a QByteArray and is
-    mime-typed (see QMimeSource and the 
+    mime-typed (see QMimeSource and the
     <a href="http://doc.trolltech.com/dnd.html">Drag and Drop</a>
     overview). If you want to use your own mime-types derive a class
     from QIconDrag and reimplement format(), encodedData() and
@@ -520,10 +520,10 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
     \c qt/examples/fileiconview/qfileiconview.h and
     \c qt/examples/fileiconview/qfileiconview.cpp.
 
-    \important QMimeSource::format() 
-*/ 
+    \important QMimeSource::format()
+*/
 // ### consider using \dontinclude and friends there
-// ### Not here in the module overview instead... 
+// ### Not here in the module overview instead...
 
 /*!
   \reimp
@@ -710,7 +710,7 @@ void QIconDragData::setTextRect( const QRect &r )
   string and an icon:
 
   \code
-    (void) new QIconViewItem( 
+    (void) new QIconViewItem(
 		    parent,	// A pointer to a QIconView
 		    "This is the text of the item",
 		    pixmap );
@@ -797,7 +797,7 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
 }
 
 /*!
-  Constructs an icon view item using \a text as the text and a \icon as
+  Constructs an icon view item using \a text as the text and a \a icon as
   the icon, and inserts it into the icon view \a parent.
 */
 
@@ -845,7 +845,7 @@ void QIconViewItem::init( QIconViewItem *after )
 
 /*!
   Destroys the icon view item and tells the parent icon view that the
-  item has been destroyed. 
+  item has been destroyed.
 */
 
 QIconViewItem::~QIconViewItem()
@@ -889,7 +889,7 @@ void QIconViewItem::setText( const QString &text )
 }
 
 /*!
-  Sets \a k as the sort key of the icon view item. 
+  Sets \a k as the sort key of the icon view item.
 
   \sa compareItems()
 */
@@ -996,7 +996,7 @@ void QIconViewItem::setPixmap( const QPixmap &icon, bool recalc, bool redraw )
   If \a allow is TRUE, the user can rename the icon view item by
   clicking on the text (or pressing F2) while the item is selected
   (in-place renaming). If \a allow is FALSE, in-place renaming is not
-  possible. 
+  possible.
 */
 
 void QIconViewItem::setRenameEnabled( bool allow )
@@ -1915,7 +1915,7 @@ void QIconViewItem::checkRect()
   \module iconview
 
   \ingroup advanced
-    
+
     The QIconView class provides a rectangular area which contains
     moveable labelled icons. It can display and manage a grid or other
     2D layout of labelled icons. Each labelled icon is a QIconViewItem.
@@ -1936,7 +1936,7 @@ void QIconViewItem::checkRect()
 
     \code
     QIconView *iv = new QIconView( this );
-    QDir dir( path, "*.xpm" );	
+    QDir dir( path, "*.xpm" );
     for ( uint i = 0; i < dir.count(); i++ ) {
 	(void) new QIconViewItem( iv, dir[i], QPixmap( path + dir[i] ) );
     }
@@ -1982,10 +1982,10 @@ void QIconViewItem::checkRect()
     linear (a double-linked list), no iterator class is needed to
     iterate over all the items. Instead we iterate by getting the first
     item from the icon view and then each subsequent (\l nextItem) from
-    each item in turn: 
+    each item in turn:
 
   \code
-  for ( QIconViewItem *item = iv->firstItem(); item; item = item->nextItem() ) 
+  for ( QIconViewItem *item = iv->firstItem(); item; item = item->nextItem() )
     do_something( item );
   \endcode
 
@@ -2030,7 +2030,7 @@ void QIconViewItem::checkRect()
     void MyIconViewItem::dropped( QDropEvent *evt, const QValueList<QIconDragItem>& )
     {
 	QString label;
-	if ( QTextDrag::decode( evt, label ) ) 
+	if ( QTextDrag::decode( evt, label ) )
 	    setText( label );
     }
     \endcode
@@ -2127,7 +2127,7 @@ void QIconViewItem::checkRect()
    <ul>
    <li> \c LeftToRight - Items which don't fit onto the view go
    further down (you get a vertical scrollbar)
-   
+
    <li> \c TopToBottom - Items which don't fit onto the view go
    further right (you get a horizontal scrollbar)
    </ul>
@@ -2159,7 +2159,7 @@ void QIconViewItem::checkRect()
 */
 
 /*! \fn void QIconView::moved ()
-  
+
   This signal is emitted after successfully dropping one (or more)
   item(s) of the icon view somewhere. If they should be removed, it's
   best to do it in a slot connected to this signal.
@@ -2204,10 +2204,10 @@ void QIconViewItem::checkRect()
 // out of the window and back in, to the same item.
 
 /*! \fn void QIconView::onViewport()
-  
+
   This signal is emitted when the user moves the mouse cursor from an
   item to an empty part of the icon view.
-  
+
   \sa onItem()
 */
 
@@ -2216,7 +2216,7 @@ void QIconViewItem::checkRect()
 
   This signal is emitted when \a item has bee renamed, usually by
   in in-place renaming.
-  
+
   \sa setRenameEnabled() rename()
 */
 
@@ -2225,7 +2225,7 @@ void QIconViewItem::checkRect()
 
   This signal is emitted when \a item has bee renamed to \a name,
   usually by in in-place renaming.
-  
+
   \sa setRenameEnabled() rename()
 */
 
@@ -3371,7 +3371,7 @@ void QIconView::ensureItemVisible( QIconViewItem *item )
   If you want to find all items that touch \a r, you must use this
   function, nextItem() in a loop ending at findLastVisibleItem() and
   test on QItem::rect() for each of those items.
-  
+
   \sa findLastItem() QIconViewItem::rect()
 */
 
@@ -3697,7 +3697,7 @@ void QIconView::setMaxItemTextLength( int w )
 
 /*!  Returns the maximum width (in pixels) that an item may have. This
   may be the value set using setMaxItemWidth(), but may also be
-  derived from gridX() if gridX() overrides setMaxItemWidth().  
+  derived from gridX() if gridX() overrides setMaxItemWidth().
 
   \sa QIconView::setMaxItemWidth() setGridX()
 */
@@ -3837,7 +3837,7 @@ void QIconView::setWordWrapIconText( bool b )
 
 /*! Returns TRUE if a too-long item text is word-wrapped, and FALSE if
   it is shown truncated.
-  
+
   \sa setWordWrapIconText(), setShowToolTips()
 */
 
@@ -4657,9 +4657,9 @@ QDragObject *QIconView::dragObject()
     drag->setPixmap( *d->currentItem->pixmap(),
  		     QPoint( d->currentItem->pixmapRect().width() / 2,
 			     d->currentItem->pixmapRect().height() / 2 ) );
-   
-    if ( d->selectionMode == NoSelection ) {  
-	QIconViewItem *item = d->currentItem; 
+
+    if ( d->selectionMode == NoSelection ) {
+	QIconViewItem *item = d->currentItem;
 	drag->append( QIconDragItem(),
 		      QRect( item->pixmapRect( FALSE ).x() - orig.x(),
 			     item->pixmapRect( FALSE ).y() - orig.y(),
@@ -4885,7 +4885,7 @@ void QIconView::initDragEnter( QDropEvent *e )
 /*!
   This function is called to draw the rectangle \a r of the background using
   the painter \a p.
-  
+
   The default implementation fills \a r with
   colorGroup().base(). Subclasses may reimplement this to draw fancy
   backgrounds.
@@ -5430,7 +5430,7 @@ void QIconView::appendItemContainer()
 }
 
 /*!  \internal
-  
+
   Rebuilds the whole internal data structure. This is done when it's
   likelt that most/all items change their geometry (e.g. in
   arrangeItemsInGrid()), because calling this is then more efficient
