@@ -722,6 +722,7 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
     glcx = 0;
     olw = 0;
     autoSwap = TRUE;
+
     if ( shareWidget )
 	setContext( new QGLContext( format, this ), shareWidget->context() );
     else
@@ -746,6 +747,14 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 }
 
 
+void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
+			  bool showIt )
+{
+    QWidget::reparent( parent, f, p, showIt );
+    //### TBD
+}
+
+
 void QGLWidget::setMouseTracking( bool enable )
 {
     if ( olw )
@@ -756,6 +765,8 @@ void QGLWidget::setMouseTracking( bool enable )
 
 void QGLWidget::resizeEvent( QResizeEvent * )
 {
+    if ( !isValid() )
+	return;
     makeCurrent();
     if ( !glcx->initialized() )
 	glInit();

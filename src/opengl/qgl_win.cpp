@@ -371,6 +371,77 @@ bool QGLFormat::hasOpenGLOverlays()
   QGLContext Win32/WGL-specific code
  *****************************************************************************/
 
+static uchar qgl_rgb_palette_comp( int idx, uint nbits, uint shift )
+{
+    const uchar map_3_to_8[8] = {
+	0, 0111>>1, 0222>>1, 0333>>1, 0444>>1, 0555>>1, 0666>>1, 0377
+    };
+    const uchar map_2_to_8[4] = {
+	0, 0x55, 0xaa, 0xff
+    };
+    const uchar map_1_to_8[2] = {
+	0, 255
+    };
+
+    uchar val = (uchar) (idx >> shift);
+    uchar res = 0;
+    switch ( nbits ) {
+    case 1:
+        val &= 0x1;
+        res =  map_1_to_8[val];
+	break;
+    case 2:
+        val &= 0x3;
+        res = map_2_to_8[val];
+	break;
+    case 3:
+        val &= 0x7;
+        res = map_3_to_8[val];
+	break;
+    default:
+        res = 0;
+    }
+    return res;
+}
+
+
+static QRgb* qgl_create_rgb_palette( const PIXELFORMATDESCRIPTOR* pfd )
+{
+    if ( ( pfd->iPixelType != PFD_TYPE_RGBA ) ||
+	 !(pfd->dwFlags & PFD_NEED_PALETTE) ||
+	 ( pfd->cColorBits != 8 ) )
+	return 0;
+    int numEntries = 1 << pfd->cColorBits;
+    QRgb* pal = new QRgb[numEntries];
+    for ( int i = 0; i < numEntries; i++ ) {
+	int r = qgl_rgb_palette_comp( i, pfd->cRedBits, pfd->cRedShift );
+	int g = qgl_rgb_palette_comp( i, pfd->cGreenBits, pfd->cGreenShift );
+	int b = qgl_rgb_palette_comp( i, pfd->cBlueBits, pfd->cBlueShift );
+	pal[i] = qRgb( r, g, b );
+    }
+
+    const int syscol_indices[13] = {
+	0, 3, 24, 27, 64, 67, 88, 173, 181, 236, 247, 164, 91
+    };
+
+    const uint syscols[20] = {
+	0x000000, 0x800000, 0x008000, 0x808000, 0x000080, 0x800080,
+	0x008080, 0xc0c0c0, 0xc0dcc0, 0xa6caf0, 0xfffbf0, 0xa0a0a4,
+	0x808080, 0xff0000, 0x00ff00, 0xffff00, 0x0000ff, 0xff00ff,
+	0x00ffff, 0xffffff
+    };
+
+    if ( ( pfd->cColorBits == 8 )				&&
+	 ( pfd->cRedBits   == 3 ) && ( pfd->cRedShift   == 0 )	&&
+	 ( pfd->cGreenBits == 3 ) && ( pfd->cGreenShift == 3 )	&&
+	 ( pfd->cBlueBits  == 2 ) && ( pfd->cBlueShift  == 6 ) ) {
+	for ( int j = 1 ; j <= 12 ; j++ )
+	    pal[j] = QRgb( syscols[j] );
+    }
+
+    return pal;
+}
+
 
 static QGLFormat pfdToQGLFormat( const PIXELFORMATDESCRIPTOR* pfd )
 {
@@ -520,6 +591,12 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     if ( win )
 	ReleaseDC( win, myDc );
 
+    QRgb* pal = qgl_create_rgb_palette( &realPfd );
+    if ( pal ) {
+	QColor::setPaletteEntries( pal, 256, 0 );
+	delete[] pal;
+    }
+
     return TRUE;
 }
 
@@ -577,22 +654,26 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
     p->iLayerType = PFD_MAIN_PLANE;
     int chosenPfi = ChoosePixelFormat( pdc, p );
 
-    PIXELFORMATDESCRIPTOR pfd;
+    // Since the GDI function ChoosePixelFormat() does not handle
+    // overlay and direct-rendering requests, we must roll our own here 
+
     bool doSearch = chosenPfi < 0;
-    if ( !doSearch && glFormat.hasOverlay() ) {
-	// If the chosen PF coincidentally has overlay(s); skip manual search
+    PIXELFORMATDESCRIPTOR pfd;
+    QGLFormat fmt;
+    if ( !doSearch ) {
 	DescribePixelFormat( pdc, chosenPfi, sizeof(PIXELFORMATDESCRIPTOR), 
 			     &pfd );
-	doSearch = (pfd.bReserved & 0x0f) == 0;
+	fmt = pfdToQGLFormat( &pfd );
+	if ( glFormat.hasOverlay() && !fmt.hasOverlay() )
+	    doSearch = TRUE;
+	if ( !qLogEq( glFormat.directRendering(), fmt.directRendering() ) )
+	    doSearch = TRUE;
     }
 
     if ( doSearch ) {
-	// Since the GDI function ChoosePixelFormat() does not handle
-	// overlay requests, we must roll our own here 
 	int pfiMax = DescribePixelFormat( pdc, 0, 0, NULL );
 	int bestScore = -1;
 	int bestPfi = -1;
-	QGLFormat fmt;
 	for ( int pfi = 1; pfi <= pfiMax; pfi++ ) {
 	    DescribePixelFormat( pdc, pfi, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 	    if ( !(pfd.dwFlags & PFD_SUPPORT_OPENGL) )
@@ -620,9 +701,9 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 	    if ( qLogEq( glFormat.stencil(), fmt.stencil() ) )
 		score += pfd.cStencilBits;
 	    if ( qLogEq( glFormat.stereo(), fmt.stereo() ) )
-		score += 2000;
-	    if ( qLogEq( glFormat.directRendering(), fmt.directRendering() ) )
 		score += 1000;
+	    if ( qLogEq( glFormat.directRendering(), fmt.directRendering() ) )
+		score += 2000;
 	    
 	    if ( score > bestScore ) {
 		bestScore = score;
@@ -761,6 +842,7 @@ void QGLWidget::init( const QGLFormat& fmt, const QGLWidget* shareWidget )
 {
     glcx = 0;
     autoSwap = TRUE;
+
     if ( shareWidget )
 	setContext( new QGLContext( fmt, this ), shareWidget->context() );
     else
@@ -781,6 +863,16 @@ void QGLWidget::init( const QGLFormat& fmt, const QGLWidget* shareWidget )
 }
 
 
+void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
+			  bool showIt )
+{
+    QWidget::reparent( parent, f, p, FALSE );
+    setContext( new QGLContext( glcx->requestedFormat(), this ) );
+    if ( showIt )
+	show();
+}
+
+
 void QGLWidget::setMouseTracking( bool enable )
 {
     QWidget::setMouseTracking( enable );
@@ -789,6 +881,8 @@ void QGLWidget::setMouseTracking( bool enable )
 
 void QGLWidget::resizeEvent( QResizeEvent * )
 {
+    if ( !isValid() )
+	return;
     makeCurrent();
     if ( !glcx->initialized() )
 	glInit();
@@ -857,13 +951,13 @@ void QGLWidget::setContext( QGLContext *context,
     QGLContext* oldcx = glcx;
     glcx = context;
 
-    if ( oldcx && oldcx->windowCreated() && !glcx->deviceIsPixmap() && 
-	 !glcx->windowCreated() ) {
+    bool doShow = FALSE;
+    if ( oldcx && oldcx->win == winId() && !glcx->deviceIsPixmap() ) {
 	// We already have a context and must therefore create a new
 	// window since Windows does not permit setting a new OpenGL
 	// context for a window that already has one set.
-	destroy( TRUE, TRUE );
-	create( 0, TRUE, TRUE );
+	doShow = isVisible();
+	QWidget::reparent( parentWidget(), 0, geometry().topLeft(), FALSE );
     }
 
     if ( !glcx->isValid() )
@@ -872,7 +966,8 @@ void QGLWidget::setContext( QGLContext *context,
     if ( deleteOldContext )
 	delete oldcx;
 
-    glcx->setWindowCreated( TRUE );
+    if ( doShow )
+	show();
 }
 
 
