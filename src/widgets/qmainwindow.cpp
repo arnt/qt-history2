@@ -1385,6 +1385,18 @@ void QMainWindow::paintEvent( QPaintEvent * )
 }
 
 
+static bool dockMainWindow( QObject *dock, QWidget *mw )
+{
+    while ( dock ) {
+	if ( dock->parent() && dock->parent() == mw )
+	    return TRUE;
+	if ( dock->parent() && dock->parent()->inherits( "QMainWindow" ) )
+	    return FALSE;
+	dock = dock->parent();
+    }
+    return FALSE;
+}
+
 /*!
   \reimp
 */
@@ -1398,7 +1410,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
     }
 
     if ( e->type() == QEvent::ContextMenu && d->dockMenu &&
-	( o->inherits( "QDockArea" ) || o == d->hideDock ) ) {
+	 ( o->inherits( "QDockArea" ) && dockMainWindow( o,this ) || o == d->hideDock ) ) {
 	if ( showDockMenu( ( (QMouseEvent*)e )->globalPos() ) ) {
 	    ( (QContextMenuEvent*)e )->accept();
 	    return TRUE;
