@@ -344,24 +344,6 @@ void QMenuBar::menuContentsChanged()
     // here the part that can't be delayed
     QMenuData::menuContentsChanged();
     badSize = TRUE;				// might change the size
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-    if(mac_eaten_menubar)
-	macDirtyNativeMenubar();
-
-    bool all_hidden = TRUE;
-    if(irects) {
-	for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
-	    all_hidden = irects[i].isEmpty();
-    }
-    if( all_hidden ) {
-	if( !isHidden())
-	    hide();
-    } else {
-	if( isHidden() && !fromFrameChange )
-	    show();
-    }
-
-#endif
     if( pendingDelayedContentsChanges )
         return;
     pendingDelayedContentsChanges = 1;
@@ -393,6 +375,23 @@ void QMenuBar::performDelayedContentsChanged()
 	    parentWidget()->layout()->activate();
 #endif
     }
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
+    if(mac_eaten_menubar)
+	macDirtyNativeMenubar();
+
+    bool all_hidden = TRUE;
+    if(irects) {
+	for(int i = 0; all_hidden && i < (int)mitems->count(); i++)
+	    all_hidden = irects[i].isEmpty();
+    }
+    if( all_hidden ) {
+	if( !isHidden())
+	    hide();
+    } else {
+	if( isHidden() && !fromFrameChange )
+	    show();
+    }
+#endif
 }
 
 /*!
