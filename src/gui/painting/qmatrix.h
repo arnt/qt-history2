@@ -113,4 +113,8 @@ Q_GUI_EXPORT QDebug operator<<(QDebug, const QMatrix &);
 
 #endif // QT_NO_MATRIX
 
+#ifdef QT_COMPAT
+#include "qwmatrix.h"
+#endif
+
 #endif // QMATRIX_H
