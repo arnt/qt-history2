@@ -693,7 +693,7 @@ void QTipManager::setWakeUpDelay ( int i )
     QToolTip::setGloballyEnabled() or disabled in groups with
     QToolTipGroup::setEnabled().
 
-    You can retreive the text of a tooltip for a given position within
+    You can retrieve the text of a tooltip for a given position within
     a widget using textFor().
 
     The global tooltip font and palette can be set with the static
