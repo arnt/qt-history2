@@ -2525,8 +2525,10 @@ void Q3Dns::doResInit()
 	QString line;
 
 	while ( !stream.atEnd() ) {
-	    line = stream.readLine();
+            line = stream.readLine();
 	    QStringList list = QStringList::split( " ", line );
+	    if( list.isEmpty() ) 
+	       continue; 
 	    const QString type = list[0].lower();
 
 	    if ( type == "nameserver" ) {
