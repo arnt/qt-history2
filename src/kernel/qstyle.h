@@ -275,11 +275,11 @@ public:
 	CE_MenuBarItem,
 
 	CE_ToolButtonLabel,
-	CE_PopupMenuVerticalExtra,
-	CE_PopupMenuHorizontalExtra,
 	CE_MenuBarEmptyArea,
 	CE_PopupMenuScroller,
 	CE_DockWindowEmptyArea,
+	CE_PopupMenuVerticalExtra,
+	CE_PopupMenuHorizontalExtra,
 
 	CE_ToolBoxTab,
 	CE_HeaderLabel,
