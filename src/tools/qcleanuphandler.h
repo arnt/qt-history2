@@ -82,7 +82,6 @@ public:
     }
     Type* set( Type **o ) {
 	object = o;
-	(*object)->ref();
 	return *object;
     }
     void reset() { object = 0; }
