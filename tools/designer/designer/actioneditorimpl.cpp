@@ -181,7 +181,7 @@ void ActionEditor::insertChildActions( ActionItem *i )
 	if ( !o->inherits( "QAction" ) )
 	    continue;
 	QAction *a = (QAction*)o;
-	ActionItem *i2 = new ActionItem( i, a );
+	ActionItem *i2 = new ActionItem( (QListViewItem*)i, a );
 	i->setOpen( TRUE );
 	i2->setText( 0, a->name() );
 	i2->setPixmap( 0, a->iconSet().pixmap() );
