@@ -97,19 +97,23 @@ public:
 
     virtual void setSelection( int row_from, int col_from, int row_to, int col_t );
 
-    // word wrap
-    enum Wrapping {
-	NoWrap = 0,
-	DynamicWrap = 1,
-	FixedWidthWrap = 2,
-	FixedColumnWrap = 3,
-	BreakWithinWords = 0x0100
+    enum WordWrap {
+	NoWrap,
+	WidgetWidth,
+	FixedPixelWidth,
+	FixedColumnWidth
     };
-
-    void setWordWrap( int mode );
-    int wordWrap() const;
+    void setWordWrap( WordWrap mode );
+    WordWrap wordWrap() const;
     void setWrapColumnOrWidth( int );
     int wrapColumnOrWidth() const;
+    
+    enum WrapPolicy {
+	AtWhiteSpace,
+	Anywhere
+    };
+    void setWrapPolicy( WrapPolicy policy );
+    WrapPolicy wrapPolicy() const;
 
     bool autoUpdate()	const;
     virtual void setAutoUpdate( bool );

@@ -116,8 +116,9 @@ struct QMultiLineData
 	maxlines(-1),
 	maxlinelen(-1),
 	maxlen(-1),
-	wrapmode( 0 ),
+	wordwrap( QMultiLineEdit::NoWrap ),
 	wrapcol( -1 ),
+	wrappolicy( QMultiLineEdit::AtWhiteSpace ),
 	// This doesn't use font bearings, as textWidthWithTabs does that.
 	// This is just an aesthetics value.
 	// It should probably be QMAX(0,3-fontMetrics().minLeftBearing()) though,
@@ -145,8 +146,9 @@ struct QMultiLineData
     int  maxlines;
     int  maxlinelen;
     int  maxlen;
-    int wrapmode;
+    QMultiLineEdit::WordWrap wordwrap;
     int wrapcol;
+    QMultiLineEdit::WrapPolicy wrappolicy;
     int lr_marg;
     int marg_extra;
     QMultiLineEdit::EchoMode echomode;
@@ -205,11 +207,11 @@ static const int initialScrollTime = 50; // mark text scroll time
 static const int initialScrollAccel = 5; // mark text scroll accel (0=fastest)
 static const int scroll_margin = 16;     // auto-scroll edge in DND
 
-#define WORD_WRAP ( (d->wrapmode & 3) != 0 )
-#define DYNAMIC_WRAP ( (d->wrapmode & 3) == DynamicWrap )
-#define FIXED_WIDTH_WRAP ( (d->wrapmode & 3) == FixedWidthWrap )
-#define FIXED_COLUMN_WRAP ( (d->wrapmode & 3) == FixedColumnWrap )
-#define BREAK_WITHIN_WORDS ( (d->wrapmode & BreakWithinWords) == BreakWithinWords )
+#define WORD_WRAP ( d->wordwrap != QMultiLineEdit::NoWrap )
+#define DYNAMIC_WRAP ( d->wordwrap == QMultiLineEdit::WidgetWidth )
+#define FIXED_WIDTH_WRAP ( d->wordwrap == QMultiLineEdit::FixedPixelWidth )
+#define FIXED_COLUMN_WRAP ( d->wordwrap == QMultiLineEdit::FixedColumnWidth ) 
+#define BREAK_WITHIN_WORDS ( d->wrappolicy == QMultiLineEdit::Anywhere ) 
 
 static int defTabStop = 8;
 
@@ -223,7 +225,7 @@ static int tabStopDist( const QFontMetrics &fm )
   Sets the distance between tab stops for all QMultiLineEdit instances
   to \ex, which is measured in multiples of the width of a lower case 'x'
   in the widget's font. The initial value is 8.
-  
+
   \warning This function does not cause a redraw. It is best to call
   it before any QMultiLineEdit widgets are shown.
 
@@ -239,7 +241,7 @@ void QMultiLineEdit::setDefaultTabStop( int ex )
 
 /*!
   Returns the distance between tab stops.
-  
+
   \sa setDefaultTabStop();
 */
 
@@ -3349,35 +3351,44 @@ void QMultiLineEdit::rebreakAll()
     }
 }
 
-/*!
-  Sets the word wrap mode. Possible values are
 
+/*! \enum QMultiLineEdit::WordWrap
+
+  This enum describes the multiline edit's word wrap mode.
+  
+  The following values are valid: 
     <ul>
     <li> \c NoWrap - no word wrap at all.
-    <li> \c DynamicWrap - word wrap depending on the current
+    <li> \c WidgetWidth - word wrap depending on the current
      width of the editor widget
-    <li> \c FixedWidthWrap - wrap according to a fix amount
+    <li> \c FixedPixelWidth - wrap according to a fix amount
      of pixels ( see wrapColumnOrWidth() )
-    <li> \c FixedColumnWrap - wrap according to a fix character
+    <li> \c FixedColumnWidth - wrap according to a fix character
      column. This is useful whenever you need formatted text that
      can also be displayed gracefully on devices with monospaced
      fonts, for example a standard VT100 terminal. In that case
      wrapColumnOrWidth() should typically be set to 80.
   </ul>
 
+ \sa setWordWrap()
+*/
+
+/*!
+  Sets the word wrap mode.
+
   Per default, wrapping keeps words intact. To allow breaking within
-  words, the flag \c BreakWithinWords can be or'ed to one of the wrap
-  modes.
+  words, set the wrap policy to \c Anywhere (see setWrapPolicy() ).
 
   The default wrap mode is \c NoWrap.
 
-  \sa wordWrap(), setWrapColumnOrWidth()
+  \sa wordWrap(), setWrapColumnOrWidth(), setWrapPolicy()
  */
-void QMultiLineEdit::setWordWrap( int mode )
+void QMultiLineEdit::setWordWrap( WordWrap mode )
 {
-    if ( mode == d->wrapmode )
+    if ( mode == d->wordwrap )
 	return;
-    d->wrapmode = mode;
+    d->wordwrap = mode;
+
     if ( BREAK_WITHIN_WORDS ) {
 	d->arrow = QPixmap( arrow );
 	d->marg_extra = 8;
@@ -3394,13 +3405,13 @@ void QMultiLineEdit::setWordWrap( int mode )
 
   \sa setWordWrap()
  */
-int QMultiLineEdit::wordWrap() const
+QMultiLineEdit::WordWrap QMultiLineEdit::wordWrap() const
 {
-    return d->wrapmode;
+    return d->wordwrap;
 }
 
 /*!
-  Sets the wrap column or wrap width, depending on the wrapping mode.
+  Sets the wrap column or wrap width, depending on the word wrap mode.
 
   \sa setWordWrap()
  */
@@ -3414,7 +3425,8 @@ void QMultiLineEdit::setWrapColumnOrWidth( int value )
 }
 
 /*!
-  Returns the wrap column or wrap width, depending on the wrapping mode.
+  Returns the wrap column or wrap width, depending on the word wrap
+  mode.
 
   \sa setWordWrap(), setWrapColumnOrWidth()
  */
@@ -3423,6 +3435,49 @@ int QMultiLineEdit::wrapColumnOrWidth() const
     return d->wrapcol;
 }
 
+
+/*! \enum QMultiLineEdit::WrapPolicy
+  
+  Defines where text can be wrapped in word wrap mode.
+  
+  The following values are valid:
+  <ul>
+  <li> \c AtWhiteSpace - break only after whitespace
+  <li> \c Anywhere - break anywhere 
+   </ul>
+
+   \sa setWrapPolicy()
+*/   
+
+/*!
+  Defines where text can be wrapped in word wrap mode.
+  
+   The default is \c AtWhiteSpace.
+   
+  /sa setWordWrap(), wrapPolicy()
+ */
+void QMultiLineEdit::setWrapPolicy( WrapPolicy policy )
+{
+    if ( d->wrappolicy == policy )
+	return;
+    d->wrappolicy = policy;
+    WordWrap m = d->wordwrap;
+    if ( m != NoWrap ) { // trigger update
+	d->wordwrap = NoWrap;
+	setWordWrap( m );
+    }
+}
+
+/*!
+  
+  Returns the current word wrap policy.
+  
+  \sa setWrapPolicy()
+ */
+QMultiLineEdit::WrapPolicy QMultiLineEdit::wrapPolicy() const
+{
+    return d->wrappolicy;
+}
 
 /*!
   Returns wether \a row is the last row in a paragraph.
