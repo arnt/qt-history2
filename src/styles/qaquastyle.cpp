@@ -11146,7 +11146,7 @@ void QAquaStyle::polish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
-    if( w->inherits("QFrame") && w->parentWidget() && !w->topLevelWidget()->inherits("QPopupMenu") )
+    if( w->inherits("QLineEdit") && w->parentWidget() && !w->topLevelWidget()->inherits("QPopupMenu") )
 	w->installEventFilter( this );
 }
 
