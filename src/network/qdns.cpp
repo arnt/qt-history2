@@ -1656,7 +1656,7 @@ void QDns::setLabel( const QString & label )
 	if ( dots < maxDots ) {
 	    (void)QDnsManager::manager(); // create a QDnsManager, if it is not already there
 	    for(QList<QByteArray>::Iterator it = domains->begin(); it != domains->end(); ++it)
-		n.append( l.toLower() + "." + (*it).data() );
+		n.append(l.toLower().append(".").append((*it).data()));
 	}
 	n.append( l.toLower() );
     }
