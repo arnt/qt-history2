@@ -20,9 +20,10 @@
 QReadWriteLock::QReadWriteLock(const int maxReaders)
 :d(new QReadWriteLockPrivate())
 {
-    d->maxReaders=maxReaders;
-    d->accessCount=0;
-    d->waitingWriters=0;
+    d->maxReaders = maxReaders;
+    d->accessCount = 0;
+    d->waitingWriters = 0;
+    d->waitingReaders = 0;
     d->readerWait = CreateEvent(0, false, false, 0);
     d->writerWait = CreateEvent(0, false, false, 0);
 }
@@ -42,7 +43,9 @@ void QReadWriteLock::lockForRead()
             if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1))
                 break;
         }else {
+            ++d->waitingReaders;
             WaitForSingleObject(d->readerWait, INFINITE);
+            --d->waitingReaders;
             continue;
         }
     }
