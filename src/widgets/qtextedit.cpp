@@ -1676,8 +1676,8 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 		undoRedoInfo.index = cursor->index();
 		undoRedoInfo.d->text = QString::null;
 	    }
+	    undoRedoInfo.d->text += "\n";
 	}
-	undoRedoInfo.d->text += "\n";
 	cursor->splitAndInsertEmptyParagraph();
 	if ( cursor->paragraph()->prev() ) {
 	    lastFormatted = cursor->paragraph()->prev();
