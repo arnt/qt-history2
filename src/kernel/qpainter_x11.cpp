@@ -35,8 +35,6 @@
 **
 **********************************************************************/
 
-#include "qplatformdefs.h"
-
 #include "qpainter.h"
 #include "qwidget.h"
 #include "qbitmap.h"
@@ -45,14 +43,16 @@
 #include "qfontdata_p.h"
 #include "qcomplextext_p.h"
 #include "qtextcodec.h"
-#include "qpaintdevicemetrics.h"
+#include <ctype.h>
+#include <stdlib.h>
 #include "qt_x11.h"
-
-
+#include "qpaintdevicemetrics.h"
 
 // REVISED: arnt
 
-// paintevent magic to provide Windows semantics on X11
+/*
+  paintevent magic to provide Windows semantics on X11
+ */
 static QRegion* paintEventClipRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
 
