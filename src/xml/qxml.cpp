@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#69 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#70 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -6693,6 +6693,7 @@ void QXmlSimpleReader::next()
 	}
 #else
 	c = inputSource->next();
+	columnNr++;
 #endif
     }
 }
