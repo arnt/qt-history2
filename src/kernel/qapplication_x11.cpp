@@ -2381,19 +2381,17 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	qt_x_time = event->xcrossing.time;
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
 	    break;
-	if ( event->xcrossing.mode != NotifyNormal )
-	    break;
-	if ( event->xcrossing.detail != NotifyAncestor &&
-	     event->xcrossing.detail != NotifyNonlinear &&
-	     event->xcrossing.detail != NotifyInferior )
+	if ( event->xcrossing.mode != NotifyNormal ||
+	     event->xcrossing.detail == NotifyVirtual  ||
+	     event->xcrossing.detail == NotifyNonlinearVirtual )
 	    break;
 	curWin = widget->winId();
-// 	qDebug("Enter for %s (%d)", widget->className(), event->xcrossing.detail );
 	QEvent e( QEvent::Enter );
 	QApplication::sendEvent( widget, &e );
 	widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
     }
     break;
+
     case LeaveNotify: {			// leave window
 	qt_x_time = event->xcrossing.time;
 	if ( QWidget::mouseGrabber()  && widget != QWidget::mouseGrabber() )
@@ -2402,7 +2400,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    break;
 	if ( event->xcrossing.mode != NotifyNormal )
 	    break;
-// 	qDebug("Leave for %s (%d)", widget->className(), event->xcrossing.detail  );
 	if ( !widget->isDesktop() )
 	    widget->translateMouseEvent( event ); //we don't get MotionNotify, emulate it
 	QEvent e( QEvent::Leave );
@@ -2441,7 +2438,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case ClientMessage:			// client message
 	return x11ClientMessage(widget,event,FALSE);
-	//break;
 
     case ReparentNotify:			// window manager reparents
 	while ( XCheckTypedWindowEvent( widget->x11Display(),
