@@ -219,6 +219,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	QPaintDeviceX11Data* xd = getX11Data( TRUE );
 	xd->x_screen = parentWidget()->x11Screen();
 	xd->x_depth = parentWidget()->x11Depth();
+
+	if (xd->x_screen != DefaultScreen(x11Display())) {
+	    xd->x_visual = DefaultVisual(x11Display(), xd->x_screen);
+	    xd->x_colormap = DefaultColormap(x11Display(), xd->x_screen);
+	}
+
 	setX11Data( xd );
     }
 
@@ -580,7 +586,6 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     // dnd unregister (we will register again below)
     bool accept_drops = acceptDrops();
     setAcceptDrops( FALSE );
-    topData()->dnd = 0;
 
     // clear mouse tracking, re-enabled below
     bool mouse_tracking = hasMouseTracking();
@@ -673,10 +678,8 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     if ( accept_drops )
 	setAcceptDrops( TRUE );
     else {
-	if (parent)
-	    parent->checkChildrenDnd();
-	else
-	    checkChildrenDnd();
+	checkChildrenDnd();
+	topData()->dnd = 0;
 	qt_dnd_enable(this, (extra && extra->children_use_dnd));
     }
 
@@ -2170,9 +2173,8 @@ void QWidget::checkChildrenDnd()
     const QObjectList *children;
     const QObject *object;
     const QWidget *child;
-    while (widget) {
-	// note: the desktop widget has no parent, so this will never be done
-	// for the desktop widget
+    while (widget && ! widget->isDesktop()) {
+	// note: this isn't done for the desktop widget
 
 	bool children_use_dnd = FALSE;
 	children = widget->children();
@@ -2222,8 +2224,7 @@ void QWidget::setAcceptDrops( bool on )
 		clearWState( WState_DND );
 	}
 
-	if (parentWidget())
-	    parentWidget()->checkChildrenDnd();
+	checkChildrenDnd();
     }
 }
 

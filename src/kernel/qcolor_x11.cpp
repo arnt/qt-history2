@@ -520,15 +520,7 @@ void QColor::setSystemNamedColor( const QString& name )
 	    return;					// success
 	}
     }
-    // The name lookup failed if we got here
-    d.argb = qRgb(0,0,0);
-    if ( colormodel == d8 ) {
-	d.d8.invalid = FALSE;
-	d.d8.dirty = TRUE;
-	d.d8.pix = 0;
-    } else {
-	alloc();
-    }
+    *this = QColor(); // invalid
 }
 
 

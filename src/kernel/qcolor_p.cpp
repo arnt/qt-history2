@@ -726,7 +726,7 @@ static int rgb_cmp( const void *d1, const void *d2 )
 }
 #endif
 
-uint qt_get_rgb_val( const char *name )
+bool qt_get_named_rgb( const char *name, QRgb* rgb )
 {
     Q_LONG len = strlen(name)+1;
     char *name_no_space = (char *)malloc(len);
@@ -743,10 +743,27 @@ uint qt_get_rgb_val( const char *name )
     RGBData *r = (RGBData*)bsearch((char*)&x, (char*)rgbTbl, rgbTblSize,
 				   sizeof(RGBData), rgb_cmp);
     free(name_no_space);
-    return r ? r->value : 0;
+    if ( r ) {
+	*rgb = r->value;
+	return TRUE;
+    } else {
+	return FALSE;
+    }
+}
+
+uint qt_get_rgb_val( const char *name )
+{
+    QRgb r;
+    qt_get_named_rgb(name,&r);
+    return r;
 }
 
 #else
+
+bool qt_get_named_rgb( const char *, QRgb* )
+{
+    return FALSE;
+}
 
 uint qt_get_rgb_val( const char * )
 {

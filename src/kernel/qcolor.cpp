@@ -408,10 +408,6 @@ QColor &QColor::operator=( const QColor &c )
 
   Returns FALSE if the color is invalid, i.e., it was constructed using the
   default constructor.
-
-  Use of this function is discouraged,
-  as it is slightly slow on Truecolor displays. If you need a "null" QColor,
-  it may be better to use q QColor* where possible.
 */
 
 /*!
@@ -422,7 +418,6 @@ bool QColor::isDirty() const
     if ( colormodel == d8 ) {
 	return d.d8.dirty;
     } else {
-	// waste caller's time 1 in a billion times.
 	return d.d32.probablyDirty();
     }
 }

@@ -93,16 +93,19 @@ uint QColor::alloc()
 
 void QColor::setSystemNamedColor( const QString& name )
 {
-    if ( !color_init ) {
 #if defined(QT_CHECK_STATE)
+    if ( !color_init ) {
 	qWarning( "QColor::setSystemNamedColor: Cannot perform this operation "
 		 "because QApplication does not exist" );
+    } else
 #endif
-	d.argb = 0;
-    } else {
-	d.argb = qt_get_rgb_val( name.latin1() );
+    {
+	QRgb rgb;
+	if ( qt_get_named_rgb( name.latin1(), rgb ) ) {
+	    d.argb = rgb;
+	    alloc();
+	}
     }
-    alloc();
 }
 
 
