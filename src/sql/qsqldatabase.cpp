@@ -124,7 +124,7 @@ QSqlDatabaseManager::QSqlDatabaseManager()
 
 /*!
   Destroys the object and frees any allocated resources.  All open
-  databases are closed.  All databases are deleted.
+  database connections are closed.  All database connections are deleted.
 
 */
 
@@ -153,9 +153,9 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
     return sqlConnection;
 }
 
-/*!  Returns a pointer to the database with name \a name.  If \a open
-  is TRUE, the database is opened.  If \name does not exist in the
-  list of managed database, 0 is returned.
+/*!  Returns a pointer to the database connection with name \a name.  If \a open
+  is TRUE, the database connection is opened.  If \name does not exist in the
+  list of managed databases, 0 is returned.
 
 */
 
@@ -179,7 +179,7 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
 }
 
 /*! Returns TRUE if the list of database connections contains \a name,
-  otherwise FALSE is returned.
+  otherwise returns FALSE.
 
  */
 
@@ -193,9 +193,9 @@ bool QSqlDatabaseManager::contains( const QString& name )
 }
 
 
-/*!  Adds a database to the SQL connection manager.  The database is
-  referred to by \name.  A pointer to the newly added database is
-  returned.
+/*!  Adds a database to the SQL connection manager.  The database
+  connection is referred to by \name.  A pointer to the newly added
+  database connection is returned.
 
   \sa QSqlDatabase database()
 
@@ -210,9 +210,9 @@ QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString 
 }
 
 
-/*!  Removes the database \a name from the SQL connection manager.
-  Note that there should be no open queries on the database when this
-  method is called, otherwise resources will be leaked.
+/*!  Removes the database connection \a name from the SQL connection manager.
+  Note that there should be no open queries on the database connection when this
+  method is called, otherwise a resource leak will occur.
 
 */
 
@@ -248,18 +248,18 @@ public:
 
      This class is used to access SQL databases.  QSqlDatabase
      provides an abstract interface for accessing many types of
-     backends.
+     database backend.
 
      Database-specific drivers are used internally to actually access
-     and manipulate data. (see QSqlDriver) Result set objects provide
-     the interface for executing and manipulating SQL queries ( see
-     QSqlQuery ).
+     and manipulate data, (see QSqlDriver). Result set objects provide
+     the interface for executing and manipulating SQL queries (see
+     QSqlQuery).
 
 */
 
 /*!  Adds a database to the list of database connections.  The
-  database is referred to by \name.  A pointer to the newly added
-  database is returned.  This pointer is owned by QSqlDatabase and
+  database connection is referred to by \name.  A pointer to the newly added
+  database connection is returned.  This pointer is owned by QSqlDatabase and
   will be deleted on program exit or when removeDatabase() is called.
 
   \sa removeDatabase()
@@ -270,9 +270,9 @@ QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& nam
     return QSqlDatabaseManager::addDatabase( new QSqlDatabase( type, name ), name );
 }
 
-/*! Returns a pointer to the database with name \a name.  The database
-  must have been previously added with database().  If \a open is TRUE
-  (the default) and the database was not previously opened, it is
+/*! Returns a pointer to the database connection named \a name.  The database
+  connection must have been previously added with database().  If \a open is TRUE
+  (the default) and the database connection is not already open it is
   opened now.  If \name does not exist in the list of database, 0 is
   returned.  The pointer returned is owned by QSqlDatabase and should
   not be deleted.
@@ -284,10 +284,10 @@ QSqlDatabase* QSqlDatabase::database( const QString& name, bool open )
     return QSqlDatabaseManager::database( name, open );
 }
 
-/*!  Removes the database \a name from the list of database
+/*!  Removes the database connection \a name from the list of database
   connections.  Note that there should be no open queries on the
-  database when this method is called, otherwise resources will be
-  leaked.
+  database connection when this method is called, otherwise a resource leak will
+  occur.
 
 */
 
@@ -324,7 +324,7 @@ QStringList QSqlDatabase::drivers()
 }
 
 /*! Returns TRUE if the list of database connections contains \a name,
-  otherwise FALSE is returned.
+  otherwise returns FALSE.
 
  */
 
@@ -334,11 +334,11 @@ bool QSqlDatabase::contains( const QString& name )
 }
 
 
-/*!  Creates a QSqlDatabase with name \a databaseName that uses the
-     driver described by \a type.  If the \a type is not recognized,
-     the database will have no functionality.
+/*!  Creates a QSqlDatabase connection named \a name that uses the
+     driver referred to by \a driver.  If the \a driver is not recognized,
+     the database connection will have no functionality.
 
-     Available types are:
+     The currently available drivers are:
 
      <ul>
      <li>QODBC - ODBC (Open Database Connectivity) Driver
@@ -347,12 +347,13 @@ bool QSqlDatabase::contains( const QString& name )
      <li>QPSQL7 - PostgreSQL v7.x Driver
      <li>QMYSQL - MySQL Driver
      </ul>
+
 */
 
-QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * parent, const char * objname )
+QSqlDatabase::QSqlDatabase( const QString& driver, const QString& name, QObject * parent, const char * objname )
 : QObject(parent, objname)
 {
-    init( type, name );
+    init( driver, name );
 }
 
 /*!
@@ -422,9 +423,9 @@ QSqlDatabase::~QSqlDatabase()
     delete d;
 }
 
-/*! Executes an SQL statement (i.e., INSERT, UPDATE, DELETE statement)
+/*! Executes an SQL statement (e.g. an INSERT, UPDATE or DELETE statement)
     on the database, and returns a QSqlQuery object.  Use lastError()
-    to recover error information. If \a query is QString::null, an
+    to retrieve error information. If \a query is QString::null, an
     empty, invalid query is returned and lastError() is not affected.
 
     \sa QSqlQuery lastError()
@@ -440,7 +441,7 @@ QSqlQuery QSqlDatabase::exec( const QString & query ) const
     return r;
 }
 
-/*! Opens the database using the current connection values .  Returns
+/*! Opens the database connection using the current connection values.  Returns
     TRUE on success, and FALSE if there was an error.  Error
     information can be retrieved using the lastError() method.
 
@@ -455,7 +456,7 @@ bool QSqlDatabase::open()
 				d->hname);
 }
 
-/*! Opens the database using \a user name and \a password.  Returns
+/*! Opens the database connection using \a user name and \a password.  Returns
  TRUE on success, and FALSE if there was an error.  Error information
  can be retrieved using the lastError() method.
 
@@ -469,7 +470,7 @@ bool QSqlDatabase::open( const QString& user, const QString& password )
     return open();
 }
 
-/*! Closes the database, freeing any resources aquired.
+/*! Closes the database connection, freeing any resources acquired.
 
 */
 
@@ -478,7 +479,8 @@ void QSqlDatabase::close()
     d->driver->close();
 }
 
-/*! Returns TRUE if the database is currently opened, otherwise FALSE is returned.
+/*! Returns TRUE if the database connection is currently open, otherwise
+ returns FALSE.
 
 */
 
@@ -487,8 +489,9 @@ bool QSqlDatabase::isOpen() const
     return d->driver->isOpen();
 }
 
-/*! Return TRUE if there was an error opening the database, otherwise FALSE is returned.
-    Error information can be retrieved using the lastError() method.
+/*! Return TRUE if there was an error opening the database connection,
+    otherwise returns FALSE. Error information can be retrieved
+    using the lastError() method.
 
 */
 
@@ -503,7 +506,7 @@ bool QSqlDatabase::isOpenError() const
     \sa hasTransactionSupport() commit() rollback()
 */
 
-bool QSqlDatabase::transaction( )
+bool QSqlDatabase::transaction()
 {
    if ( !d->driver->hasTransactionSupport() )
 	return FALSE;
@@ -536,7 +539,7 @@ bool QSqlDatabase::rollback()
     return d->driver->rollbackTransaction();
 }
 
-/*! Sets the name of the database.
+/*! Sets the name of the database connection.
 
 */
 
@@ -572,7 +575,8 @@ void QSqlDatabase::setHostName( const QString& host )
     d->hname = host;
 }
 
-/*! Returns the name of the database, or QString::null if a name has not been set.
+/*! Returns the name of the database connection, or QString::null if a
+ name has not been set.
 
 */
 
@@ -608,7 +612,7 @@ QString QSqlDatabase::hostName() const
     return d->hname;
 }
 
-/*! Returns the name of the driver used by the database.
+/*! Returns the name of the driver used by the database connection.
 
 */
 QString QSqlDatabase::driverName() const
@@ -616,7 +620,7 @@ QString QSqlDatabase::driverName() const
     return d->drvName;
 }
 
-/*! Returns a pointer to the database driver used to access the database.
+/*! Returns a pointer to the database driver used to access the database connection.
 
 */
 
@@ -648,8 +652,7 @@ QStringList QSqlDatabase::tables() const
 
 /*!
   Returns the primary index for table \a tablename.  If no
-  such index exists, the QSqlIndex that is returned will be
-  empty.
+  primary index exists an empty QSqlIndex will be returned.
 
 */
 
@@ -659,9 +662,10 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
 }
 
 
-/*!  Returns a list of all fields for the table (or view) \a name.
-  The order in which the fields are returned is undefined.  If no such
-  table (or view) exists, an empty list is returned.
+/*!  Returns a QSqlRecord populated with the names of all the fields in
+    the table (or view) \a name. The order in which the fields are
+    returned is undefined.  If no such table (or view) exists, an empty
+    list is returned.
 
 */
 
@@ -672,7 +676,9 @@ QSqlRecord QSqlDatabase::record( const QString& tablename ) const
 
 
 /*!
-  Returns a list of fields used in the SQL \a query.
+  Returns a QSqlRecord populated with the names of all the fields used
+  in the SQL \a query. If the query is a "SELECT *" the order in which
+  fields are returned is undefined. 
 
 */
 
