@@ -4546,12 +4546,12 @@ void MainWindow::setupPluginManagers()
 	    i->connectTo( designerInterface() );
 	    if ( !i )
 		continue;
-	    PreferenceInterface::Preference *pf = i->globalPreference( *it );
+	    PreferenceInterface::Preference *pf = i->globalPreference();
 	    if ( pf )
 		addPreferencesTab( pf->tab, pf->title, pf->receiver, pf->init_slot, pf->accept_slot );
 	    i->deletePreferenceObject( pf );
 
-	    pf = i->projectSetting( *it );
+	    pf = i->projectSetting();
 	    if ( pf )
 		addProjectTab( pf->tab, pf->title, pf->receiver, pf->init_slot, pf->accept_slot );
 	    i->deletePreferenceObject( pf );
