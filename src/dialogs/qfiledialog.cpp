@@ -1930,23 +1930,7 @@ QString QFileDialogPrivate::File::text( int column ) const
 	return info.name();
     case 1:
 	if ( info.isFile() ) {
-#if (QT_VERSION-0 >= 0x040000)
-#  ifdef Q_CC_GNU
-#    warning "clean up Large File Support"
-#  endif
 	    QIODevice::Offset size = info.size();
-#endif
-#if defined(QT_LARGEFILE_SUPPORT) && defined(Q_OS_UNIX)
-	    // ### the following code should not be needed as soon
-	    // ### as QUrlInfo::size() can return 64-bit
-	    if ( size > INT_MAX ) {
-		struct stat buffer;
-		if ( ::stat( QFile::encodeName(info.name()), &buffer ) == 0 ) {
-		    Q_ULLONG size64 = (Q_ULLONG)buffer.st_size;
-		    return QString::number(size64);
-		}
-	    }
-#endif
 	    return QString::number(size);
 	} else {
 	    return QString::fromLatin1("");
