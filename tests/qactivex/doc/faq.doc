@@ -1,0 +1,105 @@
+/*! \page qaxserver-compiler.html
+
+    \section1 The ActiveQt build system
+
+    To build Qt applications hosting ActiveX controls the application just 
+    has to link against the qaxcontainer library by adding
+    \code
+    LIBS += <location>\qaxcontainer.lib
+    \endcode
+    To the .pro files used by \c qmake to generate a makefile. \c <location>
+    is usually %QTDIR%\lib.
+
+    To be able to build ActiveX controls with Qt the build system has to be
+    extended with additional build steps that are used when the .pro file 
+    includes \c activeqt in the \c CONFIG settings. The resulting makefile 
+    will
+
+    \list
+    \i Link the executable against qaxserver.lib instead of qtmain.lib
+    \i Call the resulting executable with the -dumpidl parameter to generate
+    an IDL description of the ActiveX controls provided by the server.
+    \i Compile the IDL into a type library using the MIDL tool
+    \i Attach the resulting type library as a binary resource to the server
+       executable
+    \endlist
+
+    Attaching resources to an executable is not supported by Windows95/98/ME,
+    but a server built on Windows NT/2000/XP will work on those versions.
+
+    \section1 Typical build problems
+    
+    The compiler/linker errors listed are based on those issued by the 
+    Microsoft Visual C++ 6.0 compiler.
+
+    \section2 Compiler errors
+
+    \section3 "No overloaded function takes 2 parameters"
+    
+    When the error occurs in code that uses the QAXFACTORY_DEFAULT macro
+    the widget class had no constructor that can be used by the default
+    factory. Either add a standard widget constructor, or implement a custom
+    factory that doesn't require that.
+
+    When the error occurs in code that uses the QAXFACTORY_EXPORT macro
+    the QAxFactory subclass had no appropriate constructor. Provide a public 
+    class constructor like
+    \code
+    MyFactory( const QUuid &, const QUuid & );
+    \endcode
+    for your factory class.
+
+    \section3 "syntax error: bad suffix on number"
+
+    The unique identifiers have not been passed as strings into the 
+    QAXFACTORY_EXPORT or QAXFACTORY_DEFAULT macro.
+
+    \section2 Linker errors
+
+    \section3 "unresolved external symbol _ucm_instantiate"
+
+    The server does not export an implementation of a QAxFactory. Use the
+    QAXFACTORY_EXPORT macro in one implementation file of the project to
+    instantiate and export a factory, or use the QAXFACTORY_DEFAULT macro
+    to use the default factory.
+
+    \section3 "_ucm_initialize already defined in ..."
+
+    The server exports more than one implementation of a QAxFactory, or the
+    same implementation twice. The QAXFACTORY_EXPORT and QAXFACTORY_DEFAULT
+    macros must only be used once in the project. Use a custom QAxFactory
+    implementation if the server should provide multiple ActiveX controls.
+
+    \section3 "unresolved external symbol _main"
+
+    The application does not provide an entry point function "main". Implement
+    a main function like for any other Qt program, and use QAxFactory::isServer()
+    to prevent or modify stand-alone execution of the application.
+    \code
+    int main( int argc, char **argv )
+    {
+        QApplication app( argc, argv );
+
+        if ( !QAxFactory::isServer() ) {
+            QMessageBox::critical( 0, "Cannot run stand-alone!",
+                                      "This executable is a server for ActiveX controls." );
+            return -1;
+        }
+
+        return app.exec();
+    }
+    \endcode
+
+    \section3 "cannot open file ... "
+
+    The ActiveX server could not shut down properly when the last client stopped
+    using it. It usually takes about two seconds for the application to terminate,
+    but you might have to use the task manager to kill the process (e.g. when a
+    client doesn't release the controls properly).
+
+    \section1 Debugging runtime errors
+
+    To debug the server, run the application in a debugger and start with the
+    commandline parameter "-activex". COM will use the existing process for the 
+    next client trying to create an ActiveX control.
+*/

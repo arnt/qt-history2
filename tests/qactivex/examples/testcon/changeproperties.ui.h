@@ -15,6 +15,8 @@
 #define PropBindable	0x00008000
 #define PropRequesting	0x00010000
 
+#include <qmessagebox.h>
+
 class CheckListItem : public QCheckListItem
 {
 public:
@@ -52,9 +54,32 @@ void ChangeProperties::propertySelected( QListViewItem *item )
 	return;
     
     QVariant value = activex->property( item->text(0) );
+    QString valueString;
+    switch ( value.type() ) {
+    case QVariant::Color:
+	{
+	    QColor col = value.toColor();
+	    valueString = col.name();
+	}
+	break;
+    case QVariant::Font:
+	{
+	    QFont fnt = value.toFont();
+	    valueString = fnt.toString();
+	}
+	break;
+	
+    default:
+	valueString =  value.toString();
+	break;
+    }
+    editValue->setText( valueString );
+    
+
+
     QString prop = item->text(0);
-    editValue->setText( value.toString() );
     valueLabel->setText( prop + " =" );
+
     
     const QMetaObject *mo = activex->metaObject();
     const QMetaProperty *property = mo->property( mo->findProperty( prop, FALSE ), FALSE );
@@ -69,8 +94,45 @@ void ChangeProperties::setValue()
     QListViewItem *item = listProperties->currentItem();
     if ( !item )
 	return;
-    QVariant value = editValue->text();
+    
     QString prop = item->text(0);
+    QVariant value = activex->property( prop );
+    switch ( value.type() ) {
+    case QVariant::Color:
+	{
+	    QColor col;
+	    col.setNamedColor( editValue->text() );
+	    if ( col.isValid() ) {
+		value = col;
+	    } else {
+		QMessageBox::warning( this, tr("Can't parse input"), 
+		                            QString( tr("Failed to create a color from %1\n"
+					                "The string has to be a valid color name (e.g. 'red')\n"
+							"or a RGB triple of format '#rrggbb'."
+							).arg( editValue->text() ) ) );
+	    }
+	}
+	break;
+    case QVariant::Font:
+	{
+	    QFont fnt;
+	    if ( fnt.fromString( editValue->text() ) ) {
+		value = fnt;
+	    } else {
+		QMessageBox::warning( this, tr("Can't parse input"), 
+		                            QString( tr("Failed to create a font from %1\n"
+					                "The string has to have a format family,<point size> or\n"
+							"family,pointsize,stylehint,weight,italic,underline,strikeout,fixedpitch,rawmode."
+							).arg( editValue->text() ) ) );
+	    }
+	}
+	break;
+
+    default:
+	value = editValue->text();
+	break;
+    }
+ 
     activex->setProperty( prop, value );
     setControl( activex );
     listProperties->setCurrentItem( listProperties->findItem( prop, 0 ) );
@@ -107,7 +169,26 @@ void ChangeProperties::updateProperties()
 	    item->setText( 0, property->name() );
 	    item->setText( 1, property->type() );
 	    QVariant var = activex->property( property->name() );
-	    item->setText( 2, var.toString() );
+	    
+	    switch ( var.type() ) {
+	    case QVariant::Color:
+		{
+		    QColor col = var.toColor();
+		    item->setText( 2, col.name() );
+		}
+		break;
+	    case QVariant::Font:
+		{
+		    QFont fnt = var.toFont();
+		    item->setText( 2, fnt.toString() );
+		}
+		break;
+
+	    default:
+		item->setText( 2, var.toString() );
+		break;
+	    }
+	    
  
 	    if ( property->testFlags( PropRequesting ) ) {
 		CheckListItem *check = new CheckListItem( listEditRequests, property->name() );

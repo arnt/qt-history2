@@ -73,14 +73,6 @@ public:
 					   const QVariant &v6 = QVariant(),
 					   const QVariant &v7 = QVariant(),
 					   const QVariant &v8 = QVariant() );
-    QVariant dynamicCall( int ID, const QVariant &v1 = QVariant(), 
-					   const QVariant &v2 = QVariant(),
-					   const QVariant &v3 = QVariant(),
-					   const QVariant &v4 = QVariant(),
-					   const QVariant &v5 = QVariant(),
-					   const QVariant &v6 = QVariant(),
-					   const QVariant &v7 = QVariant(),
-					   const QVariant &v8 = QVariant() );
 
     virtual QMetaObject *metaObject() const;
     virtual bool qt_invoke( int, QUObject* );

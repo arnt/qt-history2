@@ -1,3 +1,4 @@
+REQUIRES    = shared
 TEMPLATE    = app
 CONFIG	    += qt warn_off
 

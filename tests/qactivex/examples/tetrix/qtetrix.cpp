@@ -10,12 +10,12 @@
 *****************************************************************************/
 
 
-#define QT_ACTIVEX_DEFAULT
 #include "qtetrix.h"
 #include <qapplication.h>
 #include <qlabel.h>
 #include <qdatetime.h>
 
+#include <qaxfactory.h>
 
 void drawTetrixButton( QPainter *p, int x, int y, int w, int h,
 		       const QColor *color, QWidget *widg)
@@ -168,7 +168,7 @@ QTetrix::QTetrix( QWidget *parent, const char *name )
 
     resize( 550, 370 );
 
-    if ( isServer() ) {
+    if ( QAxFactory::isServer() ) {
 	quitButton->hide();
 	startButton->hide();
     }

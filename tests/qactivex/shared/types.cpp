@@ -1,3 +1,30 @@
+/****************************************************************************
+** $Id: $
+**
+** Implementation of type conversion routines
+**
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
+**
+** This file is part of the Active Qt integration.
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses for Windows may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #include <atlbase.h>
 
 #include <math.h>
@@ -48,152 +75,34 @@ QFont IFontToQFont( IFont *f )
     return font;
 }
 
-// those functions are not ours
-static int monthdays[13] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
-#define HALF_SECOND  (1.0/172800.0)
-
 QDateTime DATEToQDateTime( DATE ole )
 {
-    int year, month, day, wday, yday;
-    int hour, min, sec;
+    SYSTEMTIME stime;
+    VariantTimeToSystemTime( ole, &stime );
 
-    long nDays;             // Number of days since Dec. 30, 1899
-    long nDaysAbsolute;     // Number of days since 1/1/0
-    long nSecsInDay;        // Time in seconds since midnight
-    long nMinutesInDay;     // Minutes in day
-    
-    long n400Years;         // Number of 400 year increments since 1/1/0
-    long n400Century;       // Century within 400 year block (0,1,2 or 3)
-    long n4Years;           // Number of 4 year increments since 1/1/0
-    long n4Day;             // Day within 4 year block
-    //  (0 is 1/1/yr1, 1460 is 12/31/yr4)
-    long n4Yr;              // Year within 4 year block (0,1,2 or 3)
-    BOOL bLeap4 = TRUE;     // TRUE if 4 year block includes leap year
-    
-    double dblDate = ole; // tempory serial date
-    
-    // If a valid date, then this conversion should not overflow
-    nDays = (long)dblDate;
-    
-    // Round to the second
-    dblDate += ((ole > 0.0) ? HALF_SECOND : -HALF_SECOND);
-    
-    nDaysAbsolute = (long)dblDate + 693959L; // Add days from 1/1/0 to 12/30/1899
-    
-    dblDate = fabs(dblDate);
-    nSecsInDay = (long)((dblDate - floor(dblDate)) * 86400.);
-    
-    // Calculate the day of week (sun=1, mon=2...)
-    //   -1 because 1/1/0 is Sat.  +1 because we want 1-based
-    wday = (int)((nDaysAbsolute - 1) % 7L) + 1;
-    
-    // Leap years every 4 yrs except centuries not multiples of 400.
-    n400Years = (long)(nDaysAbsolute / 146097L);
-    
-    // Set nDaysAbsolute to day within 400-year block
-    nDaysAbsolute %= 146097L;
-    
-    // -1 because first century has extra day
-    n400Century = (long)((nDaysAbsolute - 1) / 36524L);
-    
-    // Non-leap century
-    if (n400Century != 0) {
-	// Set nDaysAbsolute to day within century
-	nDaysAbsolute = (nDaysAbsolute - 1) % 36524L;
-	
-	// +1 because 1st 4 year increment has 1460 days
-	n4Years = (long)((nDaysAbsolute + 1) / 1461L);
-	
-	if (n4Years != 0) {
-	    n4Day = (long)((nDaysAbsolute + 1) % 1461L);
-	} else {
-	    bLeap4 = FALSE;
-	    n4Day = (long)nDaysAbsolute;
-	}
-    } else {
-	// Leap century - not special case!
-	n4Years = (long)(nDaysAbsolute / 1461L);
-	n4Day = (long)(nDaysAbsolute % 1461L);
-    }
-    
-    if (bLeap4) {
-	// -1 because first year has 366 days
-	n4Yr = (n4Day - 1) / 365;
-	
-	if (n4Yr != 0)
-	    n4Day = (n4Day - 1) % 365;
-    } else {
-	n4Yr = n4Day / 365;
-	n4Day %= 365;
-    }
-    
-    // n4Day is now 0-based day of year. Save 1-based day of year, year number
-    yday = (int)n4Day + 1;
-    year = n400Years * 400 + n400Century * 100 + n4Years * 4 + n4Yr;
-    
-    // Handle leap year: before, on, and after Feb. 29.
-    if (n4Yr == 0 && bLeap4) {
-	// Leap Year
-	if (n4Day == 59) {
-	    /* Feb. 29 */
-	    month = 2;
-	    day = 29;
-	    goto DoTime;
-	}
-	
-	// Pretend it's not a leap year for month/day comp.
-	if (n4Day >= 60)
-	    --n4Day;
-    }
-    
-    // Make n4DaY a 1-based day of non-leap year and compute
-    //  month/day for everything but Feb. 29.
-    ++n4Day;
-    
-    // Month number always >= n/32, so save some loop time */
-    for ( month = (n4Day >> 5) + 1; n4Day > monthdays[month]; month++ )
-	;
-    
-    day = (int)(n4Day - monthdays[month-1]);
-    
-DoTime:
-    if (nSecsInDay == 0) {
-	hour = min = sec = 0;
-    } else {
-	sec = (int)nSecsInDay % 60L;
-	nMinutesInDay = nSecsInDay / 60L;
-	min = (int)nMinutesInDay % 60;
-	hour = (int)nMinutesInDay / 60;
-    }
-
-    QDateTime dt;
-    dt.setDate( QDate( year, month, day ) );
-    dt.setTime( QTime( hour, min, sec ) );
-    return dt;
+    QDate date( stime.wYear, stime.wMonth, stime.wDay );
+    QTime time( stime.wHour, stime.wMinute, stime.wSecond, stime.wMilliseconds );
+    return QDateTime( date, time );
 }
 
 DATE QDateTimeToDATE( const QDateTime &dt )
 {
+    SYSTEMTIME stime;
+    memset( &stime, 0, sizeof(stime) );
     QDate date = dt.date();
     QTime time = dt.time();
-    int year = date.year();
-    int month = date.month();
-    int day = date.day();
-    int hour = time.hour();
-    int min = time.minute();
-    int sec = time.second();
-    int dim = date.daysInMonth();
-    bool leap = date.leapYear( year );
+    stime.wDay = date.day();
+    stime.wMonth = date.month();
+    stime.wYear = date.year();
+    stime.wMilliseconds = time.msec();
+    stime.wSecond = time.second();
+    stime.wMinute = time.minute();
+    stime.wHour = time.hour();
 
-    long oledate = year*365 + year/4 - year/100 + year/400 + monthdays[month-1] + day;
-    if ( month <= 2 && leap )
-	--oledate;
-    oledate -= 693959;
+    double vtime;
+    SystemTimeToVariantTime( &stime, &vtime );
 
-    double oletime = (((long)hour * 3600L) + ((long)min * 60L) + ((long)sec)) / 86400.;
-
-    DATE ole = (double) oledate + ( ( oledate >= 0 ) ? oletime : -oletime );
-    return ole;
+    return vtime;
 }
 
 VARIANT QVariantToVARIANT( const QVariant &var, const char *type )
@@ -254,6 +163,7 @@ VARIANT QVariantToVARIANT( const QVariant &var, const char *type )
 
 void VARIANTToQUObject( VARIANT arg, QUObject *obj )
 {
+    QUType *preset = obj->type;
     if ( arg.vt & VT_BYREF ) {
 	VARTYPE vt2 = arg.vt & ~VT_BYREF;
 	switch ( vt2 ) {
@@ -332,6 +242,17 @@ void VARIANTToQUObject( VARIANT arg, QUObject *obj )
     default:
 	break;
     }
+
+    if ( !QUType::isEqual(preset, &static_QUType_Null ) && !QUType::isEqual( preset, obj->type ) ) {
+#ifndef QT_NO_DEBUG
+	if ( !preset->canConvertFrom( obj, obj->type ) ) {
+	    qWarning( "Can't coerce VARIANT type to requested type (%s to %s)", obj->type->desc(), preset->desc() );
+	} else 
+#endif
+	{
+	    preset->convertFrom( obj, obj->type );
+	}
+    }
 }
 
 QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
@@ -373,6 +294,10 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	var = arg.uiVal;
 	break;
     case VT_UI4:
+	if ( !qstrcmp( hint, "QColor" ) ) {
+	    var = OLEColorToQColor( arg.ulVal );
+	    break;
+	}
 	var = (int)arg.ulVal;
 	break;
     case VT_INT:
@@ -489,4 +414,219 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj )
 	    preset->convertFrom( &obj, obj.type );
 	}
     }
+}
+
+void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
+{
+    // map the QUObject's type to the VARIANT
+    if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
+	arg.vt = VT_I4;
+	arg.lVal = static_QUType_int.get( obj );
+    } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
+	arg.vt = VT_BSTR;
+	arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
+    } else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
+	arg.vt = VT_BSTR;
+	arg.bstrVal = QStringToBSTR( static_QUType_charstar.get( obj ) );
+    } else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
+	arg.vt = VT_BOOL;
+	arg.boolVal = static_QUType_bool.get( obj );
+    } else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
+	arg.vt = VT_R8;
+	arg.dblVal = static_QUType_double.get( obj );
+    } else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
+	arg.vt = VT_I4;
+	arg.lVal = static_QUType_enum.get( obj );
+    } else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
+	arg = QVariantToVARIANT( static_QUType_QVariant.get( obj ) );
+    } else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
+	arg.vt = VT_DISPATCH;
+	arg.pdispVal = (IDispatch*)static_QUType_ptr.get( obj );
+    } else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
+	arg.vt = VT_UNKNOWN;
+	arg.punkVal = (IUnknown*)static_QUType_ptr.get( obj );
+    } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) ) {
+	const char *type = (const char*)param->typeExtra;
+	if ( !qstrcmp( type, "int" ) ) {
+	    arg.vt = VT_I4;
+	    arg.lVal = *(int*)static_QUType_ptr.get( obj );
+	} else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
+	    arg.vt = VT_BSTR;
+	    arg.bstrVal = QStringToBSTR( *(QString*)static_QUType_ptr.get( obj ) );
+	} else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
+	    arg.vt = VT_DATE;
+	    arg.date = QDateTimeToDATE( *(QDateTime*)static_QUType_ptr.get( obj ) );
+	} else {
+	    arg.vt = VT_UI4;
+	    arg.ulVal = (Q_ULONG)static_QUType_ptr.get( obj );
+	}
+	//###
+    } else {
+	arg.vt = VT_EMPTY;
+    }
+}
+
+static inline QString vartypeToQt( VARTYPE vt )
+{
+    QString str;
+    switch ( vt ) {
+    case VT_EMPTY:
+	// str = "[Empty]";
+	break;
+    case VT_NULL:
+	// str = "[Null]";
+	break;
+    case VT_I2:
+    case VT_I4:
+	str = "int";
+	break;
+    case VT_R4:
+    case VT_R8:
+	str = "double";
+	break;
+    case VT_CY:
+	str = "long long"; // ### 64bit struct CY { ulong lo, long hi };
+	break;
+    case VT_DATE:
+	str = "QDateTime";
+	break;
+    case VT_BSTR:
+	str = "QString";
+	break;
+    case VT_DISPATCH:
+	str = "IDispatch*";
+	break;
+    case VT_ERROR:
+	str = "long";
+	break;
+    case VT_BOOL:
+	str = "bool";
+	break;
+    case VT_VARIANT:
+	str = "QVariant";
+	break;
+    case VT_DECIMAL:
+	// str = "[DECIMAL]";
+	break;
+    case VT_RECORD:
+	// str = "[Usertype]";
+	break;
+    case VT_UNKNOWN:
+	str = "IUnknown*";
+	break;
+    case VT_I1:
+	str = "char";
+	break;
+    case VT_UI1:
+	str = "unsigned char";
+	break;
+    case VT_UI2:
+	str = "unsigned short";
+	break;
+    case VT_UI4:
+	str = "unsigned int";
+	break;
+    case VT_INT:
+	str = "int";
+	break;
+    case VT_UINT:
+	str = "unsigned int";
+	break;
+    case VT_VOID:
+	str = "void";
+	break;
+    case VT_HRESULT:
+	str = "long";
+	break;
+
+    case VT_PTR:
+	// str = "[Pointer]";
+	break;
+    case VT_SAFEARRAY:
+	// str = "VT_ARRAY";
+	break;
+    case VT_CARRAY:
+	// str = "[C array]";
+	break;
+    case VT_USERDEFINED:
+	str = "USERDEFINED";
+	break;
+    case VT_LPSTR:
+	str = "const char*";
+	break;
+    case VT_LPWSTR:
+	str = "const unsigned short*";
+	break;
+
+    case VT_FILETIME:
+	// str = "[FILETIME]";
+	break;
+    case VT_BLOB:
+	// str = "[Blob]";
+	break;
+    case VT_STREAM:
+	// str = "[Stream]";
+	break;
+    case VT_STORAGE:
+	// str = "[Storage]";
+	break;
+    case VT_STREAMED_OBJECT:
+	// str = "[Streamed object]";
+	break;
+    case VT_STORED_OBJECT:
+	// str = "[Stored object]";
+	break;
+    case VT_BLOB_OBJECT:
+	// str = "[Blob object]";
+	break;
+    case VT_CF:
+	// str = "[Clipboard]";
+	break;
+    case VT_CLSID:
+	// str = "GUID";
+	break;
+    case VT_VECTOR:
+	// str = "[Vector]";
+	break;
+
+    case VT_ARRAY:
+	// str = "SAFEARRAY*";
+	break;
+    case VT_RESERVED:
+	// str = "[Reserved]";
+	break;
+
+    default:
+	// str = "[Unknown]";
+	break;
+    }
+
+    if ( vt & VT_BYREF )
+	str += "*";
+
+    return str;
+}
+
+QString typedescToQString( TYPEDESC typedesc )
+{
+    QString ptype;
+
+    VARTYPE vt = typedesc.vt;
+    if ( vt == VT_PTR ) {
+	vt = typedesc.lptdesc->vt;
+	ptype = vartypeToQt( vt );
+	if ( !!ptype ) 
+	    ptype += "*";
+    } else if ( vt == VT_SAFEARRAY ) {
+	vt = typedesc.lpadesc->tdescElem.vt;
+	ptype = vartypeToQt( vt );
+	if ( !!ptype ) 
+	    ptype = ptype + "[" + QString::number( typedesc.lpadesc->cDims ) + "]";
+    } else {
+	ptype = vartypeToQt( vt );
+    }
+    if ( ptype.isEmpty() )
+	ptype = "UNSUPPORTED";
+
+    return ptype;
 }

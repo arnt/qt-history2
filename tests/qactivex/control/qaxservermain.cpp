@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of win32 startup routines
+** Implementation of win32 ActiveX server startup routines
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -30,27 +30,115 @@
 #include <qmap.h>
 #include <qapplication.h>
 #include <qfile.h>
-#include <qregexp.h>
 #include <private/qucom_p.h>
 #include <qdir.h>
 
 #include <qt_windows.h>
 
-#define STRICT
+/*
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0400
 #endif
+*/
 #define _ATL_APARTMENT_THREADED
+#define STRICT
 
-#include "qactiveqtbase.h"
+#include "qaxserverbase.h"
+#include "qaxbindable.h"
 
 #ifdef DEBUG
-const DWORD dwTimeOut = 1000; // time for EXE to be idle before shutting down
-const DWORD dwPause = 500; // time to wait for threads to finish up
+const DWORD dwTimeOut = 1000;
+const DWORD dwPause = 500;
 #else
 const DWORD dwTimeOut = 5000; // time for EXE to be idle before shutting down
 const DWORD dwPause = 1000; // time to wait for threads to finish up
 #endif
+
+#ifdef Q_OS_TEMP
+EXTERN_C int __cdecl main( int, char ** );
+#else
+EXTERN_C int main( int, char ** );
+#endif
+CExeModule _Module;
+
+extern bool qax_ownQApp;
+
+extern HHOOK hhook;
+LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
+{
+    if ( qApp )
+	qApp->sendPostedEvents();
+
+    return CallNextHookEx( hhook, nCode, wParam, lParam );
+}
+
+
+// COM Factory class, mapping COM requests to ActiveQt requests.
+// One instance of this class for each ActiveX the server can provide.
+class QClassFactory : public IClassFactory
+{
+public:
+    QClassFactory( CLSID clsid )
+	: ref( 0 )
+    {
+	// COM only knows the CLSID, but QAxFactory is class name based...
+	QStringList keys = _Module.factory()->featureList();
+	for ( QStringList::Iterator  key = keys.begin(); key != keys.end(); ++key ) {
+	    if ( _Module.factory()->classID( *key ) == clsid ) {
+		className = *key;
+		break;
+	    }
+	}
+    }
+
+    // IUnknown
+    unsigned long WINAPI AddRef()
+    {
+	return ++ref;
+    }
+    unsigned long WINAPI Release()
+    {
+	if ( !--ref ) {
+	    delete this;
+	    return 0;
+	}
+	return ref;
+    }
+    HRESULT WINAPI QueryInterface( REFIID iid, LPVOID *iface )
+    {
+	*iface = 0;
+	if ( iid == IID_IUnknown )
+	    *iface = (IUnknown*)this;
+	else if ( iid == IID_IClassFactory )
+	    *iface = (IClassFactory*)this;
+	else
+	    return E_NOINTERFACE;
+
+	AddRef();
+	return S_OK;
+    }
+
+    // IClassFactory
+    HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
+    {
+	// Create the ActiveX wrapper
+	QAxServerBase *activeqt = new QAxServerBase( className );
+	return activeqt->QueryInterface( iid, ppObject );
+    }
+    HRESULT WINAPI LockServer( BOOL fLock )
+    {
+	if ( fLock )
+	    _Module.Lock();
+	else
+	    _Module.Unlock();
+
+	return S_OK;
+    }
+
+protected:
+    unsigned long ref;
+    QString className;
+};
 
 // Passed to CreateThread to monitor the shutdown event
 static DWORD WINAPI MonitorProc(void* pv)
@@ -100,221 +188,95 @@ bool CExeModule::StartMonitor()
     return (h != NULL);
 }
 
-extern "C" QUnknownInterface *ucm_instantiate();
+extern QUnknownInterface *ucm_instantiate();
 
-QActiveQtFactoryInterface *CExeModule::factory()
+QAxFactoryInterface *CExeModule::factory()
 {
     if ( !_factory ) {
 	QInterfacePtr<QUnknownInterface> unknown = ucm_instantiate();
 	if ( unknown )
-	    unknown->queryInterface( IID_QActiveQtFactory, (QUnknownInterface**)&_factory );
+	    unknown->queryInterface( IID_QAxFactory, (QUnknownInterface**)&_factory );
     }
     return _factory;
 }
 
+// dummy function used in object map.
+// We have our own factory to do that
 static HRESULT WINAPI CreateInstance( void *pUnkOuter, REFIID iid, void **ppUnk )
 {
     HRESULT nRes = E_OUTOFMEMORY;
     return nRes;
 }
 
-class QClassFactory : public IClassFactory
+// Create a QClassFactory object for class \a iid
+HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
 {
-public:
-    QClassFactory( CLSID clsid )
-	: ref( 0 )
-    {
-	QStringList keys = _Module.factory()->featureList();
-	for ( QStringList::Iterator  key = keys.begin(); key != keys.end(); ++key ) {
-	    if ( _Module.factory()->classID( *key ) == clsid ) {
-		className = *key;
-		break;
-	    }
-	}
+    if ( !qApp ) {
+	qax_ownQApp = TRUE;
+	int argc = 0;
+	(void)new QApplication( argc, 0 );
+	hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
     }
 
-    unsigned long WINAPI AddRef()
-    {
-	return ++ref;
-    }
-    unsigned long WINAPI Release()
-    {
-	if ( !--ref ) {
-	    delete this;
-	    return 0;
-	}
-	return ref;
-    }
-    HRESULT WINAPI QueryInterface( REFIID iid, LPVOID *iface )
-    {
-	*iface = 0;
-	if ( iid == IID_IUnknown )
-	    *iface = (IUnknown*)this;
-	else if ( iid == IID_IClassFactory )
-	    *iface = (IClassFactory*)this;
-	else
-	    return E_NOINTERFACE;
-
-	AddRef();
-	return S_OK;
-    }
-
-    HRESULT WINAPI CreateInstance( IUnknown *pUnkOuter, REFIID iid, void **ppObject )
-    {
-	QActiveQtBase *activeqt = new QActiveQtBase( className );
-	return activeqt->QueryInterface( iid, ppObject );
-    }
-    HRESULT WINAPI LockServer( BOOL fLock )
-    {
-	if ( fLock )
-	    _Module.Lock();
-	else
-	    _Module.Unlock();
-
-	return S_OK;
-    }
-
-private:
-    unsigned long ref;
-    QString className;
-};
-
-static HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
-{
     HRESULT nRes = E_OUTOFMEMORY;
     QClassFactory *factory = new QClassFactory( iid );
     if ( factory )
-	nRes = factory->QueryInterface( IID_IUnknown, ppUnk );
+	nRes = factory->QueryInterface( IID_IClassFactory, ppUnk );
     return nRes;
 }
 
-static HRESULT WINAPI UpdateRegistry(BOOL bRegister)
+char module_filename[MAX_PATH];
+
+
+// (Un)Register the ActiveX server in the registry.
+// The QAxFactory implementation provides the information.
+HRESULT WINAPI UpdateRegistry(BOOL bRegister)
 {
-    char filename[MAX_PATH];
-    GetModuleFileNameA( 0, filename, MAX_PATH-1 );
-    QString file = QString::fromLocal8Bit(filename );
+    QString file = QString::fromLocal8Bit(module_filename );
     QString path = file.left( file.findRev( "\\" )+1 );
     QString module = file.right( file.length() - path.length() );
     module = module.left( module.findRev( "." ) );
 
+    const QString appId = _Module.factory()->appID().toString().upper();
+    const QString libId = _Module.factory()->typeLibID().toString().upper();
+
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
-    const QString appID = _Module.factory()->appID().toString().upper();
-    const QString libID = _Module.factory()->typeLibID().toString().upper();
 
     if ( bRegister ) {
-	settings.writeEntry( "/AppID/" + appID + "/.", module );
-	settings.writeEntry( "/AppID/" + module + ".EXE/AppID", appID );
+	settings.writeEntry( "/AppID/" + appId + "/.", module );
+	settings.writeEntry( "/AppID/" + module + ".EXE/AppID", appId );
 
-	settings.writeEntry( "/TypeLib/" + libID + "/1.0/0/win32/.", file );
-	settings.writeEntry( "/TypeLib/" + libID + "/1.0/FLAGS/.", "0" );
-	settings.writeEntry( "/TypeLib/" + libID + "/1.0/HELPDIR/.", path );
-	settings.writeEntry( "/TypeLib/" + libID + "/1.0/.", module + " 1.0 Type Library" );
+	settings.writeEntry( "/TypeLib/" + libId + "/1.0/0/win32/.", file );
+	settings.writeEntry( "/TypeLib/" + libId + "/1.0/FLAGS/.", "0" );
+	settings.writeEntry( "/TypeLib/" + libId + "/1.0/HELPDIR/.", path );
+	settings.writeEntry( "/TypeLib/" + libId + "/1.0/.", module + " 1.0 Type Library" );
+
+	_Module.factory()->registerFactory();
     } else {
-	settings.removeEntry( "/AppID/" + module + ".EXE/AppID" );
-	settings.removeEntry( "/AppID/" + appID + "/." );
-	
-	settings.removeEntry( "/TypeLib/" + libID + "/1.0/0/win32/." );
-	settings.removeEntry( "/TypeLib/" + libID + "/1.0/0/." );
-	settings.removeEntry( "/TypeLib/" + libID + "/1.0/FLAGS/." );
-	settings.removeEntry( "/TypeLib/" + libID + "/1.0/HELPDIR/." );
-	settings.removeEntry( "/TypeLib/" + libID + "/1.0/." );
-    }
-    
-    QStringList keys = _Module.factory()->featureList();
-    for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
-	const QString className = *key;
-	const QString classID = _Module.factory()->classID(className).toString().upper();
-	const QString eventID = _Module.factory()->eventsID(className).toString().upper();
-	const QString ifaceID = _Module.factory()->interfaceID(className).toString().upper();
+	_Module.factory()->unregisterFactory();
 
-	if ( bRegister ) {	    
-	    settings.writeEntry( "/" + module + "." + className + ".1/.", className + " Class" );
-	    settings.writeEntry( "/" + module + "." + className + ".1/CLSID/.", classID );
-	    settings.writeEntry( "/" + module + "." + className + ".1/Insertable/.", QString::null );
-	    
-	    settings.writeEntry( "/" + module + "." + className + "/.", className + " Class" );
-	    settings.writeEntry( "/" + module + "." + className + "/CLSID/.", classID );
-	    settings.writeEntry( "/" + module + "." + className + "/CurVer/.", module + "." + className + ".1" );
-	    
-	    settings.writeEntry( "/CLSID/" + classID + "/.", className + " Class" );
-	    if ( !appID.isNull() )
-		settings.writeEntry( "/CLSID/" + classID + "/AppID", appID );
-	    settings.writeEntry( "/CLSID/" + classID + "/Control/.", QString::null );
-	    settings.writeEntry( "/CLSID/" + classID + "/Insertable/.", QString::null );
-	    settings.writeEntry( "/CLSID/" + classID + "/LocalServer32/.", file + " -activex" );
-	    settings.writeEntry( "/CLSID/" + classID + "/MiscStatus/.", "0" );
-	    settings.writeEntry( "/CLSID/" + classID + "/MiscStatus/1/.", "131473" );
-	    settings.writeEntry( "/CLSID/" + classID + "/Programmable/.", QString::null );
-	    settings.writeEntry( "/CLSID/" + classID + "/ToolboxBitmap32/.", file + ", 101" );
-	    settings.writeEntry( "/CLSID/" + classID + "/TypeLib/.", libID );
-	    settings.writeEntry( "/CLSID/" + classID + "/Version/.", "1.0" );
-	    settings.writeEntry( "/CLSID/" + classID + "/VersionIndependentProgID/.", module + "." + className );
-	    settings.writeEntry( "/CLSID/" + classID + "/ProgID/.", module + "." + className + ".1" );
-	    settings.writeEntry( "/CLSID/" + classID + "/Implemented Categories/.", QString::null );
-	    //### TODO: write some list of categories
-	    
-	    settings.writeEntry( "/Interface/" + ifaceID + "/.", "I" + className );
-	    settings.writeEntry( "/Interface/" + ifaceID + "/ProxyStubClsid/.", "{00020424-0000-0000-C000-000000000046}" );
-	    settings.writeEntry( "/Interface/" + ifaceID + "/ProxyStubClsid32/.", "{00020424-0000-0000-C000-000000000046}" );
-	    settings.writeEntry( "/Interface/" + ifaceID + "/TypeLib/.", libID );
-	    settings.writeEntry( "/Interface/" + ifaceID + "/TypeLib/Version", "1.0" );
-	    
-	    settings.writeEntry( "/Interface/" + eventID + "/.", "I" + className + "Events" );
-	    settings.writeEntry( "/Interface/" + eventID + "/ProxyStubClsid/.", "{00020420-0000-0000-C000-000000000046}" );
-	    settings.writeEntry( "/Interface/" + eventID + "/ProxyStubClsid32/.", "{00020420-0000-0000-C000-000000000046}" );
-	    settings.writeEntry( "/Interface/" + eventID + "/TypeLib/.", libID );
-	    settings.writeEntry( "/Interface/" + eventID + "/TypeLib/Version", "1.0" );
-	} else {	    
-	    settings.removeEntry( "/" + module + "." + className + ".1/CLSID/." );
-	    settings.removeEntry( "/" + module + "." + className + ".1/Insertable/." );
-	    settings.removeEntry( "/" + module + "." + className + ".1/." );
-	    
-	    settings.removeEntry( "/" + module + "." + className + "/CLSID/." );
-	    settings.removeEntry( "/" + module + "." + className + "/CurVer/." );
-	    settings.removeEntry( "/" + module + "." + className + "/." );
-	    
-	    settings.removeEntry( "/CLSID/" + classID + "/AppID" );
-	    settings.removeEntry( "/CLSID/" + classID + "/Control/." );
-	    settings.removeEntry( "/CLSID/" + classID + "/Insertable/." );
-	    settings.removeEntry( "/CLSID/" + classID + "/LocalServer32/." );
-	    settings.removeEntry( "/CLSID/" + classID + "/MiscStatus/1/." );
-	    settings.removeEntry( "/CLSID/" + classID + "/MiscStatus/." );	    
-	    settings.removeEntry( "/CLSID/" + classID + "/Programmable/." );
-	    settings.removeEntry( "/CLSID/" + classID + "/ToolboxBitmap32/." );
-	    settings.removeEntry( "/CLSID/" + classID + "/TypeLib/." );
-	    settings.removeEntry( "/CLSID/" + classID + "/Version/." );
-	    settings.removeEntry( "/CLSID/" + classID + "/VersionIndependentProgID/." );
-	    settings.removeEntry( "/CLSID/" + classID + "/ProgID/." );
-	    //### TODO: remove some list of categories
-	    settings.removeEntry( "/CLSID/" + classID + "/Implemented Categories/." );
-	    settings.removeEntry( "/CLSID/" + classID + "/." );
-	    
-	    settings.removeEntry( "/Interface/" + ifaceID + "/ProxyStubClsid/." );
-	    settings.removeEntry( "/Interface/" + ifaceID + "/ProxyStubClsid32/." );
-	    settings.removeEntry( "/Interface/" + ifaceID + "/TypeLib/Version" );
-	    settings.removeEntry( "/Interface/" + ifaceID + "/TypeLib/." );
-	    settings.removeEntry( "/Interface/" + ifaceID + "/." );
-	    
-	    settings.removeEntry( "/Interface/" + eventID + "/ProxyStubClsid/." );
-	    settings.removeEntry( "/Interface/" + eventID + "/ProxyStubClsid32/." );
-	    settings.removeEntry( "/Interface/" + eventID + "/TypeLib/Version" );
-	    settings.removeEntry( "/Interface/" + eventID + "/TypeLib/." );
-	    settings.removeEntry( "/Interface/" + eventID + "/." );
-	}
-    }
+	settings.removeEntry( "/AppID/" + module + ".EXE/AppID" );
+	settings.removeEntry( "/AppID/" + appId + "/." );
     
+	settings.removeEntry( "/TypeLib/" + libId + "/1.0/0/win32/." );
+	settings.removeEntry( "/TypeLib/" + libId + "/1.0/0/." );
+	settings.removeEntry( "/TypeLib/" + libId + "/1.0/FLAGS/." );
+	settings.removeEntry( "/TypeLib/" + libId + "/1.0/HELPDIR/." );
+	settings.removeEntry( "/TypeLib/" + libId + "/1.0/." );
+    }
+   
     return S_OK;
 }
 
-#define SUPERCLASS FALSE
+static QStringList *enums = 0;
 
-static const int ntypes = 32;
-static const char* const type_map[ntypes][2] =
+static const char* const type_map[][2] =
 {
+    // QVariant/Qt Value data types
     { "int",		"int" },
     { "uint",		"int" },
-    { "bool",		"BOOL" },
+    { "bool",		"bool" },
     { "QString",	"BSTR" },
     { "double",		"double" },
     { "QCString",	"BSTR" },
@@ -322,45 +284,78 @@ static const char* const type_map[ntypes][2] =
     { "QDate",		"DATE" },
     { "QTime",		"DATE" },
     { "QDateTime",	"DATE" },
-    { "QMap",		0 },
-    { "QValueList",	0 },
-    { "QStringList",	0 },
-    { "QFont",		0 },
-    { "QPixmap",	0 },
-    { "QBrush",		0 },
-    { "QRect",		0 },
-    { "QSize",		0 },
-    { "QPalette",	0 },
-    { "QColorGroup",	0 },
-    { "QIconSet",	0 },
-    { "QPoint",		0 },
-    { "QImage",		0 },
-    { "QPointArray",	0 },
-    { "QRegion",	0 },
-    { "QBitmap",	0 },
-    { "QCursor",	0 },
-    { "QSizePolicy",	0 },
-    { "QByteArray",	0 },
-    { "QBitArray",	0 },
-    { "QKeySequence",	0 }
+    { "QFont",		"IFontDisp*" },
+    // And we support COM data types
+    { "BOOL",		"BOOL" },
+    { "BSTR",		"BSTR" },
+    { "OLE_COLOR",	"OLE_COLOR" },
+    { "DATE",		"DATE" },
+    { 0,		0 }
 };
 
 static QString convertTypes( const QString &qtype, bool *ok )
 {
     *ok = FALSE;
-    for ( int i = 0; i < ntypes; i++ ) {
+
+    int i = 0;
+    while ( type_map[i][0] ) {
 	if ( qtype == type_map[i][0] && type_map[i][1] ) {
 	    *ok = TRUE;
 	    return type_map[i][1];	    
 	}
+	++i;
     }
+    if ( enums && enums->contains( qtype ) )
+	*ok = TRUE;
     return qtype;
 }
 
 static const char* const keyword_map[][2] =
 {
-    { "default",	"defaulted" },
-    { 0,		0	    }
+    { "aggregatable",	"aggregating"	    },
+    { "allocate",	"alloc"		    },
+    { "appobject",	"appObject"	    },
+    { "arrays",		"array"		    },
+    { "async",		"asynchronous"	    },
+    { "bindable",	"binding"	    },
+    { "Boolean",	"boolean"	    },
+    { "broadcast",	"broadCast"	    },
+    { "callback",	"callBack"	    },
+    { "code",		"code_"		    },
+    { "control",	"ctrl"		    },
+    { "custom"		"custom_"	    },
+    { "decode",		"deCode"	    },
+    { "default",	"defaulted"	    },
+    { "defaultbind",	"defaultBind"	    },
+    { "defaultvalue",	"defaultValue"	    },
+    { "dual"		"dual_"		    },
+    { "encode"		"enCode"	    },
+    { "endpoint",	"endPoint"	    },
+    { "entry",		"entry_"	    },
+    { "helpcontext",	"helpContext"	    },
+    { "helpfile",	"helpFile"	    },
+    { "helpstring",	"helpString"	    },
+    { "hidden",		"isHidden"	    },
+    { "id",		"ID"		    },
+    { "ignore",		"ignore_"	    },
+    { "local",		"local_"	    },
+    { "message",	"message_"	    },
+    { "notify",		"notify_"	    },
+    { "object",		"object_"	    },
+    { "optimize",	"optimize_"	    },
+    { "optional",	"optional_"	    },
+    { "out",		"out_"		    },
+    { "pipe",		"pipe_"		    },
+    { "proxy",		"proxy_"	    },
+    { "ptr",		"pointer"	    },
+    { "range",		"range_"	    },
+    { "readonly",	"readOnly"	    },
+    { "shape",		"shape_"	    },
+    { "small",		"small_"	    },
+    { "source",		"source_"	    },
+    { "string",		"string_"	    },
+    { "uuid",		"uuid_"		    },
+    { 0,		0		    }
 };
 
 static QString replaceKeyword( const QString &name )
@@ -395,9 +390,77 @@ static QString renameOverloads( const QString &name )
     return newName;
 }
 
+// Generate IDL for superclass meta objects.
+#define SUPERCLASS TRUE
+
+// filter out some properties
+static const char* const ignore_props[] =
+{
+    "name",
+    "isTopLevel",
+    "isDialog",
+    "isModal",
+    "isPopup",
+    "isDesktop",
+    "geometry",
+    "pos",
+    "frameSize",
+    "size",
+    "rect",
+    "childrenRect",
+    "childrenRegion",
+    "minimumSize",
+    "maximumSize",
+    "sizeIncrement",
+    "baseSize",
+    "ownPalette",
+    "ownFont",
+    "ownCursor",
+    "visibleRect",
+    "isActiveWindow",
+    "underMouse",
+    "visible",
+    "hidden",
+    "minimized",
+    "focus",
+    "focusEnabled",
+    "customWhatsThis",
+    0
+};
+
+// filter out some slots
+static const char* const ignore_slots[] =
+{
+    "deleteLater",
+    "setMouseTracking",
+    "update",
+    "repaint",
+    "iconify",
+    "showMinimized",
+    "showMaximized",
+    "showFullScreen",
+    "showNormal",
+    "polish",
+    "constPolish",
+    "stackUnder",
+    0
+};
+
+static bool ignore( const char *test, const char *const *table )
+{
+    int i = 0;
+    while ( table[i] ) {
+	if ( !strcmp( test, table[i] ) )
+	    return TRUE;
+	++i;
+    }
+    return FALSE;
+}
+
+
 #define STRIPCB(x) x = x.mid( 1, x.length()-2 )
 
-static int DumpIDL( const QString &outfile )
+HRESULT DumpIDL( const QString &outfile, const QString &ver )
 {
     QTextStream out;
     QString outpath = outfile.left( outfile.findRev( "\\" ) );
@@ -408,13 +471,17 @@ static int DumpIDL( const QString &outfile )
 	qFatal( "Couldn't open %s for writing", outfile.latin1() );
     out.setDevice( &file );
 
-    char modulefile[256];
-    GetModuleFileNameA( 0, modulefile, 255 );
-    QString filebase = modulefile;
+    QString version = ver;
+    while ( version.contains( '.' ) > 1 ) {
+	int lastdot = version.findRev( '.' );
+	version = version.left( lastdot ) + version.right( version.length() - lastdot - 1 );
+    }
+
+    QString filebase = module_filename;
     filebase = filebase.left( filebase.findRev( "." ) );
     
     out << "/****************************************************************************" << endl;
-    out << "** Interface definition generated from '" << modulefile << "'" << endl;
+    out << "** Interface definition generated from '" << module_filename << "'" << endl;
     out << "**" << endl;
     out << "** Created:  " << QDateTime::currentDateTime().toString() << endl;
     out << "**" << endl;
@@ -426,11 +493,9 @@ static int DumpIDL( const QString &outfile )
     out << "import \"ocidl.idl\";" << endl;
     out << "#include \"olectl.h\"" << endl << endl << endl;
 
-#if QT_VERSION < 310
     // dummy application to create widgets
     int argc;
     QApplication app( argc, 0 );
-#endif
 
     QString appID = _Module.factory()->appID().toString().upper();
     STRIPCB(appID);
@@ -438,22 +503,47 @@ static int DumpIDL( const QString &outfile )
     STRIPCB(typeLibID);
     QString typelib = filebase.right( filebase.length() - filebase.findRev( "\\" )-1 );
 
+    out << "[" << endl;
+    out << "\tuuid(" << typeLibID << ")," << endl;
+    out << "\tversion(" << version << ")," << endl;
+    out << "\thelpstring(\"" << typelib << " " << version << " Type Library\")" << endl;
+    out << "]" << endl;
+    out << "library " << typelib << "Lib" << endl;
+    out << "{" << endl;
+    out << "\timportlib(\"stdole32.tlb\");" << endl;
+    out << "\timportlib(\"stdole2.tlb\");" << endl << endl;
+
+
     QStringList keys = _Module.factory()->featureList();
     QStringList::Iterator key;
     for ( key = keys.begin(); key != keys.end(); ++key ) {
 	delete mapping;
 	mapping = 0;
+	int id = 1;
+	int i;
 
 	QString className = *key;
-#if QT_VERSION < 310
 	QWidget *w = _Module.factory()->create( className );
 	QMetaObject *mo = w ? w->metaObject() : 0;
-	delete w;
-#else
-	QMetaObject *mo = QMetaObject::metaObject( className );
-#endif
 	if ( !mo )
-	    return -1;
+	    return E_FAIL;
+
+	QString topclass = _Module.factory()->exposeToSuperClass( className );
+
+	QMetaObject *pmo = mo;
+	do {
+	    pmo = pmo->superClass();
+	} while ( pmo && topclass != pmo->className() );
+
+	int slotoff = pmo ? pmo->slotOffset() : mo->slotOffset();
+	int propoff = pmo ? pmo->propertyOffset() : mo->propertyOffset();
+	int signaloff = pmo ? pmo->signalOffset() : mo->signalOffset();
+
+	QAxBindable *bind = (QAxBindable*)w->qt_cast( "QAxBindable" );
+	bool isBindable =  bind != 0;
+	bool hasStockEvents = FALSE;
+	if ( bind )
+	    hasStockEvents = bind->hasStockEvents();
 
 	QString classID = _Module.factory()->classID( className ).toString().upper();
 	STRIPCB(classID);
@@ -461,30 +551,41 @@ static int DumpIDL( const QString &outfile )
 	STRIPCB(interfaceID);
 	QString eventsID = _Module.factory()->eventsID( className ).toString().upper();
 	STRIPCB(eventsID);
-	int id = 1;
-	int i;
 
+#if QT_VERSION >= 0x040000
+#error "Try support for enumerators"
+	for ( i = 0; i < mo->
+	    out << "typedef enum { NoBackground = 0 } BackgroundMode;" << endl;
+#endif
+
+	out << endl;
 	out << "\t[" << endl;
-	out << "\t\tobject," << endl;
 	out << "\t\tuuid(" << interfaceID << ")," << endl;
-	out << "\t\tdual," << endl;
 	out << "\t\thelpstring(\"" << className << " Interface\")," << endl;
-	out << "\t\tpointer_default(unique)" << endl;
 	out << "\t]" << endl;
-	out << "\tinterface I" << className << " : IDispatch" << endl;
+	out << "\tdispinterface I" << className  << endl;
 	out << "\t{" << endl;
 
-	for ( i = 0; i < mo->numSlots( SUPERCLASS ); ++i ) {
+	out << "\tproperties:" << endl;
+	out << "\tmethods:" << endl;
+	for ( i = slotoff; i < mo->numSlots( SUPERCLASS ); ++i ) {
 	    const QMetaData *slotdata = mo->slot( i, SUPERCLASS );
 	    if ( !slotdata || slotdata->access != QMetaData::Public )
 		continue;
 
 	    bool ok = TRUE;
+	    if ( ignore( slotdata->method->name, ignore_slots ) )
+		continue;
+
 	    QString slotName = renameOverloads( replaceKeyword( slotdata->method->name ) );
 	    QString slot = slotName ;
 	    slot += "(";
 	    for ( int p = 0; p < slotdata->method->count && ok; ++p ) {
 		slot += convertTypes( slotdata->method->parameters[p].type->desc(), &ok );
+		if ( slotdata->method->parameters[p].name )
+		    slot += " _" + replaceKeyword( slotdata->method->parameters[p].name );
+		else
+		    slot += " p" + QString::number(p);
 		if ( p+1 < slotdata->method->count )
 		    slot += ", ";
 	    }
@@ -493,44 +594,49 @@ static int DumpIDL( const QString &outfile )
 	    if ( !ok )
 		out << "\t/****** Slot parameter uses unsupported datatype" << endl;
 
-	    out << "\t\t[id(" << id << "), helpstring(\"method " << slotName << "\")] ";
+	    out << "\t\t[id(" << id << ")] ";
 	    out << "HRESULT " << slot << ";" << endl;
 	    
 	    if ( !ok )
 		out << "\t******/" << endl;
 	    ++id;
-	}
-	for ( i = 0; i < mo->numProperties( SUPERCLASS ); ++i ) {
+	} for ( i = propoff; i < mo->numProperties( SUPERCLASS ); ++i ) {
 	    const QMetaProperty *property = mo->property( i, SUPERCLASS );
 	    if ( !property || property->testFlags( QMetaProperty::Override ) )
+		continue;
+	    if ( ignore( property->name(), ignore_props ) )
 		continue;
 
 	    bool read = TRUE;
 	    bool write = property->writable();
-	    bool designable = TRUE;
-	    bool scriptable = TRUE;
+	    bool designable = property->designable( w );
+	    bool scriptable = isBindable ? property->scriptable( w ) : FALSE;
 	    bool ok;
-	    QString type = convertTypes( property->type(), &ok );
+	    QString type = convertTypes( property->isEnumType() ? "int" : property->type(), &ok );
 	    QString name = replaceKeyword( property->name() );
 
 	    if ( !ok )
 		out << "\t/****** Property is of unsupported datatype" << endl;
 
 	    if ( read ) {
-		out << "\t\t[propget, id(" << id << "), helpstring(\"property " << name << "\")";
+		out << "\t\t[id(" << id << "), propget";
 		if ( scriptable )
 		    out << ", bindable";
 		if ( !designable )
 		    out << ", nonbrowsable";
-		out << ", requestedit] HRESULT " << name << "([out, retval] " << type << " *pVal);" << endl;
+		if ( isBindable )
+		    out << ", requestedit";
+		out << "] " << type << " " << name << "();" << endl;
 	    }
 	    if ( write ) {
-		out << "\t\t[propput, id(" << id << "), helpstring(\"property " << name << "\")";
+		out << "\t\t[id(" << id << "), propput";
 		if ( scriptable )
 		    out << ", bindable";
 		if ( !designable )
 		    out << ", nonbrowsable";
-		out << ", requestedit] HRESULT " << name << "([in] " << type << " newVal);" << endl;
+		if ( isBindable )
+		    out << ", requestedit";
+		out << "] HRESULT " << name << "(" << type << " newVal);" << endl;
 	    }
 
 	    if ( !ok )
@@ -538,39 +644,10 @@ static int DumpIDL( const QString &outfile )
 	    ++id;
 	}
 	out << "\t};" << endl << endl;
-    }
 
-    out << "[" << endl;
-    out << "\tuuid(" << typeLibID << ")," << endl;
-    out << "\tversion(1.0)," << endl;
-    out << "\thelpstring(\"" << typelib << " 1.0 Type Library\")" << endl;
-    out << "]" << endl;
-    out << "library " << typelib << "Lib" << endl;
-    out << "{" << endl;
-    out << "\timportlib(\"stdole32.tlb\");" << endl;
-    out << "\timportlib(\"stdole2.tlb\");" << endl << endl;
-
-    for ( key = keys.begin(); key != keys.end(); ++key ) {
 	delete mapping;
 	mapping = 0;
-
-	QString className = *key;
-#if QT_VERSION < 310
-	QWidget *w = _Module.factory()->create( className );
-	QMetaObject *mo = w ? w->metaObject() : 0;
-	delete w;
-#else
-	QMetaObject *mo = QMetaObject::metaObject( className );
-#endif
-	if ( !mo )
-	    return -1;
-
-	QString classID = _Module.factory()->classID( className ).toString().upper();
-	STRIPCB(classID);
-	QString interfaceID = _Module.factory()->interfaceID( className ).toString().upper();
-	STRIPCB(interfaceID);
-	QString eventsID = _Module.factory()->eventsID( className ).toString().upper();
-	STRIPCB(eventsID);
+	id = 1;
 
 	out << "\t[" << endl;
 	out << "\t\tuuid(" << eventsID << ")," << endl;
@@ -578,10 +655,22 @@ static int DumpIDL( const QString &outfile )
 	out << "\t]" << endl;
 	out << "\tdispinterface I" << className << "Events" << endl;
 	out << "\t{" << endl;
-	out << "\t\tproperties:" << endl;
-	out << "\t\tmethods:" << endl;
-	int id = 1;
-	for ( int i = 0; i < mo->numSignals( SUPERCLASS ); ++i ) {
+	out << "\tproperties:" << endl;
+	out << "\tmethods:" << endl;
+
+	if ( hasStockEvents ) {
+	    out << "\t/****** Stock events ******/" << endl;
+	    out << "\t\t[id(DISPID_CLICK)] void Click();" << endl;
+	    out << "\t\t[id(DISPID_DBLCLICK)] void DblClick();" << endl;
+	    out << "\t\t[id(DISPID_KEYDOWN)] void KeyDown(short* KeyCode, short Shift);" << endl;
+	    out << "\t\t[id(DISPID_KEYPRESS)] void KeyPress(short* KeyAscii);" << endl;
+	    out << "\t\t[id(DISPID_KEYUP)] void KeyUp(short* KeyCode, short Shift);" << endl;
+	    out << "\t\t[id(DISPID_MOUSEDOWN)] void MouseDown(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl;
+	    out << "\t\t[id(DISPID_MOUSEMOVE)] void MouseMove(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl;
+	    out << "\t\t[id(DISPID_MOUSEUP)] void MouseUp(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl << endl;
+	}
+
+	for ( i = signaloff; i < mo->numSignals( SUPERCLASS ); ++i ) {
 	    const QMetaData *signaldata = mo->signal( i, SUPERCLASS );
 	    if ( !signaldata )
 		continue;
@@ -591,6 +680,10 @@ static int DumpIDL( const QString &outfile )
 	    signal += "(";
 	    for ( int p = 0; p < signaldata->method->count && ok; ++p ) {
 		signal += convertTypes( signaldata->method->parameters[p].type->desc(), &ok );
+		if ( signaldata->method->parameters[p].name ) 
+		    signal += " _" + replaceKeyword( signaldata->method->parameters[p].name );
+		else
+		    signal += " p" + QString::number(p);
 		if ( p+1 < signaldata->method->count )
 		    signal += ", ";
 	    }
@@ -616,14 +709,22 @@ static int DumpIDL( const QString &outfile )
 	out << "\t\t[default] interface I" << className << ";" << endl;
 	out << "\t\t[default, source] dispinterface I" << className << "Events;" << endl;
 	out << "\t};" << endl;
+
+	delete w;
     }
 
     out << "};" << endl;
 
-    return 0;
+    delete mapping;
+    mapping = 0;
+    delete enums;
+    enums = 0;
+
+    return S_OK;
 }
 
-QInterfacePtr<QActiveQtFactoryInterface> CExeModule::_factory = 0;
+QInterfacePtr<QAxFactoryInterface> CExeModule::_factory = 0;
+bool is_server = FALSE;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -633,16 +734,11 @@ extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
 #endif
 
-#ifdef Q_OS_TEMP
-EXTERN_C int __cdecl main( int, char ** );
-#else
-EXTERN_C int main( int, char ** );
-#endif
-CExeModule _Module;
-
 extern "C" int WINAPI WinMain(HINSTANCE hInstance, 
     HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
+    GetModuleFileNameA( 0, module_filename, MAX_PATH-1 );
+
     lpCmdLine = GetCommandLineA(); //this line necessary for _ATL_MIN_CRT
     QString cmdLine = QString::fromLatin1( lpCmdLine );
 
@@ -667,9 +763,20 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 	} else if ( cmd == "-dumpidl" || cmd == "/dumpidl" ) {
 	    ++it;
 	    if ( it != cmds.end() ) {
-		nRet = DumpIDL( *it );
+		QString outfile = *it;
+		++it;
+		QString version;
+		if ( it != cmds.end() && ( *it == "-version" || *it == "/version" ) ) {
+		    ++it;
+		    if ( it != cmds.end() )
+			version = *it;
+		    else
+			version = "1.0";
+		}
+
+		nRet = DumpIDL( outfile, version );
 	    } else {
-		qWarning( "Wrong commandline syntax: <app> -dumpidl <idl file>" );
+		qWarning( "Wrong commandline syntax: <app> -dumpidl <idl file> [-version <x.y.z>]" );
 	    }
 	    bRun = FALSE;
 	    break;
@@ -705,9 +812,9 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 		ObjectMap[object].pfnCreateInstance = CreateInstance;
 		ObjectMap[object].pCF = NULL;
 		ObjectMap[object].dwRegister = 0;
-		ObjectMap[object].pfnGetObjectDescription = QActiveQtBase::GetObjectDescription;
-		ObjectMap[object].pfnGetCategoryMap = QActiveQtBase::GetCategoryMap;
-		ObjectMap[object].pfnObjectMain = QActiveQtBase::ObjectMain;
+		ObjectMap[object].pfnGetObjectDescription = QAxServerBase::GetObjectDescription;
+		ObjectMap[object].pfnGetCategoryMap = QAxServerBase::GetCategoryMap;
+		ObjectMap[object].pfnObjectMain = QAxServerBase::ObjectMain;
 		++object;
 	    }
 
@@ -730,6 +837,7 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 		++pEntry;
 	    }
 
+	    is_server = TRUE;
 	    nRet = main( argc, argv.data() );
 
 	    pEntry = _Module.m_pObjMap;
@@ -741,8 +849,8 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 	    Sleep(dwPause); //wait for any threads to finish
 
 	    _Module.Term();
-	    if ( QActiveQtBase::typeInfoHolderList ) {
-		QPtrListIterator<CComTypeInfoHolder> it( *QActiveQtBase::typeInfoHolderList );
+	    if ( QAxServerBase::typeInfoHolderList ) {
+		QPtrListIterator<CComTypeInfoHolder> it( *QAxServerBase::typeInfoHolderList );
 		while ( it.current() ) {
 		    CComTypeInfoHolder *pth = it.current();
 		    delete (GUID*)pth->m_pguid;
@@ -752,8 +860,8 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 		    ++it;
 		}
 	    }
-	    delete QActiveQtBase::typeInfoHolderList;
-	    QActiveQtBase::typeInfoHolderList = 0;
+	    delete QAxServerBase::typeInfoHolderList;
+	    QAxServerBase::typeInfoHolderList = 0;
 
 	    CoUninitialize();
 
@@ -764,6 +872,7 @@ extern "C" int WINAPI WinMain(HINSTANCE hInstance,
 	    }
 	    delete[] ObjectMap;
 	}
+	delete[] cmdp;
     }
 
     return nRet;

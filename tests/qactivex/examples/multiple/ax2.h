@@ -1,29 +1,41 @@
 #include <qwidget.h>
-#include <qactiveqt.h>
 #include <qpainter.h>
 
-class QAxWidget2 : public QWidget, public QActiveQt
+#include <qaxfactory.h>
+
+class QAxWidget2 : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY( int lineWidth READ lineWidth WRITE setLineWidth )
 public:
     QAxWidget2( QWidget *parent = 0, const char *name = 0, WFlags f = 0 )
-	: QWidget( parent, name, f )
+	: QWidget( parent, name, f ), line_width( 1 )
     {
+    }
+
+    int lineWidth() const
+    {
+	return line_width;
+    }
+    void setLineWidth( int lw )
+    {
+	line_width = lw;
+	repaint();
     }
 
 protected:
     void paintEvent( QPaintEvent *e )
     {
 	QPainter paint( this );
+	QPen pen = paint.pen();
+	pen.setWidth( line_width );
+	paint.setPen( pen );
+
 	QRect r = rect();
 	r.addCoords( 10, 10, -10, -10 );
 	paint.drawEllipse( r );
     }
-};
 
-QT_ACTIVEX( QAxWidget2, 
-	  "{58139D56-6BE9-4b17-937D-1B1EDEDD5B71}",
-	  "{B66280AB-08CC-4dcc-924F-58E6D7975B7D}",
-	  "{D72BACBA-03C4-4480-B4BB-DE4FE3AA14A0}",
-	  "{98DE28B6-6CD3-4e08-B9FA-3D1DB43F1D2F}",
-	  "{05828915-AD1C-47ab-AB96-D6AD1E25F0E2}" )
+private:
+    int line_width;
+};

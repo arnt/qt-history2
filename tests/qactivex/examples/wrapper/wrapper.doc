@@ -1,21 +1,19 @@
 /*! \page examples-wrapper.html
 
-  \title Standard Qt widgets as ActiveX controls
+  \title Standard Qt widgets as ActiveX controls (in-process)
 
 
   The ActiveX controls in this example are the standard button
   classes QPushButton, QCheckBox and QRadioButton as provided by 
-  Qt. The IDL code for the interface specification has been 
-  implemented manually.
+  Qt.
 
-  It demonstrates how to manually provide interface information
-  for existing QWidget classes, and the use of QActiveQtFactory
-  together with the Q_EXPORT_ACTIVEX macro.
+  It demonstrates how to export existing QWidget classes as ActiveX
+  controls, and the use of QAxFactory together with the QAXFACTORY_EXPORT
+  macro.
 
-  To build the example you must first build the \link module-qaxserver.html
-  QAxServer \endlink library. Then run your make tool in 
-  \c examples/wrapper and register the resulting \c wrapperax.exe by
-  running \c wrapperax \c -regserver.
+  To build the example you must first build the \link qaxserver.html
+  QAxServer \endlink library. Then run qmake and your make tool in 
+  \c examples/wrapper.
 
   The \link demo-wrapper.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.

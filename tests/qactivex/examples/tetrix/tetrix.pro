@@ -1,5 +1,6 @@
 TEMPLATE    = app
-CONFIG	    += qt warn_on activeqt
+CONFIG	    += qt warn_off activeqt
+TARGET	    = tetrixax
 HEADERS	    = gtetrix.h \
 	      qdragapp.h \
 	      qtetrix.h \
@@ -11,6 +12,6 @@ SOURCES	    = gtetrix.cpp \
 	      qtetrixb.cpp \
 	      tetrix.cpp \
 	      tpiece.cpp
-TARGET	    = tetrixax
 
+RC_FILE	    = ../../control/qaxserver.rc
 INCLUDEPATH +=../../control

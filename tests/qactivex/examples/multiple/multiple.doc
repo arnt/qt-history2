@@ -1,18 +1,18 @@
 /*! \page examples-multiple.html
 
-  \title Two simple Qt widgets
+  \title Two simple Qt widgets (in-process)
 
 
   The ActiveX controls in this example are simple QWidget
   subclasses reimplementing the paintEvent() method.
 
-  It demonstrates the use of QActiveQtFactory to provide multiple
-  ActiveX controls in a single executable ActiveX server.
+  It demonstrates the implementation of a QAxFactory to provide multiple
+  ActiveX controls in a single executable ActiveX server, and the use of
+  the QAXFACTORY_EXPORT macro.
 
-  To build the example you must first build the \link module-qaxserver.html
-  QAxServer \endlink module. Then run your make tool in 
-  \c examples/multiple and register the resulting \c multipleax.exe by
-  running \c multipleax \c -regserver.
+  To build the example you must first build the \link qaxserver.html
+  QAxServer \endlink library. Then run qmake and your make tool in 
+  \c examples/multiple.
 
   The \link demo-multiple.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.

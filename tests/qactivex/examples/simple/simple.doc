@@ -1,6 +1,6 @@
 /*! \page examples-simple.html
 
-  \title A simple ActiveQt control
+  \title A simple ActiveQt control (executable)
 
 
   The ActiveX control in this example is a layouted QWidget
@@ -9,13 +9,13 @@
   values of the slider and the line edit, and to get notified
   of any property changes.
 
-  It demonstrates the use of QActiveQt::requestPropertyChange()
-  and QActiveQt::propertyChanged().
+  It demonstrates the use of QAxBindable::requestPropertyChange()
+  and QAxBindable::propertyChanged(), and the use of the default
+  QAxFactory through the QAXFACTORY_DEFAULT macro.
 
-  To build the example you must first build the \link module-qaxserver.html
-  QAxServer \endlink library. Then run your make tool in 
-  \c examples/simple and register the resulting \c simpleax.exe by
-  running \c simpleax \c -regserver.
+  To build the example you must first build the \link qaxserver.html
+  QAxServer \endlink library. Then run qmake and your make tool in 
+  \c examples/simple.
 
   The \link demo-simple.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.

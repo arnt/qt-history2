@@ -14,12 +14,12 @@
 #include <qslider.h>
 #include <qlcdnumber.h>
 #include <qlineedit.h>
-#include <quuid.h>
 #include <qmessagebox.h>
-#define QT_ACTIVEX_DEFAULT
-#include <qactiveqt.h>
 
-class QSimpleAX : public QWidget, public QActiveQt
+#include <qaxbindable.h>
+#include <qaxfactory.h>
+
+class QSimpleAX : public QWidget, public QAxBindable
 {
     Q_OBJECT
     Q_PROPERTY( QString text READ text WRITE setText )
@@ -96,7 +96,7 @@ private:
 
 #include "main.moc"
 
-QT_ACTIVEX(QSimpleAX,
+QAXFACTORY_DEFAULT(QSimpleAX,
 	   "{DF16845C-92CD-4AAB-A982-EB9840E74669}",
 	   "{616F620B-91C5-4410-A74E-6B81C76FFFE0}",
 	   "{E1816BBA-BF5D-4A31-9855-D6BA432055FF}",
@@ -108,7 +108,7 @@ int main( int argc, char **argv )
     QApplication app( argc, argv );
     QWidget *w = 0;
 
-    if ( !QActiveQt::isServer() ) {
+    if ( !QAxFactory::isServer() ) {
 	w = new QSimpleAX();
 	app.setMainWidget( w );
 	w->show();

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Implementation of QActiveQt classes
+** Implementation of the QAxServerBase classes
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -25,484 +25,16 @@
 **
 **********************************************************************/
 
-#define NOQT_ACTIVEX
-#include "qactiveqtbase.h"
-#include "qactiveqt.h"
-#undef NOQT_ACTIVEX
+#include "qaxserverbase.h"
+#include "qaxbindable.h"
 
 #include <qapplication.h>
+
 #include "../shared/types.h"
 
-QPtrList<CComTypeInfoHolder> *QActiveQtBase::typeInfoHolderList = 0;
 
-/*!
-    \class QActiveQtFactoryInterface qactiveqt.h
-    \brief The QActiveQtFactoryInterface class is an interface for the creation of ActiveX components.
-    \internal
-    \module QAxServer
-    \extension ActiveQt
-
-    Implement this interface once in your ActiveX server to provide information about the components
-    this server can create. The interface inherits the QFeatureListInterface and works key-based. A
-    key in this interface is the class name of the ActiveX object.
-
-    To instantiate and export your implementation of the factory interface, use the Q_EXPORT_COMPONENT
-    and Q_CREATE_INSTANCE macros:
-
-    \code
-    class MyActiveQtFactory : public QActiveQtFactoryInterface
-    {
-	...
-    };
-
-    Q_EXPORT_COMPONENT()
-    {
-	Q_CREATE_INSTANCE( MyActiveQtFactory )
-    }
-    \endcode
-
-    The QActiveQtFactory class provide a convenient implementation of this interface.
-*/
-
-/*!
-    \class QActiveQtFactory qactiveqt.h
-    \brief The QActiveQtFactory class is a factory for the creation of ActiveX components.
-    \module QAxServer
-    \extension ActiveQt
-
-    Implement this factory once in your ActiveX server to provide information about the components
-    this server can create, and use the Q_EXPORT_ACTIVEX macro to instantiate and export it:
-
-    \code
-    class MyActiveQtFactory : public QActiveQtFactory
-    {
-	...
-    };
-
-    Q_EXPORT_ACTIVEX( MyActiveQtFactory,		      // factory class
-		    "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
-		    "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
-		    )
-    \endcode
-
-    If your ActiveX server supports only a single ActiveX control, you can use a default factory implementation instead
-    of implementing the factory on your own. To do that, #define QT_ACTIVEX_DEFAULT in the implementation file for the 
-    control before #include'ing the header file declaring the class. The ActiveX control class has to inherit QActiveQt:
-
-    In the header file:
-    \code
-    #include <qactiveqt.h>
-    #include <qwidget.h>
-
-    class TheActiveX : public QWidget, public QActiveQt
-    {
-        Q_OBJECT
-    public:
-	TheActiveX( QWidget *parent, const char *name );
-	...
-    };
-
-    QT_ACTIVEX( TheActiveX, <clsid>, <iid>, <diid>, <libid>, <appid> )
-    \endcode
-
-    In the implementation file:
-    \code
-    #define QT_ACTIVEX_DEFAULT
-    #include "theactivex.h"
-
-    TheActiveX::TheActiveX( QWidget *parent, const char *name )
-    : QWidget( parent, name )
-    {
-    ...
-    }
-    \endcode
-
-    If you implement your own factory, #define QT_ACTIVEX_IMPL before including the declaration files of the ActiveX
-    controls your factory support:
-
-    \code
-    #define QT_ACTIVEX_IMPL
-    #include "activex1.h"
-    #include "activex2.h"
-
-    // Factory implementation
-    \endcode
-
-    You can then use the values passed to the QT_ACTIVEX macro in the factory implementation:
-
-    \code
-    QStringList ActiveQtFactory::featureList() const
-    {
-	QStringList list;
-	list << "ActiveX1";
-	list << "ActiveX2";
-	...
-	return list;
-    }
-
-    QWidget *ActiveQtFactory::create( const QString &key, QWidget *parent, const char *name )
-    {
-	if ( key == "ActiveX1" )
-	    return new ActiveX1( parent, name );
-        if ( key == "ActiveX2" )
-	    return new ActiveX2( parent, name );
-	...
-	return 0;
-    }
-    
-    QMetaObject *ActiveQtFactory::metaObject( const QString &key ) const
-    {
-        if ( key == "ActiveX1" )
-	    return ActiveX1::staticMetaObject();
-	...
-	return 0;
-    }
-
-    QUuid ActiveQtFactory::classID( const QString &key ) const
-    {
-        if ( key == "ActiveX1" )
-	    return CLSID_ActiveX1;
-	...
-	return QUuid();
-    }
-
-    QUuid ActiveQtFactory::interfaceID( const QString &key ) const
-    {
-	if ( key == "ActiveX1" )
-	    return IID_IActiveX1;
-	...
-	return QUuid();
-    }
-
-    QUuid ActiveQtFactory::eventsID( const QString &key ) const
-    {
-	if ( key == "ActiveX1" )
-	    return IID_IActiveX1Events;
-	...
-	return QUuid();
-    }
-    \endcode
-
-    The values of all IID_<class>Lib and IID_<class>App are supposed to be equal, so you can use
-    any of them in the Q_EXPORT_ACTIVEX macro.
-*/
-
-/*!
-    Constructs a QActiveQtFactory object that returns \a libid and \a appid
-    in the implementation of the respective interface functions.
-*/
-
-QActiveQtFactory::QActiveQtFactory( const QUuid &libid, const QUuid &appid )
-    : typelib( libid ), app( appid )
-{
-}
-
-/*!
-    \internal
-*/
-QRESULT QActiveQtFactory::queryInterface( const QUuid &iid, QUnknownInterface **iface )
-{
-    *iface = 0;
-    if ( iid == IID_QUnknown )
-	*iface = this;
-    else if ( iid == IID_QFeatureList )
-	*iface = this;
-    else if ( iid == IID_QActiveQtFactory )
-	*iface = this;
-    else
-	return QE_NOINTERFACE;
-    addRef();
-    return QS_OK;
-}
-
-/*!
-    \fn QUuid QActiveQtFactory::typeLibID() const
-
-    Reimplement this function to return the type library identifier for this ActiveX server.
-*/
-QUuid QActiveQtFactory::typeLibID() const
-{
-    return typelib;
-}
-
-/*!
-    \fn QUuid QActiveQtFactory::appID() const
-
-    Reimplement this function to return the application identifier for this ActiveX server.
-*/
-QUuid QActiveQtFactory::appID() const
-{
-    return app;
-}
-
-/*!
-    \fn QWidget *QActiveQtFactory::create( const QString &key, QWidget *parent = 0, const char *name = 0 )
-
-    Reimplement this function to return a new widget for \a key. Propagate \a parent and \a name to the
-    QWidget constructor. Return 0 if this factory doesn't support the value of \a key.
-*/
-
-/*!
-    \fn QMetaObject *QActiveQtFactory::metaObject( const QString &key ) const
-
-    Reimplement this function to return the QMetaObject for \a key. Use the QObject::staticMetaObject() for that.
-    The class implementing the ActiveX control has to use the Q_OBJECT macro to generate meta object information.
-    Return 0 if this factory doesn't support the value of \a key.
-*/
-
-/*!
-    \fn QUuid QActiveQtFactory::classID( const QString &key ) const
-
-    Reimplement this function to return the class identifier for \a key, or an empty QUuid if
-    this factory doesn't support the value of \a key.
-*/
-
-/*!
-    \fn QUuid QActiveQtFactory::interfaceID( const QString &key ) const
-
-    Reimplement this function to return the interface identifier for \a key, or an empty QUuid if
-    this factory doesn't support the value of \a key.
-*/
-
-/*!
-    \fn QUuid QActiveQtFactory::eventsID( const QString &key ) const
-
-    Reimplement this function to return the identifier of the event interface for \a key, or an empty QUuid if
-    this factory doesn't support the value of \a key.
-*/
-
-
-
-
-
-/*!
-    \class QActiveQt qactiveqt.h
-    \brief The QActiveQt class provides an interface between the Qt widget and the ActiveX control.
-    \module QAxServer
-    \extension ActiveQt
-
-    When implementing ActiveX controls with Qt, inherit your control class from both QWidget (directly or
-    indirectly) and this class. The meta object compiler requires you to inherit first from QWidget.
-
-    \code
-    class MyActiveX : public QWidget, public QActiveQt
-    {
-	Q_OBJECT
-    public:
-	MyActiveX( QWidget *parent = 0, const char *name = 0 );
-	...
-    };
-    \endcode
-
-    If your widget class defines Qt properties, signals or slots the framework will expose them to ActiveX 
-    clients as COM properties, events and methods. Properties, and signal/slot parameters of unsupported 
-    data types will be ignored.
-
-    Supported Qt data types are
-    \list
-    \i QString
-    \i QCString
-    \i QColor
-    \i int, unsigned int
-    \i bool
-    \i double
-    \i QDate, QTime, QDateTime
-    \endlist    
-
-    Use the QT_ACTIVEX macro to export the class as an ActiveX control. See the QAxServer module 
-    documentation for more details about how to make QWidget classes available to ActiveX clients.
-
-    \code
-    QT_ACTIVEX( MyActiveX,				    // class
-		"{01234567-89AB-CDEF-0123-456789ABCDEF}",   // class ID
-		"{01234567-89AB-CDEF-0123-456789ABCDEF}",   // interface ID
-		"{01234567-89AB-CDEF-0123-456789ABCDEF}",   // event interface ID
-		"{01234567-89AB-CDEF-0123-456789ABCDEF}",   // type library ID
-		"{01234567-89AB-CDEF-0123-456789ABCDEF}"    // application ID
-	      )
-    \endcode
-
-    The identifiers (provided by tools like guidgen) are used by COM to locate information
-    about the ActiveX control in the Windows registry.
-*/
-
-/*!
-    Constructs an empty QActiveQt object.
-*/
-QActiveQt::QActiveQt()
-    :activex(0)
-{
-}
-
-/*!
-    Call this function to request permission the change the property \a property
-    from the client site hosting this ActiveX control. This function returns TRUE
-    when the client site allows the change, otherwise it returns FALSE.
-
-    This function is usually called first in the write function for \a property, and
-    the writing is cancelled when the function returns FALSE.
-
-    \code
-    void MyActiveQt::setText( const QString &text )
-    {
-	if ( !requestPropertyChange( "text" ) )
-	    return;
-	    
-	// update property
-
-	propertyChanged( "text" );
-    }
-    \endcode
-
-    \sa propertyChanged()
-*/
-bool QActiveQt::requestPropertyChange( const char *property )
-{
-    if ( !activex )
-	return TRUE;
-    if ( !activex->proplist )
-	activex->readMetaData();
-
-    DISPID dispId = -1;
-    QIntDictIterator <QMetaProperty> it( *activex->proplist );
-    while ( it.current() && dispId < 0 ) {
-	QMetaProperty *mp = it.current();
-	if ( !qstrcmp( property, mp->name() ) )
-	    dispId = it.currentKey();
-	++it;
-    }
-
-    return activex->emitRequestPropertyChange( dispId );
-}
-
-/*!
-    Call this function to notify the client site hosting this ActiveX control that
-    the property \a property has been changed.
-
-    This function is usually called last in the write function for \a property.
-
-    \sa requestPropertyChange()
-*/
-void QActiveQt::propertyChanged( const char *property )
-{
-    if ( !activex )
-	return;
-
-    if ( !activex->proplist )
-	activex->readMetaData();
-
-    DISPID dispId = -1;
-    QIntDictIterator <QMetaProperty> it( *activex->proplist );
-    while ( it.current() && dispId < 0 ) {
-	QMetaProperty *mp = it.current();
-	if ( !qstrcmp( property, mp->name() ) )
-	    dispId = it.currentKey();
-	++it;
-    }
-
-    activex->emitPropertyChanged( dispId );
-}
-
-/*!
-    Reimplement this function if you want to support additional interfaces
-    in your ActiveX control. Set \a iface to point to the interface implementation
-    for interfaces of type \a iid.
-
-    Make sure you add a reference to interfaces using the API provided by the
-    COM interface model.
-
-    \code
-    QRESULT MyActiveX::queryInterface( const QUuid &iid, void **iface )
-    {
-        *iface = 0;
-	if ( iid == IID_IStream )
-	    *iface = (IStream*)this;
-	else
-	    return E_NOINTERFACE;
-
-        AddRef();
-	return S_OK;
-    }
-    \endcode
-   
-    Return the default COM results for QueryInterface (S_OK, E_NOINTERFACE).
-*/
-QRESULT QActiveQt::queryInterface( const QUuid &iid, void **iface )
-{
-    *iface = 0;
-    return E_NOINTERFACE;
-}
-
-/*!
-    Adds a reference to the ActiveX control.
-    When implementing additional interfaces in your ActiveX class, 
-    implement AddRef() to call this function.
-
-    \code
-    long MyActiveX::AddRef()
-    {
-        return addRef();
-    }
-    \endcode
-
-    \sa release(), queryInterface()
-*/
-long QActiveQt::addRef()
-{
-    return activex->AddRef();
-}
-
-/*!
-    Removes a reference from the ActiveX control.
-    When implementing additional interfaces in your ActiveX class, 
-    implement Release() to call this function.
-
-    \code
-    long MyActiveX::Release()
-    {
-        return release();
-    }
-    \endcode
-
-    \sa addRef(), queryInterface()
-*/
-long QActiveQt::release()
-{
-    return activex->Release();
-}
-
-/*!
-    Returns TRUE if the application has been started as an ActiveX server,
-    otherwise returns FALSE.
-
-    The QApplication object has to be instantiated before calling this function.
-    
-    \code
-    int main( int argc, char**argv ) 
-    {
-	QApplication app( argc, argv );
-
-	if ( !QActiveQt::isServer() ) {
-	    // initialize for stand-alone execution
-	}
-
-	return app.exec() // standard event processing
-    }
-
-    \endcode
-*/
-bool QActiveQt::isServer()
-{
-    Q_ASSERT(qApp);
-    if ( !qApp )
-	return FALSE;
-
-    for ( int arg = 0; arg < qApp->argc(); ++arg ) {
-	if ( !qstrcmp(qApp->argv()[arg], "-activex") )
-	    return TRUE;
-    }
-    return FALSE;
-}
+QPtrList<CComTypeInfoHolder> *QAxServerBase::typeInfoHolderList = 0;
+GUID IID_IAxServerBase = { 0xbd2ec165, 0xdfc9, 0x4319, { 0x8b, 0x9b, 0x60, 0xa5, 0x74, 0x78, 0xe9, 0xe3} };
 
 
 /*
@@ -511,7 +43,7 @@ bool QActiveQt::isServer()
 class QAxSignalVec : public IEnumConnectionPoints
 {
 public:
-    QAxSignalVec( const QActiveQtBase::ConnectionPoints &points ) 
+    QAxSignalVec( const QAxServerBase::ConnectionPoints &points ) 
 	: cpoints( points ), ref(0) 
     {
     }
@@ -519,13 +51,13 @@ public:
     {
 	ref = 0;
 	cpoints = old.cpoints;
-	for ( QActiveQtBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i )
+	for ( QAxServerBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i )
 	    (*i)->AddRef();
 	it = old.it;
     }
     ~QAxSignalVec()
     {
-	for ( QActiveQtBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i )
+	for ( QAxServerBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i )
 	    (*i)->Release();
     }
     unsigned long __stdcall AddRef() 
@@ -591,8 +123,8 @@ public:
 	return S_OK;
     }
 
-    QActiveQtBase::ConnectionPoints cpoints;
-    QActiveQtBase::ConnectionPointsIterator it;
+    QAxServerBase::ConnectionPoints cpoints;
+    QAxServerBase::ConnectionPointsIterator it;
 
 private:
     unsigned long ref;
@@ -608,7 +140,7 @@ public:
     typedef QValueList<CONNECTDATA> Connections;
     typedef QValueList<CONNECTDATA>::Iterator Iterator;
 
-    QAxConnection( QActiveQtBase *parent, const QUuid &uuid )
+    QAxConnection( QAxServerBase *parent, const QUuid &uuid )
 	: that(parent), iid( uuid ), ref( 2 )
     {
     }
@@ -663,14 +195,13 @@ public:
 	pUnk->QueryInterface( iid, (void**)&checkImpl );
 	if ( !checkImpl )
 	    return CONNECT_E_CANNOTCONNECT;
-	static DWORD cookie = 0;
 	CONNECTDATA cd;
-	cd.dwCookie = cookie++;
+	cd.dwCookie = connections.count()+1;
 	cd.pUnk = pUnk;
 	cd.pUnk->AddRef();
 	connections.append(cd);
 
-	*pdwCookie = 0;
+	*pdwCookie = cd.dwCookie;
 	return S_OK;
     }
     STDMETHOD(Unadvise)(DWORD dwCookie)
@@ -730,7 +261,7 @@ public:
     }
 
 private:
-    QActiveQtBase *that;
+    QAxServerBase *that;
     QUuid iid;
     Connections connections;
     Iterator it;
@@ -739,10 +270,23 @@ private:
 };
 
 
-QActiveQtBase::QActiveQtBase( const QString &classname )
-: initNewCalled(FALSE), dirtyflag( FALSE ), activeqt( 0 ), ref( 0 ),
-  class_name( classname ), slotlist(0), signallist(0),proplist(0), proplist2(0)
+/*!
+    \class QAxServerBase qaxserverbase.h
+    \internal
+*/
+
+/*!
+    Constructs a QAxServerBase object wrapping the QWidget \a classname into an ActiveX control.
+
+    The constructor is called by the QClassFactory object provided by the COM server for the
+    respective CLSID.
+*/
+QAxServerBase::QAxServerBase( const QString &classname )
+: activeqt( 0 ), initNewCalled(FALSE), dirtyflag( FALSE ), hasStockEvents( FALSE ),
+  ref( 0 ), class_name( classname ), slotlist(0), signallist(0),proplist(0), proplist2(0),
+  propPageSite( 0 ), propPage( 0 )
 {
+    m_bWindowOnly = TRUE;
     _Module.Lock();
     if ( !typeInfoHolderList ) {
 	typeInfoHolderList = new QPtrList<CComTypeInfoHolder>;
@@ -777,9 +321,12 @@ QActiveQtBase::QActiveQtBase( const QString &classname )
     internalCreate();
 }
 
-QActiveQtBase::~QActiveQtBase()
+/*!
+    Destroys the QAxServerBase object, releasing all allocated resources and interfaces.
+*/
+QAxServerBase::~QAxServerBase()
 {
-    for ( QActiveQtBase::ConnectionPointsIterator it = points.begin(); it != points.end(); ++it )
+    for ( QAxServerBase::ConnectionPointsIterator it = points.begin(); it != points.end(); ++it )
 	(*it)->Release();
     if ( activeqt ) {
 	activeqt->disconnect( this );
@@ -793,12 +340,40 @@ QActiveQtBase::~QActiveQtBase()
     delete proplist2;
 }
 
+/*!
+    QueryInterface implementation.
+
+    Calls QAxBindable::queryInterface and returns the result if an interface
+    has been provided. Otherwise, calls the ATL implementation of QueryInterface
+    using the COM_MAP declared in the class declaration.
+*/
+HRESULT WINAPI QAxServerBase::QueryInterface( REFIID iid, void **iface )
+{
+    *iface = 0;
+    if ( activeqt ) {
+	QAxBindable *aqt = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
+	if ( aqt ) {
+	    aqt->queryInterface( iid, iface );
+	}
+    }
+    
+    if ( *iface )
+	return S_OK;
+    return _InternalQueryInterface( iid, iface );
+}
+
 class HackWidget : public QWidget
 {
-    friend class QActiveQtBase;
+    friend class QAxServerBase;
 };
 
-bool QActiveQtBase::internalCreate()
+/*!
+    Creates the QWidget for the classname passed to the c'tor.
+
+    All signals of the widget class are connected to the internal event mapper.
+    If the widget implements QAxBindable, stock events are also connected.
+*/
+bool QAxServerBase::internalCreate()
 {
     const QMetaObject *mo = _Module.factory()->metaObject( class_name );
 
@@ -806,32 +381,55 @@ bool QActiveQtBase::internalCreate()
     Q_ASSERT(activeqt);
     if ( !activeqt )
 	return FALSE;
-    QActiveQt *aqt = (QActiveQt*)activeqt->qt_cast( "QActiveQt" );
-    if ( aqt )
-	aqt->activex = this;
-    ((HackWidget*)activeqt)->clearWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu );
-    ((HackWidget*)activeqt)->topData()->ftop = 0;
-    ((HackWidget*)activeqt)->topData()->fright = 0;
-    ((HackWidget*)activeqt)->topData()->fleft = 0;
-    ((HackWidget*)activeqt)->topData()->fbottom = 0;
-    ::SetWindowLong( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+    QAxBindable *axb = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
+    if ( axb ) {
+	axb->activex = this;
+	hasStockEvents = axb->hasStockEvents();
+    }
+    if ( !axb || !axb->stayTopLevel() ) {
+	((HackWidget*)activeqt)->clearWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu );
+	((HackWidget*)activeqt)->topData()->ftop = 0;
+	((HackWidget*)activeqt)->topData()->fright = 0;
+	((HackWidget*)activeqt)->topData()->fleft = 0;
+	((HackWidget*)activeqt)->topData()->fbottom = 0;
+	::SetWindowLong( activeqt->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+    }
 
     // connect the generic slot to all signals of activeqt
     for ( int isignal = mo->numSignals( TRUE )-1; isignal >= 0; --isignal )
 	connectInternal( activeqt, isignal, this, 2, isignal );
-    
+    // install an event filter for stock events
     activeqt->installEventFilter( this );
+
     return TRUE;
 }
 
-LRESULT QActiveQtBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+/*!
+    Makes sure that the Qt widget for the ActiveX has been initialized.
+*/
+LRESULT QAxServerBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 {
     if ( !activeqt )
 	internalCreate();
     return 0;
 }
 
-LRESULT QActiveQtBase::ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+/*!
+    Destroys the Qt widget.
+*/
+LRESULT QAxServerBase::OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
+{
+    if ( activeqt ) {
+	delete activeqt;
+	activeqt = 0;
+    }
+    return 0;
+}
+
+/*!
+    Forwards all messages sent to the ActiveX window to the Qt widget.
+*/
+LRESULT QAxServerBase::ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
 {
     if ( activeqt ) {
 	switch( uMsg ) {
@@ -844,14 +442,19 @@ LRESULT QActiveQtBase::ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, 
 	case WM_SETFOCUS:
 	    ::SendMessage( activeqt->winId(), WM_ACTIVATE, MAKEWPARAM( WA_ACTIVE, 0 ), 0 );
 	    break;
-	case WM_SHOWWINDOW:
-	    ::SetParent( activeqt->winId(), m_hWnd );
-	    activeqt->raise();
-	    activeqt->move( 0, 0 );
-	    if( wParam )
-		activeqt->show();
-	    else
-		activeqt->hide();
+	case WM_SHOWWINDOW: 
+	    {
+		QAxBindable *axb = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
+		if ( !axb || !axb->stayTopLevel() ) {
+		    ::SetParent( activeqt->winId(), m_hWnd );
+		    activeqt->raise();
+		    activeqt->move( 0, 0 );
+		}
+		if( wParam )
+		    activeqt->show();
+		else
+		    activeqt->hide();
+	    }
 	    return 0;
 	default:
 	    break;
@@ -861,7 +464,10 @@ LRESULT QActiveQtBase::ForwardMessage( UINT uMsg, WPARAM wParam, LPARAM lParam, 
     return 0;
 }
 
-void QActiveQtBase::readMetaData()
+/*!
+    Creates mappings between DISPIDs and Qt signal/slot/property data.
+*/
+void QAxServerBase::readMetaData()
 {
     if ( !activeqt )
 	return;
@@ -958,7 +564,10 @@ void QActiveQtBase::readMetaData()
     }
 }
 
-bool QActiveQtBase::qt_emit( int isignal, QUObject* _o )
+/*!
+    Catches all signals emitted by the Qt widget and fires the respective COM event.
+*/
+bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 {
     if ( m_nFreezeEvents )
 	return TRUE;
@@ -967,16 +576,41 @@ bool QActiveQtBase::qt_emit( int isignal, QUObject* _o )
 	readMetaData();
 
     // get the signal information.
-    const QMetaData *signal = activeqt->metaObject()->signal( isignal, TRUE );
-    if ( !signal )
+    bool stockEvent = isignal < 0;
+    const QMetaData *signal = stockEvent ? 0 : activeqt->metaObject()->signal( isignal, TRUE );
+    if ( !signal && !stockEvent )
 	return FALSE;
-    const int signalcount = signal->method->count;
+    int signalcount = signal ? signal->method->count : 0;
+    if ( stockEvent ) {
+	switch( isignal ) {
+	case DISPID_KEYDOWN:
+	case DISPID_KEYUP:
+	    signalcount = 2;
+	    break;	
+	case DISPID_KEYPRESS:
+	    signalcount = 1;
+	    break;
+	case DISPID_MOUSEDOWN:
+	case DISPID_MOUSEMOVE:
+	case DISPID_MOUSEUP:
+	    signalcount = 4;
+	    break;
+	default:
+	    signalcount = 0;
+	    break;
+	}
+    }
+    if ( signalcount && !_o ) {
+	qWarning( "Internal Error: missing %d arguments in qt_emit", signalcount );
+	return FALSE;
+    }
 
     // Get the Dispatch ID of the method to be called
-    DISPID eventId = signallist->operator [](isignal);
+    DISPID eventId = stockEvent ? isignal : signallist->operator [](isignal);
     if ( eventId == -1 )
 	return FALSE;
 
+    // For all connected event sinks...
     CComPtr<IConnectionPoint> cpoint;
     FindConnectionPoint( _Module.factory()->eventsID( class_name ), &cpoint );
     if ( cpoint ) {
@@ -999,56 +633,10 @@ bool QActiveQtBase::qt_emit( int isignal, QUObject* _o )
 		int p;
 		for ( p = 0; p < signalcount; ++p ) {
 		    QUObject *obj = _o + p + 1;
-		    // map the QUObject's type to the VARIANT
-		    if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
-			arg.vt = VT_I4;
-			arg.lVal = static_QUType_int.get( obj );
-		    } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
-			arg.vt = VT_BSTR;
-			arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
-		    } else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
-			arg.vt = VT_BSTR;
-			arg.bstrVal = QStringToBSTR( static_QUType_charstar.get( obj ) );
-		    } else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
-			arg.vt = VT_BOOL;
-			arg.boolVal = static_QUType_bool.get( obj );
-		    } else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
-			arg.vt = VT_R8;
-			arg.dblVal = static_QUType_double.get( obj );
-		    } else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
-			arg.vt = VT_I4;
-			arg.lVal = static_QUType_enum.get( obj );
-		    } else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
-			arg = QVariantToVARIANT( static_QUType_QVariant.get( obj ) );
-		    } else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
-			arg.vt = VT_DISPATCH;
-			arg.pdispVal = (IDispatch*)static_QUType_ptr.get( obj );
-		    } else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
-			arg.vt = VT_UNKNOWN;
-			arg.punkVal = (IUnknown*)static_QUType_ptr.get( obj );
-		    } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) ) {
-			const QUParameter *param = signal->method->parameters + p;
-			const char *type = (const char*)param->typeExtra;
-			if ( !qstrcmp( type, "int" ) ) {
-			    arg.vt = VT_I4;
-			    arg.lVal = *(int*)static_QUType_ptr.get( obj );
-			} else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
-			    arg.vt = VT_BSTR;
-			    arg.bstrVal = QStringToBSTR( *(QString*)static_QUType_ptr.get( obj ) );
-			} else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
-			    arg.vt = VT_DATE;
-			    arg.date = QDateTimeToDATE( *(QDateTime*)static_QUType_ptr.get( obj ) );
-			} else {
-			    arg.vt = VT_UI4;
-			    arg.ulVal = (Q_ULONG)static_QUType_ptr.get( obj );
-			}
-			//###
-		    } else {
-			arg.vt = VT_EMPTY;
-		    }
+		    QUObjectToVARIANT( obj, arg, signal->method->parameters + p );
 		    dispParams.rgvarg[ signalcount - p - 1 ] = arg;
 		}
-		// call listeners
+		// call listeners (through IDispatch)
 		GUID IID_QAxEvents = _Module.factory()->eventsID( class_name );
 		while ( cc ) {
 		    if ( c->pUnk ) {
@@ -1074,7 +662,10 @@ bool QActiveQtBase::qt_emit( int isignal, QUObject* _o )
     return TRUE;
 }
 
-bool QActiveQtBase::emitRequestPropertyChange( DISPID dispId )
+/*!
+    Call IPropertyNotifySink of connected clients.
+*/
+bool QAxServerBase::emitRequestPropertyChange( DISPID dispId )
 {
     CComPtr<IConnectionPoint> cpoint;
     FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
@@ -1092,6 +683,7 @@ bool QActiveQtBase::emitRequestPropertyChange( DISPID dispId )
 			CComPtr<IPropertyNotifySink> sink;
 			c->pUnk->QueryInterface( IID_IPropertyNotifySink, (void**)&sink );
 			if ( sink && sink->OnRequestEdit( dispId ) == S_FALSE ) {
+			    // a client disallows the property to change
 			    c->pUnk->Release();
 			    return FALSE;
 			}
@@ -1105,7 +697,10 @@ bool QActiveQtBase::emitRequestPropertyChange( DISPID dispId )
     return TRUE;
 }
 
-void QActiveQtBase::emitPropertyChanged( DISPID dispId )
+/*!
+    Call IPropertyNotifySink of connected clients.
+*/
+void QAxServerBase::emitPropertyChanged( DISPID dispId )
 {
     CComPtr<IConnectionPoint> cpoint;
     FindConnectionPoint( IID_IPropertyNotifySink, &cpoint );
@@ -1133,7 +728,11 @@ void QActiveQtBase::emitPropertyChanged( DISPID dispId )
     }
 }
 
-HRESULT QActiveQtBase::Invoke( DISPID dispidMember, REFIID riid,
+//**** IDispatch
+/*!
+    Map the COM call to the Qt slot/property for \a dispidMember.
+*/
+HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		  LCID lcid, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pvarResult,
 		  EXCEPINFO* pexcepinfo, UINT* puArgErr )
 {
@@ -1163,15 +762,25 @@ HRESULT QActiveQtBase::Invoke( DISPID dispidMember, REFIID riid,
 		return DISP_E_BADPARAMCOUNT;
 
 	    // setup parameters
+	    QUObject *objects = 0;
 	    const QUParameter *params = slot->method->parameters;
-	    QUObject *objects = pcount ? new QUObject[pcount+1] : 0;
-	    for ( int p = 0; p < pcount; ++p ) // map the VARIANT to the QUObject
-		VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1 );
+	    if ( pcount ) {
+		int retoff = ( params[0].inOut & QUParameter::Out ) ? 1 : 0;
+		objects = new QUObject[pcount+1];
+		for ( int p = 0; p < pcount; ++p ) {
+		    // map the VARIANT to the QUObject, and try to get the required type
+		    objects[p+1].type = params[p+retoff].type;  // first object is return value
+		    VARIANTToQUObject( pDispParams->rgvarg[ pcount-p-1 ], objects + p + 1 );
+		}
+	    }
 
 	    // call the slot
 	    activeqt->qt_invoke( index, objects );
 
 	    // ### update reference parameters and value
+	    for ( int p = 0; p < pcount; ++p ) {
+		objects[p+1].type->clear( objects + p + 1 );
+	    }
 	    delete [] objects;
 	    res = S_OK;
 	}
@@ -1192,7 +801,7 @@ HRESULT QActiveQtBase::Invoke( DISPID dispidMember, REFIID riid,
 
 	    emitRequestPropertyChange( dispidMember );
 
-	    QVariant var = VARIANTToQVariant( *pDispParams->rgvarg );
+	    QVariant var = VARIANTToQVariant( *pDispParams->rgvarg, property->type() );
 	    if ( !var.isValid() ) {
 		if ( puArgErr )
 		    *puArgErr = 0;
@@ -1237,7 +846,11 @@ HRESULT QActiveQtBase::Invoke( DISPID dispidMember, REFIID riid,
     return E_FAIL;
 }
 
-HRESULT QActiveQtBase::EnumConnectionPoints( IEnumConnectionPoints **epoints )
+//**** IConnectionPointContainer
+/*!
+    Provide the IEnumConnectionPoints implemented in the QAxSignalVec class.
+*/
+HRESULT QAxServerBase::EnumConnectionPoints( IEnumConnectionPoints **epoints )
 {
     if ( !epoints )
 	return E_POINTER;
@@ -1246,7 +859,10 @@ HRESULT QActiveQtBase::EnumConnectionPoints( IEnumConnectionPoints **epoints )
     return S_OK;
 }
 
-HRESULT QActiveQtBase::FindConnectionPoint( REFIID iid, IConnectionPoint **cpoint )
+/*!
+    Provide the IConnectionPoint implemented in the QAxConnection for \a iid.
+*/
+HRESULT QAxServerBase::FindConnectionPoint( REFIID iid, IConnectionPoint **cpoint )
 {
     if ( !cpoint )
 	return E_POINTER;
@@ -1260,7 +876,11 @@ HRESULT QActiveQtBase::FindConnectionPoint( REFIID iid, IConnectionPoint **cpoin
     return CONNECT_E_NOCONNECTION;
 }
 
-HRESULT QActiveQtBase::InitNew()
+//**** IPersistPropertyBag
+/*!
+    Initialize the properties of the Qt widget.
+*/
+HRESULT QAxServerBase::InitNew()
 {
     if ( initNewCalled )
 	return CO_E_ALREADYINITIALIZED;
@@ -1274,7 +894,10 @@ HRESULT QActiveQtBase::InitNew()
     return S_OK;
 }
 
-HRESULT QActiveQtBase::Load( IPropertyBag *bag, IErrorLog *log )
+/*!
+    Set the properties of the Qt widget to the values provided in the \a bag.
+*/
+HRESULT QAxServerBase::Load( IPropertyBag *bag, IErrorLog * /*log*/ )
 {
     if ( initNewCalled )
 	return E_UNEXPECTED;
@@ -1290,12 +913,13 @@ HRESULT QActiveQtBase::Load( IPropertyBag *bag, IErrorLog *log )
     for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
 	if ( !proplist2->contains( prop ) )
 	    continue;
-	const char* property = mo->property( prop, TRUE )->name();
-	BSTR bstr = QStringToBSTR( property );
+	const QMetaProperty *property = mo->property( prop, TRUE );
+	const char* pname = property->name();
+	BSTR bstr = QStringToBSTR( pname );
 	VARIANT var;
 	var.vt = VT_EMPTY;
 	HRESULT res = bag->Read( bstr, &var, 0 );
-	if ( res != S_OK || !activeqt->setProperty( property, VARIANTToQVariant( var ) ) )
+	if ( res != S_OK || !activeqt->setProperty( pname, VARIANTToQVariant( var, property->type() ) ) )
 	    error = TRUE;
 	SysFreeString(bstr);
     }
@@ -1303,7 +927,10 @@ HRESULT QActiveQtBase::Load( IPropertyBag *bag, IErrorLog *log )
     return error ? E_FAIL : S_OK;
 }
 
-HRESULT QActiveQtBase::Save( IPropertyBag *bag, BOOL clearDirty, BOOL saveAll)
+/*!
+    Save the properties of the Qt widget into the \a bag.
+*/
+HRESULT QAxServerBase::Save( IPropertyBag *bag, BOOL /*clearDirty*/, BOOL /*saveAll*/ )
 {
     if ( !bag )
 	return E_POINTER;
@@ -1329,12 +956,22 @@ HRESULT QActiveQtBase::Save( IPropertyBag *bag, BOOL clearDirty, BOOL saveAll)
     return error ? E_FAIL : S_OK;
 }
 
-HRESULT QActiveQtBase::IsDirty()
+//**** IPersistStorage
+/*!
+    \reimp
+
+    See documentation of IPersistStorage::IsDirty.
+*/
+HRESULT QAxServerBase::IsDirty()
 {
     return dirtyflag ? S_OK : S_FALSE;
 }
 
-HRESULT QActiveQtBase::OnAmbientPropertyChange( DISPID dispID )
+//**** IOleControl
+/*!
+    Update the ambient properties of the Qt widget.
+*/
+HRESULT QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
 {
     if ( !m_spClientSite )
 	return S_OK;
@@ -1364,7 +1001,6 @@ HRESULT QActiveQtBase::OnAmbientPropertyChange( DISPID dispID )
 	    else
 		break;
 	    QPalette pal = activeqt->palette();
-	    // OLE_COLOR is BGR
 	    pal.setColor( dispID == DISPID_AMBIENT_BACKCOLOR ? QColorGroup::Background : QColorGroup::Foreground, 
 		OLEColorToQColor( rgb ) );		
 	    activeqt->setPalette( pal );
@@ -1429,50 +1065,381 @@ HRESULT QActiveQtBase::OnAmbientPropertyChange( DISPID dispID )
     return S_OK;
 }
 
-HRESULT QActiveQtBase::GetUserType(DWORD dwFormOfType, LPOLESTR *pszUserType)
+static inline LPOLESTR QStringToOLESTR( const QString &qstring )
+{
+    LPOLESTR olestr = (wchar_t*)CoTaskMemAlloc(qstring.length()*2+2);
+    memcpy( olestr, (ushort*)qstring.unicode(), qstring.length()*2 );
+    olestr[qstring.length()] = 0;
+    return olestr;
+}
+
+//**** IOleObject
+/*!
+    \reimp
+
+    See documentation of IOleObject::GetUserType.
+*/
+HRESULT QAxServerBase::GetUserType(DWORD dwFormOfType, LPOLESTR *pszUserType)
 {
     if ( !pszUserType )
 	return E_POINTER;
 
     switch ( dwFormOfType ) {
     case USERCLASSTYPE_FULL:
-	*pszUserType = QStringToBSTR( class_name );
+	*pszUserType = QStringToOLESTR( class_name );
 	break;
     case USERCLASSTYPE_SHORT:
 	if ( !activeqt || activeqt->caption().isEmpty() )
-	    *pszUserType = QStringToBSTR( class_name );
+	    *pszUserType = QStringToOLESTR( class_name );
 	else
-	    *pszUserType = QStringToBSTR( activeqt->caption() );
+	    *pszUserType = QStringToOLESTR( activeqt->caption() );
 	break;
     case USERCLASSTYPE_APPNAME:
-	*pszUserType = QStringToBSTR( qApp->name() );
+	*pszUserType = QStringToOLESTR( qApp->name() );
 	break;
     }
 
     return S_OK;
 }
 
-HRESULT QActiveQtBase::GetMiscStatus(DWORD dwAspect, DWORD *pdwStatus)
+/*!
+    \reimp
+
+    See documentation of IOleObject::GetMiscStatus.
+*/
+HRESULT QAxServerBase::GetMiscStatus(DWORD dwAspect, DWORD *pdwStatus)
 {
     ATLTRACE2(atlTraceControls,2,_T("IOleObjectImpl::GetMiscStatus\n"));
     return OleRegGetMiscStatus( _Module.factory()->classID( class_name ), dwAspect, pdwStatus);
 }
 
-HRESULT QActiveQtBase::SetExtent( DWORD dwDrawAspect, SIZEL *psizel )
+//**** ISpecifyPropertyPages
+/*!
+    Returns information about a single property page. 
+    The page has the same ID as the object (CLSID).
+*/
+HRESULT QAxServerBase::GetPages( CAUUID *pPages )
 {
-    SIZEL sizel = *psizel;
-    if ( activeqt ) {
-	SIZE sz;
-	AtlHiMetricToPixel( &sizel, &sz );
-	QSize min = activeqt->minimumSizeHint();
-	sz.cx = QMAX( min.width(), sz.cx );
-	sz.cy = QMAX( min.height(), sz.cy );
-	AtlPixelToHiMetric( &sz, &sizel );
-    }
-    return IOleObjectImpl<QActiveQtBase>::SetExtent( dwDrawAspect, &sizel );
+    if ( !pPages )
+	return E_POINTER;
+    
+    int pages = 1;
+    pPages->cElems = pages;
+    pPages->pElems = (GUID*)CoTaskMemAlloc( sizeof(GUID) * pages );
+    *(pPages->pElems) = _Module.factory()->classID( class_name );
+    
+    return S_OK;
 }
 
-bool QActiveQtBase::eventFilter( QObject *o, QEvent *e )
+//**** IPropertyPage
+#include <qlabel.h>
+#include <qlayout.h>
+#include <qheader.h>
+#include <qlistview.h>
+#include <qlineedit.h>
+#include <qpushbutton.h>
+
+/*
+    Helper class that provides a QWidget that docks into the COM property site.
+*/
+class QAxPropertyPage : public QWidget
+{
+public:
+    QAxPropertyPage( HWND parent, QAxServerBase *base )
+	: QWidget( 0, "prop page" ), hWndParent( parent ), that( base )
+    {
+	topData()->ftop = 0;
+	topData()->fright = 0;
+	topData()->fleft = 0;
+	topData()->fbottom = 0;
+	::SetWindowLong( winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+
+	QVBoxLayout *vbox = new QVBoxLayout( this );
+	QHBoxLayout *hbox = new QHBoxLayout( 0 );
+    
+	listProperties = new QListView( this );
+	listProperties->addColumn( tr("Property") );
+	listProperties->addColumn( tr("Value") );
+	listProperties->header()->setClickEnabled( FALSE );
+    
+	QLabel *valueLabel = new QLabel( "Property &Value: ", this );
+	editValue = new QLineEdit( this );
+	QPushButton *setButton = new QPushButton( "&Set Value", this );
+    
+	valueLabel->setBuddy( editValue );
+    
+	hbox->addWidget( valueLabel );
+	hbox->addWidget( editValue );
+	hbox->addWidget( setButton );
+    
+	vbox->addWidget( listProperties );
+	vbox->addLayout( hbox );
+    }
+
+    void updateProperties()
+    {
+	listProperties->clear();
+
+	QPtrListIterator<IAxServerBase> it( that->propObjects );
+	while ( it.current() ) {
+	    IAxServerBase *ibase = it.current();
+	    ++it;
+
+	    QWidget *activex = ibase->widget();
+	    // ### support exposeToSuperClass?
+	    // QString lastSuper = _Module.factory()->exposeToSuperClass( activex->className() );
+	    
+	    const QMetaObject *mo = activex->metaObject();
+	    const int numprops = mo->numProperties( TRUE );
+	    for ( int i = mo->propertyOffset(); i < numprops; ++i ) {
+		const QMetaProperty *property = mo->property( i, TRUE );
+		QListViewItem *item = listProperties->findItem( property->name(), 0 );
+		if ( !item ) {
+		    item = new QListViewItem( listProperties, property->name(), "qax_unset" );
+		}
+		QVariant var = activex->property( property->name() );
+		QString valueText;
+
+		switch ( var.type() ) {
+		case QVariant::Color:
+		    {
+			QColor col = var.toColor();
+			valueText = col.name();
+		    }
+		    break;
+		case QVariant::Font:
+		    {
+			QFont fnt = var.toFont();
+			valueText = fnt.toString();
+		    }
+		    break;
+
+		default:
+		    valueText = var.toString();
+		    break;
+		}
+		if ( item->text( 1 ) == "qax_unset" ) {
+		    item->setText( 1, valueText );
+		} else if ( item->text( 1 ) != valueText ) {
+		    item->setText( 1, QString::null );
+		}
+	    }
+	}
+	listProperties->setCurrentItem( listProperties->firstChild() );
+    }
+    
+    HWND hWndParent;
+
+protected:
+    void showEvent( QShowEvent *e )
+    {
+	updateProperties();
+
+	QWidget::showEvent( e );
+    }
+
+private:
+    QAxServerBase *that;
+    QListView *listProperties;
+    QLineEdit *editValue;
+
+};
+
+/*!
+    Sets the property page site.
+
+    The property page calls OnStatusChange on that site.
+*/
+HRESULT QAxServerBase::SetPageSite( IPropertyPageSite *pPageSite )
+{
+    if ( !pPageSite && !propPageSite )
+	return E_UNEXPECTED;
+
+    if ( propPageSite )
+	propPageSite->Release();
+    
+    propPageSite = pPageSite;
+    if ( propPageSite )
+	propPageSite->AddRef();
+
+    return S_OK;
+}
+
+/*!
+    Creates the property pages.
+*/
+HRESULT QAxServerBase::Activate( HWND hWndParent, LPCRECT pRect, BOOL bModal )
+{
+    if ( !pRect )
+	return E_POINTER;
+
+    propPage = new QAxPropertyPage( hWndParent, this );
+    propPage->setGeometry( pRect->left, pRect->top, pRect->right-pRect->left, pRect->bottom-pRect->top );
+
+    QAxBindable *qaxbind = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
+    QWidget *page = qaxbind ? qaxbind->propertyPage() : 0;
+    if ( page )
+	page->reparent( propPage, QPoint(0,0) );
+
+    return S_OK;
+}
+
+/*!
+    Destroys the property pages.
+*/
+HRESULT QAxServerBase::Deactivate()
+{
+    SetObjects( 0, 0 );
+    delete propPage;
+    propPage = 0;
+
+    return S_OK;
+}
+
+/*!
+    Returns page information.
+*/
+HRESULT QAxServerBase::GetPageInfo( PROPPAGEINFO *pPageInfo )
+{
+    if ( !pPageInfo )
+	return E_POINTER;
+    
+    pPageInfo->cb = sizeof(PROPPAGEINFO);
+    pPageInfo->size.cx = 100;
+    pPageInfo->size.cy = 100;
+
+    pPageInfo->pszTitle = QStringToOLESTR( "The Title" );
+    pPageInfo->pszDocString = QStringToOLESTR( "The DocString" );
+    pPageInfo->pszHelpFile = QStringToOLESTR( "The HelpFile" );
+    pPageInfo->dwHelpContext = 0;
+
+    return S_OK;
+}
+
+/*!
+    Sets the objects the property page should display the properties for.
+*/
+HRESULT QAxServerBase::SetObjects( ULONG cObjects, IUnknown **ppUnk )
+{
+    QPtrListIterator<IAxServerBase> it( propObjects );
+    while ( it.current() ) {
+	it.current()->Release();
+	++it;
+    }
+    propObjects.clear();
+
+    if ( !ppUnk )
+	return E_POINTER;
+    for ( uint o = 0; o < cObjects; ++o ) {
+	IUnknown *obj = ppUnk[o];
+	IAxServerBase *iface;
+	obj->QueryInterface( IID_IAxServerBase, (void**)&iface );
+	if ( !iface )
+	    return E_NOINTERFACE;
+	propObjects.append( iface );
+    }
+
+    return S_OK;
+}
+
+/*!
+    Shows and hides the page.
+*/
+HRESULT QAxServerBase::Show( UINT nCmdShow )
+{
+    if ( !propPage )
+	return E_UNEXPECTED;
+    if ( nCmdShow == SW_HIDE ) {
+	propPage->hide();
+    } else {
+	QRect g = propPage->geometry();
+	::SetParent( propPage->winId(), propPage->hWndParent );
+	propPage->setGeometry( g );
+	propPage->raise();
+	propPage->show();
+    }
+
+    return S_OK;
+}
+
+/*!
+    Places the page.
+*/
+HRESULT QAxServerBase::Move( LPCRECT pRect )
+{
+    if ( !pRect )
+	return E_POINTER;
+    if ( !propPage )
+	return E_UNEXPECTED;
+
+    propPage->setGeometry( pRect->left, pRect->top, pRect->right-pRect->left, pRect->bottom-pRect->top );
+
+    return S_OK;
+}
+
+/*!
+    Returns S_OK when the page is dirty (ie. values differ from object values).
+*/
+HRESULT QAxServerBase::IsPageDirty()
+{
+    return S_OK; //S_FALSE
+}
+
+/*!
+   Returns S_OK when changes have been applied to the objects.
+*/
+HRESULT QAxServerBase::Apply()
+{
+    if ( !propPage )
+	return E_UNEXPECTED;
+
+    return S_OK; //S_FALSE(?)
+}
+
+/*!
+    \reimp
+*/
+HRESULT QAxServerBase::Help( LPCOLESTR pszHelpDir )
+{
+    return E_NOTIMPL;
+}
+
+/*!
+    \reimp
+*/
+HRESULT QAxServerBase::TranslateAccelerator( MSG *pMsg )
+{
+    if ( !pMsg )
+	return E_POINTER;
+
+    return E_NOTIMPL;
+}
+
+/*!
+    \reimp
+*/
+HRESULT QAxServerBase::EditProperty( DISPID dispID )
+{
+    return E_NOTIMPL;
+}
+
+static int mapModifiers( int state )
+{
+    int ole = 0;
+    if ( state & Qt::ShiftButton )
+	ole |= 1;
+    if ( state & Qt::ControlButton )
+	ole |= 2;
+    if ( state & Qt::AltButton )
+	ole |= 4;
+
+    return ole;
+}
+
+/*!
+    \reimp
+*/
+bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 {
     if ( !activeqt )
 	return QObject::eventFilter( o, e );
@@ -1490,13 +1457,71 @@ bool QActiveQtBase::eventFilter( QObject *o, QEvent *e )
 	    ce->child()->removeEventFilter( this );
 	}
 	break;
+    case QEvent::KeyPress:
+	if ( o == activeqt && hasStockEvents ) {
+	    QKeyEvent *ke = (QKeyEvent*)e;
+	    QUObject obj[3];
+	    static_QUType_int.set( obj+1, ke->key() );
+	    static_QUType_int.set( obj+2, mapModifiers( ke->state() ) );
+	    qt_emit( DISPID_KEYDOWN, obj );
+	    if ( ke->ascii() )
+		qt_emit( DISPID_KEYPRESS, obj );
+	}
+	break;
+    case QEvent::KeyRelease:
+	if ( o == activeqt && hasStockEvents ) {
+	    QKeyEvent *ke = (QKeyEvent*)e;
+	    QUObject obj[3];
+	    static_QUType_int.set( obj+1, ke->key() );
+	    static_QUType_int.set( obj+2, mapModifiers( ke->state() ) );
+	    qt_emit( DISPID_KEYUP, obj );
+	}
+	break;
+    case QEvent::MouseMove:
+	if ( o == activeqt && hasStockEvents ) {
+	    QMouseEvent *me = (QMouseEvent*)e;
+	    QUObject obj[5]; // 0 = return value
+	    static_QUType_int.set( obj+1, me->state() & Qt::MouseButtonMask );
+	    static_QUType_int.set( obj+2, mapModifiers( me->state() ) );
+	    static_QUType_int.set( obj+3, me->x() );
+	    static_QUType_int.set( obj+4, me->y() );
+	    qt_emit( DISPID_MOUSEMOVE, obj );
+	}
+	break;
+    case QEvent::MouseButtonRelease:
+	if ( o == activeqt && hasStockEvents ) {
+	    QMouseEvent *me = (QMouseEvent*)e;
+	    QUObject obj[5]; // 0 = return value
+	    static_QUType_int.set( obj+1, me->button() );
+	    static_QUType_int.set( obj+2, mapModifiers( me->state() ) );
+	    static_QUType_int.set( obj+3, me->x() );
+	    static_QUType_int.set( obj+4, me->y() );
+	    qt_emit( DISPID_MOUSEUP, obj );
+	    qt_emit( DISPID_CLICK, 0 );
+	}
+	break;
+    case QEvent::MouseButtonDblClick:
+	if ( o == activeqt && hasStockEvents ) {
+	    QMouseEvent *me = (QMouseEvent*)e;
+	    qt_emit( DISPID_DBLCLICK, 0 );
+	}
+	break;
     case QEvent::MouseButtonPress:
 	{
+	    if ( o == activeqt && hasStockEvents ) {
+		QMouseEvent *me = (QMouseEvent*)e;
+		QUObject obj[5]; // 0 = return value
+		static_QUType_int.set( obj+1, me->button() );
+		static_QUType_int.set( obj+2, mapModifiers( me->state() ) );
+		static_QUType_int.set( obj+3, me->x() );
+		static_QUType_int.set( obj+4, me->y() );
+		qt_emit( DISPID_MOUSEDOWN, obj );
+	    }
 	    if ( activeqt->focusWidget() == qApp->focusWidget() )
 		break;
 	}
 	// FALL THROUGH
-    case QEvent::FocusIn:    
+    case QEvent::FocusIn:
 	{
 	    CComPtr<IOleClientSite> clientsite;
 	    GetClientSite( &clientsite );

@@ -1,7 +1,8 @@
 TEMPLATE = subdirs
 SUBDIRS = testcon \
 	  webbrowser \
+	  multiple \
 	  simple \
 	  tetrix \
-	  multiple \
+	  opengl \
 	  wrapper

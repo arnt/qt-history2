@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: $
 **
-** Declaration of the QActiveQt and QActiveQtFactory classes
+** Declaration of the QAxFactory class
 **
 ** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
@@ -25,19 +25,21 @@
 **
 **********************************************************************/
 
-#ifndef QACTIVEQT_H
-#define QACTIVEQT_H
+#ifndef QAXFACTORY_H
+#define QAXFACTORY_H
 
-#include <qwidget.h>
 #include <quuid.h>
 #include <private/qcom_p.h>
 
 // {22B230F6-8722-4051-ADCB-E7C9CE872EB3}
-#ifndef IID_QActiveQtFactory
-#define IID_QActiveQtFactory QUuid( 0x22b230f6, 0x8722, 0x4051, 0xad, 0xcb, 0xe7, 0xc9, 0xce, 0x87, 0x2e, 0xb3 )
+#ifndef IID_QAxFactory
+#define IID_QAxFactory QUuid( 0x22b230f6, 0x8722, 0x4051, 0xad, 0xcb, 0xe7, 0xc9, 0xce, 0x87, 0x2e, 0xb3 )
 #endif
 
-struct QActiveQtFactoryInterface : public QFeatureListInterface
+class QWidget;
+class QMetaObject;
+
+struct QAxFactoryInterface : public QFeatureListInterface
 {
 public:
 #ifndef Q_QDOC
@@ -49,18 +51,28 @@ public:
     virtual QUuid eventsID( const QString &key ) const = 0;    
     virtual QUuid typeLibID() const = 0;
     virtual QUuid appID() const = 0;
+
+    virtual bool registerFactory() const = 0;
+    virtual bool unregisterFactory() const = 0;
+
+    virtual bool registerClass( const QString &key ) const = 0;
+    virtual bool unregisterClass( const QString &key ) const = 0;
+
+    virtual QString exposeToSuperClass( const QString &key ) const = 0;
 #endif
 };
 
-class QActiveQtFactory : public QActiveQtFactoryInterface
+class QAxFactory : public QAxFactoryInterface
 {
 public:
-    QActiveQtFactory( const QUuid &, const QUuid &);
+    QAxFactory( const QUuid &, const QUuid &);
     Q_REFCOUNT
 
     QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
 
 #ifdef Q_QDOC
+    virtual QStringList featureList() const = 0;
+
     virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 ) = 0;
     virtual QMetaObject *metaObject( const QString &key ) const = 0;
 
@@ -72,13 +84,23 @@ public:
     QUuid typeLibID() const;
     QUuid appID() const;
 
+    bool registerFactory() const;
+    bool unregisterFactory() const;
+
+    bool registerClass( const QString &key ) const;
+    bool unregisterClass( const QString &key ) const;
+
+    QString exposeToSuperClass( const QString &key ) const;
+
+    static bool isServer();
+
 private:
     QUuid typelib;
     QUuid app;
 };
 
-#define Q_EXPORT_ACTIVEX( IMPL, TYPELIB, APPID )	\
-    Q_EXPORT_COMPONENT()				\
+#define QAXFACTORY_EXPORT( IMPL, TYPELIB, APPID )	\
+    QUnknownInterface *ucm_instantiate()		\
     {							\
 	IMPL *impl = new IMPL( QUuid(TYPELIB), QUuid(APPID) );	\
 	QUnknownInterface* iface = 0; 			\
@@ -86,22 +108,12 @@ private:
 	return iface;					\
     }
 
-#ifndef NOQT_ACTIVEX
-
-#ifndef __IID_DEFINED__
-#define __IID_DEFINED__
-typedef GUID IID;
-#endif
-
-#define __IID_DEFINED__
-
-#if defined QT_ACTIVEX_DEFAULT
-#define QT_ACTIVEX( Class, IIDClass, IIDInterface, IIDEvents, IIDTypeLib, IIDApp ) \
-    class QDefaultActiveQtFactory : public QActiveQtFactory \
+#define QAXFACTORY_DEFAULT( Class, IIDClass, IIDInterface, IIDEvents, IIDTypeLib, IIDApp ) \
+    class QAxDefaultFactory : public QAxFactory \
     { \
     public: \
-	QDefaultActiveQtFactory( const QUuid &app, const QUuid &lib) \
-	: QActiveQtFactory( app, lib ) {} \
+	QAxDefaultFactory( const QUuid &app, const QUuid &lib) \
+	: QAxFactory( app, lib ) {} \
 	QStringList featureList() const \
 	{ \
 	    QStringList list; \
@@ -147,43 +159,7 @@ typedef GUID IID;
 	    return QUuid(); \
 	} \
     }; \
-    Q_EXPORT_ACTIVEX( QDefaultActiveQtFactory, IIDTypeLib, IIDApp ) \
+    QAXFACTORY_EXPORT( QAxDefaultFactory, IIDTypeLib, IIDApp ) \
 
-#elif defined QT_ACTIVEX_IMPL
-#define QT_ACTIVEX( Class, IIDClass, IIDInterface, IIDEvents, IIDTypeLib, IIDApp ) \
-    const IID CLSID_##Class = QUuid(IIDClass); \
-    const IID IID_I##Class = QUuid(IIDInterface); \
-    const IID IID_I##Class##Events = QUuid(IIDEvents); \
-    const IID IID_##Class##Lib = QUuid(IIDTypeLib); \
-    const IID IID_##Class##App = QUuid(IIDApp); \
 
-#else
-#define QT_ACTIVEX( Class, IIDClass, IIDInterface, IIDEvents, IIDTypeLib, IIDApp )
-
-#endif
-
-#endif //NOQT_ACTIVEX
-
-class QActiveQtBase;
-
-class QActiveQt
-{
-    friend class QActiveQtBase;
-public:
-    QActiveQt();
-
-    virtual QRESULT queryInterface( const QUuid&, void** );
-    long addRef();
-    long release();
-
-    static bool isServer();
-
-protected:
-    bool requestPropertyChange( const char *property );
-    void propertyChanged( const char *property );
-
-private:
-    QActiveQtBase *activex;
-};
-
-#endif // QACTIVEQT_H
+#endif // QAXFACTORY_H

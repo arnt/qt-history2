@@ -378,7 +378,7 @@ private:
 
     \brief The QAxBase class is an abstract class that provides an API to initalize and access a COM object.
 
-    \module QAxWidget
+    \module QAxContainer
     \extension ActiveQt
 
     QAxBase is an abstract class that cannot be used directly, and is instantiated through the subclasses 
@@ -689,6 +689,51 @@ static QString guessTypes( const QString &type, const QString &function )
 	return "IUnknown*"; //###
     }
     return type;
+}
+
+static inline QString constRefify( const QString& type )
+{
+    QString crtype;
+
+    if ( type == "QString" )
+	crtype = "const QString&";
+    else if ( type == "QDateTime" )
+	crtype = "const QDateTime&";
+    else if ( type == "QVariant" )
+	crtype = "const QVariant&";
+    else 
+	crtype = type;
+
+    return crtype;
+}
+
+static inline void QStringToQUType( const QString& type, QUParameter *param )
+{
+    param->typeExtra = 0;
+    if ( type == "int" || type == "long" ) {
+	param->type = &static_QUType_int;
+    } else if ( type == "bool" ) {
+	param->type = &static_QUType_bool;
+    } else if ( type == "QString" || type == "const QString&" ) {
+	param->type = &static_QUType_QString;
+    } else if ( type == "double" ) {
+	param->type = &static_QUType_double;
+    } else if ( type == "QVariant" || type == "const QVariant&" ) {
+	param->type = &static_QUType_QVariant;
+    } else if ( type == "IUnknown*" ) {
+	param->type = &static_QUType_iface;
+	param->typeExtra = "QUnknownInterface";
+    } else if ( type == "IDispatch*" ) {
+	param->type = &static_QUType_idisp;
+	param->typeExtra = "QDispatchInterface";
+    } else {
+	param->type = &static_QUType_ptr;
+	QString ptype = type;
+	if ( ptype.right(1) == "*" )
+	    ptype.remove( ptype.length()-1, 1 );
+	param->typeExtra = new char[ ptype.length() + 1 ];
+	param->typeExtra = qstrcpy( (char*)param->typeExtra, ptype );
+    }
 }
 
 /*!
@@ -1516,6 +1561,38 @@ QMetaObject *QAxBase::metaObject() const
     return metaobj;
 }
 
+static inline bool checkHRESULT( HRESULT hres )
+{
+    switch( hres ) {
+    case S_OK:
+	return TRUE;
+    case DISP_E_BADPARAMCOUNT:
+	return FALSE;
+    case DISP_E_BADVARTYPE:
+	return FALSE;
+    case DISP_E_EXCEPTION:
+	return FALSE;
+    case DISP_E_MEMBERNOTFOUND:
+	return FALSE;
+    case DISP_E_NONAMEDARGS:
+	return FALSE;
+    case DISP_E_OVERFLOW:
+	return FALSE;
+    case DISP_E_PARAMNOTFOUND:
+	return FALSE;
+    case DISP_E_TYPEMISMATCH:
+	return FALSE;
+    case DISP_E_UNKNOWNINTERFACE:
+	return FALSE;
+    case DISP_E_UNKNOWNLCID:
+	return FALSE;
+    case DISP_E_PARAMNOTOPTIONAL:
+	return FALSE;
+    default:
+	return FALSE;
+    }
+}
+
 /*!
     \internal
 */
@@ -1576,55 +1653,7 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
     int p;
     for ( p = 0; p < slotcount; ++p ) {
 	QUObject *obj = _o + p + 1;
-	// map the QUObject's type to the VARIANT. ### Maybe it would be better 
-	// to convert the QUObject to what the VARIANT is supposed to be, since
-	// QUType is rather powerful, and VARIANT is not...
-	if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
-	    arg.vt = VT_I4;
-	    arg.lVal = static_QUType_int.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
-	    arg.vt = VT_BSTR;
-	    arg.bstrVal = QStringToBSTR( static_QUType_QString.get( obj ) );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
-	    arg.vt = VT_BSTR;
-	    arg.bstrVal = QStringToBSTR( static_QUType_charstar.get( obj ) );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
-	    arg.vt = VT_BOOL;
-	    arg.boolVal = static_QUType_bool.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
-	    arg.vt = VT_R8;
-	    arg.dblVal = static_QUType_double.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
-	    arg.vt = VT_I4;
-	    arg.lVal = static_QUType_enum.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
-	    arg = QVariantToVARIANT( static_QUType_QVariant.get( obj ) );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
-	    arg.vt = VT_DISPATCH;
-	    arg.pdispVal = (IDispatch*)static_QUType_ptr.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
-	    arg.vt = VT_UNKNOWN;
-	    arg.punkVal = (IUnknown*)static_QUType_ptr.get( obj );
-	} else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) ) {
-	    const QUParameter *param = slot->parameters + p + ( pret ? 1 : 0 );
-	    const char *type = (const char*)param->typeExtra;
-	    if ( !qstrcmp( type, "int" ) ) {
-		arg.vt = VT_I4;
-		arg.lVal = *(int*)static_QUType_ptr.get( obj );
-	    } else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
-		arg.vt = VT_BSTR;
-		arg.bstrVal = QStringToBSTR( *(QString*)static_QUType_ptr.get( obj ) );
-	    } else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
-		arg.vt = VT_DATE;
-		arg.date = QDateTimeToDATE( *(QDateTime*)static_QUType_ptr.get( obj ) );
-	    } else {
-		arg.vt = VT_UI4;
-		arg.ulVal = (Q_ULONG)static_QUType_ptr.get( obj );
-	    }
-	    //###
-	} else {
-	    arg.vt = VT_EMPTY;
-	}
+	QUObjectToVARIANT( obj, arg, slot->parameters + p + ( pret ? 1 : 0 ) );
 	params.rgvarg[ slotcount - p - 1 ] = arg;
     }
     // call the method
@@ -1772,19 +1801,81 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
     return FALSE;
 }
 
-/*!
-    \overload
+// this is copied from qobject.cpp
+static inline bool isIdentChar( char x )
+{						// Avoid bug in isalnum
+    return x == '_' || (x >= '0' && x <= '9') ||
+	 (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z');
+}
 
-    Calls the function \a id of the COM object. To get the ID of a function, 
-    use QMetaObject::findSlot( function, TRUE ).
+static inline bool isSpace( char x )
+{
+#if defined(Q_CC_BOR)
+  /*
+    Borland C++ 4.5 has a weird isspace() bug.
+    isspace() usually works, but not here.
+    This implementation is sufficient for our internal use: rmWS()
+  */
+    return (uchar) x <= 32;
+#else
+    return isspace( (uchar) x );
+#endif
+}
+
+static inline QCString qt_rmWS( const char *s )
+{
+    QCString result( qstrlen(s)+1 );
+    char *d = result.data();
+    char last = 0;
+    while( *s && isSpace(*s) )			// skip leading space
+	s++;
+    while ( *s ) {
+	while ( *s && !isSpace(*s) )
+	    last = *d++ = *s++;
+	while ( *s && isSpace(*s) )
+	    s++;
+	if ( *s && isIdentChar(*s) && isIdentChar(last) )
+	    last = *d++ = ' ';
+    }
+    result.truncate( (int)(d - result.data()) );
+    int void_pos = result.find("(void)");
+    if ( void_pos >= 0 )
+	result.remove( void_pos+1, (uint)strlen("void") );
+    return result;
+}
+
+
+/*!
+    Calls the function \a function of the COM object passing the parameters \a var1 ... \a var8, 
+    and returns the value, or an invalid QVariant if the function does not return a value.
+
+    \a function has to be provided as the full prototype, like e.g. in QObject::connect().
 
     \code
-    int id = activeX->metaObject()->findSlot( "Navigate(const QString&)", TRUE );
-    if ( id != -1 )
-        activeX->dynamicCall( id, "www.trolltech.com" );
+    activeX->dynamicCall( "Navigate(const QString&)", "www.trolltech.com" );
     \endcode
+
+    dynamicCall can not be used to read or write properties. Instead, use QObject::property()
+    and QObject::setProperty() respectively.
+
+    It is only possible to call functions through dynamicCall that have parameters of
+    datatypes supported in QVariant. See the QAxBase class documentation for a list of 
+    supported and unsupported datatypes. If you want to call functions that have
+    unsupported datatypes in the parameter list, use queryInterface to retrieve the appropriate 
+    COM interface, and use the function directly.
+
+    \code
+    IWebBrowser2 *webBrowser = 0;
+    activeX->queryInterface( IID_IWebBrowser2, (void**)&webBrowser );
+    if ( webBrowser ) {
+        webBrowser->Navigate2( pvarURL );
+	webBrowser->Release();
+    }
+    \endcode
+
+    This is also more efficient.
 */
-QVariant QAxBase::dynamicCall( int id, const QVariant &var1, 
+QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1, 
 							 const QVariant &var2, 
 							 const QVariant &var3, 
 							 const QVariant &var4, 
@@ -1793,6 +1884,15 @@ QVariant QAxBase::dynamicCall( int id, const QVariant &var1,
 							 const QVariant &var7, 
 							 const QVariant &var8 )
 {
+    int id = metaObject()->findSlot( qt_rmWS(function), TRUE );
+    if ( id < 0 ) {
+#if defined(QT_CHECK_RANGE)
+	const char *coclass = metaObject()->classInfo( "CoClass" );
+	qWarning( "QAxBase::dynamicCall: %s: No such method in %s [%s]", (const char*)function, control().latin1(), 
+	    coclass ? coclass: "unknown" );
+#endif
+	return QVariant();
+    }
     const QMetaData *slot_data = 0;
     slot_data = metaObject()->slot( id, TRUE );
     QVariant result;
@@ -1855,64 +1955,7 @@ QVariant QAxBase::dynamicCall( int id, const QVariant &var1,
 	for ( o = 0; o < 9; ++o )
 	    obj[o].type->clear( obj+o );
     }
-#if defined(QT_CHECK_RANGE)
-    else {
-	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QAxBase::dynamicCall: %d: No such method in %s [%s]", id, control().latin1(), 
-	    coclass ? coclass: "unknown" );
-    }
-#endif
     return result;
-}
-
-/*!
-    Calls the function \a function of the COM object passing the parameters \a var1 ... \a var8, 
-    and returns the value, or an invalid QVariant if the function does not return a value.
-
-    \a function has to be provided as the full prototype, like e.g. in QObject::connect().
-
-    \code
-    activeX->dynamicCall( "Navigate(const QString&)", "www.trolltech.com" );
-    \endcode
-
-    dynamicCall can not be used to read or write properties. Instead, use QObject::property()
-    and QObject::setProperty() respectively.
-
-    It is only possible to call functions through dynamicCall that have parameters of
-    datatypes supported in QVariant. See the QAxBase class documentation for a list of 
-    supported and unsupported datatypes. If you want to call functions that have
-    unsupported datatypes in the parameter list, use queryInterface to retrieve the appropriate 
-    COM interface and use the function directly.
-
-    \code
-    IWebBrowser2 *webBrowser = 0;
-    activeX->queryInterface( IID_IWebBrowser2, (void**)&webBrowser );
-    if ( webBrowser ) {
-        webBrowser->Navigate2( pvarURL );
-	webBrowser->Release();
-    }
-    \endcode
-*/
-QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1, 
-							 const QVariant &var2, 
-							 const QVariant &var3, 
-							 const QVariant &var4, 
-							 const QVariant &var5, 
-							 const QVariant &var6, 
-							 const QVariant &var7, 
-							 const QVariant &var8 )
-{
-    int index = metaObject()->findSlot( qt_rmWS(function), TRUE );
-    if ( index > -1 )
-	return dynamicCall( index, var1, var2, var3, var4, var5, var6, var7, var8 );
-#if defined(QT_CHECK_RANGE)
-    else {
-	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QAxBase::dynamicCall: %s: No such method in %s [%s]", (const char*)function, control().latin1(), 
-	    coclass ? coclass: "unknown" );
-    }
-#endif
-    return QVariant();
 }
 
 class QtPropertyBag : public IPropertyBag

@@ -14,7 +14,7 @@
   dynamicCall function.
 
   To build the example you must first build the
-  \link module-qaxcontainer.html QAxContainer \endlink library.
+  \link qaxcontainer.html QAxContainer \endlink library.
   Then run your make tool in \c examples/webbrowser and
   run the resulting \c webbrowser.exe.
 */

@@ -11,35 +11,17 @@
 
 #include <qapplication.h>
 #include <qmessagebox.h>
-#include <qactiveqt.h>
+#include <qaxfactory.h>
 
 #include <qcheckbox.h>
 #include <qradiobutton.h>
 #include <qpushbutton.h>
 
-const IID IID_IQButton = {0x6DA689FB,0x928F,0x423c,{0x86,0x32,0x67,0x8C,0x3D,0x36,0x06,0xDB}};
-const IID IID_IQButtonEvents = {0x73A5D03F,0x8ADE,0x4d84,{0x9A,0xE0,0xA9,0x3B,0x4F,0x85,0xA1,0x30}};
-const IID CLSID_QButton = {0x23F5012A,0x7333,0x43d3,{0xBC,0xA8,0x83,0x6A,0xAB,0xC6,0x1B,0x4A}};
-
-const IID IID_IQCheckBox = {0x4FD39DD7,0x2DE0,0x43c1,{0xA8,0xC2,0x27,0xC5,0x1A,0x05,0x28,0x10}};
-const IID IID_IQCheckBoxEvents = {0xFDB6FFBE,0x56A3,0x4e90,{0x8F,0x4D,0x19,0x84,0x88,0x41,0x8B,0x3A}};
-const IID CLSID_QCheckBox = {0x6E795DE9,0x872D,0x43cf,{0xA8,0x31,0x49,0x6E,0xF9,0xD8,0x6C,0x68}};
-
-const IID IID_IQRadioButton = {0x7CC8AE30,0x206C,0x48a3,{0xA0,0x09,0xB0,0xA0,0x88,0x02,0x6C,0x2F}};
-const IID IID_IQRadioButtonEvents = {0x73EE4860,0x684C,0x4a66,{0xBF,0x63,0x9B,0x9E,0xFF,0xA0,0xCB,0xE5}};
-const IID CLSID_QRadioButton = {0xAFCF78C8,0x446C,0x409a,{0x93,0xB3,0xBA,0x29,0x59,0x03,0x91,0x89}};
-
-const IID IID_IQPushButton = {0x06831CC9,0x59B6,0x436a,{0x95,0x78,0x6D,0x53,0xE5,0xAD,0x03,0xD3}};
-const IID IID_IQPushButtonEvents = {0x3CC3F17F,0xEA59,0x4b58,{0xBB,0xD3,0x84,0x2D,0x46,0x71,0x31,0xDD}};
-const IID CLSID_QPushButton = {0x2B262458,0xA4B6,0x468b,{0xB7,0xD4,0xCF,0x5F,0xEE,0x0A,0x70,0x92}};
-
-const IID LIBID_QAxLib = {0x3B756301,0x0075,0x4e40,{0x8B,0xE8,0x5A,0x81,0xDE,0x24,0x26,0xB7}};
-
-class ActiveQtFactory : public QActiveQtFactory
+class ActiveQtFactory : public QAxFactory
 {
 public:
     ActiveQtFactory( const QUuid &lib, const QUuid &app ) 
-	: QActiveQtFactory( lib, app ) 
+	: QAxFactory( lib, app ) 
     {}
     QStringList featureList() const
     {
@@ -79,51 +61,51 @@ public:
     QUuid classID( const QString &key ) const
     {
 	if ( key == "QButton" )
-	    return CLSID_QButton;
+	    return "{23F5012A-7333-43D3-BCA8-836AABC61B4A}";
 	if ( key == "QCheckBox" )
-	    return CLSID_QCheckBox;
+	    return "{6E795DE9-872D-43CF-A831-496EF9D86C68}";
 	if ( key == "QRadioButton" )
-	    return CLSID_QRadioButton;
+	    return "{AFCF78C8-446C-409A-93B3-BA2959039189}";
 	if ( key == "QPushButton" )
-	    return CLSID_QPushButton;
+	    return "{2B262458-A4B6-468B-B7D4-CF5FEE0A7092}";
 
 	return QUuid();
     }
     QUuid interfaceID( const QString &key ) const
     {
 	if ( key == "QButton" )
-	    return IID_IQButton;
+	    return "{6DA689FB-928F-423C-8632-678C3D3606DB}";
 	if ( key == "QCheckBox" )
-	    return IID_IQCheckBox;
+	    return "{4FD39DD7-2DE0-43C1-A8C2-27C51A052810}";
 	if ( key == "QRadioButton" )
-	    return IID_IQRadioButton;
+	    return "{7CC8AE30-206C-48A3-A009-B0A088026C2F}";
 	if ( key == "QPushButton" )
-	    return IID_IQPushButton;
+	    return "{06831CC9-59B6-436A-9578-6D53E5AD03D3}";
 
 	return QUuid();
     }
     QUuid eventsID( const QString &key ) const
     {
 	if ( key == "QButton" )
-	    return IID_IQButtonEvents;
+	    return "{73A5D03F-8ADE-4D84-9AE0-A93B4F85A130}";
 	if ( key == "QCheckBox" )
-	    return IID_IQCheckBoxEvents;
+	    return "{FDB6FFBE-56A3-4E90-8F4D-198488418B3A}";
 	if ( key == "QRadioButton" )
-	    return IID_IQRadioButtonEvents;
+	    return "{73EE4860-684C-4A66-BF63-9B9EFFA0CBE5}";
 	if ( key == "QPushButton" )
-	    return IID_IQPushButtonEvents;
+	    return "{3CC3F17F-EA59-4B58-BBD3-842D467131DD}";
 
 	return QUuid();
     }
 };
 
-Q_EXPORT_ACTIVEX( ActiveQtFactory, LIBID_QAxLib, "{AB068077-4924-406a-BBAF-42D91C8727DD}" )
+QAXFACTORY_EXPORT( ActiveQtFactory, "{3B756301-0075-4E40-8BE8-5A81DE2426B7}", "{AB068077-4924-406a-BBAF-42D91C8727DD}" )
 
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
 
-    if ( !QActiveQt::isServer() ) {
+    if ( !QAxFactory::isServer() ) {
 	QMessageBox::critical( 0, "Cannot Run stand alone!", "This executable is a server for ActiveX controls.\nIt cannot be run stand alone." );
 	return -1;
     }

@@ -1,7 +1,9 @@
-TEMPLATE    = app
-CONFIG	    += qt warn_off activeqt
+TEMPLATE    = lib
+CONFIG	    += qt warn_off activeqt dll
+TARGET	    = multipleax
 SOURCES	    = main.cpp
 HEADERS	    = ax1.h ax2.h
-TARGET	    = multipleax
-INCLUDEPATH	+= ../../control
-ACTIVEQT    = ax1.h ax2.h
+
+RC_FILE	    = ../../control/qaxserver.rc
+DEF_FILE    = ../../control/qaxserver.def
+INCLUDEPATH += ../../control

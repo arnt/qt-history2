@@ -41,7 +41,7 @@ extern void moduleUnlock();
     \class QAxObject qaxobject.h
     \brief The QAxObject class provides a QObject that wraps a COM object.
 
-    \module QAxWidget
+    \module QAxContainer
     \extension ActiveQt
 
     A QAxObject can be instantiated as an empty object, with the name of the COM object

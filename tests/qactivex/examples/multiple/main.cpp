@@ -1,15 +1,14 @@
 #include <qapplication.h>
 #include <qmessagebox.h>
 
-#define QT_ACTIVEX_IMPL
 #include "ax1.h"
 #include "ax2.h"
 
-class ActiveQtFactory : public QActiveQtFactory
+class ActiveQtFactory : public QAxFactory
 {
 public:
     ActiveQtFactory( const QUuid &lib, const QUuid &app )
-	: QActiveQtFactory( lib, app )
+	: QAxFactory( lib, app )
     {}
     QStringList featureList() const
     {
@@ -39,39 +38,45 @@ public:
     QUuid classID( const QString &key ) const
     {
 	if ( key == "QAxWidget1" )
-	    return CLSID_QAxWidget1;
+	    return "{1D9928BD-4453-4bdd-903D-E525ED17FDE5}";
 	if ( key == "QAxWidget2" )
-	    return CLSID_QAxWidget2;
+	    return "{58139D56-6BE9-4b17-937D-1B1EDEDD5B71}";
 
 	return QUuid();
     }
     QUuid interfaceID( const QString &key ) const
     {
 	if ( key == "QAxWidget1" )
-	    return IID_IQAxWidget1;
+	    return "{99F6860E-2C5A-42ec-87F2-43396F4BE389}";
 	if ( key == "QAxWidget2" )
-	    return IID_IQAxWidget2;
+	    return "{B66280AB-08CC-4dcc-924F-58E6D7975B7D}";
 
 	return QUuid();
     }
     QUuid eventsID( const QString &key ) const
     {
 	if ( key == "QAxWidget1" )
-	    return IID_IQAxWidget1Events;
+	    return "{0A3E9F27-E4F1-45bb-9E47-63099BCCD0E3}";
 	if ( key == "QAxWidget2" )
-	    return IID_IQAxWidget2Events;
+	    return "{D72BACBA-03C4-4480-B4BB-DE4FE3AA14A0}";
 
 	return QUuid();
     }
+    QString exposeToSuperClass( const QString &key ) const
+    {
+	if ( key == "QAxWidget2" )
+	    return key;
+	return QAxFactory::exposeToSuperClass( key );
+    }
 };
 
-Q_EXPORT_ACTIVEX( ActiveQtFactory, IID_QAxWidget1Lib, IID_QAxWidget1App )
+QAXFACTORY_EXPORT( ActiveQtFactory, "{98DE28B6-6CD3-4e08-B9FA-3D1DB43F1D2F}", "{05828915-AD1C-47ab-AB96-D6AD1E25F0E2}" )
 
 int main( int argc, char **argv )
 {
     QApplication app( argc, argv );
 
-    if ( !QActiveQt::isServer() ) {
+    if ( !QAxFactory::isServer() ) {
 	QMessageBox::critical( 0, "Cannot Run stand alone!", "This executable is a server for ActiveX controls.\nIt cannot be run stand alone." );
 	return -1;
     }

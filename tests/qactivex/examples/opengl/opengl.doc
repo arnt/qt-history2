@@ -1,0 +1,78 @@
+/*! \page examples-opengl.html
+
+  \title Qt' OpenGL widgets as an ActiveX (executable)
+
+
+  The ActiveX control in this example uses the QGlWidget class in
+  Qt to render an OpenGL scene in an ActiveX. The control exposes a few
+  methods to change the scene. The example is based on the "box" example
+  from the standard Qt distribution.
+
+  The example demonstrates the use of QAxFactory::isServer() and can be 
+  run both as an ActiveX server and as a stand alone application.
+
+  To build the example you must first build the \link qaxserver.html
+  QAxServer \endlink library. Then run qmake and your make tool in 
+  \c examples/wrapper.
+
+  The \link demo-opengl.html demonstration \endlink requires your
+  WebBrowser to support ActiveX controls, and scripting to be enabled.
+
+  <hr>
+
+  \code
+<SCRIPT LANGUAGE=JavaScript>
+function setRot( form )
+{
+    GLBox.setXRotation( form.XEdit.value );
+    GLBox.setYRotation( form.YEdit.value );
+    GLBox.setZRotation( form.ZEdit.value );
+}
+</SCRIPT>
+
+<p>
+An OpenGL scene:<br>
+<object ID="GLBox" CLASSID="CLSID:5fd9c22e-ed45-43fa-ba13-1530bb6b03e0">
+[Object not available! Did you forget to build and register the server?]
+</object><br>
+
+<form>
+Rotate the scene:<br>
+X:<input type="edit" ID="XEdit" value="0"><br>
+Y:<input type="edit" name="YEdit" value="0"><br>
+Z:<input type="edit" name="ZEdit" value="0"><br>
+<input type="button" value="Set" onClick="setRot(this.form)">
+</form>
+  \endcode
+*/
+
+/*! \page demo-opengl.html
+
+  \title OpenGL in an HTML page
+
+\raw html
+<SCRIPT LANGUAGE=JavaScript>
+function setRot( form )
+{
+    GLBox.setXRotation( form.XEdit.value );
+    GLBox.setYRotation( form.YEdit.value );
+    GLBox.setZRotation( form.ZEdit.value );
+}
+</SCRIPT>
+
+<p>
+An OpenGL scene:<br>
+<object ID="GLBox" CLASSID="CLSID:5fd9c22e-ed45-43fa-ba13-1530bb6b03e0">
+[Object not available! Did you forget to build and register the server?]
+</object><br>
+
+<form>
+Rotate the scene:<br>
+X:<input type="edit" ID="XEdit" value="0"><br>
+Y:<input type="edit" name="YEdit" value="0"><br>
+Z:<input type="edit" name="ZEdit" value="0"><br>
+<input type="button" value="Set" onClick="setRot(this.form)">
+</form>
+
+\endraw
+*/

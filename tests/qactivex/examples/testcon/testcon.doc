@@ -14,7 +14,7 @@
   certain ActiveX, and to test ActiveX controls you implement.
 
   To build the example you must first build the
-  \link module-qaxcontainer.html QAxContainer \endlink library.
+  \link qaxcontainer.html QAxContainer \endlink library.
   Then run your make tool in \c examples/testcon and
   run the resulting \c testcon.exe.
 */

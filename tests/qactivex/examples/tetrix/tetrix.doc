@@ -1,6 +1,6 @@
 /*! \page examples-tetrix.html
 
-  \title A Qt example as a scriptable ActiveX control
+  \title A Qt example as a scriptable ActiveX control (executable)
 
 
   This example shows how to turn an existing Qt application
@@ -8,12 +8,11 @@
   on the tetrix example.
 
   It demonstrates the use of the default factory provied by the 
-  QT_ACTIVEX macro, and of QActiveQt::isServer().
+  QAXFACTORY_DEFAULT macro, and of QAxFactory::isServer().
 
-  To build the example you must first build the \link module-qaxserver.html
-  QAxServer \endlink library. Then run your make tool in 
-  \c examples/tetrix and register the resulting \c tetrixax.exe by
-  running \c tetrixax \c -regserver.
+  To build the example you must first build the \link qaxserver.html
+  QAxServer \endlink library. Then run qmake and your make tool in 
+  \c examples/tetrix.
 
   The \link demo-tetrix.html demonstration \endlink requires your
   WebBrowser to support ActiveX controls, and scripting to be enabled.
