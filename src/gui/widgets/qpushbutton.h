@@ -72,7 +72,7 @@ public:
     QPushButton(const QString &text, QWidget *parent, const char* name);
     QPushButton(const QIconSet& icon, const QString &text, QWidget *parent, const char* name);
     inline QT_COMPAT void openPopup()  { popupMenu(); }
-    inline QT_COMPAT bool isMenuButton() const { return popup() !=  0; }
+    inline QT_COMPAT bool isMenuButton() const { return menu() !=  0; }
     inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
     inline QT_COMPAT QMenu* popup() const { return menu(); }
 #endif
