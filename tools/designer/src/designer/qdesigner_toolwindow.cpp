@@ -89,13 +89,14 @@ QRect QDesignerToolWindow::geometryHint() const
 
 void QDesignerToolWindow::closeEvent(QCloseEvent *ev)
 {
-    if (m_saveSettings)
+    if (m_saveSettings) {
         ev->setAccepted(workbench()->handleClose());
-    else
+        if (ev->isAccepted() && qDesigner->mainWindow() == this)
+            qInvokeMetaMember(qDesigner, "quit", Qt::QueuedConnection);  // We're going down!
+    } else {
         QMainWindow::closeEvent(ev);
+    }
 
-    if (qDesigner->mainWindow() == this)
-        qInvokeMetaMember(qDesigner, "quit", Qt::QueuedConnection);  // We're going down!
 }
 
 bool QDesignerToolWindow::saveSettingsOnClose() const
