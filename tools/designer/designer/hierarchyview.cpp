@@ -135,22 +135,22 @@ QWidget *HierarchyItem::widget() const
     return wid;
 }
 
-void HierarchyItem::okRename()
+void HierarchyItem::okRename( int col )
 {
     if ( newItem == this )
 	newItem = 0;
-    QListViewItem::okRename();
+    QListViewItem::okRename( col );
 }
 
-void HierarchyItem::cancelRename()
+void HierarchyItem::cancelRename( int col )
 {
     if ( newItem == this ) {
 	newItem = 0;
-	QListViewItem::cancelRename();
+	QListViewItem::cancelRename( col );
 	delete this;
 	return;
     }
-    QListViewItem::cancelRename();
+    QListViewItem::cancelRename( col );
 }
 
 
@@ -509,7 +509,7 @@ FunctionList::FunctionList( QWidget *parent, HierarchyView *view )
 {
     header()->hide();
     removeColumn( 1 );
-    connect( this, SIGNAL( itemRenamed( QListViewItem *, const QString & ) ),
+    connect( this, SIGNAL( itemRenamed( QListViewItem *, int, const QString & ) ),
 	     this, SLOT( renamed( QListViewItem * ) ) );
 }
 
@@ -531,7 +531,7 @@ void FunctionList::setup()
 	    QStringList entries = lIface->definitionEntries( *dit, hierarchyView->formWindow()->mainWindow()->designerInterface() );
 	    for ( QStringList::Iterator eit = entries.begin(); eit != entries.end(); ++eit ) {
 		HierarchyItem *item = new HierarchyItem( itemDef, *eit, QString::null, QString::null );
-		item->setRenameEnabled( TRUE );
+		item->setRenameEnabled( 0, TRUE );
 	    }
 	}
 	lIface->release();
@@ -612,11 +612,11 @@ void FunctionList::showRMBMenu( QListViewItem *i, const QPoint &pos )
     int res = menu.exec( pos );
     if ( res == NEW_ITEM ) {
 	HierarchyItem *item = new HierarchyItem( i->parent() ? i->parent() : i, QString::null, QString::null, QString::null );
-	item->setRenameEnabled( TRUE );
+	item->setRenameEnabled( 0, TRUE );
 	setCurrentItem( item );
 	qApp->processEvents();
 	newItem = item;
-	item->startRename();
+	item->startRename( 0 );
     } else if ( res == DEL_ITEM ) {
 	QListViewItem *p = i->parent();
 	delete i;

@@ -51,8 +51,8 @@ public:
     void setText( int col, const QString &txt ) { if ( !txt.isEmpty() ) QListViewItem::setText( col, txt ); }
 
 private:
-    void okRename();
-    void cancelRename();
+    void okRename( int col );
+    void cancelRename( int col );
 
 private:
     QColor backgroundColor();
