@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#134 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#135 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,11 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#134 $")
+#if defined(_OS_IRIX_)
+#include <bstring.h> // bzero
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#135 $")
 
 
 /*****************************************************************************
@@ -120,7 +124,8 @@ public:
     defined(_OS_ULTRIX_)
 typedef void (*SIG_HANDLER)(int);
 #elif defined(_OS_IRIX_)
-typedef int (*SIG_HANDLER)(int);
+// tested on irix 5.2
+typedef void (*SIG_HANDLER)(...);
 #else
 #error "Unknown signal handler return type - mail qt-bugs@troll.no"
 #endif
