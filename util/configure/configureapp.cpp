@@ -397,8 +397,8 @@ bool Configure::displayHelp()
 	cout << "-shared           * Build Qt as a shared library." << endl;
 	cout << "-static             Build Qt as a static library." << endl << endl;
 
-	cout << "-thread             Configure Qt with thread support." << endl;
-	cout << "-no-thread        * Configure Qt without thread support." << endl << endl;
+	cout << "-thread           * Configure Qt with thread support." << endl;
+	cout << "-no-thread          Configure Qt without thread support." << endl << endl;
 
 	cout << "-spec               Specify a platform, uses %QMAKESPEC% as default." << endl;
 	cout << "-qconfig            Specify config, available configs:" << endl;
@@ -433,7 +433,7 @@ bool Configure::displayHelp()
 	cout << "-tablet             Enable tablet support." << endl;
 	cout << "-no-tablet        * Disable tablet support." << endl  << endl;
 
-	cout << "-big-codecs         Enable the building of big codecs." << endl;
+	cout << "-big-codecs       * Enable the building of big codecs." << endl;
 	cout << "-no-big-codecs      Disable the building of big codecs." << endl << endl;
 
 	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
