@@ -123,13 +123,11 @@ QStyle *QStyleFactory::create( const QString& s )
         return new QWindowsStyle;
     else
 #endif
-
 #ifndef QT_NO_STYLE_MOTIF
     if ( style == "motif" )
         return new QMotifStyle;
     else
 #endif
-#if 0
 #ifndef QT_NO_STYLE_CDE
     if ( style == "cde" )
         return new QCDEStyle;
@@ -158,7 +156,6 @@ QStyle *QStyleFactory::create( const QString& s )
 #ifdef Q_WS_MAC
     if( style == "macintosh" )
 	return new QMacStyle;
-#endif
 #endif
 
 #ifndef QT_NO_STYLE_AQUA
