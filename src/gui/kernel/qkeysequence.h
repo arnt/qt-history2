@@ -69,6 +69,7 @@ public:
     inline bool operator>= (const QKeySequence &other) const
     { return !(*this < other); }
 
+    bool isDetached() const;
 private:
     static int decodeString(const QString &ks);
     static QString encodeString(int key);
@@ -83,6 +84,8 @@ private:
     friend class QShortcutMap;
     friend class QShortcut;
 };
+Q_DECLARE_TYPEINFO(QKeySequence, Q_MOVABLE_TYPE);
+Q_DECLARE_SHARED(QKeySequence);
 
 #ifndef QT_NO_DEBUG
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QKeySequence &);

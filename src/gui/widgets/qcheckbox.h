@@ -23,7 +23,7 @@ class QCheckBoxPrivate;
 class Q_GUI_EXPORT QCheckBox : public QAbstractButton
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QCheckBox)
+
     Q_PROPERTY(bool tristate READ isTristate WRITE setTristate)
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
@@ -59,6 +59,7 @@ public:
 #endif
 
 private:
+    Q_DECLARE_PRIVATE(QCheckBox)
     Q_DISABLE_COPY(QCheckBox)
 };
 

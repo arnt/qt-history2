@@ -464,6 +464,7 @@ void QWhatsThisAction::actionTriggered()
 QWhatsThis::QWhatsThis()
 {}
 
+#ifdef QT_COMPAT
 /*!
     \obsolete
 
@@ -488,8 +489,6 @@ void QWhatsThis::remove(QWidget *w)
     w->setWhatsThis(QString::null);
 }
 
-
-#ifdef QT_COMPAT
 class QWhatsThisButton : public QToolButton
 {
     Q_OBJECT

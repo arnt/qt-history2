@@ -15,11 +15,11 @@
 #define QSPINBOX_H
 
 #include <qabstractspinbox.h>
+
 class QSpinBoxPrivate;
 class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QSpinBox)
 
     Q_PROPERTY(int value READ value WRITE setValue)
     Q_PROPERTY(int maximum READ maximum WRITE setMaximum)
@@ -28,7 +28,6 @@ class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
     Q_PROPERTY(QString suffix READ suffix WRITE setSuffix)
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
-
 
 public:
     QSpinBox(QWidget *parent = 0);
@@ -78,13 +77,16 @@ public slots:
 signals:
     void valueChanged(int);
     void valueChanged(QString);
+
+private:
+    Q_DISABLE_COPY(QSpinBox)
+    Q_DECLARE_PRIVATE(QSpinBox)
 };
 
 class QDoubleSpinBoxPrivate;
 class Q_GUI_EXPORT QDoubleSpinBox : public QAbstractSpinBox
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QDoubleSpinBox)
 
     Q_PROPERTY(double value READ value WRITE setValue)
     Q_PROPERTY(double maximum READ maximum WRITE setMaximum)
@@ -94,7 +96,6 @@ class Q_GUI_EXPORT QDoubleSpinBox : public QAbstractSpinBox
     Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
     Q_PROPERTY(QString suffix READ suffix WRITE setSuffix)
     Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
-
 
 public:
     QDoubleSpinBox(QWidget *parent = 0);
@@ -133,6 +134,10 @@ public slots:
 signals:
     void valueChanged(double);
     void valueChanged(QString);
+
+private:
+    Q_DISABLE_COPY(QDoubleSpinBox)
+    Q_DECLARE_PRIVATE(QDoubleSpinBox)
 };
 
 #endif

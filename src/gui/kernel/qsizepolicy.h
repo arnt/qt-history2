@@ -21,27 +21,37 @@
 class Q_GUI_EXPORT QSizePolicy
 {
 private:
-    enum { HSize = 6, HMask = 0x3f, VMask = HMask << HSize,
-           MayGrow = 1, ExpMask = 2, MayShrink = 4 };
+    enum {
+        HSize = 6,
+        HMask = 0x3f,
+        VMask = HMask << HSize,
+        MayGrow = 1,
+        ExpMask = 2,
+        MayShrink = 4
+    };
 public:
-    enum SizeTypeFlag { Fixed = 0,
-                    Minimum = MayGrow,
-                    Maximum = MayShrink,
-                    Preferred = MayGrow | MayShrink,
-                    MinimumExpanding = MayGrow | ExpMask,
-                    Expanding = MayGrow | MayShrink | ExpMask,
-                    Ignored = ExpMask /* magic value */ };
+    enum SizeTypeFlag {
+        Fixed = 0,
+        Minimum = MayGrow,
+        Maximum = MayShrink,
+        Preferred = MayGrow | MayShrink,
+        MinimumExpanding = MayGrow | ExpMask,
+        Expanding = MayGrow | MayShrink | ExpMask,
+        Ignored = ExpMask /* magic value */
+    };
 
     Q_DECLARE_FLAGS(SizeType, SizeTypeFlag)
 
-    enum ExpandData { NoDirection = 0,
-                      Horizontally = 1,
-                      Vertically = 2,
+    enum ExpandData {
+        NoDirection = 0,
+        Horizontally = 1,
+        Vertically = 2,
 #ifdef QT_COMPAT
-                      Horizontal = Horizontally,
-                      Vertical = Vertically,
+        Horizontal = Horizontally,
+        Vertical = Vertically,
 #endif
-                      BothDirections = Horizontally | Vertically };
+        BothDirections = Horizontally | Vertically
+    };
 
     QSizePolicy() : data(0) { }
 

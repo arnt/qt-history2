@@ -23,7 +23,7 @@ class QAbstractSpinBoxPrivate;
 class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAbstractSpinBox)
+
     Q_ENUMS(ButtonSymbols)
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
     Q_PROPERTY(bool tracking READ tracking WRITE setTracking)
@@ -93,12 +93,15 @@ protected:
     virtual void stepBy(int steps);
     virtual StepEnabled stepEnabled() const;
 
+protected:
+    QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent);
+
 private:
     Q_PRIVATE_SLOT(d, void editorTextChanged(const QString &))
     Q_PRIVATE_SLOT(d, void editorCursorPositionChanged(int, int))
 
-protected:
-    QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent);
+    Q_DECLARE_PRIVATE(QAbstractSpinBox)
+    Q_DISABLE_COPY(QAbstractSpinBox)
 };
 
 #endif

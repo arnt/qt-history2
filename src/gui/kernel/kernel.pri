@@ -6,7 +6,6 @@ PRECOMPILED_HEADER = kernel/qt_gui_pch.h
 
 KERNEL_P= kernel
 HEADERS += \
-	kernel/qabstractlayout.h \
 	kernel/qaction.h \
 	kernel/qactiongroup.h \
 	kernel/qapplication.h \

@@ -35,10 +35,9 @@ public:
     static void showText(const QPoint &pos, const QString& text, QWidget* w = 0);
     static void hideText();
 
-    static void add(QWidget *w, const QString &s); // obsolete
-    static void remove(QWidget *); // obsolete
-
 #ifdef QT_COMPAT
+    static QT_COMPAT void add(QWidget *w, const QString &s);
+    static QT_COMPAT void remove(QWidget *);
     static QT_COMPAT QToolButton * whatsThisButton(QWidget * parent);
 #endif
 };

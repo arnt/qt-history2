@@ -698,6 +698,11 @@ bool QKeySequence::operator< (const QKeySequence &other) const
     \sa operator==() operator!=() operator<() operator>() operator<=()
 */
 
+bool QKeySequence::isDetached() const
+{
+    return d->ref == 1;
+}
+
 /*****************************************************************************
   QKeySequence stream functions
  *****************************************************************************/

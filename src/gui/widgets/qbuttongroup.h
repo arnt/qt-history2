@@ -23,7 +23,7 @@ class QButtonGroupPrivate;
 class Q_GUI_EXPORT QButtonGroup : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QButtonGroup)
+
     Q_PROPERTY(bool exclusive READ exclusive WRITE setExclusive)
 public:
     QButtonGroup(QObject *parent = 0);
@@ -50,6 +50,8 @@ public:
 #endif
 
 private:
+    Q_DISABLE_COPY(QButtonGroup)
+    Q_DECLARE_PRIVATE(QButtonGroup)
     friend class QAbstractButton;
     friend class QAbstractButtonPrivate;
 };
