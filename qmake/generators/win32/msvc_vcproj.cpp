@@ -1072,7 +1072,7 @@ void VcprojGenerator::initOld()
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
 	    if ( !copydll.isEmpty() )
 		copydll += " && ";
-	    copydll += "copy -Y &quot;" + dest + "&quot; &quot;" + *dlldir + "&quot;";
+	    copydll += "copy  &quot;$(TargetPath)&quot; &quot;" + *dlldir + "&quot;";
 	}
 
 	QString deststr( "Copy " + dest + " to " );
