@@ -27,6 +27,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 #endif
         return FALSE;
     }
+    if(hd==0) {
+	return FALSE;
+    }
     QImage image = img;
     int    d     = image.depth();
     int    dd    = defaultDepth();
@@ -137,7 +140,10 @@ QImage QPixmap::convertToImage() const
         QImage nullImage;
         return nullImage;
     }
-
+    if( hd==0 ) {
+        QImage nullImage;
+        return nullImage;
+    }  
     int w = width();
     int h = height();
     int d = depth();
@@ -266,7 +272,8 @@ void QPixmap::deref()
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
-    return QPixmap();
+    QPixmap ret=*this;
+    return ret;
 }
 
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
