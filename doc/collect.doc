@@ -227,24 +227,20 @@ QStrIList in return store char* pointers.
 We often get questions about why Qt does not use the STL, and why Qt's
 container templates are provided at all.  Here are the major factors
 why we use and provide these templates: <ul>
-
 <li>Qt's reference based container templates add less space when
 instantiated than the STL ones do.  Size is important for a library,
 and Qt contains many instantiations of QDict, QList etc.
-
 <li>Qt's reference based containers are often not as fast as the
 STL's, for several reasons.  This is however not very important for
 Qt, as they are used in code that doesn't need to be very fast. (The
 speed-critical data structures in Qt are mostly caches - either QCache
 instantiations or custom-written, custom-optimized ones.)
-
 <li>Qt's containers are much more portable than the STL.  When we
 started writing Qt, STL was far away in the future, and when we
 released Qt 1.0, no widely-used compilers could compile the STL.  For
 a library such as Qt, it is of course very important to compile on the
 widest possible variety of compilers. As by today, the STL is still
 not portable across all plattforms supported by Qt.
-
 <li>Qt's containers are documented because we document our APIs, and
 the containers and their documentation are provided as parts of Qt's
 external API because we saw no reason to hide them.

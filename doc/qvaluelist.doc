@@ -149,13 +149,9 @@
   the remove(). The other possibility is to pass a value to remove() which will
   delete all members which match this value.
 
-  Sorting of the list is not supported by the class itself. That has three reasons:
-  For one Qt does not require that the class of the instances stored in a QValueList
-  do need to implement operator<. Reason number three is that sorting is very
-  often not needed. By adding the sorting algorithm to the QValueList template
-  the compiler would generate sorting code for every incarnation of the template but
-  it is never used. Reason number three is that you can choose between different sorting
-  algorithms. TODO: Reference to QTL
+  Lists can be sorted with the algorithms provided by the <a
+  href="qtl.html">Qt Template Library</a>, for example with
+  qHeapSort():
 
   Example:
   \code
@@ -177,7 +173,7 @@
 */
 
 /*!
-  \fn QValueList::QValueList( const QValueList& l )
+  \fn QValueList::QValueList( const QValueList<T>& l )
   Constructs a copy of \e l.
 
   This operation costs O(1) time since QValueList is implicit shared.
@@ -572,7 +568,7 @@
 
 /*!
   \fn QValueListIterator::QValueListIterator()
-  Creates un unitilaized iterator.
+  Creates un uninitialized iterator.
 */
 
 /*!
