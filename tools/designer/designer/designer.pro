@@ -13,17 +13,19 @@ win32-msvc:RC_FILE = designer.rc
 sql {
 	SOURCES  +=		  database.cpp dbconnectionimpl.cpp dbconnectionsimpl.cpp
 	HEADERS += 		  database.h dbconnectionimpl.h dbconnectionsimpl.h   propertyeditorsql.h
+	FORMS +=	dbconnections.ui dbconnection.ui dbconnectioneditor.ui 
 	}
 table {
 	HEADERS += tableeditorimpl.h
 	SOURCES += tableeditorimpl.cpp
+      FORMS += tableeditor.ui 
 	}
 
 target.path=$$QT_INSTALL_BINPATH
 isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS        += target
 PROJECTNAME	= Designer
-FORMS	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui dbconnections.ui dbconnection.ui dbconnectioneditor.ui tableeditor.ui listeditor.ui 
+FORMS	+= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui paletteeditor.ui iconvieweditor.ui preferences.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui finddialog.ui replacedialog.ui gotolinedialog.ui pixmapcollectioneditor.ui previewwidget.ui paletteeditoradvanced.ui wizardeditor.ui listeditor.ui 
 TEMPLATE	=app
 CONFIG	+= qt warn_on release
 DEFINES	+= DESIGNER
