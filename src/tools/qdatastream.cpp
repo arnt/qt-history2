@@ -750,8 +750,11 @@ QDataStream &QDataStream::readRawBytes( char *s, uint len )
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
 	register Q_INT8 *p = (Q_INT8*)s;
-	while ( len-- )
-	    *this >> *p++;
+	while ( len-- ) {
+	    Q_INT32 tmp;
+	    *this >> tmp;
+	    *p++ = tmp;
+	}
     } else {					// read data char array
 	dev->readBlock( s, len );
     }
