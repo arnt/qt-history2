@@ -2916,8 +2916,13 @@ QString QLocalePrivate::doubleToString(double d,
     bool special_number = false; // nan, +/-inf
     QString num_str;
 
-    // Detect special numbers (nan, +/-inf)
-    if (d == INFINITY || d == -INFINITY) {
+    (void) INFINITY; 
+
+    // Comparing directly to INFINITY gives weird results on some systems.
+    double tmp_infinity = INFINITY;
+
+   // Detect special numbers (nan, +/-inf)
+    if (d == tmp_infinity || d == -tmp_infinity) {
     	num_str = infinity();
 	special_number = true;
         negative = d < 0;
