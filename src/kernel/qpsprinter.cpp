@@ -2164,9 +2164,7 @@ static const char * const Apple_CharStrings[]={
 
 
 #ifdef Q_PRINTER_USE_TYPE42
-#ifndef _OS_OSF_
-extern "C" char* getenv(char*);
-#endif
+#include <stdlib.h>
 #endif
 
 QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
