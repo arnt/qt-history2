@@ -452,7 +452,7 @@ static CFBundleRef qt_getOpenGLBundle()
 void *QGLContext::getProcAddress(const QString &proc) const
 {
     return CFBundleGetFunctionPointerForName(QCFType<CFBundleRef>(qt_getOpenGLBundle()),
-                                             CFStringCreateWithCStringNoCopy(0, proc.latin1(),
+                                             CFStringCreateWithCStringNoCopy(0, proc.toLatin1(),
                                                                 CFStringGetSystemEncoding(), 0));
 }
 
