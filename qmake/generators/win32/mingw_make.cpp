@@ -100,10 +100,9 @@ MingwMakefileGenerator::writeMingwParts(QTextStream &t)
 	QString inc = (*incit);
 	inc.replace(QRegExp("\\\\$"), "\\\\");
 	inc.replace(QRegExp("\""), "");
-	t << " -I" << inc ;
+	t << " -I" << "\"" << inc << "\"";
     }
-    t << " -I" << specdir()
-      << endl;
+    t << " -I" << "\"" << specdir()  << "\"" << endl;
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "LINK	=	" << var("QMAKE_LINK") << endl;
 	t << "LFLAGS	=	";
