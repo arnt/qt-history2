@@ -1,6 +1,9 @@
 #ifndef QREAL_H
 #define QREAL_H
 
+#if !defined Q_CORE_EXPORT
+#include <qglobal.h>
+#endif
 /* Fixed point class. emulates IEEE behaviour for infinity, doesn't have NaN */
 
 class Q_CORE_EXPORT QFixedPoint {
