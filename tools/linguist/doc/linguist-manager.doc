@@ -19,7 +19,8 @@
 <a name="Chapter_1_Release_Manager">
 
 Two tools are provided for the release manager, \e lupdate and \e
-lrelease. These tools depend on <tt>qmake</tt> project files.
+lrelease. These tools depend on \e qmake project files. You don't
+have to use \e qmake, though. All you need to know is told here.
 
 <h2><a name="Qt_Project_Files">Qt Project Files</a></h2>
 
@@ -33,9 +34,10 @@ the native language. A typical entry looks like this:
 \printline TRANSLATIONS
 \printline
 
-Using a locale within the filename is useful for determining which
-language to load at runtime -- this is explained in
-<a href="linguist-programmer.html#Chapter_3_Programmers">Chapter 3: Programmers</a>.
+Using a locale within the translation file name is useful for
+determining which language to load at runtime. This is explained in
+<a href="linguist-programmer.html#Chapter_3_Programmers">Chapter 3:
+Programmers</a>.
 
 An example of a complete \c .pro file with four translation source files:
 \code
@@ -49,6 +51,13 @@ An example of a complete \c .pro file with four translation source files:
 		      superapp_fi.ts \
 		      superapp_no.ts \
 		      superapp_se.ts
+\endcode
+
+If you use the QApplication::defaultCodec() mechanism in your
+application, you will also need to set the \c CODEC entry, like this:
+
+\code
+    CODEC           = ISO-8859-5
 \endcode
 
 <h2><a name="lupdate">lupdate</a></h2>

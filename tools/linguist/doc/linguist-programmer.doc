@@ -197,8 +197,24 @@ describes the navigation steps to reach the text in question; e.g.
 *&#47;
 </pre>
 
-These comments are particularly useful just before user-visible classes
-such as dialog classes.
+These comments are particularly useful for widget classes.
+
+<h3><a name=Coping_With_C++_Namespaces">Coping With C++ Namespaces</a></h3>
+
+C++ namespaces and the \c {using namespace} statement can confuse
+<tt>lupdate</tt>. It will interpret \c MyClass::tr() as meaning just
+that, not as \c MyNamespace::MyClass::tr(), even if \c MyClass is
+defined in the \c MyNamespace namespace. Run-time translation of
+these strings will fail because of that.
+
+You can work around this limitation by putting a \e TRANSLATOR
+comment at the beginning of the source files that use \c
+MyClass::tr():
+<pre>
+/*  TRANSLATOR MyNamespace::MyClass *&#47;
+</pre>
+After the comment, all references to \c MyClass::tr() will be
+understood as meaning \c MyNamespace::MyClass::tr().
 
 <h2><a name="Tutorials">Tutorials</a></h2>
 
