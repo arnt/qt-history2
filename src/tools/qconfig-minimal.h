@@ -1,3 +1,4 @@
+#define QT_NO_PROCESS
 #define QT_NO_PALETTE
 #define QT_NO_ACTION
 #define QT_NO_CODECS

@@ -5,10 +5,7 @@
 // supported on Qt/Embedded where reducing the library size is important
 // and where the application-suite is often a fixed set.
 
-#ifndef QT_DLL
+
+#if !defined(QT_DLL) && !defined(QT_NODLL)
 #define QT_DLL // Internal
 #endif
-
-#define QT_NO_QWS_MACH64
-#define QT_NO_QWS_VOODOO3
-#define QT_NO_QWS_MATROX

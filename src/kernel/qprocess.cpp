@@ -39,6 +39,9 @@
 #include <stdlib.h>
 
 #include "qapplication.h"
+
+#ifndef QT_NO_PROCESS
+
 #include "qprocess.h"
 
 
@@ -274,3 +277,5 @@ void QProcess::disconnectNotify( const char * )
 	setWroteStdinConnected( FALSE );
     }
 }
+
+#endif // QT_NO_PROCESS

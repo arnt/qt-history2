@@ -1,3 +1,4 @@
+#define QT_NO_PROCESS
 #define QT_NO_CODECS
 #define QT_NO_UNICODETABLES
 #define QT_NO_IMAGEIO_BMP

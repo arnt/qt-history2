@@ -36,6 +36,9 @@
 **********************************************************************/
 
 #include "qprocess.h"
+
+#ifndef QT_NO_PROCESS
+
 #include "qapplication.h"
 #include "qqueue.h"
 #include "qtimer.h"
@@ -404,3 +407,5 @@ void QProcess::setWroteStdinConnected( bool value )
 {
     wroteStdinConnected = value;
 }
+
+#endif // QT_NO_PROCESS

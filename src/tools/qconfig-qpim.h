@@ -16,6 +16,7 @@
 #define QT_DLL // Internal
 #endif
 
+#define QT_NO_PROCESS
 //#define QT_NO_QWS_CURSOR
 #define QT_NO_CODECS
 #define QT_NO_UNICODETABLES

@@ -45,6 +45,8 @@
 #include "qdir.h"
 #endif // QT_H
 
+#ifndef QT_NO_PROCESS
+
 class QProcessPrivate;
 
 
@@ -122,5 +124,7 @@ private slots:
 private:
     friend class QProcessPrivate;
 };
+
+#endif // QT_NO_PROCESS
 
 #endif // QPROCESS_H
