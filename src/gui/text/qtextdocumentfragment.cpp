@@ -357,13 +357,18 @@ void QTextHTMLImporter::import()
 
             listReferences.append(d->formatCollection.createObjectIndex(listFmt));
         } else if (node->tag == QLatin1String("table")) {
-            tableIndices.append(d->formatCollection.createObjectIndex(QTextTableFormat()));
+            Table t;
+            t.tableIndex = d->formatCollection.createObjectIndex(QTextTableFormat());
+            tables.append(t);
         } else if (node->isTableCell) {
-            Q_ASSERT(!tableIndices.isEmpty());
+            Q_ASSERT(!tables.isEmpty());
 
             QTextCharFormat charFmt;
             charFmt.setNonDeletable(true);
-            charFmt.setObjectIndex(tableIndices[tableIndices.size() - 1]);
+
+            charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
+            tables[tables.size() -1].currentColumnCount++;
+
             QTextBlockFormat fmt;
             if (node->bgColor.isValid())
                 fmt.setBackgroundColor(node->bgColor);
@@ -456,7 +461,7 @@ void QTextHTMLImporter::import()
         appendText(node->text, format);
     }
 
-    if (listReferences.size() || tableIndices.size())
+    if (listReferences.size() || tables.size())
         closeTag(count() - 1);
 
 }
@@ -470,6 +475,14 @@ void QTextHTMLImporter::closeTag(int i)
 
     while (closedNode->parent != grandParent || (atLastNode && closedNode != &at(0))) {
         if (closedNode->tag == QLatin1String("tr")) {
+            Q_ASSERT(!tables.isEmpty());
+
+            Table &t = tables[tables.size() -1];
+            QTextTableFormat fmt = d->formatCollection.objectFormat(t.tableIndex).toTableFormat();
+            fmt.setColumns(qMax(fmt.columns(), t.currentColumnCount));
+            d->formatCollection.setObjectFormat(t.tableIndex, fmt);
+            t.currentColumnCount = 0;
+
             // ################### Fix table columns!
 #if 0
             Q_ASSERT(!tableIndices.isEmpty());
@@ -482,12 +495,12 @@ void QTextHTMLImporter::closeTag(int i)
 #endif
             ;
         } else if (closedNode->tag == QLatin1String("table")) {
-            Q_ASSERT(!tableIndices.isEmpty());
+            Q_ASSERT(!tables.isEmpty());
             QTextCharFormat charFmt;
             charFmt.setNonDeletable(true);
             QTextBlockFormat fmt;
             appendBlock(fmt, charFmt, QTextEndOfFrame);
-            tableIndices.resize(tableIndices.size() - 1);
+            tables.resize(tables.size() - 1);
         } else if (closedNode->isListStart) {
 
             Q_ASSERT(!listReferences.isEmpty());

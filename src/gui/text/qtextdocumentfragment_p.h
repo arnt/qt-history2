@@ -105,7 +105,14 @@ private:
     QTextDocumentFragmentPrivate *d;
     QVarLengthArray<int> listReferences;
     int indent;
-    QVarLengthArray<int> tableIndices;
+
+    struct Table
+    {
+        Table() : tableIndex(-1), currentColumnCount(0) {}
+        int tableIndex; // objectIndex
+        int currentColumnCount;
+    };
+    QVarLengthArray<Table> tables;
 };
 
 #endif // QTEXTDOCUMENTFRAGMENT_P_H
