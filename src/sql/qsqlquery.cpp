@@ -990,14 +990,14 @@ bool QSqlQuery::exec()
 	    QVariant val;
 	    QString holder;
 	    for ( i = (int)d->sqlResult->extension()->holders.count() - 1; i >= 0; --i ) {
-		holder = d->sqlResult->extension()->holders[ (uint)i ].holderName;
+		holder = d->sqlResult->extension()->holders[ i ].holderName;
 		val = d->sqlResult->extension()->values[ holder ].value;
 		QSqlField f( "", val.type() );
 		if ( val.isNull() )
 		    f.setNull();
 		else
 		    f.setValue( val );
-		query = query.replace( (uint)d->sqlResult->extension()->holders[ (uint)i ].holderPos, 
+		query = query.replace( (uint)d->sqlResult->extension()->holders[ i ].holderPos, 
 			holder.length(), driver()->formatValue( &f ) ); 
 	    }
 	} else {

@@ -55,6 +55,7 @@
 #include <qwidgetstack.h>
 #include <qtabwidget.h>
 #include <qtoolbar.h>
+#include <qmap.h>
 #include <qt_windows.h>
 
 #include <uxtheme.h>

@@ -45,7 +45,7 @@
 
 class QRegExp;
 
-class QStringList : public QList<QString>
+class Q_EXPORT QStringList : public QList<QString>
 {
 public:
     inline QStringList() { }
@@ -81,13 +81,13 @@ public:
 
 #ifndef QT_NO_DATASTREAM
 template <class T>
-QDataStream& operator>>( QDataStream& s, QStringList& l )
+Q_EXPORT QDataStream& operator>>( QDataStream& s, QStringList& l )
 {
     return operator>>(s, (QList<T>&)l);
 }
 
 template <class T>
-QDataStream& operator<<( QDataStream& s, const QStringList& l )
+Q_EXPORT QDataStream& operator<<( QDataStream& s, const QStringList& l )
 {
     return operator<<(s, (QList<T>&)l);
 }
