@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdata.h#18 $
+** $Id: //depot/qt/main/src/kernel/qfontdata.h#19 $
 **
 **                    ***   INTERNAL HEADER FILE   ***
 **
@@ -42,7 +42,7 @@ struct QFontDef {				// font definition
 struct QXFontData;
 #endif
 
-struct QFontData : public QShared {
+struct QFontData : QShared {
     QFontData();
    ~QFontData();
     QFontData( const QFontData & );

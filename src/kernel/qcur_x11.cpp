@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#37 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -20,14 +20,14 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#37 $");
 
 
 /*****************************************************************************
   Internal QCursorData class
  *****************************************************************************/
 
-struct QCursorData : public QShared
+struct QCursorData : QShared
 {
     QCursorData();
    ~QCursorData();

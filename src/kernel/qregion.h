@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#20 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#21 $
 **
 ** Definition of QRegion class
 **
@@ -68,7 +68,7 @@ private:
 #endif
     void    cmd( int id, void *, const QRegion * = 0, const QRegion * = 0 );
     void    exec( const QByteArray & );
-    struct QRegionData : public QShared {
+    struct QRegionData : QShared {
 	QByteArray bop;
 #if defined(_WS_WIN_)
 	HANDLE rgn;
