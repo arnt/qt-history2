@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#13 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#14 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -35,10 +35,16 @@ public:
     virtual const char*	suffix() const;
     virtual QString 	textWithoutSuffix() const;
 
-    virtual void 	setWrapping( bool on );
+    void		setMinValueText( const char* text );
+    const char* 	minValueText() const;
+
+    void 		setWrapping( bool on );
     bool 		wrapping() const;
 
+    void		setValidator( QValidator* v );
+
     QSize 		sizeHint() const;
+    void		setPalette( const QPalette& p );
 
 public slots:
     virtual void	setValue( int value );
@@ -50,19 +56,21 @@ signals:
     void		valueChanged( int value );
 
 protected:
-    bool		eventFilter( QObject* obj, QEvent* ev );
-    void		resizeEvent( QResizeEvent* ev );
+    virtual QString	mapValueToText( int value );
+    virtual int		mapTextToValue( bool* ok );
 
-    virtual void	valueChange();
-    virtual void	rangeChange();
-
-    void		setValidator( QValidator* v );
     virtual void	updateDisplay();
     virtual void	interpretText();
 
     QPushButton*	upButton() const;
     QPushButton*	downButton() const;
     QLineEdit*		editor() const;
+
+    virtual void	valueChange();
+    virtual void	rangeChange();
+
+    bool		eventFilter( QObject* obj, QEvent* ev );
+    void		resizeEvent( QResizeEvent* ev );
 
 protected slots:
     void		textChanged();
@@ -75,6 +83,7 @@ private:
     QLineEdit* vi;
     QValidator* validator;
     QString sfix;
+    QString minText;
     bool wrap;
     bool edited;
 };

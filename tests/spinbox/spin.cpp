@@ -22,13 +22,14 @@ public:
     QSpinBox* valBox;
     QCheckBox* wrapCheck;
     QLineEdit* suffixEd;
+    QLineEdit* minTxtEd;
 
 public slots:
  
     void updateWrap();
     void updateStep();
     void updateRange();
-    void updateSuffix();
+    void updateMinValTxt( const char* s );
     void showValue( int i );
 
 };
@@ -93,12 +94,17 @@ Main::Main(QWidget* parent, const char* name, int f)
     suffixEd = new QLineEdit( this );
     connect( suffixEd, SIGNAL(textChanged(const char*)), mainBox, SLOT(setSuffix(const char*)));
 
+    QLabel* minTxtPre = new QLabel("Set minValueText:", this );
+    minTxtPre->setMinimumSize( minTxtPre->sizeHint() );
+    minTxtEd = new QLineEdit( this );
+    connect( minTxtEd, SIGNAL(textChanged(const char*)), this, SLOT(updateMinValTxt(const char*)));
+
     QPushButton* ok = new QPushButton( "Ok", this );
     ok->setMinimumSize( 75, ok->sizeHint().height() );
     ok->setDefault( TRUE );
     QObject::connect( ok, SIGNAL(clicked()), this, SLOT(accept()) );
 
-    QGridLayout* dl = new QGridLayout( this, 8, 3, 5 );
+    QGridLayout* dl = new QGridLayout( this, 9, 3, 5 );
     dl->addWidget( mainPre,	0, 0 );
     dl->addWidget( mainBox,	0, 1 );
     dl->addWidget( stepPre,	1, 0 );
@@ -112,10 +118,12 @@ Main::Main(QWidget* parent, const char* name, int f)
     dl->addWidget( valBox,	5, 1 );
     dl->addWidget( suffixPre,	6, 0 );
     dl->addWidget( suffixEd,	6, 1 );
-    dl->addWidget( ok,		7, 2 );
+    dl->addWidget( minTxtPre,	7, 0 );
+    dl->addWidget( minTxtEd,	7, 1 );
+    dl->addWidget( ok,		8, 2 );
     dl->activate();
 
-    resize( 350, 250 );
+    resize( 350, 300 );
 
 
 }
@@ -135,9 +143,9 @@ void Main::updateRange()
     mainBox->setRange( minBox->value(), maxBox->value() );
 }
 
-void Main::updateSuffix()
+void Main::updateMinValTxt( const char* s )
 {
-    mainBox->setSuffix( suffixEd->text() );
+    mainBox->setMinValueText( s );
 }
 
 void Main::showValue( int i )
