@@ -123,8 +123,7 @@ bool QDir::setCurrent(const QString& path)
     FSSpec myspec;
     char bigbuf[257];
     const char * wingle=
-           (const char *)QFile::encodeName(filePath(path,
-						    true));
+           (const char *)QFile::encodeName(path);
     strcpy(bigbuf+1,wingle);
     bigbuf[0]=strlen(wingle);
     OSErr ret;
@@ -213,6 +212,7 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     char mybuffer[4000];
     
     HParamBlockRec params;
+
     params.ioCompletion=0;
     params.ioNamePtr=0;
     params.ioVRefNum=myvrefnum;
@@ -225,6 +225,7 @@ bool QDir::readDirEntries(const QString& nameFilter,int filterSpec,
     params.ioCatPosition.initialize=0;
     params.ioOptBuffer=&mybuffer;
     params.ioOptBufSize=4000;
+
     myspec1.ioNamePtr=myfind;
     myspec1.ioFlAttrib=0;
     myspec1.ioFlCrData=0;
