@@ -300,9 +300,11 @@ Other keywords in the "Q_PROPERTY" section are
 
 <li> \c STORED - followed by either \c true, \c false or a boolean
 function. Declares whether the property's value shall be stored for
-persistancy.
+persistancy. Stored makes only sense for writeable properties. The
+default value is \c true.
 <li> \c DESIGNABLE - followed by either \c true or \c false. Declares,
 whether a property is considered to be designable in a GUI Designer.
+The default is \c true for writeable properties, otherwise \c false.
 <li> \c RESET - followed by a non-const void function. Can be used by
 a GUI designer to set a property's value back to its context specific
 default value.
