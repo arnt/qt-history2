@@ -37,10 +37,10 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 	    DWORD size( 0 );
 	    QString value;
 
-	    if( RegOpenKeyExW( hkKey, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_READ, &env ) == ERROR_SUCCESS ) {
-		RegQueryValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, NULL, NULL, &size );
+	    if( RegOpenKeyExW( hkKey, L"Environment", 0, KEY_READ, &env ) == ERROR_SUCCESS ) {
+		RegQueryValueExW( env, varName.ucs2(), 0, NULL, NULL, &size );
 		buffer.resize( size );
-		RegQueryValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, NULL, (unsigned char*)buffer.data(), &size );
+		RegQueryValueExW( env, varName.ucs2(), 0, NULL, (unsigned char*)buffer.data(), &size );
 		for( int i = 0; i < ( int )buffer.size(); i += 2 ) {
 		    QChar c( buffer[ i ], buffer[ i + 1 ] );
 		    if( !c.isNull() )
@@ -60,7 +60,7 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
     }
     if( envBlock & LocalEnv ) {
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
-	    TCHAR *varNameT = (TCHAR*)qt_winTchar( varName, TRUE );
+	    TCHAR *varNameT = (TCHAR*)qt_winTchar_new( varName );
 	    int size = GetEnvironmentVariableW( varNameT, 0, 0 );
 	    if ( size == 0 )
 		return QString::null;
@@ -125,8 +125,8 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 	    buffer[ (2*i) ] = 0;
 	    buffer[ (2*i)+1 ] = 0;
 
-	    if( RegOpenKeyExW( hkKey, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
-		RegSetValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, REG_EXPAND_SZ, (const unsigned char*)buffer.data(), buffer.size() );
+	    if( RegOpenKeyExW( hkKey, L"Environment", 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
+		RegSetValueExW( env, varName.ucs2(), 0, REG_EXPAND_SZ, (const unsigned char*)buffer.data(), buffer.size() );
 		RegCloseKey( env );
 	    }
 	}
@@ -144,7 +144,7 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
     if( envBlock & LocalEnv ) {
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	    TCHAR *varNameT = (TCHAR*)qt_winTchar_new( varName );
-	    SetEnvironmentVariableW( varNameT, (TCHAR*)qt_winTchar(varValue,TRUE) );
+	    SetEnvironmentVariableW( varNameT, varName.ucs2() );
 	    delete varNameT;
 	} else {
 	    SetEnvironmentVariableA( varName.local8Bit(), varValue.local8Bit() );
@@ -168,8 +168,8 @@ void QEnvironment::removeEnv( QString varName, int envBlock )
     if( envBlock & PersistentEnv ) {
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	    HKEY env;
-	    if( RegOpenKeyExW( hkKey, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
-		RegDeleteValue( env, (WCHAR*)qt_winTchar( varName, true ) );
+	    if( RegOpenKeyExW( hkKey, L"Environment", 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
+		RegDeleteValue( env, varName.ucs2() );
 		RegCloseKey( env );
 	    }
 	}
@@ -204,7 +204,7 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
     QByteArray buffer;
 
     if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
-	if( RegCreateKeyExW( HKEY_LOCAL_MACHINE, (WCHAR*)qt_winTchar( QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" ) + displayName, true ), 0, NULL, 0, KEY_WRITE, NULL, &key, NULL ) == ERROR_SUCCESS ) {
+	if( RegCreateKeyExW( HKEY_LOCAL_MACHINE, QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + displayName ).ucs2(), 0, NULL, 0, KEY_WRITE, NULL, &key, NULL ) == ERROR_SUCCESS ) {
 	    const QChar* data;
 	    int i;
 
@@ -216,7 +216,7 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
 	    }
 	    buffer[ (2*i) ] = 0;
 	    buffer[ (2*i)+1 ] = 0;
-	    RegSetValueExW( key, (WCHAR*)qt_winTchar( "DisplayName", true ), 0, REG_SZ, (const unsigned char*)buffer.data(), buffer.size() );
+	    RegSetValueExW( key, QString("DisplayName").ucs2(), 0, REG_SZ, (const unsigned char*)buffer.data(), buffer.size() );
 	    
 	    buffer.resize( cmdString.length() * 2 + 2 );
 	    data = cmdString.unicode();
@@ -226,7 +226,7 @@ bool QEnvironment::recordUninstall( QString displayName, QString cmdString )
 	    }
 	    buffer[ (2*i) ] = 0;
 	    buffer[ (2*i)+1 ] = 0;
-	    RegSetValueExW( key, (WCHAR*)qt_winTchar( "UninstallString", true ), 0, REG_SZ, (const unsigned char*)buffer.data(), buffer.size() );
+	    RegSetValueExW( key, L"UninstallString", 0, REG_SZ, (const unsigned char*)buffer.data(), buffer.size() );
 	    
 	    RegCloseKey( key );
 	    return true;
@@ -255,8 +255,8 @@ bool QEnvironment::removeUninstall( QString displayName )
     HKEY key;
     
     if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
-	if( RegOpenKeyExW( HKEY_LOCAL_MACHINE, (WCHAR*)qt_winTchar( QString( "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall" ), true ), 0, KEY_WRITE, &key ) == ERROR_SUCCESS )
-	    RegDeleteKeyW( key, (WCHAR*)qt_winTchar( QString( displayName ), true ) );
+	if( RegOpenKeyExW( HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall", 0, KEY_WRITE, &key ) == ERROR_SUCCESS )
+	    RegDeleteKeyW( key, displayName.ucs2() );
 	return true;
     }
     else {
@@ -278,10 +278,10 @@ QString QEnvironment::getRegistryString( QString keyName, QString valueName, int
     QByteArray buffer, expBuffer;
 
     if( int( qWinVersion() ) & int(Qt::WV_NT_based) ) {
-	if( RegOpenKeyExW( scopeKeys[ scope ], (WCHAR*)qt_winTchar( keyName, true ), 0, KEY_READ, &key ) == ERROR_SUCCESS ) {
-	    if( RegQueryValueExW( key, (WCHAR*)qt_winTchar( valueName, true ), NULL, NULL, NULL, &valueSize ) == ERROR_SUCCESS ) {
+	if( RegOpenKeyExW( scopeKeys[ scope ], keyName.ucs2(), 0, KEY_READ, &key ) == ERROR_SUCCESS ) {
+	    if( RegQueryValueExW( key, valueName.ucs2(), NULL, NULL, NULL, &valueSize ) == ERROR_SUCCESS ) {
 		buffer.resize( valueSize );
-		if( RegQueryValueExW( key, (WCHAR*)qt_winTchar( valueName, true ), NULL, NULL, (unsigned char*)buffer.data(), &valueSize ) == ERROR_SUCCESS ) {
+		if( RegQueryValueExW( key, valueName.ucs2(), NULL, NULL, (unsigned char*)buffer.data(), &valueSize ) == ERROR_SUCCESS ) {
 		    valueSize = ExpandEnvironmentStringsW( (WCHAR*)buffer.data(), NULL, 0 );
 		    expBuffer.resize( valueSize * 2 );
 		    ExpandEnvironmentStringsW( (WCHAR*)buffer.data(), (WCHAR*)expBuffer.data(), valueSize );

@@ -92,7 +92,7 @@ int main( int argc, char** argv )
 	pathEnv.replace( qtEnv, "" );
 	QEnvironment::putEnv( "PATH", pathEnv, QEnvironment::PersistentEnv );
 	if( qWinVersion() & Qt::WV_NT_based ) {
-	    SendNotifyMessageW( HWND_BROADCAST, WM_WININICHANGE, 0, (LPARAM)qt_winTchar(QString("Environment"),true) );
+	    SendNotifyMessageW( HWND_BROADCAST, WM_WININICHANGE, 0, QString("Environment").ucs2(),true) );
 	}
 #endif
     }

@@ -550,7 +550,7 @@ void SetupWizardImpl::prepareEnvironment()
     }
 
     if( qWinVersion() & WV_NT_based ) {
-	SendNotifyMessageW( HWND_BROADCAST, WM_WININICHANGE, 0, (LPARAM)qt_winTchar(QString("Environment"),true) );
+	SendNotifyMessageW( HWND_BROADCAST, WM_WININICHANGE, 0, (LPARAM)"Environment" );
     }
 #endif
 }

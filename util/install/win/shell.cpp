@@ -262,7 +262,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool, QString shortcutName
         IShellLinkW* link;
 	if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (void**)&link ) ) ) {
 	    if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {
-		link->SetPath( (LPOLESTR)qt_winTchar( target, true ) );
+		link->SetPath( target.ucs2() );
 		QString _wrkDir = wrkDir;
 		if( !_wrkDir.length() ) {
 		    _wrkDir = QDir::convertSeparators( target );
@@ -274,13 +274,13 @@ HRESULT WinShell::createShortcut( QString folderName, bool, QString shortcutName
 			_wrkDir = "";
 		}
 
-		link->SetWorkingDirectory( (LPOLESTR)qt_winTchar( _wrkDir, true ) );
+		link->SetWorkingDirectory( _wrkDir.ucs2() );
 		if( description.length() )
-		    link->SetDescription( (LPOLESTR)qt_winTchar( description, true ) );
+		    link->SetDescription( description.ucs2() );
 		if( arguments.length() )
-		    link->SetArguments( (LPOLESTR)qt_winTchar( arguments, true ) );
+		    link->SetArguments( arguments.ucs2() );
 
-		hr = linkFile->Save( (LPCOLESTR)qt_winTchar( folderName + QString( "\\" ) + shortcutName, true ), false );
+		hr = linkFile->Save( QString( folderName + QString( "\\" ) + shortcutName ).ucs2(), false );
 
 		linkFile->Release();
 	    }
@@ -312,7 +312,7 @@ HRESULT WinShell::createShortcut( QString folderName, bool, QString shortcutName
 		if( arguments.length() )
 		    link->SetArguments( arguments.local8Bit() );
 
-		hr = linkFile->Save( (LPCOLESTR)qt_winTchar( folderName + QString( "\\" ) + shortcutName, true ), false );
+		hr = linkFile->Save( QString( folderName + QString( "\\" ) + shortcutName ).ucs2(), false );
 
 		linkFile->Release();
 	    }
