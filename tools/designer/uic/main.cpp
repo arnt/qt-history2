@@ -267,7 +267,7 @@ int main( int argc, char * argv[] )
     }
 
     QDomElement e = doc.firstChild().toElement();
-    if ( e.hasAttribute("version") && e.attribute("version").toDouble() > 3.2 ) {
+    if ( e.hasAttribute("version") && e.attribute("version").toDouble() > 3.3 ) {
 	qWarning( QString("uic: File generated with too recent version of Qt Designer (%s vs. %s)"),
 		  e.attribute("version").latin1(), QT_VERSION_STR );
 	return 1;
