@@ -217,7 +217,7 @@ template class Q_EXPORT QIntDict<int>;
 class Q_EXPORT QTable : public QScrollView
 {
     Q_OBJECT
-    Q_ENUMS( SelectionMode )
+    Q_ENUMS( SelectionMode FocusStyle )
     Q_PROPERTY( int numRows READ numRows WRITE setNumRows )
     Q_PROPERTY( int numCols READ numCols WRITE setNumCols )
     Q_PROPERTY( bool showGrid READ showGrid WRITE setShowGrid )
@@ -226,6 +226,7 @@ class Q_EXPORT QTable : public QScrollView
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool sorting READ sorting WRITE setSorting )
     Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
+    Q_PROPERTY( FocusStyle focusStyle READ focusStyle WRITE setFocusStyle )
 
     friend class QTableHeader;
     friend class QComboTableItem;
@@ -308,6 +309,10 @@ public:
     void setEnabled( bool b );
 
     void repaintSelections();
+
+    enum FocusStyle { FollowStyle, SpreadSheet };
+    virtual void setFocusStyle( FocusStyle fs );
+    FocusStyle focusStyle() const;
 
 public slots:
     virtual void setNumRows( int r );
@@ -476,6 +481,7 @@ private:
     QPoint dragStartPos;
     int oldCurrentRow, oldCurrentCol;
     QWidget *topLeftCorner;
+    FocusStyle focusStl;
 
 };
 

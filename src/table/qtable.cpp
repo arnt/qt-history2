@@ -400,6 +400,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 
 */
 
+
 /*! Creates a child item of table \a table with text \a text.
   The item has the \l EditType \a et.
 
@@ -1517,6 +1518,21 @@ int QCheckTableItem::rtti() const
   \value Multiple The user may select multiple rows
 */
 
+/*! \enum QTable::FocusStyle
+
+  Specifies how the current cell (focus cell) is drawn.
+
+  \value FollowStyle The current cell is drawn according to the
+  current style and the cell's background is also drawn selected, if
+  the current cell is position within a selection
+
+  \value SpreadSheet The current cell is drawn as in a spread
+  sheet. This means, it is indicated by a black rectangle around the
+  cell, and the background of the current cell is always drawn with
+  the widget's base color - even when selected.
+
+ */
+
 /*! \fn void QTable::clicked( int row, int col, int button, const QPoint &mousePos )
 
   This signal is emitted when mouse button \a button is clicked. The
@@ -1679,6 +1695,8 @@ void QTable::init( int rows, int cols )
 
     installEventFilter( this );
 
+    focusStl = SpreadSheet;
+
     // Initial size
     resize( 640, 480 );
 }
@@ -1811,6 +1829,22 @@ void QTable::setSelectionMode( SelectionMode mode )
 QTable::SelectionMode QTable::selectionMode() const
 {
     return selMode;
+}
+
+/*! Specifies the way the current cell (focus cell) is drawn. The
+  default is SpreadSheet. */
+
+void QTable::setFocusStyle( FocusStyle fs )
+{
+    focusStl = fs;
+    updateCell( curRow, curCol );
+}
+
+/*! Returns the way the current cell is drawn */
+
+QTable::FocusStyle QTable::focusStyle() const
+{
+    return focusStl;
 }
 
 /*! Returns the table's top QHeader.
@@ -2232,7 +2266,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    // Translate painter and draw the cell
 	    p->translate( colp, rowp );
 	    bool selected = isSelected( r, c );
-	    if ( selected && !currentInSelection && r == curRow && c == curCol  )
+	    if ( selected && !currentInSelection && r == curRow && c == curCol  && focusStl == SpreadSheet )
 		selected = FALSE;
 	    paintCell( p, r, c, QRect( colp, rowp, colw, rowh ), selected );
 	    p->translate( -colp, -rowp );
@@ -2294,7 +2328,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 void QTable::paintCell( QPainter* p, int row, int col,
 			const QRect &cr, bool selected )
 {
-    if ( selected &&
+    if ( focusStl == SpreadSheet && selected &&
 	 row == curRow &&
 	 col == curCol && ( hasFocus() || viewport()->hasFocus() ) )
 	selected = FALSE;
@@ -2348,24 +2382,20 @@ void QTable::paintFocus( QPainter *p, const QRect &cr )
     if ( !hasFocus() && !viewport()->hasFocus() )
 	return;
     QRect focusRect( 0, 0, cr.width(), cr.height() );
-    p->setPen( QPen( black, 1 ) );
-    p->setBrush( NoBrush );
-    bool focusEdited = FALSE;
-    if ( edMode != NotEditing &&
-	 curRow == editRow && curCol == editCol )
-	focusEdited = TRUE;
-    if ( !focusEdited ) {
-	QTableItem *i = item( curRow, curCol );
-	focusEdited = ( i &&
-			( i->editType() == QTableItem::Always ||
-			  ( i->editType() == QTableItem::WhenCurrent &&
-			    curRow == i->row() && curCol == i->col() ) ) );
-    }
-    p->drawRect( focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1 );
-    if ( !focusEdited ) {
+    if ( focusStyle() == SpreadSheet ) {
+	p->setPen( QPen( black, 1 ) );
+	p->setBrush( NoBrush );
+	p->drawRect( focusRect.x(), focusRect.y(), focusRect.width() - 1, focusRect.height() - 1 );
 	p->drawRect( focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1 );
     } else {
-	p->drawRect( focusRect.x() - 1, focusRect.y() - 1, focusRect.width() + 1, focusRect.height() + 1 );
+	void *data[1];
+	data[0] = (void *) ( isSelected( curRow, curCol, FALSE ) ?
+			     &colorGroup().highlight() : &colorGroup().base() );
+	style().drawPrimitive( QStyle::PE_FocusRect, p, focusRect, colorGroup(),
+			       ( isSelected( curRow, curCol, FALSE ) ?
+				 QStyle::Style_FocusAtBorder :
+				 QStyle::Style_Default ),
+			       data);
     }
 }
 
