@@ -3702,31 +3702,14 @@ void MainWindow::readConfig()
     if ( !restoreConfig )
 	return;
 
-    QString fn = QDir::homeDirPath() + "/.designerrc";
-    QFile f( fn + "tb" );
-    bool tbconfig = f.open( IO_ReadOnly );
-    QMap< QString, int > docks;
-    QMap< QString, int > indices;
-    QMap< QString, int > nls;
-    QMap< QString, int > eos;
-    if ( tbconfig ) {
-	QDataStream s( &f );
-	s >> docks;
-	s >> indices;
-	s >> nls;
-	s >> eos;
+    QApplication::sendPostedEvents();
+    QString fn = QDir::homeDirPath() + "/.designerrc" + "tb2";
+    QFile f( fn );
+    if ( f.open( IO_ReadOnly ) ) {
+	QTextStream ts( &f );
+	ts >> *this;
+	f.close();
     }
-
-     if ( tbconfig ) {
-	 QApplication::sendPostedEvents();
-	 QString fn = QDir::homeDirPath() + "/.designerrc" + "tb2";
-	 QFile f( fn );
-	 if ( f.open( IO_ReadOnly ) ) {
-	     QTextStream ts( &f );
-	     ts >> *this;
-	     f.close();
-	 }
-     }
 
     rebuildCustomWidgetGUI();
 }
@@ -3865,44 +3848,13 @@ void MainWindow::readOldConfig()
     if ( !restoreConfig )
 	return;
 
-    QFile f( fn + "tb" );
-    bool tbconfig = f.open( IO_ReadOnly );
-    QMap< QString, int > docks;
-    QMap< QString, int > indices;
-    QMap< QString, int > nls;
-    QMap< QString, int > eos;
-    if ( tbconfig ) {
-	QDataStream s( &f );
-	s >> docks;
-	s >> indices;
-	s >> nls;
-	s >> eos;
-    }
-
-    if ( tbconfig ) {
-	QMap< QString, int >::Iterator dit, iit;
-	QMap< QString, int >::Iterator nit, eit;
-	dit = docks.begin();
-	iit = indices.begin();
-	nit = nls.begin();
-	eit = eos.begin();
-	QObjectList *l = queryList( "QToolBar" );
-	if ( !l )
-	    return;
-	for ( ; dit != docks.end(); ++dit, ++iit, ++nit, ++eit ) {
-	    QString n = dit.key();
-	    while ( n[ 0 ].isNumber() )
-		n.remove( 0, 1 );
-	    QToolBar *tb = 0;
-	    for ( tb = (QToolBar*)l->first(); tb; tb = (QToolBar*)l->next() ) {
-		if ( tb->label() == n )
-		    break;
-	    }
-	    if ( !tb )
-		continue;
-	    moveToolBar( tb, (ToolBarDock)*dit, (bool)*nit, *iit, *eit );
-	}
-	delete l;
+    QApplication::sendPostedEvents();
+    fn = QDir::homeDirPath() + "/.designerrc" + "tb2";
+    QFile f( fn );
+    if ( f.open( IO_ReadOnly ) ) {
+	QTextStream ts( &f );
+	ts >> *this;
+	f.close();
     }
 
     rebuildCustomWidgetGUI();
