@@ -46,7 +46,6 @@ public:
     struct {
 	QPen pen;
 	QBrush brush;
-	QFont font;
 	Qt::RasterOp rop;
 	QRegion clip;
 	struct {

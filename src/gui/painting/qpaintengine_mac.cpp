@@ -212,8 +212,8 @@ QQuickDrawPaintEngine::updateBrush(QPainterState *ps)
 void
 QQuickDrawPaintEngine::updateFont(QPainterState *ps)
 {
-    d->current.font = ps->font;
     clearf(DirtyFont);
+    updatePen(ps);
 }
 
 
@@ -1312,7 +1312,8 @@ void
 QCoreGraphicsPaintEngine::updateFont(QPainterState *ps)
 {
     Q_ASSERT(isActive());
-    //TBD
+    clearf(DirtyFont);
+    updatePen(ps);
 }
 
 void
@@ -1343,6 +1344,8 @@ QCoreGraphicsPaintEngine::updateXForm(QPainterState *ps)
 							   ps->matrix.dx(),  ps->matrix.dy()));
     CGContextConcatCTM((CGContextRef)d->hd, xf);
 //    CGContextSetTextMatrix((CGContextRef)d->hd, xf);
+#else
+    Q_UNUSED(ps);
 #endif
 }
 
