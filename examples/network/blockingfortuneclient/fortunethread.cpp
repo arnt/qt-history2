@@ -37,13 +37,13 @@ void FortuneThread::run()
         socket.connectToHost(serverName, serverPort);
 
         if (!socket.waitForConnected(Timeout)) {
-            emit error(socket.socketError(), socket.errorString());
+            emit error(socket.error(), socket.errorString());
             return;
         }
 
         while (socket.bytesAvailable() < sizeof(Q_UINT16)) {
             if (!socket.waitForReadyRead(Timeout)) {
-                emit error(socket.socketError(), socket.errorString());
+                emit error(socket.error(), socket.errorString());
                 return;
             }
         }
@@ -55,7 +55,7 @@ void FortuneThread::run()
 
         while (socket.bytesAvailable() < blockSize) {
             if (!socket.waitForReadyRead(Timeout)) {
-                emit error(socket.socketError(), socket.errorString());
+                emit error(socket.error(), socket.errorString());
                 return;
             }
         }

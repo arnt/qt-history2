@@ -51,7 +51,7 @@ public:
     bool hasPendingDatagrams() const;
     Q_LONGLONG pendingDatagramSize() const;
 
-    Qt::SocketState socketState() const;
+    Qt::SocketState state() const;
 
     QHostAddress localAddress() const;
     Q_UINT16 localPort() const;
@@ -68,7 +68,7 @@ public:
     bool waitForWrite(int msecs = 30000, bool *timedOut = 0) const;
     bool waitForReadOrWrite(bool *readyToRead, bool checkRead, bool checkWrite, int msecs = 30000, bool *timedOut = 0) const;
 
-    Qt::SocketError socketError() const;
+    Qt::SocketError error() const;
     QString errorString() const;
 
 private:

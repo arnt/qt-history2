@@ -65,8 +65,8 @@ public:
     void setEnvironment(const QStringList &environment);
     QStringList environment() const;
 
-    QProcess::ProcessError processError() const;
-    QProcess::ProcessState processState() const;
+    QProcess::ProcessError error() const;
+    QProcess::ProcessState state() const;
 
     Q_PID pid() const;
 

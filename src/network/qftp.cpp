@@ -63,7 +63,7 @@ public:
     void connectToHost(const QString & host, Q_UINT16 port);
     int setupListener(const QHostAddress &address);
 
-    Qt::SocketState socketState() const;
+    Qt::SocketState state() const;
     Q_LONGLONG bytesAvailable() const;
     Q_LONGLONG read(char *data, Q_LONGLONG maxlen);
     QByteArray readAll();
@@ -311,14 +311,14 @@ int QFtpDTP::setupListener(const QHostAddress &address)
     return listener.serverPort();
 }
 
-Qt::SocketState QFtpDTP::socketState() const
+Qt::SocketState QFtpDTP::state() const
 {
-    return socket ? socket->socketState() : Qt::UnconnectedState;
+    return socket ? socket->state() : Qt::UnconnectedState;
 }
 
 Q_LONGLONG QFtpDTP::bytesAvailable() const
 {
-    if (!socket || socket->socketState() != Qt::ConnectedState)
+    if (!socket || socket->state() != Qt::ConnectedState)
         return (Q_LONGLONG) bytesFromSocket.size();
     return socket->bytesAvailable();
 }
@@ -326,7 +326,7 @@ Q_LONGLONG QFtpDTP::bytesAvailable() const
 Q_LONGLONG QFtpDTP::read(char *data, Q_LONGLONG maxlen)
 {
     Q_LONGLONG read;
-    if (socket && socket->socketState() == Qt::ConnectedState) {
+    if (socket && socket->state() == Qt::ConnectedState) {
         read = socket->read(data, maxlen);
     } else {
         read = bytesFromSocket.size();
@@ -341,7 +341,7 @@ Q_LONGLONG QFtpDTP::read(char *data, Q_LONGLONG maxlen)
 QByteArray QFtpDTP::readAll()
 {
     QByteArray tmp;
-    if (socket && socket->socketState() == Qt::ConnectedState) {
+    if (socket && socket->state() == Qt::ConnectedState) {
         tmp = socket->readAll();
         bytesDone += tmp.size();
     } else {
@@ -726,7 +726,7 @@ bool QFtpPI::sendCommands(const QStringList &cmds)
     if (!pendingCommands.isEmpty())
         return false;
 
-    if (commandSocket.socketState() != Qt::ConnectedState || state!=Idle) {
+    if (commandSocket.state() != Qt::ConnectedState || state!=Idle) {
         emit error(QFtp::NotConnected, QFtp::tr("Not connected"));
         return true; // there are no pending commands
     }
@@ -870,7 +870,7 @@ bool QFtpPI::processReply()
     // process 226 replies ("Closing Data Connection") only when the data
     // connection is really closed to avoid short reads of the DTP
     if (100*replyCode[0]+10*replyCode[1]+replyCode[2] == 226) {
-        if (dtp.socketState() != Qt::UnconnectedState) {
+        if (dtp.state() != Qt::UnconnectedState) {
             waitForDtpToClose = true;
             return false;
         }

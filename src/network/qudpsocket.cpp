@@ -156,7 +156,7 @@ bool QUdpSocket::bind(const QHostAddress &address, Q_UINT16 port)
 
     bool result = d->socketLayer.bind(address, port);
     if (!result) {
-        d->socketError = d->socketLayer.socketError();
+        d->socketError = d->socketLayer.error();
         setErrorString(d->socketLayer.errorString());
         emit error(d->socketError);
         return false;
@@ -208,7 +208,7 @@ Q_LONGLONG QUdpSocket::pendingDatagramSize() const
     Datagrams are always written as one block. The maximum size of a
     datagram is highly platform-dependent, but can be as low as 8192
     bytes. If the datagram is too large, this function will return -1
-    and socketError() will return Qt::DatagramTooLargeError.
+    and error() will return Qt::DatagramTooLargeError.
 
     Sending datagrams larger than 512 bytes is in general disadvised,
     as even if they are sent successfully, they are likely to be
@@ -229,7 +229,7 @@ Q_LONGLONG QUdpSocket::writeDatagram(const char *data, Q_LONGLONG size, const QH
     if (sent >= 0) {
         emit bytesWritten(sent);
     } else {
-        d->socketError = d->socketLayer.socketError();
+        d->socketError = d->socketLayer.error();
         setErrorString(d->socketLayer.errorString());
         emit error(d->socketError);
     }
@@ -268,7 +268,7 @@ Q_LONGLONG QUdpSocket::readDatagram(char *data, Q_LONGLONG maxSize, QHostAddress
     QT_CHECK_BOUND("QUdpSocket::readDatagram()", -1);
     Q_LONGLONG readBytes = d->socketLayer.readDatagram(data, maxSize, address, port);
     if (readBytes < 0) {
-        d->socketError = d->socketLayer.socketError();
+        d->socketError = d->socketLayer.error();
         setErrorString(d->socketLayer.errorString());
         emit error(d->socketError);
     }

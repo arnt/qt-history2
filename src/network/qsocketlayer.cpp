@@ -51,7 +51,7 @@
     also call hasMoreDatagrams(), nextDatagramSize(),
     readDatagram(), and writeDatagram().
 
-    Call socketState() to determine the state of the socket, for
+    Call state() to determine the state of the socket, for
     example, ListeningState or ConnectedState. socketType() tells
     whether the socket is a TCP socket or a UDP socket, or if the
     socket type is unknown. protocol() is used to determine the
@@ -62,7 +62,7 @@
     connected, peerAddress() and peerPort() determine the address and
     port of the connected peer.
 
-    Finally, if any function should fail, socketError() and
+    Finally, if any function should fail, error() and
     errorString() can be called to determine the cause of the error.
 */
 
@@ -305,7 +305,7 @@ bool QSocketLayer::isValid() const
 
     \sa QSocketLayer::SocketState
 */
-Qt::SocketState QSocketLayer::socketState() const
+Qt::SocketState QSocketLayer::state() const
 {
     return d->socketState;
 }
@@ -384,7 +384,7 @@ Q_UINT16 QSocketLayer::peerPort() const
     and the socket enters ConnectedState. Otherwise, false is
     returned.
 
-    If false is returned, socketState() should be called to see if the
+    If false is returned, state() should be called to see if the
     socket is in ConnectingState. If so, a delayed TCP connection is
     taking place, and connectToHost() must be called again later to
     determine if the connection was established successfully or
@@ -589,7 +589,7 @@ Q_LONGLONG QSocketLayer::readDatagram(char *data, Q_LONGLONG maxSize, QHostAddre
     number of bytes written, or -1 if an error occurred.
 
     Only one datagram is sent, and if there is too much data to fit
-    into a single datagram, the operation will fail and socketError()
+    into a single datagram, the operation will fail and error()
     will return Qt::DatagramTooLargeError. Operating systems impose an
     upper limit to the size of a datagram, but this size is different
     on almost all platforms. Sending large datagrams is in general
@@ -806,7 +806,7 @@ void QSocketLayer::setSendBufferSize(Q_LONGLONG size)
 
     \sa SocketError
 */
-Qt::SocketError QSocketLayer::socketError() const
+Qt::SocketError QSocketLayer::error() const
 {
     return d->socketError;
 }
@@ -815,7 +815,7 @@ Qt::SocketError QSocketLayer::socketError() const
     Returns a human readable description of the last error that
     occurred.
 
-    \sa socketError()
+    \sa error()
 */
 QString QSocketLayer::errorString() const
 {

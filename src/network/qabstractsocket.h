@@ -47,6 +47,15 @@ namespace Qt {
         BoundState,
         ListeningState,
         ClosingState
+#ifdef QT_COMPAT
+        ,
+        Idle = Qt::UnconnectedState,
+        HostLookup = Qt::HostLookupState,
+        Connecting = Qt::ConnectingState,
+        Connected = Qt::ConnectedState,
+        Closing = Qt::ClosingState,
+        Connection = Qt::ConnectedState
+#endif
     };
 }
 
@@ -90,8 +99,8 @@ public:
                              OpenMode openMode = ReadWrite);
 
     Qt::SocketType socketType() const;
-    Qt::SocketState socketState() const;
-    Qt::SocketError socketError() const;
+    Qt::SocketState state() const;
+    Qt::SocketError error() const;
 
     // from QIODevice
     void close();
@@ -138,15 +147,6 @@ public:
         ErrHostNotFound = Qt::HostNotFoundError,
         ErrSocketRead = Qt::UnknownSocketError
     };
-    enum State {
-        Idle = Qt::UnconnectedState,
-        HostLookup = Qt::HostLookupState,
-        Connecting = Qt::ConnectingState,
-        Connected = Qt::ConnectedState,
-        Closing = Qt::ClosingState,
-        Connection = Qt::ConnectedState
-    };
-    inline QT_COMPAT State state() const { return State(socketState()); }
     inline QT_COMPAT int socket() const { return socketDescriptor(); }
     inline QT_COMPAT void setSocket(int socket) { setSocketDescriptor(socket); }
     inline QT_COMPAT Q_ULONG waitForMore(int msecs, bool *timeout = 0) const
@@ -154,10 +154,11 @@ public:
         QAbstractSocket *that = const_cast<QAbstractSocket *>(this);
         if (that->waitForReadyRead(msecs))
             return Q_ULONG(bytesAvailable());
-        if (socketError() == Qt::SocketTimeoutError && timeout)
+        if (error() == Qt::SocketTimeoutError && timeout)
             *timeout = true;
         return 0;
     }
+    typedef Qt::SocketState State;
 signals:
     QT_MOC_COMPAT void connectionClosed(); // same as disconnected()
     QT_MOC_COMPAT void delayedCloseFinished(); // same as disconnected()

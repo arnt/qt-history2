@@ -57,8 +57,8 @@
     argument, and you can also call exitCode(), which returns the
     exit code of the last process that finished. At an error occurs
     at any point in time, QProcess will emit the error() signal. You
-    can also call processError() to find the type of error that
-    occurred last, and processState() to find the current process
+    can also call error() to find the type of error that
+    occurred last, and state() to find the current process
     state.
 
     Processes have two predefined output channels: the standard
@@ -580,7 +580,7 @@ Q_LONGLONG QProcess::bytesToWrite() const
 
     \sa error()
 */
-QProcess::ProcessError QProcess::processError() const
+QProcess::ProcessError QProcess::error() const
 {
     Q_D(const QProcess);
     return d->processError;
@@ -591,7 +591,7 @@ QProcess::ProcessError QProcess::processError() const
 
     \sa stateChanged()
 */
-QProcess::ProcessState QProcess::processState() const
+QProcess::ProcessState QProcess::state() const
 {
     Q_D(const QProcess);
     return d->processState;

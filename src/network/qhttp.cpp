@@ -2117,7 +2117,7 @@ void QHttpPrivate::sendRequest()
     // Do we need to setup a new connection or can we reuse an
     // existing one?
     if (socket->peerName() != hostName || socket->peerPort() != port
-        || socket->socketState() != Qt::ConnectedState) {
+        || socket->state() != Qt::ConnectedState) {
         socket->abort();
 
         setState(QHttp::Connecting);
@@ -2542,7 +2542,7 @@ void QHttpPrivate::closeConn()
         socket->close();
 
         // Did close succeed immediately ?
-        if (socket->socketState() == Qt::UnconnectedState) {
+        if (socket->state() == Qt::UnconnectedState) {
             // Prepare to emit the requestFinished() signal.
             idleTimer = q->startTimer(0);
         }

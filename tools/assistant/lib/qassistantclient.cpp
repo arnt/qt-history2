@@ -150,7 +150,7 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent )
 */
 QAssistantClient::~QAssistantClient()
 {
-    if ( proc->processState() == QProcess::Running )
+    if ( proc->state() == QProcess::Running )
         proc->terminate();
 
     if( dpointers ) {
@@ -176,7 +176,7 @@ QAssistantClient::~QAssistantClient()
 */
 void QAssistantClient::openAssistant()
 {
-    if ( proc->processState() == QProcess::Running )
+    if ( proc->state() == QProcess::Running )
         return;
 
     QStringList args;

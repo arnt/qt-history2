@@ -203,19 +203,19 @@ bool QTcpServer::listen(const QHostAddress &address, Q_UINT16 port)
 #endif
 
     if (!d->socketLayer.initialize(Qt::TcpSocket, proto)) {
-        d->serverSocketError = d->socketLayer.socketError();
+        d->serverSocketError = d->socketLayer.error();
         d->serverSocketErrorString = d->socketLayer.errorString();
         return false;
     }
 
     if (!d->socketLayer.bind(address, port)) {
-        d->serverSocketError = d->socketLayer.socketError();
+        d->serverSocketError = d->socketLayer.error();
         d->serverSocketErrorString = d->socketLayer.errorString();
         return false;
     }
 
     if (!d->socketLayer.listen()) {
-        d->serverSocketError = d->socketLayer.socketError();
+        d->serverSocketError = d->socketLayer.error();
         d->serverSocketErrorString = d->socketLayer.errorString();
         return false;
     }
@@ -253,7 +253,7 @@ bool QTcpServer::listen(Q_UINT16 port)
 */
 bool QTcpServer::isListening() const
 {
-    return d->socketLayer.socketState() == Qt::ListeningState;
+    return d->socketLayer.state() == Qt::ListeningState;
 }
 
 /*!
@@ -305,7 +305,7 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
     }
 
     if (!d->socketLayer.initialize(socketDescriptor, Qt::ListeningState)) {
-        d->serverSocketError = d->socketLayer.socketError();
+        d->serverSocketError = d->socketLayer.error();
         d->serverSocketErrorString = d->socketLayer.errorString();
 #if defined (QTCPSERVER_DEBUG)
         qDebug("QTcpServer::setSocketDescriptor(%i) failed (%s)", socketDescriptor,
@@ -318,7 +318,7 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
                                                 QSocketNotifier::Read, this);
     connect(d->readSocketNotifier, SIGNAL(activated(int)), SLOT(processIncomingConnection(int)));
 
-    d->state = d->socketLayer.socketState();
+    d->state = d->socketLayer.state();
     d->address = d->socketLayer.localAddress();
     d->port = d->socketLayer.localPort();
 
@@ -373,7 +373,7 @@ bool QTcpServer::waitForNewConnection(int msec, bool *timedOut)
         return false;
 
     if (!d->socketLayer.waitForRead(msec, timedOut)) {
-        d->serverSocketError = d->socketLayer.socketError();
+        d->serverSocketError = d->socketLayer.error();
         d->serverSocketErrorString = d->socketLayer.errorString();
         return false;
     }
