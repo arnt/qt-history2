@@ -11,8 +11,7 @@ QGPlugin::~QGPlugin()
 
 QUnknownInterface* QGPlugin::iface()
 {
-    if ( _iface )
-	return 0;
+    Q_ASSERT( _iface );
     QUnknownInterface *i;
     _iface->queryInterface( IID_QUnknown, &i );
     return i;
