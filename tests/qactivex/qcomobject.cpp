@@ -1029,7 +1029,10 @@ void QComBase::clear()
 }
 
 /*!
-    ###
+    Requests the interface \a uuid from the COM object and sets the value of \a iface to the
+    provided interface, or to null if the requested interface could not be provided.
+    
+    Returns the result of the QueryInterface implementation of the COM object.
 */
 long QComBase::queryInterface( const QUuid &uuid, void **iface ) const
 {

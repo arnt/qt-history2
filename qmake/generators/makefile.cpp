@@ -1535,12 +1535,13 @@ MakefileGenerator::specdir()
     spec = Option::mkfile::qmakespec;
     const char *d = getenv("QTDIR");
     if(d) {
-	QString qdir = QDir::convertSeparators(QString(d));
-	if(qdir.right(1) == Option::dir_sep)
+	QString qdir = Option::fixPathToTargetOS(QString(d));
+	if(qdir.right(1) == QDir::separator())
 	    qdir.truncate(qdir.length()-1);
 	//fix path
 	QFileInfo fi(spec);
 	QString absSpec(fi.absFilePath());
+	absSpec = Option::fixPathToTargetOS(absSpec);
 	//replace what you can
 	if(absSpec.left(qdir.length()) == qdir) {
 	    absSpec.replace(0, qdir.length(), "$(QTDIR)");

@@ -55,6 +55,7 @@ void SetupWizardImpl::cleanDone()
 	    }
 	    outFile.close();
 	}
+	logOutput( "Doing the final integration steps..." );
 	doFinalIntegration();
 	buildPage->compileProgress->setTotalSteps( buildPage->compileProgress->totalSteps() );
 	showPage( finishPage );
@@ -327,6 +328,7 @@ void SetupWizardImpl::cleanDone()
 	    }
 	    outFile.close();
 	}
+	logOutput( "Doing the final integration steps..." );
 	doFinalIntegration();
 	buildPage->compileProgress->setTotalSteps( buildPage->compileProgress->totalSteps() );
 	showPage( finishPage );

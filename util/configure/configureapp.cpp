@@ -789,9 +789,11 @@ void Configure::generateConfigfiles()
 
 	if( dictionary[ "QCONFIG" ] == "full" ) {
 	    outStream << "// Everything" << endl << endl;
-	    outStream << "#if defined( QT_MAKEDLL ) && !defined( QT_DLL )" << endl;
-	    outStream << "#define QT_DLL" << endl;
-	    outStream << "#endif" << endl;
+	    if( dictionary[ "SHARED" ] == "yes" ) {
+		outStream << "#ifndef QT_DLL" << endl;
+		outStream << "#define QT_DLL" << endl;
+		outStream << "#endif" << endl;
+	    }
 	} else {
 	    QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
 	    outStream << "// Copied from " << configName << endl;

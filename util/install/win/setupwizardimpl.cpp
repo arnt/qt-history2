@@ -541,7 +541,7 @@ void SetupWizardImpl::clickedPath()
     dlg.setDir( dir );
     dlg.setMode( QFileDialog::DirectoryOnly );
     if( dlg.exec() ) {
-	optionsPage->installPath->setText( dlg.dir()->absPath() );
+	optionsPage->installPath->setText( QDir::convertSeparators(dlg.dir()->absPath()) );
     }
 #elif defined(Q_OS_MACX)
     if( !dir.exists() )
@@ -727,7 +727,6 @@ void SetupWizardImpl::installIcons( const QString& iconFolder, const QString& di
 
 void SetupWizardImpl::doFinalIntegration()
 {
-    buildPage->compileProgress->setProgress( buildPage->compileProgress->totalSteps() );
 #if defined(Q_OS_WIN32)
     QString dirName, examplesName, tutorialsName;
     bool common( foldersPage->folderGroups->currentItem() == 0 );
@@ -860,19 +859,21 @@ void SetupWizardImpl::doFinalIntegration()
 
     QEnvironment::recordUninstall( QString( "Qt " ) + globalInformation.qtVersionStr(), uninstaller.join( " " ) );
 #endif
+    buildPage->compileProgress->setProgress( buildPage->compileProgress->totalSteps() );
 }
 
 void SetupWizardImpl::integratorDone()
 {
-    buildPage->compileProgress->setTotalSteps( buildPage->compileProgress->totalSteps() );
     if( ( !integrator.normalExit() || ( integrator.normalExit() && integrator.exitStatus() ) ) && ( triedToIntegrate ) ) {
 	logOutput( "The integration process failed.\n", true );
 	emit wizardPageFailed( indexOf(currentPage()) );
     } else {
 	// We still have some more items to do in order to finish all the
 	// integration stuff.
-	if ( !globalInformation.reconfig() )
+	if ( !globalInformation.reconfig() ) {
+	    logOutput( "Doing the final integration steps..." );
 	    doFinalIntegration();
+	}
 	setNextEnabled( buildPage, true );
 	logOutput( "The build was successful", true );
     }
@@ -888,8 +889,6 @@ void SetupWizardImpl::makeDone()
 	QMessageBox::critical( this, "Error", "The build process failed!" );
 	setAppropriate( progressPage, false );
     } else {
-	buildPage->compileProgress->setProgress( buildPage->compileProgress->totalSteps() );
-
 	if( ( globalInformation.sysId() != GlobalInformation::MSVC ) ||
 	    ( !findFileInPaths( "atlbase.h", QStringList::split( ";", QEnvironment::getEnv( "INCLUDE" ) ) ) &&
 	      !findFileInPaths( "afxwin.h", QStringList::split( ";", QEnvironment::getEnv( "INCLUDE" ) ) ) ) )

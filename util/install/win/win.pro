@@ -46,11 +46,11 @@ win32:LIBS		+= ../archive/arq.lib
 INCLUDEPATH		+= ../keygen
 
 eval {
-    !exists($(QTEVAL)/install) {
+    !exists($(QTEVAL)/src) {
 	error(You must set the QTEVAL environment variable to the directory where you checked out //depot/qteval/main in order to be able to build the evaluation version of install.)
     }
     DEFINES		+= EVAL
     win32:RC_FILE	= install-eval.rc
-    SOURCES		+= $(QTEVAL)/install/check-and-patch.cpp
-    INCLUDEPATH		+= $(QTEVAL)/install
+    SOURCES		+= $(QTEVAL)/src/check-and-patch.cpp
+    INCLUDEPATH		+= $(QTEVAL)/src
 }

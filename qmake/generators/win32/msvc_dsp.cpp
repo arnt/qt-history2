@@ -302,7 +302,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		    QString fname = base;
 		    fname.replace(QRegExp("\\.ui"), "");
-		    int lbs = fname.find( "\\" );
+		    int lbs = fname.findRev( "\\" );
 		    QString fpath;
 		    if ( lbs != -1 )
 			fpath = fname.left( lbs + 1 );

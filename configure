@@ -945,7 +945,7 @@ if [ '!' -d "$QMAKESPEC" ]
 then
     echo
     echo
-    echo '   The specified platform/compiler is not supported: ' $QMAKESPEC
+    echo '   The specified system/compiler  is not supported: ' $QMAKESPEC
     echo '   Please see the PLATFORMS file for a complete list.'
     echo
     echo
@@ -955,7 +955,7 @@ if [ '!' -d "$XQMAKESPEC" ]
 then
     echo
     echo
-    echo '   The specified platform/xcompiler is not supported: ' $XQMAKESPEC
+    echo '   The specified system/compiler is not supported: ' $XQMAKESPEC
     echo '   Please see the PLATFORMS file for a complete list.'
     echo
     echo
@@ -967,7 +967,7 @@ if [ '!' -f "${XQMAKESPEC}/qplatformdefs.h" ]
 then
     echo
     echo
-    echo '   The specified platform/compiler port is not complete: '
+    echo '   The specified system/compiler port is not complete: '
     echo
     echo '       ' $XQMAKESPEC/qplatformdefs.h
     echo
@@ -1211,7 +1211,8 @@ Configure options:
     -no-g++-exceptions . Disable exceptions on platforms using the GNU C++
 			 compiler by using the -fno-exceptions flag.
 
-    -platform target ... The platform you are building on ($PLATFORM).
+    -platform target ... The operating system and compiler you are building
+			 on ($PLATFORM).
     -xplatform target .. The target platform when cross-compiling.
 
 			 See the PLATFORMS file for a list of supported
