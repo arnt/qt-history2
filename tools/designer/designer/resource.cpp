@@ -1275,6 +1275,9 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 
 void Resource::createColumn( const QDomElement &e, QWidget *widget )
 {
+    if ( !widget )
+	return;
+
     if ( widget->inherits( "QListView" ) && e.tagName() == "column" ) {
 	QListView *lv = (QListView*)widget;
 	QDomElement n = e.firstChild().toElement();
@@ -1373,7 +1376,7 @@ void Resource::loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool 
 
 void Resource::createItem( const QDomElement &e, QWidget *widget, QListViewItem *i )
 {
-    if ( !WidgetFactory::hasItems( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) )
+    if ( !widget || !WidgetFactory::hasItems( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) )
 	return;
 
     if ( widget->inherits( "QListBox" ) || widget->inherits( "QComboBox" ) ) {
