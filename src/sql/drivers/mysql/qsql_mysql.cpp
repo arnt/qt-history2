@@ -509,7 +509,7 @@ QSqlIndex QMYSQLDriver::primaryIndex( const QString& tablename ) const
     QSqlQuery i = createQuery();
     QString stmt( "show index from %1;" );
     QSqlRecord fil = record( tablename );
-    i.exec( stmt.arg( tablename.lower() ) );
+    i.exec( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	if ( i.value(2).toString() == "PRIMARY" ) {
 	    idx.append( *fil.field( i.value(4).toString() ) );
@@ -525,7 +525,7 @@ QSqlRecord QMYSQLDriver::record( const QString& tablename ) const
     QSqlRecord fil;
     if ( !isOpen() )
 	return fil;
-    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.lower().local8Bit().data(), 0);
+    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit().data(), 0);
     if ( !r ) {
 	return fil;
     }
@@ -566,7 +566,7 @@ QSqlRecordInfo QMYSQLDriver::recordInfo( const QString& tablename ) const
     QSqlRecordInfo info;
     if ( !isOpen() )
 	return info;
-    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.lower().local8Bit().data(), 0);
+    MYSQL_RES* r = mysql_list_fields( d->mysql, tablename.local8Bit().data(), 0);
     if ( !r ) {
 	return info;
     }
