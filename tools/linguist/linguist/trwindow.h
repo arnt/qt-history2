@@ -117,7 +117,7 @@ private:
     void setCurrentMessageItem( QListViewItem *item );
     QString friendlyPhraseBookName( int k );
     bool openPhraseBook( const QString& name );
-    bool savePhraseBook( const QString& name, const PhraseBook& pb );
+    bool savePhraseBook( QString& name, const PhraseBook& pb );
     void updateProgress();
     void updatePhraseDict();
     PhraseBook getPhrases( const QString& source );

@@ -692,11 +692,13 @@ void TrWindow::openFile( const QString& name )
 	    foundItem = 0;
 	    foundWhere = 0;
 	    foundOffset = 0;
-	    findAct->setEnabled( TRUE );
-	    findAgainAct->setEnabled( FALSE );
+	    if ( lv->childCount() > 0 ) {
+		findAct->setEnabled( TRUE );
+		findAgainAct->setEnabled( FALSE );
 #if notyet
-	    replaceAct->setEnabled( TRUE );
+		replaceAct->setEnabled( TRUE );
 #endif
+	    }
 	    addRecentlyOpenedFile( name, recentFiles );
 	} else {
 	    statusBar()->clear();
@@ -848,6 +850,8 @@ void TrWindow::findAgain()
     QListViewItem * k = indexToItem( slv, foundItem );
     QListViewItem * oldScope = lv->currentItem();
 
+    if ( lv->childCount() == 0 )
+	return;
 #if 1
     /*
       As long as we don't implement highlighting of the text in the QTextView,
@@ -1999,8 +2003,11 @@ bool TrWindow::openPhraseBook( const QString& name )
     return TRUE;
 }
 
-bool TrWindow::savePhraseBook( const QString& name, const PhraseBook& pb )
+bool TrWindow::savePhraseBook( QString& name, const PhraseBook& pb )
 {
+    if ( !name.contains( ".qph" ) && !name.contains(".") )
+	name += ".qph";
+    
     if ( !pb.save(name) ) {
 	QMessageBox::warning( this, tr("Qt Linguist"),
 			      tr("Cannot create phrase book '%1'.")
