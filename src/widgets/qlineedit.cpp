@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#113 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#114 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#113 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#114 $");
 
 
 struct QLineEditPrivate {
@@ -565,17 +565,21 @@ void QLineEdit::paintEvent( QPaintEvent *e )
     }
 	
     bitBlt( this, e->rect().topLeft(), d->pm, e->rect() );
-    if ( cursorOn && hasFocus() &&
-	 d->cursorRepaintRect.intersects( e->rect() ) ) {
-	QPainter p( this );
-	int curYTop = d->cursorRepaintRect.y();
-	int curYBot = d->cursorRepaintRect.bottom();
-	int curXPos = d->cursorRepaintRect.x() + 2;
-	p.drawLine( curXPos, curYTop, curXPos, curYBot );
-	if ( style() != WindowsStyle ) {
-	    p.drawLine( curXPos - 2, curYTop, curXPos + 2, curYTop );
-	    p.drawLine( curXPos - 2, curYBot, curXPos + 2, curYBot );
+    if ( hasFocus() ) {
+	if ( cursorOn && d->cursorRepaintRect.intersects( e->rect() ) ) {
+	    QPainter p( this );
+	    int curYTop = d->cursorRepaintRect.y();
+	    int curYBot = d->cursorRepaintRect.bottom();
+	    int curXPos = d->cursorRepaintRect.x() + 2;
+	    p.drawLine( curXPos, curYTop, curXPos, curYBot );
+	    if ( style() != WindowsStyle ) {
+		p.drawLine( curXPos - 2, curYTop, curXPos + 2, curYTop );
+		p.drawLine( curXPos - 2, curYBot, curXPos + 2, curYBot );
+	    }
 	}
+    } else {
+	delete d->pm;
+	d->pm = 0;
     }
 
 }
