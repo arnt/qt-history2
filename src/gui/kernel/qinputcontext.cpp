@@ -529,17 +529,17 @@ void QInputContextPrivate::sendIMEventInternal(QEvent::Type type,
 	return;
 
     if (type == QEvent::InputMethodStart) {
-	qDebug("sending InputMethodStart with %d chars to %p",
-		text.length(), receiver);
+// 	qDebug("sending InputMethodStart with %d chars to %p",
+// 		text.length(), receiver);
 	event = new QInputMethodEvent(type, text, cursorPosition);
     } else if (type == QEvent::InputMethodEnd) {
-	qDebug("sending InputMethodEnd with %d chars to %p, text=%s",
-		text.length(), receiver, (const char*)text.local8Bit());
+// 	qDebug("sending InputMethodEnd with %d chars to %p, text=%s",
+// 		text.length(), receiver, (const char*)text.local8Bit());
 	event = new QInputMethodEvent(type, text, cursorPosition);
     } else if (type == QEvent::InputMethodCompose) {
-	qDebug("sending InputMethodCompose to %p with %d chars, cpos=%d, sellen=%d, text=%s",
-		receiver, text.length(), cursorPosition, selLength,
-		(const char*)text.local8Bit());
+// 	qDebug("sending InputMethodCompose to %p with %d chars, cpos=%d, sellen=%d, text=%s",
+// 		receiver, text.length(), cursorPosition, selLength,
+// 		(const char*)text.local8Bit());
 	event = new QInputMethodEvent(type, text, cursorPosition, selLength);
     }
 
