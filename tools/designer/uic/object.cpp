@@ -209,28 +209,28 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    QString call;
 	    QString value;
 
-	    if ( objClass.mid( 1 ) == "ListBox" ) {
+	    if ( objClass.contains( "ListBox" ) ) {
 		call = createListBoxItemImpl( n, objName );
 		if ( !call.isEmpty() ) {
 		    if ( numItems == 0 )
 			trout << indent << objName << "->clear();" << endl;
 		    trout << indent << call << endl;
 		}
-	    } else if ( objClass.mid( 1 ) == "ComboBox" ) {
+	    } else if ( objClass.contains( "ComboBox" ) ) {
 		call = createListBoxItemImpl( n, objName, &value );
 		if ( !call.isEmpty() ) {
 		    if ( numItems == 0 )
 			trout << indent << objName << "->clear();" << endl;
 		    trout << indent << call << endl;
 		}
-	    } else if ( objClass.mid( 1 ) == "IconView" ) {
+	    } else if ( objClass.contains( "IconView" ) ) {
 		call = createIconViewItemImpl( n, objName );
 		if ( !call.isEmpty() ) {
 		    if ( numItems == 0 )
 			trout << indent << objName << "->clear();" << endl;
 		    trout << indent << call << endl;
 		}
-	    } else if ( objClass.mid( 1 ) == "ListView" ) {
+	    } else if ( objClass.contains( "ListView" ) ) {
 		call = createListViewItemImpl( n, objName, QString::null );
 		if ( !call.isEmpty() ) {
 		    if ( numItems == 0 )
@@ -244,7 +244,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    QString call;
 	    QString value;
 
-	    if ( objClass.mid( 1 ) == "ListView" ) {
+	    if ( objClass.contains( "ListView" ) ) {
 		call = createListViewColumnImpl( n, objName, &value );
 		if ( !call.isEmpty() ) {
 		    out << call;
