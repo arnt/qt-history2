@@ -49,6 +49,8 @@ QProcessPrivate::QProcessPrivate()
     writePipe[1] = -1;
     childStartedPipe[0] = -1;
     childStartedPipe[1] = -1;
+    exitCode = 0;
+    crashed = false;
 }
 
 QProcessPrivate::~QProcessPrivate()
@@ -86,6 +88,8 @@ void QProcessPrivate::cleanup()
     destroyPipe(errorReadPipe);
     destroyPipe(writePipe);
     destroyPipe(childStartedPipe);
+    exitCode = 0;
+    crashed = false;
 }
 
 void QProcessPrivate::readyReadStandardOutput(int)
@@ -156,12 +160,18 @@ void QProcessPrivate::processDied()
     processState = QProcess::Finishing;
     emit q->stateChanged(processState);
 
-    exitCode = waitForChild();
+    if (crashed) {
+        processError = QProcess::Crashed;
+        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process crashed"));
+        emit q->error(processError);
+    }
+
+    int code = exitCode;
     cleanup();
 
     processState = QProcess::NotRunning;
     emit q->stateChanged(processState);
-    emit q->finished(exitCode);
+    emit q->finished(code);
 }
 
 void QProcessPrivate::startupNotification(int)

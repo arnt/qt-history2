@@ -42,7 +42,6 @@ public:
     QProcess::ProcessState processState;
     QString workingDirectory;
     Q_PID pid;
-    int exitCode;
 
     QByteArray program;
     QStringList arguments;
@@ -66,9 +65,11 @@ public:
 
     void startProcess();
     void execChild();
-    int waitForChild();
     bool processStarted();
     void killProcess();
+
+    int exitCode;
+    bool crashed;
 
     bool waitForStarted(int msecs = 30000);
     bool waitForReadyRead(int msecs = 30000);

@@ -102,6 +102,7 @@ private:
     Q_PRIVATE_SLOT(d, void readyWrite(int));
     Q_PRIVATE_SLOT(d, void startupNotification(int));
     Q_PRIVATE_SLOT(d, void processDied());
+    friend class QProcessManager;
 };
 
 #endif

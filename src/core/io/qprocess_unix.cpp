@@ -94,6 +94,8 @@ public slots:
             QMutexLocker lock(&mutex);
             QProcess *child = children.value(childpid, 0);
             if (child) {
+                ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
+                ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
                 qInvokeMetaMember(child, "processDied");
                 children.remove(childpid);
             }
@@ -320,20 +322,6 @@ Q_LONGLONG QProcessPrivate::readFromStderr(char *data, Q_LONGLONG maxlen)
     return Q_LONGLONG(::read(errorReadPipe[0], data, maxlen));
 }
 
-int QProcessPrivate::waitForChild()
-{
-    Q_Q(QProcess);
-    int result = 0;
-    ::waitpid(pid, &result, WNOHANG);
-    if (!WIFEXITED(result)) {
-        processError = QProcess::Crashed;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process crashed"));
-        emit q->error(processError);
-    }
-
-    return WEXITSTATUS(result);
-}
-
 void QProcessPrivate::killProcess()
 {
     ::kill(pid, SIGTERM);
@@ -395,27 +383,19 @@ bool QProcessPrivate::waitForFinished(int msecs)
 {
     Q_Q(QProcess);
 
-    QTime stopWatch;
-    stopWatch.start();
-
-    while (QProcessManager::instance().has(pid)) {
-        int timeout = msecs - stopWatch.elapsed();
-        if (timeout <= 0)
-            break;
+    if (QProcessManager::instance().has(pid)) {
         int ret = qt_native_select(QList<int>() << qt_qprocess_deadChild_pipe[0],
-                                   timeout, true);
+                                   msecs, true);
         if (ret == 0) {
             processError = QProcess::Timedout;
             q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
             return false;
         }
-        QProcessManager::instance().deadChildNotification(0);
-    }
 
-    if (!QProcessManager::instance().has(pid)) {
-        waitForChild();
+        QProcessManager::instance().deadChildNotification(0);
         return true;
     }
+
     return false;
 }
 
