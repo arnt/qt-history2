@@ -104,7 +104,7 @@ static const int macRightBorder       = 12;   // right border on mac
 
 // Utility to generate correct rectangles for AppManager internals
 static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=NULL,
-                                          bool off=true, const QRect &rect=QRect())
+                                          bool useOffset=true, const QRect &rect=QRect())
 {
     static Rect r;
     bool use_rect = (rect.x() || rect.y() || rect.width() || rect.height());
@@ -116,8 +116,12 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
     if(use_rect)
         tl += rect.topLeft();
     int offset = 0;
-    if(off)
-        offset = 1;
+    if(useOffset) {
+        if(QRect::rectangleMode() == QRect::InclusiveRectangles)
+            offset = 1;
+        else
+            offset = 2;
+    }
     SetRect(&r, tl.x(), tl.y(), (tl.x() + qr.width()) - offset, (tl.y() + qr.height()) - offset);
     if(use_rect) {
         r.right -= rect.width();

@@ -48,15 +48,19 @@ static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0
                                        bool useOffset = true, const QRect &rect = QRect())
 {
     int x, y;
-    int offset = 1;
+    int offset = 0;
+    if(useOffset) {
+        if(QRect::rectangleMode() == QRect::InclusiveRectangles)
+            offset = 1;
+        else
+            offset = 2;
+    }
     if (p) {
         p->map(convertRect.x(), convertRect.y(), &x, &y);
     } else {
         x = convertRect.x();
         y = convertRect.y();
     }
-    if (!useOffset)
-        --offset;
     return CGRectMake(x + rect.x(), y + rect.y(), convertRect.width() - offset - rect.width(),
                       convertRect.height() - offset - rect.height());
 }
