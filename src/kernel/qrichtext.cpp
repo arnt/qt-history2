@@ -1012,7 +1012,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
 #if defined(PARSER_DEBUG)
     qDebug( debug_indent + "new QTextDocument (%p)", this );
 #endif
-    syntaxHighlighte = 0;
+    pProcessor = 0;
     useFC = TRUE;
     pFormatter = 0;
     indenter = 0;
@@ -1075,7 +1075,7 @@ QTextDocument::~QTextDocument()
     if ( !par )
 	delete pFormatter;
     delete fCollection;
-    delete syntaxHighlighte;
+    delete pProcessor;
     delete buf_pixmap;
     delete indenter;
     if ( tArray )
@@ -2505,7 +2505,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
     changed = FALSE;
     firstFormat = TRUE;
     state = -1;
-    needHighlighte = FALSE;
+    needPreProcess = FALSE;
 
     if ( p )
 	id = p->id + 1;
@@ -2520,7 +2520,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 	    s = s->n;
 	}
     }
-    firstHilite = TRUE;
+    firstPProcess = TRUE;
     lastLenForCompletion = -1;
 
     str = new QTextString();
@@ -2563,20 +2563,20 @@ void QTextParag::invalidate( int chr )
 
 void QTextParag::insert( int index, const QString &s )
 {
-    if ( doc && !doc->useFormatCollection() && doc->syntaxHighlighter() )
+    if ( doc && !doc->useFormatCollection() && doc->preProcessor() )
 	str->insert( index, s,
-		     doc->syntaxHighlighter()->format( QTextSyntaxHighlighter::Standard ) );
+		     doc->preProcessor()->format( QTextPreProcessor::Standard ) );
     else
 	str->insert( index, s, formatCollection()->defaultFormat() );
     invalidate( index );
-    needHighlighte = TRUE;
+    needPreProcess = TRUE;
 }
 
 void QTextParag::truncate( int index )
 {
     str->truncate( index );
     insert( length(), " " );
-    needHighlighte = TRUE;
+    needPreProcess = TRUE;
 }
 
 void QTextParag::remove( int index, int len )
@@ -2590,7 +2590,7 @@ void QTextParag::remove( int index, int len )
     }
     str->remove( index, len );
     invalidate( 0 );
-    needHighlighte = TRUE;
+    needPreProcess = TRUE;
 }
 
 void QTextParag::join( QTextParag *s )
@@ -2616,13 +2616,13 @@ void QTextParag::join( QTextParag *s )
     invalidate( 0 );
     r.setHeight( oh );
     format();
-    needHighlighte = TRUE;
+    needPreProcess = TRUE;
     if ( n ) {
 	QTextParag *s = n;
 	while ( s ) {
 	    s->id = s->p->id + 1;
 	    s->state = -1;
-	    s->needHighlighte = TRUE;
+	    s->needPreProcess = TRUE;
 	    s->changed = TRUE;
 	    s = s->n;
 	}
@@ -2653,10 +2653,10 @@ void QTextParag::format( int start, bool doMove )
 	return;
 
     if ( doc &&
-	 doc->syntaxHighlighter() &&
-	 ( needHighlighte || state == -1 ) )
-	doc->syntaxHighlighter()->highlighte( doc, this, invalid <= 0 ? 0 : invalid );
-    needHighlighte = FALSE;
+	 doc->preProcessor() &&
+	 ( needPreProcess || state == -1 ) )
+	doc->preProcessor()->process( doc, this, invalid <= 0 ? 0 : invalid );
+    needPreProcess = FALSE;
 
     if ( invalid == -1 )
 	return;
@@ -3253,7 +3253,7 @@ int QTextParag::nextTab( int x )
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-QTextSyntaxHighlighter::QTextSyntaxHighlighter()
+QTextPreProcessor::QTextPreProcessor()
 {
 }
 

@@ -97,7 +97,7 @@ static QString keywords[] = {
 static QMap<int, QMap<QString, int > > *wordMap = 0;
 
 QCppSyntaxHighlighter::QCppSyntaxHighlighter()
-    : QTextSyntaxHighlighter(), lastFormat( 0 ), lastFormatId( -1 )
+    : QTextPreProcessor(), lastFormat( 0 ), lastFormatId( -1 )
 {
     createFormats();
     if ( wordMap )
@@ -136,7 +136,7 @@ void QCppSyntaxHighlighter::createFormats()
 	       new QTextFormat( QFont( normalFamily, normalSize, normalWeight ), Qt::darkBlue ) );
 }
 
-void QCppSyntaxHighlighter::highlighte( QTextDocument *doc, QTextParag *string, int, bool invalidate )
+void QCppSyntaxHighlighter::process( QTextDocument *doc, QTextParag *string, int, bool invalidate )
 {
 
     QTextFormat *formatStandard = format( Standard );
@@ -219,7 +219,7 @@ void QCppSyntaxHighlighter::highlighte( QTextDocument *doc, QTextParag *string, 
     int state = StateStandard;
     if ( string->prev() ) {
 	if ( string->prev()->endState() == -1 )
-	    highlighte( doc, string->prev(), 0, FALSE );
+	    process( doc, string->prev(), 0, FALSE );
 	state = string->prev()->endState();
     }
     int input;
@@ -422,10 +422,10 @@ void QCppSyntaxHighlighter::highlighte( QTextDocument *doc, QTextParag *string, 
 	string->setEndState( StateStandard );
     }
 
-    string->setFirstHighlighte( FALSE );
+    string->setFirstPreProcess( FALSE );
 
     if ( invalidate && string->next() &&
-	 !string->next()->firstHighlighte() && string->next()->endState() != -1 ) {
+	 !string->next()->firstPreProcess() && string->next()->endState() != -1 ) {
 	QTextParag *p = string->next();
 	while ( p ) {
 	    if ( p->endState() == -1 )

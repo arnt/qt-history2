@@ -395,7 +395,7 @@ private slots:
 	edit->save( QString( "test.html" ) );
 #endif
     }
-    
+
 private:
     QToolBar *tb;
     QComboBox *fontCombo, *sizeCombo, *styleCombo;
@@ -447,7 +447,7 @@ int main( int argc, char ** argv )
 #else
     QTextEdit ed( &mw );
     ed.load( fn, TRUE );
-    ed.document()->setSyntaxHighlighter( new QCppSyntaxHighlighter );
+    ed.document()->setPreProcessor( new QCppSyntaxHighlighter );
     ed.document()->setIndent( new QCppIndent );
     ed.document()->setParenCheckingEnabled( TRUE );
     ed.document()->setCompletionEnabled( TRUE );

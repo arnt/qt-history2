@@ -3,7 +3,7 @@
 
 #include "qrichtext_p.h"
 
-class QCppSyntaxHighlighter : public QTextSyntaxHighlighter
+class QCppSyntaxHighlighter : public QTextPreProcessor
 {
 public:
     enum CppIds {
@@ -17,7 +17,7 @@ public:
 
     QCppSyntaxHighlighter();
     virtual ~QCppSyntaxHighlighter() {}
-    void highlighte( QTextDocument *doc, QTextParag *string, int start, bool invalidate = TRUE );
+    void process( QTextDocument *doc, QTextParag *string, int start, bool invalidate = TRUE );
 
 private:
     QTextFormat *format( int id );

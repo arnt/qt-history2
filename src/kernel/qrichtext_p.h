@@ -69,7 +69,7 @@ class QTextDocument;
 class QTextCommand;
 class QTextView;
 class QTextString;
-class QTextSyntaxHighlighter;
+class QTextPreProcessor;
 class QTextCommandHistory;
 class QTextFormat;
 class QTextCursor;
@@ -324,8 +324,8 @@ public:
 
     void invalidate();
 
-    void setSyntaxHighlighter( QTextSyntaxHighlighter *sh );
-    QTextSyntaxHighlighter *syntaxHighlighter() const;
+    void setPreProcessor( QTextPreProcessor *sh );
+    QTextPreProcessor *preProcessor() const;
 
     void setFormatter( QTextFormatter *f );
     QTextFormatter *formatter() const;
@@ -429,7 +429,7 @@ public:
     int tabStopWidth() const;
     void setTabArray( int *a );
     void setTabStops( int tw );
-    
+
 signals:
     void minimumWidthChanged( int );
 
@@ -462,7 +462,7 @@ private:
 
     int cx, cy, cw, vw;
     QTextParag *fParag, *lParag;
-    QTextSyntaxHighlighter *syntaxHighlighte;
+    QTextPreProcessor *pProcessor;
     QMap<int, QColor> selectionColors;
     QMap<int, Selection> selections;
     QMap<int, bool> selectionText;
@@ -698,8 +698,8 @@ public:
     void setParagId( int i );
     int paragId() const;
 
-    bool firstHighlighte() const;
-    void setFirstHighlighte( bool b );
+    bool firstPreProcess() const;
+    void setFirstPreProcess( bool b );
 
     void indent( int *oldIndent = 0, int *newIndent = 0 );
 
@@ -754,7 +754,7 @@ public:
     int nextTab( int x );
     void setTabArray( int *a );
     void setTabStops( int tw );
-    
+
 private:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     void drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
@@ -773,10 +773,10 @@ private:
     QTextParag *p, *n;
     QTextDocument *doc;
     bool changed;
-    bool firstFormat, firstHilite;
+    bool firstFormat, firstPProcess;
     QMap<int, Selection> selections;
     int state, id;
-    bool needHighlighte;
+    bool needPreProcess;
     ParenList parens;
     int lastLenForCompletion;
     QTextString *str;
@@ -795,7 +795,7 @@ private:
     QTextFormatter *pFormatter;
     int *tabArray;
     int tabStopWidth;
-    
+
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -847,15 +847,15 @@ public:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class QTextSyntaxHighlighter
+class QTextPreProcessor
 {
 public:
     enum Ids {
 	Standard = 0
     };
 
-    QTextSyntaxHighlighter();
-    virtual void highlighte( QTextDocument *doc, QTextParag *, int, bool = TRUE ) = 0;
+    QTextPreProcessor();
+    virtual void process( QTextDocument *doc, QTextParag *, int, bool = TRUE ) = 0;
     virtual QTextFormat *format( int id ) = 0;
 
 };
@@ -1319,14 +1319,14 @@ inline int QTextDocument::minimumWidth() const
     return minw;
 }
 
-inline QTextSyntaxHighlighter *QTextDocument::syntaxHighlighter() const
+inline QTextPreProcessor *QTextDocument::preProcessor() const
 {
-    return syntaxHighlighte;
+    return pProcessor;
 }
 
-inline void QTextDocument::setSyntaxHighlighter( QTextSyntaxHighlighter * sh )
+inline void QTextDocument::setPreProcessor( QTextPreProcessor * sh )
 {
-    syntaxHighlighte = sh;
+    pProcessor = sh;
 }
 
 inline void QTextDocument::setFormatter( QTextFormatter *f )
@@ -1825,14 +1825,14 @@ inline int QTextParag::paragId() const
     return id;
 }
 
-inline bool QTextParag::firstHighlighte() const
+inline bool QTextParag::firstPreProcess() const
 {
-    return firstHilite;
+    return firstPProcess;
 }
 
-inline void QTextParag::setFirstHighlighte( bool b )
+inline void QTextParag::setFirstPreProcess( bool b )
 {
-    firstHilite = b;
+    firstPProcess = b;
 }
 
 inline QTextParag::ParenList &QTextParag::parenList()
