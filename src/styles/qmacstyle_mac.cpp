@@ -448,10 +448,11 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 		GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
 	    else
 		GetThemeMetric(kThemeMetricListBoxFrameOutset, &frame_size);
-	    p->fillRect(r.x(), r.y(), r.x() + opt.lineWidth(), r.bottom(), cg.background()); //left
-	    p->fillRect(r.right()-opt.lineWidth(), r.y(), r.right(), r.bottom(), cg.background()); //right
-	    p->fillRect(r.x(), r.y(), r.right(), r.y() + opt.lineWidth(), cg.background()); //top
-	    p->fillRect(r.x(), r.bottom()-opt.lineWidth(), r.right(), r.bottom(), cg.background()); //bottom
+
+	    p->fillRect(r.x(), r.y(), opt.lineWidth(), r.height(), cg.background()); //left
+	    p->fillRect(r.right()-opt.lineWidth(), r.y(), opt.lineWidth(), r.height(), cg.background()); //right
+	    p->fillRect(r.x(), r.y(), r.width(), opt.lineWidth(), cg.background()); //top
+	    p->fillRect(r.x(), r.bottom()-opt.lineWidth(), r.width(), opt.lineWidth(), cg.background()); //bottm
 
 	    const Rect *rect = qt_glb_mac_rect(r, p, FALSE,
 					       QRect(frame_size, frame_size, frame_size * 2, frame_size * 2));
