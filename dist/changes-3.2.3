@@ -9,7 +9,8 @@ compatibility (source and binary) with Qt 3.2.2
 Compilers
 ---------
 
-- Fix gcc 3.4 compile problems
+Fix gcc 3.4 compile problems.
+
 
 ****************************************************************************
 *                          Library                                         *
@@ -22,7 +23,7 @@ General Fixes
 	Fix memory leak when writing JPEG files.
 
 - QLineEdit
-	Preserve null and empty strings correctly in setText(). 
+	Preserve null and empty strings correctly in setText().
 
 - QMessageBox
 	Preserve undocumented behavior in 3.1: expand tabs.
@@ -34,15 +35,14 @@ General Fixes
 - QMovie
 	Respect background color of movie when loading animations with
 	transparent pixels.
-
 	Fix color mode if reading 1bpp images or frames.
 
 - QPainter
-	Fill complete bounding rect when rendering text with an opaque painter.
+	Fill complete bounding rect when rendering text with an opaque
+	painter.
 
 - QRichtext
 	Fix special case where <nobr>/nfoo had an extra space.
-
 	Fix line breaking for Latin text.
 
 - QTextEdit
@@ -52,20 +52,21 @@ General Fixes
 	Do not grow in height when put inside a normal widget.
 
 - QWheelEvent
-	Wheel events are now only sent to the focus widget if the widget
-	under the mouse doesn't handle the event.
+	Wheel events are now only sent to the focus widget if the
+	widget under the mouse doesn't handle the event.
 
 - QWMatrix 
-	Fix operator *(QRegion) when the world matrix is (-1 0 0 1 0 0) or similar.
+	Fix operator *(QRegion) when the world matrix is (-1 0 0 1 0 0)
+	or similar.
 
 Platform-Specific Issues
 ------------------------
 
 Windows:
 
-- Fix resource leak when printing on Windows 9x
-
-- Fix crash for Win98 with HP OfficeJet Pro 1150C
+- QPrinter
+	Fix resource leak when printing on Windows 9x
+	Fix crash for Win98 with HP OfficeJet Pro 1150C
 
 - QTextBrowser
 	Fixed weight problem in setFont()
@@ -75,34 +76,45 @@ Windows:
 
 Mac:
 
-- Fix problem with popup windows and dual monitors.
+Mac OS X 10.3 (Panther)-specific changes:
 
-- Fix mouse release problem when control is used to emulate mouse
-  button 2.
+- QMacStyle
+	Draw push button text vertically-centered.
+
+- QSplashScreen
+	Make the splash screen centered.
+
+- QWidget
+	Tooltips are displayed in correct place in Panther.
+	Applications that save and restore their geometry will not
+	"walk up" the screen.
+
+General Mac OS X changes:
 
 - Fix crash on exit problem (eg. with designer)
 
-- Fix case where clicking menu bar would stop timers firing.
+- QApplication
+	Fix mouse release problem when control is used to emulate
+	mouse button 2.
+
+- QDesktopWidget
+	Fix problem with popup windows and dual monitors.
 
 - QFont
 	Improve fixedPitch font handling.
 
 - QMenuBar
 	Fix crash with empty menus.
-
 	Make sure that when we show the application menu, the items we
-	merged in from the other popup menu's are properly enabled/disabled.
+	merged in from the other popup menu's are properly
+	enabled/disabled.
+	Fix case where clicking menu bar would stop timers firing.
 
-- QPushButton 
-	draw PushButton text vertically-centered on Panther (Mac OS X 10.3).
-
-- Make the splash screen centered on Panther (Mac OS X 10.3).
-	
 X11:
 
 - Solaris specific
-	Work around compiler bug affecting QString::operator=(const QString &)
-	when linking statically
+	Work around compiler bug affecting QString::operator=(const
+	QString &) when linking statically
 
 - QApplication
 	Avoid endless client message loops when replying to
@@ -110,11 +122,9 @@ X11:
 
 - QFont
 	Fix crash when using high latin characters with GNU unifont.
-
 	Fix scale factor for printing (rounding error).
 
 - QPainter
-
 	Fix an endless loop and a bug in the shaping engine for Hangul
 	Jamo. (Affects only ancient Korean texts.)
 
