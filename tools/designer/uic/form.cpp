@@ -1048,7 +1048,7 @@ void Uic::createFormImpl( const QDomElement &e )
     for ( i = 1; i < (int) nl.length(); i++ ) { // start at 1, 0 is the toplevel widget
 	n = nl.item(i).toElement();
 	QString s = getClassName( n );
-	if ( s == "QDataBrowser" || s == "QDataView" ) {
+	if ( (dbForm || subDbForms) && (s == "QDataBrowser" || s == "QDataView") ) {
 	    QString objName = getObjectName( n );
 	    QString tab = getDatabaseInfo( n, "table" );
 	    QString con = getDatabaseInfo( n, "connection" );
