@@ -3945,7 +3945,7 @@ QPointArray QCanvasEllipse::areaPoints() const
     QPointArray r;
     r.makeArc(int(x()-w/2.0-1),int(y()-h/2.0-1),w+2,h+3,a1,a2);
     r.resize(r.size()+1);
-    r.setPoint(r.size()-1,x(),y());
+    r.setPoint(r.size()-1,int(x()),int(y()));
     return r;
 }
 
