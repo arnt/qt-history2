@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#14 $
 **
 ** Implementation of QBitArray class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#14 $";
 #endif
 
 
@@ -23,6 +23,14 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#13 $";
 /*! \class QBitArray qbitarry.h
 
   \brief The QBitArray class provides an array of bits.
+
+  This class is not yet documented.  Our <a
+  href=http://www.troll.no/>home page</a> contains a pointer to the
+  current version of Qt. */
+
+/*! \class QBitVal qbitarry.h
+
+  \brief QBitVal is an internal class, used with QBitArray.
 
   This class is not yet documented.  Our <a
   href=http://www.troll.no/>home page</a> contains a pointer to the
