@@ -84,7 +84,7 @@ void ProjectSettings::helpClicked()
 
 void ProjectSettings::okClicked()
 {
-    // ### check for validty
+    // ### check for validity
 
     project->setProjectName( editProjectName->text() );
     project->setFileName( editProjectFile->text(), FALSE );
@@ -96,6 +96,7 @@ void ProjectSettings::okClicked()
     project->setUiFiles( lst );
     project->setDatabaseDescription( editDatabaseFile->text() );
     project->setLanguage( comboLanguage->text( comboLanguage->currentItem() ) );
+    project->save();
     accept();
 }
 
@@ -118,4 +119,3 @@ void ProjectSettings::addUiFile()
 	return;
     listInterfaces->insertStringList( lst );
 }
-
