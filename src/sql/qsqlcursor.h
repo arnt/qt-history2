@@ -75,6 +75,9 @@ public:
     QSqlIndex           index( const char* fieldName ) const;
     virtual void        setPrimaryIndex( const QSqlIndex& idx );
 
+    void                append( const QSqlField& field );
+    void                insert( int pos, const QSqlField& field );
+    void                remove( int pos );
 
     virtual QSqlRecord* editBuffer( bool copy = FALSE );
     virtual QSqlRecord* primeInsert();

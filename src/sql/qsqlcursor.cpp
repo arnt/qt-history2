@@ -295,8 +295,9 @@ QString QSqlCursor::filter() const
 
 /*!  Sets the name of the cursor to \a name.  If autopopulate is TRUE
   (the default), the \a name must correspond to a valid table or view
-  name in the database.  See the QSqlCursor constructor documentation
-  for more information.
+  name in the database.  Also, Note that all references to the cursor
+  edit buffer become invalidated when fields are auto-populated.  See
+  the QSqlCursor constructor documentation for more information.
 
 */
 void QSqlCursor::setName( const QString& name, bool autopopulate )
@@ -304,8 +305,8 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
     d->nm = name;
     if ( autopopulate ) {
 	if ( driver() ) {
-	    d->editBuffer = driver()->record( name );
-	    *this = d->editBuffer;
+	    *this = driver()->record( name );
+	    d->editBuffer = *this;
 	    d->priIndx = driver()->primaryIndex( name );
 	}
 #ifdef QT_CHECK_RANGE
@@ -352,6 +353,40 @@ QString QSqlCursor::toString( const QString& prefix, const QString& sep ) const
 QSqlRecord & QSqlCursor::operator=( const QSqlRecord & list )
 {
     return QSqlRecord::operator=( list );
+}
+
+/*!  Append a copy of field \a field to the end of the cursor.  Note
+  that all references to the cursor edit buffer become invalidated.
+
+*/
+
+void QSqlCursor::append( const QSqlField& field )
+{
+    d->editBuffer.append( field );
+    QSqlRecord::append( field );
+}
+
+/*!  Insert a copy of \a field at position \a pos.  If a field already
+  exists at \a pos, it is removed.  Note that all references to the
+  cursor edit buffer become invalidated.
+*/
+
+void  QSqlCursor::insert( int pos, const QSqlField& field )
+{
+    d->editBuffer.insert( pos, field );
+    QSqlRecord::insert( pos, field );
+}
+
+/*!  Removes the field at \a pos.  If \a pos does not exist, nothing
+  happens.  Note that all references to the cursor edit buffer become
+  invalidated.
+
+*/
+
+void QSqlCursor::remove( int pos )
+{
+    d->editBuffer.remove( pos );
+    QSqlRecord::remove( pos );
 }
 
 /*!  Returns the primary index associated with the cursor as defined
@@ -777,7 +812,8 @@ int QSqlCursor::insert( bool invalidate )
     if ( ( d->md & Insert ) != Insert || !driver() )
 	return FALSE;
     int k = d->editBuffer.count();
-    if( k == 0 ) return 0;
+    if ( k == 0 )
+	return 0;
     QString str = "insert into " + name();
     str += " (" + d->editBuffer.toString() + ")";
     str += " values (";
@@ -808,9 +844,7 @@ int QSqlCursor::insert( bool invalidate )
 
 QSqlRecord* QSqlCursor::editBuffer( bool copy )
 {
-    if( d->editBuffer.count() == 0 ){
-	d->editBuffer = *((QSqlRecord*)this);
-    } else if ( copy ) {
+    if ( copy ) {
 	for(uint i = 0; i < d->editBuffer.count(); i++)
 	    d->editBuffer.setValue( i, value( i ) );
     }
@@ -828,12 +862,8 @@ QSqlRecord* QSqlCursor::editBuffer( bool copy )
 
 QSqlRecord* QSqlCursor::primeUpdate()
 {
-    if( d->editBuffer.count() == 0 ){
-	d->editBuffer = *((QSqlRecord*)this);
-    } else {
-	for(uint i = 0; i < d->editBuffer.count(); i++)
-	    d->editBuffer.setValue( i, value( i ) );
-    }
+    for(uint i = 0; i < d->editBuffer.count(); i++)
+	d->editBuffer.setValue( i, value( i ) );
     return &d->editBuffer;
 }
 
@@ -848,13 +878,8 @@ QSqlRecord* QSqlCursor::primeUpdate()
 
 QSqlRecord* QSqlCursor::primeDelete()
 {
-    if( d->editBuffer.count() == 0 ){
-	d->editBuffer = *((QSqlRecord*)this);
-    } else {
-	for(uint i = 0; i < d->editBuffer.count(); i++){
-	    d->editBuffer.setValue( i, value( i ) );
-	}
-    }
+    for(uint i = 0; i < d->editBuffer.count(); i++)
+	d->editBuffer.setValue( i, value( i ) );
     return &d->editBuffer;
 }
 
@@ -868,8 +893,6 @@ QSqlRecord* QSqlCursor::primeDelete()
 
 QSqlRecord* QSqlCursor::primeInsert()
 {
-    if( d->editBuffer.count() == 0 )
-	d->editBuffer = *((QSqlRecord*)this);
     d->editBuffer.clearValues();
     return &d->editBuffer;
 }
