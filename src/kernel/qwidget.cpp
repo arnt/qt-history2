@@ -4512,7 +4512,6 @@ bool QWidget::event( QEvent *e )
 	break;
 #endif
 
-#ifdef QT_COMPAT
     case QEvent::WindowStateChange:
 	{
 	    QEvent::Type type;
@@ -4527,7 +4526,6 @@ bool QWidget::event( QEvent *e )
 	    QApplication::postEvent(this, new QEvent(type));
 	    break;
 	}
-#endif
 
     case QEvent::WindowBlocked:
     case QEvent::WindowUnblocked:
