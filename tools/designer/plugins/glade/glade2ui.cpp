@@ -449,7 +449,7 @@ static QString decelerate( const QString& gtkLabel )
 {
     QString qtLabel = gtkLabel;
     // ditto
-    qtLabel.replace( '_', QString::null );
+    qtLabel.remove( '_' );
     return qtLabel;
 }
 
@@ -1844,7 +1844,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 		}
 
 		if ( !flags.isEmpty() )
-		    emitProperty( QString("alignment"), flags.join(QChar('|')),
+		    emitProperty( QString("alignment"), flags.join(QString("|")),
 				  QString("set") );
 	    }
 	    if ( !label.isEmpty() ) {
@@ -1905,7 +1905,7 @@ QString Glade2Ui::emitWidget( const QDomElement& widget, bool layouted,
 	    if ( gtkClass.endsWith(QString("Tree")) ) {
 		emitProperty( QString("rootIsDecorated"), QVariant(TRUE, 0) );
 	    } else if ( gtkOrientedWidget.exactMatch(gtkClass) ) {
-		QString s = ( gtkOrientedWidget.cap(1) == QChar('H') ) ?
+		QString s = ( gtkOrientedWidget.cap(1) == QString("H") ) ?
 			    QString( "Horizontal" ) : QString( "Vertical" );
 		emitProperty( QString("orientation"), s, QString("enum") );
 	    }
@@ -2011,7 +2011,7 @@ QStringList Glade2Ui::convertGladeFile( const QString& fileName )
     QDomNode n = root.firstChild();
     while ( !n.isNull() ) {
 	if ( n.toElement().tagName() == QString("widget") )
-	    numWidgets++;	
+	    numWidgets++;
 	n = n.nextSibling();
     }
 
@@ -2080,7 +2080,7 @@ QStringList Glade2Ui::convertGladeFile( const QString& fileName )
 				  fixedName(a.key()).latin1() );
 		    emitProperty( QString("text"), (*a).text );
 		    emitProperty( QString("menuText"), (*a).menuText );
-		    if ( (*a).toolTip )
+		    if ( ! (*a).toolTip.isEmpty() )
 			emitProperty( QString("toolTip"), (*a).toolTip );
 		    if ( (*a).accel != 0 )
 			emitProperty( QString("accel"), (*a).accel );
