@@ -115,9 +115,9 @@ QString QUuid::toString() const
 {
     QString result;
 
-    result = "{" + QString::number( data1, 16 ).rightJustify( 2, '0' ) + "-";
-    result += QString::number( (int)data2, 16 ).rightJustify( 2, '0' ) + "-";
-    result += QString::number( (int)data3, 16 ).rightJustify( 2, '0' ) + "-";
+    result = "{" + QString::number( data1, 16 ).rightJustify( 8, '0' ) + "-";
+    result += QString::number( (int)data2, 16 ).rightJustify( 4, '0' ) + "-";
+    result += QString::number( (int)data3, 16 ).rightJustify( 4, '0' ) + "-";
     result += QString::number( (int)data4[0], 16 ).rightJustify( 2, '0' );
     result += QString::number( (int)data4[1], 16 ).rightJustify( 2, '0' ) + "-";
     for ( int i = 2; i < 8; i++ )
