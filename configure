@@ -3933,17 +3933,17 @@ fi
 #-------------------------------------------------------------------------------
 # finally save the executed command to another script
 #-------------------------------------------------------------------------------
-if [ `basename $0` != "config.status" ]; then
+if [ `basename $0` != "config.status" ]; then  
+    CONFIG_STATUS="$relpath/$relconf $OPT_CMDLINE"
+    echo "$CONFIG_STATUS" | grep '\-confirm\-license' >/dev/null 2>&1 || CONFIG_STATUS="$CONFIG_STATUS -confirm-license"
+    
     [ -f $outpath/config.status ] && rm -f $outpath/config.status
-    if [ true ] && !(echo "$OPT_CMDLINE" | grep '\-confirm\-license' >/dev/null 2>&1); then
-        OPT_CMDLINE="-confirm-license $OPT_CMDLINE"
-    fi
     echo "#!/bin/sh" >$outpath/config.status
     echo "if [ \"\$#\" -gt 0 ]; then" >>$outpath/config.status
-    echo "  $relpath/$relconf $OPT_CMDLINE \"\$@\"" >>$outpath/config.status
+    echo "  $CONFIG_STATUS \"\$@\"" >>$outpath/config.status 
     echo "else" >>$outpath/config.status
-    echo "  $relpath/$relconf $OPT_CMDLINE" >>$outpath/config.status
-    echo "fi" >>$outpath/config.status
+    echo "  $CONFIG_STATUS" >>$outpath/config.status 
+    echo "fi" >>$outpath/config.status 
     chmod +x $outpath/config.status
 fi
 
