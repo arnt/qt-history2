@@ -385,10 +385,14 @@ void MarkerWidget::mousePressEvent( QMouseEvent *e )
 		return;
 	    ParagData *data = (ParagData*)d;
 	    if ( e->x() < 20 ) {
-		if ( data->marker == ParagData::Breakpoint )
+		if ( data->marker == ParagData::Breakpoint ) {
 		    data->marker = ParagData::NoMarker;
-		else
-		    data->marker = ParagData::Breakpoint;
+		} else {
+		    bool ok = TRUE;
+		    isBreakpointPossible( ok, ( (Editor*)viewManager->currentView() )->text(), p->paragId() );
+		    if ( ok )
+			data->marker = ParagData::Breakpoint;
+		}
 	    } else {
 		if ( data->lineState == ParagData::FunctionStart ) {
 		    if ( data->functionOpen )

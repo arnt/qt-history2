@@ -41,6 +41,7 @@ signals:
     void collapse( bool all /*else only functions*/ );
     void expand( bool all /*else only functions*/ );
     void editBreakPoints();
+    void isBreakpointPossible( bool &possible, const QString &code, int line );
 
 public slots:
     void doRepaint() { repaint( FALSE ); }

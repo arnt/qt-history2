@@ -45,6 +45,8 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
 	     this, SIGNAL( expand( bool ) ) );
     connect( markerWidget, SIGNAL( editBreakPoints() ),
 	     this, SIGNAL( editBreakPoints() ) );
+    connect( markerWidget, SIGNAL( isBreakpointPossible( bool&, const QString &, int ) ),
+	     this, SIGNAL( isBreakpointPossible( bool&, const QString &, int ) ) );
     markerWidget->setFixedWidth( 35 );
     //dockArea = new QDockArea( Qt::Vertical, QDockArea::Normal, this );
     //layout->addWidget( dockArea );
