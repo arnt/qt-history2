@@ -69,7 +69,6 @@ void LineEditTaskMenu::editText()
         opt.init(m_lineEdit);
         QRect r = opt.rect;
 
-        m_editor->setAttribute(Qt::WA_NoChildEventsForParent);
         m_editor->setGeometry(QRect(m_lineEdit->mapTo(m_lineEdit->window(), r.topLeft()), r.size()));
         m_editor->setFocus();
         m_editor->show();

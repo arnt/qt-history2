@@ -69,7 +69,6 @@ void LabelTaskMenu::editText()
         opt.init(m_label);
         QRect r = opt.rect;
 
-        m_editor->setAttribute(Qt::WA_NoChildEventsForParent);
         m_editor->setGeometry(QRect(m_label->mapTo(m_label->window(), r.topLeft()), r.size()));
         m_editor->setFocus();
         m_editor->show();

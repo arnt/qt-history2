@@ -69,7 +69,6 @@ void ButtonTaskMenu::editText()
         opt.init(m_button);
         QRect r = m_button->style()->subElementRect(QStyle::SE_PushButtonContents, &opt, m_button);
 
-        m_editor->setAttribute(Qt::WA_NoChildEventsForParent);
         m_editor->setGeometry(QRect(m_button->mapTo(m_button->window(), r.topLeft()), r.size()));
         m_editor->setFocus();
         m_editor->show();
