@@ -446,7 +446,7 @@ int QPSQLResult::size()
 
 int QPSQLResult::numRowsAffected()
 {
-    return isSelect() ? size() : QString( PQcmdTuples( d->result ) ).toInt();
+    return QString( PQcmdTuples( d->result ) ).toInt();
 }
 
 ///////////////////////////////////////////////////////////////////
