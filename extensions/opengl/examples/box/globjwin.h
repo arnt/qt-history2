@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/box/globjwin.h#2 $
+** $Id: //depot/qt/main/extensions/opengl/examples/box/globjwin.h#3 $
 **
 ** Definition of GLObjectWindow widget class
 ** The GLObjectWindow contains a GLBox and three sliders connected to
@@ -15,8 +15,7 @@
 
 class GLObjectWindow : public QWidget
 {
-    Q_OBJECT;
-
+    Q_OBJECT
 public:
     GLObjectWindow( QWidget* parent = 0, const char* name = 0 );
 
