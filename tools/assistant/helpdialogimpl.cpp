@@ -507,7 +507,7 @@ void HelpDialog::insertContents()
     //    qtDocu->setPixmap( 0, PixmapChooser::loadPixmap( "book.xpm", PixmapChooser::Small ) );
     handbook = new HelpNavigationContentsItem( listContents, 0 );
     handbook->setText( 0, tr( "Designer Handbook" ) );
-    handbook->setLink( "book1.html" );
+    handbook->setLink( "designer-manual.html" );
 //     handbook->setPixmap( 0, PixmapChooser::loadPixmap( "book.xpm", PixmapChooser::Small ) );
     linguistDocu = new HelpNavigationContentsItem( listContents, 0 );
     linguistDocu->setText( 0, tr( "Qt Linguist Manual" ) );
@@ -619,7 +619,7 @@ void HelpDialog::insertContents()
 		    i = text.length();
 		    continue;
 		}
-		if ( !title.isEmpty() ) {
+		if ( !title.isEmpty() && !link.startsWith( "http:" ) ) {
 		    Entry e;
 		    e.link = link;
 		    e.title = title;
