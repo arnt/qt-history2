@@ -31,8 +31,10 @@
 
 #define X if(lexDebug){fprintf(stderr,"LEX (%i) : %s\n",lineNo,yytext);};
 #define Y if(lexDebug){fprintf(stderr,"LEX (%i) : %s\n",lineNo,yytext);};
-// #define Y if(lexDebug){fprintf(stderr,"LEX (%i) : %s updates level to %i\n"\
-//                                 ,lineNo,yytext,templLevel);};
+/*
+#define Y if(lexDebug){fprintf(stderr,"LEX (%i) : %s updates level to %i\n"\
+                                 ,lineNo,yytext,templLevel);};
+*/
 #define Z if(lexDebug){fprintf(stderr,"LEX (%i) : skipped the string %s\"\n"\
                                ,lineNo,yytext);};
 #define BEGIN_INSIDE
