@@ -1,5 +1,5 @@
 shared:DEFINES += QT_DLL
-CONFIG *= windows moc
+CONFIG *= windows moc thread
 plugin {
     CONFIG += dll
     DEFINES += QT_PLUGIN
