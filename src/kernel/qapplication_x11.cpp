@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#472 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#473 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3327,17 +3327,19 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count, QStr
 	    chars[count] = '\0';
 	if ( count == 1 ) {
 	    ascii = chars[0];
-	    textDict->replace( keycode, (void*)ascii );
+	    // +256 so we can store all eight-bit codes, including ascii 0,
+	    // and independent of whether char is signed or not.
+	    textDict->replace( keycode, (void*)(256+ascii) );
 	}
 	tlw = 0;
     } else {
 	key = (int)(long)keyDict->find( keycode );
 	if ( key )
 	    keyDict->take( keycode );
-	char s = (char)(long)textDict->find( keycode );
+	long s = (long)textDict->find( keycode );
 	if ( s ) {
 	    textDict->take( keycode );
-	    ascii = s;
+	    ascii = (char)(s-256);
 	}
     }
 #endif // !NO_XIM
@@ -3837,7 +3839,7 @@ bool QETWidget::translateCloseEvent( const XEvent * )
 
   \sa cursorFlashTime()
  */
-void  QApplication::setCusorFlashTime( int msecs )
+void  QApplication::setCursorFlashTime( int msecs )
 {
     cursor_flash_time = msecs;
 }
