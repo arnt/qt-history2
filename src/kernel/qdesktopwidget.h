@@ -40,6 +40,7 @@
 #include "qwidget.h"
 #endif // QT_H
 
+class QApplication;
 class QDesktopWidgetPrivate; /* Don't touch! */
 
 class Q_EXPORT QDesktopWidget : public QWidget
@@ -86,6 +87,8 @@ private:
     QDesktopWidget( const QDesktopWidget & );
     QDesktopWidget &operator=( const QDesktopWidget & );
 #endif
+
+    friend class QApplication;
 };
 
 #endif //QDESKTOPWIDGET_H
