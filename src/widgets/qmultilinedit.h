@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#16 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.h#17 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -31,6 +31,7 @@ public:
     int numLines();
 
     bool	isReadOnly();
+    bool	isOverwriteMode();
 
     bool	atBeginning() const;
     bool	atEnd() const;
@@ -42,6 +43,7 @@ public slots:
     void append( const char * );
     void selectAll();
     void setReadOnly( bool );
+    void setOverwriteMode( bool );
 
 signals:
     void	textChanged();
@@ -99,6 +101,8 @@ private:
     bool	dragScrolling ;
     bool	dragMarking;
     bool	textDirty;    
+    bool	wordMark;
+    bool	overWrite;
 
     int		cursorX;
     int		cursorY;
@@ -135,6 +139,13 @@ private:	// Disabled copy constructor and operator=
 };
 
 inline bool QMultiLineEdit::isReadOnly() { return readOnly; }
+
+inline bool QMultiLineEdit::isOverwriteMode() { return overWrite; }
+
+inline void QMultiLineEdit::setOverwriteMode( bool on ) 
+{ 
+    overWrite = on;
+ }
 
 inline int QMultiLineEdit::lineLength( int row ) const
 {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#23 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -107,6 +107,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     dragScrolling  = FALSE;
     dragMarking    = FALSE;
     markIsOn	   = FALSE;
+    wordMark	   = FALSE;
     markAnchorX    = 0;
     markAnchorY    = 0;
     markDragX      = 0;
@@ -834,7 +835,7 @@ void QMultiLineEdit::insert( const char *txt, int line )
 	int from = 0;
 	if ( line < 0 || line >= numLines() )
 	    line = numLines();
-	while ( to > 0 ) {
+	while ( to >= 0 ) {
 	    insert( s.mid( from, to - from ), line++ );
 	    from = to + 1;
 	    to = s.find( '\n', from );
@@ -888,13 +889,15 @@ void QMultiLineEdit::remove( int row )
 void QMultiLineEdit::insertChar( char c )
 {
     dummy = FALSE;
-    if ( hasMarkedText() ) {
+    bool wasMarkedText = hasMarkedText();
+    if ( wasMarkedText ) {
 	del();					// ## Will flicker
     }
-   
     QString *s = getString( cursorY );
     if ( cursorX > (int)s->length() )
 	cursorX = s->length();
+    if ( overWrite && !wasMarkedText && cursorX < (int)s->length() )
+	del();                                 // ## Will flicker
     s->insert( cursorX, c);
     int w = textWidth( s );
     setWidth( QMAX( cellWidth(), w ) );
@@ -1286,7 +1289,7 @@ void QMultiLineEdit::end( bool mark )
 void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 {
     textDirty = FALSE;
-
+    wordMark = FALSE;
     if ( readOnly )
     	return;
     int newY = findRow( m->pos().y() );
@@ -1341,19 +1344,19 @@ void QMultiLineEdit::mouseMoveEvent( QMouseEvent *e )
 	dragScrolling = TRUE;
     }
 
-	int newY = findRow( e->pos().y() );
-	if ( newY < 0 ) {
-	    if ( e->pos().y() < 0 )
-		newY = topCell();
-	    else
-		newY = lastRowVisible();
-	}
-	newY = QMIN( (int)contents->count() - 1, newY );
-	int newX = xPosToCursorPos( *getString( newY ), fontMetrics(),
-				    e->pos().x() - BORDER + xOffset(),
-				    cellWidth() - 2 * BORDER );
-	newMark( newX, newY, FALSE );
-	repaint( FALSE ); //###
+    int newY = findRow( e->pos().y() );
+    if ( newY < 0 ) {
+	if ( e->pos().y() < 0 )
+	    newY = topCell();
+	else
+	    newY = lastRowVisible();
+    }
+    newY = QMIN( (int)contents->count() - 1, newY );
+    int newX = xPosToCursorPos( *getString( newY ), fontMetrics(),
+				e->pos().x() - BORDER + xOffset(),
+				cellWidth() - 2 * BORDER );
+    newMark( newX, newY, FALSE );
+    repaint( FALSE ); //###
 }
 
 
@@ -1366,6 +1369,7 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
 	killTimer( scrollTimer );
 	dragScrolling = FALSE;
     }
+    wordMark = FALSE;
     dragMarking   = FALSE;
     if ( markAnchorY == markDragY && markAnchorX == markDragX )
 	markIsOn = FALSE;
@@ -1378,9 +1382,13 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent * )
   Handles double click events.
 */
 
-void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
+void QMultiLineEdit::mouseDoubleClickEvent( QMouseEvent *m )
 {
-    mousePressEvent( e );
+    if ( m->button() ==  LeftButton ) {
+	dragMarking    = TRUE;
+	markWord( cursorX, cursorY );
+	updateCell( cursorY, 0, FALSE );
+    }
 }
 
 
@@ -1592,10 +1600,12 @@ void QMultiLineEdit::markWord( int posx, int posy )
     QString *s = contents->at( posy );
     ASSERT( s );
     int i = posx;
+
     while ( i >= 0 && isprint(s->at(i)) && !isspace(s->at(i)) )
 	i--;
     if ( i != posx )
 	i++;
+    markAnchorY = posy;
     markAnchorX = i;
 
     int lim = s->length();
@@ -1603,26 +1613,9 @@ void QMultiLineEdit::markWord( int posx, int posy )
     while ( i < lim && isprint(s->at(i)) && !isspace(s->at(i)) )
 	i++;
     markDragX = i;
+    markDragY = posy;
+    markIsOn = ( markDragX != markAnchorX ||  markDragY != markAnchorY );
 
-    /*
-    int tDispWidth = width() - 2*BORDER;
-    int maxVis = offset + xPosToCursorPos( &s[(int)offset], fontMetrics(),
-					   tDispWidth, tDispWidth );
-
-    int maxVis	  = lastCharVisible();
-    int markBegin = minMark();
-    int markEnd	  = maxMark();
-    if ( markBegin < offset || markBegin > maxVis ) {
-	if ( markEnd >= offset && markEnd <= maxVis ) {
-	    cursorPos = markEnd;
-	} else {
-	    offset    = markBegin;
-	    cursorPos = markBegin;
-	}
-    } else {
-	cursorPos = markBegin;
-    }
-    */
     copyText();
 }
 
