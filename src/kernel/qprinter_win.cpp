@@ -1315,8 +1315,22 @@ QSize QPrinter::margins() const
 	GetDeviceCaps( handle(), PHYSICALOFFSETY ) * res / GetDeviceCaps( hdc, LOGPIXELSY ) );
 }
 
-void QPrinter::setMargins( const QSize &/*s*/ ) 
+void QPrinter::setMargins( uint, uint, uint, uint )
 {
+}
+
+void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
+{
+    int lpx = GetDeviceCaps( hdc, LOGPIXELSX );
+    int lpy = GetDeviceCaps( hdc, LOGPIXELSY );
+    *top = GetDeviceCaps( hdc, PHYSICALOFFSETX ) * res / lpx
+    *left = GetDeviceCaps( hdc, PHYSICALOFFSETY ) * res / lpy
+    *bottom = ( GetDeviceCaps( hdc, PHYSICALWIDTH ) - 
+		GetDeviceCaps( hdc, HORZRES ) - 
+		GetDeviceCaps( handle(), PHYSICALOFFSETX ) ) * res / lpx;
+    *right = ( GetDeviceCaps( hdc, PHYSICALHEIGHT ) - 
+	       GetDeviceCaps( hdc, VERTRES ) - 
+	       GetDeviceCaps( handle(), PHYSICALOFFSETY ) ) * res / lpy;
 }
 
 /*

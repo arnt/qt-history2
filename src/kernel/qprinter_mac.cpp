@@ -331,11 +331,22 @@ int QPrinter::metric( int m ) const
 
 QSize QPrinter::margins() const
 {
-    return (orient == Portrait) ? QSize( 36, 22 ) : QSize( 22, 36 );
+    if (orient == Portrait)
+        return QSize( res/2, res/3 );
+
+    return QSize( res/3, res/2 );
 }
 
-void QPrinter::setMargins( const QSize &/*s*/ ) 
+void QPrinter::setMargins( uint, uint, uint, uint )
 {
+}
+
+void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
+{
+	int x = orient == Portrait ? res/2 : res/3;
+	int y = orient == Portrait ? res/3 : res/2;
+	*top = *bottom = y;
+	*left = *right = x;
 }
 
 #endif
