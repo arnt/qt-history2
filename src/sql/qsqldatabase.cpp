@@ -51,8 +51,9 @@
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldriverinterface_p.h"
-#include <private/qpluginmanager_p.h>
+#include "private/qpluginmanager_p.h"
 #include "qobject.h"
+#include "private/qobject_p.h"
 #include "qguardedptr.h"
 #include "qcleanuphandler.h"
 #include <stdlib.h>
@@ -273,16 +274,17 @@ void QSqlDatabaseManager::removeDatabase( QSqlDatabase* db )
     }
 }
 
-class QSqlDatabasePrivate
+class QSqlDatabasePrivate: public QObjectPrivate
 {
 public:
     QSqlDatabasePrivate():
+	QObjectPrivate(),
 	driver(0),
 #ifndef QT_NO_COMPONENT
 	plugIns(0),
 #endif
 	port(-1) {}
-    ~QSqlDatabasePrivate()
+    virtual ~QSqlDatabasePrivate()
     {
     }
     QSqlDriver* driver;
@@ -529,11 +531,12 @@ bool QSqlDatabase::contains( const QString& connectionName )
 */
 
 QSqlDatabase::QSqlDatabase(const QString &type, const QString &name, QObject *parent)
-    : QObject(parent)
+    : QObject(*new QSqlDatabasePrivate(), parent)
 {
     init(type, name);
 }
 
+#define d d_func()
 
 /*!
     \overload
@@ -546,9 +549,8 @@ QSqlDatabase::QSqlDatabase(const QString &type, const QString &name, QObject *pa
 */
 
 QSqlDatabase::QSqlDatabase(QSqlDriver *driver, QObject *parent)
-    : QObject(parent)
+    : QObject(*new QSqlDatabasePrivate(), parent)
 {
-    d = new QSqlDatabasePrivate();
     d->driver = driver;
 }
 
@@ -560,7 +562,6 @@ QSqlDatabase::QSqlDatabase(QSqlDriver *driver, QObject *parent)
 
 void QSqlDatabase::init( const QString& type, const QString& )
 {
-    d = new QSqlDatabasePrivate();
     d->drvName = type;
 
     if ( !d->driver ) {

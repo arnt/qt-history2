@@ -19,7 +19,6 @@
 #include "qobject.h"
 #include "qstring.h"
 #include "qsqlquery.h"
-#include "qstringlist.h"
 #ifdef QT_COMPAT
 #include "qsqlrecord.h"
 #endif
@@ -125,7 +124,7 @@ protected:
     QSqlDatabase(QSqlDriver* driver, QObject * parent=0);
 private:
     void 	init( const QString& type, const QString& name );
-    QSqlDatabasePrivate* d;
+    Q_DECL_PRIVATE(QSqlDatabase);
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
     QSqlDatabase( const QSqlDatabase & );
     QSqlDatabase &operator=( const QSqlDatabase & );
