@@ -359,8 +359,5 @@ QRichText
 QListBox/maybe QTable (Reggie)
     DnD API, like QIconView
 
-QTableItem (Reggie):
-    setEnabled( bool )
-
 QTable (Reggie):
     functions for insert/remove row/column
