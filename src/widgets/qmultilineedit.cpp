@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#92 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -129,7 +129,7 @@ static int textWidthWithTabs( const QFontMetrics &fm, const QString &s, uint sta
     if ( s.isEmpty() )
 	return 0;
 
-    int dist = -fm.minLeftBearing();
+    int dist = -fm.leftBearing( s[start] );
     int i = start;
     int tabDist = -1; // lazy eval
     while ( (uint)i < s.length() && (uint)i < start+nChars ) {
@@ -162,7 +162,7 @@ static int xPosToCursorPos( const QString &s, const QFontMetrics &fm,
     if ( xPos <= 0 )
 	return 0;
 
-    dist    = -fm.minLeftBearing();
+    dist    = -fm.leftBearing( s[0] );
 
     if ( align == Qt::AlignCenter )
 	dist = ( width - textWidthWithTabs( fm, s, 0, s.length(), align ) ) / 2;
@@ -3071,7 +3071,7 @@ void QMultiLineEdit::wrapLine( int line, int removed )
 	}
 	if ( s[i] == '\n' || doBreak ) {
 	    r->s = s.mid( a, i - a + (doBreak?1:0) );
-	    r->w = linew - fm.minLeftBearing() + 2 * d->lr_marg;
+	    r->w = linew - fm.leftBearing(r->s[0]) + 2 * d->lr_marg;
 	    if ( r->w > w )
 		w = r->w;
 	    if ( cursorY > l )
@@ -3107,7 +3107,7 @@ void QMultiLineEdit::wrapLine( int line, int removed )
     }
     if ( a < int(s.length()) ){
 	r->s = s.mid( a, i - a  );
-	r->w = linew - fm.minLeftBearing() + 2 * d->lr_marg;
+	r->w = linew - fm.leftBearing( r->s[0] ) + 2 * d->lr_marg;
     }
     if ( cursorY == line && cursorX >= a ) {
 	cursorY = l;
@@ -3173,7 +3173,7 @@ void QMultiLineEdit::rebreakAll()
 	return;
     d->maxLineWidth = 0;
     for (int i = 0; i < int(contents->count()); ++i ) {
-	if ( contents->at( i )->newline && 
+	if ( contents->at( i )->newline &&
 	     contents->at( i )->w < contentsRect().width() -  2*d->lr_marg )
 	    continue;
 	rebreakParagraph( i );
