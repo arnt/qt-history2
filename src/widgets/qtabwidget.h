@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.h#11 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.h#12 $
 **
 ** Definition of QTabWidget class
 **
@@ -41,6 +41,7 @@ class Q_EXPORT QTabWidget : public QWidget
 {
     Q_OBJECT
 public:
+    QTabWidget( QWidget *parent, const char *name, WFlags f);
     QTabWidget( QWidget *parent=0, const char *name=0);
    ~QTabWidget();
 
@@ -93,6 +94,7 @@ private slots:
 private:
     QTabWidgetData *d;
     void setUpLayout(bool = FALSE);
+    void init();
 
 #if 1 //def TOTAL_LOSER_COMPILER
     friend class QTabDialog;

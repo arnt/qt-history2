@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#30 $
 **
 ** Implementation of QTabWidget class
 **
@@ -113,11 +113,32 @@ public:
     QTabWidget::TabPosition pos;
 };
 
+
+
+
+
 /*!
-  Constructs a QTabWidget
+  Constructs a tabbed widget with parent \a parent, name \a name
+  and widget flags \a f.
+*/
+
+
+QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f)
+    : QWidget( parent, name, f )
+{
+    init();
+}
+
+/*!
+  \overload
 */
 QTabWidget::QTabWidget( QWidget *parent, const char *name)
     : QWidget( parent, name )
+{
+    init();
+}
+
+void QTabWidget::init()
 {
     d = new QTabWidgetData;
 
@@ -608,3 +629,4 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
     }
     return FALSE;
 }
+
