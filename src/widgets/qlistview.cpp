@@ -5245,15 +5245,16 @@ hierarchy, use takeItem() and insertItem().
 
 void QListViewItem::moveItem( QListViewItem *after )
 {
-    if ( !after )
+    if ( !after || after == this )
 	return;
     if ( parent() != after->parent() ) {
-	parent()->takeItem( this );
-	if ( after->parent() )
-	    after->parent()->insertItem( this );
-	else if ( listView() )
-	    listView()->d->r->insertItem( this );
-	
+	if ( parentItem )
+	    parentItem->takeItem( this );
+	if ( after->parentItem ) {
+	    int tmpLsc = after->parentItem->lsc;
+	    after->parentItem->insertItem( this );
+	    after->parentItem->lsc = tmpLsc;
+	}
     }
     moveToJustAfter( after );
     QListView *lv = listView();
