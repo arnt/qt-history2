@@ -113,6 +113,7 @@ static void exitHandler( int )
 #if defined(Q_OS_IRIX) && defined(Q_CC_GNU)
 static void crashHandler()
 #else
+#if 0
 static void crashHandler( int )
 #endif
 {
@@ -120,6 +121,7 @@ static void crashHandler( int )
 	MainWindow::self->saveAllTemp();
     ::exit( -1 );
 }
+#endif
 #endif
 
 #if defined(Q_C_CALLBACKS)
@@ -140,7 +142,9 @@ int main( int argc, char *argv[] )
 #endif
 
 #if defined(QT_NO_DEBUG)
+#if 0
     signal( SIGSEGV, crashHandler );
+#endif
 #endif
 
     QApplication::setColorSpec( QApplication::ManyColor );
