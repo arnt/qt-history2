@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/src/Makefile#78 $
+# $Id: //depot/qt/main/src/Makefile#79 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -8,6 +8,7 @@
 #############################################################################
 
 PROJECT		    = qt
+REMOTETMP	    = D:\tmp\warwick\generated\ 
 LIBTARGET	    = 1
 MORETARGETS_RELEASE = qtmain-release
 MORETARGETS_DEBUG   = qtmain-debug

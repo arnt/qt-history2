@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qdeveloper.cpp#4 $
 **
 ** Implementation of QDeveloper class
 **
@@ -141,9 +141,9 @@ public:
     {
 	explorer = new QVBox(parent);
 	QSplitter* splitter = new QSplitter(explorer);
-	QHBox* hbox = new QHBox(explorer);
-	(void)new QLabel(QDeveloper::tr("Class\nstuff\nhere"),hbox);
-	(void)new QLabel(QDeveloper::tr("Object\nstuff\nhere"),hbox);
+	//QHBox* hbox = new QHBox(explorer);
+	//(void)new QLabel(QDeveloper::tr("Class\nstuff\nhere"),hbox);
+	//(void)new QLabel(QDeveloper::tr("Object\nstuff\nhere"),hbox);
 
 	classes = new QListView(splitter);
 	classes->setFrameStyle(QFrame::Sunken|QFrame::Panel);
@@ -344,12 +344,12 @@ QDeveloper::QDeveloper() :
     QString msg;
     int nclasses = QMetaObjectInit::init()+1; // +1 for QObject
     if ( nclasses ) {
-	msg.sprintf(tr("Qt Application Builder - %d classes"), nclasses);
+	msg.sprintf(tr("Qt Developer - %d classes"), nclasses);
 	QListViewItem *lvi = new QDeveloperClassItem( d->classes, QObject::metaObject(), d );
 	lvi->setOpen(TRUE); // #### WWA: Arnt, why needed?
     } else {
 	msg = tr("Sorry, your compiler/platform is insufficient for "
-		"Qt Application Builder");
+		"the Qt Developer to operate");
     }
     statusBar()->message(msg);
 

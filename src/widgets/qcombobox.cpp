@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#166 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#167 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1250,19 +1250,22 @@ void QComboBox::popup()
 	int sw = desktop->width();			// screen width
 	int sh = desktop->height();			// screen height
 	QPoint pos = mapToGlobal( QPoint(0,height()) );
-	int x  = pos.x();
-	int y  = pos.y();
-	int w  = width();
-	int h  = d->listBox->height();
-	if ( x+w > sw )				// the complete widget must
-	    x = sw - w;				//   be visible
-	if ( y+h > sh )
-	    y = sh - h;
-	if ( x < 0 )
+
+	// XXX Similar code is in QPopupMenu
+	int x = pos.x();
+	int y = pos.y();
+	int w = d->listBox->width();
+	int h = d->listBox->height();
+
+	// the complete widget must be visible
+	if ( x + w > sw )
+	    x = sw - w;
+	else if ( x < 0 )
 	    x = 0;
-	if ( y < 0 )
-	    y = 0;
-	d->listBox->move( x, y );
+	if (y + h > sh && y - h - height() >= 0 )
+	    y = y - h - height();
+
+	d->listBox->move( x,y );
 	d->listBox->raise();
 	d->listBox->blockSignals( TRUE );
 	d->listBox->setCurrentItem( d->current );
