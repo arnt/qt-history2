@@ -210,7 +210,7 @@ QProcessManager::QProcessManager()
     struct sigaction act;
 
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: install a sigchild handler" );
+    qDebug( "QProcessManager: install a SIGCHLD handler" );
 #endif
     act.sa_handler = qt_C_sigchldHnd;
     sigemptyset( &(act.sa_mask) );
@@ -223,7 +223,7 @@ QProcessManager::QProcessManager()
 	qWarning( "Error installing SIGCHLD handler" );
 
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: install a sigpipe handler (SIG_IGN)" );
+    qDebug( "QProcessManager: install a SIGPIPE handler (SIG_IGN)" );
 #endif
     act.sa_handler = QT_SIGNAL_IGNORE;
     sigemptyset( &(act.sa_mask) );
