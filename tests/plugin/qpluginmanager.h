@@ -7,6 +7,16 @@
 
 typedef QDict<QPlugIn> QPlugInDict;
 
+class QAbstractPlugInManager : public QObject
+{
+protected:
+    QAbstractPlugInManager()
+	: QObject( qApp ) {}
+
+    virtual bool addPlugIn( QPlugIn* ) = 0;
+    virtual bool removePlugIn( QPlugIn* ) = 0;
+};
+
 template<class Type>
 class QPlugInManager : protected QAbstractPlugInManager
 {

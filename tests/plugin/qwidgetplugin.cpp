@@ -17,42 +17,6 @@ QWidgetPlugIn::QWidgetPlugIn( const QString& file, LibraryPolicy pol )
 
 /*! \reimp
 */
-bool QWidgetPlugIn::addToManager( QPlugInDict& dict )
-{
-    if ( !use() )
-	return FALSE;
-    
-    bool useful = FALSE;
-
-    QStringList list = this->widgets();
-    for ( QStringList::Iterator w = list.begin(); w != list.end(); w++ ) {
-	useful = TRUE;
-#ifdef CHECK_RANGE
-	if ( dict[*w] )
-	    qWarning("%s: Widget %s already defined!", library().latin1(), (*w).latin1() );
-	else
-#endif
-	    dict.insert( *w, this );
-    }
-
-    return useful;
-}
-
-/*! \reimp
-*/
-bool QWidgetPlugIn::removeFromManager( QPlugInDict& dict )
-{
-    bool res = TRUE;
-
-    QStringList wl = this->widgets();
-    for ( QStringList::Iterator w = wl.begin(); w != wl.end(); w++ )
-        res = res && dict.remove( *w );
-
-    return res;
-}
-
-/*! \reimp
-*/
 QWidget* QWidgetPlugIn::create( const QString& classname, QWidget* parent, const char* name )
 {
     if ( !use() )
@@ -90,6 +54,42 @@ QStringList QWidgetPlugIn::widgets()
 QWidgetPlugInManager::QWidgetPlugInManager( const QString& path, QPlugIn::LibraryPolicy pol )
 : QPlugInManager<QWidgetPlugIn>( path, pol )
 {
+}
+
+/*! \reimp
+*/
+bool QWidgetPlugInManager::addPlugIn( QPlugIn* p )
+{
+    QWidgetPlugIn* plugin = (QWidgetPlugIn*)p;
+   
+    bool useful = FALSE;
+
+    QStringList list = plugin->widgets();
+    for ( QStringList::Iterator w = list.begin(); w != list.end(); w++ ) {
+	useful = TRUE;
+#ifdef CHECK_RANGE
+	if ( plugDict[*w] )
+	    qWarning("%s: Widget %s already defined!", plugin->library().latin1(), (*w).latin1() );
+	else
+#endif
+	    plugDict.insert( *w, plugin );
+    }
+
+    return useful;
+}
+
+/*! \reimp
+*/
+bool QWidgetPlugInManager::removePlugIn( QPlugIn* p )
+{
+    QWidgetPlugIn* plugin = (QWidgetPlugIn*)p;
+    bool res = TRUE;
+
+    QStringList wl = plugin->widgets();
+    for ( QStringList::Iterator w = wl.begin(); w != wl.end(); w++ )
+        res = res && plugDict.remove( *w );
+
+    return res;
 }
 
 /*! \reimp

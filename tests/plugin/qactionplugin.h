@@ -2,6 +2,7 @@
 #define QACTIONPLUGIN_H
 
 #include "qplugin.h"
+#include "qpluginmanager.h"
 #include "qactioninterface.h"
 #include "qactionfactory.h"
 
@@ -14,9 +15,6 @@ public:
 
     QAction* create( const QString& classname, QObject* parent = 0 );
     QStringList actions();
-    
-    bool addToManager( QPlugInDict& dict );
-    bool removeFromManager( QPlugInDict& dict );
 };
 
 class QActionPlugInManager : public QPlugInManager<QActionPlugIn>, public QActionFactory
@@ -25,6 +23,10 @@ public:
     QActionPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy = QPlugIn::Default );
 
     QString factoryName() const { return "QActionPlugInManager"; }
+
+protected:
+    bool addPlugIn( QPlugIn* );
+    bool removePlugIn( QPlugIn* );
 
 private:
     QAction* newAction( const QString& classname, QObject* parent = 0 );

@@ -2,6 +2,7 @@
 #define QWIDGETPLUGIN_H
 
 #include "qplugin.h"
+#include "qpluginmanager.h"
 #include "qwidgetinterface.h"
 #include "qwidgetfactory.h"
 
@@ -16,15 +17,16 @@ public:
 
     QWidget* create( const QString& classname, QWidget* parent = 0, const char* name = 0 );
     QStringList widgets();
-    
-    bool addToManager( QPlugInDict& dict );
-    bool removeFromManager( QPlugInDict& dict );
 };
 
 class QWidgetPlugInManager : public QPlugInManager<QWidgetPlugIn>, public QWidgetFactory
 {
 public:
     QWidgetPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy = QPlugIn::Default );
+
+protected:
+    bool addPlugIn( QPlugIn* );
+    bool removePlugIn( QPlugIn* );
 
 private:
     QWidget* newWidget( const QString& classname, QWidget* parent = 0, const char* name = 0 );

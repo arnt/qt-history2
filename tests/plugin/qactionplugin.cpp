@@ -16,7 +16,7 @@ QActionPlugIn::QActionPlugIn( const QString& file, LibraryPolicy pol )
 }
 
 /*! \reimp
-*/
+
 bool QActionPlugIn::addToManager( QPlugInDict& dict )
 {
     if ( !use() )
@@ -39,7 +39,7 @@ bool QActionPlugIn::addToManager( QPlugInDict& dict )
 }
 
 /*! \reimp
-*/
+
 bool QActionPlugIn::removeFromManager( QPlugInDict& dict )
 {
     bool res = TRUE;
@@ -91,6 +91,42 @@ QActionPlugInManager::QActionPlugInManager( const QString& path, QPlugIn::Librar
 : QPlugInManager<QActionPlugIn>( path, pol )
 {
 }
+
+/*! \reimp
+*/
+bool QActionPlugInManager::addPlugIn( QPlugIn* p )
+{
+    QActionPlugIn* plugin = (QActionPlugIn*)p;
+    bool useful = FALSE;
+
+    QStringList al = plugin->actions();
+    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
+	useful = TRUE;
+#ifdef CHECK_RANGE
+	if ( plugDict[*a] )
+	    qWarning("%s: Action %s already defined!", plugin->library().latin1(), (*a).latin1() );
+	else
+#endif
+	    plugDict.insert( *a, plugin );
+    }
+
+    return useful;
+}
+
+/*! \reimp
+*/
+bool QActionPlugInManager::removePlugIn( QPlugIn* p )
+{
+    QActionPlugIn* plugin = (QActionPlugIn*)p;
+    bool res = TRUE;
+
+    QStringList al = plugin->actions();
+    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
+        res = res && plugDict.remove( *a );
+
+    return res;
+}
+
 
 /*! \reimp
 */
