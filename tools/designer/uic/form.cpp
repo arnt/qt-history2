@@ -802,16 +802,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
 	out << endl;
     } else if ( externPixmaps ) {
-	out << "static QPixmap uic_load_pixmap_" << objName << "( const QString &name )" << endl;
-	out << "{" << endl;
-	out << "    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( name );" << endl;
-	out << "    if ( !m )" << endl;
-	out << "\treturn QPixmap();" << endl;
-	out << "    QPixmap pix;" << endl;
-	out << "    QImageDrag::decode( m, pix );" << endl;
-	out << "    return pix;" << endl;
-	out << "}" << endl;
-	pixmapLoaderFunction = "uic_load_pixmap_" + objName;
+	pixmapLoaderFunction = "QMimeSourceFactory::defaultFactory()->pixmap";
     }
 
     // constructor(s)

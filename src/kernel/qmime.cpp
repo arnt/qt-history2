@@ -535,6 +535,37 @@ void QMimeSourceFactory::setData( const QString& abs_name, QMimeSource* data )
 	d->stored.remove(abs_name);
 }
 
+/*! Convenience function. Gets the data associated with the absolute
+  name \a abs_name and decodes it to a pixmap.
+
+  \sa data(), image(), QImageDrag::decode()
+*/
+
+QPixmap QMimeSourceFactory::pixmap( const QString &abs_name ) const
+{
+    const QMimeSource *m = data( abs_name );
+    if ( !m )
+	return QPixmap();
+    QPixmap pix;
+    QImageDrag::decode( m, pix );
+    return pix;
+}
+
+/*! Convenience function. Gets the data associated with the absolute
+  name \a abs_name and decodes it to an image.
+
+  \sa data(), pixmap(), QImageDrag::decode()
+*/
+
+QImage QMimeSourceFactory::image( const QString &abs_name ) const
+{
+    const QMimeSource *m = data( abs_name );
+    if ( !m )
+	return QImage();
+    QImage img;
+    QImageDrag::decode( m, img );
+    return img;
+}
 
 
 /*!

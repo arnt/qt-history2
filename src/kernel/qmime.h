@@ -114,6 +114,9 @@ public:
     void addFilePath( const QString& );
     virtual void setExtensionType( const QString& ext, const char* mimetype );
 
+    QPixmap pixmap( const QString &abs_name ) const;
+    QImage image( const QString &abs_name ) const;
+
 private:
     QMimeSource *dataInternal(const QString& abs_name, const QMap<QString, QString> &extensions ) const;
     QMimeSourceFactoryData* d;
