@@ -140,7 +140,7 @@ UnixMakefileGenerator::init()
 	if(configs.findIndex("moc")) configs.append("moc");
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
 	if ( !project->isActiveConfig("debug") )
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
+	    project->variables()["DEFINES"].append("QT_NO_DEBUG"); //never exported
 	if ( !is_qt ) {
 	    if ( !project->isEmpty("QMAKE_RPATH") ) {
 		if ( !project->isEmpty("QMAKE_RTLDIR_QT") )
