@@ -69,6 +69,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qfontdata.h \
 		  $$KERNEL_H/qfontinfo.h \
 		  $$KERNEL_H/qfontmetrics.h \
+		  $$KERNEL_H/qgif.h \
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qkeycode.h \
