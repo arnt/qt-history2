@@ -76,8 +76,7 @@ public:
 
     ~QThreadPrivate()
     {
-	QMutexLocker locker( qt_global_mutexpool->get( qt_thread_dict ) );
-	if (thread_id)
+	if ( thread_id )
 	    qt_thread_dict->remove( (void *) thread_id );
 	thread_id = 0;
     }
@@ -410,15 +409,15 @@ QThread::QThread()
 */
 QThread::~QThread()
 {
+    QMutexLocker locker( qt_thread_mutexpool->get( d ) );
+
 #ifdef QT_CHECK_STATE
-    {
-	QMutexLocker locker( qt_thread_mutexpool->get( d ) );
-        if( d->running && !d->finished ) {
-            qWarning("QThread object destroyed while thread is still running.");
-            return;
-        }
+    if( d->running && !d->finished ) {
+	qWarning("QThread object destroyed while thread is still running.");
+	return;
     }
 #endif
+
     delete d;
 }
 
