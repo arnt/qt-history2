@@ -384,13 +384,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     pixmap.data->ref();				// avoid 'x = x'
     deref();
     if ( pixmap.paintingActive() ) {		// make a deep copy
-#if !defined(Q_WS_X11)
 	init( pixmap.width(), pixmap.height(), pixmap.depth(),
 	      pixmap.data->bitmap, pixmap.data->optim );
-#else	
-	init( pixmap.width(), pixmap.height(), pixmap.depth(),
-	      pixmap.data->bitmap, pixmap.data->optim /*, pixmap.x11Screen()*/ ); // ##### Matthias, did you forget to submit some multi-head stuff???
-#endif	
 	data->uninit = FALSE;
 	if ( !isNull() ) {
 	    bitBlt( this, 0, 0, &pixmap, 0, 0, pixmap.width(), pixmap.height(),
