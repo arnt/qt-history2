@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#66 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#67 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -137,7 +137,6 @@ protected:
     virtual void	valueChange();
     virtual void	rangeChange();
 
-    void 		paintEvent( QPaintEvent * );
     bool		eventFilter( QObject* obj, QEvent* ev );
     void		resizeEvent( QResizeEvent* ev );
     void		wheelEvent( QWheelEvent * );
