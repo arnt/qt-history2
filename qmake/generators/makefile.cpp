@@ -472,6 +472,27 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 			    }
 			}
 		    }
+		    if(project->isActiveConfig("lex_included")) { //is this the lex file?
+			QString rhs = Option::lex_mod + Option::cpp_ext.first();
+			if(inc.endsWith(rhs)) {
+			    QString lhs = inc.left(inc.length() - rhs.length()) + Option::lex_ext;
+			    QStringList ll = project->variables()["LEXSOURCES"];
+			    for(QStringList::Iterator it = ll.begin(); it != ll.end(); ++it) {
+				QString s = (*it), d;
+				int slsh = s.findRev(Option::dir_sep);
+				if(slsh != -1) {
+				    d = s.left(slsh + 1);
+				    s = s.right(s.length() - slsh - 1);
+				}
+				if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
+				    d = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
+				if(s == lhs) {
+				    fqn = d + inc;
+				    goto handle_fqn;
+				}
+			    }
+			}
+		    }
 		    { //is it from a .y?
 			QString rhs = Option::yacc_mod + Option::h_ext.first();
 			if(inc.endsWith(rhs)) {
