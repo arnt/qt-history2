@@ -1,2 +1,3 @@
 TEMPLATE = subdirs
-SUBDIRS = interactive
+SUBDIRS = interactive \
+	  server
