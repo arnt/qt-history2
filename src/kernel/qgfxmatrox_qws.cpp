@@ -347,6 +347,8 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     // Last in 1d00-1dff range
 
+    unsigned int tmprop=getRop(myrop) << 16;
+
     if(cbrush.style()!=NoBrush) {
 	int p=ncliprect;
 	for(loopc=0;loopc<p;loopc++) {
@@ -363,7 +365,8 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 		t=(t*8)/depth;
 		//t&=0x1f;
 		p*=(t >> 5);
-		matrox_regw(DWGCTL,DWG_MODE);
+		matrox_regw(DWGCTL,DWG_TRAP | DWG_SOLID | DWG_ARZERO |
+			    DWG_SGNZERO | DWG_SHIFTZERO | DWG_TRANSC | tmprop);
 		matrox_regw(FXLEFT,x3);
 		matrox_regw(FXRIGHT,x4+1);
 		matrox_regw(YDST,p);
@@ -492,6 +495,8 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 	(*gfx_optype)=1;
 	(*gfx_lastop)=LASTOP_BLT;
 
+	unsigned int tmprop=getRop(myrop) << 16;
+
 	int xp=xoffs+rx;
 	int yp=yoffs+ry;
 	int xp2=srcwidgetoffs.x() + sx;
@@ -542,7 +547,7 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 		if ( !rev ) {
 		    matrox_regw(AR5,src_pixel_linestep);
 		    matrox_regw(DWGCTL,DWG_BITBLT | DWG_SHIFTZERO |
-				DWG_SGNZERO | DWG_BFCOL | DWG_REPLACE);
+				DWG_SGNZERO | DWG_BFCOL | tmprop);
 		    tw--;
 		    start=yp2*src_pixel_linestep+xp2+src_pixel_offset;
 		    end=start+tw;
@@ -550,7 +555,7 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 		    matrox_regw(SGN,5);
 		    matrox_regw(AR5,-src_pixel_linestep);
 		    matrox_regw(DWGCTL,DWG_BITBLT | DWG_SHIFTZERO | DWG_BFCOL |
-				DWG_REPLACE);
+			        tmprop);
 		    tw--;
 		    end=(yp2+th-1)*src_pixel_linestep+xp2+src_pixel_offset;
 		    start=end+tw;
