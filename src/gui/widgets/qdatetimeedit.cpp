@@ -124,8 +124,6 @@ public:
     mutable QString cachedText;
 };
 
-
-
 // --- QDateTimeEdit ---
 
 /*!
@@ -791,7 +789,9 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 void QDateTimeEdit::wheelEvent(QWheelEvent *e)
 {
     Q_D(QDateTimeEdit);
-    const QDateTimeEditPrivate::Section s = d->sectionAt(qMax<int>(0, d->edit->cursorPositionAt(e->pos()) - 1));
+    int fw = d->frame ? style()->pixelMetric(QStyle::PM_SpinBoxFrameWidth) : 0;
+    int pos = d->edit->cursorPositionAt(e->pos() - QPoint(fw, fw));
+    const QDateTimeEditPrivate::Section s = d->closestSection(pos, d->edit->cursorPosition() > pos); // should it be > pos?
     if (s != d->currentsection)
         d->edit->setCursorPosition(d->sectionNode(s).pos);
     switch (s) {
@@ -1054,6 +1054,7 @@ QDateEdit::QDateEdit(const QDate &date, QWidget *parent)
   \internal
   Constructs a QDateTimeEditPrivate object
 */
+
 
 QDateTimeEditPrivate::QDateTimeEditPrivate()
 {
