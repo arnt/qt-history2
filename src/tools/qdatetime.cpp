@@ -704,7 +704,7 @@ QString QDate::longDayName( int weekday )
   format of the string.
 
   If \a f is Qt::TextDate, the string format is "Sat May 20 1995" (using
-  the shortDayName() and shortMonthName() functions to generate the string).
+  the shortDayName() and shortMonthName() functions to generate the string which are locale specific).
 
   If \a f is Qt::ISODate, the string format corresponds to the ISO
   8601 specification for representations of dates, which is YYYY-MM-DD

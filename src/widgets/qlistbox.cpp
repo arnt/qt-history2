@@ -1761,7 +1761,7 @@ int QListBox::currentItem() const
   When setting this property, the highlighting is moved and the list
   box scrolled as necessary.
 
-  If no item has been selected, currentItem() returns -1.
+  If no item has been highlighted, currentItem() returns -1.
 */
 
 void QListBox::setCurrentItem( int index )
@@ -3526,7 +3526,7 @@ int QListBox::topItem() const
     // move rightwards to the best column
     int col = columnAt( contentsX() );
     int row = rowAt( contentsY() );
-    return col * numRows() + row; 
+    return col * numRows() + row;
 }
 
 

@@ -272,7 +272,8 @@ QInputDialog::~QInputDialog()
   dialog's parent is \a parent; the dialog is called \a name. The
   dialog will be modal.
 
-  This function returns the text which has been entered in the line edit.
+  This function returns the text which has been entered in the line
+  edit. It will not return an empty string.
 
   Use this static function like this:
 
