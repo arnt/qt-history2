@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#69 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#70 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -95,7 +95,10 @@ static void perhapsAddPrinter( QListView * printers, const QString &name,
 	return;
     if ( host.isEmpty() )
 	host = qApp->translate( "QPrintDialog", "locally connected" );
-    (void)new QListViewItem( printers, name, host, comment );
+    (void)new QListViewItem( printers,
+			     name.simplifyWhiteSpace(),
+			     host.simplifyWhiteSpace(),
+			     comment.simplifyWhiteSpace() );
 }
 
 
@@ -210,7 +213,7 @@ static void parseEtcLpPrinters( QListView * printers )
 			while( isspace(*p) )
 			    p++;
 			printerHost = QString::fromLocal8Bit(p);
-			printerHost.simplifyWhiteSpace();
+			printerHost = printerHost.simplifyWhiteSpace();
 		    } else if ( contentType.match( QString::fromLatin1(line) ) == 0 ) {
 			char * p = line;
 			while( *p != ':' )
