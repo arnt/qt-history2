@@ -230,6 +230,45 @@ uint QThread::stackSize() const
     return d->stackSize;
 }
 
+
+/*!
+    Tells the thread's event loop to exit with a return code.
+
+    After calling this function, the thread leaves the event loop and
+    returns from the call to QEventLoop::exec().  The
+    QEventLoop::exec() function returns \a retcode.
+
+    By convention, a \a retcode of 0 means success, any non-zero value
+    indicates an error.
+
+    Note that unlike the C library function of the same name, this
+    function \e does return to the caller -- it is event processing
+    that stops.
+
+    This function does nothing if the thread does not have an event
+    loop.
+
+    \sa quit() QEventLoop
+*/
+void QThread::exit(int retcode)
+{
+    QEventLoop *eventLoop = d->data.eventLoop;
+    if (eventLoop)
+        eventLoop->exit(retcode);
+}
+
+/*!
+    Tells the thread's event loop to exit with return code 0 (success).
+    Equivalent to calling QThread::exit(0).
+
+    This function does nothing if the thread does not have an event
+    loop.
+
+    \sa exit() QEventLoop
+*/
+void QThread::quit()
+{ exit(); }
+
 /*!
     \fn void QThread::run()
 

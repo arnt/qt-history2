@@ -59,9 +59,12 @@ public:
     void setStackSize(uint stackSize);
     uint stackSize() const;
 
+    void exit(int retcode = 0);
+
 public slots:
     void start(Priority = InheritPriority);
     void terminate();
+    void quit();
 
 public:
     // default argument causes thread to block indefinately
@@ -74,8 +77,6 @@ signals:
 
 protected:
     virtual void run() = 0;
-
-    static void exit();
 
     static void sleep(unsigned long);
     static void msleep(unsigned long);

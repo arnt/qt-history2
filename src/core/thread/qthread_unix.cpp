@@ -137,16 +137,6 @@ QThread *QThread::currentQThread()
     return reinterpret_cast<QThread *>(pthread_getspecific(current_thread_key));
 }
 
-
-/*!
-    Ends the execution of the calling thread and wakes up any threads
-    waiting for its termination.
-*/
-void QThread::exit()
-{
-    pthread_exit(0);
-}
-
 /*  \internal
     helper function to do thread sleeps, since usleep()/nanosleep()
     aren't reliable enough (in terms of behavior and availability)
