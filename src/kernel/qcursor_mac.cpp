@@ -302,6 +302,7 @@ QPoint QCursor::pos()
 {
     Point p;
     GetMouse(&p);
+    LocalToGlobal(&p);
     return QPoint(p.h, p.v);
 }
 
