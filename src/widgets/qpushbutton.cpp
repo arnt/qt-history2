@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#109 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#109 $");
 
 
 /*!
@@ -468,7 +468,7 @@ void QPushButton::focusInEvent( QFocusEvent *e )
 
 void QPushButton::setIsMenuButton( bool enable )
 {
-    if ( hasMenuArrow == enable )
+    if ( (bool)hasMenuArrow == enable )
 	return;
     hasMenuArrow = enable ? 1 : 0;
     repaint( FALSE );
