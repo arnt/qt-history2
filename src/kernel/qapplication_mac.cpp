@@ -639,16 +639,22 @@ static key_sym modifier_syms[] = {
 { rightOptionKey, MAP_KEY(Qt::AltButton) },
 { kEventKeyModifierNumLockMask, MAP_KEY(Qt::Keypad) },
 {   0, MAP_KEY(0) } };
-static int get_modifiers(int key)
+static int get_modifiers(int key, bool from_mouse=FALSE)
 {
 #ifdef DEBUG_KEY_MAPS
-    qDebug("**Mapping modifier: %d (0x%04x)", key, key);
+#ifndef DEBUG_MOUSE_MAPS
+	    if(!from_mouse)
+#endif
+		qDebug("**Mapping modifier: %d (0x%04x) -- %d", key, key, from_mouse);
 #endif
     int ret = 0;
     for(int i = 0; modifier_syms[i].qt_code; i++) {
 	if(key & modifier_syms[i].mac_code) {
 #ifdef DEBUG_KEY_MAPS
-	    qDebug("got modifier: %s", modifier_syms[i].desc);
+#ifndef DEBUG_MOUSE_MAPS
+	    if(!from_mouse)
+#endif
+		qDebug("%d: got modifier: %s", from_mouse, modifier_syms[i].desc);
 #endif
 	    ret |= modifier_syms[i].qt_code;
 	}
@@ -1159,7 +1165,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	UInt32 modifiers;
 	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL,
 			  sizeof(modifiers), NULL, &modifiers);
-	int keys = get_modifiers(modifiers);
+	int keys = get_modifiers(modifiers, TRUE);
 	int button=QEvent::NoButton, state=0, wheel_delta=0, after_state=mouse_button_state;
 	if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
 	    EventMouseButton mb;
@@ -1553,7 +1559,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
 	static UInt32 state = 0L;
 	char chr = KeyTranslate((void *)GetScriptVariable(smCurrentScript, smKCHRCache),
-		   (modif & (rightOptionKeyBit|optionKey|shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
+		   (modif & (rightOptionKeyBit|kEventKeyModifierNumLockBit|
+			     optionKey|shiftKey|rightShiftKey|alphaLock)) | keyc, &state);
 	if(!chr || (chr == kClearCharCode && keyc == 0x47)) 
 	    break;
 
@@ -1574,6 +1581,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		tmp_mod |= alphaLock;
 	    if(modifiers & Qt::AltButton)
 		tmp_mod |= optionKey;
+	    if(modifiers & Qt::Keypad)
+		tmp_mod |= kEventKeyModifierNumLockMask;
 	    chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
 			       tmp_mod | keyc, &tmp_state);
 	}
