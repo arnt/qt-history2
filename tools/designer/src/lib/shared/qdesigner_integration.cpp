@@ -57,22 +57,27 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
     if (AbstractFormWindow *formWindow = core()->formWindowManager()->activeFormWindow()) {
 
         AbstractFormWindowCursor *cursor = formWindow->cursor();
-        cursor->setProperty(name, value);
 
         if (cursor->isWidgetSelected(formWindow->mainContainer())) {
             if (name == QLatin1String("windowTitle")) {
                 QString filename = formWindow->fileName().isEmpty()
                         ? QString::fromUtf8("Untitled")
-                    : formWindow->fileName();
+                        : formWindow->fileName();
 
                 formWindow->setWindowTitle(QString::fromLatin1("%1 - (%2)")
                                            .arg(value.toString())
                                            .arg(filename));
 
             } else if (name == QLatin1String("geometry")) {
-                formWindow->topLevelWidget()->setGeometry(value.toRect());
+                QRect r = formWindow->topLevelWidget()->geometry();
+                r.setSize(value.toRect().size());
+                formWindow->topLevelWidget()->setGeometry(r);
+                emit propertyChanged(formWindow, name, value);
+                return;
             }
         }
+
+        cursor->setProperty(name, value);
 
         if (name == QLatin1String("objectName") && core()->objectInspector()) {
             core()->objectInspector()->setFormWindow(formWindow);
