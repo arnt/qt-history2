@@ -318,9 +318,8 @@ void QPixmap::deref()
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
-    qDebug("This is broken, and I'm too tired to really look at it, I've left the code but its probably wrong.");
+    qDebug("Grr.. I really need to work on this function..");
     return *this;
-
 
     int	   w, h;				// size of target pixmap
     int	   ws, hs;				// size of source pixmap
@@ -376,13 +375,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 	QPixmap pm( w, h, depth(), NormalOptim );
 	bitBlt(&pm, 0, 0, this, ws, hs, w, h);
-#if 0
-	QGfx * mygfx=pm.graphicsContext();
-	mygfx->setSource(this);
-	mygfx->setAlphaType(QGfx::IgnoreAlpha);
-	mygfx->stretchBlt(0,0,w,h,ws,hs);
-	delete mygfx;
-#endif
 
 	if ( data->mask ) {
 	    QBitmap bm =
@@ -681,11 +673,19 @@ void QPixmap::setOptimization( Optimization  )
 {
 }
 
-QPixmap QPixmap::grabWindow( WId, int , int , int , int  )
+QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
-  QPixmap pm;
-  return pm;
+    QPixmap pm;
+#if 0     //FIXME FIXME FIXME, THIS DOES NOT WORK FIXME!
+    QWidget *widget = QWidget::find( window );
+    if ( widget ) {
+	pm = QPixmap(w, h, 32);
+	bitBlt(&pm, 0, 0, widget, x, y, w, h);
+    }
+#endif
+    return pm;
 }
+
 
 
 

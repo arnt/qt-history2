@@ -933,12 +933,13 @@ void QWidget::setAcceptDrops( bool )
 void QWidget::setMask( const QRegion &region )
 {
     dirtyClippedRegion(TRUE);
+    if ( isVisible() && !isTopLevel() )
+	update();
+
     createExtra();
     if ( region.isNull() && extra->mask.isNull() )
 	return;
     extra->mask = region;
-    if ( isVisible() && !isTopLevel() )
-	update();
 }
 
 void QWidget::setMask( const QBitmap &bitmap )
@@ -1002,12 +1003,8 @@ bool QWidget::isClippedRegionDirty()
 
 QRegion QWidget::clippedRegion()
 {
-    //I'm not too confident this is right, as it seemed to work immediatly, so I'll 
-    //comment this out when stuff (inevitably) starts breaking.
-#if 1
     if(!isClippedRegionDirty())
 	return extra->clip_saved;
-#endif
 
     createExtra();
     extra->clip_dirty = FALSE;
