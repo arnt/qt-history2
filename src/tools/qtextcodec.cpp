@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#46 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#47 $
 **
 ** Implementation of QTextCodec class
 **
@@ -879,8 +879,8 @@ public:
 	if (lenInOut > (int)uc.length())
 	    lenInOut = uc.length();
 	int rlen = lenInOut*max_bytes_per_char;
-	char* result = new char[rlen];
-	char* cursor = result;
+	QCString rstr(rlen);
+	char* cursor = rstr.data();
 	char* s;
 	int l = lenInOut;
 	int lout = 0;
@@ -909,8 +909,6 @@ public:
 	}
 	*cursor = 0;
 	lenInOut = lout;
-	QCString rstr;
-	rstr.setRawData(result,rlen);
 	return rstr;
     }
 };

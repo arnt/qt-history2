@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qkoi8codec.cpp#8 $
 **
 ** Implementation of QKoi8Codec class
 **
@@ -157,8 +157,8 @@ QCString QKoi8Codec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = QMIN((int)uc.length(),len_in_out);
     int rlen = l+1;
-    uchar* result = new uchar[rlen];
-    uchar* cursor = result;
+    QCString rstr(rlen);
+    uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	const QChar ch = uc[i];
 	if ( ch.row ) {
@@ -208,8 +208,6 @@ QCString QKoi8Codec::fromUnicode(const QString& uc, int& len_in_out) const
     }
     *cursor++ = '\0';
     // len_in_out = cursor - result;
-    QCString rstr;
-    rstr.setRawData((char*)result,rlen);
     return rstr;
 }
 

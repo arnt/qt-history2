@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#12 $
 **
 ** Implementation of QEucCodec class
 **
@@ -4642,8 +4642,8 @@ QCString QEucCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = QMIN((int)uc.length(),len_in_out);
     int rlen = l*2+1;
-    uchar* result = new uchar[rlen];
-    uchar* cursor = result;
+    QCString rstr(rlen);
+    uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
 	if ( !ch.row && ch.cell < 128 ) {
@@ -4686,10 +4686,8 @@ QCString QEucCodec::fromUnicode(const QString& uc, int& len_in_out) const
 	    *cursor++ = e & 0xff;
 	}
     }
-    len_in_out = cursor - result;
+    len_in_out = cursor - (uchar*)rstr.data();
     *cursor = 0;
-    QCString rstr;
-    rstr.setRawData((char*)result,rlen);
     return rstr;
 }
 
