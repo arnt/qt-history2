@@ -109,7 +109,7 @@ void QTreeModel::setColumnCount(int columns)
         emit columnsRemoved(QModelIndex::Null, qMax(_c - 1, 0), qMax(c - 1, 0));
     header->setColumnCount(c);
     for (int i = _c; i < c; ++i)
-        header->setText(i, QString::number(i));
+        header->setText(i, QString::number(i)); // FIXME: shoulnd't save anything
     if (c > _c)
         emit columnsInserted(QModelIndex::Null, qMax(_c - 1, 0), qMax(c - 1, 0));
 }
@@ -818,4 +818,9 @@ bool QTreeWidget::isSelected(QTreeWidgetItem *item) const
 {
     QModelIndex index = d->model()->index(item);
     return selectionModel()->isSelected(index);
+}
+
+void QTreeWidget::setModel(QAbstractItemModel *model)
+{
+    QTreeView::setModel(model);
 }

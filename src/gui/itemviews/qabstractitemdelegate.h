@@ -59,21 +59,25 @@ public:
     // painting
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
                        const QAbstractItemModel *model, const QModelIndex &index) const = 0;
+
     virtual QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
                            const QAbstractItemModel *model, const QModelIndex &index) const = 0;
 
     // editing
     virtual EditorType editorType(const QAbstractItemModel *model, const QModelIndex &index) const;
+
     virtual QWidget *editor(BeginEditAction action, QWidget *parent,
                             const QStyleOptionViewItem &option,
                             const QAbstractItemModel *model,
                             const QModelIndex &index);
+
     virtual void releaseEditor(EndEditAction action, QWidget *editor,
                                QAbstractItemModel *model, const QModelIndex &index);
 
     virtual void setEditorData(QWidget *editor,
                                const QAbstractItemModel *model,
                                const QModelIndex &index) const;
+
     virtual void setModelData(QWidget *editor,
                               QAbstractItemModel *model,
                               const QModelIndex &index) const;
@@ -87,6 +91,7 @@ public:
     virtual bool event(QEvent *e, QAbstractItemModel* model, const QModelIndex &index);
 
 signals:
+    void commitData(QWidget *editor);
     void doneEditing(QWidget *editor, QAbstractItemDelegate::EndEditAction action);
 
 protected:

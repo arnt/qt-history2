@@ -52,6 +52,7 @@ public:
 
 protected:
     void removeItem(QListWidgetItem *item);
+    void setModel(QAbstractItemModel *model);
 };
 
 #endif

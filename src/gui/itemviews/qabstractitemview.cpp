@@ -471,10 +471,23 @@ QItemSelectionModel* QAbstractItemView::selectionModel() const
 */
 void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
-    Q_ASSERT(delegate);
+    if (d->delegate) {
+        QObject::disconnect(d->delegate,
+                            SIGNAL(doneEditing(QWidget*, QAbstractItemDelegate::EndEditAction)),
+                            this,
+                            SLOT(doneEditing(QWidget*, QAbstractItemDelegate::EndEditAction)));
+        QObject::disconnect(d->delegate, SIGNAL(commitData(QWidget*)),
+                            this, SLOT(commitData(QWidget*)));
+    }
     d->delegate = delegate;
-    QObject::connect(delegate, SIGNAL(doneEditing(QWidget*, QAbstractItemDelegate::EndEditAction)),
-                     this, SLOT(doneEditing(QWidget*, QAbstractItemDelegate::EndEditAction)));
+    if (d->delegate) {
+        QObject::connect(delegate,
+                         SIGNAL(doneEditing(QWidget*, QAbstractItemDelegate::EndEditAction)),
+                         this,
+                         SLOT(doneEditing(QWidget*, QAbstractItemDelegate::EndEditAction)));
+        QObject::connect(d->delegate, SIGNAL(commitData(QWidget*)),
+                         this, SLOT(commitData(QWidget*)));
+    }
 }
 
 /*!
@@ -1109,9 +1122,6 @@ bool QAbstractItemView::beginEdit(const QModelIndex &index,
 void QAbstractItemView::endEdit(const QModelIndex &index,
                                 QAbstractItemDelegate::EndEditAction action)
 {
-//    if (d->state != Editing)
-//        return;
-
     QModelIndex buddy = model()->buddy(index);
     QPersistentModelIndex persistent(buddy.isValid() ? buddy : index, model());
 
@@ -1125,16 +1135,13 @@ void QAbstractItemView::endEdit(const QModelIndex &index,
     }
 
     QWidget *editor = d->editors.value(persistent);
-    if (editor) {
-        if (type == QAbstractItemDelegate::Widget) {
-            itemDelegate()->releaseEditor(action, editor, model(), index);
-            d->editors.remove(persistent);
-        } else { // editor is persistent
-            itemDelegate()->setModelData(editor, model(), index);
-        }
-        d->state = NoState;
-        setFocus();
+    if (editor && type == QAbstractItemDelegate::Widget) {
+        itemDelegate()->releaseEditor(action, editor, model(), index);
+        d->editors.remove(persistent);
     }
+
+    d->state = NoState;
+    setFocus();
 }
 
 /*!
@@ -1207,6 +1214,17 @@ void QAbstractItemView::selectionModelDestroyed()
 void QAbstractItemView::doneEditing(QWidget *editor, QAbstractItemDelegate::EndEditAction action)
 {
     endEdit(d->editors.key(editor), action);
+}
+
+/*!
+  Commit the data in the \a editor to the model.
+
+  \sa doneEditing()
+*/
+void QAbstractItemView::commitData(QWidget *editor)
+{
+    QModelIndex index = d->editors.key(editor);
+    itemDelegate()->setModelData(editor, model(), index);
 }
 
 // ###DOC: this value is also used by the "scroll in item units" algorithm to

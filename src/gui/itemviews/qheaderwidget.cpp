@@ -13,6 +13,7 @@
 
 #include "qheaderwidget.h"
 #include <qabstractitemmodel.h>
+#include <private/qabstractitemmodel_p.h>
 #include <private/qheaderview_p.h>
 
 class QHeaderModel : public QAbstractTableModel
@@ -51,8 +52,8 @@ public:
 private:
     QVector<QHeaderWidgetItem*> items;
     Qt::Orientation orientation;
+    mutable QChar strbuf[65];
 };
-
 QHeaderModel::QHeaderModel(Qt::Orientation orientation, int sections, QHeaderWidget *parent)
     : QAbstractTableModel(parent),
       orientation(orientation)
@@ -92,13 +93,13 @@ bool QHeaderModel::removeColumns(int column, const QModelIndex &, int count)
 bool QHeaderModel::insertSections(int section, int count)
 {
     items.insert(section, count, 0);
-	return true;
+    return true;
 }
 
 bool QHeaderModel::removeSections(int section, int count)
 {
     items.remove(section, count);
-	return true;
+    return true;
 }
 
 void QHeaderModel::setSectionCount(int sections)
@@ -177,9 +178,9 @@ QVariant QHeaderModel::data(const QModelIndex &index, int role) const
     if (itm)
         return itm->data(role);
     if (index.type() == QModelIndex::VerticalHeader && role == QAbstractItemModel::DisplayRole)
-        return QString::number(index.row());
+        return QAbstractItemModelPrivate::i2s(strbuf, 65, index.row());
     if (index.type() == QModelIndex::HorizontalHeader && role == QAbstractItemModel::DisplayRole)
-        return QString::number(index.column());
+        return QAbstractItemModelPrivate::i2s(strbuf, 65, index.column());
     return QVariant();
 }
 
@@ -271,4 +272,9 @@ QHeaderWidgetItem *QHeaderWidget::takeItem(int section)
 void QHeaderWidget::removeItem(QHeaderWidgetItem *item)
 {
     d->model()->removeItem(item);
+}
+
+void QHeaderWidget::setModel(QAbstractItemModel *model)
+{
+    QHeaderView::setModel(model);
 }

@@ -14,6 +14,7 @@
 #include "qtablewidget.h"
 #include <qheaderview.h>
 #include <qabstractitemmodel.h>
+#include <private/qabstractitemmodel_p.h>
 #include <private/qtableview_p.h>
 
 class QTableModel : public QAbstractTableModel
@@ -50,13 +51,14 @@ public:
     bool isEditable(const QModelIndex &index) const;
 
     bool isValid(const QModelIndex &index) const;
-    int tableIndex(int row, int column) const;
+    inline long tableIndex(int row, int column) const {  return (row * c) + column; }
 
 private:
     int r, c;
     QVector<QTableWidgetItem*> table;
     QVector<QTableWidgetItem*> verticalHeader;
     QVector<QTableWidgetItem*> horizontalHeader;
+    mutable QChar strbuf[65];
 };
 
 QTableModel::QTableModel(int rows, int columns, QTableWidget *parent)
@@ -117,7 +119,7 @@ void QTableModel::setItem(const QModelIndex &index, QTableWidgetItem *item)
         delete horizontalHeader.at(index.column());
         horizontalHeader[index.column()];
     } else {
-        int i = tableIndex(index.row(), index.column());
+        long i = tableIndex(index.row(), index.column());
         delete table.at(i);
         table[i] = item;
     }
@@ -125,7 +127,7 @@ void QTableModel::setItem(const QModelIndex &index, QTableWidgetItem *item)
 
 QTableWidgetItem *QTableModel::takeItem(int row, int column)
 {
-    int i = tableIndex(row, column);
+    long i = tableIndex(row, column);
     QTableWidgetItem *itm = table.at(i);
     table[i] = 0;
     return itm;
@@ -208,7 +210,7 @@ void QTableModel::setColumnCount(int columns)
     if (c == columns)
         return;
     int _c = qMin(c, columns);
-    int s = r * columns;
+    long s = r * columns;
     c = columns;
 
     int left = qMax(_c - 1, 0);
@@ -241,10 +243,12 @@ QVariant QTableModel::data(const QModelIndex &index, int role) const
     QTableWidgetItem *itm = item(index);
     if (itm)
         return itm->data(role);
+    if (index.type() == QModelIndex::View)
+        return QVariant();
     if (index.type() == QModelIndex::VerticalHeader && role == QAbstractItemModel::DisplayRole)
-        return QString::number(index.row());
+        return QAbstractItemModelPrivate::i2s(strbuf, 65, index.row());
     if (index.type() == QModelIndex::HorizontalHeader && role == QAbstractItemModel::DisplayRole)
-        return QString::number(index.column());
+        return QAbstractItemModelPrivate::i2s(strbuf, 65, index.column());
     return QVariant();
 }
 
@@ -269,11 +273,6 @@ bool QTableModel::isEditable(const QModelIndex &index) const
 bool QTableModel::isValid(const QModelIndex &index) const
 {
     return index.isValid() && index.row() < r && index.column() < c;
-}
-
-int QTableModel::tableIndex(int row, int column) const
-{
-    return (row * c) + column;
 }
 
 // item
@@ -413,4 +412,9 @@ void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 void QTableWidget::removeItem(QTableWidgetItem *item)
 {
     d->model()->removeItem(item);
+}
+
+void QTableWidget::setModel(QAbstractItemModel *model)
+{
+    QTableView::setModel(model);
 }

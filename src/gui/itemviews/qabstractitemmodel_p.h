@@ -37,7 +37,7 @@ class QAbstractItemModelPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QAbstractItemModel)
 
 public:
-
+    static QString i2s(QChar *buf, int size, int num);
     QList<QPersistentModelIndexData*> persistentIndexes;
 };
 

@@ -53,6 +53,7 @@ public:
 
 protected:
     void removeItem(QHeaderWidgetItem *item);
+    void setModel(QAbstractItemModel *model);
 };
 
 #endif

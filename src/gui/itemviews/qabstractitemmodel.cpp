@@ -152,6 +152,27 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
     }
 }
 
+QString QAbstractItemModelPrivate::i2s(QChar *buf, int size, int num)
+{
+    static ushort unicode_zero = QChar('0').unicode();
+    static ushort unicode_dash = QChar('-').unicode();
+    bool neg = num < 0;
+    int len = 0;
+    while (num != 0 && size > 0) {
+        buf[--size] = unicode_zero + (num % 10);
+        num /= 10;
+        ++len;
+    }
+    if (len == 0) {
+        buf[--size] = unicode_zero;
+        ++len;
+    }
+    if (neg) {
+        buf[--size] = unicode_dash;
+        ++len;
+    }
+    return QString(&buf[size], len);
+}
 
 /*!
   \class QPersistentModelIndex qabstractitemmodel.h
@@ -1083,7 +1104,7 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
   Returns the row and column span of the item represented by \a index.
 */
 
-QSize QAbstractItemModel::span(const QModelIndex &index) const
+QSize QAbstractItemModel::span(const QModelIndex &) const
 {
     return QSize(1, 1);
 }

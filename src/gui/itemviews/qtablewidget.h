@@ -57,6 +57,7 @@ public:
 
 protected:
     void removeItem(QTableWidgetItem *item);
+    void setModel(QAbstractItemModel *model);
 };
 
 #endif

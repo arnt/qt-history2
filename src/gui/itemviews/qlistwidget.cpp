@@ -367,3 +367,8 @@ void QListWidget::removeItem(QListWidgetItem *item)
 {
     d->model()->remove(item);
 }
+
+void QListWidget::setModel(QAbstractItemModel *model)
+{
+    QListView::setModel(model);
+}

@@ -42,6 +42,7 @@ protected:
     void appendItem(QTreeWidgetItem *item);
     void removeItem(QTreeWidgetItem *item);
     bool isSelected(QTreeWidgetItem *item) const;
+    void setModel(QAbstractItemModel *model);
 };
 
 class Q_GUI_EXPORT QTreeWidgetItem : public QWidgetBaseItem
