@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 1.3 1996/01/11 20:26:10 agulbra Exp $
+** $Id: moc.doc,v 1.4 1996/02/17 21:19:53 agulbra Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -20,33 +20,24 @@ handles the <a href=metaobjects.html>C++ extensions in Qt.</a>
 
 <h2>Invoking moc</h2>
 
-Here are the command-line options supported by the moc: <dl>
+Here are the command-line options supported by the moc: 
 
+<dl>
 <dt> -o <var>file</var> <dd> Write output to <var>file</var> rather
-than to stdout.<p>
-
+than to stdout.
 <dt> -f <dd> Force the generation of an #include statement in the
-output.<p>
-
-This is the default for files whose name matches the regular
+output.  This is the default for files whose name matches the regular
 expression \.[hH][^.]* (ie. the extension starts with H or h).  This
 option is only useful if you have header files that do not follow the
-standard naming conventions.<p>
-
+standard naming conventions.
 <dt> -i <dd> Do not generate an #include statement in the output.
 This may be used to run the moc on on a C++ file containing one or
 more class declarations and #include the meta object code in the .cpp
-file.<p>
-
-If both -i and -f are present, the last one wins.<p>
-
-<dt> -nw <dd> Do not generate any warnings.  Discouraged.<p>
-
-<dt> -ldbg <dd> Write a flood of lex debug information on stdout.<p>
-
+file.  If both -i and -f are present, the last one wins.
+<dt> -nw <dd> Do not generate any warnings.  Discouraged.
+<dt> -ldbg <dd> Write a flood of lex debug information on stdout.
 <dt> -dbg <dd> Treat all non-signal members as slots, for internal
-debugging purposes.  This is not useful for programming Qt clients.<p>
-
+debugging purposes.  This is not useful for programming Qt clients.
 </dl>
 
 <h2>Usage</h2>
@@ -56,7 +47,7 @@ moc is almost always invoked by make(1), not by hand.
 
 moc is typically used with an input file containing class declarations
 like this skeleton:
-<pre>
+\code
     class YourClass : public QObject {
         Q_OBJECT
     public:
@@ -69,26 +60,26 @@ like this skeleton:
     public slots:
 
     };
-</pre>
+\endcode
 
 <p>
 
 Here is a useful makefile rule if you only use GNU make:
 
-<pre>
+\code
     m%.cpp: %.h
             moc $lt; -o $@
-</pre>
+\endcode
 
 <p>
 
 If you want to write portably, you can use individual rules of the
 following form:
 
-<pre>
+\code
     mNAME.cpp: NAME.h
             moc $&lt; -o $@
-</pre>
+\endcode
 
 <p>
 
@@ -107,21 +98,21 @@ prefer.)
 If you have class declarations in C++ files, we recommend that you use
 a makefile rule like this:
 
-<pre>
+\code
     NAME.o: mNAME.cpp
     
     mNAME.cpp: NAME.cpp
             moc -i $&lt; -o $@
-</pre>
+\endcode
 
 <p>
 
 This guarantees that make(1) will run the moc before it compiles
 <var>NAME.cpp.</var> You can then put
 
-<pre>
+\code
     #include "nNAME.cpp"
-</pre>
+\endcode
 
 at the end of <var>NAME.cpp,</var> where all the classes declared in
 that file are fully known.
@@ -144,38 +135,37 @@ moc does not handle all of C++.  The main problem is that class
 templates cannot have signals or slots.  This is an important bug.
 Here is an example:
 
-<pre>
+\code
     class SomeTemplate&lt;int&gt; : public QFrame {
         Q_OBJECT
     [...]
     signals:
         void bugInMocDetected( int );
     };
-</pre>
+\endcode
 
 Less importantly, the following five constructs are illegal.  All five
 have workarounds which we think are better alternatives, so fixing
 these bugs is not a high priority for us.
 
-<dl>
 
-<dt> Function pointers can not be arguments to signals or slots.
+<h3> Function pointers can not be arguments to signals or slots. </h3>
 
-<dd> In most cases where you would consider that, we think inheritance is a
+In most cases where you would consider that, we think inheritance is a
 better alternative.  Here is an example of illegal syntax:
 
-<pre>
+\code
     class someClass : public QObject {
         Q_OBJECT
     [...]
     public slots:
         void apply(void (*applyFunction)(QList*, void*), char*);
     };
-</pre>
+\endcode
 
 <p>
 You can work around this restriction like this:
-<pre>
+\code
     typedef void (*ApplyFunctionType)(QList*, void*);
 
     class someClass : public QObject {
@@ -184,43 +174,43 @@ You can work around this restriction like this:
     public slots:
         void apply( ApplyFunctionType, char *);
     };
-</pre>
+\endcode
 
 <p>
 
 (It may sometimes be even better to replace the function pointer with
 inheritance and virtual functions, signals or slots.)
 
-<dt>Friend declarations can not be placed in signals or slots sections
+<h3>Friend declarations can not be placed in signals or slots sections</h3>
 
-<dd> Sometimes it will work, but in general, friend declarations can
+Sometimes it will work, but in general, friend declarations can
 not be placed in signals or slots sections.  Put them in the good old
 private, protected or public sections instead.  Here is an example of
 the illegal syntax:
 
-<pre>
+\code
     class someClass : public QObject {
         Q_OBJECT
     [...]
     signals:
         friend class ClassTemplate&lt;char&gt;;
     };
-</pre>
+\endcode
 
-<dt>Signals and slots cannot be upgraded
+<h3>Signals and slots cannot be upgraded</h3>
 
-<dd> The C++ feature of upgrading an inherited member function to
+The C++ feature of upgrading an inherited member function to
 public status is not extended to cover signals and slots.  Here is an
 illegal example:
 
-<pre>
+\code
     class Whatever : public QButtonGroup {
     [...]
     public slots:
         void QButtonGroup::buttonPressed;
     [...]
     };
-</pre>
+\endcode
 <p>
 The QButtonGroup::buttonPressed() slot is protected.
 <p>
@@ -232,14 +222,14 @@ function which is overloaded?
 <!-- C++ ARM, section r.11.3 -->
 </ol>
 
-<dt>Type macros can not be used for signal and slot arguments
+<h3>Type macros can not be used for signal and slot arguments</h3>
 
-<dd> This is regrettable, but the moc places more emphasis on getting
+This is regrettable, but the moc places more emphasis on getting
 modern syntax like templates and typedefs right than on anachronisms
 like #define.  In other words, we don't like #define and don't want to
 fix this problem.  Here is an illegal example:
 
-<pre>
+\code
     #ifdef ultrix
     #define SIGNEDNESS(a) unsigned a
     #else
@@ -252,19 +242,19 @@ fix this problem.  Here is an illegal example:
         void someSignal( SIGNEDNESS(a) );
     [...]
     };
-</pre>
+\endcode
 <p>
 A #define without arguments works.
 
-<dt>Constructors can not be used in signals or slots sections
+<h3>Constructors can not be used in signals or slots sections</h3>
 
-<dd> It is a mystery to me why anyone would put a constructor on
+It is a mystery to me why anyone would put a constructor on
 either the signals or slots sections.  You can not, anyway (except
 that it happens to work in some cases).  Put them in private,
 protected or public sections, where they belong.  Here is an example
 of the illegal syntax:
 
-<pre>
+\code
     class SomeClass : QObject {
         Q_OBJECT
     public slots:
@@ -272,9 +262,7 @@ of the illegal syntax:
             : QObject( parent, name ) {}
     [...]
     };
-</pre>
-
-</dl>
+\endcode
 
 <h2>Author</h2>
 <a href=mailto:eiriken@troll.no>Eirik Eng, Troll Tech</a>
