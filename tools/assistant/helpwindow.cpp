@@ -30,7 +30,6 @@
 #include <qevent.h>
 #include <qtextstream.h>
 #include <qtextcodec.h>
-#include <qabstracttextdocumentlayout.h>
 #include <qstatusbar.h>
 
 #if defined(Q_OS_WIN32)
