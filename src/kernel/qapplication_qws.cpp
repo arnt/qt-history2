@@ -71,6 +71,7 @@
 #include "qwsdisplay_qws.h"
 #include "qnetwork.h"
 #include "qcursor.h"
+#include "qregexp.h"
 
 #include <stdio.h>
 #include <limits.h>

@@ -30,6 +30,7 @@
 #include "qgfxraster_qws.h"
 #include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
+#include "qregexp.h"
 
 #include <sys/ioctl.h>
 #include <sys/types.h>
