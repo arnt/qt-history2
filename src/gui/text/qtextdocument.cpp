@@ -13,12 +13,36 @@ static void init(QTextDocumentPrivate *priv, QAbstractTextDocumentLayout *layout
     QObject::connect(priv->pieceTable, SIGNAL(contentsChanged()), priv->q, SIGNAL(contentsChanged()));
 }
 
+
+/*!
+    \class QTextDocument qtextdocument.h
+    \brief A document of text that can be displayed using a QTextEditor
+
+    \ingroup text
+
+    A QTextDocument is a rich text document that can be viewed and
+    edited using a QTextEditor. Programmatic editing of the document
+    is possible using a \a QTextCursor on the document.
+
+    Custom layouting of the document can be achieved by creating your
+    own \a QAbstractTextDocumentLayout class and setting this as the
+    document layout for the document at construction time.
+
+*/
+
+
+/*!
+  Constructs an empty QTextDocument.
+*/
 QTextDocument::QTextDocument(QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
     init(d);
 }
 
+/*!
+  Constructs a QTextDocument containing the (unformatted) text \a text.
+*/
 QTextDocument::QTextDocument(const QString &text, QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
@@ -26,16 +50,25 @@ QTextDocument::QTextDocument(const QString &text, QObject *parent)
     QTextCursor(this).insertText(text);
 }
 
+/*!
+  Constructs a QTextDocument with a custom document layout \a documentLayout.
+*/
 QTextDocument::QTextDocument(QAbstractTextDocumentLayout *documentLayout, QObject *parent)
     : QObject(*new QTextDocumentPrivate, parent)
 {
     init(d, documentLayout);
 }
 
+/*!
+  Destroys the document.
+*/
 QTextDocument::~QTextDocument()
 {
 }
 
+/*!
+  \returns the plain text (without formatting information) contained in the document.
+*/
 QString QTextDocument::plainText() const
 {
     QString txt = d->pieceTable->plainText();
@@ -45,6 +78,9 @@ QString QTextDocument::plainText() const
     return txt;
 }
 
+/*!
+  \returns true if the document is empty (ie. it doesn't contain any text).
+*/
 bool QTextDocument::isEmpty() const
 {
     /* because if we're empty we still have one single paragraph as
@@ -52,6 +88,20 @@ bool QTextDocument::isEmpty() const
     return d->pieceTable->length() <= 1;
 }
 
+/*!
+  \fn void QTextDocument::undo();
+
+  Undoes the last editing operation on the document.
+*/
+
+/*!
+  \fn void QTextDocument::redo();
+
+  Redoes the last editing operation on the document.
+*/
+
+/*! \internal
+ */
 void QTextDocument::undoRedo(bool undo)
 {
     d->pieceTable->undoRedo(undo);
@@ -66,6 +116,8 @@ void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 }
 
 /*!
+    \property QTextDocument::enableUndoRedo
+
     Enables the document's undo stack if \a enable is true; disables
     it if \a enable is false. Disabling the undo stack will also
     remove all undo items currently on the stack. The default is
@@ -81,17 +133,47 @@ bool QTextDocument::isUndoRedoEnabled() const
     return d->pieceTable->isUndoRedoEnabled();
 }
 
-bool QTextDocument::isUndoRedoAvailable() const
+/*!
+  \fn QTextDocument::undoAvailable(bool b);
+
+  This signal is emitted whenever undo operations become available or unavailable.
+*/
+
+/*!
+  \fn QTextDocument::redoAvailable(bool b);
+
+  This signal is emitted whenever redo operations become available or unavailable.
+*/
+
+/*!
+  \returns true is undo is available.
+*/
+bool QTextDocument::isUndoAvailable() const
 {
-    return d->pieceTable->isUndoRedoAvailable();
+    return d->pieceTable->isUndoAvailable();
 }
 
+/*!
+  \returns true is redo is available.
+*/
+bool QTextDocument::isRedoAvailable() const
+{
+    return d->pieceTable->isRedoAvailable();
+}
+
+
+/*!
+  \returns the document layout for this document.
+*/
 QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 {
     return d->pieceTable->layout();
 }
 
 
+/*!
+  \returns the title of this document.
+*/
 QString QTextDocument::documentTitle() const
 {
     return d->pieceTable->config()->title;
