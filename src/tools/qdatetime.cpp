@@ -1147,31 +1147,32 @@ int QTime::elapsed()
   adding a number of seconds, days, months or years.
 
   A QDateTime object is typically created either by giving a date and
-  time explicitly, or by using the static function currentDateTime(),
-  which makes a QDateTime object which contains the system's clock
-  time.
+  time explicitly in the constructor, or by using the static function
+  currentDateTime(), which returns a QDateTime object set to the system
+  clock's time. The date and time can be changed with setDate() and
+  setTime(). A datetime can also be set using the setTime_t() function,
+  which takes a POSIX-standard "number of seconds since 00:00:00 on
+  January 1, 1970" value. The fromString() function returns a QDate
+  given a string and a date format which is used to interpret the date
+  within the string. 
 
   The date() and time() functions provide access to the date and time
   parts of the datetime. The same information is provided in textual
   format by the toString() function.
 
   QDateTime provides a full set of operators to compare two QDateTime
-  objects. A datetime is considered smaller than another if it is
-  earlier than the other.
+  objects where smaller means earlier and larger means later.
 
-  The datetime a given number of days or seconds later than a given
-  datetime can be found using the addDays() and addSecs()
-  functions. Correspondingly, the number of days or seconds between
-  two times can be found using the daysTo() or secsTo() functions.
+    You can increment (or decrement) a datetime by a given number of
+    seconds using addSecs() or days using addDays(). Similarly you can
+    use addMonths() and addYears(). The daysTo() function returns the
+    number of days between two datetimes, and sectTo() returns the
+    number of seconds between two datetimes.
 
-  A datetime can also be set using the setTime_t() function, which
-  takes a POSIX-standard "number of seconds since 00:00:00 on January
-  1, 1970" value.
+  The range of a datetime object is constrained to the ranges of the
+  QDate and QTime objects which it embodies.
 
-  The limitations regarding range and resolution mentioned in the
-  QDate and QTime documentation apply for QDateTime also.
-
-  \sa QDate, QTime
+  \sa QDate QTime QDateTimeEdit
 */
 
 
@@ -1207,7 +1208,8 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 /*!
   \fn bool QDateTime::isNull() const
 
-  Returns TRUE if both the date and the time are null.	A null date is invalid.
+  Returns TRUE if both the date and the time are null; otherwise returns
+  FALSE. A null datetime is invalid.
 
   \sa QDate::isNull(), QTime::isNull()
 */
@@ -1215,7 +1217,8 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 /*!
   \fn bool QDateTime::isValid() const
 
-  Returns TRUE if both the date and the time are valid.
+  Returns TRUE if both the date and the time are valid; otherwise
+  returns FALSE.
 
   \sa QDate::isValid(), QTime::isValid()
 */
@@ -1223,7 +1226,7 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 /*!
   \fn QDate QDateTime::date() const
 
-  Returns the date part of this datetime.
+  Returns the date part of the datetime.
 
   \sa setDate(), time()
 */
@@ -1231,7 +1234,7 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 /*!
   \fn QTime QDateTime::time() const
 
-  Returns the time part of this datetime.
+  Returns the time part of the datetime.
 
   \sa setTime(), date()
 */
@@ -1254,10 +1257,10 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 
 
 /*!
-  Sets the local date and time given the number of seconds that have passed
-  since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
-  On systems that do not support timezones this function will behave as if
-  local time were UTC.
+  Sets the date and time to local time given the number of seconds that
+  have passed since 00:00:00 on January 1, 1970, Coordinated Universal
+  Time (UTC). On systems that do not support timezones this function
+  will behave as if local time were UTC.
 
   Note that Microsoft Windows supports only a limited range of values for
   \a secsSince1Jan1970UTC.
@@ -1413,8 +1416,8 @@ int QDateTime::daysTo( const QDateTime &dt ) const
   Example:
   \code
     QDateTime dt = QDateTime::currentDateTime();
-    QDateTime x( QDate(dt.year(),12,24), QTime(17,00) );
-    qDebug( "There are %d seconds to Christmas", dt.secsTo(x) );
+    QDateTime xmas( QDate(dt.year(),12,24), QTime(17,00) );
+    qDebug( "There are %d seconds to Christmas", dt.secsTo(xmas) );
   \endcode
 
   \sa addSecs(), daysTo(), QTime::secsTo()
@@ -1427,8 +1430,8 @@ int QDateTime::secsTo( const QDateTime &dt ) const
 
 
 /*!
-  Returns TRUE if this datetime is equal to \a dt, or FALSE if
-  they are different.
+  Returns TRUE if this datetime is equal to \a dt; otherwise returns FALSE.
+
   \sa operator!=()
 */
 
@@ -1438,8 +1441,9 @@ bool QDateTime::operator==( const QDateTime &dt ) const
 }
 
 /*!
-  Returns TRUE if this datetime is different from \a dt, or FALSE if
-  they are equal.
+  Returns TRUE if this datetime is different from \a dt; otherwise
+  returns FALSE.
+
   \sa operator==()
 */
 
@@ -1449,7 +1453,7 @@ bool QDateTime::operator!=( const QDateTime &dt ) const
 }
 
 /*!
-  Returns TRUE if this datetime is earlier than \a dt, otherwise FALSE.
+  Returns TRUE if this datetime is earlier than \a dt, otherwise returns FALSE.
 */
 
 bool QDateTime::operator<( const QDateTime &dt ) const
@@ -1461,7 +1465,7 @@ bool QDateTime::operator<( const QDateTime &dt ) const
 
 /*!
   Returns TRUE if this datetime is earlier than or equal to \a dt,
-  otherwise FALSE.
+  otherwise returns FALSE.
 */
 
 bool QDateTime::operator<=( const QDateTime &dt ) const
@@ -1472,7 +1476,7 @@ bool QDateTime::operator<=( const QDateTime &dt ) const
 }
 
 /*!
-  Returns TRUE if this datetime is later than \a dt, otherwise FALSE.
+  Returns TRUE if this datetime is later than \a dt, otherwise returns FALSE.
 */
 
 bool QDateTime::operator>( const QDateTime &dt ) const
@@ -1484,7 +1488,7 @@ bool QDateTime::operator>( const QDateTime &dt ) const
 
 /*!
   Returns TRUE if this datetime is later than or equal to \a dt,
-  otherwise FALSE.
+  otherwise returns FALSE.
 */
 
 bool QDateTime::operator>=( const QDateTime &dt ) const
@@ -1511,8 +1515,8 @@ QDateTime QDateTime::currentDateTime()
 }
 
 /*!
-  Returns the representation \a s as a QDateTime using the format \a f, or
-  an invalid datetime if this is not possible.
+  Returns the QDateTime represented by the string \a s, using the format
+  \a f, or an invalid datetime if this is not possible.
  */
 QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 {

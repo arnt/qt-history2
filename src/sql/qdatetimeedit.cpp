@@ -210,13 +210,10 @@ private:
 
   \module sql
 
-  The QDateTimeEditBase class provides some common functionality for
-  date/time editors.  For date/time editing widgets, see QDateEdit,
-  QTimeEdit and QDateTimeEdit.
-
-  Terminology: A QDateEdit widget is comprised of three 'sections', one
-  each for the year, month and day. Similarly a QTimeWidget is comprised
-  of three sections, one each for the hour, minute and second.
+   This is a base class that you probably don't want to use directly. If
+   you want a time editor widget use QTimeEdit, if you want a date
+   editor widget use QDateEdit, and if you want a datetime editor use
+   QDateTimeEdit.
 
 */
 
@@ -505,9 +502,9 @@ bool QDateTimeEditBase::setFocusSection( int sec )
     return d->setFocusSection( sec );
 }
 
-/*! Virtual function which is called whenever the user increases a
-  section number by pressing the widget's arrow buttons or the
-  keyboard's arrow keys.
+/*! Virtual function which is called whenever the user increases the
+    number in a section by pressing the widget's arrow buttons or the
+    keyboard's arrow keys.
 
 */
 
@@ -516,8 +513,8 @@ void QDateTimeEditBase::stepUp()
 
 }
 
-/*! Virtual function which is called whenever the user decreases a
-  section number by pressing the widget's arrow buttons or the
+/*! Virtual function which is called whenever the user decreases the
+  number in a section by pressing the widget's arrow buttons or the
   keyboard's arrow keys.
 
 */
@@ -650,9 +647,10 @@ public:
   change this by calling setMinValue(), setMaxValue() or setRange().
 
   Terminology: A QDateEdit widget comprises three 'sections', one each
-  for the year, month and day.
+  for the year, month and day. You can change the separator character
+  using QDateTimeEditBase::setSeparator().
 
-  \sa QTimeEdit QDateTimeEdit
+  \sa QDate QTimeEdit QDateTimeEdit
 */
 
 /*!
@@ -1355,7 +1353,7 @@ void QDateEdit::removeLastNumber( int sec )
 
 /*! \property QDateEdit::autoAdvance
 
-  \brief whether the editor automatically advances to the next entry field
+  \brief whether the editor automatically advances to the next section
 
   If autoAdvance is TRUE, the editor will automatically advance focus
   to the next date section if a user has completed a section.
@@ -1413,16 +1411,17 @@ public:
 
   QTimeEdit allows the user to edit times by using the keyboard or the
   arrow keys to increase/decrease time values. The arrow keys can be
-  used to move from section to section within the QTimeEdit box. Times
-  appear in hour, minute, second order by default, but . It is recommended
-  that the QTimeEdit be initialised with a time, e.g.
+  used to move from section to section within the QTimeEdit box. The
+  user can automatically be moved to the next section once they complete
+  a section using setAutoAdvance(). Times appear in hour, minute, second
+  order. It is recommended that the QTimeEdit be initialised with a
+  time, e.g.
 
     \code
     QTime timeNow = QTime::currentTime();
     QTimeEdit *timeedit = new QTimeEdit( timeNow, this );
     timeedit->setRange( timeNow, timeNow.addSecs( 60 * 60 ) );
     \endcode
-
   Here we've created a QTimeEdit widget set to the current time. We've
   also set the minimum value to the current time and the maximum time
   to one hour from now.
@@ -1432,9 +1431,10 @@ public:
   change this by calling setMinValue(), setMaxValue() or setRange().
 
   Terminology: A QTimeWidget consists of three sections, one each for the
-  hour, minute and second.
+  hour, minute and second. You can change the separator character using
+  QDateTimeEditBase::setSeparator().
 
-  \sa QDateEdit QDateTimeEdit
+  \sa QTime QDateEdit QDateTimeEdit
 
 */
 
@@ -1453,10 +1453,9 @@ QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
 /*!
     \overload
 
-  Constructs a time edit with the initial value \a time, parent \a
+  Constructs a time edit with the initial time value, \a time, parent \a
   parent and name \a name.
 
-  The time edit is initialized with \a time.
 */
 
 QTimeEdit::QTimeEdit( const QTime& time, QWidget * parent, const char * name )
@@ -1579,7 +1578,7 @@ QTime QTimeEdit::time() const
 
 /*! \property QTimeEdit::autoAdvance
 
-  \brief whether the editor automatically advances to the next entry field
+  \brief whether the editor automatically advances to the next section
 
   If autoAdvance is TRUE, the editor will automatically advance focus
   to the next time section if a user has completed a section.
@@ -1745,7 +1744,7 @@ bool QTimeEdit::setFocusSection( int s )
 
 
 /*! Sets the hour to \a h, which must be a valid hour, i.e. in the range
- 0 to 24.
+ 0..24.
 
 */
 
@@ -1760,7 +1759,7 @@ void QTimeEdit::setHour( int h )
 
 
 /*! Sets the minute to \a m, which must be a valid minute, i.e. in the
- range 0 to 59.
+ range 0..59.
 
 */
 
@@ -1775,7 +1774,7 @@ void QTimeEdit::setMinute( int m )
 
 
 /*! Sets the second to \a s, which must be a valid second, i.e. in the
-   range 0 to 59.
+   range 0..59.
 
 */
 
@@ -1995,24 +1994,29 @@ public:
   side by side and offers the functionality of both. The user can edit
   the date and time by using the keyboard or the arrow keys to
   increase/decrease date or time values. The Tab key can be used to
-  move from field to field within the QDateTimeEdit widget. Dates appear
-  in year, month, day order by default, see setOrder() to change this.
-  Times appear in the order hours, minutes, seconds using the 24 hour
-  clock. It is recommended that the QDateTimeEdit is initialised with a
+  move from section to section within the QDateTimeEdit widget, and the
+  user can be moved automatically when they complete a section using
+  setAutoAdvance(). The datetime can be set with setDateTime().
+  
+  Dates appear in year, month, day order by default, see
+  QDate::setOrder() to change this. Times appear in the order hours,
+  minutes, seconds using the 24 hour clock. 
+  
+  It is recommended that the QDateTimeEdit is initialised with a
   datetime, e.g.
-
     \code
     QDateTimeEdit *datetimeedit = new QDateTimeEdit( QDateTime::currentDateTime(), this );
     dateedit->setRange( QDateTime::currentDateTime(),
 			QDateTime::currentDateTime().addDays( 7 ) );
     \endcode
-
     Here we've created a new QDateTimeEdit object with a minimum
     date/time of now and a maximum date/time of a week from now.
 
   Terminology: A QDateEdit widget consists of three 'sections', one each
   for the year, month and day. Similarly a QTimeEdit consists of three
-  sections, one each for the hour, minute and second.
+  sections, one each for the hour, minute and second. The character that
+  separates each date section is specified with setDateSeparator();
+  similarly setTimeSeparator() is used for the time sections.
 
   \sa QDateEdit QTimeEdit
 */
@@ -2128,8 +2132,8 @@ QSize QDateTimeEdit::sizeHint() const
 
   \brief the datetime value of the editor
 
-  dateTime() returns the current datetime in the editor, or an invalid
-  datetime if the editor does not contain a valid datetime.
+  The datetime edit's datetime which may be an invalid
+  datetime.
 */
 
 void QDateTimeEdit::setDateTime( const QDateTime & dt )
@@ -2178,7 +2182,7 @@ void QDateTimeEdit::newValue( const QTime& )
 
 /*! Sets the auto advance property of the editor to \a advance.  If
   set to TRUE, the editor will automatically advance focus to the next
-  date or time section if a user has completed a section.
+  date or time section if the user has completed a section.
 
 */
 
