@@ -12950,7 +12950,7 @@ QChar* QString::latin1ToUnicode( const char *str, uint* len, uint maxlen )
 		l++;
 	} else {
 	    // Faster?
-	    l = qstrlen(str);
+	    l = strlen( str );
 	}
 	QChar *uc = new QChar[ l ]; // Can't use macro since function is public
 	result = uc;
@@ -12974,7 +12974,7 @@ static QChar* internalLatin1ToUnicode( const char *str, uint* len,
 		l++;
 	} else {
 	    // Faster?
-	    l = qstrlen(str);
+	    l = strlen( str );
 	}
 	QChar *uc = QT_ALLOC_QCHAR_VEC( l );
 	result = uc;
@@ -16683,7 +16683,8 @@ QString QString::fromUtf8( const char* utf8, int len )
     if ( !utf8 )
 	return QString::null;
 
-    if ( len < 0 ) len = qstrlen( utf8 );
+    if ( len < 0 )
+	len = strlen( utf8 );
     QString result;
     result.setLength( len ); // worst case
     QChar *qch = (QChar *)result.unicode();
@@ -16749,7 +16750,8 @@ QString QString::fromAscii( const char* ascii, int len )
     if ( QTextCodec::codecForCStrings() ) {
 	if ( !ascii )
 	    return QString::null;
-	if ( len < 0 ) len = qstrlen( ascii );
+	if ( len < 0 )
+	    len = strlen( ascii );
 	if ( len == 0 || *ascii == '\0' )
 	    return QString::fromLatin1( "" );
 	return QTextCodec::codecForCStrings()->toUnicode( ascii, len );
@@ -16849,7 +16851,8 @@ QString QString::fromLocal8Bit( const char* local8Bit, int len )
 	return QString::null;
 #ifdef Q_WS_X11
     QTextCodec* codec = QTextCodec::codecForLocale();
-    if ( len < 0 ) len = qstrlen(local8Bit);
+    if ( len < 0 )
+	len = strlen( local8Bit );
     return codec
 	    ? codec->toUnicode( local8Bit, len )
 	    : fromLatin1( local8Bit, len );
@@ -17129,7 +17132,7 @@ QString &QString::setLatin1( const char *str, int len )
     if ( str == 0 )
 	return setUnicode(0,0);
     if ( len < 0 )
-	len = qstrlen(str);
+	len = strlen( str );
     if ( len == 0 ) {                           // won't make a null string
 	*this = QString::fromLatin1( "" );
     } else {
