@@ -368,7 +368,7 @@ public:
     inline Action action() const { return Action(act); }
 
     QWidget* source() const;
-    const QMimeData *data() const { return mimeData; }
+    const QMimeData *mimeData() const { return mdata; }
 
     const char* format(int n = 0) const;
     QByteArray encodedData(const char*) const;
@@ -380,13 +380,12 @@ public:
     inline void setPoint(const QPoint& np) { p = np; }
 
 protected:
-    friend class QDragManager;
     QPoint p;
     uint act : 8;
     uint accpt : 1;
     uint accptact : 1;
     uint resv : 5;
-    const QMimeData *mimeData;
+    const QMimeData *mdata;
 };
 
 

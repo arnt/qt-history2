@@ -39,8 +39,8 @@ public:
     };
     Q_DECLARE_FLAGS(DragOperations, DragOperation)
 
-    void setData(QMimeData *data);
-    QMimeData *data() const;
+    void setMimeData(QMimeData *data);
+    QMimeData *mimeData() const;
 
     void setPixmap(const QPixmap &);
     QPixmap pixmap() const;
@@ -55,8 +55,6 @@ public:
     QWidget *target() const;
 
     DragOperation start();
-
-    DragOperation executedOperation() const;
 
 private:
     QDragPrivate *d;

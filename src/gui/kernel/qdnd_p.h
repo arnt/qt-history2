@@ -39,9 +39,10 @@ public:
     QDropData(QObject *parent);
     ~QDropData();
 
-    QByteArray data(const QString &mimetype) const;
     bool hasFormat(const QString &mimetype) const;
     QStringList formats() const;
+protected:
+    QVariant retrieveData(const QString &mimetype, QVariant::Type) const;
 };
 
 class Q_GUI_EXPORT QDragManager: public QObject {

@@ -1482,11 +1482,14 @@ void QDragManager::updatePixmap()
     }
 }
 
-QByteArray QDropData::data(const QString &mimetype) const
+QVariant QDropData::retrieveData(const QString &mimetype, QVariant::Type type) const
 {
-    if (qt_motifdnd_active)
-        return qt_motifdnd_obtain_data(mimetype.latin1());
-    return qt_xdnd_obtain_data(mimetype.latin1());
+    QByteArray data = qt_motifdnd_active
+                      ? qt_motifdnd_obtain_data(mimetype.latin1())
+                      : qt_xdnd_obtain_data(mimetype.latin1());
+    if (type == QVariant::String)
+        return QString::fromUtf8(data);
+    return data;
 }
 
 bool QDropData::hasFormat(const QString &format) const

@@ -14,16 +14,21 @@
 #ifndef QCLIPBOARD_H
 #define QCLIPBOARD_H
 
-#include "qwindowdefs.h"
 #include "qobject.h"
 
 #ifndef QT_NO_CLIPBOARD
 
 class QMimeSource;
+class QMimeData;
+class QImage;
+class QPixmap;
+
+class QClipboardPrivate;
 
 class Q_GUI_EXPORT QClipboard : public QObject
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QClipboard)
 private:
     QClipboard(QObject *parent);
     ~QClipboard();
@@ -41,15 +46,17 @@ public:
     QString text(QString& subtype, Mode mode = Clipboard) const;
     void setText(const QString &, Mode mode = Clipboard);
 
-#ifndef QT_NO_MIMECLIPBOARD
-    QMimeSource *data(Mode mode  = Clipboard) const;
-    void setData(QMimeSource*, Mode mode  = Clipboard);
+#ifdef QT_COMPAT
+    QT_COMPAT QMimeSource *data(Mode mode  = Clipboard) const;
+    QT_COMPAT void setData(QMimeSource*, Mode mode  = Clipboard);
+#endif
+    const QMimeData *mimeData(Mode mode = Clipboard ) const;
+    void setMimeData(QMimeData *data, Mode mode = Clipboard);
 
-    QImage image(Mode mode  = Clipboard) const;
-    QPixmap pixmap(Mode mode  = Clipboard) const;
+    QImage image(Mode mode = Clipboard) const;
+    QPixmap pixmap(Mode mode = Clipboard) const;
     void setImage(const QImage &, Mode mode  = Clipboard);
     void setPixmap(const QPixmap &, Mode mode  = Clipboard);
-#endif
 
 signals:
     void selectionChanged();

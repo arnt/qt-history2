@@ -42,12 +42,12 @@ QDrag::~QDrag()
 #endif
 }
 
-void QDrag::setData(QMimeData *data)
+void QDrag::setMimeData(QMimeData *data)
 {
     d->data = data;
 }
 
-QMimeData *QDrag::data() const
+QMimeData *QDrag::mimeData() const
 {
     return d->data;
 }
@@ -97,10 +97,5 @@ QDrag::DragOperation QDrag::start()
     QDragManager *manager = QDragManager::self();
     if (manager)
         d->executed_op = manager->drag(d, d->operations);
-    return d->executed_op;
-}
-
-QDrag::DragOperation QDrag::executedOperation() const
-{
     return d->executed_op;
 }

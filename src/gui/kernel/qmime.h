@@ -15,6 +15,7 @@
 #define QMIME_H
 
 #include "qobject.h"
+#include "qvariant.h"
 
 class QUrl;
 class QString;
@@ -47,13 +48,15 @@ public:
     QColor color() const;
     void setColor(const QColor &color);
 
-    virtual QByteArray data(const QString &mimetype) const;
+    QByteArray data(const QString &mimetype) const;
     void setData(const QString &mimetype, const QByteArray &data);
 
     virtual bool hasFormat(const QString &mimetype) const;
     virtual QStringList formats() const;
 
     void clear();
+protected:
+    virtual QVariant retrieveData(const QString &mimetype, QVariant::Type preferredType) const;
 };
 
 class Q_GUI_EXPORT QMimeSource

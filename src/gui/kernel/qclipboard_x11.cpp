@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-// #define QCLIPBOARD_DEBUG
-// #define QCLIPBOARD_DEBUG_VERBOSE
+#define QCLIPBOARD_DEBUG
+#define QCLIPBOARD_DEBUG_VERBOSE
 
 #ifdef QCLIPBOARD_DEBUG
 #  define DEBUG qDebug
@@ -118,17 +118,20 @@ int sizeof_format(int format)
     return sz;
 }
 
-class QClipboardWatcher : public QMimeSource {
+class QClipboardWatcher : public QMimeData {
 public:
     QClipboardWatcher(QClipboard::Mode mode);
     ~QClipboardWatcher();
     bool empty() const;
-    const char* format(int n) const;
-    QByteArray encodedData(const char* fmt) const;
+    virtual bool hasFormat(const QString &mimetype) const;
+    virtual QStringList formats() const;
+
+    virtual QVariant retrieveData(const QString &mimetype, QVariant::Type type) const;
     QByteArray getDataInFormat(Atom fmtatom) const;
 
     Atom atom;
-    QList<const char *> formatList;
+    mutable QStringList formatList;
+    mutable QByteArray format_atoms;
 };
 
 
@@ -139,13 +142,13 @@ public:
     QClipboardData();
     ~QClipboardData();
 
-    void setSource(QMimeSource* s)
+    void setSource(QMimeData* s)
     {
         delete src;
         src = s;
     }
 
-    QMimeSource *source() const { return src; }
+    QMimeData *source() const { return src; }
 
     void addTransferredPixmap(QPixmap pm)
     {
@@ -161,7 +164,7 @@ public:
 
     void clear();
 
-    QMimeSource *src;
+    QMimeData *src;
     Time timestamp;
 
     QPixmap transferred[2];
@@ -340,7 +343,9 @@ int QClipboardINCRTransaction::x11Event(XEvent *event)
 
 
 void QClipboard::clear(Mode mode)
-{ setData(0, mode); }
+{
+    setMimeData(0, mode);
+}
 
 
 /*!
@@ -348,7 +353,9 @@ void QClipboard::clear(Mode mode)
     returns false.
 */
 bool QClipboard::supportsSelection() const
-{ return true; }
+{
+    return true;
+}
 
 
 /*!
@@ -630,11 +637,11 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
 
 static Atom send_targets_selection(QClipboardData *d, Window window, Atom property)
 {
-    int atoms = 0;
-    while (d->source()->format(atoms)) atoms++;
-    if (d->source()->provides("image/ppm")) atoms++;
-    if (d->source()->provides("image/pbm")) atoms++;
-    if (d->source()->provides("text/plain")) atoms+=4;
+    QStringList formats = d->source()->formats();
+    int atoms = formats.size();
+    if (formats.contains("image/ppm")) atoms++;
+    if (formats.contains("image/pbm")) atoms++;
+    if (formats.contains("text/plain")) atoms+=4;
 
     VDEBUG("QClipboard: send_targets_selection(): %d provided types", atoms);
 
@@ -643,16 +650,15 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
     data.resize((atoms+3) * sizeof(long)); // plus TARGETS, MULTIPLE and TIMESTAMP
     long *atarget = (long *) data.data();
 
-    const char *fmt;
     int n = 0;
-    while ((fmt=d->source()->format(n)) && n < atoms)
-        atarget[n++] = qt_xdnd_str_to_atom(fmt);
+    for (n = 0; n < formats.size(); ++n)
+        atarget[n++] = qt_xdnd_str_to_atom(formats.at(n).latin1());
 
-    if (d->source()->provides("image/ppm"))
+    if (formats.contains("image/ppm"))
         atarget[n++] = XA_PIXMAP;
-    if (d->source()->provides("image/pbm"))
+    if (formats.contains("image/pbm"))
         atarget[n++] = XA_BITMAP;
-    if (d->source()->provides("text/plain")) {
+    if (formats.contains("text/plain")) {
         atarget[n++] = ATOM(UTF8_STRING);
         atarget[n++] = ATOM(TEXT);
         atarget[n++] = ATOM(COMPOUND_TEXT);
@@ -686,9 +692,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
     if (target == ATOM(TEXT) || target == ATOM(COMPOUND_TEXT)) {
         // the ICCCM states that TEXT and COMPOUND_TEXT are in the
         // encoding of choice, so we choose the encoding of the locale
-        QByteArray data = d->source()->encodedData("text/plain");
-        data.resize(data.size() + 1);
-        data[data.size() - 1] = '\0';
+        QByteArray data = d->source()->text().local8Bit();
         char *list[] = { data.data(), NULL };
 
         XICCEncodingStyle style =
@@ -715,23 +719,20 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
     }
 
     Atom xtarget = XNone;
-    const char *fmt = 0;
-    if (target == XA_STRING
-        || (target == ATOM(TEXT) && QTextCodec::codecForLocale()->mibEnum() == 4)) {
+    QByteArray data;
+    if (target == XA_STRING) {
         // the ICCCM states that STRING is latin1 plus newline and tab
         // see section 2.6.2
-        fmt = "text/plain;charset=ISO-8859-1";
+        data = d->source()->text().toLatin1();
         xtarget = XA_STRING;
     } else if (target == ATOM(UTF8_STRING)) {
         // proposed UTF8_STRING conversion type
-        fmt = "text/plain;charset=UTF-8";
+        data = d->source()->text().toUtf8();
         xtarget = ATOM(UTF8_STRING);
     }
 
     if (xtarget == XNone) // should not happen
         return XNone;
-
-    QByteArray data = d->source()->encodedData(fmt);
 
     DEBUG("    format 8\n    %d bytes", data.size());
 
@@ -745,14 +746,14 @@ static Atom send_pixmap_selection(QClipboardData *d, Atom target, Window window,
     QPixmap pm;
 
     if (target == XA_PIXMAP) {
-        QByteArray data = d->source()->encodedData("image/ppm");
-        pm.loadFromData(data);
+        pm = d->source()->pixmap();
     } else if (target == XA_BITMAP) {
-        QByteArray data = d->source()->encodedData("image/pbm");
-        QImage img;
-        img.loadFromData(data);
-        if (img.depth() != 1)
+        pm = d->source()->pixmap();
+        QImage img = pm.toImage();
+        if (img.depth() != 1) {
             img = img.convertDepth(1);
+            pm = img;
+        }
     }
 
     if (pm.isNull()) // should never happen
@@ -774,9 +775,9 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
     if (data.isEmpty()) {
         const char *fmt = qt_xdnd_atom_to_str(target);
         DEBUG("QClipboard: send_selection(): converting to type '%s'", fmt);
-        if (fmt && !d->source()->provides(fmt)) // Not a MIME type we can produce
+        if (fmt && !d->source()->hasFormat(fmt)) // Not a MIME type we can produce
             return XNone;
-        data = d->source()->encodedData(fmt);
+        data = d->source()->data(fmt);
     }
 
     DEBUG("QClipboard: send_selection():\n"
@@ -1105,6 +1106,7 @@ bool QClipboard::event(QEvent *e)
 
 
 QClipboardWatcher::QClipboardWatcher(QClipboard::Mode mode)
+    : QMimeData(0)
 {
     switch (mode) {
     case QClipboard::Selection:
@@ -1133,7 +1135,7 @@ QClipboardWatcher::~QClipboardWatcher()
 
 bool QClipboardWatcher::empty() const
 {
-    Display *dpy = QX11Info::display();
+    Display *dpy = X11->display;
     Window win = XGetSelectionOwner(dpy, atom);
 
     if(win == requestor->winId()) {
@@ -1144,92 +1146,101 @@ bool QClipboardWatcher::empty() const
     return win == XNone;
 }
 
-const char* QClipboardWatcher::format(int n) const
+QStringList QClipboardWatcher::formats() const
 {
     if (empty())
-        return 0;
+        return QStringList();
 
-    if (! formatList.count()) {
+    if (!formatList.count()) {
         // get the list of targets from the current clipboard owner - we do this
         // once so that multiple calls to this function don't require multiple
         // server round trips...
-        Atom xa_targets = ATOM(TARGETS);
 
-        QClipboardWatcher *that = (QClipboardWatcher *) this;
-        QByteArray ba = getDataInFormat(xa_targets);
+        format_atoms = getDataInFormat(ATOM(TARGETS));
 
-        if (ba.size() > 0) {
-            Atom *unsorted_target = (Atom *) ba.data();
-            int i, size = ba.size() / sizeof(Atom);
+        if (format_atoms.size() > 0) {
+            Atom *targets = (Atom *) format_atoms.data();
+            int size = format_atoms.size() / sizeof(Atom);
 
-            // sort TARGETS to prefer some types over others.  some apps
-            // will report XA_STRING before COMPOUND_TEXT, and we want the
-            // latter, not the former (if it is present).
-            Atom* target = new Atom[size+4];
-            memset(target, 0, (size+4) * sizeof(Atom));
+            for (int i = 0; i < size; ++i) {
+                if (targets[i] == 0)
+                    continue;
 
-            for (i = 0; i < size; ++i) {
-                if (unsorted_target[i] == ATOM(UTF8_STRING))
-                    target[0] = unsorted_target[i];
-                else if (unsorted_target[i] == ATOM(COMPOUND_TEXT))
-                    target[1] = unsorted_target[i];
-                else if (unsorted_target[i] == ATOM(TEXT))
-                    target[2] = unsorted_target[i];
-                else if (unsorted_target[i] == XA_STRING)
-                    target[3] = unsorted_target[i];
+                VDEBUG("    format: %s", qt_xdnd_atom_to_str(targets[i]));
+                if (targets[i] == XA_PIXMAP)
+                    formatList.append("image/ppm");
+                else if (targets[i] == XA_STRING
+                         || targets[i] == ATOM(UTF8_STRING)
+                         || targets[i] == ATOM(TEXT)
+                         || targets[i] == ATOM(COMPOUND_TEXT))
+                    formatList.append("text/plain");
                 else
-                    target[i + 4] = unsorted_target[i];
+                    formatList.append(qt_xdnd_atom_to_str(targets[i]));
             }
 
-            for (i = 0; i < size + 4; ++i) {
-                if (target[i] == 0) continue;
-
-                VDEBUG("    format: %s", qt_xdnd_atom_to_str(target[i]));
-
-                if (target[i] == XA_PIXMAP)
-                    that->formatList.append("image/ppm");
-                else if (target[i] == XA_STRING)
-                    that->formatList.append("text/plain;charset=ISO-8859-1");
-                else if (target[i] == ATOM(UTF8_STRING))
-                    that->formatList.append("text/plain;charset=UTF-8");
-                else if (target[i] == ATOM(TEXT) ||
-                          target[i] == ATOM(COMPOUND_TEXT))
-                    that->formatList.append("text/plain");
-                else
-                    that->formatList.append(qt_xdnd_atom_to_str(target[i]));
-            }
-            delete []target;
-
-            DEBUG("QClipboardWatcher::format: %d formats available",
-                  that->formatList.count());
+            DEBUG("QClipboardWatcher::format: %d formats available", formatList.count());
         }
     }
 
-    if (n >= 0 && n < (signed) formatList.count())
-        return formatList[n];
-    if (n == 0)
-        return "text/plain";
-    return 0;
+    return formatList;
 }
 
-QByteArray QClipboardWatcher::encodedData(const char* fmt) const
+bool QClipboardWatcher::hasFormat(const QString &format) const
 {
-    if (!fmt || empty())
+    QStringList list = formats();
+    return list.contains(format);
+}
+
+QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type) const
+{
+    if (fmt.isEmpty() || empty())
         return QByteArray();
 
-    DEBUG("QClipboardWatcher::encodedData: fetching format '%s'", fmt);
+    DEBUG("QClipboardWatcher::data: fetching format '%s'", fmt.latin1());
 
     Atom fmtatom = 0;
 
-    if (0==qstricmp(fmt,"text/plain;charset=iso-8859-1")) {
-        // ICCCM section 2.6.2 says STRING is latin1 text
-        fmtatom = XA_STRING;
-    } else if (0==qstricmp(fmt,"text/plain;charset=utf-8")) {
-        // proprosed UTF8_STRING conversion type
-        fmtatom = ATOM(UTF8_STRING);
-    } else if (0==qstrcmp(fmt,"text/plain")) {
-        fmtatom = ATOM(COMPOUND_TEXT);
-    } else if (0==qstrcmp(fmt,"image/ppm")) {
+    if (fmt == QLatin1String("text/plain")) {
+        Atom *targets = (Atom *) format_atoms.data();
+        int size = format_atoms.size() / sizeof(Atom);
+
+        // find best available text format
+        for (int i = 0; i < size; ++i) {
+            VDEBUG("    format: %s", qt_xdnd_atom_to_str(targets[i]));
+            if (targets[i] == XA_STRING) {
+                if (fmtatom == 0)
+                    fmtatom = targets[i];
+            } else if (targets[i] == ATOM(TEXT)) {
+                if (fmtatom == 0 || fmtatom == XA_STRING)
+                    fmtatom = targets[i];
+            } else if (targets[i] == ATOM(COMPOUND_TEXT)) {
+                if (fmtatom == 0 || fmtatom == XA_STRING || fmtatom == ATOM(TEXT))
+                    fmtatom = targets[i];
+            } else if (targets[i] == ATOM(UTF8_STRING)) {
+                if (fmtatom == 0 || fmtatom == XA_STRING || fmtatom == ATOM(TEXT) || fmtatom == ATOM(COMPOUND_TEXT))
+                    fmtatom = targets[i];
+            }
+            qDebug("        fmtatom=%s", qt_xdnd_atom_to_str(fmtatom));
+        }
+
+        if (fmtatom == 0)
+            return QVariant();
+        QByteArray data = getDataInFormat(fmtatom);
+        QString result;
+        if (fmtatom == XA_STRING)
+            result = QString::fromLatin1(data);
+        else if (fmtatom == ATOM(TEXT) || fmtatom == ATOM(COMPOUND_TEXT)) {
+            // #### might be wrong for COMPUND_TEXT
+            result = QString::fromLocal8Bit(data);
+        } else if (fmtatom == ATOM(UTF8_STRING)) {
+            result = QString::fromUtf8(data);
+        }
+        qDebug("got plain text '%s'", result.utf8());
+        if (type == QVariant::String)
+            return result;
+        return result.toUtf8();
+    }
+    if (fmt == QLatin1String("image/ppm")) {
         fmtatom = XA_PIXMAP;
         QByteArray pmd = getDataInFormat(fmtatom);
         if (pmd.size() == sizeof(Pixmap)) {
@@ -1246,11 +1257,17 @@ QByteArray QClipboardWatcher::encodedData(const char* fmt) const
             if (d == 1) {
                 QBitmap qbm(w,h);
                 XCopyArea(dpy,xpm,qbm.handle(),gc,0,0,w,h,0,0);
+                if (type == QVariant::Bitmap)
+                    return qbm;
+                if (type == QVariant::Pixmap)
+                    return QPixmap(qbm);
                 iio.setFormat("PBMRAW");
                 iio.setImage(qbm.toImage());
             } else {
                 QPixmap qpm(w,h);
                 XCopyArea(dpy,xpm,qpm.handle(),gc,0,0,w,h,0,0);
+                if (type == QVariant::Pixmap)
+                    return qpm;
                 iio.setFormat("PPMRAW");
                 iio.setImage(qpm.toImage());
             }
@@ -1261,10 +1278,10 @@ QByteArray QClipboardWatcher::encodedData(const char* fmt) const
             iio.write();
             return buf.buffer();
         } else {
-            fmtatom = qt_xdnd_str_to_atom(fmt);
+            fmtatom = qt_xdnd_str_to_atom(fmt.latin1());
         }
     } else {
-        fmtatom = qt_xdnd_str_to_atom(fmt);
+        fmtatom = qt_xdnd_str_to_atom(fmt.latin1());
     }
     return getDataInFormat(fmtatom);
 }
@@ -1273,7 +1290,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 {
     QByteArray buf;
 
-    Display *dpy = QX11Info::display();
+    Display *dpy = X11->display;
     Window   win = requestor->winId();
 
     DEBUG("QClipboardWatcher::getDataInFormat: selection '%s' format '%s'",
@@ -1315,16 +1332,16 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 }
 
 
-QMimeSource* QClipboard::data(Mode mode) const
+const QMimeData* QClipboard::mimeData(Mode mode) const
 {
     QClipboardData *d;
     switch (mode) {
-    case Selection: d = selectionData(); break;
-    case Clipboard: d = clipboardData(); break;
-
-    default:
-        qWarning("QClipboard::data: invalid mode '%d'", mode);
-        return 0;
+    case Selection:
+        d = selectionData();
+        break;
+    case Clipboard:
+        d = clipboardData();
+        break;
     }
 
     if (! d->source() && ! timer_event_clear) {
@@ -1353,7 +1370,7 @@ QMimeSource* QClipboard::data(Mode mode) const
 }
 
 
-void QClipboard::setData(QMimeSource* src, Mode mode)
+void QClipboard::setMimeData(QMimeData* src, Mode mode)
 {
     Atom atom, sentinel_atom;
     QClipboardData *d;

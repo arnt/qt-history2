@@ -19,6 +19,7 @@
 #include "qapplication_p.h"
 #include "qdragobject.h"
 #include "qpixmap.h"
+#include "qclipboard_p.h"
 
 /*!
     \class QClipboard qclipboard.h
@@ -125,7 +126,7 @@
 */
 
 QClipboard::QClipboard(QObject *parent)
-    : QObject(parent)
+    : QObject(*new QClipboardPrivate, parent)
 {
     // nothing
 }
@@ -375,6 +376,68 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
     \sa QClipboard::Mode, supportsSelection()
 */
 
+#ifdef QT_COMPAT
+QMimeSource *QClipboard::data(Mode mode) const
+{
+    Q_D(const QClipboard);
+
+    if (!supportsSelection())
+        mode = Clipboard;
+
+    if (d->compat_data[mode])
+        return d->compat_data[mode];
+
+    d->wrapper[mode]->data = mimeData(mode);
+    return d->wrapper[mode];
+}
+
+void QClipboard::setData(QMimeSource *source, Mode mode)
+{
+    Q_D(QClipboard);
+
+    if (!supportsSelection())
+        mode = Clipboard;
+
+    d->compat_data[mode] = source;
+    setMimeData(new QMimeSourceWrapper(d, mode));
+}
+
+
+const char* QMimeDataWrapper::format(int n) const
+{
+    QStringList formats = data->formats();
+    if (n < 0 || n >= formats.size())
+        return 0;
+    return formats.at(n).latin1();
+}
+
+QByteArray QMimeDataWrapper::encodedData(const char *format) const
+{
+    return data->data(QLatin1String(format));
+}
+
+QVariant QMimeSourceWrapper::retrieveData(const QString &mimetype, QVariant::Type) const
+{
+    return source->encodedData(mimetype.latin1());
+}
+
+bool QMimeSourceWrapper::hasFormat(const QString &mimetype) const
+{
+    return source->provides(mimetype.latin1());
+}
+
+QStringList QMimeSourceWrapper::formats() const
+{
+    QStringList fmts;
+    int i = 0;
+    const char *fmt;
+    while ((fmt = source->format(i))) {
+        fmts.append(QLatin1String(fmt));
+        ++i;
+    }
+    return fmts;
+}
+#endif
 
 #endif // QT_NO_MIMECLIPBOARD
 #endif // QT_NO_CLIPBOARD

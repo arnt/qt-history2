@@ -46,12 +46,7 @@ bool QMimeSource::provides(const char* mimeType) const
 class QMimeDataPrivate : public QObjectPrivate
 {
 public:
-    QString text;
-    QString html;
-    QPixmap pixmap;
-    QList<QUrl> urls;
-
-    QMap<QString, QByteArray> data;
+    QMap<QString, QVariant> data;
 };
 
 QMimeData::QMimeData(QObject *parent)
@@ -65,54 +60,66 @@ QMimeData::~QMimeData()
 
 QList<QUrl> QMimeData::urls() const
 {
-    Q_D(const QMimeData);
-    if (!d->urls.isEmpty())
-        return d->urls;
-    // ########
-    return QList<QUrl>();
+    QVariant data = retrieveData("text/uri-list", QVariant::Invalid);
+    QList<QUrl> urls;
+    if (data.type() == QVariant::Url)
+        urls.append(data.toUrl());
+    else if (data.type() == QVariant::List) {
+        QList<QCoreVariant> list = data.toList();
+        for (int i = 0; i < list.size(); ++i) {
+            if (list.at(i).type() == QVariant::Url)
+                urls.append(list.at(i).toUrl());
+        }
+    }
+    return urls;
 }
 
 void QMimeData::setUrls(const QList<QUrl> &urls)
 {
     Q_D(QMimeData);
-    d->urls = urls;
+    QList<QCoreVariant> list;
+    for (int i = 0; i < urls.size(); ++i)
+        list.append(urls.at(i));
+    d->data["text/uri-list"] = list;
 }
 
 QString QMimeData::text() const
 {
-    Q_D(const QMimeData);
-    if (!d->text.isNull())
-        return d->text;
-    // ############
+    QVariant data = retrieveData("text/plain", QVariant::String);
+    if (data.type() == QVariant::ByteArray)
+        return QString::fromUtf8(data.toByteArray());
+    else if (data.type() == QVariant::String)
+        return data.toString();
     return QString();
 }
 
 void QMimeData::setText(const QString &text)
 {
     Q_D(QMimeData);
-    d->text = text;
+    d->data["text/plain"] = text;
 }
 
 QString QMimeData::html() const
 {
-    Q_D(const QMimeData);
-    if (!d->html.isNull())
-        return d->html;
-    // ############
+    QVariant data = retrieveData("text/html", QVariant::String);
+    if (data.type() == QVariant::ByteArray)
+        return QString::fromUtf8(data.toByteArray());
+    else if (data.type() == QVariant::String)
+        return data.toString();
     return QString();
 }
 
 void QMimeData::setHtml(const QString &html)
 {
     Q_D(QMimeData);
-    d->html = html;
+    d->data["text/html"] = html;
 }
 
 QPixmap QMimeData::pixmap() const
 {
-    Q_D(const QMimeData);
-    if (!d->pixmap.isNull())
-        return d->pixmap;
+    QVariant data = retrieveData("image/ppm", QVariant::Pixmap);
+    if (data.type() == QVariant::Pixmap)
+        return data.toPixmap();
     // ### try to decode
     return QPixmap();
 }
@@ -120,55 +127,64 @@ QPixmap QMimeData::pixmap() const
 void QMimeData::setPixmap(const QPixmap &pixmap)
 {
     Q_D(QMimeData);
-    d->pixmap = pixmap;
+    d->data["image/ppm"] = pixmap;
 }
 
 QByteArray QMimeData::data(const QString &mimetype) const
 {
-    Q_D(const QMimeData);
-    if (d->data.contains(mimetype))
-        return d->data.value(mimetype);
-
-    // #### match with known mimetypes and convert if needed
-    return QByteArray();
+    QVariant data = retrieveData(mimetype, QVariant::ByteArray);
+    return data.toByteArray();
 }
 
 void QMimeData::setData(const QString &mimetype, const QByteArray &data)
 {
     Q_D(QMimeData);
-    d->data[mimetype] = data;
+    d->data[mimetype] = QVariant(data);
 }
 
 bool QMimeData::hasFormat(const QString &mimetype) const
 {
     Q_D(const QMimeData);
-    if (d->data.contains(mimetype))
-        return true;
-
-    return formats().contains(mimetype);
+    return d->data.contains(mimetype);
 }
 
 QStringList QMimeData::formats() const
 {
     Q_D(const QMimeData);
-    QStringList formats = d->data.keys();
+    return d->data.keys();
+}
 
-    if (!d->text.isEmpty())
-        formats += QLatin1String("text/plain");
-    if (!d->html.isEmpty())
-        formats += QLatin1String("text/html");
-    if (!d->urls.isEmpty())
-        formats += QLatin1String("text/uri-list");
-    // ##### add keys for pixmaps
-    return formats;
+QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) const
+{
+    Q_D(const QMimeData);
+    QVariant data = d->data.value(mimetype);
+    if (data.type() == type || type == QVariant::Invalid)
+        return data;
+
+    // types don't match, convert to bytearray
+    QByteArray result;
+    switch(data.type()) {
+    case QVariant::ByteArray:
+        result = data.toByteArray();
+        break;
+    case QVariant::String:
+        result = data.toString().toUtf8();
+        break;
+    case QVariant::Pixmap:
+        // ######
+        break;
+    case QVariant::Color:
+        // ######
+    case QVariant::Url:
+        // ######
+    default:
+        break;
+    }
+    return result;
 }
 
 void QMimeData::clear()
 {
     Q_D(QMimeData);
-    d->text.clear();
-    d->html.clear();
-    d->pixmap = QPixmap();
-    d->urls.clear();
     d->data.clear();
 }

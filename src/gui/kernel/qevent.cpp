@@ -1829,7 +1829,7 @@ QDragMoveEvent::QDragMoveEvent(const QPoint& pos, const QMimeData *data, Type ty
     a drop at the given \a point in a widget.
 */ // ### pos is in which coordinate system?
 QDropEvent::QDropEvent(const QPoint& pos, const QMimeData *data, Type typ)
-    : QEvent(typ), p(pos), act(0), accpt(0), accptact(0), resv(0), mimeData(data)
+    : QEvent(typ), p(pos), act(0), accpt(0), accptact(0), resv(0), mdata(data)
 {}
 
 
@@ -1849,7 +1849,7 @@ QDropEvent::QDropEvent(const QPoint& pos, const QMimeData *data, Type typ)
 
 QByteArray QDropEvent::encodedData(const char *format) const
 {
-    return data()->data(QLatin1String(format));
+    return mdata->data(QLatin1String(format));
 }
 
 /*!
@@ -1866,7 +1866,7 @@ QByteArray QDropEvent::encodedData(const char *format) const
 
 const char* QDropEvent::format(int n) const
 {
-    QStringList formats = data()->formats();
+    QStringList formats = mdata->formats();
     if (n < 0 || n >= formats.size())
         return 0;
     return formats.at(n).latin1();
@@ -1881,7 +1881,7 @@ const char* QDropEvent::format(int n) const
 
 bool QDropEvent::provides(const char *mimeType) const
 {
-    return data()->formats().contains(QLatin1String(mimeType));
+    return mdata->formats().contains(QLatin1String(mimeType));
 }
 
 /*!
