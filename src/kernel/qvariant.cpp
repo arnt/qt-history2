@@ -107,9 +107,6 @@ QVariant::Private::Private( Private* d )
 	    value.ptr = new QStringList( *((QStringList*)d->value.ptr) );
 	    break;
 #endif //QT_NO_STRINGLIST
-	case QVariant::Map:
-	    value.ptr = new QMap<QString,QVariant>( *((QMap<QString,QVariant>*)d->value.ptr) );
-	    break;
 	case QVariant::Font:
 	    value.ptr = new QFont( *((QFont*)d->value.ptr) );
 	    break;
@@ -150,9 +147,14 @@ QVariant::Private::Private( Private* d )
 	    value.ptr = new QIconSet( *((QIconSet*)d->value.ptr) );
 	    break;
 #endif	
+#ifndef QT_NO_TEMPLATE_VARIANT
+	case QVariant::Map:
+	    value.ptr = new QMap<QString,QVariant>( *((QMap<QString,QVariant>*)d->value.ptr) );
+	    break;
 	case QVariant::List:
 	    value.ptr = new QValueList<QVariant>( *((QValueList<QVariant>*)d->value.ptr) );
 	    break;
+#endif
 	case QVariant::Date:
 	    value.ptr = new QDate( *((QDate*)d->value.ptr) );
 	    break;
@@ -220,9 +222,6 @@ void QVariant::Private::clear()
 	case QVariant::CString:
 	    delete (QCString*)value.ptr;
 	    break;
-	case QVariant::Map:
-	    delete (QMap<QString,QVariant>*)value.ptr;
-	    break;
 #ifndef QT_NO_STRINGLIST
 	case QVariant::StringList:
 	    delete (QStringList*)value.ptr;
@@ -265,9 +264,14 @@ void QVariant::Private::clear()
 	    delete (QIconSet*)value.ptr;
 	    break;
 #endif
+#ifndef QT_NO_TEMPLATE_VARIANT
+	case QVariant::Map:
+	    delete (QMap<QString,QVariant>*)value.ptr;
+	    break;
 	case QVariant::List:
 	    delete (QValueList<QVariant>*)value.ptr;
 	    break;
+#endif
 	case QVariant::SizePolicy:
 	    delete (QSizePolicy*)value.ptr;
 	    break;
@@ -496,6 +500,7 @@ QVariant::QVariant( const QStringList& val )
 }
 #endif // QT_NO_STRINGLIST
 
+#ifndef QT_NO_TEMPLATE_VARIANT
 /*!
   Constructs a new variant with a map of QVariants.
 */
@@ -505,7 +510,7 @@ QVariant::QVariant( const QMap<QString,QVariant>& val )
     d->typ = Map;
     d->value.ptr = new QMap<QString,QVariant>( val );
 }
-
+#endif
 /*!
   Constructs a new variant with a font value.
 */
@@ -750,6 +755,7 @@ QVariant::QVariant( double val )
     d->value.d = val;
 }
 
+#ifndef QT_NO_TEMPLATE_VARIANT
 /*!
   Constructs a new variant with a list value.
 */
@@ -759,6 +765,7 @@ QVariant::QVariant( const QValueList<QVariant>& val )
     d->typ = List;
     d->value.ptr = new QValueList<QVariant>( val );
 }
+#endif
 
 /*!
   Constructs a new variant with a size policy value.
@@ -915,6 +922,7 @@ void QVariant::load( QDataStream& s )
     case Invalid:
 	d->typ = t;
 	break;
+#ifndef QT_NO_TEMPLATE_VARIANT
     case Map:
 	{
 	    QMap<QString,QVariant>* x = new QMap<QString,QVariant>;
@@ -929,6 +937,7 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
+#endif	
     case Cursor:
 	{
 #ifndef QT_NO_CURSOR
@@ -1154,12 +1163,14 @@ void QVariant::save( QDataStream& s ) const
     case Region:
 	s << *((QRegion*)d->value.ptr);
 	break;
+#ifndef QT_NO_TEMPLATE_VARIANT
     case List:
 	s << *((QValueList<QVariant>*)d->value.ptr);
 	break;
     case Map:
 	s << *((QMap<QString,QVariant>*)d->value.ptr);
 	break;
+#endif	
     case String:
 	s << *((QString*)d->value.ptr);
 	break;
@@ -1418,7 +1429,7 @@ const QStringList QVariant::toStringList() const
 }
 #endif //QT_NO_STRINGLIST
 
-
+#ifndef QT_NO_TEMPLATE_VARIANT
 /*!
   Returns the variant as a QMap<QString,QVariant> if the variant has type()
   Map, or an empty map otherwise.
@@ -1432,7 +1443,7 @@ const QMap<QString, QVariant> QVariant::toMap() const
 
     return *((QMap<QString,QVariant>*)d->value.ptr);
 }
-
+#endif
 /*!
   Returns the variant as a QFont if the variant has type()
   Font, or the default font otherwise.
@@ -1811,6 +1822,7 @@ double QVariant::toDouble( bool * ok ) const
     return 0.0;
 }
 
+#ifndef QT_NO_TEMPLATE_VARIANT
 /*!
   Returns the variant as a QValueList<QVariant> if the variant has type()
   List or StringList, or an empty list otherwise.
@@ -1833,6 +1845,7 @@ const QValueList<QVariant> QVariant::toList() const
 #endif //QT_NO_STRINGLIST
     return QValueList<QVariant>();
 }
+#endif
 
 /*! Returns the variant as a QSizePolicy if the variant has type()
 SizePolicy, or an undefined (but legal) size policy otherwise.
@@ -2159,6 +2172,7 @@ double& QVariant::asDouble()
     return d->value.d;
 }
 
+#ifndef QT_NO_TEMPLATE_VARIANT
 /*!
   Returns the variant's value as variant list reference.
 */
@@ -2178,7 +2192,7 @@ QMap<QString, QVariant>& QVariant::asMap()
 	*this = QVariant( toMap() );
     return *((QMap<QString,QVariant>*)d->value.ptr);
 }
-
+#endif
 
 /*!
   Returns TRUE if the current type of the variant can be cast to
@@ -2227,6 +2241,7 @@ bool QVariant::canCast( Type t ) const
     if ( t == List && d->typ == StringList )
 	return TRUE;
 #endif
+#ifndef QT_NO_TEMPLATE_VARIANT
     if ( t == StringList && d->typ == List )   {
 	QValueList<QVariant> vl = toList();
 	QValueList<QVariant>::ConstIterator it = listBegin();
@@ -2237,6 +2252,7 @@ bool QVariant::canCast( Type t ) const
 	}
 	return TRUE;
     }
+#endif	
     return FALSE;
 }
 
@@ -2254,12 +2270,14 @@ bool QVariant::canCast( Type t ) const
 bool QVariant::cast( Type t )
 {
     switch ( t ) {
+#ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::Map:
 	asMap();
 	break;
     case QVariant::List:
 	asList();
 	break;
+#endif	
     case QVariant::String:
 	asString();
 	break;
@@ -2371,6 +2389,7 @@ bool QVariant::operator==( const QVariant &v ) const
 	return v.toPointArray() == toPointArray();
     case Region:
 	return v.toRegion() == toRegion();
+#ifndef QT_NO_TEMPLATE_VARIANT
     case List:
 	return v.toList() == toList();
     case Map: {
@@ -2384,6 +2403,7 @@ bool QVariant::operator==( const QVariant &v ) const
 	}
 	return TRUE;
     }
+#endif	
     case String:
 	return v.toString() == toString();
     case CString:

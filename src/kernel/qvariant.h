@@ -67,12 +67,13 @@ class QTime;
 class QDateTime;
 // Some headers rejected after QVariant declaration for GCC 2.7.* compatibility
 class QVariant;
+#ifndef QT_NO_TEMPLATE_VARIANT
 template <class T> class QValueList;
 template <class T> class QValueListConstIterator;
 template <class T> class QValueListNode;
 template <class Key, class T> class QMap;
 template <class Key, class T> class QMapConstIterator;
-
+#endif
 
 class Q_EXPORT QVariant
 {
@@ -141,8 +142,10 @@ public:
     QVariant( const QTime& );
     QVariant( const QDateTime& );
     QVariant( const QByteArray& );
+#ifndef QT_NO_TEMPLATE_VARIANT
     QVariant( const QValueList<QVariant>& );
     QVariant( const QMap<QString,QVariant>& );
+#endif
     QVariant( int );
     QVariant( uint );
     // ### Problems on some compilers ?
@@ -192,20 +195,23 @@ public:
     uint toUInt( bool * ok=0 ) const;
     bool toBool() const;
     double toDouble( bool * ok=0 ) const;
+#ifndef QT_NO_TEMPLATE_VARIANT
     const QValueList<QVariant> toList() const;
     const QMap<QString,QVariant> toMap() const;
+#endif
     QSizePolicy toSizePolicy() const;
 
-    QValueListConstIterator<QVariant> listBegin() const;
-    QValueListConstIterator<QVariant> listEnd() const;
 #ifndef QT_NO_STRINGLIST
     QValueListConstIterator<QString> stringListBegin() const;
     QValueListConstIterator<QString> stringListEnd() const;
 #endif
+#ifndef QT_NO_TEMPLATE_VARIANT
+    QValueListConstIterator<QVariant> listBegin() const;
+    QValueListConstIterator<QVariant> listEnd() const;
     QMapConstIterator<QString,QVariant> mapBegin() const;
     QMapConstIterator<QString,QVariant> mapEnd() const;
     QMapConstIterator<QString,QVariant> mapFind( const QString& ) const;
-
+#endif
     QString& asString();
     QCString& asCString();
 #ifndef QT_NO_STRINGLIST
@@ -234,8 +240,10 @@ public:
     uint& asUInt();
     bool& asBool();
     double& asDouble();
+#ifndef QT_NO_TEMPLATE_VARIANT
     QValueList<QVariant>& asList();
     QMap<QString,QVariant>& asMap();
+#endif
     QSizePolicy& asSizePolicy();
 
 #ifndef QT_NO_DATASTREAM
@@ -303,6 +311,7 @@ inline QValueListConstIterator<QString> QVariant::stringListEnd() const
     return ((const QStringList*)d->value.ptr)->end();
 }
 #endif
+#ifndef QT_NO_TEMPLATE_VARIANT
 inline QValueListConstIterator<QVariant> QVariant::listBegin() const
 {
     if ( d->typ != List )
@@ -337,6 +346,7 @@ inline QMapConstIterator<QString,QVariant> QVariant::mapFind( const QString& key
 	return QMapConstIterator<QString,QVariant>();
     return ((const QMap<QString,QVariant>*)d->value.ptr)->find( key );
 }
+#endif
 
 #ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant& p );

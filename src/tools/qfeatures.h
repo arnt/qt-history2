@@ -110,6 +110,11 @@
 # endif
 
 /*!
+  Template classes in QVariant
+*/
+//#define QT_NO_TEMPLATE_VARIANT
+
+/*!
   Regular expression wildcard support
 */
 //#define QT_NO_REGEXP_WILDCARD
