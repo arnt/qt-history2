@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#312 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#313 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1308,6 +1308,9 @@ static QPostEventList *postedEvents = 0;	// list of posted events
 /*!
   Stores the event in a queue and returns immediatly.
 
+  The event must be allocated on the heap, as it is deleted when the event
+  has been posted.
+
   When control returns to the main event loop, all events that are
   stored in the queue will be sent using the notify() function.
 
@@ -1770,7 +1773,7 @@ bool QApplication::processNextEvent( bool canWait )
 
     static timeval zerotm;
     timeval *tm = qt_wait_timer();		// wait for timer or X event
-    if ( !canWait ) {
+    if ( !canWait || postedEvents && postedEvents->count() ) {
 	if ( !tm )
 	    tm = &zerotm;
 	tm->tv_sec  = 0;			// no time to wait
