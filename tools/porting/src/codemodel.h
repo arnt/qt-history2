@@ -333,7 +333,8 @@ private:
 
 struct EnumType: public Type
 {
-    EnumType() {}
+    EnumType()
+        : m_parent(0) {}
 
     QByteArray name() const
     { return m_name; }
@@ -445,7 +446,7 @@ private:
 struct PointerType: public Type
 {
     PointerType()
-        : m_baseType(0) {}
+        : m_parent(0), m_baseType(0) {}
 
     Type *baseType() const
     { return m_baseType; }
@@ -578,7 +579,8 @@ private:
 
 struct VariableMember: public Member
 {
-    VariableMember() {}
+    VariableMember()
+        : m_type(0) {}
 
     Type *type() const
     { return m_type; }
@@ -595,7 +597,8 @@ private:
 
 struct UsingDirectiveMember: public Member
 {
-    UsingDirectiveMember() {}
+    UsingDirectiveMember()
+        : m_targetScope(0) {}
 
     virtual UsingDirectiveMember *toUsingDirectiveMember() const
     { return const_cast<UsingDirectiveMember*>(this); }
@@ -612,7 +615,8 @@ private:
 
 struct UsingDeclarationMember: public Member
 {
-    UsingDeclarationMember() {}
+    UsingDeclarationMember()
+        : m_member(0) {}
 
     virtual UsingDeclarationMember *toUsingDeclarationMember() const
     { return const_cast<UsingDeclarationMember*>(this); }
@@ -629,7 +633,8 @@ private:
 
 struct TypeMember: public Member
 {
-    TypeMember() {}
+    TypeMember()
+        :m_type(0) {}
 
      virtual TypeMember *toTypeMember() const
     { return const_cast<TypeMember*>(this); }
@@ -647,7 +652,7 @@ private:
 struct Argument: public Item
 {
     Argument()
-        :  m_type(0), m_nameAST(0) {}
+        :  m_parent(0), m_type(0), m_nameAST(0) {}
 
     Type *type() const
     { return m_type; }
@@ -684,7 +689,7 @@ private:
 struct NameUse: public Item
 {
     NameUse()
-    : m_declaration(0) {}
+    : m_nameAST(0), m_declaration(0), m_parent(0) {}
 
     QByteArray name() const
     { return m_name; }

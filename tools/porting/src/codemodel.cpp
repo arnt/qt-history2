@@ -244,6 +244,7 @@ void ClassScope::addBaseClass(Type *baseClass)
 // == FunctionMember ===================
 FunctionMember::FunctionMember()
     : m_returnType(0),
+      m_functionBodyScope(0),
       m_signal(0), m_slot(0),
       m_virtual(0), m_abstract(0)
 {
