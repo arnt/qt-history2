@@ -1,19 +1,20 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.h#2 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.h#3 $
 **
-**   Geometry Management
+** Definition of QGManager class (workhorse for QLayout classes)
 **
-**  Created:  960406
+** Created : 960406
 **
 ** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
-#ifndef QBASIC_H
-#define QBASIC_H
+#ifndef QGMANAGR_H
+#define QGMANAGR_H
 
 #include "qintdict.h"
 #include "qwidget.h"
+
 
 class QChain;
 struct QGManagerData;
@@ -76,4 +77,4 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-#endif
+#endif // QGMANAGR_H

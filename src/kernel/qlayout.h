@@ -1,21 +1,23 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#3 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#4 $
 **
-**  Geometry Management
+** Definition of layout classes
 **
-**  Created:  960416
+** Created : 960416
 **
 ** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
-#ifndef QGEOM_H
-#define QGEOM_H
+#ifndef QLAYOUT_H
+#define QLAYOUT_H
 
 #include "qgmanagr.h"
 #include "qlist.h"
 
+
 struct QLayoutData;
+
 class QLayout : public QObject
 {
 public:
@@ -139,4 +141,5 @@ private:	// Disabled copy constructor and operator=
     QGridLayout &operator=( const QGridLayout & ) { return *this; }
 };
 
-#endif
+
+#endif // QLAYOUT_H

@@ -1,16 +1,16 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#5 $
 **
-**  Geometry Management
+** Implementation of layout classes
 **
-**  Created:  960416
+** Created : 960416
 **
 ** Copyright (C) 1996 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 #include "qlayout.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#5 $");
 
 /*!
   \class QLayout qlayout.h
