@@ -54,7 +54,6 @@ private:
 
     friend class QMotifStyle;
     friend class QWindowsStyle;
-    friend class QPlatinumStyle;
 
 
 public:
