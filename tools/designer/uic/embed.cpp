@@ -97,9 +97,9 @@ static void embedData( QTextStream& out, const QRgb* input, int n )
 
 void Uic::embed( QTextStream& out, const char* project, const QStringList& images )
 {
-    
+
     QString cProject = convertToCIdentifier( project );
-    
+
     QStringList::ConstIterator it;
     out << "/****************************************************************************" << endl;
     out << "** Image collection for project '" << project << "'." << endl;
@@ -194,10 +194,14 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	out << "    { 0, 0, 0, 0, 0, 0, 0, 0 }\n};\n";
 
 	out << "\n"
+	    "static QDict<QImage> *" << cProject << "image_dict = 0;\n"
 	    "static QImage& uic_findImage( const char *name )\n"
 	    "{\n"
-	    "    static QDict<QImage> dict;\n"
-	    "    QImage* img = dict.find(name);\n"
+	    "    if ( !" << cProject << "image_dict ) {\n"
+	    "        " << cProject << "image_dict = new QDict<QImage>;\n"
+	    "        " << cProject << "image_dict->setAutoDelete( TRUE );\n"
+	    "    }\n"
+	    "    QImage* img = " << cProject << "image_dict->find(name);\n"
 	    "    if ( !img ) {\n"
 	    "        for (int i=0; embed_image_vec[i].data; i++) {\n"
 	    "	if ( 0==strcmp(embed_image_vec[i].name, name) ) {\n"
@@ -217,6 +221,8 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 	    "        if ( !img ) {\n"
 	    "            static QImage dummy;\n"
 	    "            return dummy;\n"
+	    "        } else {\n"
+	    "            " << cProject << "image_dict->insert( name, img );\n"
 	    "        }\n"
 	    "    }\n"
 	    "    return *img;\n"
@@ -258,6 +264,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
 
 	out << "static void qCleanupImages_" << cProject << "()" << endl;
 	out << "{" << endl;
+	out << "    delete " << cProject << "image_dict;" << endl;
 	out << "    if ( !designerMimeSourceFactory )" << endl;
 	out << "	return;" << endl;
 	out << "    QMimeSourceFactory::defaultFactory()->removeFactory( designerMimeSourceFactory );" << endl;
