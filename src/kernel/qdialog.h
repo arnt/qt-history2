@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#20 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#21 $
 **
 ** Definition of QDialog class
 **
@@ -40,9 +40,6 @@ public:
     void	resize( const QSize & );
     void	setGeometry( int x, int y, int w, int h );
     void	setGeometry( const QRect & );
-
-    void	showNoLoop();
-    void	hideNoLoop();
 
 protected slots:
     virtual void done( int );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#39 $
 **
 ** Implementation of QDialog class
 **
@@ -15,7 +15,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#39 $");
 
 
 /*!
@@ -184,37 +184,6 @@ void QDialog::hide()
 }
 
 /*!
-  Shows the widget, \e without entering an event loop.
-  \sa show()
-*/
-
-void QDialog::showNoLoop()
-{
-    if ( !did_resize )
-	adjustSize();
-    if ( !did_move ) {
-	QWidget *w = parentWidget();
-	QPoint p( 0, 0 );
-	if ( w )
-	    p = w->mapToGlobal( p );
-	else
-	    w = QApplication::desktop();
-	move( p.x() + w->width()/2  - width()/2,
-	      p.y() + w->height()/2 - height()/2 );
-    }
-    QWidget::show();
-}
-
-/*!
-  Hides the widget, \e without leaving an event loop.
-*/
-
-void QDialog::hideNoLoop()
-{
-    QWidget::hide();
-}
-
-/*!
   Closes the dialog and sets the result code to \c Accepted.
 
   Equivalent to done(Accepted);
@@ -317,7 +286,19 @@ void QDialog::show()
 {
     if ( testWFlags(WState_Visible) )
 	return;
-    showNoLoop();
+    if ( !did_resize )
+	adjustSize();
+    if ( !did_move ) {
+	QWidget *w = parentWidget();
+	QPoint p( 0, 0 );
+	if ( w )
+	    p = w->mapToGlobal( p );
+	else
+	    w = QApplication::desktop();
+	move( p.x() + w->width()/2  - width()/2,
+	      p.y() + w->height()/2 - height()/2 );
+    }
+    QWidget::show();
     if ( testWFlags(WType_Modal) ) qApp->enter_loop();
 }
 

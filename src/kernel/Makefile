@@ -28,7 +28,7 @@ HEADERS =	qaccel.h	qapp.h		qgmanagr.h	qbitmap.h     \
 		qrect.h		qregion.h	qsignal.h	qsize.h	      \
 		qsocknot.h	qtimer.h	qwidcoll.h	qwidget.h     \
 		qwindefs.h	qwindow.h	qwmatrix.h	qasyncio.h    \
-		qasyncimageio.h	qmovie.h
+		qasyncimageio.h	qmovie.h	qsemimodal.h
 SOURCES =	qaccel.cpp	qapp.cpp	qapp_x11.cpp	qgmanagr.cpp  \
 		qbitmap.cpp	qclb_x11.cpp	qclipbrd.cpp	qcol_x11.cpp  \
 		qcolor.cpp	qconnect.cpp	qcur_x11.cpp	qcursor.cpp   \
@@ -41,7 +41,7 @@ SOURCES =	qaccel.cpp	qapp.cpp	qapp_x11.cpp	qgmanagr.cpp  \
 		qrect.cpp	qregion.cpp	qrgn_x11.cpp	qsignal.cpp   \
 		qsize.cpp	qsocknot.cpp	qtimer.cpp	qwid_x11.cpp  \
 		qwidget.cpp	qwindow.cpp	qwmatrix.cpp	qt_x11.cpp    \
-		qasyncio.cpp	qasyncimageio.cpp qmovie.cpp
+		qasyncio.cpp	qasyncimageio.cpp qmovie.cpp	qsemimodal.cpp
 OBJECTS =	qaccel.o	qapp.o		qapp_x11.o	qgmanagr.o    \
 		qbitmap.o	qclb_x11.o	qclipbrd.o	qcol_x11.o    \
 		qcolor.o	qconnect.o	qcur_x11.o	qcursor.o     \
@@ -54,13 +54,13 @@ OBJECTS =	qaccel.o	qapp.o		qapp_x11.o	qgmanagr.o    \
 		qrect.o		qregion.o	qrgn_x11.o	qsignal.o     \
 		qsize.o		qsocknot.o	qtimer.o	qwid_x11.o    \
 		qwidget.o	qwindow.o	qwmatrix.o  	qt_x11.o      \
-		qasyncio.o      qasyncimageio.o qmovie.o
+		qasyncio.o      qasyncimageio.o qmovie.o	qsemimodal.o
 SRCMETA =	maccel.cpp	mapp.cpp	mclipbrd.cpp	mdialog.cpp   \
 		msocknot.cpp	mtimer.cpp	mwidget.cpp	mwindow.cpp   \
-		mgmanagr.cpp	masyncio.cpp	
+		mgmanagr.cpp	masyncio.cpp	msemimodal.cpp
 OBJMETA =	maccel.o	mapp.o		mclipbrd.o	mdialog.o     \
 		msocknot.o	mtimer.o	mwidget.o	mwindow.o     \
-		mgmanagr.o	masyncio.o
+		mgmanagr.o	masyncio.o	msemimodal.o
 TARGET	=	$(LIBDIR)/libqkernel.a
 
 ####### Implicit rules
@@ -139,6 +139,9 @@ mwindow.cpp: qwindow.h
 
 masyncio.cpp: qasyncio.h
 	moc qasyncio.h -o masyncio.cpp
+
+msemimodal.cpp: qsemimodal.h
+	moc qsemimodal.h -o msemimodal.cpp
 
 
 -include .depend

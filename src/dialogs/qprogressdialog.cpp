@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#5 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -14,7 +14,7 @@
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#5 $");
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
@@ -38,6 +38,7 @@ struct QProgressData
     {
     }
 
+    bool	shown_once;
     QWidget	*creator;
     QPushButton	cancel;
     bool	cancellation_flag;
@@ -106,7 +107,7 @@ struct QProgressData
 */
 QProgressDialog::QProgressDialog( const char* label_text, int total_steps,
 	QWidget *creator, const char *name, bool modal, WFlags f ) :
-    QDialog( 0, name, modal, f),
+    QSemiModal( 0, name, modal, f),
     the_bar( 0 ),
     d(new QProgressData(this, creator, label_text)),
     totalsteps( total_steps )
@@ -114,6 +115,7 @@ QProgressDialog::QProgressDialog( const char* label_text, int total_steps,
     d->cancel.hide();
     connect( &d->cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
     connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
+    d->shown_once = FALSE;
 }
 
 /*!
@@ -171,12 +173,13 @@ void QProgressDialog::reset()
 	if ( d->creator ) d->creator->setCursor( d->parentCursor );
     }
     if (isVisible()) {
-	hideNoLoop();
+	hide();
     }
 
     bar().reset( totalsteps );
 
     d->cancellation_flag = TRUE;
+    d->shown_once = FALSE;
 }
 
 /*!
@@ -205,7 +208,7 @@ bool QProgressDialog::setProgress( int prog )
 
     if ( isVisible() ) {
 	if (testWFlags(WType_Modal)) qApp->processEvents();
-    } else {
+    } else if ( !d->shown_once ) {
 	if ( prog == 0 ) {
 	    if ( d->creator ) {
 		d->parentCursor = d->creator->cursor();
@@ -219,7 +222,8 @@ bool QProgressDialog::setProgress( int prog )
 		if ( estimate > showTime ) {
 		    resize(sizeHint());
 		    center();
-		    showNoLoop();
+		    show();
+		    d->shown_once = TRUE;
 		    if (testWFlags(WType_Modal)) {
 			qApp->processEvents();
 		    }
@@ -294,7 +298,7 @@ void QProgressDialog::resizeEvent( QResizeEvent * )
 void QProgressDialog::styleChange(GUIStyle s)
 {
     layout();
-    QDialog::styleChange(s);
+    QSemiModal::styleChange(s);
 }
 
 void QProgressDialog::layout()

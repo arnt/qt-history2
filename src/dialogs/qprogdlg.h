@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.h#4 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.h#5 $
 **
 ** Definition of QProgressDialog class
 **
@@ -12,7 +12,7 @@
 #ifndef QPROGDLG_H
 #define QPROGDLG_H
 
-#include "qdialog.h"
+#include "qsemimodal.h"
 #include "qdatetm.h"
 #include "qpushbt.h"
 #include "qlabel.h"
@@ -20,7 +20,7 @@
 
 struct QProgressData;
 
-class QProgressDialog : public QDialog
+class QProgressDialog : public QSemiModal
 {
     Q_OBJECT
 public:
