@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#7 $
 **
 ** Implementation of the QSimpleRichText class
 **
@@ -219,19 +219,40 @@ QString QSimpleRichText::anchor( QPainter* p, const QPoint& pos )
 }
 
 
+// Dijkstra's bisection algorithm to find the square root as an integer.
+// The argument n must be in the range 0...1'073'741'823 [2^31-1].
+
+static uint int_sqrt(uint n)
+{
+    uint h, p= 0, q= 1, r= n;
+    while ( q <= n )
+	q <<= 2;
+    while ( q != 1 ) {
+	q >>= 2;
+	h= p + q;
+	p >>= 1;
+	if ( r >= h ) {
+	    p += q;
+	    r -= h;
+	}
+    }
+    return p;
+}
+
+
 /*!
   Adjusts the richt text document to a reasonable size.
   
   \sa setWidth()
- */
+*/
 void QSimpleRichText::adjustSize( QPainter* p )
 {
     int w = QApplication::desktop()->width();
     d->doc->setWidth( p,w );
-    w = int(sqrt(5*d->doc->height/3*d->doc->widthUsed));
+    w = int_sqrt(5*d->doc->height/3*d->doc->widthUsed);
     d->doc->setWidth( p,w );
     if ( w*3 < 5*d->doc->height ) {
-	w = int(sqrt(6*d->doc->height/3*d->doc->widthUsed));
+	w = int_sqrt(6*d->doc->height/3*d->doc->widthUsed);
 	d->doc->setWidth( p,w );
     }
 }
