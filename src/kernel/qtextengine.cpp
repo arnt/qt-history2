@@ -744,7 +744,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
     for (int i = 1; i < len; ++i) {
 	int ncls = lineBreakClass(uc[i]);
 
-	if (ncls == QUnicodeTables::LineBreak_SP) {
+	if (ncls == QUnicodeTables::LineBreak_SP || ncls == QUnicodeTables::LineBreak_CM) {
 	    charAttributes[i].softBreak = FALSE;
 	    continue;
 	}
