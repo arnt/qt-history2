@@ -54,7 +54,7 @@ static QRect endPointRect(const QPoint &pos)
     return r;
 }
 
-static void paintGround(QPainter *p, const QRect &r)
+static void paintGround(QPainter *p, QRect r)
 {
     QPoint mid = r.center();
     p->drawLine(mid.x(), r.top(), mid.x(), mid.y());
@@ -65,7 +65,7 @@ static void paintGround(QPainter *p, const QRect &r)
     y = r.top() + 5*r.height()/6;
     x = 2*GROUND_W/6;
     p->drawLine(r.left() + x, y, r.right() - x, y);
-    p->drawPoint(mid.x(), r.bottom());
+    p->drawLine(mid.x(), r.bottom(), mid.x() + 1, r.bottom());
 }
 
 static void paintEndPoint(QPainter *p, const QPoint &pos)
