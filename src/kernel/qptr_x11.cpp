@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#19 $
 **
 ** Implementation of QPainter class for X11
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,13 +14,15 @@
 #include "qpaintdc.h"
 #include "qwidget.h"
 #include "qbitmap.h"
+#include <ctype.h>
+#include <malloc.h>
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#19 $";
 #endif
 
 
@@ -277,6 +279,7 @@ QPainter::QPainter()
     rop = CopyROP;				// default ROP
     tabstops = 0;				// default tabbing
     tabarray = 0;
+    tabarraylen = 0;
     ps_stack = 0;
     list->insert( this );			// add to list of painters
 }
@@ -584,8 +587,6 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     if ( reinit ) {
 	bg_col = white;				// default background color
 	wxmat.reset();				// reset world xform matrix
-	tabstops = 0;				// default tabbing
-	tabarray = 0;
     }
     sx = sy = tx = ty = 0;			// default view origins
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
@@ -1810,7 +1811,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	len = strlen( str );
 #if defined(CHECK_RANGE)
     else if ( len > strlen(str) )
-	warning( "QPainter::drawText: Length arg exceeds real string length ");
+	warning( "QPainter::drawText: Length arg exceeds real string length" );
 #endif
     if ( len == 0 )				// empty string
 	return;
@@ -1829,8 +1830,8 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    pdev->cmd( PDC_DRAWTEXT, param );
 	    return;
 	}
-	if ( testf(WxF) ) {
-	    QFontMetrics fm(cfont);		// get font metrics
+	if ( testf(WxF) ) {			// draw transformed text
+	    QFontMetrics fm(cfont);
 	    int w = fm.width( str, len );
 	    int h = fm.height();
 	    int asc = fm.ascent();
@@ -1851,12 +1852,12 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		paint.eraseRect( bm.rect() );
 		paint.drawText( 0, asc, str, len );
 		paint.end();
-		wx_bm = bm.xForm( mat );	// world xform bitmap
+		wx_bm = bm.xForm( mat );	// transform bitmap
 	    }
 	    WXFORM_P( x, y );
 	    mat = QBitMap::trueMatrix( mat, w, h );
 	    int dx, dy;
-	    mat.map( 0, asc, &dx, &dy );	// compute bitmap position
+	    mat.map( 0, asc, &dx, &dy );	// compute position of bitmap
 	    x -= dx;  y -= dy;
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		QPointArray a(4);
@@ -1877,7 +1878,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    uint tmpf = flags;
 	    flags = IsActive;
 	    QBitMap *draw_bm;
-	    if ( do_clip ) {			// clipping was enabled
+	    if ( do_clip ) {			// clipping enabled
 		int ww = wx_bm->size().width();
 		int hh = wx_bm->size().height();
 		draw_bm = new QBitMap( ww, hh );
@@ -1894,11 +1895,11 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		draw_bm = wx_bm;
 	    XSetClipMask( dpy, gc, draw_bm->handle() );
 	    XSetClipOrigin( dpy, gc, x, y );
-	    drawPixMap( x, y, *draw_bm );
+	    drawPixMap( x, y, *draw_bm );	// draw bitmap!
 	    flags = tmpf;
 	    XSetClipMask( dpy, gc, 0 );
 	    if ( do_clip ) {
-		delete draw_bm;
+		delete draw_bm;			// delete temporary bitmap
 		XSetClipOrigin( dpy, gc, 0, 0 );
 		XSetRegion( dpy, gc, crgn.handle() );
 	    }
@@ -1931,7 +1932,7 @@ void QIntPainter::addClipRect( int x, int y, int w, int h )
 	QPointArray a( r );			// complex region
 	a = xForm( a );
 	QRegion new_rgn( a );
-	if ( testf(ClipOn) )
+	if ( testf(ClipOn) )			// add to existing region
 	    new_rgn = new_rgn.intersect( crgn );
 	setClipRegion( new_rgn );
     }
@@ -1945,7 +1946,7 @@ void QIntPainter::addClipRect( int x, int y, int w, int h )
 	xr.height = r.height();
 	rgn = XCreateRegion();			// create X region directly
 	XUnionRectWithRegion( &xr, rgn, rgn );
-	if ( testf(ClipOn) )			// clipping on
+	if ( testf(ClipOn) )			// add to existing region
 	    XIntersectRegion( rgn, crgn.handle(), rgn );
 	XSetRegion( dpy, gc, rgn );
 	XDestroyRegion( rgn );			// no longer needed
@@ -1970,7 +1971,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	len = strlen( str );
 #if defined(CHECK_RANGE)
     else if ( len > strlen(str) )
-	warning( "QPainter::drawText: Length arg exceeds real string length ");
+	warning( "QPainter::drawText: Length arg exceeds real string length" );
 #endif
     if ( len == 0 )				// empty string
 	return;
@@ -2004,11 +2005,50 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     int fheight  = fm.height();
     QRegion save_rgn = crgn;			// save the current region
     int xp, yp, tw;
-    register char *p;
+    register char *p = (char *)str;
     int nlines = 1;				// number of lines
-    int k;
+    int ntabs = 0;				// number of tabs
+    int namps = 0;				// number of ampersands
+    int k = len;
 
-    if ( (tf & (SingleLine|ExpandTabs|ShowPrefix)) == SingleLine ) {
+    while ( k-- ) {
+	switch ( *p++ ) {
+	    case '\t':
+		ntabs++;			// count tabs
+		break;
+	    case '\n':
+		nlines++;			// count lines
+		break;
+	    case '&':
+		namps++;			// count ampersands
+		break;
+	}
+    }
+
+    if ( tf & SingleLine ) {
+	nlines = 1;
+	tf &= ~WordBreak;			// no wordbreak if single line
+    }
+    else {
+	if ( nlines == 1 )
+	    tf |= SingleLine;
+    }
+    if ( tf & ExpandTabs ) {
+	if ( ntabs == 0 )
+	    tf &= ~ExpandTabs;
+    }
+    else
+	ntabs = 0;
+    if ( tf & ShowPrefix ) {
+	if ( namps == 0 )
+	    tf &= ~ShowPrefix;
+    }
+    else
+	namps = 0;
+
+    // TEST!!! this code will never be executed!!!
+
+    if ( 0 && (tf & (SingleLine|ExpandTabs|ShowPrefix)) == SingleLine ) {
 	tw = fm.width( str );			// simple text line
 	if ( tw < w )
 	    tf |= DontClip;
@@ -2035,35 +2075,187 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	return;
     }
 
-#if 0
-    k = len;
-    while ( k-- ) {
-	switch ( *p++ ) {
-	    case '\t':
-		containsTab = TRUE;
-		break;
-	    case '\n':
-		containsNL = TRUE;
-		break;
-	    case '&':
-		containsAmpersand = TRUE;
-		break;
+    int codelen = len + nlines + 100;
+    ushort *codes = (ushort *)malloc( sizeof(ushort)*codelen );
+    ushort cc;					// character code
+
+    const ENDLINE  = 0x8000;			// encoding 0x8zzz, zzz=width
+    const TABSTOP  = 0x4000;			// encoding 0x4zzz, zzz=tab pos
+    const PREFIX   = 0x2000;			// encoding 0x20zz, zz=char
+
+    int index      = 0;				// index for codes
+    int breakindex = 0;				// index where to break
+    int breakwidth;;				// width of text at breakindex
+    int bcwidth;				// width of break char
+    int tabindex   = 0;				// tab array index
+    int cw = -1;				// character width
+    p = (char *)str;
+    k = 0;					// index for p
+    tw = 0;
+
+    while ( k < len ) {				// convert string to codes
+
+	if ( (tf & WordBreak) == WordBreak && isspace(*p) ) {
+	    breakindex = index;			// good position for word break
+	    breakwidth = tw;
+	    bcwidth = fm.width( *p );
 	}
+
+	if ( *p == '\n' ) {			// newline
+	    if ( (tf & SingleLine) == SingleLine ) {
+		cc = ' ';			// convert newline to space
+		cw = fm.width( ' ' );
+	    }
+	    else {
+		cc = ENDLINE;
+		cw = 0;
+	    }
+	}
+
+	else if ( *p == '\t' ) { 		// TAB character
+	    if ( (tf & ExpandTabs) == ExpandTabs ) {
+		int tstop = 0;
+		if ( tabarray ) {
+		    debug( "TAB ARRAY NOT IMPLEMENTED" );
+		    while ( tabindex < tabarraylen ) {
+			/* NOTE!!! Tab array not implemented */
+			tabindex++;
+		    }
+		}
+		else if ( tabstops )
+		    tstop = tabstops - tw%tabstops;
+		debug( "TSTOP: %d (at %d)", cw, tw+cw );
+		cw = tstop;
+		cc = TABSTOP | (tw + cw);
+	    }
+	    else {				// convert TAB to space
+		cc = ' ';
+		cw = fm.width( ' ' );
+	    }
+	}
+
+	else if ( *p == '&' && (tf & ShowPrefix) == ShowPrefix ) {
+	    cc = '&';				// assume ampersand
+	    if ( k < len-1 ) {
+		k++;
+		p++;
+		if ( *p != '&' && isprint(*p) )	// use prefix char
+		    cc = PREFIX | *p;
+	    }
+	    cw = fm.width( (char)(cc & 0xff) );
+	}
+
+	else {					// normal character
+	    cc = *p;
+	    cw = fm.width( *p );
+	}
+
+	if ( (tf & WordBreak) == WordBreak ) {	// break line
+	    if ( tw+cw > w && breakindex > 0 ) {
+		if ( index == breakindex ) {	// break at current index
+		    cc = ENDLINE;
+		    cw = 0;
+		}
+		else {
+		    codes[breakindex] = ENDLINE | breakwidth;
+		    tw -= breakwidth + bcwidth;
+		    breakindex = tabindex = 0;
+		}
+		nlines++;
+	    }
+	}
+
+	tw += cw;
+	if ( (cc & ENDLINE) == ENDLINE ) {
+	    cc |= tw;
+	    tw = 0;
+	    breakindex = tabindex = 0;
+	}
+	codes[index++] = cc;
+	k++;
+	p++;
     }
 
-#endif
+    if ( (cc & ENDLINE) != ENDLINE )
+	codes[index++] = ENDLINE | tw;
+
+    // TEST
+    if ( index > codelen )
+	debug( "index out of range" );
+
+    codelen = index;
+
+    QString s;
+    QString n;
+    for ( index=0; index<codelen; index++ ) {
+	cc = codes[index];
+	if ( (cc & ENDLINE) == ENDLINE ) {
+	    n.setNum( cc & 0x0fff );
+	    s += "<\\n:";
+	    s += n;
+	    s += ">\n";
+	}
+	else if ( (cc & TABSTOP) == TABSTOP ) {
+	    n.setNum( cc & 0x0fff );
+	    s += "<\\t:";
+	    s += n;
+	    s += ">";
+	}
+	else if ( (cc & PREFIX) == PREFIX ) {
+	    s += "<";
+	    s += (char)(cc & 0xff);
+	    s += ">";
+	}
+	else
+	    s += (char)(cc & 0xff);
+//	n.sprintf( "[%x]", cc );
+//	s += n;
+    }
+
+    debug( s );
+
+    free( (void *)codes );
+
+#if 0
+    short *linebreaks;				// contains line break indexes
+    short *linewidths;				// contains line widths
+    bool wordbreak  = (tf & WordBreak)  == WordBreak;
+    bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
+    bool showprefix = (tf & ShowPrefix) == ShowPrefix;
+
+    if ( (tf & SingleLine) == SingleLine ) {	// just a single line
+	linebreaks = new short;
+	*linebreaks = len;
+	linewidths = new short;
+	ASSERT( nlines == 1 );
+    }
+    else {					// more than one line
+	linebreaks = new short[len+1];
+	int i = 0;
+	p = (char *)str;
+	k = 0;
+	tw = 0;
+	while ( k < len ) {			// calculate linebreaks
+	    if ( *p == '\n' )
+		linebreaks[i++] = k;
+	    else if ( wordbreak ) {		// word break
+		int cw = fm.width( *p );
+		if ( *p == '\t' && expandtabs ) {
+		}
+		else if ( *p == '&' && showprefix ) {
+		    if ( k < len ) {
+			
+		}
+		else
+		    cw = fm.width( *p );
+	    }
+	    p++;
+	}
+    }
 
     if ( (tf & DontClip) == 0 )			// clip text
 	((QIntPainter*)this)->addClipRect( x, y, w, h );
 
-    if ( (tf & SingleLine) != SingleLine ) {
-	k = len;
-	p = (char *)str;
-	while ( k-- ) {				// string contains newline?
-	    if ( *p++ == '\n' )
-		nlines++;
-	}
-    }
     if ( tf & AlignVCenter )			// vertically centered text
 	yp = h/2 - nlines*fheight/2;
     else if ( tf & AlignBottom )		// bottom aligned
@@ -2072,6 +2264,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	yp = 0;
     yp += fascent;
     k = len;
+
     do {
 	p = (char *)str;
 	while ( k-- && *p && *p != '\n' )
@@ -2096,6 +2289,9 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	if ( save_rgn.handle() != crgn.handle() )
 	    setClipRegion( save_rgn );
     }
+    delete linebreaks;
+#endif
+
 }
 
 
