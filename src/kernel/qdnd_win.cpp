@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#29 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -166,227 +166,261 @@ CLIPFORMAT registerMimeType(const char *mime)
     }
     return f;
 }
-   
+
+
 
 class QWindowsMimeAnyMime : public QWindowsMime {
 public:
-    int countCf()
-    {
-	return mimetypes.count();
-    }
-
-    const char* convertorName()
-    {
-	return "Any-Mime";
-    }
-
-    int cf(int index)
-    {
-	return mimetypes.at(index)->cf;
-    }
-
-    int cfFor(const char* mime)
-    {
-	QWindowsRegisteredMimeType *mt = mimetypes.current();
-	if ( mt ) // quick check with most-recent
-	    if ( 0==qstricmp(mt->mime, mime) )
-		return mt->cf;
-	for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
-	    if ( 0==qstricmp(mt->mime, mime) )
-		return mt->cf;
-	return 0;
-    }
-
-    const char* mimeFor(int cf)
-    {
-	QWindowsRegisteredMimeType *mt = mimetypes.current();
-	if ( mt ) // quick check with most-recent
-	    if ( mt->cf == cf )
-		return mt->mime;
-	for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
-	    if ( mt->cf == cf )
-		return mt->mime;
-	return 0;
-    }
-
-    bool canConvert( const char* mime, int cf )
-    {
-	QWindowsRegisteredMimeType *mt = mimetypes.current();
-	if ( mt ) // quick check with most-recent
-	    if ( mt->cf == cf && 0==stricmp(mt->mime,mime) ) {
-		return TRUE;
-	    }
-	for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
-	    if ( mt->cf == cf )
-		break;
-	if ( !mt ) {
-	    registerMimeType(mime);
-	    mt = mimetypes.current();
-	    if ( !mt || mt->cf != cf ) {
-		return FALSE;
-	    }
-	}
-
-	return 0==stricmp(mt->mime,mime);
-    }
-
-    QByteArray convertToMime( QByteArray data, const char* , int )
-    {
-	return data;
-    }
-
-    QByteArray convertFromMime( QByteArray data, const char* , int )
-    {
-	return data;
-    }
+    int		countCf();
+    const char* convertorName();
+    int		cf(int index);
+    int		cfFor(const char* mime);
+    const char* mimeFor(int cf);
+    bool	canConvert( const char* mime, int cf );
+    QByteArray	convertToMime( QByteArray data, const char* , int );
+    QByteArray	convertFromMime( QByteArray data, const char* , int );
 };
+
+inline int QWindowsMimeAnyMime::countCf()
+{
+    return mimetypes.count();
+}
+
+inline const char* QWindowsMimeAnyMime::convertorName()
+{
+    return "Any-Mime";
+}
+
+inline int QWindowsMimeAnyMime::cf(int index)
+{
+    return mimetypes.at(index)->cf;
+}
+
+int QWindowsMimeAnyMime::cfFor(const char* mime)
+{
+    QWindowsRegisteredMimeType *mt = mimetypes.current();
+    if ( mt ) // quick check with most-recent
+	if ( 0==qstricmp(mt->mime, mime) )
+	    return mt->cf;
+    for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
+	if ( 0==qstricmp(mt->mime, mime) )
+	    return mt->cf;
+    return 0;
+}
+
+const char* QWindowsMimeAnyMime::mimeFor(int cf)
+{
+    QWindowsRegisteredMimeType *mt = mimetypes.current();
+    if ( mt ) // quick check with most-recent
+	if ( mt->cf == cf )
+	    return mt->mime;
+    for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
+	if ( mt->cf == cf )
+	    return mt->mime;
+    return 0;
+}
+
+bool QWindowsMimeAnyMime::canConvert( const char* mime, int cf )
+{
+    QWindowsRegisteredMimeType *mt = mimetypes.current();
+    if ( mt ) // quick check with most-recent
+	if ( mt->cf == cf && 0==stricmp(mt->mime,mime) ) {
+	    return TRUE;
+	}
+    for ( mt = mimetypes.first(); mt; mt = mimetypes.next() )
+	if ( mt->cf == cf )
+	    break;
+    if ( !mt ) {
+	registerMimeType(mime);
+	mt = mimetypes.current();
+	if ( !mt || mt->cf != cf ) {
+	    return FALSE;
+	}
+    }
+
+    return 0==stricmp(mt->mime,mime);
+}
+
+inline QByteArray QWindowsMimeAnyMime::convertToMime( QByteArray data, const char* , int )
+{
+    return data;
+}
+
+inline QByteArray QWindowsMimeAnyMime::convertFromMime( QByteArray data, const char* , int )
+{
+    return data;
+}
+
+
 
 class QWindowsMimeText : public QWindowsMime {
 public:
-    int countCf()
-    {
-	return 1 /* 2 with unicode */;
-    }
-
-    const char* convertorName()
-    {
-	return "Text";
-    }
-
-    int cf(int index)
-    {
-	return CF_TEXT;
-	// return index ? CF_TEXT : CF_UNICODETEXT;  // Note UNICODE first.
-    }
-
-    int cfFor(const char* mime)
-    {
-	if ( 0==qstricmp( mime, "text/plain" ) )
-	    return CF_TEXT;
-	else
-	    return 0;
-    }
-
-    const char* mimeFor(int cf)
-    {
-	if ( cf == CF_TEXT )
-	    return "text/plain";
-	else
-	    return 0;
-    }
-
-    bool canConvert( const char* mime, int cf )
-    {
-	return cf == CF_TEXT && qstrnicmp(mime,"text/",5)==0;
-    }
-
-    QByteArray convertToMime( QByteArray data, const char* , int )
-    {
-	return data;
-    }
-
-    QByteArray convertFromMime( QByteArray data, const char* , int )
-    {
-	return data;
-    }
+    int		countCf();
+    const char* convertorName();
+    int		cf(int index);
+    int		cfFor(const char* mime);
+    const char* mimeFor(int cf);
+    bool	canConvert( const char* mime, int cf );
+    QByteArray	convertToMime( QByteArray data, const char* , int );
+    QByteArray	convertFromMime( QByteArray data, const char* , int );
 };
+
+inline int QWindowsMimeText::countCf()
+{
+    return 1 /* 2 with unicode */;
+}
+
+inline const char* QWindowsMimeText::convertorName()
+{
+    return "Text";
+}
+
+inline int QWindowsMimeText::cf(int index)
+{
+    return CF_TEXT;
+    // return index ? CF_TEXT : CF_UNICODETEXT;  // Note UNICODE first.
+}
+
+int QWindowsMimeText::cfFor(const char* mime)
+{
+    if ( 0==qstricmp( mime, "text/plain" ) )
+	return CF_TEXT;
+    else
+	return 0;
+}
+
+const char* QWindowsMimeText::mimeFor(int cf)
+{
+    if ( cf == CF_TEXT )
+	return "text/plain";
+    else
+	return 0;
+}
+
+bool QWindowsMimeText::canConvert( const char* mime, int cf )
+{
+    return cf == CF_TEXT && qstrnicmp(mime,"text/",5)==0;
+}
+
+inline QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* , int )
+{
+    return data;
+}
+
+inline QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* , int )
+{
+    return data;
+}
+
+
 
 class QWindowsMimeImage : public QWindowsMime {
 public:
-    int countCf()
-    {
-	return 1;
-    }
+    int		countCf();
+    const char* convertorName();
+    int		cf(int index);
+    int		cfFor(const char* mime);
+    const char* mimeFor(int cf);
+    bool	canConvert( const char* mime, int cf );
+    QByteArray	convertToMime( QByteArray data, const char* mime, int cf );
+    QByteArray	convertFromMime( QByteArray data, const char* mime, int cf );
+};
 
-    const char* convertorName()
-    {
-	return "Image";
-    }
+inline int QWindowsMimeImage::countCf()
+{
+    return 1;
+}
 
-    int cf(int index)
-    {
-	return CF_DIB;
-    }
+inline const char* QWindowsMimeImage::convertorName()
+{
+    return "Image";
+}
 
-    int cfFor(const char* mime)
-    {
-	if ( qstrnicmp(mime,"image/",5)==0 ) {
-	    QStrList ofmts = QImage::outputFormats();
-	    for (const char* fmt=ofmts.first(); fmt; fmt=ofmts.next())
-		if ( qstricmp(fmt,mime+6)==0 )
-		    return CF_DIB;
-	}
+inline int QWindowsMimeImage::cf(int index)
+{
+    return CF_DIB;
+}
+
+int QWindowsMimeImage::cfFor(const char* mime)
+{
+    if ( qstrnicmp(mime,"image/",5)==0 ) {
+	QStrList ofmts = QImage::outputFormats();
+	for (const char* fmt=ofmts.first(); fmt; fmt=ofmts.next())
+	    if ( qstricmp(fmt,mime+6)==0 )
+		return CF_DIB;
+    }
+    return 0;
+}
+
+const char* QWindowsMimeImage::mimeFor(int cf)
+{
+    if ( cf == CF_DIB )
+	return "image/bmp";
+    else
 	return 0;
+}
+
+bool QWindowsMimeImage::canConvert( const char* mime, int cf )
+{
+    if ( cf == CF_DIB && qstrnicmp(mime,"image/",5)==0 ) {
+	QStrList ofmts = QImage::outputFormats();
+	for (const char* fmt=ofmts.first(); fmt; fmt=ofmts.next())
+	    if ( qstricmp(fmt,mime+6)==0 )
+		return TRUE;
     }
+    return FALSE;
+}
 
-    const char* mimeFor(int cf)
-    {
-	if ( cf == CF_DIB )
-	    return "image/bmp";
-	else
-	    return 0;
-    }
-
-    bool canConvert( const char* mime, int cf )
-    {
-	if ( cf == CF_DIB && qstrnicmp(mime,"image/",5)==0 ) {
-	    QStrList ofmts = QImage::outputFormats();
-	    for (const char* fmt=ofmts.first(); fmt; fmt=ofmts.next())
-		if ( qstricmp(fmt,mime+6)==0 )
-		    return TRUE;
-	}
-	return FALSE;
-    }
-
-    QByteArray convertToMime( QByteArray data, const char* mime, int cf )
-    {
-	if ( qstrnicmp(mime,"image/",6)!=0 || cf != CF_DIB )  // Sanity
-	    return QByteArray();
-
-	QImage img;  // Convert from DIB to chosen image format
-	QBuffer iod(data);
-	iod.open(IO_ReadOnly);
-	QDataStream s(&iod);
-	s.setByteOrder( QDataStream::LittleEndian );// Intel byte order ####
-	if (qt_read_dib( s, img )) { // ##### encaps "-14"
-	    Q1String ofmt = mime+6;
-	    QByteArray ba;
-	    QBuffer iod(ba);
-	    iod.open(IO_WriteOnly);
-	    QImageIO iio(&iod, ofmt.upper());
-	    iio.setImage(img);
-	    if (iio.write()) {
-		iod.close();
-		return ba;
-	    }
-	}
-
-	// Failed
+QByteArray QWindowsMimeImage::convertToMime( QByteArray data, const char* mime, int cf )
+{
+    if ( qstrnicmp(mime,"image/",6)!=0 || cf != CF_DIB )  // Sanity
 	return QByteArray();
-    }
 
-    QByteArray convertFromMime( QByteArray data, const char* mime, int cf )
-    {
-	if ( qstrnicmp(mime,"image/",6)!=0 || cf != CF_DIB ) // Sanity
-	    return QByteArray();
-
-	QImage img;
-	img.loadFromData((unsigned char*)data.data(),data.size());
-	if (img.isNull())
-	    return QByteArray();
-
+    QImage img;  // Convert from DIB to chosen image format
+    QBuffer iod(data);
+    iod.open(IO_ReadOnly);
+    QDataStream s(&iod);
+    s.setByteOrder( QDataStream::LittleEndian );// Intel byte order ####
+    if (qt_read_dib( s, img )) { // ##### encaps "-14"
+	Q1String ofmt = mime+6;
 	QByteArray ba;
 	QBuffer iod(ba);
 	iod.open(IO_WriteOnly);
-	QDataStream s(&iod);
-	s.setByteOrder( QDataStream::LittleEndian );// Intel byte order ####
-	if (qt_write_dib(s, img)) {
+	QImageIO iio(&iod, ofmt.upper());
+	iio.setImage(img);
+	if (iio.write()) {
+	    iod.close();
 	    return ba;
-	} else {
-	    return QByteArray();
 	}
     }
-};
+
+    // Failed
+    return QByteArray();
+}
+
+QByteArray QWindowsMimeImage::convertFromMime( QByteArray data, const char* mime, int cf )
+{
+    if ( qstrnicmp(mime,"image/",6)!=0 || cf != CF_DIB ) // Sanity
+	return QByteArray();
+
+    QImage img;
+    img.loadFromData((unsigned char*)data.data(),data.size());
+    if (img.isNull())
+	return QByteArray();
+
+    QByteArray ba;
+    QBuffer iod(ba);
+    iod.open(IO_WriteOnly);
+    QDataStream s(&iod);
+    s.setByteOrder( QDataStream::LittleEndian );// Intel byte order ####
+    if (qt_write_dib(s, img)) {
+	return ba;
+    } else {
+	return QByteArray();
+    }
+}
+
+
 
 static const char* protocol = "file:/";
 static int protocol_len = 6;
@@ -404,201 +438,213 @@ int htod(int h)
     return tolower(h)-'a';
 }
 
+
 class QWindowsMimeUrl : public QWindowsMime {
 public:
-    int countCf()
-    {
-	return 1;
-    }
+    int		countCf();
+    const char* convertorName();
+    int		cf(int index);
+    int		cfFor(const char* mime);
+    const char* mimeFor(int cf);
+    bool	canConvert( const char* mime, int cf );
+    QByteArray	convertToMime( QByteArray data, const char* mime, int cf );
+    QByteArray	convertFromMime( QByteArray data, const char* mime, int cf );
+};
 
-    const char* convertorName()
-    {
-	return "Urls";
-    }
+inline int QWindowsMimeUrl::countCf()
+{
+    return 1;
+}
 
-    int cf(int index)
-    {
-	return CF_HDROP;
-    }
+inline const char* QWindowsMimeUrl::convertorName()
+{
+    return "Urls";
+}
 
-    int cfFor(const char* mime)
-    {
-	return qstricmp(mime,"url/url")==0;
-    }
+inline int QWindowsMimeUrl::cf(int index)
+{
+    return CF_HDROP;
+}
 
-    const char* mimeFor(int cf)
-    {
-	if ( cf == CF_HDROP )
-	    return "url/url";
+inline int QWindowsMimeUrl::cfFor(const char* mime)
+{
+    return qstricmp(mime,"url/url")==0;
+}
+
+const char* QWindowsMimeUrl::mimeFor(int cf)
+{
+    if ( cf == CF_HDROP )
+	return "url/url";
+    else
+	return 0;
+}
+
+bool QWindowsMimeUrl::canConvert( const char* mime, int cf )
+{
+    return cf == CF_HDROP && 0==qstricmp(mime,"url/url");
+}
+
+QByteArray QWindowsMimeUrl::convertToMime( QByteArray data, const char* mime, int cf )
+{
+    if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
+	return QByteArray();
+
+    LPDROPFILES hdrop = (LPDROPFILES)data.data();
+    const char* files = (const char* )data.data() + hdrop->pFiles;
+    const char* end = (const char* )data.data() + data.size();
+    const ushort* filesw = (const ushort*)(data.data() + hdrop->pFiles);
+    int i=0;
+    int size=0;
+    bool wide = hdrop->fWide;
+    while (
+	// until double-NUL
+	wide ? filesw[i] || filesw[i+1]
+	     : files[i] || files[i+1]
+    ) {
+	char ch = wide ? filesw[i] : files[i];
+	if ( !ch )
+	    size+=protocol_len+1;
+	else if ( ch == '+' || ch == '%' ) // ### more
+	    size+=3;
 	else
-	    return 0;
+	    size++;
+	i++;
+	if ( (wide ? (const char* )(filesw+i) : files+i) >= end )
+	    return QByteArray(); // Bad Data
+    }
+    if (i)
+	size += protocol_len;
+
+    QByteArray result(size);
+
+    char* out = result.data();
+
+    if ( size ) {
+	memcpy(out, protocol, protocol_len);
+	out += protocol_len;
     }
 
-    bool canConvert( const char* mime, int cf )
-    {
-	return cf == CF_HDROP && 0==qstricmp(mime,"url/url");
-    }
-
-    QByteArray convertToMime( QByteArray data, const char* mime, int cf )
-    {
-	if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
-	    return QByteArray();
-
-	LPDROPFILES hdrop = (LPDROPFILES)data.data();
-	const char* files = (const char* )data.data() + hdrop->pFiles;
-	const char* end = (const char* )data.data() + data.size();
-	const ushort* filesw = (const ushort*)(data.data() + hdrop->pFiles);
-	int i=0;
-	int size=0;
-	bool wide = hdrop->fWide;
-	while (
-	    // until double-NUL
-	    wide ? filesw[i] || filesw[i+1]
-	         : files[i] || files[i+1]
-	) {
-	    char ch = wide ? filesw[i] : files[i];
-	    if ( !ch )
-		size+=protocol_len+1;
-	    else if ( ch == '+' || ch == '%' ) // ### more
-		size+=3;
-	    else
-		size++;
-	    i++;
-	    if ( (wide ? (const char* )(filesw+i) : files+i) >= end )
-		return QByteArray(); // Bad Data
-	}
-	if (i)
-	    size += protocol_len;
-
-	QByteArray result(size);
-
-	char* out = result.data();
-
-	if ( size ) {
+    i = 0;
+    while (
+	// until double-NUL
+	wide ? filesw[i] || filesw[i+1]
+	     : files[i] || files[i+1]
+    ) {
+	char ch = wide ? filesw[i] : files[i];
+	if ( !ch ) {
+	    *out++ = ch;
 	    memcpy(out, protocol, protocol_len);
 	    out += protocol_len;
+	} else if ( ch == '+' || ch == '%' ) {
+	    // special. ### more
+	    *out++ = '%';
+	    *out++ = dtoh(ch/16);
+	    *out++ = dtoh(ch%16);
+	} else if ( ch == ' ' ) {
+	    *out++ = '+';
+	} else if ( ch == ':' ) {
+	    *out++ = '|';
+	} else {
+	    *out++ = ch;
 	}
-
-	i = 0;
-	while (
-	    // until double-NUL
-	    wide ? filesw[i] || filesw[i+1]
-	         : files[i] || files[i+1]
-	) {
-	    char ch = wide ? filesw[i] : files[i];
-	    if ( !ch ) {
-		*out++ = ch;
-		memcpy(out, protocol, protocol_len);
-		out += protocol_len;
-	    } else if ( ch == '+' || ch == '%' ) {
-		// special. ### more
-		*out++ = '%';
-		*out++ = dtoh(ch/16);
-		*out++ = dtoh(ch%16);
-	    } else if ( ch == ' ' ) {
-		*out++ = '+';
-	    } else if ( ch == ':' ) {
-		*out++ = '|';
-	    } else {
-		*out++ = ch;
-	    }
-	    i++;
-	    ASSERT( result.data()+size >= out );
-	}
-
-	return result;
+	i++;
+	ASSERT( result.data()+size >= out );
     }
 
-    QByteArray convertFromMime( QByteArray data, const char* mime, int cf )
-    {
-	if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
-	    return QByteArray();
+    return result;
+}
 
-	DROPFILES hdrop;
-	hdrop.pFiles = sizeof(hdrop);
-	GetCursorPos(&hdrop.pt); // try
-	hdrop.fNC = TRUE;
-	hdrop.fWide = FALSE;
+QByteArray QWindowsMimeUrl::convertFromMime( QByteArray data, const char* mime, int cf )
+{
+    if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
+	return QByteArray();
 
-	const char* urls = (const char* )data.data();
-	int size=0;
-	bool expectprotocol=TRUE;
-	bool ignore=FALSE;
-	uint i=0;
+    DROPFILES hdrop;
+    hdrop.pFiles = sizeof(hdrop);
+    GetCursorPos(&hdrop.pt); // try
+    hdrop.fNC = TRUE;
+    hdrop.fWide = FALSE;
 
-	while (i < data.size()) {
-	    if ( expectprotocol ) {
-		if ( 0!=qstrncmp( protocol, urls+i, protocol_len ) ) {
+    const char* urls = (const char* )data.data();
+    int size=0;
+    bool expectprotocol=TRUE;
+    bool ignore=FALSE;
+    uint i=0;
+
+    while (i < data.size()) {
+	if ( expectprotocol ) {
+	    if ( 0!=qstrncmp( protocol, urls+i, protocol_len ) ) {
+		ignore = TRUE;
+	    } else {
+		i += protocol_len;
+		if ( urls[i] == '/' && urls[i+1] != '/' ) {
+		    // Host specified!
 		    ignore = TRUE;
-		} else {
-		    i += protocol_len;
-		    if ( urls[i] == '/' && urls[i+1] != '/' ) {
-			// Host specified!
-			ignore = TRUE;
-		    }
 		}
-		expectprotocol = FALSE;
 	    }
-	    if ( !urls[i] ) {
+	    expectprotocol = FALSE;
+	}
+	if ( !urls[i] ) {
+	    expectprotocol = TRUE;
+	} else if ( urls[i] == '%' && urls[i+1] && urls[i+2] ) {
+	    i+=2;
+	}
+	if ( !ignore )
+	    size++;
+	i++;
+    }
+
+    size += sizeof(hdrop);
+    size += 2; // double-NUL
+    QByteArray result(size);
+
+    char* out = result.data();
+
+    memcpy(out, &hdrop, sizeof(hdrop));
+    out += sizeof(hdrop);
+
+    expectprotocol=TRUE;
+    ignore=FALSE;
+    i=0;
+    while (i < data.size()) {
+	if ( expectprotocol ) {
+	    if ( 0!=qstrncmp( protocol, urls+i, protocol_len ) ) {
+		ignore = TRUE;
+	    } else {
+		i += protocol_len;
+		if ( urls[i] == '/' && urls[i+1] != '/' ) {
+		    // Host specified!
+		    ignore = TRUE;
+		}
+	    }
+	    expectprotocol = FALSE;
+	}
+	if ( urls[i] == '%' && urls[i+1] && urls[i+2] ) {
+	    *out++ = htod(urls[i+1])*16 + htod(urls[i+2]);
+	} else {
+	    if ( !urls[i] )
 		expectprotocol = TRUE;
-	    } else if ( urls[i] == '%' && urls[i+1] && urls[i+2] ) {
-		i+=2;
+	    if (!ignore) {
+		if ( urls[i] == '+' )
+		    *out++ = ' ';
+		else if ( urls[i] == '|' )
+		    *out++ = ':';
+		else
+		    *out++ = urls[i];
 	    }
-	    if ( !ignore )
-		size++;
-	    i++;
 	}
-
-	size += sizeof(hdrop);
-	size += 2; // double-NUL
-	QByteArray result(size);
-
-	char* out = result.data();
-
-	memcpy(out, &hdrop, sizeof(hdrop));
-	out += sizeof(hdrop);
-
-	expectprotocol=TRUE;
-	ignore=FALSE;
-	i=0;
-	while (i < data.size()) {
-	    if ( expectprotocol ) {
-		if ( 0!=qstrncmp( protocol, urls+i, protocol_len ) ) {
-		    ignore = TRUE;
-		} else {
-		    i += protocol_len;
-		    if ( urls[i] == '/' && urls[i+1] != '/' ) {
-			// Host specified!
-			ignore = TRUE;
-		    }
-		}
-		expectprotocol = FALSE;
-	    }
-	    if ( urls[i] == '%' && urls[i+1] && urls[i+2] ) {
-		*out++ = htod(urls[i+1])*16 + htod(urls[i+2]);
-	    } else {
-		if ( !urls[i] )
-		    expectprotocol = TRUE;
-		if (!ignore) {
-		    if ( urls[i] == '+' )
-			*out++ = ' ';
-		    else if ( urls[i] == '|' )
-			*out++ = ':';
-		    else
-			*out++ = urls[i];
-		}
-	    }
-	    i++;
-	}
-	// double-NUL
-	*out++ = 0;
-	*out++ = 0;
-
-	ASSERT( result.data()+size == out );
-
-	return result;
+	i++;
     }
-};
+    // double-NUL
+    *out++ = 0;
+    *out++ = 0;
+
+    ASSERT( result.data()+size == out );
+
+    return result;
+}
+
+
 
 static
 void cleanup_mimes()
