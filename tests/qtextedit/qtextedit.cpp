@@ -20,7 +20,7 @@
 
 static QPixmap *buf_pixmap = 0;
 
-static QPixmap *bufferPixmap( const QSize &s, const QColor &fill )
+static QPixmap *bufferPixmap( const QSize &s )
 {
     if ( !buf_pixmap ) {
 	buf_pixmap = new QPixmap( s );
@@ -31,7 +31,6 @@ static QPixmap *bufferPixmap( const QSize &s, const QColor &fill )
 				QMAX( s.height(), buf_pixmap->height() ) );
 	}
     }
-    buf_pixmap->fill( fill );
     return buf_pixmap;
 }
 
@@ -88,7 +87,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     QTextEditString::Char *chr = 0;
     QPainter painter;
     QSize s( doc->firstParag()->rect().size() );
-    db = bufferPixmap( s, colorGroup().color( QColorGroup::Base ) );
+    db = bufferPixmap( s );
     painter.begin( db );
     while ( parag ) {
 	if ( !parag->isValid() )
@@ -112,12 +111,11 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	     s.height() > db->height() ) {
 	    if ( painter.isActive() )
 		painter.end();
-	    db = bufferPixmap( s, colorGroup().color( QColorGroup::Base ) );
+	    db = bufferPixmap( s );
 	    painter.begin( db );
-	} else {
-	    painter.fillRect( QRect( 0, 0, s.width(), s.height() ),
-			      colorGroup().color( QColorGroup::Base ) );
 	}
+	painter.fillRect( QRect( 0, 0, s.width(), s.height() ),
+			  colorGroup().color( QColorGroup::Base ) );
 	chr = parag->at( 0 );
 	int i = 0;
 	int h = 0;
@@ -570,9 +568,11 @@ void QTextEdit::drawCursor( bool visible )
     p.translate( -contentsX(), -contentsY() );
 
     cursor->parag()->format();
-    QPixmap *db = bufferPixmap( cursor->parag()->rect().size(),
-				colorGroup().color( QColorGroup::Base ) );
+    QSize s( cursor->parag()->rect().size() );
+    QPixmap *db = bufferPixmap( s );
     painter.begin( db );
+    painter.fillRect( QRect( 0, 0, s.width(), s.height() ),
+		      colorGroup().color( QColorGroup::Base ) );
     QTextEditString::Char *chr = cursor->parag()->at( cursor->index() );
 
     painter.setPen( QPen( chr->format->color() ) );
