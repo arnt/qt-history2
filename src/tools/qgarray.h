@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#7 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#8 $
 **
 ** Definition of QGArray class
 **
@@ -34,7 +34,7 @@ protected:
 
     QGArray    &operator=( const QGArray &a ) { return assign( a ); }
 
-    virtual void detach() { duplicate(*this); }	// detach array
+    virtual void detach() { duplicate(*this); } // detach array
 
     char       *data()	 const { return p->data; }
     uint	size()	 const { return p->len; }
@@ -65,7 +65,7 @@ protected:
     array_data *p;
 
     virtual array_data *newData()		    { return new array_data; }
-    virtual void        deleteData( array_data *p ) { delete p; }
+    virtual void	deleteData( array_data *p ) { delete p; }
 };
 
 

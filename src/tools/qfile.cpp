@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#13 $
 **
 ** Implementation of QFile class
 **
@@ -21,13 +21,13 @@
 #if defined(UNIX)
 #include <unistd.h>
 #endif
-#if defined(_OS_MSDOS_) || defined(_OS_OS2_) || defined(_OS_WINNT_)
+#if defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
 #include <io.h>
 #endif
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#13 $";
 #endif
 
 /*! \class QFile qfile.h
@@ -70,7 +70,7 @@ void QFile::init()				// initialize internal data
 }
 
 
-bool QFile::setFileName( const char *fileName )	// set file name
+bool QFile::setFileName( const char *fileName ) // set file name
 {
     if ( isOpen() ) {
 #if defined(CHECK_STATE)
@@ -131,7 +131,7 @@ bool QFile::exists( const char *fileName )	// test if file exists
 
 #else						// all other systems
 
-#define STATBUF  stat
+#define STATBUF	 stat
 #define STAT	 ::stat
 #define STAT_REG S_IFREG
 #define STAT_DIR S_IFDIR
@@ -236,7 +236,7 @@ bool QFile::remove( const char *fileName )	// remove file
 }
 
 
-#if defined(_OS_MAC_) || defined(_OS_MSDOS_) || defined(_OS_OS2_) || defined(_OS_WINNT_)
+#if defined(_OS_MAC_) || defined(_OS_MSDOS_) || defined(_OS_WIN32_) || defined(_OS_OS2_)
 #define HAS_TEXT_FILEMODE			// has translate/text filemode
 #endif
 #if defined(O_NONBLOCK)
@@ -279,8 +279,8 @@ bool QFile::open( int m )			// open file
 	    if ( flags() & IO_Truncate )
 		oflags |= (OPEN_CREAT | OPEN_TRUNC);
 	    else
-		oflags |= (OPEN_APPEND | OPEN_CREAT);		
-	    setFlags( flags() | IO_WriteOnly );	// append implies write
+		oflags |= (OPEN_APPEND | OPEN_CREAT);
+	    setFlags( flags() | IO_WriteOnly ); // append implies write
 	}
 	else if ( isWritable() )		// create/trunc if writable
 	    oflags |= (OPEN_CREAT | OPEN_TRUNC);//   but not append
@@ -308,7 +308,7 @@ bool QFile::open( int m )			// open file
 	char perm2[4];
 	bool try_create = FALSE;
 	if ( flags() & IO_Append ) {		// append to end of file?
-	    setFlags( flags() | IO_WriteOnly );	// append implies write
+	    setFlags( flags() | IO_WriteOnly ); // append implies write
 	    perm = isReadable() ? "a+" : "a";
 	}
 	else {

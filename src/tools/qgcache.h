@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#5 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#6 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -51,7 +51,7 @@ protected:
     void     statistics() const;		// output statistics
 
 private:
-    bool     makeRoomFor( long cost, short priority = -1 );
+    bool     makeRoomFor( long cost, int priority = -1 );
     QCList  *lruList;
     QCDict  *dict;
     long     mCost;

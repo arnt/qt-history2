@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#9 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#10 $
 **
 ** Definition of date and time classes
 **
@@ -31,13 +31,13 @@ public:
     bool   isNull()	 const { return jd == 0; }
     bool   isValid()	 const;			// valid date
 
-    int    year()	 const;			// 1752..
-    int    month()	 const;			// 1..12
-    int    day()	 const;			// 1..31
-    int    dayOfWeek()	 const;			// 1..7 (monday==1)
-    int    dayOfYear()	 const;			// 1..365
-    int    daysInMonth() const;			// 1..31
-    int    daysInYear()	 const;			// 365 or 366
+    int	   year()	 const;			// 1752..
+    int	   month()	 const;			// 1..12
+    int	   day()	 const;			// 1..31
+    int	   dayOfWeek()	 const;			// 1..7 (monday==1)
+    int	   dayOfYear()	 const;			// 1..365
+    int	   daysInMonth() const;			// 1..31
+    int	   daysInYear()	 const;			// 365 or 366
 
     virtual const char *monthName( int month ) const;
     virtual const char *dayName( int weekday ) const;
@@ -85,10 +85,10 @@ public:
     bool   isNull()	 const { return ds == 0; }
     bool   isValid()	 const;			// valid time
 
-    int    hour()	 const;			// 0..23
-    int    minute()	 const;			// 0..59
-    int    second()	 const;			// 0..59
-    int    msec()	 const;			// 0..999
+    int	   hour()	 const;			// 0..23
+    int	   minute()	 const;			// 0..59
+    int	   second()	 const;			// 0..59
+    int	   msec()	 const;			// 0..999
 
     QString toString()	 const;			// time to string
 
@@ -139,7 +139,7 @@ public:
     void   setDate( QDate date ) { d=date; }	// set date
     void   setTime( QTime time ) { t=time; }	// set time
 
-    QString toString()  const;			// datetime to string
+    QString toString()	const;			// datetime to string
 
     QDateTime addDays( long days )	const;	// add days
     QDateTime addSecs( long secs )	const;	// add seconds (wrap date)

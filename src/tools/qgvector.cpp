@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#9 $
 **
 ** Implementation of QGVector class
 **
@@ -18,12 +18,12 @@
 ** be used insted of malloc() and free(). The advantage of using malloc() and
 ** free() is that realloc() will be used to resize arrays.
 **
-** DONT_USE_REALLOC can be defined to make manual array reallocations.  This
+** DONT_USE_REALLOC can be defined to make manual array reallocations.	This
 ** flag is defined when using new and delete (i.e. not USE_MALLOC).
 *****************************************************************************/
 
-#define QGVECTOR_CPP
-#define NO_WARNINGS
+#define	 QGVECTOR_CPP
+#define	 NO_WARNINGS
 #include "qgvector.h"
 #include "qglist.h"
 #include "qstring.h"
@@ -31,7 +31,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#9 $";
 #endif
 
 
@@ -414,7 +414,7 @@ int QGVector::apply( GCF f, void *x ) const	// apply function to all items
 {
     int res;
     for ( uint i=0; i<len; i++ ) {
-	if ( res = (f)( vec[i], x ) )
+	if ( (res = (f)(vec[i],x)) )
 	    return res;				// exit if f returns FALSE
     }
     return 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#4 $
+** $Id: //depot/qt/main/src/tools/qfile.h#5 $
 **
 ** Definition of QFile class
 **
@@ -25,47 +25,51 @@ public:
     QFile( const char *fileName );
    ~QFile();
 
-    const char *fileName() const;		// get file name
-    bool  setFileName( const char *fileName );	// set file name
+    const char *fileName() const;		// get/set file name
+    bool	setFileName( const char *fileName );
 
     static bool exists( const char *fileName ); // test if file exists
+    bool	exists()	const;
+    bool	isRegular()	const;		// is it a regular file?
+    bool	isDirectory()	const;		// is it a directory?
+    bool	isSymLink()	const;		// is it a symlink?
 
-/* hanord@@@ These functions should not be removed from QFile */
-    bool  exists()	  const;
-    bool  isRegular()     const;
-    bool  isDirectory()	  const;
-    bool  isSymLink()	  const;
+    bool	remove( const char *fileName=0);// remove file
 
-    bool  remove( const char *fileName=0 );	// remove file
+    bool	open( int );			// open file
+    bool	open( int, FILE * );		// open file, using file handle
+    bool	open( int, int );		// open file, using file descr
+    void	close();			// close file
+    void	flush();			// flush file
 
-    bool  open( int );				// open file
-    bool  open( int, FILE * );			// open file, using file handle
-    bool  open( int, int );			// open file, using file descr
-    void  close();				// close file
-    void  flush();				// flush file
+    long	size()	const;			// get file size
+    long	at()	const;			// get file pointer
+    bool	at( long );			// set file pointer
 
-    long  size() const;				// get file size
-    long  at()   const;				// get file pointer
-    bool  at( long );				// set file pointer
+    int		readBlock( char *data, uint len );
+    int		writeBlock( const char *data, uint len );
+    int		readLine( char *data, uint maxlen );
 
-    int   readBlock( char *data, uint len );
-    int   writeBlock( const char *data, uint len );
-    int	  readLine( char *data, uint maxlen );
-
-    int	  getch();				// get next char
-    int	  putch( int );				// put char
-    int	  ungetch( int ) ;			// put back char
+    int		getch();			// get next char
+    int		putch( int );			// put char
+    int		ungetch( int ) ;		// put back char
 
 protected:
-    QString  fn;				// file name
-    FILE    *fh;				// file handle
-    int	     fd;				// file descriptor (raw)
-    long     length;				// file length
+    QString	fn;				// file name
+    FILE       *fh;				// file handle (buffered)
+    int		fd;				// file descriptor (raw)
+    long	length;				// file length
 
 private:
-    void  init();   
-    long  get_stat( bool=FALSE ) const;
+    void	init();
+    long	get_stat( bool=FALSE ) const;
 };
+
+
+inline const char *QFile::fileName() const
+{
+    return fn;
+}
 
 
 #endif // QFILE_H

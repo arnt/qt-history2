@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgeneric.h#3 $
+** $Id: //depot/qt/main/src/tools/qgeneric.h#4 $
 **
 ** Macros for pasting tokens; utilized by our generic classes
 **
@@ -33,7 +33,7 @@
 #define name4(a,b,c,d)		_name4_aux(a,b,c,d)
 #define _name4_aux(a,b,c,d)	a##b##c##d
 
-#else 
+#else
 
 // Token-pasting macros for outdated K&R C preprocessors
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#9 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#10 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -61,7 +61,7 @@ private:
     uint    trivial	: 1;			// trivial hashing
     Qditlst *iterators;				// list of iterators
     Qbucket *unlink( const char * );		// unlink bucket
-    virtual int	hashKey( const char * );	// hash function
+    virtual int hashKey( const char * );	// hash function
 };
 
 

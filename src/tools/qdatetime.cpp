@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#23 $
 **
 ** Implementation of date and time classes
 **
@@ -24,7 +24,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetime.cpp#23 $";
 #endif
 
 
@@ -445,7 +445,7 @@ not included. The string format is "03:40:13".
 QString QTime::toString() const			// time to string
 {
     QString buf;
-    buf.sprintf( "%.2d:%.2d:%.2d", hour(), minute(), second() );    
+    buf.sprintf( "%.2d:%.2d:%.2d", hour(), minute(), second() );
     return buf;
 }
 
@@ -547,7 +547,7 @@ QTime QTime::currentTime()			// get current time
 #else
     gettimeofday( &tv, 0 );
 #endif
-    time_t ltime = tv.tv_sec; 
+    time_t ltime = tv.tv_sec;
     tm *t = localtime( &ltime );
     ct.ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
 	    1000*t->tm_sec + tv.tv_usec/1000;

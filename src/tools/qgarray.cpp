@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#14 $
 **
 ** Implementation of QGArray class
 **
@@ -18,17 +18,17 @@
 ** be used insted of malloc() and free(). The advantage of using malloc() and
 ** free() is that realloc() will be used to resize arrays.
 **
-** DONT_USE_REALLOC can be defined to make manual array reallocations.  This
+** DONT_USE_REALLOC can be defined to make manual array reallocations.	This
 ** flag is defined when using new and delete (i.e. not USE_MALLOC).
 *****************************************************************************/
 
-#define QGARRAY_CPP
+#define	 QGARRAY_CPP
 #include "qgarray.h"
 #include <string.h>
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#14 $";
 #endif
 
 
@@ -59,7 +59,7 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#13 $";
   the compiler does not support templates).
 
   It provides an array of simple types, where "simple" means a single
-  word. 
+  word.
 
   \todo proper docs */
 
@@ -84,7 +84,7 @@ QGArray::QGArray()				// create empty array
     CHECK_PTR( p );
 }
 
-/*! Dummy constructor; does nothing. 
+/*! Dummy constructor; does nothing.
 
  \sa explain that */
 

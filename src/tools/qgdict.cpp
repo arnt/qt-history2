@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#13 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#13 $";
 #endif
 
 
@@ -47,12 +47,12 @@ int QGDict::hashKey( const char *key )		// make hash value
 	index = h;
 #else
 	while ( *k )
-	    index = index << 1 ^ *k++;
+	    index = (index << 1) ^ *k++;
 #endif
     }
     else {					// case insensitive
 	while ( *k ) {
-	    index = index << 1 ^ tolower(*k);
+	    index = (index << 1) ^ tolower(*k);
 	    k++;
 	}
     }
@@ -423,7 +423,7 @@ GCI QGDictIterator::toFirst()			// move to first item
     }
     register uint i = 0;
 #if defined(PARANOID_TEST)
-    while ( !dict->vec[i] && i < dict->size() )	// paranoid test
+    while ( !dict->vec[i] && i < dict->size() ) // paranoid test
 	i++;
     if ( i == dict->size() ) {			// nothing found!?
 	debug( "QGDictIterator::toFirst: Internal error" );

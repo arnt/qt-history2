@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#10 $
 **
 ** Implementation of QBuffer class
 **
@@ -14,7 +14,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbuffer.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbuffer.cpp#10 $";
 #endif
 
 /*! \class QBuffer qbuffer.h
@@ -202,7 +202,7 @@ int QBuffer::readLine( char *p, uint maxlen )	// read data from buffer
 	maxlen = a.size() - (uint)index;
     while ( maxlen-- ) {
 	if ( (*p++ = *d++) == '\n' )
-	    break;	
+	    break;
     }
     *p = '\0';
     index = d - a.data();

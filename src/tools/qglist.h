@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#10 $
+** $Id: //depot/qt/main/src/tools/qglist.h#11 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -79,7 +79,7 @@ protected:
 
     GCI	  at( uint index );			// access item at i'th pos
     uint  at() const	  { return curIndex; }	// get current index
-    Qdnode *currentNode() { return curNode;  }  // get current node
+    Qdnode *currentNode() { return curNode;  }	// get current node
 
     GCI	  get() const;				// get current item
 

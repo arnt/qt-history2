@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#11 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -10,13 +10,13 @@
 **
 *****************************************************************************/
 
-#define NO_WARNINGS
+#define	 NO_WARNINGS
 #include "qglist.h"
 #include "qgvector.h"
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#11 $";
 #endif
 
 
@@ -145,7 +145,7 @@ void QGList::insert( GCI d )			// add at list head
     CHECK_PTR( n );
     CHECK_PTR( n->data );
     n->prev = 0;
-    if ( n->next = firstNode )			// list is not empty
+    if ( (n->next = firstNode) )		// list is not empty
 	firstNode->prev = n;
     else					// initialize list
 	lastNode = n;
@@ -171,7 +171,7 @@ void QGList::append( GCI d )			// add at list tail
     CHECK_PTR( n );
     CHECK_PTR( n->data );
     n->next = 0;
-    if ( n->prev = lastNode )			// list is not empty
+    if ( (n->prev = lastNode) )			// list is not empty
 	lastNode->next = n;
     else					// initialize list
 	firstNode = n;
@@ -217,7 +217,7 @@ Qdnode *QGList::unlink()			// unlink current node
     }
     register Qdnode *n = curNode;		// unlink this node
     if ( n == firstNode ) {			// removing first node ?
-	if ( firstNode = n->next )
+	if ( (firstNode = n->next) )
 	    firstNode->prev = 0;
 	else
 	    lastNode = curNode = 0;		// list becomes empty
@@ -479,7 +479,7 @@ int QGList::apply( GCF f, void *x ) const	// apply function to all items
     int res;
     register Qdnode *n = firstNode;
     while ( n ) {
-	if ( res = (f)( n->getData(), x ) )
+	if ( (res = (f)( n->getData(), x )) )
 	    return res;				// exit if f returns FALSE
 	n = n->next;
     }
@@ -517,7 +517,7 @@ QDataStream &QGList::read( QDataStream &s )	// read list from stream
 	if ( !n )				// no memory
 	    break;
 	n->next = 0;
-	if ( n->prev = lastNode )		// list is not empty
+	if ( (n->prev = lastNode) )		// list is not empty
 	    lastNode->next = n;
 	else					// initialize list
 	    firstNode = n;

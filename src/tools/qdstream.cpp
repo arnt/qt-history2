@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#14 $
 **
 ** Implementation of QDataStream class
 **
@@ -22,7 +22,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#14 $";
 #endif
 
 
@@ -53,7 +53,7 @@ The QFile class is an example of an IO device.
 
 Example of how to write data to a stream:
 \code
-  QFile	f( "file.dta" );
+  QFile f( "file.dta" );
   f.open( IO_WriteOnly );		\/ open file for writing
   QDataStream s( &f );			\/ serialize using f
   s << "the answer is";			\/ serialize string
@@ -63,7 +63,7 @@ Example of how to write data to a stream:
 
 Example of how to read data from a stream:
 \code
-  QFile	f( "file.dta" );
+  QFile f( "file.dta" );
   f.open( IO_ReadOnly );		\/ open file for reading
   QDataStream s( &f );			\/ serialize using f
   char *str;
@@ -228,7 +228,7 @@ the stream.
 Reads a signed byte from the stream.
 */
 
-QDataStream &QDataStream::operator>>( INT8 &i )	// read 8-bit signed int (char)
+QDataStream &QDataStream::operator>>( INT8 &i ) // read 8-bit signed int (char)
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
@@ -324,7 +324,7 @@ Reads an unsigned integer from the stream as a 32-bit unsigned integer
 (UINT32).  Returns a reference to the stream.
 */
 
-QDataStream &QDataStream::operator>>( uint &i )	// read uinteger as UINT32
+QDataStream &QDataStream::operator>>( uint &i ) // read uinteger as UINT32
 {
     UINT32 n;
     *this >> n;
@@ -350,7 +350,7 @@ static double read_double_ascii( QDataStream *s )// read data7 double constant
 
 /*!
 Reads a 32-bit floating point number from the stream using the standard
-IEEE754 format.  Returns a reference to the stream.
+IEEE754 format.	 Returns a reference to the stream.
 */
 
 QDataStream &QDataStream::operator>>( float &f )// read 32-bit floating point
@@ -375,7 +375,7 @@ QDataStream &QDataStream::operator>>( float &f )// read 32-bit floating point
 
 /*!
 Reads a 64-bit floating point number from the stream using the standard
-IEEE754 format.  Returns a reference to the stream.
+IEEE754 format.	 Returns a reference to the stream.
 */
 
 QDataStream &QDataStream::operator>>( double &f)// read 64-bit floating point
@@ -513,7 +513,7 @@ Writes a signed 16-bit integer to the stream and returns a reference to
 the stream.
 */
 
-QDataStream &QDataStream::operator<<( INT16 i )	// write 16-bit signed int
+QDataStream &QDataStream::operator<<( INT16 i ) // write 16-bit signed int
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
@@ -545,7 +545,7 @@ Writes a signed 32-bit integer to the stream and returns a reference to
 the stream.
 */
 
-QDataStream &QDataStream::operator<<( INT32 i )	// write 32-bit signed int
+QDataStream &QDataStream::operator<<( INT32 i ) // write 32-bit signed int
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
@@ -583,10 +583,10 @@ Returns a reference to the stream.
 
 /*!
 Writes a 32-bit floating point number to the stream using the standard
-IEEE754 format.  Returns a reference to the stream.
+IEEE754 format.	 Returns a reference to the stream.
 */
 
-QDataStream &QDataStream::operator<<( float f )	// write 32-bit floating point
+QDataStream &QDataStream::operator<<( float f ) // write 32-bit floating point
 {
     CHECK_STREAM_PRECOND
     if ( printable ) {				// printable data
@@ -614,7 +614,7 @@ QDataStream &QDataStream::operator<<( float f )	// write 32-bit floating point
 
 /*!
 Writes a 64-bit floating point number to the stream using the standard
-IEEE754 format.  Returns a reference to the stream.
+IEEE754 format.	 Returns a reference to the stream.
 */
 
 QDataStream &QDataStream::operator<<( double f )// write 64-bit floating point

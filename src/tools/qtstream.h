@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.h#6 $
+** $Id: //depot/qt/main/src/tools/qtstream.h#7 $
 **
 ** Definition of QTextStream class
 **
@@ -25,7 +25,7 @@ public:
     QTextStream( FILE * );
     virtual ~QTextStream();
 
-    QIODevice 	*device() const;		// get current stream device
+    QIODevice	*device() const;		// get current stream device
     void	 setDevice( QIODevice * );	// set stream device
     void	 unsetDevice();			// set NULL stream device
 
@@ -54,9 +54,9 @@ public:
     QTextStream &operator<<( const char * );
     QTextStream &operator<<( void * );		// any pointer
 
-    QTextStream	&readRawBytes( char *, uint len );
+    QTextStream &readRawBytes( char *, uint len );
 
-    QTextStream	&writeRawBytes( const char *, uint len );
+    QTextStream &writeRawBytes( const char *, uint len );
 
     enum {
 	skipws	  = 0x0001,			// skip whitespace on input
@@ -74,7 +74,7 @@ public:
 	scientific= 0x1000,			// scientific float output
 	fixed	  = 0x2000,			// fixed float output
     };
-    
+
     static const long basefield;		// bin | oct | dec | hex
     static const long adjustfield;		// left | right | internal
     static const long floatfield;		// scientific | fixed
@@ -87,17 +87,17 @@ public:
 
     void  reset();				// set default flags
 
-    int   width() const;			// get/set field width
-    int   width( int );
-    int   fill() const;				// get/set fill char
-    int   fill( int );
-    int   precision() const;			// get/set float precision
-    int   precision( int );
+    int	  width() const;			// get/set field width
+    int	  width( int );
+    int	  fill() const;				// get/set fill char
+    int	  fill( int );
+    int	  precision() const;			// get/set float precision
+    int	  precision( int );
 
 private:
     long	 input_int();
     QTextStream &output_int( int, ulong, bool );
-    QIODevice   *dev;				// I/O device
+    QIODevice	*dev;				// I/O device
     long	 fflags;			// formatting flags
     int		 fwidth;			// field width
     int		 fillchar;			// fill char
@@ -129,7 +129,7 @@ inline long QTextStream::setf( long bits )
 { long f = fflags;  fflags |= bits;  return f; }
 
 inline long QTextStream::setf( long bits, long mask )
-{ long f = fflags;  fflags = (fflags & ~mask) | (bits & mask);  return f; }
+{ long f = fflags;  fflags = (fflags & ~mask) | (bits & mask);	return f; }
 
 inline long QTextStream::unsetf( long mask )
 { long f = fflags;  fflags &= ~mask;  return f; }
@@ -138,19 +138,19 @@ inline int QTextStream::width() const
 { return fwidth; }
 
 inline int QTextStream::width( int w )
-{ int oldw = fwidth;  fwidth = w;  return oldw;  }
+{ int oldw = fwidth;  fwidth = w;  return oldw;	 }
 
 inline int QTextStream::fill() const
 { return fillchar; }
 
 inline int QTextStream::fill( int f )
-{ int oldc = fillchar;  fillchar = f;  return oldc;  }
+{ int oldc = fillchar;	fillchar = f;  return oldc;  }
 
 inline int QTextStream::precision() const
 { return fprec; }
 
 inline int QTextStream::precision( int p )
-{ int oldp = fprec;  fprec = p;  return oldp;  }
+{ int oldp = fprec;  fprec = p;	 return oldp;  }
 
 
 // --------------------------------------------------------------------------
@@ -162,7 +162,7 @@ typedef int (QTextStream::*QTSMFI)(int);	// manipulator w/int argument
 
 class QTSManip {				// text stream manipulator
 public:
-    QTSManip( QTSMFI m, int a )	{ mf=m; arg=a; }
+    QTSManip( QTSMFI m, int a ) { mf=m; arg=a; }
     void exec( QTextStream &s ) { (s.*mf)(arg); }
 private:
     QTSMFI mf;					// QTextStream member function
@@ -188,13 +188,13 @@ QTextStream &ws( QTextStream &s );		// eat whitespace on input
 QTextStream &reset( QTextStream &s );		// set default flags
 
 inline QTSManip setw( int w )
-{ return QTSManip(QTextStream::width,w); }
+{ return QTSManip(&QTextStream::width,w); }
 
 inline QTSManip setfill( int f )
-{ return QTSManip(QTextStream::fill,f); }
+{ return QTSManip(&QTextStream::fill,f); }
 
 inline QTSManip setprecision( int p )
-{ return QTSManip(QTextStream::precision,p); }
+{ return QTSManip(&QTextStream::precision,p); }
 
 
 #endif // QTSTREAM_H

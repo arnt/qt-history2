@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.h#3 $
+** $Id: //depot/qt/main/src/tools/qbuffer.h#4 $
 **
 ** Definition of QBuffer class
 **
@@ -35,8 +35,8 @@ public:
     long  at()	 const { return index; }	// get buffer index
     bool  at( long );				// set buffer index
 
-    int   readBlock( char *p, uint );
-    int   writeBlock( const char *p, uint );
+    int	  readBlock( char *p, uint );
+    int	  writeBlock( const char *p, uint );
     int	  readLine( char *p, uint );
 
     int	  getch();				// get next char

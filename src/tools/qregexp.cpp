@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#18 $
 **
 ** Implementation of QRegExp class
 **
@@ -19,7 +19,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#18 $";
 #endif
 
 
@@ -609,7 +609,11 @@ void QRegExp::compile()
 
     error = PatOk;				// assume pattern is ok
 
-    QString pattern = wc ? wc2rx(rxstring) : rxstring;
+    QString pattern;
+    if ( wc )
+	pattern = wc2rx(rxstring);
+    else
+	pattern = rxstring;
     char   *p = pattern;			// pattern pointer
     ushort *d = rxarray;			// data pointer
     ushort *prev_d = 0;
@@ -761,7 +765,7 @@ void QRegExp::compile()
 		GEN( CHR | c );
 	}
 	if ( d >= rxarray + maxlen ) {		// oops!
-	    error = PatOverflow;		// pattern too long	    
+	    error = PatOverflow;		// pattern too long
 	    return;
 	}
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qtstream.cpp#13 $
 **
 ** Implementation of QTextStream class
 **
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtstream.cpp#13 $";
 #endif
 
 
@@ -174,7 +174,7 @@ void QTextStream::setDevice( QIODevice *d )
 	delete dev;
 	owndev = 0;
     }
-    dev = d;   
+    dev = d;
 }
 
 /*!
@@ -461,7 +461,7 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
     CHECK_STREAM_PRECOND
     char buf[76];
     register char *p;
-    int   len;
+    int	  len;
     char *hexdigits;
 
     switch ( flags() & I_BASE_MASK ) {
@@ -537,7 +537,7 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 	    int padlen = fwidth - len;
 	    if ( padlen <= 0 )			// no padding required
 		dev->writeBlock( p, len );
-	    else if ( padlen < (int)(p-buf) ) {	// speeds up padding
+	    else if ( padlen < (int)(p-buf) ) { // speeds up padding
 		memset( p-padlen, fillchar, padlen );
 		dev->writeBlock( p-padlen, padlen+len );
 	    }
@@ -555,7 +555,7 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 
 
 /*!
-Writes a signed \c short integer to the stream and returns a reference to
+Writes a \c short integer to the stream and returns a reference to
 the stream.
 */
 
@@ -566,7 +566,7 @@ QTextStream &QTextStream::operator<<( signed short i )
 
 
 /*!
-Writes an unsigned \c short integer to the stream and returns a reference to
+Writes an \c unsigned \c short integer to the stream and returns a reference to
 the stream.
 */
 
@@ -577,7 +577,7 @@ QTextStream &QTextStream::operator<<( unsigned short i )
 
 
 /*!
-Writes a signed \c int to the stream and returns a reference to
+Writes an \c int to the stream and returns a reference to
 the stream.
 */
 
@@ -588,7 +588,7 @@ QTextStream &QTextStream::operator<<( signed int i )
 
 
 /*!
-Writes an unsigned \c int to the stream and returns a reference to
+Writes an \c unsigned \c int to the stream and returns a reference to
 the stream.
 */
 
@@ -599,7 +599,7 @@ QTextStream &QTextStream::operator<<( unsigned int i )
 
 
 /*!
-Writes a signed \c long int to the stream and returns a reference to
+Writes a \c long \c int to the stream and returns a reference to
 the stream.
 */
 
@@ -610,7 +610,7 @@ QTextStream &QTextStream::operator<<( signed long i )
 
 
 /*!
-Writes an unsigned \c long int to the stream and returns a reference to
+Writes an \c unsigned \c long \c int to the stream and returns a reference to
 the stream.
 */
 

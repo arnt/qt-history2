@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.h#5 $
+** $Id: //depot/qt/main/src/tools/qregexp.h#6 $
 **
 ** Definition of QRegExp class
 **
 ** Author  : Haavard Nord
 ** Created : 950126
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -28,7 +28,7 @@ public:
 
     bool	operator==( const QRegExp & )  const;
     bool	operator!=( const QRegExp &r ) const
-    					{ return !(this->operator==(r)); }
+					{ return !(this->operator==(r)); }
 
     bool	isEmpty()	const	{ return rxdata == 0; }
     bool	isValid()	const	{ return error == 0; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.h#7 $
+** $Id: //depot/qt/main/src/tools/qdstream.h#8 $
 **
 ** Definition of QDataStream class
 **
@@ -23,7 +23,7 @@ public:
     QDataStream( QIODevice * );
     virtual ~QDataStream();
 
-    QIODevice 	*device() const;		// get current stream device
+    QIODevice	*device() const;		// get current stream device
     void	 setDevice( QIODevice * );	// set stream device
     void	 unsetDevice();			// set NULL stream device
 
@@ -59,14 +59,14 @@ public:
     QDataStream &operator<<( double f );
     QDataStream &operator<<( const char *str );
 
-    QDataStream	&readBytes( char *&, uint &len );
-    QDataStream	&readRawBytes( char *, uint len );
+    QDataStream &readBytes( char *&, uint &len );
+    QDataStream &readRawBytes( char *, uint len );
 
-    QDataStream	&writeBytes( const char *, uint len );
-    QDataStream	&writeRawBytes( const char *, uint len );
+    QDataStream &writeBytes( const char *, uint len );
+    QDataStream &writeRawBytes( const char *, uint len );
 
 private:
-    QIODevice   *dev;				// I/O device
+    QIODevice	*dev;				// I/O device
     int		 byteorder;			// serialization byte order
     bool	 printable;			// printable data
     bool	 noswap;			// byte swapping not needed

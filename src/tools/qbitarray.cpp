@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#17 $
 **
 ** Implementation of QBitArray class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#17 $";
 #endif
 
 
@@ -142,7 +142,7 @@ bool QBitArray::fill( bool v, int size )	// fill bit array with value
     }
     else
 	size = this->size();
-    memset( data(), v ? 0xff : 0, (size+7)/8 );	// set many bytes, fast
+    memset( data(), v ? 0xff : 0, (size+7)/8 ); // set many bytes, fast
     if ( v )
 	pad0();
     return TRUE;
@@ -246,7 +246,7 @@ bool QBitArray::toggleBit( uint i )		// toggle/invert bit
 	return FALSE;
     }
 #endif
-    register char *p = data() + (i>>3);
+    register uchar *p = (uchar *)data() + (i>>3);
     uchar b = (1 << (i & 7));			// bit position
     uchar c = *p & b;				// read bit
     *p ^= b;					// toggle bit
@@ -263,7 +263,7 @@ The two bit arrays must have the same size.
 Example of use:
 \code
   QBitArray a(3), b(3);
-  a[0] = 1;  a[1] = 0;  a[2] = 1;	// a = [1 0 1]
+  a[0] = 1;  a[1] = 0;	a[2] = 1;	// a = [1 0 1]
   b[0] = 0;  b[1] = 0;	b[2] = 1;	// b = [0 0 1]
   a &= b;				// a = [0 0 1]
 \endcode
@@ -296,7 +296,7 @@ The two bit arrays must have the same size.
 Example of use:
 \code
   QBitArray a(3), b(3);
-  a[0] = 1;  a[1] = 0;  a[2] = 1;	// a = [1 0 1]
+  a[0] = 1;  a[1] = 0;	a[2] = 1;	// a = [1 0 1]
   b[0] = 0;  b[1] = 0;	b[2] = 1;	// b = [0 0 1]
   a |= b;				// a = [1 0 1]
 \endcode
@@ -329,7 +329,7 @@ The two bit arrays must have the same size.
 Example of use:
 \code
   QBitArray a(3), b(3);
-  a[0] = 1;  a[1] = 0;  a[2] = 1;	// a = [1 0 1]
+  a[0] = 1;  a[1] = 0;	a[2] = 1;	// a = [1 0 1]
   b[0] = 0;  b[1] = 0;	b[2] = 1;	// b = [0 0 1]
   a ^= b;				// a = [1 0 0]
 \endcode
@@ -359,7 +359,7 @@ Returns a bit array which contains the inverted bits of this bit array.
 Example of use:
 \code
   QBitArray a(3);
-  a[0] = 1;  a[1] = 0;  a[2] = 1;	// a = [1 0 1]
+  a[0] = 1;  a[1] = 0;	a[2] = 1;	// a = [1 0 1]
   QBitArray b = ~a;			// b = [0 1 0]
 \endcode
 */

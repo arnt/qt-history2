@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#8 $
 **
 ** Implementation of QIODevice class
 **
@@ -13,7 +13,7 @@
 #include "qiodev.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#8 $";
 #endif
 
 
@@ -31,7 +31,7 @@ implemented by the subclasses QFile, QBuffer etc.
 There are two types of IO devices; <em>direct access</em> or <em>sequential
 access </em> devices.
 Files can normally be accessed directly, except \c stdin etc., which must be
-processed sequentially.  Buffers are always direct access devices.
+processed sequentially.	 Buffers are always direct access devices.
 
 The access mode of an IO device can be either \e raw or \e buffered.
 QFile objects can be creating using one of these.  Raw access mode is more

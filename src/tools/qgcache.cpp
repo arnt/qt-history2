@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#13 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qstring.h"				/* used for statistics */
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#13 $";
 #endif
 
 
@@ -185,7 +185,8 @@ bool QGCache::insert( const char *key, GCI data, long cost, int priority )
 #endif
     if ( copyK )
 	key = strdup( key );
-    QCacheItem *ci = new QCacheItem( key, newItem(data), cost, priority );
+    QCacheItem *ci = new QCacheItem( key, newItem(data), cost,
+				     (short)priority );
     CHECK_PTR( ci );
     lruList->insert( ci );
     dict->insert( key, ci );
@@ -242,7 +243,7 @@ void QGCache::clear()
     tCost = 0;
 }
 
-bool QGCache::makeRoomFor( long cost, short priority )
+bool QGCache::makeRoomFor( long cost, int priority )
 {
     if ( cost > mCost )				// cannot make room for more
 	return FALSE;				//   than maximum cost

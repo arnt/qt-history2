@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#20 $
+** $Id: //depot/qt/main/src/tools/qstring.h#21 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -57,6 +57,7 @@ void *qmemmove( void *dst, const void *src, uint len );
 #endif
 
 char *q_strdup( const char *src );		// safe duplicate string
+#undef	strdup
 #define strdup q_strdup
 
 inline int q_strlen( const char *src )		// safe get string length
@@ -208,7 +209,7 @@ public:
     int		toInt( bool *ok=0 )	const;	// convert string to int
     uint	toUInt( bool *ok=0 )	const;	// convert string to uint
     long	toLong( bool *ok=0 )	const;	// convert string to long
-    ulong	toULong( bool *ok=0 )	const;	// convert string to ulong    
+    ulong	toULong( bool *ok=0 )	const;	// convert string to ulong
     float	toFloat( bool *ok=0 )	const;	// convert string to float
     double	toDouble( bool *ok=0 )	const;	// convert string to double
 

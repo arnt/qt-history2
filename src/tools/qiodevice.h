@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.h#4 $
+** $Id: //depot/qt/main/src/tools/qiodevice.h#5 $
 **
 ** Definition of QIODevice class
 **
@@ -67,7 +67,7 @@ public:
     int		 mode()	  const { return ioMode & IO_ModeMask; }
     int		 state()  const { return ioMode & IO_StateMask; }
 
-#undef  TB
+#undef	TB
 #define TB(x) ((ioMode & (x)) == x)
     bool	 isDirectAccess()     const { return TB(IO_Direct); }
     bool	 isSequentialAccess() const { return TB(IO_Sequential); }
@@ -80,7 +80,7 @@ public:
     bool	 isReadable()	      const { return TB(IO_ReadOnly); }
     bool	 isWritable()	      const { return TB(IO_WriteOnly); }
     bool	 isReadWrite()	      const { return TB(IO_ReadWrite); }
-#undef  TB
+#undef	TB
     bool	 isInactive()	      const { return state() == 0; }
     bool	 isOpen()	      const { return state() == IO_Open; }
 
@@ -91,15 +91,15 @@ public:
     virtual void close() = 0;			// close device
     virtual void flush() = 0;			// flush device
 
-    virtual long size()   const = 0;		// get size of data
+    virtual long size()	  const = 0;		// get size of data
     virtual long at()	  const;		// get data index
     virtual bool at( long );			// set data index
     virtual bool atEnd()  const;		// test if at end of data
     bool	 reset() { return at(0); }	// reset data index
 
-    virtual int  readBlock( char *data, uint len ) = 0;
-    virtual int  writeBlock( const char *data, uint len ) = 0;
-    virtual int  readLine( char *data, uint maxlen );
+    virtual int	 readBlock( char *data, uint len ) = 0;
+    virtual int	 writeBlock( const char *data, uint len ) = 0;
+    virtual int	 readLine( char *data, uint maxlen );
 
     virtual int	 getch() = 0;			// get next char
     virtual int	 putch( int ) = 0;		// put char
@@ -114,7 +114,7 @@ protected:
     long	 index;				// data index
 
 private:
-    int	 	 ioMode;			// IO mode
+    int		 ioMode;			// IO mode
     int		 ioSt;				// IO status
 };
 

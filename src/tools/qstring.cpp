@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#33 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#33 $";
 #endif
 
 
@@ -79,7 +79,7 @@ char *q_strdup( const char *src )		// safe duplicate string
 /*----------------------------------------------------------------------------
   \relates QString
   If \e str1 and \e str2 are both non-null, qstricmp() returns
-  negative, 0 or positive, just like the C library's stricmp().  If
+  negative, 0 or positive, just like the C library's stricmp().	 If
   either \e str1 or \e str2 but not both are null, qstricmp() returns
   a random non-zero value.  If both are null, qstricmp() returns 0.
 
@@ -93,7 +93,7 @@ int qstricmp( const char *str1, const char *str2 )
     int res;
     uchar c;
     if ( !s1 || !s2 )
-	return (int)s2 - (int)s1;
+	return (int)((long)s2 - (long)s1);
     if ( s1 == s2 )				// identical
 	return 0;
     for ( ; !(res = (c=tolower(*s1)) - tolower(*s2)); s1++, s2++ )
@@ -106,8 +106,8 @@ int qstricmp( const char *str1, const char *str2 )
   \relates QString
   If \e str1 and \e str2 are both non-null, qstrnicmp() returns
   negative, 0 or positive, just like the C library's strnicmp() or
-  strncasecmp.  If either \e str1 or \e str2 but not both are null,
-  qstrnicmp() returns a random non-zero value.  If both are null,
+  strncasecmp.	If either \e str1 or \e str2 but not both are null,
+  qstrnicmp() returns a random non-zero value.	If both are null,
   qstrnicmp() returns 0.  Also see qstricmp().
 
   \sa qstricmp().
@@ -120,11 +120,11 @@ int qstrnicmp( const char *str1, const char *str2, uint len )
     int res;
     uchar c;
     if ( !s1 || !s2 )
-	return (int)s2 - (int)s1;
+	return (int)((long)s2 - (long)s1);
     if ( s1 == s2 )				// identical
 	return 0;
     for ( ; len--; s1++, s2++ ) {
-	if ( res = (c=tolower(*s1)) - tolower(*s2) )
+	if ( (res = (c=tolower(*s1)) - tolower(*s2)) )
 	    return res;
 	if ( !c )				// strings are equal
 	    break;
@@ -147,7 +147,7 @@ static void createCRC16Table()			// build CRC16 lookup table
 	v2 = (i >> 2) & 1;
 	v3 = (i >> 3) & 1;
 	j = 0;
-#undef  SET_BIT
+#undef	SET_BIT
 #define SET_BIT(x,b,v)	x |= v << b
 	SET_BIT(j, 0,v0);
 	SET_BIT(j, 7,v0);
@@ -228,7 +228,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 }
 
 
-/*---------------------------------------------------------------------------
+/*!
   \class QByteArray qstring.h
 
   \ingroup tools
@@ -259,7 +259,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   parameter to be 0.
 
   A QString that has not been assigned to anything is <em>void</em>,
-  i.e.  both the length and data pointer is 0.  A QString that
+  i.e.	both the length and data pointer is 0.	A QString that
   references the empty string ("", a single '\0' char) is
   <em>empty</em>.  Both <em>void</em> and <em>empty</em> QStrings are
   legal parameters to the methods. Assigning <var>const char * 0</var>
@@ -283,7 +283,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
 
 /*----------------------------------------------------------------------------
-  \fn QString::QString() 
+  \fn QString::QString()
   Constructs a \e void string.
  ----------------------------------------------------------------------------*/
 
@@ -373,7 +373,7 @@ bool QString::resize( uint len )
   s.sprintf( "%d - %s", 1, "first" );		// result < 256 chars
 
   QString big( 25000 );				// very long string
-  big.sprintf( "%d - %s", 2, veryLongString );  // result < 25000 chars
+  big.sprintf( "%d - %s", 2, veryLongString );	// result < 25000 chars
   \endcode
  ----------------------------------------------------------------------------*/
 
@@ -590,7 +590,7 @@ int QString::findRev( const char *str, int index, bool cs ) const
 	index = length()-slen;
     else if ( (uint)index >= size() )		// bad index
 	return -1;
-    else if ( (uint)(index + slen) > length() )	// str would be too long
+    else if ( (uint)(index + slen) > length() ) // str would be too long
 	index = length() - slen;
     if ( index < 0 )
 	return -1;
@@ -753,7 +753,7 @@ QString QString::mid( uint index, uint len ) const
 
   \code
   QString s("apple");
-  QString t = s.leftJustify(8, '.');      \/ t == "apple..."
+  QString t = s.leftJustify(8, '.');	  \/ t == "apple..."
   \endcode
 
   \sa rightJustify().
@@ -784,7 +784,7 @@ QString QString::leftJustify( uint width, char fill ) const
 
   \code
   QString s("pie");
-  QString t = s.rightJustify(8, '.');    \/ t == ".....pie"
+  QString t = s.rightJustify(8, '.');	 \/ t == ".....pie"
   \endcode
 
   \sa leftJustify().
@@ -886,7 +886,7 @@ QString &QString::insert( uint index, const char *s )
 
   \code
   QString a = "Yes";
-  a.insert( 12528, '!');        \/ ok, becomes "Yes!"
+  a.insert( 12528, '!');	\/ ok, becomes "Yes!"
   \endcode
 
   \sa remove(), replace().
