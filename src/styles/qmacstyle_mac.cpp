@@ -93,12 +93,7 @@ static const int macRightBorder       = 12;   // right border on mac
 void QMacPainter::setport()
 { 
     QPainter::initPaintDevice(TRUE); 
-    //just to be extra sure
-    ::RGBColor f;
-    f.red = f.green = f.blue = 0;
-    RGBForeColor(&f);
-    f.red = f.green = f.blue = ~0;
-    RGBBackColor(&f);
+    NormalizeThemeDrawingState(); //just to be extra sure
 }
 
 // Utility to generate correct rectangles for AppManager internals
