@@ -904,8 +904,7 @@ QWidget::~QWidget()
 	    qApp->quit();
     }
 
-    if ( hasFocus() )
-	clearFocus();
+    clearFocus();
 
     if ( isTopLevel() && isShown() && winId() )
 	hide();
@@ -2901,12 +2900,12 @@ void QWidget::setFocus()
     if (isHidden()) {
 	while (w && w->isHidden()) {
 	    w->d->focus_child = f;
-	    w = w->parentWidget();
+	    w = w->parentWidget(true);
 	}
     } else {
 	while (w) {
 	    w->d->focus_child = f;
-	    w = w->parentWidget();
+	    w = w->parentWidget(true);
 	}
     }
 
@@ -2968,6 +2967,11 @@ void QWidget::setFocus()
 
 void QWidget::clearFocus()
 {
+    QWidget *w = this;
+    while (w && w->d->focus_child == this) {
+	w->d->focus_child = 0;
+	w = w->parentWidget(true);
+    }
     if (hasFocus()) {
 	QWidget* w = qApp->focus_widget;
 	// clear active focus
@@ -3239,33 +3243,39 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 	d->focus_child->clearFocus();
 
     // seperate the focus chain
+    QWidget *topLevel = topLevelWidget();
     QWidget *w = this;
     QWidget *firstOld = 0;
+    QWidget *firstNew = 0;
     QWidget *o = 0;
-    QWidget *n = w;
-    while ((w = w->d->focus_next) != this) {
-	if (!oldtlw->isAncestorOf(w)) {
+    QWidget *n = 0;
+    do {
+	if (w == this || isAncestorOf(w)) {
+	    if (!firstNew)
+		firstNew = w;
+	    if (n)
+		n->d->focus_next = w;
+	    n = w;
+	} else {
 	    if (!firstOld)
 		firstOld = w;
 	    if (o)
 		o->d->focus_next = w;
 	    o = w;
-	} else {
-	    n->d->focus_next = w;
-	    n = w;
 	}
-    }
+    } while ((w = w->d->focus_next) != this);
     if(o)
 	o->d->focus_next = firstOld;
+    if(n)
+	n->d->focus_next = firstNew;
 
     if (!isTopLevel()) {
 	//insert chain
-	QWidget *top = topLevelWidget();
-	w = top;
-	while (w->d->focus_next != top)
+	w = topLevel;
+	while (w->d->focus_next != topLevel)
 	    w = w->d->focus_next;
 	w->d->focus_next = this;
-	n->d->focus_next = top;
+	n->d->focus_next = topLevel;
     } else {
 	n->d->focus_next = this;
     }
