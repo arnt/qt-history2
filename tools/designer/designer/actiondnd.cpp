@@ -169,6 +169,34 @@ QWidget *QSeparatorAction::widget() const
 
 
 
+QSubMenuAction::QSubMenuAction( QObject *parent )
+    : QAction( parent, "qt_designer_separator" ), popup( 0 )
+{
+}
+
+bool QSubMenuAction::addTo( QWidget *w )
+{
+    idx = ( (QPopupMenu*)w )->count();
+    if ( !popup )
+	popup = new QDesignerPopupMenu( MainWindow::self );
+    ( (QPopupMenu*)w )->insertItem( menuText(), popup, -1, idx );
+    return TRUE;
+}
+
+bool QSubMenuAction::removeFrom( QWidget *w )
+{
+    ( (QPopupMenu*)w )->removeItemAt( idx );
+    return TRUE;
+}
+
+QPopupMenu *QSubMenuAction::popupMenu() const
+{
+    return popup;
+}
+
+
+
+
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     : QToolBar( mw ), lastIndicatorPos( -1, -1 )
 {
@@ -838,7 +866,8 @@ void QDesignerMenuBar::dragEnterEvent( QDragEnterEvent *e )
 	 e->provides( "application/x-designer-actiongroup" ) ||
 	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
-    if ( e->provides( "application/x-designer-menuitem" ) )
+    if ( e->provides( "application/x-designer-menuitem" ) ||
+	 e->provides( "application/x-designer-submenu" ) )
 	e->accept();
     lastIndicatorPos = QPoint( -1, -1 );
     insertAt = -1;
@@ -848,6 +877,7 @@ void QDesignerMenuBar::dragMoveEvent( QDragMoveEvent *e )
 {
     if ( e->provides( "application/x-designer-actions" ) ||
 	 e->provides( "application/x-designer-menuitem" ) ||
+	 e->provides( "application/x-designer-submenu" ) ||
 	 e->provides( "application/x-designer-actiongroup" ) ||
 	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
@@ -855,6 +885,7 @@ void QDesignerMenuBar::dragMoveEvent( QDragMoveEvent *e )
 	return;
     if ( e->provides( "application/x-designer-actions" ) ||
 	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-submenu" ) ||
 	 e->provides( "application/x-designer-separator" ) ) {
 	int item = itemAtPos( e->pos() );
 	bool uieffect = QApplication::isEffectEnabled( UI_AnimateMenu );
@@ -891,7 +922,7 @@ void QDesignerMenuBar::dropEvent( QDropEvent *e )
     insertItem( txt, popup, -1, insertAt );
 
     MoveMenuCommand *cmd = new MoveMenuCommand( tr( "Move Menu '%1'" ).arg( txt ), formWindow,
-						this, (QDesignerPopupMenu*)popup, oldPos, insertAt, txt );
+				this, (QDesignerPopupMenu*)popup, oldPos, insertAt, txt );
     // do not execute, we did the work already
     formWindow->commandHistory()->addCommand( cmd );
     formWindow->mainWindow()->objectHierarchy()->rebuild();
@@ -1025,6 +1056,7 @@ void QDesignerPopupMenu::createPopupMenu()
     int itm;
     const int ID_DELETE = 1;
     const int ID_SEP = 2;
+    const int ID_SUB = 3;
     itm = itemAtPos( popupLocalPos, FALSE );
     if ( itm == -1 )
 	return;
@@ -1034,25 +1066,44 @@ void QDesignerPopupMenu::createPopupMenu()
     else
 	menu.insertItem( tr( "Delete Item" ), ID_DELETE );
     menu.insertItem( tr( "Insert Separator" ), ID_SEP );
+#if 0
+    menu.insertItem( tr( "Insert Sub Menu Item" ), ID_SUB );
+#endif
     int res = menu.exec( popupPos );
     if ( res == ID_DELETE ) {
 	QAction *a = actionList.at( itm );
 	if ( !a )
 	    return;
-	RemoveActionFromPopupCommand *cmd = new RemoveActionFromPopupCommand(
-									     tr( "Delete Action '%1' from Popup Menu '%2'" ).
-									     arg( a->name() ).arg( caption() ),
-									     formWindow, a, this, itm );
+	RemoveActionFromPopupCommand *cmd =
+	    new RemoveActionFromPopupCommand(
+					     tr( "Delete Action '%1' from Popup Menu '%2'" ).
+					     arg( a->name() ).arg( caption() ),
+					     formWindow, a, this, itm );
 	formWindow->commandHistory()->addCommand( cmd );
 	cmd->execute();
     } else if ( res == ID_SEP ) {
 	QPoint p( pos() );
 	calcIndicatorPos( mapFromGlobal( popupPos ) );
 	QAction *a = new QSeparatorAction( 0 );
-	AddActionToPopupCommand *cmd = new AddActionToPopupCommand(
-								   tr( "Add Separator to Popup Menu '%1'" ).
-								   arg( name() ),
-								   formWindow, a, this, insertAt );
+	AddActionToPopupCommand *cmd =
+	    new AddActionToPopupCommand(
+					tr( "Add Separator to Popup Menu '%1'" ).
+					arg( name() ),
+					formWindow, a, this, insertAt );
+	formWindow->commandHistory()->addCommand( cmd );
+	cmd->execute();
+	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
+	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->activateItemAt( -1 );
+	popup( p );
+    } else if ( res == ID_SUB ) {
+	QPoint p( pos() );
+	calcIndicatorPos( mapFromGlobal( popupPos ) );
+	QAction *a = new QSubMenuAction( 0 );
+	AddActionToPopupCommand *cmd =
+	    new AddActionToPopupCommand(
+					tr( "Add Sub Menu Item to Popup Menu '%1'" ).
+					arg( name() ),
+					formWindow, a, this, insertAt );
 	formWindow->commandHistory()->addCommand( cmd );
 	cmd->execute();
 	( (QDesignerMenuBar*)( (QMainWindow*)parentWidget() )->menuBar() )->hidePopups();
@@ -1079,22 +1130,34 @@ void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )
     QAction *a = actionList.at( itm );
     if ( !a )
 	return;
-    RemoveActionFromPopupCommand *cmd = new RemoveActionFromPopupCommand( tr( "Delete Action '%1' from Popup Menu '%2'" ).
-									  arg( a->name() ).arg( caption() ),
-									  formWindow, a, this, itm );
+    RemoveActionFromPopupCommand *cmd =
+	new RemoveActionFromPopupCommand( tr( "Delete Action '%1' from Popup Menu '%2'" ).
+					  arg( a->name() ).arg( caption() ),
+					  formWindow, a, this, itm );
     formWindow->commandHistory()->addCommand( cmd );
     cmd->execute();
 
-    QString type = a->inherits( "QActionGroup" ) ? QString( "application/x-designer-actiongroup" ) :
-	a->inherits( "QSeparatorAction" ) ? QString( "application/x-designer-separator" ) : QString( "application/x-designer-actions" );
+    QString type;
+    if ( a->inherits( "QActionGroup" ) )
+	type = "application/x-designer-actiongroup";
+    else if ( a->inherits( "QSeparatorAction" ) )
+	type = "application/x-designer-separator";
+    else if ( a->inherits( "QSubMenuAction" ) )
+	type = "application/x-designer-submenu";
+    else
+	type = "application/x-designer-actions";
+
+    // ### to hide my sub menus here!!!
+
     QStoredDrag *drag = new QStoredDrag( type, this );
     QString s = QString::number( (long)a ); // #### huha, that is evil
     drag->setEncodedData( QCString( s.latin1() ) );
     drag->setPixmap( a->iconSet().pixmap() );
     if ( !drag->drag() ) {
-	AddActionToPopupCommand *cmd = new AddActionToPopupCommand( tr( "Add Action '%1' to Popup Menu '%2'" ).
-								    arg( a->name() ).arg( name() ),
-								    formWindow, a, this, itm );
+	AddActionToPopupCommand *cmd =
+	    new AddActionToPopupCommand( tr( "Add Action '%1' to Popup Menu '%2'" ).
+					 arg( a->name() ).arg( name() ),
+					 formWindow, a, this, itm );
 	formWindow->commandHistory()->addCommand( cmd );
 	cmd->execute();
     }
@@ -1117,6 +1180,7 @@ void QDesignerPopupMenu::dragEnterEvent( QDragEnterEvent *e )
     lastIndicatorPos = QPoint( -1, -1 );
     if ( e->provides( "application/x-designer-actions" ) ||
 	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-submenu" ) ||
 	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
 }
@@ -1126,6 +1190,7 @@ void QDesignerPopupMenu::dragMoveEvent( QDragMoveEvent *e )
     mousePressed = FALSE;
     if ( e->provides( "application/x-designer-actions" ) ||
 	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-submenu" ) ||
 	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
     else
@@ -1145,6 +1210,7 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
     mousePressed = FALSE;
     if ( e->provides( "application/x-designer-actions" ) ||
 	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-submenu" ) ||
 	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
     else
@@ -1160,6 +1226,9 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
 	if ( e->provides( "application/x-designer-separator" ) ) {
 	    s = QString( e->encodedData( "application/x-designer-separator" ) );
 	    a = (QSeparatorAction*)s.toLong();
+	} else if ( e->provides( "application/x-designer-submenu" ) ) {
+	    s = QString( e->encodedData( "application/x-designer-submenu" ) );
+	    a = (QSubMenuAction*)s.toLong();
 	} else {
 	    s = QString( e->encodedData( "application/x-designer-actions" ) );
 	    a = (QDesignerAction*)s.toLong();
@@ -1174,9 +1243,10 @@ void QDesignerPopupMenu::dropEvent( QDropEvent *e )
 	return;
     }
 
-    AddActionToPopupCommand *cmd = new AddActionToPopupCommand( tr( "Add Action '%1' to Popup Menu '%2'" ).
-								arg( a->name() ).arg( name() ),
-								formWindow, a, this, insertAt );
+    AddActionToPopupCommand *cmd =
+	new AddActionToPopupCommand( tr( "Add Action '%1' to Popup Menu '%2'" ).
+				     arg( a->name() ).arg( name() ),
+				     formWindow, a, this, insertAt );
     formWindow->commandHistory()->addCommand( cmd );
     cmd->execute();
 
