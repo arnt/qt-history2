@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#22 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#23 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#23 $")
 
 
 /*----------------------------------------------------------------------------
@@ -215,13 +215,13 @@ QGDict &QGDict::operator=( const QGDict &dict )
 
 
 /*----------------------------------------------------------------------------
-  \fn uint QGList::count() const
+  \fn uint QGDict::count() const
   \internal
   Returns the number of items in the dictionary.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn uint QGList::size() const
+  \fn uint QGDict::size() const
   \internal
   Returns the size of the hash array.
  ----------------------------------------------------------------------------*/
