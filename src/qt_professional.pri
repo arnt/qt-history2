@@ -25,6 +25,7 @@
 	unix {
 		NETWORK_H	= $$NETWORK_CPP
 	}
+	mac:INCLUDEPATH += $$QT_SOURCE_TREE/src/3rdparty/dlcompat
 	INCLUDEPATH += $$QT_SOURCE_TREE/src/network
 	include( $$QT_SOURCE_TREE/src/network/qt_network.pri )
 	DEFINES     *= QT_MODULE_NETWORK
