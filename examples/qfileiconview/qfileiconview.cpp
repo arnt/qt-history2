@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#24 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#25 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -424,7 +424,7 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
     : QIconViewItem( 0, fi->fileName() ), itemFileName( fi->filePath() ),
       itemFileInfo( fi ), checkSetText( FALSE ), timer( this )
 {
-    view = parent;
+    setView( parent );
 
     if ( itemFileInfo->isDir() )
 	itemType = Dir;
