@@ -33,7 +33,7 @@ sub-tools: sub-src FORCE
 symlinks: .qmake.cache
 #	syncqt
 
-sub-src: src-moc .qmake.cache FORCE
+sub-src: .qmake.cache FORCE
 	cd src
 	$(MAKE)
 	$(MAKE) -f Makefile.main
