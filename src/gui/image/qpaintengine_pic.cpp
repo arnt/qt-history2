@@ -141,34 +141,58 @@ void QPicturePaintEngine::updateBrush(QPainterState *ps)
 
 void QPicturePaintEngine::updateFont(QPainterState *ps)
 {
-//     d->trecs++;
-//     d->s << (Q_UINT8)PdcSetFont;
-//     d->s << (Q_UINT8)0;
-//     int pos = d->pictb->at();
-//     d->s << ps->font;
-//     writeCmdLength(pos, QRect(), false);
+    d->trecs++;
+    d->s << (Q_UINT8)PdcSetFont;
+    d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
+    d->s << ps->font;
+    writeCmdLength(pos, QRect(), false);
 }
 
 void QPicturePaintEngine::updateRasterOp(QPainterState *ps)
 {
-//     d->trecs++;
-//     d->s << (Q_UINT8)PdcSetROP;
-//     d->s << (Q_UINT8)0;
-//     int pos = d->pictb->at();
-//     d->s << ps->rasterOp;
-//     writeCmdLength(pos, QRect(), false);
+    d->trecs++;
+    d->s << (Q_UINT8) PdcSetROP;
+    d->s << (Q_UINT8) 0;
+    int pos = d->pictb->at();
+    d->s << (Q_INT8) ps->rasterOp;
+    writeCmdLength(pos, QRect(), false);
 }
 
 void QPicturePaintEngine::updateBackground(QPainterState *ps)
 {
+    d->trecs++;
+    d->s << (Q_UINT8) PdcSetBkColor;
+    d->s << (Q_UINT8) 0;
+    int pos = d->pictb->at();
+    d->s << ps->bgColor;
+    writeCmdLength(pos, QRect(), false);
+    d->trecs++;
+    d->s << (Q_UINT8) PdcSetBkMode;
+    d->s << (Q_UINT8) 0;
+    pos = d->pictb->at();
+    d->s << (Q_INT8) ps->bgMode;
+    writeCmdLength(pos, QRect(), false);
 }
 
 void QPicturePaintEngine::updateXForm(QPainterState *ps)
 {
+//     d->trecs++;
+//     d->s << (Q_UINT8)PdcSetWMatrix;
+//     d->s << (Q_UINT8)0;
+//     int pos = d->pictb->at();
+//     d->s << ps->matrix << (Q_INT8) false; // ### fix combine param
+//     writeCmdLength(pos, QRect(), false);
 }
 
 void QPicturePaintEngine::updateClipRegion(QPainterState *ps)
 {
+    d->trecs++;
+    d->s << (Q_UINT8)PdcSetClipRegion;
+    d->s << (Q_UINT8)0;
+    int pos = d->pictb->at();
+    d->s << ps->clipRegion << (Q_INT8) QPainter::CoordDevice; // ### fix coord mode
+    writeCmdLength(pos, QRect(), false);
 }
 
 void QPicturePaintEngine::writeCmdLength(int pos, const QRect &r, bool corr)
