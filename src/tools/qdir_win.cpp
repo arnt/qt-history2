@@ -563,14 +563,14 @@ const QFileInfoList * QDir::drives()
 	char driveName[4];
 
 #ifndef Q_OS_TEMP
-	qstrcpy( driveName, "a:/" );
+	qstrcpy( driveName, "A:/" );
 #else
 	qstrcpy( driveName, "/" );
 #endif
 
 	while( driveBits ) {
 	    if ( driveBits & 1 )
-		knownMemoryLeak->append( new QFileInfo( QString::fromLatin1(driveName) ) );
+		knownMemoryLeak->append( new QFileInfo( QString::fromLatin1(driveName).upper() ) );
 	    driveName[0]++;
 	    driveBits = driveBits >> 1;
 	}
