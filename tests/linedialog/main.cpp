@@ -17,9 +17,11 @@
 class Test : public QVBox
 {
     Q_OBJECT
-    
+
 public:
     Test() {
+	setSpacing( 5 );
+	setMargin( 5 );
 	QPushButton *b = 0;
 	b = new QPushButton( "Get Text", this );
 	connect( b, SIGNAL( clicked() ), this, SLOT( lined() ) );
@@ -33,9 +35,9 @@ public:
 	connect( b, SIGNAL( clicked() ), this, SLOT( lst2() ) );
 	res = new QLabel( "Nothing yet....", this );
     }
-    
-    
-    
+
+
+
 private slots:
     void lined() {
 	bool ok = FALSE;
@@ -45,7 +47,7 @@ private slots:
 	else
 	    res->setText( "Cancel Pressed!" );
     }
-    
+
     void num() {
 	bool ok = FALSE;
 	int num = QLineDialog::getInteger( "Number:", 22, 0, 1000, 1, &ok );
@@ -54,7 +56,7 @@ private slots:
 	else
 	    res->setText( "Cancel Pressed!" );
     }
-    
+
     void dbl() {
 	bool ok = FALSE;
 	double num = QLineDialog::getDouble( "Number:", 33.6, 0, 1000, 2, &ok );
@@ -63,7 +65,7 @@ private slots:
 	else
 	    res->setText( "Cancel Pressed!" );
     }
-    
+
     void lst1() {
 	QStringList lst;
 	lst << "First" << "Second" << "Third" << "Fourth" << "Fifth";
@@ -74,7 +76,7 @@ private slots:
 	else
 	    res->setText( "Cancel Pressed!" );
     }
-    
+
     void lst2() {
 	QStringList lst;
 	lst << "First" << "Second" << "Third" << "Fourth" << "Fifth";
@@ -85,15 +87,15 @@ private slots:
 	else
 	    res->setText( "Cancel Pressed!" );
     }
-    
+
 private:
     QLabel *res;
-    
-};
-    
-    
 
-int main( int argc, char ** argv ) 
+};
+
+
+
+int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
     Test t;
