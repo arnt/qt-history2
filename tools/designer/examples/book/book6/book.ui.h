@@ -2,7 +2,7 @@ void BookForm::editClicked()
 {
     EditBookForm *dialog = new EditBookForm( this, "Edit Book Form", TRUE );
     QSqlCursor cur( "book" );
-    dialog->BookDataBrowser->setCursor( &cur );
+    dialog->BookDataBrowser->setSqlCursor( &cur );
     dialog->BookDataBrowser->setFilter( BookDataTable->filter() );
     dialog->BookDataBrowser->setSort(QSqlIndex::fromStringList( 
     	BookDataTable->sort(), &cur ) );
