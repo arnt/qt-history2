@@ -1,6 +1,7 @@
 QPSQL
 - add large object support in the driver only
 - [fixed]check out the number of new/deletes going on with QPSQLResult, there seems to be too many
+- add support for server 6.x
 
 All drivers
 - ensure proper "primary index" support when generating field lists
