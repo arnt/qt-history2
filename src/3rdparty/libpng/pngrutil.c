@@ -1241,7 +1241,7 @@ png_handle_tRNS(png_structp png_ptr, png_infop info_ptr, png_uint_32 length)
          /* Should be an error, but we can cope with it */
          png_warning(png_ptr, "Missing PLTE before tRNS");
       }
-      else if (length > (png_uint_32)png_ptr->num_palette)
+      if (length > (png_uint_32)png_ptr->num_palette)
       {
          png_warning(png_ptr, "Incorrect tRNS chunk length");
          png_crc_finish(png_ptr, length);
