@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#46 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -292,6 +292,8 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
     case Waiting:
 	if ( e->type() == QEvent::MouseButtonPress && o->isWidgetType() ) {
 	    QWidget * w = (QWidget *) o;
+	    if ( w->customWhatsThis() )
+		return FALSE;
 	    QWhatsThisPrivate::WhatsThisItem * i = 0;
 	    while( w && !i ) {
 		i = dict->find( w );
@@ -299,16 +301,16 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		    w = w->parentWidget();
 	    }
 	
-	    if (!i )
-		return FALSE;
 	    leaveWhatsThisMode();
+	    if (!i )
+		return TRUE;
 	    QPoint pos =  ((QMouseEvent*)e)->pos();
 	    if ( i->whatsthis )
 		say( w, i->whatsthis->text( pos ), w->mapToGlobal(pos) );
 	    else
 		say( w, i->s, w->mapToGlobal(pos) );
 	    return TRUE;
-	} else if ( e->type() == QEvent::MouseButtonPress ||
+	} else if ( e->type() == QEvent::MouseButtonRelease ||
 		    e->type() == QEvent::MouseMove ) {
 	    return !o->isWidgetType() || !((QWidget*)o)->customWhatsThis();
 	} else if ( e->type() == QEvent::KeyPress ) {
