@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#53 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#52 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#53 $";
 #endif
 
 
@@ -657,8 +657,11 @@ static char *pat_tbl[] = {
 	bool mono = pdev->devType() == PDT_PIXMAP &&
 	            ((QPixMap*)pdev)->depth() == 1;
 	gc_brush = alloc_painter_gc( dpy, hd, mono );
-	if ( rop != CopyROP )			// update raster op for brush
-	    setRasterOp( (RasterOp)rop );
+	if ( rop != CopyROP ) {			// update raster op for brush
+	    RasterOp r = (RasterOp)rop;
+	    rop = CopyROP;			// force a change
+	    setRasterOp( r );
+	}
 	if ( testf(ClipOn) )
 	    XSetRegion( dpy, gc_brush, crgn.handle() );
 	if ( bro.x() != 0 || bro.y() != 0 )
@@ -855,6 +858,8 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 #endif
 	return;
     }
+    if ( rop == r )				// no need to change
+	return;
     rop = r;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
