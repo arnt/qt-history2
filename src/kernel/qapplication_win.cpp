@@ -187,6 +187,14 @@ extern IAccessible *qt_createWindowsAccessible( QAccessibleInterface *object );
 
 static UINT WM95_MOUSEWHEEL = 0;
 
+typedef struct tagTRACKMOUSEEVENT {
+    DWORD cbSize;
+    DWORD dwFlags;
+    HWND  hwndTrack;
+    DWORD dwHoverTime;
+} TRACKMOUSEEVENT, *LPTRACKMOUSEEVENT;
+
+extern "C" WINUSERAPI BOOL WINAPI _TrackMouseEvent( IN OUT LPTRACKMOUSEEVENT lpEventTrack);
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* ); // qapplication.cpp
 static int translateButtonState( int s, int type, int button );
 
@@ -2017,9 +2025,19 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    } else {
 		inputcharset = QString( info ).toInt();
 	    }
+            break;
+        }
+
+	case WM_MOUSELEAVE:
+	    // We receive a mouse leave for curWin, meaning
+	    // the mouse was moved outside our widgets
+	    if ( widget->winId() == curWin ) {
+		qt_dispatchEnterLeave( 0, QWidget::find( (WId)curWin ) );
+		curWin = 0;
+	    }
 	    break;
-	}
-	default:
+
+        default:
 	    result = FALSE;			// event was not processed
 	    break;
 	}
@@ -2454,6 +2472,14 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	if ( curWin != winId() ) {		// new current window
 	    qt_dispatchEnterLeave( this, QWidget::find(curWin) );
 	    curWin = winId();
+	    // We always have to set the tracking, since 
+	    // Windows detects more leaves than we do..
+	    TRACKMOUSEEVENT tme;
+	    tme.cbSize = sizeof(TRACKMOUSEEVENT);
+	    tme.dwFlags = 0x00000002; // TME_LEAVE
+	    tme.dwHoverTime = -1; // HOVER_DEFAULT
+	    tme.hwndTrack = curWin; // Track on window receiving msgs
+	    _TrackMouseEvent( &tme );
 	}
 
 	POINT curPos;
@@ -2628,8 +2654,8 @@ static const ushort KeyTbl[] = {		// keyboard mapping table
     VK_NEXT,		Qt::Key_Next,
     VK_SHIFT,		Qt::Key_Shift,		// modifiers
     VK_CONTROL,		Qt::Key_Control,
-//  VK_????,		Qt::Key_Meta,
-//  VK_????,		Qt::Key_Meta,
+//  VK_LWIN,		Qt::Key_Meta,
+//  VK_RWIN,		Qt::Key_Meta,
     VK_MENU,		Qt::Key_Alt,
     VK_CAPITAL,		Qt::Key_CapsLock,
     VK_NUMLOCK,		Qt::Key_NumLock,
