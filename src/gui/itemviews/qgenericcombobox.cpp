@@ -35,6 +35,7 @@ ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent
     list->setSelectionMode(QAbstractItemView::SingleSelection);
     list->setFrameStyle(QFrame::NoFrame);
     list->setLineWidth(0);
+    list->setSpacing(0);
     list->setStartEditActions(QAbstractItemDelegate::NeverEdit);
     list->setFocusPolicy(Qt::StrongFocus);
     connect(list->verticalScrollBar(), SIGNAL(valueChanged(int)),
@@ -152,7 +153,10 @@ void QGenericComboBoxPrivate::init()
     q->setFocusPolicy(Qt::StrongFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(model->index(0, 0, root));
-    delegate = new QItemDelegate(model, q);
+    if (q->style().styleHint(QStyle::SH_ComboBox_Popup))
+        delegate = new MenuDelegate(model, q);
+    else
+        delegate = new QItemDelegate(model, q);
     QGenericListView *l = new QGenericListView(model, 0);
     l->setItemDelegate(delegate);
     container = new ListViewContainer(l, q);
@@ -590,7 +594,7 @@ void QGenericComboBox::popup()
     d->container->show();
 }
 
-void QGenericComboBox::currentChanged(const QModelIndex &old, const QModelIndex &current)
+void QGenericComboBox::currentChanged(const QModelIndex &, const QModelIndex &)
 {
     if (d->lineEdit)
         d->lineEdit->setText(model()->data(q->currentItem(), QAbstractItemModel::Edit)
