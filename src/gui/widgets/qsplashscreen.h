@@ -33,12 +33,17 @@ public:
     void repaint();
 
 public slots:
-    void message(const QString &str, int flags = Qt::AlignLeft,
+    void showMessage(const QString &message, int alignment = Qt::AlignLeft,
                   const QColor &color = Qt::black);
-    void clear();
+    void clearMessage();
+#ifdef QT_COMPAT
+    inline QT_COMPAT void message(const QString &str, int alignment = Qt::AlignLeft,
+        const QColor &color = Qt::black) { showMessage(str, alignment, color); }
+    inline QT_COMPAT void clear() { clearMessage(); }
+#endif
 
 signals:
-    void messageChanged(const QString &str);
+    void messageChanged(const QString &message);
 
 protected:
     virtual void drawContents(QPainter *painter);
