@@ -48,8 +48,8 @@ find tutorial \
 	    fi
 	fi
 	tmake -t ${TEMPLATE} $tmakearg $(basename $pro_file) > Makefile.in
-        if [ -n "$LIST" ] ; then echo "$DIR/Makefile.in" ; fi	
-	; )
+        if [ -n "$LIST" ] ; then echo "$DIR/Makefile.in" ; fi
+	)
     done
 
 
