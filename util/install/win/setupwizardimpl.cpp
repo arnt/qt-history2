@@ -396,16 +396,16 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	}
     }
 #if defined(EVAL) || defined(EDU)
-    int sysGroupButton = 1;
-#else
     int sysGroupButton = 2;
+#else
+    int sysGroupButton = 3;
 #endif
 
 #if defined(Q_OS_WIN32)
     // First check for MSVC 6.0
     QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++", "ProductDir", QEnvironment::LocalMachine );
     if ( regValue.length() )
-	sysGroupButton = 1;
+	sysGroupButton = 2;
 
     // MSVC.NET 7.0 & 7.1 takes presedence over 6.0
     regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0", "InstallDir", QEnvironment::LocalMachine );
@@ -421,7 +421,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 
 #if defined(EVAL) || defined(EDU)
 	if ( archiveHeader->findExtraData( "compiler" ) == "borland" ) {
-	    sysGroupButton = 2;
+	    sysGroupButton = 3;
 	}
 #endif
 	delete archiveHeader;
