@@ -8,8 +8,8 @@
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
 // This is to have PATH_MAX defined in <limits.h>
-#ifndef _DGUX_SOURCE
-#  define _DGUX_SOURCE
+#ifndef _SYSV_LIMITS_FLAVOR
+#  define _SYSV_LIMITS_FLAVOR
 #endif
 
 #include <unistd.h>
