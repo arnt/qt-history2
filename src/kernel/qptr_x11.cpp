@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#134 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -9,8 +9,6 @@
 ** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
-
-#define USE_GC_CACHE
 
 #include "qpainter.h"
 #include "qpaintdc.h"
@@ -26,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#133 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#134 $")
 
 
 // --------------------------------------------------------------------------
@@ -211,8 +209,6 @@ static void free_gc( Display *dpy, GC gc )
 // Experiments show that the GC cache is very effective under normal use.
 //
 
-#if defined(USE_GC_CACHE)
-
 struct QGCC					// cached GC
 {
     GC	    gc;
@@ -224,6 +220,13 @@ struct QGCC					// cached GC
 const  int   gc_cache_size = 32;		// actually 32*4
 static QGCC *gc_cache[4*gc_cache_size];
 static bool  gc_cache_init = FALSE;
+
+// #define GC_CACHE_STAT
+#if defined(GC_CACHE_STAT)
+static int g_numhits	= 0;
+static int g_numcreates = 0;
+static int g_numfaults  = 0;
+#endif
 
 
 static void init_gc_cache()
@@ -237,23 +240,43 @@ static void init_gc_cache()
     }
 }
 
+#if defined(GC_CACHE_STAT)
+#include "qtstream.h"
+#include "qbuffer.h"
+#endif
+
 static void cleanup_gc_cache()
 {
+#if defined(GC_CACHE_STAT)
+    debug( "Number of cache hits = %d", g_numhits );
+    debug( "Number of cache creates = %d", g_numcreates );
+    debug( "Number of cache faults = %d", g_numfaults );
+    for ( int i=0; i<32; i++ ) {
+	QString	    str;
+	QBuffer	    buf( str );
+	buf.open(IO_ReadWrite);
+	QTextStream s(&buf);
+	s << i << ": ";
+	for ( int j=0; j<4; j++ ) {
+	    QGCC *g = gc_cache[i*4+j];
+	    s << (g->gc ? 'X' : '-') << ',' << g->hits << ','
+	      << g->count << '\t';
+	}
+	s << '\0';
+	debug( str );
+	buf.close();
+    }
+#endif
     delete [] gc_cache[0];
 }
 
-int g_numhits = 0;
-int g_numcreates = 0;
-int g_numfaults = 0;
 
-
-static bool obtain_gc( void **ref, GC *gc, ulong pix,
-		     Display *dpy, HANDLE hd )
+static bool obtain_gc( void **ref, GC *gc, ulong pix, Display *dpy, HANDLE hd )
 {
     if ( !gc_cache_init )
 	init_gc_cache();
 
-    int k = (int)pix % gc_cache_size;
+    int k = ((pix >> 16) ^ (pix >> 8) ^ pix) % gc_cache_size;
     k *= 4;
 
     QGCC *g = gc_cache[k++];
@@ -271,15 +294,21 @@ static bool obtain_gc( void **ref, GC *gc, ulong pix,
 		prev = g;
 		g = gc_cache[k++];
 		if ( NOMATCH ) {
-		    g_numfaults++;	// S
-		    if ( g->count == 0 ) {
+		    if ( g->count == 0 ) {	// steal this GC
 			g->pix   = pix;
 			g->count = 1;
 			g->hits  = 1;
+			XSetForeground( dpy, g->gc, pix );
+			gc_cache[k-1] = prev;
+			gc_cache[k-2] = g;
 			*ref = (void *)g;
-			return FALSE;
+			*gc = g->gc;
+			return TRUE;
 		    }
-		    else {
+		    else {			// all GCs in use
+#if defined(GC_CACHE_STAT)
+			g_numfaults++;
+#endif
 			*ref = 0;
 			return FALSE;
 		    }
@@ -290,34 +319,29 @@ static bool obtain_gc( void **ref, GC *gc, ulong pix,
 
 #undef NOMATCH
 
-#if 0
-    int c = 0;
-    while ( c < 4 && g->gc && (g->fgpix != fgpix || g->bgpix != bgpix ||
-	    g->fntid != fntid) ) {
-	c++;
-	prev = g;
-	g++;
-    }
-#endif
-
     *ref = (void *)g;
 
     if ( g->gc ) {				// reuse existing GC
-	g_numhits++;	// S
+#if defined(GC_CACHE_STAT)
+	g_numhits++;
+#endif
 	*gc = g->gc;
-	g->hits++;
 	g->count++;
-	if ( prev && g->hits > prev->hits ) {
-	    QGCC *t = g;			// keep LRU order
+	g->hits++;
+	if ( prev && g->hits > prev->hits ) {	// maintain LRU order
 	    gc_cache[k-1] = prev;
-	    gc_cache[k-2] = t;
+	    gc_cache[k-2] = g;
 	}
 	return TRUE;
     }
     else {					// create new GC
-	g_numcreates++;	// S
-	g->gc  = alloc_gc( dpy, hd, FALSE );
-	g->pix = pix;
+#if defined(GC_CACHE_STAT)
+	g_numcreates++;
+#endif
+	g->gc    = alloc_gc( dpy, hd, FALSE );
+	g->pix   = pix;
+	g->count = 1;
+	g->hits  = 1;
 	*gc = g->gc;
 	return FALSE;
     }
@@ -331,7 +355,14 @@ static inline void release_gc( void *ref )
     ((QGCC*)ref)->count--;
 }
 
-#endif  // USE_GC_CACHE
+
+// --------------------------------------------------------------------------
+// QPainter tables
+//
+
+static short ropCodes[] = {
+    GXcopy, GXor, GXxor, GXandInverted,
+    GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
 
 
 // --------------------------------------------------------------------------
@@ -345,9 +376,7 @@ static inline void release_gc( void *ref )
 void QPainter::initialize()
 {
     init_gc_array();
-#if defined(USE_GC_CACHE)
     init_gc_cache();
-#endif
 }
 
 /*!
@@ -356,12 +385,7 @@ void QPainter::initialize()
 
 void QPainter::cleanup()
 {
-#if defined(USE_GC_CACHE)
-    debug( "Number of cache hits = %d", g_numhits );
-    debug( "Number of cache creates = %d", g_numcreates );
-    debug( "Number of cache faults = %d", g_numfaults );
     cleanup_gc_cache();
-#endif
     cleanup_gc_array( qt_xdisplay() );
 }
 
@@ -429,9 +453,7 @@ QPainter::QPainter()
     tabarraylen = 0;
     ps_stack = 0;
     gc = gc_brush = 0;
-#if defined(USE_GC_CACHE)
     penRef = brushRef = 0;
-#endif
 }
 
 /*!
@@ -452,6 +474,7 @@ QPainter::~QPainter()
 	killPStack();
 }
 
+
 /*!
   \fn const QFont &QPainter::font() const
   Returns the current painter font.
@@ -471,145 +494,23 @@ void QPainter::setFont( const QFont &font )
 {
     if ( cfont.d != font.d ) {
 	cfont = font;
-	updateFont();
+	setf(DirtyFont);
     }
-}
-
-/*!
-  \fn const QPen &QPainter::pen() const
-  Returns the current painter pen.
-  \sa setPen()
-*/
-
-/*!
-  Sets a new painter pen.
-
-  The pen defines how to draw lines and outlines, and it also defines
-  the text color.
-
-  \sa pen()
-*/
-
-void QPainter::setPen( const QPen &pen )
-{
-    cpen = pen;
-    updatePen();
-}
-
-/*!
-  Sets a new painter pen with style \c style, width 0 and black color.
-  \sa pen(), QPen
-*/
-
-void QPainter::setPen( PenStyle style )
-{
-    register QPen::QPenData *d = cpen.data;	// low level access
-    if ( d->count != 1 ) {
-	cpen.detach();
-	d = cpen.data;
-    }
-    d->style = style;
-    d->width = 0;
-    d->color = black;
-    updatePen();
-}
-
-/*!
-  Sets a new painter pen with style \c SolidLine, width 0 and the specified
-  \e color.
-  \sa pen(), QPen
-*/
-
-void QPainter::setPen( const QColor &color )
-{
-    register QPen::QPenData *d = cpen.data;	// low level access
-    if ( d->count != 1 ) {
-	cpen.detach();
-	d = cpen.data;
-    }
-    d->style = SolidLine;
-    d->width = 0;
-    d->color = color;
-    updatePen();
-}
-
-/*!
-  \fn const QBrush &QPainter::brush() const
-  Returns the current painter brush.
-  \sa QPainter::setBrush()
-*/
-
-/*!
-  Sets a new painter brush.
-
-  The brush defines how to fill shapes.
-
-  \sa brush()
-*/
-
-void QPainter::setBrush( const QBrush &brush )
-{
-    cbrush = brush;
-    updateBrush();
-}
-
-/*!
-  Sets a new painter brush with black color and the specified \e style.
-  \sa brush(), QBrush
-*/
-
-void QPainter::setBrush( BrushStyle style )
-{
-    register QBrush::QBrushData *d = cbrush.data; // low level access
-    if ( d->count != 1 ) {
-	cbrush.detach();
-	d = cbrush.data;
-    }
-    d->style = style;
-    d->color = black;
-    if ( d->pixmap ) {
-	delete d->pixmap;
-	d->pixmap = 0;
-    }
-    updateBrush();
-}
-
-/*!
-  Sets a new painter brush with the style \c SolidPattern and the specified
-  \e color.
-  \sa brush(), QBrush
-*/
-
-void QPainter::setBrush( const QColor &color )
-{
-    register QBrush::QBrushData *d = cbrush.data; // low level access
-    if ( d->count != 1 ) {
-	cbrush.detach();
-	d = cbrush.data;
-    }
-    d->style = SolidPattern;
-    d->color = color;
-    if ( d->pixmap ) {
-	delete d->pixmap;
-	d->pixmap = 0;
-    }
-    updateBrush();
 }
 
 
 void QPainter::updateFont()			// update after changed font
 {
+    clearf(DirtyFont);
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].font = &cfont;
 	if ( !pdev->cmd(PDC_SETFONT,this,param) || !hd )
 	    return;
     }
-    setf(FontSet);
-    if ( penRef ) {
-	if ( ((QGCC*)penRef)->count > 1 )
-	    updatePen();
-    }
+    setf(NoCache);
+    if ( penRef )
+	updatePen();				// force a non-cached GC
     XSetFont( dpy, gc, cfont.handle() );
 }
 
@@ -629,8 +530,7 @@ void QPainter::updatePen()			// update after changed pen
 
     int ps = cpen.style();
 
-#if defined(USE_GC_CACHE)
-    bool cacheIt = !testf(ClipOn|MonoDev) &&
+    bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
 		   (ps == NoPen || ps == SolidLine) &&
 		   cpen.width() == 0 && rop == CopyROP;
 
@@ -645,12 +545,8 @@ void QPainter::updatePen()			// update after changed pen
 		free_gc( dpy, gc );
 	    }
 	}
-	if ( obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, hd) ) {
-	    if ( testf(FontSet) && ((QGCC*)penRef)->count > 1 )
-		penRef = 0;
-	    else
-		return;
-	}
+	if ( obtain_gc(&penRef, &gc, cpen.color().pixel(), dpy, hd) )
+	    return;
 	if ( !penRef )
 	    gc = alloc_gc( dpy, hd, FALSE );
     }
@@ -665,7 +561,6 @@ void QPainter::updatePen()			// update after changed pen
 	else
 	    gc = alloc_gc( dpy, hd, testf(MonoDev) );
     }
-#endif
 
     char *dashes = 0;				// custom pen dashes
     int dash_len = 0;				// length of dash list
@@ -693,8 +588,10 @@ void QPainter::updatePen()			// update after changed pen
 	    dash_len = sizeof(dash_dot_dot_line);
 	    break;
     }
+
     XSetForeground( dpy, gc, cpen.color().pixel() );
     XSetBackground( dpy, gc, bg_col.pixel() );
+
     if ( dash_len ) {				// make dash list
 	XSetDashes( dpy, gc, 0, dashes, dash_len );
 	s = bg_mode == TransparentMode ? LineOnOffDash : LineDoubleDash;
@@ -759,11 +656,9 @@ static uchar *pat_tbl[] = {
 
     int bs = cbrush.style();
 
-#if defined(USE_GC_CACHE)
     bool cacheIt = !testf(ClipOn|MonoDev) &&
 		   (bs == NoBrush || bs == SolidPattern) &&
-		   bro.x() == 0 && bro.y() == 0 &&
-		   rop == CopyROP;
+		   bro.x() == 0 && bro.y() == 0 && rop == CopyROP;
 
     if ( cacheIt ) {
 	if ( gc_brush ) {
@@ -792,7 +687,6 @@ static uchar *pat_tbl[] = {
 	else
 	    gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
     }
-#endif
 
     char *pat = 0;				// pattern
     int d = 0;					// defalt pattern size: d*d
@@ -806,35 +700,11 @@ static uchar *pat_tbl[] = {
 	else
 	    d = 16;
     }
-#if defined(USE_GC_CACHE)
-    if ( !brushRef ) {
-#else
-    if ( !gc_brush ) {				// brush not yet created
-	gc_brush = alloc_gc( dpy, hd, testf(MonoDev) );
-#endif
-	XSetLineAttributes( dpy, gc_brush, 0, LineSolid, CapButt, JoinMiter );
-	if ( rop != CopyROP ) {			// update raster op for brush
-	    RasterOp r = (RasterOp)rop;
-	    rop = CopyROP;			// force a change
-	    setRasterOp( r );
-	}
-	if ( testf(ClipOn) )
-	    XSetRegion( dpy, gc_brush, crgn.handle() );
-	if ( bro.x() != 0 || bro.y() != 0 )
-	    XSetTSOrigin( dpy, gc_brush, bro.x(), bro.y() );
-    }
 
+    XSetLineAttributes( dpy, gc_brush, 0, LineSolid, CapButt, JoinMiter );
     XSetForeground( dpy, gc_brush, cbrush.color().pixel() );
-#if defined(USE_GC_CACHE)
-    if ( brushRef ) {				// make usable as pen later
-	XSetBackground( dpy, gc_brush, cbrush.color().pixel() );
-	XSetLineAttributes( dpy, gc_brush, 0, LineSolid, CapButt, JoinMiter );
-    }
-    else
-	XSetBackground( dpy, gc_brush, bg_col.pixel() );
-#else
     XSetBackground( dpy, gc_brush, bg_col.pixel() );
-#endif
+
     if ( bs == CustomPattern || pat ) {
 	QPixmap *pm;
 	if ( pat ) {
@@ -928,26 +798,32 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
     pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
     bro = curPt = QPoint( 0, 0 );
     if ( reinit ) {
-	bg_col = white;				// default background color
 	bg_mode = TransparentMode;		// default background mode
 	rop = CopyROP;				// default ROP
 	wxmat.reset();				// reset world xform matrix
+	if ( dt != PDT_WIDGET ) {
+	    QFont  defaultFont;			// default drawing tools
+	    QPen   defaultPen;
+	    QBrush defaultBrush;
+	    cfont  = defaultFont;		// set these drawing tools
+	    cpen   = defaultPen;
+	    cbrush = defaultBrush;
+	    bg_col = white;			// default background color
+	}
     }
     wx = wy = vx = vy = 0;			// default view origins
 
     if ( dt == PDT_WIDGET ) {			// device is a widget
 	QWidget *w = (QWidget*)pdev;
-#if !defined(USE_GC_CACHE)
-	gc = alloc_gc( dpy, w->handle() );
-#endif
 	cfont = w->font();			// use widget font
+	cpen = QPen( w->foregroundColor() );	// use widget fg color
+	if ( reinit ) {
+	    QBrush defaultBrush;
+	    cbrush = defaultBrush;
+	}
 	bg_col = w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	cpen = QPen( w->foregroundColor() );	// use widget fg color
-	if ( reinit ) {
-	    cbrush = QBrush( NoBrush );
-	}
 #if 0
 	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
 	    updateBrush();
@@ -966,25 +842,13 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    return FALSE;
 	}
 	bool mono = pm->depth() == 1;		// monochrome bitmap
-	if ( mono )
-	    setf( MonoDev );
-#if !defined(USE_GC_CACHE)
-	gc = alloc_gc( dpy, hd, mono );		// create GC
-#endif
-	ww = vw = pm->width();			// default view size
-	wh = vh = pm->height();
-	if ( reinit ) {
-	    QFont  defaultFont;			// default drawing tools
-	    QPen   defaultPen;
-	    QBrush defaultBrush;
-	    cfont  = defaultFont;		// set these drawing tools
-	    cpen   = defaultPen;
-	    cbrush = defaultBrush;
-	}
 	if ( mono ) {
+	    setf( MonoDev );
 	    bg_col = color0;
 	    cpen.setColor( color1 );
 	}
+	ww = vw = pm->width();			// default view size
+	wh = vh = pm->height();
     }
     else if ( dt == PDT_PRINTER ) {		// device is a printer
 	ww = vw = pdev->metric( PDM_WIDTH );
@@ -998,12 +862,8 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	setRasterOp( CopyROP );			// default raster operation
     }
     else {					// widget or pixmap
-#if defined(USE_GC_CACHE)
 	updatePen();
 	updateBrush();
-#else
-	XSetBackground( dpy, gc, bg_col.pixel() );
-#endif
     }
     return TRUE;
 }
@@ -1030,10 +890,8 @@ bool QPainter::end()				// end painting
 	pdev->cmd( PDC_END, this, 0 );
     if ( gc_brush ) {				// restore brush gc
 	if ( brushRef ) {
-#if defined(USE_GC_CACHE)
 	    release_gc( brushRef );
 	    brushRef = 0;
-#endif
 	}
 	else {
 	    XSetClipMask( dpy, gc_brush, None );// make it reusable
@@ -1046,10 +904,8 @@ bool QPainter::end()				// end painting
     }
     if ( gc ) {					// restore pen gc
 	if ( penRef ) {
-#if defined(USE_GC_CACHE)
 	    release_gc( penRef );
 	    penRef = 0;
-#endif
 	}
 	else {
 	    XSetClipMask( dpy, gc, None );	// make it reusable
@@ -1077,18 +933,19 @@ bool QPainter::end()				// end painting
 */
 
 void QPainter::setBackgroundColor( const QColor &c )
-{						// set background color
-    bg_col = c;
+{
     if ( !isActive() )
 	return;
+    bg_col = c;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].color = &bg_col;
 	if ( !pdev->cmd(PDC_SETBKCOLOR,this,param) || !hd )
 	    return;
     }
-    updatePen();				// update pen setting
-    if ( gc_brush )
+    if ( !penRef )
+	updatePen();				// update pen setting
+    if ( !brushRef )
 	updateBrush();				// update brush setting
 }
 
@@ -1125,7 +982,7 @@ void QPainter::setBackgroundMode( BGMode m )	// set background mode
     }
     if ( !penRef )
 	updatePen();				// update pen setting
-    if ( gc_brush )
+    if ( !brushRef )
 	updateBrush();				// update brush setting
 }
 
@@ -1150,9 +1007,6 @@ void QPainter::setBackgroundMode( BGMode m )	// set background mode
 
 void QPainter::setRasterOp( RasterOp r )	// set raster operation
 {
-    static short ropCodes[] =
-	{ GXcopy, GXor, GXxor, GXandInverted,
-	  GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
     if ( !isActive() )
 	return;
     if ( (uint)r > NotROP ) {
@@ -1161,8 +1015,6 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 #endif
 	return;
     }
-    if ( rop == r )				// no need to change
-	return;
     rop = r;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
@@ -1170,16 +1022,12 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 	if ( !pdev->cmd(PDC_SETROP,this,param) || !hd )
 	    return;
     }
-#if defined(USE_GC_CACHE)
     if ( penRef )
-	updatePen();				// get non-cached pen gc
-#endif
+	updatePen();				// get non-cached pen GC
+    if ( brushRef )
+	updateBrush();				// get non-cached brush GC
     XSetFunction( dpy, gc, ropCodes[rop] );
-    if ( gc_brush ) {
-	if ( brushRef )
-	    updateBrush();			// get non-cached brush gc
-	XSetFunction( dpy, gc_brush, ropCodes[rop] );
-    }
+    XSetFunction( dpy, gc_brush, ropCodes[rop] );
 }
 
 
@@ -1187,7 +1035,7 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
   Sets the brush origin to \e (x,y).
 */
 
-void QPainter::setBrushOrigin( int x, int y )	// set brush origin
+void QPainter::setBrushOrigin( int x, int y )
 {
     if ( !isActive() )
 	return;
@@ -1198,11 +1046,9 @@ void QPainter::setBrushOrigin( int x, int y )	// set brush origin
 	if ( !pdev->cmd(PDC_SETBRUSHORIGIN,this,param) || !hd )
 	    return;
     }
-    if ( gc_brush ) {
-	if ( brushRef )
-	    updateBrush();
-	XSetTSOrigin( dpy, gc_brush, x, y );
-    }
+    if ( brushRef )
+	updateBrush();				// get non-cached brush GC
+    XSetTSOrigin( dpy, gc_brush, x, y );
 }
 
 
@@ -1458,23 +1304,16 @@ void QPainter::setClipping( bool enable )	// set clipping
 	    return;
     }
     if ( enable ) {
-#if defined(USE_GC_CACHE)
 	if ( penRef )
 	    updatePen();
-#endif
 	XSetRegion( dpy, gc, crgn.handle() );
-	if ( gc_brush ) {
-#if defined(USE_GC_CACHE)
-	    if ( brushRef )
-		updateBrush();
-#endif
-	    XSetRegion( dpy, gc_brush, crgn.handle() );
-	}
+	if ( brushRef )
+	    updateBrush();
+	XSetRegion( dpy, gc_brush, crgn.handle() );
     }
     else {
 	XSetClipMask( dpy, gc, None );
-	if ( gc_brush )
-	    XSetClipMask( dpy, gc_brush, None );
+	XSetClipMask( dpy, gc_brush, None );
     }
 }
 
@@ -1682,8 +1521,13 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	fix_neg_rect( &x, &y, &w, &h );
     }
     if ( cbrush.style() != NoBrush ) {
-	int dp = cpen.style() == NoPen ? 0 : 1;
-	XFillRectangle( dpy, hd, gc_brush, x+dp, y+dp, w-dp, h-dp );
+	if ( cpen.style() == NoPen ) {
+	    XFillRectangle( dpy, hd, gc_brush, x, y, w, h );
+	}
+	else {
+	    if ( w > 2 && h > 2 )
+		XFillRectangle( dpy, hd, gc_brush, x+1, y+1, w-2, h-2 );
+	}
     }
     if ( cpen.style() != NoPen )
 	XDrawRectangle( dpy, hd, gc, x, y, w-1, h-1 );
@@ -2519,7 +2363,9 @@ void QPainter::drawText( int x, int y, const char *str, int len )
     if ( len == 0 )				// empty string
 	return;
 
-    if ( testf(ExtDev|VxF|WxF) ) {
+    if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
+	if ( testf(DirtyFont) )
+	    updateFont();
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
