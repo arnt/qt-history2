@@ -61,45 +61,55 @@ void QBufferPrivate::emitSignals()
 /*!
     \class QBuffer
     \reentrant
-    \brief The QBuffer class is an I/O device that operates on a QByteArray.
+    \brief The QBuffer class provides a QIODevice interface for a QByteArray.
 
     \ingroup io
 
-    QBuffer is used to read and write to a memory buffer. It is
-    normally used with a QTextStream or a QDataStream. QBuffer has an
-    associated QByteArray which holds the buffer data. The buffer is
-    automatically resized as data is written.
+    QBuffer is a wrapper for QByteArray which allows you to access an
+    array using the QIODevice interface. The QByteArray is treated as
+    a FIFO queue (First In, First Out), so the first data you write to
+    the buffer is the first data you will read. Example:
 
-    The constructor \c QBuffer(QByteArray) creates a QBuffer using an
-    existing byte array. The byte array can also be set with
-    setBuffer(). Writing to the QBuffer will modify the original byte
-    array because QByteArray is \link shclass.html explicitly
-    shared.\endlink
+    \code
+    QBuffer buffer;
 
-    Use open() to open the buffer before use and to set the mode
-    (read-only, write-only, etc.). close() closes the buffer. The
-    buffer must be closed before reopening or calling setBuffer().
+    if (buffer.open(QBuffer::ReadWrite)) {
+        buffer.write("Qt rocks!");
+        char c;
+        buffer.getChar(&c); // 'Q'
+        buffer.getChar(&c); // 't'
+        buffer.getChar(&c); // ' '
+        buffer.getChar(&c); // 'r'
+    }
+    \endcode
 
-    A common way to use QBuffer is through \l QDataStream or \l
-    QTextStream, which have constructors that take a QBuffer
-    parameter. For convenience, there are also QDataStream and
-    QTextStream constructors that take a QByteArray parameter. These
-    constructors operate on an internal QBuffer.
+    By default, an internal QByteArray buffer is created for you when
+    you construct a QBuffer. You can access this buffer directly by
+    calling buffer(). You can also use QBuffer with an existing
+    QByteArray by calling setBuffer(), or by passing your array to
+    QBuffer's constructor.
 
-    Note that QTextStream can also operate on a QString (a Unicode
-    string), but a QBuffer cannot.
+    Call open() to open the buffer. Then call \l write() or \l
+    putChar() to write to the buffer, and \l read(), \l readLine(), \l
+    readAll() or \l getChar() to read from it. size() returns the
+    current size of the buffer, and you can seek to arbitrary
+    positions in the buffer by calling seek(). When you are done with
+    accessing the buffer, call close().
 
-    You can also use QBuffer directly through the standard QIODevice
-    functions readBlock(), writeBlock() readLine(), at(), getch(),
-    putch() and ungetch().
+    QBuffer emits \l readyRead() when new data has arrived in the
+    buffer. By connecting to this signal, you can use QBuffer to store
+    temporary data before processing it. For example, you can pass the
+    buffer to QFtp when downloading a file from an FTP server.
+    Whenever a new payload of data has been downloaded, your slot
+    connected to \l readyRead() will be called. QBuffer also emits
+    \l bytesWritten() every time new data has been written to the buffer.
+
+    QBuffer can be used with QTextStream and QDataStream's stream
+    operators (operator<<() and operator>>()).
 
     \sa QFile, QDataStream, QTextStream, QByteArray, \link shclass.html Shared Classes\endlink
 */
 
-
-/*!
-    Constructs an empty buffer.
-*/
 
 #ifdef QT_NO_QOBJECT
 QBuffer::QBuffer()
@@ -115,31 +125,15 @@ QBuffer::QBuffer(QByteArray *a)
     d->buf = a;
 }
 #else
+/*!
+    Constructs an empty buffer.
+*/
 QBuffer::QBuffer()
     : QIODevice(*new QBufferPrivate, 0)
 {
     Q_D(QBuffer);
     d->buf = &d->defaultBuf;
 }
-QBuffer::QBuffer(QByteArray *a)
-    : QIODevice(*new QBufferPrivate, 0)
-{
-    Q_D(QBuffer);
-    d->buf = a;
-}
-QBuffer::QBuffer(QObject *parent)
-    : QIODevice(*new QBufferPrivate, parent)
-{
-    Q_D(QBuffer);
-    d->buf = &d->defaultBuf;
-}
-QBuffer::QBuffer(QByteArray *a, QObject *parent)
-    : QIODevice(*new QBufferPrivate, parent)
-{
-    Q_D(QBuffer);
-    d->buf = a;
-}
-#endif
 
 /*!
     Constructs a buffer that operates on QByteArray \a a.
@@ -161,8 +155,34 @@ QBuffer::QBuffer(QByteArray *a, QObject *parent)
 
     \sa setBuffer()
 */
+QBuffer::QBuffer(QByteArray *a)
+    : QIODevice(*new QBufferPrivate, 0)
+{
+    Q_D(QBuffer);
+    d->buf = a;
+}
 
+/*!
+    Constructs an empty buffer with the parent \a parent.
+*/
+QBuffer::QBuffer(QObject *parent)
+    : QIODevice(*new QBufferPrivate, parent)
+{
+    Q_D(QBuffer);
+    d->buf = &d->defaultBuf;
+}
 
+/*!
+    Constructs a buffer that operates on QByteArray \a a, with the
+    parent \a parent.
+*/
+QBuffer::QBuffer(QByteArray *a, QObject *parent)
+    : QIODevice(*new QBufferPrivate, parent)
+{
+    Q_D(QBuffer);
+    d->buf = a;
+}
+#endif
 
 /*!
     Destroys the buffer.
