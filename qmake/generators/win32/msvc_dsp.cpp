@@ -625,7 +625,7 @@ DspMakefileGenerator::init()
     }
 
     project->variables()["MSVCDSP_VER"] = "6.00";
-    project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /ZI";
+    project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /ZI /Yd /Gm /GX /Zi /GF /GZ /Ge /YX";
 
     if(!project->isActiveConfig("incremental")) {
 	project->variables()["QMAKE_LFLAGS"].append(QString("/incremental:no"));
