@@ -28,6 +28,7 @@ public:
     static void getHostByName(const QString &name,
                               QObject *receiver, const char *member);
     static QDnsHostInfo getHostByName(const QString &name);
+    static QString getHostName();
 };
 
 class Q_NETWORK_EXPORT QDnsHostInfo

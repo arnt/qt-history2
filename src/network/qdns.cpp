@@ -349,3 +349,15 @@ QString QDnsHostInfo::errorString() const
 {
     return d->errorStr;
 }
+
+/*!
+    Returns the host name of this machine.
+*/
+QString QDns::getHostName()
+{
+    char hostName[512];
+    if (gethostname(hostName, sizeof(hostName)) == -1)
+        return QString::null;
+    hostName[sizeof(hostName) - 1] = '\0';
+    return QString(hostName);
+}
