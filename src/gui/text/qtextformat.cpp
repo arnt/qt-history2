@@ -1747,6 +1747,15 @@ QFont QTextCharFormat::font() const
     \sa backgroundColor()
 */
 
+/*!
+    \fn void QTextBlockFormat::clearBackgroundColor()
+
+    Clears the paragraph's background color. The default background color
+    will be used for the paragraph.
+
+    \sa backgroundColor() setBackgroundColor()
+*/
+
 
 /*!
     \fn QColor QTextBlockFormat::backgroundColor() const
@@ -2111,6 +2120,15 @@ QFont QTextCharFormat::font() const
     Returns the table's background color.
 
     \sa setBackgroundColor()
+*/
+
+/*!
+    \fn void QTextTableFormat::clearBackgroundColor()
+
+    Clears the table's background color. The default background color will
+    be used for the table.
+
+    \sa backgroundColor() setBackgroundColor()
 */
 
 

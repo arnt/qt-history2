@@ -495,27 +495,27 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
     \value NoMove Keep the cursor where it is
 
-    \value Start Move to the start of the document
-    \value StartOfLine Move to the start of the current line
-    \value StartOfBlock Move to the start of the current block
-    \value StartOfWord Move to the start of the current word
-    \value PreviousBlock Move to the start of the previous block
-    \value PreviousCharacter Move to the previous character
-    \value PreviousWord Move to the beginning of the previous word
-    \value Up move up one line
-    \value Left move left one character
-    \value WordLeft move left one word
+    \value Start Move to the start of the document.
+    \value StartOfLine Move to the start of the current line.
+    \value StartOfBlock Move to the start of the current block.
+    \value StartOfWord Move to the start of the current word.
+    \value PreviousBlock Move to the start of the previous block.
+    \value PreviousCharacter Move to the previous character.
+    \value PreviousWord Move to the beginning of the previous word.
+    \value Up Move up one line.
+    \value Left Move left one character.
+    \value WordLeft Move left one word.
 
-    \value End move to the end of the document
-    \value EndOfLine move to the end of the current line
-    \value EndOfWord move to the end of the current word
-    \value EndOfBlock move to the end of the current block
-    \value NextBlock move to the beginning of the next block
-    \value NextCharacter move to the next character
-    \value NextWord move to the next word
-    \value Down move down one line
-    \value Right move right one character
-    \value WordRight right move one word
+    \value End Move to the end of the document.
+    \value EndOfLine Move to the end of the current line.
+    \value EndOfWord Move to the end of the current word.
+    \value EndOfBlock Move to the end of the current block.
+    \value NextBlock Move to the beginning of the next block.
+    \value NextCharacter Move to the next character.
+    \value NextWord Move to the next word.
+    \value Down Move down one line.
+    \value Right Move right one character.
+    \value WordRight Move right one word.
 
     \sa movePosition()
 */
@@ -602,7 +602,7 @@ QTextCursor::~QTextCursor()
 
 /*!
     Returns true if the cursor is null; otherwise returns false. A null
-    cursor gets created when using the default constructor.
+    cursor is created by the default constructor.
  */
 bool QTextCursor::isNull() const
 {
@@ -610,8 +610,9 @@ bool QTextCursor::isNull() const
 }
 
 /*!
-    Moves the cursor to the absolute position \a pos using \c MoveMode
-    \a m. The cursor is positioned between characters.
+    Moves the cursor to the absolute position in the document specified by
+    \a pos using a \c MoveMode specified by \a m. The cursor is positioned
+    between characters.
 
     \sa position() movePosition() anchor()
 */
@@ -669,7 +670,7 @@ int QTextCursor::anchor() const
 
     If \a mode is \c KeepAnchor, the cursor selects the text it moves
     over. This is the same effect that the user achieves when they
-    move using arrow keys with the Shift key pressed.
+    hold down the Shift key and move the cursor with the cursor keys.
 */
 bool QTextCursor::movePosition(MoveOperation op, MoveMode mode, int n)
 {
@@ -798,9 +799,8 @@ bool QTextCursor::hasSelection() const
 
 
 /*!
-    Returns true if the cursor contains a selection and the selection
-    is simple a range from selectionStart() to selectionEnd();
-    otherwise returns false.
+    Returns true if the cursor contains a selection that is not simply a
+    range from selectionStart() to selectionEnd(); otherwise returns false.
 
     Complex selections are ones that span at least two rows of cells
     in a table; their extent is specified by selectedTableCells().
@@ -979,8 +979,8 @@ QString QTextCursor::selectedText() const
 
 /*!
     Returns the current selection (which may be empty) with all its
-    formatting information. If you just want the selected text, i.e.
-    plain text, use selectedText() instead.
+    formatting information. If you just want the selected text (i.e.
+    plain text) use selectedText() instead.
 */
 QTextDocumentFragment QTextCursor::selection() const
 {
@@ -1033,7 +1033,8 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
 
 /*!
     Modifies the block format of the current block (or all blocks that
-    are contained in the selection) with \a modifier.
+    are contained in the selection) with the block format specified by
+    \a modifier.
 
     \sa setBlockFormat()
 */
@@ -1084,8 +1085,8 @@ QTextCharFormat QTextCursor::charFormat() const
 }
 
 /*!
-    Set the format \a format as char format for the selection. Does
-    nothing if the cursor doesn't have a selection.
+    Set the character format to the given \a format for the current selection.
+    Does nothing if the cursor does not have a selection.
 
     \sa hasSelection()
 */
@@ -1105,8 +1106,8 @@ void QTextCursor::setCharFormat(const QTextCharFormat &format)
 }
 
 /*!
-    Applies all the properties set in \a modifier to all the formats
-    that are part of the selection. Does nothing if the cursor doesn't
+    Applies all the properties set in \a modifier to all the character formats
+    that are part of the selection. Does nothing if the cursor does not
     have a selection.
 
     \sa hasSelection()
@@ -1223,7 +1224,7 @@ void QTextCursor::insertBlock(const QTextBlockFormat &format)
     list item of a newly created list with the given \a format. Returns
     the created list.
 
-    \sa currentList(), createList(), insertBlock()
+    \sa currentList() createList() insertBlock()
  */
 QTextList *QTextCursor::insertList(const QTextListFormat &format)
 {
@@ -1247,7 +1248,7 @@ QTextList *QTextCursor::insertList(int style)
 }
 
 /*!
-    Creates and returns a new list with the given \a format and makes the
+    Creates and returns a new list with the given \a format, and makes the
     current paragraph the cursor is in the first list item.
 
     \sa insertList() currentList()
@@ -1282,8 +1283,8 @@ QTextList *QTextCursor::createList(int style)
 }
 
 /*!
-    Returns the current list, if the cursor position() is inside a
-    block that is part of a list; otherwise returns a null pointer.
+    Returns the current list if the cursor position() is inside a
+    block that is part of a list; otherwise returns 0.
 
     \sa insertList() createList()
  */
@@ -1342,9 +1343,8 @@ QTextTable *QTextCursor::insertTable(int rows, int cols, const QTextTableFormat 
 }
 
 /*!
-    Returns a pointer to the current table, if the cursor position()
-    is inside a block that is part of a table; otherwise returns a
-    null pointer.
+    Returns a pointer to the current table if the cursor position()
+    is inside a block that is part of a table; otherwise returns 0.
 
     \sa insertTable()
 */
@@ -1364,10 +1364,10 @@ QTextTable *QTextCursor::currentTable() const
 }
 
 /*!
-    Inserts a frame with the given \a format, at the current cursor position(),
-    and moves the cursor position() inside the frame.
+    Inserts a frame with the given \a format at the current cursor position(),
+    moves the cursor position() inside the frame, and returns the frame.
 
-    If the cursor holds a selection the whole selection is moved inside the
+    If the cursor holds a selection, the whole selection is moved inside the
     frame.
 
     \sa hasSelection()
@@ -1381,8 +1381,7 @@ QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
 }
 
 /*!
-    Returns a pointer to the current frame, returns a
-    null pointer if the cursor is invalid.
+    Returns a pointer to the current frame. Returns 0 if the cursor is invalid.
 
     \sa insertFrame()
 */

@@ -781,15 +781,14 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
     An iterator can be constructed and used to access the fragments within
     a text block in the following way:
 
-    \quotefile textblock-fragments/xmlwriter.cpp
-    \skipto while (currentBlock
-    \printto QDom
+    \quotefile snippets/textblock-fragments/xmlwriter.cpp
     \skipto QTextBlock::iterator
     \printuntil if (fragment.isValid())
     \skipto ...
     \printuntil ...
     \skipto }
-    \printuntil currentBlock =
+    \printuntil }
+    \skipto }
     \printuntil }
 
     \sa QTextFragment
