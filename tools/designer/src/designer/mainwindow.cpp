@@ -456,13 +456,16 @@ void MainWindow::setupMenuBar()
 #endif
                    );
     m_formActionList.append(act);
-    menu->addSeparator();
+
 #if 0  // Need special help page first.
+    menu->addSeparator();
     act = menu->addAction(tr("What's New in Designer?"), this, SLOT(showTheNewStuff()));
 #endif
+
 #ifndef Q_WS_MAC // No need to show this on the mac since it is merged away.
     menu->addSeparator();
 #endif
+
     act = menu->addAction(tr("About Qt Designer"), this, SLOT(aboutDesigner()));
     m_formActionList.append(act);
     act = menu->addAction(tr("About Qt"), qApp, SLOT(aboutQt()));
@@ -527,10 +530,7 @@ void MainWindow::newForm()
                 this, SLOT(newForm(const QString &)));
     }
 
-    m_newFormDialog->show();
-    m_newFormDialog->raise();
-    m_newFormDialog->setFocus();
-    m_newFormDialog->setActiveWindow();
+    m_newFormDialog->exec();
 }
 
 void MainWindow::newForm(const QString &widgetClass)
@@ -548,9 +548,9 @@ void MainWindow::newForm(const QString &widgetClass)
         }
     }
 
-    QString newTitle = "Untitled";
+    QString newTitle = QString::fromLatin1("Untitled");
     if (maxUntitled)
-        newTitle += " " + QString::number(maxUntitled + 1);
+        newTitle += QString::fromLatin1(" ") + QString::number(maxUntitled + 1);
     AbstractWidgetFactory *f = core->widgetFactory();
     AbstractFormWindow *fw = m_formWindowManager->createFormWindow(invisibleParent, Qt::WType_TopLevel);
     setupFormWindow(fw);
