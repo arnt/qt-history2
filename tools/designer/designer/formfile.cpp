@@ -47,7 +47,9 @@ static QString make_func_pretty( const QString &s )
     res.replace( "&", " &" );
     res.replace( "*", " *" );
     res.replace( ",", ", " );
+    res.replace( ":", " : " );
     res = res.simplifyWhiteSpace();
+    res.replace( " : : ", "::" );
     return res;
 }
 
