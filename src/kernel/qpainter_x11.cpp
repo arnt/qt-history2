@@ -2174,9 +2174,16 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    }
 	}
     }
-    if ( cpen.style() != NoPen )
+    if ( cpen.style() != NoPen ) {
+	while(npoints>65535) {
+	    XDrawLines( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, 65535 )),
+			npoints, CoordModeOrigin );
+	    npoints-=65535;
+	    index+=65535;
+	}
 	XDrawLines( dpy, hd, gc, (XPoint*)(pa.shortPoints( index, npoints )),
-		    npoints, CoordModeOrigin );
+		    npoints, CoordModeOrigin );	
+    }
 }
 
 
