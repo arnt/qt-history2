@@ -210,6 +210,12 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
 
 #ifndef QT_NO_SOUND
 
+struct QRiffChunk {
+    char id[4];
+    Q_UINT32 size;
+    char data[4/*size*/];
+};
+
 //#define QT_QWS_SOUND_8BIT
 static const int sound_fragment_size = 8;
 static const int sound_stereo = 0;
@@ -222,7 +228,8 @@ public:
     {
 	dev = d;
 	out = 0;
-	available = dev->readBlock((char*)data,sound_buffer_size);
+	chunk_remaining = 0;
+	available = readSamples(data,sound_buffer_size); // preload some
     }
     ~QWSSoundServerBucket()
     {
@@ -253,12 +260,12 @@ public:
 	int toread = sound_buffer_size - available;
 	int in = (out + available)%sound_buffer_size;
 	int a = sound_buffer_size-in; if ( a > toread ) a = toread;
-	int rd = a ? dev->readBlock((char*)data+in, a) : 0;
+	int rd = a ? readSamples(data+in,a) : 0;
 	if ( rd < 0 )
 	    return FALSE; // ############
 	int b = toread - rd;
 	if ( b ) {
-	    int r = dev->readBlock((char*)data, b);
+	    int r = readSamples(data,b);
 	    if ( r > 0 )
 		rd += r;
 	}
@@ -266,8 +273,71 @@ public:
 	return rd > 0;
     }
 private:
+    int readSamples(uchar* dst, int count)
+    {
+	if ( chunk_remaining < 0 )
+	    return 0; // in error state
+	while ( 1 ) {
+	    if ( chunk_remaining > 0 ) {
+		if ( count > chunk_remaining )
+		    count = chunk_remaining;
+		chunk_remaining -= count;
+		return dev->readBlock((char*)dst, count);
+	    } else {
+		chunk_remaining = -1;
+		// Keep reading chunks...
+		const int n = sizeof(chunk)-sizeof(chunk.data);
+		if ( dev->readBlock((char*)&chunk,n) != n ) {
+		    return 0;
+		}
+		if ( strncmp(chunk.id,"data",4) == 0 ) {
+		    chunk_remaining = chunk.size;
+		} else if ( strncmp(chunk.id,"RIFF",4) == 0 ) {
+		    char d[4];
+		    dev->readBlock(d,4);
+		    if ( strncmp(d,"WAVE",4) != 0 ) {
+			return 0;
+		    }
+		} else if ( strncmp(chunk.id,"fmt ",4) == 0 ) {
+		    struct {
+			#define WAVE_FORMAT_PCM 1
+			Q_INT16 formatTag;
+			Q_INT16 channels;
+			Q_INT32 samplesPerSec;
+			Q_INT32 avgBytesPerSec;
+			Q_INT16 blockAlign;
+		    } chunkdata;
+		    if ( dev->readBlock((char*)&chunkdata,sizeof(chunkdata)) != sizeof(chunkdata) ) {
+			qDebug("WAV file: UNSUPPORTED SIZE");
+			return 0;
+		    }
+		    if ( chunkdata.formatTag != WAVE_FORMAT_PCM ) {
+			qDebug("WAV file: UNSUPPORTED FORMAT");
+			return 0;
+		    }
+		    if ( chunkdata.channels != sound_stereo+1 ) {
+			qDebug("WAV file: UNSUPPORTED CHANNELS");
+			return 0;
+		    }
+		    /* Ignore
+		    if ( chunkdata.samplesPerSec != sound_speed ) {
+			return 0;
+		    }
+		    */
+		} else {
+		    // ignored chunk
+		    if ( !dev->at(dev->at()+chunk.size) ) {
+			return 0;
+		    }
+		}
+	    }
+	}
+    }
+    QRiffChunk chunk;
+    int chunk_remaining;
+
     QIODevice* dev;
-    unsigned char data[sound_buffer_size];
+    uchar data[sound_buffer_size];
     int available,out;
 };
 

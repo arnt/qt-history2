@@ -116,11 +116,20 @@ public:
   more immediately than sounds played using the first model, depending
   on the underlying platform audio facilities.
 
-  On Microsoft Windows, the underlying multimedia system is used.
+  On Microsoft Windows, the underlying multimedia system is used and
+  hence WAVE format sound files are supported.
+
   On X11, the
   <a href=ftp://ftp.x.org/contrib/audio/nas/>Network Audio System</a>
   is used if available, otherwise all
-  operations work silently. The availability of sound can be
+  operations work silently. NAS supports WAVE and AU files.
+
+  On Qt/Embedded, a built-in mixing sound server is used, which accesses
+  <tt>/dev/dsp</tt> directly. Only a single WAVE format is supported,
+  though that support can be configured when building Qt. The default is
+  11.025 kHz 8-bit mono PCM.
+
+  The availability of sound can be
   tested with QSound::available().
 */
 
