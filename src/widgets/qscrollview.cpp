@@ -987,6 +987,13 @@ void QScrollView::wheelEvent( QWheelEvent *e ){
     }
 }
 
+/*! \reimp
+*/
+void QScrollView::contextMenuEvent( QContextMenuEvent *e )
+{
+    e->accept();
+}
+
 /*!
   Returns the currently set mode for the vertical scroll bar.
 
@@ -1297,6 +1304,9 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	case QEvent::Wheel:
 	    viewportWheelEvent( (QWheelEvent*)e );
 	    break;
+	case QEvent::ContextMenu:
+	    viewportContextMenuEvent( (QContextMenuEvent*)e );
+	    break;
 	case QEvent::ChildRemoved:
 	    removeChild((QWidget*)((QChildEvent*)e)->child());
 	    break;
@@ -1401,6 +1411,15 @@ void QScrollView::contentsWheelEvent( QWheelEvent * e )
     e->ignore();
 }
 
+/*!
+  This event handler is called whenever the QScrollView receives a
+  contextMenuEvent() - the mouse position is translated to be a
+  point on the contents.
+*/
+void QScrollView::contentsContextMenuEvent( QContextMenuEvent *e )
+{
+    e->ignore();
+}
 
 /*!
   This is a low-level painting routine that draws the viewport
@@ -1574,7 +1593,7 @@ void QScrollView::viewportDropEvent( QDropEvent* e )
 /*!\internal
 
   To provide simple processing of events on the contents, this function
-  receives all wheel events sent to the viewport, translates the the
+  receives all wheel events sent to the viewport, translates the 
   event and calls contentsWheelEvent().
 
   \sa QWidget::wheelEvent()
@@ -1584,6 +1603,22 @@ void QScrollView::viewportWheelEvent( QWheelEvent* e )
     QWheelEvent ce( viewportToContents(e->pos()),
 	e->globalPos(), e->delta(), e->state());
     contentsWheelEvent(&ce);
+    if ( ce.isAccepted() )
+	e->accept();
+    else
+	e->ignore();
+}
+
+/*! \internal
+
+  To provide simple processing of events on the contents, this function
+  receives all context menu events sent to the viewport, translates the 
+  event and calls contentsContextMenuEvent().
+*/
+void QScrollView::viewportContextMenuEvent( QContextMenuEvent *e )
+{
+    QContextMenuEvent ce(e->reason(), viewportToContents(e->pos()), e->globalPos() );
+    contentsContextMenuEvent( &ce );
     if ( ce.isAccepted() )
 	e->accept();
     else
