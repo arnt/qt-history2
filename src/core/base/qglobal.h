@@ -1506,7 +1506,7 @@ typedef uint Flags
 
 
 #if defined(Q_CC_GNU)
-// make use of typof-extension
+// make use of typeof-extension
 template <typename T>
 class QForeachContainer {
 public:
@@ -1516,7 +1516,7 @@ public:
 };
 
 #define Q_FOREACH(variable, container) \
-for (QForeachContainer<typeof(container)> _container_(container); _container_.i != _container_.e; \
+for (QForeachContainer<__typeof__(container)> _container_(container); _container_.i != _container_.e; \
     ++_container_.i) \
     for (variable = *_container_.i;;({break;}))
 
