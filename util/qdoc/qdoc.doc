@@ -1065,6 +1065,9 @@
     \\endlink) is the displayed text. Here, we would get "... 1 if
     it's in the \link #fnord 'no change' state \endlink or 0 if ...".
 
+    \\link also support local links: \\link #details detailed
+    description \\endlink.
+
     Avoid this most of the time. In the hypertext version, readers
     have to click to see what setTriState() is called. In the manpage
     and paper versions, they cannot see it at all. Instead, it is
