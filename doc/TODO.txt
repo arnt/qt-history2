@@ -54,9 +54,8 @@ QRect
   Make 0x0 rectangles valid and fix any problems that may arise from it.
 
 PNG
-  Get Qt to work with libpng 1.0.8. Send a bug report if the bug is in
-  libpng 1.0.8 and find a workaround. Use functions instead of direct struct
-  access to maintain binary compatibility with all libpng versions.
+  Use functions instead of direct struct access to maintain binary
+  compatibility across libpng versions.
 
 PNG
   Two images from the PNG test suite are still not read correctly.
