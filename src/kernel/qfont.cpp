@@ -1776,7 +1776,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
   lineSpacing() are used to calculate the height, rather than
   individual character heights.
 
-  The \a internal argument is for internal purposes.
+  The \a intern argument is for internal purposes.
 
   \sa width(), QPainter::boundingRect(), Qt::AlignmentFlags
 */
@@ -1826,7 +1826,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
   Despite the different actual character heights, the heights of the
   bounding rectangles of "Yes" and "yes" are the same.
 
-  The \a internal argument is for internal purposes.
+  The \a intern argument is for internal purposes.
 
   \sa boundingRect()
 */
