@@ -2814,7 +2814,7 @@ void MainWindow::showDialogHelp()
 
     QString link = QString( qInstallPathDocs() ) + "/html/designer-manual-12.html#";
 
-    if ( w->inherits( "NewFormBase" ) )
+    if ( w->inherits( "NewFormBase" ) || w->inherits( "StartDialogBase" ) ) // own doc for startdialog?
 	link += "dialog-file-new";
     else if ( w->inherits( "CreateTemplate" ) )
 	link += "dialog-file-create-template";

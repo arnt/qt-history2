@@ -345,9 +345,10 @@ void NewForm::insertTemplates( QIconView *tView,
 	adjustSize();
 }
 
-NewForm::NewForm()
+NewForm::NewForm( QIconView *templateView, const QString &templatePath )
 {
-
+    insertTemplates( templateView, templatePath );
+    projectChanged( tr( "<No Project>" ) );
 }
 
 NewForm::NewForm( QWidget *parent, const QStringList& projects,

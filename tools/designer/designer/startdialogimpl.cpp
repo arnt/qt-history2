@@ -32,20 +32,17 @@ void FileDialog::accept()
 }
 
 
-StartDialog::StartDialog( QWidget *parent, const QStringList& projects,
-			  const QString& currentProject,
-			  const QString &templatePath )
+StartDialog::StartDialog( QWidget *parent, const QString &templatePath )
     : StartDialogBase( parent, 0 )
 {
-    projectCombo->insertStringList( projects );
-    projectCombo->setCurrentText( currentProject );
-    newForm = new NewForm();
-    newForm->insertTemplates( templateView, templatePath );
-
+    newForm = new NewForm( templateView, templatePath );
+    
     recentFiles.clear();
 
     initFileOpen();
-
+    
+    connect( buttonHelp, SIGNAL( clicked() ),
+	     MainWindow::self, SLOT( showDialogHelp() ) );
     connect( recentView, SIGNAL( doubleClicked(QIconViewItem*) ),
 	     this, SLOT( accept() ) );
     connect( recentView, SIGNAL( returnPressed(QIconViewItem*) ),
@@ -68,15 +65,14 @@ void StartDialog::accept()
     QString filename;
     if( !tabindex ) {
 	if ( !templateView->currentItem() )
-	    return;
-	Project *pro = MainWindow::self->findProject( projectCombo->currentText() );
+	    return;	
+	Project *pro = MainWindow::self->findProject( tr( "<No Project>" ) );
 	if ( !pro )
 	    return;
-	MainWindow::self->setCurrentProject( pro );
-	( (NewItem*)templateView->currentItem() )->insert( pro );
+	MainWindow::self->setCurrentProject( pro );	
+	( (NewItem*)templateView->currentItem() )->insert( pro );	
     } else if ( tabindex == 1 ) {
-	filename = fd->selectedFile();	
-
+	filename = fd->selectedFile();
     } else if ( tabindex == 2 ) {    	
 	filename = recentFiles[recentView->currentItem()->index()];
     }
@@ -96,25 +92,6 @@ void StartDialog::accept()
 void StartDialog::reject()
 {
     done( Rejected );
-}
-
-void StartDialog::projectChanged( const QString &project )
-{
-    Project *pro = MainWindow::self->findProject( project );
-    if ( !pro )
-	return;
-    QPtrList<QIconViewItem> allItems = newForm->allViewItems();
-    QIconViewItem *i;
-    for ( i = allItems.first(); i; i = allItems.next() )
-	( (NewItem*)i )->setProject( pro );
-    templateView->setCurrentItem( templateView->firstItem() );
-    templateView->arrangeItemsInGrid( TRUE );
-}
-
-void StartDialog::itemChanged( QIconViewItem *item )
-{
-    projectLabel->setEnabled( item->rtti() != NewItem::ProjectType );
-    projectCombo->setEnabled( item->rtti() != NewItem::ProjectType );
 }
 
 void StartDialog::recentItemChanged( QIconViewItem *item )

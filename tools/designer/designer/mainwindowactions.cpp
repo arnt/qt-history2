@@ -2059,7 +2059,7 @@ void MainWindow::showStartDialog()
 	if ( arg[0] != '-' )
 	    return;
     }
-    StartDialog *sd = new StartDialog( this, projectNames(), currentProject->projectName(), templatePath() );
+    StartDialog *sd = new StartDialog( this, templatePath() );
     sd->setRecentlyFiles( recentlyFiles );
     sd->setRecentlyProjects( recentlyProjects );
     sd->exec();

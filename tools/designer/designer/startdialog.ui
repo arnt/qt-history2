@@ -57,17 +57,6 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <spacer row="0" column="2">
-                        <property name="name">
-                            <cstring>Spacer4</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                    </spacer>
                     <widget class="QIconView" row="1" column="0" rowspan="1" colspan="3">
                         <property name="name">
                             <cstring>templateView</cstring>
@@ -80,19 +69,6 @@
                         </property>
                         <property name="itemsMovable">
                             <bool>false</bool>
-                        </property>
-                    </widget>
-                    <widget class="QLabel" row="0" column="0">
-                        <property name="name">
-                            <cstring>projectLabel</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Insert into:</string>
-                        </property>
-                    </widget>
-                    <widget class="QComboBox" row="0" column="1">
-                        <property name="name">
-                            <cstring>projectCombo</cstring>
                         </property>
                     </widget>
                 </grid>
@@ -215,6 +191,12 @@
                     <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>0</width>
+                            <height>20</height>
+                        </size>
+                    </property>
                 </spacer>
                 <widget class="QPushButton">
                     <property name="name">
@@ -272,21 +254,9 @@
     </connection>
     <connection>
         <sender>templateView</sender>
-        <signal>currentChanged(QIconViewItem*)</signal>
-        <receiver>StartDialogBase</receiver>
-        <slot>itemChanged(QIconViewItem*)</slot>
-    </connection>
-    <connection>
-        <sender>templateView</sender>
         <signal>returnPressed(QIconViewItem*)</signal>
         <receiver>StartDialogBase</receiver>
         <slot>accept()</slot>
-    </connection>
-    <connection>
-        <sender>projectCombo</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>StartDialogBase</receiver>
-        <slot>projectChanged(const QString&amp;)</slot>
     </connection>
     <connection>
         <sender>recentView</sender>
@@ -320,10 +290,8 @@
     </connection>
 </connections>
 <functions>
-    <function type="slot">itemChanged( QIconViewItem * )</function>
     <function type="slot">recentItemChanged( QIconViewItem * )</function>
     <function type="slot">clearFileInfo()</function>
-    <function type="slot">projectChanged( const QString &amp; )</function>
     <function type="slot">accept()</function>
     <function type="slot">reject()</function>
 </functions>

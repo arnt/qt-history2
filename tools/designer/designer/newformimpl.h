@@ -139,7 +139,7 @@ class NewForm : public NewFormBase
     Q_OBJECT
 
 public:
-    NewForm();
+    NewForm( QIconView *templateView, const QString &templatePath );
     NewForm( QWidget *parent, const QStringList& projects,
 	     const QString& currentProject, const QString &templatePath );
     void insertTemplates( QIconView*, const QString& );

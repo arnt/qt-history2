@@ -31,16 +31,11 @@ class StartDialog : public StartDialogBase
     Q_OBJECT
 
 public:
-    StartDialog( QWidget *parent, 
-		 const QStringList& projects,
-		 const QString& currentProject, 
-		 const QString &templatePath );
+    StartDialog( QWidget *parent, const QString &templatePath );
     void setRecentlyFiles( QStringList& );
     void setRecentlyProjects( QStringList& );
 
 protected slots:
-    void projectChanged( const QString &project );
-    void itemChanged( QIconViewItem *item );
     void recentItemChanged( QIconViewItem *item );
     void clearFileInfo();
     void accept();
