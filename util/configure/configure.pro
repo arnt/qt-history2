@@ -1,6 +1,34 @@
 CONFIG   = console release flat
 DEFINES  = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_BUILD_QMAKE QT_COMPAT QT_NO_THREAD QT4_TECH_PREVIEW
-HEADERS	 = configureapp.h
+HEADERS	 = configureapp.h \
+	   $$QT_SOURCE_TREE/src/core/tools/qbytearray.h \
+	   $$QT_SOURCE_TREE/src/core/tools/qbytearraymatcher.h \
+	   $$QT_SOURCE_TREE/src/core/tools/qchar.h \
+	   $$QT_SOURCE_TREE/src/core/tools/qhash.h \
+	   $$QT_SOURCE_TREE/src/core/tools/qlist.h \
+	   $$QT_SOURCE_TREE/src/core/tools/qlocale.h \
+	   $$QT_SOURCE_TREE/src/core/tools/qvector.h \
+           $$QT_SOURCE_TREE/src/core/codecs/qtextcodec.h \
+           $$QT_SOURCE_TREE/src/core/global/qglobal.h \
+           $$QT_SOURCE_TREE/src/core/io/qbuffer.h \
+           $$QT_SOURCE_TREE/src/core/io/qsettings.h \
+           $$QT_SOURCE_TREE/src/core/io/qdatastream.h \
+           $$QT_SOURCE_TREE/src/core/io/qdir.h \
+           $$QT_SOURCE_TREE/src/core/io/qfile.h \
+           $$QT_SOURCE_TREE/src/core/io/qfileinfo.h \
+           $$QT_SOURCE_TREE/src/core/io/qfileengine.h \
+           $$QT_SOURCE_TREE/src/core/io/qioengine.h \
+           $$QT_SOURCE_TREE/src/core/io/qiodevice.h \
+           $$QT_SOURCE_TREE/src/core/io/qtextstream.h \
+           $$QT_SOURCE_TREE/src/core/io/qtemporaryfile.h \
+           $$QT_SOURCE_TREE/src/core/tools/qbitarray.h \
+           $$QT_SOURCE_TREE/src/core/tools/qdatetime.h \
+           $$QT_SOURCE_TREE/src/core/tools/qmap.h \
+           $$QT_SOURCE_TREE/src/core/tools/qregexp.h \
+           $$QT_SOURCE_TREE/src/core/tools/qstring.h \
+           $$QT_SOURCE_TREE/src/core/tools/qstringlist.h \
+           $$QT_SOURCE_TREE/src/core/tools/qstringmatcher.h \
+           $$QT_SOURCE_TREE/src/core/tools/qunicodetables_p.h
 
 SOURCES	 = main.cpp configureapp.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qbytearray.cpp \
@@ -24,6 +52,7 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/core/io/qioengine.cpp \
            $$QT_SOURCE_TREE/src/core/io/qiodevice.cpp \
            $$QT_SOURCE_TREE/src/core/io/qtextstream.cpp \
+           $$QT_SOURCE_TREE/src/core/io/qtemporaryfile.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qbitarray.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qdatetime.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qmap.cpp \
