@@ -3426,10 +3426,15 @@ QAxBase::PropertyBag QAxBase::propertyBag() const
 	return result;
     } else {
 	QAxBase *that = (QAxBase*)this;
-	for ( int p = 1; p < metaObject()->numProperties( FALSE ); ++p ) {
+	const QMetaObject *mo = metaObject();
+	for ( int p = 1; p < mo->numProperties( FALSE ); ++p ) {
+	    const QMetaProperty *property = mo->property(p, FALSE);
+	    if ( QVariant::nameToType(property->type()) == QVariant::Invalid &&
+		!mo->enumeratorNames(FALSE).contains(property->type()) )
+		continue;
 	    QVariant var;
 	    that->qt_property( p+metaObject()->propertyOffset(), 1, &var );
-	    result.insert( metaObject()->property( p, FALSE )->name(), var );
+	    result.insert( property->name(), var );
 	}
     }
     return result;
