@@ -35,15 +35,18 @@ public:
     int value;
     Qt::Alignment alignment;
     uint textVisible : 1;
+    int lastPaintedValue;
     QStyleOptionProgressBar getStyleOption() const;
     inline int bound(int val) const { return qMax(minimum-1, qMin(maximum, val)); }
+    bool repaintRequired() const;
 };
 
 #define d d_func()
 #define q q_func()
 
 QProgressBarPrivate::QProgressBarPrivate()
-    : minimum(0), maximum(100), value(-1), alignment(Qt::AlignAuto), textVisible(true)
+    : minimum(0), maximum(100), value(-1), alignment(Qt::AlignAuto), textVisible(true),
+      lastPaintedValue(-1)
 {
 }
 
@@ -65,6 +68,20 @@ QStyleOptionProgressBar QProgressBarPrivate::getStyleOption() const
     opt.text = q->text();
 
     return opt;
+}
+
+bool QProgressBarPrivate::repaintRequired() const
+{
+    if (value == lastPaintedValue)
+        return false;
+
+    int valueDifference = qAbs(value - lastPaintedValue);
+    if ((value == minimum || value == maximum)
+            || (textVisible && valueDifference >= qAbs((maximum - minimum) / 100)))
+        return true;
+    QStyleOptionProgressBar opt = getStyleOption();
+    int cw = q->style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, q);
+    return valueDifference >= cw;
 }
 
 /*!
@@ -199,7 +216,8 @@ void QProgressBar::setValue(int value)
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
 #endif
-    repaint();
+    if (d->repaintRequired())
+        repaint();
 }
 
 int QProgressBar::value() const
@@ -267,6 +285,7 @@ void QProgressBar::paintEvent(QPaintEvent *)
     QStylePainter paint(this);
     QStyleOptionProgressBar opt = d->getStyleOption();
     paint.drawControl(QStyle::CE_ProgressBar, opt);
+    d->lastPaintedValue = d->value;
 }
 
 /*!
