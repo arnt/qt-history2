@@ -41,6 +41,9 @@ public:
 		      const QString &type = QString::null  );
     void functionAdd() { functionAdd( "public" ); }
 
+signals:
+    void itemRenamed(const QString &);
+
 protected slots:
     void okClicked();
     void functionRemove();
@@ -51,6 +54,7 @@ protected slots:
     void currentReturnTypeChanged( const QString &type );
     void currentTypeChanged( const QString &type );
     void displaySlots( bool justSlots );
+    void emitItemRenamed( QListViewItem *, int, const QString & );
 
 private:
     enum Attribute { Name, Specifier, Access, ReturnType, Type };

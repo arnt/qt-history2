@@ -92,6 +92,30 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
 
     showOnlySlots->setChecked( justSlots );
     lastType = "function";
+
+    // Enable rename for all QListViewItems
+    QListViewItemIterator it = functionListView->firstChild();
+    for ( ; *it; it++ )
+	(*it)->setRenameEnabled( 0, TRUE );
+    
+    // Connect listview signal to signal-relay
+    QObject::connect( functionListView,
+		      SIGNAL( itemRenamed( QListViewItem*, int, const QString & ) ),
+		      this,
+		      SLOT( emitItemRenamed(QListViewItem*, int, const QString&) ) );
+
+    // Connect signal-relay to QLineEdit "functionName"
+    QObjectList *l = parent->queryList( "QLineEdit", "functionName" );
+    QObject *obj;
+    QObjectListIt itemsLineEditIt( *l );
+    while ( (obj = itemsLineEditIt.current()) != 0 ) {
+        ++itemsLineEditIt;
+	QObject::connect( this,
+			  SIGNAL( itemRenamed( const QString & ) ),
+			  obj,
+			  SLOT( setText( const QString & ) ) );
+    }
+    delete l;
 }
 
 void EditFunctions::okClicked()
@@ -232,8 +256,10 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
 {
     QListViewItem *i = new QListViewItem( functionListView );
     i->setPixmap( 0, QPixmap::fromMimeSource( "editslots.png" ) );
+    i->setRenameEnabled( 0, TRUE );
     i->setText( 1, "void" );
     i->setText( 2, "virtual" );
+
     if ( access.isEmpty() )
 	i->setText( 3, "public" );
     else
@@ -259,6 +285,7 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
 	i->setText( 0, "newFunction()" );
 	i->setText( 5, "---" );
     }
+    
     functionListView->setCurrentItem( i );
     functionListView->setSelected( i, TRUE );
     functionName->setFocus();
@@ -482,4 +509,9 @@ void EditFunctions::displaySlots( bool justSlots )
 
     if ( functionListView->firstChild() )
 	functionListView->setSelected( functionListView->firstChild(), TRUE );
+}
+
+void EditFunctions::emitItemRenamed( QListViewItem *, int, const QString & text )
+{
+    emit itemRenamed( text ); // Relay signal ( to QLineEdit )
 }
