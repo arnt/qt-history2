@@ -5791,20 +5791,27 @@ void QTextTable::enter( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag,
 void QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, const QPoint &pos )
 {
     currCell.remove( c );
+    int lastCell = -1;
+    int lastY = -1;
     for ( int i = 0; i < (int)cells.count(); ++i ) {
 	QTextTableCell *cell = cells.at( i );
 	if ( cell->geometry().x() - innerborder <= pos.x() &&
-	     cell->geometry().y() - innerborder <= pos.y() &&
-	     cell->geometry().x() + cell->geometry().width() + innerborder >= pos.x() &&
-	     cell->geometry().y() + cell->geometry().height() + innerborder >= pos.y() ) {
-	    currCell.insert( c, i );
-	    break;
+	     cell->geometry().x() + cell->geometry().width() + innerborder >= pos.x() ) {
+	    if ( cell->geometry().y() > lastY ) {
+		lastCell = i;
+		lastY = cell->geometry().y();
+	    }
+	    if ( cell->geometry().y() - innerborder <= pos.y() &&
+		 cell->geometry().y() + cell->geometry().height() + innerborder >= pos.y() ) {
+		currCell.insert( c, i );
+		break;
+	    }
 	}
     }
 
     if ( currCell.find( c ) == currCell.end() ) {
-	QTextCustomItem::enterAt( c, doc, parag, idx, ox, oy, pos );
-	return;
+	if ( lastY != -1 )
+	    currCell.insert( c, lastCell );
     }
 
     QTextTableCell *cell = cells.at( *currCell.find( c ) );
