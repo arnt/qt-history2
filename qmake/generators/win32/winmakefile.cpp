@@ -337,15 +337,20 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
     t << "mocclean:" << mocclean << endl;
 
     t << "clean: compiler_clean mocclean"
-        << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
-        << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
-        << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
+      << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
+      << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
+      << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
 
     t << endl;
 
     t << "distclean: clean"
-        << "\n\t-$(DEL_FILE) $(TARGET)"
-        << endl << endl;
+      << "\n\t-$(DEL_FILE) $(TARGET)" << endl;
+    {
+        QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
+        if(!ofile.isEmpty())
+            t << "\t-$(DEL_FILE) " << ofile << endl;
+    }
+    t << endl << endl;
 }
 
 void Win32MakefileGenerator::writeStandardParts(QTextStream &t)

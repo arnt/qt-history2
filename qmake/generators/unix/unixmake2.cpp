@@ -812,6 +812,11 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
        !project->isActiveConfig("plugin") && !project->isActiveConfig("compile_libtool"))
         t << "\t-$(DEL_FILE) " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
           << destdir << "$(TARGET2) $(TARGETA)" << endl;
+    {
+        QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
+        if(!ofile.isEmpty())
+            t << "\t-$(DEL_FILE) " << ofile << endl;
+    }
     t << endl << endl;
 
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")) {

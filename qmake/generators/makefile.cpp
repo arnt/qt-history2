@@ -1763,10 +1763,15 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it)
             t << " " << (*it)->target << "-" << (*targ_it);
         t << endl;
-        if(targ == "clean")
+        if(targ == "clean") {
             t << varGlue("QMAKE_CLEAN","\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ", "\n");
-        else if(project->isActiveConfig("no_empty_targets"))
+        } else if(targ == "distclean") {
+            QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
+            if(!ofile.isEmpty())
+                t << "\t-$(DEL_FILE) " << ofile << endl;
+        } else if(project->isActiveConfig("no_empty_targets")) {
             t << "\t" << "@cd ." << endl;
+        }
     }
 
     // user defined targets
