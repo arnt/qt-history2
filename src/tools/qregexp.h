@@ -39,7 +39,6 @@
 #define QREGEXP_H
 
 #ifndef QT_H
-#include "qstring.h"
 #include "qstringlist.h"
 #endif // QT_H
 
@@ -51,7 +50,7 @@ class Q_EXPORT QRegExp
 public:
     QRegExp();
     QRegExp( const QString& pattern, bool caseSensitive = TRUE,
-	     bool wildcard = FALSE, bool minimal = FALSE );
+	     bool wildcard = FALSE );
     QRegExp( const QRegExp& rx );
     ~QRegExp();
     QRegExp& operator=( const QRegExp& rx );

@@ -2759,15 +2759,12 @@ QRegExp::QRegExp()
 /*!
   Constructs a regular expression object for a given \a pattern string.  The
   pattern may be given according to wildcard notation, if \a wildcard is TRUE;
-  by default, the \a pattern is treated as a regular expression.
-
-  Case sensitivity and minimal matching settings can be set here.  By default,
-  \a caseSensitive is TRUE and \a minimal is FALSE.
+  by default, the \a pattern is treated as a regular expression.  The pattern
+  is case sensitive, unless \a caseSensitive is false.  Matching is maximal.
 
   \sa setPattern() setCaseSensitive() setWildcard() setMinimal()
 */
-QRegExp::QRegExp( const QString& pattern, bool caseSensitive, bool wildcard,
-		  bool minimal )
+QRegExp::QRegExp( const QString& pattern, bool caseSensitive, bool wildcard )
 {
     eng = 0;
     priv = new QRegExpPrivate;
@@ -2775,7 +2772,7 @@ QRegExp::QRegExp( const QString& pattern, bool caseSensitive, bool wildcard,
 #ifndef QT_NO_REGEXP_WILDCARD
     priv->wc = wildcard;
 #endif
-    priv->min = minimal;
+    priv->min = FALSE;
     compile( caseSensitive );
 }
 
