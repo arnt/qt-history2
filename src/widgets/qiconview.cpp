@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#85 $
 **
 ** Definition of QIconView widget class
 **
@@ -1518,7 +1518,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->rearrangeEnabled = TRUE;
     d->itemTextPos = Bottom;
     d->reorderItemsWhenInsert = TRUE;
-    
+
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
     connect ( d->updateTimer, SIGNAL( timeout() ),
@@ -1642,7 +1642,7 @@ void QIconView::slotUpdate()
 
     int w = QMAX( d->cachedW, d->lastItem->x() + d->lastItem->width() );
     int h = QMAX( d->cachedH, d->lastItem->y() + d->lastItem->height() );
-    
+
     resizeContents( QMAX( contentsWidth(), w ),
 		    QMAX( contentsHeight(), h ) );
 
@@ -2250,7 +2250,7 @@ void QIconView::setMaxItemTextLength( int w )
 int QIconView::maxItemWidth() const
 {
     if ( d->rastX != -1 )
-	return d->rastX;
+	return d->rastX - 2;
     else
 	return d->maxItemWidth;
 }
@@ -2288,7 +2288,7 @@ bool QIconView::rearrangeEnabled() const
 /*!
   If \a b is TRUE, all items are reordered in the grid if a new one is inserted. Else,
   the best fitting place for the new item is searched and the other ones are not touched.
-  
+
   This setting only applies if the iconview is visible. If you insert items and the iconview is not
   visible, the icons are reordered whe it gets visible.
 */
@@ -3015,12 +3015,12 @@ void QIconView::insertInGrid( QIconViewItem *item )
     if ( d->reorderItemsWhenInsert ) {
 	// #### make this efficient - but it's not too dramatic
 	int y = d->spacing;
-    
+
 	if ( item == d->firstItem ) {
 	    makeRowLayout( item, y );
 	    return;
 	}
-    
+
 	QIconViewItem *begin = rowBegin( item );
 	y = begin->y();
 	while ( begin ) {
