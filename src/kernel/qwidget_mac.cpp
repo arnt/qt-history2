@@ -134,7 +134,11 @@ static WId qt_root_win() {
     title[0]=0;
     title[1]='\0';
     Rect boundsRect;
-    SetRect( &boundsRect, 0, 0, 1024, 768 );
+    GDHandle g = GetMainDevice();
+    if(g) 
+	SetRect( &boundsRect, 0, 0, (*g)->gdRect.right, (*g)->gdRect.bottom );
+    else 
+	SetRect( &boundsRect, 0, 0, 1024, 768 );
     ret = (WindowPtr)NewCWindow( nil, &boundsRect, (const unsigned char*)title,
 				 0, plainDBox, (WindowPtr)-1, TRUE, 0);
     DisposeWindow(ret);
@@ -167,7 +171,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     if ( !parentWidget() )
 	setWFlags( WType_TopLevel );            // top-level widget
 
-    static int sw = -1, sh = -1;                // screen size
+    static short int sw = -1, sh = -1;                // screen size
     bool topLevel = testWFlags( WType_TopLevel );
     bool popup = testWFlags( WType_Popup );
     bool dialog = testWFlags( WType_Dialog );
@@ -177,10 +181,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     if ( !window )                              // always initialize
 	initializeWindow=TRUE;
 
-    //FIXME need to query the display for characteristics
     if ( sw < 0 ) {
-	sw = 1024;    // Make it up
-	sh = 768;
+	GDHandle g = GetMainDevice();
+	if(g) {
+	    sw = (*g)->gdRect.right;
+	    sh = (*g)->gdRect.bottom;
+	}
     }
 
     bg_col = pal.normal().background();

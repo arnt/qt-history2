@@ -1079,8 +1079,7 @@ bool QApplication::do_mouse_down( EventRecord* es )
       int nw = LoWord( growWindowSize );
       int nh = HiWord( growWindowSize );
 
-      // FIXME: Replace hard coded constants with display size
-      if( nw < 1600 && nw > 0 && nh < 1200 && nh > 0 ) {
+      if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 ) {
 	if( widget ) {
 	  int ow = widget->width(), oh = widget->height();
 	  widget->resize( nw, nh );
