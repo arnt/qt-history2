@@ -1,7 +1,8 @@
 #include "qsettings.h"
 #include "qregexp.h"
 #include "qt_windows.h"
-#include "../kernel/qapplication_p.h" //####DEPENDENCY
+#include "../kernel/qapplication_p.h"	//####DEPENDENCY
+#include "qapplication.h"		//####DEPENDENCY
 
 extern void qSystemWarning( const QString&, int code = -1 );
 
@@ -25,6 +26,7 @@ public:
 
 QSettingsPrivate::QSettingsPrivate()
 {
+    QApplication::winVersion();
     long res;
 #if defined(UNICODE)
     if ( qt_winver & Qt::WV_NT_based )
