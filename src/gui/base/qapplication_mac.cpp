@@ -2230,8 +2230,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #endif
 		    key_event = false;
 		} else {
-		    accel_ev.t = QEvent::AccelOverride;
-		    QApplication::sendSpontaneousEvent(widget, &accel_ev);
 		    if(accel_ev.isAccepted()) {
 #ifdef DEBUG_KEY_MAPS
 			qDebug("KeyEvent: %s::%s overrode Accel: %04x %c %s %d",
