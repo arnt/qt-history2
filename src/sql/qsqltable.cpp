@@ -873,11 +873,11 @@ void QSqlTable::insertCurrent()
 		setEditMode( Editing, currentRow(), currentColumn() );
 	} else {
 	    QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
-	    endInsert();
-	    setEditMode( NotEditing, -1, -1 );
 	    refresh();
 	    findBuffer( idx, d->lastAt );
 	    emit cursorChanged( QSqlCursor::Insert );
+	    endInsert();
+	    setEditMode( NotEditing, -1, -1 );
 	    setCurrentCell( currentRow(), currentColumn() );
 	}
 	break;
@@ -951,10 +951,10 @@ void QSqlTable::updateCurrent()
 		setEditMode( Editing, d->editRow, d->editCol );
 	} else {
 	    QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
-	    endUpdate();
 	    refresh();
 	    findBuffer( idx, d->lastAt );
 	    emit cursorChanged( QSqlCursor::Update );
+	    endUpdate();
 	    setCurrentCell( currentRow(), currentColumn() );
 	}
 	break;
