@@ -43,8 +43,6 @@ SUBDIRS     =	aclock \
 		progressbar \
 		qdir \
 		qfd \
-		fileiconview \
-		iconview \
 		qmag \
 		qwerty \
 		rangecontrols \
