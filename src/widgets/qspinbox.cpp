@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#16 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -63,8 +63,8 @@ QSpinBox::QSpinBox( QWidget * parent , const char * name )
 	setFrameStyle( Panel | Sunken );
     setLineWidth( 2 );
 
-    connect( up, SIGNAL(clicked()), SLOT(next()) );
-    connect( down, SIGNAL(clicked()), SLOT(prev()) );
+    connect( up, SIGNAL(pressed()), SLOT(next()) );
+    connect( down, SIGNAL(pressed()), SLOT(prev()) );
     connect( vi, SIGNAL(returnPressed()), SLOT(textChanged()) );
 }
 
@@ -158,7 +158,7 @@ void QSpinBox::next()
     c += d->a;
 
     QString f;
-    f.sprintf( "%%.%df" );
+    f.sprintf( "%%.%df", d->d );
     QString s;
     s.sprintf( f, c );
     if ( s.toDouble( &ok ) > d->t )
@@ -186,7 +186,7 @@ void QSpinBox::prev()
     c -= d->a;
 
     QString f;
-    f.sprintf( "%%.%df" );
+    f.sprintf( "%%.%df", d->d );
     QString s;
     s.sprintf( f, c );
     if ( s.toDouble( &ok ) < d->b )
@@ -207,7 +207,7 @@ void QSpinBox::setCurrent( double value )
     else if ( d && value < d->b )
 	value = d->b;
     QString f;
-    f.sprintf( "%%.%df" );
+    f.sprintf( "%%.%df", d ? d->d : 0 );
     QString s;
     s.sprintf( f, value );
     vi->setText( s );
