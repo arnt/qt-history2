@@ -270,7 +270,7 @@ bool qInvokeMetaMember(QObject *obj, const char *member, Qt::ConnectionType type
             }
         }
 
-        QCoreApplication::postEvent(obj, new QMetaCallEvent(idx, obj, nargs, types, args));
+        QCoreApplication::postEvent(obj, new QMetaCallEvent(idx, nargs, types, args));
     }
     return true;
 }

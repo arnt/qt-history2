@@ -363,9 +363,8 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
 
 /*! \internal
  */
-QMetaCallEvent::QMetaCallEvent(int id, const QObject *sender,
-                               int nargs, int *types, void **args)
-    :QEvent(MetaCall), id_(id), sender_(sender), nargs_(nargs), types_(types), args_(args)
+QMetaCallEvent::QMetaCallEvent(int id, int nargs, int *types, void **args)
+    :QEvent(MetaCall), id_(id), nargs_(nargs), types_(types), args_(args)
 { }
 
 /*! \internal
@@ -804,21 +803,9 @@ bool QObject::event(QEvent *e)
 
     case QEvent::MetaCall: {
         QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
-        QObject *previousSender = d->currentSender;
-        d->currentSender = const_cast<QObject*>(mce->sender());
-#if defined(QT_NO_EXCEPTIONS)
+        // #### should set current sender to 0 and reset after metacall.
+        // Problem is a delete this in the slot making this difficult.
         qt_metacall(QMetaObject::InvokeMetaMember, mce->id(), mce->args());
-#else
-        try {
-            qt_metacall(QMetaObject::InvokeMetaMember, mce->id(), mce->args());
-        } catch (...) {
-            if (d)
-                d->currentSender = previousSender;
-            throw;
-        }
-#endif
-        if (d)
-            d->currentSender = previousSender;
         break;
     }
 
@@ -2183,8 +2170,7 @@ static void queued_activate(QObject *obj, const QConnection &c, void **argv)
     args[0] = 0; // return value
     for (int n = 1; n < nargs; ++n)
         args[n] = QMetaType::construct((types[n] = c.types[n-1]), argv[n]);
-    QCoreApplication::postEvent(c.receiver,
-                                new QMetaCallEvent(c.member, obj, nargs, types, args));
+    QCoreApplication::postEvent(c.receiver, new QMetaCallEvent(c.member, nargs, types, args));
 }
 
 class QPublicObject : public QObject
