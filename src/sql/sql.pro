@@ -23,6 +23,7 @@ sql {
 		    qsqlrecord.h \
 		    qsqldriver.h \
 		    qsqldriverinterface_p.h \
+                    qsqlnulldriver_p.h \
 		    qsqldriverplugin.h \
 		    qsqlerror.h \
 		    qsqlresult.h \
