@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#236 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#237 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#236 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#237 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -369,7 +369,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    fg = QColor(appFGCol);
 	else
 	    fg = black;
-	QColorGroup cg( fg, bg, bg.light( 115 ).light( 109 ),
+	QColorGroup cg( fg, bg, bg.light(),
 			bg.dark(), bg.dark(150), fg, white );
 	QColor disabled( (fg.red()+bg.red())/2,
 			 (fg.green()+bg.green())/2,
@@ -1410,7 +1410,6 @@ bool QApplication::processNextEvent( bool canWait )
 	qt_x11SendPostedEvents();
 
     while ( XPending(appDpy) ) {		// also flushes output buffer
-
 	if ( quit_now )				// quit between events
 	    return FALSE;
 	XNextEvent( appDpy, &event );		// get next event
@@ -1471,6 +1470,16 @@ bool QApplication::processNextEvent( bool canWait )
 }
 
 
+/*!
+  Returns
+  1 if the event was consumed by special handling,
+  0 if the event was consumed by normal handling, and
+  -1 if the event was for an unrecognized widget.
+
+  \internal
+
+  This documentation is unclear.
+*/
 int QApplication::x11ProcessEvent( XEvent* event )
 {
     if ( x11EventFilter(event) )		// send through app filter
