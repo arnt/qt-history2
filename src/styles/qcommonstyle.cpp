@@ -576,7 +576,8 @@ void QCommonStyle::drawControl( ControlElement element,
 	{
 	    QCheckBox *checkbox = (QCheckBox *) widget;
 
-	    drawItem(p, r, AlignAuto | AlignVCenter | ShowPrefix, cg,
+	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
+	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
 		     flags & PStyle_Enabled, checkbox->pixmap(), checkbox->text());
 
 	    if (checkbox->hasFocus()) {
@@ -616,7 +617,8 @@ void QCommonStyle::drawControl( ControlElement element,
 	{
 	    QRadioButton *radiobutton = (QRadioButton *) widget;
 
-	    drawItem(p, r, AlignAuto | AlignVCenter | ShowPrefix, cg,
+	    int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
+	    drawItem(p, r, alignment | AlignVCenter | ShowPrefix, cg,
 		     flags & PStyle_Enabled, radiobutton->pixmap(), radiobutton->text());
 
 	    if (radiobutton->hasFocus()) {
