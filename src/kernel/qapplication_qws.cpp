@@ -101,16 +101,7 @@
 
 #include "qfile.h"
 
-#if defined(Q_OS_IRIX)
-#include <bstring.h>
-#endif
-
 #include <sys/time.h>
-
-#if defined(Q_OS_AIX) && defined(Q_CC_GNU)
-#include <sys/select.h>
-#include <unistd.h>
-#endif
 
 #if defined(Q_OS_QNX)
 #include <sys/select.h>
