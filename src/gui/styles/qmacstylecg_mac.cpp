@@ -919,7 +919,6 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                 HIThemeGetTextDimensions(checkmark, 0, &tti, &outWidth, &outHeight,
                                          &outBaseline);
                 QRect r(xp, y + macItemFrame, mw, mh);
-                qDebug("ascent %d, baseline %f", p->fontMetrics().ascent() , outBaseline);
                 r.moveBy(0, p->fontMetrics().ascent() - int(outBaseline) + 1);
                 HIRect bounds = qt_hirectForQRect(r);
                 HIThemeDrawTextBox(checkmark, &bounds, &tti,
