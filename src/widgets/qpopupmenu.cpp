@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#273 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#274 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -103,7 +103,7 @@ static void popupSubMenuLater( int msec, QPopupMenu * receiver ) {
   item or hits the specified shortcut key. Use QMenuBar::insertItem()
   to insert a popup menu into a menu bar. Show a context menu either
   asynchronously with popup() or synchronously with exec().
-  
+
   Technically, a popup menu consists of a list of menu items. You add
   items with insertItem().  An item is either a string, a pixmap or a
   custom item that provides its own drawing function (see
@@ -1005,7 +1005,7 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 
 void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( !mouseBtDn && !parentMenu && actItem < 0 && motion < 5 )
+    if ( !mouseBtDn && !parentMenu && actItem < 0 && motion < 6 )
 	return;
 
     mouseBtDn = FALSE;
