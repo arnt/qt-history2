@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#6 $
 **
 ** Implementation of QPaintDevice class for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#6 $";
 #endif
 
 
@@ -36,6 +36,10 @@ QPaintDevice::QPaintDevice( uint devflags )
 
 QPaintDevice::~QPaintDevice()
 {
+    if ( (devFlags & PDF_FONTMET) != 0 )	// remove references to this
+	QFontMetrics::reset( this );
+    if ( (devFlags & PDF_FONTINF) != 0 )	// remove references to this
+	QFontInfo::reset( this );
 }
 
 
