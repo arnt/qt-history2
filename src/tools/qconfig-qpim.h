@@ -17,7 +17,7 @@
 #define QT_NO_QWS_VOODOO3
 #define QT_NO_QWS_MATROX
 #define QT_NO_QWS_VGA16
-#define QT_NO_QWS_CURSOR
+//#define QT_NO_QWS_CURSOR
 #define QT_NO_CODECS
 #define QT_NO_UNICODETABLES
 #define QT_NO_IMAGEIO_BMP
