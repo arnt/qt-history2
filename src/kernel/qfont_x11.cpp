@@ -1039,7 +1039,7 @@ int QFontMetrics::underlinePos() const
 int QFontMetrics::overlinePos() const
 {
     int pos = ascent() + 1;
-    return pos ? pos : 1;
+    return pos > 0 ? pos : 1;
 }
 
 /*!
