@@ -755,7 +755,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             wclass = kModalWindowClass;
         else if(testWFlags(Qt::WShowModal))
             wclass = kMovableModalWindowClass;
-        else if(testWFlags(Qt::WStyle_Tool) && objectName() == QLatin1String("toolTipTip")) // Tool tips
+        else if(testWFlags(Qt::WStyle_ToolTip))
             wclass = kHelpWindowClass;
         else if(testWFlags(Qt::WStyle_Tool)
                 || (dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
@@ -775,7 +775,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
                 grp = GetWindowGroupOfClass(wclass);
                 // Shift things around a bit to get the correct window class based on the presence
                 // (or lack) of the border.
-                if(testWFlags(Qt::WStyle_NoBorder)) {
+                if(testWFlags(Qt::WStyle_NoBorder) || testWFlags(Qt::WStyle_ToolTip)) {
                     if(wclass == kDocumentWindowClass)
                         wclass = kPlainWindowClass;
                     else if(wclass == kFloatingWindowClass)
@@ -794,7 +794,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
                 // and have an actual border we can put them on.
                 if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass
                     && wclass != kSheetWindowClass && wclass != kPlainWindowClass
-                    && !testWFlags(Qt::WStyle_NoBorder) && wclass != kDrawerWindowClass) {
+                    && !testWFlags(Qt::WStyle_NoBorder) && wclass != kDrawerWindowClass
+                    && wclass != kHelpWindowClass) {
                     if(testWFlags(Qt::WStyle_Maximize))
                         wattr |= kWindowFullZoomAttribute;
                     if(testWFlags(Qt::WStyle_Minimize))
@@ -846,7 +847,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             { 0, 0 }
         };
 #undef ADD_DEBUG_WINDOW_NAME
-        qDebug("Qt: internal: ************* Creating new window %p (%s::%s)", this, className(), objectName().local8Bit());
+        qDebug("Qt: internal: ************* Creating new window %p (%s::%s)", this, metaObject()->className(), objectName().local8Bit());
         bool found_class = false;
         for(int i = 0; known_classes[i].name; i++) {
             if(wclass == known_classes[i].tag) {

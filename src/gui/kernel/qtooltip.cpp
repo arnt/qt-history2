@@ -68,7 +68,7 @@ protected:
 QTipLabel *QTipLabel::instance = 0;
 
 QTipLabel::QTipLabel(const QString& text, QWidget* parent)
-    : QLabel(parent, Qt::WStyle_StaysOnTop | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool | Qt::WX11BypassWM)
+    : QLabel(parent, Qt::WStyle_ToolTip)
 {
     delete instance;
     instance = this;

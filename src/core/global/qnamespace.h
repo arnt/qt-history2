@@ -240,12 +240,16 @@ public:
         WNoMousePropagation     = 0x08000000,
         WSubWindow              = 0x10000000,
 #if defined(Q_WS_X11)
-        WStyle_Splash           = 0x20000000
+        WStyle_Splash           = 0x20000000,
 #else
-        WStyle_Splash           = WStyle_NoBorder | WStyle_Tool | WWinOwnDC
+        WStyle_Splash           = WStyle_NoBorder | WStyle_Tool | WWinOwnDC,
+#endif
+#if defined(Q_WS_MAC)
+        WStyle_ToolTip          = 0x80000000,
+#else
+        WStyle_ToolTip          = WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM,
 #endif
 #ifdef QT_COMPAT
-        ,
         WStaticContents        = 0x00400000,
         WNoAutoErase           = 0x00800000,
         WRepaintNoErase        = WNoAutoErase,
