@@ -12,7 +12,6 @@ public:
 
     void parseCmdLine();
     void buildModulesList();
-    void buildSqlList();
     void validateArgs();
     bool displayHelp();
     void generateOutputVars();
@@ -39,7 +38,7 @@ private:
     QStringList disabledModules;
     QStringList enabledModules;
     QStringList modules;
-    QStringList sqlDrivers;
+//    QStringList sqlDrivers;
     QStringList configCmdLine;
     QStringList qmakeConfig;
     QStringList qmakeSql;

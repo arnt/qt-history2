@@ -73,7 +73,6 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     readLicense();
     
     buildModulesList();
-    buildSqlList();
 
     QObject::connect( &qmakeBuilder, SIGNAL( readyReadStdout() ), this, SLOT( readQmakeBuilderOutput() ) );
     QObject::connect( &qmakeBuilder, SIGNAL( readyReadStderr() ), this, SLOT( readQmakeBuilderError() ) );
@@ -107,24 +106,6 @@ void ConfigureApp::buildModulesList()
 	if( licensedModules.findIndex( fi->fileName() ) != -1 )
 	    modules += fi->fileName();
 	++listIter;
-    }
-}
-
-void ConfigureApp::buildSqlList()
-{
-    QDir dir( qtDir + "/plugins/src/sqldrivers" );
-    const QFileInfoList* fiList = dir.entryInfoList();
-    QFileInfoListIterator listIter( *fiList );
-    QFileInfo* fi;
-
-    if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) {
-	allSqlDrivers = QStringList::split( ' ', "mysql oci odbc psql tds" );
-
-	while( ( fi = listIter.current() ) ) {
-	    if( allSqlDrivers.findIndex( fi->fileName() ) != -1 )
-		sqlDrivers += fi->fileName();
-	    ++listIter;
-	}
     }
 }
 
