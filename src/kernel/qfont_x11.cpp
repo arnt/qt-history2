@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#184 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#185 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -2087,6 +2087,6 @@ int QFont::pixelSize() const
 */
 void QFont::setPixelSizeFloat( float pixelSize )
 {
-    setPointSizeFloat( pixelSize * 720.0 / QPaintDevice::x11AppDpiY() );
+    setPointSizeFloat( pixelSize * 72.0 / QPaintDevice::x11AppDpiY() );
 }
 
