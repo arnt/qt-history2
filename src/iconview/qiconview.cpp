@@ -5360,7 +5360,7 @@ void QIconView::updateItemContainer( QIconViewItem *item )
 	c = d->firstContainer;
     }
 
-    bool contains;
+    bool contains = FALSE;
     while ( TRUE ) {
 	if ( c->rect.intersects( item->rect() ) ) {
 	    contains = c->rect.contains( item->rect() );
