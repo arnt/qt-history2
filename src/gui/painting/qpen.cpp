@@ -404,7 +404,7 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
     if (s.version() < 7)
         s << (Q_UINT8)p.width();
     else {
-        s << (float)p.width();
+        s << p.widthF();
     }
     return s << p.color();
 }
