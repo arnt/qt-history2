@@ -42,7 +42,7 @@
 #endif
 
 #ifdef __MIPSEL__
-#define WEIRD_64BIT_BUG
+#define QWS_NO_WRITE_PACKING
 #endif
 
 extern QWSDisplay *qt_fbdpy;
@@ -51,8 +51,6 @@ typedef double QuadByte;
 #else
 typedef long long QuadByte;
 #endif
-
-#define NASTY
 
 #define QWS_EXPERIMENTAL_FASTPATH
 
@@ -412,8 +410,7 @@ void QScreenCursor::drawCursor()
 	int av,r,g,b;
 	QRgb * screenclut=qt_screen->clut();
 	// Cache lookups for non alpha-blended colours
-	int cr,cg,cb;
-	cr=-1;
+	int cr = -1, cg = 0, cb = 0;
 	int cc=0;
 	for (int row = startRow; row < endRow; row++)
 	{
@@ -425,7 +422,7 @@ void QScreenCursor::drawCursor()
 		    r = (srcval & 0xff0000) >> 16;
 		    g = (srcval & 0xff00) >> 8;
 		    b = srcval & 0xff;
-		    if(cr==r && cg==g && cb==b) {
+		    if(cr==r && cg==g && cb==b) {   // ### ???
 			*(dptr+col)=cc;
 		    } else {
 #if defined(QWS_DEPTH_8GRAYSCALE)
@@ -1168,6 +1165,14 @@ inline void QGfxRaster<depth,type>::calcPacking(
 			  void * m,int x1,int x2,
 			  int & frontadd,int & backadd,int & count)
 {
+#ifdef QWS_NO_WRITE_PACKING
+	frontadd = x2-x1+1;
+	backadd = 0;
+	count = 0;
+	if(frontadd<0)
+	    frontadd=0;
+	return;
+#else
     if(depth==32) {
 	unsigned int * myptr=(unsigned int *)m;
 	if( (x2-x1+1)<2 ) {
@@ -1186,12 +1191,6 @@ inline void QGfxRaster<depth,type>::calcPacking(
 	backadd=backadd/4;
 	count=( (x2-x1+1)-(frontadd+backadd) );
 	count=count >> 1;
-	if(count<0)
-	    count=0;
-	if(frontadd<0)
-	    frontadd=0;
-	if(backadd<0)
-	    backadd=0;
     } else if(depth==16 || depth==15) {
 	unsigned short int * myptr=(unsigned short int *)m;
 	if( (x2-x1+1)<4 ) {
@@ -1211,18 +1210,7 @@ inline void QGfxRaster<depth,type>::calcPacking(
 	backadd=backadd/2;
 	count=( (x2-x1+1)-(frontadd+backadd) );
 	count=count >> 2;
-	if(count<0)
-	    count=0;
-	if(frontadd<0)
-	    frontadd=0;
-	if(backadd<0)
-	    backadd=0;
     } else if(depth==8) {
-	frontadd = x2-x1+1;
-	backadd = 0;
-	count = 0;
-	return;
-
 	// ### 8bpp packing doesn't work
 	unsigned char * myptr=(unsigned char *)m;
 	if( (x2-x1+1)<8 ) {
@@ -1240,15 +1228,17 @@ inline void QGfxRaster<depth,type>::calcPacking(
 	    frontadd=(8-frontadd);
 	count=( (x2-x1+1)-(frontadd+backadd) );
 	count=count >> 3;
-	if(count<0)
-	    count=0;
-	if(frontadd<0)
-	    frontadd=0;
-	if(backadd<0)
-	    backadd=0;
     } else {
 	qDebug("Need packing for depth %d",depth);
     }
+
+    if(count<0)
+	count=0;
+    if(frontadd<0)
+	frontadd=0;
+    if(backadd<0)
+	backadd=0;
+#endif
 }
 
 template <const int depth, const int type>
@@ -2572,14 +2562,7 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	int count;
 	int loopc2;
 
-	//  Some weird bug - this doesn't work on MIPS
-#ifdef WEIRD_64BIT_BUG
-	frontadd = x2 - x1 + 1;
-	backadd = 0;
-	count = 0;
-#else
 	calcPacking(myptr,x1,x2,frontadd,backadd,count);
-#endif
 
 	int w=x2-x1+1;
 	myptr+=x1;
@@ -2677,13 +2660,7 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 	myptr=(unsigned int *)l;
 
-#ifdef WEIRD_64BIT_BUG
-	frontadd = x2 - x1 + 1;
-	backadd = 0;
-	count = 0;
-#else
 	calcPacking(myptr,x1,x2,frontadd,backadd,count);
-#endif
 
 	myptr+=x1;
 
@@ -2714,14 +2691,7 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	int count;
 	int loopc2;
 
-	//  Some weird bug - this doesn't work on MIPS
-#ifdef WEIRD_64BIT_BUG
-	frontadd = x2 - x1 + 1;
-	backadd = 0;
-	count = 0;
-#else
 	calcPacking(myptr,x1,x2,frontadd,backadd,count);
-#endif
 
 	int w=x2-x1+1;
 	myptr+=x1;
@@ -2825,13 +2795,7 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 	myptr=(unsigned short int *)l;
 
-#ifdef WEIRD_64BIT_BUG
-	frontadd = x2 - x1 + 1;
-	backadd = 0;
-	count = 0;
-#else
 	calcPacking(myptr,x1,x2,frontadd,backadd,count);
-#endif
 
 	myptr+=x1;
 
@@ -3136,20 +3100,22 @@ void QGfxRaster<depth,type>::drawRect( int rx,int ry,int w,int h )
 
 	    int loopc,loopc2;
 	    QuadByte put;
-	    unsigned char * sp=(unsigned char *)&put;
-	    *sp=pixel;
-	    *(sp+1)=pixel;
-	    *(sp+2)=pixel;
-	    *(sp+3)=pixel;
-	    *(sp+4)=pixel;
-	    *(sp+5)=pixel;
-	    *(sp+6)=pixel;
-	    *(sp+7)=pixel;
+	    if ( count ) {
+		unsigned char * sp=(unsigned char *)&put;
+		*sp=pixel;
+		*(sp+1)=pixel;
+		*(sp+2)=pixel;
+		*(sp+3)=pixel;
+		*(sp+4)=pixel;
+		*(sp+5)=pixel;
+		*(sp+6)=pixel;
+		*(sp+7)=pixel;
+	    }
 	
 	    int add=linestep();
 	    add-=(frontadd+(count * 8)+backadd);
 
-	    myptr=((char *)scanLine(y1))+x1;
+	    myptr=((unsigned char *)scanLine(y1))+x1;
 	    for(loopc=0;loopc<h;loopc++) {
 		for(loopc2=0;loopc2<frontadd;loopc2++)
 		    *(myptr++)=pixel;
