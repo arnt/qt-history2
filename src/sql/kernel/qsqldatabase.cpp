@@ -1296,7 +1296,6 @@ QSqlDatabase QSqlDatabase::cloneDatabase(const QSqlDatabase &other, const QStrin
     Use record() instead.
 */
 
-#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QSqlDatabase &d)
 {
@@ -1310,7 +1309,6 @@ QDebug operator<<(QDebug dbg, const QSqlDatabase &d)
                   << ", user=\"" << d.userName() << "\", open=" << d.isOpen() << ")";
     return dbg.space();
 }
-#endif
 #endif
 
 #endif // QT_NO_SQL
