@@ -40,7 +40,6 @@
 
 /*!
   \class QVButtonGroup qvbuttongroup.h
-
   \brief The QVButtonGroup widget organizes QButton widgets in a
   vertical column.
 
@@ -48,9 +47,9 @@
   \ingroup organizers
   \ingroup appearance
 
-  QVButtonGroup is a convenience class that offers a thin layer on top of
-  QButtonGroup. Think of it as a QVBox that offers a frame with a title
-  and is specifically designed for buttons.
+  QVButtonGroup is a convenience class that offers a thin layer on top
+  of QButtonGroup. Think of it as a QVBox that offers a frame with a
+  title and is specifically designed for buttons.
 
   \img qbuttongroup-v.png QButtonGroup
 
@@ -58,9 +57,10 @@
 */
 
 /*!
-  Constructs a vertical button group with no title.
+    Constructs a vertical button group with no title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed on to the QWidget
+    constructor.
 */
 QVButtonGroup::QVButtonGroup( QWidget *parent, const char *name )
     : QButtonGroup( 1, Horizontal /* sic! */, parent, name )
@@ -68,9 +68,10 @@ QVButtonGroup::QVButtonGroup( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a vertical button group with the title \a title.
+    Constructs a vertical button group with the title \a title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed on to the QWidget
+    constructor.
 */
 
 QVButtonGroup::QVButtonGroup( const QString &title, QWidget *parent,
@@ -80,7 +81,7 @@ QVButtonGroup::QVButtonGroup( const QString &title, QWidget *parent,
 }
 
 /*!
-  Destroys the vertical button group, deleting its child widgets.
+    Destroys the vertical button group, deleting its child widgets.
 */
 QVButtonGroup::~QVButtonGroup()
 {

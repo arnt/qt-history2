@@ -55,13 +55,12 @@
     Writing a widget plugin is achieved by subclassing this base
     class, reimplementing the pure virtual functions keys(), create(),
     group(), iconSet(), includeFile(), toolTip(), whatsThis() and
-    isContainer(), and exporting the class with the Q_EXPORT_PLUGIN
+    isContainer(), and exporting the class with the \c Q_EXPORT_PLUGIN
     macro.
 
-    See the \link designer-manual.book Qt
-    Designer manual's\endlink, 'Creating Custom Widgets' section in
-    the 'Creating Custom Widgets' chapter, for a complete example of a
-    QWidgetPlugin.
+    See the \link designer-manual.book Qt Designer manual's\endlink,
+    'Creating Custom Widgets' section in the 'Creating Custom Widgets'
+    chapter, for a complete example of a QWidgetPlugin.
 
     See also the \link plugins-howto.html Plugins
     documentation\endlink and the \l{QWidgetFactory} class that is
@@ -118,24 +117,26 @@ QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterfac
     return QS_OK;
 }
 
-/*! \fn QStringList QWidgetPlugin::keys() const
+/*!
+    \fn QStringList QWidgetPlugin::keys() const
 
-  Returns the list of widget keys this plugin supports.
+    Returns the list of widget keys this plugin supports.
 
-  These keys must be the class names of the custom widgets that are
-  implemented in the plugin.
+    These keys must be the class names of the custom widgets that are
+    implemented in the plugin.
 
-  \sa create()
+    \sa create()
 */
 
-/*! \fn QWidget *QWidgetPlugin::create( const QString &, QWidget *, const char * )
+/*!
+    \fn QWidget *QWidgetPlugin::create( const QString &, QWidget *, const char * )
 
-  Creates and returns a QWidget object for the widget key \a key. The
-  widget key is the class name of the required widget. The
-  \a name and \a parent arguments are passed to the custom widget's
-  constructor.
+    Creates and returns a QWidget object for the widget key \a key.
+    The widget key is the class name of the required widget. The \a
+    name and \a parent arguments are passed to the custom widget's
+    constructor.
 
-  \sa keys()
+    \sa keys()
 */
 
 QWidgetPluginPrivate::~QWidgetPluginPrivate()
@@ -202,8 +203,8 @@ bool QWidgetPluginPrivate::canUnload() const
 
 
 /*!
-  Constructs a widget plugin. This is invoked automatically by
-  the Q_EXPORT_PLUGIN macro.
+    Constructs a widget plugin. This is invoked automatically by the
+    \c Q_EXPORT_PLUGIN macro.
 */
 QWidgetPlugin::QWidgetPlugin()
     : QGPlugin( (QWidgetFactoryInterface*)(d = new QWidgetPluginPrivate( this )) )
@@ -211,11 +212,10 @@ QWidgetPlugin::QWidgetPlugin()
 }
 
 /*!
-  Destroys the widget plugin.
+    Destroys the widget plugin.
 
-  You never have to call this explicitly. Qt destroys a plugin
-  automatically when it is no longer used.
-
+    You never have to call this explicitly. Qt destroys a plugin
+    automatically when it is no longer used.
 */
 QWidgetPlugin::~QWidgetPlugin()
 {
@@ -223,10 +223,10 @@ QWidgetPlugin::~QWidgetPlugin()
 }
 
 /*!
-    Returns the group (toolbar name) that the custom widget of class \a
-    key should be part of when \e{Qt Designer} loads it.
+    Returns the group (toolbar name) that the custom widget of class
+    \a key should be part of when \e{Qt Designer} loads it.
 
-    The default implementation returns a null string.
+    The default implementation returns QString::null.
 */
 QString QWidgetPlugin::group( const QString & ) const
 {
@@ -249,7 +249,7 @@ QIconSet QWidgetPlugin::iconSet( const QString & ) const
     uic should use to include the custom widget of class \a key in
     generated code.
 
-    The default implementation returns a null string.
+    The default implementation returns QString::null.
 */
 QString QWidgetPlugin::includeFile( const QString & ) const
 {
@@ -260,7 +260,7 @@ QString QWidgetPlugin::includeFile( const QString & ) const
     Returns the text of the tooltip that \e{Qt Designer} should use
     for the custom widget of class \a key's toolbar button.
 
-    The default implementation returns a null string.
+    The default implementation returns QString::null.
 */
 QString QWidgetPlugin::toolTip( const QString & ) const
 {
@@ -269,10 +269,10 @@ QString QWidgetPlugin::toolTip( const QString & ) const
 
 /*!
     Returns the text of the whatsThis text that \e{Qt Designer} should
-    use when the user requests whatsThis help for the custom widget
-    of class \a key.
+    use when the user requests whatsThis help for the custom widget of
+    class \a key.
 
-    The default implementation returns a null string.
+    The default implementation returns QString::null.
 */
 QString QWidgetPlugin::whatsThis( const QString & ) const
 {
@@ -280,8 +280,8 @@ QString QWidgetPlugin::whatsThis( const QString & ) const
 }
 
 /*!
-    Returns TRUE if the custom widget of class \a key can contain other
-    widgets, e.g. like QFrame; otherwise returns FALSE.
+    Returns TRUE if the custom widget of class \a key can contain
+    other widgets, e.g. like QFrame; otherwise returns FALSE.
 
     The default implementation returns FALSE.
 */

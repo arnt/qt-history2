@@ -97,6 +97,10 @@
     This is to ensure that the factory is able to resolve the document
     names.
 
+    QTextBrowser interprets the tags it processes in accordance with
+    the default style sheet. Change the style sheet with
+    \l{setStyleSheet()}; see QStyleSheet for details.
+
     If you want to provide your users with editable rich text use
     QTextEdit. If you want a text browser without hypertext navigation
     use QTextEdit, and use QTextEdit::setReadOnly() to disable

@@ -76,41 +76,41 @@ public:
 };
 
 
-/*! \class QWidgetStack qwidgetstack.h
+/*!
+    \class QWidgetStack qwidgetstack.h
+    \brief The QWidgetStack class provides a stack of widgets of which
+    only the top widget is user-visible.
 
-  \brief The QWidgetStack class provides a stack of widgets of which only the
-  top widget is user-visible.
+    \ingroup organizers
+    \mainclass
 
-  \ingroup organizers
-  \mainclass
+    The application programmer can move any widget to the top of the
+    stack at any time using raiseWidget(), and add or remove widgets
+    using addWidget() and removeWidget().
 
-  The application programmer can move any widget to the top of the
-  stack at any time using raiseWidget(), and add or remove widgets
-  using addWidget() and removeWidget().
+    visibleWidget() is the \e get equivalent of raiseWidget(); it
+    returns a pointer to the widget that is currently at the top of
+    the stack.
 
-  visibleWidget() is the \e get equivalent of raiseWidget(); it
-  returns a pointer to the widget that is currently at the top of the
-  stack.
+    QWidgetStack also provides the ability to manipulate widgets
+    through application-specified integer ids. You can also translate
+    from widget pointers to ids using id() and from ids to widget
+    pointers using widget(). These numeric ids are unique (per
+    QWidgetStack, not globally), but QWidgetStack does not attach any
+    additional meaning to them.
 
-  QWidgetStack also provides the ability to manipulate widgets through
-  application-specified integer ids. You can also translate from
-  widget pointers to ids using id() and from ids to widget pointers
-  using widget().  These numeric ids are unique (per QWidgetStack,
-  not globally), but QWidgetStack does not attach any
-  additional meaning to them.
+    The default widget stack is frameless, but you can use the usual
+    QFrame functions (such as setFrameStyle()) to add a frame.
 
-  The default widget stack is frameless, but you can use the usual
-  QFrame functions (such as setFrameStyle()) to add a frame.
+    QWidgetStack provides a signal, aboutToShow(), which is emitted
+    just before a managed widget is shown.
 
-  QWidgetStack provides a signal, aboutToShow(), which is
-  emitted just before a managed widget is shown.
-
-  \sa QTabDialog QTabBar QFrame
+    \sa QTabDialog QTabBar QFrame
 */
 
 
 /*!
-  Constructs an empty widget stack.
+    Constructs an empty widget stack.
 
     The \a parent and \a name arguments are passed to the QFrame
     constructor.
@@ -146,7 +146,9 @@ void QWidgetStack::init()
 }
 
 
-/*! Destroys the object and frees any allocated resources. */
+/*!
+    Destroys the object and frees any allocated resources.
+*/
 
 QWidgetStack::~QWidgetStack()
 {
@@ -159,15 +161,16 @@ QWidgetStack::~QWidgetStack()
 }
 
 
-/*!  Adds widget \a w to this stack of widgets, with id \a id.
+/*!
+    Adds widget \a w to this stack of widgets, with id \a id.
 
-  If you pass an id \>= 0 this id is used. If you pass an \a id of -1
-  (the default), the widgets will be numbered automatically. If you
-  pass -2 a unique negative integer will be generated. No widget has
-  an id of -1.
+    If you pass an id \>= 0 this id is used. If you pass an \a id of
+    -1 (the default), the widgets will be numbered automatically. If
+    you pass -2 a unique negative integer will be generated. No widget
+    has an id of -1. Returns the id or -1 on failure (e.g. \w is 0).
 
-  If \a w is not a child of this QWidgetStack moves it using
-  reparent().
+    If \a w is not a child of this QWidgetStack moves it using
+    reparent().
 */
 
 int QWidgetStack::addWidget( QWidget * w, int id )
@@ -207,10 +210,12 @@ int QWidgetStack::addWidget( QWidget * w, int id )
 }
 
 
-/*!  Removes widget \a w from this stack of widgets.  Does not delete \a
-  w. If \a w is the currently visible widget, no other widget is
-  substituted. pareent
-  \sa visibleWidget() raiseWidget()
+/*!
+    Removes widget \a w from this stack of widgets. Does not delete \a
+    w. If \a w is the currently visible widget, no other widget is
+    substituted.
+
+    \sa visibleWidget() raiseWidget()
 */
 
 void QWidgetStack::removeWidget( QWidget * w )
@@ -227,7 +232,8 @@ void QWidgetStack::removeWidget( QWidget * w )
 }
 
 
-/*!  Raises the widget with id, \a id, to the top of the widget stack.
+/*!
+    Raises the widget with id, \a id, to the top of the widget stack.
 
     \sa visibleWidget()
 */
@@ -244,6 +250,7 @@ void QWidgetStack::raiseWidget( int id )
 
 /*!
     \overload
+
     Raises widget \a w to the top of the widget stack.
 */
 
@@ -349,7 +356,31 @@ void QWidgetStack::raiseWidget( QWidget * w )
     w->show();
 }
 
-/*! \reimp */
+/*!
+    Returns TRUE if \a w is a child of this widget stack; otherwise
+    returns FALSE.
+*/
+
+bool QWidgetStack::isMyChild( QWidget * w )
+{
+    const QObjectList * c = children();
+    if ( !c || !w || w == invisible )
+	return FALSE;
+    QObjectListIt it( *c );
+    QObject * o;
+
+    while( (o=it.current()) != 0 ) {
+	++it;
+	if ( o->isWidgetType() && o == w )
+	    return TRUE;
+    }
+    return FALSE;
+}
+
+
+/*!
+    \reimp
+*/
 
 void QWidgetStack::frameChanged()
 {
@@ -358,7 +389,9 @@ void QWidgetStack::frameChanged()
 }
 
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 
 void QWidgetStack::setFrameRect( const QRect & r )
 {
@@ -367,7 +400,9 @@ void QWidgetStack::setFrameRect( const QRect & r )
 }
 
 
-/*!  Fixes up the children's geometries. */
+/*!
+    Fixes up the children's geometries.
+*/
 
 void QWidgetStack::setChildGeometries()
 {
@@ -377,7 +412,9 @@ void QWidgetStack::setChildGeometries()
 }
 
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 void QWidgetStack::show()
 {
     //  Reimplemented in order to set the children's geometries
@@ -405,11 +442,11 @@ void QWidgetStack::show()
 }
 
 
-/*!  Returns a pointer to the widget with id \a id.  If this widget
-  stack does not manage a widget with id \a id, this function returns
-  0.
+/*!
+    Returns the widget with id \a id. Returns 0 if this widget stack
+    does not manage a widget with id \a id.
 
-  \sa id() addWidget()
+    \sa id() addWidget()
 */
 
 QWidget * QWidgetStack::widget( int id ) const
@@ -418,10 +455,11 @@ QWidget * QWidgetStack::widget( int id ) const
 }
 
 
-/*!  Returns the id of the \a widget.  If \a widget is 0 or is not
-  being managed by this widget stack, this function returns -1.
+/*!
+    Returns the id of the \a widget. Returns -1 if \a widget is 0 or
+    is not being managed by this widget stack.
 
-  \sa widget() addWidget()
+    \sa widget() addWidget()
 */
 
 int QWidgetStack::id( QWidget * widget ) const
@@ -436,10 +474,11 @@ int QWidgetStack::id( QWidget * widget ) const
 }
 
 
-/*! Returns a pointer to the currently visible widget (the one at the
-  top of the stack), or 0 if nothing is currently being shown.
+/*!
+    Returns the currently visible widget (the one at the top of the
+    stack), or 0 if nothing is currently being shown.
 
-  \sa aboutToShow() id() raiseWidget()
+    \sa aboutToShow() id() raiseWidget()
 */
 
 QWidget * QWidgetStack::visibleWidget() const
@@ -448,22 +487,28 @@ QWidget * QWidgetStack::visibleWidget() const
 }
 
 
-/*! \fn void QWidgetStack::aboutToShow( int )
+/*!
+    \fn void QWidgetStack::aboutToShow( int )
 
-  This signal is emitted just before a managed widget is shown if
-  that managed widget has an id != -1. The argument is the numeric
-  id of the widget.
+    This signal is emitted just before a managed widget is shown if
+    that managed widget has an id != -1. The argument is the numeric
+    id of the widget.
 */
 
 
-/*! \overload void QWidgetStack::aboutToShow( QWidget * )
+/*!
+    \fn void QWidgetStack::aboutToShow( QWidget * )
 
-  This signal is emitted just before a managed widget is shown.  The
-  argument is a pointer to the widget.
+    \overload
+
+    This signal is emitted just before a managed widget is shown. The
+    argument is a pointer to the widget.
 */
 
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 
 void QWidgetStack::resizeEvent( QResizeEvent * e )
 {
@@ -472,7 +517,9 @@ void QWidgetStack::resizeEvent( QResizeEvent * e )
 }
 
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 
 QSize QWidgetStack::sizeHint() const
 {
@@ -499,7 +546,9 @@ QSize QWidgetStack::sizeHint() const
 }
 
 
-/*! \reimp */
+/*!
+    \reimp
+*/
 QSize QWidgetStack::minimumSizeHint() const
 {
     constPolish();
@@ -524,7 +573,9 @@ QSize QWidgetStack::minimumSizeHint() const
     return size;
 }
 
-/*! \reimp  */
+/*!
+    \reimp
+*/
 void QWidgetStack::childEvent( QChildEvent * e)
 {
     if ( e->child()->isWidgetType() && e->removed() )

@@ -40,7 +40,6 @@
 
 /*!
   \class QVGroupBox qvgroupbox.h
-
   \brief The QVGroupBox widget organizes a group of widgets in a
   vertical column.
 
@@ -57,9 +56,10 @@
 */
 
 /*!
-  Constructs a vertical group box with no title.
+    Constructs a vertical group box with no title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed on to the QWidget
+    constructor.
 */
 QVGroupBox::QVGroupBox( QWidget *parent, const char *name )
     : QGroupBox( 1, Horizontal /* sic! */, parent, name )
@@ -67,9 +67,10 @@ QVGroupBox::QVGroupBox( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a vertical group box with the title \a title.
+    Constructs a vertical group box with the title \a title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed on to the QWidget
+    constructor.
 */
 
 QVGroupBox::QVGroupBox( const QString &title, QWidget *parent,
@@ -79,7 +80,7 @@ QVGroupBox::QVGroupBox( const QString &title, QWidget *parent,
 }
 
 /*!
-  Destroys the vertical group box, deleting its child widgets.
+    Destroys the vertical group box, deleting its child widgets.
 */
 QVGroupBox::~QVGroupBox()
 {
