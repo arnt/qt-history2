@@ -4030,7 +4030,6 @@ void QCanvasText::setRect()
     p.setFont(fnt);
     brect = p.boundingRect(QRect(int(x()),int(y()),0,0), flags, txt);
     brect.moveTopLeft(QPoint((int)myx, (int)myy));
-    qDebug("setting text bounding rect: %d/%d (%d/%d)", brect.x(), brect.y(), brect.width(), brect.height());
 }
 
 /*!
