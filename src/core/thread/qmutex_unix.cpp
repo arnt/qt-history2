@@ -222,7 +222,8 @@ void QMutex::unlock()
 {
     void *none = 0;
 
-    Q_ASSERT(d->owner == (void *) pthread_self());
+    Q_ASSERT_X(d->owner == (void *) pthread_self(), "QMutex::unlock()",
+               "A mutex must be unlocked in the same thread that locked it.");
 
     if (!--d->count) {
         (void) q_atomic_set_ptr(&d->owner, none);
