@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#506 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#507 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3906,8 +3906,9 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	    QResizeEvent * e = new QResizeEvent( newSize, oldSize );
 	    QApplication::postEvent( this, e );
 	}
-	if ( isVisibleToTLW() )
-	    repaint( !testWFlags(WResizeNoErase) );
+	// visibleRect() is not really useful yet, since isTopLevel()
+	// is always TRUE here
+	repaint( visibleRect(), !testWFlags(WResizeNoErase) );
     }
     if ( newPos != geometry().topLeft() ) {
 	QPoint oldPos = pos();

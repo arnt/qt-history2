@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#231 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#232 $
 **
 ** Definition of QWidget class
 **
@@ -254,6 +254,7 @@ public:
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
     bool		isVisibleToTLW() const;
+    QRect		visibleRect() const;
     bool		isMinimized() const;
 
     virtual QSize	sizeHint() const;

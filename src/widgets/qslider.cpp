@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#88 $
 **
 ** Implementation of QSlider class
 **
@@ -715,7 +715,7 @@ void QSlider::focusInEvent( QFocusEvent * )
 
 void QSlider::focusOutEvent( QFocusEvent * )
 {
-    repaint( TRUE );
+    repaint( visibleRect() );
     if ( autoMask() )
 	updateMask();
 }

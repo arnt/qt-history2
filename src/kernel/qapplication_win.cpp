@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#304 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#305 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -50,7 +50,7 @@
   -DQT_DLL code that #includes qapplication.h (ie. applications that want to
   use the Qt DLL) get a QApplication class which is a simple derived class
   of the QBaseApplication which has all the funcitonality documented for
-  QApplication.  
+  QApplication.
 
   Qt code that does not declare any QApplication::* members works the same
   as the -DQT_DLL code.
@@ -2649,8 +2649,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 		QApplication::postEvent( this, e );
 	    }
 	}
-	if ( !testWFlags(WResizeNoErase) && isVisibleToTLW() )
-	    repaint( TRUE );
+	repaint( visibleRect(), !testWFlags(WResizeNoErase) );
     } else if ( msg.message == WM_MOVE ) {	// move event
 	int a = (int) (short) LOWORD(msg.lParam);
 	int b = (int) (short) HIWORD(msg.lParam);

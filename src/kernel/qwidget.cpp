@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#425 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#426 $
 **
 ** Implementation of QWidget class
 **
@@ -137,6 +137,7 @@
 	isVisible(),
 	isVisibleTo(),
 	isVisibleToTLW(),
+	visibleRect(),
 	isMinimized(),
 	isDesktop(),
 	isEnabled(),
@@ -1060,14 +1061,14 @@ void QWidget::setEnabled( bool enable )
   enabled or disabled. You will almost certainly need to update the widget
   using either repaint(TRUE) or update().
 
-  The default implementation calls repaint(TRUE).
+  The default implementation repaints the visible part of the widget.
 
-  \sa setEnabled(), isEnabled(), repaint(), update()
+  \sa setEnabled(), isEnabled(), repaint(), update(), visibleRect()
 */
 
 void QWidget::enabledChange( bool )
 {
-    repaint();
+    repaint( visibleRect() );
 }
 
 
@@ -1704,7 +1705,7 @@ const QColor &QWidget::foregroundColor() const
   background color changes.  You will almost certainly need to update the
   widget using either repaint(TRUE) or update().
 
-  The default implementation calls update().
+  The default implementation repaints the visible part of the widget.
 
   \sa setBackgroundColor(), backgroundColor(), setPalette(), repaint(),
   update()
@@ -1712,7 +1713,7 @@ const QColor &QWidget::foregroundColor() const
 
 void QWidget::backgroundColorChange( const QColor & )
 {
-    update();
+    repaint( visibleRect() );
 }
 
 
@@ -1741,14 +1742,14 @@ const QPixmap *QWidget::backgroundPixmap() const
   background pixmap changes.  You will almost certainly need to update the
   widget using either repaint(TRUE) or update().
 
-  The default implementation calls update().
+  The default implementation repaints the visible part of the widget.
 
   \sa setBackgroundPixmap(), backgroundPixmap(), repaint(), update()
 */
 
 void QWidget::backgroundPixmapChange( const QPixmap & )
 {
-    update();
+    repaint( visibleRect() );
 }
 
 
@@ -1848,7 +1849,7 @@ void QWidget::setPalette( const QPalette &p )
 		w->setPalette( pal );
 	}
     }
-    repaint( TRUE );
+    repaint( visibleRect() );
 }
 
 
@@ -1989,14 +1990,14 @@ void QWidget::setFont( const QFont &font, bool fixed )
   changes.  You will almost certainly need to update the widget using
   either repaint(TRUE) or update().
 
-  The default implementation calls update().
+  The default implementation repaints the visible part of the widget.
 
   \sa setFont(), font(), repaint(), update()
 */
 
 void QWidget::fontChange( const QFont & )
 {
-    update();
+    repaint( visibleRect() );
 }
 
 
@@ -3146,6 +3147,42 @@ bool QWidget::isVisibleToTLW() const
 
 
 /*!
+  Returns the currently visible rectangle of the widget. This function
+  is in particular useful to optimize immediate repainting of a
+  windget. Typical usage is
+  \code
+  repaint( w->visibleRect() );
+  \endcode
+  or
+  \code
+  repaint( w->visibleRect(), FALSE );
+  \endcode
+
+  If nothing is visible, the rectangle returned is empty.
+ */
+QRect QWidget::visibleRect() const
+{
+    QRect r = rect();
+    const QWidget * w = this;
+    int ox = 0;
+    int oy = 0;
+    while ( w
+	    && w->isVisible()
+	    && !w->isTopLevel()
+	    && w->parentWidget() ) {
+	ox -= w->x();
+	oy -= w->y();
+	w = w->parentWidget();
+	r = r.intersect( QRect( ox, oy, w->width(), w->height() ) );
+    }
+    if ( !w->isVisible() )
+	return QRect();
+    else
+	return r;
+}
+
+
+/*!
   Adjusts the size of the widget to fit the contents.
 
   Uses sizeHint() if valid (i.e if the size hint's width and height are
@@ -3660,7 +3697,7 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
 void QWidget::focusInEvent( QFocusEvent * )
 {
     if ( focusPolicy() != NoFocus || !isTopLevel() ) {
-	repaint();
+	repaint( visibleRect() );
 	if ( testWState(WState_AutoMask) )
 	    updateMask();
 	setMicroFocusHint(width()/2, 0, 1, height(), FALSE);
@@ -3674,9 +3711,10 @@ void QWidget::focusInEvent( QFocusEvent * )
   A widget must \link setFocusPolicy() accept focus\endlink initially in
   order to receive focus events.
 
-  The default implementation calls repaint() since the widget's \link
-  QColorGroup color group\endlink changes from active to normal.  You
-  may want to call repaint(FALSE) to reduce flicker in any reimplementation.
+  The default implementation calls repaint( visibleRect() ) since the
+  widget's \link QColorGroup color group\endlink changes from active
+  to normal.  You may want to call repaint( visibleRect(), FALSE) to
+  reduce flicker in any reimplementation.
 
   \sa focusInEvent(), setFocusPolicy(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
@@ -3685,7 +3723,7 @@ void QWidget::focusInEvent( QFocusEvent * )
 void QWidget::focusOutEvent( QFocusEvent * )
 {
     if ( focusPolicy() != NoFocus || !isTopLevel() ){
-	repaint();
+	repaint( visibleRect() );
 	if ( testWState(WState_AutoMask) )
 	    updateMask();
     }
@@ -3724,7 +3762,8 @@ void QWidget::leaveEvent( QEvent * )
 
   When the paint event occurs, the update region QPaintEvent::region()
   normally has been cleared to the background color or pixmap. An
-  exception is when repaint(FALSE) is called.
+  exception is when repaint(FALSE) is called. Inside the paint event
+  handler, QPaintEvent::erased() carries this information.
 
   For many widgets it is sufficient to redraw the entire widget each time,
   but some need to consider the update
@@ -4217,7 +4256,6 @@ void QWidget::setStyle( QStyle *style )
 	old.unPolish( this );
 	QWidget::style().polish( this );
 	styleChange( old );
-	if ( isVisibleToTLW() )
-	    repaint( TRUE );
+	repaint( visibleRect(), TRUE );
     }
 }

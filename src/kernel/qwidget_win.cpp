@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#213 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#214 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -724,6 +724,8 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	if ( h < 0 )
 	    h = crect.height() - y;
 	QRect r(x,y,w,h);
+	if ( r.isEmpty() )
+	    return; // nothing to do
 	QPaintEvent e( r, erase );
 	qt_set_paintevent_clipping( this, r );
 	if ( erase )

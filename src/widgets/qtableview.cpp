@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#114 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#115 $
 **
 ** Implementation of QTableView class
 **
@@ -254,9 +254,10 @@ void QTableView::repaint( int x, int y, int w, int h, bool erase )
 	w = width()  - x;
     if ( h < 0 )
 	h = height() - y;
-    QPaintEvent e( QRect(x,y,w,h) );
-//     if (erase)
-// 	debug("qtablevw:: repaint erase with %d %d %d %d", x, y, w, h);
+    QRect r( x, y, w, h );
+    if ( r.isEmpty() )
+	return; // nothing to do
+    QPaintEvent e( r );
     if ( erase && backgroundMode() != NoBackground )
 	eraseInPaint = TRUE;			// erase when painting
     paintEvent( &e );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#369 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#370 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1121,6 +1121,8 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 	if ( h < 0 )
 	    h = crect.height() - y;
 	QRect r(x,y,w,h);
+	if ( r.isEmpty() )
+	    return; // nothing to do
 	QPaintEvent e( r, erase );
 	qt_set_paintevent_clipping( this, r );
 	if ( erase && w != 0 && h != 0 )
@@ -1176,8 +1178,8 @@ void QWidget::showWindow()
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );
     if ( testWFlags(WType_TopLevel) &&
-	 extra && 
-	 extra->topextra && 
+	 extra &&
+	 extra->topextra &&
 	 extra->topextra->wmstate == 2)
 	qt_deferred_map_add( this );
     else
@@ -1416,8 +1418,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if ( isResize ) {
 	    QResizeEvent e( r.size(), olds );
 	    QApplication::sendEvent( this, &e );
-	    if ( isVisibleToTLW() )
-		repaint( !testWFlags(WResizeNoErase) );
+	    repaint( visibleRect(), !testWFlags(WResizeNoErase) );
 	}
     } else {
 	if ( isMove )
@@ -1516,7 +1517,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 /*!
   Sets the size increment of the widget.  When the user resizes the
   window, the size will move in steps of \e w pixels horizontally and
-  \e h pixels vertically, with baseSize() as basis. Preferred widget sizes are therefore for 
+  \e h pixels vertically, with baseSize() as basis. Preferred widget sizes are therefore for
   non-negative integers \e i and \e j:
   \code
   width = baseSize().width() + i * sizeIncrement().width();
@@ -1558,7 +1559,7 @@ void QWidget::setSizeIncrement( int w, int h )
   \sa baseSize()
 */
 
-void QWidget::setBaseSize( int basew, int baseh ) 
+void QWidget::setBaseSize( int basew, int baseh )
 {
     createTLExtra();
     QTLWExtra* x = extra->topextra;
