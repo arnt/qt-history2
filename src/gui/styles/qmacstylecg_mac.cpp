@@ -419,13 +419,12 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
         else
             info.state = tds;
         info.value = kThemeButtonOff;
-        if (btn->isMenuButton() || btn->isFlat()) {
+        info.adornment = kThemeAdornmentNone;
+        if (btn->isMenuButton() || btn->isFlat())
             info.kind = kThemeMediumBevelButton;
-        } else {
+        else
             info.kind = kThemePushButton;
-            info.adornment = kThemeAdornmentNone;
-        }
-
+        
         if (how & Style_ButtonDefault && btn == d->defaultButton) {
             info.adornment = kThemeAdornmentDefault;
             info.animation.time.start = d->defaultButtonStart;
@@ -507,8 +506,9 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
             mdi.state |= kThemeMenuSelected;
         HIRect contentRect;
         if (mi && mi->isSeparator()) {
-            // ### Something strange is happening here.
-            HIThemeDrawMenuSeparator(&menuRect, &itemRect, &mdi,
+            // ### The first argument should be menuRect, but it seems to
+            // seriously make things not look very good.
+            HIThemeDrawMenuSeparator(&itemRect, &itemRect, &mdi,
                                      static_cast<CGContextRef>(p->handle()),
                                      kHIThemeOrientationNormal);
             break;
