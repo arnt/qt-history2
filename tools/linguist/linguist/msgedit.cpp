@@ -75,7 +75,6 @@ QString richText( const QString& text )
 	QT_TRANSLATE_NOOP( "MessageEditor", "tab" )
     };
     QString rich;
-    int lastSpace = -2;
 
     for ( int i = 0; i < (int) text.length(); i++ ) {
 	int ch = text[i].unicode();
@@ -93,11 +92,11 @@ QString richText( const QString& text )
 	} else if ( ch == '&' ) {
 	    rich += QString( "&amp;" );
 	} else if ( ch == ' ' ) {
-	    if ( lastSpace == i - 1 )
-		rich += QChar( 0x00a0 );
-	    else
+	    if ( text[i - 1] == ' ' || text[i + 1] == ' ' ) {
+		rich += richMeta( MessageEditor::tr("sp") );
+	    } else {
 		rich += ' ';
-	    lastSpace = i;
+	    }
 	} else {
 	    rich += QChar( ch );
 	}
