@@ -141,10 +141,18 @@ public:
     { return socket.bytesAvailable(); }
 
     Q_LONG readBlock( char *data, Q_ULONG maxlen )
-    { return socket.readBlock( data, maxlen ); }
+    {
+	Q_LONG read = socket.readBlock( data, maxlen );
+	bytesDone += read;
+	return read;
+    }
 
     QByteArray readAll()
-    { return socket.readAll(); }
+    {
+	QByteArray tmp = socket.readAll();
+	bytesDone += tmp.size();
+	return tmp;
+    }
 
     void abortConnection();
 
@@ -586,11 +594,10 @@ void QFtpDTP::socketReadyRead()
 	    emit dataTransferProgress( bytesDone, bytesTotal );
 	    data.dev->writeBlock( ba );
 	} else {
-	    bytesDone += socket.bytesAvailable();
 #if defined(QFTPDTP_DEBUG)
-	    qDebug( "QFtpDTP readyRead: %d bytes (total %d bytes)", (int)bytesRead, bytesDone );
+	    qDebug( "QFtpDTP readyRead: %d bytes available (total %d bytes read)", (int)bytesAvailable(), bytesDone );
 #endif
-	    emit dataTransferProgress( bytesDone, bytesTotal );
+	    emit dataTransferProgress( bytesDone+socket.bytesAvailable(), bytesTotal );
 	    emit readyRead();
 	}
     }
