@@ -138,7 +138,9 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
     QStringList buildSteps;
     QStringList buildNames;
     QList<QStringList> buildOutputs;
-    foreach (QString config, configurations) {
+    int i;
+    for (i = 0; i < configurations.count(); ++i) {
+        QString config = configurations.at(i);
         buildSteps << QString();
         buildNames << QString();
         buildOutputs << QStringList();
@@ -146,7 +148,8 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
 
     QStringList compilers = project->variables()["QMAKE_EXTRA_COMPILERS"];
     QStringList dependencies;
-    foreach (QString compiler, compilers) {
+    for (i = 0; i < compilers.count(); ++i) {
+        QString compiler = compilers.at(i);
         if (project->variables()[compiler + ".input"].isEmpty())
             continue;
         QString input = project->variables()[compiler + ".input"].first();
@@ -180,7 +183,9 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
         fileOut.replace("${QMAKE_FILE_BASE}", fileBase);
         fileOut.replace('/', '\\');
 
-        foreach(QString dependency, compilerDepends) {
+        int i2;
+        for (i2 = 0; i2 < compilerDepends.count(); ++i2) {
+            QString dependency = compilerDepends.at(i2);
             dependency.replace("${QMAKE_FILE_BASE}", fileBase);
             dependency.replace('/', '\\');
             if (!dependencies.contains(dependency, Qt::CaseInsensitive))
@@ -215,10 +220,13 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
 
     QStringList dependencyList;
     // remove dependencies that are also output
-    foreach (QString config, configurations) {
+    for (i = 0; i < configurations.count(); ++i) {
+        QString config = configurations.at(i);
         QStringList buildOutput(buildOutputs.at(configurations.indexOf(config)));
-        
-        foreach (QString dependency, dependencies) {
+
+        int i2;
+        for (i2 = 0; i2 < dependencies.count(); ++i2) {
+            QString dependency = dependencies.at(i2);
             if (!buildOutput.contains(dependency) && !dependencyList.contains(dependency))
                 dependencyList << dependency;
         }
@@ -232,8 +240,9 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
         t << "# Begin Custom Build - Running " << buildName << " on " << file << endl;
         t << "InputPath=" << file << endl;
         t << buildStep << endl;
-        foreach (QString buildOutput, buildOutputList) {
-            t << "\"" << buildOutput << "\": $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n\t$(BuildCmds)\n";
+        for (i = 0; i < buildOutputList.count(); ++i) {
+            t << "\"" << buildOutputList.at(i)
+              << "\": $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n\t$(BuildCmds)\n";
         }
         t << endl;
         t << "# End Custom Build" << endl;
@@ -249,7 +258,8 @@ bool DspMakefileGenerator::writeFileGroup(QTextStream &t, const QStringList &fil
 
     t << "# Begin Group \"" << group << "\"" << endl;
     t << "# PROP Default_Filter \"" << filter << "\"" << endl;
-    foreach(QString file, files) {
+    for (int i = 0; i < files.count(); ++i) {
+        QString file = files.at(i);
         t << "# Begin Source File" << endl;
         t << "SOURCE=" << file << endl;
         writeBuildstepForFile(t, file);
@@ -286,7 +296,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     t << "!MESSAGE " << endl;
     t << "!MESSAGE Possible choices for configuration are:" << endl;
     t << "!MESSAGE " << endl;
-    foreach (QString config, configurations) {
+    int i;
+    for (i = 0; i < configurations.count(); ++i) {
+        QString config = configurations.at(i);
         t << "!MESSAGE \"" << var("MSVCDSP_PROJECT") << " - " << platform << " " << config << "\" (based on \"Win32 (x86) " << var("MSVCDSP_TARGETTYPE") << "\")" << endl;
     }
     t << "!MESSAGE " << endl;
@@ -334,7 +346,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
     t << endl;
     t << "# Begin Target" << endl;
     t << endl;
-    foreach (QString config, configurations) {
+    for (i = 0; i < configurations.count(); ++i) {
+        QString config = configurations.at(i);
         t << "# Name \"" << var("MSVCDSP_PROJECT") << " - " << platform << " " << config << "\"" << endl;
     }
     t << endl;
@@ -365,7 +378,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
             + project->variables()["YACCSOURCES"]);
 
         list.sort();
-        foreach(QString file, list) {
+        for (i = 0; i < list.count(); ++i) {
+            QString file = list.at(i);
             beginGroupForFile(file, t);
             t << "# Begin Source File" << endl;
             t << "SOURCE=" << file << endl;
