@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#266 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#267 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1556,6 +1556,7 @@ static QString findNewFolderName( const QDir &dir )
 	    return fname;
 	++i;
     }
+    return QFileDialog::tr( "New Folder" );
 }
 
 /*!
