@@ -31,6 +31,7 @@ QWorkspace
     QWidget::isMinimzed(), isMaximized() return wrong value
     setFocus() on an iconified but active window doesn't normalize (setFocus returns without sending event,
 								    and sending event manually crashes :o( )
+    Minimizing a maximized window will maximize a minimized window.
 
 WType_Popup
     Children don't get enter/leave events.
