@@ -93,24 +93,24 @@ QRect QPainterPrivate::draw_helper_setclip(const void *data, Qt::FillRule fillRu
     if (qt_show_painter_debug_output)
         printf(" -> setclip()\n");
 #endif
-    QRegion clip;
+    QPainterPath clip;
     switch (shape) {
     case EllipseShape:
-        clip = QRegion(reinterpret_cast<const QRectF*>(data)->toRect(), QRegion::Ellipse);
+        clip.addEllipse(*reinterpret_cast<const QRectF*>(data));
         break;
     case PathShape:
-        clip = QRegion(reinterpret_cast<const QPainterPath*>(data)->toFillPolygon().toPolygon(),
-                       reinterpret_cast<const QPainterPath*>(data)->fillRule());
+        clip = *reinterpret_cast<const QPainterPath*>(data);
         break;
     case RectangleShape:
-        clip = QRegion(reinterpret_cast<const QRectF*>(data)->toRect());
+        clip.addRect(*reinterpret_cast<const QRectF*>(data));
         break;
     default:
-        clip = QRegion(reinterpret_cast<const QPolygonF*>(data)->toPolygon(), fillRule);
+        clip.addPolygon(*reinterpret_cast<const QPolygonF*>(data));
+        clip.setFillRule(fillRule);
         break;
     }
-    q->setClipRegion(clip, Qt::IntersectClip);
-    return clip.boundingRect();
+    q->setClipPath(clip, Qt::IntersectClip);
+    return clip.boundingRect().toRect();
 }
 
 
