@@ -277,7 +277,7 @@ private:
     friend void qt_mac_update_os_settings();
     friend bool qt_set_socket_handler( int, int, QObject *, bool);
     friend void qt_mac_destroy_widget(QWidget *);
-    friend void qt_init(int *, char **, QApplication::Type);
+    friend void qt_init(QApplicationPrivate *priv, QApplication::Type);
 #endif
 
     static QStyle   *app_style;

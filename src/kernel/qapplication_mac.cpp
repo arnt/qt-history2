@@ -747,7 +747,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 	}
     }
 
-    char **argv = d->argv;
+    char **argv = priv->argv;
 
     // Get command line params
     if(int argc = priv->argc) {
