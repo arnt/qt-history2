@@ -259,7 +259,6 @@ then
 	#PLATFORM=solaris-g++
 	PLATFORM=solaris-cc
 	PLATFORM_NOTES="
-	    - Sun C++ 5 is not supported (it is too buggy)
 	    - To mix GNU C and SunPRO C++, add -platform solaris-cc-gcc
 	"
 	;;
