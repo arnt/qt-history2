@@ -145,14 +145,14 @@ void QMenuBar::macUpdateMenuBar()
 
 void QMenuBar::macUpdatePopup(MenuRef mr)
 {
-    if(!pdict)
+    if(!mr || !pdict)
 	return;
 
     short id = (short)mr;
     if(MacPopupBinding *mpb = pdict->find((int)id)) {
-	if(mpb->qpopup->mac_dirty_popup) {
+	emit mpb->qpopup->aboutToShow();
+	if(1 || mpb->qpopup->mac_dirty_popup) {
 	    mpb->qpopup->mac_dirty_popup = 0;
-	    emit mpb->qpopup->aboutToShow();
 	    DeleteMenuItems(mr, 1, CountMenuItems(mr));
 	    syncPopup(mr, mpb->qpopup);
 	}
