@@ -20,9 +20,16 @@
 
 class QOpenGLPaintEnginePrivate {
 public:
+    QOpenGLPaintEnginePrivate()
+    {
+	rop = Qt::CopyROP;
+	dev = 0;
+    }
+
     QGLWidget *dev;
     QPen cpen;
     QBrush cbrush;
+    Qt::RasterOp rop;
 };
 
 #define dgl d->dev
@@ -73,7 +80,6 @@ void QOpenGLPaintEngine::updatePen(QPainterState *ps)
 
 void QOpenGLPaintEngine::updateBrush(QPainterState *ps)
 {
-    dgl->makeCurrent();
     d->cbrush = ps->brush;
 }
 
@@ -84,7 +90,8 @@ void QOpenGLPaintEngine::updateFont(QPainterState *ps)
 
 void QOpenGLPaintEngine::updateRasterOp(QPainterState *ps)
 {
-
+    Q_ASSERT(isActive());
+    d->rop = ps->rasterOp;
 }
 
 void QOpenGLPaintEngine::updateBackground(QPainterState *ps)
@@ -125,11 +132,6 @@ void QOpenGLPaintEngine::updateXForm(QPainterState *ps)
 }
 
 void QOpenGLPaintEngine::updateClipRegion(QPainterState *ps)
-{
-
-}
-
-void QOpenGLPaintEngine::setRasterOp(RasterOp r)
 {
 
 }
@@ -194,7 +196,7 @@ void QOpenGLPaintEngine::drawPoints(const QPointArray &pa, int index, int npoint
     dgl->makeCurrent();
     glBegin(GL_POINTS);
     {
-	for (int i = 0; i < pa.size(); ++i)
+	for (int i = index; i < npoints; ++i)
 	    glVertex2i(pa[i].x(), pa[i].y());
     }
     glEnd();
@@ -202,9 +204,25 @@ void QOpenGLPaintEngine::drawPoints(const QPointArray &pa, int index, int npoint
 
 void QOpenGLPaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor)
 {
+    GLint opmode;
+
     dgl->makeCurrent();
+    if (xorPaint) {
+	glGetIntegerv(GL_LOGIC_OP_MODE, &opmode);
+	glEnable(GL_COLOR_LOGIC_OP); // ### RGBA only - fix for indexed mode
+	glLogicOp(GL_XOR);
+	dgl->qglColor(white);
+    } else {
+        if (qGray(bgColor.rgb()) < 128)
+	    dgl->qglColor(white);
+        else
+	    dgl->qglColor(black);
+    }
+
     glLineStipple(1, 0x5555);
     glEnable(GL_LINE_STIPPLE);
+
+    // adjusting needed due to differences in how QPainter and OpenGL works
     QRect rr = r;
     rr.setWidth(r.width()-1);
     rr.setHeight(r.height()-1);
@@ -221,6 +239,11 @@ void QOpenGLPaintEngine::drawWinFocusRect(const QRect &r, bool xorPaint, const Q
  	glEnd();
     }
     glDisable(GL_LINE_STIPPLE);
+    if (xorPaint) {
+	glDisable(GL_COLOR_LOGIC_OP);
+	glLogicOp(opmode);
+    }
+    dgl->qglColor(d->cpen.color());
 }
 
 void QOpenGLPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
@@ -230,12 +253,16 @@ void QOpenGLPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
 void QOpenGLPaintEngine::drawEllipse(const QRect &r)
 {
-
+    QPointArray pa;
+    pa.makeEllipse(r.x(), r.y(), r.width(), r.height());
+    drawPolyline(pa, 0, pa.size());
 }
 
 void QOpenGLPaintEngine::drawArc(const QRect &r, int a, int alen)
 {
-
+    QPointArray pa;
+    pa.makeArc(r.x(), r.y(), r.width(), r.height(), a, alen);
+    drawPolyline(pa, 0, pa.size());
 }
 
 void QOpenGLPaintEngine::drawPie(const QRect &r, int a, int alen)
@@ -248,24 +275,44 @@ void QOpenGLPaintEngine::drawChord(const QRect &r, int a, int alen)
 
 }
 
-void QOpenGLPaintEngine::drawLineSegments(const QPointArray &, int index, int nlines)
+void QOpenGLPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
 {
-
+    dgl->makeCurrent();
+    glBegin(GL_LINES);
+    {
+	for (int i = index; i < nlines*2; i+=2) {
+	    glVertex2i(pa[i].x(), pa[i].y());
+	    glVertex2i(pa[i+1].x(), pa[i+1].y());
+	}
+    }
+    glEnd();
 }
 
 void QOpenGLPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
-
+    dgl->makeCurrent();
+    glBegin(GL_LINE_STRIP);
+    {
+	for (int i = index; i < npoints; ++i)
+	    glVertex2i(pa[i].x(), pa[i].y());
+    }
+    glEnd();
 }
 
-void QOpenGLPaintEngine::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
+void QOpenGLPaintEngine::drawPolygon(const QPointArray &pa, bool, int index, int npoints)
 {
-
+    dgl->makeCurrent();
+    glBegin(GL_POLYGON);
+    {
+	for (int i = index; i < npoints; ++i)
+	    glVertex2i(pa[i].x(), pa[i].y());
+    }
+    glEnd();
 }
 
 void QOpenGLPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
 {
-
+    drawPolygon(pa, false, index, npoints);
 }
 
 void QOpenGLPaintEngine::drawCubicBezier(const QPointArray &pa, int index)

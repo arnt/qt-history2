@@ -36,8 +36,6 @@ public:
     void updateXForm(QPainterState *ps);
     void updateClipRegion(QPainterState *ps);
 
-    void setRasterOp(RasterOp r);
-
     void drawLine(const QPoint &p1, const QPoint &p2);
     void drawRect(const QRect &r);
     void drawPoint(const QPoint &p);
