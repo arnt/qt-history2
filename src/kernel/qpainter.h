@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#14 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#15 $
 **
 ** Definition of QPainter class
 **
@@ -19,6 +19,8 @@
 #include "qregion.h"
 #include "qpen.h"
 #include "qbrush.h"
+#include "qwmatrix.h"
+#include "qpntarry.h"
 
 
 enum BGMode					// background mode
@@ -89,7 +91,7 @@ public:
 
     void	setWorldXForm( bool );		// set world xform on/off
     bool	hasWorldXForm() const { return testf(WxF); }
-    QWorldMatrix *worldMatrix()	const;		// get/set world xform matrix
+    QWorldMatrix worldMatrix()	const;		// get/set world xform matrix
     void	setWorldMatrix( const QWorldMatrix &, bool concat=FALSE );
 
     QPoint	xForm( const QPoint & ) const;	// map virtual -> device
@@ -219,8 +221,7 @@ private:
     int	       *tabarray;			// array of tab positions
     QCOOT	sx, sy, sw, sh;			// source rect
     QCOOT	tx, ty, tw, th;			// target rect
-    QWorldMatrix *wxmat;			// world xform matrix
-    QWorldMatrix *wixmat;			// inverse xform matrix
+    QWorldMatrix wxmat;				// world xform matrix
 #if defined(_WS_MAC_) || defined(_WS_WIN16_) || defined(_WS_X11_)
     long	wm11, wm12, wm21, wm22, wdx, wdy;
     long	im11, im12, im21, im22, idx, idy;
