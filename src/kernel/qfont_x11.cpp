@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#175 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#176 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -801,7 +801,7 @@ void QFont::load() const
  *****************************************************************************/
 
 #define exactScore	   0xfffe
-#define exactUnicodeScore  0xffff
+#define exactNonUnicodeScore  0xffff
 
 #define CharSetScore	 0x80
 #define PitchScore	 0x40
@@ -810,7 +810,7 @@ void QFont::load() const
 #define SlantScore	 0x08
 #define ResolutionScore	 0x04
 #define WidthScore	 0x02
-#define UnicodeScore	 0x01
+#define NonUnicodeScore	 0x01
 
 //
 // Returns a score describing how well a font name matches the contents
@@ -823,7 +823,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 {
     char *tokens[fontFields];
     bool   exactMatch = TRUE;
-    int	   score      = 0;
+    int	   score      = NonUnicodeScore;
     *scalable	      = FALSE;
     *smoothScalable   = FALSE;
     *weightDiff	      = 0;
@@ -952,8 +952,10 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	    break;
 	}
     } else if ( strcmp( tokens[CharsetRegistry], "iso10646" ) == 0 ) {
-	// Yes please!
-        score |= CharSetScore | UnicodeScore;
+	// Yes...
+        score |= CharSetScore;
+	// But it's big...
+        score &= ~NonUnicodeScore;
     } else {
 	exactMatch = FALSE;
     }
@@ -1037,7 +1039,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	score |= WidthScore;
     else
 	exactMatch = FALSE;
-    return exactMatch ? (exactScore | (score&UnicodeScore)) : score;
+    return exactMatch ? (exactScore | (score&NonUnicodeScore)) : score;
 }
 
 
@@ -1252,7 +1254,7 @@ QCString QFont_Private::findFont( bool *exact )
 	if ( score < exactScore )
 	    *exact = FALSE;
 
-	if ( score & UnicodeScore )
+	if ( !(score & NonUnicodeScore) )
 	    setCharSet( Unicode );
 
 	if( score < CharSetScore ) {
