@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#265 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#266 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1481,8 +1481,8 @@ void QWidget::erase( int x, int y, int w, int h )
 	w = crect.width()  - x;
     if ( h < 0 )
 	h = crect.height() - y;
-    if ( w != 0 && h != 0 ) 
-	XClearArea( dpy, winid, x, y, w, h, TRUE );
+    if ( w != 0 && h != 0 )
+	XClearArea( dpy, winid, x, y, w, h, FALSE );
 }
 
 /*!
