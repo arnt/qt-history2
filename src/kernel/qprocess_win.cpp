@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#26 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -249,17 +249,17 @@ bool QProcess::start()
     return TRUE;
 }
 
-void QProcess::hangUp()
+void QProcess::hangUp() const
 {
     // ### how to do it?
 }
 
-void QProcess::kill()
+void QProcess::kill() const
 {
     TerminateProcess( d->pid.hProcess, 0 );
 }
 
-bool QProcess::isRunning()
+bool QProcess::isRunning() const
 {
     if ( WaitForSingleObject( d->pid.hProcess, 0) == WAIT_OBJECT_0 ) {
 	// compute the exit values
@@ -267,8 +267,9 @@ bool QProcess::isRunning()
 	    DWORD exitCode;
 	    if ( GetExitCodeProcess( d->pid.hProcess, &exitCode ) ) {
 		if ( exitCode != STILL_ACTIVE ) { // this should ever be true?
-		    exitNormal = TRUE;
-		    exitStat = exitCode;
+		    QProcess *that = (QProcess*)this; // mutable 
+		    that->exitNormal = TRUE;
+		    that->exitStat = exitCode;
 		}
 	    }
 	    d->exitValuesCalculated = TRUE;
@@ -350,8 +351,8 @@ void QProcess::socketWrite( int fd )
     if ( d->stdinBufRead == d->stdinBuf.head()->size() ) {
 	d->stdinBufRead = 0;
 	delete d->stdinBuf.dequeue();
-	if ( wroteStdinConnected && d->stdinBuf.isEmpty() ) {
-	    emit wroteStdin();
+	if ( wroteToStdinConnected && d->stdinBuf.isEmpty() ) {
+	    emit wroteToStdin();
 	}
 	socketWrite( fd );
 	// start timer if there is still pending data
@@ -433,11 +434,11 @@ void QProcess::setNotifyOnExit( bool value )
 
 /*
   Used by connectNotify() and disconnectNotify() to change the value of
-  wroteStdinConnected (and related behaviour)
+  wroteToStdinConnected (and related behaviour)
 */
 void QProcess::setWroteStdinConnected( bool value )
 {
-    wroteStdinConnected = value;
+    wroteToStdinConnected = value;
 }
 
 #endif // QT_NO_PROCESS

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#24 $
 **
 ** Implementation of QProcess class
 **
@@ -122,7 +122,7 @@
 */
 QProcess::QProcess( QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteStdinConnected( FALSE )
+    wroteToStdinConnected( FALSE )
 {
     init();
 }
@@ -138,7 +138,7 @@ QProcess::QProcess( QObject *parent, const char *name )
 */
 QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteStdinConnected( FALSE )
+    wroteToStdinConnected( FALSE )
 {
     init();
     addArgument( arg0 );
@@ -157,7 +157,7 @@ QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
 */
 QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteStdinConnected( FALSE )
+    wroteToStdinConnected( FALSE )
 {
     init();
     setArguments( args );
@@ -212,7 +212,7 @@ void QProcess::setWorkingDirectory( const QDir& dir )
 
   \sa isRunning() exitStatus() processExited()
 */
-bool QProcess::normalExit()
+bool QProcess::normalExit() const
 {
     // isRunning() has the side effect that it determines the exit status!
     if ( isRunning() )
@@ -229,7 +229,7 @@ bool QProcess::normalExit()
 
   \sa normalExit() processExited()
 */
-int QProcess::exitStatus()
+int QProcess::exitStatus() const
 {
     // isRunning() has the side effect that it determines the exit status!
     if ( isRunning() )
@@ -289,7 +289,7 @@ QByteArray QProcess::readStderr()
 bool QProcess::launch( const QByteArray& buf )
 {
     if ( start() ) {
-	connect( this, SIGNAL(wroteStdin()),
+	connect( this, SIGNAL(wroteToStdin()),
 		this, SLOT(closeStdinLaunch()) );
 	writeToStdin( buf );
 	return TRUE;
@@ -306,7 +306,7 @@ bool QProcess::launch( const QByteArray& buf )
 bool QProcess::launch( const QString& buf )
 {
     if ( start() ) {
-	connect( this, SIGNAL(wroteStdin()),
+	connect( this, SIGNAL(wroteToStdin()),
 		this, SLOT(closeStdinLaunch()) );
 	writeToStdin( buf );
 	return TRUE;
@@ -320,7 +320,7 @@ bool QProcess::launch( const QString& buf )
 */
 void QProcess::closeStdinLaunch()
 {
-    disconnect( this, SIGNAL(wroteStdin()),
+    disconnect( this, SIGNAL(wroteToStdin()),
 	    this, SLOT(closeStdinLaunch()) );
     closeStdin();
 }
@@ -350,7 +350,7 @@ void QProcess::closeStdinLaunch()
   \sa isRunning() normalExit() exitStatus()
 */
 /*!
-  \fn void QProcess::wroteStdin()
+  \fn void QProcess::wroteToStdin()
 
   This signal is emitted if the data send to standard input (via
   writeToStdin()) was actually written to the process. This does not
@@ -406,9 +406,9 @@ void QProcess::connectNotify( const char * signal )
 	setNotifyOnExit( TRUE );
 	return;
     }
-    if ( !wroteStdinConnected && qstrcmp( signal, SIGNAL(wroteStdin()) )==0 ) {
+    if ( !wroteToStdinConnected && qstrcmp( signal, SIGNAL(wroteToStdin()) )==0 ) {
 #if defined(QPROCESS_DEBUG)
-	qDebug( "QProcess::connectNotify(): set wroteStdinConnected to TRUE" );
+	qDebug( "QProcess::connectNotify(): set wroteToStdinConnected to TRUE" );
 #endif
 	setWroteStdinConnected( TRUE );
 	return;
@@ -434,9 +434,9 @@ void QProcess::disconnectNotify( const char * )
 #endif
 	setNotifyOnExit( FALSE );
     }
-    if ( wroteStdinConnected && receivers( SIGNAL(wroteStdin()) ) == 0 ) {
+    if ( wroteToStdinConnected && receivers( SIGNAL(wroteToStdin()) ) == 0 ) {
 #if defined(QPROCESS_DEBUG)
-	qDebug( "QProcess::disconnectNotify(): set wroteStdinConnected to FALSE" );
+	qDebug( "QProcess::disconnectNotify(): set wroteToStdinConnected to FALSE" );
 #endif
 	setWroteStdinConnected( FALSE );
     }

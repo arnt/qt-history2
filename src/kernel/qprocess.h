@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#22 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#23 $
 **
 ** Implementation of QProcess class
 **
@@ -59,39 +59,39 @@ public:
     ~QProcess();
 
     // set the arguments and working directory
-    void setArguments( const QStringList& args );
-    void addArgument( const QString& arg );
-    void setWorkingDirectory( const QDir& dir );
+    virtual void setArguments( const QStringList& args );
+    virtual void addArgument( const QString& arg );
+    virtual void setWorkingDirectory( const QDir& dir );
 
     // control the execution
-    bool start();
-    bool launch( const QString& buf );
-    bool launch( const QByteArray& buf );
-    void hangUp();
-    void kill();
+    virtual bool start();
+    virtual bool launch( const QString& buf );
+    virtual bool launch( const QByteArray& buf );
+    void hangUp() const;
+    void kill() const;
 
     // inquire the status
-    bool isRunning();
-    bool normalExit();
-    int exitStatus();
+    bool isRunning() const;
+    bool normalExit() const;
+    int exitStatus() const;
 
     // reading
-    QByteArray readStdout();
-    QByteArray readStderr();
+    virtual QByteArray readStdout();
+    virtual QByteArray readStderr();
 
 signals:
     void readyReadStdout();
     void readyReadStderr();
     void processExited();
-    void wroteStdin();
+    void wroteToStdin();
 
 public slots:
     // input
-    void writeToStdin( const QByteArray& buf );
-    void writeToStdin( const QString& buf );
-    void closeStdin();
+    virtual void writeToStdin( const QByteArray& buf );
+    virtual void writeToStdin( const QString& buf );
+    virtual void closeStdin();
 
-protected:
+protected: // ### or private?
     void connectNotify( const char * signal );
     void disconnectNotify( const char * signal );
 private:
@@ -99,21 +99,6 @@ private:
     void setNotifyOnExit( bool value );
     void setWroteStdinConnected( bool value );
 
-private:
-    QProcessPrivate *d;
-
-    QDir        workingDir;
-    QStringList arguments;
-
-    QByteArray bufStdout;
-    QByteArray bufStderr;
-    int  exitStat; // exit status
-    bool exitNormal; // normal exit?
-    bool ioRedirection; // automatically set be (dis)connectNotify
-    bool notifyOnExit; // automatically set be (dis)connectNotify
-    bool wroteStdinConnected; // automatically set be (dis)connectNotify
-
-private:
     void init();
     void reset();
 #if defined(Q_WS_WIN)
@@ -127,6 +112,19 @@ private slots:
     void closeStdinLaunch();
 
 private:
+    QProcessPrivate *d;
+
+    QDir        workingDir;
+    QStringList arguments;
+
+    QByteArray bufStdout;
+    QByteArray bufStderr;
+    int  exitStat; // exit status
+    bool exitNormal; // normal exit?
+    bool ioRedirection; // automatically set be (dis)connectNotify
+    bool notifyOnExit; // automatically set be (dis)connectNotify
+    bool wroteToStdinConnected; // automatically set be (dis)connectNotify
+
     friend class QProcessPrivate;
 #if defined(Q_OS_UNIX)
     friend class QProcessManager;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#47 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -672,7 +672,7 @@ error:
 
   \sa kill() processExited()
 */
-void QProcess::hangUp()
+void QProcess::hangUp() const
 {
     if ( d->proc != 0 )
 	::kill( d->proc->pid, SIGHUP );
@@ -687,7 +687,7 @@ void QProcess::hangUp()
 
   \sa hangUp() processExited()
 */
-void QProcess::kill()
+void QProcess::kill() const
 {
     if ( d->proc != 0 )
 	::kill( d->proc->pid, SIGKILL );
@@ -698,7 +698,7 @@ void QProcess::kill()
 
   \sa normalExit() exitStatus() processExited()
 */
-bool QProcess::isRunning()
+bool QProcess::isRunning() const
 {
     if ( d->exitValuesCalculated ) {
 #if defined(QT_QPROCESS_DEBUG)
@@ -712,9 +712,10 @@ bool QProcess::isRunning()
     if ( ::waitpid( d->proc->pid, &status, WNOHANG ) == d->proc->pid )
     {
 	// compute the exit values
-	exitNormal = WIFEXITED( status ) != 0;
+	QProcess *that = (QProcess*)this; // mutable 
+	that->exitNormal = WIFEXITED( status ) != 0;
 	if ( exitNormal ) {
-	    exitStat = WEXITSTATUS( status );
+	    that->exitStat = WEXITSTATUS( status );
 	}
 	d->exitValuesCalculated = TRUE;
 #if defined(QT_QPROCESS_DEBUG)
@@ -731,10 +732,10 @@ bool QProcess::isRunning()
 /*!
   Writes the data \a buf to the standard input of the process. The process may
   or may not read this data. If the data was written to the process, the signal
-  wroteStdin() is emitted. This does not mean that the process really read the
+  wroteToStdin() is emitted. This does not mean that the process really read the
   data.
 
-  \sa wroteStdin() closeStdin() readStdout() readStderr()
+  \sa wroteToStdin() closeStdin() readStdout() readStderr()
 */
 void QProcess::writeToStdin( const QByteArray& buf )
 {
@@ -871,8 +872,8 @@ void QProcess::socketWrite( int fd )
     if ( d->stdinBufRead == (ssize_t)d->stdinBuf.head()->size() ) {
 	d->stdinBufRead = 0;
 	delete d->stdinBuf.dequeue();
-	if ( wroteStdinConnected && d->stdinBuf.isEmpty() )
-	    emit wroteStdin();
+	if ( wroteToStdinConnected && d->stdinBuf.isEmpty() )
+	    emit wroteToStdin();
 	socketWrite( fd );
     }
 }
@@ -916,11 +917,11 @@ void QProcess::setNotifyOnExit( bool value )
 
 /*
   Used by connectNotify() and disconnectNotify() to change the value of
-  wroteStdinConnected (and related behaviour)
+  wroteToStdinConnected (and related behaviour)
 */
 void QProcess::setWroteStdinConnected( bool value )
 {
-    wroteStdinConnected = value;
+    wroteToStdinConnected = value;
 }
 
 #endif // QT_NO_PROCESS
