@@ -59,7 +59,7 @@
 #define S_ISDIR(m)	(((m) & S_IFMT) == S_IFDIR)
 #endif
 
-static QString mkdir_p_asstring(const QString &dir)
+QString mkdir_p_asstring(const QString &dir)
 {
     QString ret =  "@$(CHK_DIR_EXISTS) \"" + dir + "\" ";
     if(Option::target_mode == Option::TARG_WIN_MODE)
@@ -2043,12 +2043,15 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
     } else { //fix it..
 	QString qfile(Option::fixPathToLocalOS(file, TRUE)), in_dir(in_d), out_dir(out_d);
 	{
-	    if(out_dir.isNull())
-		out_dir = Option::output_dir;
+	    if(out_dir.isNull() || QDir::isRelativePath(out_dir))
+		out_dir.prepend(Option::output_dir + QDir::separator());
 	    if(out_dir == ".")
 		out_dir = QDir::currentDirPath();
-	    if(in_dir.isEmpty() || in_dir == ".")
+	    if(in_dir.isEmpty() || QDir::isRelativePath(in_dir))
+		in_dir.prepend(QDir::currentDirPath() + QDir::separator());
+	    if(in_dir == ".")
 		in_dir = QDir::currentDirPath();
+
 	    if(!QDir::isRelativePath(in_dir) || !QDir::isRelativePath(out_dir)) {
 		QFileInfo in_fi(in_dir);
 		if(!in_fi.convertToAbs())
@@ -2111,7 +2114,8 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
 	file = ".";
     if(!quote.isNull())
 	file = quote + file + quote;
-    debug_msg(3, "Fixed %s :: to :: %s (%d)", orig_file.latin1(), file.latin1(), depth);
+    debug_msg(3, "Fixed %s :: to :: %s (%d) [%s::%s]", orig_file.latin1(), file.latin1(), depth,
+	      in_d.latin1(), out_d.latin1());
     ((MakefileGenerator*)this)->fileFixed.insert(key, file);
     return file;
 }

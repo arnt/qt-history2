@@ -48,6 +48,8 @@
 #define QT_POPEN popen
 #endif
 
+QString mkdir_p_asstring(const QString &dir);
+
 UnixMakefileGenerator::UnixMakefileGenerator(QMakeProject *p) : MakefileGenerator(p), init_flag(FALSE), include_deps(FALSE)
 {
 
@@ -904,6 +906,8 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 		    sd->profile = file;
 		}
 	    } else {
+		if(!file.isEmpty())
+		    sd->profile = file.section(Option::dir_sep, -1) + ".pro";
 		sd->directory = file;
 	    }
 	    while(sd->directory.right(1) == Option::dir_sep)
@@ -929,6 +933,8 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     t << "MAKEFILE =	" << var("MAKEFILE") << endl;
     t << "QMAKE    =	" << var("QMAKE") << endl;
     t << "DEL_FILE =    " << var("QMAKE_DEL_FILE") << endl;
+    t << "CHK_DIR_EXISTS= " << var("QMAKE_CHK_DIR_EXISTS") << endl;
+    t << "MKDIR    = " << var("QMAKE_MKDIR") << endl;
     t << "SUBTARGETS =	";     // subdirectory targets are sub-directory
     for( it.toFirst(); it.current(); ++it) 
 	t << " \\\n\t\t" << it.current()->target;
@@ -946,8 +952,10 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	//qmake it
 	t << mkfile << ": " << "\n\t";
 	if(have_dir)
-	    t << "cd " << (*it)->directory << " && ";
-	t << "$(QMAKE) " << (*it)->profile << buildArgs() << out << endl;
+	    t << mkdir_p_asstring((*it)->directory) << "\n\t"
+	      << "cd " << (*it)->directory << " && ";
+	QString profile = fileFixify((*it)->profile, (*it)->directory, (*it)->directory);
+	t << "$(QMAKE) " << profile << buildArgs() << out << endl;
 	//actually compile
 	t << (*it)->target << ": " << mkfile << " FORCE" << "\n\t";
 	if(have_dir)
