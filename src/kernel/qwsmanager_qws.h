@@ -83,6 +83,14 @@ protected:
 
     static QWidget *active;
     static QPoint mousePos;
+
+private:
+    void setMouseOver(QWSButton *, bool);
+    void setClicked(QWSButton *, bool);
+    void setOn(QWSButton *, bool);
+    void repaintButton(QWSButton *);
+
+
 };
 
 class QWSButton
@@ -92,17 +100,15 @@ public:
 
     enum State { MouseOver = 0x01, Clicked = 0x02, On = 0x04 };
     int state() { return flags; }
-    void setMouseOver(bool);
-    void setClicked(bool);
-    void setOn(bool);
-
-protected:
-    void paint();
+    QWSDecoration::Region type() { return typ; }
+    bool setMouseOver(bool);
+    bool setClicked(bool);
+    bool setOn(bool);
 
 private:
     int  flags;
     bool toggle;
-    QWSDecoration::Region type;
+    QWSDecoration::Region typ;
     QWSManager *manager;
 };
 
