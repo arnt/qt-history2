@@ -570,7 +570,7 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
     // return the maximum time we can wait for an event.
     static timeval zerotm;
     timeval *tm = NULL;
-    if ( !(flags & 0x08)) {			// 0x08 == ExcludeTimers for X11 only
+    if (!(flags & 0x08)) {			// 0x08 == ExcludeTimers for X11 only
 	tm = d->timerWait();			// wait for timer or X event
 	if ( !canWait ) {
 	    if ( !tm )

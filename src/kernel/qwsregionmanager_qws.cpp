@@ -149,12 +149,11 @@ int QWSRegionManager::add( int id, QRegion region )
 	    regHdr->maxRegions = QT_MAX_REGIONS;
 	    return -1;
 	}
-	regions.resize( regHdr->maxRegions );
     }
 
     regIdx[idx].id = id;
     regIdx[idx].revision = 0;
-    if ( !regions[idx] )
+    if ( regions.size() <= idx || !regions[idx] )
 	regions.insert( idx, new QRegion );
     set( idx, region );
 

@@ -33,7 +33,6 @@
 #include "qsessionmanager.h"
 #include "qvaluelist.h"
 #include "qdict.h"
-#include "qptrqueue.h"
 #include "qguardedptr.h"
 #include "qclipboard.h"
 #include "qbitmap.h"
@@ -279,17 +278,17 @@ public:
 // Single-process stuff. This should maybe move into qwindowsystem_qws.cpp
 
 static bool qws_single_process;
-static QPtrQueue<QWSEvent> incoming;
-static QPtrQueue<QWSCommand> outgoing;
+static QList<QWSEvent*> incoming;
+static QList<QWSCommand*> outgoing;
 
 void qt_client_enqueue(const QWSEvent *event )
 {
     QWSEvent *copy = QWSEvent::factory( event->type );
     copy->copyFrom( event );
-    incoming.enqueue( copy );
+    incoming.append( copy );
 }
 
-QPtrQueue<QWSCommand> *qt_get_server_queue()
+QList<QWSCommand*> *qt_get_server_queue()
 {
     return &outgoing;
 }
@@ -298,7 +297,7 @@ void qt_server_enqueue( const QWSCommand *command )
 {
     QWSCommand *copy = QWSCommand::factory( command->type );
     copy->copyFrom( command );
-    outgoing.enqueue( copy );
+    outgoing.append( copy );
 }
 
 class QWSDisplay::Data {
@@ -373,7 +372,7 @@ private:
     QWSQCopMessageEvent *qcop_response;
 #endif
     QWSEvent* current_event;
-    QValueList<int> unused_identifiers;
+    QList<int> unused_identifiers;
     int mouse_event_count;
     void (*mouseFilter)(QWSMouseEvent *);
 
@@ -457,7 +456,7 @@ public:
 		create();
 	    waitForCreation();
 	}
-	QValueList<int>::Iterator head = unused_identifiers.begin();
+	QList<int>::Iterator head = unused_identifiers.begin();
 	int i = *head;
 	unused_identifiers.remove(head);
 	return i;
@@ -606,10 +605,10 @@ void QWSDisplay::Data::init()
 QWSEvent* QWSDisplay::Data::readMore()
 {
 #ifdef QT_NO_QWS_MULTIPROCESS
-    return incoming.dequeue();
+    return incoming.takeFirst();
 #else
     if ( !csocket )
-	return incoming.dequeue();
+	return incoming.takeFirst();
     // read next event
     if ( !current_event ) {
 	int event_type = qws_read_uint( csocket );
@@ -1133,7 +1132,7 @@ void QWSDisplay::convertSelection( int winId, int selectionProperty, const QStri
     // ### we need the atom/property thingy like in X here
     addProperty( winId, QT_QWS_PROPERTY_CONVERTSELECTION );
     setProperty( winId, QT_QWS_PROPERTY_CONVERTSELECTION,
-		 (int)QWSPropertyManager::PropReplace, QCString( mimeTypes.latin1() ) );
+		 (int)QWSPropertyManager::PropReplace, QByteArray( mimeTypes.latin1() ) );
 #endif
     QWSConvertSelectionCommand cmd;
     cmd.simpleData.requestor = winId;
@@ -1176,14 +1175,14 @@ void QWSDisplay::playSoundFile(const QString& f)
 #endif
 
 #ifndef QT_NO_COP
-void QWSDisplay::registerChannel( const QCString& channel )
+void QWSDisplay::registerChannel( const QByteArray& channel )
 {
     QWSQCopRegisterChannelCommand reg;
     reg.setChannel( channel );
     qt_fbdpy->d->sendCommand( reg );
 }
 
-void QWSDisplay::sendMessage(const QCString &channel, const QCString &msg,
+void QWSDisplay::sendMessage(const QByteArray &channel, const QByteArray &msg,
 		   const QByteArray &data )
 {
     QWSQCopSendCommand com;
@@ -1492,7 +1491,7 @@ void qt_init(QApplicationPrivate *priv, int type )
 	    argv[j++] = argv[i];
 	    continue;
 	}
-	QCString arg = argv[i];
+	QByteArray arg = argv[i];
 	if ( arg == "-fn" || arg == "-font" ) {
 	    if ( ++i < argc )
 		appFont = argv[i];

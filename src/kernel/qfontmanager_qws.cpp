@@ -17,7 +17,7 @@
 #include "qfontfactorybdf_qws.h"
 #include "qfontdata_p.h"
 #include "qfile.h"
-#include "qcstring.h"
+#include "qbytearray.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -241,7 +241,7 @@ QFontManager::QFontManager()
     QString fn = qws_topdir() + "/lib/fonts/fontdir";
     FILE* fontdef=fopen(fn.local8Bit(),"r");
     if(!fontdef) {
-	QCString temp=fn.local8Bit();
+	QByteArray temp=fn.local8Bit();
 	qWarning("Cannot find font definition file %s - is Qt installed correctly?",
 	       temp.data());
 	exit(1);
@@ -266,7 +266,8 @@ QFontManager::QFontManager()
 		filename = qws_topdir() + "/lib/fonts/";
 	    filename += file;
 	    if ( QFile::exists(filename) ) {
-		for(factoryp=factories.first();factoryp;factoryp=factories.next()) {
+		for (int i = 0; i < factories.size(); ++i) {
+		    factoryp = factories.at(i);
 		    if( factoryp->name() == render ) {
 			QDiskFont * qdf=new QDiskFont(factoryp,name,isitalic[0]=='y',
 						      weight,size,flags,filename);
@@ -329,8 +330,8 @@ QDiskFont * QFontManager::get(const QFontDef & f)
     QDiskFont * qdf;
     QDiskFont * bestmatch=diskfonts.first();
     int bestmatchval=0;
-
-    for(qdf=diskfonts.first();qdf;qdf=diskfonts.next()) {
+    for (int i = 0; i < diskfonts.size(); ++i) {
+        qdf = diskfonts.at(i);
 	QFontDef def = qdf->fontDef();
 	int mymatchval = cmpFontDef(f,def);
 	if ( mymatchval>bestmatchval) {
@@ -363,8 +364,9 @@ void QFontManager::setPolicy(QCachePolicy * p)
 QRenderedFont* QFontManager::getCached(const QFontDef & f)
 {
     QRenderedFont * it;
-    for(it=cachedfonts.first();it;it=cachedfonts.next()) {
-        if(it->match(f)) {
+    for (int i = 0; i < cachedfonts.size(); ++i) {
+        it = cachedfonts.at(i);
+        if (it->match(f)) {
             return it;
         }
     }
@@ -373,14 +375,14 @@ QRenderedFont* QFontManager::getCached(const QFontDef & f)
 
 void QDefaultCachePolicy::cache(QRenderedFont * f)
 {
-    if( !qt_fontmanager->cachedfonts.findRef( f ) ) {
+    if (!qt_fontmanager->cachedfonts.contains(f)) {
         qt_fontmanager->cachedfonts.append(f);
     }
 }
 
 void QDefaultCachePolicy::uncache(QRenderedFont * f)
 {
-    qt_fontmanager->cachedfonts.removeRef( f );
+    qt_fontmanager->cachedfonts.remove(f);
     delete f;
 }
 

@@ -22,7 +22,7 @@
 #include "qfile.h"
 #include "qrect.h"
 #include "qstringlist.h"
-#include "qcstring.h"
+#include "qbytearray.h"
 #include <string.h>
 #include <stdio.h>
 #include <private/qtextengine_p.h>
@@ -154,7 +154,7 @@ public:
 		    } else {
 #ifndef QT_NO_TEXTCODEC
 			if ( mapper ) {
-			    QCString c;
+			    QByteArray c;
 			    int e = encoding;
 			    while (e) {
 				c += char(e&0xff);

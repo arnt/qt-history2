@@ -17,7 +17,7 @@
 
 #ifndef QT_H
 #include "qwssocket_qws.h"
-#include "qcstring.h"
+#include "qbytearray.h"
 #include "qmap.h"
 #include "qdatetime.h"
 #include "qlist.h"
@@ -294,8 +294,8 @@ signals:
 #endif
 private:
 #ifndef QT_NO_COP
-    static void sendQCopEvent( QWSClient *c, const QCString &ch,
-			       const QCString &msg, const QByteArray &data,
+    static void sendQCopEvent( QWSClient *c, const QByteArray &ch,
+			       const QByteArray &msg, const QByteArray &data,
 			       bool response = FALSE );
 #endif
     void move_region( const QWSRegionMoveCommand * );

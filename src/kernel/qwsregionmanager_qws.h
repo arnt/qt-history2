@@ -16,7 +16,7 @@
 #define QWSREGIONMANAGER_QWS_H
 
 #ifndef QT_H
-#include "qptrvector.h"
+#include "qlist.h"
 #include "qregion.h"
 #endif // QT_H
 
@@ -49,7 +49,7 @@ private:
 
 private:
     bool client;
-    QPtrVector<QRegion> regions;
+    QList<QRegion*> regions;
     QWSRegionHeader *regHdr;
     QWSRegionIndex *regIdx;
     unsigned char *data;

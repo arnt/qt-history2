@@ -15,8 +15,8 @@
 #include "qsoundqss_qws.h"
 
 #ifndef QT_NO_SOUND
-#include <qcstring.h>
-#include <qptrlist.h>
+#include <qbytearray.h>
+#include <qlist.h>
 #include <qsocketnotifier.h>
 #include <qfile.h>
 #include <qfileinfo.h>
@@ -271,7 +271,7 @@ private:
 	}
     }
 
-    QPtrList<QWSSoundServerBucket> active;
+    QList<QWSSoundServerBucket*> active;
     int fd;
     int unwritten;
     int timerId;
@@ -288,7 +288,7 @@ void QWSSoundServerPrivate::timerEvent(QTimerEvent* event)
 {
     if ( fd >= 0 )
         feedDevice(fd);
-  
+
     if ( fd < 0 && event->timerId() == timerId ) {
         killTimer(timerId);
 	timerId = 0;
@@ -382,7 +382,8 @@ void  QWSSoundServerPrivate::feedDevice(int fd)
 		int right[sound_buffer_size];
 		if ( sound_stereo )
 		    memset(right,0,sound_buffer_size*sizeof(int));
-		for (bucket = active.first(); bucket; bucket = active.next()) {
+		for (int i = 0; i < active.size(); ++i) {
+		    bucket = active.at(i);
 		    int unused = bucket->add(left,right,sound_buffer_size);
 		    if ( unused < blank )
 			blank = unused;
@@ -421,11 +422,10 @@ void  QWSSoundServerPrivate::feedDevice(int fd)
 		    unwritten = available*(sound_stereo+1);
 		    cursor = (char*)d8;
 		}
-		QPtrListIterator<QWSSoundServerBucket> it(active);
-		for (; (bucket = *it);) {
-		    ++it;
-		    if ( bucket->finished() )
-			active.removeRef(bucket);
+		for (int i = 0; i < active.size(); ++i) {
+		    bucket = active.at(i);
+		    if (bucket->finished())
+			active.remove(bucket);
 		}
 	    }
 
@@ -476,9 +476,9 @@ void QWSSoundClient::play( const QString& filename )
 {
     QFileInfo fi(filename);
 #ifndef QT_NO_TEXTCODEC
-    QCString u = ("PLAY " + fi.absFilePath() + "\n").utf8();
+    QByteArray u = ("PLAY " + fi.absFilePath() + "\n").utf8();
 #else
-    QCString u = ("PLAY " + fi.absFilePath() + "\n").latin1();
+    QByteArray u = ("PLAY " + fi.absFilePath() + "\n").latin1();
 #endif
     writeBlock(u.data(), u.length());
 }

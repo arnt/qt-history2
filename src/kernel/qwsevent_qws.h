@@ -124,7 +124,7 @@ struct QWSCreationEvent : QWSEvent {
 	      (char*)&simpleData ) {}
     struct SimpleData {
 	int objectid;
-    } simpleData;	
+    } simpleData;
 };
 
 #ifndef QT_NO_QWS_PROPERTIES
@@ -229,9 +229,9 @@ struct QWSQCopMessageEvent : QWSEvent {
     void setData( char *d, int len, bool allocateMem = TRUE ) {
 	QWSEvent::setData( d, len, allocateMem );
 	char* p = (char*) rawDataPtr;
-	channel = QCString( p, simpleData.lchannel + 1 );
+	channel = QByteArray( p, simpleData.lchannel + 1 );
 	p += simpleData.lchannel;
-	message = QCString( p, simpleData.lmessage + 1 );
+	message = QByteArray( p, simpleData.lmessage + 1 );
 	p += simpleData.lmessage;
 	data.duplicate( p, simpleData.ldata );
     }
@@ -243,8 +243,8 @@ struct QWSQCopMessageEvent : QWSEvent {
 	int ldata;
     } simpleData;
 
-    QCString channel;
-    QCString message;
+    QByteArray channel;
+    QByteArray message;
     QByteArray data;
 };
 

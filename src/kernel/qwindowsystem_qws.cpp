@@ -113,7 +113,7 @@ extern void qt_client_enqueue(const QWSEvent *); //qapplication_qws.cpp
 typedef void MoveRegionF( const QWSRegionMoveCommand*);
 typedef void RequestRegionF( int, QRegion );
 typedef void SetAltitudeF( const QWSChangeAltitudeCommand* );
-extern QPtrQueue<QWSCommand> *qt_get_server_queue();
+extern QList<QWSCommand*> *qt_get_server_queue();
 
 static QRect maxwindow_rect;
 static const char *defaultMouse =
@@ -896,7 +896,7 @@ QWSCommand* QWSClient::readMoreCommand()
     else
 #endif
     {
-	return qt_get_server_queue()->dequeue();
+	return qt_get_server_queue()->takeFirst();
     }
 
 }
@@ -1281,8 +1281,8 @@ QList<QWSInternalWindowInfo*> * QWSServer::windowList()
 /*!
   \internal
 */
-void QWSServer::sendQCopEvent( QWSClient *c, const QCString &ch,
-			       const QCString &msg, const QByteArray &data,
+void QWSServer::sendQCopEvent( QWSClient *c, const QByteArray &ch,
+			       const QByteArray &msg, const QByteArray &data,
 			       bool response )
 {
     Q_ASSERT( c );

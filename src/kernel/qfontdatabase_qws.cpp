@@ -55,8 +55,9 @@ void QFontDatabase::createDatabase()
         qt_fontmanager=new QFontManager();
 
     QDiskFont *qdf;
-    for ( qdf=qt_fontmanager->diskfonts.first();qdf!=0;
-	  qdf=qt_fontmanager->diskfonts.next()) {
+
+    for (int i = 0; i < qt_fontmanager->diskfonts.size(); ++i) {
+        qdf = qt_fontmanager->diskfonts.at(i);
 	qwsAddDiskFont( qdf );
     }
 

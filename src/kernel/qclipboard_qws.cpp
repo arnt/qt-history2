@@ -175,7 +175,7 @@ void QClipboard::setText( const QString &text )
     qwsSetClipboardText( text );
 }
 
-QString QClipboard::text(QCString& subtype) const
+QString QClipboard::text(QString& subtype) const
 {
     QString r;
     if ( subtype == "plain" )

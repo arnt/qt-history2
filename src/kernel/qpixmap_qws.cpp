@@ -20,9 +20,9 @@
 #include "qwmatrix.h"
 #include "qapplication.h"
 #include "qpainter.h"
-#include "qptrdict.h"
 #include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
+#include "qhash.h"
 #include <stdlib.h>
 #include <limits.h>
 
@@ -131,17 +131,17 @@ class QwsPixmap : public QPixmap
 public:
     QwsPixmap() : QPixmap() {}
     static void mapPixmaps( bool from );
-    static QPtrDict<QImage> *images;
+    static QHash<QPixmapData*, QImage*> *images;
 };
 
-QPtrDict<QImage> *QwsPixmap::images = 0;
+QHash<QPixmap::QPixmapData*, QImage*> *QwsPixmap::images = 0;
 
 void QwsPixmap::mapPixmaps( bool from )
 {
     if ( !qws_pixmapData )
 	return;
     if ( !images )
-	images = new QPtrDict<QImage>;
+	images = new QHash<QPixmapData*, QImage*>;
     qws_trackPixmapData = FALSE;
     for ( int i = 0; i < qws_pixmapData->size(); ++i ) {
 	QPixmapData *d = (QPixmapData*)qws_pixmapData->at(i);

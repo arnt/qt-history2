@@ -14,7 +14,7 @@
 #define QWSDISPLAY_QWS_H
 
 #include "qobject.h"
-#include "qcstring.h"
+#include "qbytearray.h"
 #include "qregion.h"
 #include "private/qlock_p.h"
 #include "qwindowdefs.h"
@@ -87,8 +87,8 @@ public:
     void grabMouse( QWidget *w, bool grab );
     void grabKeyboard( QWidget *w, bool grab );
     void playSoundFile( const QString& );
-    void registerChannel( const QCString& channel );
-    void sendMessage(const QCString &channel, const QCString &msg,
+    void registerChannel( const QByteArray& channel );
+    void sendMessage(const QByteArray &channel, const QByteArray &msg,
 		       const QByteArray &data );
 #ifndef QT_NO_QWS_REPEATER
     void repaintRegion(QRegion &);
@@ -120,8 +120,8 @@ private:
     class Data;
     Data *dd;
 
-    inline Data *d_func() { return dd; } // work around #define 
-    inline const Data *d_func() const { return dd; } // work around #define 
+    inline Data *d_func() { return dd; } // work around #define
+    inline const Data *d_func() const { return dd; } // work around #define
 
     int getPropertyLen;
     char *getPropertyData;

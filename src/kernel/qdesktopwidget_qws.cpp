@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qdesktopwidget.h"
-#include "qmemarray.h"
+#include "qvector.h"
 
 class QDesktopWidgetPrivate
 {
@@ -23,7 +23,7 @@ public:
     int appScreen;
     int screenCount;
 
-    QMemArray<QRect> rects;
+    QVector<QRect> rects;
 };
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()

@@ -16,7 +16,7 @@
 #define QWSCOMMAND_QWS_H
 
 #ifndef QT_H
-#include "qcstring.h"
+#include "qbytearray.h"
 #include "qwsutils_qws.h"
 #endif // QT_H
 
@@ -437,10 +437,10 @@ struct QWSQCopRegisterChannelCommand : public QWSCommand
 
     void setData( char *d, int len, bool allocateMem ) {
 	QWSCommand::setData( d, len, allocateMem );
-	channel = QCString( d, len );
+	channel = QByteArray( d, len );
     }
 
-    void setChannel( const QCString& n )
+    void setChannel( const QByteArray& n )
     {
 	setData( (char*)n.data(), n.length()+1, TRUE );
     }
@@ -459,14 +459,14 @@ struct QWSQCopSendCommand : public QWSCommand
 
     void setData( char *d, int len, bool allocateMem ) {
 	QWSCommand::setData( d, len, allocateMem );
-	channel = QCString( d, simpleData.clen + 1 );
+	channel = QByteArray( d, simpleData.clen + 1 );
 	d += simpleData.clen;
-	message = QCString( d, simpleData.mlen + 1 );
+	message = QByteArray( d, simpleData.mlen + 1 );
 	d += simpleData.mlen;
 	data.duplicate( d, simpleData.dlen );
     }
 
-    void setMessage( const QCString &c, const QCString &m,
+    void setMessage( const QByteArray &c, const QByteArray &m,
 		     const QByteArray &data )
     {
 	int l = simpleData.clen = c.length();
@@ -487,8 +487,8 @@ struct QWSQCopSendCommand : public QWSCommand
 	int mlen;
 	int dlen;
     } simpleData;
-    QCString channel;
-    QCString message;
+    QByteArray channel;
+    QByteArray message;
     QByteArray data;
 };
 

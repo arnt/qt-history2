@@ -19,7 +19,6 @@
 #include "qwsdisplay_qws.h"
 #include "qwsevent_qws.h"
 #include "qwindowsystem_qws.h"
-#include "qptrqueue.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"
@@ -65,7 +64,7 @@ bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
 	return FALSE;
     }
 
-    extern QPtrQueue<QWSCommand> *qt_get_server_queue();
+    extern QList<QWSCommand*> *qt_get_server_queue();
     if ( !qt_get_server_queue()->isEmpty() ) {
 	QWSServer::processEventQueue();
     }

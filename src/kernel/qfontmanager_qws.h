@@ -180,9 +180,9 @@ class QFontManager {
 
 public:
 
-    QPtrList<QFontFactory> factories;
-    QPtrList<QRenderedFont> cachedfonts;
-    QPtrList<QDiskFont> diskfonts;
+    QList<QFontFactory*> factories;
+    QList<QRenderedFont*> cachedfonts;
+    QList<QDiskFont*> diskfonts;
 
     QFontManager();
     ~QFontManager();
