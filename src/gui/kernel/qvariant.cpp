@@ -1108,7 +1108,7 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
         dbg.nospace() << v.toRegion();
         break;
     case QVariant::Font:
-        dbg.nospace() << v.toFont();
+//        dbg.nospace() << v.toFont();  //FIXME
         break;
     case QVariant::Pixmap:
 //        dbg.nospace() << v.toPixmap(); //FIXME
