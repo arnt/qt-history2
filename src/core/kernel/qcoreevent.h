@@ -50,7 +50,10 @@ public:
         Hide = 18,                              // widget is hidden
         Close = 19,                             // request to close widget
         Quit = 20,                              // request to quit application
-        Reparent = 21,                          // widget has been reparented
+        ParentChange = 21,                          // widget has been reparented
+#ifdef QT_COMPAT
+        Reparent = ParentChange,
+#endif
         ShowMinimized = 22,                     // widget is shown minimized
         ShowNormal = 23,                        // widget is shown normal
         WindowActivate = 24,                    // window was activated

@@ -4627,6 +4627,7 @@ bool QWidget::event(QEvent *e)
     case QEvent::IconTextChange:
     case QEvent::ModifiedChange:
     case QEvent::MouseTrackingChange:
+    case QEvent::ParentChange:
         changeEvent(e);
         break;
 
@@ -5794,7 +5795,7 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
             QCoreApplication::sendEvent(parent, &e);
         }
     }
-    QEvent e(QEvent::Reparent);
+    QEvent e(QEvent::ParentChange);
     QApplication::sendEvent(this, &e);
 }
 
