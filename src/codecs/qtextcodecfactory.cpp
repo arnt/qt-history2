@@ -41,7 +41,7 @@
 
 #ifndef QT_NO_COMPONENT
 #include "qapplication.h"
-#include "qinterfacemanager.h"
+#include "qpluginmanager.h"
 #include "qtextcodecinterface.h"
 
 #include <stdlib.h>
@@ -53,19 +53,19 @@ public:
     QTextCodecFactoryPrivate();
     ~QTextCodecFactoryPrivate();
 
-    static QInterfaceManager<QTextCodecInterface> *manager;
+    static QPluginManager<QTextCodecInterface> *manager;
 };
 
 
 static QTextCodecFactoryPrivate *instance = 0;
-QInterfaceManager<QTextCodecInterface> *QTextCodecFactoryPrivate::manager = 0;
+QPluginManager<QTextCodecInterface> *QTextCodecFactoryPrivate::manager = 0;
 
 
 QTextCodecFactoryPrivate::QTextCodecFactoryPrivate()
     : QObject(qApp)
 {
     manager =
-	new QInterfaceManager<QTextCodecInterface>(IID_QTextCodecInterface,
+	new QPluginManager<QTextCodecInterface>(IID_QTextCodecInterface,
 						   QString::null,
 						   QLibrary::Delayed, FALSE);
 

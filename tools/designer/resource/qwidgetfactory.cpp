@@ -39,7 +39,7 @@
 #include <zlib.h>
 #include <qobjectlist.h>
 #include <stdlib.h>
-#include <qinterfacemanager.h>
+#include <qpluginmanager.h>
 #include <qmime.h>
 #include <qdragobject.h>
 
@@ -90,10 +90,10 @@
 #include <qmenubar.h>
 
 static QPtrList<QWidgetFactory> widgetFactories;
-static QInterfaceManager<EventInterface> *eventInterfaceManager = 0;
-static QInterfaceManager<InterpreterInterface> *interpreterInterfaceManager = 0;
-static QInterfaceManager<LanguageInterface> *languageInterfaceManager = 0;
-static QInterfaceManager<WidgetInterface> *widgetInterfaceManager = 0;
+static QPluginManager<EventInterface> *eventInterfaceManager = 0;
+static QPluginManager<InterpreterInterface> *interpreterInterfaceManager = 0;
+static QPluginManager<LanguageInterface> *languageInterfaceManager = 0;
+static QPluginManager<WidgetInterface> *widgetInterfaceManager = 0;
 
 QMap<QWidget*, QString> *qwf_functions = 0;
 QMap<QWidget*, QString> *qwf_forms = 0;
@@ -286,7 +286,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	QString dir = getenv( "QTDIR" );
 	dir += "/plugins/designer";
 	if ( !eventInterfaceManager ) {
-	    eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir );
+	    eventInterfaceManager = new QPluginManager<EventInterface>( IID_EventInterface, dir );
 
 	    QStringList paths(QApplication::libraryPaths());
 	    QStringList::Iterator it = paths.begin();
@@ -298,7 +298,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 
 	if ( !interpreterInterfaceManager ) {
 	    interpreterInterfaceManager =
-		new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, dir );
+		new QPluginManager<InterpreterInterface>( IID_InterpreterInterface, dir );
 	    QStringList paths(QApplication::libraryPaths());
 	    QStringList::Iterator it = paths.begin();
 	    while (it != paths.end()) {
@@ -308,7 +308,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	}
 
 	if ( !languageInterfaceManager ) {
-	    languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir );
+	    languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_LanguageInterface, dir );
 	    QStringList paths(QApplication::libraryPaths());
 	    QStringList::Iterator it = paths.begin();
 	    while (it != paths.end()) {
@@ -527,7 +527,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     if ( !widgetInterfaceManager ) {
 	QString dir = getenv( "QTDIR" );
 	dir += "/plugins/designer";
-	widgetInterfaceManager = new QInterfaceManager<WidgetInterface>( IID_WidgetInterface, dir );
+	widgetInterfaceManager = new QPluginManager<WidgetInterface>( IID_WidgetInterface, dir );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {
@@ -1506,7 +1506,7 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
 	QString dir = getenv( "QTDIR" );
 	dir += "/plugins/designer";
 	interpreterInterfaceManager =
-	    new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, dir );
+	    new QPluginManager<InterpreterInterface>( IID_InterpreterInterface, dir );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while ( it != paths.end() ) {

@@ -4,7 +4,6 @@ kernel {
 	KERNEL_P	= kernel
 	HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
-		  $$KERNEL_H/ucom.h \
 		  $$KERNEL_H/qucom.h \
 		  $$KERNEL_H/qapplication.h \
 		  $$KERNEL_P/qapplication_p.h \
@@ -17,8 +16,6 @@ kernel {
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_P/qcolor_p.h \
 		  $$KERNEL_P/qcomplextext_p.h \
-		  $$KERNEL_H/qcom.h \
-		  $$KERNEL_H/quuid.h \
 		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
 		  $$KERNEL_H/qdesktopwidget.h \
@@ -60,8 +57,6 @@ kernel {
 		  $$KERNEL_H/qpicture.h \
 		  $$KERNEL_H/qpixmap.h \
 		  $$KERNEL_H/qpixmapcache.h \
-		  $$KERNEL_H/qlibrary.h \
-		  $$KERNEL_H/qinterfacemanager.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
 		  $$KERNEL_H/qpolygonscanner.h \
@@ -172,8 +167,6 @@ kernel {
 		  $$KERNEL_CPP/qcolor.cpp \
 		  $$KERNEL_CPP/qcolor_p.cpp \
 		  $$KERNEL_CPP/qcomplextext.cpp \
-		  $$KERNEL_CPP/qcom.cpp \
-		  $$KERNEL_CPP/quuid.cpp \
 		  $$KERNEL_CPP/qconnection.cpp \
 		  $$KERNEL_CPP/qcursor.cpp \
 		  $$KERNEL_CPP/qdialog.cpp \
@@ -201,7 +194,6 @@ kernel {
 		  $$KERNEL_CPP/qpicture.cpp \
 		  $$KERNEL_CPP/qpixmap.cpp \
 		  $$KERNEL_CPP/qpixmapcache.cpp \
-		  $$KERNEL_CPP/qlibrary.cpp \
 		  $$KERNEL_CPP/qpointarray.cpp \
 		  $$KERNEL_CPP/qpoint.cpp \
 		  $$KERNEL_CPP/qpolygonscanner.cpp \

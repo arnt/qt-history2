@@ -28,8 +28,10 @@ tools {
 		  $$TOOLS_H/qintcache.h \
 		  $$TOOLS_H/qintdict.h \
 		  $$TOOLS_H/qiodevice.h \
+		  $$TOOLS_H/qlibrary.h \
 		  $$TOOLS_H/qptrlist.h \
 		  $$TOOLS_H/qmap.h \
+		  $$TOOLS_H/qpluginmanager.h \
 		  $$TOOLS_H/qptrdict.h \
 		  $$TOOLS_H/qqueue.h \
 		  $$TOOLS_H/qregexp.h \
@@ -43,7 +45,10 @@ tools {
 		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextstream.h \
 		  $$TOOLS_H/qvector.h \
-	          $$TOOLS_H/qvaluelist.h
+	          $$TOOLS_H/qvaluelist.h \
+		  $$TOOLS_H/ucom.h \
+		  $$TOOLS_H/qcom.h \
+		  $$TOOLS_H/quuid.h
 
 
 	win32:SOURCES += $$TOOLS_CPP/qdir_win.cpp \
@@ -77,10 +82,12 @@ tools {
 		  $$TOOLS_CPP/qglobal.cpp \
 		  $$TOOLS_CPP/qgvector.cpp \
 		  $$TOOLS_CPP/qiodevice.cpp \
+		  $$TOOLS_CPP/qlibrary.cpp \
 		  $$TOOLS_CPP/qmap.cpp \
 		  $$TOOLS_CPP/qregexp.cpp \
 		  $$TOOLS_CPP/qstring.cpp \
 		  $$TOOLS_CPP/qstringlist.cpp \
-		  $$TOOLS_CPP/qtextstream.cpp
-
+		  $$TOOLS_CPP/qtextstream.cpp \
+		  $$TOOLS_CPP/qcom.cpp \
+		  $$TOOLS_CPP/quuid.cpp
 }

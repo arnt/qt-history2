@@ -132,8 +132,8 @@ qfileinfo.obj: $(QTDIR)\src\tools\qfileinfo.cpp
 qdatetime.obj: $(QTDIR)\src\tools\qdatetime.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\tools\qdatetime.cpp
 
-qlibrary.obj: $(QTDIR)\src\kernel\qlibrary.cpp
-	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\kernel\qlibrary.cpp
+qlibrary.obj: $(QTDIR)\src\tools\qlibrary.cpp
+	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\tools\qlibrary.cpp
 
 qstringlist.obj: $(QTDIR)\src\tools\qstringlist.cpp
 	$(CXX) /c /Fo$@ $(CFLAGS) $(QTDIR)\src\tools\qstringlist.cpp

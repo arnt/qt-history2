@@ -48,9 +48,9 @@ static int dbcustomcount = 200;
 static QPtrStrList *wGroups;
 static QPtrStrList *invisibleGroups;
 static bool whatsThisLoaded = FALSE;
-static QInterfaceManager<WidgetInterface> *widgetPluginManager = 0;
+static QPluginManager<WidgetInterface> *widgetPluginManager = 0;
 
-QCleanupHandler<QInterfaceManager<WidgetInterface> > cleanup_manager;
+QCleanupHandler<QPluginManager<WidgetInterface> > cleanup_manager;
 
 WidgetDatabaseRecord::WidgetDatabaseRecord()
 {
@@ -799,12 +799,12 @@ void WidgetDatabase::loadWhatsThis( const QString &docPath )
     whatsThisLoaded = TRUE;
 }
 
-QInterfaceManager<WidgetInterface> *widgetManager()
+QPluginManager<WidgetInterface> *widgetManager()
 {
     if ( !widgetPluginManager ) {
 	QString dir = getenv( "QTDIR" );
 	dir += "/plugins/designer";
-	widgetPluginManager = new QInterfaceManager<WidgetInterface>( IID_WidgetInterface, dir );
+	widgetPluginManager = new QPluginManager<WidgetInterface>( IID_WidgetInterface, dir );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {

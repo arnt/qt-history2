@@ -179,7 +179,7 @@ DesignerDatabase *DatabaseConnection::iFace()
 
 ////////
 
-Project::Project( const QString &fn, const QString &pName, QInterfaceManager<ProjectSettingsInterface> *pm )
+Project::Project( const QString &fn, const QString &pName, QPluginManager<ProjectSettingsInterface> *pm )
     : proName( pName ), projectSettingsPluginManager( pm )
 {
     pixCollection = new PixmapCollection( this );

@@ -42,7 +42,7 @@
 
 #include <qmap.h>
 #include <qguardedptr.h>
-#include <qinterfacemanager.h>
+#include <qpluginmanager.h>
 #include <qobjectlist.h>
 
 class PropertyEditor;
@@ -368,13 +368,13 @@ private:
     QString templPath;
     ActionEditor *actionEditor;
     Project *currentProject;
-    QInterfaceManager<ActionInterface> *actionPluginManager;
-    QInterfaceManager<EditorInterface> *editorPluginManager;
-    QInterfaceManager<TemplateWizardInterface> *templateWizardPluginManager;
-    QInterfaceManager<ProgramInterface> *programPluginManager;
-    QInterfaceManager<InterpreterInterface> *interpreterPluginManager;
-    QInterfaceManager<PreferenceInterface> *preferencePluginManager;
-    QInterfaceManager<ProjectSettingsInterface> *projectSettingsPluginManager;
+    QPluginManager<ActionInterface> *actionPluginManager;
+    QPluginManager<EditorInterface> *editorPluginManager;
+    QPluginManager<TemplateWizardInterface> *templateWizardPluginManager;
+    QPluginManager<ProgramInterface> *programPluginManager;
+    QPluginManager<InterpreterInterface> *interpreterPluginManager;
+    QPluginManager<PreferenceInterface> *preferencePluginManager;
+    QPluginManager<ProjectSettingsInterface> *projectSettingsPluginManager;
     QPtrList<SourceEditor> sourceEditors;
     bool previewing;
     QUnknownInterface *desInterface;

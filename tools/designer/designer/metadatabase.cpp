@@ -67,8 +67,8 @@ static QPtrList<MetaDataBase::CustomWidget> *cWidgets = 0;
 static bool doUpdate = TRUE;
 static QStringList langList;
 static QStringList editorLangList;
-static QInterfaceManager<EventInterface> *eventInterfaceManager = 0;
-static QInterfaceManager<LanguageInterface> *languageInterfaceManager = 0;
+static QPluginManager<EventInterface> *eventInterfaceManager = 0;
+static QPluginManager<LanguageInterface> *languageInterfaceManager = 0;
 
 /*!
   \class MetaDataBase metadatabase.h
@@ -1303,7 +1303,7 @@ void MetaDataBase::setupInterfaceManagers()
     QString dir = getenv( "QTDIR" );
     dir += "/plugins/designer";
     if ( !eventInterfaceManager ) {
-	eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir );
+	eventInterfaceManager = new QPluginManager<EventInterface>( IID_EventInterface, dir );
 
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
@@ -1314,7 +1314,7 @@ void MetaDataBase::setupInterfaceManagers()
 
     }
     if ( !languageInterfaceManager ) {
-	languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir );
+	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_LanguageInterface, dir );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {

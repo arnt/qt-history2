@@ -40,7 +40,7 @@
 #ifndef QT_NO_STYLE
 
 #include "qapplication.h"
-#include "qinterfacemanager.h"
+#include "qpluginmanager.h"
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
 #include "qcdestyle.h"
@@ -61,16 +61,16 @@ public:
     QStyleFactoryPrivate();
     ~QStyleFactoryPrivate();
 
-    static QInterfaceManager<QStyleInterface> *manager;
+    static QPluginManager<QStyleInterface> *manager;
 };
 
 static QStyleFactoryPrivate *instance = 0;
-QInterfaceManager<QStyleInterface> *QStyleFactoryPrivate::manager = 0;
+QPluginManager<QStyleInterface> *QStyleFactoryPrivate::manager = 0;
 
 QStyleFactoryPrivate::QStyleFactoryPrivate()
 : QObject( qApp )
 {
-    manager = new QInterfaceManager<QStyleInterface>( IID_QStyleInterface, QString::null, QLibrary::Delayed, FALSE );
+    manager = new QPluginManager<QStyleInterface>( IID_QStyleInterface, QString::null, QLibrary::Delayed, FALSE );
 
     QString defpath(getenv("QTDIR"));
     if (! defpath.isNull() && ! defpath.isEmpty()) {

@@ -171,6 +171,18 @@ public:
     static bool unregisterServer( const QString &filename );
 };
 
+class Q_EXPORT QComponentRegistration
+{
+public:
+    static bool registerComponent( const QUuid &cid, const QString &name );
+    static bool registerPropertyType( const QUuid &pid, const QString &name );
+    static bool registerProperty( const QUuid &cid, const QUuid &pid, const QString &value );
+
+    static bool unregisterComponent( const QUuid &cid );
+    static bool unregisterPropertytype( const QUuid &pid );
+    static bool unregisterProperty( const QUuid &cid, const QUuid &pid );
+};
+
 #ifndef Q_CREATE_INSTANCE
     #define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
 	IMPLEMENTATION *i = new IMPLEMENTATION;	\

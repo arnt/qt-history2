@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qinterfacemanager.h#1 $
 **
-** Definition of QInterfaceManager class
+** Definition of QPluginManager class
 **
 ** Created : 2000-01-01
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QINTERFACEMANAGER_H
-#define QINTERFACEMANAGER_H
+#ifndef QPLUGINMANAGER_H
+#define QPLUGINMANAGER_H
 
 #ifndef QT_H
 #include "qlibrary.h"
@@ -52,10 +52,10 @@
 #define QT_DEBUG_COMPONENT
 
 template<class Type>
-class Q_EXPORT QInterfaceManager
+class Q_EXPORT QPluginManager
 {
 public:
-    QInterfaceManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+    QPluginManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 	: interfaceId( id ), plugDict( 17, cs ), defPol( pol ), casesens( cs )
     {
 	// Every QLibrary object is destroyed on destruction of the manager
@@ -245,7 +245,7 @@ public:
 	}
 
 	// Start with the best match to get the library object
-	QInterfaceManager<Type> *that = (QInterfaceManager<Type>*)this;
+	QPluginManager<Type> *that = (QPluginManager<Type>*)this;
 	for ( int s = best; s >= worst; --s ) {
 	    QStringList group = map[s];
 	    QStringList::Iterator git = group.begin();
@@ -272,7 +272,7 @@ public:
     QStringList featureList() const
     {
 	// Make sure that all libraries have been loaded once.
-	QInterfaceManager<Type> *that = (QInterfaceManager<Type>*)this;
+	QPluginManager<Type> *that = (QPluginManager<Type>*)this;
 	QStringList::ConstIterator it = libList.begin();
 	while ( it != libList.end() ) {
 	    QString lib = *it;
@@ -302,4 +302,4 @@ private:
 
 #endif //QT_NO_COMPONENT
 
-#endif //QINTERFACEMANAGER_H
+#endif //QPLUGINMANAGER_H

@@ -31,7 +31,7 @@
 #include <qstringlist.h>
 #include <qptrlist.h>
 #include <qmap.h>
-#include <qinterfacemanager.h>
+#include <qpluginmanager.h>
 #include "../interfaces/projectsettingsiface.h"
 #include "sourcefile.h"
 
@@ -102,7 +102,7 @@ private:
 class Project
 {
 public:
-    Project( const QString &fn, const QString &pName = QString::null, QInterfaceManager<ProjectSettingsInterface> *pm = 0 );
+    Project( const QString &fn, const QString &pName = QString::null, QPluginManager<ProjectSettingsInterface> *pm = 0 );
     ~Project();
 
     void setFileName( const QString &fn, bool doClear = TRUE );
@@ -197,7 +197,7 @@ private:
     DesignerProject *iface;
     QMap<QString, QString> customSettings;
     QStringList csList;
-    QInterfaceManager<ProjectSettingsInterface> *projectSettingsPluginManager;
+    QPluginManager<ProjectSettingsInterface> *projectSettingsPluginManager;
     QString imgFile;
     PixmapCollection *pixCollection;
     QPtrList<SourceFile> sources;
