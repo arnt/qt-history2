@@ -2822,7 +2822,9 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    bool retval = FALSE;
 	    while ( cache ) {
 		QPoint p( x + cache->xoff, y + cache->yoff );
-		QString s = QConstString( cache->string, cache->length ).string();
+		// i dont' like casting away this const :/  -Brad
+		QString s =
+		    QConstString( (QChar *) cache->string, cache->length ).string();
 		param[0].point = &p;
 		param[1].str = &s;
 		param[2].ival = cache->script;
