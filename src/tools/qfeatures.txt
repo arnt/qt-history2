@@ -383,9 +383,15 @@ Requires: NETWORK STRINGLIST TEXTSTREAM SPRINTF
 Name: DNS
 SeeAlso: ???
 
-Feature: NETWORKPROTOCOL
+Feature: URL
 Section: Networking
 Requires: DIR
+Name: URL parser
+SeeAlso: ???
+
+Feature: NETWORKPROTOCOL
+Section: Networking
+Requires: URL
 Name: Network file access
 SeeAlso: ???
 

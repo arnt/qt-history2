@@ -37,8 +37,7 @@
 
 #include "qurl.h"
 
-#ifndef QT_NO_NETWORKPROTOCOL
-#ifndef QT_NO_DIR
+#ifndef QT_NO_URL
 
 #include "qdir.h"
 
@@ -1318,5 +1317,4 @@ bool QUrl::cdUp()
     return TRUE;
 }
 
-#endif
-#endif // QT_NO_NETWORKPROTOCOL
+#endif // QT_NO_URL

@@ -42,7 +42,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-#ifndef QT_NO_NETWORKPROTOCOL
+#ifndef QT_NO_URL
 
 class QUrlPrivate;
 
@@ -122,6 +122,6 @@ private:
 
 };
 
-#endif
+#endif //QT_NO_URL
 
 #endif

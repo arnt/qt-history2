@@ -80,8 +80,11 @@
 // 4-bit greyscale
 //#define QT_NO_QWS_DEPTH_4
 
-// 8-bit color/grayscale
+// 8-bit color
 //#define QT_NO_QWS_DEPTH_8
+
+// 8-bit grayscale
+//#define QT_NO_QWS_DEPTH_8GRAYSCALE
 
 // Favour code size over graphics speed
 //#define QT_NO_QWS_GFX_SPEED
@@ -388,11 +391,6 @@
 #define QT_NO_IMAGE_TRANSFORMATION
 #endif
 
-// Network file access
-#if !defined(QT_NO_NETWORKPROTOCOL) && (defined(QT_NO_DIR))
-#define QT_NO_NETWORKPROTOCOL
-#endif
-
 // QPicture
 #if !defined(QT_NO_PICTURE) && (defined(QT_NO_DATASTREAM) || defined(QT_NO_IMAGEIO))
 #define QT_NO_PICTURE
@@ -413,6 +411,11 @@
 #define QT_NO_TEXTDATE
 #endif
 
+// URL parser
+#if !defined(QT_NO_URL) && (defined(QT_NO_DIR))
+#define QT_NO_URL
+#endif
+
 // XPM image I/O
 #if !defined(QT_NO_IMAGEIO_XPM) && (defined(QT_NO_IMAGEIO) || defined(QT_NO_SPRINTF) || defined(QT_NO_TEXTSTREAM))
 #define QT_NO_IMAGEIO_XPM
@@ -421,6 +424,11 @@
 // Animated images
 #if !defined(QT_NO_MOVIE) && (defined(QT_NO_ASYNC_IO) || defined(QT_NO_ASYNC_IMAGE_IO))
 #define QT_NO_MOVIE
+#endif
+
+// Network file access
+#if !defined(QT_NO_NETWORKPROTOCOL) && (defined(QT_NO_URL))
+#define QT_NO_NETWORKPROTOCOL
 #endif
 
 // Persistent application settings
@@ -658,11 +666,6 @@
 #define QT_NO_DATETIMEEDIT
 #endif
 
-// HTTP file access
-#if !defined(QT_NO_NETWORKPROTOCOL_HTTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS))
-#define QT_NO_NETWORKPROTOCOL_HTTP
-#endif
-
 // Server to play sound
 #if !defined(QT_NO_QWS_SOUNDSERVER) && (defined(QT_NO_SOUND) || defined(QT_NO_DIR) || defined(QT_NO_DNS))
 #define QT_NO_QWS_SOUNDSERVER
@@ -686,6 +689,11 @@
 // QHeader
 #if !defined(QT_NO_HEADER) && (defined(QT_NO_STYLE) || defined(QT_NO_ICONSET))
 #define QT_NO_HEADER
+#endif
+
+// HTTP file access
+#if !defined(QT_NO_NETWORKPROTOCOL_HTTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS))
+#define QT_NO_NETWORKPROTOCOL_HTTP
 #endif
 
 // QWidgetPlugin
@@ -733,11 +741,6 @@
 #define QT_NO_DOM
 #endif
 
-// FTP file access
-#if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
-#define QT_NO_NETWORKPROTOCOL_FTP
-#endif
-
 // Scrollable view widgets
 #if !defined(QT_NO_SCROLLVIEW) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_FRAME))
 #define QT_NO_SCROLLVIEW
@@ -756,6 +759,11 @@
 // Single-line edits
 #if !defined(QT_NO_LINEEDIT) && (defined(QT_NO_FRAME) || defined(QT_NO_RICHTEXT))
 #define QT_NO_LINEEDIT
+#endif
+
+// FTP file access
+#if !defined(QT_NO_NETWORKPROTOCOL_FTP) && (defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS) || defined(QT_NO_TEXTDATE))
+#define QT_NO_NETWORKPROTOCOL_FTP
 #endif
 
 // Popup-menus
