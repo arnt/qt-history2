@@ -44,7 +44,8 @@
 /* tmake ignore Q_OBJECT */
 #define Q_OBJECT					\
 public:							\
-    QMetaObject *metaObject()const { return metaObj; }	\
+    QMetaObject *metaObject()const 			\
+       { return staticMetaObject(); }			\
     const char *className() const;			\
     static QMetaObject* staticMetaObject();		\
     static QString tr(const char*);			\

@@ -54,7 +54,7 @@ public:
     virtual bool event( QEvent * );
     virtual bool eventFilter( QObject *, QEvent * );
 
-    virtual QMetaObject *metaObject() const { return metaObj; }
+    virtual QMetaObject *metaObject() const { return staticMetaObject(); }
     virtual const char	*className()  const;
 
     bool	 isA( const char * )	 const;
