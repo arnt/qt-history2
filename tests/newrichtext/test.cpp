@@ -36,7 +36,7 @@ void MyWidget::paintEvent( QPaintEvent * )
 //     f.setFamily("Times New Roman");
 //     p.setFont( f );
 //     p.drawText( 10, 120, string );
-    f.setFamily("Traditional Arabic");
+    f.setFamily("Diwani Letter");
     p.setFont( f );
     p.drawText( 10, 100, string );
 //     f.setFamily("Urdu Nastaliq Unicode");
@@ -52,7 +52,7 @@ void MyWidget::paintEvent( QPaintEvent * )
 
 
 //const char *s = "أوروبا, برمجيات الحاسوب + انترنيت: some english אירופה, תוכנה והאינטרנט";
-const char *s = "لاَْلحاسًوب برمجيات الحاسوب";
+const char *s = "لاَْلحاسًوب";// برمجيات الحاسوب";
 
 
 // Thai

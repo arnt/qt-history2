@@ -455,6 +455,8 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 
     const QChar *ch = uc.unicode() + from;
     QChar *data = shapeBuffer;
+    int clusterStart = 0;
+
     for ( int i = 0; i < len; i++ ) {
 	uchar r = ch->row();
 	bool zeroWidth = FALSE;
@@ -513,15 +515,19 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
 	    *data = map;
 	}
 	attrs[gpos].zeroWidth = zeroWidth;
-	attrs[gpos].mark = isMark( *ch );
-// 	if ( attrs[gpos].mark )
+	if ( isMark( *ch ) ) {
+	    attrs[gpos].mark = TRUE;
 // 	    qDebug("glyph %d (char %d) is mark!", gpos, i );
+	} else {
+	    attrs[gpos].mark = FALSE;
+	    clusterStart = data - shapeBuffer;
+	}
 	attrs[gpos].clusterStart = !attrs[gpos].mark;
 	attrs[gpos].combiningClass = combiningClass( *ch );
 	data++;
     skip:
 	ch++;
-	logClusters[i] = data - shapeBuffer;
+	logClusters[i] = clusterStart;
     }
     *shapedLength = data - shapeBuffer;
 }
@@ -586,6 +592,7 @@ void ScriptEngineArabic::position( ShapedItem *result )
     }
 
     ScriptEngineBasic::position( result );
+
 
 #if 0
     Offset *advances = result->d->advances;
@@ -666,5 +673,4 @@ void ScriptEngineArabic::openTypePosition( const OpenTypeIface *openType, Shaped
 // 	qDebug("no open type positioning, using heuristics");
 	heuristicPositionMarks( result );
     }
-
 }

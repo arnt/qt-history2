@@ -218,7 +218,6 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
     TT_GSUB_String_Set_Length( out, shaped->d->num_glyphs );
     out->length = 0;
 
-//     qDebug("in: num_glyphs = %d", shaped->d->num_glyphs );
     for ( int i = 0; i < shaped->d->num_glyphs; i++) {
       in->string[i] = shaped->d->glyphs[i];
       in->logClusters[i] = i;
@@ -238,12 +237,23 @@ bool OpenTypeIface::applyGlyphSubstitutions( unsigned int script, ShapedItem *sh
     GlyphAttributes *oldAttrs = shaped->d->glyphAttributes;
     shaped->d->glyphAttributes = ( GlyphAttributes *) malloc( out->length*sizeof(GlyphAttributes) );
 
+    int clusterStart = 0;
+    int oldlc = 0;
     for ( int i = 0; i < shaped->d->num_glyphs; i++ ) {
 	shaped->d->glyphs[i] = out->string[i];
-	shaped->d->glyphAttributes[i] = oldAttrs[out->logClusters[i]];
-//  	qDebug("    glyph[%d] = %x logcluster=%d mark=%d", i, shaped->d->glyphs[i], out->logClusters[i], shaped->d->glyphAttributes[i].mark );
+	int lc = out->logClusters[i];
+	shaped->d->glyphAttributes[i] = oldAttrs[lc];
+	if ( !shaped->d->glyphAttributes[i].mark && lc != oldlc ) {
+	    for ( int j = oldlc; j < lc; j++ )
+		shaped->d->logClusters[j] = clusterStart;
+	    clusterStart = i;
+	    oldlc = lc;
+	}
+//  	qDebug("    glyph[%d] logcluster=%d mark=%d", i, out->logClusters[i], shaped->d->glyphAttributes[i].mark );
 	// ### need to fix logclusters aswell!!!!
     }
+    for ( int j = oldlc; j < shaped->d->length; j++ )
+	shaped->d->logClusters[j] = shaped->d->num_glyphs-1;
 
     free( oldAttrs );
 
