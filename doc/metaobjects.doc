@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 2.5 1998/02/18 07:54:48 aavit Exp $
+** $Id: metaobjects.doc,v 2.6 1998/03/19 17:46:57 agulbra Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -27,12 +27,12 @@ Signals and slots can take any number of arguments of any type. They are
 completely typesafe: no more callback core dumps!
 
 All classes that inherit from QObject or one of its subclasses
-(e.g. QWidget) can contain signals and slots. Signals are emitted by
-objects when they change their state in a way that may be interesting to
-the outside world. This is all the object does to communicate. It does not
-know if anything is receiving the signal at the other end. This is true
-information encapsulation, and ensures that the object can be used as a
-software component.
+(e.g. QWidget) can contain signals and slots.  Signals are emitted by
+objects when they change their state in a way that may be interesting
+to the outside world.  This is all the object does to communicate.  It
+does not know if anything is receiving the signal at the other end.
+This is true information encapsulation, and ensures that the object
+can be used as a software component.
 
 Slots can be used for receiving signals, but they are normal member
 functions. A slot does not know if it has any signal(s) connected to
@@ -73,7 +73,7 @@ A small Qt class might read:
     public slots:
 	void setValue( int );
     signals:
-	void valueChanged( int )
+	void valueChanged( int );
     private:
 	int  val;
     };
@@ -102,7 +102,7 @@ Here is a possible implementation of Foo::setValue():
 \endcode
 
 The line <code>emit valueChanged(v)</code> emits the signal
-<code>valueChanged</code> from the object. As you can see, you emit a
+<code>valueChanged</code> from the object.  As you can see, you emit a
 signal by using <code>emit signal(arguments)</code>.
 
 Here is one way to connect two of these objects together:
@@ -201,10 +201,10 @@ well worth it.
 
 <h2>Meta Object Information</h2>
 
-The meta object compiler (moc) parses a C++ header file and generates
-C++ code that initializes the meta object. The meta object contains
-names of all signal and slot members, as well as pointers to these
-functions.
+The meta object compiler (moc) parses the class declaratiosn in a C++
+file and generates C++ code that initializes the meta object. The meta
+object contains names of all signal and slot members, as well as
+pointers to these functions.
 
 The meta object contains additional information such as the object's \link
 QObject::className() class name\endlink. You can also check if an object

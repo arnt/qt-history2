@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.7 1997/12/11 12:12:19 warwick Exp $
+** $Id: moc.doc,v 2.8 1998/03/19 17:47:25 agulbra Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -16,7 +16,18 @@ Qt toolkit - Using the Meta Object Compiler
 <h1 align=center>Using the Meta Object Compiler</h1>
 
 The Meta Object Compiler, moc among friends, is the program which
-handles the <a href=metaobjects.html>C++ extensions in Qt.</a>
+handles the <a href="metaobjects.html">C++ extensions in Qt.</a>
+
+The moc reads a class declaration and produces a C++ source file
+containing the names of all signals and slots for that class (and a
+little more).  This C++ source file the moc outputs must be compiled
+and linked with the implementation of the class (or it can be
+#included into the source file).
+
+Using the moc is introduced in \link t7.html chapter 7 \endlink of the
+Qt Tutorial.  Chapter 7 includes a simple \link t7-makefile.html
+Makefile that uses the moc \endlink and of course source code that
+uses signals and slots.
 
 <h2>Invoking moc</h2>
 
