@@ -87,7 +87,7 @@ void QHBox::frameChanged()
 
 void QHBox::setSpacing( int space )
 {
-    if ( layout() )
+    if ( layout() ) // ### why not use this->lay?
 	layout()->setSpacing( space );
 }
 
@@ -101,4 +101,15 @@ QSize QHBox::sizeHint() const
     QWidget *mThis = (QWidget*)this;
     QApplication::sendPostedEvents( mThis, QEvent::ChildInserted );
     return QFrame::sizeHint();
+}
+
+/*!
+  Sets the stretch factor of \a w to \a stretch.
+  \sa QBoxLayout::setStretchFactor()
+*/
+bool QHBox::setStretchFactor( QWidget* w, int stretch )
+{
+    QWidget *mThis = (QWidget*)this;
+    QApplication::sendPostedEvents( mThis, QEvent::ChildInserted );
+    return lay->setStretchFactor( w, stretch );
 }

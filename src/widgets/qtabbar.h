@@ -38,11 +38,11 @@ class Q_EXPORT QTab
 {
 public:
     QTab():  enabled( TRUE ), id( 0 ), iconset(0) {}
+    virtual ~QTab();
 #if 1
     QTab( const QString& s):  label(s), enabled( TRUE ), id( 0 ), iconset(0) {}
     QTab( const QIconSet& icon, const QString& s = QString::null )
 	:label(s), enabled( TRUE ), id( 0 ), iconset(new QIconSet(icon)) {}
-    virtual ~QTab();
 
     void setText( const QString& s) { label = s;}
     QString text() const { return label; }

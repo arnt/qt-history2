@@ -139,6 +139,7 @@ protected:
     virtual void setHeight( int );
     virtual void activate();
 
+    bool activatedPos( QPoint & );
 private:
     void init();
     void moveToJustAfter( QListViewItem * );
@@ -292,7 +293,7 @@ signals:
 
     void expanded( QListViewItem *item );
     void collapsed( QListViewItem *item );
-    
+
 protected:
     void contentsMousePressEvent( QMouseEvent * e );
     void contentsMouseReleaseEvent( QMouseEvent * e );
@@ -330,6 +331,8 @@ private:
     void buildDrawableList() const;
     void reconfigureItems();
     void widthChanged(const QListViewItem*, int c);
+    void handleItemChange( QListViewItem *old, bool shift, bool control );
+    void selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst );
 
     QListViewPrivate * d;
 

@@ -79,7 +79,7 @@ private:
 };
 
 
-static double scale_factor( double v ) 
+static double scale_factor( double v )
 {
     return v/96;
 }
@@ -206,10 +206,10 @@ void QTextImage::draw(QPainter* p, int x, int y,
 	p->restoreWorldMatrix();
 	return;
     }
-    
+
     QRect r( x-ox, y-oy, pm.width(), pm.height() );
     backgroundRegion = backgroundRegion.subtract( r );
-    
+
     if ( reg ){
 	QRegion tmp( *reg );
 	tmp.translate( x-ox, y-oy );
@@ -274,6 +274,8 @@ QTextLineBreak::~QTextLineBreak()
 }
 
 //************************************************************************
+
+bool QRichText::space_ = FALSE;
 
 
 QRichText::QRichText( const QString &doc, const QFont& font,
@@ -345,6 +347,8 @@ void QRichText::init( const QString& doc, int& pos )
     nullstyle = sheet_->item("");
 
     valid = TRUE;
+    // for access during parsing only
+    space_ = FALSE;
     if ( !keep_going )
 	parse(this, style, 0, format, doc, pos);
     else  do {
@@ -424,6 +428,8 @@ void QRichText::append( const QString& txt, const QMimeSourceFactory* factory, c
     factory_ = factory? factory : QMimeSourceFactory::defaultFactory();
     // for access during parsing only
     sheet_ = sheet? sheet : (QStyleSheet*)QStyleSheet::defaultSheet();
+    // for access during parsing only
+    space_ = FALSE;
     int pos = 0;
     lastChild()->invalidateLayout(); // fix bottom border
     parse( this, style, 0, format, txt, pos );
@@ -436,8 +442,8 @@ void QRichText::append( const QString& txt, const QMimeSourceFactory* factory, c
 bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle, QTextParagraph* dummy,
 		       QTextCharFormat fmt, const QString &doc, int& pos, QStyleSheetItem::WhiteSpaceMode wsm )
 {
-    if ( wsm != QStyleSheetItem::WhiteSpacePre )
-	eatSpace(doc, pos);
+    if ( wsm != QStyleSheetItem::WhiteSpacePre && !space_)
+	space_ = !eatSpace(doc, pos);
     while ( valid && pos < int(doc.length() )) {
 	int beforePos = pos;
 	if (hasPrefix(doc, pos, QChar('<')) ){
@@ -485,11 +491,13 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 			(dummy?dummy:current)->text.append( "\n", fmt ) ;
 			if ( wsm != QStyleSheetItem::WhiteSpacePre )
 			    eatSpace(doc, pos);
+			space_ = FALSE;
 		    }
 		} else {// br
 		    (dummy?dummy:current)->text.append( "\n", fmt ) ;
 		    if ( wsm != QStyleSheetItem::WhiteSpacePre )
 			eatSpace(doc, pos);
+		    space_ = FALSE;
 		}
 	    }
 	    else if ( tagname == "table" ) {
@@ -511,7 +519,8 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		    dummy = 0;
 		}
 		CLOSE_TAG
-		eatSpace( doc, pos );
+		(void ) eatSpace( doc, pos );
+		space_ = FALSE;
 	    }
 	    else if (nstyle->displayMode() == QStyleSheetItem::DisplayBlock
 		|| nstyle->displayMode() == QStyleSheetItem::DisplayListItem
@@ -532,6 +541,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		    attributes_ = attr; // propagate attributes
 
 		bool recover = FALSE;
+		space_ = FALSE;
 		if (parse( subparagraph, nstyle, 0, subparagraph->format, doc, pos,
 			   nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal?
 			   nstyle->whiteSpaceMode() : wsm) ) {
@@ -569,6 +579,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		    return TRUE; // sloppy, we could return FALSE to abort
 		}
 		(void) eatSpace(doc, pos);
+		space_ = FALSE;
 	    }
 	    else { // containers and empty tags
 		if ( parse( current, nstyle, dummy, fmt.makeTextFormat(nstyle, attr), doc, pos,
@@ -579,8 +590,8 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 			dummy = current->lastChild();
 		    else
 			dummy = 0;
-		    if ( wsm != QStyleSheetItem::WhiteSpacePre && current->child && !dummy )
-			(void) eatSpace( doc, pos ); // start of line, eat space
+		    if ( wsm != QStyleSheetItem::WhiteSpacePre && !space_ )
+			space_ = !eatSpace( doc, pos ); // start of line, eat space
 		}
 	    }
 	}
@@ -596,8 +607,7 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
  	    QString word = parsePlainText( doc, pos, wsm, TRUE );
  	    if (valid){
 		(dummy?dummy:current)->text.append( word, fmt );
-		if (wsm != QStyleSheetItem::WhiteSpacePre && (doc.unicode())[pos] == '<')
-		    (void) eatSpace(doc, pos);
+		space_ = word[(int)word.length()-1] != ' ';
 	    }
 	}
     }
@@ -1680,7 +1690,7 @@ void QRichTextFormatter::updateCharFormat( QPainter* p )
 }
 
 
-void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int y, 
+void QRichTextFormatter::drawLabel( QPainter* p, QTextParagraph* par, int x, int y,
 				    int w, int h, int ox, int oy,
 				    QRegion& backgroundRegion,
 				    const QColorGroup& cg, const QTextOptions& to )

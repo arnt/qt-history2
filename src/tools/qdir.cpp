@@ -1020,7 +1020,17 @@ QStringList qt_makeFilterList( const QString &filter )
 	}
     }
 
-    return QStringList::split( sep, filter );
+    QStringList lst = QStringList::split( sep, filter );
+    QStringList lst2;
+    QStringList::Iterator it = lst.begin();
+
+    for ( ; it != lst.end(); ++it ) {
+	QString s = *it;
+	if ( s[ (int)s.length() - 1 ] == ';' )
+	    s.remove( s.length() - 1, 1 );
+	lst2 << s;
+    }
+    return lst2;
 }
 
 /*!

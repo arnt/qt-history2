@@ -1868,7 +1868,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 		 this, SLOT(doAutoScroll()) );
 	d->scrollTimer->start( 100, FALSE );
 	doAutoScroll();
-    } else {
+    } else if ( !d->scrollTimer ) {
 	// or just select the required bits
 	updateSelection();
     }
@@ -1938,24 +1938,21 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	d->currInputString = QString::null;
 	if ( currentItem() > 0 ) {
 	    setCurrentItem( currentItem() - 1 );
-	    if ( e->state() & ShiftButton )
-		toggleCurrentItem();
+	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
 	}
 	break;
     case Key_Down:
 	d->currInputString = QString::null;
 	if ( currentItem() < (int)count() - 1 ) {
-	    setCurrentItem( currentItem()+1 );
-	    if ( e->state() & ShiftButton )
-		toggleCurrentItem();
+	    setCurrentItem( currentItem() + 1 );
+	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
 	}
 	break;
     case Key_Left:
 	d->currInputString = QString::null;
 	if ( currentColumn() > 0 ) {
 	    setCurrentItem( currentItem() - numRows() );
-	    if ( e->state() & ShiftButton )
-		toggleCurrentItem();
+	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
 	} else if ( numColumns() > 1 && currentItem() > 0 ) {
 	    int row = currentRow();
 	    setCurrentItem( currentRow() - 1 + ( numColumns() - 1 ) * numRows() );
@@ -1963,8 +1960,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    if ( currentItem() == -1 )
 		setCurrentItem( row - 1 + ( numColumns() - 2 ) * numRows() );
 
-	    if ( e->state() & ShiftButton )
-		toggleCurrentItem();
+	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
 	} else {
 	    QApplication::sendEvent( horizontalScrollBar(), e );
 	}
@@ -1983,14 +1979,11 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 		    setCurrentItem( i );
 	    }
 
-	    if ( e->state() & ShiftButton )
-		toggleCurrentItem();
+	    handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
 	} else if ( numColumns() > 1 && currentRow() < numRows() ) {
 	    if ( currentRow() + 1 < numRows() ) {
 		setCurrentItem( currentRow() + 1 );
-
-		if ( e->state() & ShiftButton )
-		    toggleCurrentItem();
+		handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
 	    }
 	} else {
 	    QApplication::sendEvent( horizontalScrollBar(), e );
@@ -1998,7 +1991,6 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	break;
     case Key_Next: {
 	d->currInputString = QString::null;
-	int old = currentItem();
 	int i = 0;
 	if ( numColumns() == 1 ) {
 	    i = currentItem() + numItemsVisible();
@@ -2014,31 +2006,11 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    i = i > (int)count() - 1 ? (int)count() - 1 : i;
 	    setCurrentItem( i );
 	}
-
-	if ( ( d->selectionMode == Multi || d->selectionMode == Extended ) &&
-	     e->state() & ShiftButton &&
-	     ++old <= i ) {
-	    QListBoxItem *c;
-	    bool changed = FALSE;
-	    while ( old <= i ) {
-		c = item( old );
-		if ( c ) {
-		    if ( c->s == TRUE || c->isSelectable() ) {
-			changed = TRUE;
-			c->s = !c->s;
-		    }
-		    updateItem( c );
-		}
-		++old;
-	    }
-	    if ( changed )
-		emit selectionChanged();
-	}
+	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
     } break;
     case Key_Prior: {
 	selectCurrent = TRUE;
 	d->currInputString = QString::null;
-	int old = currentItem();
 	int i;
 	if ( numColumns() == 1 ) {
 	    i = currentItem() - numItemsVisible();
@@ -2054,26 +2026,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    i = i < 0 ? 0 : i;
 	    setCurrentItem( i );
 	}
-
-	if ( ( d->selectionMode == Multi || d->selectionMode == Extended ) &&
-	     e->state() & ShiftButton &&
-	     --old >= i ) {
-	    QListBoxItem *c;
-	    bool changed = FALSE;
-	    while ( old >= i ) {
-		c = item( old );
-		if ( c ) {
-		    if ( c->s == TRUE || c->isSelectable() ) {
-			c->s = !c->s;
-			changed = TRUE;
-		    }
-		    updateItem( c );
-		}
-		--old;
-	    }
-	    if ( changed )
-		emit selectionChanged();
-	}
+	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
     } break;
     case Key_Space:
 	selectCurrent = TRUE;
@@ -2096,54 +2049,15 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     case Key_Home: {
 	selectCurrent = TRUE;
 	d->currInputString = QString::null;
-	int old = currentItem();
 	setCurrentItem( 0 );
-	int i = 0;
-
-	if ( ( d->selectionMode == Multi || d->selectionMode == Extended ) &&
-	     e->state() & ShiftButton &&
-	     --old >= i ) {
-	    QListBoxItem *c;
-	    bool changed = FALSE;
-	    while ( old >= i ) {
-		c = item( old );
-		if ( c ) {
-		    if ( c->s == TRUE || c->isSelectable() ) {
-			c->s = !c->s;
-			changed = TRUE;
-		    }
-		    updateItem( c );
-		}
-		--old;
-	    }
-	    emit selectionChanged();
-	}
+	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
     } break;
     case Key_End: {
 	selectCurrent = TRUE;
 	d->currInputString = QString::null;
-	int old = currentItem();
 	int i = (int)count() - 1;
 	setCurrentItem( i );
-
-	if ( ( d->selectionMode == Multi || d->selectionMode == Extended ) &&
-	     e->state() & ShiftButton &&
-	     ++old <= i ) {
-	    QListBoxItem *c;
-	    bool changed = FALSE;
-	    while ( old <= i ) {
-		c = item( old );
-		if ( c ) {
-		    if ( c->s == TRUE || c->isSelectable() ) {
-			c->s = !c->s;
-			changed = TRUE;
-		    }
-		    updateItem( c );
-		}
-		++old;
-	    }
-	    emit selectionChanged();
-	}
+	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
     } break;
     default: {
 	    if ( !e->text().isEmpty() && e->text()[ 0 ].isPrint() ) {
@@ -2256,7 +2170,11 @@ QListBox::SelectionMode QListBox::selectionMode() const
 }
 
 
-/*!  Returns TRUE if the listbox is in multi-selection mode or
+/*!  
+  \obsolete
+  Consider using selectionMode() instead of this method.
+
+  Returns TRUE if the listbox is in multi-selection mode or
   extended selection mode, and FALSE if it is in single-selection mode
   or no-selection more.
 
@@ -2268,7 +2186,11 @@ bool QListBox::isMultiSelection() const
     return selectionMode() == Multi || selectionMode() == Extended;
 }
 
-/*!  Sets the list box to multi-selection mode if \a enable is TRUE, and
+/*!  
+  \obsolete
+  Consider using setSelectionMode() instead of this method.
+  
+  Sets the list box to multi-selection mode if \a enable is TRUE, and
   to single-selection mode if \a enable is FALSE.  We recommend using
   setSelectionMode() instead; that function also offers two other modes.
 
@@ -3677,8 +3599,22 @@ void QListBoxPrivate::findItemByName( const QString &text )
     inputTimer->start( 500, TRUE );
     currInputString += text.lower();
     QListBoxItem *item = listBox->findItem( currInputString );
-    if ( item )
+    if ( item ) {
 	listBox->setCurrentItem( item );
+	if ( selectionMode == QListBox::Extended ) {
+	    bool changed = FALSE;
+	    listBox->blockSignals( TRUE );
+	    listBox->selectAll( FALSE );
+	    listBox->blockSignals( FALSE );
+	    if ( !item->s && item->isSelectable() ) {
+		changed = TRUE;
+		item->s = TRUE;
+		listBox->updateItem( item );
+	    }
+	    if ( changed )
+		emit listBox->selectionChanged();
+	}
+    }
 }
 
 /*!
@@ -3865,4 +3801,65 @@ void QListBox::sort( bool ascending )
     delete [] items;
     d->layoutDirty = TRUE;
     viewport()->repaint( TRUE );
+}
+
+void QListBox::handleItemChange( QListBoxItem *old, bool shift, bool control )
+{
+    if ( d->selectionMode == Single ) {
+	// nothing
+    } else if ( d->selectionMode == Extended ) {
+	if ( control ) {
+	    // nothing 
+	} else if ( shift ) {
+	    selectRange( old, d->current, FALSE, TRUE );
+	} else {
+	    blockSignals( TRUE );
+	    selectAll( FALSE );
+	    blockSignals( FALSE );
+	    setSelected( d->current, TRUE );
+	}
+    } else if ( d->selectionMode == Multi ) {
+	if ( shift )
+	    selectRange( old, d->current, TRUE, FALSE );
+    }
+}
+
+void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, bool includeFirst )
+{
+    if ( !from || !to )
+	return;
+    int f_idx = index( from );
+    int t_idx = index( to );
+    if ( f_idx > t_idx ) {
+	QListBoxItem *i = from;
+	from = to;
+	to = i;
+	if ( !includeFirst )
+	    to = to->prev();
+    } else {
+	if ( !includeFirst )
+	    from = from->next();
+    }
+    
+    bool changed = FALSE;
+    for ( QListBoxItem *i = from; i; i = i->next() ) {
+	if ( !invert ) {
+	    if ( !i->s && i->isSelectable() ) {
+		i->s = TRUE;
+		changed = TRUE;
+		updateItem( i );
+	    }
+	} else {
+	    bool sel = !i->s;
+	    if ( i->s != sel && sel && i->isSelectable() || !sel ) {
+		i->s = sel;
+		changed = TRUE;
+		updateItem( i );
+	    }
+	}
+	if ( i == to )
+	    break;
+    }
+    if ( changed )
+	emit selectionChanged();
 }

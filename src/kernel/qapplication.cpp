@@ -404,10 +404,6 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
        are \c motif, \c windows, and \c platinum.
   <li> \c -session= \e session, restores the application from an earlier
        \link session.html session \endlink.
-  <li> \c -qdevel activates the Application Builder window, which allows
-       run-time inspection of the program.
-  <li> \c -qtranslate activates the Application Translator window, which allows
-       translation of the texts shown in the program.
   </ul>
 
   The X11 version of Qt also supports some traditional X11
@@ -2403,7 +2399,7 @@ int QApplication::startDragDistance()
 // ### Note: This function is undocumented, since it is #ifdef'd.
 
 /*!
-  \fn HANDLE QSessionManager::handle() const
+  \fn void* QSessionManager::handle() const
 
   X11 only: returns a handle to the current \c SmcConnection.
 */

@@ -149,10 +149,11 @@ public:
 class QSplitterData
 {
 public:
-    QSplitterData() : opaque( FALSE ) {}
+    QSplitterData() : opaque( FALSE ), firstShow( TRUE ) {}
 
     QList<QSplitterLayoutStruct> list;
     bool opaque;
+    bool firstShow;
 };
 
 
@@ -431,8 +432,11 @@ void QSplitter::setRubberband( int p )
 
 bool QSplitter::event( QEvent *e )
 {
-    if ( e->type() == QEvent::LayoutHint || ( e->type() == QEvent::Resize && !isVisible() ) )
+    if ( e->type() == QEvent::LayoutHint || ( e->type() == QEvent::Show && data->firstShow ) ) {
 	recalc( isVisible() );
+	if ( e->type() == QEvent::Show )
+	    data->firstShow = FALSE;
+    }
     return QWidget::event( e );
 }
 

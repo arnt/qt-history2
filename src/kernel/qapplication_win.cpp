@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#370 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#371 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2716,10 +2716,21 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 
     while ( w->focusProxy() )
 	w = w->focusProxy();
-    if ( w->focusPolicy() == QWidget::WheelFocus || w->focusPolicy() == QWidget::WeakWheelFocus ) {
+    if ( w->focusPolicy() == QWidget::WheelFocus ) {
 	QFocusEvent::setReason( QFocusEvent::Mouse);
 	w->setFocus();
 	QFocusEvent::resetReason();
+    }
+    
+    // send the event to the widget or its ancestors
+    if (w){
+	do {
+	    ((QPoint)e.pos()) = w->mapFromGlobal(globalPos); // local coordinates
+	    QApplication::sendEvent( w, &e );
+	    if ( e.isAccepted() )
+		return TRUE;
+	    w = w->isTopLevel()?0:w->parentWidget();
+	} while (w);
     }
 
     // send the event to the widget that has the focus or its ancestors

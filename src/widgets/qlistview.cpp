@@ -184,6 +184,9 @@ struct QListViewPrivate
 
 };
 
+// these should probably be in QListViewPrivate, for future thread safety
+static bool activatedByClick;
+static QPoint activatedP;
 
 
 // NOT REVISED
@@ -900,15 +903,46 @@ void QListViewItem::setup()
     setHeight( h );
 }
 
+
+
+
 /*!
   This virtual function is called whenever the user clicks on this
-  item or presses Space on it. The default implementation does
-  nothing.
+  item or presses Space on it.
+
+  \sa activatedPos()
 */
 
 void QListViewItem::activate()
 {
 }
+
+
+
+/*!
+  When called from a reimplementation of activate(), this function
+  gives information on how the item was activated. Otherwise, the
+  behaviour is undefined.
+
+  If activate() was caused by a mouse press, the function sets \a
+  pos to where the user clicked and returns TRUE, otherwise it returns
+  FALSE and does not change \a pos.
+
+  Pos is relative to the top-left corner of this item.
+
+  \sa activate()
+*/
+
+bool QListViewItem::activatedPos( QPoint &pos )
+{
+    if ( activatedByClick )
+	pos = activatedP;
+    return activatedByClick;
+}
+
+
+
+
 
 /*! \fn bool QListViewItem::isSelectable() const
 
@@ -3023,7 +3057,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 		bool close = i->isOpen();
 		setOpen( i, !i->isOpen() );
 		if ( !d->focusItem )
-			setCurrentItem( i );
+		    setCurrentItem( i );
 		if ( close ) {
 		    bool newCurrent = FALSE;
 		    QListViewItem *ci = d->focusItem;
@@ -3046,8 +3080,16 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     }
 
     d->select = isMultiSelection() ? !i->isSelected() : TRUE;
-
+    {// calculate activatedP
+	activatedByClick = TRUE;
+	QPoint topLeft = itemRect( i ).topLeft(); //### inefficient?
+	activatedP = vp - topLeft;
+	int xdepth = treeStepSize() * (i->depth() + (rootIsDecorated() ? 1 : 0))
+		     + itemMargin();
+	activatedP.rx() -= xdepth;
+    }
     i->activate();
+    activatedByClick = FALSE;
 
     setCurrentItem( i );
 
@@ -3059,7 +3101,7 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	else if ( selectionMode() == Extended ) {
 	    bool changed = FALSE;
 	    if ( !( ( e->state() & ControlButton ) ||
-		 ( e->state() & ShiftButton ) ) ) {
+		    ( e->state() & ShiftButton ) ) ) {
 		if ( !i->isSelected() ) {
 		    bool blocked = signalsBlocked();
 		    blockSignals( TRUE );
@@ -3375,6 +3417,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
     }
 
     QListViewItem * i = currentItem();
+    QListViewItem *old = i;
 
     if ( isMultiSelection() && i->isSelectable() && e->ascii() == ' ' ) {
 	setSelected( i, !i->isSelected() );
@@ -3386,6 +3429,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
     QListViewItem * i2;
 
     bool singleStep = FALSE;
+    bool selectCurrent = TRUE;
 
     switch( e->key() ) {
     case Key_Backspace:
@@ -3405,20 +3449,24 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	// do NOT accept.  QDialog.
 	return;
     case Key_Down:
+	selectCurrent = FALSE;
 	i = i->itemBelow();
 	d->currentPrefix.truncate( 0 );
 	singleStep = TRUE;
 	break;
     case Key_Up:
+	selectCurrent = FALSE;
 	i = i->itemAbove();
 	d->currentPrefix.truncate( 0 );
 	singleStep = TRUE;
 	break;
     case Key_Home:
+	selectCurrent = FALSE;
 	i = firstChild();
 	d->currentPrefix.truncate( 0 );
 	break;
     case Key_End:
+	selectCurrent = FALSE;
 	i = firstChild();
 	while ( i->nextSibling() )
 	    i = i->nextSibling();
@@ -3427,6 +3475,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Next:
+	selectCurrent = FALSE;
 	i2 = itemAt( QPoint( 0, visibleHeight()-1 ) );
 	if ( i2 == i || !r.isValid() ||
 	     visibleHeight() <= itemRect( i ).bottom() ) {
@@ -3443,6 +3492,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Prior:
+	selectCurrent = FALSE;
 	i2 = itemAt( QPoint( 0, 0 ) );
 	if ( i == i2 || !r.isValid() || r.top() <= 0 ) {
 	    if ( i2 )
@@ -3458,34 +3508,47 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	d->currentPrefix.truncate( 0 );
 	break;
     case Key_Plus:
+	d->currentPrefix.truncate( 0 );
 	if (  !i->isOpen() && (i->isExpandable() || i->childCount()) )
 	    setOpen( i, TRUE );
-	d->currentPrefix.truncate( 0 );
+	else
+	    return;
 	break;
     case Key_Right:
-	if ( i->isOpen() && i->childItem )
-	    i = i->childItem;
-	else if ( !i->isOpen() && (i->isExpandable() || i->childCount()) )
-	    setOpen( i, TRUE );
-	else if ( contentsX() + visibleWidth() < contentsWidth() )
-	    horizontalScrollBar()->addLine();
 	d->currentPrefix.truncate( 0 );
+	if ( i->isOpen() && i->childItem ) {
+	    i = i->childItem;
+	} else if ( !i->isOpen() && (i->isExpandable() || i->childCount()) ) {
+	    setOpen( i, TRUE );
+	} else if ( contentsX() + visibleWidth() < contentsWidth() ) {
+	    horizontalScrollBar()->addLine();
+	    return;
+	} else {
+	    return;
+	}
 	break;
     case Key_Minus:
+	d->currentPrefix.truncate( 0 );
 	if ( i->isOpen() )
 	    setOpen( i, FALSE );
-	d->currentPrefix.truncate( 0 );
+	else
+	    return;
 	break;
     case Key_Left:
-	if ( i->isOpen() )
-	    setOpen( i, FALSE );
-	else if ( i->parentItem && i->parentItem != d->r )
-	    i = i->parentItem;
-	else if ( contentsX() )
-	    horizontalScrollBar()->subtractLine();
 	d->currentPrefix.truncate( 0 );
+	if ( i->isOpen() ) {
+	    setOpen( i, FALSE );
+	} else if ( i->parentItem && i->parentItem != d->r ) {
+	    i = i->parentItem;
+	} else if ( contentsX() ) {
+	    horizontalScrollBar()->subtractLine();
+	    return;
+	} else {
+	    return;
+	}
 	break;
     case Key_Space:
+	activatedByClick = FALSE;
 	i->activate();
 	d->currentPrefix.truncate( 0 );
 	break;
@@ -3494,6 +3557,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	return;
     default:
 	if ( e->text().length() > 0 && e->text()[ 0 ].isPrint() ) {
+	    selectCurrent = FALSE;
 	    QString input( d->currentPrefix );
 	    QListViewItem * keyItem = i;
 	    QTime now( QTime::currentTime() );
@@ -3554,14 +3618,14 @@ void QListView::keyPressEvent( QKeyEvent * e )
     if ( !i )
 	return;
 
-    if ( i->isSelectable() && d->selectionMode != NoSelection ) {
-	if ( d->selectionMode == Single && !i->isSelected() ) {
-	    setSelected( i, TRUE );
-	} else  if ( e->state() & ShiftButton ) {
-	    setSelected( i, !i->isSelected() );
-	}
-    }
     setCurrentItem( i );
+    if ( i->isSelectable() ) {
+	handleItemChange( old, e->state() & ShiftButton, e->state() & ControlButton );
+    }
+
+    if ( d->focusItem && !d->focusItem->isSelected() && d->selectionMode == Single && selectCurrent )
+	setSelected( d->focusItem, TRUE );
+
     if ( singleStep )
 	d->visibleTimer->start( 1, TRUE );
     else
@@ -3749,16 +3813,15 @@ void QListView::selectAll( bool select )
 	    if ( (bool)i->selected != select ) {
 		i->selected = select;
 		anything = TRUE;
+		repaintItem( i );
 	    }
 	    i = i->siblingItem;
 	    if ( !i )
 		i = s.pop();
 	}
 	blockSignals( b );
-	if ( anything ) {
+	if ( anything )
 	    emit selectionChanged();
-	    triggerUpdate();
-	}
     } else if ( d->focusItem ) {
 	QListViewItem * i = d->focusItem;
 	setSelected( i, select );
@@ -4336,17 +4399,12 @@ void QCheckListItem::turnOffChild()
  */
 void QCheckListItem::activate()
 {
-    QPoint pos = QCursor::pos();
-    pos = listView()->viewport()->mapFromGlobal( pos );
-
-    QRect r = listView()->itemRect( this );
-    r.setWidth( BoxSize );
-    r.moveBy( listView()->itemMargin() + ( depth() + ( listView()->rootIsDecorated() ? 1 : 0 ) ) *
-	      listView()->treeStepSize(), 0 );
-
-    if ( !r.contains( pos ) )
-	return;
-
+    QPoint pos;
+    if ( activatedPos( pos ) ) {
+	//ignore clicks outside the box
+	if ( pos.x() < 0 || pos.x() >= BoxSize )
+	    return;
+    }
     if ( myType == CheckBox ) {
 	setOn( !on );
     } else if ( myType == RadioButton ) {
@@ -4582,13 +4640,13 @@ void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 }
 
 
-/*!\reimp  
+/*!\reimp
 */
 QSize QListView::sizeHint() const
 {
     //    This is as wide as QHeader::sizeHint() recommends and tall
     //    enough for perhaps 10 items.
-								 
+								
     constPolish();
     if ( !isVisible() &&
 	 (!d->drawables || d->drawables->isEmpty()) )
@@ -5209,4 +5267,77 @@ void QListViewItemIterator::currentRemoved()
 	curr = 0;
 }
 
+void QListView::handleItemChange( QListViewItem *old, bool shift, bool control )
+{
+    if ( d->selectionMode == Single ) {
+	// nothing
+    } else if ( d->selectionMode == Extended ) {
+	if ( control ) {
+	    // nothing
+	} else if ( shift ) {
+	    selectRange( old, d->focusItem, FALSE, TRUE );
+	} else {
+	    blockSignals( TRUE );
+	    selectAll( FALSE );
+	    blockSignals( FALSE );
+	    setSelected( d->focusItem, TRUE );
+	}
+    } else if ( d->selectionMode == Multi ) {
+	if ( shift )
+	    selectRange( old, d->focusItem, TRUE, FALSE );
+    }
+}
 
+void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst )
+{
+    if ( !from || !to )
+	return;
+    bool swap = FALSE;
+    if ( to == from->itemAbove() )
+	swap = TRUE;
+    if ( !swap && from != to && from != to->itemAbove() ) {
+	QListViewItemIterator it( from );
+	bool found = FALSE;
+	for ( ; it.current(); ++it ) {
+	    if ( it.current() == to ) {
+		found = TRUE;
+		break;
+	    }
+	}
+	if ( !found )
+	    swap = TRUE;
+    }
+    if ( swap ) {
+	QListViewItem *i = from;
+	from = to;
+	to = i;
+	if ( !includeFirst )
+	    to = to->itemAbove();
+    } else {
+	if ( !includeFirst )
+	    from = from->itemBelow();
+    }
+
+    bool changed = FALSE;
+    for ( QListViewItem *i = from; i; i = i->itemBelow() ) {
+	if ( !invert ) {
+	    if ( !i->selected && i->isSelectable() ) {
+		i->selected = TRUE;
+		changed = TRUE;
+		repaintItem( i );
+	    }
+	} else {
+	    bool sel = !i->selected;
+	    if ( i->selected != sel && sel && i->isSelectable() || !sel ) {
+		i->selected = sel;
+		changed = TRUE;
+		repaintItem( i );
+	    }
+	}
+	if ( i == to )
+	    break;
+    }
+    if ( changed ) {
+	emit selectionChanged();
+    }
+}

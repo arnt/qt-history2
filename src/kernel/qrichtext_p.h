@@ -635,9 +635,10 @@ private:
     bool hasPrefix(const QString& doc, int pos, const QString& s);
     bool valid;
     QString contxt;
-    const QStyleSheet* sheet_;
     QStyleSheetItem* base;
+    const QStyleSheet* sheet_;
     const QMimeSourceFactory* factory_;
+    static bool space_;
     const QStyleSheetItem* nullstyle;
 
     QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QTextCharFormat &fmt, const QString &doc, int& pos );

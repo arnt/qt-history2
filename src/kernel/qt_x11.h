@@ -95,6 +95,9 @@ typedef char *XPointer;
 #elif defined(NO_DEBUG) && defined(_OS_IRIX_) && defined(_CC_EDG_)
 // XCreateIC broken when compiling -64 on IRIX 6.5.2
 #define NO_XIM
+#elif defined(_OS_HPUX_) && defined(__LP64__)
+> // XCreateIC broken when compiling 64-bit ELF on HP-UX 11.0
+#define NO_XIM
 #endif
 
 

@@ -808,8 +808,15 @@ void QFont::load() const
 		    qFatal( "QFont::load: Internal error" );
 #endif
 	    }
+	    int chars = maxIndex(f);
+	    if ( chars > 2000 ) {
+		// If the user is using large fonts, we assume they have
+		// turned on the Xserver option deferGlyphs, and that they
+		// have more memory available to the server.
+		chars = 2000;
+	    }
 	    int size = (f->max_bounds.ascent + f->max_bounds.descent) *
-		       f->max_bounds.width * maxIndex(f) / 8;
+		       f->max_bounds.width * chars / 8;
 	    // If we get a cache overflow, we make room for this font only
 	    if ( size > fontCache->maxCost() + reserveCost )
 		fontCache->setMaxCost( size + reserveCost );

@@ -2085,6 +2085,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	int   tf;				// flags (alignment etc.)
 	int   len;				// text length
 	int   maxwidth;				// max text width
+	Q_INT16 mlb;				// min left bearing
+	Q_INT16 mrb;				// min right bearing
 	int   nlines;				// number of lines
 	int   codelen;				// length of encoding
     };
@@ -2125,6 +2127,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     int cw;					// character width
     int k;					// index for p
     int tw;					// text width
+    int minleftbearing = 0;
+    int minrightbearing = 0;
 
 #define CWIDTH(x) fm.width(x) // Could cache, but put that it in fm
 #define ENCCHAR(x) (((x).cell() << LO_SHIFT) | ((x).row() << HI_SHIFT))
@@ -2283,6 +2287,36 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	p++;
     }
 
+    if ( !decode ) {
+	codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
+	maxwidth = QMAX(maxwidth,tw);
+	nlines++;
+	codes[index++] = 0;
+	codelen = index;
+	
+	uint* cptr = codes;
+	while ( *cptr ) { 			// determine bearings
+	    int lw = *cptr++ & WIDTHBITS;
+	    if ( !lw ) {			// ignore empty line
+		while ( *cptr && (*cptr & BEGLINE) != BEGLINE )
+		    cptr++;
+		continue;
+	    }
+	    if ( *cptr && (*cptr & (BEGLINE|TABSTOP)) == 0 ) {
+		int lb = fm.leftBearing( DECCHAR(*cptr) );
+		minleftbearing = QMIN( minleftbearing, lb );
+	    }
+	    while ( *cptr && (*cptr & BEGLINE) != BEGLINE )
+		cptr++;
+	    cptr--;
+	    if ( *cptr && (*cptr & (BEGLINE|TABSTOP)) == 0 ) {
+		int rb = fm.rightBearing( DECCHAR(*cptr) );
+		minrightbearing = QMIN( minrightbearing, rb );
+	    }
+	    cptr++;
+	}
+    }
+
     if ( decode ) {				// decode from internal data
 	char	  *data = *internal;
 	text_info *ti	= (text_info*)data;
@@ -2294,15 +2328,11 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	    return;
 	}
 	maxwidth = ti->maxwidth;		// get internal values
+	minleftbearing = ti->mlb;
+	minrightbearing = ti->mrb;
 	nlines	 = ti->nlines;
 	codelen	 = ti->codelen;
 	codes	 = (uint *)(data + sizeof(text_info));
-    } else {
-	codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
-	maxwidth = QMAX(maxwidth,tw);
-	nlines++;
-	codes[index++] = 0;
-	codelen = index;
     }
 
     if ( encode ) {				// build internal data
@@ -2314,6 +2344,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	ti->tf	     = tf;
 	ti->len	     = len;
 	ti->maxwidth = maxwidth;
+	ti->mlb	     = minleftbearing;
+	ti->mrb	     = minrightbearing;
 	ti->nlines   = nlines;
 	ti->codelen  = codelen;
 	memcpy( data+sizeof(text_info), codes, codelen*sizeof(uint) );
@@ -2325,6 +2357,8 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
     int	    xp, yp;
     int	    xc;					// character xp
 
+    int overflow = -minleftbearing - minrightbearing;
+    maxwidth += overflow;
     if ( (tf & Qt::AlignVCenter) == Qt::AlignVCenter )	// vertically centered text
 	yp = h/2 - nlines*fheight/2;
     else if ( (tf & Qt::AlignBottom) == Qt::AlignBottom)// bottom aligned
@@ -2422,13 +2456,12 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 	}
 
 	if ( (tf & Qt::AlignRight) == Qt::AlignRight ) {
-	    xc = w - tw;
+	    xc = w - tw + minrightbearing;
 	} else if ( (tf & Qt::AlignHCenter) == Qt::AlignHCenter ) {
-	    xc = w/2 - tw/2;
+	    xc = w/2 - (tw-minleftbearing-minrightbearing)/2 - minleftbearing;
 	} else {
-	    xc = 0;
+	    xc = -minleftbearing;
 	}
-	// ### Should adjust xc with the actual bearings
 
 	if ( pp )				// erase pixmap if gray text
 	    pp->fillRect( 0, 0, w, fheight, Qt::color0 );
@@ -2766,7 +2799,7 @@ Qt::PenCapStyle QPen::capStyle() const
     return (PenCapStyle)(data->linest & MPenCapStyle);
 }
 
-/*
+/*!
   Sets the pen's cap style to \a c.
   
   The default value is FlatCap. The cap style has no effect on 0-width pens.
@@ -2795,7 +2828,7 @@ Qt::PenJoinStyle QPen::joinStyle() const
     return (PenJoinStyle)(data->linest & MPenJoinStyle);
 }
 
-/*
+/*!
   Sets the pen's join style to \a j.
   
   The default value is MiterJoin. The join style has no effect on 0-width pens.

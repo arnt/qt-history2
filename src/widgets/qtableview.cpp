@@ -783,6 +783,11 @@ int QTableView::totalHeight()
     setTableFlags( Tbl_smoothScrolling | Tbl_autoScrollBars );
   \endcode
 
+  \warning The cutCells options (\c Tbl_cutCells, \c Tbl_cutCellsH and
+  Tbl_cutCellsV) may cause painting problems when scrollbars are
+  enabled. Do not combine cutCells and scrollbars.
+  
+  
   \sa clearTableFlags(), testTableFlags(), tableFlags()
 */
 

@@ -2948,8 +2948,6 @@ void QWidget::setGeometry( int x, int y, int w, int h )
   and clicking.
   <li> \c QWidget::WheelFocus - like StrongFocus plus the widget accepts
   focus by using the mouse wheel.
-  <li> \c QWidget::WeakWheelFocus - like TabFocus plus the widget accepts
-  focus by using the mouse wheel.
   <li> \c QWidget::NoFocus - the widget does not accept focus.
   </ul>
 */

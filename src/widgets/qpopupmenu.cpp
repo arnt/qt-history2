@@ -304,6 +304,7 @@ void QPopupMenu::menuContentsChanged()
 
 void QPopupMenu::menuStateChanged()
 {
+    updateSize();
     update();
     if ( QMenuData::d->aWidget )
 	QMenuData::d->aWidget->update();
@@ -694,7 +695,7 @@ void QPopupMenu::updateSize()
 	mi = it2.current();
 	int w = 0;
 	int itemHeight = QPopupMenu::itemHeight( mi );
-	
+
 	if ( mi->widget() ) {
 	    hasWidgetItems = TRUE;
 	    QSize s( mi->widget()->sizeHint() );
@@ -712,7 +713,7 @@ void QPopupMenu::updateSize()
 		    w += s.width();
 		}
 	    }
-	
+
 	    if ( !mi->text().isNull() && !mi->isSeparator() ) {
 		QString s = mi->text();
 		int t;
@@ -732,25 +733,25 @@ void QPopupMenu::updateSize()
 	}
 
 	w += style().extraPopupMenuItemWidth( checkable, maxPMWidth, mi, fm );
-	
+
 	if ( mi->popup() ) { // submenu indicator belong in the right tab area
 	    if ( arrow_width > tab )
 		tab = arrow_width;
 	}
-	
+
 
 #if defined(CHECK_NULL)
 	if ( mi->text().isNull() && !mi->pixmap() && !mi->isSeparator() && !mi->widget() && !mi->custom() )
 	    qWarning( "QPopupMenu: (%s) Popup has invalid menu item",
 		     name( "unnamed" ) );
 #endif
-	
+
 	height += itemHeight;
 	if ( height + 2*frameWidth()  >= dh ) {
 	    ncols++;
 	    height = 0;
 	}
-	
+
 	if ( w > max_width )
 	    max_width = w;
     }
@@ -769,7 +770,7 @@ void QPopupMenu::updateSize()
     else {
 	setFixedSize( (ncols*(max_width + tab)) + 2*frameWidth(), dh );
     }
-	
+
     badSize = FALSE;
 
 
@@ -941,7 +942,7 @@ void QPopupMenu::show()
 */
 
 void QPopupMenu::hide()
-{	
+{
     if ( !isVisible() ) {
 	QWidget::hide();
   	return;
@@ -1170,7 +1171,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 	    mouseBtDn = TRUE; // so mouseReleaseEvent will pop down
 
 	register QMenuItem *mi = mitems->at( item );
-	
+
 	if ( mi ->widget() ) {
 	    QWidget* widgetAt = QApplication::widgetAt( e->globalPos(), TRUE );
 	    if ( widgetAt && widgetAt != this ) {
@@ -1179,7 +1180,7 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 		QApplication::sendEvent( widgetAt, &me );
 	    }
 	}
-	
+
 	if ( actItem == item )
 	    return;
 
@@ -1208,7 +1209,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
     case Key_Tab:
 	// ignore tab, otherwise it will be passed to the menubar
 	break;
-	
+
     case Key_Up:
 	dy = -1;
 	break;
@@ -1302,7 +1303,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    }
 	}
 	break;
-	
+
     case Key_F1:
 	if ( actItem < 0 || e->state() != ShiftButton)
 	    break;
@@ -1402,6 +1403,7 @@ void QPopupMenu::timerEvent( QTimerEvent *e )
 void  QPopupMenu::styleChange( QStyle& old )
 {
     style().polishPopupMenu( this );
+    updateSize();
     QFrame::styleChange( old );
 }
 

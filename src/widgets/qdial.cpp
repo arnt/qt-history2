@@ -125,7 +125,7 @@ QDial::QDial( QWidget *parent, const char *name )
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
     d->onlyOutside = FALSE;
-    setFocusPolicy( QWidget::WeakWheelFocus );
+    setFocusPolicy( QWidget::/*Weak*/WheelFocus );
     setBackgroundMode( NoBackground );
 }
 
@@ -149,7 +149,7 @@ QDial::QDial( int minValue, int maxValue, int pageStep, int value,
     d->eraseAreaValid = FALSE;
     d->showNotches = FALSE;
     d->onlyOutside = FALSE;
-    setFocusPolicy( QWidget::WeakWheelFocus );
+    setFocusPolicy( QWidget::/*Weak*/WheelFocus );
     setBackgroundMode( NoBackground );
 }
 

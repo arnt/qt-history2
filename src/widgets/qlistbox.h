@@ -43,6 +43,7 @@ class QStringList;
 class Q_EXPORT QListBox : public QScrollView
 {
     friend class QListBoxItem;
+    friend class QListBoxPrivate;
 
     Q_OBJECT
     Q_ENUMS( SelectionMode LayoutMode )
@@ -187,7 +188,7 @@ public:
     QListBoxItem *firstItem() const;
 
     void sort( bool ascending = TRUE );
-    
+
 public slots:
     virtual void ensureCurrentVisible();
     virtual void clearSelection();
@@ -270,7 +271,9 @@ private:
     void updateSelection();
     void drawRubber();
     void doRubberSelection( const QRect &old, const QRect &rubber );
-
+    void handleItemChange( QListBoxItem *old, bool shift, bool control );
+    void selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, bool includeFirst );
+    
     void emitChangedSignal( bool );
 
     int columnAt( int ) const;
@@ -326,6 +329,7 @@ private:
     QListBoxItem * p, * n;
     QListBox* lbox;
     friend class QListBox;
+    friend class QListBoxPrivate;
     friend class QComboBox;
 
 private:	// Disabled copy constructor and operator=

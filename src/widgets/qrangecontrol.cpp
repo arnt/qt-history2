@@ -447,7 +447,7 @@ int QRangeControl::positionFromValue( int logical_val, int span ) const
 	return (2*p*span + range) / (2*range);
     } else {
 	uint div = span / range;
-	uint mod = span - div * range; // faster than span % range
+	uint mod = span % range;
 	return p*div + (2*p*mod + range) / (2*range);
     }
     //equiv. to (p*span)/range + 0.5
@@ -483,7 +483,7 @@ int QRangeControl::valueFromPosition( int pos, int span ) const
 	return  minValue() + (2*pos*range + span) / (2*span);
     else {
 	uint div = range / span;
-	uint mod = range - div * span; // faster than range % span
+	uint mod = range % span;
 	return  minValue() + pos*div + (2*pos*mod + span) / (2*span);
     }
     // equiv. to minValue() + (pos*range)/span + 0.5

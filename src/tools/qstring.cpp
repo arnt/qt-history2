@@ -14676,7 +14676,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Writes a string to the stream.
 
-  Output format: [length (Q_UINT32) data...]
+  Output format: isNull() ? [0xffffffff] : [length (Q_UINT32) data...]
 */
 
 QDataStream &operator<<( QDataStream &s, const QString &str )
@@ -14687,28 +14687,33 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
     }
     else {
 	const char* ub = (const char*)str.unicode();
-	if ( QChar::networkOrdered() ==
-		(s.byteOrder()==QDataStream::BigEndian) ) {
-	    s.writeBytes( ub, sizeof(QChar)*str.length() );
-	} else {
-	    static const uint auto_size = 1024;
-	    char t[auto_size];
-	    char *b;
-	    if ( str.length()*2 > auto_size ) {
-		b = new char[str.length()*2];
+	if ( ub ) {
+	    if ( QChar::networkOrdered() ==
+		    (s.byteOrder()==QDataStream::BigEndian) ) {
+		s.writeBytes( ub, sizeof(QChar)*str.length() );
 	    } else {
-		b = t;
+		static const uint auto_size = 1024;
+		char t[auto_size];
+		char *b;
+		if ( str.length()*2 > auto_size ) {
+		    b = new char[str.length()*2];
+		} else {
+		    b = t;
+		}
+		int l = str.length();
+		char *c=b;
+		while ( l-- ) {
+		    *c++ = ub[1];
+		    *c++ = ub[0];
+		    ub+=2;
+		}
+		s.writeBytes( b, sizeof(QChar)*str.length() );
+		if ( str.length()*2 > auto_size )
+		    delete [] b;
 	    }
-	    int l = str.length();
-	    char *c=b;
-	    while ( l-- ) {
-		*c++ = ub[1];
-		*c++ = ub[0];
-		ub+=2;
-	    }
-	    s.writeBytes( b, sizeof(QChar)*str.length() );
-	    if ( str.length()*2 > auto_size )
-		delete [] b;
+	} else {
+	    // write null marker
+	    s << (Q_UINT32)0xffffffff;
 	}
     }
     return s;
@@ -14729,8 +14734,10 @@ QDataStream &operator>>( QDataStream &s, QString &str )
     else {
 	Q_UINT32 bytes;
 	s >> bytes;					// read size of string
-	str.setLength( bytes/2 );
-	if ( bytes > 0 ) {				// not null array
+	if ( bytes == 0xffffffff ) {			// null string
+	    str = QString::null;
+	} else if ( bytes > 0 ) {			// not empty
+	    str.setLength( bytes/2 );
 	    char* b = (char*)str.d->unicode;
 	    s.readRawBytes( b, bytes );
 	    if ( QChar::networkOrdered() !=

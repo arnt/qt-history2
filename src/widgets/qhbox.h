@@ -37,6 +37,7 @@ class Q_EXPORT QHBox : public QFrame
 public:
     QHBox( QWidget *parent=0, const char *name=0, WFlags f=0,  bool allowLines=TRUE  );
     void setSpacing( int );
+    bool setStretchFactor( QWidget*, int stretch );
     QSize sizeHint() const;
 
 protected:

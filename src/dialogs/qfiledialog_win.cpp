@@ -40,7 +40,7 @@ static
 QString extractFilter( const QString& rawFilter )
 {
     QString result;
-    QRegExp r( QString::fromLatin1("([ a-zA-Z0-9;\\.\\*\\?]*)$") );
+    QRegExp r( QString::fromLatin1("([a-zA-Z0-9\\.\\*\\?\\ \\+\\;\\#]*)$") );
     int len;
     int index = r.match( rawFilter, 0, &len );
     if ( index >= 0 ) {
@@ -60,15 +60,15 @@ static QStringList makeFiltersList( const QString &filter )
 	f = QFileDialog::tr( "All Files (*.*)" );
 
     if ( f.isEmpty() )
-        return QStringList();
+	return QStringList();
 
     int i = f.find( ";;", 0 );
     QString sep( ";;" );
     if ( i == -1 ) {
-        if ( f.find( "\n", 0 ) != -1 ) {
-            sep = "\n";
-            i = f.find( sep, 0 );
-        }
+	if ( f.find( "\n", 0 ) != -1 ) {
+	    sep = "\n";
+	    i = f.find( sep, 0 );
+	}
     }
 
     return QStringList::split( sep, f  );

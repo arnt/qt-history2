@@ -528,7 +528,4 @@ Q_EXPORT void qObsolete( const char *message );
 extern bool qt_winunicode;
 #endif
 
-// Uncomment this if you want qbuilder support
-#define QT_BUILDER
-
 #endif // QGLOBAL_H

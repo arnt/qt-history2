@@ -154,7 +154,7 @@ void QSlider::init()
 	setBackgroundMode( PaletteMid );
     else
 	setBackgroundMode( PaletteBackground );
-    setFocusPolicy( WeakWheelFocus  );
+    setFocusPolicy( TabFocus  );
     initTicks();
 }
 

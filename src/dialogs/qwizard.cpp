@@ -167,7 +167,7 @@ void QWizard::show()
 {
     if ( d->current )
 	showPage( d->current->w );
-    else if ( count() > 0 )
+    else if ( pageCount() > 0 )
 	showPage( d->pages[0]->w );
     else
 	showPage( 0 );
@@ -229,7 +229,7 @@ void QWizard::showPage( QWidget * page )
 
 /*!  Returns the number of pages in the wizard. */
 
-int QWizard::count() const
+int QWizard::pageCount() const
 {
     return d->pages.count();
 }
@@ -667,14 +667,17 @@ void QWizard::removePage( QWidget * page )
     d->ws->removeWidget( page );
 }
 
-#ifdef QT_BUILDER
+
+/*!
+  Returns a pointer to page a position \a pos, or 0 if \a pos is out of range.
+  The first page has position 0.
+*/
+  
 QWidget* QWizard::page( int pos ) const
 {
-    if ( pos >= count() || pos < 0 )
+    if ( pos >= pageCount() || pos < 0 )
       return 0;
 
     return d->pages[ pos ]->w;
 }
-
-#endif
 

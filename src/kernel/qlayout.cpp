@@ -2140,13 +2140,15 @@ void QBoxLayout::setupGeom()
 	QSize min = box->item->minimumSize();
 	QSize hint = box->item->sizeHint();
 	QSizePolicy::ExpandData exp = box->item->expanding();
+	bool empty = box->item->isEmpty();
 	if ( horz( dir ) ) {
 	    bool expand = exp & QSizePolicy::Horizontal || box->stretch > 0;
 	    horexp = horexp || expand;
-	    maxw += max.width() + space;
-	    minw += min.width() + space;
-	    hintw += hint.width() + space;
-
+	    if ( !empty ) {
+		maxw += max.width() + space;
+		minw += min.width() + space;
+		hintw += hint.width() + space;
+	    }
 	    maxExpCalc( maxh, verexp,
 			max.height(), exp & QSizePolicy::Vertical );
 	    minh = QMAX( minh, min.height() );
@@ -2159,10 +2161,11 @@ void QBoxLayout::setupGeom()
 	} else {
 	    bool expand = exp & QSizePolicy::Vertical || box->stretch > 0;
 	    verexp = verexp || expand;
-	    maxh += max.height() + space;
-	    minh += min.height() + space;
-	    hinth += hint.height() + space;
-
+	    if ( !empty ) {
+		maxh += max.height() + space;
+		minh += min.height() + space;
+		hinth += hint.height() + space;
+	    }
 	    maxExpCalc( maxw, horexp,
 			max.width(), exp & QSizePolicy::Horizontal );
 	    minw = QMAX( minw, min.width() );
@@ -2173,8 +2176,8 @@ void QBoxLayout::setupGeom()
 	    a[i].minimumSize = min.height();
 	    a[i].expansive = expand;
 	}
-	bool empty = box->item->isEmpty();
-	space = empty ? 0 : spacing(); //space after this one
+	if ( !empty )
+	    space = spacing(); //space before non-empties, except the first
 	a[i].empty = empty;
 	a[i].stretch = box->stretch;
 	data->hasHfw = data->hasHfw || box->item->hasHeightForWidth();

@@ -629,7 +629,8 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 				(unsigned char**) &data );
 	    res += data;
 	    offset += 8192;
-	    XFree(data);
+	    if ( data )
+		XFree(data);
 	}
 
 	QCString item, key, value;
@@ -2191,13 +2192,13 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 	    }
 	    else if ( a == qt_wm_take_focus ) {
 		QWidget * amw = activeModalWidget();
-		if ( amw && amw != widget ) {
-		    amw->raise(); //  help broken window managers
-		}
 		if ( (ulong) event->xclient.data.l[1] > qt_x_time )
 		    qt_x_time = event->xclient.data.l[1];
-		XSetInputFocus( appDpy, (amw?amw:widget)->winId(),
-				RevertToParent, qt_x_time );
+		if ( amw && amw != widget ) {
+		    amw->raise(); //  help broken window managers
+		    XSetInputFocus( appDpy, amw->winId(),
+				    RevertToParent, qt_x_time );
+		}
 	    } else if ( a == qt_net_wm_context_help ) {
 		QWhatsThis::enterWhatsThisMode();
 	    }
@@ -2449,7 +2450,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     break;
 
     case UnmapNotify:			// window hidden
-	if ( widget->isVisible() && widget->isTopLevel() ) {
+	if ( widget->isTopLevel() && widget->isVisible() && !widget->isPopup() ) {
 	    if ( widget->topData()->wmstate ) {
 		widget->clearWState( WState_Visible );
 		QHideEvent e( TRUE );
@@ -2460,7 +2461,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case MapNotify:				// window shown
-	if ( widget->isTopLevel() && !widget->isVisible() )  {
+	if ( widget->isTopLevel() && !widget->isVisible() && !widget->isPopup() )  {
 	    if ( !widget->topData()->wmstate || widget->testWState( WState_ForceHide ) ) {
 		// widget was not shown before. This cannot happen in
 		// normal applications but might happen with embedding
@@ -3463,10 +3464,23 @@ bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int 
 
     while ( w->focusProxy() )
 	w = w->focusProxy();
-    if ( w->focusPolicy() == QWidget::WheelFocus  || w->focusPolicy() == QWidget::WeakWheelFocus  ) {
+    if ( w->focusPolicy() == QWidget::WheelFocus ) {
 	QFocusEvent::setReason( QFocusEvent::Mouse);
 	w->setFocus();
 	QFocusEvent::resetReason();
+    }
+
+    // send the event to the widget or its ancestors
+    if (w){
+	do {
+	    QWheelEvent e( w->mapFromGlobal(QPoint( global_x, global_y)),
+			   QPoint(global_x, global_y), delta, state );
+	    e.ignore();
+	    QApplication::sendEvent( w, &e );
+	    if ( e.isAccepted() )
+		return TRUE;
+	    w = w->isTopLevel()?0:w->parentWidget();
+	} while (w);
     }
 
     // send the event to the widget that has the focus or its ancestors
@@ -4272,7 +4286,7 @@ QString QSessionManager::sessionId() const
     return d->sessionId;
 }
 
-HANDLE QSessionManager::handle() const
+void* QSessionManager::handle() const
 {
     return 0;
 }
@@ -4650,9 +4664,9 @@ QString QSessionManager::sessionId() const
     return d->sessionId;
 }
 
-HANDLE QSessionManager::handle() const
+void* QSessionManager::handle() const
 {
-    return (HANDLE) smcConnection;
+    return (void*) smcConnection;
 }
 
 

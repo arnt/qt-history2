@@ -37,10 +37,6 @@ class QWizardPagePrivate;
 class QWizard;
 class QHBoxLayout;
 
-#if 0
-Q_OBJECT
-#endif
-
 class Q_EXPORT QWizard : public QDialog
 {
     Q_OBJECT
@@ -61,11 +57,9 @@ public:
     virtual void showPage( QWidget * );
 
     QWidget * currentPage() const;
-#ifdef QT_BUILDER
-    // ####
+
     QWidget* page( int pos ) const;
-    int count() const;
-#endif
+    int pageCount() const;
 
     virtual bool appropriate( QWidget * ) const;
     virtual void setAppropriate( QWidget *, bool );
@@ -108,10 +102,6 @@ private:
     void setNextPage( QWidget * );
 
     void updateButtons();
-
-#ifndef QT_BUILDER
-    int count() const;
-#endif // QT_BUILDER
 
     void layOut();
     QWizardPrivate *d;

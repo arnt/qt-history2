@@ -981,6 +981,7 @@ QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
     QVBox *box = new QVBox( viewport() );
     box->setFrameStyle( QFrame::Box | QFrame::Plain );
     lined = new QRenameEdit( box );
+    lined->setFixedHeight( lined->sizeHint().height() );
     box->hide();
     box->setBackgroundMode( PaletteBase );
     renameTimer = new QTimer( this );
@@ -1260,20 +1261,19 @@ void QFileListBox::startRename( bool check )
     setSelected( i, TRUE );
     QRect r = itemRect( item( i ) );
     int bdr = item( i )->pixmap() ?
-	      item( i )->pixmap()->width() + 5 : 25;
+	      item( i )->pixmap()->width() : 16;
     int x = r.x() + bdr;
-    int y = r.y() + 1;
-    int w = item( i )->width( this ) - bdr - 1;
-    int h = r.height() - 2;
-
-    lined->parentWidget()->setGeometry( x, y - 3, w + 6, h + 6 );
-    lined->setFocusPolicy( StrongFocus );
+    int y = r.y();
+    int w = item( i )->width( this ) - bdr;
+    int h = QMAX( lined->height() + 2, r.height() );
+    y = y + r.height() / 2 - h / 2;
+    
+    lined->parentWidget()->setGeometry( x, y, w + 6, h );
     lined->setFocus();
     lined->setText( item( i )->text() );
     lined->selectAll();
     lined->setFrame( FALSE );
     lined->parentWidget()->show();
-    lined->setGeometry( 2, 2, w + 2, h + 2 );
     viewport()->setFocusProxy( lined );
     renaming = TRUE;
 }
@@ -1293,7 +1293,6 @@ void QFileListBox::rename()
 	    filedialog->d->url.rename( file, lined->text() );
     }
     cancelRename();
-    renaming = TRUE;
 }
 
 void QFileListBox::cancelRename()
@@ -1301,9 +1300,10 @@ void QFileListBox::cancelRename()
     renameItem = 0;
     lined->parentWidget()->hide();
     viewport()->setFocusProxy( this );
-    setFocusPolicy( StrongFocus );
     renaming = FALSE;
     updateItem( currentItem() );
+    if ( lined->hasFocus() )
+	viewport()->setFocus();
 }
 
 void QFileListBox::contentsMoved( int, int )
@@ -1327,6 +1327,7 @@ QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
     QVBox *box = new QVBox( viewport() );
     box->setFrameStyle( QFrame::Box | QFrame::Plain );
     lined = new QRenameEdit( box );
+    lined->setFixedHeight( lined->sizeHint().height() );
     box->hide();
     box->setBackgroundMode( PaletteBase );
     renameTimer = new QTimer( this );
@@ -1636,20 +1637,19 @@ void QFileListView::startRename( bool check )
 
     QRect r = itemRect( i );
     int bdr = i->pixmap( 0 ) ?
-	      i->pixmap( 0 )->width() + 2 : 22;
+	      i->pixmap( 0 )->width() : 16;
     int x = r.x() + bdr;
-    int y = r.y() + 1;
-    int w = columnWidth( 0 ) - bdr - 1;
-    int h = r.height() - 2;
+    int y = r.y();
+    int w = columnWidth( 0 ) - bdr;
+    int h = QMAX( lined->height() + 2, r.height() );
+    y = y + r.height() / 2 - h / 2;
 
-    lined->parentWidget()->setGeometry( x, y - 3, w + 6, h + 6 );
-    lined->setFocusPolicy( StrongFocus );
+    lined->parentWidget()->setGeometry( x, y, w + 6, h );
     lined->setFocus();
     lined->setText( i->text( 0 ) );
     lined->selectAll();
     lined->setFrame( FALSE );
     lined->parentWidget()->show();
-    lined->setGeometry( 2, 2, w + 2, h + 2 );
     viewport()->setFocusProxy( lined );
     renaming = TRUE;
 }
@@ -1669,7 +1669,6 @@ void QFileListView::rename()
 	    filedialog->d->url.rename( file, lined->text() );
     }
     cancelRename();
-    renaming = TRUE;
 }
 
 void QFileListView::cancelRename()
@@ -1677,10 +1676,11 @@ void QFileListView::cancelRename()
     renameItem = 0;
     lined->parentWidget()->hide();
     viewport()->setFocusProxy( this );
-    setFocusPolicy( StrongFocus );
     renaming = FALSE;
     if ( currentItem() )
 	currentItem()->repaint();
+    if ( lined->hasFocus() )
+	viewport()->setFocus();
 }
 
 void QFileListView::contentsMoved( int, int )
@@ -2072,13 +2072,10 @@ void QFileDialog::init()
 	     this, SLOT(popupContextMenu(QListViewItem *,
 					 const QPoint &, int)) );
 
-    files->setFocusPolicy( StrongFocus );
-
     files->installEventFilter( this );
     files->viewport()->installEventFilter( this );
 
     d->moreFiles = new QFileListBox( d->stack, this );
-    d->moreFiles->setFocusPolicy( StrongFocus );
     d->moreFiles->setRowMode( QListBox::FitToHeight );
     d->moreFiles->setVariableWidth( TRUE );
 
@@ -4271,6 +4268,29 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	d->sizeGrip->setGeometry( width() - 13, height() - 13, 13, 13 );
     } else if ( e->type() == QEvent::KeyPress && ( (QKeyEvent*)e )->key() == Key_F5 ) {
 	rereadDir();
+	((QKeyEvent *)e)->accept();
+	return TRUE;
+    } else if ( e->type() == QEvent::KeyPress && ( (QKeyEvent*)e )->key() == Key_F2 &&
+		( o == files || o == files->viewport() ) ) {
+	if ( files->isVisible() && files->currentItem() ) {
+	    if ( mode() != QFileDialog::ExistingFiles &&
+		 QUrlInfo( d->url, "." ).isWritable() && files->currentItem()->text( 0 ) != ".." ) {
+		files->renameItem = files->currentItem();
+		files->startRename( TRUE );
+	    }
+	}
+	((QKeyEvent *)e)->accept();
+	return TRUE;
+    } else if ( e->type() == QEvent::KeyPress && ( (QKeyEvent*)e )->key() == Key_F2 &&
+		( o == d->moreFiles || o == d->moreFiles->viewport() ) ) {
+	if ( d->moreFiles->isVisible() && d->moreFiles->currentItem() != -1 ) {
+	    if ( mode() != QFileDialog::ExistingFiles &&
+		 QUrlInfo( d->url, "." ).isWritable() &&
+		 d->moreFiles->item( d->moreFiles->currentItem() )->text() != ".." ) {
+		d->moreFiles->renameItem = d->moreFiles->item( d->moreFiles->currentItem() );
+		d->moreFiles->startRename( TRUE );
+	    }
+	}
 	((QKeyEvent *)e)->accept();
 	return TRUE;
     } else if ( e->type() == QEvent::KeyPress && d->moreFiles->renaming ) {

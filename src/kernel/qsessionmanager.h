@@ -44,7 +44,7 @@ class Q_EXPORT  QSessionManager : public QObject
 public:
     QString sessionId() const;
 #if defined(_WS_X11_)
-    HANDLE handle() const;
+    void* handle() const;
 #endif
 
     bool allowsInteraction();

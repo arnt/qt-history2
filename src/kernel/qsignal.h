@@ -53,6 +53,7 @@ public:
 
 private:
     void    dummy(int);
+/* tmake ignore Q_OBJECT */
     Q_OBJECT_FAKE
 
 private:	// Disabled copy constructor and operator=

@@ -52,10 +52,6 @@ public:
     virtual const QMimeSource* data(const QString& abs_name) const;
     virtual QString makeAbsolute(const QString& abs_or_rel_name, const QString& context) const;
     const QMimeSource* data(const QString& abs_or_rel_name, const QString& context) const;
-#ifdef QT_BUILDER
-    virtual QPixmap pixmap(const QString& abs_name) const;
-    QPixmap pixmap( const QString& abs_or_rel_name, const QString& context ) const;
-#endif
 
     virtual void setText( const QString& abs_name, const QString& text );
     virtual void setImage( const QString& abs_name, const QImage& im );
