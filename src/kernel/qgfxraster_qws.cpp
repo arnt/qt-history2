@@ -3513,6 +3513,7 @@ extern bool qws_smoothfonts;
 
 QScreen::QScreen( int display_id )
 {
+    data = 0;
     displayId = display_id;
     initted=FALSE;
     entryp=0;
@@ -3700,6 +3701,10 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 # include "qgfxvga16_qws.cpp"
 #endif
 
+#if !defined(QT_NO_QWS_PS2)
+# include "qgfxps2_qws.cpp"
+#endif
+
 struct DriverTable
 {
     char *name;
@@ -3723,6 +3728,9 @@ struct DriverTable
 #endif
 #if !defined(QT_NO_QWS_TRANSFORMED)
     { "Transformed", qt_get_screen_transformed },
+#endif
+#if !defined(QT_NO_QWS_PS2)
+    { "PS2", qt_get_screen_ps2 },
 #endif
 #if !defined(QT_NO_QWS_VGA_16)
     { "VGA16", qt_get_screen_vga16 },
