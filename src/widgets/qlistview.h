@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#2 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#3 $
 **
 ** Definition of 
 **
@@ -48,6 +48,8 @@ public:
 
     const QListViewItem * firstChild() const { return childItem; }
     const QListViewItem * nextSibling() const { return siblingItem; }
+
+    virtual QListView *listView() const;
 
 private:
     int ownHeight;
