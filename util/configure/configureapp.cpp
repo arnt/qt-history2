@@ -1248,7 +1248,7 @@ void Configure::generateConfigfiles()
 	outStream << "#endif" << endl << endl;
 	outStream << "VS_VERSION_INFO VERSIONINFO" << endl;
 	outStream << "\tFILEVERSION " << prodVer << ",1" << endl;
-	outStream << "\tPRODUCTVERSION " << prodVer << endl;
+	outStream << "\tPRODUCTVERSION " << prodVer << ",0" << endl;
 	outStream << "\tFILEFLAGSMASK 0x3fL" << endl;
 	outStream << "#ifdef _DEBUG" << endl;
 	outStream << "\tFILEFLAGS VS_FF_DEBUG" << endl;
