@@ -451,7 +451,7 @@ void QTextLayout::beginLayout(LayoutMode m, int textFlags)
     QTextEngine::Mode mode = QTextEngine::Full;
     if (m == NoBidi)
         mode = QTextEngine::NoBidi;
-    else if (m == QTextEngine::SingleLine)
+    else if (m == SingleLine)
         mode = QTextEngine::SingleLine;
     d->itemize(mode);
     d->textFlags = textFlags;
