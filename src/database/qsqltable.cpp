@@ -11,6 +11,8 @@ class QSqlTablePrivate : public QSqlPrivate
 {
 public:
     QSqlEditorFactory* editorFactory;
+    QString trueTxt;
+    QString falseTxt;
 };
 
 
@@ -53,6 +55,8 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
     d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
     d->editorFactory = new QSqlEditorFactory( this, "Default QSqlEditorFactory");
+    d->trueTxt = tr( "True" );
+    d->falseTxt = tr( "False" );
     connect( this, SIGNAL( currentChanged( int, int ) ),
 			   SLOT( setCurrentSelection( int, int )));
 }
@@ -149,7 +153,7 @@ QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
 
     m.addClass( "QSqlCustomEd", "state" );
     if( initFromCell && vw->seek( row ) ){
-	w = d->editorFactory->createEditor( viewport(), (*vw)[ indexOf( col )] );
+	w = d->editorFactory->createEditor( viewport(), vw->value( indexOf( col ) ) );
 	m.setProperty( w, vw->value( indexOf( col ) ) );
     }
     return w;
@@ -288,10 +292,62 @@ void QSqlTable::setNullText( const QString& nullText )
 
 */
 
-QString QSqlTable::nullText()
+QString QSqlTable::nullText() const
 {
     return d->nullTxt;
 }
+
+/*!
+
+  Sets the text to be displayed when a TRUE bool value is encountered in
+  the data to \a nullText.  The default value is 'True'.
+
+*/
+
+void QSqlTable::setTrueText( const QString& trueText )
+{
+    d->trueTxt = trueText;
+}
+
+/*!
+
+  Returns the text to be displayed when a TRUE bool value is encountered in
+  the data.
+
+*/
+
+QString QSqlTable::trueText() const
+{
+    return d->trueTxt;
+}
+
+/*!
+
+  Sets the text to be displayed when a FALSE bool value is encountered in
+  the data to \a nullText.  The default value is 'False'.
+
+*/
+
+void QSqlTable::setFalseText( const QString& falseText )
+{
+    d->falseTxt = falseText;
+}
+
+
+/*!
+
+  Returns the text to be displayed when a FALSE bool value is encountered in
+  the data.
+
+*/
+
+QString QSqlTable::falseText() const
+{
+    return d->falseTxt;
+}
+
+
+
 
 /*!
 
@@ -451,9 +507,15 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
     if ( !sql )
 	return;
     if ( sql->seek( row ) ) {
-	QString text = sql->value( indexOf(col) ).toString();
+	QString text;
 	if ( sql->isNull( indexOf(col) ) )
 	    text = nullText();
+	else {
+	    QVariant val = sql->value( indexOf(col) );	    
+	    text = val.toString();
+	    if ( val.type() == QVariant::Bool ) 
+		text = val.toBool() ? d->trueTxt : d->falseTxt;
+	}
 	p->drawText( 0,0, cr.width(), cr.height(), AlignLeft + AlignVCenter,
 		     text );
     }

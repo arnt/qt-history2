@@ -26,7 +26,11 @@ public:
     ~QSqlTable();
 
     void         setNullText( const QString& nullText );
-    QString      nullText();
+    QString      nullText() const;
+    void         setTrueText( const QString& trueText );
+    QString      trueText() const;
+    void         setFalseText( const QString& falseText );
+    QString      falseText() const;
 
     void         addColumn( const QSqlField& field );
     void         removeColumn( uint col );
