@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#35 $
 **
 ** Implementation of date and time classes
 **
@@ -30,7 +30,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#34 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetm.cpp#35 $")
 
 
 static const ulong FIRST_DAY	 = 2361222L;	// Julian day for 17520914
@@ -83,7 +83,7 @@ const char *QDate::weekdayNames[] ={
   Constructs a date with the year \e y, month \e m and day \e d.
  ----------------------------------------------------------------------------*/
 
-QDate::QDate( int y, int m, int d )		// set date and time
+QDate::QDate( int y, int m, int d )
 {
 #if defined(CHECK_RANGE)
     if ( !isValid(y,m,d) )
@@ -109,7 +109,7 @@ QDate::QDate( int y, int m, int d )		// set date and time
   \sa isNull()
  ----------------------------------------------------------------------------*/
 
-bool QDate::isValid() const			// valid date
+bool QDate::isValid() const
 {
     return jd >= FIRST_DAY;
 }
@@ -120,7 +120,7 @@ bool QDate::isValid() const			// valid date
   \sa month(), day()
  ----------------------------------------------------------------------------*/
 
-int QDate::year() const				// 1752..
+int QDate::year() const
 {
     int y, m, d;
     jul2greg( jd, y, m, d );
@@ -132,7 +132,7 @@ int QDate::year() const				// 1752..
   \sa year(), day()
  ----------------------------------------------------------------------------*/
 
-int QDate::month() const			// 1..12
+int QDate::month() const
 {
     int y, m, d;
     jul2greg( jd, y, m, d );
@@ -144,7 +144,7 @@ int QDate::month() const			// 1..12
   \sa year(), month(), weekday()
  ----------------------------------------------------------------------------*/
 
-int QDate::day() const				// 1..31
+int QDate::day() const
 {
     int y, m, d;
     jul2greg( jd, y, m, d );
@@ -156,7 +156,7 @@ int QDate::day() const				// 1..31
   \sa day()
  ----------------------------------------------------------------------------*/
 
-int QDate::dayOfWeek() const			// 1..7 (monday==1)
+int QDate::dayOfWeek() const
 {
     return (int)((((jd+1) % 7) + 6)%7) + 1;
 }
@@ -165,7 +165,7 @@ int QDate::dayOfWeek() const			// 1..7 (monday==1)
   Returns the day of the year (1..365) for this date.
  ----------------------------------------------------------------------------*/
 
-int QDate::dayOfYear() const			// 1..365
+int QDate::dayOfYear() const
 {
     return (int)(jd - greg2jul( year(), 1, 1 )) + 1;
 }
@@ -174,7 +174,7 @@ int QDate::dayOfYear() const			// 1..365
   Returns the number of days in the month (1..31) for this date.
  ----------------------------------------------------------------------------*/
 
-int QDate::daysInMonth() const			// 1..31
+int QDate::daysInMonth() const
 {
     int y, m, d;
     jul2greg( jd, y, m, d );
@@ -188,7 +188,7 @@ int QDate::daysInMonth() const			// 1..31
   Returns the number of days in the year (365 or 366) for this date.
  ----------------------------------------------------------------------------*/
 
-int QDate::daysInYear() const			// 365 or 366
+int QDate::daysInYear() const
 {
     int y, m, d;
     jul2greg( jd, y, m, d );
@@ -202,7 +202,7 @@ int QDate::daysInYear() const			// 365 or 366
   Month 1 == "Jan", month 2 == "Feb" etc.
  ----------------------------------------------------------------------------*/
 
-const char *QDate::monthName( int month) const	// name of month
+const char *QDate::monthName( int month) const
 {
 #if defined(DEBUG)
     ASSERT( month > 0 && month <= 12 );
@@ -216,7 +216,7 @@ const char *QDate::monthName( int month) const	// name of month
   Weekday 1 == "Mon", day 2 == "Tue" etc.
  ----------------------------------------------------------------------------*/
 
-const char *QDate::dayName( int weekday) const	// name of week day
+const char *QDate::dayName( int weekday) const
 {
 #if defined(DEBUG)
     ASSERT( weekday > 0 && weekday <= 7 );
@@ -231,7 +231,7 @@ const char *QDate::dayName( int weekday) const	// name of week day
   The string format is "Sat May 20 1995".
  ----------------------------------------------------------------------------*/
 
-QString QDate::toString() const			// date to string
+QString QDate::toString() const
 {
     QString buf;
     int y, m, d;
@@ -246,7 +246,7 @@ QString QDate::toString() const			// date to string
   Returns TRUE if the date is valid, otherwise FALSE.
  ----------------------------------------------------------------------------*/
 
-bool QDate::setYMD( int y, int m, int d )	// set year, month, day
+bool QDate::setYMD( int y, int m, int d )
 {
     if ( !isValid(y,m,d) ) {
 #if defined(CHECK_RANGE)
@@ -262,7 +262,7 @@ bool QDate::setYMD( int y, int m, int d )	// set year, month, day
   Returns this date plus \e ndays days.
  ----------------------------------------------------------------------------*/
 
-QDate QDate::addDays( long ndays ) const	// add days
+QDate QDate::addDays( long ndays ) const
 {
     QDate d;
     d.jd = jd + ndays;
@@ -282,7 +282,7 @@ QDate QDate::addDays( long ndays ) const	// add days
   \sa addDays()
  ----------------------------------------------------------------------------*/
 
-long QDate::daysTo( const QDate &d ) const	// days difference
+long QDate::daysTo( const QDate &d ) const
 {
     return d.jd - jd;
 }
@@ -326,7 +326,7 @@ long QDate::daysTo( const QDate &d ) const	// days difference
   \sa QTime::currentTime(), QDateTime::currentDateTime()
  ----------------------------------------------------------------------------*/
 
-QDate QDate::currentDate()			// get current date
+QDate QDate::currentDate()
 {
 #if defined(_OS_WIN32_)
 
@@ -353,7 +353,7 @@ QDate QDate::currentDate()			// get current date
   \sa isNull()
  ----------------------------------------------------------------------------*/
 
-bool QDate::isValid( int y, int m, int d )	// is valid date?
+bool QDate::isValid( int y, int m, int d )
 {
     if ( y <= 99 )
 	y += 1900;
@@ -368,12 +368,12 @@ bool QDate::isValid( int y, int m, int d )	// is valid date?
   Returns TRUE if the specified year \e y is a leap year.
  ----------------------------------------------------------------------------*/
 
-bool QDate::leapYear( int y )			// is leap year (from K&R)
+bool QDate::leapYear( int y )
 {
     return y % 4 == 0 && y % 100 != 0 || y % 400 == 0;
 }
 
-ulong QDate::greg2jul( int y, int m, int d )	// Gregorian date -> Julian day
+ulong QDate::greg2jul( int y, int m, int d )
 {
     ulong c, ya;
     if ( y <= 99 )
@@ -413,9 +413,9 @@ void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
 }
 
 
-// --------------------------------------------------------------------------
-// QTime class member functions
-//
+/*****************************************************************************
+  QTime member functions
+ *****************************************************************************/
 
 /*----------------------------------------------------------------------------
   \class QTime qdatetm.h
@@ -443,7 +443,7 @@ void QDate::jul2greg( ulong jd, int &y, int &m, int &d )
   \e ms.
  ----------------------------------------------------------------------------*/
 
-QTime::QTime( int h, int m, int s, int ms )	// set time
+QTime::QTime( int h, int m, int s, int ms )
 {
 #if defined(CHECK_RANGE)
     if ( !isValid(h,m,s,ms) )
@@ -464,7 +464,7 @@ QTime::QTime( int h, int m, int s, int ms )	// set time
   null.  The time 23:30:55.746 is valid, while 24:12:30 is invalid.
  ----------------------------------------------------------------------------*/
 
-bool QTime::isValid() const			// valid time
+bool QTime::isValid() const
 {
     return ds < MSECS_PER_DAY;
 }
@@ -474,7 +474,7 @@ bool QTime::isValid() const			// valid time
   Returns the hour part (0..23) of the time.
  ----------------------------------------------------------------------------*/
 
-int QTime::hour() const				// 0..23
+int QTime::hour() const
 {
     return (int)(ds / MSECS_PER_HOUR);
 }
@@ -483,7 +483,7 @@ int QTime::hour() const				// 0..23
   Returns the minute part (0..59) of the time.
  ----------------------------------------------------------------------------*/
 
-int QTime::minute() const			// 0..59
+int QTime::minute() const
 {
     return (int)((ds % MSECS_PER_HOUR)/MSECS_PER_MIN);
 }
@@ -492,7 +492,7 @@ int QTime::minute() const			// 0..59
   Returns the second part (0..59) of the time.
  ----------------------------------------------------------------------------*/
 
-int QTime::second() const			// 0..59
+int QTime::second() const
 {
     return (int)((ds / 1000)%SECS_PER_MIN);
 }
@@ -501,7 +501,7 @@ int QTime::second() const			// 0..59
   Returns the millisecond part (0..999) of the time.
  ----------------------------------------------------------------------------*/
 
-int QTime::msec() const				// 0..999
+int QTime::msec() const
 {
     return (int)(ds % 1000);
 }
@@ -512,7 +512,7 @@ int QTime::msec() const				// 0..999
   not included. The string format is "03:40:13".
  ----------------------------------------------------------------------------*/
 
-QString QTime::toString() const			// time to string
+QString QTime::toString() const
 {
     QString buf;
     buf.sprintf( "%.2d:%.2d:%.2d", hour(), minute(), second() );
@@ -526,7 +526,7 @@ QString QTime::toString() const			// time to string
   Returns TRUE if the time is valid, otherwise FALSE.
  ----------------------------------------------------------------------------*/
 
-bool QTime::setHMS( int h, int m, int s, int ms ) // set time of day
+bool QTime::setHMS( int h, int m, int s, int ms )
 {
     if ( !isValid(h,m,s,ms) ) {
 #if defined(CHECK_RANGE)
@@ -543,7 +543,7 @@ bool QTime::setHMS( int h, int m, int s, int ms ) // set time of day
   \sa secsTo()
  ----------------------------------------------------------------------------*/
 
-QTime QTime::addSecs( long nsecs ) const	// add seconds
+QTime QTime::addSecs( long nsecs ) const
 {
     QTime t;
     t.ds = (ds + nsecs*1000) % MSECS_PER_DAY;
@@ -555,7 +555,7 @@ QTime QTime::addSecs( long nsecs ) const	// add seconds
   \sa addSecs()
  ----------------------------------------------------------------------------*/
 
-long QTime::secsTo( const QTime &t ) const	// seconds difference
+long QTime::secsTo( const QTime &t ) const
 {
     return ((long)t.ds - (long)ds)/1000L;
 }
@@ -564,7 +564,7 @@ long QTime::secsTo( const QTime &t ) const	// seconds difference
   Returns the time plus \e ms milliseconds.
  ----------------------------------------------------------------------------*/
 
-QTime QTime::addMSecs( long ms ) const		// add milliseconds
+QTime QTime::addMSecs( long ms ) const
 {
     QTime t;
     t.ds = (ds + ms) % MSECS_PER_DAY;
@@ -575,7 +575,7 @@ QTime QTime::addMSecs( long ms ) const		// add milliseconds
   Returns the number of milliseconds between this time and \e t.
  ----------------------------------------------------------------------------*/
 
-long QTime::msecsTo( const QTime &t ) const	// milliseconds difference
+long QTime::msecsTo( const QTime &t ) const
 {
     return t.ds - ds;
 }
@@ -619,7 +619,7 @@ long QTime::msecsTo( const QTime &t ) const	// milliseconds difference
   Returns the current time.
  ----------------------------------------------------------------------------*/
 
-QTime QTime::currentTime()			// get current time
+QTime QTime::currentTime()
 {
     QTime ct;
     currentTime( &ct );
@@ -632,7 +632,7 @@ QTime QTime::currentTime()			// get current time
   QDateTime::currentDateTime to ensure that the date there is correct.
  ----------------------------------------------------------------------------*/
 
-bool QTime::currentTime( QTime *ct )			// get current time
+bool QTime::currentTime( QTime *ct )
 {
     if ( !ct ) {
 #if defined(DEBUG)
@@ -714,7 +714,7 @@ bool QTime::isValid( int h, int m, int s, int ms )
   \sa restart(), elapsed()
  ----------------------------------------------------------------------------*/
 
-void QTime::start()				// start clock
+void QTime::start()
 {
     *this = currentTime();
 }
@@ -729,9 +729,9 @@ void QTime::start()				// start clock
   then restart() for each later measurement.
 
   \sa start(), elapsed()
-  ----------------------------------------------------------------------------*/
+ ----------------------------------------------------------------------------*/
 
-long QTime::restart()				// restart clock
+long QTime::restart()
 {
     QTime t = currentTime();
     long  n = msecsTo( t );
@@ -745,16 +745,16 @@ long QTime::restart()				// restart clock
   \sa start(), restart()
  ----------------------------------------------------------------------------*/
 
-long QTime::elapsed()				// msecs since start/restart
+long QTime::elapsed()
 {
     long  n = msecsTo( currentTime() );
     return n;
 }
 
 
-// --------------------------------------------------------------------------
-// QDateTime member functions
-//
+/*****************************************************************************
+  QDateTime member functions
+ *****************************************************************************/
 
 /*----------------------------------------------------------------------------
   \class QDateTime qdatetm.h
@@ -782,7 +782,7 @@ long QTime::elapsed()				// msecs since start/restart
   Constructs a datetime with date \e date and null time (00:00:00.000).
  ----------------------------------------------------------------------------*/
 
-QDateTime::QDateTime( const QDate &date )	// set date
+QDateTime::QDateTime( const QDate &date )
     : d(date)
 {
 }
@@ -795,6 +795,44 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
     : d(date), t(time)				// set date and time
 {
 }
+
+
+/*----------------------------------------------------------------------------
+  \fn bool QDateTime::isNull() const
+  Returns TRUE if both the date and the time are null.  A null date is invalid.
+  \sa QDate::isNull(), QTime::isNull()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QDateTime::isValid() const
+  Returns TRUE if both the date and the time are value.
+  \sa QDate::isValid(), QTime::isValid()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QDate QDateTime::date() const
+  Returns the date part of this datetime.
+  \sa time()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn QTime QDateTime::time() const
+  Returns the time part of this datetime.
+  \sa date()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn void QDateTime::setDate( const QDate &date )
+  Sets the date part of this datetime.
+  \sa setTime()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn void QDateTime::setTime( const QTime &time )
+  Sets the time part of this datetime.
+  \sa setDate()
+ ----------------------------------------------------------------------------*/
+
 
 /*----------------------------------------------------------------------------
   Sets the local date and time given the number of seconds that have passed
@@ -812,47 +850,6 @@ void QDateTime::setTime_t( ulong secsSince1Jan1970UTC )
 	    1000*tM->tm_sec;
 }
 
-/* ----------------------------------------------------------------------------
-  Converts the date and time to the number of seconds that have passed
-  since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
-  On systems that do not support timezones this function will behave as if
-  local time were UTC.
-  \warning If the date and time is set to any date before January 1 1970 UTC
-  this function will return 0. 
-
- \sa setTime_t
- ----------------------------------------------------------------------------*/
-/*ulong QDateTime::toTime_t() const
-{
-#if 0
-    tm tM;
-    const time_t dummy = 0;
-    tM = *localtime( &dummy );
-    
-    tM.tm_year = d.year() - 1900;
-    tM.tm_mon  = d.month() - 1;
-    tM.tm_mday = d.day();
-    tM.tm_hour = t.hour();
-    tM.tm_min  = t.minute();
-    tM.tm_sec  = t.second();
-    tM.tm_wday = d.dayOfWeek() - 1;
-    tM.tm_yday = d.dayOfYear() - 1;
-
-    return (ulong) mktime( &tM );
-#else
-    if ( d.jd < 2440587 )
-        return 0;
-    long tmp = (d.jd - 2440588)*60*60*24 + t.ds;
-    tm tM;
-    tm = *gmtime( tmp );
-    time_t tmp = mktime( &tm );
-    if ( tmp < 0 && tmp)
-
-    const time_t dummy = 0;
-    
-#endif
-}
-*/
 
 /*----------------------------------------------------------------------------
   Returns the datetime as a string.
@@ -860,7 +857,7 @@ void QDateTime::setTime_t( ulong secsSince1Jan1970UTC )
   The string format is "Sat May 20 1995 03:40:13".
  ----------------------------------------------------------------------------*/
 
-QString QDateTime::toString() const		// datetime to string
+QString QDateTime::toString() const
 {
     QString buf;
     QString time = t.toString();
@@ -874,7 +871,7 @@ QString QDateTime::toString() const		// datetime to string
   \sa daysTo()
  ----------------------------------------------------------------------------*/
 
-QDateTime QDateTime::addDays( long ndays ) const // add days
+QDateTime QDateTime::addDays( long ndays ) const
 {
     QDateTime dt( d.addDays(ndays), t );
     return dt;
@@ -885,7 +882,7 @@ QDateTime QDateTime::addDays( long ndays ) const // add days
   \sa secsTo()
  ----------------------------------------------------------------------------*/
 
-QDateTime QDateTime::addSecs( long nsecs ) const // add seconds
+QDateTime QDateTime::addSecs( long nsecs ) const
 {
     long dd = (t.ds + nsecs*1000)/MSECS_PER_DAY;
     return QDateTime( d.addDays(dd), t.addSecs(nsecs) );
@@ -897,7 +894,7 @@ QDateTime QDateTime::addSecs( long nsecs ) const // add seconds
   \sa addDays() secsTo()
  ----------------------------------------------------------------------------*/
 
-long QDateTime::daysTo( const QDateTime &dt ) const // days difference
+long QDateTime::daysTo( const QDateTime &dt ) const
 {
     return d.daysTo( dt.d );
 }
@@ -915,7 +912,7 @@ long QDateTime::daysTo( const QDateTime &dt ) const // days difference
   \sa addSecs() daysTo()
  ----------------------------------------------------------------------------*/
 
-long QDateTime::secsTo( const QDateTime &dt ) const // seconds difference
+long QDateTime::secsTo( const QDateTime &dt ) const
 {
     return t.secsTo( dt.t ) + d.daysTo( dt.d )*SECS_PER_DAY;
 }
@@ -992,7 +989,7 @@ bool QDateTime::operator>=( const QDateTime &dt ) const
   \sa QDate::currentDate(), QTime::currentTime()
  ----------------------------------------------------------------------------*/
 
-QDateTime QDateTime::currentDateTime()		// get current datetime
+QDateTime QDateTime::currentDateTime()
 {
     QDate cd = QDate::currentDate();
     QTime ct;
@@ -1003,15 +1000,15 @@ QDateTime QDateTime::currentDateTime()		// get current datetime
 }
 
 
-// --------------------------------------------------------------------------
-// Date/time stream functions
-//
+/*****************************************************************************
+  Date/time stream functions
+ *****************************************************************************/
 
 /*----------------------------------------------------------------------------
   \relates QDate
   Writes the date to the stream.
 
-  Output format: [UINT32], Julian day.
+  Serialization format: [UINT32], Julian day.
  ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QDate &d )
@@ -1033,7 +1030,7 @@ QDataStream &operator>>( QDataStream &s, QDate &d )
   \relates QTime
   Writes a time to the stream.
 
-  Output format: [UINT32], milliseconds since midnight.
+  Serialization format: [UINT32], milliseconds since midnight.
  ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QTime &t )
@@ -1055,7 +1052,7 @@ QDataStream &operator>>( QDataStream &s, QTime &t )
   \relates QDateTime
   Writes a datetime to the stream.
 
-  Output format: [QDate QTime].
+  Serialization format: [QDate QTime].
  ----------------------------------------------------------------------------*/
 
 QDataStream &operator<<( QDataStream &s, const QDateTime &dt )
