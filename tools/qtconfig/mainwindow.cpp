@@ -409,7 +409,7 @@ MainWindow::MainWindow()
 
     modified = TRUE;
 
-    QStringList gstyles = QStyleFactory::styles();
+    QStringList gstyles = QStyleFactory::keys();
     gstylecombo->insertStringList(gstyles);
 
     QSettings settings;
