@@ -946,10 +946,10 @@ const char* QClipboardWatcher::format( int n ) const
 	// sort TARGETS to prefer some types over others.  some apps
 	// will report XA_STRING before COMPOUND_TEXT, and we want the
 	// latter, not the former (if it is present).
-	QByteArray sorted( ba.size() + 4 );
-	sorted.fill( 0 );
-	Atom *target = (Atom *) sorted.data();
-	for ( i = 0; i < sorted.size(); ++i ) {
+	Atom* target = new Atom[size+4];
+	memset( target, 0, (size+4) * sizeof(Atom) );
+
+	for ( i = 0; i < size; ++i ) {
 	    if ( unsorted_target[i] == xa_utf8_string )
 		target[0] = unsorted_target[i];
 	    else if ( unsorted_target[i] == xa_compound_text )
@@ -977,6 +977,7 @@ const char* QClipboardWatcher::format( int n ) const
 	    else
 		that->formatList.append(qt_xdnd_atom_to_str(target[i]));
 	}
+	delete []target;
     }
 
     if (n >= 0 && n < (signed) formatList.count())
