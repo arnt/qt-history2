@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#208 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#209 $
 **
 ** Implementation of QFileDialog class
 **
@@ -489,7 +489,7 @@ void QFileListBox::cancelRename()
 {
     renameItem = 0L;
     lined->hide();
-    viewport()->setFocusProxy( 0L );
+    viewport()->setFocusProxy( this );
     setFocusPolicy( StrongFocus );
     renaming = FALSE;
     updateItem( currentItem() );
@@ -627,7 +627,7 @@ void QFileListView::cancelRename()
 {
     renameItem = 0L;
     lined->hide();
-    viewport()->setFocusProxy( 0L );
+    viewport()->setFocusProxy( this );
     setFocusPolicy( StrongFocus );
     renaming = FALSE;
     if ( currentItem() )
@@ -2365,7 +2365,13 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
         }
     } else if ( o == nameEdit && e->type() == QEvent::FocusIn ) {
         fileNameEditDone();
-    }
+    } else if ( ( o == d->moreFiles || o == d->moreFiles->viewport() ) && 
+                e->type() == QEvent::FocusIn ) {
+        if ( o == d->moreFiles->viewport() && !d->moreFiles->viewport()->hasFocus() ||
+             o == d->moreFiles && !d->moreFiles->hasFocus() )
+            ((QWidget*)o)->setFocus();
+        return TRUE;
+     }
     return FALSE;
 }
 
