@@ -11,11 +11,11 @@ class QSqlDriver;
 class Q_EXPORT QSqlDriverInterface : public QUnknownInterface
 {
 public:
-    virtual QSqlDriver* create( const QString& name ) = 0;
-
-    virtual QStringList featureList() const { return QStringList(); }
-
+    QSqlDriverInterface( QUnknownInterface *parent ) : QUnknownInterface( parent ) {}
     QString interfaceID() const { return "QSqlDriverInterface"; }
+
+    virtual QSqlDriver* create( const QString& name ) = 0;
+    virtual QStringList featureList() const { return QStringList(); }
 };
 
 #endif // QT_NO_SQL
