@@ -874,31 +874,22 @@ Q_EXPORT int qWinVersion();
 #  define QT_DEBUG
 #endif
 
-#ifndef QT_NO_DEBUG
-#  define qDebug qt_debug
-#  define qWarning qt_warning
-#else
-#  define qDebug if (false) qt_debug
-#  define qWarning if (false) qt_warning
-#endif
-
-Q_EXPORT void qt_debug( const char *, ... )	// print debug message
+Q_EXPORT void qDebug( const char *, ... )	// print debug message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qt_message( const char *, ... )	// print user message
+Q_EXPORT void qWarning( const char *, ... )	// print warning message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-Q_EXPORT void qt_warning( const char *, ... )	// print warning message
-#if defined(Q_CC_GNU) && !defined(__INSURE__)
-    __attribute__ ((format (printf, 1, 2)))
+#ifdef QT_NO_DEBUG
+#  define qDebug qt_noop(),1?(void)0:qDebug
+#  define qWarning qt_noop(),1?(void)0:qWarning
 #endif
-;
 
 Q_EXPORT void qSystemWarning( const char *, ... )	// print system message
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
@@ -911,6 +902,8 @@ Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
+
+inline void qt_noop() {}
 
 Q_EXPORT void qt_assert(const char *assertion, const char *file, int line);
 

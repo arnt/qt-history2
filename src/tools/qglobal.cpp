@@ -379,7 +379,7 @@ static void mac_default_handler( const char *msg )
 #endif
 
 
-void qt_debug( const char *msg, ... )
+void qDebug( const char *msg, ... )
 {
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
@@ -405,7 +405,7 @@ void qt_debug( const char *msg, ... )
     }
 }
 
-void qt_warning( const char *msg, ... )
+void qWarning( const char *msg, ... )
 {
     char buf[QT_BUFFER_LENGTH];
     va_list ap;
