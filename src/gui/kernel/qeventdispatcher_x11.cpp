@@ -67,6 +67,10 @@ bool QEventDispatcherX11::processEvents(QEventLoop::ProcessEventsFlags flags)
                 }
             }
 
+            // send through event filter
+            if (filterEvent(&event))
+                continue;
+
             nevents++;
             if (qApp->x11ProcessEvent(&event) == 1)
                 return true;
