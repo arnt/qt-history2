@@ -201,7 +201,8 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                     }
                     if (cw && cw->acceptDrops()) {
                         object->d_func()->target = cw;
-                        QDragEnterEvent dee(cw->mapFromGlobal(me->globalPos()), possible_actions, dropData);
+                        QDragEnterEvent dee(cw->mapFromGlobal(me->globalPos()), possible_actions,
+                                            me->buttons(), me->modifiers(), dropData);
                         QApplication::sendEvent(object->target(), &dee);
                         willDrop = dee.isAccepted();
                         global_accepted_action = willDrop ? dee.dropAction() : Qt::IgnoreAction;
@@ -211,7 +212,8 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                     if (oldtarget != object->target())
                         manager->emitTargetChanged(object->target());
                 } else if (cw) {
-                    QDragMoveEvent dme(cw->mapFromGlobal(me->globalPos()), possible_actions, dropData);
+                    QDragMoveEvent dme(cw->mapFromGlobal(me->globalPos()), possible_actions,
+                                       me->buttons(), me->modifiers(), dropData);
                     if (global_accepted_action != Qt::IgnoreAction) {
                         dme.setDropAction(global_accepted_action);
                         dme.accept();
@@ -242,7 +244,8 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
                 QDragManager *manager = QDragManager::self();
                 QMimeData *dropData = manager->object ? manager->dragPrivate()->data : manager->dropData;
 
-                QDropEvent de(object->target()->mapFromGlobal(me->globalPos()), possible_actions, dropData);
+                QDropEvent de(object->target()->mapFromGlobal(me->globalPos()), possible_actions,
+                              me->buttons(), me->modifiers(), dropData);
                 QApplication::sendEvent(object->target(), &de);
 
                 if (object)

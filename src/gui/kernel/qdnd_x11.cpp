@@ -458,7 +458,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
             possible_actions = Qt::DropActions(xdndaction_to_qtaction(l[4]));
 //             possible_actions |= Qt::CopyAction;
         }
-        QDragMoveEvent me(p, possible_actions, dropData);
+        QDragMoveEvent me(p, possible_actions, QApplication::mouseBuutons(), QApplication::keyboardModifiers(), dropData);
 
         Qt::DropAction accepted_action = Qt::IgnoreAction;
 
@@ -478,7 +478,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
                 //NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
                 last_target_accepted_action = Qt::IgnoreAction;
-                QDragEnterEvent de(p, possible_actions, dropData);
+                QDragEnterEvent de(p, possible_actions, QApplication::mouseBuutons(), QApplication::keyboardModifiers(), dropData);
                 QApplication::sendEvent(target_widget, &de);
                 if (de.isAccepted())
                     last_target_accepted_action = de.dropAction();
@@ -697,7 +697,8 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
 
     if (!passive) {
         QMimeData *dropData = (manager->object) ? manager->dragPrivate()->data : manager->dropData;
-        QDropEvent de(qt_xdnd_current_position, possible_actions, dropData);
+        QDropEvent de(qt_xdnd_current_position, possible_actions,
+            QApplication::mouseBuutons(), QApplication::keyboardModifiers(), dropData);
         QApplication::sendEvent(qt_xdnd_current_widget, &de);
         if (!de.isAccepted()) {
             // Ignore a failed drag
@@ -1063,7 +1064,7 @@ void QDragManager::move(const QPoint & globalPos)
         move.data.l[1] = 0; // flags
         move.data.l[2] = (globalPos.x() << 16) + globalPos.y();
         move.data.l[3] = X11->time;
-        move.data.l[4] = qtaction_to_xdndaction(defaultAction(dragPrivate()->possible_actions));
+        move.data.l[4] = qtaction_to_xdndaction(defaultAction(dragPrivate()->possible_actions, QApplication::keyboardModifiers()));
         DEBUG("sending Xdnd position");
 
         if (w)

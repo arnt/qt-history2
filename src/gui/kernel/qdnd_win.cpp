@@ -71,6 +71,33 @@ DWORD translateToWinDragEffects(Qt::DropActions action)
     return effect;
 }
 
+Qt::KeyboardModifiers toQtKeyboardModifiers(DWORD keyState)
+{
+    Qt::KeyboardModifiers modifiers = Qt::NoModifier;
+
+    if (keyState & MK_SHIFT)
+        modifiers |= Qt::ShiftModifier;
+    if (keyState & MK_CONTROL)
+        modifiers |= Qt::ControlModifier;
+    if (keyState & MK_ALT)
+        modifiers |= Qt::AltModifier;
+   
+    return modifiers;
+}
+
+Qt::MouseButtons toQtMouseButtons(DWORD keyState)
+{
+    Qt::MouseButtons buttons = Qt::NoButton;
+
+    if (keyState & MK_LBUTTON)
+        buttons |= Qt::LeftButton;
+    if (keyState & MK_RBUTTON)
+        buttons |= Qt::RightButton;
+    if (keyState & MK_MBUTTON)
+        buttons |= Qt::MidButton;
+   
+    return buttons;
+}
 
 class QOleDropSource : public IDropSource
 {
@@ -599,7 +626,8 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     lastKeyState = grfKeyState;
 
     QMimeData * md = manager->source() ? manager->dragPrivate()->data : manager->dropData;
-    QDragEnterEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md);
+    QDragEnterEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md,
+                      toQtMouseButtons(grfKeyState), toQtKeyboardModifiers(grfKeyState));
     QApplication::sendEvent(widget, &e);
 
 
@@ -637,7 +665,8 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 
     QDragManager *manager = QDragManager::self();
     QMimeData *md = manager->source() ? manager->dragPrivate()->data : manager->dropData;
-    QDragMoveEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md);
+    QDragMoveEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md,
+                     toQtMouseButtons(grfKeyState), toQtKeyboardModifiers(grfKeyState));
     if (choosenEffect != DROPEFFECT_NONE) {
         e.setDropAction(translateToQDragDropAction(choosenEffect));
         e.accept();
@@ -679,6 +708,8 @@ QOleDropTarget::DragLeave()
     return NOERROR;
 }
 
+#define KEY_STATE_BUTTON_MASK (MK_LBUTTON | MK_MBUTTON | MK_RBUTTON)
+
 STDMETHODIMP
 QOleDropTarget::Drop(LPDATAOBJECT /*pDataObj*/, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
@@ -692,11 +723,16 @@ QOleDropTarget::Drop(LPDATAOBJECT /*pDataObj*/, DWORD grfKeyState, POINTL pt, LP
     }
 
     lastPoint = widget->mapFromGlobal(QPoint(pt.x,pt.y));
+    // grfKeyState does not all ways contain button state in the drop so if
+    // it doesn't then use the last known button state; 
+    if ((grfKeyState & KEY_STATE_BUTTON_MASK) == 0)
+        grfKeyState |= lastKeyState & KEY_STATE_BUTTON_MASK;
     lastKeyState = grfKeyState;
 
     QDragManager *manager = QDragManager::self();
     QMimeData *md = manager->source() ? manager->dragPrivate()->data : manager->dropData;
-    QDropEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md);
+    QDropEvent e(lastPoint, translateToQDragDropActions(*pdwEffect), md,
+                 toQtMouseButtons(grfKeyState), toQtKeyboardModifiers(grfKeyState));
     QApplication::sendEvent(widget, &e);
 
     if (e.isAccepted()) {

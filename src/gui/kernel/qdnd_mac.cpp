@@ -360,14 +360,14 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     //Dispatch events
     bool ret = true;
     if(kind == kEventControlDragWithin) {
-        QDragMoveEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), 
-                          qtAllowed, dropdata);
+        QDragMoveEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed,
+                          QApplication::mouseBuutons(), QApplication::keyboardModifiers(), dropdata);
         de.accept();
         QApplication::sendEvent(q, &de);
     } else if(kind == kEventControlDragEnter) {
         QDragManager::self()->emitTargetChanged(q);
-        QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), 
-                           qtAllowed, dropdata);
+        QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed,
+                           QApplication::mouseBuutons(), QApplication::keyboardModifiers(), dropdata);
         QApplication::sendEvent(q, &de);
         de.accept();
         if(!de.isAccepted()) 
@@ -376,8 +376,8 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         QDragLeaveEvent de;
         QApplication::sendEvent(q, &de);
     } else if(kind == kEventControlDragReceive) {
-        QDropEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), 
-                      qtAllowed, dropdata);
+        QDropEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, 
+                      QApplication::mouseBuutons(), QApplication::keyboardModifiers(), dropdata);
         de.accept();
         if(QDragManager::self()->object) 
             QDragManager::self()->dragPrivate()->target = q;

@@ -303,12 +303,11 @@ bool QDragManager::hasCustomDragCursors() const
     return d && !d->customCursors.isEmpty();
 }
 
-Qt::DropAction QDragManager::defaultAction(Qt::DropActions possibleActions) const
+Qt::DropAction QDragManager::defaultAction(Qt::DropActions possibleActions, 
+                                           Qt::KeyboardModifiers modifiers) const
 {
     Qt::DropAction defaultAction = Qt::CopyAction;
 
-    //### on windows these are not updated as part of the drag ... need to put a hook some where for this
-    Qt::KeyboardModifiers modifiers = QApplication::keyboardModifiers();
 #ifdef QDND_DEBUG
     qDebug("QDragManager::defaultAction(Qt::DropActions possibleActions)");
     qDebug("keyboard modifiers : %s", KeyboardModifiersToString(modifiers).latin1());

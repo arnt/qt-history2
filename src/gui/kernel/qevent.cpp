@@ -1616,8 +1616,10 @@ QTabletEvent::~QTabletEvent()
     \warning Do not attempt to create a QDragMoveEvent yourself.
     These objects rely on Qt's internal state.
 */
-QDragMoveEvent::QDragMoveEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data, Type type)
-    : QDropEvent(pos, actions, data, type), rect(pos, QSize(1, 1))
+QDragMoveEvent::QDragMoveEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data,
+                               Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Type type)
+    : QDropEvent(pos, actions, data, buttons, modifiers, type)
+    , rect(pos, QSize(1, 1))
 {}
 
 /*!
@@ -1713,14 +1715,14 @@ QDragMoveEvent::~QDragMoveEvent()
     drop at the given \a point in a widget. The drag data is stored
     in \a data.
 */ // ### pos is in which coordinate system?
-QDropEvent::QDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data, Type type)
-    : QEvent(type), p(pos), act(actions),
+QDropEvent::QDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data,
+                       Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Type type)
+    : QEvent(type), p(pos), mouseState(buttons),
+      modState(modifiers), act(actions),
       drop_action(Qt::CopyAction),
       mdata(data)
 {
-    mouseState = QApplication::mouseButtons();
-    modState = QApplication::keyboardModifiers();
-    default_action = QDragManager::self()->defaultAction(act);
+    default_action = QDragManager::self()->defaultAction(act, modifiers);
     ignore();
 }
 
@@ -1959,8 +1961,9 @@ QT3_SUPPORT QDropEvent::Action QDropEvent::action() const
     \warning Do not create a QDragEnterEvent yourself since these
     objects rely on Qt's internal state.
 */
-QDragEnterEvent::QDragEnterEvent(const QPoint& point, Qt::DropActions actions, const QMimeData *data)
-    : QDragMoveEvent(point, actions, data, DragEnter)
+QDragEnterEvent::QDragEnterEvent(const QPoint& point, Qt::DropActions actions, const QMimeData *data,
+                                 Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
+    : QDragMoveEvent(point, actions, data, buttons, modifiers, DragEnter)
 {}
 
 QDragEnterEvent::~QDragEnterEvent()

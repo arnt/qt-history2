@@ -94,7 +94,8 @@ public:
     QDragPrivate *dragPrivate() const { return object ? object->d_func() : 0; }
 
     static QDragManager *self();
-    Qt::DropAction defaultAction(Qt::DropActions possibleActions) const;
+    Qt::DropAction defaultAction(Qt::DropActions possibleActions,
+                                 Qt::KeyboardModifiers modifiers) const;
 
     QDrag *object;
 

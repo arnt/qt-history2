@@ -382,7 +382,8 @@ class Q_GUI_EXPORT QDropEvent : public QEvent
 // END QT3_SUPPORT
 {
 public:
-    QDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data, Type type = Drop);
+    QDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data,
+               Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Type type = Drop);
     ~QDropEvent();
 
     inline const QPoint &pos() const { return p; }
@@ -431,7 +432,8 @@ protected:
 class Q_GUI_EXPORT QDragMoveEvent : public QDropEvent
 {
 public:
-    QDragMoveEvent(const QPoint &pos, Qt::DropActions actions, const QMimeData *data, Type type = DragMove);
+    QDragMoveEvent(const QPoint &pos, Qt::DropActions actions, const QMimeData *data,
+                   Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Type type = DragMove);
     ~QDragMoveEvent();
 
     inline QRect answerRect() const { return rect; }
@@ -454,7 +456,8 @@ protected:
 class Q_GUI_EXPORT QDragEnterEvent : public QDragMoveEvent
 {
 public:
-    QDragEnterEvent(const QPoint &pos, Qt::DropActions actions, const QMimeData *data);
+    QDragEnterEvent(const QPoint &pos, Qt::DropActions actions, const QMimeData *data,
+                    Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers);
     ~QDragEnterEvent();
 };
 
