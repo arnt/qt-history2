@@ -178,7 +178,9 @@ void QApplication::do_mouse_down(void * es)
 	break;
     case inContent:
 	Point pp=er->where;
-	widget=QApplication::widgetAt(pp.h,pp.v,true);
+	Point pp2=er->where;
+	GlobalToLocal(&pp2);
+	widget=QApplication::widgetAt(pp2.h,pp2.v,true);
 	if(widget) {
 	    mouse_down=true;
 	    if(myactive!=(WId)wp) {
