@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#104 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#105 $
 **
 ** Definition of QPainter class
 **
@@ -173,6 +173,10 @@ public:
     void	drawPixmap( const QPoint &, const QPixmap &,
 			    const QRect &sr );
     void	drawPixmap( const QPoint &, const QPixmap & );
+    void	drawImage( int x, int y, const QImage &,
+			    int sx=0, int sy=0, int sw=-1, int sh=-1 );
+    void	drawImage( const QPoint &, const QImage &,
+			    const QRect &sr );
     void	drawImage( const QPoint &, const QImage & );
     void	drawPicture( const QPicture & );
 
@@ -489,6 +493,12 @@ inline void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm,
 				  const QRect &sr )
 {
     drawPixmap( p.x(), p.y(), pm, sr.x(), sr.y(), sr.width(), sr.height() );
+}
+
+inline void QPainter::drawImage( const QPoint &p, const QImage &pm,
+				  const QRect &sr )
+{
+    drawImage( p.x(), p.y(), pm, sr.x(), sr.y(), sr.width(), sr.height() );
 }
 
 inline void QPainter::fillRect( const QRect &r, const QBrush &brush )
