@@ -777,15 +777,9 @@ QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
     return ret;
 }
 
-static void qt_mac_mask_data_free(void *, const void *data, size_t)
+static void qt_mac_cgimage_data_free(void *, const void *data, size_t)
 {
     free(const_cast<void *>(data));
-}
-
-static void qt_mac_pixmap_data_free(void *info, const void *, size_t)
-{
-    QPixmap *pix = static_cast<QPixmap *>(info);
-    delete pix;
 }
 
 CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
@@ -804,7 +798,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
     if(px.isQBitmap()) {
         const int w = px.width(), h = px.height();
         char *out_addr = (char*)malloc(w*h);
-        provider = CGDataProviderCreateWithData(0, out_addr, w*h, qt_mac_mask_data_free);
+        provider = CGDataProviderCreateWithData(0, out_addr, w*h, qt_mac_cgimage_data_free);
 
         const QRgb c0 = (QColor(Qt::color0).rgb() & 0xFFFFFF);
         for(int yy = 0; yy < h; yy++) {
@@ -815,9 +809,8 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
         }
         image = CGImageMaskCreate(px.width(), px.height(), 8, 8, px.width(), provider, 0, true);
     } else {
-        
-        provider = CGDataProviderCreateWithData(new QPixmap(px), addr, bpl*px.height(),
-                                                qt_mac_pixmap_data_free);
+        char *out_addr = (char*)malloc(px.height()*bpl);
+        memcpy(out_addr, addr, px.height()*bpl);
         if(mode == Qt::ComposePixmap) {
             if(const QPixmap *alpha = px.data->alphapm) {
                 char *drow;
@@ -827,7 +820,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
                 const int h = alpha->height(), w = alpha->width();
                 for(int yy=0; yy<h; yy++) {
                     arow = reinterpret_cast<long*>(reinterpret_cast<char *>(aptr) + (yy * abpr));
-                    drow = addr + (yy * bpl);
+                    drow = out_addr + (yy * bpl);
                     for(int xx=0;xx<w;xx++)
                         *(drow + (xx*4)) = 255-(*(arow + xx) & 0xFF);
                 }
@@ -838,7 +831,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
                 const QRgb c0 = (QColor(Qt::color0).rgb() & 0xFFFFFF);
                 for(int yy=0; yy<h; yy++) {
                     ulong *mrow = reinterpret_cast<ulong*>(mptr + (yy * mbpr));
-                    char *drow = addr + (yy * bpl);
+                    char *drow = out_addr + (yy * bpl);
                     for(int xx=0;xx<w;xx++)
                         *(drow + (xx*4)) = ((*(mrow + xx) & c0) == c0) ? 0 : 255;
                 }
@@ -847,6 +840,8 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
             }
         }
         CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+        provider = CGDataProviderCreateWithData(0, out_addr, bpl*px.height(),
+                                                qt_mac_cgimage_data_free);
         image = CGImageCreate(px.width(), px.height(), 8, 32, bpl, colorspace,
                               mode == Qt::ComposePixmap ? kCGImageAlphaFirst : kCGImageAlphaNoneSkipFirst,
                               provider, 0, 0, kCGRenderingIntentDefault);
