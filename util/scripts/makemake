@@ -71,7 +71,7 @@ variables: Makefile
 	@echo
 	@echo These targets are available:
 	@echo
-	@ls configs
+	@cd configs; ls *-*-*
 	@echo
 	@echo Make any of them to configure Qt for building.  The make process
 	@echo will now abort with an error.
