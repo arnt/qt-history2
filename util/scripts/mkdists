@@ -589,6 +589,7 @@ copy_platform_files() {
     edition=$2
     platform=$3
     o_dir=$4
+    cp -ar "$DISTDIR/qt/dist/README" "$o_dir/README"
     [ ! -d $dir ] && return 1
     for a in `find $dir`; do
 	a_file=`echo $a | sed "s,$dir,,"`
