@@ -290,10 +290,14 @@ void QGuiEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
     if(d->macSockets) {
 	if(MacSocketInfo *mac_notifier = d->macSockets->value(notifier)) {
 	    d->macSockets->remove(notifier);
-	    if(notifier->type() == QSocketNotifier::Read) 
+	    if(notifier->type() == QSocketNotifier::Read) {
+		CFReadStreamUnscheduleFromRunLoop(mac_notifier->read_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
 		CFRelease(mac_notifier->read_not);
-	    else if(notifier->type() == QSocketNotifier::Write)
+	    }
+	    else if(notifier->type() == QSocketNotifier::Write) {
+		CFWriteStreamUnscheduleFromRunLoop(mac_notifier->write_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
 		CFRelease(mac_notifier->write_not);
+ 	    }
 	    delete mac_notifier;
 	}
     }
