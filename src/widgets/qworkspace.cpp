@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 #include "qworkspace.h"
-#if QT_FEATURE_WIDGETS
+#if QT_FEATURE_WORKSPACE
 #include "qapplication.h"
 #include "qobjectlist.h"
 #include "qlayout.h"
@@ -1950,4 +1950,4 @@ void QWorkspaceChild::doMove()
 }
 
 #include "qworkspace.moc"
-#endif
+#endif // QT_FEATURE_WORKSPACE

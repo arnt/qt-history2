@@ -31,7 +31,7 @@
 #include "qbitarray.h"
 #endif // QT_H
 
-#if QT_FEATURE_WIDGETS
+#if QT_FEATURE_LCDNUMBER
 
 
 class QLCDNumberPrivate;
@@ -126,6 +126,6 @@ inline int QLCDNumber::numDigits() const
 { return ndigits; }
 
 
-#endif // QT_FEATURE_WIDGETS
+#endif // QT_FEATURE_LCDNUMBER
 
 #endif // QLCDNUMBER_H
