@@ -63,7 +63,7 @@ win32 {
 		STYLES_H	= $$WIN_ALL_H
 	}
 
-	CONFIG	+= png zlib
+	CONFIG	+= zlib
 	CONFIG -= incremental
 	DEFINES += UNICODE
 	INCLUDEPATH += tmp
