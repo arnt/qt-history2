@@ -56,6 +56,7 @@ class OrderIndicator;
 class FormWindow : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY( QString fileName READ fileName WRITE setFileName )
 
 public:
     FormWindow( MainWindow *mw, QWidget *parent, const char *name = 0 );

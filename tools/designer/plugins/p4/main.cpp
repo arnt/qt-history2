@@ -1,4 +1,5 @@
 #include "../../designer/actioniface.h"
+#include "../../designer/designerappiface.h"
 
 #include <qcleanuphandler.h>
 #include <qapplicationinterface.h>
@@ -88,20 +89,24 @@ void P4Interface::p4Edit()
 {
     if ( !appInterface )
 	return;
-    QComponentInterface *i = appInterface->requestInterface( "MainWindowInterface" );
-    if ( !i )
+    DesignerMainWindowInterface *mwIface = 0;
+    DesignerFormWindowInterface *fwIface = 0;
+    if ( !( mwIface = (DesignerMainWindowInterface*)appInterface->requestInterface( "DesignerMainWindowInterface" ) ) ||
+	 !( fwIface = (DesignerFormWindowInterface*)mwIface->requestInterface( "DesignerFormWindowInterface" ) ) )
 	return;
-    qDebug( "P4Interface::p4Edit %s", i->requestProperty( "currentFileName" ).toString().latin1() );
+    qDebug( "P4Interface::p4Edit %s", fwIface->requestProperty( "fileName" ).toString().latin1() );
 }
 
 void P4Interface::p4Submit()
 {
     if ( !appInterface )
 	return;
-    QComponentInterface *i = appInterface->requestInterface( "MainWindowInterface" );
-    if ( !i )
+    DesignerMainWindowInterface *mwIface = 0;
+    DesignerFormWindowInterface *fwIface = 0;
+    if ( !( mwIface = (DesignerMainWindowInterface*)appInterface->requestInterface( "DesignerMainWindowInterface" ) ) ||
+	 !( fwIface = (DesignerFormWindowInterface*)mwIface->requestInterface( "DesignerFormWindowInterface" ) ) )
 	return;
-    qDebug( "P4Interface::p4Submit %s", i->requestProperty( "currentFileName" ).toString().latin1() );
+    qDebug( "P4Interface::p4Submit %s", fwIface->requestProperty( "dileName" ).toString().latin1() );
 }
 
 #include "main.moc"

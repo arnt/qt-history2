@@ -5,6 +5,10 @@
 #include <qmap.h>
 #include <qguardedptr.h>
 
+class MainWindow;
+class DesignerFormWindowInterface;
+class DesignerMainWindowInterface;
+
 class DesignerApplicationInterface : public QApplicationInterface
 {
 public:
@@ -13,8 +17,37 @@ public:
     QComponentInterface *requestInterface( const QCString &request );
 
 private:
-    QMap<QCString, QGuardedPtr<QComponentInterface> > interfaces;
+    QGuardedPtr<DesignerMainWindowInterface> mwIface;
 
+};
+
+class DesignerFormWindowInterface : public QComponentInterface
+{
+public:
+    DesignerFormWindowInterface( MainWindow *mw );
+
+    QVariant requestProperty( const QCString& p );
+    bool requestSetProperty( const QCString& p, const QVariant& v );
+    bool requestConnect( const char* signal, QObject* target, const char* slot );
+    bool requestEvents( QObject* o );
+    
+private:
+    MainWindow *mainWindow;
+    
+};
+    
+
+class DesignerMainWindowInterface : public QComponentInterface
+{
+public:
+    DesignerMainWindowInterface( MainWindow *mw );
+
+    QComponentInterface *requestInterface( const QCString &request );
+
+private:
+    QGuardedPtr<DesignerFormWindowInterface> fwIface;
+    MainWindow *mainWindow;
+    
 };
 
 #endif

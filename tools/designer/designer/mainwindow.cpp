@@ -3368,13 +3368,3 @@ void MainWindow::setupActionManager()
 	a->addTo( tb );
     }
 }
-
-
-// formwindow "interface"
-
-QString MainWindow::currentFileName() const
-{
-    if ( !( (MainWindow*)this )->formWindow() )
-	return QString::null;
-    return ( (MainWindow*)this )->formWindow()->fileName();
-}
