@@ -567,10 +567,40 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
     if(!action)
         return;
 
+    action->activate(action_e);
+    for(QWidget *widget = causedPopup; widget; ) {
+        //fire
+        if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) {
+            widget = qmenu->d->causedPopup;
+            if(action_e == QAction::Trigger) {
+                emit qmenu->triggered(action);
+#ifdef QT_COMPAT
+                emit qmenu->activated(qmenu->findIdForAction(action));
+#endif
+            } else if(action_e == QAction::Hover) {
+                emit qmenu->hovered(action);
+#ifdef QT_COMPAT
+                emit qmenu->highlighted(qmenu->findIdForAction(action));
+#endif
+            }
+        } else if(QMenuBar *qmenubar = ::qt_cast<QMenuBar*>(widget)) {
+            if(action_e == QAction::Trigger) {
+                emit qmenubar->triggered(action);
+#ifdef QT_COMPAT
+                emit qmenubar->activated(qmenu->findIdForAction(action));
+#endif
+            } else if(action_e == QAction::Hover) {
+                emit qmenubar->hovered(action);
+#ifdef QT_COMPAT
+                emit qmenubar->highlighted(qmenu->findIdForAction(action));
+#endif
+            }
+            break; //nothing more..
+        }
+    }
+
     if(action_e == QAction::Trigger)
         hideUpToMenuBar();
-
-    action->activate(action_e);
 
     if(action_e == QAction::Hover) {
 #ifndef QT_NO_ACCESSIBILITY
