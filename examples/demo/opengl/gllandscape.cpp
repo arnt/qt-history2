@@ -1,5 +1,6 @@
 #include <qimage.h>
 #include "gllandscape.h"
+#include <qevent.h>
 
 
 #include <math.h>
@@ -41,7 +42,7 @@ void GLLandscape::initializeGL()
     glMatrixMode( GL_MODELVIEW );
     glLoadIdentity();
     glGetFloatv( GL_MODELVIEW_MATRIX,(GLfloat *) views[AxisView].model );
-    
+
     glTranslatef( 0.0, 0.0, -50.0 );
     glRotatef( -45, 1, 0, 0 );
     glRotatef( -45, 0, 0, 1 );
@@ -112,7 +113,7 @@ void GLLandscape::paintGL()
 void GLLandscape::drawAxis()
 {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glViewport(15, 20, 50, 50);	 
+    glViewport(15, 20, 50, 50);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -123,9 +124,9 @@ void GLLandscape::drawAxis()
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadMatrixf((GLfloat *) views[AxisView].model);
-    
+
     glCallList(axisList);
-    
+
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
@@ -135,7 +136,7 @@ void GLLandscape::drawAxis()
 void GLLandscape::drawCube()
 {
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glViewport(width()-75, 0, 75, 75);	 
+    glViewport(width()-75, 0, 75, 75);
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
@@ -148,7 +149,7 @@ void GLLandscape::drawCube()
     glRotatef(cubeRot, 0, 1, 0);
     glRotatef(cubeRot, 0, 0, 1);
     glTranslatef(-0.5, -0.5, -0.5);
-    
+
     glCallList(cubeList);
 
     glPopMatrix();
@@ -684,8 +685,8 @@ void GLLandscape::timerEvent( QTimerEvent *e )
 	if (!animationRunning)
 	    updateGL();
 	return;
-    } 
-    
+    }
+
     int dx, dy; // disturbance point
     float s, v, W, t;
     int i, j;
@@ -746,7 +747,7 @@ void GLLandscape::toggleWaveAnimation( bool state )
 void GLLandscape::showEvent( QShowEvent * )
 {
     if (animationRunning)
- 	animTimer = startTimer(20);	
+ 	animTimer = startTimer(20);
     cubeTimer = startTimer(50);
 }
 
@@ -762,7 +763,7 @@ void GLLandscape::initDisplayLists()
     // axisList
     axisList = glGenLists(1);
     glNewList(axisList, GL_COMPILE);
-    
+
     glEnable(GL_LINE_SMOOTH);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -782,12 +783,12 @@ void GLLandscape::initDisplayLists()
 	glColor3f(0.0, 1.0, 0.0);
 	glVertex3f(0, -1.0f, 0); // y axis
 	glVertex3f(0, 1.0f, 0);
-	
+
 	glVertex3f(0, 1.0f, 0);
 	glVertex3f(0.2f, 0.8f, 0);
 	glVertex3f(0, 1.0f, 0);
 	glVertex3f(-0.2f, 0.8f, 0);
-	
+
 	glColor3f(0.5, 0.5, 1.0);
 	glVertex3f(0, 0, -1.0f); // z axis
 	glVertex3f(0, 0, 1.0f);
@@ -802,9 +803,9 @@ void GLLandscape::initDisplayLists()
     renderText(1.1f, 0, 0, "x");
     renderText(0, 1.1f, 0, "y");
     renderText(0, 0, 1.1f, "z");
-    
+
     glEndList();
-    
+
     // cubeList
     cubeList = glGenLists(1);
     glNewList(cubeList, GL_COMPILE);
@@ -814,7 +815,7 @@ void GLLandscape::initDisplayLists()
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_SRC_COLOR);
-    
+
     glBegin( GL_POLYGON );
     {
 	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );

@@ -482,7 +482,7 @@ void HierarchyList::insertObject( QObject *o, QListViewItem *parent )
 		    continue;
 		QToolBox *tb = (QToolBox*)obj->parent();
 		for ( int i = tb->count() - 1; i >= 0; --i )
-		    insertObject( tb->page( i ), item );
+		    insertObject( tb->item( i ), item );
 	    }
 	    continue;
 	}

@@ -1,4 +1,5 @@
 #include "glcontrolwidget.h"
+#include <qevent.h>
 
 #include <qcursor.h>
 #include <qtimer.h>
