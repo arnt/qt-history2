@@ -154,7 +154,7 @@ inline QString MakefileGenerator::defaultInstall(const QString &)
 inline bool MakefileGenerator::findLibraries()
 { return TRUE; }
 
-inline QString MakefileGenerator::findDependency(const QString &dep)
+inline QString MakefileGenerator::findDependency(const QString &)
 { return QString(""); }
 
 inline MakefileGenerator::~MakefileGenerator()
