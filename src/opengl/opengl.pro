@@ -3,6 +3,7 @@ QPRO_PWD   = $$PWD
 QT         = core gui
 DEFINES   += QT_BUILD_OPENGL_LIB
 win32-msvc*|win32-icc:QMAKE_LFLAGS += /BASE:0x63000000
+solaris-cc*:QMAKE_CXXFLAGS_RELEASE -= -O2
 
 
 include(../qbase.pri)
