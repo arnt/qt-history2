@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#104 $
 **
 ** Implementation of layout classes
 **
@@ -1060,7 +1060,7 @@ static bool checkWidget( QLayout *l, QWidget *w )
     if ( !w ) {
 #if defined(CHECK_STATE)
 	qWarning( "cannot add null widget to %s/%s", l->className(),
-		 l->name() );
+		  l->name() );
 #endif
 	return FALSE;
     }
@@ -1068,13 +1068,13 @@ static bool checkWidget( QLayout *l, QWidget *w )
     if ( w->parentWidget() != l->mainWidget() ) {
 	if ( w->parentWidget() && l->mainWidget() )
 	    qWarning( "Warning: adding %s/%s (child of %s/%s) to layout for %s/%s",
-		     w->className(), w->name(),
-		     w->parentWidget()->className(), w->parentWidget()->name(),
-		     l->mainWidget()->className(), l->mainWidget()->name() );
+		      w->className(), w->name(),
+		      w->parentWidget()->className(), w->parentWidget()->name(),
+		      l->mainWidget()->className(), l->mainWidget()->name() );
 	else if (  l->mainWidget() )
 	    qWarning( "Warning: adding %s/%s (top-level widget) to layout for %s/%s",
-		     w->className(), w->name(),
-		     l->mainWidget()->className(), l->mainWidget()->name() );
+		      w->className(), w->name(),
+		      l->mainWidget()->className(), l->mainWidget()->name() );
     }
 #endif
     return TRUE;
@@ -1085,11 +1085,15 @@ static bool checkWidget( QLayout *l, QWidget *w )
   Adds the widget \a w to the cell grid at \a row, \a col.
   The top left position is (0,0)
 
-  Alignment is specified by \a alignmnt which takes the same arguments as
-  QLabel::setAlignment().  Note that widgets take all the space they
-  can get; alignment has no effect unless you have set
-  QWidget::maximumSize().
-
+  Alignment is specified by \a alignmnt which takes the same arguments
+  as QLabel::setAlignment(). The default alignment is 0, which means
+  that the widget fills the entire cell.
+  
+  Note: The alignment parameter is interpreted more aggressively
+  than in previous versions of Qt.  A non-default alignment now
+  indicates that the widget should not grow to fill the available
+  space, but should be sized according to sizeHint().
+  
 */
 
 void QGridLayout::addWidget( QWidget *w, int row, int col, int alignmnt )
@@ -1114,7 +1118,13 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignmnt )
   Adds the widget \a w to the cell grid, spanning multiple rows/columns.
 
   Alignment is specified by \a alignmnt which takes the same arguments as
-  QLabel::setAlignment().
+  QLabel::setAlignment(). The default alignment is 0, which means
+  that the widget fills the entire cell.
+
+  A non-zero alignment indicates that the widget should not grow to
+  fill the available space, but should be sized according to
+  sizeHint().
+  
 */
 
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,
@@ -1586,13 +1596,18 @@ void QBoxLayout::addStrut( int size )
   widgets in this QBoxLayout.  Widgets and boxes with higher stretch
   factor grow more.
 
-  If the stretch factor is 0 and nothing else in the QBoxLayout can
-  grow at all, the widget may still grow up to its \link
-  QWidget::setMaximumSize() maximum size. \endlink
+  If the stretch factor is 0 and nothing else in the QBoxLayout has a
+  stretch factor greater than zero, the space is distributed according
+  to the \link QWidget:sizePolicy() size policies\endlink.
 
-  Alignment only has effect if the size of the box is greater than the
-  widget's maximum size.
-
+  The default alignment is 0, which means that the widget fills the
+  entire cell.
+  
+  Note: The alignment parameter is interpreted more aggressively
+  than in previous versions of Qt.  A non-default alignment now
+  indicates that the widget should not grow to fill the available
+  space, but should be sized according to sizeHint().
+  
   \sa addLayout(), addSpacing()
 */
 
@@ -1642,8 +1657,7 @@ bool QBoxLayout::setStretchFactor( QWidget *w, int stretch )
 
   Returns the (serial) direction of the box. addWidget(), addBox()
   and addSpacing() works in this direction; the stretch stretches
-  in this direction. \link QBoxLayout::addWidget Alignment \endlink
-  works perpendicular to this direction.
+  in this direction. 
 
   The directions are \c LeftToRight, \c RightToLeft, \c TopToBottom
   and \c BottomToTop. For the last two, the shorter aliases \c Down and
