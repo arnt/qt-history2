@@ -37,6 +37,7 @@
 #include "qintdict.h"
 #include "qobjectlist.h"
 #include "qfontdata_p.h"
+#include "qcomplextext_p.h"
 #include "qtextcodec.h"
 #include "qmemorymanager_qws.h"
 #include <ctype.h>
@@ -1496,7 +1497,9 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 
 void QPainter::drawText( int x, int y, const QString &s, int from, int len)
 {
-    drawText(x, y, s.mid(from, len) );
+    int lenOut;
+    QChar *shaped = (QChar *)QComplexText::shapedString( s, from, len, &lenOut );
+    drawText( x, y, QConstString( shaped, lenOut ).string(), lenOut );
 }
 
 void QPainter::drawText( int x, int y, const QString &str, int len )

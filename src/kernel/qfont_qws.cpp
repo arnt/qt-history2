@@ -33,6 +33,7 @@
 #include "qwidget.h"
 #include "qpainter.h"
 #include "qfontdata_p.h"
+#include "qcomplextext_p.h"
 #include "qfontdatabase.h"
 #include "qstrlist.h"
 #include "qcache.h"
@@ -501,7 +502,7 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
-    return width(str[pos]); // no shaping here
+    return width( QComplexText::shapedCharacter( str, pos ) );
 }
 
 int QFontMetrics::width( QChar ch ) const
