@@ -33,7 +33,7 @@ gbk-0 -113 Han
 gb2312.*-0 57 Han
 #
 # Japan
-jisx0201*-0 15 
+jisx0201*-0 15 KatakanaHalfWidth
 jisx0208*-0 63 Hiragana,Katakana,Han
 #
 # Korea

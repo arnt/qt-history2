@@ -56,6 +56,11 @@ my @qscripts = (
 	"EnclosedAndSquare",
 	"Braille",
 	"Unicode",
+        "Tagalog",
+	"Hanunoo",
+	"Buhid",
+	"Tagbanwa",
+	"KatakanaHalfWidth",
 	"UnknownScript",
 );
 
