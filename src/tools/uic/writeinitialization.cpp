@@ -334,10 +334,11 @@ void WriteInitialization::acceptSpacer(DomSpacer *node)
         ? properties.value(QLatin1String("sizeHint"))->elementSize() : 0;
 
     QString sizeType = properties.contains(QLatin1String("sizeType"))
-        ? properties.value(QLatin1String("sizeType"))->elementEnum() : QLatin1String("Expanding");
+        ? properties.value(QLatin1String("sizeType"))->elementEnum()
+        : QString::fromLatin1("Expanding");
 
     QString orientation = properties.contains(QLatin1String("orientation"))
-        ? properties.value(QLatin1String("orientation"))->elementEnum() : QString::null;
+        ? properties.value(QLatin1String("orientation"))->elementEnum() : QString();
 
     bool isVspacer = orientation == QLatin1String("Qt::Vertical")
         || orientation == QLatin1String("Vertical");
