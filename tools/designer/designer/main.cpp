@@ -19,15 +19,13 @@
 **********************************************************************/
 
 #include "mainwindow.h"
-#include "config.h"
-#include "splashloader.h"
 #include "formwindow.h"
 
 #include "designerapp.h"
 
-#include <qlabel.h>
 #include <qtextstream.h>
 #include <qobjectlist.h>
+#include <qlabel.h>
 
 #include <stdlib.h>
 #include <signal.h>
@@ -142,7 +140,6 @@ int main( int argc, char *argv[] )
 #endif
 
     DesignerApplication::setOverrideCursor( Qt::WaitCursor );
-    bool showSplash = TRUE;
 
     bool creatPid = FALSE;
     if ( a.argc() > 1 ) {
@@ -199,33 +196,7 @@ int main( int argc, char *argv[] )
 	signal( SIGTERM, exitHandler );
     }
 
-    QString fn = QDir::homeDirPath() + "/.designerrc";
-    QRect screen = QApplication::desktop()->screenGeometry();
-    if ( QFile::exists( fn ) ) {
-	Config config( fn );
-	config.setGroup( "General" );
-	showSplash = config.readBoolEntry( "SplashScreen", TRUE );
-	config.setGroup( "Geometries" );
-	QRect mainRect;
-	mainRect.setX( config.readNumEntry( "MainwindowX", 0 ) );
-	mainRect.setY( config.readNumEntry( "MainwindowY", 0 ) );
-	mainRect.setWidth( config.readNumEntry( "MainwindowWidth", 500 ) );
-	mainRect.setHeight( config.readNumEntry( "MainwindowHeight", 500 ) );
-	screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( mainRect.center() ) );
-    }
-
-    QLabel *splash = 0;
-    if ( showSplash ) {
-	splash = new QLabel( 0, "splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WX11BypassWM);
-	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	splash->setPixmap( splashScreen() );
-	splash->adjustSize();
-	splash->setCaption( "Qt Designer" );
-	splash->move( screen.center() - QPoint( splash->width() / 2, splash->height() / 2 ) );
-	splash->show();
-	splash->repaint( FALSE );
-	QApplication::flushX();
-    }
+    QLabel *splash = a.showSplash();
 
     MainWindow *mw = new MainWindow( creatPid );
     mw->setCaption( "Qt Designer by Trolltech" );

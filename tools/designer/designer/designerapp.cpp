@@ -22,9 +22,12 @@
 #include "designerapp.h"
 #include "mainwindow.h"
 #include "formwindow.h"
+#include "splashloader.h"
+
 #include <qfile.h>
 #include <qdir.h>
-#include <qobjectlist.h>
+#include <qsettings.h>
+#include <qlabel.h>
 
 #ifdef Q_WS_WIN
 #include <qt_windows.h>
@@ -52,9 +55,36 @@ DesignerApplication::DesignerApplication( int &argc, char **argv )
 
 #endif
 
+QLabel *DesignerApplication::showSplash()
+{
+    QRect screen = QApplication::desktop()->screenGeometry();
+    QSettings config;
+    QRect mainRect;
+    QString keybase = settingsKey();
+    bool show = config.readBoolEntry( keybase + "General/SplashScreen", TRUE );
+    mainRect.setX( config.readNumEntry( keybase + "Geometries/MainwindowX", 0 ) );
+    mainRect.setY( config.readNumEntry( keybase + "Geometries/MainwindowY", 0 ) );
+    mainRect.setWidth( config.readNumEntry( keybase + "Geometries/MainwindowWidth", 500 ) );
+    mainRect.setHeight( config.readNumEntry( keybase + "Geometries/MainwindowHeight", 500 ) );
+    screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( mainRect.center() ) );
+
+    QLabel *splash = 0;
+    if ( show ) {
+	splash = new QLabel( 0, "splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WX11BypassWM);
+	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
+	splash->setPixmap( splashScreen() );
+	splash->adjustSize();
+	splash->setCaption( "Qt Designer" );
+	splash->move( screen.center() - QPoint( splash->width() / 2, splash->height() / 2 ) );
+	splash->show();
+	splash->repaint( FALSE );
+	QApplication::flushX();
+    }
+
+    return splash;
+}
+
 #if defined(Q_WS_WIN)
-#include <qt_windows.h>
-#include <process.h>
 bool DesignerApplication::winEventFilter( MSG *msg )
 {
     if ( msg->message == DESIGNER_OPENFILE ) {

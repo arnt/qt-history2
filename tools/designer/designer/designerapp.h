@@ -21,8 +21,9 @@
 #ifndef DESIGNERAPP_H
 #define DESIGNERAPP_H
 
-#include <qguardedptr.h>
-#include <qdatetime.h>
+#include <qapplication.h>
+
+class QLabel;
 
 #if defined(HAVE_KDE)
 #include <kapp.h>
@@ -38,6 +39,10 @@ public:
 #else
     DesignerApplication( int &argc, char **argv );
 #endif
+
+    QLabel *showSplash();
+
+    static QString settingsKey() { return "/Trolltech/Qt Designer/3.0/"; }
 
 protected:
     QDateTime lastMod;
