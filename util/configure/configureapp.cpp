@@ -1072,7 +1072,7 @@ QString Configure::addDefine(QString def)
 #if !defined(EVAL)
 void Configure::generateConfigfiles()
 {
-    QString outDir(dictionary[ "QT_SOURCE_TREE" ] + "/src/core/global");
+    QString outDir(dictionary[ "QT_SOURCE_TREE" ] + "/src/corelib/global");
     QString outName( outDir + "/qconfig.h" );
 
     ::SetFileAttributesA( outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
@@ -1093,7 +1093,7 @@ void Configure::generateConfigfiles()
 	    QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
 	    outStream << "// Copied from " << configName << endl;
 
-	    QFile inFile( dictionary[ "QT_SOURCE_TREE" ] + "/src/core/global/" + configName );
+	    QFile inFile( dictionary[ "QT_SOURCE_TREE" ] + "/src/corelib/global/" + configName );
 	    if( inFile.open( QFile::ReadOnly ) ) {
 		QByteArray buffer = inFile.readAll();
 		outFile.write( buffer.constData(), buffer.size() );
@@ -1160,16 +1160,16 @@ void Configure::generateConfigfiles()
 
         outStream.flush();
 	outFile.close();
-        if (!writeToFile("#include \"../../src/core/global/qconfig.h\"\n",
+        if (!writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n",
                          dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/qconfig.h")
-            || !writeToFile("#include \"../../src/core/global/qconfig.h\"\n",
+            || !writeToFile("#include \"../../src/corelib/global/qconfig.h\"\n",
                             dictionary[ "QT_INSTALL_HEADERS" ] + "/Qt/qconfig.h")) {
             dictionary["DONE"] = "error";
             return;
         }
     }
 
-    QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h";
+    QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/corelib/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h";
     QFileInfo archInfo(archFile);
     if (!archInfo.exists()) {
 	qDebug("Architecture file %s does not exist!", qPrintable(archFile) );
@@ -1187,7 +1187,7 @@ void Configure::generateConfigfiles()
 	qDebug("Couldn't reset writable file attribute for qatomic.h");
 
     // Create qatomic.h "symlinks"
-    QString atomicContents = QString("#include \"../../src/core/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h\"\n");
+    QString atomicContents = QString("#include \"../../src/corelib/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h\"\n");
     if (!writeToFile(atomicContents.toLocal8Bit(),
                      dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h")
         || !writeToFile(atomicContents.toLocal8Bit(),
@@ -1199,7 +1199,7 @@ void Configure::generateConfigfiles()
     outDir = dictionary[ "QT_SOURCE_TREE" ];
 
     // Generate the new qconfig.cpp file
-    outName = outDir + "/src/core/global/qconfig.cpp";
+    outName = outDir + "/src/corelib/global/qconfig.cpp";
     ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
     outFile.setFileName(outName);
     if (outFile.open(QFile::WriteOnly | QFile::Text)) {
