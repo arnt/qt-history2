@@ -32,7 +32,7 @@ public:
     inline void setAlignment(Qt::Alignment alignment) { align = alignment; }
     inline Qt::Alignment alignment() const { return Qt::Alignment(align); }
 
-    inline void setLayoutDirection(Qt::LayoutDirection direction) { this->direction = direction; }
+    inline void setLayoutDirection(Qt::LayoutDirection aDirection) { this->direction = aDirection; }
     inline Qt::LayoutDirection layoutDirection() const { return (Qt::LayoutDirection)direction; }
 
     enum WrapMode {
