@@ -264,10 +264,13 @@ bool qt_recreate_root_win() {
 bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 {
     QWidget *widget = QWidget::find( (WId)id );
-    switch(wcode) {
-    case kWindowOpaqueRgn: 
-	SetEmptyRgn(rgn);
-	return TRUE; 
+    switch (wcode) {
+
+    case kWindowOpaqueRgn: {
+	GetWindowRegion((WindowRef)id, kWindowContentRgn, rgn);
+	return TRUE;
+    }
+
     case kWindowStructureRgn: {
 	QRegion cr;
 	if(widget) {
