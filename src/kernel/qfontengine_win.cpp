@@ -619,7 +619,7 @@ int QFontEngineWin::minRightBearing() const
 		    for( int i = 0; i < char_table_entries; i++ ) {
 			QByteArray w = QString(QChar(char_table[i])).toLocal8Bit();
 			if ( w.length() == 1 ) {
-			    uint ch8 = w[0];
+			    uint ch8 = (uchar)w[0];
 			    GetCharABCWidthsA(hdc, ch8, ch8, abc+i );
 			}
 		    }
