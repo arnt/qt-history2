@@ -40,8 +40,8 @@ public:
     QAxBindable();
 
     virtual QRESULT queryInterface( const QUuid&, void** );
-    long addRef();
-    long release();
+    unsigned long addRef();
+    unsigned long release();
 
     virtual bool stayTopLevel() const;
     virtual bool hasStockEvents() const;

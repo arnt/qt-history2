@@ -158,22 +158,31 @@ void QAxBindable::propertyChanged( const char *property )
     interfaces in your ActiveX control. Set \a iface to point to the
     interface implementation for interfaces of type \a iid.
 
-    Make sure you add a reference to interfaces using the API provided
-    by the COM interface model.
+    Make sure you add a reference to interfaces using addRef().
 
     \code
     QRESULT MyActiveX::queryInterface( const QUuid &iid, void **iface )
     {
         *iface = 0;
-	if ( iid == IID_IStream )
-	    *iface = (IStream*)this;
+	if ( iid == IID_IOleInPlaceObjectWindowless )
+	    *iface = (IOleInPlaceObjectWindowless*)this;
 	else
 	    return E_NOINTERFACE;
 
-        AddRef();
+        addRef();
 	return S_OK;
     }
     \endcode
+   
+    Even though the COM interface inherits IUnknown you must not support IUnknown 
+    in that implementation. When implementing additional interfaces in your ActiveX 
+    class, implement QueryInterface() to call this function. QUuid implements 
+    a constructor for the IID type:
+
+    HERSULT MyActiveX::QueryInterface( REFIID iid, void **iface )
+    {
+        return queryInterface( iid, iface );
+    }
 
     Return the default COM results for QueryInterface (S_OK, E_NOINTERFACE).
 */
@@ -189,7 +198,7 @@ QRESULT QAxBindable::queryInterface( const QUuid &iid, void **iface )
     call this function.
 
     \code
-    long MyActiveX::AddRef()
+    unsigned long MyActiveX::AddRef()
     {
         return addRef();
     }
@@ -197,7 +206,7 @@ QRESULT QAxBindable::queryInterface( const QUuid &iid, void **iface )
 
     \sa release(), queryInterface()
 */
-long QAxBindable::addRef()
+unsigned long QAxBindable::addRef()
 {
     return activex->AddRef();
 }
@@ -208,7 +217,7 @@ long QAxBindable::addRef()
     to call this function.
 
     \code
-    long MyActiveX::Release()
+    unsigned long MyActiveX::Release()
     {
         return release();
     }
@@ -216,7 +225,7 @@ long QAxBindable::addRef()
 
     \sa addRef(), queryInterface()
 */
-long QAxBindable::release()
+unsigned long QAxBindable::release()
 {
     return activex->Release();
 }
