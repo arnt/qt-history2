@@ -30,4 +30,5 @@ SOURCES += $$PWD/uic.cpp \
            $$PWD/writeicondata.cpp \
            $$PWD/databaseinfo.cpp \
            $$PWD/customwidgetsinfo.cpp \
-           $$PWD/blockingprocess.cpp
+           $$PWD/blockingprocess.cpp \
+	   $$PWD/ui4.cpp
