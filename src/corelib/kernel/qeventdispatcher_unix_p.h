@@ -55,38 +55,7 @@ public:
 
 };
 
-class Q_CORE_EXPORT QEventDispatcherUNIXPrivate : public QAbstractEventDispatcherPrivate
-{
-    Q_DECLARE_PUBLIC(QEventDispatcherUNIX)
-
-public:
-    QEventDispatcherUNIXPrivate();
-    ~QEventDispatcherUNIXPrivate();
-
-    int doSelect(QEventLoop::ProcessEventsFlags flags, timeval *timeout);
-
-    bool mainThread;
-    int thread_pipe[2];
-
-    // watch if time is turned back
-    timeval watchtime;
-
-    // highest fd for all socket notifiers
-    int sn_highest;
-    // 3 socket notifier types - read, write and exception
-    QSockNotType sn_vec[3];
-
-    QBitArray timerBitVec;
-    QList<QTimerInfo*> timerList;
-    bool timerWait(timeval &);
-    void timerInsert(QTimerInfo *);
-    void timerRepair(const timeval &);
-
-    // pending socket notifiers list
-    QList<QSockNot*> sn_pending_list;
-
-    bool interrupt;
-};
+class QEventDispatcherUNIXPrivate;
 
 class Q_CORE_EXPORT QEventDispatcherUNIX : public QAbstractEventDispatcher
 {
@@ -122,6 +91,39 @@ protected:
     virtual int select(int nfds,
                        fd_set *readfds, fd_set *writefds, fd_set *exceptfds,
                        timeval *timeout);
+};
+
+class Q_CORE_EXPORT QEventDispatcherUNIXPrivate : public QAbstractEventDispatcherPrivate
+{
+    Q_DECLARE_PUBLIC(QEventDispatcherUNIX)
+
+public:
+    QEventDispatcherUNIXPrivate();
+    ~QEventDispatcherUNIXPrivate();
+
+    int doSelect(QEventLoop::ProcessEventsFlags flags, timeval *timeout);
+
+    bool mainThread;
+    int thread_pipe[2];
+
+    // watch if time is turned back
+    timeval watchtime;
+
+    // highest fd for all socket notifiers
+    int sn_highest;
+    // 3 socket notifier types - read, write and exception
+    QSockNotType sn_vec[3];
+
+    QBitArray timerBitVec;
+    QList<QTimerInfo*> timerList;
+    bool timerWait(timeval &);
+    void timerInsert(QTimerInfo *);
+    void timerRepair(const timeval &);
+
+    // pending socket notifiers list
+    QList<QSockNot*> sn_pending_list;
+
+    bool interrupt;
 };
 
 #endif // QEVENTDISPATCHER_UNIX_P_H
