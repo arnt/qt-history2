@@ -158,6 +158,7 @@ struct QTablePrivate
     uint hasRowSpan : 1;
     uint hasColSpan : 1;
     QIntDict<int> hiddenRows, hiddenCols;
+    QTimer *geomTimer;
 };
 
 struct QTableHeaderPrivate
@@ -1737,6 +1738,8 @@ void QTable::init( int rows, int cols )
     setDragAutoScroll( FALSE );
 #endif
     d = new QTablePrivate;
+    d->geomTimer = new QTimer( this );
+    connect( d->geomTimer, SIGNAL( timeout() ), this, SLOT( updateGeometriesSlot() ) );
     shouldClearSelection = FALSE;
     dEnabled = FALSE;
     roRows.setAutoDelete( TRUE );
@@ -3840,7 +3843,7 @@ void QTable::columnWidthChanged( int col )
 	repaintContents( w, contentsY(),
 			 s.width() - w + 1, visibleHeight(), FALSE );
 
-    updateGeometries();
+    delayedUpdateGeometries();
 }
 
 /*! This function should be called whenever the row height of \a row
@@ -3864,7 +3867,7 @@ void QTable::rowHeightChanged( int row )
 	repaintContents( contentsX(), h,
 			 visibleWidth(), s.height() - h + 1, FALSE );
 
-    updateGeometries();
+    delayedUpdateGeometries();
 }
 
 /*! \internal */
@@ -3963,6 +3966,16 @@ bool QTable::sorting() const
 
 static bool inUpdateGeometries = FALSE;
 
+void QTable::delayedUpdateGeometries()
+{
+    d->geomTimer->start( 0, TRUE );
+}
+
+void QTable::updateGeometriesSlot()
+{
+    updateGeometries();
+}
+
 /*!
     This function updates the geometries of the left and top header.
     You would not normally need to call this function.
@@ -3990,6 +4003,7 @@ void QTable::updateGeometries()
     horizontalScrollBar()->raise();
     verticalScrollBar()->raise();
     topHeader->updateStretches();
+    leftHeader->updateStretches();
     inUpdateGeometries = FALSE;
 }
 

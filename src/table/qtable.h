@@ -434,6 +434,7 @@ signals:
 private slots:
     void doAutoScroll();
     void doValueChanged();
+    void updateGeometriesSlot();
 
 private:
     void contentsMousePressEventEx( QMouseEvent* );
@@ -461,6 +462,7 @@ private:
     bool isSelected( int row, int col, bool includeCurrent ) const;
     void setCurrentCell( int row, int col, bool updateSelections );
     void fixCell( int &row, int &col, int key );
+    void delayedUpdateGeometries();
 
 private:
     QPtrVector<QTableItem> contents;
