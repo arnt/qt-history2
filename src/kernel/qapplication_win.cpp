@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#249 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#250 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -244,6 +244,7 @@ static void outColor(const char* s, const QColor& col) {
 }
 static void qt_set_windows_resources()
 {
+    
     // windows supports special fonts for the menus
     NONCLIENTMETRICS ncm;
     ncm.cbSize = sizeof( NONCLIENTMETRICS );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#205 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#206 $
 **
 ** Implementation of QApplication class
 **
@@ -684,8 +684,9 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
 	    if ( !w->testWFlags(WType_Desktop) // (except desktop)
-		 && w->testWState(WState_PaletteFixed) ) // (and except fixed palettes)
+		 && !w->testWState(WState_PaletteFixed) ) {// (and except fixed palettes)
 		w->setPalette( *QApplication::palette( w ) );
+	    }
 	}
     }
 }
