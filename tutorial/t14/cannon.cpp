@@ -233,8 +233,8 @@ QRect CannonField::shotRect() const
     double vely      = velocity*sin( radians );
     double x0        = ( barrel_rect.right()  + 5 )*cos(radians);
     double y0        = ( barrel_rect.right()  + 5 )*sin(radians);
-    int    x         = (int) (x0 + velx*time);
-    int    y         = (int) (y0 + vely*time - gravity*time*time);
+    double x         = x0 + velx*time;
+    double y         = y0 + vely*time - gravity*time*time;
 
     QRect r = QRect( 0, 0, 6, 6 );
     r.moveCenter( QPoint( qRound(x), height() - 1 - qRound(y) ) );
