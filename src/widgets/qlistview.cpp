@@ -4483,7 +4483,7 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 		 this, SLOT(doAutoScroll()) );
 	d->scrollTimer->start( 100, FALSE );
 	// call it once manually
-	doAutoScroll();
+	doAutoScroll( vp );
     }
 
     // if we don't need to autoscroll
@@ -4496,8 +4496,8 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 	    delete d->scrollTimer;
 	    d->scrollTimer = 0;
 	}
-	// call this to select an item
-	doAutoScroll();
+	// call this to select an item ( using the pos from the event )
+	doAutoScroll( vp );
     }
 }
 
@@ -4506,10 +4506,20 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
     This slot handles auto-scrolling when the mouse button is pressed
     and the mouse is outside the widget.
 */
-
 void QListView::doAutoScroll()
 {
-    QPoint pos = viewport()->mapFromGlobal( QCursor::pos() );
+    doAutoScroll( QPoint() );
+}
+
+/*
+  Handles auto-scrolling when the mouse button is pressed
+  and the mouse is outside the widget.
+
+  If cursorPos is (0,0) (isNull == TRUE) it uses the current QCursor::pos, otherwise it uses cursorPos
+*/
+void QListView::doAutoScroll( const QPoint &cursorPos )
+{
+    QPoint pos = cursorPos.isNull() ? viewport()->mapFromGlobal( QCursor::pos() ) :  cursorPos;
     if ( !d->focusItem || ( d->pressedEmptyArea && pos.y() > contentsHeight() ) )
 	return;
 

@@ -447,8 +447,9 @@ private:
     void widthChanged(const QListViewItem*, int c);
     void handleItemChange( QListViewItem *old, bool shift, bool control );
     void selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst, bool clearSel = FALSE );
-    bool clearRange( QListViewItem *from, QListViewItem *to, bool includeFirst = TRUE );
-
+   bool clearRange( QListViewItem *from, QListViewItem *to, bool includeFirst = TRUE );
+    void doAutoScroll( const QPoint &cursorPos );
+ 
     QListViewPrivate * d;
 
 private:	// Disabled copy constructor and operator=
