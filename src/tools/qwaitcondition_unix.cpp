@@ -51,7 +51,6 @@ typedef pthread_mutex_t Q_MUTEX_T;
 
 struct QWaitConditionPrivate {
     pthread_cond_t cond;
-    QMutex mutex;
 };
 
 
@@ -183,16 +182,12 @@ QWaitCondition::~QWaitCondition()
 */
 void QWaitCondition::wakeOne()
 {
-    d->mutex.lock();
-
     int ret = pthread_cond_signal(&d->cond);
 
 #ifdef QT_CHECK_RANGE
     if (ret)
 	qWarning("Wait condition wakeOne failure: %s", strerror(ret));
 #endif
-
-    d->mutex.unlock();
 }
 
 /*!
@@ -204,16 +199,12 @@ void QWaitCondition::wakeOne()
 */
 void QWaitCondition::wakeAll()
 {
-    d->mutex.lock();
-
     int ret = pthread_cond_broadcast(&d->cond);
 
 #ifdef QT_CHECK_RANGE
     if (ret)
 	qWarning("Wait condition wakeAll failure: %s", strerror(ret));
 #endif
-
-    d->mutex.unlock();
 }
 
 /*!
@@ -232,7 +223,7 @@ void QWaitCondition::wakeAll()
 */
 bool QWaitCondition::wait(unsigned long time)
 {
-    d->mutex.lock();
+    pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
     int ret;
     if (time != ULONG_MAX) {
@@ -244,11 +235,9 @@ bool QWaitCondition::wait(unsigned long time)
 	ti.tv_sec = tv.tv_sec + (time / 1000) + ( ti.tv_nsec / 1000000000 );
 	ti.tv_nsec %= 1000000000;
 
-	ret = pthread_cond_timedwait(&d->cond, &d->mutex.d->handle, &ti);
+	ret = pthread_cond_timedwait(&d->cond, &mutex, &ti);
     } else
-	ret = pthread_cond_wait(&d->cond, &d->mutex.d->handle);
-
-    d->mutex.unlock();
+	ret = pthread_cond_wait(&d->cond, &mutex);
 
 #ifdef QT_CHECK_RANGE
     if (ret && ret != ETIMEDOUT)
