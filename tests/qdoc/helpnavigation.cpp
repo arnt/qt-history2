@@ -78,6 +78,8 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &dd )
 	     this, SLOT( showContents( QListViewItem * ) ) );
     connect( contentsView, SIGNAL( returnPressed( QListViewItem * ) ),
 	     this, SLOT( showContents( QListViewItem * ) ) );
+    connect( contentsView, SIGNAL( returnPressed( QListViewItem * ) ),
+	     this, SIGNAL( moveFocusToBrowser() ) );
 
     // ----------- index tab -----------
     indexTab = new QWidget( tabWidget );
