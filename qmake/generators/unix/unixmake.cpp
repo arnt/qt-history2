@@ -149,41 +149,57 @@ UnixMakefileGenerator::init()
         Option::obj_ext = ".lo"; //override the .o
 
     MakefileGenerator::init();
-    if(project->isActiveConfig("app_bundle")) {
-        if(!project->isEmpty("QMAKE_APP_FLAG") && !project->isEmpty("TARGET")) {
-            if(project->isEmpty("DESTDIR"))
-                project->values("DESTDIR").append("");
-            project->variables()["DESTDIR"].first() += project->first("TARGET") +
-                                                       ".app/Contents/MacOS/";
-            project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + "../PkgInfo");
+    if(project->isActiveConfig("macx") &&
+       !project->isEmpty("TARGET") && !project->isActiveConfig("compile_libtool") &&
+       ((project->first("TEMPLATE") == "app" && project->isActiveConfig("app_bundle")) ||
+        (project->first("TEMPLATE") == "lib" && project->isActiveConfig("lib_bundle") &&
+         !project->isActiveConfig("staticlib") && !project->isActiveConfig("plugin")))) {
+        if(project->first("TEMPLATE") == "app") {
+            QString bundle = project->first("TARGET");
+            if(!project->isEmpty("QMAKE_APPLICATION_BUNDLE_NAME"))
+                bundle = project->first("QMAKE_APPLICATION_BUNDLE_NAME");
+            if(!bundle.endsWith(".app"))
+                bundle += ".app";
+            project->variables()["QMAKE_BUNDLE_NAME"] = QStringList(bundle);
+            project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + bundle + "/PkgInfo");
             project->variables()["ALL_DEPS"] += project->first("QMAKE_PKGINFO");
+        } else if(project->first("TEMPLATE") == "lib") {
+            QString bundle = project->first("TARGET");
+            if(!project->isEmpty("QMAKE_FRAMEWORK_BUNDLE_NAME"))
+                bundle = project->first("QMAKE_FRAMEWORK_BUNDLE_NAME");
+            if(!bundle.endsWith(".framework"))
+                bundle += ".framework";
+            project->variables()["QMAKE_BUNDLE_NAME"] = QStringList(bundle);
+        }
 
-            QString plist = fileFixify(project->first("QMAKE_INFO_PLIST"));
-            if(plist.isEmpty())
-                plist = specdir() + QDir::separator() + "Info.plist." + project->first("TEMPLATE");
-            if(exists(Option::fixPathToLocalOS(plist))) {
-                if(project->isEmpty("QMAKE_INFO_PLIST"))
-                    project->variables()["QMAKE_INFO_PLIST"].append(plist);
-                project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") +
-                                                                    "../Info.plist");
-                project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");
-                if(!project->isEmpty("ICON"))
-                    project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
-                                                        "../Resources/" +
-                                                        project->first("ICON").section('/', -1);
-                if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
-                    const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
-                    for(int i = 0; i < bundle_data.count(); i++) {
-                        const QStringList &files = project->variables()[bundle_data[i] + ".files"];
-                        QString path = Option::fixPathToTargetOS(project->first("DESTDIR") +
-                                                                 "../" + project->first(bundle_data[i] + ".path"));
-                        for(int file = 0; file < files.count(); file++)
-                            project->variables()["ALL_DEPS"] += path + Option::dir_sep +
-                                                                fileInfo(files[file]).fileName();
-                    }
+        QString plist = fileFixify(project->first("QMAKE_INFO_PLIST"));
+        if(plist.isEmpty())
+            plist = specdir() + QDir::separator() + "Info.plist." + project->first("TEMPLATE");
+        if(exists(Option::fixPathToLocalOS(plist))) {
+            if(project->isEmpty("QMAKE_INFO_PLIST"))
+                project->variables()["QMAKE_INFO_PLIST"].append(plist);
+            project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") +
+                                                                project->first("QMAKE_BUNDLE_NAME") +
+                                                                "/Contents/Info.plist");
+            project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");
+            if(!project->isEmpty("ICON") && project->first("TEMPLATE") == "app")
+               project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
+                                                   project->first("QMAKE_BUNDLE_NAME") +
+                                                   "/Contents/Resources/" + project->first("ICON").section('/', -1);
+            if(!project->isEmpty("QMAKE_BUNDLE_DATA")) {
+                const QStringList &bundle_data = project->variables()["QMAKE_BUNDLE_DATA"];
+                for(int i = 0; i < bundle_data.count(); i++) {
+                    const QStringList &files = project->variables()[bundle_data[i] + ".files"];
+                    QString path = Option::fixPathToTargetOS(project->first("DESTDIR") +
+                                                             project->first("QMAKE_BUNDLE_NAME") + "/" +
+                                                             project->first(bundle_data[i] + ".path"));
+                    for(int file = 0; file < files.count(); file++)
+                        project->variables()["ALL_DEPS"] += path + Option::dir_sep + fileInfo(files[file]).fileName();
                 }
             }
         }
+    } else { //no bundling here
+        project->variables()["QMAKE_BUNDLE_NAME"].clear();
     }
 
     if(!project->isEmpty("QMAKE_INTERNAL_INCLUDED_FILES"))
@@ -545,7 +561,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     if(t != "target" || project->first("TEMPLATE") == "subdirs")
         return QString();
 
-    bool resource = false;
+    bool bundle = false;
     const QString root = "$(INSTALL_ROOT)";
     QStringList &uninst = project->variables()[t + ".uninstall"];
     QString ret, destdir=project->first("DESTDIR");
@@ -559,13 +575,17 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QStringList links;
     QString target="$(TARGET)";
     if(project->first("TEMPLATE") == "app") {
-        target = "$(QMAKE_TARGET)";
-        if(project->isActiveConfig("app_bundle")) {
-            destdir += "../../../";
-            target += ".app";
-            resource = true;
+        if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
+            target = project->first("QMAKE_BUNDLE_NAME");
+            bundle = true;
+        } else {
+            target = "$(QMAKE_TARGET)";
         }
     } else if(project->first("TEMPLATE") == "lib") {
+        if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
+            target = project->first("QMAKE_BUNDLE_NAME");
+            bundle = true;
+        }
         if(project->isActiveConfig("create_prl") && !project->isActiveConfig("no_install_prl") &&
            !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
             QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");
@@ -636,7 +656,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
         }
     }
 
-    if(!resource && project->isActiveConfig("compile_libtool")) {
+    if(!bundle && project->isActiveConfig("compile_libtool")) {
         QString src_targ = target;
         if(src_targ == "$(TARGET)")
             src_targ = "$(TARGETL)";
@@ -652,11 +672,11 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
         QString dst_targ = filePrefixRoot(root, fileFixify(targetdir + target, FileFixifyAbsolute));
         if(!ret.isEmpty())
             ret += "\n\t";
-        if(resource)
+        if(bundle)
             ret += "$(DEL_FILE) -r \"" + dst_targ + "\"\n\t";
         if(!ret.isEmpty())
             ret += "\n\t";
-        ret += QString(resource ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
+        ret += QString(bundle ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
                src_targ + "\" \"" + dst_targ + "\"";
         if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP") &&
            (project->first("TEMPLATE") != "lib" || !project->isActiveConfig("staticlib"))) {
@@ -665,14 +685,14 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
                 ret += " " + var("QMAKE_STRIPFLAGS_LIB");
             else if(project->first("TEMPLATE") == "app" && !project->isEmpty("QMAKE_STRIPFLAGS_APP"))
                 ret += " " + var("QMAKE_STRIPFLAGS_APP");
-            if(resource)
+            if(bundle)
                 ret = " \"" + dst_targ + "/Contents/MacOS/$(QMAKE_TARGET)\"";
             else
                 ret += " \"" + dst_targ + "\"";
         }
         if(!uninst.isEmpty())
             uninst.append("\n\t");
-        if(resource)
+        if(bundle)
             uninst.append("-$(DEL_FILE) -r \"" + dst_targ + "\"");
         else
             uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
