@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#56 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#55 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#56 $";
 #endif
 
 /*!
@@ -514,10 +514,9 @@ Sets the font for the widget.
 The fontInfo() function reports the actual font that is being used by the
 widget.
 
-This code fragment switches to a bold version of whatever font is being used:
+This code fragment sets a 12 point helvetica bold font:
 \code
-  QFont f = font();
-  f.setWeight( QFont::Bold );
+  QFont f("Helvetica", 12, QFont::Bold);
   setFont( f );
 \endcode
 
