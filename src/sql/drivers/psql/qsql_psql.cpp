@@ -925,7 +925,7 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
     return r;
 }
 
-QString QSqlDriver::escapeIdentifier(const QString &identifier) const
+QString QPSQLDriver::escapeIdentifier(const QString &identifier) const
 {
     QString res = identifier;
     res.replace(QLatin1Char('"'), QLatin1String("\"\""));
