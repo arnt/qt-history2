@@ -40,6 +40,7 @@
 #include <limits.h>
 #include "qt_windows.h"
 #include "qapplication_p.h"
+#include "qcleanuphandler.h"
 
 
 static HDC   shared_dc	    = 0;		// common dc for all fonts
@@ -151,20 +152,22 @@ void QFontStruct::reset()
   QFont member functions
  *****************************************************************************/
 
+QCleanupHandler<QFontCache> cleanup_fontcache;
+
 void QFont::initialize()
 {
     if ( QFontPrivate::fontCache )
 	return;
     shared_dc = CreateCompatibleDC( qt_display_dc() );
     shared_dc_font = 0;
-	QFontPrivate::fontCache = new QFontCache();
+    QFontPrivate::fontCache = new QFontCache();
     Q_CHECK_PTR( QFontPrivate::fontCache );
+    cleanup_fontcache.add( QFontPrivate::fontCache );
 }
 
 void QFont::cleanup()
 {
-    delete QFontPrivate::fontCache;
-	QFontPrivate::fontCache = 0;
+    QFontPrivate::fontCache = 0;
     Q_ASSERT( shared_dc_font == 0 );
     DeleteDC( shared_dc );
     shared_dc = 0;
@@ -794,7 +797,7 @@ int QFontMetrics::minRightBearing() const
 	int ml = 0;
 	int mr = 0;
 	if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
-	    ABC *abc;
+	    ABC *abc = 0;
 	    int n;
 	    if ( qt_winver & Qt::WV_NT_based ) {
 		TEXTMETRIC *tm = TMW;
