@@ -49,7 +49,7 @@ public:
     QString(const QString &);
     ~QString();
     QString &operator=(QChar c);
-    QString &operator=(const QString  &);
+    inline QString &operator=(const QString  &);
 
     int size() const;
     int length() const;
@@ -71,11 +71,11 @@ public:
     const QChar *data() const;
     const QChar *constData() const;
 
-    void detach();
+    inline void detach();
     bool isDetached() const;
     void clear();
 
-    const QChar at(int i) const;
+    inline const QChar at(int i) const;
     const QChar operator[](int i) const;
     QCharRef operator[](int i);
     const QChar operator[](uint i) const;
@@ -118,8 +118,8 @@ public:
     int lastIndexOf(QChar c, int from = -1, CaseSensitivity cs = CaseSensitive) const;
     int lastIndexOf(const QString &s, int from = -1, CaseSensitivity cs = CaseSensitive) const;
 
-    QBool contains(QChar c, CaseSensitivity cs = CaseSensitive) const;
-    QBool contains(const QString &s, CaseSensitivity cs = CaseSensitive) const;
+    inline QBool contains(QChar c, CaseSensitivity cs = CaseSensitive) const;
+    inline QBool contains(const QString &s, CaseSensitivity cs = CaseSensitive) const;
     int count(QChar c, CaseSensitivity cs = CaseSensitive) const;
     int count(const QString &s, CaseSensitivity cs = CaseSensitive) const;
 
@@ -463,7 +463,7 @@ inline QString &QString::setNum(ushort n, int base)
 inline QString &QString::setNum(int n, int base)
 { return setNum((Q_LLONG)n, base); }
 inline QString &QString::setNum(uint n, int base)
-{ return setNum((ulong)n, base); }
+{ return setNum((Q_ULLONG)n, base); }
 inline QString &QString::setNum(long n, int base)
 { return setNum((Q_LLONG)n, base); }
 inline QString &QString::setNum(ulong n, int base)

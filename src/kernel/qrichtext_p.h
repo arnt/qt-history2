@@ -162,15 +162,8 @@ public:
     static QString toString( const QMemArray<QTextStringChar> &data );
     QString toString() const;
 
-#if defined(Q_STRICT_INLINING_RULES)
-    // This is for the IRIX MIPSpro o32 ABI - it fails, claiming the
-    // implementation to be a redefinition.
     inline QTextStringChar &at( int i ) const;
     inline int length() const;
-#else
-    QTextStringChar &at( int i ) const;
-    int length() const;
-#endif
 
     int width( int idx ) const;
 
@@ -293,13 +286,7 @@ public:
     bool operator==( const QTextCursor &c ) const;
     bool operator!=( const QTextCursor &c ) const { return !(*this == c); }
 
-#if defined(Q_STRICT_INLINING_RULES)
-    // This is for the IRIX MIPSpro o32 ABI - it fails, claiming the
-    // implementation to be a redefinition.
     inline QTextParagraph *paragraph() const;
-#else
-    QTextParagraph *paragraph() const;
-#endif
 
     QTextDocument *document() const;
     int index() const;
@@ -1172,13 +1159,7 @@ public:
 //     void setFormat( QTextFormat *fm );
 //     QTextFormat *paragFormat() const;
 
-#if defined(Q_STRICT_INLINING_RULES)
-    // This is for the IRIX MIPSpro o32 ABI - it fails, claiming the
-    // implementation to be a redefinition.
     inline QTextDocument *document() const;
-#else
-    QTextDocument *document() const;
-#endif
     QTextParagraphPseudoDocument *pseudoDocument() const;
 
     QRect rect() const;

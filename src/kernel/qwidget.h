@@ -346,7 +346,7 @@ public slots:
 public:
     void stackUnder( QWidget* );
     void move( int x, int y );
-    void move( const QPoint & );
+    inline void move( const QPoint & );
     void resize( int w, int h );
     void resize( const QSize & );
     void setGeometry( int x, int y, int w, int h );
@@ -376,7 +376,7 @@ public:
 #endif
     void		updateGeometry();
 
-    void setParent(QWidget *parent) { setParent_helper(parent); }
+    inline void setParent(QWidget *parent) { setParent_helper(parent); }
     void setParent(QWidget *parent, WFlags f);
 
     void		scroll( int dx, int dy );
@@ -450,7 +450,7 @@ public:
 	WA_NoSystemBackground
     };
     void setAttribute(WidgetAttribute, bool = true);
-    bool testAttribute(WidgetAttribute) const;
+    inline bool testAttribute(WidgetAttribute) const;
 
 protected:
     // Event handlers
@@ -533,7 +533,7 @@ protected:
     void setWState(WState f);
     void clearWState(WState f);
 
-    WFlags getWFlags() const;
+    inline WFlags getWFlags() const;
     void setWFlags(WFlags f);
     void clearWFlags(WFlags f);
 
@@ -662,20 +662,20 @@ private:	// Disabled copy constructor and operator=
 public:
     bool isVisibleToTLW() const;
     QRect visibleRect() const;
-    void iconify() { showMinimized(); }
-    void constPolish() const { ensurePolished(); }
-    void reparent( QWidget *parent, WFlags f, const QPoint &p, bool showIt=false )
+    inline void iconify() { showMinimized(); }
+    inline void constPolish() const { ensurePolished(); }
+    inline void reparent( QWidget *parent, WFlags f, const QPoint &p, bool showIt=false )
     { setParent(parent, f); move(p); if (showIt) show(); }
-    void reparent( QWidget *parent, const QPoint &p, bool showIt=false )
+    inline void reparent( QWidget *parent, const QPoint &p, bool showIt=false )
     { setParent(parent, getWFlags() & ~WType_Mask); move(p); if (showIt) show(); }
-    void recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt=false )
+    inline void recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt=false )
     { reparent(parent, f, p, showIt); }
-    bool hasMouse() const { return underMouse(); }
+    inline bool hasMouse() const { return testAttribute(WA_UnderMouse); }
 #ifndef QT_NO_CURSOR
-    bool ownCursor() const { return testAttribute(WA_SetCursor); }
+    inline bool ownCursor() const { return testAttribute(WA_SetCursor); }
 #endif
-    bool ownFont() const  { return testAttribute(WA_SetFont); }
-    bool ownPalette() const  { return testAttribute(WA_SetPalette); }
+    inline bool ownFont() const  { return testAttribute(WA_SetFont); }
+    inline bool ownPalette() const  { return testAttribute(WA_SetPalette); }
     BackgroundMode backgroundMode() const;
     void setBackgroundMode( BackgroundMode );
     void setBackgroundMode( BackgroundMode, BackgroundMode );
@@ -704,17 +704,17 @@ public:
     inline void setBackgroundOrigin( BackgroundOrigin ){};
     inline BackgroundOrigin backgroundOrigin() const { return WindowOrigin; }
     inline QPoint backgroundOffset() const { return QPoint(); }
-    void repaint(bool) { repaint(); }
-    void repaint(int x, int y, int w, int h, bool) { repaint(x,y,w,h); }
-    void repaint(const QRect &r, bool) { repaint(r); }
-    void repaint(const QRegion &rgn, bool) { repaint(rgn); }
+    inline void repaint(bool) { repaint(); }
+    inline void repaint(int x, int y, int w, int h, bool) { repaint(x,y,w,h); }
+    inline void repaint(const QRect &r, bool) { repaint(r); }
+    inline void repaint(const QRegion &rgn, bool) { repaint(rgn); }
     void erase();
     void erase(int x, int y, int w, int h);
     void erase(const QRect &);
     void erase(const QRegion &);
     void drawText( const QPoint &, const QString &);
     inline void drawText(int x, int y, const QString &s)
-	{ drawText(QPoint(x, y), s); }
+    { drawText(QPoint(x, y), s); }
 #endif
 };
 

@@ -55,7 +55,7 @@ public:
     QPixmap    &operator=( const QPixmap & );
     QPixmap    &operator=( const QImage	 & );
 
-    bool	isNull()	const;
+    inline bool isNull() const;
 
     int		width()		const { return data->w; }
     int		height()	const { return data->h; }

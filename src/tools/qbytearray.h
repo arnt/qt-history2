@@ -80,10 +80,10 @@ public:
     QByteArray(const QByteArray &);
     ~QByteArray();
 
-    QByteArray &operator=(const QByteArray &);
+    inline QByteArray &operator=(const QByteArray &);
     QByteArray &operator=(const char  *);
 
-    int size() const;
+    inline int size() const;
     bool isEmpty() const;
     void resize(int size);
 
@@ -100,7 +100,7 @@ public:
     char *data();
     const char *data() const;
     const char *constData() const;
-    void detach();
+    inline void detach();
     bool isDetached() const;
     void clear();
 
@@ -111,10 +111,10 @@ public:
     QByteRef operator[](uint i);
 
     int indexOf(char c, int from = 0) const;
-    int indexOf(const char *c, int from = 0) const;
+    inline int indexOf(const char *c, int from = 0) const;
     int indexOf(const QByteArray &a, int from = 0) const;
     int lastIndexOf(char c, int from = -1) const;
-    int lastIndexOf(const char *c, int from = -1) const;
+    inline int lastIndexOf(const char *c, int from = -1) const;
     int lastIndexOf(const QByteArray &a, int from = -1) const;
 
     QBool contains(char c) const;

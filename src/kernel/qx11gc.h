@@ -50,14 +50,14 @@ public:
 
     virtual Qt::HANDLE handle() const;
 
-    Display *x11Display() const;
-    int x11Screen() const;
-    int x11Depth() const;
-    int x11Cells() const;
-    Qt::HANDLE x11Colormap() const;
-    bool x11DefaultColormap() const;
-    void *x11Visual() const;
-    bool x11DefaultVisual() const;
+    inline Display *x11Display() const;
+    inline int x11Screen() const;
+    inline int x11Depth() const;
+    inline int x11Cells() const;
+    inline Qt::HANDLE x11Colormap() const;
+    inline bool x11DefaultColormap() const;
+    inline void *x11Visual() const;
+    inline bool x11DefaultVisual() const;
 
     static void initialize();
     static void cleanup();
@@ -82,7 +82,7 @@ protected:
     void cloneX11Data(const QX11GC *);
     virtual void setX11Data(const QX11GCData *);
     QX11GCData* getX11Data(bool def = FALSE) const;
-    
+
     friend void qt_init( QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE );
     friend void qt_cleanup();
     friend class QWidget;
@@ -90,7 +90,7 @@ protected:
     friend class QFontEngineBox;
     friend class QFontEngineXft;
     friend class QFontEngineXLFD;
-    
+
 private:
     static Display *x_appdisplay;
     static int x_appscreen;

@@ -56,7 +56,7 @@ class QApplicationPrivate;
 
 class Q_EXPORT QVariant
 {
-public:
+ public:
     enum Type {
 	Invalid = 0,
 	Map = 1,
@@ -99,72 +99,79 @@ public:
 	ULongLong = 34
     };
 
-    QVariant();
-    ~QVariant();
-    QVariant(Type type, void *v = 0);
-    QVariant(const QVariant &other);
+    inline QVariant();
+    inline ~QVariant();
+    inline QVariant(Type type, void *v = 0);
+    inline QVariant(const QVariant &other);
 
 #ifndef QT_NO_DATASTREAM
     QVariant(QDataStream &s);
 #endif
 
-    QVariant(int i);
-    QVariant(uint ui);
-    QVariant(Q_LLONG ll);
-    QVariant(Q_ULLONG ull);
-    QVariant(bool b);
-    QVariant(double d);
-    QVariant(const char *str);
-    QVariant(const QByteArray &bytearray);
-    QVariant(const QBitArray &bitarray);
-    QVariant(const QString &string);
+    inline QVariant(int i);
+    inline QVariant(uint ui);
+    inline QVariant(Q_LLONG ll);
+    inline QVariant(Q_ULLONG ull);
+    inline QVariant(bool b);
+    inline QVariant(double d);
+
+    inline QVariant(const char *str);
+    inline QVariant(const QByteArray &bytearray);
+    inline QVariant(const QBitArray &bitarray);
+    inline QVariant(const QString &string);
 #ifndef QT_NO_STRINGLIST
-    QVariant(const QStringList &stringlist);
+    inline QVariant(const QStringList &stringlist);
 #endif
-    QVariant(const QDate &date);
-    QVariant(const QTime &time);
-    QVariant(const QDateTime &datetime);
+
+    inline QVariant(const QDate &date);
+    inline QVariant(const QTime &time);
+    inline QVariant(const QDateTime &datetime);
 #ifndef QT_NO_TEMPLATE_VARIANT
-    QVariant(const QList<QVariant> &list);
-    QVariant(const QMap<QString,QVariant> &map);
+    inline QVariant(const QList<QVariant> &list);
+    inline QVariant(const QMap<QString,QVariant> &map);
 #endif
 
 #ifndef QT_KERNEL_APP
+    inline QVariant(const QFont &font);
+    inline QVariant(const QPixmap &pixmap);
+    inline QVariant(const QImage &image);
+    inline QVariant(const QBrush &brush);
+    inline QVariant(const QPoint &pt);
+    inline QVariant(const QRect &rect);
+    inline QVariant(const QSize &size);
+    inline QVariant(const QColor &color);
+#ifndef QT_NO_PALETTE
+    inline QVariant(const QPalette &palette);
 #ifndef QT_NO_COMPAT
-    QVariant(const QColorGroup &cg);
+    inline QVariant(const QColorGroup &cg);
 #endif
-    QVariant(const QFont &font);
-    QVariant(const QPixmap &pixmap);
-    QVariant(const QImage &image);
-    QVariant(const QBrush &brush);
-    QVariant(const QPoint &pt);
-    QVariant(const QRect &rect);
-    QVariant(const QSize &size);
-    QVariant(const QColor &color);
-    QVariant(const QPalette &palette);
-    QVariant(const QIconSet &iconset);
-    QVariant(const QPointArray &pointarray);
-    QVariant(const QRegion &region);
-    QVariant(const QBitmap &bitmap);
-    QVariant(const QCursor &cursor);
+#endif
+#ifndef QT_NO_ICONSET
+    inline QVariant(const QIconSet &iconset);
+#endif
+    inline QVariant(const QPointArray &pointarray);
+    inline QVariant(const QRegion &region);
+    inline QVariant(const QBitmap &bitmap);
+    inline QVariant(const QCursor &cursor);
 #ifndef QT_NO_ACCEL
-    QVariant(const QKeySequence &keysequence);
+    inline QVariant(const QKeySequence &keysequence);
 #endif
-    QVariant(const QPen &pen);
-    QVariant(const QSizePolicy &sp);
+    inline QVariant(const QPen &pen);
+    inline QVariant(const QSizePolicy &sp);
 #endif // QT_KERNEL_APP
 
     QVariant& operator=(const QVariant &other);
     bool operator==(const QVariant &other) const;
-    inline bool operator!=(const QVariant &other) const { return !(other == *this); }
+    inline bool operator!=(const QVariant &other) const
+    { return !(other == *this); }
 
-    Type type() const;
+    inline Type type() const;
     const char *typeName() const;
 
     bool canCast(Type t) const;
     bool cast(Type t);
 
-    bool isValid() const;
+    inline bool isValid() const;
     bool isNull() const;
 
     void clear();
@@ -214,49 +221,51 @@ public:
     QSizePolicy toSizePolicy() const;
 #endif // QT_KERNEL_APP
 
-    int &asInt();
-    uint &asUInt();
-    Q_LLONG &asLongLong();
-    Q_ULLONG &asULongLong();
-    bool &asBool();
-    double &asDouble();
-    QByteArray &asByteArray();
-    QBitArray &asBitArray();
-    QString &asString();
+    inline int &asInt();
+    inline uint &asUInt();
+    inline Q_LLONG &asLongLong();
+    inline Q_ULLONG &asULongLong();
+    inline bool &asBool();
+    inline double &asDouble();
+    inline QByteArray &asByteArray();
+    inline QBitArray &asBitArray();
+    inline QString &asString();
 #ifndef QT_NO_STRINGLIST
-    QStringList &asStringList();
+    inline QStringList &asStringList();
 #endif
-    QDate &asDate();
-    QTime &asTime();
-    QDateTime &asDateTime();
+    inline QDate &asDate();
+    inline QTime &asTime();
+    inline QDateTime &asDateTime();
 #ifndef QT_NO_TEMPLATE_VARIANT
-    QList<QVariant> &asList();
-    QMap<QString,QVariant> &asMap();
+    inline QList<QVariant> &asList();
+    inline QMap<QString,QVariant> &asMap();
 #endif
 
 #ifndef QT_KERNEL_APP
-    QFont &asFont();
-    QPixmap &asPixmap();
-    QImage &asImage();
-    QBrush &asBrush();
-    QPoint &asPoint();
-    QRect &asRect();
-    QSize &asSize();
-    QColor &asColor();
-    QPalette &asPalette();
+    inline QFont &asFont();
+    inline QPixmap &asPixmap();
+    inline QImage &asImage();
+    inline QBrush &asBrush();
+    inline QPoint &asPoint();
+    inline QRect &asRect();
+    inline QSize &asSize();
+    inline QColor &asColor();
+#ifndef QT_NO_PALETTE
+    inline QPalette &asPalette();
 #ifndef QT_NO_COMPAT
-    QColorGroup &asColorGroup();
+    inline QColorGroup &asColorGroup();
 #endif
-    QIconSet &asIconSet();
-    QPointArray &asPointArray();
-    QBitmap &asBitmap();
-    QRegion &asRegion();
-    QCursor &asCursor();
+#endif
+    inline QIconSet &asIconSet();
+    inline QPointArray &asPointArray();
+    inline QBitmap &asBitmap();
+    inline QRegion &asRegion();
+    inline QCursor &asCursor();
 #ifndef QT_NO_ACCEL
-    QKeySequence &asKeySequence();
+    inline QKeySequence &asKeySequence();
 #endif
-    QPen &asPen();
-    QSizePolicy &asSizePolicy();
+    inline QPen &asPen();
+    inline QSizePolicy &asSizePolicy();
 #endif //QT_KERNEL_APP
 
 #ifndef QT_NO_DATASTREAM
@@ -274,11 +283,11 @@ public:
 
     void *rawAccess(void *ptr = 0, Type typ = Invalid, bool deepCopy = FALSE);
     void *data();
-private:
-    void detach() { if (d->ref != 1) detach_helper(); }
+ private:
+    inline void detach() { if (d->ref != 1) detach_helper(); }
     void detach_helper();
 
-public:
+ public:
     struct Private
     {
 	QAtomic ref;
@@ -295,7 +304,7 @@ public:
 	    void *ptr;
 	} value;
     };
-public:
+ public:
     typedef void (*f_construct)(Private *, const void *);
     typedef void (*f_clear)(Private *);
     typedef bool (*f_null)(const Private *);
@@ -315,7 +324,7 @@ public:
 	f_canCast canCast;
     };
 
-private:
+ private:
     Private *d;
     static Private shared_invalid;
 
@@ -323,45 +332,21 @@ private:
     friend class QApplicationPrivate;
 
     Private *create(Type t, const void *v);
-    inline void cleanUp(Private *p) { handler->clear(p); delete p; }
+    inline void cleanUp(Private *p)
+    { handler->clear(p); delete p; }
     void *castOrDetach(Type t);
 };
 
 
 inline QVariant::QVariant() :d(&shared_invalid)
 { ++d->ref; }
-inline QVariant::QVariant(const QVariant &p) : d(p.d)
-{ ++d->ref; }
-inline QVariant::QVariant(Type type, void *v)
-{ d = create(type, v); }
 inline QVariant::~QVariant()
 { if (!--d->ref) cleanUp(d); }
+inline QVariant::QVariant(Type type, void *v)
+{ d = create(type, v); }
+inline QVariant::QVariant(const QVariant &p) : d(p.d)
+{ ++d->ref; }
 
-inline QVariant::QVariant(const QString &val)
-{ d = create(String, &val); }
-inline QVariant::QVariant(const char *val)
-{ QByteArray ba(val); d = create(ByteArray, &ba); }
-
-#ifndef QT_NO_STRINGLIST
-inline QVariant::QVariant(const QStringList &val)
-{ d = create(StringList, &val); }
-#endif
-#ifndef QT_NO_TEMPLATE_VARIANT
-inline QVariant::QVariant(const QMap<QString,QVariant> &val)
-{ d = create(Map, &val); }
-inline QVariant::QVariant(const QList<QVariant> &val)
-{ d = create(List, &val); }
-#endif
-inline QVariant::QVariant(const QDate &val)
-{ d = create(Date, &val); }
-inline QVariant::QVariant(const QTime &val)
-{ d = create(Time, &val); }
-inline QVariant::QVariant(const QDateTime &val)
-{ d = create(DateTime, &val); }
-inline QVariant::QVariant(const QByteArray &val)
-{ d = create(ByteArray, &val); }
-inline QVariant::QVariant(const QBitArray &val)
-{ d = create(BitArray, &val); }
 inline QVariant::QVariant(int val)
 { d = create(Int, &val); }
 inline QVariant::QVariant(uint val)
@@ -375,6 +360,36 @@ inline QVariant::QVariant(bool val)
 inline QVariant::QVariant(double val)
 { d = create(Double, &val); }
 
+inline QVariant::QVariant(const char *val)
+{ QByteArray ba(val); d = create(ByteArray, &ba); }
+inline QVariant::QVariant(const QByteArray &val)
+{ d = create(ByteArray, &val); }
+inline QVariant::QVariant(const QBitArray &val)
+{ d = create(BitArray, &val); }
+inline QVariant::QVariant(const QString &val)
+{ d = create(String, &val); }
+#ifndef QT_NO_STRINGLIST
+inline QVariant::QVariant(const QStringList &val)
+{ d = create(StringList, &val); }
+#endif
+
+inline QVariant::QVariant(const QDate &val)
+{ d = create(Date, &val); }
+inline QVariant::QVariant(const QTime &val)
+{ d = create(Time, &val); }
+inline QVariant::QVariant(const QDateTime &val)
+{ d = create(DateTime, &val); }
+#ifndef QT_NO_TEMPLATE_VARIANT
+inline QVariant::QVariant(const QList<QVariant> &val)
+{ d = create(List, &val); }
+inline QVariant::QVariant(const QMap<QString,QVariant> &val)
+{ d = create(Map, &val); }
+#endif
+
+inline QVariant::Type QVariant::type() const
+{ return d->type; }
+inline bool QVariant::isValid() const
+{ return d->type != Invalid; }
 
 inline int &QVariant::asInt()
 { return *static_cast<int *>(castOrDetach(Int)); }
@@ -388,6 +403,10 @@ inline bool &QVariant::asBool()
 { return *static_cast<bool *>(castOrDetach(Bool)); }
 inline double &QVariant::asDouble()
 { return *static_cast<double *>(castOrDetach(Double)); }
+inline QByteArray& QVariant::asByteArray()
+{ return *static_cast<QByteArray *>(castOrDetach(ByteArray)); }
+inline QBitArray& QVariant::asBitArray()
+{ return *static_cast<QBitArray *>(castOrDetach(BitArray)); }
 inline QString& QVariant::asString()
 { return *static_cast<QString *>(castOrDetach(String)); }
 #ifndef QT_NO_STRINGLIST
@@ -400,21 +419,12 @@ inline QTime& QVariant::asTime()
 { return *static_cast<QTime *>(castOrDetach(Time)); }
 inline QDateTime& QVariant::asDateTime()
 { return *static_cast<QDateTime *>(castOrDetach(DateTime)); }
-inline QByteArray& QVariant::asByteArray()
-{ return *static_cast<QByteArray *>(castOrDetach(ByteArray)); }
-inline QBitArray& QVariant::asBitArray()
-{ return *static_cast<QBitArray *>(castOrDetach(BitArray)); }
 #ifndef QT_NO_TEMPLATE_VARIANT
 inline QList<QVariant>& QVariant::asList()
 { return *static_cast<QList<QVariant> *>(castOrDetach(List)); }
 inline QMap<QString, QVariant>& QVariant::asMap()
 { return *static_cast<QMap<QString, QVariant> *>(castOrDetach(Map)); }
 #endif
-
-inline QVariant::Type QVariant::type() const
-{ return d->type; }
-inline bool QVariant::isValid() const
-{ return d->type != Invalid; }
 
 
 #ifndef QT_KERNEL_APP
@@ -447,14 +457,14 @@ inline QVariant::QVariant(const QColorGroup &val)
 inline QVariant::QVariant(const QIconSet &val)
 { d = create(IconSet, &val); }
 #endif //QT_NO_ICONSET
+inline QVariant::QVariant(const QPointArray &val)
+{ d = create(PointArray, &val); }
 inline QVariant::QVariant(const QRegion &val)
 { d = create(Region, &val); }
 inline QVariant::QVariant(const QBitmap& val)
 { d = create(Bitmap, &val); }
 inline QVariant::QVariant(const QCursor &val)
 { d = create(Cursor, &val); }
-inline QVariant::QVariant(const QPointArray &val)
-{ d = create(PointArray, &val); }
 #ifndef QT_NO_ACCEL
 inline QVariant::QVariant(const QKeySequence &val)
 { d = create(KeySequence, &val); }
@@ -463,7 +473,6 @@ inline QVariant::QVariant(const QPen &val)
 { d = create(Pen, &val); }
 inline QVariant::QVariant(const QSizePolicy &val)
 { d = create(SizePolicy, &val); }
-
 
 inline QFont& QVariant::asFont()
 { return *static_cast<QFont *>(castOrDetach(Font)); }
@@ -501,17 +510,16 @@ inline QRegion& QVariant::asRegion()
 { return *static_cast<QRegion *>(castOrDetach(Region)); }
 inline QCursor& QVariant::asCursor()
 { return *static_cast<QCursor *>(castOrDetach(Cursor)); }
-inline QSizePolicy& QVariant::asSizePolicy()
-{ return *static_cast<QSizePolicy *>(castOrDetach(SizePolicy)); }
 #ifndef QT_NO_ACCEL
 inline QKeySequence& QVariant::asKeySequence()
 { return *static_cast<QKeySequence *>(castOrDetach(KeySequence)); }
 #endif
 inline QPen& QVariant::asPen()
 { return *static_cast<QPen *>(castOrDetach(Pen)); }
+inline QSizePolicy& QVariant::asSizePolicy()
+{ return *static_cast<QSizePolicy *>(castOrDetach(SizePolicy)); }
 
 #endif // QT_KERNEL_APP
-
 
 
 #ifndef QT_NO_DATASTREAM
