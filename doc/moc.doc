@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: moc.doc,v 2.5 1997/09/15 13:52:19 warwick Exp $
+** $Id: moc.doc,v 2.6 1997/11/20 14:25:13 eiriken Exp $
 **
 ** Moc usage, expanded from the manual page
 **
@@ -32,7 +32,8 @@ option is only useful if you have header files that do not follow the
 standard naming conventions.
 <dt> -i <dd> Do not generate an #include statement in the output.
 This may be used to run the moc on on a C++ file containing one or
-more class declarations and #include the meta object code in the .cpp
+more class declarations. You should then #include the meta object
+code in the .cpp
 file.  If both -i and -f are present, the last one wins.
 <dt> -nw <dd> Do not generate any warnings.  Discouraged.
 <dt> -ldbg <dd> Write a flood of lex debug information on stdout.
@@ -41,7 +42,8 @@ debugging purposes.  This is not useful for programming Qt clients.
 <dt> -p <var>path</var> <dd> Makes the moc prepend <var>path</var>/ to
 the file name in the generated #include statement (if one is
 generated).
-
+<dt> -q <var>path</var> <dd> Makes the moc prepend <var>path</var>/ to
+the file name of qt #include files in the generated code.
 </dl>
 
 <h2>Usage</h2>
@@ -55,9 +57,9 @@ like this skeleton:
     class YourClass : public QObject {
         Q_OBJECT
     public:
-        YourClass::YourClass( QObject * parent=0,
+        YourClass( QObject * parent=0,
                               const char * name=0 );
-        YourClass::~YourClass();
+        ~YourClass();
 
     signals:
 
@@ -135,9 +137,13 @@ The moc will warn you about a number of dangerous or illegal constructs.
 
 <h2>Bugs</h2>
 
-moc does not handle all of C++.  The main problem is that class
-templates cannot have signals or slots.  This is an important bug.
-Here is an example:
+The moc does not expand #include or #define, it simply skips any
+preprocessor directives it encounters. This is regrettable, but is
+normally not a problem in practice.
+
+The moc does not handle all of C++.  The main problem is that class
+templates cannot have signals or slots.  This is an important bug.  Here
+is an example:
 
 \code
     class SomeTemplate<int> : public QFrame {
@@ -148,10 +154,25 @@ Here is an example:
     };
 \endcode
 
-Less importantly, the following five constructs are illegal.  All five
-have workarounds which we think are better alternatives, so fixing
-these bugs is not a high priority for us.
+Less importantly, the following constructs are illegal.  All of them have
+workarounds which we think are better alternatives, so fixing these bugs
+is not a high priority for us.
 
+<h3>Multiple inheritance requires QObject to be first</h3>
+
+If you are using multiple inheritance, moc assumes that the \e first
+inherited class is a subclass of QObject.  Also, be sure that \e only
+the first inherited class is a QObject.
+
+\code
+    class SomeClass : public QObject, public OtherClass {
+    [...]
+    };
+\endcode
+
+This bug is almost impossible to fix; since the moc does not expand
+#include or #define, it cannot find out which one of the base classes is a
+QObject.
 
 <h3>Function pointers can not be arguments to signals or slots</h3>
 
@@ -228,10 +249,8 @@ function which is overloaded?
 
 <h3>Type macros can not be used for signal and slot arguments</h3>
 
-This is regrettable, but the moc places more emphasis on getting
-modern syntax like templates and typedefs right than on anachronisms
-like #define.  In other words, we don't like #define and don't want to
-fix this problem.  Here is an illegal example:
+Since the moc does not expand #define, type macros that take an argument
+will not work in signals and slots. Here is an illegal example:
 
 \code
     #ifdef ultrix
@@ -284,15 +303,4 @@ of the illegal syntax:
     };
 \endcode
 
-<h3>Multiple inheritance requires QObject to be first</h3>
-
-If you are using multiple inheritance, moc assumes that the \e first
-inherited class is a subclass of QObject.  Also, be sure that \e only
-the first inherited class is a QObject.
-
-\code
-    class SomeClass : public QObject, public OtherClass {
-    [...]
-    };
-\endcode
 */

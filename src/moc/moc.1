@@ -1,8 +1,8 @@
-.TH moc 1 "4 July 1996" "Troll Tech AS" \" -*- nroff -*-
+.TH moc 1 "20 November 1997" "Troll Tech AS" \" -*- nroff -*-
 .\"
-.\" $Id: //depot/qt/main/src/moc/moc.1#13 $
+.\" $Id: //depot/qt/main/src/moc/moc.1#14 $
 .\"
-.\" Copyright 1992-1995 Troll Tech AS.  All rights reserved.
+.\" Copyright 1992-1997 Troll Tech AS.  All rights reserved.
 .\" 
 .\" This file is part of Qt and may be distributed and used according to
 .\" the terms and conditions described in the LICENSE file.
@@ -14,7 +14,7 @@ moc \- generate Qt meta object support code
 .B moc
 [-o file] [-i] [-f] [-k] [-ldbg] [-dbg] [-nw] [-p path] [-q path] file
 .SH DESCRIPTION
-This manual page documents the Meta Object Compiler for the Qt GUI
+This page documents the Meta Object Compiler for the Qt GUI
 application framework.  The Meta Object Compiler reads one or more C++
 class declarations containing
 .B signals
@@ -41,31 +41,28 @@ rather than to stdout.
 .TP
 .I -f
 Force the generation of an #include statement in the output.
-.B moc
-automatically generates such a statement when it is run on a file whose
-extension starts with the letter
-.B h
+This is the default for files whose name matches the regular
+expression .[hH][^.]* (ie. the extension starts with 
+.B H
 or
-.B H.
-This option is only useful if you have header files that do not follow
-the standard naming conventions (e.g.
-.I vache.t
-for
-.IR "Fichier de la tete pour la vache." )
+.B h
+). This
+option is only useful if you have header files that do not follow the
+standard naming conventions.
 .TP
 .I "-i"
 Do not generate an #include statement in the output.  This may be used
 to run 
 .B moc
-on a C++ file containing one or more class declarations and #include
-the meta object code in the .cpp file (see USAGE below).  If both
+on a C++ file containing one or more class declarations. You should then 
+#include the meta object code in the .cpp file (see USAGE below).  If both
 .I -f
 and
 .I -i
 are present, the last one wins.
 .TP
 .I "-nw"
-Do not generate any warnings.
+Do not generate any warnings. Discouraged.
 .TP
 .I "-ldbg"
 Write a flood of lex debug information on stdout.
@@ -187,6 +184,14 @@ The
 .B moc
 will warn you about a number of dangerous or illegal constructs.
 .SH BUGS
+
+The
+.B moc
+does not expand #include or #define, it simply skips any preprocessor
+directives it encounters. This is regrettable, but is normally not a
+problem in practice.
+
+The
 .B moc
 does not handle all of C++.  The main problem is that class templates
 cannot have signals or slots.  This is an important bug.  Here is an
@@ -205,44 +210,26 @@ signals:
 .br
 };
 .in -5
-.br
 .PP
-Multiple inheritance is supported, but imperfectly.  The class which
-inherits QObject must be the first of the base classes.  Ie. this
-declaration is illegal:
-.PP
-.in +5
-class Schizophrenic: public MyClass, public QButton {
-.br
-    Q_OBJECT
-.br
-[...]
-.br
-};
-.in -5
-.br
-.PP
-By simply swapping the order of the base classes, it becomes legal:
+Less importantly, the following constructs are illegal.  All of them have
+workarounds which we think are better alternatives, so fixing these bugs
+is not a high priority for us.
+.SS "Multiple inheritance requires QObject to be first."
+If you are using multiple inheritance, moc assumes that the
+.B first
+inherited class is a subclass of QObject.  Also, be sure that 
+.B only
+the first inherited class is a QObject.
 .PP
 .in +5
-class Schizophrenic: public QButton, public MyClass {
-.br
-    Q_OBJECT
-.br
-[...]
-.br
-};
+    class SomeClass : public QObject, public OtherClass {
+    [...]
+    };
 .in -5
-.br
 .PP
-This bug is almost impossible to fix; since the
-.B moc
-does not expand #include or #define, it cannot find out which one of
-the base classes is a QObject.
-.PP
-Less importantly, the following five constructs are illegal.  All five
-have workarounds which we think are better alternatives, so fixing
-these bugs is not a high priority for us.
+This bug is almost impossible to fix; since the moc does not expand
+#include or #define, it cannot find out which one of the base classes is a
+QObject.
 .SS "Function pointers can not be arguments to signals or slots."
 In most cases where you would consider that, we think inheritance is a
 better alternative.  Here is an example of illegal syntax:
@@ -338,12 +325,11 @@ function which is overloaded?
 - That is not legal C++.
 .\" Good idea, but look in the SEE ALSO section...
 .SS "Type macros can not be used for signal and slot arguments"
-This is regrettable, but the
+
+Since the 
 .B moc
-places more emphasis on getting modern syntax like templates and
-typedefs right than on anachronisms like #define.  In other words, we
-don't like #define and don't want to fix this problem.  Here is an
-illegal example:
+does not expand #define, type macros that take an argument
+will not work in signals and slots. Here is an illegal example:
 .PP
 .in +5
 #ifdef ultrix
