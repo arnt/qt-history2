@@ -17,6 +17,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qmatrix.h"
+#include "qdebug.h"
 #ifdef QT_RASTER_PAINTENGINE
 #  include <private/qpaintengine_raster_p.h>
 #else
@@ -239,36 +240,28 @@ QImage QPixmap::toImage() const
     int w = data->w;
     int h = data->h;
     int d = data->d;
-    int ncols = 2;
-
+    QImage::Format format = QImage::Format_Mono;
     if(d != 1) { //Doesn't support index color modes
         d = 32;
-        ncols = 0;
+        format = (data->has_alpha ? QImage::Format_ARGB32 : QImage::Format_RGB32);
     }
-
-    QImage image(w, h, d, ncols, QImage::BigEndian);
-    if(d == 32)
-        image.convertToFormat(data->has_alpha ? QImage::Format_ARGB32 : QImage::Format_RGB32);
+    QImage image(w, h, d, format);
     if(d == 1) {
         image.setNumColors(2);
         image.setColor(0, qRgba(255, 255, 255, 0));
         image.setColor(1, qRgba(0, 0, 0, 0));
     }
 
-    QRgb q;
     uint *sptr = data->pixels, *srow, r;
     const uint bytesPerRow = data->nbytes / h;
     for(int yy=0;yy<h;yy++) {
         srow = (uint *)((char *)sptr + (yy * bytesPerRow));
         for(int xx=0;xx<w;xx++) {
             r = *(srow + xx);
-            q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, (r >> 24) & 0xFF);
             if(d == 1)
-                image.setPixel(xx, yy, (q & RGB_MASK) ? 0 : 1);
-            else if(ncols)
-                image.setPixel(xx, yy, get_index(&image,q));
+                image.setPixel(xx, yy, (r & RGB_MASK) ? 0 : 1);
             else
-                image.setPixel(xx, yy, q);
+                image.setPixel(xx, yy, r);
         }
     }
     return image;
