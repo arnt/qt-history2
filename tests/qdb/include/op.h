@@ -898,10 +898,10 @@ public:
 	LocalSQLFileDriver* drv = env->fileDriver( p1.toInt() );
 	QVariant v;
 	if ( p2.type() == QVariant::String || p2.type() == QVariant::CString ) {
-	    if ( !drv->fieldTypeInfo( p2.toString(), v ) )
+	    if ( !drv->fieldType( p2.toString(), v ) )
 		return FALSE;
 	} else {
-	    if ( !drv->fieldTypeInfo( p2.toInt(), v ) )
+	    if ( !drv->fieldType( p2.toInt(), v ) )
 		return FALSE;
 	}
 	env->stack()->push( v );
