@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#61 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#62 $
 **
 ** Definition of QFont class
 **
@@ -97,6 +97,8 @@ public:
     void	setCharSet( CharSet );
     bool	rawMode()	const;
     void	setRawMode( bool );
+    bool	resolutionAdjusted() const;
+    void	setResolutionAdjusted( bool );
 
     bool	exactMatch()	const;
 
@@ -121,6 +123,9 @@ public:
     static void insertSubstitution( const QString&, const QString &);
     static void removeSubstitution( const QString &);
     static void listSubstitutions( QStrList * );
+
+    static bool defaultResolutionAdjusted();
+    static void setDefaultResolutionAdjusted( bool );
 
     static void initialize();
     static void cleanup();
@@ -155,6 +160,7 @@ private:
 
     QFontData	 *d;				// internal font data
     static QFont *defFont;
+    static bool defRezAdj;
 };
 
 

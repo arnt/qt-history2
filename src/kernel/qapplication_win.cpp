@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#253 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#254 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -259,9 +259,8 @@ static void qt_set_windows_resources()
     if (ncm.lfMenuFont.lfWeight != FW_DONTCARE) {
 	menuFont.setWeight(ncm.lfMenuFont.lfWeight*99/900);
     }
-    double mps = ((double) -ncm.lfMenuFont.lfHeight*72)/
-		    ((double) GetDeviceCaps(qt_display_dc(), LOGPIXELSY));
-    menuFont.setPointSize(int(mps+0.5));
+    menuFont.setPointSize( -ncm.lfMenuFont.lfHeight );
+    menuFont.setResolutionAdjusted( FALSE ); // The value is already adjusted
 
     if (menuFont != QFont::defaultFont()) {
 	QApplication::setFont( menuFont, FALSE, "QPopupMenu");
@@ -275,9 +274,8 @@ static void qt_set_windows_resources()
     if (ncm.lfMessageFont.lfWeight != FW_DONTCARE) {
 	messageFont.setWeight(ncm.lfMessageFont.lfWeight*99/900);
     }
-    mps = ((double) -ncm.lfMessageFont.lfHeight*72)/
-	  ((double) GetDeviceCaps(qt_display_dc(), LOGPIXELSY));
-    messageFont.setPointSize(int(mps+0.5));
+    messageFont.setPointSize( -ncm.lfMessageFont.lfHeight );
+    messageFont.setResolutionAdjusted( FALSE ); // It is already adjusted
 
     if (messageFont != QFont::defaultFont()) {
  	QApplication::setFont( messageFont, TRUE, "QMessageBoxLabel");

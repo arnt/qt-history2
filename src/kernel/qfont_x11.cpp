@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#144 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -239,6 +239,7 @@ static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
 static QFontNameDict *fontNameDict   = 0;	// dict of matched font names
 QFont		     *QFont::defFont = 0;	// default font
+bool		     QFont::defRezAdj= FALSE;	// default resolution adj.
 
 
 //

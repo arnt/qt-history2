@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#92 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -190,6 +190,7 @@ void QFontCache::deleteItem( Item d )
 static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
 static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
 QFont		     *QFont::defFont = 0;	// default font
+bool		     QFont::defRezAdj= FALSE;	// default resolution adj.
 
 
 /*****************************************************************************
@@ -426,14 +427,11 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 	else
 	    lf.lfHeight = -(d->req.pointSize/10);
     } else {
-	lf.lfHeight = -(d->req.pointSize/10);
-	/*
-	  To get the same size as Word etc. uses, we should use the below
-	  instead. But that is incompatible with the sizes in the Unix version.
-	  Needs a option in the API to let the user choose.
-	  lf.lfHeight = -int((float)d->req.pointSize*
-	                GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
-	*/
+	if ( d->req.rezAdj )
+	    lf.lfHeight = -int((float)d->req.pointSize*
+			  GetDeviceCaps(shared_dc,LOGPIXELSY)/(float)720+0.5);
+	else
+	    lf.lfHeight = -(d->req.pointSize/10);
     }
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;

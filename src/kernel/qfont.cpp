@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#117 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -154,6 +154,7 @@ void QFont::init()
     d->req.hintSetByUser = FALSE;
     d->req.rawMode	 = FALSE;
     d->req.dirty	 = TRUE;
+    d->req.rezAdj 	 = defRezAdj;
     d->req.lbearing	 = SHRT_MIN;
     d->req.rbearing	 = SHRT_MIN;
     d->exactMatch	 = FALSE;
@@ -757,6 +758,68 @@ void QFont::setRawMode( bool enable )
 
 
 /*!
+  Returns TRUE if this font gets automatically adjusted to paint device
+  resolution, otherwise FALSE.
+
+  \sa setResolutionAdjusted()
+*/
+
+bool QFont::resolutionAdjusted() const
+{
+    return d->req.rezAdj;
+}
+
+
+
+/*!  
+  Setting this to TRUE will give you a font where the pointsize is
+  adjusted to the resolution of the painting device on which it is used,
+  so that the font gets the size it would have if the paint device had
+  72 dpi resolution.
+  
+  The default is FALSE, but that may be changed by using the static
+  setDefaultResolutionAdjusted() function.
+
+  Note: This is currently only meaningful for Qt/Windows screen/pixmap
+  fonts; it does nothing on Qt/X11.
+
+  \sa resolutionAdjusted(), setDefaultResolutionAdjusted() */
+
+void QFont::setResolutionAdjusted( bool on )
+{
+    if ( (bool)d->req.rezAdj != on ) {
+	detach();
+	d->req.rezAdj = on;
+	d->req.dirty  = TRUE;
+    }
+}
+
+
+/*!
+  Returns TRUE if new QFont objects get resolution adjustment turned on
+  by default, otherwise FALSE.
+
+  \sa setResolutionAdjusted(), setDefaultResolutionAdjusted()
+*/
+
+bool QFont::defaultResolutionAdjusted()
+{
+    return defRezAdj;
+}
+
+/*!
+  Sets whether new QFont objects get resolution adjustment turned on
+  by default.
+
+  \sa setResolutionAdjusted(), defaultResolutionAdjusted()
+*/
+
+void QFont::setDefaultResolutionAdjusted( bool on )
+{
+    defRezAdj = on;
+}
+
+/*!
   Returns TRUE if a window system font exactly matching the settings
   of this font is available.
   \sa QFontInfo, \link fontmatch.html font matching\endlink
@@ -818,6 +881,8 @@ bool QFont::isCopyOf( const QFont & f ) const
 
 /*!
   Returns the system default font.
+
+  \sa setDefaultFont()
 */
 
 const QFont &QFont::defaultFont()
@@ -829,6 +894,8 @@ const QFont &QFont::defaultFont()
 
 /*!
   Sets the system default font.
+
+  \sa defaultFont()
 */
 
 void  QFont::setDefaultFont( const QFont &f )
@@ -837,6 +904,7 @@ void  QFont::setDefaultFont( const QFont &f )
 	defFont = new QFont( QFI0 );
     *defFont = f;
 }
+
 
 
 /*****************************************************************************
@@ -986,6 +1054,8 @@ static Q_UINT8 get_font_bits( const QFontDef &f )
 	bits |= 0x10;
     if ( f.rawMode )
 	bits |= 0x20;
+    if ( f.rezAdj )
+	bits |= 0x40;
     return bits;
 }
 
@@ -1002,6 +1072,7 @@ static void set_font_bits( Q_UINT8 bits, QFontDef *f )
     f->fixedPitch    = (bits & 0x08) != 0;
     f->hintSetByUser = (bits & 0x10) != 0;
     f->rawMode	     = (bits & 0x20) != 0;
+    f->rezAdj	     = (bits & 0x40) != 0;
 }
 
 
