@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#561 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#562 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -49,6 +49,7 @@
 #include "qsessionmanager.h"
 #include "qvaluelist.h"
 #include "qdict.h"
+#include "qguardedptr.h"
 #include <stdlib.h>
 #ifdef QT_SM_SUPPORT
 #include <pwd.h>
@@ -215,6 +216,10 @@ static bool	    popupCloseDownMode = FALSE;
 static bool	    popupGrabOk;
 
 static bool sm_blockUserInput = FALSE;		// session management
+
+// one day in the future we will be able to have static objects in libraries....
+static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
+
 
 typedef void  (*VFPTR)();
 typedef QList<void> QVFuncList;
@@ -1089,6 +1094,9 @@ void qt_cleanup()
     if ( QApplication::is_gui_used && !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
     appDpy = 0;
+    
+    delete activeBeforePopup;
+    activeBeforePopup = 0;
 }
 
 
@@ -2641,14 +2649,14 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
-static QWidget *activeBeforePopup = 0;
-
 void QApplication::openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
 	CHECK_PTR( popupWidgets );
-	activeBeforePopup = active_window;
+	if ( !activeBeforePopup )
+	    activeBeforePopup = new QGuardedPtr<QWidget>;
+	(*activeBeforePopup) = active_window;
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
@@ -2706,7 +2714,7 @@ void QApplication::closePopup( QWidget *popup )
 	    }
 	    XFlush( popup->x11Display() );
 	}
-	active_window = activeBeforePopup;	// restore the former
+	active_window = (*activeBeforePopup);	// restore the former
 	// active window immediately, although we'll get a focusIn
 	// later from X
 	if ( active_window )

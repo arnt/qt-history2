@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#327 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#328 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -29,6 +29,7 @@
 #include "qdatetime.h"
 #include "qsessionmanager.h"
 #include "qmime.h"
+#include "qguardedptr.h"
 #include <ctype.h>
 #include "qt_windows.h"
 
@@ -103,6 +104,9 @@ static bool	sm_smActive	     = FALSE;
 static bool	sm_interactionActive = FALSE;
 static QSessionManager* win_session_manager = 0;
 static bool	sm_cancel;
+
+// one day in the future we will be able to have static objects in libraries....
+static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 
 #if defined(DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
@@ -539,7 +543,7 @@ void qt_init( int *argcptr, char **argv )
     if ( !qt_std_pal )
 	qt_create_std_palette();
     if ( QApplication::desktopSettingsAware() )
-	qt_set_windows_resources( /* *qt_std_pal */ );
+	qt_set_windows_resources();
 
 }
 
@@ -573,6 +577,9 @@ void qt_cleanup()
 
   // Deinitialize OLE/COM
     OleUninitialize();
+    
+    delete activeBeforePopup;
+    activeBeforePopup = 0;
 }
 
 
@@ -1674,14 +1681,14 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
-static QWidget *activeBeforePopup = 0;
-
 void QApplication::openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
 	CHECK_PTR( popupWidgets );
-	activeBeforePopup = active_window;
+	if ( !activeBeforePopup )
+	    activeBeforePopup = new QGuardedPtr<QWidget>;
+	(*activeBeforePopup) = active_window;
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() )
@@ -1707,7 +1714,7 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	if ( !qt_nograb() )			// grabbing not disabled
 	    releaseAutoCapture();
-	active_window = activeBeforePopup;	// windows does not have
+	active_window = (*activeBeforePopup);	// windows does not have
 	// A reasonable focus handling for ours popups => we have
 	// to restore the focus manually.
 	if ( active_window )
