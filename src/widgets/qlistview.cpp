@@ -6526,7 +6526,12 @@ QListViewItem *QListView::findItem( const QString& text, int column, ComparisonF
     if ( ! (compare & CaseSensitive ) )
         comtxt = text.lower();
 
-    QListViewItem *item = d->focusItem;
+    QListViewItem* item;
+    if ( d->focusItem )
+	item = d->focusItem;
+    else
+	item = firstChild();
+
     QListViewItemIterator it( item );
 
     if ( item ) {
