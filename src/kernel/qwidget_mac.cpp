@@ -694,9 +694,9 @@ void QWidget::setIconText( const QString &iconText )
 void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
                         bool showIt )
 {
-    if(!parent())
+    if(!parentWidget())
 	setWinId( 0 );
-    winid=parent->id;
+    winid=parent->winid;
     
     reparentFocusWidgets( parent );             // fix focus chains
 
