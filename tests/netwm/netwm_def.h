@@ -91,6 +91,12 @@ public:
 	Move         =8 // movement only
     };
 
+    enum MappedState {
+	Visible, // ie. NormalState
+        Withdrawn,
+        Iconic
+    };
+
     enum Property {
 	// root
 	Supported           = 1<<0,

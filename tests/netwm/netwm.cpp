@@ -420,7 +420,7 @@ NETRootInfo::NETRootInfo(Display *d, unsigned long pr, int s) {
     p->root = RootWindow(p->display, p->screen);
     p->rootSize.width = WidthOfScreen(ScreenOfDisplay(p->display, p->screen));
     p->rootSize.height = HeightOfScreen(ScreenOfDisplay(p->display, p->screen));
- 
+
     p->supportwindow = None;
     p->protocols = pr;
     p->number_of_desktops = p->current_desktop = 0;
@@ -493,7 +493,7 @@ void NETRootInfo::setClientListStacking(Window *wins, unsigned int num) {
     p->stacking_count = num;
     if (p->stacking) delete [] p->stacking;
     p->stacking = nwindup(wins, num);
-    
+
 #ifdef    DEBUG
     fprintf(stderr, "NETRootInfo::SetClientListStacking: setting list with %ld windows\n",
 	    p->clients_count);
@@ -1241,6 +1241,7 @@ NETWinInfo::NETWinInfo(Display *d, Window win, Window rwin,
     p->display = d;
     p->window = win;
     p->root = rwin;
+    p->mapped_state = Withdrawn;
     p->state = Unknown;
     p->type = Unknown;
     p->name = (char *) 0;
@@ -1471,7 +1472,7 @@ NETIcon NETWinInfo::icon(int w, int h) const {
 	     p->icons[i].size.width < result.size.width) &&
 	    (p->icons[i].size.height >= (unsigned) h &&
 	     p->icons[i].size.height < result.size.height))
-	    result = p->icons[i];	
+	    result = p->icons[i];
     }
 
     return result;
@@ -1563,6 +1564,19 @@ void NETWinInfo::update(unsigned long dirty) {
 		    nitems_ret == 2) {
 		    CARD32 *state = (CARD32 *) data_ret;
 		    if (*state != IconicState) p->managed = True;
+		    
+		    switch(*state) {
+		    case IconicState:
+			p->mapped_state = Iconic;
+			break;
+		    case WithdrawnState:
+			p->mapped_state = Withdrawn;
+			break;
+		    case NormalState:
+		    default:
+			p->mapped_state = Visible;
+
+		    }
 		}
 
 		XFree(data_ret);
