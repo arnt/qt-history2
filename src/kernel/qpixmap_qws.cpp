@@ -199,6 +199,7 @@ void QPixmap::deref()
 
 	memorymanager->deletePixmap(data->id);
 	delete data;
+	data = 0;
     }
 }
 
@@ -351,8 +352,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	return FALSE;
     }
 
-    detach();					// detach other references
-    deref();
     QImage  image = img;
     int	 w   = image.width();
     int	 h   = image.height();
@@ -402,7 +401,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     bool manycolors=(qt_screen->depth() > 8);
 
-    bool partialalpha=false;
+    bool partialalpha=FALSE;
 
     if(image.hasAlphaBuffer() && image.depth()==32 && dd>8 && manycolors) {
 	int loopc,loopc2;
@@ -411,7 +410,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    for(loopc2=0;loopc2<image.width();loopc2++) {
 		int t=qAlpha(*tmp);
 		if(t>0 && t<255) {
-		    partialalpha=true;
+		    partialalpha=TRUE;
 		    loopc2=image.width();
 		    loopc=image.height();
 		}
@@ -423,7 +422,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     	dd=32;
     }
 
-    init( w, h, dd, isQBitmap(), defOptim );
+    // detach other references and re-init()
+    bool ibm = isQBitmap();
+    detach();
+    deref();
+    init( w, h, dd, ibm, defOptim );
 
     QGfx * mygfx=graphicsContext();
     mygfx->setAlphaType(QGfx::IgnoreAlpha);
@@ -440,7 +443,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
         }
     }
 
-    return true;
+    return TRUE;
 }
 
 

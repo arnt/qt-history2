@@ -536,6 +536,7 @@ bool QPainter::end()				// end painting
 	*paintEventSaveRegion = QRegion();
 
     delete gfx;
+    gfx = 0;
 
     flags = 0;
     pdev->painters--;

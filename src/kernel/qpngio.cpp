@@ -490,7 +490,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 	    row_pointers[y]=jt[y];
     }
     png_write_image(png_ptr, row_pointers);
-    delete row_pointers;
+    delete [] row_pointers;
 
     png_write_end(png_ptr, info_ptr);
     frames_written++;
