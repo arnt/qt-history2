@@ -357,7 +357,7 @@ bool QLinuxFbScreen::initCard()
 		  malloc(sizeof(unsigned short int)*256);
 	cmap.transp=(unsigned short int *)
 		    malloc(sizeof(unsigned short int)*256);
-	for( int i = 0x0; i < cmap.len; i++ ) {
+	for( int i = 0x0; i < (int)cmap.len; i++ ) {
 	    cmap.red[i] = i*65535/((1<<rbits)-1);
 	    cmap.green[i] = i*65535/((1<<gbits)-1);
 	    cmap.blue[i] = i*65535/((1<<bbits)-1);

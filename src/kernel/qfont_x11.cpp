@@ -441,7 +441,7 @@ void qX11ClearFontNameCache()
   access.  Using this function is \e not portable.
 */
 
-HANDLE QFont::handle() const
+Qt::HANDLE QFont::handle() const
 {
     static Font last = 0;
     if ( DIRTY_FONT ) {

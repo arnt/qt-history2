@@ -493,7 +493,7 @@ inline HDC QPainter::handle() const
     return hdc;
 }
 #elif defined(_WS_X11_)
-inline HANDLE QPainter::handle() const
+inline Qt::HANDLE QPainter::handle() const
 {
     return hd;
 }

@@ -55,7 +55,7 @@
 
 void qt_insert_sip( QWidget*, int, int );	// defined in qapplication_x11.cpp
 int  qt_sip_count( QWidget* );			// --- "" ---
-bool qt_wstate_iconified( WId );		// --- "" ---
+bool qt_wstate_iconified( Qt::WId );		// --- "" ---
 void qt_updated_rootinfo();
 #ifndef NO_XIM
 extern XIM qt_xim;

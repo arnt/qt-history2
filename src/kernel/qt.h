@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Sat Sep 16 12:52:34 EST 2000
+** Generated : Sat Sep 16 14:35:33 EST 2000
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -25,8 +25,8 @@
 #include "qglist.h"
 #include "qnamespace.h"
 #include <qlist.h>
-#include "qcstring.h"
-#include "qstring.h"
+#include <qcstring.h>
+#include <qstring.h>
 #include "qbitarray.h"
 #include "qobjectdefs.h"
 #include <qwindowdefs.h>
@@ -91,14 +91,14 @@
 #include "qiconset.h"
 #include <qhgroupbox.h>
 #include "qsocketnotifier.h"
-#include <qmap.h>
+#include <qbuffer.h>
 #include <qaction.h>
 #include "qscrollbar.h"
 #include <qimage.h>
 #include <qlineedit.h>
 #include <qintcache.h>
 #include "qintdict.h"
-#include "qbuffer.h"
+#include <qmap.h>
 #include <qjiscodec.h>
 #include <qeucjpcodec.h>
 #include <qkeycode.h>
@@ -112,7 +112,7 @@
 #include <qlistview.h>
 #include "qnetworkprotocol.h"
 #include "qtoolbar.h"
-#include <qhttp.h>
+#include "qsocketdevice.h"
 #include "qmenudata.h"
 #include "qpopupmenu.h"
 #include <qmessagebox.h>
@@ -163,10 +163,10 @@
 #include <qlistbox.h>
 #include <qdragobject.h>
 #include <qprogressdialog.h>
-#include "qsocketdevice.h"
+#include <qobjectdict.h>
 #include <qsessionmanager.h>
 #include <qwidgetlist.h>
-#include <qobjectdict.h>
+#include <qserversocket.h>
 #include "qsignal.h"
 #include <qsignalmapper.h>
 #include "qvector.h"
@@ -177,7 +177,7 @@
 #include <qsjiscodec.h>
 #include <qslider.h>
 #include <qsocket.h>
-#include <qserversocket.h>
+#include <qhttp.h>
 #include <qdns.h>
 #include <qsortedlist.h>
 #include <qsound.h>

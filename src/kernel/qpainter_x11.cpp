@@ -388,7 +388,7 @@ static void cleanup_gc_cache()
 }
 
 
-static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, HANDLE hd )
+static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, Qt::HANDLE hd )
 {
     if ( !gc_cache_init )
 	init_gc_cache();

@@ -164,11 +164,11 @@ public:
 #if defined(_WS_WIN_)
     HFONT	handle() const;
 #elif defined(_WS_MAC_)
-    HANDLE      handle() const;
+    Qt::HANDLE      handle() const;
 #elif defined(_WS_X11_)
-    HANDLE	handle() const;
+    Qt::HANDLE	handle() const;
 #elif defined(_WS_QWS_)
-    HANDLE	handle() const;
+    Qt::HANDLE	handle() const;
 #endif
 
     void	setRawName( const QString & );

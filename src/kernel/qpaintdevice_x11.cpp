@@ -97,7 +97,7 @@ Display *QPaintDevice::x_appdisplay = 0;
 int	 QPaintDevice::x_appscreen;
 int	 QPaintDevice::x_appdepth;
 int	 QPaintDevice::x_appcells;
-HANDLE	 QPaintDevice::x_appcolormap;
+Qt::HANDLE QPaintDevice::x_appcolormap;
 bool	 QPaintDevice::x_appdefcolormap;
 void	*QPaintDevice::x_appvisual;
 bool	 QPaintDevice::x_appdefvisual;

@@ -408,7 +408,7 @@ QPoint QCursor::hotSpot() const
   something non-portable. Be careful.
 */
 
-HANDLE QCursor::handle() const
+Qt::HANDLE QCursor::handle() const
 {
     if ( !initialized )
 	initialize();

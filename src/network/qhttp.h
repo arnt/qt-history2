@@ -3,16 +3,15 @@
 
 #ifndef QT_H
 #include <qmap.h>
-#endif // QT_H
-
-#ifndef QT_NO_NETWORKPROTOCOL_HTTP
-
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qobject.h>
 #include <qcstring.h>
 #include <qbuffer.h>
 #include <qserversocket.h>
+#endif // QT_H
+
+#ifndef QT_NO_NETWORKPROTOCOL_HTTP
 
 class QSocket;
 class QTimerEvent;

@@ -157,7 +157,7 @@ void QFont::cacheStatistics()
 #define DIRTY_FONT (d->req.dirty || d->fin->dirty())
 
 
-HANDLE QFont::handle() const
+Qt::HANDLE QFont::handle() const
 {
     load(); // the REAL reason this is called
     return d->fin->handle();

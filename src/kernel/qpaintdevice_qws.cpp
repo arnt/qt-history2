@@ -286,7 +286,7 @@ QWSDisplay *QPaintDevice::qwsDisplay()
     return qt_fbdpy;
 }
 
-HANDLE QPaintDevice::handle() const
+Qt::HANDLE QPaintDevice::handle() const
 {
     return 0;
 }

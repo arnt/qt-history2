@@ -90,11 +90,11 @@ public:
 #if defined(_WS_WIN_)
     HDC		handle() const;
 #elif defined(_WS_X11_)
-    HANDLE	handle() const;
+    Qt::HANDLE	handle() const;
 #elif defined(_WS_MAC_)
-    HANDLE      handle() const;
+    Qt::HANDLE      handle() const;
 #elif defined(_WS_QWS_)
-    HANDLE      handle() const;
+    Qt::HANDLE      handle() const;
 #endif
 
 #if defined(_WS_X11_)
@@ -102,7 +102,7 @@ public:
     int		    x11Screen() const;
     int		    x11Depth() const;
     int		    x11Cells() const;
-    HANDLE	    x11Colormap() const;
+    Qt::HANDLE	    x11Colormap() const;
     bool	    x11DefaultColormap() const;
     void	   *x11Visual() const;
     bool	    x11DefaultVisual() const;
@@ -113,7 +113,7 @@ public:
     static int	    x11AppCells();
     static int	    x11AppDpiX();
     static int	    x11AppDpiY();
-    static HANDLE   x11AppColormap();
+    static Qt::HANDLE   x11AppColormap();
     static bool     x11AppDefaultColormap();
     static void    *x11AppVisual();
     static bool	    x11AppDefaultVisual();
@@ -190,7 +190,7 @@ protected:
 #if defined(_WS_WIN_)
     HDC		hdc;				// device context
 #elif defined(_WS_X11_)
-    HANDLE	hd;				// handle to drawable
+    Qt::HANDLE	hd;				// handle to drawable
     void		 copyX11Data( const QPaintDevice * );
     virtual void	 setX11Data( const QPaintDeviceX11Data* );
     QPaintDeviceX11Data* getX11Data( bool def=FALSE ) const;
@@ -198,7 +198,7 @@ protected:
     void * hd;
     virtual void fixport();
 #elif defined(_WS_QWS_)
-    HANDLE hd;
+    Qt::HANDLE hd;
 #endif
 
     virtual bool cmd( int, QPainter *, QPDevCmdParam * );
@@ -224,7 +224,7 @@ private:
     static int	    x_appscreen;
     static int	    x_appdepth;
     static int	    x_appcells;
-    static HANDLE   x_appcolormap;
+    static Qt::HANDLE   x_appcolormap;
     static bool	    x_appdefcolormap;
     static void	   *x_appvisual;
     static bool     x_appdefvisual;
@@ -258,7 +258,7 @@ struct Q_EXPORT QPaintDeviceX11Data {
     int		x_screen;
     int		x_depth;
     int		x_cells;
-    HANDLE	x_colormap;
+    Qt::HANDLE	x_colormap;
     bool	x_defcolormap;
     void*	x_visual;
     bool	x_defvisual;
@@ -282,7 +282,7 @@ inline bool QPaintDevice::paintingActive() const
 #if defined(_WS_WIN_)
 inline HDC    QPaintDevice::handle() const { return hdc; }
 #elif defined(_WS_X11_)
-inline HANDLE QPaintDevice::handle() const { return hd; }
+inline Qt::HANDLE QPaintDevice::handle() const { return hd; }
 #endif
 
 #if defined(_WS_X11_)
@@ -298,7 +298,7 @@ inline int QPaintDevice::x11Depth() const
 inline int QPaintDevice::x11Cells() const
 { return x11Data ? x11Data->x_cells : x_appcells; }
 
-inline HANDLE QPaintDevice::x11Colormap() const
+inline Qt::HANDLE QPaintDevice::x11Colormap() const
 { return x11Data ? x11Data->x_colormap : x_appcolormap; }
 
 inline bool QPaintDevice::x11DefaultColormap() const
@@ -322,7 +322,7 @@ inline int QPaintDevice::x11AppDepth()
 inline int QPaintDevice::x11AppCells()
 { return x_appcells; }
 
-inline HANDLE QPaintDevice::x11AppColormap()
+inline Qt::HANDLE QPaintDevice::x11AppColormap()
 { return x_appcolormap; }
 
 inline bool QPaintDevice::x11AppDefaultColormap()

@@ -1459,7 +1459,7 @@ void qt_updated_rootinfo()
     app_save_rootinfo = TRUE;
 }
 
-bool qt_wstate_iconified( WId winid )
+bool qt_wstate_iconified( Qt::WId winid )
 {
     Atom type;
     int format;
@@ -1605,7 +1605,7 @@ int qt_xscreen()				// get current X screen
     return appScreen;
 }
 
-WId qt_xrootwin()				// get X root window
+Qt::WId qt_xrootwin()				// get X root window
 {
     return appRootWin;
 }
@@ -3029,7 +3029,7 @@ void qt_enter_modal( QWidget *widget )
     }
     qt_modal_stack->insert( 0, widget );
     app_do_modal = TRUE;
-    QWidget *w = QWidget::find( (WId)curWin );
+    QWidget *w = QWidget::find( (Qt::WId)curWin );
     if ( w ) { // send synthetic leave event
 	QEvent e( QEvent::Leave );
 	QApplication::sendEvent( w, &e );

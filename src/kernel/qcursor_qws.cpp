@@ -123,9 +123,9 @@ void QCursor::initialize()
     qAddPostRoutine( cleanup );
 }
 
-HANDLE QCursor::handle() const
+Qt::HANDLE QCursor::handle() const
 {
-    return (HANDLE)data->id;
+    return (Qt::HANDLE)data->id;
 }
 
 

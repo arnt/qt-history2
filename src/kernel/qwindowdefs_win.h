@@ -12,8 +12,6 @@
 #define Q_WINSTRICT
 #endif
 
-typedef void *HANDLE;
-
 #if defined(Q_WINSTRICT)
 
 #if !defined(STRICT)
@@ -45,8 +43,6 @@ Q_DECLARE_HANDLE(HPALETTE);
 Q_DECLARE_HANDLE(HRGN);
 
 typedef struct tagMSG MSG;
-typedef HWND  WId;
-
 
 Q_EXPORT HINSTANCE qWinAppInst();
 Q_EXPORT HINSTANCE qWinAppPrevInst();
