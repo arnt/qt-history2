@@ -625,7 +625,15 @@ QImage QImage::copy() const
     } else {
 	QImage image;
 	image.create( width(), height(), depth(), numColors(), bitOrder() );
-	memcpy( image.bits(), bits(), numBytes() );
+#ifdef Q_WS_QWS
+	// Qt/Embedded can create images with non-default bpl
+	// make sure we don't crash.
+	if ( image.numBytes() != numBytes() )
+	    for ( int i = 0; i < height(); i++ )
+		memcpy( image.scanLine(i), scanLine(i), image.bytesPerLine() );
+	else
+#endif
+	    memcpy( image.bits(), bits(), numBytes() );
 	memcpy( image.colorTable(), colorTable(), numColors() * sizeof(QRgb) );
 	image.setAlphaBuffer( hasAlphaBuffer() );
 	image.data->dpmx = dotsPerMeterX();
