@@ -94,9 +94,7 @@ xml:SUBDIRS +=	xml/outliner \
 		xml/tagreader \
 		xml/tagreader-with-features
 
-embedded:SUBDIRS += notepad \
-		kiosk \
-		launcher
+embedded:SUBDIRS += launcher
 
 embedded:SUBDIRS -= showimg
 
