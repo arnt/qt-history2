@@ -408,7 +408,7 @@ void QGuiEventLoop::flush()
         for(int i = 0; i < tlws.size(); i++) {
             QWidget *tlw = tlws.at(i);
             if(tlw->isVisible()) {
-#ifdef QMAC_NO_COREGRAPHICS
+#if defined(QMAC_NO_COREGRAPHICS) || 1
                 QDFlushPortBuffer(GetWindowPort(qt_mac_window_for((HIViewRef)tlw->winId())), NULL);
 #else
                 HIWindowFlush(qt_mac_window_for((HIViewRef)tlw->winId()));
