@@ -3735,6 +3735,11 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	    }
 	}
     } else if ( depth == 8 ) {
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+	// cursor code uses 8bpp backing store
+	if (srcdepth == 4 && srcbits==qt_screen->base())
+	    src_little_endian = !src_little_endian;
+#endif
 	unsigned char *myptr=(unsigned char *)l;
 	int inc = 1;
 	if(!reverse) {
@@ -3822,6 +3827,11 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		myptr += inc;
 	    }
 	}
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+	//restore
+	if (srcdepth == 4 && srcbits==qt_screen->base())
+	    src_little_endian = !src_little_endian;
+#endif
     } else if ( depth == 4 ) {
 	unsigned char *dp = l;
 	unsigned int gv = srccol;
