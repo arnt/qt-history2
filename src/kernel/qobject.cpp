@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#186 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#187 $
 **
 ** Implementation of QObject class
 **
@@ -1008,7 +1008,7 @@ void QObject::removeChild( QObject *obj )
     MyWidget::MyWidget( QWidget *parent, const char *name )
 	: QWidget( parent, name )
     {
-	if ( parent )				// has a child widget
+	if ( parent )				// has a parent widget
 	    parent->installEventFilter( this ); // then install filter
     }
 
