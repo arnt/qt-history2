@@ -1594,11 +1594,35 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	return FALSE;
     }
 #if defined(QT_CHECK_RANGE)
-    if ( !s->checkConnectArgs(signal,receiver,member) )
+    if ( !s->checkConnectArgs(signal,receiver,member) ) {
 	qWarning( "QObject::connect: Incompatible sender/receiver arguments"
 		 "\n\t%s::%s --> %s::%s",
 		 s->className(), signal,
 		 r->className(), member );
+	return FALSE;
+    } else {
+	const QMetaData *rm = membcode == QSLOT_CODE ? 
+			      rmeta->slot( member_index, TRUE ) :
+			      rmeta->signal( member_index, TRUE );
+	if ( rm ) {
+	    int si = 0;
+	    int ri = 0;
+	    while ( si < sm->method->count && ri < rm->method->count ) {
+		if ( sm->method->parameters[si].inOut == QUParameter::Out )
+		    si++;
+		else if ( rm->method->parameters[ri].inOut == QUParameter::Out )
+		    ri++;
+		else if ( !QUType::isEqual( sm->method->parameters[si++].type,
+					    rm->method->parameters[ri++].type ) ) {
+		    qWarning( "QObject::connect: Incompatible sender/receiver marshalling"
+			      "\n\t%s::%s --> %s::%s",
+			      s->className(), signal,
+			      r->className(), member );
+		    return FALSE;
+		}
+	    }
+	}
+    }
 #endif
     connectInternal( sender, signal_index, receiver, membcode, member_index );
     s->connectNotify( signal_name );
