@@ -3348,3 +3348,16 @@ QString MainWindow::whatsThisFrom( const QString &key )
     return menuHelpFile.mid( start, end - start + 1 );
 }
 
+Project *MainWindow::setSingleProject( const QString &lang, const QString &projectName )
+{
+    projects.clear();
+    QAction *a = new QAction( tr( projectName ), tr( projectName ), 0, actionGroupProjects, 0, TRUE );
+    eProject = new Project( "#####", projectName, projectSettingsPluginManager, FALSE );
+    eProject->setLanguage( lang );
+    projects.insert( a, eProject );
+    a->setOn( TRUE );
+    actionGroupProjects->removeFrom( projectMenu );
+    actionGroupProjects->removeFrom( projectToolBar );
+    currentProject = eProject;
+    return eProject;
+}
