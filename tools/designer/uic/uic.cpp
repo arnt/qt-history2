@@ -1534,7 +1534,11 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 	    v = "%1::%2";
 	else
 	    v = "(int)%1::%2";
-	v = v.arg( objClass ).arg( e.firstChild().toText().data() );
+	QString oc = objClass;
+	QString ev = e.firstChild().toText().data();
+	if ( oc == "QListView" && ev == "Manual" ) // #### workaround, rename QListView::Manual of WithMode enum in 3.0
+	    oc = "QScrollView";
+	v = v.arg( oc ).arg( ev );
     } else if ( e.tagName() == "set" ) {
 	QString keys( e.firstChild().toText().data() );
 	QStringList lst = QStringList::split( '|', keys );
