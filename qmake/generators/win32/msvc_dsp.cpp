@@ -473,13 +473,18 @@ DspMakefileGenerator::init()
     } else {
 	project->variables()["MSVCDSP_RELDEFS"].clear();
     }
+    
+    QString dest;
     if ( !project->variables()["DESTDIR"].isEmpty() ) {
 	project->variables()["TARGET"].first().prepend(project->first("DESTDIR"));
 	Option::fixPathToTargetOS(project->first("TARGET"));
+	dest = project->first("TARGET");
+        if ( project->first("TARGET").startsWith("$(QTDIR)") )
+	    dest.replace( QRegExp("\\$\\(QTDIR\\)"), getenv("QTDIR") );
 	project->variables()["MSVCDSP_TARGET"].append(
-	    QString("/out:\"") + project->first("TARGET") + "\"");
+	    QString("/out:\"") + dest + "\"");
 	if ( project->isActiveConfig("dll") ) {
-	    QString imp = project->first("TARGET");
+	    QString imp = dest;
 	    imp.replace(QRegExp("\\.dll"), ".lib");
 	    project->variables()["MSVCDSP_TARGET"].append(QString(" /implib:\"") + imp + "\"");
 	}
@@ -487,10 +492,10 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty() ) {
 	project->variables()["MSVCDSP_COPY_DLL"].append(
 	    "# Begin Special Build Tool\n"
-	    "TargetPath=" + project->first("TARGET") + "\n"
+	    "TargetPath=" + dest + "\n"
 	    "SOURCE=$(InputPath)\n"
 	    "PostBuild_Desc=Copy DLL to " + project->first("DLLDESTDIR") + "\n"
-	    "PostBuild_Cmds=copy \"" + project->first("TARGET") + "\" \"" + project->first("DLLDESTDIR") + "\"\n"
+	    "PostBuild_Cmds=copy \"" + dest + "\" \"" + project->first("DLLDESTDIR") + "\"\n"
 	    "# End Special Build Tool");
     }
     if ( project->isActiveConfig("moc") ) {
