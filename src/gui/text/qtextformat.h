@@ -108,6 +108,7 @@ public:
         // table cell properties
         TableCellRowSpan = 0x4810,
         TableCellColumnSpan = 0x4811,
+        TableCellBackgroundColor = 0x4820,
 
         // image properties
         ImageName = 0x5000,
@@ -277,6 +278,12 @@ public:
     { setProperty(TableCellColumnSpan, tableCellColumnSpan, 1); }
     inline int tableCellColumnSpan() const
     { return intProperty(TableCellColumnSpan, 1); }
+
+    inline void setTableCellBackgroundColor(const QColor &color)
+    { setProperty(TableCellBackgroundColor, color); }
+    inline QColor tableCellBackgroundColor() const
+    { return colorProperty(TableCellBackgroundColor); }
+
 };
 
 class Q_GUI_EXPORT QTextBlockFormat : public QTextFormat

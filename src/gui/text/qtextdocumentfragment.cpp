@@ -461,12 +461,15 @@ void QTextHTMLImporter::import()
 
             QTextCharFormat charFmt;
             charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
-            tables[tables.size() -1].currentColumnCount++;
+
+            if (node->bgColor.isValid())
+                charFmt.setTableCellBackgroundColor(node->bgColor);
 
             QTextBlockFormat fmt;
-            if (node->bgColor.isValid())
-                fmt.setBackgroundColor(node->bgColor);
             appendBlock(fmt, charFmt, QTextBeginningOfFrame);
+
+            tables[tables.size() - 1].currentColumnCount++;
+
             hasBlock = false;
         }
 

@@ -1050,6 +1050,8 @@ void QTextHtmlParser::parseAttributes()
                         }
                     }
                 }
+            } else if (key == QLatin1String("bgcolor")) {
+                node->bgColor.setNamedColor(value);
             }
         } else if (node->id == Html_table) {
             if (key == QLatin1String("border")) {
@@ -1057,6 +1059,8 @@ void QTextHtmlParser::parseAttributes()
                 int width = value.toInt(&ok);
                 if (ok)
                     node->tableBorder = width;
+            } else if (key == QLatin1String("bgcolor")) {
+                node->bgColor.setNamedColor(value);
             }
         }
 

@@ -404,6 +404,12 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPoint &offset, QPainter *paint
                 if (!cellRect.intersects(painter->clipRegion().boundingRect()))
                     continue;
 
+                {
+                    QColor bgCol = cell.format().tableCellBackgroundColor();
+                    if (bgCol.isValid())
+                        painter->fillRect(cellRect, bgCol);
+                }
+
                 QAbstractTextDocumentLayout::PaintContext cell_context = context;
                 if (row_start != -1) {
                     if (r >= row_start && r < row_start + num_rows
