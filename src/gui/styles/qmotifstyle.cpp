@@ -813,7 +813,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                     x2 -= 2;
                     y2 -= 2;
                 } else {
-                    qDrawShadePanel(p, opt->rect, opt->palette, true);
+                    qDrawShadePanel(p, opt->rect.adjusted(1, 1, -1, -1), opt->palette, true);
                 }
             }
             if (!(btn->features & QStyleOptionButton::Flat) ||
@@ -1467,7 +1467,7 @@ int QMotifStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt,
 
     switch(pm) {
     case PM_ButtonDefaultIndicator:
-        ret = 3;
+        ret = 4;
         break;
 
     case PM_ButtonShiftHorizontal:
@@ -1725,12 +1725,17 @@ QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
         sz = QSize(10, 10);
         break;
 
+    case CT_RadioButton:
+    case CT_CheckBox:
+        sz = QCommonStyle::sizeFromContents(ct, opt, contentsSize, widget);
+        sz.rwidth() += motifItemFrame;
+        break;
+
     case CT_PushButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             sz = QCommonStyle::sizeFromContents(ct, opt, contentsSize, widget);
-            if ((btn->features & (QStyleOptionButton::AutoDefaultButton|QStyleOptionButton::DefaultButton)) &&
-                sz.width() < 80 && !btn->icon.isNull())
-                sz.setWidth(80);
+            if (!btn->text.isEmpty() && (btn->features & (QStyleOptionButton::AutoDefaultButton|QStyleOptionButton::DefaultButton)))
+                sz.setWidth(qMax(80, sz.width()));
         }
         break;
 
@@ -1798,6 +1803,14 @@ QMotifStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget)
     case SR_SliderFocusRect:
         rect = QCommonStyle::subRect(sr, opt, widget);
         rect.addCoords(2, 2, -2, -2);
+        break;
+
+    case SR_CheckBoxIndicator:
+    case SR_RadioButtonIndicator:
+        {
+            rect = QCommonStyle::subRect(sr, opt, widget);
+            rect.addCoords(motifItemFrame,0, motifItemFrame,0);
+        }
         break;
 
     case SR_ComboBoxFocusRect:

@@ -348,9 +348,12 @@ QIcon::QIcon()
   Constructs an icon from a \a pixmap.
  */
 QIcon::QIcon(const QPixmap &pixmap)
-    :d(new QIconPrivate)
+    :d(0)
 {
-    d->engine = new QPixmapIconEngine(pixmap);
+    if (!pixmap.isNull()) {
+        d = new QIconPrivate;
+        d->engine = new QPixmapIconEngine(pixmap);
+    }
 }
 
 /*!
