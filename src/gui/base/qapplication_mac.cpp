@@ -394,11 +394,10 @@ void qt_mac_update_os_settings()
 	    QFont fnt(pstring2qstring(f_name), f_size, (f_style & ::bold) ? QFont::Bold : QFont::Normal,
 		      (bool)(f_style & ::italic));
 	    bool set_font = TRUE;
-	    extern QHash<QString, QFont> *app_fonts;  //qapplication.cpp
+	    extern QHash<QByteArray, QFont> app_fonts;  //qapplication.cpp
 	    if(app_fonts) {
-		QHash<QString, QFont>::ConstIterator it =
-			app_fonts->find(mac_widget_fonts[i].qt_class);
-		if (it != app_fonts->constEnd())
+		QHash<QByteArray, QFont>::ConstIterator it = app_fonts.find(mac_widget_fonts[i].qt_class);
+		if (it != app_fonts.constEnd())
 		    set_font = (fnt != *it);
 	    }
 	    if(set_font) {
@@ -465,11 +464,10 @@ void qt_mac_update_os_settings()
 			     pal.color(QPalette::Active, QPalette::Text));
 	    }
 	    bool set_palette = TRUE;
-	    extern QHash<QString, QPalette> *app_palettes; //qapplication.cpp
+	    extern QHash<QByteArray, QPalette> app_palettes; //qapplication.cpp
 	    if(app_palettes) {
-		QHash<QString, QPalette>::ConstIterator it =
-			app_palettes->find(mac_widget_colors[i].qt_class);
-		if (it != app_palettes->constEnd())
+		QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(mac_widget_colors[i].qt_class);
+		if (it != app_palettes.constEnd())
 		    set_palette = (pal != *it);
 	    }
 	    if(set_palette && pal != apppal) {
