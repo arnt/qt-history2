@@ -458,6 +458,7 @@ bool MetaTranslator::release( const QString& filename, bool verbose ) const
 		QCString context = m.key().context();
 		QCString sourceText = m.key().sourceText();
 		QCString comment = m.key().comment();
+		QString translation = m.key().translation();
 
 		/*
 		  Drop the comment in (context, sourceText, comment),
@@ -471,7 +472,8 @@ bool MetaTranslator::release( const QString& filename, bool verbose ) const
 			    .isNull() ) {
 		    tor.insert( m.key() );
 		} else {
-		    tor.insert( QTranslatorMessage(context, sourceText, "") );
+		    tor.insert( QTranslatorMessage(context, sourceText, "",
+						   translation) );
 		}
 	    }
 	}
