@@ -498,6 +498,7 @@ public:
     void setTristate( bool );
     bool isTristate() const;
     ToggleState state() const;
+    void setState( ToggleState s);
 
     int rtti() const;
     static int RTTI;
@@ -509,7 +510,11 @@ protected:
 
 private:
     void init();
-    void updateStoredState( ToggleState );
+    void setStoredState( ToggleState );
+    void stateChange( ToggleState s );
+    void restoreState();
+    void updateController();
+    void updateStoredState();
 
     Type myType;
     bool unused; // ### remove in ver4
