@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#22 $
+# $Id: //depot/qt/main/GNUmakefile.inc#23 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -23,7 +23,7 @@ TMAKEHACK="TMAKE_LIBDIR_QT=$(QTDIR)/lib-e-$(QT_EMBEDDED)" $(TMAKEHACKEXTRA)
 endif
 PROJOBJ=e-$(QT_EMBEDDED)/
 PROJMAK=-e-$(QT_EMBEDDED)
-TMAKEPATH=$(TMAKEDIR)/lib/linux-qws-g++
+TMAKEPATH=$(TMAKEDIR)/lib/qws/linux-$(QT_EMBEDDED)-g++
 export TMAKEPATH
 ifndef QT_TARGET
 QT_TARGET=release
