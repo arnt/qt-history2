@@ -438,6 +438,7 @@ void QMovieFilePrivate::frameDone(const QPoint& p,
     const QImage& gimg = decoder->image();
     if (framenumber==0)
 	emit sizeChanged(gimg.size());
+    valid_area = valid_area.unite(QRect(p,rect.size()));
     updatePixmapFromImage(p,rect);
     emit areaChanged(QRect(p,rect.size()));
     emit dataStatus(QMovie::EndOfFrame);
@@ -764,8 +765,9 @@ const QPixmap& QMovie::framePixmap() const
 
 /*!
   Returns the current frame of the movie, as a QImage.
-  It is not generally useful to
-  keep a copy of this pixmap.
+  It is not generally useful to keep a copy of this image.
+  Also note that you must not call this function if the
+  movie is finished(), as the image is not them available.
 
   \sa framePixmap()
 */
