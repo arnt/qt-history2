@@ -83,7 +83,7 @@ qt_mac_get_global_setting(QString key, QString ret=QString::null, QString file=Q
 	file = ".GlobalPreferences";
     CFStringRef k = CFStringCreateWithCharacters(NULL, (UniChar *)key.unicode(), key.length()),
 	       id = CFStringCreateWithCharacters(NULL, (UniChar *)file.unicode(), file.length());
-    if(CFPropertyListRef r = CFPreferencesCopyValue(k, id, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)) {
+    if(CFPropertyListRef r = CFPreferencesCopyValue(k, id, kCFPreferencesCurrentUser, kCFPreferencesCurrentHost)) {
 	if(CFGetTypeID(r) == CFStringGetTypeID()) {
 	    ret = cfstring2qstring((CFStringRef)r);
 	} else if(CFGetTypeID(r) == CFBooleanGetTypeID()) {
@@ -194,9 +194,6 @@ QSettingsSysPrivate::QSettingsSysPrivate()
 
 bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool global)
 {
-#if 1
-    global = FALSE; //this doesn't work very well!
-#endif
     while(key.right(1) == "/")
 	key.truncate(key.length() -1);
 
@@ -205,8 +202,8 @@ bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool gl
 	search_keys k(searchPaths.at(i), key, "writeEntry");
 	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
 	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
-	    CFPreferencesSetValue(k.key(), plr, k.id(), scopes[scope], kCFPreferencesAnyHost);
-	    if(TRUE) { //hmmm..
+	    CFPreferencesSetValue(k.key(), plr, k.id(), scopes[scope], kCFPreferencesCurrentHost);
+	    if(TRUE) { //no way to tell if there is success!?! --Sam
 		if(!syncKeys.indexOf(k.qtId()) != -1)
 		    syncKeys.append(k.qtId());
 		ret = TRUE;
@@ -220,16 +217,12 @@ bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr, bool gl
 }
 CFPropertyListRef QSettingsSysPrivate::readEntry(QString key, bool global)
 {
-#if 1
-    global = FALSE; //this doesn't work very well!
-#endif
-
     for(int i = searchPaths.size() - 1; i >= 0; --i) {
 	search_keys k(searchPaths.at(i), key, "readEntry");
 	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
 	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
-	    if(CFPropertyListRef ret = CFPreferencesCopyValue(k.key(), k.id(),
-							      scopes[scope], kCFPreferencesAnyHost))
+	    if(CFPropertyListRef ret = CFPreferencesCopyValue(k.key(), k.id(), 
+							      scopes[scope], kCFPreferencesCurrentHost)) 
 		return ret;
 	}
     }
@@ -238,17 +231,12 @@ CFPropertyListRef QSettingsSysPrivate::readEntry(QString key, bool global)
 
 QStringList QSettingsSysPrivate::entryList(QString key, bool subkey, bool global)
 {
-#if 1
-    global = FALSE; //this doesn't work very well!
-#endif
-
     QStringList ret;
     for(int i = searchPaths.size() - 1; i >= 0; --i) {
 	search_keys k(searchPaths.at(i), key, subkey ? "subkeyList" : "entryList");
 	CFStringRef scopes[] = { kCFPreferencesAnyUser, kCFPreferencesCurrentUser, NULL };
 	for(int scope = (global ? 0 : 1); scopes[scope]; scope++) {
-	    if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), scopes[scope],
-							 kCFPreferencesAnyHost)) {
+	    if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), scopes[scope], kCFPreferencesCurrentHost)) {
 		QString qk = cfstring2qstring(k.key());
 		for(CFIndex i = 0, cnt = CFArrayGetCount(cfa); i < cnt; i++) {
 		    QString s = cfstring2qstring((CFStringRef)CFArrayGetValueAtIndex(cfa, i));
