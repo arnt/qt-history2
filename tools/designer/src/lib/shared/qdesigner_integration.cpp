@@ -85,6 +85,7 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
 void QDesignerIntegration::updateActiveFormWindow(AbstractFormWindow *formWindow)
 {
     Q_UNUSED(formWindow);
+    updateSelection();
 }
 
 void QDesignerIntegration::setupFormWindow(AbstractFormWindow *formWindow)
