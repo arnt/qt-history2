@@ -659,21 +659,21 @@ void QApplication::initialize( int argc, char **argv )
 	//
 	QString style;
 #if defined(Q_WS_WIN)
-	style = "windows";		// default style for Windows
+	style = "Windows";		// default style for Windows
 #elif defined(Q_WS_X11) && defined(Q_OS_IRIX)
-	style = "sgi";			// default comment
+	style = "SGI";			// default comment
 #elif defined(Q_WS_X11)
-	style = "motif";		// default style for X11
+	style = "Motif";		// default style for X11
 #elif defined(Q_WS_MAC)
-	style = "platinum";		// round style for round devices
+	style = "Platinum";		// round style for round devices
 #elif defined(Q_WS_QWS)
-	style = "compact";		// default style for small devices
+	style = "Compact";		// default style for small devices
 #endif
 	app_style = QStyleFactory::create( style );
 	if ( !app_style &&		// platform default style not available, try alternatives
-	     !(app_style = QStyleFactory::create( "windows" ) ) &&
-	     !(app_style = QStyleFactory::create( "motif" ) ) &&
-	     !(app_style = QStyleFactory::create( "platinum" ) ) )
+	     !(app_style = QStyleFactory::create( "Windows" ) ) &&
+	     !(app_style = QStyleFactory::create( "Motif" ) ) &&
+	     !(app_style = QStyleFactory::create( "Platinum" ) ) )
 	    qFatal( "Requested style %s not defined!", style.latin1() );
     }
 #endif
