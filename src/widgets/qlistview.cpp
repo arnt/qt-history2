@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#255 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#256 $
 **
 ** Implementation of QListView widget class
 **
@@ -536,6 +536,7 @@ void QListViewItem::insertItem( QListViewItem * newChild )
 
 
 /*!\obsolete
+
   Removes \a tbg from this object's list of children and causes an
   update of the screen display.  You should normally not need to call
   this function, as QListViewItem::~QListViewItem() calls it. The normal way
@@ -4201,6 +4202,7 @@ int QListViewItem::itemPos() const
 
 
 /*!\obsolete
+
   Removes \a i from the list view; \a i must be a top-level item.
   The warnings regarding QListViewItem::removeItem( i ) apply to this
   function too.

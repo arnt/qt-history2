@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#89 $
 **
 ** Implementation of QSlider class
 **
@@ -429,6 +429,7 @@ void QSlider::reallyMoveSlider( int newPos )
 }
 
 /*!\obsolete
+
   Draws the "groove" on which the slider moves, using the painter \a p.
   \a c gives the distance from the top (or left) edge of the widget to
   the center of the groove.

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#53 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1122,7 +1122,7 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col, bool mark 
 {
     killTimer( blinkTimer );
     cursorOn = TRUE;
-    
+
     line = QMAX( QMIN( line, numLines() - 1), 0 );
     col = QMAX( QMIN( col,  lineLength( line )), 0 );
 
@@ -2400,8 +2400,9 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 
 
 
-/*!
-  OBSOLETE - Use getCursorPosition() instead.
+/*! \obsolete
+  
+  Use getCursorPosition() instead.
 */
 
 void QMultiLineEdit::cursorPosition( int *line, int *col ) const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#84 $
 **
 ** Implementation of QMenuData class
 **
@@ -819,8 +819,10 @@ QPixmap *QMenuData::pixmap( int id ) const
 }
 
 /*!\obsolete
+
   Changes the text of the menu item \a id. If the item has an icon,
   the icon remains unchanged.
+
   \sa text()
 */
 
@@ -830,8 +832,10 @@ void QMenuData::changeItem( const QString &text, int id )
 }
 
 /*!\obsolete
+
   Changes the pixmap of the menu item \a id. If the item has an icon,
   the icon remains unchanged.
+
   \sa pixmap()
 */
 
@@ -841,7 +845,9 @@ void QMenuData::changeItem( const QPixmap &pixmap, int id )
 }
 
 /*!\obsolete
+
   Changes the icon and text of the menu item \a id.
+
   \sa pixmap()
 */
 

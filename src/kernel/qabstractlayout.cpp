@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#58 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -760,6 +760,7 @@ QLayout::QLayout( int space, const char *name )
 
 /*!
   \fn int QLayout::defaultBorder() const
+
   \obsolete
   Returns the internal spacing for the geometry manager. Replaced by
   spacing()

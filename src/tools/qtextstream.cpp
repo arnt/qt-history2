@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#116 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#117 $
 **
 ** Implementation of QTextStream class
 **
@@ -435,13 +435,10 @@ QTextStream::QTextStream( QString* str, int filemode )
     reset();
 }
 
-/*!
-  Note: This method is obsolete and should not be used in new code. It
-  is provided only as an aid for porting programs from Qt 1.x to Qt
-  2.x.
+/*! \obsolete
 
   This constructor is equivalent to the constructor taking a QString*
-  parameter.  
+  parameter.
 */
 
 QTextStream::QTextStream( QString& str, int filemode )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#430 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#431 $
 **
 ** Implementation of QWidget class
 **
@@ -2560,9 +2560,10 @@ void QWidget::reparentFocusWidgets( QWidget * parent )
 /*!
   \fn void recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt )
 
-  Obsolete.  This method is provided to aide porting to Qt 2.0.
+  \obsolete
 
-  The function recreate is renamed to reparent in Qt 2.0.
+  This method is provided to aide porting to Qt 2.0.  The function
+  recreate is renamed to reparent in Qt 2.0.
 */
 
 
@@ -2975,7 +2976,7 @@ void QWidget::hide()
     setWState( WState_ForceHide );
     if ( testWState(WState_Withdrawn) )
 	return;
-    
+
     if ( testWFlags(WType_Modal) )
 	qt_leave_modal( this );
     else if ( testWFlags(WType_Popup) )
@@ -3290,7 +3291,7 @@ QSize QWidget::minimumSizeHint() const
   <dt>WState_PaletteFixed<dd> The widget has a fixed palette.
   <dt>WState_FontSet<dd> The font has been set.
   <dt>WState_FontFixed<dd> The widget has a fixed font.
-  <dt> WState_Withdrawn<dd> The widget is withdrawn, i.e. hidden from the 
+  <dt> WState_Withdrawn<dd> The widget is withdrawn, i.e. hidden from the
            window system by the program itself.
   </dl>
 

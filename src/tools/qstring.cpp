@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#241 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#242 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10050,7 +10050,7 @@ public:
 
 #define NEG1 (QChar::Direction)(-1)
 
-static QChar::Direction resolv[5][5] = 
+static QChar::Direction resolv[5][5] =
 {
 	{ NEG1,         QChar::DirR, QChar::DirL, QChar::DirEN, QChar::DirAN },
 	{ QChar::DirR,  QChar::DirR, NEG1,        QChar::DirR,  QChar::DirR  },
@@ -10236,7 +10236,7 @@ QString QString::visual(int index, int len)
 			dir[j] = (base == 0 ? QChar::DirL : QChar::DirR);
 		  else
 			dir[j] = resolv[a][b];
-		  
+		
 		  if (dir[j] == (QChar::Direction)(-1))
 			dir[j] = (base == 0 ? QChar::DirL : QChar::DirR);
 	    }
@@ -11082,9 +11082,7 @@ void QString::fill( QChar c, int len )
 /*!
   \fn QString QString::copy() const
 
-  Note: This method is obsolete and should not be used in new code. It
-  is provided only as an aid for porting programs from Qt 1.x to Qt
-  2.x.
+  \obsolete
 
   Returns a deep copy of this string.
 
@@ -12285,7 +12283,7 @@ QString &QString::setNum( double n, char f, int prec )
 /*!
   A convenience factory function that returns a string representation
   of the number \a n.
-  
+
   \sa setNum()
  */
 QString QString::number( long n, int base )
@@ -12298,7 +12296,7 @@ QString QString::number( long n, int base )
 /*!
   A convenience factory function that returns a string representation
   of the number \a n.
-  
+
   \sa setNum()
  */
 QString QString::number( ulong n, int base )
@@ -12311,7 +12309,7 @@ QString QString::number( ulong n, int base )
 /*!
   A convenience factory function that returns a string representation
   of the number \a n.
-  
+
   \sa setNum()
  */
 QString QString::number( int n, int base )
@@ -12324,7 +12322,7 @@ QString QString::number( int n, int base )
 /*!
   A convenience factory function that returns a string representation
   of the number \a n.
-  
+
   \sa setNum()
  */
 QString QString::number( uint n, int base )
@@ -12337,11 +12335,11 @@ QString QString::number( uint n, int base )
 /*!
   A convenience factory function that returns a string representation
   of the number \a n.
-  
+
   \arg \a f is the format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same
   as sprintf()).
   \arg \a prec is the precision.
-  
+
   \sa setNum()
  */
 QString QString::number( double n, char f, int prec )
@@ -12356,10 +12354,7 @@ QString QString::number( double n, char f, int prec )
 
 
 
-/*!
-  Note: This method is obsolete and should not be used in new code. It
-  is provided only as an aid for porting programs from Qt 1.x to Qt
-  2.x.
+/*! \obsolete
 
   Sets the character at position \a index to \a c and expands the
   string if necessary, filling with spaces.
@@ -12380,9 +12375,7 @@ void QString::setExpand( uint index, QChar c )
 /*!
   \fn const char* QString::data() const
 
-  Note: This method is obsolete and should not be used in new code. It
-  is provided only as an aid for porting programs from Qt 1.x to Qt
-  2.x.
+  \obsolete
 
   Returns a pointer to a 0-terminated classic C string.
 
