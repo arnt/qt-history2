@@ -337,10 +337,11 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 	qt_macdnd_register( widget,  widget->extraData());
     qt_mac_tracking_handler( kDragTrackingEnterWindow, (WindowPtr)widget->hd,
 			     (void *)widget->extraData()->macDndExtra, theDrag );
-    result = TrackDrag( theDrag, &fakeEvent, (RgnHandle)dragRegion.handle(TRUE) ); //now let the mac take control..
+    //now let the mac take control..
+    result = TrackDrag( theDrag, &fakeEvent, (RgnHandle)dragRegion.handle(TRUE) ); 
     DisposeDrag( theDrag );
     qt_mac_in_drag = FALSE;
-    return !result;
+    return result == noErr;
 }
 
 void QDragManager::updatePixmap()
@@ -370,7 +371,8 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
 	return 1;
     QDropEvent de( widget->mapFromGlobal( QPoint( mouse.h, mouse.v )) );
     QApplication::sendEvent( widget, &de );
-    return !(macDndExtra->acceptact = de.isActionAccepted());
+    macDndExtra->acceptact = de.isActionAccepted();
+    return (macDndExtra->acceptfmt = de.isAccepted()) ? noErr : dragNotAcceptedErr;
 }
 static DragReceiveHandlerUPP qt_mac_receive_handlerUPP = NULL;
 static void cleanup_dnd_receiveUPP() 
@@ -421,25 +423,24 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 	macDndExtra->acceptfmt = de.isAccepted();
 	macDndExtra->acceptact = de.isActionAccepted();
 	return 0;
-    }
-
-    if ( current_drag_widget && ((theMessage == kDragTrackingLeaveWindow) || 
-				 (widget != current_drag_widget))) {
-	macDndExtra->acceptfmt = FALSE;
-	current_dropobj = 0;
-	QDragLeaveEvent de;
-	QApplication::sendEvent( current_drag_widget, &de );
-	current_drag_widget = 0;
-    }
-
-    if ( widget ) {
-	current_dropobj = theDrag;
-	if(widget != current_drag_widget) {
-	    QDragEnterEvent de( widget->mapFromGlobal( globalMouse ) );
-	    QApplication::sendEvent(widget, &de );
-	    macDndExtra->acceptfmt = de.isAccepted();
-	    macDndExtra->acceptact = de.isActionAccepted();
-	    current_drag_widget = widget;
+    } else {
+	if ( current_drag_widget && ((theMessage == kDragTrackingLeaveWindow) || 
+				     (widget != current_drag_widget))) {
+	    macDndExtra->acceptfmt = FALSE;
+	    current_dropobj = 0;
+	    QDragLeaveEvent de;
+	    QApplication::sendEvent( current_drag_widget, &de );
+	    current_drag_widget = 0;
+	}
+	if ( widget ) {
+	    current_dropobj = theDrag;
+	    if(widget != current_drag_widget) {
+		QDragEnterEvent de( widget->mapFromGlobal( globalMouse ) );
+		QApplication::sendEvent(widget, &de );
+		macDndExtra->acceptfmt = de.isAccepted();
+		macDndExtra->acceptact = de.isActionAccepted();
+		current_drag_widget = widget;
+	    }
 	}
     }
     QApplication::sendPostedEvents();
