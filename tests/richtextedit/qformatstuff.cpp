@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#13 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#14 $
 **
 ** Definition of the QtTextView class
 **
@@ -29,7 +29,7 @@
 #include <qstylesheet.h>
 
 QtTextCharFormat::QtTextCharFormat()
-    : ref( 1 ), logicalFontSize( 3 )
+    : ref( 1 ), logicalFontSize( 3 ), custom( 0 )
 {
 }
 
@@ -39,12 +39,12 @@ QtTextCharFormat::QtTextCharFormat( const QtTextCharFormat &format )
       logicalFontSize( format.logicalFontSize ),
       anchor_href( format.anchor_href ),
       anchor_name( format.anchor_name ),
-      parent(0)
+      parent(0), custom( format.custom )
 {
 }
 
 QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c )
-    : font_( f ), color_( c ), ref( 1 ), logicalFontSize( 3 ),parent(0)
+    : font_( f ), color_( c ), ref( 1 ), logicalFontSize( 3 ),parent(0), custom( 0 )
 {
     createKey();
 }
@@ -76,6 +76,7 @@ QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
     logicalFontSize = fmt.logicalFontSize;
     anchor_href = fmt.anchor_href;
     anchor_name = fmt.anchor_name;
+    custom = fmt.custom;
     return *this;
 }
 
@@ -134,6 +135,8 @@ QtTextFormatCollection::QtTextFormatCollection()
 
 QtTextCharFormat* QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
 {
+    if ( format.customItem() )
+	qDebug("register format with  customItem");
     if ( lastRegisterFormat ) {
         if ( format.key == lastRegisterFormat->key ) {
 	    lastRegisterFormat->addRef();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#4 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#5 $
 **
 ** Implementation of the QtTextView class
 **
@@ -107,7 +107,7 @@ public:
   with the standard \a parent and \a name optional arguments.
 */
 QtTextView::QtTextView(QWidget *parent, const char *name)
-    : QScrollView( parent, name, WNorthWestGravity )
+    : QScrollView( parent, name )
 {
     init();
 }
@@ -120,7 +120,7 @@ QtTextView::QtTextView(QWidget *parent, const char *name)
 */
 QtTextView::QtTextView( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
-    : QScrollView( parent, name, WNorthWestGravity )
+    : QScrollView( parent, name )
 {
     init();
     setText( text, context );
@@ -147,7 +147,7 @@ void QtTextView::init()
     d->txt = QString::fromLatin1("<p></p>");
     d->textformat = AutoText;
 
-    viewport()->setBackgroundMode(NoBackground);
+    viewport()->setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
 
@@ -530,12 +530,17 @@ void QtTextView::resizeEvent( QResizeEvent* e )
 	  QPainter p( this );
 	  richText().setWidth( &p, vw.width()-2 );
       }
+      double ratio = double( contentsY() ) / contentsHeight();
+      bool u = viewport()->isUpdatesEnabled();
+      viewport()->setUpdatesEnabled( FALSE );
       resizeContents( QMAX( richText().widthUsed,
 			    richText().width),
 		      richText().height );
       QScrollView::resizeEvent( e );
-      if ( viewport()->isVisibleToTLW() )
-	  viewport()->repaint( FALSE );
+      setContentsPos( contentsX(), int( ratio * contentsHeight() ) );
+      viewport()->setUpdatesEnabled( u );
+      if ( isVisibleToTLW() )
+	  viewport()->repaint( viewport()->visibleRect(), FALSE );
     }
 }
 

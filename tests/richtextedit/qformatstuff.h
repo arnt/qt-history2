@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#10 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#11 $
 **
 ** Definition of the QtTextView class
 **
@@ -68,19 +68,13 @@ protected:
     int logicalFontSize;
     QString anchor_href;
     QString anchor_name;
-    
+
     void createKey();
 private:
     QtTextFormatCollection* parent;
     QtTextCustomItem* custom;
 };
 
-class QtTextCustomItem : public Qt
-{
-public:
-    QtTextCustomItem() {}
-    virtual ~QtTextCustomItem() {}
-};
 
 class QtTextFormatCollection
 {

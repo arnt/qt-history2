@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#6 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#7 $
 **
 ** Internal rich text classes
 **
@@ -57,25 +57,21 @@ class QtTextRichString
 	Item() {
 	    format = 0;
 	    width = -1;
-	    custom = 0;
 	};
 	Item( const Item& other) {
 	    c = other.c;
 	    format = other.format;
 	    width = other.width;
-	    custom = 0;
 	};
 	Item& operator=( const Item& other) {
 	    c = other.c;
 	    format = other.format;
 	    width = other.width;
-	    custom = other.custom;
 	    return *this;
 	};
 	int width;
 	QString c;
 	QtTextCharFormat* format;
-	QtTextCustomItem* custom;
     };
     Item* items;
     int store;
@@ -120,23 +116,11 @@ public:
 class QtBox
 {
 public:
-    QtBox( QtBox* p, QtTextFormatCollection* formatCol,
-	   const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
-    : parent( p ), formats( formatCol ), text( formatCol ), style ( stl ), attributes_( attr )
-    {
-	child = next = 0;
-	rows.setAutoDelete( TRUE );
-	width = widthUsed = height = 0;
-    };
+    QtBox( QtBox* p, QtTextFormatCollection* formatCol, const QtTextCharFormat& fmt,
+	   const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
 
-    QtBox( QtBox* p, QtTextFormatCollection* formatCol,
-	   const QStyleSheetItem *stl )
-    : parent( p ), formats( formatCol ), text( formats ), style ( stl )
-    {
-	child = next = 0;
-	rows.setAutoDelete( TRUE );
-	width = widthUsed = height = 0;
-    };
+    QtBox( QtBox* p, QtTextFormatCollection* formatCol, const QtTextCharFormat& fmt,
+	   const QStyleSheetItem *stl );
 
     ~QtBox();
 
@@ -148,6 +132,7 @@ public:
 
     QtBox* parent;
     QtTextFormatCollection* formats;
+    QtTextCharFormat format;
     QtTextRichString text;
     const QStyleSheetItem* style;
     QMap<QString, QString> attributes_;
@@ -179,10 +164,7 @@ public:
 	return parent?parent->whiteSpaceMode():QStyleSheetItem::WhiteSpaceNormal;
     }
 
-    int numberOfSubBox( QtBox* subbox, bool onlyListItems)
-    {
-	return 1;
-    }
+    int numberOfSubBox( QtBox* subbox, bool onlyListItems);
     QStyleSheetItem::ListStyle listStyle();
     inline int alignment() const
     {
@@ -194,90 +176,6 @@ public:
 };
 
 
-class QtTextNode
-{
-public:
-    QtTextNode();
-    ~QtTextNode();
-    QtTextNode* next;
-
-    inline QtTextNode* depthFirstSearch(QtTextNode* tag, QtTextContainer* &parent, bool down = TRUE);
-    inline QtTextNode* nextLayout(QtTextNode* tag, QtTextContainer* &parent);
-    inline QtTextNode* nextLeaf(QtTextNode* tag, QtTextContainer* &parent);
-
-    QString text;
-
-    inline bool isSpace() const {return text[0] == ' ';}
-    inline bool isNewline() const {return text[0] == '\n';}
-    inline bool isNull() const {return text.isNull();}
-
-
-    inline QtRichText* root() const;
-    inline QtTextContainer* parent() const;
-    inline QtTextBox* box() const;
-    inline QtTextNode* previousSibling() const;
-    inline QtTextNode* lastSibling() const;
-    inline QtTextNode* nextSibling() const;
-    inline QtTextNode* nextNode() const;
-
-    uint isSimpleNode: 1;
-    uint isLastSibling:1;
-    uint isContainer:1;
-    uint isBox:1;
-    uint isRoot:1;
-    uint isSelected: 1;
-    uint isSelectionDirty: 1;
-
-    inline bool isCustomNode() const { return !isSimpleNode && !isContainer; }
-};
-
-
-class QtTextCustomNode : public QtTextNode
-{
-public:
-    QtTextCustomNode();
-    virtual ~QtTextCustomNode();
-
-    virtual void draw(QPainter* p, int x, int y,
-		      int ox, int oy, int cx, int cy, int cw, int ch,
-		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& ) = 0;
-
-    virtual bool expandsHorizontally();
-
-    int width;
-    int height;
-};
-
-class QtTextHorizontalLine : public QtTextCustomNode
-{
-public:
-    QtTextHorizontalLine(const QMap<QString, QString> &attr, const QMimeSourceFactory& factory);
-    ~QtTextHorizontalLine();
-
-    void draw(QPainter* p, int x, int y,
-	      int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& );
-
-    bool expandsHorizontally();
-
-};
-
-
-
-class QtTextImage : public QtTextCustomNode
-{
-public:
-    QtTextImage(const QMap<QString, QString> &attr, const QString& context,
-	       const QMimeSourceFactory& factory);
-    ~QtTextImage();
-
-    void draw(QPainter* p, int x, int y,
-	      int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& );
-private:
-    QPixmap pm;
-    QRegion* reg;
-};
 
 
 // internal class for qmlbox, also used in qmlcursor.
@@ -321,92 +219,9 @@ inline bool QtTextRow::intersects(int xr, int yr, int wr, int hr)
 
 }
 
-class QtTextContainer : public QtTextNode
-{
-public:
-    QtTextContainer( const QStyleSheetItem *stl);
-    QtTextContainer( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
-    virtual ~QtTextContainer();
-    inline QFont font() const;
-    void setFont( const QFont& );
-    void setFontSize( int );
-    int fontSize() const;
-    inline QColor color(const QColor&) const;
-    void setColor( const QColor& );
-    inline int margin(QStyleSheetItem::Margin) const;
-    inline QStyleSheetItem::WhiteSpaceMode  whiteSpaceMode() const;
-    virtual int numberOfColumns() const;
-    inline int alignment() const;
-
-    virtual void setParent( QtTextContainer* );
-    QtTextContainer* parent;
-    const QStyleSheetItem* style;
-    QtTextNode* child;
-
-    QtTextBox* box() const;
-    QtTextBox* parentBox() const;
-
-    QtTextIterator begin() const;
-    QtTextIterator end() const;
-
-    QtTextNode* lastChild() const;
-
-    void reparentSubtree();
-
-    virtual QtTextContainer* copy() const;
-
-    void split(QtTextNode* node);
-
-    const QMap<QString, QString> *attributes() const;
-
-    const QtTextContainer* anchor() const;
-
-    QtTextContainer* findAnchor(const QString& name ) const;
-
-protected:
-    void setAttributes(const QMap<QString, QString> &attr );
-
-private:
-    int fontWeight() const;
-    bool fontItalic() const;
-    bool fontUnderline() const;
-    QString fontFamily() const;
-
-    void createFont();
-
-    QFont* fnt;
-    int fontsize;
-    QColor col;
-    QMap<QString, QString> * attributes_;
-};
-
-class QtTextIterator
-{
-public:
-    QtTextIterator() { node = 0; par = 0; }
-    inline QtTextIterator( const QtTextNode* n );
-    inline QtTextIterator( const QtTextNode* n, const QtTextContainer* p );
-    QtTextIterator( const QtTextIterator& it) { node = it.node; par = it.par; }
-    ~QtTextIterator();
-    QtTextIterator next() const;
-    bool operator==( const QtTextIterator& other ) const { return other.node == node; }
-    bool operator!=( const QtTextIterator& other ) const { return other.node != node; }
-    QtTextIterator operator++ (int);
-    QtTextIterator& operator++ ();
-
-    inline QtTextNode* operator*() const;
-    inline QtTextNode* operator->() const;
-    inline QtTextContainer* parentNode() const;
-    inline QtTextIterator parent() const;
-
-protected:
-    QtTextContainer* par;
-    QtTextNode* node;
-};
 
 
-
-
+/*
 
 class QtTextMulticol : public QtTextContainer
 {
@@ -436,18 +251,35 @@ public:
 	}
 };
 
-class QtTextFont : public QtTextContainer
+*/
+
+class QtTextCustomItem : public Qt
 {
 public:
-    QtTextFont( const QStyleSheetItem *stl);
-    QtTextFont( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
-    ~QtTextFont();
-
-    void setParent( QtTextContainer* );
+    QtTextCustomItem()
+	: reg(0),width(0), height(0)
+    {}
+    virtual ~QtTextCustomItem() {}
+    virtual void draw(QPainter* p, int x, int y,
+		      int ox, int oy, int cx, int cy, int cw, int ch,
+		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to) = 0;
+    QRegion* reg;
+    int width;
+    int height;
 };
 
-
-
+class QtTextImage : public QtTextCustomItem
+{
+public:
+    QtTextImage(const QMap<QString, QString> &attr, const QString& context,
+		       const QMimeSourceFactory &factory);
+    ~QtTextImage();
+    void draw(QPainter* p, int x, int y,
+	      int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
+private:
+    QPixmap pm;
+};
 
 
 class QtRichText : public QtBox
@@ -462,7 +294,7 @@ public:
     bool isValid() const;
 
     void setWidth (QPainter* p, int newWidth );
-    
+
     QString context() const;
     void dump();
 
@@ -486,292 +318,8 @@ private:
     const QtStyleSheet* sheet_;
     const QMimeSourceFactory* factory_;
     QStyleSheetItem* base;
+    QStyleSheetItem* nullstyle;
 
-};
-
-inline QtTextIterator::QtTextIterator( const QtTextNode* n )
-{
-    node = (QtTextNode*)n;
-    if ( node )
-	par = node->parent();
-}
-
-inline QtTextIterator::QtTextIterator( const QtTextNode* n, const QtTextContainer* p )
-{
-    node = (QtTextNode*) n;
-    par = (QtTextContainer*)p;
-    if (!par && node)
-	par = node->parent();
-}
-
-inline QtTextNode* QtTextIterator::operator*() const
-{
-    return node;
-}
-
-inline QtTextNode* QtTextIterator::operator->() const
-{
-    return node;
-}
-
-
-inline QtTextContainer* QtTextIterator::parentNode() const
-{
-    return par;
-}
-
-inline QtTextIterator QtTextIterator::parent() const
-{
-    return QtTextIterator( par );
-}
-
-
-
-inline QFont QtTextContainer::font() const
-{
-    if (!fnt) {
-	QtTextContainer* that = (QtTextContainer*) this;
-	that->createFont();
-    }
-    return *fnt;
-}
-
-
-inline QColor QtTextContainer::color(const QColor& c) const
-{
-    if ( col.isValid() )
-	return col;
-    QColor sc = style->color();
-    if ( sc.isValid() )
-	return sc;
-    return parent?parent->color(c):c;
-}
-
-inline int QtTextContainer::margin(QStyleSheetItem::Margin m) const
-{
-    if (style->margin(m) != QStyleSheetItem::Undefined)
-	return style->margin(m);
-    return 0;
-    //return parent?parent->margin(m):0;
-
-}
-
-
-inline QStyleSheetItem::WhiteSpaceMode  QtTextContainer::whiteSpaceMode() const
-{
-    if ( style->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal )
-	return style->whiteSpaceMode();
-    return parent?parent->whiteSpaceMode():QStyleSheetItem::WhiteSpaceNormal;
-}
-
-inline int QtTextContainer::numberOfColumns() const
-{
-    if (style->numberOfColumns() != QStyleSheetItem::Undefined)
-	return style->numberOfColumns();
-    return (parent && !parent->isBox)?parent->numberOfColumns():1;
-
-}
-
-
-inline int QtTextContainer::alignment() const
-{
-    if ( style->alignment() != QStyleSheetItem::Undefined )
-	return style->alignment();
-    return parent?parent->alignment():QStyleSheetItem::AlignLeft;
-}
-
-
-/*!
-  depthFirst traversal for the tag tree. Returns the next node
- */
-inline QtTextNode* QtTextNode::nextNode() const
-{
-    if ( isContainer && ( ( const QtTextContainer *) this)-> child )
-	return ( ( const QtTextContainer *) this)-> child;
-    if ( next || !isLastSibling )
-	return next;
-    QtTextNode* i = next;
-    while ( i && i->isLastSibling )
-	i = i->next;
-    if ( i )
-	return i->next;
-    return 0;
-}
-
-
-/*!
-  depthFirstSearch traversal for the tag tree
- */
-inline QtTextNode* QtTextNode::depthFirstSearch(QtTextNode* tag, QtTextContainer* &parent, bool down)
-{
-    if (down) {
-	if (tag->isContainer && ((QtTextContainer*)tag)->child){
-	    parent = (QtTextContainer*)tag;
-	    return ((QtTextContainer*)tag)->child;
-	}
-	//  	return depthFirstSearch(tag, parent, FALSE);
-    }
-    //      else
-    {
-	if (tag == this){
-	    return 0;
-	}
-	if (!tag->isLastSibling && tag->next){
-	    return tag->next;
-	}
-	QtTextContainer* p = (QtTextContainer*)tag->next;
-	if (p){
-	    parent = p->parent;
-	    return depthFirstSearch(p, parent, FALSE);
-	}
-    }
-    return 0;
-}
-
-
-/*!
-  extends the depthFirstSearch traversal so that only tags that include a layout are
-  returned
-*/
-
-inline QtTextNode* QtTextNode::nextLayout(QtTextNode* tag, QtTextContainer* &parent){
-    QtTextNode* t;
-
-    if (tag != this && tag->isBox)
-	t = depthFirstSearch(tag, parent, FALSE);
-    else
-	t = depthFirstSearch(tag, parent);
-    if (t) {
-	if (t->isContainer && !t->isBox)
-	    return nextLayout(t, parent);
-    }
-    return t;
-}
-
-
-inline QtTextNode* QtTextNode::nextLeaf(QtTextNode* tag, QtTextContainer* &parent){
-    do {
-	tag = depthFirstSearch(tag, parent);
-
-    } while (tag && tag->isContainer);
-
-    return tag;
-}
-
-
-
-inline QtTextNode* QtTextNode::lastSibling() const
-{
-    QtTextNode* n = (QtTextNode*) this;
-
-    while (n && !n->isLastSibling)
-	n = n->next;
-    return n;
-}
-
-
-inline QtRichText* QtTextNode::root() const
-{
-    if (isRoot)
-	return ( QtRichText* ) this;
-    if (isContainer)
-	return ((QtTextContainer*)this)->parent->root();
-    else {
-	QtTextNode* n = lastSibling();
-	if (n) return n->next->root();
-    }
-    return 0;
-}
-
-inline QtTextContainer* QtTextNode::parent() const
-{
-    if (isContainer)
-	return ((QtTextContainer*)this)->parent;
-    else {
-	QtTextNode* n = lastSibling();
-	if (n) return (QtTextContainer*)n->next;
-    }
-    return 0;
-}
-
-inline QtTextBox* QtTextNode::box() const
-{
-    QtTextContainer* par = parent();
-    if (!par)
-	return 0;
-    else
-	return par->box();
-}
-
-inline QtTextNode* QtTextNode::previousSibling() const
-{
-    QtTextContainer* par = parent();
-    QtTextNode* result = par->child;
-    if (result == this)
-	return 0;
-    while (result->next && result->next != this)
-	result = result->next;
-    return result;
-}
-
-
-inline QtTextNode* QtTextNode::nextSibling() const
-{
-    if (isLastSibling)
-	return 0;
-    return next;
-}
-
-
-class QtTextCursor{
-public:
-    QtTextCursor(QtRichText& doc);
-    ~QtTextCursor();
-    void draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch);
-
-    QtRichText* document;
-
-    int x;
-    int y;
-    int height;
-
-    QtTextRow* row;
-    int rowY;
-    int rowHeight;
-
-    int width() { return 1; }
-
-    QtTextNode *node;
-    QtTextContainer *nodeParent;
-
-    bool hasSelection;
-    bool selectionDirty;
-    void clearSelection();
-
-    void insert(QPainter* p, const QString& s);
-    void enter(QPainter* p);
-    void del(QPainter* p, int c = 1);
-    void backSpace(QPainter* p, int c = 1);
-
-    void right(QPainter* p, bool select = FALSE);
-    void left(QPainter* p, bool select = FALSE);
-    void up(QPainter* p, bool select = FALSE);
-    void down(QPainter* p, bool select = FALSE);
-    void home(QPainter* p, bool select = FALSE);
-    void last(QPainter* p, bool select = FALSE);
-    void goTo(QPainter* p, int xarg, int yarg, bool select = FALSE);
-
-
-    void goTo(QtTextNode* n, QtTextContainer* par,  bool select = FALSE);
-    void calculatePosition(QPainter* p);
-
-    int xline;
-    int yline;
-    bool ylineOffsetClean;
-
-private:
-    void rightInternal(bool select = FALSE);
-    void leftInternal(bool select = FALSE);
 };
 
 inline void QtTextRichString::append( const QString& c,const  QtTextCharFormat& fmt )
