@@ -227,6 +227,7 @@ struct QScriptLine
     int y;
     int from;
     int length;
+    short textWidth;
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
 
@@ -329,6 +330,7 @@ public:
     unsigned int widthOnly : 1;
     unsigned int kern : 1;
     unsigned int reserved : 24;
+    unsigned int textFlags;
 
     int allocated;
     void **memory;

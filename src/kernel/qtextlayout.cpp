@@ -17,6 +17,7 @@
 #include <qapplication.h>
 #include <qpainter.h>
 
+#include "qfontengine_p.h"
 
 QRect QTextItem::rect() const
 {
@@ -282,7 +283,7 @@ void QTextLayout::setProperty(int from, int length, const QFont &f, int custom)
     d->setProperty(from, length, f.d, custom);
 }
 
-void QTextLayout::beginLayout( QTextLayout::LayoutMode m )
+void QTextLayout::beginLayout( QTextLayout::LayoutMode m, int textFlags )
 {
     d->items.clear();
     QTextEngine::Mode mode = QTextEngine::Full;
@@ -293,6 +294,7 @@ void QTextLayout::beginLayout( QTextLayout::LayoutMode m )
     d->itemize( mode );
     d->currentItem = 0;
     d->firstItemInLine = -1;
+    d->textFlags = textFlags;
 }
 
 void QTextLayout::beginLine( int width )
@@ -636,6 +638,8 @@ bool QTextLayout::validCursorPosition( int pos ) const
     return attributes[pos].charStop;
 }
 
+#define QChar_linesep QChar(0x2028U)
+
 QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 {
     QScriptLine line;
@@ -643,13 +647,17 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
     line.width = x2-x1;
     line.y = y;
     line.from = from;
+    line.length = 0;
+    line.textWidth = 0;
+    line.ascent = 0;
+    line.descent = 0;
 
     // ######
-    // Readd breakany, tab and whitespace at end of line support.
-    bool breakany = false;
+    // Readd tab support. Add explicit newlines
+    bool breakany = d->textFlags & Qt::BreakAnywhere;
 
     // add to the line until it's filled up.
-    if (from < 0 || from > d->string.length())
+    if (from < 0 || from >= d->string.length())
 	return QTextLine();
 
     int item;
@@ -660,50 +668,82 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 
     const QCharAttributes *attributes = d->attributes();
 
-    int w = 0;
-
+    qDebug("from: %d:   item=%d, total %d width available %d", from, item, d->items.size(), line.width);
     while (item < d->items.size()) {
-	const QScriptItem &current = d->items[item];
 	d->shape(item);
+	const QScriptItem &current = d->items[item];
+	line.ascent = qMax(line.ascent, current.ascent);
+	line.descent = qMax(line.descent, current.descent);
 
-	int length = current.position;
+	int length = d->length(item);
 
 	const QCharAttributes *itemAttrs = attributes + current.position;
 	QGlyphLayout *glyphs = d->glyphs(&current);
 	unsigned short *logClusters = d->logClusters(&current);
 
-	int pos = 0;
+	int pos = qMax(0, from - current.position);
 
 	do {
-	    int next = pos;
+	    int next = pos+1;
 	    while (next < length && !itemAttrs[next].softBreak && !(breakany && itemAttrs[next].charStop))
-		next++;
+		++next;
 	    if (itemAttrs[next].softBreak)
 		breakany = false;
+	    --next;
+	    int s = next;
+	    if (!(d->textFlags & (Qt::SingleLine|Qt::IncludeTrailingSpaces)))
+		while (s > pos && itemAttrs[s].whiteSpace)
+		    --s;
 
-	    int gs = logClusters[pos];
+	    int gp = logClusters[pos];
+	    int gs = logClusters[s];
 	    int ge = logClusters[next];
 
 	    int tmpw = 0;
-	    while (gs < ge) {
-		tmpw += glyphs[gs].advance;
-		++gs;
+	    while (gp <= gs) {
+		tmpw += glyphs[gp].advance;
+		++gp;
 	    }
+	    int spacew = 0;
+	    while (gp <= ge) {
+		spacew += glyphs[gp].advance;
+		++gp;
+	    }
+	    qDebug("possible break at %d, chars (%d-%d): width %d, spacew=%d",
+		   current.position + next, pos, next, tmpw, spacew);
 
-	    if (w + tmpw > line.width) {
-		line.width = w;
-		line.length = current.position + pos - from;
-		break;
+	    if (line.length && line.textWidth + tmpw > line.width) {
+		qDebug("found break");
+		goto found;
 	    }
-	    pos = next;
-	} while (pos < length);
+	    line.textWidth += tmpw + spacew;
+	    line.length += next - pos + 1;
+	    if (d->string[current.position+pos] == QChar_linesep) {
+		qDebug("found hard break");
+		goto found;
+	    }
+	    pos = next + 1;
+    } while (pos < length);
 	++item;
     }
+ found:
+    qDebug("line length = %d, ascent=%d, descent=%d", line.length, line.ascent, line.descent);
 
     int l = d->lines.size();
     d->lines.append(line);
     return QTextLine(l, d);
 }
+
+int QTextLayout::numLines() const
+{
+    return d->lines.size();
+}
+
+QTextLine QTextLayout::lineAt(int i) const
+{
+    return QTextLine(i, d);
+}
+
 
 QRect QTextLine::rect() const
 {
@@ -736,6 +776,10 @@ int QTextLine::descent() const
     return eng->lines[i].descent;
 }
 
+int QTextLine::textWidth() const
+{
+    return eng->lines[i].textWidth;
+}
 
 void QTextLine::adjust(int y, int x1, int x2)
 {
@@ -749,4 +793,66 @@ int QTextLine::from() const
 int QTextLine::length() const
 {
     return eng->lines[i].length;
+}
+
+
+void QTextLine::draw( QPainter *p, int x, int y )
+{
+    const QScriptLine &line = eng->lines[i];
+
+    int item;
+    for ( item = eng->items.size()-1; item > 0; --item ) {
+	if ( eng->items[item].position <= line.from )
+	    break;
+    }
+
+    int lineEnd = line.from + line.length;
+
+    x += line.x;
+    y += line.y;
+
+    if (eng->textFlags & Qt::AlignRight)
+	x += line.width - line.textWidth;
+    else if (eng->textFlags & Qt::AlignHCenter)
+	x += (line.width - line.textWidth)/2;
+
+    // ####### BiDi reordering!
+
+    while (item < eng->items.size()) {
+	const QScriptItem &si = eng->items[item];
+	if (si.position >= lineEnd)
+	    break;
+
+	if ( si.isTab || si.isObject ) {
+	    x += si.width;
+	    continue;
+	}
+	int start = qMax(line.from, si.position);
+	int end = qMin(lineEnd, si.position + eng->length(item));
+
+	unsigned short *logClusters = eng->logClusters(&si);
+
+	int gs = logClusters[start-si.position];
+	int ge = logClusters[end-si.position-1];
+
+	QGlyphLayout *glyphs = eng->glyphs(&si);
+
+	QFontEngine *fe = si.font();
+	Q_ASSERT( fe );
+
+	QGlyphFragment gf;
+	gf.analysis = si.analysis;
+	gf.hasPositioning = si.hasPositioning;
+	gf.ascent = si.ascent;
+	gf.descent = si.descent;
+	gf.width = si.width;
+	gf.num_glyphs = ge - gs + 1;
+	gf.glyphs = glyphs + gs;
+	fe->draw( p, x, y+line.ascent, gf, 0 /*textFlags*/ );
+	while (gs <= ge) {
+	    x += glyphs[gs].advance;
+	    ++gs;
+	}
+	++item;
+    }
 }

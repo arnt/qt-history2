@@ -88,6 +88,7 @@ public:
     int width() const;
     int ascent() const;
     int descent() const;
+    int textWidth() const;
 
 #if 0
     enum Edge {
@@ -111,6 +112,8 @@ public:
 
     QTextEngine *engine() const { return eng; }
     int line() const { return i; }
+
+    void draw( QPainter *p, int x, int y );
 
 private:
     friend class QTextLayout;
@@ -158,8 +161,10 @@ public:
     };
 
     QTextLine createLine(int from, int y, int x1, int x2);
+    int numLines() const;
+    QTextLine lineAt(int i) const;
 #if 1
-    void beginLayout( LayoutMode m = MultiLine );
+    void beginLayout( LayoutMode m = MultiLine, int textFlags = 0 );
     void beginLine( int width );
 
     bool atEnd() const;
