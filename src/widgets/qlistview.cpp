@@ -1339,15 +1339,6 @@ void QListViewItem::setOpen( bool o )
 	return;
     open = o;
 
-    QListView *lv = listView();
-    if ( lv && this != lv->d->r ) {
-	if ( o )
-	    emit lv->expanded( this );
-	else
-	    emit lv->collapsed( this );
-    }
-
-
     if ( !nChildren )
 	return;
     invalidateHeight();
@@ -1372,6 +1363,20 @@ void QListViewItem::setOpen( bool o )
 	    if ( !l && !s.isEmpty() )
 		l = s.pop();
 	}
+    }
+
+    QListView *lv = listView();
+
+    if ( lv && lv->d && lv->d->drawables ) {
+	lv->d->drawables->clear();
+	lv->buildDrawableList();
+    }
+
+    if ( lv && this != lv->d->r ) {
+	if ( o )
+	    emit lv->expanded( this );
+	else
+	    emit lv->collapsed( this );
     }
 
     if ( !open )
