@@ -27,7 +27,7 @@
 struct ParagData : public QTextParagData
 {
 public:
-    enum MarkerType { NoMarker, Error, Brekapoint, Bookmark };
+    enum MarkerType { NoMarker, Error, Breakpoint, Bookmark };
 
     ParagData() : lastLengthForCompletion( -1 ), marker( NoMarker ) {}
     ~ParagData() {}

@@ -46,13 +46,36 @@ static const char * error_xpm[] = {
     "     ....     ",
     "              "};
 
+static const char * breakpoint_xpm[] = {
+    "14 14 4 1",
+    "       c None",
+    ".      c #FFFFFF",
+    "+      c #8B0000",
+    "@      c yellow",
+    "              ",
+    "     ....     ",
+    "    .++++.    ",
+    "   .+@@@@+.   ",
+    "  .+@@@@@@+.  ",
+    " .+@@@@@@@@+. ",
+    " .+@@@@@@@@+. ",
+    " .+@@@@@@@@+. ",
+    " .+@@@@@@@@+. ",
+    "  .+@@@@@@+.  ",
+    "   .+@@@@+.   ",
+    "    .++++.    ",
+    "     ....     ",
+    "              "};
+
 static QPixmap *errorPixmap = 0;
+static QPixmap *breakpointPixmap = 0;
 
 MarkerWidget::MarkerWidget( ViewManager *parent )
     : QWidget( parent ), viewManager( parent )
 {
     if ( !errorPixmap ) {
 	errorPixmap = new QPixmap( error_xpm );
+	breakpointPixmap = new QPixmap( breakpoint_xpm );
     }
 }
 
@@ -68,7 +91,12 @@ void MarkerWidget::paintEvent( QPaintEvent * )
 	if ( paragData ) {
 	    switch ( paragData->marker ) {
 	    case ParagData::Error:
-		painter.drawPixmap( ( width() - errorPixmap->width() ) / 2, p->rect().y() - yOffset, *errorPixmap );
+		painter.drawPixmap( ( width() - errorPixmap->width() ) / 2,
+				    p->rect().y() + ( p->rect().height() - errorPixmap->height() ) / 2 - yOffset, *errorPixmap );
+		break;
+	    case ParagData::Breakpoint:
+		painter.drawPixmap( ( width() - breakpointPixmap->width() ) / 2,
+				    p->rect().y() + ( p->rect().height() - breakpointPixmap->height() ) / 2 - yOffset, *breakpointPixmap );
 		break;
 	    default:
 		break;
@@ -85,4 +113,24 @@ void MarkerWidget::resizeEvent( QResizeEvent *e )
 {
     buffer.resize( e->size() );
     QWidget::resizeEvent( e );
+}
+
+void MarkerWidget::mousePressEvent( QMouseEvent *e )
+{
+    QTextParag *p = ( (Editor*)viewManager->currentView() )->document()->firstParag();
+    int yOffset = ( (Editor*)viewManager->currentView() )->contentsY();
+    while ( p ) {
+	if ( e->y() >= p->rect().y() - yOffset && e->y() <= p->rect().y() + p->rect().height() - yOffset ) {
+	    QTextParagData *d = p->extraData();
+	    if ( !d )
+		return;
+	    ParagData *data = (ParagData*)d;
+	    if ( data->marker == ParagData::Breakpoint )
+		data->marker = ParagData::NoMarker;
+	    else
+		data->marker = ParagData::Breakpoint;
+	}
+	p = p->next();
+    }
+    doRepaint();
 }
