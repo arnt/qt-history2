@@ -2331,7 +2331,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
                 while (index < mo->slotCount()) {
                     ++index;
                     slot = mo->slot(index);
-                    if (!slot.attributes() & QMetaMember::Cloned)
+                    if (!(slot.attributes() & QMetaMember::Cloned))
                         break;
                     --pcount;
                     // found a matching overload. ptypes still valid

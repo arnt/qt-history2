@@ -921,7 +921,7 @@ extern "C" HRESULT __stdcall DumpIDL(const QString &outfile, const QString &ver)
     out.setDevice(&file);
     
     QString version(ver.unicode(), ver.length());
-    while (version.contains('.') > 1) {
+    while (version.count('.') > 1) {
         int lastdot = version.lastIndexOf('.');
         version = version.left(lastdot) + version.right(version.length() - lastdot - 1);
     }
