@@ -2957,33 +2957,6 @@ QCanvasPixmapArray::QCanvasPixmapArray( const QString& datafilenamepattern,
 #endif
 
 /*!
-  \obsolete
-  Use QCanvasPixmapArray::QCanvasPixmapArray( QList<QPixmap>, QPointArray )
-  instead.
-
-  Constructs a QCanvasPixmapArray from the list of QPixmaps \a
-  list. The \a hotspots list has to be of the same size as \a list.
-*/
-QCanvasPixmapArray::QCanvasPixmapArray(QPtrList<QPixmap> list, QPtrList<QPoint> hotspots) :
-    framecount(list.count()),
-    img(new QCanvasPixmap*[list.count()])
-{
-    if (list.count() != hotspots.count()) {
-	qWarning("QCanvasPixmapArray: lists have different lengths");
-	reset();
-	img = 0;
-    } else {
-	list.first();
-	hotspots.first();
-	for (int i=0; i<framecount; i++) {
-	    img[i]=new QCanvasPixmap(*list.current(), *hotspots.current());
-	    list.next();
-	    hotspots.next();
-	}
-    }
-}
-
-/*!
     Constructs a QCanvasPixmapArray from the list of QPixmaps in the
     \a list. Each pixmap will get a hotspot according to the \a
     hotspots array. If no hotspots are specified, each one is set to

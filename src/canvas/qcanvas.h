@@ -18,7 +18,6 @@
 #ifndef QT_H
 #include "qscrollview.h"
 #include "qpixmap.h"
-#include "qptrlist.h"
 #include "qbrush.h"
 #include "qpen.h"
 #include "qlist.h"
@@ -403,8 +402,6 @@ public:
 #ifndef QT_NO_IMAGEIO
     QCanvasPixmapArray(const QString& datafilenamepattern, int framecount=0);
 #endif
-    // this form is deprecated
-    QCanvasPixmapArray(QPtrList<QPixmap>, QPtrList<QPoint> hotspots);
 
     QCanvasPixmapArray(QList<QPixmap>, QPointArray hotspots = QPointArray() );
     ~QCanvasPixmapArray();
