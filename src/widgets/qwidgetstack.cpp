@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#26 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -145,6 +145,9 @@ void QWidgetStack::raiseWidget( QWidget * w )
     if ( !w || !isMyChild( w ) )
 	return;
 
+    BackgroundMode bgMode = backgroundMode();
+    setBackgroundMode( NoBackground );
+    
     topWidget = w;
     if ( !isVisible() )
 	return;
@@ -220,15 +223,18 @@ void QWidgetStack::raiseWidget( QWidget * w )
     const QObjectList * c = children();
     QObjectListIt it( *c );
     QObject * o;
-
+    
     while( (o=it.current()) != 0 ) {
 	++it;
 	if ( o->isWidgetType() && o != w )
 	    ((QWidget *)o)->hide();
     }
-    w->show();
     if ( f )
 	f->setFocus();
+
+    w->show();
+    
+    setBackgroundMode( bgMode );
 }
 
 
