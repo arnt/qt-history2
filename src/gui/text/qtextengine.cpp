@@ -1426,7 +1426,6 @@ void QTextEngine::freeMemory()
 
 void QTextEngine::invalidate()
 {
-    string = QString();
     freeMemory();
     lines.clear();
     boundingRect = QRect();
