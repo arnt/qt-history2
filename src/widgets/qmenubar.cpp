@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#21 $
 **
 ** Implementation of QMenuBar class
 **
@@ -12,12 +12,13 @@
 
 #define  INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
-#include "qkeycode.h"
+#include "qaccel.h"
 #include "qpainter.h"
 #include "qapp.h"
+#include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#21 $";
 #endif
 
 
@@ -58,6 +59,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 {
     initMetaObject();
     isMenuBar = TRUE;
+    autoaccel = 0;
     irects = 0;
     if ( parent )				// filter parent events
 	parent->installEventFilter( this );
@@ -66,6 +68,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 
 QMenuBar::~QMenuBar()
 {
+    delete autoaccel;
     delete irects;
     if ( parent() )
 	parent()->removeEventFilter( this );
@@ -129,6 +132,43 @@ void QMenuBar::subActivated( int id )
 void QMenuBar::subHighlighted( int id )
 {
     emit highlighted( id );
+}
+
+void QMenuBar::accelActivated( int id )
+{
+    QMenuItem *mi = findItem( id );
+    debug( "accelActivated( %d )", id );
+    int pos = mitems->at();
+    if ( mi && !mi->isDisabled() ) {
+	actItem = indexOf( id );
+	repaint( FALSE );
+	QPopupMenu *popup = mi->popup();
+	if ( popup ) {
+	    emit highlighted( mi->id() );
+	    if ( popup->isVisible() ) {		// sub menu already open
+		popup->hidePopups();
+		popup->repaint( FALSE );
+	    }
+	    else {				// open sub menu
+		hidePopups();
+		openActPopup();
+		popup->setFirstItemActive();
+	    }
+	}
+	else {					// not a popup
+	    actItem = -1;
+	    repaint( FALSE );
+	    if ( mi->signal() )			// activate signal
+		mi->signal()->activate();
+	    else				// normal connection
+		emit activated( mi->id() );
+	}
+    }
+}
+
+void QMenuBar::accelDestroyed()			// accel about to be deleted
+{
+    autoaccel = 0;				// don't delete it twice!
 }
 
 
@@ -204,8 +244,36 @@ void QMenuBar::setFont( const QFont &font )
 
 void QMenuBar::show()
 {
-    if ( parentWidget() )
-	resize( parentWidget()->width(), height() );
+    QMenuItemListIt it(*mitems);
+    register QMenuItem *mi;
+    QWidget *w = parentWidget();
+    while ( (mi=it.current()) ) {
+	++it;
+	QString s = mi->string();
+	if ( !s.isEmpty() ) {
+	    int i = s.find( '&' );
+	    if ( i >= 0 && s[i+1] != '&' ) {
+		int k = toupper(s[i+1]);
+		k = k - 'A' + Key_A;
+		if ( !autoaccel ) {
+		    autoaccel = new QAccel( w );
+		    CHECK_PTR( autoaccel );
+		    connect( autoaccel, SIGNAL(activated(int)),
+			     SLOT(accelActivated(int)) );
+		    connect( autoaccel, SIGNAL(destroyed()),
+			     SLOT(accelDestroyed()) );
+		}
+		autoaccel->insertItem( ALT+k, mi->id() );		
+	    }
+	}
+	if ( mi->popup() && w ) {
+	    mi->popup()->updateAccel( w );
+	    if ( mi->popup()->isDisabled() )
+		mi->popup()->enableAccel( FALSE );
+	}
+    }
+    if ( w )
+	resize( w->width(), height() );
     QWidget::show();
     raise();
 }
@@ -380,7 +448,7 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
     actItem = item;
     repaint( FALSE );
     if ( actItem >= 0 ) {			// selected menu item!
-	register QMenuItem *mi = mitems->at(actItem);
+	QMenuItem  *mi = mitems->at(actItem);
 	QPopupMenu *popup = mi->popup();
 	if ( popup ) {
 	    if ( style() == MacStyle )

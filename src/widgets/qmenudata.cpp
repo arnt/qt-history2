@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#16 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudata.cpp#16 $";
 #endif
 
 
@@ -37,6 +37,7 @@ QMenuItem::QMenuItem()				// initialize menu item
     is_separator = is_disabled = is_checked = FALSE;
     image_data = 0;
     popup_menu = 0;
+    accel_key  = 0;
     signal_data = 0;
 }
 
@@ -208,6 +209,22 @@ void QMenuData::removeItemAt( int index )	// remove menu item
 }
 
 
+long QMenuData::accel( int id ) const	// get accelerator key
+{
+    QMenuItem *mi = findItem( id );
+    return mi ? mi->key() : 0;
+}
+
+void QMenuData::setAccel( long key, int id )	// set accelerator key
+{
+    QMenuItem *mi = findItem( id );
+    if ( mi ) {
+	mi->accel_key = key;
+	menuContentsChanged();
+    }
+}
+
+
 const char *QMenuData::string( int id ) const	// get string
 {
     QMenuItem *mi = findItem( id );
@@ -267,6 +284,8 @@ void QMenuData::setItemEnabled( int id, bool enable )
     bool disable = !enable;
     if ( mi && mi->is_disabled != disable ) {
 	mi->is_disabled = disable;
+	if ( mi->popup() )
+	    mi->popup()->enableAccel( enable );
 	menuStateChanged();
     }
 }

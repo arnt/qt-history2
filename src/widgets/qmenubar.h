@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#7 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#8 $
 **
 ** Definition of QMenuBar class
 **
@@ -45,6 +45,8 @@ protected:
 slots:
     void	subActivated( int itemId );
     void	subHighlighted( int itemId );
+    void	accelActivated( int itemId );
+    void	accelDestroyed();
 
 private:
     void	menuContentsChanged();		// menu item inserted/removed
@@ -64,6 +66,7 @@ private:
     int		itemAtPos( const QPoint & );
     QRect	itemRect( int item );
 
+    QAccel     *autoaccel;
     QRect      *irects;
 };
 

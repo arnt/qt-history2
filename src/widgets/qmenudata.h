@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#12 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#13 $
 **
 ** Definition of QMenuData class
 **
@@ -35,16 +35,20 @@ public:
     const char *string()      const { return string_data; }
     QImage     *image()       const { return image_data; }
     QPopupMenu *popup()	      const { return popup_menu; }
+    long	key()	      const { return accel_key; }
     QSignal    *signal()      const { return signal_data; }
     bool	isSeparator() const { return is_separator; }
     bool	isDisabled()  const { return is_disabled; }
     bool	isChecked()   const { return is_checked; }
+
+    void	setString( const char *s ) { string_data = s; }
 
 private:
     int		ident;				// item identifier
     QString	string_data;			// item text
     QImage     *image_data;			// item image
     QPopupMenu *popup_menu;			// item popup menu
+    long	accel_key;			// accelerator key
     QSignal    *signal_data;			// connection
     uint	is_separator : 1;		// separator flag
     uint	is_disabled  : 1;		// disabled flag
@@ -85,8 +89,11 @@ public:
     void	removeItem( int id )		{ removeItemAt(indexOf(id)); }
     void	removeItemAt( int index );
 
+    long	accel( int id )	 const;		// get accelerator key
+    void	setAccel( long key, int id );	// set accelerator key
+
     const char *string( int id ) const;		// get string of item id
-    QImage     *image( int id ) const;		// get image of item id
+    QImage     *image( int id )  const;		// get image of item id
     void	changeItem( const char *string, int id );
     void	changeItem( const QImage &image, int id );
 

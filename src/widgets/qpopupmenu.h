@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#11 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#12 $
 **
 ** Definition of QPopupMenu class
 **
@@ -19,6 +19,7 @@
 
 class QPopupMenu : public QTableWidget, public QMenuData
 {
+friend class QMenuData;
 friend class QMenuBar;
     Q_OBJECT
 public:
@@ -53,6 +54,8 @@ protected:
 slots:
     void	subActivated( int itemId );
     void	subHighlighted( int itemId );
+    void	accelActivated( int itemId );
+    void	accelDestroyed();
 
 private:
     void	menuContentsChanged();		// menu item inserted/removed
@@ -70,7 +73,11 @@ private:
 
     int		itemAtPos( const QPoint & );
     void	updateSize();
+    void	updateAccel( QWidget * );
+    void	enableAccel( bool );
 
+    QAccel     *autoaccel;
+    bool	accelDisabled;
     int		popupActive;
     int		tabMark;
 };

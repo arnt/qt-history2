@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#23 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -13,13 +13,13 @@
 #define  INCLUDE_MENUITEM_DEF
 #include "qpopmenu.h"
 #include "qmenubar.h"
-#include "qkeycode.h"
+#include "qaccel.h"
 #include "qpainter.h"
 #include "qscrbar.h"				// qDrawMotifArrow
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#23 $";
 #endif
 
 
@@ -100,12 +100,15 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     setBottomMargin( motifPopupFrame );
     setLeftMargin( motifPopupFrame );
     setRightMargin( motifPopupFrame );
+    autoaccel = 0;
+    accelDisabled = FALSE;
     popupActive = -1;
-    tabMark = 0;
+    tabMark = 0;    
 }
 
 QPopupMenu::~QPopupMenu()
 {
+    delete autoaccel;
     if ( parentMenu )
 	parentMenu->removePopup( this );	// remove from parent menu
 }
@@ -183,6 +186,22 @@ void QPopupMenu::subActivated( int id )
 void QPopupMenu::subHighlighted( int id )
 {
     emit highlightedRedirect( id );
+}
+
+void QPopupMenu::accelActivated( int id )
+{
+    QMenuItem *mi = findItem( id );
+    if ( mi && !mi->isDisabled() ) {
+	if ( mi->signal() )			// activate signal
+	    mi->signal()->activate();
+	else					// normal connection
+	    actSig( mi->id() );
+    }
+}
+
+void QPopupMenu::accelDestroyed()		// accel about to be deleted
+{
+    autoaccel = 0;				// don't delete it twice!
 }
 
 
@@ -330,6 +349,172 @@ void QPopupMenu::updateSize()			// update popup size params
     setNumRows( mitems->count() );
     resize( max_width+2*motifPopupFrame, height+2*motifPopupFrame );
     badSize = FALSE;
+}
+
+
+static QString key_str( long k )		// get key string
+{
+    QString s;
+    if ( (k & SHIFT) == SHIFT )
+	s = "Shift";
+    if ( (k & CTRL) == CTRL ) {
+	if ( s.isEmpty() )
+	    s = "Ctrl";
+	else
+	    s += "+Ctrl";		
+    }
+    if ( (k & ALT) == ALT ) {
+	if ( s.isEmpty() )
+	    s = "A|t";
+	else
+	    s += "+Alt";		
+    }
+    k &= ~(SHIFT | CTRL | ALT);
+    QString p;
+    if ( k >= Key_F1 && k <= Key_F24 )
+	p.sprintf( "F%d", k - Key_F1 + 1 );
+    else if ( k >= Key_Space && k <= Key_AsciiTilde )
+	p.sprintf( "%c", k );
+    else {
+	switch ( k ) {
+	    case Key_Escape:
+		p = "Esc";
+		break;
+	    case Key_Tab:
+		p = "Tab";
+		break;
+	    case Key_Backtab:
+		p = "Backtab";
+		break;
+	    case Key_Backspace:
+		p = "Backspace";
+		break;
+	    case Key_Return:
+		p = "Return";
+		break;
+	    case Key_Enter:
+		p = "Enter";
+		break;
+	    case Key_Insert:
+		p = "Ins";
+		break;
+	    case Key_Delete:
+		p = "Del";
+		break;
+	    case Key_Pause:
+		p = "Pause";
+		break;
+	    case Key_Print:
+		p = "Print";
+		break;
+	    case Key_SysReq:
+		p = "SysReq";
+		break;
+	    case Key_Home:
+		p = "Home";
+		break;
+	    case Key_End:
+		p = "End";
+		break;
+	    case Key_Left:
+		p = "Left";
+		break;
+	    case Key_Up:
+		p = "Up";
+		break;
+	    case Key_Right:
+		p = "Right";
+		break;
+	    case Key_Down:
+		p = "Down";
+		break;
+	    case Key_Prior:
+		p = "PgUp";
+		break;
+	    case Key_Next:
+		p = "PgDown";
+		break;
+	    case Key_CapsLock:
+		p = "CapsLock";
+		break;
+	    case Key_NumLock:
+		p = "NumLock";
+		break;
+	    case Key_ScrollLock:
+		p = "ScrollLock";
+		break;
+	    default:
+		p.sprintf( "<%d?>", k );
+		break;
+	}
+    }
+    if ( s.isEmpty() )
+	s = p;
+    else {
+	s += '+';
+	s += p;
+    }
+    return s;
+}
+
+void QPopupMenu::updateAccel( QWidget *parent )	// update accelerator
+{
+    QMenuItemListIt it(*mitems);
+    register QMenuItem *mi;
+    while ( (mi=it.current()) ) {
+	++it;
+	if ( mi->key() ) {
+	    if ( !autoaccel ) {
+		autoaccel = new QAccel( parent );
+		CHECK_PTR( autoaccel );
+		connect( autoaccel, SIGNAL(activated(int)),
+			 SLOT(accelActivated(int)) );
+		connect( autoaccel, SIGNAL(destroyed()),
+			 SLOT(accelDestroyed()) );
+		if ( accelDisabled )
+		    autoaccel->disable();
+	    }
+	    long k = mi->key();
+	    autoaccel->removeItem( mi->id() );
+	    autoaccel->insertItem( k, mi->id() );
+	    if ( mi->string() ) {
+		QString s = mi->string();
+		int i = s.find('\t');
+		QString t = key_str( k );
+		if ( i >= 0 )
+		    s.replace( i+1, s.length()-i, t );
+		else {
+		    s += '\t';
+		    s += t;
+		}
+		if ( s != mi->string() ) {
+		    mi->setString( s );
+		    badSize = TRUE;
+		}
+	    }
+	}
+	if ( mi->popup() )			// call recursively
+	    mi->popup()->updateAccel( parent );
+    }
+}
+
+void QPopupMenu::enableAccel( bool enable )	// enable/disable accels
+{
+    if ( autoaccel ) {
+	if ( enable )
+	    autoaccel->enable();
+	else
+	    autoaccel->disable();
+    }
+    else
+	accelDisabled = TRUE;			// rememeber when updateAccel
+    QMenuItemListIt it(*mitems);
+    register QMenuItem *mi;
+    while ( (mi=it.current()) ) {		// do the same for sub popups
+	++it;
+	if ( mi->popup() )			// call recursively
+	    mi->popup()->enableAccel( enable );
+    }
 }
 
 
