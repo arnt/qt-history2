@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#194 $
+** $Id: //depot/qt/main/src/moc/moc.y#195 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1447,9 +1447,16 @@ QCString combinePath( const char *infile, const char *outfile )
 	    return a;
 	b = &b[i];
     }
-    i = b.contains('/');
-    while ( i-- > 0 )
-	r += "../";
+
+    bool ignore_slash = FALSE;
+    for(int x = i = 0; b[x]; x++) {
+	if(b[x] == '/') {
+	    if(!ignore_slash)
+		r += "../";
+	    ignore_slash = FALSE;
+	}
+	ignore_slash = ( b[x] == '.' && !ignore_slash);
+    }
     r += a;
     return r;
 }
@@ -2449,7 +2456,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#194 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#195 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
