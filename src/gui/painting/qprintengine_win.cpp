@@ -582,7 +582,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
         if( xs!=1 || ys!=1 )
             bm = bm.transform( QMatrix( xs, 0, 0, ys, 0, 0 ) );
         QRegion r( bm );
-        r.translate( pos.x(), pos.y() );
+        r.translate((int)pos.x(), (int)pos.y() );
         if ( paint->hasClipping() )
             r &= paint->clipRegion();
         paint->save();
@@ -751,6 +751,8 @@ void QWin32PrintEnginePrivate::initialize()
     case QPrinter::HighResolution:
 	d->resolution = GetDeviceCaps(hdc, LOGPIXELSY);
 	break;
+    default:
+        break;
     }
     setupPrinterMapping();
 }
@@ -796,7 +798,7 @@ QList<int> QWin32PrintEnginePrivate::queryResolutions() const
     });
 
     QList<int> list;
-    if (errRes == -1) {
+    if (errRes == (DWORD)-1) {
         qErrnoWarning("QWin32PrintEngine::queryResolutions: DeviceCapabilities failed");
         return list;
     }
@@ -984,8 +986,8 @@ void QWin32PrintEngine::setPaperSource(QPrinter::PaperSource src)
         if (DeviceCapabilities((TCHAR*)d->name.utf16(), 0, DC_BINS, bins, 0)) {
             bool ok = false;
             int source = mapPaperSourceDevmode(src);
-            for (uint i=0; i<caps; i++)
-                ok |= (bins[i] == source);
+            for (DWORD i=0; i<caps; i++)
+                ok |= (bins[i] == (WORD)source);
             if (ok)
                 dmMapped = source;
         }
@@ -1023,8 +1025,8 @@ QRect QWin32PrintEngine::paperRect() const
 {
     double scale = d->resolution / (double) GetDeviceCaps(d->hdc, LOGPIXELSY);
     return QRect(0, 0,
-                 GetDeviceCaps(d->hdc, PHYSICALWIDTH) * scale,
-                 GetDeviceCaps(d->hdc, PHYSICALHEIGHT) * scale);
+                 int(GetDeviceCaps(d->hdc, PHYSICALWIDTH) * scale),
+                 int(GetDeviceCaps(d->hdc, PHYSICALHEIGHT) * scale));
 }
 
 QRect QWin32PrintEngine::pageRect() const
@@ -1034,7 +1036,7 @@ QRect QWin32PrintEngine::pageRect() const
     int pagey = GetDeviceCaps(d->hdc, PHYSICALOFFSETY);
     int pagew = GetDeviceCaps(d->hdc, HORZRES) - pagex;
     int pageh = GetDeviceCaps(d->hdc, VERTRES) - pagey;
-    return QRect(pagex*scale, pagey*scale, pagew*scale, pageh*scale);
+    return QRect(int(pagex*scale), int(pagey*scale), int(pagew*scale), int(pageh*scale));
 }
 
 bool QWin32PrintEngine::isActive() const

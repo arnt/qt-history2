@@ -24,7 +24,7 @@ extern QCursorData *qt_cursorTable[Qt::LastCursor + 1]; // qcursor.cpp
  *****************************************************************************/
 
 QCursorData::QCursorData(Qt::CursorShape s)
-    : cshape(s), hcurs(0), bm(0), bmm(0), hx(0), hy(0)
+  : cshape(s), bm(0), bmm(0), hx(0), hy(0), hcurs(0)
 {
     ref = 1;
 }

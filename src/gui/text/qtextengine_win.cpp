@@ -174,9 +174,8 @@ static void resolveUsp10()
 
         resolvedUsp10 = true;
         QLibrary lib("usp10");
-        lib.setAutoUnload(false);
-
-        hasUsp10 = false;
+        
+	hasUsp10 = false;
 
         ScriptFreeCache = (fScriptFreeCache) lib.resolve("ScriptFreeCache");
         ScriptItemize = (fScriptItemize) lib.resolve("ScriptItemize");
@@ -524,7 +523,6 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
             for (int j = rstart; j <= rstop; j++) {
 
                 unsigned short uc = text[j+start].unicode();
-                QChar::Category category = ::category(uc);
                 if (uc == QChar::ObjectReplacementCharacter || uc == QChar::LineSeparator) {
                     item.analysis.script = usp_latin_script;
                     item.isObject = true;

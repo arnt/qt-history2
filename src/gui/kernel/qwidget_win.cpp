@@ -30,35 +30,6 @@
 #include <private/qpaintengine_win_p.h>
 #include "qcleanuphandler.h"
 
-#define PACKETDATA  (PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
-                      PK_ORIENTATION | PK_CURSOR)
-#define PACKETMODE  0
-#include <wintab.h>
-#include <pktdef.h>
-
-typedef HCTX        (API *PtrWTOpen)(HWND, LPLOGCONTEXT, BOOL);
-typedef BOOL        (API *PtrWTClose)(HCTX);
-typedef UINT        (API *PtrWTInfo)(UINT, UINT, LPVOID);
-typedef BOOL        (API *PtrWTEnable)(HCTX, BOOL);
-typedef BOOL        (API *PtrWTOverlap)(HCTX, BOOL);
-typedef int        (API *PtrWTPacketsGet)(HCTX, int, LPVOID);
-typedef BOOL        (API *PtrWTGet)(HCTX, LPLOGCONTEXT);
-typedef int     (API *PtrWTQueueSizeGet)(HCTX);
-typedef BOOL    (API *PtrWTQueueSizeSet)(HCTX, int);
-
-static PtrWTOpen ptrWTOpen = 0;
-static PtrWTClose ptrWTClose = 0;
-static PtrWTInfo ptrWTInfo = 0;
-static PtrWTQueueSizeGet ptrWTQueueSizeGet = 0;
-static PtrWTQueueSizeSet ptrWTQueueSizeSet = 0;
-static void init_wintab_functions();
-static void qt_tablet_init();
-static void qt_tablet_cleanup();
-extern HCTX qt_tablet_context;
-extern bool qt_tablet_tilt_support;
-
-static QWidget *qt_tablet_widget = 0;
-
 typedef BOOL    (WINAPI *PtrSetLayeredWindowAttributes)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
 static PtrSetLayeredWindowAttributes ptrSetLayeredWindowAttributes = 0;
 #define Q_WS_EX_LAYERED           0x00080000 // copied from WS_EX_LAYERED in winuser.h
@@ -1842,87 +1813,6 @@ void QWidget::updateFrameStrut() const
     top->fright = fr.right - data->crect.right();
 
     that->data->fstrut_dirty = false;
-}
-
-extern bool qt_is_gui_used;
-static void init_wintab_functions()
-{
-    if (!qt_is_gui_used)
-        return;
-    QLibrary library("wintab32");
-    QT_WA({
-        ptrWTOpen = (PtrWTOpen)library.resolve("WTOpenW");
-        ptrWTInfo = (PtrWTInfo)library.resolve("WTInfoW");
-    } , {
-        ptrWTOpen = (PtrWTOpen)library.resolve("WTOpenA");
-        ptrWTInfo = (PtrWTInfo)library.resolve("WTInfoA");
-    });
-
-    ptrWTClose = (PtrWTClose)library.resolve("WTClose");
-    ptrWTQueueSizeGet = (PtrWTQueueSizeGet)library.resolve("WTQueueSizeGet");
-    ptrWTQueueSizeSet = (PtrWTQueueSizeSet)library.resolve("WTQueueSizeSet");
-}
-
-static void qt_tablet_init()
-{
-    if (qt_tablet_widget)
-        return;
-    qt_tablet_widget = new QWidget(0);
-    qt_tablet_widget->setObjectName("Qt internal tablet widget");
-    LOGCONTEXT lcMine;
-    qAddPostRoutine(qt_tablet_cleanup);
-    struct tagAXIS tpOri[3];
-    init_wintab_functions();
-    if (ptrWTInfo && ptrWTOpen && ptrWTQueueSizeGet && ptrWTQueueSizeSet) {
-        // make sure we have WinTab
-        if (!ptrWTInfo(0, 0, NULL)) {
-            qWarning("Wintab services not available");
-            return;
-        }
-
-        // some tablets don't support tilt, check if it is possible,
-        qt_tablet_tilt_support = ptrWTInfo(WTI_DEVICES, DVC_ORIENTATION, &tpOri);
-        if (qt_tablet_tilt_support) {
-            // check for azimuth and altitude
-            qt_tablet_tilt_support = tpOri[0].axResolution && tpOri[1].axResolution;
-        }
-        // build our context from the default context
-        ptrWTInfo(WTI_DEFSYSCTX, 0, &lcMine);
-        lcMine.lcOptions |= CXO_MESSAGES | CXO_CSRMESSAGES;
-        lcMine.lcPktData = PACKETDATA;
-        lcMine.lcPktMode = PACKETMODE;
-        lcMine.lcMoveMask = PACKETDATA;
-        lcMine.lcOutOrgX = 0;
-        lcMine.lcOutExtX = GetSystemMetrics(SM_CXSCREEN);
-        lcMine.lcOutOrgY = 0;
-        lcMine.lcOutExtY = -GetSystemMetrics(SM_CYSCREEN);
-        qt_tablet_context = ptrWTOpen(qt_tablet_widget->winId(), &lcMine, true);
-        if (qt_tablet_context == NULL) {
-            qWarning("Failed to open the tablet");
-            return;
-        }
-        // Set the size of the Packet Queue to the correct size...
-        int currSize = ptrWTQueueSizeGet(qt_tablet_context);
-        if (!ptrWTQueueSizeSet(qt_tablet_context, QT_TABLET_NPACKETQSIZE)) {
-            // Ideally one might want to make use a smaller
-            // multiple, but for now, since we managed to destroy
-            // the existing Q with the previous call, set it back
-            // to the other size, which should work.  If not,
-            // we had best die.
-            if (!ptrWTQueueSizeSet(qt_tablet_context, currSize))
-                qWarning("There is no packet queue for the tablet.\n"
-                "The tablet will not work");
-        }
-
-    }
-}
-
-static void qt_tablet_cleanup()
-{
-    if (ptrWTClose)
-        ptrWTClose(qt_tablet_context);
-    delete qt_tablet_widget;
-    qt_tablet_widget = 0;
 }
 
 void QWidget::setWindowOpacity(double level)

@@ -105,7 +105,7 @@ static const double PI = 3.14159265358979323846;
 static PACKET localPacketBuf[QT_TABLET_NPACKETQSIZE];  // our own tablet packet queue.
 HCTX qt_tablet_context;  // the hardware context for the tablet (like a window handle)
 bool qt_tablet_tilt_support;
-static void tabletInit(HCTX hTab);
+static void tabletInit(UINT wActiveCsr, HCTX hTab);
 static void initWinTabFunctions();        // resolve the WINTAB api functions
 
 Q_CORE_EXPORT bool winPeekMessage(MSG* msg, HWND hWnd, UINT wMsgFilterMin,
@@ -223,7 +223,8 @@ void qt_erase_background(HDC hdc, int x, int y, int w, int h,
         p.fillRect(x, y, w, h, brush);
         return;
     } else if (brush.style() == Qt::CustomPattern) {
-        qt_draw_tiled_pixmap(hdc, x, y, w, h, &brush.texture(), off_x, off_y);
+        QPixmap texture = brush.texture();
+        qt_draw_tiled_pixmap(hdc, x, y, w, h, &texture, off_x, off_y);
     } else {
         QColor c = brush.color();
         HBRUSH hbrush = CreateSolidBrush(RGB(c.red(), c.green(), c.blue()));
@@ -3175,8 +3176,8 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
 
             double degX = atan(sin(radAzim) / tanAlt);
             double degY = atan(cos(radAzim) / tanAlt);
-            tiltX = degX * (180 / PI);
-            tiltY = -degY * (180 / PI);
+            tiltX = static_cast<int>(degX * (180 / PI));
+            tiltY = static_cast<int>(-degY * (180 / PI));
         }
         // get the unique ID of the device...
         int csr_type,

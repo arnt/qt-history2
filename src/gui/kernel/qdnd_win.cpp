@@ -76,7 +76,7 @@ class QOleDropSource : public IDropSource
 {
 public:
     QOleDropSource();
-    ~QOleDropSource();
+    virtual ~QOleDropSource();
 
     void createCursors();
 

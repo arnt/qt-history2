@@ -50,7 +50,6 @@ static Q_UINT16 getGlyphIndex(unsigned char *table, unsigned short unicode);
 
 
 HDC   shared_dc            = 0;                // common dc for all fonts
-static HFONT shared_dc_font = 0;                // used by Windows 95/98
 static HFONT stock_sysfont  = 0;
 
 static inline HFONT systemFont()
@@ -508,7 +507,7 @@ void QFontEngineWin::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
     for (int i=0; i<numGlyphs; ++i) {
         memset(&gMetric, 0, sizeof(GLYPHMETRICS));
         int bufferSize = GetGlyphOutline(hdc, glyphs[i].glyph, glyphFormat, &gMetric, 0, 0, &mat);
-        if (bufferSize != GDI_ERROR) {
+        if ((DWORD)bufferSize != GDI_ERROR) {
 
             void *dataBuffer = new char[bufferSize];
             DWORD ret = GetGlyphOutline(hdc, glyphs[i].glyph, glyphFormat, &gMetric, bufferSize,
@@ -555,7 +554,7 @@ void QFontEngineWin::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
                 path->closeSubpath();
                 headerOffset += ttph->cb;
             }
-            delete [] dataBuffer;
+            delete [] (char*)dataBuffer;
         }
 
         oset += glyphs[i].advance;
