@@ -1139,9 +1139,6 @@ void QSocket::sn_read( bool force )
     Q_LONG nread;
     QByteArray *a = 0;
 
-    if ( d->readBufferSize > 0 ) {
-    }
-
     if ( state() == Connecting ) {
 	if ( nbytes > 0 ) {
 	    tryConnection();
