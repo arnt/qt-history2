@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#24 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#24 $";
 #endif
 
 
@@ -27,7 +27,7 @@ signals, slots and events.
 */
 
 
-// Remove white space from SIGNAL and SLOT names
+/* Remove white space from SIGNAL and SLOT names */
 
 static char *rmWS( char *dest, const char *src )
 {
