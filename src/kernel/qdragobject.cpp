@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#84 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -39,7 +39,7 @@
 // the name space
 
 struct QDragData {
-    QDragData(): autoDelete( TRUE ) {}
+    QDragData(): autoDelete( TRUE ), hot(0,0) {}
     bool autoDelete;
     QPixmap pixmap;
     QPoint hot;
@@ -647,16 +647,17 @@ QImageDrag::~QImageDrag()
 */
 void QImageDrag::setImage( QImage image )
 {
-    img = image;
-    // ### should detach?
+    img = image; // ### detach?
     ofmts = QImage::outputFormats();
-    ofmts.remove("PBM");
+    ofmts.remove("PBM"); // remove non-raw PPM
     if ( image.depth()!=32 ) {
 	// BMP better than PPM for paletted images
 	if ( ofmts.remove("BMP") ) // move to front
 	    ofmts.insert(0,"BMP");
     }
-    // Could do more magic to order mime types
+    // PNG is best of all
+    if ( ofmts.remove("PNG") ) // move to front
+	ofmts.insert(0,"PNG");
 }
 
 const char * QImageDrag::format(int i) const
@@ -978,21 +979,6 @@ bool QUrlDrag::decodeLocalFiles( const QMimeSource* e, QStringList& l )
     return TRUE;
 }
 
-
-/*!
-  If the source of the drag operation is a widget in this application,
-  this function returns that source, otherwise 0.  The source of the
-  operation is the first parameter to to drag object subclass.
-
-  This is useful if your widget needs special behavior when dragging
-  to itelf, etc.
-
-  See QDragObject::QDragObject() and subclasses.
-*/
-QWidget* QDragMoveEvent::source() const
-{
-    return manager ? manager->dragSource : 0;
-}
 
 /*!
   If the source of the drag operation is a widget in this application,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#94 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#95 $
 **
 ** Implementation of event classes
 **
@@ -869,15 +869,6 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 */
 
 /*!
-  \fn QDragMoveEvent::QDragMoveEvent( const QPoint& pos )
-
-  Creates a QDragMoveEvent for which the mouse is at point \a pos.
-
-  Note that internal state is also involved with QDragMoveEvent,
-  so it is not useful to create these yourself.
-*/
-
-/*!
   \fn QDragMoveEvent::QDragMoveEvent( const QPoint& pos, Type type )
 
   Creates a QDragMoveEvent for which the mouse is at point \a pos,
@@ -888,36 +879,9 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 */
 
 /*!
-  \fn const QPoint& QDragMoveEvent::pos() const
-
-  Returns the position of the mouse when the event occurred.
-*/
-
-/*!
-  \fn bool   QDragMoveEvent::isAccepted() const
-
-  Returns TRUE if accept() has been called.
-*/
-
-/*!
-  \fn void   QDragMoveEvent::accept(bool yes=TRUE)
-
-  Call this to indicate that the event provides data which your widget
-  can process.  Use provides(), or preferably, the canDecode() methods
-  of existing QDragObject subclasses, such as
-  QTextDrag::canDecode(), or your own subclasses.
-*/
-
-/*!
-  \fn void   QDragMoveEvent::ignore()
-
-  The opposite of accept().
-*/
-
-/*!
   \fn void   QDragMoveEvent::accept( const QRect & r )
 
-  The same as accept() above, but also notifies that future moves will
+  The same as accept(), but also notifies that future moves will
   also be acceptable if they remain within the rectangle \a r on the
   widget - this can improve performance, but may also be ignored by
   the underlying system.
@@ -966,10 +930,61 @@ Qt::ButtonState QKeyEvent::stateAfter() const
   processed.  Use data(), or preferably, the decode() methods
   of existing QDragObject subclasses, such as
   QTextDrag::decode(), or your own subclasses.
+
+  \sa acceptAction()
 */
 
 /*!
-  \fn void   QDropEvent::ignore()
+  \fn void QDropEvent::acceptAction(bool y=TRUE)
+
+  Call this to indicate that the action described by action() is accepted,
+  not merely the default copy action.  If you call acceptAction(TRUE),
+  there is no need to also call accept(TRUE).
+*/
+
+/*!
+  \fn void QDropEvent::setAction( Action a )
+
+  Sets the action.  This is used internally, you should not need to
+  call this in your code - the \e source decides the action, not the
+  target.
+*/
+
+/*!
+  \enum QDropEvent::Action
+
+  This type describes the action which a source requests that a target
+  perform with dropped data.  The values are:
+
+  <ul>
+   <li>\c Copy - the default action.  The source simply users the data
+	    provided in the operation.
+   <li>\c Link. The source should somehow create a link to the location
+	    specified by the data.
+   <li>\c Move.  The source should somehow move the object from the location
+            specified by the data to a new location.
+   <li>\c Private.  The target has special knowledge of the MIME type, which
+	    the source should respond to similar to a Copy.
+   <li>\c UserAction.  The source and target can co-operate using special
+	    actions.  This feature is not supported in Qt at this time.
+  </ul>
+
+  The Link and Move actions only makes sense if the data is
+  a reference, such as \link QUrlDrag text/uri-list file lists\endlink.
+*/
+
+/*!
+  \fn Action QDropEvent::action() const
+
+  Returns the \link QDropEvent::Action action\endlink which the target
+  is requesting be performed with the data.  If your application understands
+  the action and can process the supplied data, call acceptAction(); if your
+  application can process the supplied data but can only perform the
+  Copy action, call accept().
+*/
+
+/*!
+  \fn void QDropEvent::ignore()
 
   The opposite of accept().
 */
@@ -980,7 +995,8 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
   This event is always immediate followed by a QDragMoveEvent, thus you need
   only respond to one or the other event.  Note that this class inherits most
-  of its functionality from QDragMoveEvent.
+  of its functionality from QDragMoveEvent, which in turn inherits most
+  of its functionality from QDropEvent.
 
   \sa QDragLeaveEvent, QDragMoveEvent, QDropEvent
 */

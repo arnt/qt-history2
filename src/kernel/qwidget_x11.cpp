@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#362 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#363 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -47,6 +47,7 @@ int  qt_sip_count( QWidget* );			// --- "" ---
 void qt_updated_rootinfo();
 extern XIM qt_xim;
 extern XIMStyle qt_xim_style;
+extern Atom qt_xdnd_aware;
 
 // paintevent clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
@@ -396,8 +397,13 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
 	    qApp->closePopup( this );
-	if ( destroyWindow && !testWFlags(WType_Desktop) )
-	    qt_XDestroyWindow( this, x11Display(), winid );
+	if ( testWFlags(WType_Desktop) ) {
+	    if ( acceptDrops() )
+		XDeleteProperty( x11Display(), winId(), qt_xdnd_aware );
+	} else {
+	    if ( destroyWindow )
+		qt_XDestroyWindow( this, x11Display(), winid );
+	}
 	setWinId( 0 );
     }
 }
@@ -848,7 +854,8 @@ void QWidget::setMouseTracking( bool enable )
     else
 	clearWState( WState_MouseTracking );
     if ( testWFlags(WType_Desktop) ) {		// desktop widget?
-	if ( testWFlags(WPaintDesktop) )	// get desktop paint events
+	QWidget* main_desktop = find( winId() );
+	if ( main_desktop->testWFlags(WPaintDesktop) )	// get desktop paint events
 	    XSelectInput( x11Display(), winId(),
 			  stdDesktopEventMask|ExposureMask );
 	else
@@ -1827,7 +1834,6 @@ void QWidget::setAcceptDrops( bool on )
 	    setWState(WState_DND);
 	    QWidget * tlw = topLevelWidget();
 
-	    extern Atom qt_xdnd_aware;
 	    Atom qt_xdnd_version = (Atom)3;
 	    XChangeProperty ( tlw->x11Display(), tlw->winId(), qt_xdnd_aware,
 			      XA_ATOM, 32, PropModeReplace,

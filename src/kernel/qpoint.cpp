@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#37 $
 **
 ** Implementation of QPoint class
 **
@@ -60,7 +60,7 @@
 
 /*!
   \fn QPoint::QPoint()
-  Constructs a point with undefined x and y values.
+  Constructs a point (0,0) (a \link QPoint::isNull() null point\endlink).
 */
 
 /*!

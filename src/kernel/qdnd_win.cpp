@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#55 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -215,11 +215,7 @@ private:
 };
 
 static
-QOleDropTarget *current_drop=0;
-static
 LPDATAOBJECT current_dropobj = 0;
-static
-bool current_drop_moving = FALSE;
 
 bool QDragManager::eventFilter( QObject *, QEvent *)
 {
@@ -254,7 +250,7 @@ void QDragManager::drop()
 }
 
 
-bool QDragMoveEvent::provides( const char* mimeType ) const
+bool QDropEvent::provides( const char* mimeType ) const
 {
     if (!current_dropobj) // Sanity
 	return FALSE;
@@ -296,19 +292,9 @@ const char* dnd_format( int fn )
     return fmt.isEmpty() ? 0 : (const char*)fmt;
 }
 
-const char* QDragMoveEvent::format( int fn ) const
-{
-    return dnd_format(fn);
-}
-
 const char* QDropEvent::format( int fn ) const
 {
     return dnd_format(fn);
-}
-
-bool QDropEvent::movingData() const
-{
-    return current_drop_moving;
 }
 
 QByteArray qt_olednd_obtain_data( const char *format )
@@ -385,11 +371,6 @@ QByteArray qt_olednd_obtain_data( const char *format )
     delete [] fmtetc;
 #endif
     return result;
-}
-
-QByteArray QDragMoveEvent::encodedData( const char *format ) const
-{
-    return qt_olednd_obtain_data( format );
 }
 
 QByteArray QDropEvent::encodedData( const char* format ) const
@@ -807,7 +788,6 @@ STDMETHODIMP
 QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
     current_dropobj = pDataObj;
-    current_drop = this; // ##### YUCK.  Arnt, we need to put info in event
 
     QDragEnterEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
     QApplication::sendEvent( widget, &de );
@@ -836,7 +816,6 @@ STDMETHODIMP
 QOleDropTarget::DragLeave()
 {
     acceptfmt = FALSE;
-    current_drop = 0;
     current_dropobj = 0;
     QDragLeaveEvent de;
     QApplication::sendEvent( widget, &de );
@@ -849,16 +828,12 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
     if (QueryDrop(grfKeyState, pdwEffect))
     {
 	current_dropobj = pDataObj;
-	current_drop = this; // ##### YUCK.  Arnt, we need to put info in event
-	current_drop_moving = *pdwEffect & DROPEFFECT_MOVE;
 
 	if ( global_src )
 	    global_src->setTarget(widget);
 	QDropEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
 	QApplication::sendEvent( widget, &de );
 	DragLeave();
-	//current_drop = 0;   - already done
-	//current_dropobj = 0;
 	return NOERROR;
     }
 

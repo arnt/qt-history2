@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#43 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1963,7 +1963,9 @@ void QMultiLineEdit::dropEvent( QDropEvent* event )
     if ( readOnly ) return;
     QString text;
     if ( QTextDrag::decode(event, text) ) {
-	if ( event->source() == this && event->movingData() ) {
+	if ( event->source() == this && event->action() == QDropEvent::Move )
+	{
+	    event->acceptAction();
 	    // Careful not to tread on my own feet
 	    int newX, newY;
 	    pixelPosToCursorPos( event->pos(), &newX, &newY );

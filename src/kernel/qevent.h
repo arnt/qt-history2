@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#81 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#82 $
 **
 ** Definition of event classes
 **
@@ -281,35 +281,58 @@ protected:
 };
 
 // This class is rather closed at the moment.  If you need to create your
-// own QDragMoveEvent objects, write to qt-bugs@troll.no and we'll try to
+// own DND event objects, write to qt-bugs@troll.no and we'll try to
 // find a way to extend it so it covers your needs.
 
-class Q_EXPORT QDragMoveEvent : public QEvent, public QMimeSource
+class Q_EXPORT QDropEvent : public QEvent, public QMimeSource
 {
 public:
-    QDragMoveEvent( const QPoint& pos )
-	: QEvent(DragMove), p(pos), accpt(FALSE), d(0),
-	  rect( p,QSize( 1, 1 ) ) {}
-    const QPoint& pos() const   { return p; }
-    bool   isAccepted() const   { return accpt; }
-    void   accept(bool y=TRUE)	{ accpt = y; }
-    void   ignore()		{ accpt = FALSE; }
-    void   accept( const QRect & r) { accpt = TRUE; rect = r; }
-    void   ignore( const QRect & r) { accpt =FALSE; rect = r; }
-    QRect  answerRect() const { return rect; }
+    QDropEvent( const QPoint& pos, Type t=Drop )
+	: QEvent(t), p(pos),
+	  act(0), accpt(0), accptact(0), resv(0),
+	  d(0)
+	{}
+    const QPoint &pos() const	{ return p; }
+    bool isAccepted() const	{ return accpt || accptact; }
+    void accept(bool y=TRUE)	{ accpt = y; }
+    void ignore()		{ accpt = FALSE; }
+
+    bool isActionAccepted() const { return accptact; }
+    void acceptAction(bool y=TRUE) { accptact = y; }
+    enum Action { Copy, Link, Move, Private, UserAction=100 };
+    void setAction( Action a ) { act = (uint)a; }
+    Action action() const { return Action(act); }
 
     QWidget* source() const;
     const char* format( int n = 0 ) const;
-    bool provides( const char* ) const;
     QByteArray encodedData( const char* ) const;
+    bool provides( const char* ) const;
+
+    QByteArray data(const char* f) const { return encodedData(f); }
 
 protected:
-    QDragMoveEvent( const QPoint& pos, Type type )
-	: QEvent(type), p(pos), accpt(FALSE), d(0),
-	  rect( p,QSize( 1, 1 ) ) {}
     QPoint p;
-    bool   accpt;
+    uint act:8;
+    uint accpt:1;
+    uint accptact:1;
+    uint resv:5;
     void * d;
+};
+
+
+class Q_EXPORT QDragMoveEvent : public QDropEvent
+{
+public:
+    QDragMoveEvent( const QPoint& pos, Type t=DragMove )
+	: QDropEvent(pos,t),
+	  rect( pos, QSize( 1, 1 ) ) {}
+    QRect answerRect() const { return rect; }
+    void accept( bool y=TRUE ) { QDropEvent::accept(y); }
+    void accept( const QRect & r) { accpt = TRUE; rect = r; }
+    void ignore( const QRect & r) { accpt =FALSE; rect = r; }
+    void ignore()		{ QDropEvent::ignore(); }
+
+protected:
     QRect rect;
 };
 
@@ -338,29 +361,6 @@ class Q_EXPORT QDragLeaveEvent : public QEvent
 public:
     QDragLeaveEvent()
 	: QEvent(DragLeave) {}
-};
-
-
-class Q_EXPORT QDropEvent : public QEvent, public QMimeSource
-{
-public:
-    QDropEvent( const QPoint& pos )
-	: QEvent(Drop), p(pos), accpt(TRUE) {}
-    const QPoint &pos() const	{ return p; }
-    bool   isAccepted() const	{ return accpt; }
-    void   accept()		{ accpt = TRUE; }
-    void   ignore()		{ accpt = FALSE; }
-
-    QWidget* source() const;
-    const char* format( int n = 0 ) const;
-    QByteArray encodedData( const char* ) const;
-
-    QByteArray data(const char* f) const { return encodedData(f); }
-    bool movingData() const;
-
-protected:
-    QPoint p;
-    bool   accpt;
 };
 
 

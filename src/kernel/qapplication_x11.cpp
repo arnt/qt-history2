@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#482 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#483 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -270,12 +270,12 @@ static QList<QScrollInProgress> *sip_list = 0;
 // setup
 extern void qt_xdnd_setup();
 // x event handling
-extern void qt_handle_xdnd_enter( QWidget *, const XEvent * );
-extern void qt_handle_xdnd_position( QWidget *, const XEvent * );
-extern void qt_handle_xdnd_status( QWidget *, const XEvent * );
-extern void qt_handle_xdnd_leave( QWidget *, const XEvent * );
-extern void qt_handle_xdnd_drop( QWidget *, const XEvent * );
-extern void qt_handle_xdnd_finished( QWidget *, const XEvent * );
+extern void qt_handle_xdnd_enter( QWidget *, const XEvent *, bool );
+extern void qt_handle_xdnd_position( QWidget *, const XEvent *, bool );
+extern void qt_handle_xdnd_status( QWidget *, const XEvent *, bool );
+extern void qt_handle_xdnd_leave( QWidget *, const XEvent *, bool );
+extern void qt_handle_xdnd_drop( QWidget *, const XEvent *, bool );
+extern void qt_handle_xdnd_finished( QWidget *, const XEvent *, bool );
 extern void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * );
 extern bool qt_xdnd_handle_badwindow();
 // client message atoms
@@ -1507,7 +1507,7 @@ static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
     return 0;
 }
 
-Window qt_x11_findClientWindow( Window win, Atom WM_STATE, bool leaf )
+Window qt_x11_findClientWindow( Window win, Atom property, bool leaf )
 {
     Atom   type = None;
     int	   format, i;
@@ -1515,7 +1515,7 @@ Window qt_x11_findClientWindow( Window win, Atom WM_STATE, bool leaf )
     uchar *data;
     Window root, parent, target=0, *children=0;
     uint   nchildren;
-    XGetWindowProperty( appDpy, win, WM_STATE, 0, 0, FALSE, AnyPropertyType,
+    XGetWindowProperty( appDpy, win, property, 0, 0, FALSE, AnyPropertyType,
 			&type, &format, &nitems, &after, &data );
     if ( data )
 	XFree( (char *)data );
@@ -1527,7 +1527,7 @@ Window qt_x11_findClientWindow( Window win, Atom WM_STATE, bool leaf )
 	return 0;
     }
     for ( i=nchildren-1; !target && i >= 0; i-- )
-	target = qt_x11_findClientWindow( children[i], WM_STATE, leaf );
+	target = qt_x11_findClientWindow( children[i], property, leaf );
     if ( children )
 	XFree( (char *)children );
     return target;
@@ -2004,6 +2004,99 @@ bool QApplication::processNextEvent( bool canWait )
     return (nevents > 0);
 }
 
+int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
+{
+    QETWidget *widget = (QETWidget*)w;
+    if ( event->xclient.format == 32 && event->xclient.message_type ) {
+	if ( event->xclient.message_type == qt_wm_protocols ) {
+	    if ( passive_only ) return 0;
+	    long *l = event->xclient.data.l;
+	    if ( *l == (long)qt_wm_delete_window )
+		widget->translateCloseEvent(event);
+	} else if ( event->xclient.message_type == qt_qt_scrolldone ) {
+	    widget->translateScrollDoneEvent(event);
+	} else if ( event->xclient.message_type == qt_xdnd_position ) {
+	    qt_handle_xdnd_position( widget, event, passive_only );
+	} else if ( event->xclient.message_type == qt_xdnd_enter ) {
+	    qt_handle_xdnd_enter( widget, event, passive_only );
+	} else if ( event->xclient.message_type == qt_xdnd_status ) {
+	    qt_handle_xdnd_status( widget, event, passive_only );
+	} else if ( event->xclient.message_type == qt_xdnd_leave ) {
+	    qt_handle_xdnd_leave( widget, event, passive_only );
+	} else if ( event->xclient.message_type == qt_xdnd_drop ) {
+	    qt_handle_xdnd_drop( widget, event, passive_only );
+	} else if ( event->xclient.message_type == qt_xdnd_finished ) {
+	    qt_handle_xdnd_finished( widget, event, passive_only );
+	} else {
+	    if ( passive_only ) return 0;
+	    // All other are interactions
+	    if ( event->xclient.message_type == qt_embedded_window_take_focus ) {
+		widget->setFocus();
+	    } else if ( event->xclient.message_type == qt_embedded_window_focus_in ) {
+		active_window = widget->topLevelWidget();
+		QWidget *w = widget->focusWidget();
+		while ( w && w->focusProxy() )
+		    w = w->focusProxy();
+		if ( w && w->isFocusEnabled() )
+		    w->setFocus();
+		else
+		    widget->focusNextPrevChild( TRUE );
+	    } else if ( event->xclient.message_type == qt_embedded_window_focus_out ) {
+		active_window = 0;
+		if ( focus_widget && !inPopupMode() ) {
+		    QFocusEvent out( QEvent::FocusOut );
+		    QWidget *widget = focus_widget;
+		    focus_widget = 0;
+		    QApplication::sendEvent( widget, &out );
+		}
+	    } else if ( event->xclient.message_type == qt_wheel_event ) {
+		return QETWidget::translateWheelEvent( event->xclient.data.l[0],
+						       event->xclient.data.l[1],
+						       event->xclient.data.l[2],
+						       event->xclient.data.l[3] );
+	    }
+	}
+    }
+    else if ( event->xclient.format == 16 ) {
+	if ( passive_only ) return 0; // all below are interactions
+	if ( event->xclient.message_type == qt_unicode_key_press
+	     || event->xclient.message_type == qt_unicode_key_release ) {
+	    
+	    QWidget *g = QWidget::keyboardGrabber();
+	    if ( g )
+		widget = (QETWidget*)g;
+	    else if ( focus_widget )
+		widget = (QETWidget*)focus_widget;
+	    else
+		widget = (QETWidget*)widget->topLevelWidget();
+	    
+	    if ( !widget || !widget->isEnabled() )
+		return 0;
+	    bool grab = g != 0;
+	    
+	    QEvent::Type type = event->xclient.message_type == qt_unicode_key_press?
+				QEvent::KeyPress : QEvent::KeyRelease;
+	    
+	    short *s = event->xclient.data.s;
+	    QChar c(s[6],s[5]);
+	    QString text;
+	    if (c != QChar::null)
+		text = c;
+	    if (!grab && type == QEvent::KeyPress) {
+		// test accelerators first
+		QKeyEvent a (QEvent::Accel, s[0], s[1], s[2], text, s[3], s[4]);
+		a.ignore();
+		QApplication::sendEvent( widget->topLevelWidget(), &a );
+		if ( a.isAccepted() )
+		    return 1;
+	    }
+	    QKeyEvent kev(type, s[0], s[1], s[2], text, s[3], s[4]);
+	    QApplication::sendEvent( widget, &kev );
+	    return 1;
+	}
+    }
+    return 0;
+}
 
 /*!
   Returns
@@ -2044,6 +2137,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     if ( event->type == PropertyNotify ) {	// some properties changed
+	qt_x_clipboardtime = event->xproperty.time;
 	if ( event->xproperty.window == appRootWin ) { // root properties
 	    if ( event->xproperty.atom == qt_resource_manager && obey_desktop_settings )
 		qt_set_x11_resources();
@@ -2099,8 +2193,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     if ( app_do_modal )				// modal event handling
-	if ( !qt_try_modal(widget, event) )
+	if ( !qt_try_modal(widget, event) ) {
+	    if ( event->type == ClientMessage )
+		x11ClientMessage( widget, event, TRUE );
 	    return 1;
+	}
 
     if ( widget->x11Event(event) )		// send through widget filter
 	return 1;
@@ -2188,6 +2285,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case EnterNotify:			// enter window
     case LeaveNotify: {			// leave window
+	qt_x_clipboardtime = event->xcrossing.time;
 	QEvent e( event->type == EnterNotify ? QEvent::Enter : QEvent::Leave );
 	QApplication::sendEvent( widget, &e );
     }
@@ -2210,89 +2308,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case ClientMessage:			// client message
-	if ( event->xclient.format == 32 && event->xclient.message_type ) {
-	    if ( event->xclient.message_type == qt_wm_protocols ) {
-		long *l = event->xclient.data.l;
-		if ( *l == (long)qt_wm_delete_window )
-		    widget->translateCloseEvent(event);
-	    } else if ( event->xclient.message_type == qt_qt_scrolldone ) {
-		widget->translateScrollDoneEvent(event);
-	    } else if ( event->xclient.message_type == qt_xdnd_position ) {
-		qt_handle_xdnd_position( widget, event );
-	    } else if ( event->xclient.message_type == qt_xdnd_enter ) {
-		qt_handle_xdnd_enter( widget, event );
-	    } else if ( event->xclient.message_type == qt_xdnd_status ) {
-		qt_handle_xdnd_status( widget, event );
-	    } else if ( event->xclient.message_type == qt_xdnd_leave ) {
-		qt_handle_xdnd_leave( widget, event );
-	    } else if ( event->xclient.message_type == qt_xdnd_drop ) {
-		qt_handle_xdnd_drop( widget, event );
-	    } else if ( event->xclient.message_type == qt_xdnd_finished ) {
-		qt_handle_xdnd_finished( widget, event );
-	    } else if ( event->xclient.message_type == qt_embedded_window_take_focus ) {
-		widget->setFocus();
-	    } else if ( event->xclient.message_type == qt_embedded_window_focus_in ) {
-		active_window = widget->topLevelWidget();
-		QWidget *w = widget->focusWidget();
-		while ( w && w->focusProxy() )
-		    w = w->focusProxy();
-		if ( w && w->isFocusEnabled() )
-		    w->setFocus();
-		else
-		    widget->focusNextPrevChild( TRUE );
-	    } else if ( event->xclient.message_type == qt_embedded_window_focus_out ) {
-		active_window = 0;
-		if ( focus_widget && !inPopupMode() ) {
-		    QFocusEvent out( QEvent::FocusOut );
-		    QWidget *widget = focus_widget;
-		    focus_widget = 0;
-		    QApplication::sendEvent( widget, &out );
-		}
-	    } else if ( event->xclient.message_type == qt_wheel_event ) {
-		return QETWidget::translateWheelEvent( event->xclient.data.l[0],
-						       event->xclient.data.l[1],
-						       event->xclient.data.l[2],
-						       event->xclient.data.l[3] );
-	    }
-	
-	}
-	else if ( event->xclient.format == 16 ) {
-	    if ( event->xclient.message_type == qt_unicode_key_press
-		 || event->xclient.message_type == qt_unicode_key_release ) {
-		
-		QWidget *g = QWidget::keyboardGrabber();
-		if ( g )
-		    widget = (QETWidget*)g;
-		else if ( focus_widget )
-		    widget = (QETWidget*)focus_widget;
-		else
-		    widget = (QETWidget*)widget->topLevelWidget();
-		
-		if ( !widget || !widget->isEnabled() )
-		    return FALSE;
-		bool grab = g != 0;
-		
-		QEvent::Type type = event->xclient.message_type == qt_unicode_key_press?
-				    QEvent::KeyPress : QEvent::KeyRelease;
-		
-		short *s = event->xclient.data.s;
-		QChar c(s[6],s[5]);
-		QString text;
-		if (c != QChar::null)
-		    text = c;
-		if (!grab && type == QEvent::KeyPress) {
-		    // test accelerators first
-		    QKeyEvent a (QEvent::Accel, s[0], s[1], s[2], text, s[3], s[4]);
-		    a.ignore();
-		    QApplication::sendEvent( widget->topLevelWidget(), &a );
-		    if ( a.isAccepted() )
-			return TRUE;
-		}
-		QKeyEvent kev(type, s[0], s[1], s[2], text, s[3], s[4]);
-		QApplication::sendEvent( widget, &kev );
-		return TRUE;
-	    }
-	}
+	return x11ClientMessage(widget,event,FALSE);
 	break;
 
     case ReparentNotify:			// window manager reparents
