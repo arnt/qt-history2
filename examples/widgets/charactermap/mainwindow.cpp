@@ -22,11 +22,11 @@ MainWindow::MainWindow()
     characterWidget = new CharacterWidget;
     view->setWidget(characterWidget);
 
-    lineEdit = new QLineEdit(centralWidget);
-    QPushButton *clipboardButton = new QPushButton(tr("&To clipboard"), centralWidget);
-
     findFonts();
     findStyles();
+
+    lineEdit = new QLineEdit(centralWidget);
+    QPushButton *clipboardButton = new QPushButton(tr("&To clipboard"), centralWidget);
 
     clipboard = qApp->clipboard();
 
