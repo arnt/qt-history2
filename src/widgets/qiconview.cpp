@@ -154,7 +154,7 @@ public:
     bool firstSizeHint;
     QIconViewToolTip *toolTip;
     bool showTips;
-    
+
     struct ItemContainer {
 	ItemContainer( ItemContainer *pr, ItemContainer *nx, const QRect &r )
 	    : p( pr ), n( nx ), rect( r ) {
@@ -184,28 +184,28 @@ class QIconViewToolTip : public QToolTip
 {
 public:
     QIconViewToolTip( QWidget *parent, QIconView *iv );
-    
+
     void maybeTip( const QPoint &pos );
-    
+
 private:
     QIconView *view;
-    
+
 };
 
 QIconViewToolTip::QIconViewToolTip( QWidget *parent, QIconView *iv )
-    : QToolTip( parent ), view( iv )  
+    : QToolTip( parent ), view( iv )
 {
 }
 
 void QIconViewToolTip::maybeTip( const QPoint &pos )
 {
-    if ( !parentWidget() || !view || view->wordWrapIconText() || !view->showToolTips() ) 
+    if ( !parentWidget() || !view || view->wordWrapIconText() || !view->showToolTips() )
 	return;
-    
+
     QIconViewItem *item = view->findItem( view->viewportToContents( pos ) );
     if ( !item || item->tmpText == item->itemText )
 	return;
-    
+
     QRect r( item->textRect( FALSE ) );
     r = QRect( view->contentsToViewport( QPoint( r.x(), r.y() ) ), QSize( r.width(), r.height() ) );
     QRect r2( item->pixmapRect( FALSE ) );
@@ -727,8 +727,18 @@ void QIconViewItem::setText( const QString &text )
     itemText = text;
     if ( itemKey.isEmpty() )
 	itemKey = itemText;
+
+    QRect oldRect = rect();
     calcRect();
-    repaint();
+    oldRect = oldRect.unite( rect() );
+    
+    if ( view ) {
+	if ( QRect( view->contentsX(), view->contentsY(), 
+		    view->visibleWidth(), view->visibleHeight() ).
+	     intersects( oldRect ) )
+	    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, 
+				   oldRect.width() + 2, oldRect.height() + 2, FALSE );
+    }
 }
 
 /*!
@@ -762,8 +772,17 @@ void QIconViewItem::setPixmap( const QPixmap &icon )
 	*itemIcon = icon;
     else
 	itemIcon = new QPixmap( icon );
+    QRect oldRect = rect();
     calcRect();
-    repaint();
+    oldRect = oldRect.unite( rect() );
+    
+    if ( view ) {
+	if ( QRect( view->contentsX(), view->contentsY(), 
+		    view->visibleWidth(), view->visibleHeight() ).
+	     intersects( oldRect ) )
+	    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1, 
+				   oldRect.width() + 2, oldRect.height() + 2, FALSE );
+    }
 }
 
 /*!
@@ -2822,7 +2841,7 @@ void QIconView::repaintItem( QIconViewItem *item )
     if ( !item || item->dirty )
 	return;
 
-    if ( QRect( contentsX(), contentsY(), contentsWidth(), contentsHeight() ).
+    if ( QRect( contentsX(), contentsY(), visibleWidth(), visibleHeight() ).
 	 intersects( QRect( item->x() - 1, item->y() - 1, item->width() + 2, item->height() + 2 ) ) )
 	repaintContents( item->x() - 1, item->y() - 1, item->width() + 2, item->height() + 2, FALSE );
 }
@@ -3287,7 +3306,7 @@ bool QIconView::sortDirection() const
 
   NOTE: Both possibilities just change the way how the text is
   displayed, they do NOT modify the item text itslef.
-  
+
   \sa setShowToolTips()
 */
 
@@ -3323,7 +3342,7 @@ bool QIconView::wordWrapIconText() const
   \a b here and the user moves the mouse onto the item a tooltip with
   the whole item text is shown.
   If you pass \a FALSE here this feature is switched off.
-  
+
   \sa setWordWrapIconText()
 */
 
@@ -3334,7 +3353,7 @@ void QIconView::setShowToolTips( bool b )
 
 /*!
   Returns TRUE if a tooltip is shown for truncated item textes or not.
-  
+
   \sa setShowToolTips(), setWordWrapIconText()
 */
 
