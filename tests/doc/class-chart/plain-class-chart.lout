@@ -41,9 +41,9 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 @Place x { 2c } y { 1.5c }
 { 0.75 @Scale grey @Colour 
 { Copyright @CopyRight 2003 Trolltech AS. All Rights Reserved. }}
-@Place x { 20.5c } y { 7.5c }
-{ 0.325 @Scale 
-@IncludeGraphic { square_trolltech.eps.gz } }
+#@Place x { 20.5c } y { 7.5c }
+#{ 0.325 @Scale 
+#@IncludeGraphic { square_trolltech.eps.gz } }
 @CD 
 {} @Scale 
 @Diag 
@@ -110,7 +110,6 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QACTION:: @ObjectNode { QAction } } 
 	    J { QCOMBOBOX:: @WidgetNode { QComboBox } } 
 	    L { QTOOLBUTTON:: @WidgetNode { QToolButton } } 
-	    N { QXMLATTRIBUTES:: @XmlNode { QXmlAttributes } }
 	    P { QASYNCIO:: @MiscNode { QAsyncIO } } 
 	    R { QMETAOBJECT:: @MiscNode { QMetaObject } }
 	    T { QPOINTARRAY:: @CollectionNode { QPointArray } }
@@ -120,7 +119,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QAPPLICATION:: @ObjectNode { QApplication } } 
 	    J { QDATEEDIT:: @WidgetNode { QDateEdit } } 
 	    L { QPUSHBUTTON:: @WidgetNode { QPushButton } } 
-	    N { QXMLCONTENTHANDLER:: @XmlNode { QXmlContentHandler } }
+	    N { QXMLATTRIBUTES:: @XmlNode { QXmlAttributes } }
 	    P { QCHAR:: @MiscNode { QChar } } 
 	    R { QMETAPROPERTY:: @MiscNode { QMetaProperty } }
 	    T { QBITARRAY:: @CollectionNode { QBitArray } }
@@ -130,7 +129,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QCANVAS:: @ObjectNode { QCanvas } } 
 	    J { QDATETIMEEDIT:: @WidgetNode { QDateTimeEdit } } 
 	    L { QRADIOBUTTON:: @WidgetNode { QRadioButton } } 
-	    N { QXMLDECLHANDLER:: @XmlNode { QXmlDeclHandler } }
+	    N { QXMLCONTENTHANDLER:: @XmlNode { QXmlContentHandler } }
 	    P { QCOLOR:: @MiscNode { QColor } } 
 	    R { QMOVIE:: @MiscNode { QMovie } }
 	    T { QCSTRING:: @CollectionNode { QCString } }
@@ -139,7 +138,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    E { QDROPEVENT:: @EventNode { QDropEvent } } 
 	    G { QCLIPBOARD:: @ObjectNode { QClipboard } } 
 	    J { QDESKTOPWIDGET:: @WidgetNode { QDesktopWidget } } 
-	    N { QXMLDTDHANDLER:: @XmlNode { QXmlDTDHandler } }
+	    N { QXMLDECLHANDLER:: @XmlNode { QXmlDeclHandler } }
 	    P { QCOLORGROUP:: @MiscNode { QColorGroup } } 
 	    R { QMIMESOURCE:: @MiscNode { QMimeSource } }
 	    T { QMIMESOURCEFACTORY:: @MiscNode { QMimeSourceFactory } }
@@ -149,7 +148,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QDNS:: @ObjectNode { QDns } } 
 	    J { QDIALOG:: @DialogNode { QDialog } } 
 	    L { QWIZARD:: @DialogNode { QWizard } } 
-	    N { QXMLENTITYRESOLVER:: @XmlNode { QXmlEntityResolver } }
+	    N { QXMLDTDHANDLER:: @XmlNode { QXmlDTDHandler } }
 	    P { QDATASTREAM:: @MiscNode { QDataStream } } 
 	    R { QMUTEX:: @MiscNode { QMutex } }
 	    T { QMUTEXLOCKER:: @MiscNode { QMutexLocker } }
@@ -159,7 +158,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QDRAGOBJECT:: @ObjectNode { QDragObject } } 
 	    J { QDIAL:: @WidgetNode { QDial } } 
 	    L { QTABDIALOG:: @DialogNode { QTabDialog } } 
-	    N { QXMLLEXICALHANDLER:: @XmlNode { QXmlLexicalHandler } }
+	    N { QXMLENTITYRESOLVER:: @XmlNode { QXmlEntityResolver } }
 	    P { QDATE:: @MiscNode { QDate } } 
 	    R { QPAINTDEVICE:: @MiscNode { QPaintDevice } }
 	    U { I:: @XNode{white @Colour{Q}} } 
@@ -169,7 +168,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QEVENTLOOP:: @ObjectNode { QEventLoop } } 
 	    J { QDOCKAREA:: @WidgetNode { QDockArea } } 
 	    L { QFILEDIALOG:: @DialogNode { QFileDialog } } 
-	    N { QXMLLOCATOR:: @XmlNode { QXmlLocator } }
+	    N { QXMLLEXICALHANDLER:: @XmlNode { QXmlLexicalHandler } }
 	    P { QDATETIME:: @MiscNode { QDateTime } } 
 	    R { QPAINTDEVICEMETRICS:: @MiscNode { QPaintDeviceMetrics } }
 	    T { QPRINTER:: @MiscNode { QPrinter } }
@@ -179,7 +178,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QPROCESS:: @ObjectNode { QProcess } } 
 	    J { QWORKSPACE:: @WidgetNode { QWorkspace } } 
 	    L { QFONTDIALOG:: @DialogNode { QFontDialog } } 
-	    N { QXMLNAMESPACESUPPORT:: @XmlNode { QXmlNamespace... } }
+	    N { QXMLLOCATOR:: @XmlNode { QXmlLocator } }
 	    P { QDEEPCOPY:: @MiscNode { QDeepCopy } } 
 	    R { QPAIR:: @CollectionNode { QPair } }
 	    T { QPICTURE:: @MiscNode { QPicture } }
@@ -189,7 +188,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSERVERSOCKET:: @ObjectNode { QServerSocket } } 
 	    J { QGLWIDGET:: @WidgetNode { QGLWidget } } 
 	    L { QINPUTDIALOG:: @DialogNode { QInputDialog } } 
-	    N { QXMLREADER:: @XmlNode { QXmlReader } }
+	    N { QXMLNAMESPACESUPPORT:: @XmlNode { QXmlNamespace... } }
 	    P { QDIR:: @MiscNode { QDir } } 
 	    R { QPALETTE:: @MiscNode { QPalette } }
 	    T { QPIXMAP:: @MiscNode { QPixmap } }
@@ -200,7 +199,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSESSIONMANAGER:: @ObjectNode { QSessionManager } } 
 	    J { QHEADER:: @WidgetNode { QHeader } } 
 	    L { QCOLORDIALOG:: @DialogNode { QColorDialog } } 
-	    N { QDOMATTR:: @XmlNode { QDomAttr } } 
+	    N { QXMLREADER:: @XmlNode { QXmlReader } }
 	    P { QDOMNODE:: @XmlNode { QDomNode } } 
 	    R { QPIXMAPCACHE:: @CollectionNode { QPixmapCache } }
 	    T { QBITMAP:: @MiscNode { QBitmap } }
@@ -210,7 +209,6 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSIGNAL:: @ObjectNode { QSignal } } 
 	    J { QMAINWINDOW:: @WidgetNode { QMainWindow } } 
 	    L { QMESSAGEBOX:: @DialogNode { QMessageBox } } 
-	    N { QDOMENTITY:: @XmlNode { QDomEntity } } 
 	    P { QFILEINFO:: @MiscNode { QFileInfo } } 
 	    R { QPOINT:: @MiscNode { QPoint } }
 	@Rowa
@@ -219,7 +217,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSIGNALMAPPER:: @ObjectNode { QSignalMapper } } 
 	    J { QSCROLLBAR:: @WidgetNode { QScrollBar } } 
 	    L { QERRORMESSAGE:: @DialogNode { QErrorMessage } } 
-	    N { QDOMELEMENT:: @XmlNode { QDomElement } } 
+	    N { QDOMATTR:: @XmlNode { QDomAttr } } 
 	    P { QFONT:: @MiscNode { QFont } } 
 	    R { QPTRCOLLECTION:: @CollectionNode { QPtrCollection } }
 	    U { J:: @XNode{white @Colour{Q}} } 
@@ -229,7 +227,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSOCKET:: @ObjectNode { QSocket } } 
 	    J { QSLIDER:: @WidgetNode { QSlider } } 
 	    L { QPROGRESSDIALOG:: @DialogNode { QProgressDialog } } 
-	    N { QDOMDOCUMENT:: @XmlNode { QDomDocument } } 
+	    N { QDOMENTITY:: @XmlNode { QDomEntity } } 
 	    P { QFONTDATABASE:: @MiscNode { QFontDatabase } } 
 	    R { QPTRQUEUE:: @CollectionNode { QPtrQueue } }
 	    T { QDICT:: @CollectionNode { QDict } }
@@ -239,7 +237,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QSOUND:: @ObjectNode { QSound } } 
 	    J { QFRAME:: @WidgetNode { QFrame } } 
 	    M { D:: @XNode{white @Colour{Q}} } 
-	    N { QDOMCHARACTERDATA:: @XmlNode { QDomCharacterData } } 
+	    N { QDOMELEMENT:: @XmlNode { QDomElement } } 
 	    P { QFONTINFO:: @MiscNode { QFontInfo } } 
 	    R { QPTRSTACK:: @CollectionNode { QPtrStack } }
 	    T { QCACHE:: @CollectionNode { QCache } }
@@ -249,7 +247,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QTIMER:: @ObjectNode { QTimer } } 
 	    J { QSIZEGRIP:: @WidgetNode { QSizeGrip } } 
 	    L { QGRID:: @WidgetNode { QGrid } } 
-	    N { QGLFORMAT:: @MiscNode { QGLFormat } } 
+	    N { QDOMDOCUMENT:: @XmlNode { QDomDocument } } 
 	    P { QFONTMANAGER:: @MiscNode { QFontManager } } 
 	    R { QRANGECONTROL:: @MiscNode { QRangeControl } }
 	    T { QPTRLIST:: @CollectionNode { QPtrList } }
@@ -259,7 +257,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QTRANSLATOR:: @ObjectNode { QTranslator } } 
 	    J { QSPINBOX:: @WidgetNode { QSpinBox } } 
 	    L { QLABEL:: @WidgetNode { QLabel } } 
-	    N { QGLCONTEXT:: @MiscNode { QGLContext } } 
+	    N { QDOMCHARACTERDATA:: @XmlNode { QDomCharacterData } } 
 	    P { QFONTMETRICS:: @MiscNode { QFontMetrics } } 
 	    R { QRECT:: @MiscNode { QRect } }
 	    T { QINTDICT:: @CollectionNode { QIntDict } }
@@ -284,6 +282,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QURLOPERATOR:: @ObjectNode { QUrlOperator } } 
 	    J { QTABBAR:: @WidgetNode { QTabBar } } 
 	    L { QSPLITTER:: @WidgetNode { QSplitter } } 
+	    N { QGLFORMAT:: @MiscNode { QGLFormat } } 
 	    P { QGUARDEDPTR:: @MiscNode { QGuardedPtr } } 
 	    R { QSEMAPHORE:: @MiscNode { QSemaphore } }
 	    T { QPTRVECTOR:: @CollectionNode { QPtrVector } }
@@ -292,6 +291,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QNETWORKOPERATION:: @ObjectNode { QNetworkOperation } } 
 	    J { QTABWIDGET:: @WidgetNode { QTabWidget } } 
 	    L { QLINEEDIT:: @WidgetNode { QLineEdit } } 
+	    N { QGLCONTEXT:: @MiscNode { QGLContext } } 
 	    P { QHOSTADDRESS:: @MiscNode { QHostAddress } } 
 	    R { QSETTINGS:: @MiscNode { QSettings } }
 	    T { QOBJECTLIST:: @CollectionNode { QObjectList } }
@@ -319,6 +319,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QDOUBLEVALIDATOR:: @ObjectNode { QDoubleValidator } } 
 	    J { QSCROLLVIEW:: @WidgetNode { QScrollView } } 
 	    L { QPOPUPMENU:: @WidgetNode { QPopupMenu } } 
+	    N { QFILE:: @MiscNode { QFile } } 
 	    P { QIMAGEFORMATPLUGIN:: @MiscNode { QImageFormatPlugin } } 
 	    R { QSIZEPOLICY:: @MiscNode { QSizePolicy } }
 	    T { QSTRINGLIST:: @CollectionNode { QStringList } }
@@ -328,7 +329,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QINTVALIDATOR:: @ObjectNode { QIntValidator } } 
 	    J { QCANVASVIEW:: @WidgetNode { QCanvasView } } 
 	    L { QPROGRESSBAR:: @WidgetNode { QProgressBar } } 
-	    N { QFILE:: @MiscNode { QFile } } 
+	    N { QBUFFER:: @MiscNode { QBuffer } } 
 	    P { QIMAGEIO:: @MiscNode { QImageIO } } 
 	    R { QSTRING:: @MiscNode { QString } }
 	    T { QVALUESTACK:: @CollectionNode { QValueStack } }
@@ -338,7 +339,7 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QREGEXPVALIDATOR:: @ObjectNode { QRegExpValidator } } 
 	    J { QICONVIEW:: @WidgetNode { QIconView } } 
 	    L { QLCDNUMBER:: @WidgetNode { QLCDNumber } } 
-	    N { QBUFFER:: @MiscNode { QBuffer } } 
+	    N { QSOCKETDEVICE:: @MiscNode { QSocketDevice } } 
 	    P { QINTCACHE:: @CollectionNode { QIntCache } } 
 	    R { QCONSTSTRING:: @MiscNode { QConstString } }
 	    T { QVALUEVECTOR:: @CollectionNode { QValueVector } }
@@ -347,7 +348,6 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 	    G { QEDITORFACTORY:: @ObjectNode { QEditorFactory } } 
 	    J { QLISTVIEW:: @WidgetNode { QListView } } 
 	    L { QWIDGETSTACK:: @WidgetNode { QWidgetStack } } 
-	    N { QSOCKETDEVICE:: @MiscNode { QSocketDevice } } 
 	    P { QIODEVICE:: @MiscNode { QIODevice } } 
 	    R { QTEXTCODEC:: @MiscNode { QTextCodec } }
 	    T { QURL:: @MiscNode { QUrl } }
