@@ -700,41 +700,24 @@ int QLayoutSupport::findItemAt(const QPoint &pos) const
     if (!layout())
          return -1;
 
-    QRect g = layout()->geometry();
-    if (!g.contains(pos))
-        return -1;
+    int best = -1;
+    int bestIndex = -1;
 
-    QPoint pt = pos;
-    pt -= g.topLeft();
+    int index = 0;
+    while (QLayoutItem *item = layout()->itemAt(index)) {
 
-    if (QGridLayout *grid = qt_cast<QGridLayout*>(layout())) {
-        int columnCount = qMax(1, grid->columnCount());
-        int rowCount = qMax(1, grid->rowCount());
+        QRect g = item->geometry();
 
-        int cellWidth = g.width() / columnCount;
-        int cellHeight = g.height() / rowCount;
+        int dist = (g.center() - pos).manhattanLength();
+        if (best == -1 || dist < best) {
+            best = dist;
+            bestIndex = index;
+        }
 
-        return findItemAt(pt.y() / cellHeight, pt.x() / cellWidth);
-    } else if (QVBoxLayout *vbox = qt_cast<QVBoxLayout*>(layout())) {
-        int cellCount = 0;
-        while (vbox->itemAt(cellCount))
-            ++cellCount;
-
-        cellCount = qMax(1, cellCount);
-        int cellHeight = g.height() / cellCount;
-
-        return pt.y() / cellHeight;
-    } else if (QHBoxLayout *hbox = qt_cast<QHBoxLayout*>(layout())) {
-        int cellCount = 0;
-        while (hbox->itemAt(cellCount))
-            ++cellCount;
-
-        cellCount = qMax(1, cellCount);
-        int cellWidth = g.width() / cellCount;
-
-        return pt.x() / cellWidth;
+        ++index;
     }
-    return -1;
+
+    return bestIndex;
 }
 
 void QLayoutSupport::computeGridLayout(QHash<QLayoutItem*, QRect> *l)
