@@ -3371,6 +3371,10 @@ QString MainWindow::whatsThisFrom( const QString &key )
 
 Project *MainWindow::setSingleProject( const QString &lang, const QString &projectName )
 {
+    static QString lastProjectName;
+    if ( projectName == lastProjectName )
+	return eProject;
+    lastProjectName = projectName;
     singleProject = TRUE;
     projects.clear();
     QAction *a = new QAction( tr( projectName ), tr( projectName ), 0, actionGroupProjects, 0, TRUE );
