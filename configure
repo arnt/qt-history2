@@ -1245,105 +1245,6 @@ fi
 fi ### help
 
 #-------------------------------------------------------------------------------
-# determine the system architecture
-#-------------------------------------------------------------------------------
-if [ "$OPT_VERBOSE" = "yes" ]; then
-    echo "Determining system architecture... ($UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE)"
-fi
-
-case "$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE" in
-IRIX*:*:*)
-    ARCH=`uname -p`
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-        echo "    SGI ($ARCH)"
-    fi
-    ;;
-SunOS:5*:sun4*)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    Sun SPARC (sparc)"
-    fi
-    ARCH=sparc
-    ;;
-Darwin:*:Power?Macintosh)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    32-bit Apple PowerPC (powerpc)"
-    fi
-    ARCH=powerpc
-    ;;
-AIX:*:00????????00)
-    case "$XPLATFORM" in
-    aix-*-64)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-            echo "    64-bit IBM PowerPC (powerpc)"
-        fi
-        ARCH=powerpc
-	;;
-    *)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-            echo "    32-bit IBM RS/6000 (rs6k)"
-        fi
-        ARCH=rs6k
-        ;;
-    esac
-    ;;
-*:*:i?86)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    32-bit Intel 80x86 (i386)"
-    fi
-    ARCH=i386
-    ;;
-*:*:x86_64)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    64-bit AMD 80x86 (x86_64)"
-    fi
-    ARCH=x86_64
-    ;;
-*:*:ppc)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    32-bit PowerPC (powerpc)"
-    fi
-    ARCH=powerpc
-    ;;
-*:*:*)
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    Trying '$UNAME_MACHINE'..."
-    fi
-    ARCH="$UNAME_MACHINE"
-    ;;
-esac
-
-if [ -d "$relpath/src/core/arch/$ARCH" ]; then
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    '$ARCH' is supported"
-    fi
-else
-    if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "    '$ARCH' is unsupported, using 'generic'"
-    fi
-    ARCH=generic
-fi
-
-if [ "$OPT_VERBOSE" = "yes" ]; then
-	echo "System architecture: '$ARCH'"
-fi
-
-# symlink the arch/$ARCH/arch/ include directory to include/QtCore/arch/
-if [ -d "$outpath/src/core/global/arch" ]; then
-    rm -f "$outpath/src/core/global/arch"
-else
-    mkdir -p "$outpath/src/core/global/"
-fi
-ln -s "$relpath/src/core/arch/$ARCH/arch" "$outpath/src/core/global/arch"
-for arch in "$outpath/include/QtCore/arch" "$outpath/include/Qt/arch"; do
-   if [ -d "$arch" ]; then
-       rm -f "$arch"
-   else
-       mkdir -p `dirname $arch`
-   fi
-   ln -s "$relpath/src/core/arch/$ARCH/arch" "$arch"
-done
-
-#-------------------------------------------------------------------------------
 # auto-detect all that hasn't been specified in the arguments
 #-------------------------------------------------------------------------------
 
@@ -1490,11 +1391,13 @@ if [ -z "$PLATFORM" ]; then
 	"
 	;;
      Linux:*)
-	case "$ARCH" in
-		x86_64)
-			PLATFORM=linux-g++-64;;
-		*)
-			PLATFORM=linux-g++;;
+	case "$UNAME_MACINE" in
+	    x86_64)
+		PLATFORM=linux-g++-64
+		;;
+	    *)
+		PLATFORM=linux-g++
+		;;
 	esac
 	PLATFORM_NOTES="
 	    - Also available for Linux: linux-kcc linux-icc linux-cxx
@@ -1629,6 +1532,104 @@ fi
 [ '!' -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && PLATFORM_X11=yes
 ### echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && PLATFORM_QWS=yes
 
+#-------------------------------------------------------------------------------
+# determine the system architecture
+#-------------------------------------------------------------------------------
+if [ "$OPT_VERBOSE" = "yes" ]; then
+    echo "Determining system architecture... ($UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE)"
+fi
+
+case "$UNAME_SYSTEM:$UNAME_RELEASE:$UNAME_MACHINE" in
+IRIX*:*:*)
+    ARCH=`uname -p`
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+        echo "    SGI ($ARCH)"
+    fi
+    ;;
+SunOS:5*:sun4*)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    Sun SPARC (sparc)"
+    fi
+    ARCH=sparc
+    ;;
+Darwin:*:Power?Macintosh)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    32-bit Apple PowerPC (powerpc)"
+    fi
+    ARCH=powerpc
+    ;;
+AIX:*:00????????00)
+    case "$XPLATFORM" in
+    aix-*-64)
+        if [ "$OPT_VERBOSE" = "yes" ]; then
+            echo "    64-bit IBM PowerPC (powerpc)"
+        fi
+        ARCH=powerpc
+	;;
+    *)
+        if [ "$OPT_VERBOSE" = "yes" ]; then
+            echo "    32-bit IBM RS/6000 (rs6k)"
+        fi
+        ARCH=rs6k
+        ;;
+    esac
+    ;;
+*:*:i?86)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    32-bit Intel 80x86 (i386)"
+    fi
+    ARCH=i386
+    ;;
+*:*:x86_64)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    64-bit AMD 80x86 (x86_64)"
+    fi
+    ARCH=x86_64
+    ;;
+*:*:ppc)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    32-bit PowerPC (powerpc)"
+    fi
+    ARCH=powerpc
+    ;;
+*:*:*)
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    Trying '$UNAME_MACHINE'..."
+    fi
+    ARCH="$UNAME_MACHINE"
+    ;;
+esac
+ 
+if [ -d "$relpath/src/core/arch/$ARCH" ]; then
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    '$ARCH' is supported"
+    fi
+else
+    if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "    '$ARCH' is unsupported, using 'generic'"
+    fi
+    ARCH=generic
+fi
+
+if [ "$OPT_VERBOSE" = "yes" ]; then
+	echo "System architecture: '$ARCH'"
+fi
+
+# symlink the arch/$ARCH/arch/ include directory to include/QtCore/arch/
+if [ -d "$outpath/src/core/global/arch" ]; then
+    rm -f "$outpath/src/core/global/arch"
+else
+    mkdir -p "$outpath/src/core/global/"
+fi
+ln -s "$relpath/src/core/arch/$ARCH/arch" "$outpath/src/core/global/arch"
+for arch in "$outpath/include/QtCore/arch" "$outpath/include/Qt/arch"; do
+   if [ -d "$arch" ]; then
+       rm -f "$arch"
+   else
+       mkdir -p `dirname $arch`
+   fi
+   ln -s "$relpath/src/core/arch/$ARCH/arch" "$arch"
+done
 
 #-------------------------------------------------------------------------------
 # tests that don't need qmake (must be run before displaying help)
