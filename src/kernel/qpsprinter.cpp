@@ -1666,39 +1666,6 @@ static const struct {
     { 0xFFFF, 0 }
 };
 
-#if 0 // ### Lars, this code is not used! Should we discard it?
-// duplicate entries in the glyph list. Do not download these, to avoid
-// doubly defined glyphs
-static const unsigned short duplicateEntries[] = {
-    0x00A0,
-    0x0394,
-    0x03a9,
-    0xf6c1,
-    0x021a,
-    0x2215,
-    0x00ad,
-    0x02c9,
-    0x03bc,
-    0x2219,
-    0xf6c2,
-    0x00a0,
-    0x021b,
-    0x0
-};
-
-static inline bool duplicate( unsigned short unicode )
-{
-    bool result = FALSE;
-    for ( const unsigned short *g = duplicateEntries; *g; ++g ) {
-	if ( *g == unicode ) {
-	    result = TRUE;
-	    break;
-	}
-    }
-    return result;
-}
-#endif
-
 // ---------------------------------------------------------------------
 // postscript font substitution dictionary. We assume every postscript printer has at least
 // Helvetica, Times, Courier and Symbol
@@ -1891,6 +1858,26 @@ static const struct {
 
 
 // ------------------------------End of static data ----------------------------------
+
+// make sure DSC comments are not longer than 255 chars per line.
+static QString wrapDSC( const QString &str )
+{
+    QString dsc = str.simplifyWhiteSpace();
+    static const int wrapAt = 254;
+    QString wrapped;
+    if ( dsc.length() < wrapAt )
+	wrapped = dsc;
+    else {
+	wrapped = dsc.left( wrapAt );
+	QString tmp = dsc.mid( wrapAt );
+	while ( tmp.length() > wrapAt-3 ) {
+	    wrapped += "\n%%+" + tmp.left( wrapAt-3 );
+	    tmp = tmp.mid( wrapAt-3 );
+	}
+	wrapped += "\n%%+" + tmp;
+    }
+    return wrapped + "\n";
+}
 
 // ----------------------------- Internal class declarations -----------------------------
 
@@ -2467,14 +2454,10 @@ void QPSPrinterFontPrivate::downloadMapping( QTextStream &s, bool global )
     //   int VMMin;
     //   int VMMax;
 
-    s << "%%BeginFont: " << psname << "\n";
-    s << "%!PS-AdobeFont-1.0 Composite Font\n";
-
-    s << "%%FontName: ";
-    s << psname;
-    s << "-Uni\n";
-
-    s << "%%Creator: Composite font created by Qt\n";
+    s << wrapDSC( "%%BeginFont: " + psname )
+      << "%!PS-AdobeFont-1.0 Composite Font\n"
+      << wrapDSC( "%%FontName: " + psname + "-Uni" )
+      << "%%Creator: Composite font created by Qt\n";
 
     /* Start the dictionary which will eventually */
     /* become the font. */
@@ -2890,9 +2873,7 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
     int VMMin;
     int VMMax;
 
-    s << "%%BeginFont: ";
-    s << FullName;
-    s << "\n";
+    s << wrapDSC( "%%BeginFont: " + FullName );
     if( target_type == 42 ) {
         s << "%!PS-TrueTypeFont-"
           << TTVersion.whole
@@ -2909,15 +2890,13 @@ void QPSPrinterFontTTF::download(QTextStream& s,bool global)
     }     /* See RBIIp 641 */
 
     if( Copyright != (char*)NULL ) {
-        s << "%%Copyright: ";
-        s << Copyright;
-        s << "\n";
+        s << wrapDSC( "%%Copyright: " + Copyright );
     }
 
     if( target_type == 42 )
-        s << "%%Creator: Converted from TrueType to type 42 by Qt using PPR\n";
+        s << "%%Creator: Converted from TrueType to type 42 by Qt\n";
     else
-        s << "%%Creator: Converted from TrueType by Qt using PPR\n";
+        s << "%%Creator: Converted from TrueType by Qt\n";
 
     /* If VM usage information is available, print it. */
     if( target_type == 42 && post_table)
@@ -4831,8 +4810,6 @@ void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const Q
     }
 }
 
-#endif
-
 // ----------- Korean --------------
 
 // sans serif
@@ -4984,6 +4961,8 @@ QString QPSPrinterFontSimplifiedChinese::defineFont( QTextStream &stream, QStrin
 {
     return QPSPrinterFontPrivate::defineFont( stream, ps, f, key, d );
 }
+#endif
+
 
 // ================== QPSPrinterFont ====================
 
@@ -5214,21 +5193,28 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
         default:
 
 #ifndef QT_NO_TEXTCODEC
-            if ( script == QFont::Hiragana || script == QFont::Katakana ) {
-                p = new QPSPrinterFontJapanese( f );
-            } else
+	    if ( script == QFont::Hiragana || script == QFont::Katakana ) {
+		p = new QPSPrinterFontJapanese( f );
+	    } else if ( script == QFont::Hangul) {
+		p = new QPSPrinterFontKorean( f );
+	    } else if ( script == QFont::Han ) {
+		QString name = QString::fromLatin1( QTextCodec::codecForLocale()->name() );
+		if ( name == "eucJP" || name == "JIS7" || name == "Shift-JIS" )
+		    p = new QPSPrinterFontJapanese( f );
+		else if ( name == "eucKR" )
+		    p = new QPSPrinterFontKorean( f );
+		else if ( name == "Big5" )
+		    p = new QPSPrinterFontTraditionalChinese( f );
+		else if ( name == "GBK" )
+		    p = new QPSPrinterFontSimplifiedChinese( f );
+		else {
+		    //qDebug("didnt find font for %s", xfontname.latin1());
+		    p = new QPSPrinterFontNotFound( f );
+		}
+	    } else
 #endif
-	    if ( script == QFont::Hangul) {
-                p = new QPSPrinterFontKorean( f );
-            } else if ( script == QFont::Han ) {
-                // #####
-//                          || cs == QFont::Big5 || cs == QFont::Set_Zh_TW) {
-                p = new QPSPrinterFontTraditionalChinese( f );
-//              } else if ( cs == QFont::Set_GBK || cs == QFont::GB_2312 || cs == QFont::Set_Zh) {
-//                  p = new QPSPrinterFontSimplifiedChinese( f );
-            } else
-                //qDebug("didnt find font for %s", xfontname.latin1());
-                p=new QPSPrinterFontNotFound( f ); break;
+		//qDebug("didnt find font for %s", xfontname.latin1());
+		p=new QPSPrinterFontNotFound( f ); break;
     }
     //qDebug("inserting %s int dict (%p)", xfontname.latin1(), p);
     priv->fonts.insert( xfontname, p );
@@ -5855,20 +5841,20 @@ void QPSPrinterPrivate::emitHeader( bool finished )
         else
             outStream << "\n%%BoundingBox: 0 0 " << w << " " << h;
     }
-    outStream << "\n%%Creator: " << creator;
+    outStream << "\n" << wrapDSC( "%%Creator: " + creator );
     if ( !!title )
-        outStream << "\n%%Title: " << title;
-    outStream << "\n%%CreationDate: " << QDateTime::currentDateTime().toString();
+        outStream << wrapDSC( "%%Title: " + title );
+    outStream << "%%CreationDate: " << QDateTime::currentDateTime().toString();
     outStream << "\n%%Orientation: ";
     if ( printer->orientation() == QPrinter::Landscape )
         outStream << "Landscape";
     else
         outStream << "Portrait";
     if ( finished )
-        outStream << "\n%%Pages: " << pageCount << "\n%%DocumentFonts: "
-               << fontsUsed.simplifyWhiteSpace();
+        outStream << "\n%%Pages: " << pageCount << "\n" 
+		  << wrapDSC( "%%DocumentFonts: " + fontsUsed );
     else
-        outStream << "\n%%Pages: (atend)"
+        outStream << "%%Pages: (atend)"
                << "\n%%DocumentFonts: (atend)";
     outStream << "\n%%EndComments\n";
 
@@ -6158,8 +6144,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 
         d->outStream << "%%Trailer\n";
         if ( pageCountAtEnd )
-            d->outStream << "%%Pages: " << d->pageCount - 1 << "\n%%DocumentFonts: "
-                   << d->fontsUsed.simplifyWhiteSpace() << '\n';
+            d->outStream << "%%Pages: " << d->pageCount - 1 << "\n" <<
+		wrapDSC( "%%DocumentFonts: " + d->fontsUsed );
         d->outStream << "%%EOF\n";
         d->outStream.unsetDevice();
 	if ( d->outDevice )
