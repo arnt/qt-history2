@@ -486,7 +486,7 @@ void QDialog::contextMenuEvent( QContextMenuEvent *e )
     while ( s.isEmpty() && w ) {
 	s = QWhatsThis::textFor( w, e->pos(), FALSE );
 	if ( s.isEmpty() )
-	    w = w->parentWidget(TRUE);
+	    w = w->isTopLevel() ? 0 : w->parentWidget();
     }
     if ( !s.isEmpty() ) {
 	QPopupMenu p(0,"qt_whats_this_menu");

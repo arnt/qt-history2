@@ -222,12 +222,12 @@ bool QAccelManager::correctSubWindow(QWidget* w, QAccelPrivate* priv) {
     /* if we live in a MDI subwindow, ignore the event if we are
        not the active document window */
     QWidget* sw = priv->watch;
-    while (sw && !sw->testWFlags(WSubWindow))
-	sw = sw->parentWidget(true);
+    while (sw && !sw->testWFlags(WSubWindow) && !sw->isTopLevel())
+	sw = sw->parentWidget();
     if (sw)  { // we are in a subwindow indeed
 	QWidget* fw = w;
-	while (fw && fw != sw)
-	    fw = fw->parentWidget(true);
+	while (fw && fw != sw && !fw->isTopLevel())
+	    fw = fw->parentWidget();
 	if (fw != sw) // focus widget not in our subwindow
 	    return false;
     }

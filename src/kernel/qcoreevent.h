@@ -108,6 +108,10 @@ public:
 	WindowUnblocked = 104,			// windows modal blocking has ended
 	WindowStateChange = 105,
 
+	ToolTip = 110,
+	WhatsThis = 111,
+	StatusTip = 112,
+
 #ifdef QT_COMPAT
 	CaptionChange = WindowTitleChange,
 	IconChange = WindowIconChange,

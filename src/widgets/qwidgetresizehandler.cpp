@@ -188,9 +188,10 @@ void QWidgetResizeHandler::mouseMoveEvent( QMouseEvent *e )
     if ( widget->testWState( WState_ConfigPending ) )
  	return;
 
-    QPoint globalPos = widget->parentWidget( TRUE ) ?
-		       widget->parentWidget( TRUE )->mapFromGlobal( e->globalPos() ) : e->globalPos();
-    if ( widget->parentWidget( TRUE ) && !widget->parentWidget( TRUE )->rect().contains( globalPos ) ) {
+
+    QPoint globalPos = (!widget->isTopLevel() && widget->parentWidget()) ?
+		       widget->parentWidget()->mapFromGlobal( e->globalPos() ) : e->globalPos();
+    if ( !widget->isTopLevel() && !widget->parentWidget()->rect().contains( globalPos ) ) {
 	if ( globalPos.x() < 0 )
 	    globalPos.rx() = 0;
 	if ( globalPos.y() < 0 )

@@ -35,13 +35,8 @@ public:
     static inline void add( QWidget *w, const QString &s) { w->setToolTip(s); } // deprecated
 
     static void showText(int x, int y, const QString &text);
-    static void showText(int x, int y, const QString &text,
-			 const QObject *receiver, const char *member);
     static inline void showText(const QPoint &pos, const QString &text)
 	{ showText(pos.x(), pos.y(), text); }
-    static void showText(const QPoint &pos, const QString &text,
-			 const QObject *receiver, const char *member)
-	{ showText(pos.x(), pos.y(), text, receiver, member); }
 };
 
 

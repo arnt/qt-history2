@@ -2885,12 +2885,12 @@ void QWidget::setFocus()
     if (isHidden()) {
 	while (w && w->isHidden()) {
 	    w->d->focus_child = f;
-	    w = w->parentWidget(true);
+	    w = w->isTopLevel() ? 0 : w->parentWidget();
 	}
     } else {
 	while (w) {
 	    w->d->focus_child = f;
-	    w = w->parentWidget(true);
+	    w = w->isTopLevel() ? 0 : w->parentWidget();
 	}
     }
 
@@ -2955,7 +2955,7 @@ void QWidget::clearFocus()
     QWidget *w = this;
     while (w && w->d->focus_child == this) {
 	w->d->focus_child = 0;
-	w = w->parentWidget(true);
+	w = w->isTopLevel() ? 0 : w->parentWidget();
     }
     if (hasFocus()) {
 	QWidget* w = qApp->focus_widget;
@@ -4106,7 +4106,7 @@ void QWidget::adjustSize()
 #else // all others
 	QRect screen = QApplication::desktop()->screenGeometry( pos() );
 #endif
-	
+
 #ifndef QT_NO_LAYOUT
 	if ( layout() ) {
 	    if ( layout()->hasHeightForWidth() ) {

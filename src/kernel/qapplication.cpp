@@ -1970,22 +1970,22 @@ void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
 	w = leave;
 	do {
 	    leaveList.append( w );
-	} while ( (w = w->parentWidget( TRUE ) ) );
+	} while ( !w->isTopLevel() && (w = w->parentWidget() ) );
     }
     if ( enter && !sameWindow ) {
 	w = enter;
 	do {
 	    enterList.prepend( w );
-	} while ( (w = w->parentWidget(TRUE) ) );
+	} while ( !w->isTopLevel() && (w = w->parentWidget() ) );
     }
     if ( sameWindow ) {
 	int enterDepth = 0;
 	int leaveDepth = 0;
 	w = enter;
-	while ( ( w = w->parentWidget( TRUE ) ) )
+	while ( !w->isTopLevel() && ( w = w->parentWidget() ) )
 	    enterDepth++;
 	w = leave;
-	while ( ( w = w->parentWidget( TRUE ) ) )
+	while ( !w->isTopLevel() && ( w = w->parentWidget() ) )
 	    leaveDepth++;
 	QWidget* wenter = enter;
 	QWidget* wleave = leave;
