@@ -8,8 +8,7 @@
 #ifndef CANNON_H
 #define CANNON_H
 
-#include <qscrbar.h>
-#include <qlcdnum.h>
+#include <qwidget.h>
 
 
 class CannonField : public QWidget
@@ -20,7 +19,7 @@ public:
 
     int   angle()      const { return ang; }
     int   force()      const { return f; }
-    bool  gameOver()   const { return noGame; }
+    bool  gameOver()   const { return gameEnded; }
     bool  isShooting() const { return shooting; }
 public slots:
     void  setAngle( int degrees );
@@ -47,14 +46,14 @@ private:
     int   ang;
     int   f;
     bool  shooting;
-    int   timerCount;
 
+    int   timerCount;
     float shoot_ang;
     float shoot_f;
 
     QPoint target;
 
-    bool noGame;
+    bool gameEnded;
 };
 
 #endif // CANNON_H
