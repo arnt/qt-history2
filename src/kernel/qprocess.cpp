@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#36 $
 **
 ** Implementation of QProcess class
 **
@@ -130,7 +130,8 @@
 */
 QProcess::QProcess( QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteToStdinConnected( FALSE )
+    wroteToStdinConnected( FALSE ),
+    readStdoutCalled( FALSE ), readStderrCalled( FALSE )
 {
     init();
 }
@@ -146,7 +147,8 @@ QProcess::QProcess( QObject *parent, const char *name )
 */
 QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteToStdinConnected( FALSE )
+    wroteToStdinConnected( FALSE ),
+    readStdoutCalled( FALSE ), readStderrCalled( FALSE )
 {
     init();
     addArgument( arg0 );
@@ -165,7 +167,8 @@ QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
 */
 QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
     : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteToStdinConnected( FALSE )
+    wroteToStdinConnected( FALSE ),
+    readStdoutCalled( FALSE ), readStderrCalled( FALSE )
 {
     init();
     setArguments( args );
@@ -282,8 +285,15 @@ int QProcess::exitStatus() const
 */
 QByteArray QProcess::readStdout()
 {
+    if ( readStdoutCalled ) {
+	return QByteArray();
+    }
+    readStdoutCalled = TRUE;
+
     QByteArray buf = bufStdout()->copy();
     consumeBufStdout( -1 ); // consume everything
+
+    readStdoutCalled = FALSE;
     return buf;
 }
 
@@ -298,8 +308,15 @@ QByteArray QProcess::readStdout()
 */
 QByteArray QProcess::readStderr()
 {
+    if ( readStderrCalled ) {
+	return QByteArray();
+    }
+    readStderrCalled = TRUE;
+
     QByteArray buf = bufStderr()->copy();
     consumeBufStderr( -1 ); // consume everything
+
+    readStderrCalled = FALSE;
     return buf;
 }
 

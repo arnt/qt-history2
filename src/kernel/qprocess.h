@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#30 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#31 $
 **
 ** Implementation of QProcess class
 **
@@ -134,6 +134,9 @@ private:
     bool ioRedirection; // automatically set be (dis)connectNotify
     bool notifyOnExit; // automatically set be (dis)connectNotify
     bool wroteToStdinConnected; // automatically set be (dis)connectNotify
+
+    bool readStdoutCalled;
+    bool readStderrCalled;
 
     friend class QProcessPrivate;
 #if defined(Q_OS_UNIX)
