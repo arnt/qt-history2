@@ -319,7 +319,7 @@ void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF 
 {
     QPixmap pm;
     pm.fromImage(image, flags);
-    painter()->drawPixmap(r.toRect(), pm, sr.toRect());
+    drawPixmap(r, pm, sr);
 }
 
 /*!

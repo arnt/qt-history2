@@ -3003,6 +3003,8 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
     if (!isActive() || image.isNull())
         return;
 
+    d->engine->updateState(d->state);
+
     float x = targetRect.x();
     float y = targetRect.y();
     float w = targetRect.width();
@@ -3038,6 +3040,21 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
 
     if (sw <= 0 || sh <= 0)
         return;
+
+    if ((d->state->txop > QPainterPrivate::TxTranslate
+         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) ||
+        ((w != sw || h != sh) && !d->engine->hasFeature(QPaintEngine::PixmapScale))) {
+        QPixmap pm;
+        pm.fromImage(image, flags);
+        drawPixmap(targetRect, pm, sourceRect, Qt::ComposePixmap);
+        return;
+    }
+
+    if (d->state->txop == QPainterPrivate::TxTranslate
+        && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
+        x += qRound(d->state->matrix.dx());
+        y += qRound(d->state->matrix.dy());
+    }
 
     d->engine->drawImage(QRectF(x, y, w, h), image, QRectF(sx, sy, sw, sh), flags);
 }
