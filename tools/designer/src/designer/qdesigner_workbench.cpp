@@ -45,11 +45,9 @@
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
 
-QDesignerWorkbench::QDesignerWorkbench(QDesigner *parent)
-    : QObject(parent), m_mode(QDesignerWorkbench::NeutralMode), m_workspace(0)
+QDesignerWorkbench::QDesignerWorkbench()
+    : m_mode(QDesignerWorkbench::NeutralMode), m_workspace(0)
 {
-    Q_ASSERT(parent);
-
     initialize();
 
     switchToTopLevelMode(); // ### Remove: Should be read from the settings

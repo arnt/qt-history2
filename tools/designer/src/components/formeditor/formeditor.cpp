@@ -45,7 +45,7 @@ FormEditor::FormEditor(QObject *parent)
     WidgetFactory *widgetFactory = new WidgetFactory(this);
     setWidgetFactory(widgetFactory);
 
-    FormWindowManager *formWindowManager = new FormWindowManager(this, parent);
+    FormWindowManager *formWindowManager = new FormWindowManager(this, this);
     setFormManager(formWindowManager);
 
     QExtensionManager *mgr = new QExtensionManager(this);

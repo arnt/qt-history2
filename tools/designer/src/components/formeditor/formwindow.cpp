@@ -86,6 +86,10 @@ FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WFlags flags)
 
 FormWindow::~FormWindow()
 {
+    Q_ASSERT(core() != 0);
+    Q_ASSERT(core()->metaDataBase() != 0);
+    Q_ASSERT(core()->formWindowManager() != 0);
+
     core()->formWindowManager()->removeFormWindow(this);
     core()->metaDataBase()->remove(this);
 

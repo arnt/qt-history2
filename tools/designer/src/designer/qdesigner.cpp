@@ -41,6 +41,9 @@ QDesigner::QDesigner(int &argc, char **argv)
 
 QDesigner::~QDesigner()
 {
+    delete m_workbench;
+    delete m_session;
+    delete m_server;
 }
 
 QDesignerSession *QDesigner::session() const
@@ -61,9 +64,9 @@ QDesignerServer *QDesigner::server() const
 void QDesigner::initialize()
 {
     // initialize the sub components
-    m_server = new QDesignerServer(this);
-    m_session = new QDesignerSession(this);
-    m_workbench = new QDesignerWorkbench(this);
+    m_server = new QDesignerServer();
+    m_session = new QDesignerSession();
+    m_workbench = new QDesignerWorkbench();
 
     emit initialized();
 

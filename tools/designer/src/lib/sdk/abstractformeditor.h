@@ -79,7 +79,7 @@ private:
     QPointer<AbstractWidgetFactory> m_widgetFactory;
     QPointer<AbstractObjectInspector> m_objectInspector;
     QPointer<AbstractIconCache> m_iconCache;
-    PluginManager *m_pluginManager;
+    PluginManager *m_pluginManager; // ### QPointer!?
 
 private:
     AbstractFormEditor(const AbstractFormEditor &other);

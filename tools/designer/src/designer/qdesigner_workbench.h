@@ -55,7 +55,7 @@ public:
     };
 
 public:
-    QDesignerWorkbench(QDesigner *parent);
+    QDesignerWorkbench();
     virtual ~QDesignerWorkbench();
 
     Mode mode() const;
