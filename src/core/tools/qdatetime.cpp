@@ -3467,7 +3467,7 @@ QFormatSection QDateTimeParser::sectionAt(const QString &string, int pos, QDateT
 
         default:
             qWarning("%s:%d QDateTimeParser::sectionAt() %d should never be called here", __FILE__, __LINE__, s.type);
-            return false;
+            return QFormatSection();
         }
 
         if (nameFunction) {
