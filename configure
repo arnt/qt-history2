@@ -12,8 +12,6 @@ relconf=`basename $0`
 relpath=`dirname $0`
 relpath=`(cd $relpath; pwd)`
 outpath=$relpath
-qdir="\$(QTDIR)"
-[ "x$QTDIR" != "x$outpath" ] && qdir="$outpath"
 
 #internal variables
 LAZY_DEPS_ALLOWED=no
@@ -145,6 +143,9 @@ else
     fi
     rm -f .test.qt.
 fi
+
+qdir="\$(QTDIR)"
+[ "x$QTDIR" != "x$outpath" ] && qdir="$outpath"
 
 if [ -f $outpath/include/qconfig.h ]
 then
