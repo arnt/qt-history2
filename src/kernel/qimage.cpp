@@ -5092,10 +5092,16 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 	    n = pbm_bpl;
 	    if ( nbits == 1 ) {
 		int b;
+		int bitsLeft = w;
 		while ( n-- ) {
 		    b = 0;
-		    for ( int i=0; i<8; i++ )
-			b = (b << 1) | (read_pbm_int(d) & 1);
+		    for ( int i=0; i<8; i++ ) {
+			if (i < bitsLeft)
+			    b = (b << 1) | (read_pbm_int(d) & 1);
+			else
+			    b = (b << 1) | (0 & 1); // pad it our self if we need to
+		    }
+		    bitsLeft -= 8;
 		    *p++ = b;
 		}
 	    } else if ( nbits == 8 ) {
