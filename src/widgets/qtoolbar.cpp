@@ -268,7 +268,10 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
     (which looks like a right-pointing chevron, '&#187;') will appear
     at the right or bottom of the toolbar depending on its
     orientation. Clicking this button pops up a menu that shows the
-    'overflowing' items.
+    'overflowing' items. QToolButtons are represented in the menu using 
+    their textLabel property, other QButton subclasses are represented 
+    using their text property, and QComboBoxes are represented as submenus, 
+    with the caption text being used in the submenu item.
 
     Usually a toolbar will get precisely the space it needs. However,
     with setHorizontalStretchable(), setVerticalStretchable() or
@@ -633,7 +636,7 @@ void QToolBar::createPopup()
 	        hide = TRUE;
 	}
 	if ( hide && !w->isHidden() ) {
-	    doHide = TRUE;	
+	    doHide = TRUE;
 	    if ( w->inherits( "QToolButton" ) ) {
 	        QToolButton *b = (QToolButton*)w;
 	        QString s = b->textLabel();
