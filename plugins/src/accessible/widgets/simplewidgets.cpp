@@ -46,7 +46,7 @@ int QAccessibleButton::numActions(int child) const
     if (child)
 	return 0;
 
-    return (widget()->focusPolicy() != NoFocus) ? 2 : 1;
+    return (widget()->focusPolicy() != QWidget::NoFocus) ? 2 : 1;
 }
 
 /*! \reimp */
@@ -281,7 +281,7 @@ QString QAccessibleToolButton::actionText(int action, Text text, int child) cons
 
 bool QAccessibleToolButton::doAction(int action, int child)
 {
-    if (!widget->isEnabled())
+    if (!widget()->isEnabled())
 	return false;
     if (action == 1 || child == ButtonDropMenu) {
 	if(!child)
