@@ -2643,7 +2643,7 @@ QString QFileDialog::dirPath() const
 }
 
 // why don't we use "\\([^\\)]*\\)$" instead?
-const char qt_file_dialog_filter_reg_exp[] = "\\([a-zA-Z0-9.*? +;#\\[\\]]*\\)$";
+extern const char qt_file_dialog_filter_reg_exp[] = "\\([a-zA-Z0-9.*? +;#\\[\\]]*\\)$";
 
 /*!  Sets the filter spec in use to \a newFilter.
 
