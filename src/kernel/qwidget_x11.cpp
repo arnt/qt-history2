@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#403 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#404 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1220,7 +1220,7 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 void QWidget::showWindow()
 {
-    if ( testWFlags(WType_TopLevel) &&
+    if ( isTopLevel() &&
 	 extra &&
 	 extra->topextra &&
 	 extra->topextra->wmstate == 2)
@@ -1238,7 +1238,7 @@ void QWidget::showWindow()
 void QWidget::hideWindow()
 {
     deactivateWidgetCleanup();
-    if ( testWFlags(WType_TopLevel) ) {
+    if ( isTopLevel() ) {
 	qt_deferred_map_take( this );
 	XWithdrawWindow( x11Display(), winId(), x11Screen() );
 	if ( extra && extra->topextra && extra->topextra->wmstate ) // wm_state supported
@@ -1246,8 +1246,6 @@ void QWidget::hideWindow()
     }
     else
 	XUnmapWindow( x11Display(), winId() );
-    if ( isPopup() )
-	XFlush( x11Display() );
 }
 
 
