@@ -78,6 +78,9 @@ public:
 
     enum StyleFlag {
         Style_None    =       0x00000000,
+#ifdef QT_COMPAT
+        Style_Default = Style_None,
+#endif
         Style_Enabled =       0x00000001,
         Style_Raised =        0x00000002,
         Style_Sunken =        0x00000004,
