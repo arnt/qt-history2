@@ -565,7 +565,8 @@ public:
     read and written through the property system provided by the Qt
     Object Model (both subclasses are QObjects, so you can use \link
     QObject::setProperty() setProperty() \endlink and \link
-    QObject::property() property() \endlink as with QObject).
+    QObject::property() property() \endlink as with QObject). Properties
+    with multiple parameters are not supported.
 
     \code
     activeX->setProperty( "text", "some text" );
