@@ -129,7 +129,6 @@ extern void qt_clear_paintevent_clipping( QPaintDevice *dev );
 
 static WId serial_id = 0;
 static WId parentw;
-WId myactive = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 int mac_window_count = 0;
@@ -379,12 +378,6 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	        DisposeWindow( (WindowPtr)hd );
 	    }
 	}
-
-    }
-    QWidget * mya;
-    mya=QWidget::find(myactive);
-    if(mya==this) {
-	myactive=0;
     }
     hd=0;
     setWinId( 0 );
@@ -677,21 +670,10 @@ QWidget *QWidget::keyboardGrabber()
 
 void QWidget::setActiveWindow()
 {
-    QWidget *widget = QWidget::find( myactive );
-    if(!widget || !widget->isVisible())
+    if(!isVisible() || !isTopLevel() || isPopup())
 	return;
-
-    // FIXME: This is likely to flicker
-    if ( widget->isPopup() )
-        widget = NULL;
-
-    if ( isTopLevel() ) {
-	SelectWindow( (WindowPtr)hd );  // FIXME: Also brings to front - naughty?
-	update();
-	myactive = (WId) hd;
-    }
-    if ( widget && !isPopup() )
-	widget->setActiveWindow();
+    SelectWindow( (WindowPtr)hd );
+    qApp->setActiveWindow(this);
 }
 
 
@@ -767,7 +749,7 @@ void QWidget::showWindow()
 	}
 
 	//now actually show it
-	ShowHide( (WindowPtr)hd, 1 );
+	ShowHide((WindowPtr)hd, 1);
 	setActiveWindow();
     } else {
 	update();
@@ -778,9 +760,10 @@ void QWidget::hideWindow()
 {
     deactivateWidgetCleanup();
     dirtyClippedRegion(TRUE);
-
     if ( isTopLevel() ) {
-	ShowHide((WindowPtr)hd,0);
+	ShowHide((WindowPtr)hd, 0);
+	if(QWidget *widget = parentWidget() ? parentWidget() : QWidget::find((WId)FrontWindow())) 
+	    widget->setActiveWindow();
     } else {
 	bool v = testWState(WState_Visible);
 	clearWState(WState_Visible);
@@ -856,6 +839,7 @@ void QWidget::raise()
 {
     if(isTopLevel()) {
 	SelectWindow((WindowPtr)hd);
+//	setActiveWindow();
 	BringToFront((WindowPtr)hd);
     } else {
 	QWidget *p = parentWidget();

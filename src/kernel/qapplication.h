@@ -221,6 +221,7 @@ public:
     bool	     do_mouse_down(Point *);
     virtual bool     macEventFilter( EventRef );
     static OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
+    friend void qt_mac_destroy_widget(QWidget *);
 #elif defined(Q_WS_WIN)
     virtual bool     winEventFilter( MSG * );
 #elif defined(Q_WS_X11)

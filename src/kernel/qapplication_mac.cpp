@@ -847,8 +847,6 @@ static int get_key(int key)
 }
 
 
-extern WId myactive;
-
 bool QApplication::do_mouse_down( Point *pt )
 {
     WindowPtr wp;
@@ -1334,12 +1332,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 			widget->setFocus();
 		}
 	    } else if(ekind == kEventWindowDeactivated) {
-		if(active_window && widget == active_window) {
+		if(active_window && widget == active_window) 
 		    app->setActiveWindow(NULL);
-		} 
 		while(app->inPopupMode())
 		    app->activePopupWidget()->close();
-	    } else if(ekind == kEventWindowShown /*|| ekind == kEventWindowHidden*/) {
+	    } else if(ekind == kEventWindowShown || ekind == kEventWindowHidden) {
 	    }
 
 	    break;
