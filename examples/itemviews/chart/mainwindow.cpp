@@ -44,7 +44,7 @@ MainWindow::MainWindow()
     connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
     connect(windowsMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowsMenu()));
     connect(pieWindowAction, SIGNAL(checked(bool)),
-            pieChart, SLOT(setShown(bool)));
+            pieChart, SLOT(setVisible(bool)));
 
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(windowsMenu);
