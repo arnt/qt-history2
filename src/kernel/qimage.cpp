@@ -4622,12 +4622,26 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 	d->at( startpos + offset );		// start of image data
 
     int	     bpl = image.bytesPerLine();
+#ifdef Q_WS_QWS
+    //
+    // Guess the number of bytes-per-line if we don't know how much
+    // image data is in the file (bogus image ?).
+    //
+    int bmpbpl = bi.biSizeImage > 0 ?
+	bi.biSizeImage / bi.biHeight :
+	(d->size() - offset) / bi.biHeight;
+    int pad = bmpbpl-bpl;
+#endif
     uchar **line = image.jumpTable();
 
     if ( nbits == 1 ) {				// 1 bit BMP image
 	while ( --h >= 0 ) {
 	    if ( d->readBlock((char*)line[h],bpl) != bpl )
 		break;
+#ifdef Q_WS_QWS
+	    if ( pad > 0 )
+		d->at(d->at()+pad);
+#endif
 	}
 	if ( ncols == 2 && qGray(image.color(0)) < qGray(image.color(1)) )
 	    swapPixel01( &image );		// pixel 0 is white!
@@ -4757,6 +4771,10 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 	    while ( --h >= 0 ) {
 		if ( d->readBlock((char *)line[h],bpl) != bpl )
 		    break;
+#ifdef Q_WS_QWS
+		if ( pad > 0 )
+		    d->at(d->at()+pad);
+#endif
 	    }
 	}
     }
@@ -4831,6 +4849,12 @@ bool qt_write_dib( QDataStream& s, QImage image )
     } else if ( image.depth() == 32 ) {
 	bpl_bmp = ((image.width()*24+31)/32)*4;
 	nbits = 24;
+#ifdef Q_WS_QWS
+    } else if ( image.depth() == 1 || image.depth() == 8 ) {
+	// Qt/E doesn't word align.
+	bpl_bmp = ((image.width()*image.depth()+31)/32)*4;
+	nbits = image.depth();
+#endif
     } else {
 	bpl_bmp = bpl;
 	nbits = image.depth();
@@ -4871,8 +4895,17 @@ bool qt_write_dib( QDataStream& s, QImage image )
     int	 y;
 
     if ( nbits == 1 || nbits == 8 ) {		// direct output
-	for ( y=image.height()-1; y>=0; y-- )
+#ifdef Q_WS_QWS
+	// Qt/E doesn't word align.
+	int pad = bpl_bmp - bpl;
+	char padding[4];
+#endif
+	for ( y=image.height()-1; y>=0; y-- ) {
 	    d->writeBlock( (char*)image.scanLine(y), bpl );
+#ifdef Q_WS_QWS
+	    d->writeBlock( padding, pad );
+#endif
+	}
 	return TRUE;
     }
 
