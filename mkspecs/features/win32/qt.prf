@@ -29,12 +29,12 @@ target_qt {
 }
 for(QCONF, QCONFIG) {
    qlib =
-   isEqual(QCONF, gui):qlib = qt
+   isEqual(QCONF, gui):qlib = qt400
    else:isEqual(QCONF, network):qlib = qnetwork
    else:isEqual(QCONF, xml):qlib = qxml
    else:isEqual(QCONF, opengl):qlib = qopengl
    else:isEqual(QCONF, sql):qlib = qsqlkernel
-   else:isEqual(QCONF, kernel):qlib = qtkernel
+   else:isEqual(QCONF, kernel):qlib = qtkernel400
    else:message("Unknown QCONFIG: $$qlib):qlib =
    !isEmpty(qlib) {
       target_qt:isEqual(TARGET, qlib) {
