@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#86 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#86 $");
 
 
 /*!
@@ -297,7 +297,7 @@ QApplication::ColorMode QApplication::colorMode()
   The choices are:
   <ul>
   <li> \c QApplication::NormalColors (default). The application will
-  ask the window system for colors. This works fine under X11, but
+  ask the window system for colors. This works well under X11, but
   Windows may dither the colors if they are different from the Window's
   20 standard colors and the display supports 256 colors or less.
   <li> \c QApplication::CustomColors. Under X11, this is equal to

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#52 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#53 $
 **
 ** Definition of QApplication class
 **
@@ -32,8 +32,8 @@ public:
     static void	    setStyle( GUIStyle );
 
     enum ColorMode { NormalColors, CustomColors };
-    static ColorMode colorMode();
-    static void      setColorMode( ColorMode );
+    static QApplication::ColorMode colorMode();
+    static void      setColorMode( QApplication::ColorMode );
 
     static QCursor  *overrideCursor();
     static void	     setOverrideCursor( const QCursor &, bool replace=FALSE );
