@@ -1985,7 +1985,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    mi = first;
 	    popup = mi->popup();
 	    if ( popup ) {
-		setActiveItem( indx );
+		setActiveItem( indexOf(mi->id()) );
 		hidePopups();
 		popupSubMenuLater( 20, this );
 		popup->setFirstItemActive();
