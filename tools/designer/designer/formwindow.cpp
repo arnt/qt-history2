@@ -488,7 +488,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 	} else { // press was on the formwindow
 	    if ( e->button() == LeftButton ) { // left button: start rubber selection and show formwindow properties
 		drawRubber = TRUE;
-		if ( !( ( e->state() && ControlButton ) || ( e->state() & ShiftButton ) ) ) {
+		if ( !( ( e->state() & ControlButton ) || ( e->state() & ShiftButton ) ) ) {
 		    clearSelection( FALSE );
 		    QWidget *opw = propertyWidget;
 		    propertyWidget = mainContainer();
