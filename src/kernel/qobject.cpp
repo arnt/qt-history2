@@ -111,7 +111,7 @@ public:
     QObject is the heart of the \link object.html Qt object model.
     \endlink The central feature in this model is a very powerful
     mechanism for seamless object communication called \link
-    signalsandslots.html signals and slots \endlink. You can can
+    signalsandslots.html signals and slots \endlink. You can
     connect a signal to a slot with connect() and destroy the
     connection with disconnect(). To avoid never ending notification
     loops you can temporarily block signals with blockSignals(). The
