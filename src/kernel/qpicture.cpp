@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#7 $
 **
 ** Implementation of QMetaFile class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#7 $";
 #endif
 
 
@@ -129,6 +129,7 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
     QFont  font;
     QPen   pen;
     QBrush brush;
+    QRegion rgn;
     QWXFMatrix matrix;
 
     while ( nrecords-- && !s.eos() ) {
@@ -220,8 +221,7 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
 		painter->restore();
 		break;
 	    case PDC_SETBKCOLOR:
-		s >> ul;
-		color.setRGB( ul );
+		s >> color;
 		painter->setBackgroundColor( color );
 		break;
 	    case PDC_SETBKMODE:
@@ -272,11 +272,9 @@ bool QMetaFile::exec( QPainter *painter, QDataStream &s, long nrecords )
 	        s >> i_8;
 	        painter->setClipping( i_8 );
 	        break;
-	    case PDC_SETCLIPRGN: {
-		QRegion rgn;
+	    case PDC_SETCLIPRGN:
 		s >> rgn;
 		painter->setClipRegion( rgn );
-	        }
 		break;
 	    default:
 #if defined(CHECK_RANGE)
