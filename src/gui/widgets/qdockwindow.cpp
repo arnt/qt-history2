@@ -412,7 +412,7 @@ class QDockWindowPrivate : public QFramePrivate
     inline QDockWindowPrivate(QMainWindow *parent)
 	: QFramePrivate(), mainWindow(parent), closable(true), movable(true), floatable(true),
           area(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowAreaMask),
-          grid(0), box(0), title(0)
+          top(0), box(0), title(0)
     { }
 
     void init();
@@ -426,22 +426,20 @@ class QDockWindowPrivate : public QFramePrivate
     Qt::DockWindowArea area;
     Qt::DockWindowAreaFlags allowedAreas;
 
-    QGridLayout *grid;
-    QBoxLayout *box;
+    QBoxLayout *top, *box;
     QDockWindowTitle *title;
 };
 
 void QDockWindowPrivate::init() {
     q->setFrameStyle(QFrame::Panel | QFrame::Raised);
 
-    d->grid = new QGridLayout(q, 2, 1);
-    d->grid->setMargin(2);
-    d->grid->setSpacing(2);
+    d->top = new QVBoxLayout(q, 2, 2);
+    d->top->setAlignment(Qt::AlignTop);
 
     d->title = new QDockWindowTitle(q);
-    d->grid->addWidget(d->title, 0, 0);
+    d->top->addWidget(d->title);
 
-    d->box = new QVBoxLayout(d->grid);
+    d->box = new QVBoxLayout(d->top);
 }
 
 void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend)
