@@ -242,29 +242,23 @@ void Project::save()
     if ( i != -1 ) {
 	int start = i;
 	int end = i;
-	while ( TRUE ) {
-	    i = contents.find( '\n', i + 1 );
-	    if ( i == -1 ) {
-		end = contents.length() - 1;
-		break;
-	    }
-	    int j = i;
-	    bool atEnd = FALSE;
-	    while ( j > i ) {
-		if ( contents[ j ].isSpace() ||
-		     contents[ j ] == '\t' ||
-		     contents[ j ] == '\r' ||
-		     contents[ j ] == '\n' ) {
-		    --j;
-		    continue;
+	i = contents.find( '\n', i );
+	if ( i == -1 ) {
+	    end = contents.length() - 1;
+	} else {
+	    end = i;
+	    int lastNl = i;
+	    for ( ; i < (int)contents.length(); ++i ) {
+		int j = contents.find( '\n', lastNl + 1 );
+		if ( i == -1 ) {
+		    end = contents.length() - 1;
+		    break;
+		} else {
+		    if ( contents.mid( lastNl, j - lastNl + 1 ).find( '=' ) == -1 )
+			lastNl = j;
+		    else
+			break;
 		}
-		if ( contents[ j ] != '\\' )
-		    atEnd = TRUE;
-		break;
-	    }
-	    if ( atEnd ) {
-		end = i + 1;
-		break;
 	    }
 	}
 	contents.remove( start, end - start + 1 );
@@ -285,8 +279,9 @@ void Project::save()
 	    end = contents.length() - 1;
 	contents.remove( start, end - start + 1 );
     }
-    contents += "DBFILE\t= " + dbFile + "\n";
-    
+    if ( !dbFile.isEmpty() )
+	contents += "DBFILE\t= " + dbFile + "\n";
+
     i = contents.find( "PROJECTNAME" );
     if ( i != -1 ) {
 	int start = i;
@@ -295,8 +290,9 @@ void Project::save()
 	    end = contents.length() - 1;
 	contents.remove( start, end - start + 1 );
     }
-    contents += "PROJECTNAME\t= " + proName + "\n";
-    
+    if ( !proName.isEmpty() )
+	contents += "PROJECTNAME\t= " + proName + "\n";
+
     if ( !f.open( IO_WriteOnly ) ) {
 	qWarning( "Couldn't write project file...." );
 	return;
