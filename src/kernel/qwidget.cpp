@@ -881,7 +881,7 @@ void QWidget::setWinId( WId id )		// set widget identifier
     if ( !mapper )				// mapper destroyed
 	return;
     if ( winid )
-	mapper->remove( winid );
+	mapper->erase( winid );
 
     winid = id;
 #if defined(Q_WS_X11)
@@ -2716,8 +2716,7 @@ QString QWidget::windowIconText() const
 
 QString QWidget::windowRole() const
 {
-    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->role
-	: QString();
+    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->role : QString();
 }
 
 void QWidget::setWindowRole(const QString &role)
@@ -2725,6 +2724,8 @@ void QWidget::setWindowRole(const QString &role)
 #if defined(Q_WS_X11)
     d->topData()->role = role;
     d->setWindowRole(role.utf8());
+#else
+    Q_UNUSED(role)
 #endif
 }
 
@@ -3691,6 +3692,7 @@ void QWidget::hide_helper()
 	    if (w)
 		focusNextPrevChild(TRUE);
 	}
+    }
 
     QHideEvent hideEvent;
     QApplication::sendEvent(this, &hideEvent);
@@ -4463,7 +4465,7 @@ bool QWidget::event( QEvent *e )
 	break;
 #endif
     case QEvent::Polish:
-	if ( !ownFont() && !QApplication::font(this).isCopyOf(QApplication::font()))
+	if ( !testAttribute(WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
 	    d->resolveFont();
 #ifndef QT_NO_PALETTE
 	if (!QApplication::palette(this).isCopyOf(QApplication::palette()))
@@ -5840,7 +5842,7 @@ void QWidget::setAttribute(WidgetAttribute attribute, bool b)
     switch (attribute) {
     case WA_MacMetalStyle:
 #ifdef Q_WS_MAC
-	extern qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp
+	extern void qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp
 	qt_mac_update_metal_style(this);
 #endif
 	break;
