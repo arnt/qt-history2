@@ -94,6 +94,9 @@ protected slots:
     void	buttonClicked();
     void	buttonToggled( bool on );
 
+protected:
+    bool 	event( QEvent * e );
+
 private:
     void	init();
     bool	excl_grp;

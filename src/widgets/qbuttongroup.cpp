@@ -599,4 +599,20 @@ int QButtonGroup::id( QButton * button ) const
 	i = buttons->next();
     return i ? i->id : -1;
 }
+
+bool QButtonGroup::event( QEvent * e )
+{
+    if ( e->type() == QEvent::ChildInserted ) {
+	QChildEvent * ce = (QChildEvent *) e;
+	if ( radio_excl && ce->child() &&
+	     ce->child()->inherits("QRadioButton") ) {
+	    QButton * button = (QButton *) ce->child();
+	    if ( button->isToggleButton() && !button->isOn() &&
+		 selected() && (selected()->focusPolicy() & TabFocus) != 0 )
+		button->setFocusPolicy( (FocusPolicy)(button->focusPolicy() &
+					      ~TabFocus) );
+	}
+    }
+    return QGroupBox::event( e );
+}
 #endif
