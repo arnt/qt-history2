@@ -24,14 +24,14 @@ struct QPainterPathElement
 {
     enum ElementType { Line, Bezier, Arc };
 
-    QPoint firstPoint() const;
+    QPointFloat firstPoint() const;
 
     ElementType type;
 
     union {
-	struct { int x1, y1, x2, y2; } lineData;
-        struct { int x1, y1, x2, y2, x3, y3, x4, y4; } bezierData;
-        struct { int x, y, w, h, start, length, fpx, fpy, lpx, lpy; } arcData;
+	struct { float x1, y1, x2, y2; } lineData;
+        struct { float x1, y1, x2, y2, x3, y3, x4, y4; } bezierData;
+        struct { float x, y, w, h, start, length, fpx, fpy, lpx, lpy; } arcData;
     };
 };
 
@@ -46,7 +46,7 @@ struct QPainterSubpath
      * lastPoint. The addLine recursion is safe since we connect to lastPoint
      * so next call to connectLast will just do nothing..
      */
-    void connectLast(const QPoint &p);
+    void connectLast(const QPointFloat &p);
 
     /*! Closes the current path by connecting the last point
      * in the subpath path to the first one if they are different.
@@ -60,17 +60,17 @@ struct QPainterSubpath
 	return elements.size() > 0 && elements.at(0).firstPoint() == lastPoint;
     }
 
-    QPoint firstPoint() const { return elements.at(0).firstPoint(); }
+    QPointFloat firstPoint() const { return elements.at(0).firstPoint(); }
 
     /*! Converts the path to a polygon */
     QPointArray toPolygon(const QMatrix &matrix) const;
 
-    void addLine(const QPoint &p1, const QPoint &p2);
-    void addBezier(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4);
-    void addArc(const QRect &rect, int startAngle, int arcLength);
+    void addLine(const QLineFloat &l);
+    void addBezier(const QPointFloat &p1, const QPointFloat &p2, const QPointFloat &p3, const QPointFloat &p4);
+    void addArc(const QRectFloat &rect, float startAngle, float arcLength);
 
     QList<QPainterPathElement> elements;
-    QPoint lastPoint;
+    QPointFloat lastPoint;
 };
 
 class QPainterPathPrivate
@@ -86,6 +86,10 @@ public:
 
     /* Scanline converts the path to a bitmap */
     QBitmap scanToBitmap(const QRect &clip, const QMatrix &xform, QRect *boundingRect);
+    QBitmap scanToBitmap(const QRect &clip, const QMatrix &xform, QRect *boundingRect);
+
+    /* Creates a path containing the outline of this path of width \a penwidth */
+    QPainterPath createPathOutline(int penWidth);
 
     QList<QPainterSubpath> subpaths;
     QPainterPath::FillMode fillMode;

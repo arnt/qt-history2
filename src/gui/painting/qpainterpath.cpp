@@ -32,27 +32,27 @@
 /**********************************************************************
  * class: QPainterPathElement
  */
-QPoint QPainterPathElement::firstPoint() const
+QPointFloat QPainterPathElement::firstPoint() const
 {
     switch (type) {
     case Line:
-        return QPoint(lineData.x1, lineData.y1);
+        return QPointFloat(lineData.x1, lineData.y1);
     case Bezier:
-        return QPoint(bezierData.x1, bezierData.y1);
+        return QPointFloat(bezierData.x1, bezierData.y1);
     case Arc:
-        return QPoint(arcData.fpx, arcData.fpy);
+        return QPointFloat(arcData.fpx, arcData.fpy);
     }
-    qFatal("QPainterPathElement::firstPoint(), unhandled type: %d", type);
-    return QPoint(0, 0);
+    Q_ASSERT(0);
+    return QPointFloat();
 }
 
 /**********************************************************************
  * class: QPainterSubpath
  */
-void QPainterSubpath::connectLast(const QPoint &p)
+void QPainterSubpath::connectLast(const QPointFloat &p)
 {
     if (elements.size() > 0 && p != lastPoint) {
-        addLine(lastPoint, p);
+        addLine(QLineFloat(lastPoint, p));
     }
 }
 
@@ -64,22 +64,23 @@ void QPainterSubpath::close()
     connectLast(firstElement.firstPoint());
 }
 
-void QPainterSubpath::addLine(const QPoint &p1, const QPoint &p2)
+void QPainterSubpath::addLine(const QLineFloat &l)
 {
-    connectLast(p1);
-    lastPoint = p2;
+    connectLast(l.start());
+    lastPoint = l.end();
 
     QPainterPathElement elm;
     elm.type = QPainterPathElement::Line;
-    elm.lineData.x1 = p1.x();
-    elm.lineData.y1 = p1.y();
-    elm.lineData.x2 = p2.x();
-    elm.lineData.y2 = p2.y();
+    elm.lineData.x1 = l.startX();
+    elm.lineData.y1 = l.startY();
+    elm.lineData.x2 = l.endX();
+    elm.lineData.y2 = l.endY();
     elements.append(elm);
 
 }
 
-void QPainterSubpath::addBezier(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4)
+void QPainterSubpath::addBezier(const QPointFloat &p1, const QPointFloat &p2,
+                                const QPointFloat &p3, const QPointFloat &p4)
 {
     connectLast(p1);
     lastPoint = p4;
@@ -97,15 +98,13 @@ void QPainterSubpath::addBezier(const QPoint &p1, const QPoint &p2, const QPoint
     elements.append(elm);
 }
 
-void QPainterSubpath::addArc(const QRect &rect, int angle, int alen)
+void QPainterSubpath::addArc(const QRectFloat &rect, float angle, float alen)
 {
-#define ANGLE(t) ((t) * 2 * M_PI / (16.0 * 360))
+    float a = rect.width() / 2.0;
+    float b = rect.height() / 2.0;
 
-    double a = rect.width() / 2.0;
-    double b = rect.height() / 2.0;
-
-    QPoint startPoint(int(a * cos(ANGLE(angle))), int(-b * sin(ANGLE(angle))));
-    QPoint endPoint(int(a * cos(ANGLE(angle + alen))), int(-b * sin(ANGLE(angle + alen))));
+    QPointFloat startPoint(a * cos(angle), -b * sin(angle));
+    QPointFloat endPoint(a * cos(angle + alen), -b * sin(angle + alen));
 
     startPoint += rect.center();
     endPoint   += rect.center();
@@ -135,28 +134,28 @@ QPointArray QPainterSubpath::toPolygon(const QMatrix &matrix) const
         return QPointArray();
     QPointArray p;
     fflush(stdout);
-    p << matrix * elements.at(0).firstPoint();
+    p << (matrix * elements.at(0).firstPoint()).toPoint();
     for (int i=0; i<elements.size(); ++i) {
         const QPainterPathElement &elm = elements.at(i);
         switch (elm.type) {
         case QPainterPathElement::Line:
-            p << matrix * QPoint(elm.lineData.x2, elm.lineData.y2);
+            p << (matrix * QPointFloat(elm.lineData.x2, elm.lineData.y2)).toPoint();
             break;
         case QPainterPathElement::Bezier: {
             QPointArray pa;
-            pa.setPoints(4, elm.bezierData.x1, elm.bezierData.y1,
-                         elm.bezierData.x2, elm.bezierData.y2,
-                         elm.bezierData.x3, elm.bezierData.y3,
-                         elm.bezierData.x4, elm.bezierData.y4);
-            pa = matrix * pa;
+            pa << (matrix * QPointFloat(elm.bezierData.x1, elm.bezierData.y1)).toPoint();
+            pa << (matrix * QPointFloat(elm.bezierData.x2, elm.bezierData.y2)).toPoint();
+            pa << (matrix * QPointFloat(elm.bezierData.x3, elm.bezierData.y3)).toPoint();
+            pa << (matrix * QPointFloat(elm.bezierData.x4, elm.bezierData.y4)).toPoint();
             p += pa.cubicBezier();
             break;
         }
         case QPainterPathElement::Arc: {
             QPointArray ar;
-            ar.makeArc(elm.arcData.x, elm.arcData.y,
-                       elm.arcData.w, elm.arcData.h,
-                       elm.arcData.start, elm.arcData.length,
+            ar.makeArc(int(elm.arcData.x), int(elm.arcData.y),
+                       int(elm.arcData.w), int(elm.arcData.h),
+                       int(elm.arcData.start / M_PI * 360),
+                       int(elm.arcData.length / M_PI * 360),
                        matrix);
             p += ar;
             break;
@@ -281,9 +280,9 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
             if (!scanRect.intersects(curve.boundingRect()))
                 continue;
             Q_ASSERT(curve.size()>=2);
-            QPoint p1 = curve.at(curve.size()-1);
+            QPointFloat p1 = curve.at(curve.size()-1);
             for (int i=0; i<curve.size(); ++i) {
-                QPoint p2 = curve.at(i);
+                QPointFloat p2 = curve.at(i);
 
                 // Does the line cross the scan line?
                 if ((p1.y() <= scanLineY && p2.y() > scanLineY)
@@ -339,6 +338,30 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
     QBitmap bm;
     bm.convertFromImage(image);
     return bm;
+}
+
+/*!
+    \internal
+*/
+
+QPainterPath QPainterPathPrivate::createPathOutline(int /* penWidth */)
+{
+//     float pw2 = penWidth/2.0;
+
+//     QPainterPath np;
+
+//     for (int sp=0; subpaths.size(); ++sp) {
+//         QPainterSubPath &subpath = subpaths.at(sp);
+//         for (int elmno=0; subpath.elements.size(); ++elmno) {
+//             QPainterPathElement &elm = subpath.elements.at(elmno);
+
+//             switch (elm.type()) {
+
+//             }
+//         }
+
+
+    return QPainterPath();
 }
 
 #define d d_func()
@@ -483,9 +506,9 @@ void QPainterPath::closeSubpath()
     Adds a straight line defined by the start point \a p1 and the end
     point \a p2 to the path.
  */
-void QPainterPath::addLine(const QPoint &p1, const QPoint &p2)
+void QPainterPath::addLine(const QLineFloat &line)
 {
-    d->subpaths.last().addLine(p1, p2);
+    d->subpaths.last().addLine(line);
 }
 
 /*!
@@ -493,9 +516,9 @@ void QPainterPath::addLine(const QPoint &p1, const QPoint &p2)
 
     Adds a straight line from the last point to point \a p.
  */
-void QPainterPath::addLine(const QPoint &p)
+void QPainterPath::addLine(const QPointFloat &p)
 {
-    d->subpaths.last().addLine(d->subpaths.last().lastPoint, p);
+    d->subpaths.last().addLine(QLineFloat(d->subpaths.last().lastPoint, p));
 }
 
 /*!
@@ -508,7 +531,7 @@ void QPainterPath::addLine(const QPoint &p)
 */
 
 /*!
-    \fn void QPainterPath::addRect(const QPoint &topLeft, const QPoint &bottomRight)
+    \fn void QPainterPath::addRect(const QPointFloat &topLeft, const QPointFloat &bottomRight)
 
     \overload
 
@@ -517,7 +540,7 @@ void QPainterPath::addLine(const QPoint &p)
 */
 
 /*!
-    \fn void QPainterPath::addRect(const QPoint &topLeft, const QSize &size)
+    \fn void QPainterPath::addRect(const QPointFloat &topLeft, const QSize &size)
 
     \overload
 
@@ -529,11 +552,11 @@ void QPainterPath::addLine(const QPoint &p)
     Adds the given \a rect to the path. The \a rect is closed and is
     not considered to be part of the current subpath.
  */
-void QPainterPath::addRect(const QRect &rect)
+void QPainterPath::addRect(const QRectFloat &rect)
 {
     QPainterSubpath subpath;
-    subpath.addLine(rect.topLeft(), rect.topRight());
-    subpath.addLine(rect.bottomRight(), rect.bottomLeft());
+    subpath.addLine(QLineFloat(rect.topLeft(), rect.topRight()));
+    subpath.addLine(QLineFloat(rect.bottomRight(), rect.bottomLeft()));
     subpath.close();
     d->subpaths.prepend(subpath);
 }
@@ -552,25 +575,10 @@ void QPainterPath::addRect(const QRect &rect)
     Adds a Bezier curve with control points \a p1, \a p2, \a p3, and
     \a p4, to the path.
 */
-void QPainterPath::addBezier(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4)
+void QPainterPath::addBezier(const QPointFloat &p1, const QPointFloat &p2,
+                             const QPointFloat &p3, const QPointFloat &p4)
 {
     d->subpaths.last().addBezier(p1, p2, p3, p4);
-}
-
-/*!
-    \overload
-
-    Adds the Bezier curve specified by the point array \a pa to the
-    path. The point array <b>must</b> contain exactly four points or
-    the function will give a warning and do nothing.
-*/
-void QPainterPath::addBezier(const QPointArray &pa)
-{
-    if (pa.size() != 4) {
-        qWarning("QPainterPath::addBezier(const QPointArray &), array does not contain four elements");
-        return;
-    }
-    addBezier(pa.at(0), pa.at(1), pa.at(2), pa.at(3));
 }
 
 /*!
@@ -588,7 +596,7 @@ void QPainterPath::addBezier(const QPointArray &pa)
     starting at the given \a startAngle, and extending for \a
     sweepLength degrees anti-clockwise.
 */
-void QPainterPath::addArc(const QRect &rect, int startAngle, int sweepLength)
+void QPainterPath::addArc(const QRectFloat &rect, float startAngle, float sweepLength)
 {
     d->subpaths.last().addArc(rect, startAngle, sweepLength);
 }

@@ -14,8 +14,11 @@
 #ifndef QPAINTERPATH_H
 #define QPAINTERPATH_H
 
-#include "qpoint.h"
 #include "qrect.h"
+#include "qlinefloat.h"
+#include "qsizefloat.h"
+
+#define QRectFloat QRect
 
 class QPainterPathPrivate;
 
@@ -33,25 +36,24 @@ public:
     void beginSubpath();
     void closeSubpath();
 
-    void addLine(const QPoint &p1, const QPoint &p2);
-    inline void addLine(int x1, int y1, int x2, int y2);
-    void addLine(const QPoint &p);
-    inline void addLine(int x, int y);
+    void addLine(const QLineFloat &l);
+    void addLine(const QPointFloat &p);
+    inline void addLine(const QPointFloat &p1, const QPointFloat &p2);
+    inline void addLine(float x1, float y1, float x2, float y2);
+    inline void addLine(float x, float y);
 
+    void addRect(const QRectFloat &rect);
+    inline void addRect(float x, float y, float w, float h);
+    inline void addRect(const QPointFloat &topLeft, const QPointFloat &bottomRight);
+    inline void addRect(const QPointFloat &topLeft, const QSizeFloat &dimension);
 
-    void addRect(const QRect &rect);
-    inline void addRect(int x, int y, int w, int h);
-    inline void addRect(const QPoint &topLeft, const QPoint &bottomRight);
-    inline void addRect(const QPoint &topLeft, const QSize &dimension);
+    void addBezier(const QPointFloat &p1, const QPointFloat &p2,
+                   const QPointFloat &p3, const QPointFloat &p4);
+    inline void addBezier(float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4);
+    void addArc(const QRectFloat &rect, float startAngle, float arcLength);
+    inline void addArc(float x, float y, float w, float h, float startAngle, float arcLength);
 
-    void addBezier(const QPoint &p1, const QPoint &p2, const QPoint &p3, const QPoint &p4);
-    void addBezier(const QPointArray &pa);
-    inline void addBezier(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4);
-
-    void addArc(const QRect &rect, int startAngle, int arcLength);
-    inline void addArc(int x, int y, int w, int h, int startAngle, int arcLength);
-
-    QRect boundingRect() const;
+    QRectFloat boundingRect() const;
 
     FillMode fillMode() const;
     void setFillMode(FillMode fillMode);
@@ -67,39 +69,45 @@ private:
     friend class QPSPrintEngine;
 };
 
-inline void QPainterPath::addLine(int x1, int y1, int x2, int y2)
+inline void QPainterPath::addLine(float x1, float y1, float x2, float y2)
 {
-    addLine(QPoint(x1, y1), QPoint(x2, y2));
+    addLine(QLineFloat(x1, y1, x2, y2));
 }
 
-inline void QPainterPath::addLine(int x, int y)
+inline void QPainterPath::addLine(float x, float y)
 {
-    addLine(QPoint(x, y));
+    addLine(QPointFloat(x, y));
 }
 
-inline void QPainterPath::addRect(int x, int y, int w, int h)
+inline void QPainterPath::addLine(const QPointFloat &p1, const QPointFloat &p2)
 {
-    addRect(QRect(x, y, w, h));
+    addLine(QLineFloat(p1, p2));
 }
 
-inline void QPainterPath::addRect(const QPoint &topLeft, const QPoint &bottomRight)
+inline void QPainterPath::addRect(float x, float y, float w, float h)
 {
-    addRect(QRect(topLeft, bottomRight));
+    addRect(QRectFloat(x, y, w, h));
 }
 
-inline void QPainterPath::addRect(const QPoint &topLeft, const QSize &dim)
+inline void QPainterPath::addRect(const QPointFloat &topLeft, const QPointFloat &bottomRight)
 {
-    addRect(QRect(topLeft, dim));
+    addRect(QRectFloat(topLeft.toPoint(), bottomRight.toPoint()));
 }
 
-inline void QPainterPath::addBezier(int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+inline void QPainterPath::addRect(const QPointFloat &topLeft, const QSizeFloat &dim)
 {
-    addBezier(QPoint(x1, y1), QPoint(x2, y2), QPoint(x3, y3), QPoint(x4, y4));
+    addRect(QRectFloat(topLeft.toPoint(), dim.toSize()));
 }
 
-inline void QPainterPath::addArc(int x, int y, int w, int h, int startAngle, int arcLength)
+inline void QPainterPath::addBezier(float x1, float y1, float x2, float y2,
+                                    float x3, float y3, float x4, float y4)
 {
-    addArc(QRect(x, y, w, h), startAngle, arcLength);
+    addBezier(QPointFloat(x1, y1), QPointFloat(x2, y2), QPointFloat(x3, y3), QPointFloat(x4, y4));
+}
+
+inline void QPainterPath::addArc(float x, float y, float w, float h, float startAngle, float arcLength)
+{
+    addArc(QRectFloat(x, y, w, h), startAngle, arcLength);
 }
 
 #endif // QPAINTERPATH_H
