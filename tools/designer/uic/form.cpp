@@ -120,26 +120,23 @@ void Uic::createFormDecl( const QDomElement &e )
 
     QString imageMembers;
 
+    /*
+      We are generating a few QImage members that are not strictly
+      necessary in some cases. Ideally, we would use requiredImage,
+      which is computed elsewhere, to keep the generated .h and .cpp
+      files synchronized.
+    */
+
     // at first the images
     QMap<QString, int> customWidgets;
     QStringList forwardDecl;
     QStringList forwardDecl2;
     QString exportMacro;
-    QStringList customImages;
-    for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "customwidgets" ) {
-	    nl = n.elementsByTagName( "pixmap" );
-	    for ( i = 0; i < (int) nl.length(); i++ )
-		customImages += nl.item( i ).firstChild().toText().data();
-	}
-    }
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "images" ) {
 	    nl = n.elementsByTagName( "image" );
 	    for ( i = 0; i < (int) nl.length(); i++ ) {
 		QString img = registerObject( nl.item(i).toElement().attribute("name") );
-		if ( customImages.contains(img) )
-		    continue;
 		registerObject( img );
 		imageMembers += QString( "    QPixmap %1;\n" ).arg( img );
 	    }
