@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.8 1997/08/06 15:03:13 hanord Exp $
+** $Id: qlist.doc,v 2.9 1998/02/19 22:52:28 agulbra Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -660,7 +660,7 @@
 	list.append( new Employee("Ron",  60000) );
 
 	QListIterator<Employee> it(list); // iterator for employee list
-	for ( ; it.current(); ++it) ) {
+	for ( ; it.current(); ++it ) {
 	    Employee *emp = it.current();
 	    printf( "%s earns %d\n", emp->name(), emp->salary() );
         }
