@@ -177,7 +177,7 @@ QByteArray QDropEvent::encodedData(const char *mime) const
 	if(flav) {
 	    UInt16 cnt_items;
 	    CountDragItems(current_dropobj, &cnt_items);
-	    QValueList<QByteArray> arrs;
+	    QList<QByteArray> arrs;
 	    for(int i = 1; i <= cnt_items; i++) {
 		ItemReference ref = NULL;
 		if(GetDragItemReferenceNumber(current_dropobj, i, &ref)) {
@@ -291,9 +291,9 @@ static QMAC_PASCAL OSErr qt_mac_send_handler(FlavorType flav, void *handlerRefCo
 	QPtrList<QMacMime> all = QMacMime::all(qmt);
 	for (QMacMime* c = all.first(); c; c = all.next()) {
 	    if(const char *mime = c->mimeFor(flav)) {
-		QValueList<QByteArray> md = c->convertFromMime(o->encodedData(mime), mime, flav);
+		QList<QByteArray> md = c->convertFromMime(o->encodedData(mime), mime, flav);
 		int item_ref = 1;
-		for(QValueList<QByteArray>::Iterator it = md.begin(); it != md.end(); ++it) 
+		for(QList<QByteArray>::Iterator it = md.begin(); it != md.end(); ++it) 
 		    SetDragItemFlavorData(theDrag, (ItemReference)item_ref++, flav, (*it).data(), (*it).size(), 0);
 		return noErr;
 	    }

@@ -195,7 +195,7 @@ QByteArray QClipboardWatcher::encodedData(const char* mime) const
 		QByteArray r, tr;
 		r.setRawData(buffer, flavorsize);
 		{
-		    QValueList<QByteArray> lst;
+		    QList<QByteArray> lst;
 		    lst.append(r);
 		    tr = c->convertToMime(lst, mime, flav);
 		}
@@ -291,7 +291,7 @@ void QClipboard::setData(QMimeSource *src, Mode mode)
 		for (int j = 0; j < c->countFlavors(); j++) {
 		    uint flav = c->flavor(j);
 		    if(c->canConvert(mime, flav)) {
-			QValueList<QByteArray> md = c->convertFromMime(src->encodedData(mime), mime, flav);
+			QList<QByteArray> md = c->convertFromMime(src->encodedData(mime), mime, flav);
 			if(md.count() > 1)
 			    qWarning("QClipBoard: cannot handle multiple byte array conversions..");
 			PutScrapFlavor(scrap, (ScrapFlavorType)flav, 0, md.first().size(), md.first().data());

@@ -40,6 +40,7 @@
 #include "qtextcodec.h"
 #include "qregexp.h"
 #include "qsettings.h"
+#include "qmap.h"
 #include "qt_mac.h"
 
 static QPtrList<QMacMime> mimes;
@@ -114,8 +115,8 @@ public:
     int		flavorFor(const char* mime);
     const char* mimeFor(int flav);
     bool	canConvert(const char* mime, int flav);
-    QByteArray	           convertToMime(QValueList<QByteArray> data, const char* , int);
-    QValueList<QByteArray> convertFromMime(QByteArray data, const char* , int);
+    QByteArray	           convertToMime(QList<QByteArray> data, const char* , int);
+    QList<QByteArray> convertFromMime(QByteArray data, const char* , int);
 };
 
 bool QMacMimeAnyMime::loadMimeRegistry()
@@ -208,16 +209,16 @@ bool QMacMimeAnyMime::canConvert(const char* mime, int flav)
     return FALSE;
 }
 
-QByteArray QMacMimeAnyMime::convertToMime(QValueList<QByteArray> data, const char* , int)
+QByteArray QMacMimeAnyMime::convertToMime(QList<QByteArray> data, const char* , int)
 {
     if(data.count() > 1)
 	qWarning("QMacMimeAnyMime: cannot handle multiple member data");
     return data.first();
 }
 
-QValueList<QByteArray> QMacMimeAnyMime::convertFromMime(QByteArray data, const char* , int)
+QList<QByteArray> QMacMimeAnyMime::convertFromMime(QByteArray data, const char* , int)
 {
-    QValueList<QByteArray> ret;
+    QList<QByteArray> ret;
     ret.append(data);
     return ret;
 }
@@ -232,8 +233,8 @@ public:
     int		flavorFor(const char* mime);
     const char* mimeFor(int flav);
     bool	canConvert(const char* mime, int flav);
-    QByteArray	           convertToMime(QValueList<QByteArray> data, const char* , int);
-    QValueList<QByteArray> convertFromMime(QByteArray data, const char* , int);
+    QByteArray	           convertToMime(QList<QByteArray> data, const char* , int);
+    QList<QByteArray> convertFromMime(QByteArray data, const char* , int);
 };
 
 int QMacMimeText::countFlavors()
@@ -257,10 +258,10 @@ int QMacMimeText::flavorFor(const char* mime)
 {
     if(!qstricmp(mime, "text/plain"))
 	return kScrapFlavorTypeText;
-    QCString m(mime);
+    QByteArray m(mime);
     int i = m.find("charset=");
     if(i >= 0) {
-	QCString cs(m.data()+i+8);
+	QByteArray cs(m.data()+i+8);
 	i = cs.find(";");
 	if(i>=0)
 	    cs = cs.left(i);
@@ -286,16 +287,16 @@ bool QMacMimeText::canConvert(const char* mime, int flav)
     return flav && flavorFor(mime) == flav;
 }
 
-QByteArray QMacMimeText::convertToMime(QValueList<QByteArray> data, const char*, int)
+QByteArray QMacMimeText::convertToMime(QList<QByteArray> data, const char*, int)
 {
     if(data.count() > 1)
 	qWarning("QMacMimeText: cannot handle multiple member data");
     return data.first();
 }
 
-QValueList<QByteArray> QMacMimeText::convertFromMime(QByteArray data, const char*, int)
+QList<QByteArray> QMacMimeText::convertFromMime(QByteArray data, const char*, int)
 {
-    QValueList<QByteArray> ret;
+    QList<QByteArray> ret;
     ret.append(data);
     return ret;
 }
@@ -310,8 +311,8 @@ public:
     int		flavorFor(const char* mime);
     const char* mimeFor(int flav);
     bool	canConvert(const char* mime, int flav);
-    QByteArray	           convertToMime(QValueList<QByteArray> data, const char* , int);
-    QValueList<QByteArray> convertFromMime(QByteArray data, const char* , int);
+    QByteArray	           convertToMime(QList<QByteArray> data, const char* , int);
+    QList<QByteArray> convertFromMime(QByteArray data, const char* , int);
 };
 
 int QMacMimeImage::countFlavors()
@@ -360,7 +361,7 @@ bool QMacMimeImage::canConvert(const char* mime, int flav)
     return FALSE;
 }
 
-QByteArray QMacMimeImage::convertToMime(QValueList<QByteArray> data, const char* mime, int flav)
+QByteArray QMacMimeImage::convertToMime(QList<QByteArray> data, const char* mime, int flav)
 {
     if(data.count() > 1)
 	qWarning("QMacMimeAnyMime: cannot handle multiple member data");
@@ -379,7 +380,7 @@ QByteArray QMacMimeImage::convertToMime(QValueList<QByteArray> data, const char*
 	    QMacSavedPortInfo pi(&px);
 	    DrawPicture(pic, &r);
 	}
-	QCString ofmt = mime+6;
+	QByteArray ofmt = mime+6;
 	QBuffer iod(ret);
 	iod.open(IO_WriteOnly);
 	QImage img = px.convertToImage();
@@ -392,9 +393,9 @@ QByteArray QMacMimeImage::convertToMime(QValueList<QByteArray> data, const char*
     return ret;
 }
 
-QValueList<QByteArray> QMacMimeImage::convertFromMime(QByteArray data, const char* mime, int flav)
+QList<QByteArray> QMacMimeImage::convertFromMime(QByteArray data, const char* mime, int flav)
 {
-    QValueList<QByteArray> ret;
+    QList<QByteArray> ret;
     if(qstrnicmp(mime,"image/",6) || flav != kScrapFlavorTypePicture)
 	return ret;
     QPixmap px;
@@ -434,8 +435,8 @@ public:
     int		flavorFor(const char* mime);
     const char* mimeFor(int flav);
     bool	canConvert(const char* mime, int flav);
-    QByteArray	           convertToMime(QValueList<QByteArray> data, const char* , int);
-    QValueList<QByteArray> convertFromMime(QByteArray data, const char* , int);
+    QByteArray	           convertToMime(QList<QByteArray> data, const char* , int);
+    QList<QByteArray> convertFromMime(QByteArray data, const char* , int);
 };
 
 int QMacMimeFileUri::countFlavors()
@@ -474,14 +475,14 @@ bool QMacMimeFileUri::canConvert(const char* mime, int flav)
     return FALSE;
 }
 
-QByteArray QMacMimeFileUri::convertToMime(QValueList<QByteArray> data, const char* mime, int flav)
+QByteArray QMacMimeFileUri::convertToMime(QList<QByteArray> data, const char* mime, int flav)
 {
     if(qstricmp(mime,"text/uri-list") || flav != typeFileURL)
 	return QByteArray();
     int done = 0;
     QByteArray ret;
-    for(QValueList<QByteArray>::Iterator it = data.begin(); it != data.end(); ++it) {
-	QCString tmp_str(QString::fromUtf8((*it).data(), (*it).size()));
+    for(QList<QByteArray>::Iterator it = data.begin(); it != data.end(); ++it) {
+	QByteArray tmp_str(QString::fromUtf8((*it).data(), (*it).size()));
 	if(tmp_str.left(17) == "file://localhost/") //mac encodes a differently
 	    tmp_str = "file:///" + tmp_str.mid(17);
 	int l = tmp_str.length();
@@ -493,14 +494,14 @@ QByteArray QMacMimeFileUri::convertToMime(QValueList<QByteArray> data, const cha
     return ret;
 }
 
-QValueList<QByteArray> QMacMimeFileUri::convertFromMime(QByteArray data, const char* mime, int flav)
+QList<QByteArray> QMacMimeFileUri::convertFromMime(QByteArray data, const char* mime, int flav)
 {
-    QValueList<QByteArray> ret;
+    QList<QByteArray> ret;
     if(qstricmp(mime,"text/uri-list") || flav != typeFileURL)
 	return ret;
-    uint len = 0;
+    int len = 0;
     char *buffer = (char *)malloc(data.size());
-    for(uint i = 0; i < data.size(); i++) {
+    for(int i = 0; i < data.size(); i++) {
 	if(data[i] == '\r' && i < data.size()-1 && data[i+1] == '\n')
 	    break;
 	buffer[len++] = data[i];
@@ -526,8 +527,8 @@ public:
     int		flavorFor(const char* mime);
     const char* mimeFor(int flav);
     bool	canConvert(const char* mime, int flav);
-    QByteArray	           convertToMime(QValueList<QByteArray> data, const char* , int);
-    QValueList<QByteArray> convertFromMime(QByteArray data, const char* , int);
+    QByteArray	           convertToMime(QList<QByteArray> data, const char* , int);
+    QList<QByteArray> convertFromMime(QByteArray data, const char* , int);
 };
 
 int QMacMimeHFSUri::countFlavors()
@@ -566,19 +567,19 @@ bool QMacMimeHFSUri::canConvert(const char* mime, int flav)
     return FALSE;
 }
 
-QByteArray QMacMimeHFSUri::convertToMime(QValueList<QByteArray> data, const char* mime, int flav)
+QByteArray QMacMimeHFSUri::convertToMime(QList<QByteArray> data, const char* mime, int flav)
 {
     if(qstricmp(mime,"text/uri-list") || flav != kDragFlavorTypeHFS)
 	return QByteArray();
     int done = 0;
     QByteArray ret;
     char *buffer = (char *)malloc(1024);
-    for(QValueList<QByteArray>::Iterator it = data.begin(); it != data.end(); ++it) {
+    for(QList<QByteArray>::Iterator it = data.begin(); it != data.end(); ++it) {
 	FSRef fsref;
 	HFSFlavor *hfs = (HFSFlavor *)(*it).data();
 	FSpMakeFSRef(&hfs->fileSpec, &fsref);
 	FSRefMakePath(&fsref, (UInt8 *)buffer, 1024);
-	QCString s = QUriDrag::localFileToUri(QString::fromUtf8((const char *)buffer));
+	QByteArray s = QUriDrag::localFileToUri(QString::fromUtf8((const char *)buffer));
 	//now encode them to be handled by quridrag
 	int l = qstrlen(s);
 	ret.resize(ret.size()+(l+2));
@@ -590,9 +591,9 @@ QByteArray QMacMimeHFSUri::convertToMime(QValueList<QByteArray> data, const char
     return ret;
 }
 
-QValueList<QByteArray> QMacMimeHFSUri::convertFromMime(QByteArray data, const char* mime, int flav)
+QList<QByteArray> QMacMimeHFSUri::convertFromMime(QByteArray data, const char* mime, int flav)
 {
-    QValueList<QByteArray> ret;
+    QList<QByteArray> ret;
     if(qstricmp(mime,"text/uri-list") || flav != kDragFlavorTypeHFS)
 	return ret;
     HFSFlavor hfs;
@@ -728,7 +729,7 @@ QPtrList<QMacMime> QMacMime::all(QMacMimeType t)
 */
 
 /*!
-  \fn QByteArray QMacMime::convertToMime(QValueList<QByteArray> data, const char* mime, int flav)
+  \fn QByteArray QMacMime::convertToMime(QList<QByteArray> data, const char* mime, int flav)
 
   Returns \a data converted from Mac flavor \a flav to MIME type \a
     mime.
@@ -740,7 +741,7 @@ QPtrList<QMacMime> QMacMime::all(QMacMimeType t)
 */
 
 /*!
-  \fn QValueList<QByteArray> QMacMime::convertFromMime(QByteArray data, const char* mime, int flav)
+  \fn QList<QByteArray> QMacMime::convertFromMime(QByteArray data, const char* mime, int flav)
 
   Returns \a data converted from MIME type \a mime
     to Mac flavor \a flav.

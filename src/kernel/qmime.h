@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qwindowdefs.h"
+#include "qlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_MIME
@@ -185,8 +186,8 @@ public:
     virtual bool canConvert(const char* mime, int flav)=0;
     virtual const char* mimeFor(int flav)=0;
     virtual int flavorFor(const char*)=0;
-    virtual QByteArray convertToMime(QValueList<QByteArray> data, const char* mime, int flav)=0;
-    virtual QValueList<QByteArray> convertFromMime(QByteArray data, const char* mime, int flav)=0;
+    virtual QByteArray convertToMime(QList<QByteArray> data, const char* mime, int flav)=0;
+    virtual QList<QByteArray> convertFromMime(QByteArray data, const char* mime, int flav)=0;
 };
 
 #endif // Q_WS_MAC
