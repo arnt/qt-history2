@@ -144,6 +144,18 @@ QWidget *QAccessibleWidget::widget() const
     return qt_cast<QWidget*>(object());
 }
 
+/*!
+    Returns the parent object, which is either the parent widget, or
+    qApp for toplevel widgets.
+*/
+QObject *QAccessibleWidget::parentObject() const
+{
+    QObject *parent = object()->parent();
+    if (!parent)
+	parent = qApp;
+    return parent;
+}
+
 /*! \reimp */
 int QAccessibleWidget::childAt(int x, int y) const
 {
@@ -348,17 +360,24 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
 
     if (o->parent() == parent) {
 	relation |= Sibling;
-	QWidget *sibling = static_cast<QWidget*>(o);
-	QRect wg = widget()->geometry();
-	QRect sg = sibling->geometry();
+	QAccessibleInterface *sibIface = 0;
+	QAccessible::queryAccessibleInterface(o, &sibIface);
+	Q_ASSERT(sibIface);
+	QRect wg = rect(0);
+	QRect sg = sibIface->rect(0);
 	if (wg.intersects(sg)) {
-	    int wi = parent->children().indexOf(widget());
-	    int si = parent->children().indexOf(sibling);
+	    QAccessibleInterface *pIface = 0;
+	    sibIface->navigate(Ancestor, 1, &pIface);
+	    if (pIface) {
+		int wi = pIface->indexOfChild(this);
+		int si = pIface->indexOfChild(sibIface);
 
-	    if (wi < si)
-		relation |= QAccessible::Covers;
-	    else
-		relation |= QAccessible::Covered;
+		if (wi > si)
+		    relation |= QAccessible::Covers;
+		else
+		    relation |= QAccessible::Covered;
+		pIface->release();
+	    }
 	} else {
 	    QPoint wc = wg.center();
 	    QPoint sc = sg.center();
@@ -371,6 +390,7 @@ int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, 
 	    else if (wc.y() > sc.y())
 		relation |= QAccessible::Down;
 	}
+	sibIface->release();
 
 	return relation;
     }
@@ -421,12 +441,16 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	break;
     case Sibling:
 	{
-	    QWidget *parentWidget = widget()->parentWidget();
-	    if (!parentWidget)
+	    QObject *parent = parentObject();
+	    QAccessibleInterface *iface = 0;
+	    QAccessible::queryAccessibleInterface(parent, &iface);
+	    if (!iface)
 		return -1;
-	    QObjectList ol = parentWidget->queryList("QWidget", 0, 0, FALSE);
-	    if (entry > 0 && ol.count() >= entry)
-		targetObject = ol.at(entry - 1);
+
+	    iface->navigate(Child, entry, target);
+	    iface->release();
+	    if (*target)
+		return 0;
 	}
 	break;
 
@@ -519,6 +543,64 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    targetObject = candidate;
 	}
 	break;
+    case Covers:
+	if (entry > 0) {
+	    QObject *parent = parentObject();
+	    QAccessibleInterface *piface = 0;
+	    QAccessible::queryAccessibleInterface(parent, &piface);
+	    if (!piface)
+		return -1;
+
+	    QRect r = rect(0);
+	    int sibCount = piface->childCount();
+	    QAccessibleInterface *sibling = 0;
+	    for (int i = piface->indexOfChild(this) + 1; i <= sibCount && entry; ++i) {
+		piface->navigate(Child, i, &sibling);
+		Q_ASSERT(sibling);
+		if (!sibling)
+		    continue;
+		if (sibling->rect(0).intersects(r))
+		    --entry;
+		if (!entry)
+		    break;
+		sibling->release();
+		sibling = 0;
+	    }
+	    if (sibling) {
+		*target = sibling;
+		return 0;
+	    }
+	}
+	break;
+    case Covered: 
+	if (entry > 0) {
+	    QObject *parent = parentObject();
+	    QAccessibleInterface *piface = 0;
+	    QAccessible::queryAccessibleInterface(parent, &piface);
+	    if (!piface)
+		return -1;
+
+	    QRect r = rect(0);
+	    int index = piface->indexOfChild(this);
+	    QAccessibleInterface *sibling = 0;
+	    for (int i = 1; i < index && entry; ++i) {
+		piface->navigate(Child, i, &sibling);
+		Q_ASSERT(sibling);
+		if (!sibling)
+		    continue;
+		if (sibling->rect(0).intersects(r))
+		    --entry;
+		if (!entry)
+		    break;
+		sibling->release();
+		sibling = 0;
+	    }
+	    if (sibling) {
+		*target = sibling;
+		return 0;
+	    }
+	}
+	break;
 
     // Logical
     case FocusChild:
@@ -556,48 +638,6 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    // are a controller to us.
 	}
 	break;
-    case Covers: {
-	QWidget *w = widget();
-	QRect rect = w->geometry();
-	QWidget *parentWidget = w->parentWidget();
-	if (!parentWidget)
-	    return -1; // ###topLevel widgets?
-	QObjectList ol = parentWidget->queryList("QWidget", 0, 0, FALSE);
-	int start = ol.indexOf(w) + 1;
-	for (int i = start; i < ol.count(); ++i) {
-	    QWidget *sibling = static_cast<QWidget*>(ol.at(i));
-	    Q_ASSERT(sibling);
-	    if (rect.intersects(sibling->geometry())) {
-		targetObject = sibling;
-		break;
-	    }
-	}
-	if (!targetObject)
-	    return -1;
-	break;
-    }
-    case Covered: {
-	QWidget *w = widget();
-	QRect rect = w->geometry();
-	QWidget *parentWidget = w->parentWidget();
-	if (!parentWidget)
-	    return -1; // ###topLevel widgets?
-	QObjectList ol = parentWidget->queryList("QWidget", 0, 0, FALSE);
-	int end = ol.indexOf(w);
-	if (end < 0)
-	    end = ol.count();
-	for (int i = 0; i < end; ++i) {
-	    QWidget *sibling = static_cast<QWidget*>(ol.at(i));
-	    Q_ASSERT(sibling);
-	    if (rect.intersects(sibling->geometry())) {
-		targetObject = sibling;
-		break;
-	    }
-	}
-	if (!targetObject)
-	    return -1;
-	break;
-    }
     default:
 	break;
     }

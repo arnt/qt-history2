@@ -47,6 +47,7 @@ public:
 protected:
     ~QAccessibleWidget();
     QWidget *widget() const;
+    QObject *parentObject() const;
 
     void	addControllingSignal(const QString &signal);
     void	setValue(const QString &value);
