@@ -32,7 +32,9 @@ QString QTextDocument::plainText() const
 
 bool QTextDocument::isEmpty() const
 {
-    return !pieceTable->length();
+    /* because if we're empty we still have one single paragraph as
+     * one single fragment */
+    return pieceTable->length() <= 1;
 }
 
 void QTextDocument::undoRedo(bool undo)
