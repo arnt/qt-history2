@@ -716,8 +716,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             drawControl(isRadio ? CE_RadioButtonLabel : CE_CheckBoxLabel, &subopt, p, widget);
             if ((btn->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                 QStyleOptionFocusRect fropt;
-                fropt.state = btn->state;
-                fropt.palette = btn->palette;
+                fropt.QStyleOption::operator=(*btn);
                 fropt.rect = visualRect(btn->direction, btn->rect,
                                         subElementRect(isRadio ? QStyle::SE_RadioButtonFocusRect
                                                 : SE_CheckBoxFocusRect, btn, widget));
@@ -734,8 +733,7 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             drawControl(CE_PushButtonLabel, &subopt, p, widget);
             if ((btn->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                 QStyleOptionFocusRect fropt;
-                fropt.state = btn->state;
-                fropt.palette = btn->palette;
+                fropt.QStyleOption::operator=(*btn);
                 fropt.rect = visualRect(opt->direction, opt->rect,
                                         subElementRect(SE_PushButtonFocusRect, btn, widget));
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
@@ -1178,10 +1176,8 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 
             if ((toolbutton->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                 QStyleOptionFocusRect fr;
-                fr.rect = toolbutton->rect;
-                fr.rect.adjust(3, 3, -3, -3);
-                fr.palette = toolbutton->palette;
-                fr.state = State_None;
+                fr.QStyleOption::operator=(*toolbutton);
+                fr.rect = toolbutton->rect.adjusted(3, 3, -3, -3);
                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
             }
             QStyleOptionToolButton label = *toolbutton;
@@ -1348,8 +1344,8 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
 
                 if ((cb->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                     QStyleOptionFocusRect focus;
+                    focus.QStyleOption::operator=(*opt);
                     focus.rect = QStyle::visualRect(opt->direction, opt->rect, subElementRect(SE_ComboBoxFocusRect, opt, widget));
-                    focus.palette = opt->palette;
                     focus.backgroundColor = opt->palette.button().color();
                     drawPrimitive(PE_FrameFocusRect, &focus, p, widget);
                 }

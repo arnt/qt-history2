@@ -1101,6 +1101,10 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         break;
     case PE_FrameFocusRect:
         if (const QStyleOptionFocusRect *fropt = qstyleoption_cast<const QStyleOptionFocusRect *>(opt)) {
+#if 0  // enable after beta2
+            if (!(fropt->state & State_KeyboardFocusChange))
+                return;
+#endif
             QRect r = opt->rect;
             p->save();
             p->setBackgroundMode(Qt::TransparentMode);
@@ -1693,10 +1697,10 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         break; }
     case CE_ScrollBarSubLine:
     case CE_ScrollBarAddLine: {
-        if (use2000style && opt->state & State_Sunken) {
+        if (use2000style && (opt->state & State_Sunken)) {
             p->setPen(opt->palette.dark().color());
             p->setBrush(opt->palette.brush(QPalette::Button));
-            p->drawRect(opt->rect);
+            p->drawRect(opt->rect.adjusted(0, 0, -1, -1));
         } else {
             QStyleOption buttonOpt = *opt;
             if (!(buttonOpt.state & State_Sunken))
@@ -1706,9 +1710,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         PrimitiveElement arrow;
         if (opt->state & State_Horizontal) {
             if (ce == CE_ScrollBarAddLine)
-                arrow = PE_IndicatorArrowRight;
+                arrow = opt->direction == Qt::LeftToRight ? PE_IndicatorArrowRight : PE_IndicatorArrowLeft;
             else
-                arrow = PE_IndicatorArrowLeft;
+                arrow = opt->direction == Qt::LeftToRight ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight;
         } else {
             if (ce == CE_ScrollBarAddLine)
                 arrow = PE_IndicatorArrowDown;
@@ -1860,9 +1864,8 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                 if (slider->state & State_HasFocus) {
                     QStyleOptionFocusRect fropt;
+                    fropt.QStyleOption::operator=(*slider);
                     fropt.rect = subElementRect(SE_SliderFocusRect, slider, widget);
-                    fropt.palette = slider->palette;
-                    fropt.state = State_None;
                     drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
                 }
 
@@ -2206,10 +2209,10 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
 
                 if (cmb->state & State_HasFocus && !cmb->editable) {
                     QStyleOptionFocusRect focus;
+                    focus.QStyleOption::operator=(*cmb);
                     focus.rect = visualRect(opt->direction, opt->rect,
                                             subElementRect(SE_ComboBoxFocusRect, cmb, widget));
-                    focus.palette = cmb->palette;
-                    focus.state = State_FocusAtBorder;
+                    focus.state |= State_FocusAtBorder;
                     focus.backgroundColor = cmb->palette.highlight().color();
                     drawPrimitive(PE_FrameFocusRect, &focus, p, widget);
                 }

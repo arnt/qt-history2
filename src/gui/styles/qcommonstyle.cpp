@@ -527,8 +527,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             drawControl(CE_PushButtonLabel, &subopt, p, widget);
             if (btn->state & State_HasFocus) {
                 QStyleOptionFocusRect fropt;
-                fropt.state = btn->state;
-                fropt.palette = btn->palette;
+                fropt.QStyleOption::operator=(*btn);
                 fropt.rect = visualRect(opt->direction, opt->rect,
                                         subElementRect(SE_PushButtonFocusRect, btn, widget));
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
@@ -610,8 +609,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             drawControl(isRadio ? CE_RadioButtonLabel : CE_CheckBoxLabel, &subopt, p, widget);
             if (btn->state & State_HasFocus) {
                 QStyleOptionFocusRect fropt;
-                fropt.state = btn->state;
-                fropt.palette = btn->palette;
+                fropt.QStyleOption::operator=(*btn);
                 fropt.rect = visualRect(btn->direction, btn->rect,
                                         subElementRect(isRadio ? QStyle::SE_RadioButtonFocusRect
                                                         : SE_CheckBoxFocusRect, btn, widget));
@@ -1020,17 +1018,16 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 p->restore();
 
             if (tab->state & State_HasFocus && !tab->text.isEmpty()) {
-                QStyleOptionFocusRect fropt;
                 const int OFFSET = 1 + pixelMetric(PM_DefaultFrameWidth);
 
                 int x1, x2;
                 x1 = tab->rect.left();
                 x2 = tab->rect.right() - 1;
 
+                QStyleOptionFocusRect fropt;
+                fropt.QStyleOption::operator=(*tab);
                 fropt.rect.setRect(x1 + 1 + OFFSET, tab->rect.y() + OFFSET,
                                    x2 - x1 - 2*OFFSET, tab->rect.height() - 2*OFFSET);
-                fropt.palette = tab->palette;
-                fropt.state = State_None;
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
             }
         }
@@ -1530,8 +1527,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                subControlRect(cc, &newScrollbar,
                                                                       SC_ScrollBarSubLine, widget));
                 if (newScrollbar.rect.isValid()) {
-                    newScrollbar.state &= (scrollbar->activeSubControls & SC_ScrollBarSubLine) ?
-                                          ~State(0) : ~(State_Sunken | State_MouseOver);
+                    if (!(scrollbar->activeSubControls & SC_ScrollBarSubLine))
+                        newScrollbar.state &= ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarSubLine, &newScrollbar, p, widget);
                 }
             }
@@ -1542,8 +1539,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                subControlRect(cc, &newScrollbar,
                                                                       SC_ScrollBarAddLine, widget));
                 if (newScrollbar.rect.isValid()) {
-                    newScrollbar.state &= (scrollbar->activeSubControls & SC_ScrollBarAddLine) ?
-                                          ~State(0) : ~(State_Sunken | State_MouseOver);
+                    if (!(scrollbar->activeSubControls & SC_ScrollBarAddLine))
+                        newScrollbar.state &= ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarAddLine, &newScrollbar, p, widget);
                 }
             }
@@ -1554,8 +1551,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                subControlRect(cc, &newScrollbar,
                                                                       SC_ScrollBarSubPage, widget));
                 if (newScrollbar.rect.isValid()) {
-                    newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarSubPage) ?
-                                          ~State(0) : ~(State_Sunken | State_MouseOver);
+                    if (!(scrollbar->activeSubControls & SC_ScrollBarSubPage))
+                        newScrollbar.state &= ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarSubPage, &newScrollbar, p, widget);
                 }
             }
@@ -1566,8 +1563,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                subControlRect(cc, &newScrollbar,
                                                                       SC_ScrollBarAddPage, widget));
                 if (newScrollbar.rect.isValid()) {
-                    newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarAddPage) ?
-                                          ~State(0) : ~(State_Sunken | State_MouseOver);
+                    if (!(scrollbar->activeSubControls & SC_ScrollBarAddPage))
+                        newScrollbar.state &= ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarAddPage, &newScrollbar, p, widget);
                 }
             }
@@ -1578,8 +1575,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                subControlRect(cc, &newScrollbar,
                                                                       SC_ScrollBarFirst, widget));
                 if (newScrollbar.rect.isValid()) {
-                    newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarFirst) ?
-                                          ~State(0) : ~(State_Sunken | State_MouseOver);
+                    if (!(scrollbar->activeSubControls & SC_ScrollBarFirst))
+                        newScrollbar.state &= ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarFirst, &newScrollbar, p, widget);
                 }
             }
@@ -1590,8 +1587,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                subControlRect(cc, &newScrollbar,
                                                                       SC_ScrollBarLast, widget));
                 if (newScrollbar.rect.isValid()) {
-                    newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarLast) ?
-                                          ~State(0) : ~(State_Sunken | State_MouseOver);
+                    if (!(scrollbar->activeSubControls & SC_ScrollBarLast))
+                        newScrollbar.state &= ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarLast, &newScrollbar, p, widget);
                 }
             }
@@ -1602,17 +1599,16 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                subControlRect(cc, &newScrollbar,
                                                                       SC_ScrollBarSlider, widget));
                 if (newScrollbar.rect.isValid()) {
-                    newScrollbar.state &= (scrollbar->activeSubControls & CE_ScrollBarSlider) ?
-                                          ~State(0) : ~(State_Sunken | State_MouseOver);
+                    if (!(scrollbar->activeSubControls & SC_ScrollBarSlider))
+                        newScrollbar.state |= ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarSlider, &newScrollbar, p, widget);
 
                     if (scrollbar->state & State_HasFocus) {
                         QStyleOptionFocusRect fropt;
+                        fropt.QStyleOption::operator=(newScrollbar);
                         fropt.rect.setRect(newScrollbar.rect.x() + 2, newScrollbar.rect.y() + 2,
                                            newScrollbar.rect.width() - 5,
                                            newScrollbar.rect.height() - 5);
-                        fropt.palette = newScrollbar.palette;
-                        fropt.state = State_None;
                         drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
                     }
                 }
@@ -1734,13 +1730,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
             if (toolbutton->state & State_HasFocus) {
                 QStyleOptionFocusRect fr;
-                fr.rect = toolbutton->rect;
+                fr.QStyleOption::operator=(*toolbutton);
                 fr.rect.adjust(3, 3, -3, -3);
                 if (toolbutton->features & QStyleOptionToolButton::Menu)
                     fr.rect.adjust(0, 0, -pixelMetric(QStyle::PM_MenuButtonIndicator,
                                                          toolbutton, widget), 0);
-                fr.palette = toolbutton->palette;
-                fr.state = State_None;
                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
             }
             QStyleOptionToolButton label = *toolbutton;

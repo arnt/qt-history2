@@ -170,7 +170,7 @@ class QScrollBarPrivate : public QAbstractSliderPrivate
     Q_DECLARE_PUBLIC(QScrollBar)
 public:
     QStyle::SubControl pressedControl;
-    bool pointerLeftControl;
+    bool pointerOutsidePressedControl;
 
     int clickOffset, snapBackPosition;
 
@@ -196,7 +196,7 @@ bool QScrollBarPrivate::updateHoverControl(const QPoint &pos)
         q->update(lastHoverRect);
         q->update(hoverRect);
         return true;
-    } 
+    }
     return !doesHover;
 }
 
@@ -389,7 +389,7 @@ void QScrollBarPrivate::init()
 {
     invertedControls = true;
     pressedControl = hoverControl = QStyle::SC_None;
-    pointerLeftControl = false;
+    pointerOutsidePressedControl = false;
     q->setFocusPolicy(Qt::NoFocus);
     QSizePolicy sp(QSizePolicy::Minimum, QSizePolicy::Fixed);
     if (orientation == Qt::Vertical)
@@ -438,7 +438,7 @@ bool QScrollBar::event(QEvent *event)
     case QEvent::HoverEnter:
     case QEvent::HoverLeave:
     case QEvent::HoverMove:
-    if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event)) 
+    if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event))
         d->updateHoverControl(he->pos());
         break;
     default:
@@ -457,7 +457,8 @@ void QScrollBar::paintEvent(QPaintEvent *)
     opt.subControls = QStyle::SC_All;
     if (d->pressedControl) {
         opt.activeSubControls = (QStyle::SubControl)d->pressedControl;
-        opt.state |= QStyle::State_Sunken;
+        if (!d->pointerOutsidePressedControl)
+            opt.state |= QStyle::State_Sunken;
     } else {
         opt.activeSubControls = (QStyle::SubControl)d->hoverControl;
     }
@@ -479,7 +480,7 @@ void QScrollBar::mousePressEvent(QMouseEvent *e)
         return;
 
     d->pressedControl = style()->hitTestComplexControl(QStyle::CC_ScrollBar, &opt, e->pos(), this);
-    d->pointerLeftControl = false;
+    d->pointerOutsidePressedControl = false;
 
     QRect sr = style()->subControlRect(QStyle::CC_ScrollBar, &opt,
                                        QStyle::SC_ScrollBarSlider, this);
@@ -561,8 +562,9 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
         QRect pr = QStyle::visualRect(opt.direction, opt.rect,
                                       style()->subControlRect(QStyle::CC_ScrollBar, &opt,
                                                               d->pressedControl, this));
-        if (pr.contains(e->pos()) == d->pointerLeftControl) {
-            if ((d->pointerLeftControl = !d->pointerLeftControl)) {
+        if (pr.contains(e->pos()) == d->pointerOutsidePressedControl) {
+            if ((d->pointerOutsidePressedControl = !d->pointerOutsidePressedControl)) {
+                d->pointerOutsidePressedControl = true;
                 setRepeatAction(SliderNoAction);
                 repaint(pr);
             } else  {
