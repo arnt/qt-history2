@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#52 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#53 $
 **
 ** Definition of event classes
 **
@@ -43,10 +43,11 @@
 #define Event_Accel		   30		// accelerator event
 #define Event_Clipboard		   40		// internal clipboard event
 #define Event_SockAct		   50		// socket activation
-#define Event_DragMove		   60		// drag moves (into) widget
-#define Event_DragLeave		   61		// drag leaves or is cancelled
-#define	Event_Drop		   62		// actual drop
-#define	Event_DragResponse	   63		// drag accepted/rejected
+#define Event_DragEnter		   60		// drag moves into widget
+#define Event_DragMove		   61		// drag moves in widget
+#define Event_DragLeave		   62		// drag leaves or is cancelled
+#define	Event_Drop		   63		// actual drop
+#define	Event_DragResponse	   64		// drag accepted/rejected
 #define Event_ChildInserted	   70		// new child widget
 #define Event_ChildRemoved	   71		// deleted child widget
 #define Event_LayoutHint	   72		// child min/max size changed
@@ -244,9 +245,18 @@ public:
     bool provides( const char * );
     QByteArray data( const char * );
 protected:
+    QDragMoveEvent( const QPoint& pos, int type )
+	: QEvent(type), p(pos), accpt(FALSE), d(0) {}
     QPoint p;
     bool   accpt;
     void * d;
+};
+
+class QDragEnterEvent : public QDragMoveEvent
+{
+public:
+    QDragEnterEvent( const QPoint& pos ) :
+	QDragMoveEvent(pos, Event_DragEnter) { }
 };
 
 

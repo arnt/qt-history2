@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#13 $
 **
 ** WM_FILES implementation for Qt.
 **
@@ -1002,6 +1002,10 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     current_dropobj = pDataObj;
     current_drop = this; // ##### YUCK.  Arnt, we need to put info in event
 
+    QDragEnterEvent de( QPoint(pt.x,pt.y) );
+    QApplication::sendEvent( widget, &de );
+    acceptfmt = de.isAccepted();
+
     QueryDrop(grfKeyState, pdwEffect);
     return NOERROR;
 }
@@ -1037,8 +1041,9 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 	current_drop = this; // ##### YUCK.  Arnt, we need to put info in event
 	QDropEvent de( QPoint(pt.x,pt.y) );
 	QApplication::sendEvent( widget, &de );
-	current_drop = 0;
-	current_dropobj = 0;
+	DragLeave();
+	//current_drop = 0;   - already done
+	//current_dropobj = 0;
 	return NOERROR;      
     }
     
