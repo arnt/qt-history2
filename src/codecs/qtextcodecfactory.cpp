@@ -39,14 +39,13 @@
 
 #ifndef QT_NO_TEXTCODEC
 
+#ifndef QT_NO_COMPONENT
 #include "qapplication.h"
 #include "qinterfacemanager.h"
 #include "qtextcodecinterface.h"
 
 #include <stdlib.h>
 
-
-#ifndef QT_NO_COMPONENT
 
 class QTextCodecFactoryPrivate : public QObject
 {
