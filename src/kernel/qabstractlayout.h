@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#8 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#9 $
 **
 ** Definition of the abstract layout base class
 **
@@ -55,7 +55,7 @@ public:
     virtual QWidget *widget();
 
     int alignment() const { return align; }
-    void setAlignment( int a ) { align = a; }
+    virtual void setAlignment( int a );
 protected:
         int align;
 };
@@ -80,6 +80,7 @@ class Q_EXPORT QSpacerItem : public QLayoutItem
     QSizePolicy sizeP;
 };
 
+
 class Q_EXPORT QWidgetItem : public QLayoutItem
 {
 public:
@@ -100,6 +101,7 @@ public:
 private:
     QWidget *wid;
 };
+
 
 class Q_EXPORT QLayout : public QObject, public QLayoutItem
 {
