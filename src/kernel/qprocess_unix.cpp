@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#30 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -292,11 +292,8 @@ void QProcess::init()
 */
 void QProcess::reset()
 {
-    d->exitValuesCalculated = FALSE;
-    while ( !d->stdinBuf.isEmpty() ) {
-	delete d->stdinBuf.dequeue();
-    }
-    d->stdinBufRead = 0;
+    delete d;
+    d = new QProcessPrivate( this );
     exitStat = 0;
     exitNormal = FALSE;
     bufStdout.resize( 0 );

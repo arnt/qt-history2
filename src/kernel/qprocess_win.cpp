@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#21 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -117,11 +117,8 @@ void QProcess::init()
 
 void QProcess::reset()
 {
-    d->exitValuesCalculated = FALSE;
-    while ( !d->stdinBuf.isEmpty() ) {
-	delete d->stdinBuf.dequeue();
-    }
-    d->stdinBufRead = 0;
+    delete d;
+    d = new QProcessPrivate( this );
     exitStat = 0;
     exitNormal = FALSE;
     bufStdout.resize( 0 );
