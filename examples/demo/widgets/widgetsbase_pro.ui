@@ -1,4 +1,4 @@
-<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<!DOCTYPE UI><UI version="3.1" stdsetdef="1">
 <class>WidgetsBase</class>
 <widget class="QWidget">
     <property name="name">
@@ -114,10 +114,14 @@
             <property name="name">
                 <cstring>TextEdit1</cstring>
             </property>
+            <property name="textFormat">
+                <enum>RichText</enum>
+            </property>
             <property name="text">
-                <string>&lt;h1&gt;&lt;b&gt;&lt;font size="4" &gt;Richtext  &lt;/h1&gt;
-&lt;p&gt;Qt supports formatted rich text, such as the heading above, &lt;i&gt;&lt;font &gt;emphasized&lt;/font&gt;&lt;/i&gt;, &lt;b&gt;&lt;font &gt;bold &lt;/font&gt;&lt;/b&gt;and &lt;u&gt;&lt;font &gt;underlined &lt;/font&gt;&lt;/u&gt;text, as well as colored text. This is &lt;font color="#ff0000" &gt;red&lt;/font&gt;, while this is &lt;font color="#00bb00" &gt;green&lt;/font&gt;, and this is &lt;font color="#0000ff" &gt;blue&lt;/font&gt;.  &lt;/p&gt;
-&lt;&gt; &lt;/&gt;
+                <string>&lt;html&gt;&lt;head&gt;&lt;meta name="qrichtext" content="1" /&gt;&lt;/head&gt;&lt;body style="font-size:8pt;font-family:MS Shell Dlg"&gt;
+&lt;p style="margin-top:18px"&gt;&lt;span style="font-size:9pt;font-weight:600"&gt;Richtext &lt;/span&gt;&lt;/p&gt;
+&lt;p&gt;Qt supports formatted rich text, such as the heading above, &lt;span style="font-style:italic"&gt;emphasized&lt;/span&gt;, &lt;span style="font-weight:600"&gt;bold &lt;/span&gt;and &lt;span style="text-decoration:underline"&gt;underlined &lt;/span&gt;text, as well as colored text. This is &lt;span style="color:#ff0000"&gt;red&lt;/span&gt;, while this is &lt;span style="color:#00bb00"&gt;green&lt;/span&gt;, and this is &lt;span style="color:#0000ff"&gt;blue&lt;/span&gt;. &lt;/p&gt;
+&lt;/body&gt;&lt;/html&gt;
 </string>
             </property>
         </widget>
@@ -316,7 +320,7 @@
                             <property name="clickable">
                                 <bool>true</bool>
                             </property>
-                            <property name="resizeable">
+                            <property name="resizable">
                                 <bool>true</bool>
                             </property>
                         </column>
@@ -327,7 +331,7 @@
                             <property name="clickable">
                                 <bool>true</bool>
                             </property>
-                            <property name="resizeable">
+                            <property name="resizable">
                                 <bool>true</bool>
                             </property>
                         </column>
@@ -338,7 +342,7 @@
                             <property name="clickable">
                                 <bool>true</bool>
                             </property>
-                            <property name="resizeable">
+                            <property name="resizable">
                                 <bool>true</bool>
                             </property>
                         </column>
@@ -609,6 +613,12 @@
                     <property name="name">
                         <cstring>lineEdit</cstring>
                     </property>
+                    <property name="frameShape">
+                        <enum>LineEditPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Sunken</enum>
+                    </property>
                     <property name="text">
                         <string>hot pink</string>
                     </property>
@@ -645,7 +655,7 @@
                         <string>Color test area</string>
                     </property>
                     <property name="alignment">
-                        <set>AlignAuto|AlignCenter</set>
+                        <set>AlignCenter</set>
                     </property>
                 </widget>
             </grid>
@@ -910,8 +920,8 @@
         <class>AnalogClock</class>
         <header location="local">../aclock/aclock.h</header>
         <sizehint>
-            <width>100</width>
-            <height>100</height>
+            <width>75</width>
+            <height>75</height>
         </sizehint>
         <container>0</container>
         <sizepolicy>
@@ -1132,7 +1142,7 @@
     </connection>
 </connections>
 <includes>
-    <include location="local" impldecl="in implementation">widgetsbase.ui.h</include>
+    <include location="local" impldecl="in implementation">widgetsbase_pro.ui.h</include>
 </includes>
 <slots>
     <slot access="protected">init()</slot>
@@ -1145,4 +1155,7 @@
     <slot access="protected">updateDateTimeString()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
+<includehints>
+    <includehint>analogclock.h</includehint>
+</includehints>
 </UI>

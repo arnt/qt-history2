@@ -422,6 +422,12 @@
                     <property name="name">
                         <cstring>lineEdit</cstring>
                     </property>
+                    <property name="frameShape">
+                        <enum>LineEditPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Sunken</enum>
+                    </property>
                     <property name="text">
                         <string>hot pink</string>
                     </property>
@@ -566,9 +572,12 @@
                     <property name="name">
                         <cstring>TextEdit1</cstring>
                     </property>
+                    <property name="textFormat">
+                        <enum>RichText</enum>
+                    </property>
                     <property name="text">
-                        <string>&lt;html&gt;&lt;head&gt;&lt;meta name="qrichtext" content="1" /&gt;&lt;/head&gt;&lt;body style="font-size:12pt;font-family:nimbus sans l"&gt;
-&lt;p style="margin-top:16px"&gt;&lt;span style="font-size:18pt;font-weight:600"&gt;Rich Text&lt;/span&gt;&lt;/p&gt;
+                        <string>&lt;html&gt;&lt;head&gt;&lt;meta name="qrichtext" content="1" /&gt;&lt;/head&gt;&lt;body style="font-size:8pt;font-family:MS Shell Dlg"&gt;
+&lt;p style="margin-top:16px"&gt;&lt;span style="font-size:12pt;font-weight:600"&gt;Rich Text&lt;/span&gt;&lt;/p&gt;
 &lt;p&gt;Qt supports rich text. This is &lt;span style="font-style:italic"&gt;italics&lt;/span&gt;, this is &lt;span style="font-weight:600"&gt;bold&lt;/span&gt;, this is &lt;span style="text-decoration:underline"&gt;underlined&lt;/span&gt;, this is &lt;span style="color:#ff0000"&gt;red&lt;/span&gt;, this is &lt;span style="color:#00ff00"&gt;green&lt;/span&gt;, and this is &lt;span style="color:#0000ff"&gt;blue&lt;/span&gt;.&lt;/p&gt;
 &lt;/body&gt;&lt;/html&gt;
 </string>
