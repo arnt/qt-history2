@@ -96,7 +96,7 @@ class QVector
     typedef ConstIterator const_iterator;
     typedef int size_type;
     inline void push_back(const T &t)
-    { return append(t); }
+    { append(t); }
     void pop_back() { Q_ASSERT(!isEmpty()); erase(end()-1); }
     inline bool empty() const
     { return d->size == 0; }
