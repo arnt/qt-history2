@@ -3673,7 +3673,12 @@ QString &QString::sprintf( const char* cformat, ... )
 		break;
 	    }
 	    case 'p': {
-	    	Q_ULLONG i = (Q_ULLONG) va_arg(ap, void*);
+		Q_ULLONG i;
+#ifdef Q_OS_WIN64
+                i = (Q_ULLONG) va_arg(ap, void*);
+#else
+                i = (Q_ULONG) va_arg(ap, void*);
+#endif
 		flags |= QLocalePrivate::Alternate;
 		subst = locale.d->unsLongLongToString(i, precision, 16, width, flags);
 		++c;
