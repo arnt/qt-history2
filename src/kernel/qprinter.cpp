@@ -53,14 +53,16 @@
   QPrinter is used much the same way that QWidget and QPixmap are
   used.  The big difference is that you must keep track of the pages.
 
-  QPrinter supports a number of settable parameters, mostly related to
-  pages, and most can be changed by the end user in when the
-  application calls QPrinter::setup().
+  QPrinter supports a number of settable parameters, most of which can
+  be changed by the end user when the application calls
+  QPrinter::setup().
 
   The most important ones are: <ul>
   <li> setOrientation() tells QPrinter to turn the page (virtual).
   <li> setPageSize() tells QPrinter what page size to expect from the
   printer.
+  <li> setResolution() tells QPrinter what resolution you wish the
+  printer to provide (in dpi).
   <li> setFullPage() tells QPrinter whether you want to deal with the
   full page (so you can have accurate margins etc.) or with just with
   the part the printer can draw on.  The default is FALSE: You can
@@ -70,6 +72,12 @@
   <li> setMinMax() tells QPrinter and QPrintDialog what the allowed
   range for fromPage() and toPage() are.
   </ul>
+  
+  Except where noted, you can only call the set functions before
+  setup(), or between QPainter::end() and setup(). (Some may have
+  effect between setup() and begin(), or between begin() and end(),
+  but that's strictly undocumented and such behaviour may differ
+  depending on platform.)
 
   There are also some settings that the user sets (through the printer
   dialog) and that applications are expected to obey: <ul>
@@ -276,10 +284,9 @@ void QPrinter::setOutputToFile( bool enable )
 /*!
   Sets the name of the output file.
 
-  Setting a null name (0 or "") disables output to a file, i.e.
-  calls setOutputToFile(FALSE);
-  Setting non-null name enables output to a file, i.e.  calls
-  setOutputToFile(TRUE).
+  Setting a null name (0 or "") disables output to a file, i.e.  calls
+  setOutputToFile(FALSE). Setting a non-null name enables output to a
+  file, i.e. calls setOutputToFile(TRUE).
 
   This function is currently only supported under X11.
 
@@ -419,15 +426,16 @@ static QPrinter::PageSize makepagesize( QPrinter::PageSize ps,
 
 
 
-/*!
-  Sets the printer page size to \a newPageSize.
+/*!  Sets the printer page size to \a newPageSize if that size is
+  supported. The result if undefined if \a newPageSize is not
+  supported.
 
   The default page size is system-dependent.
 
   This function is useful mostly for setting a default value that the
   user can override in the print dialog when you call setup().
 
-  \sa pageSize() PageSize setFullPage()
+  \sa pageSize() PageSize setFullPage() setResolution()
 */
 
 void QPrinter::setPageSize( PageSize newPageSize )
@@ -474,9 +482,6 @@ QPrinter::PageOrder QPrinter::pageOrder() const
 
 /*!  Sets the printer's color mode to \a newColorMode, which can be
   one of \c Color (the default) and \c GrayScale.
-
-  A future version of Qt will modify its printing accordingly.  At
-  present, QPrinter behaves as if \c Color is selected.
 
   \sa colorMode()
 */
@@ -565,9 +570,10 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 /*!
   Sets the min page and max page.
 
-  The min-page and max-page restrict the from-page and to-page settings.
-  When the printer setup dialog comes up, the user cannot select
-  from and to that are outside the range specified by min and max pages.
+  The min-page and max-page restrict the from-page and to-page
+  settings.  When the printer setup dialog comes up, the user cannot
+  select from and to that are outside the range specified by min and
+  max pages.
 
   \sa minPage(), maxPage(), setFromTo(), setup()
 */
@@ -644,9 +650,6 @@ If you set it to TRUE, QPaintDeviceMetrics will report the exact same
 size as indicated by PageSize, but you cannot print on all of that -
 you have to take care of the output margins yourself.
 
-If the page-size mode is changed while the printer is active, the
-current print job may or may not be affected.
-
 \sa PageSize setPageSize() QPaintDeviceMetrics fullPage()
 */
 
@@ -671,3 +674,35 @@ bool QPrinter::fullPage() const
 }
 
 #endif // QT_NO_PRINTER
+
+
+/*! Requests the printer to operate at \a dpi if possible, or do the
+best it can.
+
+This setting affects the coordinate system as returned by
+e.g. QPaintDeviceMetrics and QPainter::viewport().
+
+The default is system-dependent. At the time of writing, it's 72dpi on
+Unix systems and printer-dependent on Microsoft Windows.  We expect
+that better Unix print subsystems will become available and supported
+in the near future, however.
+
+\sa resolution() setPageSize()
+*/
+
+void QPrinter::setResolution( int dpi )
+{
+    res = dpi;
+}
+
+
+/*! Returns the current assumed resolution of the printer, as set by
+setResolution() or the printer subsystem.
+
+\sa setResolution()
+*/
+
+int QPrinter::resolution() const
+{
+    return res;
+}

@@ -373,40 +373,45 @@ int QPrinter::metric( int m ) const
 			     4127, 2920, 127, 2064, 1460, 1032, 729, 516, 363,
 			     258, 181, 648, 684, 624, 935, 792, 1224 };
     switch ( m ) {
-	case QPaintDeviceMetrics::PdmWidth:
-	    val = orient == Portrait ? widths[ s ] : heights[ s ];
-	    if ( !fullPage() )
-		val -= 2*margins().width();
-	    break;
-	case QPaintDeviceMetrics::PdmHeight:
-	    val = orient == Portrait ? heights[ s ] : widths[ s ];
-	    if ( !fullPage() )
-		val -= 2*margins().height();
-	    break;
-	case QPaintDeviceMetrics::PdmDpiX:
-	    val = 72;
-	    break;
-	case QPaintDeviceMetrics::PdmDpiY:
-	    val = 72;
-	    break;
-	case QPaintDeviceMetrics::PdmWidthMM:
-	    val = metric( QPaintDeviceMetrics::PdmWidth );
-	    val = (val * 254 + 360) / 720; // +360 to get the right rounding
-	    break;
-	case QPaintDeviceMetrics::PdmHeightMM:
-	    val = metric( QPaintDeviceMetrics::PdmHeight );
-	    val = (val * 254 + 360) / 720;
-	    break;
-	case QPaintDeviceMetrics::PdmNumColors:
-	    val = 16777216;
-	    break;
-	case QPaintDeviceMetrics::PdmDepth:
-	    val = 24;
-	    break;
-	default:
-	    val = 0;
+    case QPaintDeviceMetrics::PdmWidth:
+	val = orient == Portrait ? widths[ s ] : heights[ s ];
+	if ( res != 72 )
+	    val = (val * res + 36) / 72;
+	if ( !fullPage() )
+	    val -= 2*margins().width();
+	break;
+    case QPaintDeviceMetrics::PdmHeight:
+	val = orient == Portrait ? heights[ s ] : widths[ s ];
+	if ( res != 72 )
+	    val = (val * res + 36) / 72;
+	if ( !fullPage() )
+	    val -= 2*margins().height();
+	break;
+    case QPaintDeviceMetrics::PdmDpiX:
+	val = 72;
+	break;
+    case QPaintDeviceMetrics::PdmDpiY:
+	val = 72;
+	break;
+    case QPaintDeviceMetrics::PdmWidthMM:
+	// double rounding error here.  hooray.
+	val = metric( QPaintDeviceMetrics::PdmWidth );
+	val = (val * 254 + 5*res) / (10*res);
+	break;
+    case QPaintDeviceMetrics::PdmHeightMM:
+	val = metric( QPaintDeviceMetrics::PdmHeight );
+	val = (val * 254 + 5*res) / (10*res);
+	break;
+    case QPaintDeviceMetrics::PdmNumColors:
+	val = 16777216;
+	break;
+    case QPaintDeviceMetrics::PdmDepth:
+	val = 24;
+	break;
+    default:
+	val = 0;
 #if defined(CHECK_RANGE)
-	    qWarning( "QPixmap::metric: Invalid metric command" );
+	qWarning( "QPixmap::metric: Invalid metric command" );
 #endif
     }
     return val;
@@ -429,7 +434,10 @@ margins() is automatically subtracted from the pageSize() by QPrinter.
 
 QSize QPrinter::margins() const
 {
-    return (orient == Portrait) ? QSize( 36, 22 ) : QSize( 22, 36 );
+    if (orient == Portrait)
+	return QSize( res/2, res/3 );
+    
+    return QSize( res/3, res/2 );
 }
 
 #endif

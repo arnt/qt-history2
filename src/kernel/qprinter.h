@@ -92,6 +92,9 @@ public:
     virtual void setPageOrder( PageOrder );
     PageOrder	pageOrder() const;
 
+    virtual void setResolution( int );
+    int resolution() const;
+
     virtual void setColorMode( ColorMode );
     ColorMode	colorMode() const;
 
@@ -148,6 +151,7 @@ private:
     void	readPdlg( void* );
     void	readPdlgA( void* );
 #endif
+    int		res;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

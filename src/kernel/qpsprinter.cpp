@@ -2850,6 +2850,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 }
 
 
+// ### deal with ColorMode GrayScale here.
 void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
 			    const QImage &img )
 {

@@ -48,10 +48,12 @@
 
 
 
-// XXX CS097 These should become members of QPrinter:
+// ### CS097 These should become members of QPrinter:
 static HANDLE hdevmode  = 0;
 static HANDLE hdevnames = 0;
- 
+
+
+// ### deal with ColorMode GrayScale in qprinter_win.cpp.
 
 QPrinter::QPrinter()
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
@@ -94,7 +96,7 @@ QPrinter::~QPrinter()
         GlobalFree( hdevnames );
         hdevnames = 0;
     }
-     
+
     if ( hdc ) {
 	DeleteDC( hdc );
 	hdc = 0;
@@ -237,7 +239,7 @@ static QPrinter::PageSize mapDevmodePageSize( int s )
 void QPrinter::readPdlg( void* pdv )
 {
     // Note: Remember to reflect any changes here in readPdlgA below!
-    
+
     PRINTDLG* pd = (PRINTDLG*)pdv;
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
     from_pg = pd->nFromPage;
@@ -281,7 +283,7 @@ void QPrinter::readPdlg( void* pdv )
     if ( pd->hDevNames ) {
 	if ( hdevnames )
 	    GlobalFree( hdevnames );
-	hdevnames = pd->hDevNames;	
+	hdevnames = pd->hDevNames;
 	pd->hDevNames = 0;
     }
 }
@@ -537,7 +539,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	if ( ok && fullPage() && !viewOffsetDone ) {
 	    QSize margs = margins();
 	    OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
-	    //XXX CS097 viewOffsetDone = TRUE;
+	    //### CS097 viewOffsetDone = TRUE;
 	}
 	if ( !ok ) {
 	    if ( hdc ) {
