@@ -4032,6 +4032,7 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
         // fall through
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
+    case QEvent::ShortcutOverride:
         if (q->testAttribute(Qt::WA_CompositeParent) && (w = q->focusProxy())
             && w->testAttribute(Qt::WA_CompositeChild)) {
             ((QInputEvent *)e)->accept();
@@ -4055,9 +4056,9 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease: {
         QMouseEvent *me = (QMouseEvent*)e;
-        if (!(me->buttons() & ~me->button()))
+        if (!(me->buttons() & ~me->button())) // first button pressed
             compositeChildGrab = w;
-        else if (!me->buttons())
+        else if (!me->buttons()) // last button released
             compositeChildGrab = 0;
     } // fall through
     case QEvent::MouseButtonDblClick:
@@ -4583,6 +4584,8 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::KeyRelease:
         keyReleaseEvent((QKeyEvent*)e);
+        // fall through
+    case QEvent::ShortcutOverride:
         if (! ((QKeyEvent*)e)->isAccepted())
             return d->compositeEvent(e);
         break;
