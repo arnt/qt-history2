@@ -46,6 +46,8 @@
 #include "qtimer.h"
 #include "qtl.h"
 
+#include <stdlib.h>
+
 class QCanvasData {
 public:
     QPtrList<QCanvasView> viewList;
