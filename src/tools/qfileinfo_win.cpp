@@ -163,8 +163,31 @@ uint QFileInfo::groupId() const
 }
 
 
-bool QFileInfo::permission( int ) const
+bool QFileInfo::permission( int p ) const
 {
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+#if defined(UNICODE)
+	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
+	    DWORD attr = GetFileAttributes( (TCHAR*)qt_winTchar( fn, TRUE ) );
+	    if ( attr & FILE_ATTRIBUTE_READONLY )
+		return FALSE;
+	}
+	//### GetFileSecurity is a mess
+#else
+	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
+	    DWORD attr = GetFileAttributesA( fn.local8Bit() );
+	    if ( attr & FILE_ATTRIBUTE_READONLY )
+		return FALSE;
+	}
+	//### GetFileSecurity is a mess
+#endif
+    } else { // only FAT anyway
+	if ( p & ( WriteUser | WriteGroup | WriteOther ) ) {
+	    DWORD attr = GetFileAttributesA( fn.local8Bit() );
+	    if ( attr & FILE_ATTRIBUTE_READONLY )
+		return FALSE;
+	}
+    }
     return TRUE;
 }
 
