@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#81 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#80 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#81 $");
 
 
 const int Unsorted = 32767;
@@ -1521,6 +1521,10 @@ void QListView::setColumnWidthMode( int c, WidthMode mode )
     d->column[c]->wmode = mode;
 }
 
+/*!
+  Returns the currently set WidthMode for column \a c.
+  \sa setColumnWidthMode()
+*/
 QListView::WidthMode QListView::columnWidthMode( int c ) const
 {
     return d->column[c]->wmode;
