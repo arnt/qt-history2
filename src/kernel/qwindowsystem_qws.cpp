@@ -168,6 +168,7 @@ void QWSClient::sendRegionModifyEvent( int winid, QRegion exposed, bool ack )
     event.setData( (char *)exposed.rects().data(),
 		    exposed.rects().count() * sizeof(QRect), FALSE );
 
+//    qDebug( "Sending %d %d rects ack: %d", winid, event.simpleData.nrectangles, ack );
     sendEvent( &event );
 }
 
@@ -1440,9 +1441,23 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
     oldAlloc.translate( dx, dy );
     QRegion newRegion( changingw->requested_region );
     newRegion.translate( dx, dy );
-
+/*
+    for ( int i = 0; i < oldAlloc.rects().count(); i++ )
+	qDebug( "oldAlloc %d, %d %dx%d",
+	    oldAlloc.rects()[i].x(),
+	    oldAlloc.rects()[i].y(),
+	    oldAlloc.rects()[i].width(),
+	    oldAlloc.rects()[i].height() );
+*/
     setWindowRegion( changingw, newRegion );
-
+/*
+    for ( int i = 0; i < changingw->allocation().rects().count(); i++ )
+	qDebug( "newAlloc %d, %d %dx%d",
+	    changingw->allocation().rects()[i].x(),
+	    changingw->allocation().rects()[i].y(),
+	    changingw->allocation().rects()[i].width(),
+	    changingw->allocation().rects()[i].height() );
+*/
     // add exposed areas
     changingw->exposed = changingw->allocation() - oldAlloc;
 
@@ -1456,9 +1471,16 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
     gfx->setClipRegion( cr );
     gfx->scroll( br.x(), br.y(), br.width(), br.height(),
 		 br.x() - dx, br.y() - dy );
-    gfx->setClipRegion( QRegion( 0, 0, swidth, sheight ) );
+    gfx->setClipRegion( screenRegion );
     QWSDisplay::ungrab();
-
+/*
+    for ( int i = 0; i < changingw->exposed.rects().count(); i++ )
+	qDebug( "svr exposed: %d, %d %dx%d",
+	    changingw->exposed.rects()[i].x(),
+	    changingw->exposed.rects()[i].y(),
+	    changingw->exposed.rects()[i].width(),
+	    changingw->exposed.rects()[i].height() );
+*/
     notifyModified( changingw );
     paintBackground( dirtyBackground );
     dirtyBackground = QRegion();

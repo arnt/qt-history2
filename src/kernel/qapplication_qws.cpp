@@ -210,7 +210,6 @@ public:
     void repaintHierarchy(QRegion r);
     void repaintDecoration(QRegion r);
     void restrictRegion( QRegion r );
-    void translateRegion( int dx, int dy );
 };
 
 
@@ -648,7 +647,6 @@ void QWSDisplay::requestRegion(int winId, QRegion r)
 void QWSDisplay::moveRegion( int winId, int dx, int dy )
 {
     QETWidget *widget = (QETWidget*)QWidget::find( (WId)winId );
-    widget->translateRegion( dx, dy );
 
     QWSRegionMoveCommand cmd;
     cmd.simpleData.windowid = winId;
@@ -2730,16 +2728,6 @@ void QETWidget::restrictRegion( QRegion r )
     alloc_region = totalr & req_region;
 }
 
-void QETWidget::translateRegion( int dx, int dy )
-{
-#ifndef QT_NO_QWS_MANAGER
-    if ( testWFlags(WType_TopLevel) && topData()->qwsManager )
-	topData()->decor_allocated_region.translate( dx, dy );
-#endif
-    alloc_region.translate( dx, dy );
-}
-
-
 bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *event )
 {
     QWSRegionManager *rgnMan = qt_fbdpy->regionManager();
@@ -2786,6 +2774,14 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
     {
 	QRegion exposed;
 	exposed.setRects( event->rectangles, event->simpleData.nrectangles );
+/*
+	for ( int i = 0; i < event->simpleData.nrectangles; i++ )
+	    qDebug( "exposed: %d, %d %dx%d", 
+		event->rectangles[i].x(),
+		event->rectangles[i].y(),
+		event->rectangles[i].width(),
+		event->rectangles[i].height() );
+*/
 	repaintDecoration( exposed );
 	repaintHierarchy( exposed );
     }
