@@ -779,9 +779,11 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
     bool inLayout = w != formwindow->mainContainer() && !copying && w->isWidgetType() && ( (QWidget*)w )->parentWidget() &&
 		    WidgetFactory::layoutType( ( (QWidget*)w )->parentWidget() ) != WidgetFactory::NoLayout;
 
-    QStringList::Iterator it = changed.begin();
-    for ( ; it != changed.end(); ++it ) {
-	const QMetaProperty* p = w->metaObject()->property( *it, TRUE );
+    QStrList lst = w->metaObject()->propertyNames( !w->inherits( "Spacer" ) );
+    for ( QListIterator<char> it( lst ); it.current(); ++it ) {
+	if ( changed.find( QString::fromLatin1( it.current() ) ) == changed.end() )
+	    continue;
+	const QMetaProperty* p = w->metaObject()->property( it.current(), TRUE );
 	if ( !p || !p->stored( w ) || ( inLayout && qstrcmp( p->name(), "geometry" ) == 0 ) )
 	    continue;
 	if ( w->inherits( "QLabel" ) && qstrcmp( p->name(), "pixmap" ) == 0 &&
@@ -790,17 +792,17 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	if ( qstrcmp( p->name(), "name" ) == 0 )
 	    knownNames << w->property( "name" ).toString();
 	ts << makeIndent( indent ) << "<property";
-	ts << " name=\"" << *it << "\"";
+	ts << " name=\"" << it.current() << "\"";
 	if ( !p->testFlags( QMetaProperty::StdSet ) )
 	    ts << " stdset=\"0\"";
 	ts << ">" << endl;
 	indent++;
 	if ( p->isSetType() ) {
-	    saveSetProperty( w, *it, QVariant::nameToType( p->type() ), ts, indent );
+	    saveSetProperty( w, it.current(), QVariant::nameToType( p->type() ), ts, indent );
 	} else if ( p->isEnumType() ) {
-	    saveEnumProperty( w, *it, QVariant::nameToType( p->type() ), ts, indent );
+	    saveEnumProperty( w, it.current(), QVariant::nameToType( p->type() ), ts, indent );
 	} else {
-	    saveProperty( w, *it, w->property( p->name() ), QVariant::nameToType( p->type() ), ts, indent );
+	    saveProperty( w, it.current(), w->property( p->name() ), QVariant::nameToType( p->type() ), ts, indent );
 	}
 	indent--;
 	ts << makeIndent( indent ) << "</property>" << endl;
