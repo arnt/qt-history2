@@ -57,6 +57,11 @@ public:
     int		progress()   const;
 
     QSize	sizeHint() const;
+    
+    void setAutoReset( bool b );
+    bool autoReset() const;
+    void setAutoClose( bool b );
+    bool autoClose() const;
 
 public slots:
     void	cancel();
