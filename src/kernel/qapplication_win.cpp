@@ -1512,7 +1512,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    int y = GetSystemMetrics( 77 );
 	    QMoveEvent mv( QPoint(x, y), qt_desktopWidget->pos() );
 	    QApplication::sendEvent( qt_desktopWidget, &mv );
-	    w = GetSystemMetrics( 78 );
+	    x = GetSystemMetrics( 78 );
 	    y = GetSystemMetrics( 79 );
 	    QResizeEvent re( QSize(x, y), qt_desktopWidget->size() );
 	    QApplication::sendEvent( qt_desktopWidget, &re );
