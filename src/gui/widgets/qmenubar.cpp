@@ -106,6 +106,10 @@ QRect QMenuBarPrivate::actionRect(QAction *act) const
 void QMenuBarPrivate::setKeyboardMode(bool b)
 {
     Q_Q(QMenuBar);
+    if (b && !q->style()->styleHint(QStyle::SH_MenuBar_AltKeyNavigation, 0, q)) {
+        setCurrentAction(0);
+        return;
+    }
     keyboardState = b;
     if(b) {
         QWidget *fw = qApp->focusWidget();
