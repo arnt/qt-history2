@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#32 $
 **
 ** Implementation of QRangeControl class
 **
@@ -378,21 +378,21 @@ int QRangeControl::bound( int v ) const
 
 
 /*!
-  Converts \a val to a pixel position. minValue() maps to 0, maxValue()
-  maps to \a space, and other values are distributed evenly in between.
+  Converts \a logical_val to a pixel position. minValue() maps to 0, maxValue()
+  maps to \a span, and other values are distributed evenly in between.
   
   This function can handle the entire integer range without overflow.
 */
 
-int QRangeControl::positionFromValue( int val, int space ) const
+int QRangeControl::positionFromValue( int logical_val, int span ) const
 {
     if ( maxValue() > minValue() ) {
 	uint range = maxValue() - minValue();
-	uint d = val - minValue();
+	uint d = logical_val - minValue();
 	int scale = 1;
 	if ( range > uint(INT_MAX/4096) )
 	     scale = 4096*2;
-	return ( (d/scale) * space ) / (range/scale);
+	return ( (d/scale) * span ) / (range/scale);
     } else {
 	return 0;
     }
@@ -401,22 +401,22 @@ int QRangeControl::positionFromValue( int val, int space ) const
 
 /*!
   Converts the pixel position \a pos to a value. 0 maps to minValue(),
-  \a space maps to maxValue(), and other values are distributed evenly
+  \a span maps to maxValue(), and other values are distributed evenly
   in between.
 
   This function can handle the entire integer range without overflow.
 */
 
-int QRangeControl::valueFromPosition( int pos, int space ) const
+int QRangeControl::valueFromPosition( int pos, int span ) const
 {
-    if ( space <= 0 || pos <= 0 )
+    if ( span <= 0 || pos <= 0 )
 	return minValue();
-    if ( pos >= space )
+    if ( pos >= span )
 	return maxValue();
 
     uint range = maxValue() - minValue();
-    return  minValue() +  pos*(range/space) 
-	+ (2 * pos * (range%space) + space) / (2*space) ;
-    //equiv. to minValue() + ( p * r) / space + 0.5;
+    return  minValue() +  pos*(range/span) 
+	+ (2 * pos * (range%span) + span) / (2*span) ;
+    //equiv. to minValue() + ( p * r) / span + 0.5;
 
 }

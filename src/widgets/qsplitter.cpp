@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#74 $
 **
 **  Splitter widget
 **
@@ -509,20 +509,20 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
     if ( w->testWState(WState_ForceHide) ) {
 	moveBefore( pos, id-1, upLeft );
     } else if ( s->isSplitter ) {
-	int d = s->sizer;
+	int dd = s->sizer;
 	if ( upLeft ) {
-	    setG( w, pos-d+1, d );
-	    moveBefore( pos-d, id-1, upLeft );
+	    setG( w, pos-dd+1, dd );
+	    moveBefore( pos-dd, id-1, upLeft );
 	} else {
-	    moveBefore( pos-d, id-1, upLeft );
-	    setG( w, pos-d+1, d );
+	    moveBefore( pos-dd, id-1, upLeft );
+	    setG( w, pos-dd+1, dd );
 	}
     } else {
 	int left = pick( w->pos() );
-	int d = pos - left + 1;
-	d = QMAX( pick(minSize(w)), QMIN(d, pick(w->maximumSize())));
-	int newLeft = pos-d+1;
-	setG( w, newLeft, d );
+	int dd = pos - left + 1;
+	dd = QMAX( pick(minSize(w)), QMIN(dd, pick(w->maximumSize())));
+	int newLeft = pos-dd+1;
+	setG( w, newLeft, dd );
 	if ( left != newLeft )
 	    moveBefore( newLeft-1, id-1, upLeft );
     }
@@ -544,21 +544,21 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
     if ( w->testWState(WState_ForceHide) ) {
 	moveAfter( pos, id+1, upLeft );
     } else if ( s->isSplitter ) {
-	int d = s->sizer;
+	int dd = s->sizer;
 	if ( upLeft ) {
-	    setG( w, pos, d );
-	    moveAfter( pos+d, id+1, upLeft );
+	    setG( w, pos, dd );
+	    moveAfter( pos+dd, id+1, upLeft );
 	} else {
-	    moveAfter( pos+d, id+1, upLeft );
-	    setG( w, pos, d );
+	    moveAfter( pos+dd, id+1, upLeft );
+	    setG( w, pos, dd );
 	}
     } else {
 	int right = pick( w->geometry().bottomRight() );
 
-       	int d = right - pos + 1;
-	d = QMAX( pick(minSize(w)), QMIN(d, pick(w->maximumSize())));
-	int newRight = pos+d-1;
-	setG( w, pos, d );
+       	int dd = right - pos + 1;
+	dd = QMAX( pick(minSize(w)), QMIN(dd, pick(w->maximumSize())));
+	int newRight = pos+dd-1;
+	setG( w, pos, dd );
 	if ( right != newRight )
 	    moveAfter( newRight+1, id+1, upLeft );
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#69 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#70 $
 **
 ** Definition of QMenuData class
 **
@@ -66,7 +66,7 @@ public:
     bool	isDirty()	const	{ return is_dirty; }
 
     void	setText( const QString &text ) { text_data = text; }
-    void	setDirty( bool d )	       { is_dirty = d; }
+    void	setDirty( bool dirty )	       { is_dirty = dirty; }
     void	setWhatsThis( const QString &text ) { whatsthis_data = text; }
 
 private:
