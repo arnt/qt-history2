@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#259 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#260 $
 **
 ** Implementation of QListView widget class
 **
@@ -2159,6 +2159,10 @@ void QListView::show()
 
 void QListView::updateContents()
 {
+    if ( !isVisibleToTLW() )
+	return;
+    // ### this function is probably very inefficient, and it is also
+    // ### central to the smooth operation of QListView.  need fixing.
     viewport()->update();
     updateGeometries();
     ensureItemVisible( d->focusItem );

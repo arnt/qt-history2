@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#118 $
 **
 ** Implementation of QTableView class
 **
@@ -248,7 +248,7 @@ void QTableView::show()
 
 void QTableView::repaint( int x, int y, int w, int h, bool erase )
 {
-    if ( !isVisible() )				// ignore if not visible
+    if ( !isVisible() || testWState(WState_BlockUpdates) )
 	return;
     if ( w < 0 )
 	w = width()  - x;
