@@ -164,7 +164,8 @@ public:
     enum WrapPolicy {
 	AtWordBoundary,
 	Anywhere,
-	AtWhiteSpace = AtWordBoundary // deprecated, don't use
+	AtWhiteSpace = AtWordBoundary, // deprecated, don't use
+	PreferWordBoundary
     };
 
     enum KeyboardAction {
@@ -267,7 +268,7 @@ public:
     QFont font() const;
     int alignment() const;
     int undoDepth() const;
-    
+
     // do not use, will go away
     virtual bool getFormat( int para, int index, QFont *font, QColor *color, VerticalAlignment *verticalAlignment );
     // do not use, will go away
@@ -276,8 +277,8 @@ public:
 				     QStyleSheetItem::DisplayMode *displayMode,
 				     QStyleSheetItem::ListStyle *listStyle,
 				     int *listDepth );
-    
-    
+
+
     bool isOverwriteMode() const { return overWrite; }
     QColor paragraphBackgroundColor( int para ) const;
 
@@ -339,7 +340,7 @@ public slots:
 
     // do not use, will go away
     virtual void setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::ListStyle listStyle );
-    
+
     virtual void setCursorPosition( int parag, int index );
     virtual void setSelection( int parag_from, int index_from, int parag_to, int index_to, int selNum = 0 );
     virtual void setSelectionAttributes( int selNum, const QColor &back, bool invertText );

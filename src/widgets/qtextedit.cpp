@@ -857,7 +857,7 @@ bool QTextEdit::event( QEvent *e )
     }
 
     if ( e->type() == QEvent::Show ) {
-	if ( 
+	if (
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 	     !d->optimMode &&
 #endif
@@ -1047,7 +1047,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			break;
 		    }
 		}
-			    
+			
 		if ( textFormat() == Qt::RichText && ( !cursor->parag()->style() ||
 			       cursor->parag()->style()->displayMode() != QStyleSheetItem::DisplayListItem ) ) {
 		    if ( cursor->index() == 0 && ( e->text()[0] == '-' || e->text()[0] == '*' ) ) {
@@ -1057,7 +1057,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			repaintChanged();
 			drawCursor( TRUE );
 			break;
-		    } 
+		    }
 #if 0			
 		    else if ( e->text()[0] == '.' && cursor->index() == 1 ) {
 			QChar c = cursor->parag()->at(0)->c;
@@ -1078,7 +1078,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			    break;
 			}
 		    }
-#endif		    
+#endif		
 		}
 		if ( overWrite && !cursor->atParagEnd() )
 		    cursor->remove();
@@ -1937,15 +1937,15 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
     inDoubleClick = FALSE;
 
 #ifndef QT_NO_NETWORKPROTOCOL
-    if ( (   (!onLink.isEmpty() && onLink == pressedLink) 
-	  || (!d->onName.isEmpty() && d->onName == d->pressedName)) 
+    if ( (   (!onLink.isEmpty() && onLink == pressedLink)
+	  || (!d->onName.isEmpty() && d->onName == d->pressedName))
 	 && linksEnabled() ) {
-	if (!onLink.isEmpty()) { 
+	if (!onLink.isEmpty()) {
 	    QUrl u( doc->context(), onLink, TRUE );
 	    emitLinkClicked( u.toString( FALSE, FALSE ) );
 	}
 	if (inherits("QTextBrowser")) { // change for 4.0
-	    QConnectionList *clist = receivers( 
+	    QConnectionList *clist = receivers(
 			"anchorClicked(const QString&,const QString&)");
 	    if (!signalsBlocked() && clist) {
 		QUObject o[3];
@@ -2057,7 +2057,7 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 	    selStartIndex = c1.index();
 	    selEndId = c2.parag()->paragId();
 	    selEndIndex = c2.index();
-	    if ( ( ( dropId > selStartId ) || 
+	    if ( ( ( dropId > selStartId ) ||
 		   ( dropId == selStartId && dropIndex > selStartIndex ) ) &&
 		 ( ( dropId < selEndId ) ||
 		   ( dropId == selEndId && dropIndex <= selEndIndex ) ) )
@@ -2065,10 +2065,10 @@ void QTextEdit::contentsDropEvent( QDropEvent *e )
 	    if ( dropId == selEndId && dropIndex > selEndIndex ) {
 		insertCursor = c1;
 		if ( selStartId == selEndId ) {
-		    insertCursor.setIndex( dropIndex - 
+		    insertCursor.setIndex( dropIndex -
 					   ( selEndIndex - selStartIndex ) );
 		} else {
-		    insertCursor.setIndex( dropIndex - selEndIndex + 
+		    insertCursor.setIndex( dropIndex - selEndIndex +
 					   selStartIndex );
 		}
 	    }
@@ -2852,9 +2852,9 @@ void QTextEdit::setPalette( const QPalette &p )
 }
 
 /*! \internal
-  
+
   Do not use this function, it will go away.
-  
+
   Sets the paragraph style of the current paragraph
   to \a dm. If \a dm is QStyleSheetItem::DisplayListItem, the
   type of the list item is set to \a listStyle.
@@ -4036,7 +4036,7 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
     case Key_Return:
     case Key_Enter:
     case Key_Space: {
-	if (!doc->focusIndicator.href.isEmpty() 
+	if (!doc->focusIndicator.href.isEmpty()
 		|| !doc->focusIndicator.name.isEmpty()) {
 	    if (!doc->focusIndicator.href.isEmpty()) {
 		QUrl u( doc->context(), doc->focusIndicator.href, TRUE );
@@ -4044,13 +4044,13 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 	    }
 	    if (!doc->focusIndicator.name.isEmpty()) {
 		if (inherits("QTextBrowser")) { // change for 4.0
-		    QConnectionList *clist = receivers( 
+		    QConnectionList *clist = receivers(
 			    "anchorClicked(const QString&,const QString&)");
 		    if (!signalsBlocked() && clist) {
 			QUObject o[3];
-			static_QUType_QString.set(o+1, 
+			static_QUType_QString.set(o+1,
 				doc->focusIndicator.name);
-			static_QUType_QString.set(o+2, 
+			static_QUType_QString.set(o+2,
 				doc->focusIndicator.href);
 			activate_signal( clist, o);
 		    }
@@ -4146,12 +4146,12 @@ void QTextEdit::scrollToAnchor( const QString& name )
   coordinates), its href is returned, otherwise an empty string is
   returned.
 */
-QString QTextEdit::anchorAt( const QPoint& pos ) 
+QString QTextEdit::anchorAt( const QPoint& pos )
 {
     return anchorAt(pos, AnchorHref);
 }
 
-/*! If there is an anchor at position \a pos (in contents coordinates), 
+/*! If there is an anchor at position \a pos (in contents coordinates),
   the text for attribute \a attr is returned, otherwise an empty string is
   returned.
 */
@@ -4177,7 +4177,7 @@ void QTextEdit::documentWidthChanged( int w )
 }
 
 /*! \internal
-  
+
   This function does nothing
 */
 
@@ -4432,6 +4432,8 @@ int QTextEdit::wrapColumnOrWidth() const
   newlines.
   \value Anywhere  Break anywhere, including within words.
   \value AtWordBoundary Don't use this deprecated value (it is a
+  \value PreferWordBoundary Break lines at whitespace, e.g. spaces or
+  newlines if possible. Break it anywhere otherwise.
   synonym for AtWhiteSpace which you should use instead).
 
    \sa setWrapPolicy()
@@ -4441,9 +4443,9 @@ int QTextEdit::wrapColumnOrWidth() const
   \property QTextEdit::wrapPolicy
   \brief the word wrap policy, at whitespace or anywhere
 
-  Defines where text can be wrapped when word wrap mode is not
-  \c NoWrap. The choices are \c AtWhiteSpace (the default) and \c
-  Anywhere.
+  Defines where text can be wrapped when word wrap mode is not \c
+  NoWrap. The choices are \c AtWordBoundary (the default), \c Anywhere
+  and \c PreferWordBoundary
 
   \sa wordWrap
  */
@@ -4454,10 +4456,12 @@ void QTextEdit::setWrapPolicy( WrapPolicy policy )
 	return;
     wPolicy = policy;
     QTextFormatter *formatter;
-    if ( policy == AtWhiteSpace )
+    if ( policy == AtWordBoundary || policy == PreferWordBoundary ) {
 	formatter = new QTextFormatterBreakWords;
-    else
+	formatter->setAllowBreakInWords( policy == PreferWordBoundary );
+    } else {
 	formatter = new QTextFormatterBreakInWords;
+    }
     formatter->setWrapAtColumn( document()->formatter()->wrapAtColumn() );
     formatter->setWrapEnabled( document()->formatter()->isWrapEnabled( 0 ) );
     document()->setFormatter( formatter );
@@ -4571,7 +4575,7 @@ void QTextEdit::clearUndoRedo()
 /*!  \internal
 
   Do not use this function, it will go away.
-  
+
   This function gets the format of the character at position \a
   index in paragraph \a para. Sets \a font to the character's font, \a
   color to the character's color and \a verticalAlignment to the
@@ -4597,9 +4601,9 @@ bool QTextEdit::getFormat( int para, int index, QFont *font, QColor *color, Vert
 }
 
 /*!  \internal
-  
+
   Do not use this function, it will go away.
-  
+
   This function gets the format of the paragraph \a para. Sets \a
   font to the paragraphs's font, \a color to the paragraph's color, \a
   verticalAlignment to the paragraph's vertical alignment, \a
@@ -5022,13 +5026,13 @@ void QTextEdit::updateCursor( const QPoint & pos )
 #ifndef QT_NO_NETWORKPROTOCOL
 	if ( c.parag() && c.parag()->at( c.index() ) &&
 		c.parag()->at( c.index() )->isAnchor()) {
-	    if (!c.parag()->at( c.index() )->anchorHref().isEmpty() 
+	    if (!c.parag()->at( c.index() )->anchorHref().isEmpty()
 		    && c.index() < c.parag()->length() - 1 )
 		onLink = c.parag()->at( c.index() )->anchorHref();
 	    else
 		onLink = QString::null;
 
-	    if (!c.parag()->at( c.index() )->anchorName().isEmpty() 
+	    if (!c.parag()->at( c.index() )->anchorName().isEmpty()
 		    && c.index() < c.parag()->length() - 1 )
 		d->onName = c.parag()->at( c.index() )->anchorName();
 	    else
@@ -5182,15 +5186,15 @@ void QTextEdit::optimSetText( const QString &str )
     emit textChanged();
 }
 
-/*! \internal 
- 
+/*! \internal
+
   Append \a tag to the tag list.
 */
 QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
 							const QString & tag )
 {
     QTextEditOptimPrivate::Tag * t = new QTextEditOptimPrivate::Tag, * tmp;
-    
+
     if ( d->od->tags == 0 )
 	d->od->tags = t;
     t->bold = t->italic = t->underline = FALSE;
@@ -5221,13 +5225,13 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
   same as a left-tag, but with a '/' appearing before the tag keyword.
   E.g a valid left-tag: <red>, and a valid right-tag: </red>.
   Tags can be nested, but they have to be closed in the same order as
-  they are opened. E.g: 
+  they are opened. E.g:
   <red><blue>blue</blue>red</red>  - is valid, while:
   <red><blue>blue</red>red</blue>  - is invalid since the red tag is
   closed before the blue tag. Note that a tag does not have to be
   closed:
   <blue>Lots of text - and then some..
-  is perfectly valid for setting all text appearing after the tag 
+  is perfectly valid for setting all text appearing after the tag
   to blue.
   A tag can be used to change the color of a piece of text, or set one
   of the following formatting attributes: bold, italic and underline.
@@ -5368,7 +5372,7 @@ void QTextEdit::optimParseTags( QString * line )
     }
 }
 
-/*! \internal 
+/*! \internal
 
   Append \a str to the current text buffer. Parses each line to find
   formatting tags.
@@ -5441,7 +5445,7 @@ void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
 				    QTextFormat * f, int start, int end,
 				    QTextEditOptimPrivate::Tag * tag )
 {
-    int formatFlags = QTextFormat::Bold | QTextFormat::Italic | 
+    int formatFlags = QTextFormat::Bold | QTextFormat::Italic |
 		      QTextFormat::Underline;
     cur->setIndex( start );
     td->setSelectionStart( 0, cur );
@@ -5454,7 +5458,7 @@ void QTextEdit::optimSetTextFormat( QTextDocument * td, QTextCursor * cur,
 	// check to see if there are any open color tags prior to this
 	// format tag
 	tag = tag->prev;
-	while ( tag && (tag->type == QTextEditOptimPrivate::Format || 
+	while ( tag && (tag->type == QTextEditOptimPrivate::Format ||
 			tag->leftTag) ) {
 	    tag = tag->leftTag ? tag->parent : tag->prev;
 	}
