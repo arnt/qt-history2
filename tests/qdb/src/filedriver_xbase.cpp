@@ -36,8 +36,8 @@
 #include <xdb/xbase.h>
 #include <xdb/xbexcept.h>
 
-//#define DEBUG_XBASE 1
-//#define VERBOSE_DEBUG_XBASE
+#define DEBUG_XBASE 1
+#define VERBOSE_DEBUG_XBASE
 
 static bool canConvert( QVariant::Type t1, QVariant::Type t2 )
 {
@@ -351,7 +351,7 @@ QStringList FileDriver::columnNames() const
 {
     QStringList l;
     for ( uint i = 0; i < count(); ++i )
-	l += QString( d->file.GetFieldName( i ) );
+	l += QString( d->file.GetFieldName( i ) ).simplifyWhiteSpace();
     return l;
 }
 
@@ -431,7 +431,7 @@ bool FileDriver::insert( const localsql::List& data )
 	    pos = d->file.GetFieldNo( name );
 	} else {
 	    pos = insertData[0].toInt();
-	    name = d->file.GetFieldName( pos );
+	    name = QString( d->file.GetFieldName( pos ) ).simplifyWhiteSpace();
 	}
 	if ( pos == -1 ) {
 	    ERROR_RETURN( "Unknown field: " + name );
@@ -601,7 +601,7 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
 	ERROR_RETURN( "Internal error: Field does not exist" );
     }
     localsql::List field;
-    QString name = d->file.GetFieldName( i );
+    QString name = QString( d->file.GetFieldName( i ) ).simplifyWhiteSpace();
     QVariant::Type type = xbaseTypeToVariant( d->file.GetFieldType( i ) );
     int len = d->file.GetFieldLen( i );
     int prec = d->file.GetFieldDecimal( i );
@@ -681,10 +681,10 @@ bool FileDriver::rewindMarked()
     setMarkedAt( -1 );
     if ( d->allMarked )
 	d->fileRewound = TRUE;
-    return TRUE;
 #ifdef VERBOSE_DEBUG_XBASE
     env->output() << "success" << endl;
 #endif
+    return TRUE;
 }
 
 bool FileDriver::nextMarked()
@@ -695,13 +695,18 @@ bool FileDriver::nextMarked()
     if ( !isOpen() ) {
 	ERROR_RETURN( "Internal error: File not open" );
     }
-    if ( d->allMarked )
+    if ( d->allMarked ) {
+#ifdef VERBOSE_DEBUG_XBASE
+	env->output() << "all-marked mode..." << flush;
+#endif
 	return next();
+    }
     int next = markedAt() + 1;
-    if ( next > (int)d->marked.count() )
+    if ( next > (int)d->marked.count()-1 )
 	return FALSE;
     if ( d->file.GetRecord( d->marked[next] ) != XB_NO_ERROR )
 	return FALSE;
+
     setMarkedAt( next );
 #ifdef VERBOSE_DEBUG_XBASE
     env->output() << "success" << endl;
@@ -735,14 +740,14 @@ bool FileDriver::update( const localsql::List& data )
 	QString name = fieldDesc[0].toString();
 	xbShort pos = d->file.GetFieldNo( name.latin1() );
 	if ( pos == -1 ) {
-	    ERROR_RETURN( "Internal error: Field not found:" + name );
+	    ERROR_RETURN( "Field not found:" + name );
 	}
 	if ( !name.length() ) {
 	    ERROR_RETURN( "Internal error: Unknown field number:" + QString::number(pos) );
 	}
 	if ( !canConvert( updateData[1].type(), xbaseTypeToVariant( d->file.GetFieldType( pos ) ) ) ) {
 	    QVariant v; v.cast( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) );
-	    ERROR_RETURN( "Internal error: Invalid field type:" + QString(updateData[1].typeName()) +
+	    ERROR_RETURN( "Invalid field type:" + QString(updateData[1].typeName()) +
 			  ", expected:" + QString( v.typeName() ) );
 	}
 	rc = d->putField( pos, updateData[1] );
@@ -903,6 +908,10 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
 	}
     }
 #ifdef DEBUG_XBASE
+     if ( domark )
+	 env->output() << "recs marked:" << d->marked.count() << " " << flush;
+     if ( dosave )
+	 env->output() << "recs saved:" << result->size() << " " << flush;
      env->output() << "success" << endl;
 #endif
     return TRUE;
@@ -1070,8 +1079,15 @@ bool FileDriver::drop()
 	close();
     QFileInfo fi( env->path() + "/" + name() );
     QString basename = fi.baseName();
-    QDir dir;
-    QStringList indexList = dir.entryList( env->path() + "/" + basename + "*.*", QDir::Files );
+    QDir dir( env->path() + "/" );
+    dir.setNameFilter( basename + "*.ndx; " + basename + "*.dbf " );
+    QStringList indexList = dir.entryList( QDir::Files );
+    if ( indexList.count() == 0 ) {
+	env->output() <<  "Warning: " << name() << " does not exist" << endl;
+    }
+#ifdef DEBUG_XBASE
+    env->output() << "Removing: " << indexList.join( "," ) << endl;
+#endif
     for ( uint i = 0; i < indexList.count(); ++i )
 	QFile::remove( indexList[i] );
 #ifdef DEBUG_XBASE
