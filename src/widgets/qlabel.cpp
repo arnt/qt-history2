@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#97 $
 **
 ** Implementation of QLabel widget class
 **
@@ -631,12 +631,16 @@ void QLabel::updateLabel()
 
 void QLabel::acceleratorSlot()
 {
-    if ( extra && extra->buddy &&
-	 !extra->buddy->hasFocus() &&
-	 extra->buddy->isEnabledToTLW() &&
-	 extra->buddy->isVisibleToTLW() &&
-	 extra->buddy->focusPolicy() != NoFocus )
-	extra->buddy->setFocus();
+    if ( !extra || !extra->buddy )
+	return;
+    QWidget * w = extra->buddy;
+    while ( w->focusProxy() )
+	w = w->focusProxy();
+    if ( !w->hasFocus() &&
+	 w->isEnabledToTLW() &&
+	 w->isVisibleToTLW() &&
+	 w->focusPolicy() != NoFocus )
+	w->setFocus();
 }
 
 
