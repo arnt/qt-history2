@@ -595,7 +595,7 @@ private:
 #else
     bool bruteMatch();
 #endif
-    bool testMatch();
+    bool matchHere();
 
     QVector<State> s; // array of states
     int ns; // number of states
@@ -807,7 +807,7 @@ QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 #ifndef QT_NO_REGEXP_OPTIM
 	if ( mmPos <= mmLen - minl ) {
 	    if ( caretAnchored || oneTest ) {
-		matched = testMatch();
+		matched = matchHere();
 	    } else {
 
 		if ( useGoodStringHeuristic )
@@ -818,7 +818,7 @@ QArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 	}
 #else
 	if ( oneTest )
-	    matched = testMatch();
+	    matched = matchHere();
 	else
 	    matched = bruteMatch();
 #endif
@@ -1274,7 +1274,7 @@ bool QRegExpEngine::goodStringMatch()
 	    mmPos = from;
 
 	while ( mmPos <= to ) {
-	    if ( testMatch() )
+	    if ( matchHere() )
 		return TRUE;
 	    mmPos++;
 	}
@@ -1318,7 +1318,7 @@ bool QRegExpEngine::badCharMatch()
 		mmSlideTab[slideNext] = mmSlideTab[slideHead] - 1;
 	    mmSlideTab[slideHead] = 0;
 	} else {
-	    if ( testMatch() )
+	    if ( matchHere() )
 		return TRUE;
 	}
 
@@ -1345,18 +1345,14 @@ bool QRegExpEngine::badCharMatch()
 bool QRegExpEngine::bruteMatch()
 {
     for ( mmPos = 0; mmPos <= mmLen; mmPos++ ) {
-	if ( testMatch() )
+	if ( matchHere() )
 	    return TRUE;
     }
     return FALSE;
 }
 #endif
 
-/*
-  This function is just like a cricket test match:  It's very long.  (It doesn't
-  beat tcp_output(), though.)
-*/
-bool QRegExpEngine::testMatch()
+bool QRegExpEngine::matchHere()
 {
     int ncur = 1, nnext = 0;
     int i = 0, j, k, m;
@@ -2426,7 +2422,7 @@ int QRegExpEngine::parse( const QChar *pattern, int len )
     mmCapturedNoMatch.fill( -1, 2 + 2 * realncap );
 
     /*
-      We use one QArray<int> for all the big data used a lot in testMatch() and
+      We use one QArray<int> for all the big data used a lot in matchHere() and
       friends.
     */
 #ifndef QT_NO_REGEXP_OPTIM
