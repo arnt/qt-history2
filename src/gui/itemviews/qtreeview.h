@@ -14,7 +14,7 @@ class QTreeModel;
 
 class Q_GUI_EXPORT QTreeViewItem
 {
-    friend QTreeModel;
+    friend class QTreeModel;
 public:
     QTreeViewItem(QTreeView *view);
     QTreeViewItem(QTreeViewItem *parent);
@@ -35,7 +35,7 @@ public:
     void setColumnCount(int columns);
     inline void setText(int column, const QString &text) { setData(column, QAbstractItemModel::Display, text); }
     inline void setIconSet(int column, const QIconSet &iconSet) { setData(column, QAbstractItemModel::Decoration, iconSet); }
-    
+
     inline void setEditable(bool editable) { edit = editable; }
     inline void setSelectable(bool selectable) { select = selectable; }
 
@@ -48,7 +48,7 @@ public:
 
 private:
     QTreeViewItem();
-    
+
     QTreeViewItem *par;
     QList<QTreeViewItem*> children;
 
@@ -76,7 +76,7 @@ class Q_GUI_EXPORT QTreeView : public QGenericTreeView
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTreeView);
 
-    friend QTreeViewItem;
+    friend class QTreeViewItem;
 public:
     QTreeView(QWidget *parent = 0);
 

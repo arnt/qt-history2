@@ -3,8 +3,8 @@
 
 class QTreeModel : public QAbstractItemModel
 {
-    friend QTreeView;
-    friend QTreeViewItem;
+    friend class QTreeView;
+    friend class QTreeViewItem;
 public:
     QTreeModel(int columns = 0, QObject *parent = 0);
     ~QTreeModel();
@@ -271,7 +271,7 @@ void QTreeViewItem::setData(int column, int role, const QVariant &value)
     if (column >= c)
 	setColumnCount(column + 1);
     QVector<Data> column_values = values.at(column);
-    
+
     for (int i = 0; i < column_values.count(); ++i) {
 	if (column_values.at(i).role == role) {
 	    column_values[i].value = value;
