@@ -26,13 +26,13 @@
  * Creates child widgets of the LineEdits widget
  */
 
-LineEdits::LineEdits( QWidget *parent, const char *name )
-    : QGroupBox( 0, Horizontal, "Line edits", parent, name )
+LineEdits::LineEdits( QWidget *parent )
+    : QGroupBox( "Line edits", parent )
 {
-    setInsideMargin( 10 );
+    setAlignment(Horizontal);
 
     QVBoxLayout* box = new QVBoxLayout( layout() );
-    
+
     QHBoxLayout *row1 = new QHBoxLayout( box );
     row1->setMargin( 5 );
 

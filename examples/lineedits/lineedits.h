@@ -23,7 +23,7 @@ class LineEdits : public QGroupBox
     Q_OBJECT
 
 public:
-    LineEdits( QWidget *parent = 0, const char *name = 0 );
+    LineEdits( QWidget *parent = 0 );
 
 protected:
     QLineEdit *lined1, *lined2, *lined3, *lined4, *lined5;
