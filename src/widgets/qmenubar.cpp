@@ -335,7 +335,9 @@ void QMenuBar::updateItem( int id )
 	repaint( irects[i], FALSE );
 }
 
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
 static bool fromFrameChange = FALSE;
+#endif
 
 /*!
     Recomputes the menu bar's display data according to the new
@@ -459,9 +461,13 @@ void QMenuBar::menuDelPopup( QPopupMenu *popup )
 
 void QMenuBar::frameChanged()
 {
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     fromFrameChange = TRUE;
+#endif
     menuContentsChanged();
+#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     fromFrameChange = FALSE;
+#endif
 }
 
 
