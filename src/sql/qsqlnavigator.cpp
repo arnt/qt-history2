@@ -66,14 +66,9 @@ public:
   re-selecting) the cursor and searching for records within the
   cursor.
 
-  QSqlCursorNavigator is not functional on its own. A variety of
-  subclasses provide immediately usable behaviour; this class is a
-  pure abstract superclass providing the behaviour that is shared
-  among all the concrete SQL navigator classes.
-
 */
 
-/*!  Constructs a navigator base.
+/*!  Constructs a curosr navigator.
 
 */
 
@@ -92,30 +87,60 @@ QSqlCursorNavigator::~QSqlCursorNavigator()
     delete d;
 }
 
+/*! Sets the navigator's sort to the index \a sort.  To apply the new
+  sort, use refresh().
+
+ */
+
 void QSqlCursorNavigator::setSort( const QSqlIndex& sort )
 {
     setSort( sort.toStringList() );
 }
+
+/*! Sets the navigator's sort to the stringlist \a sort.  To apply the
+  new sort, use refresh().
+
+ */
 
 void QSqlCursorNavigator::setSort( const QStringList& sort )
 {
     d->srt = sort;
 }
 
+/*! Returns the current sort, or an empty stringlist if there is none.
+
+*/
+
 QStringList  QSqlCursorNavigator::sort() const
 {
     return d->srt;
 }
+
+/*! Sets the navigator's filter to the string \a filter.  To apply the
+  new filter, use refresh().
+
+*/
 
 void QSqlCursorNavigator::setFilter( const QString& filter )
 {
     d->ftr = filter;
 }
 
+/*! Returns the current filter, or an empty string if there is none.
+
+*/
+
 QString QSqlCursorNavigator::filter() const
 {
     return d->ftr;
 }
+
+/*! Sets the default cursor used by the navigator to \a cursor.  To
+  activate the \a cursor use refresh().
+
+  \sa cursor()
+
+*/
 
 void QSqlCursorNavigator::setCursor( QSqlCursor* cursor )
 {
@@ -135,10 +160,8 @@ QSqlCursor* QSqlCursorNavigator::cursor() const
 }
 
 
-/*! Refreshes the navigator using the default cursor.  If the default
-  cursor specifies its own filter and sort, it is refreshed using
-  those values.  Otherwise, the navigator's filter and sort are
-  applied.
+/*! Refreshes the navigator using the default cursor.  The navigator's
+  filter and sort are applied.
 
   \sa setFilter() setSort()
 
@@ -150,9 +173,7 @@ void QSqlCursorNavigator::refresh()
     if ( !cur )
 	return;
     QString currentFilter = d->ftr;
-    QStringList currentSort = cur->sort().toStringList( QString::null, TRUE );
-    if ( !currentSort.count() )
-	currentSort = d->srt;
+    QStringList currentSort = d->srt;
     QSqlIndex newSort = QSqlIndex::fromStringList( currentSort, cur );
     cur->select( currentFilter, newSort );
 }
@@ -178,7 +199,7 @@ bool q_index_matches( const QSqlRecord* buf, const QSqlIndex& idx )
 
 /* Return less than, equal to or greater than 0 if buf1 is less than,
  equal to or greater than buf2 according to fields described in idx
- (currently only uses first field)
+ (currently only uses first field) ##
 */
 
 int q_compare( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& idx )
@@ -368,16 +389,16 @@ public:
 
   \module sql
 
-  This class provides navigation functionality for a form.  It is used
-  by QSqlWidget and QSqlDialog to provide automatic cursor navigation
-  when editing/browsing a database cursor.
+  This class provides navigation functionality for a SQL form.  It is
+  used by QSqlWidget and QSqlDialog to provide automatic cursor
+  navigation when editing/browsing a database cursor and form.
 
   QSqlFormNavigator can determine boundry conditions of the cursor (i.e.,
   whether the cursor is on the first or last record) with boundry().
   This can be used, for example, to update widgets according to the
   position of the navigator within the cursor.
 
-  \sa QSqlWidget QSqlDialog QSqlTable
+  \sa QSqlWidget QSqlDialog
 
 */
 
@@ -408,7 +429,7 @@ public:
   </ul>
 */
 
-/*!  Constructs a navigator.
+/*!  Constructs a form navigator.
 
 */
 
@@ -427,6 +448,8 @@ QSqlFormNavigator::~QSqlFormNavigator()
 {
     delete d;
 }
+
+/*! Sets the default form to be used by the navigator to \a form.
 
 void QSqlFormNavigator::setForm( QSqlForm* form )
 {
@@ -462,9 +485,11 @@ int QSqlFormNavigator::insertRecord()
     int ar = cur->insert();
     if ( !ar || !cur->isActive() )
 	handleError( cur->lastError() );
-    refresh();
-    findBuffer( cur->primaryIndex() );
-    updateBoundry();
+    else {
+	refresh();
+	findBuffer( cur->primaryIndex() );
+	updateBoundry();
+    }
     return ar;
 }
 
@@ -740,18 +765,26 @@ void QSqlFormNavigator::updateBoundry()
     }
 }
 
+/*! \internal
+ */
 void QSqlFormNavigator::emitFirstRecordAvailable( bool )
 {
 }
 
+/*! \internal
+ */
 void QSqlFormNavigator::emitLastRecordAvailable( bool )
 {
 }
 
+/*! \internal
+ */
 void QSqlFormNavigator::emitNextRecordAvailable( bool )
 {
 }
 
+/*! \internal
+ */
 void QSqlFormNavigator::emitPrevRecordAvailable( bool )
 {
 }
