@@ -19,6 +19,7 @@
 #include <QByteArray>
 #include <QBuffer>
 #include <QTextStream>
+#include <QApplication>
 
 #include "projectporter.h"
 #include "fileporter.h"
@@ -28,13 +29,16 @@ using std::endl;
 
 QString rulesFileName;
 QString rulesFilePath;
+QString applicationDirPath;
 
 /*
-    Rules for findng rules.xml
-    1. look in current path
-    2. look in program path
-    3. look in qInstallPathLibs()/qt3to4/
-    4. look in $QTDIR/tools/porting/src/
+    Rules for findng q3porting.xml
+    1. current path
+    2. program path
+    3. qInstallPathLibs()/qt3to4/
+    4. $QTDIR/tools/porting/src/
+    5. applicationDirPath()../lib/qt3to4/src/
+    6. applicationDirPath()../tools/porting/src/
 */
 QString findRulesFile(QString fileName, QString programPath)
 {
@@ -53,20 +57,37 @@ QString findRulesFile(QString fileName, QString programPath)
     }
     
     if(filePath.isEmpty()) {
-        filePath = QString(qInstallPathLibs()) + "/qt3to4/" + fileName;
+        filePath = QDir::cleanPath((QFile::encodeName(qInstallPathLibs()) + "/qt3to4/" + fileName));
         QFile f(filePath);
         if (!f.exists())
             filePath=QString();
     }
     
     if(filePath.isEmpty()) {
-        filePath = QString(qgetenv("QTDIR")) + "/tools/porting/src/" + fileName;
+        filePath = QDir::cleanPath((QString(qgetenv("QTDIR")) + "/tools/porting/src/" + fileName));
         QFile f(filePath);
         if (!f.exists())
             filePath=QString();
     }
    
-    return QFileInfo(filePath).absoluteFilePath();
+    if(filePath.isEmpty()) {
+        filePath = QDir::cleanPath(applicationDirPath + "/../lib/qt3to4/" + fileName);
+        QFile f(filePath);
+        if (!f.exists())
+            filePath=QString();
+    }
+    
+    if(filePath.isEmpty()) {
+        filePath = QDir::cleanPath(applicationDirPath + "/../tools/porting/src/" + fileName);
+        QFile f(filePath);
+        if (!f.exists())
+            filePath=QString();
+    }
+    
+    if (!filePath.isEmpty())
+        filePath = QFileInfo(filePath).absoluteFilePath();
+    
+    return filePath;
 }
 
 int fileMode(QString inFile)
@@ -117,6 +138,9 @@ void usage(char **argv)
 
 int main(int argc, char**argv)
 {
+    QApplication app(argc, argv);
+    applicationDirPath = app.applicationDirPath();
+    
     QString in;
     QString out;
     if(argc !=2) {
@@ -131,10 +155,11 @@ int main(int argc, char**argv)
         return 0;
     }
 
-    rulesFileName="rules.xml";
+    rulesFileName="q3porting.xml";
     rulesFilePath=findRulesFile(rulesFileName, argv[0]);
     if (rulesFilePath.isEmpty()) {
-        cout <<"Error: Could not find " << rulesFileName.latin1() << " file" << endl;
+        cout << "Error: Could not find rules file: " << rulesFileName.latin1() << endl;
+        cout << "Please try setting the QTDIR environment variable" << endl;
         return 0;
     } else {
         cout << "Using rules file: " << QDir::convertSeparators(rulesFilePath).latin1() <<endl;

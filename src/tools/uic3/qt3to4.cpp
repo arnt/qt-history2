@@ -14,7 +14,10 @@
 
 #include "qt3to4.h"
 
+#include <iostream>
+
 #include <qconfig.h>
+#include <QApplication>
 #include <QDir>
 #include <QFile>
 #include <QHash>
@@ -112,22 +115,45 @@ private:
 void Porting::readXML(QString fileName, RuleList *renamedHeaders, RuleList *renamedClasses)
 {
 /*
-    Rules for findng rules.xml
-    3. look in qInstallPathLibs()/qt3to4/
-    4. look in $QTDIR/tools/porting/src/
+    Rules for findng q3porting.xml
+    1. qInstallPathLibs()/qt3to4/
+    2. $QTDIR/tools/porting/src/
+    3. applicationDirPath()../lib/qt3to4/src/
+    4. applicationDirPath()../tools/porting/src/
 */
+    QString rulesFileName = "q3porting.xml";
     if(fileName.isEmpty()) {
-        fileName = QDir::cleanPath(QString(qInstallPathLibs()) + "/qt3to4/rules.xml");
+        fileName = QDir::cleanPath(QFile::encodeName(qInstallPathLibs()) + "/qt3to4/" + rulesFileName);
         QFile f(fileName);
         if (!f.exists())
             fileName=QString();
     }
     
     if(fileName.isEmpty()) {
-        fileName= QDir::cleanPath(QString(qgetenv("QTDIR")) + "/tools/porting/src/rules.xml");
+        fileName= QDir::cleanPath(QString(qgetenv("QTDIR")) + "/tools/porting/src/rules.xml" + rulesFileName);
         QFile f(fileName);
         if (!f.exists())
             fileName=QString();
+    }
+    
+    QString applicationDirPath = QApplication::instance()->applicationDirPath();
+    if(fileName.isEmpty()) {
+        fileName = QDir::cleanPath(applicationDirPath + "/../lib/qt3to4/" + rulesFileName);
+        QFile f(fileName);
+        if (!f.exists())
+            fileName=QString();
+    }
+    
+    if(fileName.isEmpty()) {
+        fileName = QDir::cleanPath(applicationDirPath + "/../tools/porting/src/" + rulesFileName);
+        QFile f(fileName);
+        if (!f.exists())
+            fileName=QString();
+    }
+    if (fileName.isEmpty()) {
+        std::cout << "Error: Could not find rules file: " << rulesFileName.latin1() << std::endl;
+        std::cout << "Please try setting the QTDIR environment variable" << std::endl;
+        Q_ASSERT(0);
     }
     
     ContentHandler handler;
