@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#131 $
+** $Id: //depot/qt/main/src/tools/qstring.h#132 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -258,12 +258,11 @@ struct Q_EXPORT QStringData : public QShared {
 };
 
 
-
 class Q_EXPORT QString
 {
 public:
     QString();					// make null string
-    QString( QChar );			// one-char string
+    QString( QChar );				// one-char string
     QString( const QString & );			// impl-shared copy
     QString( const QByteArray& );		// deep copy
     QString( const QChar* unicode, uint length ); // deep copy
@@ -419,6 +418,9 @@ public:
 #ifndef QT_NO_ASCII_CAST
     operator const char *() const { return latin1(); }
 #endif
+
+    QString &setUnicode( const QChar* unicode, uint len );
+    QString &setLatin1( const char*, int len=-1 );
 
     int compare( const QString& s ) const;
     static int compare( const QString& s1, const QString& s2 )

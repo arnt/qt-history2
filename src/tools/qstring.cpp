@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#252 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#253 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10593,11 +10593,7 @@ QString &QString::operator=( const QString &s )
 */
 QString &QString::operator=( const QCString& cs )
 {
-    deref();
-    uint l;
-    QChar *uc = asciiToUnicode(cs,&l);
-    d = new QStringData(uc,l,l);
-    return *this;
+    return setLatin1(cs);
 }
 
 
@@ -10611,11 +10607,7 @@ QString &QString::operator=( const QCString& cs )
 */
 QString &QString::operator=( const char *str )
 {
-    deref();
-    uint l;
-    QChar *uc = asciiToUnicode(str,&l);
-    d = new QStringData(uc,l,l);
-    return *this;
+    return setLatin1(str);
 }
 
 
@@ -10701,7 +10693,7 @@ void QString::setLength( uint newLen )
 	uint newMax = 4;
 	while ( newMax < newLen )
 	    newMax *= 2;
-	QChar* nd = (QChar*)new char[ newMax*sizeof(QChar) ];
+	QChar* nd = (QChar*)new char[newMax*sizeof(QChar)];
 	uint len = QMIN( d->len, newLen );
 	if ( d->unicode )
 	    memcpy( nd, d->unicode, sizeof(QChar)*len );
@@ -12151,8 +12143,10 @@ QString &QString::setNum( long n, int base )
 	base = 10;
     }
 #endif
-    char buf[65];
-    register char *p = &buf[64];
+    char   charbuf[65*sizeof(QChar)];
+    QChar *buf = (QChar*)charbuf;
+    QChar *p = &buf[64];
+    int  len = 0;
     bool neg;
     if ( n < 0 ) {
 	neg = TRUE;
@@ -12168,14 +12162,16 @@ QString &QString::setNum( long n, int base )
     } else {
 	neg = FALSE;
     }
-    *p = '\0';
     do {
 	*--p = "0123456789abcdefghijklmnopqrstuvwxyz"[((int)(n%base))];
 	n /= base;
+	len++;
     } while ( n );
-    if ( neg )
+    if ( neg ) {
 	*--p = '-';
-    return *this = QString::fromLatin1(p);
+	len++;
+    }
+    return setUnicode( p, len );
 }
 
 /*!
@@ -12194,14 +12190,16 @@ QString &QString::setNum( ulong n, int base )
 	base = 10;
     }
 #endif
-    char buf[65];
-    register char *p = &buf[64];
-    *p = '\0';
+    char   charbuf[65*sizeof(QChar)];
+    QChar *buf = (QChar*)charbuf;
+    QChar *p = &buf[64];
+    int len = 0;
     do {
 	*--p = "0123456789abcdefghijklmnopqrstuvwxyz"[((int)(n%base))];
 	n /= base;
+	len++;
     } while ( n );
-    return *this = QString::fromLatin1(p);
+    return setUnicode(p,len);
 }
 
 /*!
@@ -12247,7 +12245,8 @@ QString &QString::setNum( double n, char f, int prec )
     }
 #endif
     char format[20];
-    register char *fs = format;			// generate format string
+    char buf[80];
+    char *fs = format;				// generate format string
     *fs++ = '%';				//   "%.<prec>l<f>"
     if ( prec >= 0 ) {
 	if ( prec > 99 )
@@ -12263,7 +12262,8 @@ QString &QString::setNum( double n, char f, int prec )
     *fs++ = 'l';
     *fs++ = f;
     *fs = '\0';
-    return sprintf( format, n );
+    ::sprintf( buf, format, n );
+    return setLatin1(buf);
 }
 
 /*!
@@ -12276,7 +12276,6 @@ QString &QString::setNum( double n, char f, int prec )
 
   Returns a reference to the string.
 */
-
 
 
 /*!
@@ -12347,10 +12346,6 @@ QString QString::number( double n, char f, int prec )
     s.setNum( n, f, prec );
     return s;
 }
-
-
-
-
 
 
 /*! \obsolete
@@ -12679,87 +12674,41 @@ void QString::subat( uint i )
 }
 
 
-/*****************************************************************************
-  QString stream functions
- *****************************************************************************/
-
-/*!
-  \relates QString
-  Writes a string to the stream.
-
-  Output format: [length (Q_UINT32) data...]
-*/
-
-QDataStream &operator<<( QDataStream &s, const QString &str )
+QString &QString::setUnicode( const QChar *unicode, uint len )
 {
-    if ( s.version() == 1 ) {
-	QCString l( str.latin1() );
-	s << l;
+    if ( d->count != 1 || len > d->maxl || 	// detach, grow, or
+	 ( len*4 < d->maxl && d->maxl > 4 ) ) {	// shrink
+	Q2HELPER(stat_copy_on_write++);
+	Q2HELPER(stat_copy_on_write_size+=d->len);
+	uint newMax = 4;
+	while ( newMax < len )
+	    newMax *= 2;
+	QChar* nd = (QChar*)new char[newMax*sizeof(QChar)];
+	if ( unicode )
+	    memcpy( nd, unicode, sizeof(QChar)*len );
+	deref();
+	d = new QStringData( nd, len, newMax );
+    } else {
+	d->len = len;
+	d->dirtyascii = 1;
+	if ( unicode )
+	    memcpy( d->unicode, unicode, sizeof(QChar)*len );
     }
-    else {
-	const char* ub = (const char*)str.unicode();
-	if ( QChar::networkOrdered() ==
-		(s.byteOrder()==QDataStream::BigEndian) ) {
-	    s.writeBytes( ub, sizeof(QChar)*str.length() );
-	} else {
-	    static const uint auto_size = 1024;
-	    char t[auto_size];
-	    char *b;
-	    if ( str.length()*2 > auto_size ) {
-		b = new char[str.length()*2];
-	    } else {
-		b = t;
-	    }
-	    int l = str.length();
-	    char *c=b;
-	    while ( l-- ) {
-		*c++ = ub[1];
-		*c++ = ub[0];
-		ub+=2;
-	    }
-	    s.writeBytes( b, sizeof(QChar)*str.length() );
-	    if ( str.length()*2 > auto_size )
-		delete [] b;
-	}
-    }
-    return s;
+    return *this;
 }
 
-/*!
-  \relates QString
-  Reads a string from the stream.
-*/
 
-QDataStream &operator>>( QDataStream &s, QString &str )
+QString &QString::setLatin1( const char *str, int len )
 {
-    if ( s.version() == 1 ) {
-	QCString l;
-	s >> l;
-	str = QString( l );
-    }
-    else {
-	Q_UINT32 bytes;
-	s >> bytes;					// read size of string
-	str.setLength( bytes/2 );
-	if ( bytes > 0 ) {				// not null array
-	    char* b = (char*)str.d->unicode;
-	    s.readRawBytes( b, bytes );
-	    if ( QChar::networkOrdered() !=
-		    (s.byteOrder()==QDataStream::BigEndian) ) {
-		bytes /= 2;
-		while ( bytes-- ) {
-		    char c = b[0];
-		    b[0] = b[1];
-		    b[1] = c;
-		    b += 2;
-		}
-	    }
-	} else {
-	    str = "";
-	}
-    }
-    return s;
+    if ( len < 0 )
+	len = strlen(str);
+    setUnicode( 0, len );
+    QChar *p = d->unicode;
+    while ( len-- )
+	*p++ = *str++;
+    return *this;
 }
+
 
 /*!
   \fn int QString::compare (const QString & s1, const QString & s2)
@@ -12989,6 +12938,87 @@ bool operator>=( const char *s1, const QString &s2 )
 */
 
 
+/*****************************************************************************
+  QString stream functions
+ *****************************************************************************/
+
+/*!
+  \relates QString
+  Writes a string to the stream.
+
+  Output format: [length (Q_UINT32) data...]
+*/
+
+QDataStream &operator<<( QDataStream &s, const QString &str )
+{
+    if ( s.version() == 1 ) {
+	QCString l( str.latin1() );
+	s << l;
+    }
+    else {
+	const char* ub = (const char*)str.unicode();
+	if ( QChar::networkOrdered() ==
+		(s.byteOrder()==QDataStream::BigEndian) ) {
+	    s.writeBytes( ub, sizeof(QChar)*str.length() );
+	} else {
+	    static const uint auto_size = 1024;
+	    char t[auto_size];
+	    char *b;
+	    if ( str.length()*2 > auto_size ) {
+		b = new char[str.length()*2];
+	    } else {
+		b = t;
+	    }
+	    int l = str.length();
+	    char *c=b;
+	    while ( l-- ) {
+		*c++ = ub[1];
+		*c++ = ub[0];
+		ub+=2;
+	    }
+	    s.writeBytes( b, sizeof(QChar)*str.length() );
+	    if ( str.length()*2 > auto_size )
+		delete [] b;
+	}
+    }
+    return s;
+}
+
+/*!
+  \relates QString
+  Reads a string from the stream.
+*/
+
+QDataStream &operator>>( QDataStream &s, QString &str )
+{
+    if ( s.version() == 1 ) {
+	QCString l;
+	s >> l;
+	str = QString( l );
+    }
+    else {
+	Q_UINT32 bytes;
+	s >> bytes;					// read size of string
+	str.setLength( bytes/2 );
+	if ( bytes > 0 ) {				// not null array
+	    char* b = (char*)str.d->unicode;
+	    s.readRawBytes( b, bytes );
+	    if ( QChar::networkOrdered() !=
+		    (s.byteOrder()==QDataStream::BigEndian) ) {
+		bytes /= 2;
+		while ( bytes-- ) {
+		    char c = b[0];
+		    b[0] = b[1];
+		    b[1] = c;
+		    b += 2;
+		}
+	    }
+	} else {
+	    str = "";
+	}
+    }
+    return s;
+}
 
 /*****************************************************************************
   QConstString member functions
