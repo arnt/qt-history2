@@ -24,7 +24,7 @@ CC		= gcc
 ####### Targets
 
 STATICTARGET	= $(LIBDIR)/libqt.a
-SHAREDTARGET	= $(LIBDIR)/libqt.so.1.1
+SHAREDTARGET	= $(LIBDIR)/libqt.so.1.3
 
 #######	Sub directories (excluding moc)
 
