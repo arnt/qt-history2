@@ -493,6 +493,7 @@ QString PropertyItem::currentItemFromObject() const
 void PropertyItem::setFocus( QWidget *w )
 {
     if ( !qApp->focusWidget() ||
+	 listview->propertyEditor()->formWindow() &&
 	 !listview->propertyEditor()->formWindow()->mainWindow()->isAFormWindowChild( qApp->focusWidget() ) )
 	w->setFocus();
 }
