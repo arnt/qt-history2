@@ -57,7 +57,8 @@ public:
         AltModifier          = 0x08000000,
         MetaModifier         = 0x10000000,
         KeypadModifier       = 0x20000000,
-        KeyboardModifierMask = 0x3e000000
+        // Do not extend the mask to include 0x01000000
+        KeyboardModifierMask = 0xfe000000
     };
     Q_DECLARE_FLAGS(KeyboardModifiers, KeyboardModifier)
 
