@@ -31,6 +31,7 @@ while ( $#ARGV >= 0 ) {
 	    chomp $includedir;
 	    $includedir .= "/". $includedir;
 	}
+	$privatedir = $includedir . "/private";
     } elsif ( $ARGV[0] eq "-show" ) {
 	$showonly++;
     } elsif ( $ARGV[0] eq "-showpriv" ) {
