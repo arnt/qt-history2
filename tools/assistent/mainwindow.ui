@@ -1,16 +1,21 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>MainWindow</class>
 <include location="global" impldecl="in declaration">qmap.h</include>
-<include location="global" impldecl="in implementation">qfileinfo.h</include>
-<include location="global" impldecl="in implementation">qtextstream.h</include>
-<include location="global" impldecl="in implementation">qdockwindow.h</include>
-<include location="global" impldecl="in implementation">stdlib.h</include>
-<include location="global" impldecl="in implementation">qmime.h</include>
-<include location="local" impldecl="in implementation">helpwindow.h</include>
-<include location="global" impldecl="in implementation">qstylesheet.h</include>
-<include location="global" impldecl="in implementation">qapplication.h</include>
-<include location="local" impldecl="in implementation">helpdialogimpl.h</include>
+<include location="global" impldecl="in implementation">qurl.h</include>
+<include location="global" impldecl="in implementation">qpainter.h</include>
+<include location="global" impldecl="in implementation">qprinter.h</include>
 <include location="global" impldecl="in implementation">qdir.h</include>
+<include location="local" impldecl="in implementation">helpdialogimpl.h</include>
+<include location="global" impldecl="in implementation">qapplication.h</include>
+<include location="global" impldecl="in implementation">qstylesheet.h</include>
+<include location="local" impldecl="in implementation">helpwindow.h</include>
+<include location="global" impldecl="in implementation">qmime.h</include>
+<include location="global" impldecl="in implementation">stdlib.h</include>
+<include location="global" impldecl="in implementation">qdockwindow.h</include>
+<include location="global" impldecl="in implementation">qtextstream.h</include>
+<include location="global" impldecl="in implementation">qfileinfo.h</include>
+<include location="global" impldecl="in implementation">qsimplerichtext.h</include>
+<include location="global" impldecl="in implementation">qpaintdevicemetrics.h</include>
 <forward>class HelpDialog;</forward>
 <forward>class HelpWindow;</forward>
 <variable>QMap&lt;int, QString&gt; bookmarks;</variable>
@@ -317,6 +322,52 @@
     <function name="find()" >{
 }</function>
     <function name="print()" >{
+    QPrinter printer;
+    printer.setFullPage(TRUE);
+    if ( printer.setup() ) {
+	QPainter p( &amp;printer );
+	QPaintDeviceMetrics metrics(p.device());
+	int dpix = metrics.logicalDpiX();
+	int dpiy = metrics.logicalDpiY();
+	const int margin = 72; // pt
+	QRect body( margin*dpix/72, margin*dpiy/72,
+		    metrics.width()-margin*dpix/72*2,
+		    metrics.height()-margin*dpiy/72*2 );
+	QFont font( "times", 10 );
+	QStringList filePaths = browser-&gt;mimeSourceFactory()-&gt;filePath();
+	QString file;
+	QStringList::Iterator it = filePaths.begin();
+	for ( ; it != filePaths.end(); ++it ) {
+	    file = QUrl( *it, QUrl( browser-&gt;source() ).path() ).path();
+	    if ( QFile::exists( file ) )
+		break;
+	    else
+		file = QString::null;
+	}
+	if ( file.isEmpty() )
+	    return;
+	QFile f( file );
+	if ( !f.open( IO_ReadOnly ) )
+	    return;
+	QTextStream ts( &amp;f );
+	QSimpleRichText richText( ts.read(), font, browser-&gt;context(), browser-&gt;styleSheet(),
+				  browser-&gt;mimeSourceFactory(), body.height() );
+	richText.setWidth( &amp;p, body.width() );
+	QRect view( body );
+	int page = 1;
+	do {
+	    richText.draw( &amp;p, body.left(), body.top(), view, colorGroup() );
+	    view.moveBy( 0, body.height() );
+	    p.translate( 0 , -body.height() );
+	    p.setFont( font );
+	    p.drawText( view.right() - p.fontMetrics().width( QString::number(page) ),
+			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page) );
+	    if ( view.top()  &gt;= richText.height() )
+		break;
+	    printer.newPage();
+	    page++;
+	} while (TRUE);
+    }
 }</function>
     <function name="setupBookmarkMenu()" >{
     bookmarkMenu-&gt;clear();
