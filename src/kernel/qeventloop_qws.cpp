@@ -131,7 +131,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	QApplication::sendPostedEvents();
 
 	while ( qt_fbdpy->eventPending() ) {	// also flushes output buffer
-	    if ( d->quitnow ) {		// quit between events
+	    if ( d->exitloop ) {		// quit between events
 		return FALSE;
 	    }
 	    QWSEvent *event = qt_fbdpy->getEvent();	// get next event
@@ -145,8 +145,9 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	}
     }
 
-    // don't block for events if the app is quitting, or we need to exitloop
-    canWait = ( canWait && !d->quitnow && !d->exitloop );
+    if ( d->exitloop ) {			// break immediately
+	return FALSE;
+    }
 
     extern QPtrQueue<QWSCommand> *qt_get_server_queue();
     if ( !qt_get_server_queue()->isEmpty() ) {

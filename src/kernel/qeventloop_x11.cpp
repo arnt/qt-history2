@@ -176,8 +176,9 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 
     QApplication::sendPostedEvents();
 
-    // don't block for events if the app is quitting, or we need to exitloop
-    canWait = ( canWait && !d->quitnow && !d->exitloop );
+    if ( d->exitloop ) {			// break immediately
+	return FALSE;
+    }
 
     // Process timers and socket notifiers - the common UNIX stuff
 

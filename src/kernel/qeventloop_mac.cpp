@@ -800,7 +800,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
 	} while(GetNumEventsInQueue(GetMainEventQueue()));
     }
 
-    if(d->quitnow) {
+    if(d->quitnow || d->exitloop) {
 	return FALSE;
     }
 
