@@ -1096,10 +1096,8 @@ bool QAxBase::initialize(IUnknown **ptr)
         HRESULT hres = CoCreateInstance(QUuid(ctrl), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr);
         res = S_OK == hres;
 #ifndef QT_NO_DEBUG
-        if (!res) {
-            SetLastError(hres);
-            qSystemWarning("CoCreateInstance failure");
-        }
+        if (!res)
+            qSystemWarning("CoCreateInstance failure", hres);
 #endif
     }
 
