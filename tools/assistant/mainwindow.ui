@@ -457,8 +457,6 @@
   </widget>
   <layoutDefault spacing="6" margin="11" />
   <includes>
-    <include location="global" >qptrlist.h</include>
-    <include location="global" >qguardedptr.h</include>
     <include location="global" >qmap.h</include>
     <include location="local" >finddialog.h</include>
     <include location="global" >qstringlist.h</include>
