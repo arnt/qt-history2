@@ -415,6 +415,7 @@ void QMacPrintEnginePrivate::initialize()
     Q_ASSERT(!session);
 
     fullPage = false;
+    outputToFile = false;
 
     if (PMCreateSession(&session) != noErr)
         session = 0;
