@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#5 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#6 $
 **
 ** Definition of the QStyleSheet class
 **
@@ -28,11 +28,10 @@
 
 #include "qlist.h"
 #include "qdict.h"
+#include "qmap.h"
 #include "qpixmap.h"
 #include "qscrollview.h"
 #include "qcolor.h"
-#include "qml.h" //########## QMLProvider
-
 
 class QStyleSheet;
 class QStyleSheetItemData;
@@ -138,9 +137,10 @@ public:
     void insert( QStyleSheetItem* item);
 
     virtual QTextNode* tag( const QString& name,
-			  const QDict<QString>&attr,
-			  QMLProvider& provider,
-			  bool emptyTag = FALSE) const;
+			    const QMap<QString, QString> &attr,
+			    const QString& context,
+			    const QMimeSourceFactory& factory, 
+			    bool emptyTag = FALSE) const;
 
     static QString convertFromPlainText( const QString& );
     static bool mightBeRichText( const QString& );

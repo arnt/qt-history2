@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#111 $
 **
 ** Implementation of QPixmap class
 **
@@ -243,7 +243,7 @@ QPixmap::~QPixmap()
   \sa operator=()
 */
 
-QPixmap QPixmap::copy( bool ignoreMask ) const
+QPixmap QPixmap::copy() const
 {
     QPixmap pm( data->w, data->h, data->d, data->bitmap, data->optim );
     if ( !pm.isNull() ) {			// copy the bitmap
@@ -251,7 +251,7 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 	pm.copyX11Data( this );
 #endif
 	bitBlt( &pm, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
-	if ( !ignoreMask && data->mask )		// copy the mask
+	if ( data->mask )			// copy the mask
 	    pm.setMask( data->selfmask ? *((QBitmap*)&pm) : *data->mask );
     }
     return pm;
@@ -487,24 +487,23 @@ void QPixmap::resize( int w, int h )
   \sa mask(), createHeuristicMask(), QBitmap
 */
 
-void QPixmap::setMask( const QBitmap &newmask )
+void QPixmap::setMask( const QBitmap &mask )
 {
-    if ( (data == newmask.data) ||
-	 ( newmask.handle() && newmask.handle() == handle() ) ) {
-	const QPixmap *tmp = &newmask;		// dec cxx bug
-	QPixmap m = tmp->copy( TRUE );
+    if ( mask.handle() && mask.handle() == handle() ) {
+	const QPixmap *tmp = &mask;		// dec cxx bug
+	QPixmap m = tmp->copy();
 	setMask( *((QBitmap*)&m) );
 	data->selfmask = TRUE;			// mask == pixmap
 	return;
     }
     detach();
     data->selfmask = FALSE;
-    if ( newmask.isNull() ) {			// reset the mask
+    if ( mask.isNull() ) {			// reset the mask
 	delete data->mask;
 	data->mask = 0;
 	return;
     }
-    if ( newmask.width() != width() || newmask.height() != height() ) {
+    if ( mask.width() != width() || mask.height() != height() ) {
 #if defined(CHECK_RANGE)
 	qWarning( "QPixmap::setMask: The pixmap and the mask must have "
 		 "the same size" );
@@ -512,15 +511,10 @@ void QPixmap::setMask( const QBitmap &newmask )
 	return;
     }
     delete data->mask;
-    QBitmap* newmaskcopy;
-    if ( newmask.mask() ) {
-	const QPixmap *tmp = &newmask;
-	newmaskcopy = (QBitmap*)new QPixmap( tmp->copy( TRUE ) );
-    }
-    else {
-	newmaskcopy = new QBitmap( newmask );
-    }
-    data->mask = newmaskcopy;
+    QBitmap* newmask = new QBitmap( mask );
+    if ( newmask->mask() )
+	newmask->setMask( QBitmap() );		// remove mask's mask
+    data->mask = newmask;
 }
 
 

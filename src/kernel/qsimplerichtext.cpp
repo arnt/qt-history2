@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.cpp#2 $
 **
 ** Implementation of the QSimpleRichText class
 **
@@ -31,8 +31,9 @@
   \class QSimpleRichText qsimplerichtext.h
   \brief A small displayable piece of rich text.
 
-  This class encapsulates simple richt text usage where a string is interpretted
-  as richt text and can be drawn.
+  This class encapsulates simple richt text usage where a string is
+  interpretted as richt text and can be drawn. This is in particular
+  useful if you want to display some rich text in a custom widget.
 
   For large documents, see QTextView or QTextBrowser.
 */
@@ -44,7 +45,7 @@ public:
 };
 
 /*!
-  Constructs a QSimpleRichText from the richt text  \a contents.
+  Constructs a QSimpleRichText from the rich text string  \a text.
 
   If a font \a fnt is specified, this font will be used as basis for
   the text rendering. When using rich text rendering on a certain
@@ -57,15 +58,23 @@ public:
 
   If not font has been specified, the application's default font is used.
 
+  \a context is the optional context of the document. This becomes
+  important if \a text contains relative references, for example
+  within image tags. QSimpleRichText always uses the default mime
+  source factory ( see QMimeSourceFactory::defaultFactory() ) to
+  resolve references. The context will then be used to calculate the
+  absolute path. See QMimeSourceFactory::makeAbsolute() for details.
+  
   \a s is an optional stylesheet. If it is 0, the default style sheet
   will be used ( see QStyleSheet::defaultSheet() ).
 
   Once created, changes cannot be made (just throw it away and make
   a new one with the new contents).  */
-QSimpleRichText::QSimpleRichText( const QString& contents, const QFont& fnt, const QStyleSheet* s)
+QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt, 
+				  const QString& context, const QStyleSheet* s)
 {
     d  = new QSimpleRichTextData;
-    d->doc = new QRichText( contents, fnt, 0, 0, s );
+    d->doc = new QRichText( text, fnt, context, 0, 0, s );
 }
 
 /*!
@@ -90,7 +99,7 @@ void QSimpleRichText::setWidth( QPainter* p, int w)
 
 /*!
   Returns the set width of the document, in pixels.
-  
+
   \sa widthUsed()
 */
 int QSimpleRichText::width() const
@@ -107,8 +116,8 @@ int QSimpleRichText::width() const
   non-breakable words that are already wider than the available
   space. It's smaller when the document only consists of lines that do
   not fill the width completely.
-  
-  \sa width() 
+
+  \sa width()
 */
 int QSimpleRichText::widthUsed() const
 {
@@ -151,6 +160,16 @@ void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegio
     }
 }
 
+
+/*! 
+  Returns the context of the rich text document. If no context has been specified 
+  in the constructor, a null string is returned.
+*/
+QString QSimpleRichText::context() const
+{
+    return d->doc->context();
+}
+
 /*!
   Returns the anchor at the requested position. The QPainter is needed for font size
   calculations. An empty string is returned if no anchor is specified for this certain
@@ -160,11 +179,11 @@ QString QSimpleRichText::anchor( QPainter* p, const QPoint& pos )
 {
     QTextNode* n = d->doc->hitTest( p, 0, 0, pos.x(), pos.y() );
     if ( !n )
-      return QString();
+      return QString::null;
 
     const QTextContainer* act = n->parent()->anchor();
-    if (act && act->attributes() && act->attributes()->find("href") )
-      return ( *act->attributes()->find("href") ); 
+    if (act && act->attributes() && act->attributes()->contains("href") )
+      return ( act->attributes()->operator[]("href") );
 
-    return QString();
+    return QString::null;
 }

@@ -1,12 +1,13 @@
 #include "qstring.h"
-#include "qdict.h"
+#include "qmap.h"
 #include "qstylesheet.h"
 #include "qapplication.h"
-#include "qml.h" //##### Provider
+#include "qmime.h"
 
 class QTextContainer;
 class QTextBox;
 class QTextIterator;
+class QRichText;
 
 class QTextNode
 {
@@ -26,6 +27,7 @@ public:
     inline bool isNull() const {return c.isNull();}
 
 
+    inline QRichText* root() const;
     inline QTextContainer* parent() const;
     inline QTextBox* box() const;
     inline QTextNode* previousSibling() const;
@@ -37,6 +39,7 @@ public:
     uint isLastSibling:1;
     uint isContainer:1;
     uint isBox:1;
+    uint isRoot:1;
     uint isSelected: 1;
     uint isSelectionDirty: 1;
 
@@ -63,7 +66,7 @@ public:
 class QTextHorizontalLine : public QTextCustomNode
 {
 public:
-    QTextHorizontalLine(const QDict<QString>&attr, QMLProvider& provider);
+    QTextHorizontalLine(const QMap<QString, QString> &attr, const QMimeSourceFactory& factory);
     ~QTextHorizontalLine();
 
     void draw(QPainter* p, int x, int y,
@@ -79,7 +82,8 @@ public:
 class QTextImage : public QTextCustomNode
 {
 public:
-    QTextImage(const QDict<QString>&attr, QMLProvider& provider);
+    QTextImage(const QMap<QString, QString> &attr, const QString& context,
+	       const QMimeSourceFactory& factory);
     ~QTextImage();
 
     void draw(QPainter* p, int x, int y,
@@ -136,7 +140,7 @@ class QTextContainer : public QTextNode
 {
 public:
     QTextContainer( const QStyleSheetItem *stl);
-    QTextContainer( const QStyleSheetItem *stl, const QDict<QString>& attr );
+    QTextContainer( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
     virtual ~QTextContainer();
     inline QFont font() const;
     inline QColor color(const QColor&) const;
@@ -163,14 +167,14 @@ public:
 
     void split(QTextNode* node);
 
-    const QDict<QString>* attributes() const;
+    const QMap<QString, QString> *attributes() const;
 
     const QTextContainer* anchor() const;
 
     QTextContainer* findAnchor(const QString& name ) const;
 
 protected:
-    void setAttributes(const QDict<QString>& attr );
+    void setAttributes(const QMap<QString, QString> &attr );
 
 private:
     int fontWeight() const;
@@ -182,7 +186,7 @@ private:
     void createFont();
 
     QFont* fnt;
-    QDict<QString>* attributes_;
+    const QMap<QString, QString> * attributes_;
 };
 
 class QTextIterator
@@ -263,7 +267,7 @@ inline QColor QTextContainer::color(const QColor& c) const
 {
     QColor sc = style->color();
     if ( sc.isValid() ) {
-	if (!style->isAnchor() || ( attributes() && attributes()->find("href") ) )
+	if (!style->isAnchor() || ( attributes() && attributes()->contains("href") ) )
 	    return sc;
     }
     return parent?parent->color(c):c;
@@ -391,6 +395,20 @@ inline QTextNode* QTextNode::lastSibling() const
     return n;
 }
 
+
+inline QRichText* QTextNode::root() const
+{
+    if (isRoot)
+	return ( QRichText* ) this;
+    if (isContainer)
+	return ((QTextContainer*)this)->parent->root();
+    else {
+	QTextNode* n = lastSibling();
+	if (n) return n->next->root();
+    }
+    return 0;
+}
+
 inline QTextContainer* QTextNode::parent() const
 {
     if (isContainer)
@@ -443,11 +461,11 @@ public:
 	{
 	    ncols = 1;
 	}
-    QTextMulticol( const QStyleSheetItem *stl, const QDict<QString>& attr )
+    QTextMulticol( const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
 	: QTextContainer(stl, attr)
 	{
-	    if (attr["cols"])
-		ncols =  attr["cols"]->toInt();
+	    if ( attr.contains("cols") )
+		ncols =  attr["cols"].toInt();
 	    ncols = QMAX( 1, ncols);
 	}
 
@@ -466,7 +484,7 @@ class QTextBox : public QTextContainer
 {
 public:
     QTextBox( const QStyleSheetItem *stl);
-    QTextBox( const QStyleSheetItem *stl, const QDict<QString>& attr );
+    QTextBox( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
     ~QTextBox();
 
     void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
@@ -499,12 +517,15 @@ public:
 class QRichText : public QTextBox
 {
 public:
-    QRichText( const QString &doc, const QFont& fnt = QApplication::font(), int margin = 8, QMLProvider* provider = 0, const QStyleSheet* sheet = 0 );
+    QRichText( const QString &doc, const QFont& fnt = QApplication::font(), 
+	       const QString& context = QString::null, 
+	       int margin = 8, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
     ~QRichText();
 
 
     bool isValid() const;
 
+    QString context() const;
     void dump();
 
 private:
@@ -514,7 +535,7 @@ private:
     bool eatSpace(const QString& doc, int& pos);
     bool eat(const QString& doc, int& pos, QChar c);
     bool lookAhead(const QString& doc, int& pos, QChar c);
-    QString parseOpenTag(const QString& doc, int& pos, QDict<QString> &attr, bool& emptyTag);
+    QString parseOpenTag(const QString& doc, int& pos, QMap<QString, QString> &attr, bool& emptyTag);
     bool eatCloseTag(const QString& doc, int& pos, const QString& open);
     QChar parseHTMLSpecialChar(const QString& doc, int& pos);
     QString parseWord(const QString& doc, int& pos, bool insideTag = FALSE, bool lower = FALSE);
@@ -522,8 +543,9 @@ private:
     bool hasPrefix(const QString& doc, int pos, QChar c);
     bool hasPrefix(const QString& doc, int pos, const QString& s);
     bool valid;
+    QString contxt;
     const QStyleSheet* sheet_;
-    QMLProvider* provider_;
+    const QMimeSourceFactory* factory_;
     QStyleSheetItem* base;
 
 };
