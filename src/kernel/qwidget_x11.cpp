@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#136 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#137 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#136 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#137 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -734,6 +734,24 @@ bool QWidget::focusNextChild()
 
 bool QWidget::focusPrevChild()
 {
+    QWidget *p = parentWidget();
+    if ( !p )
+	return FALSE;
+    QObjectList *c = (QObjectList *)p->children();
+    if ( c->findRef(this) < 0 )			// why, not found?
+	return FALSE;
+    while ( TRUE ) {
+	c->prev();
+	if ( !c->current() )
+	    c->last();
+	if ( c->current()->isWidgetType() ) {
+	    QWidget *w = (QWidget*)c->current();
+	    if ( w->acceptFocus() ) {
+		w->setFocus();
+		return TRUE;
+	    }
+	}
+    }
     return TRUE;
 }
 
