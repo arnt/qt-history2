@@ -4,7 +4,7 @@
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
-** This file is part of the widgets module of the Qt GUI Toolkit.
+** This file is part of the widgets module of the Qt Compat Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
@@ -28,7 +28,7 @@ class Q3HeaderData;
 class QTable;
 class Q3ListView;
 
-class Q_GUI_EXPORT Q3Header : public QWidget
+class Q_COMPAT_EXPORT Q3Header : public QWidget
 {
     friend class QTable;
     friend class QTableHeader;
@@ -186,7 +186,7 @@ inline Q3Header::Orientation Q3Header::orientation() const
 inline void Q3Header::setTracking(bool enable) { trackingIsOn = enable; }
 inline bool Q3Header::tracking() const { return trackingIsOn; }
 
-extern Q_GUI_EXPORT bool qt_qheader_label_return_null_strings; // needed for professional edition
+extern Q_COMPAT_EXPORT bool qt_qheader_label_return_null_strings; // needed for professional edition
 
 #endif // QT_NO_HEADER
 

@@ -4,7 +4,7 @@
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
-** This file is part of the kernel module of the Qt GUI Toolkit.
+** This file is part of the kernel module of the Qt Compat Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
