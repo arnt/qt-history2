@@ -7589,7 +7589,7 @@ void QListView::handleItemChange( QListViewItem *old, bool shift, bool control )
     } else if ( d->selectionMode == Extended ) {
 	if ( shift ) {
 	    selectRange( d->selectAnchor ? d->selectAnchor : old,
-			 d->focusItem, FALSE, TRUE, d->selectAnchor ? TRUE : FALSE );
+			 d->focusItem, FALSE, TRUE, (d->selectAnchor && !control) ? TRUE : FALSE );
 	} else if ( !control ) {
 	    bool block = signalsBlocked();
 	    blockSignals( TRUE );

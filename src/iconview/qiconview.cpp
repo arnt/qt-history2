@@ -6254,7 +6254,7 @@ void QIconView::handleItemChange( QIconViewItem *old, bool shift,
 			    item->selected = TRUE;
 			    selectedRect = selectedRect.unite( item->rect() );
 			}
-		    } else if ( item->selected ) {
+		    } else if ( item->selected && !control ) {
 			item->selected = FALSE;
 			unselectedRect = unselectedRect.unite( item->rect() );
 			changed = TRUE;

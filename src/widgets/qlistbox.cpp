@@ -4489,7 +4489,7 @@ void QListBox::handleItemChange( QListBoxItem *old, bool shift, bool control )
     } else if ( d->selectionMode == Extended ) {
 	if ( shift ) {
 	    selectRange( d->selectAnchor ? d->selectAnchor : old,
-			 d->current, FALSE, TRUE, d->selectAnchor ? TRUE : FALSE );
+			 d->current, FALSE, TRUE, (d->selectAnchor && !control) ? TRUE : FALSE );
 	} else if ( !control ) {
 	    bool block = signalsBlocked();
 	    blockSignals( TRUE );
