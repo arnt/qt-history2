@@ -66,6 +66,9 @@ public:
     enum Property {
         GroupIndex = 0x0,
 
+        // paragrpah and char
+        CssFloat = 0x0800,
+
         // paragraph
         BlockDirection = 0x1000,
         BlockAlignment = 0x1010,
@@ -132,6 +135,12 @@ public:
     enum ObjectTypes {
         NoObject,
         ImageObject
+    };
+
+    enum FloatPosition {
+        FloatNone,
+        FloatLeft,
+        FloatRight
     };
 
     QTextFormat();
@@ -322,6 +331,11 @@ public:
     inline int indent() const
     { return intProperty(BlockIndent); }
 
+    inline void setFloatPosition(FloatPosition f)
+    { return setProperty(CssFloat, (int)f); }
+    inline FloatPosition floatPosition() const
+    { return (FloatPosition)intProperty(CssFloat, FloatNone); }
+
     inline void setTableCellEndOfRow(bool eor)
     { setProperty(TableCellEndOfRow, eor); }
     inline bool tableCellEndOfRow() const
@@ -417,6 +431,11 @@ public:
     { setProperty(ImageHeight, height); }
     inline int height() const
     { return intProperty(ImageHeight); }
+
+    inline void setFloatPosition(FloatPosition f)
+    { return setProperty(Float, (int)f); }
+    inline FloatPosition floatPosition() const
+    { return (FloatPosition)intProperty(Float, FloatNone); }
 };
 
 #endif

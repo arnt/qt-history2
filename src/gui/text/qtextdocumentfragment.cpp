@@ -741,6 +741,7 @@ void QTextHTMLImporter::import()
                     block.setIndent(indent);
 
                 block.setAlignment(node->alignment);
+                block.setFloatPosition(node->cssFloat);
 
                 if (node->wsm == QStyleSheetItem::WhiteSpacePre)
                     block.setNonBreakableLines(true);
@@ -758,6 +759,15 @@ void QTextHTMLImporter::import()
                 fmt.setWidth(node->imageWidth);
             if (node->imageHeight >= 0)
                 fmt.setHeight(node->imageHeight);
+            QTextFormat::FloatPosition f = node->cssFloat;
+            // HTML4 compat
+            if (f == QTextFormat::FloatNone) {
+                if (node->alignment == Qt::AlignLeft)
+                    f = QTextFormat::FloatLeft;
+                else if (node->alignment == Qt::AlignRight)
+                    f = QTextFormat::FloatRight;
+            }
+            fmt.setFloatPosition(f);
 
             d->appendImage(fmt);
             continue;

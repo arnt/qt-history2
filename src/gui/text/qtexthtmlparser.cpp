@@ -756,6 +756,7 @@ void QTextHtmlParser::resolveNode()
     node->margin[2] = 0;
     node->margin[3] = 0;
     node->margin[4] = 0;
+    node->cssFloat = QTextFormat::FloatNone;
 
     if (node->tag == QLatin1String("br")) {
         node->text = QChar_linesep;
@@ -936,6 +937,13 @@ void QTextHtmlParser::parseAttributes()
 #endif
                 } else if (style.startsWith(QLatin1String("color:"))) {
                     node->color.setNamedColor(style.mid(6));
+                } else if (style.startsWith(QLatin1String("float:"))) {
+                    QString s = style.mid(6).trimmed();
+                    node->cssFloat = QTextFormat::FloatNone;
+                    if (s == QLatin1String("left"))
+                        node->cssFloat = QTextFormat::FloatLeft;
+                    else if (s == QLatin1String("right"))
+                        node->cssFloat = QTextFormat::FloatRight;
                 }
             }
         } else if (key == QLatin1String("align")) {
