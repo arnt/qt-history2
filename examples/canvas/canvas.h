@@ -66,7 +66,7 @@ private slots:
     void enlarge();
     void shrink();
     void rotateClockwise();
-    void rotateAntiClockwise();
+    void rotateCounterClockwise();
     void zoomIn();
     void zoomOut();
     void mirror();

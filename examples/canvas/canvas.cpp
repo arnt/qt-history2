@@ -340,7 +340,7 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     view->insertItem("Shr&ink", this, SLOT(shrink()), SHIFT+CTRL+Key_Minus);
     view->insertSeparator();
     view->insertItem("&Rotate clockwise", this, SLOT(rotateClockwise()), CTRL+Key_PageDown);
-    view->insertItem("Rotate &anti-clockwise", this, SLOT(rotateAntiClockwise()), CTRL+Key_PageUp);
+    view->insertItem("Rotate &counterclockwise", this, SLOT(rotateCounterClockwise()), CTRL+Key_PageUp);
     view->insertItem("&Zoom in", this, SLOT(zoomIn()), CTRL+Key_Plus);
     view->insertItem("Zoom &out", this, SLOT(zoomOut()), CTRL+Key_Minus);
     view->insertItem("Translate left", this, SLOT(moveL()), CTRL+Key_Left);
@@ -463,7 +463,7 @@ void Main::rotateClockwise()
     editor->setWorldMatrix( m );
 }
 
-void Main::rotateAntiClockwise()
+void Main::rotateCounterClockwise()
 {
     QWMatrix m = editor->worldMatrix();
     m.rotate( -22.5 );

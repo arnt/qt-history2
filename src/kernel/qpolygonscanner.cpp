@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPolygonScanner class
 **
@@ -63,7 +63,7 @@
  *     By the winding number rule, a point is decided
  *     to be inside the polygon if a ray drawn from that
  *     point in any direction passes through a different
- *     number of clockwise and counter-clockwise path
+ *     number of clockwise and counterclockwise path
  *     segments.
  *
  *     These data structures are adapted somewhat from

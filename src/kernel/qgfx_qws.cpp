@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGfx (graphics context) class
 **
@@ -185,7 +185,7 @@ QImage QScreen::mapToDevice( const QImage &i ) const
   \fn QScreen::mapFromDevice( const QImage &i ) const
   \overload
   Transforms an image so that it matches the application coordinate space
-  (e.g. rotating it 90 degrees anticlockwise). The QScreen implementation
+  (e.g. rotating it 90 degrees counterclockwise). The QScreen implementation
   simply returns \a i.
 */
 
@@ -211,7 +211,7 @@ QRegion QScreen::mapToDevice( const QRegion &r, const QSize & ) const
   \fn QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
   \overload
   Transforms a region so that it matches the application coordinate space
-  (e.g. rotating it 90 degrees anticlockwise). The QScreen implementation
+  (e.g. rotating it 90 degrees counterclockwise). The QScreen implementation
   simply returns \a r.
 */
 

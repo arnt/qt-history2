@@ -1,5 +1,5 @@
 /*****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGfxRaster (unaccelerated graphics context) class for
 ** Embedded Qt
@@ -2901,7 +2901,7 @@ static QPointArray convertThickPolylineToPolygon( const QPointArray &points,int 
     QPointArray pa(npoints*4+(close?2:-4));
 
     int cw=0; // clockwise cursor in pa
-    int acw=pa.count()-1; // anti-clockwise cursor in pa
+    int acw=pa.count()-1; // counterclockwise cursor in pa
 
     for (int i=0; i<npoints-(close?0:1); i++) {
 	int x1 = points[index + i].x();
