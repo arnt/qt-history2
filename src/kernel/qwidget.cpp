@@ -48,6 +48,7 @@
 #include "qapplication_p.h"
 #include "qbrush.h"
 #include "qlayout.h"
+#include "qstylefactory.h"
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
@@ -1102,6 +1103,46 @@ QStyle& QWidget::style() const
     return qApp->style();
 }
 
+/*!
+  Sets the widget's GUI style to \a style. Ownership of the style
+  object is not transferred.
+
+  If no style is set, the widget uses the application's style
+  QApplication::style() instead.
+
+  Setting a widget's style has no effect on existing or future
+  child widgets.
+
+  \warning This function is particularly useful for demonstration
+  purposes, where you want to show Qt's styling capabilities.  Real
+  applications should stay away from it and use one consistent GUI
+  style instead.
+
+  \sa style(), QStyle, QApplication::style(), QApplication::setStyle()
+*/
+
+void QWidget::setStyle( QStyle *style )
+{
+    QStyle& old  = QWidget::style();
+    createExtra();
+    extra->style = style;
+    if ( !testWFlags(WType_Desktop) // (except desktop)
+	 && testWState(WState_Polished)) { // (and have been polished)
+	old.unPolish( this );
+	QWidget::style().polish( this );
+    }
+    styleChange( old );
+}
+
+/*!
+  ###
+*/
+QStyle* QWidget::setStyle( const QString &style )
+{
+    QStyle *s = QStyleFactory::create( style );
+    setStyle( s );
+    return s;
+}
 
 /*!
   \fn void QWidget::styleChange( QStyle& oldStyle )
@@ -1125,6 +1166,7 @@ void QWidget::styleChange( QStyle& )
     update();
     updateGeometry();
 }
+
 #endif
 
 /*!
@@ -4852,41 +4894,6 @@ void QWidget::updateGeometry()
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint ) );
 }
-
-
-
-/*!
-  Sets the widget's GUI style to \a style. Ownership of the style
-  object is not transferred.
-
-  If no style is set, the widget uses the application's style
-  QApplication::style() instead.
-
-  Setting a widget's style has no effect on existing or future
-  child widgets.
-
-  \warning This function is particularly useful for demonstration
-  purposes, where you want to show Qt's styling capabilities.  Real
-  applications should stay away from it and use one consistent GUI
-  style instead.
-
-  \sa style(), QStyle, QApplication::style(), QApplication::setStyle()
-*/
-#ifndef QT_NO_STYLE
-
-void QWidget::setStyle( QStyle *style )
-{
-    QStyle& old  = QWidget::style();
-    createExtra();
-    extra->style = style;
-    if ( !testWFlags(WType_Desktop) // (except desktop)
-	 && testWState(WState_Polished)) { // (and have been polished)
-	old.unPolish( this );
-	QWidget::style().polish( this );
-    }
-    styleChange( old );
-}
-#endif
 
 /*!\overload
 

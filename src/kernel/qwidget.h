@@ -132,6 +132,7 @@ public:
 
     QStyle     &style() const;
     void        setStyle( QStyle * );
+    QStyle*	setStyle( const QString& );
 #endif
     // Widget types and states
 

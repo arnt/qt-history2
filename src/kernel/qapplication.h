@@ -84,7 +84,7 @@ public:
 #ifndef QT_NO_STYLE
     static QStyle  &style();
     static void	    setStyle( QStyle* );
-    static bool	    setStyle( const QString& );
+    static QStyle*  setStyle( const QString& );
 #endif
 #if 1	/* OBSOLETE */
     enum ColorMode { NormalColors, CustomColors };

@@ -1002,14 +1002,17 @@ void QApplication::setStyle( QStyle *style )
     }
 }
 
-bool QApplication::setStyle( const QString& style )
+/*!
+  ###
+*/
+QStyle* QApplication::setStyle( const QString& style )
 {
     QStyle *s = QStyleFactory::create( style );
     if ( !s )
-	return FALSE;
+	return 0;
 
     setStyle( s );
-    return TRUE;
+    return s;
 }
 
 #endif
