@@ -1,6 +1,5 @@
 \row \o QGrid \o QGridWidget
 \row \o QHBox \o QHBoxWidget
 \row \o QIconSet \o QIcon
-\row \o QWidgetStack \o QStackedWidget
 \row \o QVBox \o QVBoxWidget
 \row \o QWMatrix \o QMatrix
