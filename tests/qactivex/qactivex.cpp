@@ -556,6 +556,101 @@ static inline void VARIANTToQUObject( VARIANT arg, QUObject *obj )
     }
 }
 
+static inline VARIANT QVariantToVARIANT( const QVariant &var, const char *type = 0 )
+{
+    VARIANT arg;
+    arg.vt = VT_EMPTY;
+
+    switch ( var.type() ) {
+    case QVariant::Invalid:
+	arg.vt = VT_EMPTY;
+	break;
+    case QVariant::Map:
+	break;
+    case QVariant::List:
+	break;
+    case QVariant::String:
+	arg.vt = VT_BSTR;
+	arg.bstrVal = QStringToBSTR( var.toString() );
+	break;
+    case QVariant::StringList:
+	break;
+    case QVariant::Font:
+	break;
+    case QVariant::Pixmap:
+	break;
+    case QVariant::Brush:
+	break;
+    case QVariant::Rect:
+	break;
+    case QVariant::Size:
+	break;
+    case QVariant::Color:
+	break;
+    case QVariant::Palette:
+	break;
+    case QVariant::ColorGroup:
+	break;
+    case QVariant::IconSet:
+	break;
+    case QVariant::Point:
+	break;
+    case QVariant::Image:
+	break;
+    case QVariant::Int:
+	if( !qstrcmp( type, "bool" ) ) {
+	    arg.vt = VT_BOOL;
+	    arg.boolVal = var.toBool();
+	    break;
+	}
+	arg.vt = VT_I4;
+	arg.lVal = var.toInt();
+	break;
+    case QVariant::UInt:
+	arg.vt = VT_UI4;
+	arg.ulVal = var.toUInt();
+	break;
+    case QVariant::Bool:
+	arg.vt = VT_BOOL;
+	arg.boolVal = var.toBool();
+	break;
+    case QVariant::Double:
+	arg.vt = VT_R8;
+	arg.dblVal = var.toDouble();
+	break;
+    case QVariant::CString:
+	arg.vt = VT_BSTR;
+	arg.bstrVal = QStringToBSTR( var.toCString() );
+	break;
+    case QVariant::PointArray:
+	break;
+    case QVariant::Region:
+	break;
+    case QVariant::Bitmap:
+	break;
+    case QVariant::Cursor:
+	break;
+    case QVariant::SizePolicy:
+	break;
+    case QVariant::Date:
+    case QVariant::Time:
+    case QVariant::DateTime:
+	arg.vt = VT_DATE;
+	arg.date = QDateTimeToDATE( var.toDateTime() );
+	break;
+    case QVariant::ByteArray:
+	break;
+    case QVariant::BitArray:
+	break;
+    case QVariant::KeySequence:
+	break;
+    default:
+	break;
+    }
+
+    return arg;
+}
+
 /*!
     \class QAxEventSink qactivex.cpp
 
@@ -1750,9 +1845,7 @@ bool QActiveX::qt_invoke( int _id, QUObject* _o )
 		arg.vt = VT_I4;
 		arg.lVal = static_QUType_enum.get( obj );
 	    } else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
-		arg.vt = VT_VARIANT;
-		QVariant qv = static_QUType_QVariant.get( obj );
-		//###
+		arg = QVariantToVARIANT( static_QUType_QVariant.get( obj ) );
 	    } else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
 		arg.vt = VT_DISPATCH;
 		QDispatchInterface *iface = static_QUType_idisp.get( obj );
@@ -1862,92 +1955,13 @@ bool QActiveX::qt_property( int _id, int _f, QVariant* _v )
 	    // to convert the QVariant to what the VARIANT is supposed to be,
 	    // but we don't know that from the QMetaProperty of course.
 	    if ( qstrcmp( prop->type(), _v->typeName() ) ) {
-		_v->cast( QVariant::nameToType( prop->type() ) );
+		QVariant::Type type = QVariant::nameToType( prop->type() );
+		if ( type != QVariant::Invalid )
+		    _v->cast( type );
 	    }
-	    switch ( _v->type() ) {
-	    case QVariant::Invalid:
-		arg.vt = VT_EMPTY;
-		break;
-	    case QVariant::Map:
-		break;
-	    case QVariant::List:
-		break;
-	    case QVariant::String:
-		arg.vt = VT_BSTR;
-		arg.bstrVal = QStringToBSTR( _v->toString() );
-		break;
-	    case QVariant::StringList:
-		break;
-	    case QVariant::Font:
-		break;
-	    case QVariant::Pixmap:
-		break;
-	    case QVariant::Brush:
-		break;
-	    case QVariant::Rect:
-		break;
-	    case QVariant::Size:
-		break;
-	    case QVariant::Color:
-		break;
-	    case QVariant::Palette:
-		break;
-	    case QVariant::ColorGroup:
-		break;
-	    case QVariant::IconSet:
-		break;
-	    case QVariant::Point:
-		break;
-	    case QVariant::Image:
-		break;
-	    case QVariant::Int:
-		if( !strcmp( prop->type(), "bool" ) ) {
-		    arg.vt = VT_BOOL;
-		    arg.boolVal = _v->toBool();
-		    break;
-		}
-		arg.vt = VT_I4;
-		arg.lVal = _v->toInt();
-		break;
-	    case QVariant::UInt:
-		arg.vt = VT_UI4;
-		arg.ulVal = _v->toUInt();
-		break;
-	    case QVariant::Bool:
-		arg.vt = VT_BOOL;
-		arg.boolVal = _v->toBool();
-		break;
-	    case QVariant::Double:
-		arg.vt = VT_R8;
-		arg.dblVal = _v->toDouble();
-		break;
-	    case QVariant::CString:
-		arg.vt = VT_BSTR;
-		arg.bstrVal = QStringToBSTR( _v->toCString() );
-		break;
-	    case QVariant::PointArray:
-		break;
-	    case QVariant::Region:
-		break;
-	    case QVariant::Bitmap:
-		break;
-	    case QVariant::Cursor:
-		break;
-	    case QVariant::SizePolicy:
-		break;
-	    case QVariant::Date:
-	    case QVariant::Time:
-	    case QVariant::DateTime:
-		arg.vt = VT_DATE;
-		arg.date = QDateTimeToDATE( _v->toDateTime() );
-		break;
-	    case QVariant::ByteArray:
-		break;
-	    case QVariant::BitArray:
-		break;
-	    case QVariant::KeySequence:
-		break;
-	    default:
+	    arg = QVariantToVARIANT( *_v, prop->type() );
+
+	    if ( arg.vt == VT_EMPTY ) {
 		qDebug( "QActiveX::setProperty(): Unhandled property type" );
 		return FALSE;
 	    }
@@ -2028,9 +2042,6 @@ bool QActiveX::qt_property( int _id, int _f, QVariant* _v )
 		break;
 	    case VT_UNKNOWN: // IUnkonwn* -> int ###
 		var = (int)arg.punkVal;
-		break;
-	    case VT_VARIANT:
-		// don't get this, even for VARIANT types???
 		break;
 	    case VT_EMPTY:
 		// empty VARIANT type return

@@ -15,66 +15,65 @@ class Browser : public QDialog
 {
     Q_OBJECT
 public:
-    Browser( const QString &control, QWidget *parent = 0, const char *name = 0, bool modal = FALSE, WFlags f = 0 ) 
+    Browser( const QString &control = QString::null, QWidget *parent = 0, const char *name = 0, bool modal = FALSE, WFlags f = 0 ) 
 	: QDialog( parent, name, modal, f )
     {
 	QVBoxLayout *dialoglayout = new QVBoxLayout( this );
 	QSplitter *splitter = new QSplitter( Qt::Horizontal, this );
 	dialoglayout->addWidget( splitter );
 	
-	activex = new QActiveX( control, splitter );
-	
-	setCaption( activex->property( "Name" ).toString() );
-	
 	QVBox *vbox = new QVBox( splitter );
+	activex = new QActiveX( control, vbox );
+	activex->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
+	QHBox *hbox = new QHBox( vbox );
+	leControl = new QLineEdit( hbox );
+	QPushButton *button = new QPushButton( "Create", hbox );
+
+	connect( button, SIGNAL(clicked()), this, SLOT(instantiate()) );
 	
+	vbox = new QVBox( splitter );
 	listview = new QListView( vbox );
 	listview->addColumn( "Name" );
 	listview->addColumn( "Value" );
 	listview->setRootIsDecorated( TRUE );
-	
-	QHBox *hbox = new QHBox( vbox );
-	lineed = new QLineEdit( hbox );
-	QPushButton *button = new QPushButton( "Invoke", hbox );
+	hbox = new QHBox( vbox );
+	leSlot = new QLineEdit( hbox );
+	button = new QPushButton( "Invoke", hbox );
 
 	populate();
 
-	connect( button, SIGNAL(clicked()), activex, SLOT(clear()) );
-	connect( activex, SIGNAL(signal(const QString&,int,void*)), this, SLOT(slot(const QString&,int,void*)) );
+	connect( button, SIGNAL(clicked()), this, SLOT(invoke()) );
 	connect( listview, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(invoke(QListViewItem*)) );
+	connect( activex, SIGNAL(signal(const QString&,int,void*)), this, SLOT(slot(const QString&,int,void*)) );
 
-	connect( lineed, SIGNAL(textChanged(const QString&)), activex, SLOT(SetString(const QString&)) );
-	connect( activex, SIGNAL(StringChanged(const QString&)), this, SLOT(setCaption(const QString&)) );
-
-	QObject::connect( activex, SIGNAL(GetInt(int*)), this, SLOT(slot(int*)) );
+	activex->setProperty( "Variant", "Foo" );
     }
 
 public slots:
     void invoke()
     {
-	activex->invoke( lineed->text() );
+	activex->invoke( leSlot->text() );
     }
     void invoke( QListViewItem *item )
     {
 	if ( !item )
 	    return;
 
-	if ( !item->parent() ) {
-	    populate();
-	    return;
-	}
-
-	lineed->setText( item->text( 0 ) );
-	activex->invoke( item->text( 0 ) );
+	leSlot->setText( item->text( 0 ) );
+	invoke();
     }
+
     void slot( const QString &name, int argc, void *args )
     {
 	qDebug( "Signal %s emitted!", name.latin1() );
     }
-    void slot( int *i )
+
+    void instantiate() 
     {
-	*i = 5;
+	activex->setControl( leControl->text() );
+	populate();
     }
+
     void populate()
     {
 	listview->clear();
@@ -105,19 +104,18 @@ public slots:
 
 private:
     QListView *listview;
-    QLineEdit *lineed;
+    QLineEdit *leSlot;
+    QLineEdit *leControl;
     QActiveX *activex;
 };
 
-#include "main.moc"
+#include "tmp/moc/debug_mt_shared/main.moc"
 
 int main( int argc, char **argv ) 
 {
     QApplication app( argc, argv );
 
-    // Browser browser( "www.trolltech.com" );
-    // Browser browser( "MSCAL.Calendar.7" );
-    Browser browser( "QTTESTCONTROL.QtTestControlCtrl.1" );
+    Browser browser;
 
     return browser.exec();
 }

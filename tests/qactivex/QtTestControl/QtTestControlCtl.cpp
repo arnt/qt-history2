@@ -163,6 +163,8 @@ CQtTestControlCtrl::CQtTestControlCtrl()
 	m_errorCode = S_OK;
 	m_width = 120;
 	m_height = 100;
+	m_variant.vt = VT_I4;
+	m_variant.lVal = 42;
 }
 
 
@@ -340,20 +342,15 @@ void CQtTestControlCtrl::SetBool(BOOL bNewValue)
 
 VARIANT CQtTestControlCtrl::GetVariant() 
 {
-	VARIANT vaResult;
-	VariantInit(&vaResult);
-	// TODO: Add your property handler here
-	vaResult.vt = VT_I4;
-	vaResult.lVal = 42;
-
-	return vaResult;
+    return m_variant;
 }
 
 void CQtTestControlCtrl::SetVariant(const VARIANT FAR& newValue) 
 {
 	// TODO: Add your property handler here
 
-	SetModifiedFlag();
+    VariantCopy( &m_variant, (VARIANT*)&newValue );
+    SetModifiedFlag();
 }
 
 void CQtTestControlCtrl::OnErrorCodeChanged() 

@@ -139,6 +139,7 @@ public:
 	};
 private:
 	BOOL m_exclusive;
+	VARIANT m_variant;
 };
 
 //{{AFX_INSERT_LOCATION}}
