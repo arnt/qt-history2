@@ -7,10 +7,6 @@ class Component1 : public Component
 {
 public:
     Component1();
-    ~Component1()
-    {
-	qDebug( "Destroyed comp1" );
-    }
 
     void sayHello();
 
