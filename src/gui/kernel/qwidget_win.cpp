@@ -1038,13 +1038,12 @@ void QWidget::repaint(const QRegion& rgn)
 
 
     if (double_buffer) {
-        int increment = QRect::rectangleMode() == QRect::ExclusiveRectangles ? 1 : 0;
         QVector<QRect> rects = rgn.rects();
         for (int i=0; i<rects.size(); ++i) {
             QRect &rr = d->mapToWS(rects.at(i));
             BitBlt(old_dc,
                    rr.x(), rr.y(),
-                   rr.width()+increment, rr.height()+increment,
+                   rr.width(), rr.height(),
                    (HDC)d->hd,
                    rr.x()-brWS.x(), rr.y()-brWS.y(),
                    SRCCOPY);
@@ -1555,8 +1554,8 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             if (d->extra) {
                 fr.setLeft(fr.left() + x - data->crect.left());
                 fr.setTop(fr.top() + y - data->crect.top());
-                fr.setRight(fr.right() + (x + w - QRect::rectangleMode()) - data->crect.right());
-                fr.setBottom(fr.bottom() + (y + h - QRect::rectangleMode()) - data->crect.bottom());
+                fr.setRight(fr.right() + (x + w - 1) - data->crect.right());
+                fr.setBottom(fr.bottom() + (y + w - 1) - data->crect.bottom());
             }
             MoveWindow(winId(), fr.x(), fr.y(), fr.width(), fr.height(), true);
             RECT rect;

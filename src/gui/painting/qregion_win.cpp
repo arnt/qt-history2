@@ -49,13 +49,13 @@ QRegion::QRegion(const QRect &r, RegionType t)
         d->ref = 1;
         if (t == Rectangle)
             d->rgn = CreateRectRgn(r.left(), r.top(),
-                                   r.right() + QRect::rectangleMode(),
-                                   r.bottom() + QRect::rectangleMode());
+                                   r.right() + 1,
+                                   r.bottom() + 1);
 #ifndef Q_OS_TEMP
         else if (t == Ellipse)
             d->rgn = CreateEllipticRgn(r.left(), r.top(),
-                                       r.right() + QRect::rectangleMode(),
-                                       r.bottom() + QRect::rectangleMode());
+                                       r.right() + 1,
+                                       r.bottom() + 1);
 #endif
     }
 }
