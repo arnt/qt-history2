@@ -2931,7 +2931,7 @@ QWidget *QWidget::focusWidget() const
     QFocusData *f = that->focusData( FALSE );
     if ( f && f->focusWidgets.count() && f->it.current() == 0 )
 	f->it.toFirst();
-    return f ? f->it.current() : 0;
+    return ( f && f->it.current() && f->it.current()->focusPolicy() != NoFocus ) ? f->it.current() : 0;
 }
 
 
@@ -2965,9 +2965,9 @@ QFocusData * QWidget::focusData( bool create )
 	tlw->createTLExtra();
 	ed = tlw->extraData();
     }
-    if ( create && !ed->topextra->focusData ) {
+    if ( create && !ed->topextra->focusData )
 	ed->topextra->focusData = new QFocusData;
-    }
+
     return ed->topextra->focusData;
 }
 
@@ -3049,7 +3049,8 @@ bool QWidget::isActiveWindow() const
 */
 void QWidget::setTabOrder( QWidget* first, QWidget *second )
 {
-    if ( !first || !second )
+    if ( !first || !second || 
+	first->focusPolicy() == NoFocus || second->focusPolicy() == NoFocus )
 	return;
 
     while ( first->focusProxy() )
@@ -3104,7 +3105,7 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 		    // probably best to clear keyboard focus, or
 		    // the user might become rather confused
 		    w->clearFocus();
-		if ( !isTopLevel() )
+		if ( !isTopLevel() && w->focusPolicy() != NoFocus )
 		    to->focusWidgets.append( w );
 	    } else {
 		from->focusWidgets.next();
@@ -3344,7 +3345,7 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
 {
     if ( focusProxy() )
 	focusProxy()->setFocusPolicy( policy );
-    if ( policy ) {
+    if ( policy != NoFocus ) {
 	QFocusData * f = focusData( TRUE );
 	if ( f->focusWidgets.findRef( this ) < 0 )
 	    f->focusWidgets.append( this );
