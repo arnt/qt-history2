@@ -1,14 +1,32 @@
 ### A qmake file for the snippets. *** This is not for distribution. ***
 #
-# The snippets that don't work are commented out.
+# Snippets that don't work are commented out and marked with "broken";
+# other commented out snippets were probably not designed to be built.
 
 TEMPLATE        = subdirs
-SUBDIRS         = coordsys \
+SUBDIRS         = buffer \
+#                  clipboard \      # broken
+                  coordsys \
 #                  customstyle \
+                  designer \
                   dialogs \
+                  dockwidgets \
+                  draganddrop \
+                  dragging \
+                  dropactions \
+                  dropevents \
+                  droprectangle \
+                  events \
+#                  file \
                   itemselection \
-#                  modelview-subclasses \
+                  moc \
+#                  modelview-subclasses \   # broken
+                  persistentindexes \
+                  plaintextlayout \
+#                  pointer \
+                  process \
                   qlistwidget-using \
+#                  qmake \                  # not designed to be built
 #                  qsignalmapper \
                   qtablewidget-resizing \
                   qtablewidget-using \
@@ -16,12 +34,18 @@ SUBDIRS         = coordsys \
                   qtreewidget-using \
                   reading-selections \
                   separations \
+                  scribe-overview \
+                  separations \
+                  settings \
                   shareddirmodel \
                   sharedemployee \
                   sharedtablemodel \
+                  signalsandslots \
                   simplemodel-use \
 #                  splitter \
+                  sqldatabase \
                   stringlistmodel \
+                  styles \
                   textblock-formats \
                   textblock-fragments \
                   textdocument-blocks \
@@ -36,6 +60,8 @@ SUBDIRS         = coordsys \
                   textdocument-printing \
                   textdocument-selections \
                   textdocument-tables \
+                  threads \
+                  timers \
                   updating-selections \
 #                  whatsthis \
                   xml
