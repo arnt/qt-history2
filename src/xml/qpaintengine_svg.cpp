@@ -1234,7 +1234,7 @@ void QSVGPaintEnginePrivate::restoreAttributes(QPainter *pt)
 {
     pt->restore();
     Q_ASSERT(d->stack.count() > 1);
-    d->stack.removeAt(d->stack.size() - 1);
+    d->stack.removeLast();
     d->curr = &d->stack.last();
 }
 

@@ -118,7 +118,7 @@ bool QGuiEventLoop::unregisterTimer(int id)
             } else {
                 d->zero_timer_count--;
             }
-            d->macTimerList->removeAt(i);
+            d->macTimerList->remove(i);
             return true;
         }
     }
@@ -150,7 +150,7 @@ bool QGuiEventLoop::unregisterTimers(QObject *obj)
         for (int i = 0; i < d->macTimerList->size(); ++i) {
             const MacTimerInfo &info = d->macTimerList->at(i);
             if (info.id == (*it).id)
-                d->macTimerList->removeAt(i);
+                d->macTimerList->remove(i);
         }
     }
     return true;

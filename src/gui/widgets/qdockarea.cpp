@@ -882,7 +882,7 @@ void QDockArea::removeDockWindow(QDockWindow *w, bool makeFloating, bool swap, b
     if (i == -1)
         return;
     dockWindow = dockWindows.at(i);
-    dockWindows.removeAt(i);
+    dockWindows.remove(i);
     QList<QDockWindow *> lineStarts = layout->lineStarts();
     if (fixNewLines && lineStarts.contains(dockWindow) && i < dockWindows.count())
         dockWindows.at(i)->setNewLine(true);

@@ -115,7 +115,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
                 QWidget *w = l.at(pos);
                 if (w->isTopLevel() || !w->isVisible() ||
                     w->style().styleHint(SH_UnderlineAccelerator, w))
-                    l.removeAt(pos);
+                    l.remove(pos);
             }
             // Update states before repainting
             seenAlt.append(widget);

@@ -2465,7 +2465,7 @@ void QApplication::restoreOverrideCursor()
 {
     if (qApp->d->cursor_list.isEmpty())
         return;
-    qApp->d->cursor_list.removeAt(0);
+    qApp->d->cursor_list.removeFirst();
 
     if (QWidget::mapper != 0 && !closingDown()) {
         for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
@@ -3214,7 +3214,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
                 widget->d->topData()->parentWinId = event->xreparent.parent;
                 int idx = X11->deferred_map.indexOf(widget);
                 if (idx != -1) {
-                    X11->deferred_map.removeAt(idx);
+                    X11->deferred_map.remove(idx);
                     XMapWindow(X11->display, widget->winId());
                 }
             }
@@ -5131,7 +5131,7 @@ bool QETWidget::translateScrollDoneEvent(const XEvent *event)
     for (int i = 0; i < X11->sip_list.size(); ++i) {
         const QX11Data::ScrollInProgress &sip = X11->sip_list.at(i);
         if (sip.id == id) {
-            X11->sip_list.removeAt(i);
+            X11->sip_list.remove(i);
             return true;
         }
     }

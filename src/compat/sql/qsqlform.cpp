@@ -176,7 +176,7 @@ void QSqlForm::remove(const QString& field)
     d->dirty = true;
     int i = d->fld.indexOf(field);
     if (i >= 0)
-        d->fld.removeAt(i);
+        d->fld.remove(i);
     d->wgt.remove(field);
 }
 

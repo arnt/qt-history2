@@ -739,7 +739,7 @@ void QSvgDevice::restoreAttributes()
 {
     pt->restore();
     Q_ASSERT(d->stack.count() > 1);
-    d->stack.removeAt(d->stack.size()-1);
+    d->stack.removeLast();
     curr = &d->stack.last();
 }
 

@@ -1894,7 +1894,7 @@ void QApplication::restoreOverrideCursor()
 {
     if (qApp->d->cursor_list.isEmpty())
         return;
-    qApp->d->cursor_list.removeAt(0);
+    qApp->d->cursor_list.removeFirst();
 
     QWidget *w = QWidget::mouseGrabber();
     if (!w && qt_last_x)

@@ -56,6 +56,13 @@ public:
     QStringList &replace(const QRegExp &rx, const QString &after);
 
 #ifdef QT_COMPAT
+    // necessary when QT_COMPAT is defined; otherwise the remove() overloads hide this one
+    inline void remove(int j) { return QList<QString>::remove(j); }
+#endif
+ 
+#ifdef QT_COMPAT
+    inline QT_COMPAT iterator remove(iterator pos) { return erase(pos); }
+    inline QT_COMPAT int remove(const QString &t) { return removeAll(t); }
     inline QT_COMPAT QStringList grep(const QString &str, bool cs = true) const
         { return find(str, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
     inline QT_COMPAT QStringList grep(const QRegExp &rx) const { return find(rx); }

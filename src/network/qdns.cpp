@@ -1458,8 +1458,7 @@ void QDnsDomain::sweep(Q_UINT32 thisSweep)
              rr->t == QDns::None ||
              rr->deleteTime <= thisSweep ||
              rr->expireTime <= thisSweep) {
-            delete rrs.at(i);
-            rrs.removeAt(i);
+            delete rrs.take(i);
         }
     }
 }

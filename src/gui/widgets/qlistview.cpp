@@ -2759,7 +2759,7 @@ void QListView::drawContentsOffset(QPainter * p, int ox, int oy,
             QRect ir = itemRect(item).intersect(viewport()->rect());
             if (ir.isEmpty() || br.contains(ir))
                 // we're painting this one, or it needs no painting: forget it
-                d->dirtyItems.removeAt(i);
+                d->dirtyItems.remove(i);
         }
         if (d->dirtyItems.count()) {
             // there are still items left that need repainting

@@ -763,7 +763,7 @@ Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QString &);
 #endif
 
 #ifdef QT_COMPAT
-class Q_CORE_EXPORT QConstString : public QString
+class QT_COMPAT QConstString : public QString
 {
 public:
     inline QConstString(const QChar *unicode, int length)

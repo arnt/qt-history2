@@ -1246,7 +1246,7 @@ void QMultiCellPixmap::freeCell(int offset, int size)
         if (i < free_list.size() && p.offset + p.size == free_list.at(i).offset) {
             // If the next node comes after the prev node, collapse them.
             p.size += n.size;
-            free_list.removeAt(i);        // removes the current node
+            free_list.remove(i);        // removes the current node
         }
     } else if (i < free_list.size()) {
         FreeNode &n = free_list[i];

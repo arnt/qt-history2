@@ -1011,7 +1011,7 @@ void QApplication::restoreOverrideCursor()
 {
     if (qApp->d->cursor_list.isEmpty())
         return;
-    qApp->d->cursor_list.removeAt(0);
+    qApp->d->cursor_list.removeFirst();
 
     if(qApp && qApp->activeWindow()) {
         Point mouse_pos;

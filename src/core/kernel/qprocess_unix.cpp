@@ -406,7 +406,7 @@ void QProcessManager::sigchldHnd(int fd)
             }
         }
         if (removeProc) {
-            procList.removeAt(i);
+            procList.remove(i);
             delete proc;
         } else {
             i++;

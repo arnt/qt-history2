@@ -123,7 +123,7 @@ void QObjectCleanupHandler::remove(QObject *object)
 {
     int index;
     if ((index = cleanupObjects.indexOf(object)) != -1) {
-        cleanupObjects.removeAt(index);
+        cleanupObjects.remove(index);
         disconnect(object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
     }
 }

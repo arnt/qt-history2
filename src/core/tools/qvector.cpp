@@ -455,7 +455,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     class that provides a fast insert() function, use QLinkedList
     instead.
 
-    \sa append(), prepend(), removeAt()
+    \sa append(), prepend(), remove()
 */
 
 /*! \fn void QVector::insert(int i, int count, const T &value)

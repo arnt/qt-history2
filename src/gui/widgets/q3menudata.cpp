@@ -784,7 +784,7 @@ void Q3MenuData::removeItemAt(int index)
     Q3MenuItem *mi = mitems->at(index);
     if (mi->popup_menu)
         menuDelPopup(mi->popup_menu);
-    mitems->removeAt(index);
+    mitems->remove(index);
     if (mitemsAutoDelete)
         delete mi;
     if (!QApplication::closingDown())                // avoid trouble

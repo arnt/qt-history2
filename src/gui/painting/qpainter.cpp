@@ -2961,7 +2961,7 @@ void QPainter::restoreRedirected(const QPaintDevice *device)
     redirections.ensure_constructed();
     for (int i = redirections.size()-1; i >= 0; --i)
         if (redirections.at(i) == device) {
-            redirections.removeAt(i);
+            redirections.remove(i);
             return;
         }
 }

@@ -76,7 +76,7 @@ public:
     void prepend(const T &t);
     void insert(int i, const T &t);
     void replace(int i, const T &t);
-    void removeAt(int i); // ###
+    void remove(int i);
     int removeAll(const T &t);
     T take(int i);
     T takeFirst();
@@ -183,9 +183,7 @@ public:
     typedef int size_type;
 
 #ifdef QT_COMPAT
-    // compatibility
     inline QT_COMPAT iterator remove(iterator pos) { return erase(pos); }
-    inline QT_COMPAT int remove(const T &t) { return removeAll(t); }
     inline QT_COMPAT int findIndex(const T& t) const { return indexOf(t); }
     inline QT_COMPAT iterator find(const T& t)
     { int i = indexOf(t); return (i == -1 ? end() : (begin()+i)); }
@@ -293,7 +291,7 @@ inline T &QList<T>::operator[](int i)
 { Q_ASSERT_X(i >= 0 && i < p.size(), "QList<T>::operator[]", "index out of range");
   detach(); return ((Node*) p.at(i))->t(); }
 template <typename T>
-inline void QList<T>::removeAt(int i)
+inline void QList<T>::remove(int i)
 { if(i >= 0 && i < p.size()) { detach();
  node_destruct((Node*) p.at(i)); p.remove(i); } }
 template <typename T>

@@ -325,11 +325,11 @@ void QDataTable::setColumn(int col, const QString& fieldName,
 void QDataTable::removeColumn(int col)
 {
     if (d->fld.begin() + col != d->fld.end()) {
-        d->fld.removeAt(col);
-        d->fldLabel.removeAt(col);
-        d->fldIcon.removeAt(col);
-        d->fldWidth.removeAt(col);
-        d->fldHidden.removeAt(col);
+        d->fld.remove(col);
+        d->fldLabel.remove(col);
+        d->fldIcon.remove(col);
+        d->fldWidth.remove(col);
+        d->fldHidden.remove(col);
     }
 }
 
