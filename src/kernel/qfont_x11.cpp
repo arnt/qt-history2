@@ -634,41 +634,66 @@ void QFontPrivate::load( QFont::Script script, bool )
     // ### fix the scale calculations
     double scale = 1.0;
 
-    QString k( key() + QString::number( script ) );
-    k += "/scr" + QString::number( x11Screen );
-    if ( paintdevice )
-	k += "/res" + QString::number(QPaintDeviceMetrics( paintdevice ).logicalDpiY());
-    else
-	k += "/res" + QString::number( QPaintDevice::x11AppDpiY( x11Screen ) );
+    // list of families to try
+    QStringList family_list = QStringList::split( ',', request.family );
 
-    // Look in fontCache for font
-    fe = fontCache->find(k);
-    if ( ! fe ) {
-	QString fam, fnd;
+    // append the substitute list for each family in family_list
+    QStringList subs_list;
+    QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+    for ( ; it != end; ++it )
+	subs_list += QFont::substitutes( *it );
+    family_list += subs_list;
 
-	QStringList familylist = QStringList::split( ',', request.family );
-	familylist += QFont::substitutes( request.family );
-	// familylist << ... ; // default fallback font for the specified script
-	familylist << QString::null;
+    // append the default fallback font for the specified script
+    // family_list << ... ;
 
-	int px = (int) (pixelSize( request, paintdevice, x11Screen )+.5);
-	char pitch = request.fixedPitch ? 'm' : 'p';
+    // null family means find the first font matching the specified script
+    family_list << QString::null;
 
-	QStringList::ConstIterator it = familylist.begin(),
-				  end = familylist.end();
-	for ( ; !fe && it != end; ++it ) {
-	    QFontDatabase::parseFontName( (*it).simplifyWhiteSpace(), fnd, fam );
-	    fe = QFontDatabase::findFont( script,
-					  request.styleStrategy, request.styleHint,
-					  fam, fnd, request.weight, request.italic,
-					  px, request.stretch, pitch, x11Screen );
+    int px = (int) (pixelSize( request, paintdevice, x11Screen )+.5);
+
+    QFontDef req = request, act;
+    it = family_list.begin(), end = family_list.end();
+    for ( ; ! fe && it != end; ++it ) {
+	req.family = *it;
+	req.pixelSize = px;
+
+	// First, look in fontCache for font...
+	int res = ( ( paintdevice ) ? QPaintDeviceMetrics( paintdevice ).logicalDpiY() :
+		    QPaintDevice::x11AppDpiY( x11Screen ) );
+	QString k = key( req ) +
+		    QString::fromLatin1( "/script" ) + QString::number( script ) +
+		    QString::fromLatin1( "/scr" ) + QString::number( x11Screen ) +
+		    QString::fromLatin1( "/res" ) + QString::number( res );
+	fe = fontCache->find( k );
+
+	if ( fe ) {
+	    if ( fe->type() != QFontEngine::Box )
+		break;
+
+	    fe = 0;
+	    continue;
 	}
 
-	if ( !fe )
-	    fe = new QFontEngineBox( (int)pixelSize( request, paintdevice, x11Screen ) );
+	// not found in cache, try to load it...
+	fe = QFontDatabase::findFont( script, req, act, x11Screen );
 
-	fontCache->insert( k, fe, fe->cache_cost );
+	if ( ! fe ) {
+	    // couldn't load it, use the box engine...
+	    fe = new QFontEngineBox( px );
+	    fontCache->insert( k, fe, fe->cache_cost );
+	    // ### what do we do here?
+	    // act = req;
+
+	    fe = 0;
+	} else {
+	    fontCache->insert( k, fe, fe->cache_cost );
+	}
     }
+
+    // ### do something with act if it is the default script? ...
+    // if ( script == defaultScript )
+    //     actual = act;
 
     fe->ref();
     x11data.fontstruct[script] = fe;

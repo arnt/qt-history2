@@ -190,7 +190,7 @@ public:
 };
 
 
-typedef QFontEngine QFontStruct; 
+typedef QFontEngine QFontStruct;
 #endif // WIN || X11 || MAC
 
 
@@ -257,6 +257,7 @@ public:
     QString lastResortFamily() const;
     QString lastResortFont() const;
     QString key() const;
+    static QString key( const QFontDef & );
 
     static int getFontWeight(const QCString &, bool = FALSE);
 

@@ -2614,14 +2614,14 @@ int QFontPrivate::getFontWeight(const QCString &weightString, bool adjustScore)
     return (int) QFont::Normal;
 }
 
-QString QFontPrivate::key() const
+QString QFontPrivate::key( const QFontDef &fontdef )
 {
-    if (request.rawMode)
-	return request.family;
+    if (fontdef.rawMode)
+	return fontdef.family;
 
-#if 0
-    int len = (request.family.length() * 2) +
-	      (request.addStyle.length() * 2) +
+#if 1
+    int len = (fontdef.family.length() * 2) +
+	      (fontdef.addStyle.length() * 2) +
 	      2 +  // point size
 	      2 +  // pixel size
 	      1 +  // font bits
@@ -2633,38 +2633,43 @@ QString QFontPrivate::key() const
     QByteArray buf(len);
     uchar *p = (uchar *) buf.data();
 
-    memcpy((char *) p, (char *) request.family.unicode(),
-	   (request.family.length() * 2));
-    p += request.family.length() * 2;
+    memcpy((char *) p, (char *) fontdef.family.unicode(),
+	   (fontdef.family.length() * 2));
+    p += fontdef.family.length() * 2;
 
-    if (request.addStyle.length() > 0) {
-	memcpy((char *) p, (char *) request.addStyle.unicode(),
-	       (request.addStyle.length() * 2));
-	p += request.addStyle.length() * 2;
+    if (fontdef.addStyle.length() > 0) {
+	memcpy((char *) p, (char *) fontdef.addStyle.unicode(),
+	       (fontdef.addStyle.length() * 2));
+	p += fontdef.addStyle.length() * 2;
     }
 
-    *((Q_UINT16 *) p) = request.pointSize; p += 2;
-    *((Q_UINT16 *) p) = request.pixelSize; p += 2;
-    *((Q_UINT16 *) p) = request.styleStrategy; p += 2;
-    *p++ = get_font_bits( request );
-    *p++ = request.weight;
-    *p++ = (request.hintSetByUser ?
-	    (int) request.styleHint : (int) QFont::AnyStyle);
-    *((Q_UINT16 *) p) = request.stretch; p += 2;
+    *((Q_UINT16 *) p) = fontdef.pointSize; p += 2;
+    *((Q_UINT16 *) p) = fontdef.pixelSize; p += 2;
+    *((Q_UINT16 *) p) = fontdef.styleStrategy; p += 2;
+    *p++ = get_font_bits( fontdef );
+    *p++ = fontdef.weight;
+    *p++ = (fontdef.hintSetByUser ?
+	    (int) fontdef.styleHint : (int) QFont::AnyStyle);
+    *((Q_UINT16 *) p) = fontdef.stretch; p += 2;
 
     return QString((QChar *) buf.data(), buf.size() / 2);
 #else
     // this version is for debugging as it gives better readable strings.
-    QString k = request.family;
-    if ( request.addStyle.length() )
-	k += request.addStyle;
+    QString k = fontdef.family;
+    if ( fontdef.addStyle.length() )
+	k += fontdef.addStyle;
     k += "%1/%2/%3/%4/%5/%6/%7";
-    k = k.arg( request.pointSize ).arg( request.pixelSize ).arg( get_font_bits( request ) )
-	.arg( request.weight )
-	.arg( (request.hintSetByUser ? (int) request.styleHint : (int) QFont::AnyStyle) )
-	.arg( request.styleStrategy ).arg( request.stretch );
+    k = k.arg( fontdef.pointSize ).arg( fontdef.pixelSize ).arg( get_font_bits( fontdef ) )
+	.arg( fontdef.weight )
+	.arg( (fontdef.hintSetByUser ? (int) fontdef.styleHint : (int) QFont::AnyStyle) )
+	.arg( fontdef.styleStrategy ).arg( fontdef.stretch );
     return k;
 #endif
+}
+
+QString QFontPrivate::key() const
+{
+    return key( request );
 }
 
 

@@ -53,6 +53,7 @@ class QFontStylePrivate; /* Don't touch! */
 struct QtFontStyle;
 struct QtFontFamily;
 struct QtFontFoundry;
+struct QFontDef;
 class QFontEngine;
 #ifdef Q_WS_QWS
 class QDiskFont;
@@ -113,21 +114,14 @@ public:
 #endif // QT_NO_COMPAT
 
 #if defined(Q_WS_X11)
-    static QFontEngine *findFont( QFont::Script script,
-				  int styleStrategy, int styleHint,
-				  const QString &family, const QString &foundry,
-				  int weight, bool italic,
-				  int pixelSize, int widthRatio, char pitch,
-				  int x11Screen );
+    static QFontEngine *findFont( QFont::Script script, const QFontDef &request,
+				  QFontDef &actual, int x11Screen );
 #endif // Q_WS_X11
 
 private:
     static void createDatabase();
 
     static void parseFontName(const QString &, QString &, QString &);
-
-
-    friend class QFontDatabasePrivate;
 
     // for parseFontName
     friend class QFontPrivate;

@@ -123,12 +123,15 @@ struct QtFontStyle
 	int  weight : 8;
 	int stretch : 12;
 
-	bool operator == ( const Key & other ) {
+	bool operator==( const Key & other ) {
 	    return ( italic == other.italic &&
 		     oblique == other.oblique &&
 		     weight == other.weight &&
 		     ( stretch == 0 || other.stretch == 0 ||
 		       stretch == other.stretch ) );
+	}
+	bool operator!=( const Key &other ) {
+	    return !operator==(other);
 	}
     };
 
