@@ -84,7 +84,7 @@
   Internal variables and functions
  *****************************************************************************/
 
-static int mouse_button_state = 0;
+static Qt::ButtonState mouse_button_state = Qt::NoButton;
 static char    *appName;                        // application name
 QObject	       *qt_clipboard = 0;
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
@@ -1046,8 +1046,8 @@ bool QApplication::processNextEvent( bool canWait )
   if(qt_is_gui_used) {
     sendPostedEvents();
     EventRecord event;    
-    while(EventAvail(everyEvent, &event)) {
-      while(EventAvail(everyEvent, &event)) {
+    do {
+	do {
 	if(app_exit_loop)
 	  return FALSE;
 
@@ -1056,8 +1056,8 @@ bool QApplication::processNextEvent( bool canWait )
 
 	if(macProcessEvent( (MSG *)(&event) ) == 1)
 	  return TRUE;
-      } 
-    }
+      } while(EventAvail(everyEvent, &event));
+     } while(EventAvail(everyEvent, &event));
     sendPostedEvents(); //let them accumulate
   } 
 
@@ -1275,132 +1275,135 @@ bool ignorecliprgn=true;
 int QApplication::macProcessEvent(MSG * m)
 {
 
-  WindowPtr wp;
-  EventRecord *er = (EventRecord *)m;
-  if(!er->what)
-    return 0;
+    WindowPtr wp;
+    EventRecord *er = (EventRecord *)m;
+    if(!er->what)
+	return 0;
 
-  Point p2 = er->where;
-  QWidget * widget = QApplication::widgetAt(p2.h,p2.v,true);
+    Point p2 = er->where;
+    QWidget * widget = QApplication::widgetAt(p2.h,p2.v,true);
 
-  if ( er->what == updateEvt ) {
-    QWidget *twidget = QWidget::find( (WId)er->message );
-    wp = (WindowPtr)er->message;
-    SetPortWindowPort(wp);
+    if ( er->what == updateEvt ) {
+	QWidget *twidget = QWidget::find( (WId)er->message );
+	wp = (WindowPtr)er->message;
+	SetPortWindowPort(wp);
 
-    if(!twidget) {
-      qWarning("Couldn't find paint widget for %d!",(int)wp);
-    } else {
-      int metricWidth = twidget->metric (QPaintDeviceMetrics::PdmWidth );
-      int metricHeight = twidget->metric( QPaintDeviceMetrics::PdmHeight );
-      twidget->crect.setWidth( metricWidth - 1 );
-      twidget->crect.setHeight( metricHeight - 1 );
-      ignorecliprgn = false;
-
-      BeginUpdate((WindowPtr)twidget->handle());
-      twidget->propagateUpdates( 0, 0, twidget->width(), twidget->height() );
-      EndUpdate((WindowPtr)twidget->handle());
-
-      ignorecliprgn = true;
-    }
-  } else if( er->what == mouseDown ) {
-    short part = FindWindow( er->where, &wp );
-    if( part == inContent ) {
-      if( mac_mouse_grabber ) {
-	widget = mac_mouse_grabber;
-      } else {
-	Point pp2 = er->where;
-	widget = QApplication::widgetAt( pp2.h, pp2.v, true );
-      }
-      if ( widget ) {
-	SetPortWindowPort( wp );
-
-	QPoint p( er->where.h, er->where.v );
-	QPoint plocal(widget->mapFromGlobal( p ));
-	QMouseEvent qme( QEvent::MouseButtonPress, plocal, p, QMouseEvent::LeftButton, 0);
-	QApplication::sendEvent( widget, &qme );
-      }
-      mouse_button_state = 1;
-    }
-    else do_mouse_down( er ); //do resize/move stuff
-  } else if( er->what == mouseUp ) {
-    short part = FindWindow( er->where, &wp );
-    if( part == inContent ) {
-      if( mac_mouse_grabber ) {
-	widget = mac_mouse_grabber;
-      } else {
-	Point pp2 = er->where;
-	widget = QApplication::widgetAt( pp2.h, pp2.v, true );
-      }
-      if ( widget ) {
-	SetPortWindowPort( wp );
-
-	QPoint p( er->where.h, er->where.v );
-	QPoint plocal(widget->mapFromGlobal( p ));
-	QMouseEvent qme( QEvent::MouseButtonRelease, plocal, p, QMouseEvent::LeftButton, 0);
-	QApplication::sendEvent( widget, &qme );
-      }
-    }
-    mouse_button_state = 0;
-  } else if(er->what == keyDown) {
-    short part = FindWindow( er->where, &wp );
-    if( part == inContent ) {
-      if( mac_keyboard_grabber ) {
-	widget = mac_keyboard_grabber;
-      } else {
-	Point pp2 = er->where;
-	if((widget = QApplication::widgetAt( pp2.h, pp2.v, false)))
-	  widget = widget->focusWidget();
-      }
-    }
-
-    short mychar=er->message & charCodeMask;
-    QKeyEvent ke(QEvent::KeyPress,get_key(er->message),mychar,0,QString(QChar(mychar)));
-    QApplication::sendEvent(widget,&ke);
-    qDebug("Key down.. %c", mychar);
-  } else if(er->what == keyUp) {
-    short part = FindWindow( er->where, &wp );
-    if( part == inContent ) {
-      if( mac_keyboard_grabber ) {
-	widget = mac_keyboard_grabber;
-      } else {
-	Point pp2 = er->where;
-	if((widget = QApplication::widgetAt( pp2.h, pp2.v, false)))
-	  widget = widget->focusWidget();
-      }
-    }
-
-    short mychar=er->message & charCodeMask;
-    QKeyEvent ke(QEvent::KeyRelease,get_key(er->message),mychar,0,QString(QChar(mychar)));
-    QApplication::sendEvent(widget,&ke);
-    qDebug("Key up.. %c", mychar);
-  } else if(er->what == osEvt) {
-    if(((er->message >> 24) & 0xFF) == mouseMovedMessage) {
-      short part = FindWindow( er->where, &wp );
-      if( part == inContent ) {
-	if( mac_mouse_grabber ) {
-	  widget = mac_mouse_grabber;
+	if(!twidget) {
+	    qWarning("Couldn't find paint widget for %d!",(int)wp);
 	} else {
-	  Point pp2 = er->where;
-	  widget = QApplication::widgetAt( pp2.h, pp2.v, true );
-	}
-	if ( widget && (mouse_button_state || widget->hasMouseTracking() || hasGlobalMouseTracking())) {
-	  SetPortWindowPort( wp );
+	    int metricWidth = twidget->metric (QPaintDeviceMetrics::PdmWidth );
+	    int metricHeight = twidget->metric( QPaintDeviceMetrics::PdmHeight );
+	    twidget->crect.setWidth( metricWidth - 1 );
+	    twidget->crect.setHeight( metricHeight - 1 );
+	    ignorecliprgn = false;
 
-	  QPoint p( er->where.h, er->where.v );
-	  QPoint plocal(widget->mapFromGlobal( p ));
-	  QMouseEvent qme( QEvent::MouseMove, plocal, p, QMouseEvent::LeftButton, 0);
-	  QApplication::sendEvent( widget, &qme );
-	  qDebug("Mouse has Moved %d %d", plocal.x(), plocal.y());
+	    BeginUpdate((WindowPtr)twidget->handle());
+	    twidget->propagateUpdates( 0, 0, twidget->width(), twidget->height() );
+	    EndUpdate((WindowPtr)twidget->handle());
+
+	    ignorecliprgn = true;
 	}
-      }
+    } else if( er->what == mouseDown ) {
+	short part = FindWindow( er->where, &wp );
+	if( part == inContent ) {
+	    if( mac_mouse_grabber ) {
+		widget = mac_mouse_grabber;
+	    } else {
+		Point pp2 = er->where;
+		widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+	    }
+	    if ( widget ) {
+		SetPortWindowPort( wp );
+
+		QPoint p( er->where.h, er->where.v );
+		QPoint plocal(widget->mapFromGlobal( p ));
+		mouse_button_state = QMouseEvent::LeftButton; //FIXME
+		QMouseEvent qme( QEvent::MouseButtonPress, plocal, p, mouse_button_state, 0);
+		QApplication::sendEvent( widget, &qme );
+	    }
+	}
+	else do_mouse_down( er ); //do resize/move stuff
+    } else if( er->what == mouseUp ) {
+	short part = FindWindow( er->where, &wp );
+	if( part == inContent ) {
+	    if( mac_mouse_grabber ) {
+		widget = mac_mouse_grabber;
+	    } else {
+		Point pp2 = er->where;
+		widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+	    }
+	    if ( widget ) {
+		SetPortWindowPort( wp );
+
+		QPoint p( er->where.h, er->where.v );
+		QPoint plocal(widget->mapFromGlobal( p ));
+		QMouseEvent qme( QEvent::MouseButtonRelease, plocal, p, QMouseEvent::LeftButton, 0);
+		QApplication::sendEvent( widget, &qme );
+	    }
+	}
+	mouse_button_state = Qt::NoButton;
+    } else if(er->what == keyDown) {
+	short part = FindWindow( er->where, &wp );
+	if( part == inContent ) {
+	    if( mac_keyboard_grabber ) {
+		widget = mac_keyboard_grabber;
+	    } else {
+		Point pp2 = er->where;
+		if((widget = QApplication::widgetAt( pp2.h, pp2.v, false)))
+		    widget = widget->focusWidget();
+	    }
+	}
+
+	short mychar=er->message & charCodeMask;
+	QKeyEvent ke(QEvent::KeyPress,get_key(er->message),mychar,0,QString(QChar(mychar)));
+	QApplication::sendEvent(widget,&ke);
+	qDebug("Key down.. %c", mychar);
+    } else if(er->what == keyUp) {
+	short part = FindWindow( er->where, &wp );
+	if( part == inContent ) {
+	    if( mac_keyboard_grabber ) {
+		widget = mac_keyboard_grabber;
+	    } else {
+		Point pp2 = er->where;
+		if((widget = QApplication::widgetAt( pp2.h, pp2.v, false)))
+		    widget = widget->focusWidget();
+	    }
+	}
+
+	short mychar=er->message & charCodeMask;
+	QKeyEvent ke(QEvent::KeyRelease,get_key(er->message),mychar,0,QString(QChar(mychar)));
+	QApplication::sendEvent(widget,&ke);
+	qDebug("Key up.. %c", mychar);
+    } else if(er->what == osEvt) {
+	if(((er->message >> 24) & 0xFF) == mouseMovedMessage) {
+	    short part = FindWindow( er->where, &wp );
+	    if( part == inContent ) {
+		if( mac_mouse_grabber ) {
+		    widget = mac_mouse_grabber;
+		} else {
+		    Point pp2 = er->where;
+		    widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+		}
+		if ( widget && (mouse_button_state != Qt::NoMouse
+				|| widget->hasMouseTracking() || hasGlobalMouseTracking())) {
+		    SetPortWindowPort( wp );
+
+		    QPoint p( er->where.h, er->where.v );
+		    QPoint plocal(widget->mapFromGlobal( p ));
+		    QMouseEvent qme( QEvent::MouseMove, plocal, p, QMouseEvent::NoButton, 
+				     mouse_button_state);
+		    QApplication::sendEvent( widget, &qme );
+		    qDebug("Mouse has Moved %s %s %d %d", widget->name(), widget->className(), 
+			   plocal.x(), plocal.y());
+		} 
+	    }
+	}
+	else
+	    printf("Damn!\n");
+    } else {
+	qWarning("  Type %d",er->what);
     }
-    else
-      printf("Damn!\n");
-  } else {
-    qWarning("  Type %d",er->what);
-  }
-  return 0;
+    return 0;
 }
 
 void QApplication::wakeUpGuiThread()
