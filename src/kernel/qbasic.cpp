@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#22 $
 **
 **  Geometry Management
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#22 $");
 
 
 
@@ -209,6 +209,12 @@ struct QBranchData {
     QChain *chain;
 };
 
+/*
+  If all members have zero stretch, the space is divided equally;
+  this is perhaps not what you want. Use setMaximumSize to be sure your
+  widget is not stretched.
+
+ */
 class QSerChain : public QChain
 {
 public:
@@ -284,23 +290,36 @@ bool QSerChain::addBranch( QChain *b, int from, int to )
 }
 
 
+
+static inline int toFixed( int i ) { return i * 256; }
+static inline int fRound( int i ) { 
+    return  i % 256 < 128 ? i / 256 : 1 + i / 256; 
+}
 /*
-  If all members have zero stretch, the space is divided equally;
-  this is perhaps not what you want. Use setMaximumSize to be sure your
-  widget is not stretched.
+  \internal
+  This is the main workhorse of the geometry manager. It portions out
+  available space to the chain's children.
+
+  The calculation is done in fixed point: "fixed" variables are scaled 
+  by a factor of 256.
+
+  If the chain runs "backwards" (i.e. RightToLeft or Up) the layout
+  is computed mirror-reversed, and then turned the right way at the end.
+  
 */
 
 void QSerChain::distribute( wDict & wd, int pos, int space )
 {
-    bool backwards = direction() == QBasicManager::RightToLeft ||
-       direction() == QBasicManager::Up;
+    typedef int fixed;
 
-    int available = space - minSize();
-    if ( available < 0 )
+    fixed available = toFixed( space - minSize() );
+    if ( available < 0 ) {
+	warning( "QBasicManager: not enough space to go around" );
 	available = 0;
+    }
     int sf = sumStretch();
 
-    QArray<int> sizes( chain.count() );
+    QArray<fixed> sizes( chain.count() );
     int i;
     for ( i = 0; i < (int)chain.count(); i++ )
 	sizes[i] = 0;
@@ -309,16 +328,18 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
     while ( doAgain && numChains ) {
 	doAgain = FALSE;
 	for ( i = 0; i < (int)chain.count(); i++ ) {
-	    if ( sizes[i] == chain.at(i)->maxSize() )
+	    fixed maxS = toFixed( chain.at(i)->maxSize() );
+	    if ( sizes[i] == maxS )
 		continue;
-	    int siz = chain.at(i)->minSize();
+	    fixed minS = toFixed( chain.at(i)->minSize() );
+	    fixed siz = minS;
 	    if ( sf )
-		siz += ( available * chain.at(i)->stretch() ) / sf;
+		siz += available * chain.at(i)->stretch() / sf;
 	    else
 		siz += available  / numChains;
-	    if ( siz >= chain.at(i)->maxSize() ) {
-		sizes[i] = chain.at(i)->maxSize();
-		available -= ( sizes[i] - chain.at(i)->minSize() );
+	    if ( siz >=  maxS ) {
+		sizes[i] = maxS;
+		available -= maxS - minS;
 		sf -= chain.at(i)->stretch();
 		numChains--;
 		doAgain = TRUE;
@@ -327,25 +348,35 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 	    sizes[i] = siz;
 	}
     }
-    QArray<int> places( chain.count() );
-    if ( backwards )
-	pos += space;
+
+    int n = chain.count();
+    QArray<int> places( n + 1 );
+    places[n] = pos + space;
+    fixed fpos = toFixed( pos );
     for ( i = 0; i < (int)chain.count(); i++ ) {
-	if ( backwards ) {
-	    pos -= sizes[i];
-	    places[i] = pos;
-	    chain.at(i)->distribute( wd, pos, sizes[i] );
-	} else {
-	    places[i] = pos;
-	    chain.at(i)->distribute( wd, pos, sizes[i] );
-	    pos += sizes[i];
-	}
+	places[i] = QMAX( fRound( fpos ), pos );  // only give what we've got
+	fpos += sizes[i];
     }
+
+    bool backwards = ( direction() == QBasicManager::RightToLeft ||
+		       direction() == QBasicManager::Up );
+
+    for ( i = 0; i < (int)chain.count(); i++ ) {
+	int p = places[i];
+	int s = places[i+1] - places[i];
+	if ( backwards )
+	    p = 2 * pos + space - p - s;
+	chain.at(i)->distribute( wd, p, s );
+    }
+
     for ( i = 0; i < (int)branches.count(); i++ ) {
 	QBranchData *b = branches.at( i );
 	int from = places[ b->from ];
-	int to = places[ b->to ] + sizes[ b->to ];
-	branches.at(i)->chain->distribute( wd, from, to - from  );
+	int to = places[ b->to + 1 ];
+	int s = to - from;
+	if ( backwards )
+	    from = 2 * pos + space - from - s;
+	branches.at(i)->chain->distribute( wd, from, s  );
     }
 }
 
