@@ -90,7 +90,7 @@ void warning( int level, const Location& loc, const char *message, ... )
 	int i = 0;
 	int j;
 	do {
-	    j = currentDirectory.find( '/', i + 1 );
+	    j = currentDirectory.find( QChar('/'), i + 1 );
 	    if ( j < 0 )
 		j = currentDirectory.length();
 	    if ( j > i &&
@@ -101,6 +101,7 @@ void warning( int level, const Location& loc, const char *message, ... )
 	    else
 		j = -1;
 	} while( j >= 0 );
+
 	// now, should we change to filenameBase or to the prefix? we
 	// change to the prefix if it's any good at all.
 	if ( i > 4 ) {

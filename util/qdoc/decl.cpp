@@ -758,7 +758,8 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	out.putsMeta( "</table>\n" );
     }
 
-    out.putsMeta( "<hr><a name=details></a><h2>Detailed Description</h2>\n" );
+    out.putsMeta( "<hr><a name=\"details\"></a>"
+		  "<h2>Detailed Description</h2>\n" );
 
     if ( classDoc() != 0 )
 	classDoc()->printHtml( out );

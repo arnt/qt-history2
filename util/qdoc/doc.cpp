@@ -334,9 +334,9 @@ private:
     QString clueCommand;
 
     QStringList getStringList();
-    bool somethingAhead();
-    void startPreOutput();
-    void stopPreOutput();
+    bool somethingAheadPreventingNewParagraph();
+    void enterWalkthroughSnippet();
+    void leaveWalkthroughSnippet();
 
     Location yyLoc;
     int yyLocPos;
@@ -345,7 +345,7 @@ private:
     int yyPos;
     int yyLen;
     QString yyOut;
-    bool yyInPreOutput;
+    bool yyInWalkthroughSnippet;
 };
 
 Doc *DocParser::parse( const Location& loc, const QString& in )
@@ -366,7 +366,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     yyPos = 0;
     yyLen = yyIn.length();
     yyOut.truncate( 0 );
-    yyInPreOutput = FALSE;
+    yyInWalkthroughSnippet = FALSE;
 
     Walkthrough walkthrough;
     QString substr;
@@ -406,7 +406,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	QChar ch = yyIn[yyPos++];
 	metNL = ( ch == '\n' );
 	if ( metNL )
-	    stopPreOutput();
+	    leaveWalkthroughSnippet();
 
 	if ( ch == '\\' ) {
 	    QString command;
@@ -478,7 +478,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		// see also \value
 		consume( "bug" );
 		if ( numBugs == 0 ) {
-		    stopPreOutput();
+		    leaveWalkthroughSnippet();
 		    yyOut += QString( "<p>Bugs and limitations:\n<ul>\n" );
 		}
 		numBugs++;
@@ -782,8 +782,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "printto" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.printto( substr, location() );
-		startPreOutput();
+		enterWalkthroughSnippet();
 		yyOut += QString( "\\printto " ) + substr + QChar( '\n' );
+		leaveWalkthroughSnippet();
 		break;
 	    case hash( 'p', 9 ):
 		if ( command.length() != 9 )
@@ -804,16 +805,18 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    consume( "printline" );
 		    substr = getRestOfLine( yyIn, yyPos );
 		    walkthrough.printline( substr, location() );
-		    startPreOutput();
+		    enterWalkthroughSnippet();
 		    yyOut += QString( "\\printline " ) + substr + QChar( '\n' );
+		    leaveWalkthroughSnippet();
 		}
 		break;
 	    case hash( 'p', 10 ):
 		consume( "printuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.printuntil( substr, location() );
-		startPreOutput();
+		enterWalkthroughSnippet();
 		yyOut += QString( "\\printuntil " ) + substr + QChar( '\n' );
+		leaveWalkthroughSnippet();
 		break;
 	    case hash( 'r', 5 ):
 		consume( "reimp" );
@@ -873,7 +876,6 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		}
 
 		if ( !inValue ) {
-		    stopPreOutput();
 		    yyOut += QString( "<ul>\n" );
 		    inValue = TRUE;
 		}
@@ -950,7 +952,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	if ( metNL ) {
 	    while ( yyPos < yyLen && yyIn[yyPos].isSpace() ) {
 		ch = yyIn[yyPos++];
-		if ( metNL && ch == QChar('\n') && !somethingAhead() ) {
+		if ( metNL && ch == QChar('\n') &&
+		     !somethingAheadPreventingNewParagraph() ) {
 		    if ( inValue ) {
 			yyOut += QString( "</ul>" );
 			inValue = FALSE;
@@ -963,6 +966,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    }
 	}
     }
+
+    // ###
+
     if ( numBugs > 0 || inValue )
 	yyOut += QString( "</ul>" );
     flushWalkthrough( walkthrough, &examples );
@@ -1162,7 +1168,7 @@ QStringList DocParser::getStringList()
     return stringl;
 }
 
-bool DocParser::somethingAhead()
+bool DocParser::somethingAheadPreventingNewParagraph()
 {
     int inPos0 = yyPos;
     bool something = FALSE;
@@ -1178,19 +1184,37 @@ bool DocParser::somethingAhead()
     return something;
 }
 
-void DocParser::startPreOutput()
+void DocParser::enterWalkthroughSnippet()
 {
-    if ( !yyInPreOutput ) {
+    if ( !yyInWalkthroughSnippet ) {
 	yyOut += QString( "<pre>" );
-	yyInPreOutput = TRUE;
+	yyInWalkthroughSnippet = TRUE;
     }
 }
 
-void DocParser::stopPreOutput()
+void DocParser::leaveWalkthroughSnippet()
 {
-    if ( yyInPreOutput ) {
-	yyOut += QString( "</pre>" );
-	yyInPreOutput = FALSE;
+    static QRegExp endOfCommand( QString("[^\\a-z0-9]") );
+    static StringSet walkthroughCommands;
+
+    // ### put elsewhere
+    if ( walkthroughCommands.isEmpty() ) {
+	walkthroughCommands.insert( QString("\\printline") );
+	walkthroughCommands.insert( QString("\\printline") );
+	walkthroughCommands.insert( QString("\\printline") );
+	walkthroughCommands.insert( QString("\\skipline") );
+	walkthroughCommands.insert( QString("\\skipto") );
+	walkthroughCommands.insert( QString("\\skipuntil") );
+    }
+
+    if ( yyInWalkthroughSnippet ) { // ### needless if
+	int k = yyIn.find( endOfCommand, yyPos );
+	QString lookahead = yyIn.mid( yyPos, k );
+
+	if ( !walkthroughCommands.contains(lookahead) ) {
+	    yyOut += QString( "</pre>" );
+	    yyInWalkthroughSnippet = FALSE;
+	}
     }
 }
 

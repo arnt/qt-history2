@@ -126,7 +126,7 @@ void Walkthrough::addANames( QString *text, const LinkMap& exampleLinkMap )
 	if ( k < (int) text->length() && (*text)[k] != QChar('\n') ) {
 	    StringSet::ConstIterator link = (*links).begin();
 	    while ( link != (*links).end() ) {
-		text->insert( k, QString("<a name=\"%1\">").arg(*link) );
+		text->insert( k, QString("<a name=\"%1\"></a>").arg(*link) );
 		++link;
 	    }
 	}
