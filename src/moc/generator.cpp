@@ -182,15 +182,15 @@ void Generator::generateCode()
     fprintf(out, "\n // content:\n");
     fprintf(out, "    %4d,       // revision\n", 1);
     fprintf(out, "    %4d,       // classname\n", strreg(cdef->qualified));
-    fprintf(out, "    %4d, %4d, // classinfo\n", cdef->classInfoList.count(), index);
+    fprintf(out, "    %4d, %4d, // classinfo\n", cdef->classInfoList.count(), cdef->classInfoList.count() ? index : 0);
     index += cdef->classInfoList.count() * 2;
-    fprintf(out, "    %4d, %4d, // signals\n", cdef->signalList.count(), index);
+    fprintf(out, "    %4d, %4d, // signals\n", cdef->signalList.count(), cdef->signalList.count() ? index : 0);
     index += cdef->signalList.count() * 5;
-    fprintf(out, "    %4d, %4d, // slots\n", cdef->slotList.count(), index);
+    fprintf(out, "    %4d, %4d, // slots\n", cdef->slotList.count(), cdef->slotList.count() ? index : 0);
     index += cdef->slotList.count() * 5;
-    fprintf(out, "    %4d, %4d, // properties\n", cdef->propertyList.count(), index);
+    fprintf(out, "    %4d, %4d, // properties\n", cdef->propertyList.count(), cdef->propertyList.count() ? index : 0);
     index += cdef->propertyList.count() * 3;
-    fprintf(out, "    %4d, %4d, // enums/sets\n", cdef->enumList.count(), index);
+    fprintf(out, "    %4d, %4d, // enums/sets\n", cdef->enumList.count(), cdef->enumList.count() ? index : 0);
 
 
 //
