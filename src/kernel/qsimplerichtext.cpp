@@ -21,7 +21,7 @@
 class QSimpleRichTextData
 {
 public:
-    QTextDocument *doc;
+    Q3TextDocument *doc;
     QFont font;
     int cachedWidth;
     bool cachedWidthWithPainter;
@@ -114,7 +114,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->cachedWidth = -1;
     d->cachedWidthWithPainter = FALSE;
     d->font = fnt;
-    d->doc = new QTextDocument( 0 );
+    d->doc = new Q3TextDocument( 0 );
     d->doc->setTextFormat( Qt::RichText );
     d->doc->setLeftMargin( 0 );
     d->doc->setRightMargin( 0 );
@@ -160,7 +160,7 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->cachedWidth = -1;
     d->cachedWidthWithPainter = FALSE;
     d->font = fnt;
-    d->doc = new QTextDocument( 0 );
+    d->doc = new Q3TextDocument( 0 );
     d->doc->setTextFormat( Qt::RichText );
     d->doc->setFormatter( new Q3TextFormatterBreakWords );
     d->doc->setStyleSheet( (QStyleSheet*)sheet );
@@ -354,7 +354,7 @@ QString QSimpleRichText::anchorAt( const QPoint& pos ) const
 {
     if ( d->cachedWidth < 0 )
 	d->adjustSize();
-    QTextCursor c( d->doc );
+    Q3TextCursor c( d->doc );
     c.place( pos, d->doc->firstParagraph(), TRUE );
     return c.paragraph()->at( c.index() )->anchorHref();
 }
@@ -370,7 +370,7 @@ bool QSimpleRichText::inText( const QPoint& pos ) const
 	d->adjustSize();
     if ( pos.y()  > d->doc->height() )
 	return FALSE;
-    QTextCursor c( d->doc );
+    Q3TextCursor c( d->doc );
     c.place( pos, d->doc->firstParagraph() );
     return c.totalOffsetX() + c.paragraph()->at( c.index() )->x +
 	c.paragraph()->at( c.index() )->format()->width( c.paragraph()->at( c.index() )->c ) > pos.x();

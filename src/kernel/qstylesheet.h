@@ -26,7 +26,7 @@
 #ifndef QT_NO_RICHTEXT
 
 class QStyleSheet;
-class QTextDocument;
+class Q3TextDocument;
 template<class Key, class T> class QMap;
 class QStyleSheetItemData;
 
@@ -166,7 +166,7 @@ private:
 };
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class QTextCustomItem;
+class Q3TextCustomItem;
 #endif
 
 class Q_GUI_EXPORT QStyleSheet : public QObject
@@ -186,11 +186,11 @@ public:
     void insert( QStyleSheetItem* item);
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    virtual QTextCustomItem* tag( const QString& name,
+    virtual Q3TextCustomItem* tag( const QString& name,
 				  const QMap<QString, QString> &attr,
 				  const QString& context,
 				  const QMimeSourceFactory& factory,
-				  bool emptyTag, QTextDocument *doc ) const;
+				  bool emptyTag, Q3TextDocument *doc ) const;
 #endif
     static QString escape( const QString& );
     static QString convertFromPlainText( const QString&,

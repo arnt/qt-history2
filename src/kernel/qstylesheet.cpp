@@ -1330,11 +1330,11 @@ const QStyleSheetItem* QStyleSheet::item( const QString& name) const
     This function should not be used in application code.
 */
 #ifndef QT_NO_TEXTCUSTOMITEM
-QTextCustomItem* QStyleSheet::tag(  const QString& name,
+Q3TextCustomItem* QStyleSheet::tag(  const QString& name,
 				   const QMap<QString, QString> &attr,
 				   const QString& context,
 				   const QMimeSourceFactory& factory,
-				   bool /*emptyTag */, QTextDocument *doc ) const
+				   bool /*emptyTag */, Q3TextDocument *doc ) const
 {
     const QStyleSheetItem* style = item( name );
     // first some known  tags

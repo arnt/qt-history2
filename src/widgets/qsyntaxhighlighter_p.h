@@ -52,11 +52,11 @@ public:
     int currentParagraph;
 };
 
-class QSyntaxHighlighterInternal : public QTextPreProcessor
+class QSyntaxHighlighterInternal : public Q3TextPreProcessor
 {
 public:
     QSyntaxHighlighterInternal( QSyntaxHighlighter *h ) : highlighter( h ) {}
-    void process( QTextDocument *doc, QTextParagraph *p, int, bool invalidate ) {
+    void process( Q3TextDocument *doc, Q3TextParagraph *p, int, bool invalidate ) {
 	if ( p->prev() && p->prev()->endState() == -1 )
 	    process( doc, p->prev(), 0, FALSE );
 
@@ -70,7 +70,7 @@ public:
 	highlighter->para = 0;
 
 	p->setFirstPreProcess( FALSE );
-	QTextParagraph *op = p;
+	Q3TextParagraph *op = p;
 	p = p->next();
 	if ( (!!oldEndState || !!op->endState()) && oldEndState != op->endState() &&
 	     invalidate && p && !p->firstPreProcess() && p->endState() != -1 ) {

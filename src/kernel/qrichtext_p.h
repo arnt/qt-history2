@@ -51,38 +51,38 @@
 
 #ifndef QT_NO_RICHTEXT
 
-class QTextDocument;
-class QTextString;
-class QTextPreProcessor;
+class Q3TextDocument;
+class Q3TextString;
+class Q3TextPreProcessor;
 class Q3TextFormat;
-class QTextCursor;
-class QTextParagraph;
+class Q3TextCursor;
+class Q3TextParagraph;
 class Q3TextFormatter;
-class QTextIndent;
+class Q3TextIndent;
 class Q3TextFormatCollection;
 class QStyleSheetItem;
 #ifndef QT_NO_TEXTCUSTOMITEM
-class QTextCustomItem;
+class Q3TextCustomItem;
 #endif
-class QTextFlow;
+class Q3TextFlow;
 struct QBidiContext;
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT QTextStringChar
+class Q_GUI_EXPORT Q3TextStringChar
 {
-    friend class QTextString;
+    friend class Q3TextString;
 
 public:
-    // this is never called, initialize variables in QTextString::insert()!!!
-    QTextStringChar() : nobreak(FALSE), lineStart( 0 ), type( Regular ) {p.format=0;}
-    ~QTextStringChar();
+    // this is never called, initialize variables in Q3TextString::insert()!!!
+    Q3TextStringChar() : nobreak(FALSE), lineStart( 0 ), type( Regular ) {p.format=0;}
+    ~Q3TextStringChar();
 
     struct CustomData
     {
 	Q3TextFormat *format;
 #ifndef QT_NO_TEXTCUSTOMITEM
-	QTextCustomItem *custom;
+	Q3TextCustomItem *custom;
 #endif
 	QString anchorName;
 	QString anchorHref;
@@ -115,11 +115,11 @@ public:
     bool isCustom() const { return (type & Custom) != 0; }
     Q3TextFormat *format() const;
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QTextCustomItem *customItem() const;
+    Q3TextCustomItem *customItem() const;
 #endif
     void setFormat( Q3TextFormat *f );
 #ifndef QT_NO_TEXTCUSTOMITEM
-    void setCustomItem( QTextCustomItem *i );
+    void setCustomItem( Q3TextCustomItem *i );
 #endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
@@ -133,32 +133,32 @@ public:
     QString anchorHref() const;
     void setAnchor( const QString& name, const QString& href );
 
-    QTextStringChar( const QTextStringChar & ) {
+    Q3TextStringChar( const Q3TextStringChar & ) {
 	Q_ASSERT(false);
     }
 private:
-    QTextStringChar &operator=( const QTextStringChar & ) {
+    Q3TextStringChar &operator=( const Q3TextStringChar & ) {
 	//abort();
 	return *this;
     }
-    friend class QTextParagraph;
+    friend class Q3TextParagraph;
 };
 
-Q_DECLARE_TYPEINFO(QTextStringChar, Q_PRIMITIVE_TYPE);
+Q_DECLARE_TYPEINFO(Q3TextStringChar, Q_PRIMITIVE_TYPE);
 
-class Q_GUI_EXPORT QTextString
+class Q_GUI_EXPORT Q3TextString
 {
 public:
 
-    QTextString();
-    QTextString( const QTextString &s );
-    virtual ~QTextString();
+    Q3TextString();
+    Q3TextString( const Q3TextString &s );
+    virtual ~Q3TextString();
 
-    static QString toString( const QVector<QTextStringChar> &data );
+    static QString toString( const QVector<Q3TextStringChar> &data );
     QString toString() const;
 
-    inline QTextStringChar &at( int i ) const {
-	return const_cast<QTextString *>(this)->data[ i ];
+    inline Q3TextStringChar &at( int i ) const {
+	return const_cast<Q3TextString *>(this)->data[ i ];
     }
     inline int length() const { return data.size(); }
 
@@ -166,7 +166,7 @@ public:
 
     void insert( int index, const QString &s, Q3TextFormat *f );
     void insert( int index, const QChar *unicode, int len, Q3TextFormat *f );
-    void insert( int index, QTextStringChar *c, bool doAddRefFormat = FALSE );
+    void insert( int index, Q3TextStringChar *c, bool doAddRefFormat = FALSE );
     void truncate( int index );
     void remove( int index, int len );
     void clear();
@@ -179,7 +179,7 @@ public:
     QChar::Direction direction() const;
     void setDirection( QChar::Direction dr ) { dir = dr; bidiDirty = TRUE; }
 
-    QVector<QTextStringChar> rawData() const { return data; }
+    QVector<Q3TextStringChar> rawData() const { return data; }
 
     void operator=( const QString &s ) { clear(); insert( 0, s, 0 ); }
     void operator+=( const QString &s ) { insert( length(), s, 0 ); }
@@ -193,43 +193,43 @@ public:
 private:
     void checkBidi() const;
 
-    QVector<QTextStringChar> data;
+    QVector<Q3TextStringChar> data;
     uint bidiDirty : 1;
     uint bidi : 1; // true when the paragraph has right to left characters
     uint rightToLeft : 1;
     uint dir : 5;
 };
 
-inline bool QTextString::isBidi() const
+inline bool Q3TextString::isBidi() const
 {
     if ( bidiDirty )
 	checkBidi();
     return bidi;
 }
 
-inline bool QTextString::isRightToLeft() const
+inline bool Q3TextString::isRightToLeft() const
 {
     if ( bidiDirty )
 	checkBidi();
     return rightToLeft;
 }
 
-inline QString QTextString::toString() const
+inline QString Q3TextString::toString() const
 {
     return toString( data );
 }
 
-inline QChar::Direction QTextString::direction() const
+inline QChar::Direction Q3TextString::direction() const
 {
     return (QChar::Direction) dir;
 }
 
-inline int QTextString::nextCursorPosition( int next )
+inline int Q3TextString::nextCursorPosition( int next )
 {
     if ( bidiDirty )
 	checkBidi();
 
-    const QTextStringChar *c = data.data();
+    const Q3TextStringChar *c = data.data();
     int len = length();
 
     if ( next < len - 1 ) {
@@ -240,12 +240,12 @@ inline int QTextString::nextCursorPosition( int next )
     return next;
 }
 
-inline int QTextString::previousCursorPosition( int prev )
+inline int Q3TextString::previousCursorPosition( int prev )
 {
     if ( bidiDirty )
 	checkBidi();
 
-    const QTextStringChar *c = data.data();
+    const Q3TextStringChar *c = data.data();
 
     if ( prev ) {
 	prev--;
@@ -255,7 +255,7 @@ inline int QTextString::previousCursorPosition( int prev )
     return prev;
 }
 
-inline bool QTextString::validCursorPosition( int idx )
+inline bool Q3TextString::validCursorPosition( int idx )
 {
     if ( bidiDirty )
 	checkBidi();
@@ -265,25 +265,25 @@ inline bool QTextString::validCursorPosition( int idx )
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT QTextCursor
+class Q_GUI_EXPORT Q3TextCursor
 {
 public:
-    QTextCursor( QTextDocument * = 0 );
-    QTextCursor( const QTextCursor &c );
-    QTextCursor &operator=( const QTextCursor &c );
-    virtual ~QTextCursor();
+    Q3TextCursor( Q3TextDocument * = 0 );
+    Q3TextCursor( const Q3TextCursor &c );
+    Q3TextCursor &operator=( const Q3TextCursor &c );
+    virtual ~Q3TextCursor();
 
-    bool operator==( const QTextCursor &c ) const;
-    bool operator!=( const QTextCursor &c ) const { return !(*this == c); }
+    bool operator==( const Q3TextCursor &c ) const;
+    bool operator!=( const Q3TextCursor &c ) const { return !(*this == c); }
 
-    inline QTextParagraph *paragraph() const { return para; }
+    inline Q3TextParagraph *paragraph() const { return para; }
 
-    QTextDocument *document() const;
+    Q3TextDocument *document() const;
     int index() const;
 
-    void gotoPosition( QTextParagraph* p, int index = 0);
+    void gotoPosition( Q3TextParagraph* p, int index = 0);
     void setIndex( int index ) { gotoPosition(paragraph(), index ); }
-    void setParagraph( QTextParagraph*p ) { gotoPosition(p, 0 ); }
+    void setParagraph( Q3TextParagraph*p ) { gotoPosition(p, 0 ); }
 
     void gotoLeft();
     void gotoRight();
@@ -302,7 +302,7 @@ public:
     void gotoWordLeft();
     void gotoWordRight();
 
-    void insert( const QString &s, bool checkNewLine, QVector<QTextStringChar> *formatting = 0 );
+    void insert( const QString &s, bool checkNewLine, QVector<Q3TextStringChar> *formatting = 0 );
     void splitAndInsertEmptyParagraph( bool ind = TRUE, bool updateIds = TRUE );
     bool remove();
     bool removePreviousChar();
@@ -317,14 +317,14 @@ public:
     int globalX() const;
     int globalY() const;
 
-    QTextParagraph *topParagraph() const { return paras.isEmpty() ? para : paras.first(); }
+    Q3TextParagraph *topParagraph() const { return paras.isEmpty() ? para : paras.first(); }
     int offsetX() const { return ox; } // inner document  offset
     int offsetY() const { return oy; } // inner document offset
     int totalOffsetX() const; // total document offset
     int totalOffsetY() const; // total document offset
 
-    bool place( const QPoint &pos, QTextParagraph *s ) { return place( pos, s, FALSE ); }
-    bool place( const QPoint &pos, QTextParagraph *s, bool link );
+    bool place( const QPoint &pos, Q3TextParagraph *s ) { return place( pos, s, FALSE ); }
+    bool place( const QPoint &pos, Q3TextParagraph *s, bool link );
     void restoreState();
 
 
@@ -343,11 +343,11 @@ private:
     void invalidateNested();
     void gotoIntoNested( const QPoint &globalPos );
 
-    QTextParagraph *para;
+    Q3TextParagraph *para;
     int idx, tmpX;
     int ox, oy;
     QStack<int> indices;
-    QStack<QTextParagraph*> paras;
+    QStack<Q3TextParagraph*> paras;
     QStack<int> xOffsets;
     QStack<int> yOffsets;
     uint valid : 1;
@@ -361,17 +361,17 @@ class Q_GUI_EXPORT QTextCommand
 public:
     enum Commands { Invalid, Insert, Delete, Format, Style };
 
-    QTextCommand( QTextDocument *dc ) : doc( dc ), cursor( dc ) {}
+    QTextCommand( Q3TextDocument *dc ) : doc( dc ), cursor( dc ) {}
     virtual ~QTextCommand();
 
     virtual Commands type() const;
 
-    virtual QTextCursor *execute( QTextCursor *c ) = 0;
-    virtual QTextCursor *unexecute( QTextCursor *c ) = 0;
+    virtual Q3TextCursor *execute( Q3TextCursor *c ) = 0;
+    virtual Q3TextCursor *unexecute( Q3TextCursor *c ) = 0;
 
 protected:
-    QTextDocument *doc;
-    QTextCursor cursor;
+    Q3TextDocument *doc;
+    Q3TextCursor cursor;
 
 };
 
@@ -384,8 +384,8 @@ public:
     void clear() { history.clear(); current = -1; }
 
     void addCommand( QTextCommand *cmd );
-    QTextCursor *undo( QTextCursor *c );
-    QTextCursor *redo( QTextCursor *c );
+    Q3TextCursor *undo( Q3TextCursor *c );
+    Q3TextCursor *redo( Q3TextCursor *c );
 
     bool isUndoAvailable();
     bool isRedoAvailable();
@@ -410,13 +410,13 @@ inline QTextCommandHistory::~QTextCommandHistory()
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_GUI_EXPORT QTextCustomItem
+class Q_GUI_EXPORT Q3TextCustomItem
 {
 public:
-    QTextCustomItem( QTextDocument *p )
+    Q3TextCustomItem( Q3TextDocument *p )
 	:  xpos(0), ypos(-1), width(-1), height(0), parent( p )
     {}
-    virtual ~QTextCustomItem();
+    virtual ~Q3TextCustomItem();
     virtual void draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 		      const QPalette &pal, bool selected ) = 0;
 
@@ -443,29 +443,29 @@ public:
 
     QRect geometry() const { return QRect( xpos, ypos, width, height ); }
 
-    virtual bool enter( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
-    virtual bool enterAt( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, const QPoint & );
-    virtual bool next( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy );
-    virtual bool prev( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy );
-    virtual bool down( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy );
-    virtual bool up( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy );
+    virtual bool enter( Q3TextCursor *, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
+    virtual bool enterAt( Q3TextCursor *, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy, const QPoint & );
+    virtual bool next( Q3TextCursor *, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy );
+    virtual bool prev( Q3TextCursor *, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy );
+    virtual bool down( Q3TextCursor *, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy );
+    virtual bool up( Q3TextCursor *, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy );
 
-    void setParagraph( QTextParagraph *p ) { parag = p; }
-    QTextParagraph *paragraph() const { return parag; }
+    void setParagraph( Q3TextParagraph *p ) { parag = p; }
+    Q3TextParagraph *paragraph() const { return parag; }
 
-    QTextDocument *parent;
-    QTextParagraph *parag;
+    Q3TextDocument *parent;
+    Q3TextParagraph *parag;
 
-    virtual void pageBreak( int  y, QTextFlow* flow );
+    virtual void pageBreak( int  y, Q3TextFlow* flow );
 };
 #endif
 
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_GUI_EXPORT QTextImage : public QTextCustomItem
+class Q_GUI_EXPORT QTextImage : public Q3TextCustomItem
 {
 public:
-    QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
+    QTextImage( Q3TextDocument *p, const QMap<QString, QString> &attr, const QString& context,
 		QMimeSourceFactory &factory );
     virtual ~QTextImage();
 
@@ -490,10 +490,10 @@ private:
 #endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_GUI_EXPORT QTextHorizontalLine : public QTextCustomItem
+class Q_GUI_EXPORT QTextHorizontalLine : public Q3TextCustomItem
 {
 public:
-    QTextHorizontalLine( QTextDocument *p, const QMap<QString, QString> &attr, const QString& context,
+    QTextHorizontalLine( Q3TextDocument *p, const QMap<QString, QString> &attr, const QString& context,
 			 QMimeSourceFactory &factory );
     virtual ~QTextHorizontalLine();
 
@@ -512,16 +512,16 @@ private:
 };
 #endif
 
-class Q_GUI_EXPORT QTextFlow
+class Q_GUI_EXPORT Q3TextFlow
 {
-    friend class QTextDocument;
+    friend class Q3TextDocument;
 #ifndef QT_NO_TEXTCUSTOMITEM
     friend class Q3TextTableCell;
 #endif
 
 public:
-    QTextFlow();
-    virtual ~QTextFlow();
+    Q3TextFlow();
+    virtual ~Q3TextFlow();
 
     virtual void setWidth( int width );
     int width() const;
@@ -533,8 +533,8 @@ public:
     virtual int adjustRMargin( int yp, int h, int margin, int space );
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    virtual void registerFloatingItem( QTextCustomItem* item );
-    virtual void unregisterFloatingItem( QTextCustomItem* item );
+    virtual void registerFloatingItem( Q3TextCustomItem* item );
+    virtual void unregisterFloatingItem( Q3TextCustomItem* item );
 #endif
     virtual QRect boundingRect() const;
     virtual void drawFloatingItems(QPainter* p, int cx, int cy, int cw, int ch,
@@ -551,12 +551,12 @@ private:
     int pagesize;
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QList<QTextCustomItem *> leftItems;
-    QList<QTextCustomItem *> rightItems;
+    QList<Q3TextCustomItem *> leftItems;
+    QList<Q3TextCustomItem *> rightItems;
 #endif
 };
 
-inline int QTextFlow::width() const { return w; }
+inline int Q3TextFlow::width() const { return w; }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
 class Q3TextTable;
@@ -593,7 +593,7 @@ public:
     int colspan() const { return colspan_; }
     int stretch() const { return stretch_; }
 
-    QTextDocument* richText()  const { return richtext; }
+    Q3TextDocument* richText()  const { return richtext; }
     Q3TextTable* table() const { return parent; }
 
     void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
@@ -608,7 +608,7 @@ public:
 private:
     QRect geom;
     Q3TextTable* parent;
-    QTextDocument* richtext;
+    Q3TextDocument* richtext;
     int row_;
     int col_;
     int rowspan_;
@@ -627,16 +627,16 @@ private:
 
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-class Q_GUI_EXPORT Q3TextTable: public QTextCustomItem
+class Q_GUI_EXPORT Q3TextTable: public Q3TextCustomItem
 {
     friend class Q3TextTableCell;
 
 public:
-    Q3TextTable( QTextDocument *p, const QMap<QString, QString> &attr );
+    Q3TextTable( Q3TextDocument *p, const QMap<QString, QString> &attr );
     virtual ~Q3TextTable();
 
     void adjustToPainter( QPainter *p );
-    void pageBreak( int  y, QTextFlow* flow );
+    void pageBreak( int  y, Q3TextFlow* flow );
     void draw( QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 	       const QPalette &pal, bool selected );
 
@@ -647,12 +647,12 @@ public:
     void resize( int nwidth );
     virtual void invalidate();
 
-    virtual bool enter( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
-    virtual bool enterAt( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, const QPoint &pos );
-    virtual bool next( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy );
-    virtual bool prev( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy );
-    virtual bool down( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy );
-    virtual bool up( QTextCursor *c, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy );
+    virtual bool enter( Q3TextCursor *c, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
+    virtual bool enterAt( Q3TextCursor *c, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy, const QPoint &pos );
+    virtual bool next( Q3TextCursor *c, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy );
+    virtual bool prev( Q3TextCursor *c, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy );
+    virtual bool down( Q3TextCursor *c, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy );
+    virtual bool up( Q3TextCursor *c, Q3TextDocument *&doc, Q3TextParagraph *&parag, int &idx, int &ox, int &oy );
 
     QString richText() const;
 
@@ -679,7 +679,7 @@ private:
     int innerborder;
     int us_cp, us_ib, us_b, us_ob, us_cs;
     QMap<QString, QString> attributes;
-    QMap<QTextCursor*, int> currCell;
+    QMap<Q3TextCursor*, int> currCell;
     Placement place;
     void adjustCells( int y , int shift );
     int pageBreakFor;
@@ -689,26 +689,26 @@ private:
 
 #ifndef QT_NO_TEXTCUSTOMITEM
 class Q3TextTableCell;
-class QTextParagraph;
+class Q3TextParagraph;
 #endif
 
-struct Q_GUI_EXPORT QTextDocumentSelection
+struct Q_GUI_EXPORT Q3TextDocumentSelection
 {
-    QTextCursor startCursor, endCursor;
+    Q3TextCursor startCursor, endCursor;
     bool swapped;
-    Q_DUMMY_COMPARISON_OPERATOR(QTextDocumentSelection)
+    Q_DUMMY_COMPARISON_OPERATOR(Q3TextDocumentSelection)
 };
 
-class Q_GUI_EXPORT QTextDocument : public QObject
+class Q_GUI_EXPORT Q3TextDocument : public QObject
 {
     Q_OBJECT
 
 #ifndef QT_NO_TEXTCUSTOMITEM
     friend class Q3TextTableCell;
 #endif
-    friend class QTextCursor;
+    friend class Q3TextCursor;
     friend class QTextEdit;
-    friend class QTextParagraph;
+    friend class Q3TextParagraph;
 
 public:
     enum SelectionIds {
@@ -719,12 +719,12 @@ public:
 	// remove multiple lines with removeSelectedText()
     };
 
-    QTextDocument( QTextDocument *p );
-    QTextDocument( QTextDocument *, Q3TextFormatCollection *f );
-    virtual ~QTextDocument();
+    Q3TextDocument( Q3TextDocument *p );
+    Q3TextDocument( Q3TextDocument *, Q3TextFormatCollection *f );
+    virtual ~Q3TextDocument();
 
-    QTextDocument *parent() const { return par; }
-    QTextParagraph *parentParagraph() const { return parentPar; }
+    Q3TextDocument *parent() const { return par; }
+    Q3TextParagraph *parentParagraph() const { return parentPar; }
 
     void setText( const QString &text, const QString &context );
     QMap<QString, QString> attributes() const { return attribs; }
@@ -742,7 +742,7 @@ public:
     int height() const;
     void setWidth( int w );
     int minimumWidth() const;
-    bool setMinimumWidth( int needed, int used = -1, QTextParagraph *parag = 0 );
+    bool setMinimumWidth( int needed, int used = -1, Q3TextParagraph *parag = 0 );
 
     void setY( int y );
     int leftMargin() const;
@@ -750,53 +750,53 @@ public:
     int rightMargin() const;
     void setRightMargin( int rm );
 
-    QTextParagraph *firstParagraph() const;
-    QTextParagraph *lastParagraph() const;
-    void setFirstParagraph( QTextParagraph *p );
-    void setLastParagraph( QTextParagraph *p );
+    Q3TextParagraph *firstParagraph() const;
+    Q3TextParagraph *lastParagraph() const;
+    void setFirstParagraph( Q3TextParagraph *p );
+    void setLastParagraph( Q3TextParagraph *p );
 
     void invalidate();
 
-    void setPreProcessor( QTextPreProcessor *sh );
-    QTextPreProcessor *preProcessor() const;
+    void setPreProcessor( Q3TextPreProcessor *sh );
+    Q3TextPreProcessor *preProcessor() const;
 
     void setFormatter( Q3TextFormatter *f );
     Q3TextFormatter *formatter() const;
 
-    void setIndent( QTextIndent *i );
-    QTextIndent *indent() const;
+    void setIndent( Q3TextIndent *i );
+    Q3TextIndent *indent() const;
 
     QColor selectionColor( int id ) const;
     bool invertSelectionText( int id ) const;
     void setSelectionColor( int id, const QColor &c );
     void setInvertSelectionText( int id, bool b );
     bool hasSelection( int id, bool visible = FALSE ) const;
-    void setSelectionStart( int id, const QTextCursor &cursor );
-    bool setSelectionEnd( int id, const QTextCursor &cursor );
+    void setSelectionStart( int id, const Q3TextCursor &cursor );
+    bool setSelectionEnd( int id, const Q3TextCursor &cursor );
     void selectAll( int id );
     bool removeSelection( int id );
     void selectionStart( int id, int &paragId, int &index );
-    QTextCursor selectionStartCursor( int id );
-    QTextCursor selectionEndCursor( int id );
+    Q3TextCursor selectionStartCursor( int id );
+    Q3TextCursor selectionEndCursor( int id );
     void selectionEnd( int id, int &paragId, int &index );
     void setFormat( int id, Q3TextFormat *f, int flags );
     int numSelections() const { return nSelections; }
     void addSelection( int id );
 
     QString selectedText( int id, bool asRichText = FALSE ) const;
-    void removeSelectedText( int id, QTextCursor *cursor );
+    void removeSelectedText( int id, Q3TextCursor *cursor );
     void indentSelection( int id );
 
-    QTextParagraph *paragAt( int i ) const;
+    Q3TextParagraph *paragAt( int i ) const;
 
     void addCommand( QTextCommand *cmd );
-    QTextCursor *undo( QTextCursor *c = 0 );
-    QTextCursor *redo( QTextCursor *c  = 0 );
+    Q3TextCursor *undo( Q3TextCursor *c = 0 );
+    Q3TextCursor *redo( Q3TextCursor *c  = 0 );
     QTextCommandHistory *commands() const { return commandHistory; }
 
     Q3TextFormatCollection *formatCollection() const;
 
-    bool find( QTextCursor &cursor, const QString &expr, bool cs, bool wo, bool forward);
+    bool find( Q3TextCursor &cursor, const QString &expr, bool cs, bool wo, bool forward);
 
     void setTextFormat( Qt::TextFormat f );
     Qt::TextFormat textFormat() const;
@@ -824,23 +824,23 @@ public:
 
     void doLayout( QPainter *p, int w );
     void draw( QPainter *p, const QRect& rect, const QPalette &pal, const QBrush *paper = 0 );
-    bool useDoubleBuffer( QTextParagraph *parag, QPainter *p );
+    bool useDoubleBuffer( Q3TextParagraph *parag, QPainter *p );
 
-    void drawParagraph( QPainter *p, QTextParagraph *parag, int cx, int cy, int cw, int ch,
+    void drawParagraph( QPainter *p, Q3TextParagraph *parag, int cx, int cy, int cw, int ch,
 		    QPixmap *&doubleBuffer, const QPalette &pal,
-		    bool drawCursor, QTextCursor *cursor, bool resetChanged = TRUE );
-    QTextParagraph *draw( QPainter *p, int cx, int cy, int cw, int ch, const QPalette &pal,
-		      bool onlyChanged = FALSE, bool drawCursor = FALSE, QTextCursor *cursor = 0,
+		    bool drawCursor, Q3TextCursor *cursor, bool resetChanged = TRUE );
+    Q3TextParagraph *draw( QPainter *p, int cx, int cy, int cw, int ch, const QPalette &pal,
+		      bool onlyChanged = FALSE, bool drawCursor = FALSE, Q3TextCursor *cursor = 0,
 		      bool resetChanged = TRUE );
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    void registerCustomItem( QTextCustomItem *i, QTextParagraph *p );
-    void unregisterCustomItem( QTextCustomItem *i, QTextParagraph *p );
+    void registerCustomItem( Q3TextCustomItem *i, Q3TextParagraph *p );
+    void unregisterCustomItem( Q3TextCustomItem *i, Q3TextParagraph *p );
 #endif
 
-    void setFlow( QTextFlow *f );
+    void setFlow( Q3TextFlow *f );
     void takeFlow();
-    QTextFlow *flow() const { return flow_; }
+    Q3TextFlow *flow() const { return flow_; }
     bool isPageBreakEnabled() const { return pages; }
     void setPageBreakEnabled( bool b ) { pages = b; }
 
@@ -873,10 +873,10 @@ public:
     int length() const;
     void clear( bool createEmptyParag = FALSE );
 
-    virtual QTextParagraph *createParagraph( QTextDocument *, QTextParagraph *pr = 0, QTextParagraph *nx = 0, bool updateIds = TRUE );
-    void insertChild( QTextDocument *dc ) { childList.append( dc ); }
-    void removeChild( QTextDocument *dc ) { childList.remove( dc ); }
-    QList<QTextDocument *> children() const { return childList; }
+    virtual Q3TextParagraph *createParagraph( Q3TextDocument *, Q3TextParagraph *pr = 0, Q3TextParagraph *nx = 0, bool updateIds = TRUE );
+    void insertChild( Q3TextDocument *dc ) { childList.append( dc ); }
+    void removeChild( Q3TextDocument *dc ) { childList.remove( dc ); }
+    QList<Q3TextDocument *> children() const { return childList; }
 
     bool hasFocusParagraph() const;
     QString focusHref() const;
@@ -894,8 +894,8 @@ private:
     bool hasPrefix(const QChar* doc, int length, int pos, QChar c);
     bool hasPrefix(const QChar* doc, int length, int pos, const QString& s);
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QTextCustomItem* parseTable( const QMap<QString, QString> &attr, const Q3TextFormat &fmt,
-				 const QChar* doc, int length, int& pos, QTextParagraph *curpar );
+    Q3TextCustomItem* parseTable( const QMap<QString, QString> &attr, const Q3TextFormat &fmt,
+				 const QChar* doc, int length, int& pos, Q3TextParagraph *curpar );
 #endif
     bool eatSpace(const QChar* doc, int length, int& pos, bool includeNbsp = FALSE );
     bool eat(const QChar* doc, int length, int& pos, QChar c);
@@ -904,26 +904,26 @@ private:
     QChar parseHTMLSpecialChar(const QChar* doc, int length, int& pos);
     QString parseWord(const QChar* doc, int length, int& pos, bool lower = TRUE);
     QChar parseChar(const QChar* doc, int length, int& pos, QStyleSheetItem::WhiteSpaceMode wsm );
-    void setRichTextInternal( const QString &text, QTextCursor* cursor = 0 );
-    void setRichTextMarginsInternal( QList< QVector<QStyleSheetItem *> *>& styles, QTextParagraph* stylesPar );
+    void setRichTextInternal( const QString &text, Q3TextCursor* cursor = 0 );
+    void setRichTextMarginsInternal( QList< QVector<QStyleSheetItem *> *>& styles, Q3TextParagraph* stylesPar );
 
 private:
     struct Q_GUI_EXPORT Focus {
-	QTextParagraph *parag;
+	Q3TextParagraph *parag;
 	int start, len;
 	QString href;
 	QString name;
     };
 
     int cx, cy, cw, vw;
-    QTextParagraph *fParag, *lParag;
-    QTextPreProcessor *pProcessor;
+    Q3TextParagraph *fParag, *lParag;
+    Q3TextPreProcessor *pProcessor;
     QMap<int, QColor> selectionColors;
-    QMap<int, QTextDocumentSelection> selections;
+    QMap<int, Q3TextDocumentSelection> selections;
     QMap<int, bool> selectionText;
     QTextCommandHistory *commandHistory;
     Q3TextFormatter *pFormatter;
-    QTextIndent *indenter;
+    Q3TextIndent *indenter;
     Q3TextFormatCollection *fCollection;
     Qt::TextFormat txtFormat;
     uint preferRichText : 1;
@@ -936,9 +936,9 @@ private:
     uint mightHaveCustomItems : 1;
     int align;
     int nSelections;
-    QTextFlow *flow_;
-    QTextDocument *par;
-    QTextParagraph *parentPar;
+    Q3TextFlow *flow_;
+    Q3TextDocument *par;
+    Q3TextParagraph *parentPar;
 #ifndef QT_NO_TEXTCUSTOMITEM
     Q3TextTableCell *tc;
 #endif
@@ -949,7 +949,7 @@ private:
     int wused;
     int leftmargin;
     int rightmargin;
-    QTextParagraph *minwParag, *curParag;
+    Q3TextParagraph *minwParag, *curParag;
     QStyleSheet* sheet_;
 #ifndef QT_NO_MIME
     QMimeSourceFactory* factory_;
@@ -960,14 +960,14 @@ private:
     int tStopWidth;
     int uDepth;
     QString oText;
-    QList<QTextDocument *> childList;
+    QList<Q3TextDocument *> childList;
     QColor linkColor, bodyText;
     double scaleFontsFactor;
 
     short list_tm,list_bm, list_lm, li_tm, li_bm, par_tm, par_bm;
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QTextDocument( const QTextDocument & );
-    QTextDocument &operator=( const QTextDocument & );
+    Q3TextDocument( const Q3TextDocument & );
+    Q3TextDocument &operator=( const Q3TextDocument & );
 #endif
 };
 
@@ -977,19 +977,19 @@ private:
 class Q_GUI_EXPORT QTextDeleteCommand : public QTextCommand
 {
 public:
-    QTextDeleteCommand( QTextDocument *dc, int i, int idx, const QVector<QTextStringChar> &str,
+    QTextDeleteCommand( Q3TextDocument *dc, int i, int idx, const QVector<Q3TextStringChar> &str,
 			const QByteArray& oldStyle );
-    QTextDeleteCommand( QTextParagraph *p, int idx, const QVector<QTextStringChar> &str );
+    QTextDeleteCommand( Q3TextParagraph *p, int idx, const QVector<Q3TextStringChar> &str );
     virtual ~QTextDeleteCommand();
 
     Commands type() const { return Delete; }
-    QTextCursor *execute( QTextCursor *c );
-    QTextCursor *unexecute( QTextCursor *c );
+    Q3TextCursor *execute( Q3TextCursor *c );
+    Q3TextCursor *unexecute( Q3TextCursor *c );
 
 protected:
     int id, index;
-    QTextParagraph *parag;
-    QVector<QTextStringChar> text;
+    Q3TextParagraph *parag;
+    QVector<Q3TextStringChar> text;
     QByteArray styleInformation;
 
 };
@@ -997,33 +997,33 @@ protected:
 class Q_GUI_EXPORT QTextInsertCommand : public QTextDeleteCommand
 {
 public:
-    QTextInsertCommand( QTextDocument *dc, int i, int idx, const QVector<QTextStringChar> &str,
+    QTextInsertCommand( Q3TextDocument *dc, int i, int idx, const QVector<Q3TextStringChar> &str,
 			const QByteArray& oldStyleInfo )
 	: QTextDeleteCommand( dc, i, idx, str, oldStyleInfo ) {}
-    QTextInsertCommand( QTextParagraph *p, int idx, const QVector<QTextStringChar> &str )
+    QTextInsertCommand( Q3TextParagraph *p, int idx, const QVector<Q3TextStringChar> &str )
 	: QTextDeleteCommand( p, idx, str ) {}
     virtual ~QTextInsertCommand() {}
 
     Commands type() const { return Insert; }
-    QTextCursor *execute( QTextCursor *c ) { return QTextDeleteCommand::unexecute( c ); }
-    QTextCursor *unexecute( QTextCursor *c ) { return QTextDeleteCommand::execute( c ); }
+    Q3TextCursor *execute( Q3TextCursor *c ) { return QTextDeleteCommand::unexecute( c ); }
+    Q3TextCursor *unexecute( Q3TextCursor *c ) { return QTextDeleteCommand::execute( c ); }
 
 };
 
 class Q_GUI_EXPORT Q3TextFormatCommand : public QTextCommand
 {
 public:
-    Q3TextFormatCommand( QTextDocument *dc, int sid, int sidx, int eid, int eidx, const QVector<QTextStringChar> &old, Q3TextFormat *f, int fl );
+    Q3TextFormatCommand( Q3TextDocument *dc, int sid, int sidx, int eid, int eidx, const QVector<Q3TextStringChar> &old, Q3TextFormat *f, int fl );
     virtual ~Q3TextFormatCommand();
 
     Commands type() const { return Format; }
-    QTextCursor *execute( QTextCursor *c );
-    QTextCursor *unexecute( QTextCursor *c );
+    Q3TextCursor *execute( Q3TextCursor *c );
+    Q3TextCursor *unexecute( Q3TextCursor *c );
 
 protected:
     int startId, startIndex, endId, endIndex;
     Q3TextFormat *format;
-    QVector<QTextStringChar> oldFormats;
+    QVector<Q3TextStringChar> oldFormats;
     int flags;
 
 };
@@ -1031,15 +1031,15 @@ protected:
 class Q_GUI_EXPORT QTextStyleCommand : public QTextCommand
 {
 public:
-    QTextStyleCommand( QTextDocument *dc, int fParag, int lParag, const QByteArray& beforeChange  );
+    QTextStyleCommand( Q3TextDocument *dc, int fParag, int lParag, const QByteArray& beforeChange  );
     virtual ~QTextStyleCommand() {}
 
     Commands type() const { return Style; }
-    QTextCursor *execute( QTextCursor *c );
-    QTextCursor *unexecute( QTextCursor *c );
+    Q3TextCursor *execute( Q3TextCursor *c );
+    Q3TextCursor *unexecute( Q3TextCursor *c );
 
-    static QByteArray readStyleInformation(  QTextDocument* dc, int fParag, int lParag );
-    static void writeStyleInformation(  QTextDocument* dc, int fParag, const QByteArray& style );
+    static QByteArray readStyleInformation(  Q3TextDocument* dc, int fParag, int lParag );
+    static void writeStyleInformation(  Q3TextDocument* dc, int fParag, const QByteArray& style );
 
 private:
     int firstParag, lastParag;
@@ -1049,10 +1049,10 @@ private:
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-struct Q_GUI_EXPORT QTextParagraphSelection
+struct Q_GUI_EXPORT Q3TextParagraphSelection
 {
     int start, end;
-    Q_DUMMY_COMPARISON_OPERATOR(QTextParagraphSelection)
+    Q_DUMMY_COMPARISON_OPERATOR(Q3TextParagraphSelection)
 };
 
 struct Q_GUI_EXPORT QTextLineStart
@@ -1068,30 +1068,30 @@ public:
     int w;
 };
 
-class Q_GUI_EXPORT QTextParagraphData
+class Q_GUI_EXPORT Q3TextParagraphData
 {
 public:
-    QTextParagraphData() {}
-    virtual ~QTextParagraphData();
-    virtual void join( QTextParagraphData * );
+    Q3TextParagraphData() {}
+    virtual ~Q3TextParagraphData();
+    virtual void join( Q3TextParagraphData * );
 };
 
-class QTextParagraphPseudoDocument;
+class Q3TextParagraphPseudoDocument;
 
 class QSyntaxHighlighter;
 
-class Q_GUI_EXPORT QTextParagraph
+class Q_GUI_EXPORT Q3TextParagraph
 {
-    friend class QTextDocument;
-    friend class QTextCursor;
+    friend class Q3TextDocument;
+    friend class Q3TextCursor;
     friend class QSyntaxHighlighter;
 
 public:
-    QTextParagraph( QTextDocument *dc, QTextParagraph *pr = 0, QTextParagraph *nx = 0, bool updateIds = TRUE );
-    ~QTextParagraph();
+    Q3TextParagraph( Q3TextDocument *dc, Q3TextParagraph *pr = 0, Q3TextParagraph *nx = 0, bool updateIds = TRUE );
+    ~Q3TextParagraph();
 
-    QTextString *string() const;
-    QTextStringChar *at( int i ) const; // maybe remove later
+    Q3TextString *string() const;
+    Q3TextStringChar *at( int i ) const; // maybe remove later
     int leftGap() const;
     int length() const; // maybe remove later
 
@@ -1108,11 +1108,11 @@ public:
 //     void setFormat( Q3TextFormat *fm );
 //     Q3TextFormat *paragFormat() const;
 
-    inline QTextDocument *document() const {
-	if (hasdoc) return (QTextDocument*) docOrPseudo;
+    inline Q3TextDocument *document() const {
+	if (hasdoc) return (Q3TextDocument*) docOrPseudo;
 	return 0;
     }
-    QTextParagraphPseudoDocument *pseudoDocument() const;
+    Q3TextParagraphPseudoDocument *pseudoDocument() const;
 
     QRect rect() const;
     void setHeight( int h ) { r.setHeight( h ); }
@@ -1120,17 +1120,17 @@ public:
     void hide();
     bool isVisible() const { return visible; }
 
-    QTextParagraph *prev() const;
-    QTextParagraph *next() const;
-    void setPrev( QTextParagraph *s );
-    void setNext( QTextParagraph *s );
+    Q3TextParagraph *prev() const;
+    Q3TextParagraph *next() const;
+    void setPrev( Q3TextParagraph *s );
+    void setNext( Q3TextParagraph *s );
 
     void insert( int index, const QString &s );
     void insert( int index, const QChar *unicode, int len );
     void append( const QString &s, bool reallyAtEnd = FALSE );
     void truncate( int index );
     void remove( int index, int len );
-    void join( QTextParagraph *s );
+    void join( Q3TextParagraph *s );
 
     void invalidate( int chr );
 
@@ -1142,9 +1142,9 @@ public:
     void setChanged( bool b, bool recursive = FALSE );
 
     int lineHeightOfChar( int i, int *bl = 0, int *y = 0 ) const;
-    QTextStringChar *lineStartOfChar( int i, int *index = 0, int *line = 0 ) const;
+    Q3TextStringChar *lineStartOfChar( int i, int *index = 0, int *line = 0 ) const;
     int lines() const;
-    QTextStringChar *lineStartOfLine( int line, int *index = 0 ) const;
+    Q3TextStringChar *lineStartOfLine( int line, int *index = 0 ) const;
     int lineY( int l ) const;
     int lineBaseLine( int l ) const;
     int lineHeight( int l ) const;
@@ -1169,8 +1169,8 @@ public:
 
     void indent( int *oldIndent = 0, int *newIndent = 0 );
 
-    void setExtraData( QTextParagraphData *data );
-    QTextParagraphData *extraData() const;
+    void setExtraData( Q3TextParagraphData *data );
+    Q3TextParagraphData *extraData() const;
 
     QMap<int, QTextLineStart*> &lineStartList();
 
@@ -1179,7 +1179,7 @@ public:
     void setAlignment( int a );
     int alignment() const;
 
-    void paint( QPainter &painter, const QPalette &pal, QTextCursor *cursor = 0,
+    void paint( QPainter &painter, const QPalette &pal, Q3TextCursor *cursor = 0,
 		bool drawSelections = FALSE, int clipx = -1, int clipy = -1,
 		int clipw = -1, int cliph = -1 );
 
@@ -1191,8 +1191,8 @@ public:
     int lineSpacing() const;
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    void registerFloatingItem( QTextCustomItem *i );
-    void unregisterFloatingItem( QTextCustomItem *i );
+    void registerFloatingItem( Q3TextCustomItem *i );
+    void unregisterFloatingItem( Q3TextCustomItem *i );
 #endif
 
     void setFullWidth( bool b ) { fullWidth = b; }
@@ -1224,10 +1224,10 @@ public:
     QString richText() const;
 
     void addCommand( QTextCommand *cmd );
-    QTextCursor *undo( QTextCursor *c = 0 );
-    QTextCursor *redo( QTextCursor *c  = 0 );
+    Q3TextCursor *undo( Q3TextCursor *c = 0 );
+    Q3TextCursor *redo( Q3TextCursor *c  = 0 );
     QTextCommandHistory *commands() const;
-    void copyParagData( QTextParagraph *parag );
+    void copyParagData( Q3TextParagraph *parag );
 
     void setBreakable( bool b ) { breakable = b; }
     bool isBreakable() const { return breakable; }
@@ -1251,13 +1251,13 @@ protected:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QPalette &pal );
     void drawString( QPainter &painter, const QString &str, int start, int len, int xstart,
 			     int y, int baseLine, int w, int h, bool drawSelections, int fullSelectionWidth,
-			     QTextStringChar *formatChar, const QPalette &pal,
+			     Q3TextStringChar *formatChar, const QPalette &pal,
 			     bool rightToLeft );
 
 private:
-    QMap<int, QTextParagraphSelection> &selections() const;
+    QMap<int, Q3TextParagraphSelection> &selections() const;
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QList<QTextCustomItem *> &floatingItems() const;
+    QList<Q3TextCustomItem *> &floatingItems() const;
 #endif
     inline QBrush backgroundBrush( const QPalette &pal ) {
 	if ( bgcol )
@@ -1268,7 +1268,7 @@ private:
 
     QMap<int, QTextLineStart*> lineStarts;
     QRect r;
-    QTextParagraph *p, *n;
+    Q3TextParagraph *p, *n;
     void *docOrPseudo;
     uint changed : 1;
     uint firstFormat : 1;
@@ -1287,15 +1287,15 @@ private:
     uint /*QStyleSheetItem::ListStyle*/ lstyle : 4;
     int invalid;
     int state, id;
-    QTextString *str;
-    QMap<int, QTextParagraphSelection> *mSelections;
+    Q3TextString *str;
+    QMap<int, Q3TextParagraphSelection> *mSelections;
 #ifndef QT_NO_TEXTCUSTOMITEM
-    QList<QTextCustomItem *> *mFloatingItems;
+    QList<Q3TextCustomItem *> *mFloatingItems;
 #endif
     short utm, ubm, ulm, urm, uflm, ulinespacing;
     short tabStopWidth, minwidth;
     int *tArray;
-    QTextParagraphData *eData;
+    Q3TextParagraphData *eData;
     short list_val;
     ushort ldepth;
     QColor *bgcol;
@@ -1310,10 +1310,10 @@ public:
     Q3TextFormatter();
     virtual ~Q3TextFormatter();
 
-    virtual int format( QTextDocument *doc, QTextParagraph *parag, int start, const QMap<int, QTextLineStart*> &oldLineStarts ) = 0;
-    virtual int formatVertically( QTextDocument* doc, QTextParagraph* parag );
+    virtual int format( Q3TextDocument *doc, Q3TextParagraph *parag, int start, const QMap<int, QTextLineStart*> &oldLineStarts ) = 0;
+    virtual int formatVertically( Q3TextDocument* doc, Q3TextParagraph* parag );
 
-    bool isWrapEnabled( QTextParagraph *p ) const { if ( !wrapEnabled ) return FALSE; if ( p && !p->isBreakable() ) return FALSE; return TRUE;}
+    bool isWrapEnabled( Q3TextParagraph *p ) const { if ( !wrapEnabled ) return FALSE; if ( p && !p->isBreakable() ) return FALSE; return TRUE;}
     int wrapAtColumn() const { return wrapColumn;}
     virtual void setWrapEnabled( bool b );
     virtual void setWrapAtColumn( int c );
@@ -1324,13 +1324,13 @@ public:
     int widthUsed() const { return thiswused; }
 
 protected:
-    virtual QTextLineStart *formatLine( QTextParagraph *parag, QTextString *string, QTextLineStart *line, QTextStringChar *start,
-					       QTextStringChar *last, int align = Qt::AlignAuto, int space = 0 );
+    virtual QTextLineStart *formatLine( Q3TextParagraph *parag, Q3TextString *string, QTextLineStart *line, Q3TextStringChar *start,
+					       Q3TextStringChar *last, int align = Qt::AlignAuto, int space = 0 );
 #ifndef QT_NO_COMPLEXTEXT
-    virtual QTextLineStart *bidiReorderLine( QTextParagraph *parag, QTextString *string, QTextLineStart *line, QTextStringChar *start,
-						    QTextStringChar *last, int align, int space );
+    virtual QTextLineStart *bidiReorderLine( Q3TextParagraph *parag, Q3TextString *string, QTextLineStart *line, Q3TextStringChar *start,
+						    Q3TextStringChar *last, int align, int space );
 #endif
-    void insertLineStart( QTextParagraph *parag, int index, QTextLineStart *ls );
+    void insertLineStart( Q3TextParagraph *parag, int index, QTextLineStart *ls );
 
     int thisminw;
     int thiswused;
@@ -1349,7 +1349,7 @@ public:
     Q3TextFormatterBreakInWords();
     virtual ~Q3TextFormatterBreakInWords() {}
 
-    int format( QTextDocument *doc, QTextParagraph *parag, int start, const QMap<int, QTextLineStart*> &oldLineStarts );
+    int format( Q3TextDocument *doc, Q3TextParagraph *parag, int start, const QMap<int, QTextLineStart*> &oldLineStarts );
 
 };
 
@@ -1361,35 +1361,35 @@ public:
     Q3TextFormatterBreakWords();
     virtual ~Q3TextFormatterBreakWords() {}
 
-    int format( QTextDocument *doc, QTextParagraph *parag, int start, const QMap<int, QTextLineStart*> &oldLineStarts );
+    int format( Q3TextDocument *doc, Q3TextParagraph *parag, int start, const QMap<int, QTextLineStart*> &oldLineStarts );
 
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT QTextIndent
+class Q_GUI_EXPORT Q3TextIndent
 {
 public:
-    QTextIndent();
-    virtual ~QTextIndent() {}
+    Q3TextIndent();
+    virtual ~Q3TextIndent() {}
 
-    virtual void indent( QTextDocument *doc, QTextParagraph *parag, int *oldIndent = 0, int *newIndent = 0 ) = 0;
+    virtual void indent( Q3TextDocument *doc, Q3TextParagraph *parag, int *oldIndent = 0, int *newIndent = 0 ) = 0;
 
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-class Q_GUI_EXPORT QTextPreProcessor
+class Q_GUI_EXPORT Q3TextPreProcessor
 {
 public:
     enum Ids {
 	Standard = 0
     };
 
-    QTextPreProcessor();
-    virtual ~QTextPreProcessor() {}
+    Q3TextPreProcessor();
+    virtual ~Q3TextPreProcessor() {}
 
-    virtual void process( QTextDocument *doc, QTextParagraph *, int, bool = TRUE ) = 0;
+    virtual void process( Q3TextDocument *doc, Q3TextParagraph *, int, bool = TRUE ) = 0;
     virtual Q3TextFormat *format( int id ) = 0;
 
 };
@@ -1399,7 +1399,7 @@ public:
 class Q_GUI_EXPORT Q3TextFormat
 {
     friend class Q3TextFormatCollection;
-    friend class QTextDocument;
+    friend class Q3TextDocument;
 
 public:
     enum Flags {
@@ -1506,7 +1506,7 @@ private:
 
 class Q_GUI_EXPORT Q3TextFormatCollection
 {
-    friend class QTextDocument;
+    friend class Q3TextDocument;
     friend class Q3TextFormat;
 
 public:
@@ -1542,11 +1542,11 @@ private:
     QPaintDevice *paintdevice;
 };
 
-class Q_GUI_EXPORT QTextParagraphPseudoDocument
+class Q_GUI_EXPORT Q3TextParagraphPseudoDocument
 {
 public:
-    QTextParagraphPseudoDocument();
-    ~QTextParagraphPseudoDocument();
+    Q3TextParagraphPseudoDocument();
+    ~Q3TextParagraphPseudoDocument();
     QRect docRect;
     Q3TextFormatter *pFormatter;
     QTextCommandHistory *commandHistory;
@@ -1557,206 +1557,206 @@ public:
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline int QTextParagraph::length() const
+inline int Q3TextParagraph::length() const
 {
     return str->length();
 }
 
-inline QRect QTextParagraph::rect() const
+inline QRect Q3TextParagraph::rect() const
 {
     return r;
 }
 
-inline int QTextCursor::index() const
+inline int Q3TextCursor::index() const
 {
     return idx;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline int QTextDocument::x() const
+inline int Q3TextDocument::x() const
 {
     return cx;
 }
 
-inline int QTextDocument::y() const
+inline int Q3TextDocument::y() const
 {
     return cy;
 }
 
-inline int QTextDocument::width() const
+inline int Q3TextDocument::width() const
 {
     return qMax( cw, flow_->width() );
 }
 
-inline int QTextDocument::visibleWidth() const
+inline int Q3TextDocument::visibleWidth() const
 {
     return vw;
 }
 
-inline QTextParagraph *QTextDocument::firstParagraph() const
+inline Q3TextParagraph *Q3TextDocument::firstParagraph() const
 {
     return fParag;
 }
 
-inline QTextParagraph *QTextDocument::lastParagraph() const
+inline Q3TextParagraph *Q3TextDocument::lastParagraph() const
 {
     return lParag;
 }
 
-inline void QTextDocument::setFirstParagraph( QTextParagraph *p )
+inline void Q3TextDocument::setFirstParagraph( Q3TextParagraph *p )
 {
     fParag = p;
 }
 
-inline void QTextDocument::setLastParagraph( QTextParagraph *p )
+inline void Q3TextDocument::setLastParagraph( Q3TextParagraph *p )
 {
     lParag = p;
 }
 
-inline void QTextDocument::setWidth( int w )
+inline void Q3TextDocument::setWidth( int w )
 {
     cw = qMax( w, minw );
     flow_->setWidth( cw );
     vw = w;
 }
 
-inline int QTextDocument::minimumWidth() const
+inline int Q3TextDocument::minimumWidth() const
 {
     return minw;
 }
 
-inline void QTextDocument::setY( int y )
+inline void Q3TextDocument::setY( int y )
 {
     cy = y;
 }
 
-inline int QTextDocument::leftMargin() const
+inline int Q3TextDocument::leftMargin() const
 {
     return leftmargin;
 }
 
-inline void QTextDocument::setLeftMargin( int lm )
+inline void Q3TextDocument::setLeftMargin( int lm )
 {
     leftmargin = lm;
 }
 
-inline int QTextDocument::rightMargin() const
+inline int Q3TextDocument::rightMargin() const
 {
     return rightmargin;
 }
 
-inline void QTextDocument::setRightMargin( int rm )
+inline void Q3TextDocument::setRightMargin( int rm )
 {
     rightmargin = rm;
 }
 
-inline QTextPreProcessor *QTextDocument::preProcessor() const
+inline Q3TextPreProcessor *Q3TextDocument::preProcessor() const
 {
     return pProcessor;
 }
 
-inline void QTextDocument::setPreProcessor( QTextPreProcessor * sh )
+inline void Q3TextDocument::setPreProcessor( Q3TextPreProcessor * sh )
 {
     pProcessor = sh;
 }
 
-inline void QTextDocument::setFormatter( Q3TextFormatter *f )
+inline void Q3TextDocument::setFormatter( Q3TextFormatter *f )
 {
     delete pFormatter;
     pFormatter = f;
 }
 
-inline Q3TextFormatter *QTextDocument::formatter() const
+inline Q3TextFormatter *Q3TextDocument::formatter() const
 {
     return pFormatter;
 }
 
-inline void QTextDocument::setIndent( QTextIndent *i )
+inline void Q3TextDocument::setIndent( Q3TextIndent *i )
 {
     indenter = i;
 }
 
-inline QTextIndent *QTextDocument::indent() const
+inline Q3TextIndent *Q3TextDocument::indent() const
 {
     return indenter;
 }
 
-inline QColor QTextDocument::selectionColor( int id ) const
+inline QColor Q3TextDocument::selectionColor( int id ) const
 {
     return selectionColors[ id ];
 }
 
-inline bool QTextDocument::invertSelectionText( int id ) const
+inline bool Q3TextDocument::invertSelectionText( int id ) const
 {
     return selectionText[ id ];
 }
 
-inline void QTextDocument::setSelectionColor( int id, const QColor &c )
+inline void Q3TextDocument::setSelectionColor( int id, const QColor &c )
 {
     selectionColors[ id ] = c;
 }
 
-inline void QTextDocument::setInvertSelectionText( int id, bool b )
+inline void Q3TextDocument::setInvertSelectionText( int id, bool b )
 {
     selectionText[ id ] = b;
 }
 
-inline Q3TextFormatCollection *QTextDocument::formatCollection() const
+inline Q3TextFormatCollection *Q3TextDocument::formatCollection() const
 {
     return fCollection;
 }
 
-inline int QTextDocument::alignment() const
+inline int Q3TextDocument::alignment() const
 {
     return align;
 }
 
-inline void QTextDocument::setAlignment( int a )
+inline void Q3TextDocument::setAlignment( int a )
 {
     align = a;
 }
 
-inline int *QTextDocument::tabArray() const
+inline int *Q3TextDocument::tabArray() const
 {
     return tArray;
 }
 
-inline int QTextDocument::tabStopWidth() const
+inline int Q3TextDocument::tabStopWidth() const
 {
     return tStopWidth;
 }
 
-inline void QTextDocument::setTabArray( int *a )
+inline void Q3TextDocument::setTabArray( int *a )
 {
     tArray = a;
 }
 
-inline void QTextDocument::setTabStops( int tw )
+inline void Q3TextDocument::setTabStops( int tw )
 {
     tStopWidth = tw;
 }
 
-inline QString QTextDocument::originalText() const
+inline QString Q3TextDocument::originalText() const
 {
     if ( oTextValid )
 	return oText;
     return text();
 }
 
-inline void QTextDocument::setFlow( QTextFlow *f )
+inline void Q3TextDocument::setFlow( Q3TextFlow *f )
 {
     if ( flow_ )
 	delete flow_;
     flow_ = f;
 }
 
-inline void QTextDocument::takeFlow()
+inline void Q3TextDocument::takeFlow()
 {
     flow_ = 0;
 }
 
-inline bool QTextDocument::useDoubleBuffer( QTextParagraph *parag, QPainter *p )
+inline bool Q3TextDocument::useDoubleBuffer( Q3TextParagraph *parag, QPainter *p )
 {
     return ( !parag->document()->parent() || parag->document()->nextDoubleBuffered ) &&
 	( !p || !p->device() || p->device()->devType() != QInternal::Printer );
@@ -1820,34 +1820,34 @@ inline bool Q3TextFormat::useLinkColor() const
     return linkColor;
 }
 
-inline QTextStringChar *QTextParagraph::at( int i ) const
+inline Q3TextStringChar *Q3TextParagraph::at( int i ) const
 {
     return &str->at( i );
 }
 
-inline bool QTextParagraph::isValid() const
+inline bool Q3TextParagraph::isValid() const
 {
     return invalid == -1;
 }
 
-inline bool QTextParagraph::hasChanged() const
+inline bool Q3TextParagraph::hasChanged() const
 {
     return changed;
 }
 
-inline void QTextParagraph::setBackgroundColor( const QColor & c )
+inline void Q3TextParagraph::setBackgroundColor( const QColor & c )
 {
     delete bgcol;
     bgcol = new QColor( c );
     setChanged( TRUE );
 }
 
-inline void QTextParagraph::clearBackgroundColor()
+inline void Q3TextParagraph::clearBackgroundColor()
 {
     delete bgcol; bgcol = 0; setChanged( TRUE );
 }
 
-inline void QTextParagraph::append( const QString &s, bool reallyAtEnd )
+inline void Q3TextParagraph::append( const QString &s, bool reallyAtEnd )
 {
     if ( reallyAtEnd )
 	insert( str->length(), s );
@@ -1855,104 +1855,104 @@ inline void QTextParagraph::append( const QString &s, bool reallyAtEnd )
 	insert( qMax( str->length() - 1, 0 ), s );
 }
 
-inline QTextParagraph *QTextParagraph::prev() const
+inline Q3TextParagraph *Q3TextParagraph::prev() const
 {
     return p;
 }
 
-inline QTextParagraph *QTextParagraph::next() const
+inline Q3TextParagraph *Q3TextParagraph::next() const
 {
     return n;
 }
 
-inline bool QTextParagraph::hasAnySelection() const
+inline bool Q3TextParagraph::hasAnySelection() const
 {
     return mSelections ? !selections().isEmpty() : FALSE;
 }
 
-inline void QTextParagraph::setEndState( int s )
+inline void Q3TextParagraph::setEndState( int s )
 {
     if ( s == state )
 	return;
     state = s;
 }
 
-inline int QTextParagraph::endState() const
+inline int Q3TextParagraph::endState() const
 {
     return state;
 }
 
-inline void QTextParagraph::setParagId( int i )
+inline void Q3TextParagraph::setParagId( int i )
 {
     id = i;
 }
 
-inline int QTextParagraph::paragId() const
+inline int Q3TextParagraph::paragId() const
 {
     if ( id == -1 )
 	qWarning( "invalid parag id!!!!!!!! (%p)", (void*)this );
     return id;
 }
 
-inline bool QTextParagraph::firstPreProcess() const
+inline bool Q3TextParagraph::firstPreProcess() const
 {
     return firstPProcess;
 }
 
-inline void QTextParagraph::setFirstPreProcess( bool b )
+inline void Q3TextParagraph::setFirstPreProcess( bool b )
 {
     firstPProcess = b;
 }
 
-inline QMap<int, QTextLineStart*> &QTextParagraph::lineStartList()
+inline QMap<int, QTextLineStart*> &Q3TextParagraph::lineStartList()
 {
     return lineStarts;
 }
 
-inline QTextString *QTextParagraph::string() const
+inline Q3TextString *Q3TextParagraph::string() const
 {
     return str;
 }
 
-inline QTextParagraphPseudoDocument *QTextParagraph::pseudoDocument() const
+inline Q3TextParagraphPseudoDocument *Q3TextParagraph::pseudoDocument() const
 {
     if ( hasdoc )
 	return 0;
-    return (QTextParagraphPseudoDocument*) docOrPseudo;
+    return (Q3TextParagraphPseudoDocument*) docOrPseudo;
 }
 
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-inline Q3TextTableCell *QTextParagraph::tableCell() const
+inline Q3TextTableCell *Q3TextParagraph::tableCell() const
 {
     return hasdoc ? document()->tableCell () : 0;
 }
 #endif
 
-inline QTextCommandHistory *QTextParagraph::commands() const
+inline QTextCommandHistory *Q3TextParagraph::commands() const
 {
     return hasdoc ? document()->commands() : pseudoDocument()->commandHistory;
 }
 
 
-inline int QTextParagraph::alignment() const
+inline int Q3TextParagraph::alignment() const
 {
     return align;
 }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-inline void QTextParagraph::registerFloatingItem( QTextCustomItem *i )
+inline void Q3TextParagraph::registerFloatingItem( Q3TextCustomItem *i )
 {
     floatingItems().append( i );
 }
 
-inline void QTextParagraph::unregisterFloatingItem( QTextCustomItem *i )
+inline void Q3TextParagraph::unregisterFloatingItem( Q3TextCustomItem *i )
 {
     floatingItems().remove( i );
 }
 #endif
 
-inline QBrush *QTextParagraph::background() const
+inline QBrush *Q3TextParagraph::background() const
 {
 #ifndef QT_NO_TEXTCUSTOMITEM
     return tableCell() ? tableCell()->backGround() : 0;
@@ -1961,32 +1961,32 @@ inline QBrush *QTextParagraph::background() const
 #endif
 }
 
-inline int QTextParagraph::documentWidth() const
+inline int Q3TextParagraph::documentWidth() const
 {
     return hasdoc ? document()->width() : pseudoDocument()->docRect.width();
 }
 
-inline int QTextParagraph::documentVisibleWidth() const
+inline int Q3TextParagraph::documentVisibleWidth() const
 {
     return hasdoc ? document()->visibleWidth() : pseudoDocument()->docRect.width();
 }
 
-inline int QTextParagraph::documentX() const
+inline int Q3TextParagraph::documentX() const
 {
     return hasdoc ? document()->x() : pseudoDocument()->docRect.x();
 }
 
-inline int QTextParagraph::documentY() const
+inline int Q3TextParagraph::documentY() const
 {
     return hasdoc ? document()->y() : pseudoDocument()->docRect.y();
 }
 
-inline void QTextParagraph::setExtraData( QTextParagraphData *data )
+inline void Q3TextParagraph::setExtraData( Q3TextParagraphData *data )
 {
     eData = data;
 }
 
-inline QTextParagraphData *QTextParagraph::extraData() const
+inline Q3TextParagraphData *Q3TextParagraph::extraData() const
 {
     return eData;
 }
@@ -2005,38 +2005,38 @@ inline Q3TextFormat *Q3TextFormatCollection::defaultFormat() const
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-inline Q3TextFormat *QTextStringChar::format() const
+inline Q3TextFormat *Q3TextStringChar::format() const
 {
     return (type == Regular) ? p.format : p.custom->format;
 }
 
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-inline QTextCustomItem *QTextStringChar::customItem() const
+inline Q3TextCustomItem *Q3TextStringChar::customItem() const
 {
     return isCustom() ? p.custom->custom : 0;
 }
 #endif
 
-inline int QTextStringChar::height() const
+inline int Q3TextStringChar::height() const
 {
 #ifndef QT_NO_TEXTCUSTOMITEM
-    return !isCustom() ? format()->height() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->height : 0 );
+    return !isCustom() ? format()->height() : ( customItem()->placement() == Q3TextCustomItem::PlaceInline ? customItem()->height : 0 );
 #else
     return format()->height();
 #endif
 }
 
-inline int QTextStringChar::ascent() const
+inline int Q3TextStringChar::ascent() const
 {
 #ifndef QT_NO_TEXTCUSTOMITEM
-    return !isCustom() ? format()->ascent() : ( customItem()->placement() == QTextCustomItem::PlaceInline ? customItem()->ascent() : 0 );
+    return !isCustom() ? format()->ascent() : ( customItem()->placement() == Q3TextCustomItem::PlaceInline ? customItem()->ascent() : 0 );
 #else
     return format()->ascent();
 #endif
 }
 
-inline int QTextStringChar::descent() const
+inline int Q3TextStringChar::descent() const
 {
 #ifndef QT_NO_TEXTCUSTOMITEM
     return !isCustom() ? format()->descent() : 0;

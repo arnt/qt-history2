@@ -27,21 +27,21 @@
 #define QT_TEXTEDIT_OPTIMIZATION
 
 class QPainter;
-class QTextDocument;
-class QTextCursor;
+class Q3TextDocument;
+class Q3TextCursor;
 class QKeyEvent;
 class QResizeEvent;
 class QMouseEvent;
 class QTimer;
-class QTextString;
+class Q3TextString;
 class QTextCommand;
-class QTextParagraph;
+class Q3TextParagraph;
 class Q3TextFormat;
 class QFont;
 class QColor;
 class QTextEdit;
 class QTextBrowser;
-class QTextString;
+class Q3TextString;
 struct QUndoRedoInfoPrivate;
 class QPopupMenu;
 class QTextEditPrivate;
@@ -342,7 +342,7 @@ public slots:
     virtual void setUndoDepth( int d );
     virtual void setFormat( Q3TextFormat *f, int flags );
     virtual void ensureCursorVisible();
-    virtual void placeCursor( const QPoint &pos, QTextCursor *c = 0 );
+    virtual void placeCursor( const QPoint &pos, Q3TextCursor *c = 0 );
     virtual void moveCursor( CursorAction action, bool select );
     virtual void doKeyboardAction( KeyboardAction action );
     virtual void removeSelectedText( int selNum = 0 );
@@ -383,7 +383,7 @@ signals:
     void currentColorChanged( const QColor &c );
     void currentAlignmentChanged( int a );
     void currentVerticalAlignmentChanged( VerticalAlignment a );
-    void cursorPositionChanged( QTextCursor *c );
+    void cursorPositionChanged( Q3TextCursor *c );
     void cursorPositionChanged( int para, int pos );
     void returnPressed();
     void modificationChanged( bool m );
@@ -417,9 +417,9 @@ protected:
 #endif
     void contentsContextMenuEvent( QContextMenuEvent *e );
     bool focusNextPrevChild( bool next );
-    QTextDocument *document() const;
-    QTextCursor *textCursor() const;
-    void setDocument( QTextDocument *doc );
+    Q3TextDocument *document() const;
+    Q3TextCursor *textCursor() const;
+    void setDocument( Q3TextDocument *doc );
     virtual QPopupMenu *createPopupMenu( const QPoint& pos );
     virtual QPopupMenu *createPopupMenu();
     void drawCursor( bool visible );
@@ -442,7 +442,7 @@ private:
     struct Q_GUI_EXPORT UndoRedoInfo {
 	enum Type { Invalid, Insert, Delete, Backspace, Return, RemoveSelected, Format, Style };
 
-	UndoRedoInfo( QTextDocument *dc );
+	UndoRedoInfo( Q3TextDocument *dc );
 	~UndoRedoInfo();
 	void clear();
 	bool valid() const;
@@ -455,7 +455,7 @@ private:
 	Q3TextFormat *format;
 	int flags;
 	Type type;
-	QTextDocument *doc;
+	Q3TextDocument *doc;
 	QByteArray styleInformation;
     };
 
@@ -468,7 +468,7 @@ private:
     void checkUndoRedoInfo( UndoRedoInfo::Type t );
     void updateCurrentFormat();
     bool handleReadOnlyKeyEvent( QKeyEvent *e );
-    void makeParagVisible( QTextParagraph *p );
+    void makeParagVisible( Q3TextParagraph *p );
     void normalCopy();
     void copyToClipboard();
 #ifndef QT_NO_MIME
@@ -483,12 +483,12 @@ private:
     virtual void emitHighlighted( const QString & ) {}
     virtual void emitLinkClicked( const QString & ) {}
 
-    void readFormats( QTextCursor &c1, QTextCursor &c2, QTextString &text, bool fillStyles = FALSE );
+    void readFormats( Q3TextCursor &c1, Q3TextCursor &c2, Q3TextString &text, bool fillStyles = FALSE );
     void clearUndoRedo();
     void paintDocument( bool drawAll, QPainter *p, int cx = -1, int cy = -1, int cw = -1, int ch = -1 );
     void moveCursor( CursorAction action );
-    void ensureFormatted( QTextParagraph *p );
-    void placeCursor( const QPoint &pos, QTextCursor *c, bool link );
+    void ensureFormatted( Q3TextParagraph *p );
+    void placeCursor( const QPoint &pos, Q3TextCursor *c, bool link );
     void updateMicroFocusHint();
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -511,7 +511,7 @@ private:
     bool optimFind( const QString & str, bool, bool, bool, int *, int * );
     void optimParseTags( QString * str, int lineNo = -1, int indexOffset = 0 );
     QTextEditOptimPrivate::Tag * optimPreviousLeftTag( int line );
-    void optimSetTextFormat( QTextDocument *, QTextCursor *, Q3TextFormat * f,
+    void optimSetTextFormat( Q3TextDocument *, Q3TextCursor *, Q3TextFormat * f,
 			     int, int, QTextEditOptimPrivate::Tag * t );
     QTextEditOptimPrivate::Tag * optimAppendTag( int index, const QString & tag );
     QTextEditOptimPrivate::Tag * optimInsertTag( int line, int index, const QString & tag );
@@ -527,10 +527,10 @@ private:
 #endif
 
 private:
-    QTextDocument *doc;
-    QTextCursor *cursor;
+    Q3TextDocument *doc;
+    Q3TextCursor *cursor;
     QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer, *dragStartTimer;
-    QTextParagraph *lastFormatted;
+    Q3TextParagraph *lastFormatted;
     int interval;
     UndoRedoInfo undoRedoInfo;
     Q3TextFormat *currentFormat;
@@ -564,12 +564,12 @@ private:	// Disabled copy constructor and operator=
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QTextEdit::AutoFormatting)
 
-inline QTextDocument *QTextEdit::document() const
+inline Q3TextDocument *QTextEdit::document() const
 {
     return doc;
 }
 
-inline QTextCursor *QTextEdit::textCursor() const
+inline Q3TextCursor *QTextEdit::textCursor() const
 {
     return cursor;
 }

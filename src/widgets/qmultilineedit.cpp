@@ -264,7 +264,7 @@ void QMultiLineEdit::insertAndMark( const QString& str, bool mark )
 {
     insert( str );
     if ( mark )
-	document()->setSelectionEnd( QTextDocument::Standard, *textCursor() );
+	document()->setSelectionEnd( Q3TextDocument::Standard, *textCursor() );
 }
 
 /*!  Splits the paragraph at the current cursor position.
@@ -285,7 +285,7 @@ void QMultiLineEdit::newLine()
 
 void QMultiLineEdit::backspace()
 {
-    if ( document()->hasSelection( QTextDocument::Standard ) ) {
+    if ( document()->hasSelection( Q3TextDocument::Standard ) ) {
 	removeSelectedText();
 	return;
     }
@@ -342,7 +342,7 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 	selectAll( FALSE );
     QTextEdit::setCursorPosition( line, col );
     if ( mark )
-	document()->setSelectionEnd( QTextDocument::Standard, *textCursor() );
+	document()->setSelectionEnd( Q3TextDocument::Standard, *textCursor() );
 }
 
 /*!  Returns the top center point where the cursor is drawn.
@@ -369,7 +369,7 @@ void QMultiLineEdit::setAlignment( Alignment flag )
 	flag = AlignHCenter;
     if ( flag != AlignLeft && flag != AlignRight && flag != AlignHCenter )
 	return;
-    QTextParagraph *p = document()->firstParagraph();
+    Q3TextParagraph *p = document()->firstParagraph();
     while ( p ) {
 	p->setAlignment( flag );
 	p = p->next();

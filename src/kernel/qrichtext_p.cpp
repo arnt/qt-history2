@@ -21,50 +21,50 @@ QTextCommand::Commands QTextCommand::type() const { return Invalid; }
 
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-QTextCustomItem::~QTextCustomItem() {}
-void QTextCustomItem::adjustToPainter( QPainter* p){ if ( p ) width = 0; }
-QTextCustomItem::Placement QTextCustomItem::placement() const { return PlaceInline; }
+Q3TextCustomItem::~Q3TextCustomItem() {}
+void Q3TextCustomItem::adjustToPainter( QPainter* p){ if ( p ) width = 0; }
+Q3TextCustomItem::Placement Q3TextCustomItem::placement() const { return PlaceInline; }
 
-bool QTextCustomItem::ownLine() const { return FALSE; }
-void QTextCustomItem::resize( int nwidth ){ width = nwidth; }
-void QTextCustomItem::invalidate() {}
+bool Q3TextCustomItem::ownLine() const { return FALSE; }
+void Q3TextCustomItem::resize( int nwidth ){ width = nwidth; }
+void Q3TextCustomItem::invalidate() {}
 
-bool QTextCustomItem::isNested() const { return FALSE; }
-int QTextCustomItem::minimumWidth() const { return 0; }
+bool Q3TextCustomItem::isNested() const { return FALSE; }
+int Q3TextCustomItem::minimumWidth() const { return 0; }
 
-QString QTextCustomItem::richText() const { return QString::null; }
+QString Q3TextCustomItem::richText() const { return QString::null; }
 
-bool QTextCustomItem::enter( QTextCursor *, QTextDocument*&, QTextParagraph *&, int &, int &, int &, bool )
+bool Q3TextCustomItem::enter( Q3TextCursor *, Q3TextDocument*&, Q3TextParagraph *&, int &, int &, int &, bool )
 {
     return TRUE;
 }
-bool QTextCustomItem::enterAt( QTextCursor *, QTextDocument *&, QTextParagraph *&, int &, int &, int &, const QPoint & )
+bool Q3TextCustomItem::enterAt( Q3TextCursor *, Q3TextDocument *&, Q3TextParagraph *&, int &, int &, int &, const QPoint & )
 {
     return TRUE;
 }
-bool QTextCustomItem::next( QTextCursor *, QTextDocument *&, QTextParagraph *&, int &, int &, int & )
+bool Q3TextCustomItem::next( Q3TextCursor *, Q3TextDocument *&, Q3TextParagraph *&, int &, int &, int & )
 {
     return TRUE;
 }
-bool QTextCustomItem::prev( QTextCursor *, QTextDocument *&, QTextParagraph *&, int &, int &, int & )
+bool Q3TextCustomItem::prev( Q3TextCursor *, Q3TextDocument *&, Q3TextParagraph *&, int &, int &, int & )
 {
     return TRUE;
 }
-bool QTextCustomItem::down( QTextCursor *, QTextDocument *&, QTextParagraph *&, int &, int &, int & )
+bool Q3TextCustomItem::down( Q3TextCursor *, Q3TextDocument *&, Q3TextParagraph *&, int &, int &, int & )
 {
     return TRUE;
 }
-bool QTextCustomItem::up( QTextCursor *, QTextDocument *&, QTextParagraph *&, int &, int &, int & )
+bool Q3TextCustomItem::up( Q3TextCursor *, Q3TextDocument *&, Q3TextParagraph *&, int &, int &, int & )
 {
     return TRUE;
 }
 #endif // QT_NO_TEXTCUSTOMITEM
 
-void QTextFlow::setPageSize( int ps ) { pagesize = ps; }
+void Q3TextFlow::setPageSize( int ps ) { pagesize = ps; }
 #ifndef QT_NO_TEXTCUSTOMITEM
-bool QTextFlow::isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
+bool Q3TextFlow::isEmpty() { return leftItems.isEmpty() && rightItems.isEmpty(); }
 #else
-bool QTextFlow::isEmpty() { return TRUE; }
+bool Q3TextFlow::isEmpty() { return TRUE; }
 #endif
 
 #ifndef QT_NO_TEXTCUSTOMITEM
@@ -73,8 +73,8 @@ void Q3TextTableCell::invalidate() { cached_width = -1; cached_sizehint = -1; }
 void Q3TextTable::invalidate() { cachewidth = -1; }
 #endif
 
-QTextParagraphData::~QTextParagraphData() {}
-void QTextParagraphData::join( QTextParagraphData * ) {}
+Q3TextParagraphData::~Q3TextParagraphData() {}
+void Q3TextParagraphData::join( Q3TextParagraphData * ) {}
 
 Q3TextFormatter::~Q3TextFormatter() {}
 void Q3TextFormatter::setWrapEnabled( bool b ) { wrapEnabled = b; }
@@ -82,11 +82,11 @@ void Q3TextFormatter::setWrapAtColumn( int c ) { wrapColumn = c; }
 
 
 
-int QTextCursor::x() const
+int Q3TextCursor::x() const
 {
     if ( idx >= para->length() )
 	return 0;
-    QTextStringChar *c = para->at( idx );
+    Q3TextStringChar *c = para->at( idx );
     int curx = c->x;
     if ( !c->rightToLeft &&
 	 c->c.isSpace() &&
@@ -100,22 +100,22 @@ int QTextCursor::x() const
     return curx;
 }
 
-int QTextCursor::y() const
+int Q3TextCursor::y() const
 {
     int dummy, line;
     para->lineStartOfChar( idx, &dummy, &line );
     return para->lineY( line );
 }
 
-int QTextCursor::globalX() const { return totalOffsetX() + para->rect().x() + x(); }
-int QTextCursor::globalY() const { return totalOffsetY() + para->rect().y() + y(); }
+int Q3TextCursor::globalX() const { return totalOffsetX() + para->rect().x() + x(); }
+int Q3TextCursor::globalY() const { return totalOffsetY() + para->rect().y() + y(); }
 
-QTextDocument *QTextCursor::document() const
+Q3TextDocument *Q3TextCursor::document() const
 {
     return para ? para->document() : 0;
 }
 
-void QTextCursor::gotoPosition( QTextParagraph* p, int index )
+void Q3TextCursor::gotoPosition( Q3TextParagraph* p, int index )
 {
     if ( para && p != para ) {
 	while ( para->document() != p->document() && !indices.isEmpty() )
@@ -124,7 +124,7 @@ void QTextCursor::gotoPosition( QTextParagraph* p, int index )
     }
     para = p;
     if ( index < 0 || index >= para->length() ) {
-	qWarning( "QTextCursor::gotoParagraph Index: %d out of range", index );
+	qWarning( "Q3TextCursor::gotoParagraph Index: %d out of range", index );
 	if ( index < 0 || para->length() == 0 )
 	    index = 0;
 	else
@@ -136,31 +136,31 @@ void QTextCursor::gotoPosition( QTextParagraph* p, int index )
     fixCursorPosition();
 }
 
-bool QTextDocument::hasSelection( int id, bool visible ) const
+bool Q3TextDocument::hasSelection( int id, bool visible ) const
 {
     return ( selections.find( id ) != selections.end() &&
 	     ( !visible ||
-	       ( (QTextDocument*)this )->selectionStartCursor( id ) !=
-	       ( (QTextDocument*)this )->selectionEndCursor( id ) ) );
+	       ( (Q3TextDocument*)this )->selectionStartCursor( id ) !=
+	       ( (Q3TextDocument*)this )->selectionEndCursor( id ) ) );
 }
 
-void QTextDocument::setSelectionStart( int id, const QTextCursor &cursor )
+void Q3TextDocument::setSelectionStart( int id, const Q3TextCursor &cursor )
 {
-    QTextDocumentSelection sel;
+    Q3TextDocumentSelection sel;
     sel.startCursor = cursor;
     sel.endCursor = cursor;
     sel.swapped = FALSE;
     selections[ id ] = sel;
 }
 
-QTextParagraph *QTextDocument::paragAt( int i ) const
+Q3TextParagraph *Q3TextDocument::paragAt( int i ) const
 {
-    QTextParagraph* p = curParag;
+    Q3TextParagraph* p = curParag;
     if ( !p || p->paragId() > i )
 	p = fParag;
     while ( p && p->paragId() != i )
 	p = p->next();
-    ((QTextDocument*)this)->curParag = p;
+    ((Q3TextDocument*)this)->curParag = p;
     return p;
 }
 
@@ -403,12 +403,12 @@ QString Q3TextFormat::getKey( const QFont &fn, const QColor &col, bool misspelle
     return k;
 }
 
-QString QTextString::toString( const QVector<QTextStringChar> &data )
+QString Q3TextString::toString( const QVector<Q3TextStringChar> &data )
 {
     QString s;
     int l = data.size();
     s.setUnicode( 0, l );
-    const QTextStringChar *c = data.data();
+    const Q3TextStringChar *c = data.data();
     QChar *uc = (QChar *)s.unicode();
     while ( l-- )
 	*(uc++) = (c++)->c;
@@ -416,22 +416,22 @@ QString QTextString::toString( const QVector<QTextStringChar> &data )
     return s;
 }
 
-void QTextParagraph::setSelection( int id, int start, int end )
+void Q3TextParagraph::setSelection( int id, int start, int end )
 {
-    QMap<int, QTextParagraphSelection>::ConstIterator it = selections().find( id );
+    QMap<int, Q3TextParagraphSelection>::ConstIterator it = selections().find( id );
     if ( it != mSelections->end() ) {
 	if ( start == ( *it ).start && end == ( *it ).end )
 	    return;
     }
 
-    QTextParagraphSelection sel;
+    Q3TextParagraphSelection sel;
     sel.start = start;
     sel.end = end;
     (*mSelections)[ id ] = sel;
     setChanged( TRUE, TRUE );
 }
 
-void QTextParagraph::removeSelection( int id )
+void Q3TextParagraph::removeSelection( int id )
 {
     if ( !hasSelection( id ) )
 	return;
@@ -440,50 +440,50 @@ void QTextParagraph::removeSelection( int id )
     setChanged( TRUE, TRUE );
 }
 
-int QTextParagraph::selectionStart( int id ) const
+int Q3TextParagraph::selectionStart( int id ) const
 {
     if ( !mSelections )
 	return -1;
-    QMap<int, QTextParagraphSelection>::ConstIterator it = mSelections->find( id );
+    QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->find( id );
     if ( it == mSelections->end() )
 	return -1;
     return ( *it ).start;
 }
 
-int QTextParagraph::selectionEnd( int id ) const
+int Q3TextParagraph::selectionEnd( int id ) const
 {
     if ( !mSelections )
 	return -1;
-    QMap<int, QTextParagraphSelection>::ConstIterator it = mSelections->find( id );
+    QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->find( id );
     if ( it == mSelections->end() )
 	return -1;
     return ( *it ).end;
 }
 
-bool QTextParagraph::hasSelection( int id ) const
+bool Q3TextParagraph::hasSelection( int id ) const
 {
     return mSelections ? mSelections->contains( id ) : FALSE;
 }
 
-bool QTextParagraph::fullSelected( int id ) const
+bool Q3TextParagraph::fullSelected( int id ) const
 {
     if ( !mSelections )
 	return FALSE;
-    QMap<int, QTextParagraphSelection>::ConstIterator it = mSelections->find( id );
+    QMap<int, Q3TextParagraphSelection>::ConstIterator it = mSelections->find( id );
     if ( it == mSelections->end() )
 	return FALSE;
     return ( *it ).start == 0 && ( *it ).end == str->length() - 1;
 }
 
-int QTextParagraph::lineY( int l ) const
+int Q3TextParagraph::lineY( int l ) const
 {
     if ( l > (int)lineStarts.count() - 1 ) {
-	qWarning( "QTextParagraph::lineY: line %d out of range!", l );
+	qWarning( "Q3TextParagraph::lineY: line %d out of range!", l );
 	return 0;
     }
 
     if ( !isValid() )
-	( (QTextParagraph*)this )->format();
+	( (Q3TextParagraph*)this )->format();
 
     QMap<int, QTextLineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
@@ -491,15 +491,15 @@ int QTextParagraph::lineY( int l ) const
     return ( *it )->y;
 }
 
-int QTextParagraph::lineBaseLine( int l ) const
+int Q3TextParagraph::lineBaseLine( int l ) const
 {
     if ( l > (int)lineStarts.count() - 1 ) {
-	qWarning( "QTextParagraph::lineBaseLine: line %d out of range!", l );
+	qWarning( "Q3TextParagraph::lineBaseLine: line %d out of range!", l );
 	return 10;
     }
 
     if ( !isValid() )
-	( (QTextParagraph*)this )->format();
+	( (Q3TextParagraph*)this )->format();
 
     QMap<int, QTextLineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
@@ -507,15 +507,15 @@ int QTextParagraph::lineBaseLine( int l ) const
     return ( *it )->baseLine;
 }
 
-int QTextParagraph::lineHeight( int l ) const
+int Q3TextParagraph::lineHeight( int l ) const
 {
     if ( l > (int)lineStarts.count() - 1 ) {
-	qWarning( "QTextParagraph::lineHeight: line %d out of range!", l );
+	qWarning( "Q3TextParagraph::lineHeight: line %d out of range!", l );
 	return 15;
     }
 
     if ( !isValid() )
-	( (QTextParagraph*)this )->format();
+	( (Q3TextParagraph*)this )->format();
 
     QMap<int, QTextLineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
@@ -523,10 +523,10 @@ int QTextParagraph::lineHeight( int l ) const
     return ( *it )->h;
 }
 
-void QTextParagraph::lineInfo( int l, int &y, int &h, int &bl ) const
+void Q3TextParagraph::lineInfo( int l, int &y, int &h, int &bl ) const
 {
     if ( l > (int)lineStarts.count() - 1 ) {
-	qWarning( "QTextParagraph::lineInfo: line %d out of range!", l );
+	qWarning( "Q3TextParagraph::lineInfo: line %d out of range!", l );
 	qDebug( "%d %d", (int)lineStarts.count() - 1, l );
 	y = 0;
 	h = 15;
@@ -535,7 +535,7 @@ void QTextParagraph::lineInfo( int l, int &y, int &h, int &bl ) const
     }
 
     if ( !isValid() )
-	( (QTextParagraph*)this )->format();
+	( (Q3TextParagraph*)this )->format();
 
     QMap<int, QTextLineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
@@ -546,7 +546,7 @@ void QTextParagraph::lineInfo( int l, int &y, int &h, int &bl ) const
 }
 
 
-void QTextParagraph::setAlignment( int a )
+void Q3TextParagraph::setAlignment( int a )
 {
     if ( a == (int)align )
 	return;
@@ -554,22 +554,22 @@ void QTextParagraph::setAlignment( int a )
     invalidate( 0 );
 }
 
-Q3TextFormatter *QTextParagraph::formatter() const
+Q3TextFormatter *Q3TextParagraph::formatter() const
 {
     if ( hasdoc )
 	return document()->formatter();
     if ( pseudoDocument()->pFormatter )
 	return pseudoDocument()->pFormatter;
-    return ( ( (QTextParagraph*)this )->pseudoDocument()->pFormatter = new Q3TextFormatterBreakWords );
+    return ( ( (Q3TextParagraph*)this )->pseudoDocument()->pFormatter = new Q3TextFormatterBreakWords );
 }
 
-void QTextParagraph::setTabArray( int *a )
+void Q3TextParagraph::setTabArray( int *a )
 {
     delete [] tArray;
     tArray = a;
 }
 
-void QTextParagraph::setTabStops( int tw )
+void Q3TextParagraph::setTabStops( int tw )
 {
     if ( hasdoc )
 	document()->setTabStops( tw );
@@ -577,23 +577,23 @@ void QTextParagraph::setTabStops( int tw )
 	tabStopWidth = tw;
 }
 
-QMap<int, QTextParagraphSelection> &QTextParagraph::selections() const
+QMap<int, Q3TextParagraphSelection> &Q3TextParagraph::selections() const
 {
     if ( !mSelections )
-	((QTextParagraph *)this)->mSelections = new QMap<int, QTextParagraphSelection>;
+	((Q3TextParagraph *)this)->mSelections = new QMap<int, Q3TextParagraphSelection>;
     return *mSelections;
 }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-QList<QTextCustomItem *> &QTextParagraph::floatingItems() const
+QList<Q3TextCustomItem *> &Q3TextParagraph::floatingItems() const
 {
     if ( !mFloatingItems )
-	((QTextParagraph *)this)->mFloatingItems = new QList<QTextCustomItem *>;
+	((Q3TextParagraph *)this)->mFloatingItems = new QList<Q3TextCustomItem *>;
     return *mFloatingItems;
 }
 #endif
 
-QTextStringChar::~QTextStringChar()
+Q3TextStringChar::~Q3TextStringChar()
 {
     if ( format() )
 	format()->removeRef();
@@ -601,8 +601,8 @@ QTextStringChar::~QTextStringChar()
 	delete p.custom;
 }
 
-QTextParagraphPseudoDocument::QTextParagraphPseudoDocument():pFormatter(0),commandHistory(0), minw(0),wused(0),collection(){}
-QTextParagraphPseudoDocument::~QTextParagraphPseudoDocument(){ delete pFormatter; delete commandHistory; }
+Q3TextParagraphPseudoDocument::Q3TextParagraphPseudoDocument():pFormatter(0),commandHistory(0), minw(0),wused(0),collection(){}
+Q3TextParagraphPseudoDocument::~Q3TextParagraphPseudoDocument(){ delete pFormatter; delete commandHistory; }
 
 
 #endif //QT_NO_RICHTEXT

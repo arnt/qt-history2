@@ -24,7 +24,7 @@
 class QTextEdit;
 class QSyntaxHighlighterInternal;
 class QSyntaxHighlighterPrivate;
-class QTextParagraph;
+class Q3TextParagraph;
 
 class Q_GUI_EXPORT QSyntaxHighlighter : public Qt
 {
@@ -46,7 +46,7 @@ public:
     int currentParagraph() const;
 
 private:
-    QTextParagraph *para;
+    Q3TextParagraph *para;
     QTextEdit *edit;
     QSyntaxHighlighterPrivate *d;
 

@@ -194,11 +194,11 @@ class QDateTimeEditorPrivate
 public:
     QDateTimeEditorPrivate()
 	: frm( TRUE ),
-	  parag( new QTextParagraph( 0, 0, 0, FALSE ) ),
+	  parag( new Q3TextParagraph( 0, 0, 0, FALSE ) ),
 	  focusSec(0)
     {
 	parag->formatter()->setWrapEnabled( FALSE );
-	cursor = new QTextCursor( 0 );
+	cursor = new Q3TextCursor( 0 );
 	cursor->setParagraph( parag );
 	offset = 0;
 	sep = localDateSep();
@@ -283,7 +283,7 @@ public:
 	parag->truncate( 0 );
 	parag->append( txt );
 	if ( !focus )
-	    parag->removeSelection( QTextDocument::Standard );
+	    parag->removeSelection( Q3TextDocument::Standard );
 	else {
 	    applyFocusSelection();
 	}
@@ -334,7 +334,7 @@ protected:
 	if ( focusSec > -1 ) {
 	    int selstart = sections[ focusSec ].selectionStart();
 	    int selend = sections[ focusSec ].selectionEnd();
-	    parag->setSelection( QTextDocument::Standard, selstart, selend );
+	    parag->setSelection( Q3TextDocument::Standard, selstart, selend );
 	    parag->format();
 	    if ( parag->at( selstart )->x < offset ||
 		 parag->at( selend )->x + parag->string()->width( selend ) > offset + sz.width() ) {
@@ -344,8 +344,8 @@ protected:
     }
 private:
     bool frm;
-    QTextParagraph *parag;
-    QTextCursor *cursor;
+    Q3TextParagraph *parag;
+    Q3TextCursor *cursor;
     QSize sz;
     int focusSec;
     QList< QNumberSection > sections;

@@ -169,7 +169,7 @@ void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font )
 
 void QSyntaxHighlighter::rehighlight()
 {
-    QTextParagraph *s = edit->document()->firstParagraph();
+    Q3TextParagraph *s = edit->document()->firstParagraph();
     while ( s ) {
 	s->invalidate( 0 );
 	s->state = -1;

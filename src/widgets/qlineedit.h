@@ -27,9 +27,6 @@ class QPopupMenu;
 
 #ifndef QT_NO_LINEEDIT
 
-class QTextParagraph;
-class QTextCursor;
-
 class Q_GUI_EXPORT QLineEdit : public QFrame
 {
     Q_OBJECT
