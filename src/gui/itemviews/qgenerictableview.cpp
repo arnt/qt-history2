@@ -588,3 +588,71 @@ void QGenericTableView::showColumn(int column)
 {
     d->topHeader->showSection(column);
 }
+
+void QGenericTableView::verticalScrollbarAction(int action)
+{
+    int factor = d->verticalFactor;
+    int value = verticalScrollBar()->value();
+    int row = value / factor;
+    int above = (value % factor) * d->leftHeader->sectionSize(row); // what's left; in "item units"
+    int y = -(above / factor); // above the page
+	
+    if (action == QScrollBar::SliderPageStepAdd) {
+	    
+	// go down to the bottom of the page
+	int h = d->viewport->height();
+	while (y < h && row < d->model->rowCount(0))
+	    y += d->leftHeader->sectionSize(row++);
+	value = row * factor; // i is now the last item on the page
+	if (y > h && row)
+	    value -= factor * (y - h) / d->leftHeader->sectionSize(row - 1);
+	verticalScrollBar()->setSliderPosition(value);
+	    
+    } else if (action == QScrollBar::SliderPageStepSub) {
+
+	y += d->viewport->height();
+
+	// go up to the top of the page
+	while (y > 0 && row > 0)
+	    y -= d->leftHeader->sectionSize(--row);
+	value = row * factor; // i is now the first item in the page
+	    
+	if (y < 0)
+	    value += factor * -y / d->leftHeader->sectionSize(row);	    
+	verticalScrollBar()->setSliderPosition(value);
+    }
+}
+
+void QGenericTableView::horizontalScrollbarAction(int action)
+{
+    int factor = d->horizontalFactor;
+    int value = horizontalScrollBar()->value();
+    int column = value / factor;
+    int above = (value % factor) * d->topHeader->sectionSize(column); // what's left; in "item units"
+    int x = -(above / factor); // above the page
+	
+    if (action == QScrollBar::SliderPageStepAdd) {
+	    
+	// go down to the right of the page
+	int w = d->viewport->width();
+	while (x < w && column < d->model->columnCount(0))
+	    x += d->topHeader->sectionSize(column++);
+	value = column * factor; // i is now the last item on the page
+	if (x > w && column)
+	    value -= factor * (x - w) / d->topHeader->sectionSize(column - 1);
+	horizontalScrollBar()->setSliderPosition(value);
+	    
+    } else if (action == QScrollBar::SliderPageStepSub) {
+
+	x += d->viewport->width();
+
+	// go up to the left of the page
+	while (x > 0 && column > 0)
+	    x -= d->topHeader->sectionSize(--column);
+	value = column * factor; // i is now the first item in the page
+	    
+	if (x < 0)
+	    value += factor * -x / d->topHeader->sectionSize(column);	    
+	horizontalScrollBar()->setSliderPosition(value);
+    }
+}

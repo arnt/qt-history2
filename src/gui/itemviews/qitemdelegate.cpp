@@ -102,16 +102,12 @@ void QItemDelegate::drawText(QPainter *painter, const QItemOptions &options, con
     } else {
 	painter->setPen(options.palette.text());
     }
-    if (options.iconAlignment & Qt::AlignLeft) {// FIXME: spacing hack
-	painter->drawRect(QRect(rect.x() + spacing, rect.y(), rect.width() - spacing, rect.height()));
+    if (options.iconAlignment & Qt::AlignLeft) {
  	painter->drawText(QRect(rect.x() + spacing, rect.y(), rect.width() - spacing, rect.height()),
  			  options.textAlignment, text);
     } else {
-	painter->drawRect(rect);
 	painter->drawText(rect, options.textAlignment, text);
     }
-    if (text.isNull() || text.length() == 0)
-	qDebug("NO STRING");
     painter->setPen(old);
 }
 

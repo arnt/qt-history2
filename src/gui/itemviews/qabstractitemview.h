@@ -67,6 +67,9 @@ protected slots:
     virtual bool doItemsLayout(int num);
     virtual void updateCurrentEditor();
     virtual void updateGeometries();
+    
+    virtual void verticalScrollbarAction(int action);
+    virtual void horizontalScrollbarAction(int action);
 
 signals:
     void needMore();
@@ -104,7 +107,7 @@ protected:
     virtual QDragObject *dragObject();
     virtual void startDrag();
 
-    QRect dragRect() const;
+//    QRect dragRect() const;
 
     void setRoot(const QModelIndex &item);
     QModelIndex root() const;

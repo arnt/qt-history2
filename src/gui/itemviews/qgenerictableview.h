@@ -73,6 +73,9 @@ protected:
 
     int rowSizeHint(int row) const;
     int columnSizeHint(int column) const;
+
+    void verticalScrollbarAction(int action);
+    void horizontalScrollbarAction(int action);
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define QABSTRACTITEMVIEW_P_H
 
 #include <private/qviewport_p.h>
+#include <qrubberband.h>
 
 class QAbstractItemViewPrivate : public QViewportPrivate
 {
@@ -25,7 +26,8 @@ public:
     QPointer<QWidget> currentEditor;
     QModelIndex editItem;
     mutable QAbstractItemDelegate *delegate;
-    QItemSelectionModel* selectionModel;
+    QItemSelectionModel *selectionModel;
+    QRubberBand *rubberBand;
  //    QVector<int> sorting;
 //     int sortColumn;
 
@@ -35,7 +37,7 @@ public:
     //QList<QPair<QModelIndex, QWidget*> > persistentEditors;
 
     bool layoutLock; // FIXME: this is because the layout will trigger resize events
-    QRect dragRect;
+    //QRect dragRect;
     QModelIndex pressedItem;
     Qt::ButtonState pressedState;
     QAbstractItemView::State state;

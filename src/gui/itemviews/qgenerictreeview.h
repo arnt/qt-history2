@@ -71,6 +71,8 @@ protected:
     void mousePressEvent(QMouseEvent *e);
     
     void updateGeometries();
+    void verticalScrollbarAction(int action);
+    void horizontalScrollbarAction(int action);
 };
 
 #endif
