@@ -126,10 +126,10 @@ void MainWindowWizardBase::accept()
     QAction *editRedoAction = dfw->createAction( tr( "Redo" ), pix, tr( "&Redo" ), CTRL + Key_Y, 0, "editRedoAction" );
     actions.insert( tr( "Redo" ), editRedoAction );
     getPixmap( "editcut", pix );
-    QAction *editCutAction = dfw->createAction( tr( "Cut" ), pix, tr( "&Cut" ), CTRL + Key_X, 0, "editCutAction" );
+    QAction *editCutAction = dfw->createAction( tr( "Cut" ), pix, tr( "Cu&t" ), CTRL + Key_X, 0, "editCutAction" );
     actions.insert( tr( "Cut" ), editCutAction );
     getPixmap( "editcopy", pix );
-    QAction *editCopyAction = dfw->createAction( tr( "Copy" ), pix, tr( "C&opy" ), CTRL + Key_C, 0, "editCopyAction" );
+    QAction *editCopyAction = dfw->createAction( tr( "Copy" ), pix, tr( "&Copy" ), CTRL + Key_C, 0, "editCopyAction" );
     actions.insert( tr( "Copy" ), editCopyAction );
     getPixmap( "editpaste", pix );
     QAction *editPasteAction = dfw->createAction( tr( "Paste" ), pix, tr( "&Paste" ), CTRL + Key_V, 0, "editPasteAction" );
