@@ -97,6 +97,8 @@ public:
 
     bool hasKeyTracking;
     bool tabKeyNavigation;
+    bool showDropIndicator;
+    bool dragEnabled;
     QString keyboardInput;
     QTime keyboardInputTime;
     int inputInterval;

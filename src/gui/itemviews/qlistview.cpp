@@ -704,8 +704,6 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
             d->viewport->repaint(oldRect|newRect);
             // set the item under the cursor to current
             QModelIndex index = QAbstractItemView::itemAt(e->pos());
-//         if (index.isValid())
-//             selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
             // check if we allow drops here
             if (e->source() == this && d->draggedItems.contains(index))
                 e->accept(); // allow changing item position
@@ -717,7 +715,7 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
         // do autoscrolling
         if (d->shouldAutoScroll(e->pos()))
             startAutoScroll();
-    } else {
+    } else { // not internal
         QAbstractItemView::dragMoveEvent(e);
     }
 }

@@ -55,6 +55,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         editTriggers(QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed),
         hasKeyTracking(false),
         tabKeyNavigation(false),
+        showDropIndicator(false),
+        dragEnabled(false),
         inputInterval(400),
         autoScroll(true),
         autoScrollTimer(0),
@@ -782,6 +784,36 @@ bool QAbstractItemView::tabKeyNavigation() const
 }
 
 /*!
+  \property QAbstractItemView::showDropIndicator
+  \brief whether the drop indicator is shown when dragging items and dropping.
+*/
+
+void QAbstractItemView::setDropIndicatorShown(bool enable)
+{
+    d->showDropIndicator = enable;
+}
+
+bool QAbstractItemView::showDropIndicator() const
+{
+    return d->showDropIndicator;
+}
+
+/*!
+  \property QAbstractItemView::dragEnabled
+  \brief whether the view can supports dragging of its own items
+*/
+
+void QAbstractItemView::setDragEnabled(bool enable)
+{
+    d->dragEnabled = enable;
+}
+
+bool QAbstractItemView::dragEnabled() const
+{
+    return d->dragEnabled;
+}
+
+/*!
   \property QAbstractItemView::alternatingRowColors
   \brief whether to draw the background using alternating colors
 
@@ -951,7 +983,6 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     else
         topLeft = bottomRight;
 
-
     QModelIndex index = itemAt(bottomRight);
     if (state() == EditingState && d->editors.contains(index))
         return;
@@ -966,10 +997,10 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         return; // we haven't moved over another item yet
     }
 
-    if (!(e->buttons() & Qt::LeftButton)) // FIXME: what is the logic here ?
-        return;
+    if (!(e->buttons() & Qt::LeftButton))
+        return; // if the left button is not pressed there is nothing more to do
 
-    if (index.isValid()) {
+    if (index.isValid() && d->dragEnabled) {
         if (state() != SelectingState) {
             bool dragging = model()->flags(index) & QAbstractItemModel::ItemIsDragEnabled;
             bool selected = selectionModel()->isSelected(index);
@@ -981,8 +1012,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     }
     setState(SelectingState);
-    setSelection(QRect(topLeft, bottomRight).normalize(),
-                 selectionCommand(index, e));
+    setSelection(QRect(topLeft, bottomRight).normalize(), selectionCommand(index, e));
 }
 
 /*!
@@ -1055,6 +1085,8 @@ void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
 {
     if (d->canDecode(e))
         e->accept();
+    else
+        e->ignore();
 }
 
 /*!
@@ -1076,7 +1108,6 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
         if (index.isValid()) {
             // update the drag indicator geometry
             QRect rect = itemViewportRect(index);
-            rect.setRight(d->viewport->width());
             QRect global(d->viewport->mapToGlobal(rect.topLeft()), rect.size());
             switch (d->position(e->pos(), rect, 2)) {
             case QAbstractItemViewPrivate::Above: {
@@ -1102,7 +1133,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
                 }
                 break; }
             }
-            if (!d->dropIndicator->isVisible()) {
+            if (!d->dropIndicator->isVisible() && d->showDropIndicator) {
                 d->dropIndicator->show();
                 d->dropIndicator->raise();
             }
@@ -1110,12 +1141,10 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
         } else {
             e->accept(); // allow dropping in empty areas
         }
-    }
+    } // can decode
 
     if (d->shouldAutoScroll(e->pos()))
         startAutoScroll();
-
-    QViewport::dragMoveEvent(e);
 }
 
 /*!

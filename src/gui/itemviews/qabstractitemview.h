@@ -32,6 +32,8 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_PROPERTY(EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)
     Q_PROPERTY(bool keyTracking READ hasKeyTracking WRITE setKeyTracking)
     Q_PROPERTY(bool tabKeyNavigation READ tabKeyNavigation WRITE setTabKeyNavigation)
+    Q_PROPERTY(bool showDropIndicator READ showDropIndicator WRITE setDropIndicatorShown)
+    Q_PROPERTY(bool dragEnabled READ dragEnabled WRITE setDragEnabled)
     Q_PROPERTY(bool alternatingRowColors READ alternatingRowColors WRITE setAlternatingRowColors)
     Q_PROPERTY(QColor oddRowColor READ oddRowColor WRITE setOddRowColor)
     Q_PROPERTY(QColor evenRowColor READ evenRowColor WRITE setEvenRowColor)
@@ -98,6 +100,12 @@ public:
 
     void setTabKeyNavigation(bool enable);
     bool tabKeyNavigation() const;
+
+    void setDropIndicatorShown(bool enable);
+    bool showDropIndicator() const;
+
+    void setDragEnabled(bool enable);
+    bool dragEnabled() const;
 
     bool alternatingRowColors() const;
     void setAlternatingRowColors(bool enable);
