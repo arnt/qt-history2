@@ -50,6 +50,7 @@ protected:
 private:
     QRect indicatorRect(int index) const;
     int widgetIndexAt(const QPoint &pos) const;
+    bool skipWidget(QWidget *w) const;
 
     QPointer<AbstractFormWindow> m_form_window;
 

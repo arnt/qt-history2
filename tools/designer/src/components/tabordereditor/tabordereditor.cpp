@@ -24,6 +24,8 @@
 #include <abstractformwindowcursor.h>
 #include <abstractmetadatabase.h>
 #include <abstractformeditor.h>
+#include <qextensionmanager.h>
+#include <propertysheet.h>
 
 #include <qtundo.h>
 #include <qdesigner_command.h>
@@ -101,7 +103,7 @@ QRect TabOrderEditor::indicatorRect(int index) const
     QWidget *w = m_tab_order_list.at(index);
     QString text = QString::number(index + 1);
     
-    QPoint center = w->geometry().center();
+    QPoint center = mapFromGlobal(w->mapToGlobal(w->rect().center()));
     QSize size = m_font_metrics.size(Qt::TextSingleLine, text);
     QRect r(center - QPoint(size.width(), size.height())/2, size);
     r = QRect(r.left() - HBOX_MARGIN, r.top() - VBOX_MARGIN,
@@ -133,6 +135,26 @@ void TabOrderEditor::paintEvent(QPaintEvent *e)
     }
 }
 
+bool TabOrderEditor::skipWidget(QWidget *w) const
+{
+    if (qt_cast<QLayoutWidget*>(w)
+            || w == formWindow()->mainContainer()
+            || w->isExplicitlyHidden())
+        return true;
+
+    QExtensionManager *ext = formWindow()->core()->extensionManager();
+    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(ext, w)) {
+        int index = sheet->indexOf("focusPolicy");
+        if (index != -1) {
+            bool ok = false;
+            Qt::FocusPolicy q = (Qt::FocusPolicy) Utils::valueOf(sheet->property(index), &ok);
+            return !ok || q == Qt::NoFocus;
+        }
+    }
+
+    return true;
+}
+
 void TabOrderEditor::initTabOrder()
 {
     m_tab_order_list.clear();
@@ -146,9 +168,7 @@ void TabOrderEditor::initTabOrder()
     AbstractFormWindowCursor *cursor = formWindow()->cursor();
     for (int i = 0; i < cursor->widgetCount(); ++i) {
         QWidget *widget = cursor->widget(i);
-        if (qt_cast<QLayoutWidget*>(widget)
-                || widget == formWindow()->mainContainer()
-                || widget->isExplicitlyHidden())
+        if (skipWidget(widget))
             continue;
 
         if (!m_tab_order_list.contains(widget))
