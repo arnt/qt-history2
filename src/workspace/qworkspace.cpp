@@ -550,7 +550,10 @@ void QWorkspace::place( QWidget* w)
 		l = it.current();
 		++it;
 		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
-		    r2.setRect(l->x(), l->y(), l->width(), l->height());
+		    if ( d->maxWindow == l )
+			r2 = d->maxRestore;
+		    else
+			r2.setRect(l->x(), l->y(), l->width(), l->height());
 
 		    if (r2.intersects(r1)) {
 			r2.setCoords(QMAX(r1.left(), r2.left()),
@@ -589,7 +592,10 @@ void QWorkspace::place( QWidget* w)
 		l = it.current();
 		++it;
 		if (! d->icons.contains(l) && ! l->isHidden() && l != w ) {
-		    r2.setRect(l->x(), l->y(), l->width(), l->height());
+		    if ( d->maxWindow == l )
+			r2 = d->maxRestore;
+		    else
+			r2.setRect(l->x(), l->y(), l->width(), l->height());
 
 		    if( ( y < r2.bottom() ) && ( r2.top() < w->height() + y ) ) {
 			if( r2.right() > x )
@@ -616,7 +622,10 @@ void QWorkspace::place( QWidget* w)
 		l = it.current();
 		++it;
 		if (l != w && ! d->icons.contains(w)) {
-		    r2.setRect(l->x(), l->y(), l->width(), l->height());
+		    if ( d->maxWindow == l )
+			r2 = d->maxRestore;
+		    else
+			r2.setRect(l->x(), l->y(), l->width(), l->height());
 
 		    if( r2.bottom() > y)
 			possible = possible < r2.bottom() ?
