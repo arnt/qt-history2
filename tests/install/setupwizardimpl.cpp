@@ -555,19 +555,19 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	outputDisplay->append( "Execute configure...\n" );
 
 	args << QEnvironment::getEnv( "QTDIR" ) + "\\configure.exe";
-	entry = settings.readEntry( "/Trolltech/Qt/Mode", &settingsOK );
+	entry = settings.readEntry( "/Trolltech/Qt/Mode", "Debug", &settingsOK );
 	if ( entry == "Debug" )
 	    args += "-debug";
 	else
 	    args += "-release";
 
-	entry = settings.readEntry( "/Trolltech/Qt/Build", &settingsOK );
+	entry = settings.readEntry( "/Trolltech/Qt/Build", "Shared", &settingsOK );
 	if ( entry == "Static" )
 	    args += "-static";
 	else
 	    args += "-shared";
 
-	entry = settings.readEntry( "/Trolltech/Qt/Threading", &settingsOK );
+	entry = settings.readEntry( "/Trolltech/Qt/Threading", QString::null, &settingsOK );
 	if ( entry == "Threaded" )
 	    args += "-thread";
 
