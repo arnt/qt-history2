@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#98 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#99 $
 **
 ** Implementation of QFile class
 **
@@ -372,7 +372,7 @@ bool QFile::open( int m )
 	fd = OPEN( QFile::encodeName(fn), oflags, 0666 );
 #elif defined(_OS_WIN32_)
 	if ( qt_winunicode ) {
-	    fd = _topen((const TCHAR*)qt_winTchar(fn,TRUE), oflags, 0666 );
+	    fd = ::_topen((const TCHAR*)qt_winTchar(fn,TRUE), oflags, 0666 );
 	} else {
 	    fd = OPEN(qt_win95Name(fn), oflags, 0666 );
 	}
