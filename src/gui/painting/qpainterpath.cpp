@@ -6,6 +6,8 @@
 #include <qlist.h>
 #include <qpointarray.h>
 #include <qwmatrix.h>
+#include <qvarlengtharray.h>
+
 #include <qdebug.h>
 
 #include <math.h>
@@ -231,6 +233,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
     QImage image(scanRect.width(), scanRect.height(), 1, 2, QImage::LittleEndian);
     image.fill(bgPixel);
     int isects[MAX_INTERSECTIONS];
+    QVarLengthArray<int, 1024> windingNumbers;
     int numISects;
     for (int y=0; y<scanRect.height(); ++y) {
         int scanLineY = y + scanRect.y();
@@ -254,42 +257,84 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
                     // by other lines, and adding them would inverse the results
                     if (p1.y() != p2.y()) {
                         double idelta = (p2.x()-p1.x()) / double(p2.y()-p1.y());
-                        isects[numISects++] =
+                        isects[numISects] =
                             qRound((scanLineY - p1.y()) * idelta + p1.x()) - scanRect.x();
+                        windingNumbers[isects[numISects]] = ((p2.y() > p1.y()) ? 1 : -1);
+                        ++numISects;
                     }
                 }
                 p1 = p2;
             }
         }
 
+        if (numISects <= 0)
+            continue;
+
         // Sort the intersection entries...
         qHeapSort(&isects[0], &isects[numISects]);
 
         uchar *scanLine = image.scanLine(y);
-        for (int i=0; i<numISects; i+=2) {
-            int from = qMax(0, isects[i]);
-            int to = qMin(scanRect.width(), isects[i+1]);
 
-            int entryByte = from / 8;
-            int exitByte = to / 8;
+        if (fillMode == QPainterPath::OddEven) {
+            for (int i=0; i<numISects; i+=2) {
+                int from = qMax(0, isects[i]);
+                int to = qMin(scanRect.width(), isects[i+1]);
 
-            // special case for ranges less than a byte.
-            if (exitByte == entryByte) {
-                uint entryPart = ((0xff << (from%8))&0xff);
-                uint exitPart = (0xff >> (8-(to%8)));
-                *(scanLine + entryByte) |= entryPart & exitPart & 0xff;
-            } else {
-                // First byte in this scan segment...
-                *(scanLine + entryByte) |= ((0xff << (from%8))&0xff);
+                int entryByte = from / 8;
+                int exitByte = to / 8;
 
-                // Fill areas between entry and exit bytes.
-                if (exitByte > entryByte + 1)
-                    memset(scanLine + entryByte + 1,  fgPixel, exitByte - entryByte - 1);
+                // special case for ranges less than a byte.
+                if (exitByte == entryByte) {
+                    uint entryPart = ((0xff << (from%8))&0xff);
+                    uint exitPart = (0xff >> (8-(to%8)));
+                    *(scanLine + entryByte) |= entryPart & exitPart & 0xff;
+                } else {
+                    // First byte in this scan segment...
+                    *(scanLine + entryByte) |= ((0xff << (from%8))&0xff);
 
-                // Last byte in this scan segment...
-                *(scanLine + exitByte) |= (0xff >> (8-(to%8)));
+                    // Fill areas between entry and exit bytes.
+                    if (exitByte > entryByte + 1)
+                        memset(scanLine+entryByte+1,  fgPixel, exitByte-entryByte-1);
 
+                    // Last byte in this scan segment...
+                    *(scanLine + exitByte) |= (0xff >> (8-(to%8)));
+                }
             }
+        } else { // Winding fill rule
+            for (int i=0; i<numISects; ) {
+                int windingNumber = 0;
+                int from = qMax(0, isects[i]);
+                int to = 0;
+                windingNumber += windingNumbers[isects[i]];
+                for (++i; i<numISects && windingNumber != 0; ++i) {
+                    windingNumber += windingNumbers[isects[i]];
+                    to = qMin(scanRect.width(), isects[i]);
+                }
+
+                if (to <= from)
+                    continue;
+
+                int entryByte = from / 8;
+                int exitByte = to / 8;
+
+                // special case for ranges less than a byte.
+                if (exitByte == entryByte) {
+                    uint entryPart = ((0xff << (from%8))&0xff);
+                    uint exitPart = (0xff >> (8-(to%8)));
+                    *(scanLine + entryByte) |= entryPart & exitPart & 0xff;
+                } else {
+                    // First byte in this scan segment...
+                    *(scanLine + entryByte) |= ((0xff << (from%8))&0xff);
+
+                    // Fill areas between entry and exit bytes.
+                    if (exitByte > entryByte + 1)
+                        memset(scanLine+entryByte+1,  fgPixel, exitByte-entryByte-1);
+
+                    // Last byte in this scan segment...
+                    *(scanLine + exitByte) |= (0xff >> (8-(to%8)));
+                }
+            }
+
         }
     }
     QBitmap bm;
