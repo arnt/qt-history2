@@ -3225,13 +3225,13 @@ static void derefEngine( QRegExpEngine *eng, const QString& pattern )
     The CaretMode enum defines the different meanings of the caret
     (<b>^</b>) in a regular expression. The possible values are:
 
-    \value CaretMatchesAtZero
+    \value CaretAtZero
 	   The caret corresponds to index 0 in the searched string.
 
-    \value CaretMatchesAtStartPos
-	   The caret corresponds to the start position of the search.
+    \value CaretAtOffset
+	   The caret corresponds to the start offset of the search.
 
-    \value CaretNeverMatches
+    \value CaretWontMatch
 	   The caret never matches.
 */
 
@@ -3351,11 +3351,10 @@ bool QRegExp::operator==( const QRegExp& rx ) const
     If you call exactMatch() with an empty pattern on an empty string
     it will return TRUE; otherwise it returns FALSE since it operates
     over the whole string. If you call search() with an empty pattern
-    on \e any string it will return the start position (0 by default)
-    since it will match at the start position, because the empty
-    pattern matches the 'emptiness' at the start of the string, and in
-    this case the length of the match returned by matchedLength() will
-    be 0.
+    on \e any string it will return the start offset (0 by default)
+    because the empty pattern matches the 'emptiness' at the start of
+    the string. In this case the length of the match returned by
+    matchedLength() will be 0.
 
     See QString::isEmpty().
 */
@@ -3559,8 +3558,7 @@ bool QRegExp::exactMatch( const QString& str ) const
 int QRegExp::match( const QString& str, int index, int *len,
 		    bool indexIsStart ) const
 {
-    int pos = search( str, index, indexIsStart ? CaretMatchesAtStartPos
-				  : CaretMatchesAtZero );
+    int pos = search( str, index, indexIsStart ? CaretAtOffset : CaretAtZero );
     if ( len != 0 )
 	*len = matchedLength();
     return pos;
@@ -3568,18 +3566,18 @@ int QRegExp::match( const QString& str, int index, int *len,
 #endif // QT_NO_COMPAT
 
 /*!
-    \fn int QRegExp::search( const QString& str, int start,
+    \fn int QRegExp::search( const QString& str, int offset,
 			     CaretMode caretMode ) const
 
-    Attempts to find a match in \a str from position \a start (0 by
-    default). If \a start is -1, the search starts at the last
+    Attempts to find a match in \a str from position \a offset (0 by
+    default). If \a offset is -1, the search starts at the last
     character; if -2, at the next to last character; etc.
 
     Returns the position of the first match, or -1 if there was no
     match.
 
     The \a caretMode parameter can be used to instruct whether <b>^</b>
-    should match at index 0 or at index \a start.
+    should match at index 0 or at \a offset.
 
     You might prefer to use QString::find(), QString::contains() or
     even QStringList::grep(). To replace matches use
@@ -3604,37 +3602,37 @@ int QRegExp::match( const QString& str, int index, int *len,
     \sa searchRev() exactMatch()
 */
 
-int QRegExp::search( const QString& str, int start ) const
+int QRegExp::search( const QString& str, int offset ) const
 {
-    return search( str, start, CaretMatchesAtZero );
+    return search( str, offset, CaretAtZero );
 }
 
-int QRegExp::search( const QString& str, int start, CaretMode caretMode ) const
+int QRegExp::search( const QString& str, int offset, CaretMode caretMode ) const
 {
-    if ( start < 0 )
-	start += str.length();
+    if ( offset < 0 )
+	offset += str.length();
 #ifndef QT_NO_REGEXP_CAPTURE
     priv->t = str;
     priv->capturedCache.clear();
 #endif
-    priv->captured = eng->match( str, start, priv->min, FALSE,
-				 caretIndex(start, caretMode) );
+    priv->captured = eng->match( str, offset, priv->min, FALSE,
+				 caretIndex(offset, caretMode) );
     return priv->captured[0];
 }
 
 /*!
-    \fn int QRegExp::searchRev( const QString& str, int start,
+    \fn int QRegExp::searchRev( const QString& str, int offset,
 				CaretMode caretMode ) const
 
     Attempts to find a match backwards in \a str from position \a
-    start. If \a start is -1 (the default), the search starts at the
+    offset. If \a offset is -1 (the default), the search starts at the
     last character; if -2, at the next to last character; etc.
 
     Returns the position of the first match, or -1 if there was no
     match.
 
     The \a caretMode parameter can be used to instruct whether <b>^</b>
-    should match at index 0 or at index \a start.
+    should match at index 0 or at \a offset.
 
     Although const, this function sets matchedLength(),
     capturedTexts() and pos().
@@ -3646,32 +3644,32 @@ int QRegExp::search( const QString& str, int start, CaretMode caretMode ) const
 */
 
 
-int QRegExp::searchRev( const QString& str, int start ) const
+int QRegExp::searchRev( const QString& str, int offset ) const
 {
-    return searchRev( str, start, CaretMatchesAtZero );
+    return searchRev( str, offset, CaretAtZero );
 }
 
-int QRegExp::searchRev( const QString& str, int start,
+int QRegExp::searchRev( const QString& str, int offset,
 			CaretMode caretMode ) const
 {
-    if ( start < 0 )
-	start += str.length();
+    if ( offset < 0 )
+	offset += str.length();
 #ifndef QT_NO_REGEXP_CAPTURE
     priv->t = str;
     priv->capturedCache.clear();
 #endif
-    if ( start < 0 || start > (int) str.length() ) {
+    if ( offset < 0 || offset > (int) str.length() ) {
 	priv->captured.detach();
 	priv->captured.fill( -1 );
 	return -1;
     }
 
-    while ( start >= 0 ) {
-	priv->captured = eng->match( str, start, priv->min, TRUE,
-				     caretIndex(start, caretMode) );
-	if ( priv->captured[0] == start )
-	    return start;
-	start--;
+    while ( offset >= 0 ) {
+	priv->captured = eng->match( str, offset, priv->min, TRUE,
+				     caretIndex(offset, caretMode) );
+	if ( priv->captured[0] == offset )
+	    return offset;
+	offset--;
     }
     return -1;
 }
@@ -3915,13 +3913,13 @@ void QRegExp::compile( bool caseSensitive )
     priv->captured.fill( -1, 2 + 2 * eng->numCaptures() );
 }
 
-int QRegExp::caretIndex( int start, CaretMode caretMode )
+int QRegExp::caretIndex( int offset, CaretMode caretMode )
 {
-    if ( caretMode == CaretMatchesAtZero ) {
+    if ( caretMode == CaretAtZero ) {
 	return 0;
-    } else if ( caretMode == CaretMatchesAtStartPos ) {
-	return start;
-    } else {
+    } else if ( caretMode == CaretAtOffset ) {
+	return offset;
+    } else { // CaretWontMatch
 	return -1;
     }
 }

@@ -15613,7 +15613,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
     int index = 0;
     int numCaptures = rx2.numCaptures();
     int al = str.length();
-    QRegExp::CaretMode caretMode = QRegExp::CaretMatchesAtZero;
+    QRegExp::CaretMode caretMode = QRegExp::CaretAtZero;
 
     if ( numCaptures > 0 ) {
 	if ( numCaptures > 9 )
@@ -15667,7 +15667,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
 		    // avoid infinite loop on 0-length matches (e.g., [a-z]*)
 		    index++;
 		} else if ( index == 0 ) {
-		    caretMode = QRegExp::CaretNeverMatches;
+		    caretMode = QRegExp::CaretWontMatch;
 		}
 	    }
 	    delete[] capturePositions;
@@ -15731,7 +15731,7 @@ QString &QString::replace( const QRegExp &rx, const QString &str )
 	d->len = newlen;
 	d->maxl = newlen + 1;
 	d->setDirty();
-	caretMode = QRegExp::CaretNeverMatches;
+	caretMode = QRegExp::CaretWontMatch;
     }
     return *this;
 }

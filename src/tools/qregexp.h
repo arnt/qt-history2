@@ -49,8 +49,7 @@ struct QRegExpPrivate;
 class Q_EXPORT QRegExp
 {
 public:
-    enum CaretMode { CaretMatchesAtZero, CaretMatchesAtStartPos,
-		     CaretNeverMatches };
+    enum CaretMode { CaretAtZero, CaretAtOffset, CaretWontMatch };
 
     QRegExp();
     QRegExp( const QString& pattern, bool caseSensitive = TRUE,
@@ -82,16 +81,16 @@ public:
 #endif
 
 #if defined(qdoc)
-    int search( const QString& str, int start = 0,
-		CaretMode caretMode = CaretMatchesAtZero ) const;
-    int searchRev( const QString& str, int start = -1,
-		   CaretMode caretMode = CaretMatchesAtZero ) const;
+    int search( const QString& str, int offset = 0,
+		CaretMode caretMode = CaretAtZero ) const;
+    int searchRev( const QString& str, int offset = -1,
+		   CaretMode caretMode = CaretAtZero ) const;
 #else
     // ### Qt 4.0: reduce these four to two functions
-    int search( const QString& str, int start = 0 ) const;
-    int search( const QString& str, int start, CaretMode caretMode ) const;
-    int searchRev( const QString& str, int start = -1 ) const;
-    int searchRev( const QString& str, int start, CaretMode caretMode ) const;
+    int search( const QString& str, int offset = 0 ) const;
+    int search( const QString& str, int offset, CaretMode caretMode ) const;
+    int searchRev( const QString& str, int offset = -1 ) const;
+    int searchRev( const QString& str, int offset, CaretMode caretMode ) const;
 #endif
     int matchedLength() const;
 #ifndef QT_NO_REGEXP_CAPTURE
@@ -107,7 +106,7 @@ public:
 private:
     void compile( bool caseSensitive );
 
-    static int caretIndex( int start, CaretMode caretMode );
+    static int caretIndex( int offset, CaretMode caretMode );
 
     QRegExpEngine *eng;
     QRegExpPrivate *priv;
