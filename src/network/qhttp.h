@@ -27,7 +27,7 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
 
-class QSocket;
+class QTcpSocket;
 class QTimerEvent;
 class QTextStream;
 class QIODevice;
@@ -160,7 +160,7 @@ public:
     };
 
     int setHost(const QString &hostname, Q_UINT16 port=80);
-    int setSocket(QSocket *socket);
+    int setSocket(QTcpSocket *socket);
     int setUser(const QString &username,
                 const QString &password = QString::null);
 
@@ -221,7 +221,7 @@ private slots:
     void slotConnected();
     void slotError(int);
     void slotClosed();
-    void slotBytesWritten(int);
+    void slotBytesWritten(Q_LLONG);
 
 private:
     QHttpPrivate *d;
@@ -236,7 +236,7 @@ private:
     void init();
     void setState(int);
     void closeConn();
-    void setSock(QSocket *socket);
+    void setSock(QTcpSocket *socket);
 
     friend class QHttpNormalRequest;
     friend class QHttpSetHostRequest;

@@ -15,7 +15,7 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
 
-#include "qsocket.h"
+#include "qtcpsocket.h"
 #include "qtextstream.h"
 #include "qmap.h"
 #include "qlist.h"
@@ -73,7 +73,7 @@ public:
         delete socket;
     }
 
-    QSocket *socket;
+    QTcpSocket *socket;
     QList<QHttpRequest *> pending;
 
     QHttp::State state;
@@ -371,7 +371,7 @@ private:
 class QHttpSetSocketRequest : public QHttpRequest
 {
 public:
-    QHttpSetSocketRequest(QSocket *s) : socket(s)
+    QHttpSetSocketRequest(QTcpSocket *s) : socket(s)
     { }
 
     void start(QHttp *);
@@ -382,7 +382,7 @@ public:
     { return 0; }
 
 private:
-    QSocket *socket;
+    QTcpSocket *socket;
 };
 
 void QHttpSetSocketRequest::start(QHttp *http)
@@ -1492,7 +1492,7 @@ void QHttp::abort()
 
     finishedWithError(tr("Request aborted"), Aborted);
     clearPendingRequests();
-    d->socket->clearPendingData();
+    d->socket->abort();
     closeConn();
 }
 
@@ -1675,7 +1675,7 @@ int QHttp::setHost(const QString &hostname, Q_UINT16 port)
     emitted. When it is finished the requestFinished() signal is
     emitted.
 */
-int QHttp::setSocket(QSocket *socket)
+int QHttp::setSocket(QTcpSocket *socket)
 {
     return addRequest(new QHttpSetSocketRequest(socket));
 }
@@ -1967,7 +1967,7 @@ void QHttp::sendRequest()
 
     // Do we need to setup a new connection or can we reuse an
     // existing one?
-    if (d->socket->peerName() != d->hostname || d->socket->state() != QSocket::Connected) {
+    if (d->socket->peerName() != d->hostname || d->socket->socketState() != Qt::ConnectedState) {
         setState(QHttp::Connecting);
         if (d->proxyHost.isEmpty())
             d->socket->connectToHost(d->hostname, d->port);
@@ -2061,10 +2061,10 @@ void QHttp::slotError(int err)
 
     if (d->state == Connecting || d->state == Reading || d->state == Sending) {
         switch (err) {
-            case QSocket::ErrConnectionRefused:
+        case Qt::ConnectionRefusedError:
                 finishedWithError(tr("Connection refused"), ConnectionRefused);
                 break;
-            case QSocket::ErrHostNotFound:
+        case Qt::HostNotFoundError:
                 finishedWithError(tr("Host %1 not found").arg(d->socket->peerName()), HostNotFound);
                 break;
             default:
@@ -2076,7 +2076,7 @@ void QHttp::slotError(int err)
     closeConn();
 }
 
-void QHttp::slotBytesWritten(int written)
+void QHttp::slotBytesWritten(Q_LLONG written)
 {
     d->bytesDone += written;
     emit dataSendProgress(d->bytesDone, d->bytesTotal);
@@ -2372,28 +2372,27 @@ void QHttp::closeConn()
         d->socket->close();
 
         // Did close succeed immediately ?
-        if (d->socket->state() == QSocket::Idle) {
+        if (d->socket->socketState() == Qt::UnconnectedState) {
             // Prepare to emit the requestFinished() signal.
             d->idleTimer = startTimer(0);
         }
     }
 }
 
-void QHttp::setSock(QSocket *socket)
+void QHttp::setSock(QTcpSocket *socket)
 {
     // disconnect all existing signals
     if (d->socket) d->socket->disconnect();
 
     // use the new QSocket socket, or create one if socket is 0.
-    d->socket = socket ? socket : new QSocket();
+    d->socket = socket ? socket : new QTcpSocket();
 
     // connect all signals
     connect(d->socket, SIGNAL(connected()), this, SLOT(slotConnected()));
-    connect(d->socket, SIGNAL(connectionClosed()), this, SLOT(slotClosed()));
-    connect(d->socket, SIGNAL(delayedCloseFinished()), this, SLOT(slotClosed()));
+    connect(d->socket, SIGNAL(closed()), this, SLOT(slotClosed()));
     connect(d->socket, SIGNAL(readyRead()), this, SLOT(slotReadyRead()));
     connect(d->socket, SIGNAL(error(int)), this, SLOT(slotError(int)));
-    connect(d->socket, SIGNAL(bytesWritten(int)), this, SLOT(slotBytesWritten(int)));
+    connect(d->socket, SIGNAL(bytesWritten(Q_LLONG)), this, SLOT(slotBytesWritten(Q_LLONG)));
 }
 
 #endif
