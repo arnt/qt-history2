@@ -2656,8 +2656,8 @@ QRect QWorkspace::updateWorkspace()
 	int vsbExt = d->vbar->sizeHint().width();
 
 
-	bool showv = d->yoffset || d->yoffset + r.bottom() - height() + 1 > 0;
-	bool showh = d->xoffset || d->xoffset + r.right() - width() + 1 > 0;
+	bool showv = d->yoffset || d->yoffset + r.bottom() - height() + 1 > 0 || d->yoffset + r.top() < 0;
+	bool showh = d->xoffset || d->xoffset + r.right() - width() + 1 > 0 || d->xoffset + r.left() < 0;
 
 	if ( showh && !showv)
 	    showv = d->yoffset + r.bottom() - height() + hsbExt + 1 > 0;
@@ -2671,7 +2671,7 @@ QRect QWorkspace::updateWorkspace()
 
 	if ( showv ) {
 	    d->vbar->setSteps( QMAX( height() / 12, 30 ), height()  - hsbExt );
-	    d->vbar->setRange( 0, d->yoffset + QMAX( 0, r.bottom() - height() + hsbExt + 1) );
+	    d->vbar->setRange( QMIN( 0, d->yoffset + QMIN( 0, r.top() ) ), QMAX( 0, d->yoffset + QMAX( 0, r.bottom() - height() + hsbExt + 1) ) );
 	    d->vbar->setGeometry( width() - vsbExt, 0, vsbExt, height() - hsbExt );
 	    d->vbar->setValue( d->yoffset );
 	    d->vbar->show();
@@ -2681,7 +2681,7 @@ QRect QWorkspace::updateWorkspace()
 
 	if ( showh ) {
 	    d->hbar->setSteps( QMAX( width() / 12, 30 ), width() - vsbExt );
-	    d->hbar->setRange( 0, d->xoffset + QMAX( 0, r.right() - width() + vsbExt  + 1) );
+	    d->hbar->setRange( QMIN( 0, d->xoffset + QMIN( 0, r.left() ) ), QMAX( 0, d->xoffset + QMAX( 0, r.right() - width() + vsbExt  + 1) ) );
 	    d->hbar->setGeometry( 0, height() - hsbExt, width() - vsbExt, hsbExt );
 	    d->hbar->setValue( d->xoffset );
 	    d->hbar->show();
