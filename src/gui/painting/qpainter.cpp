@@ -368,7 +368,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
                 engine->drawPolygon(xformed.data(), xformed.size(),
                                     QPaintEngine::PolygonDrawMode(path.fillRule()));
             }
-
+            q->restore();
         // Normal fills, custom outlining only, which is done later.
         } else {
             QPen oldPen = state->pen;
