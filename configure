@@ -24,10 +24,21 @@ if [ "$relpath" != `pwd` ]; then
     #setup the magic variable
     outpath=`pwd`
 
-    #prepare the new tree
     echo "Preparing build tree.."
-    mkdir -p $outpath/bin
-    for a in `find $relpath/qmake` $relpath/Makefile; do
+    mkdir -p $outpath/bin #make build dir
+
+    #need a top level makefile, prefer gnu internally
+    if [ -f $relpath/GNUmakefile ]; then
+	ln -sf $relpath/GNUmakefile $outpath/Makefile
+    else [ -f $relpath/Makefile ]; then
+	ln -sf $relpath/Makefile $outpath/Makefile
+    else
+	echo "No top level Makefile."
+	exit 1
+    fi
+
+    #qmake must be symlinked
+    for a in `find $relpath/qmake`; do
        my_a=`echo $a | sed "s,^${relpath}/,${outpath}/,"`
        [ -f $my_a ] && continue
        if [ -d $a ]; then
@@ -41,10 +52,15 @@ if [ "$relpath" != `pwd` ]; then
 	   esac
        fi
     done
-    [ -d $outpath/include ] || mkdir -p $outpath/include
-    for a in `$relpath/bin/syncqt -show`; do
-       ln -sf $relpath/$a $outpath/include/`basename $a`
-    done
+    # need include files, prefer syncqt internally
+    [ -d "$outpath/include" ] || mkdir -p $outpath/include
+    if [ -x "$relpath/bin/syncqt" ]; then
+	for a in `$relpath/bin/syncqt -show`; do
+	   ln -sf $relpath/$a $outpath/include/`basename $a`
+	done
+    else
+	cp -a $relpath/include/*.h $outpath/include
+    fi
 
     #let qmake see qconfig/qmodules.h
     QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=$outpath/src/tools\""
