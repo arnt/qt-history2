@@ -1357,7 +1357,7 @@ bool QFont::fromString(const QString &descrip)
 
     setFamily(l[0]);
     setPointSize(l[1].toInt());
-    setPointSize(l[2].toInt());
+    setPixelSize(l[2].toInt());
     setStyleHint((StyleHint) l[3].toInt());
     setWeight(l[4].toInt());
     setItalic(l[5].toInt());
@@ -1434,7 +1434,7 @@ QDataStream &operator<<( QDataStream &s, const QFont &font )
 	s << (Q_INT16) font.d->request.pointSize;
 	s << (Q_INT16) font.d->request.pixelSize;
     }
-    
+
     return s << (Q_UINT8) font.d->request.styleHint
 	     << (Q_UINT8) 0
 	     << (Q_UINT8) font.d->request.weight
