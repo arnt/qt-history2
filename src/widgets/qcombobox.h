@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#20 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#21 $
 **
 ** Definition of QComboBox class
 **
@@ -50,8 +50,7 @@ public:
 
     bool	autoResize()	const;
     void	setAutoResize( bool );
-    void	adjustSize();
-    QSize	suggestedSize() const;
+    QSize	sizeHint() const;
 
     void	setBackgroundColor( const QColor & );
     void	setPalette( const QPalette & );

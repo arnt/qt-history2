@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#24 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#25 $
 **
 ** Definition of QLabel widget class
 **
@@ -35,8 +35,7 @@ public:
 
     bool	autoResize()	const	{ return autoresize; }
     void	setAutoResize( bool );
-    void	adjustSize();
-    QSize    suggestedSize() const;
+    QSize    	sizeHint() const;
 
 public slots:
     void	setText( const char * );

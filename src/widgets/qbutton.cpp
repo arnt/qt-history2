@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#47 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#47 $")
 
 
 /*----------------------------------------------------------------------------
@@ -224,39 +224,6 @@ void QButton::setAutoResize( bool enable )
 	    adjustSize();			// calls resize which repaints
     }
 }
-
-
-/*----------------------------------------------------------------------------
-  Adjusts the size of the button to fit the contents.
-
-  This function is called automatically whenever the contents change and
-  auto-resizing is enabled.
-
-  \sa setAutoResize()
- ----------------------------------------------------------------------------*/
-
-void QButton::adjustSize()
-{
-    if ( suggestedSize() != size() )
-	resize( suggestedSize() );
-}
-
-
-/*----------------------------------------------------------------------------
-  This function returns the preferred size for the button. The default 
-  implementation merely returns the current size of the button. 
-  
-  This virtual function is reimplemented more usefully by subclasses.
-
-  \sa adjustSize()
- ----------------------------------------------------------------------------*/
-
-QSize QButton::suggestedSize() const
-{
-    return size();
-}
-
-
 
 /*----------------------------------------------------------------------------
   \fn bool QButton::isDown() const

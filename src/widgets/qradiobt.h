@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobt.h#14 $
+** $Id: //depot/qt/main/src/widgets/qradiobt.h#15 $
 **
 ** Definition of QRadioButton class
 **
@@ -26,7 +26,7 @@ public:
     bool    isChecked() const;
     void    setChecked( bool check );
 
-    QSize    suggestedSize() const;
+    QSize    sizeHint() const;
 
 protected:
     bool    hitButton( const QPoint & ) const;

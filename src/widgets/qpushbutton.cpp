@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#67 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#66 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#67 $")
 
 
 /*----------------------------------------------------------------------------
@@ -214,7 +214,7 @@ void QPushButton::setDefault( bool enable )
   Returns a size which fits the contents of the push button.
  ----------------------------------------------------------------------------*/
 
-QSize QPushButton::suggestedSize() const
+QSize QPushButton::sizeHint() const
 {
     int w, h;
     if ( pixmap() ) {

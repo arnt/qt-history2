@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#91 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#92 $
 **
 ** Definition of QWidget class
 **
@@ -159,7 +159,10 @@ public:
     void	 resize( const QSize & );
     virtual void setGeometry( int x, int y, int w, int h );
     void	 setGeometry( const QRect & );
-    virtual void adjustSize();
+
+    virtual QSize sizeHint() const;
+    virtual void  adjustSize();
+
 
     void	 recreate( QWidget *parent, WFlags, const QPoint &,
 			   bool showIt=FALSE );

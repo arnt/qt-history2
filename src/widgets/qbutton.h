@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#38 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#39 $
 **
 ** Definition of QButton widget class
 **
@@ -35,9 +35,6 @@ public:
 
     bool	isDown()	const	{ return buttonDown; }
     bool	isOn()		const	{ return buttonOn; }
-
-    void	adjustSize();
-    virtual QSize suggestedSize() const;
 
     bool	autoResize()	const	{ return autoresize; }
     void	setAutoResize( bool );

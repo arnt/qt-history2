@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#46 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#45 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#46 $")
 
 
 /*----------------------------------------------------------------------------
@@ -101,7 +101,7 @@ static int extraWidth( int gs )
   Returns a size which fits the contents of the check box.
  ----------------------------------------------------------------------------*/
 
-QSize QCheckBox::suggestedSize() const
+QSize QCheckBox::sizeHint() const
 {
     QFontMetrics fm = fontMetrics();
     int w = fm.width( text() );

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#39 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#38 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#39 $")
 
 
 /*----------------------------------------------------------------------------
@@ -313,30 +313,12 @@ void QLabel::setAutoResize( bool enable )
     }
 }
 
-
-/*----------------------------------------------------------------------------
-  Adjusts the size of the label to fit the contents.  The top left
-  corner is not moved.
-
-  This function is called automatically whenever the contents change and
-  auto-resizing is enabled.
-
-  \bug Does not work well with the WordBreak flag
-
-  \sa setAutoResize()
- ----------------------------------------------------------------------------*/
-
-void QLabel::adjustSize()
-{
-    if ( suggestedSize() != size() )
-	resize( suggestedSize() );
-}
 /*----------------------------------------------------------------------------
   Returns a size which fits the contents of the label.
 
   \bug Does not work well with the WordBreak flag
  ----------------------------------------------------------------------------*/
-QSize QLabel::suggestedSize() const
+QSize QLabel::sizeHint() const
 {
     QPainter p;
     p.begin( this );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#129 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#128 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#129 $")
 
 
 /*----------------------------------------------------------------------------
@@ -1338,19 +1338,38 @@ bool QWidget::close( bool forceKill )
 
 
 /*----------------------------------------------------------------------------
-  Virtual function that adjusts the size of the widget to fit the contents.
+  Adjusts the size of the widget to fit the contents. Uses sizeHint() if
+  valid, otherwise sets the size to the children rectangle.
 
-  The default implementation adjusts the size to the children rectangle.
-
-  \sa childrenRect()
+  \sa sizeHint(), childrenRect()
  ----------------------------------------------------------------------------*/
 
 void QWidget::adjustSize()
 {
+    QSize s = sizeHint();
+    if ( s.isValid() ) {
+	resize( s );
+	return;
+    }
     QRect r = childrenRect();			// get children rectangle
     if ( r.isNull() )				// probably no widgets
 	return;
     resize( r.width()+2*r.x(), r.height()+2*r.y() );
+}
+
+
+/*----------------------------------------------------------------------------
+  Returns a recommended size for the widget, or an invalid size if
+  no size is recommended. 
+
+  The default implementation returns an invalid size.
+
+  \sa QSize:isValid(), resize(), setMinimumSize()
+ ----------------------------------------------------------------------------*/
+
+QSize QWidget::sizeHint() const
+{
+    return QSize( -1, -1 );
 }
 
 

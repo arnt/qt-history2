@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#11 $
 **
 **  Studies in Geometry Management
 **
@@ -18,7 +18,7 @@
 #include "qbasic.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#11 $")
 
 
 
@@ -426,7 +426,6 @@ QBasicManager::QBasicManager( QWidget *parent, const char *name )
   */
 QBasicManager::~QBasicManager()
 {
-    debug("QBasicManager::~QBasicManager");
     delete xC;
     delete yC;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.h#11 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.h#12 $
 **
 ** Definition of QCheckBox class
 **
@@ -26,7 +26,7 @@ public:
     bool    isChecked() const;
     void    setChecked( bool check );
 
-    QSize suggestedSize() const;
+    QSize sizeHint() const;
 
 protected:
     void    drawButton( QPainter * );
