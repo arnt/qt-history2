@@ -63,7 +63,7 @@
 
     This signal is emitted every time a new connection is available.
 
-    \sa hasPendingConnection(), nextPendingConnection()
+    \sa hasPendingConnections(), nextPendingConnection()
 */
 
 //#define QTCPSERVER_DEBUG
@@ -180,7 +180,7 @@ QTcpServer::~QTcpServer()
 /*!
     Makes the server listen for incoming connections on address \a
     address and port \a port. If \a port is 0, a port is chosed
-    automatically. If QHostAddress::AnyAddress is passed to \a
+    automatically. If QHostAddress::Any is passed to \a
     address, the server will listen on all network interfaces.
 
     Returns true on success; otherwise returns false.
@@ -243,11 +243,11 @@ bool QTcpServer::listen(const QHostAddress &address, Q_UINT16 port)
 /*! \overload
 
     Listens for connections on all network interfaces. Equivalent to
-    calling listen(QHostAddress::AnyAddress, \a port).
+    calling listen(QHostAddress::Any, \a port).
 */
 bool QTcpServer::listen(Q_UINT16 port)
 {
-    return listen(QHostAddress::AnyAddress, port);
+    return listen(QHostAddress::Any, port);
 }
 
 /*!
@@ -339,7 +339,7 @@ Q_UINT16 QTcpServer::serverPort() const
 
 /*!
     Returns the server's address if it is listening for connections;
-    otherwise QHostAddress::NullAddress is returned.
+    otherwise QHostAddress::Null is returned.
 
     \sa serverPort()
 */
@@ -360,7 +360,7 @@ QHostAddress QTcpServer::serverAddress() const
     mostly useful when there is no event loop available. The general
     approach is to connect to the newConnection() signal.
 
-    \sa hasPendingConnection(), nextPendingConnection()
+    \sa hasPendingConnections(), nextPendingConnection()
 */
 bool QTcpServer::waitForNewConnection(int msec, bool *timedOut)
 {
@@ -388,7 +388,7 @@ bool QTcpServer::waitForNewConnection(int msec, bool *timedOut)
 
     \sa nextPendingConnection(), setMaxPendingConnections()
 */
-bool QTcpServer::hasPendingConnection() const
+bool QTcpServer::hasPendingConnections() const
 {
     return !d->pendingConnections.isEmpty();
 }
@@ -402,7 +402,7 @@ bool QTcpServer::hasPendingConnection() const
     destroyed. It is still a good idea to delete the object
     explicitly when you are done with it, to avoid wasting memory.
 
-    \sa hasPendingConnection()
+    \sa hasPendingConnections()
 */
 QTcpSocket *QTcpServer::nextPendingConnection()
 {
@@ -454,7 +454,7 @@ void QTcpServer::incomingConnection(int socketDescriptor)
     reached its maximum number of pending connections will either
     immediately fail to connect, or they will time out.
 
-    \sa maxPendingConnections(), hasPendingConnection()
+    \sa maxPendingConnections(), hasPendingConnections()
 */
 void QTcpServer::setMaxPendingConnections(int numConnections)
 {
@@ -466,7 +466,7 @@ void QTcpServer::setMaxPendingConnections(int numConnections)
 
     By default, no more than 30 pending connections are allowed.
 
-    \sa setMaxPendingConnections(), hasPendingConnection()
+    \sa setMaxPendingConnections(), hasPendingConnections()
 */
 int QTcpServer::maxPendingConnections() const
 {

@@ -24,16 +24,6 @@ class QHostAddressPrivate
 {
 public:
     QHostAddressPrivate();
-    QHostAddressPrivate(const QHostAddressPrivate &other) { *this = other; }
-    QHostAddressPrivate &operator=(const QHostAddressPrivate &other)
-    {
-        a = other.a;
-        a6 = other.a6;
-        isIp4 = other.isIp4;
-        ipString = other.ipString;
-        isParsed = other.isParsed;
-        return *this;
-    }
 
     void setAddress(Q_UINT32 a_ = 0);
     void setAddress(const Q_UINT8 *a_);
@@ -225,10 +215,11 @@ void QHostAddressPrivate::clear()
 
 /*! \enum QHostAddress::SpecialAddress
 
-    \value NullAddress The null address. Equivalent to QHostAddress().
-    \value LocalHostAddress The IPv4 localhost address. Equivalent to QHostAddress("127.0.0.1").
-    \value LocalHostIPv6Address The IPv6 localhost address. Equivalent to QHostAddress("::1").
-    \value AnyAddress The IPv4 any-address. Equivalent to QHostAddress("0.0.0.0").
+    \value Null The null address. Equivalent to QHostAddress().
+    \value LocalHost The IPv4 localhost address. Equivalent to QHostAddress("127.0.0.1").
+    \value LocalHostIPv6 The IPv6 localhost address. Equivalent to QHostAddress("::1").
+    \value Broadcast
+    \value Any The IPv4 any-address. Equivalent to QHostAddress("0.0.0.0").
 */
 
 /*!  Creates a host address object with the IP address 0.0.0.0.
@@ -268,18 +259,18 @@ QHostAddress::QHostAddress(SpecialAddress address)
     : d(new QHostAddressPrivate)
 {
     switch (address) {
-    case NullAddress:
+    case Null:
         break;
-    case BroadcastAddress:
+    case Broadcast:
         setAddress("255.255.255.255");
         break;
-    case LocalHostAddress:
+    case LocalHost:
         setAddress("127.0.0.1");
         break;
-    case LocalHostIPv6Address:
+    case LocalHostIPv6:
         setAddress("::1");
         break;
-    case AnyAddress:
+    case Any:
         setAddress("0.0.0.0");
         break;
     }
@@ -297,7 +288,7 @@ QHostAddress::~QHostAddress()
     Assigns another host \a address to this object, and returns a reference
     to this object.
 */
-QHostAddress &QHostAddress::operator =(const QHostAddress &address)
+QHostAddress &QHostAddress::operator=(const QHostAddress &address)
 {
     *d = *address.d;
     return *this;
@@ -437,14 +428,12 @@ QString QHostAddress::toString() const
         return s;
     } else {
         Q_UINT16 ugle[8];
-        for (int i=0; i<8; i++) {
-            ugle[i] = ((Q_UINT16)(d->a6.c[2*i]) << 8) |
-                ((Q_UINT16)(d->a6.c[2*i+1]));
+        for (int i = 0; i < 8; i++) {
+            ugle[i] = (Q_UINT16(d->a6.c[2*i]) << 8) | Q_UINT16(d->a6.c[2*i+1]);
         }
         QString s;
         s.sprintf("%X:%X:%X:%X:%X:%X:%X:%X",
-                ugle[0], ugle[1], ugle[2], ugle[3],
-                ugle[4], ugle[5], ugle[6], ugle[7]);
+                  ugle[0], ugle[1], ugle[2], ugle[3], ugle[4], ugle[5], ugle[6], ugle[7]);
         return s;
     }
 }
@@ -455,7 +444,7 @@ QString QHostAddress::toString() const
     Returns true if this host address is the same as the \a other address
     given; otherwise returns false.
 */
-bool QHostAddress::operator ==(const QHostAddress &other) const
+bool QHostAddress::operator==(const QHostAddress &other) const
 {
     QT_ENSURE_PARSED(this);
     QT_ENSURE_PARSED(&other);
@@ -510,4 +499,3 @@ bool QHostAddress::isNull() const
 
     Use toIPv4Address() instead.
 */
-

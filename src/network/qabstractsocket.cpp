@@ -1313,10 +1313,10 @@ Q_UINT16 QAbstractSocket::localPort() const
 
 /*!
     Returns the host address of the local socket if available;
-    otherwise returns QHostAddress::NullAddress.
+    otherwise returns QHostAddress::Null.
 
     This is normally the main IP address of the host, but can be
-    QHostAddress::LocalHostAddress (127.0.0.1) for connections to the
+    QHostAddress::LocalHost (127.0.0.1) for connections to the
     local host.
 
     \sa localPort(), peerAddress()
@@ -1343,7 +1343,7 @@ Q_UINT16 QAbstractSocket::peerPort() const
 
 /*!
     Returns the address of the connected peer if the socket is in
-    Qt::ConnectedState; otherwise returns QHostAddress::NullAddress.
+    Qt::ConnectedState; otherwise returns QHostAddress::Null.
 
     \sa peerName(), peerPort(), localAddress()
 */
@@ -1552,11 +1552,12 @@ Q_LLONG QAbstractSocket::at() const
 }
 
 /*!
-    Writes any pending outgoing data to the socket and returns
-    immediately.
+    Writes any pending outgoing data to the socket.
 
     If the socket is in blocking mode, this function blocks until all
-    data has been written or until the timeout has expired.
+    data has been written or until the timeout has expired;
+    otherwise, the function writes as much as it can without
+    blocking.
 
     \sa setBlocking()
 */

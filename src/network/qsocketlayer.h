@@ -50,10 +50,8 @@ public:
     Q_LLONG read(char *data, Q_LLONG maxlen);
     Q_LLONG write(const char *data, Q_LLONG len);
 
-    Q_LLONG receiveDatagram(char *data, Q_LLONG maxlen,
-                            QHostAddress *addr = 0, Q_UINT16 *port = 0);
-    Q_LLONG sendDatagram(const char *data, Q_LLONG len,
-                        const QHostAddress &addr, Q_UINT16 port);
+    Q_LLONG readDatagram(char *data, Q_LLONG maxlen, QHostAddress *addr = 0, Q_UINT16 *port = 0);
+    Q_LLONG writeDatagram(const char *data, Q_LLONG len, const QHostAddress &addr, Q_UINT16 port);
     bool hasPendingDatagrams() const;
     Q_LLONG pendingDatagramSize() const;
 

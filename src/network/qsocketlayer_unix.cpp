@@ -237,8 +237,8 @@ bool QSocketLayerPrivate::setOption(SocketOption opt, int v)
 bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, Q_UINT16 port)
 {
     struct sockaddr_in sockAddrIPv4;
-    struct sockaddr *sockAddrPtr;
-    QT_SOCKLEN_T sockAddrSize;
+    struct sockaddr *sockAddrPtr = 0;
+    QT_SOCKLEN_T sockAddrSize = 0;
 
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 sockAddrIPv6;
@@ -332,8 +332,8 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, Q_UINT16 port)
 bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, Q_UINT16 port)
 {
     struct sockaddr_in sockAddrIPv4;
-    struct sockaddr *sockAddrPtr;
-    QT_SOCKLEN_T sockAddrSize;
+    struct sockaddr *sockAddrPtr = 0;
+    QT_SOCKLEN_T sockAddrSize = 0;
 
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 sockAddrIPv6;
@@ -556,8 +556,9 @@ Q_LLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LLONG len,
                                                  const QHostAddress &host, Q_UINT16 port)
 {
     struct sockaddr_in sockAddrIPv4;
-    struct sockaddr *sockAddrPtr;
-    QT_SOCKLEN_T sockAddrSize;
+    struct sockaddr *sockAddrPtr = 0;
+    QT_SOCKLEN_T sockAddrSize = 0;
+
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 sockAddrIPv6;
     if (host.isIPv6Address()) {

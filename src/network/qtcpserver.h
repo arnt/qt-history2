@@ -50,7 +50,7 @@ public:
     bool setSocketDescriptor(int socketDescriptor);
 
     bool waitForNewConnection(int msec = 0, bool *timedOut = 0);
-    virtual bool hasPendingConnection() const;
+    virtual bool hasPendingConnections() const;
     virtual QTcpSocket *nextPendingConnection();
 
     Qt::SocketError serverError() const;

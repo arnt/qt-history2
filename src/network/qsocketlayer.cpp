@@ -50,7 +50,7 @@
     for reading. read() and write() are used by both TCP and UDP
     clients to exchange data with the connected peer. UDP clients can
     also call hasMoreDatagrams(), nextDatagramSize(),
-    receiveDatagram() and sendDatagram().
+    readDatagram(), and writeDatagram().
 
     Call socketState() to determine the state of the socket, for
     example, ListeningState or ConnectedState. socketType() tells
@@ -339,7 +339,7 @@ int QSocketLayer::socketDescriptor() const
 /*!
     If the socket is in BoundState or ListeningState, this function
     returns the local address that the socket is bound to; otherwise
-    QHostAddress::NullAddress is returned.
+    QHostAddress::Null is returned.
 */
 QHostAddress QSocketLayer::localAddress() const
 {
@@ -358,7 +358,7 @@ Q_UINT16 QSocketLayer::localPort() const
 
 /*!
     If the socket is in ConnectedState, this function returns the
-    address of the connected peer; otherwise QHostAddress::NullAddress
+    address of the connected peer; otherwise QHostAddress::Null
     is returned.
 */
 QHostAddress QSocketLayer::peerAddress() const
@@ -395,11 +395,11 @@ Q_UINT16 QSocketLayer::peerPort() const
     \code
         QSocketLayer socketLayer;
         socketLayer.initialize(Qt::TcpSocket, Qt::IPv4Protocol);
-        socketLayer.connectToHost(QHostAddress::LocalHostAddress, 22);
+        socketLayer.connectToHost(QHostAddress::LocalHost, 22);
         // returns false
 
         socketLayer.waitForWrite();
-        socketLayer.connectToHost(QHostAddress::LocalHostAddress, 22);
+        socketLayer.connectToHost(QHostAddress::LocalHost, 22);
         // returns true
     \endcode
 
@@ -473,7 +473,7 @@ bool QSocketLayer::bind(const QHostAddress &address, Q_UINT16 port)
     Example:
     \code
         QSocketLayer socketLayer;
-        socketLayer.bind(QHostAddress::AnyAddress, 4000);
+        socketLayer.bind(QHostAddress::Any, 4000);
         socketLayer.listen();
         if (socketLayer.waitForRead()) {
             int clientSocket = socketLayer.accept();
@@ -571,11 +571,11 @@ Q_LLONG QSocketLayer::pendingDatagramSize() const
 
     \sa hasPendingDatagrams()
 */
-Q_LLONG QSocketLayer::receiveDatagram(char *data, Q_LLONG maxLength,
-                                      QHostAddress *address, Q_UINT16 *port)
+Q_LLONG QSocketLayer::readDatagram(char *data, Q_LLONG maxLength, QHostAddress *address,
+                                   Q_UINT16 *port)
 {
-    Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::receiveDatagram(), -1);
-    Q_CHECK_TYPE(QSocketLayer::receiveDatagram(), Qt::UdpSocket, false);
+    Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::readDatagram(), -1);
+    Q_CHECK_TYPE(QSocketLayer::readDatagram(), Qt::UdpSocket, false);
 
     return d->nativeReceiveDatagram(data, maxLength, address, port);
 }
@@ -596,13 +596,13 @@ Q_LLONG QSocketLayer::receiveDatagram(char *data, Q_LLONG maxLength,
     Experience has shown that it is in general safe to send datagrams
     no larger than 512 bytes.
 
-    \sa receiveDatagram()
+    \sa readDatagram()
 */
-Q_LLONG QSocketLayer::sendDatagram(const char *data, Q_LLONG length,
+Q_LLONG QSocketLayer::writeDatagram(const char *data, Q_LLONG length,
                                     const QHostAddress &host, Q_UINT16 port)
 {
-    Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::sendDatagram(), -1);
-    Q_CHECK_TYPE(QSocketLayer::sendDatagram(), Qt::UdpSocket, -1);
+    Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::writeDatagram(), -1);
+    Q_CHECK_TYPE(QSocketLayer::writeDatagram(), Qt::UdpSocket, -1);
     return d->nativeSendDatagram(data, length, host, port);
 }
 

@@ -38,10 +38,8 @@ public:
 
     bool hasPendingDatagrams() const;
     Q_LLONG pendingDatagramSize() const;
-    Q_LLONG receiveDatagram(char *data, Q_LLONG maxlen,
-                            QHostAddress *host = 0, Q_UINT16 *port = 0);
-    Q_LLONG sendDatagram(const char *data, Q_LLONG len,
-                         const QHostAddress &host, Q_UINT16 port);
+    Q_LLONG readDatagram(char *data, Q_LLONG maxlen, QHostAddress *host = 0, Q_UINT16 *port = 0);
+    Q_LLONG writeDatagram(const char *data, Q_LLONG len, const QHostAddress &host, Q_UINT16 port);
 
 private:
     Q_DISABLE_COPY(QUdpSocket)

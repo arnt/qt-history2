@@ -32,20 +32,20 @@ class QM_EXPORT_NETWORK QHostAddress
 {
 public:
     enum SpecialAddress {
-        NullAddress,
-        BroadcastAddress,
-        LocalHostAddress,
-        LocalHostIPv6Address,
-        AnyAddress
+        Null,
+        Broadcast,
+        LocalHost,
+        LocalHostIPv6,
+        Any
     };
 
     QHostAddress();
     explicit QHostAddress(const QString &address);
     QHostAddress(const QHostAddress &copy);
     QHostAddress(SpecialAddress address);
-    virtual ~QHostAddress();
+    ~QHostAddress();
 
-    QHostAddress &operator =(const QHostAddress &);
+    QHostAddress &operator=(const QHostAddress &);
 
     void setAddress(Q_UINT32 ip4Addr);
     void setAddress(Q_UINT8 *ip6Addr);
