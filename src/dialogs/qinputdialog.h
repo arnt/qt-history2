@@ -32,7 +32,7 @@
 #endif // QT_H
 
 
-struct QInputDialogPrivate;
+class QInputDialogPrivate;
 
 class QLineEdit;
 class QSpinBox;
@@ -40,6 +40,9 @@ class QComboBox;
 
 class Q_EXPORT QInputDialog : public QDialog
 {
+#if defined(_CC_MSVC_)
+    friend class QInputDialog;
+#endif
     Q_OBJECT
 	
 private:
@@ -60,13 +63,13 @@ private:
 public:
     static QString getText( const QString &caption, const QString &label, const QString &text = QString::null,
 			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
-    static int getInteger( const QString &caption, const QString &label, int num = 0, int from = -2147483647, 
+    static int getInteger( const QString &caption, const QString &label, int num = 0, int from = -2147483647,
 			   int to = 2147483647,
 			   int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
-    static double getDouble( const QString &caption, const QString &label, double num = 0, 
+    static double getDouble( const QString &caption, const QString &label, double num = 0,
 			     double from = -2147483647, double to = 2147483647,
 			     int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
-    static QString getItem( const QString &caption, const QString &label, const QStringList &list, 
+    static QString getItem( const QString &caption, const QString &label, const QStringList &list,
 			    int current = 0, bool editable = TRUE,
 			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
 
@@ -78,7 +81,7 @@ private:
     QInputDialogPrivate *d;
     // just to avoid warnings...
     friend class QInputDialogPrivate;
-    
+
 };
 
 #endif

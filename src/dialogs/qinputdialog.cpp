@@ -34,8 +34,10 @@
 #include <qwidgetstack.h>
 #include <qvalidator.h>
 
-struct QInputDialogPrivate
+class QInputDialogPrivate
 {
+public:
+    friend class QInputDialog;
     QLineEdit *lineEdit;
     QSpinBox *spinBox;
     QComboBox *comboBox, *editComboBox;
