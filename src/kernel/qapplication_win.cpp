@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#468 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#469 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -455,8 +455,8 @@ static void qt_set_windows_resources()
     cg.setColor( QColorGroup::Link, Qt::blue );
     cg.setColor( QColorGroup::LinkVisited, Qt::magenta );
 
-    if ( qt_winver == Qt::WV_2000 || 
-	 qt_winver == Qt::WV_98 || 
+    if ( qt_winver == Qt::WV_2000 ||
+	 qt_winver == Qt::WV_98 ||
 	 qt_winver == Qt::WV_XP ) {
 	if ( cg.midlight() == cg.button() )
 	    cg.setColor( QColorGroup::Midlight, cg.button().light(110) );
@@ -473,8 +473,8 @@ static void qt_set_windows_resources()
 		  QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
     QColorGroup icg = cg;
-    if ( qt_winver == Qt::WV_2000 || 
-	 qt_winver == Qt::WV_98 || 
+    if ( qt_winver == Qt::WV_2000 ||
+	 qt_winver == Qt::WV_98 ||
 	 qt_winver == Qt::WV_XP ) {
 	if ( icg.background() != icg.base() ) {
 	    icg.setColor( QColorGroup::Highlight, icg.background() );
@@ -505,8 +505,8 @@ static void qt_set_windows_resources()
 		      QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
 	icg = cg;
-	if ( qt_winver == Qt::WV_2000 || 
-	     qt_winver == Qt::WV_98 || 
+	if ( qt_winver == Qt::WV_2000 ||
+	     qt_winver == Qt::WV_98 ||
 	     qt_winver == Qt::WV_XP ) {
 	    icg.setColor( QColorGroup::ButtonText, icg.dark() );
 	}
@@ -1373,7 +1373,7 @@ bool QApplication::processNextEvent( bool canWait )
 void QApplication::processEvents( int maxtime )
 {
     uint ticks = (uint)GetTickCount();
-    while ( !app_exit_loop && processNextEvent(FALSE) ) {
+    while ( !quit_now && processNextEvent(FALSE) ) {
 	if ( (uint)GetTickCount() - ticks > (uint)maxtime )
 	    break;
     }
@@ -1469,7 +1469,7 @@ extern "C"
 LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			    LPARAM lParam )
 {
-    
+
     if ( inLoop ) {
 	qApp->sendPostedEvents( 0, QEvent::ShowWindowRequest );
     }
@@ -1796,7 +1796,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case WM_IME_ENDCOMPOSITION:
 		{
 		    QWidget *fw = qApp->focusWidget();
-		    qDebug("EndComposition: lparam=%x", lParam);	        
+		    qDebug("EndComposition: lparam=%x", lParam);	
 		    if ( fw && imePosition != -1 ) {
 			QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
 			result = QApplication::sendEvent( fw, &e );
@@ -2783,7 +2783,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	QString s;
 	QChar ch = imechar_to_unicode(msg.wParam);
 	if (!ch.isNull())
-	    s += ch; 
+	    s += ch;
 	k0 = sendKeyEvent( QEvent::KeyPress, 0, ch.row() ? 0 : ch.cell(), state, grab, s );
 	k1 = sendKeyEvent( QEvent::KeyRelease, 0, ch.row() ? 0 : ch.cell(), state, grab, s );
     }

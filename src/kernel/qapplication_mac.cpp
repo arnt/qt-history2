@@ -201,14 +201,14 @@ enum {
     kEventQtRequestTimer = 13
 };
 static bool request_updates_pending = FALSE;
-void qt_event_request_updates() 
+void qt_event_request_updates()
 {
     if(request_updates_pending)
 	return;
     request_updates_pending = TRUE;
 
     EventRef upd = NULL;
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(), 
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &upd);
     PostEventToQueue( GetCurrentEventQueue(), upd, kEventPriorityHigh );
 }
@@ -256,7 +256,7 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
     if(p && !QDir::isRelativePath(p) && QDir::currentDirPath() == "/") {
 	QString path = argv[0];
 	int rfork = path.findRev(QString("/") + appName + ".app/");
-	if(rfork != -1) 
+	if(rfork != -1)
 	    QDir::setCurrent(path.left(rfork+1));
     }
 #endif
@@ -528,7 +528,7 @@ QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
 {
     EventRef tmr = NULL;
     int t =((TimerInfo *)data)->id;
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestTimer, GetCurrentEventTime(), 
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestTimer, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &tmr );
     SetEventParameter(tmr, kEventParamTimer, typeInteger, sizeof(t), &t);
     PostEventToQueue( GetCurrentEventQueue(), tmr, kEventPriorityHigh );
@@ -840,7 +840,7 @@ bool qt_set_socket_handler( int, int, QObject *, bool )
 #endif
 
 static bool request_select_pending = FALSE;
-QMAC_PASCAL void 
+QMAC_PASCAL void
 QApplication::qt_select_timer_callbk(EventLoopTimerRef, void *)
 {
     if(request_select_pending)
@@ -848,7 +848,7 @@ QApplication::qt_select_timer_callbk(EventLoopTimerRef, void *)
     request_select_pending = TRUE;
 
     EventRef sel = NULL;
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestSelect, GetCurrentEventTime(), 
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestSelect, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &sel);
     PostEventToQueue( GetCurrentEventQueue(), sel, kEventPriorityStandard );
 }
@@ -1242,7 +1242,7 @@ static bool qt_try_modal( QWidget *widget, EventRef event )
 //context menu hack
 static EventLoopTimerRef mac_trap_context = NULL;
 static bool request_context_pending = FALSE;
-QMAC_PASCAL void 
+QMAC_PASCAL void
 QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *d)
 {
     QWidget *w = (QWidget *)d;
@@ -1252,9 +1252,9 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *d)
     if(r != otc || w != qt_button_down || request_context_pending)
 	return;
     request_context_pending = TRUE;
-    
+
     EventRef ctx = NULL;
-    CreateEvent(NULL, kEventClassQt, kEventQtRequestContext, GetCurrentEventTime(), 
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestContext, GetCurrentEventTime(),
 		kEventAttributeUserEvent, &ctx );
     SetEventParameter(ctx, kEventParamQWidget, typeQWidget, sizeof(w), &w);
     PostEventToQueue( GetCurrentEventQueue(), ctx, kEventPriorityStandard );
@@ -1325,7 +1325,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    if ( nsel == -1 ) {
 		if ( errno == EINTR || errno == EAGAIN ) {
 		    errno = 0;
-		} 
+		}
 	    } else if ( nsel > 0 && sn_highest >= 0 ) {
 		qt_event_request_updates();
 		sn_activate();
@@ -1390,11 +1390,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    GetEventParameter(event, kEventParamMouseButton, typeMouseButton, NULL,
 			      sizeof(mb), NULL, &mb);
 
-	    if(mb == kEventMouseButtonPrimary) 
+	    if(mb == kEventMouseButtonPrimary)
 		button = QMouseEvent::LeftButton;
-	    else if(mb == kEventMouseButtonSecondary) 
+	    else if(mb == kEventMouseButtonSecondary)
 		button = QMouseEvent::RightButton;
-	    else 
+	    else
 		button = QMouseEvent::MidButton;
 	}
 
@@ -1525,8 +1525,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	case kEventMouseDown:
 	    if(button == QMouseEvent::LeftButton && !mac_trap_context) {
 		remove_context_timer = FALSE;
-		InstallEventLoopTimer(GetMainEventLoop(), 2, 0, 
-				      NewEventLoopTimerUPP(qt_trap_context_mouse), widget, 
+		InstallEventLoopTimer(GetMainEventLoop(), 2, 0,
+				      NewEventLoopTimerUPP(qt_trap_context_mouse), widget,
 				      &mac_trap_context);
 	    }
 	    qt_button_down = widget;
@@ -1545,7 +1545,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		if(QWidget *tlw = w->topLevelWidget()) {
 		    tlw->raise();
 		    if(tlw->isTopLevel() && !tlw->isPopup() &&
-		       (tlw->isModal() || !tlw->isDialog())) 
+		       (tlw->isModal() || !tlw->isDialog()))
 			app->setActiveWindow(tlw);
 		}
 		if ( w->focusPolicy() & QWidget::ClickFocus ) {
@@ -1686,7 +1686,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		unhandled_dialogs.insert((void *)wid, (void *)1);
 	    else if(ekind == kEventWindowHidden)
 		unhandled_dialogs.remove((void *)wid);		
-	    else 
+	    else
 		qWarning("Couldn't find EventClassWindow widget for %d", (int)wid);
 	    break;
 	}
@@ -1715,7 +1715,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    if(widget) {
 		widget->raise();
 		QWidget *tlw = widget->topLevelWidget();
-		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || !tlw->isDialog())) 
+		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() || !tlw->isDialog()))
 		    app->setActiveWindow(tlw);
 		if (widget->focusWidget())
 		    widget->focusWidget()->setFocus();
@@ -1730,7 +1730,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		app->setActiveWindow(NULL);
 	    while(app->inPopupMode())
 		app->activePopupWidget()->close();
-	} 
+	}
 	break;
     case kEventClassApplication:
 	if(ekind == kEventAppActivated)
@@ -1764,7 +1764,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	if(ekind == kEventCommandProcess) {
 	    HICommand cmd;
 	    GetEventParameter(event, kEventParamDirectObject, typeHICommand, NULL, sizeof(cmd), NULL, &cmd);
-	    if(cmd.commandID == kHICommandQuit) 
+	    if(cmd.commandID == kHICommandQuit)
 		qApp->closeAllWindows();
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
 	    else
@@ -1786,12 +1786,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    const EventTypeSpec eventspec = { kEventClassQt, kEventQtRequestContext };
 	    while(1) {
 		OSStatus ret = ReceiveNextEvent( 1, &eventspec, QMAC_EVENT_NOWAIT, TRUE, &er );
-		if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr) 
+		if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
 		    break;
 		ReleaseEvent(er);
 	    }
 	}
-    } 
+    }
     return noErr;
 }
 
@@ -1799,7 +1799,7 @@ void QApplication::processEvents( int maxtime)
 {
     QTime start = QTime::currentTime();
     QTime now;
-    while ( !app_exit_loop && processNextEvent(FALSE) ) {
+    while ( !quit_now && processNextEvent(FALSE) ) {
 	now = QTime::currentTime();
 	if ( start.msecsTo(now) > maxtime )
 	    break;

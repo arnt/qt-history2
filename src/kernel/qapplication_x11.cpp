@@ -3702,7 +3702,7 @@ void QApplication::processEvents( int maxtime )
 {
     QTime start = QTime::currentTime();
     QTime now;
-    while ( !app_exit_loop && processNextEvent(FALSE) ) {
+    while ( !quit_now && processNextEvent(FALSE) ) {
 	now = QTime::currentTime();
 	if ( start.msecsTo(now) > maxtime )
 	    break;
@@ -4354,7 +4354,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	    XNextEvent( appDpy, &nextEvent );
 	    if ( nextEvent.type == ConfigureNotify
 		 || nextEvent.type == PropertyNotify
-		 || nextEvent.type == Expose 
+		 || nextEvent.type == Expose
 		 || nextEvent.type == NoExpose ) {
 		qApp->x11ProcessEvent( &nextEvent );
 		continue;

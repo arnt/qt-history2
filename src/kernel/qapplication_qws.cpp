@@ -1407,9 +1407,9 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 #ifndef QT_NO_STYLE_INTERLACE
     if ( qws_screen_is_interlaced )
 	QApplication::setStyle( new QInterlaceStyle );
-#endif    
-    
-    
+#endif
+
+
 #ifndef QT_NO_NETWORKPROTOCOL
     qInitNetworkProtocols();
 #endif
@@ -2390,7 +2390,7 @@ void QApplication::processEvents( int maxtime )
 {
     QTime start = QTime::currentTime();
     QTime now;
-    while ( !app_exit_loop && processNextEvent(FALSE) ) {
+    while ( !quit_now && processNextEvent(FALSE) ) {
 	now = QTime::currentTime();
 	if ( start.msecsTo(now) > maxtime )
 	    break;
