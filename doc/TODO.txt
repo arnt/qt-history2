@@ -108,6 +108,8 @@ QDir
   Static function that will return the application directory
   Static function to copy a file
   Last error function to get the OSs error message as a string
+  Windows: read user's profile path from registry:
+    [HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders]
 
 QFile
   Last error function to get the OSs error message as a string
@@ -118,12 +120,16 @@ QTable
 QLineEdit
   Be able to use the "insert" key correctly
 
+QListView/QCheckListItem
+  Make check control drawing using QStyle
+
 Feature Requests
 ----------------
 
 QDesktopWidget
   report the "work area" as well as the screen coordinates.  I don't know if this
   can be done on windows, and on X11, this is almost impossible.
+  Add signal that get's fired on resultion changes.
 
 QFileDialog
   Make the combobox like on MS-Windows and add additional
@@ -165,6 +171,8 @@ Keyboard control of Widgets
 	In Listviews user can press "Ctrl+NumPlus" to auto
 	resize all columns in a Listview to best fit size.
 	The keys "Home" and "End" are working in ComboBoxes.
+
+  Support Multi-Media key on enhanced keyboards
 
 QHostAddress (rms)
   (or another network class): it would be nice to have a way to find
@@ -339,6 +347,19 @@ QListViewItem
 QTime/QDate et al
    A customer (Uni-X) asked us to make the date and time values be stored platform and timezone 
    independently when streaming.  See support/arc-20/40239 for more.
+
+QKeyEvent::state()
+   Allow to distinguish between left and right modifiers (leftshift, rightshift etc.)
+
+QVariant/Properties
+   Synopsys requests QPen as a type.
+
+QListView
+   property bool drawBranches.
+
+QComboBox
+   updateWidth() to be able to bypass the cached sizeHint. cf. support/arc-14/29995
+
 
 New functionality
 -----------------
