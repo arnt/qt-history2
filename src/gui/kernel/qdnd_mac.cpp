@@ -183,7 +183,7 @@ static void qt_mac_dnd_update_action(DragReference dragRef) {
 
     DragActions currentActions;
     GetDragDropAction(dragRef, &currentActions);
-    if(currentAction != macAction) {
+    if(currentActions != macAction) {
         SetDragDropAction(dragRef, macAction);
         QDragManager::self()->emitActionChanged(qtAction);
     }
@@ -370,7 +370,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
                            qtAllowed, dropdata);
         QApplication::sendEvent(q, &de);
         de.accept();
-        if(!de.isAccepted())
+        if(!de.isAccepted()) 
             ret = false;
     } else if(kind == kEventControlDragLeave) {
         QDragLeaveEvent de;
@@ -384,6 +384,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         QApplication::sendEvent(q, &de);
         if(!de.isAccepted()) {
             ret = false;
+            SetDragDropAction(dragRef, kDragActionNothing);
         } else {
             if(QDragManager::self()->object)
                 QDragManager::self()->dragPrivate()->executed_action = de.dropAction();
@@ -418,6 +419,9 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         DragActions action = kDragActionNothing;
         GetDragDropAction(dragRef, &action);
         switch(qt_mac_dnd_map_mac_default_action(action)) {
+        case QDrag::IgnoreAction:
+            found_cursor = false;
+            break;
         case QDrag::MoveAction:
             SetThemeCursor(kThemeArrowCursor);
             break;
@@ -582,10 +586,14 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
         result = TrackDrag(dragRef, &fakeEvent, dragRegion.handle(true));
         qt_mac_in_drag = false;
     }
-    DragActions ret = kDragActionNothing;
-    GetDragDropAction(dragRef, &ret);
+    if(result == noErr) {
+        DragActions ret = kDragActionNothing;
+        GetDragDropAction(dragRef, &ret);
+        DisposeDrag(dragRef); //cleanup
+        return qt_mac_dnd_map_mac_default_action(ret);
+    }
     DisposeDrag(dragRef); //cleanup
-    return qt_mac_dnd_map_mac_default_action(ret);
+    return QDrag::IgnoreAction;
 }
 
 void QDragManager::updatePixmap()
