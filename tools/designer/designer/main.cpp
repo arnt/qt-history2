@@ -167,7 +167,8 @@ static void exitHandler( int )
 
 static void crashHandler( int )
 {
-    MainWindow::self->saveAllTemp();
+    if ( MainWindow::self )
+	MainWindow::self->saveAllTemp();
     ::exit( -1 ); 
 }
 
@@ -179,7 +180,9 @@ static void crashHandler( int )
 
 int main( int argc, char *argv[] )
 {
+#if defined(NO_DEBUG)
     signal( SIGSEGV, crashHandler );
+#endif
 
     QApplication::setColorSpec( QApplication::ManyColor );
 	
