@@ -24,6 +24,10 @@
 #include <qtimer.h>
 #include <qurl.h>
 
+#ifdef Q_OS_UNIX
+#  include <unistd.h>
+#endif
+
 Q_GLOBAL_STATIC(QDnsAgent, agent)
 
 //#define QDNS_DEBUG
