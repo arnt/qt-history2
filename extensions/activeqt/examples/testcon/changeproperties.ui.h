@@ -68,7 +68,11 @@ void ChangeProperties::propertySelected( QListViewItem *item )
 	    valueString = fnt.toString();
 	}
 	break;
-	
+    case QVariant::Bool:
+	{
+	    valueString = value.toBool() ? "true" : "false";
+	}
+	break;	
     default:
 	valueString =  value.toString();
 	break;
@@ -127,6 +131,12 @@ void ChangeProperties::setValue()
 	    }
 	}
 	break;
+    case QVariant::Bool:
+	{
+	    QString txt = editValue->text().lower();
+	    value = ( txt != "0" && txt != "false" );
+	}
+	break;
 
     default:
 	value = editValue->text();
@@ -183,7 +193,11 @@ void ChangeProperties::updateProperties()
 		    item->setText( 2, fnt.toString() );
 		}
 		break;
-
+	    case QVariant::Bool:
+		{
+		    item->setText( 2, var.toBool() ? "true" : "false" );
+		}
+		break;
 	    default:
 		item->setText( 2, var.toString() );
 		break;
