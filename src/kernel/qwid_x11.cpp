@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#178 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#179 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#178 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#179 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -60,29 +60,18 @@ const uint stdWidgetEventMask =			// X event mask
 
 
 /*
-  Internal Qt functions to create X windows.  We have put them in
-  separate functions to allow the programmer to override them by custom
-  versions.
+  The qt_ functions below are implemented in qt_x11.cpp.
 */
 
 Window qt_XCreateWindow( Display *display, Window parent,
 			 int x, int y, uint w, uint h,
 			 int borderwidth, int depth,
 			 uint windowclass, Visual *visual,
-			 ulong valuemask, XSetWindowAttributes *attributes )
-{
-    return XCreateWindow( display, parent, x, y, w, h, borderwidth, depth,
-			  windowclass, visual, valuemask, attributes );
-}
-
-
+			 ulong valuemask, XSetWindowAttributes *attributes );
 Window qt_XCreateSimpleWindow( Display *display, Window parent,
 			       int x, int y, uint w, uint h, int borderwidth,
-			       ulong border, ulong background )
-{
-    return XCreateSimpleWindow( display, parent, x, y, w, h, borderwidth,
-				border, background );
-}
+			       ulong border, ulong background );
+void qt_XDestroyWindow( Display *display, Window window );
 
 
 /*!
@@ -293,7 +282,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( destroyw )
-	XDestroyWindow( dpy, destroyw );
+	qt_XDestroyWindow( dpy, destroyw );
 }
 
 
